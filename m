@@ -1,82 +1,81 @@
-Received: from mail-wr1-f49.google.com (mail-wr1-f49.google.com [209.85.221.49])
+Received: from mail-wm1-f53.google.com (mail-wm1-f53.google.com [209.85.128.53])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C7EBC2E6CB8
-	for <linux-input@vger.kernel.org>; Mon,  8 Jun 2026 06:37:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.221.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0517632F765
+	for <linux-input@vger.kernel.org>; Mon,  8 Jun 2026 06:41:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.128.53
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780900674; cv=pass; b=smat9PElgWCHtMDt1SUMe4EqNNkQ97EoIJqrYiQqWigFFLluD4N0K8YaUYcny59KX/bXw2yYgOq8zI8YdLAMCukwHJiWQ+2lUModjtq0QmvrT4mgTDHJlfTyIurkYUbaGveYxFpeTS0Z+xnO1XzC7joQ7m6cmk9Ormkt770orys=
+	t=1780900880; cv=pass; b=ptIqN63pRdkcf+yQ/OwklxVJ5Jw2ClQ5tloX22bSqSK8f9kD18IoXSY6Tf/P2nYPOduEaydJd+q9nyeulHKA4y15V+jAiF25NPq4bUsEgKTfSF1B6/4IHsJsWcB031bpPQivHl7oaHiC62nayHj9MyZNXhVuI0BM2kqbIjiqGo0=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780900674; c=relaxed/simple;
-	bh=d+7HRtyYqdFzBtS1neiX9IXySF06zJJr+dw8DDKfF3Y=;
+	s=arc-20240116; t=1780900880; c=relaxed/simple;
+	bh=OQM/JImcjfi7wjn+4RAr7hfALL5l2/w4sROJP8Xbv6s=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Rfbb9WnnPiL4RlzJI7nCFMMybesAwda+LbaaUdCNaL3FiQze4e8dlmDb/1VmowcpKflkMO1KXjWtCDAely1HuiNNZnF22YIwArIvazuEe/Hhuleocu2jALWKGyOIKyi/P74yhDinFcHkJxw8w425vAtTcqFctsdln0CPWe02+sg=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=habRMzhe; arc=pass smtp.client-ip=209.85.221.49
+	 To:Cc:Content-Type; b=BKg8DA+RMVRu9Q3lpsVvR4sNrNx2O6G/4pnQ6bfI++k6rgLt3vISqoH0KiiuLUswVUVpA+lwL9adIHL0tRIGjCrbpDrs7YCSW0L4yXLpjhlyUasG3gFO6/zNhYa8+kKhDNomrLaLfEnWB/CAi7Ixk8mdE8Uo/7CFmoJ3asn31sw=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=QmAG50nz; arc=pass smtp.client-ip=209.85.128.53
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="habRMzhe"
-Received: by mail-wr1-f49.google.com with SMTP id ffacd0b85a97d-45ef56d9b67so2979597f8f.2
-        for <linux-input@vger.kernel.org>; Sun, 07 Jun 2026 23:37:50 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1780900669; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="QmAG50nz"
+Received: by mail-wm1-f53.google.com with SMTP id 5b1f17b1804b1-490c1915793so22582535e9.2
+        for <linux-input@vger.kernel.org>; Sun, 07 Jun 2026 23:41:18 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1780900877; cv=none;
         d=google.com; s=arc-20240605;
-        b=Z2NxcLbpGMnG6VUs818DoPb/fQzSl4d6BdIBiRVAMCbudR6NZJqkCcV6/tKhat6ObC
-         ITeE4Ecqtq638qkc9kKjjVnWMUTCY/52wmF60E1pQ34yClkKMWLD9SFuJHYtptmj78Hs
-         dMUAW0RqvVeQhywtkUzYQxhhJguCmB65ydK/Goia/7YAdrqeIJath0XnxscuYqhmer8A
-         xcRUU0ZlJ7lXF0lnFNT5ZbSyl3VzuiSwRJbM9LTWnrdiuM3KFXcvPCTmnoh2GUtomnbx
-         F4qf8TBXsZeEU1yzskNTdj8IMvtBMmoxd7R/4TZ8wfYnOhfCJlngM2+7mv4iO2MERVDt
-         MZ5A==
+        b=P0TwITAE2noJsxG1BBS1DyKw7IEt7wZfzjTN+G3GcjoRBXJdblKZnWnYh8iUH9TPzH
+         Bn0Pb0ZNVq0Ksqt2a35sJWC5oQk7PLO+QVQSz5AieDIsrxxyfVwRZsqF36Yfo3joRHPV
+         qnWr+YDPqNv8UDf+5TFC7srTe9XDtbeEVNJLZboqi/JSgGSBtJyA60hVEayEuHFqwXAn
+         i3X/3z88TfmW7iXU92GZTqFLZuZuqlxjKj4xwqcTAdzDzbvVYky6DzioUB5AFBA2O6qO
+         fDjY9OMdSTsN+OiosgdvA/oLyUsoV6O72TjcEzJhzA0yRtWpmAwFfMXlDr5a/6eP5KOR
+         2PoQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=0bsD5XzkqH9HS6v4E56vm71811Zbo3EsaNP+B6BGR60=;
-        fh=hXmmo5m8VNgknQ+cWF5h/QNZoH3qTaaY26gA0+fSBU0=;
-        b=WYxsRkj2DNWSj9wHQymmJNLtC52kXvXcANts9gddmbFRqbM3gwABSxDQ1zLbu+Hk+/
-         k6nNJeq3QED7vKDtr90RAQx/O/5bzWRGIszVKt1B92jvVXmcgrUQ9UxoWpIsa9rFhE8o
-         G6UYaKsFBxVrhcoCL9TLFB0fGKkNTfrIOt4+xWmRxctJHOVPm+Lb6UB+zwGkhxUbnXqq
-         Nk4af9YO3dy5dEOEA/9qkDUbvn603HFtwuHQHFSBCX9yfBWCUxfob3TSw248Yd6Lx7Bf
-         2n40HiUfSguuPUAi6ea5gO9X/nd6JdMbAvXtNHQsuUANyLAy56kcr66xQIDHHq437HZ9
-         xIpA==;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:dkim-signature;
+        bh=X0TaOt7Y/rToPgZKPJf/wU2SzirryT8Q6bE6xjghko4=;
+        fh=XK+Z+4XQ9f0xzi+QH/n7PYPNngsoj1sw83l1C9geJu8=;
+        b=KUe7FEkTKP3iw4bOMWY5QKej2EnvfTEKVvExIMt6m4XHUsqhR4IrW9XKZx14NtaiLT
+         BN+Mz7EBj2uQ60nP1P6RXu1tp5CWWXAyAyz1lZT2ekpBcrLPoFqYLNnV5euQ5LXQJJ0l
+         txmjUcRwQ0hbubkzqkHqjKrCts4/WRMKwPFOD/BpGRZpqiwtsrpQlGFgq/ixKy15zTvn
+         G4xToJLwJoyFSfWVCTiPptXaLDOVQI6yMs96RPlqOU/hvSjq4lvV/RDPBG5IcJwEdHnt
+         nEOxbAz3acxOj5Xfq6yx12MlMGgCF90GaeE6B3qdRDQ+YCH53aPxsweke8q4kENkk+6d
+         iI4A==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1780900669; x=1781505469; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=0bsD5XzkqH9HS6v4E56vm71811Zbo3EsaNP+B6BGR60=;
-        b=habRMzhedKIOMTWtRlhcn2bO6lpJ5XAhCg0USEDq8eCC1ONO+eqgbHLT77fQ6+TeJx
-         t4yQPjxcr78KLICddqMTG6p+vjEkXYyaHKYx1jM2yc1s49m36ILYgCuUhG4chZW7GnAj
-         iXnlIuHgiW5FCJqpj4Yq+fHxTW1Zc6sOt1wwJBSJq2LOiUUppOtlpWPjH1lKaojflNQ1
-         Um2sH0nuypWgHrqr4zzLe6ZWsENsKiwn4eRipwj9GWvoWqNt5ZcoAV1qbTpHVJb4U5zw
-         OGEjGxiqK0Qk0fPKEfabeM7Z5gQYYBJqcCaXCZDt9FQ1BC7VgcaOJiWg3syOEhrwLYen
-         fMAg==
+        d=gmail.com; s=20251104; t=1780900877; x=1781505677; darn=vger.kernel.org;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=X0TaOt7Y/rToPgZKPJf/wU2SzirryT8Q6bE6xjghko4=;
+        b=QmAG50nz/M9yYl3c9417dWgUDXkoEY2kppsMO4BL6CjqCHOOkr19dh93S/hwB3l3RY
+         ioI7Af0aqZzludJp8OwmFKzVJi6R3Bk25BdGOtryDLyjZ0HVqIey3Qguol8/zIOmQzv1
+         0WfheI8eiDrW6Khaoqp3amDlVLo4EKQocJj/G4P2gqXyAXpTYyB62D5V5ELquXR+rqlo
+         LukXM7ca9mD/lycW7f0gqoYcfVrj7PS55cXNy+c4c1mWilH89xWMHI/8q8xJ/PFY5bSx
+         uuWCaj7yaYNJPuL2HGFyzGc0Mqk6OTlKb/jfGtLfw5De5vl0WBZd83GLG6Q1tGprHqvV
+         SdsA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780900669; x=1781505469;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=0bsD5XzkqH9HS6v4E56vm71811Zbo3EsaNP+B6BGR60=;
-        b=p0wldMDK14P0OFgSdsLvB+IUNvoL92jQ/5muT98uXKJFw5AhcIQ6XH0jnHmXGEwf4H
-         fzj7eRop6GmSmuVqumO7g5PhLtE8aNOWv3qxUzkEJ2zkc3Dfi3FL3gRIBcQl58Sfo7Dc
-         brCFLN1EyRO3VK+ezEIGxcgaPc08pCoezCmKfp8yeO5zi8GKZGUWTT19yJHieoR0FjDw
-         fejykrEghL60DvC9eW2mOnrtTHMY4UiX4oFoUV7BcEuW7obUmDOIT+ndunPAWOHrXQ3y
-         8ukOAAefbzYNRtlqYF4jiVSnUKcXxslNxDSBEDuaa3EMHPhgODucWaRTQ11bA0XP8t3W
-         p2ug==
-X-Forwarded-Encrypted: i=1; AFNElJ8qXjBm+9QDhj9FOyutfmfwWnA5dTEC/4AtzXbMwvmJEEttzzUMkYntTow+TOZhzvGo8t38ufkwu5JgHw==@vger.kernel.org
-X-Gm-Message-State: AOJu0YwdVX/o3BC10dR7MTJ9niduGRQ32Orv6t9Zt1wUquhGwtFqWHVw
-	4pGOho3RJpK/TztAVw8UWj3dSiM53ItE0U+DoYXulLOMtmc8xRE1DhZehbUB7GjfUnwZGgtaclb
-	byKH47jsSmbCSWYDf+Z3W07iGSGegvEU=
-X-Gm-Gg: Acq92OHEVSFPVbuKYn/n1a791pY0oIms1Epm91c42n21wy41Dblygog/b94UU3ZL2yk
-	6i8MF773wvIppNOxmL4CfR/lEz1HSvAvHj7JXDavHBGXugplCy9Tv9vq4nsKg5sj3WuRRpQL4Mj
-	uT6UNjDZhlq3a31YcFXXTcwFIOrp/aZ+qDFrub9xNTdHkTkLv5GdGNRflriaP+68ajW3Q6+MA2b
-	OFQFfHdlXw7IVs6xZ+jQ2xnoL5zqkEQfR5tgq2ju7+LqMV4wPYBCOoJTp5WvWOWXN28YuNGw7Ho
-	eSs89tDXdb2XFdK/jK/C40wh2Cgq1u4IvPfGA6KbgtxT6fzn2thTledMJX6n99vd7hxKm3F4xmD
-	nkGu4Dhqt/8eZm93KjaEfK3KlVEj+gG1acGoh+pwAiao1t2wmQSOtY7x/MGdGHqsGIrvpdakbNj
-	nGi6aiw58mzj7MeGxKCcGuQBzuxTQ=
-X-Received: by 2002:adf:f788:0:b0:460:e00:121b with SMTP id
- ffacd0b85a97d-460302e8136mr16260899f8f.15.1780900668795; Sun, 07 Jun 2026
- 23:37:48 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1780900877; x=1781505677;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=X0TaOt7Y/rToPgZKPJf/wU2SzirryT8Q6bE6xjghko4=;
+        b=QUoTxZRexFI5fBEhzPfSv135FHUwZTkeQpnYtAdndaxdwHJNDz63t66OdyP+iIZc86
+         U7um6QZzzizfpkxFx/07toRi1zfpNDoZzlP1btyJn5LzAX+L8zWd8TXA2uEts+7pF159
+         vfbqMJIxrBeI8U7JnFFoAJAIo4OArt68cBc4d1ubQS4js49r/nlhTZoKah8NkVupj+DF
+         vgmr+4of0YhIqZOISjM4bKnqdOO3KJkIEFsestC+K6yOLTdXQMNbJjg8qqmWoPWeDqyn
+         E4CmZWKGOetlnj2yR9wtmUJVmu+6B0he5QEp5WRifaOu+5A813KObrnM0UPIpoEh05m0
+         E8qA==
+X-Forwarded-Encrypted: i=1; AFNElJ+dIXdDXqePHtV+srMzpv9zadLtGXin6q7aGhlliSWMhAuA9eGgM/NdzaTKzucBKmcVMa/oQcGe5S8UTA==@vger.kernel.org
+X-Gm-Message-State: AOJu0YxxgwTY1W9XKTZumEs4n0lWBSY0cKPBDKF7Ju1eI3LeeC7K9jmG
+	5cWd/bj/HkYDrwKxqjTzlowarnnYz8pCIstUAEbFKOWDgStnhchj3G1tlF0XkJ/JkjnY/6lf/6T
+	3Geid8bhiJRrBBgTe223vqDlcUMW1DzE=
+X-Gm-Gg: Acq92OHSf4l63HhBMwWnGLTIZXh5b/XdLydLR5R+LfLGFMw0KXaoZEW2iO05SUl/PM9
+	78ov33ElghUj788REwz08GwTIApug2V6kWtX5mPZVPLQ7RqpbiHXSx6Lqfh4sUQHTJlfBKcr5jF
+	TOdguQrqvoFTHHknyN6t8jgAwoEER2nPfGMiv5lyXDEIzZ4+RRP90NuOL8SMLYZAuEojQ28/5D0
+	8GX6nEHy9lmWRVXqKx7JwCgXhf0kwB4Kf+MHvz69Kvh12cMYbkEY702lQa29icEUoDoJ/aeA/iD
+	ZyXrpKE5aI2Hw6yWQR1/AwN7SNkEkkJppq80fX1dQyyehrpR0xbKoRkgR6rNgy0O/cY4mL3KbuJ
+	irf5p0jUYoaEbmGNKRENm57WAC5kAmqpDyAI9xHBWHPpDXr3at9hDXzjGOCvWDeIyiYIJUiq8s9
+	dSVRKyvyMvRjtQYgeF
+X-Received: by 2002:a05:600c:1d12:b0:490:7227:100 with SMTP id
+ 5b1f17b1804b1-490c26049a0mr234289415e9.18.1780900877418; Sun, 07 Jun 2026
+ 23:41:17 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -84,57 +83,51 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 References: <20260606-6-june-hid-iio-correct-usage-id-v1-0-dd4a6820b674@gmail.com>
- <20260606-6-june-hid-iio-correct-usage-id-v1-3-dd4a6820b674@gmail.com> <CAKqfh0Efa1+VShSW76tqaV8XtAZToRfsCy0cTi5sXOUm_nwLiw@mail.gmail.com>
-In-Reply-To: <CAKqfh0Efa1+VShSW76tqaV8XtAZToRfsCy0cTi5sXOUm_nwLiw@mail.gmail.com>
+ <20260606-6-june-hid-iio-correct-usage-id-v1-3-dd4a6820b674@gmail.com>
+In-Reply-To: <20260606-6-june-hid-iio-correct-usage-id-v1-3-dd4a6820b674@gmail.com>
 From: Joshua Crofts <joshua.crofts1@gmail.com>
-Date: Mon, 8 Jun 2026 08:37:38 +0200
-X-Gm-Features: AVVi8CfkKlRFRJBh56MXA_FqtKn30QLFIKFh5-Mn8VxrGfwUQDE_y-9rmO4m1uc
-Message-ID: <CALoEA-yiDwjkKxUE3B=qiTdBhbvinfq-UN8h1H-HysXGm0prSg@mail.gmail.com>
+Date: Mon, 8 Jun 2026 08:41:07 +0200
+X-Gm-Features: AVVi8CdSwGkE7drW8dMoDRs5NIyQb5y_X45ROHHEWLYjV4XMOXGvV8vHbLCYnWY
+Message-ID: <CALoEA-yasQhXE9o-iYL5h8w0wPMrP4f-iva-YOJ2KZV9UuGe3g@mail.gmail.com>
 Subject: Re: [PATCH 3/7] iio: light: hid-sensor-als: use u32 instead of unsigned
-To: Maxwell Doose <m32285159@gmail.com>
-Cc: Sanjay Chitroda <sanjayembeddedse@gmail.com>, Jiri Kosina <jikos@kernel.org>, 
-	Jonathan Cameron <jic23@kernel.org>, 
+To: Sanjay Chitroda <sanjayembeddedse@gmail.com>
+Cc: Jiri Kosina <jikos@kernel.org>, Jonathan Cameron <jic23@kernel.org>, 
 	Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, David Lechner <dlechner@baylibre.com>, 
 	=?UTF-8?B?TnVubyBTw6E=?= <nuno.sa@analog.com>, 
 	Andy Shevchenko <andy@kernel.org>, linux-input@vger.kernel.org, linux-iio@vger.kernel.org, 
 	linux-kernel@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 
-On Sun, 7 Jun 2026 at 22:54, Maxwell Doose <m32285159@gmail.com> wrote:
+On Sat, 6 Jun 2026 at 14:19, Sanjay Chitroda <sanjayembeddedse@gmail.com> wrote:
 >
-> On Sat, Jun 6, 2026 at 7:19=E2=80=AFAM Sanjay Chitroda
-> <sanjayembeddedse@gmail.com> wrote:
-> >
-> > From: Sanjay Chitroda <sanjayembeddedse@gmail.com>
-> >
-> > Prefer 'u32' instead of bare 'unsigned' variable to improve code
-> > clarity and consistency with kernel style.
-> >
-> > Signed-off-by: Sanjay Chitroda <sanjayembeddedse@gmail.com>
-> > ---
-> >  drivers/iio/light/hid-sensor-als.c | 6 +++---
-> >  1 file changed, 3 insertions(+), 3 deletions(-)
-> >
+> From: Sanjay Chitroda <sanjayembeddedse@gmail.com>
 >
-> Do we *need* u32 though? Usually these types are for places where we
-> require specific bit-widths for a reason (e.g., reading a hardware
-> register) but I'm not sure that's the case here. I could be totally
-> wrong, in that case please correct me but otherwise I unfortunately
-> don't see much value in this. That's just my personal opinion though,
-> Jonathan may think otherwise.
+> Prefer 'u32' instead of bare 'unsigned' variable to improve code
+> clarity and consistency with kernel style.
+>
+> Signed-off-by: Sanjay Chitroda <sanjayembeddedse@gmail.com>
+> ---
+>  drivers/iio/light/hid-sensor-als.c | 6 +++---
+>  1 file changed, 3 insertions(+), 3 deletions(-)
+>
+> diff --git a/drivers/iio/light/hid-sensor-als.c b/drivers/iio/light/hid-sensor-als.c
+> index d72e260b8266..ae2fda8dc500 100644
+> --- a/drivers/iio/light/hid-sensor-als.c
+> +++ b/drivers/iio/light/hid-sensor-als.c
+> @@ -241,7 +241,7 @@ static const struct iio_info als_info = {
+>
+>  /* Callback handler to send event after all samples are received and captured */
+>  static int als_proc_event(struct hid_sensor_hub_device *hsdev,
+> -                               unsigned usage_id,
+> +                               u32 usage_id,
+>                                 void *priv)
 
-Aside from the array of usage ids that are u32 defined here:
-https://elixir.bootlin.com/linux/v7.1-rc6/source/drivers/iio/light/hid-sens=
-or-als.c#L46
+Code-wise fine, however looking at this function, usage_id is never
+actually used,
+though not sure whether removing it would break the ABI... up to you
+to check it.
 
-there are additional structs used in the HID drivers that take u32 (I
-had a similar
-patch moving `unsigned` to `unsigned int`, but it was recommended to use th=
-e
-types that the structs use, hence u32).
-
---=20
+-- 
 Kind regards
 
 CJD

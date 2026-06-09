@@ -1,122 +1,266 @@
-Received: from mail-pl1-f175.google.com (mail-pl1-f175.google.com [209.85.214.175])
+Received: from mail-lj1-f172.google.com (mail-lj1-f172.google.com [209.85.208.172])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 35FDD40BCC9
-	for <linux-input@vger.kernel.org>; Tue,  9 Jun 2026 22:25:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.175
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781043959; cv=none; b=ViQ0UKrndGYgzetokp9g/zePdRQyn0SwViNoYbCpLbbP3tv5kncnYiBXXVpN4eCj0forz3j/QAeBXHF/AQNDXS2g+4dgBPBCqMVbxdLzr/rxomVJJWPEEYjY9wuVnekemq7lCsmbrg/O6gWg1GNXywhHgd+pe/ml3WKF8pk4IaI=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781043959; c=relaxed/simple;
-	bh=gC5RijoMreJ37E+ZXnO6sSCfWOZUThbmrEidBKcTv9A=;
-	h=From:To:Cc:In-Reply-To:References:Subject:Message-Id:Date:
-	 MIME-Version:Content-Type; b=TzESouch8sXGszTsBnOnvngi/4eQ0NmiwsP8baQ4V03KuL66H3i7BE43ZUD2BTR0kr53aVXYKX4la9zRm3DeZm8pJmeGkgGbbY/3sOHS0RRyKCEn+0diA1oEERAf72pXgcoYxlr2mxydmYmY0qyj7/2osY8UDg39cKjy0WcEaM0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com; spf=pass smtp.mailfrom=baylibre.com; dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b=Ckt5g5mh; arc=none smtp.client-ip=209.85.214.175
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=baylibre.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6E8123ED5AC
+	for <linux-input@vger.kernel.org>; Tue,  9 Jun 2026 23:06:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.172
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1781046364; cv=pass; b=j4TrtYdCw+36RYUiRtHGyljCiZp4tP//SE4y+qHPYwWc/jTneDPOJi3A5Eiya0kTilBfirMrBFhdEY5h8oq+NFOIdCcHjuejHN7moY5Zuspx6ND5p2CFbkVfcRfxD2gAlAIYQLt0ezOKPHFIOJftkGByvObiAdsDwYR9ZpYF/uY=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1781046364; c=relaxed/simple;
+	bh=eP8aHE2i79nL41i6V2Jy0Kv0JsteCe392JNrRMHs+x0=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=nk0q3Z5ObmUWZ2b9hfmnVlDVbWArkOIDmtgAxYphBb+KMT7U3tqwtvn4znblB00c+bkfS/wJp30DFBTKU2EZeRDaF1HlZ9khkrunfgH+4aiNcA5U4d+xX4nnzKDf3ZjR7gLKVy8JUTrHJkVEiQFpjV4CTEAi6B//0gDjobTkWb0=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=BAH1lcdg; arc=pass smtp.client-ip=209.85.208.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b="Ckt5g5mh"
-Received: by mail-pl1-f175.google.com with SMTP id d9443c01a7336-2bf22d29dabso40821525ad.2
-        for <linux-input@vger.kernel.org>; Tue, 09 Jun 2026 15:25:57 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="BAH1lcdg"
+Received: by mail-lj1-f172.google.com with SMTP id 38308e7fff4ca-39697a4e16cso58010801fa.3
+        for <linux-input@vger.kernel.org>; Tue, 09 Jun 2026 16:06:02 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1781046361; cv=none;
+        d=google.com; s=arc-20240605;
+        b=BAkf0Iue0N6i8bXnbXGnMPR9+tKhYOZTIjrQK8O1BixRn/I5AyT8Po9goYKa4Lu8Ir
+         K9IIl6OgStRqhVs33sImgaO17Zwswll4RgGjeEGWNtEarN/g88RDgthbriHSuDXAvG9i
+         dkNksnwmFgq97Wd8Ms7ufDwKVrIsQgtVy2Wmk9YHx+NcqqjQiQgjqnRIX1nkzjoic0Tg
+         Iv17/+ZuCCt91fkZoSX631cpWXQYKAE4qrNFErUvUXeXOdLXa1iYXxHR+vdi+wc9yjjG
+         8paCSViY79+mS+VLsaxoyOzLNVcjaSiX3yI/FfG/mYccVrKCKzAN0w44nh8iNAqbcV5b
+         MdQQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=Agtfhe+WClJsFdENh+WmY0xqAJXLc4EKjDj+0hTX6jk=;
+        fh=30aFSaQRn4WTFjJBhbPzbjDgj+qdePolAgWMnkmu7QQ=;
+        b=dFvlYhNTcvn+MrAY28a8v9aLdY4RlXBwqqrz4LXzG9lcZ0TfDU2wQkDzGXp4FNO/45
+         O6SV21/072vRfOJfZnKSg6479rz7fGyjImeMxfWB3icFNgIyVFUaptER7vm95bs1YGq1
+         YAEBWl87qjRql62ndoUTqV4+4/ZxcwyyADhrN67ZYJ1x7nacpmgmiWVRHE0UZwQhD5Ru
+         ySk9DepCS7h3rZ/Dpt4y2ryCCMsCJYut3IxU+/f3PIEN1h1l+cqoq7auhK8TFzt5DA6r
+         g/Jo4iX0oRw/sNAdCMizEQa4GGfiuSdsothrWZYus7c7UcCDAAy83l74pJNjHtSQVLc/
+         0U1g==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=baylibre.com; s=google; t=1781043956; x=1781648756; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:date:message-id:subject
-         :references:in-reply-to:cc:to:from:from:to:cc:subject:date
+        d=gmail.com; s=20251104; t=1781046361; x=1781651161; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=6D7duqRcD3fdsTRow2UhPRWiLjw5TIDW3U11ZLjAtzg=;
-        b=Ckt5g5mhS8YR2cizTWbJ5Fwk8gGj6VebB+0OEJgvf02706OxaHIh/MLoWUZkdc8W2v
-         tDVO9ou14uqgirHWrZKF4TT22SL8Kw6c9cIfwgHoNv09ym9tEccqMSP/b5lQeWoqDES9
-         4Y/1fE4bs5q1c26wMjvtkzwBbmD6R5ZssJo+Ql4XeIs+Yw9IhdJtj3WObSFvTKV2NsRh
-         KdAHyJOP9ZzIAXpBIl9bEt8fkARYApQC8HuCBb+LFcyPHM7jM2nhfg7jU3w/egVF/fFg
-         eqBE7VWfKHsswmA0XGrVNRgAu6OAU+Z/4WuvEPeIm2Pew6bt4mI47RFHA/Njj5qWoKdw
-         N24g==
+        bh=Agtfhe+WClJsFdENh+WmY0xqAJXLc4EKjDj+0hTX6jk=;
+        b=BAH1lcdgCt6IO+ZO14Ki76kLmOhRlLC2ePoGskAFk0szoVeCW23bhbI7UhyeGr6E7u
+         PcnRdcFzt6N2Zr7KzUO/6r9Vz38mKmpZPF8KH+vwZSZWNOtjKwmVVaUijyduGv5apPOf
+         +o5ZR5ufSGEOYRgTkWEBwgDcIBMVbN2L6tRZR5oi6qSS21v7hYE9qr/11WNgSm9Iuot7
+         pI99jZyFB7kb1Rwt9/oLYieIBNfwEfYrik+o10wqKuLkvM/55zK/mKfIRwPicjOad2uS
+         jvrzCmT98g+TKStPPpUyHn5/rtqLfQG+nAnRsctcqhYMo3IsP4gdnvNBTFqHb0zkyM11
+         pbag==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781043956; x=1781648756;
-        h=content-transfer-encoding:mime-version:date:message-id:subject
-         :references:in-reply-to:cc:to:from:x-gm-gg:x-gm-message-state:from
+        d=1e100.net; s=20251104; t=1781046361; x=1781651161;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=6D7duqRcD3fdsTRow2UhPRWiLjw5TIDW3U11ZLjAtzg=;
-        b=rdzf302wHrEf25LKgcv0bPAHaJhDAFQoEWMmglGTAiECDNZLibUQfiHCCSa30ytWv4
-         iI1LDHJRrgupEVsuTLOqcbanYAWrQUFGZPovWYNdrbd49ATBvvxjF+Hb4xnXm1oaIzP0
-         Zc6f4XJz9ZfutI8gjDGvwsp4NaP1ucuweKnNP3sDpF8BAr6nwvqIAH+JQXmdecMPLQ83
-         tGF9owJj6tngUm0JEg7mBr+7qoIDYMmZnBih9wrIFl+H1d6NwR6yInQcFXZE+1rUVA9P
-         z8lOsFAeXgDAwCxCR1O5Qvr++eRukSa+6Yu2tbgZGuXouy9mFHdvBqC9lkL5xqpu+GtX
-         eO7A==
-X-Forwarded-Encrypted: i=1; AFNElJ850nmf+mV/32yloVG8yaNYuSr9y9ixiMK+5dDahJYE327ABDKegCOEVXxZ2SYZ9cCl+Sy6SIfVJQ4Fpg==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yw+4Ct0XB6F/AfqeKyJd9LpYUXlhtx+Qca/T792OliTcDPW5JdD
-	f9ZTmn425zUUJIXyXauZPHlXEi8SHHNZmfrGiqsgkaxu0cKC35G03VAsN+qgmllduLo=
-X-Gm-Gg: Acq92OGP6Ms1aFh6nKJ7d5y62QdlDWGYyW29yrJM7BijekQzgnvYz4vatKcAn+Dj9s3
-	6ThKyoYvPSiIhAFoV0qLBzfCdQW6Ay9AyIS3I5u41vr1Bsvk+0j6Lqi66uSmzCWbntAhbFUBtks
-	dNpCcVYjGIkRIzjhEbJO2WbfOilTZdQNrEicXmmZWPz4rfDq+XIp4CaTGurFyDN9GE9hAuBf1Uh
-	ONwd7Z5viT14lhDjVdJefLcanGJoz3x5xGRJzBZuhOGZWnLJUbKG6BagCmpFIOakGlkmzgAMU3E
-	9wDiAuhPOCiIaAGbrAe1N2goe/ILevWyjmSnm1Wbqy3grInmgxv6TMuhF1FbCmelP5gRhOxze2M
-	BdDHts4GYSwP3USHpdB0G57MoGXTPCsn0pF2wOCBlORMehuE79aOc9G7BTHReAFGfaX85nhiX44
-	UGhl2q/H+9q5UlbkxheTsPC/NxWf/JLZs=
-X-Received: by 2002:a17:903:2381:b0:2c2:27be:39a7 with SMTP id d9443c01a7336-2c2a1c9ac2emr57718625ad.29.1781043956535;
-        Tue, 09 Jun 2026 15:25:56 -0700 (PDT)
-Received: from localhost ([71.212.202.210])
-        by smtp.gmail.com with UTF8SMTPSA id d9443c01a7336-2c164f6e2adsm238181875ad.5.2026.06.09.15.25.55
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 09 Jun 2026 15:25:56 -0700 (PDT)
-From: Kevin Hilman <khilman@baylibre.com>
-To: linux-gpio@vger.kernel.org, Arnd Bergmann <arnd@kernel.org>
-Cc: linux-kernel@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, 
- Christian Lamparter <chunkeey@googlemail.com>, 
- Johannes Berg <johannes@sipsolutions.net>, 
- Aaro Koskinen <aaro.koskinen@iki.fi>, 
- Andreas Kemnade <andreas@kemnade.info>, Roger Quadros <rogerq@kernel.org>, 
- Tony Lindgren <tony@atomide.com>, 
- Thomas Bogendoerfer <tsbogend@alpha.franken.de>, 
- John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>, 
- Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>, 
- Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, 
- x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>, 
- Linus Walleij <linusw@kernel.org>, Bartosz Golaszewski <brgl@kernel.org>, 
- Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee@kernel.org>, 
- Pavel Machek <pavel@kernel.org>, Matti Vaittinen <mazziesaccount@gmail.com>, 
- Florian Fainelli <florian.fainelli@broadcom.com>, 
- Jonas Gorski <jonas.gorski@gmail.com>, Andrew Lunn <andrew@lunn.ch>, 
- Vladimir Oltean <olteanv@gmail.com>, 
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
- linux-wireless@vger.kernel.org, linux-omap@vger.kernel.org, 
- linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org, 
- linux-sh@vger.kernel.org, linux-input@vger.kernel.org, 
- linux-leds@vger.kernel.org, netdev@vger.kernel.org
-In-Reply-To: <20260520183815.2510387-1-arnd@kernel.org>
-References: <20260520183815.2510387-1-arnd@kernel.org>
-Subject: Re: (subset) [PATCH v2 00/10] gpiolib: fence off legacy interfaces
-Message-Id: <178104395573.234140.4413143072350533512.b4-ty@b4>
-Date: Tue, 09 Jun 2026 15:25:55 -0700
+        bh=Agtfhe+WClJsFdENh+WmY0xqAJXLc4EKjDj+0hTX6jk=;
+        b=mKKzw8SLVK71RC3GZkMBStqvpynwWeK32+zrFmP5xUokWhE9TayVkd078qfqiigQHc
+         YeS+GLkhybfVntPu1qjzS2+GxDVxCFsWCRH+eZfJdf6wpy6ktI8lb7o4fB2o2TS7kIMa
+         vYKhmDrLYqivqqtCeeQ9ReAqLn/pdvbYHP3efluykVY6/Oh42PRIEufx462o40UYPMS2
+         uMNz/J+4Pl6/v8Zv1RJVWtmErUfsYnCm08U5o5ute++SuOBtDvXQ1UxPHeRONI2s+xi/
+         oE8nNhXdstrKnDfsPPDaP6BujD2JwGoZ00Lnr1dVDgL8HQX1idY+xZDPXhyzo2OUH5T5
+         dRZw==
+X-Forwarded-Encrypted: i=1; AFNElJ93nLb+qIQ6MMRoZNL2/SHIAk7xEpjATfiWVF47SnTUMCtm9N5rTepyJiS/4YlIMKFyp6CW+FRTdoYTZg==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yza3Ce7lWyhIFRM4bfVCvUv2UvLwNWZNd+8go6vzZIhwgCXQoV5
+	4pYz74ZjrTZNYRw6BFp4DvLoRrmdCx5J47saYD85OYPCFN+R+iKRQt7CHrGtpF8n/yOYW3jgWXp
+	ffDN67mc6Lp2c/MDiIwMzQtHUL0KEo6o=
+X-Gm-Gg: Acq92OF7X6389iU2n2IBYl0O6z1whhSDGM3+wiCo32QtT5Uv7BennX4Qq6pbyvUFkrv
+	4fY4xKp50U42IxlVLGpKLzTIpCAC83UUB7NP5P34Im3nIDeEoltjHLvHaLSxxH6ZBE1RDANDjqP
+	bVcEyr9K2iP8ekNhtFAREYRSjyswx8Ivy78FeiBrFUpv/BG2KCwrJdNYkQz1YYYWXOaR3f/rUWk
+	hpWm7hef9lhCz9559mffep+jrtiMcqFhQjMcp4+/3I2YNSaiQQMalSHqtGpG9UDHAfD8LNvI8Ut
+	cT2kWFYDwRLihms1KhbJq8p+JLXEWVFfp4XVo1riyyrzjthuHP8=
+X-Received: by 2002:a2e:a581:0:b0:395:6085:a15f with SMTP id
+ 38308e7fff4ca-397f76fc64dmr14161411fa.9.1781046360275; Tue, 09 Jun 2026
+ 16:06:00 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-Mailer: b4 0.15.2
+References: <20260522050632.8079-1-vishnuocv@gmail.com>
+In-Reply-To: <20260522050632.8079-1-vishnuocv@gmail.com>
+From: Vishnu Sankar <vishnuocv@gmail.com>
+Date: Wed, 10 Jun 2026 08:05:22 +0900
+X-Gm-Features: AVVi8CcmJVVWP2MwgD-3UUeJwHl0PUCARPZL712jLev4nxuGRWvclmqUvtUep8o
+Message-ID: <CABxCQKtr1g8xEg_EYEQhjsgAR7QtSQ0dDQhOAByuxvHBeHK5iA@mail.gmail.com>
+Subject: Re: [PATCH 1/2] HID: lenovo: Add support for ThinkPad X13 Folio keyboard
+To: jikos@kernel.org, bentiss@kernel.org, derekjohn.clark@gmail.com, 
+	mpearson-lenovo@squebb.ca
+Cc: vsankar@lenovo.com, linux-input@vger.kernel.org, 
+	linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+Hi Jiri / Benjamin,
+
+Gently pinging on this series.
+Is there anything blocking acceptance or any changes needed from my side?
+The series has been tested on physical hardware.
+
+Thank you!
+
+Vishnu
+
+On Fri, May 22, 2026 at 2:07=E2=80=AFPM Vishnu Sankar <vishnuocv@gmail.com>=
+ wrote:
+>
+> From: Vishnu Sankar <vishnuocv@gmail.com>
+>
+> Add USB ID support for the ThinkPad X13 detachable keyboard.
+> The Keyboard uses the same HID raw event protocol as the ThinkPad
+> X12 Gen 2. The functionality stays the same with X12 Gen 2 Keyboards.
+>
+> Also declare KEY_PERFORMANCE capability in lenovo_input_configured()
+> for X13 detachable, allowing userspace to discover the key via evdev
+> capability bits.
+>
+> Signed-off-by: Vishnu Sankar <vishnuocv@gmail.com>
+> ---
+>  drivers/hid/hid-ids.h    |  1 +
+>  drivers/hid/hid-lenovo.c | 21 +++++++++++++++++----
+>  2 files changed, 18 insertions(+), 4 deletions(-)
+>
+> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+> index 4657d96fb083..064be2333a00 100644
+> --- a/drivers/hid/hid-ids.h
+> +++ b/drivers/hid/hid-ids.h
+> @@ -874,6 +874,7 @@
+>  #define USB_DEVICE_ID_LENOVO_X1_TAB3   0x60b5
+>  #define USB_DEVICE_ID_LENOVO_X12_TAB   0x60fe
+>  #define USB_DEVICE_ID_LENOVO_X12_TAB2  0x61ae
+> +#define USB_DEVICE_ID_LENOVO_X13_TAB   0x62af
+>  #define USB_DEVICE_ID_LENOVO_YOGABOOK9I        0x6161
+>  #define USB_DEVICE_ID_LENOVO_OPTICAL_USB_MOUSE_600E    0x600e
+>  #define USB_DEVICE_ID_LENOVO_PIXART_USB_MOUSE_608D     0x608d
+> diff --git a/drivers/hid/hid-lenovo.c b/drivers/hid/hid-lenovo.c
+> index a6b73e03c16b..35b00619f045 100644
+> --- a/drivers/hid/hid-lenovo.c
+> +++ b/drivers/hid/hid-lenovo.c
+> @@ -504,6 +504,7 @@ static int lenovo_input_mapping(struct hid_device *hd=
+ev,
+>                                                                usage, bit=
+, max);
+>         case USB_DEVICE_ID_LENOVO_X12_TAB:
+>         case USB_DEVICE_ID_LENOVO_X12_TAB2:
+> +       case USB_DEVICE_ID_LENOVO_X13_TAB:
+>         case USB_DEVICE_ID_LENOVO_X1_TAB:
+>         case USB_DEVICE_ID_LENOVO_X1_TAB2:
+>         case USB_DEVICE_ID_LENOVO_X1_TAB3:
+> @@ -620,6 +621,7 @@ static ssize_t attr_fn_lock_store(struct device *dev,
+>                 break;
+>         case USB_DEVICE_ID_LENOVO_X12_TAB:
+>         case USB_DEVICE_ID_LENOVO_X12_TAB2:
+> +       case USB_DEVICE_ID_LENOVO_X13_TAB:
+>         case USB_DEVICE_ID_LENOVO_TP10UBKBD:
+>         case USB_DEVICE_ID_LENOVO_X1_TAB:
+>         case USB_DEVICE_ID_LENOVO_X1_TAB2:
+> @@ -791,9 +793,10 @@ static int lenovo_raw_event(struct hid_device *hdev,
+>          * Lenovo TP X12 Tab KBD's Fn+XX is HID raw data defined. Report =
+ID is 0x03
+>          * e.g.: Raw data received for MIC mute is 0x00020003.
+>          */
+> -       if (unlikely((hdev->product =3D=3D USB_DEVICE_ID_LENOVO_X12_TAB
+> -                       || hdev->product =3D=3D USB_DEVICE_ID_LENOVO_X12_=
+TAB2)
+> -                       && size >=3D 3 && report->id =3D=3D 0x03))
+> +       if (unlikely((hdev->product =3D=3D USB_DEVICE_ID_LENOVO_X12_TAB |=
+|
+> +                     hdev->product =3D=3D USB_DEVICE_ID_LENOVO_X12_TAB2 =
+||
+> +                     hdev->product =3D=3D USB_DEVICE_ID_LENOVO_X13_TAB) =
+&&
+> +                     size >=3D 3 && report->id =3D=3D 0x03))
+>                 return lenovo_raw_event_TP_X12_tab(hdev, le32_to_cpu(*(__=
+le32 *)data));
+>
+>         return 0;
+> @@ -877,6 +880,7 @@ static int lenovo_event(struct hid_device *hdev, stru=
+ct hid_field *field,
+>                 return lenovo_event_cptkbd(hdev, field, usage, value);
+>         case USB_DEVICE_ID_LENOVO_X12_TAB:
+>         case USB_DEVICE_ID_LENOVO_X12_TAB2:
+> +       case USB_DEVICE_ID_LENOVO_X13_TAB:
+>         case USB_DEVICE_ID_LENOVO_TP10UBKBD:
+>         case USB_DEVICE_ID_LENOVO_X1_TAB:
+>         case USB_DEVICE_ID_LENOVO_X1_TAB2:
+> @@ -1161,6 +1165,7 @@ static int lenovo_led_brightness_set(struct led_cla=
+ssdev *led_cdev,
+>                 break;
+>         case USB_DEVICE_ID_LENOVO_X12_TAB:
+>         case USB_DEVICE_ID_LENOVO_X12_TAB2:
+> +       case USB_DEVICE_ID_LENOVO_X13_TAB:
+>         case USB_DEVICE_ID_LENOVO_TP10UBKBD:
+>         case USB_DEVICE_ID_LENOVO_X1_TAB:
+>         case USB_DEVICE_ID_LENOVO_X1_TAB2:
+> @@ -1355,7 +1360,8 @@ static int lenovo_probe_tp10ubkbd(struct hid_device=
+ *hdev)
+>          */
+>
+>         data->fn_lock =3D !(hdev->product =3D=3D USB_DEVICE_ID_LENOVO_X12=
+_TAB ||
+> -                       hdev->product =3D=3D USB_DEVICE_ID_LENOVO_X12_TAB=
+2);
+> +                       hdev->product =3D=3D USB_DEVICE_ID_LENOVO_X12_TAB=
+2 ||
+> +                       hdev->product =3D=3D USB_DEVICE_ID_LENOVO_X13_TAB=
+);
+>
+>         lenovo_led_set_tp10ubkbd(hdev, TP10UBKBD_FN_LOCK_LED, data->fn_lo=
+ck);
+>
+> @@ -1402,6 +1408,7 @@ static int lenovo_probe(struct hid_device *hdev,
+>                 break;
+>         case USB_DEVICE_ID_LENOVO_X12_TAB:
+>         case USB_DEVICE_ID_LENOVO_X12_TAB2:
+> +       case USB_DEVICE_ID_LENOVO_X13_TAB:
+>         case USB_DEVICE_ID_LENOVO_TP10UBKBD:
+>         case USB_DEVICE_ID_LENOVO_X1_TAB:
+>         case USB_DEVICE_ID_LENOVO_X1_TAB2:
+> @@ -1490,6 +1497,7 @@ static void lenovo_remove(struct hid_device *hdev)
+>                 break;
+>         case USB_DEVICE_ID_LENOVO_X12_TAB:
+>         case USB_DEVICE_ID_LENOVO_X12_TAB2:
+> +       case USB_DEVICE_ID_LENOVO_X13_TAB:
+>         case USB_DEVICE_ID_LENOVO_TP10UBKBD:
+>         case USB_DEVICE_ID_LENOVO_X1_TAB:
+>         case USB_DEVICE_ID_LENOVO_X1_TAB2:
+> @@ -1517,6 +1525,9 @@ static int lenovo_input_configured(struct hid_devic=
+e *hdev,
+>                                                 hi->input->propbit);
+>                         }
+>                         break;
+> +               case USB_DEVICE_ID_LENOVO_X13_TAB:
+> +                       input_set_capability(hi->input, EV_KEY, KEY_PERFO=
+RMANCE);
+> +                       break;
+>         }
+>
+>         return 0;
+> @@ -1551,6 +1562,8 @@ static const struct hid_device_id lenovo_devices[] =
+=3D {
+>                      USB_VENDOR_ID_LENOVO, USB_DEVICE_ID_LENOVO_X12_TAB) =
+},
+>         { HID_DEVICE(BUS_USB, HID_GROUP_GENERIC,
+>                      USB_VENDOR_ID_LENOVO, USB_DEVICE_ID_LENOVO_X12_TAB2)=
+ },
+> +       { HID_DEVICE(BUS_USB, HID_GROUP_GENERIC,
+> +                    USB_VENDOR_ID_LENOVO, USB_DEVICE_ID_LENOVO_X13_TAB) =
+},
+>         { HID_DEVICE(BUS_I2C, HID_GROUP_GENERIC,
+>                      USB_VENDOR_ID_ITE, I2C_DEVICE_ID_ITE_LENOVO_YOGA_SLI=
+M_7X_KEYBOARD) },
+>         { }
+> --
+> 2.54.0
+>
 
 
-On Wed, 20 May 2026 20:38:05 +0200, Arnd Bergmann wrote:
-> From: Arnd Bergmann <arnd@arndb.de>
-> 
-> This is an update of all the patches that are still required before
-> we can actually turn off CONFIG_GPIOLIB_LEGACY for most platforms
-> in the final patch of this series.
-> 
-> I originally posted this as a series in
-> https://lore.kernel.org/all/20250808151822.536879-1-arnd@kernel.org/
-> 
-> [...]
+--=20
 
-Applied, thanks!
+Regards,
 
-[09/10] ARM: dts: omap2: add stlc4560 spi-wireless node
-        commit: c5a0ac76b364bbd1d4fb7e440edabcd2a369343c
-
-Best regards,
--- 
-Kevin Hilman (TI) <khilman@baylibre.com>
-
+      Vishnu Sankar

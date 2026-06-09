@@ -1,106 +1,113 @@
-Received: from mail-pl1-f180.google.com (mail-pl1-f180.google.com [209.85.214.180])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 102D03F99F3
-	for <linux-input@vger.kernel.org>; Tue,  9 Jun 2026 11:05:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.180
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AE3232BEC3F
+	for <linux-input@vger.kernel.org>; Tue,  9 Jun 2026 11:06:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781003113; cv=none; b=N3r0xA3Wv7lZ7suOB32guaG9sBsxvgAwPQUB/D007kUEnDwdMq71Ah9kqiWW/teazhgYSUusgTJhWd4H0RWnRTrexOSK+I8HC/4SZgipzlTWazKSVlkd8YhxiZO7ERqk1QEitUQTNmJX/WRI1asPAu631uItbBaXuVcU5dQmZCc=
+	t=1781003169; cv=none; b=DVufLA42cbotuXkBdneEZdyrlj6o9cKdKgehsX2J44lmfJBl6uyws7fSvsLGI3YWFq/pdyK7VhIb0I5dWK8QbWazTzAjEmI12doMTw7/ZW55I9OKVu7mDCoTukASL4aiZz5QqvPPjwDoB93+wspCa36GL6Xi6EOSWVqM4DpWWQ0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781003113; c=relaxed/simple;
-	bh=kjw1avFU8520DRpYQDxuY9SvIAlSgQxLqUBUN9Yb05w=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=K4lB+TvGRnY9O6Xp/jv1vy/vo25xlAXQLh/vSTgYA8r7n6Oc61k4oldjj1lc6V+JHepXn+V/4BdxqjjmADQ7KLJC748GPYCgL1POOp2k7dKkn26QdPcedjkLoJ4qrK7+jFAVoIzo6ezwsdl634QmiSyd08LB26o+Nh7Vp1QfoqU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=LQ5AHDgV; arc=none smtp.client-ip=209.85.214.180
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1781003169; c=relaxed/simple;
+	bh=j0ELgHyz5GCCJ2/QFPdF1Ogxb2pTHqIT/mHSk5FE0WE=;
+	h=From:Subject:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=hnZYoDu/WmedrEUnBmnTcqDXXAUm+MGU4ppyjW2TcD8zj3dawZWHENNkBMQe9ZVgpHNlf4MTiO/D7Fz4VWst0XBRPS0xsRGBWF2YatVg11GGp7pxEfRwmJ7HX7vxaswk9k1R08f/ciRyUMrgRSpqoIgwPjMlVzGlsa2sK2JtVzE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=HAA7u/LG; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="LQ5AHDgV"
-Received: by mail-pl1-f180.google.com with SMTP id d9443c01a7336-2bf36a6905cso37655905ad.3
-        for <linux-input@vger.kernel.org>; Tue, 09 Jun 2026 04:05:11 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1781003111; x=1781607911; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=kjw1avFU8520DRpYQDxuY9SvIAlSgQxLqUBUN9Yb05w=;
-        b=LQ5AHDgVFf8+XKXrafeTgWm9/5qitbhWyjjGliRtULNeO5ecUkYAnuGsG9F2zKCd0V
-         j4w75Tm7HeGs8e3IolTN+2HuSn9C3YALQ8fexMWxBfj8tu+Bf7IWVmiz/KsYs/ysN8Uy
-         a3SHzXkazI5ymUOfafG8MBbcoCwjqpmYQtHCNB7eatZslq6viaGrfZR8xFmBWrOAHMuh
-         oWRnahcdC+PILHKbyM4lXYK355AWNKfxEBTzMWoo9radY+hi2ue+15ubgEWjtM16pivy
-         dXmIf3dE9AuSWa94/eWMPvrtbR0+XnhGHHDZR1jMlKnFSH9eB8pBfVCnBrBS+Ey2AYXm
-         utww==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781003111; x=1781607911;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=kjw1avFU8520DRpYQDxuY9SvIAlSgQxLqUBUN9Yb05w=;
-        b=tG9bRwicfIxXOpJ0T4AAlyhNafMz4+UOQEgALMIQ4pqcsKHHIKAzY6gM9RoGKmEn7y
-         oR8GlD9GM7xSlK0ZIzbjTNlR6QbHPmG8N1TfpgQ+fGArnr7unDMIlGb56ykgJIo/95TT
-         JIxQTCa0HN2o3r5jvWqEenMjy0WzJqW50sqqGs2W7aNG5rw00OwlU5Rr6LFow1iqRoef
-         4qmJaMZH+EdvvoDdRwnW30gCUomBp7038AP4yD/DPTLYB3V6hAYjX2DdudT0LYoFpvsI
-         ha8Qqdqe9GSWRqV9y7/9gm8C8TWR2VAuciSfxLFh7hU1ZPAbjR4JICo/Fg4T6GQDnwCA
-         WVkg==
-X-Forwarded-Encrypted: i=1; AFNElJ9tLiXbbirEXUPkePLcMQSVSnIh2nxZv2H08Sb/WjMDdyO1RYMS9Tqg2c8nqz0SluTgGk0UZ9YF4otRGg==@vger.kernel.org
-X-Gm-Message-State: AOJu0YwR+JgxK/2lQK2+CPq9//2zSkEewNN+sYQK3o958nwSsxQlz1Is
-	gtE3Sin9EJ/4VOcy4KJsV4a311IP34zwevbyk5U8Ni/mlyNqOFAzNl6C
-X-Gm-Gg: Acq92OHBPVW38HuTv9jXCnz01F1uS+eVuLgxiWfM4hF/JsiQTiGKXo3p6mkoNwIiLWL
-	aaCBmucs1BzFGOso+pHHKNZsMV6U9wVGs49ijVAvrHMQGXVEmSItr9n1vYT9G3T/DBUrbdC5f+q
-	2kKzfZRL/gmK35y8GwbqjDnjZBa4xo0z/urq6AW5vhP0OJZHpm9fgQNYi3tLn7KrLebMkMXKTgB
-	GFiKMUqENw91/xu+lgY8/18XZ8ea2+c6JrBzHg4ipxlpAiwcxOF8I8x4C5NbGdiYMlGjyyoZy1p
-	iDZBlyexnpeq7Rn8rRSOhSpBZzyJW0A3uJk64p6d6Jf86gM8ZfJB9oFbbZkSqKCJjUlddirlGoc
-	v0dQnUADq3CKxg3FtQEMrZrqdfB3Sx4IqxCFabGQbGHxskhCmSYWpFcvcqqXWEhm/GJJ3e5K9Qw
-	Mn+01ziIvYwYlE4iMYREsrpM8DS22lePxjage1ZhpcPxfJTPQ+5nGmP11ZaEHQVVD1vMZqXFNsj
-	aL5HTJAfkxa3ELVSbirPfZc
-X-Received: by 2002:a17:902:f645:b0:2c1:6259:cda8 with SMTP id d9443c01a7336-2c2a1c873a1mr29134585ad.25.1781003111332;
-        Tue, 09 Jun 2026 04:05:11 -0700 (PDT)
-Received: from harrison-Surface-Pro-12in-1st-Ed-with-Snapdragon.lan ([58.164.4.185])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2c164f875casm211687815ad.22.2026.06.09.04.05.05
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 09 Jun 2026 04:05:10 -0700 (PDT)
-From: Harrison Vanderbyl <harrison.vanderbyl@gmail.com>
-To: konrad.dybcio@oss.qualcomm.com
-Cc: andersson@kernel.org,
-	bentiss@kernel.org,
-	conor+dt@kernel.org,
-	devicetree@vger.kernel.org,
-	dmitry.baryshkov@oss.qualcomm.com,
-	harrison.vanderbyl@gmail.com,
-	jikos@kernel.org,
-	konradybcio@kernel.org,
-	krzk+dt@kernel.org,
-	linux-arm-msm@vger.kernel.org,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	robh@kernel.org
-Subject: Re: [PATCH v3 2/2] arm64: dts: qcom: Add Microsoft Surface Pro 12in
-Date: Tue,  9 Jun 2026 21:04:29 +1000
-Message-ID: <20260609110429.11427-1-harrison.vanderbyl@gmail.com>
-X-Mailer: git-send-email 2.53.0
-In-Reply-To: <4ced3207-a132-4ec5-a0eb-79f75f5cb4bb@oss.qualcomm.com>
-References: <4ced3207-a132-4ec5-a0eb-79f75f5cb4bb@oss.qualcomm.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="HAA7u/LG"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F4C21F00898;
+	Tue,  9 Jun 2026 11:06:08 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1781003168;
+	bh=Kmw0RXpvrzbF4OkQ1wYw7kgvdcMrAF03nVdYVSJfI14=;
+	h=From:Subject:Reply-To:Cc:In-Reply-To:References:Date;
+	b=HAA7u/LGRX0wq6WZKncqXBAL14NM9OzkKuTv4W5GysapCzp594ehfHua5oLhgZEE8
+	 jonskPYQVlvnUbs1dWPy6Pl8OxsXdkOQfPIV1lKO/CmDKomrEUPcMhF8D4JTXd3Ayf
+	 ojcgsNkaVDjA8OOtpSgDK4SwEfOTOipQj4N8riSJUTRfYBQmnl5Qm8FWbv8zlgr/y0
+	 prm8YRBYw2wkCy8vBbcefZ0yLNh38T1K0nswz7zlNjDi6mAXb+pcmsULof39hVwx8Q
+	 MY/s3iardtSHPMTHCwpqvddt8XiXnGB/kzu1KY9XH9P/5L347JRZBvBQYUwTWDq45v
+	 7zoHXcpSomHKA==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v4] HID: i2c-hid: Refactor _DSM helper and add
+ i2c-hid-acpi-prp0001 driver
+Reply-To: sashiko-reviews@lists.linux.dev
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <tencent_6169D37BDAAD7FFEEC9E41DA197FE6028309@qq.com>
+References: <tencent_6169D37BDAAD7FFEEC9E41DA197FE6028309@qq.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Tue, 09 Jun 2026 11:06:07 +0000
+Message-Id: <20260609110608.3F4C21F00898@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-On 6/9/26 11:30 AM, Konrad Dybcio wrote:
-> Because we'd put the subnodes for devices under the 'status' line (DTC
-> enforces that), please move the comment below as well
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
+- [High] Using `of_match_ptr()` on the `of_match_table` prevents native ACP=
+I PRP0001 matching when `CONFIG_OF` is disabled.
+--
 
-Will do,
+commit fdffe866c804a579c14dbd7b1c8529b20466017b
+Author: =E8=B0=A2=E8=87=B4=E9=82=A6 (XIE Zhibang) <Yeking@Red54.com>
 
-> Or since it's @28, perhaps it's just nxp,nxp-nci-i2c and it could work
-> for you ootb?
+HID: i2c-hid: Refactor _DSM helper and add i2c-hid-acpi-prp0001 driver
 
-Unfortunately for me, the device/antenna is not present on the consumer version,
-I was able to confirm this during a speaker replacement.
+This commit moves the _DSM call that retrieves the HID descriptor address i=
+nto
+a shared header. It also introduces the i2c-hid-acpi-prp0001 driver to hand=
+le
+devices with _HID "PRP0001" and _DSD compatible "hid-over-i2c" that are mis=
+sing
+the "hid-descr-addr" property.
 
-> Please align the <s (or is it my mail client playing tricks on me?)
+> diff --git a/drivers/hid/i2c-hid/i2c-hid-acpi-prp0001.c b/drivers/hid/i2c=
+-hid/i2c-hid-acpi-prp0001.c
+> new file mode 100644
+> --- /dev/null
+> +++ b/drivers/hid/i2c-hid/i2c-hid-acpi-prp0001.c
 
-The alignment changes depending on what text editor I copy paste this section into.
-I have them aligned the same as the other device trees are aligned though.
+[ ... ]
+
+> +static const struct of_device_id i2c_hid_acpi_prp0001_of_match[] =3D {
+> +	{ .compatible =3D "hid-over-i2c" },
+> +	{},
+> +};
+> +MODULE_DEVICE_TABLE(of, i2c_hid_acpi_prp0001_of_match);
+> +
+
+[ ... ]
+
+> +static struct i2c_driver i2c_hid_acpi_prp0001_driver =3D {
+> +	.driver =3D {
+> +		.name	=3D "i2c_hid_acpi_prp0001",
+> +		.pm	=3D &i2c_hid_core_pm,
+> +		.probe_type =3D PROBE_PREFER_ASYNCHRONOUS,
+> +		.of_match_table =3D of_match_ptr(i2c_hid_acpi_prp0001_of_match),
+
+[Severity: High]
+Will this prevent the driver from probing on ACPI systems that do not enable
+CONFIG_OF?
+
+The driver relies on ACPI PRP0001 matching to match the _DSD compatible
+property against the of_match_table. However, if CONFIG_OF is disabled
+(which is standard for x86 ACPI platforms where this hardware exists),
+of_match_ptr() evaluates to NULL.
+
+When of_match_table is NULL, the ACPI driver core will silently fail to
+match the device, leaving the touchpad non-functional. Should we drop the
+of_match_ptr() wrapper here to ensure the table is always available for
+PRP0001 matching?
+
+> +	},
+> +
+> +	.probe		=3D i2c_hid_acpi_prp0001_probe,
+> +	.remove		=3D i2c_hid_core_remove,
+> +	.shutdown	=3D i2c_hid_core_shutdown,
+> +	.id_table	=3D i2c_hid_acpi_prp0001_id,
+> +};
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/tencent_6169D37BDAA=
+D7FFEEC9E41DA197FE6028309@qq.com?part=3D1

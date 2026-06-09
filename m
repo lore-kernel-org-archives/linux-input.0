@@ -1,159 +1,346 @@
-Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 75A403FBEB8
-	for <linux-input@vger.kernel.org>; Tue,  9 Jun 2026 12:06:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.180.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E8E4C3D4103;
+	Tue,  9 Jun 2026 12:19:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781006808; cv=none; b=NaJxU+duF6DfYQgfDiQcLZnwmHSh+nPXqNSzqNartk2vF1/xEWKJWEIid4H8Sf8UTi2gRB9TISRHtZTdeYVbQGOqlbE9zrMg1Ky16ypRLQvkaKsX0WTaaXFvXs2/NlHJachFse7c2JLje9JxR0/dr851C5LdGxgCCryuzjrxXNY=
+	t=1781007600; cv=none; b=QZpB48a4EVa6X8htGjENQzsnOVZ7/WophtHEH95La7aWE0FaHcMokrPwwKtQBuPAU8BhK8lw0aFh9+ib0oVgu5StMmtkuHTXGGdNJHRTwY0aYDSOVZwArk+8qPIe5CSk2tRr8c1us+YuP3Ls/qNbM5NeSVHPxaCbUe/pTgHnxt8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781006808; c=relaxed/simple;
-	bh=GYrQglqCkvMh/7QCT6j/Feex+tG7+uGK/6NcYppoReM=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=mGMQFtGeK9drwJNwYH2J3SrFxXBiEHEyFzWYBpnD115B/gDm54z8+q7mpY8MA6NQrXIEA3pd46G90NjvhhBZojuZlkRTWnr7ATZ6uViayIyfwB4xRrOciOphxXJxMXYSiZcWVS0B0KbRwoN5kbdO91ASwmx5lp8yN9GcWqv1sUk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=mjl1JUb7; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=SWK2iyj+; arc=none smtp.client-ip=205.220.180.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
+	s=arc-20240116; t=1781007600; c=relaxed/simple;
+	bh=nUQPWzGEtU2UT1ZX+tsONnR/5G7tWsEfz/DWT6aGRLs=;
+	h=From:To:Subject:Date:Message-ID:MIME-Version; b=uneNKg2zMObNIoIquss6ua6aCalUOx3EQr4YvymR7vmOtZA/BRRCqwiiTn2QwKtYonSFdnw4xI78qLC2o7VkUWXSUdQ23LgSKfu1nniecn+5uoSjH+oJbIXkS6zJTCKIKfN1fYQt/5oxEx+bNIzV2QLEwjliHDK0DOLTEnnC/hY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=MScAouar; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="mjl1JUb7";
-	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="SWK2iyj+"
-Received: from pps.filterd (m0279868.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 659BnD5M2454311
-	for <linux-input@vger.kernel.org>; Tue, 9 Jun 2026 12:06:46 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
-	cc:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
-	NrgTSnQ5pusr28eTiK6slUtsOUdsXM14expuobM4yjs=; b=mjl1JUb77yJ80ihb
-	BQPs4y2lKxB92Xdk+TMsz2n/b/sg5e1NpR30pmuxTTpibb2+HpPOOhOJ4hYwRJDL
-	C3U+2j7cvj01gzFg8wunnN6yaZrNU4gQhHBUyiMjPr+e367wueafSIk1LjeqUp4r
-	bNHv8VBnfPcBKvlcBcbR3XvHyO6idmkGmvRakDBd5p0MnivJJ1IlgHWt8T1xVeAU
-	nwznePQH03Ea1+/ao3zoe5uPxwoMwtDovl9y0DfKoOPA9rdJRtJ7Ri3l3jAz5xDO
-	wOu5U5FagqXSUXPhXshLecyLHPftQEjIoT0WMqVM3lQlp8i/FFVMbDbhGnwDvtja
-	h/SNgw==
-Received: from mail-vs1-f69.google.com (mail-vs1-f69.google.com [209.85.217.69])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4epee4h49j-1
-	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
-	for <linux-input@vger.kernel.org>; Tue, 09 Jun 2026 12:06:45 +0000 (GMT)
-Received: by mail-vs1-f69.google.com with SMTP id ada2fe7eead31-6c7bdde6912so301667137.2
-        for <linux-input@vger.kernel.org>; Tue, 09 Jun 2026 05:06:45 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=oss.qualcomm.com; s=google; t=1781006805; x=1781611605; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=NrgTSnQ5pusr28eTiK6slUtsOUdsXM14expuobM4yjs=;
-        b=SWK2iyj+yb4HBkEg8kbPlxK63KrJsWoNyfm7oHZPtE2NBa/YYttQCRm2Og1Skt/JVQ
-         lpjAldCA2ClquZSBwG985FoZLrm5C7p9AD/akncuoQ8VUoyQ9ypXjzxqw/+i1/UHPITN
-         FUPKKdFSDIniJtm1ydJRc9SQIq84m+fCp17gEUsijjSFeidt8s6QjcMPXtQckV/U2R9e
-         8it/Qgip2+h08JzrFeo4HopD+66xfmRW2DTyyT85+0FNNULxGHBfdbmFOGAcPmfKaIK8
-         TmwVNSv+ZqxFhPGDi+Z3zERYGPwH/SGmQuaxc+ZMozdbmmdqv5u+qLX7lpqDf9X/eyTT
-         6G6Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781006805; x=1781611605;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=NrgTSnQ5pusr28eTiK6slUtsOUdsXM14expuobM4yjs=;
-        b=Duqa749IknQo2UagTwB6a2Oe8hKdaIPkdjOdWtNN3nuquwUojLIyP8B5uTZoTYCzhM
-         iOqWO6V/z6L2c20rMgOGuRYbPk/dv+LXj2/jQtmQjNoznSv3HqCtOUbtzi6qtxKl7Jfd
-         rHNZRWDIVdYay1+rgJynZzKEpRogbure1t8+7K/zk+MfMUxHwRft6iuIBO3WwmRbcpFF
-         5WyyIwR3gl1McUWJjzxFWsHn/Infw6eCcltObn4mbNfYaOVC5pjCBlKlbpR4c2WgyfIg
-         SmA0ofRmTneFTvyx7b1gMXo3zQxd/lZ4obNgp65fiGxmTw0ZxCptReBAyGMYhSkWczaC
-         4DxQ==
-X-Forwarded-Encrypted: i=1; AFNElJ/RRKIWhjiY1pdhAwC68zPUNC0+7L8qAxEznsE8AteIKjU2+ULJ8NZtwKGvtbK2lCYsst8fwCiZ3EzUMQ==@vger.kernel.org
-X-Gm-Message-State: AOJu0YxAv+eRbgw1Gi2fiTbRadCA2jPoQlW9+Cw+rlTDUNIrjb4QqxpJ
-	kjg+asUXuk3x52XMw8trZLJopPjbYX1Hme41IrA9PycupTW67inokGW6COH5+eyDyEGFYq7nzrq
-	FIZn8XfIFC9EikTQpXoUq6SHSGJhaoohw+dEwtkMOuRZlr0VPsy/1mysGb1O9oxHlPw==
-X-Gm-Gg: Acq92OFBVSu+nuh8VU21ERIzdAalwblnRqkDcZtU19tGZ2df4EJCvXeYg63Hnagnht5
-	nZMH0JfN+hdhg1GL+3+32iUAuIsdMfnFKLBovz0wToKvFpTNJ4iWA8uGgNqJmtgeuntVjAwoODw
-	jF1q4EHWzaZy65sVdcTsDIH6FCXxaE2FLQxV8m2g4zH01mmVtWahbPaNU5gawfbJ/fm8mg0I1wr
-	0ZeG6QwbdScPjrSc47Er3zZXlWHoo4dfcdAmfBvnvI2CnMFNRVrodfbUAiDCYR/+PeJMRPncOv1
-	KCYGFcA3bxGB5yzp/BAhvf7pNh0nkinEInR6j5ZbcI3RQs4Ht4A2g+qzbFCHzbH58cAgbVRofeM
-	6KMb1em1+0dA6uQXY8XZ9LJJJoqK54ZxPRdPQcOhY7aTZmj3DfJXrQGoO
-X-Received: by 2002:a05:6102:1487:b0:637:25ea:99c8 with SMTP id ada2fe7eead31-6fef3c04af3mr3115210137.1.1781006804625;
-        Tue, 09 Jun 2026 05:06:44 -0700 (PDT)
-X-Received: by 2002:a05:6102:1487:b0:637:25ea:99c8 with SMTP id ada2fe7eead31-6fef3c04af3mr3115195137.1.1781006804175;
-        Tue, 09 Jun 2026 05:06:44 -0700 (PDT)
-Received: from [192.168.120.170] ([178.235.128.140])
-        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-68e64c2f34asm8822920a12.4.2026.06.09.05.06.38
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 09 Jun 2026 05:06:40 -0700 (PDT)
-Message-ID: <081443d0-5194-4d4a-ba8d-a720d7f2e706@oss.qualcomm.com>
-Date: Tue, 9 Jun 2026 14:06:37 +0200
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="MScAouar"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AEF981F00893;
+	Tue,  9 Jun 2026 12:19:56 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1781007598;
+	bh=i3v4xUtVtZfzuNpHV/y20MuOwJ6FoSCP9P1p9Ko7AVQ=;
+	h=From:To:Subject:Date;
+	b=MScAouarOLeZxUqL7FCbDTiDa4Fgs1xMMuoom0VFLDMn5gwYqtwaU0llbELYxMZsU
+	 qI7IXw4AblbAveOovcAL6qa5fypMlbabZZagVmgUiUWew36m4MimsNuPTxdJBTWjE5
+	 6XGtXrrDVk2yI3RCGTVdtGF/rbG+c2oSr4TTmYxC3U2CKHWiaL66BU5x3wel9uBb4Q
+	 WonoDuVI6DZE0HQvY7yCdqMlKqhEg6ddMcdhmXOJMlWMGytAn+R0AYnb6fkJ7VaEX0
+	 l9ximHxpjAFRo0ZB0cCFrl/4d3bwuDq5rahmDfP8Lmvba3xCBRXI3M9yEVAAjOO+o+
+	 DaB/Q7eE/fo7g==
+From: Lee Jones <lee@kernel.org>
+To: lee@kernel.org,
+	Ping Cheng <ping.cheng@wacom.com>,
+	Jason Gerecke <jason.gerecke@wacom.com>,
+	Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>,
+	Peter Hutterer <peter.hutterer@who-t.net>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH v3 1/4] HID: wacom: Fix Use-After-Free in wacom_intuos_pad
+Date: Tue,  9 Jun 2026 13:13:37 +0100
+Message-ID: <20260609121353.3743782-1-lee@kernel.org>
+X-Mailer: git-send-email 2.54.0.1099.g489fc7bff1-goog
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 2/2] arm64: dts: qcom: Add Microsoft Surface Pro 12in
-To: Harrison Vanderbyl <harrison.vanderbyl@gmail.com>
-Cc: andersson@kernel.org, bentiss@kernel.org, conor+dt@kernel.org,
-        devicetree@vger.kernel.org, dmitry.baryshkov@oss.qualcomm.com,
-        jikos@kernel.org, konradybcio@kernel.org, krzk+dt@kernel.org,
-        linux-arm-msm@vger.kernel.org, linux-input@vger.kernel.org,
-        linux-kernel@vger.kernel.org, robh@kernel.org
-References: <4ced3207-a132-4ec5-a0eb-79f75f5cb4bb@oss.qualcomm.com>
- <20260609110429.11427-1-harrison.vanderbyl@gmail.com>
-Content-Language: en-US
-From: Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>
-In-Reply-To: <20260609110429.11427-1-harrison.vanderbyl@gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Authority-Analysis: v=2.4 cv=PIs/P/qC c=1 sm=1 tr=0 ts=6a2801d5 cx=c_pps
- a=5HAIKLe1ejAbszaTRHs9Ug==:117 a=PRfkaYvzSr8QmIIGAkY2Sg==:17
- a=IkcTkHD0fZMA:10 a=FelO9ux0wxsA:10 a=s4-Qcg_JpJYA:10
- a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22 a=ZpdpYltYx_vBUK5n70dp:22
- a=yMhMjlubAAAA:8 a=lniaELAF3QKj_k3u044A:9 a=QEXdDO2ut3YA:10
- a=gYDTvv6II1OnSo0itH1n:22
-X-Proofpoint-GUID: ZOl2JGgyGDqroijJcM-5qzdLm4S2cYa8
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjA5MDExNCBTYWx0ZWRfX4a3WlztG4CAg
- 5x16cdcSeeA/iisXIfERSjDWefRFAuwF2vuti1pS5qn6i4rrSkqqu4dcwf+iaZNxtB5WR44qwer
- lriUTq1+foBDN9zOXZu26FVA/Rd1xOIa3Nl0NIJ+ocNyPxYlQUlR8fhiL94JlO8rzsv5Mot9B1D
- dV5QRdfsC+UpuRPrkv4AGRbPQddHWF37oaJgaPG96uHHrTIBtzce4Cs8pjXO/zQzvg2es9kTAik
- ky8/9VYUXuzXupXTGIdUxyBUkb/68OB9E1+guV0OMN8S7TFOUeMrvqK81psro+KVENMNli7NUsP
- RAuZ102mi5Y0G3ZREFS+kzX97IvVz5NkCt07bzf1BrVgP1hUMULUl16x1DVjo9IznpJwF7R903O
- DDxFmULehBKYw4UNFt6dBmrmpbK3opSQyZkXfu8iXObtm4V0pUr0a/6JNd6wCjjyFaqLzgvYHR0
- l+qGvcHqPd4tm1UBnlw==
-X-Proofpoint-ORIG-GUID: ZOl2JGgyGDqroijJcM-5qzdLm4S2cYa8
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
- definitions=2026-06-09_02,2026-06-09_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- phishscore=0 impostorscore=0 suspectscore=0 adultscore=0 spamscore=0
- clxscore=1011 malwarescore=0 priorityscore=1501 bulkscore=0
- lowpriorityscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2605210000
- definitions=main-2606090114
+Content-Transfer-Encoding: 8bit
 
-On 6/9/26 1:04 PM, Harrison Vanderbyl wrote:
-> On 6/9/26 11:30 AM, Konrad Dybcio wrote:
->> Because we'd put the subnodes for devices under the 'status' line (DTC
->> enforces that), please move the comment below as well
-> 
-> Will do,
-> 
->> Or since it's @28, perhaps it's just nxp,nxp-nci-i2c and it could work
->> for you ootb?
-> 
-> Unfortunately for me, the device/antenna is not present on the consumer version,
-> I was able to confirm this during a speaker replacement.
+wacom_intuos_pad() accesses wacom->shared->touch_input locklessly
+inside the interrupt handler context.  If the Touch sibling device
+is disconnected, wacom_remove_shared_data() clears 'touch_input'
+outside any lock, creating a Time-of-Check to Time-of-Use (TOCTOU)
+race condition where a preempted reader in interrupt context
+dereferences the freed pointer, leading to a Use-After-Free.
 
-So perhaps "commercial devices only" refers to ""Surface Pro for Business
-12-inch"" [1] which is presumably an actual separate SKU? 
+Resolve this by introducing RCU protection for the touch_input
+pointer:
 
-I initially interpreted "commercial devices" as "not prototypes"
+ - Annotate 'touch_input' in wacom_shared struct with __rcu
+ - Wrap all lockless readers in wacom_wac.c with rcu_read_lock() and
+   rcu_dereference() using a unified wacom_report_touch_mute()
+   helper
+ - Update writers in wacom_sys.c using rcu_assign_pointer()
+ - Call synchronize_rcu() in wacom_remove_shared_data() to ensure
+   all active RCU readers have finished before the input device is
+   freed
 
+Also wrap wacom_set_shared_values() and touch/pen assignments in
+wacom_add_shared_data() inside the wacom_udev_list_lock to serialize
+concurrent probe assignments, and verify that 'shared->touch == hdev'
+before setting touch_input to prevent concurrent sibling probe state
+desynchronization.
 
-[1] https://cdn-dynmedia-1.microsoft.com/is/content/microsoftcorp/microsoft/mlsd/documents/presentations/en-us/surface/MSFT-echo-surface-pro-12-inch-snapdragon-techspecs-factsheet.pdf
-> 
->> Please align the <s (or is it my mail client playing tricks on me?)
-> 
-> The alignment changes depending on what text editor I copy paste this section into.
+Finally, advertise the SW_MUTE_DEVICE capability on Touch input
+devices prior to registration in wacom_setup_touch_input_capabilities()
+to prevent invalid post-registration capability modifications.
 
-This shouldn't be the case, so long as you set the kernel-standard tab
-width to 8.
+Fixes: 961794a00eab ("Input: wacom - add reporting of SW_MUTE_DEVICE events")
+Signed-off-by: Lee Jones <lee@kernel.org>
+---
 
-Konrad
+v1 -> v2: Split and use RCU as per Dmitry's review
+v2 -> v3: Sashiko fixes
+
+ drivers/hid/wacom_sys.c | 41 ++++++++++++++----------
+ drivers/hid/wacom_wac.c | 70 ++++++++++++++++++++++-------------------
+ drivers/hid/wacom_wac.h |  2 +-
+ 3 files changed, 63 insertions(+), 50 deletions(-)
+
+diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
+index 2220168bf116..7ba589826548 100644
+--- a/drivers/hid/wacom_sys.c
++++ b/drivers/hid/wacom_sys.c
+@@ -877,10 +877,16 @@ static void wacom_remove_shared_data(void *res)
+ 		data = container_of(wacom_wac->shared, struct wacom_hdev_data,
+ 				    shared);
+ 
+-		if (wacom_wac->shared->touch == wacom->hdev)
+-			wacom_wac->shared->touch = NULL;
+-		else if (wacom_wac->shared->pen == wacom->hdev)
+-			wacom_wac->shared->pen = NULL;
++		scoped_guard(mutex, &wacom_udev_list_lock) {
++			if (wacom_wac->shared->touch == wacom->hdev) {
++				wacom_wac->shared->touch = NULL;
++				rcu_assign_pointer(wacom_wac->shared->touch_input, NULL);
++			} else if (wacom_wac->shared->pen == wacom->hdev) {
++				wacom_wac->shared->pen = NULL;
++			}
++		}
++
++		synchronize_rcu();
+ 
+ 		kref_put(&data->kref, wacom_release_shared_data);
+ 		wacom_wac->shared = NULL;
+@@ -909,6 +915,11 @@ static int wacom_add_shared_data(struct hid_device *hdev)
+ 		list_add_tail(&data->list, &wacom_udev_list);
+ 	}
+ 
++	if (wacom_wac->features.device_type & WACOM_DEVICETYPE_TOUCH)
++		data->shared.touch = hdev;
++	else if (wacom_wac->features.device_type & WACOM_DEVICETYPE_PEN)
++		data->shared.pen = hdev;
++
+ 	mutex_unlock(&wacom_udev_list_lock);
+ 
+ 	wacom_wac->shared = &data->shared;
+@@ -917,11 +928,6 @@ static int wacom_add_shared_data(struct hid_device *hdev)
+ 	if (retval)
+ 		return retval;
+ 
+-	if (wacom_wac->features.device_type & WACOM_DEVICETYPE_TOUCH)
+-		wacom_wac->shared->touch = hdev;
+-	else if (wacom_wac->features.device_type & WACOM_DEVICETYPE_PEN)
+-		wacom_wac->shared->pen = hdev;
+-
+ 	return retval;
+ }
+ 
+@@ -2345,9 +2351,15 @@ static void wacom_release_resources(struct wacom *wacom)
+ 
+ static void wacom_set_shared_values(struct wacom_wac *wacom_wac)
+ {
++	struct wacom *wacom = container_of(wacom_wac, struct wacom, wacom_wac);
++
++	mutex_lock(&wacom_udev_list_lock);
++
+ 	if (wacom_wac->features.device_type & WACOM_DEVICETYPE_TOUCH) {
+-		wacom_wac->shared->type = wacom_wac->features.type;
+-		wacom_wac->shared->touch_input = wacom_wac->touch_input;
++		if (wacom_wac->shared->touch == wacom->hdev) {
++			wacom_wac->shared->type = wacom_wac->features.type;
++			rcu_assign_pointer(wacom_wac->shared->touch_input, wacom_wac->touch_input);
++		}
+ 	}
+ 
+ 	if (wacom_wac->has_mute_touch_switch) {
+@@ -2361,12 +2373,7 @@ static void wacom_set_shared_values(struct wacom_wac *wacom_wac)
+ 			wacom_wac->shared->is_touch_on = true;
+ 	}
+ 
+-	if (wacom_wac->shared->has_mute_touch_switch &&
+-	    wacom_wac->shared->touch_input) {
+-		set_bit(EV_SW, wacom_wac->shared->touch_input->evbit);
+-		input_set_capability(wacom_wac->shared->touch_input, EV_SW,
+-				     SW_MUTE_DEVICE);
+-	}
++	mutex_unlock(&wacom_udev_list_lock);
+ }
+ 
+ static int wacom_parse_and_register(struct wacom *wacom, bool wireless)
+diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+index da1f0ea85625..495960227b8d 100644
+--- a/drivers/hid/wacom_wac.c
++++ b/drivers/hid/wacom_wac.c
+@@ -510,6 +510,22 @@ static void wacom_intuos_schedule_prox_event(struct wacom_wac *wacom_wac)
+ 	}
+ }
+ 
++static void wacom_report_touch_mute(struct wacom_wac *wacom_wac, bool mute)
++{
++	struct input_dev *touch_input;
++
++	if (!wacom_wac->shared)
++		return;
++
++	rcu_read_lock();
++	touch_input = rcu_dereference(wacom_wac->shared->touch_input);
++	if (touch_input) {
++		input_report_switch(touch_input, SW_MUTE_DEVICE, mute);
++		input_sync(touch_input);
++	}
++	rcu_read_unlock();
++}
++
+ static int wacom_intuos_pad(struct wacom_wac *wacom)
+ {
+ 	struct wacom_features *features = &wacom->features;
+@@ -650,12 +666,8 @@ static int wacom_intuos_pad(struct wacom_wac *wacom)
+ 	input_report_key(input, KEY_CONTROLPANEL, menu);
+ 	input_report_key(input, KEY_INFO, info);
+ 
+-	if (wacom->shared && wacom->shared->touch_input) {
+-		input_report_switch(wacom->shared->touch_input,
+-				    SW_MUTE_DEVICE,
+-				    !wacom->shared->is_touch_on);
+-		input_sync(wacom->shared->touch_input);
+-	}
++	if (wacom->shared)
++		wacom_report_touch_mute(wacom, !wacom->shared->is_touch_on);
+ 
+ 	input_report_abs(input, ABS_RX, strip1);
+ 	input_report_abs(input, ABS_RY, strip2);
+@@ -2153,7 +2165,7 @@ static void wacom_wac_pad_event(struct hid_device *hdev, struct hid_field *field
+ 	 */
+ 	if ((equivalent_usage == WACOM_HID_WD_MUTE_DEVICE) ||
+ 	   (equivalent_usage == WACOM_HID_WD_TOUCHONOFF)) {
+-		if (wacom_wac->shared->touch_input) {
++		if (wacom_wac->shared) {
+ 			bool *is_touch_on = &wacom_wac->shared->is_touch_on;
+ 
+ 			if (equivalent_usage == WACOM_HID_WD_MUTE_DEVICE && value)
+@@ -2161,9 +2173,7 @@ static void wacom_wac_pad_event(struct hid_device *hdev, struct hid_field *field
+ 			else if (equivalent_usage == WACOM_HID_WD_TOUCHONOFF)
+ 				*is_touch_on = value;
+ 
+-			input_report_switch(wacom_wac->shared->touch_input,
+-					    SW_MUTE_DEVICE, !(*is_touch_on));
+-			input_sync(wacom_wac->shared->touch_input);
++			wacom_report_touch_mute(wacom_wac, !(*is_touch_on));
+ 		}
+ 		return;
+ 	}
+@@ -3381,11 +3391,8 @@ static int wacom_wireless_irq(struct wacom_wac *wacom, size_t len)
+ 
+ 		if ((wacom->shared->type == INTUOSHT ||
+ 		    wacom->shared->type == INTUOSHT2) &&
+-		    wacom->shared->touch_input &&
+ 		    wacom->shared->touch_max) {
+-			input_report_switch(wacom->shared->touch_input,
+-					SW_MUTE_DEVICE, data[5] & 0x40);
+-			input_sync(wacom->shared->touch_input);
++			wacom_report_touch_mute(wacom, data[5] & 0x40);
+ 		}
+ 
+ 		pid = get_unaligned_be16(&data[6]);
+@@ -3420,11 +3427,8 @@ static int wacom_status_irq(struct wacom_wac *wacom_wac, size_t len)
+ 
+ 	if ((features->type == INTUOSHT ||
+ 	    features->type == INTUOSHT2) &&
+-	    wacom_wac->shared->touch_input &&
+ 	    features->touch_max) {
+-		input_report_switch(wacom_wac->shared->touch_input,
+-				    SW_MUTE_DEVICE, data[8] & 0x40);
+-		input_sync(wacom_wac->shared->touch_input);
++		wacom_report_touch_mute(wacom_wac, data[8] & 0x40);
+ 	}
+ 
+ 	if (data[9] & 0x02) { /* wireless module is attached */
+@@ -3951,11 +3955,22 @@ int wacom_setup_pen_input_capabilities(struct input_dev *input_dev,
+ int wacom_setup_touch_input_capabilities(struct input_dev *input_dev,
+ 					 struct wacom_wac *wacom_wac)
+ {
++	struct wacom *wacom = container_of(wacom_wac, struct wacom, wacom_wac);
++	struct hid_device *hdev = wacom->hdev;
+ 	struct wacom_features *features = &wacom_wac->features;
+ 
+ 	if (!(features->device_type & WACOM_DEVICETYPE_TOUCH))
+ 		return -ENODEV;
+ 
++	if (features->type != TABLETPC &&
++	    features->type != TABLETPC2FG &&
++	    features->type != MTSCREEN &&
++	    features->type != MTTPC &&
++	    features->type != MTTPC_B) {
++		input_dev->evbit[0] |= BIT_MASK(EV_SW);
++		__set_bit(SW_MUTE_DEVICE, input_dev->swbit);
++	}
++
+ 	if (features->device_type & WACOM_DEVICETYPE_DIRECT)
+ 		__set_bit(INPUT_PROP_DIRECT, input_dev->propbit);
+ 	else
+@@ -3992,22 +4007,17 @@ int wacom_setup_touch_input_capabilities(struct input_dev *input_dev,
+ 	switch (features->type) {
+ 	case INTUOSP2_BT:
+ 	case INTUOSP2S_BT:
+-		input_dev->evbit[0] |= BIT_MASK(EV_SW);
+-		__set_bit(SW_MUTE_DEVICE, input_dev->swbit);
+-
+-		if (wacom_wac->shared->touch->product == 0x361) {
++		if (hdev->product == 0x361) {
+ 			input_set_abs_params(input_dev, ABS_MT_POSITION_X,
+ 					     0, 12440, 4, 0);
+ 			input_set_abs_params(input_dev, ABS_MT_POSITION_Y,
+ 					     0, 8640, 4, 0);
+-		}
+-		else if (wacom_wac->shared->touch->product == 0x360) {
++		} else if (hdev->product == 0x360) {
+ 			input_set_abs_params(input_dev, ABS_MT_POSITION_X,
+ 					     0, 8960, 4, 0);
+ 			input_set_abs_params(input_dev, ABS_MT_POSITION_Y,
+ 					     0, 5920, 4, 0);
+-		}
+-		else if (wacom_wac->shared->touch->product == 0x393) {
++		} else if (hdev->product == 0x393) {
+ 			input_set_abs_params(input_dev, ABS_MT_POSITION_X,
+ 					     0, 6400, 4, 0);
+ 			input_set_abs_params(input_dev, ABS_MT_POSITION_Y,
+@@ -4037,10 +4047,8 @@ int wacom_setup_touch_input_capabilities(struct input_dev *input_dev,
+ 		fallthrough;
+ 
+ 	case WACOM_27QHDT:
+-		if (wacom_wac->shared->touch->product == 0x32C ||
+-		    wacom_wac->shared->touch->product == 0xF6) {
+-			input_dev->evbit[0] |= BIT_MASK(EV_SW);
+-			__set_bit(SW_MUTE_DEVICE, input_dev->swbit);
++		if (hdev->product == 0x32C ||
++		    hdev->product == 0xF6) {
+ 			wacom_wac->has_mute_touch_switch = true;
+ 			wacom_wac->is_soft_touch_switch = true;
+ 		}
+@@ -4059,8 +4067,6 @@ int wacom_setup_touch_input_capabilities(struct input_dev *input_dev,
+ 
+ 	case INTUOSHT:
+ 	case INTUOSHT2:
+-		input_dev->evbit[0] |= BIT_MASK(EV_SW);
+-		__set_bit(SW_MUTE_DEVICE, input_dev->swbit);
+ 		fallthrough;
+ 
+ 	case BAMBOO_PT:
+diff --git a/drivers/hid/wacom_wac.h b/drivers/hid/wacom_wac.h
+index 126bec6e5c0c..a8bbba4a6f37 100644
+--- a/drivers/hid/wacom_wac.h
++++ b/drivers/hid/wacom_wac.h
+@@ -285,7 +285,7 @@ struct wacom_shared {
+ 	/* for wireless device to access USB interfaces */
+ 	unsigned touch_max;
+ 	int type;
+-	struct input_dev *touch_input;
++	struct input_dev __rcu *touch_input;
+ 	struct hid_device *pen;
+ 	struct hid_device *touch;
+ 	bool has_mute_touch_switch;
+-- 
+2.54.0.1099.g489fc7bff1-goog
+

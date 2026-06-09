@@ -1,142 +1,103 @@
-Received: from mail-dy1-f178.google.com (mail-dy1-f178.google.com [74.125.82.178])
+Received: from mail-dl1-f47.google.com (mail-dl1-f47.google.com [74.125.82.47])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D63DB34F483
-	for <linux-input@vger.kernel.org>; Tue,  9 Jun 2026 05:18:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.178
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 98DEB34F483
+	for <linux-input@vger.kernel.org>; Tue,  9 Jun 2026 05:26:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.47
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780982302; cv=none; b=fu86M/mG1Hkige9k2WQRJrDqznOdZrn9b4ka/ijC90i6JubgjZh45v7LSWXPOJhzubyEIE7ZgqV7SKGWKw+J4Ujg+swz/7TmTuQVc5s3B4YOYG/USJS7GauVMRc1FoBH9Ox2URn6wEH9FC+L2tTROrUmh++RQ645FdCz5q1V0l4=
+	t=1780982780; cv=none; b=KsbrotlE1fgnSSYbsPsciE/scYgnYW0wlWN0kEp9DFZ9WbgWxd/4133ZSk38pqTm5zKZy1LwsZR7JUSyZdELIIMVBgdhprFiKB6m/PcPW223qYqrNwHDCjwNq/PbMATYuHBx2Y1ZOdEUxIByQCPc74IhvFy8OmMWLFe80N3y09c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780982302; c=relaxed/simple;
-	bh=P/2RscSnXVqnZndBim1MWV2fq9HQD9RDlfjdtFT+tE0=;
+	s=arc-20240116; t=1780982780; c=relaxed/simple;
+	bh=EFHHBUqZkulkW283cRClEdU8zex39fRkCXIVj4vCFfw=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=C0MhbAeKB05W1rJYadKNL+sb4l4KW5BhkumjRTnfZZRIu3JXRLGnGbLihFm+4E0rgwIb6zpRw9WDjQWnoeWPAxlchLsyRZWhHDCYePolyK0CYVNwDXMLU++43IbjBF8VnPwVVL08MVbaap66GFWhzySc+/vCuMTq68IrnXxbFBU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=WUaabuZv; arc=none smtp.client-ip=74.125.82.178
+	 Content-Type:Content-Disposition:In-Reply-To; b=RLal8xMa5JqG1OQWvvzOMK2s+D5tvAeO2O/2AHKFhdx1A9OaHDQiEx3RgOcmnW0QtZMLMJItltsWxwPU7skmxJ6dCGpxrfB6uP4+4FzG3VXoRgJDIQagxxtV50A8AGvbLViKpJaulC4o/Sv1e4kI67ddlGoUPDdhplKYUvNwuVs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=PiTc0b+C; arc=none smtp.client-ip=74.125.82.47
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="WUaabuZv"
-Received: by mail-dy1-f178.google.com with SMTP id 5a478bee46e88-304d8362a58so3065871eec.1
-        for <linux-input@vger.kernel.org>; Mon, 08 Jun 2026 22:18:20 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="PiTc0b+C"
+Received: by mail-dl1-f47.google.com with SMTP id a92af1059eb24-137dd4cc208so3240192c88.1
+        for <linux-input@vger.kernel.org>; Mon, 08 Jun 2026 22:26:19 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1780982300; x=1781587100; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=eXhEHeMj1OOZvAsVlTdhmcNYzaLIWY0sNp+g7ckAPzw=;
-        b=WUaabuZvHYUbDoOzjzqVpjoGv9Pdj/p/ENYbcvbK/xOaRnhnFhzf5rq6wUIikBfARm
-         gyHm+qg6M7NgmQtUScFNbSHGt2CT1V9gn9HAhFDCdtqo0VkMC/BWTL5nMDPWzHyth5ir
-         2aqtrRtO14jEfsqAn98lucdDQPSXexLN1DDB9HMqBzDyhnZdlVjqS94WYBbxd1FQ0q8x
-         0+4VdYKPkzoVn5BLFdEv2bsR8HnuvIwJnDiEqJnNxqVQ9puiN6bY8Y9CNQcUeI7mj23m
-         u23ob3r/0xUnHTgns1OTQqiGvRluyr1nZ9mlTgt+N9LNbSC1bf3AOxUqGgqrKLf8F0zg
-         j2Jw==
+        d=gmail.com; s=20251104; t=1780982779; x=1781587579; darn=vger.kernel.org;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=DVQFitMULzV0jlKXU2oLkFHPkf/TQ1MszSxTz/FIHNM=;
+        b=PiTc0b+CZyRB8Yltm7+BJgpMaIj4dNlOAWxYCrRZIxIG3R6sVew4THnLw7/iyXHlfC
+         O1Puf2qROlJkidkHeSUnmSJxT83oLYuAqWUBj/CCfTgJSsKKNZy5GAKyvarO9n+t8mXH
+         yz2H0bcpTxmdhxXZkp8sCV/0CW4sQtcIS14plCoF04m0ltdSy7ZslKVjgKEc+YINy6PA
+         BrnmjuhOx6uxvkL8dcMRDB2TfpZmT6/CECIut5Gfi/wZXsadhdsbtjGPjc95SMEe0EoQ
+         ACW30jwMHigyeTQGsgtdPsj8gPQHFrfzVnLiMLRG9jAdf7nrU6KnDt1LQ2DEnXh6B7A9
+         hpEQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780982300; x=1781587100;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=eXhEHeMj1OOZvAsVlTdhmcNYzaLIWY0sNp+g7ckAPzw=;
-        b=rIvCHo7yLPojZwdO1qnpx0XT9j1c/FOFqIDr2FH2Cv3fCwpmdQE6KoBaj7WzVmMJkV
-         4oSoBj5Pm3dbuS3UDUDP3GlycbgSN+C+LZ8sOUEN5Ly+ib7Aup6DyQWUV1HNMQ5pNXOd
-         U05W9rc1QISfwH9bZDPdLXkQwCnKGvIugQebHkxI6+2Oep9AIFYnjErM+I2ygcBx8Z1H
-         vR6iwjSqaC3JuCOsMu05uGaR2AfrmbZb6cQl1hyaes7A00CruKhWi9s1P7qrCZ40//+H
-         1nysWTlZfEerF0obBXGhmIMjmOTHDuT8b6A/m+6lPUxW0h4IbsravfxEYPzWjwvwpCg1
-         J+Aw==
-X-Forwarded-Encrypted: i=1; AFNElJ9tYi/QR+yHyG8MpHiM5d8N3cOiW2ZlsF8wdRLWeIEv16DAijDPK1LriAHYOqAuEtTGEEJsxHfpqmKxqQ==@vger.kernel.org
-X-Gm-Message-State: AOJu0YySj9JiI2t2gEf/+cyyfvcBFjUKgnxmjfaVGQ1FE9WY1BsYvPCP
-	ssrzW2A/lV7BIuWCDe4ZU2sfLLSkL6ye28rqWKVK9tIh0S0rU9WfJ6Kg
-X-Gm-Gg: Acq92OH+nFlZb4WqK3JzB9ZvM9TFK75jfL2fULfwnLIP5TRhIWc5MSph0aQsqEE9RsN
-	nSablaqMnU2d4vMKuRyGsfwqaT1DK3lOiJ9zIqSiFCe+lr7MPmTKrPZuKoOeQ8M9NqkKNHo9CwJ
-	8E/O6281MEnHHpce92CpZ39ZHj3CGcVF2NewsI1uymkDLRtwQY6xCR1vSwA1e0PslAfaxeW4JfZ
-	+C24QG8QVV4ORqv/w2scTpoqjlNiYloXCwHnf+Q6+DjHFSnDEsmTrF/6S0Wr6zWU7KQ00i5pyac
-	eza6/D8vsrCE01EQuVez9KHOgY3zdJo8d3BORXVnHcsYAV0DUkVZdJQr49NzrWxYYw2wAojMj2Y
-	TTGLzroXTnlMC+UCaYlB+1xMgyil79KIcc9Dydv+GrG5QqYRIyZyOoWT0ncIik3qCz48mKghyKz
-	9qg9RbPgxTAeJRMBtH1aMZ57RXYVlD1YsTESFB6o52yu8EA5qR8lLoz1RNGeHoya6D/d8ssL+3W
-	+U=
-X-Received: by 2002:a05:693c:20d1:10b0:2ee:7b2e:8a3e with SMTP id 5a478bee46e88-3077fd76cc3mr4847201eec.1.1780982299950;
-        Mon, 08 Jun 2026 22:18:19 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1780982779; x=1781587579;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=DVQFitMULzV0jlKXU2oLkFHPkf/TQ1MszSxTz/FIHNM=;
+        b=g8R3YNjNzzLAhDSpaS67Khm9LobYvuVhkmMgd9wsj1MzBJ/5AQACfIjjHpRFqZlCYf
+         n/Z2kkM0FZjuDM/r6QKItLIeYfOXMCClQoCqOjpALmHGfx21j2PUx/QZqKcFP0tZ+F/M
+         47tjpa0VYa3j5/rTOvKdwIAgyDTMAmms/+S/USPu/Sk26S5lXpF1rXLuE9oV47OW8c0Y
+         X2tq2BTXmbGGNFOcRuHJiQVfeYp/Ea/IVmMs7Oih1BcnN4HcuTh9eVRRqqrc5feUmQvH
+         p4sL9VXRRUhDbac6eSlj9BWS9myQ8kE5/wIcXNliAgDB1Jcd8B3Ziw0m7h3CF3FMTzRD
+         R+qg==
+X-Gm-Message-State: AOJu0YyyZaZS/c03H2LKvUAmJVjAhbt+u3Zsq8Z9s2bND9kgItUxq05E
+	5zQ0HD1rsR0akbw+RPSHL9gcpaYk/17cCYDkGxoznjl006KWlK4vqDzSTGWzZg==
+X-Gm-Gg: Acq92OGlMNNydkqWO2rjd8x0dh21M80WT9XSmr+vAw8rAgyEIWjGubuyudIhL7G1/O9
+	hBp/u5RQnX3X9Tqu68IT6uEKLwaBg7cEXuwpRRJvXGaXp7mVt6h2XUwK4j+L2QJU09ieeYWgdGl
+	kGXqeYgLN8Ko3uM6/eKZ3Ykdik8fOi/mMggIpilfs3s3nlXW3XoZHymB2e/2JfTOpusRvQ5RaAM
+	bP0v7h7wOeMfcpm44d5kd7mMNL3782HXFgIae05CbIfi6SJIlct0hG004//U6tHx74slmXzsuuX
+	MKJc+N/N7w2trOIcmLumtmTs7gugVRoseLl9FI5/kXYHZ+EdzvdTME3Z7Gf68GRVYYlph8VfAj8
+	BlDc4W3sWcyPakdlSX3JlwSdmjXNRX/goJN7GXE2JPG5w6kholo3IG7ZZimxsLBzlkFaREPF+d5
+	mE7ZDIAl0xFeE1zxeARuGOj6RY5dSUojMPb9Le45VX39ToEKBzbhT9YEFddzptVXTzbYoXlq/PF
+	mc=
+X-Received: by 2002:a05:7022:6ba6:b0:136:aebc:24f5 with SMTP id a92af1059eb24-13807d7e4f0mr9024789c88.15.1780982778582;
+        Mon, 08 Jun 2026 22:26:18 -0700 (PDT)
 Received: from google.com ([2a00:79e0:2ebe:8:355d:c69b:fe36:8969])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-30791f9da69sm11936730eec.31.2026.06.08.22.18.18
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-137f553ab33sm13728402c88.10.2026.06.08.22.26.16
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 08 Jun 2026 22:18:19 -0700 (PDT)
-Date: Mon, 8 Jun 2026 22:18:16 -0700
+        Mon, 08 Jun 2026 22:26:17 -0700 (PDT)
+Date: Mon, 8 Jun 2026 22:26:14 -0700
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Ranjan Kumar <kumarranja@chromium.org>
-Cc: bleung@chromium.org, bentiss@kernel.org, linux-input@vger.kernel.org, 
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v3] Input: elan_i2c - prevent division by zero on invalid
- device parameters
-Message-ID: <aiefjOflOlbUiWDa@google.com>
-References: <20260515071052.7DDA0C2BCB0@smtp.kernel.org>
- <20260518062624.1147959-1-kumarranja@chromium.org>
+To: Rosen Penev <rosenp@gmail.com>
+Cc: linux-input@vger.kernel.org, open list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] input: ipaq-micro-keys: simplify allocation
+Message-ID: <aiei-6StVryWDvFg@google.com>
+References: <20260608045041.4664-1-rosenp@gmail.com>
+ <aibx1y8ANiZoMHyY@google.com>
+ <CAKxU2N8s8z5jD2JVU4b166jQYsUjWMj4Q5a-B6vkX7-fhCK8LQ@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20260518062624.1147959-1-kumarranja@chromium.org>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAKxU2N8s8z5jD2JVU4b166jQYsUjWMj4Q5a-B6vkX7-fhCK8LQ@mail.gmail.com>
 
-Hi Ranjan,
+On Mon, Jun 08, 2026 at 01:20:36PM -0700, Rosen Penev wrote:
+> On Mon, Jun 8, 2026 at 9:49 AM Dmitry Torokhov
+> <dmitry.torokhov@gmail.com> wrote:
+> >
+> > Hi Rosen,
+> >
+> > On Sun, Jun 07, 2026 at 09:50:41PM -0700, Rosen Penev wrote:
+> > > Use a flexible array member to have a single allocation.
+> >
+> > Why does it have to be flexible? The size is known.
+> From a quick glance, that would be a compilation error. micro_keycodes
+> gets declared after ipaq_micro_keys
 
-On Mon, May 18, 2026 at 06:26:24AM +0000, Ranjan Kumar wrote:
-> The Elan I2C touchpad driver queries the device for its physical
-> dimensions and trace counts to calculate the device resolution and width.
-> However, if the device firmware or device tree provides invalid zero
-> values for x_traces, y_traces, x_mm, or y_mm, it results in a fatal
-> division-by-zero exception leading to a kernel panic during device probe.
+We could swap them around, no big deal.
 > 
-> Add sanity checks to ensure these physical parameters are non-zero
-> before performing the division. If invalid trace values are detected,
-> log a warning and fall back to ETP_FWIDTH_REDUCE to prevent arithmetic
-> underflow during touch reporting.
+> From looking at a bunch of struct definitions, [ARRAY_SIZE(foo)] seems
+> to be atypical.
 
-I would define some defaults that are not necessarily the same as
-ETP_FWIDTH_REDUCE. The arithmetic overflow should be handled separately,
-as it may still happen if we read (or set up via device tree) some small
-(but non-zero) values.
-
-> For invalid physical dimensions, fall
-> back to a safe default of 1.
-> 
-> This prevents the kernel panic while allowing the probe to complete
-> successfully. Completing the probe ensures the sysfs nodes are created,
-> keeping the firmware update path intact so a recovery firmware can be
-> flashed to the device.
-> 
-> Fixes: 6696777c6506 ("Input: add driver for Elan I2C/SMbus touchpad")
-> Fixes: e3a9a1290688 ("Input: elan_i2c - do not query the info if they are provided")
-> Signed-off-by: Ranjan Kumar <kumarranja@chromium.org>
-> ---
-> Changes in v3:
->  - Changed trace fallback values from 1 to ETP_FWIDTH_REDUCE to prevent 
->    an unsigned integer underflow in elan_report_absolute(). 
->  Changes in v2:
->  - Changed error handling from aborting probe with -EINVAL to logging a
->    warning and falling back to default values.
-> 
->  drivers/input/mouse/elan_i2c_core.c | 25 +++++++++++++++++++++----
->  1 file changed, 21 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/input/mouse/elan_i2c_core.c b/drivers/input/mouse/elan_i2c_core.c
-> index fee1796da3d0..c64e1dd1e60b 100644
-> --- a/drivers/input/mouse/elan_i2c_core.c
-> +++ b/drivers/input/mouse/elan_i2c_core.c
-> @@ -425,8 +425,17 @@ static int elan_query_device_parameters(struct elan_tp_data *data)
->  		if (error)
->  			return error;
->  	}
-> -	data->width_x = data->max_x / x_traces;
-> -	data->width_y = data->max_y / y_traces;
-> +
-> +	if (unlikely(x_traces == 0 || y_traces == 0)) {
-
-I'd say "if (!x_traces || !y_traces) ...". This is not hot path so
-annotating with unlikely does not buy us anything.
-
-I wonder if we should be comparing with some threshold instead of 0.
-Something above 90 I guess.
+There are a lot of "#define BLAH_SIZE	ARRAY_SIZE(blah)" that later
+used in array definitions.
 
 Thanks.
 

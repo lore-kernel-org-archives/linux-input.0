@@ -1,162 +1,191 @@
-Received: from mail-ot1-f79.google.com (mail-ot1-f79.google.com [209.85.210.79])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E9B913DA7E4
-	for <linux-input@vger.kernel.org>; Tue,  9 Jun 2026 08:35:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.79
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A76AE38A73C
+	for <linux-input@vger.kernel.org>; Tue,  9 Jun 2026 09:31:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.180.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780994136; cv=none; b=iHONbV5+9xeJ4wd3rg429FxkLIp0MfVzg6cIXtN8IDfU54yzMZVO8XGlQ9mwA3ZbtNAPpgv/bsu/7CW2uwwARUMV7UtVB6bGjoBZy6q8zixB94QnBigORfuqRL1+u0EjCq0S6Re1Fqw6me8mnWeTTQhm8lRR4mYUc40AI7hlkpY=
+	t=1780997466; cv=none; b=HaooLpXEz+p62mEjYrPX4WpGI//4g3714+KFASnwF8FgDZOVvVK+thsuEmPOjgZNIKfAnRoxtlm85O7MekLuT4/sDWNfbRsFrujfVItO8/qWuiSWXKvfS2mOqL2sK0ztJl40RDrrCCWmKppqn1QVpywv6CNlKxwq/dvDy8Kb+WU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780994136; c=relaxed/simple;
-	bh=+P9np9Vka2QTiz07ylMGTts8gjD5wS+NjaH1YvfbKcs=;
-	h=MIME-Version:Date:Message-ID:Subject:From:To:Content-Type; b=flJ/0sfQw/9Hb9DzZ31BaoFo18giIKaQNscn0xl9D7Jrikf85046H/D/VgiG23tcPHe5QzOOb1RIaU9uNMSQd7GNd2qPfiXSMa5DG7rTs9Ch4+FkyXUGxHFI7gVNdqv8IiiH6HSz7Evlkjhv+aBLMf+9RGz42I6AqdTmXxsSflE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.210.79
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
-Received: by mail-ot1-f79.google.com with SMTP id 46e09a7af769-7e74781faaaso2315022a34.2
-        for <linux-input@vger.kernel.org>; Tue, 09 Jun 2026 01:35:34 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780994134; x=1781598934;
-        h=to:from:subject:message-id:date:mime-version:x-gm-message-state
+	s=arc-20240116; t=1780997466; c=relaxed/simple;
+	bh=MNkG34kMsVvnIhkvNI7U4mabmb8YGJmSa1V1L6Dp6No=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=cBVvDv421G6OxxH1pn6zaPhweGG7WlRhNXwS+7QUYcwpQmUKshYpSUC+9hde/6sd0WEOgGYW5I/GawdNtp5LiMhQxBQMcnTgUZCg0pG1BcQiIomziCVON2334sPPtborGLsA8A3ft8EBExhacOaEUSUrvteig9wUCpzJHZV8mPc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=RiQ/uF3m; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=NVaX12XM; arc=none smtp.client-ip=205.220.180.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="RiQ/uF3m";
+	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="NVaX12XM"
+Received: from pps.filterd (m0279873.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6599JlMX2223163
+	for <linux-input@vger.kernel.org>; Tue, 9 Jun 2026 09:31:04 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
+	cc:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
+	BMa3qXAR5txkpAwY5jpKqli4jX9daJVnoCU3TE9NuOI=; b=RiQ/uF3mP/XnZ6bU
+	SId5H3m4HAASGnXJXGsMf3odDzD3ZsQxdsKs5Z1hd7j6+ZSLE7s0pe8eXz+9OW2w
+	GMFWzmITNWuh4yYqvd26yhZrlzVN0cX0JuLPz13twLM1ot3WxcTckKFb8jQPx03t
+	OcSd8PRmTgKtgNdP+Xk8GEEV2L3UKVFwVrCEEVhXzX/nhA0QBg0yjXBTl2aAtMn0
+	tmAasEXfrPRJwouMqnJRQoRqdfaGWhh13pFnZpAgArLuHQAuQXpfoweFq01jvRHd
+	+/5QA0EvGOwZ8xB6ezMvYtshvnHxUJtD/yG88zIVAKvcrdTFEkURRmjrS9DK1o4+
+	mHj4MQ==
+Received: from mail-qt1-f197.google.com (mail-qt1-f197.google.com [209.85.160.197])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4epg3v01fc-1
+	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
+	for <linux-input@vger.kernel.org>; Tue, 09 Jun 2026 09:31:04 +0000 (GMT)
+Received: by mail-qt1-f197.google.com with SMTP id d75a77b69052e-517796be724so10591951cf.3
+        for <linux-input@vger.kernel.org>; Tue, 09 Jun 2026 02:31:04 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=oss.qualcomm.com; s=google; t=1780997464; x=1781602264; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
          :from:to:cc:subject:date:message-id:reply-to;
-        bh=9VdIF8pTA7WFCZP9AlK4xwxv3lQF76PPRLqZ1KRVk1g=;
-        b=TrnkuJfm+6HtIAddWhpe5MXPcX0CXtnCnjg/rbpsVCpqdd4CEQrextQC9mQWSKJBik
-         R5d7opp/VjpgBDSiAfnmrWUe33Y5nneSuMgHj7ylPvGm36BOW0RzRT2fa5Trn1lKVvPk
-         rvzQ2hkpM4KiudlVen4x3YZ9IfoE0IF1F1u2H9ZuUdiFvK0QXn6W2ZrXMM0wQIAWKPq3
-         gJsxaSIUwx3T8S5QLUFkgRsJfILLSzCs6YZimoSgPaQmmus8gGrmgg9UwRmocx3+nRol
-         bHgeSqAJ04X2xnC6rI3q4uikWDn5Ox/Vbtok73kTrAdB/UM0h5OEQIn/n5yy+8ArRly2
-         69lA==
-X-Gm-Message-State: AOJu0YwgSITS9MAR1lQzqIpZ56cVwS7/qo033cIHCPmH2pEwc9NTOKt5
-	ofCkYnRGpb/og/m5LDvkmOS1DojAHx+qGU0bBwIeHPY+M6ihvK4XL+tudWbDzoN3AKSjIchb7ae
-	IG2/AZw7uYF35KGpkn60LSS62HD1RYtbOA+vVd29Oir7hEHTqtRgxCJBzsxpkKQ==
+        bh=BMa3qXAR5txkpAwY5jpKqli4jX9daJVnoCU3TE9NuOI=;
+        b=NVaX12XM42/UxPdmc1N8Cbn+lmwD9K+6LsrQq52HGDCLnuG74sSap2h7e5LMhxBfsC
+         9V4JuWUlm+rJee5Yj9qeNcGyi7HIZaYLboFpZhhF75OqmmxdsgkICvC7VPTVze2psSM8
+         PPO0qahvqXUYrYZybunKiDUMHVk09VojOe4MSorDfdEdA5tc+tkCjbxqvIvhcR+gHRqg
+         cFTbAxZ0z3inw/zoOPXs17hStYNQgxyiSNkofXBQ8PNwMSQwMcVE+iHbVvptM9Uif0O4
+         rxcJ3Pr02afvk5Qr0zSPtNMJiC815I1v4/OX+LsugL+BCQk4jpCjU6fo34zGsHPVg6jB
+         BKNQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1780997464; x=1781602264;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=BMa3qXAR5txkpAwY5jpKqli4jX9daJVnoCU3TE9NuOI=;
+        b=slRkpjAOWHsRKuEK7YQgTQpBJtlP/Y5Wpvzr0Q0bwMHzMli80ZZIMFUQdm/35JorF2
+         2PA5+Ioi6kC1L4wsy2X+p0T/4K6lzV561dnNeDSJmsT5dh4VuAczXggFYF00Yp7kXImm
+         Pxh6F0XiDV/4yfDpq7PG7P/4R1u9sZ5acVKXF6VWrMpDu3Ly9UYnDOGa6ux+qhueJH8y
+         GnrlhxFz+Xyq9674Xs0MtMIqGTUVrqrHU9dWgseDWhFmoXsIqFBc/W71S0XHra6mY2ag
+         smhAQ7oq5ZEslLIhmSifr8Ge3HXXidrPD6zxMFFs2aOKIv0DdCXL0Fcryh6YcQg/nSVk
+         wxww==
+X-Forwarded-Encrypted: i=1; AFNElJ8Nf9biGReft3ULfw/z2Fe5sj62W9ulZZVoo/KzsPRF8tG03E4m9z/0cb3J4A+wtS1cnK1HrQyjg6SQdQ==@vger.kernel.org
+X-Gm-Message-State: AOJu0YzDOjdlWu6Ju+9XWgapsIi/iAxp/7OwgyPgIfMoRpWAPzFsbWaL
+	o0OD8h77cVD9Odx2iYe8pFzAExD7r2VEoaCFWksdyF2wtytYkTG8t7gIM0xG1vXSzRU6JTurTTf
+	IxagihMdcsGx+4gGf15oUbjdn8MwxwDRS+SBUKx0yNa4oXprM1dQ45IhZrVHrdzD0gQ==
+X-Gm-Gg: Acq92OEK0y+2DcEqL5FvvKRMNVPtZygRHSrVfm5c3jBDZdzJ1ceGCrKiWe8RhMzRA6p
+	ybec+Eci16gG9FPc3gpt7Gc12zBI7kuVc/7PuaZtuBSjjkLAcu6LbCXTZ9qq1rpujDt08UrJwgn
+	QXTdB+MMzI5bhO/DtwCG5hpXDpAKGYNcIQ6ie+KFSklziUMXCmZ/Q98yLIr1O6TMwr7YqhO9Bvd
+	FXh//k7mLbRpSUbbd/M4c0jGqcqBTp93OWYIZlP2CHVoqYiX2CtsfKO1YpNJ2DzPWBJhhq3mBiC
+	5AF4aLQMfjFLat9vf+Mf3FzN6fpSQvQWTY9ldOjA3n3eVEmWdYZBQ5HmTWWrJdmAvZK6VsdYIHx
+	B+TvImquOluoZSlELmtiuCAwtYmc4N7eR8b4Z4tX/yY7szuHtjwwlOaZl
+X-Received: by 2002:ac8:59c8:0:b0:50b:2875:5782 with SMTP id d75a77b69052e-51795c56077mr168230341cf.6.1780997464168;
+        Tue, 09 Jun 2026 02:31:04 -0700 (PDT)
+X-Received: by 2002:ac8:59c8:0:b0:50b:2875:5782 with SMTP id d75a77b69052e-51795c56077mr168229991cf.6.1780997463612;
+        Tue, 09 Jun 2026 02:31:03 -0700 (PDT)
+Received: from [192.168.120.170] ([178.235.128.140])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-bf05228a16csm1005080866b.28.2026.06.09.02.30.56
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 09 Jun 2026 02:30:59 -0700 (PDT)
+Message-ID: <4ced3207-a132-4ec5-a0eb-79f75f5cb4bb@oss.qualcomm.com>
+Date: Tue, 9 Jun 2026 11:30:55 +0200
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Received: by 2002:a05:6820:1999:b0:69e:3c64:7f6f with SMTP id
- 006d021491bc7-69e68c58c2bmr9469034eaf.48.1780994133929; Tue, 09 Jun 2026
- 01:35:33 -0700 (PDT)
-Date: Tue, 09 Jun 2026 01:35:33 -0700
-X-Google-Appengine-App-Id: s~syzkaller
-X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <6a27d055.39669fcc.33b062.008d.GAE@google.com>
-Subject: [syzbot] [usb?] [input?] KMSAN: uninit-value in steam_register
-From: syzbot <syzbot+75f3f9bff8c510602d36@syzkaller.appspotmail.com>
-To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-usb@vger.kernel.org, syzkaller-bugs@googlegroups.com
-Content-Type: text/plain; charset="UTF-8"
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v3 2/2] arm64: dts: qcom: Add Microsoft Surface Pro 12in
+To: Harrison Vanderbyl <harrison.vanderbyl@gmail.com>,
+        linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
+        linux-arm-msm@vger.kernel.org, devicetree@vger.kernel.org
+Cc: jikos@kernel.org, bentiss@kernel.org, andersson@kernel.org,
+        konradybcio@kernel.org, robh@kernel.org, krzk+dt@kernel.org,
+        conor+dt@kernel.org, dmitry.baryshkov@oss.qualcomm.com
+References: <20260529011619.9586-1-harrison.vanderbyl@gmail.com>
+ <20260529011619.9586-3-harrison.vanderbyl@gmail.com>
+Content-Language: en-US
+From: Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>
+In-Reply-To: <20260529011619.9586-3-harrison.vanderbyl@gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Authority-Analysis: v=2.4 cv=St6gLvO0 c=1 sm=1 tr=0 ts=6a27dd58 cx=c_pps
+ a=EVbN6Ke/fEF3bsl7X48z0g==:117 a=PRfkaYvzSr8QmIIGAkY2Sg==:17
+ a=IkcTkHD0fZMA:10 a=FelO9ux0wxsA:10 a=s4-Qcg_JpJYA:10
+ a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22 a=rJkE3RaqiGZ5pbrm-msn:22
+ a=pGLkceISAAAA:8 a=EUspDBNiAAAA:8 a=_XXtN2VGHKrtNHovNKMA:9 a=QEXdDO2ut3YA:10
+ a=a_PwQJl-kcHnX1M80qC6:22
+X-Proofpoint-ORIG-GUID: agN1Lr6q2kzW3fVhYkwY3lEc3KqxuiI3
+X-Proofpoint-GUID: agN1Lr6q2kzW3fVhYkwY3lEc3KqxuiI3
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjA5MDA4OCBTYWx0ZWRfX195w1up3D2Cn
+ lKn0yp+kcOQlTXy1M1jWqRotyI88B0iRnt3dIy1JngF4nyiwVvs1RaYnK1ViDW4IP77cWMsgcxd
+ 2ykBrXweRHBxEuvK40aG+dmLmJcswaXRVLuhrbv1Moey0ki8jqsAuK/W0s29nax5NO1g2eSYTDB
+ jfISBs3aNZAGy7GZMjXR+D5/oOzaNnmwtopYDZytlsv5xiW3+yCBHG/LgPTllISxQ4+2+3V1Vxi
+ JdeE+WbZv+XRJNUO+XdPpBtvixMBnlhBwW4f6kS/gHyuIm5gKWq9VljKx4rOjn2qSTdEISVYhz6
+ /oagL1TiAb491J7jWnp4FXDVkxvQdlWNTG+V55LM4lJaDFOhfkvbL38yMR8e3bPDGfv2RE0hewI
+ 2vWWSwZL8uqAgtDZ/dXCm9xqx9jPNfzoxp8fEHQ0D8DnWyjlVDj6zBUiYPT5w6z/sCBxWRLivg7
+ QZZ44tSN1ALfzuqym6w==
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
+ definitions=2026-06-09_02,2026-06-09_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ impostorscore=0 malwarescore=0 suspectscore=0 adultscore=0 lowpriorityscore=0
+ clxscore=1015 spamscore=0 bulkscore=0 phishscore=0 priorityscore=1501
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2605210000 definitions=main-2606090088
 
-Hello,
+On 5/29/26 3:16 AM, Harrison Vanderbyl wrote:
+> Initial device tree for Microsoft Surface Pro 12in
+> 
+> Currently supported:
+>   - UFS
+>   - Touchscreen
+>   - Pen
+>   - USB 3.2 x2 (DP Alt Mode)
+>   - Audio
+>   - Wifi
+>   - Bluetooth
+>   - CDSP
+>   - ADSP
+>   - GPU
+> 
+> Not currently supported:
+>   - Accelerometer
+>   - Front, Back and IR cameras
+>   - IRIS video decoder
+> 
+> Tested on Surface_Pro_12in_1st_Ed_with_Snapdragon_2110
+> 
+> Signed-off-by: Harrison Vanderbyl <harrison.vanderbyl@gmail.com>
+> Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@oss.qualcomm.com>
+> ---
 
-syzbot found the following issue on:
-
-HEAD commit:    8e65320d91cd Merge tag 'drm-fixes-2026-06-06' of https://g..
-git tree:       upstream
-console output: https://syzkaller.appspot.com/x/log.txt?x=13cb9e7a580000
-kernel config:  https://syzkaller.appspot.com/x/.config?x=a0ca3b8cb3875012
-dashboard link: https://syzkaller.appspot.com/bug?extid=75f3f9bff8c510602d36
-compiler:       Debian clang version 21.1.8 (++20251221033036+2078da43e25a-1~exp1~20251221153213.50), Debian LLD 21.1.8
-
-Unfortunately, I don't have any reproducer for this issue yet.
-
-Downloadable assets:
-disk image: https://storage.googleapis.com/syzbot-assets/793bd3b9425c/disk-8e65320d.raw.xz
-vmlinux: https://storage.googleapis.com/syzbot-assets/4bfe5cfc266c/vmlinux-8e65320d.xz
-kernel image: https://storage.googleapis.com/syzbot-assets/99c7cd705a06/bzImage-8e65320d.xz
-
-IMPORTANT: if you fix the issue, please add the following tag to the commit:
-Reported-by: syzbot+75f3f9bff8c510602d36@syzkaller.appspotmail.com
-
-hid-steam 0003:28DE:1102.0007: unknown main item tag 0x0
-hid-steam 0003:28DE:1102.0007: unknown main item tag 0x0
-hid-steam 0003:28DE:1102.0007: : USB HID v7f.fd Device [HID 28de:1102] on usb-dummy_hcd.1-1/input0
-=====================================================
-BUG: KMSAN: uninit-value in steam_get_serial drivers/hid/hid-steam.c:457 [inline]
-BUG: KMSAN: uninit-value in steam_register+0xd83/0x10e0 drivers/hid/hid-steam.c:965
- steam_get_serial drivers/hid/hid-steam.c:457 [inline]
- steam_register+0xd83/0x10e0 drivers/hid/hid-steam.c:965
- steam_probe+0x6f1/0x19b0 drivers/hid/hid-steam.c:1273
- __hid_device_probe drivers/hid/hid-core.c:2822 [inline]
- hid_device_probe+0x60d/0xb90 drivers/hid/hid-core.c:2859
- call_driver_probe drivers/base/dd.c:-1 [inline]
- really_probe+0x4d5/0xe40 drivers/base/dd.c:709
- __driver_probe_device+0x2fb/0x410 drivers/base/dd.c:871
- driver_probe_device+0x70/0x8f0 drivers/base/dd.c:901
- __device_attach_driver+0x4ee/0x950 drivers/base/dd.c:1029
- bus_for_each_drv+0x3e3/0x680 drivers/base/bus.c:500
- __device_attach+0x3c5/0x5f0 drivers/base/dd.c:1101
- device_initial_probe+0x126/0x170 drivers/base/dd.c:1156
- bus_probe_device+0x287/0x530 drivers/base/bus.c:613
- device_add+0x12e3/0x1c90 drivers/base/core.c:3706
- hid_add_device+0x440/0x5d0 drivers/hid/hid-core.c:3003
- usbhid_probe+0x1a25/0x20e0 drivers/hid/usbhid/hid-core.c:1449
- usb_probe_interface+0xd51/0x1440 drivers/usb/core/driver.c:396
- call_driver_probe drivers/base/dd.c:-1 [inline]
- really_probe+0x4d5/0xe40 drivers/base/dd.c:709
- __driver_probe_device+0x2fb/0x410 drivers/base/dd.c:871
- driver_probe_device+0x70/0x8f0 drivers/base/dd.c:901
- __device_attach_driver+0x4ee/0x950 drivers/base/dd.c:1029
- bus_for_each_drv+0x3e3/0x680 drivers/base/bus.c:500
- __device_attach+0x3c5/0x5f0 drivers/base/dd.c:1101
- device_initial_probe+0x126/0x170 drivers/base/dd.c:1156
- bus_probe_device+0x287/0x530 drivers/base/bus.c:613
- device_add+0x12e3/0x1c90 drivers/base/core.c:3706
- usb_set_configuration+0x3484/0x3b60 drivers/usb/core/message.c:2268
- usb_generic_driver_probe+0xfc/0x290 drivers/usb/core/generic.c:250
- usb_probe_device+0x38d/0x690 drivers/usb/core/driver.c:291
- call_driver_probe drivers/base/dd.c:-1 [inline]
- really_probe+0x4d5/0xe40 drivers/base/dd.c:709
- __driver_probe_device+0x2fb/0x410 drivers/base/dd.c:871
- driver_probe_device+0x70/0x8f0 drivers/base/dd.c:901
- __device_attach_driver+0x4ee/0x950 drivers/base/dd.c:1029
- bus_for_each_drv+0x3e3/0x680 drivers/base/bus.c:500
- __device_attach+0x3c5/0x5f0 drivers/base/dd.c:1101
- device_initial_probe+0x126/0x170 drivers/base/dd.c:1156
- bus_probe_device+0x287/0x530 drivers/base/bus.c:613
- device_add+0x12e3/0x1c90 drivers/base/core.c:3706
- usb_new_device+0x106a/0x2120 drivers/usb/core/hub.c:2695
- hub_port_connect drivers/usb/core/hub.c:5567 [inline]
- hub_port_connect_change drivers/usb/core/hub.c:5707 [inline]
- port_event drivers/usb/core/hub.c:5871 [inline]
- hub_event+0x5404/0x77c0 drivers/usb/core/hub.c:5953
- process_one_work kernel/workqueue.c:3314 [inline]
- process_scheduled_works+0xb65/0x1e40 kernel/workqueue.c:3397
- worker_thread+0xee4/0x1590 kernel/workqueue.c:3478
- kthread+0x53a/0x5f0 kernel/kthread.c:436
- ret_from_fork+0x20f/0x8d0 arch/x86/kernel/process.c:158
- ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:245
-
-Local variable reply.i created at:
- steam_get_serial drivers/hid/hid-steam.c:448 [inline]
- steam_register+0x180/0x10e0 drivers/hid/hid-steam.c:965
- steam_probe+0x6f1/0x19b0 drivers/hid/hid-steam.c:1273
-
-CPU: 0 UID: 0 PID: 7403 Comm: kworker/0:6 Tainted: G             L      syzkaller #0 PREEMPT(lazy) 
-Tainted: [L]=SOFTLOCKUP
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 04/18/2026
-Workqueue: usb_hub_wq hub_event
-=====================================================
+lg, just a couple nits
 
 
----
-This report is generated by a bot. It may contain errors.
-See https://goo.gl/tpsmEJ for more information about syzbot.
-syzbot engineers can be reached at syzkaller@googlegroups.com.
+[...]
 
-syzbot will keep track of this issue. See:
-https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
+> +			codec {
+> +				sound-dai = <&left_spkr>, <&right_spkr>,
+> +						<&swr0 0>, <&lpass_wsamacro 0>;
 
-If the report is already addressed, let syzbot know by replying with:
-#syz fix: exact-commit-title
+Please align the <s
 
-If you want to overwrite report's subsystems, reply with:
-#syz set subsystems: new-subsystem
-(See the list of subsystem names on the web dashboard)
+[...]
 
-If the report is a duplicate of another one, reply with:
-#syz dup: exact-subject-of-another-report
 
-If you want to undo deduplication, reply with:
-#syz undup
+> +&i2c9 {
+> +	clock-frequency = <400000>;
+> +
+> +	/* NFC @28, commercial devices only */
+> +
+> +	status = "okay";
+
+Because we'd put the subnodes for devices under the 'status' line (DTC
+enforces that), please move the comment below as well
+
+Or since it's @28, perhaps it's just nxp,nxp-nci-i2c and it could work
+for you ootb?
+
+[...]
+
+> +&tlmm {
+> +	gpio-reserved-ranges = <34 2>, /* Unused */
+> +				   <44 4>; /* SPI (TPM) */
+
+Please align the <s (or is it my mail client playing tricks on me?)
+
+Konrad

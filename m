@@ -1,83 +1,64 @@
-Received: from mail-dy1-f177.google.com (mail-dy1-f177.google.com [74.125.82.177])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5F4A72D7DC6
-	for <linux-input@vger.kernel.org>; Wed, 10 Jun 2026 18:05:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.177
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8AD4E2E1F06
+	for <linux-input@vger.kernel.org>; Wed, 10 Jun 2026 18:06:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781114727; cv=none; b=YNPcZ53TGSlD2Nl7smQ6RK5cvCCsINT/LGtIhavz09cYLPgViBXOkg2NghsdwFPhfZYKNNfjKcCQNiYoybYfRMtIDguYwzTSGTEjHhdWrHBZpHqvpARJ2ikmdjT9g9aIV7t9ACS6a0zKoRCNBUK80KimD0YPy3mOLPKGau1zLbI=
+	t=1781114799; cv=none; b=hNLb/Tv2ENgmZshEUfMqPc8FRj6Bq1Ym0UsCxi+6XO4Ps3P9VQiZXuGfCiQ0UzICXdgktevLhPvZjMi8Yz/I6jysr1SWraRX6b9WM3OWAId8a4k+7TPKj4kAgWlib7njYyFbUjcelVGE8QQg1vxL0t5ZdL+0wLCr3+KIMu5G1JM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781114727; c=relaxed/simple;
-	bh=FWyu8ozkcAdq5Y9C83uXztT/PedhAAIx/kePam2jdnI=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=BMMiBz8FUbAhRiXcfPGdlEWibUmjlenp857qMqIo7bujgjop/ZgIMA6trkNTM3zSTWH3ThD7oLe0g+t542p4PNfXfloUaBcN0mmVodLg9tdoh9RwTf9uKMhCfoHwbIYxZ+0nXz7Za2f0yhFdkafhfwG9pZsaUnp0J3fCRUQE5ps=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=fdW/nAJK; arc=none smtp.client-ip=74.125.82.177
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1781114799; c=relaxed/simple;
+	bh=OgIidfQUbVTC/I+hzPW3Otx/fplgxpx33I9IeDSm+Y0=;
+	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
+	 MIME-Version:Content-Type; b=fnVrjGBZdn4jWcntX+QMIgH1Fvnh4OTc1HYkx9E0LapHvnzHjWSH0YCEmrnnXUJX5+2t6DFgbF15qvFadezZDlnK3WOpEnYz8uCVbo6aDMIQ/QIUEadgZZFkRuDRY0lY2NDdJU+FH91gMFhDKqjCG9vN1VNqIBn5ebiryrv5VnA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=EauPuoJf; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="fdW/nAJK"
-Received: by mail-dy1-f177.google.com with SMTP id 5a478bee46e88-30759632453so1416818eec.1
-        for <linux-input@vger.kernel.org>; Wed, 10 Jun 2026 11:05:24 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1781114723; x=1781719523; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=AVukAwezMYUE1SCFZthKz4jvHB6lvQcNHMQt3G4qN+w=;
-        b=fdW/nAJKh/uybtmNc/cTWqbewCo0Q+DTPFymDAR6gPkJUzkbseryjqW4NLh5XNgrJq
-         tUr6QX0D1pFrOeHi++iF24xODakgaHklqvicxKbPKOwQRKUi3WRd+l2pzOPAX44tiAhj
-         Kh+E377m32OmmaoyB458M9DVrQV+vdwYYNvbz5RlTDsImrAClAX+HWqYCveWGNzQD29q
-         8CVduLdQUOaBUEF3KR8JQZmq7PYJuY8U0IdXAx/sLHgx+VCEMm7VNVjIbc0gZMaixIML
-         AqrND6PycSsHXo7QTy4RYo3UwD3SfUFMUX1aVMOfaXx8dEuQuPF0UsgLLF/Znxu/wk0t
-         X8LA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781114723; x=1781719523;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=AVukAwezMYUE1SCFZthKz4jvHB6lvQcNHMQt3G4qN+w=;
-        b=i8/5bwLfDT9rxIz+9e5OL6zGPfdnqu210qOZejsc8vlICEbDcVjbM9LbUdUzKpr5r1
-         HYpissEFuwcZqlwm6eVCTehmfOb7B992X5K5TZtpEVoAaJ5GYgEuc8J7BRaP3kgWyC2R
-         dZvzohO7JnvQOWu3tZkDVRw5/6RPPEx/PhUX9e8Lgu/+nCYWOJ70cs5MPXqBCv1/KCNM
-         somghLBQcJ9cSOkQgzpQdb1zfd/EgEDrc2NyFbHrEXeCGlakTmDWC2BWSKFniMhebIpn
-         5po0QCWEsEGuFG4ZhReXb7dyNJ44rO5K1C/5TfCRrDhHmqGs6tu5Q4lj3kmLMAcJXN7a
-         OPWg==
-X-Gm-Message-State: AOJu0YzG92qJ2tbyLGKjdJ2kdWXJCc9V8bs1AIlQARhvKAyaOe2H2rbw
-	fe8jgLvbJNtIqEztVi3EYTw6+oYZ8PQgOPL6yImWkmw+AuXr3sL2x7Am
-X-Gm-Gg: Acq92OFFKGZG5Borq8tOjJsWcLiZxUFeB5+8uza7OckgjNLGqBicS9hroJ+JLeZg4ao
-	ACGiocJgSPzHjLKOX0w42BPvN7/8xtQJl9MG3+Lz5ORSMCL5mWCIhelTjDl3p0BCP983L5C/kfy
-	ZjIdq7tAEF2Stw06ZVG95+NAKdj707/6G6bs+5DckreNJ/69ISiKRT5uJFjZARJ7ZB0gOt6aL6a
-	elfKbuljCfcZG69R/gG37dPJoLk1Rxj5qeGPOxo9ICE677AZ6QSMyeyNr/vh+bxDEZK6RozmGcX
-	NMN4+hcgwDWkexKGAh2IPEwd/E0eaB3bdeJa5NHXyv8wKoiMRCQ9WYqBYIXyA2iHmDXPftX8Ou3
-	OgfFyYBsbVCkz3Bfgqaj7qmBDQrVM8wtqRaFjcAKFz37jadjoVUbtBCPepVV/w+gYj1rY2eWW9F
-	nDg5i82SVRDnUQWKOi7pgu54GSOCkPcU6uMm3KNvBr0f1uLhqmcFhJrON6W6xS3wFGNNLZmtp1J
-	Zo=
-X-Received: by 2002:a05:7300:5729:b0:304:e72a:d4d9 with SMTP id 5a478bee46e88-307ff5f73f5mr141084eec.19.1781114723164;
-        Wed, 10 Jun 2026 11:05:23 -0700 (PDT)
-Received: from google.com ([2a00:79e0:2ebe:8:ae0e:e075:91c8:6570])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3074df75ff6sm27865265eec.26.2026.06.10.11.05.22
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 10 Jun 2026 11:05:22 -0700 (PDT)
-Date: Wed, 10 Jun 2026 11:05:19 -0700
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Elliot Tester <elliotctester1@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] input: remove changelogs, tracked in git
-Message-ID: <aimnXNA04j_K_qZH@google.com>
-References: <20260514193302.117488-1-elliotctester1@gmail.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="EauPuoJf"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85AA31F00893;
+	Wed, 10 Jun 2026 18:06:37 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1781114798;
+	bh=aVQDpRcgMeO0V/hr8rGCwo0HclhJj91tPKxoQ17RMXk=;
+	h=Date:From:To:cc:Subject:In-Reply-To:References;
+	b=EauPuoJfI6heMH8v/omUB5TFh9EdhgQevHi285jCA4ml6xIL1uWxnQq+NB/ptoZ+K
+	 E0XC0fCjjIC+xMiouCjP8UvFQQiG8Y8np01STT0g4altVrxD64RvJiBCrkZZvPVWT5
+	 x/4bar2DJBwF2F/YX1jp+EquDM6Jhk5Ba8vlg1LMKHSIafuBitS136171dRDyGuKKP
+	 /eEkYY5aZyW6d811N/vYBc2FK9lg3a2SCYNMCMMziV14S3fyqC9j9Ut/CB2UbwS410
+	 fMp7kFymda4ktSDBDN9qYzesunY8BXn8MFlXk9Q8h2mfx1QWqhGkVxLWcx0cuyRDXQ
+	 iqgyikdMTFr1w==
+Date: Wed, 10 Jun 2026 20:06:34 +0200 (CEST)
+From: Jiri Kosina <jikos@kernel.org>
+To: Paolo Pisati <p.pisati@gmail.com>
+cc: Benjamin Tissoires <bentiss@kernel.org>, linux-input@vger.kernel.org
+Subject: Re: [PATCH 0/7] ASUS Zenbook Duo keyboard support
+In-Reply-To: <5sn10614-2s0s-7r22-s9p9-5np4921p047n@xreary.bet>
+Message-ID: <2r449o0s-44r6-4oo7-6s08-2o782r9pq3q1@xreary.bet>
+References: <20260513163248.16483-1-p.pisati@gmail.com> <5sn10614-2s0s-7r22-s9p9-5np4921p047n@xreary.bet>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260514193302.117488-1-elliotctester1@gmail.com>
+Content-Type: text/plain; charset=US-ASCII
 
-On Thu, May 14, 2026 at 09:33:02PM +0200, Elliot Tester wrote:
-> Signed-off-by: Elliot Tester <elliotctester1@gmail.com>
+On Wed, 10 Jun 2026, Jiri Kosina wrote:
 
-Applied, thank you.
+> > Add support for the ASUS Zenbook Duo line of usb/BT wireless convertible keyboards.
+> > 
+> > This patchset is a collective effort, gathered here:
+> > 
+> > https://github.com/NeroReflex/asusctl/issues/25
+> 
+> Applied to hid.git#for-7.2/asus, thanks.
+
+And now dropped due to build breakage reported by Benjamin's CI:
+
+	https://gitlab.freedesktop.org/bentiss/hid/-/jobs/102074691
+
+Please fix that and resubmit, thanks.
 
 -- 
-Dmitry
+Jiri Kosina
+SUSE Labs
+

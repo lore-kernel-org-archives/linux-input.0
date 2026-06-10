@@ -1,126 +1,109 @@
-Received: from mail-lj1-f172.google.com (mail-lj1-f172.google.com [209.85.208.172])
+Received: from mail-dy1-f171.google.com (mail-dy1-f171.google.com [74.125.82.171])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7086A217659
-	for <linux-input@vger.kernel.org>; Wed, 10 Jun 2026 23:00:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.172
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781132430; cv=pass; b=pesxkXjIQ7Bu/5UmRaQilAuQC6+AKoC8+XSTgbvYsziA3XTfSbcALAuD/DyU4gqrPJmP62Hl81g/BtJL1BXKc4Wt0WHZwZlbNxKHNwE8g0dJ2pqjQrvibQnVm0bU8xqNzp2EAIWz6V1/ySvJ5/fAF5BwHy8zl7Sgng2Bs9E11d4=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781132430; c=relaxed/simple;
-	bh=da6DME8KN70p2igO4lifzeoHUukwvHlGZTU5j+Pe8pk=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=b7oRad6b4bQAM0q+TnrmKjt7zqbPv59RlTxlLyjLdTH0ZbOOzmq+p2XtCuPoEYovSbF0kOO87w0pyhg43pUcgWOvWz8HY/qZVeGtnrANgwXX6UhSfZYJSxe8HK/mGmjA8i9bghWIpEUXsAvNVaaup6SFpsepMTv5F3tLdFTdLqQ=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=OswYaYnU; arc=pass smtp.client-ip=209.85.208.172
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8F1952F5337
+	for <linux-input@vger.kernel.org>; Wed, 10 Jun 2026 23:02:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.171
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1781132567; cv=none; b=g9VwSGS14V93DK/Ynbd2BII0HAIDB+ijXCRWQsm06dG4uazh1butZjNMe+4ZycFRaG32AYcyvw3yuBuQ/CpLq6J1RjCpyy6Yb8kR+USGXR6MMjastFPbaHTFAeXOmKzoH4F5jgOFhbksbT31DWb0U8xwF3WePOhwIfSjb9eppr0=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1781132567; c=relaxed/simple;
+	bh=FY+hzf3BZGi0ZBJvsMwM8zNI5xbnzKjtTDA80VuV1TU=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition; b=Ru0oUqbbBtcss7pHrXk8C0kH7mJdV3r8YsNzeIzNNTCUJvrs4L9k1PnBkL1StZuvsDFPHeOcNDZ6jzKcVMGLYE+4W12ujHmBtQKvCOhGH2BCpooGGJL753SckomOXMnp9LQWffM+1GkrONervv9d23dFKhjqDABgLDJczMqDgo0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=A6RX4JIt; arc=none smtp.client-ip=74.125.82.171
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="OswYaYnU"
-Received: by mail-lj1-f172.google.com with SMTP id 38308e7fff4ca-39677c80386so73661691fa.3
-        for <linux-input@vger.kernel.org>; Wed, 10 Jun 2026 16:00:29 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1781132428; cv=none;
-        d=google.com; s=arc-20240605;
-        b=E9ciYM/tncY+1DDwhyymPa9bq+ApI4kLGH4aogGaVve+gnJe3hOBG4ZbIWn3VEVfGl
-         rVBOs+JctN6PerD4yA1qYuNUaLuAe8+kltmeBvSQ8w8jMd87K2w+Q/fpvA9gSwDX3Van
-         9tPIRzl/Z99Iol3W0LHuNyriG9yIe6cGUn7ueb//7nWRTYP4Q86ijIdJNZC6itIrWifo
-         VHGvEOR5ya7TmaxsbpObkCOmXQSeDtuHOYSGLXgYPM0w9dKJaeirdBSoniqTMuxFMjxV
-         I7VScjproJHN1Ce+AR4S5skvNQ3jeKMZqxZmW/L/rNBwLPmPMfW+d51zDjUaQQNkKvB2
-         MYoA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=7/1EYrFgPdRRRbFnHeUoi//T12GwW21L7HHozs2Fh90=;
-        fh=Gnj5odFv3xVlTpjCksn/bXe83LrwwgzjInAahotwHFQ=;
-        b=aVMnQ3ZXJULevFBW3uLYaI11MzaCE1bahOO5wwA0b+TAJWe1u3QKQYhnOohLie70LK
-         5KeUn3y9BEmiubgugMZsPDFFW/egvXKGcY9TSH3CoDH6qx9yO8806ztbz4pLF6GoLoOC
-         NGoJuvV4RN9uVCcY3kPxJ5N5N5UUH4MEIUBnSupdckZ/0KcBKPvfx+Wi8QE2OP+Pi+Xl
-         mzBHDPlBCzd5uSUvLHMleJl8KL8dEreaK/KilcTZ4CYBLPtlG4GXLyGhOLLw2Ux0ecpD
-         0WKgKpLqAk3YnnI4Gowdhx02DdmFumeec4BWcgXvLv7QymMQ/pKjLvr697YExBVbp5Lm
-         ILpw==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="A6RX4JIt"
+Received: by mail-dy1-f171.google.com with SMTP id 5a478bee46e88-304ec41197bso7460993eec.1
+        for <linux-input@vger.kernel.org>; Wed, 10 Jun 2026 16:02:46 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1781132428; x=1781737228; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=7/1EYrFgPdRRRbFnHeUoi//T12GwW21L7HHozs2Fh90=;
-        b=OswYaYnUeqYgTyiBZ5aQyPQCSrPHveeRhC02JJNdSNs0GdeKvBjmEJSlcC+Ay1EFDB
-         Ac9rjz7NSwV5x9hZ7uams5oycnU/BkOcfRtd7hlgx/uFmEQlu1n0/SoBevh1fXK5my9z
-         8/8mlBHWrPSKi6SjgmKeoOY3HPm0N6VLwSA04WmYuhpSN1hHdMx7HXSpsWorJ2p1ex1/
-         31OFwKlooo09DYP1AsmZPwyjHRwIGPzaxYZm3dMMA1sTvsnWwEJDw/8X9lEf9m2KcByT
-         YNd8cPQq5QyylJrQPhu0UFArkE1wskOTnVidLKptv3rc4BF1mK/2pk/nxTzlw8eImRU6
-         YWvA==
+        d=gmail.com; s=20251104; t=1781132565; x=1781737365; darn=vger.kernel.org;
+        h=content-disposition:mime-version:message-id:subject:cc:to:from:date
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=bpMAtBSnWgE7oBqDrrz1DO0t9MzMdOOWfKDJgnppP0U=;
+        b=A6RX4JItdJtEVleu+hVgRlv7ifCJZe4WNjO8M/92y2Hu95/CXeu29iI4m3vLUdY8jF
+         Rq9Sx+FohF6brTEWooGD3+9WLrD6I9bcHr6zxaMt8pOKJNYosEAyqHibkRrMQk3hd8Nc
+         PPQq/4iPdQBVielSGhH4q0Rzf6VcusVQsPeKHuwMWqopWXP2kSijHCgBCyMomPrfv+Yw
+         QBLffK3AXbBlEyU/qbKA8PP3esNcw6R9jovkQRri9oK77PAhdro0axYiA0rJxcIaGOUr
+         xowdeiVMQOqcH1v1bZrWKf4h69wEjvsvREkCXtlxeO+xToEhMb+VqVep3PfovJg+W5rJ
+         0/dw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781132428; x=1781737228;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=7/1EYrFgPdRRRbFnHeUoi//T12GwW21L7HHozs2Fh90=;
-        b=mukjApIvx6uPc6BN5s11SHyBXrf/Y6Sy8vJzt+fQi6UZbI/BjhwvuIXZsqnQ8+vzn3
-         odMS7QkQOfYxjLiRRhDe9wWB6ON2QnqXMk4PZKnyCZG2RSALwZQl9R+6bE40W7RBc5jZ
-         FophlbLts1MZlWe0r18fL+Ly0JZvySJNzTHWfjJ2OiPz+bA1SiEWaNngoDKVlfr/3yti
-         MX+RFM3Bxq7RKfPnsnmdIcFmrDmYC/ASoKanWm5LTM8PWYdVa3E2X9DM4ZEEJSWOUZMR
-         bH50qyFWBPFuN42uID8ElropXsBar75H9XOwr15v7Xnn9DIhgThF/kz2Qooa+qnBRzfq
-         IeZw==
-X-Forwarded-Encrypted: i=1; AFNElJ+a/DUVWH/jhm690jdNsDFoUH789WWnW25/9QKrEjU4erShyccjsJlFc/T+GCPn6BBAjeBiUFOPtBWg4g==@vger.kernel.org
-X-Gm-Message-State: AOJu0YwVjU23b6UyBrjXbOSLZt2H1WOoTx/4BXwqjRTch7caLKKcShZP
-	P0+HvkhwJJcqutnMwBw7wXRdE7H+xH8r1T42kSN/zm+s8bxChvV/TLtXE4U57DDLZ2zHONMbXJ0
-	KG8TKg2m9DcUGLrpiVdd19JYS0akK600=
-X-Gm-Gg: Acq92OEL0gAHpvDqujHgsi85wp6ce7P8EPVRt5+gtkqPYeaXBTNWZdPsfYIo1Ca2u3M
-	X+puA1cDjE4aiiLFnYxSFawNKopNfA4KAsOqWKQhFjYNFymfZLfmhH8fh4RInHIWbus9zzM/D7E
-	wMVjajKX+EWDacsqP+WynpBxzT0kk8XIBf2y07mpfx37uduppAbG+KhySN3r1e68oHS0uZXRQMh
-	hmZzjYN6gkZOQ5PJQ40eNuR9bT/NjkasB4EuUipbJ/Duk+46B1L3EFXZ9y0610MWXwlD8t0DC5j
-	cUSJiKVjsAjaku824Q==
-X-Received: by 2002:a2e:ad93:0:b0:396:5ea3:46e2 with SMTP id
- 38308e7fff4ca-3991a1136b4mr14461fa.17.1781132427343; Wed, 10 Jun 2026
- 16:00:27 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1781132565; x=1781737365;
+        h=content-disposition:mime-version:message-id:subject:cc:to:from:date
+         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=bpMAtBSnWgE7oBqDrrz1DO0t9MzMdOOWfKDJgnppP0U=;
+        b=o6zuFxbd3zAbPr4ETgFZeaR7+EU6XrvnpmgHpfVerMYi94FYrbiACODM8ecuNOztJS
+         ZQpODEIq5ap14QeQ1jS1dlyZmOHlaBaTwMlJfJdniolz3XWgQmivuVKmXQ1FfMKikhrE
+         5BMB4eD5oj4SPWG+vSazJWETxGiw6vS9X46zCFJPH5MC0VNkDYytR2kjV3BPkIiR0eAj
+         Z3s84tKqUBZxBRBfFklsJ8qW6373aSxbD3TKrxlDdBeJ36gMF9KTq1RudQEO7foYboYl
+         TIEZl6q0Gp5yPyTdlB8m8aZBcHm/cq2tzNOMNjjKEZkWMw4vvA3DWnNM29qQsZ3h09PZ
+         TPQA==
+X-Gm-Message-State: AOJu0YxvztdcmddE6aaKdZv8EduEdSI9QwyR3U1FWTWLs0NPdIOjVJNi
+	7MKXRaj52O1YwBc6YBk4+smYBlaJL+urJ86FPAWwiHWKBfdpqQUWoqutvT373g==
+X-Gm-Gg: Acq92OHamH8iwP0vESVvtq/vhFx9LDv5SlD8um9l58LLMaB05lLWplkyyMQ+8uAez8n
+	RKru/P37MaQT+BqIFx2vstxQcRkA4cGPbqr92MXTOi+lZJ2c6M///o5mzI40MYK1EOuFBkiCP+4
+	Ye55zMiPApgKEYZb3tfoItggT+kWY6Hxbl/NZTBNSQdG8BmVdz8WtYiBPF3p2JGxTvdLaTkCmws
+	JTsh2lz/XANh0axXiKfl453u7p9GnJGGqiPDWSur99ddcn6efQiXUsW0d7IYNViNtObWTxbc9el
+	JfR8ZMKtOkFxQVvyBdIa23ISpqJ3NJr69E/s0WTcQXLQVWupjYbDMPsUhdfv7FNrNFNz9WiCt7F
+	71iRdAXtJBwQ6dFgQa2beOasOZUAT3UznP93Kat6N777MM6xKJ6E7Q4IjelH42ArjStYeH+LiuX
+	JdRboOYQ7+ntZh9+23UOzdFJTiwUGJFJ7fRXxI7cAKDPeGzSA0dWML2PBVcp/e7Fex/n6rLnOlI
+	XY=
+X-Received: by 2002:a05:7300:4784:b0:2e1:e3e6:2909 with SMTP id 5a478bee46e88-3080464dddemr243481eec.9.1781132565235;
+        Wed, 10 Jun 2026 16:02:45 -0700 (PDT)
+Received: from google.com ([2a00:79e0:2ebe:8:ae0e:e075:91c8:6570])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3074db85e10sm27009687eec.7.2026.06.10.16.02.44
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 10 Jun 2026 16:02:44 -0700 (PDT)
+Date: Wed, 10 Jun 2026 16:02:42 -0700
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: linux-input@vger.kernel.org
+Cc: Rosen Penev <rosenp@gmail.com>, linux-kernel@vger.kernel.org
+Subject: [PATCH] Input: ipaq-micro-keys - add length check in
+ micro_key_receive
+Message-ID: <aintAvTyw4CVb5hG@google.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260522050632.8079-1-vishnuocv@gmail.com> <CABxCQKtr1g8xEg_EYEQhjsgAR7QtSQ0dDQhOAByuxvHBeHK5iA@mail.gmail.com>
- <09prqp54-684n-r4q1-02or-1nqr1s4516on@xreary.bet>
-In-Reply-To: <09prqp54-684n-r4q1-02or-1nqr1s4516on@xreary.bet>
-From: Vishnu Sankar <vishnuocv@gmail.com>
-Date: Thu, 11 Jun 2026 07:59:50 +0900
-X-Gm-Features: AVVi8CfjhFNX83SvokZronjbpLZnNtBfAWWPIo6sDFXgqhcP7_d6IudiPVanri4
-Message-ID: <CABxCQKucLynqgvUHCmoy-=xAY+AfCAR910ySj57yx5PcuSP1bQ@mail.gmail.com>
-Subject: Re: [PATCH 1/2] HID: lenovo: Add support for ThinkPad X13 Folio keyboard
-To: Jiri Kosina <jikos@kernel.org>
-Cc: bentiss@kernel.org, derekjohn.clark@gmail.com, mpearson-lenovo@squebb.ca, 
-	vsankar@lenovo.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Hi Jiri,
+The driver accesses the message payload (msg[0]) without checking if
+the length is greater than zero. The parent MFD driver can produce a
+payload with a length of 0, in which case msg[0] would be uninitialized
+or stale.
 
-Thank you so much.
+Add a check to return early if len is less than 1.
 
-On Thu, Jun 11, 2026 at 12:39=E2=80=AFAM Jiri Kosina <jikos@kernel.org> wro=
-te:
->
-> On Wed, 10 Jun 2026, Vishnu Sankar wrote:
->
-> > Hi Jiri / Benjamin,
-> >
-> > Gently pinging on this series.
-> > Is there anything blocking acceptance or any changes needed from my sid=
-e?
-> > The series has been tested on physical hardware.
->
-> Sorry for the delay. Now applied to hid.git#for-7.1/upstream-fixes.
->
-> --
-> Jiri Kosina
-> SUSE Labs
->
+Reported-by: sashiko-bot@kernel.org
+Assisted-by: Antigravity:gemini-3.5-flash
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+---
+ drivers/input/keyboard/ipaq-micro-keys.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/drivers/input/keyboard/ipaq-micro-keys.c b/drivers/input/keyboard/ipaq-micro-keys.c
+index 3c7d6aa0fe29..ebd991de70f8 100644
+--- a/drivers/input/keyboard/ipaq-micro-keys.c
++++ b/drivers/input/keyboard/ipaq-micro-keys.c
+@@ -43,6 +43,9 @@ static void micro_key_receive(void *data, int len, unsigned char *msg)
+ 	struct ipaq_micro_keys *keys = data;
+ 	int key, down;
+ 
++	if (len < 1)
++		return;
++
+ 	down = 0x80 & msg[0];
+ 	key  = 0x7f & msg[0];
+ 
+-- 
+2.54.0.1099.g489fc7bff1-goog
 
 
---=20
-
-Regards,
-
-      Vishnu Sankar
+-- 
+Dmitry

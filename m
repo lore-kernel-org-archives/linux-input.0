@@ -1,84 +1,114 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 44A023DBD7A;
-	Wed, 10 Jun 2026 15:47:19 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6562848AE12
+	for <linux-input@vger.kernel.org>; Wed, 10 Jun 2026 15:47:33 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781106441; cv=none; b=d6r+J0MaqBXH5zQwQ0rsXfbE1yRYTbxuIgMWzBRV1/VDt0kNnH3KAJzhrEgJPGxa3t03eDgr9BKRV64MBLDqCR1PnHtN7k8ju3dSY1DgJsHJMcLJepn04XtCc8tZcCPpxiiqY7DuYcacPoBlV4TKpkpjHtj3vT/S8HAZykf+0QU=
+	t=1781106456; cv=none; b=XgUeudcGhqmlKAKybXkfvCOzrV9IR4Fv9wencOAZh8a42/pVAtxMqjkq5DM/of0STWwh07amfUKeyXR8dEV+1Q5FzBQwGe5A/NwcnoQVtXoDuTF51Mxd0hvTvjaalnVT6x3lrY8WgL+M1ThPqNJwkhOpAcoK9vOtK8tnJK68NR4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781106441; c=relaxed/simple;
-	bh=lPagUjN5wyxfSqvytAIAj0NOyzMlBLE4JYZ+/pTWm9I=;
-	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
-	 MIME-Version:Content-Type; b=hisV+iyvT9KQCee4gAGpNxTBgPHzfyr9iGuHjLi/oee85C2LbRzZ6LO3Dg4S2Ydq2dj4j7Q/QQpNzdbxfmjqtFs1XgGeaLVTjgSfP+i1cgB0TMHVMFKkRktFPVGHTrdMBWfqXVdSE/YzkV2V4v1G+Fw2tyTiGjQO/+Tla9P5fGU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=NkN1jwhK; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1781106456; c=relaxed/simple;
+	bh=zPs1qKJe5nWrHrQqXwKxo9wsgKVvwBenTrOvSPT7Cck=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=YetlV2rAbRFs6XLEgkYM3ziF39qcvKZwYChOl4HdqNpYfDmU2RJcF95U4/4TeYA2ZsXBq7FJ1GKm1hSaDMpniCFhqIEG/EZc0htLpeyWCxHP7etQKEC1qCH9UYcM0I1nZvseNld53eG5U8Q15JX4Ognq9Kn9zM20jV/MD1ii60s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ixNGZy43; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="NkN1jwhK"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 279001F00893;
-	Wed, 10 Jun 2026 15:47:18 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ixNGZy43"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D7201F00893;
+	Wed, 10 Jun 2026 15:47:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1781106439;
-	bh=94laT4DhQ8CjN3VZcNNgN9Mk+ciT8XIRfv1gtFlc3dM=;
-	h=Date:From:To:cc:Subject:In-Reply-To:References;
-	b=NkN1jwhKxYf98CSixPxGg2LooDQ8/+4u0EwPF+e/AQkrVQW5NrV46OxWaFYSRUWtM
-	 FXS/bQ5gBwcuss3sgrttEEmW9qpP1uL/q54ZANJLLhNHGQUyv7B3ugoW/dnj1ECPDZ
-	 8iRgLehshnzRsIfx9lSQa4vgmCybVPHdE2qYo1KYJWop2asNf6HgGWLsJ6pbFx4EKF
-	 yQqFR/LatQtkq0XOcTPacQfuF0QWTDQ3Wt6WQIj/b1N87UzGN/vhvr4mX2vYZleNb9
-	 ysrWy9keqAIIK736OAefay19W5YBW06fmk8dInxITK4NKCzSEzFb6yDAv6zyXdTyGi
-	 q0f8QUzaGTxnA==
-Date: Wed, 10 Jun 2026 17:47:15 +0200 (CEST)
-From: Jiri Kosina <jikos@kernel.org>
-To: Jinmo Yang <jinmo44.yang@gmail.com>
-cc: linux-input@vger.kernel.org, benjamin.tissoires@redhat.com, 
-    linux-kernel@vger.kernel.org, stable@vger.kernel.org, 
-    Ping Cheng <ping.cheng@wacom.com>, Jason Gerecke <jason.gerecke@wacom.com>
-Subject: Re: [PATCH 0/4] HID: wacom: add report length validation in irq
- handlers
-In-Reply-To: <20260517135215.2220117-1-jinmo44.yang@gmail.com>
-Message-ID: <9o1psn77-q665-0rp6-pnnq-9179802p2nsp@xreary.bet>
-References: <20260517135215.2220117-1-jinmo44.yang@gmail.com>
+	s=k20260515; t=1781106453;
+	bh=9iuSPit/bgB/M2QumlKoeaqSCz0R2x2F0F41APUAGPQ=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=ixNGZy43kvPVAlgpwPhZgQHlOL+ssv1r5+rc5L8LbauJE45SN8drxya9MqV1b+Ec1
+	 zBOICue11kOQBrQMLnTVFabj19dzOUzNus/rswhSD32cbyG/UPngGSYtEpLEWe0Iks
+	 kqu/iHN/nrD4+NOxSP60ZTcP9c0dHWaIo2W4yXR+NCg3HdXkXAqItx5x9N2JCgMp2s
+	 4e0uxrZf879GEwXZd0Ig7uY7qH28XUZm4Ncyu75BoPqbI6ZR0+Cjtjgkal+aCvd9P2
+	 2GrxESK/2r5B8pJz9TLhiRtgEXbv1rNYKexq6lgGCKejDdxreXuWnK0RiHc2BwDskL
+	 MLSApXd32ma1w==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v2 4/7] iio: light: hid-sensor-prox: use u32 instead of
+ unsigned
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Sanjay Chitroda" <sanjayembeddedse@gmail.com>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <20260610-6-june-hid-iio-correct-usage-id-v2-4-c3c5f0720493@gmail.com>
+References: <20260610-6-june-hid-iio-correct-usage-id-v2-4-c3c5f0720493@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Wed, 10 Jun 2026 15:47:33 +0000
+Message-Id: <20260610154733.9D7201F00893@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
 
-On Sun, 17 May 2026, Jinmo Yang wrote:
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
 
-> Several wacom IRQ handler sub-functions access fixed offsets in the raw
-> HID report buffer without validating the buffer length. wacom_wac_irq()
-> receives the length from wacom_raw_event() but does not validate it
-> before dispatching to the sub-functions, which do not receive the length
-> parameter.
-> 
-> A malicious USB device can declare a small HID report in its descriptor
-> and send a matching short report that passes the HID core size check
-> (csize >= rsize), but the driver assumes a full-size hardware report
-> layout, leading to slab-out-of-bounds reads.
-> 
-> Note: this is not mitigated by the recent HID core bounds checking
-> series which validates actual_size >= declared_size. An attacker
-> controls both the descriptor (declared size) and the sent data (actual
-> size), so the core check passes. Driver-level validation against the
-> expected hardware report layout is still necessary.
-> 
-> Tested with KASAN on Linux 7.1-rc3 (slab-out-of-bounds confirmed) and
-> verified kernel panic on a production device via uhid.
-> 
-> Jinmo Yang (4):
->   HID: wacom: validate report length for PL and PTU handlers
->   HID: wacom: validate report length for DTU handler
->   HID: wacom: validate report length for DTUS handler
->   HID: wacom: validate report length for 24HDT and 27QHDT handlers
-> 
->  drivers/hid/wacom_wac.c | 15 +++++++++++++++
->  1 file changed, 15 insertions(+)
+Pre-existing issues:
+- [High] Unaligned and endian-dependent memory access from raw HID report b=
+uffer
+--
 
-CCing Ping and Jason for their review. Thanks in advance,
+commit 15de0e06ef54de0333e9e716c38314e57230ae3f
+Author: Sanjay Chitroda <sanjayembeddedse@gmail.com>
 
--- 
-Jiri Kosina
-SUSE Labs
+iio: light: hid-sensor-prox: use u32 instead of unsigned
 
+This commit changes the type of the usage_id parameter from unsigned to u32
+in the callback functions of the HID sensor proximity driver. This matches
+the expected API and improves code clarity, with no functional changes
+intended.
+
+> diff --git a/drivers/iio/light/hid-sensor-prox.c b/drivers/iio/light/hid-=
+sensor-prox.c
+> index edc9274a2c076..9059f00f0cedf 100644
+> --- a/drivers/iio/light/hid-sensor-prox.c
+> +++ b/drivers/iio/light/hid-sensor-prox.c
+
+[ ... ]
+
+> @@ -183,7 +183,7 @@ static int prox_proc_event(struct hid_sensor_hub_devi=
+ce *hsdev,
+> =20
+>  /* Capture samples in local storage */
+>  static int prox_capture_sample(struct hid_sensor_hub_device *hsdev,
+> -				unsigned usage_id,
+> +				u32 usage_id,
+>  				size_t raw_len, char *raw_data,
+>  				void *priv)
+>  {
+
+[Severity: High]
+This is a pre-existing issue, but does this function safely access the raw
+data from the HID report?
+
+Since raw_data points into a packed HID report buffer, the data might not be
+naturally aligned for 16-bit or 32-bit boundaries. It looks like we cast
+directly to u16* and u32* later in this function:
+
+drivers/iio/light/hid-sensor-prox.c:prox_capture_sample() {
+    ...
+    case 2:
+        prox_state->human_presence[chan] =3D *(u16 *)raw_data * multiplier;
+        return 0;
+    case 4:
+        prox_state->human_presence[chan] =3D *(u32 *)raw_data * multiplier;
+    ...
+}
+
+Could this trigger unaligned memory access faults on architectures that do
+not support them in hardware?=20
+
+Also, since HID reports encode data in little-endian format, would using the
+host's native byte order here cause incorrect sensor readings on big-endian
+architectures?
+
+Would it be safer to use get_unaligned_le16() and get_unaligned_le32()
+instead of direct casting?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260610-6-june-hid=
+-iio-correct-usage-id-v2-0-c3c5f0720493@gmail.com?part=3D4

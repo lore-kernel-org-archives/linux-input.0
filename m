@@ -1,67 +1,67 @@
-Received: from mail-pj1-f49.google.com (mail-pj1-f49.google.com [209.85.216.49])
+Received: from mail-pj1-f53.google.com (mail-pj1-f53.google.com [209.85.216.53])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5B18F427A0A
-	for <linux-input@vger.kernel.org>; Wed, 10 Jun 2026 15:37:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 469DB427A0A
+	for <linux-input@vger.kernel.org>; Wed, 10 Jun 2026 15:37:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.53
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781105852; cv=none; b=T6RUtp02Mxx0Ajfph64vpXldo1bfawyNEnVrPQo893tWyXMsSzSo+4Xp+0xx5Z4duRUyNdGHb4jW5Rhk7DvmyOQGzKNdhO5lvag5/LM9noSRVZML06O6UQ8SUzcI7zlJ+SxwhuOEt0EpXHfHrHXsbtxxanEHnlRh9dHtF3OQ4MM=
+	t=1781105855; cv=none; b=c6VD2jvx3T9sgRwPMLtvydGFeuJcrzSv+L3iZjatm4JogZcZWJszPm4oLwCW/kFCF21rf/qtU8gyn5tnhyUToyGdt0jcUl5YO9fAKb2kByfmhGWG7ze7jrGLEpzmwH6cM8q1rSsVC7vHZW00xLGG9I7r0v5r+NHOW7EGou3d9XE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781105852; c=relaxed/simple;
-	bh=2aqPuaQcktVNpiy3IjCIIGpbqwcR7J6YOFv4WcRn2yI=;
+	s=arc-20240116; t=1781105855; c=relaxed/simple;
+	bh=zeDgyTBDqnREMAI7AorF+q+8aD6bpAndr/erU2poByA=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=NwP2rMdf/8F5QWYMukPPUYPzYmLnjwm7et0hVLwuVUTRMQNYk6RJpi9mcXCfGFQ7I7e/NzlFhLUc87WFE/5+bEamqJh4s5tV6nkSHXwAppXIEE9OYEc3WCIZvCdA/oolRaYTWQyx9+ElRaUnGBQQC5G6eZUKNi2Y/orM25BKVdA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=FmZtepuO; arc=none smtp.client-ip=209.85.216.49
+	 In-Reply-To:To:Cc; b=LAXcZyWWH1u3S5KoiQVhd5xfc3sqJjcDL2yybJflkym8sNirSwLz1VhYUy4GWWGBSvbd4yNoTTMzgTBgT4j/6qu/xKEufy3sxEYbzqT5WydZQraRLKz9ql883yAy2tPpaahi/CkW8rC307ha49BKkY2w7WFx6ENzSreTo+bfTEQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=RFQrSRVs; arc=none smtp.client-ip=209.85.216.53
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="FmZtepuO"
-Received: by mail-pj1-f49.google.com with SMTP id 98e67ed59e1d1-36d5b11201aso4436864a91.2
-        for <linux-input@vger.kernel.org>; Wed, 10 Jun 2026 08:37:30 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="RFQrSRVs"
+Received: by mail-pj1-f53.google.com with SMTP id 98e67ed59e1d1-36baeec21dcso4518911a91.3
+        for <linux-input@vger.kernel.org>; Wed, 10 Jun 2026 08:37:34 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1781105850; x=1781710650; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1781105854; x=1781710654; darn=vger.kernel.org;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=t3DYTRaj5o9JX7HjN2WJvEbzJSwnxUVlbxBFf+VFy4A=;
-        b=FmZtepuOswrQk37r+sDyaxsMzgCfm3MBK3/LL+G+cEHpKov988MRqs6hEKMyvFt0TD
-         0/oI0n3n43+DiJcKTj0cQ/tTNJ3Jh2KmpcOzrOQbJeoVPf2fdr+kBUbL/oN+B1RjvlRS
-         bBo/xBnw0CnQNFHjTc/nha0ipCvp1zn50e3kEJxb/B+YqkVBCmQCk9EdDyAxOCN4ZEvF
-         xxjAYKbGolVL+8cofTefZfQAClXHHULO0i+GDdMsrHzHiJf9Vq+U16PBePEw1wKHltLv
-         5grcpurW+t3SNNaEvOq4i8EIHAwPeWclYmmJ0a6xN2hGXfHZ5UpPt1wIen2A9TK53BQB
-         lOMw==
+        bh=ulYd5wVpca5yg2jxVlzL+HIPf3pvEYlKHmeoeqLMtp8=;
+        b=RFQrSRVscw8g412+2CuF4tQam0Bc3KypUSrNE6ew2HET9g09UejMN0pZvBAhecoLYF
+         yjefXsnEZE7cnMfva5QN8Y0TjHfOZd19CjZNV9VhwQCiLUybuXFTdZK33JYHBd3IXcVO
+         8ocqTxzHtOO97PmH6NqbP7xFnL8o8BxZxixRxE6AjJ0KFjUOXuxM5NNqtoE/fsojdrcB
+         mjMTTRInkGLbQNleOwuG55MUv9jgrq/RCxomPYVgT9wr5drMwqnwFMszEA/u9SMbe2O4
+         HeMW9sMDxigZq/ZRytzRQr2sEL1A/rh3yRRmE9MC3Ndaqaz+gLGdVh2EQs5MbkfBo7wQ
+         L/jg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781105850; x=1781710650;
+        d=1e100.net; s=20251104; t=1781105854; x=1781710654;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:x-gm-gg:x-gm-message-state:from:to
          :cc:subject:date:message-id:reply-to;
-        bh=t3DYTRaj5o9JX7HjN2WJvEbzJSwnxUVlbxBFf+VFy4A=;
-        b=k7UuXRBBKEPvz10Gl/JBPm8nQpJCsx0KPAqZe4ULJ6JXl1bjs5+luCsoQFOau8T5fI
-         hwokB/N6zCtCqZsjfkPe9QLfQY4sWwg+/C2VNlq1Obsi74nnm2oDmTbxXy3N064np41W
-         iQcS3A80K9NN+i2cfuRdKn+Lic0a5taUHV3EZDtksJ3wTlixAnQqpy407zBWZE3xCD4B
-         0Ymf+sQa4EJxvLtT9NjogVHt/FrwSq4Aq5reCWc7nvZcTVTNeGp2eUPxNYmtpI0TB35J
-         mxEXWFklBcSiKEWs8MFLlnCsrR6oNuydtYAHFU7EgDtO1tH4WC0JDNI7A28C0P87/MmO
-         b+cQ==
-X-Gm-Message-State: AOJu0Yxi+WeiDdt+141hFqrrIlPW58CNOvJDglZgD7On3vXb5i5macqp
-	KGkVH2ZesAfWo/gzui/XRqdDzErYTdG0c/MhCp2m6y+jwpW4wDWhoH92
-X-Gm-Gg: Acq92OHadUCZ/KVYE1LJ7dvrHfUFPKiqYK8fCjOcjotJJbG1p8vXhZL7ro0iWmvQMk4
-	uLGh0d7NkfbMZ9SOxc1XQzAgLJU5SlpHRsDlBlPWoPe+xXia+iL3UfIxJOsS0w0btZ+LM2Ch1C0
-	3kkRVRE9hiNinpfUUiIjvblX5oAEkn8iAIYYH/a5SjcCNJrl3CQiYNnSESE/L54N8pb2ext5eKz
-	2+Bg72ocHGrWUZu807nH+QwpBPo/v5puIUgo82GAAVKDunHcAqkVh4aoKI880rRpbRZVt1igVtg
-	3DfqMzTjlldg6o0VvxMOky0G2acZQCx7I9jCKYF/Dq1bqOfIS4MrRol/lWZ28Ci/7EYXHfvlLrv
-	p1oK02TxFieTLQeeN0L2ZmL4eSrMdgeHvyYTMvtePmlscz8pL+aagknCiDTjRD4W/aT3r8sImKv
-	UXIExl66bWmjSP4+nzOon+kQ5Z8NxCgAS09MTLLVxF2okswxCTUPau4AjuJ1c=
-X-Received: by 2002:a17:90b:3a46:b0:36d:7a76:827b with SMTP id 98e67ed59e1d1-370f0095b48mr28959386a91.14.1781105849749;
-        Wed, 10 Jun 2026 08:37:29 -0700 (PDT)
+        bh=ulYd5wVpca5yg2jxVlzL+HIPf3pvEYlKHmeoeqLMtp8=;
+        b=MAV+NOv7EMDc8CqzcY5I5fSV+xkPWuXlfbkDImvBbe/CnWv44KJg2vzIqcoLXG4jko
+         jFI8/J76SJMH/QeLmFUtti4JquHBO1P2ezyKzcHsKqqHog3Gvbby2uwtgf60NsgQnl26
+         Nac16CFEoG5AnLIeK34YwWycjgpACpBi80Wm6yH64sloFU2phPi8h0MpRj/Getfge2C4
+         N03BSkLB2nvWp54UwC8emcUCK6h7h6oFIouOy/Z4g+SxiLVtpcWS1RBkzPa3c1dsX+FQ
+         CrvS411+MOPuxWpAJTTGcndWHD6BMzs5E7TkkSOKDsL3aSBKqlBOOf/TIjzsIBWQz6Di
+         GP6g==
+X-Gm-Message-State: AOJu0YylD0VNrPMx7RYj7SOtwnUlA78sYm5zyEUwfc48HdqJH9ExQaTM
+	kQjSASm5N9ETK+EQryLD2HEDgdYsx2Y0TTLbGyeFDblXUltauD6rwuEEk22RIA==
+X-Gm-Gg: Acq92OFE4FF4DTuaJ6ZEaFOd7s52ku8uAyvbygKTe9Glk9Q8TMf34r8F+KZYIv8hYcw
+	vnfmLiE46wFyLsV06KXHuZ/ffiaaGrMrQxaV9yIAyXLP0NvUKq/kR0EKs/YRdd0yTUxue+jCXGj
+	xzQMEQXLrqGw1eLuLREyo2rbriDWbiFRpMOE4WOPcRPqqMSH90rX4b0akwqt6fLR9e0O4S1j89F
+	Yty4EW6vNZqhAXshs0i/CKj5tWtWNMXwX9v3DDFbtH0rehF/Bbdfpmsx0t1GZqeghV7ima23lZn
+	ish73YKn9TALe4Spie83hqQlSb6jqgfOgZZ/mbgX0A0fYr40J3nRQuIZ29ON+ITq8rPfavgvWaA
+	TzE13096h9jf1kBLh2d+M5AuC2NSTeyGxjSlqTKNtwP0CpVR3fUB1ir1Rgif0hwxagcMakk7z5Z
+	F2Rm6CKAyh8uNaXM3QwvKOCdncBNViMTuZd11o5Qje3HHtHj2UR0tHeYEvDkY=
+X-Received: by 2002:a17:90b:35c1:b0:36b:71e6:3e01 with SMTP id 98e67ed59e1d1-370f0678ed1mr27145694a91.16.1781105853594;
+        Wed, 10 Jun 2026 08:37:33 -0700 (PDT)
 Received: from hu-ckantibh-hyd.qualcomm.com ([202.46.23.25])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3772e3a2c92sm127506a91.11.2026.06.10.08.37.26
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3772e3a2c92sm127506a91.11.2026.06.10.08.37.30
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 10 Jun 2026 08:37:29 -0700 (PDT)
+        Wed, 10 Jun 2026 08:37:33 -0700 (PDT)
 From: Sanjay Chitroda <sanjayembeddedse@gmail.com>
 X-Google-Original-From: Sanjay Chitroda <sanjayembedded@gmail.com>
-Date: Wed, 10 Jun 2026 21:07:05 +0530
-Subject: [PATCH v2 4/7] iio: light: hid-sensor-prox: use u32 instead of
- unsigned
+Date: Wed, 10 Jun 2026 21:07:06 +0530
+Subject: [PATCH v2 5/7] iio: orientation: hid-sensor-incl-3d: use u32
+ instead of unsigned
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -70,7 +70,7 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260610-6-june-hid-iio-correct-usage-id-v2-4-c3c5f0720493@gmail.com>
+Message-Id: <20260610-6-june-hid-iio-correct-usage-id-v2-5-c3c5f0720493@gmail.com>
 References: <20260610-6-june-hid-iio-correct-usage-id-v2-0-c3c5f0720493@gmail.com>
 In-Reply-To: <20260610-6-june-hid-iio-correct-usage-id-v2-0-c3c5f0720493@gmail.com>
 To: Jiri Kosina <jikos@kernel.org>, Jonathan Cameron <jic23@kernel.org>, 
@@ -93,31 +93,40 @@ No functional change.
 Signed-off-by: Sanjay Chitroda <sanjayembeddedse@gmail.com>
 Reviewed-by: Maxwell Doose <m32285159@gmail.com>
 ---
- drivers/iio/light/hid-sensor-prox.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/iio/orientation/hid-sensor-incl-3d.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/iio/light/hid-sensor-prox.c b/drivers/iio/light/hid-sensor-prox.c
-index edc9274a2c07..9059f00f0ced 100644
---- a/drivers/iio/light/hid-sensor-prox.c
-+++ b/drivers/iio/light/hid-sensor-prox.c
-@@ -166,7 +166,7 @@ static const struct iio_info prox_info = {
+diff --git a/drivers/iio/orientation/hid-sensor-incl-3d.c b/drivers/iio/orientation/hid-sensor-incl-3d.c
+index 4e23a598a3fb..c7fbff498be7 100644
+--- a/drivers/iio/orientation/hid-sensor-incl-3d.c
++++ b/drivers/iio/orientation/hid-sensor-incl-3d.c
+@@ -189,7 +189,7 @@ static const struct iio_info incl_3d_info = {
  
  /* Callback handler to send event after all samples are received and captured */
- static int prox_proc_event(struct hid_sensor_hub_device *hsdev,
+ static int incl_3d_proc_event(struct hid_sensor_hub_device *hsdev,
 -				unsigned usage_id,
 +				u32 usage_id,
  				void *priv)
  {
  	struct iio_dev *indio_dev = platform_get_drvdata(priv);
-@@ -183,7 +183,7 @@ static int prox_proc_event(struct hid_sensor_hub_device *hsdev,
+@@ -212,7 +212,7 @@ static int incl_3d_proc_event(struct hid_sensor_hub_device *hsdev,
  
  /* Capture samples in local storage */
- static int prox_capture_sample(struct hid_sensor_hub_device *hsdev,
+ static int incl_3d_capture_sample(struct hid_sensor_hub_device *hsdev,
 -				unsigned usage_id,
 +				u32 usage_id,
  				size_t raw_len, char *raw_data,
  				void *priv)
  {
+@@ -247,7 +247,7 @@ static int incl_3d_capture_sample(struct hid_sensor_hub_device *hsdev,
+ static int incl_3d_parse_report(struct platform_device *pdev,
+ 				struct hid_sensor_hub_device *hsdev,
+ 				struct iio_chan_spec *channels,
+-				unsigned usage_id,
++				u32 usage_id,
+ 				struct incl_3d_state *st)
+ {
+ 	int ret;
 
 -- 
 2.34.1

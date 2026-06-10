@@ -1,147 +1,184 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.10])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7DF993A8730;
-	Wed, 10 Jun 2026 08:29:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.10
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9474D3ACF1B
+	for <linux-input@vger.kernel.org>; Wed, 10 Jun 2026 08:38:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781080161; cv=none; b=mehlFlRAMrroqz8FOgf8/I0EEk2G2oExJetE/Gd3VMziSHk0p88P+9Y/R+otMTdNU5MITxLNbCpblLjjKEA9F6U3TYKWx4idXUTlkzS1rnrmsvmXyIrLrDi7n4vaTJKUuzE8wEsVD6U/SACNBurocBUqPOiQn+DkRmX33r2iUW0=
+	t=1781080730; cv=none; b=NtX43d0Pgg0rj+eDEP7wvRVqOQo0D6A7HYRVvfvDniil1d6HsZdmVCjQJA9AHBEZ1IyIq1gPHlKnUyPTwrJmCvnNL1W0sIj6B5chWbbWhNuA6dOcF9/3Vz4Xfo1w6xyAaC+jMhlMJNgC9F32uaGFfd6I8JO++hXFDrGh4AzIH4w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781080161; c=relaxed/simple;
-	bh=ZpyspbBfeW0Q+8UiMvhtWzEpFQz4ZoVqMdM61L0YykY=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=WwXGbONg8zaZxRDfzFQUN8uL+XsVatZa3j75S3nSzhJDAhLdPiNf3340Tz5eZoan13AHHJbOWln43aQfht0ddjz2ba8L9bLQqPgMMZmTAyemF8kv6t/FqnwaVYdU1Ox+hom+AHR8Dcza+R62uQeGLjyxRhnp/RAGZcJShvZc+ns=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=CC7J/tTY; arc=none smtp.client-ip=192.198.163.10
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1781080730; c=relaxed/simple;
+	bh=KTegAyMUDqiIQmgB1iGwagradOHuRTRvVTZy43IeWZ0=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=WBCl2bVAUvWNnhi0lOqRNKpbhuGSnBYF85L4PBBM1vpL/QCkXMgL0zxKRVbh/xGk7n0Pp4auwCLn735YVK01n1OS72FE+7wJXYxS8bY3TH9BiigYfEVK6/c9JEh4IuI/pc/MMGnbT8YJZrgdoEUjLd59P+XCCsLdH5a/04PtKvg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=l0WKpqOn; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="CC7J/tTY"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1781080161; x=1812616161;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=ZpyspbBfeW0Q+8UiMvhtWzEpFQz4ZoVqMdM61L0YykY=;
-  b=CC7J/tTYLQdtYg05OChhqKI6SpqAdC00SsMiD27T5wLl+51ip/hwBs60
-   Imy8iMub4nKHqNze5p+MMieoJgYL04ca/c0BTLAKyY5p0a/3fgNB33fox
-   xUzmkEITOGE+Bn62epr14BfHv9v5JNi/cGk4z+vggV1FrSRFrOnYymFzx
-   zDFr2PJ5Bm2XH4DHkqI1foSgI3FuvXycugT4H0zbiRYbNvitye/+MuqkV
-   n8YLfbIxeaIpVwn2ZkfGfolrGD5UhP1CX5031XkOHZReZf1Pd8OKV6PQK
-   7sr+Wh6SKuwuYusDvQM1YFbbxk6jn6JUFs08i0DOq6XILyJ97dylfZG/p
-   w==;
-X-CSE-ConnectionGUID: QlH+Elj8Qly1u09BsbwxlA==
-X-CSE-MsgGUID: ugjDxvbqT9OP98TubpHaeg==
-X-IronPort-AV: E=McAfee;i="6800,10657,11812"; a="93255327"
-X-IronPort-AV: E=Sophos;i="6.24,197,1774335600"; 
-   d="scan'208";a="93255327"
-Received: from orviesa003.jf.intel.com ([10.64.159.143])
-  by fmvoesa104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Jun 2026 01:29:20 -0700
-X-CSE-ConnectionGUID: oQOZQ3DJQkCpEL06+HbOXw==
-X-CSE-MsgGUID: UOT7/AYKTdSzuQGThKDm0w==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.24,197,1774335600"; 
-   d="scan'208";a="250043171"
-Received: from lixuzha-desk.sh.intel.com ([10.239.146.169])
-  by orviesa003.jf.intel.com with ESMTP; 10 Jun 2026 01:29:18 -0700
-From: Zhang Lixu <lixu.zhang@intel.com>
-To: Jiri Kosina <jikos@kernel.org>,
-	Jonathan Cameron <jic23@kernel.org>,
-	Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
-	Benjamin Tissoires <bentiss@kernel.org>
-Cc: David Lechner <dlechner@baylibre.com>,
-	=?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>,
-	Andy Shevchenko <andy@kernel.org>,
-	linux-input@vger.kernel.org,
-	linux-iio@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	lixu.zhang@intel.com
-Subject: [PATCH 2/2] iio: hid-sensor-rotation: Fix stale or zero output when reading raw values
-Date: Wed, 10 Jun 2026 16:29:10 +0800
-Message-ID: <20260610082911.157232-3-lixu.zhang@intel.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20260610082911.157232-1-lixu.zhang@intel.com>
-References: <20260610082911.157232-1-lixu.zhang@intel.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="l0WKpqOn"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 067A11F00893;
+	Wed, 10 Jun 2026 08:38:48 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1781080729;
+	bh=S7sMQ1hkGluWVMy9jAVNfpUCpvU0nFk4aJglP7jhJQI=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=l0WKpqOnYcxB/kniIx2xvq28tLzpcGWI848XM9Bxf1zVH8+RwtS6cc+NAs9jw1cso
+	 ySo9scUhMX3HMKwotUMwwXc25Ckp4mAyRK6sIcHZ3u0abeXgpUuL7oFJC5o5GFq1v4
+	 3TtTWMh0O5Hc7zSzVjMWpU7DT+g/kVtNqdyMvFrTpP3pAnlnySsmzUjzbB6Ryck3Il
+	 h9gyH/2R4Q8PUAGHMLFCcB7DITFIA7+yIN9KAZgmgpUQ6nap3AfgLjH719vpDWqh/C
+	 ZqLytTk3AzJ5sTDkFH9088yfkdvZlxRtIGUpicd2ZD+SIcrhohTu64rCvclMw5eFR4
+	 gdVGrTI8w9xnA==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH 1/2] HID: sensor-hub: Add
+ sensor_hub_input_attr_read_values() for multi-byte reads
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Zhang Lixu" <lixu.zhang@intel.com>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20260610082911.157232-2-lixu.zhang@intel.com>
+References: <20260610082911.157232-2-lixu.zhang@intel.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Wed, 10 Jun 2026 08:38:48 +0000
+Message-Id: <20260610083849.067A11F00893@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-When reading the raw quaternion attribute (in_rot_quaternion_raw), the
-driver currently returns either all zeros (if the sensor was never enabled)
-or stale data (if the sensor was previously enabled) because it reads from
-the internal buffer without explicitly requesting a new sample from the
-sensor.
+Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+s) to consider:
 
-To fix this, power up the sensor, call sensor_hub_input_attr_read_values()
-to issue a synchronous GET_REPORT and receive the full quaternion data
-directly into a local buffer, then decode the four components.
+New issues:
+- [Critical] Missing spinlock acquisition in the timeout/abort path of `sen=
+sor_hub_input_attr_read_values` leads to race conditions, use-after-free, a=
+nd stack memory corruption.
 
-Signed-off-by: Zhang Lixu <lixu.zhang@intel.com>
----
- drivers/iio/orientation/hid-sensor-rotation.c | 40 ++++++++++++++++++-
- 1 file changed, 38 insertions(+), 2 deletions(-)
+Pre-existing issues:
+- [High] Reading past the end of short HID reports exposes uninitialized ke=
+rnel heap memory.
+- [High] Repeated field matches in `sensor_hub_raw_event()` cause uncontrol=
+led `kmemdup()` allocations, leaking memory.
+--
 
-diff --git a/drivers/iio/orientation/hid-sensor-rotation.c b/drivers/iio/orientation/hid-sensor-rotation.c
-index 4a11e45550991..1c6f02374f3ce 100644
---- a/drivers/iio/orientation/hid-sensor-rotation.c
-+++ b/drivers/iio/orientation/hid-sensor-rotation.c
-@@ -86,6 +86,13 @@ static int dev_rot_read_raw(struct iio_dev *indio_dev,
- 				long mask)
- {
- 	struct dev_rot_state *rot_state = iio_priv(indio_dev);
-+	struct hid_sensor_hub_device *hsdev = rot_state->common_attributes.hsdev;
-+	struct hid_sensor_hub_attribute_info *info = &rot_state->quaternion;
-+	u32 usage_id = HID_USAGE_SENSOR_ORIENT_QUATERNION;
-+	union {
-+		s16 val16[4];
-+		s32 val32[4];
-+	} raw_buf;
- 	int ret_type;
- 	int i;
- 
-@@ -95,8 +102,37 @@ static int dev_rot_read_raw(struct iio_dev *indio_dev,
- 	switch (mask) {
- 	case IIO_CHAN_INFO_RAW:
- 		if (size >= 4) {
--			for (i = 0; i < 4; ++i)
--				vals[i] = rot_state->scan.sampled_vals[i];
-+			if (info->size <= 0 || info->size > sizeof(raw_buf))
-+				return -EINVAL;
-+
-+			hid_sensor_power_state(&rot_state->common_attributes, true);
-+
-+			ret_type = sensor_hub_input_attr_read_values(hsdev,
-+								     hsdev->usage,
-+								     usage_id,
-+								     info->report_id,
-+								     SENSOR_HUB_SYNC,
-+								     info->size,
-+								     (u8 *)&raw_buf);
-+
-+			hid_sensor_power_state(&rot_state->common_attributes, false);
-+
-+			if (ret_type < 0)
-+				return ret_type;
-+
-+			switch (info->size) {
-+			case sizeof(raw_buf.val16):
-+				for (i = 0; i < ARRAY_SIZE(raw_buf.val16); i++)
-+					vals[i] = raw_buf.val16[i];
-+				break;
-+			case sizeof(raw_buf.val32):
-+				for (i = 0; i < ARRAY_SIZE(raw_buf.val32); i++)
-+					vals[i] = raw_buf.val32[i];
-+				break;
-+			default:
-+				return -EINVAL;
-+			}
-+
- 			ret_type = IIO_VAL_INT_MULTIPLE;
- 			*val_len =  4;
- 		} else
--- 
-2.43.0
+commit b3186306e6632f94df0275d5e172210ae3044b54
+Author: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 
+HID: sensor-hub: Add sensor_hub_input_attr_read_values() for multi-byte rea=
+ds
+
+This commit introduces sensor_hub_input_attr_read_values() to allow
+multi-byte reads for sensors reporting data larger than 32 bits. It
+uses a caller-provided buffer to accumulate incoming data in
+sensor_hub_raw_event() until the buffer is full.
+
+> diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
+> --- a/drivers/hid/hid-sensor-hub.c
+> +++ b/drivers/hid/hid-sensor-hub.c
+
+[ ... ]
+
+> +	if (flag =3D=3D SENSOR_HUB_SYNC) {
+> +		cycles =3D wait_for_completion_interruptible_timeout(&hsdev->pending.r=
+eady,
+> +								   HZ * 5);
+> +		if (cycles =3D=3D 0)
+> +			ret =3D -ETIMEDOUT;
+> +		else if (cycles < 0)
+> +			ret =3D cycles;
+> +
+> +		hsdev->pending.status =3D false;
+
+[Severity: Critical]
+Does setting this status flag without acquiring the data->lock introduce a
+race condition?
+
+If wait_for_completion_interruptible_timeout() times out or is interrupted,
+this locklessly sets hsdev->pending.status =3D false and returns. Concurren=
+tly,
+the interrupt handler sensor_hub_raw_event() might have already observed
+status as true and could be mid-copy into the caller-provided buffer.
+
+Returning early would invalidate the caller-provided buffer, and the
+interrupt handler might subsequently overwrite the destroyed stack frame.
+
+> +	}
+> +	mutex_unlock(hsdev->mutex_ptr);
+> +
+> +	return ret;
+> +}
+
+[ ... ]
+
+> @@ -518,12 +568,27 @@ static int sensor_hub_raw_event(struct hid_device *=
+hdev,
+>  					      hsdev->pending.attr_usage_id =3D=3D
+>  					      report->field[i]->logical)) {
+>  			hid_dbg(hdev, "data was pending ...\n");
+> -			hsdev->pending.raw_data =3D kmemdup(ptr, sz, GFP_ATOMIC);
+> -			if (hsdev->pending.raw_data)
+> -				hsdev->pending.raw_size =3D sz;
+> -			else
+> -				hsdev->pending.raw_size =3D 0;
+> -			complete(&hsdev->pending.ready);
+> +			if (hsdev->pending.max_raw_size) {
+> +				if (hsdev->pending.index < hsdev->pending.max_raw_size) {
+> +					avail =3D hsdev->pending.max_raw_size - hsdev->pending.index;
+> +					copy_size =3D clamp(sz, 0U, avail);
+> +
+> +					memcpy(hsdev->pending.raw_data + hsdev->pending.index,
+> +					       ptr, copy_size);
+
+[Severity: Critical]
+As mentioned above, if sensor_hub_input_attr_read_values() aborts early,
+could this memcpy() write into an invalidated stack buffer?
+
+> +					hsdev->pending.index +=3D copy_size;
+> +					if (hsdev->pending.index >=3D hsdev->pending.max_raw_size) {
+> +						hsdev->pending.raw_size =3D hsdev->pending.index;
+> +						complete(&hsdev->pending.ready);
+> +					}
+> +				}
+> +			} else {
+> +				hsdev->pending.raw_data =3D kmemdup(ptr, sz, GFP_ATOMIC);
+
+[Severity: High]
+This is a pre-existing issue, but does this allocation leak memory if a
+crafted HID report contains multiple duplicate fields matching the
+requested usage?
+
+If the device rapidly spams events while a reader is waiting, each match
+could trigger a new kmemdup, overwriting the hsdev->pending.raw_data
+pointer and permanently leaking the previously allocated blocks.
+
+> +				if (hsdev->pending.raw_data)
+> +					hsdev->pending.raw_size =3D sz;
+> +				else
+> +					hsdev->pending.raw_size =3D 0;
+> +				complete(&hsdev->pending.ready);
+> +			}
+>  		}
+>  		if (callback->capture_sample) {
+>  			if (report->field[i]->logical)
+
+[Severity: High]
+This is a pre-existing issue, but does the loop advancing ptr expose
+uninitialized heap memory on short reports?
+
+Looking at the loop in sensor_hub_raw_event():
+
+	for (i =3D 0; i < report->maxfield; ++i) {
+		...
+		sz =3D (report->field[i]->report_size *
+					report->field[i]->report_count)/8;
+		...
+		ptr +=3D sz;
+	}
+
+The pointer is unconditionally advanced by the expected sizes defined in
+the report descriptor. Since sensor_hub_raw_event() ignores the actual
+size argument representing the received packet length, a maliciously
+short packet could cause the driver to read past the initialized packet
+bounds.
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260610082911.1572=
+32-1-lixu.zhang@intel.com?part=3D1

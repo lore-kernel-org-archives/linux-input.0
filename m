@@ -1,79 +1,45 @@
-Received: from mail-lf1-f49.google.com (mail-lf1-f49.google.com [209.85.167.49])
+Received: from mail.raman.v1.sg (mail.raman.v1.sg [5.223.73.200])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DAAEF40DFDC
-	for <linux-input@vger.kernel.org>; Wed, 10 Jun 2026 13:35:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B441640F8F4;
+	Wed, 10 Jun 2026 13:57:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=5.223.73.200
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781098518; cv=none; b=DkERLVPL6Jy/cpVswT2ovsweup3prDzQEPpRURRrHeUFx6Amq9x6FK4GgfrAy8gmANyhdp7oEKcQDNmhXSLjGI4N32OdM6L0JlnMtLCjvqoCvqEIuwJYf8uN2r5aGyPW91LMWzrZBVvTyLANysj53VlEDNONEUep8q0DFHh4vCg=
+	t=1781099834; cv=none; b=FjnpJtsGwwfWCUIl3mYBDP1t2R7lVuiDcbaF/OSw0lqD8nWWAuFUppO1Nb523ALTkHla4Ip9/XWK8p+i3ope7nsj1youvhtGJ8JF4Aqco8R8W1jTa/SCDSqjhClLdPaF84pH5a+UNM/RICEY88sfqMKC5VHvmY+rzzhPIA+s5hw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781098518; c=relaxed/simple;
-	bh=YUdqjoFhiPqQLaf4gJadZcw3eGr2LIScfANZVbT6QL4=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=JOY++Vt/d1WDP9RmRm+qbGUKuzSVfXEHKcWqXkwcUt6t+ahpovuVYD+vzSzguqy9Peh+0pVXiSMPjiOJVE/k/dDBxx+ERk/6gtrAOZr5JAd1IC/LwenCms5X+4SXLvheS7R6WL5WrczJD9m30VAEWkRk+tTkiqMYZqPEdzgTqh4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=C6dvPlbV; arc=none smtp.client-ip=209.85.167.49
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1781099834; c=relaxed/simple;
+	bh=Tdzmnm3tx1iIpVyuRuBj15XzFCd7cK120KOQzL50Ye0=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=f785qiNltR6vRM9M3k1+3NZtUsZ5r2mJVVwMQRLKjRz0hrwT3xQWUN745ELL99nScK8Pfl2YgoDuRWt8P9vRRbU77dNR1kAlYK35N9L2+wT7VLVybDFBeIfpNbfpLZWnyBfyeA0fjEqPXvGlKW63WdoFWROy5LO7YAariNirpxU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=raman.v1.sg; spf=pass smtp.mailfrom=raman.v1.sg; dkim=pass (2048-bit key) header.d=raman.v1.sg header.i=@raman.v1.sg header.b=Y/GIU++H; arc=none smtp.client-ip=5.223.73.200
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=raman.v1.sg
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=raman.v1.sg
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="C6dvPlbV"
-Received: by mail-lf1-f49.google.com with SMTP id 2adb3069b0e04-5aa619653e4so7343144e87.1
-        for <linux-input@vger.kernel.org>; Wed, 10 Jun 2026 06:35:12 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1781098511; x=1781703311; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=iLX2dOT9Bw/pz1APJXL+k95y9Wnfgl8Z5/bITb57NwI=;
-        b=C6dvPlbViT5sQbueoeZFAHUlk1cv5y8IiGRqg1/olB6Gua5BTgZu3cJxvjvYtoEZ4t
-         b1IEy/yWt322rHj+/2pceZ7ffykMIQF1BCQlkolvcKbF+zJaHesswH1PcJXTshnP/WU4
-         kGK8DT8m9XtNs7NLSyd811yFkKlqx5ttKYyGPf2Bq0EARL7hFqGZf9uME91/g+fln++k
-         nTNTHBPqCpxHMueDgB/lQ26N1qf1F1cnw79ABy8ICJq6XaRsdPQMQiGWJY6xfHg41/l/
-         1bVz1So83U+K/tcFXQp1tXAwTwwam7IUObhC1fZZEWnv4npdVR2+O4jvYmbi2QME2wn9
-         DXoA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781098511; x=1781703311;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=iLX2dOT9Bw/pz1APJXL+k95y9Wnfgl8Z5/bITb57NwI=;
-        b=G/7NCs2SbHzTHK9Bhh5ScHUxShOgpWxukyfClZZoM0p4LaWV+Q5RY/ej+LcxR3LmH3
-         a+KypqKpDuqlME+GleKwc+h+utIhwJUOYfEGZ5hoUTNhbUg+DOpRjGpM3S/aI0bZYNDX
-         1P3jTaMwUjAbytO+5mBf5uucVzF3QRt+/pjtIZ5eBYSNq5xOhQ/NllX8dgPw/g8GreKH
-         SU4t7VtHzItgtJhsfEqM1Q3QpazN7tDP9XBvcPlHT8iX0zOKzx+ykXTMpYdKMwPo2aHA
-         FHclEXKDPIobviL5ZKt/MpKuWHmnVQHIdgUhtKQM6pzoFvzA7a7jGrwLpqYoBxoy01t2
-         D2rA==
-X-Forwarded-Encrypted: i=1; AFNElJ9z5btmLEH9QJxXuSyQVqBah3f5AuVu6WqFQc/DGq1Yhqwg3wlIfjHyrYRVc7uq7DwwpMe2tvm5++ZMog==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yy9Lvb1HQdpxoCPwd8cW6amCIhqxw6iUnLRl3aw3zPHuQ8HqhNz
-	LhZd9u07QG1D4wYM5JRnMDVAGyunKox8FOGVp4UIPXjlwtlmiLM3W8I+
-X-Gm-Gg: Acq92OHO3h1IS9g8AMZvUSzkdYVGuAAB6pbnBA7/TkUqGz1/XYErrm7cOyAPZqfH9NB
-	Kv3bAB7xyfYpeVCbLHXCsvURi/qH22THVDlJdn1jSkOFOi3Q1m1hOgemFFlGDwHVlHSbRhuuT5o
-	1NB+1jHYwqqtNzZXgYzOeAAtXXx0dwgS41W/9qvuuktYbJSzNPgy/OfTIUvFyzu0p+bIk3rgAf1
-	NC/FijtMMcHGPhSZZR7dktgfLHmVfDh0ACHkLx0zN4xnzD2pang7b33hKcg2+Kf9MlLrH6TTNsO
-	0eeZluJq9Y11GI9UYQ70KMndFhEFba+f7MmkpLxWZvGDl96ba3bdbxyXwcG5jdsIf64Nunll7Ib
-	8/Moyy1CJz/tOrl4DmPQkNmXiafROZoXAl/uGpe0ctSnWmdN0HSn8znfvbQpflU+w8+2lG3cxWm
-	a4/ysO283itS6+tNZRe09QgUgfmeVGfBjSnt7ASZyH/0H9KWDYZA==
-X-Received: by 2002:a05:6512:1346:b0:5aa:7a7d:c7d2 with SMTP id 2adb3069b0e04-5aa886ca133mr5697683e87.18.1781098510327;
-        Wed, 10 Jun 2026 06:35:10 -0700 (PDT)
-Received: from arch.localdomain ([2409:8a28:a54:e741:3a5a:3245:d3dc:4b5d])
-        by smtp.gmail.com with ESMTPSA id 38308e7fff4ca-396abf66ea9sm62000751fa.2.2026.06.10.06.35.04
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 10 Jun 2026 06:35:08 -0700 (PDT)
-From: Jun Yan <jerrysteve1101@gmail.com>
-To: conor@kernel.org
-Cc: conor+dt@kernel.org,
-	devicetree@vger.kernel.org,
-	dmitry.torokhov@gmail.com,
-	jerrysteve1101@gmail.com,
-	krzk+dt@kernel.org,
+	dkim=pass (2048-bit key) header.d=raman.v1.sg header.i=@raman.v1.sg header.b="Y/GIU++H"
+DKIM-Signature: a=rsa-sha256; bh=Aw+Ssz8MRmoH55NHfIySuTnpiVbECDx/KzYBd910ALo=;
+ c=relaxed/relaxed; d=raman.v1.sg;
+ h=Subject:Subject:Sender:To:To:Cc:Cc:From:From:Date:Date:MIME-Version:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Transfer-Encoding:Reply-To:In-Reply-To:Message-Id:Message-Id:References:Autocrypt:Openpgp;
+ i=@raman.v1.sg; s=default; t=1781098906; v=1; x=1781530906;
+ b=Y/GIU++HrwBbm3uwYJBImGYL8/EHA2ftdZTE7OnfeMzpjwD+2d0pMrf+r+T8Otg30vVPJGdK
+ Hkm+2D6lcd/tgmRPXQc6avaBo0FzxOPZysf7ClJeexRIGgPG0BBXq7GtetMvh0dYvg/UBr2EBiw
+ xdO/UaV2n1n4E5IvJ42KC+zeXGnuUBMmMBm4ttun8BEfJPBheCNTO1pn/Tag+JchNoHXvmHzdir
+ aF8CAQm6XlxaUorrKKaMQzxc0mWaCeKRafUqfJ/493wDKq1oZYwFLMHpJfhBsk0gzJEAkwiKU0y
+ dMPHL1xk1f/HS6uoTe/cuxDiCw1spP80ff6Jqas/pZO+g==
+Received: from cyberarch.tail8ae6a2.ts.net (localhost [127.0.0.1]) by
+ mail.raman.v1.sg (envelope-sender
+ <kernel-linux-20260610-80b7ab08@raman.v1.sg>) with ESMTP id 68bad46c; Wed,
+ 10 Jun 2026 13:41:46 +0000
+From: Raman Varabets <kernel-linux-20260610-80b7ab08@raman.v1.sg>
+To: michael.zaidman@gmail.com
+Cc: jikos@kernel.org,
+	bentiss@kernel.org,
+	linux-i2c@vger.kernel.org,
 	linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
-	robh@kernel.org
-Subject: Re: [PATCH 7/8] dt-bindings: input: microchip,cap11xx: Add CAP1114 support
-Date: Wed, 10 Jun 2026 21:34:58 +0800
-Message-ID: <20260610133458.970174-1-jerrysteve1101@gmail.com>
+	Raman Varabets <kernel-linux-20260610-80b7ab08@raman.v1.sg>
+Subject: [PATCH] HID: ft260: fix SMBus block read protocol handling
+Date: Wed, 10 Jun 2026 21:41:19 +0800
+Message-ID: <20260610134119.3313484-1-kernel-linux-20260610-80b7ab08@raman.v1.sg>
 X-Mailer: git-send-email 2.54.0
-In-Reply-To: <20260609-ebook-tantrum-4846384c02d5@spud>
-References: <20260609-ebook-tantrum-4846384c02d5@spud>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -82,117 +48,110 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-> On Tue, Jun 09, 2026 at 10:08:27PM +0800, Jun Yan wrote:
-> > > On Sat, Jun 06, 2026 at 11:04:00PM +0800, Jun Yan wrote:
-> > > > CAP1114 is a 14-channel capacitive touch sensor with 11 LED outputs
-> > > > and hardware reset support.
-> > > >=3D20
-> > > > Add the compatible string for CAP1114, include its datasheet URL,
-> > > > and update the maximum count of LED channels and linux,keycodes entri=
-> es.
-> > > >=3D20
-> > > > Add description for microchip,input-threshold: CAP1114 only provides =
-> eight
-> > > > threshold entries, which does not match its total channel count.
-> > > >=3D20
-> > > > Signed-off-by: Jun Yan <jerrysteve1101@gmail.com>
-> > > > ---
-> > > >  .../bindings/input/microchip,cap11xx.yaml     | 21 +++++++++++++++++=
-> --
-> > > >  1 file changed, 19 insertions(+), 2 deletions(-)
-> > > >=3D20
-> > > > diff --git a/Documentation/devicetree/bindings/input/microchip,cap11x=
-> x.ya=3D
-> > > ml b/Documentation/devicetree/bindings/input/microchip,cap11xx.yaml
-> > > > index e307628350c2..08233386a433 100644
-> > > > --- a/Documentation/devicetree/bindings/input/microchip,cap11xx.yaml
-> > > > +++ b/Documentation/devicetree/bindings/input/microchip,cap11xx.yaml
-> > > > @@ -12,6 +12,7 @@ description: |
-> > > > =3D20
-> > > >    For more product information please see the links below:
-> > > >      CAP1106: https://ww1.microchip.com/downloads/en/DeviceDoc/000016=
-> 24B.=3D
-> > > pdf
-> > > > +    CAP1114: https://ww1.microchip.com/downloads/en/DeviceDoc/000024=
-> 44A.=3D
-> > > pdf
-> > > >      CAP1126: https://ww1.microchip.com/downloads/en/DeviceDoc/000016=
-> 23B.=3D
-> > > pdf
-> > > >      CAP1188: https://ww1.microchip.com/downloads/en/DeviceDoc/000016=
-> 20C.=3D
-> > > pdf
-> > > >      CAP1203: https://ww1.microchip.com/downloads/en/DeviceDoc/000015=
-> 72B.=3D
-> > > pdf
-> > > > @@ -26,6 +27,7 @@ properties:
-> > > >    compatible:
-> > > >      enum:
-> > > >        - microchip,cap1106
-> > > > +      - microchip,cap1114
-> > > >        - microchip,cap1126
-> > > >        - microchip,cap1188
-> > > >        - microchip,cap1203
-> > > > @@ -62,7 +64,7 @@ properties:
-> > > > =3D20
-> > > >    linux,keycodes:
-> > > >      minItems: 3
-> > > > -    maxItems: 8
-> > > > +    maxItems: 14
-> > > >      description: |
-> > > >        Specifies an array of numeric keycode values to
-> > > >        be used for the channels. If this property is
-> > > > @@ -122,6 +124,8 @@ properties:
-> > > >        is required for a touch to be registered, making the touch sen=
-> sor =3D
-> > > less
-> > > >        sensitive.
-> > > >        The number of entries must correspond to the number of channel=
-> s.
-> > > > +      CAP1114 is an exception where channels 8~14 reuse the eighth e=
-> ntry=3D
-> > > 's
-> > > > +      threshold, so counts differ.
-> > > > =3D20
-> > > >    microchip,calib-sensitivity:
-> > > >      $ref: /schemas/types.yaml#/definitions/uint32-array
-> > > > @@ -149,7 +153,7 @@ patternProperties:
-> > > >        reg:
-> > > >          description: LED channel number
-> > > >          minimum: 0
-> > > > -        maximum: 7
-> > > > +        maximum: 10
-> > > > =3D20
-> > > >      required:
-> > > >        - reg
-> > > > @@ -199,6 +203,19 @@ allOf:
-> > > >              reg:
-> > > >                maximum: 1
-> > > > =3D20
-> > > > +  - if:
-> > > > +      properties:
-> > > > +        compatible:
-> > > > +          contains:
-> > > > +            enum:
-> > > > +              - microchip,cap1188
-> > >=20
-> > > I don't understand this restriction, shouldn't this be
-> > > if: properties: compatible: not: contains: microchip,cap1114
-> > > so that the constraints before your change are retained?
-> > >=20
-> >=20
-> > Previously, the LED reg property had a default maximum of 7 for CAP1188.=
-> =20
-> > With the addition of CAP1114, the default maximum is now 11.=20
-> > An if-then constraint is added to limit the LED count for CAP1188.
-> 
-> Ah, is this because cap1188 is the only existing device in the binding
-> that actually has LEDs?
+For I2C_SMBUS_BLOCK_DATA reads, ft260_smbus_xfer() passed
+data->block[0] + 1 as the read length. But on a block read the byte
+count is supplied by the slave as the first byte of the response;
+data->block[0] is not initialized by the caller, so the transfer
+length was taken from stale buffer contents, and the count byte the
+slave did return was stored without any validation.
 
-- CAP1126: max 2 LED channels (0-1)
-- CAP1188: max 8 LED channels (0-7)
-- CAP1106, CAP12xx: no LED support
+Implement the SMBus 2.0 block read protocol properly: read the count
+byte first with a repeated START and no STOP, validate it against
+I2C_SMBUS_BLOCK_MAX (resetting the bus and returning -EPROTO on a
+bogus count), then read exactly that many data bytes and finish the
+transaction with STOP. This keeps the whole sequence within a single
+I2C transaction:
 
-The LED reg property constraints for CAP1126 were added in Patch 3 [1].
+  S Addr+Wr A Reg A Sr Addr+Rd A Count A Data... P
 
-[1] https://lore.kernel.org/linux-input/20260606150458.250606-4-jerrysteve1101@gmail.com/
+To support issuing the two reads as one transaction, teach
+ft260_i2c_read() to honor the caller's flags instead of always
+forcing a START and unconditionally appending STOP to the last
+chunk: START is only emitted if requested, and STOP is appended to
+the final chunk only when the caller asked for it.
+
+Signed-off-by: Raman Varabets <kernel-linux-20260610-80b7ab08@raman.v1.sg>
+---
+ drivers/hid/hid-ft260.c | 45 ++++++++++++++++++++++++++++++++++++-----
+ 1 file changed, 40 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/hid/hid-ft260.c b/drivers/hid/hid-ft260.c
+index 70e2eedb4..946ed0c6f 100644
+--- a/drivers/hid/hid-ft260.c
++++ b/drivers/hid/hid-ft260.c
+@@ -502,15 +502,23 @@ static int ft260_i2c_read(struct ft260_device *dev, u8 addr, u8 *data,
+ 	struct ft260_i2c_read_request_report rep;
+ 	struct hid_device *hdev = dev->hdev;
+ 	u8 bus_busy = 0;
++	/*
++	 * STOP terminates the last chunk; clear means hold the bus so a
++	 * follow-up call continues the same I2C transaction.
++	 */
++	bool want_stop = !!(flag & FT260_FLAG_STOP);
+ 
+ 	if ((flag & FT260_FLAG_START_REPEATED) == FT260_FLAG_START_REPEATED)
+ 		flag = FT260_FLAG_START_REPEATED;
+-	else
++	else if (flag & FT260_FLAG_START)
+ 		flag = FT260_FLAG_START;
++	else
++		flag = 0;	/* no fresh START - continue current transaction */
+ 	do {
+ 		if (len <= rd_data_max) {
+ 			rd_len = len;
+-			flag |= FT260_FLAG_STOP;
++			if (want_stop)
++				flag |= FT260_FLAG_STOP;
+ 		} else {
+ 			rd_len = rd_data_max;
+ 		}
+@@ -708,14 +716,41 @@ static int ft260_smbus_xfer(struct i2c_adapter *adapter, u16 addr, u16 flags,
+ 		break;
+ 	case I2C_SMBUS_BLOCK_DATA:
+ 		if (read_write == I2C_SMBUS_READ) {
++			u8 count = 0;
++
++			/*
++			 * SMBus 2.0 section 6.5.7 block read in one I2C
++			 * transaction:
++			 *
++			 *   S Addr+Wr A Reg A Sr Addr+Rd A Count A Data... P
++			 *
++			 * The count is read separately and validated
++			 * before sizing the data read so a misbehaving
++			 * slave cannot drive a write past data->block[].
++			 */
+ 			ret = ft260_smbus_write(dev, addr, cmd, NULL, 0,
+ 						FT260_FLAG_START);
+ 			if (ret)
+ 				goto smbus_exit;
+ 
+-			ret = ft260_i2c_read(dev, addr, data->block,
+-					     data->block[0] + 1,
+-					     FT260_FLAG_START_STOP_REPEATED);
++			ret = ft260_i2c_read(dev, addr, &count, 1,
++					     FT260_FLAG_START_REPEATED);
++			if (ret)
++				goto smbus_exit;
++
++			if (count == 0 || count > I2C_SMBUS_BLOCK_MAX) {
++				hid_warn(hdev,
++					 "smbus block read: invalid count %u from slave 0x%02x\n",
++					 count, addr);
++				ft260_i2c_reset(hdev);
++				ret = -EPROTO;
++				goto smbus_exit;
++			}
++
++			data->block[0] = count;
++
++			ret = ft260_i2c_read(dev, addr, data->block + 1,
++					     count, FT260_FLAG_STOP);
+ 		} else {
+ 			ret = ft260_smbus_write(dev, addr, cmd, data->block,
+ 						data->block[0] + 1,
+
+base-commit: ab5fce87a778cb780a05984a2ca448f2b41aafbf
+-- 
+2.54.0
+

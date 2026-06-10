@@ -1,85 +1,159 @@
-Received: from mail-dy1-f174.google.com (mail-dy1-f174.google.com [74.125.82.174])
+Received: from mail-dy1-f175.google.com (mail-dy1-f175.google.com [74.125.82.175])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E9FD933F58B
-	for <linux-input@vger.kernel.org>; Wed, 10 Jun 2026 06:08:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.174
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D5549370AFB
+	for <linux-input@vger.kernel.org>; Wed, 10 Jun 2026 06:12:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.175
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781071713; cv=none; b=ZVoq6ystF57pmubpEOtEou6w3NiCaLQR+2ewccKHtC/zzPinYeWErLDwbDlJjXAQ6sSPafSqQKVXP7OrtTUgLDroQRnBKXYS3lwNX/oiY+sMsoh4/vJmAjaZkCFqYZ3r2vSnxvfP/GIfQMOR6AEJnTRIn9e5oqG9SHth7RR475Y=
+	t=1781071975; cv=none; b=VmcSLR4IMgT24KKaLOH5Ptw58/Q7XcTx8g7kfNh7Ei2hqoBBQvv068LbaG/6SyA6rxcP+LXXpQDohtspKREiWnY35SmjS+sFfe1xBltpZEqWTcGHMV/d6w4ow7pxqcJWu6p15nx/8hPASKxeNY8tYwK15NdEs+NgbhEDgFEslDU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781071713; c=relaxed/simple;
-	bh=oY1V/sBFtMDTx1XAqnER9W6gxlJqUZdbRztaMPb2O+0=;
+	s=arc-20240116; t=1781071975; c=relaxed/simple;
+	bh=op8rYcSBMGStuHhYl5iZoBPDpUZTYWHGV92Scc/aamU=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=hsAFyvklCiqGAUR+/LEoA1Nadyb/t42CfxA42f4bNEN8ZWv2FbwN9ycSezvxle5EnGOCZnynLWqZYDksVu8Z7ZlamuWxp/cNwRMney2sBu7D1GxhXHAWU5ZEvvlRjPzN3vUpqoSPRH4zzgMm+QvffwzNE6oOZ62Chfj8BorAn6g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=cTHlhHMp; arc=none smtp.client-ip=74.125.82.174
+	 Content-Type:Content-Disposition:In-Reply-To; b=X5pmk6ortGTwvbzjy6uizhv6PfBXgjvERH91c8QC/sFIYUwNBUvFLP8y/SvJ5Sf+sSE8OZv1K9NaoexvOrOhkbpzDNiAbZhdPE+mombGXgv1aScvmNGw5dvb7uJjs4M8iVjgCNv26SBuQkT8Gq/9dkQrPL57/ully6HuGgO4suc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=EjWKAU0H; arc=none smtp.client-ip=74.125.82.175
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="cTHlhHMp"
-Received: by mail-dy1-f174.google.com with SMTP id 5a478bee46e88-307263ad0cbso8756907eec.0
-        for <linux-input@vger.kernel.org>; Tue, 09 Jun 2026 23:08:31 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="EjWKAU0H"
+Received: by mail-dy1-f175.google.com with SMTP id 5a478bee46e88-307263ad0cbso8761120eec.0
+        for <linux-input@vger.kernel.org>; Tue, 09 Jun 2026 23:12:53 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1781071711; x=1781676511; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=sjirvn2KXnvQdyUKUhtMrVzcKRg1pU58txvCPcPguFE=;
-        b=cTHlhHMpkKQaWglwT7Hik0liurHoUH7KTdGh5UzYccFG53WDYqve6A/g62r2J6yNOJ
-         1BDzi2+JsNeyaIIuxalfa/K/oorGYaaL9WM6ltJzNG/51Y/cjKDLXuGqQJEE56AXvTKa
-         5Hm2bmY+oV4atZb1ehVUTnT8gY1G9kN+v+eImxyRcEY3IU+h704KEL5uE8gOUuI7WBPw
-         zPISRda6T2/K7ESTD7Gp/eilz/msvODIwb8WShDjMuzl/SF+VIRgJFtZ+/iwq+Kzp2iT
-         UqHhK3WOzdjBEdTGYXxKLizb9cjiE97MVrQXCrtwRHUdpDyjryCAZh8SN/eu3NOVXboj
-         6gKA==
+        d=gmail.com; s=20251104; t=1781071973; x=1781676773; darn=vger.kernel.org;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=oMudQFXHfT5uKQwYnXgxpWgI7x0i4hEvOydhOw3iJVk=;
+        b=EjWKAU0H6KuJjmowVCbBb66bBqUX+u22GGnGboMKIun3Rqc9MRNWFH6GvD5ZVSUeUL
+         3cuWvFrjVKN5JjGrfIgaL08Uj9oaMtWi5SXQGo+N+e4kkCmUrJq8CuDvGOGHbUtUxVR9
+         4DoxP5S8Asp84jCnUMiSi0dCRXN0PQT0atZuLB805W4edmjRdGv4aVHXkYsi/7na8D29
+         IGv3rsPFjRFnOOh7RigkCFATVa0GMash5ZxrLZP+YDVKPcPcUv5Jk1eHkPtw0ZlRC0y1
+         0QH+kS23YSIueYY1d4Py60P/uX0U/ZlvguqBVM1aCvYjfPmBeK4F0WvZkF5E0NR6wb6d
+         y+Aw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781071711; x=1781676511;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=sjirvn2KXnvQdyUKUhtMrVzcKRg1pU58txvCPcPguFE=;
-        b=OSc2pG+Z6xYZ3bkDYjLJsAVVaG9yDbza5Py5AkEwtl02Anmai+TdrxHA6nbaJybIQK
-         VdttaW3rGtrQb9wrhDNiA8pahy1AaCx1Bs8kZXhsWjxlt+9O9W8PTRaU+gc0wUffFSTE
-         gQmQlQzul8T3rh4Rwl78XEv0i0DU0uSr+vc8OBJcYRex5XuWdS8qwMUkStae3B34vI9D
-         t8Fp6pQnsVyOEYQoEPAu3qTkhcAHgm4mOK39mpIoEQ0Mwl70zCkc4WUzbnoHilMBPCef
-         kv713PMfmYM5lQmPMSO2w493M8bFHg2q3ayb+d/00D1ltc07O4ka83pqP3WyD3ywKazg
-         REZg==
-X-Gm-Message-State: AOJu0YzveRXQwBUB3fQqWcg1HVXlI0TNES811l/omOAK07x6oqbPsT0R
-	sDt0SlkCtIn8oCceu8JzYf403mi2YLw6IAPcsQPbIWFaVazx/LCH2lBE
-X-Gm-Gg: Acq92OE4e1SQZSocT/4dVIaOUNPgjN9AAxbR50S6wR090N2yMe2BvJbsz2VPoWt8iQn
-	/Tr4McZ8n2Pi1xt4xht9zul6JWF7UnuT8bo07cFV9VJUaRixOyT4dbP68MtFH9EcX6IB7TSyyP+
-	waL+wPGhDuivDc7hfROtu49DoHn1Yfe8NtRAbCazdCnZce0srVaG3bpkJN3UesPM//QYoUWZFfs
-	W11mzb/BY9hgmDgEhF6to4kbqtoLqXWXDdiT8j5zq2VS0DC6vcak6k5HfyXv39u3XMlr5pmf13W
-	UWTQu2GoHqY0JHCE0vRFBYDuyT0b2Bykux3yYI3VqUYuLaCU70nbxjWAdPLE1riGZGF8FizLpU9
-	k8+o+czxym4GCiTu+VKVt3KoEqZhqaPHk4G1E2x6T8Wbevf4k2t9WvSWB7MrPqojvWHOEKGO41M
-	fL7pQKqAl1SJFNXvjXOldj1EzERGE0TT5Htr2fVGptcOVIIjUyRL5pb3DFdeSSGE9Uz+8eJdBr1
-	sE=
-X-Received: by 2002:a05:7300:5710:b0:307:34f9:cc9 with SMTP id 5a478bee46e88-3077ae88144mr13273344eec.2.1781071711029;
-        Tue, 09 Jun 2026 23:08:31 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1781071973; x=1781676773;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=oMudQFXHfT5uKQwYnXgxpWgI7x0i4hEvOydhOw3iJVk=;
+        b=odmgUW+W13Tgw5bEx9Nf9tQhgT4tbyWpbzOtashTnfylL8bLpcvpDG7QIMCQCe/Zzz
+         4B3sSt2Lvewx/UGQGoKuyIBfOiHcqKz/RT8GQSHYr20jHi1Djh48LVcB9dtqNFgqGTnF
+         sSsxvDk90oWElgrCkCmZIESzbXRm9yqfGG5VMo9zXTYmpcOO/hNYBWM15PEsbK4wUotP
+         w5q0aFCFrJwyLdRO/Z16LCBNTWNmmfoJeRMS1C48ERdClXQrWWG5TaBKC2dD4bQX8FR8
+         OzLtrBlRd+TL7gwRyIrf/W2sMHuUKOMfwohe/UQRYNeUBbKH25CVuwnHLGtD/X2cvuos
+         qTFA==
+X-Forwarded-Encrypted: i=1; AFNElJ8c/VpNZHyBdtiEghmLPrmCH15Hgqt4vG7214k1bEyfPmh5n0/0yl5cElr8YBlGqk5UahzbEt8FLNQs4g==@vger.kernel.org
+X-Gm-Message-State: AOJu0YwaR44CtpqOwoOjr3u+ymNSAidlUannco4Pktyq0Z9WypJtmmbm
+	MUeNyQGNalEHYoIrPeMR1/tx+a2UjRjv2eWiLJFO2VqzHq9ywTrj83CH
+X-Gm-Gg: Acq92OE1rVWxNjQGswQEJrujXdyzKD3mBZ7tdpXtS530mwg5aHS71M3OE2wIhkfB9s+
+	7DeEK5WroSAD+8EMj2UyVCknqg4RwhbJJdEWHUYrPIAe2qM9mIk6HOyPQWQdlYIeq2/JH/Fz+4X
+	hYw6aRaZGe9YLxhA0s9GS2IQZBf+QJthUvN3czgNoLhTve3ayJLkouz3agY64D7o80/jGshWK2A
+	AUxxowEjoP7o3MrKSrBnmonzBZss+2YMLqY88xexzBWMTWc+9oNdq+f5DIuM6NaBpNvvX4L4BTc
+	me3LboeMCY1tN3+XHAK1/QHvn3bM0azVlAYPZzwBBK5ebluel0iUJaeCfUGSvrLeWApsdMrrK4C
+	jYe+CNRQVb0ULbdE0P8sTOQ0SaWr44qsnZG8iLSX1XPEvuRKKfIcFr4+mVuCsvCe6wcQf2OL7Wq
+	5tLvfWB03OwjtqsAqy+FYq4CYJNXrKk+jLi63j96iKDMGdUQHL6hqn0wAS2MM2ACfzvOqRv5Pyx
+	r1flOp2w85DIg==
+X-Received: by 2002:a05:7301:5f14:b0:304:4f23:542d with SMTP id 5a478bee46e88-3077aef8be4mr15201999eec.11.1781071972947;
+        Tue, 09 Jun 2026 23:12:52 -0700 (PDT)
 Received: from google.com ([2a00:79e0:2ebe:8:2bbf:a9b1:a73e:3f6f])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3074df191d0sm35755852eec.21.2026.06.09.23.08.30
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3074db55f60sm31762728eec.6.2026.06.09.23.12.51
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 09 Jun 2026 23:08:30 -0700 (PDT)
-Date: Tue, 9 Jun 2026 23:08:27 -0700
+        Tue, 09 Jun 2026 23:12:52 -0700 (PDT)
+Date: Tue, 9 Jun 2026 23:12:49 -0700
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Rosen Penev <rosenp@gmail.com>
-Cc: linux-input@vger.kernel.org, open list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCHv2] input: ipaq-micro-keys: simplify allocation
-Message-ID: <aij_VyUJMJnAaxz7@google.com>
-References: <20260609213532.25181-1-rosenp@gmail.com>
+To: Uwe =?utf-8?Q?Kleine-K=C3=B6nig_=28The_Capable_Hub=29?= <u.kleine-koenig@baylibre.com>
+Cc: Kees Cook <kees@kernel.org>, Werner Sembach <wse@tuxedocomputers.com>, 
+	Christoffer Sandberg <cs@tuxedo.de>, feng <alec.jiang@gmail.com>, gongqi <550230171hxy@gmail.com>, 
+	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v1] Input: Drop unused assignments from pnp_device_id
+ arrays
+Message-ID: <aij_gj5W1dylcbrX@google.com>
+References: <f987c14dea1d3236d3889e5cf96c01eef6a2445d.1781016727.git.u.kleine-koenig@baylibre.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20260609213532.25181-1-rosenp@gmail.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <f987c14dea1d3236d3889e5cf96c01eef6a2445d.1781016727.git.u.kleine-koenig@baylibre.com>
 
-On Tue, Jun 09, 2026 at 02:35:32PM -0700, Rosen Penev wrote:
-> Embed the keycode array in the struct to have a single allocation.
+Hi Uwe,
+
+On Tue, Jun 09, 2026 at 04:53:25PM +0200, Uwe Kleine-König (The Capable Hub) wrote:
+> Explicitly assigning .driver_data in drivers that don't use this member
+> is silly and a bit irritating. Drop these. Also simplify the list
+> terminator entry to be just empty to match what most other device_id
+> tables do.
 > 
-> Signed-off-by: Rosen Penev <rosenp@gmail.com>
+> There is no changed semantic, not even a change in the compiled result.
+> 
+> Signed-off-by: Uwe Kleine-König (The Capable Hub) <u.kleine-koenig@baylibre.com>
+> ---
+>  drivers/input/gameport/ns558.c        | 46 +++++++++++-----------
+>  drivers/input/serio/i8042-acpipnpio.h | 56 +++++++++++++--------------
+>  2 files changed, 51 insertions(+), 51 deletions(-)
+> 
+> diff --git a/drivers/input/gameport/ns558.c b/drivers/input/gameport/ns558.c
+> index fdece6ec1df3..f70a96c4f1fd 100644
+> --- a/drivers/input/gameport/ns558.c
+> +++ b/drivers/input/gameport/ns558.c
+> @@ -148,29 +148,29 @@ static int ns558_isa_probe(int io)
+>  #ifdef CONFIG_PNP
+>  
+>  static const struct pnp_device_id pnp_devids[] = {
+> -	{ .id = "@P@0001", .driver_data = 0 }, /* ALS 100 */
+> -	{ .id = "@P@0020", .driver_data = 0 }, /* ALS 200 */
+> -	{ .id = "@P@1001", .driver_data = 0 }, /* ALS 100+ */
+> -	{ .id = "@P@2001", .driver_data = 0 }, /* ALS 120 */
+> -	{ .id = "ASB16fd", .driver_data = 0 }, /* AdLib NSC16 */
+> -	{ .id = "AZT3001", .driver_data = 0 }, /* AZT1008 */
+> -	{ .id = "CDC0001", .driver_data = 0 }, /* Opl3-SAx */
+> -	{ .id = "CSC0001", .driver_data = 0 }, /* CS4232 */
+> -	{ .id = "CSC000f", .driver_data = 0 }, /* CS4236 */
+> -	{ .id = "CSC0101", .driver_data = 0 }, /* CS4327 */
+> -	{ .id = "CTL7001", .driver_data = 0 }, /* SB16 */
+> -	{ .id = "CTL7002", .driver_data = 0 }, /* AWE64 */
+> -	{ .id = "CTL7005", .driver_data = 0 }, /* Vibra16 */
+> -	{ .id = "ENS2020", .driver_data = 0 }, /* SoundscapeVIVO */
+> -	{ .id = "ESS0001", .driver_data = 0 }, /* ES1869 */
+> -	{ .id = "ESS0005", .driver_data = 0 }, /* ES1878 */
+> -	{ .id = "ESS6880", .driver_data = 0 }, /* ES688 */
+> -	{ .id = "IBM0012", .driver_data = 0 }, /* CS4232 */
+> -	{ .id = "OPT0001", .driver_data = 0 }, /* OPTi Audio16 */
+> -	{ .id = "YMH0006", .driver_data = 0 }, /* Opl3-SA */
+> -	{ .id = "YMH0022", .driver_data = 0 }, /* Opl3-SAx */
+> -	{ .id = "PNPb02f", .driver_data = 0 }, /* Generic */
+> -	{ .id = "", },
+> +	{ .id = "@P@0001" }, /* ALS 100 */
+> +	{ .id = "@P@0020" }, /* ALS 200 */
+> +	{ .id = "@P@1001" }, /* ALS 100+ */
+> +	{ .id = "@P@2001" }, /* ALS 120 */
+> +	{ .id = "ASB16fd" }, /* AdLib NSC16 */
+> +	{ .id = "AZT3001" }, /* AZT1008 */
+> +	{ .id = "CDC0001" }, /* Opl3-SAx */
+> +	{ .id = "CSC0001" }, /* CS4232 */
+> +	{ .id = "CSC000f" }, /* CS4236 */
+> +	{ .id = "CSC0101" }, /* CS4327 */
+> +	{ .id = "CTL7001" }, /* SB16 */
+> +	{ .id = "CTL7002" }, /* AWE64 */
+> +	{ .id = "CTL7005" }, /* Vibra16 */
+> +	{ .id = "ENS2020" }, /* SoundscapeVIVO */
+> +	{ .id = "ESS0001" }, /* ES1869 */
+> +	{ .id = "ESS0005" }, /* ES1878 */
+> +	{ .id = "ESS6880" }, /* ES688 */
+> +	{ .id = "IBM0012" }, /* CS4232 */
+> +	{ .id = "OPT0001" }, /* OPTi Audio16 */
+> +	{ .id = "YMH0006" }, /* Opl3-SA */
+> +	{ .id = "YMH0022" }, /* Opl3-SAx */
+> +	{ .id = "PNPb02f" }, /* Generic */
+> +	{ }
 
-Applied, thank you.
+This goes BOOOM! You have to keep empty .id string as terminator.
+
+Thanks.
 
 -- 
 Dmitry

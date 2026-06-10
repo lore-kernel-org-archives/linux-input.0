@@ -1,191 +1,163 @@
-Received: from mail.raman.v1.sg (mail.raman.v1.sg [5.223.73.200])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D606233F36B;
-	Wed, 10 Jun 2026 14:30:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=5.223.73.200
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CB5DF3D8128
+	for <linux-input@vger.kernel.org>; Wed, 10 Jun 2026 14:42:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781101812; cv=none; b=de6Z2bMQgERvSg2Ae0wRyGQpizOi+mT4pNYL4Cf0Fdb8N0HBt8HsE74hW+HyS8z6Qo59q/9t9sgH1UXYIU5HBM53n+xA3V3+ko6nV0IIJJUByozKLrsNf5UN+PBKRv4vc6jrrRulr4Isal7l6y14luAhKXrDHXd7LA2i3CdmXQk=
+	t=1781102566; cv=none; b=DTtzn8Bu5SOSEGgNASkozgNbq6aE3GbuihRKpYyUbD8stFkmvHuUyoN7r0oCRukMn03hJLg+mQLlTA9Mn5xMjypPec4No1/2TUVA6Hwr9pIy0/s03rlqzGhA3fWjEJJc340kicCr2wCBQDgrpROT9QSd1lGo5Yrc90NPh1nN2JM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781101812; c=relaxed/simple;
-	bh=kHsfSW0aDsYxa1RyPM6D5JXiMJ37O0DA8FuT3YrIAKw=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=l25mbv7Uq4XHvnGjSB85cyV+4MPyCAVHRlPZtFfvg9yIdPxhd23jJUtTxx9siRHH5KsUjdkuEw20UyqGjHHTXxY4fz8zNSxPXuC6uBB7G7QDKC8d4KPDDMHS0Zyd5M7eFT545w9AxRV2ellMxUrycQpKCXpq6E2NzHza7c2ZL78=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=raman.v1.sg; spf=pass smtp.mailfrom=raman.v1.sg; dkim=pass (2048-bit key) header.d=raman.v1.sg header.i=@raman.v1.sg header.b=JFcdjPt1; arc=none smtp.client-ip=5.223.73.200
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=raman.v1.sg
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=raman.v1.sg
+	s=arc-20240116; t=1781102566; c=relaxed/simple;
+	bh=Y7lZN4lnBevZV7Fx3P0XHyjml199ccK8ZJBKbUZfnnY=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=UtGapwoNxe34VZCfR8CI+MPsjSa0aKuEQn8051wzW/wUA4HJfNIhVDP71L4SJPKVtB8RPfLl1EjnQqj/DrZ9F7QktPW/pRvMM2tMuccJDaM4e2XRkGrRpxKLCogggvf4RPqqLmvlphPqNPpuVRRYGCURWMj7LeUIsYWdsOKXS2U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=d0Da3ORz; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=raman.v1.sg header.i=@raman.v1.sg header.b="JFcdjPt1"
-DKIM-Signature: a=rsa-sha256; bh=cslNbBHuPP0M+4Sy7JBIv85F6PWj9XMqbK/ctJTaeb8=;
- c=relaxed/relaxed; d=raman.v1.sg;
- h=Subject:Subject:Sender:To:To:Cc:Cc:From:From:Date:Date:MIME-Version:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Transfer-Encoding:Reply-To:In-Reply-To:Message-Id:Message-Id:References:Autocrypt:Openpgp;
- i=@raman.v1.sg; s=default; t=1781101802; v=1; x=1781533802;
- b=JFcdjPt1h+Sr/8cQ6uz1bKOl8jGFdeROYN1/z0MNMr3Ns522m3G+/cyxtZxoZZzHY9MgJvC7
- n5ANfhddm7nN2KuL7fjVY7k/MuJS30ZVxh+oVEYqbfSF46RFsyK4cJyajjcJyWvwUxZMtnvf5KL
- 1CLOtMmEyO0kJAuN68Q75ufKfBX+AoYssGjoc6ykZ+1wDv2x2MKnpgbeYXhE6N0XM5pcQaRJwdk
- UEdUy54wdWS2OiuAIAiaZNnS1yqKBAShRHY9DLkA1Gn1CRMQCfBwTgkd9yZAG9Ym7kBbyWW1xWk
- wbeqfWRePhsFj7OzMIe2j49VRCdTrqpMUuZWsaYS3TnNQ==
-Received: from cyberarch.tail8ae6a2.ts.net (localhost [127.0.0.1]) by
- mail.raman.v1.sg (envelope-sender
- <kernel-linux-20260610-80b7ab08@raman.v1.sg>) with ESMTP id 69cbe6f3; Wed,
- 10 Jun 2026 14:30:02 +0000
-From: Raman Varabets <kernel-linux-20260610-80b7ab08@raman.v1.sg>
-To: michael.zaidman@gmail.com
-Cc: jikos@kernel.org,
-	bentiss@kernel.org,
-	linux-i2c@vger.kernel.org,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Raman Varabets <kernel-linux-20260610-80b7ab08@raman.v1.sg>,
-	stable@vger.kernel.org
-Subject: [PATCH] HID: ft260: fix stack-use-after-return write in I2C read race
-Date: Wed, 10 Jun 2026 22:29:52 +0800
-Message-ID: <20260610142952.3335586-1-kernel-linux-20260610-80b7ab08@raman.v1.sg>
-X-Mailer: git-send-email 2.54.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="d0Da3ORz"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 537031F00898;
+	Wed, 10 Jun 2026 14:42:45 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1781102565;
+	bh=CJ13Wt5fSQL1jijoy4iuT2BZlxcrgwuzijF78EL8Vq0=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=d0Da3ORzydJ4dV3tSmKphz/lRQHst5eT3AWfR4XnayKtf88x3Nu+nWrpCLiIryy7d
+	 Wl4BHquXWeavPrn7kY3a3jA+vfPwI52Y8XE1xLVixuHnGaR1a/WZUVrJX3paG6dNZw
+	 1KVAM3uJ5wSwabKWCFDYqoh1aut7+SXqYh7CmgN8wXvtcFkN1crSQfgls22jngPAna
+	 OcNWKYc8sEKRFopNXvu2BP2uIHY/RabDRRIUbVIix6QLViBepCDuj/gxDKU/EC3YP5
+	 LkMljki7ei41kgmlevCimH9WuVpd5ElP1/tdFfUOgDd1DhtWBmT+vI9PGpb2qOhMXa
+	 6KqsDx57gik9Q==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH] HID: ft260: fix stack-use-after-return write in I2C
+ read race
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Raman Varabets" <kernel-linux-20260610-80b7ab08@raman.v1.sg>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <20260610142952.3335586-1-kernel-linux-20260610-80b7ab08@raman.v1.sg>
+References: <20260610142952.3335586-1-kernel-linux-20260610-80b7ab08@raman.v1.sg>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Wed, 10 Jun 2026 14:42:44 +0000
+Message-Id: <20260610144245.537031F00898@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-ft260_i2c_read() points dev->read_buf at a caller-supplied buffer
-(often an on-stack variable), arms a completion and waits up to five
-seconds for the device to return the data. The HID input callback
-ft260_raw_event() runs in the input/IRQ path, independent of the
-dev->lock mutex held by the read path, and copies the device-supplied
-payload into dev->read_buf after a plain NULL check.
+Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+s) to consider:
 
-These two paths share read_buf, read_idx and read_len with no
-serialization. If the device delays its response until the read
-times out, ft260_i2c_read() resets the controller, clears read_buf
-and returns, unwinding the stack frame the buffer lived in. A
-response that arrives at that moment lets ft260_raw_event() pass the
-NULL check and then memcpy() the device-controlled payload into the
-now-freed stack location, a bounded but attacker-influenced
-stack-use-after-return write triggerable by malicious or
-malfunctioning hardware.
+Pre-existing issues:
+- [High] The driver calls `hid_hw_open()` and `hid_hw_start()` before fully=
+ initializing driver data and locks, allowing an early interrupt to cause a=
+ NULL pointer dereference or uninitialized spinlock access.
+- [High] Calling `complete(&dev->wait)` outside the `read_lock` creates a r=
+ace condition where a delayed completion signal can spuriously wake up a su=
+bsequent I2C read, resulting in the exposure of uninitialized memory.
+- [High] A delayed I2C response from a timed-out read can erroneously fulfi=
+ll a newly issued I2C read request, silently corrupting the read payload.
+--
 
-Add a dedicated spinlock that serializes every access to read_buf,
-read_idx and read_len. ft260_raw_event() now holds it across the
-NULL check, the memcpy and the index update, while the read path
-takes it when arming and when clearing the buffer, so the teardown
-can no longer slip between the check and the copy.
+commit f93912f569da4f226a3bdb7379cc9b9a98ba1eb9
+Author: Raman Varabets <kernel-linux-20260610-80b7ab08@raman.v1.sg>
 
-Fixes: 6a82582d9fa4 ("HID: ft260: add usb hid to i2c host bridge driver")
-Cc: stable@vger.kernel.org
-Signed-off-by: Raman Varabets <kernel-linux-20260610-80b7ab08@raman.v1.sg>
----
- drivers/hid/hid-ft260.c | 25 ++++++++++++++++++++++++-
- 1 file changed, 24 insertions(+), 1 deletion(-)
+HID: ft260: fix stack-use-after-return write in I2C read race
 
-diff --git a/drivers/hid/hid-ft260.c b/drivers/hid/hid-ft260.c
-index 70e2eedb4..f47945954 100644
---- a/drivers/hid/hid-ft260.c
-+++ b/drivers/hid/hid-ft260.c
-@@ -240,6 +240,8 @@ struct ft260_device {
- 	struct mutex lock;
- 	u8 write_buf[FT260_REPORT_MAX_LENGTH];
- 	unsigned long need_wakeup_at;
-+	/* Protects read_buf, read_idx and read_len against ft260_raw_event() */
-+	spinlock_t read_lock;
- 	u8 *read_buf;
- 	u16 read_idx;
- 	u16 read_len;
-@@ -501,6 +503,7 @@ static int ft260_i2c_read(struct ft260_device *dev, u8 addr, u8 *data,
- 	int timeout, ret = 0;
- 	struct ft260_i2c_read_request_report rep;
- 	struct hid_device *hdev = dev->hdev;
-+	unsigned long irqflags;
- 	u8 bus_busy = 0;
- 
- 	if ((flag & FT260_FLAG_START_REPEATED) == FT260_FLAG_START_REPEATED)
-@@ -526,9 +529,11 @@ static int ft260_i2c_read(struct ft260_device *dev, u8 addr, u8 *data,
- 
- 		reinit_completion(&dev->wait);
- 
-+		spin_lock_irqsave(&dev->read_lock, irqflags);
- 		dev->read_idx = 0;
- 		dev->read_buf = data;
- 		dev->read_len = rd_len;
-+		spin_unlock_irqrestore(&dev->read_lock, irqflags);
- 
- 		ret = ft260_hid_output_report(hdev, (u8 *)&rep, sizeof(rep));
- 		if (ret < 0) {
-@@ -543,7 +548,9 @@ static int ft260_i2c_read(struct ft260_device *dev, u8 addr, u8 *data,
- 			goto ft260_i2c_read_exit;
- 		}
- 
-+		spin_lock_irqsave(&dev->read_lock, irqflags);
- 		dev->read_buf = NULL;
-+		spin_unlock_irqrestore(&dev->read_lock, irqflags);
- 
- 		if (flag & FT260_FLAG_STOP)
- 			bus_busy = FT260_I2C_STATUS_BUS_BUSY;
-@@ -562,7 +569,9 @@ static int ft260_i2c_read(struct ft260_device *dev, u8 addr, u8 *data,
- 	} while (len > 0);
- 
- ft260_i2c_read_exit:
-+	spin_lock_irqsave(&dev->read_lock, irqflags);
- 	dev->read_buf = NULL;
-+	spin_unlock_irqrestore(&dev->read_lock, irqflags);
- 	return ret;
- }
- 
-@@ -1018,6 +1027,7 @@ static int ft260_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 		 "FT260 usb-i2c bridge");
- 
- 	mutex_init(&dev->lock);
-+	spin_lock_init(&dev->read_lock);
- 	init_completion(&dev->wait);
- 
- 	ret = ft260_xfer_status(dev, FT260_I2C_STATUS_BUS_BUSY);
-@@ -1067,6 +1077,7 @@ static int ft260_raw_event(struct hid_device *hdev, struct hid_report *report,
- {
- 	struct ft260_device *dev = hid_get_drvdata(hdev);
- 	struct ft260_i2c_input_report *xfer = (void *)data;
-+	unsigned long irqflags;
- 
- 	if (size < offsetof(struct ft260_i2c_input_report, data)) {
- 		hid_err(hdev, "short report %d\n", size);
-@@ -1075,6 +1086,8 @@ static int ft260_raw_event(struct hid_device *hdev, struct hid_report *report,
- 
- 	if (xfer->report >= FT260_I2C_REPORT_MIN &&
- 	    xfer->report <= FT260_I2C_REPORT_MAX) {
-+		bool complete_read;
-+
- 		ft260_dbg("i2c resp: rep %#02x len %d size %d\n",
- 			  xfer->report, xfer->length, size);
- 
-@@ -1085,8 +1098,15 @@ static int ft260_raw_event(struct hid_device *hdev, struct hid_report *report,
- 			return -1;
- 		}
- 
-+		/*
-+		 * Hold read_lock so a timed-out ft260_i2c_read() cannot
-+		 * clear read_buf between the NULL check and the memcpy.
-+		 */
-+		spin_lock_irqsave(&dev->read_lock, irqflags);
-+
- 		if ((dev->read_buf == NULL) ||
- 		    (xfer->length > dev->read_len - dev->read_idx)) {
-+			spin_unlock_irqrestore(&dev->read_lock, irqflags);
- 			hid_err(hdev, "unexpected report %#02x, length %d\n",
- 				xfer->report, xfer->length);
- 			return -1;
-@@ -1095,8 +1115,11 @@ static int ft260_raw_event(struct hid_device *hdev, struct hid_report *report,
- 		memcpy(&dev->read_buf[dev->read_idx], &xfer->data,
- 		       xfer->length);
- 		dev->read_idx += xfer->length;
-+		complete_read = dev->read_idx == dev->read_len;
-+
-+		spin_unlock_irqrestore(&dev->read_lock, irqflags);
- 
--		if (dev->read_idx == dev->read_len)
-+		if (complete_read)
- 			complete(&dev->wait);
- 
- 	} else {
--- 
-2.54.0
+This commit fixes a race condition where a delayed I2C response could write
+into a freed stack buffer after a timeout in ft260_i2c_read. It adds a
+dedicated spinlock to serialize accesses to the read buffer, index, and len=
+gth
+between the read path and the raw event handler.
 
+> diff --git a/drivers/hid/hid-ft260.c b/drivers/hid/hid-ft260.c
+> index 70e2eedb465af..f479459544aee 100644
+> --- a/drivers/hid/hid-ft260.c
+> +++ b/drivers/hid/hid-ft260.c
+[ ... ]
+> @@ -543,7 +548,9 @@ static int ft260_i2c_read(struct ft260_device *dev, u=
+8 addr, u8 *data,
+>  			goto ft260_i2c_read_exit;
+>  		}
+> =20
+> +		spin_lock_irqsave(&dev->read_lock, irqflags);
+>  		dev->read_buf =3D NULL;
+> +		spin_unlock_irqrestore(&dev->read_lock, irqflags);
+
+[Severity: High]
+This is a pre-existing issue, but does the timeout path leave stale USB inp=
+ut
+reports pending?
+
+If an I2C read times out, ft260_i2c_read() resets the controller but does n=
+ot
+flush the HID/USB receive queues. When a new I2C read begins, dev->read_buf
+is updated to point to the new buffer.
+
+Could a delayed USB report containing the response for the previous timed-o=
+ut
+read arrive, pass the NULL check in ft260_raw_event(), and blindly copy sta=
+le
+data into the new buffer? This would silently corrupt the payload and
+desynchronize the bus state.
+
+[ ... ]
+> @@ -1018,6 +1027,7 @@ static int ft260_probe(struct hid_device *hdev, con=
+st struct hid_device_id *id)
+>  		 "FT260 usb-i2c bridge");
+> =20
+>  	mutex_init(&dev->lock);
+> +	spin_lock_init(&dev->read_lock);
+>  	init_completion(&dev->wait);
+> =20
+>  	ret =3D ft260_xfer_status(dev, FT260_I2C_STATUS_BUS_BUSY);
+
+[Severity: High]
+This isn't a bug introduced by this patch, but does hid_hw_open() allow eve=
+nts
+to trigger before the driver data and locks are fully initialized?
+
+In ft260_probe(), hid_hw_open() is called before hid_set_drvdata() and befo=
+re
+spin_lock_init(&dev->read_lock). Because hid_hw_open() submits USB interrupt
+IN URBs, the hardware can start sending events immediately.
+
+If ft260_raw_event() triggers early, hid_get_drvdata() would return NULL.
+Could this lead to a NULL pointer dereference when ft260_raw_event() attemp=
+ts
+to acquire dev->read_lock?
+
+[ ... ]
+> @@ -1095,8 +1115,11 @@ static int ft260_raw_event(struct hid_device *hdev=
+, struct hid_report *report,
+>  		memcpy(&dev->read_buf[dev->read_idx], &xfer->data,
+>  		       xfer->length);
+>  		dev->read_idx +=3D xfer->length;
+> +		complete_read =3D dev->read_idx =3D=3D dev->read_len;
+> +
+> +		spin_unlock_irqrestore(&dev->read_lock, irqflags);
+> =20
+> -		if (dev->read_idx =3D=3D dev->read_len)
+> +		if (complete_read)
+>  			complete(&dev->wait);
+> =20
+>  	} else {
+
+[Severity: High]
+This is a pre-existing issue, but does calling complete() outside the
+read_lock create a race condition with the teardown path?
+
+If an I2C read times out, ft260_i2c_read() wakes up and clears dev->read_bu=
+f.
+A new I2C read request could then be issued, which calls
+reinit_completion(&dev->wait).
+
+If the softirq executing ft260_raw_event() is preempted between dropping the
+lock and calling complete(&dev->wait), could it resume and signal the
+completion after the new request has already reinitialized it? This would
+cause the new wait to instantly succeed, returning success without writing =
+any
+data to the caller's buffer.
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260610142952.3335=
+586-1-kernel-linux-20260610-80b7ab08@raman.v1.sg?part=3D1

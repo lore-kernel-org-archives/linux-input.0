@@ -1,78 +1,113 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 02F6942EEDA;
-	Wed, 10 Jun 2026 15:49:13 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9E8EB43E4AB
+	for <linux-input@vger.kernel.org>; Wed, 10 Jun 2026 15:51:16 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781106554; cv=none; b=p/w23ZtF0qchB5FgABFOEvATkNr3G1M1ejwiEAsIdcR4BA909ynnHttQzhTC9WyQOQ3/wZmwopDnH04z8EYeUQdD9BlDMffGgH2gS6a+Y33aKIcs/vtdY0v8uNwGIyRI+gFnRFUhQF943XHZJF/DXIq21KfSJLgaqNHVJWh6VkQ=
+	t=1781106678; cv=none; b=en2aP9S7o1DGSPbYBKE9n/bgWCyLr5rj7CxEOsxPjHl09DCiHootIz+1OGrnex2AzW9HtPXSFkVk/pigNuTCRU141LvulXZjZlTv3f9z6JJgp3azaBEcUeFsW9Iw+p3v4tJwzmehEvr1cUDqOgIpvugsZGsH6ztb9Fl2ZART2Fo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781106554; c=relaxed/simple;
-	bh=lw/YhXsIeU7NOrU9PiYQ9fZo1hmL45YGBzMzMm77OHg=;
-	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
-	 MIME-Version:Content-Type; b=OMa+bZZqrMeUgBgAWI2x6kj4FmIRcxEnJ9lrrnC4p/Ps4VEVu+hBbw9FH+35a2Q3nVd3E90XDwy3MaaSTr14rla7JjsgS/st4Wln2bicFpBYcyq2I3NfKXonv0PRo0wed8kyeSfbmrz27i9xVfU0K5puSynsbMjSMtbgm1OrwMc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=QYzRmzWU; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1781106678; c=relaxed/simple;
+	bh=5ZD6eDpx8cAR5QKfrm4mFFTy1GvL0Af5UXwpMQdmKko=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=AX8S4wA5G33GYmVGdUBHsdYVkxH966fMD9k1m2zXcSO/MwmXjt/ESYvZao4LKfXVsEMYFm+8pgSct1Q5Jcg5tAApQwtW9KKS8r7cO6w1UvqegYkFAPYwx+okp/jss3lcVvMU/ERtqXjMeWBwP/OvO44CsGSaVuWuShcZ5UaRBik=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=UaL1OlmS; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="QYzRmzWU"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 004121F00898;
-	Wed, 10 Jun 2026 15:49:12 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="UaL1OlmS"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4741A1F00893;
+	Wed, 10 Jun 2026 15:51:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1781106553;
-	bh=e+YlvzaUoI0gKhrkq5d9qFwyHnzNTSPSorvr8Xds2AE=;
-	h=Date:From:To:cc:Subject:In-Reply-To:References;
-	b=QYzRmzWUVVJ7BW2ggFTiHHCOQ5e9sUBhriT09CY6uHti8UWQ1UE+763sviqcCWPHJ
-	 YkXbwzAI0CbSShULS79X1c7d0WpRrnbubp24E6Rg92JzYHfixizOQVybLU8spr4wP5
-	 /+pjLP/huKYy8TQ4oBRJRMAKFC3L72aaM6/5BzEMtBOVEgQbOUwml0ohA7ezbREDNz
-	 AF4uxwq66Tyourit1F0tCwc/D7Twg6diE4AZYlwIQXGxq1wc9KHBHaSJ6RZynuk5bo
-	 mfgsW9DURtUWTlaPO8dxDpPMHtYY0BzhWKF8LUL7eLy9JBf565f1+bmIQvsdq39M1n
-	 I4EunVPHxxYAw==
-Date: Wed, 10 Jun 2026 17:49:09 +0200 (CEST)
-From: Jiri Kosina <jikos@kernel.org>
-To: Myeonghun Pak <mhun512@gmail.com>
-cc: Ping Cheng <ping.cheng@wacom.com>, Jason Gerecke <jason.gerecke@wacom.com>, 
-    Benjamin Tissoires <bentiss@kernel.org>, linux-input@vger.kernel.org, 
-    linux-kernel@vger.kernel.org, stable@vger.kernel.org, 
-    Ijae Kim <ae878000@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2] HID: wacom: stop hardware after post-start probe
- failures
-In-Reply-To: <20260604045710.25512-1-mhun512@gmail.com>
-Message-ID: <q6s5p2n6-0288-4p74-5qo8-o0qso665r1r0@xreary.bet>
-References: <20260524175552.1973-1-mhun512@gmail.com> <20260604045710.25512-1-mhun512@gmail.com>
+	s=k20260515; t=1781106675;
+	bh=QHz93dCUCEkCHTNlfUNSH7+4379gm9+IyEtecZwASsA=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=UaL1OlmS9ycXROkgXHzm0xFwrkW//KKooNgfZZqeg6A+zxzfH2QBKrHcnFnYKHSP4
+	 AVy9NSGgU6Ah/k+qO2zkTb2YgB+HJZakEXwUE14/Ipcz0A8rd8mdyaOfG5GS0zVbCc
+	 amjdpqwDkdwJ67O5f2V0963PrFwXqXDyrbIFwP6dqFNaTqt3mx/lAbvQqJvsBIjnwu
+	 DEdjbM98N7l8I0RGa7twG1Eu8tMSkNbo4R20YwEOhSa28lGh2UJN9knDFn+4zmoP1v
+	 X8gD0cCmyFVdk0qtfaEj8aSnQlrAAJL8wPNQSZfSeuI5peI6FD41blGYMUwK/AROO+
+	 qwALlM9ywDaxQ==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v2 5/7] iio: orientation: hid-sensor-incl-3d: use u32
+ instead of unsigned
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Sanjay Chitroda" <sanjayembeddedse@gmail.com>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <20260610-6-june-hid-iio-correct-usage-id-v2-5-c3c5f0720493@gmail.com>
+References: <20260610-6-june-hid-iio-correct-usage-id-v2-5-c3c5f0720493@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Wed, 10 Jun 2026 15:51:14 +0000
+Message-Id: <20260610155115.4741A1F00893@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
 
-On Thu, 4 Jun 2026, Myeonghun Pak wrote:
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
 
-> wacom_parse_and_register() starts HID hardware before registering inputs
-> and initializing pad LEDs/remotes. Those later steps can fail, but their
-> error paths currently release Wacom resources without stopping the HID
-> hardware.
-> 
-> Route post-hid_hw_start() failures through hid_hw_stop() before
-> releasing driver resources.
-> 
-> This issue was identified during our ongoing static-analysis research while
-> reviewing kernel code.
-> 
-> Fixes: c1d6708bf0d3 ("HID: wacom: Do not register input devices until after hid_hw_start")
-> Cc: stable@vger.kernel.org
-> Co-developed-by: Ijae Kim <ae878000@gmail.com>
-> Signed-off-by: Ijae Kim <ae878000@gmail.com>
-> Signed-off-by: Myeonghun Pak <mhun512@gmail.com>
-> Reviewed-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> ---
-> Changes in v2:
-> - Drop fail_quirks and use fail_hw_stop for every post-hid_hw_start()
->   failure path, as suggested by Dmitry.
+Pre-existing issues:
+- [High] Unconditional pointer casts in `incl_3d_capture_sample` cause unal=
+igned memory access, endianness mismatch, and out-of-bounds field reads.
+--
 
-Applied, thanks.
+commit ffa9a4c020f23415f0ba3c3eae4063a4d5e16403
+Author: Sanjay Chitroda <sanjayembeddedse@gmail.com>
+iio: orientation: hid-sensor-incl-3d: use u32 instead of unsigned
 
--- 
-Jiri Kosina
-SUSE Labs
+This commit replaces the bare 'unsigned' type with 'u32' for the usage_id
+variable in several callback handlers. This change aligns the code with the
+expected callback API types and improves clarity. There are no functional
+changes introduced by this patch.
 
+> diff --git a/drivers/iio/orientation/hid-sensor-incl-3d.c b/drivers/iio/o=
+rientation/hid-sensor-incl-3d.c
+> index 4e23a598a3fb9..c7fbff498be7a 100644
+> --- a/drivers/iio/orientation/hid-sensor-incl-3d.c
+> +++ b/drivers/iio/orientation/hid-sensor-incl-3d.c
+[ ... ]
+>  /* Capture samples in local storage */
+>  static int incl_3d_capture_sample(struct hid_sensor_hub_device *hsdev,
+> -				unsigned usage_id,
+> +				u32 usage_id,
+>  				size_t raw_len, char *raw_data,
+>  				void *priv)
+>  {
+
+[Severity: High]
+This is a pre-existing issue, but while reviewing this signature update I
+noticed a potential memory access problem.
+
+Looking further down in incl_3d_capture_sample(), raw_data is directly cast
+and dereferenced:
+
+	switch (usage_id) {
+	case HID_USAGE_SENSOR_ORIENT_TILT_X:
+		incl_state->scan.incl_val[CHANNEL_SCAN_INDEX_X] =3D *(u32 *)raw_data;
+
+And for timestamps:
+
+	case HID_USAGE_SENSOR_TIME_TIMESTAMP:
+		incl_state->timestamp =3D
+			hid_sensor_convert_timestamp(&incl_state->common_attributes,
+						     *(s64 *)raw_data);
+
+Can this direct pointer casting trigger unaligned memory access exceptions =
+on
+architectures that do not natively support them?
+
+Additionally, since HID report data is explicitly little-endian, does casti=
+ng
+the byte stream to a native u32 or s64 pointer cause it to read reversed
+bytes on big-endian architectures?
+
+Finally, the callback does not appear to check the raw_len parameter. If the
+HID field is 16-bit or a 32-bit timestamp, will the unconditional 32-bit or
+64-bit dereference fetch adjacent HID fields or uninitialized buffer paddin=
+g,
+potentially corrupting the reported sensor value?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260610-6-june-hid=
+-iio-correct-usage-id-v2-0-c3c5f0720493@gmail.com?part=3D5

@@ -1,156 +1,91 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.16])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8786037AA8B
-	for <linux-input@vger.kernel.org>; Wed, 10 Jun 2026 08:40:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5F96C3F65EE;
+	Wed, 10 Jun 2026 10:52:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.16
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781080856; cv=none; b=k/SnCkO00xBaadruoQcFV5LgTVMdwup6AnGq5jcAmouJalgEw1fMXQNqbM/QNdzZVcVZyS7h81bdQHmUnOnsgJYH93BjfgPv9hC7R5ocqadXAG48QrDRCbQ57FQLIr5A65R3XvOiC5qldbcepsDsjqfFbk4UzdRp5zda/JxiYns=
+	t=1781088751; cv=none; b=TZAB9Nc7Yi5JUEkNc5XzshVx8hzMuN38A9ot90TzhKx3tj9tLcTg5odkHXWU5AUdzbVk94uTFag82w+yjnq/+BlkSWxg0uLgqvN9NGRcypQutQi+eoCggzeEHnEVj/jO1uMTUV4IFEZXdscrE2UyoyAzWvdZnWnbzS58CeRUHuo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781080856; c=relaxed/simple;
-	bh=yJc9nP/DjMwFnpl6G7hu8AVjJbbOJlC/cc3ZUFoM7KI=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=aHNJ+c14sOs/REJ+FDDzscDCDhkk0f6vhV0G662tnG33YFbt0RMA2jFeoLfFrdlulJz2ENW4C2rrYBgqzYwJIO+f4kP1aJ5HNTccsR76hVEkPCgdWcawcrkdqOv+R8cb0dk4Iq6dvGwZZalQELzkpbNmMkPdPzQnDbsM7m0oxh4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=AtNrWiya; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1781088751; c=relaxed/simple;
+	bh=EZvolpzRks7yVCrQk5I7CBPzXK/FN7EqRZmadrpp1p8=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=gmdB6eEBME7J/z71ArBN2GEf5sXEpufyDSOKy25Kn5LCovqmvahuSwyD1xqNZwHNYS7Gus9oteg/RdZY9ek/1EYblMLW0JU7BxcrCWEid6wext2bi644GhpdZc9DR9CGqxTX0qo2Mtj4M2Sn5vncL6iYq60gpPAr/5LbiS0R+R8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=aOxUBFC6; arc=none smtp.client-ip=192.198.163.16
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="AtNrWiya"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2E051F00898;
-	Wed, 10 Jun 2026 08:40:54 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1781080855;
-	bh=1vMzLbRN68h99Iv5IgBxO6OzBn60tEGz8GHr1An29pY=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=AtNrWiyaIvpOaviMlTPK7XStc2hqG0j3ngPOE+zrnZ1q5tY9Bc20qPUc77G02FbrV
-	 5XmDGpfaL+W+j/eLOEWnfHuY24QzbB6eYFJM4wUGlLA4PxetfbK8o9Y6t2kyffvZ5T
-	 6Tz+t9fGz0J0ubtaOdPtVOY5e9QiJV61drXHyqxr1/+vRMuXZvYI1TuCyNYVJBSXNG
-	 fodDwUDTI0zCbuLuUa+8veaRdmZ4Xawvaf/64qCJJy9dpJxmbdZhynRnnMAVAikdv0
-	 A8y/mfmvi/0e3B5JlPrbmygqDIZbgahI4XLWC8ILfcfjL93OrGhw8hDr9Pf9wAr/mh
-	 y1FU6XvSyHkMw==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 2/2] iio: hid-sensor-rotation: Fix stale or zero output
- when reading raw values
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Zhang Lixu" <lixu.zhang@intel.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260610082911.157232-3-lixu.zhang@intel.com>
-References: <20260610082911.157232-3-lixu.zhang@intel.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Wed, 10 Jun 2026 08:40:54 +0000
-Message-Id: <20260610084054.F2E051F00898@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="aOxUBFC6"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1781088751; x=1812624751;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=EZvolpzRks7yVCrQk5I7CBPzXK/FN7EqRZmadrpp1p8=;
+  b=aOxUBFC6c9sqI4wVnUrVyJU/Eu+oTc9gbFFyfE9+FYtQYQZgcCvBS6Ub
+   8EBRQvLbgo2xhLNyBapDHjv/de0j/o4IRhCn1CmA41RjmTgPlRiGGsH+f
+   KP3KsmSq4971/WfADbAnXGArNmvo2eDH3xXuJPpTbDuU727T+msOT7Gar
+   xGVQVopSuMH4dhQlmw5nBEbdlQQOnwMm5kFugkMIkCcEVWYJaegLDzzF2
+   YEKRs0MQ+e6JgXI3Sda/yEgWy6HHUxo7exLOCK33GsAUCBL3SV8WyvGQq
+   Qyv4/6qJ8HRGNnc1FW5doIofMkAcFYJJcwtXWyk15LQfum1MoqKCpn+Ya
+   A==;
+X-CSE-ConnectionGUID: A+GZ6RiBSfKm0SMFefhJBw==
+X-CSE-MsgGUID: 58yne1D4R5O8jmR613CCaA==
+X-IronPort-AV: E=McAfee;i="6800,10657,11812"; a="69411641"
+X-IronPort-AV: E=Sophos;i="6.24,197,1774335600"; 
+   d="scan'208";a="69411641"
+Received: from fmviesa001.fm.intel.com ([10.60.135.141])
+  by fmvoesa110.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Jun 2026 03:52:30 -0700
+X-CSE-ConnectionGUID: wJqWUPjQS2ChPkPegU7FyA==
+X-CSE-MsgGUID: qw0r5AZzTWuWPhBqSrsdgA==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.24,197,1774335600"; 
+   d="scan'208";a="270146171"
+Received: from hrotuna-mobl2.ger.corp.intel.com (HELO localhost) ([10.245.244.38])
+  by smtpauth.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Jun 2026 03:52:27 -0700
+Date: Wed, 10 Jun 2026 13:52:24 +0300
+From: Andy Shevchenko <andriy.shevchenko@intel.com>
+To: Zhang Lixu <lixu.zhang@intel.com>
+Cc: Jiri Kosina <jikos@kernel.org>, Jonathan Cameron <jic23@kernel.org>,
+	Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+	Benjamin Tissoires <bentiss@kernel.org>,
+	David Lechner <dlechner@baylibre.com>,
+	Nuno =?iso-8859-1?Q?S=E1?= <nuno.sa@analog.com>,
+	Andy Shevchenko <andy@kernel.org>, linux-input@vger.kernel.org,
+	linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/2] HID: sensor-hub: Add
+ sensor_hub_input_attr_read_values() for multi-byte reads
+Message-ID: <ailB6HeV7Hdgb3-b@ashevche-desk.local>
+References: <20260610082911.157232-1-lixu.zhang@intel.com>
+ <20260610082911.157232-2-lixu.zhang@intel.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260610082911.157232-2-lixu.zhang@intel.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
+ krs, Bertel Jungin Aukio 5, 02600 Espoo
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
-- [Critical] Stack Use-After-Free / Memory Corruption via synchronous HID r=
-ead
-- [High] PM Runtime Usage Counter Underflow due to missing error check
---
+On Wed, Jun 10, 2026 at 04:29:09PM +0800, Zhang Lixu wrote:
 
-commit 4651e39f1dd649401d6eaaef3b3ae792bc120ba0
-Author: Zhang Lixu <lixu.zhang@intel.com>
+> sensor_hub_input_attr_get_raw_value() is limited to returning a single
+> 32-bit value, which is insufficient for sensors that report data larger
+> than 32 bits, such as a quaternion with four s16 elements.
+> 
+> Add sensor_hub_input_attr_read_values() that accepts a caller-provided
+> buffer and accumulates incoming data until the buffer is full. The two
+> paths are distinguished in sensor_hub_raw_event() by pending.max_raw_size
+> being non-zero, preserving backward compatibility.
 
-iio: hid-sensor-rotation: Fix stale or zero output when reading raw values
+I have reviewed that internally and checked public version which LGTM,
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@intel.com>
 
-This commit fixes stale or zero output in dev_rot_read_raw by explicitly
-powering up the sensor and issuing a synchronous GET_REPORT to receive
-the full quaternion data into a local buffer.
+-- 
+With Best Regards,
+Andy Shevchenko
 
-> diff --git a/drivers/iio/orientation/hid-sensor-rotation.c b/drivers/iio/=
-orientation/hid-sensor-rotation.c
-> index 4a11e45550991..1c6f02374f3ce 100644
-> --- a/drivers/iio/orientation/hid-sensor-rotation.c
-> +++ b/drivers/iio/orientation/hid-sensor-rotation.c
-> @@ -86,6 +86,13 @@ static int dev_rot_read_raw(struct iio_dev *indio_dev,
->  				long mask)
->  {
->  	struct dev_rot_state *rot_state =3D iio_priv(indio_dev);
-> +	struct hid_sensor_hub_device *hsdev =3D rot_state->common_attributes.hs=
-dev;
-> +	struct hid_sensor_hub_attribute_info *info =3D &rot_state->quaternion;
-> +	u32 usage_id =3D HID_USAGE_SENSOR_ORIENT_QUATERNION;
-> +	union {
-> +		s16 val16[4];
-> +		s32 val32[4];
-> +	} raw_buf;
->  	int ret_type;
->  	int i;
-> =20
-> @@ -95,8 +102,37 @@ static int dev_rot_read_raw(struct iio_dev *indio_dev,
->  	switch (mask) {
->  	case IIO_CHAN_INFO_RAW:
->  		if (size >=3D 4) {
-> -			for (i =3D 0; i < 4; ++i)
-> -				vals[i] =3D rot_state->scan.sampled_vals[i];
-> +			if (info->size <=3D 0 || info->size > sizeof(raw_buf))
-> +				return -EINVAL;
-> +
-> +			hid_sensor_power_state(&rot_state->common_attributes, true);
 
-[Severity: High]
-Should the return value of this power-on call be checked?
-
-If hid_sensor_power_state fails, pm_runtime_resume_and_get cleans up its
-PM usage count increment, leaving the net usage count unchanged.
-
-Because this error is ignored, the code unconditionally calls
-hid_sensor_power_state false later on, which invokes
-pm_runtime_put_autosuspend and drops the usage counter by 1.
-
-Does this cause the PM usage counter to underflow when power-on fails?
-
-> +
-> +			ret_type =3D sensor_hub_input_attr_read_values(hsdev,
-> +								     hsdev->usage,
-> +								     usage_id,
-> +								     info->report_id,
-> +								     SENSOR_HUB_SYNC,
-> +								     info->size,
-> +								     (u8 *)&raw_buf);
-
-[Severity: Critical]
-Can this corrupt the stack if the synchronous read is interrupted?
-
-By passing a pointer to the stack-allocated raw_buf into
-sensor_hub_input_attr_read_values, the driver relies on the wait
-completing successfully.
-
-If the wait is interrupted by a signal sent to the userspace process,
-or if it times out:
-
-drivers/hid/hid-sensor-hub.c:sensor_hub_input_attr_read_values() {
-    ...
-    cycles =3D wait_for_completion_interruptible_timeout(&hsdev->pending.re=
-ady,
-                                                       HZ * 5);
-    if (cycles =3D=3D 0)
-        ret =3D -ETIMEDOUT;
-    else if (cycles < 0)
-        ret =3D cycles;
-
-    hsdev->pending.status =3D false;
-    ...
-}
-
-The function locklessly clears hsdev->pending.status and returns, destroying
-the raw_buf stack frame.
-
-However, the concurrent HID interrupt handler sensor_hub_raw_event might
-have already evaluated hsdev->pending.status as true under the lock, and
-could proceed to memcpy into the now-freed stack pointer.
-
-> +
-> +			hid_sensor_power_state(&rot_state->common_attributes, false);
-> +
-> +			if (ret_type < 0)
-> +				return ret_type;
-
-[ ... ]
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260610082911.1572=
-32-1-lixu.zhang@intel.com?part=3D2

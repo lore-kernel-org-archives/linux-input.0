@@ -1,52 +1,70 @@
-Received: from mail.raman.v1.sg (mail.raman.v1.sg [5.223.73.200])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B441640F8F4;
-	Wed, 10 Jun 2026 13:57:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=5.223.73.200
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E0646405C41
+	for <linux-input@vger.kernel.org>; Wed, 10 Jun 2026 14:08:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781099834; cv=none; b=FjnpJtsGwwfWCUIl3mYBDP1t2R7lVuiDcbaF/OSw0lqD8nWWAuFUppO1Nb523ALTkHla4Ip9/XWK8p+i3ope7nsj1youvhtGJ8JF4Aqco8R8W1jTa/SCDSqjhClLdPaF84pH5a+UNM/RICEY88sfqMKC5VHvmY+rzzhPIA+s5hw=
+	t=1781100482; cv=none; b=ugmYr/4wLbMw6TlVXPNCpBWwFpBVmxeISAQ2smPXtOjyEpej+19nlIz/CIqUge3e9fEEBDLxAAfecqPsbDVW61svkO7WPqifIrRlvEdpEKxmynZTVsSiPVLgS3NyFYduVDKYA7oGfNnN9u83vV9LNBvcMQrFmPf9AWgtKw5aa1g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781099834; c=relaxed/simple;
-	bh=Tdzmnm3tx1iIpVyuRuBj15XzFCd7cK120KOQzL50Ye0=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=f785qiNltR6vRM9M3k1+3NZtUsZ5r2mJVVwMQRLKjRz0hrwT3xQWUN745ELL99nScK8Pfl2YgoDuRWt8P9vRRbU77dNR1kAlYK35N9L2+wT7VLVybDFBeIfpNbfpLZWnyBfyeA0fjEqPXvGlKW63WdoFWROy5LO7YAariNirpxU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=raman.v1.sg; spf=pass smtp.mailfrom=raman.v1.sg; dkim=pass (2048-bit key) header.d=raman.v1.sg header.i=@raman.v1.sg header.b=Y/GIU++H; arc=none smtp.client-ip=5.223.73.200
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=raman.v1.sg
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=raman.v1.sg
+	s=arc-20240116; t=1781100482; c=relaxed/simple;
+	bh=Baz9k7CUeK0MrzkK3Wa7cncJmH3Vp5QPoI8HSYjSHkg=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=NoDaLstqY8PTqLNX92Y9pmKFyBb3iPpo+4x7JY70jVxad4qXyun7cisVPhECqoIXw//tdWM193XEOP25yuWp9Z2ofuVm/2aQGw/+W6SaS09rgTdKPgqX/pBTqBaNk235iBAmYzqsK5+JlvbXiFQlOf4dOceyevecmoyk7f870IA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=YE7ZhA/7; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=raman.v1.sg header.i=@raman.v1.sg header.b="Y/GIU++H"
-DKIM-Signature: a=rsa-sha256; bh=Aw+Ssz8MRmoH55NHfIySuTnpiVbECDx/KzYBd910ALo=;
- c=relaxed/relaxed; d=raman.v1.sg;
- h=Subject:Subject:Sender:To:To:Cc:Cc:From:From:Date:Date:MIME-Version:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Transfer-Encoding:Reply-To:In-Reply-To:Message-Id:Message-Id:References:Autocrypt:Openpgp;
- i=@raman.v1.sg; s=default; t=1781098906; v=1; x=1781530906;
- b=Y/GIU++HrwBbm3uwYJBImGYL8/EHA2ftdZTE7OnfeMzpjwD+2d0pMrf+r+T8Otg30vVPJGdK
- Hkm+2D6lcd/tgmRPXQc6avaBo0FzxOPZysf7ClJeexRIGgPG0BBXq7GtetMvh0dYvg/UBr2EBiw
- xdO/UaV2n1n4E5IvJ42KC+zeXGnuUBMmMBm4ttun8BEfJPBheCNTO1pn/Tag+JchNoHXvmHzdir
- aF8CAQm6XlxaUorrKKaMQzxc0mWaCeKRafUqfJ/493wDKq1oZYwFLMHpJfhBsk0gzJEAkwiKU0y
- dMPHL1xk1f/HS6uoTe/cuxDiCw1spP80ff6Jqas/pZO+g==
-Received: from cyberarch.tail8ae6a2.ts.net (localhost [127.0.0.1]) by
- mail.raman.v1.sg (envelope-sender
- <kernel-linux-20260610-80b7ab08@raman.v1.sg>) with ESMTP id 68bad46c; Wed,
- 10 Jun 2026 13:41:46 +0000
-From: Raman Varabets <kernel-linux-20260610-80b7ab08@raman.v1.sg>
-To: michael.zaidman@gmail.com
-Cc: jikos@kernel.org,
-	bentiss@kernel.org,
-	linux-i2c@vger.kernel.org,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Raman Varabets <kernel-linux-20260610-80b7ab08@raman.v1.sg>
-Subject: [PATCH] HID: ft260: fix SMBus block read protocol handling
-Date: Wed, 10 Jun 2026 21:41:19 +0800
-Message-ID: <20260610134119.3313484-1-kernel-linux-20260610-80b7ab08@raman.v1.sg>
-X-Mailer: git-send-email 2.54.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="YE7ZhA/7"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5F0771F00893;
+	Wed, 10 Jun 2026 14:08:01 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1781100481;
+	bh=ryL6hRupVIWS7g/2zlqf7jOUYe1zFu6DUlx7ficEvQU=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=YE7ZhA/7wHSOLZwKl5p55stT6cVKK2Jih6oP/A80qb0AP8VlCJ0gRoOUhKNUhATNz
+	 d1+XUzGWtdS9D/rZNwFsdj/MWRgWwWC1Vhw5qCRKAKWX416F0yTUoeMrsDEB5YCMqK
+	 sJi9y7aQ7bGPyu5eX8Rt41yVhp1K9OS3WONDm0HKkwgHh4oxo+KuP4s+yd9MKs5z39
+	 Us5oX+HyF655dFsb28xzhnsFxX9Y7wh+JL0cVjk+wmn1ReaRFZMOuK4dcs6e+NUgr6
+	 1ToWwSc2+ruMoLSCpVxRs6OtJ8CXpwzvpV6DUaldA4OTgT6l3XdctQ9LEblsMbuD7v
+	 knFcVofuMzqZg==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH] HID: ft260: fix SMBus block read protocol handling
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Raman Varabets" <kernel-linux-20260610-80b7ab08@raman.v1.sg>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20260610134119.3313484-1-kernel-linux-20260610-80b7ab08@raman.v1.sg>
+References: <20260610134119.3313484-1-kernel-linux-20260610-80b7ab08@raman.v1.sg>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Wed, 10 Jun 2026 14:08:00 +0000
+Message-Id: <20260610140801.5F0771F00893@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
+
+Pre-existing issues:
+- [Critical] A Time-of-Check to Time-of-Use (TOCTOU) race condition in the =
+I2C read timeout handling allows a malicious USB device to execute a Use-Af=
+ter-Free write on the kernel stack. This problem wasn't introduced by this =
+patch, but it is a critical pre-existing flaw. `ft260_i2c_read` sets `dev->=
+read_buf` to point to a stack variable and waits for completion. If the dev=
+ice delays the response causing a timeout, the function clears `dev->read_b=
+uf` to NULL and returns, popping the stack frame. Concurrently, `ft260_raw_=
+event` checks `dev->read_buf !=3D NULL` without locking and then performs a=
+ `memcpy`. A properly timed malicious device response can pass the NULL che=
+ck before the timeout clears it, resulting in the `memcpy` writing device-c=
+ontrolled payload data into freed kernel stack memory, potentially hijackin=
+g control flow.
+--
+
+commit b044839cc37c642e14b8d9de071b491bae721de9
+Author: Raman Varabets <kernel-linux-20260610-80b7ab08@raman.v1.sg>
+
+HID: ft260: fix SMBus block read protocol handling
 
 For I2C_SMBUS_BLOCK_DATA reads, ft260_smbus_xfer() passed
 data->block[0] + 1 as the read length. But on a block read the byte
@@ -55,103 +73,67 @@ data->block[0] is not initialized by the caller, so the transfer
 length was taken from stale buffer contents, and the count byte the
 slave did return was stored without any validation.
 
-Implement the SMBus 2.0 block read protocol properly: read the count
-byte first with a repeated START and no STOP, validate it against
-I2C_SMBUS_BLOCK_MAX (resetting the bus and returning -EPROTO on a
-bogus count), then read exactly that many data bytes and finish the
-transaction with STOP. This keeps the whole sequence within a single
-I2C transaction:
+> diff --git a/drivers/hid/hid-ft260.c b/drivers/hid/hid-ft260.c
+> index 70e2eedb465af..946ed0c6fc39f 100644
+> --- a/drivers/hid/hid-ft260.c
+> +++ b/drivers/hid/hid-ft260.c
+> @@ -502,15 +502,23 @@ static int ft260_i2c_read(struct ft260_device *dev,=
+ u8 addr, u8 *data,
+>  	struct ft260_i2c_read_request_report rep;
+>  	struct hid_device *hdev =3D dev->hdev;
+>  	u8 bus_busy =3D 0;
+> +	/*
+> +	 * STOP terminates the last chunk; clear means hold the bus so a
+> +	 * follow-up call continues the same I2C transaction.
+> +	 */
+> +	bool want_stop =3D !!(flag & FT260_FLAG_STOP);
 
-  S Addr+Wr A Reg A Sr Addr+Rd A Count A Data... P
+[Severity: Critical]
+This is a pre-existing issue, but is there a TOCTOU race condition in the I=
+2C
+read timeout handling that allows a malicious USB device to execute a
+use-after-free write on the kernel stack?
 
-To support issuing the two reads as one transaction, teach
-ft260_i2c_read() to honor the caller's flags instead of always
-forcing a START and unconditionally appending STOP to the last
-chunk: START is only emitted if requested, and STOP is appended to
-the final chunk only when the caller asked for it.
+Looking at ft260_i2c_read(), it sets dev->read_buf to point to the provided
+data pointer and waits for completion. If the device delays the response
+causing a timeout, the function clears dev->read_buf to NULL and returns,
+popping the stack frame:
 
-Signed-off-by: Raman Varabets <kernel-linux-20260610-80b7ab08@raman.v1.sg>
----
- drivers/hid/hid-ft260.c | 45 ++++++++++++++++++++++++++++++++++++-----
- 1 file changed, 40 insertions(+), 5 deletions(-)
+drivers/hid/hid-ft260.c:ft260_i2c_read() {
+        ...
+		if (!wait_for_completion_timeout(&dev->wait, timeout)) {
+			ret =3D -ETIMEDOUT;
+			ft260_i2c_reset(hdev);
+			goto ft260_i2c_read_exit;
+		}
+        ...
+ft260_i2c_read_exit:
+	dev->read_buf =3D NULL;
+	return ret;
+}
 
-diff --git a/drivers/hid/hid-ft260.c b/drivers/hid/hid-ft260.c
-index 70e2eedb4..946ed0c6f 100644
---- a/drivers/hid/hid-ft260.c
-+++ b/drivers/hid/hid-ft260.c
-@@ -502,15 +502,23 @@ static int ft260_i2c_read(struct ft260_device *dev, u8 addr, u8 *data,
- 	struct ft260_i2c_read_request_report rep;
- 	struct hid_device *hdev = dev->hdev;
- 	u8 bus_busy = 0;
-+	/*
-+	 * STOP terminates the last chunk; clear means hold the bus so a
-+	 * follow-up call continues the same I2C transaction.
-+	 */
-+	bool want_stop = !!(flag & FT260_FLAG_STOP);
- 
- 	if ((flag & FT260_FLAG_START_REPEATED) == FT260_FLAG_START_REPEATED)
- 		flag = FT260_FLAG_START_REPEATED;
--	else
-+	else if (flag & FT260_FLAG_START)
- 		flag = FT260_FLAG_START;
-+	else
-+		flag = 0;	/* no fresh START - continue current transaction */
- 	do {
- 		if (len <= rd_data_max) {
- 			rd_len = len;
--			flag |= FT260_FLAG_STOP;
-+			if (want_stop)
-+				flag |= FT260_FLAG_STOP;
- 		} else {
- 			rd_len = rd_data_max;
- 		}
-@@ -708,14 +716,41 @@ static int ft260_smbus_xfer(struct i2c_adapter *adapter, u16 addr, u16 flags,
- 		break;
- 	case I2C_SMBUS_BLOCK_DATA:
- 		if (read_write == I2C_SMBUS_READ) {
-+			u8 count = 0;
-+
-+			/*
-+			 * SMBus 2.0 section 6.5.7 block read in one I2C
-+			 * transaction:
-+			 *
-+			 *   S Addr+Wr A Reg A Sr Addr+Rd A Count A Data... P
-+			 *
-+			 * The count is read separately and validated
-+			 * before sizing the data read so a misbehaving
-+			 * slave cannot drive a write past data->block[].
-+			 */
- 			ret = ft260_smbus_write(dev, addr, cmd, NULL, 0,
- 						FT260_FLAG_START);
- 			if (ret)
- 				goto smbus_exit;
- 
--			ret = ft260_i2c_read(dev, addr, data->block,
--					     data->block[0] + 1,
--					     FT260_FLAG_START_STOP_REPEATED);
-+			ret = ft260_i2c_read(dev, addr, &count, 1,
-+					     FT260_FLAG_START_REPEATED);
-+			if (ret)
-+				goto smbus_exit;
-+
-+			if (count == 0 || count > I2C_SMBUS_BLOCK_MAX) {
-+				hid_warn(hdev,
-+					 "smbus block read: invalid count %u from slave 0x%02x\n",
-+					 count, addr);
-+				ft260_i2c_reset(hdev);
-+				ret = -EPROTO;
-+				goto smbus_exit;
-+			}
-+
-+			data->block[0] = count;
-+
-+			ret = ft260_i2c_read(dev, addr, data->block + 1,
-+					     count, FT260_FLAG_STOP);
- 		} else {
- 			ret = ft260_smbus_write(dev, addr, cmd, data->block,
- 						data->block[0] + 1,
+Concurrently, ft260_raw_event() checks dev->read_buf !=3D NULL without taki=
+ng
+any locks and then performs a memcpy():
 
-base-commit: ab5fce87a778cb780a05984a2ca448f2b41aafbf
--- 
-2.54.0
+drivers/hid/hid-ft260.c:ft260_raw_event() {
+        ...
+		if ((dev->read_buf =3D=3D NULL) ||
+		    (xfer->length > dev->read_len - dev->read_idx)) {
+        ...
+		}
 
+		memcpy(&dev->read_buf[dev->read_idx], &xfer->data,
+		       xfer->length);
+        ...
+}
+
+Could a properly timed malicious device response pass the NULL check before=
+ the
+timeout clears it, resulting in the memcpy() writing device-controlled payl=
+oad
+data into freed kernel stack memory?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260610134119.3313=
+484-1-kernel-linux-20260610-80b7ab08@raman.v1.sg?part=3D1

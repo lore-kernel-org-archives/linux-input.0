@@ -1,112 +1,126 @@
-Received: from mail-dy1-f170.google.com (mail-dy1-f170.google.com [74.125.82.170])
+Received: from mail-lj1-f172.google.com (mail-lj1-f172.google.com [209.85.208.172])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C6885369D7C
-	for <linux-input@vger.kernel.org>; Wed, 10 Jun 2026 22:49:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.170
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781131778; cv=none; b=EfxvxQcsQd1ByRCNzBdeDpN8zCsT4/qhN5SstC6qAoW8Sqi2thLMIXGCr9dvsNcHxWsfHRgKw1jQRHvg12zLHUBPASXZiha7jjwV2rxePNhgU8tSNR4gi3If6cw4bgFKjjkRi8Quk8zF7s7uPiM0nu17HlwPFoCeSZbNprOn0yg=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781131778; c=relaxed/simple;
-	bh=8f/3NqncAopUkhQQ7pVzzHLYV7a2fGjbRa0tql4HClA=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=CtTnm4MOm4FswzHxQ5SIhvE/ypItsAJ+5RDMX1YIcbHMiLBrjAebBVH3RqAW8WR8OOZzBMesPNpYs4qQ9hjhYnZcjF+P5KHL6wIIflF2+1QyGtkF7uuhR7E9W4nNORV64DpRWwJUNCPMTRHRa/+ChYkdVQWzIjCoSRfMB80QWmk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=KhN7oK/b; arc=none smtp.client-ip=74.125.82.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7086A217659
+	for <linux-input@vger.kernel.org>; Wed, 10 Jun 2026 23:00:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.172
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1781132430; cv=pass; b=pesxkXjIQ7Bu/5UmRaQilAuQC6+AKoC8+XSTgbvYsziA3XTfSbcALAuD/DyU4gqrPJmP62Hl81g/BtJL1BXKc4Wt0WHZwZlbNxKHNwE8g0dJ2pqjQrvibQnVm0bU8xqNzp2EAIWz6V1/ySvJ5/fAF5BwHy8zl7Sgng2Bs9E11d4=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1781132430; c=relaxed/simple;
+	bh=da6DME8KN70p2igO4lifzeoHUukwvHlGZTU5j+Pe8pk=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=b7oRad6b4bQAM0q+TnrmKjt7zqbPv59RlTxlLyjLdTH0ZbOOzmq+p2XtCuPoEYovSbF0kOO87w0pyhg43pUcgWOvWz8HY/qZVeGtnrANgwXX6UhSfZYJSxe8HK/mGmjA8i9bghWIpEUXsAvNVaaup6SFpsepMTv5F3tLdFTdLqQ=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=OswYaYnU; arc=pass smtp.client-ip=209.85.208.172
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="KhN7oK/b"
-Received: by mail-dy1-f170.google.com with SMTP id 5a478bee46e88-30759632453so1898459eec.1
-        for <linux-input@vger.kernel.org>; Wed, 10 Jun 2026 15:49:37 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="OswYaYnU"
+Received: by mail-lj1-f172.google.com with SMTP id 38308e7fff4ca-39677c80386so73661691fa.3
+        for <linux-input@vger.kernel.org>; Wed, 10 Jun 2026 16:00:29 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1781132428; cv=none;
+        d=google.com; s=arc-20240605;
+        b=E9ciYM/tncY+1DDwhyymPa9bq+ApI4kLGH4aogGaVve+gnJe3hOBG4ZbIWn3VEVfGl
+         rVBOs+JctN6PerD4yA1qYuNUaLuAe8+kltmeBvSQ8w8jMd87K2w+Q/fpvA9gSwDX3Van
+         9tPIRzl/Z99Iol3W0LHuNyriG9yIe6cGUn7ueb//7nWRTYP4Q86ijIdJNZC6itIrWifo
+         VHGvEOR5ya7TmaxsbpObkCOmXQSeDtuHOYSGLXgYPM0w9dKJaeirdBSoniqTMuxFMjxV
+         I7VScjproJHN1Ce+AR4S5skvNQ3jeKMZqxZmW/L/rNBwLPmPMfW+d51zDjUaQQNkKvB2
+         MYoA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=7/1EYrFgPdRRRbFnHeUoi//T12GwW21L7HHozs2Fh90=;
+        fh=Gnj5odFv3xVlTpjCksn/bXe83LrwwgzjInAahotwHFQ=;
+        b=aVMnQ3ZXJULevFBW3uLYaI11MzaCE1bahOO5wwA0b+TAJWe1u3QKQYhnOohLie70LK
+         5KeUn3y9BEmiubgugMZsPDFFW/egvXKGcY9TSH3CoDH6qx9yO8806ztbz4pLF6GoLoOC
+         NGoJuvV4RN9uVCcY3kPxJ5N5N5UUH4MEIUBnSupdckZ/0KcBKPvfx+Wi8QE2OP+Pi+Xl
+         mzBHDPlBCzd5uSUvLHMleJl8KL8dEreaK/KilcTZ4CYBLPtlG4GXLyGhOLLw2Ux0ecpD
+         0WKgKpLqAk3YnnI4Gowdhx02DdmFumeec4BWcgXvLv7QymMQ/pKjLvr697YExBVbp5Lm
+         ILpw==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1781131777; x=1781736577; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=iI334LxgKLmlRyNgL8Ur4M9ac5DP95VOVSvPZmKZ8RU=;
-        b=KhN7oK/b7a9RnLa9mMF37ZK+61y4EPpJqL/eyVcaOOi8WXls07hj/HNRoHXMc0TLv2
-         q1yN3KhGDnEuTziYHIHOhESubSuGRtGdqrfLmJwuQGt+ySMBlnV7KEG/rf3tijK4eZRa
-         PueZi7+rCSNUtJqMUC+u7+qczgWuqThNgX5QehFr1eGeGs8ravUBC5gPlIR7Pt0yn9B+
-         ytYzLvNC6/1WlXASHQUIXM/LIisIZrdlL2dYk5GNBUs7oBJhjpYLOPSs304IAI5jq17a
-         Vv/X59nrCo0YGwd1Gnv5aYro4rimJ5bOTHTxpTPbtMqT/HTcISaeqtUpkkYr5c46aMP9
-         viHw==
+        d=gmail.com; s=20251104; t=1781132428; x=1781737228; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=7/1EYrFgPdRRRbFnHeUoi//T12GwW21L7HHozs2Fh90=;
+        b=OswYaYnUeqYgTyiBZ5aQyPQCSrPHveeRhC02JJNdSNs0GdeKvBjmEJSlcC+Ay1EFDB
+         Ac9rjz7NSwV5x9hZ7uams5oycnU/BkOcfRtd7hlgx/uFmEQlu1n0/SoBevh1fXK5my9z
+         8/8mlBHWrPSKi6SjgmKeoOY3HPm0N6VLwSA04WmYuhpSN1hHdMx7HXSpsWorJ2p1ex1/
+         31OFwKlooo09DYP1AsmZPwyjHRwIGPzaxYZm3dMMA1sTvsnWwEJDw/8X9lEf9m2KcByT
+         YNd8cPQq5QyylJrQPhu0UFArkE1wskOTnVidLKptv3rc4BF1mK/2pk/nxTzlw8eImRU6
+         YWvA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781131777; x=1781736577;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=iI334LxgKLmlRyNgL8Ur4M9ac5DP95VOVSvPZmKZ8RU=;
-        b=FqI7I1tFU47wdrcEz/TnqOwr1bkd8/tLB77TOzSULJNVjcLWXIPYYvm4aSTFR9M8w0
-         Qz3yCztDbN+CcjUpMFpLLaYvxpQTicrzFIx7fZgAvt6cKpMgXM6Hsg8kFITBVLafX7KM
-         f7bivEuzRxPRLotSBRo66Oden6mJsxkMW0rvGoxhKBCpwWs4fi2kJNMhzkYbd1j8eXMF
-         v35QGjs/Voxsq3AxraNuyiKZGjkhUhRjt9/nscdUaj4dWWFGKb4fBc/JIaURBHUW3Njd
-         GHKyole0cGCUoM8yFzw/gQNe6wcrOHfKkMGuXBdrV1cGEmHsVh0DFx9jK6C8qr5BlBMn
-         JABA==
-X-Forwarded-Encrypted: i=1; AFNElJ9Loq5v5jsC7amLzuWwRRSZykxez2sK+351o/wm/fkJSldWPwiesjB36xmLSDLZckSXxy1078/wY/VXqg==@vger.kernel.org
-X-Gm-Message-State: AOJu0YxkfnI+ho+ILiDAX7BLplUx2n5uhKoRFeFEMu91yAMdf2y8CVlc
-	svxu2tV5BV+X5b8u9eK+aGxM5Opup6EP565HlfcX8M2K/gvEuEL6FWS4
-X-Gm-Gg: Acq92OFBIaz7uia1UoHSTdfrvhe+xHgUHrOsr7Poe9f2NZVtRt3UPkpqighwGOQpPYz
-	4FohMNzkiNgwk5AbBJakhaYpukphOP3DWO57wxEXUGLWWZ4574RPmUvftjqXlhy5hhk2OY0a3Rj
-	qLlV1i1Vlao7/ugpADnGB52VDd6XG3VGUrIPP2rRK5TS8jHgDXH++TDQMtmK89zfbuZKJBBvXJ9
-	beMAOsZ5DcNRorXKUn7ha/cIhVdfPYqBHs4LvUhoGXKFnKTf9p195MXmRT3lsJoOKZUcjrYJrK0
-	bRXqp6+O7E4dxtuXOR5mOy8AIKUNWF2j0WXRsu6lOKupU3F8mHB+4bSE8rpAMIi6Fot0iOYF1WD
-	USPLE1Fw8Fc1SY+eizwh16+mocn6ld+FDgyHCNOYhxGT0Ysrfv8A9Gnl0N0nLXfT7letPXsDTDA
-	gHKwg7r9IvOrAU6ITBZ3+fhYhclqp3hRRq/wuCgMv3OHWbK/WcUxShgL3JoQC9QSFWYkJMH14az
-	Yk=
-X-Received: by 2002:a05:7301:9bc5:b0:307:3a6c:ecf4 with SMTP id 5a478bee46e88-3080465303emr215050eec.9.1781131776830;
-        Wed, 10 Jun 2026 15:49:36 -0700 (PDT)
-Received: from google.com ([2a00:79e0:2ebe:8:ae0e:e075:91c8:6570])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3074df191d0sm39841199eec.21.2026.06.10.15.49.35
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 10 Jun 2026 15:49:36 -0700 (PDT)
-Date: Wed, 10 Jun 2026 15:49:33 -0700
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Kris Bahnsen <kris@embeddedts.com>
-Cc: Marek Vasut <marex@denx.de>, stable@vger.kernel.org, 
-	Mark Featherston <mark@embeddedts.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v4] Input: ads7846 - don't use scratch for tx_buf when
- clearing register
-Message-ID: <ainp9-NDND6AFLWk@google.com>
-References: <20260507164943.760009-1-kris@embeddedTS.com>
+        d=1e100.net; s=20251104; t=1781132428; x=1781737228;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=7/1EYrFgPdRRRbFnHeUoi//T12GwW21L7HHozs2Fh90=;
+        b=mukjApIvx6uPc6BN5s11SHyBXrf/Y6Sy8vJzt+fQi6UZbI/BjhwvuIXZsqnQ8+vzn3
+         odMS7QkQOfYxjLiRRhDe9wWB6ON2QnqXMk4PZKnyCZG2RSALwZQl9R+6bE40W7RBc5jZ
+         FophlbLts1MZlWe0r18fL+Ly0JZvySJNzTHWfjJ2OiPz+bA1SiEWaNngoDKVlfr/3yti
+         MX+RFM3Bxq7RKfPnsnmdIcFmrDmYC/ASoKanWm5LTM8PWYdVa3E2X9DM4ZEEJSWOUZMR
+         bH50qyFWBPFuN42uID8ElropXsBar75H9XOwr15v7Xnn9DIhgThF/kz2Qooa+qnBRzfq
+         IeZw==
+X-Forwarded-Encrypted: i=1; AFNElJ+a/DUVWH/jhm690jdNsDFoUH789WWnW25/9QKrEjU4erShyccjsJlFc/T+GCPn6BBAjeBiUFOPtBWg4g==@vger.kernel.org
+X-Gm-Message-State: AOJu0YwVjU23b6UyBrjXbOSLZt2H1WOoTx/4BXwqjRTch7caLKKcShZP
+	P0+HvkhwJJcqutnMwBw7wXRdE7H+xH8r1T42kSN/zm+s8bxChvV/TLtXE4U57DDLZ2zHONMbXJ0
+	KG8TKg2m9DcUGLrpiVdd19JYS0akK600=
+X-Gm-Gg: Acq92OEL0gAHpvDqujHgsi85wp6ce7P8EPVRt5+gtkqPYeaXBTNWZdPsfYIo1Ca2u3M
+	X+puA1cDjE4aiiLFnYxSFawNKopNfA4KAsOqWKQhFjYNFymfZLfmhH8fh4RInHIWbus9zzM/D7E
+	wMVjajKX+EWDacsqP+WynpBxzT0kk8XIBf2y07mpfx37uduppAbG+KhySN3r1e68oHS0uZXRQMh
+	hmZzjYN6gkZOQ5PJQ40eNuR9bT/NjkasB4EuUipbJ/Duk+46B1L3EFXZ9y0610MWXwlD8t0DC5j
+	cUSJiKVjsAjaku824Q==
+X-Received: by 2002:a2e:ad93:0:b0:396:5ea3:46e2 with SMTP id
+ 38308e7fff4ca-3991a1136b4mr14461fa.17.1781132427343; Wed, 10 Jun 2026
+ 16:00:27 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260507164943.760009-1-kris@embeddedTS.com>
+References: <20260522050632.8079-1-vishnuocv@gmail.com> <CABxCQKtr1g8xEg_EYEQhjsgAR7QtSQ0dDQhOAByuxvHBeHK5iA@mail.gmail.com>
+ <09prqp54-684n-r4q1-02or-1nqr1s4516on@xreary.bet>
+In-Reply-To: <09prqp54-684n-r4q1-02or-1nqr1s4516on@xreary.bet>
+From: Vishnu Sankar <vishnuocv@gmail.com>
+Date: Thu, 11 Jun 2026 07:59:50 +0900
+X-Gm-Features: AVVi8CfjhFNX83SvokZronjbpLZnNtBfAWWPIo6sDFXgqhcP7_d6IudiPVanri4
+Message-ID: <CABxCQKucLynqgvUHCmoy-=xAY+AfCAR910ySj57yx5PcuSP1bQ@mail.gmail.com>
+Subject: Re: [PATCH 1/2] HID: lenovo: Add support for ThinkPad X13 Folio keyboard
+To: Jiri Kosina <jikos@kernel.org>
+Cc: bentiss@kernel.org, derekjohn.clark@gmail.com, mpearson-lenovo@squebb.ca, 
+	vsankar@lenovo.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Thu, May 07, 2026 at 04:49:43PM +0000, Kris Bahnsen wrote:
-> The workaround for XPT2046 clears the command register, giving the
-> touchscreen controller a NOP. The change incorrectly re-uses the
-> req->scratch variable which is used as rx_buf for xfer[5], so by
-> the time xfer[6] occurs, the contents of req->scratch may not be
-> 0. It was found that the touchscreen controller can end up in
-> a completely unresponsive state due to it being given a command
-> the driver does not expect.
-> 
-> Instead, rely on the spi_transfer behavior of tx_buf being NULL to
-> transmit all 0 bits and use the scratch variable for the rx_buf for
-> both the 1 byte command to and 2 byte response from the controller.
-> 
-> Also relocates the scratch member of struct ser_req to force it
-> into a different cache line to prevent any potential issues of
-> DMA stepping on unrelated data in other struct members due to
-> sharing the same cache line.
-> 
-> This change was tested on real TSC2046 and ADS7843 controllers,
-> but not the XPT2046 the workaround was originally created for.
-> Confirming that the original modification to clear the command
-> register does not impact either real controller.
-> 
-> Fixes: 781a07da9bb94 ("Input: ads7846 - add dummy command register clearing cycle")
-> Cc: stable@vger.kernel.org
-> Co-developed-by: Mark Featherston <mark@embeddedTS.com>
-> Signed-off-by: Mark Featherston <mark@embeddedTS.com>
-> Signed-off-by: Kris Bahnsen <kris@embeddedTS.com>
+Hi Jiri,
 
-Applied, thank you.
+Thank you so much.
 
--- 
-Dmitry
+On Thu, Jun 11, 2026 at 12:39=E2=80=AFAM Jiri Kosina <jikos@kernel.org> wro=
+te:
+>
+> On Wed, 10 Jun 2026, Vishnu Sankar wrote:
+>
+> > Hi Jiri / Benjamin,
+> >
+> > Gently pinging on this series.
+> > Is there anything blocking acceptance or any changes needed from my sid=
+e?
+> > The series has been tested on physical hardware.
+>
+> Sorry for the delay. Now applied to hid.git#for-7.1/upstream-fixes.
+>
+> --
+> Jiri Kosina
+> SUSE Labs
+>
+
+
+--=20
+
+Regards,
+
+      Vishnu Sankar

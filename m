@@ -1,106 +1,195 @@
-Received: from mail-dy1-f169.google.com (mail-dy1-f169.google.com [74.125.82.169])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from SN4PR2101CU001.outbound.protection.outlook.com (mail-southcentralusazon11012062.outbound.protection.outlook.com [40.93.195.62])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 081AF32B137
-	for <linux-input@vger.kernel.org>; Wed, 10 Jun 2026 17:04:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.169
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781111043; cv=none; b=TEbUGF9/IPJgtzRTDtNaWekXumgkIW3pG0xLOHavRP6M2a9zg6ULT4yi2FF0bo8/V0JOiVm87mi/K9qN4wwxBg66XFwrRftO6aS5nEY+0ZznIlbxqiTac8v/X6b54v2aknQg0ggCoY1p7XTvJeexPkcFusqexXqlXbGsXRAdrKE=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781111043; c=relaxed/simple;
-	bh=TVW9575YcKLG0bHn7A6LJowba0uRlJHWjHvsONl4INQ=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=KsbNTKZg0lJrqv7TPyqYBinzDln3tnxQaCA3v1fYaxzi2YeWm8Z+PSYPfGMZ4bAgXuBYiuTukyooQaNWnsi8ce4UNeOnGe9xiv+Phy2BCw3b0xJLBLhp/lZn0L+hhrMF+/SsgvVCJDrByeaEWrs3102q0LfV3Rw8h8vwvE5PDWk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ZzsHds8k; arc=none smtp.client-ip=74.125.82.169
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4259134750D
+	for <linux-input@vger.kernel.org>; Wed, 10 Jun 2026 17:12:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.93.195.62
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1781111570; cv=fail; b=UbG7GL/Ac6jWm9kZIBrgfPzucYJ4LkCWmSrH4VR92pggFslDMRnQvpL3tRVE0q07yi5Uyb+WblewNyLynvExbTbJWjuReYk/YCdH/TU8wqxvwq0z4vMmEeNDxge8K7KJ8FBh1QYsf3gOxOIBzV6C9Y2KTUgf33AWDwkJGHqV6WA=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1781111570; c=relaxed/simple;
+	bh=xxtqia6uVeiqUNKia+0lAmF3R1lZ315vqhaNfif+VqI=;
+	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
+	 Content-Type:MIME-Version; b=kMQcqG7b96mDZFHTramYEZBueRxM22aWNIP7CVbk8LQqOWter7AuocPJnoRH6ZeLIrr514+HlVC4TO8/EPXiffOPhVsyRVjZ+SarnmQFVvk/OFE93HMwuB7qQ7OvQYLtXXbCGiFVITO8+aHxXN52eFZFPGWOuGz0ZEnbOCBX76s=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com; spf=fail smtp.mailfrom=amd.com; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=jiAVSarf; arc=fail smtp.client-ip=40.93.195.62
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=amd.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ZzsHds8k"
-Received: by mail-dy1-f169.google.com with SMTP id 5a478bee46e88-307263ad0cbso9778635eec.0
-        for <linux-input@vger.kernel.org>; Wed, 10 Jun 2026 10:04:01 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1781111041; x=1781715841; darn=vger.kernel.org;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=J93QDWWtLOTX1wvAB+lhHDAb2H6FMZC29/IawhQbAQA=;
-        b=ZzsHds8kr9lM7kT8mMeCi1V86B8GCn+NH0KGiztCdGWEdWMhof1tAv5jSODGHbSnLu
-         xcfSHGUBXuXPBo8twjdS0MSToCqbbesVYPqr19pu1yNznMULfnhvtjvSgLm30brIzqpQ
-         EDETPOBRRkqZzClK6lSh7b2BUbYVdlo8y/ff/WVWdOGgoqLbEX13emNEQjdq8BJ+7i+k
-         Dny8ff/CLiohJ20Whz15cxzX3G2uIiUdbR/0hlQkH8RCm2oxZKqd6y9X9HMkJw5PWTd0
-         QGTy1Y8JL9Ig7eoVqsXkJSe6yOYNs91rDgKClnx0gcN+bnOpIi6RpOJNPUmoV+cucel8
-         xgjw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781111041; x=1781715841;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=J93QDWWtLOTX1wvAB+lhHDAb2H6FMZC29/IawhQbAQA=;
-        b=FgaM9oxALfvXlA3sHLwEBam69KE6tH1XO8mcmgYoe+uSYNuCDdJsWjWbafELWK/pfh
-         wGLTr7h+HjtRhsA1bjAVmgAhnDNH9Kk+LoxiPWYheZ1NIGvfnQOFQay2YOuD64DPbJrj
-         RVkw4XeBXZgwg9t/mSSj66YXX+OgIMjGjPB/S2eZHxFgZtCgd67KsHtjlEmXPP/GEGPt
-         03J3sEPb8Fea8ziM5MUTZtBlwt+C1kQ2JqhYGGSrR8esXt/07IGuRu44go8dWVt1Pc8V
-         2nBofUkl6W90Eq5lp7aOTbisKRgplwQzfjNUKeg5BGjWTrjIr7wd7O0vBojUhWZpGnET
-         M8iQ==
-X-Forwarded-Encrypted: i=1; AFNElJ9Bfv12h2S39yuo0VnqAyxSgjqIj6t6Iy1+lCK8oLoDAI2K0UFGl950REHOCHqRaPqD/UNePKjiQt1nww==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yxkz/wovrs2UMTY3gxe93j3vUvtia/mDk9TgxLIkz7zeEffB8dL
-	bJcQ0TqM5cM2fbOtDHpy/5xl/e8Fc9p8ZRKRrrKmmY1+kUVufnipF6OoPYyU5w==
-X-Gm-Gg: Acq92OFjnE8dDYy6CvxC09w19YjKK5hC6R9YOwAp3fMRpaV8w6Q/FjJgFvZDbVJdbAd
-	RE4WCt7/6//lL11eSB03ia/NnfMk8mfuMEnvMvl72cSA2gUeDkBEqj0BOzyfspJOHfStG8yA7sD
-	4bzwe1PeNtMTH1hKkftvqQ/woa6a6FVPYZFIWhpoGlKyuTz3J2eWKsQelPQ2f+7VPmoHQv4hCpc
-	Ibxxtxepwf63lAdoUaul3juxfxqxF+ZdegCqlMxEoKluBb8E2sz1thFvbobkTUEmYBUIV1QMcQ3
-	odo4SdqNBYKqDgN04QP/y4Hqs8KPShEwKUq02yCy6/uhnH93XnUrFLStvbW26LAhzG84luQJYBk
-	C4K73+T+WYTvbhvjOXpTfNw9nAgJck1CHOjBX64LmWT4vkax1++3+dk5mPC51JFhjNWzhZA7Rx8
-	j+f9N/nfWyeHCUkd7frjMsgND1HQZK6h5mzNfgsdd2LOp2lZp/FqK5qON3me5MtT2JxCeUSGR1m
-	uE=
-X-Received: by 2002:a05:7300:7313:b0:2be:7fc2:fc38 with SMTP id 5a478bee46e88-3077ae89f68mr16554448eec.5.1781111040802;
-        Wed, 10 Jun 2026 10:04:00 -0700 (PDT)
-Received: from google.com ([2a00:79e0:2ebe:8:ae0e:e075:91c8:6570])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-30791f9da69sm18610159eec.31.2026.06.10.10.03.59
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 10 Jun 2026 10:04:00 -0700 (PDT)
-Date: Wed, 10 Jun 2026 10:03:56 -0700
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Ethan Nelson-Moore <enelsonmoore@gmail.com>
-Cc: Arnd Bergmann <arnd@arndb.de>, linux-arm-kernel@lists.infradead.org, 
-	linux-input@vger.kernel.org, linux-serial@vger.kernel.org, 
-	Russell King <linux@armlinux.org.uk>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
-	Jiri Slaby <jirislaby@kernel.org>, Russell King <rmk+kernel@armlinux.org.uk>, 
-	Linus Walleij <linusw@kernel.org>, Kees Cook <kees@kernel.org>, 
-	Nathan Chancellor <nathan@kernel.org>, Sebastian Andrzej Siewior <bigeasy@linutronix.de>, 
-	Steven Rostedt <rostedt@goodmis.org>, 
-	Thomas =?utf-8?Q?Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>, Peter Zijlstra <peterz@infradead.org>
-Subject: Re: [PATCH] ARM: footbridge: convert to sparse IRQs
-Message-ID: <aimYkTdIAoye5sEG@google.com>
-References: <20260510052107.555825-1-enelsonmoore@gmail.com>
- <aibz3auoiq4CFa9l@google.com>
- <86765df4-0d2d-435e-85d8-b9bd4f3ea85d@app.fastmail.com>
- <CADkSEUhh1NdOMTHVsErhqzyCpDGFA-FkNFaWp94e9LnB3njxqw@mail.gmail.com>
+	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="jiAVSarf"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=btjPotlErddNK4QAY1FB2g0UQI0haO5pX1DLneRPxpdFAcSvhJ5EXskg05JY0KqIW9cB4wAtX+Dga/Oi1b15bjDg36HRIIrStnuW8hvZ1/PbW/nKrq8A5nYcS/Wvkk7AOLEUHQr48nqJPTaeKFzi7c0MgHUCKbJUlrtwyJ3K4jIKjv9vOloSHicFvsD2i8HIk5xGlF7QTHYbMv86hIv3/K86TyE/G0sYarTGAOmmtglPb14MDlLOUmSKIIFEakdac4ykTvPqu6DL9D5AiKlDNQ3oHaav/3AaImdDGuHcuVl5v+BpAdi0AydlAprKlls2nlKRjcWh65d6LTJrEh2BRQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=O+7iOKxeGFa01UpT9Wn4kkkZYVbUjS+KkBHcugDhbvI=;
+ b=cdoCsbM0Y/DJPAKtRfC88pXSkJ4cgZM2xIN9iabFnsHzXzZVpdBVD1mwZlCIGdDu9C5m745LTjTRe9Y6ZL6yjtWWV3NjxxZe/NgVp7jrSk/wTYUiIqHzZaWw/QKSocJUk1H1CMB3LMXytPZuAzRF62qyyyT7g9xI7ogZZZrXekzoyMWygQSeN95xiOmlco65KeUQqSYt3M5C8LIePn5FA7/zqOZ5VvF6HZOLgj5xXJOv9vUUUsA2Kw4oIK+KMld9aE8EBeQsLJWIzeaG1lWVN8McfUKknesWU0S+jgN5Lxed74oNf75nzwtoxqlRtUy3t0Bgya5WIEInYZGLEkwfHQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
+ header.d=amd.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=O+7iOKxeGFa01UpT9Wn4kkkZYVbUjS+KkBHcugDhbvI=;
+ b=jiAVSarfPmTpL9ufT0Yyg3pwYcOSisW7y55luGFDMmWR8NkTTNLzB7CdMCA+r+HTJAhcfJqRltC5FqupmXzbXjicDpajNnQkRPN6V60lxpVIY5aE5ZRefT6na0VNHMab6XjxVKyNPMSK4srrhMKHo339rayX4bjt/HD7KtthrRY=
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=amd.com;
+Received: from DM4PR12MB5040.namprd12.prod.outlook.com (2603:10b6:5:38b::19)
+ by MN2PR12MB4127.namprd12.prod.outlook.com (2603:10b6:208:1d1::24) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.71.11; Wed, 10 Jun
+ 2026 17:12:42 +0000
+Received: from DM4PR12MB5040.namprd12.prod.outlook.com
+ ([fe80::94f:c77d:ded2:28be]) by DM4PR12MB5040.namprd12.prod.outlook.com
+ ([fe80::94f:c77d:ded2:28be%6]) with mapi id 15.21.0092.011; Wed, 10 Jun 2026
+ 17:12:42 +0000
+Message-ID: <ecadaac8-e222-420a-ac5b-4d529fb3317e@amd.com>
+Date: Wed, 10 Jun 2026 22:42:37 +0530
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] amd-sfh-hid: tablet mode switch and asus quirk
+To: Helge Bahmann <hcb@chaoticmind.net>, Jiri Kosina <jikos@kernel.org>,
+ linux-input@vger.kernel.org
+Cc: Basavaraj Natikar <Basavaraj.Natikar@amd.com>, bentiss@kernel.org
+References: <6879487.lOV4Wx5bFT@lothlorien>
+ <n0s5q66s-p747-612p-o743-pqr0q2r79448@xreary.bet>
+ <2632507.ElGaqSPkdT@lothlorien>
+Content-Language: en-US
+From: Basavaraj Natikar <bnatikar@amd.com>
+In-Reply-To: <2632507.ElGaqSPkdT@lothlorien>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: MA5P287CA0085.INDP287.PROD.OUTLOOK.COM
+ (2603:1096:a01:1d8::19) To DM4PR12MB5040.namprd12.prod.outlook.com
+ (2603:10b6:5:38b::19)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CADkSEUhh1NdOMTHVsErhqzyCpDGFA-FkNFaWp94e9LnB3njxqw@mail.gmail.com>
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: DM4PR12MB5040:EE_|MN2PR12MB4127:EE_
+X-MS-Office365-Filtering-Correlation-Id: 2d90a0c7-3ae3-4cd5-cb95-08dec7137b94
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|366016|1800799024|23010399003|376014|3023799007|4143699003|11063799006|18002099003|22082099003|6133799003|56012099006;
+X-Microsoft-Antispam-Message-Info:
+	FkH+TT9SHnjTKI+5/R4ZFW2pHAvcm32HM0av9fMTn2d3NiABRUlZ6ArPILCC7Xukmu/whrH36XKp0wnzwr5o60rCXQqBK+l0jziAYjueH+Yw4SYDMA/ksXAvPybj2YYpYVK9Zx/dcrVvUSnC3dJPAN/4PAiWhYMfrq//i6e6tDcAKiCzLcgV5HLgljeVjWBzse6rQKXal1JxG7GxQPLXMuw100uZTiBFhujoB4dVNemgh5vx6URgyOM2EWsHqS7ImdWTiZUtsrQpt4Xyv1F2GBDl6tzaIqPrTNrkO9LxDANKkQ57st1/+eFBTXw2P+Q3owbSLkMYVPoiuOtzGKEUrJH1Mk6g4F8z3dSE2go/uG8ZVnhp8WKOiywveDwDrQBNsnaJA4hxFFzMEDY8FQKdedguE8gAtNnrRtuw0taGbXpmh5n2cZmdON2BiqgYx3WgbvXR3AtgW3M2DChKDxBQIT/XRmePybj+uSlgM3m61clY+IkmfW4FC8DTd5TwqeT2rfqKhxYibrKKiQwij/09zMDn0laa3wrR3vB3BfERKZQZADzWNIYpieSbb3YoumrXEcYVRMTu1Cg6gM2NK4C9AYCXz1KDDwAfDAXx9VHJ+Qf75x7ERz/INbqEM12s73TIBsXU4NSKdLv3sia3v5BLUFx6dua6+JAjc3hJ1pEamhLL7U8/xE7W+etUy5t9OYbd
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM4PR12MB5040.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(1800799024)(23010399003)(376014)(3023799007)(4143699003)(11063799006)(18002099003)(22082099003)(6133799003)(56012099006);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?utf-8?B?dkp6M3pNUytmLy95NU5PMUNhSTF4eHUxb1Q2QjJIc3RtelhhYWFISm5KSVZp?=
+ =?utf-8?B?MURKOG5UYS9acDdpbm9zcFRXeGVtK3Iwa21hQm10V0hpQ1ZsMGh5Y2tsZkMx?=
+ =?utf-8?B?WVFWRXBiQXBSaERkVjZseFZzdFpUM3dNdTRBM0JpS0dDaTVNWFJwOTZiNDFV?=
+ =?utf-8?B?MVJSTm9zRFp0YzdhZHcvS09sd2tmN2Q5c1ovdm1mdEhQRGNsai9kaVhDWVlq?=
+ =?utf-8?B?aDYveXp5UTIzNURCTkozN3dJcjRSaW92RkdSVzBxL0ozQzZXb0lXazN3c1ha?=
+ =?utf-8?B?aTRVN2VSdkN1YmZnajRMc3FSNUJzL0JENFp3REZ6VXFXdk1ONy8zck1nRGsz?=
+ =?utf-8?B?ZWJUTkx2U04xbjBVd2MvelE1TlVvUlJ2MkhJQWs1a1d2S2NvRkdzTG1HclRI?=
+ =?utf-8?B?eGQ2eURpQmtFRXlYckZqTXpDQysyc0hsUWJkK3VhUjJaZDRxVWJCL3BIQ2Zz?=
+ =?utf-8?B?alhOU2RReFVUTUI2YjVnMnhjSExkK1VvSWxoUERvYk0xWnNHbWxCcDFJcnpM?=
+ =?utf-8?B?Y3N1V0ZUN0Y4V3BHTWQ0eXplZEVVZXY3b2JpSkExR3hRUDFtTTVNaXFqc1NY?=
+ =?utf-8?B?c3Yyb3A3TzdoRW43a3ZjRzZCK09NUXBqQUo0WjRWdEJtd29wTWszVy94bXpM?=
+ =?utf-8?B?VE42Qmx6dlNvSTJPUzkwNWpSVnJJeDloL0ZCTWlON21jQTdxcE0zZmJSM1FH?=
+ =?utf-8?B?TXNMWmZoZWphcWVnOURNRzc1KytoaFM4UXQ4VXZCVzVsenFKV3NzUitLUUJk?=
+ =?utf-8?B?T0VJazMyeDRpMmtsUmhGY3FheUYxWVpvNGNKOExqL3lJdll0SHBPQ1JKUkFm?=
+ =?utf-8?B?N1Q4QjRKV2RQcEpwVzJtTmFFbEZydlREMCtMY3pmeCtxWWh5eXF0VktZM3Vv?=
+ =?utf-8?B?K0ZjOEs0a205Y1Y3S1BVVDROcG1SbG42Q3p2b2dVdjhnQjE0S3g3Zmo2eDZW?=
+ =?utf-8?B?SGRZOEVJbThkcUJseHNKTE5HSnVTMkxqVUs1dXkvMFB0OFM4ZThJT1BHSXVu?=
+ =?utf-8?B?N0VXRW9qVzBISWF1bjg4WGFodkgvdFVqQmQxTlc2Y1N6YVEvK3hmQk5tcDZM?=
+ =?utf-8?B?Y2NHNUpKUmlFSVlYdXk2L3IrSDd1VHFjQ2N4VHB2SnBFK2s0bUhJWTNQb3lD?=
+ =?utf-8?B?ZTVvNFRnT0xkYitzelcvYkwycWJJNktpZCtEQXhYYnAvWFNJU1pJdER4Ri9I?=
+ =?utf-8?B?SThINWlUV2JFMzl6aDBxRDJJVHRTd2p6NWt1VGJGdHBnUmR4eDU5Wm83ejNN?=
+ =?utf-8?B?M3piMGVvQjhnWEM5cW9lUVFRL3Q1cWgrazBxcWRhdnk5RjBZSlVDdHUwbkZV?=
+ =?utf-8?B?VXZNMmMvS0taemQyNjM4SUo4cXhhd0ZpZzVGR1YrOGFSa3l4ZU12TEllS2tQ?=
+ =?utf-8?B?MWJhVUhpWHl0UlhaN0tqbDYzOUhhMnRiaUJiRFpIditDdWV6M1FWcTNXMTdu?=
+ =?utf-8?B?OEcydGpXeFNCRnNlMmpTZWNOM2tDdGJMS1pFZUdocTZaTitaV25GUjhqTGw0?=
+ =?utf-8?B?WmlHd1pPUGVWcFFKS3NlVmgyV3VXQkZMUHg5Tjc2VFJ6ZmR0a0JXS0pVSFRx?=
+ =?utf-8?B?Z0VhREU1bWQyTU1HTWJNYWtFa3NYRWo4S1JDNWJXdThsa0RzUlZBRlNUYlVB?=
+ =?utf-8?B?WlRiUVk1WWNBK1JTb1FCUlRsOXQxcWdaSmp6djZLYSt3SGpLTFMrcHlpZXZS?=
+ =?utf-8?B?WG1XMFBYL284KzMrd3BBallFcDdsd0hkc25uaTlxY1h1ZnhsUnhuSXR5NXd4?=
+ =?utf-8?B?cUE4L2RwVjVoRWlqM0tkcEhLL29rVUwxeFdRK2VxU3BVSEdQdlJ5cDZPdkJu?=
+ =?utf-8?B?U0ZCQ28yN0xzbzBxcGRkckQ3YmY5RFhDUGM5T1QrbktnbG1WZndydjl4N1VG?=
+ =?utf-8?B?M2pjWi81NXIwNW1ialZBMEpsSXJQVEI1enZQSFQ5T0lWMjB1UW92QllLSWwv?=
+ =?utf-8?B?aFZWc1pHTjlUajdiTHZpeXl6Q1lqV0d1UXRDdXhwdVBLWVlwR3dqbjEvcmhB?=
+ =?utf-8?B?Rm9IeENiM2VqeWV4UWJXZ0o2TUx1Y2tIK1puSi9EZkFoRzlpTHpQL1MwUE9V?=
+ =?utf-8?B?RzdIc3pzcjVxSzlLblEwK2tHbFpRcjZnclpiVFRMekFyaW0yWkZWYjdSeEFD?=
+ =?utf-8?B?OEkzcUNVUlM2QUVhYUFCL2VTRUtwL215SUNib2hueGEvWk13dC9vMHVvcGtp?=
+ =?utf-8?B?MjJ0dklIYURUYkFHekZtYTkvNWd1aUIxNWI0ckxRREtBb2t5QXlBbTRvR2VL?=
+ =?utf-8?B?aCtGVkVjblU3VDQvc0VHNDA2TER2T1hnMzVqb1dkRzJwTGh2dERhVDFNWExz?=
+ =?utf-8?B?MVVBNnZVUVNscTNzekxFS25aRERMOFg0dzFONXZwQ2hWdW5rWFJEdz09?=
+X-OriginatorOrg: amd.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 2d90a0c7-3ae3-4cd5-cb95-08dec7137b94
+X-MS-Exchange-CrossTenant-AuthSource: DM4PR12MB5040.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 10 Jun 2026 17:12:42.7349
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: Od6NTrdYo1SnDP26PUt1OTTNKPfNlQNOHrAjj/yVUWCSRXxrJ/DcWlCjA2tuCF0Pt5sUg398ujyxJQLZ1cosAw==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MN2PR12MB4127
 
-On Mon, Jun 08, 2026 at 10:13:50AM -0700, Ethan Nelson-Moore wrote:
-> Hi, Arnd,
-> 
-> On Mon, Jun 8, 2026 at 10:11 AM Arnd Bergmann <arnd@arndb.de> wrote:
-> > I think this is correct, as footbridge is the only one that selects
-> > CONFIG_ARCH_MIGHT_HAVE_PC_SERIO and defines I8042_KBD_IRQ on arm.
-> 
-> I came to the same conclusion.
 
-I see. In this case:
+On 5/14/2026 1:29 PM, Helge Bahmann wrote:
 
-Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com> # for input
+> [You don't often get email from hcb@chaoticmind.net. Learn why this is important at https://aka.ms/LearnAboutSenderIdentification ]
+>
+> On Tue, 12 May 2026, Jiri Kosina wrote:
+>> On Mon, 27 Apr 2026, Helge Bahmann wrote:
+>>
+>>> Add an input driver that interprets the "operation mode" sensor offered
+>>> by the amd sfh on some laptop models.
+>>>
+>>> Add a quirk to make the driver work again with the Asus VivoBook
+>>> VivoBook (turn off the "disable interrupts" flag).
+>>>
+>>> Expose the intr_disable flag as a module parameter in case it turns out
+>>> to be needed on further laptop models.
+>>>
+>>> Signed-off-by: Helge Bahmann <hcb@chaoticmind.net>
+>> Basavaraj, can you please review this one?
+> Some additional context, maybe helpful for review:
+>
+> 1. The numbers and behavior were extracted from the ACPI tables
+> (WMI driver of sorts) of the notebook; I don't have access to any
+> official AMD / ASUS docs or similar.
+>
+> 2. I have an alternate version of this change that is more indirect:
+> - create a HID driver providing an "abstract table mode" message
+> - have an input driver attaching to this newly defined HID driver
+>
+> While that is keeping "more in line" with the current driver
+> architecture, I am not sure this indirection really helps. Particularly,
+> there is no "canonical" HID tablet mode switch message defined,
+> so it all remains completely bespoke. I am happy to change it if
+> you prefer, but would need your input.
+>
+> 3. Since this is based on Asus VivoBook and its ACPI tables,
+> there is a possibility that this "op sensor / tablet mode" behavior
+> is not as universal as I surmise. A point could be made to make this
+> entire behavior model-dependent (with a mod param to override
+> / activate for other models). Happy to take input / advice.
 
-Thanks.
+Thanks Helge.
 
--- 
-Dmitry
+I'd like to go with the dedicated input-driver approach (your option with
+a standalone input driver) rather than the HID-message indirection -- it
+keeps clean subsystem boundaries.
+
+For splitting the work, either of these works for me -- whichever you
+prefer:
+   Option 1: I create the new input driver
+   drivers/input/misc/amd_sfh_tabletmode.c and once done we will review your ASUS VivoBook
+   quirk + intr_disable module-param patches on top of it.
+   
+   Option 2: If you'd rather keep ownership of it, you write
+   drivers/input/misc/amd_sfh_tabletmode.c consuming the mode exposed by
+   amd-sfh, and I'll review and help.
+   
+
+Let me know which option you'd like and I'll proceed.
+
+Thanks,
+--
+Basavaraj
+

@@ -1,41 +1,46 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 49D2C33260D;
-	Wed, 10 Jun 2026 16:35:14 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6564333344A;
+	Wed, 10 Jun 2026 16:41:31 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781109315; cv=none; b=c3spsbRP4aHcNu5f1jojInbcMbTn7+TyxtBr+pAMZS4jRgoM6UYfUy0Rpx5CggMVSWAsLGecbaN5g+Cg3Y2TC0rbep4Grbms/R+3tkNMy3kcXARsmPS5Nh/zJjjL5MQfpXnlO6kh1BTnhzuhg9aH4xOXG1+Db2TQjIi7fyeNjyg=
+	t=1781109692; cv=none; b=kvwT9Q+ihgQyUKMKMcup3i5voeQBFK72tssBlcigy/e1RGCB25JC/c/0/kbbXVniIC8IkMSjDRg+v+01WFAiIoLXV4nwYcVaqgD81ECQuUp4kTiON+aUpThyjjvDzmMPu8f3Q0yKlz59gyAZ2onV7KeeCpXLes0o6SGvX2pLb7Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781109315; c=relaxed/simple;
-	bh=o0UHpGfUu2Y4xLXTxuCWVifSMbbKVSTfndNre6mkvOI=;
+	s=arc-20240116; t=1781109692; c=relaxed/simple;
+	bh=+21KKX8Q3ecdUPPp68pJ8jW7io6sie8rWuXNcKutUlk=;
 	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
-	 MIME-Version:Content-Type; b=qCftIQcjstABWtROfu2CHVBHOb7tWAIpm6vowjCscgCeWjqDxQqsC9HoJAKrgZ59HNhuGR6gjxe/C7ZSerhY2LE3KehZxPrRVnqRQUnW+8bDqfP9oUkYKSk94A1Pec24n+/VShBXhrTSh/Dli/rWnKUPrjf3ihG5T6BVPdi498M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=b3mu8BqO; arc=none smtp.client-ip=100.103.45.18
+	 MIME-Version:Content-Type; b=Yf73jJKSCX3o8EO8yrvwZLi3/dYRluFjYVf76S0N0tlEAbOjiiiPYQxnYBCXu/IICmVxjkSLbLtg4bNuRL7wxih1+xLEz5+4FsQoWyo48qoJtjplc1XUWqoT/alhs1rSQcMBZy4b1canmziSKB/ChmMOhFyMjQYEsmzEkXFUVP8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=M2OHrW1l; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="b3mu8BqO"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 582261F00893;
-	Wed, 10 Jun 2026 16:35:13 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="M2OHrW1l"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5DD8C1F00893;
+	Wed, 10 Jun 2026 16:41:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1781109314;
-	bh=aoK4NCFgt75hg7TUdwmbCdz+xbW1TUVb2FQGnQHVjwA=;
+	s=k20260515; t=1781109691;
+	bh=Td/xCCnMUXCa/D6DfB247abV1CMQlO1TdBc8f5zxngg=;
 	h=Date:From:To:cc:Subject:In-Reply-To:References;
-	b=b3mu8BqOUoGIadgVLDjbMjxNFwmzOyhLO9iw9neqEa2FHJ59+cShg6pCsZ0X7zxci
-	 xYgz3vHkfIBVbc9LxTn3kaOIS+90YPGNUtuSsHDWZGR0be2sllU9Hf2fzCIJIquxkz
-	 mPkGID8tcz2n1T9lmScUhc/eqRsxz7Hm0spgTJ72QOdYW/dQ4ZhQBUfBTgMCPCAywk
-	 azHFKAzDwNwp+bNruoqZ/FEMtMd3VncalI5Cd5hhOHGvwQTutkV7H7el0tqIRsyG+6
-	 EdpNrtATopu+l9syg62MYsXpiOfW+KTPgt4UI+Vo7cCyntg0gmVm8Gkg6lOAPmt2Te
-	 GqnZgBKRlbjgw==
-Date: Wed, 10 Jun 2026 18:35:11 +0200 (CEST)
+	b=M2OHrW1lVYmWB3Dbn0lVKhKIOFupIoylkUBoY8hgyXXolxd0reALc3cZqO9MyQEqW
+	 ouX1hfD6RIj/rS+bxdEfCy+AumIs0lZEQBDLaz30rbuuQPXE56/MVVIUw2jntbGtoU
+	 FRqA7kNEMGzlCLNOMq/kCxErFoy4FixCFdXX86/7u3EmwySM57tOFMNsq7SImpJ40G
+	 IzKFHRuhkBLfiZL2KHpAk1VKMCoayqSe3t3nzchJOoll2pP7iViwFw88jmiglIDaHW
+	 g+8wGJvxR/okL9uR0sI+RXLDmALKDlCWkN0waq3yvQgGyGTYQzG54/S74uW6XDpx7M
+	 xKEXrE/XYda2Q==
+Date: Wed, 10 Jun 2026 18:41:27 +0200 (CEST)
 From: Jiri Kosina <jikos@kernel.org>
-To: Tianchu Chen <tianchu.chen@linux.dev>
-cc: bentiss@kernel.org, linux-input@vger.kernel.org, 
-    linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH] HID: hid-goodix-spi: validate report size to prevent
- stack buffer overflow
-In-Reply-To: <f7e444a3facbe5fb2627167ab205771476e46bc8@linux.dev>
-Message-ID: <081p3q54-1553-0o92-4osr-r51s82023q24@xreary.bet>
-References: <f7e444a3facbe5fb2627167ab205771476e46bc8@linux.dev>
+To: Zhang Lixu <lixu.zhang@intel.com>
+cc: Jonathan Cameron <jic23@kernel.org>, 
+    Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, 
+    Benjamin Tissoires <bentiss@kernel.org>, 
+    David Lechner <dlechner@baylibre.com>, 
+    =?ISO-8859-15?Q?Nuno_S=E1?= <nuno.sa@analog.com>, 
+    Andy Shevchenko <andy@kernel.org>, linux-input@vger.kernel.org, 
+    linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/2] HID: sensor-hub: Add sensor_hub_input_attr_read_values()
+ for multi-byte reads
+In-Reply-To: <20260610082911.157232-2-lixu.zhang@intel.com>
+Message-ID: <nqr90q40-s472-o23n-nqn5-2s31qs75s2op@xreary.bet>
+References: <20260610082911.157232-1-lixu.zhang@intel.com> <20260610082911.157232-2-lixu.zhang@intel.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -44,32 +49,28 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 
-On Fri, 29 May 2026, Tianchu Chen wrote:
+On Wed, 10 Jun 2026, Zhang Lixu wrote:
 
-> From: Tianchu Chen <flynnnchen@tencent.com>
+> From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 > 
-> goodix_hid_set_raw_report() builds a protocol frame in a 128-byte stack
-> buffer (tmp_buf), writing an 11-12 byte header followed by the
-> caller-supplied report data.  The HID core caps report size at
-> HID_MAX_BUFFER_SIZE (16384) by default, while the driver does not set
-> hid_ll_driver.max_buffer_size and performs no bounds checking before
-> copying the payload:
+> sensor_hub_input_attr_get_raw_value() is limited to returning a single
+> 32-bit value, which is insufficient for sensors that report data larger
+> than 32 bits, such as a quaternion with four s16 elements.
 > 
->     memcpy(tmp_buf + tx_len, buf, len);
+> Add sensor_hub_input_attr_read_values() that accepts a caller-provided
+> buffer and accumulates incoming data until the buffer is full. The two
+> paths are distinguished in sensor_hub_raw_event() by pending.max_raw_size
+> being non-zero, preserving backward compatibility.
 > 
-> A hidraw SET_REPORT ioctl with a report larger than ~116 bytes
-> overflows the stack buffer.
-> 
-> Add a size check after constructing the header, rejecting reports that
-> would exceed the buffer capacity.
-> 
-> Discovered by Atuin - Automated Vulnerability Discovery Engine.
-> 
-> Fixes: 75e16c8ce283 ("HID: hid-goodix: Add Goodix HID-over-SPI driver")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Tianchu Chen <flynnnchen@tencent.com>
+> Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+> Co-developed-by: Zhang Lixu <lixu.zhang@intel.com>
+> Signed-off-by: Zhang Lixu <lixu.zhang@intel.com>
 
-Applied, thanks and sorry for the delay.
+Acked-by: Jiri Kosina <jkosina@suse.com>
+
+Jonathan, will you take the whole lot through your tree?
+
+Thanks,
 
 -- 
 Jiri Kosina

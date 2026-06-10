@@ -1,67 +1,68 @@
-Received: from mail-wr1-f41.google.com (mail-wr1-f41.google.com [209.85.221.41])
+Received: from mail-wm1-f51.google.com (mail-wm1-f51.google.com [209.85.128.51])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CC4503DDDBD
-	for <linux-input@vger.kernel.org>; Wed, 10 Jun 2026 15:11:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.41
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9C46940DFDE
+	for <linux-input@vger.kernel.org>; Wed, 10 Jun 2026 15:11:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781104298; cv=none; b=b8c5b82c/0cTUtWI6SqDsrxbBFqjupN9EmiW+jopc/eLhMvkArFvEv/MhlYtJl2d5hPQVj2sfXy4QN4ENFkyPY0z1f+q75ZNueUgPebSvp1ZTAsPekoTT+kII9acs6OVYVNKbjjrSFXcJjjP1ZWsneH7dphJmpwbAbA4EkqxzNM=
+	t=1781104299; cv=none; b=ibWHVbUT1pXBa5mZ9RpOPhdy0GCqZirrTw8hgoZ88V/lBdUS664vBg+OLZgDAN4tDSJKJfS20qGQdPn1DkrurWOshi30r3UrB1zniggokSNRX3KoVeQC0e72z2PfyxFjqy3QZt5Tt63Sa5yiFumyNcnv/3hFE+v9WfJs5c1xLWg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781104298; c=relaxed/simple;
-	bh=EgCZkceTCqk7Jq2mrOQ/kNNzO/TKYysM9cuWsolCFyU=;
-	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=b904sRNttGdcCfqG4lw+I/Jsw2IEoPHzYc+/IjhgdIyGIev3B/ELfUiESE+t5J3cxzmaNHWZC9/+CQBNrsK6gPsiITeQjKNSHUoNmtW01ym4fuK0ZZvbT/uSGBU09MgyqP5CyR5ZPgEWI10j2KRf3cYraCuQwF9fWrFS55sDPys=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=thegoodpenguin.co.uk; spf=pass smtp.mailfrom=thegoodpenguin.co.uk; dkim=pass (2048-bit key) header.d=thegoodpenguin-co-uk.20251104.gappssmtp.com header.i=@thegoodpenguin-co-uk.20251104.gappssmtp.com header.b=S+w4nob0; arc=none smtp.client-ip=209.85.221.41
+	s=arc-20240116; t=1781104299; c=relaxed/simple;
+	bh=9QcodduUYoiO9xmozU7b+/LP8U45PqdyifYUn4hP0Dg=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=Kg3IgukOBqIaqpUMM0F133cMJPAVNRKnunF8QXKlavDpuUKawP8Fgat2b666iBaWMT13GQsfoe1qLdYnmrbamtTq96tdzPP9gCq/Gih6uvHHwJDOZqDuAJn3rBA77UBLX9tGmxfI+DgnvW1jNCH3P2c925zbWOV5YSvr4+WlnXk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=thegoodpenguin.co.uk; spf=pass smtp.mailfrom=thegoodpenguin.co.uk; dkim=pass (2048-bit key) header.d=thegoodpenguin-co-uk.20251104.gappssmtp.com header.i=@thegoodpenguin-co-uk.20251104.gappssmtp.com header.b=bEKSR7bL; arc=none smtp.client-ip=209.85.128.51
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=thegoodpenguin.co.uk
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=thegoodpenguin.co.uk
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=thegoodpenguin-co-uk.20251104.gappssmtp.com header.i=@thegoodpenguin-co-uk.20251104.gappssmtp.com header.b="S+w4nob0"
-Received: by mail-wr1-f41.google.com with SMTP id ffacd0b85a97d-45efa80e0afso5401672f8f.2
-        for <linux-input@vger.kernel.org>; Wed, 10 Jun 2026 08:11:36 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=thegoodpenguin-co-uk.20251104.gappssmtp.com header.i=@thegoodpenguin-co-uk.20251104.gappssmtp.com header.b="bEKSR7bL"
+Received: by mail-wm1-f51.google.com with SMTP id 5b1f17b1804b1-490ace40f4bso79529775e9.3
+        for <linux-input@vger.kernel.org>; Wed, 10 Jun 2026 08:11:37 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=thegoodpenguin-co-uk.20251104.gappssmtp.com; s=20251104; t=1781104295; x=1781709095; darn=vger.kernel.org;
-        h=cc:to:content-transfer-encoding:mime-version:message-id:date
-         :subject:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=jTtLZdA3ULuQ/xL/J9ZltVjlPPR+kxqruLxVyRJE7cc=;
-        b=S+w4nob0nr6lzedAXzAME9q+KCKiWSynEh1uZKGDmNwj75pKHSLF//TlZg9RtkRo/N
-         qz/yBOYjsPuDJVUEWGVlvXaihNZjEbQtqLJ1mHWvvR2rqRlVj28X1SR2oeQ+Ykom2twO
-         ky1pSqiqxLl3tRK1ThRrx+LUaWfye4GpQ4Y+UPDU1qe+W3UqoBm92d3241A1B+3Cuzcn
-         dE+X0BiRPAJaZy8gRt9Rof2vaPwe45IdY358fOu2xuQTRYlr0gJeSvatym60IUjQGv3z
-         8SpqM99VIJxSn6oH3P0EOCdHXYrOglSpgqzKQDkm49PQyLTilqz+kRJbkfu783VYbkFz
-         ybUw==
+        d=thegoodpenguin-co-uk.20251104.gappssmtp.com; s=20251104; t=1781104296; x=1781709096; darn=vger.kernel.org;
+        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
+         :mime-version:subject:date:from:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=D7k6MZW9OnF2C3c09sOCruzHTTGqDl760I5gxL0a0c8=;
+        b=bEKSR7bL2Y3VpRxxIe7x2dvabNigxZoFhUo35esJUnK4o+NogWxzTd++NzQcy2FpWS
+         INMEFSKe2Ig7Z2I/HravVQKC4VVaig1lAsSbPGMohMkhhmDZnQXFbwNoKY48xdTUyaHx
+         S6l+clDvMf3FDVgkTc63xG38ETig442Gp3ajNcDuxdmTXmtk3yKiaPnPYnn6foy+TxpG
+         kUw06q3DPmqgzESs2u0Gd1SNqk6ws/oJBC2S4sLwP+R4jdgDVfqVRd6lMc0ZTHIKBFXb
+         bcD7H+g6IXhx1x4kZRI6qdm33WE7L0EBdEbZYTbPDLTjDOToMgWCBbOPLOlui5KUSivd
+         51zQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781104295; x=1781709095;
-        h=cc:to:content-transfer-encoding:mime-version:message-id:date
-         :subject:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=jTtLZdA3ULuQ/xL/J9ZltVjlPPR+kxqruLxVyRJE7cc=;
-        b=PhuSpU8RHQrlwCKi7tQ8aqNhdiZHr90QWPIi3d/0j7sk1GKYjv98gOCT13BQU8wvZ0
-         FigdkHj4v2O7wqzOaMFbEfKb7HfqWsFejOrzcExoVLsbnAS+7Z/MxFibgZ65RxSmIjoC
-         BR08O5pZfw0SBRhqdweVITxbSdRhjb6wEEIhw74jI5ImPjpNnXrAeGWoqXzHhWzxa4lH
-         iNYmdEphYbrFcXfMlVVLiWnkye/Q9EM+bOz8qYk/scGMYU3UUKLIxdkKTVk1tpF+IAfi
-         OfsPBiI1x/LCtgT2GoPE31zY87wUK06+BHfgubPGc0UpueLBKoHoETkgYDhjk0UtoTCZ
-         1HIw==
-X-Forwarded-Encrypted: i=1; AFNElJ+j/IClFNyPMyX/kB0kOu3HXAbAyyzHJmt2TCvkqd3+uPLQNHWt+0nD2zaMpY6Pf92bv3Qi3INyY4HR+Q==@vger.kernel.org
-X-Gm-Message-State: AOJu0YyeKFuS2MkNz1g2GW4brLtQZvb5GrhZjAeGanzkUy9dlBn/V/v5
-	vES8Wp3Oc/1lvNgLXhVZgGr8MYLyqa8VbbUYKsguQsnZnncqS2tno7ZGiAecYduT7PZ3vi4qa7d
-	5n1Ie
-X-Gm-Gg: Acq92OFmKQdhrleGLpM2v83cnLwI82VbTJrowClGYDyP1D4xZbuYPB0YCBlJDD/XzwF
-	BpuQj7UYENg9MtAfnCgGEjJg96WL43DGlTNup9kDMzlDPTEuPQjA3XJLEyNaWUaBIXkWTn8k1yd
-	TccZp89QLtp7CAU7o89C+cLNGnElFtIAiRTNd9so90LkoJJAIx36gBXWkts5NsUROSIIpdi/MTA
-	uEw5gYiIEwUxfp9mErzfmdcR37KwatiMgJ4zEUGW+BZG/EvMq58CNzQR/mZMqJh9R2TXIjeIuiH
-	gz/3V2I/BEFnvQGUqZ7huAUQPDVbPr8vYurIcVkTIkd0zeQ3J+oUBaytjYfKzeTdxJslL6BgB/o
-	SdCenJNsQQMIUa5javR4J+t/fgxfA10JzdiPlJkqhhqiABsLFPAVK+9/ZVH0p9W3dETujzNUzbB
-	7nrg9bgAmWhq0zQ2J2loIEzP6ZkF7ejv8pFUQWlPQU4TsG/upTyzc=
-X-Received: by 2002:a05:600c:8518:b0:490:a298:3859 with SMTP id 5b1f17b1804b1-490c4993bdbmr449545855e9.24.1781104295098;
-        Wed, 10 Jun 2026 08:11:35 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1781104296; x=1781709096;
+        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
+         :mime-version:subject:date:from:x-gm-gg:x-gm-message-state:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=D7k6MZW9OnF2C3c09sOCruzHTTGqDl760I5gxL0a0c8=;
+        b=icNulxMSqNsDIT8802gbOp3RrbHGh7G5eDQ5L22eKN4MdDo39wXAWqjfecrmJj0Djt
+         71TcfQEv3F2056BEuRUsKwsj/KGGpoSeVJ/hVJZ3cgwkcwIGcWfe76n3x5wX892UPmYq
+         kXQ2gDFqtB0RLGfVCcOcnyLZjldpiq+fGdtlyhMY/hM3KO63tYVO7uvCzMM9GyaUgfOz
+         ZWTf3fPd4SLwHO6d04xy1UbXgFXb6ls3mLitMctrTgNY5RnxOr+xEagHQz1hROtxbnGW
+         IOVnlH5cXWFoWYISwNxNd59jtaQuoulO6iy6GAY5tMTK+yyn2MlUnJbILtmW8ncrlwQF
+         5w2Q==
+X-Forwarded-Encrypted: i=1; AFNElJ/mfiXnja4APlxlqFfMdTxnukYW4Vrj/iXAb+wdV0PLLjZh3pjE/2mNdxLZPcUareq+b1ZRB61Y68unPQ==@vger.kernel.org
+X-Gm-Message-State: AOJu0YxOjr+XBm22qKaeQbOjfqVLQmUnh4IA9JMnOsa1hwLTZ7VF554V
+	hE1KuzcU1/TZ/afYgv/SanTNR8cbzpQOL+gxYcWq273/07NKPRdB1v5dwOrcjonfm+yUDKLyMiY
+	lQAgU
+X-Gm-Gg: Acq92OHMIjN+aoONjy0hCUY1chPpzXNJMW/BPRX0nl2u2bl/aVWzdcuiKZHu91rDoWF
+	W7Os/YXRStOBYo6VjpFBDlLiKb2j062Vcu+zOo8/Oca7Pmf8PwLEkt9qSFmltTSOGr5Merh3zTX
+	bqM3fOx6fsXqm6BVf3PILL07yPCVg74EYzw7MKNfikODGJGuyGpNQYc5ACF4zzxM3En7Cojz9hw
+	HD9VYJooFmTNhDvi8xqC5QIa+9cq1FPrjOsaT707JN+i8WtWkrVUgpwoFx1VrjtHkVxU5KYzM4f
+	t2MRhmiGeoiUM9hH5CkJBabinwE1QO99EZeLsKBontGQBeN/BmfIwloMRtxuWBAGtVJ/oLIivch
+	3bOZ/Sp1fgh05Uqt60RurE034Tp9JSz7zF9q7VsAvFRrGWhN2wk2NZh2bQTsBMDsYnZci0bzIoL
+	MhfWHLbFrbwU5PB5S24hIyqKh2yvrZLf2H+KBGqVTWGkie8Fy4YXupInb2HfBkEg==
+X-Received: by 2002:a05:600c:6206:b0:490:e18f:d0db with SMTP id 5b1f17b1804b1-490e18fd29cmr14229485e9.26.1781104296073;
+        Wed, 10 Jun 2026 08:11:36 -0700 (PDT)
 Received: from [10.42.0.1] ([2a00:23c7:1d1a:9c01:1a6e:6004:a565:d3cf])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-490bc3cbfe4sm585537575e9.7.2026.06.10.08.11.34
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-490bc3cbfe4sm585537575e9.7.2026.06.10.08.11.35
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 10 Jun 2026 08:11:34 -0700 (PDT)
+        Wed, 10 Jun 2026 08:11:35 -0700 (PDT)
 From: "Pawel Zalewski (The Capable Hub)" <pzalewski@thegoodpenguin.co.uk>
-Subject: [PATCH v2 00/12] HID: storing pointers in
- 'hid_device_id::driver_data'
-Date: Wed, 10 Jun 2026 16:11:23 +0100
-Message-Id: <20260610-mod-devicetable-hid_device_id-v2-0-a1d7473ccd9c@thegoodpenguin.co.uk>
+Date: Wed, 10 Jun 2026 16:11:24 +0100
+Subject: [PATCH v2 01/12] HID: hid-input: use named initializer for
+ 'hid_battery_quirks[]'
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -70,176 +71,113 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-B4-Tracking: v=1; b=H4sIAJt+KWoC/4WOWw6DIBQFt9LwXQxCW7Bf3UdjjMJVbx9gAE0b4
- 96LuoB+TjKZc2YSwCMEcj3MxMOEAZ1NwI8HovvadkDRJCac8Qs7cUnfzlCTRA2xbl5AezTVzhU
- aKlvBjJJSKKlJagweWvxs/Xu5cxibB+i4RlejxxCd/24Hpnz19q1zrv5sTTlltGYKRKEKzZW4x
- R4658wAthvRZtpl45OUy7L8ABaoTT3nAAAA
-X-Change-ID: 20260427-mod-devicetable-hid_device_id-7f30d877387c
+Message-Id: <20260610-mod-devicetable-hid_device_id-v2-1-a1d7473ccd9c@thegoodpenguin.co.uk>
+References: <20260610-mod-devicetable-hid_device_id-v2-0-a1d7473ccd9c@thegoodpenguin.co.uk>
+In-Reply-To: <20260610-mod-devicetable-hid_device_id-v2-0-a1d7473ccd9c@thegoodpenguin.co.uk>
 To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>, 
  Ping Cheng <ping.cheng@wacom.com>, Jason Gerecke <jason.gerecke@wacom.com>
 Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, 
  "Pawel Zalewski (The Capable Hub)" <pzalewski@thegoodpenguin.co.uk>
 X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1781104294; l=7279;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1781104294; l=4353;
  i=pzalewski@thegoodpenguin.co.uk; s=20260430; h=from:subject:message-id;
- bh=EgCZkceTCqk7Jq2mrOQ/kNNzO/TKYysM9cuWsolCFyU=;
- b=io43eI3K3FL3Ws598y0p7hUlF1U3Y9kS9mjahw3R06RWxTpozQ9OQGy7EKEJRUk9AbJqsVt2P
- Hke0cuIDkL6DbOK+JKiGlY4W5VHi9Eb8uqBvWBZNk+aHs4nLNcUi+V5
+ bh=9QcodduUYoiO9xmozU7b+/LP8U45PqdyifYUn4hP0Dg=;
+ b=Yewyh7wQHyB8Tf2ROPtqDvdd812VG7gVNzykQmnq/Spmpa66s+fJ5I0tUZT7Ll89qQYeKXbgv
+ 0Mnb+y+F3z9BY1Zp/1iEgWP5HCjpNLmQs/+rNtSqcpypyzq8YmH626D
 X-Developer-Key: i=pzalewski@thegoodpenguin.co.uk; a=ed25519;
  pk=vHq4n9IonORH2GTzLv8r6CWAFHzgfBuNkQPXA8NSly0=
 
-The <linux/mod_devicetable.h> has multiple structs that follow
-the pattern of having either 'driver_data' or 'driver_info'
-fields which are of the 'kernel_ulong_t' type. Then how to 
-interpret that field is user defined, some users will treat
-the value as an actual integer, others as a valid pointer to
-dereference. 
+This makes the code a little bit more readable and consistent
+with other drivers in the HID subsystem that assign the
+'driver_data' field in the 'hid_device_id' struct explicitly.
 
-One of instances of the above is the 'hid_device_id::driver_data'
-field, for the most part it is used for setting HID quirks and
-treated as an integer value for storing metadata in the subsystem
-drivers. But in a few instances it is used as a valid pointer to
-dereference, namely in:
-- hid-tmff
-- wacom
+While touching the 'hid_battery_quirks[]', align the list
+terminator entry to use a space between the curly braces for
+better matching the layout of the other entries.
+
+It was confirmed that hid-input.o pre/post the patch are equal
+using diffscope.
+
+Signed-off-by: Pawel Zalewski (The Capable Hub) <pzalewski@thegoodpenguin.co.uk>
+---
+ drivers/hid/hid-input.c | 38 ++++++++++++++++++++------------------
+ 1 file changed, 20 insertions(+), 18 deletions(-)
+
+diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+index d73cfa2e73d3..50ee03508806 100644
+--- a/drivers/hid/hid-input.c
++++ b/drivers/hid/hid-input.c
+@@ -359,49 +359,51 @@ static enum power_supply_property hidinput_battery_props[] = {
+ static const struct hid_device_id hid_battery_quirks[] = {
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE,
+ 		USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_ISO),
+-	  HID_BATTERY_QUIRK_PERCENT | HID_BATTERY_QUIRK_FEATURE },
++	  .driver_data = HID_BATTERY_QUIRK_PERCENT | HID_BATTERY_QUIRK_FEATURE },
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE,
+ 		USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_ANSI),
+-	  HID_BATTERY_QUIRK_PERCENT | HID_BATTERY_QUIRK_FEATURE },
++	  .driver_data = HID_BATTERY_QUIRK_PERCENT | HID_BATTERY_QUIRK_FEATURE },
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE,
+ 		USB_DEVICE_ID_APPLE_ALU_WIRELESS_2011_ANSI),
+-	  HID_BATTERY_QUIRK_PERCENT | HID_BATTERY_QUIRK_FEATURE },
++	  .driver_data = HID_BATTERY_QUIRK_PERCENT | HID_BATTERY_QUIRK_FEATURE },
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE,
+-			       USB_DEVICE_ID_APPLE_ALU_WIRELESS_2011_ISO),
+-	  HID_BATTERY_QUIRK_PERCENT | HID_BATTERY_QUIRK_FEATURE },
++		USB_DEVICE_ID_APPLE_ALU_WIRELESS_2011_ISO),
++	  .driver_data = HID_BATTERY_QUIRK_PERCENT | HID_BATTERY_QUIRK_FEATURE },
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE,
+ 		USB_DEVICE_ID_APPLE_ALU_WIRELESS_ANSI),
+-	  HID_BATTERY_QUIRK_PERCENT | HID_BATTERY_QUIRK_FEATURE },
++	  .driver_data = HID_BATTERY_QUIRK_PERCENT | HID_BATTERY_QUIRK_FEATURE },
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE,
+ 		USB_DEVICE_ID_APPLE_MAGICTRACKPAD),
+-	  HID_BATTERY_QUIRK_IGNORE },
++	  .driver_data = HID_BATTERY_QUIRK_IGNORE },
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_ELECOM,
+ 		USB_DEVICE_ID_ELECOM_BM084),
+-	  HID_BATTERY_QUIRK_IGNORE },
++	  .driver_data = HID_BATTERY_QUIRK_IGNORE },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SYMBOL,
+ 		USB_DEVICE_ID_SYMBOL_SCANNER_3),
+-	  HID_BATTERY_QUIRK_IGNORE },
++	  .driver_data = HID_BATTERY_QUIRK_IGNORE },
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_ASUSTEK,
+ 		USB_DEVICE_ID_ASUSTEK_T100CHI_KEYBOARD),
+-	  HID_BATTERY_QUIRK_IGNORE },
++	  .driver_data = HID_BATTERY_QUIRK_IGNORE },
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH,
+ 		USB_DEVICE_ID_LOGITECH_DINOVO_EDGE_KBD),
+-	  HID_BATTERY_QUIRK_IGNORE },
++	  .driver_data = HID_BATTERY_QUIRK_IGNORE },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_UGEE, USB_DEVICE_ID_UGEE_XPPEN_TABLET_DECO_L),
+-	  HID_BATTERY_QUIRK_AVOID_QUERY },
++	  .driver_data = HID_BATTERY_QUIRK_AVOID_QUERY },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_UGEE, USB_DEVICE_ID_UGEE_XPPEN_TABLET_DECO_PRO_MW),
+-	  HID_BATTERY_QUIRK_AVOID_QUERY },
++	  .driver_data = HID_BATTERY_QUIRK_AVOID_QUERY },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_UGEE, USB_DEVICE_ID_UGEE_XPPEN_TABLET_DECO_PRO_SW),
+-	  HID_BATTERY_QUIRK_AVOID_QUERY },
++	  .driver_data = HID_BATTERY_QUIRK_AVOID_QUERY },
+ 	{ HID_I2C_DEVICE(USB_VENDOR_ID_ELAN, I2C_DEVICE_ID_CHROMEBOOK_TROGDOR_POMPOM),
+-	  HID_BATTERY_QUIRK_AVOID_QUERY },
++	  .driver_data = HID_BATTERY_QUIRK_AVOID_QUERY },
+ 	/*
+ 	 * Elan HID touchscreens seem to all report a non present battery,
+ 	 * set HID_BATTERY_QUIRK_IGNORE for all Elan I2C and USB HID devices.
+ 	 */
+-	{ HID_I2C_DEVICE(USB_VENDOR_ID_ELAN, HID_ANY_ID), HID_BATTERY_QUIRK_DYNAMIC },
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_ELAN, HID_ANY_ID), HID_BATTERY_QUIRK_DYNAMIC },
+-	{}
++	{ HID_I2C_DEVICE(USB_VENDOR_ID_ELAN, HID_ANY_ID),
++	  .driver_data = HID_BATTERY_QUIRK_DYNAMIC },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_ELAN, HID_ANY_ID),
++	  .driver_data = HID_BATTERY_QUIRK_DYNAMIC },
++	{ }
+ };
  
-Additionally this field can be set from the userspace via the
-'hid_core::new_id_store' function - which is not memory safe and
-could lead to OOB memory access in the above two cases. 
+ static unsigned find_battery_quirk(struct hid_device *hdev)
 
-This series is addressing the issue by making the usage of the field
-consistent, all drives treat the value as an integer and if the
-driver has a need for dereferencing a pointer - it stores and 
-index to a table of pointers. The index is bounded by a named enum
-and checked at runtime at the module level to avoid developer bugs.
-
-Furthermore a user-input sanitizer was added in the 'hid_core' module
-that restricts injecting arbitrary values for 'hid_device_id::driver_data'
-that are not defined and matched within the driver already.
-
-It was found that some modules that use the field do not use a named
-initializers for the field - which is inconsistent with rest of the
-modules within the HID subsystem. This is also addressed in the series
-as part of the pre-clean up to increase clarity in patches 1-4. 
-
-It was found that some modules use a bit of a type-unsafe way of storing
-integers in the 'void *driver_data' pointer of the 'struct hid_device'
-- this required a cast during storage via 'hid_set_drvdata' and a cast
-during retrieval when using 'hid_get_drvdata'. I can see why this was 
-done - as we potentially save on an allocation - but really code is
-more readable and better quality without resorting to this. This issue
-is also addressed in this patch series in patches 5-8 as part of the
-pre-clean up.
-
-The actual implementation of the table of pointers approach 
-can be found in patches 9-11. In case of wacom driver the sad thing
-about it is that it requires a bit of macro magic for sanity. 
-
-However, in doing so it was discovered that in the wacom driver
-there is a 1:1 mapping between the 'driver_data' field and the 
-product id - therefore patch 12 shows that the lookup can be
-simplified as there is no need for using 'driver_data' at all
-(it also does not require macro magic) - but it was left in a 
-separate patch to show the working - happy to squash in v3 if
-this would be accepted.
-
-The change also makes the code more portable on architecture 
-like CHERI [1], where a pointer is replaced with a new primitive
-(called the capability) at the architecture level and is twice as
-wide as the greatest representable address, ie. for 64 bit address
-space capabilities are 128 bits wide (the other 64 bits are used to
-store meta-data relating to the 64 bit address). So you can not store 
-valid pointers inside 'unsigned long' as effectively a different set of
-instructions is being generated by the compiler based on the data-type
-that was used in C (ie. capabilities have their own set of load/store
-that also copy over the meta-data which are orthogonal to the load/store
-instructions used for plain integers that would invalidate the meta-data).
-There is slightly more detail to this, but the above is enough to
-explain the motivation - the proposed changes make the code a bit
-better even without considering CHERI at all - as it is more readable 
-and type-safe.
-
-The series was built and tested under QEMU (boots with relevant 
-configs set to Y) on arm64. Additionally the operation of the input 
-sanitizer was tested via the following:
-
-```
-
-modprobe wacom
-echo "0x0003 0x056a 0x0001 0x00000" > /sys/bus/hid/drivers/wacom/new_id
-
-echo "0x0003 0x056a 0x0000 0x000A1" > /sys/bus/hid/drivers/wacom/new_id
-
-echo "0x0003 0x056a 0x0000 0x000A2" > /sys/bus/hid/drivers/wacom/new_id
--sh: echo: write error: Invalid argument
-
-modprobe wacom
-echo "0x0003 0x056a 0x0001 0x00000" > /sys/bus/hid/drivers/wacom/new_id
-
-echo "0x0003 0x056a 0x0001 0x00001" > /sys/bus/hid/drivers/wacom/new_id
--sh: echo: write error: Invalid argument
-echo "0x0003 0x056a 0x0001 0x00010" > /sys/bus/hid/drivers/wacom/new_id
--sh: echo: write error: Invalid argument
-```
-
-The 'hid-tmff' and other randomly picked modules were also tested as 
-above. Furthermore the './hid-wacom.sh' test was run from the user space
-and all tests (except the expected to-do's) passed as required.
-
-This series is part of a larger effort led by Uwe [2]
-
-[1] https://cheri-alliance.org/discover-cheri/
-[2] https://lore.kernel.org/all/cover.1776429984.git.u.kleine-koenig@baylibre.com/ 
-
----
-Changes in v2:
-- Patches 1-4: No change
-- Patches 5-8: Additional signed-off-by as patches were applied.
-- Patches 9-12: Rewritten and new.
-- Link to v1: https://patch.msgid.link/20260518-mod-devicetable-hid_device_id-v1-0-a08e3989c283@thegoodpenguin.co.uk
-
-To: Jiri Kosina <jikos@kernel.org>
-To: Benjamin Tissoires <bentiss@kernel.org>
-To: Ping Cheng <ping.cheng@wacom.com>
-To: Jason Gerecke <jason.gerecke@wacom.com>
-Cc: linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-
----
-Pawel Zalewski (The Capable Hub) (12):
-      HID: hid-input: use named initializer for 'hid_battery_quirks[]'
-      HID: hid-quirks: use named initializer in 'hid_quirks[]'
-      HID: hid-asus: use named initializer for 'asus_devices[]'
-      HID: i2c-hid-dmi-quirks: use named initializer for 'i2c_hid_elan_flipped_quirks[]'
-      HID: hid-belkin: clean up usage of 'driver_data'
-      HID: hid-cypress: clean up usage of 'driver_data'
-      HID: hid-gfrm: clean up usage of 'driver_data'
-      HID: hid-ite: clean up usage of 'driver_data'
-      HID: hid-tmff: clean up usage of 'driver_data'
-      HID: wacom: cleanup usage of 'driver_data'
-      HID: hid-core: sanitize user input in 'new_id_store'
-      HID: wacom: do not use 'driver_data'
-
- drivers/hid/hid-asus.c                   |  46 ++-
- drivers/hid/hid-belkin.c                 |   5 +-
- drivers/hid/hid-core.c                   |  18 +
- drivers/hid/hid-cypress.c                |  32 +-
- drivers/hid/hid-gfrm.c                   |   8 +-
- drivers/hid/hid-input.c                  |  38 +-
- drivers/hid/hid-ite.c                    |   9 +-
- drivers/hid/hid-quirks.c                 | 578 ++++++++++++++++++++-----------
- drivers/hid/hid-tmff.c                   |  48 ++-
- drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c |   2 +-
- drivers/hid/wacom.h                      |   1 +
- drivers/hid/wacom_sys.c                  |  25 +-
- drivers/hid/wacom_wac.c                  | 194 ++++++++++-
- drivers/hid/wacom_wac.h                  |   5 +
- 14 files changed, 731 insertions(+), 278 deletions(-)
----
-base-commit: c1f7d1aa16a4f3b5d9476bf3716ca6bb8271c910
-change-id: 20260427-mod-devicetable-hid_device_id-7f30d877387c
-
-Best regards,
---  
-Pawel Zalewski (The Capable Hub) <pzalewski@thegoodpenguin.co.uk>
+-- 
+2.43.0
 

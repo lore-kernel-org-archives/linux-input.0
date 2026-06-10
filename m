@@ -1,67 +1,67 @@
-Received: from mail-wr1-f51.google.com (mail-wr1-f51.google.com [209.85.221.51])
+Received: from mail-wm1-f46.google.com (mail-wm1-f46.google.com [209.85.128.46])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E827C426ED6
-	for <linux-input@vger.kernel.org>; Wed, 10 Jun 2026 15:11:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 969204279E0
+	for <linux-input@vger.kernel.org>; Wed, 10 Jun 2026 15:11:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.46
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781104305; cv=none; b=HKmFUktaDARo1iEwN7T79AK0NS009zdsE0sUZfATf4Bgl7rSMk/bCSa6j1qubSCtcekURZr2+crAOxvXuhzsVvGPclLMPZNYzbbn1NL2DSIfoHe5Gp4ecReYsUMK2VKsRbzrFnbJJ2pifraIsmoN0rfNSr68FXckPDtRXXReGCE=
+	t=1781104305; cv=none; b=DGkgmLR3I8c6wJ5H1baueOdW7xTz2VxyslJc5Q4Nck8dfZwUQ/u/iqJvkIj6hkksiKoorkHMf5k98UjD1MB4dhJwKdy/xCJi/NmUIrMcsV4sa048ZsptlAmY/78Ql2Yi7rfT4bMNfaqOzhfQmKHDxuZbEyYZEf0axyKefUTimFk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1781104305; c=relaxed/simple;
-	bh=7pKNkZYBYOJ3nE8OBwZu20iefoJ6u0TO+Moyzq1GPvg=;
+	bh=8XsOlVp8wHuO7jtRLQE+tepquF1wCjNILjBPoxcZi/o=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=uNllHvFQaS6y8bfmaWcMlz6ghiveIrgWpf5un2BvfGAABr39cGc0/9XwGN3hNsITEOxtdepngJVwVfUp+BTbYA4b2UhUygpYSJZtmH6r6exubil99Nctn7Rxuf+uHadKE40LhKwZlUaehMJq2KyDpCEzs8VYhyEJn3I+5s52P+o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=thegoodpenguin.co.uk; spf=pass smtp.mailfrom=thegoodpenguin.co.uk; dkim=pass (2048-bit key) header.d=thegoodpenguin-co-uk.20251104.gappssmtp.com header.i=@thegoodpenguin-co-uk.20251104.gappssmtp.com header.b=EIJa2nuj; arc=none smtp.client-ip=209.85.221.51
+	 In-Reply-To:To:Cc; b=qisuvY2yItOnnW/ZxxGKornN3cKLvFzPhRDr6J8cOm6gVNT6twaoARd2igYfyxajT/aVgJo0U2UZ6+tdPamCRqdjVamBdtFwJ1w1jt7jA08zi1rDBcj5E77/AjB9RJXf2TGVuT5msU/sRl/Z2wD2WjCtttYDHF10MH1nnJ9iBWo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=thegoodpenguin.co.uk; spf=pass smtp.mailfrom=thegoodpenguin.co.uk; dkim=pass (2048-bit key) header.d=thegoodpenguin-co-uk.20251104.gappssmtp.com header.i=@thegoodpenguin-co-uk.20251104.gappssmtp.com header.b=pbOyVGNg; arc=none smtp.client-ip=209.85.128.46
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=thegoodpenguin.co.uk
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=thegoodpenguin.co.uk
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=thegoodpenguin-co-uk.20251104.gappssmtp.com header.i=@thegoodpenguin-co-uk.20251104.gappssmtp.com header.b="EIJa2nuj"
-Received: by mail-wr1-f51.google.com with SMTP id ffacd0b85a97d-460166910e6so3629941f8f.2
-        for <linux-input@vger.kernel.org>; Wed, 10 Jun 2026 08:11:42 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=thegoodpenguin-co-uk.20251104.gappssmtp.com header.i=@thegoodpenguin-co-uk.20251104.gappssmtp.com header.b="pbOyVGNg"
+Received: by mail-wm1-f46.google.com with SMTP id 5b1f17b1804b1-490b613a17bso67851945e9.3
+        for <linux-input@vger.kernel.org>; Wed, 10 Jun 2026 08:11:43 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=thegoodpenguin-co-uk.20251104.gappssmtp.com; s=20251104; t=1781104301; x=1781709101; darn=vger.kernel.org;
+        d=thegoodpenguin-co-uk.20251104.gappssmtp.com; s=20251104; t=1781104302; x=1781709102; darn=vger.kernel.org;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=UTZb/sym8oiZGcOh2/RrQUOwA5RHoQUSyGVmsi6Ixy0=;
-        b=EIJa2nujNhGdgRvXm7ONBk2ZsyYwRC1rvaW3EhZj0DUFQYBgCYZuiJubpOwMPkqfcJ
-         pU7aj/Wk2EQUSxbjCOPqiC8Q+tEULLpl4qDgKFUnYsDs+I4S+nFmwDE4DvNG//oQdiE7
-         pkZRa+Dxa73VebhN92xbFGK+5Xc8CAtlA3puHPciUMfK0+TQ2gVJqOMFbS5Wvusa+cuc
-         DifnqGZLFC9/eTMWXA6J+dixu9UhaVuHfEv/jmUBMwKlO0hmp4Kbs8RXlI/gcccFs6ly
-         8YIKXTRnURSFqS+LJ6O5vFYsomTYKm3Kd5+RGNlxu85qqIRAtwrUvsYXpf2tbVN705F3
-         TB+g==
+        bh=EVXa/HdIHh0jRCDciDMzyH8xdqpLkEo32AXxeIMQYxs=;
+        b=pbOyVGNggfqbIOQLIudmQSNJXGpdCmnXiU72Ti0KiFwypicVfJ3Gu3hHmvDVHOm6Ho
+         WsGp03AN18C3Dx++x+8w4XcCHtuK2YP3xCU1bbAJ6OenW/ZFokVxaJKnEUgM7Tr7oAfF
+         N/QIv0nKWsm+EPxEBQWAP3FtKeIAO0PL7y5J/9f+aM4p033enwHR3USVXqO8MxQs/NWM
+         OGjS6+1UF1Gnw9FfPcNWzEwTZfpi+FIN50LRcer3Fu8JTShwFRyZHRd3o0r1e+RTyvpA
+         7ntmzvyIrRmtmt5pfbqjTbNKjR4FFos338S9yeYpuMPtMbaGVB5tSQTKK2uGeZZWQ7Pk
+         VINg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781104301; x=1781709101;
+        d=1e100.net; s=20251104; t=1781104302; x=1781709102;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:x-gm-gg:x-gm-message-state:from:to
          :cc:subject:date:message-id:reply-to;
-        bh=UTZb/sym8oiZGcOh2/RrQUOwA5RHoQUSyGVmsi6Ixy0=;
-        b=RyLNRbmWBHMyCaHKeLMO56DReYEe78q1JwBsEYRiJY4cj5Y1ZmL8JO9Cctd5fbY3hk
-         dJampryPWSy4M2MvdI6rG2pY6HfpHtyZddSw17dfSpbVr5xeJHx/pOqOD+Va5d9ivERk
-         8aLBJ7C5KbBJBAYbzglq4Jt+KyjS8SfDuVoxsWq6FobX6alLY72iKubwJvrg8FycXAke
-         KYCJ3D+Z38pQOBoLqbcEtixv007SP8Evx/pNRm6i9zE+almBLuf8TTLYWUGnl5+w8mM1
-         Je3WH6xNevQneknjMr0sOl5F/fdJOerrJPPbPVDOOvE3UCdNmPbX53QqNij/Zj+29kMI
-         OI1g==
-X-Forwarded-Encrypted: i=1; AFNElJ/y0RsA49043fcS9s/0bK2uMVGyk1MVsBftaP7ye3R15qgNiv8IddmCd01wE62s5RVpuVzVqhH/QLdjSQ==@vger.kernel.org
-X-Gm-Message-State: AOJu0YwJ+IrMIA/5Ff3pAonxamlYvtFZQ8M+bCORINwFlMt/v2MSwzM5
-	HV9vluP2IfohMtP/X1p5XGz/UleQQa8Ni+2j6QbqheyCVWaSjLepwg/2dhdTBt2aEwWHHR36zLD
-	tkFvf
-X-Gm-Gg: Acq92OEsa2m4gH5Krt4BeEMdlWFRhPrRemGIRKdU8/GlqEgHwR6ggOJFmP+/j/GTMFd
-	hXKR/huaPW4vzA8x++rMz1QCsxnNo1dd89d8doLJoPSt8VkB+K3GxPWdDMH5DKGwScv3wLUMFQ+
-	5AM43m46fXiotjQx8b6tPghAgznQ4CirBTSAVPXuOcrESi1vKVYGAaY3mRfCSoxx49RNrpcZCjV
-	h8N+21hQXJ8BjrHT1dRSHmGPVtdoG3P/undYHhkg8pcIUSUrq+fWVSrdvY5FnnWLNiHFIbL9wct
-	zCZ9hVPMJt5UbtdenHZCHI5iup6ik9W61idbA4Dg8VqHpRUb+6n2Rbg7H0X0AS3tGsZCfsUBhND
-	qJcMc1RLj7I+NzTUvQ9Wk11tabg0dmKQMGkAoii354udxcCVtV6cgOFP6sV7q61aXPJj6mjqa1X
-	7N7Q4Q+19HQUsxUFkLyv67yRHwEBhgW5+ikZXHmLDcKF7A/fb7UNU=
-X-Received: by 2002:a05:600c:818c:b0:490:6237:521d with SMTP id 5b1f17b1804b1-490c25b3ca5mr438744025e9.13.1781104301236;
+        bh=EVXa/HdIHh0jRCDciDMzyH8xdqpLkEo32AXxeIMQYxs=;
+        b=lJ/1Hy4+NsdkVns23aczN1HHjbbGUEZ74ja4MGG9uWtY8h9Vv6v51/Zk5NaLd8B8Rf
+         JmtK7jZhLdnT2arOti2LQGZ56oXVhklAAxj30XFFaTW5VYP6zzHYDbEx62QBsH+z/9I6
+         NvUimkNxY6MzALRgq7wAYzCFWwGDqgrGLrcFjoVeZDaq5e2JtCIBvb31C6zUrbvGt0fC
+         +H028hWEPitq+nme6D1w6fPe5LwJeVaG3tTVQzQf+77he9FTVWcUphJVnNIXmgHWgkJy
+         bNgmMluuJ9E34S7qWO9QMPS/5BqGJqaDubyQHdkr2sI86VjzNUtazcMPcgp9d+WAf4zU
+         eRbw==
+X-Forwarded-Encrypted: i=1; AFNElJ/Y18BDwI3A1DrX8l/EqEdbSxEQU925j339RNnBDmJwDJ57yoMvMGmUOObttxGhSndcttX59jxba9nuPw==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yy/vraFKy1095E2qisQQGy5UGhTZqw7Aizftyr/8pqyDvhH3xZ2
+	wVrgkS9e+fZC7Oy2uQQOu7vM+0cGJVaDi2M6xok4IYxg0E91VTAtMSs8aeXptz+xa4yR6uAH/OE
+	qdu88
+X-Gm-Gg: Acq92OEiClnDvoPetBIt40jNRG3rcazqrAkChcaLF3/vUEU6UNDq1p8Ik60F4833azw
+	9/DDcCIevvpJSi7mB2r9hkGAobwEAtLICeB8ylSKFNLu18SRp5sEabZ0lRbAjSqXCwj5tfZTx18
+	qBnHIrh9vrj96hEtLu1+tac44cEybynz2v/jEY1uZKjczv2QJfbfb/Pux1XEEGFFPT47lN1hnQ0
+	0WgUgmwwnPEqhQdnrUvSAbVBwub4gKRN/l4FZZk+QUH1qAWr3EnHNKrJYVVKJqpsopiFKSsQJfl
+	H4Kyg1i7XCCpziTfJUSjqToKpTcV5CTT3+qXeLDVGcoCbqBv0TSGMehbpSkC7jvKXxxT4OgZDJV
+	CvAQsy2gNMaoKt3oExt7hXSEtV3oiHOOHljP1SIzYru+xhrhTYCsE5+ya+T4EBqpRs0bQx3x1Rq
+	ighZ4X8ylj90U/yzJipnOiyAynax0xkqfithak6hP/psQJXIrEb1s=
+X-Received: by 2002:a05:600c:1d0a:b0:490:9d1b:f088 with SMTP id 5b1f17b1804b1-490d71ecc2dmr107621265e9.2.1781104301973;
         Wed, 10 Jun 2026 08:11:41 -0700 (PDT)
 Received: from [10.42.0.1] ([2a00:23c7:1d1a:9c01:1a6e:6004:a565:d3cf])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-490bc3cbfe4sm585537575e9.7.2026.06.10.08.11.40
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-490bc3cbfe4sm585537575e9.7.2026.06.10.08.11.41
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 10 Jun 2026 08:11:40 -0700 (PDT)
+        Wed, 10 Jun 2026 08:11:41 -0700 (PDT)
 From: "Pawel Zalewski (The Capable Hub)" <pzalewski@thegoodpenguin.co.uk>
-Date: Wed, 10 Jun 2026 16:11:29 +0100
-Subject: [PATCH v2 06/12] HID: hid-cypress: clean up usage of 'driver_data'
+Date: Wed, 10 Jun 2026 16:11:30 +0100
+Subject: [PATCH v2 07/12] HID: hid-gfrm: clean up usage of 'driver_data'
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -70,7 +70,7 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260610-mod-devicetable-hid_device_id-v2-6-a1d7473ccd9c@thegoodpenguin.co.uk>
+Message-Id: <20260610-mod-devicetable-hid_device_id-v2-7-a1d7473ccd9c@thegoodpenguin.co.uk>
 References: <20260610-mod-devicetable-hid_device_id-v2-0-a1d7473ccd9c@thegoodpenguin.co.uk>
 In-Reply-To: <20260610-mod-devicetable-hid_device_id-v2-0-a1d7473ccd9c@thegoodpenguin.co.uk>
 To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>, 
@@ -78,116 +78,63 @@ To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>,
 Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, 
  "Pawel Zalewski (The Capable Hub)" <pzalewski@thegoodpenguin.co.uk>
 X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1781104294; l=3832;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1781104294; l=2003;
  i=pzalewski@thegoodpenguin.co.uk; s=20260430; h=from:subject:message-id;
- bh=7pKNkZYBYOJ3nE8OBwZu20iefoJ6u0TO+Moyzq1GPvg=;
- b=NrvuC5mID7ENybkWptCQEHtLBiRYG2rObFWdgGgtXLTqwceV0KxfuvHq5WPgmKgw957sEaesY
- TXsNO0usDPHCxx1pbFo5T0CPs/UQX5irwk2wDRySeQLsRZaQThKv6Sd
+ bh=8XsOlVp8wHuO7jtRLQE+tepquF1wCjNILjBPoxcZi/o=;
+ b=k9Y7F2bSJTOWA7+NfLGNAXL7i7z0babZLetMwZSVmtVCCWNn0q2HHUTw2hC4VEUhA/bdRIzJv
+ O3cZkuBNAL3An5u/OLGAYMkrRcM/bibOO9dEh/ickNCUqiOOsI9qnJO
 X-Developer-Key: i=pzalewski@thegoodpenguin.co.uk; a=ed25519;
  pk=vHq4n9IonORH2GTzLv8r6CWAFHzgfBuNkQPXA8NSly0=
 
 The module is storing an integer inside the drvdata pointer, which is
-confusing - furthermore this integer is mutable. When its value is
-changed it is set again using the 'hid_set_drvdata' API within
-the 'cp_event' function.
+confusing, lets fix this and set the whole of 'hid_device_id' struct
+as the drvdata and then simply use its integer 'driver_data' field for
+quirks, which shall make the code cleaner, type-safe, consistent and
+more readable.
 
-Let's fix this, create and allocate the 'cp_device' struct that is then
-set as the drvdata and then simply use its integer 'quirks' field for
-storing the quirks, which shall make the code cleaner, type-safe,
-consistent and more readable.
-
-This makes the cast to (void *) during storage unnecessary and the cast
-to (unsigned long) during retrieval is also removed.
+This makes the cast to (void *) during storage a bit safer (just to
+suppress the const qualifier warning) and the cast to (unsigned long)
+during retrieval is removed.
 
 Signed-off-by: Pawel Zalewski (The Capable Hub) <pzalewski@thegoodpenguin.co.uk>
 Signed-off-by: Benjamin Tissoires <bentiss@kernel.org>
 ---
- drivers/hid/hid-cypress.c | 32 ++++++++++++++++++++++----------
- 1 file changed, 22 insertions(+), 10 deletions(-)
+ drivers/hid/hid-gfrm.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/hid/hid-cypress.c b/drivers/hid/hid-cypress.c
-index 98548201feec..f18fddc176d0 100644
---- a/drivers/hid/hid-cypress.c
-+++ b/drivers/hid/hid-cypress.c
-@@ -25,6 +25,10 @@
- 
- #define VA_INVAL_LOGICAL_BOUNDARY	0x08
- 
-+struct cp_device {
-+	unsigned long quirks;
-+};
-+
- /*
-  * Some USB barcode readers from cypress have usage min and usage max in
-  * the wrong order
-@@ -70,7 +74,8 @@ static __u8 *va_logical_boundary_fixup(struct hid_device *hdev, __u8 *rdesc,
- static const __u8 *cp_report_fixup(struct hid_device *hdev, __u8 *rdesc,
- 		unsigned int *rsize)
- {
--	unsigned long quirks = (unsigned long)hid_get_drvdata(hdev);
-+	const struct cp_device *cp_device = hid_get_drvdata(hdev);
-+	unsigned long quirks = cp_device->quirks;
- 
- 	if (quirks & CP_RDESC_SWAPPED_MIN_MAX)
- 		rdesc = cp_rdesc_fixup(hdev, rdesc, rsize);
-@@ -84,7 +89,8 @@ static int cp_input_mapped(struct hid_device *hdev, struct hid_input *hi,
+diff --git a/drivers/hid/hid-gfrm.c b/drivers/hid/hid-gfrm.c
+index d2a56bf92b41..f7cc754de84e 100644
+--- a/drivers/hid/hid-gfrm.c
++++ b/drivers/hid/hid-gfrm.c
+@@ -28,7 +28,8 @@ static int gfrm_input_mapping(struct hid_device *hdev, struct hid_input *hi,
  		struct hid_field *field, struct hid_usage *usage,
  		unsigned long **bit, int *max)
  {
--	unsigned long quirks = (unsigned long)hid_get_drvdata(hdev);
-+	const struct cp_device *cp_device = hid_get_drvdata(hdev);
-+	unsigned long quirks = cp_device->quirks;
+-	unsigned long hdev_type = (unsigned long) hid_get_drvdata(hdev);
++	const struct hid_device_id *id = hid_get_drvdata(hdev);
++	unsigned long hdev_type = id->driver_data;
  
- 	if (!(quirks & CP_2WHEEL_MOUSE_HACK))
- 		return 0;
-@@ -100,22 +106,21 @@ static int cp_input_mapped(struct hid_device *hdev, struct hid_input *hi,
- static int cp_event(struct hid_device *hdev, struct hid_field *field,
- 		struct hid_usage *usage, __s32 value)
+ 	if (hdev_type == GFRM100) {
+ 		if (usage->hid == (HID_UP_CONSUMER | 0x4)) {
+@@ -50,7 +51,8 @@ static int gfrm_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+ static int gfrm_raw_event(struct hid_device *hdev, struct hid_report *report,
+ 		u8 *data, int size)
  {
--	unsigned long quirks = (unsigned long)hid_get_drvdata(hdev);
-+	struct cp_device *cp_device = hid_get_drvdata(hdev);
+-	unsigned long hdev_type = (unsigned long) hid_get_drvdata(hdev);
++	const struct hid_device_id *id = hid_get_drvdata(hdev);
++	unsigned long hdev_type = id->driver_data;
+ 	int ret = 0;
  
- 	if (!(hdev->claimed & HID_CLAIMED_INPUT) || !field->hidinput ||
--			!usage->type || !(quirks & CP_2WHEEL_MOUSE_HACK))
-+			!usage->type || !(cp_device->quirks & CP_2WHEEL_MOUSE_HACK))
- 		return 0;
- 
- 	if (usage->hid == 0x00090005) {
- 		if (value)
--			quirks |=  CP_2WHEEL_MOUSE_HACK_ON;
-+			cp_device->quirks |= CP_2WHEEL_MOUSE_HACK_ON;
- 		else
--			quirks &= ~CP_2WHEEL_MOUSE_HACK_ON;
--		hid_set_drvdata(hdev, (void *)quirks);
-+			cp_device->quirks &= ~CP_2WHEEL_MOUSE_HACK_ON;
- 		return 1;
- 	}
- 
--	if (usage->code == REL_WHEEL && (quirks & CP_2WHEEL_MOUSE_HACK_ON)) {
-+	if (usage->code == REL_WHEEL && (cp_device->quirks & CP_2WHEEL_MOUSE_HACK_ON)) {
- 		struct input_dev *input = field->hidinput->input;
- 
- 		input_event(input, usage->type, REL_HWHEEL, value);
-@@ -127,10 +132,17 @@ static int cp_event(struct hid_device *hdev, struct hid_field *field,
- 
- static int cp_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 	if (hdev_type != GFRM100)
+@@ -99,7 +101,7 @@ static int gfrm_probe(struct hid_device *hdev, const struct hid_device_id *id)
  {
--	unsigned long quirks = id->driver_data;
  	int ret;
-+	struct cp_device *cp_device;
  
--	hid_set_drvdata(hdev, (void *)quirks);
-+	cp_device = devm_kzalloc(&hdev->dev, sizeof(*cp_device), GFP_KERNEL);
-+
-+	if (!cp_device)
-+		return -ENOMEM;
-+
-+	cp_device->quirks = id->driver_data;
-+
-+	hid_set_drvdata(hdev, cp_device);
+-	hid_set_drvdata(hdev, (void *) id->driver_data);
++	hid_set_drvdata(hdev, (void *)id);
  
  	ret = hid_parse(hdev);
- 	if (ret) {
+ 	if (ret)
 
 -- 
 2.43.0

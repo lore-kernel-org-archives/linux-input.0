@@ -1,147 +1,84 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6B8A244BC91
-	for <linux-input@vger.kernel.org>; Wed, 10 Jun 2026 15:47:12 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 44A023DBD7A;
+	Wed, 10 Jun 2026 15:47:19 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781106434; cv=none; b=LUd5sDKqdw92eTnq5zXURsKO1oTCOmF+A/BMiznzhPIOtmiWSME1fBxRRioQl+6xOzkoYYGiO8agvqyaEvh024fMbyFhfyjawO8OIks46uPMjAF8ObRXmSsCw4EVHp8MgdNv4PTq412G+qOSHwKHzx4/BJH+ynAF02aXjCpUlPU=
+	t=1781106441; cv=none; b=d6r+J0MaqBXH5zQwQ0rsXfbE1yRYTbxuIgMWzBRV1/VDt0kNnH3KAJzhrEgJPGxa3t03eDgr9BKRV64MBLDqCR1PnHtN7k8ju3dSY1DgJsHJMcLJepn04XtCc8tZcCPpxiiqY7DuYcacPoBlV4TKpkpjHtj3vT/S8HAZykf+0QU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781106434; c=relaxed/simple;
-	bh=sXNsQntN4thZ5T3P8RO3Rkvimmifx1N7M+CwQx9nLUc=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=JhYxJggc0GnNl3OhHeLUsoOx+PWHmqwTPOopy+V0cjebUDL5SAAlPY0G9KZfNkondDk6H7kBchBC4LNb1sI8W65Rn1cEKQ7ZiRh6yktf+a6vIgFMV9RwyYagqol5SK1nZLonzOE1bzksAQtyOgnUy/VsR0NdlaBvw7eOTT+30CY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=cltKo/KG; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1781106441; c=relaxed/simple;
+	bh=lPagUjN5wyxfSqvytAIAj0NOyzMlBLE4JYZ+/pTWm9I=;
+	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
+	 MIME-Version:Content-Type; b=hisV+iyvT9KQCee4gAGpNxTBgPHzfyr9iGuHjLi/oee85C2LbRzZ6LO3Dg4S2Ydq2dj4j7Q/QQpNzdbxfmjqtFs1XgGeaLVTjgSfP+i1cgB0TMHVMFKkRktFPVGHTrdMBWfqXVdSE/YzkV2V4v1G+Fw2tyTiGjQO/+Tla9P5fGU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=NkN1jwhK; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="cltKo/KG"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A89271F00898;
-	Wed, 10 Jun 2026 15:47:11 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="NkN1jwhK"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 279001F00893;
+	Wed, 10 Jun 2026 15:47:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1781106432;
-	bh=3m2RecN+7d7DfYA01bRDigu1gnU8IMgbh2lyCv0e4Ik=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=cltKo/KGuKCHJFDWLmzriAIoz2Lu0lah7Vqu5oWwjaYItZkc9ntZ/ZCunwbdPP2CL
-	 vcDLtYP4/RV23TfyzjdmMJhVTstojNqVXBEZTE3HjE5LZk0v9FTpMyX6aBFCjYflJj
-	 EA7zEjjJmlYE+DO01Rbc3P53eq+cUCTbxnvuZh3GqsMjbi9G4O23szEHnglVOQAiYv
-	 VA7zmL7swwZ0thrYGqXcWFQbDKBfNeKzvs2s3ujAGWtdECA6C0VM9mGWmHTIUSCzlo
-	 eLvyO/IuX6Kort1azrq16lM3K27vjNjM9UuEDTK7o+wjBkotNzwSYFkAwxVWYrul9C
-	 dtGZScKOcuRbA==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 6/7] iio: orientation: hid-sensor-rotation: use u32
- instead of unsigned
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Sanjay Chitroda" <sanjayembeddedse@gmail.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260610-6-june-hid-iio-correct-usage-id-v2-6-c3c5f0720493@gmail.com>
-References: <20260610-6-june-hid-iio-correct-usage-id-v2-6-c3c5f0720493@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Wed, 10 Jun 2026 15:47:11 +0000
-Message-Id: <20260610154711.A89271F00898@smtp.kernel.org>
+	s=k20260515; t=1781106439;
+	bh=94laT4DhQ8CjN3VZcNNgN9Mk+ciT8XIRfv1gtFlc3dM=;
+	h=Date:From:To:cc:Subject:In-Reply-To:References;
+	b=NkN1jwhKxYf98CSixPxGg2LooDQ8/+4u0EwPF+e/AQkrVQW5NrV46OxWaFYSRUWtM
+	 FXS/bQ5gBwcuss3sgrttEEmW9qpP1uL/q54ZANJLLhNHGQUyv7B3ugoW/dnj1ECPDZ
+	 8iRgLehshnzRsIfx9lSQa4vgmCybVPHdE2qYo1KYJWop2asNf6HgGWLsJ6pbFx4EKF
+	 yQqFR/LatQtkq0XOcTPacQfuF0QWTDQ3Wt6WQIj/b1N87UzGN/vhvr4mX2vYZleNb9
+	 ysrWy9keqAIIK736OAefay19W5YBW06fmk8dInxITK4NKCzSEzFb6yDAv6zyXdTyGi
+	 q0f8QUzaGTxnA==
+Date: Wed, 10 Jun 2026 17:47:15 +0200 (CEST)
+From: Jiri Kosina <jikos@kernel.org>
+To: Jinmo Yang <jinmo44.yang@gmail.com>
+cc: linux-input@vger.kernel.org, benjamin.tissoires@redhat.com, 
+    linux-kernel@vger.kernel.org, stable@vger.kernel.org, 
+    Ping Cheng <ping.cheng@wacom.com>, Jason Gerecke <jason.gerecke@wacom.com>
+Subject: Re: [PATCH 0/4] HID: wacom: add report length validation in irq
+ handlers
+In-Reply-To: <20260517135215.2220117-1-jinmo44.yang@gmail.com>
+Message-ID: <9o1psn77-q665-0rp6-pnnq-9179802p2nsp@xreary.bet>
+References: <20260517135215.2220117-1-jinmo44.yang@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
+On Sun, 17 May 2026, Jinmo Yang wrote:
 
-Pre-existing issues:
-- [High] Out-of-bounds read and unaligned access in `dev_rot_capture_sample`
-- [High] Use-After-Free (UAF) race condition between device removal and raw=
- event processing
---
+> Several wacom IRQ handler sub-functions access fixed offsets in the raw
+> HID report buffer without validating the buffer length. wacom_wac_irq()
+> receives the length from wacom_raw_event() but does not validate it
+> before dispatching to the sub-functions, which do not receive the length
+> parameter.
+> 
+> A malicious USB device can declare a small HID report in its descriptor
+> and send a matching short report that passes the HID core size check
+> (csize >= rsize), but the driver assumes a full-size hardware report
+> layout, leading to slab-out-of-bounds reads.
+> 
+> Note: this is not mitigated by the recent HID core bounds checking
+> series which validates actual_size >= declared_size. An attacker
+> controls both the descriptor (declared size) and the sent data (actual
+> size), so the core check passes. Driver-level validation against the
+> expected hardware report layout is still necessary.
+> 
+> Tested with KASAN on Linux 7.1-rc3 (slab-out-of-bounds confirmed) and
+> verified kernel panic on a production device via uhid.
+> 
+> Jinmo Yang (4):
+>   HID: wacom: validate report length for PL and PTU handlers
+>   HID: wacom: validate report length for DTU handler
+>   HID: wacom: validate report length for DTUS handler
+>   HID: wacom: validate report length for 24HDT and 27QHDT handlers
+> 
+>  drivers/hid/wacom_wac.c | 15 +++++++++++++++
+>  1 file changed, 15 insertions(+)
 
-commit de9f9c2c99851d2c61cb3fce183da2297778f18f
-Author: Sanjay Chitroda <sanjayembeddedse@gmail.com>
+CCing Ping and Jason for their review. Thanks in advance,
 
-iio: orientation: hid-sensor-rotation: use u32 instead of unsigned
+-- 
+Jiri Kosina
+SUSE Labs
 
-Prefer 'u32' instead of bare 'unsigned' for usage_id variable.
-This matches expected callback API type and improves code clarity.
-No functional change.
-
-> diff --git a/drivers/iio/orientation/hid-sensor-rotation.c b/drivers/iio/=
-orientation/hid-sensor-rotation.c
-> index 4a11e45550991..20563d8efaf6c 100644
-> --- a/drivers/iio/orientation/hid-sensor-rotation.c
-> +++ b/drivers/iio/orientation/hid-sensor-rotation.c
-
-[ ... ]
-
-> @@ -209,7 +209,7 @@ static int dev_rot_proc_event(struct hid_sensor_hub_d=
-evice *hsdev,
-> =20
->  /* Capture samples in local storage */
->  static int dev_rot_capture_sample(struct hid_sensor_hub_device *hsdev,
-> -				unsigned usage_id,
-> +				u32 usage_id,
->  				size_t raw_len, char *raw_data,
->  				void *priv)
->  {
-
-[Severity: High]
-This isn't a bug introduced by this patch, but does dev_rot_capture_sample()
-blindly trust raw_len and raw_data derived from the HID device's report
-descriptors?
-
-If a malicious or faulty USB device provides a descriptor with a small repo=
-rt
-size (e.g., 4 bytes), raw_len / 4 =3D=3D sizeof(s16) evaluates to false. Th=
-is
-leads the code to execute:
-
-    memcpy(&rot_state->scan.sampled_vals, raw_data,
-           sizeof(rot_state->scan.sampled_vals));
-
-Can this read out-of-bounds heap memory which is then pushed to IIO buffers
-and leaked to userspace?
-
-Furthermore, for HID_USAGE_SENSOR_TIME_TIMESTAMP, the code directly casts
-and dereferences raw_data as a 64-bit integer:
-
-    rot_state->timestamp =3D hid_sensor_convert_timestamp(
-                            &rot_state->common_attributes, *(s64 *)raw_data=
-);
-
-As HID reports are packed, raw_data can be unaligned. Could this cause a
-kernel panic (unaligned access exception) on architectures with strict
-alignment requirements?
-
-
-[Severity: High]
-This is also a pre-existing issue, but is there a use-after-free race
-condition between device removal and raw event processing?
-
-During removal, hid_dev_rot_remove() calls sensor_hub_remove_callback(),
-which deletes the callback from the list using dyn_callback_lock but does
-not synchronize with active or concurrent readers:
-
-drivers/hid/hid-sensor-hub.c:sensor_hub_remove_callback() {
-    ...
-    list_del(&callback->list);
-    kfree(callback);
-    ...
-}
-
-Meanwhile, in sensor_hub_raw_event(), sensor_hub_get_callback() fetches the
-callback pointer and drops the lock. The function then continues to invoke
-callback->capture_sample() without any locks or reference counting:
-
-drivers/hid/hid-sensor-hub.c:sensor_hub_raw_event() {
-    ...
-    callback->capture_sample(hsdev, report->field[i]->logical, sz, ptr,
-                             callback->pdev);
-    ...
-}
-
-If device removal completes and devres frees indio_dev and dev_rot_state
-before sensor_hub_raw_event() finishes execution on another CPU, will the
-event handler dereference a freed function pointer or access the freed driv=
-er
-state structure?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260610-6-june-hid=
--iio-correct-usage-id-v2-0-c3c5f0720493@gmail.com?part=3D6

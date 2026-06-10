@@ -1,48 +1,48 @@
 Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.10])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C1A3E3AB288;
-	Wed, 10 Jun 2026 08:29:17 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7DF993A8730;
+	Wed, 10 Jun 2026 08:29:20 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.10
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781080159; cv=none; b=Ws3WaHMSXs8F30ggep+4O9oQkOqYSUvVWsdAuEnXhKaXnStO/2xbiIbsZ8E0Rq76hb33n4AAIAUoz4V5dYY8+Tn3S+CGOidV5t2N4zu1gurjDsYayXee6ImWfC2/2ZPZDoGsjN41zXPvujRCz4HGVbK4Lmc06Snnk80lmp2eH/U=
+	t=1781080161; cv=none; b=mehlFlRAMrroqz8FOgf8/I0EEk2G2oExJetE/Gd3VMziSHk0p88P+9Y/R+otMTdNU5MITxLNbCpblLjjKEA9F6U3TYKWx4idXUTlkzS1rnrmsvmXyIrLrDi7n4vaTJKUuzE8wEsVD6U/SACNBurocBUqPOiQn+DkRmX33r2iUW0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781080159; c=relaxed/simple;
-	bh=VRfHBA+UyqKOLa2130xZfUr0Cti278mHn/qEmM5z1j4=;
+	s=arc-20240116; t=1781080161; c=relaxed/simple;
+	bh=ZpyspbBfeW0Q+8UiMvhtWzEpFQz4ZoVqMdM61L0YykY=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=lh6SWO166InDYBJqmSKrCpzAFpeEehQNm3eSx19vnn8pgxe5ItDJKiELsleKu2ylhDduLbaKDWMRi4M4zenEUBAPIJ5RNE5EblV+VrNuev0OObQ7jIoUNZEIsRi6gTNng+Qii8FocLnPeIDXkGbc0sihO/bz5G02oAIH1X3gzJw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=kMqu6jRe; arc=none smtp.client-ip=192.198.163.10
+	 MIME-Version; b=WwXGbONg8zaZxRDfzFQUN8uL+XsVatZa3j75S3nSzhJDAhLdPiNf3340Tz5eZoan13AHHJbOWln43aQfht0ddjz2ba8L9bLQqPgMMZmTAyemF8kv6t/FqnwaVYdU1Ox+hom+AHR8Dcza+R62uQeGLjyxRhnp/RAGZcJShvZc+ns=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=CC7J/tTY; arc=none smtp.client-ip=192.198.163.10
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="kMqu6jRe"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="CC7J/tTY"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1781080158; x=1812616158;
+  t=1781080161; x=1812616161;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=VRfHBA+UyqKOLa2130xZfUr0Cti278mHn/qEmM5z1j4=;
-  b=kMqu6jReCnatDeE3MlSTEBJmwY1SR5lYUzsKFBE0WCOq7Ksrsdc+s8Ey
-   Uf80nrcFEnWX6KuH6j6GmHO9D9gVFvKITOwbggRGK2v9g9tPGgivFw0uD
-   OxzwQMjZ39/8y2kqV4pAnRu/yp9H6BSWKs2hzfey6kplwu2jZjcgs+2Kg
-   7xxJXySNXIjXRwdvOQJ6nOhopLL6fq1pz/ZvGtS2qijJMQhLNzEMv6fXR
-   CFdDinQOIhZ+5tPJ9oX/Bxr0TOqshhsAVhNOkzUkUH0NxI92ndrzbSSwJ
-   mfZNkZ7zNFK/I4wrlZ+GjPLkA5j9i0GG9eNePG7tXLO/ldV6VsDtC72Ay
-   Q==;
-X-CSE-ConnectionGUID: +63XFk+PTUexLlzF5BgX8Q==
-X-CSE-MsgGUID: uFuLxtF2SuqM08tO9Rh4Uw==
-X-IronPort-AV: E=McAfee;i="6800,10657,11812"; a="93255316"
+  bh=ZpyspbBfeW0Q+8UiMvhtWzEpFQz4ZoVqMdM61L0YykY=;
+  b=CC7J/tTYLQdtYg05OChhqKI6SpqAdC00SsMiD27T5wLl+51ip/hwBs60
+   Imy8iMub4nKHqNze5p+MMieoJgYL04ca/c0BTLAKyY5p0a/3fgNB33fox
+   xUzmkEITOGE+Bn62epr14BfHv9v5JNi/cGk4z+vggV1FrSRFrOnYymFzx
+   zDFr2PJ5Bm2XH4DHkqI1foSgI3FuvXycugT4H0zbiRYbNvitye/+MuqkV
+   n8YLfbIxeaIpVwn2ZkfGfolrGD5UhP1CX5031XkOHZReZf1Pd8OKV6PQK
+   7sr+Wh6SKuwuYusDvQM1YFbbxk6jn6JUFs08i0DOq6XILyJ97dylfZG/p
+   w==;
+X-CSE-ConnectionGUID: QlH+Elj8Qly1u09BsbwxlA==
+X-CSE-MsgGUID: ugjDxvbqT9OP98TubpHaeg==
+X-IronPort-AV: E=McAfee;i="6800,10657,11812"; a="93255327"
 X-IronPort-AV: E=Sophos;i="6.24,197,1774335600"; 
-   d="scan'208";a="93255316"
+   d="scan'208";a="93255327"
 Received: from orviesa003.jf.intel.com ([10.64.159.143])
-  by fmvoesa104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Jun 2026 01:29:17 -0700
-X-CSE-ConnectionGUID: gDsTqnIISHS0aX8eFaPewA==
-X-CSE-MsgGUID: FgaSf7HuTKK5lNfDgn5lSg==
+  by fmvoesa104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Jun 2026 01:29:20 -0700
+X-CSE-ConnectionGUID: oQOZQ3DJQkCpEL06+HbOXw==
+X-CSE-MsgGUID: UOT7/AYKTdSzuQGThKDm0w==
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="6.24,197,1774335600"; 
-   d="scan'208";a="250043145"
+   d="scan'208";a="250043171"
 Received: from lixuzha-desk.sh.intel.com ([10.239.146.169])
-  by orviesa003.jf.intel.com with ESMTP; 10 Jun 2026 01:29:15 -0700
+  by orviesa003.jf.intel.com with ESMTP; 10 Jun 2026 01:29:18 -0700
 From: Zhang Lixu <lixu.zhang@intel.com>
 To: Jiri Kosina <jikos@kernel.org>,
 	Jonathan Cameron <jic23@kernel.org>,
@@ -55,9 +55,9 @@ Cc: David Lechner <dlechner@baylibre.com>,
 	linux-iio@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	lixu.zhang@intel.com
-Subject: [PATCH 1/2] HID: sensor-hub: Add sensor_hub_input_attr_read_values() for multi-byte reads
-Date: Wed, 10 Jun 2026 16:29:09 +0800
-Message-ID: <20260610082911.157232-2-lixu.zhang@intel.com>
+Subject: [PATCH 2/2] iio: hid-sensor-rotation: Fix stale or zero output when reading raw values
+Date: Wed, 10 Jun 2026 16:29:10 +0800
+Message-ID: <20260610082911.157232-3-lixu.zhang@intel.com>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20260610082911.157232-1-lixu.zhang@intel.com>
 References: <20260610082911.157232-1-lixu.zhang@intel.com>
@@ -69,177 +69,79 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+When reading the raw quaternion attribute (in_rot_quaternion_raw), the
+driver currently returns either all zeros (if the sensor was never enabled)
+or stale data (if the sensor was previously enabled) because it reads from
+the internal buffer without explicitly requesting a new sample from the
+sensor.
 
-sensor_hub_input_attr_get_raw_value() is limited to returning a single
-32-bit value, which is insufficient for sensors that report data larger
-than 32 bits, such as a quaternion with four s16 elements.
+To fix this, power up the sensor, call sensor_hub_input_attr_read_values()
+to issue a synchronous GET_REPORT and receive the full quaternion data
+directly into a local buffer, then decode the four components.
 
-Add sensor_hub_input_attr_read_values() that accepts a caller-provided
-buffer and accumulates incoming data until the buffer is full. The two
-paths are distinguished in sensor_hub_raw_event() by pending.max_raw_size
-being non-zero, preserving backward compatibility.
-
-Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Co-developed-by: Zhang Lixu <lixu.zhang@intel.com>
 Signed-off-by: Zhang Lixu <lixu.zhang@intel.com>
 ---
- drivers/hid/hid-sensor-hub.c   | 77 +++++++++++++++++++++++++++++++---
- include/linux/hid-sensor-hub.h | 25 +++++++++++
- 2 files changed, 96 insertions(+), 6 deletions(-)
+ drivers/iio/orientation/hid-sensor-rotation.c | 40 ++++++++++++++++++-
+ 1 file changed, 38 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
-index 90666ff629def..34f710c465b80 100644
---- a/drivers/hid/hid-sensor-hub.c
-+++ b/drivers/hid/hid-sensor-hub.c
-@@ -286,6 +286,54 @@ int sensor_hub_get_feature(struct hid_sensor_hub_device *hsdev, u32 report_id,
- }
- EXPORT_SYMBOL_GPL(sensor_hub_get_feature);
+diff --git a/drivers/iio/orientation/hid-sensor-rotation.c b/drivers/iio/orientation/hid-sensor-rotation.c
+index 4a11e45550991..1c6f02374f3ce 100644
+--- a/drivers/iio/orientation/hid-sensor-rotation.c
++++ b/drivers/iio/orientation/hid-sensor-rotation.c
+@@ -86,6 +86,13 @@ static int dev_rot_read_raw(struct iio_dev *indio_dev,
+ 				long mask)
+ {
+ 	struct dev_rot_state *rot_state = iio_priv(indio_dev);
++	struct hid_sensor_hub_device *hsdev = rot_state->common_attributes.hsdev;
++	struct hid_sensor_hub_attribute_info *info = &rot_state->quaternion;
++	u32 usage_id = HID_USAGE_SENSOR_ORIENT_QUATERNION;
++	union {
++		s16 val16[4];
++		s32 val32[4];
++	} raw_buf;
+ 	int ret_type;
+ 	int i;
  
-+int sensor_hub_input_attr_read_values(struct hid_sensor_hub_device *hsdev,
-+				      u32 usage_id, u32 attr_usage_id,
-+				      u32 report_id,
-+				      enum sensor_hub_read_flags flag,
-+				      u32 buffer_size, u8 *buffer)
-+{
-+	struct sensor_hub_data *data = hid_get_drvdata(hsdev->hdev);
-+	struct hid_report *report;
-+	unsigned long flags;
-+	long cycles;
-+	int ret;
+@@ -95,8 +102,37 @@ static int dev_rot_read_raw(struct iio_dev *indio_dev,
+ 	switch (mask) {
+ 	case IIO_CHAN_INFO_RAW:
+ 		if (size >= 4) {
+-			for (i = 0; i < 4; ++i)
+-				vals[i] = rot_state->scan.sampled_vals[i];
++			if (info->size <= 0 || info->size > sizeof(raw_buf))
++				return -EINVAL;
 +
-+	report = sensor_hub_report(report_id, hsdev->hdev, HID_INPUT_REPORT);
-+	if (!report)
-+		return -EINVAL;
++			hid_sensor_power_state(&rot_state->common_attributes, true);
 +
-+	mutex_lock(hsdev->mutex_ptr);
-+	if (flag == SENSOR_HUB_SYNC) {
-+		memset(&hsdev->pending, 0, sizeof(hsdev->pending));
-+		init_completion(&hsdev->pending.ready);
-+		hsdev->pending.usage_id = usage_id;
-+		hsdev->pending.attr_usage_id = attr_usage_id;
-+		hsdev->pending.max_raw_size = buffer_size;
-+		hsdev->pending.raw_data = buffer;
++			ret_type = sensor_hub_input_attr_read_values(hsdev,
++								     hsdev->usage,
++								     usage_id,
++								     info->report_id,
++								     SENSOR_HUB_SYNC,
++								     info->size,
++								     (u8 *)&raw_buf);
 +
-+		spin_lock_irqsave(&data->lock, flags);
-+		hsdev->pending.status = true;
-+		spin_unlock_irqrestore(&data->lock, flags);
-+	}
-+	mutex_lock(&data->mutex);
-+	hid_hw_request(hsdev->hdev, report, HID_REQ_GET_REPORT);
-+	mutex_unlock(&data->mutex);
-+	ret = 0;
-+	if (flag == SENSOR_HUB_SYNC) {
-+		cycles = wait_for_completion_interruptible_timeout(&hsdev->pending.ready,
-+								   HZ * 5);
-+		if (cycles == 0)
-+			ret = -ETIMEDOUT;
-+		else if (cycles < 0)
-+			ret = cycles;
++			hid_sensor_power_state(&rot_state->common_attributes, false);
 +
-+		hsdev->pending.status = false;
-+	}
-+	mutex_unlock(hsdev->mutex_ptr);
++			if (ret_type < 0)
++				return ret_type;
 +
-+	return ret;
-+}
-+EXPORT_SYMBOL_GPL(sensor_hub_input_attr_read_values);
- 
- int sensor_hub_input_attr_get_raw_value(struct hid_sensor_hub_device *hsdev,
- 					u32 usage_id,
-@@ -478,6 +526,8 @@ static int sensor_hub_raw_event(struct hid_device *hdev,
- 	struct hid_collection *collection = NULL;
- 	void *priv = NULL;
- 	struct hid_sensor_hub_device *hsdev = NULL;
-+	u32 copy_size;
-+	u32 avail;
- 
- 	hid_dbg(hdev, "sensor_hub_raw_event report id:0x%x size:%d type:%d\n",
- 			 report->id, size, report->type);
-@@ -518,12 +568,27 @@ static int sensor_hub_raw_event(struct hid_device *hdev,
- 					      hsdev->pending.attr_usage_id ==
- 					      report->field[i]->logical)) {
- 			hid_dbg(hdev, "data was pending ...\n");
--			hsdev->pending.raw_data = kmemdup(ptr, sz, GFP_ATOMIC);
--			if (hsdev->pending.raw_data)
--				hsdev->pending.raw_size = sz;
--			else
--				hsdev->pending.raw_size = 0;
--			complete(&hsdev->pending.ready);
-+			if (hsdev->pending.max_raw_size) {
-+				if (hsdev->pending.index < hsdev->pending.max_raw_size) {
-+					avail = hsdev->pending.max_raw_size - hsdev->pending.index;
-+					copy_size = clamp(sz, 0U, avail);
-+
-+					memcpy(hsdev->pending.raw_data + hsdev->pending.index,
-+					       ptr, copy_size);
-+					hsdev->pending.index += copy_size;
-+					if (hsdev->pending.index >= hsdev->pending.max_raw_size) {
-+						hsdev->pending.raw_size = hsdev->pending.index;
-+						complete(&hsdev->pending.ready);
-+					}
-+				}
-+			} else {
-+				hsdev->pending.raw_data = kmemdup(ptr, sz, GFP_ATOMIC);
-+				if (hsdev->pending.raw_data)
-+					hsdev->pending.raw_size = sz;
-+				else
-+					hsdev->pending.raw_size = 0;
-+				complete(&hsdev->pending.ready);
++			switch (info->size) {
++			case sizeof(raw_buf.val16):
++				for (i = 0; i < ARRAY_SIZE(raw_buf.val16); i++)
++					vals[i] = raw_buf.val16[i];
++				break;
++			case sizeof(raw_buf.val32):
++				for (i = 0; i < ARRAY_SIZE(raw_buf.val32); i++)
++					vals[i] = raw_buf.val32[i];
++				break;
++			default:
++				return -EINVAL;
 +			}
- 		}
- 		if (callback->capture_sample) {
- 			if (report->field[i]->logical)
-diff --git a/include/linux/hid-sensor-hub.h b/include/linux/hid-sensor-hub.h
-index e710565531085..ab5cc8db3fbb3 100644
---- a/include/linux/hid-sensor-hub.h
-+++ b/include/linux/hid-sensor-hub.h
-@@ -43,6 +43,8 @@ struct hid_sensor_hub_attribute_info {
-  * @attr_usage_id:	Usage Id of a field, e.g. X-axis for a gyro.
-  * @raw_size:		Response size for a read request.
-  * @raw_data:		Place holder for received response.
-+ * @index:		Current write index into raw_data for multi-byte reads.
-+ * @max_raw_size:	Total buffer size for multi-byte reads; 0 for single-value reads.
-  */
- struct sensor_hub_pending {
- 	bool status;
-@@ -51,6 +53,8 @@ struct sensor_hub_pending {
- 	u32 attr_usage_id;
- 	int raw_size;
- 	u8  *raw_data;
-+	u32 index;
-+	u32 max_raw_size;
- };
- 
- /**
-@@ -183,6 +187,27 @@ int sensor_hub_input_attr_get_raw_value(struct hid_sensor_hub_device *hsdev,
- 					bool is_signed
- );
- 
-+/**
-+ * sensor_hub_input_attr_read_values() - Synchronous multi-byte read request
-+ * @hsdev:		Hub device instance.
-+ * @usage_id:		Attribute usage id of parent physical device as per spec
-+ * @attr_usage_id:	Attribute usage id as per spec
-+ * @report_id:		Report id to look for
-+ * @flag:		Synchronous or asynchronous read
-+ * @buffer_size:	Size of the buffer in bytes
-+ * @buffer:		Buffer to store the read data
-+ *
-+ * Issues a synchronous or asynchronous read request for an input attribute,
-+ * accumulating data into the provided buffer until it is full.
-+ * Return: 0 on success, -ETIMEDOUT if the device did not respond, or a
-+ * negative error code.
-+ */
-+int sensor_hub_input_attr_read_values(struct hid_sensor_hub_device *hsdev,
-+				      u32 usage_id, u32 attr_usage_id,
-+				      u32 report_id,
-+				      enum sensor_hub_read_flags flag,
-+				      u32 buffer_size, u8 *buffer);
 +
- /**
- * sensor_hub_set_feature() - Feature set request
- * @hsdev:	Hub device instance.
+ 			ret_type = IIO_VAL_INT_MULTIPLE;
+ 			*val_len =  4;
+ 		} else
 -- 
 2.43.0
 

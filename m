@@ -1,118 +1,116 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-dl1-f44.google.com (mail-dl1-f44.google.com [74.125.82.44])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A99351898FB
-	for <linux-input@vger.kernel.org>; Wed, 10 Jun 2026 23:14:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 377DA371D01
+	for <linux-input@vger.kernel.org>; Wed, 10 Jun 2026 23:17:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.44
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781133270; cv=none; b=WEQpZYuSy6tAmcFmPZChKuFcSqhMj9kkyPAvRr2isEaqnJgLx2xNkH8NrBfLDQ18ALuznmXCBO0A4rKVOfgQSZ2v5LkgurQpSipeVwuAdcB7bgkyc0eToBmSldDNaUha1sRmHDj+WLaDiYBeAxw7Q3mucIEAakRmRhcZjUN3Mss=
+	t=1781133454; cv=none; b=RycufFo/cCEyytnKSb4KT0TVoIkomyUxL6rtDSnOa8+hE8bK6O652Occa9h2rIi2PfAhgD33DdRz3UMy3hwzSqbGvgXyVSextTitEgbj2sPQIOrgshUH0cB+2dOlmBbH65wHgrUTiBf5XMd3t9CkI+iLlwGGKuVKmJMQ1prDaNA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781133270; c=relaxed/simple;
-	bh=nOAyNL7kNs3f3TIwKzlMIhBTMYig1uZrGdz3/RWqJlA=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=FUmAP1iBwlV4ShXohumL4Hj7X+YHm7npR5d6gimeHGLWTLHplxsOWqCcG/8yVCFOl7WEOOx3bWHw+4zydNSEj7cJJ14qRTPqOp4OPMQDIYZvrX/WgPMepz2NL4aiDA4eN7IwdKwJc2EhQ9EPlCDHk7cRqlktlbUtVha6RUa9KXo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=JItua7D8; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1781133454; c=relaxed/simple;
+	bh=+dycLYKDF4lcP+GsM7RTfuFMl4+If+s8q7wIPGWQELw=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=FAz1DqdaSL/9qWwERuaV+wH+OXlXsGHNa2udzUxmLB6cj4BWPZJuNS30KvJQj7oK7JvybilEi8QPe5uO8oHP5iNJuQ3oN19YPHXSdUGkpUBMVqRtA/1iXa2ajZA6apSwY+ENjTKzSTRif9iUsv94xVKWfF7kYRsweKscWbQR0uc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=FhOtzOhN; arc=none smtp.client-ip=74.125.82.44
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="JItua7D8"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AACAF1F00893;
-	Wed, 10 Jun 2026 23:14:28 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1781133268;
-	bh=hTXACzupclAAZXpVKA8KCmodeINl4WARihKiD3hHv0Y=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=JItua7D81EXISZhWQJQrHFHdsW3lX9ZRyZ1XHGf1dPxR0jvTuNCtuLL+AL4aJI1gk
-	 Ow9fIyu4vBKN0U+aqt1MQj7PT7NO8PmKcoaDnsqmSP7iNvJXgHyFZi/s7J/hZfH8ly
-	 BOaGsyETgJdeoescfs8DYsU+OS7N+o3xQ8/5MK5YTvn0dyy+26zWzXQtrs/tVw/41y
-	 Xl8VUI6Swgn+1e9vTcU7jPD/c/4jk+AWnWLhYD26QzCrP0MZg8rQulR3fbjT0LKX6h
-	 oZqoJQE7RjlF/Cjr61YZ9eb8RSuNn7W/9GUl/PtpGKlKSJwT0PUyFyXn/R3pKY10gE
-	 VeWOjmpU92ypg==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] Input: ipaq-micro-keys - add length check in
- micro_key_receive
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <aintAvTyw4CVb5hG@google.com>
-References: <aintAvTyw4CVb5hG@google.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Wed, 10 Jun 2026 23:14:28 +0000
-Message-Id: <20260610231428.AACAF1F00893@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="FhOtzOhN"
+Received: by mail-dl1-f44.google.com with SMTP id a92af1059eb24-137ec563a95so9133398c88.0
+        for <linux-input@vger.kernel.org>; Wed, 10 Jun 2026 16:17:33 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1781133452; x=1781738252; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=fnteB54CdcOiXG3dNWXU3WtSLChq2Py28c8CG8TQeyA=;
+        b=FhOtzOhNTLCEAscLn6D4Xgx+Ev9fSNCijN2PVRXPKAEvBL/w1LGbzqNWzohut0JVZX
+         Se+NNXGKfkGPSTyRR1ecr+V7SY7jY3hn+BJTC37dps5+xfSPlS6qcWUx9s3ggfBw13Nv
+         dnOKOGH0VJaI8nu+e6vN3Yph6N8W32QbLycgDdz5cSYtupZC8lkwdLV+Xl5q4HzDfk96
+         UHehydZWqjNUCs7RMZE5M9gOC0T/nq2RpaBqbs7HM1bCso7JUE94n1uSR83XSp7C7Bkt
+         k1cIC5Q2fLBKQt1HXs2ddGrYzxaCDIUj7UPtQ0nwxjqBzbkDDIr9qxn5kJLBmfiynuxO
+         pOVw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1781133452; x=1781738252;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=fnteB54CdcOiXG3dNWXU3WtSLChq2Py28c8CG8TQeyA=;
+        b=Cn1O2aGMwP+ts3plhZr1blCkW8H5rj+9/aYZK06V5o1pDVgkrHMjaZBwpmoedK88fp
+         QKkmd2+TRyhchtoutrikEaw/tJqrB6DlevrNKVKsk8eTk3k3d+vf8lJABnqYdsIhoKPI
+         HENrsH9jm1ly8TehkROY0Q0PVpZHBs4Ko17Df/aMyTsOvjIfixc9awGROXGt0ltcoHGv
+         qFqJicLwDDgwPYpEXdUriUFD00pNbOWgARr3QVPAV2t7ftVmIPXpFvSFyFc65HId8H9/
+         PIFBYdTyS3oLEvP2EpE5h/PKORB/hQxhYFRL2EeS4k9WhUqm/MXGr71iMGzn5NbPQnQo
+         t6Yw==
+X-Forwarded-Encrypted: i=1; AFNElJ9zWEACi6rexNqvqiCu2yL2AjqqSM1aBd2pgIyEIo2NTm+e9Tuf3QtL4CTJ7jrC+PG1Paa//586bsMrbQ==@vger.kernel.org
+X-Gm-Message-State: AOJu0YxH2n0o84xHiFgtbhtWEHmjzA9JdWxmwjUdaP8wXFQdzfe5DI2g
+	1PbMdldcyCCdrYOjAZSDc+KluxG6UWlU5ISdzFiJvR1XCE7WZjbXnvlJ
+X-Gm-Gg: Acq92OH2kPUf8CZxPKsyWLwHqM/UvUFe+6zYWbA500wuIhQRWeQ4PbSlu31A6WDdCcB
+	NW+aA1e6eg7HY13ZgBkOzcTW1xmm4//14ooKO2gJd+5eOmqqkatHn8yDF5DymlR5pwO5Uu6TqaL
+	E220biy6OKsC34T/0e2PhuYYxwUfQUAp6CkkITT15imW66CiIHAYQI4G75mhWy05rFjxKoqrLLQ
+	GxQRMdJ6btMu0m4p1YXHqtcWosrGT7j+aSrT2PE4m34e9dmwx6rfpEtNrQOwMIfyapHPW+eOP2i
+	srIf4aPv8+3pL/YWwMprX/gMQsBhoJGVJ1PkR1bjbNtJSXyimu/ZMjrI+z58GGekzQER7ukK69N
+	XR9IT4tldMCjIXZ9AQg7b0UXOKbnLTMef6pmeH1fCG4cJze7PSTDWam+3TJO4hZxsVkUyf5zcTK
+	GJFDGoQlooSVYhSDYNGa6YEsA0TVCeKdSEMaY73cKDGgC5F5+CNmUPAf24805Wef/wbVC32WZVG
+	vg=
+X-Received: by 2002:a05:7022:45a0:b0:138:25b3:5234 with SMTP id a92af1059eb24-1384211e73emr153458c88.2.1781133452143;
+        Wed, 10 Jun 2026 16:17:32 -0700 (PDT)
+Received: from google.com ([2a00:79e0:2ebe:8:ae0e:e075:91c8:6570])
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-138430452a2sm9181c88.14.2026.06.10.16.17.31
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 10 Jun 2026 16:17:31 -0700 (PDT)
+Date: Wed, 10 Jun 2026 16:17:28 -0700
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Lee Jones <lee@kernel.org>
+Cc: Ping Cheng <ping.cheng@wacom.com>, 
+	Jason Gerecke <jason.gerecke@wacom.com>, Jiri Kosina <jikos@kernel.org>, 
+	Benjamin Tissoires <bentiss@kernel.org>, Peter Hutterer <peter.hutterer@who-t.net>, 
+	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v3 2/4] HID: wacom: Fix Use-After-Free in wacom_bamboo_pad
+Message-ID: <ainudW7jgcL-yLN9@google.com>
+References: <20260609121353.3743782-1-lee@kernel.org>
+ <20260609121353.3743782-2-lee@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260609121353.3743782-2-lee@kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
+On Tue, Jun 09, 2026 at 01:13:38PM +0100, Lee Jones wrote:
+> @@ -3308,13 +3309,12 @@ static void wacom_bamboo_pad_pen_event(struct wacom_wac *wacom,
+>  	prefix = data[0];
+>  	data[0] = WACOM_REPORT_BPAD_PEN;
+>  
+> -	/*
+> -	 * actually reroute the event.
+> -	 * No need to check if wacom->shared->pen is valid, hid_input_report()
+> -	 * will check for us.
+> -	 */
+> -	hid_input_report(wacom->shared->pen, HID_INPUT_REPORT, data,
+> -			 WACOM_PKGLEN_PENABLED, 1);
+> +	rcu_read_lock();
 
-Pre-existing issues:
-- [High] `micro_key_start()` and `micro_key_stop()` acquire `keys->micro->l=
-ock` without disabling interrupts, leading to a potential deadlock with the=
- MFD serial interrupt handler.
---
+Since the driver already uses guard notation we can use
 
-commit 33b9102060e60926d04c255f54b3c13bbafe5ca3
-Author: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+	guard(rcu)();
 
-    Input: ipaq-micro-keys - add length check in micro_key_receive
-   =20
-    The driver accesses the message payload (msg[0]) without checking if
-    the length is greater than zero. The parent MFD driver can produce a
-    payload with a length of 0, in which case msg[0] would be uninitialized
-    or stale.
-   =20
-    Add a check to return early if len is less than 1.
-   =20
-    Reported-by: sashiko-bot@kernel.org
-    Assisted-by: Antigravity:gemini-3.5-flash
-    Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> +	pen = rcu_dereference(wacom->shared->pen);
+> +	if (pen)
+> +		hid_input_report(pen, HID_INPUT_REPORT, data,
+> +				 WACOM_PKGLEN_PENABLED, 1);
+> +	rcu_read_unlock();
+>  
+>  	data[0] = prefix;
+>  }
 
-> diff --git a/drivers/input/keyboard/ipaq-micro-keys.c b/drivers/input/key=
-board/ipaq-micro-keys.c
-> index 695ef3c2081a4..b2068fbc82651 100644
-> --- a/drivers/input/keyboard/ipaq-micro-keys.c
-> +++ b/drivers/input/keyboard/ipaq-micro-keys.c
-> @@ -43,6 +43,9 @@ static void micro_key_receive(void *data, int len, unsi=
-gned char *msg)
->  	struct ipaq_micro_keys *keys =3D data;
->  	int key, down;
-> =20
-> +	if (len < 1)
-> +		return;
-> +
->  	down =3D 0x80 & msg[0];
->  	key  =3D 0x7f & msg[0];
-> =20
+Otherwise:
 
-[Severity: High]
-This isn't a bug introduced by this patch, but I noticed a potential deadlo=
-ck
-involving keys->micro->lock when looking at the surrounding code.
+Reviewed-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Does the use of guard(spinlock) in micro_key_start() and micro_key_stop()
-risk a deadlock with the MFD serial interrupt handler?
+Thanks.
 
-drivers/input/keyboard/ipaq-micro-keys.c:micro_key_start() {
-	guard(spinlock)(&keys->micro->lock);
-	...
-}
-
-drivers/input/keyboard/ipaq-micro-keys.c:micro_key_stop() {
-	guard(spinlock)(&keys->micro->lock);
-	...
-}
-
-The keys->micro->lock spinlock is also acquired within the MFD driver's hard
-IRQ handler in micro_serial_isr(). Since micro_key_start() and
-micro_key_stop() are called in process context without disabling local
-interrupts, could an interrupt firing on the same CPU while the lock is held
-cause the ISR to try acquiring the lock again and hang?
-
-Should these functions be using guard(spinlock_irqsave) or equivalent to
-prevent this?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/aintAvTyw4CVb5hG@go=
-ogle.com?part=3D1
+-- 
+Dmitry

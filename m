@@ -1,43 +1,63 @@
-Received: from m16.mail.163.com (m16.mail.163.com [220.197.31.3])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.10])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C0C192DE6E3;
-	Wed, 10 Jun 2026 06:47:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=220.197.31.3
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 369AB21B9F6;
+	Wed, 10 Jun 2026 08:29:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.10
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781074061; cv=none; b=jrZ4d9IRnmepCLhGBnBPXNwYcHyKL0NYBAsGbUC6nmHXfLpchy0El7FDUB75Ilphsy/9eNodKzibQ66tGgiD22dzSU8omhxwanhlPce2nmCHWKs6apm4u9rD8wgz1gc7h62BWxheGSRrGjEGgEmzBoB2Jc6qKYF+mktFFnjqpOs=
+	t=1781080156; cv=none; b=TIpTyp6Ut0HrVqreaEmg2848jkSM9begT7binLfDG2XwFteeSN1RnewH1VsxWdFEA7Zl8aZE+FBqdgSswysagZSMAIar4g2zU4TG0cGmz97as5Qrn5pVT/vLrdx9rBgaw9SyrIByZ6WhcgA+i12Px8VAO65RJnMjpvXQo5NFIQk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781074061; c=relaxed/simple;
-	bh=N4GrsXdwP2cIyGFN4HAZ3r9kiiiDRu/1rqdSh1SFEdI=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=l6NW5PiMK726M5lbYloH+VETRkCjOIfCOJ0N3xckvfS2aGbt9l9LiUN0vY5SsrOBecGv8EekPcIRiuRRWw9GwWyvGnFkD+bqfovqG3JUGhp/9Uv96tU1wGHmATJDYFQ1qzydwqun3NKw6fni8E9RtcXNgFnKuZEyqUzQpZvZjiU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=Iu6HMbDo; arc=none smtp.client-ip=220.197.31.3
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
+	s=arc-20240116; t=1781080156; c=relaxed/simple;
+	bh=SlxX4GHRBsvQro5I2+VwI3J9BMgQtLJR/xJ/6xGPdoU=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=dHtIfxFHGmw8dnQcnTfYNJXtuQmIpLX3FBKY66Frvhr1V37qxAXiSqOeijXzC6MJ6V+Hv7sD4aQGnJn51WIR4S90aJSPu4xPjKl3xXJHgQV9iciiY/D9VBGf/rSUmQaROdAeJPcAzK0/9yXtbBp41mplITBfXeJmTdw662AJ2RM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=dcStlRUD; arc=none smtp.client-ip=192.198.163.10
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="Iu6HMbDo"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
-	s=s110527; h=From:To:Subject:Date:Message-Id:MIME-Version; bh=k3
-	rd9dBlWcHktU8MCBGhx9fS5lnuIgHP6AoLpSyV1xY=; b=Iu6HMbDoYO80Fccyki
-	VTo5Z39Qz+quqA45Isxsar3RcZQTfd/4wfl0gwkWOMf1zFlks+OXSy/80s8PQyUy
-	hTsAiAvzvHBIDFIUC2Y6R6pRhF4PGuqA6VwlqUbbewYpvJDoy4JsUyh7U658KgML
-	I6wuCdOokJUkx2+54y3sqvabE=
-Received: from localhost.localdomain (unknown [])
-	by gzga-smtp-mtada-g0-1 (Coremail) with SMTP id _____wD3v_5LCClqoxPwCQ--.9734S2;
-	Wed, 10 Jun 2026 14:46:37 +0800 (CST)
-From: Haoxiang Li <haoxiang_li2024@163.com>
-To: dmitry.torokhov@gmail.com,
-	git@apitzsch.eu,
-	Marge.Yang@tw.synaptics.com,
-	kees@kernel.org,
-	jiapeng.chong@linux.alibaba.com
-Cc: linux-input@vger.kernel.org,
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="dcStlRUD"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1781080155; x=1812616155;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=SlxX4GHRBsvQro5I2+VwI3J9BMgQtLJR/xJ/6xGPdoU=;
+  b=dcStlRUDr99sytlOcfZXGLxfYBiYGlD1MKZdJbyv4t5jwMPsmFKvUgoJ
+   wxEDlqI74gkjQeK+CgkRLaqcnJIWlV5IVOHdU/aXigLly47JGKIXuRsSH
+   h7mtqhcMRJJ45OYUI///G/OI1X0cOqkiYlSeo2yB76Byl6SIsjGY4LTVy
+   fg/S1Gq7hXtilAfy9Jr8AU+09+ZvDIwWUgwGbQG5OKMOkhKVxKr9aqwP0
+   RN178MyL5fSjoWVxWV3YVkm5qayfNwY7kB8ecHwSHUriIdX/Zg8I8MXcE
+   MmSaV5wIS7W3FzC66hWPNv4TpMs2zOwqmen27b0DknAitbKHbGACI1Gbb
+   g==;
+X-CSE-ConnectionGUID: 45dBYXu0R+SrJ2COqiCCkQ==
+X-CSE-MsgGUID: X2J9e5RhSfWhJ7F3leu8Ug==
+X-IronPort-AV: E=McAfee;i="6800,10657,11812"; a="93255310"
+X-IronPort-AV: E=Sophos;i="6.24,197,1774335600"; 
+   d="scan'208";a="93255310"
+Received: from orviesa003.jf.intel.com ([10.64.159.143])
+  by fmvoesa104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Jun 2026 01:29:15 -0700
+X-CSE-ConnectionGUID: UI01S6LFRP20r8gEzRLDSw==
+X-CSE-MsgGUID: TXl4jO/BRMSWfxVzDZ2NNw==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.24,197,1774335600"; 
+   d="scan'208";a="250043137"
+Received: from lixuzha-desk.sh.intel.com ([10.239.146.169])
+  by orviesa003.jf.intel.com with ESMTP; 10 Jun 2026 01:29:12 -0700
+From: Zhang Lixu <lixu.zhang@intel.com>
+To: Jiri Kosina <jikos@kernel.org>,
+	Jonathan Cameron <jic23@kernel.org>,
+	Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+	Benjamin Tissoires <bentiss@kernel.org>
+Cc: David Lechner <dlechner@baylibre.com>,
+	=?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>,
+	Andy Shevchenko <andy@kernel.org>,
+	linux-input@vger.kernel.org,
+	linux-iio@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
-	Haoxiang Li <haoxiang_li2024@163.com>,
-	stable@vger.kernel.org
-Subject: [PATCH] Input: synaptics-rmi4 - unregister function handlers on physical driver registration failure
-Date: Wed, 10 Jun 2026 14:46:33 +0800
-Message-Id: <20260610064633.2837084-1-haoxiang_li2024@163.com>
-X-Mailer: git-send-email 2.25.1
+	lixu.zhang@intel.com
+Subject: [PATCH 0/2] HID: iio: Fix stale or zero quaternion reads with multi-byte read helper
+Date: Wed, 10 Jun 2026 16:29:08 +0800
+Message-ID: <20260610082911.157232-1-lixu.zhang@intel.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -45,46 +65,41 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:_____wD3v_5LCClqoxPwCQ--.9734S2
-X-Coremail-Antispam: 1Uf129KBjvdXoWrtryrZFWUAw4DAr1rXrWUurg_yoWktrbEgr
-	W0q34xJws0krnxKwnrursIvw1v93WUGrWfur1Fqa98KryrZwsYgw1DZrn8Cw1vqrWSyrnF
-	ka45ur93u3y7GjkaLaAFLSUrUUUUjb8apTn2vfkv8UJUUUU8Yxn0WfASr-VFAUDa7-sFnT
-	9fnUUvcSsGvfC2KfnxnUUI43ZEXa7sRMJ5rUUUUUU==
-X-CM-SenderInfo: xkdr5xpdqjszblsqjki6rwjhhfrp/xtbC7g35aGopCE0ICwAA33
 
-If rmi_register_physical_driver() fails, the current error path
-unregisters only the RMI bus. The function handlers registered
-earlier remain registered with the driver core.
+When reading in_rot_quaternion_raw from hid-sensor-rotation, the driver
+returns either all zeros (if the sensor was never enabled) or stale data
+(if previously enabled), because it reads from an internal buffer without
+requesting a fresh sample from the device.
 
-Add a separate error path to unregister the function handlers
-before unregistering the bus in this failure case.
+This series fixes the issue in two steps:
 
-Fixes: d6e680837ec5 ("Input: synaptics-rmi4 - fix function name in kerneldoc")
-Cc: stable@vger.kernel.org
-Signed-off-by: Haoxiang Li <haoxiang_li2024@163.com>
----
- drivers/input/rmi4/rmi_bus.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+1. Add sensor_hub_input_attr_read_values() to the HID sensor hub core.
+   Unlike sensor_hub_input_attr_get_raw_value(), which is limited to a
+   single 32-bit value, the new helper accepts a caller-provided buffer
+   and accumulates incoming input report data until the buffer is full.
+   The two code paths are distinguished in sensor_hub_raw_event() by
+   pending.max_raw_size being non-zero, preserving backward compatibility.
 
-diff --git a/drivers/input/rmi4/rmi_bus.c b/drivers/input/rmi4/rmi_bus.c
-index 687cb987bc13..ade57e2a7201 100644
---- a/drivers/input/rmi4/rmi_bus.c
-+++ b/drivers/input/rmi4/rmi_bus.c
-@@ -455,11 +455,13 @@ static int __init rmi_bus_init(void)
- 	if (error) {
- 		pr_err("%s: error registering the RMI physical driver: %d\n",
- 			__func__, error);
--		goto err_unregister_bus;
-+		goto err_unregister_function_handlers;
- 	}
- 
- 	return 0;
- 
-+err_unregister_function_handlers:
-+	rmi_unregister_function_handlers();
- err_unregister_bus:
- 	bus_unregister(&rmi_bus_type);
- 	return error;
+2. Switch hid-sensor-rotation to use the new helper for raw quaternion
+   reads. It now powers up the sensor, issues a synchronous GET_REPORT,
+   and receives all four quaternion components directly into a local
+   buffer before decoding them, eliminating stale or zero output.
+
+Srinivas Pandruvada (1):
+  HID: sensor-hub: Add sensor_hub_input_attr_read_values() for
+    multi-byte reads
+
+Zhang Lixu (1):
+  iio: hid-sensor-rotation: Fix stale or zero output when reading raw
+    values
+
+ drivers/hid/hid-sensor-hub.c                  | 77 +++++++++++++++++--
+ drivers/iio/orientation/hid-sensor-rotation.c | 40 +++++++++-
+ include/linux/hid-sensor-hub.h                | 25 ++++++
+ 3 files changed, 134 insertions(+), 8 deletions(-)
+
+
+base-commit: 49e02880ec0a8c378e811bc9d85da188d7c6204c
 -- 
-2.25.1
+2.43.0
 

@@ -1,274 +1,109 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C4E59381B1A;
-	Thu, 11 Jun 2026 11:30:42 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C918B3DA5A6;
+	Thu, 11 Jun 2026 11:59:19 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781177444; cv=none; b=BqCgvwkuJ8sC4I5HT3xeUMQJ16XlT9S1pZ2jaoKV98KR1350Jr0p87ZN+7gh9PR0KKLdBXYmOTLsLfTPIYzchcnN9//DXdlQ3X3gpD8UIoRpKkd08RjpFAb+MsCCvsqbdmWIpe/Z5tprOgMCYAixk4dkOPk9Bx8huEpFyuhTNp0=
+	t=1781179160; cv=none; b=mxL5u/jM5ougZEMhFKK443uqlnDnOSzUNUJaAsXtonASPgP7fkqxq7zWUDf8A/IAAhCH6AYNx6rbA2+TQINm2qMyYklGIlC26LAiLChlSgfsY6I4zjMdZpPxO5zVGKfhSXM/ds4NjPD6k0Y+Q48meFPbywWknYLjrNKIQhi4ohE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781177444; c=relaxed/simple;
-	bh=I+DLwJN2u0GSO6ZTJ67Utz5lEafP5XeM7zcNJa5hrmg=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=GKR/gRZt3bNpsosEQLtzVU6K4jt6kZhfOo920qdCi01aGV48QG7onVIR1jdkOD/2o6rkb2v3NZfP8T7U8vfLkx82uUWtLBrhvGCd66ASImOUcm/1Qh/5kpytCiLdVS1sRuT8Xkc8e729O0B0b8CGcTpdq7etP8iGS4pJYA1TymQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=fuSv5Pq0; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1781179160; c=relaxed/simple;
+	bh=0UAx43NDKA6uCIcpn6dmvPdreXgDlsbs3GB9AFVRPFU=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=jFQJpl+7UschlPEzRT+uDUBLeYDPSPC00ESc8WiBgueYLyEKWQfd/imjZKlUQjT0zWk/NEvKjUc2Ia+HO+JWktj8qq4NPRoQ3jAgvsnJcjDqGLdXJhPsGZbxp8bn/hDQLXu4T5FSAIhmlzKiE1RPsQLAaP30uvXYsK7BFWcZjAc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Qn5SnWIz; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="fuSv5Pq0"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A9C3D1F00893;
-	Thu, 11 Jun 2026 11:30:39 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Qn5SnWIz"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 618001F00893;
+	Thu, 11 Jun 2026 11:59:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1781177442;
-	bh=1Q0T0fOSnrEZgHRMfBVT+QCLa/RsFvlUpXXyWGKZ6xY=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=fuSv5Pq0TLtblvVdPXnlAbdIIJiAYLAMLN1XAZwKJkwmE0v18pxNc8hH105cMU2Lm
-	 xEFIl5lJXiKw2MY6QeUuEZ0qLlgHPDyo5Wg4PteKuyjHsY8nizQ8GpWYs7f9gK2SgD
-	 0b01T6NzaDoYo7eNka42/NL4ojpcR6/ZbQ1vt1sT90L4yGTg0ifaebtOk5fcTUv9f4
-	 CsZDaALlxySSKN95XjY7mT/QFvRrpcA/pCJmhPBJWWs2vaqmLm1Od+fIfbFtmt7Njx
-	 NLBWRnYnPQVJvUgNo5YNJ4fWxm2sPRYNjEuyDij5EsbefVZzuXUkciPPiUnTBkoFC5
-	 e2k+N2nTvpNhQ==
-Date: Thu, 11 Jun 2026 12:30:37 +0100
-From: Lee Jones <lee@kernel.org>
-To: Svyatoslav Ryhel <clamor95@gmail.com>
-Cc: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Pavel Machek <pavel@kernel.org>, Sebastian Reichel <sre@kernel.org>,
-	Ion Agorria <ion@agorria.com>,
-	=?utf-8?B?TWljaGHFgiBNaXJvc8WCYXc=?= <mirq-linux@rere.qmqm.pl>,
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-input@vger.kernel.org, linux-leds@vger.kernel.org,
-	linux-pm@vger.kernel.org
-Subject: Re: [PATCH v8 5/7] leds: Add driver for ASUS Transformer LEDs
-Message-ID: <20260611113037.GO4151951@google.com>
-References: <20260528053203.9339-1-clamor95@gmail.com>
- <20260528053203.9339-6-clamor95@gmail.com>
+	s=k20260515; t=1781179159;
+	bh=UIPer9977gK9vwildVgr3HJ9cefkhzAYfl9HAsav/8E=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References;
+	b=Qn5SnWIz1BkvNXg489kY/H5F66Yd4MDvz43hbA37/tv/LIw6IjyGvO4sE7wICMeAm
+	 yzp6fVU4JXBELK7jxVR+6S1Q8SuIrXllLGbhNSlJ76w5vJn/dej+F2HsvyMmIBDsvt
+	 9pSFkf52jjOy4iTtiKXEaiVyNjhHYA9kgV80/eTT9fdnR4hlknuh2wGVA2DaTLH4vV
+	 9uC6vpwVXHGNlpUGvvXyHFQucl8ITAijnN9QlSiMQHH9RRGdM7BvqWdzg3yOmFizdU
+	 0K3rbZfoC1EMbp3K3Rr6wZ+JLRkA7p7eCrn31/pJmI0Lqt6tRo1TUsys3E0dnaameu
+	 CFB6FCLsHAUyA==
+Date: Thu, 11 Jun 2026 12:59:14 +0100
+From: Jonathan Cameron <jic23@kernel.org>
+To: Sanjay Chitroda <sanjayembeddedse@gmail.com>
+Cc: Jiri Kosina <jikos@kernel.org>, Srinivas Pandruvada
+ <srinivas.pandruvada@linux.intel.com>, David Lechner
+ <dlechner@baylibre.com>, Nuno =?UTF-8?B?U8Oh?= <nuno.sa@analog.com>, Andy
+ Shevchenko <andy@kernel.org>, linux-input@vger.kernel.org,
+ linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org, Maxwell Doose
+ <m32285159@gmail.com>
+Subject: Re: [PATCH v2 0/7] HID: iio: basic clean up for usage_id
+Message-ID: <20260611125914.311c7d03@jic23-huawei>
+In-Reply-To: <20260610-6-june-hid-iio-correct-usage-id-v2-0-c3c5f0720493@gmail.com>
+References: <20260610-6-june-hid-iio-correct-usage-id-v2-0-c3c5f0720493@gmail.com>
+X-Mailer: Claws Mail 4.4.0 (GTK 3.24.52; x86_64-pc-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20260528053203.9339-6-clamor95@gmail.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-On Thu, 28 May 2026, Svyatoslav Ryhel wrote:
+On Wed, 10 Jun 2026 21:07:01 +0530
+Sanjay Chitroda <sanjayembeddedse@gmail.com> wrote:
 
-> From: Michał Mirosław <mirq-linux@rere.qmqm.pl>
+> Hi all,
 > 
-> ASUS Transformer tablets have a green and an amber LED on both the Pad
-> and the Dock. If both LEDs are enabled simultaneously, the emitted light
-> will be yellow.
+> This series updates all HID IIO drivers to use 'u32' instead of
+> bare 'unsigned' for the usage_id parameter.
 > 
-> Co-developed-by: Svyatoslav Ryhel <clamor95@gmail.com>
-> Signed-off-by: Svyatoslav Ryhel <clamor95@gmail.com>
-> Signed-off-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
+> This matches expected callback API type and improves code clarity,
+> as HID usage IDs are defined as 32-bit values.
+> 
+> No functional changes are introduced.
+> 
+> Testing:
+>   - Compiled with W=1 for each patch in the series
+LGTM so I've applied it to the testing branch of iio.git. However, I won't
+be doing another pull request this cycle so this tree will be rebased once rc1
+is available.  In meantime I'm happy to add tags or indeed back this out
+if people have feedback.
+
+Thanks,
+
+Jonathan
+
+> 
 > ---
->  drivers/leds/Kconfig                    |  11 +++
->  drivers/leds/Makefile                   |   1 +
->  drivers/leds/leds-asus-transformer-ec.c | 125 ++++++++++++++++++++++++
->  3 files changed, 137 insertions(+)
->  create mode 100644 drivers/leds/leds-asus-transformer-ec.c
+> Changes in v2:
+> - rectify commit message with input from Jonathan
+> - added reviewed by tag in all change of series
+> - Link to v1: https://patch.msgid.link/20260606-6-june-hid-iio-correct-usage-id-v1-0-dd4a6820b674@gmail.com
 > 
-> diff --git a/drivers/leds/Kconfig b/drivers/leds/Kconfig
-> index f4a0a3c8c870..f637d23400a8 100644
-> --- a/drivers/leds/Kconfig
-> +++ b/drivers/leds/Kconfig
-> @@ -120,6 +120,17 @@ config LEDS_OSRAM_AMS_AS3668
->  	  To compile this driver as a module, choose M here: the module
->  	  will be called leds-as3668.
->  
-> +config LEDS_ASUS_TRANSFORMER_EC
-> +	tristate "LED Support for Asus Transformer charging LED"
-> +	depends on LEDS_CLASS
-> +	depends on MFD_ASUS_TRANSFORMER_EC
-> +	help
-> +	  This option enables support for charging indicator on
-> +	  Asus Transformer's Pad and it's Dock.
-> +
-> +	  To compile this driver as a module, choose M here: the module
-> +	  will be called leds-asus-transformer-ec.
-> +
->  config LEDS_AW200XX
->  	tristate "LED support for Awinic AW20036/AW20054/AW20072/AW20108"
->  	depends on LEDS_CLASS
-> diff --git a/drivers/leds/Makefile b/drivers/leds/Makefile
-> index 8fdb45d5b439..d5395c3f1124 100644
-> --- a/drivers/leds/Makefile
-> +++ b/drivers/leds/Makefile
-> @@ -16,6 +16,7 @@ obj-$(CONFIG_LEDS_AN30259A)		+= leds-an30259a.o
->  obj-$(CONFIG_LEDS_APU)			+= leds-apu.o
->  obj-$(CONFIG_LEDS_ARIEL)		+= leds-ariel.o
->  obj-$(CONFIG_LEDS_AS3668)		+= leds-as3668.o
-> +obj-$(CONFIG_LEDS_ASUS_TRANSFORMER_EC)	+= leds-asus-transformer-ec.o
->  obj-$(CONFIG_LEDS_AW200XX)		+= leds-aw200xx.o
->  obj-$(CONFIG_LEDS_AW2013)		+= leds-aw2013.o
->  obj-$(CONFIG_LEDS_BCM6328)		+= leds-bcm6328.o
-> diff --git a/drivers/leds/leds-asus-transformer-ec.c b/drivers/leds/leds-asus-transformer-ec.c
-> new file mode 100644
-> index 000000000000..09503e76331c
-> --- /dev/null
-> +++ b/drivers/leds/leds-asus-transformer-ec.c
-> @@ -0,0 +1,125 @@
-> +// SPDX-License-Identifier: GPL-2.0-only
-> +
-> +#include <linux/err.h>
-> +#include <linux/leds.h>
-> +#include <linux/mfd/asus-transformer-ec.h>
-> +#include <linux/module.h>
-> +#include <linux/platform_device.h>
-> +#include <linux/slab.h>
-> +
-> +enum {
-> +	ASUSEC_LED_AMBER,
-> +	ASUSEC_LED_GREEN,
-> +	ASUSEC_LED_MAX
-> +};
-> +
-> +struct asus_ec_led_config {
-> +	const char *name;
-> +	unsigned int color;
-> +	unsigned long long ctrl_bit;
-
-Should we use 'u64' here instead of 'unsigned long long' to align with standard
-kernel integer types?
-
-> +};
-> +
-> +struct asus_ec_led {
-> +	struct asus_ec_leds_data *ddata;
-> +	struct led_classdev cdev;
-> +	unsigned long long ctrl_bit;
-
-Should we use 'u64' here as well to keep it consistent?
-
-> +};
-> +
-> +struct asus_ec_leds_data {
-> +	const struct asusec_core *ec;
-> +	struct asus_ec_led leds[ASUSEC_LED_MAX];
-> +};
-> +
-> +static const struct asus_ec_led_config asus_ec_leds[] = {
-> +	[ASUSEC_LED_AMBER] = {
-> +		.name = "amber",
-> +		.color = LED_COLOR_ID_AMBER,
-> +		.ctrl_bit = ASUSEC_CTL_LED_AMBER,
-> +	},
-> +	[ASUSEC_LED_GREEN] = {
-> +		.name = "green",
-> +		.color = LED_COLOR_ID_GREEN,
-> +		.ctrl_bit = ASUSEC_CTL_LED_GREEN,
-> +	},
-> +};
-> +
-> +static enum led_brightness asus_ec_led_get_brightness(struct led_classdev *cdev)
-> +{
-> +	struct asus_ec_led *led = container_of(cdev, struct asus_ec_led, cdev);
-> +	const struct asusec_core *ec = led->ddata->ec;
-
-I'm getting confused here.
-
-ddata is what I'd be calling the device data struct passed by the parent?
-
-In fact, ddata is a little known concept in Leds.  Any reason to go for
-this over the standard nomenclature?
-
-> +	u64 ctl;
-> +	int ret;
-> +
-> +	ret = asus_dockram_access_ctl(ec->dockram, &ctl, 0, 0);
-
-Did we discuss preferring regmap already?
-
-> +	if (ret)
-> +		return LED_OFF;
-> +
-> +	return ctl & led->ctrl_bit ? LED_ON : LED_OFF;
-> +}
-> +
-> +static int asus_ec_led_set_brightness(struct led_classdev *cdev,
-> +				      enum led_brightness brightness)
-> +{
-> +	struct asus_ec_led *led = container_of(cdev, struct asus_ec_led, cdev);
-> +	const struct asusec_core *ec = led->ddata->ec;
-> +
-> +	if (brightness)
-> +		return asus_dockram_access_ctl(ec->dockram, NULL,
-> +					       led->ctrl_bit, led->ctrl_bit);
-> +
-> +	return asus_dockram_access_ctl(ec->dockram, NULL, led->ctrl_bit, 0);
-> +}
-> +
-> +static int asus_ec_led_probe(struct platform_device *pdev)
-> +{
-> +	const struct asusec_core *ec = dev_get_drvdata(pdev->dev.parent);
-> +	struct asus_ec_leds_data *ddata;
-> +	struct device *dev = &pdev->dev;
-> +	int i, ret;
-
-Could we declare the loop counter 'i' directly within the 'for' statement's
-scope to keep its scope limited? For example, 'for (int i = 0; ...)'.
-
-> +
-> +	ddata = devm_kzalloc(dev, sizeof(*ddata), GFP_KERNEL);
-> +	if (!ddata)
-> +		return -ENOMEM;
-> +
-> +	platform_set_drvdata(pdev, ddata);
-> +	ddata->ec = ec;
-> +
-> +	for (i = 0; i < ASUSEC_LED_MAX; i++) {
-
-Nit: for (int i = ...
-
-> +		const struct asus_ec_led_config *cfg = &asus_ec_leds[i];
-> +		struct asus_ec_led *led = &ddata->leds[i];
-> +
-> +		led->cdev.name = devm_kasprintf(dev, GFP_KERNEL, "%s::%s",
-> +						ddata->ec->name, cfg->name);
-> +		if (!led->cdev.name)
-> +			return -ENOMEM;
-> +
-> +		led->cdev.max_brightness = 1;
-> +		led->cdev.color = cfg->color;
-> +		led->cdev.flags = LED_CORE_SUSPENDRESUME | LED_RETAIN_AT_SHUTDOWN;
-> +		led->cdev.brightness_get = asus_ec_led_get_brightness;
-> +		led->cdev.brightness_set_blocking = asus_ec_led_set_brightness;
-> +
-> +		led->ddata = ddata;
-> +		led->ctrl_bit = cfg->ctrl_bit;
-> +
-> +		ret = devm_led_classdev_register(dev, &led->cdev);
-> +		if (ret)
-> +			return dev_err_probe(dev, ret,
-> +					     "failed to register %s LED\n",
-> +					     cfg->name);
-
-Should we capitalise the error message here to match our style guidelines
-(e.g. 'Failed to register...')?
-
-> +	}
-> +
-> +	return 0;
-> +}
-> +
-> +static struct platform_driver asus_ec_led_driver = {
-> +	.driver.name = "asus-transformer-ec-led",
-> +	.probe = asus_ec_led_probe,
-> +};
-> +module_platform_driver(asus_ec_led_driver);
-> +
-> +MODULE_ALIAS("platform:asus-transformer-ec-led");
-> +MODULE_AUTHOR("Michał Mirosław <mirq-linux@rere.qmqm.pl>");
-> +MODULE_AUTHOR("Svyatoslav Ryhel <clamor95@gmail.com>");
-> +MODULE_DESCRIPTION("ASUS Transformer's charging LED driver");
-> +MODULE_LICENSE("GPL");
-> -- 
-> 2.51.0
+> ---
+> Sanjay Chitroda (7):
+>       iio: gyro: hid-sensor-gyro-3d: use u32 instead of unsigned
+>       iio: accel: hid-sensor-accel-3d: use u32 instead of unsigned
+>       iio: light: hid-sensor-als: use u32 instead of unsigned
+>       iio: light: hid-sensor-prox: use u32 instead of unsigned
+>       iio: orientation: hid-sensor-incl-3d: use u32 instead of unsigned
+>       iio: orientation: hid-sensor-rotation: use u32 instead of unsigned
+>       iio: pressure: hid-sensor-press: use u32 instead of unsigned
 > 
+>  drivers/iio/accel/hid-sensor-accel-3d.c       | 6 +++---
+>  drivers/iio/gyro/hid-sensor-gyro-3d.c         | 6 +++---
+>  drivers/iio/light/hid-sensor-als.c            | 6 +++---
+>  drivers/iio/light/hid-sensor-prox.c           | 4 ++--
+>  drivers/iio/orientation/hid-sensor-incl-3d.c  | 6 +++---
+>  drivers/iio/orientation/hid-sensor-rotation.c | 6 +++---
+>  drivers/iio/pressure/hid-sensor-press.c       | 6 +++---
+>  7 files changed, 20 insertions(+), 20 deletions(-)
+> ---
+> base-commit: ae696dfa47c30016cd429b9db5e70b259b8f509e
+> change-id: 20260606-6-june-hid-iio-correct-usage-id-57ce92cb102b
+> 
+> Best regards,
+> --  
+> Sanjay Chitroda <sanjayembeddedse@gmail.com>
 > 
 
--- 
-Lee Jones

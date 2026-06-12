@@ -1,150 +1,105 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 990242BE051;
-	Fri, 12 Jun 2026 20:39:07 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8F08D1DFFD;
+	Fri, 12 Jun 2026 20:44:35 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781296748; cv=none; b=RLCB/B4cyEyUa/eOT1PyLzWnuFRdtsc+vP3g62pezZr2rYMxTpoUseXASAULTXrsk1ASHcE1drK5W7QEk3zGwxuYDj0UNODy1eUAXVzcaLTnT+mu3hj2fJarGyKTKEIqzMdGliPoZL1R+i403HbN5Y+1a2gszCueosxI/WYtl9w=
+	t=1781297076; cv=none; b=H7pqa6e/7pC4v3zP7Owxe94Mbi0sAiSslKy2DixCGnU/iYrrEhqKbdlAIywevF4xDV7jz5HUqyWVWCjJnNblmXEFj++RImadwRBlDO6AfVe+17Awi7b+ZnOjDugNCYQOgFohjJOpsug+jjN0lOh6+1rgzo/bpEbKzGzFXDgEa28=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781296748; c=relaxed/simple;
-	bh=eicU+rt9aGU++NavoZzZRElg9JuqfKGQbf+nodk5C4k=;
+	s=arc-20240116; t=1781297076; c=relaxed/simple;
+	bh=goAxhR7qqdBE6S0+LOf4GqM+w16qCkFiYfwfPMsf6ms=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=B2mZwAgcgppwIUceyn6SjMshO8IPYy4RzRZOCRothWCXk2bLKzBVMoKxMNNxlWCNZAGclcNaDQlf+yWeRBOnM+zXVbC8tlQDYroA/4ouamaTGg+S+82fE7lgAT9S1ia2/Ls1J90WO+uomxJ8qpDgFqeVegYkFin+c+m9fJLnqa4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=YJp+kr7k; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=OfNzTnje9ArCfI2HR6VrdPE13BhaYCVsE3bCSVsOvWvh42IPprP6zG+yxESiVoyUat6C4c2rhO7/KjgBDLoSXw2j8zx6sW9rm0er50EyhSkc07pyKXwEGJsfuH/5RDd2onYI8k1q8hARIfGl3LU7vZtoUxUC1R662btnwSMFYoQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=hzDnuddY; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="YJp+kr7k"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E53231F000E9;
-	Fri, 12 Jun 2026 20:39:06 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="hzDnuddY"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1E891F000E9;
+	Fri, 12 Jun 2026 20:44:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1781296747;
-	bh=CFXkz/KtKZUVRH+VGbL5pBMt6IMlfPCCe2Qmgr4JUk4=;
+	s=k20260515; t=1781297075;
+	bh=ESlgcV+sSAXhJ8EWfwDbiW8pWPCgj7FlQDagWfEaYlI=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=YJp+kr7kRYl4REdCACrwSuJkBH583n3Z06PCltITAbDpmKUzEq6Ol5137pbXaNoPJ
-	 7B2l5T1XjEhLBEWQaR2UQYN5CuULE3Rl8Mb6HXKoRlwK0c00dE1ZshATNqGKwbympx
-	 LGVb1y33BcFjt1VP9uX2le6G4YHYRsf/4+bhKroPndcA+JW9Biwv3vrssq6IoXdTvc
-	 LwicM6HEMjy7zUww/DltYmX8UbKpjFV9iUQpXuy072GjgMBF4hQfI3VFh2azuHMnw/
-	 XsZXc1+iwkzJMwXccSohzI0y6f+VW4bemxZSYTbvY/1Ys0j68R3RqoZlc5X7ZKa+hS
-	 BGWpUAVuAwj0g==
+	b=hzDnuddYU/c6vTo7gtQtd79qMe8uR3/vMhY0/bnClpUChs8Qq8ZnrlOMlUnKModP9
+	 gKhXjTgPzteOujFGsAwEIdiMQ/BSTc4HMQ8Yd54rmk7Kbuyw0kz+x6SP9M3XcOoGpQ
+	 44YBl+als0rKHPCiqCUvbu1ZsNQQCL1nC94ewiIWwAmJUxDQBQTwO6S7eAei3urnyr
+	 QjdAWkOo6KnlUq/fR3K1RL9fezSRd6F2y4bgIYKTutV622n1hioS5FB+H2RDePr+yA
+	 dtTg5UDIzuVxaGOQb6iqqdqmUpl8KAPEhYDIbtAN3O4avgs3gt4zE4U9IbpNcBI8IW
+	 jO/HsG02wm/xQ==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v6 5/7] input: keyboard: mtk-pmic-keys: Add MT6392
- support
+Subject: Re: [PATCH v6 4/7] mfd: mt6397: Add support for MT6392 PMIC
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Luca Leonardo Scorcia" <l.scorcia@gmail.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, conor+dt@kernel.org, robh@kernel.org, devicetree@vger.kernel.org
-In-Reply-To: <20260612200717.361018-6-l.scorcia@gmail.com>
-References: <20260612200717.361018-6-l.scorcia@gmail.com>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, robh@kernel.org, conor+dt@kernel.org, devicetree@vger.kernel.org
+In-Reply-To: <20260612200717.361018-5-l.scorcia@gmail.com>
+References: <20260612200717.361018-5-l.scorcia@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 12 Jun 2026 20:39:06 +0000
-Message-Id: <20260612203906.E53231F000E9@smtp.kernel.org>
+Date: Fri, 12 Jun 2026 20:44:34 +0000
+Message-Id: <20260612204434.D1E891F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
 
 Pre-existing issues:
-- [High] Out-of-bounds array access and incorrect parsing of disabled DT no=
-des in `mtk_pmic_keys_probe` due to a mismatch between child counting and i=
-teration macros.
-- [High] `mt6357_regs` incorrectly uses `MTK_PMIC_HOMEKEY_INDEX` instead of=
- `MTK_PMIC_HOMEKEY_RST` for the home key reset mask.
+- [High] The PM notifier `chip->pm_nb` and the unmanaged `irq_domain` are l=
+eaked on probe failure and driver unbind, leading to a Use-After-Free durin=
+g system suspend/resume.
 --
 
-commit 2b2bdf18b713288536d3d56d4b82a48e65594233
-Author: Val Packett <val@packett.cool>
+commit 7e58614b47c19c51b0d112cc3708ab6bf5ecdc5a
+Author: Fabien Parent <parent.f@gmail.com>
 
-    input: keyboard: mtk-pmic-keys: Add MT6392 support
-   =20
-This commit adds support for the MT6392 PMIC to the mediatek pmic keys driv=
-er
-by defining its specific register layout and adding the required compatible
-string.
+mfd: mt6397: Add support for MT6392 PMIC
 
-> diff --git a/drivers/input/keyboard/mtk-pmic-keys.c b/drivers/input/keybo=
-ard/mtk-pmic-keys.c
-> index c78d9f6d97c4f..8b4a89fce4fb1 100644
-> --- a/drivers/input/keyboard/mtk-pmic-keys.c
-> +++ b/drivers/input/keyboard/mtk-pmic-keys.c
+Align the MT6397 PMIC driver to other MFD drivers by passing only an
+identifier through mt6397_of_match[*].data and add support for the MT6392
+PMIC and its RTC, keys and pinctrl devices.
 
-[ ... ]
-
-> @@ -69,6 +70,19 @@ static const struct mtk_pmic_regs mt6397_regs =3D {
->  	.rst_lprst_mask =3D MTK_PMIC_RST_DU_MASK,
->  };
+> diff --git a/drivers/mfd/mt6397-irq.c b/drivers/mfd/mt6397-irq.c
+> index 5d2e5459f7444..80ea5b92d232f 100644
+> --- a/drivers/mfd/mt6397-irq.c
+> +++ b/drivers/mfd/mt6397-irq.c
+> @@ -203,6 +205,12 @@ int mt6397_irq_init(struct mt6397_chip *chip)
+>  		chip->int_status[0] =3D MT6397_INT_STATUS0;
+>  		chip->int_status[1] =3D MT6397_INT_STATUS1;
+>  		break;
+> +	case MT6392_CHIP_ID:
+> +		chip->int_con[0] =3D MT6392_INT_CON0;
+> +		chip->int_con[1] =3D MT6392_INT_CON1;
+> +		chip->int_status[0] =3D MT6392_INT_STATUS0;
+> +		chip->int_status[1] =3D MT6392_INT_STATUS1;
+> +		break;
 > =20
-> +static const struct mtk_pmic_regs mt6392_regs =3D {
-> +	.keys_regs[MTK_PMIC_PWRKEY_INDEX] =3D
-> +		MTK_PMIC_KEYS_REGS(MT6392_CHRSTATUS, 0x2,
-> +				   MT6392_INT_MISC_CON, 0x10,
-> +				   MTK_PMIC_PWRKEY_RST),
-> +	.keys_regs[MTK_PMIC_HOMEKEY_INDEX] =3D
-> +		MTK_PMIC_KEYS_REGS(MT6392_CHRSTATUS, 0x4,
-> +				   MT6392_INT_MISC_CON, 0x8,
-> +				   MTK_PMIC_HOMEKEY_RST),
-> +	.pmic_rst_reg =3D MT6392_TOP_RST_MISC,
-> +	.rst_lprst_mask =3D MTK_PMIC_RST_DU_MASK,
-> +};
-> +
+>  	default:
+>  		dev_err(chip->dev, "unsupported chip: 0x%x\n", chip->chip_id);
 
 [Severity: High]
-This isn't a bug introduced by this patch, but I noticed a potential
-out-of-bounds access in mtk_pmic_keys_probe() due to a mismatch in child no=
-de
-parsing:
+This is a pre-existing issue, but I noticed a potential memory safety
+problem involving the initialization in mt6397_irq_init() and the probe
+error path in mt6397_probe().
 
-drivers/input/keyboard/mtk-pmic-keys.c:mtk_pmic_keys_probe() {
-    ...
-	keycount =3D of_get_available_child_count(node);
-	if (keycount > MTK_PMIC_MAX_KEY_COUNT) {
-		dev_err(dev, "too many keys defined (%d)\n", keycount);
-		return -EINVAL;
-	}
+Later in mt6397_irq_init(), we call:
 
-	for_each_child_of_node_scoped(node, child) {
-		keys->keys[index].regs =3D &keys->mtk_regs->keys_regs[index];
-    ...
-}
+    register_pm_notifier(&chip->pm_nb);
 
-The check uses of_get_available_child_count(), which skips nodes with
-status=3D"disabled", but the loop uses for_each_child_of_node_scoped(), whi=
-ch
-iterates over all child nodes regardless of their availability.
+However, there doesn't seem to be a corresponding unregister_pm_notifier()
+anywhere in the driver, nor a .remove callback in mt6397_driver.
 
-If a device tree defines more than MTK_PMIC_MAX_KEY_COUNT nodes but disables
-enough to pass the initial check, could the loop execute more than
-MTK_PMIC_MAX_KEY_COUNT times?  Would this cause an out-of-bounds array acce=
-ss
-on the keys->keys[] and irqnames[] arrays?
+If devm_mfd_add_devices() fails in mt6397_probe(), the devres mechanism
+will free the mt6397_chip structure (pmic). Since the pm_nb remains
+linked in the global pm_chain_head list, wouldn't a subsequent
+suspend/resume event dereference the freed memory and cause a
+use-after-free panic?
 
-[Severity: High]
-This is a pre-existing issue as well, but looking at the existing register
-definitions, mt6357_regs appears to use the wrong macro for the home key
-reset mask:
-
-drivers/input/keyboard/mtk-pmic-keys.c:
-static const struct mtk_pmic_regs mt6357_regs =3D {
-	.keys_regs[MTK_PMIC_PWRKEY_INDEX] =3D
-		MTK_PMIC_KEYS_REGS(MT6357_TOPSTATUS,
-		0x2, MT6357_INT_MISC_CON, 0x10, MTK_PMIC_PWRKEY_RST),
-	.keys_regs[MTK_PMIC_HOMEKEY_INDEX] =3D
-		MTK_PMIC_KEYS_REGS(MT6357_TOPSTATUS,
-		0x8, MT6357_INT_MISC_CON, 0x8, MTK_PMIC_HOMEKEY_INDEX),
-    ...
-};
-
-Does this incorrectly use MTK_PMIC_HOMEKEY_INDEX instead of
-MTK_PMIC_HOMEKEY_RST?
-
-Because MTK_PMIC_HOMEKEY_INDEX is just an array index, would this result in
-modifying the wrong bits in the reset register during
-mtk_pmic_keys_lp_reset_setup() and failing to properly enable the long-press
-hardware reset for the home key on MT6357?
+Additionally, could this also leak the irq_domain (created with
+irq_domain_create_linear) if the driver is unbound via sysfs?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260612200717.3610=
-18-1-l.scorcia@gmail.com?part=3D5
+18-1-l.scorcia@gmail.com?part=3D4

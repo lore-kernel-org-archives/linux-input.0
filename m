@@ -1,182 +1,112 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f47.google.com (mail-wm1-f47.google.com [209.85.128.47])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EF556357CE0;
-	Fri, 12 Jun 2026 07:42:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ED263201278
+	for <linux-input@vger.kernel.org>; Fri, 12 Jun 2026 09:19:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.47
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781250160; cv=none; b=Goq3NwL7NCUQ3EXYD/9dtbfOXRouHFf1d1p0flxEOUdLLSOOHghSAYx+4zh/sK3SiBr4cwAqqvqt1hh+V3hfzkyd3fHD/PMGaVBOujupwvN+e3mNxMd4WxLNw2kMBqobROoAqAXPMlte/zojvFcND8J0CvMVyrtFF0SqrWkyis0=
+	t=1781255991; cv=none; b=jEgJh3hlwYfRhcMx93zl07jxlc2i6fCt7uXd9BgsQ5dNF/WO/uh2MoWp5037tG1ofylqIUnNecygB6CeB+7sg3u+P5wXSHR5lJ8oDXDOZMW4HiE/jCoZegK46FAEDomG5j2seavvhSGcwahnhSJG5GaUEjRXjrbIlgc9yf10zmo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781250160; c=relaxed/simple;
-	bh=rC5snVrxLmY74RcqQSYeqHZgrqf9BYN7q6maKon4Usk=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=M6TOEIkR/AHwb4vOkayL+57DHSqMxhmxIJxxiO+wuUFgRE6uSqv1iXvXtYgfT2duZyX/xenIOyYAEvZT2UEgCIXZ7PiGYGkqPnPOwhUFk2zvv/Gth3FyPn5eXzM45JP4Y5D4ezx4p+pBOG7MdilCoDu63xv/Z1FM8zUxpw6Low0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=NDUdB4Tv; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1781255991; c=relaxed/simple;
+	bh=SbmTGWvc0FOhj12ebJqMZ3T8dM+uZs29bl/4qr57bgY=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=QATT3qolMe5szDCuMiTU7YIhkzbQ5cqYTQcTvEfMkHpHlJ9nnu1pOInupLooUMnx7Kqxs1G6JI31hYXmKmMbk4uhKBUKTLSQPNk9aKq9iHIJqVgjJrtu+q6eZ+jALzNNM/Ubrp5Jaxc2InlW1Pne070BWLjEdlV+O9BYsWYl0rQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b=FeCXj5H0; arc=none smtp.client-ip=209.85.128.47
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="NDUdB4Tv"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C3371F000E9;
-	Fri, 12 Jun 2026 07:42:38 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1781250158;
-	bh=nF+bRJ02nQ3oK8NGeBYUMV6zWvY3FVqHC5bvOB//Qu0=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=NDUdB4Tvfu4bvlXozKHR5V+HpEfd5ME8G+DBhBMKz6yF8196lxdxA9fKjkJgqOEQD
-	 9Ki9pjTVC5NYUh04UXIWP00z2SGQTlH2r8twXN8zK8zpL3zkrIWRFzGKAbZrkVV6wB
-	 yhu9RMpyghX83LzR1hw0gBOKzyjMd3ol9j5QtaPmRz+RhXo2QxRN3NeuyTW2iedpXF
-	 TtMCzMIpA8mNSd3kfSYQWAYtTRAaLaeKfEu1oBZCYG8qJWce68iNDhOwi8vpmc2MWU
-	 4zJ+pb6hIwl0E3YlffBEQ1NyM3ypLB6eohxLQa+QsPMJKo2ACquvG2vpvjzUgNtRNt
-	 0JbjkPAq+Dyuw==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 9/9] Input: cap11xx - add support for CAP1114
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Jun Yan" <jerrysteve1101@gmail.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, devicetree@vger.kernel.org, robh@kernel.org, conor+dt@kernel.org
-In-Reply-To: <20260612072237.1177304-10-jerrysteve1101@gmail.com>
-References: <20260612072237.1177304-10-jerrysteve1101@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Fri, 12 Jun 2026 07:42:37 +0000
-Message-Id: <20260612074238.4C3371F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="FeCXj5H0"
+Received: by mail-wm1-f47.google.com with SMTP id 5b1f17b1804b1-4903d730b1fso8866495e9.2
+        for <linux-input@vger.kernel.org>; Fri, 12 Jun 2026 02:19:49 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=suse.com; s=google; t=1781255988; x=1781860788; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=71oGCFxYWbuyn3cYv7RICT96Uu1k+wrgJKqPwxGnJ+8=;
+        b=FeCXj5H0XCTnB4Z9QjCJPbWDLOv0jb0S/VlmfXLassmomFWL7qQPlWtKH3h7z7x43G
+         qqeXdDyGfDLVBJcW2MQOq/EjP0AGwAXP7Y9NI/MTzqcpf/UCn2DLHK0HEYrzb9SPwrFo
+         AvlwfRYr/3X5cPYSv8Z0OA4dJTU3tJUqgXCKQFeAnVeDKyfj/GWkUcOHAvAhxha8x20/
+         5keJPG/3VwMmLhqC6r6iLKpiozlt15ed68Ma8KXOtLMjzxgPctq0CB+yISqkMkhcD/LL
+         MzZ6vvJRMEn6B0L35AnRAfO/HIAdHMZcfO6N7gQR992gFoQRny3zBmZy4u7Z9vxr4Z3q
+         LSgg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1781255988; x=1781860788;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=71oGCFxYWbuyn3cYv7RICT96Uu1k+wrgJKqPwxGnJ+8=;
+        b=QEQgVpJ+OJjBNN3B9/gCtXxvSU3ViKCW0w6euucmLv7HEizXGMliglfCcFmf2erO0X
+         OVaEaX028SIv4QGbBR/niGE8r0Pnb9k28O9C9+/HiVxpckCFv1P/yKsLdPGykDu4LvhD
+         YIXGZv+2CBxRU+ozyjPJGoqzt6JsJSlXI5jLyvoGZtvGxY5XeeReeo07oGZhkMkduszD
+         emQz0a52SDrr3xL/vhV4ne01lVDGcGGK6qFUihRrCVVm1TC8QitNR0bUNH9VPV2KeQO2
+         I9QukXc0Gobsi7J3pMLrrYvXtLKY8UNRbrZlfusxbum2bzzGmqfbjMSB++0OyBcnZi6a
+         I09g==
+X-Forwarded-Encrypted: i=1; AFNElJ/Mn3I2ZJ7RY4MrDPcwajA9ze4mraXSZcpOYmpPw8nwlO/ZYU8XY9UEJ7k6TSPtR+Z4CuFHxGV7qzP2Hw==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yxbj5uPOG/JGSGV1Gc+tfNiZtWyEZWR3OGIXBl3UWnVJFVLaQQR
+	9gY5Bt8Ha8h+ff9VH6ed6nZ/ltY32kbhB/5OscNr77jWenh1ZjhPM2QOa7410tdArar005YmF8z
+	tHZmT
+X-Gm-Gg: Acq92OHw0w4xUGGO+sAVlwX69lBuNl7BqqQEdBPDyWQVfQ+R1zWcNvz0w3sAq9SSjTx
+	/W2f4JzW6g6076Ryb6N71yVwCaB/ZDoO1JRaCP32t8xMvKgSWIDnSFW+Js+dWx0KN6KNmr4aw6d
+	nDO58gleL/z04ly4tqVTeZ4B4BfIxJyYqkvFS4L+Nmps3P5zIUP5sYQwklve5PIXHRRatrcEYZa
+	nwH9OYCJtKq06FmDRoJ13E1i3jm3vfOMfXEmkUbAk/KPVOgOjYbb7cEPEGN9Iqo90SstFEqoHVb
+	AYPumddk8kFOoJ3swRGrnFeZY/kOeSeb11JVkfTRmxg/6diLao/3EQQGufKdqqa5sANEc06tq7Z
+	VhS5vGc6veRPGnVO3N+DYKaEL8IbE/dEEa+TpOlkQeGh31+v5/Djq2o6GGdugOztKWvBKQqF5Ci
+	IlTPv/FRNjC6dbgDRC7XK9KAzaiw==
+X-Received: by 2002:a05:600c:3105:b0:490:e60b:6860 with SMTP id 5b1f17b1804b1-490ec4b5a3cmr25667615e9.7.1781255988326;
+        Fri, 12 Jun 2026 02:19:48 -0700 (PDT)
+Received: from pathway.suse.cz ([176.114.240.130])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-490ea4b39e9sm36582425e9.0.2026.06.12.02.19.47
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 12 Jun 2026 02:19:47 -0700 (PDT)
+Date: Fri, 12 Jun 2026 11:19:45 +0200
+From: Petr Mladek <pmladek@suse.com>
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Jiri Kosina <jikos@kernel.org>,
+	"Daniel J. Ogorchock" <djogorchock@gmail.com>,
+	Tamir Duberstein <tamird@kernel.org>, linux-doc@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
+	Steven Rostedt <rostedt@goodmis.org>,
+	Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+	Sergey Senozhatsky <senozhatsky@chromium.org>,
+	Jonathan Corbet <corbet@lwn.net>,
+	Shuah Khan <skhan@linuxfoundation.org>,
+	Benjamin Tissoires <bentiss@kernel.org>,
+	Andrew Morton <akpm@linux-foundation.org>
+Subject: Re: [PATCH v2 0/2] vsprintf: add upper case to %p[mM] et alia
+Message-ID: <aivPMQv5ImhWjpuR@pathway.suse.cz>
+References: <20260603104351.152085-1-andriy.shevchenko@linux.intel.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260603104351.152085-1-andriy.shevchenko@linux.intel.com>
 
-Thank you for your contribution! Sashiko AI review found 4 potential issue(=
-s) to consider:
-- [High] Buffer overflow when parsing the 'microchip,calib-sensitivity' dev=
-ice tree property for devices with more than 8 channels.
-- [Medium] Integer truncation silently drops signal guard configurations fo=
-r channels 8-13.
-- [Low] Out-of-bounds `GENMASK` generates an 11-bit mask for an 8-bit LED c=
-ontrol register.
-- [Low] Unnecessary 9th threshold register added to regmap defaults.
---
+On Wed 2026-06-03 12:34:01, Andy Shevchenko wrote:
+> The first patch induced by Sashiko rightfully rises a concern on
+> potential ABI breakage. To avoid that and allow the user (patch 2)
+> to be converted to use unified output introduce %p[mM][...]U for
+> printing in upper case. Tests are included and passed.
+> 
+> Changelog v2:
+> - added first patch (Sashiko)
+> 
+> Andy Shevchenko (2):
+>   vsprintf: Add upper case flavour to %p[mM]
+>   HID: nintendo: Use %pM format specifier for MAC addresses
 
-commit a843fc20f78c2766e479b33ffb3dcd6238d1f3f0
-Author: Jun Yan <jerrysteve1101@gmail.com>
+For the whole series:
 
-Input: cap11xx - add support for CAP1114
+Reviewed-by: Petr Mladek <pmladek@suse.com>
 
-CAP1114 is a 14-channel capacitive touch sensor with 11 LED outputs
-and hardware reset support. The CAP1114 uses two control registers
-for LED output management and requires two button status registers
-for touch input state reporting.
+I am going to queue it via printk tree.
 
-> diff --git a/drivers/input/keyboard/cap11xx.c b/drivers/input/keyboard/ca=
-p11xx.c
-> index d45bb231d7a1f..e4da0e26c34a8 100644
-> --- a/drivers/input/keyboard/cap11xx.c
-> +++ b/drivers/input/keyboard/cap11xx.c
-[ ... ]
-> @@ -98,6 +105,9 @@ static const struct reg_default cap11xx_reg_defaults[]=
- =3D {
->  	{ CAP11XX_REG_SENSOR_THRESH(3),		0x40 },
->  	{ CAP11XX_REG_SENSOR_THRESH(4),		0x40 },
->  	{ CAP11XX_REG_SENSOR_THRESH(5),		0x40 },
-> +	{ CAP11XX_REG_SENSOR_THRESH(6),		0x40 },
-> +	{ CAP11XX_REG_SENSOR_THRESH(7),		0x40 },
-> +	{ CAP11XX_REG_SENSOR_THRESH(8),		0x40 },
+Best Regards,
+Petr
 
-[Severity: Low]
-Does this code inadvertently add a 9th threshold register?
-
-Since the indexing is 0-based, an 8-threshold device should only need indic=
-es
-0 through 7.
-
-Register index 8 appears to map to an unused register.
-
->  	{ CAP11XX_REG_CONFIG2,			0x40 },
->  };
-[ ... ]
-> @@ -394,6 +442,14 @@ static int cap11xx_init_leds(struct device *dev,
->  	if (error)
->  		return error;
-> =20
-> +	if (num_leds > 8) {
-> +		error =3D regmap_update_bits(priv->regmap,
-> +					   priv->model->led_output_control_reg_base + 1,
-> +					   GENMASK(num_leds - 8 - 1, 0), 0);
-
-[Severity: Low]
-Can this result in an out-of-bounds mask generation when num_leds > 8?
-
-In cap11xx_init_leds() just prior to this addition, the code calls:
-
-    error =3D regmap_update_bits(priv->regmap,
-                   priv->model->led_output_control_reg_base,
-                   GENMASK(num_leds - 1, 0), 0);
-
-When num_leds is 11 for the CAP1114 model, this generates an 11-bit mask
-to update an 8-bit register.
-
-While the regmap core safely masks this, should the mask be clamped to
-min(num_leds, 8) to accurately reflect the hardware register's capacity?
-
-> +		if (error)
-> +			return error;
-> +	}
-[ ... ]
-> @@ -572,6 +628,14 @@ static const struct cap11xx_hw_model cap1106_model =
-=3D {
->  	.has_repeat_en =3D true,
->  };
-> =20
-> +static const struct cap11xx_hw_model cap1114_model =3D {
-> +	.product_id =3D 0x3a,
-> +	.num_channels =3D 14, .num_leds =3D 11, .num_sensor_thresholds =3D 8,
-
-[Severity: High]
-Does this code overflow the calib_sensitivities array during initialization?
-
-In struct cap11xx_priv, the array is rigidly sized to 8 elements:
-
-    u32 calib_sensitivities[8];
-    u32 keycodes[];
-
-During cap11xx_init_keys(), when parsing "microchip,calib-sensitivity", the
-driver reads priv->model->num_channels elements:
-
-    of_property_read_u32_array(node, "microchip,calib-sensitivity",
-                               priv->calib_sensitivities,
-                               priv->model->num_channels)
-
-With num_channels set to 14, won't this write 14 elements into an 8-element
-array, clobbering the adjacent keycodes flexible array member and potential=
-ly
-causing memory corruption or a kernel panic?
-
-
-[Severity: Medium]
-Will this configuration lead to integer truncation when parsing the
-"microchip,signal-guard" property?
-
-In struct cap11xx_priv, the mask is defined as an 8-bit value:
-
-    u8 signal_guard_inputs_mask;
-
-During cap11xx_init_keys(), a loop iterates up to num_channels (14) and shi=
-fts
-the bits:
-
-    priv->signal_guard_inputs_mask |=3D 0x01 << i;
-
-For channels 8 to 13, won't this bitwise shift exceed the 8-bit variable wi=
-dth
-and silently truncate to 0?
-
-Even if the CAP1114 doesn't support signal guards, this drops the bitmask f=
-or
-the upper channels, bypassing the capability check and failing to emit the
-intended 'unsupported' warning.
-
-> +	.led_output_control_reg_base =3D CAP1114_REG_LED_OUTPUT_CONTROL1,
-> +	.sensor_input_reg_base =3D CAP1114_REG_BUTTON_STATUS1,
-> +	.has_grouped_sensors =3D true,
-> +};
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260612072237.1177=
-304-1-jerrysteve1101@gmail.com?part=3D9
+PS: I am sorry for "late" review. My queue is quite long
+    at the moment...
+    

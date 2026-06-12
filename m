@@ -1,32 +1,32 @@
-Received: from out-173.mta0.migadu.com (out-173.mta0.migadu.com [91.218.175.173])
+Received: from out-171.mta0.migadu.com (out-171.mta0.migadu.com [91.218.175.171])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DDF9B385D76
-	for <linux-input@vger.kernel.org>; Fri, 12 Jun 2026 14:23:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7F8B13839AD
+	for <linux-input@vger.kernel.org>; Fri, 12 Jun 2026 14:23:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.171
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781274222; cv=none; b=IRqKaJyuzkeT5d+8+7fYw8Q5xUcRf5YlLLnlrmFteYmvSXPcn4PbnV68fCpBvpD42w06O9VLs2A3GPitUs7k9PtBcY+wk/51OLWS7t92qqnQ5FYOiF480o566t7qvYvMWlCVMm4hKANx25E1mBy/PLTo2f5S2T4/vg6HZw4Mzso=
+	t=1781274222; cv=none; b=Fmq4xX8g5i4Hi750CZnlqoVPE1+2DTAVT3+NyP2NpWgcBTwC8lkHCB7gG3OD97gvo94avCNd7ncqD8Z6txWq5mEPHzz0JR/7STSpUWHlBN4czzSxxW6sIbvzVjc+P2Ite1+GyS46Y7XIgB6mX2af/dIIrK4p77lGgloOVN8Nmyw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1781274222; c=relaxed/simple;
-	bh=bm/CL3q9ejoze6VSO717GlRBQqyQ/Zo6Af21rb7hwR8=;
+	bh=B50fMS0gE2tzVMEsNaaM4WVi0diIgjoc614+eT6PTj0=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=nUO8TaZilaihWTfhCSJO7jLHOp3QOV2Rszf8nEGuqTcuN/FKGVx0aG7Hw3ogDu3lXgHnBSR9H3g65SHvorUcImH65ocySn7ARMO6evPPsX2Ri1bTQ1UZhs5ODRa/rfv1kVTbjwYLvt9rsdsRyXf5E/bmBkAyr2Be//bLwt+rdDQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=KtLowf1X; arc=none smtp.client-ip=91.218.175.173
+	 MIME-Version; b=H1FDTVuaOu/80aGImr08PL6t2eV/i0qOwTmFlV/mnk0kX/RoHBYcOSw+5QcCbLdexk1pcJEmw7cyXuc61RWR3BtF1ydrzxJ5Yht8miIJXrjL2CTVPTT6k31JMI7LKhTKeWQWxsOeBstIpm6boCbsZCC0UIZgTlwHqSG4Pa+vFMQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=OKRT85Y1; arc=none smtp.client-ip=91.218.175.171
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="KtLowf1X"
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="OKRT85Y1"
 X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1781274218;
+	t=1781274219;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=EtSKOlX/bb+/YvFJzqUT89tz4pQYiTDPxpw671CWEgY=;
-	b=KtLowf1XIP0ynKQLKfrc/l0Iz/3nF6wxc6nB3SQjjVHGUTKUzlH3C9c8cMiw9Y4ULbz+J8
-	2pEueQyOw5xGA6Kz5GflhPh50zh8pwPsKbcreccNnf045bM5vpRxWDxsjPzzAIGtfME0nD
-	IEMgrrORSeyKUqpFKkogNZjGaiMhQyY=
+	bh=PlC2vGVmA9sHjk2hg4AjdHe+m+jeFI0gDoptw/3ZOpQ=;
+	b=OKRT85Y1p5p+cINdN0QlDBGRSzj4fd++luMGAUraBFbJgm5TFfCjBY1noMoJ9pD9YkUFht
+	nIILqYE0Pp0FrTY+McVJQ8NLPgMOFAT4p8mkecH0FDgKYLGR9hZwQZ2u/iRu05pF6KrCdu
+	YSLtummGOgmb+Hj7/yVtDG1Hi1uav1w=
 From: Denis Benato <denis.benato@linux.dev>
 To: linux-kernel@vger.kernel.org
 Cc: linux-input@vger.kernel.org,
@@ -38,9 +38,9 @@ Cc: linux-input@vger.kernel.org,
 	"Denis Benato" <denis.benato@linux.dev>,
 	"Antheas Kapenekakis" <lkml@antheas.dev>,
 	sashiko-bot@kernel.org
-Subject: [PATCH v2 1/4] HID: asus: mitigate possible use-after-free
-Date: Fri, 12 Jun 2026 14:23:23 +0000
-Message-ID: <20260612142326.1704858-2-denis.benato@linux.dev>
+Subject: [PATCH v2 2/4] HID: asus: prevent wrong pointer cast
+Date: Fri, 12 Jun 2026 14:23:24 +0000
+Message-ID: <20260612142326.1704858-3-denis.benato@linux.dev>
 In-Reply-To: <20260612142326.1704858-1-denis.benato@linux.dev>
 References: <20260612142326.1704858-1-denis.benato@linux.dev>
 Precedence: bulk
@@ -52,30 +52,32 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Migadu-Flow: FLOW_OUT
 
-The kbd_backlight pointer is not being set to NULL after being freed in
-asus_kbd_register_leds and other portions of the driver checks that field,
-therefore set the pointer to NULL after being freed.
+The firmware version check for ROG ally devices assumes the parent device
+is a USB device, therefore prevent possible out-of-bounds access by using
+hid_is_usb() to mitigate possible out-of-bounds access.
 
 Link: https://lore.kernel.org/all/20260612130125.AAAE71F000E9@smtp.kernel.org/
 
+Fixes: 56d1b33e644c ("HID: asus: simplify RGB init sequence")
 Suggested-by: sashiko-bot@kernel.org
 Signed-off-by: Denis Benato <denis.benato@linux.dev>
 ---
- drivers/hid/hid-asus.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/hid/hid-asus.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
-index d34d74df3dc0..4d7110b892bd 100644
+index 4d7110b892bd..323dc0b7f3ff 100644
 --- a/drivers/hid/hid-asus.c
 +++ b/drivers/hid/hid-asus.c
-@@ -777,6 +777,7 @@ static int asus_kbd_register_leds(struct hid_device *hdev)
- 	if (ret < 0) {
- 		/* No need to have this still around */
- 		devm_kfree(&hdev->dev, drvdata->kbd_backlight);
-+		drvdata->kbd_backlight = NULL;
+@@ -753,7 +753,7 @@ static int asus_kbd_register_leds(struct hid_device *hdev)
+ 			return ret;
  	}
  
- 	return ret;
+-	if (drvdata->quirks & QUIRK_ROG_ALLY_XPAD) {
++	if (hid_is_usb(hdev) && (drvdata->quirks & QUIRK_ROG_ALLY_XPAD)) {
+ 		intf = to_usb_interface(hdev->dev.parent);
+ 		udev = interface_to_usbdev(intf);
+ 		validate_mcu_fw_version(hdev,
 -- 
 2.47.3
 

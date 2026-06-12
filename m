@@ -1,103 +1,133 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CDF1E3093DD;
-	Fri, 12 Jun 2026 07:35:03 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B5D2A3DE44C;
+	Fri, 12 Jun 2026 07:35:37 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781249704; cv=none; b=qrHW1GUfRnILztAMm2P4W93cfH+ZKDl2wRP/h1UcGEemSXmhkln4NofiatuZh4C8XUhhjqZgMUwuskXTRMu2dg1ZONWJ5FVuMa9b2ORcADw/nn0ixWG3Knull/gQDvb6sGjN7q26inrQ3Npjt9q5THHLizfsFU92D0QvKB7BJ58=
+	t=1781249738; cv=none; b=rVnb93CkXZIgDoZA/DeV9v4Fl01EEm47nz8S0kKVwUVQxUKzayCKWDtqCSSfMYrr2XkJnmr/dqLVRtFFFawjGzFTjKlsofh40B8RFreJfBHam4stZf+nPFE3Bd6UNgICU2k40g4Fi/1UzyCNJX//COp3aw1VmdFB5J56SFK462A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781249704; c=relaxed/simple;
-	bh=c3kL5s24IjZdqNAkEyQW8HyKyNN1XCWHZ6SiVE5iauw=;
+	s=arc-20240116; t=1781249738; c=relaxed/simple;
+	bh=k7SmNwGUYV7MeKf6icEhpzbX/dv9DzSlNiy7fgXV594=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=LTF4i9Ub40WdTPP90G2jtBLos7eCD5bhDmErDxQSVvl2kc9M3jLL3ghr/j6SHOSZlzO3GTbDdC7Y9snJv0h4cPqc1Mw/cAtwWHXWQxOCMBV5pTyEUYGyIZfQlu/7EocZX3WmY1mO+bOkI7S/V44YZoMUI8KdDQst2wmVKgjWPac=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=IfF1Qlsg; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=VEjXgvCc8OW0LKG+uTi84EPX/LkIiBTCJgjfaztY3JQB0W5rYQ8ke+g0hasSLM9PQQ8kPurxxzTQ+MofXlbhjEeNwxvLK6l/J9B0fTNHgEUbmv2fUQ0VUrVOsMgH220c6Ej29z/pp4auoMn5JeLkJzn1WngIOWEYhtorscX+x6Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=PtvGV04H; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="IfF1Qlsg"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1B73E1F000E9;
-	Fri, 12 Jun 2026 07:35:03 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="PtvGV04H"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C9ED1F000E9;
+	Fri, 12 Jun 2026 07:35:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1781249703;
-	bh=PqFUaAzicDXnwo7BPdGxRkhbTJrXlB/E2E1lcj0+JVw=;
+	s=k20260515; t=1781249737;
+	bh=5Hqo2edsfNFUso4cq+aYVslZv4ZCrufFIkWwv1TO7pY=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=IfF1QlsgGQq1cn0kNxMyAFxZi1A8x2OF0eaeVdIWeaM67Y8NkMiHHRLG3AmLid3OM
-	 kypCljJNN2flhxrOpjoZeqK5AKIqttVUBAjbqj1uLICUiTF08LU0Oz6I/PEKIf3yl0
-	 FLjEOcfw5SDJzUBStpcjmPUpkWbmWmJCk0sgDFopEiBblToQ1x+Hx0KpTZh4Kq/wJR
-	 /9BoYkS/+2KkLY8cfDSfNTOceYqOx5hlw7Ht2nCjospi6LwD3kfxyNeW27gyBL3fLr
-	 XYOYi6iKwxj6cSjgWPAAUIJBtUD0hYf0A4TKG4rpao9tLsBh8AKMq6h2mKFJLNuwsH
-	 tuG5cedAuMrcQ==
+	b=PtvGV04HZBNM47bjr5EpJcz+Y5IxiGlvMbLUy4by5eAZLYKQNdbyjiImp18qNJvDk
+	 ll8rFCEO+RIxsl+twGpL3OowJUhjICdHVxQ9rA1Gkgx6bIanF5qLsGMslgFTQ1ulY+
+	 VxXiYOdcqMLT6GKLQLvQgnM96HKVmzdi8oZeV8geivapssGJwneRbpljXuNfiWvMi+
+	 Dr18kwk2NU8EU/0dIPJ1QJwnQc5kAr2V7glbclM4KUzehrsZOyy2S6PmOKK96RITan
+	 ZaC6ODUpakaelkQRWBWgj/+hmXkbSQ1cR0mIJGUTwzrPqJWiKMfvUSBiTGu35Icq09
+	 oZZYwzPfSiUjw==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 7/9] Input: cap11xx - refactor code for better
- CAP1114 support.
+Subject: Re: [PATCH v2 8/9] dt-bindings: input: microchip,cap11xx: Add
+ CAP1114 support
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Jun Yan" <jerrysteve1101@gmail.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, conor+dt@kernel.org, robh@kernel.org, devicetree@vger.kernel.org
-In-Reply-To: <20260612072237.1177304-8-jerrysteve1101@gmail.com>
-References: <20260612072237.1177304-8-jerrysteve1101@gmail.com>
+Cc: conor+dt@kernel.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, devicetree@vger.kernel.org, robh@kernel.org
+In-Reply-To: <20260612072237.1177304-9-jerrysteve1101@gmail.com>
+References: <20260612072237.1177304-9-jerrysteve1101@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 12 Jun 2026 07:35:02 +0000
-Message-Id: <20260612073503.1B73E1F000E9@smtp.kernel.org>
+Date: Fri, 12 Jun 2026 07:35:36 +0000
+Message-Id: <20260612073537.0C9ED1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
 s) to consider:
-
-Pre-existing issues:
-- [High] The input device is registered and exposed to userspace before its=
- threaded IRQ handler is requested, creating a race window where events cou=
-ld be lost or unhandled.
+- [High] Schema constraint conflict for `linux,keycodes` makes CAP1114 vali=
+dation impossible.
+- [High] Buffer overflow when parsing `microchip,calib-sensitivity` propert=
+y for models with >8 channels.
 --
 
-commit d2a53f68ed5e5f2311cb5dfaea4bd95be2449ab4
+commit f0d8405d987f3f3e2623cf6af9274da6bb531e55
 Author: Jun Yan <jerrysteve1101@gmail.com>
 
-Input: cap11xx - refactor code for better CAP1114 support.
+    dt-bindings: input: microchip,cap11xx: Add CAP1114 support
+   =20
+    CAP1114 is a 14-channel capacitive touch sensor with 11 LED outputs
+    and hardware reset support. Add the compatible string for CAP1114,
+    update maximum LED channels, and add constraints for linux,keycodes.
 
-Extend cap11xx_hw_model structure to support CAP1114 with
-different register offsets and hardware characteristics.
+> diff --git a/Documentation/devicetree/bindings/input/microchip,cap11xx.ya=
+ml b/Documentation/devicetree/bindings/input/microchip,cap11xx.yaml
+> index 778ec6d659a8d..0e9a1a8a3f3e7 100644
+> --- a/Documentation/devicetree/bindings/input/microchip,cap11xx.yaml
+> +++ b/Documentation/devicetree/bindings/input/microchip,cap11xx.yaml
 
-> diff --git a/drivers/input/keyboard/cap11xx.c b/drivers/input/keyboard/ca=
-p11xx.c
-> index 75746a8a22332..d45bb231d7a1f 100644
-> --- a/drivers/input/keyboard/cap11xx.c
-> +++ b/drivers/input/keyboard/cap11xx.c
 [ ... ]
-> @@ -554,41 +564,64 @@ static int cap11xx_i2c_probe(struct i2c_client *i2c=
-_client)
->  }
+
+> @@ -178,6 +182,18 @@ allOf:
+>        properties:
+>          reset-gpios: false
+> =20
+> +  - if:
+> +      properties:
+> +        compatible:
+> +          contains:
+> +            enum:
+> +              - microchip,cap1114
+> +    then:
+> +      properties:
+> +        linux,keycodes:
+> +          minItems: 14
+> +          maxItems: 14
+> +
 
 [Severity: High]
-This isn't a bug introduced by this patch, but looking at cap11xx_i2c_probe=
-(),
-the input device is registered and exposed to userspace before its threaded
-IRQ handler is requested:
+This conditional block enforces 14 items for linux,keycodes, but earlier in
+the file there is a global constraint that limits it to 8:
 
-	error =3D input_register_device(priv->idev);
-	if (error)
-		return error;
+  linux,keycodes:
+    minItems: 3
+    maxItems: 8
 
-	error =3D devm_request_threaded_irq(dev, i2c_client->irq,
-					  NULL, cap11xx_thread_func,
-					  IRQF_ONESHOT, dev_name(dev), priv);
+Because JSON Schema evaluates global and conditional constraints cumulative=
+ly,
+any valid CAP1114 node with 14 keycodes will fail dt_binding_check against
+the global 8-item limit. Should the global maxItems be increased to 14,
+while keeping other models constrained in their respective blocks?
 
-Since input_register_device() makes the device visible to userspace, proces=
-ses
-like udev can immediately open the device. This invokes cap11xx_input_open()
-and wakes the hardware from deep sleep.
+[ ... ]
 
-If a hardware interrupt occurs before devm_request_threaded_irq() registers
-the handler, could this unhandled interrupt cause an interrupt storm? The
-kernel might then disable the IRQ line ('nobody cared'), rendering the touch
-controller permanently inoperable until the module is reloaded or the system
-reboots.
+One additional question regarding the CAP1114 integration with the driver:
 
-Should the IRQ handler be requested before the device is registered?
+[Severity: High]
+When CAP1114 support is added to the driver (since num_channels will be 14),
+can this lead to an out-of-bounds write?
+
+In drivers/input/keyboard/cap11xx.c, calib_sensitivities is a fixed-size
+8-element array:
+
+	struct cap11xx_priv {
+		...
+		u32 calib_sensitivities[8];
+		u32 keycodes[];
+	};
+
+However, during initialization, the driver reads num_channels items into it:
+
+	if (!of_property_read_u32_array(node, "microchip,calib-sensitivity",
+					priv->calib_sensitivities,
+					priv->model->num_channels)) {
+
+Even though the CAP1114 binding forbids microchip,calib-sensitivity, an
+incorrectly configured or malicious device tree providing 14 items could
+cause this to overflow the 8-element array by 24 bytes. Does the driver
+need to be updated to prevent this when num_channels is greater than 8?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260612072237.1177=
-304-1-jerrysteve1101@gmail.com?part=3D7
+304-1-jerrysteve1101@gmail.com?part=3D8

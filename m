@@ -1,117 +1,150 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7C5EC2BE051;
-	Fri, 12 Jun 2026 20:37:35 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 990242BE051;
+	Fri, 12 Jun 2026 20:39:07 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781296656; cv=none; b=N9nczAb9zQWy061AR/1VNw7fjUdFmmx2wSXki7slSOWAkTG/c2+Vbx40TOEFa1JqW4tfNxxfcxCyUPLpV/MTaf5gUvmS5wAkvIQ7TbvRnQ5OtiFpliCT8B0cSFKhf0i3uf+SRdeliw8zGgvW6s6GDOKJV28V8FsgIbxCIsmRsXs=
+	t=1781296748; cv=none; b=RLCB/B4cyEyUa/eOT1PyLzWnuFRdtsc+vP3g62pezZr2rYMxTpoUseXASAULTXrsk1ASHcE1drK5W7QEk3zGwxuYDj0UNODy1eUAXVzcaLTnT+mu3hj2fJarGyKTKEIqzMdGliPoZL1R+i403HbN5Y+1a2gszCueosxI/WYtl9w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781296656; c=relaxed/simple;
-	bh=5xMU7jYPjEpgMvv2At42ASj8xs+7FtNbVL+1MBxmtwg=;
+	s=arc-20240116; t=1781296748; c=relaxed/simple;
+	bh=eicU+rt9aGU++NavoZzZRElg9JuqfKGQbf+nodk5C4k=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=gDoxTmXQudC5TVxrK5oJFFf43lz3LTfK5uXiei+QVrKfzOpsZlFdL4KU/qOrxF3zScILuGJkOGcvzwdFHnQLNzSUnHKcQCZMVjyzVCfiyA0zQKTqlWJvrGsuQJAbyGZuiFPDSyMq1giwemArBzjTE3/njI7P701e3HQMNPNUnA4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=CK9my/HF; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=B2mZwAgcgppwIUceyn6SjMshO8IPYy4RzRZOCRothWCXk2bLKzBVMoKxMNNxlWCNZAGclcNaDQlf+yWeRBOnM+zXVbC8tlQDYroA/4ouamaTGg+S+82fE7lgAT9S1ia2/Ls1J90WO+uomxJ8qpDgFqeVegYkFin+c+m9fJLnqa4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=YJp+kr7k; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="CK9my/HF"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C43DC1F00A3A;
-	Fri, 12 Jun 2026 20:37:34 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="YJp+kr7k"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E53231F000E9;
+	Fri, 12 Jun 2026 20:39:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1781296655;
-	bh=ll6oLUGeBbDzLHebdObHEFeG7v9OBSZ5q9PnL4B1E1g=;
+	s=k20260515; t=1781296747;
+	bh=CFXkz/KtKZUVRH+VGbL5pBMt6IMlfPCCe2Qmgr4JUk4=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=CK9my/HFAKL8pIdwGWNEDYRYRtks02YI6s2mseGwQl3l+GdioVfsJ5NyVi0P13vb2
-	 HAOjf7jT0mEBGwo81zQ08n8A7VZJyajoLdwXf+kr5RO4HZGpJ94IhwyHJLdbtzM8YT
-	 gu079TcnV5Wai6unX5rUIlZ9PK7fIJ73JWNxYEY2G6vS+QWmLbtxAA+XcXBfxM2gP7
-	 3h/rpq3HrKvZqFfTaC956eJnoczviJ+FLQ8Z34B532xx+NjwnVe/ulCQ8x+hyD3eOW
-	 Xk1Fr8yXjks8BXRMdt6gBoFRxlDm5caFrKAW8cm/TMEA+z2doQSOEYRs0h9P/NI6MR
-	 zy0N4EC0D5r+w==
+	b=YJp+kr7kRYl4REdCACrwSuJkBH583n3Z06PCltITAbDpmKUzEq6Ol5137pbXaNoPJ
+	 7B2l5T1XjEhLBEWQaR2UQYN5CuULE3Rl8Mb6HXKoRlwK0c00dE1ZshATNqGKwbympx
+	 LGVb1y33BcFjt1VP9uX2le6G4YHYRsf/4+bhKroPndcA+JW9Biwv3vrssq6IoXdTvc
+	 LwicM6HEMjy7zUww/DltYmX8UbKpjFV9iUQpXuy072GjgMBF4hQfI3VFh2azuHMnw/
+	 XsZXc1+iwkzJMwXccSohzI0y6f+VW4bemxZSYTbvY/1Ys0j68R3RqoZlc5X7ZKa+hS
+	 BGWpUAVuAwj0g==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v6 1/7] dt-bindings: mfd: mt6397: Add MT6392 PMIC
+Subject: Re: [PATCH v6 5/7] input: keyboard: mtk-pmic-keys: Add MT6392
+ support
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Luca Leonardo Scorcia" <l.scorcia@gmail.com>
-Cc: devicetree@vger.kernel.org, linux-input@vger.kernel.org, conor+dt@kernel.org, dmitry.torokhov@gmail.com, robh@kernel.org
-In-Reply-To: <20260612200717.361018-2-l.scorcia@gmail.com>
-References: <20260612200717.361018-2-l.scorcia@gmail.com>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, conor+dt@kernel.org, robh@kernel.org, devicetree@vger.kernel.org
+In-Reply-To: <20260612200717.361018-6-l.scorcia@gmail.com>
+References: <20260612200717.361018-6-l.scorcia@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 12 Jun 2026 20:37:34 +0000
-Message-Id: <20260612203734.C43DC1F00A3A@smtp.kernel.org>
+Date: Fri, 12 Jun 2026 20:39:06 +0000
+Message-Id: <20260612203906.E53231F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
 s) to consider:
-- [Medium] The dt-bindings schema for the MT6392 PMIC omits the 'mediatek,m=
-t6392-regulator' compatible string for the 'regulators' child node. Since t=
-he 'regulators' node is unconditionally marked as required in the schema, a=
-ny complete device tree correctly describing the MT6392 hardware must inclu=
-de it. Omitting the MT6392-specific regulator compatible string from the sc=
-hema forces DT authors to either write incomplete DTs (which fail validatio=
-n because the node is required) or use incorrect/generic compatible strings=
-, causing schema validation failures when they attempt to properly describe=
- the hardware with 'mediatek,mt6392-regulator'.
+
+Pre-existing issues:
+- [High] Out-of-bounds array access and incorrect parsing of disabled DT no=
+des in `mtk_pmic_keys_probe` due to a mismatch between child counting and i=
+teration macros.
+- [High] `mt6357_regs` incorrectly uses `MTK_PMIC_HOMEKEY_INDEX` instead of=
+ `MTK_PMIC_HOMEKEY_RST` for the home key reset mask.
 --
 
-commit a20444c8e4c98a81558d6d5c619b650c00235e18
-Author: Fabien Parent <parent.f@gmail.com>
+commit 2b2bdf18b713288536d3d56d4b82a48e65594233
+Author: Val Packett <val@packett.cool>
 
-dt-bindings: mfd: mt6397: Add MT6392 PMIC
+    input: keyboard: mtk-pmic-keys: Add MT6392 support
+   =20
+This commit adds support for the MT6392 PMIC to the mediatek pmic keys driv=
+er
+by defining its specific register layout and adding the required compatible
+string.
 
-Add the initial bindings for the MT6392 PMIC and its RTC device.
-
-> diff --git a/Documentation/devicetree/bindings/mfd/mediatek,mt6397.yaml b=
-/Documentation/devicetree/bindings/mfd/mediatek,mt6397.yaml
-> index 3cbc0dc12c319..e39e81aa99249 100644
-> --- a/Documentation/devicetree/bindings/mfd/mediatek,mt6397.yaml
-> +++ b/Documentation/devicetree/bindings/mfd/mediatek,mt6397.yaml
+> diff --git a/drivers/input/keyboard/mtk-pmic-keys.c b/drivers/input/keybo=
+ard/mtk-pmic-keys.c
+> index c78d9f6d97c4f..8b4a89fce4fb1 100644
+> --- a/drivers/input/keyboard/mtk-pmic-keys.c
+> +++ b/drivers/input/keyboard/mtk-pmic-keys.c
 
 [ ... ]
 
-> @@ -72,6 +76,10 @@ properties:
->                - mediatek,mt6331-rtc
->                - mediatek,mt6358-rtc
->                - mediatek,mt6397-rtc
-> +          - items:
-> +              - enum:
-> +                  - mediatek,mt6392-rtc
-> +              - const: mediatek,mt6323-rtc
+> @@ -69,6 +70,19 @@ static const struct mtk_pmic_regs mt6397_regs =3D {
+>  	.rst_lprst_mask =3D MTK_PMIC_RST_DU_MASK,
+>  };
+> =20
+> +static const struct mtk_pmic_regs mt6392_regs =3D {
+> +	.keys_regs[MTK_PMIC_PWRKEY_INDEX] =3D
+> +		MTK_PMIC_KEYS_REGS(MT6392_CHRSTATUS, 0x2,
+> +				   MT6392_INT_MISC_CON, 0x10,
+> +				   MTK_PMIC_PWRKEY_RST),
+> +	.keys_regs[MTK_PMIC_HOMEKEY_INDEX] =3D
+> +		MTK_PMIC_KEYS_REGS(MT6392_CHRSTATUS, 0x4,
+> +				   MT6392_INT_MISC_CON, 0x8,
+> +				   MTK_PMIC_HOMEKEY_RST),
+> +	.pmic_rst_reg =3D MT6392_TOP_RST_MISC,
+> +	.rst_lprst_mask =3D MTK_PMIC_RST_DU_MASK,
+> +};
+> +
 
-[Severity: Medium]
-Should the mediatek,mt6392-regulator compatible string be added to the
-regulators child node as well?
+[Severity: High]
+This isn't a bug introduced by this patch, but I noticed a potential
+out-of-bounds access in mtk_pmic_keys_probe() due to a mismatch in child no=
+de
+parsing:
 
-Since the regulators node is unconditionally marked as required in the sche=
-ma,
-any complete device tree describing the MT6392 hardware must include it.
-
-Does this missing string cause a regression where DT authors are forced to
-either write incomplete DTs (which fail validation) or use incorrect compat=
-ible
-strings?
-
-This causes schema validation failures when authors attempt to properly des=
-cribe
-the hardware with mediatek,mt6392-regulator:
-
-Documentation/devicetree/bindings/mfd/mediatek,mt6397.yaml:
-  regulators:
+drivers/input/keyboard/mtk-pmic-keys.c:mtk_pmic_keys_probe() {
     ...
-    properties:
-      compatible:
-        oneOf:
-          - enum:
-              - mediatek,mt6323-regulator
-              - mediatek,mt6328-regulator
-              ...
+	keycount =3D of_get_available_child_count(node);
+	if (keycount > MTK_PMIC_MAX_KEY_COUNT) {
+		dev_err(dev, "too many keys defined (%d)\n", keycount);
+		return -EINVAL;
+	}
 
->            - items:
->                - enum:
->                    - mediatek,mt6359-rtc
+	for_each_child_of_node_scoped(node, child) {
+		keys->keys[index].regs =3D &keys->mtk_regs->keys_regs[index];
+    ...
+}
+
+The check uses of_get_available_child_count(), which skips nodes with
+status=3D"disabled", but the loop uses for_each_child_of_node_scoped(), whi=
+ch
+iterates over all child nodes regardless of their availability.
+
+If a device tree defines more than MTK_PMIC_MAX_KEY_COUNT nodes but disables
+enough to pass the initial check, could the loop execute more than
+MTK_PMIC_MAX_KEY_COUNT times?  Would this cause an out-of-bounds array acce=
+ss
+on the keys->keys[] and irqnames[] arrays?
+
+[Severity: High]
+This is a pre-existing issue as well, but looking at the existing register
+definitions, mt6357_regs appears to use the wrong macro for the home key
+reset mask:
+
+drivers/input/keyboard/mtk-pmic-keys.c:
+static const struct mtk_pmic_regs mt6357_regs =3D {
+	.keys_regs[MTK_PMIC_PWRKEY_INDEX] =3D
+		MTK_PMIC_KEYS_REGS(MT6357_TOPSTATUS,
+		0x2, MT6357_INT_MISC_CON, 0x10, MTK_PMIC_PWRKEY_RST),
+	.keys_regs[MTK_PMIC_HOMEKEY_INDEX] =3D
+		MTK_PMIC_KEYS_REGS(MT6357_TOPSTATUS,
+		0x8, MT6357_INT_MISC_CON, 0x8, MTK_PMIC_HOMEKEY_INDEX),
+    ...
+};
+
+Does this incorrectly use MTK_PMIC_HOMEKEY_INDEX instead of
+MTK_PMIC_HOMEKEY_RST?
+
+Because MTK_PMIC_HOMEKEY_INDEX is just an array index, would this result in
+modifying the wrong bits in the reset register during
+mtk_pmic_keys_lp_reset_setup() and failing to properly enable the long-press
+hardware reset for the home key on MT6357?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260612200717.3610=
-18-1-l.scorcia@gmail.com?part=3D1
+18-1-l.scorcia@gmail.com?part=3D5

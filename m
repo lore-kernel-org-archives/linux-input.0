@@ -1,78 +1,138 @@
-Received: from out-181.mta0.migadu.com (out-181.mta0.migadu.com [91.218.175.181])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1524B388E59
-	for <linux-input@vger.kernel.org>; Fri, 12 Jun 2026 14:23:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.181
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A476E36B043
+	for <linux-input@vger.kernel.org>; Fri, 12 Jun 2026 14:37:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781274224; cv=none; b=ZW+IZjMidmAXUiwfYPHcm2E0rdYlMbqyAt71WrCwmEeX4p2ljxgy3A0eiyCvLxNsjme/KJ6HTeBSNeLzBh2zaDmbBhXmCT8T8Sk/bHF2qHV31496B6OWbGbHRdyVaTnPnbydvaPZtNuUZVODxyKp1mTkn4JDPRAlD3tq4YOl/yU=
+	t=1781275071; cv=none; b=AE0xopZ3OVoX0bZP12/w979W7+2g/MVfHe2Vp1PiwoVI3o2pSN9t2sVK68fip9PYqRHXcQEBMWMiChQ13qNZr8Kcjrjw/Zmu7tA9HiNDnYTupxbBxp0IJqiEhFY1iqiRMrebfFDqHxzbgksKbWeJ6IxBzbYO2jTyUFVMVO1vUGA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781274224; c=relaxed/simple;
-	bh=XhwIbjGalD5lEZAODSRPBD9iIe1luOfSzS+YYOSd7hE=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=uD8isPZ5IuI1ECNnET808TYUHRWbzUxXz7fCXLYD/3NQTvDXeU2d0yH7TR7AbK6T2OuizIJBpoPor8RPn/dANnPFEEOBFvyP0iQ537piWCWFOXjw8Mr2YorQXTnisbedGfIQ2jg36BGsLdgromG2dr/Lbiu4cDc42U1MfMh1Bcw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=O+BDiHiQ; arc=none smtp.client-ip=91.218.175.181
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+	s=arc-20240116; t=1781275071; c=relaxed/simple;
+	bh=z5GVs923KuaVkwVWdEHSQP72g+vNsdPtC9RKmShoaV4=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=huqm2K7vT83hN3QF25Lnh4NWZC3xZ4rvAeOjvNlj+90SkwbJhSeDA3j5EW7WsNdrkDqBnEYMvIiYYiQAlHDfQDYd1UC1n2FZD90xqdNO0skGzOY/Az7X5SM6/FPtTQr7dnVCQU3uvCf11fmO+AzYazaalz/liZ0kLfrXfpALJlA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=lUp1u9fU; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="O+BDiHiQ"
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1781274221;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=L9nxV2i2YLQZZuZAKZwV3K7h2IEWGbVlR+VMiebTnf0=;
-	b=O+BDiHiQbMd0WyTalptwI8AyiFh5TvOK4+143OtXRpODjAIsE+y6UEJ87lYr6x3hFPX8wC
-	9B6x5iZPsBj0zw3HbkWOlA6PYQZ6kv1Ed9O1q5bgWFyqIU/eW85Ukm5c56Y95XZ+SxBYrN
-	E22hDlsYd2BJxJUTaKfmVkGx6ERz734=
-From: Denis Benato <denis.benato@linux.dev>
-To: linux-kernel@vger.kernel.org
-Cc: linux-input@vger.kernel.org,
-	"Benjamin Tissoires" <bentiss@kernel.org>,
-	"Jiri Kosina" <jikos@kernel.org>,
-	"Luke D . Jones" <luke@ljones.dev>,
-	"Mateusz Schyboll" <dragonn@op.pl>,
-	"Denis Benato" <benato.denis96@gmail.com>,
-	"Denis Benato" <denis.benato@linux.dev>,
-	"Antheas Kapenekakis" <lkml@antheas.dev>
-Subject: [PATCH v2 4/4] HID: asus: add i2c entry for FA808UM and other TUFs
-Date: Fri, 12 Jun 2026 14:23:26 +0000
-Message-ID: <20260612142326.1704858-5-denis.benato@linux.dev>
-In-Reply-To: <20260612142326.1704858-1-denis.benato@linux.dev>
-References: <20260612142326.1704858-1-denis.benato@linux.dev>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="lUp1u9fU"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26B531F000E9;
+	Fri, 12 Jun 2026 14:37:50 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1781275070;
+	bh=QuPgYwHaQziCGnf7T68KElry4FvshrfEE63v/a0Mol0=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=lUp1u9fUREhGInIXt55l04yWx2ALF2scVk9f8LvFlRv0KnELWvNuy/GkGWh4NbSdb
+	 a9rsru3GvMH2h5iy5uoOsg8W/Ky5dDybcPjireS4QuK5nmZjBLXZb+/diDHzTVahy2
+	 2eRRJrSdeRcZAINZ7SLYCKzfBYsW1SDiMpniQRLSKtChV/EtYlJzj95gJ/RYQBAVqw
+	 /1I7UjfyREa4806IpY3aOEzIiRu4n9ONBB3ZY8+uiDzIxgP3ftnlRajxgy952gdST/
+	 5O+5hhmeVYUTfDfQeM+Vuusf8P/1v6eBHbcWiF/Q03ak+c4tdN50eukctQ7KKypZDg
+	 dy5zRzsqdFdTg==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v2 4/4] HID: asus: add i2c entry for FA808UM and other
+ TUFs
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Denis Benato" <denis.benato@linux.dev>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <20260612142326.1704858-5-denis.benato@linux.dev>
+References: <20260612142326.1704858-5-denis.benato@linux.dev>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Fri, 12 Jun 2026 14:37:49 +0000
+Message-Id: <20260612143750.26B531F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Migadu-Flow: FLOW_OUT
+
+Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+s) to consider:
+
+Pre-existing issues:
+- [Critical] Improper Workqueue Initialization / Memory Corruption via Re-i=
+nitialization
+- [High] Use-After-Free due to Race Condition in `asus_remove()`
+- [High] Missing NULL check for `devm_kasprintf` allocation leading to Kern=
+el Oops
+--
+
+commit ee67627a03893a0ccf0a7653ac62191a687b7821
+Author: Denis Benato <denis.benato@linux.dev>
+
+HID: asus: add i2c entry for FA808UM and other TUFs
 
 On newer TUF laptops the keyboard HID device uses the same PID/VID of a
 USB device that was found in ROG laptops: add it to hid-asus as i2c too.
 
-Signed-off-by: Denis Benato <denis.benato@linux.dev>
----
- drivers/hid/hid-asus.c | 3 +++
- 1 file changed, 3 insertions(+)
+> diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
+> index 0f78242b6a1db..7964fc96196e5 100644
+> --- a/drivers/hid/hid-asus.c
+> +++ b/drivers/hid/hid-asus.c
+> @@ -1565,6 +1565,9 @@ static const struct hid_device_id asus_devices[] =
+=3D {
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
+>  	    USB_DEVICE_ID_ASUSTEK_ROG_NKEY_KEYBOARD2),
+>  	  QUIRK_USE_KBD_BACKLIGHT | QUIRK_ROG_NKEY_KEYBOARD | QUIRK_HID_FN_LOCK=
+ },
+> +	{ HID_I2C_DEVICE(USB_VENDOR_ID_ASUSTEK,
+> +	    USB_DEVICE_ID_ASUSTEK_ROG_NKEY_KEYBOARD2),
+> +	  QUIRK_USE_KBD_BACKLIGHT | QUIRK_ROG_NKEY_KEYBOARD | QUIRK_HID_FN_LOCK=
+ },
 
-diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
-index 21c4a60d224e..b24222fdb319 100644
---- a/drivers/hid/hid-asus.c
-+++ b/drivers/hid/hid-asus.c
-@@ -1571,6 +1571,9 @@ static const struct hid_device_id asus_devices[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
- 	    USB_DEVICE_ID_ASUSTEK_ROG_NKEY_KEYBOARD2),
- 	  QUIRK_USE_KBD_BACKLIGHT | QUIRK_ROG_NKEY_KEYBOARD | QUIRK_HID_FN_LOCK },
-+	{ HID_I2C_DEVICE(USB_VENDOR_ID_ASUSTEK,
-+	    USB_DEVICE_ID_ASUSTEK_ROG_NKEY_KEYBOARD2),
-+	  QUIRK_USE_KBD_BACKLIGHT | QUIRK_ROG_NKEY_KEYBOARD | QUIRK_HID_FN_LOCK },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
- 	    USB_DEVICE_ID_ASUSTEK_ROG_Z13_LIGHTBAR),
- 	  QUIRK_USE_KBD_BACKLIGHT | QUIRK_ROG_NKEY_KEYBOARD },
--- 
-2.47.3
+[Severity: Critical]
+This is a pre-existing issue, but since this patch enables QUIRK_HID_FN_LOCK
+for a new device, could the fn_lock_sync_work initialization cause workqueue
+corruption?
 
+In asus_input_configured(), INIT_WORK(&drvdata->fn_lock_sync_work, ...) is
+called per-input. For devices with multiple inputs, if hid_hw_start() enabl=
+es
+interrupts before all inputs are configured, an early KEY_FN_ESC event could
+schedule the work before the next input is configured.=20
+
+The next call to asus_input_configured() would then re-execute INIT_WORK() =
+on
+the already queued work item, clearing its list pointers and causing a pani=
+c.=20
+
+Additionally, for devices with 0 inputs, it is never initialized, causing a
+warning in cancel_work_sync().
+
+[Severity: High]
+This is a pre-existing issue, but is there a potential use-after-free during
+device removal when QUIRK_HID_FN_LOCK is enabled?
+
+In asus_remove(), cancel_work_sync(&drvdata->fn_lock_sync_work) is called
+before hid_hw_stop(hdev). Since the hardware is still active, a late
+KEY_FN_ESC event can trigger asus_event() and unconditionally call
+schedule_work() after the work was supposedly canceled.=20
+
+Once the driver is removed and drvdata is freed by devres, could the
+workqueue execute asus_sync_fn_lock() and dereference the freed drvdata?
+
+[Severity: High]
+This is a pre-existing issue, but does the XGM LED name allocation need a
+NULL check?
+
+In asus_probe(), devm_kasprintf() is used to allocate the name for
+drvdata->xgm_led->cdev.name:
+
+	drvdata->xgm_led->cdev.name =3D devm_kasprintf(&hdev->dev, GFP_KERNEL,
+			"asus:xgm-%s:led",
+			strlen(hdev->uniq) ?
+			hdev->uniq : dev_name(&hdev->dev));
+	drvdata->xgm_led->cdev.brightness =3D 1;
+
+If devm_kasprintf() fails under memory pressure, it returns NULL. This NULL
+pointer is then passed to led_classdev_register(), which passes it to
+led_classdev_next_name() and eventually to strscpy() as the source string.=
+=20
+Since strscpy() does not check for a NULL source, this would cause an
+immediate NULL pointer dereference.
+
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
+>  	    USB_DEVICE_ID_ASUSTEK_ROG_Z13_LIGHTBAR),
+>  	  QUIRK_USE_KBD_BACKLIGHT | QUIRK_ROG_NKEY_KEYBOARD },
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260612142326.1704=
+858-1-denis.benato@linux.dev?part=3D4

@@ -1,57 +1,82 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B6BC02DF13B;
-	Fri, 12 Jun 2026 21:30:30 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 71BCB3806B4;
+	Fri, 12 Jun 2026 21:50:41 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781299831; cv=none; b=ZwdaXguCTGX5cXxNHwTMS80PX+T6L9gmp0UkiJNfsIZf71vNA8x9FLJlsFrefi2CuPkVFVfRA+kubEZZWFEwy+IxpXJbiM1pRmbn3xe5mRL8Luj7Xd3gEJ6QcVbOHOkxueVb6+JAaeYTOvr38Hm94xTKPmqIwYR2+5wCm+CzQRg=
+	t=1781301042; cv=none; b=JedYd6TJ9JmbMG6l+RUirZJQpN+BjBVfquG5V4TYnXD1KD32MVsVBRq7r2H2QSXKafFB1ohsP5FWXrutWSajdr8w1wzBRiHS47+wDZFEWLlL9wbxmiY7krn78RXRW3MG92dHLQLEtxmznu5rBSYOVCHxQFU0MNen+47NMjDXcAY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781299831; c=relaxed/simple;
-	bh=rU7DUEgzbug/5oBFy3tWbXQ8oSj+UcUEMuSulc14Rj8=;
-	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
-	 MIME-Version:Content-Type; b=ASKJsZBV4ZsV4pY6siFVAVZr8uoWLk7YB0jGjj3EIfCs27fbcmLXqXBxONjf6BkS49kTzvbTzQKAHtkdM2Uyl/bjAVGiTq3au6pomKc5UFnupGFGM1fvJqj4cAmQnFfWdtA6g5V7Tnw3Wt6YqYyo3DSoZGneS6vgvgEof66PN/4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=S+b0CbYo; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1781301042; c=relaxed/simple;
+	bh=lhJImDCC1WF3ABEqTf4IaqBhaYv/9U2IfUcLAdqu0XU=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Mr0CmOKUgctaklSRzgcakL+TwAKiSc/Zm/t45OHYNMnh4V+GnxtHM/CqEfb7Uk8Vmn9jPzWwJVlNC7VaPtOmPDenzdHxwPOQDA80a01X13JwMfxq37Ld5DNGaQ1MT45m8XT9f/GamRIoHBSxEON0LYtK+/Qn6EhHTUcrbLxprWU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=aOqKelPz; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="S+b0CbYo"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB9001F000E9;
-	Fri, 12 Jun 2026 21:30:29 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="aOqKelPz"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3D661F000E9;
+	Fri, 12 Jun 2026 21:50:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1781299830;
-	bh=1vG2nnxIK64uLO2wl+h9IAs9tW1pCIi+q6hAfF4ZM88=;
-	h=Date:From:To:cc:Subject:In-Reply-To:References;
-	b=S+b0CbYoD+twtxu6xIpplVT63zU+OGuczQXnXleW1//c8lFA+Q97knwBYZqYKQl0V
-	 KnT/RtpR3COMCwA4NpOc6K6A3VsRHIJTlJLNPqFCBjhCuqU6uVGGV/yxiaGVDPLqXD
-	 41j6J8Tpr0dPOdap8w1WmbZs6LwOHfacXB2AAlo6FCBnml1iXKBLIamAlCq4dStIxi
-	 aDpVMu2QOT68hQ27TPJQT3EuucMs2eVhguECmvUvtlMEkaUYvEVQGlPocu+DjYUrTd
-	 aXMNY0bYF/hZRGkJi4+m/LLa32uZEF09c0zjAKwhW3Z4vEgMzjaqCaloKTaL5KQd3z
-	 I3LIsIyDaFqmw==
-Date: Fri, 12 Jun 2026 23:30:27 +0200 (CEST)
-From: Jiri Kosina <jikos@kernel.org>
-To: sashiko-reviews@lists.linux.dev
-cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, 
-    Benjamin Tissoires <bentiss@kernel.org>
-Subject: Re: [PATCH] HID: hidpp: fix potential UAF in hidpp_connect_event()
-In-Reply-To: <20260612160404.1E45A1F00ACA@smtp.kernel.org>
-Message-ID: <rq62o7s8-sq9s-o9p2-2471-q081493qs989@xreary.bet>
-References: <r7qq6043-p432-51o0-3s93-r9382q44n027@xreary.bet> <20260612160404.1E45A1F00ACA@smtp.kernel.org>
+	s=k20260515; t=1781301041;
+	bh=p2nA5Tnze6KHUN9XqD8/TMWWvzpCyxCZipWb1FvHtlQ=;
+	h=From:To:Cc:Subject:Date;
+	b=aOqKelPz0TBX9GC+rYzBL80Yyf93uFKTpDT7fWSlL7HsAXQao7SFx5HdVktWnzYrX
+	 vM/tm529dOeTt0aMJcB5MfvvFbTqxr4DPj9yVEfku+pXiOyHWfHcS/9Kozp3pmDypZ
+	 lJvunAlUlUisPDJJ75SBL+6nfmCefRxRwLR/gFKsKMAlKdgBV2MKN9Y59NK0x6MKJa
+	 7lN2Wsdh7e8JCJUBaERdpYUwzRa26rzSolKOjXapuoed/cBEjF7xgZ0l818F6HAwrC
+	 24a0c/X9dApfml6I5eqX8RFOT8OXKNVqzHxAnqbSXsXoEyev+TKSxKflD57lT3ZXsT
+	 x7mzxodi3aO1Q==
+From: "Rob Herring (Arm)" <robh@kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH] Input: tsc2007 - Read "ti,poll-period" as u32
+Date: Fri, 12 Jun 2026 16:50:33 -0500
+Message-ID: <20260612215033.1885245-1-robh@kernel.org>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
 
-On Fri, 12 Jun 2026, sashiko-bot@kernel.org wrote:
+The "ti,poll-period" property is documented as a normal uint32 cell.
+The driver used a u64 helper, which makes the helper type disagree with
+the schema even though the stored value is still small.
 
-> Because hidpp_connect_event() runs asynchronously in a workqueue, incoming
-> HID reports can be processed concurrently by hidpp_raw_event() in
-> interrupt context. 
+Read "ti,poll-period" with the u32 helper matching the documented DT
+cell size.
 
-This is good point. I will send a v2.
+Assisted-by: Codex:gpt-5-5
+Signed-off-by: Rob Herring (Arm) <robh@kernel.org>
+---
+ drivers/input/touchscreen/tsc2007_core.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
+diff --git a/drivers/input/touchscreen/tsc2007_core.c b/drivers/input/touchscreen/tsc2007_core.c
+index 524f14eb3da2..db18b712999d 100644
+--- a/drivers/input/touchscreen/tsc2007_core.c
++++ b/drivers/input/touchscreen/tsc2007_core.c
+@@ -224,7 +224,6 @@ static int tsc2007_get_pendown_state_gpio(struct device *dev)
+ static int tsc2007_probe_properties(struct device *dev, struct tsc2007 *ts)
+ {
+ 	u32 val32;
+-	u64 val64;
+ 
+ 	if (!device_property_read_u32(dev, "ti,max-rt", &val32))
+ 		ts->max_rt = val32;
+@@ -240,8 +239,8 @@ static int tsc2007_probe_properties(struct device *dev, struct tsc2007 *ts)
+ 	if (!device_property_read_u32(dev, "ti,fuzzz", &val32))
+ 		ts->fuzzz = val32;
+ 
+-	if (!device_property_read_u64(dev, "ti,poll-period", &val64))
+-		ts->poll_period = msecs_to_jiffies(val64);
++	if (!device_property_read_u32(dev, "ti,poll-period", &val32))
++		ts->poll_period = msecs_to_jiffies(val32);
+ 	else
+ 		ts->poll_period = msecs_to_jiffies(1);
+ 
 -- 
-Jiri Kosina
-SUSE Labs
+2.53.0
 

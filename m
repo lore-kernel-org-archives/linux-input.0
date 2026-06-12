@@ -1,288 +1,205 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.17])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f52.google.com (mail-wm1-f52.google.com [209.85.128.52])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AB6F439023D
-	for <linux-input@vger.kernel.org>; Fri, 12 Jun 2026 19:12:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.17
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C55673A3E68
+	for <linux-input@vger.kernel.org>; Fri, 12 Jun 2026 20:26:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.52
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781291538; cv=none; b=qwZeKppV8PDEEm4/n5rS0DFifICsKdOzrucHgFtjRpSt4qcz/aIy8krR3+5BOjPjGzZat7RoYf/wQb4RkBFKXt/CAYOxEMg+oj7obor8LqaEpGmVtyCM2GMw8XO4n6olR+hsVlofmwKWQF+VQu99TEkj7UMsLIAa9Obft3NNefo=
+	t=1781295965; cv=none; b=AScQ/hR+obVa/uXnRjnPCBLgZUdCyNz1SmTljGeFpyMLV+Qa6m1srt2ac2DHL4ZAeZ8Ll4fqdCUoTjjy3LpP/jwvKrGvWS5IdmP6lQjjmgImsP3pkOTTOF/pVa7TwBiN+drltGGVX+Fnno5rBuoWNhO94IFTIMjjkK4u8wrD8g4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781291538; c=relaxed/simple;
-	bh=nMnVoiV/PxE3eocgr1MHJY+MRNf7aSk0gOrSIAWMLAI=;
-	h=Date:From:To:Cc:Subject:Message-ID; b=M7WcEDKS5XRjmsdW1uMigQw0eHecQ3x+xpK8s+mPEmwv7aK3Lz0Ly/6VUYlV+804A3HMnTFY/o2bIoMQhEVcQue6wHN8UICBYoN0HW86Pwaj2MJ9y4kWEj2k/X3c4sD/8h1bz/7vP/YejpZkvkbskCsa1JJP98mgBWLcgWv0l7I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=ED4+YOlG; arc=none smtp.client-ip=192.198.163.17
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1781295965; c=relaxed/simple;
+	bh=Cq8cPoBkI+FB/GEbDx3WtxRVRdZkRoFA54OCpSDtqJE=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=pylD5BfU4WgRs9JpaQG2E0axLJ6fEEVUb25qp9+TeM7/4op7FlneUChDOkwn0mr7JxYDfsieB00tprhKbHOHCSHCEH92fZFBK2+AfmRP0qHtWTXWHpXXAoegMw0mvKNnaVaETy49lsOhXDOZ5hbIQ2iGzRi/mPOqvVGrrbk74/4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=K8y6RWvg; arc=none smtp.client-ip=209.85.128.52
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="ED4+YOlG"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1781291537; x=1812827537;
-  h=date:from:to:cc:subject:message-id;
-  bh=nMnVoiV/PxE3eocgr1MHJY+MRNf7aSk0gOrSIAWMLAI=;
-  b=ED4+YOlG6jR+63myFFNPbCsxXT1HBaeIJVvn0EgzDwu6Ac8i9+v3WQyi
-   Kj/Eoe8EZA/JrloXo6SwEaqWK9aLaTtx4/BXNYEVh1KfTqyXeuz1Vp3qH
-   eMNlAjn75ywnrtj2hr8u9Vf+xq2fNFKJI+SCm1WwCTdmOR6pwNqrRt01h
-   aALuid+Jaquws/3wj3uFV07g0BFZ5Df0xU1B3Kdt417Ungvs85Z4m+huc
-   N3mgwicJoloTsEUK9/A85J3LmhAHt4g7ILIZXT1gzokn6Z/6s1D0Lk43B
-   TlKIYzzEemST0wkHhNJExfXEW2sfUxthSnWpjvtOYFe/rA9cW2tjniodW
-   A==;
-X-CSE-ConnectionGUID: oSjUhIZlSAy4rdJl83E06A==
-X-CSE-MsgGUID: oBUzjvaUSJqHPqu71nBVtQ==
-X-IronPort-AV: E=McAfee;i="6800,10657,11815"; a="81974341"
-X-IronPort-AV: E=Sophos;i="6.24,201,1774335600"; 
-   d="scan'208";a="81974341"
-Received: from orviesa009.jf.intel.com ([10.64.159.149])
-  by fmvoesa111.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 Jun 2026 12:12:16 -0700
-X-CSE-ConnectionGUID: Tj3IeSfBSXa6ttZkWsNCgQ==
-X-CSE-MsgGUID: ytHYTY1tSaKt8H5LVtlkOA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.24,201,1774335600"; 
-   d="scan'208";a="246924201"
-Received: from lkp-server01.sh.intel.com (HELO f0d55cb201f0) ([10.239.97.150])
-  by orviesa009.jf.intel.com with ESMTP; 12 Jun 2026 12:12:15 -0700
-Received: from kbuild by f0d55cb201f0 with local (Exim 4.98.2)
-	(envelope-from <lkp@intel.com>)
-	id 1wY7Ia-00000000PEJ-0aPo;
-	Fri, 12 Jun 2026 19:12:12 +0000
-Date: Sat, 13 Jun 2026 03:11:24 +0800
-From: kernel test robot <lkp@intel.com>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
-Subject: [dtor-input:next] BUILD SUCCESS
- 040b099a58aad06e436cd3a46475fa983efd6c93
-Message-ID: <202606130316.brZ9A5Qw-lkp@intel.com>
-User-Agent: s-nail v14.9.25
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="K8y6RWvg"
+Received: by mail-wm1-f52.google.com with SMTP id 5b1f17b1804b1-490b12270b3so8614705e9.1
+        for <linux-input@vger.kernel.org>; Fri, 12 Jun 2026 13:26:03 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1781295962; x=1781900762; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=8rQCLAIxALSz/Z8tD2vL5V4eDD0YacOILyc6cFmNdB8=;
+        b=K8y6RWvg4tLzpXJq9RPzKhkwQeFOMPJRyo/S4I5hrUVeP7lIYA5GAwBMDiA3P9Uz9h
+         UlrIzRUGhST1MO055UjF7IOp4NYiJUTGjHHNvzGJWTzbDXKR7PMgvzxjgvLuxhiqIavz
+         aBFwyR8Mbhxl6FLkDyK7B9snr/G0mKvokym4bhDLm/Jv73Dnudp3b3A0xT9H1M1E9YxW
+         XVW8tZZA0BVKsxpESC2T1D8OJwMyFPy7HLGTD2eRXW77nZ+s6cIjqNVdhzLnnygq8Vhi
+         g+Sgsv8hMXIsfAc5GEU4RPlcHjipzeuhpDusCG1QqRUbuGWpVt7jCJyZNFR6daOJpoTE
+         wCwQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1781295962; x=1781900762;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=8rQCLAIxALSz/Z8tD2vL5V4eDD0YacOILyc6cFmNdB8=;
+        b=Z2mHHk56u4FUZZ/EenF5GDOB7+Bk2mu2ojJBE1WbbD67tioGGI9VumWwoRjHsj4Qe0
+         9b3XSexjdbXi7rvDJfzSRw19xz7WPCms330SUn7xyR5qw9AywpKT8rmhF7XFKYjOgCAo
+         BtB8uuiLkXkPOD/3apx2SaVX7LinC3g00AvYqtw2i60NFeyrvZHSXDql+O0AoBxHEA0F
+         o43NeKZalRLwjUZjLPPKo9kfp2k/F7xLMf8+kyZSsZb1//MobYSh+VakF3gYeNdPPDzf
+         t44BE8hkCIGAA5dFSa9D+DvcE0HWMXf6aVX90G2u24b7SbwnkjwTHH8SYj3AQiVp0KmX
+         n6BA==
+X-Forwarded-Encrypted: i=1; AFNElJ/H3j8Ga2dCirxIdawwwxnHNMfNKvJFU2z+O+xSzVp62dUIfDMITll5eK9ePxpRVOkgkUJnUhllynUlCA==@vger.kernel.org
+X-Gm-Message-State: AOJu0YxgwiHC6PptaHfa91coVjMmrKmQr4Zo8JqmIMiaRbdz2gei7N2C
+	KSvKC21BbKQMMZuOLpUovGpc1F+SVIMHBKDLVRrz8mWtSL6cF3lK5v1TlVQidNL0
+X-Gm-Gg: Acq92OGN1w+GkKLo9gzXJB01o0zyUXuHw/t7nqBK8/pfY0JHM+RUUIbQdU3wMfOnNmK
+	yRfr9y4XFoySR325cIq/Oy/6FqZm8MIQ11CiyAOQHhPd4VwJ+JHRvW8pe5ZeDVfQgB2MkIaYzFl
+	4Lc2c3tw3SV3RkkQjaOax1dLxvdmo3smSdhaTTUfZ/TO97QID6s09qH6UINRMiF5Pr73fQRdrX1
+	hDP/ZWKjvP5++q3jt9goeAS+YLUe1vNOoC3wKRNLEikF52kxfyKmKIeRkK6RtFLLIX9NJwRZUFK
+	eg+U/JaPhv9nzXwdDUPew3mU7Kh/wnd/m62CSmPzlzNNovvf4ErC4EwVr/xWeegzEDljR50A+mj
+	g70ov5fVNRl/UubVxuMfwrzlPgJoz+gJI8aVbmB3kDnxwtByD0wCdyKEF9dVCAkWgFY3+Wp2cT+
+	S4Pl9NBTgJs27UfAxT
+X-Received: by 2002:a05:600c:3585:b0:490:b642:ce29 with SMTP id 5b1f17b1804b1-490ec4d4f71mr59232905e9.8.1781295962029;
+        Fri, 12 Jun 2026 13:26:02 -0700 (PDT)
+Received: from luca-vm.. ([81.56.18.151])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4606f26434dsm9173261f8f.1.2026.06.12.13.26.00
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 12 Jun 2026 13:26:01 -0700 (PDT)
+From: Luca Leonardo Scorcia <l.scorcia@gmail.com>
+To: linux-mediatek@lists.infradead.org
+Cc: Luca Leonardo Scorcia <l.scorcia@gmail.com>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Sen Chu <sen.chu@mediatek.com>,
+	Sean Wang <sean.wang@mediatek.com>,
+	Macpaul Lin <macpaul.lin@mediatek.com>,
+	Lee Jones <lee@kernel.org>,
+	Matthias Brugger <matthias.bgg@gmail.com>,
+	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
+	Linus Walleij <linusw@kernel.org>,
+	Julien Massot <julien.massot@collabora.com>,
+	Louis-Alexis Eyraud <louisalexis.eyraud@collabora.com>,
+	Val Packett <val@packett.cool>,
+	Fabien Parent <parent.f@gmail.com>,
+	Akari Tsuyukusa <akkun11.open@gmail.com>,
+	Chen Zhong <chen.zhong@mediatek.com>,
+	linux-input@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	linux-pm@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-gpio@vger.kernel.org
+Subject: [PATCH v6 0/7] Add support for MT6392 PMIC
+Date: Fri, 12 Jun 2026 22:04:05 +0200
+Message-ID: <20260612200717.361018-1-l.scorcia@gmail.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-tree/branch: https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git next
-branch HEAD: 040b099a58aad06e436cd3a46475fa983efd6c93  Input: rmi4 - update formatting in F12
+The MediaTek MT6392 PMIC is usually found on devices powered by
+the MT8516/MT8167 SoC and is yet another MT6323/MT6397 variant.
 
-elapsed time: 784m
+This series is mostly based around patches submitted a couple
+years ago by Fabien Parent and not merged and from Val Packett's
+submission from Jan 2025 that included extra cleanups, fixes, and a
+new dtsi file similar to ones that exist for other PMICs. Some
+comments weren't addressed and the series was ultimately not merged.
 
-configs tested: 211
-configs skipped: 2
+These patches only enable three functions: keys, pinctrl and RTC.
+Regulators and speaker amp will follow later as I still need to further
+improve those two, but getting the main PMIC in will make the series
+easier to review.
 
-The following configs have been built successfully.
-More configs may be tested in the coming days.
+I added a handful of device tree improvements to fix some dtbs_check
+errors, added support for the pinctrl device and addressed the comments
+from last year's reviews.
 
-tested configs:
-alpha                             allnoconfig    gcc-16.1.0
-alpha                            allyesconfig    gcc-16.1.0
-alpha                               defconfig    gcc-16.1.0
-arc                              allmodconfig    clang-23
-arc                               allnoconfig    gcc-16.1.0
-arc                              allyesconfig    clang-23
-arc                                 defconfig    gcc-16.1.0
-arc                   randconfig-001-20260612    gcc-13.4.0
-arc                   randconfig-002-20260612    gcc-13.4.0
-arm                               allnoconfig    gcc-16.1.0
-arm                              allyesconfig    clang-23
-arm                         axm55xx_defconfig    clang-23
-arm                                 defconfig    gcc-16.1.0
-arm                   randconfig-001-20260612    gcc-13.4.0
-arm                   randconfig-002-20260612    gcc-13.4.0
-arm                   randconfig-003-20260612    gcc-13.4.0
-arm                   randconfig-004-20260612    gcc-13.4.0
-arm                       spear13xx_defconfig    gcc-16.1.0
-arm64                            allmodconfig    clang-23
-arm64                             allnoconfig    gcc-16.1.0
-arm64                               defconfig    gcc-16.1.0
-arm64                 randconfig-001-20260612    gcc-13.4.0
-arm64                 randconfig-002-20260612    gcc-13.4.0
-arm64                 randconfig-003-20260612    gcc-13.4.0
-arm64                 randconfig-004-20260612    gcc-13.4.0
-csky                             allmodconfig    gcc-16.1.0
-csky                              allnoconfig    gcc-16.1.0
-csky                                defconfig    gcc-16.1.0
-csky                  randconfig-001-20260612    gcc-13.4.0
-csky                  randconfig-002-20260612    gcc-13.4.0
-hexagon                          allmodconfig    gcc-16.1.0
-hexagon                           allnoconfig    gcc-16.1.0
-hexagon                             defconfig    gcc-16.1.0
-hexagon                        randconfig-001    gcc-11.5.0
-hexagon               randconfig-001-20260612    clang-23
-hexagon               randconfig-001-20260612    gcc-11.5.0
-hexagon                        randconfig-002    gcc-11.5.0
-hexagon               randconfig-002-20260612    clang-23
-hexagon               randconfig-002-20260612    gcc-11.5.0
-i386                             allmodconfig    clang-22
-i386                              allnoconfig    gcc-16.1.0
-i386                             allyesconfig    clang-22
-i386                 buildonly-randconfig-001    gcc-14
-i386        buildonly-randconfig-001-20260612    gcc-14
-i386                 buildonly-randconfig-002    gcc-14
-i386        buildonly-randconfig-002-20260612    gcc-14
-i386                 buildonly-randconfig-003    gcc-14
-i386        buildonly-randconfig-003-20260612    gcc-14
-i386                 buildonly-randconfig-004    gcc-14
-i386        buildonly-randconfig-004-20260612    gcc-14
-i386                 buildonly-randconfig-005    gcc-14
-i386        buildonly-randconfig-005-20260612    gcc-14
-i386                 buildonly-randconfig-006    gcc-14
-i386        buildonly-randconfig-006-20260612    gcc-14
-i386                                defconfig    gcc-16.1.0
-i386                  randconfig-001-20260612    clang-22
-i386                  randconfig-002-20260612    clang-22
-i386                  randconfig-003-20260612    clang-22
-i386                  randconfig-004-20260612    clang-22
-i386                  randconfig-005-20260612    clang-22
-i386                  randconfig-006-20260612    clang-22
-i386                  randconfig-007-20260612    clang-22
-i386                  randconfig-011-20260612    clang-22
-i386                  randconfig-012-20260612    clang-22
-i386                  randconfig-013-20260612    clang-22
-i386                  randconfig-014-20260612    clang-22
-i386                  randconfig-015-20260612    clang-22
-i386                  randconfig-016-20260612    clang-22
-i386                  randconfig-017-20260612    clang-22
-loongarch                        allmodconfig    clang-23
-loongarch                         allnoconfig    gcc-16.1.0
-loongarch                           defconfig    clang-23
-loongarch                      randconfig-001    gcc-11.5.0
-loongarch             randconfig-001-20260612    clang-23
-loongarch             randconfig-001-20260612    gcc-11.5.0
-loongarch                      randconfig-002    gcc-11.5.0
-loongarch             randconfig-002-20260612    clang-23
-loongarch             randconfig-002-20260612    gcc-11.5.0
-m68k                             allmodconfig    gcc-16.1.0
-m68k                              allnoconfig    gcc-16.1.0
-m68k                             allyesconfig    clang-23
-m68k                                defconfig    clang-23
-microblaze                        allnoconfig    gcc-16.1.0
-microblaze                       allyesconfig    gcc-16.1.0
-microblaze                          defconfig    clang-23
-mips                             allmodconfig    gcc-16.1.0
-mips                              allnoconfig    gcc-16.1.0
-mips                             allyesconfig    gcc-16.1.0
-nios2                            allmodconfig    clang-20
-nios2                             allnoconfig    clang-23
-nios2                             allnoconfig    gcc-11.5.0
-nios2                               defconfig    clang-23
-nios2                          randconfig-001    gcc-11.5.0
-nios2                 randconfig-001-20260612    clang-23
-nios2                 randconfig-001-20260612    gcc-11.5.0
-nios2                          randconfig-002    gcc-11.5.0
-nios2                 randconfig-002-20260612    clang-23
-nios2                 randconfig-002-20260612    gcc-11.5.0
-openrisc                         allmodconfig    clang-20
-openrisc                          allnoconfig    clang-23
-openrisc                          allnoconfig    gcc-16.1.0
-openrisc                            defconfig    gcc-16.1.0
-parisc                           allmodconfig    gcc-16.1.0
-parisc                            allnoconfig    clang-23
-parisc                            allnoconfig    gcc-16.1.0
-parisc                           allyesconfig    clang-23
-parisc                              defconfig    gcc-16.1.0
-parisc64                            defconfig    clang-23
-powerpc                          allmodconfig    gcc-16.1.0
-powerpc                           allnoconfig    clang-23
-powerpc                           allnoconfig    gcc-16.1.0
-powerpc                  mpc885_ads_defconfig    clang-23
-powerpc                      ppc64e_defconfig    gcc-16.1.0
-riscv                            allmodconfig    clang-23
-riscv                             allnoconfig    clang-23
-riscv                             allnoconfig    gcc-16.1.0
-riscv                            allyesconfig    clang-23
-riscv                               defconfig    gcc-16.1.0
-riscv                          randconfig-001    gcc-11.5.0
-riscv                 randconfig-001-20260612    gcc-11.5.0
-riscv                          randconfig-002    gcc-11.5.0
-riscv                 randconfig-002-20260612    gcc-11.5.0
-s390                             allmodconfig    clang-23
-s390                              allnoconfig    clang-23
-s390                             allyesconfig    gcc-16.1.0
-s390                                defconfig    gcc-16.1.0
-s390                           randconfig-001    gcc-11.5.0
-s390                  randconfig-001-20260612    gcc-11.5.0
-s390                           randconfig-002    gcc-11.5.0
-s390                  randconfig-002-20260612    gcc-11.5.0
-sh                               allmodconfig    gcc-16.1.0
-sh                                allnoconfig    clang-23
-sh                                allnoconfig    gcc-16.1.0
-sh                               allyesconfig    clang-23
-sh                                  defconfig    gcc-14
-sh                             randconfig-001    gcc-11.5.0
-sh                    randconfig-001-20260612    gcc-11.5.0
-sh                             randconfig-002    gcc-11.5.0
-sh                    randconfig-002-20260612    gcc-11.5.0
-sparc                             allnoconfig    clang-23
-sparc                             allnoconfig    gcc-16.1.0
-sparc                               defconfig    gcc-16.1.0
-sparc                 randconfig-001-20260612    gcc-8.5.0
-sparc                 randconfig-002-20260612    gcc-8.5.0
-sparc64                          allmodconfig    clang-20
-sparc64                             defconfig    gcc-14
-sparc64               randconfig-001-20260612    gcc-8.5.0
-sparc64               randconfig-002-20260612    gcc-8.5.0
-um                               allmodconfig    clang-23
-um                                allnoconfig    clang-16
-um                                allnoconfig    clang-23
-um                               allyesconfig    gcc-16.1.0
-um                                  defconfig    gcc-14
-um                             i386_defconfig    gcc-14
-um                    randconfig-001-20260612    gcc-8.5.0
-um                    randconfig-002-20260612    gcc-8.5.0
-um                           x86_64_defconfig    gcc-14
-x86_64                           allmodconfig    clang-22
-x86_64                            allnoconfig    clang-22
-x86_64                            allnoconfig    clang-23
-x86_64                           allyesconfig    clang-22
-x86_64               buildonly-randconfig-001    gcc-14
-x86_64      buildonly-randconfig-001-20260612    gcc-14
-x86_64               buildonly-randconfig-002    gcc-14
-x86_64      buildonly-randconfig-002-20260612    gcc-14
-x86_64               buildonly-randconfig-003    gcc-14
-x86_64      buildonly-randconfig-003-20260612    gcc-14
-x86_64               buildonly-randconfig-004    gcc-14
-x86_64      buildonly-randconfig-004-20260612    gcc-14
-x86_64               buildonly-randconfig-005    gcc-14
-x86_64      buildonly-randconfig-005-20260612    gcc-14
-x86_64               buildonly-randconfig-006    gcc-14
-x86_64      buildonly-randconfig-006-20260612    gcc-14
-x86_64                              defconfig    gcc-14
-x86_64                                  kexec    clang-22
-x86_64                randconfig-001-20260612    clang-22
-x86_64                randconfig-002-20260612    clang-22
-x86_64                randconfig-003-20260612    clang-22
-x86_64                randconfig-004-20260612    clang-22
-x86_64                randconfig-005-20260612    clang-22
-x86_64                randconfig-006-20260612    clang-22
-x86_64                         randconfig-011    clang-22
-x86_64                randconfig-011-20260612    clang-22
-x86_64                         randconfig-012    clang-22
-x86_64                randconfig-012-20260612    clang-22
-x86_64                         randconfig-013    clang-22
-x86_64                randconfig-013-20260612    clang-22
-x86_64                         randconfig-014    clang-22
-x86_64                randconfig-014-20260612    clang-22
-x86_64                         randconfig-015    clang-22
-x86_64                randconfig-015-20260612    clang-22
-x86_64                         randconfig-016    clang-22
-x86_64                randconfig-016-20260612    clang-22
-x86_64                randconfig-071-20260612    gcc-14
-x86_64                randconfig-072-20260612    gcc-14
-x86_64                randconfig-073-20260612    gcc-14
-x86_64                randconfig-074-20260612    gcc-14
-x86_64                randconfig-075-20260612    gcc-14
-x86_64                randconfig-076-20260612    gcc-14
-x86_64                               rhel-9.4    clang-22
-x86_64                           rhel-9.4-bpf    gcc-14
-x86_64                          rhel-9.4-func    clang-22
-x86_64                    rhel-9.4-kselftests    clang-22
-x86_64                         rhel-9.4-kunit    gcc-14
-x86_64                           rhel-9.4-ltp    gcc-14
-x86_64                          rhel-9.4-rust    clang-22
-xtensa                            allnoconfig    clang-23
-xtensa                            allnoconfig    gcc-16.1.0
-xtensa                           allyesconfig    clang-20
-xtensa                randconfig-001-20260612    gcc-8.5.0
-xtensa                randconfig-002-20260612    gcc-8.5.0
+Please note that patch 0005 depends on patch 0004 as they both need the
+registers.h file, but they belong to different driver areas. I'm not sure
+if I'm supposed to squash them even if they belong to different driver
+areas of if it's fine like this. Any advice is welcome.
 
---
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+The series has been tested on Xiaomi Mi Smart Clock X04G and on the
+Lenovo Smart Clock 2.
+
+Changes in v6:
+- Dropped the regulators driver for the moment
+- Explained the FCHR key name origin in the commit message
+- Introduced the MFD_CELL_* macro in the sub-devices definitions.
+  A separate, independent commit introduced MFD_CELL_* to all the
+  subdevices in the mt6397-core.c file for consistency
+- Replaced of_device_get_match_data with device_get_match_data
+- Removed the mfd_match_data enum in favor of the preexisting
+  chip_id enum
+- Adjusted the error message if the device is unsupported
+
+Changes in v5 [5]:
+- Double checked regulator driver with data sheet and Android sources.
+  The data sheet I have misses a lot of register descriptions, but
+  Android sources have been helpful to fill the gaps
+- Reintroduced the required attribute for the regulator compatible
+  in the bindings
+- Fixed the missing reference to the MT6392 schema
+- Fixed casts/unused vars reported by kernel test robot
+- Removed Reviewed-by tags from the regulator patches as they have been
+  modified in this version
+
+Changes in v4 [4]:
+- Dropped usage of the regulator compatible
+- Fixed commit messages text to properly reference the target subsystem
+- Added supply rails to the regulator
+- Reworked the regulator schema and PMIC dtsi. Now all supplies are
+  documented and the schema no longer includes voltage information
+- Removed redundant ldo- / buck- prefixes
+- Renamed the pinfunc header to mediatek,mt6392-pinfunc.h
+- Modified the MFD driver to use a simple identifier in the of_match
+  data properties
+
+Changes in v3 [3]:
+- Added pinctrl device
+- Changed mt6397-rtc fallback to mt6323-rtc
+- Added schema for regulators
+- Fixed checkpatch issues
+
+Changes in v2 [2]:
+- Replaced explicit compatibles with fallbacks
+
+Initial version: [1]
+
+[1] https://lore.kernel.org/linux-mediatek/cover.1771865014.git.l.scorcia@gmail.com/
+[2] https://lore.kernel.org/linux-mediatek/20260306120521.163654-1-l.scorcia@gmail.com/
+[3] https://lore.kernel.org/linux-mediatek/20260317184507.523060-1-l.scorcia@gmail.com/
+[4] https://lore.kernel.org/linux-mediatek/20260330083429.359819-1-l.scorcia@gmail.com/
+[5] https://lore.kernel.org/linux-mediatek/20260420213529.1645560-1-l.scorcia@gmail.com/
+
+Fabien Parent (3):
+  dt-bindings: mfd: mt6397: Add MT6392 PMIC
+  dt-bindings: input: mtk-pmic-keys: Add MT6392 PMIC keys
+  mfd: mt6397: Add support for MT6392 PMIC
+
+Luca Leonardo Scorcia (2):
+  mfd: mt6397: Use MFD_CELL_* to describe sub-devices
+  pinctrl: mediatek: mt6397: Add MediaTek MT6392
+
+Val Packett (2):
+  input: keyboard: mtk-pmic-keys: Add MT6392 support
+  arm64: dts: mediatek: Add MediaTek MT6392 PMIC dtsi
+
+ .../bindings/input/mediatek,pmic-keys.yaml    |   1 +
+ .../bindings/mfd/mediatek,mt6397.yaml         |   8 +
+ arch/arm64/boot/dts/mediatek/mt6392.dtsi      |  41 ++
+ drivers/input/keyboard/mtk-pmic-keys.c        |  17 +
+ drivers/mfd/mt6397-core.c                     | 294 +++++------
+ drivers/mfd/mt6397-irq.c                      |   8 +
+ drivers/pinctrl/mediatek/pinctrl-mt6397.c     |  37 +-
+ drivers/pinctrl/mediatek/pinctrl-mtk-mt6392.h |  64 +++
+ include/linux/mfd/mt6392/core.h               |  43 ++
+ include/linux/mfd/mt6392/registers.h          | 488 ++++++++++++++++++
+ include/linux/mfd/mt6397/core.h               |   1 +
+ 11 files changed, 840 insertions(+), 162 deletions(-)
+ create mode 100644 arch/arm64/boot/dts/mediatek/mt6392.dtsi
+ create mode 100644 drivers/pinctrl/mediatek/pinctrl-mtk-mt6392.h
+ create mode 100644 include/linux/mfd/mt6392/core.h
+ create mode 100644 include/linux/mfd/mt6392/registers.h
+
+-- 
+2.43.0
+

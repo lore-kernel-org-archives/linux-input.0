@@ -1,145 +1,104 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f42.google.com (mail-wm1-f42.google.com [209.85.128.42])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 44D333D47B7
-	for <linux-input@vger.kernel.org>; Fri, 12 Jun 2026 13:01:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7A29234EF07
+	for <linux-input@vger.kernel.org>; Fri, 12 Jun 2026 13:03:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.42
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781269287; cv=none; b=dNXDzUIbt23eDAweZFqVE64n8zm0O1aa/jOUhAL4f6dLH3NCM+Xx0i/jUOWL9qTE5+gSTTNHhnLizioRVqSCbdWlKBeDijWK94dUG5AQ4j04uCM9huz7lbnX+WueMBNjW9l6XdLptKpKFNtbBA0jYPfhRRILO4dW2c2uNI8YvS8=
+	t=1781269441; cv=none; b=dQwy1W3OP0cbWpvNLkq5TJcdzmHr3FdWMLjs6LZqYPDAh6vWR0AdHQ3OxA32Ggy1MP7DJ34Wx6oN2GazF1BQW2j1DiZKkgSpzgHwfF3gccuVj0DNwdRCfTlezGHTv7+BnqvzmiEAd3+JkzjsDyITED9kzsOYlHuEpeI8+kIcH/k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781269287; c=relaxed/simple;
-	bh=YKni3FkYM5p3sXHMFpHmvd0Snpcs6Sx5ANgPJ3Q8RXU=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=emjrlK/hls/ymq0yoKm58eUl9Zmhp0aXlWpNCPGsaRmiItRfEL0vKod/Kp4nndtO+DGMB0cI/lKmUOuH0hgqIyZRuHnIDUUbNJSOqOycv6zUICyydY9fqBXsNT0AvoTUYB1Rk7i2wnSb6ThLra+eDH/CzWFCDMpvW881vJlH1M0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=k2U2h7KW; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1781269441; c=relaxed/simple;
+	bh=k+sFTi3ZhgfW4nApYetJ4lkoXUIXd5mBZUzjEevdCnI=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=atic8duTkm0Z7zZGm3Ft0Wgb2Ytdd+a0IAXiF+AyLEx65nrODxskonIbHF9j9pRBN2RiUOBkdCoC/rpZtF4I9WA8x1ZNO0p17bmoNc6pDgkk8p6GqTnl4jFl1f5HS6IcIUtXfR41WSNjFk8FXdu3ZHNShpRL26f3D302MlTEx24=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b=K5b2jGNs; arc=none smtp.client-ip=209.85.128.42
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="k2U2h7KW"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AAAE71F000E9;
-	Fri, 12 Jun 2026 13:01:25 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1781269285;
-	bh=J3kXU0nrKlpyu2Wpx775kIf/5+iVf5JbjVcWtS2LobU=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=k2U2h7KWcDOAmUXqokprPQse31iRbKkjuh3UyHup71OxmoGUixLt/sVGIzX1lyDA7
-	 jt9NScu57l+fBlpDV3LaIQmW7XX579Z/Kwexd1TUsFj/kSk5weRAjP+rNBDHpzSxJx
-	 KbCKscV1LanW2KL6UooApQr1emVS7V2n26CSdK/rj1eC5Zj4bxLJoUmJwPVF8kNotQ
-	 kf7yWsQkq71AvlRXMG1mVUUC9KX4fnK3ljmdUbLPlSUVHapTHYTtJJT16m7H0czQEx
-	 iZrjZyuh7pCADg7GEWavOn5YVUN6B1wRkWxXO8PeNL+MqRQch2YJ6xFLnZBF7YsG6r
-	 K3C9r5ma/XtYQ==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] HID: asus: add i2c entry for FA808UM and other TUFs
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Denis Benato" <denis.benato@linux.dev>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260612124830.984592-1-denis.benato@linux.dev>
-References: <20260612124830.984592-1-denis.benato@linux.dev>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Fri, 12 Jun 2026 13:01:25 +0000
-Message-Id: <20260612130125.AAAE71F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="K5b2jGNs"
+Received: by mail-wm1-f42.google.com with SMTP id 5b1f17b1804b1-490ac10e337so6250325e9.3
+        for <linux-input@vger.kernel.org>; Fri, 12 Jun 2026 06:03:57 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=suse.com; s=google; t=1781269436; x=1781874236; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=Yf7j+ifXP1lxuhE6FFlnHvjVP9/k9ur1vllpVoVtwAs=;
+        b=K5b2jGNs/84o9wYeZ8dcDLfOZon+oILCookbgGaw+tfmpx8HVSZlc5jDwXau3sAN32
+         fWeJrSp5c0piUA3z/y7co4i3WmkcqeRZja5wqVXsqziCf4roaDgKDJTWcj0NohdaD5BU
+         uwM/SprEBsYXQ1lpE84RTHPCtDOQLDa91CREfgXiYiw+x28mSKNBVeBaWw/r2a2EpHXq
+         615j1HJcjMkqaQmK9j2VBy60xWD4frYUarAUae5OeGeXhfT+7AE4NoAVMigQl5gPNFel
+         AGDrfwTSd2Xz02gepjU/9OHrv3HvXanRYNyMezoaDPfLDvyoe96clktxc+KzxUMOHt/b
+         RY+Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1781269436; x=1781874236;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=Yf7j+ifXP1lxuhE6FFlnHvjVP9/k9ur1vllpVoVtwAs=;
+        b=dnl1e79YJ2Yied6BlvCVHRxnKu0MuGoIYZjetuJerB8jyYenWG8F+wcLtMVigr6Eks
+         2gQwojEyLT4MHVpROOr0Ss0w4gQdtNo2yBF7s6DiOm4yqANM49aWARnMQkDsVEL8UXNf
+         LBRkYpao3H/p4q9kYpt8RmBZa9bVIeVkKCB1ezkXGvz/szX+M4pnxgtP8YHfWxna85SW
+         DKcqsOSXHcjTEGOoyrQVAwy/ll2lBp1sz4S3jVX0qZz0iVAIYFY13fJZz7Oo+JZui6gS
+         p41sX9UKEfvUPgTVvKKvc3vG1OoaYB6+GUDAf7KXdaWBe+WDyn9P23MOw3ukB2kPenwm
+         jj9Q==
+X-Forwarded-Encrypted: i=1; AFNElJ9KMM3+UnakPI3/okPlmfLQ1lfsl2fFvD2yoCKkkULhdG5PaMMMdEs46HXfC/Hc9gbrJeSIPeokH0DENw==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yw0tc+n7Zm7GNCpgPMF/hNDZlBLqhWFey1Ggm+m8cXo5LFrOc2Z
+	Z7InABinIVdaYzYbwWXpGuHA1XhLCrTG/gM5F8ltUMl1ZxyN23663vHKfGYJ/qVcX9o=
+X-Gm-Gg: Acq92OH9UVEobZJPRxrDmx/iJxk3daCuCVLjoRPGFn8lG7KB+SWOv302QBoXfLDT1c7
+	VuHd9CwOiZcWecadmFpJz5fFW1KNVlO/f4h8NUl8w10y9cX4MikOqWMLzxFb4jBxViqHMr34O/4
+	s4pb6RJVVqT7b3PHn4ygLxi4UBQKmCQEKZqbwtzsvWOBFpxah0n7+6YNQNpO4R3zW/HVNIUYeXO
+	jWyGLqIk8cdXjXUO+v5TJaH4HjXQQz5A6RLy6lDGWM0ZmV5dDhAHZDrLmVxICUuX8V9rjB63FJa
+	Om0MpRdUfaxUia9xaXOFGocfTdWpLVvyDnQ2LxDsaPNxxoUgvzMZnvibNSOMeBDRt6m8NXXmsKz
+	fdkIaeMubkRt6ibBCSQea5zMYc9OerFrZ0Z/09M/lle1he+CLMWZLbHAo7W0TgvY+Gh4asrU5/b
+	3szVcdfwoty+ZdaXGp7vpYvqbyVw==
+X-Received: by 2002:a05:600c:83ca:b0:490:aef9:aa3b with SMTP id 5b1f17b1804b1-490ec523ef7mr34427875e9.32.1781269435437;
+        Fri, 12 Jun 2026 06:03:55 -0700 (PDT)
+Received: from pathway.suse.cz ([176.114.240.130])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-490ea84cc32sm61170145e9.15.2026.06.12.06.03.54
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 12 Jun 2026 06:03:55 -0700 (PDT)
+Date: Fri, 12 Jun 2026 15:03:53 +0200
+From: Petr Mladek <pmladek@suse.com>
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Jiri Kosina <jikos@kernel.org>,
+	"Daniel J. Ogorchock" <djogorchock@gmail.com>,
+	Tamir Duberstein <tamird@kernel.org>, linux-doc@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
+	Steven Rostedt <rostedt@goodmis.org>,
+	Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+	Sergey Senozhatsky <senozhatsky@chromium.org>,
+	Jonathan Corbet <corbet@lwn.net>,
+	Shuah Khan <skhan@linuxfoundation.org>,
+	Benjamin Tissoires <bentiss@kernel.org>,
+	Andrew Morton <akpm@linux-foundation.org>
+Subject: Re: [PATCH v2 0/2] vsprintf: add upper case to %p[mM] et alia
+Message-ID: <aiwDuXJSFtt9jlyf@pathway.suse.cz>
+References: <20260603104351.152085-1-andriy.shevchenko@linux.intel.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260603104351.152085-1-andriy.shevchenko@linux.intel.com>
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
+On Wed 2026-06-03 12:34:01, Andy Shevchenko wrote:
+> The first patch induced by Sashiko rightfully rises a concern on
+> potential ABI breakage. To avoid that and allow the user (patch 2)
+> to be converted to use unified output introduce %p[mM][...]U for
+> printing in upper case. Tests are included and passed.
+> 
+> Changelog v2:
+> - added first patch (Sashiko)
+> 
+> Andy Shevchenko (2):
+>   vsprintf: Add upper case flavour to %p[mM]
+>   HID: nintendo: Use %pM format specifier for MAC addresses
 
-Pre-existing issues:
-- [High] Use-After-Free during device removal if asus_kbd_register_leds() f=
-ails
-- [High] Invalid type cast and Out-of-Bounds read for non-USB devices mimic=
-king QUIRK_ROG_ALLY_XPAD
---
+JFYI, the patchset has been committed into printk/linux.git,
+branch for-7.2-vsprintf-pmM-uppercase.
 
-commit 8b4f857c02ac46f316151cd7e8bd26fec4c17401
-Author: Denis Benato <denis.benato@linux.dev>
-
-HID: asus: add i2c entry for FA808UM and other TUFs
-
-This patch adds an I2C HID device entry for the ASUS ROG NKEY Keyboard 2
-in the hid-asus driver. This allows newer TUF laptops, which use the same
-PID/VID over I2C instead of USB, to successfully bind to the driver.
-
-> diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
-> index 3f5e96900b67a..5a2ab3cfef0b5 100644
-> --- a/drivers/hid/hid-asus.c
-> +++ b/drivers/hid/hid-asus.c
-> @@ -1494,6 +1494,9 @@ static const struct hid_device_id asus_devices[] =
-=3D {
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
->  	    USB_DEVICE_ID_ASUSTEK_ROG_NKEY_KEYBOARD2),
->  	  QUIRK_USE_KBD_BACKLIGHT | QUIRK_ROG_NKEY_KEYBOARD | QUIRK_HID_FN_LOCK=
- },
-> +	{ HID_I2C_DEVICE(USB_VENDOR_ID_ASUSTEK,
-> +	    USB_DEVICE_ID_ASUSTEK_ROG_NKEY_KEYBOARD2),
-> +	  QUIRK_USE_KBD_BACKLIGHT | QUIRK_ROG_NKEY_KEYBOARD | QUIRK_HID_FN_LOCK=
- },
-
-[Severity: High]
-This isn't a bug introduced by this patch, but while looking at the
-QUIRK_USE_KBD_BACKLIGHT initialization, could there be a use-after-free
-during device removal if asus_kbd_register_leds() fails?
-
-If asus_hid_register_listener() fails within asus_kbd_register_leds() (e.g.,
-due to missing asus-wmi or another keyboard already being registered), the
-allocated drvdata->kbd_backlight is freed using devm_kfree():
-
-	ret =3D asus_hid_register_listener(&drvdata->kbd_backlight->listener);
-	if (ret < 0) {
-		/* No need to have this still around */
-		devm_kfree(&hdev->dev, drvdata->kbd_backlight);
-	}
-
-However, the pointer itself is not set to NULL. Since this error is
-intentionally ignored by the caller (asus_probe()), the device probe
-succeeds.
-
-When the device is later unbound or unplugged, asus_remove() checks
-if (drvdata->kbd_backlight) and dereferences the dangling pointer to
-unregister the listener:
-
-static void asus_remove(struct hid_device *hdev)
-{
-	...
-	if (drvdata->kbd_backlight) {
-		asus_hid_unregister_listener(&drvdata->kbd_backlight->listener);
-
-Will this unconditionally dereference the dangling pointer, leading to a
-use-after-free?
-
-[Severity: High]
-This is a pre-existing issue, but while looking at devices mimicking
-QUIRK_ROG_ALLY_XPAD, could asus_kbd_register_leds() perform an invalid
-type cast and out-of-bounds read?
-
-In asus_kbd_register_leds(), devices with QUIRK_ROG_ALLY_XPAD unconditional=
-ly
-cast the parent device to a usb_interface:
-
-	if (drvdata->quirks & QUIRK_ROG_ALLY_XPAD) {
-		intf =3D to_usb_interface(hdev->dev.parent);
-		udev =3D interface_to_usbdev(intf);
-		validate_mcu_fw_version(hdev,
-			le16_to_cpu(udev->descriptor.idProduct));
-	}
-
-This assumes the device is always backed by a USB transport.
-
-However, a local user can use uhid to inject a fake HID device with matching
-USB vendor and product IDs, causing this driver to bind to it. For uhid
-devices, the parent is the uhid character device, not a USB interface.
-
-Would this blind cast lead to type confusion, memory corruption, and
-out-of-bounds reads when attempting to access the USB device descriptor?
-Should there be a hid_is_usb(hdev) check before treating the parent as a
-USB interface?
-
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
->  	    USB_DEVICE_ID_ASUSTEK_ROG_Z13_LIGHTBAR),
->  	  QUIRK_USE_KBD_BACKLIGHT | QUIRK_ROG_NKEY_KEYBOARD },
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260612124830.9845=
-92-1-denis.benato@linux.dev?part=3D1
+Best Regards,
+Petr

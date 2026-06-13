@@ -1,125 +1,155 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B5CC43845A2
-	for <linux-input@vger.kernel.org>; Sat, 13 Jun 2026 05:51:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E589A1F94F;
+	Sat, 13 Jun 2026 06:12:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781329881; cv=none; b=fB3EpIbDTrPHeI7P68fb/NXoIO+qRe/jrAOXkVGCpn3w3eZ7N75slulgrdLwjxa+lZ0uWr+LmfUrYYv5DgO3YtscFSrY7UJpfDiI+2fQ9cITJ6A2RSWMjvUHYKT7QlSxWUA8vILwMY8/RH++hSMsEJio4p7DbKSVTetUCDNVh8w=
+	t=1781331155; cv=none; b=YnGkVswpSMQAE8QE10PwdcAuqa/nE3EfRpcyPOBjtDSjd7BxYepZ4ZgpwKbB13POIQqcu0ucSDABXpC3Uo/3+tBSH5WAT5Zy3DvyXb1UVYIZGBxngyla4/XsfPTRSDKwWkowE3XjwWHSv2s64VXbhOClGFjQqFhjK1FXXca5T2Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781329881; c=relaxed/simple;
-	bh=2pI0gWYA7aFQO86op2la1IbLk1CVjGGScnd0Unam9ys=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=k16HP/ik4oy1DWC6rdGawxw+fV1SgbxnE38P45WN5fJdaegh5hYZpl7cXgGJGeSyKlct1tILLZjEBaRDiPR+MVL1l4DkFLbG8kC4DZw4isunTEkdw9tDmdKnBsVlmri8oOCcHdytNREJwcSMVjqNwvjj2rLH2YbEzJEivNvDjoA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=PvIusyp7; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1781331155; c=relaxed/simple;
+	bh=R62Hmd5ErigMaIbjojyjZgiPiDDXNa/YZIGZmf8mWWE=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=lkJmg95r17DXWYz9/gE/ZMkxzdX87TbBqEz5NOVyjqHvpC3nycoiTTN684o5TB13VTNoBpU6prf0ifgqEEwoyAvxNwUZ/SBDMwwtkiaOoy24+1x9cwbJsP+WmJnMybvPQg8iNOWI9bYn68Ysl0XlgzJBWrK/E0LzeNoiUjXz4dU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=OThCpCvn; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="PvIusyp7"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3B0571F000E9;
-	Sat, 13 Jun 2026 05:51:19 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1781329879;
-	bh=SpsH9tky4gLmkBcfUyd+ICplEuIXVHqfdFI/RiSl8xQ=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=PvIusyp7W7B6gUEmxc/NWmBwb1gHBzp7PODBdCx9ls9BAjUkwDsXAy64hLrtE119+
-	 7U0JqhcaW9JiZIE0NmO3fEp7dRGbJisgCAqUP9UHrKqTkGfu4BEXatQbdjhfwX/xkX
-	 5xFXXHXvuzYzlnHUVqjAbsj1wX1scPURAFjmOj2gZcON3g6hWv6nZytFI//OhD+6ms
-	 9i1bLoLIm+n422ZdzZfvl3pLsHdURFhi9w6eb0/w7q07f4mnuLz4MTqvEGqcZQfSDj
-	 m9NEBvH13ycT/exiTuFkplHOIdJYnK7US8toRra1+YAOwRPaJXXJ0BL6H6qJtn4hPT
-	 E0PlJ3ZBKBYYw==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] Input: synaptics-rmi4 - bound the SMBus block read to
- the caller buffer
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Bryam Vargas via B4 Relay" <devnull+hexlabsecurity.proton.me@kernel.org>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260613-b4-disp-2e033955-v1-1-43ab7281667a@proton.me>
-References: <20260613-b4-disp-2e033955-v1-1-43ab7281667a@proton.me>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Sat, 13 Jun 2026 05:51:18 +0000
-Message-Id: <20260613055119.3B0571F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="OThCpCvn"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 721F1C19425;
+	Sat, 13 Jun 2026 06:12:34 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1781331154;
+	bh=R62Hmd5ErigMaIbjojyjZgiPiDDXNa/YZIGZmf8mWWE=;
+	h=From:Date:Subject:To:Cc:Reply-To:From;
+	b=OThCpCvndH1TNKDPVqIPNh3tc9ZU0eNC+L5wMgjqEQ4zTMeSoi+gETf+p1fDTJ4SW
+	 qEXIDRvHHN+XdD9mraxExVQKVkPlq66kxMhZXIGqkPj2gY9pV0eml8Dt/3pz+w/mOl
+	 YQKcd0YRCJ5u6SK2OKvpnoVpDPCqJbf2XlXf0maKl6Y2hD7hKBk1Rf/w2EWqaIn5/z
+	 B/v+OsF51rdY8XhQxJV/a/iYPp1UfNgq8IHv4cKVJhkEGbSjJzjtJXuMIg/tQ3MZkZ
+	 7yxkxvceRP9lxjakPkXRVxzWIWyIlN4PdlSKnNUpu+L7vgu1CEYfpnLrwWGkPL7pzi
+	 9fINqbCPYzzAw==
+Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5B5FCCD98CF;
+	Sat, 13 Jun 2026 06:12:34 +0000 (UTC)
+From: Bryam Vargas via B4 Relay <devnull+hexlabsecurity.proton.me@kernel.org>
+Date: Sat, 13 Jun 2026 01:12:34 -0500
+Subject: [PATCH] Input: cyapa - bound the SMBus block reads to the caller
+ buffer
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20260613-b4-disp-8e550272-v1-1-9658cf8292c2@proton.me>
+X-B4-Tracking: v=1; b=H4sIANH0LGoC/x3MQQqAIBBA0avErBtQ06yuEi3MppqNhUIE4t2Tl
+ m/xf4ZEkSnB1GSI9HDiK1TItgF/unAQ8lYNSqhe9LLDVePG6caBjBHKKnTSaW290WIYoWZ3pJ3
+ ffzkvpXxVRhvSYgAAAA==
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Dudley Du <dudl@cypress.com>, Benson Leung <bleung@chromium.org>, 
+ linux-input@vger.kernel.org, Daniel Kurtz <djkurtz@chromium.org>, 
+ linux-kernel@vger.kernel.org
+X-Mailer: b4 0.13.0
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1781331153; l=3371;
+ i=hexlabsecurity@proton.me; s=proton; h=from:subject:message-id;
+ bh=GV3OIu9GRRKjdqcaWZ4II7ZaN9d38honFN8iwiNx23I=;
+ b=3CZ2VsGndrYewICriNIQ9fnVkJilLdoqSN4+F9OMOHEaFaDrPxldIzWCYCZS1s4Raaf8L3R8Z
+ RCmFL4lyw8BB4T8yp0vOuvt6y0ggRCSXzrit/hF4vLovmqPGiaXTBTQ
+X-Developer-Key: i=hexlabsecurity@proton.me; a=ed25519;
+ pk=dmppBMZNLLoPzxHi9l8tZDzEZUunPbgsYqIZYXeUrL0=
+X-Endpoint-Received: by B4 Relay for hexlabsecurity@proton.me/proton with
+ auth_id=814
+X-Original-From: Bryam Vargas <hexlabsecurity@proton.me>
+Reply-To: hexlabsecurity@proton.me
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
+From: Bryam Vargas <hexlabsecurity@proton.me>
 
-Pre-existing issues:
-- [High] Out-of-bounds read and information leak in `rmi_smb_write_block`.
---
+cyapa_smbus_read_block() takes the expected length of the result but
+never uses it to bound the destination:
 
-commit d7c26cbb5c7a78f15621da67eb9707ffe6750b59
-Author: Bryam Vargas <hexlabsecurity@proton.me>
-
-Input: synaptics-rmi4 - bound the SMBus block read to the caller buffer
-
-This commit fixes a stack overflow in smb_block_read by reading into a local
-buffer first. It then copies back at most len bytes to ensure the device
-never writes past the caller's buffer.
-
-> diff --git a/drivers/input/rmi4/rmi_smbus.c b/drivers/input/rmi4/rmi_smbu=
-s.c
-> index f3d0b40721df0..ea957aba28f17 100644
-> --- a/drivers/input/rmi4/rmi_smbus.c
-> +++ b/drivers/input/rmi4/rmi_smbus.c
-> @@ -177,12 +177,20 @@ static int smb_block_read(struct rmi_transport_dev =
-*xport,
->  	struct rmi_smb_xport *rmi_smb =3D
->  		container_of(xport, struct rmi_smb_xport, xport);
->  	struct i2c_client *client =3D rmi_smb->client;
-> +	u8 data[I2C_SMBUS_BLOCK_MAX];
->  	int retval;
-> =20
-> -	retval =3D i2c_smbus_read_block_data(client, commandcode, buf);
-> +	/*
-> +	 * i2c_smbus_read_block_data() copies the device-reported block count
-> +	 * (up to I2C_SMBUS_BLOCK_MAX) into the destination and has no way to
-> +	 * know its size, so read into a local buffer and copy back at most
-> +	 * len bytes - never past the caller's buffer.
-> +	 */
-> +	retval =3D i2c_smbus_read_block_data(client, commandcode, data);
->  	if (retval < 0)
->  		return retval;
-> =20
-> +	memcpy(buf, data, min_t(size_t, retval, len));
->  	return retval;
->  }
-
-[Severity: High]
-This isn't a bug introduced by this patch, but while looking at this file,
-I noticed a similar size calculation issue in rmi_smb_write_block().
-
-Does this code overflow databuff on the final chunk if len is not a
-multiple of 32?
-
-drivers/input/rmi4/rmi_smbus.c:rmi_smb_write_block() {
-    ...
-	while (cur_len > 0) {
-		/*
-		 * break into 32 bytes chunks to write get command code
-		 */
-		int block_len =3D min_t(int, len, SMB_MAX_COUNT);
-    ...
-		retval =3D smb_block_write(xport, commandcode,
-					 databuff, block_len);
-    ...
-		cur_len -=3D SMB_MAX_COUNT;
-		databuff +=3D SMB_MAX_COUNT;
+	if (SMBUS_GROUP_BLOCK_CMD_MASK & cmd) {
+		smbus_cmd = SMBUS_ENCODE_RW(cmd, SMBUS_READ);
+		ret = i2c_smbus_read_block_data(client, smbus_cmd, values);
+		goto out;
 	}
-    ...
-}
+	...
+		buf = values + I2C_SMBUS_BLOCK_MAX * index;
+		ret = i2c_smbus_read_block_data(client, smbus_cmd, buf);
 
-It appears block_len is calculated using the invariant len parameter instead
-of cur_len. If len is greater than 32 but not a multiple of 32 (e.g., 40),
-the second iteration will evaluate min(40, 32) =3D 32 instead of the
-remaining 8 bytes.
+i2c_smbus_read_block_data() has no destination-size argument; it copies
+the block count reported by the device (the first SMBus byte, up to
+I2C_SMBUS_BLOCK_MAX = 32) into the buffer. Several callers pass buffers
+smaller than 32 bytes - cyapa_detect() reads CYAPA_CMD_BL_STATUS into an
+on-stack u8 status[BL_STATUS_SIZE] (3 bytes), and the group-query path
+reads into u8 query_data[QUERY_DATA_SIZE] (27 bytes) - so a
+malfunctioning, malicious or counterfeit trackpad (or an attacker
+tampering with the SMBus) that reports a larger block count overflows
+the caller's stack buffer by up to 32 - 3 = 29 bytes, clobbering the
+stack canary, saved registers and the return address.
 
-This would cause smb_block_write() to read 32 bytes from databuff when
-only 8 valid bytes remain, leading to an out-of-bounds read.
+Read each block into a local I2C_SMBUS_BLOCK_MAX-sized buffer and copy
+back only the expected number of bytes, in both the group-block branch
+and the multi-block loop, so the device can never write past the
+caller's buffer.
 
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260613-b4-disp-2e=
-033955-v1-1-43ab7281667a@proton.me?part=3D1
+Fixes: 6ddaf744c9f6 ("Input: cyapa - add support for smbus protocol")
+Cc: stable@vger.kernel.org
+Signed-off-by: Bryam Vargas <hexlabsecurity@proton.me>
+---
+ drivers/input/mouse/cyapa_gen3.c | 16 +++++++++++++---
+ 1 file changed, 13 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/input/mouse/cyapa_gen3.c b/drivers/input/mouse/cyapa_gen3.c
+index fc3fb954523b..832775bb7182 100644
+--- a/drivers/input/mouse/cyapa_gen3.c
++++ b/drivers/input/mouse/cyapa_gen3.c
+@@ -247,27 +247,37 @@ ssize_t cyapa_smbus_read_block(struct cyapa *cyapa, u8 cmd, size_t len,
+ 	ssize_t ret;
+ 	u8 index;
+ 	u8 smbus_cmd;
+-	u8 *buf;
++	u8 buf[I2C_SMBUS_BLOCK_MAX];
+ 	struct i2c_client *client = cyapa->client;
+ 
+ 	if (!(SMBUS_BYTE_BLOCK_CMD_MASK & cmd))
+ 		return -EINVAL;
+ 
++	/*
++	 * i2c_smbus_read_block_data() copies the device-reported block count
++	 * (up to I2C_SMBUS_BLOCK_MAX) into its buffer and has no way to know
++	 * its size, so read into a local buffer and copy back at most the
++	 * expected number of bytes - never past the caller's buffer.
++	 */
+ 	if (SMBUS_GROUP_BLOCK_CMD_MASK & cmd) {
+ 		/* read specific block registers command. */
+ 		smbus_cmd = SMBUS_ENCODE_RW(cmd, SMBUS_READ);
+-		ret = i2c_smbus_read_block_data(client, smbus_cmd, values);
++		ret = i2c_smbus_read_block_data(client, smbus_cmd, buf);
++		if (ret > 0)
++			memcpy(values, buf, min_t(size_t, ret, len));
+ 		goto out;
+ 	}
+ 
+ 	ret = 0;
+ 	for (index = 0; index * I2C_SMBUS_BLOCK_MAX < len; index++) {
++		size_t offset = index * I2C_SMBUS_BLOCK_MAX;
++
+ 		smbus_cmd = SMBUS_ENCODE_IDX(cmd, index);
+ 		smbus_cmd = SMBUS_ENCODE_RW(smbus_cmd, SMBUS_READ);
+-		buf = values + I2C_SMBUS_BLOCK_MAX * index;
+ 		ret = i2c_smbus_read_block_data(client, smbus_cmd, buf);
+ 		if (ret < 0)
+ 			goto out;
++		memcpy(values + offset, buf, min_t(size_t, ret, len - offset));
+ 	}
+ 
+ out:
+
+---
+base-commit: 8e65320d91cdc3b241d4b94855c88459b91abf66
+change-id: 20260613-b4-disp-8e550272-a1a447c54089
+
+Best regards,
+-- 
+Bryam Vargas <hexlabsecurity@proton.me>
+
+

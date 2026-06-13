@@ -1,128 +1,125 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 65F51331A56;
-	Sat, 13 Jun 2026 05:39:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B5CC43845A2
+	for <linux-input@vger.kernel.org>; Sat, 13 Jun 2026 05:51:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781329172; cv=none; b=cgcXpjBmXpAzDhlcoyoNOlfMUvSAfC5H1JkG/+DYZ1vve19J1WqiTZsdivaxxPv48lx6qmBCyY+itZaPYAak64b0Pjp1m10f4s/Wfh5iA0NwB6R/k8F9eHt1XqUJZReTzPe30aul1gQ7mZqJrmu6YbCbOIhzYaDaxTSu6bhaH04=
+	t=1781329881; cv=none; b=fB3EpIbDTrPHeI7P68fb/NXoIO+qRe/jrAOXkVGCpn3w3eZ7N75slulgrdLwjxa+lZ0uWr+LmfUrYYv5DgO3YtscFSrY7UJpfDiI+2fQ9cITJ6A2RSWMjvUHYKT7QlSxWUA8vILwMY8/RH++hSMsEJio4p7DbKSVTetUCDNVh8w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781329172; c=relaxed/simple;
-	bh=iAQ8ddDre8AEqq1DLc9ktuRUAVc5kdXMogr80IzNUHI=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=k9nH3zvSqDYwDPAhA8b8GArFzkthhVNWOID98mjgLrvnE5/K1N6Q6YBOTz+HaC7j9VNPO1G2fTjkkiK39bBNrcyhNy/dnBieV2MUI0BuHSsoYjrf2Ngy1deBf4t8n2Dem7yYv04oOE4lnOulT7zpOPzWyyjGO9wOnd3iliqvzN4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=VSsOdD9B; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1781329881; c=relaxed/simple;
+	bh=2pI0gWYA7aFQO86op2la1IbLk1CVjGGScnd0Unam9ys=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=k16HP/ik4oy1DWC6rdGawxw+fV1SgbxnE38P45WN5fJdaegh5hYZpl7cXgGJGeSyKlct1tILLZjEBaRDiPR+MVL1l4DkFLbG8kC4DZw4isunTEkdw9tDmdKnBsVlmri8oOCcHdytNREJwcSMVjqNwvjj2rLH2YbEzJEivNvDjoA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=PvIusyp7; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="VSsOdD9B"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id EDAA8C19425;
-	Sat, 13 Jun 2026 05:39:31 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1781329172;
-	bh=iAQ8ddDre8AEqq1DLc9ktuRUAVc5kdXMogr80IzNUHI=;
-	h=From:Date:Subject:To:Cc:Reply-To:From;
-	b=VSsOdD9Bg2mpaSQmjWlnyIuC2Ig5HQM5SELjC49/CHxxMdyMK7dARwsRSXqyRbyuY
-	 Tev6iWPrBdYAoEeyKpuyJjnOIZ94uegJ4N+FrnJ/7/DZbzsg/Z/Zz1UcZa3v4MuwMv
-	 7/CimVEG9qKnaBo60UjNMwmiIgt06yHwN1gXHdBqkS23bHTHhkrwvRL4zJrtRbhoqk
-	 iUSMbN+DP7xjutVwDjequhH/TdSQJe0/EeIaVIXlLw/2Y+GZSZv2ztuylGLj3iJ6XL
-	 pgK+vNOpOTcKHv1l3nlFIjKdGf+9BxjuWuTSTSPZWJjFb4f9tFXV0d2Ld91tEWhcUm
-	 d1Yqp8XiRTtLg==
-Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D39D3CD98D2;
-	Sat, 13 Jun 2026 05:39:31 +0000 (UTC)
-From: Bryam Vargas via B4 Relay <devnull+hexlabsecurity.proton.me@kernel.org>
-Date: Sat, 13 Jun 2026 00:39:32 -0500
-Subject: [PATCH] Input: synaptics-rmi4 - bound the SMBus block read to the
- caller buffer
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="PvIusyp7"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3B0571F000E9;
+	Sat, 13 Jun 2026 05:51:19 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1781329879;
+	bh=SpsH9tky4gLmkBcfUyd+ICplEuIXVHqfdFI/RiSl8xQ=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=PvIusyp7W7B6gUEmxc/NWmBwb1gHBzp7PODBdCx9ls9BAjUkwDsXAy64hLrtE119+
+	 7U0JqhcaW9JiZIE0NmO3fEp7dRGbJisgCAqUP9UHrKqTkGfu4BEXatQbdjhfwX/xkX
+	 5xFXXHXvuzYzlnHUVqjAbsj1wX1scPURAFjmOj2gZcON3g6hWv6nZytFI//OhD+6ms
+	 9i1bLoLIm+n422ZdzZfvl3pLsHdURFhi9w6eb0/w7q07f4mnuLz4MTqvEGqcZQfSDj
+	 m9NEBvH13ycT/exiTuFkplHOIdJYnK7US8toRra1+YAOwRPaJXXJ0BL6H6qJtn4hPT
+	 E0PlJ3ZBKBYYw==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH] Input: synaptics-rmi4 - bound the SMBus block read to
+ the caller buffer
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Bryam Vargas via B4 Relay" <devnull+hexlabsecurity.proton.me@kernel.org>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20260613-b4-disp-2e033955-v1-1-43ab7281667a@proton.me>
+References: <20260613-b4-disp-2e033955-v1-1-43ab7281667a@proton.me>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Sat, 13 Jun 2026 05:51:18 +0000
+Message-Id: <20260613055119.3B0571F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20260613-b4-disp-2e033955-v1-1-43ab7281667a@proton.me>
-X-B4-Tracking: v=1; b=H4sIABPtLGoC/x3MOwqAMBBF0a3I1A7EjIpxK2Lh50WnUUlAhODeD
- ZanuDdRRFBE6otEAbdGPY+Mqixo2adjA+uaTdbY1rSV8FzzqvFiCyPimoa9h3SdWyBwlLMrwOv
- zL4fxfT/Le4ksYgAAAA==
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Benjamin Tissoires <bentiss@kernel.org>, linux-input@vger.kernel.org, 
- Andrew Duggan <aduggan@synaptics.com>, linux-kernel@vger.kernel.org
-X-Mailer: b4 0.13.0
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1781329171; l=2461;
- i=hexlabsecurity@proton.me; s=proton; h=from:subject:message-id;
- bh=cj8C56VjTvQj5r/vaode4Mpb2LNoByz6cw/zLdVEHGo=;
- b=/0AvHtPbyx29w2TCDiByHC3TOp5drI3nPffW6Y7j3m0t4Zr9t/SRrY6uoVYdjENo7931tRBfB
- KM1Tk9xnbUXCd20XCuYAyi7xBWWkHL24fnj0BEgl/G3WOGmJhNqusRE
-X-Developer-Key: i=hexlabsecurity@proton.me; a=ed25519;
- pk=dmppBMZNLLoPzxHi9l8tZDzEZUunPbgsYqIZYXeUrL0=
-X-Endpoint-Received: by B4 Relay for hexlabsecurity@proton.me/proton with
- auth_id=814
-X-Original-From: Bryam Vargas <hexlabsecurity@proton.me>
-Reply-To: hexlabsecurity@proton.me
 
-From: Bryam Vargas <hexlabsecurity@proton.me>
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
 
-smb_block_read() takes a destination length but passes it nowhere:
+Pre-existing issues:
+- [High] Out-of-bounds read and information leak in `rmi_smb_write_block`.
+--
 
-	static int smb_block_read(struct rmi_transport_dev *xport,
-				  u8 commandcode, void *buf, size_t len)
-	{
-		...
-		retval = i2c_smbus_read_block_data(client, commandcode, buf);
+commit d7c26cbb5c7a78f15621da67eb9707ffe6750b59
+Author: Bryam Vargas <hexlabsecurity@proton.me>
 
-i2c_smbus_read_block_data() has no destination-size argument; it copies
-the block count reported by the device (the first SMBus byte, up to
-I2C_SMBUS_BLOCK_MAX = 32) into buf. The RMI callers pass buffers far
-smaller than 32 bytes - rmi_read_pdt_entry() reads a PDT entry into an
-on-stack u8 buf[RMI_PDT_ENTRY_SIZE] (6 bytes) during the PDT scan - so a
-malfunctioning, malicious or counterfeit RMI4 SMBus controller (or an
-attacker tampering with the I2C bus) that reports a larger block count
-overflows the caller's stack buffer by up to 32 - 6 = 26 bytes,
-clobbering the stack canary, saved registers and the return address.
+Input: synaptics-rmi4 - bound the SMBus block read to the caller buffer
 
-Read into a local I2C_SMBUS_BLOCK_MAX-sized buffer and copy back at most
-len bytes, so the device can never write past the caller's buffer.
+This commit fixes a stack overflow in smb_block_read by reading into a local
+buffer first. It then copies back at most len bytes to ensure the device
+never writes past the caller's buffer.
 
-Fixes: 82264d0cf7ae ("Input: synaptics-rmi4 - add SMBus support")
-Cc: stable@vger.kernel.org
-Signed-off-by: Bryam Vargas <hexlabsecurity@proton.me>
----
- drivers/input/rmi4/rmi_smbus.c | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+> diff --git a/drivers/input/rmi4/rmi_smbus.c b/drivers/input/rmi4/rmi_smbu=
+s.c
+> index f3d0b40721df0..ea957aba28f17 100644
+> --- a/drivers/input/rmi4/rmi_smbus.c
+> +++ b/drivers/input/rmi4/rmi_smbus.c
+> @@ -177,12 +177,20 @@ static int smb_block_read(struct rmi_transport_dev =
+*xport,
+>  	struct rmi_smb_xport *rmi_smb =3D
+>  		container_of(xport, struct rmi_smb_xport, xport);
+>  	struct i2c_client *client =3D rmi_smb->client;
+> +	u8 data[I2C_SMBUS_BLOCK_MAX];
+>  	int retval;
+> =20
+> -	retval =3D i2c_smbus_read_block_data(client, commandcode, buf);
+> +	/*
+> +	 * i2c_smbus_read_block_data() copies the device-reported block count
+> +	 * (up to I2C_SMBUS_BLOCK_MAX) into the destination and has no way to
+> +	 * know its size, so read into a local buffer and copy back at most
+> +	 * len bytes - never past the caller's buffer.
+> +	 */
+> +	retval =3D i2c_smbus_read_block_data(client, commandcode, data);
+>  	if (retval < 0)
+>  		return retval;
+> =20
+> +	memcpy(buf, data, min_t(size_t, retval, len));
+>  	return retval;
+>  }
 
-diff --git a/drivers/input/rmi4/rmi_smbus.c b/drivers/input/rmi4/rmi_smbus.c
-index f3d0b40721df..ea957aba28f1 100644
---- a/drivers/input/rmi4/rmi_smbus.c
-+++ b/drivers/input/rmi4/rmi_smbus.c
-@@ -177,12 +177,20 @@ static int smb_block_read(struct rmi_transport_dev *xport,
- 	struct rmi_smb_xport *rmi_smb =
- 		container_of(xport, struct rmi_smb_xport, xport);
- 	struct i2c_client *client = rmi_smb->client;
-+	u8 data[I2C_SMBUS_BLOCK_MAX];
- 	int retval;
- 
--	retval = i2c_smbus_read_block_data(client, commandcode, buf);
-+	/*
-+	 * i2c_smbus_read_block_data() copies the device-reported block count
-+	 * (up to I2C_SMBUS_BLOCK_MAX) into the destination and has no way to
-+	 * know its size, so read into a local buffer and copy back at most
-+	 * len bytes - never past the caller's buffer.
-+	 */
-+	retval = i2c_smbus_read_block_data(client, commandcode, data);
- 	if (retval < 0)
- 		return retval;
- 
-+	memcpy(buf, data, min_t(size_t, retval, len));
- 	return retval;
- }
- 
+[Severity: High]
+This isn't a bug introduced by this patch, but while looking at this file,
+I noticed a similar size calculation issue in rmi_smb_write_block().
 
----
-base-commit: 8e65320d91cdc3b241d4b94855c88459b91abf66
-change-id: 20260613-b4-disp-2e033955-ffe3889ce3e9
+Does this code overflow databuff on the final chunk if len is not a
+multiple of 32?
 
-Best regards,
--- 
-Bryam Vargas <hexlabsecurity@proton.me>
+drivers/input/rmi4/rmi_smbus.c:rmi_smb_write_block() {
+    ...
+	while (cur_len > 0) {
+		/*
+		 * break into 32 bytes chunks to write get command code
+		 */
+		int block_len =3D min_t(int, len, SMB_MAX_COUNT);
+    ...
+		retval =3D smb_block_write(xport, commandcode,
+					 databuff, block_len);
+    ...
+		cur_len -=3D SMB_MAX_COUNT;
+		databuff +=3D SMB_MAX_COUNT;
+	}
+    ...
+}
 
+It appears block_len is calculated using the invariant len parameter instead
+of cur_len. If len is greater than 32 but not a multiple of 32 (e.g., 40),
+the second iteration will evaluate min(40, 32) =3D 32 instead of the
+remaining 8 bytes.
 
+This would cause smb_block_write() to read 32 bytes from databuff when
+only 8 valid bytes remain, leading to an out-of-bounds read.
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260613-b4-disp-2e=
+033955-v1-1-43ab7281667a@proton.me?part=3D1

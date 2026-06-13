@@ -1,129 +1,152 @@
-Received: from mail-wm1-f49.google.com (mail-wm1-f49.google.com [209.85.128.49])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from out-189.mta0.migadu.com (out-189.mta0.migadu.com [91.218.175.189])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 047CF2F5313
-	for <linux-input@vger.kernel.org>; Sat, 13 Jun 2026 12:23:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6CDFB1547C0
+	for <linux-input@vger.kernel.org>; Sat, 13 Jun 2026 13:22:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.189
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781353430; cv=none; b=koAUJJ1v/FsMW/tXEqfy9VKJZKQNyBhez9tF96J7tgyH6EfZ1VBU45VciLuSvNOV6saKRtJe/OWamx/YqG4ZpCcj6rRgeK6O0suMnKLk7iPa9uD/NLRNzgy9boPtqXholZcIH3cZx8ABikG7KuCKoeiK1MU+hUislnzyoeQNw18=
+	t=1781356980; cv=none; b=a2UuJjAKqPm3gGUDMyZA16LXi3K/L9J3j/l/juCWxMNN2QnxBPkgloZmYA5CkJ7YksDLl/+xjwAVKOMQ9n+CGh18KFheWXajJTNigNUtfq5I2OAwMwNu09uhKYVH+p1WBwFJjz0XmW7bmCxtHdaALVp31t9Oy18dNvw/Uq0vbGY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781353430; c=relaxed/simple;
-	bh=UA2EXYJYCNN2s2fDBflhY/TwvwPeAThnGXq65LNlvwY=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=HzQcZbo+nq3SFs0q82FdjZcWVbmfUmFEU4d+bdaNrh7/nPEUXSfIQKUsyRBVys7oAho2Zk898c8yxn6wDSrY/O8SIGxQq5w8VxJDhYYpeXCiE1e1jtDOi/0ZGKawgydiX5T5AuIyQFOsT73EIKfkc+ubRIBzigACgHFR7KxkPk4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=MCHvPKm1; arc=none smtp.client-ip=209.85.128.49
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1781356980; c=relaxed/simple;
+	bh=ODEPmkKVKtxpPAUFrRuu3NE+FBbPlq1pQkblCOYwlJA=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=eZdZI/aghgqEKwPdRnvC42uD2hHuNuaXR5+cufE1QVi3zeATDHb3PyEnCtIezqyIvsAsnkyINaqjiYtEKq0kfkEILIQAWTV/7hVVknIzeIPpniykQlv+W0pFz2U/bdUKEcWJGOhwzNz4axngkxsZ1y0EmZM8qiPeSnvOp9772W0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=pnLkjW7M; arc=none smtp.client-ip=91.218.175.189
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="MCHvPKm1"
-Received: by mail-wm1-f49.google.com with SMTP id 5b1f17b1804b1-490bc6a7958so24121905e9.1
-        for <linux-input@vger.kernel.org>; Sat, 13 Jun 2026 05:23:48 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1781353427; x=1781958227; darn=vger.kernel.org;
-        h=mime-version:user-agent:content-transfer-encoding:references
-         :in-reply-to:date:cc:to:from:subject:message-id:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=UA2EXYJYCNN2s2fDBflhY/TwvwPeAThnGXq65LNlvwY=;
-        b=MCHvPKm1n9AVsWDxU8v4oFSI+ArOMWuzAFXYrUlYoPudPo1YyAKxoz9/sL38jLa9Ry
-         hYhfBxeU13IR8VKYqG5TIe50A/fbIiQ8U3KNobweetXTe+A8XgI5Mj2pKAW27VSpgyIk
-         XkmfeTzcs4LVFScMp0evRk8IiNYxpHDOpHdDj/B/i9WiCQVNEJqRUSchZVYl7il2zTL/
-         BDkyh9tIk4zC7d+8tm8tm5VrWMXElAaVxXYWhWLypQ0yFuXwVyjCBotW/sQSpc0ORuus
-         1EV1ZyCIovS5d2WVErf82unDeBC7uuxVnPMqaQOoduv0rc+4mY/wC6zCJMWinWkp8QhJ
-         u9Pw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781353427; x=1781958227;
-        h=mime-version:user-agent:content-transfer-encoding:references
-         :in-reply-to:date:cc:to:from:subject:message-id:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=UA2EXYJYCNN2s2fDBflhY/TwvwPeAThnGXq65LNlvwY=;
-        b=FJxhU/GYyhlUprtEU1/KJY++W6fRbAp45GVw3qO29J3yYxQEqyhO53HxDGEvoM9CAh
-         PKhl+9TfCra5yq4e22FsW6o9DRokVM1DKjnSg7ky+3EJ5Hhh5uEo5l/jh22Lu7gMeNfF
-         tpkdRWNgbrMlGFKVagWXoFME026/b9vY+FH7XG30kLlvowDU5XY+EgOdkIrVhIMZ7jW5
-         +MTb4xJuHe8NsLjzn263Awqkr4/slIBPOwXDsxbfGdL9WgXhpTfo2GFjyDNN96HUJVJ1
-         eTN6qBQwFAAE3dHCjnrVLFF0kOprIbLPT2eGO7gVKzhhbZkI1IJ9isWV1uFf9gy31jI0
-         cnCA==
-X-Forwarded-Encrypted: i=1; AFNElJ8CYmUrH02yR/5dbmcfvlJEBd3/EEdg+r0y3GsWLC/0zX/JKtOrgXAikxkTRrgvhcWvWNzIOaNuTjiERg==@vger.kernel.org
-X-Gm-Message-State: AOJu0YxH4sxswooViwmFwmCJ6qfjsBe0pi8+Y//Jb4c6KUu30HfEik3E
-	wxJ+Hs6dJm4lyu5bO1NRAkMe9vbdIbMCE/gv2OLpbcsw9i/BqTAYrJEe
-X-Gm-Gg: Acq92OEpYVGMcp+I0fw0lcaItkvPS5qxrsWR4ywTBMzXgby08LwOa8xLw17JFpiH03A
-	4FCPs/0AMBaA967iyHdfWtiSmlIgYlu/Oes+qasU1KE9Z4CjO/OtKjv3Qj/37U5T0Xp6SH1Ue1f
-	TAd6NfAnDr/lG2l8nP+3BaeylycKdxg8IyLk78Z06JSN4SlHUn+HN5qyFr/8zbVOBb6WEy9YU7S
-	XHYi8zqiuhB0DdyxOYmbbgnZUhdWuiL7IBusVlqO/wxovZkETQrk0wmhFH+Yt5I50JKirKTawtW
-	+WGKr6NaUB5N61d3M8SrrULyA2gPQTDPd81RaPk0sbL66i+qNZV8unNfwjKT5rOJdOK+iQk1dH+
-	pFVKYqEDpB6a9160BNfN85wXT+yCwOiFAs1SIDwB47TsMDuyRlPly/azBwI9EIa6Fjb/6Bs6UjE
-	5fZuu5gP+QTZr+nXxgjidY2Jh8yKxK0UTIgK8r0BzvB886KzUrNDQpRjEFi9gQCTadMQtJrvdjW
-	OwniII=
-X-Received: by 2002:a05:600d:8446:20b0:490:c1cb:48f4 with SMTP id 5b1f17b1804b1-490ec4d77afmr50099355e9.12.1781353427306;
-        Sat, 13 Jun 2026 05:23:47 -0700 (PDT)
-Received: from 0.1.2.1.2.0.a.2.dynamic.cust.swisscom.net ([2a02:1210:8642:2b00:82ee:73ff:feb8:99e3])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-490ea4b2e8esm101605395e9.0.2026.06.13.05.23.45
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 13 Jun 2026 05:23:46 -0700 (PDT)
-Message-ID: <039295d3542deda8c56151252fe5e50c88c13deb.camel@gmail.com>
-Subject: Re: [PATCH v4 6/7] arm64: dts: allwinner: a100: reserve RAM for ATF
-From: Alexander Sverdlin <alexander.sverdlin@gmail.com>
-To: Jernej =?UTF-8?Q?=C5=A0krabec?= <jernej.skrabec@gmail.com>, 
-	linux-arm-kernel@lists.infradead.org, linux-sunxi@lists.linux.dev
-Cc: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
-  Conor Dooley <conor+dt@kernel.org>, Chen-Yu Tsai <wens@kernel.org>, Samuel
- Holland <samuel@sholland.org>,  Hans de Goede <hansg@kernel.org>, Dmitry
- Torokhov <dmitry.torokhov@gmail.com>, Andre Przywara	
- <andre.przywara@arm.com>, Jun Yan <jerrysteve1101@gmail.com>, Lukas Schmid	
- <lukas.schmid@netcube.li>, "J." =?ISO-8859-1?Q?Neusch=E4fer?=
- <j.ne@posteo.net>,  Eric Biggers <ebiggers@kernel.org>, Michal Simek
- <michal.simek@amd.com>, Luca Weiss <luca@lucaweiss.eu>,  Sven Peter
- <sven@kernel.org>, Maxime Ripard <mripard@kernel.org>,
- devicetree@vger.kernel.org, 	linux-kernel@vger.kernel.org,
- linux-input@vger.kernel.org
-Date: Sat, 13 Jun 2026 14:23:46 +0200
-In-Reply-To: <FE7Vh4yfTmGMM24i18Wwwg@gmail.com>
-References: <20260605070923.3045073-1-alexander.sverdlin@gmail.com>
-	 <_6NEZ78hR8a_3V2bhBAGoQ@gmail.com>
-	 <b428d57ba5464f1226daf099877f4c25fa4fc191.camel@gmail.com>
-	 <FE7Vh4yfTmGMM24i18Wwwg@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.60.1 
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="pnLkjW7M"
+Message-ID: <4f46e056-cf67-499b-9143-03f56037eb81@linux.dev>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+	t=1781356967;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=YMfSVphkl0vo9/M/QN+2NsVgJugdL0ODybYMjubWebo=;
+	b=pnLkjW7MmarzEuYWiOpvFEeSw2GmsMThnalzIeJAILYD8H5uK4E7L92IIEqZJNG4CLvKUn
+	QXi/FIgowbT3x/221nl2aXVu6O8rJHorvrNxcdqz5ZA3rgS/W4kyLb4ttQ7Wwrn4p7RKxf
+	JEbqTRMU11sVq+40WD4zBfVjjDCJCeo=
+Date: Sat, 13 Jun 2026 15:22:44 +0200
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Subject: Re: [PATCH v2 4/4] HID: asus: add i2c entry for FA808UM and other
+ TUFs
+To: sashiko-reviews@lists.linux.dev
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org,
+ connorbelli2003@gmail.com, Jiri Kosina <jikos@kernel.org>,
+ Benjamin Tissoires <bentiss@kernel.org>
+References: <20260612142326.1704858-5-denis.benato@linux.dev>
+ <20260612143750.26B531F000E9@smtp.kernel.org>
+Content-Language: en-US
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+From: Denis Benato <denis.benato@linux.dev>
+In-Reply-To: <20260612143750.26B531F000E9@smtp.kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Migadu-Flow: FLOW_OUT
 
-Hi Jernej,
 
-On Sat, 2026-06-13 at 11:38 +0200, Jernej =C5=A0krabec wrote:
-> > > > Add reserved-memory node carving out Trusted Firmware-A region span=
-ning
-> > > > fixed 256K from physical address 0x40000000. Even though Allwinner =
-ATF
-> > > > itself passes the address range in the fdt to U-Boot, U-Boot curren=
-tly
-> > > > only reserves this memory internally, but doesn't carve out the reg=
-ion
-> > > > in the fdt passed to Linux.
-> > > >=20
-> > > > Signed-off-by: Alexander Sverdlin <alexander.sverdlin@gmail.com>
-> > >=20
-> > > NAK. It is job of boot procedure to properly inject TF-A reserved nod=
-e.
-> > > Any issue should be fixed there.
-> >=20
-> >=20
-> > like in commit 0d17c865118881609ea7e381c7cadbb7979cc596
-> > ("arm64: dts: allwinner: Add Allwinner H616 .dtsi file")
-> > =C2=A0=C2=A0=C2=A0=C2=A0 Signed-off-by: Jernej Skrabec <jernej.skrabec@=
-gmail.com>
-> >=20
-> > ? ;-)
->=20
-> I was against that too.
->=20
-> It's time to be fixed in bootloader.
+On 6/12/26 16:37, sashiko-bot@kernel.org wrote:
+> Thank you for your contribution! Sashiko AI review found 3 potential issue(s) to consider:
+>
+> Pre-existing issues:
+> - [Critical] Improper Workqueue Initialization / Memory Corruption via Re-initialization
+> - [High] Use-After-Free due to Race Condition in `asus_remove()`
+> - [High] Missing NULL check for `devm_kasprintf` allocation leading to Kernel Oops
+> --
+>
+> commit ee67627a03893a0ccf0a7653ac62191a687b7821
+> Author: Denis Benato <denis.benato@linux.dev>
+>
+> HID: asus: add i2c entry for FA808UM and other TUFs
+>
+> On newer TUF laptops the keyboard HID device uses the same PID/VID of a
+> USB device that was found in ROG laptops: add it to hid-asus as i2c too.
+>
+>> diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
+>> index 0f78242b6a1db..7964fc96196e5 100644
+>> --- a/drivers/hid/hid-asus.c
+>> +++ b/drivers/hid/hid-asus.c
+>> @@ -1565,6 +1565,9 @@ static const struct hid_device_id asus_devices[] = {
+>>  	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
+>>  	    USB_DEVICE_ID_ASUSTEK_ROG_NKEY_KEYBOARD2),
+>>  	  QUIRK_USE_KBD_BACKLIGHT | QUIRK_ROG_NKEY_KEYBOARD | QUIRK_HID_FN_LOCK },
+>> +	{ HID_I2C_DEVICE(USB_VENDOR_ID_ASUSTEK,
+>> +	    USB_DEVICE_ID_ASUSTEK_ROG_NKEY_KEYBOARD2),
+>> +	  QUIRK_USE_KBD_BACKLIGHT | QUIRK_ROG_NKEY_KEYBOARD | QUIRK_HID_FN_LOCK },
+> [Severity: Critical]
+> This is a pre-existing issue, but since this patch enables QUIRK_HID_FN_LOCK
+> for a new device, could the fn_lock_sync_work initialization cause workqueue
+> corruption?
+>
+> In asus_input_configured(), INIT_WORK(&drvdata->fn_lock_sync_work, ...) is
+> called per-input. For devices with multiple inputs, if hid_hw_start() enables
+> interrupts before all inputs are configured, an early KEY_FN_ESC event could
+> schedule the work before the next input is configured. 
+>
+> The next call to asus_input_configured() would then re-execute INIT_WORK() on
+> the already queued work item, clearing its list pointers and causing a panic. 
+>
+> Additionally, for devices with 0 inputs, it is never initialized, causing a
+> warning in cancel_work_sync().
+This is implemented in f631011e36b87b173b71c7592b558ad05d791228
 
-I agree, I was wondering about this shortcut as well... I'll implement
-some sort of generic reserved memory handling in U-Boot.
+("HID: hid-asus: Implement fn lock for Asus ProArt P16")  and I see a
 
---=20
-Alexander Sverdlin.
+asus_kbd_set_fn_lock(hdev, true);
+
+things
+
+asus_kbd_set_fn_lock(hdev, true);
+
+Shouldn't one of the two (probably the latest) be:
+
+asus_kbd_set_fn_lock(hdev, false);
+
+
+Moreover I see from the commit message that this implementation has
+been copied from hid-lenovo, so does hid-lenovo suffers from the same issue?
+
+Since I don't have the affected hardware and I'm much confused by this double true
+I won't try to fix it in this patchset unless absolutely necessary or I have more info,
+but ideally I would like the patch to come from who can actually test the fix.
+
+> [Severity: High]
+> This is a pre-existing issue, but is there a potential use-after-free during
+> device removal when QUIRK_HID_FN_LOCK is enabled?
+>
+> In asus_remove(), cancel_work_sync(&drvdata->fn_lock_sync_work) is called
+> before hid_hw_stop(hdev). Since the hardware is still active, a late
+> KEY_FN_ESC event can trigger asus_event() and unconditionally call
+> schedule_work() after the work was supposedly canceled. 
+>
+> Once the driver is removed and drvdata is freed by devres, could the
+> workqueue execute asus_sync_fn_lock() and dereference the freed drvdata?
+>
+> [Severity: High]
+> This is a pre-existing issue, but does the XGM LED name allocation need a
+> NULL check?
+>
+> In asus_probe(), devm_kasprintf() is used to allocate the name for
+> drvdata->xgm_led->cdev.name:
+>
+> 	drvdata->xgm_led->cdev.name = devm_kasprintf(&hdev->dev, GFP_KERNEL,
+> 			"asus:xgm-%s:led",
+> 			strlen(hdev->uniq) ?
+> 			hdev->uniq : dev_name(&hdev->dev));
+> 	drvdata->xgm_led->cdev.brightness = 1;
+>
+> If devm_kasprintf() fails under memory pressure, it returns NULL. This NULL
+> pointer is then passed to led_classdev_register(), which passes it to
+> led_classdev_next_name() and eventually to strscpy() as the source string. 
+> Since strscpy() does not check for a NULL source, this would cause an
+> immediate NULL pointer dereference.
+>
+>>  	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
+>>  	    USB_DEVICE_ID_ASUSTEK_ROG_Z13_LIGHTBAR),
+>>  	  QUIRK_USE_KBD_BACKLIGHT | QUIRK_ROG_NKEY_KEYBOARD },

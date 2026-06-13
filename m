@@ -1,63 +1,63 @@
-Received: from mail-wm1-f49.google.com (mail-wm1-f49.google.com [209.85.128.49])
+Received: from mail-wr1-f45.google.com (mail-wr1-f45.google.com [209.85.221.45])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CC09F3C454F
-	for <linux-input@vger.kernel.org>; Sat, 13 Jun 2026 08:20:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 28E733CB8E6
+	for <linux-input@vger.kernel.org>; Sat, 13 Jun 2026 08:22:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.45
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781338840; cv=none; b=Dlzym0l6Y9APhQmAsXidzJ0JArpuf/jcG6ySzSXIwNvEeL6KlKoup0QzxCASOJuTpK63DrtgGXFKgSLZcK2ovAYs8U3WfRivQw+Wc8Mg+ZMo8TosVapbri05TkdgK8Vvw1Mz83DhxQbZdSxBmFYHeKAnhrUKXRUezG1bkgRYBVs=
+	t=1781338956; cv=none; b=pvQTB+emvWNsw6zDlCWWWDWerf5yvoUaBkasR7wj/BILFTno/gi5fW7fr5dhdgUh5KI/3JxFgUQX+JKRlL+Yo2DdtmyyXe6scfbbekY75iRWjIZKQ9ukZGMbFx3h5It3lvB29H9mdeGFw21c4dVrQo073UdJOE0YgMvhUbQh/Ao=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781338840; c=relaxed/simple;
-	bh=sv6/e/ZTEkkgP8TdkpODVWO7G+8MZcZpFN0/dqmSQ2s=;
+	s=arc-20240116; t=1781338956; c=relaxed/simple;
+	bh=5BOSuS+iU7vFYlQwtmoDD7uZ06WyRq2X9XCUtj9GmXQ=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=snrhwG39r58f+VRd4/RdWJqJtSMl2QeZsP6pthrAkZwRgt56+nD/7P2CoZ5B3jEAwOmPms/YCL7fFfLhSXBRXRTC3AX/uMrSZZWo94eFm+8qJUtXfOl9sQ9MQ1zE5HJ95ZIWafEJu4E7D75QsA9HEjncXyNAUWrnosjbnnDSIq8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=a5wM6jYe; arc=none smtp.client-ip=209.85.128.49
+	 MIME-Version:Content-Type; b=NCzLVxGzK1e7Gz+5bYJjCWd/FHOGOLroHICSnQEpNHUm4l2GWEEzaceXyuw1/7VuH7xK9caAHARjE1NtlHGtjTKkil10jxjUUCXAwlJ24nOpLYuur+EUW1pIJS8OU2VkeF71h2FcDp9hlx4sH1NNs/EsGXvL++0c+HuHs6Y1JxU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=GVEYIj6U; arc=none smtp.client-ip=209.85.221.45
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="a5wM6jYe"
-Received: by mail-wm1-f49.google.com with SMTP id 5b1f17b1804b1-490b915ded5so16781775e9.3
-        for <linux-input@vger.kernel.org>; Sat, 13 Jun 2026 01:20:38 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="GVEYIj6U"
+Received: by mail-wr1-f45.google.com with SMTP id ffacd0b85a97d-45ef82204c6so1016907f8f.3
+        for <linux-input@vger.kernel.org>; Sat, 13 Jun 2026 01:22:32 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1781338837; x=1781943637; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1781338951; x=1781943751; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=ud8CqUMs31Lbag+rPY0L/C65qKiCj6gLmHREZB+Ipfw=;
-        b=a5wM6jYeOzlQFGFEgovDEwHqTGHDsbXcWZV95mfihKJpW1g+6dGbf91NPDWL/x5dn7
-         Ny5YrLt0FRcaSK3H0YpfyXFxZOaIcPZMqQmtoIroZ2OzScgVAUtExD4+xfHxgFq3Ydvf
-         FFg3+ZtpeMJq0dugsrXMifsZl+w63rxzdffm0mVhPm9hKEudK5I9b7tZfcYZvOecxhrI
-         mzJjxy+WurhqhnrQVi6dyF0Tiu1WHkspFYfDvk59qoDsuGqoEe74qNEsBI9dw7iK4Xei
-         OpXLDKfqiTuo1n4Tq9AqT/NjJ8o0RA8NklmHM92DHPt0D1P8kFx4xec6ag28ip5N1fqF
-         uMWA==
+        bh=aDCfgIsCd0Q4hB2aGkv+tHe8owWljtqt1jPIzUxxB/s=;
+        b=GVEYIj6US3GAHbVfY4IWPlRtWf+6RQE4Mg4kXNNpyqCzK3yVm0eAln2zThaaOQ1o8Z
+         j4FUz8m8/7rYWsA2ksMTualM1zRXt21xz3c+mo4raS0H6rDFXxalgRCT4EW8zjZmBase
+         aKbEGJNT7P0u6Q6N/ik9FJ0770KNjMBAUTofO4IQnEs5tY453YoI6a7osK/UMFRGwLZ4
+         EKGuvW/a3qI1Rt6JNH+2XKrujHRN8KVxmWaPPxJsTOhU2kulrSvke4Rw20WNN5gJDe75
+         B83FESP3pkP508wE7wkOy+SwEjvj1dQGcaTYG5lL/X2LbW0tX2khC/+GLNTXfSkdZxux
+         QRFA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781338837; x=1781943637;
+        d=1e100.net; s=20251104; t=1781338951; x=1781943751;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=ud8CqUMs31Lbag+rPY0L/C65qKiCj6gLmHREZB+Ipfw=;
-        b=naMwU/wkCJKnR0NDkafdCIoZwSulof2oF1IBM0zVML1DtuAxot92nQIPQNfpjcHW3E
-         55GAafn1rKRZFXjkwKSQgStIbaADC/OojSs2qht7coNETeFhD2z7pmUcp0oI9itbW7KH
-         unUh0Ur4YIcfWLHFoY3P2BCeiwazv4kdUQZ6gJtAR0BHIWEfxOUFjgsYiNNO0Dqk3a6F
-         eOd/aePXVBWdZyLpo/taAmCJqRr5r9xNDIRnqv5YSkybIcwdnYzOeZbUZZLu2kvha+XX
-         tlGQoDxipHah2RTHAryuOiGz8a18qQIVb3S+Go3EwUHfeuf1BtD2gUDLgSwqWuLkCvXw
-         68/A==
-X-Forwarded-Encrypted: i=1; AFNElJ8MxhFsKqj5cR0rTuJ+FOBXvsbwk2ttrwAgHqHO47fy52Yn5/i1rnp9o4IzXxhlZf7LU9RqRqJV4uds6Q==@vger.kernel.org
-X-Gm-Message-State: AOJu0YyNinkO/Q3qptV5uWO2SpLrAyiF4CIOinCZXd1No8EnHdB2qbGq
-	0sjk1M9lq7u6Z16c4P3klkunRDp1kDmq15Hf5IID+phKtj5M9wQENxqA
-X-Gm-Gg: Acq92OFALbomY3kX4KhJSFkZ7qGB4jnai3iu8Row1H/WeQrqDX7HFc90H6Uk+IMumQ9
-	TNu9dpvq1pzmAOghOvwLwfA9vl3UfgR7cqRurPsDOlESXDFq37cWCBTtkMQB6M2MwMPPXEqV7KS
-	SGeyNyp+SWpNlxHSZ67hCKhCxH81JbLQ3OkoZS6VvS7umnVqUAP22hdCT7AcBiuvXu+H/Ga2bma
-	kqfqy+twKNIecBzHyxaFrcIfoK+0axHrQ1CZETNzeQ0/dBHe3pfe/RCCRXYwIuXxDHPktOT99Un
-	tgEbVbb4QKZ8iJIaXJCDrpqS3mPxqc+7WmFqxohDJL9pyT7OyH3iPLpqN7yLYs6XP7hrPAta8Om
-	TWit15GAr1dax1VegCDDwrG5G1WuDlnOZbDvLCpttEOz0LxhAWijqpTxvDxNhOqGnVQMXwSdmmY
-	86+t8eCymCQ4c00fmHcp2VXGNcUAr5M+kWSOVFG14zAvms
-X-Received: by 2002:a05:600c:c3cd:20b0:490:d3ef:fa4a with SMTP id 5b1f17b1804b1-490ec4ea4f1mr58033045e9.14.1781338837061;
-        Sat, 13 Jun 2026 01:20:37 -0700 (PDT)
+        bh=aDCfgIsCd0Q4hB2aGkv+tHe8owWljtqt1jPIzUxxB/s=;
+        b=U39K8EgYICnaJ+9Gri5QwkdvMw1zCn+uaNpM4b90YzduE633i+c71jVVGi13njQ6yc
+         LC5FD8NOgmJEau8y+wCXm7T65zJltbJmdsM1zNksJJOHPte01lIM/mlJAaoOhMs/5kOF
+         RihTQGnQPcei1n43Qc8vgNve2qyJp82utCEyvZPZzVHey2WABcFQrqV24mZLD+zYV8rZ
+         r3V+riGouKZnwjd1Of2JXXzwR5WiLJ7Y+3QbiAOoE+AOFRUmP7FqsPEvEm3XXVoQixLw
+         Vm5GPnIc5Dj6ml/3xJZHFjySf/d5f5SSymAVOQF6dFLDPjnWPI5TxjuTMxdtAFXoeNFu
+         scTw==
+X-Forwarded-Encrypted: i=1; AFNElJ/5GwWhkPwvItpo6bopwWFjj/9d/j6B1g3bhnJwqCbKfcODwGcTPa8Zwx7tnBpl9dI4PNxHMbLWlTK61Q==@vger.kernel.org
+X-Gm-Message-State: AOJu0YxxynoNjOe/WbpgY4ZeSEV4qbgHYQfC49EN7ZKNJsLxR6QfeFxA
+	TPvm1Y1VIL/hpKo8e62ThZRcEBHSZEXnopNcUrUXKlZzokwbw+25RbMv
+X-Gm-Gg: Acq92OHh615sY4O78OccfkQOdFeuPH0tVjUxjnYHNNR48RrrbqhVRuAbi9qb6u6K/q5
+	fkcfK1J+UfRskgKQn4KnaPBoyazAxnjm52FRFwIFqwnfAVl2K67QnO4X74W3qegTYWU9bf5Djkw
+	ur35wP9V1gXzgzB/VYq+GpyeNjvbnsCfPkhm1FEIXxywuYfULYHtysAmsP2wpKlza0bHpIWmDrF
+	1HdY1zDOGPmXh+HMNVyDB1s8CqSLGAb3VvY8RrfmDsJqwcRFv90ZAM44oD6+AJvOrPLbbtVNRwv
+	zjzvGG1Wt4dvBHRxiz9teoXL1uxMrqmZrAcsJ9ONVi13Ljhmq1LEtMTx+8IuFca7Ol8JblkV2VM
+	pP8DxjvGnGywVpq6EbY7OmAoz/A6RB4n7sjxwY13B44yJuRoduRwk70culmaCZ3vR+SGDmHxKL+
+	n5fwbJzV6oyYI74t00bOtpprQLUWGu2zAjbjupMjXxE19aH9U0gXYBte4=
+X-Received: by 2002:a05:6000:608:b0:460:70ae:f196 with SMTP id ffacd0b85a97d-46070aef211mr8420172f8f.7.1781338951277;
+        Sat, 13 Jun 2026 01:22:31 -0700 (PDT)
 Received: from jernej-laptop.localnet ([188.159.248.16])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4922032ae56sm54483765e9.7.2026.06.13.01.20.35
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4606f26f3dcsm12723144f8f.13.2026.06.13.01.22.29
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 13 Jun 2026 01:20:36 -0700 (PDT)
+        Sat, 13 Jun 2026 01:22:30 -0700 (PDT)
 From: Jernej =?UTF-8?B?xaBrcmFiZWM=?= <jernej.skrabec@gmail.com>
 To: linux-arm-kernel@lists.infradead.org, linux-sunxi@lists.linux.dev,
  Alexander Sverdlin <alexander.sverdlin@gmail.com>
@@ -73,13 +73,13 @@ Cc: Alexander Sverdlin <alexander.sverdlin@gmail.com>,
  Luca Weiss <luca@lucaweiss.eu>, Sven Peter <sven@kernel.org>,
  Maxime Ripard <mripard@kernel.org>, devicetree@vger.kernel.org,
  linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
-Subject: Re: [PATCH v4 5/7] arm64: dts: allwinner: a100: Add LRADC node
-Date: Sat, 13 Jun 2026 10:20:35 +0200
-Message-ID: <5lITDd8mTsaQJaoJhGu1EA@gmail.com>
-In-Reply-To: <20260605070923.3045073-6-alexander.sverdlin@gmail.com>
+Subject: Re: [PATCH v4 6/7] arm64: dts: allwinner: a100: reserve RAM for ATF
+Date: Sat, 13 Jun 2026 10:22:29 +0200
+Message-ID: <_6NEZ78hR8a_3V2bhBAGoQ@gmail.com>
+In-Reply-To: <20260605070923.3045073-7-alexander.sverdlin@gmail.com>
 References:
  <20260605070923.3045073-1-alexander.sverdlin@gmail.com>
- <20260605070923.3045073-6-alexander.sverdlin@gmail.com>
+ <20260605070923.3045073-7-alexander.sverdlin@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -89,59 +89,58 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
 Content-Type: text/plain; charset="utf-8"
 
-Dne petek, 5. junij 2026 ob 09:09:19 Srednjeevropski poletni =C4=8Das je Al=
+Dne petek, 5. junij 2026 ob 09:09:20 Srednjeevropski poletni =C4=8Das je Al=
 exander Sverdlin napisal(a):
-> A100/A133 SoCs feature a Low Rate ADC (LRADC) for Key application.
->=20
-> Specs:
-> - Power supply voltage: 1.8 V
-> - Reference voltage: 1.35 V
-> - Interrupt support
-> - Support Hold Key and General Key
-> - Support normal, continue and single work mode
-> - 6-bits resolution, sample rate up to 2 kHz
-> - Voltage input range between 0 and 1.35 V
+> Add reserved-memory node carving out Trusted Firmware-A region spanning
+> fixed 256K from physical address 0x40000000. Even though Allwinner ATF
+> itself passes the address range in the fdt to U-Boot, U-Boot currently
+> only reserves this memory internally, but doesn't carve out the region
+> in the fdt passed to Linux.
 >=20
 > Signed-off-by: Alexander Sverdlin <alexander.sverdlin@gmail.com>
-> ---
-> Changelog:
-> v4:
-> - added allwinner,sun50i-a100-lradc compatible
-> v3:
-> - new patch
->=20
->  arch/arm64/boot/dts/allwinner/sun50i-a100.dtsi | 9 +++++++++
->  1 file changed, 9 insertions(+)
->=20
-> diff --git a/arch/arm64/boot/dts/allwinner/sun50i-a100.dtsi b/arch/arm64/=
-boot/dts/allwinner/sun50i-a100.dtsi
-> index b3fb1e0ee796..7cb06b19b5a5 100644
-> --- a/arch/arm64/boot/dts/allwinner/sun50i-a100.dtsi
-> +++ b/arch/arm64/boot/dts/allwinner/sun50i-a100.dtsi
-> @@ -466,6 +466,15 @@ ths: thermal-sensor@5070400 {
->  			#thermal-sensor-cells =3D <1>;
->  		};
-> =20
-> +		lradc: lradc@5070800 {
-> +			compatible =3D "allwinner,sun50i-a100-lradc", "allwinner,sun50i-r329-=
-lradc";
 
-Break this into two lines, like usb_otg below. With that:
-Reviewed-by: Jernej Skrabec <jernej.skrabec@gmail.com>
+NAK. It is job of boot procedure to properly inject TF-A reserved node.
+Any issue should be fixed there.
 
 Best regards,
 Jernej Skrabec
 
-> +			reg =3D <0x05070800 0x400>;
-> +			interrupts =3D <GIC_SPI 22 IRQ_TYPE_LEVEL_HIGH>;
-> +			clocks =3D <&ccu CLK_BUS_LRADC>;
-> +			resets =3D <&ccu RST_BUS_LRADC>;
-> +			status =3D "disabled";
-> +		};
+> ---
+> Changelog:
+> v4:
+> - new patch
+>=20
+>  arch/arm64/boot/dts/allwinner/sun50i-a100.dtsi | 16 ++++++++++++++++
+>  1 file changed, 16 insertions(+)
+>=20
+> diff --git a/arch/arm64/boot/dts/allwinner/sun50i-a100.dtsi b/arch/arm64/=
+boot/dts/allwinner/sun50i-a100.dtsi
+> index 7cb06b19b5a5..d8391663fd1d 100644
+> --- a/arch/arm64/boot/dts/allwinner/sun50i-a100.dtsi
+> +++ b/arch/arm64/boot/dts/allwinner/sun50i-a100.dtsi
+> @@ -87,6 +87,22 @@ osc32k: osc32k-clk {
+>  		#clock-cells =3D <0>;
+>  	};
+> =20
+> +	reserved-memory {
+> +		#address-cells =3D <2>;
+> +		#size-cells =3D <2>;
+> +		ranges;
 > +
->  		usb_otg: usb@5100000 {
->  			compatible =3D "allwinner,sun50i-a100-musb",
->  				     "allwinner,sun8i-a33-musb";
+> +		/*
+> +		 * 256 KiB reserved for Trusted Firmware-A (BL31).
+> +		 * This is added by BL31 itself, but some bootloaders fail
+> +		 * to propagate this into the DTB handed to kernels.
+> +		 */
+> +		secmon@40000000 {
+> +			reg =3D <0x0 0x40000000 0x0 0x40000>;
+> +			no-map;
+> +		};
+> +	};
+> +
+>  	timer {
+>  		compatible =3D "arm,armv8-timer";
+>  		interrupts =3D <GIC_PPI 13
 >=20
 
 

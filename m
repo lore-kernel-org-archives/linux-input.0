@@ -1,123 +1,233 @@
-Received: from mail-wr1-f44.google.com (mail-wr1-f44.google.com [209.85.221.44])
+Received: from mail-pl1-f174.google.com (mail-pl1-f174.google.com [209.85.214.174])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E9A6E3C3459
-	for <linux-input@vger.kernel.org>; Sat, 13 Jun 2026 11:01:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F305E2D6E66
+	for <linux-input@vger.kernel.org>; Sat, 13 Jun 2026 11:12:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781348519; cv=none; b=gC2hgHc7yr87FHlfbkFP9ixhoIoIcqFPyDS3QXk6knRU7uR/AWfxPHbZGyXSBfOKWH4LK50XAcgtg/zj1mYYBia7tNIgPY/PNQvpKuymyS4QCUFKzN1ps/CE+cU2l8wPrK4/5D/IMynRGVVNwKU4J5bgFBZg6tCo1/yCpTb5vyU=
+	t=1781349140; cv=none; b=RBltYGoDuPNSq3psIQzrpJON2YlQsBr4xpXiXt7ETRlShac9UDl4qjm0Fm+YKnqwmbYqFsetPqjDiUA44f/RYeo111kHFASLnZ4azftu7lDyqk9Okp+yY0UYFvhmKGR8tmCK8KqzFp+hPYtd3GzetmZWlRhSduejMXWMt5EKew8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781348519; c=relaxed/simple;
-	bh=pMcR10Zl9ktI8NftnKtGb1nGlHMkBHUqYLOsT6sT/4k=;
+	s=arc-20240116; t=1781349140; c=relaxed/simple;
+	bh=Mxk9izfmJ1iYm8ASdn+hegoHoCOC54G9INbOprZmXnE=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=olOb7lEpKpgrInu+fgtmfhp5JH5XJD20VT/IkM/La1IATkVg0r4NyX0I0CZwXDW6lP369ywC27C6GHHAxjsVuUcoFwDYBE8pOyeCUOYYbS4ZgbLo8l8IP/VXp+VrUSIu4MMva2XecR3N69hcM+zJ10PCJajPD/AlcwBYXwYf61E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=T61BZOJM; arc=none smtp.client-ip=209.85.221.44
+	 MIME-Version; b=J/23JOwQYlyNB/L1Y/OqX7w4CQLfr+qvKNDWFVphIRL2nWJJfav+A1xBOPDRDgO5mg7ntdd4svM8wDbkdZcVXayr5YqrjhsO6O/+hEfTqfWzr5e+XJQK/r1mIwWG/ClJFL/31VsVrA25N1pKlNqwEI+pmdDqWpf+PfL377H9WGg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=cAbjQl+P; arc=none smtp.client-ip=209.85.214.174
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="T61BZOJM"
-Received: by mail-wr1-f44.google.com with SMTP id ffacd0b85a97d-46013161068so850728f8f.2
-        for <linux-input@vger.kernel.org>; Sat, 13 Jun 2026 04:01:57 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="cAbjQl+P"
+Received: by mail-pl1-f174.google.com with SMTP id d9443c01a7336-2c0c3315c5dso19637585ad.3
+        for <linux-input@vger.kernel.org>; Sat, 13 Jun 2026 04:12:18 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1781348516; x=1781953316; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1781349138; x=1781953938; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=pMcR10Zl9ktI8NftnKtGb1nGlHMkBHUqYLOsT6sT/4k=;
-        b=T61BZOJMnuvPIOTM0UUeGBVff9GOstrCbnqBhGxCVGIw3xblI0eVcbW9tBRUDY1vZL
-         jLXrBLRRx6807Qf2byGHNZvfsNXhmr1UOuwC1A4uU2s5NRX7wXLrEYorc0z24u+k6RcX
-         n2TUtj+gj5mffWLvAapTU2PnmXuyE/fPqkD/3EdL9eaFLwzreM9z1JmZM1svQ1RmFigc
-         JVyixka6qfRtcdWJVUYbjDUgwr+1uYR4shM/Q2dixvB7CFu6ozTAi2pGDci7Fa60TNdy
-         l6VKdRVMAe+7vvdgFd4LuU9odkDsqJaXPOlayvc3e9mvBCJsO11JfsqP0BuzqiJpxj1+
-         plFw==
+        bh=Jv/S7oGdPwlP4CzZrwOTO68eimVH3uL1uxQlQb3wY7k=;
+        b=cAbjQl+PKbanUll+WUnaNTqL/LLehNMnUok+CGHR8vQiZg5AJeNU/DuWEOZlRYX8Ji
+         5aDhDPcB3cJKDgHyYGBKawPPbvTAyKz1pkgqYS4eh8cGwNvB1e4wfUKL+W3bcPw8ksHd
+         ZxbWWaubsaNme9TevUZS64aMTsTYPZM4iZNtuoQrsToPb9WbRiBPxQkRlVYqBhay9N8Q
+         F9UfV5wbx40JId88yOMVfQqYeqReOwdqzlZXH47L1WxWtyI+2NmZSY0z2zTUJLpjI+C2
+         7Uj72IEyIoA+GDbnpHU9WJCUCLHOXkMtsJOXoPkm4IN8mstgHkP4Ngxj+Dph5RHir/0n
+         yBpw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781348516; x=1781953316;
+        d=1e100.net; s=20251104; t=1781349138; x=1781953938;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=pMcR10Zl9ktI8NftnKtGb1nGlHMkBHUqYLOsT6sT/4k=;
-        b=RDTmNV1FYgbxGO1h3wZJYq2cYG9eU/bnpB8qpfZvQL2DtlQkDOgTQwA5+1Ybuh1i6R
-         7JBrBKoLRQIzevD9l3a0WC4EBHHpsdl9lW0wtskvEqZ5i76lQe6YspLDCcSpkcnQSrA9
-         smuuBaqE4czIMgsoB4lPFSVdeHUWgCLEEYi9/BV+YOOC7THe4FAH1PsUomZLXUrKzz9z
-         K/6Aj/2Df9fmpNL9Fzpdy6qo3PygC12vk1mPAdmH1yrFBp72p5ZFS3na5+qMMUKBFTHM
-         adxJrCmhriotxA+qzBn+TrYKkfG66zR+JITPt/10t5XgLjNvuK0pyObRATlA8fvsYeJJ
-         tFyw==
-X-Forwarded-Encrypted: i=1; AFNElJ8ClyO3VMfFjUc2OGE8Dw8peFo6Ev3YXyisPFJtq2UxQXXDaicJAWNQZ/uahDzf58djamHpl0KA6TdcCw==@vger.kernel.org
-X-Gm-Message-State: AOJu0YxP8xVCvjeMOJXRI3mFHzyHZeOxgVurjyi5LcOS1weIkb1GMfRZ
-	4LCoCL4RzfJA/+a0ba/rAObMpiy/oRM1t7Wlg8cn+mldbHpwIG4KTllU
-X-Gm-Gg: Acq92OGntIWd4VApH3RICXcTFrLxF1Qmgxn8Zn1GkGoIo663IzpKvKSzqYAXyRABTPH
-	i3yEC2Ihy96dyLdPIVFcTDHew5Q4UWXK8x6/kteHuQenEmGUGa1capFnGEQZhFezBej7F54n1AZ
-	ZjI+3PvK6+L7/IrK+DEYZEApkkt5x7GL+N5U7Mi2qNDc2EFO2xTtE0Sqxvyiu0SpU40Ijte8UaB
-	cKmg99NJjMOMsVAZT4OaDlxESLNM1KE1E3M9ZzjbBUg/w3SF4Mb2pgkw3QuUljofXF2/XWtz5bR
-	M38ps2tEEqFTUwobR1K9shsnmRi6fscNLUJrrpDTyYp99j6ZpwRRExV2dliul6H1RPOmIJ9xCVJ
-	TxqRcOJMhg1g3Ydj2a7XQdtGFtVuZH1v6wKNbBtDdiV8gvlKLDPQhFDtLUsr1YyKKt7w9k6Ke/L
-	dP8Pgf4vx8Z1FStJ9SBIve4r5D+OInTNo55u3/pg3zTNIO
-X-Received: by 2002:a05:6000:188e:b0:45e:f271:5019 with SMTP id ffacd0b85a97d-4606db8c6fbmr9211591f8f.14.1781348516083;
-        Sat, 13 Jun 2026 04:01:56 -0700 (PDT)
-Received: from jernej-laptop.localnet ([188.159.248.16])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4606f26434dsm14930828f8f.1.2026.06.13.04.01.53
+        bh=Jv/S7oGdPwlP4CzZrwOTO68eimVH3uL1uxQlQb3wY7k=;
+        b=kFV1wT1n2HVPx687ALGTuO2puu8wSO6Z3XVN/cwAS/Xarc/BsPwen7CT7gzZWas91s
+         pxmOh17JnuYr7Xg7qHGo92ibFYwUOPJxbdL6DvSW6P+vHoa1s6EcbTLu5xoJNespFeV0
+         pGXZkBMkVthqJhsKLk3hELzdTuR3HSAUkNN9Ge2L+tCAYQDGM7zmGfbgia0lbdVptkFA
+         HBbgF/vipibR2C2PAnX0H8ZQJkHTXZFAu8QTaHjmOMJWBqGaS7CzRulawXCEW4mB4+iF
+         si7IbrZbN+kXlj+62FcHhbCiRBhe+GtSGix3Z8PY0vxi0f26qInl0qmGbTFHrIULLkHP
+         KTRg==
+X-Forwarded-Encrypted: i=1; AFNElJ80ooZ6XU3AUsl4D73FlsrmOWLLID/1UOzhhXqfVGh8uXxLk1h8uVYWYWpMBi6823W+qsBSNqjCijT4Sw==@vger.kernel.org
+X-Gm-Message-State: AOJu0YyOHQYcdwt4qpGhg5rAdmQ3nLEg///ReM/Et2/+SjSvvRksOQ2s
+	D4aXQ995pUKyt0LCNuzY6glnrghidM+HttYyHBSwJUQGMpzvvDPEbcBF
+X-Gm-Gg: Acq92OG3O/Lii5tD+osCwofIygTx8QMUcxc4gRucKmb2e2kfQQiYiO9eFOt/X8QWGhM
+	1VMNQ5TV8BSzJjtt3AVMdSeO2raXYhPPH81AE5ubzuBRSghyZezlpxn16kHICgeL+tAjkg8Bm3z
+	SuGu1JWEIyazT5pep8Lz9ouu+ev08dtMvS8W/5wFtFXG1UAstlcRd0wKw5xKPPC+Ee/yrBcCB6g
+	6tXhfcDPyCnBwn9ovCOX9nXxjn5r4+2p/24yQY8X1ZVIV8qxmq7iywPzeY6mOTIj7QNcbh+jQjU
+	bZItbVpymV/9M9Yrr7OJ+RA1BDICdx6oSqf+HKqiW/fKGB7TRSeYed6QASaFyqH1e69RX442Urk
+	sVM4bMsJkltovnqc5abYEN1O8aP5EjIbmRsr37dSRVg9AWCA8xkt+onjsRwjuFm/CREZ5fcDgNi
+	GhSZeaXe/lpMr7r+8U6JcC
+X-Received: by 2002:a17:902:e750:b0:2c1:e04d:7cb5 with SMTP id d9443c01a7336-2c412841372mr79321145ad.34.1781349138173;
+        Sat, 13 Jun 2026 04:12:18 -0700 (PDT)
+Received: from arch.localdomain ([2409:8a28:a54:e741::1003])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2c42f7c58c3sm47466445ad.23.2026.06.13.04.12.16
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 13 Jun 2026 04:01:55 -0700 (PDT)
-From: Jernej =?UTF-8?B?xaBrcmFiZWM=?= <jernej.skrabec@gmail.com>
-To: linux-arm-kernel@lists.infradead.org, linux-sunxi@lists.linux.dev,
- Alexander Sverdlin <alexander.sverdlin@gmail.com>
-Cc: Alexander Sverdlin <alexander.sverdlin@gmail.com>,
- Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
- Conor Dooley <conor+dt@kernel.org>, Chen-Yu Tsai <wens@kernel.org>,
- Samuel Holland <samuel@sholland.org>, Hans de Goede <hansg@kernel.org>,
- Dmitry Torokhov <dmitry.torokhov@gmail.com>,
- Andre Przywara <andre.przywara@arm.com>, Jun Yan <jerrysteve1101@gmail.com>,
- Lukas Schmid <lukas.schmid@netcube.li>,
- =?UTF-8?B?Si4gTmV1c2Now6RmZXI=?= <j.ne@posteo.net>,
- Eric Biggers <ebiggers@kernel.org>, Michal Simek <michal.simek@amd.com>,
- Luca Weiss <luca@lucaweiss.eu>, Sven Peter <sven@kernel.org>,
- Maxime Ripard <mripard@kernel.org>, devicetree@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
-Subject:
- Re: [PATCH v4 7/7] arm64: dts: allwinner: A133: add support for Baijie Helper
- A133 board
-Date: Sat, 13 Jun 2026 13:01:53 +0200
-Message-ID: <rVKu3PRHTqCaxGV5Fc8kHQ@gmail.com>
-In-Reply-To: <20260605070923.3045073-8-alexander.sverdlin@gmail.com>
-References:
- <20260605070923.3045073-1-alexander.sverdlin@gmail.com>
- <20260605070923.3045073-8-alexander.sverdlin@gmail.com>
+        Sat, 13 Jun 2026 04:12:17 -0700 (PDT)
+From: Jun Yan <jerrysteve1101@gmail.com>
+To: sashiko-bot@kernel.org
+Cc: conor+dt@kernel.org,
+	devicetree@vger.kernel.org,
+	dmitry.torokhov@gmail.com,
+	jerrysteve1101@gmail.com,
+	linux-input@vger.kernel.org,
+	robh@kernel.org,
+	sashiko-reviews@lists.linux.dev
+Subject: Re: [PATCH v2 9/9] Input: cap11xx - add support for CAP1114
+Date: Sat, 13 Jun 2026 19:12:14 +0800
+Message-ID: <20260613111214.17097-1-jerrysteve1101@gmail.com>
+X-Mailer: git-send-email 2.54.0
+In-Reply-To: <20260612074238.4C3371F000E9@smtp.kernel.org>
+References: <20260612074238.4C3371F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 
-Dne petek, 5. junij 2026 ob 09:09:21 Srednjeevropski poletni =C4=8Das je Al=
-exander Sverdlin napisal(a):
-> Baijie Helper A133 board is a development board around Baijie A133 Core
-> SBC. Features:
->=20
-> - 1/2/4GiB LPDDR4 DRAM
-> - 8/16/32GiB eMMC
-> - AXP707 PMIC
-> - USB-C OTG port in peripheral mode (via onboard hub)
-> - 2 USB 2.0 ports
-> - MicroSD slot and on-board eMMC module
-> - Gigabit Ethernet
-> - Bluetooth
-> - WiFi
->=20
-> Add initial support for both the Helper and Core boards, including UART,
-> PMU, eMMC, USB, Ethernet, LRADC-connected buttons.
->=20
-> UART1 can only be used for Bluetooth module, but BT-WiFi combo Allwinner
-> AW869A chip has no mainline driver currently.
->=20
-> Signed-off-by: Alexander Sverdlin <alexander.sverdlin@gmail.com>
+> Thank you for your contribution! Sashiko AI review found 4 potential issue(=
+> s) to consider:
+> - [High] Buffer overflow when parsing the 'microchip,calib-sensitivity' dev=
+> ice tree property for devices with more than 8 channels.
+> - [Medium] Integer truncation silently drops signal guard configurations fo=
+> r channels 8-13.
+> - [Low] Out-of-bounds `GENMASK` generates an 11-bit mask for an 8-bit LED c=
+> ontrol register.
+> - [Low] Unnecessary 9th threshold register added to regmap defaults.
+> --
+> 
+> commit a843fc20f78c2766e479b33ffb3dcd6238d1f3f0
+> Author: Jun Yan <jerrysteve1101@gmail.com>
+> 
+> Input: cap11xx - add support for CAP1114
+> 
+> CAP1114 is a 14-channel capacitive touch sensor with 11 LED outputs
+> and hardware reset support. The CAP1114 uses two control registers
+> for LED output management and requires two button status registers
+> for touch input state reporting.
+> 
+> > diff --git a/drivers/input/keyboard/cap11xx.c b/drivers/input/keyboard/ca=
+> p11xx.c
+> > index d45bb231d7a1f..e4da0e26c34a8 100644
+> > --- a/drivers/input/keyboard/cap11xx.c
+> > +++ b/drivers/input/keyboard/cap11xx.c
+> [ ... ]
+> > @@ -98,6 +105,9 @@ static const struct reg_default cap11xx_reg_defaults[]=
+>  =3D {
+> >  	{ CAP11XX_REG_SENSOR_THRESH(3),		0x40 },
+> >  	{ CAP11XX_REG_SENSOR_THRESH(4),		0x40 },
+> >  	{ CAP11XX_REG_SENSOR_THRESH(5),		0x40 },
+> > +	{ CAP11XX_REG_SENSOR_THRESH(6),		0x40 },
+> > +	{ CAP11XX_REG_SENSOR_THRESH(7),		0x40 },
+> > +	{ CAP11XX_REG_SENSOR_THRESH(8),		0x40 },
+> 
+> [Severity: Low]
+> Does this code inadvertently add a 9th threshold register?
+> 
+> Since the indexing is 0-based, an 8-threshold device should only need indic=
+> es
+> 0 through 7.
+> 
+> Register index 8 appears to map to an unused register.
 
-Schema validation passes, so:
-Acked-by: Jernej Skrabec <jernej.skrabec@gmail.com>
+Good catch, CAP11XX_REG_SENSOR_THRESH(8) should be dropped.
 
-Best regards,
-Jernej
+> 
+> >  	{ CAP11XX_REG_CONFIG2,			0x40 },
+> >  };
+> [ ... ]
+> > @@ -394,6 +442,14 @@ static int cap11xx_init_leds(struct device *dev,
+> >  	if (error)
+> >  		return error;
+> > =20
+> > +	if (num_leds > 8) {
+> > +		error =3D regmap_update_bits(priv->regmap,
+> > +					   priv->model->led_output_control_reg_base + 1,
+> > +					   GENMASK(num_leds - 8 - 1, 0), 0);
+> 
+> [Severity: Low]
+> Can this result in an out-of-bounds mask generation when num_leds > 8?
+> 
+> In cap11xx_init_leds() just prior to this addition, the code calls:
+> 
+>     error =3D regmap_update_bits(priv->regmap,
+>                    priv->model->led_output_control_reg_base,
+>                    GENMASK(num_leds - 1, 0), 0);
+> 
+> When num_leds is 11 for the CAP1114 model, this generates an 11-bit mask
+> to update an 8-bit register.
+> 
+> While the regmap core safely masks this, should the mask be clamped to
+> min(num_leds, 8) to accurately reflect the hardware register's capacity?
 
+Agreed, thanks for the correction.
 
+> 
+> > +		if (error)
+> > +			return error;
+> > +	}
+> [ ... ]
+> > @@ -572,6 +628,14 @@ static const struct cap11xx_hw_model cap1106_model =
+> =3D {
+> >  	.has_repeat_en =3D true,
+> >  };
+> > =20
+> > +static const struct cap11xx_hw_model cap1114_model =3D {
+> > +	.product_id =3D 0x3a,
+> > +	.num_channels =3D 14, .num_leds =3D 11, .num_sensor_thresholds =3D 8,
+> 
+> [Severity: High]
+> Does this code overflow the calib_sensitivities array during initialization?
+> 
+> In struct cap11xx_priv, the array is rigidly sized to 8 elements:
+> 
+>     u32 calib_sensitivities[8];
+>     u32 keycodes[];
+> 
+> During cap11xx_init_keys(), when parsing "microchip,calib-sensitivity", the
+> driver reads priv->model->num_channels elements:
+> 
+>     of_property_read_u32_array(node, "microchip,calib-sensitivity",
+>                                priv->calib_sensitivities,
+>                                priv->model->num_channels)
+> 
+> With num_channels set to 14, won't this write 14 elements into an 8-element
+> array, clobbering the adjacent keycodes flexible array member and potential=
+> ly
+> causing memory corruption or a kernel panic?
+
+Good point, I'll fix that in v3.
+
+> 
+> 
+> [Severity: Medium]
+> Will this configuration lead to integer truncation when parsing the
+> "microchip,signal-guard" property?
+> 
+> In struct cap11xx_priv, the mask is defined as an 8-bit value:
+> 
+>     u8 signal_guard_inputs_mask;
+> 
+> During cap11xx_init_keys(), a loop iterates up to num_channels (14) and shi=
+> fts
+> the bits:
+> 
+>     priv->signal_guard_inputs_mask |=3D 0x01 << i;
+> 
+> For channels 8 to 13, won't this bitwise shift exceed the 8-bit variable wi=
+> dth
+> and silently truncate to 0?
+
+Good point, I'll fix that in v3.
+
+> 
+> Even if the CAP1114 doesn't support signal guards, this drops the bitmask f=
+> or
+> the upper channels, bypassing the capability check and failing to emit the
+> intended 'unsupported' warning.
+> 
+> > +	.led_output_control_reg_base =3D CAP1114_REG_LED_OUTPUT_CONTROL1,
+> > +	.sensor_input_reg_base =3D CAP1114_REG_BUTTON_STATUS1,
+> > +	.has_grouped_sensors =3D true,
+> > +};
+> 
+> --=20
+> Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260612072237.1177=
+> 304-1-jerrysteve1101@gmail.com?part=3D9
+> 

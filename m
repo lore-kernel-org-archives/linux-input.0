@@ -1,174 +1,226 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ed1-f42.google.com (mail-ed1-f42.google.com [209.85.208.42])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9D0232032D
-	for <linux-input@vger.kernel.org>; Sat, 13 Jun 2026 06:24:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781331853; cv=none; b=Ae/+owv1U0BSpRUSFq6LhL1M5Kp+oLWNMW9P0US6MFxOfYlT/ExsaUrdZbLReKIihtzJgzL6WTC/C7bIPRRz6/r7lbK7dybYUe/1e26BdY6TgB2I5GONJdsT9FI/3Z8E5iz1bOKF/L+VStC/1vAbp2Ba8xmOYa9jKWVgltfrYJw=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781331853; c=relaxed/simple;
-	bh=W1lmBxnbobJWrP8T97EYrqFmPbi35lprIWALlsMvHpA=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=lTMVhM2WfU6j1lfLRE/vVv99ttoWDxW+Jk3f+i9nw5wvF+SrCBm5V9Rd1JoLfhewp2bzUr8utwq51iYrvzov9cinu9H0Uuoj3Ds9LxuW1I0QaIIHlFqNKRUW4P7U7tQGa7mLtQAJ5E5mHpkMzXUv53jrIPmoUN9255Ac1Tldt7w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=l9hMOTbA; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7518B35CBCB
+	for <linux-input@vger.kernel.org>; Sat, 13 Jun 2026 06:46:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.42
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1781333182; cv=pass; b=Sb7IR07toUuXpfMehbMkTzNK2VHI0qIx63wEh396ZJ/KWiCjwGb0HqV/qYoaCxOiFV+rP3ORG03OwGnCfyHTp41RnDppbnCSaD6Amzwy7su2otAIw/yGl3EFrW0uCGLNt8wxGpeMuT7IPG8NDg1ufodp4O18IT+ulrccGIa9rFw=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1781333182; c=relaxed/simple;
+	bh=tZfVoPBmk3Y21JvcgAvm0GaBLRd1bvbAe8InDftuxuY=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=XrljxH1ngGnPQt4Nh7F0FVmKTWtdtvtGIno3u/oDQXjLTvn7hA+CDgwPNjwzqg47v9PxlsJq1prOMo9oD5uy+DBL8pB++gvMe0Bs0pF8ICapX7mz560SZlfLrrANnkEMeCJLugG5S3yVCrdahhyLEx1ptB45cdbrhRugQDutBPY=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=cpDne2OE; arc=pass smtp.client-ip=209.85.208.42
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="l9hMOTbA"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0CBF71F000E9;
-	Sat, 13 Jun 2026 06:24:12 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1781331852;
-	bh=Uoll3pvWqjCJp0I6g6zT1MpxkS6rqUakVEEuyuLTq7c=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=l9hMOTbAeHXwj8QWY2ZeRMwgFx/dK9mgSl1WocN61ETHtEezPpkmlaSoFEx8EqWUc
-	 B0R0E0M6GdcnDMFSLe3Cyymou6axYOhVBjY8VTwDsrGC9Eop38p/NDdmJqqJZRcVul
-	 M0L4httYbt/3iIblUfD46tRWgebG4+c37r/S1X17SB3FM5fBX9oKl2EsXRPXDnaQvE
-	 27ZiJK26t25PrSTPaDXFtzekZbTsWcCg1M3+VufaEEeNY7jdS04f77Q8tI0a1e4bDV
-	 juckTZvZz/sciJ+Oqz5Sy2gUATSw9TuJ9G0trO3MqSqvMMKQeoKyusn7b4czpp1Pji
-	 7/bR1d+CkVrRw==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] Input: cyapa - bound the SMBus block reads to the
- caller buffer
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Bryam Vargas via B4 Relay" <devnull+hexlabsecurity.proton.me@kernel.org>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260613-b4-disp-8e550272-v1-1-9658cf8292c2@proton.me>
-References: <20260613-b4-disp-8e550272-v1-1-9658cf8292c2@proton.me>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Sat, 13 Jun 2026 06:24:11 +0000
-Message-Id: <20260613062412.0CBF71F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="cpDne2OE"
+Received: by mail-ed1-f42.google.com with SMTP id 4fb4d7f45d1cf-68cc6c7df99so2533390a12.1
+        for <linux-input@vger.kernel.org>; Fri, 12 Jun 2026 23:46:20 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1781333179; cv=none;
+        d=google.com; s=arc-20240605;
+        b=dCdjPZ29KR/GXyTArlnP/lXeeCU10oHnwDOvnWUlsYmq77sdGSSeHU41NYHo11D0+v
+         6G4nPUlWZRozRkA99nZEgGXxYBX5VbR1Qub8As8KswW84B2OoGHjdEKNcIdgRxgHcZfm
+         lMEXIFnpA/OJYkGcVbpKCQQkzVGoUUHJP4XPwjELKj6aVzSYXiuUCFb3gO0c5ps/npT0
+         t4H9AwmGOA0gf1MEia5p8KBVaJay5cTBbkDc6H3rCOpkK8fuU7A2+zbHPXGEeU3pD6QF
+         7zVXimsMHJGkh/5JyzycYQozaeICd/Msd087z1CHZqMLx8B1ImrKUgG20XT+4/Rj1C+F
+         qhkQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:dkim-signature;
+        bh=K3Zaw0q13XlwMt/D9vZ2oQHEjwluxKV2bQEyoZSCaZI=;
+        fh=B/80t+a0DLod8ZvAKnB2Gp+v4tJU/IHZzO8ArFg5Z0Q=;
+        b=J2qo05j7BiVo6ujyIjXTtuOJ7jgqfuXxMs8Zejxg/LgNLE91FsoPGG7RZYfulTBz8I
+         sCtvmQ+QtfisHfd7fkigA1v90SI9OBTdZplgQXwh+xwLd2L8w9zwtIPQJYOJl2Yebc85
+         Fz7ZXxSVVCfZC6myRGSd/J8zjHxC9GLtDfRwQjwk3YdGBI6fuRMPU9o/OWC9M+OYPiQF
+         SIi2I4ztqtgaODkBh3Ygz1QhoJgV1XKQMaOpW3PnCUUHvAtmFUYiaBasTjBMjwXh4Ey0
+         iIsLz1iLu/rMgZvtxYEwd3SMZeGvOVXk7peXh3pAolOXy7tHOjmX3wTygU77vdBieKDO
+         +kRA==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1781333179; x=1781937979; darn=vger.kernel.org;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=K3Zaw0q13XlwMt/D9vZ2oQHEjwluxKV2bQEyoZSCaZI=;
+        b=cpDne2OEqyWaMAImgAFndpx/Lm1DfkhxzFH6v1fGANkIktqCUiReeJUb/6kgSKVjDV
+         pZ3B5VcxPnVgtoG3hTn8qE6G4waLNaP38AEaKqv7oYY+P3CSW36ZLJDlPFARqgHsJXjY
+         Yj7BaL5hvmsDD1uRV7k3v19T9S1tcWaXp/U+f2R3msr6hcGwetXvdCZLnhfbBs6UPGwI
+         SygYaDbHjnIXPC826gOC5MTK8R2b5PVE4scUpKNEjnUtzQtO/yq6nH6ooMo9bnSXgxsO
+         QW/pR4d8VIdoIKjE1uCy1NIi4v8LQiNJ4DW8Zdsd1HkfVqSlUbYfsaKCM5P5Qk4c7Q7Y
+         B/0g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1781333179; x=1781937979;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=K3Zaw0q13XlwMt/D9vZ2oQHEjwluxKV2bQEyoZSCaZI=;
+        b=lXKvqKTN1cDAMy3lXVylLeeCIE1CUBSp+gjaVaxNxVFvsF11TMCkoYQgPQ9zIYv16Q
+         hxKkoVwPyQWQmN8PNAhsClDNklBbl8SH9VEiI8UMeBxM/52Alpt6rlkUuW1HQybTbJ5v
+         krKRkUefy3GJH3fn9F/txkT+n0Cf0fy8YLPZnPMjn3UZvCjXlNnzpqf3nNTP22L8+s0l
+         kg7PbT/E+TlKG+o0PsJaDHZTv9DOZeTCzOAK2ec0dGKnTC2UCIGH+NGTmLz9yYzGMJkL
+         sYd44ffKLWta/2E87bLzkBwyBUbuW+nQXuaj67CpdXv/uZm+8JTeNbAX5L9gkZyDjw8q
+         dY2Q==
+X-Forwarded-Encrypted: i=1; AFNElJ8U2aWomvT2z+HppIqt4tWkcIJIPxXbfjl6aWwu/D5tm2Qq9wx8PXPlw3+hsb2fFrJDWAwOgp7JopDY7A==@vger.kernel.org
+X-Gm-Message-State: AOJu0YyMtKY9yfpbHlldyUQPEYZDnBXS5tIGmLJY8UVdi22N6NvzDPj3
+	zHyZyxYf3BT2zkRVp0R0dRgm71run5u3bXCfSOtgbaNtqY9cPpSV8aQfGkeHYQPY/wZcGuQfZU+
+	q9iWHf7PPylA5iIjtibTmK8122aVDLyk=
+X-Gm-Gg: Acq92OFM05bafNmGVn/jCvWF32sZusVcRd0idfg/48Nhc4Ih6WjrLvsZiYRBy/e7jEK
+	KSCZB5YZN7EsuAd/L+vF7bAFYgehf6rWNbx0bzavfi8rRJst2sgcLYBOlbMDAjDSX0yWsVogsXT
+	KfwqeMLTFfxfAq8WWLqVAzco85BlJV/n6FrK2J0BTd72gxYpfhvNrZWxqyyJ1WU59/R/hQt1aXe
+	flevsDqyFW7aJgcW+oOh8G76yCabzPKg3gEeYsvQMYli5RUb13aJGJxII2loJ7sz8aLj3RVeWjJ
+	x09aAf8XtgF2D3rh18KCe4uoe6PeuCIJJCC15mc=
+X-Received: by 2002:a05:6402:11d2:b0:691:956a:cf64 with SMTP id
+ 4fb4d7f45d1cf-693785f9535mr2788429a12.12.1781333178678; Fri, 12 Jun 2026
+ 23:46:18 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+References: <20260612200717.361018-1-l.scorcia@gmail.com>
+In-Reply-To: <20260612200717.361018-1-l.scorcia@gmail.com>
+From: Luca Leonardo Scorcia <l.scorcia@gmail.com>
+Date: Sat, 13 Jun 2026 08:46:07 +0200
+X-Gm-Features: AVVi8CeFuX_UIHrrQxcpZMFblszx1DO_NPnUuKDdU-CWG2K7N00GECZfmMGjMUg
+Message-ID: <CAORyz2Jv70NuKNJbaG6o9Evm+3LcCpq+6qmOp_3Q=vf2CFCQ8Q@mail.gmail.com>
+Subject: Re: [PATCH v6 0/7] Add support for MT6392 PMIC
+To: linux-mediatek@lists.infradead.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh@kernel.org>, 
+	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, Sen Chu <sen.chu@mediatek.com>, 
+	Sean Wang <sean.wang@mediatek.com>, Macpaul Lin <macpaul.lin@mediatek.com>, 
+	Lee Jones <lee@kernel.org>, Matthias Brugger <matthias.bgg@gmail.com>, 
+	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, Linus Walleij <linusw@kernel.org>, 
+	Julien Massot <julien.massot@collabora.com>, 
+	Louis-Alexis Eyraud <louisalexis.eyraud@collabora.com>, Val Packett <val@packett.cool>, 
+	Fabien Parent <parent.f@gmail.com>, Akari Tsuyukusa <akkun11.open@gmail.com>, 
+	Chen Zhong <chen.zhong@mediatek.com>, linux-input@vger.kernel.org, 
+	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	linux-pm@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
+	linux-gpio@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
+Please ignore this patch set. As correctly described by sashiko-bot,
+the binding with no regulator node would not be usable, even if it
+passed dtbs_check. I need to complete work on that and then resubmit.
+Sorry about the confusion.
 
-Pre-existing issues:
-- [High] cyapa_smbus_read_block masks short reads by unconditionally return=
-ing the expected length, causing callers to process and leak uninitialized =
-stack memory.
-- [High] Explicit `input_unregister_device()` on a `devm` allocated input d=
-evice causes double-unregistration and memory leak.
---
+Il giorno ven 12 giu 2026 alle ore 22:26 Luca Leonardo Scorcia
+<l.scorcia@gmail.com> ha scritto:
+>
+> The MediaTek MT6392 PMIC is usually found on devices powered by
+> the MT8516/MT8167 SoC and is yet another MT6323/MT6397 variant.
+>
+> This series is mostly based around patches submitted a couple
+> years ago by Fabien Parent and not merged and from Val Packett's
+> submission from Jan 2025 that included extra cleanups, fixes, and a
+> new dtsi file similar to ones that exist for other PMICs. Some
+> comments weren't addressed and the series was ultimately not merged.
+>
+> These patches only enable three functions: keys, pinctrl and RTC.
+> Regulators and speaker amp will follow later as I still need to further
+> improve those two, but getting the main PMIC in will make the series
+> easier to review.
+>
+> I added a handful of device tree improvements to fix some dtbs_check
+> errors, added support for the pinctrl device and addressed the comments
+> from last year's reviews.
+>
+> Please note that patch 0005 depends on patch 0004 as they both need the
+> registers.h file, but they belong to different driver areas. I'm not sure
+> if I'm supposed to squash them even if they belong to different driver
+> areas of if it's fine like this. Any advice is welcome.
+>
+> The series has been tested on Xiaomi Mi Smart Clock X04G and on the
+> Lenovo Smart Clock 2.
+>
+> Changes in v6:
+> - Dropped the regulators driver for the moment
+> - Explained the FCHR key name origin in the commit message
+> - Introduced the MFD_CELL_* macro in the sub-devices definitions.
+>   A separate, independent commit introduced MFD_CELL_* to all the
+>   subdevices in the mt6397-core.c file for consistency
+> - Replaced of_device_get_match_data with device_get_match_data
+> - Removed the mfd_match_data enum in favor of the preexisting
+>   chip_id enum
+> - Adjusted the error message if the device is unsupported
+>
+> Changes in v5 [5]:
+> - Double checked regulator driver with data sheet and Android sources.
+>   The data sheet I have misses a lot of register descriptions, but
+>   Android sources have been helpful to fill the gaps
+> - Reintroduced the required attribute for the regulator compatible
+>   in the bindings
+> - Fixed the missing reference to the MT6392 schema
+> - Fixed casts/unused vars reported by kernel test robot
+> - Removed Reviewed-by tags from the regulator patches as they have been
+>   modified in this version
+>
+> Changes in v4 [4]:
+> - Dropped usage of the regulator compatible
+> - Fixed commit messages text to properly reference the target subsystem
+> - Added supply rails to the regulator
+> - Reworked the regulator schema and PMIC dtsi. Now all supplies are
+>   documented and the schema no longer includes voltage information
+> - Removed redundant ldo- / buck- prefixes
+> - Renamed the pinfunc header to mediatek,mt6392-pinfunc.h
+> - Modified the MFD driver to use a simple identifier in the of_match
+>   data properties
+>
+> Changes in v3 [3]:
+> - Added pinctrl device
+> - Changed mt6397-rtc fallback to mt6323-rtc
+> - Added schema for regulators
+> - Fixed checkpatch issues
+>
+> Changes in v2 [2]:
+> - Replaced explicit compatibles with fallbacks
+>
+> Initial version: [1]
+>
+> [1] https://lore.kernel.org/linux-mediatek/cover.1771865014.git.l.scorcia@gmail.com/
+> [2] https://lore.kernel.org/linux-mediatek/20260306120521.163654-1-l.scorcia@gmail.com/
+> [3] https://lore.kernel.org/linux-mediatek/20260317184507.523060-1-l.scorcia@gmail.com/
+> [4] https://lore.kernel.org/linux-mediatek/20260330083429.359819-1-l.scorcia@gmail.com/
+> [5] https://lore.kernel.org/linux-mediatek/20260420213529.1645560-1-l.scorcia@gmail.com/
+>
+> Fabien Parent (3):
+>   dt-bindings: mfd: mt6397: Add MT6392 PMIC
+>   dt-bindings: input: mtk-pmic-keys: Add MT6392 PMIC keys
+>   mfd: mt6397: Add support for MT6392 PMIC
+>
+> Luca Leonardo Scorcia (2):
+>   mfd: mt6397: Use MFD_CELL_* to describe sub-devices
+>   pinctrl: mediatek: mt6397: Add MediaTek MT6392
+>
+> Val Packett (2):
+>   input: keyboard: mtk-pmic-keys: Add MT6392 support
+>   arm64: dts: mediatek: Add MediaTek MT6392 PMIC dtsi
+>
+>  .../bindings/input/mediatek,pmic-keys.yaml    |   1 +
+>  .../bindings/mfd/mediatek,mt6397.yaml         |   8 +
+>  arch/arm64/boot/dts/mediatek/mt6392.dtsi      |  41 ++
+>  drivers/input/keyboard/mtk-pmic-keys.c        |  17 +
+>  drivers/mfd/mt6397-core.c                     | 294 +++++------
+>  drivers/mfd/mt6397-irq.c                      |   8 +
+>  drivers/pinctrl/mediatek/pinctrl-mt6397.c     |  37 +-
+>  drivers/pinctrl/mediatek/pinctrl-mtk-mt6392.h |  64 +++
+>  include/linux/mfd/mt6392/core.h               |  43 ++
+>  include/linux/mfd/mt6392/registers.h          | 488 ++++++++++++++++++
+>  include/linux/mfd/mt6397/core.h               |   1 +
+>  11 files changed, 840 insertions(+), 162 deletions(-)
+>  create mode 100644 arch/arm64/boot/dts/mediatek/mt6392.dtsi
+>  create mode 100644 drivers/pinctrl/mediatek/pinctrl-mtk-mt6392.h
+>  create mode 100644 include/linux/mfd/mt6392/core.h
+>  create mode 100644 include/linux/mfd/mt6392/registers.h
+>
+> --
+> 2.43.0
+>
 
-commit 3fd76440d016e0f73dbb99ea7474006c10fb3123
-Author: Bryam Vargas <hexlabsecurity@proton.me>
 
-Input: cyapa - bound the SMBus block reads to the caller buffer
-
-This commit prevents a potential buffer overflow in the cyapa driver's
-SMBus block read path. It introduces a local buffer to ensure that the
-number of bytes copied back does not exceed the size of the destination
-buffer provided by the caller.
-
-> diff --git a/drivers/input/mouse/cyapa_gen3.c b/drivers/input/mouse/cyapa=
-_gen3.c
-> index fc3fb954523b7..832775bb71825 100644
-> --- a/drivers/input/mouse/cyapa_gen3.c
-> +++ b/drivers/input/mouse/cyapa_gen3.c
-
-[ ... ]
-
-> @@ -247,27 +247,37 @@ ssize_t cyapa_smbus_read_block(struct cyapa *cyapa,=
- u8 cmd, size_t len,
->  	ssize_t ret;
->  	u8 index;
->  	u8 smbus_cmd;
-> -	u8 *buf;
-> +	u8 buf[I2C_SMBUS_BLOCK_MAX];
->  	struct i2c_client *client =3D cyapa->client;
-> =20
->  	if (!(SMBUS_BYTE_BLOCK_CMD_MASK & cmd))
->  		return -EINVAL;
-> =20
-> +	/*
-> +	 * i2c_smbus_read_block_data() copies the device-reported block count
-> +	 * (up to I2C_SMBUS_BLOCK_MAX) into its buffer and has no way to know
-> +	 * its size, so read into a local buffer and copy back at most the
-> +	 * expected number of bytes - never past the caller's buffer.
-> +	 */
->  	if (SMBUS_GROUP_BLOCK_CMD_MASK & cmd) {
->  		/* read specific block registers command. */
->  		smbus_cmd =3D SMBUS_ENCODE_RW(cmd, SMBUS_READ);
-> -		ret =3D i2c_smbus_read_block_data(client, smbus_cmd, values);
-> +		ret =3D i2c_smbus_read_block_data(client, smbus_cmd, buf);
-> +		if (ret > 0)
-> +			memcpy(values, buf, min_t(size_t, ret, len));
->  		goto out;
->  	}
-> =20
->  	ret =3D 0;
->  	for (index =3D 0; index * I2C_SMBUS_BLOCK_MAX < len; index++) {
-> +		size_t offset =3D index * I2C_SMBUS_BLOCK_MAX;
-> +
->  		smbus_cmd =3D SMBUS_ENCODE_IDX(cmd, index);
->  		smbus_cmd =3D SMBUS_ENCODE_RW(smbus_cmd, SMBUS_READ);
-> -		buf =3D values + I2C_SMBUS_BLOCK_MAX * index;
->  		ret =3D i2c_smbus_read_block_data(client, smbus_cmd, buf);
->  		if (ret < 0)
->  			goto out;
-> +		memcpy(values + offset, buf, min_t(size_t, ret, len - offset));
->  	}
-> =20
->  out:
-
-[Severity: High]
-This isn't a bug introduced by this patch, but does returning len in
-cyapa_smbus_read_block() mask a short read if ret < len?
-
-The function returns the requested length even if fewer bytes were read:
-
-cyapa_smbus_read_block() {
-    ...
-out:
-	return ret > 0 ? len : ret;
-}
-
-Callers seem to assume their buffers are fully populated if the return value
-matches the requested length. For instance, in cyapa_gen3_get_query_data():
-
-	u8 query_data[QUERY_DATA_SIZE];
-	int ret;
-
-	if (cyapa->state !=3D CYAPA_STATE_OP)
-		return -EBUSY;
-
-	ret =3D cyapa_read_block(cyapa, CYAPA_CMD_GROUP_QUERY, query_data);
-	if (ret !=3D QUERY_DATA_SIZE)
-		return (ret < 0) ? ret : -EIO;
-
-	memcpy(&cyapa->product_id[0], &query_data[0], 5);
-
-Could this lead to processing uninitialized stack memory and exposing it
-to userspace if the read is short?
-
-
-[Severity: High]
-This is also a pre-existing issue, but does calling input_unregister_device=
-()
-on a devm-allocated device in cyapa_update_fw_store() cause a double-free or
-resource leak?
-
-Looking at cyapa_update_fw_store() in drivers/input/mouse/cyapa.c:
-
-	if (cyapa->input) {
-		/* ... */
-		input_unregister_device(cyapa->input);
-		cyapa->input =3D NULL;
-	}
-
-Since the device was originally allocated with devm_input_allocate_device()
-in cyapa_create_input_dev(), manually unregistering it leaves the devres
-cleanup action still queued.
-
-Could the devres action trigger a double-unregistration when the device
-unbinds, and does allocating a new device via cyapa_reinitialize() during
-each firmware update leak the old devres actions?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260613-b4-disp-8e=
-550272-v1-1-9658cf8292c2@proton.me?part=3D1
+-- 
+Luca Leonardo Scorcia
+l.scorcia@gmail.com

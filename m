@@ -1,116 +1,142 @@
-Received: from mail-oi1-f178.google.com (mail-oi1-f178.google.com [209.85.167.178])
+Received: from mail-dy1-f177.google.com (mail-dy1-f177.google.com [74.125.82.177])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 88F0B2236F0
-	for <linux-input@vger.kernel.org>; Sun, 14 Jun 2026 21:02:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.178
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6AC482236F0
+	for <linux-input@vger.kernel.org>; Sun, 14 Jun 2026 21:02:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781470940; cv=none; b=uxiTq9FWWt1HIaGroa/KGvszGJJivlnK068Veo+Xvg92mgedk6xbWEtr4k4E/yb/hD2OLS48Kvi/FlKu+crSmKOKiywxxYjBk35W7mDvABWUL5s1RM0TkJbFbfqudOqmLIo9rHTqzdXFQMZnCjOs3TGSpy5Mjmf3EkusJ4Oeh8U=
+	t=1781470954; cv=none; b=OCWS7yxxcaoLZo2NdkLaBzBA+fCzoiUwGZKFFgP8IqSUhGFUjnhbM2/duMmq4ePMYr3WaQ2XWLoYRlwBCC38WXg+lKeeRQNBtf07Tnu/Nnk7IcwJegS3F4ehgUDYYhbQN8a2htjanV7KPjd+Phi/HU/PkkEtDx3omuTNq21wcLE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781470940; c=relaxed/simple;
-	bh=2ArQg4qpmjrrQ4mc9mt0ZHUq5+4VQZKyKQcrnZMbXoM=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=NC3EkIypocYCcHHRjy0sP83atJi4tPxWmTtfhz5l7OOUDPDCssZDNv2N8xildOIa+ROcHLnQbL06wZJQXVTlDUsTMeQ5sZUVZH+kRHjVl1zZdMPQTyFQrywsopv0eqyR4QcEOP9RrZZdmbygu96Trl709TVazjinDwfQ9k1X7Vw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=U2J/dw/7; arc=none smtp.client-ip=209.85.167.178
+	s=arc-20240116; t=1781470954; c=relaxed/simple;
+	bh=x6aSa9JJXzS00dkyGLgJ2CN2Oxn6FztU+snpGmhBF6w=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=BAC/Mj0d4LWSjOBa4kW7dNPUJwnJzIlOc6opm37TwNNexE6GeXuy0PHPLdqILRIHN95dJX+Q3seGunhnTlW52w1aOBTOOqNt+ckx+Z0taba151Hfqwoy3X67LfxoeU6bleC5RM/5l6OXRVp4tn8h8jCjEMqc1moLwRHV2VeH3V4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=kHp4ltlg; arc=none smtp.client-ip=74.125.82.177
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="U2J/dw/7"
-Received: by mail-oi1-f178.google.com with SMTP id 5614622812f47-4865e953031so2949342b6e.0
-        for <linux-input@vger.kernel.org>; Sun, 14 Jun 2026 14:02:17 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="kHp4ltlg"
+Received: by mail-dy1-f177.google.com with SMTP id 5a478bee46e88-304e83724bfso3721957eec.0
+        for <linux-input@vger.kernel.org>; Sun, 14 Jun 2026 14:02:32 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1781470936; x=1782075736; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:subject:cc:to:from:date:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=HjMi8Y8lFnHLL3o/H7uB9bLrXirUVEIvzNEJJUwIoY0=;
-        b=U2J/dw/7+UCDN1i5yaEwC1aWglLde4qMTSzHUR84NDNKm46wRvyBzI8UKuNPcMvazS
-         jNesoGOTWWVjgwxWojYTwhzAAW//iNnjIQFAgZ6/vK7yADzQ1vSymf/swDxjuMP9WrQB
-         IOe505r4ohZ+oDWH5fh89zyXjs5uS5Xi7opPMweNLa46rAgModHzUjWBOcXdOLKHkHoS
-         zPsxKwD0cDvOGzbuC5VZp/oPZopzuN2R+HNSaX+0n0xBtgAO6y7mS37H9XLp550D0Eht
-         JIko2viRZnP8qNgtRr99Qi4x+3+0j0aUqtvbpTc3lRjH9Yo2/q0qKfGzUidOMlEWdTfd
-         sukQ==
+        d=gmail.com; s=20251104; t=1781470951; x=1782075751; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=P6pjKUaBePg5CFHf82pDzWAMLUnqsWDn4jvKoQ98y1E=;
+        b=kHp4ltlgFRn/uueEVzhRPI0+W+8BKVw1WORhK4tSX2XHEeIclE3tJd0oOpgi9vXkmA
+         xvar1OJ45NyKer+LiEg4o8nRayP0KHp7IOsNVBLEN1M9VT2CdSOVqNH0kyyHAq8J3j4s
+         1Ht4pbZObi3fHz6YAfM8MS+CJxXIyXkCXztPpYrgxotZ6KAAzuWtOWyoN6EfODsjndvB
+         09MHAuEim18ku9qyGId6wvj+RgWnATOFU2GEhO0+QDqc22rS5rj9GPHcl2SeV6EsiA4Q
+         5za926dGyCxH95N9dgFR4hTHjrlRMzG+UuRI3d5DxMbr6PwkASox+mBbZ+YHFffQsWp2
+         mi+Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781470936; x=1782075736;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=HjMi8Y8lFnHLL3o/H7uB9bLrXirUVEIvzNEJJUwIoY0=;
-        b=EQUglQbsN+uOXruWlCQTyNXT6tl95l60BwuvV9ZFzU6J021NiYD2SpVUFD98jswjHl
-         KHny9NOkswh5OgaLvra7zijAq8xtgAcv7ArUy+T4kfmXDABkTmCWxFIIiqyzBWY0G8ww
-         hVIkZaKvj5ml4CxA/kJ6m3lHQMb/qi2+ioJJlT8s92vZrQ4O7B+88rYnW9E1cIz4haSh
-         xYzWeZP09wqCshqtO7JHCNtUoxDI0s701N9qMFd1yGXHOESW6O2+IWHRrbzraz7V3VRi
-         ZuPJdwwG1b+Fv6OCL7DRDMFhySS5m0mDw6S+f3SL3y+nKKIy5GMUGTrY+udnvf/jiewU
-         1Vow==
-X-Forwarded-Encrypted: i=1; AFNElJ/x/H5jIxI3hhz2wU+kDHB/Y+gWBlT/SCJnnsBfzptT/2nzz2DwQKtyWzlPewXdyXpvPl0PR1/zWZUzQQ==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yxga/gxEeRIdeqFXvjEMqrxZV/94zGlkd/lG7/Bkpc1RjOjcs+s
-	dDGUsvaKh2+CiRqzxfEF/4zrQnS1hF6YJROH2uua1iDayFqiPsUuEign
-X-Gm-Gg: Acq92OEOb+897/nkSRfo5tpaZEbGNHyJC6NkdzL4dSsaX6A5L1QFfjDPRuG4mOVDAY8
-	fMNH7XiJIxjrrtIiWBw9yit8qbpOxtq5pxfbgO60j+dQiplw1B4eSD/Uj9fXCItsqhkEPp7/fwn
-	PSFUYCjQS8l5i8jsafATOpxoWLY4P035Zvmy2gyoF7I8ChMjtaHGAJdrKL6WJzoHd1Q0vSf1UBS
-	kg0qOOCZEV91vR5OEqI3FpesOxpnv5BrObK9ZZyxQ4H11Wy59eLr6q12qoroSgwoRMmyw2vWKFo
-	Lk2+pp3YpU5kDpBz5PiFvHBFyuP0ejhMPQhnUWuSueacAWlpy7gtlc8NqwIjxsHEY6O3HiMr8MJ
-	vlw1xDm8DVakTm+v1Wt6FLlG4KYoEakvNFRokpQmJkHxwz52+a7vWaxLeJYU0nHir5uIO+Y9oAh
-	C3kc/+Ry8+dCFORbxEzeA86hvayufTAZqQWNFp+M/K+DThvXUlNsZy
-X-Received: by 2002:a05:6808:2221:b0:485:29c3:3269 with SMTP id 5614622812f47-48731451d8cmr5988583b6e.21.1781470936508;
-        Sun, 14 Jun 2026 14:02:16 -0700 (PDT)
-Received: from linuxescape (23-88-128-2.fttp.usinternet.com. [23.88.128.2])
-        by smtp.gmail.com with ESMTPSA id 5614622812f47-4875dda5f7csm1536090b6e.1.2026.06.14.14.02.15
+        d=1e100.net; s=20251104; t=1781470951; x=1782075751;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=P6pjKUaBePg5CFHf82pDzWAMLUnqsWDn4jvKoQ98y1E=;
+        b=NvPSHE3l0UE04YsgEsXWAgC7ZULcG9rJNRrgt5tEKnJMimW1RYyYoCIF/RCnG30Y/a
+         onf7q0JOLfovT5FH8EtXtBcmEgY5vyqHfe3n89wjkAda/Cf94OGgGZqpPXehfbAkhjH/
+         qHh+0DpVI4ZGvPzgmwEno51IC28gPfuFD2lWK7ArT5dint80TcOqc6swZzULXN9oEWcy
+         QEizseuHncugGMhWTzb/gkK1kur2uvzCmKKsaLOCmz/rWikEEeAbuYd37DI1TmukCdc7
+         hhqhXFLxhC0bzT6twzAAbhqEfDpoKzBGW9/XiZf7+z/AIGSyxK8phulMSxitQSggPPo0
+         Me5w==
+X-Forwarded-Encrypted: i=1; AFNElJ9NOpPBnelDlNQl8SCEyH2uY5Qp/SHpKwAjFlzK/kEMaWV+VCrXYOoAa86SgL1w67uXi2rXxbliJTJj7A==@vger.kernel.org
+X-Gm-Message-State: AOJu0YxPB3GJy+S5I5OLbQDmeCIkFfg1G+DO0fqZLfbjp9KsthjfZ1or
+	AhD5g2ubuiVwqWPo2s9bJRCj7gmB+f5EtkIvll0n4oIpyQCuB1ZciZd0
+X-Gm-Gg: Acq92OF9ibBH6Dv+YdniuG9V9foCiCmF/OY700xwYOaN1igczHHL8zVWfgDxR6uZN5O
+	qhQvCkze6AN/GI9fDrCto7lTuBBsyJUMdbBpJKc/Bb3KZXfm3gat1Nw4Q0OTdIe1nGAYohCsSp0
+	BmeRPmbsnoI1vs/kFnGadvs2k3O7vLviPMXDBvEFpYlkeadolC0ZvEbQebgb16Fwfj3StsJTRzO
+	91avRmamthfbGAX9oeW38SAXT0JizsfFeKN9cwMI45yB8dUD242tAH28UQrUUkRFoZkaSTsDBHL
+	rTMJ08eA7MoFz39PNw+QCoKhWeUtJ/161M5w3lOl6wZE0HvoZ1hJwDnFI8wxaZ2/Vcj2W3Y8l1T
+	MjxZcjUOOfPJViikgAGpt/jYSnSDOFGc1ZxjNL7g0o4v4cf7Dl5kM5T/mBC2tJlVGL/X87q/UrC
+	OuGuxnc3WDIEkOhgDL/0Q1AjWpbUBgEKYLrhInJcm5/Qj/XUBK9hgUv6ln76GrPHn8
+X-Received: by 2002:a05:7300:aca5:b0:304:5b0d:489b with SMTP id 5a478bee46e88-30820098d2emr6469710eec.27.1781470951396;
+        Sun, 14 Jun 2026 14:02:31 -0700 (PDT)
+Received: from google.com ([2a00:79e0:2ebe:8:5d91:5c26:602d:6a99])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3081ea447b4sm11307856eec.23.2026.06.14.14.02.30
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 14 Jun 2026 14:02:15 -0700 (PDT)
-Date: Sun, 14 Jun 2026 16:02:13 -0500
-From: Maxwell Doose <m32285159@gmail.com>
-To: Shuangpeng Bai <shuangpeng.kernel@gmail.com>
-Cc: jikos@kernel.org, jic23@kernel.org, srinivas.pandruvada@linux.intel.com,
- bentiss@kernel.org, linux-input@vger.kernel.org, linux-iio@vger.kernel.org,
- linux-kernel@vger.kernel.org
-Subject: Re: [BUG] KASAN: slab-use-after-free in _raw_spin_lock_irqsave from
- hid-sensor-custom
-Message-ID: <20260614160213.085e1efc@linuxescape>
-In-Reply-To: <178144969601.60470.12928355382146160896@gmail.com>
-References: <178144969601.60470.12928355382146160896@gmail.com>
-X-Mailer: Claws Mail 4.4.0 (GTK 3.24.52; x86_64-pc-linux-gnu)
+        Sun, 14 Jun 2026 14:02:30 -0700 (PDT)
+Date: Sun, 14 Jun 2026 14:02:27 -0700
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Hans de Goede <hansg@kernel.org>
+Cc: hexlabsecurity@proton.me, linux-input@vger.kernel.org, 
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Input: goodix - clamp the device-reported contact count
+Message-ID: <ai8WppWIAsSKXwFk@google.com>
+References: <20260612-b4-disp-6844625d-v1-1-df0aed080c9d@proton.me>
+ <6f529998-2b4f-441e-88be-fbc4eb33461c@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <6f529998-2b4f-441e-88be-fbc4eb33461c@kernel.org>
 
-Hi Shuangpeng,
-
-On Sun, 14 Jun 2026 15:19:21 -0400
-Shuangpeng Bai <shuangpeng.kernel@gmail.com> wrote:
-
-> I hit the following report while testing current upstream kernel:
+On Sun, Jun 14, 2026 at 01:44:07PM +0200, Hans de Goede wrote:
+> Hi,
 > 
-> KASAN: slab-use-after-free in _raw_spin_lock_irqsave from
-> hid-sensor-custom
+> On 13-Jun-26 04:10, Bryam Vargas via B4 Relay wrote:
+> > From: Bryam Vargas <hexlabsecurity@proton.me>
+> > 
+> > goodix_ts_read_input_report() copies the number of touch points reported
+> > by the device into an on-stack buffer
+> > 
+> > 	u8 point_data[2 + GOODIX_MAX_CONTACT_SIZE * GOODIX_MAX_CONTACTS];
+> > 
+> > which is sized for at most GOODIX_MAX_CONTACTS (10) contacts. The only
+> > runtime check bounds the per-interrupt count against ts->max_touch_num,
+> > but that value is taken verbatim from a 4-bit field of the device
+> > configuration block and is never clamped:
+> > 
+> > 	ts->max_touch_num = ts->config[MAX_CONTACTS_LOC] & 0x0f;
+> > 
+> > The nibble can be 0..15, so a malfunctioning, malicious or counterfeit
+> > controller (or an attacker tampering with the I2C bus) can advertise up
+> > to 15 contacts. goodix_ts_read_input_report() then accepts a touch_num
+> > of up to 15 and the second goodix_i2c_read() writes
+> > ts->contact_size * (touch_num - 1) bytes past the one-contact header into
+> > point_data - up to 30 bytes (45 with the 9-byte report format) beyond the
+> > 92-byte buffer: a stack out-of-bounds write.
+> > 
+> > Clamp max_touch_num to GOODIX_MAX_CONTACTS, the number of contacts
+> > point_data[] is sized for, when reading it from the configuration.
+> > 
+> > Fixes: a7ac7c95d468 ("Input: goodix - use max touch number from device config")
+> > Cc: stable@vger.kernel.org
+> > Signed-off-by: Bryam Vargas <hexlabsecurity@proton.me>
 > 
-> on commit: e8c2f9fdadee7cbc75134dc463c1e0d856d6e5c7 (May 25 2026)
+> Thanks, patch looks good to me:
 > 
-
-Is this correct? It seems to point to changes in HPFS.
-
->
-> The reproducer and .config files are here.
-> https://gist.github.com/shuangpengbai/d82ac0d19fda016e81d7fa1ab028d967
+> Reviewed-by: Hans de Goede <johannes.goede@oss.qualcomm.com>
 > 
-> I'm happy to test debug patches or provide additional information.
+> Regards,
 > 
-> Reported-by: Shuangpeng Bai <shuangpeng.kernel@gmail.com>
+> Hans
 > 
+> 
+> > ---
+> >  drivers/input/touchscreen/goodix.c | 3 ++-
+> >  1 file changed, 2 insertions(+), 1 deletion(-)
+> > 
+> > diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
+> > index f8798d11ec03..17fcfe45988c 100644
+> > --- a/drivers/input/touchscreen/goodix.c
+> > +++ b/drivers/input/touchscreen/goodix.c
+> > @@ -1057,7 +1057,8 @@ static void goodix_read_config(struct goodix_ts_data *ts)
+> >  	}
+> >  
+> >  	ts->int_trigger_type = ts->config[TRIGGER_LOC] & 0x03;
+> > -	ts->max_touch_num = ts->config[MAX_CONTACTS_LOC] & 0x0f;
+> > +	ts->max_touch_num = min(ts->config[MAX_CONTACTS_LOC] & 0x0f,
+> > +				GOODIX_MAX_CONTACTS);
 
-This bug report also seems to have nothing to do with IIO after
-investigating the call trace, seems more like for the HID/input folks
-than iio. HID folks, seems like it was caused here:
+Should we drop the report if is has bogus data in it?
 
-[   73.163547][ T8356]  hid_sensor_custom_poll (include/linux/poll.h:45 drivers/hid/hid-sensor-custom.c:706)
-
-before _raw_spin_lock_irqsave() gets called and KASAN triggers the slab-use-after-free.
+Thanks.
 
 -- 
-best regards,
-max
+Dmitry

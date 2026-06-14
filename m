@@ -1,184 +1,137 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A86234317D
-	for <linux-input@vger.kernel.org>; Sun, 14 Jun 2026 04:14:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AD65E27CCF0;
+	Sun, 14 Jun 2026 05:36:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781410472; cv=none; b=qWtqlZXCCpZvMVf9lnfHb60nKw8VB87lukIeCd+ZnjATxf8jXkSVD0/WDyN9P82WrvN2ixXgniFPJz/WauRmCYN2VpF2/nJHVVMuQTRMAfBfCZ0Y8xtDjF8Jfm7l2iYj3QDJkWbIEHGLUM8w1Q9epj4F33V3qC1d3u1E7SBa7gI=
+	t=1781415371; cv=none; b=u+pdC8NKd/uIZwtZouBd2tzjusd+AGvYvcivEKD2VXFtDu6hNll9cVMscdYvSEE38ZHjdckAuZkBCMmu5I7+JCozM0+jySa+8R4OcOc00KYyQsHyOWH0eMJhY/HJM6YlUEoCUdt7GLO1bwMqrML3AApR1nPmpLf4/d7wgCJIAfs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781410472; c=relaxed/simple;
-	bh=euTSMxLuK6FsoJ2cN+pzszs/K+H4Rp75W1CiYL/3B/U=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=UM+8vjL4oGwwLTk4fv04p3rz8rGqVXC1dzFxc2bwrBbObPICXmdUQonKQQDGF7WAclDwlGP5TUVT3DlErnE8Q54Wl+qk8tAFYUDCsbT7aakh7OovusbzW3IM/Amc36hYkIHz/2mHcAJevVf/k7WxdAhbNAC3NiXymqK9unR7R0E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ga/Oqnrk; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1781415371; c=relaxed/simple;
+	bh=oWzqgZ7CL6oPYCU6oE8l+W2cIUxxJetbxweA08XVCxU=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=IbjzbFFTNByxJnwbaBY3XxQ+z7T1xEAs9OL1eLE+I/33Bjr8IEdq0mLtSxXGhwQTyVLZAJKwn6MMCKWhjGUELcA7vobcbYRNAqX8sAp6ttg9aUP8ngW9qZli6H2bsc+x5NLlVbtCGpDVm4ZgenElkvwjntJT/uce2ocfPgl0EVs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Uv1OGsS1; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ga/Oqnrk"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2FA651F000E9;
-	Sun, 14 Jun 2026 04:14:31 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1781410471;
-	bh=QGF9bXhK+2O4+pJj+9XJSRpWafJ5YSmeNNAM9EuKQ9w=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=ga/OqnrkixceNOGD7tQYPwlmx2GsAPOYg4b3v4Q4tEuTYhSiq6EArMV/uz+uhWXVj
-	 ZQshRhhM1k41yLSk/VcuvFACYUmuAteSnLVdF4jXE+BPsOhHXfqX5jka/K1FPfz4gN
-	 yYuhEASnhUyn5SUta1dnliet0b3YmBzCY9FpcR4lLvBopmP1PkkFnCb2VqJ+n0+4tj
-	 d0Visdr1qnhIAgYkdZdxyd0CgY2Zhdo8tCffTOuU5IRNu0VVomoJL2i02glk8vQ827
-	 j8kaEbciDhdAZiWNxxWn1uUCAaBtCijT/WjWTssQfZimcGqp1hl1bHfbSyM2ZR1O/e
-	 1dhauRaMoxsww==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] Input: synaptics-rmi4 - bound the F54 report size to
- the allocated buffer
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Bryam Vargas via B4 Relay" <devnull+hexlabsecurity.proton.me@kernel.org>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260613-b4-disp-6721686c-v1-1-4d5bb84ee520@proton.me>
-References: <20260613-b4-disp-6721686c-v1-1-4d5bb84ee520@proton.me>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Sun, 14 Jun 2026 04:14:30 +0000
-Message-Id: <20260614041431.2FA651F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Uv1OGsS1"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 4792EC2BCB0;
+	Sun, 14 Jun 2026 05:36:11 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1781415371;
+	bh=oWzqgZ7CL6oPYCU6oE8l+W2cIUxxJetbxweA08XVCxU=;
+	h=From:Subject:Date:To:Cc:Reply-To:From;
+	b=Uv1OGsS1/P9c5vyBlZO0d91HiaPjPWwXy1RW4bwgyNrfxcYTuQveCrUX9tOd4q3n3
+	 4te7H+YHn0Ip1p8baYWNOugJJ82c7a/gJYq6014KYtyVezuDbsS+3J+eAXkscCa3vJ
+	 78MlcrevhljrXQhpQ21UbFLftYb10X51QxMtBa9M76lgYfqU28FbIioj9pSrwTdH7c
+	 VQeDVPPfEudwJuYznyDVF+1FH+lQJaTLv6HIK/hr2t6Zx4XSLpOkZHpQhDZxnlPsRg
+	 LzOpvaILkUQdj/29SWh/yS4Q9SHgy59oAdujLm4QVGJW+uOkXlnchZun3MwVVis/a9
+	 PyiHrjkMjCOyQ==
+Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2B7F0CD98D2;
+	Sun, 14 Jun 2026 05:36:11 +0000 (UTC)
+From: Bryam Vargas via B4 Relay <devnull+hexlabsecurity.proton.me@kernel.org>
+Subject: [PATCH 0/2] (no cover subject)
+Date: Sun, 14 Jun 2026 00:36:10 -0500
+Message-Id: <20260614-b4-disp-818d6bda-v1-0-cf39a3615085@proton.me>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAMo9LmoC/x3MQQqAIBBA0avIrBtQCbOuEi3UmWo2FQoRSHdPW
+ r7F/xUKZ+ECk6qQ+ZYi59FgOgVpD8fGKNQMVlunnekx9khSLvTGk4sU0NM66nGwIbGDll2ZV3n
+ +5by87wfU3PWSYgAAAA==
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-kernel@vger.kernel.org, Hans de Goede <hansg@kernel.org>, 
+ Vincent Huang <vincent.huang@tw.synaptics.com>, linux-input@vger.kernel.org, 
+ Andrew Duggan <aduggan@synaptics.com>
+X-Mailer: b4 0.13.0
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1781415370; l=3216;
+ i=hexlabsecurity@proton.me; s=proton; h=from:subject:message-id;
+ bh=oWzqgZ7CL6oPYCU6oE8l+W2cIUxxJetbxweA08XVCxU=;
+ b=lHKBMfkDxuxX/3b3+4HtYPWm9RtM+VUakuNJwAPq3f6QI0Uk1pOwzv5dU8dElshbkTp06B9X3
+ letACR/8LJCDu1cQdHcn8ouzFQcissLWjZn3dnobXCP1Hw6UPOHKgMH
+X-Developer-Key: i=hexlabsecurity@proton.me; a=ed25519;
+ pk=dmppBMZNLLoPzxHi9l8tZDzEZUunPbgsYqIZYXeUrL0=
+X-Endpoint-Received: by B4 Relay for hexlabsecurity@proton.me/proton with
+ auth_id=814
+X-Original-From: Bryam Vargas <hexlabsecurity@proton.me>
+Reply-To: hexlabsecurity@proton.me
 
-Thank you for your contribution! Sashiko AI review found 5 potential issue(=
-s) to consider:
+From be2c4843f6145374f28edd25cef43c9373542874 Mon Sep 17 00:00:00 2001
+Message-ID: <cover.1781415009.git.hexlabsecurity@proton.me>
+From: Bryam Vargas <hexlabsecurity@proton.me>
+Date: Sun, 14 Jun 2026 00:30:09 -0500
+Subject: [PATCH 0/2] Input: synaptics-rmi4 - fix out-of-bounds keymap access on large GPIO counts
 
-Pre-existing issues:
-- [Critical] Stale f54->report_size causes V4L2 buffer heap overflow.
-- [High] Missing cancel_delayed_work_sync in rmi_f54_remove causes Use-Afte=
-r-Free.
-- [High] Preexisting copy-paste typo in F55 properties parsing triggers the=
- new oversize check, permanently breaking conforming devices.
-- [High] Use-After-Free of devm-managed video_device on V4L2 file descripto=
-r close.
-- [Medium] V4L2 buffer queue silently returns uninitialized memory on hardw=
-are errors.
---
+The RMI4 F3A and F30 function handlers size their GPIO/LED key map to
+min(device_gpio_count, TRACKSTICK_RANGE_END) == at most 6 entries, but
+then consume that map with the full, unclamped device-reported count in
+two places: the attention-interrupt report loop, and input->keycodemax
+(while input->keycode points at the small allocation).
 
-commit 08992eb2bae1821355b21e17559ef51ec82606cd
-Author: Bryam Vargas <hexlabsecurity@proton.me>
+A device that reports a GPIO/LED count greater than 6 therefore yields a
+key map of at most 12 bytes that is indexed up to count-1:
 
-Input: synaptics-rmi4 - bound the F54 report size to the allocated buffer
+  - rmi_f3a_attention() / rmi_f30_attention() read gpio[led]_key_map[i]
+    out of bounds on every attention interrupt (device-triggered), and
 
-This commit adds a bounds check to ensure the F54 diagnostic report size
-does not exceed the allocated buffer. It rejects reports that are larger
-than the allocation to prevent writing past the end of the report data
-buffer.
+  - the input core's default keymap ioctls bound the index only against
+    keycodemax, so EVIOCGKEYCODE reads adjacent slab memory back to user
+    space and EVIOCSKEYCODE writes a caller-controlled u16 past the
+    allocation -- a controlled out-of-bounds heap write reachable by any
+    process that can open the evdev node.
 
-> diff --git a/drivers/input/rmi4/rmi_f54.c b/drivers/input/rmi4/rmi_f54.c
-> index 61909e1a39e24..7a7508a4de85c 100644
-> --- a/drivers/input/rmi4/rmi_f54.c
-> +++ b/drivers/input/rmi4/rmi_f54.c
-[ ... ]
-> @@ -548,6 +549,13 @@ static void rmi_f54_work(struct work_struct *work)
->  		goto error;     /* retry won't help */
->  	}
-> =20
-> +	if (report_size > f54->report_data_size) {
+Both handlers have the same shape; F3A was copied from F30. Patch 1 fixes
+F3A, patch 2 fixes F30. The one-line fix in each sizes the key map to the
+full device count; the mapping loop is unchanged (it still populates only
+the first min(count, 6) entries, the rest stay KEY_RESERVED and are
+skipped on report), and keycodemax now matches the allocation, closing
+the interrupt and both ioctl paths.
 
-[Severity: High]
-This is a pre-existing issue, but does this new check permanently break
-conforming hardware due to a copy-paste typo in the F55 parser?
+Reproduced with KASAN on a faithful in-kernel model of each handler
+(kmalloc-16 bucket, 12-byte request, reported count = 127):
 
-Looking at rmi_f55_detect() in rmi_f55.c, it incorrectly assigns the
-RX count to the TX count:
+  # without the patch -- attention read path
+  BUG: KASAN: slab-out-of-bounds in rmi_f3a_attention
+  Read of size 2 ... 0 bytes to the right of allocated 12-byte region
+    ... cache kmalloc-16
 
-drv_data->num_rx_electrodes =3D f55->cfg_num_rx_electrodes;
-drv_data->num_tx_electrodes =3D f55->cfg_num_rx_electrodes;
+  # without the patch -- EVIOCSKEYCODE write path
+  BUG: KASAN: slab-out-of-bounds ...
+  Write of size 2 ... 0 bytes to the right of allocated 12-byte region
 
-For hardware lacking F55_CAP_SENSOR_ASSIGN and having more RX electrodes
-than TX electrodes, this inflates the perceived TX count. This inflated cou=
-nt
-propagates to rmi_f54_get_report_size(), yielding a larger value that will
-unconditionally fail this new bounds check.
+  # with the patch (key map sized to the full count): clean
+  # benign device (reported count <= 6): clean
 
-> +		dev_err(&fn->dev, "Report size %d exceeds buffer size %zu\n",
-> +			report_size, f54->report_data_size);
-> +		error =3D -EINVAL;
-> +		goto error;
+The full read and write splats and a 32/64-bit ASan model of the same
+geometry are available on request.
 
-[Severity: Critical]
-This isn't a bug introduced by this patch, but does taking this goto error
-path bypass the zeroing of f54->report_size and cause a V4L2 buffer heap
-overflow?
+Bryam Vargas (2):
+  Input: synaptics-rmi4 - bound the F3A keymap to the GPIO count
+  Input: synaptics-rmi4 - bound the F30 keymap to the GPIO/LED count
 
-In rmi_f54_work(), error paths jump to the error: label, bypassing the
-abort: label where f54->report_size is normally zeroed out. This leaves
-f54->report_size containing its previous successful payload size.=20
+ drivers/input/rmi4/rmi_f30.c | 2 +-
+ drivers/input/rmi4/rmi_f3a.c | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-If a user then alters the V4L2 format to a smaller size, and an error occurs
-(like this bounds check failing), rmi_f54_buffer_queue() will copy the
-stale, larger payload size into the shrunken V4L2 buffer:
+base-commit: 8e65320d91cdc3b241d4b94855c88459b91abf66
+---
+Bryam Vargas (2):
+      Input: synaptics-rmi4 - bound the F3A keymap to the GPIO count
+      Input: synaptics-rmi4 - bound the F30 keymap to the GPIO/LED count
 
-memcpy(ptr, f54->report_data, f54->report_size);
+ drivers/input/rmi4/rmi_f30.c | 2 +-
+ drivers/input/rmi4/rmi_f3a.c | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+---
+base-commit: 8e65320d91cdc3b241d4b94855c88459b91abf66
+change-id: 20260614-b4-disp-818d6bda-8df90972ace6
 
-[Severity: Medium]
-This is also a pre-existing issue, but does this error path cause the V4L2
-buffer queue to silently return uninitialized memory?
+Best regards,
+-- 
+Bryam Vargas <hexlabsecurity@proton.me>
 
-When rmi_f54_work() triggers this bounds check and jumps to error, the
-buffer is not updated. However, rmi_f54_buffer_queue() ignores the failure
-and marks the buffer as fully populated:
 
-vb2_set_plane_payload(vb, 0, rmi_f54_get_report_size(f54));
-state =3D VB2_BUF_STATE_DONE;
-
-This completes the buffer without indicating an error to userspace.
-
-> +	}
-> +
->  	/*
->  	 * Need to check if command has completed.
-[ ... ]
-> @@ -678,8 +686,8 @@ static int rmi_f54_probe(struct rmi_function *fn)
-> =20
->  	rx =3D f54->num_rx_electrodes;
->  	tx =3D f54->num_tx_electrodes;
-> -	f54->report_data =3D devm_kzalloc(&fn->dev,
-> -					array3_size(tx, rx, sizeof(u16)),
-> +	f54->report_data_size =3D array3_size(tx, rx, sizeof(u16));
-> +	f54->report_data =3D devm_kzalloc(&fn->dev, f54->report_data_size,
->  					GFP_KERNEL);
-
-[Severity: High]
-This is a pre-existing issue, but does allocating the f54_data struct
-(which embeds struct video_device vdev) with devm_kzalloc lead to a
-use-after-free when the V4L2 file descriptor is closed?
-
-In rmi_f54_probe(), f54 is allocated using devm_kzalloc(). When the driver
-unbinds, devm automatically frees f54_data.=20
-
-If a userspace application still holds /dev/videoX open, the V4L2 core
-retains a reference to the freed vdev. Subsequent ioctl calls or the final
-closing of the file descriptor will access the freed vdev structure.
-
-[Severity: High]
-This isn't a bug introduced by this patch, but does the lack of a timer
-cancellation in rmi_f54_remove() cause a use-after-free?
-
-While rmi_f54_probe() correctly uses cancel_delayed_work_sync(&f54->work)
-in its error path, the teardown path in rmi_f54_remove() just destroys
-the workqueue:
-
-rmi_f54_remove() {
-    ...
-    video_unregister_device(&f54->vdev);
-    v4l2_device_unregister(&f54->v4l2);
-    destroy_workqueue(f54->workqueue);
-    ...
-}
-
-This does not cancel pending delayed_work timers. If the driver is unbound
-while a V4L2 stream is active, the timer will fire after devm has freed
-the f54 structure and attempt to dereference f54->workqueue.
-
->  	if (f54->report_data =3D=3D NULL)
->  		return -ENOMEM;
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260613-b4-disp-67=
-21686c-v1-1-4d5bb84ee520@proton.me?part=3D1

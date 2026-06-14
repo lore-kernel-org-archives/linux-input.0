@@ -1,111 +1,103 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AD5C924A078;
-	Sun, 14 Jun 2026 05:36:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3EDD540D570
+	for <linux-input@vger.kernel.org>; Sun, 14 Jun 2026 05:50:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781415371; cv=none; b=QQxJHxxumIiHE1+PxR594zN/r8dbkTlSw5AsUx4MfBCEAqF1zFPgmZkbMgZE4XgxnocG/Hw2dmJgcp9YaxurqAh0v8gWzMvXUoJh+MmDROwLSUq26zooPxXn/TPYWwZ/qlkn/dnQXWtWikyIqj85kvm9atbIvGrbJE2DQdI2SHw=
+	t=1781416203; cv=none; b=ihtZk+yfX42mI3Gnp2vqMwu3t+SxDq6AxQfiixsIzm81sC6/XKm2Ny0wxn5KXktkYhrYHdec5UGpfXZyo13JbDDt6V9APXTniEM8KJzsLoErH8rmbTj0VA+co2yg8cscHToGVP4IrjIsuc8A4quxH8+FmKNjY7xgnarlNPwUhrY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781415371; c=relaxed/simple;
-	bh=YQArd/wmurkGZmLzuAl5Z/my7237EOVzn2BG98Fqh1I=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=KdZSAvcLylbksjgjDrPk+JuMlLQZhZHkQPGCI4hqemYK/H5yYfkGa+DVeg1k3347C211q766HHa9ieEXXyZN/XPnBV2wzi1WlBXwL1sezUu6DfYh+Iu3RoOyqFWxtAeIrVZBJEuu9wC9rsPjqdeIc2BL1FzMwIRmng2vVKpmkr4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=nEDj1+wS; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1781416203; c=relaxed/simple;
+	bh=jrjvy2gQCzbMuuc7rZcjWFLqRCw/Xt97xAGmC+ehtQw=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=B5BcTi0acPRCBg97EzYQn3JpeZjS0SkCDjX6GyDkwPlAFb3wJBUGnLPl+tvLJfeRQyLSEVANc13bAY2NzGkyll209Cx+BAecpZPxCO88S/euta0NO5JXvmV+lkWArYSf2Si0V/iuDs8hEgBRKbsVozLDlZOIgp9eakWtlgEgpM0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=APjgdgnE; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="nEDj1+wS"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 52A1CC2BCC7;
-	Sun, 14 Jun 2026 05:36:11 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1781415371;
-	bh=YQArd/wmurkGZmLzuAl5Z/my7237EOVzn2BG98Fqh1I=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
-	b=nEDj1+wSW+qOfKD/KIeRKTWZ2+R29NMVdt7L+I4x8iVZyZQoUrshaUx1EgvxurzDh
-	 f6EeiUcBalsVwJSPZI+PJNV5RstoMVFiEivW9vGwG5+FQOOVYMSJQ0TbCdh5Od3TvO
-	 GcwmCoVbvctWA5Fi460dUT70SV3yYXNdKpNXjvK37JYFtQZPd86jU4tGpNYQe6+/Kw
-	 HiUsKxNYm5R5Btsm5/TXqjEBHxxSoUDm3PjWrn/96xivRsT1FGCvioCzMKsBdsXAQZ
-	 75qECta4SZorrG1RCGO1qrflM1Dv2/pnVZ1PWUHmPCxUU5EBNynfnnA6BlvlmylQeh
-	 e/ag7xatyeVLw==
-Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3B58ACD8CA8;
-	Sun, 14 Jun 2026 05:36:11 +0000 (UTC)
-From: Bryam Vargas via B4 Relay <devnull+hexlabsecurity.proton.me@kernel.org>
-Date: Sun, 14 Jun 2026 00:36:11 -0500
-Subject: [PATCH 1/2] Input: synaptics-rmi4 - bound the F3A keymap to the
- GPIO count
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="APjgdgnE"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3D6D1F000E9;
+	Sun, 14 Jun 2026 05:50:01 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1781416201;
+	bh=Gbsz1Xt9OJGP4kq0zPRQkRlyPARSYykKvmVRHUHSke0=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=APjgdgnEiYUrU4Q4DguDvC36NRA66Il8Vv1KBtjneZyCvEBoicOoNVTyFZuyYRChs
+	 rm74QwFVFsU4KhsdHLsEekyCg9O1ajTtrc3mgXhp3r2aU2tCatiKvXZmoLMjEb6LJr
+	 Vo02Ua9DiEYFjlJ8mTdQ0H0/UuEARwIwnSkxkouo43EehrwQhau6xZ2phbXa/arKzr
+	 lViFqknKrz+qRuzCsunNvOHlm44pMJ55+3Hf2Zx9qfYHtHmBHN6A9aWG1Yqs0v26ur
+	 yksCJG+eo4wzLP1qdS5pcrcS5TX2iJkPQ2sDMhGCjoO58wTEqxKHAI0LmITDH+XXti
+	 jhDzE/gV2RQZg==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH 2/2] Input: synaptics-rmi4 - bound the F30 keymap to the
+ GPIO/LED count
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Bryam Vargas via B4 Relay" <devnull+hexlabsecurity.proton.me@kernel.org>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20260614-b4-disp-818d6bda-v1-2-cf39a3615085@proton.me>
+References: <20260614-b4-disp-818d6bda-v1-2-cf39a3615085@proton.me>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Sun, 14 Jun 2026 05:50:01 +0000
+Message-Id: <20260614055001.B3D6D1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20260614-b4-disp-818d6bda-v1-1-cf39a3615085@proton.me>
-References: <20260614-b4-disp-818d6bda-v1-0-cf39a3615085@proton.me>
-In-Reply-To: <20260614-b4-disp-818d6bda-v1-0-cf39a3615085@proton.me>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-kernel@vger.kernel.org, Hans de Goede <hansg@kernel.org>, 
- Vincent Huang <vincent.huang@tw.synaptics.com>, linux-input@vger.kernel.org, 
- Andrew Duggan <aduggan@synaptics.com>
-X-Mailer: b4 0.13.0
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1781415370; l=2002;
- i=hexlabsecurity@proton.me; s=proton; h=from:subject:message-id;
- bh=HUtj0HNyZgocnIFgieSuzeFM3t9J2shY44s+u4vDzys=;
- b=t1yaV/l8rhVGvHjfd6Vng6pxotM+bWnVF1EbrQNEyaBCLQ4gqNzMxR5+txCzwO03EKfiimLLd
- 1hBUe0sganrBHB7ssninZ2cM3ULdgTKQn5VMSrrCj7fanekmJs6AuxS
-X-Developer-Key: i=hexlabsecurity@proton.me; a=ed25519;
- pk=dmppBMZNLLoPzxHi9l8tZDzEZUunPbgsYqIZYXeUrL0=
-X-Endpoint-Received: by B4 Relay for hexlabsecurity@proton.me/proton with
- auth_id=814
-X-Original-From: Bryam Vargas <hexlabsecurity@proton.me>
-Reply-To: hexlabsecurity@proton.me
 
-From: Bryam Vargas <hexlabsecurity@proton.me>
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
 
-rmi_f3a_initialize() takes the GPIO count from the device query register
-(f3a->gpio_count = buf & RMI_F3A_GPIO_COUNT, range 0..127).
-rmi_f3a_map_gpios() then allocates gpio_key_map with
-min(gpio_count, TRACKSTICK_RANGE_END) == at most 6 entries, but
-rmi_f3a_attention() iterates the full gpio_count and dereferences
-gpio_key_map[i], and input->keycodemax is set to the full gpio_count
-while input->keycode points at the 6-entry allocation.
+Pre-existing issues:
+- [High] Unbinding the `rmi4_f30` driver leaves a dangling pointer in the s=
+hared input device's `keycode` field, leading to a Use-After-Free.
+--
 
-A device that reports gpio_count > 6 therefore causes an out-of-bounds
-read of gpio_key_map[] on every attention interrupt, and out-of-bounds
-accesses through the input core's default keymap ioctls: EVIOCGKEYCODE
-reads past the buffer (leaking adjacent slab memory to user space) and
-EVIOCSKEYCODE writes a caller-controlled value past it, for any process
-able to open the evdev node, since input_default_getkeycode() and
-input_default_setkeycode() only bound the index against keycodemax.
+commit 251790cc33b0da19e8d0320efecb822396ad7b5f
+Author: Bryam Vargas <hexlabsecurity@proton.me>
 
-Size the keymap for the full gpio_count. The mapping loop is unchanged:
-it still assigns only the first min(gpio_count, TRACKSTICK_RANGE_END)
-entries; the remaining slots stay KEY_RESERVED (devm_kcalloc zero-fills)
-and are skipped when reporting.
+Input: synaptics-rmi4 - bound the F30 keymap to the GPIO/LED count
 
-Fixes: 9e4c596bfd00 ("Input: synaptics-rmi4 - add support for F3A")
-Cc: stable@vger.kernel.org
-Signed-off-by: Bryam Vargas <hexlabsecurity@proton.me>
----
- drivers/input/rmi4/rmi_f3a.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+This commit fixes an out-of-bounds read and write issue in the F30
+keymap handler. It allocates the keymap based on the full reported
+GPIO/LED count rather than capping the allocation at 6 entries.
 
-diff --git a/drivers/input/rmi4/rmi_f3a.c b/drivers/input/rmi4/rmi_f3a.c
-index 0e8baed84dbb..a0777644eef0 100644
---- a/drivers/input/rmi4/rmi_f3a.c
-+++ b/drivers/input/rmi4/rmi_f3a.c
-@@ -132,7 +132,7 @@ static int rmi_f3a_map_gpios(struct rmi_function *fn, struct f3a_data *f3a,
- 	int button_count = min_t(u8, f3a->gpio_count, TRACKSTICK_RANGE_END);
- 
- 	f3a->gpio_key_map = devm_kcalloc(&fn->dev,
--						button_count,
-+						f3a->gpio_count,
- 						sizeof(f3a->gpio_key_map[0]),
- 						GFP_KERNEL);
- 	if (!f3a->gpio_key_map) {
+> diff --git a/drivers/input/rmi4/rmi_f30.c b/drivers/input/rmi4/rmi_f30.c
+> --- a/drivers/input/rmi4/rmi_f30.c
+> +++ b/drivers/input/rmi4/rmi_f30.c
+> @@ -233,7 +233,7 @@ static int rmi_f30_map_gpios(struct rmi_function *fn,
+>  	int button_count =3D min_t(u8, f30->gpioled_count, TRACKSTICK_RANGE_END=
+);
+> =20
+>  	f30->gpioled_key_map =3D devm_kcalloc(&fn->dev,
+> -					    button_count,
+> +					    f30->gpioled_count,
+>  					    sizeof(f30->gpioled_key_map[0]),
+>  					    GFP_KERNEL);
 
--- 
-2.43.0
+[Severity: High]
+This is a pre-existing issue, but since we are modifying this allocation,
+can this lead to a use-after-free when the driver is unbound?
 
+The memory for f30->gpioled_key_map is managed by the function subdevice
+using fn->dev. Later in rmi_f30_map_gpios(), this pointer is assigned to the
+shared input device's keycode field:
 
+input->keycode =3D f30->gpioled_key_map;
+
+Since the shared input device is attached to the parent RMI device, it can
+outlive the function subdevice. If userspace unbinds the rmi4_f30 driver
+via sysfs (because the driver lacks a remove callback and does not set
+suppress_bind_attrs), devres will free f30->gpioled_key_map while
+the input device remains registered.
+
+Would a subsequent ioctl like EVIOCGKEYCODE or EVIOCSKEYCODE access this
+freed input->keycode memory?
+
+Does this also cause a race condition during device unplug, since the
+function devices are unbound before the input device is unregistered?
+
+>  	if (!f30->gpioled_key_map) {
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260614-b4-disp-81=
+8d6bda-v1-0-cf39a3615085@proton.me?part=3D2

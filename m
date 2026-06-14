@@ -1,161 +1,149 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 70E3D2BD02;
-	Sun, 14 Jun 2026 01:22:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 889E02C187
+	for <linux-input@vger.kernel.org>; Sun, 14 Jun 2026 01:34:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781400173; cv=none; b=PWeZmOQBNFixg5E+YT3QBTROHOQN2NSdlWwaeRNoK9Qi1h1glavcot9Piubu6+g3Y3W6Y2MK6/z3TLHqHyV8PPv+sUkCkzgQek5MyAyf9lBE3m/JktX3XPr2m0NqBK2EdoFlVWtZ/m/dNAl/w4U680xw5qvZo0cfgXak0z+65Xc=
+	t=1781400893; cv=none; b=sShgSCQZZUeWfuPsZR2DXUZq8HxRF4/NnepQTT3JCcjiYt92z/t1lWViRH2dyHQpns1vcmLt0AJ58N6JlXpdfVPmCWCL2DZ5AhOan2slTm9TmDfvuOPDGfeufFDXMmbgiXT1oQqFE1B1rQblbWXGXwEdTPKgn2vBV/D6/hAr4SI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781400173; c=relaxed/simple;
-	bh=UZrZ5wSsnMIniOh8gxwPYURVNQ2lpmyhexav9L/ZBw0=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=ho03sCaFE3QrERBm/IVqflPeSeFHP+3jGJDGLLAm2zrHGEY7TKORk86UdJattKnkjN6Gzw2rCKlJuxfF2hMGADsqa1pBuGdqDrDyfhM0zcNOH+nDknqZ4b/OtDYaSw+h+fq9Cg4kMFlL61W8zq/lJOtgndsmp5KGss25XidVTtI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=g3ZTVugd; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1781400893; c=relaxed/simple;
+	bh=OuBh1cL0oG4TyFTXc3m8Q2O9doGlde64dvcjgnmRaOk=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=o2jK1IudzDCu//ag3vw3kuGQ5cCWmhUuGacA8pA1b/NkmRe5ekphcGdyrVW9psMJWaJy4UFxu/wGk41qn2cyD3mJNsV1iokBM8pe3/cpm0srIstB912Lc84oN2EUCIM4mLdLehcMcpfwjcxw0cyx6tL5jGHgd1engk/oo9vXXn8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=lCwZkaot; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="g3ZTVugd"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id EB06AC19425;
-	Sun, 14 Jun 2026 01:22:52 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1781400173;
-	bh=UZrZ5wSsnMIniOh8gxwPYURVNQ2lpmyhexav9L/ZBw0=;
-	h=From:Date:Subject:To:Cc:Reply-To:From;
-	b=g3ZTVugdbkvttRhfJNzbcLSQSETOHnS/IcZWASHsBUa1pKv66zI0LsV8q+oKLluf3
-	 s2FQHRtQlHJlNKi/zli1EADUgTva8l8xlIRU8kD7ihKvFzqP/v2JBLh98zRbhnjgkE
-	 bZSQK+U3bJS151zRkYFDG7CP+CdhCkB5I0gcJcd8zLjYu5zoUFu745x+eiA1Tkwb3M
-	 rBjky5XmRGAabPJKZYyOkxFTkzD5UTcFOiIZEKclM3LptpUGlDBLdoMheFF855T6ui
-	 SsfL09Uawf3tH1GFMSblKasko7Gpnyiz6fEevlugCng5eKNfCRTmzUBCDUK1S95Fv5
-	 axc3H0ELMVXHQ==
-Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D28D0CD8CA8;
-	Sun, 14 Jun 2026 01:22:52 +0000 (UTC)
-From: Bryam Vargas via B4 Relay <devnull+hexlabsecurity.proton.me@kernel.org>
-Date: Sat, 13 Jun 2026 20:22:51 -0500
-Subject: [PATCH v2] Input: apple_z2 - bound the device-reported finger
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="lCwZkaot"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DEE8A1F000E9;
+	Sun, 14 Jun 2026 01:34:51 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1781400892;
+	bh=hWn+1k5EkfncTHT1Adu/dOO7kIZju3C0l74rzPlWhh0=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=lCwZkaotlPiqEI9nXlxOsL0+vDmJiC1w+plBcVnSxDHKUyKhbXQuQuzUONkAH/ez7
+	 xQchZa0aLPxoYHpCOmoqzY8ro4ngl8V2QujzG/lw6UwVG9tTFgTX+zv6TK/iAwWuk/
+	 MPDTc2B686iaurNxFFyBbrGUk2yXLayOKpCOEf4KOYbbNPgSsJvP11B+E4yPvxnelH
+	 WoZvVMVQbijJfoJjucO4XBtRF3aC7SLtvnfclj0GxjGgnejkKvg64RbRwW/q+PdAHw
+	 I/3EqvDQMyoyDBzhNMfhMCv8H5zT9acdw8qyDmyIFv9SKFUESYNc9cZ4dTot5tyw7J
+	 8ODsTC2EfPrkA==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v2] Input: apple_z2 - bound the device-reported finger
  count
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Bryam Vargas via B4 Relay" <devnull+hexlabsecurity.proton.me@kernel.org>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <20260613-b4-disp-4ebcbd68-v2-1-0161acfbd688@proton.me>
+References: <20260613-b4-disp-4ebcbd68-v2-1-0161acfbd688@proton.me>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Sun, 14 Jun 2026 01:34:51 +0000
+Message-Id: <20260614013451.DEE8A1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20260613-b4-disp-4ebcbd68-v2-1-0161acfbd688@proton.me>
-X-B4-Tracking: v=1; b=H4sIAGoCLmoC/x3MMQqAMAxA0atIZgM1Si1eRRzaNGqWKi2IIN7d4
- viG/x8oklUKTM0DWS4teqQKahvg3adNUGM1kCFrbNdjGDBqOXGQwCFahxKdJ2dHYmao2Zll1ft
- fzsv7fj3weSViAAAA
-To: Sasha Finkelstein <k@chaosmail.tech>, 
- Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-kernel@vger.kernel.org, Janne Grunau <j@jannau.net>, 
- linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, 
- Sven Peter <sven@kernel.org>, asahi@lists.linux.dev, 
- Neal Gompa <neal@gompa.dev>
-X-Mailer: b4 0.13.0
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1781400170; l=4274;
- i=hexlabsecurity@proton.me; s=proton; h=from:subject:message-id;
- bh=cA3MAKlApjHMtPp/Y7yADcVtsqa7z1tz3hdWEHqZvM0=;
- b=1n1ZcPKptwRITcqPnqf8jdSPQQW9VcIhqm8xAkNmLickRLEVvDGJzKDZ5qu36odN+u6LCKUG9
- 0XnTfbwmRhjD2URVlur1ypH55jvPb1hLHyw9HtvUv7U2EJr12VDXtxS
-X-Developer-Key: i=hexlabsecurity@proton.me; a=ed25519;
- pk=dmppBMZNLLoPzxHi9l8tZDzEZUunPbgsYqIZYXeUrL0=
-X-Endpoint-Received: by B4 Relay for hexlabsecurity@proton.me/proton with
- auth_id=814
-X-Original-From: Bryam Vargas <hexlabsecurity@proton.me>
-Reply-To: hexlabsecurity@proton.me
 
-From: Bryam Vargas <hexlabsecurity@proton.me>
+Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+s) to consider:
 
-apple_z2_parse_touches() takes the finger count from the touch
-controller's report and loops over that many fixed-size finger records
-without ever checking the count against the length of the report:
+Pre-existing issues:
+- [Critical] Unvalidated device-reported packet length leads to a severe he=
+ap buffer overflow in `spi_read`. The patch fails to address this root caus=
+e.
+- [High] Using the `__free(kfree)` attribute on a variable that can hold an=
+ `ERR_PTR` causes a kernel panic during error handling.
+- [High] Concurrent execution of `apple_z2_read_packet` causes data races o=
+n driver state, SPI buffers, and lockless input-mt helper states.
+--
 
-	nfingers = msg[APPLE_Z2_NUM_FINGERS_OFFSET];
-	fingers = (struct apple_z2_finger *)(msg + APPLE_Z2_FINGERS_OFFSET);
-	for (i = 0; i < nfingers; i++)
-		/* read fingers[i] ... */
+commit 9a7b4f864d6502dba7c8e2bed5aa7ed3358d9e4a
+Author: Bryam Vargas <hexlabsecurity@proton.me>
 
-msg points into the fixed 4000-byte z2->rx_buf and nfingers is a single
-device-supplied byte, so it can be as large as 255.  A malicious,
-malfunctioning or counterfeit controller (or an interposer on the SPI
-bus) can report a large finger count in a short packet, making the loop
-read up to 255 * sizeof(struct apple_z2_finger) bytes starting 24 bytes
-into msg -- far past the 4000-byte buffer.  This is a controller-driven
-heap out-of-bounds read, and the finger fields that are read (position,
-pressure, touch and tool dimensions) are forwarded to userspace as input
-events, leaking adjacent kernel memory.
+Input: apple_z2 - bound the device-reported finger count
 
-Bound the device-reported count to the number of finger records the
-report actually carries.
+The commit adds bounds checking for the device-reported finger count against
+the SPI packet length to prevent an out-of-bounds read in
+apple_z2_parse_touches().
 
-Reported-by: sashiko-bot@kernel.org
-Closes: https://lore.kernel.org/all/20260613215358.329921F000E9@smtp.kernel.org/
-Fixes: 471a92f8a21a ("Input: apple_z2 - add a driver for Apple Z2 touchscreens")
-Cc: stable@vger.kernel.org
-Signed-off-by: Bryam Vargas <hexlabsecurity@proton.me>
----
-Changes since v1 [1]:
-- Keep the early-return at NUM_FINGERS_OFFSET instead of moving it to
-  FINGERS_OFFSET, so a short zero-finger ("all lifted") report still
-  reaches input_mt_sync_frame()/input_sync() and does not leave touches
-  stuck on the screen (caught by the sashiko-bot review of v1 [2]).  A
-  packet too short to hold even one finger record clamps nfingers to 0
-  instead of being dropped.
+Closes: https://lore.kernel.org/all/20260613215358.329921F000E9@smtp.kernel=
+.org/
 
-[1] https://lore.kernel.org/all/20260613-b4-disp-f0148c89-v1-1-868a48b2a187@proton.me/
-[2] https://lore.kernel.org/all/20260614000725.6B8D11F000E9@smtp.kernel.org/
+> diff --git a/drivers/input/touchscreen/apple_z2.c b/drivers/input/touchsc=
+reen/apple_z2.c
+> index 271ababf0ad55..39ade83ef0de7 100644
+> --- a/drivers/input/touchscreen/apple_z2.c
+> +++ b/drivers/input/touchscreen/apple_z2.c
+> @@ -92,6 +92,12 @@ static void apple_z2_parse_touches(struct apple_z2 *z2,
+>  		return;
+>  	nfingers =3D msg[APPLE_Z2_NUM_FINGERS_OFFSET];
+>  	fingers =3D (struct apple_z2_finger *)(msg + APPLE_Z2_FINGERS_OFFSET);
+> +	/* a malicious controller can claim more fingers than the packet holds =
+*/
+> +	if (msg_len < APPLE_Z2_FINGERS_OFFSET)
+> +		nfingers =3D 0;
+> +	else
+> +		nfingers =3D min_t(int, nfingers,
+> +				 (msg_len - APPLE_Z2_FINGERS_OFFSET) / sizeof(*fingers));
+>  	for (i =3D 0; i < nfingers; i++) {
+>  		slot =3D input_mt_get_slot_by_key(z2->input_dev, fingers[i].finger);
+>  		if (slot < 0) {
 
-Reachable on every touch interrupt once the controller is booted
-(apple_z2_irq -> apple_z2_read_packet -> apple_z2_parse_touches).
+[Severity: High]
+This is a pre-existing issue, but does this code overflow the heap allocati=
+on
+for rx_buf?
 
-nfingers is bounded here by the message length; the message length is in
-turn bounded by the companion "Input: apple_z2 - bound the device-reported
-packet length" change (in flight), which caps the device-reported pkt_len
-to the 4000-byte receive buffer.  The two together close the device-driven
-out-of-bounds accesses in apple_z2_parse_touches() / apple_z2_read_packet().
+In apple_z2_read_packet():
 
-Verified with a faithful in-kernel KASAN litmus (the verbatim 4000-byte
-buffer, the struct apple_z2_finger layout and the parse loop),
-CONFIG_KASAN=y on x86_64:
+    pkt_len =3D (get_unaligned_le16(z2->rx_buf + 1) + 8) & 0xfffffffc;
+    error =3D spi_read(z2->spidev, z2->rx_buf, pkt_len);
 
-  Arm A, nfingers = 255 in a short packet (msg_len 19):
-    BUG: KASAN: slab-out-of-bounds in apple_z2_parse_touches
-    Read of size 2 ... 1 bytes to the right of allocated 4000-byte region
-    ... cache kmalloc-4k of size 4096
-  Arm B, with this patch: a zero-finger report (msg_len 19) reaches the
-    sync; a 255-finger claim is clamped to what the packet holds; clean.
-  Arm C, benign device (3 fingers): clean
+Because rx_buf is allocated with a fixed size of 4000 bytes, couldn't a
+malfunctioning device supply a large packet length and cause spi_read to
+write past the end of the allocation?
 
-  AddressSanitizer (x86_64 and i386): heap-buffer-overflow READ, both ABIs.
+[Severity: High]
+This isn't a bug introduced by this patch, but will this cause a kernel pan=
+ic
+on error?
 
-Reproducer and full logs available on request.
----
- drivers/input/touchscreen/apple_z2.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+In apple_z2_upload_firmware():
 
-diff --git a/drivers/input/touchscreen/apple_z2.c b/drivers/input/touchscreen/apple_z2.c
-index 271ababf0ad5..39ade83ef0de 100644
---- a/drivers/input/touchscreen/apple_z2.c
-+++ b/drivers/input/touchscreen/apple_z2.c
-@@ -92,6 +92,12 @@ static void apple_z2_parse_touches(struct apple_z2 *z2,
- 		return;
- 	nfingers = msg[APPLE_Z2_NUM_FINGERS_OFFSET];
- 	fingers = (struct apple_z2_finger *)(msg + APPLE_Z2_FINGERS_OFFSET);
-+	/* a malicious controller can claim more fingers than the packet holds */
-+	if (msg_len < APPLE_Z2_FINGERS_OFFSET)
-+		nfingers = 0;
-+	else
-+		nfingers = min_t(int, nfingers,
-+				 (msg_len - APPLE_Z2_FINGERS_OFFSET) / sizeof(*fingers));
- 	for (i = 0; i < nfingers; i++) {
- 		slot = input_mt_get_slot_by_key(z2->input_dev, fingers[i].finger);
- 		if (slot < 0) {
+    const u8 *data __free(kfree) =3D
+        apple_z2_build_cal_blob(z2, address, &size);
+    if (IS_ERR(data))
+        return PTR_ERR(data);
 
----
-base-commit: 8e65320d91cdc3b241d4b94855c88459b91abf66
-change-id: 20260613-b4-disp-4ebcbd68-ed8a28672ccc
+Since kfree does not check for IS_ERR, doesn't returning here cause the
+compiler-inserted kfree(data) to attempt freeing an invalid virtual address?
 
-Best regards,
--- 
-Bryam Vargas <hexlabsecurity@proton.me>
+[Severity: High]
+This is a pre-existing issue, but can this sequence lead to data races?
 
+If a hardware interrupt arrives immediately after setting z2->booted to tru=
+e,
+could the threaded IRQ handler execute apple_z2_read_packet concurrently?
 
+CPU1 in apple_z2_upload_firmware():
+    z2->booted =3D true;
+    apple_z2_read_packet(z2);
+
+CPU2 in apple_z2_irq():
+    ...
+    else
+        apple_z2_read_packet(z2);
+
+Since apple_z2_read_packet modifies shared state without a lock:
+
+apple_z2_read_packet():
+    len_cmd->counter =3D z2->index_parity + 1;
+    ...
+    z2->index_parity =3D !z2->index_parity;
+
+wouldn't this concurrent execution corrupt z2->tx_buf, z2->rx_buf, and
+z2->index_parity?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260613-b4-disp-4e=
+bcbd68-v2-1-0161acfbd688@proton.me?part=3D1

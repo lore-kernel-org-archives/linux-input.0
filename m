@@ -1,134 +1,151 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1D03C1F03DE
-	for <linux-input@vger.kernel.org>; Sun, 14 Jun 2026 00:07:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8EEF91E505;
+	Sun, 14 Jun 2026 01:07:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781395648; cv=none; b=N8dK/GNM42Nmwqip8t0tRYMqT+vuSScruC6Xx1P6c7CN/ZP9T86EZPgXNXqku5DLbRGR1nDjdS4Gc/wwY+FmJX45oLJ5OmWT/77MnQ+WD3qhljXF8BMHeA9EB4s2b5XCeZckR+dQalBVTPcagr0+y9wMQI7tvTg+9I+hu5OK1NQ=
+	t=1781399240; cv=none; b=micrIgKL9Zg/LB1HcE93rov/xK4cziotOgmMrSygBOaYwpmy2U4ajWKvR0m1p1ChHJ9aHXzmeMvjUcigBtn0/yJZL0g31aXmk86xX5DkmR461MsGGboudsqGbT4Ape3mjhx/V0jSbz1QDxw/pzsXgtpfRQxq55X0HjH93cgv6uM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781395648; c=relaxed/simple;
-	bh=1AcgHkxFwcLbm7cCzQ1BDPUklF3DxaIpMN8WlrZ9fZk=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=KG4kgZu2c6LJgMwmFdtY+WwEWh0jJ5tfC+mHKBDfroEodcxBCH+wLGaPttWYWnUsJVm0AHvP1BfixFmWWo2kGiiW9ItPzquWM11WThBLBoBPH5yQ4jbX6dY2PpRA1QsRrmjteeJvbhAiC7EaZ/fcm/qX6tsZvRkb8bkmkj+odks=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=UFD7aSap; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1781399240; c=relaxed/simple;
+	bh=KUdJ7pgkKFHi88aW2Z1zxAw0YgskQCcAOuf1w/bFCjo=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=DqPkIxJ2mtq9njw7KObtHZAVw/a+N983UCTrg8bNer65nUh1Wt29yHT7WUEodbh8dufLDXyoDYSRdoCXTKi+1+IRtY+LLXYMtZ5szeyxpr3pCgpiI+4NBRYtxLtT7AJAa3vw3ytI1z2Np/95OFPKLkK1uqMaRXSU0q62IY+vsLg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=siZQuvwB; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="UFD7aSap"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B8D11F000E9;
-	Sun, 14 Jun 2026 00:07:25 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1781395645;
-	bh=I4LFtvDtnRPK658lLecS6ToALUfnbZIHTOlL0rvbffs=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=UFD7aSapxz3QBvkGZeJNHTpHVxYQkm7hPm2S9I7JfGMCNDDlG1uSDWYQDwQ2Un7hZ
-	 +fw1XOop5vy+1ZX9y36YgfgbI0gTnHiRjp02ATNosc623OvYdTPlCTlN5gsQfGhLYv
-	 iCwCaeI7MMSt/6eM9y99eWu+fgbzFWHjetDjQMdIAGy+cQM1G5ftN1KRRBcyLzqb+3
-	 qKeKpa6eNBKtgxlkHgVrdRrkzZrJQzinwXDo/iA8GpoP+cFRSc08hkOySVeeID/JFa
-	 LeCvsbHm3ir7mJI9zHqMF7lVGoKqkUeVfMdcfPYu4uFRVCecIVLpWLTFH2ArqAQFf6
-	 WBkhhrOLWGMNg==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] Input: apple_z2 - bound the device-reported finger
- count
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Bryam Vargas via B4 Relay" <devnull+hexlabsecurity.proton.me@kernel.org>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260613-b4-disp-f0148c89-v1-1-868a48b2a187@proton.me>
-References: <20260613-b4-disp-f0148c89-v1-1-868a48b2a187@proton.me>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Sun, 14 Jun 2026 00:07:24 +0000
-Message-Id: <20260614000725.6B8D11F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="siZQuvwB"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 3E344C19425;
+	Sun, 14 Jun 2026 01:07:20 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1781399240;
+	bh=KUdJ7pgkKFHi88aW2Z1zxAw0YgskQCcAOuf1w/bFCjo=;
+	h=From:Date:Subject:To:Cc:Reply-To:From;
+	b=siZQuvwBFPGhgxQbFYCFra6hyuiEYbHTBQuFbw+aO7ZzyKltQqR08vAg7uYU5Ou2a
+	 kEM8qVVpUpx15GhoJQpNvV7AX2A5euzlXU118thQxQKxh6S/65II7W4GzVPBjuDI5C
+	 LpEacjtYt/kHhS5c6ClGE6GVSOZI6FB2vmpnD0kghYAziY5kq5zW+HittDH88H2IqO
+	 cUZdnkLF8rYcddFf77ZIa6oxNpkzdPSgAqoR/hPTGTr9eDYvZrNOw3y17or3qeHty/
+	 4ZnfjdJ6BKCy4ft1JfxyooZxJYf1SfzA59HQSjHJkW9DGPkulVB7vXaqwhGB06iWQI
+	 p0pLTNd3R5/Qw==
+Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 34883CD98C5;
+	Sun, 14 Jun 2026 01:07:20 +0000 (UTC)
+From: Bryam Vargas via B4 Relay <devnull+hexlabsecurity.proton.me@kernel.org>
+Date: Sat, 13 Jun 2026 20:07:20 -0500
+Subject: [PATCH] Input: touchwin - reset the packet index on every complete
+ packet
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20260613-b4-disp-69921bfd-v1-1-82c036899959@proton.me>
+X-B4-Tracking: v=1; b=H4sIAMf+LWoC/x3MPQqAMAxA4atIZgP9s6JXEQdrUs2i0oIIxbtbH
+ L/hvQKZk3CGsSmQ+JYs51Gh2wbWfTk2RqFqMMp45bXF4JAkX+iHwegQCVWnlbdEiws91OxKHOX
+ 5l9P8vh90H9uaYgAAAA==
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, Rick Koch <n1gp@hotmail.com>, 
+ linux-kernel@vger.kernel.org
+X-Mailer: b4 0.13.0
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1781399239; l=3554;
+ i=hexlabsecurity@proton.me; s=proton; h=from:subject:message-id;
+ bh=0xJe696QjnZ2WzWwmJYPtlGz8d7L6oa0Pm0tSupjsa8=;
+ b=DwvXmr0m0s2O2ewItgGBjfV7+FW0FarE4EcYbadYvnw5OSTm66d0MWo0KkGzcuguM3gGTz9tV
+ o3z5CRV5+KEAPLbH8OC6XaNMwGy0YBONKwsebqSO1mEZ+vHKOfFZgEu
+X-Developer-Key: i=hexlabsecurity@proton.me; a=ed25519;
+ pk=dmppBMZNLLoPzxHi9l8tZDzEZUunPbgsYqIZYXeUrL0=
+X-Endpoint-Received: by B4 Relay for hexlabsecurity@proton.me/proton with
+ auth_id=814
+X-Original-From: Bryam Vargas <hexlabsecurity@proton.me>
+Reply-To: hexlabsecurity@proton.me
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
+From: Bryam Vargas <hexlabsecurity@proton.me>
 
-New issues:
-- [High] The patch incorrectly discards valid zero-finger reports, resultin=
-g in stuck touches.
+tw_interrupt() accumulates each non-zero serial byte into a fixed
+three-byte buffer with a running index that is only reset once a full
+packet has been received *and* the device's two Y bytes agree:
 
-Pre-existing issues:
-- [Critical] Unbounded device-reported packet length leads to a massive hea=
-p buffer overflow during `spi_read()` and completely bypasses the patch's i=
-ntended fix for out-of-bounds reads.
---
+	tw->data[tw->idx++] = data;
+	if (tw->idx == TW_LENGTH && tw->data[1] == tw->data[2]) {
+		...
+		tw->idx = 0;
+	}
 
-commit 3a1e80d03b931df0a0db172ea0ca1a4ea3349e47
-Author: Bryam Vargas <hexlabsecurity@proton.me>
+The reset is gated on tw->data[1] == tw->data[2], a value the device
+controls.  A malicious, malfunctioning or counterfeit Touchwindow
+peripheral can stream non-zero bytes whose 2nd and 3rd bytes differ: the
+index reaches TW_LENGTH without the equality holding, is never reset, and
+keeps growing, so tw->data[tw->idx++] walks off the end of the three-byte
+array and the rest of the heap-allocated struct tw, one attacker-chosen
+byte at a time -- an unbounded, device-driven heap out-of-bounds write.
 
-Input: apple_z2 - bound the device-reported finger count
+Reset the index on every completed packet and report an event only when
+the two Y bytes match, like the other serio touchscreen drivers do.
 
-This commit attempts to fix a heap out-of-bounds read by bounding the number
-of reported fingers against the message length.
+Fixes: 11ea3173d5f2 ("Input: add driver for Touchwin serial touchscreens")
+Cc: stable@vger.kernel.org
+Signed-off-by: Bryam Vargas <hexlabsecurity@proton.me>
+---
+Reachable on every serial byte once the device is bound as SERIO_TOUCHWIN
+(inputattach --touchwin): serport_ldisc_receive -> serio_interrupt ->
+tw_interrupt, with no length validation on the path.  The peripheral need
+only avoid zero bytes (any data != 0) and send a 2nd byte different from
+the 3rd to defeat the reset.
 
-Link: https://lore.kernel.org/all/20260613215358.329921F000E9@smtp.kernel.o=
-rg/
+struct tw is a 64-byte kmalloc-64 object; the unbounded store crosses the
+allocation once the running index reaches 40.
 
-> diff --git a/drivers/input/touchscreen/apple_z2.c b/drivers/input/touchsc=
-reen/apple_z2.c
-> index 271ababf0ad55..61f353553e7c5 100644
-> --- a/drivers/input/touchscreen/apple_z2.c
-> +++ b/drivers/input/touchscreen/apple_z2.c
-> @@ -88,10 +88,13 @@ static void apple_z2_parse_touches(struct apple_z2 *z=
-2,
->  	int slot_valid;
->  	struct apple_z2_finger *fingers;
-> =20
-> -	if (msg_len <=3D APPLE_Z2_NUM_FINGERS_OFFSET)
-> +	if (msg_len <=3D APPLE_Z2_FINGERS_OFFSET)
->  		return;
+Verified with a faithful in-kernel KASAN litmus (the verbatim struct tw
+and the tw_interrupt accumulation), CONFIG_KASAN=y on x86_64:
 
-[Severity: High]
-Will this new check discard valid zero-finger reports?
+  Arm A, 64 non-zero bytes with byte[1] != byte[2]:
+    BUG: KASAN: slab-out-of-bounds in ... Write of size 1
+    located 0 bytes to the right of the allocated 64-byte region
+    ... cache kmalloc-64 of size 64
+  Arm B, with this patch (index reset every packet): clean
+  Arm C, benign device (byte[1] == byte[2]): clean
 
-With SPI length rounding, an empty report indicating all fingers have been
-lifted usually lacks the finger array, meaning its payload size can fall
-between 17 and 24 bytes.
+  AddressSanitizer (x86_64 and i386): heap-buffer-overflow WRITE, both ABIs.
 
-If a 0-finger packet is dropped here, the input subsystem won't be notified
-via input_mt_sync_frame() and input_sync(). Could this result in touches
-remaining stuck on the screen?
+Reproducer and full logs available on request.
+---
+ drivers/input/touchscreen/touchwin.c | 15 +++++++++------
+ 1 file changed, 9 insertions(+), 6 deletions(-)
 
->  	nfingers =3D msg[APPLE_Z2_NUM_FINGERS_OFFSET];
->  	fingers =3D (struct apple_z2_finger *)(msg + APPLE_Z2_FINGERS_OFFSET);
-> +	/* a malicious controller can claim more fingers than the packet holds =
-*/
-> +	nfingers =3D min_t(int, nfingers,
-> +			 (msg_len - APPLE_Z2_FINGERS_OFFSET) / sizeof(*fingers));
+diff --git a/drivers/input/touchscreen/touchwin.c b/drivers/input/touchscreen/touchwin.c
+index 099fd88e65d8..3ed33378dfcd 100644
+--- a/drivers/input/touchscreen/touchwin.c
++++ b/drivers/input/touchscreen/touchwin.c
+@@ -63,12 +63,15 @@ static irqreturn_t tw_interrupt(struct serio *serio,
+ 	if (data) {		/* touch */
+ 		tw->touched = 1;
+ 		tw->data[tw->idx++] = data;
+-		/* verify length and that the two Y's are the same */
+-		if (tw->idx == TW_LENGTH && tw->data[1] == tw->data[2]) {
+-			input_report_abs(dev, ABS_X, tw->data[0]);
+-			input_report_abs(dev, ABS_Y, tw->data[1]);
+-			input_report_key(dev, BTN_TOUCH, 1);
+-			input_sync(dev);
++		/* a full packet ends the accumulation, valid or not */
++		if (tw->idx == TW_LENGTH) {
++			/* report only if the two Y's are the same */
++			if (tw->data[1] == tw->data[2]) {
++				input_report_abs(dev, ABS_X, tw->data[0]);
++				input_report_abs(dev, ABS_Y, tw->data[1]);
++				input_report_key(dev, BTN_TOUCH, 1);
++				input_sync(dev);
++			}
+ 			tw->idx = 0;
+ 		}
+ 	} else if (tw->touched) {	/* untouch */
 
-[Severity: Critical]
-This isn't a bug introduced by this patch, but does deriving msg_len from
-the untrusted packet length bypass this new boundary check entirely?
+---
+base-commit: 8e65320d91cdc3b241d4b94855c88459b91abf66
+change-id: 20260613-b4-disp-69921bfd-051063dda4b7
 
-In apple_z2_read_packet(), pkt_len is derived directly from an
-unauthenticated SPI read:
+Best regards,
+-- 
+Bryam Vargas <hexlabsecurity@proton.me>
 
-apple_z2_read_packet() {
-        ...
-        pkt_len =3D (get_unaligned_le16(z2->rx_buf + 1) + 8) & 0xfffffffc;
-        error =3D spi_read(z2->spidev, z2->rx_buf, pkt_len);
-        ...
-}
 
-Since z2->rx_buf is a fixed 4000-byte allocation, a malicious controller
-could send a large length field (up to 65540) to cause a heap buffer
-overflow during spi_read().
-
-Furthermore, because msg_len is derived directly from this untrusted
-pkt_len, an artificially large pkt_len bypasses the new clamping logic
-above. This allows nfingers to still evaluate to 255.
-
-Does this render the out-of-bounds read fix ineffective against malicious
-controllers?
-
->  	for (i =3D 0; i < nfingers; i++) {
->  		slot =3D input_mt_get_slot_by_key(z2->input_dev, fingers[i].finger);
->  		if (slot < 0) {
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260613-b4-disp-f0=
-148c89-v1-1-868a48b2a187@proton.me?part=3D1

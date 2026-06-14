@@ -1,121 +1,178 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 177BA1E8826
-	for <linux-input@vger.kernel.org>; Sun, 14 Jun 2026 03:10:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D2707263C8C;
+	Sun, 14 Jun 2026 04:01:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781406626; cv=none; b=piS8Nywm4JX16Lfc4XOuAhGTwqaw76MbWbVIIEbBhPYNxBqYSgYf69bnKBEG+wqkZVUMH+AFuqisYoD8AQDU9hRVT+Y7VnsenJrBp4Ax28LfqZqQrKkAJTRx84SSKZwXrK7j54dXnpTjUncAo945SoUfeYdBDpE4zcCTUCxvtYE=
+	t=1781409677; cv=none; b=tpOATwJ5LckpN2vK33951b4jsDAY+kQBhEz4H6z0zd1K67ZsZgG4cI6hH0n792ZVIbhT/mZE/MwqewxKA3/PCAK9UgSOlzYSQ3R6EFvM+RiRt74h4sNS+VD3MjIwud0NEBiWQ9bFbNLk0IcWNpvnjhhc6UUESKrQbkzJG1UPWCI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781406626; c=relaxed/simple;
-	bh=ERqDHqGMflDQkwzzAeSSP0jrL/Zwi3hTfmj9h16q34M=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=qplzAHT48xj3s+5E66t4TzJJ4DReH+I2WS5sauyC7zaB4QQH/bTwoTXw/qYYQ34ou1YhuvEUgMKswsQ+FI2c1PrLhvLXR+sqUhV86ibJPp8LLLQ74KfzH7RyIXNeavmEcvHSbeRHusyTIjZCa7Mc3tEG4RXvKWgGUh7lIDwZcZ8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=OKB/AYtq; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1781409677; c=relaxed/simple;
+	bh=aL42zk5j0bjHeo8BU0zIH10nFddFtJ1Y+qFwl6oSzsg=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=I7IirlI2VreV7gXzPSYyTHBBq4F6ecRK+mThEzdMwfyMj/lRkfwHhrE1u8Q7Sc0xml2FKumgSb5Ttbk85QwU2fWG2K6tChADhKyr2Gj3NlLUS2GJtwQ/2zGIiHEGDX7DL8sI9C8mhji9IDnVjG3Iqi3YcwOoWV1aaTB/Sz6GiOs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=j/jgGpLZ; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="OKB/AYtq"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A39E1F000E9;
-	Sun, 14 Jun 2026 03:10:24 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1781406624;
-	bh=USvFF52aREMtEuA10FUa/2peudKkxpjYK7XrEtP4KBM=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=OKB/AYtqAw4KXDC1rBriHXkpXBVYP8HMpvInNy1g2zwiBjZAL4WuocqVrMS7D3KI8
-	 DN9xHHVahznK898x362N3kRukHrDt0dNTjQnEe/ZWpZ/7hC2J5kXySYZvYgjvf0cPi
-	 3w8GNZV5SscxvL0Hpm4pnnIetVS0EAZDtyNGIRrZnkYvXH+u8Pvr+oMKVlZXdMfD3I
-	 yLTCJ5tMAPY342VsT/QFRT5U7YorsbD+E0SHB8SkynMMHhGFavXTKHg6evdfpRk8Wu
-	 1d6Hm+rt9cTxVn1dDQiWi2EN9+ITY2Jz5U0mU7Z7RFyU7o5Hrol6EKZE28QiJ7YJzK
-	 ANeiB51kU3f+w==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] Input: iforce - bound the device-reported
- force-feedback effect index
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Bryam Vargas via B4 Relay" <devnull+hexlabsecurity.proton.me@kernel.org>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260613-b4-disp-4828d263-v1-1-02320e1a89dd@proton.me>
-References: <20260613-b4-disp-4828d263-v1-1-02320e1a89dd@proton.me>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Sun, 14 Jun 2026 03:10:23 +0000
-Message-Id: <20260614031024.6A39E1F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="j/jgGpLZ"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 6B2C8C2BCC7;
+	Sun, 14 Jun 2026 04:01:17 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1781409677;
+	bh=aL42zk5j0bjHeo8BU0zIH10nFddFtJ1Y+qFwl6oSzsg=;
+	h=From:Date:Subject:To:Cc:Reply-To:From;
+	b=j/jgGpLZT7n9wfTa77+9DmqNGojP1Q8JhA9vXmAPMrrMJ1xL4MLV8n9OeW5LQ7Xrf
+	 qeSQy9h+P54lipwXk1kEDMZs+/S6yj6xzYW1qiFV8LPr7T05BIDM+jtVN2WGo5SI/u
+	 xBNH+mgMiCF+fBCbcAotPQtXOhxBaNChqrToohGvhLvxUUlJgDmVyPUEpRp4cXZOVr
+	 sofBRNI0e+p9vF1eReEsKwGDIVUWomNODCyTKOwfAJqG6MMZC/pq34fq96SJvFw7ED
+	 lCO4Rt6gLnB3qEuhX/5yP/Vjg3rO1L5+5+39tAsLk+9g7WjrkmUlYgHkov5Gz5LOw0
+	 YkjZo2AY8u+pQ==
+Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4A89CCD8CA8;
+	Sun, 14 Jun 2026 04:01:17 +0000 (UTC)
+From: Bryam Vargas via B4 Relay <devnull+hexlabsecurity.proton.me@kernel.org>
+Date: Sat, 13 Jun 2026 23:01:16 -0500
+Subject: [PATCH] Input: synaptics-rmi4 - bound the F54 report size to the
+ allocated buffer
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20260613-b4-disp-6721686c-v1-1-4d5bb84ee520@proton.me>
+X-B4-Tracking: v=1; b=H4sIAIsnLmoC/x3MMQqAMAxA0atIZgNtI1G8ijjUNmqWKi2IIN7d4
+ viG/x8oklUKjM0DWS4teqQK2zYQdp82QY3V4Ixjw5Zw6TBqOZF7Z3nggESeluhDXGmAmp1ZVr3
+ /5TS/7wcbhn6zYgAAAA==
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ Guenter Roeck <linux@roeck-us.net>, Benjamin Tissoires <bentiss@kernel.org>
+X-Mailer: b4 0.13.0
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1781409675; l=4630;
+ i=hexlabsecurity@proton.me; s=proton; h=from:subject:message-id;
+ bh=sNbCJ52oiyGr4TBOccsRGX4oDsTWqoiOMNGFe75RiB0=;
+ b=FzlqKEOczHlHZZE4f2sdpxbPy29RzKHQqiGMPW6NtJer2YdpRUsH6SFqpUBEBYLhw0G7vE6ea
+ Wp3qpygDa79AyrUTbWZ59CvmfDXyHyH9fIPM32nhu6QdNT7pP4TVwg4
+X-Developer-Key: i=hexlabsecurity@proton.me; a=ed25519;
+ pk=dmppBMZNLLoPzxHi9l8tZDzEZUunPbgsYqIZYXeUrL0=
+X-Endpoint-Received: by B4 Relay for hexlabsecurity@proton.me/proton with
+ auth_id=814
+X-Original-From: Bryam Vargas <hexlabsecurity@proton.me>
+Reply-To: hexlabsecurity@proton.me
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
+From: Bryam Vargas <hexlabsecurity@proton.me>
 
-Pre-existing issues:
-- [Critical] A zero-length USB packet causes an integer underflow when calc=
-ulating the packet length, leading to massive out-of-bounds reads and a ker=
-nel panic.
---
+rmi_f54_work() reads a diagnostics report from the device into
+f54->report_data, sizing the transfer with rmi_f54_get_report_size():
 
-commit 03557dab27a995017f2c109d738ebd32fc4d550b
-Author: Bryam Vargas <hexlabsecurity@proton.me>
+	report_size = rmi_f54_get_report_size(f54);
+	...
+	for (i = 0; i < report_size; i += F54_REPORT_DATA_SIZE) {
+		int size = min(F54_REPORT_DATA_SIZE, report_size - i);
+		...
+		rmi_read_block(.., f54->report_data + i, size);
+	}
 
-Input: iforce - bound the device-reported force-feedback effect index
+report_data is allocated once at probe from F54's own electrode counts
+(array3_size(f54->num_tx_electrodes, f54->num_rx_electrodes, sizeof(u16))),
+but rmi_f54_get_report_size() computes the size from
+drv_data->num_*_electrodes when those are set, i.e. from the F55
+function's electrode counts. Both counts come straight from device
+queries (F54 and F55 each report up to 255 electrodes) and nothing
+constrains the F55 counts to the F54 ones.
 
-This commit bounds the force-feedback effect index reported by the device
-to prevent an out-of-bounds read-modify-write past the core_effects[] array.
-It fixes a memory corruption vulnerability caused by an unvalidated payload.
+A malicious or malfunctioning RMI4 device that reports larger F55
+electrode counts than its F54 counts makes report_size exceed the
+allocation, so the read loop writes past report_data (and the V4L2
+dequeue memcpy() then reads past it). On conforming hardware the F55
+configured electrodes are a subset of the F54 physical electrodes, so
+report_size never exceeds the buffer and well-behaved devices are
+unaffected.
 
-> diff --git a/drivers/input/joystick/iforce/iforce-packets.c b/drivers/inp=
-ut/joystick/iforce/iforce-packets.c
-> index fd1cd731d781a..ff266568d586c 100644
-> --- a/drivers/input/joystick/iforce/iforce-packets.c
-> +++ b/drivers/input/joystick/iforce/iforce-packets.c
-> @@ -186,14 +186,18 @@ void iforce_process_packet(struct iforce *iforce,
-> =20
->  		/* Check if an effect was just started or stopped */
->  		i =3D data[1] & 0x7f;
-> -		if (data[1] & 0x80) {
-> -			if (!test_and_set_bit(FF_CORE_IS_PLAYED, iforce->core_effects[i].flag=
-s)) {
-> -				/* Report play event */
-> -				input_report_ff_status(dev, i, FF_STATUS_PLAYING);
-> +		if (i < IFORCE_EFFECTS_MAX) {
-> +			unsigned long *flags =3D iforce->core_effects[i].flags;
-> +
-> +			if (data[1] & 0x80) {
-> +				if (!test_and_set_bit(FF_CORE_IS_PLAYED, flags)) {
-> +					/* Report play event */
-> +					input_report_ff_status(dev, i, FF_STATUS_PLAYING);
-> +				}
-> +			} else if (test_and_clear_bit(FF_CORE_IS_PLAYED, flags)) {
-> +				/* Report stop event */
-> +				input_report_ff_status(dev, i, FF_STATUS_STOPPED);
->  			}
-> -		} else if (test_and_clear_bit(FF_CORE_IS_PLAYED, iforce->core_effects[=
-i].flags)) {
-> -			/* Report stop event */
-> -			input_report_ff_status(dev, i, FF_STATUS_STOPPED);
->  		}
-> =20
->  		for (j =3D 3; j < len; j +=3D 2)
+Record the allocation size and reject a report that does not fit,
+mirroring the existing zero-size check.
 
-[Severity: Critical]
-This is a pre-existing issue, but was not introduced by the patch under rev=
-iew.
+Fixes: c762cc68b6a1 ("Input: synaptics-rmi4 - propagate correct number of rx and tx electrodes to F54")
+Cc: stable@vger.kernel.org
+Signed-off-by: Bryam Vargas <hexlabsecurity@proton.me>
+---
+Reachable from a malicious or counterfeit RMI4 peripheral (HID/I2C/SPI)
+that exposes both an F54 diagnostics function and an F55 sensor-tuning
+function reporting more electrodes than F54; the report is filled when a
+local client drives an F54 capture through the V4L2 touch device node.
 
-Could a zero-length USB packet cause an integer underflow that triggers a
-massive out-of-bounds read in this loop?
+Verified with an in-kernel KASAN litmus that allocates report_data from
+the F54 dims and fills it from the F55-preferred dims (the verbatim
+rmi_f54_get_report_size() preference and the rmi_f54_work() 32-byte read
+loop), Linux 7.1.0-rc5, CONFIG_KASAN=y, kasan.fault=panic, x86_64:
 
-Looking at iforce_usb_irq() in drivers/input/joystick/iforce/iforce-usb.c:
+  Arm A, F54 8x8 (capacity 128) vs F55 8x24 (report_size 384):
+    BUG: KASAN: slab-out-of-bounds in ... Write of size 32
+    located 0 bytes to the right of the allocated 128-byte region
+    ... cache kmalloc-128 of size 128
+    Kernel panic - not syncing: kasan.fault=panic set
+  Arm B, with this patch (oversize report rejected): clean
+  Arm C, conforming device (F55 dims == F54 dims): clean
 
-    iforce_process_packet(iforce, iforce_usb->data_in[0],
-                  iforce_usb->data_in + 1, urb->actual_length - 1);
+  AddressSanitizer (x86_64 and i386): heap-buffer-overflow WRITE of size 32,
+  0 bytes after the 128-byte region.
 
-If urb->actual_length is 0, the subtraction underflows to a massive positive
-unsigned value, which is passed as len.
+The same rmi_f54_get_report_size() value drives the V4L2 dequeue
+memcpy(.., report_size) on the read side, so an oversize report also
+over-reads report_data; rejecting it in rmi_f54_work() (report_size then
+stays 0) closes both. Reproducer and full logs available on request.
 
-If the first byte evaluates to a status report (packet ID 0x02), this loop
-would execute against the underflowed len. Could this iterate billions of
-times, repeatedly executing mark_core_as_ready() and causing uncontrolled
-memory reads until an unmapped page is hit?
+This is independent of the in-flight "Input: rmi4 - release F54 queue on
+video registration failure" change, which touches only the probe error
+path (vb2_queue_release in rmi_f54_probe); it applies cleanly alongside it.
+---
+ drivers/input/rmi4/rmi_f54.c | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260613-b4-disp-48=
-28d263-v1-1-02320e1a89dd@proton.me?part=3D1
+diff --git a/drivers/input/rmi4/rmi_f54.c b/drivers/input/rmi4/rmi_f54.c
+index 61909e1a39e2..7a7508a4de85 100644
+--- a/drivers/input/rmi4/rmi_f54.c
++++ b/drivers/input/rmi4/rmi_f54.c
+@@ -104,6 +104,7 @@ struct f54_data {
+ 
+ 	enum rmi_f54_report_type report_type;
+ 	u8 *report_data;
++	size_t report_data_size;
+ 	int report_size;
+ 
+ 	bool is_busy;
+@@ -548,6 +549,13 @@ static void rmi_f54_work(struct work_struct *work)
+ 		goto error;     /* retry won't help */
+ 	}
+ 
++	if (report_size > f54->report_data_size) {
++		dev_err(&fn->dev, "Report size %d exceeds buffer size %zu\n",
++			report_size, f54->report_data_size);
++		error = -EINVAL;
++		goto error;
++	}
++
+ 	/*
+ 	 * Need to check if command has completed.
+ 	 * If not try again later.
+@@ -678,8 +686,8 @@ static int rmi_f54_probe(struct rmi_function *fn)
+ 
+ 	rx = f54->num_rx_electrodes;
+ 	tx = f54->num_tx_electrodes;
+-	f54->report_data = devm_kzalloc(&fn->dev,
+-					array3_size(tx, rx, sizeof(u16)),
++	f54->report_data_size = array3_size(tx, rx, sizeof(u16));
++	f54->report_data = devm_kzalloc(&fn->dev, f54->report_data_size,
+ 					GFP_KERNEL);
+ 	if (f54->report_data == NULL)
+ 		return -ENOMEM;
+
+---
+base-commit: 8e65320d91cdc3b241d4b94855c88459b91abf66
+change-id: 20260613-b4-disp-6721686c-33a3bdacdf38
+
+Best regards,
+-- 
+Bryam Vargas <hexlabsecurity@proton.me>
+
+

@@ -1,243 +1,277 @@
-Received: from mail-ej1-f54.google.com (mail-ej1-f54.google.com [209.85.218.54])
+Received: from mail-oo1-f47.google.com (mail-oo1-f47.google.com [209.85.161.47])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9CC1C1474CC
-	for <linux-input@vger.kernel.org>; Sun, 14 Jun 2026 09:32:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.218.54
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6E79523D7E6
+	for <linux-input@vger.kernel.org>; Sun, 14 Jun 2026 09:36:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.161.47
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781429532; cv=pass; b=mICxOc5YIyAiAvPLJseyzn+cWzm3/StC0DWyWa5ky7tCE163d3fZPQ4ltLLNQ8wotAap0viHQ95hBs0W7Eo/QkrGfsnA4n6wlzaENLmJh1TkLAut83mW4Rnb1M4XImycdUi7XzPxQPzqLobqAu/0MqBstlZpZ/Tgx5nz3XBEZ+U=
+	t=1781429777; cv=pass; b=BqP/Nd2srgoH0yBO8IgVe2esTvyzr6duzcWmavABmKnvQBdO9FNZPZNdMsgtjaBOwTBC2sjZJGBhRFRiXg2gk3r+0yxnndxXp8+e3R+zkK0e4QB1yoHtCR4x/hmOSCZdKwWMUyo4YCqOs1eJXevi6zbJ3BWriSSfuiaMBF2VSpE=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781429532; c=relaxed/simple;
-	bh=E8qjyT8JaatNcEMEHAT3DbSpG1es4d80cANh+szhfVE=;
+	s=arc-20240116; t=1781429777; c=relaxed/simple;
+	bh=KxG8FW2t1Y5M+en6j+orfhigu10djlUwEeeCbQF3vLs=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=cA2dJ6fGGBbMiBn68ZtIiDEQkRny7DMFYKB3RLDAAEYYB22Lb0r/P7cKX8Yt0LFhWQlIvidH1BAlr1JQcveaMOeBl4II/lgaxRHSphc3LD9FynNNBoEP8zvLrfcXwH0X3Pz9vqHycWQ+GUAjVlVjSXlDvqbuAcqXps+nzVypIFM=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=qYrG7McQ; arc=pass smtp.client-ip=209.85.218.54
+	 To:Cc:Content-Type; b=nCsGty67u9OJDLN3HRz2m+Xv+UW6BHoSFgVWaAMGprvH1IQfdAgguWYKNGOlpAq/VYCWlWYlUyqbSDMxYS/VTWLzuoHdvga7QMo8PwtgqEdNdrvS/UlNDvbKOEK9M3BsUeW056pSBG0mAmJ24APiyFma2EpGBi563OmcTRrYIpA=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=GF4Vb6V3; arc=pass smtp.client-ip=209.85.161.47
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="qYrG7McQ"
-Received: by mail-ej1-f54.google.com with SMTP id a640c23a62f3a-befd83e0521so620368966b.1
-        for <linux-input@vger.kernel.org>; Sun, 14 Jun 2026 02:32:10 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1781429529; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="GF4Vb6V3"
+Received: by mail-oo1-f47.google.com with SMTP id 006d021491bc7-69e1eae4eb4so1836792eaf.2
+        for <linux-input@vger.kernel.org>; Sun, 14 Jun 2026 02:36:16 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1781429775; cv=none;
         d=google.com; s=arc-20240605;
-        b=UQzg1fM5WVb42t9UAlriC0hdAM5uf+cIcgTDyfzFGDM8hTTMPBKGk/st4eUKlCiY9a
-         KS5ElYXp5nCkW18KBvEzPLZj5s2RNZCkcr0DV0A9n0OiMWXj52dBa/3M2eBg59HLwnnX
-         tc1R9zuA7h7vdH59DQ5dyVJdsJfay7SRSbYZdzLFCGYgPrqZ5yycXdhnqjGfqaG6+aZ9
-         zvOcJo3kVX6u93rxiHb1vvweBKMQSg4lqiHWLMX/uMkbQ/pJkW+Ni2tHNBkA542ED/3N
-         sxvdpO8BrqqMe6BwLMw1EbxpvmSw0JxmX/3NcJE9bYN+UoRkJZpuEkn5nU5Ib3EEzqX/
-         yuqA==
+        b=HahPKkMRNUFxPYp44MI6Puy5LHAtcnK1xh+dGyTpJ0PhsThyBnLbzQHvTK4PVd/vzb
+         LW7tPv9R0L+7oUa22Egx5g3ZejkW0tap2WDf8jhTr9vgtuZa3yiJYN9KB5qi9rSHyzVR
+         w+SletLQLAJOpbUkU3uvp39W1eltoQBmZoJ8vOkkJAh2T12LHKJiRvTYuzAYh+yIcz7D
+         HEbAG1Tjq8aFDNA8et8wy+qJBZUBXoh669JwfpLc9HLJ6tOTIsONUSVkbS1/eydndfUn
+         HVFQvDrPIQt7hq0/N6cZ+CNPpQFIRxUBsO0DHd/9DpqMfyNhsp9im6tiHrSZAASKVosQ
+         cAiA==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=gsL8U+Tj23wFzSN7oZJt9QcS9nfnq55hn1hbjS7HtiI=;
-        fh=j2doRkAqirgcK0Ye68rHpMNpgQuygW0Wzmg0wT0xgVI=;
-        b=a8J4Qyxl/XExy+h+10AmXLegJ3OLFL9QGNvrASZz/znIex0Xd8/M+rue2vaPp1WETK
-         ZiqcJ2hifP2Od6b0TYf5UgNLZvTsZhWnINst8MfohTMLcqQE3Qvy5nJYShRrfqWM4rpG
-         Ab3qlG2RXU4pO0UuK9bxYA7Z2EG4PtXk0c1PhWZQDB+K3R5/n8rsx2UQYdKGHHhw3tY2
-         jhnDXxcyibQ+++Pft3VgmyNwCGeICEKrHX904m0omzmlc66twtx/xqakZADIa3Tx9VMm
-         5VHQ56cSWsDp4p5oTVhIiF4vsrA5rZdZYoAL8wVVEEdraThBWvrNVxMlNeZHfMPXFKo5
-         xFug==;
+        bh=6uhzggcYBf9ZojUJZXYZOedKy8TL71m8+1uHUmTjSGs=;
+        fh=rTG08LOyyIKhMz6cxMCeQlwbu9/OH1PgX0pB51z1wMQ=;
+        b=XlPbXYIAfHJ996zb2Jfjiuye2GVErQmWymeVB0UFjQDfGG8KfXTw3Lp4JP9L4PbVZ3
+         wXqVPgKXhcNyiO9TUICfHCL1ctxvhB15aRtqiKB8vaPV4n2UNTrKtbUxP988m/Z0tWUY
+         LqoxfVMdtWwBTKjYPvsDYbiBKsfax3HlZp6BqwfZh+782P3JGAo5x1OKGSqoXU7jxbEz
+         GX9c88F3iUk6SPJoTAyS+oSsh+ErToaUGbYs83XO5ETfCud+gnuwZ4eD9qaB09TOuALU
+         m3IkYbyq08m1cVIKsH9Af+R/V3gvKzQP+leBIiz5F3amyOOFluEm+XBPoooLBeRPcnF9
+         wnRA==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1781429529; x=1782034329; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1781429775; x=1782034575; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=gsL8U+Tj23wFzSN7oZJt9QcS9nfnq55hn1hbjS7HtiI=;
-        b=qYrG7McQxfMvObJnpW/B9LxSwrGChm7PrzjUeJKJHHythFJkf9u1pkR3IQ7lfYTnLl
-         7dJ2kuns+V7jEx3O2JPTgx9yhpw+quJ4fCoByGLREIvLfe5Gh4DrzZAUbJKkShW4sPs0
-         hVcdwVXXG3cZoWg4KNhBsR9OWXGiPnhXBXtGwIzS6pgmtdZKLMm4AkKRPxOGm87ZsvjC
-         3BtdzaNMb4SuaPJVkKeFB3VGHz+qRi0iFXXT5D3IzkkTMW2eyORDHPJ+UHmfKB1B1Osl
-         F9zswIeXTtLrlSLIkQJbcgNLs/AGmgAXcPDVKDd++oQs+3hw9IAmTdIH5WbGVq8POOZC
-         0YHQ==
+        bh=6uhzggcYBf9ZojUJZXYZOedKy8TL71m8+1uHUmTjSGs=;
+        b=GF4Vb6V3CbrmfUzqqBOs+OXaTmV0CwyiTs0PZPsTq1+xb5m5Bq/QSwmZFPMukFzYP2
+         S1AsT2LDgnQLfdattQsoZes/qsW+2ljpCNCbhLyMKja4DpUnhCoFc1q0XGWo9Q0Tavh/
+         FkMUyHT7NdPVrIb0AtN7gDigmcXhAfC4KAotxBLGQemXu4VaYcDmClWIbzx9698mesdy
+         dv9P7EfNtL2Eujtst8Uo3F54ZgCRbvyXbDV3XQIAtXxQqXYnN6ccs0EVSVbNY1ZQNVFK
+         YeZlN1lolxCAnBPSIo8klNHP0gNYSFyUSXVHxUm3+8YXXUVhjM2hm700O3IyClGNdDVM
+         u9mw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781429529; x=1782034329;
+        d=1e100.net; s=20251104; t=1781429775; x=1782034575;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=gsL8U+Tj23wFzSN7oZJt9QcS9nfnq55hn1hbjS7HtiI=;
-        b=BIDT9qC+sNkxIMMgSHKRum6/x1TThZPIjyYsby3cZ3qFW/hucp5uRj8NHPst1jHdIs
-         nM85X5UsHZb/3BMWjvwWiZRbHytP9CeSOMn1Oycp8xgWuW5nA8atfZ8TVortl0IJ+fme
-         CZfud+UlY/SkJcxYE1RzpXHtkCm2iyh5azwRmM7sHsGAaMixtQNomESfPRdiDtCLkyA4
-         NdrNDj52h6iBDp9zEzjgzV+P8ltinMPuJ/bb+A1qoECWXL4MFuUxeHSG4gH1cGYAXwG0
-         0v8alkm/MGuusALfwp6J6R8w6y+Iqjjx5RBIKYgLnOnDZCwPhbY1QSBAMPXL0C+N38Tr
-         nlxw==
-X-Forwarded-Encrypted: i=1; AFNElJ8W/PJ23vYSztnwbsxZ1BAU41/tjQudex2xoZgGNMwfxdTNrZIOxpL4SBdB4mWBbyOVzs1SwZM9wwb8JA==@vger.kernel.org
-X-Gm-Message-State: AOJu0Ywzc1B6FGPSFSB46C+hUQo6MTdAsl9sMBP60ySzT8Z3OzummtJ1
-	eG+I3kZFHrtS0CuGY3hLlgGiSGEo8SWu/OyOwuDepEuAKbyobtDHEERi8ODA7nQFNt30+0KYD8C
-	TnK0diggSRRsf2FqEbUC+L5YFT+2BWog=
-X-Gm-Gg: Acq92OEmJlPJwmCqAdwHPHX8Oxe8VH7+YgMx+l4zbbPkIYbFoEg+2qF7X8t1lmzw4E0
-	5pgnLfHmqMQq/Mg30tFCaCAV8BGP0G3nERkH98f4HiraoFVDHlQj1+6tGUWIff3dTQXYN7g8xTP
-	f6j2FDCJBZa/iMkGbHNsup7fHuVlao3vUjJiQgOmsHBrWcvLtzv2ycCSi645ODVYZCa/SviU+Hy
-	Jod85xQWdzQdJ0xJYJuAE9M/bWO8U8d4QCNhXY1SaH/NALcT40cZrN+Sz1KvDtmNmvzEAh/RFUB
-	VTE9xRaa2dtMxXUv8w==
-X-Received: by 2002:a17:907:6ea8:b0:bfe:ed35:e854 with SMTP id
- a640c23a62f3a-bfeed35e9aamr331695966b.25.1781429528783; Sun, 14 Jun 2026
- 02:32:08 -0700 (PDT)
+        bh=6uhzggcYBf9ZojUJZXYZOedKy8TL71m8+1uHUmTjSGs=;
+        b=FTyregxxeakKmMB8ln2YMbQJtErJbo6YpmMl72Wmj4UKYztRKzskj0uTYu8BkHcGM1
+         SrA9aeQ9DE2QJU4yxJdlyw4mMjysCZ05l2hGCYBt8JCQ/+y3Q6il/R6jLzh0nebGq31u
+         qgQ575mRXuRHijURpfpVpIltZepBoNWbACh6IzSwC07v7irBQQWw/4F+1xUtLyiBuLm8
+         1QWgbo174tELgqzg0k3FTwTSuV/+3h8duUvjFrtLVk7HkV3VHu4+iHP0rhCI4f8D5R94
+         KchLk9KGIqJWCDCBEamYGO2tHaKQt86CrNRumwbIMptlHdvZdwih+koaOw0Q/cpvAjuK
+         qB/Q==
+X-Forwarded-Encrypted: i=1; AFNElJ+vRTMBmvOOC6s3IFQxruHGDeI6On24C5TQFYub4b6r4Nqw5k31+Q2riTXVMn2pz5IgtRWGl9BA3hVwFQ==@vger.kernel.org
+X-Gm-Message-State: AOJu0YzFvyFqMRZW/dmHYRXAIhyShSYz+khNRBh26rhcbu6jHQdDmPZn
+	D7SR0akpv9V/WDe3CzFdkkFsjo4aXHBdozeCxvr6Ooia50hJXmYOXWxYldRHrcDbo3dtAnrODrI
+	Vs8o/3sco0OWdS4dnLfG+CpVnXzDAPyesqWh5
+X-Gm-Gg: Acq92OGTivgPkYJf7bCxGENlrJPqBdVsQ/YY1W4GPsYstrExzsoXpPF2a1k8XRBPdLQ
+	y0ZlnOs8ShYRG61h93khXq9ouOvzBWZoOofW7viU2HafmEXtmgn9s4k15VXJzOIi9fA6PPjfFwn
+	/5LyX/mBWuVzOXDWEi6TJFS02Cp9nzEtXfAmvqU9UZKI/gb2KK5uFUetWu/YodePhB10lpsh8ay
+	Mf8m9pLRQbhhQcsLANxIvREXSDlU5KXXrsl4NPNzwlEDvnz3bCpgRlyhCLfPdowpTJXRcUKhzed
+	siS2Qe4=
+X-Received: by 2002:a05:6820:138c:b0:69e:264b:cced with SMTP id
+ 006d021491bc7-69edc7531e5mr6172237eaf.41.1781429775361; Sun, 14 Jun 2026
+ 02:36:15 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260610134119.3313484-1-kernel-linux-20260610-80b7ab08@raman.v1.sg>
- <CAPnwWgNLd2RZVx__T1Z9siKwN_5HrA2hcKwrZ2C6YivQuF6Ubw@mail.gmail.com>
-In-Reply-To: <CAPnwWgNLd2RZVx__T1Z9siKwN_5HrA2hcKwrZ2C6YivQuF6Ubw@mail.gmail.com>
+References: <20260610142952.3335586-1-kernel-linux-20260610-80b7ab08@raman.v1.sg>
+In-Reply-To: <20260610142952.3335586-1-kernel-linux-20260610-80b7ab08@raman.v1.sg>
 From: Michael Zaidman <michael.zaidman@gmail.com>
-Date: Sun, 14 Jun 2026 12:31:57 +0300
-X-Gm-Features: AVVi8CdjVhF73gj-rKdxo_hVxcpHTTIZi7Xpk_hSgB5hjyshYexkeOyHWts9HAQ
-Message-ID: <CAPnwWgNOh6-zh1Drdox5YZD_Me9dH8JH76kgRsRrTOqC6Tt4kw@mail.gmail.com>
-Subject: Re: [PATCH] HID: ft260: fix SMBus block read protocol handling
-To: kernel-linux-20260610-80b7ab08@raman.v1.sg
+Date: Sun, 14 Jun 2026 12:36:00 +0300
+X-Gm-Features: AVVi8Ce4epODd7EyUdn-8D3EO5xEsrDf3SP-UUJGVD0bPFa4W7aiY6G9RUo7VLE
+Message-ID: <CAPnwWgOwtOib1UoOWYX1xVPFKDuXRQYkwEEuweGqo9H7BCXQ7w@mail.gmail.com>
+Subject: Re: [PATCH] HID: ft260: fix stack-use-after-return write in I2C read race
+To: Raman Varabets <kernel-linux-20260610-80b7ab08@raman.v1.sg>
 Cc: jikos@kernel.org, bentiss@kernel.org, linux-i2c@vger.kernel.org, 
-	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	stable@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-Apologies, wrong address in my previous Reviewed-by.
+Hi Raman,
+
+Thanks for this patch. The race is real and separate from the input
+report length checks already in for-7.1: those bound the HID report
+source, but do not protect read_buf lifetime after a timed-out read
+unwinds. A spinlock (not dev->lock) is the right fix for the IRQ/input
+path.
+
+For stable backport notes: did you reproduce the use-after-return, or
+was this found by inspection?
+
+Optional hardening for v2: initialize read_lock before hid_hw_open(), or
+immediately after allocating dev, so a malicious USB device cannot hit
+spin_lock on an uninitialized lock during the brief probe window after
+the input path is live.
+
+I'm validating on FT260 hardware and will follow up on this thread with
+Tested-by when that is complete.
 
 Reviewed-by: Michael Zaidman <michael.zaidman@gmail.com>
 
-On Sun, Jun 14, 2026 at 12:27=E2=80=AFPM Michael Zaidman
-<michael.zaidman@gmail.com> wrote:
+
+On Wed, Jun 10, 2026 at 5:30=E2=80=AFPM Raman Varabets
+<kernel-linux-20260610-80b7ab08@raman.v1.sg> wrote:
 >
-> Hi Raman,
+> ft260_i2c_read() points dev->read_buf at a caller-supplied buffer
+> (often an on-stack variable), arms a completion and waits up to five
+> seconds for the device to return the data. The HID input callback
+> ft260_raw_event() runs in the input/IRQ path, independent of the
+> dev->lock mutex held by the read path, and copies the device-supplied
+> payload into dev->read_buf after a plain NULL check.
 >
-> Thanks for the patch. Your analysis matches what I see in the driver:
-> on a block read the count comes from the slave, data->block[0] is not
-> initialized by the caller, so sizing the read from data->block[0] + 1
-> is wrong. Reading and validating the count first is the correct fix
-> for the FT260.
+> These two paths share read_buf, read_idx and read_len with no
+> serialization. If the device delays its response until the read
+> times out, ft260_i2c_read() resets the controller, clears read_buf
+> and returns, unwinding the stack frame the buffer lived in. A
+> response that arrives at that moment lets ft260_raw_event() pass the
+> NULL check and then memcpy() the device-controlled payload into the
+> now-freed stack location, a bounded but attacker-influenced
+> stack-use-after-return write triggerable by malicious or
+> malfunctioning hardware.
 >
-> I'm validating on FT260 hardware and will follow up on this thread with
-> Tested-by/Acked-by when that is complete.
+> Add a dedicated spinlock that serializes every access to read_buf,
+> read_idx and read_len. ft260_raw_event() now holds it across the
+> NULL check, the memcpy and the index update, while the read path
+> takes it when arming and when clearing the buffer, so the teardown
+> can no longer slip between the check and the copy.
 >
-> Reviewed-by: Michael Zaidman <michaelz@xsightlabs.com>
+> Fixes: 6a82582d9fa4 ("HID: ft260: add usb hid to i2c host bridge driver")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Raman Varabets <kernel-linux-20260610-80b7ab08@raman.v1.sg=
 >
-> On Wed, Jun 10, 2026 at 4:42=E2=80=AFPM Raman Varabets
-> <kernel-linux-20260610-80b7ab08@raman.v1.sg> wrote:
-> >
-> > For I2C_SMBUS_BLOCK_DATA reads, ft260_smbus_xfer() passed
-> > data->block[0] + 1 as the read length. But on a block read the byte
-> > count is supplied by the slave as the first byte of the response;
-> > data->block[0] is not initialized by the caller, so the transfer
-> > length was taken from stale buffer contents, and the count byte the
-> > slave did return was stored without any validation.
-> >
-> > Implement the SMBus 2.0 block read protocol properly: read the count
-> > byte first with a repeated START and no STOP, validate it against
-> > I2C_SMBUS_BLOCK_MAX (resetting the bus and returning -EPROTO on a
-> > bogus count), then read exactly that many data bytes and finish the
-> > transaction with STOP. This keeps the whole sequence within a single
-> > I2C transaction:
-> >
-> >   S Addr+Wr A Reg A Sr Addr+Rd A Count A Data... P
-> >
-> > To support issuing the two reads as one transaction, teach
-> > ft260_i2c_read() to honor the caller's flags instead of always
-> > forcing a START and unconditionally appending STOP to the last
-> > chunk: START is only emitted if requested, and STOP is appended to
-> > the final chunk only when the caller asked for it.
-> >
-> > Signed-off-by: Raman Varabets <kernel-linux-20260610-80b7ab08@raman.v1.=
-sg>
-> > ---
-> >  drivers/hid/hid-ft260.c | 45 ++++++++++++++++++++++++++++++++++++-----
-> >  1 file changed, 40 insertions(+), 5 deletions(-)
-> >
-> > diff --git a/drivers/hid/hid-ft260.c b/drivers/hid/hid-ft260.c
-> > index 70e2eedb4..946ed0c6f 100644
-> > --- a/drivers/hid/hid-ft260.c
-> > +++ b/drivers/hid/hid-ft260.c
-> > @@ -502,15 +502,23 @@ static int ft260_i2c_read(struct ft260_device *de=
-v, u8 addr, u8 *data,
-> >         struct ft260_i2c_read_request_report rep;
-> >         struct hid_device *hdev =3D dev->hdev;
-> >         u8 bus_busy =3D 0;
-> > +       /*
-> > +        * STOP terminates the last chunk; clear means hold the bus so =
-a
-> > +        * follow-up call continues the same I2C transaction.
-> > +        */
-> > +       bool want_stop =3D !!(flag & FT260_FLAG_STOP);
-> >
-> >         if ((flag & FT260_FLAG_START_REPEATED) =3D=3D FT260_FLAG_START_=
-REPEATED)
-> >                 flag =3D FT260_FLAG_START_REPEATED;
-> > -       else
-> > +       else if (flag & FT260_FLAG_START)
-> >                 flag =3D FT260_FLAG_START;
-> > +       else
-> > +               flag =3D 0;       /* no fresh START - continue current =
-transaction */
-> >         do {
-> >                 if (len <=3D rd_data_max) {
-> >                         rd_len =3D len;
-> > -                       flag |=3D FT260_FLAG_STOP;
-> > +                       if (want_stop)
-> > +                               flag |=3D FT260_FLAG_STOP;
-> >                 } else {
-> >                         rd_len =3D rd_data_max;
-> >                 }
-> > @@ -708,14 +716,41 @@ static int ft260_smbus_xfer(struct i2c_adapter *a=
-dapter, u16 addr, u16 flags,
-> >                 break;
-> >         case I2C_SMBUS_BLOCK_DATA:
-> >                 if (read_write =3D=3D I2C_SMBUS_READ) {
-> > +                       u8 count =3D 0;
-> > +
-> > +                       /*
-> > +                        * SMBus 2.0 section 6.5.7 block read in one I2=
-C
-> > +                        * transaction:
-> > +                        *
-> > +                        *   S Addr+Wr A Reg A Sr Addr+Rd A Count A Dat=
-a... P
-> > +                        *
-> > +                        * The count is read separately and validated
-> > +                        * before sizing the data read so a misbehaving
-> > +                        * slave cannot drive a write past data->block[=
-].
-> > +                        */
-> >                         ret =3D ft260_smbus_write(dev, addr, cmd, NULL,=
- 0,
-> >                                                 FT260_FLAG_START);
-> >                         if (ret)
-> >                                 goto smbus_exit;
-> >
-> > -                       ret =3D ft260_i2c_read(dev, addr, data->block,
-> > -                                            data->block[0] + 1,
-> > -                                            FT260_FLAG_START_STOP_REPE=
-ATED);
-> > +                       ret =3D ft260_i2c_read(dev, addr, &count, 1,
-> > +                                            FT260_FLAG_START_REPEATED)=
+> ---
+>  drivers/hid/hid-ft260.c | 25 ++++++++++++++++++++++++-
+>  1 file changed, 24 insertions(+), 1 deletion(-)
+>
+> diff --git a/drivers/hid/hid-ft260.c b/drivers/hid/hid-ft260.c
+> index 70e2eedb4..f47945954 100644
+> --- a/drivers/hid/hid-ft260.c
+> +++ b/drivers/hid/hid-ft260.c
+> @@ -240,6 +240,8 @@ struct ft260_device {
+>         struct mutex lock;
+>         u8 write_buf[FT260_REPORT_MAX_LENGTH];
+>         unsigned long need_wakeup_at;
+> +       /* Protects read_buf, read_idx and read_len against ft260_raw_eve=
+nt() */
+> +       spinlock_t read_lock;
+>         u8 *read_buf;
+>         u16 read_idx;
+>         u16 read_len;
+> @@ -501,6 +503,7 @@ static int ft260_i2c_read(struct ft260_device *dev, u=
+8 addr, u8 *data,
+>         int timeout, ret =3D 0;
+>         struct ft260_i2c_read_request_report rep;
+>         struct hid_device *hdev =3D dev->hdev;
+> +       unsigned long irqflags;
+>         u8 bus_busy =3D 0;
+>
+>         if ((flag & FT260_FLAG_START_REPEATED) =3D=3D FT260_FLAG_START_RE=
+PEATED)
+> @@ -526,9 +529,11 @@ static int ft260_i2c_read(struct ft260_device *dev, =
+u8 addr, u8 *data,
+>
+>                 reinit_completion(&dev->wait);
+>
+> +               spin_lock_irqsave(&dev->read_lock, irqflags);
+>                 dev->read_idx =3D 0;
+>                 dev->read_buf =3D data;
+>                 dev->read_len =3D rd_len;
+> +               spin_unlock_irqrestore(&dev->read_lock, irqflags);
+>
+>                 ret =3D ft260_hid_output_report(hdev, (u8 *)&rep, sizeof(=
+rep));
+>                 if (ret < 0) {
+> @@ -543,7 +548,9 @@ static int ft260_i2c_read(struct ft260_device *dev, u=
+8 addr, u8 *data,
+>                         goto ft260_i2c_read_exit;
+>                 }
+>
+> +               spin_lock_irqsave(&dev->read_lock, irqflags);
+>                 dev->read_buf =3D NULL;
+> +               spin_unlock_irqrestore(&dev->read_lock, irqflags);
+>
+>                 if (flag & FT260_FLAG_STOP)
+>                         bus_busy =3D FT260_I2C_STATUS_BUS_BUSY;
+> @@ -562,7 +569,9 @@ static int ft260_i2c_read(struct ft260_device *dev, u=
+8 addr, u8 *data,
+>         } while (len > 0);
+>
+>  ft260_i2c_read_exit:
+> +       spin_lock_irqsave(&dev->read_lock, irqflags);
+>         dev->read_buf =3D NULL;
+> +       spin_unlock_irqrestore(&dev->read_lock, irqflags);
+>         return ret;
+>  }
+>
+> @@ -1018,6 +1027,7 @@ static int ft260_probe(struct hid_device *hdev, con=
+st struct hid_device_id *id)
+>                  "FT260 usb-i2c bridge");
+>
+>         mutex_init(&dev->lock);
+> +       spin_lock_init(&dev->read_lock);
+>         init_completion(&dev->wait);
+>
+>         ret =3D ft260_xfer_status(dev, FT260_I2C_STATUS_BUS_BUSY);
+> @@ -1067,6 +1077,7 @@ static int ft260_raw_event(struct hid_device *hdev,=
+ struct hid_report *report,
+>  {
+>         struct ft260_device *dev =3D hid_get_drvdata(hdev);
+>         struct ft260_i2c_input_report *xfer =3D (void *)data;
+> +       unsigned long irqflags;
+>
+>         if (size < offsetof(struct ft260_i2c_input_report, data)) {
+>                 hid_err(hdev, "short report %d\n", size);
+> @@ -1075,6 +1086,8 @@ static int ft260_raw_event(struct hid_device *hdev,=
+ struct hid_report *report,
+>
+>         if (xfer->report >=3D FT260_I2C_REPORT_MIN &&
+>             xfer->report <=3D FT260_I2C_REPORT_MAX) {
+> +               bool complete_read;
+> +
+>                 ft260_dbg("i2c resp: rep %#02x len %d size %d\n",
+>                           xfer->report, xfer->length, size);
+>
+> @@ -1085,8 +1098,15 @@ static int ft260_raw_event(struct hid_device *hdev=
+, struct hid_report *report,
+>                         return -1;
+>                 }
+>
+> +               /*
+> +                * Hold read_lock so a timed-out ft260_i2c_read() cannot
+> +                * clear read_buf between the NULL check and the memcpy.
+> +                */
+> +               spin_lock_irqsave(&dev->read_lock, irqflags);
+> +
+>                 if ((dev->read_buf =3D=3D NULL) ||
+>                     (xfer->length > dev->read_len - dev->read_idx)) {
+> +                       spin_unlock_irqrestore(&dev->read_lock, irqflags)=
 ;
-> > +                       if (ret)
-> > +                               goto smbus_exit;
-> > +
-> > +                       if (count =3D=3D 0 || count > I2C_SMBUS_BLOCK_M=
-AX) {
-> > +                               hid_warn(hdev,
-> > +                                        "smbus block read: invalid cou=
-nt %u from slave 0x%02x\n",
-> > +                                        count, addr);
-> > +                               ft260_i2c_reset(hdev);
-> > +                               ret =3D -EPROTO;
-> > +                               goto smbus_exit;
-> > +                       }
-> > +
-> > +                       data->block[0] =3D count;
-> > +
-> > +                       ret =3D ft260_i2c_read(dev, addr, data->block +=
- 1,
-> > +                                            count, FT260_FLAG_STOP);
-> >                 } else {
-> >                         ret =3D ft260_smbus_write(dev, addr, cmd, data-=
->block,
-> >                                                 data->block[0] + 1,
-> >
-> > base-commit: ab5fce87a778cb780a05984a2ca448f2b41aafbf
-> > --
-> > 2.54.0
-> >
+>                         hid_err(hdev, "unexpected report %#02x, length %d=
+\n",
+>                                 xfer->report, xfer->length);
+>                         return -1;
+> @@ -1095,8 +1115,11 @@ static int ft260_raw_event(struct hid_device *hdev=
+, struct hid_report *report,
+>                 memcpy(&dev->read_buf[dev->read_idx], &xfer->data,
+>                        xfer->length);
+>                 dev->read_idx +=3D xfer->length;
+> +               complete_read =3D dev->read_idx =3D=3D dev->read_len;
+> +
+> +               spin_unlock_irqrestore(&dev->read_lock, irqflags);
+>
+> -               if (dev->read_idx =3D=3D dev->read_len)
+> +               if (complete_read)
+>                         complete(&dev->wait);
+>
+>         } else {
+> --
+> 2.54.0
+>

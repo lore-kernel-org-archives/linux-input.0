@@ -1,149 +1,177 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 889E02C187
-	for <linux-input@vger.kernel.org>; Sun, 14 Jun 2026 01:34:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6A68D70809;
+	Sun, 14 Jun 2026 02:58:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781400893; cv=none; b=sShgSCQZZUeWfuPsZR2DXUZq8HxRF4/NnepQTT3JCcjiYt92z/t1lWViRH2dyHQpns1vcmLt0AJ58N6JlXpdfVPmCWCL2DZ5AhOan2slTm9TmDfvuOPDGfeufFDXMmbgiXT1oQqFE1B1rQblbWXGXwEdTPKgn2vBV/D6/hAr4SI=
+	t=1781405936; cv=none; b=VwwkL4qArhyEc4G1bQbkPOw2ZG/yYqZ4cK2HkdKPHFFrpmMwxQKjq4JB4RGq6LLKOcMCtvZ72fxS1gNtPIYz+avVaKVhe+38eLRqzdO3ysPZnQ54ClvmwNADpxNOha/emKsBNn55csPqttp5Fszp+Vn63uZ3E4RSqTo8yhByH2g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781400893; c=relaxed/simple;
-	bh=OuBh1cL0oG4TyFTXc3m8Q2O9doGlde64dvcjgnmRaOk=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=o2jK1IudzDCu//ag3vw3kuGQ5cCWmhUuGacA8pA1b/NkmRe5ekphcGdyrVW9psMJWaJy4UFxu/wGk41qn2cyD3mJNsV1iokBM8pe3/cpm0srIstB912Lc84oN2EUCIM4mLdLehcMcpfwjcxw0cyx6tL5jGHgd1engk/oo9vXXn8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=lCwZkaot; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1781405936; c=relaxed/simple;
+	bh=VfB/QgC+O+HYthaGAhj1UHdmvcGokeNfmN9MXsRHHpg=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=Erd2DsSBEMTKbmSV1QmlCnnK90aVmhBToE1HZpYN4Xr9FKOokQEt6WL2gBUeEkR+/VWX4Xa/E4mwnbCPcluB9F3sBK7PWsEKx65P9tSzbqnxZHj12qRjMgo4Z12sqDTHExiVkyxuzViGtF11zX+xtrJ7B/z++8fdfYqovosuT/U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=pSeAmnTT; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="lCwZkaot"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DEE8A1F000E9;
-	Sun, 14 Jun 2026 01:34:51 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1781400892;
-	bh=hWn+1k5EkfncTHT1Adu/dOO7kIZju3C0l74rzPlWhh0=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=lCwZkaotlPiqEI9nXlxOsL0+vDmJiC1w+plBcVnSxDHKUyKhbXQuQuzUONkAH/ez7
-	 xQchZa0aLPxoYHpCOmoqzY8ro4ngl8V2QujzG/lw6UwVG9tTFgTX+zv6TK/iAwWuk/
-	 MPDTc2B686iaurNxFFyBbrGUk2yXLayOKpCOEf4KOYbbNPgSsJvP11B+E4yPvxnelH
-	 WoZvVMVQbijJfoJjucO4XBtRF3aC7SLtvnfclj0GxjGgnejkKvg64RbRwW/q+PdAHw
-	 I/3EqvDQMyoyDBzhNMfhMCv8H5zT9acdw8qyDmyIFv9SKFUESYNc9cZ4dTot5tyw7J
-	 8ODsTC2EfPrkA==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2] Input: apple_z2 - bound the device-reported finger
- count
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Bryam Vargas via B4 Relay" <devnull+hexlabsecurity.proton.me@kernel.org>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260613-b4-disp-4ebcbd68-v2-1-0161acfbd688@proton.me>
-References: <20260613-b4-disp-4ebcbd68-v2-1-0161acfbd688@proton.me>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Sun, 14 Jun 2026 01:34:51 +0000
-Message-Id: <20260614013451.DEE8A1F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="pSeAmnTT"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 06CEBC19425;
+	Sun, 14 Jun 2026 02:58:56 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1781405936;
+	bh=VfB/QgC+O+HYthaGAhj1UHdmvcGokeNfmN9MXsRHHpg=;
+	h=From:Date:Subject:To:Cc:Reply-To:From;
+	b=pSeAmnTTVtDr2WThYdqQtLs4ER5h6O0D2Wc/XxWcXKuXZkYClBtqX1cNL220jicQG
+	 Ac92lTlZBAgteoS+GLSU0ZEGG3iEbCNFo4YrfDGEr6WFvbl1GPCpTnBPCy48JcFIDl
+	 +8gPAoXJ4hXwG5jBmVJK6t/nkPB3jP++pD8muoSqPTb3bUpNl/B2NIT+OxmnV+DIME
+	 8uN17OlMDcFEX96jiT3Z97NvAfEb49T3qz0PoFHAQn/N9ZqB6GCQ8nfO5tyrvQITQC
+	 TkQasKWbOs2+QQGeGCY1TmxLX+jqxF9pVrwsiPEB1kssjBl4a61l1fZNTvhw1vugs2
+	 ZqZpxx9bwdPMg==
+Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DCD2FCD98CF;
+	Sun, 14 Jun 2026 02:58:55 +0000 (UTC)
+From: Bryam Vargas via B4 Relay <devnull+hexlabsecurity.proton.me@kernel.org>
+Date: Sat, 13 Jun 2026 21:58:55 -0500
+Subject: [PATCH] Input: iforce - bound the device-reported force-feedback
+ effect index
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20260613-b4-disp-4828d263-v1-1-02320e1a89dd@proton.me>
+X-B4-Tracking: v=1; b=H4sIAO4YLmoC/x3MQQqAIBBA0avErBvI0Uy6SrQoHWs2FQoRSHdPW
+ r7F/wUyJ+EMY1Mg8S1ZzqNCtQ34fTk2RgnVQB3ZziqNq8Eg+ULjyAWyGvvoVrUMnrSxULMrcZT
+ nX07z+34R3CGWYgAAAA==
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+X-Mailer: b4 0.13.0
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1781405934; l=5020;
+ i=hexlabsecurity@proton.me; s=proton; h=from:subject:message-id;
+ bh=XxpIXCh7ffZCmu2CG+KPf3GOhwCkdR6xHHjQDVV3JFg=;
+ b=oJrxY931L5MvoILgDK06XxvKv8KFwMA0IjyZM+N1uCuzhn3i54GLfqPIpZIpfi17F7buM8BBv
+ 4/4ldZM6M6oCZBF2wmASg3zEV4+6OekNaWnHT12qJm0yjyH4nDg1kZH
+X-Developer-Key: i=hexlabsecurity@proton.me; a=ed25519;
+ pk=dmppBMZNLLoPzxHi9l8tZDzEZUunPbgsYqIZYXeUrL0=
+X-Endpoint-Received: by B4 Relay for hexlabsecurity@proton.me/proton with
+ auth_id=814
+X-Original-From: Bryam Vargas <hexlabsecurity@proton.me>
+Reply-To: hexlabsecurity@proton.me
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
-s) to consider:
+From: Bryam Vargas <hexlabsecurity@proton.me>
 
-Pre-existing issues:
-- [Critical] Unvalidated device-reported packet length leads to a severe he=
-ap buffer overflow in `spi_read`. The patch fails to address this root caus=
-e.
-- [High] Using the `__free(kfree)` attribute on a variable that can hold an=
- `ERR_PTR` causes a kernel panic during error handling.
-- [High] Concurrent execution of `apple_z2_read_packet` causes data races o=
-n driver state, SPI buffers, and lockless input-mt helper states.
---
+iforce_process_packet() handles a status report (packet id 0x02) by
+taking a force-feedback effect index straight from the device wire and
+using it to address the per-effect state array:
 
-commit 9a7b4f864d6502dba7c8e2bed5aa7ed3358d9e4a
-Author: Bryam Vargas <hexlabsecurity@proton.me>
+	i = data[1] & 0x7f;
+	if (data[1] & 0x80) {
+		if (!test_and_set_bit(FF_CORE_IS_PLAYED,
+				      iforce->core_effects[i].flags))
+			...
+	} else if (test_and_clear_bit(FF_CORE_IS_PLAYED,
+				      iforce->core_effects[i].flags)) {
+		...
+	}
 
-Input: apple_z2 - bound the device-reported finger count
+The index is masked only with 0x7f, so it ranges 0..127, but
+core_effects[] holds only IFORCE_EFFECTS_MAX (32) entries.  For an index
+of 32..127 the test_and_set_bit()/test_and_clear_bit() is an
+out-of-bounds single-bit read-modify-write past the array.  core_effects[]
+is the second-to-last member of struct iforce, so the write lands in the
+trailing members and beyond the embedding kzalloc()'d iforce_serio /
+iforce_usb object.
 
-The commit adds bounds checking for the device-reported finger count against
-the SPI packet length to prevent an out-of-bounds read in
-apple_z2_parse_touches().
+data[1] is unvalidated device payload on both transports (the USB
+interrupt endpoint and serio), and the status path is not gated on force
+feedback being present, so a malicious or counterfeit device can set or
+clear a bit at an attacker-chosen offset past the object.
 
-Closes: https://lore.kernel.org/all/20260613215358.329921F000E9@smtp.kernel=
-.org/
+Reject an out-of-range index instead of indexing with it.  Bound against
+the array dimension IFORCE_EFFECTS_MAX rather than dev->ff->max_effects so
+the check guarantees memory safety regardless of how many effects the
+device registered.  A legitimate "effect started/stopped" status always
+carries an index below IFORCE_EFFECTS_MAX, so well-formed devices are
+unaffected; the neighbouring mark_core_as_ready() loop is already bounded
+and is left untouched.
 
-> diff --git a/drivers/input/touchscreen/apple_z2.c b/drivers/input/touchsc=
-reen/apple_z2.c
-> index 271ababf0ad55..39ade83ef0de7 100644
-> --- a/drivers/input/touchscreen/apple_z2.c
-> +++ b/drivers/input/touchscreen/apple_z2.c
-> @@ -92,6 +92,12 @@ static void apple_z2_parse_touches(struct apple_z2 *z2,
->  		return;
->  	nfingers =3D msg[APPLE_Z2_NUM_FINGERS_OFFSET];
->  	fingers =3D (struct apple_z2_finger *)(msg + APPLE_Z2_FINGERS_OFFSET);
-> +	/* a malicious controller can claim more fingers than the packet holds =
-*/
-> +	if (msg_len < APPLE_Z2_FINGERS_OFFSET)
-> +		nfingers =3D 0;
-> +	else
-> +		nfingers =3D min_t(int, nfingers,
-> +				 (msg_len - APPLE_Z2_FINGERS_OFFSET) / sizeof(*fingers));
->  	for (i =3D 0; i < nfingers; i++) {
->  		slot =3D input_mt_get_slot_by_key(z2->input_dev, fingers[i].finger);
->  		if (slot < 0) {
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Cc: stable@vger.kernel.org
+Signed-off-by: Bryam Vargas <hexlabsecurity@proton.me>
+---
+Reachable from a malicious, malfunctioning or counterfeit iforce
+force-feedback device on either transport: a USB device matching the
+iforce id table (iforce-usb.c forwards the interrupt-IN buffer as
+iforce_process_packet(.., data_in[0], data_in + 1, ..)) or an RS232
+iforce peripheral bound via inputattach (iforce-serio.c forwards data_in).
+data[1] is never validated on the path, and the 0x02 status block runs
+regardless of packet length or whether force feedback was created.
 
-[Severity: High]
-This is a pre-existing issue, but does this code overflow the heap allocati=
-on
-for rx_buf?
+struct iforce embeds core_effects[32] as its second-to-last member and is
+itself the first member of the kzalloc()'d iforce_serio / iforce_usb
+object (~4.8 KB, kmalloc-8k).  A status report with data[1] = 0x80 | idx
+sets bit FF_CORE_IS_PLAYED in core_effects[idx].flags; for idx up to 127
+that is about 13 KB past the end of the array.
 
-In apple_z2_read_packet():
+Verified with a faithful in-kernel KASAN litmus (the verbatim struct
+iforce / iforce_serio layout and the case-0x02 effect-index block),
+Linux 7.1.0-rc5, CONFIG_KASAN=y, kasan.fault=panic, x86_64:
 
-    pkt_len =3D (get_unaligned_le16(z2->rx_buf + 1) + 8) & 0xfffffffc;
-    error =3D spi_read(z2->spidev, z2->rx_buf, pkt_len);
+  Arm A, status report effect index 57 (chosen to clear the kmalloc-8k
+  bucket; KASAN's kmalloc redzone already trips from index 32):
+    BUG: KASAN: slab-out-of-bounds in ... Write of size 8
+    located 3440 bytes to the right of the allocated 4840-byte region
+    ... cache kmalloc-8k of size 8192
+    Kernel panic - not syncing: kasan.fault=panic set
+  Arm B, with this patch (index bounded): clean
+  Arm C, benign in-range index: clean
 
-Because rx_buf is allocated with a fixed size of 4000 bytes, couldn't a
-malfunctioning device supply a large packet length and cause spi_read to
-write past the end of the allocation?
+  AddressSanitizer (x86_64 and i386): heap-buffer-overflow WRITE, both ABIs.
 
-[Severity: High]
-This isn't a bug introduced by this patch, but will this cause a kernel pan=
-ic
-on error?
+The "Write of size 8" is the test_and_set_bit() read-modify-write on the
+flags long.  Reproducer and full logs available on request.
+---
+ drivers/input/joystick/iforce/iforce-packets.c | 18 +++++++++++-------
+ 1 file changed, 11 insertions(+), 7 deletions(-)
 
-In apple_z2_upload_firmware():
+diff --git a/drivers/input/joystick/iforce/iforce-packets.c b/drivers/input/joystick/iforce/iforce-packets.c
+index fd1cd731d781..ff266568d586 100644
+--- a/drivers/input/joystick/iforce/iforce-packets.c
++++ b/drivers/input/joystick/iforce/iforce-packets.c
+@@ -186,14 +186,18 @@ void iforce_process_packet(struct iforce *iforce,
+ 
+ 		/* Check if an effect was just started or stopped */
+ 		i = data[1] & 0x7f;
+-		if (data[1] & 0x80) {
+-			if (!test_and_set_bit(FF_CORE_IS_PLAYED, iforce->core_effects[i].flags)) {
+-				/* Report play event */
+-				input_report_ff_status(dev, i, FF_STATUS_PLAYING);
++		if (i < IFORCE_EFFECTS_MAX) {
++			unsigned long *flags = iforce->core_effects[i].flags;
++
++			if (data[1] & 0x80) {
++				if (!test_and_set_bit(FF_CORE_IS_PLAYED, flags)) {
++					/* Report play event */
++					input_report_ff_status(dev, i, FF_STATUS_PLAYING);
++				}
++			} else if (test_and_clear_bit(FF_CORE_IS_PLAYED, flags)) {
++				/* Report stop event */
++				input_report_ff_status(dev, i, FF_STATUS_STOPPED);
+ 			}
+-		} else if (test_and_clear_bit(FF_CORE_IS_PLAYED, iforce->core_effects[i].flags)) {
+-			/* Report stop event */
+-			input_report_ff_status(dev, i, FF_STATUS_STOPPED);
+ 		}
+ 
+ 		for (j = 3; j < len; j += 2)
 
-    const u8 *data __free(kfree) =3D
-        apple_z2_build_cal_blob(z2, address, &size);
-    if (IS_ERR(data))
-        return PTR_ERR(data);
+---
+base-commit: 8e65320d91cdc3b241d4b94855c88459b91abf66
+change-id: 20260613-b4-disp-4828d263-5f8b1a7c2346
 
-Since kfree does not check for IS_ERR, doesn't returning here cause the
-compiler-inserted kfree(data) to attempt freeing an invalid virtual address?
+Best regards,
+-- 
+Bryam Vargas <hexlabsecurity@proton.me>
 
-[Severity: High]
-This is a pre-existing issue, but can this sequence lead to data races?
 
-If a hardware interrupt arrives immediately after setting z2->booted to tru=
-e,
-could the threaded IRQ handler execute apple_z2_read_packet concurrently?
-
-CPU1 in apple_z2_upload_firmware():
-    z2->booted =3D true;
-    apple_z2_read_packet(z2);
-
-CPU2 in apple_z2_irq():
-    ...
-    else
-        apple_z2_read_packet(z2);
-
-Since apple_z2_read_packet modifies shared state without a lock:
-
-apple_z2_read_packet():
-    len_cmd->counter =3D z2->index_parity + 1;
-    ...
-    z2->index_parity =3D !z2->index_parity;
-
-wouldn't this concurrent execution corrupt z2->tx_buf, z2->rx_buf, and
-z2->index_parity?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260613-b4-disp-4e=
-bcbd68-v2-1-0161acfbd688@proton.me?part=3D1

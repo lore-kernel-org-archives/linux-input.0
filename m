@@ -1,178 +1,184 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D2707263C8C;
-	Sun, 14 Jun 2026 04:01:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A86234317D
+	for <linux-input@vger.kernel.org>; Sun, 14 Jun 2026 04:14:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781409677; cv=none; b=tpOATwJ5LckpN2vK33951b4jsDAY+kQBhEz4H6z0zd1K67ZsZgG4cI6hH0n792ZVIbhT/mZE/MwqewxKA3/PCAK9UgSOlzYSQ3R6EFvM+RiRt74h4sNS+VD3MjIwud0NEBiWQ9bFbNLk0IcWNpvnjhhc6UUESKrQbkzJG1UPWCI=
+	t=1781410472; cv=none; b=qWtqlZXCCpZvMVf9lnfHb60nKw8VB87lukIeCd+ZnjATxf8jXkSVD0/WDyN9P82WrvN2ixXgniFPJz/WauRmCYN2VpF2/nJHVVMuQTRMAfBfCZ0Y8xtDjF8Jfm7l2iYj3QDJkWbIEHGLUM8w1Q9epj4F33V3qC1d3u1E7SBa7gI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781409677; c=relaxed/simple;
-	bh=aL42zk5j0bjHeo8BU0zIH10nFddFtJ1Y+qFwl6oSzsg=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=I7IirlI2VreV7gXzPSYyTHBBq4F6ecRK+mThEzdMwfyMj/lRkfwHhrE1u8Q7Sc0xml2FKumgSb5Ttbk85QwU2fWG2K6tChADhKyr2Gj3NlLUS2GJtwQ/2zGIiHEGDX7DL8sI9C8mhji9IDnVjG3Iqi3YcwOoWV1aaTB/Sz6GiOs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=j/jgGpLZ; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1781410472; c=relaxed/simple;
+	bh=euTSMxLuK6FsoJ2cN+pzszs/K+H4Rp75W1CiYL/3B/U=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=UM+8vjL4oGwwLTk4fv04p3rz8rGqVXC1dzFxc2bwrBbObPICXmdUQonKQQDGF7WAclDwlGP5TUVT3DlErnE8Q54Wl+qk8tAFYUDCsbT7aakh7OovusbzW3IM/Amc36hYkIHz/2mHcAJevVf/k7WxdAhbNAC3NiXymqK9unR7R0E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ga/Oqnrk; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="j/jgGpLZ"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 6B2C8C2BCC7;
-	Sun, 14 Jun 2026 04:01:17 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1781409677;
-	bh=aL42zk5j0bjHeo8BU0zIH10nFddFtJ1Y+qFwl6oSzsg=;
-	h=From:Date:Subject:To:Cc:Reply-To:From;
-	b=j/jgGpLZT7n9wfTa77+9DmqNGojP1Q8JhA9vXmAPMrrMJ1xL4MLV8n9OeW5LQ7Xrf
-	 qeSQy9h+P54lipwXk1kEDMZs+/S6yj6xzYW1qiFV8LPr7T05BIDM+jtVN2WGo5SI/u
-	 xBNH+mgMiCF+fBCbcAotPQtXOhxBaNChqrToohGvhLvxUUlJgDmVyPUEpRp4cXZOVr
-	 sofBRNI0e+p9vF1eReEsKwGDIVUWomNODCyTKOwfAJqG6MMZC/pq34fq96SJvFw7ED
-	 lCO4Rt6gLnB3qEuhX/5yP/Vjg3rO1L5+5+39tAsLk+9g7WjrkmUlYgHkov5Gz5LOw0
-	 YkjZo2AY8u+pQ==
-Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4A89CCD8CA8;
-	Sun, 14 Jun 2026 04:01:17 +0000 (UTC)
-From: Bryam Vargas via B4 Relay <devnull+hexlabsecurity.proton.me@kernel.org>
-Date: Sat, 13 Jun 2026 23:01:16 -0500
-Subject: [PATCH] Input: synaptics-rmi4 - bound the F54 report size to the
- allocated buffer
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ga/Oqnrk"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2FA651F000E9;
+	Sun, 14 Jun 2026 04:14:31 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1781410471;
+	bh=QGF9bXhK+2O4+pJj+9XJSRpWafJ5YSmeNNAM9EuKQ9w=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=ga/OqnrkixceNOGD7tQYPwlmx2GsAPOYg4b3v4Q4tEuTYhSiq6EArMV/uz+uhWXVj
+	 ZQshRhhM1k41yLSk/VcuvFACYUmuAteSnLVdF4jXE+BPsOhHXfqX5jka/K1FPfz4gN
+	 yYuhEASnhUyn5SUta1dnliet0b3YmBzCY9FpcR4lLvBopmP1PkkFnCb2VqJ+n0+4tj
+	 d0Visdr1qnhIAgYkdZdxyd0CgY2Zhdo8tCffTOuU5IRNu0VVomoJL2i02glk8vQ827
+	 j8kaEbciDhdAZiWNxxWn1uUCAaBtCijT/WjWTssQfZimcGqp1hl1bHfbSyM2ZR1O/e
+	 1dhauRaMoxsww==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH] Input: synaptics-rmi4 - bound the F54 report size to
+ the allocated buffer
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Bryam Vargas via B4 Relay" <devnull+hexlabsecurity.proton.me@kernel.org>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <20260613-b4-disp-6721686c-v1-1-4d5bb84ee520@proton.me>
+References: <20260613-b4-disp-6721686c-v1-1-4d5bb84ee520@proton.me>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Sun, 14 Jun 2026 04:14:30 +0000
+Message-Id: <20260614041431.2FA651F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20260613-b4-disp-6721686c-v1-1-4d5bb84ee520@proton.me>
-X-B4-Tracking: v=1; b=H4sIAIsnLmoC/x3MMQqAMAxA0atIZgNtI1G8ijjUNmqWKi2IIN7d4
- viG/x8oklUKjM0DWS4teqQK2zYQdp82QY3V4Ixjw5Zw6TBqOZF7Z3nggESeluhDXGmAmp1ZVr3
- /5TS/7wcbhn6zYgAAAA==
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
- Guenter Roeck <linux@roeck-us.net>, Benjamin Tissoires <bentiss@kernel.org>
-X-Mailer: b4 0.13.0
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1781409675; l=4630;
- i=hexlabsecurity@proton.me; s=proton; h=from:subject:message-id;
- bh=sNbCJ52oiyGr4TBOccsRGX4oDsTWqoiOMNGFe75RiB0=;
- b=FzlqKEOczHlHZZE4f2sdpxbPy29RzKHQqiGMPW6NtJer2YdpRUsH6SFqpUBEBYLhw0G7vE6ea
- Wp3qpygDa79AyrUTbWZ59CvmfDXyHyH9fIPM32nhu6QdNT7pP4TVwg4
-X-Developer-Key: i=hexlabsecurity@proton.me; a=ed25519;
- pk=dmppBMZNLLoPzxHi9l8tZDzEZUunPbgsYqIZYXeUrL0=
-X-Endpoint-Received: by B4 Relay for hexlabsecurity@proton.me/proton with
- auth_id=814
-X-Original-From: Bryam Vargas <hexlabsecurity@proton.me>
-Reply-To: hexlabsecurity@proton.me
 
-From: Bryam Vargas <hexlabsecurity@proton.me>
+Thank you for your contribution! Sashiko AI review found 5 potential issue(=
+s) to consider:
 
-rmi_f54_work() reads a diagnostics report from the device into
-f54->report_data, sizing the transfer with rmi_f54_get_report_size():
+Pre-existing issues:
+- [Critical] Stale f54->report_size causes V4L2 buffer heap overflow.
+- [High] Missing cancel_delayed_work_sync in rmi_f54_remove causes Use-Afte=
+r-Free.
+- [High] Preexisting copy-paste typo in F55 properties parsing triggers the=
+ new oversize check, permanently breaking conforming devices.
+- [High] Use-After-Free of devm-managed video_device on V4L2 file descripto=
+r close.
+- [Medium] V4L2 buffer queue silently returns uninitialized memory on hardw=
+are errors.
+--
 
-	report_size = rmi_f54_get_report_size(f54);
-	...
-	for (i = 0; i < report_size; i += F54_REPORT_DATA_SIZE) {
-		int size = min(F54_REPORT_DATA_SIZE, report_size - i);
-		...
-		rmi_read_block(.., f54->report_data + i, size);
-	}
+commit 08992eb2bae1821355b21e17559ef51ec82606cd
+Author: Bryam Vargas <hexlabsecurity@proton.me>
 
-report_data is allocated once at probe from F54's own electrode counts
-(array3_size(f54->num_tx_electrodes, f54->num_rx_electrodes, sizeof(u16))),
-but rmi_f54_get_report_size() computes the size from
-drv_data->num_*_electrodes when those are set, i.e. from the F55
-function's electrode counts. Both counts come straight from device
-queries (F54 and F55 each report up to 255 electrodes) and nothing
-constrains the F55 counts to the F54 ones.
+Input: synaptics-rmi4 - bound the F54 report size to the allocated buffer
 
-A malicious or malfunctioning RMI4 device that reports larger F55
-electrode counts than its F54 counts makes report_size exceed the
-allocation, so the read loop writes past report_data (and the V4L2
-dequeue memcpy() then reads past it). On conforming hardware the F55
-configured electrodes are a subset of the F54 physical electrodes, so
-report_size never exceeds the buffer and well-behaved devices are
-unaffected.
+This commit adds a bounds check to ensure the F54 diagnostic report size
+does not exceed the allocated buffer. It rejects reports that are larger
+than the allocation to prevent writing past the end of the report data
+buffer.
 
-Record the allocation size and reject a report that does not fit,
-mirroring the existing zero-size check.
+> diff --git a/drivers/input/rmi4/rmi_f54.c b/drivers/input/rmi4/rmi_f54.c
+> index 61909e1a39e24..7a7508a4de85c 100644
+> --- a/drivers/input/rmi4/rmi_f54.c
+> +++ b/drivers/input/rmi4/rmi_f54.c
+[ ... ]
+> @@ -548,6 +549,13 @@ static void rmi_f54_work(struct work_struct *work)
+>  		goto error;     /* retry won't help */
+>  	}
+> =20
+> +	if (report_size > f54->report_data_size) {
 
-Fixes: c762cc68b6a1 ("Input: synaptics-rmi4 - propagate correct number of rx and tx electrodes to F54")
-Cc: stable@vger.kernel.org
-Signed-off-by: Bryam Vargas <hexlabsecurity@proton.me>
----
-Reachable from a malicious or counterfeit RMI4 peripheral (HID/I2C/SPI)
-that exposes both an F54 diagnostics function and an F55 sensor-tuning
-function reporting more electrodes than F54; the report is filled when a
-local client drives an F54 capture through the V4L2 touch device node.
+[Severity: High]
+This is a pre-existing issue, but does this new check permanently break
+conforming hardware due to a copy-paste typo in the F55 parser?
 
-Verified with an in-kernel KASAN litmus that allocates report_data from
-the F54 dims and fills it from the F55-preferred dims (the verbatim
-rmi_f54_get_report_size() preference and the rmi_f54_work() 32-byte read
-loop), Linux 7.1.0-rc5, CONFIG_KASAN=y, kasan.fault=panic, x86_64:
+Looking at rmi_f55_detect() in rmi_f55.c, it incorrectly assigns the
+RX count to the TX count:
 
-  Arm A, F54 8x8 (capacity 128) vs F55 8x24 (report_size 384):
-    BUG: KASAN: slab-out-of-bounds in ... Write of size 32
-    located 0 bytes to the right of the allocated 128-byte region
-    ... cache kmalloc-128 of size 128
-    Kernel panic - not syncing: kasan.fault=panic set
-  Arm B, with this patch (oversize report rejected): clean
-  Arm C, conforming device (F55 dims == F54 dims): clean
+drv_data->num_rx_electrodes =3D f55->cfg_num_rx_electrodes;
+drv_data->num_tx_electrodes =3D f55->cfg_num_rx_electrodes;
 
-  AddressSanitizer (x86_64 and i386): heap-buffer-overflow WRITE of size 32,
-  0 bytes after the 128-byte region.
+For hardware lacking F55_CAP_SENSOR_ASSIGN and having more RX electrodes
+than TX electrodes, this inflates the perceived TX count. This inflated cou=
+nt
+propagates to rmi_f54_get_report_size(), yielding a larger value that will
+unconditionally fail this new bounds check.
 
-The same rmi_f54_get_report_size() value drives the V4L2 dequeue
-memcpy(.., report_size) on the read side, so an oversize report also
-over-reads report_data; rejecting it in rmi_f54_work() (report_size then
-stays 0) closes both. Reproducer and full logs available on request.
+> +		dev_err(&fn->dev, "Report size %d exceeds buffer size %zu\n",
+> +			report_size, f54->report_data_size);
+> +		error =3D -EINVAL;
+> +		goto error;
 
-This is independent of the in-flight "Input: rmi4 - release F54 queue on
-video registration failure" change, which touches only the probe error
-path (vb2_queue_release in rmi_f54_probe); it applies cleanly alongside it.
----
- drivers/input/rmi4/rmi_f54.c | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+[Severity: Critical]
+This isn't a bug introduced by this patch, but does taking this goto error
+path bypass the zeroing of f54->report_size and cause a V4L2 buffer heap
+overflow?
 
-diff --git a/drivers/input/rmi4/rmi_f54.c b/drivers/input/rmi4/rmi_f54.c
-index 61909e1a39e2..7a7508a4de85 100644
---- a/drivers/input/rmi4/rmi_f54.c
-+++ b/drivers/input/rmi4/rmi_f54.c
-@@ -104,6 +104,7 @@ struct f54_data {
- 
- 	enum rmi_f54_report_type report_type;
- 	u8 *report_data;
-+	size_t report_data_size;
- 	int report_size;
- 
- 	bool is_busy;
-@@ -548,6 +549,13 @@ static void rmi_f54_work(struct work_struct *work)
- 		goto error;     /* retry won't help */
- 	}
- 
-+	if (report_size > f54->report_data_size) {
-+		dev_err(&fn->dev, "Report size %d exceeds buffer size %zu\n",
-+			report_size, f54->report_data_size);
-+		error = -EINVAL;
-+		goto error;
-+	}
-+
- 	/*
- 	 * Need to check if command has completed.
- 	 * If not try again later.
-@@ -678,8 +686,8 @@ static int rmi_f54_probe(struct rmi_function *fn)
- 
- 	rx = f54->num_rx_electrodes;
- 	tx = f54->num_tx_electrodes;
--	f54->report_data = devm_kzalloc(&fn->dev,
--					array3_size(tx, rx, sizeof(u16)),
-+	f54->report_data_size = array3_size(tx, rx, sizeof(u16));
-+	f54->report_data = devm_kzalloc(&fn->dev, f54->report_data_size,
- 					GFP_KERNEL);
- 	if (f54->report_data == NULL)
- 		return -ENOMEM;
+In rmi_f54_work(), error paths jump to the error: label, bypassing the
+abort: label where f54->report_size is normally zeroed out. This leaves
+f54->report_size containing its previous successful payload size.=20
 
----
-base-commit: 8e65320d91cdc3b241d4b94855c88459b91abf66
-change-id: 20260613-b4-disp-6721686c-33a3bdacdf38
+If a user then alters the V4L2 format to a smaller size, and an error occurs
+(like this bounds check failing), rmi_f54_buffer_queue() will copy the
+stale, larger payload size into the shrunken V4L2 buffer:
 
-Best regards,
--- 
-Bryam Vargas <hexlabsecurity@proton.me>
+memcpy(ptr, f54->report_data, f54->report_size);
 
+[Severity: Medium]
+This is also a pre-existing issue, but does this error path cause the V4L2
+buffer queue to silently return uninitialized memory?
 
+When rmi_f54_work() triggers this bounds check and jumps to error, the
+buffer is not updated. However, rmi_f54_buffer_queue() ignores the failure
+and marks the buffer as fully populated:
+
+vb2_set_plane_payload(vb, 0, rmi_f54_get_report_size(f54));
+state =3D VB2_BUF_STATE_DONE;
+
+This completes the buffer without indicating an error to userspace.
+
+> +	}
+> +
+>  	/*
+>  	 * Need to check if command has completed.
+[ ... ]
+> @@ -678,8 +686,8 @@ static int rmi_f54_probe(struct rmi_function *fn)
+> =20
+>  	rx =3D f54->num_rx_electrodes;
+>  	tx =3D f54->num_tx_electrodes;
+> -	f54->report_data =3D devm_kzalloc(&fn->dev,
+> -					array3_size(tx, rx, sizeof(u16)),
+> +	f54->report_data_size =3D array3_size(tx, rx, sizeof(u16));
+> +	f54->report_data =3D devm_kzalloc(&fn->dev, f54->report_data_size,
+>  					GFP_KERNEL);
+
+[Severity: High]
+This is a pre-existing issue, but does allocating the f54_data struct
+(which embeds struct video_device vdev) with devm_kzalloc lead to a
+use-after-free when the V4L2 file descriptor is closed?
+
+In rmi_f54_probe(), f54 is allocated using devm_kzalloc(). When the driver
+unbinds, devm automatically frees f54_data.=20
+
+If a userspace application still holds /dev/videoX open, the V4L2 core
+retains a reference to the freed vdev. Subsequent ioctl calls or the final
+closing of the file descriptor will access the freed vdev structure.
+
+[Severity: High]
+This isn't a bug introduced by this patch, but does the lack of a timer
+cancellation in rmi_f54_remove() cause a use-after-free?
+
+While rmi_f54_probe() correctly uses cancel_delayed_work_sync(&f54->work)
+in its error path, the teardown path in rmi_f54_remove() just destroys
+the workqueue:
+
+rmi_f54_remove() {
+    ...
+    video_unregister_device(&f54->vdev);
+    v4l2_device_unregister(&f54->v4l2);
+    destroy_workqueue(f54->workqueue);
+    ...
+}
+
+This does not cancel pending delayed_work timers. If the driver is unbound
+while a V4L2 stream is active, the timer will fire after devm has freed
+the f54 structure and attempt to dereference f54->workqueue.
+
+>  	if (f54->report_data =3D=3D NULL)
+>  		return -ENOMEM;
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260613-b4-disp-67=
+21686c-v1-1-4d5bb84ee520@proton.me?part=3D1

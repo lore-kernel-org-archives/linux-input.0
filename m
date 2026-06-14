@@ -1,110 +1,116 @@
-Received: from mail-dy1-f172.google.com (mail-dy1-f172.google.com [74.125.82.172])
+Received: from mail-oi1-f178.google.com (mail-oi1-f178.google.com [209.85.167.178])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5B0233128AB
-	for <linux-input@vger.kernel.org>; Sun, 14 Jun 2026 20:59:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.172
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 88F0B2236F0
+	for <linux-input@vger.kernel.org>; Sun, 14 Jun 2026 21:02:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781470778; cv=none; b=Z/nvB2uiGUR9eETZyvYwWecn6WXt/dtuMtDJGuLApvNlbR8k+FVYCBSYh8tQcRw1stKqsIL5H9bcrl5Cs0gYCseGdAFY4QGOniQazwL3JAox58FxhPthniMPuRyDE4FfRjLgbPBaM19U11QkPJk5OzWXNgguGhFuVdXuDuI7XpU=
+	t=1781470940; cv=none; b=uxiTq9FWWt1HIaGroa/KGvszGJJivlnK068Veo+Xvg92mgedk6xbWEtr4k4E/yb/hD2OLS48Kvi/FlKu+crSmKOKiywxxYjBk35W7mDvABWUL5s1RM0TkJbFbfqudOqmLIo9rHTqzdXFQMZnCjOs3TGSpy5Mjmf3EkusJ4Oeh8U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781470778; c=relaxed/simple;
-	bh=sNFbsCJeOPwaKXPQsEzBaBiGJ/DYOlHjGmLRUzVAt0U=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Zw6TwEEZefuRexL/3mYT2v4CjvYNQ4mU0Bb7PXgoRFRVlfghH9T2lC/BEgHDRj+n/eKO1zIB02lF1afApgEWMla7VgmW8eMOSqKGgiV5y46YpMfSEw5BhZLHF6DrxQzuZ44I7NuHKCV4g19HL8zQ8hU0KhHMYRP5K6gfxSFoId0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=A+U25mLD; arc=none smtp.client-ip=74.125.82.172
+	s=arc-20240116; t=1781470940; c=relaxed/simple;
+	bh=2ArQg4qpmjrrQ4mc9mt0ZHUq5+4VQZKyKQcrnZMbXoM=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=NC3EkIypocYCcHHRjy0sP83atJi4tPxWmTtfhz5l7OOUDPDCssZDNv2N8xildOIa+ROcHLnQbL06wZJQXVTlDUsTMeQ5sZUVZH+kRHjVl1zZdMPQTyFQrywsopv0eqyR4QcEOP9RrZZdmbygu96Trl709TVazjinDwfQ9k1X7Vw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=U2J/dw/7; arc=none smtp.client-ip=209.85.167.178
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="A+U25mLD"
-Received: by mail-dy1-f172.google.com with SMTP id 5a478bee46e88-3042a388168so1971274eec.1
-        for <linux-input@vger.kernel.org>; Sun, 14 Jun 2026 13:59:36 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="U2J/dw/7"
+Received: by mail-oi1-f178.google.com with SMTP id 5614622812f47-4865e953031so2949342b6e.0
+        for <linux-input@vger.kernel.org>; Sun, 14 Jun 2026 14:02:17 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1781470775; x=1782075575; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=E7BZf0PcZi/GMW4QTHsLeXW1vcBsvCPvj3Zq/xHb3eg=;
-        b=A+U25mLDMx0jIRZXj/5J5pxOkLYgHZSxQXw+CVZ6DyOH5kCenglMf6LTP7AeTixUIW
-         WKYn+bodA7mEBWicO78zHykg/VTtRwfL41OryeTungKyNj4zHaBsL3xuv6wiQEiOk9X6
-         8pROQPM83R0y3O0sipyx9bdlCPUnGukDdvxGkp6VqaRKaWfLOjw75NDguHDQw6CbmvoN
-         nB1WPzMJ5V2A946XnMYbA5X2MVH73wd+UWvhmshmryPnrYTJYT5nYPBlX0wDNcrSR80i
-         tec4shkjLzwl6T5f92qNB9PDbpsVKJ65lEtdun1ZL6sKKlldBPW0t45/GXc7JZ7xt3/D
-         JFUw==
+        d=gmail.com; s=20251104; t=1781470936; x=1782075736; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:subject:cc:to:from:date:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=HjMi8Y8lFnHLL3o/H7uB9bLrXirUVEIvzNEJJUwIoY0=;
+        b=U2J/dw/7+UCDN1i5yaEwC1aWglLde4qMTSzHUR84NDNKm46wRvyBzI8UKuNPcMvazS
+         jNesoGOTWWVjgwxWojYTwhzAAW//iNnjIQFAgZ6/vK7yADzQ1vSymf/swDxjuMP9WrQB
+         IOe505r4ohZ+oDWH5fh89zyXjs5uS5Xi7opPMweNLa46rAgModHzUjWBOcXdOLKHkHoS
+         zPsxKwD0cDvOGzbuC5VZp/oPZopzuN2R+HNSaX+0n0xBtgAO6y7mS37H9XLp550D0Eht
+         JIko2viRZnP8qNgtRr99Qi4x+3+0j0aUqtvbpTc3lRjH9Yo2/q0qKfGzUidOMlEWdTfd
+         sukQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781470775; x=1782075575;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=E7BZf0PcZi/GMW4QTHsLeXW1vcBsvCPvj3Zq/xHb3eg=;
-        b=V7p68iec2ItVgG/YLB7FtBB8nSgnUVQj38FDVBOp8H6tAW7qWgQQXFnSCLzyW/XKkq
-         DTDVgwMxM+nN9AEGYELUQtCx+Wu6i5NAYwGgS9/zMc1PCn1Xvsly1HslBryo0zDmBon2
-         pm6/dnIxD2D1NRCh8DM1fLw2V9wLJ+hsp5Yv1TvtOxCheEMeC45Zdy+vkkr1b9q6ogVw
-         U9bjlw/2JqC57maq+kv7LbsqzHHeZbrDVe3EtoMzEIxKcKff1uqMBb4wnF1dHBcLsuJU
-         yjmJud1FQ3iLK97GcCxXogBqXPgI62MVfg+bGGjob956O9hCjIzmEFGu20+ociHAQG5j
-         k5LQ==
-X-Gm-Message-State: AOJu0YyUsAFgphUKbqDOf6WVJ8cke8Pl5xQ702z86XuctAcA4Gpg3lMb
-	ByJJrs2B/zLde21FVmkiCdQL9B8geJXf8WuGE6rzBaLvBBRFTaa/e+db
-X-Gm-Gg: Acq92OHU1sB392b1SJ6f8wCvye+WccgcC/uOzEjeYC9Oa31Ob+n+nEsti/g0tHf+LrG
-	B5pIG8s+Fu7186bP7CXF+xiX2PkyV8zIXzI4Gz7s9gSnGx01dGEDuJghZuTKahc4oxrzfk9EvLs
-	OdE0jn3kW6PDdMLyfxV0NQd+zRpB5skvNWmWbXDD+U3YN1mNmINLnQVzoDWXIwWXPbbqozStuhZ
-	i4mcqTlNQ/40ywyjyJVf7Fo/gU3G0Y4HsSo66hvdYAL+ujdVzg+PzvVNY+O/Tcjho+u594k8bcI
-	AXjVuEFBm3IG3hLOcj/YfFXZ9drhSm1I0fWyTnVza1+B1q1Dd1lJiwXxUYoK1X2vbf+MAEGjpBC
-	tCuabLPz2iQXmVuetmkM97kTLWqO0LlFQgr7RxyIP39Cv7fOUZyEyVGJlWq21g0DzO1V+DqY9z4
-	8sw63dWh+FEjcUGle2Yvqb9QktJFSJZZdXjLoP4VHa7X2BOsBemv/oppUAESW2cs3I9LbY1snzC
-	F4=
-X-Received: by 2002:a05:7301:e103:b0:307:91f5:9522 with SMTP id 5a478bee46e88-3081de03505mr3904694eec.4.1781470775486;
-        Sun, 14 Jun 2026 13:59:35 -0700 (PDT)
-Received: from google.com ([2a00:79e0:2ebe:8:5d91:5c26:602d:6a99])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3081ea4f7a0sm11104337eec.24.2026.06.14.13.59.34
+        d=1e100.net; s=20251104; t=1781470936; x=1782075736;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=HjMi8Y8lFnHLL3o/H7uB9bLrXirUVEIvzNEJJUwIoY0=;
+        b=EQUglQbsN+uOXruWlCQTyNXT6tl95l60BwuvV9ZFzU6J021NiYD2SpVUFD98jswjHl
+         KHny9NOkswh5OgaLvra7zijAq8xtgAcv7ArUy+T4kfmXDABkTmCWxFIIiqyzBWY0G8ww
+         hVIkZaKvj5ml4CxA/kJ6m3lHQMb/qi2+ioJJlT8s92vZrQ4O7B+88rYnW9E1cIz4haSh
+         xYzWeZP09wqCshqtO7JHCNtUoxDI0s701N9qMFd1yGXHOESW6O2+IWHRrbzraz7V3VRi
+         ZuPJdwwG1b+Fv6OCL7DRDMFhySS5m0mDw6S+f3SL3y+nKKIy5GMUGTrY+udnvf/jiewU
+         1Vow==
+X-Forwarded-Encrypted: i=1; AFNElJ/x/H5jIxI3hhz2wU+kDHB/Y+gWBlT/SCJnnsBfzptT/2nzz2DwQKtyWzlPewXdyXpvPl0PR1/zWZUzQQ==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yxga/gxEeRIdeqFXvjEMqrxZV/94zGlkd/lG7/Bkpc1RjOjcs+s
+	dDGUsvaKh2+CiRqzxfEF/4zrQnS1hF6YJROH2uua1iDayFqiPsUuEign
+X-Gm-Gg: Acq92OEOb+897/nkSRfo5tpaZEbGNHyJC6NkdzL4dSsaX6A5L1QFfjDPRuG4mOVDAY8
+	fMNH7XiJIxjrrtIiWBw9yit8qbpOxtq5pxfbgO60j+dQiplw1B4eSD/Uj9fXCItsqhkEPp7/fwn
+	PSFUYCjQS8l5i8jsafATOpxoWLY4P035Zvmy2gyoF7I8ChMjtaHGAJdrKL6WJzoHd1Q0vSf1UBS
+	kg0qOOCZEV91vR5OEqI3FpesOxpnv5BrObK9ZZyxQ4H11Wy59eLr6q12qoroSgwoRMmyw2vWKFo
+	Lk2+pp3YpU5kDpBz5PiFvHBFyuP0ejhMPQhnUWuSueacAWlpy7gtlc8NqwIjxsHEY6O3HiMr8MJ
+	vlw1xDm8DVakTm+v1Wt6FLlG4KYoEakvNFRokpQmJkHxwz52+a7vWaxLeJYU0nHir5uIO+Y9oAh
+	C3kc/+Ry8+dCFORbxEzeA86hvayufTAZqQWNFp+M/K+DThvXUlNsZy
+X-Received: by 2002:a05:6808:2221:b0:485:29c3:3269 with SMTP id 5614622812f47-48731451d8cmr5988583b6e.21.1781470936508;
+        Sun, 14 Jun 2026 14:02:16 -0700 (PDT)
+Received: from linuxescape (23-88-128-2.fttp.usinternet.com. [23.88.128.2])
+        by smtp.gmail.com with ESMTPSA id 5614622812f47-4875dda5f7csm1536090b6e.1.2026.06.14.14.02.15
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 14 Jun 2026 13:59:34 -0700 (PDT)
-Date: Sun, 14 Jun 2026 13:59:32 -0700
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: hexlabsecurity@proton.me
-Cc: linux-input@vger.kernel.org, Rick Koch <n1gp@hotmail.com>, 
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Input: touchwin - reset the packet index on every
- complete packet
-Message-ID: <ai8WLJQsQda3r4eI@google.com>
-References: <20260613-b4-disp-69921bfd-v1-1-82c036899959@proton.me>
+        Sun, 14 Jun 2026 14:02:15 -0700 (PDT)
+Date: Sun, 14 Jun 2026 16:02:13 -0500
+From: Maxwell Doose <m32285159@gmail.com>
+To: Shuangpeng Bai <shuangpeng.kernel@gmail.com>
+Cc: jikos@kernel.org, jic23@kernel.org, srinivas.pandruvada@linux.intel.com,
+ bentiss@kernel.org, linux-input@vger.kernel.org, linux-iio@vger.kernel.org,
+ linux-kernel@vger.kernel.org
+Subject: Re: [BUG] KASAN: slab-use-after-free in _raw_spin_lock_irqsave from
+ hid-sensor-custom
+Message-ID: <20260614160213.085e1efc@linuxescape>
+In-Reply-To: <178144969601.60470.12928355382146160896@gmail.com>
+References: <178144969601.60470.12928355382146160896@gmail.com>
+X-Mailer: Claws Mail 4.4.0 (GTK 3.24.52; x86_64-pc-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260613-b4-disp-69921bfd-v1-1-82c036899959@proton.me>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-On Sat, Jun 13, 2026 at 08:07:20PM -0500, Bryam Vargas via B4 Relay wrote:
-> From: Bryam Vargas <hexlabsecurity@proton.me>
-> 
-> tw_interrupt() accumulates each non-zero serial byte into a fixed
-> three-byte buffer with a running index that is only reset once a full
-> packet has been received *and* the device's two Y bytes agree:
-> 
-> 	tw->data[tw->idx++] = data;
-> 	if (tw->idx == TW_LENGTH && tw->data[1] == tw->data[2]) {
-> 		...
-> 		tw->idx = 0;
-> 	}
-> 
-> The reset is gated on tw->data[1] == tw->data[2], a value the device
-> controls.  A malicious, malfunctioning or counterfeit Touchwindow
-> peripheral can stream non-zero bytes whose 2nd and 3rd bytes differ: the
-> index reaches TW_LENGTH without the equality holding, is never reset, and
-> keeps growing, so tw->data[tw->idx++] walks off the end of the three-byte
-> array and the rest of the heap-allocated struct tw, one attacker-chosen
-> byte at a time -- an unbounded, device-driven heap out-of-bounds write.
-> 
-> Reset the index on every completed packet and report an event only when
-> the two Y bytes match, like the other serio touchscreen drivers do.
-> 
-> Fixes: 11ea3173d5f2 ("Input: add driver for Touchwin serial touchscreens")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Bryam Vargas <hexlabsecurity@proton.me>
+Hi Shuangpeng,
 
-Applied, thank you.
+On Sun, 14 Jun 2026 15:19:21 -0400
+Shuangpeng Bai <shuangpeng.kernel@gmail.com> wrote:
+
+> I hit the following report while testing current upstream kernel:
+> 
+> KASAN: slab-use-after-free in _raw_spin_lock_irqsave from
+> hid-sensor-custom
+> 
+> on commit: e8c2f9fdadee7cbc75134dc463c1e0d856d6e5c7 (May 25 2026)
+> 
+
+Is this correct? It seems to point to changes in HPFS.
+
+>
+> The reproducer and .config files are here.
+> https://gist.github.com/shuangpengbai/d82ac0d19fda016e81d7fa1ab028d967
+> 
+> I'm happy to test debug patches or provide additional information.
+> 
+> Reported-by: Shuangpeng Bai <shuangpeng.kernel@gmail.com>
+> 
+
+This bug report also seems to have nothing to do with IIO after
+investigating the call trace, seems more like for the HID/input folks
+than iio. HID folks, seems like it was caused here:
+
+[   73.163547][ T8356]  hid_sensor_custom_poll (include/linux/poll.h:45 drivers/hid/hid-sensor-custom.c:706)
+
+before _raw_spin_lock_irqsave() gets called and KASAN triggers the slab-use-after-free.
 
 -- 
-Dmitry
+best regards,
+max

@@ -1,212 +1,155 @@
-Received: from out-180.mta1.migadu.com (out-180.mta1.migadu.com [95.215.58.180])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qv1-f50.google.com (mail-qv1-f50.google.com [209.85.219.50])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5485C3C2B8D
-	for <linux-input@vger.kernel.org>; Sun, 14 Jun 2026 13:34:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.180
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E760619DF6A
+	for <linux-input@vger.kernel.org>; Sun, 14 Jun 2026 15:16:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.50
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781444065; cv=none; b=CYtfuhn2Y42y+VEB6W74RMy+Ib79eGxZhzNuWprgghuUmGswdh+ehT7JXaHFqp5snP7KkYmY6ZGipRhrTwQ3GXX5+1Uw7IsdbAIJHb5YK7SQv194IGWRJjQLK6MTLTCFHxMuz953TWQeZobI+SDlKg8DvEIUvow45/4veAf167o=
+	t=1781450167; cv=none; b=LMmKaBOuEmF/vyeTE3ByYTCm5xNkB3M1li0iMehTa5+DAK3PUEeQA3LZnlj08AdMx+5id/fdYabR+koLlyzLNH/zeCbv/fTJvZbFPXAtDyNyPYoN9sgSES3ynzwxAYc1BaRNfz3xCo2Xu3RnLdrGcuB0iz9cKdJ9C4YDPxP1uOY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781444065; c=relaxed/simple;
-	bh=BOS0AkAbU/qpoXM2ZEj9+upVXEgxGhRkzwLx8/LuOKs=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=eXcG1z+1qPPZbvQCaE4pKRwAnVfJWkpmDCU9mMyyw+8phpbQj/uFhEwnZOeIZTu6FlkpwNxve2vc6F+A7C82jfCKhtTy0nW1YaA1R3lVQqULcu53UAKBlE+D4s89k1FnSC+4C9iVoEuCctxEALreJnap19EptZNqGB22smk3Yys=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=ulJpvvLp; arc=none smtp.client-ip=95.215.58.180
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+	s=arc-20240116; t=1781450167; c=relaxed/simple;
+	bh=KsiBdM29Z31IWGwReRDV0UiELmpoei4WY4j3z0REASQ=;
+	h=From:To:Subject:Date:Message-ID:MIME-Version:Content-Type; b=t2/DUpB+M8JPCwIV/h8tx5p9mwp4LSIj3lcvjstvJyEtprkq9GiSyZ7ZJENPiYegobTiDFFdRlOQ+6tHEG9bSIBufZmDbdp8xVU+SYtOsjn5TlG8lMw0qco4UGY6SaTnBd5YjY+e12pCpGoRupRUckE7y4ywItAAUESPZbjXvbo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=DhemttDI; arc=none smtp.client-ip=209.85.219.50
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="ulJpvvLp"
-Message-ID: <66696080-3601-4d15-8f0f-6850a59cbe9f@linux.dev>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1781444052;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=yT4TlFhORyBN+ULuFLfUsjrihYCgkiIYZ5+d1Ua7oFo=;
-	b=ulJpvvLpWY96D4uWXcDHa9FH84m5mmIi+za2tI4GLutSigifdBfQR+eE823QFCl8ocAFWc
-	3PDMbxdmNBERa36p8boaqIhAyq3HTucIeaONRQvJfng12B+Ds0LO2dHys5fXYbJt+JHkRd
-	8RFu2U2R/ABX3yodxGYvlGgr3H8UYhM=
-Date: Sun, 14 Jun 2026 15:33:38 +0200
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="DhemttDI"
+Received: by mail-qv1-f50.google.com with SMTP id 6a1803df08f44-8ccf887de87so28634456d6.0
+        for <linux-input@vger.kernel.org>; Sun, 14 Jun 2026 08:16:05 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1781450165; x=1782054965; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:to
+         :from:from:to:cc:subject:date:message-id:reply-to;
+        bh=96qLnGS8PkozSC6agDrDXQYTECdna8L3lhENtXMw/Vw=;
+        b=DhemttDIzu7GJ+EU0eW+KzZwZYRvv2Eu3yiGXoCkVqauNeM9hjcpD3HNzAO6hnYl1D
+         A3xaobdlokzcvtRepDQvr8UdE/fWIpWWNbKcQZZBsFIFBljOCHXAGA1UOu4GuvFtG9UB
+         hncJHJfH/E2zXaHtM8FJ/nQnLyPl1wWKUpDonbbXw8a7bhWzhe1CBk5ultEHvz0Kqo1Q
+         hG3Qs8RDa8HduHO+3Br6NqBDOQOwjnvVCmn3mltMI7cBS/RH2akKdDXu3z49RAW01QeL
+         VWne4E0qRr0GI8BOq5DSd8Cd7SR5FjJU9j0aqTk5+Kb9EcraXHEIrvZ7+D8Q2jjmUsu8
+         SmPw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1781450165; x=1782054965;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:to
+         :from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=96qLnGS8PkozSC6agDrDXQYTECdna8L3lhENtXMw/Vw=;
+        b=GfmYDBLpIubKYRHt+WHPOm91XwyEOD74ZUAZgwrHs8OYR7Kn0rOZzYrNaXlvSXQEVH
+         G9cRKfc61Es6IwFgFWjAdb4ANu1fQaf1c+8hxLAObI3sDfQfqBiQzYqFA+nDXbIXIzAt
+         3j1+Rj7U6I62SEOTYAM2P88xoH4/nkYsRYgHrnJGcULmg4oooGLC5jDCChA22YhvRF6O
+         e6WKALdavvs6UR9hCc+Z6o0/6dmw/L3uQw4FuTWnnm04IGTaKrc0Ra9sOAHP+Ge5R3rf
+         C4oN+XyZAjtICVsxQ99NFfIV4O5YABQBFpBFRnJXL9VtmmWRuM6oKMqntZ7NHMPXCkus
+         Z/0g==
+X-Forwarded-Encrypted: i=1; AFNElJ8tJVB30kRHEfY48aRCNeUIXcf90czDCxswPHhO4wWAtVQVYFkBIDzg5WAaclqEIN2GIUQAOxAiREBV7g==@vger.kernel.org
+X-Gm-Message-State: AOJu0Ywv2wpmyOY5N/BvmYmgftnTd1dSYR5tf5r14GrmW0ofU44jMRgg
+	hqsj5MGA7V/N3hnwRaAnvHEw1BwLR8mLemDZnrNpx4TYFQvl0nyGrpVg
+X-Gm-Gg: Acq92OHpWCdl5yM1Wdl1uU3dh235P2qW3TTBs4O6RoEy0fmY6U3GZ/9dfi/BL/ni/Bo
+	xh5vv+b/oj0oYyr/z6nBjs9AqcWqLQ+LlJ73SaPLEBYc1r29G473k677cIs/rJgcLqae7+46qy1
+	ls4IV3NLtvSqnDQk4kEHU0rN2v0JPMAj7Q8APxVsbIeBK15JUKEs1+nHzkI13UmrXJqInT/4eXg
+	qT5QN3VPYC2mm7chpWcmgBi10SULbrDLvgsf2rwzcYDCp7YW9UO79LTQPIROn85YnB31+biHN94
+	oSsl7tSu368ypyKxIr+XfXinguwbKxLzsxcLM7wdwbc5FvaXqij+IXT95XUquM4BglwVrGJYpVM
+	UWVkwCgOczcGQDM6FAyojHe07A812KCR3lWkZiK0fFMXqaGKTfDA8R3M+ACq5XCEXJk/Mj3KNnk
+	gp0Ns8ePBmfT3mTfMpo9SYTE9C24lK89TMGQaVZJKGgcd/Frykuo5boNpFff0=
+X-Received: by 2002:a05:6214:19ec:b0:8ac:a6bd:503b with SMTP id 6a1803df08f44-8d32c4e9ccemr192927216d6.15.1781450164642;
+        Sun, 14 Jun 2026 08:16:04 -0700 (PDT)
+Received: from localhost.localdomain ([168.92.225.3])
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-8d301060e22sm81871886d6.7.2026.06.14.08.16.03
+        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
+        Sun, 14 Jun 2026 08:16:04 -0700 (PDT)
+From: Shuangpeng Bai <shuangpeng.kernel@gmail.com>
+To: dmitry.torokhov@gmail.com,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [BUG] KASAN: slab-out-of-bounds in rmi_create_function
+Date: Sun, 14 Jun 2026 11:16:02 -0400
+Message-ID: <178144969600.60470.6869216573402531557@gmail.com>
+X-Mailer: git-send-email 2.47.1
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Subject: Re: [PATCH v3 5/8] HID: asus: avoid sleeping calls in atomic context
-To: Antheas Kapenekakis <lkml@antheas.dev>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
- Benjamin Tissoires <bentiss@kernel.org>, Jiri Kosina <jikos@kernel.org>,
- "Luke D . Jones" <luke@ljones.dev>, Mateusz Schyboll <dragonn@op.pl>,
- Denis Benato <benato.denis96@gmail.com>,
- Connor Belli <connorbelli2003@gmail.com>, sahiko-bot@kernel.org
-References: <20260613153029.2559774-1-denis.benato@linux.dev>
- <20260613153029.2559774-6-denis.benato@linux.dev>
- <CAGwozwHXKosBi23oS8uvVrjr+fKZ+O+yUpHb0oT=acFCgRDwng@mail.gmail.com>
-Content-Language: en-US
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-From: Denis Benato <denis.benato@linux.dev>
-In-Reply-To: <CAGwozwHXKosBi23oS8uvVrjr+fKZ+O+yUpHb0oT=acFCgRDwng@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-X-Migadu-Flow: FLOW_OUT
+
+Hi Kernel Maintainers,
+
+I hit the following report while testing current upstream kernel:
+
+KASAN: slab-out-of-bounds in rmi_create_function
+
+on commit: e8c2f9fdadee7cbc75134dc463c1e0d856d6e5c7 (May 25 2026)
+
+To help trigger the bug more reliably, we applied a minimal diagnostic patch
+that only adds delays and print statements.
+
+The reproducer and .config files are here.
+https://gist.github.com/shuangpengbai/6f392317d13655f16a8983fe1587dbcc
+
+I'm happy to test debug patches or provide additional information.
+
+Reported-by: Shuangpeng Bai <shuangpeng.kernel@gmail.com>
+
+[  128.210187][   T10] BUG: KASAN: slab-out-of-bounds in rmi_create_function (include/linux/instrumented.h:97 include/asm-generic/bitops/instrumented-atomic.h:28 drivers/input/rmi4/rmi_driver.c:861)
+[  128.210768][   T10] Write of size 8 at addr ffff888178e09b50 by task kworker/0:1/10
+[  128.211308][   T10]
+[  128.211489][   T10] Hardware name: QEMU Ubuntu 24.04 PC v2 (i440FX + PIIX, arch_caps fix, 1996), BIOS 1.16.3-debian-1.16.3-2 04/01/2014
+[  128.211492][   T10] Workqueue: events acpi_table_events_fn
+[  128.211499][   T10] Call Trace:
+[  128.211501][   T10]  <TASK>
+[  128.211503][   T10]  dump_stack_lvl (lib/dump_stack.c:94 lib/dump_stack.c:120)
+[  128.211508][   T10]  print_report (mm/kasan/report.c:378 mm/kasan/report.c:482)
+[  128.211520][   T10]  kasan_report (mm/kasan/report.c:595)
+[  128.211526][   T10]  kasan_check_range (mm/kasan/generic.c:? mm/kasan/generic.c:200)
+[  128.211530][   T10]  rmi_create_function (include/linux/instrumented.h:97 include/asm-generic/bitops/instrumented-atomic.h:28 drivers/input/rmi4/rmi_driver.c:861)
+[  128.211533][   T10]  rmi_scan_pdt (drivers/input/rmi4/rmi_driver.c:525 drivers/input/rmi4/rmi_driver.c:552)
+[  128.211549][   T10]  rmi_init_functions (drivers/input/rmi4/rmi_driver.c:1074)
+[  128.211565][   T10]  rmi_driver_probe (drivers/input/rmi4/rmi_driver.c:1207)
+[  128.211569][   T10]  really_probe (drivers/base/dd.c:? drivers/base/dd.c:709)
+[  128.211571][   T10]  __driver_probe_device (drivers/base/dd.c:871)
+[  128.211579][   T10]  driver_probe_device (drivers/base/dd.c:901)
+[  128.211581][   T10]  __device_attach_driver (drivers/base/dd.c:1029)
+[  128.211587][   T10]  bus_for_each_drv (drivers/base/bus.c:500)
+[  128.211600][   T10]  __device_attach (drivers/base/dd.c:1101)
+[  128.211613][   T10]  device_initial_probe (drivers/base/dd.c:1156)
+[  128.211616][   T10]  bus_probe_device (drivers/base/bus.c:613)
+[  128.211619][   T10]  device_add (drivers/base/core.c:3706)
+[  128.211623][   T10]  rmi_register_transport_device (drivers/input/rmi4/rmi_bus.c:98)
+[  128.211626][   T10]  rmi_spi_probe (drivers/input/rmi4/rmi_spi.c:435)
+[  128.211629][   T10]  really_probe (drivers/base/dd.c:? drivers/base/dd.c:709)
+[  128.211631][   T10]  __driver_probe_device (drivers/base/dd.c:871)
+[  128.211634][   T10]  driver_probe_device (drivers/base/dd.c:901)
+[  128.211636][   T10]  __device_attach_driver (drivers/base/dd.c:1029)
+[  128.211641][   T10]  bus_for_each_drv (drivers/base/bus.c:500)
+[  128.211653][   T10]  __device_attach (drivers/base/dd.c:1101)
+[  128.211671][   T10]  device_initial_probe (drivers/base/dd.c:1156)
+[  128.211674][   T10]  bus_probe_device (drivers/base/bus.c:613)
+[  128.211676][   T10]  device_add (drivers/base/core.c:3706)
+[  128.211679][   T10]  __spi_add_device (drivers/spi/spi.c:756)
+[  128.211689][   T10]  acpi_register_spi_device (drivers/spi/spi.c:786 drivers/spi/spi.c:3055)
+[  128.211697][   T10]  acpi_spi_notify (drivers/spi/spi.c:5093)
+[  128.211699][   T10]  notifier_call_chain (kernel/notifier.c:85)
+[  128.211702][   T10]  blocking_notifier_call_chain (kernel/notifier.c:380)
+[  128.211705][   T10]  acpi_generic_device_attach (drivers/acpi/scan.c:2297)
+[  128.211710][   T10]  acpi_bus_attach (drivers/acpi/scan.c:2323 drivers/acpi/scan.c:2372)
+[  128.211740][   T10]  device_for_each_child (drivers/base/core.c:4035)
+[  128.211751][   T10]  acpi_dev_for_each_child (drivers/acpi/bus.c:1208)
+[  128.211761][   T10]  acpi_bus_attach (drivers/acpi/scan.c:2393)
+[  128.211776][   T10]  device_for_each_child (drivers/base/core.c:4035)
+[  128.211787][   T10]  acpi_dev_for_each_child (drivers/acpi/bus.c:1208)
+[  128.211797][   T10]  acpi_bus_attach (drivers/acpi/scan.c:2393)
+[  128.211816][   T10]  device_for_each_child (drivers/base/core.c:4035)
+[  128.211827][   T10]  acpi_dev_for_each_child (drivers/acpi/bus.c:1208)
+[  128.211839][   T10]  acpi_bus_attach (drivers/acpi/scan.c:2393)
+[  128.211859][   T10]  acpi_bus_scan (drivers/acpi/scan.c:2743)
+[  128.211871][   T10]  acpi_table_events_fn (drivers/acpi/scan.c:2933)
+[  128.211874][   T10]  process_scheduled_works (kernel/workqueue.c:3314 kernel/workqueue.c:3397)
+[  128.211879][   T10]  worker_thread (kernel/workqueue.c:3478)
+[  128.211884][   T10]  kthread (kernel/kthread.c:436)
+[  128.211891][   T10]  ret_from_fork (kernel/process.c:158)
+[  128.211902][   T10]  ret_from_fork_asm (arch/x86/entry/entry_64.S:245)
 
 
-On 6/13/26 18:15, Antheas Kapenekakis wrote:
-> On Sat, 13 Jun 2026 at 17:30, Denis Benato <denis.benato@linux.dev> wrote:
->> Avoid possibly calling asus_wmi_send_event(): a method that can sleep in
->> asus_raw_event() that is called in atomic context.
->>
->> This commit changes when methods are called, not method parameters:
->> the driver behaves as before.
-> Observe the new AI guidelines and add assisted by tags if necessary.
-> Or write the patches manually for mainline. This sentence is an AI
-> euphemism
-No AI was harmed during the production of these patches.
-
-TBF I tried, but it changed too much things I didn't want to
-change and then I ran out of credits, so.... I decided good old
-manual bricolage was better for this.
-> Who let 1489a34e97ef through? I implemented the plumbing for WMI
-> callbacks with asus_hid_event last year because WMI cannot be called
-> through HID. Brightness events had the exact same problem.
-> kbd_led_work/kbd_led_update_all could be renamed and used for this. I
-> would rather avoid introducing a new work queue. The one I added is
-> enough if not too much
-Alright, I'll try to use that queue for everything.
-> Antheas
->
->> Fixes: 1489a34e97ef ("HID: asus: Implement Fn+F5 fan control key handler")
->> Reported-by: sahiko-bot@kernel.org
->> Signed-off-by: Denis Benato <denis.benato@linux.dev>
->> ---
->>  drivers/hid/hid-asus.c | 67 +++++++++++++++++++++++++++++++++++-------
->>  1 file changed, 56 insertions(+), 11 deletions(-)
->>
->> diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
->> index f38b18ad65c6..a6467172c455 100644
->> --- a/drivers/hid/hid-asus.c
->> +++ b/drivers/hid/hid-asus.c
->> @@ -150,6 +150,13 @@ struct asus_drvdata {
->>         unsigned long battery_next_query;
->>         struct work_struct fn_lock_sync_work;
->>         bool fn_lock;
->> +#if IS_REACHABLE(CONFIG_ASUS_WMI)
->> +       struct work_struct wmi_work;
->> +       bool wmi_work_disabled;
->> +       u8 wmi_data[FEATURE_KBD_REPORT_SIZE];
->> +       int wmi_size;
->> +       spinlock_t wmi_lock;
->> +#endif
->>         struct asus_xgm_led *xgm_led;
->>  };
->>
->> @@ -338,6 +345,7 @@ static int asus_e1239t_event(struct asus_drvdata *drvdat, u8 *data, int size)
->>         return 0;
->>  }
->>
->> +#if IS_REACHABLE(CONFIG_ASUS_WMI)
->>  /*
->>   * Send events to asus-wmi driver for handling special keys
->>   */
->> @@ -361,6 +369,32 @@ static int asus_wmi_send_event(struct asus_drvdata *drvdata, u8 code)
->>         return 0;
->>  }
->>
->> +static void asus_wmi_work(struct work_struct *work)
->> +{
->> +       struct asus_drvdata *drvdata = container_of(work, struct asus_drvdata, wmi_work);
->> +       u8 report_data[FEATURE_KBD_REPORT_SIZE];
->> +       int report_size;
->> +       unsigned long flags;
->> +       int ret;
->> +
->> +       spin_lock_irqsave(&drvdata->wmi_lock, flags);
->> +       memcpy(report_data, drvdata->wmi_data, drvdata->wmi_size);
->> +       report_size = drvdata->wmi_size;
->> +       spin_unlock_irqrestore(&drvdata->wmi_lock, flags);
->> +
->> +       ret = asus_wmi_send_event(drvdata, ASUS_FAN_CTRL_KEY_CODE);
->> +       if (ret) {
->> +               if (ret != -ENODEV)
->> +                       hid_warn(drvdata->hdev, "Failed to notify asus-wmi: %d\n", ret);
->> +
->> +               /* Fallback: pass the raw event to the HID core */
->> +               hid_report_raw_event(drvdata->hdev, HID_INPUT_REPORT,
->> +                                    report_data, report_size,
->> +                                    report_size, 1);
->> +       }
->> +}
->> +#endif
->> +
->>  static int asus_event(struct hid_device *hdev, struct hid_field *field,
->>                       struct hid_usage *usage, __s32 value)
->>  {
->> @@ -397,6 +431,9 @@ static int asus_raw_event(struct hid_device *hdev,
->>                 struct hid_report *report, u8 *data, int size)
->>  {
->>         struct asus_drvdata *drvdata = hid_get_drvdata(hdev);
->> +#if IS_REACHABLE(CONFIG_ASUS_WMI)
->> +       unsigned long flags;
->> +#endif
->>
->>         if (drvdata->battery && data[0] == BATTERY_REPORT_ID)
->>                 return asus_report_battery(drvdata, data, size);
->> @@ -422,19 +459,18 @@ static int asus_raw_event(struct hid_device *hdev,
->>                          * pass to userspace so it can implement its own fan control.
->>                          */
->>                         if (data[1] == ASUS_FAN_CTRL_KEY_CODE) {
->> -                               int ret = asus_wmi_send_event(drvdata, ASUS_FAN_CTRL_KEY_CODE);
->> -
->> -                               if (ret == 0) {
->> -                                       /* Successfully handled by asus-wmi, block event */
->> +#if IS_REACHABLE(CONFIG_ASUS_WMI)
->> +                               spin_lock_irqsave(&drvdata->wmi_lock, flags);
->> +                               memcpy(drvdata->wmi_data, data, min_t(int, size, sizeof(drvdata->wmi_data)));
->> +                               drvdata->wmi_size = size;
->> +                               spin_unlock_irqrestore(&drvdata->wmi_lock, flags);
->> +
->> +                               if (!drvdata->wmi_work_disabled) {
->> +                                       schedule_work(&drvdata->wmi_work);
->> +                                       /* Successfully handled asynchronously, block event */
->>                                         return -1;
->>                                 }
->> -
->> -                               /*
->> -                                * Warn if asus-wmi failed (but not if it's unavailable).
->> -                                * Let the event reach userspace in all failure cases.
->> -                                */
->> -                               if (ret != -ENODEV)
->> -                                       hid_warn(hdev, "Failed to notify asus-wmi: %d\n", ret);
->> +#endif
->>                         }
->>
->>                         /*
->> @@ -1350,6 +1386,10 @@ static int asus_probe(struct hid_device *hdev, const struct hid_device_id *id)
->>                 hdev->quirks |= HID_QUIRK_NO_INIT_REPORTS;
->>
->>         drvdata->hdev = hdev;
->> +#if IS_REACHABLE(CONFIG_ASUS_WMI)
->> +       INIT_WORK(&drvdata->wmi_work, asus_wmi_work);
->> +       spin_lock_init(&drvdata->wmi_lock);
->> +#endif
->>
->>         if (drvdata->quirks & (QUIRK_T100CHI | QUIRK_T90CHI)) {
->>                 ret = asus_battery_probe(hdev);
->> @@ -1460,6 +1500,11 @@ static void asus_remove(struct hid_device *hdev)
->>         if (drvdata->quirks & QUIRK_HID_FN_LOCK)
->>                 cancel_work_sync(&drvdata->fn_lock_sync_work);
->>
->> +#if IS_REACHABLE(CONFIG_ASUS_WMI)
->> +       drvdata->wmi_work_disabled = true;
->> +       cancel_work_sync(&drvdata->wmi_work);
->> +#endif
->> +
->>         if (drvdata->xgm_led)
->>                 led_classdev_unregister(&drvdata->xgm_led->cdev);
->>
->> --
->> 2.47.3
->>
->>
+Best,
+Shuangpeng

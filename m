@@ -1,105 +1,171 @@
-Received: from mail-wm1-f51.google.com (mail-wm1-f51.google.com [209.85.128.51])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 09EE126056C
-	for <linux-input@vger.kernel.org>; Sun, 14 Jun 2026 23:14:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 23292301460
+	for <linux-input@vger.kernel.org>; Sun, 14 Jun 2026 23:26:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781478846; cv=none; b=t9wJnBt6jpLrNHDDLEPxsqwyqWVrgcyfa2F5urA0fBeaN1WX+QqWq6p2ypSp//38oG7+ZXEeNcO4+Bcm4Z3XMQCuhe1N56BCVGdchUW7FcYMQExNqEPJO75+BQ4NfsKaKl3Bhezbb/J3TCL7mm6k4Ti+RUVE/kX7MxddDFK5Bws=
+	t=1781479601; cv=none; b=e3Fc+RrH2qd1GQrTk7rWKayXQ2rcJUsv8EsYEdowBciPziI03JFblwGR57JOuIunDERRV+096nO/r8PKCf4fYWw9/smMIFTePOglSs1cUGlYE30YMKtbgCdxys5hvF6KuCCsua+P0KDcw1bLNi21afAtNBCY9nP6HPNNZNNdtfs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781478846; c=relaxed/simple;
-	bh=q+8GgFY+dd3IIWuVIIparQD8LWX/WYB3KqPHcyn10Kw=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=ZXPsjuTfSKNcNNQ9T7dR6vPvah9u3KbMgKGhq6KPspIR0qtDmQGyaS/5mT6uJv/nk6E3nbHREye7/vCGkN7lXUSh55wSn1D5kerD5Wy/IJKaGbNmO69hvv7efinnMGLKNxUrg4Co1z7ITVcL1hPH+Eh5kCynY92wLYZPwdssxzI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=GizL3rNc; arc=none smtp.client-ip=209.85.128.51
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1781479601; c=relaxed/simple;
+	bh=m/vCyf6uVriiVOfao5CdrpPMwCjALd7sbVSKK57njFI=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=jX6P3oP+sbB9azPNy3a6OYMmYsLhBAO/NTFd87jy8u49PEeGcDbtosUb0OF+/tMvnGvuJkbxXszLKTKSZi9QCQD0f15pvmihPV8PBMjHGuHyV49J3SvuTsimWZ10S8D/MsB7M6pHRKquUDnksermkM0tcxZDbawHeUC8BLZUatg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=iq4abexa; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="GizL3rNc"
-Received: by mail-wm1-f51.google.com with SMTP id 5b1f17b1804b1-490b3e03939so20417525e9.1
-        for <linux-input@vger.kernel.org>; Sun, 14 Jun 2026 16:14:04 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1781478843; x=1782083643; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=LjC/SF7YnoUgzygAXrOjk3AG/UvKlNKu3Qop+wzKITc=;
-        b=GizL3rNcN19pYhSZJzo+L3/LPgH72B9zaFUX/1+Qcj0fsZqnOszHw58xz9n2oMMZnS
-         nKq1k4+koXr7rlEAaMeoMtG5nyectFCwbXRgXgin0AvnXZimf0rL02L38NRmBPUxn5Uj
-         Zhqj8vqRgKSNnxM0kXYzQGwdk9FBSsffmGELDi/ljyi+MOQGOHQ5URc2jEKj0Xxs2L/a
-         gDA+RWNFdeliqZJ512+63XvQ50L3gCYf6SWznnJYpZ6RaVg8ZXAI1dfydrjrNW7RKgZM
-         l4Bom/SKNodDmT4rrvD5ld7Y+nk5DYW/gFEosaw04g71amUlFNEhv0QTW6zqvJzRlBdq
-         K96g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781478843; x=1782083643;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=LjC/SF7YnoUgzygAXrOjk3AG/UvKlNKu3Qop+wzKITc=;
-        b=cl3Uz2uHg2FjNJ+GHpEgJ1oxsBOsK2dBG54053BBb7Mq+TmBtpPD3rhtXMzcHRTSXT
-         FlYidfBhHNWRchRX5efWUsMtRr+/sH4pS+CNgAzy2ysHBamc+bWw+zKopgCwaq50kNiU
-         XoC0yMbK2xEaBkcDnRu8Vbh52QxkNjaOQDq17tA+vAm2lEJBd4NbUmDFMXHe71PB2kxV
-         KnkzJMY+Z9LOi5kgM6m1sc81z6Z+lFZNUw5QvIe6y1QgwLZS7JUu5OE3XpezyjS2IgwK
-         zHnIeunSARSTVnbMfUm3gkMMAJBOr/QbVIu1+Uv+lG9IUla5LvjFH6CQdGHX1GpESF11
-         BAKA==
-X-Forwarded-Encrypted: i=1; AFNElJ+pQJvC5N3ECfRDpiDNL6NYwUv7dYPCOYy3uffgPH2uRUZPqjoIk6JJqR3Wes4MS5z3Dw5sXqCzM/FFRw==@vger.kernel.org
-X-Gm-Message-State: AOJu0YzhelVf0NdfEZzy5YV+zaiA9NOWQKQRCucILPn6nXui4D3xk1nS
-	TI8z0kAqKpkkAR/4MoJPPHFKdEXwjJknfVgL4+SY146NmhsxFxE7fpf8GmI4iyF7J+4=
-X-Gm-Gg: Acq92OE1mHQmeDP5e/NxlO++If5NSsX4AAyKgFiS/Wjyq3vcEN5sI5tqDbD55icJQkm
-	/xcucPFhgIqYxYl5gnz4SVply+5tg7GoE3FeEMRPGOZnV1HkF9gNG5IeEnxeI6KK747BAFHoFSu
-	tfSRukWdowkmCLKceyXc0csw2jdQQyrr1YNXrZoMJdKV3dGlPmVN7Gh1o/3hWyeve9hLJpWgLg3
-	Z8mRmnIf5qsJtbPNhemALSZMbJisXKaSIgsXdVi439CHPUWLKogjhqNPcrKwUdOt0YJkkap9jwp
-	ItDP94oe8SvKK9ADbkIB5AENGOvgh6beK7J4use20IHpql+NoQG4YZMeORjl935bDA1Za0zrP8D
-	N1btc8plJS8Z5ekcrb4TSWTcFRDAI37xDZkhYewty6uiZyQGr7VdyP69mE16LDuA1oOCSeLc3LR
-	06//CQcO/UX3RV0x/8z0gu0bLyIurE9i5aafGhJRrLxGREGZ4dUkwlQVC3ngVVFo8/u14K2P5Q8
-	lcjNgq5RTMORBU=
-X-Received: by 2002:a05:600c:820c:b0:490:b4cb:3866 with SMTP id 5b1f17b1804b1-490ec4d77a4mr118517165e9.10.1781478843364;
-        Sun, 14 Jun 2026 16:14:03 -0700 (PDT)
-Received: from arch-btw (cpc106993-hali7-2-0-cust876.17-1.cable.virginm.net. [82.6.131.109])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49220304180sm193120435e9.4.2026.06.14.16.14.02
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 14 Jun 2026 16:14:03 -0700 (PDT)
-From: Oliver <oliverburns.kernel@gmail.com>
-To: dmitry.torokhov@gmail.com
-Cc: kees@kernel.org,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Oliver <oliverburns.kernel@gmail.com>
-Subject: [PATCH] Input: sur40: fix MAX_CONTACTS value based on PixelSense specification
-Date: Mon, 15 Jun 2026 00:08:47 +0100
-Message-ID: <20260614230847.4938-1-oliverburns.kernel@gmail.com>
-X-Mailer: git-send-email 2.54.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="iq4abexa"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 959561F000E9;
+	Sun, 14 Jun 2026 23:26:39 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1781479599;
+	bh=2lOuW1e/6m4/WFlS9Xyfl2T1My9oyoipXiX/SzJfj68=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=iq4abexaw5hFqiF6hglB4JqjzJhP5DDF4AsrOwDQXPJsoVVkaywMJf4MUNJ1EiM92
+	 Zi1trW8Dz2GB3Zc1gvD7OmRvkPvnQ3K88FVDwwC7fOZzTUZB06KtaeQDlD4n/W62h4
+	 68CktArUylsFVeGmfZiGSiGnmIrgZx4v7NdjfV4k+tscSraS0XbGDyTN1yVrCy/te0
+	 QDigDMz++Y/oJdx39gXpI8b98fkzMHjSw6cmOZlH1yeBIrRxTqzXSZRJjJ2jCGvpe8
+	 4eQELiGXoVAo6Bbl5MkMx7IHarXNk4SwYxFiYUInlDlYMDIA7pdLKP7cUju3tqEfqI
+	 B+kMmbSgjmdvA==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH] Input: sur40: fix MAX_CONTACTS value based on
+ PixelSense specification
+Reply-To: sashiko-reviews@lists.linux.dev
+To: Oliver <oliverburns.kernel@gmail.com>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <20260614230847.4938-1-oliverburns.kernel@gmail.com>
+References: <20260614230847.4938-1-oliverburns.kernel@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Sun, 14 Jun 2026 23:26:39 +0000
+Message-Id: <20260614232639.959561F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-The Samsung SUR40 with Microsoft PixelSense is offically specified to
-support 52 simultaneuous touch contacts, not 64. The value of 64 was an
-unverified guess as noted by the FIXME comment. Update MAX_CONTACTS to
-match the documented hardware specification and remove the FIXME.
+Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+s) to consider:
 
-Signed-off-by: Oliver <oliverburns.kernel@gmail.com>
----
- drivers/input/touchscreen/sur40.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+Pre-existing issues:
+- [Critical] Synchronously freeing the driver state in `sur40_disconnect()`=
+ while the V4L2 device may still be open leads to use-after-free vulnerabil=
+ities.
+- [High] The error path in `sur40_probe` incorrectly calls `input_free_devi=
+ce()` on a successfully registered input device instead of `input_unregiste=
+r_device()`, leading to potential use-after-free and state corruption.
+- [High] The input device is registered and exposed to userspace before the=
+ driver's private video queue and V4L2 components are fully initialized.
+--
 
-diff --git a/drivers/input/touchscreen/sur40.c b/drivers/input/touchscreen/sur40.c
-index fe63d53d56db..77ec2c94b91f 100644
---- a/drivers/input/touchscreen/sur40.c
-+++ b/drivers/input/touchscreen/sur40.c
-@@ -128,8 +128,8 @@ struct sur40_image_header {
- /* polling interval (ms) */
- #define POLL_INTERVAL 1
- 
--/* maximum number of contacts FIXME: this is a guess? */
--#define MAX_CONTACTS 64
-+/* maximum number of contacts */
-+#define MAX_CONTACTS 52
- 
- /* control commands */
- #define SUR40_GET_VERSION 0xb0 /* 12 bytes string    */
--- 
-2.54.0
+commit 36ed451619f33b71bb9cc6a733570423cba1565e
+Author: Oliver <oliverburns.kernel@gmail.com>
 
+Input: sur40: fix MAX_CONTACTS value based on PixelSense specification
+
+This patch updates the maximum number of contacts for the Samsung SUR40
+touchscreen to 52 to match the documented hardware specification. It also
+removes an older FIXME comment that guessed the maximum contacts was 64.
+
+> diff --git a/drivers/input/touchscreen/sur40.c b/drivers/input/touchscree=
+n/sur40.c
+> index fe63d53d56db0..77ec2c94b91fd 100644
+> --- a/drivers/input/touchscreen/sur40.c
+> +++ b/drivers/input/touchscreen/sur40.c
+[ ... ]
+> @@ -128,8 +128,8 @@ struct sur40_image_header {
+>  /* polling interval (ms) */
+>  #define POLL_INTERVAL 1
+> =20
+> -/* maximum number of contacts FIXME: this is a guess? */
+> -#define MAX_CONTACTS 64
+> +/* maximum number of contacts */
+> +#define MAX_CONTACTS 52
+> =20
+>  /* control commands */
+>  #define SUR40_GET_VERSION 0xb0 /* 12 bytes string    */
+
+[Severity: High]
+This isn't a bug introduced by this patch, but I noticed something in
+sur40_probe(). The input device is registered and exposed to userspace
+before the driver's private video queue and V4L2 components are fully
+initialized:
+
+drivers/input/touchscreen/sur40.c:sur40_probe() {
+    ...
+	/* register the polled input device */
+	error =3D input_register_device(input);
+	if (error) {
+		dev_err(&interface->dev,
+			"Unable to register polled input device.");
+		goto err_free_buffer;
+	}
+    ...
+	/* initialize the queue */
+	error =3D vb2_queue_init(&sur40->queue);
+    ...
+}
+
+Does this leave a window where an open operation could trigger sur40_open()
+and start the sur40_poll() worker thread? If the worker thread invokes
+sur40_process_video() and checks vb2_start_streaming_called(&sur40->queue)
+concurrently with the main thread's initialization, could this cause a data
+race regression on partially initialized structures?
+
+[Severity: High]
+This is a pre-existing issue, but looking at the sur40_probe() error handli=
+ng,
+if a failure occurs after the input device is successfully registered, the
+code jumps to error labels that fall through to err_free_input:
+
+drivers/input/touchscreen/sur40.c:sur40_probe() {
+    ...
+err_unreg_video:
+	video_unregister_device(&sur40->vdev);
+err_unreg_v4l2:
+	v4l2_device_unregister(&sur40->v4l2);
+err_free_buffer:
+	kfree(sur40->bulk_in_buffer);
+err_free_input:
+	input_free_device(input);
+err_free_dev:
+	kfree(sur40);
+
+	return error;
+}
+
+Can calling input_free_device() on a successfully registered device lead
+to state corruption? If a userspace process opens this lingering device nod=
+e,
+would the polling thread dereference the freed sur40 pointer and cause a
+use-after-free regression on the error path? It seems like
+input_unregister_device() should be used instead.
+
+[Severity: Critical]
+This is also a pre-existing issue, but I noticed sur40_disconnect()
+synchronously frees the driver state while the V4L2 device may still be ope=
+n:
+
+drivers/input/touchscreen/sur40.c:sur40_disconnect() {
+	struct sur40_state *sur40 =3D usb_get_intfdata(interface);
+
+	v4l2_ctrl_handler_free(&sur40->hdl);
+	video_unregister_device(&sur40->vdev);
+	v4l2_device_unregister(&sur40->v4l2);
+
+	input_unregister_device(sur40->input);
+	kfree(sur40->bulk_in_buffer);
+	kfree(sur40);
+    ...
+}
+
+Could this lead to a use-after-free regression? If userspace holds a
+file descriptor open to the video device during a USB disconnect,
+video_unregister_device() does not forcefully close the active file
+descriptor. When userspace later calls ioctl(), poll(), or close() on the
+descriptor, wouldn't the V4L2 core invoke file operations like
+vb2_fop_release() which dereference the already freed sur40 memory?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260614230847.4938=
+-1-oliverburns.kernel@gmail.com?part=3D1

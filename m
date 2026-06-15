@@ -1,190 +1,124 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ej1-f50.google.com (mail-ej1-f50.google.com [209.85.218.50])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7248B411695
-	for <linux-input@vger.kernel.org>; Mon, 15 Jun 2026 17:03:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781543006; cv=none; b=XkoDtjdFDLqPVyIOESFs4/9feC8uNlJSkn5WiMsEnGlZzMO7au/va5S82HYNwbP128eLTHZ6/HhlHKNH1WOWZk+qsykDU8LzbB1/sVl3fiAFfHRMJMtcWDI+dieh9EXCbHQ5adhHC0or3MYFfN4VV6FWpR5j3XmTuU1UlRAdSt8=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781543006; c=relaxed/simple;
-	bh=ugRjNXgy5zZmr4yLkm3ltLmexl/4+s0Ke6vrNd/dml4=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=oSCZgMZo66kln/yoN+oV/mQpE6xHotmby2T46+9jxmfX613WCxcHtpQx4Zvrl7GFX+z4xOTwZ03jvfWBgMZFBAT5qpeMd1OqCCjRn0fUjR8fUfkW4ZsvhsaJDRlgnJiDwp+8jIotATHSRXSH57OS5NBnF3GC3s0/f61/oZ4uUYQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Rca8knqc; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B012B413259
+	for <linux-input@vger.kernel.org>; Mon, 15 Jun 2026 17:09:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.218.50
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1781543394; cv=pass; b=m/AK09BfgpN/dj1o4KZ5iGNKw2NhTYPXZ6Ie023+za/egi0d0eZiFuBOsUdwMb+Yx+hxZUKdsGlV/aiCePwuOBV4y5zKEKUYwhn5CaE5zGvmeD+GuNvnVBc/8DT9+nDxH/8/lqRXQZwVVpmBLd9Nko4ID602CMCx8E1ucSs4Or4=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1781543394; c=relaxed/simple;
+	bh=Cr21gZwUWq9jfHVaUeu1Ubez84cqLx99H1U3aLVfnCI=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=kW4UtGOHhgEHQGtjF/+ctrMMOHXfgeeEbapPl2Q/JpQJXTre4hes54h7VzR88sMEnqWO1Xi+dKvRHulQWeVepL/5gsFDCtfJHTWPczVDRzDEwl8/nKhGgGqidsKzupgx70Lisgvb7Nn+vuJXnL4nucq5YYDVZldIKro97I0Jp4Q=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=bU2Iblhk; arc=pass smtp.client-ip=209.85.218.50
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Rca8knqc"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F41681F000E9;
-	Mon, 15 Jun 2026 17:03:24 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1781543005;
-	bh=C/enA5KltlGj1tPALX4vEUo/u+CshtKBEWR5inV9/RY=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=Rca8knqcNkKbyZes5VQdyic18ZxVld3o5QZ/WWfMhRUkX0vI67zcVbR8/u17lsF2X
-	 vTMjX9FekwuSa6FbNZGNJy79evbdQ+X73Nk4biMH1ribWUSWWkf+uuRwQG3hs18maZ
-	 ugrEiB+4Fg+/Zrb7OQkZeiTLnPvoH1OgqvXHlNMe2FsoW17I48qJlsNYK8CWAedH9N
-	 J5bDc/s5pMQSP7MlNi0/X1n1O4FgPyqtRH/P5+6AemUNFAsx4WNfzSK45WpZHEmJ3V
-	 zs2eeVT72gTczu6YzMxb/+6LJpRF1b3d1PSZBeMYhdn1bLFX9GxsUZu+hao843kCBN
-	 K27i/bYVq827w==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v4 1/5] HID: asus: refactor the two workqueues and init
- sequence
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Denis Benato" <denis.benato@linux.dev>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260615165058.3845-2-denis.benato@linux.dev>
-References: <20260615165058.3845-2-denis.benato@linux.dev>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Mon, 15 Jun 2026 17:03:24 +0000
-Message-Id: <20260615170324.F41681F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="bU2Iblhk"
+Received: by mail-ej1-f50.google.com with SMTP id a640c23a62f3a-bf0170c80f7so614220866b.3
+        for <linux-input@vger.kernel.org>; Mon, 15 Jun 2026 10:09:52 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1781543391; cv=none;
+        d=google.com; s=arc-20240605;
+        b=ID664nQXEWK9CeG+QOQnwcYsGIBAAcJDvfZUzhSGibaVPMF1ezEp9noV9puTfy2z1v
+         RclgHgtaOoKevGk5KoMtuptkTc+lkIbMjzkcbPkKy5SXm6lcFo6SI+lVnbCUcM2jcS4f
+         Z8Ji36Yb9G6FY2V2ACxkYQL7HM53EP0TJmR3EnIwSfQGclQaBL4B+/7XYJkaD+y1cHzf
+         PPUn0nRyjW2hlHCPMb+BudFhv1bXEN48AHqHH+Rme/b315nr7bH0Kka4vsyKjUGuWWkW
+         9A9/SoYaLE/V7D85vbw8iIT1lonZwpRHp1Er3x+XIGTiWNeouh9Q181NgRlI2kr3kooO
+         jOdA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:dkim-signature;
+        bh=Cr21gZwUWq9jfHVaUeu1Ubez84cqLx99H1U3aLVfnCI=;
+        fh=tWB+Nc5WHjDL5lFRq/9okMmZU3/35/zCgs7cg9s6AJ0=;
+        b=KUkVAYuTjyqa/7RjIYgyH3GqCYT8BMmnSBybG/tgNF5zntx63YFBfPTMiOvWyF4lFL
+         nAou+9LsVDnyKxPM6rsflEFTvOa1MOAon0VGYb0OGuArWEcD15QFYgJWDtcPIcduTley
+         eLe8za9XDtRbPG4vVqvfSsAAoCxNEGXDYdnMsTGcUsKMglqKqH4fxy8Hk+Sx0pTxLQNu
+         QXFIceruuT3CLCxEuZfkZsITHQygID4b81wUpt2ws9n+rykrnRJKd9YMpeSN5CcjBCBk
+         Dcgn0BsbUK11UQcP0iQt1Cc6+JP5HNnVCwmtVcVZbCjxWl6Zzuu33vXoTU8gf+4ahREW
+         n+Kg==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1781543391; x=1782148191; darn=vger.kernel.org;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=Cr21gZwUWq9jfHVaUeu1Ubez84cqLx99H1U3aLVfnCI=;
+        b=bU2Iblhk9vnsDgxKxhXjiCS2mj7KbveT4augZWlTS6ux58qPS754bw7G+7+uJqKHi6
+         94kyHYvMEuQOn17rovkHBYwgLZ8V2jwcTV/FJ8meab5Jbv74cOonR7apCDQj5rlH/KJ0
+         /4yVzA8HArrPKtkyyb0ssZSbr1jfVj59ntpAdQV71pDu0KzeibnBqtdwdDVQiwaPnu1M
+         Mw5AMag5P2ngaFmhlJrCA7D6lvASB7VtVykTakWfnEx6uOCaDGJMcyogV8FJq+tld6g2
+         1dIHFO+Fu+J2UK9OFZ5wsroZG7o440c59fGLL63lcLUc8p9y0sADHiHVsbD2E8QSHUeb
+         nHNw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1781543391; x=1782148191;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=Cr21gZwUWq9jfHVaUeu1Ubez84cqLx99H1U3aLVfnCI=;
+        b=HUfUCF0mpExX3o+iOa+xc5anVvijRHcBe2KSxL3KiTXUod+KRUT0TZElEY9qv+Umu8
+         I4ASzbNoWFEC4hkhsXvMqZMci4IUV73+oPK8p7KF1yDKbe7yNCuGftC4NzoSwH4tDTP+
+         K9veZU9RdXL8yJQdnA3POfVFJRoZZBmYTxp6p3CSiCmaKwPga2Hq8/HlQRC804Fd82nE
+         QCmNPaxHZQozJKbJ4waGyWTlKIJRuXHdJXEkFCN9idtl+tTa72T2IACXCJkWpPoTnzy6
+         tQrqgH+fWgKoSuadxotwzZrxVde1ofwp6A7ct4zHepPJvauT8CMXMcFS0WLSSNjtez/B
+         wBUg==
+X-Forwarded-Encrypted: i=1; AFNElJ+ftu4+cdGKgEBxwbwfVcN5/vsNeONyUrrUZXTonM1R2sMbb+AQ9Ej8ItFnTOJCuvBT6g1DCpjODdASDw==@vger.kernel.org
+X-Gm-Message-State: AOJu0YytHF3MuylXMTihHX3/5LePzgE/xKaBywBHFlqQuGbH867aexhx
+	6B+yX6Iqt8mN0dnIMT0nfj7IyD6OG76/L6lGegK0zqMypkNHem8twNDCIZfsbDHJuY08+hsSWCx
+	sy5UXQWW6bJxjHAcwQdWDmur4ZIPf1Io=
+X-Gm-Gg: Acq92OEZ1QaZeG2oDfFnjev6y/H6LRl1LJr1OU6Idl32/pdda45A35x/h32NlPr4j/0
+	FsgOIuuYLu2oaAMjUC0B3BfhhXc1LjkwrWhl5rKCnIqBJXG59lTlknwxDhz8CRCzHgaajLaegl+
+	R6YrvPY9bBFmHcixuxMELxIYjO7zMqiMUGNLB7kdYZPt3mhMrvOnqM6Z+W3HItpJH9VgohlVxEb
+	82/OYZghFi4CSNqX+i+Hd8c+SP0RPIj6QZcm221/xTqVKX6HOYpUjlkYZqzhc6u3u+QPMK3Dh/4
+	qTP+za5Gr4km7UHa
+X-Received: by 2002:a17:907:3f8d:b0:bed:2a8b:3e73 with SMTP id
+ a640c23a62f3a-bff4cddd831mr594131266b.41.1781543390991; Mon, 15 Jun 2026
+ 10:09:50 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+References: <20260612200717.361018-1-l.scorcia@gmail.com> <20260612200717.361018-2-l.scorcia@gmail.com>
+ <20260615-palatable-aerobics-3091229b6ada@spud>
+In-Reply-To: <20260615-palatable-aerobics-3091229b6ada@spud>
+From: Luca Leonardo Scorcia <l.scorcia@gmail.com>
+Date: Mon, 15 Jun 2026 19:09:39 +0200
+X-Gm-Features: AVVi8CcgapzCFj6cwsB094FQLtSSMmdLrOP26pKMcjV8D9cFGpyiqQvrj10_jjw
+Message-ID: <CAORyz2+4EquYcUHEnoq0N_p7vCmDpPONEhVrmAfO1eX_RNMYbQ@mail.gmail.com>
+Subject: Re: [PATCH v6 1/7] dt-bindings: mfd: mt6397: Add MT6392 PMIC
+To: Conor Dooley <conor@kernel.org>
+Cc: linux-mediatek@lists.infradead.org, Fabien Parent <parent.f@gmail.com>, 
+	Val Packett <val@packett.cool>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
+	Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
+	Sen Chu <sen.chu@mediatek.com>, Sean Wang <sean.wang@mediatek.com>, 
+	Macpaul Lin <macpaul.lin@mediatek.com>, Lee Jones <lee@kernel.org>, 
+	Matthias Brugger <matthias.bgg@gmail.com>, 
+	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, Linus Walleij <linusw@kernel.org>, 
+	Julien Massot <julien.massot@collabora.com>, 
+	Louis-Alexis Eyraud <louisalexis.eyraud@collabora.com>, Akari Tsuyukusa <akkun11.open@gmail.com>, 
+	Chen Zhong <chen.zhong@mediatek.com>, linux-input@vger.kernel.org, 
+	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	linux-pm@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
+	linux-gpio@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
-s) to consider:
-- [High] Sleeping in atomic context due to implicit GFP_KERNEL allocations =
-in HID event handlers.
-- [High] Data race on shared `hid_report` object when calling `hid_report_r=
-aw_event()` asynchronously from the workqueue.
-- [High] Use-After-Free due to un-canceled workqueue items if `hid_hw_start=
-()` fails during probe.
---
+Hi,
+yes, sorry about that, series v6 has been superseded by v7 (I replied
+to the thread and marked it as archived in patchwork, please let me
+know if I have to do something else to mark it as obsolete).
+Sashiko was correct, the regulators node is required for this device.
 
-commit 29efc59c7a1d251ec0726f58d50488da03f9ba12
-Author: Denis Benato <denis.benato@linux.dev>
+Sashiko also has suggestions for v7, a few pre existing issues and a
+few nits here and there but some are actual improvements. One bit that
+caught my eye is the use of the modeset register in the
+mt6392_ldo_get_mode function. I have to double check that with the
+data sheet and the android kernel sources. Not sure if I can do that
+before next week though.
 
-    HID: asus: refactor the two workqueues and init sequence
-   =20
-    Join the two workqueues into one reusing the stopping mechanism
-    of the brightness workqueue, use the joined workqueue to also
-    move the asus_wmi_send_event() sleeping call away from atomic
-    context and add a size check in asus_raw_event().
+Is there any way I can trigger a Sashiko review before sending patches
+to the ML?
 
-    Link: https://lore.kernel.org/all/20260613154732.60A4B1F000E9@smtp.kern=
-el.org/
-
-> diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
-> --- a/drivers/hid/hid-asus.c
-> +++ b/drivers/hid/hid-asus.c
-[ ... ]
-> @@ -331,25 +380,71 @@ static int asus_e1239t_event(struct asus_drvdata *d=
-rvdat, u8 *data, int size)
-[ ... ]
-> +static int asus_kbd_fn_lock_set(struct asus_drvdata *drvdata, bool enabl=
-ed)
-> +{
-> +	struct asus_work_action *action;
-> +	unsigned long flags;
-> +
-> +	action =3D kzalloc_obj(struct asus_work_action);
-
-[Severity: High]
-Does this allocation sleep in an atomic context?
-
-Because kzalloc_obj() implicitly uses default_gfp() which resolves to
-GFP_KERNEL, this introduces a blocking allocation. Since
-asus_kbd_fn_lock_set() is called directly from the raw HID event handler
-asus_event() which runs in an atomic context, this might trigger kernel
-panics or deadlocks under load.
-
-> +	if (!action)
-> +		return -ENOMEM;
-[ ... ]
-> +static int asus_kbd_wmi_fan_send(struct asus_drvdata *drvdata, u8 *repor=
-t_data,
-> +				 size_t report_size)
-> +{
-> +	struct asus_work_action *action;
-> +	unsigned long flags;
-> +
-> +	if (report_size > FEATURE_KBD_REPORT_SIZE) {
-> +		hid_err(drvdata->hdev, "Invalid report size for fan event: %zu\n", rep=
-ort_size);
-> +		return -EINVAL;
->  	}
-> =20
-> +	action =3D kzalloc_obj(struct asus_work_action);
-
-[Severity: High]
-Similarly, does this kzalloc_obj() introduce a blocking allocation in an
-atomic context?
-
-asus_kbd_wmi_fan_send() is invoked from the asus_raw_event() handler, which
-also executes in an atomic context.
-
-> +	if (!action)
-> +		return -ENOMEM;
-[ ... ]
-> @@ -569,59 +668,151 @@ static int asus_kbd_disable_oobe(struct hid_device=
- *hdev)
-[ ... ]
-> +static void asus_kbd_wmi_fan(struct hid_device *hdev, struct hid_raw_eve=
-nt_data *data)
-> +{
-> +	struct asus_drvdata *drvdata =3D hid_get_drvdata(hdev);
-> +	int ret;
-> +
-> +	ret =3D asus_wmi_send_event(drvdata, ASUS_FAN_CTRL_KEY_CODE);
-[ ... ]
-> +	/* Fallback: pass the raw event to the HID core */
-> +	hid_report_raw_event(hdev, HID_INPUT_REPORT,
-> +			     data->report_data, data->report_size,
-> +			     data->report_size, 1);
-
-[Severity: High]
-Can this data race with native HID IRQ delivery?
-
-If notifying the WMI system of a fan key event fails, the deferred work
-handler asus_kbd_wmi_fan() falls back to injecting the raw event into the
-HID core using hid_report_raw_event().
-
-However, hid_report_raw_event() parses the report and mutates the shared
-report->field state arrays without taking any locks. Because the workqueue
-bypasses the hid->driver_input_lock semaphore used by the native IRQ path,
-a concurrent hardware interrupt targeting the same report ID could race with
-this workqueue. This might lead to unsynchronized reads and writes to
-field->value and field->new_value, potentially corrupting the core HID
-report state.
-
-> +}
-[ ... ]
-> @@ -1294,6 +1465,12 @@ static int asus_probe(struct hid_device *hdev, con=
-st struct hid_device_id *id)
-[ ... ]
-> +	ret =3D asus_worker_create(hdev, drvdata);
-> +	if (ret) {
-> +		hid_warn(hdev, "Failed to initialize worker: %d\n", ret);
-> +		return ret;
-> +	}
-> +
->  	ret =3D hid_hw_start(hdev, HID_CONNECT_DEFAULT);
->  	if (ret) {
->  		hid_err(hdev, "Asus hw start failed: %d\n", ret);
->  		return ret;
->  	}
-
-[Severity: High]
-Could this leak a pending work item and cause a use-after-free if
-hid_hw_start() fails?
-
-During driver probe, asus_worker_create() creates a devres-managed worker
-struct. Next, hid_hw_start() connects the device, invoking
-asus_input_configured(), which synchronously schedules a FN_LOCK_SYNC
-work item on the global workqueue.
-
-If hid_hw_start() subsequently fails (e.g., due to an input registration
-error later in the sequence), asus_probe() captures the error and returns
-it directly, bypassing the err_stop_hw label. Consequently, it fails to
-call asus_worker_stop() or cancel_work_sync().
-
-The devres framework will automatically free the worker memory, but the
-scheduled work item remains active. When the system workqueue eventually
-executes the pending work, it will dereference the freed memory.
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260615165058.3845=
--1-denis.benato@linux.dev?part=3D1
+Thank you,
+Luca

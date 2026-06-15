@@ -1,173 +1,119 @@
-Received: from out-172.mta1.migadu.com (out-172.mta1.migadu.com [95.215.58.172])
+Received: from relay11.grserver.gr (relay11.grserver.gr [78.46.171.57])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F1E6E36655C
-	for <linux-input@vger.kernel.org>; Mon, 15 Jun 2026 20:59:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.172
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BF3193B42E6
+	for <linux-input@vger.kernel.org>; Mon, 15 Jun 2026 21:45:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=78.46.171.57
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781557161; cv=none; b=XQ6CCCXXqOvuyXaZe8HNXqi5CHVGyufA48WxYPjEWADKHpZAvfqU3+SoITPZ2BkKpNesYRADfCxa65wgYouDWqmmRRBFiYaxbd3+YSdZWkKhJhSs4kIq4AJKeZT5+E7OM0Ru6bpe7LUrxtGVpDwAUUbg+eC089wnrK595KxuLvM=
+	t=1781559907; cv=none; b=iqIE+/qUrEQ+24LBuQG+VOCLrNcETObVOdbhaDRM/qjcqNL36Cd0tx88pjdnV9IXNtRQ5/osmQkmyP9kxfSTM9lulGtNppXbM9MT90gyTP44Hoa6Aq2mIYIkCs0zrOqDJeI+qLZUtjJNXd2f/H9a72JDm9H6KMGYKyml8o+uV2s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781557161; c=relaxed/simple;
-	bh=mkiPMrXB7/Gh7E4lIUmvjyTu0uUmkvjCr2zM1fhHLlM=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=lUG5v5IoNO4ZkQ9qdbH/eqElJnp/N8mkEscJoEmsKz7G4s6uCd02k0RHrhht095f3MoPcZZ/ANZRLR0LhVJn3McOKBvGCGwKDbMxTIxL3DRrwW16lRTwGHQ8D7to2EfYXyKgxo4KurtQjvBXtu++tn2btaASMalZUb9y7lqMhBM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=Y6LLlC/d; arc=none smtp.client-ip=95.215.58.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+	s=arc-20240116; t=1781559907; c=relaxed/simple;
+	bh=seora9rXBvHqU7B4rHYdjobYA41wO6cDNcalPIbo8aw=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=bPTWfmGOgsBTH774i2/E1DcpWsoKujhNH9L/Dm/7TesVrT43hP/7Ix/i7aeeMZeA01vyCzKvjNwaq3/2PASz0jqeXq1IMhTlHIs3ybOMyh7yjLdSmcdHkXjTLu/CcPFCb5hGG5Y7RzRcKujjjgFN7oElS7SGywhckF8801M39+U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=antheas.dev; spf=pass smtp.mailfrom=antheas.dev; dkim=pass (2048-bit key) header.d=antheas.dev header.i=@antheas.dev header.b=irBj8f0P; arc=none smtp.client-ip=78.46.171.57
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=antheas.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=antheas.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="Y6LLlC/d"
-Message-ID: <a70f9213-234c-45cc-9232-8222241b3c99@linux.dev>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1781557148;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=vodv0UI7KNaAIE2z/Qhv2BVPuyor2Z9avmyczVTiA4M=;
-	b=Y6LLlC/dT1M5CStT7dyBFuGRfj3IfWAS3YzBetMyYqSTxUW7MvumLsFiLfVDT2hu56A1KS
-	6xMrD2Yvh7pnFmNS0ChPxgyz7HDXeqp5t1PceGdU3Mi71lGWtEw599QZpfU3lGl7ZdL9cs
-	YwlwXkHgKSqr1PAH/V/SPaC7kQYEq2M=
-Date: Mon, 15 Jun 2026 22:59:00 +0200
+	dkim=pass (2048-bit key) header.d=antheas.dev header.i=@antheas.dev header.b="irBj8f0P"
+Received: from relay11 (localhost.localdomain [127.0.0.1])
+	by relay11.grserver.gr (Proxmox) with ESMTP id 91BC6BD9C8
+	for <linux-input@vger.kernel.org>; Tue, 16 Jun 2026 00:44:56 +0300 (EEST)
+Received: from linux3247.grserver.gr (linux3247.grserver.gr [213.158.90.240])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by relay11.grserver.gr (Proxmox) with ESMTPS id 1C1F6BD9BE
+	for <linux-input@vger.kernel.org>; Tue, 16 Jun 2026 00:44:56 +0300 (EEST)
+Received: from mail-pj1-f48.google.com (mail-pj1-f48.google.com [209.85.216.48])
+	by linux3247.grserver.gr (Postfix) with ESMTPSA id 525F81FFCC9
+	for <linux-input@vger.kernel.org>; Tue, 16 Jun 2026 00:44:55 +0300 (EEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=antheas.dev;
+	s=default; t=1781559895;
+	bh=JE8sq9BfEJetlOuDsg9zFWj9sWr+ft84RGN4wJbJiK4=;
+	h=Received:From:Subject:To;
+	b=irBj8f0PZ653bCR0G2w2TE229Op3/KGhw0aDeqtyN/XPmafMjbEU9ONoKN7/pO+ln
+	 9VWVumylPXPN3MSWHfI5ivfWOUODiQLNzIKoqJIb+1xVV4v6LLGhTLF7885bEAZ6jQ
+	 vvkGmgNTKNyCJPJNHUjrNIh1fkloM7oUt5p8FxbBbxGnB1wn3mXD1FyFNCWrTvAe83
+	 dIUuBSVhf6O3i56YuTjqnWeDkWLoVm7lnFDlFRkllzV+GZDWFdY+4HI1s7aDt8PFjb
+	 7AtN/LDzGaII7AxbFV3OlFQSiMR3qIKIkA3TWwUx+hchRAYe1yc0BHhm+gP41AGJAE
+	 pq4FgevIHLTEg==
+Authentication-Results: linux3247.grserver.gr;
+        spf=pass (sender IP is 209.85.216.48) smtp.mailfrom=lkml@antheas.dev smtp.helo=mail-pj1-f48.google.com
+Received-SPF: pass (linux3247.grserver.gr: connection is authenticated)
+Received: by mail-pj1-f48.google.com with SMTP id
+ 98e67ed59e1d1-36da151a152so2702566a91.1
+        for <linux-input@vger.kernel.org>;
+ Mon, 15 Jun 2026 14:44:55 -0700 (PDT)
+X-Forwarded-Encrypted: i=1;
+ AFNElJ9ZTNW4ysfn4ZoDxO/nrucK6mDBTa+mfBszCpKpOVYt1MjO/hXVlU6g3+UAbARznHM2w7N/6NLCf6NEHA==@vger.kernel.org
+X-Gm-Message-State: AOJu0YyiY0rVdnlDBDeW24zWqzDwTpstB0w5aOiE7EqEwPwBJqHJ1bua
+	0lzAQBF0/ySEa/q42g+YFsEPmssbgyXQOQAiyAXE6jIDZp4d1dc/ROpEcQxLy0tdAefnAf649x3
+	85JiRGLOENdAFakamNSBYun8u6jn1++4=
+X-Received: by 2002:a17:90b:2dca:b0:36a:6ac2:8bc8 with SMTP id
+ 98e67ed59e1d1-37c2bcef7dfmr12309073a91.14.1781559893710; Mon, 15 Jun 2026
+ 14:44:53 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Subject: Re: [PATCH v4 4/5] HID: asus: add support for xgm led
-To: sashiko-reviews@lists.linux.dev
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-References: <20260615165058.3845-5-denis.benato@linux.dev>
- <20260615170045.AF91E1F000E9@smtp.kernel.org>
-Content-Language: en-US
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-From: Denis Benato <denis.benato@linux.dev>
-In-Reply-To: <20260615170045.AF91E1F000E9@smtp.kernel.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Migadu-Flow: FLOW_OUT
+References: <20260615165058.3845-1-denis.benato@linux.dev>
+ <20260615165058.3845-4-denis.benato@linux.dev>
+In-Reply-To: <20260615165058.3845-4-denis.benato@linux.dev>
+From: Antheas Kapenekakis <lkml@antheas.dev>
+Date: Mon, 15 Jun 2026 23:44:41 +0200
+X-Gmail-Original-Message-ID: 
+ <CAGwozwHnmPEcROYXZgC1C7-mXWEnRfOCKwVB_4kPAj+xpY8Uuw@mail.gmail.com>
+X-Gm-Features: AVVi8Cc7Mjxa7Qg8WR_X9ZRf86gh828hXV-l0-SptiYW_NQlR3gMzC-mxlw3dSk
+Message-ID: 
+ <CAGwozwHnmPEcROYXZgC1C7-mXWEnRfOCKwVB_4kPAj+xpY8Uuw@mail.gmail.com>
+Subject: Re: [PATCH v4 3/5] HID: asus: fix a off-by-one issue making a check
+ stricter that it needs to be
+To: Denis Benato <denis.benato@linux.dev>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
+	Benjamin Tissoires <bentiss@kernel.org>, Jiri Kosina <jikos@kernel.org>,
+	"Luke D . Jones" <luke@ljones.dev>, Mateusz Schyboll <dragonn@op.pl>,
+ Denis Benato <benato.denis96@gmail.com>,
+	Connor Belli <connorbelli2003@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+X-PPP-Message-ID: 
+ <178155989556.3271381.3948765359117287636@linux3247.grserver.gr>
+X-PPP-Vhost: antheas.dev
+X-Virus-Scanned: clamav-milter 1.4.3 at linux3247.grserver.gr
+X-Virus-Status: Clean
 
+On Mon, 15 Jun 2026 at 18:51, Denis Benato <denis.benato@linux.dev> wrote:
+>
+> In mcu_parse_version_string() a size validation for response is stricter
+> that it needs to be: relax the check by one byte.
 
-On 6/15/26 19:00, sashiko-bot@kernel.org wrote:
-> Thank you for your contribution! Sashiko AI review found 3 potential issue(s) to consider:
-> - [High] Propagating cosmetic LED restore errors during system resume causes the entire device resume to fail.
-> - [High] Failing to initialize the auxiliary XG Mobile LED aborts the entire HID device probe.
-> - [High] Manual call to `hid_hw_stop()` while using `devm_led_classdev_register()` leads to a use-after-teardown bug during device removal and probe error paths.
+"making a check stricter that it needs to be"
+
+what check, you might need to reword the title
+
+> Fixes: ("hid-asus: check ROG Ally MCU version and warn")
+> Signed-off-by: Denis Benato <denis.benato@linux.dev>
+> ---
+>  drivers/hid/hid-asus.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
+> index bbf964b12c16..6896730efafc 100644
+> --- a/drivers/hid/hid-asus.c
+> +++ b/drivers/hid/hid-asus.c
+> @@ -835,7 +835,7 @@ static int mcu_parse_version_string(const u8 *response, size_t response_size)
+>                         dots++;
+>         }
+>
+> -       if (dots != 2 || p >= end || (p + 3) >= end)
+> +       if (dots != 2 || end - p < 3)
+>                 return -EINVAL;
+>
+>         memcpy(buf, p, 3);
 > --
+> 2.47.3
 >
-> commit 26f82fa14c4bebc817bb5d79a1cdcdc34bb503d3
-> Author: Denis Benato <denis.benato@linux.dev>
 >
-> HID: asus: add support for xgm led
->
-> XG mobile stations have very bright leds behind the fan that can be
-> turned either ON or OFF: add a cled interface to allow controlling the
-> brightness of those red leds.
->
->> diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
->> index 6896730efafca..e68a6d93369d8 100644
->> --- a/drivers/hid/hid-asus.c
->> +++ b/drivers/hid/hid-asus.c
-> [ ... ]
->> @@ -1343,9 +1371,52 @@ static int asus_start_multitouch(struct hid_device *hdev)
->>  	return 0;
->>  }
->>  
->> +static int asus_xgm_init(struct hid_device *hdev, struct asus_drvdata *drvdata)
->> +{
-> [ ... ]
->> +	drvdata->xgm_led->cdev.brightness_set_blocking = asus_xgm_led_set;
->> +
->> +	/* LED state is arbitrary on boot, set a default */
->> +	ret = asus_xgm_led_set(&drvdata->xgm_led->cdev, drvdata->xgm_led->cdev.brightness);
->> +	if (ret) {
->> +		hid_err(hdev, "Asus failed to set xgm led: %d\n", ret);
->> +		goto asus_xgm_init_err;
->> +	}
->> +
->> +	ret = devm_led_classdev_register(&hdev->dev, &drvdata->xgm_led->cdev);
-> [Severity: High]
-> Because this LED is registered using devm_led_classdev_register(), its
-> unregistration happens during the devres cleanup phase. This phase runs after
-> the driver's remove callback (or probe error path) finishes.
->
-> If the probe error path or asus_remove() manually calls hid_hw_stop(hdev),
-> the HID transport is shut down. During the subsequent devres cleanup,
-> led_classdev_unregister() is called and sets the LED to LED_OFF. This invokes
-> asus_xgm_led_set(), which calls hid_hw_raw_request() on a stopped interface.
->
-> Could this lead to a use-after-teardown bug?
->
->> +	if (ret) {
->> +		hid_err(hdev, "Asus failed to register xgm led: %d\n", ret);
->> +		goto asus_xgm_init_err;
->> +	}
->> +
->> +	return 0;
->> +asus_xgm_init_err:
->> +	drvdata->xgm_led = NULL;
->> +	return ret;
->> +}
->> +
->>  static int __maybe_unused asus_resume(struct hid_device *hdev)
->>  {
->>  	struct asus_drvdata *drvdata = hid_get_drvdata(hdev);
->> +	int ret;
->>  
->>  	/*
->>  	 * If we have a backlight listener registered, restore the previous state,
->> @@ -1355,7 +1426,17 @@ static int __maybe_unused asus_resume(struct hid_device *hdev)
->>  	if (drvdata->listener.brightness_set)
->>  		asus_kbd_backlight_set(&drvdata->listener, drvdata->kbd_backlight_brightness);
->>  
->> +	if (drvdata->xgm_led) {
->> +		ret = asus_xgm_led_set(&drvdata->xgm_led->cdev, drvdata->xgm_led->cdev.brightness);
->> +		if (ret) {
->> +			hid_err(hdev, "Asus failed to restore xgm brightness: %d\n", ret);
->> +			goto asus_resume_err;
-> [Severity: High]
-> If asus_xgm_led_set() fails to restore the LED state (e.g., due to an I/O
-> error or timeout), this returns the error code directly to the PM core.
-> A failed resume callback causes the PM subsystem to treat the device resume as
-> failed, potentially leaving primary features like the keyboard and touchpad
-> unresponsive.
->
-> Would it be better for the failure of a cosmetic LED restore to log a warning
-> instead of aborting the entire device resume?
-No: xg mobile device controllers are just that: not an input device: if it fails
-there it's right to tear down the whole thing.
->> +		}
->> +	}
->> +
->>  	return 0;
->> +asus_resume_err:
->> +	return ret;
->>  }
->>  
->>  static int __maybe_unused asus_reset_resume(struct hid_device *hdev)
-> [ ... ]
->> @@ -1484,6 +1565,16 @@ static int asus_probe(struct hid_device *hdev, const struct hid_device_id *id)
->>  		}
->>  	}
->>  
->> +	if (asus_has_report_id(hdev, FEATURE_KBD_REPORT_ID) &&
->> +	    ((hdev->product == USB_DEVICE_ID_ASUSTEK_XGM_2022) ||
->> +	     (hdev->product == USB_DEVICE_ID_ASUSTEK_XGM_2023))) {
->> +		ret = asus_xgm_init(hdev, drvdata);
->> +		if (ret) {
->> +			hid_err(hdev, "Failed to initialize xg mobile: %d\n", ret);
->> +			goto err_stop_hw;
-> [Severity: High]
-> If asus_xgm_init() fails, the code jumps to err_stop_hw, failing the entire
-> device probe.
->
-> Does this make a non-critical aesthetic feature a hard dependency for the
-> entire device? Might it be safer to log the failure rather than preventing
-> the keyboard and touchpad from working?
-Ditto. Won't resolve these as it would only make the code more confusing.
->> +		}
->> +	}
->> +
->>  	/* Laptops keyboard backlight is always at 0x5a */
->>  	if (is_vendor && (drvdata->quirks & QUIRK_USE_KBD_BACKLIGHT) &&
->>  	    (asus_has_report_id(hdev, FEATURE_KBD_REPORT_ID)) &&
+

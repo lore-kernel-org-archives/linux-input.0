@@ -1,171 +1,150 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qv1-f54.google.com (mail-qv1-f54.google.com [209.85.219.54])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 23292301460
-	for <linux-input@vger.kernel.org>; Sun, 14 Jun 2026 23:26:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E348213A3ED
+	for <linux-input@vger.kernel.org>; Mon, 15 Jun 2026 01:45:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.54
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781479601; cv=none; b=e3Fc+RrH2qd1GQrTk7rWKayXQ2rcJUsv8EsYEdowBciPziI03JFblwGR57JOuIunDERRV+096nO/r8PKCf4fYWw9/smMIFTePOglSs1cUGlYE30YMKtbgCdxys5hvF6KuCCsua+P0KDcw1bLNi21afAtNBCY9nP6HPNNZNNdtfs=
+	t=1781487923; cv=none; b=sJVouOFbkXUGG7KOgy7SEg0pirlXQKiu+wHPCKOIpfAyLyBkCuZPIEB1yMqP3NKo9Juk1unHLpdKVeUYCQjk5+Qd9SQX2D1IXz0to1efvONnxs8/ED5J0l4t+ZufrY6MHyRMwD4vKQbc258i88D7p7QEec84bCctO3T9XBDNeJs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781479601; c=relaxed/simple;
-	bh=m/vCyf6uVriiVOfao5CdrpPMwCjALd7sbVSKK57njFI=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=jX6P3oP+sbB9azPNy3a6OYMmYsLhBAO/NTFd87jy8u49PEeGcDbtosUb0OF+/tMvnGvuJkbxXszLKTKSZi9QCQD0f15pvmihPV8PBMjHGuHyV49J3SvuTsimWZ10S8D/MsB7M6pHRKquUDnksermkM0tcxZDbawHeUC8BLZUatg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=iq4abexa; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1781487923; c=relaxed/simple;
+	bh=Q8IuwbarkNZPzJu5L/vZbu7+SdBMOVjz6huUaACKZbc=;
+	h=From:To:Subject:Date:Message-ID:MIME-Version:Content-Type; b=DKng3hLp60SppOXP2V3b8hzvH3iYW2pNPQRiIWZtOn3lw4SjgIeOXpq0CDlPe5mLconWCcbVf3HBgJJ8IH0HIzKhIT1EpZT4ftkrcnpTKCjbGMHytvZKUmC+8XckrD8shY+vdk0MT5vh3kbowgbRt+2e+r3MBqgWoSfoREK+4JQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Xoqatfsn; arc=none smtp.client-ip=209.85.219.54
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="iq4abexa"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 959561F000E9;
-	Sun, 14 Jun 2026 23:26:39 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1781479599;
-	bh=2lOuW1e/6m4/WFlS9Xyfl2T1My9oyoipXiX/SzJfj68=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=iq4abexaw5hFqiF6hglB4JqjzJhP5DDF4AsrOwDQXPJsoVVkaywMJf4MUNJ1EiM92
-	 Zi1trW8Dz2GB3Zc1gvD7OmRvkPvnQ3K88FVDwwC7fOZzTUZB06KtaeQDlD4n/W62h4
-	 68CktArUylsFVeGmfZiGSiGnmIrgZx4v7NdjfV4k+tscSraS0XbGDyTN1yVrCy/te0
-	 QDigDMz++Y/oJdx39gXpI8b98fkzMHjSw6cmOZlH1yeBIrRxTqzXSZRJjJ2jCGvpe8
-	 4eQELiGXoVAo6Bbl5MkMx7IHarXNk4SwYxFiYUInlDlYMDIA7pdLKP7cUju3tqEfqI
-	 B+kMmbSgjmdvA==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] Input: sur40: fix MAX_CONTACTS value based on
- PixelSense specification
-Reply-To: sashiko-reviews@lists.linux.dev
-To: Oliver <oliverburns.kernel@gmail.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260614230847.4938-1-oliverburns.kernel@gmail.com>
-References: <20260614230847.4938-1-oliverburns.kernel@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Sun, 14 Jun 2026 23:26:39 +0000
-Message-Id: <20260614232639.959561F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Xoqatfsn"
+Received: by mail-qv1-f54.google.com with SMTP id 6a1803df08f44-8cd45d4b7e2so35379946d6.2
+        for <linux-input@vger.kernel.org>; Sun, 14 Jun 2026 18:45:21 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1781487921; x=1782092721; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:to
+         :from:from:to:cc:subject:date:message-id:reply-to;
+        bh=8CHSv4ANqmSvhsROrXqRELTXQAD4dU70egcKmdBq7BQ=;
+        b=Xoqatfsnt+doTt3nCVrUVh9Wbx9tCCDrlW7JlccU2tEIb5+8owjGS5c/C9dbVTzJdZ
+         kwqzeHJDFO0a41YGawVNL2GN5ilx1oNo3QNEf2WwgoPZcts9Clv+cAvnMTEv/+cGRl3M
+         yWFRSyLY3ZjTUC/J4ieDh5ijVKbc/j12ZzD4x7Gbf5gS6UK2gANrHNr8Uyf8EkPVvnSL
+         eKtA7GjTV257br2lgffxydHmWYAAt3HR/Fpgm7PJDfk/Xwb6FxZRNjdcYlJXjd386obv
+         P6gP5b5/H5Tb1m4AamlyeZXb9XBWNi0G2FWdbclOoPpctwc6orR+dulJbxfA+Pg7xQwM
+         ZZ5g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1781487921; x=1782092721;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:to
+         :from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=8CHSv4ANqmSvhsROrXqRELTXQAD4dU70egcKmdBq7BQ=;
+        b=oOK8Ud/Zr2EaSeZcmllGhRBpMGbatDi43BelETj9PKzmzcQdVm6KADQ6CQZX/dn0Os
+         ht+xHVcgToaHBMnV2xZppWTy3KJ7ldStCeK3yn7IP6nvj8C+QlAuOSsFuUAm+5IR9xHb
+         xiXy2QuBN/VPLqVj2nGycntHvNkuDhCeEDUY/9I2R+h59OEH11Q5MKtM2zk/CCepHQSg
+         8hGmG8Zuo7vss9mI3P2ziU9cki4m8Go6YIazVjo3JeEL0LzEkuLpFxP5M18RZeo+KErK
+         RJRMSzb5ZYwL8y+dvFkqeiTSIe86AYKUJE3A1IYlAGRWBzqPStt6FxkAcaYGH3du1PTl
+         f9VQ==
+X-Forwarded-Encrypted: i=1; AFNElJ+MY1GQst8idU2BkseJOW9Ex8b7uftDxmTDWX5VQsHNhQXT3nwcWRKF+LjuiX7v/dcgbNZzXwuX6lFvCg==@vger.kernel.org
+X-Gm-Message-State: AOJu0YznGjEkOpMMGRsFXU3uVqwxVhb/Rlg5iAugDTUs2sp3M7bzal45
+	h0zGXHNyiPEaybpa2x9AR1dEq+AvB8uw6L/sMbD3P88Sp+FY+3TXMKlo
+X-Gm-Gg: Acq92OG9iNVb2SpSIgbFQuxSwt3QaEQ/kglR4TtV2zFr5ZYNGsz1Cy+wwnuLLszqST+
+	Xzsp15qRAs4gmI/8CsIGEwvV0QIczmvBh4RZvZGxef/k3oROckLRYqxKaD0AI+0dclTV2Cs9snA
+	HcMgGfY2gOvTTA8VpCLlMMnk5P+MnVNwqsMqEYdwijoOkLKD4Qf/nTbgKTSxxNOWoRhe7SJyaDP
+	9PP2Rcc7/Jq8NKjznLPZXzn7DLzGTWPM0txShX/4iPTpVedX/I6/0Imlotz1BhjKe36TsG19pWc
+	G4P8JOm9efxZ+uw8MFUxikbg1WoTbyE6XjFqi4vpLfazBcCQcR7WC9PVmUox42+VdQRy7TCiKUM
+	pUEAxcyttXrs7V7k6k+QQbA8Qe57y7wMKJHlnzwm5CKozK8GLNjBL0HbM3ocC+inIH8JJ/++g8J
+	cmGPnQgbspjMymCFOf8h4lPfgUIjTMy0ECa9Sf8BF394shFuG+QEFUjdiGBj27ZqAbiJPWR0bNO
+	Nhb019/
+X-Received: by 2002:ac8:7f85:0:b0:517:6ef7:f6e0 with SMTP id d75a77b69052e-517fe54f480mr184457611cf.46.1781487920807;
+        Sun, 14 Jun 2026 18:45:20 -0700 (PDT)
+Received: from localhost.localdomain ([2601:985:4601:5df0:2106:6ce9:6b1:8f70])
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-51975955956sm11729771cf.17.2026.06.14.18.45.19
+        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
+        Sun, 14 Jun 2026 18:45:20 -0700 (PDT)
+From: Shuangpeng Bai <shuangpeng.kernel@gmail.com>
+To: dmitry.torokhov@gmail.com,
+	mchehab@kernel.org,
+	linux-input@vger.kernel.org,
+	linux-media@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [BUG] Input: rmi4: KASAN slab-use-after-free in v4l2_release
+Date: Sun, 14 Jun 2026 21:45:18 -0400
+Message-ID: <178144969601.60470.13645789994911690209@gmail.com>
+X-Mailer: git-send-email 2.47.1
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
-s) to consider:
+Hi input and media maintainers,
 
-Pre-existing issues:
-- [Critical] Synchronously freeing the driver state in `sur40_disconnect()`=
- while the V4L2 device may still be open leads to use-after-free vulnerabil=
-ities.
-- [High] The error path in `sur40_probe` incorrectly calls `input_free_devi=
-ce()` on a successfully registered input device instead of `input_unregiste=
-r_device()`, leading to potential use-after-free and state corruption.
-- [High] The input device is registered and exposed to userspace before the=
- driver's private video queue and V4L2 components are fully initialized.
---
+I hit the following report while testing current upstream kernel:
 
-commit 36ed451619f33b71bb9cc6a733570423cba1565e
-Author: Oliver <oliverburns.kernel@gmail.com>
+Input: rmi4: KASAN slab-use-after-free in v4l2_release
 
-Input: sur40: fix MAX_CONTACTS value based on PixelSense specification
+The issue was reproduced by holding an rmi4_f54 /dev/v4l-touch node open,
+unbinding the rmi4_f54 function, and then closing the held fd.
 
-This patch updates the maximum number of contacts for the Samsung SUR40
-touchscreen to 52 to match the documented hardware specification. It also
-removes an older FIXME comment that guessed the maximum contacts was 64.
+I am not sure whether this is specific to rmi_f54 or a more generic V4L2
+lifetime issue.
 
-> diff --git a/drivers/input/touchscreen/sur40.c b/drivers/input/touchscree=
-n/sur40.c
-> index fe63d53d56db0..77ec2c94b91fd 100644
-> --- a/drivers/input/touchscreen/sur40.c
-> +++ b/drivers/input/touchscreen/sur40.c
-[ ... ]
-> @@ -128,8 +128,8 @@ struct sur40_image_header {
->  /* polling interval (ms) */
->  #define POLL_INTERVAL 1
-> =20
-> -/* maximum number of contacts FIXME: this is a guess? */
-> -#define MAX_CONTACTS 64
-> +/* maximum number of contacts */
-> +#define MAX_CONTACTS 52
-> =20
->  /* control commands */
->  #define SUR40_GET_VERSION 0xb0 /* 12 bytes string    */
+I reproduced this on commit: e8c2f9fdadee7cbc75134dc463c1e0d856d6e5c7 (May 25 2026)
 
-[Severity: High]
-This isn't a bug introduced by this patch, but I noticed something in
-sur40_probe(). The input device is registered and exposed to userspace
-before the driver's private video queue and V4L2 components are fully
-initialized:
+To help trigger the bug more reliably, we applied a minimal diagnostic patch
+that only adds delays and print statements.
 
-drivers/input/touchscreen/sur40.c:sur40_probe() {
-    ...
-	/* register the polled input device */
-	error =3D input_register_device(input);
-	if (error) {
-		dev_err(&interface->dev,
-			"Unable to register polled input device.");
-		goto err_free_buffer;
-	}
-    ...
-	/* initialize the queue */
-	error =3D vb2_queue_init(&sur40->queue);
-    ...
-}
+The reproducer and .config files are here.
+https://gist.github.com/shuangpengbai/351f125869016d5ce915cbc113abb547
 
-Does this leave a window where an open operation could trigger sur40_open()
-and start the sur40_poll() worker thread? If the worker thread invokes
-sur40_process_video() and checks vb2_start_streaming_called(&sur40->queue)
-concurrently with the main thread's initialization, could this cause a data
-race regression on partially initialized structures?
+I'm happy to test debug patches or provide additional information.
 
-[Severity: High]
-This is a pre-existing issue, but looking at the sur40_probe() error handli=
-ng,
-if a failure occurs after the input device is successfully registered, the
-code jumps to error labels that fall through to err_free_input:
+Reported-by: Shuangpeng Bai <shuangpeng.kernel@gmail.com>
 
-drivers/input/touchscreen/sur40.c:sur40_probe() {
-    ...
-err_unreg_video:
-	video_unregister_device(&sur40->vdev);
-err_unreg_v4l2:
-	v4l2_device_unregister(&sur40->v4l2);
-err_free_buffer:
-	kfree(sur40->bulk_in_buffer);
-err_free_input:
-	input_free_device(input);
-err_free_dev:
-	kfree(sur40);
+[   87.788267][ T8430] BUG: KASAN: slab-use-after-free in v4l2_release (drivers/media/v4l2-core/v4l2-dev.c:466)
+[   87.790392][ T8430] Read of size 8 at addr ffff8881748dc588 by task rmi_f54_hold_cl/8430
+[   87.790944][ T8430]
+[   87.791114][ T8430] Hardware name: QEMU Ubuntu 24.04 PC v2 (i440FX + PIIX, arch_caps fix, 1996), BIOS 1.16.3-debian-1.16.3-2 04/01/2014
+[   87.791116][ T8430] Call Trace:
+[   87.791119][ T8430]  <TASK>
+[   87.791121][ T8430]  dump_stack_lvl (lib/dump_stack.c:94 lib/dump_stack.c:120)
+[   87.791125][ T8430]  print_report (mm/kasan/report.c:378 mm/kasan/report.c:482)
+[   87.791137][ T8430]  kasan_report (mm/kasan/report.c:595)
+[   87.791143][ T8430]  v4l2_release (drivers/media/v4l2-core/v4l2-dev.c:466)
+[   87.791146][ T8430]  __fput (fs/file_table.c:510)
+[   87.791150][ T8430]  fput_close_sync (fs/file_table.c:615)
+[   87.791695][ T8430]  __x64_sys_close (fs/open.c:1507 fs/open.c:1492 fs/open.c:1492)
+[   87.791698][ T8430]  do_syscall_64 (arch/x86/entry/syscall_64.c:63 arch/x86/entry/syscall_64.c:94)
+[   87.791701][ T8430]  entry_SYSCALL_64_after_hwframe (arch/x86/entry/entry_64.S:121)
+[   87.791704][ T8430] RIP: 0033:0x7fe62d972c03
+[   87.791708][ T8430] Code: e9 37 ff ff ff e8 2d f9 01 00 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 00 64 8b 04 25 18 00 00 00 85 c0 75 14 b8 03 00 00 00 0f 05 <48> 3d 00 f0 ff ff 77 45 c3 0f 1f 40 00 48 83 ec 18 89 7c 24 0c e8
+[   87.791710][ T8430] RSP: 002b:00007ffdc1dc6588 EFLAGS: 00000246 ORIG_RAX: 0000000000000003
+[   87.791715][ T8430] RAX: ffffffffffffffda RBX: 000000000000000c RCX: 00007fe62d972c03
+[   87.791717][ T8430] RDX: 0000000000000000 RSI: 0000000000000000 RDI: 0000000000000003
+[   87.791718][ T8430] RBP: 0000000000000003 R08: 0000000000000000 R09: 00007fe62da160c0
+[   87.791720][ T8430] R10: fffffffffffffc0d R11: 0000000000000246 R12: 0000000000000004
+[   87.791722][ T8430] R13: 00007ffdc1dc66d0 R14: 00007ffdc1dc65d0 R15: 0000000000000000
+[   87.791725][ T8430]  </TASK>
+[   87.791727][ T8430]
+[   87.803468][ T8430] Freed by task 8430 on cpu 1 at 87.787459s:
+[   87.803881][ T8430]  kasan_save_track (mm/kasan/common.c:57 mm/kasan/common.c:78)
+[   87.804205][ T8430]  kasan_save_free_info (mm/kasan/generic.c:584)
+[   87.804556][ T8430]  __kasan_slab_free (mm/kasan/common.c:253 mm/kasan/common.c:285)
+[   87.804885][ T8430]  kfree (include/linux/kasan.h:235 mm/slub.c:2689 mm/slub.c:6251 mm/slub.c:6566)
+[   87.805157][ T8430]  devres_release_all (drivers/base/devres.c:50 drivers/base/devres.c:547 drivers/base/devres.c:576)
+[   87.805504][ T8430]  device_release_driver_internal (drivers/base/dd.c:598 drivers/base/dd.c:1357 drivers/base/dd.c:1375)
+[   87.805929][ T8430]  unbind_store (drivers/base/bus.c:244)
+[   87.806246][ T8430]  kernfs_fop_write_iter (fs/kernfs/file.c:352)
+[   87.806616][ T8430]  vfs_write (fs/read_write.c:595 fs/read_write.c:688)
+[   87.806914][ T8430]  ksys_write (fs/read_write.c:740)
+[   87.807214][ T8430]  do_syscall_64 (arch/x86/entry/syscall_64.c:63 arch/x86/entry/syscall_64.c:94)
+[   87.807542][ T8430]  entry_SYSCALL_64_after_hwframe (arch/x86/entry/entry_64.S:121)
+[   87.807955][ T8430]
+[   87.808124][ T8430] The buggy address belongs to the object at ffff8881748dc000
+[   87.808124][ T8430]  which belongs to the cache kmalloc-4k of size 4096
+[   87.809083][ T8430] The buggy address is located 1416 bytes inside of
+[   87.809083][ T8430]  freed 4096-byte region [ffff8881748dc000, ffff8881748dd000)
+[   87.810030][ T8430]
 
-	return error;
-}
 
-Can calling input_free_device() on a successfully registered device lead
-to state corruption? If a userspace process opens this lingering device nod=
-e,
-would the polling thread dereference the freed sur40 pointer and cause a
-use-after-free regression on the error path? It seems like
-input_unregister_device() should be used instead.
-
-[Severity: Critical]
-This is also a pre-existing issue, but I noticed sur40_disconnect()
-synchronously frees the driver state while the V4L2 device may still be ope=
-n:
-
-drivers/input/touchscreen/sur40.c:sur40_disconnect() {
-	struct sur40_state *sur40 =3D usb_get_intfdata(interface);
-
-	v4l2_ctrl_handler_free(&sur40->hdl);
-	video_unregister_device(&sur40->vdev);
-	v4l2_device_unregister(&sur40->v4l2);
-
-	input_unregister_device(sur40->input);
-	kfree(sur40->bulk_in_buffer);
-	kfree(sur40);
-    ...
-}
-
-Could this lead to a use-after-free regression? If userspace holds a
-file descriptor open to the video device during a USB disconnect,
-video_unregister_device() does not forcefully close the active file
-descriptor. When userspace later calls ioctl(), poll(), or close() on the
-descriptor, wouldn't the V4L2 core invoke file operations like
-vb2_fop_release() which dereference the already freed sur40 memory?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260614230847.4938=
--1-oliverburns.kernel@gmail.com?part=3D1
+Best,
+Shuangpeng

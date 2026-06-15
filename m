@@ -1,120 +1,182 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0CD9F3BE17C;
-	Mon, 15 Jun 2026 07:35:39 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 87135145B3F;
+	Mon, 15 Jun 2026 07:38:02 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781508941; cv=none; b=u6aKrHOlNxRiystrVzbXkglqtjt8+Vsx1I3OrkQCb1FV/m2TBKcwB4FVmLEEE2ooIrD90EHSL2Jz4cgNLCHTqsMcydSeH5JiWPMBvqfi7tmMZ0QP4LFlgATlahPvVaRN7qqieDTbDKhSKHvIcMTZjWSa17tefFlVFLcGzJWTCdo=
+	t=1781509083; cv=none; b=LK0iYejZcwgqYmSa1KCUrf9Gu8a76XvBoFP2ytd90AH04u7F/pS9tiDuhoKLrE9/+Gm0QmhXgeKfMS5l17cnwO0vh6xOF0JLkdOp4pWxDeuUCrLtq+t66UQIaUZV2urodLsD023n5ZhmsUoqCkWP2sSLyYGNKw9RZObnnaEu+rE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781508941; c=relaxed/simple;
-	bh=LN2u/uI4tn2eUXLsIkqaFREJlcGd2NPeXVNjrKSTd6Y=;
+	s=arc-20240116; t=1781509083; c=relaxed/simple;
+	bh=QMP5vqIDXJDnoGpiBkvCRUpVkzx4WOIgIktz0sfrZP8=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=BzKm58AWyHCKqqWyNiv1c/LWA5OyJot8tOJYJnMXM1qiamW6p5FsDHjeSvuhQ45b1fiNx5nDmdXRB9PS+VF5jToZUOR5l8cQxs2/yOhzNEOpzDFU1tiWn5WzH4SV86WDjLDn95RPHweudz73H/Gv3tmZ4x0vkruCKy7IUCR0/2s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=kOiMEUq5; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=oFZuT0uHOPc/kquiLiSglxrp3ZtM3d08iY5BQyYtWD9CfsysRz3LrpRwTzief2DI1lQS8qkvi82QktLGdAeYWVxa6IWPVQPJyK9pR6sjuNcBjAoE1Jh6jW3JC8IWyH/X4PQrTj2D14KK1PCuZByQUWNifAzPqw4u9Hvn0PoNsf4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=b4MKJuCb; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="kOiMEUq5"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C0E81F000E9;
-	Mon, 15 Jun 2026 07:35:39 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="b4MKJuCb"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2BAA1F000E9;
+	Mon, 15 Jun 2026 07:38:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1781508939;
-	bh=4ld+Fc754PlN7DQC6+u++SbSK08R0HWxOyN6AKNz/04=;
+	s=k20260515; t=1781509082;
+	bh=NZV91TLd9EUUqLhnbAM8CEbm4USXInFWEkNJCurjJ04=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=kOiMEUq5E0WEtyvjUO8BCjq58D+T478EPlPLb7o06isOwgihbiBBmeCMvusEhVYeK
-	 IWByvvxogCk1WQwk3lYmJl6KCHi9+J4UZtTou/X5xdoZftTARfedmvc7lWZCq8rWMb
-	 LLiq1wD2Sg5fjbe3F8d05HDRBCxPNjOSyV2vEhKba/Fqf20Q/7V0SpOl+8bbHoHK3c
-	 PD/Xfv/IECMQhQ4Ai5Ld4MRsI0gqrc5Bikj6xqXAGSLjLikfd3LjoiXw4cUOJ7uBQL
-	 7hpei2vxAgT1F7W2IyOkC8ec32OaljQhz+prm0vFphqI23wVO8bBLjtRmJj4dN/cCb
-	 Trf4Szt34U5nw==
+	b=b4MKJuCbxTc82OFy5kvSb9iBcXVZ8N2h9W2XdofPAwRlybgUVVpSThFkfieRy7/a9
+	 SAIykxRBAudizgJ3zzz3PvmQVV8wwbyUXRgRbA/5xKmZ2bgxK6ZjEnQaeABQqJeAfI
+	 d+oybaZpji1nqFm7siGHat1SHmiYmwysT39eXJtE0SrxX/x5GxN57nsmi5izY/Hj11
+	 Uhw7zhKwbwaDJzHxgrdauroY6CD1PjRMbjL4+AH48eWHeIrSIA1KV64XZ6jNWB9tnz
+	 Jdzl8hLrlaJ51wQlsw7jnYGpaxz1ZdPPX7a3w3lb1joHEoYdbkoTtXxzEL6heuNtpM
+	 aT6vTlJ/fbabw==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v7 7/9] pinctrl: mediatek: mt6397: Add MediaTek MT6392
+Subject: Re: [PATCH v7 5/9] mfd: mt6397: Add support for MT6392 PMIC
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Luca Leonardo Scorcia" <l.scorcia@gmail.com>
-Cc: conor+dt@kernel.org, dmitry.torokhov@gmail.com, devicetree@vger.kernel.org, linux-input@vger.kernel.org, robh@kernel.org
-In-Reply-To: <20260615071836.362883-8-l.scorcia@gmail.com>
-References: <20260615071836.362883-8-l.scorcia@gmail.com>
+Cc: dmitry.torokhov@gmail.com, robh@kernel.org, devicetree@vger.kernel.org, conor+dt@kernel.org, linux-input@vger.kernel.org
+In-Reply-To: <20260615071836.362883-6-l.scorcia@gmail.com>
+References: <20260615071836.362883-6-l.scorcia@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Mon, 15 Jun 2026 07:35:38 +0000
-Message-Id: <20260615073539.4C0E81F000E9@smtp.kernel.org>
+Date: Mon, 15 Jun 2026 07:38:01 +0000
+Message-Id: <20260615073801.D2BAA1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+Thank you for your contribution! Sashiko AI review found 4 potential issue(=
 s) to consider:
 
 Pre-existing issues:
-- [High] Missing `.remove` callback in `mtk_pinctrl_driver` causes a Use-Af=
-ter-Free of devres-managed memory upon driver unbind because the GPIO chip =
-is registered with an unmanaged API.
+- [High] Use-After-Free of PM notifier on device unbind or probe failure
+- [High] Use-After-Free of irq_domain in probe error path due to active IRQ=
+ thread
+- [High] Concurrent hardware state writes in PM notifier
+- [High] Lost interrupts due to late Write-1-to-Clear (W1C) in the threaded=
+ IRQ handler
 --
 
-commit a353f51e9f14248ddf84f2093bfe6ddad0c83ce8
-Author: Luca Leonardo Scorcia <l.scorcia@gmail.com>
+commit cd7aa2c7d4f30c2e0b9a697283dae8066d30b344
+Author: Fabien Parent <parent.f@gmail.com>
 
-pinctrl: mediatek: mt6397: Add MediaTek MT6392
+mfd: mt6397: Add support for MT6392 PMIC
 
-This commit adds support for the MT6392 pinctrl device by introducing
-its pin definitions and match data. It also updates the MT6397 driver
-to retrieve and use this device data from the match table during probe.
+This commit aligns the MT6397 PMIC driver to other MFD drivers by passing
+an identifier through mt6397_of_match and adds support for the MT6392
+PMIC variant along with its regulator, RTC, keys, and pinctrl devices.
 
-> diff --git a/drivers/pinctrl/mediatek/pinctrl-mt6397.c b/drivers/pinctrl/=
-mediatek/pinctrl-mt6397.c
-> index 03d0f65d7bcc1..8ba02e70595ce 100644
-> --- a/drivers/pinctrl/mediatek/pinctrl-mt6397.c
-> +++ b/drivers/pinctrl/mediatek/pinctrl-mt6397.c
-
+> diff --git a/drivers/mfd/mt6397-core.c b/drivers/mfd/mt6397-core.c
+> index ccd97d66d7f1c..f683e878543e1 100644
+> --- a/drivers/mfd/mt6397-core.c
+> +++ b/drivers/mfd/mt6397-core.c
 [ ... ]
-
-> @@ -40,13 +62,24 @@ static const struct mtk_pinctrl_devdata mt6397_pinctr=
-l_data =3D {
->  static int mt6397_pinctrl_probe(struct platform_device *pdev)
->  {
->  	struct mt6397_chip *mt6397;
-> +	const struct mtk_pinctrl_devdata *data;
-> +
-> +	data =3D device_get_match_data(&pdev->dev);
-> +	if (!data)
-> +		return -ENOENT;
-> =20
->  	mt6397 =3D dev_get_drvdata(pdev->dev.parent);
-> -	return mtk_pctrl_init(pdev, &mt6397_pinctrl_data, mt6397->regmap);
-> +	return mtk_pctrl_init(pdev, data, mt6397->regmap);
+> @@ -327,30 +388,15 @@ static int mt6397_probe(struct platform_device *pde=
+v)
 >  }
 
 [Severity: High]
-This is a pre-existing issue, but by sharing the same initialization path,
-the new MT6392 variant inherits a potential use-after-free on driver unbind.
+This is a pre-existing issue, but I noticed a potential use-after-free
+with the PM notifier during probe failure or device unbind.
 
-Looking at mtk_pctrl_init() in pinctrl-mtk-common.c, it allocates pctl->chip
-using devm_kzalloc() and registers it with the unmanaged gpiochip_add_data()
-API:
+In mt6397_irq_init(), the pm_nb notifier is registered globally:
 
-mtk_pctrl_init() {
+mt6397_irq_init() {
     ...
-    pctl->chip =3D devm_kzalloc(&pdev->dev, sizeof(*pctl->chip), GFP_KERNEL=
-);
-    ...
-    ret =3D gpiochip_add_data(pctl->chip, pctl);
-    ...
+    register_pm_notifier(&chip->pm_nb);
+    return 0;
 }
 
-However, the mtk_pinctrl_driver struct does not have a .remove callback and
-does not set suppress_bind_attrs =3D true.
+However, there doesn't seem to be a corresponding unregister action if
+devm_mfd_add_devices() fails in mt6397_probe(), or when the driver is
+unbound (since mt6397_driver lacks a .remove callback). Because the chip
+struct is devm-allocated, could this leave a dangling pointer in the
+global pm_chain_head, resulting in a use-after-free during the next
+suspend/resume cycle?
 
-If a user manually unbinds the driver via sysfs, devres will automatically
-free pctl->chip, but since gpiochip_remove() is never called, the GPIO
-framework retains pointers to the freed memory.
+[Severity: High]
+This isn't a bug introduced by this patch, but is there a risk of a
+use-after-free involving the irq_domain in the probe error path?
 
-Would it make sense to fix this by switching to devm_gpiochip_add_data() in
-mtk_pctrl_init(), or by adding suppress_bind_attrs =3D true to the driver
-struct?
+In mt6397_probe(), if devm_mfd_add_devices() fails, the domain is
+manually removed:
 
+mt6397_probe() {
+    ...
+    if (ret) {
+        irq_domain_remove(pmic->irq_domain);
+        dev_err(&pdev->dev, "failed to add child devices: %d\n", ret);
+    }
+}
+
+Since the threaded IRQ handler was requested earlier using
+devm_request_threaded_irq(), it remains active until the probe function
+returns and devres unwinds. If a pending hardware interrupt fires during
+this window, would mt6397_irq_thread() execute and call irq_find_mapping()
+on the already freed pmic->irq_domain?
+
+>  static const struct of_device_id mt6397_of_match[] =3D {
 [ ... ]
+> diff --git a/drivers/mfd/mt6397-irq.c b/drivers/mfd/mt6397-irq.c
+> index 5d2e5459f7444..80ea5b92d232f 100644
+> --- a/drivers/mfd/mt6397-irq.c
+> +++ b/drivers/mfd/mt6397-irq.c
+[ ... ]
+> @@ -203,6 +205,12 @@ int mt6397_irq_init(struct mt6397_chip *chip)
+>  		chip->int_status[0] =3D MT6397_INT_STATUS0;
+>  		chip->int_status[1] =3D MT6397_INT_STATUS1;
+>  		break;
+> +	case MT6392_CHIP_ID:
+> +		chip->int_con[0] =3D MT6392_INT_CON0;
+> +		chip->int_con[1] =3D MT6392_INT_CON1;
+> +		chip->int_status[0] =3D MT6392_INT_STATUS0;
+> +		chip->int_status[1] =3D MT6392_INT_STATUS1;
+> +		break;
+> =20
+>  	default:
+>  		dev_err(chip->dev, "unsupported chip: 0x%x\n", chip->chip_id);
+
+[Severity: High]
+This isn't a bug introduced by this patch, but does the PM notifier
+need to acquire the irqlock to prevent hardware state corruption?
+
+In mt6397_irq_pm_notifier(), during PM_SUSPEND_PREPARE:
+
+mt6397_irq_pm_notifier() {
+    ...
+    case PM_SUSPEND_PREPARE:
+        regmap_write(chip->regmap,
+                     chip->int_con[0], chip->wake_mask[0]);
+}
+
+This directly accesses chip->wake_mask and writes to the regmap without
+acquiring chip->irqlock. Since PM notifiers run while userspace tasks
+are still active, could a concurrent request_irq() or free_irq()
+interleave, causing the PM notifier to read torn state or overwrite
+hardware registers with stale values?
+
+[Severity: High]
+This is a pre-existing issue, but can this interrupt handling sequence
+cause lost edge interrupts?
+
+In mt6397_irq_handle_reg(), the driver reads the status, handles the
+nested irqs, and then clears the status at the end:
+
+mt6397_irq_handle_reg() {
+    ...
+    for (i =3D 0; i < 16; i++) {
+        if (status & BIT(i)) {
+            irq =3D irq_find_mapping(mt6397->irq_domain, irqbase + i);
+            if (irq)
+                handle_nested_irq(irq);
+        }
+    }
+   =20
+    regmap_write(mt6397->regmap, reg, status);
+}
+
+Because these are Write-1-to-Clear registers, does writing the status
+back after handling the interrupts unintentionally clear any new edge
+interrupts that might have arrived while handle_nested_irq() was executing?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260615071836.3628=
-83-1-l.scorcia@gmail.com?part=3D7
+83-1-l.scorcia@gmail.com?part=3D5

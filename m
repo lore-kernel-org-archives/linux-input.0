@@ -1,155 +1,258 @@
-Received: from mail-qv1-f51.google.com (mail-qv1-f51.google.com [209.85.219.51])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from AM0PR83CU005.outbound.protection.outlook.com (mail-westeuropeazon11010013.outbound.protection.outlook.com [52.101.69.13])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CCD6C23535E
-	for <linux-input@vger.kernel.org>; Mon, 15 Jun 2026 02:06:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.51
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781489178; cv=none; b=bKhnV4fPKIV1ehraGv4tpccAJ3dX5xY1LGYPq8fVEVHZQ8XN9gH3c6f73WhQrjoAtQHSaQg/SFfmfwWZBXKrunG/rfPnTkFNWeOCcrzGPUv5DKlMZwvwM4prprmQXC2Q8moPQbcJxY0wbSueo/7Ks+jrW0YPAUzV0xBOyd7ALP8=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781489178; c=relaxed/simple;
-	bh=Nr3+Eog+HOtA8+4TaO18r4FP6TRleABitCVf50W6upU=;
-	h=From:To:Subject:Date:Message-ID:MIME-Version:Content-Type; b=e5zEE3GhvAK+4lDLMbRKPJ894KTnqjcXKKd/gwnz6yyClu1wZHitKSXn0RArfQK4ipBhMzPJ9rvxKfR4LBWP0PAXf0i3+kNor7SzKq+G/qFSKGyxQCy5Bf2iTT8IuJ8LDM28Uxaqv4iBcSWWUIWNj3Ne3wiAunJ187JIbG7/gdw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=UalHMVzF; arc=none smtp.client-ip=209.85.219.51
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 07AAF29AAEA;
+	Mon, 15 Jun 2026 03:49:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.69.13
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1781495348; cv=fail; b=qKZiDCHZ4PWW8dwfC3Kg0wV3FHHFwSQ+40xfiLY20i/s3bzdGno9e7BpyOpigSQvGjDQo5nRGfxtnMNiWk/73TBjbM5elYYmqD2dA2MXFdxtrKRtHRI27grzh6/pyArBzXPbzQ28ZGXF2FpsOYWgGDZkYqtMnOE7nYCC+b1QlCs=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1781495348; c=relaxed/simple;
+	bh=AQZ4z0ky5EoISCKbZokz9wQ/1I8cFYeXmmgT5YRDXa0=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
+	 Content-Disposition:In-Reply-To:MIME-Version; b=gup3wrlJfj95tU468YpP7ftefFs51hNQK6MuyoYdjJlXhH7Ocxzsu/6Bi4JR2IL7L2mtSXXfuuizYbhO5/D8Dgp9Zeso1glAspxJrey+BwT93AtAJbpoFvI5exbenUJZe0RIKgUmW+ey8WXLNATVHZdsUopO1Z90gBa/AIxEfQ4=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=oss.nxp.com; spf=pass smtp.mailfrom=oss.nxp.com; dkim=pass (2048-bit key) header.d=NXP1.onmicrosoft.com header.i=@NXP1.onmicrosoft.com header.b=FDYqEfVF; arc=fail smtp.client-ip=52.101.69.13
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=oss.nxp.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.nxp.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="UalHMVzF"
-Received: by mail-qv1-f51.google.com with SMTP id 6a1803df08f44-8d18de80b29so39709316d6.1
-        for <linux-input@vger.kernel.org>; Sun, 14 Jun 2026 19:06:16 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1781489176; x=1782093976; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:to
-         :from:from:to:cc:subject:date:message-id:reply-to;
-        bh=WFs5nbccNjAJMlGd3A3uFh3gr9sEFHghkIjgIcOwGHQ=;
-        b=UalHMVzFbTpcXpAKqEVlXZjQpFiXkZibePsCnqS6KI4BnBS3Mws3ApciN3WwJY1aKL
-         6RSBQaRD0E8LWNE3tgLrxOMQn4ExM0ogPDZJq95942GCs2ig3EE5he8fkgmpwTlRNkeZ
-         HOlnD7z4jZidBa1UlntHf8UlzKz+S4GeHbWirL/0TRXzRHYT6CTFqU8hWgK2XYYsrK2V
-         QXVbnvSzib+necev+tpGUqc9WE945MY+ddkGKx8VzjeALYDhAY2GAgcV1FimyUFfJQix
-         gGotF+7r+ahSjzV/UoDFPy6HFEiSGkvoukv5kvPxWc5R9QTf4TRPdbewPffFTTovzaoq
-         K2dA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781489176; x=1782093976;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:to
-         :from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=WFs5nbccNjAJMlGd3A3uFh3gr9sEFHghkIjgIcOwGHQ=;
-        b=bx1CuZ7XTRl/awDZm3u2Xd6Oax0Mu+iyuN7JIm0pc97Dkvm7HbVfcMS3H9XxUiIbGe
-         WMKmb4TMM/mpukFwQ+BtRtH0Frn7eCNZ1Kcyn1cdsye/cHIAzpmktKnflYWRaZJJNfHn
-         GcnzkF0m1XkTT29tsRWMAl9BuyDhH8U5QhSMh9ALd2xN52IR60qNK39gpL0RTYlKpNdR
-         ZWo7BLoBSCsh12DLbNdl+lDRZ+BzLKFQ5josR0s121RY48SgnmQOs4PQ0623H8dglS5Z
-         DgsVWO9oJag2EU23UJkfvVp/bPVBKvpFPchIS9j+N01KZAqZV3+YG59bkMwVlvQlERAc
-         hMtw==
-X-Forwarded-Encrypted: i=1; AFNElJ9CjMo0gVgELGZdoqTsnHWDdyYDBsfAQZDIfDgD1HFaxgdrpZurDN00oV0jcbLVeFUnwVdVZaUlBx58hQ==@vger.kernel.org
-X-Gm-Message-State: AOJu0YycYqAazso/d8oCdfsp8pdLHy1vse1nnh+cjkyzzJC5/uYMcD0X
-	wHWhs3ZFfPGYmbgKdHrGGVFdonhd5El90oKew8LPtVa1XIpqz0CNZoQRoNoYNjaxP04Few==
-X-Gm-Gg: Acq92OGBqAGw8Ufkk3MYo+/iHFdQ8KJPSxAGAI8ODzrjkziwxjf/fpEdNACFAUgbpPj
-	i+eTPemFOxgjVErUEK8TR/iowUlW7w9w7lrSXFgen2ZJa0oCwpspOTqXTC5NmB/eQHK7yiG44mx
-	E2k9EJZrMLoAMmMt2fvczo99cKE8cxJiXuFxJBQKFSyPNBtgu1h2YcrGEf4q7/Sm13kO3EFX4E+
-	wz8i63wAtee6zTt/FIyOh0lZdJdpVtqDDZGTf36Np6D/yoPP7/cjrIHSv0o1Cj7kHexVJKt7eFm
-	gClqrivHMdi6qjiAj2HpxAhLKN4TGWcT++CJ8CesP97n7S5YZVJGw15U+7il6HyJIRkmRWvN7e+
-	lxm8HMDZHktY/0mOs+v+CdNI0OtenKi7QFWK3SCT3XpqzLFOfhZH4lcH0IpMh/zTX5KtWHycNrQ
-	cAkm6jV9mSs08YnQG8g9DpaBlDI34Ai8P9Gz8qFoKSI9J/1So2DJr+b60JHFdWRkaIle00Og==
-X-Received: by 2002:a0c:f00a:0:b0:8ce:ab75:9d69 with SMTP id 6a1803df08f44-8d3166ca688mr153860276d6.21.1781489175784;
-        Sun, 14 Jun 2026 19:06:15 -0700 (PDT)
-Received: from localhost.localdomain ([2601:985:4601:5df0:2106:6ce9:6b1:8f70])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-8d301f19b20sm96789996d6.19.2026.06.14.19.06.15
-        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
-        Sun, 14 Jun 2026 19:06:15 -0700 (PDT)
-From: Shuangpeng Bai <shuangpeng.kernel@gmail.com>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Mauro Carvalho Chehab <mchehab@kernel.org>,
-	linux-input@vger.kernel.org,
-	linux-media@vger.kernel.org,
+	dkim=pass (2048-bit key) header.d=NXP1.onmicrosoft.com header.i=@NXP1.onmicrosoft.com header.b="FDYqEfVF"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=Vf5KC3JTEutSp8JRKlipqmxXPqrXe6UT75JImfWWxEL7B6mng37SUgkOYvVJmcCannq2JiXi/MJZNHPDnvRuReJAPFUI+Vg9KGg4b0hJyrqRSEW71QOF0Lov238kym1WAZVURas3e3Iyck2vR6EqdIKXFNezXWyqOK+/g0j8y/LmqVSEocrX+CHgivn3owYm1kYpcYLqQh3/cnKKLtN5aCAA/vkWLhNI38wKASGnzhcQYWpheSXKj5k9XDqvLMY4kHaaRnPtwymn0cDFO8KcDfYQbXxKAhnNSrPogzo8vP4S7W48ZlRf4xh6hh4Wor6o5MTGSG957COkSJnRILnlBw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=P8pmyq0jg8Ra5Nzq+IpV5SEs3m2rsUfMOV3Xx/q+xXU=;
+ b=qWn1trrpVTpwYKOINxhBmreqdAgdYMu3l2ACBLLM29VFxRc3lexQBY6FsRaQSj3Jmw4mgUu9vs93L1rUji0veOBz5yfC30J/Y824EzMzbUNh4CMT1eWRQlm/PLW2ZPs6N5P3nB85q3TrBe4MeKaTro2gR5RLEdpoXN7l1IzG+yyV7ffCEjnpTQKonapGJMzseiUGAed6a/SQCT3gK5lui1xDdKGAwccfausHzfiW+2qGl3iJ/evSso7QCNTT/FHIlfYmQ56iIq8BJCyLqnqO49y3UxNo1iX5lKcdHFt3C9xU3gEBh9hWrSxpkbfdO7JBJ+wYLY6E8Do0AyhoSQwBKw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=oss.nxp.com; dmarc=pass action=none header.from=oss.nxp.com;
+ dkim=pass header.d=oss.nxp.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=NXP1.onmicrosoft.com;
+ s=selector1-NXP1-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=P8pmyq0jg8Ra5Nzq+IpV5SEs3m2rsUfMOV3Xx/q+xXU=;
+ b=FDYqEfVFjBaZLnt5Y1cbXpKDGh4jtKayT1ZPVoLzhVQeUZpHgy/WInKbD2yHCINRbusQQKjx6Mp+OW0w8vwqibKmvsAgxUOqyn8iXMcZ8DPA4VtMiAueHOqZ90Xzhnsko+OCJrWGn5y9jBzaHDoaMdaxDrlA3yfnMJtjFTK4XrQK/4Y487eIRaiMHbZLmZFPpoDAl3eZW0Z4l5qS/TQ77aOgfplsPwPWSDjDhjRS5AEbFy2u8owlwaLBRNK3x+EhXZ6aXA+qnzua9id/unfzy1XHkGaxlfeLFTKGM04LKU1ukV3oJoBSaKalT62MXI2769jWPXV0ws5NpSho/Ak0wQ==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=oss.nxp.com;
+Received: from VI1PR04MB5807.eurprd04.prod.outlook.com (2603:10a6:803:ec::21)
+ by VE1PR04MB7261.eurprd04.prod.outlook.com (2603:10a6:800:1a3::16) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.113.18; Mon, 15 Jun
+ 2026 03:48:50 +0000
+Received: from VI1PR04MB5807.eurprd04.prod.outlook.com
+ ([fe80::3da4:2827:d637:37de]) by VI1PR04MB5807.eurprd04.prod.outlook.com
+ ([fe80::3da4:2827:d637:37de%4]) with mapi id 15.21.0113.015; Mon, 15 Jun 2026
+ 03:48:50 +0000
+Date: Mon, 15 Jun 2026 11:52:00 +0800
+From: Joy Zou <joy.zou@oss.nxp.com>
+To: Bough Chen <haibo.chen@oss.nxp.com>
+Cc: Joy Zou <joy.zou@nxp.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Frank Li <Frank.Li@nxp.com>, Peng Fan <peng.fan@nxp.com>,
+	Jacky Bai <ping.bai@nxp.com>, Ye Li <ye.li@nxp.com>,
+	imx@lists.linux.dev, linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [BUG] Input: sur40: KASAN slab-use-after-free in v4l2_release
-Date: Sun, 14 Jun 2026 22:06:14 -0400
-Message-ID: <178144969601.60470.9256616923389083658@gmail.com>
-X-Mailer: git-send-email 2.47.1
+Subject: Re: [PATCH v2 4/4] Input: snvs_pwrkey - report press event in
+ interrupt handler
+Message-ID: <ai924K+ixOZylOrB@shlinux89>
+References: <20260604-pwrkey-cleanup-v2-0-59fa0ddf0d7c@nxp.com>
+ <20260604-pwrkey-cleanup-v2-4-59fa0ddf0d7c@nxp.com>
+ <20260605065913.grovxx53yzvi6yxj@nxp.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260605065913.grovxx53yzvi6yxj@nxp.com>
+X-ClientProxiedBy: MA5P287CA0177.INDP287.PROD.OUTLOOK.COM
+ (2603:1096:a01:1af::10) To VI1PR04MB5807.eurprd04.prod.outlook.com
+ (2603:10a6:803:ec::21)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: VI1PR04MB5807:EE_|VE1PR04MB7261:EE_
+X-MS-Office365-Filtering-Correlation-Id: ee4b3848-5688-4479-8376-08deca9102a8
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|376014|23010399003|366016|1800799024|19092799006|56012099006|11063799006|4143699003|6133799003|22082099003|18002099003;
+X-Microsoft-Antispam-Message-Info:
+	/g9U++bDYfE0yzXFlyvaRYqdu8uhYTB67BG6ODxdi/faV1BKzscKn3UQENylf3kuHKUdprtAOHCPGeH4qVwwhI16XT2AcYgpfd/MszFZ2PxeSoeZ9KXETmMC7SYy9qEUZ6zMaAcqEBDpm0UGoU/TauFHW9q7sgRgCN3FjfoQ0wcpSN3Nu3r4ANscBq8/+68QKJD7l+xzQu6pAbZwq/Ud99d0dDqAoL2Scror+FKgg3UXRQhltiE3P0c/8tz10JlnoXr7y0GFmiuFmSSmy/3C2P+h70hTXaCnKUelNR7hE5uimJb3JrLFPGCOAbwySIUP8cqfQKSr5UeR3T3iqJTevUxl1IbqhXgHUvbyCKGbM9gGEXgLu8eit8ISac9FNr0l+ntRClYFBA/ceVomBSWxH8zLloDTOShEYzeR3m3T6ZFH73a+JSoSe7XcTJnBZMM9IqnxBN2WmJRloacrMfFURjO8ZfPvMDhYKDjim+cdpxf7Gvr5XZTRcBhECnLji3kRWRlrVUwX62Fp42AicP5PJx2Er4+fmRaN2nUDi8xAxE6qkmYU0O7QlXhpzU2JMXE1KIMhj+joV57cCGj0uLx4xU6qD/QTk0hQY2VCfiBeQFZrB0iPKquXrCyveJ32/fXHZLxvd6jcOrPMyJTfEPXMnBTalr9mrRC8D04XZxIxMHN19mzqPBy2UiFW+MXAh2o3
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:VI1PR04MB5807.eurprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(23010399003)(366016)(1800799024)(19092799006)(56012099006)(11063799006)(4143699003)(6133799003)(22082099003)(18002099003);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?us-ascii?Q?3FLUr6wzJHlIbWSnZm8+GY5iHcfaKP4S6uDFV/xztJvEEuqYg1aB61H01Oqm?=
+ =?us-ascii?Q?5J/PYCUiVM6ShysEGTx9OOz0zYrP4T4/kuAUq//QOOENrak4pbLf2ojlx5xU?=
+ =?us-ascii?Q?5xWdcmCJpuJHn/UmGJzrW/PtSPIZXLRsxTQsWFdsEJRjAcs9eDDagrxXxBEl?=
+ =?us-ascii?Q?iToSjj8f836kN+jZV+Rr9jsLkKAK5AjnSyCX4wV1UA3JGiu0iK99POFYquuT?=
+ =?us-ascii?Q?OAdP0dZUVu5Slai4qJxg+B6gebKleZNpFTv8m5rt9iGmp6CVDWVBG3XIV6Jf?=
+ =?us-ascii?Q?9332LMGXZvUDm9qCj9gwMUEYP4MN7/e5nPio775Pwulrrf78yoE4MZPCzhDR?=
+ =?us-ascii?Q?+QKtm+Va5VdxfZmqD6Uqr84icXofsVljJcfcdzkqEcSR+2RzUkEKvaGk4isw?=
+ =?us-ascii?Q?jruNXwUHWxbxAklqmI3Cv5kNdvphOk1tcEcERtAc29YWPsAReBlXbzcJrTr9?=
+ =?us-ascii?Q?GQH4wwYcEo/DZI7FOtkUsHTa6gFbDX5fp3oC+bkegoT+eLDZ94GRiwa90h6y?=
+ =?us-ascii?Q?tXN8yOEynEgUDCvaN3SUW4kybr0Bwm2deLcYsawhzyVhAClLNvb9izzoxS+L?=
+ =?us-ascii?Q?290lobat/TIhdR+s1Mm0Jzys2ixM4+9ELUcyMFRUDINBrOr1W4CSsrxFvYwZ?=
+ =?us-ascii?Q?+3TK+eQMvl2rD1Kr61dEp90XpyHw1b//9T2MAM5mBs0jrceYavpSkMs3KtA+?=
+ =?us-ascii?Q?wWTKfSNjDyZXuNMRHLshS6isd6TPDlxDtGWoDDpNyxhMetQLHPs+isgCvRFN?=
+ =?us-ascii?Q?BxKSFV81g5vjIZI9xCppUQ3y6dDs4ZZWXI7XTy1CRwbXgc+kthF9leTI0SoP?=
+ =?us-ascii?Q?ijLCddyk4lDIUlDkDxmAfD9tLFj2gBE3xN698q/Ll+zRmQeLQT6SjapMrbj1?=
+ =?us-ascii?Q?zF5BHNxp/hhSu+yO8E/TbRmYLwba9ZeDPgPXFmJ4TIYcg7SO/lD+lNxAIj5f?=
+ =?us-ascii?Q?kUNsqJq1rYCFJ/82TiXMtfPN8EyY0QJ1E9F1STdWLPoxib8RwII0k1OuStdV?=
+ =?us-ascii?Q?Xicag0pC1dANWGChNisAEdUkCUXqdN+pk5FCHUHQGncgtcTvVcHPtf0UypVy?=
+ =?us-ascii?Q?xeV2NPo1fF5hb+ZXA8w7lej4rtqazE3dw1Kvx7jo4WPkXCBMbYy+4YDxagSx?=
+ =?us-ascii?Q?ioJve6HX4LAWmT1mAIOx0MsNi4Yzb+CtmSLimBU8xjP7vql6y6scd8gVobpJ?=
+ =?us-ascii?Q?KrPUFX22rda8CCJ152+EnofwrANHhtNaLaigHXVdUixsCKPgtlNY69Haydlb?=
+ =?us-ascii?Q?hsDmqYewdadLwWDc84u1OCrXIbzuDCt1wv4GbNeKj0hsDvw3D7rqCunsJ5Bi?=
+ =?us-ascii?Q?kItwoUvpSbEMv1BCtNWsMudlX1h3e1cbQTbgberlZx2yJ6vkDKXo/4o7nyLl?=
+ =?us-ascii?Q?95yx0YIy3D0gJMrFXSxNkbC0hef+jNhRnzO9vRWp1aFQmqYga1GXeVRIM4Pw?=
+ =?us-ascii?Q?4vOTXO9uU9yEPsu2uicj48S9jjfkauGMtZgoLhKqebDwWl45UChlS8j/djRu?=
+ =?us-ascii?Q?eFZt6OrCiRKRsi6kHdkGk9aEVOgjIV0d+kYhWj9DKB7B+6wvO1o/6jxsvUBE?=
+ =?us-ascii?Q?y/j3OHLwt/xc+1510l7DAhPG97AhWMMiQL/hDo5+MDSzmHWjHFd34VwEr79s?=
+ =?us-ascii?Q?o3kY1r7bHJGxH0rdIW6SL2gmKBBpZ+Zc85n//okNQnWzREy/ClDk+C+JXCWl?=
+ =?us-ascii?Q?mBAlLIA1ym/fGw6urSgjS+Y2BSd6q1R/RkRjKW+5ZgJ8EQTCTSvVO28bVI/o?=
+ =?us-ascii?Q?PjoRj5RhQtU4PsKkJYOdKpJ4Vhmgl2oomEgnCI4e7k/1FZ5BDR0P?=
+X-OriginatorOrg: oss.nxp.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: ee4b3848-5688-4479-8376-08deca9102a8
+X-MS-Exchange-CrossTenant-AuthSource: VI1PR04MB5807.eurprd04.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 15 Jun 2026 03:48:50.0337
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: wUDkq7hukQp+/76uNpwExHznYbYikkV3TfgfERcZqXhcwS71vh2FsxJt0jxr+WlDIskVI6v2YojKW3n9bmQuZzpF8O++T7T7ulVYPLskn9BBXQVZ+tWTaIgpQC89nwNF
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: VE1PR04MB7261
 
-Hi,
-
-I hit the following KASAN report while testing current upstream kernel.
-
-The issue was reproduced with the sur40 driver. The report shows the object
-being freed from sur40_disconnect(), then v4l2_release() accesses it when the
-held V4L2 fd is closed. I have not confirmed whether this is specific to sur40
-or a more generic V4L2 lifetime issue.
-
-This looks similar to the rmi4_f54 V4L2 fd lifetime report I sent earlier:
-https://lore.kernel.org/all/178144969601.60470.13645789994911690209@gmail.com/
-That report involved rmi4_f54; in this report the freeing path is
-sur40_disconnect().
-
-KASAN: slab-use-after-free in v4l2_release (sur40)
-
-I reproduced this on commit: e8c2f9fdadee7cbc75134dc463c1e0d856d6e5c7 (May 25 2026)
-
-The reproducer and .config files are here.
-https://gist.github.com/shuangpengbai/40c7b5bde2a7b2ddf95981beaebc0eed
-
-I'm happy to test debug patches or provide additional information.
-
-Reported-by: Shuangpeng Bai <shuangpeng.kernel@gmail.com>
-
-[  323.412431][ T8724] BUG: KASAN: slab-use-after-free in v4l2_release (drivers/media/v4l2-core/v4l2-dev.c:466)
-[  323.414158][ T8724] Read of size 8 at addr ffff888120d94458 by task repro_sur40_v4l/8724
-[  323.415722][ T8724]
-[  323.416236][ T8724] Hardware name: QEMU Ubuntu 24.04 PC v2 (i440FX + PIIX, arch_caps fix, 1996), BIOS 1.16.3-debian-1.16.3-2 04/01/2014
-[  323.416240][ T8724] Call Trace:
-[  323.416251][ T8724]  <TASK>
-[  323.416256][ T8724]  dump_stack_lvl (lib/dump_stack.c:94 lib/dump_stack.c:120)
-[  323.416279][ T8724]  print_report (mm/kasan/report.c:378 mm/kasan/report.c:482)
-[  323.416357][ T8724]  kasan_report (mm/kasan/report.c:595)
-[  323.416370][ T8724]  v4l2_release (drivers/media/v4l2-core/v4l2-dev.c:466)
-[  323.416375][ T8724]  __fput (fs/file_table.c:510)
-[  323.416398][ T8724]  fput_close_sync (fs/file_table.c:615)
-[  323.416447][ T8724]  __x64_sys_close (fs/open.c:1507 fs/open.c:1492 fs/open.c:1492)
-[  323.416469][ T8724]  do_syscall_64 (arch/x86/entry/syscall_64.c:63 arch/x86/entry/syscall_64.c:94)
-[  323.416491][ T8724]  entry_SYSCALL_64_after_hwframe (arch/x86/entry/entry_64.S:121)
-[  323.416497][ T8724] RIP: 0033:0x7fe066183c03
-[  323.416504][ T8724] Code: e9 37 ff ff ff e8 2d f9 01 00 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 00 64 8b 04 25 18 00 00 00 85 c0 75 14 b8 03 00 00 00 0f 05 <48> 3d 00 f0 ff ff 77 45 c3 0f 1f 40 00 48 83 ec 18 89 7c 24 0c e8
-[  323.416509][ T8724] RSP: 002b:00007ffdf8e8ecf8 EFLAGS: 00000246 ORIG_RAX: 0000000000000003
-[  323.416524][ T8724] RAX: ffffffffffffffda RBX: 0000000000000009 RCX: 00007fe066183c03
-[  323.416528][ T8724] RDX: 01dd73bc7995e62a RSI: 0000000000000000 RDI: 000000000000000b
-[  323.416531][ T8724] RBP: 0000000000000001 R08: 0000000000000009 R09: 0000000000000000
-[  323.416534][ T8724] R10: 00007fe066129dd0 R11: 0000000000000246 R12: 0000000000000001
-[  323.416537][ T8724] R13: 0000557a10ca7090 R14: 00007ffdf8e8eda0 R15: 0000000000000000
-[  323.416544][ T8724]  </TASK>
-[  323.416546][ T8724]
-[  323.430976][ T8724] Freed by task 31 on cpu 1 at 322.408638s:
-[  323.431417][ T8724]  kasan_save_track (mm/kasan/common.c:57 mm/kasan/common.c:78)
-[  323.431795][ T8724]  kasan_save_free_info (mm/kasan/generic.c:584)
-[  323.432193][ T8724]  __kasan_slab_free (mm/kasan/common.c:253 mm/kasan/common.c:285)
-[  323.432615][ T8724]  kfree (include/linux/kasan.h:235 mm/slub.c:2689 mm/slub.c:6251 mm/slub.c:6566)
-[  323.433289][ T8724]  sur40_disconnect (drivers/input/touchscreen/sur40.c:832)
-[  323.433680][ T8724]  usb_unbind_interface (drivers/usb/core/driver.c:458)
-[  323.434121][ T8724]  device_release_driver_internal (drivers/base/dd.c:621 drivers/base/dd.c:1352 drivers/base/dd.c:1375)
-[  323.434605][ T8724]  bus_remove_device (drivers/base/bus.c:657)
-[  323.435042][ T8724]  device_del (drivers/base/core.c:3895)
-[  323.435481][ T8724]  usb_disable_device (drivers/usb/core/message.c:1478)
-[  323.436006][ T8724]  usb_disconnect (drivers/usb/core/hub.c:2315)
-[  323.436489][ T8724]  hub_event (drivers/usb/core/hub.c:5407 drivers/usb/core/hub.c:5707 drivers/usb/core/hub.c:5871 drivers/usb/core/hub.c:5953)
-[  323.436825][ T8724]  process_scheduled_works (kernel/workqueue.c:3314 kernel/workqueue.c:3397)
-[  323.437403][ T8724]  worker_thread (kernel/workqueue.c:3478)
-[  323.437873][ T8724]  kthread (kernel/kthread.c:436)
-[  323.438298][ T8724]  ret_from_fork (kernel/process.c:158)
-[  323.438778][ T8724]  ret_from_fork_asm (arch/x86/entry/entry_64.S:245)
-[  323.439277][ T8724]
-[  323.439513][ T8724] The buggy address belongs to the object at ffff888120d94000
-[  323.439513][ T8724]  which belongs to the cache kmalloc-4k of size 4096
-[  323.440921][ T8724] The buggy address is located 1112 bytes inside of
-[  323.440921][ T8724]  freed 4096-byte region [ffff888120d94000, ffff888120d95000)
-[  323.442314][ T8724]
-
-
-Best,
-Shuangpeng
+On Fri, Jun 05, 2026 at 02:59:13PM +0800, Bough Chen wrote:
+> On Thu, Jun 04, 2026 at 02:56:24PM +0800, Joy Zou wrote:
+> > The driver implements debounce protection using a timer-based mechanism:
+> > when a key interrupt occurs, a timer is scheduled to verify the key state
+> > after DEBOUNCE_TIME before reporting the event. This works well during
+> > normal operation.
+> > 
+> > However, key press events can be lost during system resume on platforms
+> > like i.MX8MQ-EVK because:
+> > 1. During the no_irq resume phase, PCIe driver restoration can take up to
+> > 200ms with IRQs disabled.
+> > 2. The power key interrupt remains pending during the no_irq phase.
+> > 3. If the key is released before IRQs are re-enabled, the timer eventually
+> > runs but sees the key as released and skips reporting the event.
+> > 
+> > Report key press events directly in interrupt handler to prevent event
+> > loss during system suspend. This is safe because:
+> > 
+> > 1. Only one event is reported per suspend cycle.
+> > 2. Normal operation retains the existing timer-based debounce mechanism.
+> > 
+> > Signed-off-by: Joy Zou <joy.zou@nxp.com>
+> > ---
+> > Changes for v2:
+> > 1. Add a boolean variable suspended and PM callback functions to replace
+> >    the use of the is_suspended field per AI review comments.
+> > 2. Move event report handle to else branch in suspended state, since the
+> >    pdata->minor_rev == 0 branch has no debounce detection per AI review
+> >    comments.
+> > 3. Modify the commit message.
+> > ---
+> >  drivers/input/keyboard/snvs_pwrkey.c | 35 +++++++++++++++++++++++++++++++++++
+> >  1 file changed, 35 insertions(+)
+> > 
+> > diff --git a/drivers/input/keyboard/snvs_pwrkey.c b/drivers/input/keyboard/snvs_pwrkey.c
+> > index 4a1d04898482669894e9978014b62e4e9774b4e4..f212a6b26185d13e1af62728e7b2add5010adc5a 100644
+> > --- a/drivers/input/keyboard/snvs_pwrkey.c
+> > +++ b/drivers/input/keyboard/snvs_pwrkey.c
+> > @@ -39,6 +39,7 @@ struct pwrkey_drv_data {
+> >  	int keycode;
+> >  	int keystate;  /* 1:pressed */
+> >  	int wakeup;
+> > +	bool suspended; /* Track suspend state */
+> >  	struct timer_list check_timer;
+> >  	struct input_dev *input;
+> >  	u8 minor_rev;
+> > @@ -92,6 +93,15 @@ static irqreturn_t imx_snvs_pwrkey_interrupt(int irq, void *dev_id)
+> >  			input_sync(input);
+> >  			pm_relax(input->dev.parent);
+> >  		} else {
+> > +			/*
+> > +			 * Report key press events directly in interrupt handler to prevent event
+> > +			 * loss during system suspend.
+> > +			 */
+> > +			if (pdata->suspended) {
+> 
+> Here, pdata->suspended should not be safe for SMP system, maybe to use atomic_read() to make the code more stronger.
+Thanks for your comments! You're right that pdata->suspended needs protection.
+However, AI review found there are the pdata->keystate that also need protection.
+Instead of using atomic operations for individual fields, I think it would be
+more maintainable to use a single lock to protect all related fields consistently.
+> 
+> > +				pdata->keystate = 1;
+> > +				input_report_key(input, pdata->keycode, 1);
+> > +				input_sync(input);
+> > +			}
+> >  			mod_timer(&pdata->check_timer,
+> >  			          jiffies + msecs_to_jiffies(DEBOUNCE_TIME));
+> 
+> Here already report the key when pdata->suspend == true, seems do not need to trigger the timer again.
+> Is it more reasonable to change like this?
+> if (atomic_read(&pdata->suspended)) {
+> 	...
+> } else {
+> 	mode_timer()
+> }
+Have checked the interrupt handler only report directly press event, still need
+to report release event in timer callback. So can't use the way.
+BR
+Joy Zou
+> 
+> >  		}
+> > @@ -219,6 +229,30 @@ static int imx_snvs_pwrkey_probe(struct platform_device *pdev)
+> >  	return 0;
+> >  }
+> >  
+> > +static int __maybe_unused imx_snvs_pwrkey_suspend(struct device *dev)
+> > +{
+> > +	struct platform_device *pdev = to_platform_device(dev);
+> > +	struct pwrkey_drv_data *pdata = platform_get_drvdata(pdev);
+> > +
+> > +	pdata->suspended = true;
+> > +
+> 
+> atomic_set(&pdata->suspended, 1) 
+> 
+> > +	return 0;
+> > +}
+> > +
+> > +static int __maybe_unused imx_snvs_pwrkey_resume(struct device *dev)
+> > +{
+> > +	struct platform_device *pdev = to_platform_device(dev);
+> > +	struct pwrkey_drv_data *pdata = platform_get_drvdata(pdev);
+> > +
+> > +	pdata->suspended = false;
+> > +
+> 
+> atomic_set(&pdata->suspended, 0);
+> 
+> Regards
+> Haibo Chen
+> > +	return 0;
+> > +}
+> > +
+> > +static SIMPLE_DEV_PM_OPS(imx_snvs_pwrkey_pm_ops,
+> > +			 imx_snvs_pwrkey_suspend,
+> > +			 imx_snvs_pwrkey_resume);
+> > +
+> >  static const struct of_device_id imx_snvs_pwrkey_ids[] = {
+> >  	{ .compatible = "fsl,sec-v4.0-pwrkey" },
+> >  	{ /* sentinel */ }
+> > @@ -229,6 +263,7 @@ static struct platform_driver imx_snvs_pwrkey_driver = {
+> >  	.driver = {
+> >  		.name = "snvs_pwrkey",
+> >  		.of_match_table = imx_snvs_pwrkey_ids,
+> > +		.pm   = &imx_snvs_pwrkey_pm_ops,
+> >  	},
+> >  	.probe = imx_snvs_pwrkey_probe,
+> >  };
+> > 
+> > -- 
+> > 2.50.1
+> > 

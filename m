@@ -1,78 +1,173 @@
-Received: from mail-106121.protonmail.ch (mail-106121.protonmail.ch [79.135.106.121])
+Received: from out-172.mta1.migadu.com (out-172.mta1.migadu.com [95.215.58.172])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AAA44389E13
-	for <linux-input@vger.kernel.org>; Mon, 15 Jun 2026 18:42:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=79.135.106.121
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F1E6E36655C
+	for <linux-input@vger.kernel.org>; Mon, 15 Jun 2026 20:59:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781548946; cv=none; b=VC2u4tdugsO8NCzDlAzFEYFhhfsA0z3fBOyHhHtI8NVT5nBvLf1rgCARyBE0cEHRFBBBsJ6wSxAGMXlOnOs4HYIWbxj+CZRTYAddvf5Y7tKusShY7zvVPRGEBR7pwE+HeW5US4Nag7XnUsoXJ/TmqQ4+GbngKR77p045yi8KdNM=
+	t=1781557161; cv=none; b=XQ6CCCXXqOvuyXaZe8HNXqi5CHVGyufA48WxYPjEWADKHpZAvfqU3+SoITPZ2BkKpNesYRADfCxa65wgYouDWqmmRRBFiYaxbd3+YSdZWkKhJhSs4kIq4AJKeZT5+E7OM0Ru6bpe7LUrxtGVpDwAUUbg+eC089wnrK595KxuLvM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781548946; c=relaxed/simple;
-	bh=I/BO+Hj0qGkLSlWe/ohEnlox8MBgF61jYUvcs28cNG8=;
-	h=Date:To:From:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=hA+GdXycAI+6erTVQ7hP03TDGxjaI0VOz4rBj17xiQphaX5U9Y5V9Udgk03jEUrgzO7ImiH5HbFl83Xdxs+qcwcpks5q6M7BzaVVSJ3UCt0Dx4akGRAgRopLrMLYzpe6H2in7IP7Ow9jJjqSYdjGNcRF5KeLHxCcaWpuc0AAFFA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=proton.me; spf=pass smtp.mailfrom=proton.me; dkim=pass (2048-bit key) header.d=proton.me header.i=@proton.me header.b=IBSSsKhj; arc=none smtp.client-ip=79.135.106.121
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=proton.me
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=proton.me
+	s=arc-20240116; t=1781557161; c=relaxed/simple;
+	bh=mkiPMrXB7/Gh7E4lIUmvjyTu0uUmkvjCr2zM1fhHLlM=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=lUG5v5IoNO4ZkQ9qdbH/eqElJnp/N8mkEscJoEmsKz7G4s6uCd02k0RHrhht095f3MoPcZZ/ANZRLR0LhVJn3McOKBvGCGwKDbMxTIxL3DRrwW16lRTwGHQ8D7to2EfYXyKgxo4KurtQjvBXtu++tn2btaASMalZUb9y7lqMhBM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=Y6LLlC/d; arc=none smtp.client-ip=95.215.58.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=proton.me header.i=@proton.me header.b="IBSSsKhj"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=proton.me;
-	s=protonmail; t=1781548933; x=1781808133;
-	bh=I/BO+Hj0qGkLSlWe/ohEnlox8MBgF61jYUvcs28cNG8=;
-	h=Date:To:From:Cc:Subject:Message-ID:In-Reply-To:References:
-	 Feedback-ID:From:To:Cc:Date:Subject:Reply-To:Feedback-ID:
-	 Message-ID:BIMI-Selector;
-	b=IBSSsKhj1yyyxbPSk7XLkIeLDz80hpMadZz/n0giAtKUuG/AtP6Y7vLL6czTl7vmt
-	 XApQw3Q1y/oRvf3wo/gU8o60BXTk/Qx0NCMA1qfJcCjYVmU5jtZVlTZP+IsrwBrODE
-	 o8lhyIx3ZLfAF2soacMD3xW/X5eIB4sFfVR8PUCWYZsDeR0nHNOCBiUFwHWndnTeGC
-	 Q7tPyidDh0bYISmmooEi4m94Uhvdie8/RMdJArHMc+xrZt9NzFY0+n/EPZJpR5ZqkU
-	 /WVXZt2HlUvxhFJJgWHmmmX6AHnJ3mE+pKMyBeaYvnBLGVqov0L1NG3FY64ferWq+w
-	 gYjWOVIGeO0bw==
-Date: Mon, 15 Jun 2026 18:42:10 +0000
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-From: Bryam Vargas <hexlabsecurity@proton.me>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Input: goodix - clamp the device-reported contact count
-Message-ID: <20260615184204.26707-1-hexlabsecurity@proton.me>
-In-Reply-To: <ai8WppWIAsSKXwFk@google.com>
-References: <20260612-b4-disp-6844625d-v1-1-df0aed080c9d@proton.me> <6f529998-2b4f-441e-88be-fbc4eb33461c@kernel.org> <ai8WppWIAsSKXwFk@google.com>
-Feedback-ID: 199661219:user:proton
-X-Pm-Message-ID: 015c4a268d4c00687fa4fe4c4dd36dcd7c358dba
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="Y6LLlC/d"
+Message-ID: <a70f9213-234c-45cc-9232-8222241b3c99@linux.dev>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+	t=1781557148;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=vodv0UI7KNaAIE2z/Qhv2BVPuyor2Z9avmyczVTiA4M=;
+	b=Y6LLlC/dT1M5CStT7dyBFuGRfj3IfWAS3YzBetMyYqSTxUW7MvumLsFiLfVDT2hu56A1KS
+	6xMrD2Yvh7pnFmNS0ChPxgyz7HDXeqp5t1PceGdU3Mi71lGWtEw599QZpfU3lGl7ZdL9cs
+	YwlwXkHgKSqr1PAH/V/SPaC7kQYEq2M=
+Date: Mon, 15 Jun 2026 22:59:00 +0200
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Subject: Re: [PATCH v4 4/5] HID: asus: add support for xgm led
+To: sashiko-reviews@lists.linux.dev
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+References: <20260615165058.3845-5-denis.benato@linux.dev>
+ <20260615170045.AF91E1F000E9@smtp.kernel.org>
+Content-Language: en-US
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+From: Denis Benato <denis.benato@linux.dev>
+In-Reply-To: <20260615170045.AF91E1F000E9@smtp.kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Migadu-Flow: FLOW_OUT
 
-On Sun, Jun 14, 2026 at 02:02:27PM -0700, Dmitry Torokhov wrote:
-> Should we drop the report if is has bogus data in it?
 
-We already do, for the per-interrupt count. goodix_ts_read_input_report()
-drops a report whose reported touch count is out of range:
-
-=09touch_num =3D data[0] & 0x0f;
-=09if (touch_num > ts->max_touch_num)
-=09=09return -EPROTO;
-
-The only gap this patch closes is that ts->max_touch_num itself could be
-larger than what point_data[] holds: it was taken straight from the 4-bit
-config nibble (0..15), while the buffer is sized for GOODIX_MAX_CONTACTS
-(10) -- 2 + 9*10 =3D 92 bytes. A config advertising 11..15 made that -EPROT=
-O
-check accept an out-of-range touch_num and overflow the stack buffer.
-
-Clamping max_touch_num to GOODIX_MAX_CONTACTS at config-read time makes
-that existing per-report drop a safe bound: a report claiming more than 10
-contacts is now dropped with -EPROTO, and 10 is exactly point_data[]'s
-capacity, so no legitimate report is lost (the driver maximum is 10, and
-the other max_touch_num assignments already use GOODIX_MAX_CONTACTS).
-
-If you'd rather flag a bogus config than silently clamp it, I'm happy to
-add a dev_warn_ratelimited() in a v2 -- just say the word.
-
-Thanks,
-Bryam
-
+On 6/15/26 19:00, sashiko-bot@kernel.org wrote:
+> Thank you for your contribution! Sashiko AI review found 3 potential issue(s) to consider:
+> - [High] Propagating cosmetic LED restore errors during system resume causes the entire device resume to fail.
+> - [High] Failing to initialize the auxiliary XG Mobile LED aborts the entire HID device probe.
+> - [High] Manual call to `hid_hw_stop()` while using `devm_led_classdev_register()` leads to a use-after-teardown bug during device removal and probe error paths.
+> --
+>
+> commit 26f82fa14c4bebc817bb5d79a1cdcdc34bb503d3
+> Author: Denis Benato <denis.benato@linux.dev>
+>
+> HID: asus: add support for xgm led
+>
+> XG mobile stations have very bright leds behind the fan that can be
+> turned either ON or OFF: add a cled interface to allow controlling the
+> brightness of those red leds.
+>
+>> diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
+>> index 6896730efafca..e68a6d93369d8 100644
+>> --- a/drivers/hid/hid-asus.c
+>> +++ b/drivers/hid/hid-asus.c
+> [ ... ]
+>> @@ -1343,9 +1371,52 @@ static int asus_start_multitouch(struct hid_device *hdev)
+>>  	return 0;
+>>  }
+>>  
+>> +static int asus_xgm_init(struct hid_device *hdev, struct asus_drvdata *drvdata)
+>> +{
+> [ ... ]
+>> +	drvdata->xgm_led->cdev.brightness_set_blocking = asus_xgm_led_set;
+>> +
+>> +	/* LED state is arbitrary on boot, set a default */
+>> +	ret = asus_xgm_led_set(&drvdata->xgm_led->cdev, drvdata->xgm_led->cdev.brightness);
+>> +	if (ret) {
+>> +		hid_err(hdev, "Asus failed to set xgm led: %d\n", ret);
+>> +		goto asus_xgm_init_err;
+>> +	}
+>> +
+>> +	ret = devm_led_classdev_register(&hdev->dev, &drvdata->xgm_led->cdev);
+> [Severity: High]
+> Because this LED is registered using devm_led_classdev_register(), its
+> unregistration happens during the devres cleanup phase. This phase runs after
+> the driver's remove callback (or probe error path) finishes.
+>
+> If the probe error path or asus_remove() manually calls hid_hw_stop(hdev),
+> the HID transport is shut down. During the subsequent devres cleanup,
+> led_classdev_unregister() is called and sets the LED to LED_OFF. This invokes
+> asus_xgm_led_set(), which calls hid_hw_raw_request() on a stopped interface.
+>
+> Could this lead to a use-after-teardown bug?
+>
+>> +	if (ret) {
+>> +		hid_err(hdev, "Asus failed to register xgm led: %d\n", ret);
+>> +		goto asus_xgm_init_err;
+>> +	}
+>> +
+>> +	return 0;
+>> +asus_xgm_init_err:
+>> +	drvdata->xgm_led = NULL;
+>> +	return ret;
+>> +}
+>> +
+>>  static int __maybe_unused asus_resume(struct hid_device *hdev)
+>>  {
+>>  	struct asus_drvdata *drvdata = hid_get_drvdata(hdev);
+>> +	int ret;
+>>  
+>>  	/*
+>>  	 * If we have a backlight listener registered, restore the previous state,
+>> @@ -1355,7 +1426,17 @@ static int __maybe_unused asus_resume(struct hid_device *hdev)
+>>  	if (drvdata->listener.brightness_set)
+>>  		asus_kbd_backlight_set(&drvdata->listener, drvdata->kbd_backlight_brightness);
+>>  
+>> +	if (drvdata->xgm_led) {
+>> +		ret = asus_xgm_led_set(&drvdata->xgm_led->cdev, drvdata->xgm_led->cdev.brightness);
+>> +		if (ret) {
+>> +			hid_err(hdev, "Asus failed to restore xgm brightness: %d\n", ret);
+>> +			goto asus_resume_err;
+> [Severity: High]
+> If asus_xgm_led_set() fails to restore the LED state (e.g., due to an I/O
+> error or timeout), this returns the error code directly to the PM core.
+> A failed resume callback causes the PM subsystem to treat the device resume as
+> failed, potentially leaving primary features like the keyboard and touchpad
+> unresponsive.
+>
+> Would it be better for the failure of a cosmetic LED restore to log a warning
+> instead of aborting the entire device resume?
+No: xg mobile device controllers are just that: not an input device: if it fails
+there it's right to tear down the whole thing.
+>> +		}
+>> +	}
+>> +
+>>  	return 0;
+>> +asus_resume_err:
+>> +	return ret;
+>>  }
+>>  
+>>  static int __maybe_unused asus_reset_resume(struct hid_device *hdev)
+> [ ... ]
+>> @@ -1484,6 +1565,16 @@ static int asus_probe(struct hid_device *hdev, const struct hid_device_id *id)
+>>  		}
+>>  	}
+>>  
+>> +	if (asus_has_report_id(hdev, FEATURE_KBD_REPORT_ID) &&
+>> +	    ((hdev->product == USB_DEVICE_ID_ASUSTEK_XGM_2022) ||
+>> +	     (hdev->product == USB_DEVICE_ID_ASUSTEK_XGM_2023))) {
+>> +		ret = asus_xgm_init(hdev, drvdata);
+>> +		if (ret) {
+>> +			hid_err(hdev, "Failed to initialize xg mobile: %d\n", ret);
+>> +			goto err_stop_hw;
+> [Severity: High]
+> If asus_xgm_init() fails, the code jumps to err_stop_hw, failing the entire
+> device probe.
+>
+> Does this make a non-critical aesthetic feature a hard dependency for the
+> entire device? Might it be safer to log the failure rather than preventing
+> the keyboard and touchpad from working?
+Ditto. Won't resolve these as it would only make the code more confusing.
+>> +		}
+>> +	}
+>> +
+>>  	/* Laptops keyboard backlight is always at 0x5a */
+>>  	if (is_vendor && (drvdata->quirks & QUIRK_USE_KBD_BACKLIGHT) &&
+>>  	    (asus_has_report_id(hdev, FEATURE_KBD_REPORT_ID)) &&

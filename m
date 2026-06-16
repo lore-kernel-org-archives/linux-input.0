@@ -1,131 +1,179 @@
-Received: from mail-pf1-f169.google.com (mail-pf1-f169.google.com [209.85.210.169])
+Received: from mail-dy1-f169.google.com (mail-dy1-f169.google.com [74.125.82.169])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D9AA232BF44
-	for <linux-input@vger.kernel.org>; Tue, 16 Jun 2026 13:25:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.169
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8BA64305694
+	for <linux-input@vger.kernel.org>; Tue, 16 Jun 2026 13:35:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.169
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781616344; cv=none; b=o2TRdp78r891z1QsVRi38uj3BhBqEpvWyRSN/fZMRXQ3s39oE++DX4U7zJsqLZV5Bs4Qkn7nerHvVXEsgx5STyAY0u374ijK/uFd5x/rOS05k+ALw3u7rVZAsdwsjR1Qcy4ZgS2Frdw095jRlqVp3MkyoHyEmrYdTVr2l1Y1BDY=
+	t=1781616902; cv=none; b=VPdYDqK8s1JGM9HUBa9wfOcxG6Hsj8JCnD29Tb3ZXHl0xIa2sFyQ6auF5AjNFn/jMgfCsa2yv5jdg/a3LAqrJtr+FOpVVDpnK4q2bTs9ekRW/+7mXCKGkupZULOvPmDEZlJ16JCnYyLIQyfPW6SMMK0MIEhabdxBzMHy85DetNA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781616344; c=relaxed/simple;
-	bh=hFI0bsXMz+2PaBf6GvmdWgvuDy1uZynADtqdNcaOw4c=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=IE2zsTK2gvmv+PT83X7DiOuLZSfRH92ul9H17/uKVT874xaRuKrmw14RjgqW1m2ba0WC/61PHlcBYQZTZkGboZwQx0JKANWMM0lPDwKHTm6xjCKDtClwZHFF/AFc5CUdC9+DDu91ygRjhen55G350XGHHgnicVWmh6oHUV1kpJg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=mRm2KgY5; arc=none smtp.client-ip=209.85.210.169
+	s=arc-20240116; t=1781616902; c=relaxed/simple;
+	bh=8SWr+8yJ64EFlEqK0VHlM86gjkBxaLAQ04nGhLaz2s0=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=YaRlC2qzfuct/xTJ+nKCSe06FiWVfP+YRFzQRgEVAmx7FAAQtz4iOzwwAV4Fp//ZQULe1LiTm0tfHmTZ9QZ93Y6tl3Bq2NjjFFaiBXFMfQsS4/hUTBVT7m5a2o4AnWIvJ4r1jpvK9/EpHYmh3sxVG2aX1G7vEHSpQTiNCQDQ5hI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=YW9uIb5y; arc=none smtp.client-ip=74.125.82.169
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="mRm2KgY5"
-Received: by mail-pf1-f169.google.com with SMTP id d2e1a72fcca58-84347ad88edso3159111b3a.1
-        for <linux-input@vger.kernel.org>; Tue, 16 Jun 2026 06:25:43 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="YW9uIb5y"
+Received: by mail-dy1-f169.google.com with SMTP id 5a478bee46e88-304ec41197bso5135026eec.1
+        for <linux-input@vger.kernel.org>; Tue, 16 Jun 2026 06:35:01 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1781616343; x=1782221143; darn=vger.kernel.org;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :mime-version:subject:date:from:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=KEukyJG+XRwKezQQnUjo18fsrtOq5mlzoNiWZ/icNHY=;
-        b=mRm2KgY5XjwKdtmFQTDUv5D/OFJzQdcRh3wPATQ7/L5OYK/RvanB6oKgmnG1ZvQosp
-         bpt3iZtPEYTWYK57+dlYmu038yDWyV1Xcgc9mZZmbRRdvY+ouwO2KTaAScTWWY8nRVF8
-         npUJNkxwJ+2kAZ0V1uqgcBC04jHyYuyepU/E1V2Lw8F63fXBinskUop9c0sfUqg+aWFu
-         Ja6s4U657h8ZpSgIOO+9q5hT5Rx148rd63sJ9TV0fcSTlwTLJD3Ajl2MkQZf47Xs4996
-         crHBHjgfv4ePBCIxMUk2l5UCtUlsjpQvJReB1358D+mVUYQcBjHiMvfgurKBy6zIveBr
-         BaMQ==
+        d=gmail.com; s=20251104; t=1781616901; x=1782221701; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=8zqQ8rKn54gJWMFUFRv0VoaxJmxXkF0GPg+cMV+9gnA=;
+        b=YW9uIb5yI0YZYO/+twnfKfEn1QIfxtG4w9ac36/FNgLhA3P2J94euvLznpTTJ//uWw
+         TzP6ePBce9EJVeLXARWRwG43Gk3bbgXTcOSX5UTQvUyJMj/HqjL50l0yj/+giQvrneR/
+         lbIY534QeKDMgl85lL3idV1JLoHU1RbYyUFvO0VruJnME7YCmxle39AmuaMNeJnVfW0+
+         hQHzd8oLpmooW5dX1h0d1pWQR/ysvrHGeWNcMHm3F1eLeJV6lAPUMPyR3xgVziKVfFw2
+         2ADRC4a9NbKFgYZ2ceT4J9x/iqGRUts2jcXgHnFOaiFo5ekYTTcELKMxx2Cidmi2CP6X
+         ufSg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781616343; x=1782221143;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :mime-version:subject:date:from:x-gm-gg:x-gm-message-state:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=KEukyJG+XRwKezQQnUjo18fsrtOq5mlzoNiWZ/icNHY=;
-        b=qRqrYNzohW0NnX9uWQ/C2OerYomU9mrtEjHuU7MClwIzNmD8ti4zYZSs8Vh0Npf5mL
-         fDYx6gyMGYrE1kwOMQ2KTx18868d9j+bIRK1jurSrGXEwL3QEI8MLJDuEcFz+v0we1hq
-         BTXWpg9I67A75uA8Pp2Lxu9B0GVVIfA6Nz865OIO8EONpV+ZIiQ3w1pwNmYhKZ96v5JI
-         7wbob4je7gjsQNjRf9nvkSrFuQkNcjz3Ua1I16yz7U720Yp0jC1Bi/azTdl0CndIiJ/R
-         y0+zU8dVjYIQp/gmA1Cok0yf1ySN+MzwSUjLOJ5pJu+AhIfx2PICVmHwWwSYk8aSYh3z
-         Grbg==
-X-Gm-Message-State: AOJu0Yy9VPMvTs58lhHiTMfICgWy37O4rEbgFq5ZSY3LENKFId1urJc7
-	zupPC0PqdH0GmRwGUIF5VTwUXcU6MhYHQDL2G3CXTPFaHded6r75c5dKjrbAiw==
-X-Gm-Gg: Acq92OEg8nH38GW6M7WbdRDGm1nLZQRGfOqAVIAzxtiyRUn+Q2Ej6Smed4VqbHKLivP
-	GVVv0pupqKoPlTW0edFn4a4FYzc7uEPkHEGhb9Eh0ntHgLEteqCKp0jx/Oki6ZoIivCXgJvEr12
-	GuvZ31wBFB60vAiFMUTyZ2CMmmoNs8l0V8edoZipMvnMnc8aCP1sUbh7Uo/ohpod0LzXA7E5jHG
-	cEFIBy+4wKgcSB4DhdmV8AAYO7ga0Bn9tie8fNoRDsKKcRC0CqjWtDMFrTbdp6NWB+FEbpNTNBq
-	timkJw+BgfFvhGFsQWCIQ6wrsTVNpdgK7OIr3KXD0TRBHXAaho0dN6pMXRUbcZRHQKdB5xV1MXa
-	KZ359zzZXiPAbxwBOGMdCw2yN/aCfQniaYOhOT1zE796147OdBnMFThAdONVJvun9+TO10y5GgS
-	i2qu3mspfKYBsSOlbjlVPDTmQJe9A6HV9+BxAThvISME6/Wa/+ARfZYIUiYHs=
-X-Received: by 2002:a05:6a00:32c3:b0:842:7e7f:2914 with SMTP id d2e1a72fcca58-845153dc547mr4127758b3a.4.1781616343317;
-        Tue, 16 Jun 2026 06:25:43 -0700 (PDT)
-Received: from hu-ckantibh-hyd.qualcomm.com ([202.46.23.25])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-8434b046911sm13105079b3a.53.2026.06.16.06.25.39
+        d=1e100.net; s=20251104; t=1781616901; x=1782221701;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=8zqQ8rKn54gJWMFUFRv0VoaxJmxXkF0GPg+cMV+9gnA=;
+        b=n2kOpsDbKnPzdZiJWUXNR7nbp8kvZA+/1GVOJvyY6y8B8cZZpR9V8Ue5RFq7oePxZL
+         NWcCup3SxmnljesgIyymEDmfsPg5sLXd8qanaLHlTNjW5rQsBG7QOYB5DkDmZR6ahN1x
+         UYZkoezAsk+k4j3unn+DBl7ewnzeKF3RPr5haQkItGCpZuSBNa8YGC8KOe8OZb4Jcqv3
+         VxlRKCzaZjmW1mD6FAA4xJtuooNQpb5vA8byWntJWGPQzjz4MC6DnsdwtNozHU9nvk3N
+         MrNbYI0l2f8ndiSNaG1GBB6HsSMpcLQhXE5eBOkES1GwTHA/bxq/acuLUELcAYtKa5Hr
+         347Q==
+X-Forwarded-Encrypted: i=1; AFNElJ8xrkmtNmeuVKT++gn/KpzrUcrxI/ORmeyoMSMnPTmI86epJsyA0BdmHfukjPAMQGFhDGlcjoCCqdoDWw==@vger.kernel.org
+X-Gm-Message-State: AOJu0YxNDW0A2MQoy3HUNKYWTDAsdfgmgROrTaX/WBOA7pMGlmdUuY7/
+	dux1jRxqFKbyACX0H2ksMhGNEoIbATmkDZYc2835rs0MZB3W+guBLpx2
+X-Gm-Gg: Acq92OFYFBX3DfzIYpkmQS3meqqhPN/vfUdP2iiZtq86XB6LR/LQiiFyYfa3oK6PnI3
+	NP6Kno+knfxOehil5d/caG4lk4DnBl1AcFF3U78woUJuPuKO7Pi3T9O22/SQZW9IlS9tn6ADpp6
+	77DLj42ABf4Ck9FNHa6bgsmjdKpN00ls0X6QJvrb9qZFgEFq16UCgxPU5IdKnO9baXPzW0wF+Bz
+	uZpterNxU811HLc++pYSvl9lOdMTKhzbzd9+e2JQbDwY2vf5vYnF9yqPSyhD4EDMuZwEugFkbpM
+	x0laMCJhKEPetHO6/NWE9ybzJKvxwfSE5rp/27o1NqzawKcV5PonbRP9SLW9WbwlbVfaSOHbl+6
+	OjDihURrhD0jowhCsiKvOTgRVFNVx4sj1dKTi17Sl7MaD8xtEwwhkBcOJ2Q1sR/eLcy43RypKca
+	pcDMiO7HPOw6EQbhxIFircsKbRXkVLQ1M=
+X-Received: by 2002:a05:7300:7b95:b0:2d9:6373:ad24 with SMTP id 5a478bee46e88-30ba5f7020emr2320528eec.26.1781616900579;
+        Tue, 16 Jun 2026 06:35:00 -0700 (PDT)
+Received: from arch.localdomain ([2409:8a28:a52:c491::1002])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-30bbbd636fasm1224226eec.22.2026.06.16.06.34.57
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 16 Jun 2026 06:25:42 -0700 (PDT)
-From: Sanjay Chitroda <sanjayembeddedse@gmail.com>
-X-Google-Original-From: Sanjay Chitroda <sanjayembedded@gmail.com>
-Date: Tue, 16 Jun 2026 18:55:22 +0530
-Subject: [PATCH 3/3] iio: hid-sensor-custom-intel-hinge: use u32 instead of
- unsigned int
+        Tue, 16 Jun 2026 06:35:00 -0700 (PDT)
+From: Jun Yan <jerrysteve1101@gmail.com>
+To: conor@kernel.org
+Cc: conor+dt@kernel.org,
+	devicetree@vger.kernel.org,
+	dmitry.torokhov@gmail.com,
+	jerrysteve1101@gmail.com,
+	krzk+dt@kernel.org,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	robh@kernel.org
+Subject: Re: [PATCH v3 03/10] dt-bindings: input: microchip,cap11xx: Update datasheet URL and LED reg range
+Date: Tue, 16 Jun 2026 21:34:55 +0800
+Message-ID: <20260616133455.426643-1-jerrysteve1101@gmail.com>
+X-Mailer: git-send-email 2.54.0
+In-Reply-To: <20260615-splinter-subtitle-a88cf08320e8@spud>
+References: <20260615-splinter-subtitle-a88cf08320e8@spud>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20260616-16-jun-hid-iio-u32-api-type-v1-3-952c74195f46@gmail.com>
-References: <20260616-16-jun-hid-iio-u32-api-type-v1-0-952c74195f46@gmail.com>
-In-Reply-To: <20260616-16-jun-hid-iio-u32-api-type-v1-0-952c74195f46@gmail.com>
-To: Jiri Kosina <jikos@kernel.org>, Jonathan Cameron <jic23@kernel.org>, 
- Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, 
- David Lechner <dlechner@baylibre.com>, 
- =?utf-8?q?Nuno_S=C3=A1?= <nuno.sa@analog.com>, 
- Andy Shevchenko <andy@kernel.org>
-Cc: linux-input@vger.kernel.org, linux-iio@vger.kernel.org, 
- linux-kernel@vger.kernel.org, Sanjay Chitroda <sanjayembeddedse@gmail.com>
-X-Mailer: b4 0.15.2
+Content-Transfer-Encoding: 8bit
 
-From: Sanjay Chitroda <sanjayembeddedse@gmail.com>
+> On Mon, Jun 15, 2026 at 10:20:29PM +0800, Jun Yan wrote:
+> > - Add datasheet links for all supported CAP11xx variants.
+> > - Update LED node regex and replace enum constraints with minimum/maximum
+> >   for LED reg ranges in preparation for CAP1114 support.
+> >=20
+> > CAP1114 has 11 LED channels. minimum/maximum constraints are easier to
+> > maintain than long enum lists when expanding channel count later.
+> >=20
+> > Signed-off-by: Jun Yan <jerrysteve1101@gmail.com>
+> > ---
+> >  .../bindings/input/microchip,cap11xx.yaml       | 17 ++++++++++++++---
+> >  1 file changed, 14 insertions(+), 3 deletions(-)
+> >=20
+> > diff --git a/Documentation/devicetree/bindings/input/microchip,cap11xx.ya=
+> ml b/Documentation/devicetree/bindings/input/microchip,cap11xx.yaml
+> > index 7ade03f1b32b..9578c7c206a2 100644
+> > --- a/Documentation/devicetree/bindings/input/microchip,cap11xx.yaml
+> > +++ b/Documentation/devicetree/bindings/input/microchip,cap11xx.yaml
+> > @@ -10,6 +10,15 @@ description: |
+> >    The Microchip CAP1xxx Family of RightTouchTM multiple-channel capaciti=
+> ve
+> >    touch controllers and LED drivers. The device communication via I2C on=
+> ly.
+> > =20
+> > +  For more product information please see the links below:
+> > +    CAP1106: https://ww1.microchip.com/downloads/en/DeviceDoc/00001624B.=
+> pdf
+> > +    CAP1126: https://ww1.microchip.com/downloads/en/DeviceDoc/00001623B.=
+> pdf
+> > +    CAP1188: https://ww1.microchip.com/downloads/en/DeviceDoc/00001620C.=
+> pdf
+> > +    CAP1203: https://ww1.microchip.com/downloads/en/DeviceDoc/00001572B.=
+> pdf
+> > +    CAP1206: https://ww1.microchip.com/downloads/en/DeviceDoc/00001567B.=
+> pdf
+> > +    CAP1293: https://ww1.microchip.com/downloads/en/DeviceDoc/00001566B.=
+> pdf
+> > +    CAP1298: https://ww1.microchip.com/downloads/en/DeviceDoc/00001571B.=
+> pdf
+> > +
+> >  maintainers:
+> >    - Rob Herring <robh@kernel.org>
+> > =20
+> > @@ -124,14 +133,16 @@ properties:
+> >        The number of entries must correspond to the number of channels.
+> > =20
+> >  patternProperties:
+> > -  "^led@[0-7]$":
+> > +  "^led@[0-9a-f]$":
+> 
+> This should be done alongside the cap1114 change, not here I think. The
+> constraint relaxation doesn't make sense because the user is arriving in
+> a later patch.
+> With it moved,
 
-Prefer 'u32' instead of 'unsigned int' for usage_id variable.
-This matches expected callback API type and improves code clarity.
+Thanks for your review feedback. I'll move this constraint change into 
+the cap1114 patch and update it in v4.
 
-No functional change.
+> Acked-by: Conor Dooley <conor.dooley@microchip.com>
+> 
+> Although, should it not be led@[0-9a-b] if the max is 11?
+> 
 
-Signed-off-by: Sanjay Chitroda <sanjayembeddedse@gmail.com>
----
- drivers/iio/position/hid-sensor-custom-intel-hinge.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+Agreed. I will fix this in v4.
 
-diff --git a/drivers/iio/position/hid-sensor-custom-intel-hinge.c b/drivers/iio/position/hid-sensor-custom-intel-hinge.c
-index a26d391661fd..2139ddb670c4 100644
---- a/drivers/iio/position/hid-sensor-custom-intel-hinge.c
-+++ b/drivers/iio/position/hid-sensor-custom-intel-hinge.c
-@@ -190,7 +190,7 @@ static const struct iio_info hinge_info = {
-  * and captured.
-  */
- static int hinge_proc_event(struct hid_sensor_hub_device *hsdev,
--			    unsigned int usage_id, void *priv)
-+			    u32 usage_id, void *priv)
- {
- 	struct iio_dev *indio_dev = platform_get_drvdata(priv);
- 	struct hinge_state *st = iio_priv(indio_dev);
-@@ -209,7 +209,7 @@ static int hinge_proc_event(struct hid_sensor_hub_device *hsdev,
- 
- /* Capture samples in local storage */
- static int hinge_capture_sample(struct hid_sensor_hub_device *hsdev,
--				unsigned int usage_id, size_t raw_len,
-+				u32 usage_id, size_t raw_len,
- 				char *raw_data, void *priv)
- {
- 	struct iio_dev *indio_dev = platform_get_drvdata(priv);
-@@ -236,7 +236,7 @@ static int hinge_capture_sample(struct hid_sensor_hub_device *hsdev,
- static int hinge_parse_report(struct platform_device *pdev,
- 			      struct hid_sensor_hub_device *hsdev,
- 			      struct iio_chan_spec *channels,
--			      unsigned int usage_id, struct hinge_state *st)
-+			      u32 usage_id, struct hinge_state *st)
- {
- 	int ret;
- 	int i;
-
--- 
-2.34.1
-
+> pw-bot: changes-requested
+> 
+> Cheers,
+> Conor.
+> 
+> >      type: object
+> >      description: CAP11xx LEDs
+> >      $ref: /schemas/leds/common.yaml#
+> > =20
+> >      properties:
+> >        reg:
+> > -        enum: [0, 1, 2, 3, 4, 5, 6, 7]
+> > +        description: LED channel number
+> > +        minimum: 0
+> > +        maximum: 7
+> > =20
+> >        label: true
+> > =20
+> > @@ -158,7 +169,7 @@ allOf:
+> >                - microchip,cap1298
+> >      then:
+> >        patternProperties:
+> > -        "^led@[0-7]$": false
+> > +        "^led@": false
+> > =20
+> >    - if:
+> >        properties:
+> > --=20
+> > 2.54.0
+> >=20

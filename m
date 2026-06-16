@@ -1,146 +1,112 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 07BF73CDBA9
-	for <linux-input@vger.kernel.org>; Tue, 16 Jun 2026 05:27:16 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EAF9C3CF1EE
+	for <linux-input@vger.kernel.org>; Tue, 16 Jun 2026 05:27:26 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781587637; cv=none; b=CWHNW7CsfB+PlBm6PSLwAJCtGY7eLG7/hEkLR5QP/94lo7iKhdzjzV/uJOrvRKBCCugEleABJDxAkSAMdyT+1lYiLcNuxhk4oPj8lKZ7VXac2UUbCHc/RbalnOyPt6IOzSri2ZONtehLEDxo+xsnSaQ/dfJ6kIoY1G8oC9qCP+g=
+	t=1781587647; cv=none; b=dzMXKoVNcdaUhymWDpKF+EwRwsESem07IGf8aZZZ2N25n2evHVTrnuloPaOCngAGYDBNYoJ6oHSRJ6PmvZeCn7s1aufsy//jBS2YF9ZXvjNQBkDDDiB4ia8AdyfDUqEYdel5VzBO0EGNyXsVKiolymZt5bTwrtTMHrJfTStyXbE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781587637; c=relaxed/simple;
-	bh=4i6Bje3eRxhheHZnoraIobzxpVJnKRfT9Ug4QqnRm9g=;
+	s=arc-20240116; t=1781587647; c=relaxed/simple;
+	bh=qTeHnUCShDZC2eKO9aC0YwTx5JsxlQDXcNDjOtG5eIc=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=nORUkGhIuU0MHgW/5roKYuo+FTvnt7PX1xI1/HnBYtrgZnzdrw7BsdLINxvqAlfDVwMpn+AEUp9Bw2YkCQVUQkiezPM4M54OC8+Jcq0HU2XouexBXwQkIOQwxcr48ZEa2uN2cf8v4bJlUyRyWIUluHiQSGeozKD3nvZhLU5L2hU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=j2wuE4ws; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=qJOdYNYtVx3D15o0StjpPtU0Q3lB52E6i2wGk4ACirwxd1QBOo636kyLRHyVrtiPkgEF0P9vatWHq0HEjjxyKBIl+DNoRoZZ4vhz1sUFtgdw6gdH6mIu8otkPAiBTot7tAWsg11H7qtQd+wGb3FLYd9D2259YsZdYocX3TuBiyQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=IhT/6dVe; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="j2wuE4ws"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B11A91F000E9;
-	Tue, 16 Jun 2026 05:27:15 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="IhT/6dVe"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 640521F00AC4;
+	Tue, 16 Jun 2026 05:27:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1781587635;
-	bh=C47xCpTrea4Ztv0x5Cl3oZM8CAsTrl6kgG7Vq6J14PM=;
+	s=k20260515; t=1781587646;
+	bh=5vusplSMw7FvYyFHlTGctytjJk2LZJEJEUmKYhOWN9M=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=j2wuE4wsxEdFLPq/gPSKKLaqoSZXw14oUVFl7fe+Gvf7FDwWvgMtrI7HOytNinZaS
-	 sW0tjLoyNZ55ly1ZikIT+m1pbcSsDhh0zXSgS7C7jw/7TCnf+SRGfwZyneBssJ0Tao
-	 ub8qijzWpcWS35jxGn+hDZyeCrgPi6ucZhfdyh7maii0m45CRm5YYX+zNtgR1s9bWa
-	 lA45BYDj6g7EH82pIsDUi3E3GlDjOkEIBmKFekt8zZMXSYvDfqOZlSBcmvSXUGZ5Mv
-	 xDrQLWxZ6GCQlRGTscRxnj2OyvpVRVwvFxJxf2t+TbexL9CXMYlCrYdszStPqKdjc3
-	 UkZQT4k0RsKbg==
+	b=IhT/6dVeIO9n5h/Stq+S7/e5NLaBDC05b+weJdjy7Ek2QEyjUBrnOrRPymokbznVl
+	 l4wlqyoYoeWFaxtK0V1eRv3G/MqSFZEcseRO/UmRfN5bN49uLwaDrYz/wXbJDom+rf
+	 DZ0nKeehvG1mxEmEByIf4HY1b/fzLFbdjUAFQjy0bBbr9VImtjUv0ENP+fyhYC9JWd
+	 llvLdZ5kjXPjXm1GK3hUPj0XyQglfopke18xkQHsvSDkjcAu9XUIAEnp9h/OsWZjGF
+	 2UzQQcir/Q7SDRFRLADTw17lu45wZ6qezWFm7Dv2BEF7FC4CA2A34sgFZFbOp0t5Fw
+	 EOJdZ+CnHFTYA==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 1/4] Input: sur40 - fix input device registration
- ordering
+Subject: Re: [PATCH 5/6] Input: mms114 - replace BUG() and fix alignment
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260616051235.1549517-1-dmitry.torokhov@gmail.com>
-References: <20260616051235.1549517-1-dmitry.torokhov@gmail.com>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <20260616050912.1531241-5-dmitry.torokhov@gmail.com>
+References: <20260616050912.1531241-5-dmitry.torokhov@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 16 Jun 2026 05:27:15 +0000
-Message-Id: <20260616052715.B11A91F000E9@smtp.kernel.org>
+Date: Tue, 16 Jun 2026 05:27:26 +0000
+Message-Id: <20260616052726.640521F00AC4@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
 
 Pre-existing issues:
-- [High] A malicious USB device can cause the input polling thread to hang =
-indefinitely in an infinite loop.
-- [High] Device unplug while streaming causes a deadlock in `sur40_stop_str=
-eaming()`.
+- [High] Race condition in `mms114_suspend` leading to stuck touch state.
 --
 
-commit e70bc2bfbadc0d9c5dd284e6e5e9d8bace3e06fd
+commit a5a14734d553a190d315dfdcd845e9a868df4005
 Author: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Input: sur40 - fix input device registration ordering
+Input: mms114 - replace BUG() and fix alignment
 
-This patch changes the device registration ordering in sur40_probe() to
-ensure V4L2 components are initialized before the input device is registere=
-d,
-preventing a race condition. It also updates sur40_disconnect() to
-unregister the input device first, stopping the polling worker thread
-before cleaning up V4L2 structures.
+This commit avoids crashing the kernel by replacing a BUG() call with WARN_=
+ON()
+when userspace reads a write-only register. It also corrects parameter
+alignment in several function calls to match kernel coding style.
 
-> diff --git a/drivers/input/touchscreen/sur40.c b/drivers/input/touchscree=
-n/sur40.c
-> index fe63d53d56db0..8639ec3ad7038 100644
-> --- a/drivers/input/touchscreen/sur40.c
-> +++ b/drivers/input/touchscreen/sur40.c
+> diff --git a/drivers/input/touchscreen/mms114.c b/drivers/input/touchscre=
+en/mms114.c
+> index c59aec8f2febe..bf01eee0560a1 100644
+> --- a/drivers/input/touchscreen/mms114.c
+> +++ b/drivers/input/touchscreen/mms114.c
 [ ... ]
-> @@ -823,11 +823,12 @@ static void sur40_disconnect(struct usb_interface *=
-interface)
->  {
->  	struct sur40_state *sur40 =3D usb_get_intfdata(interface);
-> =20
-> +	input_unregister_device(sur40->input);
-> +
->  	v4l2_ctrl_handler_free(&sur40->hdl);
->  	video_unregister_device(&sur40->vdev);
 
 [Severity: High]
-This isn't a bug introduced by this patch, but is a pre-existing deadlock
-when the device is unplugged while streaming.
+This isn't a bug introduced by this patch, but I noticed a potential race
+condition in mms114_suspend() that could leave the touchscreen stuck in a
+pressed state:
 
-If the device is physically disconnected, sur40_disconnect() calls
-input_unregister_device() which synchronously stops the polling worker thre=
-ad.
-When the application then closes the video file descriptor,
-sur40_stop_streaming() is invoked:
-
-drivers/input/touchscreen/sur40.c:sur40_stop_streaming() {
+drivers/input/touchscreen/mms114.c:mms114_suspend() {
     ...
-    vb2_wait_for_all_buffers(vq);
-    sur40->sequence =3D -1;
+	for (id =3D 0; id < MMS114_MAX_TOUCH; id++) {
+		input_mt_slot(input_dev, id);
+		input_mt_report_slot_inactive(input_dev);
+	}
 
-    /* Release all active buffers */
-    return_all_buffers(sur40, VB2_BUF_STATE_ERROR);
+	input_mt_report_pointer_emulation(input_dev, true);
+	input_sync(input_dev);
+
+	guard(mutex)(&input_dev->mutex);
+
+	if (input_device_enabled(input_dev))
+		mms114_stop(data);
     ...
 }
 
-Because vb2_wait_for_all_buffers() blocks waiting for the now-dead polling
-worker to return queued buffers, and the manual buffer release
-return_all_buffers() is executed after the wait, will this code deadlock the
-system call?
+Can mms114_interrupt() execute concurrently after input_sync() but before
+mms114_stop() disables the IRQ?
 
->  	v4l2_device_unregister(&sur40->v4l2);
-> =20
-> -	input_unregister_device(sur40->input);
->  	kfree(sur40->bulk_in_buffer);
+If a user touches the screen during this window, wouldn't the interrupt
+handler report a new active touch state right after these synthetic release
+events?
 
-[Severity: High]
-This isn't a bug introduced by this patch, but is a pre-existing Denial of
-Service vulnerability where a malicious USB device can cause the input
-polling thread to hang indefinitely.
+Because mms114_stop() then disables the IRQ, would this freeze the touch in=
+ a
+pressed state throughout suspend?
 
-In sur40_poll(), the driver reads bulk messages and calculates packet_blobs:
+When resuming, releasing the screen wouldn't generate a release interrupt,
+which might leave the touchscreen stuck until reboot or until that exact
+slot is touched again.
 
-drivers/input/touchscreen/sur40.c:sur40_poll() {
-    ...
-    packet_blobs =3D result / sizeof(struct sur40_blob);
-    // ...
-    for (i =3D 0; i < packet_blobs; i++) {
-        need_blobs--;
-    ...
-}
-
-If a malicious USB device sends exactly 16 bytes (the size of struct
-sur40_header) with count > 0, result will be 0, leading to packet_blobs =3D=
- 0.
-The inner loop is skipped, leaving need_blobs unchanged.
-
-Because need_blobs never decrements, could the outer do { ... } while
-(need_blobs > 0) loop spin indefinitely, hanging the worker thread and
-blocking cancel_delayed_work_sync() during module removal and device
-cleanup?
-
->  	kfree(sur40);
->
+Could mms114_stop() be called before synthesizing the release events to
+prevent this race?
 
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260616051235.1549=
-517-1-dmitry.torokhov@gmail.com?part=3D1
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260616050912.1531=
+241-1-dmitry.torokhov@gmail.com?part=3D5

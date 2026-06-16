@@ -1,87 +1,157 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from sender4-op-o15.zoho.com (sender4-op-o15.zoho.com [136.143.188.15])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0060847D935
-	for <linux-input@vger.kernel.org>; Tue, 16 Jun 2026 18:57:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781636235; cv=none; b=b9o72GphTMMKGFimmNUCIPo/k7OVkp6eEOjB/5i647BYRIRut/6u7pg4ifdof9m2mgKB5+k9hyZm71z9mNblUblO0sC0ny58hl1TOpcBuk17xId1MIPD2bCV46YwjtaZ7SlT4/z8oBqJxImYvkshxhVuVy/wPRN8KvrzYYwxZWo=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781636235; c=relaxed/simple;
-	bh=6/bCaUbtfCncrtxzychO2vuRtHH/oCHj4qDutkWacWw=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Rzkw8NUCNFBmfwtIDGIay8EZO6UnjN9EwyuJfkllQGJ0xcn/umRlecJOr6Ubvj/eRK/GluOVdiQ2JOCNILebjnjGJkakdSH0X1pL17TzYXZdMHS5GGVaqP4irsVboNmE3EqOcLCNHDEm4zZcsQfe880edvJPXvL3Ya2H/Jn3A/s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=luQxn9cl; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D3AC435DA78;
+	Tue, 16 Jun 2026 19:10:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.188.15
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1781637032; cv=pass; b=fM3IpJbof6tK2pGUNacCEjcy0jrINMZy4IisgmNvZGXgB3OApRurwC9LaqLBedtD/GfSD4mwcAwwPySQBgQTJMSVpIl2oukoNapXneDkC+vYH/76E6nCUK63o7r2yFpWCivurmKbat6bLm4wjesDnsLaqcJVbBsyfG86qVHMtJA=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1781637032; c=relaxed/simple;
+	bh=+be6xwWfsfW2iri43M+vtgZaeeKerRICx8D64esyGSw=;
+	h=Message-ID:Subject:From:To:Cc:In-Reply-To:References:Content-Type:
+	 Date:MIME-Version; b=HPq1d7wblKuDIw0eFrzGGETV11YvmN+tzCR7EuHRhEiUxyBd8eTEz9VLaHe5w0R28hdjdm9QJnzr/xwhFR+iTtq+1a/IAQg4yvBh7JKKOvn8MFFdzTRvToDw7HJO7rl8QIMq7WoRxYbpvj7hI6KyiQari3iyRzpWjq+9V6XXCA8=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rong.moe; spf=pass smtp.mailfrom=rong.moe; dkim=pass (2048-bit key) header.d=rong.moe header.i=i@rong.moe header.b=CpbsEIGJ; arc=pass smtp.client-ip=136.143.188.15
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rong.moe
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rong.moe
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="luQxn9cl"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CEEF21F00A3E
-	for <linux-input@vger.kernel.org>; Tue, 16 Jun 2026 18:57:14 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1781636234;
-	bh=Kg5urtXwHhG5NTd2I1ePWdoMCidQs7lsiIoCNc/Lh1Q=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc;
-	b=luQxn9claLnfUGUe4BPO/rKUJCKvbYkdDQ+j2wsHIRz6AQVNGuQHOD9FBHPCskdqe
-	 Talz+wHwrzepupIp3d+SdJigCtw9Lh4qC8oi7IQpB9SCoXxl+LgU4f66IuqYKOZtf5
-	 tieRGEMDoKYR2r5sJZGKvXFJ3dDoywYVOh4JEgDYatvyfewTCFwCT8sbizwxy+HVbk
-	 rsBMS51Q/mz88WQrG5h+I90N7HeVmYm0ykIqXd5MmHWUHpLkCkLf8+fuCfQ0j6EYWU
-	 WkKYh5OPblH6nMNoAMO8dNfO4Ja8DM3ZVM3VCiavzuHNaL4KlPW3pK3MdD6JQMeQT1
-	 1u5RACOzy2rzg==
-Received: by mail-ed1-f52.google.com with SMTP id 4fb4d7f45d1cf-695427c153fso516148a12.1
-        for <linux-input@vger.kernel.org>; Tue, 16 Jun 2026 11:57:14 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AFNElJ8UpPq0bGOVjqj49CL+/M/vuhb3fBFBK+bziPNgRR7WqDmumxrIAeGdnhB5olrDT1JEEekcvWbIXWoVmg==@vger.kernel.org
-X-Gm-Message-State: AOJu0YzqI8CH0NQLdVujqX2pESKvVNs5gjpjyikdTiIPxgFcdGW/MbSi
-	5zLIhxpUM5JUzUFD8cE2nBwOeoVeAGGqLIhy6isdkQV59qRAkn8M6uMHfo02ubUGcstGMxgZ4Bq
-	3u+zj9uy1F9UnZLylWZJ1UJyXHc2rqw==
-X-Received: by 2002:a17:907:aaa:b0:c04:1977:1025 with SMTP id
- a640c23a62f3a-c05a128a414mr47141766b.0.1781636233441; Tue, 16 Jun 2026
- 11:57:13 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=rong.moe header.i=i@rong.moe header.b="CpbsEIGJ"
+ARC-Seal: i=1; a=rsa-sha256; t=1781637020; cv=none; 
+	d=zohomail.com; s=zohoarc; 
+	b=MAt2d1LreRzuzo2fTle8SvyCCUklSVgDqt2b2F57xdOkv2XRTsnu7OrcrUpMgzww4+vqwQ8L80rp+gOZPQxBZWtVBeXOD4E9/89cyeldHONigMT6pUUnWMcEJofvZrPULxbCVaCAq7b0X469wo3BMbxo4iL++5Ia+HoyQXSHgOs=
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
+	t=1781637020; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:Subject:To:To:Message-Id:Reply-To; 
+	bh=xwx6R6yJacaS7yityX5EzwO2OsoxdFJpU4yOuqIw+dY=; 
+	b=k+osoqLfY2kG8p2fJYhnCU1Cak49LkyF3wV6rGx2okPbzpFviZdB4Ep7plut6Xc3CI5Wlh8RMkMOGnVnF2vgtTTtlizuFCwkOE9J/UOkK7+tpy6aR5R1/V8w+fSpD1QnlwnAQmabo9JPToVmM27+XHPe0dInnlSI3y9mqPywBzo=
+ARC-Authentication-Results: i=1; mx.zohomail.com;
+	dkim=pass  header.i=rong.moe;
+	spf=pass  smtp.mailfrom=i@rong.moe;
+	dmarc=pass header.from=<i@rong.moe>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1781637020;
+	s=zmail2048; d=rong.moe; i=i@rong.moe;
+	h=Message-ID:Subject:Subject:From:From:To:To:Cc:Cc:In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date:Date:MIME-Version:Message-Id:Reply-To;
+	bh=xwx6R6yJacaS7yityX5EzwO2OsoxdFJpU4yOuqIw+dY=;
+	b=CpbsEIGJXYYWMKyOz/xybgBKwO8gIvePY6QWPaHd8s9BisyYBnoL07dtUBibYkn4
+	Nd9DX5qDL6hoHfpICJ0wVGU0it5LPLl/SdVJ2nIXsbFhKb7V4yfYUPkNiHpbJSfZA7P
+	oqS7wOeayISRKEiKCn+d+GajrE3JFjD4SfOqZdNLKh+TzoORXJgQJEwd7QVItSLVzG6
+	VjUJIPg4Qj4QB6mB0WRblxcj9QzQ69wi7t43g01LYN2rpNIWNJsg2f/JLihUJ3DjEAh
+	Mks3NGkgrJt7LmMWDsXoEIr0/kykCvUpIwomyd/HetV9Kvb47EGnsfCeFNQnq+FgVBj
+	BvOJNmu5UA==
+Received: by mx.zohomail.com with SMTPS id 1781637017474234.05856656163724;
+	Tue, 16 Jun 2026 12:10:17 -0700 (PDT)
+Message-ID: <a89599d5b2ba541d99b6c335a59b811b7f0779fc.camel@rong.moe>
+Subject: Re: [RFC] Adding device-initiated haptic feedback knobs for
+ pressurepads
+From: Rong Zhang <i@rong.moe>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires
+ <bentiss@kernel.org>,  Peter Hutterer <peter.hutterer@who-t.net>,
+ linux-input <linux-input@vger.kernel.org>, LKML	
+ <linux-kernel@vger.kernel.org>
+In-Reply-To: <ajGbFNj73yxaEj0y@google.com>
+References: <bbee6e61a243a0ae4db6ea155909607326a80dac.camel@rong.moe>
+	 <ajGbFNj73yxaEj0y@google.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+Date: Wed, 17 Jun 2026 03:05:11 +0800
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260615071836.362883-1-l.scorcia@gmail.com> <20260615071836.362883-10-l.scorcia@gmail.com>
- <20260616133918.GA2335264-robh@kernel.org> <CAORyz2LiMHnaTK6QnsLxJDtw0fZ_N9LELw0iCorOZwHuWXus0g@mail.gmail.com>
-In-Reply-To: <CAORyz2LiMHnaTK6QnsLxJDtw0fZ_N9LELw0iCorOZwHuWXus0g@mail.gmail.com>
-From: Rob Herring <robh@kernel.org>
-Date: Tue, 16 Jun 2026 13:57:01 -0500
-X-Gmail-Original-Message-ID: <CAL_JsqLGqqyDoGskgmRLzQC=UkFEXgW=cDazc=frO2KBaSri=w@mail.gmail.com>
-X-Gm-Features: AVVi8CcwnrM4llpoEzOBnyyyWauL3xCmDN5lvRxGwwKA_noSBsMx_Zki1jU8Teg
-Message-ID: <CAL_JsqLGqqyDoGskgmRLzQC=UkFEXgW=cDazc=frO2KBaSri=w@mail.gmail.com>
-Subject: Re: [PATCH v7 9/9] arm64: dts: mediatek: Add MediaTek MT6392 PMIC dtsi
-To: Luca Leonardo Scorcia <l.scorcia@gmail.com>
-Cc: linux-mediatek@lists.infradead.org, Val Packett <val@packett.cool>, 
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
-	Conor Dooley <conor+dt@kernel.org>, Sen Chu <sen.chu@mediatek.com>, 
-	Sean Wang <sean.wang@mediatek.com>, Macpaul Lin <macpaul.lin@mediatek.com>, 
-	Lee Jones <lee@kernel.org>, Matthias Brugger <matthias.bgg@gmail.com>, 
-	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, 
-	Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, 
-	Linus Walleij <linusw@kernel.org>, Louis-Alexis Eyraud <louisalexis.eyraud@collabora.com>, 
-	Julien Massot <julien.massot@collabora.com>, Fabien Parent <parent.f@gmail.com>, 
-	Akari Tsuyukusa <akkun11.open@gmail.com>, Chen Zhong <chen.zhong@mediatek.com>, 
-	linux-input@vger.kernel.org, devicetree@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, linux-pm@vger.kernel.org, 
-	linux-arm-kernel@lists.infradead.org, linux-gpio@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.56.2-9 
+X-ZohoMailClient: External
 
-On Tue, Jun 16, 2026 at 10:32=E2=80=AFAM Luca Leonardo Scorcia
-<l.scorcia@gmail.com> wrote:
->
-> > >  arch/arm64/boot/dts/mediatek/mt6392.dtsi | 75 ++++++++++++++++++++++=
-++
-> >
-> > Nothing is using this so it is a dead file that doesn't get tested.
->
-> Hi, it's not referenced as the dtsi inclusion was removed in the
-> original patch from 2019 for an easier merging of support for mt8516
-> pumpkin boards [1][2].
-> If you prefer in the next revision I can add another patch to readd it
-> to the existing pumpkin board.
+Hi Dmitry,
 
-That or move this patch to the series for the board(s). If the board
-is already upstream, then add the include in *this* patch.
+On Tue, 2026-06-16 at 11:56 -0700, Dmitry Torokhov wrote:
+> Hi Rong,
+>=20
+> On Tue, Jun 16, 2026 at 11:34:45PM +0800, Rong Zhang wrote:
+> > Hi all,
+> >=20
+> > A pressurepad is a MT touchpad that simulates haptic feedback. The
+> > haptic feedback may be either device-initiated or host-initiated. While
+> > drivers/hid/hid-haptic.c [1] provides comprehensive support for host-
+> > initiated ones, device-initiated ones are currently not configurable at
+> > all.
+> >=20
+> > According to Microsoft's Input Device Haptics Implementation Guide [2],
+> > pressurepads with device-initiated haptic feedback can support
+> > SET_FEATURE reports to allow users to customize the intensity of the
+> > haptic feedback (usage page 0x0e Haptics, usage 0x23 Intensity) and/or
+> > the force required to trigger a button press (usage page 0x0d
+> > Digitizers, usage 0xb0 Button Press Threshold). Each knob should occupy
+> > a dedicated report ID.
+> >=20
+> > The first knob maps to "ClickForceSensitivity" in Windows registry and
+> > "Touchpad feedback" =3D> "Intensity" in Windows Settings [3]. The secon=
+d
+> > knob maps to "ClickForceSensitivity" in Windows registry.=20
+> >=20
+> > The pressurepad on my laptop supports the first knob:
+> >=20
+> >    # 0x05, 0x0e,                    //  Usage Page (Haptic)            =
+    595
+> >    # 0x09, 0x01,                    //  Usage (Simple Haptic Controller=
+)   597
+> >    # 0xa1, 0x02,                    //  Collection (Logical)           =
+    599
+> >    # 0x09, 0x23,                    //   Usage (Intensity)             =
+    601
+> >    # 0x85, 0x09,                    //   Report ID (9)                 =
+    603
+> >    # 0x15, 0x00,                    //   Logical Minimum (0)           =
+    605
+> >    # 0x25, 0x64,                    //   Logical Maximum (100)         =
+    607
+> >    # 0x75, 0x08,                    //   Report Size (8)               =
+    609
+> >    # 0x95, 0x01,                    //   Report Count (1)              =
+    611
+> >    # 0xb1, 0x02,                    //   Feature (Data,Var,Abs)        =
+    613
+> >    # 0xc0,                          //  End Collection                 =
+    615
+> >=20
+> > I hardly use Windows but the last time I booted it I did see "Touchpad
+> > feedback" =3D> "Intensity" in Windows Settings.
+> >=20
+> > On Linux, I can tune the knob by setting the corresponding feature
+> > report via HIDRAW. The pressurepad remembers=C2=A0the knob value until =
+it
+> > loses power. However, getting the feature report returns garbage data
+> > (probably from the last input report in the buffer), which makes some
+> > sense as the implementation guide only requires SET_FEATURE support.
+> >=20
+> > I'd like to add device-initiated haptic feedback configurations for
+> > Linux. For now, I only focus on the first knob, i.e., Haptics Intensity=
+,
+> > since it's supported on my device. If I somehow get a device with the
+> > second knob I may work on it too.
+>=20
+> The question is why would we want to support device-initiated feedback
+> instead of enhancing userspace to fully control it. For the record on
+> ChromeOS we tried implementing support for device-initiated feedback but
+> it made the kernel code very cumbersome and left a lot of gaps/rough
+> edges when combining device- and host-initiated haptic effects.=20
 
-Rob
+Sorry, I didn't explain it clearly enough.
+
+Most Windows laptops shipping with a pressurepad don't support host-
+initiated feedback at all. That's also the case of my device.
+
+>=20
+> I'd prefer it all being driven from userspace.
+
+... so The only force feedback stuff we can control on these
+pressurepads are the said one or two knobs, really :-(
+
+Hopefully one day we will live in a host-initiated haptic world...
+
+Thanks,
+Rong
+
+>=20
+> Thanks.

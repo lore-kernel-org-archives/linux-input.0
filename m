@@ -1,134 +1,139 @@
-Received: from mail-dy1-f178.google.com (mail-dy1-f178.google.com [74.125.82.178])
+Received: from mail-dl1-f42.google.com (mail-dl1-f42.google.com [74.125.82.42])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CCAD23806C5
-	for <linux-input@vger.kernel.org>; Tue, 16 Jun 2026 21:23:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.178
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B6A963A7186
+	for <linux-input@vger.kernel.org>; Tue, 16 Jun 2026 21:58:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.42
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781645013; cv=none; b=XcHJpfthyNVNZ3yNLL/smaNl1iu6z5tS4MTHIw7QB9d8Ejg0Wj3vptHR+y+8YhAYzOyS436GPCQnwuvM3FTfkQqWaNkQikPpOzIaf/EHmntLm1Fs+14oH64fSTsvfFuDPjEQrltYrq5XE8FWtWSDLAITntYYYRm1erE10hb2ZVE=
+	t=1781647116; cv=none; b=WRZuu0HjdM3Yla5uDRjn89NlTF6VGqPbbpl/0Ec5mSISKVQOIHkYCPo1VIsOdJE3LPzDP6gb7CgdNsqA96cqEX0acV6Vz6AZg8ctdKJdnTzszewJkdu6GVcVnZN/FIwMQXYnyL3JgRqMASKdmggi+zUmuQIAFwRZBKbhpMMvz/o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781645013; c=relaxed/simple;
-	bh=tOJ0BjM0ldVhSsSRHlSMBhHPNTPDe2oSS1RBcYunUGY=;
+	s=arc-20240116; t=1781647116; c=relaxed/simple;
+	bh=TUL2ScTsGCBuIW2spL9RwoyzEdmzcDOWEknnSt1OmXg=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=nloF5QYpKs9gaH17y51EzKVEdGcNPRFmG9fhTN1qQqhnuQgiFU1TQGEq+cdJ1c8EciJNswL7JOV4PydEL4Ep2yTTK3hvvAEPMAkJ4JP+i9Le+iMoD17XjNfwqw8jVRFopa402om4MQhQtrdMTrqf53EWJmnN4HoChch3NaTrD2o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=b19JHsqJ; arc=none smtp.client-ip=74.125.82.178
+	 Content-Type:Content-Disposition:In-Reply-To; b=GfFHKlzHasHFbyRvQraHGYoNF5zk+lcx5CBOyyrSCJk2xk6YWAnxxR0CPBYIVxtL/nU2WZjaEXj2M3yJ3ZAZfRBIeHX1CPd4emZ9AOIbWLwPkTZCMsO/phnvS/trk3wIgU8uq3Ka0PAwSWucjm9DKs+pzQ49KZHr5mBOw7NoKx4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=c1sMwJxU; arc=none smtp.client-ip=74.125.82.42
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="b19JHsqJ"
-Received: by mail-dy1-f178.google.com with SMTP id 5a478bee46e88-30bc806fcf8so514777eec.1
-        for <linux-input@vger.kernel.org>; Tue, 16 Jun 2026 14:23:32 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="c1sMwJxU"
+Received: by mail-dl1-f42.google.com with SMTP id a92af1059eb24-1390f75d8bbso179560c88.0
+        for <linux-input@vger.kernel.org>; Tue, 16 Jun 2026 14:58:35 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1781645012; x=1782249812; darn=vger.kernel.org;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=kVGHWnnJ0bnpjfbLQ9kiQcWUR79CsLTM1nJ13tFxcHw=;
-        b=b19JHsqJ5m57yk8F1Ppz9Zz8y5Vvmz7mf6EkhSHLdJr0HbRrL5ZLsstiM9H/54Am4w
-         Iwat9IWtbxJpgbsREgmnTza00VP9dVTBfIt1Y/QeyA5yV+im30tVKzekbRH34ghNxk6d
-         AmyxXW1NQXNCu+IqPdtV3aTKtM1anr/yJAr7ZYmyh5MO8ReVE3MEPTLYfGIvPthn0X0Q
-         Ur7FLNAACsrCKrUdzE/kDpmisHP/l5sgjWjHZQV444AUMXnE2ZYxJWYngNjXWs3HBANP
-         lpMViTDfIK81/XszIWqAyOvPrq+gnj0CGM5WGwAA8hbVUFSM6H4tcafNnm25myTJcMVo
-         d9wQ==
+        d=gmail.com; s=20251104; t=1781647115; x=1782251915; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=roy+a2u4dACZbIrirt8cSDMEMY/YbV6SsjtIG8GRuJU=;
+        b=c1sMwJxUTvvdoekqYBP8BgDIImNZsrFsBmd9Fhf4evnOtuoRVrYAQBumJzoVkQqvv7
+         K2Tli5ijiodoMwWRQ6uuT5V8FMncvi8L7ezO6wmfCwi21o3NzC9WZENEj2Y9WbDgWYwR
+         4ufaViyQmgjnZKvKDtHhW0/k9OcCXBfZpjiHoiQWRzztCpkvDujV5QUbHa0MjZ7Q1Md0
+         XKZ3FbCo7dxvISs/A5ItD+t2VzUTQzXT9DkI9gkNN8FRY8RpP9khTdOh19urgGP1iubp
+         hRJVUN+x9lqy8RCCLJHa9ePs3rysHre/L4dGuUVamUDPunsOrpN6Xsts39tkCdAtwiVc
+         e6Qg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781645012; x=1782249812;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=kVGHWnnJ0bnpjfbLQ9kiQcWUR79CsLTM1nJ13tFxcHw=;
-        b=kmcGpuKCLmrypUyS95tSdKuXwmwcqiNv6PH22xqeIwtMVi1+iabPpY+RHKs8f2w3Tl
-         dTajJvif9MtDF+/vbxZcqcEWTrSucQEpTKJu3yPjmJAJtGJAiUghLSF/0Sh1XOLXkaix
-         9gWVYzmbxQP6lNF2sDb+FsYdI1XeaLPvAfoeRr/8rtmiuxOeUtnHNlDTr/d2WWuQm0IM
-         zKI83ljGBib2biwcGbKej2TLopBXO3DRI6NT5VWf/lB6ZVAiydvSbapFb03nr8lD/gyf
-         rYg4ObAU2TeBGBMjS3YOAa4HyW91dgdP6QP2y5ccFq5qoUHjHPhzmWcu2XTjrxdLuyB0
-         ZIyA==
-X-Forwarded-Encrypted: i=1; AFNElJ+rgpz4iUssQTi3wmPyVcTBuzCzz/qrlpBm2rSFOdbyb6mdoCBbBmMgLZ9nIw2cTL2CdacmBohAhjRniQ==@vger.kernel.org
-X-Gm-Message-State: AOJu0YxLkFE0vRE6LchNKtQwuOnk9cb+OdJqN+xPPWfgNrE9DWg1VoOP
-	zd41JI5hsupXhOKfdqUu6PDpB1KEtENFlhEj+gPLI91835afM4D4xJ34
-X-Gm-Gg: Acq92OFAPhCEKBjJ/tK5M4nRLL6VtX7MTAWSJMvPhJX4gzVf8wB4cpKlSxLKrjVB/7E
-	wZhHaMEmEkSigTcuyyQimk1Pf2Qy1nGX8KAMGUmDTGNVMbbs2cHWztpG7qy45/7apyC+URg348P
-	00NbSxkXOLUu0u0hhIAEH/L1iSS8W5LnejZw88RMu4U1JH84z0b+qb1rFdb63uufS0XC4hmgoG5
-	PEXAeLS39n10f3y4/ux3PCEY7Up/fsLXty374uA2f+cAk6yLqIktYQdV6cgL9I9DWQ9o24wPWb5
-	stZORn6isabTfwSgmKi2hyIYvsAAhqPEozfPMROLX6muu+XqCQRMGsn6vyvTd+7ta88hLBoVzrH
-	7CeLoHQwTDp9guZEQ5VvhOyTJULkgD4vjDehmEbmhOKrgKkFSwjyN0wvm3vxgUJbd0bRor8vMGp
-	8a5avMQliAIEOpqP1GwHKtZBLs49xEhBXVG26ZEBpzmW24KmlleLpCLeepBoJUm3g=
-X-Received: by 2002:a05:7300:8c85:b0:2f0:5605:466e with SMTP id 5a478bee46e88-30bca92de91mr522312eec.9.1781645012000;
-        Tue, 16 Jun 2026 14:23:32 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1781647115; x=1782251915;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=roy+a2u4dACZbIrirt8cSDMEMY/YbV6SsjtIG8GRuJU=;
+        b=d4GbdsXshFCxCPlrQKsM9Y5befgFmgrRITxwVNnWx0ZuJZhMHShvzK8jhOqspAmHD9
+         rQbsL46vK72Nybq9igMdqK6UlLV4cqOdyImB86OhAnnMTuCEW9QV63MCKZMoz8pcJGqR
+         zrrrRA6pBOHdaHFCzAb94t1NKxKRsKO11BePnlFDN7EwRdhg/6fGST0TZCYhkEh9AO7Q
+         o3p4itYPqRE7v1gyz5DWf9eiPAarh/sjoI5JaR+6YeiwdVyFkLwyQ+mL/8eeG8+IboR5
+         GWP8w6HA6bK7/n6VWuLbu9wBh2xzi6CHAIAwpOmwse8BxjHfwgB7nl8ARdtSlhW22zwh
+         gXeA==
+X-Gm-Message-State: AOJu0YxqUyAWy4Lz4GFZ8KJ2gzTqTr1tcJJkepb9QKhRaqajjr0r3qVB
+	WBW6Ha9s1S4GKxweZ3ubjwxNBJONT+KnBliMoJ1qgW/xIksszIjs3YAv
+X-Gm-Gg: Acq92OHwaHvO/zD1sZwFkR9NFc12X083DaPMD06KObn3GIQSXZh3+tSmA9T69Nl8K4K
+	1C/NH1M+hXEAKEoywcGy+aoiNB6znhtusgdCEEM4QqgcK+9dIU1K3qKOxIF8FLTsLC4AsZfd/yD
+	cWLX9pjCfOlZozI8W5N7l/lPS9sLqdXwO+Vc/XqptwhFLEbWGJK8aXyJ8ZeOlLd8TCBKODgpN/G
+	UT+XHbNydhemnYS3lAqOYzjWGIAN3a4KKKdIzS1kO0S+26sdt/Waxl27qZhraWhMxWHd4N/EZPw
+	8lBE1oCaw+/u2Rmk+yx+GzIOvGipQRymJCldNQkp2mFy/YjVyjv5xZ3YqwWllAVtGAdq07xsHkA
+	+B20z+mY0NLOz4crO3is+2a287xEMF7oeGR+TF5IeGZ8m3qGpiuhCOT8WlZiyt7jheweqY2Yi3o
+	m3agTMUyYpAaklSj1Km9JrHDW17lxAUu2mj5rSmfum7UtkIrW97b+YDb1zETC1/G+sWNluFBrGr
+	g==
+X-Received: by 2002:a05:7022:fe05:b0:137:f58c:3cb5 with SMTP id a92af1059eb24-1398f6dd9dcmr473410c88.26.1781647114733;
+        Tue, 16 Jun 2026 14:58:34 -0700 (PDT)
 Received: from google.com ([2a00:79e0:2ebe:8:cbae:d24:189c:2cb9])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-30bd0deead6sm109387eec.26.2026.06.16.14.23.30
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1384b9815a6sm15110447c88.15.2026.06.16.14.58.33
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 16 Jun 2026 14:23:30 -0700 (PDT)
-Date: Tue, 16 Jun 2026 14:23:27 -0700
+        Tue, 16 Jun 2026 14:58:33 -0700 (PDT)
+Date: Tue, 16 Jun 2026 14:58:31 -0700
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Svyatoslav Ryhel <clamor95@gmail.com>
-Cc: Rob Herring <robh@kernel.org>, 
-	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, Lee Jones <lee@kernel.org>, 
-	Pavel Machek <pavel@kernel.org>, Sebastian Reichel <sre@kernel.org>, 
-	Ion Agorria <ion@agorria.com>, =?utf-8?B?TWljaGHFgiBNaXJvc8WCYXc=?= <mirq-linux@rere.qmqm.pl>, 
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, 
-	linux-leds@vger.kernel.org, linux-pm@vger.kernel.org
-Subject: Re: [PATCH v8 4/7] input: keyboard: Add driver for ASUS Transformer
- dock multimedia keys
-Message-ID: <ajGyejCSRMhY4G2R@google.com>
-References: <20260528053203.9339-1-clamor95@gmail.com>
- <20260528053203.9339-5-clamor95@gmail.com>
- <ajDPtOyr8GJYaVYQ@google.com>
- <CAPVz0n2fnM6zYtP9bCtsY9mcLdce_R+1UPmMo0o4JRgjnhuhKA@mail.gmail.com>
+To: Bryam Vargas <hexlabsecurity@proton.me>
+Cc: linux-input@vger.kernel.org, Linus Walleij <linusw@kernel.org>, 
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/6] Input: mms114 - fix touch indexing for MMS134S and
+ MMS136
+Message-ID: <ajHGfk7pCYltjOm3@google.com>
+References: <20260616050912.1531241-1-dmitry.torokhov@gmail.com>
+ <20260616070529.156342-1-hexlabsecurity@proton.me>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CAPVz0n2fnM6zYtP9bCtsY9mcLdce_R+1UPmMo0o4JRgjnhuhKA@mail.gmail.com>
+In-Reply-To: <20260616070529.156342-1-hexlabsecurity@proton.me>
 
-On Tue, Jun 16, 2026 at 09:25:25AM +0300, Svyatoslav Ryhel wrote:
-> вт, 16 черв. 2026 р. о 07:26 Dmitry Torokhov <dmitry.torokhov@gmail.com> пише:
-> >
-> > Hi Svyatoslav,
-> >
-> > On Thu, May 28, 2026 at 08:32:00AM +0300, Svyatoslav Ryhel wrote:
-> > > From: Michał Mirosław <mirq-linux@rere.qmqm.pl>
-> > >
-> > > Add support for multimedia top button row of ASUS Transformer's Mobile
-> > > Dock keyboard. Driver is made that function keys (F1-F12) are used by
-> > > default which suits average Linux use better and with pressing
-> > > ScreenLock + AltGr function keys layout is switched to multimedia keys.
-> > > Since this only modifies codes sent by asus-ec-keys it doesn't affect
-> > > normal keyboards at all.
-> >
-> > I think using input handler to intercept ScreenLock + AltGr is quite
-> > awkward. I think this also passes the original key events (unless you
-> > make it a filter not a regular handler).
-> >
-> > I do not see benefit for reacting to AltGr+ScreenLock on other keyboards
-> > to activate the special mode on this one. So given the fact that you
-> > already mange the data stream when you split it into "serio" ports,
-> > maybe just intercept this key combo right there and create the input
-> > device and signal input events right there?
-> >
+Hi Bryam,
+
+On Tue, Jun 16, 2026 at 07:05:34AM +0000, Bryam Vargas wrote:
+> Hi Dmitry,
 > 
-> Though it seems awkward at a first glance, media keys are integrated
-> with a standard keyboard in a detachable dock. It is highly unlikely
-> that media keys will be used with a different keyboard then the one
-> that is integrated with dock. Additionally, the ScreenLock key has a
-> code specific to this driver and is not in general use, so even if any
-> standard keyboard has AltGr but none has ScreenLock specific to this
-> driver except the dock itself. Handler is also set as observer so it
-> should not interfere with work of other input devices.
+> The indexing fix looks correct -- deriving the byte offset from event_size
+> instead of leaning on sizeof(struct mms114_touch) is the right call, and the
+> cast is fine since the struct is __packed (no alignment issue at the 6-byte
+> stride, and the consumers only touch bytes 0..5).
+> 
+> Two things that might be worth folding into the series:
+> 
+> 1) Fixes: tag.  The 6-byte event path for MMS136 -- and therefore this
+>    stride-vs-index mismatch -- predates ab108678195f.  It was introduced in
+> 
+>        53fefdd1d3a3 ("Input: mms114 - support MMS136")
+> 
+>    which added MMS136_EVENT_SIZE and the "packet_size / MMS136_EVENT_SIZE"
+>    branch while the loop already indexed with the 8-byte struct stride;
+>    ab108678195f ("support MMS134S") only extended that branch to MMS134S.
+>    So MMS136 hardware has mis-parsed multi-touch since v5.13.  Tagging
+> 
+>        Fixes: 53fefdd1d3a3 ("Input: mms114 - support MMS136")
+> 
+>    (in addition to, or instead of, ab108678195f) lets stable pick it up for
+>    the MMS136 range as well.
 
-I am not concerned about it interfering with other drivers, I am
-concerned about it unnecessarily connecting to unrelated devices
-(anything that declares EV_KEY).
+Thanks, I'll update the tag.
 
-Again, I think having input handler is not appropriate here. I would
-fold this patch into the patch that introduces the 2 serio ports,
-enhanced the data stream analysis to detect your key combo, and then
-report through this new input device. You do not need to have the round
-trip through atkbd and the new input handler for this.
+> 
+> 2) Unbounded packet_size.  Since 1/6 already rewrites this handler: packet_size
+>    comes straight from the device's PACKET_SIZE register (a single byte, so
+>    1..255 after the "<= 0" guard) and is then used unclamped both as the read
+>    length
+> 
+>        __mms114_read_reg(data, MMS114_INFORMATION, packet_size, (u8 *)touch);
+> 
+>    into the 80-byte touch[MMS114_MAX_TOUCH] stack buffer, and as the divisor
+>    for touch_size -- which is never bounded by MMS114_MAX_TOUCH.  A device that
+>    reports packet_size > 80 overflows the stack buffer on the read, and even
+>    with the indexing fix the loop still walks past it (touch_size > 10).  A
+>    one-liner before the division closes both:
+> 
+>        if (packet_size <= 0)
+>                goto out;
+>    +   packet_size = min_t(int, packet_size, sizeof(touch));
+> 
+>    This one is pre-existing -- the unbounded read goes back to the original
+>    driver -- so it is really a separate patch in the series rather than part
+>    of the indexing fix, but it seemed worth raising while the code is in
+>    flight.
+
+This is fixed by the patch you sent earlier, right? It's been applied so
+I did not send it out again with the series.
+
+Thank you for looking at this, please do not hesitate to add your
+Reviewed-by to any patches that you are satisfied with.
 
 Thanks.
 

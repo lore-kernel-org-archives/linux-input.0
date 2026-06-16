@@ -1,61 +1,64 @@
-Received: from mout-p-102.mailbox.org (mout-p-102.mailbox.org [80.241.56.152])
+Received: from mout-p-202.mailbox.org (mout-p-202.mailbox.org [80.241.56.172])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E5CDD39D6F6;
-	Tue, 16 Jun 2026 20:51:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=80.241.56.152
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D44323A59A7;
+	Tue, 16 Jun 2026 20:51:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=80.241.56.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781643089; cv=none; b=fp4sEUy8134AjWegmFxdKGvvHokm2a16Bt9lC1QbhTD11ectm2Am45nI4qzluPYrvGmlXBWXRoPWu/fOV8ba+pn723UBnLalpFIM4Wp/UWiLCl8Th3ZfWmHY1hNdTOxzNkmuyPn+98VsbJIZ74JyHdSK7xd4J5a/1urfo2WOECg=
+	t=1781643095; cv=none; b=Eerqkvcx+Gc5WnH2dnILvHDwBdjj4H+nZ6wVeqvz0DPnc+LivfEwDy1k9X3Aj0wIzQj/EfuueE9dqUqOCDlX3OHjbcWgq+sd9sw6G83IFtEH3Qqwn3mZlZoyK0zNH8vXoWCQiTJJn4961AiX5n3le11CxyJrz50aueEKB3PMsjI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781643089; c=relaxed/simple;
-	bh=OQiQk5FKeVvhPZ1ZyAmGFF1PrRpfkCIJ0cxb9YtkaeQ=;
+	s=arc-20240116; t=1781643095; c=relaxed/simple;
+	bh=VFb2FxuhLCRMmPj4fC2L9d2sNR6IU0C1GuoKIlJQm6g=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=X6b0y0+HyslYHqergPY06q96C5ovIDVRHsU+lAS3DAUDw22VM3NsxzfnUwcNNXcd7wRZ/4ZzEV/S33hQXJkGNgqM7hI44/MiWbwCEwj8JWLzXVPLxqA7mFC+Wv00ry1hlPrWeZoPJbfN8JuU02MaEehqVzUipr/DfB76rVxFpB8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mailbox.org; spf=pass smtp.mailfrom=mailbox.org; dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b=MIWJlpWn; dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b=OQNUiTc7; arc=none smtp.client-ip=80.241.56.152
+	 MIME-Version; b=batAFQr/zmgbikplMiZJR6f9sEARPys5b3f9f4G7FDsda1eF4+cFxo6eOawx42MASShVqzVZGPDbfChBtUnBdTiEyMczcaTOyPMrCyexEYDG9KitUxObDKhV3ev371TonHXsoonakoH0SMIP6kd8x9mGuJCTiL2tV0ak5QzMEBA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mailbox.org; spf=pass smtp.mailfrom=mailbox.org; dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b=n4wvlrPw; dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b=Z8WTLcY9; arc=none smtp.client-ip=80.241.56.172
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mailbox.org
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mailbox.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b="MIWJlpWn";
-	dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b="OQNUiTc7"
-Received: from smtp2.mailbox.org (smtp2.mailbox.org [10.196.197.2])
+	dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b="n4wvlrPw";
+	dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b="Z8WTLcY9"
+Received: from smtp2.mailbox.org (smtp2.mailbox.org [IPv6:2001:67c:2050:b231:465::2])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by mout-p-102.mailbox.org (Postfix) with ESMTPS id 4gfzfz5g1Cz9tN7;
-	Tue, 16 Jun 2026 22:51:23 +0200 (CEST)
+	by mout-p-202.mailbox.org (Postfix) with ESMTPS id 4gfzg10BYlz9v1D;
+	Tue, 16 Jun 2026 22:51:25 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mailbox.org; s=mail20150812;
+	t=1781643085;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=Hf6FTAk6TK1D0M6gzE98qOg22WFwdTvdp/dqs3D6Ev0=;
+	b=n4wvlrPwJKBNuw41ShfPrQz1S4l0Qj7jmaKbEfGPX41Se6I1oHUrli38phhvTKw8vbgNU5
+	xaq04tIeze34U5sMJlBJTCTBmOr8PRhMlxrSyVfn4mdqF097LZn1TfmAUNKcqQqTi5uRoW
+	YMKLGcpyLoSc9KwwSDrkfeO3hhV7EhNXD/IUReUo/eDkBun0Hsu4aZOLx/DrjSwGCEVxLM
+	KGFAx2yyAGpxAhsB4joaGlBI8hpOP6mB7thkS6/+x6SBuqLqhQIPyAdMXM6UOE1/JIu/ch
+	XCZoKVhC5mPEfSy9OToTcVgktwy0Uh0KUIhceWjDRpY5c655NpwfOzPtddm7SA==
+Authentication-Results: outgoing_mbo_mout;
+	dkim=pass header.d=mailbox.org header.s=mail20150812 header.b=Z8WTLcY9;
+	spf=pass (outgoing_mbo_mout: domain of rosalie@mailbox.org designates 2001:67c:2050:b231:465::2 as permitted sender) smtp.mailfrom=rosalie@mailbox.org
+From: Rosalie Wanders <rosalie@mailbox.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mailbox.org; s=mail20150812;
 	t=1781643083;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=XJG5z4yGA2fTT6p9RAokKoGIXdOZMaoZ/gCQfQ8Jr8I=;
-	b=MIWJlpWnQlff/pLV7/cgyGDBl6T8790H6iHhUaSosm8rqgEevkIsDNHGVYWHHnLaddZC7N
-	f4VsHNHyaf5EGcNOPk6vxolpdaUr46XuSTOJHkWi6dT7MAzbei7SlvK/Q//O4XXeROCGLq
-	bv1HRgnsJ70Kpnxvc9eP9hlInrj9m2VoqaqFpXpsG/RpH5oAenTGYke8wv1fKncgXtef9g
-	XDAIyl+5Fvz6PzUpZAFyY6xLjfqi5w34o7+RIrPXz5Z6KClyZ3WCFRRRF7mZISPAYTMdWI
-	RSz0qFx6wSi3WJhjjScX5i1nl4usnU3sntxsf6WLTovjUWA2yooq39mecgiftg==
-From: Rosalie Wanders <rosalie@mailbox.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mailbox.org; s=mail20150812;
-	t=1781643082;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=XJG5z4yGA2fTT6p9RAokKoGIXdOZMaoZ/gCQfQ8Jr8I=;
-	b=OQNUiTc758CuURn7ymoDtA3RASS57krRUSG10oq1yxQtwVBbKKwP01AtSWaHdMgT2WIKbE
-	aJE7tdGu0UV2y/5lB1PzsIu9H8yvpWSkaFIZw1GuVVcbCePj6UYu18593rXkUwYnc1vEW5
-	GxcrCa0myxCVvvrsB1qQmPjXyOymLvhOOknL+/dAxMq6A6ToDqBrmiN6MNkcb8cg6R0vMj
-	/letjTcBCSmLm2LhPGpAx91arUiPgJXAPUtxegNfNYmfmqZundeNt16xRHTnlvMc1Aqdut
-	Mex/iCbPL5VB1S7SqK0d+dd07L27K2iwnYmYxA+39zKIYQNsPKxqgvyhTDcGNg==
+	bh=Hf6FTAk6TK1D0M6gzE98qOg22WFwdTvdp/dqs3D6Ev0=;
+	b=Z8WTLcY9+rH4OQe3GmoAlIvrww9OI+isK0bpvncXEepL1NzXH35sYLs7virL6oTgvFxJsQ
+	+Kc4Gvzh5T434TeJM2s1UUi2/Jq/uko/VfxH+q4F48JxeDj1hVUZlIQuB1cGlC9dvk47oc
+	Yy/MfQ0I6WYZH17BIT6TsbsHiLiycCAZAQjXwF3J4ja0AqYghl9sDvvf4P+ojV53CM4Tml
+	EbSidEpwAVYUzjzMN61hPfstAU/7fZn8zCoHXjDFxIr49qBsyFs5193RXq0PIk3hpEiHs0
+	ttRfhBNNATXBxIEmHl4n/8Hfn4SbmExNsT0eNlncNC20UXB636NXkM8aEXuNjw==
 To: Jiri Kosina <jikos@kernel.org>,
 	Benjamin Tissoires <bentiss@kernel.org>
 Cc: linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	Rosalie Wanders <rosalie@mailbox.org>
-Subject: [PATCH v2 3/4] HID: sony: remove unneeded which argument from sony_schedule_work()
-Date: Tue, 16 Jun 2026 22:50:42 +0200
-Message-ID: <20260616205042.6671-5-rosalie@mailbox.org>
+Subject: [PATCH v2 4/4] HID: sony: use devm_kasprintf()
+Date: Tue, 16 Jun 2026 22:50:43 +0200
+Message-ID: <20260616205042.6671-6-rosalie@mailbox.org>
 In-Reply-To: <20260616205042.6671-2-rosalie@mailbox.org>
 References: <20260616205042.6671-2-rosalie@mailbox.org>
 Precedence: bulk
@@ -65,90 +68,71 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-MBO-RS-ID: a9638ce9cf04dbfa285
-X-MBO-RS-META: dar4m95ghq3y97xs1s3ccn655txcz1rm
+X-MBO-RS-META: eejc86mgrhqr1e3tk3c96p77hh6o5r5n
+X-MBO-RS-ID: 70ba1e4fa4419c8c539
+X-Rspamd-Queue-Id: 4gfzg10BYlz9v1D
 
-The sony_worker enum only had a single member, so removing it simplifies
-sony_schedule_work().
+Using devm_kasprintf() makes the code less error-prone.
 
 Signed-off-by: Rosalie Wanders <rosalie@mailbox.org>
 ---
- drivers/hid/hid-sony.c | 26 ++++++++------------------
- 1 file changed, 8 insertions(+), 18 deletions(-)
+ drivers/hid/hid-sony.c | 20 ++++++--------------
+ 1 file changed, 6 insertions(+), 14 deletions(-)
 
 diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
-index 84df55c3cbe1..ff681ebc76ce 100644
+index ff681ebc76ce..253fff4066eb 100644
 --- a/drivers/hid/hid-sony.c
 +++ b/drivers/hid/hid-sony.c
-@@ -523,10 +523,6 @@ static DEFINE_SPINLOCK(sony_dev_list_lock);
- static LIST_HEAD(sony_device_list);
- static DEFINE_IDA(sony_device_id_allocator);
- 
--enum sony_worker {
--	SONY_WORKER_STATE
--};
--
- struct sony_sc {
- 	spinlock_t lock;
- 	struct list_head list_node;
-@@ -569,17 +565,11 @@ struct sony_sc {
- 
- static void sony_set_leds(struct sony_sc *sc);
- 
--static inline void sony_schedule_work(struct sony_sc *sc,
--				      enum sony_worker which)
-+static inline void sony_schedule_work(struct sony_sc *sc)
+@@ -1272,8 +1272,6 @@ static int sony_mapping(struct hid_device *hdev, struct hid_input *hi,
+ static int sony_register_touchpad(struct sony_sc *sc, int touch_count,
+ 		int w, int h, int touch_major, int touch_minor, int orientation)
  {
--	switch (which) {
--	case SONY_WORKER_STATE:
--		scoped_guard(spinlock_irqsave, &sc->lock) {
--			if (!sc->defer_initialization && sc->state_worker_initialized)
--				schedule_work(&sc->state_worker);
--		}
--		break;
--	}
-+	guard(spinlock_irqsave)(&sc->lock);
-+	if (!sc->defer_initialization && sc->state_worker_initialized)
-+		schedule_work(&sc->state_worker);
- }
+-	size_t name_sz;
+-	char *name;
+ 	int ret;
  
- static void ghl_magic_poke_cb(struct urb *urb)
-@@ -1211,7 +1201,7 @@ static int sony_raw_event(struct hid_device *hdev, struct hid_report *report,
+ 	sc->touchpad = devm_input_allocate_device(&sc->hdev->dev);
+@@ -1295,12 +1293,10 @@ static int sony_register_touchpad(struct sony_sc *sc, int touch_count,
+ 	 * a suffix. Other devices which were added later like Sony TV remotes
+ 	 * inhirited this suffix.
+ 	 */
+-	name_sz = strlen(sc->hdev->name) + sizeof(TOUCHPAD_SUFFIX);
+-	name = devm_kzalloc(&sc->hdev->dev, name_sz, GFP_KERNEL);
+-	if (!name)
++	sc->touchpad->name = devm_kasprintf(&sc->hdev->dev, GFP_KERNEL, "%s" TOUCHPAD_SUFFIX,
++										sc->hdev->name);
++	if (!sc->touchpad->name)
+ 		return -ENOMEM;
+-	snprintf(name, name_sz, "%s" TOUCHPAD_SUFFIX, sc->hdev->name);
+-	sc->touchpad->name = name;
  
- 	if (unlikely(sc->defer_initialization)) {
- 		sc->defer_initialization = 0;
--		sony_schedule_work(sc, SONY_WORKER_STATE);
-+		sony_schedule_work(sc);
- 	}
+ 	/* We map the button underneath the touchpad to BTN_LEFT. */
+ 	__set_bit(EV_KEY, sc->touchpad->evbit);
+@@ -1337,8 +1333,6 @@ static int sony_register_touchpad(struct sony_sc *sc, int touch_count,
  
- 	return 0;
-@@ -1520,7 +1510,7 @@ static void buzz_set_leds(struct sony_sc *sc)
- static void sony_set_leds(struct sony_sc *sc)
+ static int sony_register_sensors(struct sony_sc *sc)
  {
- 	if (!(sc->quirks & BUZZ_CONTROLLER))
--		sony_schedule_work(sc, SONY_WORKER_STATE);
-+		sony_schedule_work(sc);
- 	else
- 		buzz_set_leds(sc);
- }
-@@ -1631,7 +1621,7 @@ static int sony_led_blink_set(struct led_classdev *led, unsigned long *delay_on,
- 		new_off != drv_data->led_delay_off[n]) {
- 		drv_data->led_delay_on[n] = new_on;
- 		drv_data->led_delay_off[n] = new_off;
--		sony_schedule_work(drv_data, SONY_WORKER_STATE);
-+		sony_schedule_work(drv_data);
- 	}
+-	size_t name_sz;
+-	char *name;
+ 	int ret;
  
- 	return 0;
-@@ -1859,7 +1849,7 @@ static int sony_play_effect(struct input_dev *dev, void *data,
- 	sc->left = effect->u.rumble.strong_magnitude / 256;
- 	sc->right = effect->u.rumble.weak_magnitude / 256;
+ 	sc->sensor_dev = devm_input_allocate_device(&sc->hdev->dev);
+@@ -1357,12 +1351,10 @@ static int sony_register_sensors(struct sony_sc *sc)
+ 	/* Append a suffix to the controller name as there are various
+ 	 * DS4 compatible non-Sony devices with different names.
+ 	 */
+-	name_sz = strlen(sc->hdev->name) + sizeof(SENSOR_SUFFIX);
+-	name = devm_kzalloc(&sc->hdev->dev, name_sz, GFP_KERNEL);
+-	if (!name)
++	sc->sensor_dev->name = devm_kasprintf(&sc->hdev->dev, GFP_KERNEL, "%s" SENSOR_SUFFIX,
++										sc->hdev->name);
++	if (!sc->sensor_dev->name)
+ 		return -ENOMEM;
+-	snprintf(name, name_sz, "%s" SENSOR_SUFFIX, sc->hdev->name);
+-	sc->sensor_dev->name = name;
  
--	sony_schedule_work(sc, SONY_WORKER_STATE);
-+	sony_schedule_work(sc);
- 	return 0;
- }
- 
+ 	if (sc->quirks & SIXAXIS_CONTROLLER) {
+ 		/* For the DS3 we only support the accelerometer, which works
 -- 
 2.54.0
 

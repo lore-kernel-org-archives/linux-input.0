@@ -1,68 +1,68 @@
-Received: from mail-pj1-f49.google.com (mail-pj1-f49.google.com [209.85.216.49])
+Received: from mail-pj1-f47.google.com (mail-pj1-f47.google.com [209.85.216.47])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 260F0436344
-	for <linux-input@vger.kernel.org>; Tue, 16 Jun 2026 10:26:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0742B436365
+	for <linux-input@vger.kernel.org>; Tue, 16 Jun 2026 10:27:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.47
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781605619; cv=none; b=TuInyWPHmeXFtUkVBGUbqEjCFViPnH5GM9td0DSu3u1Z8HZZGJA+2EFNRq1Tj8xctp1aeGHBrhvpGYJButQhFwl/lhwwhqqjQI6G6G7Zf/N3vktiwb/CgIpxS+G8EEuCbzZYCZy4qq6EFJP1nPZtcZ/LOiyiZ7ssLZZiPN/Hl20=
+	t=1781605622; cv=none; b=MujikZTYfIyPkvvAIB814p514bnH6w8UlRnbbK2BY/66SCQfbijyWqcFCnbD4ihqH8D37YfGPmvytoMQu3nXNeIxj2JE+WWFuXdPC2dL9JQTtSeTiPMyXORl/d+FGYX0eOsPxlJ4plTXU4cAE5PixDqak0v543QH+suB+PSKQ/Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781605619; c=relaxed/simple;
-	bh=wg26RhGdHDg01DgrTxebKBv2YHtcTfKpPmvV/wk8vk8=;
+	s=arc-20240116; t=1781605622; c=relaxed/simple;
+	bh=b3q30hN8/8zTi8xRwokSZ6zlcxtUNegwQuHZnD/20BI=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=W5O4D+VEHTMR1wyjmydaVP1NXUiMYpV8Np/ftlRbuPtLYg+rTpWOwWs8oR0tfOJ6DE1ubCIGUL4Ht8fE0C+a6djbQu0/wfjHA4LmAefx8BpharNLdPFxCGsOKoqibhJCC9xmqLLhyFrPV4Nf7tpDPPB+ESW9Rd9Oz5evuBpfbo4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=rUNeQJ4E; arc=none smtp.client-ip=209.85.216.49
+	 In-Reply-To:To:Cc; b=ODXD3RwnFteL+31kvKe9REmaUXpR07Rc4Lp8jS7HXzMTHelS3tGYXkQNNnMgnsKXpNh6xFniLTaYDxIQ5ynz0jo8ql9RcXFDXSxX6M8zpWB4xEhIB9F9M9omLh7ZgnHgJyprdLtMPHoKFb+GcrJ4L7DT+dErtRkc9ENBEzYA+2M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=B/Z9ZdXy; arc=none smtp.client-ip=209.85.216.47
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="rUNeQJ4E"
-Received: by mail-pj1-f49.google.com with SMTP id 98e67ed59e1d1-372b4330deeso2813410a91.0
-        for <linux-input@vger.kernel.org>; Tue, 16 Jun 2026 03:26:57 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="B/Z9ZdXy"
+Received: by mail-pj1-f47.google.com with SMTP id 98e67ed59e1d1-36d98b68d68so2921875a91.2
+        for <linux-input@vger.kernel.org>; Tue, 16 Jun 2026 03:27:00 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1781605616; x=1782210416; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1781605620; x=1782210420; darn=vger.kernel.org;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=IIRwhAGV5hxx8Gm1XDKNLxqpI0J55iNfuPNL2PF+/hA=;
-        b=rUNeQJ4E2zzSmhXaEwA5ardYldxggmukchHTM8UtLdSF1YFCrpbgYHvTsCh9QS+UKJ
-         vRsI6LYFnBrgGWbI075rmEDjFfRnD/5rZFYPDkozzdfEF0dyNRCMAzGrqMpHwg1iIdh5
-         lIDeBOp2yOp276ISDeH53/QtcF4XfDfK+DKQUs4gCwyAjqvakggwrp2OUohZyN+1jjwN
-         CgvC9ZjfSAiPMr20X9Cy59jznbg7Qmmg+dWbAZvNofzbZ359GnrwXRPIBaegMQuSXB1z
-         AcsGr8REVqfDI20epe3DI0ig+c2Z+xSq3fJ3TGF50i+GnJ4WDrGKeAFfB4U+snu4RZq7
-         2UHw==
+        bh=XIpkRPu/+gZceoyeLzf2KDGQKKvzitCGsNedMKc2VSQ=;
+        b=B/Z9ZdXyGZIxs6xqJjtY70OhytMFXhWngEaJj3zVGVg5SWYbF+VWTeEzzyxwS+3OMc
+         VplnEjdLA+fgq8FTPqWAUQPpFpJ9jzS1Zh4U91IPwZ0PoOHljtF5gjRTqollxXuR+8b2
+         Gto4UAE9eG1ZjpshJGu8XQxMHqS2GGd3/EoZ5+1lf57ddSmEWvZIZXonWeuHZ5vtCm4e
+         QCjihZVKnMLbPZgr91D17w91UlpUDNjhOex2GhksD19qh6oWd5r3tko2HSnDZyPAMX1F
+         JUi13Zw1tcOVFhChFfHI8o5icyVz18lcpPqQZ5Jf9HKyIhTm+Lq+9+sfpJZQyYBNfRVt
+         ydTw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781605616; x=1782210416;
+        d=1e100.net; s=20251104; t=1781605620; x=1782210420;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:x-gm-gg:x-gm-message-state:from:to
          :cc:subject:date:message-id:reply-to;
-        bh=IIRwhAGV5hxx8Gm1XDKNLxqpI0J55iNfuPNL2PF+/hA=;
-        b=Cngro1E0Mu7yhX0S5IxfdW/4Q6tsOfXM6xfjfhCc8DPetH3lQ9aZ1xJIouAKX75x9X
-         MHGUS7eUe0jny5cAt+LTjikqBPyNS4lRgV+1eATNvAueHblu7FVVREIs0Nw16HR82GhZ
-         qG1ZQFx1QZQ+qX8hn6riinmGpdHKmpbs5aOT7HEMha7ruUKhFHad/4E3JYBGQZdeY0Dg
-         1zcrXZA4b5BlqJfN5AkDyIwQsShPelnCsTSAkm0/0kx6hueLKdHbzqV6P8l2Z8W6T5eF
-         b6INYEybKp/aKKAh3HzNw3U7UpOTaamsfLuoeosrqQkbDMkhCDmqB11lQV/rXAiMl9vC
-         nNPQ==
-X-Forwarded-Encrypted: i=1; AFNElJ8+ibIBT5MUUCaTPweqQWXpe48ldZqP1LsVL9OFuWDxpBzKBnF0of8EHC9UTVZWYaKWPWkGlZtsUrjPBQ==@vger.kernel.org
-X-Gm-Message-State: AOJu0YwvHlA8rMmABIgzpMZ/mAPtDb8ooliswW8BA90QDVLP1Iwrm8DT
-	DIpWHSyG6zIY4G5fLxsv3mDta0sTBNgZq1RhnI15J8cpoKKvFO4TZDJd
-X-Gm-Gg: Acq92OEshXh9Qmb6bd8vujtJKa+7kg1sOF31JBQGCzWtd1vvmcoGQGZJTVw2x5weGYF
-	pVScpuPVQZbi5DUoN/Pcb+tW9ZlYX2aPADfzvM7U2eo9qW0FBCkYrDXbx52WcsBw7bHptObcDhi
-	hudYdyH6bffk0T2XctanLqACrxeR/bIP4kP6q1x2MxySCWi5Umt6+1T09c4cHpKzqJmaq9dYZ9d
-	h1FMiMSW3ukUmmuKB3nSsPDMswpwzuGhcgoWr3CXz3tlC1L0oc+DjG4vNrXR7iGrTMXdjKbJo0p
-	AZWa58vmQldgzAqa7MzOMFPuzipoSNT6rmxQmROpfxpngmBTsCwjBqJrWq/JEady3Bti5U0Wii6
-	px7mNlyf4yjgo5cqFi1UaGsK3ifbq9HFFyh4adzkKUoGZlVTOAndvkR7ZU6QAH/9ybaRI7CfQy0
-	Ohbt139x26rgZB/2gM517LpgzMy4p/JPkrUek9jwKUlwKU7kBc
-X-Received: by 2002:a17:90b:1a8b:b0:36a:5d1f:7b6 with SMTP id 98e67ed59e1d1-37c2bc5d322mr14244142a91.2.1781605616572;
-        Tue, 16 Jun 2026 03:26:56 -0700 (PDT)
+        bh=XIpkRPu/+gZceoyeLzf2KDGQKKvzitCGsNedMKc2VSQ=;
+        b=f1NH8wBjh8ctQB1z6ajccXUInw8RMEDxFbWFNwSTC/ssoo0A+M2z5YgObYuCSctans
+         xD6p54p71NPlTMlE5lQI0Q1hiOi7BdzuKMDbVyqEUKegfqyGmtdiG0mOZSrSZK0Kd0Sh
+         MQkdP9cPmvczXC/l08GhB7FxvwpykD6oQbI0GmlK4AneJxZB8pObWnHagEpSCtMg5bNH
+         IKlxlhYZdA03NgbQ/fW3Enc2Hqbm27DdvhPHOkNhW6LLq2nuA7ENfuPStQY+wFm15fzN
+         TXCilhwG5E4HeZhtyjeH3hqBo7S70bVS0I7MA9FtHH/t56JajkLoB9nA5wc62izkb9Xu
+         Fmsw==
+X-Forwarded-Encrypted: i=1; AFNElJ+2jIHdaITGzvmB8Cd9emrgJviI3vaH+Hkkjgvr5qgaA6AmDrho+1N2d7qr9LIjcLL4fHMT75y7LFJxoA==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yxshf45eTtUwamBI/nEX6J9ZT6NcV8/D9wTqMoGKJqieTn0/pjB
+	B7/SrFYw7EsGQ2sbyOF0Ii0iCQPoiuJCJ/Rw0fR8mgaikLK4HFzKc1qh
+X-Gm-Gg: Acq92OGWdoK2jx6O87Ldoe5nZrqI/EMJUtXax2l37Q+Zi8Z2YxjNOF+meA0Z8CNDqXJ
+	9DOXUGC2vRREB9y2VUldLfdZuoYS4QRy48Ijg6HxCS8WdMfRuiO+EEAoAyqYdTeG8meirI93gFR
+	IYxQm+Nr365vfQGowpYWoxmTIb4TdjR56X5bYtOnR+RY3//tkfwtkN/s6nZ6O4fihoxnW7Kq5rw
+	MTpwiDKi+xXIW2t0ZuyshzGbEyh17U2vjZ6S5ASbUF1VBs19PhXX7APQwzfetSPIuVpG4aD7bdI
+	2j0LLzkqT/5BA/tPWrg4DocDZBiHeP3NNhODwWA/d2+rogecfmbffwQiy8yVDzjdAw0V+GmY+Hl
+	dC+x8NiPKnWhBS2jMHmTI3OrdnWoPf/JFEJPhQoo/K5XIbv0lUtOBBB8oLmZ9jGAq9K1XDOtaiR
+	/+R7EexmlK3FHtifM+aFBqkqldjxJeNMxAkUkJXOZfge9bU300
+X-Received: by 2002:a17:90a:6502:b0:37c:607b:2cd9 with SMTP id 98e67ed59e1d1-37c607b3288mr580665a91.0.1781605620467;
+        Tue, 16 Jun 2026 03:27:00 -0700 (PDT)
 Received: from hu-ckantibh-hyd.qualcomm.com ([202.46.23.25])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-379e88d546dsm8079269a91.2.2026.06.16.03.26.53
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-379e88d546dsm8079269a91.2.2026.06.16.03.26.56
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 16 Jun 2026 03:26:56 -0700 (PDT)
+        Tue, 16 Jun 2026 03:27:00 -0700 (PDT)
 From: Sanjay Chitroda <sanjayembeddedse@gmail.com>
 X-Google-Original-From: Sanjay Chitroda <sanjayembedded@gmail.com>
-Date: Tue, 16 Jun 2026 15:56:11 +0530
-Subject: [PATCH 06/11] iio: position: hid-sensor-custom-intel-hinge: use
- common device for devres
+Date: Tue, 16 Jun 2026 15:56:12 +0530
+Subject: [PATCH 07/11] iio: temperature: hid-sensor-temperature: use common
+ device for devres
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -71,7 +71,7 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Message-Id: <20260616-15-jun-hid-iio-alignment-v1-6-0cd544286575@gmail.com>
+Message-Id: <20260616-15-jun-hid-iio-alignment-v1-7-0cd544286575@gmail.com>
 References: <20260616-15-jun-hid-iio-alignment-v1-0-0cd544286575@gmail.com>
 In-Reply-To: <20260616-15-jun-hid-iio-alignment-v1-0-0cd544286575@gmail.com>
 To: Jonathan Cameron <jic23@kernel.org>, 
@@ -101,22 +101,24 @@ resources are released deterministically and consistently.
 
 Signed-off-by: Sanjay Chitroda <sanjayembeddedse@gmail.com>
 ---
- drivers/iio/position/hid-sensor-custom-intel-hinge.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/iio/temperature/hid-sensor-temperature.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/iio/position/hid-sensor-custom-intel-hinge.c b/drivers/iio/position/hid-sensor-custom-intel-hinge.c
-index a26d391661fd..0ba9d2d43913 100644
---- a/drivers/iio/position/hid-sensor-custom-intel-hinge.c
-+++ b/drivers/iio/position/hid-sensor-custom-intel-hinge.c
-@@ -292,7 +292,7 @@ static int hid_hinge_probe(struct platform_device *pdev)
- 	}
+diff --git a/drivers/iio/temperature/hid-sensor-temperature.c b/drivers/iio/temperature/hid-sensor-temperature.c
+index 9f628a8e5cfb..31ebfd1a1fe2 100644
+--- a/drivers/iio/temperature/hid-sensor-temperature.c
++++ b/drivers/iio/temperature/hid-sensor-temperature.c
+@@ -213,8 +213,8 @@ static int hid_temperature_probe(struct platform_device *pdev)
+ 	if (ret)
+ 		return ret;
  
- 	indio_dev->num_channels = ARRAY_SIZE(hinge_channels);
--	indio_dev->channels = devm_kmemdup(&indio_dev->dev, hinge_channels,
-+	indio_dev->channels = devm_kmemdup(&pdev->dev, hinge_channels,
- 					   sizeof(hinge_channels), GFP_KERNEL);
- 	if (!indio_dev->channels)
+-	temp_chans = devm_kmemdup(&indio_dev->dev, temperature_channels,
+-				sizeof(temperature_channels), GFP_KERNEL);
++	temp_chans = devm_kmemdup(&pdev->dev, temperature_channels,
++				  sizeof(temperature_channels), GFP_KERNEL);
+ 	if (!temp_chans)
  		return -ENOMEM;
+ 
 
 -- 
 2.34.1

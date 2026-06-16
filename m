@@ -1,114 +1,137 @@
-Received: from mail-pl1-f170.google.com (mail-pl1-f170.google.com [209.85.214.170])
+Received: from mail-dy1-f169.google.com (mail-dy1-f169.google.com [74.125.82.169])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C8DAD47D92C
-	for <linux-input@vger.kernel.org>; Tue, 16 Jun 2026 18:44:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C9CC93CFF55
+	for <linux-input@vger.kernel.org>; Tue, 16 Jun 2026 18:49:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.169
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781635497; cv=none; b=ESQSW40Ebwmw4RlShAanlgihv5foO5Djo7fPiYvOZxRqMAJEsDcfAA+TbpS/07hd25rJsZvnaCgVoMOCaUj+n7Z7oV7aL/9Cs9U6vwPQOl7TJWcdG5WVaaJgsZhiy5lTUmCqgNTXcrgaLVLfey+4t87EQCJSNtfKoLFZH5PD0uI=
+	t=1781635794; cv=none; b=kKej3UhfHYEcUUwewcH7392ptvKopjfkykVrub6M/OE363qtPgYxnCP09GPLJiM3RY5csZTYeEJTWN3/jTIouyINJoZc4qlJbuBJouIAPnHsQGAYRqMrFFi00NAWYI/tTv/SGaoUvtXyHpNPSvE2GdTS/AuxJAy0cB61VBz7GFY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781635497; c=relaxed/simple;
-	bh=FvoWcbbddD4jgmso8J9hYpa3VkcOXn0vZFfA02SfpCs=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=SwUcya06JKrLE+64A00TfLpbez7LwDvfcDBxx/B4ANrAuXeH9F8M8LATPMq1D8Z0nVMXLkB7z+H0PT9ntfe/61cENi9R2LjHKvhM55Lmcp1KD4Plj77Mf7SpNVHSkvah/ZHOKtIsC1X4N5oh7rUSjja2OjYFHEZjyq+K1ocH+LI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=axnWD2ar; arc=none smtp.client-ip=209.85.214.170
+	s=arc-20240116; t=1781635794; c=relaxed/simple;
+	bh=MRcPwhUY2w+G8cBcZcnK8iiNiaHrKIQXEd36cCtMaFw=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=WSb6SeCow7Y21YlqAfXihRf/EsZPrl31L+8kd/9jwbLuA8xrYJ9Y9CcMAuwo/PLZgrfJvO1CLVjnxt2nghzsymf8E7PkdsAvkSNPCiE4IIoeIlL0so9AtKIuUQxGYR3PwJaBJcX1igd19CDKMRVhKPRO66f4yAn8H8nFDB6giog=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=LVQvd9sk; arc=none smtp.client-ip=74.125.82.169
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="axnWD2ar"
-Received: by mail-pl1-f170.google.com with SMTP id d9443c01a7336-2c0c3543590so34134755ad.2
-        for <linux-input@vger.kernel.org>; Tue, 16 Jun 2026 11:44:55 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="LVQvd9sk"
+Received: by mail-dy1-f169.google.com with SMTP id 5a478bee46e88-304e83724bfso6803008eec.0
+        for <linux-input@vger.kernel.org>; Tue, 16 Jun 2026 11:49:52 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1781635495; x=1782240295; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=mP/ETRxCHugVKBwIg76pmWdXd7L4jCUa7fekho4yCsY=;
-        b=axnWD2arbRHampZuS85ES/ArW+qwS/xATvuukOl0hv4kdDqmKGeXiqYNtoaz/YpbDd
-         FxzqKqntacOzDWxXtJVk1PNLX1LVCYFgP8cOtYTtWgQLENMHjqYEylyAwbWDn8UK+3nY
-         dJZbcJl439eLH7mEU2U8KmAd8h7Iz1xGMIZ23jCKOtryEaTF1HMfk3PCJ5eqCVvBPML2
-         MWsNYKHn7w/WaXtmtHW0rvujrslenF8C1O+A2rzjTtxcIXDsMSJqkMG5ZE0gKe3ZEDbS
-         iGoYdjJksAJ/9TuqIiXTfCfOz6IaftQvNmuJ5b5oaGph7oFSsEaeQ8F/vAULCalJH9WL
-         L4UA==
+        d=gmail.com; s=20251104; t=1781635792; x=1782240592; darn=vger.kernel.org;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=eOn28KRGkY3jymFxAfK+tZ04dmjR+0RDYQJz5N/KHF4=;
+        b=LVQvd9skR/z2PdBGPAL4M5Nl6+ZjAkc5x4EQd69sc6bt50RHbn2p7AHDMJBDIaNvq1
+         xyuVx+5AYJo9sqP8YsLs1qPrczbEb5epGO4itVkSAUaoNCQ1zusAllF1DXnjY1BX6eAZ
+         9ZaTTm1FbRctVf+OIGNGcMvL14VmM683tJrCWAwxFTPs23/EX62AToZZG3z1WQ9HRRK+
+         zAgAWbBXcecnJNTmBStpEJRE6gTdRObms8Z4PSjhGBjgrb7K/9eZuiYrsEvEXw6lGRod
+         HhqOk4gqP9MlyO6pibqo83qNIYLHokI9LrtntYo9O5ky5BQiI5RlERmti6FFl6umYN3q
+         uGvA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781635495; x=1782240295;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=mP/ETRxCHugVKBwIg76pmWdXd7L4jCUa7fekho4yCsY=;
-        b=U5uEuMQ6dRJAlcy2ihhiOAg5CzXjLQ9sgFGsNDljWHVNwsQ19I38+l1USKBao/1yQf
-         /ciCf7dQg/JT7nypgpv/1k0LFUTHH05eKTTj8zyka5scyY4lKYo7T4wi8kiBXMJu+mFH
-         tXgIWgWSJWx1ISBdtsRiuqKUqQ6WjGcyJLt4yZ6r4qOQn50MOd6gCcy5dKg+qoeXmRZc
-         3xnybbUg+Ug3BSFLcWwUTxoYFtK+tnpINuEPBwi5mMTcQlVpaJvWl4eDvHfLC9lWR6ku
-         23G8q9B9p+BlVw8ymhZJ2/gcsfRm2s1GpTzfQR7wyzVM3b49HxGWOuUPRxPENW4XUWcf
-         TduA==
-X-Gm-Message-State: AOJu0Ywj8jIKrbkVKrXTAUGz3QS2J0e0LfpsPftYQFNkQkD1bzk6ZL0K
-	TclroGi2EK/SrIAaEHZXpUtdwcYl7Dfz475EWp0X1jWANwQG2iZ0ObBL
-X-Gm-Gg: AfdE7cl8oXkkhOViOLypnLJfpOBgFO8vANfBeNVdaqo0Qt6LYirSZxFkc00lUYNnX8P
-	3tuYmfoJFZGAR4FOEOjHHzoMB+FFX/+cZBeQx44xKzuRSpCPg0Q+wz0p5rlMc9n5Nky5OLHjogo
-	QrCqTEUShOpw5ArNuQSylJKNtbwHWkQDyWiQOTG7cOBdpHUqpzN8n1Ow62T1a9EotgZYmzzR0bt
-	9g9UVOqhlAMFEOOc3KlbTv8iFfYJDlohWMGprAAHmW9AeP0djMU8KochQ8k6Q+NOxepXq1NTBAS
-	TB9+A8t18YmbQ74eXIFW4uZ7r06uPPmJc2VbiT/CsXd3GsR7/vxEUuxo+cYUt+hRFJqzrTx0IgM
-	m76ZEN6Ra2wtCxe/43D2qgZmZuJ5+EJhNRiiHG8HVjM4EDdh6FPgy5Mdi0uvlTWZ+UgwwJ09v4G
-	71Tvsext2jATZ5AvdmOdGrwyR8P0fMt4N5BiIlPMNY+FPisqXM9gTbIbiSFj0POkpzWT/md+IVk
-	1xodwVtdW7tgOWi1KU6CtPcBAlpQAPXdvt8zyRUg/4YryqiRjiqBmOX64CZ12lb9gPID+I25A==
-X-Received: by 2002:a17:902:ce91:b0:2bc:b80f:677e with SMTP id d9443c01a7336-2c6bc23de79mr2256355ad.25.1781635494981;
-        Tue, 16 Jun 2026 11:44:54 -0700 (PDT)
-Received: from bloom.localdomain (S010680dac2bce256.cg.shawcable.net. [174.0.186.197])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2c6b3f65c27sm7128635ad.3.2026.06.16.11.44.53
+        d=1e100.net; s=20251104; t=1781635792; x=1782240592;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=eOn28KRGkY3jymFxAfK+tZ04dmjR+0RDYQJz5N/KHF4=;
+        b=c6pqC+2bDieFMFX1ulK3B9UBzHJHLN55+VfnGSKHg90Fg5jsnFIkKDLv7e4AoIzRjA
+         h6Ch9EZ3qYyp6iExT3CJ9RqOgl+5SG/JmCpFTT2b3bpiXHrbgn5TxZ6ZmLHo+foIa+8X
+         5f853oc2sbTlj4nQcfv8cSqdbDLQZCj9eNzNLn483GQRL6ewD70vJgil0j9ezgKcrMGQ
+         eBXUOKI0KA0sLCEitbYvOmCky+MmGds9DuRLbffwovy4xxaXEib3+vnf2Wu3edjvmkNi
+         KqNwxbJIJdbTgV+TUh8Wov9LwaqXtLf3bDXpfEAH2iVGHNG9MSRJWU/9h6UK5pGj6jXk
+         n3jg==
+X-Gm-Message-State: AOJu0YzACybZgRY46S7hXQKb7H1v1IDrYLXT80Ta5zXoRojAOs0Bg+8m
+	aS1EbirNs+J0OSOohmL51OF05ymHuxoro3/H7ClADS/OMtOeDfzCrS+qyMgezg==
+X-Gm-Gg: Acq92OFQQpGztKLTCuvXFOuNVbj41Wzm36OUcufUqusDRJU3OC6V8CaPV8wO2dWPVN7
+	VRe2dULYePiCWzmtn8jW7Glgec/Q6p9yK1pufJ+jelPNSL8aXr/Z2TRY36r0y92sKFEQhMSeLt7
+	SZfYnsnp6pstgMHm/TqwJLWu5Lc4jHUYPgCIjelArbl5Ni+KJ57hfe09dj498uTS2OqoLKjJxTP
+	cGQWAgULtbOSvSKWUgGhwOt6kfOZOQuJIQ0EoPNarP7LQIApjZ4yr1SZ0T+5Jv9xO8vyg603C4c
+	8SOTNK3UKgNA9Ohe5J3xsiAQhCa9I4ujWJGS5g2aU+CvZNSvXn1AxvRByIuJfMWJ5H749Drxh5c
+	ocpLSsftE0N9PuzqBCyrKhZQKTFs1Xl7KkfLdwWXpHZDcHTO5hV4Ihlg9BC1Kvh1kYVBtHsZd6w
+	3QKM3g6+kdMI7QV/0ISi0Ne9LIeF2KkegIT8iQpWdXa6URpI/8/VvTMVdMjcSDW4U=
+X-Received: by 2002:a05:693c:2d8d:b0:304:ccdd:594a with SMTP id 5a478bee46e88-30bc9aa99cemr397134eec.5.1781635791823;
+        Tue, 16 Jun 2026 11:49:51 -0700 (PDT)
+Received: from google.com ([2a00:79e0:2ebe:8:cbae:d24:189c:2cb9])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3081e5d0849sm22178268eec.7.2026.06.16.11.49.50
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 16 Jun 2026 11:44:54 -0700 (PDT)
-From: Jack Lee <skunkolee@gmail.com>
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Jack Lee <skunkolee@gmail.com>
-Subject: [PATCH] Input: xpad - replace symbolic permissions with octal
-Date: Tue, 16 Jun 2026 11:44:43 -0700
-Message-ID: <20260616184443.17342-1-skunkolee@gmail.com>
-X-Mailer: git-send-email 2.54.0
+        Tue, 16 Jun 2026 11:49:51 -0700 (PDT)
+Date: Tue, 16 Jun 2026 11:49:48 -0700
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: =?utf-8?Q?Rapha=C3=ABl?= Larocque <rlarocque@disroot.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Input: synaptics - disable InterTouch on ThinkPad T440p
+ (board id 2722)
+Message-ID: <ajGaB1eqn8GeGW_A@google.com>
+References: <20260616171137.19069-1-rlarocque@disroot.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <20260616171137.19069-1-rlarocque@disroot.org>
 
-Symbolic permissions S_IRUGO and S_IWUSR are not preferred. Replace
-with octal permissions 0444 and 0644 as recommended by checkpatch.
+Hi Raphaël,
 
-Signed-off-by: Jack Lee <skunkolee@gmail.com>
----
- drivers/input/joystick/xpad.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+On Tue, Jun 16, 2026 at 01:11:36PM -0400, Raphaël Larocque wrote:
+> The Lenovo ThinkPad T440p (PNP ID LEN0036, board id 2722) has a
+> Synaptics touchpad whose SMBus companion is not ready at boot and
+> takes roughly 200 seconds to appear. During this window the touchpad
+> and TrackPoint are completely unresponsive on approximately 50% of
+> boots, making the machine unusable until the companion finally
+> registers.
+> 
+> The device is in the topbuttonpad_pnp_ids[] SMBus allowlist, so the
+> kernel attempts to use SMBus/RMI4 mode by default. When the companion
+> is not ready, psmouse_smbus_init() leaves breadcrumbs and returns
+> -EAGAIN, the PS/2 fallback path is taken, but the device does not
+> function properly until the companion appears and RMI4 takes over.
+> 
+> Disable SMBus InterTouch for board id 2722 so the touchpad and
+> TrackPoint work immediately via PS/2 from boot. Users can still force
+> SMBus with psmouse.synaptics_intertouch=1 if needed.
 
-diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
-index feb8f368f834..f6e02016a0c0 100644
---- a/drivers/input/joystick/xpad.c
-+++ b/drivers/input/joystick/xpad.c
-@@ -74,19 +74,19 @@
- #define FLAG_DELAY_INIT BIT(0)
- 
- static bool dpad_to_buttons;
--module_param(dpad_to_buttons, bool, S_IRUGO);
-+module_param(dpad_to_buttons, bool, 0444);
- MODULE_PARM_DESC(dpad_to_buttons, "Map D-PAD to buttons rather than axes for unknown pads");
- 
- static bool triggers_to_buttons;
--module_param(triggers_to_buttons, bool, S_IRUGO);
-+module_param(triggers_to_buttons, bool, 0444);
- MODULE_PARM_DESC(triggers_to_buttons, "Map triggers to buttons rather than axes for unknown pads");
- 
- static bool sticks_to_null;
--module_param(sticks_to_null, bool, S_IRUGO);
-+module_param(sticks_to_null, bool, 0444);
- MODULE_PARM_DESC(sticks_to_null, "Do not map sticks at all for unknown pads");
- 
- static bool auto_poweroff = true;
--module_param(auto_poweroff, bool, S_IWUSR | S_IRUGO);
-+module_param(auto_poweroff, bool, 0644);
- MODULE_PARM_DESC(auto_poweroff, "Power off wireless controllers on suspend");
- 
- static const struct xpad_device {
+Is this board ID unique to T440p? Or it may be used in other devices as
+well?
+
+I also wonder, if you try loading psmouse later in the initialization
+cycle, after SMBus has been loaded, if that would help it detect the
+touchpad quicker? Is there anything interested in DTS regarding device
+interconnect/hierarchy that we might be missing?
+
+> 
+> Tested-by: Raphaël Larocque <rlarocque@disroot.org>
+> Signed-off-by: Raphaël Larocque <rlarocque@disroot.org>
+> ---
+>  drivers/input/mouse/synaptics.c | 8 ++++++++
+>  1 file changed, 8 insertions(+)
+> 
+> diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+> index c70502e24031..8f38bc498798 100644
+> --- a/drivers/input/mouse/synaptics.c
+> +++ b/drivers/input/mouse/synaptics.c
+> @@ -1837,6 +1837,14 @@ static int synaptics_setup_intertouch(struct psmouse *psmouse,
+>  
+>  			return -ENXIO;
+>  		}
+> +
+> +		/* Disable intertouch on known-broken board revisions */
+> +		if (info->board_id == 2722) {
+> +			psmouse_info(psmouse,
+> +				     "Disabling intertouch for board id %d\n",
+> +				     info->board_id);
+> +			return -ENXIO;
+> +		}
+>  	}
+>  
+>  	psmouse_info(psmouse, "Trying to set up SMBus access\n");
+
+Thanks.
+
 -- 
-2.54.0
-
+Dmitry

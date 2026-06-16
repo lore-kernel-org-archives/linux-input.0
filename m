@@ -1,43 +1,43 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 930131714AA
-	for <linux-input@vger.kernel.org>; Tue, 16 Jun 2026 11:19:47 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5D05C2D8DD0
+	for <linux-input@vger.kernel.org>; Tue, 16 Jun 2026 11:22:07 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781608788; cv=none; b=igF7MDPh/RO1kDFVhK5fvw8LUX5WHoJdg0b/TPsOOSMpdBFHEUzXUKESfSZTFzR5jA6heh7lbRfeV+FFFkskXyT/FdDfQWBSLWc/sHNDN7+/kGea7CJv5UtOR057LxI1hYnD2pTXj/3V1YG/s20shdLNv6LR4oGuVdj/adfnrSc=
+	t=1781608928; cv=none; b=vAl7QA4CpDo6fiRPeGZcfO/7UnMpNfBeKu7wCM5M8yPY+xD58O5bBS1jjs7pvJhKpkYK7eWzTrugKUCF0YVpTJz45UhTgpygSDjiz6r044LQ631rTYOQ7p/5DCfR+qYk520n/laV7YLg6ORSFFe4C6nVkCCoKXN35PXedntkJro=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781608788; c=relaxed/simple;
-	bh=hRvOpyMNHlkGrunf5X9sCcVCHKwI5GCMEQsYUSc1fMA=;
+	s=arc-20240116; t=1781608928; c=relaxed/simple;
+	bh=QHHP1tlQRckJ6P+nySpLXGHHWasj2rfniCdDRzyyils=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=qEVTsjKYYQ19V+t3ez+mdeuS8tXaWaTGAYdoxNgYnX4a5lB49iHOiJP/mU3/9Lak3GpxVVhmd+TFz8nD5gyarNsb1eVbYjvrQpfOMGJEtk3dGp2cNneKyCjgTkXeAx5DH3ZNKQPuJw+5qFDOoAfqYr8h+m/AUA60URVSmWB8FkU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=oPu7zmvf; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=qE2xaUE+B7jRNhixiBJ+yRwoeybXta/PPd4pDdiMRJXRRgkxK82lmcOoPtLkg++UKbYA52wPtlXbWSsHBxJ2Jd1Nk2rCgx5sxZLD/r6IEOg+0IFLYKPxSeYyTaifa1xkI0zAigsTQow4WkiEvPfXq0Ph3bPTeYkIHHzY2lhWMQ4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=CzeXuReL; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="oPu7zmvf"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EEE301F000E9;
-	Tue, 16 Jun 2026 11:19:46 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="CzeXuReL"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2BE81F00A3A;
+	Tue, 16 Jun 2026 11:22:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1781608787;
-	bh=IRLXw/UsGMB5dVTobSVvXyudbKhKcK3wDKTM6v4Sh+A=;
+	s=k20260515; t=1781608927;
+	bh=8i5GWISq+Bu+bZ1PjJBIAIzpeSRLGsMyGDChbEdH/+M=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=oPu7zmvfnr9KiRpWKCs59EBB594Zbj3wNKBC6Gw0LfJq8JVO6BH5VB2cQiwK5ZLRD
-	 3vPmUlin8/gxwzE59oCNJII14SR5220JvCP5DiCbArzr/zJHYDeCVOeHBGPvVZ772p
-	 p6qyLPwAmn6eMPMUXeDNhQVnJ+efXaJcM5jfUlRThOQE2NpYemf9WWkF0Vo11zTYbD
-	 7NO8AqjSEKSzpvPirLIMGA4R9e4bkAsG4hHiWNeR17SMTvyS76AUG1ehGkaPFV7txr
-	 MpxeOMeYz9UrqouXx2ne4e66PgZWwHlKmMXXzTBvYUxyKCHHgU4aTeF6IREyAYKc/V
-	 OjUTB+2xfvNDQ==
+	b=CzeXuReLxtoCBuo0TPX0gTysOB/5y+2hALW2/xqo0YMFWxMgUHrgzWm8wqSa5w4jr
+	 S7q6ExEpHyZ6ju9vHX2ZuXcDnPSdA0LEz/OHGgL47iTaKuGpL/XEOdNWO4drGbRYTK
+	 tkWm9HG4U4I62dDc+sNyB7I43n5PzlluyeREfg98buZBK4T2ZouBrYlfYNBkFHpatW
+	 7+OnjPniXRyEVIG9vdewbA5Zz5c+B3bZ18f8D6nurXt07pQKJq8P/VGNwewuHSb1Uf
+	 pqZjS+A7CsjcJ0Nl9Wx9nDK285689k5sQBCnTV5tGvi05Fq7zamGVcD9c/YeMff8UE
+	 2NBf8s7ny6q6g==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 04/11] iio: magnetometer: hid-sensor-magn-3d: align
- parenthesis for readability
+Subject: Re: [PATCH 01/11] iio: hid-sensors: add missing blank line after
+ declarations
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Sanjay Chitroda" <sanjayembeddedse@gmail.com>
 Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260616-15-jun-hid-iio-alignment-v1-4-0cd544286575@gmail.com>
-References: <20260616-15-jun-hid-iio-alignment-v1-4-0cd544286575@gmail.com>
+In-Reply-To: <20260616-15-jun-hid-iio-alignment-v1-1-0cd544286575@gmail.com>
+References: <20260616-15-jun-hid-iio-alignment-v1-1-0cd544286575@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 16 Jun 2026 11:19:46 +0000
-Message-Id: <20260616111946.EEE301F000E9@smtp.kernel.org>
+Date: Tue, 16 Jun 2026 11:22:06 +0000
+Message-Id: <20260616112206.F2BE81F00A3A@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -48,71 +48,82 @@ Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
 
 Pre-existing issues:
-- [High] Blindly reading 32 or 64 bits from `raw_data` without verifying `r=
-aw_len` can lead to slab-out-of-bounds reads.
+- [High] This problem wasn't introduced by this patch, but pending asynchro=
+nous suspend work is cancelled during device removal, leaving hardware powe=
+red on indefinitely.
 --
 
-commit 13804edb2c46947f67fe0d4d5d050f780422d2f7
+commit fb90a2bc06515600f67795b51872db81c06e23a2
 Author: Sanjay Chitroda <sanjayembeddedse@gmail.com>
 
-iio: magnetometer: hid-sensor-magn-3d: align parenthesis for readability
+iio: hid-sensors: add missing blank line after declarations
 
-This commit adjusts the alignment of parentheses across multiple functions =
-in
-the hid-sensor-magn-3d driver. This improves readability and maintains
-consistency with the kernel coding style.
+Add a blank line after variable declarations to improve
+readability and align with kernel coding style.
 
-> diff --git a/drivers/iio/magnetometer/hid-sensor-magn-3d.c b/drivers/iio/=
-magnetometer/hid-sensor-magn-3d.c
-> index 23884825eb00f..82507297c55bb 100644
-> --- a/drivers/iio/magnetometer/hid-sensor-magn-3d.c
-> +++ b/drivers/iio/magnetometer/hid-sensor-magn-3d.c
-
-[ ... ]
-
-> @@ -292,9 +291,9 @@ static int magn_3d_proc_event(struct hid_sensor_hub_d=
-evice *hsdev,
-> =20
->  /* Capture samples in local storage */
->  static int magn_3d_capture_sample(struct hid_sensor_hub_device *hsdev,
-> -				u32 usage_id,
-> -				size_t raw_len, char *raw_data,
-> -				void *priv)
-> +				  u32 usage_id,
-> +				  size_t raw_len, char *raw_data,
-> +				  void *priv)
+> diff --git a/drivers/iio/common/hid-sensors/hid-sensor-trigger.c b/driver=
+s/iio/common/hid-sensors/hid-sensor-trigger.c
+> index 417c4ab8c1b27..c8ccf96f3d035 100644
+> --- a/drivers/iio/common/hid-sensors/hid-sensor-trigger.c
+> +++ b/drivers/iio/common/hid-sensors/hid-sensor-trigger.c
+> @@ -314,7 +314,9 @@ static int __maybe_unused hid_sensor_resume(struct de=
+vice *dev)
 >  {
->  	struct iio_dev *indio_dev =3D platform_get_drvdata(priv);
->  	struct magn_3d_state *magn_state =3D iio_priv(indio_dev);
+>  	struct iio_dev *indio_dev =3D dev_get_drvdata(dev);
+>  	struct hid_sensor_common *attrb =3D iio_device_get_drvdata(indio_dev);
+> +
+>  	schedule_work(&attrb->work);
+> +
+>  	return 0;
+>  }
 
 [Severity: High]
-This is a pre-existing issue, but since this patch touches the signature of
-magn_3d_capture_sample(), could we be at risk of a slab out-of-bounds read
-further down in the function?
+This is a pre-existing issue, but I noticed a potential problem where
+pending asynchronous suspend work might be cancelled during device removal,
+leaving the hardware powered on indefinitely.
 
-If a device presents a crafted HID report descriptor that defines the
-HID_USAGE_SENSOR_TIME_TIMESTAMP field with a smaller size, it could result =
-in
-raw_len being less than 8.  Reading 8 bytes from raw_data in this case:
+During driver removal, iio_device_unregister() disables active iio buffers,
+triggering buffer_predisable(). This calls hid_sensor_power_state() with
+state false, which queues an asynchronous suspend:
 
-	case HID_USAGE_SENSOR_TIME_TIMESTAMP:
-		magn_state->timestamp =3D
-			hid_sensor_convert_timestamp(&magn_state->magn_flux_attributes,
-						     *(s64 *)raw_data);
+hid_sensor_power_state() {
+	...
+	} else {
+		atomic_dec(&st->user_requested_state);
+		pm_runtime_use_autosuspend(&st->pdev->dev);
+		ret =3D pm_runtime_put_autosuspend(&st->pdev->dev);
+	}
+	...
+}
 
-would read past the end of the buffer.
+Immediately after, hid_sensor_remove_trigger() is called:
 
-A similar dereference happens later in the function for the magnetic axes
-where 4 bytes are read:
+hid_sensor_remove_trigger() {
+	if (atomic_read(&attrb->runtime_pm_enable))
+		pm_runtime_disable(&attrb->pdev->dev);
 
-	iio_val =3D magn_state->magn_val_addr[offset];
+	pm_runtime_set_suspended(&attrb->pdev->dev);
+	...
+}
 
-	if (iio_val !=3D NULL)
-		*iio_val =3D *((u32 *)raw_data);
+Because pm_runtime_disable() cancels any pending asynchronous idle/suspend
+work, is it possible the autosuspend work gets cancelled before execution?
 
-Could this also trigger an out-of-bounds read if raw_len is smaller than 4?
-Should we verify the size of raw_len before making these casts?
+If the work is cancelled, pm_runtime_set_suspended() would only update the
+software pm state, leaving the actual physical hardware permanently powered
+on. Does the driver need a synchronous suspend in the removal path before
+disabling runtime pm?
+
+> =20
+> @@ -322,6 +324,7 @@ static int __maybe_unused hid_sensor_runtime_resume(s=
+truct device *dev)
+>  {
+>  	struct iio_dev *indio_dev =3D dev_get_drvdata(dev);
+>  	struct hid_sensor_common *attrb =3D iio_device_get_drvdata(indio_dev);
+> +
+>  	return _hid_sensor_power_state(attrb, true);
+>  }
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260616-15-jun-hid=
--iio-alignment-v1-0-0cd544286575@gmail.com?part=3D4
+-iio-alignment-v1-0-0cd544286575@gmail.com?part=3D1

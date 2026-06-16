@@ -1,281 +1,118 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AB13A4218B4;
-	Tue, 16 Jun 2026 09:27:18 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D1DF54218A3
+	for <linux-input@vger.kernel.org>; Tue, 16 Jun 2026 09:43:12 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781602039; cv=none; b=O6q+U0+aMgU+ktRjsHzg0hXL/aweUwVcZkgGAjnUZmeiElsiQZMMUbJtAV9C72i1vW7YloihgkKl8x7+rJJeCbTV/ULV2VoyOf+Tv3rN2H5W1zmOJV6uSUgwjkfNxjVsIW3wSyZMm+RWwmkO3sF3TcO4oJaWJv8iUYoR/TX1nEY=
+	t=1781602993; cv=none; b=qjHijw2/2jgoW/AbOJt4JR9Hrsdq8byNEET2CbOkAobtnKfLrjg1pOx+f0MOWB4DbtzZyyRin1dRKrMVWl+KhukS0dVE1czR5yDR6XTm4mlpwaXbfrovTyXr5GMOpkuhkcq8BqnqpV33URbWWysrP8hcuKgtRGxwK3YYXxi9KWc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781602039; c=relaxed/simple;
-	bh=hkgEH672ChJalYb6OS3UUwH/ykup7V3n6zvW5SCvQQI=;
-	h=From:To:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=atWncxM+16No2Vr9BCUYQ59Ay0Mo7JIDnH+WP4lx15fJWyMgAkRM795EYEDoF6GT7/E5uqEAWqUNPI2DTAfVIOdPBfej6Qkox4Zn89WCf6TdOJCwtHNyGV6H6rSC4ECBlz7lV9Hk5J2J9tgKvXQw7tdKQunhKEamdGfay5KsBQs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ocKtW+qV; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1781602993; c=relaxed/simple;
+	bh=8i55S5m8g6aqJXu8iJ5fh7uzQoqJmQo94ixFhhsVrNc=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=ImJb1drGUGVU8e4TVlvot807DNYvMMAGuarj08VxcbUE1GhlbvUPNwn4Nv5tJmiWlfzZ0857ITzW0Wcq510Pyk8r8TTHBSM1SVukK45FyvED2AcNWHjjwMRGBYmMyCo0+cC0+U0zhn92h04cfPepnQ87aVWmBEsFdrYQGVHG1Co=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=SQSqDDrj; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ocKtW+qV"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DF1C71F000E9;
-	Tue, 16 Jun 2026 09:27:16 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="SQSqDDrj"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 72B211F000E9;
+	Tue, 16 Jun 2026 09:43:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1781602038;
-	bh=GWr+wA6X1jok3Pswd7Vw3giI4gcxf+Qnoept4i3+ojY=;
-	h=From:To:Subject:Date:In-Reply-To:References;
-	b=ocKtW+qV1dI/I0hKQrJBPM/CZQnw/BtBwoM9x9eqUuPnd7bLPeGKly7NB1typZ4kq
-	 LyoeOF91MBJUfHhv/g5jR4habZnVcEWHCVyirpA/qafxnFjLpFMzgIFphiCEUGAriU
-	 YXXnOUkf6Hvb6jX6y8JT/3prf1gFgV/zWYxfv3Lj8xx7YEc5PwGGgEQD0i/aZ31niY
-	 nowp+9BQQ6ugYgobUjzTDCZMxh97mylg0XiEtHO/AjaK+NXUWQNysvFNq4pvYGm7Jv
-	 Iv9L4uWoG4V3yGJfxhmhpYBRUrCoVinwcA4+NiABjQNLvQPNh3oOsn7Byene8INg6a
-	 ZhRglg0CKYyMw==
-From: Lee Jones <lee@kernel.org>
-To: lee@kernel.org,
-	Ping Cheng <ping.cheng@wacom.com>,
-	Jason Gerecke <jason.gerecke@wacom.com>,
-	Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>,
-	Peter Hutterer <peter.hutterer@who-t.net>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH v4 3/3] HID: wacom: Redesign shared sibling data lifecycle
-Date: Tue, 16 Jun 2026 09:26:51 +0000
-Message-ID: <20260616092658.1714548-3-lee@kernel.org>
-X-Mailer: git-send-email 2.54.0.1136.gdb2ca164c4-goog
-In-Reply-To: <20260616092658.1714548-1-lee@kernel.org>
-References: <20260616092658.1714548-1-lee@kernel.org>
+	s=k20260515; t=1781602992;
+	bh=FlA7hz1bSV+c+udTORgMCOoKuyGg0/QfzAG+euRUx/s=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=SQSqDDrjiIKyKT+2jGEMGHW6jDq1Cqdv4mFiOfpu3wo/TapT+8L8Gq1JtI+uzVKWE
+	 jMf0LmT7cbRb5R7mo76sUVTDjdVedxHgRmDyyTqaUYdFzIcCardrwZrseIyh7aTnJV
+	 0/YaW7ls9XIHovz2jvt72X3diDEDe6slZSgDTpn3VEZsHHGZ2DChYyT9q85etua2zi
+	 8XAPGOtk5RXGMGRWrDi8ODh5aZj0RrgniOvz8u5ozwSMMr7rzlPo6gfXb/rOQ/99Hf
+	 EngT0WatrdbHp5gKmchZnPeUNJOkUAk1pFEH/LY/C/YZbNQ/scezRu8gHXactoDUyA
+	 XFTX8zuHVWsOA==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v4 2/3] HID: wacom: Fix Use-After-Free in
+ wacom_bamboo_pad
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Lee Jones" <lee@kernel.org>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20260616092658.1714548-2-lee@kernel.org>
+References: <20260616092658.1714548-2-lee@kernel.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Tue, 16 Jun 2026 09:43:12 +0000
+Message-Id: <20260616094312.72B211F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-The Wacom driver coordinates state between sibling interfaces of
-the same physical device using a shared structure 'wacom_shared'
-inside 'wacom_hdev_data'.  The driver kept a volatile representative
-pointer 'data->dev' pointing to a sibling 'hid_device' for physical
-path comparisons during sibling matching.
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
 
-This pointer management is fragile.  When the representative device
-is disconnected, wacom_remove_shared_data() failed to clear/update
-'data->dev', leading to a Use-After-Free vulnerability when
-subsequent sibling probes dereference the dangling 'data->dev'
-pointer.
+Pre-existing issues:
+- [High] Lockless access to `shared->pen` and `shared->touch` in `wacom_mod=
+e_change_work()` can lead to Use-After-Free.
+--
 
-Resolve this issue by redesigning the sibling data lifecycle:
+commit e951961530e94aa8b795598b1d198c32fdbac428
+Author: Lee Jones <lee@kernel.org>
 
- - Eliminate the volatile 'data->dev' representative pointer
-   completely
- - Redesign 'wacom_hdev_data' to store stable static copies of the
-   required attributes upon first allocation: 'phys' path string,
-   'vendor', 'product' IDs and the sibling's 'device_type'
- - Use these static attributes for stable sibling matching in
-   wacom_are_sibling() and wacom_get_hdev_data()
+HID: wacom: Fix Use-After-Free in wacom_bamboo_pad
 
-This ensures sibling matching remains safe and stable even if
-individual siblings are dynamically added or removed.
+Resolves a use-after-free when events are processed while a sibling device
+is removed by introducing RCU protection for the shared pen and touch
+pointers.
 
-To secure the lifecycle against concurrent probe/disconnect races:
+> diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
+> index 86895f13dbaea..3990d8d0b40c0 100644
+> --- a/drivers/hid/wacom_sys.c
+> +++ b/drivers/hid/wacom_sys.c
+[ ... ]
+> @@ -2795,16 +2806,19 @@ static void wacom_mode_change_work(struct work_st=
+ruct *work)
+>  	bool is_direct =3D wacom->wacom_wac.is_direct_mode;
+>  	int error =3D 0;
+> =20
+> -	if (shared->pen) {
+> -		wacom1 =3D hid_get_drvdata(shared->pen);
+> +	struct hid_device *pen =3D rcu_access_pointer(shared->pen);
+> +	struct hid_device *touch =3D rcu_access_pointer(shared->touch);
+> +
+> +	if (pen) {
+> +		wacom1 =3D hid_get_drvdata(pen);
+>  		wacom_release_resources(wacom1);
+>  		hid_hw_stop(wacom1->hdev);
+>  		wacom1->wacom_wac.has_mode_change =3D true;
+>  		wacom1->wacom_wac.is_direct_mode =3D is_direct;
+>  	}
 
- - Switch kref_put() to kref_put_mutex() in
-   wacom_remove_shared_data() to serialize refcount drops with list
-   traversal and lookup
- - Modify wacom_release_shared_data() to assume the list lock is
-   already held
+[Severity: High]
+This is a pre-existing issue, but can this lockless access to the sibling
+device pointers lead to a use-after-free if the sibling is concurrently
+disconnected?
 
-Also, do not accumulate the 'device_type' capability flag during
-subsequent sibling probes.  Keeping only the first probed sibling's
-device_type exactly preserves the original sibling matching behavior
-without introducing side effects.
+In wacom_mode_change_work(), rcu_access_pointer() reads the pointer outside
+of an RCU read-side critical section. Since the pointer is then dereferenced
+to fetch wacom1 via hid_get_drvdata(), what happens if wacom_remove_shared_=
+data()
+runs concurrently on the sibling?
 
-Fixes: 4492efffffeb ("Input: wacom - share pen info with touch of the same ID")
-Signed-off-by: Lee Jones <lee@kernel.org>
----
+The removal path would clear the shared pointer and call synchronize_rcu().
+Because wacom_mode_change_work() is not holding the RCU read lock,
+synchronize_rcu() will not wait for the work item to complete. This could
+allow wacom1's driver data to be freed while wacom_mode_change_work() is
+still using it to call wacom_release_resources(wacom1) and hid_hw_stop().
 
-v1 -> v2: Split and use RCU as per Dmitry's review
-v2 -> v3: Sashiko fixes
-v3 -> v4: No change
+Since wacom_release_resources() and hid_hw_stop() can sleep, simply wrapping
+this block in rcu_read_lock() wouldn't be sufficient. Is there a plan to
+use reference counting or SRCU here to safely access the sibling device?
 
- drivers/hid/wacom_sys.c | 70 +++++++++++++++++++++++++++--------------
- 1 file changed, 46 insertions(+), 24 deletions(-)
+> -	if (shared->touch) {
+> -		wacom2 =3D hid_get_drvdata(shared->touch);
+> +	if (touch) {
+> +		wacom2 =3D hid_get_drvdata(touch);
+>  		wacom_release_resources(wacom2);
+>  		hid_hw_stop(wacom2->hdev);
+>  		wacom2->wacom_wac.has_mode_change =3D true;
 
-diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
-index 3990d8d0b40c..9fb9dde7dd73 100644
---- a/drivers/hid/wacom_sys.c
-+++ b/drivers/hid/wacom_sys.c
-@@ -759,27 +759,47 @@ static void wacom_retrieve_hid_descriptor(struct hid_device *hdev,
- struct wacom_hdev_data {
- 	struct list_head list;
- 	struct kref kref;
--	struct hid_device *dev;
-+	char phys[64];
-+	__u32 vendor;
-+	__u32 product;
-+	__u32 device_type;
- 	struct wacom_shared shared;
- };
- 
-+static bool wacom_compare_device_paths(struct hid_device *hdev_a,
-+				       const char *phys_b, char separator)
-+{
-+	const char *p1 = strrchr(hdev_a->phys, separator);
-+	const char *p2 = strrchr(phys_b, separator);
-+	int n1, n2;
-+
-+	if (!p1 || !p2)
-+		return false;
-+
-+	n1 = p1 - hdev_a->phys;
-+	n2 = p2 - phys_b;
-+
-+	if (n1 != n2 || n1 <= 0 || n2 <= 0)
-+		return false;
-+
-+	return !strncmp(hdev_a->phys, phys_b, n1);
-+}
-+
- static LIST_HEAD(wacom_udev_list);
- static DEFINE_MUTEX(wacom_udev_list_lock);
- 
- static bool wacom_are_sibling(struct hid_device *hdev,
--		struct hid_device *sibling)
-+		struct wacom_hdev_data *data)
- {
- 	struct wacom *wacom = hid_get_drvdata(hdev);
- 	struct wacom_features *features = &wacom->wacom_wac.features;
--	struct wacom *sibling_wacom = hid_get_drvdata(sibling);
--	struct wacom_features *sibling_features = &sibling_wacom->wacom_wac.features;
- 	__u32 oVid = features->oVid ? features->oVid : hdev->vendor;
- 	__u32 oPid = features->oPid ? features->oPid : hdev->product;
- 
- 	/* The defined oVid/oPid must match that of the sibling */
--	if (features->oVid != HID_ANY_ID && sibling->vendor != oVid)
-+	if (features->oVid != HID_ANY_ID && data->vendor != oVid)
- 		return false;
--	if (features->oPid != HID_ANY_ID && sibling->product != oPid)
-+	if (features->oPid != HID_ANY_ID && data->product != oPid)
- 		return false;
- 
- 	/*
-@@ -787,11 +807,11 @@ static bool wacom_are_sibling(struct hid_device *hdev,
- 	 * device path, while those with different VID/PID must share
- 	 * the same physical parent device path.
- 	 */
--	if (hdev->vendor == sibling->vendor && hdev->product == sibling->product) {
--		if (!hid_compare_device_paths(hdev, sibling, '/'))
-+	if (hdev->vendor == data->vendor && hdev->product == data->product) {
-+		if (!wacom_compare_device_paths(hdev, data->phys, '/'))
- 			return false;
- 	} else {
--		if (!hid_compare_device_paths(hdev, sibling, '.'))
-+		if (!wacom_compare_device_paths(hdev, data->phys, '.'))
- 			return false;
- 	}
- 
-@@ -804,7 +824,7 @@ static bool wacom_are_sibling(struct hid_device *hdev,
- 	 * devices.
- 	 */
- 	if ((features->device_type & WACOM_DEVICETYPE_DIRECT) &&
--	    !(sibling_features->device_type & WACOM_DEVICETYPE_DIRECT))
-+	    !(data->device_type & WACOM_DEVICETYPE_DIRECT))
- 		return false;
- 
- 	/*
-@@ -812,17 +832,17 @@ static bool wacom_are_sibling(struct hid_device *hdev,
- 	 * devices.
- 	 */
- 	if (!(features->device_type & WACOM_DEVICETYPE_DIRECT) &&
--	    (sibling_features->device_type & WACOM_DEVICETYPE_DIRECT))
-+	    (data->device_type & WACOM_DEVICETYPE_DIRECT))
- 		return false;
- 
- 	/* Pen devices may only be siblings of touch devices */
- 	if ((features->device_type & WACOM_DEVICETYPE_PEN) &&
--	    !(sibling_features->device_type & WACOM_DEVICETYPE_TOUCH))
-+	    !(data->device_type & WACOM_DEVICETYPE_TOUCH))
- 		return false;
- 
- 	/* Touch devices may only be siblings of pen devices */
- 	if ((features->device_type & WACOM_DEVICETYPE_TOUCH) &&
--	    !(sibling_features->device_type & WACOM_DEVICETYPE_PEN))
-+	    !(data->device_type & WACOM_DEVICETYPE_PEN))
- 		return false;
- 
- 	/*
-@@ -838,7 +858,7 @@ static struct wacom_hdev_data *wacom_get_hdev_data(struct hid_device *hdev)
- 
- 	/* Try to find an already-probed interface from the same device */
- 	list_for_each_entry(data, &wacom_udev_list, list) {
--		if (hid_compare_device_paths(hdev, data->dev, '/')) {
-+		if (wacom_compare_device_paths(hdev, data->phys, '/')) {
- 			kref_get(&data->kref);
- 			return data;
- 		}
-@@ -846,7 +866,7 @@ static struct wacom_hdev_data *wacom_get_hdev_data(struct hid_device *hdev)
- 
- 	/* Fallback to finding devices that appear to be "siblings" */
- 	list_for_each_entry(data, &wacom_udev_list, list) {
--		if (wacom_are_sibling(hdev, data->dev)) {
-+		if (wacom_are_sibling(hdev, data)) {
- 			kref_get(&data->kref);
- 			return data;
- 		}
-@@ -860,18 +880,15 @@ static void wacom_release_shared_data(struct kref *kref)
- 	struct wacom_hdev_data *data =
- 		container_of(kref, struct wacom_hdev_data, kref);
- 
--	mutex_lock(&wacom_udev_list_lock);
- 	list_del(&data->list);
--	mutex_unlock(&wacom_udev_list_lock);
--
- 	kfree(data);
- }
- 
- static void wacom_remove_shared_data(void *res)
- {
--	struct wacom *wacom = res;
-+	struct wacom *res_wacom = res;
- 	struct wacom_hdev_data *data;
--	struct wacom_wac *wacom_wac = &wacom->wacom_wac;
-+	struct wacom_wac *wacom_wac = &res_wacom->wacom_wac;
- 
- 	if (wacom_wac->shared) {
- 		data = container_of(wacom_wac->shared, struct wacom_hdev_data,
-@@ -885,17 +902,19 @@ static void wacom_remove_shared_data(void *res)
- 				rcu_dereference_protected(wacom_wac->shared->pen,
- 							  lockdep_is_held(&wacom_udev_list_lock));
- 
--			if (touch == wacom->hdev) {
-+			if (touch == res_wacom->hdev) {
- 				rcu_assign_pointer(wacom_wac->shared->touch, NULL);
- 				rcu_assign_pointer(wacom_wac->shared->touch_input, NULL);
--			} else if (pen == wacom->hdev) {
-+			} else if (pen == res_wacom->hdev) {
- 				rcu_assign_pointer(wacom_wac->shared->pen, NULL);
- 			}
- 		}
- 
- 		synchronize_rcu();
- 
--		kref_put(&data->kref, wacom_release_shared_data);
-+		if (kref_put_mutex(&data->kref, wacom_release_shared_data, &wacom_udev_list_lock))
-+			mutex_unlock(&wacom_udev_list_lock);
-+
- 		wacom_wac->shared = NULL;
- 	}
- }
-@@ -918,7 +937,10 @@ static int wacom_add_shared_data(struct hid_device *hdev)
- 		}
- 
- 		kref_init(&data->kref);
--		data->dev = hdev;
-+		strscpy(data->phys, hdev->phys, sizeof(data->phys));
-+		data->vendor = hdev->vendor;
-+		data->product = hdev->product;
-+		data->device_type = wacom_wac->features.device_type;
- 		list_add_tail(&data->list, &wacom_udev_list);
- 	}
- 
--- 
-2.54.0.1136.gdb2ca164c4-goog
-
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260616092658.1714=
+548-1-lee@kernel.org?part=3D2

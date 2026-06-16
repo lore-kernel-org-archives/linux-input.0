@@ -1,193 +1,111 @@
-Received: from fout-a5-smtp.messagingengine.com (fout-a5-smtp.messagingengine.com [103.168.172.148])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-dy1-f175.google.com (mail-dy1-f175.google.com [74.125.82.175])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 172423C8738;
-	Tue, 16 Jun 2026 04:24:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.148
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2F2543C9438
+	for <linux-input@vger.kernel.org>; Tue, 16 Jun 2026 04:26:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.175
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781583889; cv=none; b=u5ZLQzSQED2iZZLOX9NWIeXKKDpWYud+K7GA4AeVmR/yUHdS5EufG34NbUG14OufKm7tb9Yi7vs0/gHSucl/pVkXvwY836I+BJ1Jb2R4AlMykCsk+GqqPCK6WNokx0rRLgjHWO2rNV1y4FLMLZuPgpZHg/DlM4BFDoRkNjY5vsk=
+	t=1781583995; cv=none; b=Cm5ik++PvMetydsEwp5fATeXtNc3IYaqwA/VgsttzHKjnfA3B5/1q23Xas+TJ6PR9Oh+pa85Y+5g9Ai9q1EdEECpaJ2q2DulU57TaWjFhQ4dvbtqi8pdOZrbVKcaUO8syQDIS4yoUb/xcj9HV/kBrXtv1VLqwu6RWiTjFCorrds=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781583889; c=relaxed/simple;
-	bh=TooB9fuNzqFzvlDpyy/qp361HVzKFMwkSEWbbK7EuS0=;
+	s=arc-20240116; t=1781583995; c=relaxed/simple;
+	bh=oo4tfyy8/lTcDz9sLBYLwqwvpecf+BueTrMqZlBkdJA=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=NpBkjH27+zUy51kEOkgfncA/ziebcarOmUNf7B5R6bT1OZvFil1H6F3XUabMuZSxwsZuVaV4vTup4fDQhAJOLKACg8cj/sGuDDVM77PUK143ntjMHI0nf0gd9kiOIjVy3wh5/+ZYt4uOfe+4Q9t3c6u1H5qmMWXha7HoeQVacr0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=who-t.net; spf=pass smtp.mailfrom=who-t.net; dkim=pass (2048-bit key) header.d=who-t.net header.i=@who-t.net header.b=LgBzFEHK; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=YVRs7coz; arc=none smtp.client-ip=103.168.172.148
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=who-t.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=who-t.net
+	 Content-Type:Content-Disposition:In-Reply-To; b=fzfrFadUOOnaOkrNgbq7KxvZ/oY1Pjd4vMNlrvWJzSXjwDpfC3rPA//jZ5ZGrlbYmjHm149xb970uNsVlbDNmnoBcDKVdzWu3PaFjnrwHKvc406SaeMAx2//qS16LZr6iMNiARFsh1wlJOTUc4Uc1fXI843NTx9d8Qq2qhDClUE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=IxVDiETX; arc=none smtp.client-ip=74.125.82.175
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=who-t.net header.i=@who-t.net header.b="LgBzFEHK";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="YVRs7coz"
-Received: from phl-compute-01.internal (phl-compute-01.internal [10.202.2.41])
-	by mailfout.phl.internal (Postfix) with ESMTP id F1332EC0032;
-	Tue, 16 Jun 2026 00:24:46 -0400 (EDT)
-Received: from phl-frontend-03 ([10.202.2.162])
-  by phl-compute-01.internal (MEProxy); Tue, 16 Jun 2026 00:24:46 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=who-t.net; h=cc
-	:cc:content-type:content-type:date:date:from:from:in-reply-to
-	:in-reply-to:message-id:mime-version:references:reply-to:subject
-	:subject:to:to; s=fm3; t=1781583886; x=1781670286; bh=aIbjbQoCoZ
-	WMWxtel90tXuoxffLrjBDNWsWDrpsWKmI=; b=LgBzFEHK/Akw5SEzLDrCNTvBM+
-	VY62UW58979lF2YvUaR36oj4fLVLiSPn+boVxpdDhWn8QqTXjG3/4m7gCnIPYpP6
-	N2IpprFU0sVGEUUnlQpZzaUoBWqLd8spZrTyImZ7CFIMprsutU+jV3gudutlOLl/
-	Nf/0fpPtTDUjS2YDHOvrdHWt+1N5MVeLyDJ1fDO7FddWriA4UpaVeKv7ZidN157g
-	wgj0+2c9OpbHxXinw1b5uQoTw2usNWhvjcnu1Acew1fTHsoMaIru5fnSQy3xlB5u
-	QLfKRoDwtDSxAI+oPmFtjSFqJMB64z8i2iWZnRe3R7+cmhVmErlUfihLfnlg==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-type:content-type:date:date
-	:feedback-id:feedback-id:from:from:in-reply-to:in-reply-to
-	:message-id:mime-version:references:reply-to:subject:subject:to
-	:to:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; t=
-	1781583886; x=1781670286; bh=aIbjbQoCoZWMWxtel90tXuoxffLrjBDNWsW
-	DrpsWKmI=; b=YVRs7coztl+SGKpIhsNi6UH5OgARFPBK6QljsBzmaLGjN4xDJ85
-	lUhuOevl0xmHXe6qBATyn+unw+N3aWkCQdAeNrJbDLlyYaFfuAEoV6H4DPPSZHqg
-	WDJFrCeVtsFxWahVIeeXwrHLqj8Qc4TG0kgyiyDV87zjMheyHyHLtIq7RiVGZERk
-	IA96PMvEbr1Ooh3Fu+is5pIC4aIoo+ucjLSXQDNchM6twYFQFnjmC/mx0V9Tow82
-	7oM+zW+QFar9AC34cYRiRdvIhFcRUoor5/MhvBFF8O/+0ouW0/UpvjsHmSRzI67J
-	6Iv8ytZxT58eCFtqoBc2KNpfNoCmhdKgBKA==
-X-ME-Sender: <xms:DtAwahXPCNolTxTMDa_vKii9sfBaDn0DgLzNsSSEJ_q9KHt9A7483Q>
-    <xme:DtAwanmBK7Y-RHcJMGDuRQKbBftEhoTUZNMGrnK1PA6s3U294f0X9q1PMxeDovv-6
-    UwIWYGYq-ONgwOFine5xBQRP2Wk9NaSxte8EMOerrW6yMupb96iVQ>
-X-ME-Received: <xmr:DtAwaoM_JYSaoCwQ0lZVHBYeIsGmpPVvmQ8_pn1PN8eHQfusu7Ln9F_2k-Z4TE-13LwcDIA-yoGD1Q1vpjHsmVCO-ns16agCpA>
-X-ME-Proxy-Cause: dmFkZTFTwNYV1A9vcUb2j+PTRx6CVToqXdqHI4adD1QS9KOCGDCdueKGbhjKs1LJlhHjmr
-    0VK9oFORXz9+5X1344a6E6/OCbrawVN5mCjeKD4QMVCkaO4D2VWJpAVXfMoSHypnNt4CnB
-    5ixfxlQobP6y2umFS0QcJ6Qkvl34YRP6YU64M/ZF0j/WX71t2j1k5f7X/DmqhNm98lZjIH
-    QDUqwSjWqzlHcj2rDW+EzV8F0lxz77kD8HMay/afW4Wj+K886b9dz1Pg27hyV2fLi1d0Th
-    5Cmxx6dZUJjFmD+2FvyY6s9ROVcBY9uHg/mrVg4JVszbCMWyiGD9puPZdZJ1dJ3RJlIwg3
-    7soxpiNR2/kUpxBE58575RJKfXvG+Cu96fV911ml1M0SGqCQRi+9nr5iF82Oy1LHGGvTAw
-    apYX6J0oM+bLVkatnQliFxwiTiUIEYYf6oMmRSsWSqzNletICuPLBv/xkcrRwNm55jEcX0
-    tVT9EIyzl/ZTWwwsWDgancCUOxhC/AL5tbhZ0C0Qf/3iwICVS02mfFm1PczQbQswD61LXk
-    fx74NAp7XzpdrzqxvP7pBgCRoz7dRX/SvAmJidvg/7dT8feje2JvK/+1BoLhVAaKC7+47/
-    AtkLji6iL8c43NWF4E2Lh9eNHI6MOiPXc2o7KvRTBd2i2T8UakqnnnjKiMtA
-X-ME-Proxy: <xmx:DtAwanLNIaRMP4BLXzb67L1MJZteapRGYVFi30XSSWKIx1E-Gy_tNg>
-    <xmx:DtAwaq2niwuL8XZrDZ9xg0eoKAZ4X1txBq0gW-ihynwI09CpMTTmFA>
-    <xmx:DtAwarVYEF89C3h3B0LatGaLJHI-Ty3dW0bFLs9HnyU13HA1zrErww>
-    <xmx:DtAwasOm0t0FtBdJ1CEIlMg9FExuUBxljTPtDR4IkZoTUwKGPLGtNw>
-    <xmx:DtAwasvS0UwXcE2TTUAKkK92_Q-rwW2xamkqoOt-oLhXb0ReJDDU0Fn1>
-Feedback-ID: i7ce144cd:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Tue,
- 16 Jun 2026 00:24:42 -0400 (EDT)
-Date: Tue, 16 Jun 2026 14:24:38 +1000
-From: Peter Hutterer <peter.hutterer@who-t.net>
-To: Rong Zhang <i@rong.moe>
-Cc: devnull+peter.hutterer.who-t.net@kernel.org, bentiss@kernel.org, 
-	dmitry.torokhov@gmail.com, jikos@kernel.org, linux-input@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org, shuah@kernel.org, 
-	vadim@cirque.com
-Subject: Re: [PATCH v2 1/4] HID: multitouch: set INPUT_PROP_PRESSUREPAD based
- on Digitizer/Button Type
-Message-ID: <ajDO531wxzVZlL4g@quokka>
-References: <20251222-wip-hid-pressurepad-v2-1-054ac9689bb7@who-t.net>
- <fb198851093477d958eae61665e9cfda0be5b48f.camel@rong.moe>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="IxVDiETX"
+Received: by mail-dy1-f175.google.com with SMTP id 5a478bee46e88-3075ce9c05aso10415126eec.1
+        for <linux-input@vger.kernel.org>; Mon, 15 Jun 2026 21:26:34 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1781583993; x=1782188793; darn=vger.kernel.org;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=bY4/S5kAo7rT958o4WJs5aY2AIH3N1nSwFvgkKoR7DU=;
+        b=IxVDiETXMu9w5l/RPm4LuK+2KnGgZJ4HOIUnfo+bHinIg1ulcPcR687NvE/6dW/bpW
+         OUj9Zha+X20RjcukD7hNlxX1Mx4L73AaoG/42u1t24jnj4I/Osg5U58zAsqd48u0g3S7
+         ZhKNWf7hVdxeLjAzciO+KqM/h7phqeedB3yslKahoB4OIco23FB56/ox1h9BW4GSiQPz
+         iAWYZLtvTkfcIBn0QiH3UaMXnVhddQ07NHNGrxdfoAz3PouEPmNBqG6EplQeJWbZJskm
+         E0Z4+758FRO22vnty66xXhAY3oq3jFe4AUvEmkPH2ifCNR2+hjz8OnTtFw6KWskZRyW4
+         vgUg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1781583993; x=1782188793;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=bY4/S5kAo7rT958o4WJs5aY2AIH3N1nSwFvgkKoR7DU=;
+        b=GtU0DBSlGXmEfbw6aom0Rrn3ZRCc9OuwWCGTNievY9vU48b6W3uyJo3VLogI2ytmap
+         2zsT3jwQxHScjkuB+U+afj/RI4lEeOOwsEfRorojGo7rS2O+XaYnOXMRvOTIWnLFMGG0
+         ds6FIjW4dhsNujBFGFUxAx5AAuIcno7Ceju/5s2fO+8IW0AtPsHcc5K3GHoachw0VWA4
+         OzHr8I13MkaYJGXZ+Mx42Mh3v+k4GIQNdzhs6jnRST8ukDJiY16PbxhLw8uvucHyKouf
+         vbEYonDWxG0nQSjkuhXi2gNguRLits3ZMeR+N9tj4SRpMXdiaOd43AdbTv9efsVmACbd
+         /H5w==
+X-Forwarded-Encrypted: i=1; AFNElJ9rtTGqlTmde10SQK+fwpGtoaL86lqsOepPaFAFL64yB2P9l9iLiSkfo85oQxXF/o9z6aK68qZgpe55IA==@vger.kernel.org
+X-Gm-Message-State: AOJu0YweoJN2NS/Aa6HMcmH2phaYdGBP3IxAHy9KZN/oLGJLX2kRzWZB
+	NMQIHWukV6sOMbP1pDuM7ipMYM2Dt9sHUpedQFIhjL5kWPTtNoGnGU3lONH3zg==
+X-Gm-Gg: Acq92OFDe7TzJKy57++A9ifdRo0vu6Rq1s+ouXZoJp8wMwhI7XPJpBGB9aHOxl4Gk1P
+	/kHqTuMJzMOhVUWlHbJ9yssDuephqzQ0mKyVUYttGJvK/tz/lo5Tbpjur3BfmLx1g/t4jG8hg9Z
+	assKg84nYr6uNNnrimBIExoXZHUqV/0nVAFzoUeQ0E0n2i5iuTLZq0P6sOpLsNgxNApvzMg5lIZ
+	CSNCkoZBC7hlfp9guHh771AneNcQ5DLI3H86Xcf7LYFElCmOri3jSq/e54XXNzk4QDpRX/Hfe75
+	f19Wdq8fCWJKznbInbKGUFT1XWAKg1b1tWWGK0d5Y3dDoupv+8lbiY3VZbJEXETXp3vf08wMiZT
+	LehrEI8vTxl1a5X0/vGOpoBpTulpIzXy8Xaz4+JeWoq0W3eyDxMalmKj9fL5j0Z7i4PMhOWpyJl
+	83bOxxckx8WOMcW4cVcW39/fsmDLF9Jvy2HYEJh2n2syz2dllEswgbNXJZTgaNkRyR
+X-Received: by 2002:a05:7300:3b28:b0:304:e72a:d4d1 with SMTP id 5a478bee46e88-30ba5f4b95emr1163025eec.30.1781583993222;
+        Mon, 15 Jun 2026 21:26:33 -0700 (PDT)
+Received: from google.com ([2a00:79e0:2ebe:8:3714:f5c2:9b83:3df1])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3081eb8f8b2sm17660379eec.27.2026.06.15.21.26.31
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 15 Jun 2026 21:26:32 -0700 (PDT)
+Date: Mon, 15 Jun 2026 21:26:29 -0700
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Svyatoslav Ryhel <clamor95@gmail.com>
+Cc: Rob Herring <robh@kernel.org>, 
+	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, Lee Jones <lee@kernel.org>, 
+	Pavel Machek <pavel@kernel.org>, Sebastian Reichel <sre@kernel.org>, 
+	Ion Agorria <ion@agorria.com>, =?utf-8?B?TWljaGHFgiBNaXJvc8WCYXc=?= <mirq-linux@rere.qmqm.pl>, 
+	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, 
+	linux-leds@vger.kernel.org, linux-pm@vger.kernel.org
+Subject: Re: [PATCH v8 4/7] input: keyboard: Add driver for ASUS Transformer
+ dock multimedia keys
+Message-ID: <ajDPtOyr8GJYaVYQ@google.com>
+References: <20260528053203.9339-1-clamor95@gmail.com>
+ <20260528053203.9339-5-clamor95@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <fb198851093477d958eae61665e9cfda0be5b48f.camel@rong.moe>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20260528053203.9339-5-clamor95@gmail.com>
 
-Hi Rong,
+Hi Svyatoslav,
 
-On Tue, Jun 02, 2026 at 01:25:57AM +0800, Rong Zhang wrote:
+On Thu, May 28, 2026 at 08:32:00AM +0300, Svyatoslav Ryhel wrote:
+> From: Michał Mirosław <mirq-linux@rere.qmqm.pl>
 > 
-> Hi all,
-> 
-> Hopefully I'm not too late to show up here.
-> 
-> > From: Peter Hutterer <peter.hutterer@who-t.net>
-> > 
-> > A Digitizer/Button Type value of 1 indicates the device is a
-> > pressurepad, see
-> > https://learn.microsoft.com/en-us/windows-hardware/design/component-guidelines/touchpad-windows-precision-touchpad-collection#device-capabilities-feature-report
-> > 
-> > Signed-off-by: Peter Hutterer <peter.hutterer@who-t.net>
-> > ---
-> >  drivers/hid/hid-multitouch.c | 12 +++++++++++-
-> >  1 file changed, 11 insertions(+), 1 deletion(-)
-> > 
-> > diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-> > index 179dc316b4b518d78bdc900d9fd15756c5eba83e..382e6f50c4f7e663af7d028abb8be7cb2e6e7b8e 100644
-> > --- a/drivers/hid/hid-multitouch.c
-> > +++ b/drivers/hid/hid-multitouch.c
-> > @@ -81,6 +81,7 @@ MODULE_LICENSE("GPL");
-> >  #define MT_INPUTMODE_TOUCHPAD		0x03
-> >  
-> >  #define MT_BUTTONTYPE_CLICKPAD		0
-> > +#define MT_BUTTONTYPE_PRESSUREPAD	1
-> >  
-> >  enum latency_mode {
-> >  	HID_LATENCY_NORMAL = 0,
-> > @@ -179,6 +180,7 @@ struct mt_device {
-> >  	__u8 inputmode_value;	/* InputMode HID feature value */
-> >  	__u8 maxcontacts;
-> >  	bool is_buttonpad;	/* is this device a button pad? */
-> > +	bool is_pressurepad;	/* is this device a pressurepad? */
-> >  	bool is_haptic_touchpad;	/* is this device a haptic touchpad? */
-> >  	bool serial_maybe;	/* need to check for serial protocol */
-> >  
-> > @@ -530,8 +532,14 @@ static void mt_feature_mapping(struct hid_device *hdev,
-> >  		}
-> >  
-> >  		mt_get_feature(hdev, field->report);
-> > -		if (field->value[usage->usage_index] == MT_BUTTONTYPE_CLICKPAD)
-> > +		switch (field->value[usage->usage_index]) {
-> > +		case MT_BUTTONTYPE_CLICKPAD:
-> >  			td->is_buttonpad = true;
-> > +			break;
-> > +		case MT_BUTTONTYPE_PRESSUREPAD:
-> > +			td->is_pressurepad = true;
-> > +			break;
-> > +		}
-> >  
-> >  		break;
-> >  	case 0xff0000c5:
-> > @@ -1393,6 +1401,8 @@ static int mt_touch_input_configured(struct hid_device *hdev,
-> >  
-> >  	if (td->is_buttonpad)
-> >  		__set_bit(INPUT_PROP_BUTTONPAD, input->propbit);
-> > +	if (td->is_pressurepad)
-> > +		__set_bit(INPUT_PROP_PRESSUREPAD, input->propbit);
-> 
-> I noticed that this leads to dual reporting on my device.
-> 
-> Consider previous checks:
-> 
-> 	if (application == HID_DG_TOUCHPAD) {
-> 		mt_application->mt_flags |= INPUT_MT_POINTER;
-> 		td->inputmode_value = MT_INPUTMODE_TOUCHPAD;
-> 	}
-> 
-> ...
-> 
-> 	/* check for clickpads */
-> 	if ((app->mt_flags & INPUT_MT_POINTER) &&
-> 	    (app->buttons_count == 1))
-> 		td->is_buttonpad = true;
-> 
-> ... where `td->is_buttonpad' is set to true when a pressure pad has only
-> one button, i.e., the "touchpad button integrated with digitizer" [1].
-> Most (if not all) pressure pads fall into this category. As a result,
-> the presence of INPUT_PROP_PRESSUREPAD is always accompanied by the
-> presence of INPUT_PROP_BUTTONPAD.
+> Add support for multimedia top button row of ASUS Transformer's Mobile
+> Dock keyboard. Driver is made that function keys (F1-F12) are used by
+> default which suits average Linux use better and with pressing
+> ScreenLock + AltGr function keys layout is switched to multimedia keys.
+> Since this only modifies codes sent by asus-ec-keys it doesn't affect
+> normal keyboards at all.
 
-Yes, this is intended, see commit
-ae8966b7b5bd69b86209cc34bcca1ba9f18b68e6 which lists this in the commit
-message:
+I think using input handler to intercept ScreenLock + AltGr is quite
+awkward. I think this also passes the original key events (unless you
+make it a filter not a regular handler).
 
-```
-    This means:
-    - clickpad: INPUT_PROP_BUTTONPAD
-    - pressurepad: INPUT_PROP_BUTTONPAD + INPUT_PROP_PRESSUREPAD
-    - pressurepad with configurable haptics:
-      INPUT_PROP_BUTTONPAD + INPUT_PROP_PRESSUREPAD + FF_HAPTIC
-```
+I do not see benefit for reacting to AltGr+ScreenLock on other keyboards
+to activate the special mode on this one. So given the fact that you
+already mange the data stream when you split it into "serio" ports,
+maybe just intercept this key combo right there and create the input
+device and signal input events right there?
 
-We have to keep setting BUTTONPAD on all pressurepads because otherwise 
-we'd break existing userspace which relies on this.
+Thanks.
 
-Cheers,
-  Peter
-
-
+-- 
+Dmitry

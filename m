@@ -1,107 +1,113 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3E40930148C
-	for <linux-input@vger.kernel.org>; Tue, 16 Jun 2026 13:39:46 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2EDA7212D7C;
+	Tue, 16 Jun 2026 13:43:00 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781617187; cv=none; b=KqV/BGATxcdc4ogmcUFv+ahzTv9xUI65PhsCBRor8W/EEtjXk6J8voBSvHvRIFrbMye3V7pekCzuyJewQMu8Y2gHVLtwdOmM5P4rphsrjMu3/sl/Q42OJVcZeyXNsjgFolasLz2ZvL/SsKgWXlRJc2VU96ChqFnP/Hl7L9Spaf8=
+	t=1781617382; cv=none; b=uqrERghjx6mKyahtsiU/8dFyXp2UGHTYgLBMBy3YWpBJGgWYDmGj2vZVqt6ecPh+U5bTaOxkKP8kFSgJ5Q7d1LyK/+mbOBL0F+nsYowbHShOJ5pCAinkmrAxorsWjOvn1phBRsja/MI4dGmDLG/AQpY63s49DRqvUDBMKYRbv7Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781617187; c=relaxed/simple;
-	bh=HLGKdJ3y4JgqXCZLHldCPm/gbTaciV9O8MYor18PLOE=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=QEs1ePW5D9XmnmehE1qfmDB0khWXhm93ARhOxJsGqia2EpzC983nlW3fk02Y5zbyBAqfFdQ9uFKC/q1LGpJeSaty4g3XgmhaGiFQWhKA5QpAgS5e9yy/rElC4OY1GeRvJOelLQxmLQKBIIdewUKtHI+vdZ+Cd6OGk503RiA4IUY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=JjUTrucR; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1781617382; c=relaxed/simple;
+	bh=y15Ipf+iIGRKuRBcXNk+ZyGkGCPpvE+tgNuodC+FHrk=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=iGbh31oeUJ6k1hwO8pMRvFXPQsoOMFzOGNw5fTAvhBQYBiPzXVBa8pTTVJPEjIBv31uzRMK32P3YDnJqTUGJLirKuWFL4LTAAjxxQJqpERlJvadbvQaOrBkYpOVYr+Wr3SIezCgMJokKOjksTSBYuoPi3KQQA1qFgB1SGhUWcFU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=PNZUueQn; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="JjUTrucR"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB4F31F000E9;
-	Tue, 16 Jun 2026 13:39:45 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="PNZUueQn"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8FF891F000E9;
+	Tue, 16 Jun 2026 13:43:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1781617186;
-	bh=QmrQZjAhRjTw5ShEw4gHobj4vZJpV37itM3ia9YCA3g=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=JjUTrucR4TIStB7GRut02zfqIme9buOjw7ypr5jK37ao0rsWVoFFZ19wQzYmtJZPX
-	 XdBwA0FaFii2zVOkjdgGsSQE4G9YN7UAy+YPRhfJTGOrXkYhYLO0DHyYyx8FTzFsjW
-	 j8/tKq8AhivHlTCaAyzHRMs3Nu3aGYw31GdYwZGwIePUxXq9trtkOfR65bibOw+gB/
-	 QrhkldGmhQmQHufy3qXu6l1SEleJK2rPJDZqEDPJUnfLXH9XcGuXtr+230m3Rj57zK
-	 Kd2+jDO/ZA19y0lxk/pGG3B+s5ZF9Lc9KzaBz8Wuw+Z0PUhnh0ZXCM0acC8SkUPAgp
-	 QlOTrsAtCYpHw==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 1/3] iio: hid-sensor-temperature: use u32 instead of
- unsigned int
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Sanjay Chitroda" <sanjayembeddedse@gmail.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260616-16-jun-hid-iio-u32-api-type-v1-1-952c74195f46@gmail.com>
-References: <20260616-16-jun-hid-iio-u32-api-type-v1-1-952c74195f46@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Tue, 16 Jun 2026 13:39:45 +0000
-Message-Id: <20260616133945.DB4F31F000E9@smtp.kernel.org>
+	s=k20260515; t=1781617380;
+	bh=BlUDip4GcgFnSaDcETbB3mXqYyAfrmdK96aHUTtbFQ4=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=PNZUueQn/N4W6+A2fF7S/sYZIxI8SXTR0Skm5X8h8nfTGlv84Fon2rm/DtaEJg3r3
+	 e16LAo5QpqSa3Ajpzs+d+SCI9WeuNBJUWrsVKuRHRyhUesel17fQLiVEbVH0wfilSI
+	 Gu+jftp3/UFCJbEzSXLg0SlyZj2XB9n2nnNHlyUDLwpll50BNP6PrRqa/VzW7Q+Kli
+	 rPBmDSDe19h5pP3/eJaX273BzmG0LLTdaEDdi+pf1aF+viiZ1gaGBSmZt3/aEihk2e
+	 STt9qq3EqUxMY4FxceCxgs63/XTLTB+pgnPPNJmt/3i7Pp9wnaryNn8ghYX57fvpym
+	 fQTpXQVmghpbw==
+Date: Tue, 16 Jun 2026 08:42:57 -0500
+From: Rob Herring <robh@kernel.org>
+To: Luca Leonardo Scorcia <l.scorcia@gmail.com>
+Cc: linux-mediatek@lists.infradead.org,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>, Sen Chu <sen.chu@mediatek.com>,
+	Sean Wang <sean.wang@mediatek.com>,
+	Macpaul Lin <macpaul.lin@mediatek.com>, Lee Jones <lee@kernel.org>,
+	Matthias Brugger <matthias.bgg@gmail.com>,
+	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
+	Liam Girdwood <lgirdwood@gmail.com>,
+	Mark Brown <broonie@kernel.org>, Linus Walleij <linusw@kernel.org>,
+	Julien Massot <julien.massot@collabora.com>,
+	Louis-Alexis Eyraud <louisalexis.eyraud@collabora.com>,
+	Val Packett <val@packett.cool>, Fabien Parent <parent.f@gmail.com>,
+	Akari Tsuyukusa <akkun11.open@gmail.com>,
+	Chen Zhong <chen.zhong@mediatek.com>, linux-input@vger.kernel.org,
+	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-pm@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	linux-gpio@vger.kernel.org
+Subject: Re: [PATCH v7 0/9] Add support for MT6392 PMIC
+Message-ID: <20260616134257.GB2335264-robh@kernel.org>
+References: <20260615071836.362883-1-l.scorcia@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260615071836.362883-1-l.scorcia@gmail.com>
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
+On Mon, Jun 15, 2026 at 09:16:06AM +0200, Luca Leonardo Scorcia wrote:
+> The MediaTek MT6392 PMIC is usually found on devices powered by
+> the MT8516/MT8167 SoC and is yet another MT6323/MT6397 variant.
+> 
+> This series is mostly based around patches submitted a couple
+> years ago by Fabien Parent and not merged and from Val Packett's
+> submission from Jan 2025 that included extra cleanups, fixes, and a
+> new dtsi file similar to ones that exist for other PMICs. Some
+> comments weren't addressed and the series was ultimately not merged.
+> 
+> These patches enable four functions: keys, regulator, pinctrl and RTC.
+> Mono speaker amp will follow later as I need to work further on the
+> audio codec.
+> 
+> I added a handful of device tree improvements to fix some dtbs_check
+> errors, added support for the pinctrl device and addressed the comments
+> from last year's reviews.
+> 
+> Please note that patch 0006 and 0008 depend on patch 0005 as they need the
+> registers.h file, but belong to different driver areas. I'm not sure if
+> I'm supposed to squash them even if they belong to different driver
+> areas of if it's fine like this. Any advice is welcome.
+> 
+> The series has been tested on Xiaomi Mi Smart Clock X04G and on the
+> Lenovo Smart Clock 2 CD-24502F.
+> 
+> Changes in v7:
+> - Removed patch 0008 dependency on patch 0003.
+> - Reintroduced the regulator driver. In earlier revisions of this series,
+>   it was proposed to remove the dedicated compatible for the regulator
+>   device [3]. The driver does not use actually it, but it is not possible
+>   at this time to remove it from the bindings since it's a required
+>   property.
+> 
+>   Making the regulator-required property conditional was NACKed in [5],
+>   with the suggestion to create a separate binding altogether for devices
+>   that do not require the compatible property. I tried implementing this,
+>   but since the parent device needs to be declared as compatible with
+>   mt6323, it leads to a warning in dt_binding_check since mt6323 would
+>   be declared as a compatible in both mt6392 and mt6397.
+> 
+>   In the end the only regulator driver from the mt6397 documentation that
+>   still declares an of_match is mt6397-regulator and it does not seem
+>   to be necessary, so it should be possible to remove it and make the
+>   regulator compatible optional for all regulators, but that change would
+>   probably deserve its own separate patch series.
 
-Pre-existing issues:
-- [High] Tear-down Order Inversion / Use-After-Free
---
+I don't really follow what the issue is here, but compatible should 
+never be optional.
 
-commit fd38c3c8f2adbbb955807f745b5f193e1fd40a85
-Author: Sanjay Chitroda <sanjayembeddedse@gmail.com>
-
-iio: hid-sensor-temperature: use u32 instead of unsigned int
-   =20
-This commit updates the type of the usage_id variable from unsigned int
-to u32 in the callback API. This improves code clarity and matches the
-expected callback API type.
-
-> diff --git a/drivers/iio/temperature/hid-sensor-temperature.c b/drivers/i=
-io/temperature/hid-sensor-temperature.c
-> index 9f628a8e5cfbe..a8d3a15f9c531 100644
-> --- a/drivers/iio/temperature/hid-sensor-temperature.c
-> +++ b/drivers/iio/temperature/hid-sensor-temperature.c
-
-[ ... ]
-
-> @@ -159,7 +159,7 @@ static int temperature_capture_sample(struct hid_sens=
-or_hub_device *hsdev,
->  static int temperature_parse_report(struct platform_device *pdev,
->  				struct hid_sensor_hub_device *hsdev,
->  				struct iio_chan_spec *channels,
-> -				unsigned int usage_id,
-> +				u32 usage_id,
->  				struct temperature_state *st)
->  {
->  	int ret;
-
-[Severity: High]
-This is a pre-existing issue, but does hid_temperature_remove() tear down
-the trigger and callback too early?
-
-Because the driver uses devm_iio_device_register(), the IIO device will not
-be unregistered until after the driver's remove function returns.
-
-However, hid_temperature_remove() manually unregisters the trigger and
-callbacks before that:
-
-drivers/iio/temperature/hid-sensor-temperature.c:hid_temperature_remove() {
-	...
-	sensor_hub_remove_callback(hsdev, HID_USAGE_SENSOR_TEMPERATURE);
-	hid_sensor_remove_trigger(indio_dev, &temp_st->common_attributes);
-}
-
-Could this leave a race condition window where the IIO device and its
-sysfs/char interfaces are still fully accessible to userspace, but its
-backing trigger and callbacks have already been destroyed?
-
-Can concurrent access from userspace during this window lead to a
-use-after-free?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260616-16-jun-hid=
--iio-u32-api-type-v1-0-952c74195f46@gmail.com?part=3D1
+Rob

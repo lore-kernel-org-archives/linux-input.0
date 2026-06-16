@@ -1,353 +1,282 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 915C4423A9A;
-	Tue, 16 Jun 2026 10:23:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 83CEB31F98D
+	for <linux-input@vger.kernel.org>; Tue, 16 Jun 2026 10:26:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.180.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781605383; cv=none; b=cpYwMXJ2aarkKmC3FnNSp6jEPx2d87pZGy2Xv5QxaEVZ49snDTcq6g0LCJtPr9UTn8200jXnpU/rmHukSKq4qAwArMqAIPsRP+a+mEajneT1ee9QYEqEkNhrtze93NsCw07MnNXQU6uXUQcJyJfRmVWpESPcrcCc8HUfvtZLsIM=
+	t=1781605561; cv=none; b=EcwXcVjIM5htgcfRbCmuC4lv34wTnnOwkfywaSB6btWJYTsZxa9BoN4bSBVQjouk0utxSXYJkB3vbemhKFw+RusD4euObgvdIVDTGdWpec0heYUk3pPeMkxZ55u/TlQCaB96+ytB4IsmbVgZhPLKVKbmlFK/WbEwQhfqTnnChWw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781605383; c=relaxed/simple;
-	bh=4OE0EYFNckyz80IS1w5EUqzaIcLDrP9DN85qj8QZTqQ=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=MWxa7k7s886Kob77hoYlk3YwQW2e5Qt4ziG/oSQoPYFIwEo0cSiSYyuujsuB1WaUjO5uBX19wvJwet57aH/zXLK0M2sJGKhz5LK807ST+utvgT9BaBKWYUwb+of9HMPxFEXKTaQl5fphkfkL4ecIRfJ5qizSsikfcH0FIfqDhZI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=JCNrgFGt; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1781605561; c=relaxed/simple;
+	bh=rBQrkdlLxu+sHScrpiOHOcI8isRa+CD1qTLn1K7LBaE=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=UvfcfDdhW4YNK1hBKMmR7NJcA4Mq9SGGW8G3F/0ovt0MIEmvd8LLc6rI5XmKbHLnyUikje6fZ0ReyqCJ8qxY6NI6wZ7kHdl7SNKcNcGWoMRUX0QMV1BiDzUbCyiSLSpqe4/4qk112rOK582E6S+04uOAolk50T3EgXMMZ4CWOa0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=O69xuHOT; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=fGVd0rK0; arc=none smtp.client-ip=205.220.180.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="JCNrgFGt"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F419C1F000E9;
-	Tue, 16 Jun 2026 10:23:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1781605382;
-	bh=Nka0yba8yFCy1A8TFu5y/t/C62LCMJHXg4caaXDfVPc=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=JCNrgFGt03UK/vs8ZWGbEAeNN/MggcLp97CBQwsEND2hxwzFmPWsWHekZMLzkWZxX
-	 0utJQkuOPNNhV7mq7ZsiEgZsn306SYCOLNbeCvVovf98ZZQDiszvXTpv9y+NHV2UZT
-	 m7gC231bpf0Xs74Gu/Haf/o74a4X5lxO/kOhMn5OcgRLILw9nN/AEgj4AD0ADWi5Rq
-	 6vxxrDMK1n7u679dz5hQMEtMSdMtuWXhrHcj9eKRhjJHZHoQdfqn3ZNi89CGtuESKz
-	 4gnfsRCMJdvNS8AqZePgWgUK5dCo+NySguec5pV4UzYuLUKybhPF1bpsL+zlnM7Rhl
-	 7WZSYWPY4eGcA==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 3/4] input: misc: Add Qualcomm SPMI PMIC haptics driver
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Fenglin Wu" <fenglin.wu@oss.qualcomm.com>
-Cc: robh@kernel.org, linux-input@vger.kernel.org, conor+dt@kernel.org, devicetree@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260616-qcom-spmi-haptics-v1-3-d24e422de6b4@oss.qualcomm.com>
-References: <20260616-qcom-spmi-haptics-v1-3-d24e422de6b4@oss.qualcomm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Tue, 16 Jun 2026 10:23:01 +0000
-Message-Id: <20260616102301.F419C1F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="O69xuHOT";
+	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="fGVd0rK0"
+Received: from pps.filterd (m0279872.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 65GABGEf3223760
+	for <linux-input@vger.kernel.org>; Tue, 16 Jun 2026 10:25:59 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
+	cc:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
+	7V7D596VKMgblFH1E6kjqVU3QLyINlDY8eH+KpidKYc=; b=O69xuHOTQ5mv4r2n
+	LNZYoiBf88oVrj0g6nTrb330YMVO0hLNDsYgSW1DeDRixLjVs5tHFqb69pSBUO5P
+	oFF+4ENAr7avI8h7CvI/UFQbFKxewyfhJKfhGLbvKfkqLvg0K87+PNNtArnkeMX9
+	067u71zi6x8bBnqWNEfs4skrJuBJF1kwI1653P2UPMu5IzBF9xUcC+PBwRHFg41W
+	6p64WwGDCieofF61hZ/P7RePwF0dazOELPt/3IX3uwnzE4RUPODUF5123+c73Id9
+	Na5i3MEUHmG4otKAAVz95WrPgTGD4LtRnWWq+10ZHDG3MPQvVlVT+Ta2L3QAbOp5
+	HNPdug==
+Received: from mail-qt1-f200.google.com (mail-qt1-f200.google.com [209.85.160.200])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4eu1ysrqtn-1
+	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
+	for <linux-input@vger.kernel.org>; Tue, 16 Jun 2026 10:25:59 +0000 (GMT)
+Received: by mail-qt1-f200.google.com with SMTP id d75a77b69052e-5175bf22b2bso6038011cf.2
+        for <linux-input@vger.kernel.org>; Tue, 16 Jun 2026 03:25:59 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=oss.qualcomm.com; s=google; t=1781605559; x=1782210359; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=7V7D596VKMgblFH1E6kjqVU3QLyINlDY8eH+KpidKYc=;
+        b=fGVd0rK0D+Liyww9SF3LNti9iaslXkdL0M0DyCwPjSmhr2qHZ3Z0V/lxFiOv7jq4W3
+         FRU+zn6UF9krOrMb8KqgWTJKjn6PZQEyNRKt8dfhZT+7twRylXwgxQpt2LdZ3t9+ltwG
+         +mxYBJXo98VA1iLAgT4Z255QTemfKQBKimxXjJtmT2KCjV1zX7hkBgS4IBpn/+wi/lef
+         9AvIWFH0EmcPoS0Wrh9+ZlOp0X+BknqPfT421ydOvGmaWcW2JEYysLnOkaPimlQi2dfp
+         e61qqAlbKLRO0SasDxPAxed7fbvkWEmVhMtIXyzVdlaGWyQaMf1IHVG8wnpfGghkI5os
+         e+bQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1781605559; x=1782210359;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=7V7D596VKMgblFH1E6kjqVU3QLyINlDY8eH+KpidKYc=;
+        b=MKgBBRhZ0zzh1usAPO8NudVxeQ+HaMLOFFkDbuVwJ7yZc/K/8AIIDZDdzqafhEIGoP
+         ezZt1koNT4k26sw0hAwXT70eCa7GrhVYim1YJhF87hLUJ0j7VmdCvYgpN/yFHbbZP/ej
+         TZdgOuixIQLjcZ0/cJB9EYqtZOr1/2SPd0SECdle2U1CtQ3++wvbC2ZKi/2bDUtg4ezY
+         vuenD7pqUjhmGW3+vj0b7UJ2SMfsyavv0oLQdp9wQn/fcD7bnb17ECPnJxbFVyjbLb9z
+         TgK9U4pq+l9610klSWZSW93Yybl9I0cx4sKjKZudxIz997YsrfthB7Mn4DHlwubhcbzL
+         YBrg==
+X-Forwarded-Encrypted: i=1; AFNElJ8AtEJfdmbhujpgawIEZspAgMzIO341fFo0i33NchpPMOkXcx1jioPxLo256WIC4KhIR1xlVFOkyfQDRA==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yy8rvj8MpjECdTkCb1mwxZBDpakNNn0ILVKKl3ntCiPb7Saojv5
+	LTobJxTo+8YNs/a9cfd1imHssqv48DAiRJX72NWnQIOySokHs8whKGrUnhz6I3YuWqBRJfFxHvP
+	cb5zalad5AWdmyf0B5+7+kpagC/dh1u8M98cZZhQpHvrry46cffvU7Yu2bIjEQ93KGA==
+X-Gm-Gg: Acq92OE9mkLTUItdPuXxY+UbrfBPZ4yN+AGYWRBCKCHV1yqft6Lvu7pg2pUAn9i5rGt
+	Ma3OuiDRkmJ/4xcsjNiM6AkvwAxCPWLr28Xp+6j7Bhec1FBYtA9swIF+wWMSC2chKxJnqEtdXtU
+	LvdV1R1Qo7Scp/NFoSDivWZ9uC1+9+g83YABbwMWcWLl4iDFB1NutkJVCx/66rjwAu9eFhwo8Dc
+	MM1NwDMYoKTsV89w65Fi+sLEzT12ddRlVbOxmUTeuvAzF65Z7LtXOj/iz443rM2MIXOCFDF4qqk
+	EJwMjFCIE92y2UBnb+nnAJClK7gWU8BF0nyaRIsOIuUWqHKWldVnWlZwbNSzcFUMiQcpggGRV7u
+	oaiVkTa2rO/ZwRZgghWV71e768ejVS9aS3xkgbw+xxK0tWw==
+X-Received: by 2002:ac8:5f06:0:b0:50e:487a:bfef with SMTP id d75a77b69052e-517fe242998mr177624001cf.2.1781605558872;
+        Tue, 16 Jun 2026 03:25:58 -0700 (PDT)
+X-Received: by 2002:ac8:5f06:0:b0:50e:487a:bfef with SMTP id d75a77b69052e-517fe242998mr177623691cf.2.1781605558432;
+        Tue, 16 Jun 2026 03:25:58 -0700 (PDT)
+Received: from [192.168.120.170] ([178.235.128.140])
+        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-6937949fb19sm4637499a12.27.2026.06.16.03.25.55
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 16 Jun 2026 03:25:57 -0700 (PDT)
+Message-ID: <eb693705-c0c3-427b-a924-5aa907fd65bb@oss.qualcomm.com>
+Date: Tue, 16 Jun 2026 12:25:55 +0200
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 3/4] input: misc: Add Qualcomm SPMI PMIC haptics driver
+To: Fenglin Wu <fenglin.wu@oss.qualcomm.com>, linux-arm-msm@vger.kernel.org,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Rob Herring <robh@kernel.org>,
+        Krzysztof Kozlowski <krzk+dt@kernel.org>,
+        Conor Dooley
+ <conor+dt@kernel.org>, Lee Jones <lee@kernel.org>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Bjorn Andersson <andersson@kernel.org>,
+        Konrad Dybcio <konradybcio@kernel.org>
+Cc: David Collins <david.collins@oss.qualcomm.com>,
+        Subbaraman Narayanamurthy <subbaraman.narayanamurthy@oss.qualcomm.com>,
+        Kamal Wadhwa <kamal.wadhwa@oss.qualcomm.com>, kernel@oss.qualcomm.com,
+        linux-input@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+References: <20260616-qcom-spmi-haptics-v1-0-d24e422de6b4@oss.qualcomm.com>
+ <20260616-qcom-spmi-haptics-v1-3-d24e422de6b4@oss.qualcomm.com>
+Content-Language: en-US
+From: Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>
+In-Reply-To: <20260616-qcom-spmi-haptics-v1-3-d24e422de6b4@oss.qualcomm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Proofpoint-GUID: Z4PuPUVQBv9b9TkOlfVPzYSS4iiJuy7n
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNjE2MDEwNSBTYWx0ZWRfX4e/Dnf+VoGYf
+ DftveeA6m+BwZU+ve4V7AtkySsSD1a/gRUw5bSiumCYBcjsNqAgJzbB+I1X7cOWhOfCTo4FM31x
+ vJN/paNzrL7phePpHtiWOaabXXTjQgc=
+X-Proofpoint-ORIG-GUID: Z4PuPUVQBv9b9TkOlfVPzYSS4iiJuy7n
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjE2MDEwNSBTYWx0ZWRfX8cAPFXCO4Qar
+ cdTNR3l3ORxVuDEdarjA6QDmv/mwm4v4bBQmnL0cVCWWRQJQ8aMr070BweYFswgwiHpCYnzgkww
+ C0AXuJxUOQ+lH/bfxgPwhn15sUkQAmKqwtH2wkN/RLplTFFQn/cBsdrMR8drN36+lwvN7QbLRwa
+ m+AoxYdAJd+j8caawvAiClkDvNj7oKGRYOyGzuUG/Eo6hPZKe5EBqlO+q28IHq16VrN69/RWhGz
+ pfk92L94iCK8KXdEnDea1WT+4R09K3rMUEpJ7gHuIjcjarNoMY2/BRUOArfVQ7WEnCfHUNVLPgO
+ 7tU98JdmnEROSn8oAAATkzce2gKicEjyj04Kxdh4j5WIBRmcBEWlEPNcusX6yWiuxWGjTvBxRIG
+ OiyOXNDLTmD8yVR4MjTht0+jPGNse5dezGClRN1Je8svfc/yGZ96HhIRbBVNWpZmHUMaBGh92g2
+ E+/mt3xrKMypBaYwXEQ==
+X-Authority-Analysis: v=2.4 cv=JJcLdcKb c=1 sm=1 tr=0 ts=6a3124b7 cx=c_pps
+ a=JbAStetqSzwMeJznSMzCyw==:117 a=PRfkaYvzSr8QmIIGAkY2Sg==:17
+ a=IkcTkHD0fZMA:10 a=FelO9ux0wxsA:10 a=s4-Qcg_JpJYA:10
+ a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22 a=yx91gb_oNiZeI1HMLzn7:22
+ a=EUspDBNiAAAA:8 a=ana-416hF8iW2EXVXAIA:9 a=QEXdDO2ut3YA:10
+ a=uxP6HrT_eTzRwkO_Te1X:22
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
+ definitions=2026-06-16_03,2026-06-15_04,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ spamscore=0 clxscore=1015 bulkscore=0 malwarescore=0 suspectscore=0
+ phishscore=0 priorityscore=1501 adultscore=0 impostorscore=0
+ lowpriorityscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606040000
+ definitions=main-2606160105
 
-Thank you for your contribution! Sashiko AI review found 10 potential issue=
-(s) to consider:
-- [High] Repeated playback requests for an actively playing effect leak run=
-time PM usage counters, permanently preventing the device from suspending.
-- [High] The threaded IRQ handler sleeps in atomic context by executing sle=
-epable regmap operations while holding a spinlock.
-- [High] Incorrect teardown ordering in `remove()` and `suspend()` allows a=
- work item to be re-queued and executed on freed memory (Use-After-Free).
-- [High] Erasing or updating a force feedback effect frees the effect's dat=
-a buffer synchronously, causing a Use-After-Free in the IRQ handler.
-- [High] A failed memory allocation during effect upload leaves internal st=
-ate corrupted, guaranteeing a NULL pointer dereference upon playback.
-- [High] A lockless race condition between the input playback callback and =
-the FIFO empty IRQ handler can cause new playback requests to be silently d=
-ropped.
-- [High] A data race on `h->cur_effect_id` allows userspace to misdirect th=
-e stop sequence, leaving hardware IRQs enabled while dropping PM references.
-- [Medium] Dynamically allocated custom waveform buffers are permanently le=
-aked when the device is unbound.
-- [Medium] Missing `abs()` on `s16` magnitude level causes massive arithmet=
-ic overflow for negative effects.
-- [Medium] Registering the input device before PM runtime is fully configur=
-ed creates a race condition for early playback events.
---
+On 6/16/26 12:08 PM, Fenglin Wu wrote:
+> Add an initial driver for the Qualcomm PMIH010x PMIC haptics module,
+> named as HAP530_HV. This module supports several play modes, including
+> DIRECT_PLAY, FIFO, PAT_MEM, and SWR, each with distinct data sourcing
+> and hardware data handling logic. Currently, the driver provides support
+> for two play modes using the input force-feedback framework: FF_CONSTANT
+> effect for DIRECT_PLAY mode and FF_PERIODIC effect with FF_CUSTOM
+> waveform for FIFO mode.
+> 
+> Assisted-by: Claude:claude-4-6-sonnet
+> Signed-off-by: Fenglin Wu <fenglin.wu@oss.qualcomm.com>
+> ---
 
-commit 84c087855458c41a5a109b1ffb5594db116b5170
-Author: Fenglin Wu <fenglin.wu@oss.qualcomm.com>
+[...]
 
-input: misc: Add Qualcomm SPMI PMIC haptics driver
+> +static int cfg_write(struct qcom_haptics *h, u32 off, u32 val)
 
-Add an initial driver for the Qualcomm PMIH010x PMIC haptics module,
-named as HAP530_HV. This module supports several play modes, including
-DIRECT_PLAY, FIFO, PAT_MEM, and SWR, each with distinct data sourcing
-and hardware data handling logic. Currently, the driver provides support
-for two play modes using the input force-feedback framework: FF_CONSTANT
-effect for DIRECT_PLAY mode and FF_PERIODIC effect with FF_CUSTOM
-waveform for FIFO mode.
+static inline
 
-> diff --git a/drivers/input/misc/qcom-spmi-haptics.c b/drivers/input/misc/=
-qcom-spmi-haptics.c
-> new file mode 100644
-> index 0000000000000..75b3e338b54eb
-> --- /dev/null
-> +++ b/drivers/input/misc/qcom-spmi-haptics.c
-> @@ -0,0 +1,831 @@
-[ ... ]
-> +static int haptics_start_direct_play(struct qcom_haptics *h, int effect_=
-id)
+although I have mixed feelings about having so many accessors
+
+[...]
+
+> +static int haptics_write_fifo_chunk(struct qcom_haptics *h,
+> +				    const s8 *data, u32 len)
 > +{
-> +	struct ff_effect *ffe =3D &h->input->ff->effects[effect_id];
-> +	u8 amplitude =3D (u8)((u32)ffe->u.constant.level * 255 / 0x7FFF);
+> +	u32 i, bulk_len = ALIGN_DOWN(len, 4);
 
-[Severity: Medium]
-Does this cast cause an arithmetic overflow for negative effect levels?
+Please avoid mixing multiple declarations and assignments
 
-The ffe->u.constant.level is an s16 which can be negative to represent
-opposite-direction effects. Casting a negative s16 directly to u32
-sign-extends it, resulting in a large unsigned value. Multiplying this by
-255 overflows the 32-bit boundary, producing a garbage amplitude for the
-hardware register.
-
-Consider taking the absolute value of the level before casting and scaling.
-
-[ ... ]
-> +static irqreturn_t haptics_fifo_empty_irq(int irq, void *dev_id)
-> +{
-> +	struct qcom_haptics *h =3D dev_id;
-> +	unsigned long flags;
-> +	u32 sts, to_write;
 > +	int ret;
 > +
-> +	ret =3D regmap_read(h->regmap,
-> +			  h->cfg_base + HAP_CFG_INT_RT_STS_REG, &sts);
-> +	if (ret || !(sts & FIFO_EMPTY_BIT))
-> +		return IRQ_HANDLED;
-> +
-> +	spin_lock_irqsave(&h->fifo_lock, flags);
+> +	for (i = 0; i < bulk_len; i += 4) {
 
-[Severity: High]
-Is it safe to hold a spinlock while calling sleepable regmap operations?
+You can do 'int i' in loops nowadays
 
-The haptics_write_fifo_chunk() function maps to regmap_bulk_write(). For an
-SPMI PMIC, the regmap operates over a slow bus and takes a mutex to sleep
-during transactions. Calling these sleepable functions while holding
-fifo_lock results in a scheduling while atomic bug.
-
-[ ... ]
-> +	if (h->data_done) {
-> +		ptn_write(h, HAP_PTN_FIFO_EMPTY_CFG_REG, 0);
-> +		h->fifo_data =3D NULL;
-> +		h->play_request =3D false;
-> +		schedule_work(&h->play_work);
-
-[Severity: High]
-Can a lockless race condition here cause new playback requests to be silent=
-ly
-dropped?
-
-When an effect completes, this sets play_request to false. Concurrently, if=
- a
-new playback request arrives, haptics_playback() sets it to true. If the IRQ
-handler runs immediately after haptics_playback(), it overwrites the new tr=
-ue
-value with false.
-
-When haptics_play_work() executes, it would observe play_request as false,
-stop the hardware, and drop the newly queued playback request.
-
-> +		spin_unlock_irqrestore(&h->fifo_lock, flags);
-> +		return IRQ_HANDLED;
+> +		ret = ptn_bulk_write(h, HAP_PTN_FIFO_DIN_0_REG, &data[i], 4);
+> +		if (ret)
+> +			return ret;
 > +	}
 > +
-> +	/* Refill: write the next chunk, conservatively sized to the threshold =
-*/
-> +	to_write =3D min_t(u32, h->data_len - h->data_written,
-> +			 h->fifo_len - FIFO_EMPTY_THRESH);
-> +	haptics_write_fifo_chunk(h, &h->fifo_data[h->data_written], to_write);
-
-[Severity: High]
-Is there a risk of a use-after-free here if an effect is erased while playi=
-ng?
-
-The input framework allows effect upload or erase to occur concurrently with
-playback. In haptics_erase() and haptics_upload_effect(), the driver calls
-kfree(priv->fifo_data) synchronously.
-
-However, the stop request only schedules an asynchronous work item to stop
-playback. Because the hardware stop is deferred, the hardware may still be
-actively playing and asserting the FIFO-empty interrupt. The IRQ handler
-will then attempt to read from the freed fifo_data.
-
-[ ... ]
-> +static void haptics_play_work(struct work_struct *work)
-> +{
-> +	struct qcom_haptics *h =3D container_of(work, struct qcom_haptics, play=
-_work);
-> +	int id, ret;
-> +
-> +	mutex_lock(&h->play_lock);
-> +
-> +	if (!h->play_request) {
-> +		haptics_stop_locked(h);
-> +		if (h->pm_ref_held) {
-> +			pm_runtime_mark_last_busy(h->dev);
-> +			pm_runtime_put_autosuspend(h->dev);
-> +			h->pm_ref_held =3D false;
-> +		}
-> +		goto unlock;
+> +	for (; i < len; i++) {
+> +		ret = ptn_write(h, HAP_PTN_FIFO_DIN_1B_REG, (u8)data[i]);
+> +		if (ret)
+> +			return ret;
 > +	}
+
+So if i'm reading this right, the first loop will always write
+4*(len//4) bytes and the second one will be entered at most once,
+to write len rem 4 bytes.. should this be an if instead?
+
 > +
-> +	ret =3D pm_runtime_resume_and_get(h->dev);
-> +	if (ret < 0) {
-> +		dev_err(h->dev, "failed to resume device: %d\n", ret);
-> +		goto unlock;
-> +	}
-> +	h->pm_ref_held =3D true;
-
-[Severity: High]
-Can this leak runtime PM usage counters?
-
-The pm_ref_held flag is set to true without checking if it is already true.
-If userspace issues multiple start events without interleaved stops (for
-example, to update parameters), the PM usage counter is incremented multiple
-times.
-
-When playback is eventually stopped, the single check drops only one
-reference via pm_runtime_put_autosuspend(), permanently leaking all other
-references and preventing the device from suspending.
-
-[ ... ]
-> +static int haptics_upload_effect(struct input_dev *dev,
-> +				 struct ff_effect *effect,
-> +				 struct ff_effect *old)
+> +	return 0;
+> +}
+> +
+> +/*
+> + * Configure the hardware FIFO memory boundary.
+> + * FIFO occupies addresses [0, fifo_len).
+> + */
+> +static int haptics_configure_fifo_mmap(struct qcom_haptics *h)
 > +{
-[ ... ]
-> +		priv->play_rate =3D (u8)buf[CUSTOM_DATA_RATE_IDX];
-> +		priv->vmax_mv   =3D (u32)clamp_val(buf[CUSTOM_DATA_VMAX_IDX], 0, VMAX_=
-MV_MAX);
-> +		priv->data_len =3D effect->u.periodic.custom_len - CUSTOM_DATA_SAMPLE_=
-START;
+> +	u32 fifo_len, fifo_units;
 > +
-> +		kfree(priv->fifo_data);
-> +		priv->fifo_data =3D kmalloc(priv->data_len, GFP_KERNEL);
-> +		if (!priv->fifo_data) {
-> +			kfree(buf);
-> +			return -ENOMEM;
-> +		}
+> +	/* Config all memory space for FIFO usage for now */
 
-[Severity: High]
-Could a failed memory allocation leave the internal state corrupted?
+What's the not-"for now" endgame for this?
 
-When updating an existing FF_PERIODIC effect, data_len is updated to a new
-size before kmalloc() is called. If kmalloc() fails, the function returns
--ENOMEM, leaving data_len non-zero while fifo_data is NULL.
-
-The input core keeps the existing effect ID valid. If userspace subsequently
-requests to play this effect, haptics_start_fifo() computes a non-zero
-init_len and passes the NULL pointer to haptics_write_fifo_chunk(), causing
-a crash.
-
-[ ... ]
-> +static int haptics_playback(struct input_dev *dev, int effect_id, int va=
-l)
+> +	fifo_len = HAP530_MEM_TOTAL_BYTES;
+> +	fifo_len = ALIGN_DOWN(fifo_len, 64);
+> +	fifo_units = fifo_len / 64;
+> +	h->fifo_len = fifo_len;
+> +
+> +	return ptn_write(h, HAP_PTN_MMAP_FIFO_REG,
+> +			 MMAP_FIFO_EXIST_BIT |
+> +			 FIELD_PREP(MMAP_FIFO_LEN_MASK, fifo_units - 1));
+> +}
+> +
+> +static u32 haptics_gain_scaled_vmax(struct qcom_haptics *h, u32 vmax_mv)
 > +{
-> +	struct qcom_haptics *h =3D input_get_drvdata(dev);
+> +	u32 v = (u32)((u64)vmax_mv * h->gain / 0xFFFF);
+
+mult_frac()
+
 > +
-> +	h->cur_effect_id =3D effect_id;
-> +	h->play_request  =3D (val > 0);
-
-[Severity: High]
-Could this lockless update of cur_effect_id misdirect the stop sequence?
-
-If a FIFO effect is actively playing and userspace issues a playback request
-for a different DIRECT_PLAY effect, cur_effect_id is updated asynchronously.
-When play_work eventually processes the stop/start sequence,
-haptics_stop_locked() checks the newly updated mode:
-
-	if (h->effects[h->cur_effect_id].mode =3D=3D HAPTICS_FIFO) {
-		ptn_write(h, HAP_PTN_FIFO_EMPTY_CFG_REG, 0);
-
-Seeing DIRECT_PLAY, it would skip disabling the FIFO IRQ and clearing
-fifo_data, while still dropping the PM reference. The device auto-suspends,
-but the IRQ remains enabled and fires spuriously.
-
-[ ... ]
-> +static int qcom_haptics_probe(struct platform_device *pdev)
+> +	return max_t(u32, v, VMAX_STEP_MV);
+> +}
+> +
+> +static void haptics_fifo_irq_enable(struct qcom_haptics *h, bool enable)
 > +{
-[ ... ]
-> +	ff =3D input->ff;
-> +	ff->upload   =3D haptics_upload_effect;
-> +	ff->playback =3D haptics_playback;
-> +	ff->erase    =3D haptics_erase;
-> +	ff->set_gain =3D haptics_set_gain;
-
-[Severity: Medium]
-Should the ff->destroy callback be implemented to prevent memory leaks?
-
-Custom waveform buffers are allocated using kmalloc() and stored in
-fifo_data. This memory is normally freed in haptics_erase(). However, when
-the driver is unbound and the input device is unregistered, the input core
-destroys the ff device but does not automatically invoke erase() for
-surviving effects.
-
-Without a destroy callback to clean up the effects array, the allocated
-buffers appear to be permanently leaked.
-
+> +	if (h->irq_enabled == enable)
+> +		return;
 > +
-> +	ret =3D input_register_device(input);
-> +	if (ret) {
-> +		input_ff_destroy(input);
+> +	if (enable)
+> +		enable_irq(h->fifo_empty_irq);
+> +	else
+> +		disable_irq_nosync(h->fifo_empty_irq);
+
+This is called in the .remove() path, I think you may need the
+sync variant as the underlying device may be destroyed before the
+ISR completes if there's a late interrupt
+
+
+[...]
+
+> +static int haptics_playback(struct input_dev *dev, int effect_id, int val)
+> +{
+> +	struct qcom_haptics *h = input_get_drvdata(dev);
+> +
+> +	h->cur_effect_id = effect_id;
+> +	h->play_request  = (val > 0);
+> +	schedule_work(&h->play_work);
+> +	return 0;
+
+nit: \n before return is 'nice'
+
+[...]
+
+> +	ret = device_property_read_u32_array(&pdev->dev, "reg", regs,
+> +					     ARRAY_SIZE(regs));
+
+Here you use device_property_
+
+> +	if (ret)
 > +		return dev_err_probe(&pdev->dev, ret,
-> +				     "failed to register input device\n");
-> +	}
+> +				     "failed to read 'reg' property\n");
 > +
-> +	platform_set_drvdata(pdev, h);
+> +	h->cfg_base = regs[0];
+> +	h->ptn_base = regs[1];
 > +
-> +	/*
-> +	 * Grab a reference on behalf of probe (usage_count =E2=86=92 1), mark =
-the
-> +	 * device active, then enable runtime PM.
-> +	 */
-> +	pm_runtime_get_noresume(&pdev->dev);
-> +	pm_runtime_use_autosuspend(&pdev->dev);
-> +	pm_runtime_set_autosuspend_delay(&pdev->dev, HAPTICS_AUTOSUSPEND_MS);
-> +	devm_pm_runtime_set_active_enabled(&pdev->dev);
+> +	ret = of_property_read_u32(h->dev->of_node, "qcom,lra-period-us",
+> +				   &h->t_lra_us);
 
-[Severity: Medium]
-Is there a race condition by registering the input device before PM runtime
-is fully configured?
+And here you use of_property_ (please use device_)
 
-This call makes the force-feedback device immediately visible to userspace.
-If an application sends a play request before the probe function finishes,
-haptics_play_work() will run and call pm_runtime_resume_and_get(). Since PM
-runtime is not yet fully enabled, the PM runtime API will return an error
-and fail the playback.
+[...]
 
-[ ... ]
-> +static void qcom_haptics_remove(struct platform_device *pdev)
-> +{
-> +	struct qcom_haptics *h =3D platform_get_drvdata(pdev);
-> +
-> +	pm_runtime_disable(&pdev->dev);
-> +	pm_runtime_set_suspended(&pdev->dev);
-> +
-> +	cancel_work_sync(&h->play_work);
-> +	mutex_lock(&h->play_lock);
-> +	haptics_stop_locked(h);
-> +	haptics_enable_module(h, false);
-> +	mutex_unlock(&h->play_lock);
-> +
-> +	input_unregister_device(h->input);
+> +	input->name     = "qcom-spmi-haptics";
 
-[Severity: High]
-Does this teardown ordering allow a work item to be re-queued and executed
-on freed memory?
+Odd whitespace
 
-During driver removal, cancel_work_sync() is called before the input device
-is unregistered. This creates a race window where the input device is still
-visible to userspace, allowing applications to issue playback events that
-call schedule_work().
-
-Once remove() completes, the devres framework frees the qcom_haptics memory.
-The mistakenly re-queued background work will then execute, dereferencing
-the freed driver context.
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260616-qcom-spmi-=
-haptics-v1-0-d24e422de6b4@oss.qualcomm.com?part=3D3
+Konrad

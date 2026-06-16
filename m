@@ -1,43 +1,43 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D1DF54218A3
-	for <linux-input@vger.kernel.org>; Tue, 16 Jun 2026 09:43:12 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 53584357CE8
+	for <linux-input@vger.kernel.org>; Tue, 16 Jun 2026 09:45:27 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781602993; cv=none; b=qjHijw2/2jgoW/AbOJt4JR9Hrsdq8byNEET2CbOkAobtnKfLrjg1pOx+f0MOWB4DbtzZyyRin1dRKrMVWl+KhukS0dVE1czR5yDR6XTm4mlpwaXbfrovTyXr5GMOpkuhkcq8BqnqpV33URbWWysrP8hcuKgtRGxwK3YYXxi9KWc=
+	t=1781603128; cv=none; b=atmfCQMUI1ghgUmyE4s3qsGkNHtbExuSGcXhGIFN/Fx3a5irkXdOcPIHyeVXKcPyMWJCGcuYIqP8CLl/SMrZYuhMfjK638ldX0SwapDrOIjF1rUIzfOdKamFx9uCiFFqxKzTzARYi25e1l/fi42uEsI4gNoHBKXkmc/oeruW3QE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781602993; c=relaxed/simple;
-	bh=8i55S5m8g6aqJXu8iJ5fh7uzQoqJmQo94ixFhhsVrNc=;
+	s=arc-20240116; t=1781603128; c=relaxed/simple;
+	bh=4dNBN3lGK9Ak1nf8tH2xqNtXOsowRp+BXMx7GpGnxNA=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=ImJb1drGUGVU8e4TVlvot807DNYvMMAGuarj08VxcbUE1GhlbvUPNwn4Nv5tJmiWlfzZ0857ITzW0Wcq510Pyk8r8TTHBSM1SVukK45FyvED2AcNWHjjwMRGBYmMyCo0+cC0+U0zhn92h04cfPepnQ87aVWmBEsFdrYQGVHG1Co=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=SQSqDDrj; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=LX6SPuPxW6sR+lPPC67Z10zX5PNL6JMPFyeC+jvSQaTJBEOhv2aIhgLdnT6FGrUYmKQnRY45wAIVq1pEy0EE0sV0UjrGbUyPwgOR+rxSnnPOIT42DeS2zjZ6gpnzUwGllVGLHqp+4u5rNk//hVwbiQFI0ssDaNaQ4e2e9nweAw8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=WZf1Y2qh; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="SQSqDDrj"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 72B211F000E9;
-	Tue, 16 Jun 2026 09:43:12 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="WZf1Y2qh"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D380A1F000E9;
+	Tue, 16 Jun 2026 09:45:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1781602992;
-	bh=FlA7hz1bSV+c+udTORgMCOoKuyGg0/QfzAG+euRUx/s=;
+	s=k20260515; t=1781603127;
+	bh=5MwIj+t5/4n8V+Y3I7hT4yiyvNCmOB0FYiBcD5vJEPs=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=SQSqDDrjiIKyKT+2jGEMGHW6jDq1Cqdv4mFiOfpu3wo/TapT+8L8Gq1JtI+uzVKWE
-	 jMf0LmT7cbRb5R7mo76sUVTDjdVedxHgRmDyyTqaUYdFzIcCardrwZrseIyh7aTnJV
-	 0/YaW7ls9XIHovz2jvt72X3diDEDe6slZSgDTpn3VEZsHHGZ2DChYyT9q85etua2zi
-	 8XAPGOtk5RXGMGRWrDi8ODh5aZj0RrgniOvz8u5ozwSMMr7rzlPo6gfXb/rOQ/99Hf
-	 EngT0WatrdbHp5gKmchZnPeUNJOkUAk1pFEH/LY/C/YZbNQ/scezRu8gHXactoDUyA
-	 XFTX8zuHVWsOA==
+	b=WZf1Y2qhtitwTQMqToPBoE/sfaBk9Gxwg+kvYtzTdpd3kDCeXXIoDiZX6Np46++UG
+	 uJtkJrySew/DvbHvXEjJuPi4lbBmRan15Vag0XBK/jwmeCtU3/PtTv9eFiaB+7fFWB
+	 CMzTn0qUeUrXYr+z3SVLTAQdLghUfkM5kOPS2mIEfI8B00//OKT3HpEBU18+7ge/x5
+	 DJB9+PGtOOGJu5rt8IApZs8eaF/lJNrXln15jvN7Bop12MJPd8BbbVWYutXEZWFuBj
+	 3rOWMa5rk1T3DQOCJvLBijg4WSuCvtZ3IFXnwfrIALN2LD9Cw3fB2WlBbyUmE9YS8v
+	 sOqURHSM5W9/Q==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v4 2/3] HID: wacom: Fix Use-After-Free in
- wacom_bamboo_pad
+Subject: Re: [PATCH v4 1/3] HID: wacom: Fix Use-After-Free in
+ wacom_intuos_pad
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Lee Jones" <lee@kernel.org>
 Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260616092658.1714548-2-lee@kernel.org>
-References: <20260616092658.1714548-2-lee@kernel.org>
+In-Reply-To: <20260616092658.1714548-1-lee@kernel.org>
+References: <20260616092658.1714548-1-lee@kernel.org>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 16 Jun 2026 09:43:12 +0000
-Message-Id: <20260616094312.72B211F000E9@smtp.kernel.org>
+Date: Tue, 16 Jun 2026 09:45:26 +0000
+Message-Id: <20260616094526.D380A1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -48,71 +48,85 @@ Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
 
 Pre-existing issues:
-- [High] Lockless access to `shared->pen` and `shared->touch` in `wacom_mod=
-e_change_work()` can lead to Use-After-Free.
+- [High] Use-After-Free in `wacom_mode_change_work()` due to unprotected lo=
+ckless access of sibling device pointers.
 --
 
-commit e951961530e94aa8b795598b1d198c32fdbac428
+commit 2e75e17f7579b493b3120751d2b8cfa23bc2c814
 Author: Lee Jones <lee@kernel.org>
 
-HID: wacom: Fix Use-After-Free in wacom_bamboo_pad
+HID: wacom: Fix Use-After-Free in wacom_intuos_pad
 
-Resolves a use-after-free when events are processed while a sibling device
-is removed by introducing RCU protection for the shared pen and touch
-pointers.
+This commit resolves a Time-of-Check to Time-of-Use race condition by
+introducing RCU protection for the touch_input pointer. It also wraps
+shared value assignments in the udev list lock to prevent concurrent
+desynchronization, and advertises the SW_MUTE_DEVICE capability before
+registration.
 
 > diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
-> index 86895f13dbaea..3990d8d0b40c0 100644
+> index 2220168bf1164..86895f13dbaea 100644
 > --- a/drivers/hid/wacom_sys.c
 > +++ b/drivers/hid/wacom_sys.c
-[ ... ]
-> @@ -2795,16 +2806,19 @@ static void wacom_mode_change_work(struct work_st=
-ruct *work)
->  	bool is_direct =3D wacom->wacom_wac.is_direct_mode;
->  	int error =3D 0;
+> @@ -877,10 +877,16 @@ static void wacom_remove_shared_data(void *res)
+>  		data =3D container_of(wacom_wac->shared, struct wacom_hdev_data,
+>  				    shared);
 > =20
-> -	if (shared->pen) {
-> -		wacom1 =3D hid_get_drvdata(shared->pen);
-> +	struct hid_device *pen =3D rcu_access_pointer(shared->pen);
-> +	struct hid_device *touch =3D rcu_access_pointer(shared->touch);
+> -		if (wacom_wac->shared->touch =3D=3D wacom->hdev)
+> -			wacom_wac->shared->touch =3D NULL;
+> -		else if (wacom_wac->shared->pen =3D=3D wacom->hdev)
+> -			wacom_wac->shared->pen =3D NULL;
+> +		scoped_guard(mutex, &wacom_udev_list_lock) {
+> +			if (wacom_wac->shared->touch =3D=3D wacom->hdev) {
+> +				wacom_wac->shared->touch =3D NULL;
+> +				rcu_assign_pointer(wacom_wac->shared->touch_input, NULL);
+> +			} else if (wacom_wac->shared->pen =3D=3D wacom->hdev) {
+> +				wacom_wac->shared->pen =3D NULL;
+> +			}
+> +		}
 > +
-> +	if (pen) {
-> +		wacom1 =3D hid_get_drvdata(pen);
->  		wacom_release_resources(wacom1);
->  		hid_hw_stop(wacom1->hdev);
->  		wacom1->wacom_wac.has_mode_change =3D true;
->  		wacom1->wacom_wac.is_direct_mode =3D is_direct;
->  	}
+> +		synchronize_rcu();
 
 [Severity: High]
-This is a pre-existing issue, but can this lockless access to the sibling
-device pointers lead to a use-after-free if the sibling is concurrently
-disconnected?
+This is a pre-existing issue, but I noticed a potential Use-After-Free in
+wacom_mode_change_work() due to unprotected lockless access of sibling devi=
+ce
+pointers.
 
-In wacom_mode_change_work(), rcu_access_pointer() reads the pointer outside
-of an RCU read-side critical section. Since the pointer is then dereferenced
-to fetch wacom1 via hid_get_drvdata(), what happens if wacom_remove_shared_=
-data()
-runs concurrently on the sibling?
+While synchronize_rcu() is called here to ensure active RCU readers have
+finished, wacom_mode_change_work() accesses sibling pointers locklessly
+without an rcu_read_lock():
 
-The removal path would clear the shared pointer and call synchronize_rcu().
-Because wacom_mode_change_work() is not holding the RCU read lock,
-synchronize_rcu() will not wait for the work item to complete. This could
-allow wacom1's driver data to be freed while wacom_mode_change_work() is
-still using it to call wacom_release_resources(wacom1) and hid_hw_stop().
+wacom_mode_change_work() {
+        ...
+        struct hid_device *pen =3D rcu_access_pointer(shared->pen);
+        struct hid_device *touch =3D rcu_access_pointer(shared->touch);
+        ...
+        if (pen) {
+                wacom1 =3D hid_get_drvdata(pen);
+        ...
+}
 
-Since wacom_release_resources() and hid_hw_stop() can sleep, simply wrapping
-this block in rcu_read_lock() wouldn't be sufficient. Is there a plan to
-use reference counting or SRCU here to safely access the sibling device?
+Because there is no rcu_read_lock() wrapping the access in
+wacom_mode_change_work(), this synchronize_rcu() call will return without
+waiting for the preempted work to finish.
 
-> -	if (shared->touch) {
-> -		wacom2 =3D hid_get_drvdata(shared->touch);
-> +	if (touch) {
-> +		wacom2 =3D hid_get_drvdata(touch);
->  		wacom_release_resources(wacom2);
->  		hid_hw_stop(wacom2->hdev);
->  		wacom2->wacom_wac.has_mode_change =3D true;
+If a sibling device (like the pen device) is concurrently disconnected,
+wacom_remove() cancels the pen device's mode change work but leaves the
+touch device's work running.
+
+When wacom_remove_shared_data() executes for the pen, it nullifies
+shared->pen and calls synchronize_rcu(). Since it won't wait for the
+unprotected touch device's work, the pen device memory could be freed by
+the HID core before that work resumes.
+
+When the work eventually resumes and calls hid_get_drvdata(pen), won't it
+dereference the freed pen pointer and cause a Use-After-Free?
+
+I see from the patch 2 commit message that this lockless access is
+intentionally left as-is because wacom_mode_change_work() sleeps and cannot
+use RCU read locks. Could an alternative approach be used here to prevent
+this use-after-free?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260616092658.1714=
-548-1-lee@kernel.org?part=3D2
+548-1-lee@kernel.org?part=3D1

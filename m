@@ -1,67 +1,68 @@
-Received: from mail-pj1-f45.google.com (mail-pj1-f45.google.com [209.85.216.45])
+Received: from mail-pj1-f51.google.com (mail-pj1-f51.google.com [209.85.216.51])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 721E4428852
-	for <linux-input@vger.kernel.org>; Tue, 16 Jun 2026 10:26:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0A76D42883B
+	for <linux-input@vger.kernel.org>; Tue, 16 Jun 2026 10:26:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781605595; cv=none; b=IrlyjwQ348ssLKWLumoDgM5WwantcgW3Yzx2rOckjVIAdsBE5hShsCgURZXHAOfUj7brYgmz1xDVA/7yauBXEZIzmlYvQ7X3bd2o16hGSCRyFzTWBWSr3bY4/r6x0C+Iep9qNw3dnvXDuGLwuFrsTtdly6kx3PHIuErD5/glT0k=
+	t=1781605598; cv=none; b=oWAWwjGFWwc2CwRBfwy0i+V0kNe+uLhD8l/KHuM55mNDXFp9kukrlHwCnxO/h+yi5Ua/owWdcb30emkMaCFMn/L4sIgxY9NMtxjkpnatBQovwFQ++xsFtDgzS0jAnrCTv8gZbq8e5S6+ebdkd1M59aNCozV3vqBxx9aIsKf+Stw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781605595; c=relaxed/simple;
-	bh=Qfz8+6Uu78GANnk+XXmC1yVoBt4uyAv8DDRBtb1jN/A=;
-	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=qSVbJrkzrYx4PEh0hexU5SC91hbQle2Y7IxJBLnK+iHrbOXNTgxmbvBUHiV2cmF+cy0bpZwRMUkppShHDczhAxnDG3AvEc6CWIofkaFG/oFOSfbGzABFmRjaT2hanA9Nbvb1J6t26I7qd8rxd3pcjApRl3jyKCunoF+JbJEbYZw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=hZHuY4+G; arc=none smtp.client-ip=209.85.216.45
+	s=arc-20240116; t=1781605598; c=relaxed/simple;
+	bh=YatbobhKKz4ZXJqLFkZi6B5c6FYlSQIo4E6cJZYKIBs=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=nh9lBeI9DaVQgxfrZjCmzEPpQn+9DJcErfNXlhj/exw6AhK7ZQJR/RxEy90WlqEjzKnLHdsIx8FEHRUuA0TXKpyru/TGQCoEEEw1ay/z3B5Ex7O9FaMBu//Yf/aDVo+rq1pnUgpC8aiwwMFlers6AZYtVzKdeQsSRY+A6xrhvls=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=b60qy7oB; arc=none smtp.client-ip=209.85.216.51
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hZHuY4+G"
-Received: by mail-pj1-f45.google.com with SMTP id 98e67ed59e1d1-36b900f350fso3970445a91.0
-        for <linux-input@vger.kernel.org>; Tue, 16 Jun 2026 03:26:33 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="b60qy7oB"
+Received: by mail-pj1-f51.google.com with SMTP id 98e67ed59e1d1-36ba706ab46so2784161a91.1
+        for <linux-input@vger.kernel.org>; Tue, 16 Jun 2026 03:26:36 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1781605593; x=1782210393; darn=vger.kernel.org;
-        h=cc:to:content-transfer-encoding:mime-version:message-id:date
-         :subject:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=LjOTgU/R9Q6waNYMRI2IpAW/+oeT0LDKFANpc77mFxQ=;
-        b=hZHuY4+GXN+UYsCTkFA03mj4t8870XlAgniD8zGl3tH0B1zBcf1zSq/T7QXxZFrqax
-         YX5dKyvpe5p8mOLXda6HkBI0AkR1dEubcsm/6BQEBgIpES6kQzU+nAhlhCNJDdkr8VLg
-         pPxWHzdo/EJdxALI9sWcARSH8/Qed8NTCFdmbQu9sLj+aVWgVuJEtg/hy8ySieJFK+0Z
-         aLs6msHydhbcEEbcgi3DS4CP255x7SvIJJe9eexFSr9UAOTDv0eqcNTbSrm/TUjTsrbX
-         KfF46Yc4fFdiDsY3/I3rO5Eh5eQORU+xe47FgSkePpSa1Uil0km/qXjQEVoSVwOgRBT4
-         6ELA==
+        d=gmail.com; s=20251104; t=1781605596; x=1782210396; darn=vger.kernel.org;
+        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
+         :mime-version:subject:date:from:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=563kewyp78EbqXlKbSAb9Qtc/HGBLkQqxRNmW+0iFYY=;
+        b=b60qy7oBt0fqNFTRdu3cMWqfrqgpkvc6hQip2zMfbFgqElbwAgfF/LzQgjrrmyWsOk
+         sowKrDiCteTMLS73BIxkJM59EqYEl9tvWRcf/G/NrtyKRs4SnSRdG8WBg8GRigimGoka
+         azA2eYXzvzWkiUERhkOzZeSUMWiCMiFwWuAeZO1bVNxZ8abF7kkxgCnWYNyxu2TnmRu6
+         qxh8NOdGi0ceXELEjlg7aTA1JyBA+r8PdcysE570Lvj0qQjLG68gKlU3IzvJ5g5ztpqA
+         cZjk+Aq06MYtxg0/QFD8dsNMGnDpduAWJo4cijfMtjolENautgbLwO1YujSS9a57DGH6
+         amoQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781605593; x=1782210393;
-        h=cc:to:content-transfer-encoding:mime-version:message-id:date
-         :subject:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=LjOTgU/R9Q6waNYMRI2IpAW/+oeT0LDKFANpc77mFxQ=;
-        b=lHg1x8n4hGVZiEcQ1OioWAmiRqRPouK51nNVnZoVoF1P2dtl/TuARCbHHO/iJ6WJhQ
-         xiwgaXN6u0QYnnwFj+Bizm0E5hPSo8+h1IEJ6w5ykr6ZdOn2oCM3W3nNPjVwYRwZTUns
-         CyCtZtffnsJ4YaGuQO3ByjqZiO2Ce5CLTlKIgvvq9xshcCMJX1CMZYhALl+R9AQpbqRb
-         brhQQnVLRkQEG5F7UgZKp4B/nVOnwpfuBNKCZn9++dw3S3yWpd3BbrcIg2MTfKGclf+f
-         dNSoAnXjfn46EjPsNhMVtT5gE1Qo7RrdN3VG2k2+pRR5xNjnSNFRWAb3uaF7aGJsRfYu
-         CGXQ==
-X-Forwarded-Encrypted: i=1; AFNElJ9KfCSv/dpHUuHj4uJPEuv7f1vb6zHCJRdxhaDgePkjBhNS36vM7u4XMHJbBvxiMcile9aQ2nuM+Jw4pw==@vger.kernel.org
-X-Gm-Message-State: AOJu0YyqDONJlTemV50iqBiyIPQgdlWsnIrXp1CHfhhCxXKj917pi6FA
-	UgeGLC9limf18Jm3kHsIrOqJtahEcfhyDNb4LiF447Am7rJIk9BnVuMK
-X-Gm-Gg: Acq92OHm2Jw3ZP/tPCzEBy685MgtxPHJikB/2ZzXspb/jnD4WaXOS/Ung5jtOPRLzHJ
-	IRaFqgQpL0n4Ddma5LGx0whoKgPU2Z3YDHmktMaspCIEVSJTefkMtLP5wKkHY8wnp1G/zjNIkWC
-	Fi1jqCB34Y3wC8Rxd9TiSfIUTTljRoFeDMnBfecqVVq7IBdnqO+SLbn+hnRKDQ3JkNaQtO7zRZg
-	v2e0OtRHtODfBJck8UgqkGBY7ysZbmoxLUKRPmfXUEwFaQaMAmov3vrOOKBcKA13zvGLFvzqHa9
-	Q1LxvejjgkQJ5hS/oPjsSDv0OlunCArfBRoJqekGhqoYvJoevFq+39an9XrmUActeaW864v7qjt
-	J235SnktTLNVEZQrXdJhBW4FcGUgHprZr0ySXEwpRVbz+JomtrmDyfIIHi3/tgPxdFMJgc358DE
-	+mgLJylrnNdl+BA3a726qCh2cuexh4QKfM09bqbXWYoNZ2HiOB
-X-Received: by 2002:a17:90b:53cc:b0:36b:7f69:c152 with SMTP id 98e67ed59e1d1-37c2bd494e7mr15411320a91.18.1781605592598;
-        Tue, 16 Jun 2026 03:26:32 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1781605596; x=1782210396;
+        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
+         :mime-version:subject:date:from:x-gm-gg:x-gm-message-state:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=563kewyp78EbqXlKbSAb9Qtc/HGBLkQqxRNmW+0iFYY=;
+        b=hQlMHfR3D1nN7nXziOFLhsU7l1/97j+6jbiocZQwg0+l0JIj0FyBCf8mQksdRy+P3E
+         84nPlc8AZZ6KGNGPINkCFuYa9bALhEbXrx2M7WZ4luZ3rQmBAZ2Wj8fx9vc5LkEIL6K2
+         c7wDpdcdirIBHxoNY5M87XwfIR0pkJ0d1OrnqoIck2zCRrgqDxfK7gDkUPie+jLMcH6J
+         mwhhTiC+N2xRgTBoDz+340KEi8xduSJumCvJqDADK5ramH9er4Wm4oW3oAmqJJgtZXhn
+         0pfzhNUHhM7ygVe3PzaV92uPXDl3f8/rYWtPxAZIGs6ZfXx/baz18BrLznLqQmjHOEl+
+         V/9Q==
+X-Forwarded-Encrypted: i=1; AFNElJ/nzkU6WKd+cXBHKeNOD0mahG8LZXW4dPn3ajACY4MNct8csA+tZ/aQOaS8PB+F9rNnsKLrO70bU2Vipg==@vger.kernel.org
+X-Gm-Message-State: AOJu0YznRuRtW1QsFdmQv0f5pPDEaf0JmhyiG9pGnmVD+gdLZDHOS06P
+	PEZWSH4J8Hqdk7PArKMTDHAvF7CJzleoOn/lCwN1vHTR8zXo377ugFXO
+X-Gm-Gg: Acq92OFBx+GwxBlAGCBtKdD7rGVTqZFJutJpGViIKnW+hW7AHg9n/LfzluuJBTXAaC6
+	rUdbdKy4zj7o9jp/Jzx7F6s3GS77J7Z8KVtwk6X41w3pxrDKCvYer5GNnorRNF80PKqzXl7fv0y
+	LcmylGRE0A9/oq30nroLoXyEMcOoWhqPBJZCVz0S19cWcTqk105/M7wttj4JiWwxcUJAWGfPk0V
+	VJuSANrt3EGJ4Ot0RBf2vCTXn4dMAx90tMKJNKb/V6eTuOBcq9Pkz6BTqLCafEyqvyao/5g0AYD
+	EDcT/i2In3iVBsYcw5Ysdg/AVuxQj5l7FCSLYopqdRBMGmeULSR3NbfLRli6WPdiDNAOjf/lOCT
+	vkaVrBkoJzDy8PVWZMayV1I+bSu9B09W3QKH4tSetRyV3VeQxsItMDFQuUQWAdW8EaIp6l4SHLV
+	WMLdriLhkfw6QD62scrA/GW0/VqGHNyi4AsmagVOhsnVlKwQoV
+X-Received: by 2002:a17:90b:258d:b0:369:7421:b36f with SMTP id 98e67ed59e1d1-37c52916561mr2911272a91.21.1781605596401;
+        Tue, 16 Jun 2026 03:26:36 -0700 (PDT)
 Received: from hu-ckantibh-hyd.qualcomm.com ([202.46.23.25])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-379e88d546dsm8079269a91.2.2026.06.16.03.26.28
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-379e88d546dsm8079269a91.2.2026.06.16.03.26.32
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 16 Jun 2026 03:26:32 -0700 (PDT)
+        Tue, 16 Jun 2026 03:26:36 -0700 (PDT)
 From: Sanjay Chitroda <sanjayembeddedse@gmail.com>
 X-Google-Original-From: Sanjay Chitroda <sanjayembedded@gmail.com>
-Subject: [PATCH 00/11] HID: iio: warning clean up and prefer kernel coding
- style
-Date: Tue, 16 Jun 2026 15:56:05 +0530
-Message-Id: <20260616-15-jun-hid-iio-alignment-v1-0-0cd544286575@gmail.com>
+Date: Tue, 16 Jun 2026 15:56:06 +0530
+Subject: [PATCH 01/11] iio: hid-sensors: add missing blank line after
+ declarations
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -70,60 +71,54 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-B4-Tracking: v=1; b=H4sIAL0kMWoC/yXMwQqDMBCE4VeRPXdBUxuxr1J6SHTVEbuWREtBf
- HfTCnP5DvNvFCVAIt2zjYJ8EDFrQnHJqBmc9sJok8nkxua2uHHauCoPaBmY2U3o9SW6cGm9d5W
- pai9XSvd3kA7ff/rxPB1XP0qz/Hq07wcdM36RfAAAAA==
-X-Change-ID: 20260615-15-jun-hid-iio-alignment-46bba7279be3
+Message-Id: <20260616-15-jun-hid-iio-alignment-v1-1-0cd544286575@gmail.com>
+References: <20260616-15-jun-hid-iio-alignment-v1-0-0cd544286575@gmail.com>
+In-Reply-To: <20260616-15-jun-hid-iio-alignment-v1-0-0cd544286575@gmail.com>
 To: Jonathan Cameron <jic23@kernel.org>, 
  David Lechner <dlechner@baylibre.com>, 
  =?utf-8?q?Nuno_S=C3=A1?= <nuno.sa@analog.com>, 
  Andy Shevchenko <andy@kernel.org>, Jiri Kosina <jikos@kernel.org>, 
  Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 Cc: linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org, 
- linux-input@vger.kernel.org, Sanjay Chitroda <sanjayembeddedse@gmail.com>, 
- Zhang Lixu <lixu.zhang@intel.com>
+ linux-input@vger.kernel.org, Sanjay Chitroda <sanjayembeddedse@gmail.com>
 X-Mailer: b4 0.15.2
 
-Hi all,
+From: Sanjay Chitroda <sanjayembeddedse@gmail.com>
 
-This series updates HID IIO drivers to resolve checkpatch and
-kernel coding style issue.
+Add a blank line after variable declarations to improve
+readability and align with kernel coding style.
 
-This improves readability and follow standard kernel coding style
-No functional changes are introduced.
-
-Testing:
-  - Compiled with W=1 for each patch in the series
-
+Signed-off-by: Sanjay Chitroda <sanjayembeddedse@gmail.com>
 ---
-Sanjay Chitroda (11):
-      iio: hid-sensors: add missing blank line after declarations
-      iio: humidity: hid-sensor-humidity: align parenthesis for readability
-      iio: gyro: hid-sensor-gyro-3d: align parenthesis for readability
-      iio: magnetometer: hid-sensor-magn-3d: align parenthesis for readability
-      iio: humidity: hid-sensor-humidity: use common device for devres
-      iio: position: hid-sensor-custom-intel-hinge: use common device for devres
-      iio: temperature: hid-sensor-temperature: use common device for devres
-      iio: hid-sensor-magn-3d: use ! instead of explicit NULL check
-      iio: hid-sensor-rotation: use ! instead of explicit NULL check
-      iio: hid-sensor-incl-3d: use ! instead of explicit NULL check
-      iio: hid-sensor-accel-3d: use ! instead of explicit NULL check
-
- drivers/iio/accel/hid-sensor-accel-3d.c            |  2 +-
- .../iio/common/hid-sensors/hid-sensor-trigger.c    |  3 +
- drivers/iio/gyro/hid-sensor-gyro-3d.c              | 58 ++++++++--------
- drivers/iio/humidity/hid-sensor-humidity.c         | 48 ++++++-------
- drivers/iio/magnetometer/hid-sensor-magn-3d.c      | 80 +++++++++++-----------
- drivers/iio/orientation/hid-sensor-incl-3d.c       |  2 +-
- drivers/iio/orientation/hid-sensor-rotation.c      |  2 +-
- .../iio/position/hid-sensor-custom-intel-hinge.c   |  2 +-
- drivers/iio/temperature/hid-sensor-temperature.c   |  4 +-
- 9 files changed, 102 insertions(+), 99 deletions(-)
+changes in v4:
+- Rectify commit message with input from David
 ---
-base-commit: a50909aa46dec46de3c73235fc15a7d6f763d996
-change-id: 20260615-15-jun-hid-iio-alignment-46bba7279be3
+ drivers/iio/common/hid-sensors/hid-sensor-trigger.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-Best regards,
---  
-Sanjay Chitroda <sanjayembeddedse@gmail.com>
+diff --git a/drivers/iio/common/hid-sensors/hid-sensor-trigger.c b/drivers/iio/common/hid-sensors/hid-sensor-trigger.c
+index 417c4ab8c1b2..c8ccf96f3d03 100644
+--- a/drivers/iio/common/hid-sensors/hid-sensor-trigger.c
++++ b/drivers/iio/common/hid-sensors/hid-sensor-trigger.c
+@@ -314,7 +314,9 @@ static int __maybe_unused hid_sensor_resume(struct device *dev)
+ {
+ 	struct iio_dev *indio_dev = dev_get_drvdata(dev);
+ 	struct hid_sensor_common *attrb = iio_device_get_drvdata(indio_dev);
++
+ 	schedule_work(&attrb->work);
++
+ 	return 0;
+ }
+ 
+@@ -322,6 +324,7 @@ static int __maybe_unused hid_sensor_runtime_resume(struct device *dev)
+ {
+ 	struct iio_dev *indio_dev = dev_get_drvdata(dev);
+ 	struct hid_sensor_common *attrb = iio_device_get_drvdata(indio_dev);
++
+ 	return _hid_sensor_power_state(attrb, true);
+ }
+ 
+
+-- 
+2.34.1
 

@@ -1,98 +1,81 @@
-Received: from mail-dy1-f178.google.com (mail-dy1-f178.google.com [74.125.82.178])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mout-p-101.mailbox.org (mout-p-101.mailbox.org [80.241.56.151])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1A0E32FFFB5
-	for <linux-input@vger.kernel.org>; Tue, 16 Jun 2026 20:30:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.178
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 07C6839936D;
+	Tue, 16 Jun 2026 20:51:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=80.241.56.151
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781641828; cv=none; b=gTF1MWuOYgYciCSo0HARjOEBnIcBgkUaGiuPWTw7eI3AebUt+exGT3u/fIaPe+Ug8IA9Hhx0p5vDalUVS1VtYaCtj0JL1SUWzZtcehHAFZ0lCZGYfRfF2xnaO3jpRbEHn4UoqSzNkCPm81qc99J1fjZd1usIjsmZHFNRJUhrzkQ=
+	t=1781643080; cv=none; b=EugdLcfUz4tOtmENLh/J97HoiN4k2Jn7xfRQESJLBQR1GX4W2qKhGlQobJlaAh0nWMtCklxQQKuURSAqUGwGgdDte6gIIBBkXfrIn3QZdc2bRThQVFe0QKWgNtajhJUEEbg1OBQwqO75HhpiWewVel7MSVcAdrk6qb+5tjnpYQs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781641828; c=relaxed/simple;
-	bh=iTSPMAeQrpjFWfeljOV725ZN4ntpVe2c116ViBdRmPk=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=j/y65Cq+iCfIwoADS2xt9PjAg5sb+Gi47w4M2bbS5+FxokJ591qTdTbZdISjqfn4nsdm9fKwkHLZa5vUtUNRS1GCpKVUCv5kcccUYsODF9MYBzUzxJxNXKlnOCSUqK++1DXwJvs+l9/XFOCnFuulti1s/SP9i2Yoxmbf66vejWA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=nNHUtJn1; arc=none smtp.client-ip=74.125.82.178
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1781643080; c=relaxed/simple;
+	bh=tnupkzwy2fP5SwHv5stmI957/nksX38wBEKhQh2muys=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=KMdIdYyvGD6EBRRDCLf3wBrHAeECFufrBU8u7W7sXwtWy73gaiZfhyghtSPBJtS5aYv58zf5mwudtjXcXDYZBDolxs+mPqXt+XQZRsGet7slvFljKzlkedVGupxwslM6ZwA3U/HBwHjmIerJcFlV8LD0BUJyzRdt1tZu6ho9OGY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mailbox.org; spf=pass smtp.mailfrom=mailbox.org; dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b=XGXjtcxg; dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b=FBHpJNGb; arc=none smtp.client-ip=80.241.56.151
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mailbox.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mailbox.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="nNHUtJn1"
-Received: by mail-dy1-f178.google.com with SMTP id 5a478bee46e88-30bcc877b4cso310511eec.0
-        for <linux-input@vger.kernel.org>; Tue, 16 Jun 2026 13:30:27 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1781641826; x=1782246626; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=yu5KqpwRFlb6PqVWTtq8wU6g+sZqF0g3U3cqmuRimF8=;
-        b=nNHUtJn1Ca1tyGEAl6JBYllXZE7Vw8IK7ph4EYnhPH4s8xYKFyvDBi6K0ee8NAxxHR
-         o4V6uXaHejmlmzwBaEAkDD/L3FxfzaN/jxQRf5ENrcFg5CR1/OcEOEK6mcmK0ptvLP3U
-         6FPMLmPqxiLNwjKXBFGhI4lZQyDedzjD+W76ImoaGv49uF/Ltp6YhpgPUBfKG/yYPeHK
-         Vhj4zQTv7Zbx8C8m7SdhutO2plhZt7VgNQKnOInUwloe1z9PwNYDkO9QPTkNzdgjOzNS
-         SC7CTMUCHkyCzd33BYwtdMZB3qYHW0kiwXZrO4SreNkxIgbIC1LHJDE/qOM+CI0QjdDB
-         fr/A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781641826; x=1782246626;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=yu5KqpwRFlb6PqVWTtq8wU6g+sZqF0g3U3cqmuRimF8=;
-        b=pey9rI1qSdnuLFgpYV6rdeyWgw/YAX3TPPJGLC66V6HmwzMMkAlcuNnmBqi/t4xlUs
-         XZidpt1N0TDxYGqfGsITAfdZtTBCzlP89JErwEjExAiUxE01vK42Io14IXzKZbA2/WCk
-         KxNqtIwogtvOjonmuEgqwHvtcVKRZ8BjyLJ1V4x1PcvC8BAfgoT7NFQ4QBtbOepiyNQj
-         u4rcp4x0fEH4hW6BS1CvKBHCILB92wd6+IrwX3a1dZFGF18jSulQA7Li1LE9j7KzzzBJ
-         QLKS/GU+qCokCP95AZp8xf44Dh6URIOpGxU/pS01sCiqYU3ARJURhdeaTeYRKCR53Rmu
-         eVFA==
-X-Gm-Message-State: AOJu0YxSENPPcZ0Fgtx11AEa45qv8dqsxhzXIcqrqtCr70+Oz3RQs7aI
-	97X7CYkkWbrfwa7gwkhIc8RJDBaJ+bUuZauY4uQb5nZFzpZV4/DgpYFi
-X-Gm-Gg: Acq92OHCpiFt7KbRHq0zpN2NwDFddK1QtTUERnT5ZKaOHJcN9fBThz3Jw0OA3SLeHkc
-	ljxEwWFe9cf+1Tbs+vVIuXf5DRZsRp3jTCoB3JbaFUup+j0i7VHRpGG9L/MnMZbcfQiVSF3sVf4
-	SOcRkT8+eS5DRtcDMkfcdhWQQqN80lcS3gwJoUI881cbv6pVwC1yXK95nuEOl4YVSi7pQxnzpvi
-	4u0PBNgR/Y4kTdIpxNcOKl9iIVZrijqNlovfv7uN1kpTkvFEuQPioxow/pGLaboiAwKcYvvRQCp
-	OIVld+CT8T8skfk1SEBnPAOnhXnkkfAgb38S6C7H9LWPc1rYHuHaQuTc7lH5Iv/PCbm6V2UtnvY
-	YPrm28nZ3TG69hPLJtsr6B1nz9z9CUqhwvPm78t/LpUwLghq/eItzzasIc91ZfuoG3NII2BYyxA
-	CENmh9pEqCCTPZNhEN/UY94OYJfVbMHispeyugvhhFvV78xDwjspw9xDGHXTaT1jQ=
-X-Received: by 2002:a05:7301:7c0e:b0:307:91f5:9377 with SMTP id 5a478bee46e88-30bc9ab99b7mr588995eec.9.1781641826182;
-        Tue, 16 Jun 2026 13:30:26 -0700 (PDT)
-Received: from google.com ([2a00:79e0:2ebe:8:cbae:d24:189c:2cb9])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3081e48bfa7sm20265356eec.5.2026.06.16.13.30.24
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 16 Jun 2026 13:30:25 -0700 (PDT)
-Date: Tue, 16 Jun 2026 13:30:22 -0700
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Svyatoslav Ryhel <clamor95@gmail.com>
-Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, Rob Herring <robh@kernel.org>, 
-	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
-	Linus Walleij <linusw@kernel.org>
-Subject: Re: [PATCH v5 2/2] Input: isa1200 - new driver for Imagis ISA1200
-Message-ID: <ajGk5YxRTFycFc1G@google.com>
-References: <20260512102445.55372-1-clamor95@gmail.com>
- <20260512102445.55372-3-clamor95@gmail.com>
- <CAPVz0n3Dw6Vtqqn8if=MYkBbYittXqsBKbDvrs1ntbD5Zn6iig@mail.gmail.com>
- <CAPVz0n3iCSeT3xJ2XkwZ6PYofwSLkc0gfm+iYo4xbKBkAtihcQ@mail.gmail.com>
- <ajDEsU8oZWT7KB9d@google.com>
- <CAPVz0n26H2t=pi_C+t8jP_cWXGSa5pk=1cpTZtkBh3=RQsUk2g@mail.gmail.com>
+	dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b="XGXjtcxg";
+	dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b="FBHpJNGb"
+Received: from smtp2.mailbox.org (smtp2.mailbox.org [10.196.197.2])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mout-p-101.mailbox.org (Postfix) with ESMTPS id 4gfzfp5VkVz9tRk;
+	Tue, 16 Jun 2026 22:51:14 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mailbox.org; s=mail20150812;
+	t=1781643074;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=0IzdGvudwRTyPm0tm0GsEwNvsY9TlUW4g3dicT/2fzc=;
+	b=XGXjtcxgtIw7Exbz2SgG5OfbtBw8DbUFZvpcP1WHb0BT8WdVlJvA/eqnHhZHEyOc0eOxms
+	8X4HKOUBUPS9hbKLwQHaqNCuznTbEoxPtplmBOWre/BRegsiIwnYPfnJSqdj3wwY99wepw
+	hM3Kt6JB1skvj4ivpDOKJ8T5//98GvPLvytZKtma3OiVCmlszr6cMiLXOVOUDhR9ysyBNi
+	mgi+05c49vOORO+b1S8LhlKVtKbauf3cxfJ/tKrlYnaGKQzNBnPdZ2uPMtYu1/qJDF/ElF
+	5o3/JFjdDb8TuzUnI0F7XY69+PR56Hub2XL/4oiBRZvtwPjyRHGNab1merGayA==
+From: Rosalie Wanders <rosalie@mailbox.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mailbox.org; s=mail20150812;
+	t=1781643073;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=0IzdGvudwRTyPm0tm0GsEwNvsY9TlUW4g3dicT/2fzc=;
+	b=FBHpJNGbKPSBTXB59sr2nkN9l5zhgu9QisWBU0Oa5UHjhoyY6OfMmiTsAuj4dBYvd1Dcyh
+	YXAwvKYCQFlNiRDE7j+DEPNTwjPCUSMhgoiPXcNkL+hltDQDvNAYET7D8u7HV8oI18uh4x
+	Lj+imB2YXphtYaKr4ILeT1AI2UmkTHFdH0bhvd8UUtwfjaZFM/6tZCcqlOTVbEJvpT/Bws
+	JllXnvVH/V3ZlRYRkP5T2dH42EDPaWhgBYejbTS6dxQCDI/4nbrdFhsHfvDZjkSlPIpRIH
+	D4zAUF+je/cGPUrnR/WMKMHzsmZ62aYMWHztDsagMhrGwJ2qmGtGNxSCtEj0Xw==
+To: Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>
+Cc: linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Rosalie Wanders <rosalie@mailbox.org>
+Subject: [PATCH v2 0/4] HID: sony: more cleanup
+Date: Tue, 16 Jun 2026 22:50:39 +0200
+Message-ID: <20260616205042.6671-2-rosalie@mailbox.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAPVz0n26H2t=pi_C+t8jP_cWXGSa5pk=1cpTZtkBh3=RQsUk2g@mail.gmail.com>
+Content-Transfer-Encoding: 8bit
+X-MBO-RS-META: 4noxtacimhocu6qx7n5a3wu1escheadx
+X-MBO-RS-ID: 9806fc0fa6aea3e5222
 
-On Tue, Jun 16, 2026 at 09:45:25AM +0300, Svyatoslav Ryhel wrote:
-> 
-> I have tested your code on my P895 and it works perfectly fine. Should
-> I resend with these changes or you can integrate them while picking
-> patchset?
+This series cleans up hid-sony by utilizing modern helper functions.
 
-I think there was an update requested by Rob for the bindings?
+v2: the dependent patches have been included in this series
 
-> 
-> Thank you for your suggestions and efforts!
+Rosalie Wanders (4):
+  HID: sony: use dedicated raw_event() handlers in sony_raw_event()
+  HID: sony: use guard() and scoped_guard()
+  HID: sony: remove unneeded which argument from sony_schedule_work()
+  HID: sony: use devm_kasprintf()
 
-Thank you for your patience.
+ drivers/hid/hid-sony.c | 245 +++++++++++++++++++++--------------------
+ 1 file changed, 126 insertions(+), 119 deletions(-)
 
 -- 
-Dmitry
+2.54.0
+

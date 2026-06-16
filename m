@@ -1,43 +1,43 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0700F3CF1E2
-	for <linux-input@vger.kernel.org>; Tue, 16 Jun 2026 05:20:19 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E4B593CF050
+	for <linux-input@vger.kernel.org>; Tue, 16 Jun 2026 05:20:24 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781587220; cv=none; b=TkT86bXhbTYL+xFgx9sf/5LWbOxoyXVc5ZGX+D+ZDPmQhKxTU9bTdyjR3R1KSxz4OtwbgQH6oBseUbswNmuOTZ8WJVhfP5VNvie6jL6rLXJuyO84vW9mm4Nc2XKugV/uVnHPiZdafMEyWXraGl+7pH0rNkp+/Bi9N2qVmQgeVnY=
+	t=1781587225; cv=none; b=gkkbKBumkjOn3BCn7faCaRjlnKecgwHj9wwQlKLvjbu7OusUWW/cikvDTRPkBE6GqNIWpYk/wVtU+U7nOicDOBFAyyJP+nl/9QfxsQ+5oVtIaGJ5VP8GDZqKHbdG/QVXteLgcFoVvPR6RrGglukT7nUm93pV2ZSmJwg177h7snc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781587220; c=relaxed/simple;
-	bh=edGt3edgwexTl37QK/CniGcwii+Pbikw+ic7s1TUl/0=;
+	s=arc-20240116; t=1781587225; c=relaxed/simple;
+	bh=TSusuMmaYUFHVbxwG4hgyi4qvqRUwYGox5Bo0cO2YJM=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=EuXtZeoCY/DWlCBJNG2OeVOv5roItcrv5luAPjEYh/CJXwiZGV4nh3J6bJJRYlzyZnaepL5ljhIX6felhIx/3nXDmTE2wh52sWEMDPBjae/eY1hxsGfn1bTbfzOz/TY0uorKbBW36J7c/rwsd2ZhIER5Bz6xaLc/cNH8OV+O9ao=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=bSO8I6Rq; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=fvNrJiJlzBgxIGftEDFYmsMGKcKhaik9KUBFZ4StIFtpisvB2lhNDL9yl9ySGm4fzEi9/JQkBqMjx7rz18pvPW1M2vgjMKprc4+M530qwhcd53NsdOnKKwWN0O2pyC427kKJnzPxPGjN3W4P1NlFgxUDIQWLLhlBpMHFKesplAY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ccWRHVp4; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="bSO8I6Rq"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5DF21F000E9;
-	Tue, 16 Jun 2026 05:20:18 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ccWRHVp4"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59FFD1F000E9;
+	Tue, 16 Jun 2026 05:20:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1781587218;
-	bh=1kYvqXUbr1Afa7UDPNJgZif4mYA+CsI1UVEC2k9Opd0=;
+	s=k20260515; t=1781587224;
+	bh=MUrtF9a51DYKf6dXMOqEo7S/pK3au4NJKCMdEJDz0h4=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=bSO8I6RqJAZIAMAzW0jCdwZlD5lJe3qPMUTOXahxOzF3hvySA+r5xc88Z6EyS320d
-	 sF7Vd6X53I1+ZggIf3e27f4rT20vJq3dN/onOj9G6NdTObxirMOyFO0vxwccucfL9M
-	 xwBwfvh2+TDEDtasLvwZ2WCAMlKuMxVSqYQWShZxafMInVkV6DvJEz5qhWYf9KRwc+
-	 HqOiq2F8byRxf27PCOnEJQC5TJvAVw+DRR4BmVmE5xeuhV4KTNakDiJQPcwY1x3cQi
-	 Dl1BOCysVv9bHYQsye8LBABbIsibgSenqfJQB6y2DK6gPCnw7+EZM0Am9tRZYvePDR
-	 0o4dFRNOPqCnA==
+	b=ccWRHVp44hvOG/nDQ3kObfJkNqA3NTYp2Jlb5L7Mk/s067UABUmOO/R+7zPuGUb+Y
+	 cBizgJvS3FFwEddOBRdnvG0mm7sRnJORBfVdSWxYXzCoFBor3aa+eHdDj0YddIewYQ
+	 eEwEMHAGsfxnk1fPq5QCY0X9brc7DQHPwYvpy6T6gnjsqtumQ7b81vQipYaOf4hOKJ
+	 wldT7993iPJ8e0RlVdKF4OM3mzN4T0ffWVZAXvoeuigvKdp3fr/iOll6Cu2cwiNtiT
+	 mBAwnQbjE2l5XcZpnT0VhwCoW5OL1bNbFLv6FB9fBYrRfK0YU/oPYE4cOJPzK4zqRX
+	 YG1vC3+Tcf/yA==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 3/6] Input: mms114 - use appropriate register argument
- types
+Subject: Re: [PATCH 1/6] Input: mms114 - fix touch indexing for MMS134S and
+ MMS136
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260616050912.1531241-3-dmitry.torokhov@gmail.com>
-References: <20260616050912.1531241-3-dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20260616050912.1531241-1-dmitry.torokhov@gmail.com>
+References: <20260616050912.1531241-1-dmitry.torokhov@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 16 Jun 2026 05:20:18 +0000
-Message-Id: <20260616052018.C5DF21F000E9@smtp.kernel.org>
+Date: Tue, 16 Jun 2026 05:20:24 +0000
+Message-Id: <20260616052024.59FFD1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -48,131 +48,119 @@ Thank you for your contribution! Sashiko AI review found 3 potential issue(=
 s) to consider:
 
 Pre-existing issues:
-- [High] Stack-allocated memory is passed to I2C transfer functions, which =
-is unsafe as I2C controllers may use DMA.
-- [High] The driver doesn't handle a touch ID of 0 for touchscreen events, =
-which causes a slot underflow and corrupts the previously active slot's sta=
-te.
-- [High] Incorrect initialization of Y-axis resolution register.
+- [High] Missing validation for `touch->id =3D=3D 0` causes multi-touch slo=
+t state corruption.
+- [High] The devres allocation order in probe registers the input device's =
+unregistration action before the regulators and IRQ are allocated, leading =
+to a Use-After-Free.
+- [Medium] Hardware I2C packet layout is mapped using compiler-dependent C =
+bitfields.
 --
 
-commit e6fe847438e30cfef36a69ac4ec8110ef02638d0
+commit d12fd2dedb0344983eaa73c88bc06f0ac0c59d09
 Author: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Input: mms114 - use appropriate register argument types
+Input: mms114 - fix touch indexing for MMS134S and MMS136
 
-This commit updates the register arguments in the mms114 touch controller
-driver to use 8-bit unsigned integers, matching the hardware specifications.
-It also changes the value buffer pointer to void* to prevent explicit casti=
-ng
-when reading from the device.
+This commit fixes an issue where the driver iterates through touch events
+using standard array indexing, assuming an 8-byte size. It explicitly
+calculates the byte offset for each event based on the device's specific
+event size (6 bytes for MMS134S and MMS136).
 
 > diff --git a/drivers/input/touchscreen/mms114.c b/drivers/input/touchscre=
 en/mms114.c
-> index db23b51f4630d..c2e006ac11960 100644
+> index 4d748a13408d1..53ad35d61d476 100644
 > --- a/drivers/input/touchscreen/mms114.c
 > +++ b/drivers/input/touchscreen/mms114.c
-> @@ -87,12 +87,12 @@ struct mms114_touch {
->  	u8 reserved[2];
->  } __packed;
-> =20
-> -static int __mms114_read_reg(struct mms114_data *data, unsigned int reg,
-> -			     unsigned int len, u8 *val)
-> +static int __mms114_read_reg(struct mms114_data *data, u8 reg,
-> +			     unsigned int len, void *val)
->  {
->  	struct i2c_client *client =3D data->client;
->  	struct i2c_msg xfer[2];
-> -	u8 buf =3D reg & 0xff;
-> +	u8 buf =3D reg;
-
-[Severity: High]
-This is a pre-existing issue, but I noticed we are using a stack-allocated
-variable here.
-
-Could this cause issues with DMA? The buf variable is allocated on the stack
-and its address is assigned to xfer[0].buf for the outgoing I2C transfer.
-Does this violate the DMA API prohibition on using stack-allocated memory
-for I2C controllers that use DMA?
-
-[ ... ]
-
-> -static int mms114_write_reg(struct mms114_data *data, unsigned int reg,
-> -			    unsigned int val)
-> +static int mms114_write_reg(struct mms114_data *data, u8 reg, u8 val)
->  {
->  	struct i2c_client *client =3D data->client;
->  	u8 buf[2];
->  	int error;
-> =20
-> -	buf[0] =3D reg & 0xff;
-> -	buf[1] =3D val & 0xff;
-> +	buf[0] =3D reg;
-> +	buf[1] =3D val;
-> =20
->  	error =3D i2c_master_send(client, buf, 2);
-
-[Severity: High]
-This isn't a bug introduced by this patch, but this function also uses a st=
-ack
-array.
-
-Is it safe to pass the local stack array buf[2] directly to
-i2c_master_send()? Does this risk stack corruption if the I2C controller
-uses DMA?
-
-[ ... ]
-
-> @@ -242,9 +241,8 @@ static irqreturn_t mms114_interrupt(int irq, void *de=
+> @@ -217,7 +217,9 @@ static irqreturn_t mms114_interrupt(int irq, void *de=
 v_id)
+>  	struct mms114_data *data =3D dev_id;
+>  	struct i2c_client *client =3D data->client;
+>  	struct mms114_touch touch[MMS114_MAX_TOUCH];
+> +	struct mms114_touch *t;
+
+[ ... ]
+
+>  	for (index =3D 0; index < touch_size; index++) {
+> -		switch (touch[index].type) {
+> +		t =3D (struct mms114_touch *)((u8 *)touch + index * event_size);
+> +
+
+[Severity: Medium]
+This is a pre-existing issue, but I noticed the hardware I2C packet layout
+is mapped using C bitfields:
+
+struct mms114_touch {
+        u8 id:4, reserved_bit4:1, type:2, pressed:1;
+        u8 x_hi:4, y_hi:4;
+...
+
+Because the layout of bitfields within a byte is compiler and endianness
+dependent, will this read garbage for the id, type, and pressed fields
+if the driver is compiled for a Big Endian system?
+
+> +		switch (t->type) {
+>  		case MMS114_TYPE_TOUCHSCREEN:
+> -			mms114_process_mt(data, touch + index);
+> +			mms114_process_mt(data, t);
+
+[Severity: High]
+This isn't a bug introduced by this patch, but does the multi-touch slot
+processing handle an empty or invalid touch ID safely?
+
+Looking at mms114_process_mt(), the slot index is calculated without a
+check for zero:
+
+mms114_process_mt() {
+        ...
+        id =3D touch->id - 1;
+        ...
+        input_mt_slot(input_dev, id);
+
+If the device reports a touch event with touch->id =3D=3D 0, id will underf=
+low
+to -1. Since the input core ignores negative slot values and leaves the
+active slot unchanged, would subsequent coordinate reporting functions act
+on this unchanged slot and silently corrupt the multi-touch tracking?
+
+>  			break;
 > =20
->  	touch_size =3D packet_size / event_size;
-> =20
-> -	error =3D __mms114_read_reg(data, MMS114_INFORMATION, packet_size,
-> -			(u8 *)touch);
-> -	if (error < 0)
-> +	error =3D __mms114_read_reg(data, MMS114_INFORMATION, packet_size, touc=
-h);
-> +	if (error)
->  		goto out;
+>  		case MMS114_TYPE_TOUCHKEY:
+
+[ ... ]
 
 [Severity: High]
-This isn't a bug introduced by this patch, but the touch array is allocated
-on the stack in this interrupt handler.
+This is a pre-existing issue, but I have a question about the device cleanup
+sequence during unbind.
 
-Since the touch array is passed as the read buffer for incoming I2C
-touch events, could this lead to stack corruption if the I2C controller
-performs DMA?
+In mms114_probe(), devm_input_allocate_device() is called before the
+regulators and IRQ are allocated:
 
+mms114_probe() {
+        ...
+        input_dev =3D devm_input_allocate_device(&client->dev);
+        ...
+        data->core_reg =3D devm_regulator_get(&client->dev, "avdd");
+}
 
-While reviewing this file, I also noticed a couple of other pre-existing
-issues outside of this diff:
+Because devres executes cleanup actions in reverse order (LIFO), during
+unbind the IRQ and regulators are freed before input_unregister_device()
+is called.
 
-[Severity: High]
-This is a pre-existing issue, but I noticed there isn't a check for touch ID
-0 in mms114_process_mt():
+If the input device is held open by userspace during unbind, does
+input_unregister_device() trigger mms114_input_close() and then
+mms114_stop()?
 
-    id =3D touch->id - 1;
-    ...
-    input_mt_slot(input_dev, id);
+mms114_stop() {
+        ...
+        disable_irq(client->irq);
+        error =3D regulator_disable(data->io_reg);
+        ...
+}
 
-If the hardware sends a touch event with touch->id =3D=3D 0, id would under=
-flow
-to -1. When passed to input_mt_slot(), would this cause the input core to
-ignore the slot update and overwrite the state of the previously active slo=
-t?
-
-
-[Severity: High]
-This is a pre-existing issue, but it looks like we might be writing the
-X-resolution into the Y-resolution register in mms114_setup_regs():
-
-    val =3D props->max_x & 0xff;
-    error =3D mms114_write_reg(data, MMS114_Y_RESOLUTION, val);
-
-Does val here inadvertently use props->max_x instead of props->max_y
-when writing to MMS114_Y_RESOLUTION?
+Could this attempt to disable a freed IRQ and access freed regulators,
+causing a use-after-free?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260616050912.1531=
-241-1-dmitry.torokhov@gmail.com?part=3D3
+241-1-dmitry.torokhov@gmail.com?part=3D1

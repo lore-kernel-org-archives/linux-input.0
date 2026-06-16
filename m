@@ -1,144 +1,87 @@
-Received: from mail-dl1-f44.google.com (mail-dl1-f44.google.com [74.125.82.44])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A382047CC9C
-	for <linux-input@vger.kernel.org>; Tue, 16 Jun 2026 18:57:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0060847D935
+	for <linux-input@vger.kernel.org>; Tue, 16 Jun 2026 18:57:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781636222; cv=none; b=jKxAWeDJQ2LeNMQAkxgmG6EeBT80Z7dByNbIkcHs2lwrdrR8ieJAHqmp1rMzhbrCimkRATaj3I9nYNRPz8K4SmSmJamMWrl/gijE2170DTRcbP28Hss9U3HumW5p+zB7My5uh7TE6bDhzuNL5NDCeGkbv1JkLH0eO//fb5Un924=
+	t=1781636235; cv=none; b=b9o72GphTMMKGFimmNUCIPo/k7OVkp6eEOjB/5i647BYRIRut/6u7pg4ifdof9m2mgKB5+k9hyZm71z9mNblUblO0sC0ny58hl1TOpcBuk17xId1MIPD2bCV46YwjtaZ7SlT4/z8oBqJxImYvkshxhVuVy/wPRN8KvrzYYwxZWo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781636222; c=relaxed/simple;
-	bh=4CElZiTPHGArORKYD+4KHH07uAFYrw8mEUdxEdUCaTg=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=heku1CvEq7C2EyAO/yum2KF3HG0CO7ExO70C432d5iB9W+TINNS+yqIJ1BiJj9KQYocX+fkccor8SLyKcFwWGwGVPPRo4E/m9aPImIA8WDv1z8GA+MNBqBSp9xFGynLNOARRHK05MoEHbnJjrp8UwREQDAE2vmNM6N1GBSr0pDE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Y6FIHJgT; arc=none smtp.client-ip=74.125.82.44
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1781636235; c=relaxed/simple;
+	bh=6/bCaUbtfCncrtxzychO2vuRtHH/oCHj4qDutkWacWw=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=Rzkw8NUCNFBmfwtIDGIay8EZO6UnjN9EwyuJfkllQGJ0xcn/umRlecJOr6Ubvj/eRK/GluOVdiQ2JOCNILebjnjGJkakdSH0X1pL17TzYXZdMHS5GGVaqP4irsVboNmE3EqOcLCNHDEm4zZcsQfe880edvJPXvL3Ya2H/Jn3A/s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=luQxn9cl; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Y6FIHJgT"
-Received: by mail-dl1-f44.google.com with SMTP id a92af1059eb24-137335bc3caso6010540c88.0
-        for <linux-input@vger.kernel.org>; Tue, 16 Jun 2026 11:57:01 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1781636221; x=1782241021; darn=vger.kernel.org;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=Ysnj9WdUwSfcQFI+hBHALQ1tHbNJvuivqwhgA0jRGmc=;
-        b=Y6FIHJgT8JZPDCLxk85eVxcKAgvsT+Ya8MYCHYPyFVRJDiSS/RIWJAtOZe4Cqh3tew
-         TDJxwGmAamPr3Kf/uEy7qWMih1CjSsFiiML5FYc4KEPimo5IPkMNAiddCNAocG9XBA9i
-         cgjXkI8XYdBz6DF7+Mh9x5x/CaJms0uKVpzJbReRB7G7Q06eElrOdTAGFtLxVtnR066+
-         Vb50U5yp7mhqFaoUzcMnZTsMwQZKxx1RncrC++DavnDyjEE9//dBR0EH5KSbFUwS2SID
-         7NDzooo3lFoUlCD+t+I9wkKT+n/L8AdcdOZS1CpJMzrEamZcy/bR3vAFyMuyDTrcTWpd
-         pMpA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781636221; x=1782241021;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=Ysnj9WdUwSfcQFI+hBHALQ1tHbNJvuivqwhgA0jRGmc=;
-        b=ec0P3ekqeOZc7yFp4DgglMiWa02z9zECk1yopYS/N/hIX4hvZfylxt8To0gcSEt37S
-         OnkEpDQldtl6PqyoQ6o6qKOIZceQrLy6wOhzJcBcSp3hzOaUj7cMRmwqjrUnCMLsQ/lO
-         gyL17YxJQuBp64wXtBA5KW/vJMZvEtBc7l7wBWrdFurWUpzA3b9qrZCG6YrQV615FfkI
-         ZGyPCiQ5/1a6j2m6O9VxwUowfkmY6IG4ebcSh2Yzmfoc4SQo63TyAJxmEd3RZF78F7oJ
-         03yDihwllOeA38WpwBO8RpIVknvnUTI0h2ArPs0kz6mw4+mKNBg6FM9Msb9VzcDy8v+N
-         eL6Q==
-X-Forwarded-Encrypted: i=1; AFNElJ8tCcaPM8458N0dhAHN8JwCucH3K7AIJAe3mCVQM18qgu16HxuhEyH27NSaFx3D3DIwuy+HzQBVeDv3LA==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yxj+AGMByA0Rixp0I1GF6Q8UVkqnnXoX8i02xWaPHvMLEHzFM89
-	hpuvlMsrBXGFtk5p1lu4148fGWXVphqpefLqH2JMs4lAgt3CKo0HG3zJ
-X-Gm-Gg: Acq92OG8g8uRdC1tedbk/6KH3ZIojdwjDtu/uzNqISl+yeV7occ5gsWqXdDU27tDZXC
-	6xq8EQeMd9qSqY32d32yo8XcfWrF9bMm8kodsG4wnrTFdT0kZYRPFkKqe4cGcXltikbd1YHb84N
-	xUhmXFPadzYuLNIpMzPWcDsScdblC9nbMhA0iXyGx3Y/NvbbyKDZhBNDapU4kUbt2kK5oTU6zej
-	WurB63xxNDiWxvqu506Ex9RH04m0XyXVUznKdxecqBsiNetFlzEY6zD5VNRyJxvQGNDPtP3h9Y5
-	q8FGDokzbeWgyM6xtsLPZYUgIRtZiJ3XhfVAAMq/q0EJwON4YR8C1TTiwoVYj/MV6Cm4huKsSti
-	uWNhFH4iI4plPiDiNnThv0EQ8jfWVJfNJGX+2GkHXNl3ahLyGr5pm613i4n9kay8Z2jeqo+v4/J
-	J20SudPpmhJDldxaO/i+UgIvYHDEGURkaz8RlFjYQ29X5g7V2Gq5Vc5VAnYK6+fes=
-X-Received: by 2002:a05:7300:8182:b0:30a:e530:ebc6 with SMTP id 5a478bee46e88-30bc9ce896amr406960eec.12.1781636220591;
-        Tue, 16 Jun 2026 11:57:00 -0700 (PDT)
-Received: from google.com ([2a00:79e0:2ebe:8:cbae:d24:189c:2cb9])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3081e91f878sm19888556eec.17.2026.06.16.11.56.59
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 16 Jun 2026 11:56:59 -0700 (PDT)
-Date: Tue, 16 Jun 2026 11:56:56 -0700
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Rong Zhang <i@rong.moe>
-Cc: Jiri Kosina <jikos@kernel.org>, 
-	Benjamin Tissoires <bentiss@kernel.org>, Peter Hutterer <peter.hutterer@who-t.net>, 
-	linux-input <linux-input@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] Adding device-initiated haptic feedback knobs for
- pressurepads
-Message-ID: <ajGbFNj73yxaEj0y@google.com>
-References: <bbee6e61a243a0ae4db6ea155909607326a80dac.camel@rong.moe>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="luQxn9cl"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CEEF21F00A3E
+	for <linux-input@vger.kernel.org>; Tue, 16 Jun 2026 18:57:14 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1781636234;
+	bh=Kg5urtXwHhG5NTd2I1ePWdoMCidQs7lsiIoCNc/Lh1Q=;
+	h=References:In-Reply-To:From:Date:Subject:To:Cc;
+	b=luQxn9claLnfUGUe4BPO/rKUJCKvbYkdDQ+j2wsHIRz6AQVNGuQHOD9FBHPCskdqe
+	 Talz+wHwrzepupIp3d+SdJigCtw9Lh4qC8oi7IQpB9SCoXxl+LgU4f66IuqYKOZtf5
+	 tieRGEMDoKYR2r5sJZGKvXFJ3dDoywYVOh4JEgDYatvyfewTCFwCT8sbizwxy+HVbk
+	 rsBMS51Q/mz88WQrG5h+I90N7HeVmYm0ykIqXd5MmHWUHpLkCkLf8+fuCfQ0j6EYWU
+	 WkKYh5OPblH6nMNoAMO8dNfO4Ja8DM3ZVM3VCiavzuHNaL4KlPW3pK3MdD6JQMeQT1
+	 1u5RACOzy2rzg==
+Received: by mail-ed1-f52.google.com with SMTP id 4fb4d7f45d1cf-695427c153fso516148a12.1
+        for <linux-input@vger.kernel.org>; Tue, 16 Jun 2026 11:57:14 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AFNElJ8UpPq0bGOVjqj49CL+/M/vuhb3fBFBK+bziPNgRR7WqDmumxrIAeGdnhB5olrDT1JEEekcvWbIXWoVmg==@vger.kernel.org
+X-Gm-Message-State: AOJu0YzqI8CH0NQLdVujqX2pESKvVNs5gjpjyikdTiIPxgFcdGW/MbSi
+	5zLIhxpUM5JUzUFD8cE2nBwOeoVeAGGqLIhy6isdkQV59qRAkn8M6uMHfo02ubUGcstGMxgZ4Bq
+	3u+zj9uy1F9UnZLylWZJ1UJyXHc2rqw==
+X-Received: by 2002:a17:907:aaa:b0:c04:1977:1025 with SMTP id
+ a640c23a62f3a-c05a128a414mr47141766b.0.1781636233441; Tue, 16 Jun 2026
+ 11:57:13 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <bbee6e61a243a0ae4db6ea155909607326a80dac.camel@rong.moe>
+References: <20260615071836.362883-1-l.scorcia@gmail.com> <20260615071836.362883-10-l.scorcia@gmail.com>
+ <20260616133918.GA2335264-robh@kernel.org> <CAORyz2LiMHnaTK6QnsLxJDtw0fZ_N9LELw0iCorOZwHuWXus0g@mail.gmail.com>
+In-Reply-To: <CAORyz2LiMHnaTK6QnsLxJDtw0fZ_N9LELw0iCorOZwHuWXus0g@mail.gmail.com>
+From: Rob Herring <robh@kernel.org>
+Date: Tue, 16 Jun 2026 13:57:01 -0500
+X-Gmail-Original-Message-ID: <CAL_JsqLGqqyDoGskgmRLzQC=UkFEXgW=cDazc=frO2KBaSri=w@mail.gmail.com>
+X-Gm-Features: AVVi8CcwnrM4llpoEzOBnyyyWauL3xCmDN5lvRxGwwKA_noSBsMx_Zki1jU8Teg
+Message-ID: <CAL_JsqLGqqyDoGskgmRLzQC=UkFEXgW=cDazc=frO2KBaSri=w@mail.gmail.com>
+Subject: Re: [PATCH v7 9/9] arm64: dts: mediatek: Add MediaTek MT6392 PMIC dtsi
+To: Luca Leonardo Scorcia <l.scorcia@gmail.com>
+Cc: linux-mediatek@lists.infradead.org, Val Packett <val@packett.cool>, 
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+	Conor Dooley <conor+dt@kernel.org>, Sen Chu <sen.chu@mediatek.com>, 
+	Sean Wang <sean.wang@mediatek.com>, Macpaul Lin <macpaul.lin@mediatek.com>, 
+	Lee Jones <lee@kernel.org>, Matthias Brugger <matthias.bgg@gmail.com>, 
+	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, 
+	Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, 
+	Linus Walleij <linusw@kernel.org>, Louis-Alexis Eyraud <louisalexis.eyraud@collabora.com>, 
+	Julien Massot <julien.massot@collabora.com>, Fabien Parent <parent.f@gmail.com>, 
+	Akari Tsuyukusa <akkun11.open@gmail.com>, Chen Zhong <chen.zhong@mediatek.com>, 
+	linux-input@vger.kernel.org, devicetree@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, linux-pm@vger.kernel.org, 
+	linux-arm-kernel@lists.infradead.org, linux-gpio@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Hi Rong,
+On Tue, Jun 16, 2026 at 10:32=E2=80=AFAM Luca Leonardo Scorcia
+<l.scorcia@gmail.com> wrote:
+>
+> > >  arch/arm64/boot/dts/mediatek/mt6392.dtsi | 75 ++++++++++++++++++++++=
+++
+> >
+> > Nothing is using this so it is a dead file that doesn't get tested.
+>
+> Hi, it's not referenced as the dtsi inclusion was removed in the
+> original patch from 2019 for an easier merging of support for mt8516
+> pumpkin boards [1][2].
+> If you prefer in the next revision I can add another patch to readd it
+> to the existing pumpkin board.
 
-On Tue, Jun 16, 2026 at 11:34:45PM +0800, Rong Zhang wrote:
-> Hi all,
-> 
-> A pressurepad is a MT touchpad that simulates haptic feedback. The
-> haptic feedback may be either device-initiated or host-initiated. While
-> drivers/hid/hid-haptic.c [1] provides comprehensive support for host-
-> initiated ones, device-initiated ones are currently not configurable at
-> all.
-> 
-> According to Microsoft's Input Device Haptics Implementation Guide [2],
-> pressurepads with device-initiated haptic feedback can support
-> SET_FEATURE reports to allow users to customize the intensity of the
-> haptic feedback (usage page 0x0e Haptics, usage 0x23 Intensity) and/or
-> the force required to trigger a button press (usage page 0x0d
-> Digitizers, usage 0xb0 Button Press Threshold). Each knob should occupy
-> a dedicated report ID.
-> 
-> The first knob maps to "ClickForceSensitivity" in Windows registry and
-> "Touchpad feedback" => "Intensity" in Windows Settings [3]. The second
-> knob maps to "ClickForceSensitivity" in Windows registry. 
-> 
-> The pressurepad on my laptop supports the first knob:
-> 
->    # 0x05, 0x0e,                    //  Usage Page (Haptic)                595
->    # 0x09, 0x01,                    //  Usage (Simple Haptic Controller)   597
->    # 0xa1, 0x02,                    //  Collection (Logical)               599
->    # 0x09, 0x23,                    //   Usage (Intensity)                 601
->    # 0x85, 0x09,                    //   Report ID (9)                     603
->    # 0x15, 0x00,                    //   Logical Minimum (0)               605
->    # 0x25, 0x64,                    //   Logical Maximum (100)             607
->    # 0x75, 0x08,                    //   Report Size (8)                   609
->    # 0x95, 0x01,                    //   Report Count (1)                  611
->    # 0xb1, 0x02,                    //   Feature (Data,Var,Abs)            613
->    # 0xc0,                          //  End Collection                     615
-> 
-> I hardly use Windows but the last time I booted it I did see "Touchpad
-> feedback" => "Intensity" in Windows Settings.
-> 
-> On Linux, I can tune the knob by setting the corresponding feature
-> report via HIDRAW. The pressurepad remembers the knob value until it
-> loses power. However, getting the feature report returns garbage data
-> (probably from the last input report in the buffer), which makes some
-> sense as the implementation guide only requires SET_FEATURE support.
-> 
-> I'd like to add device-initiated haptic feedback configurations for
-> Linux. For now, I only focus on the first knob, i.e., Haptics Intensity,
-> since it's supported on my device. If I somehow get a device with the
-> second knob I may work on it too.
+That or move this patch to the series for the board(s). If the board
+is already upstream, then add the include in *this* patch.
 
-The question is why would we want to support device-initiated feedback
-instead of enhancing userspace to fully control it. For the record on
-ChromeOS we tried implementing support for device-initiated feedback but
-it made the kernel code very cumbersome and left a lot of gaps/rough
-edges when combining device- and host-initiated haptic effects. 
-
-I'd prefer it all being driven from userspace.
-
-Thanks.
-
--- 
-Dmitry
+Rob

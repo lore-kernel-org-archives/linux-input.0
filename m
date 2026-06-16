@@ -1,43 +1,43 @@
-Received: from mail-10631.protonmail.ch (mail-10631.protonmail.ch [79.135.106.31])
+Received: from mail-106119.protonmail.ch (mail-106119.protonmail.ch [79.135.106.119])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B2D36314D37
-	for <linux-input@vger.kernel.org>; Tue, 16 Jun 2026 07:05:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=79.135.106.31
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B066B397338
+	for <linux-input@vger.kernel.org>; Tue, 16 Jun 2026 07:21:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=79.135.106.119
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781593554; cv=none; b=HehH9wpIvBZ65G6MZmaoMghn2MdrpkGEvz/hpdQK0AsQ2nHFRP1gH8qKLOHlyOYYvjZM8RnJrfUVOquPdeSzZGQsAn8seT4iCuhBAeFVXuT2bEu5R1UXIMUguuxMHmKK8AZQrY4AQlg8ktOxBxK0V8CFTKOF/8c1hzzMwEOC+Lo=
+	t=1781594504; cv=none; b=ZIMU6jp1tH4t3dB2dJC7in80V1Od3hHDnffkN+gfRvffxIMq4yJFn8NUjcSZraVxKpc8VZls80WE9PWMo6SiqRKy2UPzZajzF3a9zaqBGNLJwNb6ttAQoJk8Z/+q27RqlPQxm4QLw2UNvFWzg7qX2x9GlBfR2ivFkjybM1F0Ie0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781593554; c=relaxed/simple;
-	bh=K4TY/wMtQQHAGTe+nAtmGAk4JRdsKv0zzLJ/ceEhInA=;
+	s=arc-20240116; t=1781594504; c=relaxed/simple;
+	bh=i6orrrLIIG/YJbo4xRckgIFTeN0WsVD3M+ijxIPWbdA=;
 	h=Date:To:From:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=tIbHpsjL39wpNtsBBi02mNu720TcEcxy9LNgWhRDD8dVwj2ogk2rKmtWjjr5Fe9gixNvEevccyrtTCrdo6SdihkYhmlIpE3prDxKyev5S+2RLLJu/lbJXVir5oz5z4iPcUHcbqByMyw+Sy9c6EgXhXyaozGV7X2ohj+7tIt4enY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=proton.me; spf=pass smtp.mailfrom=proton.me; dkim=pass (2048-bit key) header.d=proton.me header.i=@proton.me header.b=LBub1Rdr; arc=none smtp.client-ip=79.135.106.31
+	 MIME-Version:Content-Type; b=OlqQerrXNchw7W04lbPTSdHVDC/gdf/Uq5fneIMVAKo32u0lxS4U9VnQSPijK6WoAfmGut4NCwRS+dYCfqEofceu9FpylcoklkexdQLmdBt4sxMOz3FobUrDs5/R20q7Jo/DW4yyW4/c8nWdwD/kUJRh1fkB3SIdOABD2WSc6w8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=proton.me; spf=pass smtp.mailfrom=proton.me; dkim=pass (2048-bit key) header.d=proton.me header.i=@proton.me header.b=KF9JiaR7; arc=none smtp.client-ip=79.135.106.119
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=proton.me
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=proton.me
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=proton.me header.i=@proton.me header.b="LBub1Rdr"
+	dkim=pass (2048-bit key) header.d=proton.me header.i=@proton.me header.b="KF9JiaR7"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=proton.me;
-	s=protonmail; t=1781593540; x=1781852740;
-	bh=9Mn5QzXURUbaIYZbEKAspbwSL54DUxJK1laLx368P+s=;
+	s=protonmail; t=1781594500; x=1781853700;
+	bh=Fg0DS+RZu/Hij+QWp04WetPsioIHw42dTp5rSSz9Ao4=;
 	h=Date:To:From:Cc:Subject:Message-ID:In-Reply-To:References:
 	 Feedback-ID:From:To:Cc:Date:Subject:Reply-To:Feedback-ID:
 	 Message-ID:BIMI-Selector;
-	b=LBub1RdrBtpG5vmnvT29fJLBWPEp/pHgRghDxSTB9OESwXgHO+tb6DO5T/7LLwHTx
-	 zdx2hr0JlMbQQaMUFeU1mfq/fXuYliNgF4fHGmCeL6sxxMf96+I/MQjP5rQTjo9rTs
-	 2oRKD8hocR1nLry98ux5bMeZ1poaRcZl4komNLnlVxMEntzPzR5c3DlrpvYO1+C3LC
-	 0ufnvXiS2LjWvSkJcp4c/cCRDN+cmMFqH+mwCjfixY62RYbLgEIAwPVUe8Tla7+Lla
-	 solX/qgBo9Y4jlYqOrFE+nimC/X8/RlG2eFc61bDm/C9TQ0VpsJo97fqfMtaMPZumc
-	 X98zPq8HMCZig==
-Date: Tue, 16 Jun 2026 07:05:34 +0000
+	b=KF9JiaR7ptOfWoEWvCjU7VwnkDbzs9/ZVblK/0hI7vk85zZpEDngUAszlfz3B2lWA
+	 d7NN589YgozrZychMiQ2T9bQ1K+so7+fOC/mPXQeKtnpbrIgzSxdBRQIgpd2How8E3
+	 OBbsTdDWqkZXzqHUfHjU2eVyGr4XDKHbktswkMyc7AnEPtOvEy72qOHuPk36UXNO5s
+	 OVWfO5mDT0a3bjbzVJOzDACWVjWO/xe/R0n1uXWQU2VsNdgUBfKXcUAHOpD+uxn2YP
+	 G49/4M2oJwG10fqpKAoF2bZnZy67DYGoY5Te+eEqkNgqvfnqdgY7U37W335kxgL3Hk
+	 4yMj4QLfrHEBg==
+Date: Tue, 16 Jun 2026 07:21:37 +0000
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 From: Bryam Vargas <hexlabsecurity@proton.me>
 Cc: linux-input@vger.kernel.org, Linus Walleij <linusw@kernel.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/6] Input: mms114 - fix touch indexing for MMS134S and MMS136
-Message-ID: <20260616070529.156342-1-hexlabsecurity@proton.me>
-In-Reply-To: <20260616050912.1531241-1-dmitry.torokhov@gmail.com>
-References: <20260616050912.1531241-1-dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 5/6] Input: mms114 - replace BUG() and fix alignment
+Message-ID: <20260616072133.158968-1-hexlabsecurity@proton.me>
+In-Reply-To: <20260616050912.1531241-5-dmitry.torokhov@gmail.com>
+References: <20260616050912.1531241-1-dmitry.torokhov@gmail.com> <20260616050912.1531241-5-dmitry.torokhov@gmail.com>
 Feedback-ID: 199661219:user:proton
-X-Pm-Message-ID: c11f723b3e0b42ae08499ad3047c45b8831ba187
+X-Pm-Message-ID: c9c071771588f502fe42b686d89676934322cca4
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -49,57 +49,36 @@ Content-Transfer-Encoding: quoted-printable
 
 Hi Dmitry,
 
-The indexing fix looks correct -- deriving the byte offset from event_size
-instead of leaning on sizeof(struct mms114_touch) is the right call, and th=
-e
-cast is fine since the struct is __packed (no alignment issue at the 6-byte
-stride, and the consumers only touch bytes 0..5).
+Replacing BUG() with WARN_ON() + return is the right call, and the rest of
+the patch is fine.
 
-Two things that might be worth folding into the series:
+One nit on the changelog though: this guard isn't reachable from userspace.
+reg and len are always driver-internal constants -- there is no sysfs/debug=
+fs/
+ioctl that lets userspace pick a register, every __mms114_read_reg() call s=
+ite
+passes a fixed reg >=3D MMS114_INFORMATION (0x10), and the single MMS114_MO=
+DE_CONTROL
+read is short-circuited by the cache in mms114_read_reg() before it ever re=
+aches
+__mms114_read_reg(). So the condition only fires if a *future in-kernel cal=
+ler*
+requests a read that spans the write-only MODE_CONTROL register -- a driver=
+-
+internal invariant, not a userspace-triggered one.
 
-1) Fixes: tag.  The 6-byte event path for MMS136 -- and therefore this
-   stride-vs-index mismatch -- predates ab108678195f.  It was introduced in
+Worth tightening the wording, since that distinction is exactly what justif=
+ies
+WARN_ON() here: a genuinely userspace-reachable WARN_ON() would itself be a
+problem (log spam / panic_on_warn). Maybe something like:
 
-       53fefdd1d3a3 ("Input: mms114 - support MMS136")
+  "Avoid taking the machine down with BUG() if a caller ever requests a rea=
+d
+   spanning the write-only MODE_CONTROL register; warn and return -EINVAL s=
+o
+   the driver can recover."
 
-   which added MMS136_EVENT_SIZE and the "packet_size / MMS136_EVENT_SIZE"
-   branch while the loop already indexed with the 8-byte struct stride;
-   ab108678195f ("support MMS134S") only extended that branch to MMS134S.
-   So MMS136 hardware has mis-parsed multi-touch since v5.13.  Tagging
-
-       Fixes: 53fefdd1d3a3 ("Input: mms114 - support MMS136")
-
-   (in addition to, or instead of, ab108678195f) lets stable pick it up for
-   the MMS136 range as well.
-
-2) Unbounded packet_size.  Since 1/6 already rewrites this handler: packet_=
-size
-   comes straight from the device's PACKET_SIZE register (a single byte, so
-   1..255 after the "<=3D 0" guard) and is then used unclamped both as the =
-read
-   length
-
-       __mms114_read_reg(data, MMS114_INFORMATION, packet_size, (u8 *)touch=
-);
-
-   into the 80-byte touch[MMS114_MAX_TOUCH] stack buffer, and as the diviso=
-r
-   for touch_size -- which is never bounded by MMS114_MAX_TOUCH.  A device =
-that
-   reports packet_size > 80 overflows the stack buffer on the read, and eve=
-n
-   with the indexing fix the loop still walks past it (touch_size > 10).  A
-   one-liner before the division closes both:
-
-       if (packet_size <=3D 0)
-               goto out;
-   +   packet_size =3D min_t(int, packet_size, sizeof(touch));
-
-   This one is pre-existing -- the unbounded read goes back to the original
-   driver -- so it is really a separate patch in the series rather than par=
-t
-   of the indexing fix, but it seemed worth raising while the code is in
-   flight.
+The code is good either way.
 
 Thanks,
 Bryam

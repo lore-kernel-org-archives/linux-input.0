@@ -1,73 +1,93 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 48BC8344044
-	for <linux-input@vger.kernel.org>; Tue, 16 Jun 2026 11:38:27 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8969F428830;
+	Tue, 16 Jun 2026 12:07:50 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781609908; cv=none; b=uPNOQXR+Z9vKYfT8ZVy4bk2Ssa0vWJF6twrKYh3wogFvJLhxe9gXrruYPyk1/kU+aky7o0JDl0e8jw0l+0K0+gbWcmxp5JwsaYv6LKp9FlUOKx7IP9mZH443xJWvqIotdcUdn/7BKC5XruyOpNfrLtfHSJdG03+43PABVdhNFzM=
+	t=1781611671; cv=none; b=bSVJATbNQmlQBp2wYMgs4onPHddn2CZYWEvFN+pXYzIUkUp0T58Z54ditlX7rcHYzwYwBggXdpf/GqGfk2sy+u4r1YhK6zVs9TjMgWg/6lHdol9kgjaY8N4RMMBh+1oZ5X6++AO6ACsGI2TTQDp7JS2zoURMDtRZPGPnBBJysb4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781609908; c=relaxed/simple;
-	bh=aJ+xE83sWQ7/0k4Jyr9wSfU3pKXJIwnUlMM3fEZoqWc=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=ph7kuCMtzIwOHybYBwM559Q5To7XJvVihvbvNWmEGdQpibPuEpS8KanW1SnzjTMQEVqka23ZzAnsQPC1zXVMmXq/Qzh98LdRqdEHpUv4K/JWrzmIKeZL0hoc6N9MuZTBfAV0xshcyJaKakqg1mbyYcXlszVUqIUJwEVwYa1VZI8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=YNVNVdcp; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1781611671; c=relaxed/simple;
+	bh=UgkZD5kS1JqoMgqIvsh7TflNMDKQ4d5XW74PGLNJhXU=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=J84ZgMYuPaHcqnNxIp7DTUcmg5uY73xVKBGeze8GCdqrD+8cuAWMLSN/9tMTnlDn5jA1m2CQX8a6SMi4pXh9+KGJz6tIZ8UXA7TYOwr6NuDVRyixEskRnymtOP+8ppzOG5GIRUVL9IHtiUjSM8IZftU7EMa4E2Rvta9kOVl5rPg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=yULijEF8; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="YNVNVdcp"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1112B1F000E9
-	for <linux-input@vger.kernel.org>; Tue, 16 Jun 2026 11:38:27 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1781609907;
-	bh=aJ+xE83sWQ7/0k4Jyr9wSfU3pKXJIwnUlMM3fEZoqWc=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc;
-	b=YNVNVdcpEtWnYlBOPBB0mRw/WJlRvk4aI3+YtmDr5CgYTe3nFm7emWXV255TttRAs
-	 pxe9fjCsvsdiXFaiAyIs8/dT9oyhjn/84dbmSYbMikvyCU6ODpRhPtrfVcds0vHlKo
-	 iLG/bGW/C6pNUlL5mNtNPF+Rw/uuN3Hsj3DSCd7n3F5z/jRX4Lbh2hJeybB+ZMgDw6
-	 omkoWEoZ5jM/JvVS1QsGlwnzHErEj17lP/CzETY3+oKiRvihPlKRneW3aK+Xkll0Eq
-	 YBRAAA36Cf9wtbvZAn0zEoceZC299xY0stU1+2FCee+sVzJlajl5oix61IUjmwT8O2
-	 MGYB7s+TvDX0w==
-Received: by mail-lj1-f178.google.com with SMTP id 38308e7fff4ca-396775c2720so36056901fa.2
-        for <linux-input@vger.kernel.org>; Tue, 16 Jun 2026 04:38:26 -0700 (PDT)
-X-Gm-Message-State: AOJu0YxtQm9qf551AO7OzIP1GLNQ214pVJbtdbE/4OWiKVccKJKzs4RL
-	bB8HNzvIDfPaaQJXwEeIZ4DXHqLyq7/EXeHyNgdj8TuEtpkizCAi3vGol0R/M7ZoXM9YN9uuyz7
-	n6nniP99KojrKqe9gt/irehj/KEN3P4o=
-X-Received: by 2002:a05:6512:ba8:b0:5aa:7ad2:f4d5 with SMTP id
- 2adb3069b0e04-5ad30dd58bbmr3723976e87.38.1781609905838; Tue, 16 Jun 2026
- 04:38:25 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="yULijEF8"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D14F1F000E9;
+	Tue, 16 Jun 2026 12:07:48 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linuxfoundation.org;
+	s=korg; t=1781611670;
+	bh=ezCjXejK23S98EipR6sgVLpuTSe6tDQzoKB4iW9eung=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=yULijEF8td2pb+6YWcftoQBG5EdmmUPWywwEowss+x+LrvmcmlE40SUI0YKr3A4I7
+	 mbMQJLNTPy188wwuyxR7LHT1iSDJ94oNI34za25UQCnyX1BRYYZ/sQ2IfuGwll0snI
+	 gaE0gyjeO8CnEzJrQHxGfrIt9tM+D3fFZrWdaa6U=
+Date: Tue, 16 Jun 2026 17:20:00 +0530
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To: Lee Jones <lee@kernel.org>
+Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>,
+	Johan Hovold <johan@kernel.org>, linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/1] HID: core: Fix OOB read in hid_get_report for
+ numbered reports
+Message-ID: <2026061649-sphinx-ancient-e3c0@gregkh>
+References: <20260616112700.1990813-1-lee@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260616050912.1531241-1-dmitry.torokhov@gmail.com> <20260616050912.1531241-2-dmitry.torokhov@gmail.com>
-In-Reply-To: <20260616050912.1531241-2-dmitry.torokhov@gmail.com>
-From: Linus Walleij <linusw@kernel.org>
-Date: Tue, 16 Jun 2026 13:38:11 +0200
-X-Gmail-Original-Message-ID: <CAD++jL=xV9BiY2j0oCjL5Bi1EtLk6FvJTW8vnOWKw=uexQ6VGg@mail.gmail.com>
-X-Gm-Features: AVVi8CdktNujyP9XezHrLMeN5s12BhnebrS3d-xMGTyzwWXEMRTcm2SXtl8KxKQ
-Message-ID: <CAD++jL=xV9BiY2j0oCjL5Bi1EtLk6FvJTW8vnOWKw=uexQ6VGg@mail.gmail.com>
-Subject: Re: [PATCH 2/6] Input: mms114 - prefer GPL over GPL v2 for module license
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, Bryam Vargas <hexlabsecurity@proton.me>, 
-	linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260616112700.1990813-1-lee@kernel.org>
 
-On Tue, Jun 16, 2026 at 7:09=E2=80=AFAM Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
+On Tue, Jun 16, 2026 at 11:26:56AM +0000, Lee Jones wrote:
+> When a caller passes a size of 0 to hid_report_raw_event() for a
+> numbered report, the function originally called hid_get_report() before
+> performing any size validation.
+> 
+> Inside hid_get_report(), if the report is numbered (report_enum->numbered
+> is true), it unconditionally dereferences data[0] to extract the report ID.
+> With a size of 0, this results in an out-of-bounds read or kernel panic.
+> 
+> Fix this by moving the numbered report size validation check before the
+> call to hid_get_report(), ensuring that size is at least 1 before
+> dereferencing the data pointer.
+> 
+> Fixes: 2c85c61d1332 ("HID: pass the buffer size to hid_report_raw_event")
+> Signed-off-by: Lee Jones <lee@kernel.org>
+> ---
+>  drivers/hid/hid-core.c | 7 +++++++
+>  1 file changed, 7 insertions(+)
 
-> As explained in commit bf7fbeeae6db ("module: Cure the MODULE_LICENSE
-> "GPL" vs. "GPL v2" bogosity"), "GPL" and "GPL v2" have identical
-> semantics in the module loader, but "GPL" is preferred to avoid
-> unnecessary confusion and maintain consistency across the kernel.
->
-> Change MODULE_LICENSE("GPL v2") to MODULE_LICENSE("GPL").
->
-> Assisted-by: Antigravity:gemini-3.5-flash
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Hi,
 
-Reviewed-by: Linus Walleij <linusw@kernel.org>
+This is the friendly patch-bot of Greg Kroah-Hartman.  You have sent him
+a patch that has triggered this response.  He used to manually respond
+to these common problems, but in order to save his sanity (he kept
+writing the same thing over and over, yet to different people), I was
+created.  Hopefully you will not take offence and will fix the problem
+in your patch and resubmit it so that it can be accepted into the Linux
+kernel tree.
 
-Yours,
-Linus Walleij
+You are receiving this message because of the following common error(s)
+as indicated below:
+
+- You have marked a patch with a "Fixes:" tag for a commit that is in an
+  older released kernel, yet you do not have a cc: stable line in the
+  signed-off-by area at all, which means that the patch will not be
+  applied to any older kernel releases.  To properly fix this, please
+  follow the documented rules in the
+  Documentation/process/stable-kernel-rules.rst file for how to resolve
+  this.
+
+If you wish to discuss this problem further, or you have questions about
+how to resolve this issue, please feel free to respond to this email and
+Greg will reply once he has dug out from the pending patches received
+from other developers.
+
+thanks,
+
+greg k-h's patch email bot

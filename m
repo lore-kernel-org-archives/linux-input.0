@@ -1,42 +1,42 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EAF9C3CF1EE
-	for <linux-input@vger.kernel.org>; Tue, 16 Jun 2026 05:27:26 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C17613CF672
+	for <linux-input@vger.kernel.org>; Tue, 16 Jun 2026 05:28:27 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781587647; cv=none; b=dzMXKoVNcdaUhymWDpKF+EwRwsESem07IGf8aZZZ2N25n2evHVTrnuloPaOCngAGYDBNYoJ6oHSRJ6PmvZeCn7s1aufsy//jBS2YF9ZXvjNQBkDDDiB4ia8AdyfDUqEYdel5VzBO0EGNyXsVKiolymZt5bTwrtTMHrJfTStyXbE=
+	t=1781587708; cv=none; b=Hzmv3ZVPvzXC/zSpBKYFBc4jHx2wgOCdy7Ixt6yZ4hc3wEJWKqIb4A2f6oWtndS/vuetU3FD/7a6Jo968Zp8E9pU2wtIJOOr/+nAAvXkUB01qc9RVQ9W2fSUzMMYl51tZxRIY4M07PaZFk8y2hFp4fK8JxSW4GyKuZOo3tesXZQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781587647; c=relaxed/simple;
-	bh=qTeHnUCShDZC2eKO9aC0YwTx5JsxlQDXcNDjOtG5eIc=;
+	s=arc-20240116; t=1781587708; c=relaxed/simple;
+	bh=+eeGyBUNKBz6iosJE1qJb5do/8HaOjs+wc0D+c8FPJc=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=qJOdYNYtVx3D15o0StjpPtU0Q3lB52E6i2wGk4ACirwxd1QBOo636kyLRHyVrtiPkgEF0P9vatWHq0HEjjxyKBIl+DNoRoZZ4vhz1sUFtgdw6gdH6mIu8otkPAiBTot7tAWsg11H7qtQd+wGb3FLYd9D2259YsZdYocX3TuBiyQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=IhT/6dVe; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=E/NJ1xz6Es8eL9Dhf3KX2KuIWafK6t2tIDzX8FJQeIx+h6iAs1leT7hHbO4Ay72ZVajSNpO5IMuJujsVI9DHK5Qc+cSLxizloDOqBqgn3QCMxeaV8OlXEUNKSQBwBuLHBqO/ILgSdTw6imp92fDJI+6K9/mr2zdmDPYpZdImJcw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=gyx7gYip; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="IhT/6dVe"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 640521F00AC4;
-	Tue, 16 Jun 2026 05:27:26 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="gyx7gYip"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 724001F000E9;
+	Tue, 16 Jun 2026 05:28:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1781587646;
-	bh=5vusplSMw7FvYyFHlTGctytjJk2LZJEJEUmKYhOWN9M=;
+	s=k20260515; t=1781587707;
+	bh=PrnEMStvo3WVpbIvw4Xz3Apv0jR3cb4AtnqOZvXXfwk=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=IhT/6dVeIO9n5h/Stq+S7/e5NLaBDC05b+weJdjy7Ek2QEyjUBrnOrRPymokbznVl
-	 l4wlqyoYoeWFaxtK0V1eRv3G/MqSFZEcseRO/UmRfN5bN49uLwaDrYz/wXbJDom+rf
-	 DZ0nKeehvG1mxEmEByIf4HY1b/fzLFbdjUAFQjy0bBbr9VImtjUv0ENP+fyhYC9JWd
-	 llvLdZ5kjXPjXm1GK3hUPj0XyQglfopke18xkQHsvSDkjcAu9XUIAEnp9h/OsWZjGF
-	 2UzQQcir/Q7SDRFRLADTw17lu45wZ6qezWFm7Dv2BEF7FC4CA2A34sgFZFbOp0t5Fw
-	 EOJdZ+CnHFTYA==
+	b=gyx7gYipmFz8jG0O7D7BoLfH1hDR4hRljj+7PwPNRO1RPxIbjrglkSiNDaJny5ptD
+	 m5pWqcO1Nl1CiA2GYg2tfqR70QI9K7EkmZ0wZ5sKBN6+paE610sTz5WE/bDGnc+J39
+	 YLyM/XvHNXndeef03db93A9YnkWCfQp7G4wmUCQaWvTmIByGEDm35rixsJgaMf3yT0
+	 DMiZ8ja6/RIMzE1+z+IGOIt/e5B9zoYel5QsJh1NRCy6fNh7i/JCw6Tcr7zK0lUlpa
+	 vIoUe99x7BrAIFQET2QaDK8W5jlfOeV3+46uuoZtcMCOS+SEPexYIocmg/14QHKwG8
+	 cgGBblafx0RqQ==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 5/6] Input: mms114 - replace BUG() and fix alignment
+Subject: Re: [PATCH 2/4] Input: sur40 - fix V4L error path cleanup
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
 Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260616050912.1531241-5-dmitry.torokhov@gmail.com>
-References: <20260616050912.1531241-5-dmitry.torokhov@gmail.com>
+In-Reply-To: <20260616051235.1549517-2-dmitry.torokhov@gmail.com>
+References: <20260616051235.1549517-2-dmitry.torokhov@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 16 Jun 2026 05:27:26 +0000
-Message-Id: <20260616052726.640521F00AC4@smtp.kernel.org>
+Date: Tue, 16 Jun 2026 05:28:27 +0000
+Message-Id: <20260616052827.724001F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -47,66 +47,68 @@ Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
 
 Pre-existing issues:
-- [High] Race condition in `mms114_suspend` leading to stuck touch state.
+- [High] Calling `vb2_wait_for_all_buffers` in `sur40_stop_streaming` cause=
+s a system deadlock.
 --
 
-commit a5a14734d553a190d315dfdcd845e9a868df4005
+commit 1d8742f82651a7f0160c799526e70838d3c9fa29
 Author: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Input: mms114 - replace BUG() and fix alignment
+    Input: sur40 - fix V4L error path cleanup
+   =20
+    In sur40_probe(), if video_register_device() fails, the error path jump=
+s to
+    err_unreg_video. This incorrectly attempts to unregister a video device
+    that was never successfully registered, and fails to free the V4L2 cont=
+rol
+    handler (v4l2_ctrl_handler_free) that was initialized immediately prior.
 
-This commit avoids crashing the kernel by replacing a BUG() call with WARN_=
-ON()
-when userspace reads a write-only register. It also corrects parameter
-alignment in several function calls to match kernel coding style.
+> diff --git a/drivers/input/touchscreen/sur40.c b/drivers/input/touchscree=
+n/sur40.c
+> index 8639ec3ad7038..e9089b0c3e2f4 100644
+> --- a/drivers/input/touchscreen/sur40.c
+> +++ b/drivers/input/touchscreen/sur40.c
 
-> diff --git a/drivers/input/touchscreen/mms114.c b/drivers/input/touchscre=
-en/mms114.c
-> index c59aec8f2febe..bf01eee0560a1 100644
-> --- a/drivers/input/touchscreen/mms114.c
-> +++ b/drivers/input/touchscreen/mms114.c
 [ ... ]
 
 [Severity: High]
-This isn't a bug introduced by this patch, but I noticed a potential race
-condition in mms114_suspend() that could leave the touchscreen stuck in a
-pressed state:
+This is a pre-existing issue, but can the current implementation of
+sur40_stop_streaming() cause a system deadlock?
 
-drivers/input/touchscreen/mms114.c:mms114_suspend() {
-    ...
-	for (id =3D 0; id < MMS114_MAX_TOUCH; id++) {
-		input_mt_slot(input_dev, id);
-		input_mt_report_slot_inactive(input_dev);
-	}
+Looking at drivers/input/touchscreen/sur40.c:sur40_stop_streaming():
 
-	input_mt_report_pointer_emulation(input_dev, true);
-	input_sync(input_dev);
+	vb2_wait_for_all_buffers(vq);
+	sur40->sequence =3D -1;
 
-	guard(mutex)(&input_dev->mutex);
+	/* Release all active buffers */
+	return_all_buffers(sur40, VB2_BUF_STATE_ERROR);
 
-	if (input_device_enabled(input_dev))
-		mms114_stop(data);
-    ...
-}
+The driver unconditionally calls vb2_wait_for_all_buffers() before forcibly
+returning the active buffers. This blocks infinitely until all queued buffe=
+rs
+are returned via vb2_buffer_done().
 
-Can mms114_interrupt() execute concurrently after input_sync() but before
-mms114_stop() disables the IRQ?
+The driver expects the poller thread (sur40_poll) to process and return the=
+se
+buffers. Is it possible for the poller thread to be stopped or not running
+when this is called?
 
-If a user touches the screen during this window, wouldn't the interrupt
-handler report a new active touch state right after these synthetic release
-events?
+For instance, if userspace opens only /dev/videoX without ever opening
+/dev/input/eventX, the input-bound poller never starts.
 
-Because mms114_stop() then disables the IRQ, would this freeze the touch in=
- a
-pressed state throughout suspend?
+Additionally, if the device is abruptly unplugged while streaming is active,
+sur40_disconnect() calls input_unregister_device(), which synchronously sto=
+ps
+the poller. When the video file descriptor is subsequently closed,
+sur40_stop_streaming() is triggered.
 
-When resuming, releasing the screen wouldn't generate a release interrupt,
-which might leave the touchscreen stuck until reboot or until that exact
-slot is touched again.
-
-Could mms114_stop() be called before synthesizing the release events to
-prevent this race?
+In both of these scenarios, won't vb2_wait_for_all_buffers() wait forever f=
+or
+buffers to be returned by a thread that is not running? Should the driver
+synchronously cancel transfers and immediately return all queued buffers wi=
+th
+VB2_BUF_STATE_ERROR instead of waiting?
 
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260616050912.1531=
-241-1-dmitry.torokhov@gmail.com?part=3D5
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260616051235.1549=
+517-1-dmitry.torokhov@gmail.com?part=3D2

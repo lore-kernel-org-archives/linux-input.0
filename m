@@ -1,93 +1,124 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f178.google.com (mail-pf1-f178.google.com [209.85.210.178])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8969F428830;
-	Tue, 16 Jun 2026 12:07:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B9FA2329C57
+	for <linux-input@vger.kernel.org>; Tue, 16 Jun 2026 13:25:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781611671; cv=none; b=bSVJATbNQmlQBp2wYMgs4onPHddn2CZYWEvFN+pXYzIUkUp0T58Z54ditlX7rcHYzwYwBggXdpf/GqGfk2sy+u4r1YhK6zVs9TjMgWg/6lHdol9kgjaY8N4RMMBh+1oZ5X6++AO6ACsGI2TTQDp7JS2zoURMDtRZPGPnBBJysb4=
+	t=1781616333; cv=none; b=AhXpgKm0vyujewmHp6BegUBjvTelLaXBoG1kjk3uXixbGd3eV9vel0+uAoYJWGVJ3EXky1s0MLXLZxYox+2u6vQmVSBJxVDOPh6UerghpdgdlWt250DPPlVJbxF/2djMwUedy8TNr50jWmdrgtdkhEj344orZvhPKu3O/6Y7gBM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781611671; c=relaxed/simple;
-	bh=UgkZD5kS1JqoMgqIvsh7TflNMDKQ4d5XW74PGLNJhXU=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=J84ZgMYuPaHcqnNxIp7DTUcmg5uY73xVKBGeze8GCdqrD+8cuAWMLSN/9tMTnlDn5jA1m2CQX8a6SMi4pXh9+KGJz6tIZ8UXA7TYOwr6NuDVRyixEskRnymtOP+8ppzOG5GIRUVL9IHtiUjSM8IZftU7EMa4E2Rvta9kOVl5rPg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=yULijEF8; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1781616333; c=relaxed/simple;
+	bh=/DhHLMxtax0q61L7+CS/qIAzA9d13fjEx2Ew5GW+K4g=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=Gx01FTXo6MidHkwsKGXjdR5nF/WAcnBsfjIleKddxqMPvv8nq8ZQEEWLgFPoA8GkoUlq28ZS9xammEaMjtwRiJxGv9r3etLujjbSBJuerVZGoSvTbpTrH+IkRiytPOBqDNUPxVU46UUlFSu3ujkGJYc5OhExvkgY7YIAaZE9pDY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=kNqs00+n; arc=none smtp.client-ip=209.85.210.178
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="yULijEF8"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D14F1F000E9;
-	Tue, 16 Jun 2026 12:07:48 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linuxfoundation.org;
-	s=korg; t=1781611670;
-	bh=ezCjXejK23S98EipR6sgVLpuTSe6tDQzoKB4iW9eung=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=yULijEF8td2pb+6YWcftoQBG5EdmmUPWywwEowss+x+LrvmcmlE40SUI0YKr3A4I7
-	 mbMQJLNTPy188wwuyxR7LHT1iSDJ94oNI34za25UQCnyX1BRYYZ/sQ2IfuGwll0snI
-	 gaE0gyjeO8CnEzJrQHxGfrIt9tM+D3fFZrWdaa6U=
-Date: Tue, 16 Jun 2026 17:20:00 +0530
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To: Lee Jones <lee@kernel.org>
-Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>,
-	Johan Hovold <johan@kernel.org>, linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/1] HID: core: Fix OOB read in hid_get_report for
- numbered reports
-Message-ID: <2026061649-sphinx-ancient-e3c0@gregkh>
-References: <20260616112700.1990813-1-lee@kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="kNqs00+n"
+Received: by mail-pf1-f178.google.com with SMTP id d2e1a72fcca58-84229481d44so2261589b3a.0
+        for <linux-input@vger.kernel.org>; Tue, 16 Jun 2026 06:25:32 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1781616332; x=1782221132; darn=vger.kernel.org;
+        h=cc:to:content-transfer-encoding:mime-version:message-id:date
+         :subject:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=TpRajPh6PjOiqYjGPArNVmTipWmAREJJTLFKHMT2x0g=;
+        b=kNqs00+nXc7u4etMTuLiSu8UgmUz7klvaHAVEz9i54WViThAtAQnuCKWRDsK82fV1E
+         uiGa8BNWKEDI8FlVnAl4FwNmrdJnkGHkhDKKnk14roo6niZ1esqhEdg1AdEliutOiGMI
+         x6nNVdElgc1J19W5kKPCXrdlnw2/1ViTsu4ALv5ljIMbeEc6JvYC4+7dHw4kDRN5BroM
+         yckvCUOL2F+0H5kTlvSmlMKiyqWPv4GZVUnsA11E6GBu6kUMviCax7MV7Qdj4V53t/W7
+         VHlLyWIAppQOvxwSu/f273Qe5KG6Jvr0bVdllVbT64LcL/j/wYOKE0/IPSE1+BdYsWmV
+         6dFQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1781616332; x=1782221132;
+        h=cc:to:content-transfer-encoding:mime-version:message-id:date
+         :subject:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=TpRajPh6PjOiqYjGPArNVmTipWmAREJJTLFKHMT2x0g=;
+        b=UHROt3X6rSqqO07f/mKIL2BA45Mq/9SIkQiTh4rdtrFHAmos4/daVszjqfxaQ975Ib
+         gnaRk4+FECaw1yVr4JRIDEdLIpx/73g55fxNxJY+L2HkCJhzk8EHMA7YaTM3XlezXds+
+         BCzLY7l0kUFfcS0VuXp+2kTPWNYIUDYcXXQ5+ZXA80YDXVDtMAgjxAjroUOpGTE1Rxun
+         TusDBYIV07XTsX5B+IbxaG7vAcbRjRORda2cnk+77pcEsBxCw8Xxx4B5GefrTJ1Q0KXI
+         1VvKjTgJ379XHpQj0ByMaHbAgusquP9BrMqV+pRRDoCQfkDf4zZPrlG0e5KZMf6+Nqtb
+         YXpg==
+X-Gm-Message-State: AOJu0YwjCby3XfON77OyFxVMl/rfTJcc0YpOdI0p46AjY6+mGtJyKofs
+	MssGPQ6CJXvXEfK5kb9KsqfJq7CmFNOxXTWXaWmRTD6nDIdbU3YH3luY1T2naw==
+X-Gm-Gg: Acq92OGEY9EC6MKG/SBIkEoxWwJncU1fH/jnhqGoLgWSgshX4XqLUkHlUSEVmqgUR9w
+	0mC/CEfivZfcottJK103iF8rWrCkF2ucIuvChzfjuY1e75a6j3cPqa/SMCQjZunKmB2Jw5gyFNR
+	9EFg2vH9nWTxiKfSDiftJvGpQMrulH/lVv0iJbHNsddIv2xd4am8C+N/M43YuyDTleqFdPPTrZR
+	b3mcfg1abTl2bXmgVno0ZzYy3m9X5avMG0rS+9QSiBOQWpx/2SNWVtMvtA9Qh/nYG1C5x3Syzrk
+	Q2E5vwbwTFM4E1VkB0xRVobR6fay4ICnfU0Y/Y+U0L2EQGOKNU1hZ49/I8rPXRXP8AO2y2JjN1i
+	r3+UZdCe1nlkXRD8j1N7qM/n+REB/Vt8xFDXmVm2ZwALvTa1poeZXGDrrnCgb3EY9RfpMjUGCAD
+	Dxhr3X5cSGbdVrE3MPJhWhLph4EOyR/MlzQTvajgbZgLJYz2Eh
+X-Received: by 2002:a05:6a00:a903:b0:842:5712:c2c2 with SMTP id d2e1a72fcca58-844e1aa26d5mr17296039b3a.41.1781616331963;
+        Tue, 16 Jun 2026 06:25:31 -0700 (PDT)
+Received: from hu-ckantibh-hyd.qualcomm.com ([202.46.23.25])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-8434b046911sm13105079b3a.53.2026.06.16.06.25.28
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 16 Jun 2026 06:25:31 -0700 (PDT)
+From: Sanjay Chitroda <sanjayembeddedse@gmail.com>
+X-Google-Original-From: Sanjay Chitroda <sanjayembedded@gmail.com>
+Subject: [PATCH 0/3] HID: iio: callback API signature match for usage_id
+Date: Tue, 16 Jun 2026 18:55:19 +0530
+Message-Id: <20260616-16-jun-hid-iio-u32-api-type-v1-0-952c74195f46@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260616112700.1990813-1-lee@kernel.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAL9OMWoC/yXMQQqDMBBG4avIrDuQREilVyldaBzr7yKGxIgi3
+ r2pwtt8m3dQkghJ9KoOirIiYfYF+lGRG1v/FUZfTEYZq6y2XJqy5xE9AzPn2nAbwMsehHWjpBl
+ UZ1z9pHIIUQZs1/39uZ1yN4lb/ks6zx8FkVEhfwAAAA==
+X-Change-ID: 20260616-16-jun-hid-iio-u32-api-type-180e8f0b2c37
+To: Jiri Kosina <jikos@kernel.org>, Jonathan Cameron <jic23@kernel.org>, 
+ Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, 
+ David Lechner <dlechner@baylibre.com>, 
+ =?utf-8?q?Nuno_S=C3=A1?= <nuno.sa@analog.com>, 
+ Andy Shevchenko <andy@kernel.org>
+Cc: linux-input@vger.kernel.org, linux-iio@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, Sanjay Chitroda <sanjayembeddedse@gmail.com>
+X-Mailer: b4 0.15.2
 
-On Tue, Jun 16, 2026 at 11:26:56AM +0000, Lee Jones wrote:
-> When a caller passes a size of 0 to hid_report_raw_event() for a
-> numbered report, the function originally called hid_get_report() before
-> performing any size validation.
-> 
-> Inside hid_get_report(), if the report is numbered (report_enum->numbered
-> is true), it unconditionally dereferences data[0] to extract the report ID.
-> With a size of 0, this results in an out-of-bounds read or kernel panic.
-> 
-> Fix this by moving the numbered report size validation check before the
-> call to hid_get_report(), ensuring that size is at least 1 before
-> dereferencing the data pointer.
-> 
-> Fixes: 2c85c61d1332 ("HID: pass the buffer size to hid_report_raw_event")
-> Signed-off-by: Lee Jones <lee@kernel.org>
-> ---
->  drivers/hid/hid-core.c | 7 +++++++
->  1 file changed, 7 insertions(+)
+Hi all,
 
-Hi,
+Most of HID IIO driver has correct 'u32' type of usage_id with
+https://lore.kernel.org/all/20260610-6-june-hid-iio-correct-usage-id-v2-0-c3c5f0720493@gmail.com/
+series which is applied on iio/testing branch.
 
-This is the friendly patch-bot of Greg Kroah-Hartman.  You have sent him
-a patch that has triggered this response.  He used to manually respond
-to these common problems, but in order to save his sanity (he kept
-writing the same thing over and over, yet to different people), I was
-created.  Hopefully you will not take offence and will fix the problem
-in your patch and resubmit it so that it can be accepted into the Linux
-kernel tree.
+On top of the same, this series updates remaining HID IIO drivers
+to use 'u32' for the usage_id parameter.
 
-You are receiving this message because of the following common error(s)
-as indicated below:
+Pending list of HID IIO drivers are extracted with command line:
+find drivers/iio/ -type f -name "*hid*" | xargs grep -A 5 static | \
+    grep -E -A 5 "_proc_event\(|_capture_sample\(|_parse_report\(" --color | \
+    grep usage_id
 
-- You have marked a patch with a "Fixes:" tag for a commit that is in an
-  older released kernel, yet you do not have a cc: stable line in the
-  signed-off-by area at all, which means that the patch will not be
-  applied to any older kernel releases.  To properly fix this, please
-  follow the documented rules in the
-  Documentation/process/stable-kernel-rules.rst file for how to resolve
-  this.
+This matches expected callback API type as HID usage IDs are
+defined as 32-bit values.
 
-If you wish to discuss this problem further, or you have questions about
-how to resolve this issue, please feel free to respond to this email and
-Greg will reply once he has dug out from the pending patches received
-from other developers.
+No functional changes are introduced.
 
-thanks,
+Testing:
+  - Compiled with W=1 for each patch in the series
 
-greg k-h's patch email bot
+Signed-off-by: Sanjay Chitroda <sanjayembeddedse@gmail.com>
+---
+Sanjay Chitroda (3):
+      iio: hid-sensor-temperature: use u32 instead of unsigned int
+      iio: hid-sensor-humidity: use u32 instead of unsigned int
+      iio: hid-sensor-custom-intel-hinge: use u32 instead of unsigned int
+
+ drivers/iio/humidity/hid-sensor-humidity.c           | 6 +++---
+ drivers/iio/position/hid-sensor-custom-intel-hinge.c | 6 +++---
+ drivers/iio/temperature/hid-sensor-temperature.c     | 6 +++---
+ 3 files changed, 9 insertions(+), 9 deletions(-)
+---
+base-commit: a50909aa46dec46de3c73235fc15a7d6f763d996
+change-id: 20260616-16-jun-hid-iio-u32-api-type-180e8f0b2c37
+
+Best regards,
+--  
+Sanjay Chitroda <sanjayembeddedse@gmail.com>
+

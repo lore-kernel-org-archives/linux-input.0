@@ -1,105 +1,148 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qv1-f45.google.com (mail-qv1-f45.google.com [209.85.219.45])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 30A83478E26;
-	Tue, 16 Jun 2026 17:18:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781630283; cv=none; b=O/Qm0y4/KSpKfaSP0gYY3fk3ADRpgKrLa31+sysaafAvLDMLo0NH3T6xhqNtFCtLIpFxLddnRYPZUrXiGR4GuJwfqdqiqVilDpzAmZv12PLhj1aRPu2QirOdgJVmQqqs+nw4zrgn+XpqNjl5VccEw1qCPxxvnLIeSivQRNp/Vlw=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781630283; c=relaxed/simple;
-	bh=Yu9t08q0QZ+4NB7xEvUGFMKDeGPu82aMJl9C8jONfQA=;
-	h=Content-Type:MIME-Version:Message-Id:In-Reply-To:References:
-	 Subject:From:To:Cc:Date; b=ofK53Bky3aszwlZaZ3MeB2ncq0K1gtC5yzbcvUaCCufyJy5E+3YO7rEeGGRf+1jtCb0/L9WqqF2co4B2P6yLEchVTgPiafovglDL47JEntBWJWdCgdGmPaKZ9+917C1lBupDhqMr2wrsSGlbiuIYhAhNLnNYHuzZEl0NVeisUyo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ow3jjE1w; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D8E44477986
+	for <linux-input@vger.kernel.org>; Tue, 16 Jun 2026 18:27:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.219.45
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1781634481; cv=pass; b=YCdkw7zyWFNZV8R3H32sur/ml4Kjpb5aCVtpVJOYU/Xk8LkQcfBaz43AQqEP9ng+/UmXqAYIUfNVAHItrLfE1yMeWkrZrHeccSl0ad8VklVMPQRyEWM/mN8x/beuDuW1kt3NTR0CeLvAtIRHhhzNlgmgsPnLuZJDYuuroyHXhxI=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1781634481; c=relaxed/simple;
+	bh=9KYQVeJqDC6g30EpuQzxpSpMc6t69Vhk0PPkMRQVSyc=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=auqKOWBNSAIibKgvATC9mceATW2saN+hIY1Htoo3308q2/hH1hjMWW0/pe2CTF7L8fByXL0FiQQk8vO5eLfRBG7Y+42jauqNmq5sFcDJ8A95fk4wX0Hwu6UCW22SETJhb3CthZqJH7VO94pYyAf7qBz01NjMAIoWqwFh91oOGeg=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=YTwlxC78; arc=pass smtp.client-ip=209.85.219.45
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ow3jjE1w"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 33A491F00A3A;
-	Tue, 16 Jun 2026 17:18:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1781630282;
-	bh=awWNOq8ZwqZkNg/uk1VV3V3qfIhQ6bUIVUTqPS2E3vE=;
-	h=In-Reply-To:References:Subject:From:To:Cc:Date;
-	b=ow3jjE1wRC21kxf605kG4L2JHx/wgA/z9a7kyGqnJmQR2whHzjSKJwBhfsU3Yc/aZ
-	 fWQapiMn6Hg2e1CDL+VSruQaYGhZ2/NNdw5TUH8ipo7WLUMpGQU984p1hwIH+LHK1p
-	 NS+Tww2rDnXW0B4/r3xliHRf0Lm/w45yHBZYGxZ4GW8RlLH1G2rTXd7IVH49HWG3tF
-	 dlu/V1lHwXe/ix821w5wBuDXpm1+h0o0DLHCgMczrxXT6zT3+3sosATwEdtGqs5sTx
-	 GJgjO2w2HxvGms9k25swOduviOvRhgGaYxYODcnxx1zabAqw1PJb/6CrjOcfVIUBe/
-	 dY2Up38AS7nUg==
-Content-Type: multipart/mixed; boundary="===============4017712549315767575=="
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="YTwlxC78"
+Received: by mail-qv1-f45.google.com with SMTP id 6a1803df08f44-8cc0ef7c306so43642656d6.3
+        for <linux-input@vger.kernel.org>; Tue, 16 Jun 2026 11:27:59 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1781634479; cv=none;
+        d=google.com; s=arc-20240605;
+        b=ihR7Vr+O4SeFwufb+5uevBCLWLt1I+/BOQLnvYHms4h2ona8Slp5vDtEU7LZEV0qvw
+         L1frhbYlOrrEslL/HMG1yyPd1bIR42MT/eqFFKaV9jpz/ffA6r3ykOh8G+wriBiRK+7F
+         TsCBd5ZSGu2dyjlASJFLiE4k9CZwZa+gfRrrTgBOdaDLWo/yrV1tFhGAuWIpCcx2hlxX
+         vYM0TBv4dkWn2pTp/d4V+R/ex7I+4i8zlWlEo3YVS2428QYJHHEfktJHt0WxmZ5KQW3i
+         GQCMXhJzL3fMGPLQQBorHIl/68kkiKDeuzT7C9wqsHUi4GXojbGOe9E2Fa4NwsRCVS72
+         7vEg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=vT2fTPXtlvAkXE4MH/BbVJEoLSXIJf8BKKcZALaH+9Q=;
+        fh=BVxRsheYRTuKSGwTwijMNBDRbAHzVfBjcaaOwFi0VeM=;
+        b=J8jS40fKH0o4Zxeb5cVtFffGKXpGBPLXXdpKtQ9G0sDSW8/zJwZkOFoqskfDPBoq8Y
+         KNO6ITKjMpRtjw4IBk/1g0ejQbJ8YvdKO+Pt3N5vEKpAb+dMfIPV5HBGuRuGgMdFWfxH
+         eC4BW/xnpD6yq6SeyXuQlX7NYfn3nBMJIcuhuV5bhgdqKRMqY7WwC5axhDLdHhlCrMmu
+         F8D1unsIzIwC30xOhgzxVNRCnjTBRXrbYVabDCz3h48BEOFRkWs7xpI3M/310u+YAbTE
+         5mPxVLSqYfzKWa++bFSB4UUVZV0IJCDGxcpEu1ZbIbjQj595Yxxvr8zqptoS4QhDn3rB
+         aB6w==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1781634479; x=1782239279; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=vT2fTPXtlvAkXE4MH/BbVJEoLSXIJf8BKKcZALaH+9Q=;
+        b=YTwlxC78wEi/cVcOdEvE4BsTdOWoPF5MvjJ0TbnQ/k2uGcaTy0hS+yoQdYbg7hFIC3
+         bRxwA44QVz2yTwvor3CT96YMojDjrZyROZWXtrZIj+rIQhZ5om/+CzHzm52moXiJlpou
+         iOhD4rGPeYv1qACz7X2/kCm3I5agWqUxWDTAFMpXx4UA9UxPqc/CpGeSi7GjScKrQ07l
+         II3Vhg5dAMlNxZhkNfcSucbd2RFruVuBzbn689VmWsU7EAMac3eBmQlg65mjLqVUiRRS
+         jXRjAJ8vfcqUMMcZFr1isNtf8xsJjC+JDfrFvrjddceygjqSsghjj6l86oCDZNOJylnz
+         QjWQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1781634479; x=1782239279;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=vT2fTPXtlvAkXE4MH/BbVJEoLSXIJf8BKKcZALaH+9Q=;
+        b=TJZSQ2ibwzDB84G3vz1hLcyhIdBr2DI1aphO6ZdrO5B50AUXI/cLRYpsyE0mOtBR3p
+         D4KfjoZR+C8i9yje1/QYLebT3Rco1KnJEq4kngoOEeR9YY+iI3ReABrBtDV+/nDr9B96
+         GwzD3o02JAnYEtSHPq0J5gbFct0loyBAflheINkWHiPBiDA8kGyxkg8KIqQvTwVrib2C
+         u3PMO+MewIUJ3PvkxdcCjiBPGR19DMl+DnEoZ8rlg7sclRqQGGNWtWg//oVwtj3dVDOD
+         W5XapL4B4IAIKV9x0734A2O9RBauXPrnScsdj0BPduBDSpgtvOoohDZeBQuPzPBqTsJG
+         BduQ==
+X-Forwarded-Encrypted: i=1; AFNElJ+AsSXPLjcINuKAtTLAiokm6gzNk+sJxDF1YtZLhi9iw35bIbT86R9VFTduFc/9UwdnTe503yEq7LyR5w==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yy39m+ehJOwM6ZEd3fosZjKsaK63H1W5eAClenhxYcplD6Rdy5H
+	uonMPyufj5gWRrkrVpXf0gIRGfHRLWZ6bKNud1EZUNovfpruUSoFLcJ3njQKFrorXJE1cIx/r35
+	n5bj1L9WbTo7eNW3/xgDvYMSpbmjflUM=
+X-Gm-Gg: Acq92OG6d2ueMLQa36nnCehzkvlDWIKG1Wfixx3RxY3AUwwImqUUN34jU/BGGHmQBqr
+	bOjOV1DDJqTx8Pz01b9gObkzLSKDjKottzGaG+RetpYBLO4n9fqfL1sY3HZnfr1j3z4n3vPAdNe
+	p7UPMX+cM8VCYozAkvnLlub6ZDH/epgiOe2f1vCLio/uAtYP+Flyt7+ob+sJgwv8aKGU/oAVJTv
+	Dx8PCRbetAk8X3/mkImz7EfzNl558x9TSFwQ7PasLxijBIUdSm7QV08GxVdhcwbXh5P4nRlnHpN
+	hoYHcu9E
+X-Received: by 2002:ad4:4390:0:b0:8d1:97c5:857a with SMTP id
+ 6a1803df08f44-8db60cf71d9mr9463786d6.42.1781634478692; Tue, 16 Jun 2026
+ 11:27:58 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Message-Id: <509c1ebe734f2319372b2c5f9b02979f07a7ad5dfb44dfc9062501c1440b6633@mail.kernel.org>
-In-Reply-To: <783681f27625a11ed58f00221be046643232a2fc.1781627122.git.chenyy23@mails.tsinghua.edu.cn>
-References: <783681f27625a11ed58f00221be046643232a2fc.1781627122.git.chenyy23@mails.tsinghua.edu.cn>
-Subject: Re: [PATCH bpf-next 1/2] HID: bpf: Fix hid_bpf_get_data() range check
-From: bot+bpf-ci@kernel.org
-To: chenyy23@mails.tsinghua.edu.cn,jikos@kernel.org,bentiss@kernel.org,bpf@vger.kernel.org,linux-input@vger.kernel.org
-Cc: chenyy23@mails.tsinghua.edu.cn,shuah@kernel.org,ast@kernel.org,daniel@iogearbox.net,andrii@kernel.org,martin.lau@linux.dev,eddyz87@gmail.com,memxor@gmail.com,song@kernel.org,yonghong.song@linux.dev,jolsa@kernel.org,linux-kselftest@vger.kernel.org,linux-kernel@vger.kernel.org,ast@kernel.org,andrii@kernel.org,daniel@iogearbox.net,martin.lau@kernel.org,eddyz87@gmail.com,yonghong.song@linux.dev,clm@meta.com,ihor.solodrai@linux.dev
-Date: Tue, 16 Jun 2026 17:18:01 +0000 (UTC)
+References: <20260606040344.4-1-ruoyuw560@gmail.com>
+In-Reply-To: <20260606040344.4-1-ruoyuw560@gmail.com>
+From: Jason Gerecke <killertofu@gmail.com>
+Date: Tue, 16 Jun 2026 11:27:47 -0700
+X-Gm-Features: AVVi8Cckv190Y7JouFrEJYeYs6MveiCvkIX_CfpSKAfHznXnQJgB5HvboQR-6Fs
+Message-ID: <CANRwn3Rbieap2tYacOrwABg6f0xxEKPgG1AVVt6Y5VYpsyW+=g@mail.gmail.com>
+Subject: Re: [PATCH] HID: wacom: handle kmemdup failure in Bluetooth IRQ path
+To: Ruoyu Wang <ruoyuw560@gmail.com>
+Cc: Ping Cheng <ping.cheng@wacom.com>, Jason Gerecke <jason.gerecke@wacom.com>, 
+	Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>, linux-input@vger.kernel.org, 
+	linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
---===============4017712549315767575==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
+On Fri, Jun 5, 2026 at 9:04=E2=80=AFPM Ruoyu Wang <ruoyuw560@gmail.com> wro=
+te:
+>
+> wacom_intuos_bt_irq() duplicates the input report with kmemdup() and then
+> uses data[0] to dispatch the report type. If the allocation fails, the
+> switch statement dereferences a NULL pointer.
+>
+> Handle allocation failure by dropping the report. This keeps the
+> interrupt path from dereferencing a NULL buffer while preserving the
+> existing return convention for ignored or malformed reports.
+>
+> Signed-off-by: Ruoyu Wang <ruoyuw560@gmail.com>
+> ---
+>  drivers/hid/wacom_wac.c | 3 +++
+>  1 file changed, 3 insertions(+)
+>
+> diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+> index da1f0ea85625d..c42af15e7dba0 100644
+> --- a/drivers/hid/wacom_wac.c
+> +++ b/drivers/hid/wacom_wac.c
+> @@ -1206,6 +1206,9 @@ static int wacom_intuos_bt_irq(struct wacom_wac *wa=
+com, size_t len)
+>         int i =3D 1;
+>         unsigned power_raw, battery_capacity, bat_charging, ps_connected;
+>
+> +       if (!data)
+> +               return 0;
+> +
 
-> commit 7c433bf4ab2de03b77e22dbd3984e39a386997a2
-> Author: Yiyang Chen <chenyy23@mails.tsinghua.edu.cn>
-> Date:   Tue Jun 16 16:35:06 2026 +0000
->
->     HID: bpf: Fix hid_bpf_get_data() range check
->
->     hid_bpf_get_data() returns a pointer into the HID-BPF context data when
->     the caller-provided offset and size fit inside ctx->allocated_size.
->
->     The current check adds rdwr_buf_size and offset before comparing the
->     result against ctx->allocated_size. Since both values are unsigned, a
->     very large size can wrap the sum below ctx->allocated_size and make the
->     helper return a pointer even though the requested range is not contained
->     in the backing buffer.
->
->     Use a non-wrapping range check instead: reject offsets beyond the
->     allocation, then compare the requested size with the remaining bytes
->     after the offset.
->
->     Fixes: 4171954f56fb ("HID: bpf/dispatch: regroup kfuncs definitions")
->     Signed-off-by: Yiyang Chen <chenyy23@mails.tsinghua.edu.cn>
+Reviewed-by: Jason Gerecke <jason.gerecke@wacom.com>
 
-The Fixes tag points to commit 4171954f56fb, but that commit only moved
-hid_bpf_get_data() without changing its logic. Its commit message states
-"No code change, just move down the hid_bpf_get_data() kfunc definition".
+Though, I think we should also (or instead?) entertain a change that
+does away with the kmemdup entirely... Replacing this kmemdup and the
+memcpy in wacom_intuos_bt_process_data with some simple pointer
+manipulation should have the same effect with less work.
 
-The vulnerable addition pattern 'rdwr_buf_size + offset > ctx->allocated_size'
-was actually introduced in commit 658ee5a64fcf ("HID: bpf: allocate data
-memory for device_event BPF programs"), which changed the field from ctx->size
-to ctx->allocated_size while keeping the same overflow-prone check.
-
-Should the Fixes tag reference the commit that introduced the buggy code:
-
-  Fixes: 658ee5a64fcf ("HID: bpf: allocate data memory for device_event BPF programs")
-
-> diff --git a/drivers/hid/bpf/hid_bpf_dispatch.c b/drivers/hid/bpf/hid_bpf_dispatch.c
-> index d0130658091b..09b45c40d84f 100644
-> --- a/drivers/hid/bpf/hid_bpf_dispatch.c
-> +++ b/drivers/hid/bpf/hid_bpf_dispatch.c
-> @@ -299,7 +299,8 @@ hid_bpf_get_data(struct hid_bpf_ctx *ctx, unsigned int offset, const size_t rdwr
->
->  	ctx_kern = container_of(ctx, struct hid_bpf_ctx_kern, ctx);
->
-> -	if (rdwr_buf_size + offset > ctx->allocated_size)
-> +	if (offset > ctx->allocated_size ||
-> +	    rdwr_buf_size > ctx->allocated_size - offset)
->  		return NULL;
->
->  	return ctx_kern->data + offset;
-
+Jason (she/they)
 ---
-AI reviewed your patch. Please fix the bug or email reply why it's not a bug.
-See: https://github.com/kernel-patches/vmtest/blob/master/ci/claude/README.md
+Now instead of four in the eights place /
+you=E2=80=99ve got three, =E2=80=98Cause you added one  /
+(That is to say, eight) to the two,     /
+But you can=E2=80=99t take seven from three,    /
+So you look at the sixty-fours....
 
-CI run summary: https://github.com/kernel-patches/bpf/actions/runs/27633665618
---===============4017712549315767575==--
+>         switch (data[0]) {
+>         case 0x04:
+>                 if (len < 32) {
+> --
+> 2.34.1
+>
+>

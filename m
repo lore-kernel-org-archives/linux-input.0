@@ -1,32 +1,32 @@
-Received: from relay2-d.mail.gandi.net (relay2-d.mail.gandi.net [217.70.183.194])
+Received: from relay1-d.mail.gandi.net (relay1-d.mail.gandi.net [217.70.183.193])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 90F513DC87A;
-	Wed, 17 Jun 2026 10:28:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.70.183.194
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7E3D43B27D8;
+	Wed, 17 Jun 2026 10:28:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.70.183.193
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781692120; cv=none; b=bbVdQfEFsBF448TRJPvGfM5BfsMFFLxjkTdeQBRcU3BYPoyMdl9qPWitAP9GuJKy0yFq/Xg8l2K3qfbReM0FYTBZq1aFnKZoBYOveT8BYkJgGbFlHc8zXCWGWwEMaA5nhOmCNkjUpZvG2Jzqxrbw/wtKClOtYqoNJ57Bmt2JgL4=
+	t=1781692125; cv=none; b=B9xMWtNltwnyifi86oYQnULC0HhA/ALUMMpqy3H6kq68ogYap6O0sbh6kNQ3Xrvqtum550XtxjCPjoLl7MQvZnfjaOYusUM3akRlGkpM5yjVueKtzkYiBfBgzjCftZSkUYOClZSBG9nVq+gfcR067tIG7N0qXm+fHtc72cW6BMc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781692120; c=relaxed/simple;
-	bh=2JB0ljnSxLl8H3rnDcY1m9U6SNgyoFxjKYI+O5wnpak=;
+	s=arc-20240116; t=1781692125; c=relaxed/simple;
+	bh=BuYYPUNoWW9o/E4gxHLkpIDDQ0/vP/s3fieZ9Ja6aMg=;
 	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=FBiZQ1ECwb3pE8+1ydbgTKHSJ6RGkNmP/FcZnSErn7GFXvBN+znjsmGU2C5s+N+ZNQbp9LYrBJw2qHr/P1sh8gKr+cCt3pvuW6Z49aLL/GNXRhV3Nq6zwg0ocTT0cAXnPq0zOFGGuAGMQzAWfn4JXnv+PoUyTJB2sOu2KGQ+6EQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=hadess.net; spf=pass smtp.mailfrom=hadess.net; arc=none smtp.client-ip=217.70.183.194
+	 Content-Type:MIME-Version; b=KcDBZ/lTNj2SiNhMNlOJRgi20c2tBWzblllSo5Gvwa4LzwYeeB3DVeZBTLM2tDc3dtxPg5wqDCojG32ojfkru0htSqfhX/wM1ssTpfZGTWMfVhI1n4iU/mTvqebiJM8KSq5bEh0tSWphuMRWbiAzFu3Sq0Dd9Uvl8OYvhlUzdRE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=hadess.net; spf=pass smtp.mailfrom=hadess.net; arc=none smtp.client-ip=217.70.183.193
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=hadess.net
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=hadess.net
-Received: by mail.gandi.net (Postfix) with ESMTPSA id 42E273EC38;
-	Wed, 17 Jun 2026 10:28:28 +0000 (UTC)
-Message-ID: <f741bafd41f7fc31fe0019020e14ad4f99fd193e.camel@hadess.net>
-Subject: Re: [PATCH 1/2] HID: logitech-hidpp: add HID++ 2.0 reprogrammable
- button support
+Received: by mail.gandi.net (Postfix) with ESMTPSA id 466313E972;
+	Wed, 17 Jun 2026 10:28:31 +0000 (UTC)
+Message-ID: <a67d0483b35e20cf126fc66efefded786480b169.camel@hadess.net>
+Subject: Re: [PATCH 2/2] HID: logitech-hidpp: enable reprogrammable buttons
+ on Signature M650
 From: Bastien Nocera <hadess@hadess.net>
 To: Elliot Douglas <edouglas7358@gmail.com>, linux-input@vger.kernel.org
 Cc: lains@riseup.net, jikos@kernel.org, bentiss@kernel.org, 
 	linux-kernel@vger.kernel.org
-Date: Wed, 17 Jun 2026 12:28:27 +0200
-In-Reply-To: <20260613175109.44365-2-edouglas7358@gmail.com>
+Date: Wed, 17 Jun 2026 12:28:30 +0200
+In-Reply-To: <20260613175109.44365-3-edouglas7358@gmail.com>
 References: <20260613175109.44365-1-edouglas7358@gmail.com>
-	 <20260613175109.44365-2-edouglas7358@gmail.com>
+	 <20260613175109.44365-3-edouglas7358@gmail.com>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 User-Agent: Evolution 3.60.2 (3.60.2-1.fc44) 
@@ -39,333 +39,108 @@ MIME-Version: 1.0
 X-GND-Sasl: hadess@hadess.net
 X-GND-State: clean
 X-GND-Score: -100
-X-GND-Cause: dmFkZTFfdXhow/k1eTFzCaHxZltsDAw3KOeixVcs1fIckJSjI9M8UYhkVjfNDFp3eJKUpTzWZtpvWTTcs1/PnUr8aWrXs99IoWtnYrz4TT53kQCXx3LMtNVkpbk4lpRDZcVCR03eC3u7VhjroQZwXVXHjeBqKeUZjwixInPS1xei141vMa4VGg2JO6fYM/BE4djc0SBF+fgZJvFAwjSJpSzH0HH9M67bEBgFRT91URUAWNxxNOQ5xkfQVxjO4zK6sHOUqFJTBuL6eYtM4DZlH4HRHIUEvTx96wlZieyeqa3FEjhl3nayS5oE0ZMDUnPrypSmaoMAoafuK94En4FkjNJvmCN3qdRudr6MNmdQJU4mS2AVrnGKoTix5s5PjjxV/tyuf2HKkTXucuLlIZhn6DhcGB05G765uXPRHtv9EBgNt33DUhOu6WbW3V9fUjkraVYbo55t0MI5zNAzlJHBdMhAMJqv1N5jcmJEf9GRCkYRWdOTXoxH7N1XO0+eYxUAwA5SH8zp6waJ8qdWXTVL92tKNA5TGdXHtq0IEWndb659WCaJ+Q9sd9Yt+dZm3+jr9H+ip4mGt78DE4c7NihkqbsT9wZiShZAoVRbprDcxsGKzM/+XM0w1+9DjAf7ro5KQ/Gzy9HdrOakZUIEzCtEtco3ErSSa/hfAiRm2/8+irRAk4POiw
+X-GND-Cause: dmFkZTGrGfJDIwwjmHHhZdmDMkXbZuIYYRNagew85RIToSHMQ72I4Hq9I/U0FJmSu/Bh5gvkIj6rMSdZexo/+e6aHCywRmoqI0/fxMtvpN7xHt40edf1ymgM3Dr6CHrLPoz0QjYRIbbSJxlhnEFKrRMjxoQKomXxFqZ2pxAAgPPQtsdbBGOLm1ehLeNyOXJXCvTPmUepvvSMW988RJB6OF/PDITmi/IYQ7HfP1KgJW7Iv3rRSgHIbP3XEu+0xf+R0bfxx1yc3ibdWJm2yNfN/7JI2Skg0T668rl5jNBJKr2PYrGspChLgniBqmXOnh9PUavz2jg+gqszGKTPHniQyc7MuFhZWl/ww3vdpwD4Tz9A9R5U+MpIKMiHgnO5fHAkLwq37Kw/h4n7nU/mbFst7MApfOqhMclWH7xVBCK2yuFlMt25UJflznDgfhqWWPWJ2+ZJn71Gic20YEzDdW2HVJglioqyHmz0l4PNOt8E63SHaL3uJe0GnpAo+AdfjXYU0b6KOguuXBpU/47UDGL/xhpsjVWe4LimCtvr8onPYvBErXnTSd+2A2DUYJ69Pp4TMmm83s7TMvh+rHbHq7hzWLltrUN/Awl7JKw8SUnIZNtZKXPulYxXudoe2OllZvav82diVkXUVnvDYxl7zFqb5JeNznT1tgzxiYi668uocMme6/b0jg
+
+Hey Elliot,
+
+I have an m650 on hand on with which I should be able to test your
+patch next week, once we've gone through a first round of reviews.
+
+Benjamin, is there something I can capture locally that could make it
+into the HID tests for this feature?
+
+Inline comments below
 
 On Sat, 2026-06-13 at 10:51 -0700, Elliot Douglas wrote:
-> Some Logitech HID++ 2.0 mice can report diverted reprogrammable
-> controls through HID++ feature 0x1b04, SpecialKeysMseButtons /
-> REPROG_CONTROLS_V4, instead of the normal HID mouse report.
+> The Bluetooth Signature M650 exposes its side buttons through the
+> normal
+> mouse report, but the observed events are short click-like events
+> emitted
+> around release rather than physical press/release state.
 >=20
-> Add a quirk-gated event path for those controls. The handler temporarily
-> diverts verified per-product controls, parses divertedButtonsEvent as the
-> current pressed-control list, and reports the corresponding evdev key sta=
-te
-> for every mapped control.
+> The device appears to use the held side-button state for its built-in
+> gesture and side-button + wheel horizontal-scroll mode. As a result,
+> holding a side button long enough can prevent the normal mouse report
+> from
+> emitting a usable button event at all.
 >=20
-> Keep the control mappings in per-product profiles so adding support for
-> another mouse does not change the evdev capabilities advertised by
-> already-supported devices.
-
-How does this forced setting work/clash with the programmable buttons
-in Solaar?
-
-I've added some inline comments below.
-
+> HID++ REPROG_CONTROLS_V4 diversion for control IDs 0x0053 and 0x0056
+> provides real press and release timing for those same controls.
+> Logitech
+> documents the Signature M650 side buttons as Back/Forward buttons, so
+> report the diverted controls as BTN_BACK and BTN_FORWARD.
 >=20
-> Documentation for feature 0x1b04 describes divertedButtonsEvent as a list
-> of currently pressed diverted buttons, which is the event format handled
-> here.
->=20
-> Link: https://lekensteyn.nl/files/logitech/x1b04_specialkeysmsebuttons.ht=
-ml
+> Link:
+> https://support.logi.com/hc/en-nz/articles/4414473810583-Getting-Started-=
+Signature-M650
 >=20
 > Signed-off-by: Elliot Douglas <edouglas7358@gmail.com>
 > ---
-> =C2=A0drivers/hid/hid-logitech-hidpp.c | 215 ++++++++++++++++++++++++++++=
-+++
-> =C2=A01 file changed, 215 insertions(+)
+> =C2=A0drivers/hid/hid-logitech-hidpp.c | 21 ++++++++++++++++++++-
+> =C2=A01 file changed, 20 insertions(+), 1 deletion(-)
 >=20
-> diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-=
-hidpp.c
-> index 70ba1a5e40d8..24c9cfaa4f37 100644
+> diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-
+> logitech-hidpp.c
+> index 24c9cfaa4f37..80108778ee80 100644
 > --- a/drivers/hid/hid-logitech-hidpp.c
 > +++ b/drivers/hid/hid-logitech-hidpp.c
-> @@ -76,6 +76,7 @@ MODULE_PARM_DESC(disable_tap_to_click,
-> =C2=A0#define HIDPP_QUIRK_HI_RES_SCROLL_1P0		BIT(28)
-> =C2=A0#define HIDPP_QUIRK_WIRELESS_STATUS		BIT(29)
-> =C2=A0#define HIDPP_QUIRK_RESET_HI_RES_SCROLL		BIT(30)
-> +#define HIDPP_QUIRK_HIDPP_REPROG_CONTROLS_BTNS	BIT(31)
+> @@ -3621,6 +3621,9 @@ static int
+> hidpp10_extra_mouse_buttons_raw_event(struct hidpp_device *hidpp,
 > =C2=A0
-> =C2=A0/* These are just aliases for now */
-> =C2=A0#define HIDPP_QUIRK_KBD_SCROLL_WHEEL HIDPP_QUIRK_HIDPP_WHEELS
-> @@ -205,6 +206,7 @@ struct hidpp_device {
-> =C2=A0	struct hidpp_scroll_counter vertical_wheel_counter;
+> =C2=A0#define HIDPP_REPROG_CONTROLS_EVENT_DIVERTED		0x00
 > =C2=A0
-> =C2=A0	u8 wireless_feature_index;
-> +	u8 reprog_controls_feature_index;
+> +#define HIDPP_REPROG_CONTROL_M650_BACK			0x0053
+> +#define HIDPP_REPROG_CONTROL_M650_FORWARD		0x0056
+
+I read through the 0x1b04 docs, and I'm trying to understand whether
+those CID numbers change in different hardware, or if they're hardcoded
+(a back button will always have the 83/0x53 value).
+
+Seems to me that it's the latter? The back button is listed in the
+Example Control ID table in the 0x1b04 docs.
+
+> +
+> =C2=A0struct hidpp_reprog_control_mapping {
+> =C2=A0	u16 control;
+> =C2=A0	u16 code;
+> @@ -3631,9 +3634,24 @@ struct hidpp_reprog_controls_profile {
+> =C2=A0	unsigned int mapping_count;
+> =C2=A0};
 > =C2=A0
-> =C2=A0	int hires_wheel_multiplier;
-> =C2=A0	u8 hires_wheel_feature_index;
-> @@ -3601,6 +3603,209 @@ static int hidpp10_extra_mouse_buttons_raw_event(=
-struct hidpp_device *hidpp,
-> =C2=A0	return 1;
-> =C2=A0}
-> =C2=A0
-> +/* ---------------------------------------------------------------------=
------ */
-> +/* HID++2.0 reprogrammable controls=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 */
-> +/* ---------------------------------------------------------------------=
------ */
-> +
-> +#define HIDPP_PAGE_REPROG_CONTROLS_V4			0x1b04
-> +
-> +#define HIDPP_REPROG_CONTROLS_GET_COUNT			0x00
-> +#define HIDPP_REPROG_CONTROLS_GET_CID_INFO		0x10
-> +#define HIDPP_REPROG_CONTROLS_SET_CONTROL_REPORTING	0x30
-> +
-> +#define HIDPP_REPROG_CONTROLS_FLAG_MOUSE		BIT(0)
-> +#define HIDPP_REPROG_CONTROLS_FLAG_DIVERT		BIT(5)
-> +
-> +#define HIDPP_REPROG_CONTROLS_TEMPORARY_DIVERTED	BIT(0)
-> +#define HIDPP_REPROG_CONTROLS_CHANGE_TEMPORARY_DIVERT	BIT(1)
-> +
-> +#define HIDPP_REPROG_CONTROLS_EVENT_DIVERTED		0x00
-> +
-> +struct hidpp_reprog_control_mapping {
-> +	u16 control;
-> +	u16 code;
+> +static const struct hidpp_reprog_control_mapping
+> m650_reprog_control_mappings[] =3D {
+> +	{ HIDPP_REPROG_CONTROL_M650_BACK, BTN_BACK },
+> +	{ HIDPP_REPROG_CONTROL_M650_FORWARD, BTN_FORWARD },
 > +};
 > +
-> +struct hidpp_reprog_controls_profile {
-> +	const struct hidpp_reprog_control_mapping *mappings;
-
-probably needs a __counted_by(), or maybe as it's static, it might be
-better to not require an intermediate struct, and return a NULL-
-terminated array instead.
-
-> +	unsigned int mapping_count;
+> +static const struct hidpp_reprog_controls_profile
+> m650_reprog_controls_profile =3D {
+> +	.mappings =3D m650_reprog_control_mappings,
+> +	.mapping_count =3D ARRAY_SIZE(m650_reprog_control_mappings),
 > +};
 > +
-> +static const struct hidpp_reprog_controls_profile *
-> +hidpp20_reprog_controls_get_profile(struct hidpp_device *hidpp)
-> +{
-> +	return NULL;
-> +}
-> +
-> +static int hidpp20_reprog_controls_get_count(struct hidpp_device *hidpp)
-> +{
-> +	struct hidpp_report response;
-> +	u8 feature_index =3D hidpp->reprog_controls_feature_index;
-> +	u8 cmd =3D HIDPP_REPROG_CONTROLS_GET_COUNT;
-> +	int ret;
-> +
-> +	ret =3D hidpp_send_fap_command_sync(hidpp, feature_index, cmd, NULL, 0,
-> +					=C2=A0 &response);
-> +	if (ret > 0)
-> +		return -EPROTO;
-> +	if (ret)
-> +		return ret;
-> +
-> +	return response.fap.params[0];
-> +}
-> +
-> +static int hidpp20_reprog_controls_get_cid_info(struct hidpp_device *hid=
-pp,
-> +						u8 index, u16 *control,
-> +						u8 *flags)
-> +{
-> +	struct hidpp_report response;
-> +	u8 feature_index =3D hidpp->reprog_controls_feature_index;
-> +	u8 cmd =3D HIDPP_REPROG_CONTROLS_GET_CID_INFO;
-> +	int ret;
-> +
-> +	ret =3D hidpp_send_fap_command_sync(hidpp, feature_index, cmd, &index,
-> +					=C2=A0 sizeof(index), &response);
-> +	if (ret > 0)
-> +		return -EPROTO;
-> +	if (ret)
-> +		return ret;
-> +
-> +	*control =3D get_unaligned_be16(&response.fap.params[0]);
-> +	*flags =3D response.fap.params[4];
-> +
-> +	return 0;
-> +}
-> +
-> +static bool hidpp20_reprog_controls_find_control(struct hidpp_device *hi=
-dpp,
-> +						 u16 control)
-> +{
-> +	int count, ret;
-> +	u16 cid;
-> +	u8 flags;
-> +	int i;
-> +
-> +	count =3D hidpp20_reprog_controls_get_count(hidpp);
-> +	if (count < 0)
-> +		return false;
-> +
-> +	for (i =3D 0; i < count; i++) {
-> +		ret =3D hidpp20_reprog_controls_get_cid_info(hidpp, i, &cid,
-> +							=C2=A0=C2=A0 &flags);
-> +		if (ret)
-> +			return false;
-> +
-> +		if (cid =3D=3D control)
-> +			return (flags & HIDPP_REPROG_CONTROLS_FLAG_MOUSE) &&
-> +			=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 (flags & HIDPP_REPROG_CONTROLS_F=
-LAG_DIVERT);
-> +	}
-> +
-> +	return false;
-> +}
-> +
-> +static int hidpp20_reprog_controls_set_control_reporting(struct hidpp_de=
-vice *hidpp,
-> +							 u16 control, u8 flags)
-> +{
-> +	struct hidpp_report response;
-> +	u8 params[5];
-> +
-> +	put_unaligned_be16(control, &params[0]);
-> +	params[2] =3D flags;
-> +	put_unaligned_be16(control, &params[3]);
-> +
-> +	return hidpp_send_fap_command_sync(hidpp,
-> +					=C2=A0=C2=A0 hidpp->reprog_controls_feature_index,
-> +					=C2=A0=C2=A0 HIDPP_REPROG_CONTROLS_SET_CONTROL_REPORTING,
-> +					=C2=A0=C2=A0 params, sizeof(params), &response);
-> +}
-> +
-> +static void hidpp20_reprog_controls_connect(struct hidpp_device *hidpp)
-> +{
-> +	const struct hidpp_reprog_controls_profile *profile;
-> +	u8 flags =3D HIDPP_REPROG_CONTROLS_TEMPORARY_DIVERTED |
-> +		=C2=A0=C2=A0 HIDPP_REPROG_CONTROLS_CHANGE_TEMPORARY_DIVERT;
-> +	unsigned int i;
-> +
-> +	if (!(hidpp->quirks & HIDPP_QUIRK_HIDPP_REPROG_CONTROLS_BTNS))
-> +		return;
-> +
-> +	profile =3D hidpp20_reprog_controls_get_profile(hidpp);
-
-Could the profile be cached in the hidpp_device struct?
-
-> +	if (!profile)
-> +		return;
-> +
-> +	if (hidpp_root_get_feature(hidpp, HIDPP_PAGE_REPROG_CONTROLS_V4,
-> +				=C2=A0=C2=A0 &hidpp->reprog_controls_feature_index))
-> +		return;
-> +
-> +	for (i =3D 0; i < profile->mapping_count; i++) {
-> +		u16 control =3D profile->mappings[i].control;
-> +
-> +		if (!hidpp20_reprog_controls_find_control(hidpp, control))
-> +			continue;
-> +
-> +		hidpp20_reprog_controls_set_control_reporting(hidpp, control, flags);
-> +	}
-> +}
-> +
-> +static int hidpp20_reprog_controls_raw_event(struct hidpp_device *hidpp,
-> +					=C2=A0=C2=A0=C2=A0=C2=A0 u8 *data, int size)
-> +{
-> +	const struct hidpp_reprog_controls_profile *profile;
-> +	const struct hidpp_reprog_control_mapping *mapping;
-> +	struct hidpp_report *report =3D (struct hidpp_report *)data;
-> +	u16 controls[4];
-> +	bool pressed;
-> +	unsigned int i, j;
-> +
-> +	if (!(hidpp->quirks & HIDPP_QUIRK_HIDPP_REPROG_CONTROLS_BTNS) ||
-> +	=C2=A0=C2=A0=C2=A0 !hidpp->input ||
-> +	=C2=A0=C2=A0=C2=A0 hidpp->reprog_controls_feature_index =3D=3D 0xff)
-> +		return 0;
-> +
-> +	profile =3D hidpp20_reprog_controls_get_profile(hidpp);
-> +	if (!profile)
-> +		return 0;
-> +
-> +	if (size < HIDPP_REPORT_LONG_LENGTH ||
-> +	=C2=A0=C2=A0=C2=A0 report->fap.feature_index !=3D hidpp->reprog_control=
-s_feature_index ||
-> +	=C2=A0=C2=A0=C2=A0 report->fap.funcindex_clientid !=3D HIDPP_REPROG_CON=
-TROLS_EVENT_DIVERTED)
-> +		return 0;
-> +
-> +	for (i =3D 0; i < ARRAY_SIZE(controls); i++)
-> +		controls[i] =3D get_unaligned_be16(&report->fap.params[i * 2]);
-> +
-> +	for (i =3D 0; i < profile->mapping_count; i++) {
-> +		mapping =3D &profile->mappings[i];
-> +		pressed =3D false;
-> +
-> +		for (j =3D 0; j < ARRAY_SIZE(controls); j++) {
-> +			if (controls[j] =3D=3D mapping->control) {
-> +				pressed =3D true;
-> +				break;
-> +			}
-> +		}
-> +
-> +		input_report_key(hidpp->input, mapping->code, pressed);
-> +	}
-> +
-> +	input_sync(hidpp->input);
-> +
-> +	return 1;
-> +}
-> +
-> +static void hidpp20_reprog_controls_populate_input(struct hidpp_device *=
-hidpp,
-> +						=C2=A0=C2=A0 struct input_dev *input_dev)
-> +{
-> +	const struct hidpp_reprog_controls_profile *profile;
-> +	unsigned int i;
-> +
-> +	profile =3D hidpp20_reprog_controls_get_profile(hidpp);
-> +	if (!profile)
-> +		return;
-> +
-> +	for (i =3D 0; i < profile->mapping_count; i++)
-> +		input_set_capability(input_dev, EV_KEY, profile->mappings[i].code);
-> +}
-> +
-> =C2=A0static void hidpp10_extra_mouse_buttons_populate_input(
-> =C2=A0			struct hidpp_device *hidpp, struct input_dev *input_dev)
+> =C2=A0static const struct hidpp_reprog_controls_profile *
+> =C2=A0hidpp20_reprog_controls_get_profile(struct hidpp_device *hidpp)
 > =C2=A0{
-> @@ -3859,6 +4064,9 @@ static void hidpp_populate_input(struct hidpp_devic=
-e *hidpp,
-> =C2=A0
-> =C2=A0	if (hidpp->quirks & HIDPP_QUIRK_HIDPP_EXTRA_MOUSE_BTNS)
-> =C2=A0		hidpp10_extra_mouse_buttons_populate_input(hidpp, input);
+> +	switch (hidpp->hid_dev->product) {
+> +	case 0xb02a:
+
+You probably want a define for that constant.
+
+> +		return &m650_reprog_controls_profile;
+> +	}
 > +
-> +	if (hidpp->quirks & HIDPP_QUIRK_HIDPP_REPROG_CONTROLS_BTNS)
-> +		hidpp20_reprog_controls_populate_input(hidpp, input);
+> =C2=A0	return NULL;
 > =C2=A0}
 > =C2=A0
-> =C2=A0static int hidpp_input_configured(struct hid_device *hdev,
-> @@ -3971,6 +4179,10 @@ static int hidpp_raw_hidpp_event(struct hidpp_devi=
-ce *hidpp, u8 *data,
-> =C2=A0			return ret;
-> =C2=A0	}
-> =C2=A0
-> +	ret =3D hidpp20_reprog_controls_raw_event(hidpp, data, size);
-> +	if (ret !=3D 0)
-> +		return ret;
-> +
-> =C2=A0	if (hidpp->quirks & HIDPP_QUIRK_HIDPP_CONSUMER_VENDOR_KEYS) {
-> =C2=A0		ret =3D hidpp10_consumer_keys_raw_event(hidpp, data, size);
-> =C2=A0		if (ret !=3D 0)
-> @@ -4264,6 +4476,8 @@ static void hidpp_connect_event(struct work_struct =
-*work)
-> =C2=A0			return;
-> =C2=A0	}
-> =C2=A0
-> +	hidpp20_reprog_controls_connect(hidpp);
-> +
-> =C2=A0	if (hidpp->quirks & HIDPP_QUIRK_HIDPP_CONSUMER_VENDOR_KEYS) {
-> =C2=A0		ret =3D hidpp10_consumer_keys_connect(hidpp);
-> =C2=A0		if (ret)
-> @@ -4436,6 +4650,7 @@ static int hidpp_probe(struct hid_device *hdev, con=
-st struct hid_device_id *id)
-> =C2=A0	hidpp->hid_dev =3D hdev;
-> =C2=A0	hidpp->name =3D hdev->name;
-> =C2=A0	hidpp->quirks =3D id->driver_data;
-> +	hidpp->reprog_controls_feature_index =3D 0xff;
-> =C2=A0	hid_set_drvdata(hdev, hidpp);
-> =C2=A0
-> =C2=A0	ret =3D hid_parse(hdev);
+> @@ -4921,7 +4939,8 @@ static const struct hid_device_id
+> hidpp_devices[] =3D {
+> =C2=A0	{ /* MX Vertical mouse over Bluetooth */
+> =C2=A0	=C2=A0 HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb020) },
+> =C2=A0	{ /* Signature M650 over Bluetooth */
+> -	=C2=A0 HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb02a) },
+> +	=C2=A0 HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb02a),
+> +	=C2=A0 .driver_data =3D HIDPP_QUIRK_HIDPP_REPROG_CONTROLS_BTNS },
+> =C2=A0	{ /* MX Master 3 mouse over Bluetooth */
+> =C2=A0	=C2=A0 HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb023) },
+> =C2=A0	{ /* MX Anywhere 3 mouse over Bluetooth */

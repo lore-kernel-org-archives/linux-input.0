@@ -1,122 +1,154 @@
-Received: from mail-dl1-f53.google.com (mail-dl1-f53.google.com [74.125.82.53])
+Received: from mail-ej1-f54.google.com (mail-ej1-f54.google.com [209.85.218.54])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 305BA3B71D4
-	for <linux-input@vger.kernel.org>; Wed, 17 Jun 2026 06:52:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.82.53
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781679180; cv=pass; b=JUfmKRFIa3rEG9Ao6edddUTL6Von1VaG6ibEiZPsIZThC0spOvJVEOHNLD2wosDVNTuRYq/7ihX1Xa01i8wrBAtCLtpxXo2ijyIqZ8NP26uH6TDpQlQU/cJgf8IyrVrCJtbl6oc5JC2K72dlRTPO0CmWneFjRO/R1NMxgAq+Hec=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781679180; c=relaxed/simple;
-	bh=iSXxjbCL/hr1cvEgQ8IVLmSXjDTfgblayEtrSw9Vrz8=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=pRbuHq08wBXnLAHqYn9fqzzMlLhyroib8TjMfdxKlqS34j0v4rjlB8ABa2TKehmDO0M/UAwVhBUacr4vVy+U9n4QkJG+PKmTsfzkKKYbhfDsupGfvVDkMXq7AuIQO53uyckai+KMbWm7zBL9+LFUrnSPscGZYP46SCrNgqLWJd8=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=q1lsO8jX; arc=pass smtp.client-ip=74.125.82.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 414133B6C1C
+	for <linux-input@vger.kernel.org>; Wed, 17 Jun 2026 07:06:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.54
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1781679976; cv=none; b=f8PEZpret70gRtm38QKTqIFKL+rArvxnNXhQ408C+19zYRJi0Fop5ahUXOM2qrzRd6c2xbnv9uNjQKujNu8WBiRR0FfAQWhB1MEiNrlTOZEn4lDb35Z3AhWRg0NpMcb7H1kq1vpCw1UJVKaesEJa3gxx7ExZ7PxbWoOJSTy/Rx8=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1781679976; c=relaxed/simple;
+	bh=ywM5fxAP7YLHk3plDUVugejdL0ti6Z+u86nyhpgQsGk=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=oOBAandAwq5ZLJLLR6bX+dQbVL985WwKHPjP7r6ZbbP+5NrtMBOELr5qXm5/zX2SWiig8G+NWRBhA6mUrraglgptW4GIaHgd/01uWUPYzMIveBz62OnkiDVW16ssadUwqxvNy7aqtpENzPa0HPa2+mFxF7CtdvMT9YgADbSFeHo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=lmXVYytQ; arc=none smtp.client-ip=209.85.218.54
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="q1lsO8jX"
-Received: by mail-dl1-f53.google.com with SMTP id a92af1059eb24-1370417c01cso7038062c88.1
-        for <linux-input@vger.kernel.org>; Tue, 16 Jun 2026 23:52:57 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1781679177; cv=none;
-        d=google.com; s=arc-20240605;
-        b=eEdX/p1vYqp6QLcYXdA+5q7GN92upSqykDF0P+bK4ZUKMHMOoAGFJOTI3qMOBXp5wa
-         XsI1IKs9Ek+fJKiAvkgTCkWUJDIh6R4IsgRMrqx3JAIDSfE4SYLGzTIF5ywfB6rnqGIq
-         wnaMiH6vkOV343xjHtaa4c2hnFA0c9wXH+Y3RBJGp9v4+CeDZAzJStlG4f2DznUGDDnp
-         ul1H4UczJprV1zI+ZxBenA0ASQmLTwaCHIDFr55l5RLYe45bnL6hdnpioIz/ncaAkPOp
-         BEdAq1Vcp1nVP2ZITh/sQEFSqbvTfi0Mo3GRwM44AphrOvtcW6n1Is7u4RDFl2476CB5
-         cHcw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=iSXxjbCL/hr1cvEgQ8IVLmSXjDTfgblayEtrSw9Vrz8=;
-        fh=RbOIwcPwMZiIWgZb4izUWrG842my8mUon8lZKI8uh38=;
-        b=NiK1ujVOkqpuZujGdX1sGC1K76ZEEOc7avHouaabdlWSCD3IPXUXf1YmutU1Q+BeEa
-         cAz/jA7m7azts8Z0akBqjAQdJbIENdtjmsKrt7IO+FkCMMERjtRx04w6vH7VNvhYuPvm
-         EGdUZXlic1ZLuxgkL0mRAw66s0iU3/FAQ2BvtJvLlyoWV2QzDzIjYp8bp+ioJkXyw7F5
-         4rABgVRwKvDIL8KilFHLQrsxSrwK7KwTRXZDRbu2OKa75CeUc12CZKNfSM1bn048ipjZ
-         c6d7ku6Ln9ifsB+pfv0eCuCX58Xm8B3Cf6NyhaJk8U54/7H8X8nmW4LwANqcq50IY0mt
-         1y6g==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="lmXVYytQ"
+Received: by mail-ej1-f54.google.com with SMTP id a640c23a62f3a-bec354815b9so507043966b.3
+        for <linux-input@vger.kernel.org>; Wed, 17 Jun 2026 00:06:15 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1781679177; x=1782283977; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=iSXxjbCL/hr1cvEgQ8IVLmSXjDTfgblayEtrSw9Vrz8=;
-        b=q1lsO8jXaPPFDDe43JbTYqNEDtukcXajOd3h37VcpgWT9tFkw3Fm5k/PcvRBMe1mGI
-         MxvgN6FYKuMCz91tznK5qOGW9nxe4/yunhvolIbAKLp3Rcr76iYK2ay1rw7+WMz4Ekyk
-         eVHFo/c2quOp9qyzbfDTjj2zjlWQfBN3fhv4YLsgXbFssPoMjJekJUpMpXJTxcsSL8rS
-         HVh4Xv1LriPJEXNhuVD9iTo1bcQJPsrHOOwMAEqlMFflPqzdu0EBNZNyvFMouwv6MCvA
-         12204gEl4yYmz3uZN9vWD37diXkodxoGNKs/JlHIfEVMGYXMt6xR/ZqZPNREBq8YkBWG
-         ji7A==
+        d=gmail.com; s=20251104; t=1781679974; x=1782284774; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=Kh2zmRfLqBJkX6ljmJ2Zzgk6D+llpzzKDQIImg15hLw=;
+        b=lmXVYytQtldzCj5PPlvIQBDcms60DS0kfG+qPdeM56zEyEMVfnx9OT1ZHcS0tNM+zk
+         gc6XZZWy2bPgTSXqRdvQ2Y0d0q9sxHATyw97v7HNZsaXqvUhZhpMscnCkovj1mlkWvSl
+         tD6078nmE5yOwAXHrgDfJ1nZ0yStXNIC/ZxbAIPfP0uFRehJAiS9gMsXRAoQaBzfDqg1
+         +Kv+kzMZyrGRdwJq7pOBkCU7iALhcYawTNP3jppuBmRnzD10dhv2biXuc0CCsD1HcZLD
+         5jaaRuBIB+Engdbrac8x9l2lMWP+17veO8pvoUVy8aQjsccHFZEZ11ezYd/BK47JmzL9
+         EMQA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781679177; x=1782283977;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=iSXxjbCL/hr1cvEgQ8IVLmSXjDTfgblayEtrSw9Vrz8=;
-        b=ATOkUaaB38/UBtQACI5H61zQO9tUk2FdEjfpHE1jrnKnVW1kUvMLFEr5ZjpWByKLkF
-         6SJNhKKmApEQKpwQA2RBHPt5bCBjqatz+IFd9E/jgTp+0FyF1zjojqTM+mbxiz0y8cP7
-         ONLPrLnUVNkUkOlCM9Z43HqNx0IYXeaF3oNVGJ4MqrkiCS+6D/RcNLkHEyrOoYmDfPiP
-         FFg6M79swQtmma+UVVJMGcAQscwAU5iQTgWT65l8e9DboTlw5stFLOgif1QvIhcKxG+h
-         /suzyFXcuIMrEcD1MPG0SdKzeSj8YzgwM1ir1awvqBFf1ZAd0BiEkFFiJf6GAh0iIfNo
-         oipg==
-X-Gm-Message-State: AOJu0YzcBN/FHnouYhUsdkD+N6CH+bdGzu/M84yzyi+JC/ph8GEDjoBk
-	gbgr/LvhKg/PlEM4QH7+D3izcz92i8p6Rh3/QwdhOlWKu+kcgoqIL3npsNiWWDeJfcoWO/uE2J2
-	+aWm8sO/OkR65UP2DzdWNEZTzA3W2mmAi7mM2
-X-Gm-Gg: AfdE7cnO9R89YpACPkbXSjUwKwKe172+8ULbGWtI0Z40Xl7iEYWajSrettZbsLuGsdo
-	CXafZnADD0+tyuBeL3ANI378kxraCCShnEpTAjsgZR/Uwsk1De6cGfRp8cqi6lbpbDcEvW8R+ST
-	15JpeSKnLXnsyKpVdqbKxyh9z/9m8RZivyfRflo4mnafIJ7Nnct0afky/AnAH7nI72TAP/xR+BQ
-	gKaBIgs2qnVk4RRRWAy4HM3r3OkLm8DZlG1e/k5oceObGtg9kfXOjUijkbcOqUpXbv2NMlxpg5h
-	BmqVEKkO
-X-Received: by 2002:a05:7300:6402:b0:303:f26f:df30 with SMTP id
- 5a478bee46e88-30bca09f522mr1548857eec.23.1781679177199; Tue, 16 Jun 2026
- 23:52:57 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1781679974; x=1782284774;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=Kh2zmRfLqBJkX6ljmJ2Zzgk6D+llpzzKDQIImg15hLw=;
+        b=HFBeJTuCy2BvvR55ED5+H6vm/YyeFpyNc97C+OxR/gAxEFFjsY7A09XcglHo3pjm6W
+         OtwnZya8u1TKil/nyh+UbUix7LZBaFji43Pn4saCfw7Zd/G/YNqA+olM3tvtPI2Z95Pq
+         LXfWcnivXHdQkxy0j0LSYAeZUpMgkCALhViUnyHEfY6zC80ggkryyaY3n8i6tFJBbSuX
+         WpxfkMpX96O2U9aydB8+GMzlYu9t6oFIw7gDWI89yzs3oUflO3v5DkqkIMB7we69QqIw
+         B0K01dpVtxYiNtjKQYF3dlsKlthnHVe3qH9ybhLqcsDscnfMy3p9XaGkQt5m0YfGa+hO
+         7Uqg==
+X-Gm-Message-State: AOJu0YxeACh82O/c/0nyxGaRHf5ecXFRkabQcrBJhiJIgjaRUpunQBnM
+	VWbG+ORRWwnvbDQlMsEGFjDPo7fsTZEkiMT3U0uJmjnKgd8qo6DdWvNf
+X-Gm-Gg: Acq92OGsjSJeQC4XhHoxlOfbOIpLg7vnMnac7KSRUL0IWL+/6Hu3rKvpaBIQSfWN0x4
+	EZVdHHNuPsuHFxPTaBkZN4Atry/ECxmyMoOkVRohcX/qYvYk+0dQnsh6Pu8DxbSS3o2laNtTBCd
+	ckXNNLDMRVRwjtTutXvCd+Qvyl6liOx/U36TED+9KHusNOEZxV/TY8fwsvKpxJlJwsCTUs/qpuQ
+	LpyIabXHqbsKg7ZJa11E1rUiBsQLSNf+Cg6B5KhsMthNKTkbc3Mm+XRJuM+iGUa+EA3EpE3DaOz
+	WQiMv/fEWgg+x82eTstlnJhIXmMYEUhc9VG0gB1NQFJhEHdk8RpGdH74bdFJDeSOp+v/Wj27UKk
+	kqiDCzzmekL3McwCHjjv9e+wLUAdW91SpOs6E7Rj21pXovRKsGowzjWs5v7LMp6GWUEWnVOeebM
+	4ANQ==
+X-Received: by 2002:a17:907:7606:b0:bf0:701e:b148 with SMTP id a640c23a62f3a-c05d2a7f421mr83438566b.27.1781679973266;
+        Wed, 17 Jun 2026 00:06:13 -0700 (PDT)
+Received: from xeon ([188.163.112.61])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-bfdb7b6e6c9sm752857266b.39.2026.06.17.00.06.12
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 17 Jun 2026 00:06:12 -0700 (PDT)
+From: Svyatoslav Ryhel <clamor95@gmail.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Linus Walleij <linusw@kernel.org>,
+	Svyatoslav Ryhel <clamor95@gmail.com>
+Cc: linux-input@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH v6 0/2] input: misc: add support for Imagis ISA1200 haptic motor driver
+Date: Wed, 17 Jun 2026 10:05:25 +0300
+Message-ID: <20260617070528.35006-1-clamor95@gmail.com>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260512102445.55372-1-clamor95@gmail.com> <20260512102445.55372-3-clamor95@gmail.com>
- <CAPVz0n3Dw6Vtqqn8if=MYkBbYittXqsBKbDvrs1ntbD5Zn6iig@mail.gmail.com>
- <CAPVz0n3iCSeT3xJ2XkwZ6PYofwSLkc0gfm+iYo4xbKBkAtihcQ@mail.gmail.com>
- <ajDEsU8oZWT7KB9d@google.com> <CAPVz0n26H2t=pi_C+t8jP_cWXGSa5pk=1cpTZtkBh3=RQsUk2g@mail.gmail.com>
- <ajGk5YxRTFycFc1G@google.com>
-In-Reply-To: <ajGk5YxRTFycFc1G@google.com>
-From: Svyatoslav Ryhel <clamor95@gmail.com>
-Date: Wed, 17 Jun 2026 09:52:45 +0300
-X-Gm-Features: AVVi8CdAHA6KnMvlndzjVeY1RjOWdn3VkGJdH7TEmihVzr_x7xsKAS4t5iH-0hc
-Message-ID: <CAPVz0n3RJF7j9hfqZe3Sd3NQXigizHgBxDrR6h8jcRK1R6RNAw@mail.gmail.com>
-Subject: Re: [PATCH v5 2/2] Input: isa1200 - new driver for Imagis ISA1200
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, Rob Herring <robh@kernel.org>, 
-	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
-	Linus Walleij <linusw@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-=D0=B2=D1=82, 16 =D1=87=D0=B5=D1=80=D0=B2. 2026=E2=80=AF=D1=80. =D0=BE 23:3=
-0 Dmitry Torokhov <dmitry.torokhov@gmail.com> =D0=BF=D0=B8=D1=88=D0=B5:
->
-> On Tue, Jun 16, 2026 at 09:45:25AM +0300, Svyatoslav Ryhel wrote:
-> >
-> > I have tested your code on my P895 and it works perfectly fine. Should
-> > I resend with these changes or you can integrate them while picking
-> > patchset?
->
-> I think there was an update requested by Rob for the bindings?
->
+The ISA1200 is a haptic feedback unit from Imagis Technology using two
+motors for haptic feedback in mobile phones. Used in many mobile devices
+c. 2012 including Samsung Galxy S Advance GT-I9070 (Janice), Samsung Beam
+GT-I8350 (Gavini), LG Optimus 4X P880 and LG Optimus Vu P895.
 
-Acknowledged, I will resend with both changes.
+The exact datasheet for the ISA1200 is not available; all data was modeled
+based on available downstream kernel sources for various devices and
+fragments of information scattered across the internet.
 
-> >
-> > Thank you for your suggestions and efforts!
->
-> Thank you for your patience.
->
-> --
-> Dmitry
+---
+Changes in v6:
+- added minItems for gpios
+- included changes by Dmitry Torokhov
+
+Changes in v5:
+- added supplies to private structure
+- clk_on dropped
+- ret > err
+- added active flag to track status
+- all hardware manipulations consolidated in start/stop
+- dropped mutex from work
+- dropped active check from isa1200_vibrator_close it was
+  moved to stop directly
+- dropped hw maniplations from probe
+- bustype set to BUS_I2C
+- adjusted error strings
+- fixed cancel_work_sync in isa1200_suspend
+
+Changes in v4:
+- added INPUT_FF_MEMLESS option selection
+- fixed missing clock status set
+- guard start/stop calls in isa1200_play_work with lock
+- clamp ldo voltages to allowed range
+- fixed imagis,pll-div parsing
+- dropped Tested-by from schema adding commit
+
+Changes in v3:
+- added clock state tracking
+- dropped level check in vibrator close
+- added clkdiv clamping
+- added comments regarding registers 5 and 6
+
+Changes in v2:
+- imagis,clk-div switched to accept actual divider value
+- dropped DT header
+- adjusted imagis,period-ns range
+- initiated hctrl0 and hctrl1 values in isa1200_start
+- fixed situation when PWM might return -EPROBE_DEFER to be
+  treated properly
+- added chech a clock or PWM is available
+- fixed regulator voltages check being off by 10
+- added chech if state.period is not zero
+- added action call to disable clock and gpios on error
+- used managed version of work init
+- added work cancel on suspend
+- PW calls are done under mutex lock
+---
+
+Linus Walleij (1):
+  Input: isa1200 - new driver for Imagis ISA1200
+
+Svyatoslav Ryhel (1):
+  dt-bindings: input: Document Imagis ISA1200 haptic motor driver
+
+ .../bindings/input/imagis,isa1200.yaml        | 141 +++++
+ drivers/input/misc/Kconfig                    |  12 +
+ drivers/input/misc/Makefile                   |   1 +
+ drivers/input/misc/isa1200.c                  | 536 ++++++++++++++++++
+ 4 files changed, 690 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/imagis,isa1200.yaml
+ create mode 100644 drivers/input/misc/isa1200.c
+
+-- 
+2.53.0
+

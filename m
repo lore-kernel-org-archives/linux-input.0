@@ -1,129 +1,180 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-yx1-f48.google.com (mail-yx1-f48.google.com [74.125.224.48])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CEFAD2FC037;
-	Wed, 17 Jun 2026 16:24:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781713473; cv=none; b=gK1fsr1dC0IFvncpZOrYen4blBHaaGBccZrMvtWqSt56vRY2UbFeyZ7jJ2eBh/fj6PFXjEgwOk2FMBeyOK/d9H1zM0eunLWDFLFI/yQNe3pNfEA2nSmmqMkI6GrX1JH1YEjloWHh2A6OJp0PF+4Bmh7sYj26EvVz+SrpM9U4Tsw=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781713473; c=relaxed/simple;
-	bh=mM7e4pUEYwpCAwKLDizk/My/Z3nudAR2xIFn9XI/ue4=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=NVJKWELl56jVYQ92zsrwIZyRICYU80KpCrOQbXXp+jmQPiD/AN8LY2S+MLJGK5Jo+5aTE0bOsAz83YI5TS6Vm6qvYbSlrYCwm54LGAk5/mMuixxKIpyAkrchyPc7Rtp4VJTrGbTMF6x3kgb3TY87y7rKHsd2piI/rmCI7X2Q8WM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=P2852nhL; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 481DC4A33F2
+	for <linux-input@vger.kernel.org>; Wed, 17 Jun 2026 16:55:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.224.48
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1781715358; cv=pass; b=gGrUrbZAyTObCVwnNJVR0vmTjBOOtZiRrOdQbLmIOxGy4ISuhsqIDFMCOCtsb7r/LL6EU8FvH86wjuHuknspvZnf2WTKg3mvKAVR5oT9V7ds8g78Ck0CjOLb0Tc/Z/e9t9NyQ2N1lKHhpvrbHqduU+D74fdOSXQeQuKIpGgBFEs=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1781715358; c=relaxed/simple;
+	bh=kgRJO7+eLByRWx2Oq5nyx15FBRZPHQJZ9gu86ace5ao=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=OI4zj6cFlSOsStN0tKLbzgsfRyeASaAWesJugdoyb+m8zJ9OZQm5LWJBnMSj+s8wMls7igQKXUmsv4ovEj2AT/PchzkMKMKj1fz98vc76WbcEKgCeiZk6XvvnzQmIhLyX1wVs8QtgJs1X35m8fRLwhbmhwkFT7Gy6pSgodJQg0o=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=BirJHKZx; arc=pass smtp.client-ip=74.125.224.48
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="P2852nhL"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2763F1F000E9;
-	Wed, 17 Jun 2026 16:24:26 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1781713468;
-	bh=8PRfeD0WaNjlPOD2pwDR8qkAru+d4JXzyqGIdifb2/E=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=P2852nhLPL8fwSorEL5mzDTSCerB1B9WU4SgYQRU826mWSX5aU6IfYMGMf5x3pBVK
-	 2VDFOLVCuw1bCjXazlfqZ754dlZsB/KwhVG/wkJ8F9nxOxC7BP2CpUTwkKH0OsQKiN
-	 TlG9C/3gfJuoCHeVPLH3zRpFdaRfEga6YUwjX/VsMI28wcO3pZuXlWonTxOlSt4Fuo
-	 71n5U1MoPSPu9GhKdxCnMfAJd2p0yga+ffBDs6vKmsBwQ/tKhoWLOWrMEdywvZGDGX
-	 nE1Dqu1wys7Hzl0dz3ujmcKC5ayu26sU0SFLKtgGcPuCdWFmNnBOXd0E2EMMLnNbv5
-	 7uSbyUjXOvHHg==
-Message-ID: <2e364a41-3726-4570-80f6-f702c240a2f3@kernel.org>
-Date: Wed, 17 Jun 2026 18:24:24 +0200
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="BirJHKZx"
+Received: by mail-yx1-f48.google.com with SMTP id 956f58d0204a3-662bcc30fafso2364622d50.2
+        for <linux-input@vger.kernel.org>; Wed, 17 Jun 2026 09:55:51 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1781715351; cv=none;
+        d=google.com; s=arc-20240605;
+        b=ES1RPLryrYmip30mZvPg4Qd/BQ3jWpxdg++ODaYul0wCKeg3BI/2EZy3lDtsvMl4ug
+         r/z5uUwsjJwjAbIRyePQRYkb8M8aaoCjU2gIIujbHaCK2ShrF9+IKTRRLM7uPt98o3ff
+         8kh1jlrhVwOPr5yszuPh41CurBKWjl/ngdjG8pFbP55FvlHnAkerYOY/C8pgjZP9dTao
+         2dPKdQFeAU+LSKIyJDMolMWQD9O3IuFivcoWe0wH1UqWL/5BC92lj0bI3hvNvRtBMjHw
+         HMaLDOeiGAN4L5Lu+SKVonqIxJD08h6oqRmUi9j82KnUw0syIGkHYrCWS74xviZKTcfi
+         QPJQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=6bHOQcdruI9mliZJcGW/ry78gg2poCr76ORA042aozg=;
+        fh=7H0hS5LZiWB2ojCjG115UoCtg0L3Pu4ck5qvoDAkFHw=;
+        b=LY76/tV87Dgjsv/SLW7Hnds/0Ojly3N0nJf06WjRKylpdyjPR8JNlT1yP3lCzAWT6I
+         f0Oo2h1rgNyCrMrx5fEanlhU9F2lg0ZpEZ2OHVywEc6dseZY86mYpOSUHLciPzD2e9AT
+         UDutvshdw0JYUvYlic0YgijKiiVh3YyUNXF5rYdYNHVPmqQLGqrqhIkYJV2vDF2QZdyt
+         IrZSWcw/xt8OcLl1DyGOCjljpidHRqPbF0+rwtbmGMJAb5q7W9++gUJi2QjMFx+EiBnA
+         k3VIpYfvNINoLusaGuLP4Cx6LyGi4cp5c5lVZjRDGKo+qrNfCrS/n4Q04l7jjLCoe6Xs
+         COug==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1781715351; x=1782320151; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=6bHOQcdruI9mliZJcGW/ry78gg2poCr76ORA042aozg=;
+        b=BirJHKZxSWgEnXyKZ6Vh+OkcK01kCMNFeV9Idhi79KM2glQGmvK8MQBemTkJqU2q5b
+         iKDdv2aoHcPVFdxpHcNjGxxHfWNtpLCXUENA5uogQZXKZl/wFAWYLf1rQV9z+Bhlta7+
+         cBwuKWEWW3ZZhEeHTRZepjnN5VkTv89RBcLsFrYIWwCjJ1em8iqpUPbj7Sbz6JWxyAVM
+         Qm+u15PbQUY4/iUllj3XOk0o7tD3JChRIbeqyzd+2XtoOY5V+1AFcmpKR49jnUR8Ob1X
+         wgRYUWZO1pCGFAZcdpDx9PMDMcYIkpMR0KV3D+bD5r47USObHmsUkyLCcIS6peZq8J4x
+         lFSw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1781715351; x=1782320151;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=6bHOQcdruI9mliZJcGW/ry78gg2poCr76ORA042aozg=;
+        b=LxeoeAMsh0xuAW9U4C/7zCn6sNCwdCISAplSJ7zpOUB38dh5IptEjZfZ+ZY8QXOQ3D
+         rmFlT2XDqXfCKDtRoqFcnqFQrhtcQd9u/jjtVIgH6ZIl0wQL28DFpLpwlzJ3JTmnDhnx
+         0asOqpM1uVcEg9czdbxAuaxDjJylLLG/d3zmXECexWn54RlURfCFtsA/mz0GB/PcVTje
+         FvXGmjS8bp/rxAdZSjihpaqX6cpN1srxpSwfqZE5dkbgEOhd8QqyNhD7yzltc/f/meim
+         kVeSbj0qNt1CAV4WKbZn8bzDQaNoIiGd8sCyGVVE5MqzyRsnU1KuJ+aGSCiSqaYsOrn6
+         L/wA==
+X-Forwarded-Encrypted: i=1; AFNElJ8QA4TAdBu/zuAX2orQEWspTwKPobitx5HCZPK6jrumpuOC3h0rNu/uAm6I5KCBPL3Ta4lsVZIurD7srw==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yy9xf80VVx0Q8fZoQLv5JIZU0RgX+M69dmkqh52esdOvH+EngaN
+	lmhV4UbHuNqcUYm/lx7J7KtAbcMmZZTuSLxT9EuaOFJiPY/6ZK11YdBtRFNBIsS+nI4h3sZheU8
+	Tzov/hN1IJ2eCAqWlBHESqbuGO81aQjQ=
+X-Gm-Gg: AfdE7ck+mYHHlHfmBEVfYIITF2MsjM0eSb6h5unS5JsMb8UYXIWMnfiQCfZJFnlE7Hw
+	opJVmFybNHfNOHWhaw03ZQmDlHi92srTQoNmcw2CpLwf58mMVoibLg735iTu9dzN1rEpqI3PkIE
+	UN7A0KRtZWgdC+qeYIi/azuWI00/iyWkF9uTeQfSNF9r0bS4ZAhOX79oc3fDlZr3CabW00ZbSoS
+	rXyQebY4Q7GirUy/X7GuSzjlz0C8CG76cQxDD2V5dJNfuGFxImA9tQ+/xr9o9Kyakl+myYPMQ==
+X-Received: by 2002:a05:690e:4396:b0:660:32d9:22c1 with SMTP id
+ 956f58d0204a3-662cbc81ddfmr3022293d50.33.1781715350622; Wed, 17 Jun 2026
+ 09:55:50 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: hid-lg-g15: possible use-after-free of devm data via work
- scheduled from a report
-To: Maoyi Xie <maoyixie.tju@gmail.com>, Jiri Kosina <jikos@kernel.org>,
- Benjamin Tissoires <bentiss@kernel.org>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <178169820506.2930960.12219303668828186338@maoyixie.com>
-From: Hans de Goede <hansg@kernel.org>
-Content-Language: en-US, nl
-In-Reply-To: <178169820506.2930960.12219303668828186338@maoyixie.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+References: <20260606040344.4-1-ruoyuw560@gmail.com> <20260617072035.3373487-1-ruoyuw560@gmail.com>
+In-Reply-To: <20260617072035.3373487-1-ruoyuw560@gmail.com>
+From: Jason Gerecke <killertofu@gmail.com>
+Date: Wed, 17 Jun 2026 09:55:38 -0700
+X-Gm-Features: AVVi8CcLUf4Zygkv8XTpPDzox9h-5snRraG3WgnZ138JNbMoMg_VwtMEDMOvtjQ
+Message-ID: <CANRwn3TWqW5aVnymLbWDFwNKuHC77gXFDYQGs7bLPJQC6Q=jTQ@mail.gmail.com>
+Subject: Re: [PATCH v2] HID: wacom: avoid copying Bluetooth input reports
+To: Ruoyu Wang <ruoyuw560@gmail.com>
+Cc: Ping Cheng <ping.cheng@wacom.com>, Jason Gerecke <jason.gerecke@wacom.com>, 
+	Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>, linux-input@vger.kernel.org, 
+	linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Hi,
+On Wed, Jun 17, 2026 at 12:21=E2=80=AFAM Ruoyu Wang <ruoyuw560@gmail.com> w=
+rote:
+>
+> wacom_intuos_bt_irq() duplicates the received Bluetooth report with
+> kmemdup() so that it can pass 10-byte input report payloads to the
+> common Intuos parser. The helper then copies each payload back into
+> wacom->data before calling wacom_intuos_irq().
+>
+> Avoid the allocation and copy by temporarily pointing wacom->data at the
+> current 10-byte payload while the common parser runs, then restoring the
+> original report pointer. The Bluetooth report parser keeps using the
+> original report buffer for dispatch and battery parsing, while the common
+> parser sees the same payload bytes as before.
+>
+> This also removes the unchecked kmemdup() result from the Bluetooth IRQ
+> path.
+>
+> Suggested-by: Jason Gerecke <jason.gerecke@wacom.com>
+> Signed-off-by: Ruoyu Wang <ruoyuw560@gmail.com>
 
-On 17-Jun-26 14:10, Maoyi Xie wrote:
-> Hi all,
-> 
-> I think the lg-g15 driver can read freed memory on disconnect. I would
-> appreciate it if you could check my reading before I send a patch.
-> 
-> The per device state is allocated with devm in lg_g15_probe().
-> 
-> 	g15 = devm_kzalloc(&hdev->dev, sizeof(*g15), GFP_KERNEL);
-> 
-> That struct contains a work item, and the report handlers schedule it
-> straight from device input. For example in lg_g15_event().
-> 
-> 	/* Backlight cycle button pressed? */
-> 	if (data[1] & 0x80)
-> 		schedule_work(&g15->work);
-> 
-> The same schedule_work(&g15->work) call also runs in lg_g15_v2_event() and
-> lg_g510_leds_event(). The worker lg_g15_leds_changed_work() does a
-> container_of() back to g15 and dereferences g15->mutex and g15->leds.
-> 
-> The driver has a probe but no remove callback, and there is no
-> cancel_work_sync() anywhere in the file. So if a report schedules the work
-> and the keyboard is then removed, devm frees g15 while the work is still
-> pending or running, and the worker touches the freed object.
-> 
-> The attacker model is a Logitech G15 class keyboard that sends one report
-> with the backlight cycle bit set and then disconnects. That can be a
-> malicious device or an unlucky unplug.
-> 
-> I reproduced the freed while pending pattern under KASAN on 7.1-rc7. The
-> workqueue picked up the orphaned work after the object was freed, and KASAN
-> reported a slab-use-after-free read.
-> 
-> The fix I tried is a small remove callback that cancels the work before the
-> devm teardown frees g15.
-> 
-> 	static void lg_g15_remove(struct hid_device *hdev)
-> 	{
-> 		struct lg_g15_data *g15 = hid_get_drvdata(hdev);
-> 
-> 		if (g15)
-> 			cancel_work_sync(&g15->work);
-> 
-> 		hid_hw_stop(hdev);
-> 	}
-> 
-> and wiring it up with .remove = lg_g15_remove. The g15 NULL guard mirrors the
-> existing check in lg_g15_raw_event().
-> 
-> Does this look like a real issue to you, and is the remove plus
-> cancel_work_sync the approach you would want? If so I am happy to send a
-> proper patch with a Fixes tag against 97b741aba918.
+Thanks for the update! The sashiko warnings reveal an existing issue
+with this function triggering unaligned memory accesses. I don't think
+the warnings should block this particular patch, but instead remind us
+that some kind of dedicated alignment cleanup patch would be a good
+idea.
 
-Thank you for reporting this. Yes this looks like a real issue (possible race
-on device unplug).
+Reviewed-by: Jason Gerecke <jason.gerecke@wacom.com>
 
-As for your suggested solution, that looks good but g15->work is not always
-initialized. For example in the g15->model == G13 case lg_g15_probe() does
-not initialize it.
+Jason (she/they)
+---
+Now instead of four in the eights place /
+you=E2=80=99ve got three, =E2=80=98Cause you added one  /
+(That is to say, eight) to the two,     /
+But you can=E2=80=99t take seven from three,    /
+So you look at the sixty-fours....
 
-I don't think you should cancel an uninitialized work. Trying to queue it
-will cause a WARN() backtrace to trigger, not sure if cancel also enforces
-this.
-
-So you should add a test for `g15->work.func != NULL` or just `g15->work.func`
-before cancelling.
-
-With that fixed, a proper patch fixing this would be much appreciated.
-
-Regards,
-
-Hans
-
-
-
-
-
+> ---
+> Changes in v2:
+> - Replace the kmemdup()/memcpy() path with temporary wacom->data pointer
+>   substitution, as suggested by Jason.
+>
+>  drivers/hid/wacom_wac.c | 8 +++++---
+>  1 file changed, 5 insertions(+), 3 deletions(-)
+>
+> diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+> index da1f0ea85625d..a29bf051ada7c 100644
+> --- a/drivers/hid/wacom_wac.c
+> +++ b/drivers/hid/wacom_wac.c
+> @@ -1192,8 +1192,11 @@ static int int_dist(int x1, int y1, int x2, int y2=
+)
+>  static void wacom_intuos_bt_process_data(struct wacom_wac *wacom,
+>                 unsigned char *data)
+>  {
+> -       memcpy(wacom->data, data, 10);
+> +       u8 *saved_data =3D wacom->data;
+> +
+> +       wacom->data =3D data;
+>         wacom_intuos_irq(wacom);
+> +       wacom->data =3D saved_data;
+>
+>         input_sync(wacom->pen_input);
+>         if (wacom->pad_input)
+> @@ -1202,7 +1205,7 @@ static void wacom_intuos_bt_process_data(struct wac=
+om_wac *wacom,
+>
+>  static int wacom_intuos_bt_irq(struct wacom_wac *wacom, size_t len)
+>  {
+> -       u8 *data =3D kmemdup(wacom->data, len, GFP_KERNEL);
+> +       u8 *data =3D wacom->data;
+>         int i =3D 1;
+>         unsigned power_raw, battery_capacity, bat_charging, ps_connected;
+>
+> @@ -1242,7 +1245,6 @@ static int wacom_intuos_bt_irq(struct wacom_wac *wa=
+com, size_t len)
+>                 break;
+>         }
+>
+> -       kfree(data);
+>         return 0;
+>  }
+>
+> --
+> 2.51.0
+>

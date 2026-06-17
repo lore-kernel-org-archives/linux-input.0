@@ -1,133 +1,102 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ED40E3AE6F4;
-	Wed, 17 Jun 2026 20:21:39 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6A16035B631;
+	Wed, 17 Jun 2026 20:31:06 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781727700; cv=none; b=kOWeiUvTmZ/Irggdpx+MK6rOUlZ9+uIS2c3x29pvUIsZwZHmgHDKB7pVIhA3PjEZKmJ037nods6yAWutYm9/dVyDf15MxmMIWdEcSN0PUfJXmLBuls3GB6tToH6C9WZSgtkccvmNGd8rArhr/Y/R/G1jWTf8SuAfElU5sVX08VQ=
+	t=1781728272; cv=none; b=otEQ7SoMD6CqKBBwgfhKgULd15g8t49f+aK7Mr6Ieow4wcXKRXgW0zkLDrHDRCEVkw6MV3RHgjU5igN4SebCZLmI2ZtqnwqJNIHJBAU/E/cSNpcVuJgEmeTtb2o9wGseNW0tTn1Lp/61DlVYVtj7ex0o21nP06fL0U6eQw/qAU0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781727700; c=relaxed/simple;
-	bh=9jXZzji4p747qNqua8ZEgKozSC60WMJi7ckFAP39OxA=;
+	s=arc-20240116; t=1781728272; c=relaxed/simple;
+	bh=5A7sAOhhb2RfiJ+NOx1F4HByPaknrUUEQtps2W92ePs=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=jTzZV8habWbwLSnomDMPI4KQZcc1n6p9Tb0IATforDXEEVO5uixairs3oN3o0BwNyaRMVUoqIGR08r0D22sV8T2P6JS0+1JFLRtKz4Bnb97MbfaXFUZd9YV+j2XgSwMQBxxX+Bs5sRGjxxdqMjTFoHuyEO2H7DKBuihEBI8352g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=FK3o3HoV; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=MRgDdvdH/s/lnq72ttFrqQqjhqpv8XK6tHWibCY+0hnDqqfJvBC68i8ad3bxferrKl0+exgYq0c1w1uEAPA0VTFb2VfhcultxPN9Vf9ya34VJbx1b6ovNzdUYX1IsWaPJkeRLsNS0v4aJaD2V89rs939MA9SfrlrcLKkVjsN5uc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=b3LfjN7m; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="FK3o3HoV"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3D631F000E9;
-	Wed, 17 Jun 2026 20:21:38 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="b3LfjN7m"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4FDE1F000E9;
+	Wed, 17 Jun 2026 20:31:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1781727699;
-	bh=HyOGNh2EpkL9tH+RmqnXOoINHIh4UoDYizOhddPG8gE=;
+	s=k20260515; t=1781728265;
+	bh=ozfQcw/O8CAMHls+vIGVb+Ve0akF50Yh5E7IY7QYNB8=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=FK3o3HoVNcrSrkrCq7TApll8xgwj8KmemuHeWvHIEqOUYH1Qdw2S7nSG0yMutiwHl
-	 Z7uB4SToPpkrzF8y+IJxodqZmAEqPnRjUQydOy2ltIMPipEnaKGLzL1R0Ne1Gj9hC8
-	 E077w4pjp6CJ/rP8lYSXQ9+orC+DTMZGQGmVYFZbssH+FaTPHq1YL8xqB0QaW+/aXT
-	 +tl7zucaPNgsssg4UPOdzwbN4Yb+wWQv53oKvnpLWR9PCBqqUO+GgOGYIH9wGOecJ0
-	 ArrROLwULWhW0RBjWjMJtDBBec14DsIL7W18y1vER9K0MHwGy+mpZ+3TexlWf13FCD
-	 Vru03LJLu5ONg==
+	b=b3LfjN7mRR05KiEjmhkwWu8skBH76BD4vfUODQcl2kWZqRzPEN4WV0Kt5LyPJfQE2
+	 LMD0dtHNp8V/FFkhdH+HaTWeeQhXbbBv4gZmtRzjsbVY+vA8asIX7DsU6HkhoWx5LC
+	 KnLI5bkJEBOuMRzdnWujJVx84DxhFPzDawamQFnQQvgAFpVRi3oyLFPqJQ1DsxsdGx
+	 j7zmxnsFLgWFJ4iwioVxJwxtqZJ5or7lGtYfou2jktdqVxEz4SjjRIiS+W8TOI0AK0
+	 H4PZVozVOvFOSC5Y5mKDLmbvb52G844lsfoWsVyDdveGusRagMbTpaUUbwV+LbXc2u
+	 k39B7mmHASICQ==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v4 02/10] Input: cap11xx - remove unused register macros
+Subject: Re: [PATCH v4 03/10] dt-bindings: input: microchip,cap11xx: Update
+ datasheet URL and LED reg range
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Jun Yan" <jerrysteve1101@gmail.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, robh@kernel.org, devicetree@vger.kernel.org, conor+dt@kernel.org
-In-Reply-To: <20260617150318.753148-3-jerrysteve1101@gmail.com>
+Cc: devicetree@vger.kernel.org, linux-input@vger.kernel.org, robh@kernel.org, dmitry.torokhov@gmail.com, conor+dt@kernel.org
+In-Reply-To: <20260617150318.753148-4-jerrysteve1101@gmail.com>
 References: <20260617150318.753148-1-jerrysteve1101@gmail.com>
- <20260617150318.753148-3-jerrysteve1101@gmail.com>
+ <20260617150318.753148-4-jerrysteve1101@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 17 Jun 2026 20:21:38 +0000
-Message-Id: <20260617202138.A3D631F000E9@smtp.kernel.org>
+Date: Wed, 17 Jun 2026 20:31:04 +0000
+Message-Id: <20260617203104.A4FDE1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-
-New issues:
-- [Medium] The patch fails to remove unused definitions in `cap11xx_volatil=
-e_reg` despite the commit message claiming otherwise.
-
-Pre-existing issues:
-- [High] The threaded interrupt handler unconditionally returns IRQ_HANDLED=
- even when I2C operations fail to clear the hardware interrupt source, risk=
-ing an IRQ storm.
+- [Medium] Incomplete Refactoring / Code and Commit Message Mismatch
 --
 
-commit 8aa29f5d8b4eefa859454cdb0496fecf07ff5aa8
+commit e8499e0ca62db6a2ee6dc0986e7c04ea1337f6c7
 Author: Jun Yan <jerrysteve1101@gmail.com>
 
-Remove unused register address macros and unused definitions in
-the cap11xx_reg_defaults array and cap11xx_volatile_reg.
+Add datasheet links for all supported CAP11xx variants.
 
-This cleanup reduces code clutter and makes the driver easier to
-maintain without affecting functionality.
+Update LED node regex and replace enum constraints with minimum/maximum
+for LED reg ranges in preparation for CAP1114 support. Drop unnecessary
+led unit-address pattern.
 
-> Remove unused register address macros and unused definitions in
-> the cap11xx_reg_defaults array and cap11xx_volatile_reg.
-
-[Severity: Medium]
-Will this patch actually remove the unused definitions in
-cap11xx_volatile_reg?
-
-The commit message states they are removed, but the patch doesn't modify
-that function.
-
-> diff --git a/drivers/input/keyboard/cap11xx.c b/drivers/input/keyboard/ca=
-p11xx.c
-> index 485d8ba97723..fae26f035186 100644
-> --- a/drivers/input/keyboard/cap11xx.c
-> +++ b/drivers/input/keyboard/cap11xx.c
-> @@ -20,53 +20,24 @@
->  #define CAP11XX_REG_MAIN_CONTROL_GAIN_SHIFT	(6)
->  #define CAP11XX_REG_MAIN_CONTROL_GAIN_MASK	(0xc0)
->  #define CAP11XX_REG_MAIN_CONTROL_DLSEEP		BIT(4)
-> -#define CAP11XX_REG_GENERAL_STATUS	0x02
->  #define CAP11XX_REG_SENSOR_INPUT	0x03
-> -#define CAP11XX_REG_NOISE_FLAG_STATUS	0x0a
->  #define CAP11XX_REG_SENOR_DELTA(X)	(0x10 + (X))
-
-[Severity: Medium]
-Should this macro also have been removed?
-
-Because cap11xx_volatile_reg() was not updated, this macro and its
-corresponding case entries:
-
-	case CAP11XX_REG_SENOR_DELTA(0):
-	case CAP11XX_REG_SENOR_DELTA(1):
-
-were left in the file.
+> diff --git a/Documentation/devicetree/bindings/input/microchip,cap11xx.ya=
+ml b/Documentation/devicetree/bindings/input/microchip,cap11xx.yaml
+> index 7ade03f1b32b..eabf06a1163e 100644
+> --- a/Documentation/devicetree/bindings/input/microchip,cap11xx.yaml
+> +++ b/Documentation/devicetree/bindings/input/microchip,cap11xx.yaml
 
 [ ... ]
 
->  static bool cap11xx_volatile_reg(struct device *dev, unsigned int reg)
+> @@ -131,7 +140,9 @@ patternProperties:
+> =20
+>      properties:
+>        reg:
+> -        enum: [0, 1, 2, 3, 4, 5, 6, 7]
+> +        description: LED channel number
+> +        minimum: 0
+> +        maximum: 7
 
-[Severity: High]
-This isn't a bug introduced by this patch, but could the error handling
-in cap11xx_thread_func() risk an IRQ storm?
+[Severity: Medium]
+Does this fully prepare the schema for CAP1114 support as mentioned in the
+commit message?
 
-If an I2C communication error occurs during the interrupt handler:
+While the constraints on the reg property were updated here, the main
+patternProperties definition for the LED node just above this still uses
+"^led@[0-7]$".
 
-cap11xx_thread_func() {
-	...
-	if (ret < 0)
-		goto out;
-	...
-out:
-	return IRQ_HANDLED;
-}
+Since CAP1114 has 11 LED channels, wouldn't the schema fail validation for
+nodes like led@8 and led@9 because the top-level pattern wasn't also update=
+d?
 
-Because this uses IRQF_ONESHOT, returning IRQ_HANDLED instructs the IRQ
-subsystem to unmask the interrupt. Since the device's interrupt status
-was never cleared due to the I2C failure, the interrupt line will remain
-asserted.
+[ ... ]
 
-Will this cause the interrupt to immediately fire again when unmasked,
-creating an infinite loop?
+> @@ -158,7 +169,7 @@ allOf:
+>                - microchip,cap1298
+>      then:
+>        patternProperties:
+> -        "^led@[0-7]$": false
+> +        "^led@": false
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260617150318.7531=
-48-1-jerrysteve1101@gmail.com?part=3D2
+48-1-jerrysteve1101@gmail.com?part=3D3

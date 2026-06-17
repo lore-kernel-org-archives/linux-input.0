@@ -1,82 +1,78 @@
-Received: from mail-pj1-f50.google.com (mail-pj1-f50.google.com [209.85.216.50])
+Received: from mail-pl1-f178.google.com (mail-pl1-f178.google.com [209.85.214.178])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4180A35202A
-	for <linux-input@vger.kernel.org>; Wed, 17 Jun 2026 18:37:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.50
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B765137F005
+	for <linux-input@vger.kernel.org>; Wed, 17 Jun 2026 19:04:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781721470; cv=none; b=ODHocn8EaYuL6CE6MQyJO0MpxQnez4jrspQuNbAaTUefEdTAMftvaqjIau2SQ5u/qTeap/IlY10GiiargHyY4qRdS4xmTbgM4aEEb/MBRkYkxeV5B3bLfvCk6y2BgCpFv0fzfAEiZwrh9W1vitAt1UcTPYMVqDB2F3s1K6Grp0o=
+	t=1781723100; cv=none; b=A5p/k+nGOm8aTJJFSvO/9KYK7eHGvBvEafTCi37lx3+6KtDDO9qHY10Po2nOpGxO8T0/J9nm3xJ3GM6kWx75XsmiP8sFmyoCP1hwsG4zSx0jdxblP7qwddhVaGnFiMBu7GwitHK5GeMhRqCcJUCnv8rQZ1Ib1v+UPCVZy1pcLFY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781721470; c=relaxed/simple;
-	bh=JzVBc80EWQh66w3C+Web/Vz7LpJBWeiR8kD/Pt9Yvz4=;
+	s=arc-20240116; t=1781723100; c=relaxed/simple;
+	bh=u+UvYY9UrxxjoueL+zkhTKOfBiuOgVDHJZSucBSfauU=;
 	h=Date:From:To:CC:Subject:In-Reply-To:References:Message-ID:
-	 MIME-Version:Content-Type; b=Sfl7yq0V03XKe3VHp1rLLd1YuRGZvQpeIMlF1IfXM32/kvdN3DZFsh6Ht0eFFdXAnTYdWztXnlg8f5wdbmSGKDcoOAHHMC0aoCb7f6Ypi14uuIczBtQ3hDH9FPyuovuGIrqrewLwfMyhk2yl/TLeHAmnKZOZW9KY/nCJDz1aK3w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=N6okpU7r; arc=none smtp.client-ip=209.85.216.50
+	 MIME-Version:Content-Type; b=KJrNMbdDeCBBqbYtI1rvbE43GsVXQL4IAwlqEtbj3onu93JojXgGZtPp0BN4o3d4bbl6OX0inPcF7OtNwEVr5OmObvKMc9yBbE5qEtXJGBZ1x9KmVNsmQiCeikXQSPng9jOgVWNdj81z0swF7e90LCJfUZx9Jgz0cVGcL6KYLcE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=kN58Hflz; arc=none smtp.client-ip=209.85.214.178
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="N6okpU7r"
-Received: by mail-pj1-f50.google.com with SMTP id 98e67ed59e1d1-36dd65b95f2so57995a91.0
-        for <linux-input@vger.kernel.org>; Wed, 17 Jun 2026 11:37:48 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="kN58Hflz"
+Received: by mail-pl1-f178.google.com with SMTP id d9443c01a7336-2bf2247e38eso1689895ad.3
+        for <linux-input@vger.kernel.org>; Wed, 17 Jun 2026 12:04:59 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1781721468; x=1782326268; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1781723099; x=1782327899; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:message-id:references
          :in-reply-to:user-agent:subject:cc:to:from:date:from:to:cc:subject
          :date:message-id:reply-to;
-        bh=JzVBc80EWQh66w3C+Web/Vz7LpJBWeiR8kD/Pt9Yvz4=;
-        b=N6okpU7rYZVN6KRHZ61P3cgQzCh2jOgBnLEeNsXLWBglOaEP8ut18ia4aFdvR89ZA4
-         QnzrlN363gQV9xPwE5cWW31TBuizWRMdeHMMtEnCWaeKyYzbvW43tauLlm3mIFOJuERL
-         5ZTtHs8IWm6+S+3ZoM4RGIFCxB/+pB8jjjnRasQd07VF6P8STQ8p0R6OUg/7pz367jgq
-         cfQ7sHJq3fr+atAfIcsepM54zryohOjlwQZa+cTz37NiXqWSIpiUMEc7vkdovh00/YAV
-         2/39TlamUubFjr9WMdcTFAXZVT5hN0zRKzdJZ0ZaJf7j/CcU65q58uc8uSwdgLkGABO4
-         hAwg==
+        bh=WWb5EDD7Z8+iTmdCvkmtSJcYVuqqEa89gpURDIob5KI=;
+        b=kN58HflzSk4liSYDXCwGuR0rcdjrHhNVrOeSg3hYJWgXpbxe8v/RbKjdOS9IclQ8gq
+         2gTcPqrNAXXo6mP0icuMms/ZqaaQCN9EBT7F6xajDqK9ApSKWL1o7d0nwQlrVppIEAfq
+         YV6bQH5yxgpQa5+FOf4yCZ1ZLsGvGGFyKPp9YFUHg53rleFLEmyhW95bxkBNDZlX1GKO
+         UUoN4EcFcGhrh3HQqPgJy+cnwJtzSK8ZV89b4SxcKJZqP/PfLRKRMKEDpWP3A+QJdCUl
+         HwgQAPvK5yvXFcAH7JmK8auj0/ZD2/R3qW0PEWm/KPZfg9QuRO6u4PX36AkyAAh6cTya
+         SyUQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781721468; x=1782326268;
+        d=1e100.net; s=20251104; t=1781723099; x=1782327899;
         h=content-transfer-encoding:mime-version:message-id:references
          :in-reply-to:user-agent:subject:cc:to:from:date:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=JzVBc80EWQh66w3C+Web/Vz7LpJBWeiR8kD/Pt9Yvz4=;
-        b=UL3DnRWkNayKws4+u6Fr6LVdHx8tOufovH++ieD1HfSJmKhsl6hvrg6MBwCHEflKtJ
-         Om7Cd56kHNMHf+QRaWdw/ElZulD4W9wlR6oYPwgxvU31hYMjmaaTS8FrKDUrCcUraH+s
-         s0l3zuy+tPH+DAnYZGvorCNqrTJNtfRxCP5BXIg3UBvxfxYRcLU7JefzVKkVZbGMdubo
-         JJ3l26k+CKkR4UD8Xr809azyoGFa62va7V3U4vxvrjYytUtK+PJBJbt3PzQMgN08uqG/
-         CtLT10acgFA+Db0UURuob5ZI3v3qXFLcVRFfNByNc9LQDz0A2ng3Zmpu8xLPy6NUrH5t
-         yd5Q==
-X-Forwarded-Encrypted: i=1; AFNElJ/np0Nh/4K2d2xmAeUCumfQN3QspabmxTbaPUVBK7OKrVhLd3/rh4PC+xMIzfCtZZjky5GbL+kB1ES5GQ==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yy1u86mrwjnjc00c++8IEtUchczyhP1yD/hi32Lx6xfHExNvC+Q
-	oOYBdVjajToVExDbQ8+qj4fPS6rdnxR1+ztC3ZU1YHNG1F3Bv50ULVIz
-X-Gm-Gg: AfdE7ckjvCzzyITbGoX2GEoNdSe8CoCKRh9/Wh/wtN4OD8mkoG70VWkXXgntOP7fiom
-	iGaHZXpFu/K2a8zkxCAe7Dz99VLl1Mle4K1sjE9kmPmrhfsWU3EBwVCY6wr0X396d/mi9xGxZ2q
-	arqjpFSOCL6FFoCa5b7v/pBlZNHI7ebLIP5tiidN06Q/L35x4h4RkvTWh+w1UsNP54UCOP8kE6H
-	BEBQ3viy/09sHu0QbhxBqN74b9QqJ53hQOihv18KC+HKxiL3fFjXfPwdpkQ5b0EdxtsMNtZflWZ
-	sUP+GQ8xnBRpGkzD2xcp7L7qVS1y7IQqaDat1LzuAOULoptIgk+ZAF9F0yIZV4wsLweoS+xc9G5
-	poataQuUZCIRrdUoYvPz+YX4jIg+GPmfY3z4S9qlzLVwd6vTzx8yae7fbwTVWVsjcR4u5t7wM0o
-	29WypYwv+BcXpHPkpnoEi5Fkd9EdyHzEDVlGg=
-X-Received: by 2002:a17:90a:c883:b0:373:302d:3ce6 with SMTP id 98e67ed59e1d1-37cdbd45565mr379299a91.8.1781721467942;
-        Wed, 17 Jun 2026 11:37:47 -0700 (PDT)
-Received: from ehlo.thunderbird.net ([2401:4900:1f3f:6e5a:8e24:dcd:4d7f:c92a])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-37cb988cc64sm2180161a91.13.2026.06.17.11.37.46
+        bh=WWb5EDD7Z8+iTmdCvkmtSJcYVuqqEa89gpURDIob5KI=;
+        b=Asf2zMAT/Me7GhCP6XjXhQwaw3pJoVCs/dKBiHZIw81m5E5lZu1vGcLLbKQbQZIPgM
+         vkF4Oeq1/2/DB2jqiVNmnvmMYcfw0bXatjFrISAYbvCs3eU0acSv/VjQgAv99DJcNZjw
+         jqO1Ej/v91BuVKxgzjhhhtx4eZMr5w5XMuhMUqZYh16m7qi61quAsXP71MKuKV+LynDS
+         X/co7sGszhKpHehSM0n3cvkv1rQeh/fok5zaT5raf367UnEMvb0qBL9ZetNjkqN3E7tt
+         0HLbdXX5302h0506iJB83VFbTpd4vBBiIfx4M1gJVQCbDIyekNyz1DyxpKcJ+gJHimuw
+         9f4g==
+X-Forwarded-Encrypted: i=1; AFNElJ9YZX8WOSV1lSZsZQ8ruRrICK1borXXZSE/GlSJq/5c6VjoM+2VN6OAkaecPbol590D2bFxzWuGCkD2QA==@vger.kernel.org
+X-Gm-Message-State: AOJu0Ywo13K1NmyQBw7lrSRrpIgvSrLEmJq90CpsXOIxHQk03IQoDanJ
+	033M1Onhk/by8K+m0VWtyH95YmeUjReJkuHcgsnXOhXLzqkYzvdorBWe
+X-Gm-Gg: AfdE7cmrAkj7zSEd9KlLUIxwkezZtyNM/JuMDGkentDE/V31ISnqKJayuyJ4rjgwM6l
+	o4OKbNUyYLqGHrLPq6J4aDks3SC73+Q62ZX99bs2xlQqq2G8XknvweTPstf5mYLNI+EOWUmWrbh
+	RMP5po2/fWGL6suabs7YgT/JxuLC/jQFTOsszvTnHOsdRzcxavj+iHTWOKGkVHs74uDqERyeO+t
+	I+DovKXC/TiaEu6le5bg3UtmM0EHonKNBfpwVWJsdoKKQKagphKiQJs1BE1U9/pixP7Z4jy89tc
+	KTixkzV2/tv6Pe5TTr04SDehecCtGio7aBo0Gi8FTmWdfy6oN8r6v5DSFmQl/6GUybxjR8Y/L+z
+	l45OXXuVqZeeRmr7kAHYnbZHwtrbT8EgWLWrob83dDC4B3O1UMrNHjv/w2Ke55uaSOlcdfVcQx0
+	7aBPk0pJavvIRzQtUj93KFmpvIffmn3qSCJ+E=
+X-Received: by 2002:a17:903:950:b0:2c6:b816:43ba with SMTP id d9443c01a7336-2c6bc21ee45mr52773185ad.21.1781723098901;
+        Wed, 17 Jun 2026 12:04:58 -0700 (PDT)
+Received: from ehlo.thunderbird.net ([2401:4900:1f3f:6e5a:a26:1f1f:d75c:bc14])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2c4327ac80asm155502625ad.39.2026.06.17.12.04.55
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 17 Jun 2026 11:37:47 -0700 (PDT)
-Date: Thu, 18 Jun 2026 00:07:40 +0530
+        Wed, 17 Jun 2026 12:04:56 -0700 (PDT)
+Date: Thu, 18 Jun 2026 00:33:09 +0530
 From: Sanjay Chitroda <sanjayembeddedse@gmail.com>
-To: "Pandruvada, Srinivas" <srinivas.pandruvada@intel.com>,
- "jic23@kernel.org" <jic23@kernel.org>
-CC: "dlechner@baylibre.com" <dlechner@baylibre.com>,
- "archana.patni@linux.intel.com" <archana.patni@linux.intel.com>,
- "hongyan.song@intel.com" <hongyan.song@intel.com>,
- "linux-iio@vger.kernel.org" <linux-iio@vger.kernel.org>,
- "nuno.sa@analog.com" <nuno.sa@analog.com>,
- "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
- "jikos@kernel.org" <jikos@kernel.org>, "andy@kernel.org" <andy@kernel.org>,
- "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
-Subject: =?US-ASCII?Q?Re=3A_=5BPATCH_2/9=5D_iio=3A_orienta?=
- =?US-ASCII?Q?tion=3A_hid-sensor-incl-3d=3A_Fi?=
- =?US-ASCII?Q?x_race_between_callback_registration_and_device_exposure?=
+To: Maxwell Doose <m32285159@gmail.com>
+CC: Jonathan Cameron <jic23@kernel.org>, David Lechner <dlechner@baylibre.com>,
+ =?ISO-8859-1?Q?Nuno_S=E1?= <nuno.sa@analog.com>,
+ Andy Shevchenko <andy@kernel.org>, Jiri Kosina <jikos@kernel.org>,
+ Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+ linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-input@vger.kernel.org, Zhang Lixu <lixu.zhang@intel.com>
+Subject: =?US-ASCII?Q?Re=3A_=5BPATCH_00/11=5D_HID=3A_iio=3A_warning_c?=
+ =?US-ASCII?Q?lean_up_and_prefer_kernel_coding_style?=
 User-Agent: Thunderbird for Android
-In-Reply-To: <50ce20dec63080dde13336c6af41c0bf4de43426.camel@intel.com>
-References: <20260606-5-june-hid-iio-race-fixes-v1-0-27a848c5758f@gmail.com> <20260606-5-june-hid-iio-race-fixes-v1-2-27a848c5758f@gmail.com> <b3c449ee646fc3bff89dbbdfaf04f731fea87b2b.camel@intel.com> <20260614192442.6eaa1a54@jic23-huawei> <50ce20dec63080dde13336c6af41c0bf4de43426.camel@intel.com>
-Message-ID: <3FED088A-651B-4E8B-840B-1B92CB4DF6F4@gmail.com>
+In-Reply-To: <CAKqfh0GEeyQ3UMuMupevgPfCon+zccAv302sV5YKCETWMua-xA@mail.gmail.com>
+References: <20260616-15-jun-hid-iio-alignment-v1-0-0cd544286575@gmail.com> <CAKqfh0GEeyQ3UMuMupevgPfCon+zccAv302sV5YKCETWMua-xA@mail.gmail.com>
+Message-ID: <AB598E72-247E-46F8-910C-DB7E8AF42FB1@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -89,87 +85,78 @@ Content-Transfer-Encoding: quoted-printable
 
 
 
-On 15 June 2026 7:06:43=E2=80=AFpm IST, "Pandruvada, Srinivas" <srinivas=
-=2Epandruvada@intel=2Ecom> wrote:
->On Sun, 2026-06-14 at 19:24 +0100, Jonathan Cameron wrote:
->> On Mon, 8 Jun 2026 15:34:05 +0000
->> "Pandruvada, Srinivas" <srinivas=2Epandruvada@intel=2Ecom> wrote:
->>=20
->> > On Sat, 2026-06-06 at 17:07 +0530, Sanjay Chitroda wrote:
->> > > From: Sanjay Chitroda <sanjayembeddedse@gmail=2Ecom>
->> > >=20
->> > > The driver registers the IIO device before completing sensor hub
->> > > callback registration and unregisters callbacks while the IIO
->> > > device
->> > > is still exposed during teardown=2E
->> > >=20
->> > > This creates race windows in both probe and remove paths, which
->> > > can
->> > > lead to NULL pointer dereferences or use-after-free=2E=C2=A0=20
->> >=20
->> > Reordering is fine, but can you show how this use after free is
->> > possible?
->> Agreed - I'm not seeing a definite issue so more info needed=2E
->> For now I'm going to mark this changes-requested in patchwork=2E
->>=20
->> It might be a touch slow if someone manages to get buffered capture
->> up before the callbacks are available, but I think that just means
->> dropping a few samples?
+On 17 June 2026 1:00:37=E2=80=AFpm IST, Maxwell Doose <m32285159@gmail=2Ec=
+om> wrote:
+>On Tue, Jun 16, 2026 at 5:26=E2=80=AFAM Sanjay Chitroda
+><sanjayembeddedse@gmail=2Ecom> wrote:
+>>
+>> Hi all,
+>>
+>> This series updates HID IIO drivers to resolve checkpatch and
+>> kernel coding style issue=2E
+>>
+>> This improves readability and follow standard kernel coding style
+>> No functional changes are introduced=2E
+>>
+>> Testing:
+>>   - Compiled with W=3D1 for each patch in the series
+>>
+>> ---
+>> Sanjay Chitroda (11):
+>>       iio: hid-sensors: add missing blank line after declarations
+>>       iio: humidity: hid-sensor-humidity: align parenthesis for readabi=
+lity
+>>       iio: gyro: hid-sensor-gyro-3d: align parenthesis for readability
+>>       iio: magnetometer: hid-sensor-magn-3d: align parenthesis for read=
+ability
+>>       iio: humidity: hid-sensor-humidity: use common device for devres
+>>       iio: position: hid-sensor-custom-intel-hinge: use common device f=
+or devres
+>>       iio: temperature: hid-sensor-temperature: use common device for d=
+evres
+>>       iio: hid-sensor-magn-3d: use ! instead of explicit NULL check
+>>       iio: hid-sensor-rotation: use ! instead of explicit NULL check
+>>       iio: hid-sensor-incl-3d: use ! instead of explicit NULL check
+>>       iio: hid-sensor-accel-3d: use ! instead of explicit NULL check
+>>
+>>  drivers/iio/accel/hid-sensor-accel-3d=2Ec            |  2 +-
+>>  =2E=2E=2E/iio/common/hid-sensors/hid-sensor-trigger=2Ec    |  3 +
+>>  drivers/iio/gyro/hid-sensor-gyro-3d=2Ec              | 58 ++++++++----=
+----
+>>  drivers/iio/humidity/hid-sensor-humidity=2Ec         | 48 ++++++------=
+-
+>>  drivers/iio/magnetometer/hid-sensor-magn-3d=2Ec      | 80 +++++++++++-=
+----------
+>>  drivers/iio/orientation/hid-sensor-incl-3d=2Ec       |  2 +-
+>>  drivers/iio/orientation/hid-sensor-rotation=2Ec      |  2 +-
+>>  =2E=2E=2E/iio/position/hid-sensor-custom-intel-hinge=2Ec   |  2 +-
+>>  drivers/iio/temperature/hid-sensor-temperature=2Ec   |  4 +-
+>>  9 files changed, 102 insertions(+), 99 deletions(-)
 >
+>Firstly, for all of the style patches  (1-4, 8-11):
 >
->Correct=2E
+>Reviewed-by: Maxwell Doose <m32285159@gmail=2Ecom>
 >
->Thanks,
->Srinivas
+Hi Maxwell,
+Thank you for the review=2E
 
-Hi Jonathan and Srinivas,
+>with Andy's comments=2E
+>
+>Secondly, the style fixes are all churn=2E It would honestly be much
+>much better if you were to squash those (even despite the
+>one-logical-change-per-patch rule)=2E
+I agree with squashing 1-4, common HID drivers-specific changes which cove=
+r all HID IIO drivers=2E
 
-Thanks for the review and for pointing this out=2E
+However, this series updates 4 HID drivers, while several other HID IIO dr=
+ivers needs coding style cleanup=2E
+I'd like to ask Jonathan for his opinion on whether all alignment coding s=
+tyle should be handled in single change, individual change or some logic sp=
+ecific HIO IIO drivers split=2E
 
-After analyzing and investigating the interaction between callback registr=
-ation and iio_device_register()=2E
-
-Found that read_raw() (on-demand access) and buffered IIO (streaming) oper=
-ate via different paths=2E The primary impact is loss/stable samples rather=
- than data corruption or system instability=2E
-
-Given this, I believe the change does not strictly qualify as a "fix" for =
-a user-visible regression, but rather as an improvement to tighten ordering=
- and avoid a potential race window=2E
-
-Treating this as a improvement patch rather than a bug fix with potential =
-following commit message in v2=2E
-
-=2E=2E=2E=2E=2E=2E=2E=2E=2E=2E=2E=2E=2E
-
-iio: orientation: hid-sensor-incl-3d: Avoid race between callback setup an=
-d device exposure
-
-The driver currently exposes the IIO device to userspace before completing=
- sensor hub callback registration, and similarly removes callbacks while th=
-e device can still be accessed during teardown=2E
-
-This creates a timing window where userspace may enable the buffer before =
-callbacks are available=2E In such cases:
-- samples can be dropped,
-- buffered reads may observe stale or no data=2E
-
-Reorder probe and remove paths to ensure callbacks are active before devic=
-e exposure and are removed after device is no longer accessible=2E
-
-This avoids a race window leading to data loss=2E
-
-=2E=2E=2E=2E=2E=2E=2E=2E=2E=2E=2E=2E=2E
-
-Welcome your feedback and valuable input for v2=2E
+Additionally, 5-7 haven't received any comment/tag=2E I can consider all c=
+hanges in v2 and also rebase on latest iio/testing tree to incorporate u32 =
+usage_id change=2E
 
 Thanks, Sanjay
-
 >
->>=20
->> Jonathan
->>=20
->> >=20
->> > Thanks,
->> > Srinivas
->>=20

@@ -1,63 +1,63 @@
 Received: from mail-yx1-f43.google.com (mail-yx1-f43.google.com [74.125.224.43])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0647C480356
-	for <linux-input@vger.kernel.org>; Wed, 17 Jun 2026 15:04:33 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4C55249552D
+	for <linux-input@vger.kernel.org>; Wed, 17 Jun 2026 15:04:36 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.224.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781708675; cv=none; b=tFw+MXacdJcM2Mh1bKgIDd3fa3X375MXI0QqJmzjJq120BexQnZcTzelhG/Kf2+7ZGynPPGf8T8f40wIGYeFz6xy3K+6Jyz2ek/11Y6gIu2mz9e8C8N38DoPgjXGN+MtdjFUVWyR9/xIYaCfcV7PZu8PdSFn5vs+jRirvVh0FY8=
+	t=1781708677; cv=none; b=UO/sdOtrWuPqYy3hS94GaYK1QC1BMgHVOGlyMImpp6whlkEDvov/SFSPez6Aijch/zamlQrmZPtGEWAkc8u5dRyFQRW49wIaxKAQ7DlIA7JRthe74aidh+NVsUxgYiwknKbq6XYFL61ox9JFHGdAjDE3kleB7NjZrz1Zv0DiDKo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781708675; c=relaxed/simple;
-	bh=5BpVJoy+1TyfvgwcVXtEkGTGeTYH28meSXz9w/scfFk=;
+	s=arc-20240116; t=1781708677; c=relaxed/simple;
+	bh=L4IGNbM7y1d+TqDRCJgF9JoD/da1bj3QcNTtav1CsvA=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=iIEZQxReC2muZD2yDoluaGp3sI5VHr//cgikHzugVLZdWxq7CRPGIuw74HSQ4smb8/R1oI7HM22UeqXp5e5ox+4kwMrcq4BO9cffpsut+DPZ0tUa7Lx/GfW4/3WosL+OFbnZLhkpR9QAtLKJjExA+3S6C3TYi6+/fQNe0suejJs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=q9B/jkbI; arc=none smtp.client-ip=74.125.224.43
+	 MIME-Version; b=Dv9TrAsT6os1e+fOSRO5r1VwrrerE6tpZt2g9gocwyso0i9EGVhsGF3ozHKyetRbP5nOItFbNEP/TmzMvdSNc4g2X2f2ZBAVzs8a7F4qKqjfWnoYG1NvqmoNG+L//EKe3e+13VfPJm+2PnaSHwkAip8k/6W7SzpW2j6EICV2yC4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=IrQzabwD; arc=none smtp.client-ip=74.125.224.43
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="q9B/jkbI"
-Received: by mail-yx1-f43.google.com with SMTP id 956f58d0204a3-66077e888b2so5087786d50.3
-        for <linux-input@vger.kernel.org>; Wed, 17 Jun 2026 08:04:33 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="IrQzabwD"
+Received: by mail-yx1-f43.google.com with SMTP id 956f58d0204a3-6607048fa62so5759273d50.1
+        for <linux-input@vger.kernel.org>; Wed, 17 Jun 2026 08:04:36 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1781708673; x=1782313473; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1781708675; x=1782313475; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=zRAP1SSlllYedJDNQVmn5K2Zt/wBEvaP3ONEb268jPU=;
-        b=q9B/jkbIniiiaK9BGct+DTh7l/dDG5jr9NAEf+uYFdVrtDu1Xfalj0+0ad5cCOabua
-         EeQnwmK0G1LlrEmJ3TeANLad7ABczeOjQ3psFyIJ4BIMivF6X2aCbm5GCqglFyzcKQJI
-         hDnfJ8YnxpyxIEzVtXmu+wiU2m8dhd2fAhnnWhhVLxI2EC+eRapEXLvyV2I5QIjPjYb0
-         +/FvwZmuROBzFyjb9faYFTo+IHAwdK4hgkH8oTuZ+Go2GjxXVylHuuxN8wzKWKxSzEMo
-         Mf6In0J60PUiKCNUW7qlDqsWYQlWs1Ue4qX/fG4aALZ4TBo4gDus95LHaOsb6XU0mtgT
-         kyOQ==
+        bh=xutruK5RfR43rmAYdiUjHl9bnTWIPbtUF5GMeFFCbOs=;
+        b=IrQzabwDdjP/XSrF1UzgLR98QrrXIk6QOn/E4saD/PKeIOnfwG5m8jAUp1duu9GG9k
+         hE1fkc86Ci47h47pan6WmKcg1umiteAThOtfJbAYU+EnVXSAgFXyVS5gYz7R3qs97P+i
+         nD9lVeqxHQetZ02L04ijWv32GVU2e9cYkq/55awdrxwmJ64+yh7NrkOPJihgEHUqSj+d
+         e4u7zJfRiQETa6Xedf6VUcJvmxI5Dp0CqjzuKymTb67NWxnCT2e1/5zjPc4Cmx9vFvX0
+         tcRyo6paPocm8/y9/n5GQIIgWmvy78Jt8/CS3cOwWNpdsnNJeE14H99Nazuya7FzLUYG
+         rjjQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781708673; x=1782313473;
+        d=1e100.net; s=20251104; t=1781708675; x=1782313475;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=zRAP1SSlllYedJDNQVmn5K2Zt/wBEvaP3ONEb268jPU=;
-        b=Inj7wP7IuFrcWJFjhOjzw3IhGS0i0peH+Grrlc2DzR7xcmB8esyDc9AiwmEo97M/cE
-         O6h+DgnWiJlYLuxfq2RaKFjR4T2qIodHJfMAG7RFZ3j8kj3+wTi0HStpiyYO1eybx2Kw
-         oe5/aDKXov5VM3A1gKtRnfULterpp3eNv1vLJGfGoQEf9AG9/SySukGaycN0cV5qSCsa
-         kuXJnUPk0PKUBNOw81Q/IalRP+D10UNPptGybM+xzh/nudlCPqaTw1g6nUjOuBI4xmdg
-         zcHhGEvccQlYkhsMuasgWmblh6Ish49XK+l8l6sgcousKh+VUad3XVFLDzh8CRuZsNco
-         iSIg==
-X-Forwarded-Encrypted: i=1; AFNElJ+OVgEKij/t3q2jUHPfoAsphzSBoJAdGOp7Vx9mZeoYtYBz0dURi6x6hClaLB1ucrMQIm4ggbhLt8/sTg==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yy+rOehOOYX7ArTVT4fpdZuZwlkMWVOWQfd6p+mIx2yY2JrfwsW
-	EeV7HJMRLF4JKP9QPNOp+mTtDzWIe5dbS0fHJr84uXRvtlfy4TjyN+As
-X-Gm-Gg: AfdE7ckcE5oQ8AQmtXXvXFDmikSrbG3YvQCn3I5Pc3SiWGTjtgXWVaMwh6kigK1snZT
-	0+DmcpD6GxiTM2Sw2c8O+nh2dJRC4gExeiL63zs90il1WCBkKEnxRoI2hrAp1h13ldk5fFltldN
-	EVPX3I7dBE/q6FchNtUV239AF6CkpY90Skm8PbspD5eFuVZtWDh3kF2r1gzNspqsrvRxauJBPVG
-	gt8QT5vOBiKnA0xmVrWY+RHPgB4Dn4mOBW+Yr46eDLOhf3JQT1TMMFJQZWXT+BIjZUSbWAmc4xz
-	YnIOjJv2eYYDTmG0xXJFRErZQzGCEfdvgqQ+9ympvuYDVXyvHFga8ZobPwWkTkti2eBBfDiga3w
-	u6q3reQ7alDUPNmXdbNExidkJ+QFlZQqEaKCad+YV2QPWZ0Gd3rgkDeIexBbFyEKcsoBJFCLF5n
-	cbtN2CdDaeiQ==
-X-Received: by 2002:a05:690e:dcc:b0:65e:20b1:e963 with SMTP id 956f58d0204a3-662cd79dad4mr3428592d50.34.1781708672954;
-        Wed, 17 Jun 2026 08:04:32 -0700 (PDT)
+        bh=xutruK5RfR43rmAYdiUjHl9bnTWIPbtUF5GMeFFCbOs=;
+        b=gCgOoHeaSskbLlfkbt3C6QB8CqdWc0KwwIBrzSYwyAW+93I7WZwzZ6GLw3TTh+3N6k
+         JBWADVXr4gb1Uq8x7RpBrw4jZ/Fxz05KPE0CtuEToIV9UPV9vuyF2BRcd6+VBRAoNJ8n
+         GiVk0qaVhdQTCc/RicKeiGbLP4CBGfoDgLZEFqShK6qDT7XzlwwyDhP0GiwVXKY5Mqck
+         PAepEtaVfM8kfUk5IF0nVsFkgosfIp99kVwkJ+AyOcUTkUNMS1Ct+fI2g4BZ3LwaC8vT
+         e011hWd35QOxtqRkEYQ9mE9E/TTWL0B0K0mM8qdwrrnLt0zceNtEVoTj1A2Gylyv5op8
+         QQUA==
+X-Forwarded-Encrypted: i=1; AFNElJ9dw51giSfMVMrY7CIfi5eGPp4Y2FOfqKf8kOs2jDFAN0rmHn/IiSfPlRg4Kfy1ncGT492z5wtARicpIA==@vger.kernel.org
+X-Gm-Message-State: AOJu0YzVzrqWravO58JiqGE0ovS0IWoVwO6fmZAUr70Pu0PImcriPkip
+	ePSdFarzSxe1xjUHkzWgPZN3g5rhx+sY05TBjHU/tK9iMpjekDDFP2iy
+X-Gm-Gg: AfdE7ckScavWqKhenOMnGlC+dy1w7jwFzUEYjaESZ1KVjI5ZWrIWHwQOWGJ42BP8yzV
+	iUYazz296PFBMghstLvUCGsVVNheO25m3ZsG4lMlYue8YzAbJBcbpg72Uz2+3BRrythhVF+D5qk
+	sXObYquJOvnsz1JlVMEiZCn/ah0mNVmmu9pX4q5H4x6u8VAfs6VDARqp9k1QVaF/CjaP6ObUErQ
+	y89RSgjRPz9N1FiXKZAw03GrSt+1IEMCLmgrBqbuf+fv7lsb394KyREBpBp3S2bdJ6AI8hTjhb9
+	VZld2xDXzr/vUdpawHAegQIH7ACvhMkBcFpYQz5oJ1lPzgJ85ArlrPqg96iXO5+sT1cIN6DS5YD
+	WWQJ3UWaGko4JogGXltgnPPk9pqAqsHFIorrynUgQKw8GUgiRKm641cOwpnweYNtYPJJGE+U9iO
+	o050lT4hvhIg==
+X-Received: by 2002:a53:a94a:0:b0:660:eaa4:5c17 with SMTP id 956f58d0204a3-662cb8494d9mr2924093d50.2.1781708613613;
+        Wed, 17 Jun 2026 08:03:33 -0700 (PDT)
 Received: from arch.localdomain ([2409:8a28:a52:c491::1002])
-        by smtp.gmail.com with ESMTPSA id 956f58d0204a3-662b976e47csm4387677d50.20.2026.06.17.08.04.29
+        by smtp.gmail.com with ESMTPSA id 956f58d0204a3-662b976e47csm4387677d50.20.2026.06.17.08.03.30
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 17 Jun 2026 08:04:32 -0700 (PDT)
+        Wed, 17 Jun 2026 08:03:33 -0700 (PDT)
 From: Jun Yan <jerrysteve1101@gmail.com>
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
 	Rob Herring <robh@kernel.org>,
@@ -67,9 +67,9 @@ Cc: Jun Yan <jerrysteve1101@gmail.com>,
 	linux-input@vger.kernel.org,
 	devicetree@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH v4 10/10] Input: cap11xx - add support for CAP1114
-Date: Wed, 17 Jun 2026 23:02:49 +0800
-Message-ID: <20260617150318.753148-11-jerrysteve1101@gmail.com>
+Subject: [PATCH v4 01/10] Input: cap11xx - clean up duplicate log and add probe error logs
+Date: Wed, 17 Jun 2026 23:02:40 +0800
+Message-ID: <20260617150318.753148-2-jerrysteve1101@gmail.com>
 X-Mailer: git-send-email 2.54.0
 In-Reply-To: <20260617150318.753148-1-jerrysteve1101@gmail.com>
 References: <20260617150318.753148-1-jerrysteve1101@gmail.com>
@@ -81,177 +81,54 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-CAP1114 is a 14-channel capacitive touch sensor with 11 LED outputs
-and hardware reset support.
+Duplicated device detection log exists at line 537 and line 542,
+which brings redundant kernel print messages. Drop one redundant
+log entry to clean up dmesg output.
 
-The CAP1114 uses two control registers for LED output management and
-requires two button status registers for touch input state reporting.
-
-By default, channels CS8~CS14 operate as a single grouped block.
-Set the corresponding register enable bit to enable these channels as
-independent touch inputs. Note these channels share the input threshold
-of the eighth entry, causing num_sensor_thresholds to differ from
-num_channels.
+Meanwhile add missing error logs when I2C communication fails
+during driver probe(), helping debug.
 
 Signed-off-by: Jun Yan <jerrysteve1101@gmail.com>
 ---
- drivers/input/keyboard/cap11xx.c | 73 ++++++++++++++++++++++++++++++--
- 1 file changed, 69 insertions(+), 4 deletions(-)
+ drivers/input/keyboard/cap11xx.c | 11 ++++-------
+ 1 file changed, 4 insertions(+), 7 deletions(-)
 
 diff --git a/drivers/input/keyboard/cap11xx.c b/drivers/input/keyboard/cap11xx.c
-index 275eb79a7193..865c58533eb9 100644
+index 2447c1ae2166..485d8ba97723 100644
 --- a/drivers/input/keyboard/cap11xx.c
 +++ b/drivers/input/keyboard/cap11xx.c
-@@ -18,6 +18,12 @@
- #include <linux/gpio/consumer.h>
- #include <linux/bitfield.h>
+@@ -512,7 +512,7 @@ static int cap11xx_i2c_probe(struct i2c_client *i2c_client)
  
-+#define CAP1114_REG_BUTTON_STATUS1	0x03
-+#define CAP1114_REG_BUTTON_STATUS2	0x04
-+#define CAP1114_REG_CONFIG2			0x40
-+#define CAP1114_REG_CONFIG2_VOL_UP_DOWN	BIT(1)
-+#define CAP1114_REG_LED_OUTPUT_CONTROL1	0x73
-+
- #define CAP11XX_REG_MAIN_CONTROL	0x00
- #define CAP11XX_REG_MAIN_CONTROL_GAIN_SHIFT	(6)
- #define CAP11XX_REG_MAIN_CONTROL_GAIN_MASK	(0xc0)
-@@ -83,6 +89,7 @@ struct cap11xx_hw_model {
- 	unsigned int num_leds;
- 	unsigned int num_sensor_thresholds;
- 	bool has_gain;
-+	bool has_grouped_sensors;
- 	bool has_irq_config;
- 	bool has_repeat_en;
- 	bool has_sensitivity_control;
-@@ -99,6 +106,8 @@ static const struct reg_default cap11xx_reg_defaults[] = {
- 	{ CAP11XX_REG_SENSOR_THRESH(3),		0x40 },
- 	{ CAP11XX_REG_SENSOR_THRESH(4),		0x40 },
- 	{ CAP11XX_REG_SENSOR_THRESH(5),		0x40 },
-+	{ CAP11XX_REG_SENSOR_THRESH(6),		0x40 },
-+	{ CAP11XX_REG_SENSOR_THRESH(7),		0x40 },
- 	{ CAP11XX_REG_CONFIG2,			0x40 },
- };
- 
-@@ -107,6 +116,12 @@ static bool cap11xx_volatile_reg(struct device *dev, unsigned int reg)
- 	switch (reg) {
- 	case CAP11XX_REG_MAIN_CONTROL:
- 	case CAP11XX_REG_SENSOR_INPUT:
-+	/*
-+	 * CAP1114_REG_BUTTON_STATUS1 (CAP11XX_REG_SENSOR_INPUT) and
-+	 * CAP1114_REG_BUTTON_STATUS2 is volatile for the CAP1114,
-+	 * which supports more than 8 touch channels.
-+	 */
-+	case CAP1114_REG_BUTTON_STATUS2:
- 	case CAP11XX_REG_SENOR_DELTA(0):
- 	case CAP11XX_REG_SENOR_DELTA(1):
- 	case CAP11XX_REG_SENOR_DELTA(2):
-@@ -292,6 +307,17 @@ static int cap11xx_init_keys(struct cap11xx_priv *priv)
- 	of_property_read_u32_array(node, "linux,keycodes",
- 				   priv->keycodes, priv->model->num_channels);
- 
-+	/*
-+	 * CAP1114 needs dedicated configuration to split
-+	 * grouped sensors into independent inputs.
-+	 */
-+	if (priv->model->has_grouped_sensors) {
-+		error = regmap_set_bits(priv->regmap, CAP1114_REG_CONFIG2,
-+					CAP1114_REG_CONFIG2_VOL_UP_DOWN);
-+		if (error)
-+			return error;
-+	}
-+
- 	if (priv->model->has_repeat_en) {
- 		/* Disable autorepeat. The Linux input system has its own handling. */
- 		error = regmap_write(priv->regmap, CAP11XX_REG_REPEAT_RATE, 0);
-@@ -320,6 +346,21 @@ static irqreturn_t cap11xx_thread_func(int irq_num, void *data)
- 	if (ret < 0)
- 		goto out;
- 
-+	if (priv->model->num_channels > 8) {
-+		unsigned int status2;
-+
-+		ret = regmap_read(priv->regmap, priv->model->sensor_input_reg_base + 1, &status2);
-+		if (ret < 0)
-+			goto out;
-+
-+		/*
-+		 * CAP1114 STATUS1 register only contains data for the first 6 channels.
-+		 * the remaining channels is stored in STATUS2.
-+		 */
-+		status &= GENMASK(5, 0);
-+		status |= FIELD_PREP(GENMASK(13, 6), status2);
-+	}
-+
- 	for (i = 0; i < priv->idev->keycodemax; i++)
- 		input_report_key(priv->idev, priv->keycodes[i],
- 				 status & (1 << i));
-@@ -369,10 +410,16 @@ static int cap11xx_led_set(struct led_classdev *cdev,
- 	 * limitation. Brightness levels per LED are either
- 	 * 0 (OFF) and 1 (ON).
- 	 */
--	return regmap_update_bits(priv->regmap,
--				  priv->model->led_output_control_reg_base,
--				  BIT(led->reg),
--				  value ? BIT(led->reg) : 0);
-+	if (led->reg >= 8)
-+		return regmap_update_bits(priv->regmap,
-+					  priv->model->led_output_control_reg_base + 1,
-+					  BIT(led->reg - 8),
-+					  value ? BIT(led->reg - 8) : 0);
-+	else
-+		return regmap_update_bits(priv->regmap,
-+					  priv->model->led_output_control_reg_base,
-+					  BIT(led->reg),
-+					  value ? BIT(led->reg) : 0);
- }
- 
- static int cap11xx_init_leds(struct device *dev,
-@@ -403,6 +450,14 @@ static int cap11xx_init_leds(struct device *dev,
+ 	error = regmap_read(priv->regmap, CAP11XX_REG_PRODUCT_ID, &val);
  	if (error)
- 		return error;
+-		return error;
++		return dev_err_probe(dev, error, "Failed to read product ID\n");
  
-+	if (num_leds > 8) {
-+		error = regmap_update_bits(priv->regmap,
-+					   priv->model->led_output_control_reg_base + 1,
-+					   GENMASK(num_leds - 8 - 1, 0), 0);
-+		if (error)
-+			return error;
-+	}
-+
- 	duty_val = FIELD_PREP(CAP11XX_REG_LED_DUTY_MAX_MASK,
- 			      CAP11XX_REG_LED_DUTY_MAX_VALUE);
+ 	if (val != cap->product_id) {
+ 		dev_err(dev, "Product ID: Got 0x%02x, expected 0x%02x\n",
+@@ -522,7 +522,7 @@ static int cap11xx_i2c_probe(struct i2c_client *i2c_client)
  
-@@ -581,6 +636,14 @@ static const struct cap11xx_hw_model cap1106_model = {
- 	.has_repeat_en = true,
- };
+ 	error = regmap_read(priv->regmap, CAP11XX_REG_MANUFACTURER_ID, &val);
+ 	if (error)
+-		return error;
++		return dev_err_probe(dev, error, "Failed to read manufacturer ID\n");
  
-+static const struct cap11xx_hw_model cap1114_model = {
-+	.product_id = 0x3a,
-+	.num_channels = 14, .num_leds = 11, .num_sensor_thresholds = 8,
-+	.led_output_control_reg_base = CAP1114_REG_LED_OUTPUT_CONTROL1,
-+	.sensor_input_reg_base = CAP1114_REG_BUTTON_STATUS1,
-+	.has_grouped_sensors = true,
-+};
-+
- static const struct cap11xx_hw_model cap1126_model = {
- 	.product_id = 0x53,
- 	.num_channels = 6, .num_leds = 2, .num_sensor_thresholds = 6,
-@@ -637,6 +700,7 @@ static const struct cap11xx_hw_model cap1298_model = {
+ 	if (val != CAP11XX_MANUFACTURER_ID) {
+ 		dev_err(dev, "Manufacturer ID: Got 0x%02x, expected 0x%02x\n",
+@@ -531,11 +531,8 @@ static int cap11xx_i2c_probe(struct i2c_client *i2c_client)
+ 	}
  
- static const struct of_device_id cap11xx_dt_ids[] = {
- 	{ .compatible = "microchip,cap1106", .data = &cap1106_model },
-+	{ .compatible = "microchip,cap1114", .data = &cap1114_model },
- 	{ .compatible = "microchip,cap1126", .data = &cap1126_model },
- 	{ .compatible = "microchip,cap1188", .data = &cap1188_model },
- 	{ .compatible = "microchip,cap1203", .data = &cap1203_model },
-@@ -649,6 +713,7 @@ MODULE_DEVICE_TABLE(of, cap11xx_dt_ids);
+ 	error = regmap_read(priv->regmap, CAP11XX_REG_REVISION, &rev);
+-	if (error < 0)
+-		return error;
+-
+-	dev_info(dev, "CAP11XX detected, model %s, revision 0x%02x\n",
+-			 id->name, rev);
++	if (error)
++		return dev_err_probe(dev, error, "Failed to read revision\n");
  
- static const struct i2c_device_id cap11xx_i2c_ids[] = {
- 	{ .name = "cap1106", .driver_data = (kernel_ulong_t)&cap1106_model },
-+	{ .name = "cap1114", .driver_data = (kernel_ulong_t)&cap1114_model },
- 	{ .name = "cap1126", .driver_data = (kernel_ulong_t)&cap1126_model },
- 	{ .name = "cap1188", .driver_data = (kernel_ulong_t)&cap1188_model },
- 	{ .name = "cap1203", .driver_data = (kernel_ulong_t)&cap1203_model },
+ 	priv->model = cap;
+ 
 -- 
 2.54.0
 

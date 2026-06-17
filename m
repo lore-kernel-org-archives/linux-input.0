@@ -1,284 +1,139 @@
-Received: from relay14.grserver.gr (relay14.grserver.gr [157.180.73.62])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-yx1-f51.google.com (mail-yx1-f51.google.com [74.125.224.51])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 32D973D412C
-	for <linux-input@vger.kernel.org>; Wed, 17 Jun 2026 13:45:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=157.180.73.62
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 39B7E1A5B9E
+	for <linux-input@vger.kernel.org>; Wed, 17 Jun 2026 15:03:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.224.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781703931; cv=none; b=pqA5gYjd4b2WfaTpGFBKQmPaTeULvPRiuA6gMXOrRCfTqB1vFY/rZHuPcvNpyMAnp4MEYXIO9HT7zDCyM+MZmdeBFWMvQdN2vkSQCY8qBLyaZBGDOThyifYUg2HFST+o3dgbApN6TZff1298XFNFfAKEv9Ktj7qJnnUDoLqmTZ8=
+	t=1781708611; cv=none; b=jmKDkz2yJZDDyjNQ9MAucJBTzVETtr1Ls9NwA+rsoeEFF2jt3ZsneQpKT7bly3Au7C/oj3DgIUC5Xgg6GY7RWgnx4yeEQrKkD/9fcnR1TsnuFepcFYsgU5L3EZ3vVdEphULhtw+0Mm2sSXaq7NE7yYEAXzyJT9W3Ue0BlvBx2oc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781703931; c=relaxed/simple;
-	bh=qIFpL1IE/bkdh/i9cMSulsvoyvijBWtDE39B68/RVXE=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=NujbgegAKqZuqYD/DnCANzRvaLysMJw7yUrj1YblD2onxZeCZflg3rqvMOneGtLCP3lM5gSAs311ARS3kbesCKKc8TsCGeABUrseYfN+t5YUVylqGwGgGkmp1yes18aBDjf/7KcCsn2Hn5II+oV+Ssr93g14MKezh0WmMKGt/bQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=antheas.dev; spf=pass smtp.mailfrom=antheas.dev; dkim=pass (2048-bit key) header.d=antheas.dev header.i=@antheas.dev header.b=jW2q9GMH; arc=none smtp.client-ip=157.180.73.62
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=antheas.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=antheas.dev
+	s=arc-20240116; t=1781708611; c=relaxed/simple;
+	bh=qzyT0dzNYNRzCgv3FFeDbY8FMLcOkX1xXai2XHOpIog=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=HV8NhpL066HEI+ZxYx23gvMbALtthAMYh2YvNOESUnYc9Yhlaq5lpSOSV2mm1rmNNG2Sc0uy3x2hpMBomq3E/Im4ydI1PY3VaOquayX9p8Ju3hcHdwswwqGbznNrsyosBScHefg/Jh12qqyKn5qUNWFS7IoaMXlTbuXIlSjWBOQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=anCgHfDA; arc=none smtp.client-ip=74.125.224.51
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=antheas.dev header.i=@antheas.dev header.b="jW2q9GMH"
-Received: from relay14 (localhost [127.0.0.1])
-	by relay14.grserver.gr (Proxmox) with ESMTP id 7C39A40748
-	for <linux-input@vger.kernel.org>; Wed, 17 Jun 2026 13:45:18 +0000 (UTC)
-Received: from linux3247.grserver.gr (linux3247.grserver.gr [213.158.90.240])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by relay14.grserver.gr (Proxmox) with ESMTPS id CCF924065A
-	for <linux-input@vger.kernel.org>; Wed, 17 Jun 2026 13:45:16 +0000 (UTC)
-Received: from mail-pj1-f43.google.com (mail-pj1-f43.google.com [209.85.216.43])
-	by linux3247.grserver.gr (Postfix) with ESMTPSA id CC360202309
-	for <linux-input@vger.kernel.org>; Wed, 17 Jun 2026 16:45:15 +0300 (EEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=antheas.dev;
-	s=default; t=1781703916;
-	bh=XMR5k/VIBPW9C14X3XohCdTswQWpMeogeh3LXkICA9E=;
-	h=Received:From:Subject:To;
-	b=jW2q9GMHWpsp5u8QeaertJW/IfqP0h1Z3uqYHpEDxOgCETRBJ66GMjk9bgtFoUpIX
-	 +FMEZ+Fh0lIxhnHFEwNALpktKLb35FdpiC8Y/pA7w5XV1VZRgEyayQ5Sr8vlSYeNyk
-	 hHQWkcFDWbdCFtVHurCwUGjU4d1sMM1hzjPtQOR/1hA4kGPu1OaB9HuY3v7zL/J0Zu
-	 vR3D/HScYDsugGBGqZWbEDLYWJhmpcgymQQTUtPz6ZxqfQrBBV5WxAn5sUngmWUFh7
-	 4pI04kkiq2kzNi7RNjVhE0fzhcrU5GiXASb3bAI4R/gGULJqtkSuwK8OKDInBqujry
-	 CJSZgQyJzu7IQ==
-Authentication-Results: linux3247.grserver.gr;
-        spf=pass (sender IP is 209.85.216.43) smtp.mailfrom=lkml@antheas.dev smtp.helo=mail-pj1-f43.google.com
-Received-SPF: pass (linux3247.grserver.gr: connection is authenticated)
-Received: by mail-pj1-f43.google.com with SMTP id
- 98e67ed59e1d1-36d98b9aa9aso4800979a91.3
-        for <linux-input@vger.kernel.org>;
- Wed, 17 Jun 2026 06:45:15 -0700 (PDT)
-X-Forwarded-Encrypted: i=1;
- AFNElJ85ckZdOcZEOxmlLuj9HLpXRL1GO7UX7L7zlxLVyjRfdpc88+zXVxXaoJCKW5o070Iil+lKmMZpNaBuJg==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yw5beB5D52YXIsvGAU3MnnyRujiq+FdK/IlbCYiavAOljWFUqii
-	l7Okwfo9ps0uPslZ0Xp3R1f3aMLJyh7nlmX6sb0XvEvD1VHRsRcB7kSDaP9tCLH8oBPo7VnXuBl
-	ylAzKwYLA8fknzqkpjas0Vuj8r9D9b54=
-X-Received: by 2002:a17:90b:3d44:b0:36d:b12f:613c with SMTP id
- 98e67ed59e1d1-37c9ddbd514mr3609029a91.10.1781703914332; Wed, 17 Jun 2026
- 06:45:14 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="anCgHfDA"
+Received: by mail-yx1-f51.google.com with SMTP id 956f58d0204a3-662bb8b1f93so1715522d50.1
+        for <linux-input@vger.kernel.org>; Wed, 17 Jun 2026 08:03:29 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1781708608; x=1782313408; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=tOnNk1sZYLOxT2mttvm70Wp3djDGUiIpBw1iucl4JHk=;
+        b=anCgHfDAclc2V4UxZki+xwFGDlx3HUXFyn5hz00iJ7OaLfXWU4Kq/8+jRbJwSKbQqE
+         4ys1TLKCA2+eIq5qt1k3c45lPnrHAx3eUMAtu26K7GZe6afVpGSEPckK93H8q7Hns0AS
+         85ggMzH9hcpV5RIzTE2oytvriekTid5DTSac4Wtm8Bm61obF3Qe6ZtytvbwN0I8pjc4q
+         C7i2rD8eR5rplF8TSCz1o0PV+LTY65Y8o8QTQn69Gw6Xl3tdh2LQd6KdQCtwewGbaXH+
+         8xlrtJtZbYBzMmuJXiNaQsDfyLl2fgjUDy4pRbqPy1lheeipN43iIkjx+8UOGnU/rpA1
+         Lb2g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1781708608; x=1782313408;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=tOnNk1sZYLOxT2mttvm70Wp3djDGUiIpBw1iucl4JHk=;
+        b=QIFA7JuR6gDQy/OAqhQf02/Y91vzZQbOn3iyKskAC/LP0qJLQEo6KkIvDVEs76FXAW
+         zf45zt+1LJ2D/FWQQ7YPVIhGvpD08wsVWA/E/+IrtgWVmaltWgfeeuzLzYpxH5Fi6fo3
+         2O7EvwMCWXBy/dbLT7tj1G6AdXSIS9FHHik6htYKIcINpKJ92MgPEEaf0PAj0p/HQuu/
+         GDXUp023IwIH6VI39kbEO9I5be+22kCnGxUgd/6Mqr3k32jtW8juGFZvezEr6e7MyArW
+         lxCCDFwrMXWOiCcjumynOXDYgJiu+EHpZJOWr1ir3Mq5As17EIHzJrds186c4hgZDOdb
+         6R+g==
+X-Forwarded-Encrypted: i=1; AFNElJ9Am1vmoGHZ0ycrwi9OVs4OaRTbDIIpGKNSIVB0/ia5VqmWd00EE/4IE0YFCEmAaHDdTZZl/5MZeISdHA==@vger.kernel.org
+X-Gm-Message-State: AOJu0YzrHJGA4nC0tx2LDUwReS0AAHRcw+ee4Nw8LlKQHuH/YHgtzExP
+	khAxbGkPUZ6OMLFwivz5/OO2TzI23dJznH0WfFsRNyGlOeuJ05u4sMly
+X-Gm-Gg: AfdE7ckSfDX3ZAoo28Uesz9bCoS8ab9V15q8XY19dngioS3Fr761jfetg5/XHA9GPz6
+	UFdUWcSF1Bpgi5jsGEevu7FzqJU3nvC/O8pDI5OVw8uuUdiYVQumgoGRwuhsVIWZyFPjJOJ0ZkT
+	PeofwiGv9WZy1OWPY7jAjdrsS3cs3Cy8xBqAthaXuMPtZX4uoyNRm9gP9snjk/UakjsBIAICkDP
+	r6I8H28r0PQMLPQopD/j+qddlqD/9AqMXR5ltnDtjywvKc0yiVHAHy6/C57bKMg3uiFm+SzAImp
+	cxmpeKOhVhnobHe5QKCbkhxfb90rI4Oiay5ZvR6Ccf/I3Lik9CYmimMMa+SoqqLDZRXrOPkNt53
+	blyAn8pofPyQ4ZnfA3TACu1qtSzxfA5Uy6WU0Ix0rCpSsse93FTm+ofQX29/Lmso8h4tOpwpkVU
+	kYMisKEjErWA==
+X-Received: by 2002:a05:690e:480a:b0:660:5a04:9a02 with SMTP id 956f58d0204a3-662cd7a0977mr2345514d50.40.1781708608042;
+        Wed, 17 Jun 2026 08:03:28 -0700 (PDT)
+Received: from arch.localdomain ([2409:8a28:a52:c491::1002])
+        by smtp.gmail.com with ESMTPSA id 956f58d0204a3-662b976e47csm4387677d50.20.2026.06.17.08.03.24
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 17 Jun 2026 08:03:27 -0700 (PDT)
+From: Jun Yan <jerrysteve1101@gmail.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>
+Cc: Jun Yan <jerrysteve1101@gmail.com>,
+	linux-input@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH v4 00/10] Input: cap11xx - Add support for CAP1114
+Date: Wed, 17 Jun 2026 23:02:39 +0800
+Message-ID: <20260617150318.753148-1-jerrysteve1101@gmail.com>
+X-Mailer: git-send-email 2.54.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260615165058.3845-1-denis.benato@linux.dev>
- <20260615165058.3845-5-denis.benato@linux.dev>
- <CAGwozwGfwXeC-SLbbHhHN7_a+Uz8G9ToQcb54XRrcGru3GG2Lg@mail.gmail.com>
- <5006ff55-846e-4812-bc89-b270fbef6ccc@linux.dev>
-In-Reply-To: <5006ff55-846e-4812-bc89-b270fbef6ccc@linux.dev>
-From: Antheas Kapenekakis <lkml@antheas.dev>
-Date: Wed, 17 Jun 2026 15:45:02 +0200
-X-Gmail-Original-Message-ID: 
- <CAGwozwHUwyRTgHcsavkMVBhaUnDfUU_=PSRxtdye9Q4L6hYqKg@mail.gmail.com>
-X-Gm-Features: AVVi8CfzOgb7kqe6MrQUrGkhhmjEo402PXtiR0iYNTYr53HJdYnQUMsIsQrYiKU
-Message-ID: 
- <CAGwozwHUwyRTgHcsavkMVBhaUnDfUU_=PSRxtdye9Q4L6hYqKg@mail.gmail.com>
-Subject: Re: [PATCH v4 4/5] HID: asus: add support for xgm led
-To: Denis Benato <denis.benato@linux.dev>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
-	Benjamin Tissoires <bentiss@kernel.org>, Jiri Kosina <jikos@kernel.org>,
-	"Luke D . Jones" <luke@ljones.dev>, Mateusz Schyboll <dragonn@op.pl>,
- Denis Benato <benato.denis96@gmail.com>,
-	Connor Belli <connorbelli2003@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-X-PPP-Message-ID: 
- <178170391610.2622222.5494085437737480532@linux3247.grserver.gr>
-X-PPP-Vhost: antheas.dev
-X-Virus-Scanned: clamav-milter 1.4.3 at linux3247.grserver.gr
-X-Virus-Status: Clean
+Content-Transfer-Encoding: 8bit
 
-On Wed, 17 Jun 2026 at 02:18, Denis Benato <denis.benato@linux.dev> wrote:
->
->
-> On 6/15/26 23:55, Antheas Kapenekakis wrote:
-> > On Mon, 15 Jun 2026 at 18:51, Denis Benato <denis.benato@linux.dev> wrote:
-> >> XG mobile stations have very bright leds behind the fan that can be
-> >> turned either ON or OFF: add a cled interface to allow controlling the
-> >> brightness of those red leds.
-> >>
-> >> Signed-off-by: Denis Benato <denis.benato@linux.dev>
-> >> ---
-> >>  drivers/hid/hid-asus.c | 91 ++++++++++++++++++++++++++++++++++++++++++
-> >>  1 file changed, 91 insertions(+)
-> >>
-> >> diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
-> >> index 6896730efafc..e68a6d93369d 100644
-> >> --- a/drivers/hid/hid-asus.c
-> >> +++ b/drivers/hid/hid-asus.c
-> >> @@ -51,6 +51,8 @@ MODULE_DESCRIPTION("Asus HID Keyboard and TouchPad");
-> >>  #define FEATURE_KBD_LED_REPORT_ID1 0x5d
-> >>  #define FEATURE_KBD_LED_REPORT_ID2 0x5e
-> >>
-> >> +#define ROG_XGM_REPORT_SIZE 300
-> >> +
-> >>  #define ROG_ALLY_REPORT_SIZE 64
-> >>  #define ROG_ALLY_X_MIN_MCU 313
-> >>  #define ROG_ALLY_MIN_MCU 319
-> >> @@ -143,6 +145,11 @@ struct asus_worker {
-> >>         bool removed;
-> >>  };
-> >>
-> >> +struct asus_xgm_led {
-> >> +       struct led_classdev cdev;
-> >> +       struct hid_device *hdev;
-> >> +};
-> >> +
-> >>  struct asus_touchpad_info {
-> >>         int max_x;
-> >>         int max_y;
-> >> @@ -169,6 +176,7 @@ struct asus_drvdata {
-> >>         unsigned long battery_next_query;
-> >>         struct asus_hid_listener listener;
-> >>         bool fn_lock;
-> >> +       struct asus_xgm_led *xgm_led;
-> >>  };
-> >>
-> >>  static int asus_report_battery(struct asus_drvdata *, u8 *, int);
-> >> @@ -1119,6 +1127,26 @@ static int asus_battery_probe(struct hid_device *hdev)
-> >>         return ret;
-> >>  }
-> >>
-> >> +static int asus_xgm_led_set(struct led_classdev *led_cdev, enum led_brightness value)
-> >> +{
-> >> +       const u8 buf[ROG_XGM_REPORT_SIZE] = {
-> >> +               FEATURE_KBD_LED_REPORT_ID2, 0xC5, (value) ? 0x50 : 0x00
-> >> +       };
-> >> +       struct asus_xgm_led *xgm = container_of(led_cdev, struct asus_xgm_led, cdev);
-> >> +       int ret;
-> >> +
-> >> +       ret = asus_kbd_set_report(xgm->hdev, buf, ROG_XGM_REPORT_SIZE);
-> >> +       if (ret < 0) {
-> >> +               hid_err(xgm->hdev, "Unable to set XG mobile led state: %d\n", ret);
-> >> +               return ret;
-> >> +       } else if (ret != ROG_XGM_REPORT_SIZE) {
-> >> +               hid_err(xgm->hdev, "Unexpected partial transfer to XG mobile: %d\n", ret);
-> >> +               return -EIO;
-> >> +       }
-> >> +
-> >> +       return 0;
-> >> +}
-> >> +
-> >>  static int asus_input_configured(struct hid_device *hdev, struct hid_input *hi)
-> >>  {
-> >>         struct input_dev *input = hi->input;
-> >> @@ -1343,9 +1371,52 @@ static int asus_start_multitouch(struct hid_device *hdev)
-> >>         return 0;
-> >>  }
-> >>
-> >> +static int asus_xgm_init(struct hid_device *hdev, struct asus_drvdata *drvdata)
-> >> +{
-> >> +       const char *name;
-> >> +       int ret;
-> >> +
-> >> +       drvdata->xgm_led = devm_kzalloc(&hdev->dev, sizeof(*drvdata->xgm_led), GFP_KERNEL);
-> >> +       if (drvdata->xgm_led == NULL)
-> >> +               return -ENOMEM;
-> >> +
-> >> +       name = devm_kasprintf(&hdev->dev, GFP_KERNEL, "asus:xgm-%s:led",
-> >> +                             strlen(hdev->uniq) ? hdev->uniq : dev_name(&hdev->dev));
-> >> +
-> >> +       if (name == NULL) {
-> >> +               ret = -ENOMEM;
-> >> +               goto asus_xgm_init_err;
-> >> +       }
-> >> +
-> >> +       drvdata->xgm_led->hdev = hdev;
-> >> +       drvdata->xgm_led->cdev.name = name;
-> >> +       drvdata->xgm_led->cdev.brightness = 1;
-> >> +       drvdata->xgm_led->cdev.max_brightness = 1;
-> >> +       drvdata->xgm_led->cdev.brightness_set_blocking = asus_xgm_led_set;
-> >> +
-> >> +       /* LED state is arbitrary on boot, set a default */
-> >> +       ret = asus_xgm_led_set(&drvdata->xgm_led->cdev, drvdata->xgm_led->cdev.brightness);
-> >> +       if (ret) {
-> >> +               hid_err(hdev, "Asus failed to set xgm led: %d\n", ret);
-> >> +               goto asus_xgm_init_err;
-> >> +       }
-> >> +
-> >> +       ret = devm_led_classdev_register(&hdev->dev, &drvdata->xgm_led->cdev);
-> >> +       if (ret) {
-> >> +               hid_err(hdev, "Asus failed to register xgm led: %d\n", ret);
-> >> +               goto asus_xgm_init_err;
-> >> +       }
-> >> +
-> >> +       return 0;
-> >> +asus_xgm_init_err:
-> >> +       drvdata->xgm_led = NULL;
-> >> +       return ret;
-> >> +}
-> >> +
-> >>  static int __maybe_unused asus_resume(struct hid_device *hdev)
-> >>  {
-> >>         struct asus_drvdata *drvdata = hid_get_drvdata(hdev);
-> >> +       int ret;
-> >>
-> >>         /*
-> >>          * If we have a backlight listener registered, restore the previous state,
-> >> @@ -1355,7 +1426,17 @@ static int __maybe_unused asus_resume(struct hid_device *hdev)
-> >>         if (drvdata->listener.brightness_set)
-> >>                 asus_kbd_backlight_set(&drvdata->listener, drvdata->kbd_backlight_brightness);
-> >>
-> >> +       if (drvdata->xgm_led) {
-> >> +               ret = asus_xgm_led_set(&drvdata->xgm_led->cdev, drvdata->xgm_led->cdev.brightness);
-> >> +               if (ret) {
-> >> +                       hid_err(hdev, "Asus failed to restore xgm brightness: %d\n", ret);
-> >> +                       goto asus_resume_err;
-> >> +               }
-> >> +       }
-> >> +
-> >>         return 0;
-> >> +asus_resume_err:
-> >> +       return ret;
-> >>  }
-> >>
-> >>  static int __maybe_unused asus_reset_resume(struct hid_device *hdev)
-> >> @@ -1484,6 +1565,16 @@ static int asus_probe(struct hid_device *hdev, const struct hid_device_id *id)
-> >>                 }
-> >>         }
-> >>
-> >> +       if (asus_has_report_id(hdev, FEATURE_KBD_REPORT_ID) &&
-> >> +           ((hdev->product == USB_DEVICE_ID_ASUSTEK_XGM_2022) ||
-> >> +            (hdev->product == USB_DEVICE_ID_ASUSTEK_XGM_2023))) {
-> >> +               ret = asus_xgm_init(hdev, drvdata);
-> >> +               if (ret) {
-> >> +                       hid_err(hdev, "Failed to initialize xg mobile: %d\n", ret);
-> >> +                       goto err_stop_hw;
-> >> +               }
-> >> +       }
-> >> +
-> > reset_resume has a special meaning and perhaps should not have been
-> > used for this driver at all. Check if resume works and if it does use
-> > that instead.
-> I am not using reset_resume for xgm.
->
-> reset_resume will become important to recover the ally,
+CAP1114 is a 14-channel capacitive touch sensor with 11 LED outputs
+and hardware reset support.
 
-For that, review the V2 s2idle series I have sent, it should drop that
-codepath and work for all ally units
+Patches 1-4 perform driver cleanup and DT binding tweaks.
+Patches 5-6 add reset-gpios support for CAP11xx.
+Patches 7-10 add support for CAP1114.
 
-Sorry, misread the hunk again, I was looking at probe and confused it
-with the resume check. The patch should be fine, you use resume.
+Changes in v4:
+- Revert cleanup operation for CAP11XX_REG_SENSOR_DELTA.
+- Move the LED unit-address update operation to the CAP1114 support patch.
+- Limit the CAP1114 LED unit-address range from 0x0 to 0xa.
+- Link to v3:
+  https://lore.kernel.org/all/20260615142103.352163-1-jerrysteve1101@gmail.com/
 
-Antheas
+Changes in v3:
+- Simplified the logic of the reset pin operation.
+- Adjust linux,keycodes configuration for CAP11xx.
+- Drop unnecessary CAP11XX_REG_SENSOR_THRESH(8).
+- Checks for the presence of microchip,calib-sensitivity and
+  microchip,signal-guard properties before processing them.
+- Link to v2:
+  https://lore.kernel.org/all/20260612072237.1177304-1-jerrysteve1101@gmail.com/
 
-> but for xg mobile is unused (and useless).
-> > Other than that and the refactor patch I'd rather see separately, the
-> > other 4 patches look fine to me.
-> Fair, I'll wait for maintainers to tell what they like the most
-> and go from there.
->
-> I agree there are things not really much related here
-> but at least this way the order to apply them is clear.
-> > Reviewed-by: Antheas Kapenekakis <lkml@antheas.dev>
-> Thanks,
-> Denis
-> > Best,
-> > Antheas
-> >
-> >>         /* Laptops keyboard backlight is always at 0x5a */
-> >>         if (is_vendor && (drvdata->quirks & QUIRK_USE_KBD_BACKLIGHT) &&
-> >>             (asus_has_report_id(hdev, FEATURE_KBD_REPORT_ID)) &&
-> >> --
-> >> 2.47.3
-> >>
-> >>
->
+Changes in v2:
+- Drop LED property tweaks, keep only reg changes and node regex
+  update in DT bindings.
+- Split microchip,cap1126 LED reg constraints into a separate patch.
+- Replace usleep_range() with msleep() for 500 ms delay during
+  reset pin handling.
+- Add missing <linux/delay.h> for usleep_range() and msleep().
+- Add CAP1114 to unsupported enum for microchip,signal-guard and
+  microchip,calib-sensitivity
+- Add constraint for linux,keycodes to support CAP1114.
+- When reading CAP1114 button status, mask STATUS1 to bits 0-5
+  and OR with STATUS2.
+- Adjust code style.
+- Link to v1:
+  https://lore.kernel.org/all/20260606150458.250606-1-jerrysteve1101@gmail.com
+
+Jun Yan (10):
+  Input: cap11xx - clean up duplicate log and add probe error logs
+  Input: cap11xx - remove unused register macros
+  dt-bindings: input: microchip,cap11xx: Update datasheet URL and LED
+    reg range
+  dt-bindings: input: microchip,cap11xx: Add microchip,cap1126 LED reg
+    constraints
+  dt-bindings: input: microchip,cap11xx: Add reset-gpios property
+  Input: cap11xx - add reset gpio support
+  Input: cap11xx - refactor code for better CAP1114 support.
+  Input: cap11xx - guard unsupported DT properties before parsing
+  dt-bindings: input: microchip,cap11xx: Add CAP1114 support
+  Input: cap11xx - add support for CAP1114
+
+ .../bindings/input/microchip,cap11xx.yaml     |  90 +++++-
+ drivers/input/keyboard/cap11xx.c              | 274 +++++++++++-------
+ 2 files changed, 254 insertions(+), 110 deletions(-)
+
+--
+2.54.0
 

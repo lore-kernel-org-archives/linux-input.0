@@ -1,60 +1,62 @@
-Received: from mail-ej1-f54.google.com (mail-ej1-f54.google.com [209.85.218.54])
+Received: from mail-ej1-f44.google.com (mail-ej1-f44.google.com [209.85.218.44])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 414133B6C1C
-	for <linux-input@vger.kernel.org>; Wed, 17 Jun 2026 07:06:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.54
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7B59C3BB127
+	for <linux-input@vger.kernel.org>; Wed, 17 Jun 2026 07:06:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.44
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781679976; cv=none; b=f8PEZpret70gRtm38QKTqIFKL+rArvxnNXhQ408C+19zYRJi0Fop5ahUXOM2qrzRd6c2xbnv9uNjQKujNu8WBiRR0FfAQWhB1MEiNrlTOZEn4lDb35Z3AhWRg0NpMcb7H1kq1vpCw1UJVKaesEJa3gxx7ExZ7PxbWoOJSTy/Rx8=
+	t=1781679978; cv=none; b=JXIuIIjISHHF07qTvZOMxo/hHHLNZfBTftqIk6hdDLUSxuo0HkcsRrGCIrlMxTZKr4EL2K4/EuZPhFn7WSSr5ReGfRTQ0wrFFniV2iGU5w0Ms6H3v17WjM1F3GeqakrM9RiW0Mvno8Txm6btm5UY1b5lHqkV1hR16TksVhQDsVo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781679976; c=relaxed/simple;
-	bh=ywM5fxAP7YLHk3plDUVugejdL0ti6Z+u86nyhpgQsGk=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=oOBAandAwq5ZLJLLR6bX+dQbVL985WwKHPjP7r6ZbbP+5NrtMBOELr5qXm5/zX2SWiig8G+NWRBhA6mUrraglgptW4GIaHgd/01uWUPYzMIveBz62OnkiDVW16ssadUwqxvNy7aqtpENzPa0HPa2+mFxF7CtdvMT9YgADbSFeHo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=lmXVYytQ; arc=none smtp.client-ip=209.85.218.54
+	s=arc-20240116; t=1781679978; c=relaxed/simple;
+	bh=1ZpgbLFhc7uTynHM6QmCi54UKtHyRhZrUYid+cJ3Fmg=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=GYFAoB9Z4Y4sOdvis4TTkI+oGv5FObIzQvHkL3rsMe42wtEwJppkuVWfkdoP87B4TvPROuzldpCwU5d7r+vIP6g76W5UeH9DQSvBlpRw3wVe4zYeZD7/kSvUiFxuu6K/xYv6sXaIPDfQ/ap3IpCluH6UNFNj6TYz1jJAcOnTbmU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=o5t+C5V1; arc=none smtp.client-ip=209.85.218.44
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="lmXVYytQ"
-Received: by mail-ej1-f54.google.com with SMTP id a640c23a62f3a-bec354815b9so507043966b.3
-        for <linux-input@vger.kernel.org>; Wed, 17 Jun 2026 00:06:15 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="o5t+C5V1"
+Received: by mail-ej1-f44.google.com with SMTP id a640c23a62f3a-becfa735b9aso677735466b.1
+        for <linux-input@vger.kernel.org>; Wed, 17 Jun 2026 00:06:17 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1781679974; x=1782284774; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=Kh2zmRfLqBJkX6ljmJ2Zzgk6D+llpzzKDQIImg15hLw=;
-        b=lmXVYytQtldzCj5PPlvIQBDcms60DS0kfG+qPdeM56zEyEMVfnx9OT1ZHcS0tNM+zk
-         gc6XZZWy2bPgTSXqRdvQ2Y0d0q9sxHATyw97v7HNZsaXqvUhZhpMscnCkovj1mlkWvSl
-         tD6078nmE5yOwAXHrgDfJ1nZ0yStXNIC/ZxbAIPfP0uFRehJAiS9gMsXRAoQaBzfDqg1
-         +Kv+kzMZyrGRdwJq7pOBkCU7iALhcYawTNP3jppuBmRnzD10dhv2biXuc0CCsD1HcZLD
-         5jaaRuBIB+Engdbrac8x9l2lMWP+17veO8pvoUVy8aQjsccHFZEZ11ezYd/BK47JmzL9
-         EMQA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781679974; x=1782284774;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=gmail.com; s=20251104; t=1781679976; x=1782284776; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=Kh2zmRfLqBJkX6ljmJ2Zzgk6D+llpzzKDQIImg15hLw=;
-        b=HFBeJTuCy2BvvR55ED5+H6vm/YyeFpyNc97C+OxR/gAxEFFjsY7A09XcglHo3pjm6W
-         OtwnZya8u1TKil/nyh+UbUix7LZBaFji43Pn4saCfw7Zd/G/YNqA+olM3tvtPI2Z95Pq
-         LXfWcnivXHdQkxy0j0LSYAeZUpMgkCALhViUnyHEfY6zC80ggkryyaY3n8i6tFJBbSuX
-         WpxfkMpX96O2U9aydB8+GMzlYu9t6oFIw7gDWI89yzs3oUflO3v5DkqkIMB7we69QqIw
-         B0K01dpVtxYiNtjKQYF3dlsKlthnHVe3qH9ybhLqcsDscnfMy3p9XaGkQt5m0YfGa+hO
-         7Uqg==
-X-Gm-Message-State: AOJu0YxeACh82O/c/0nyxGaRHf5ecXFRkabQcrBJhiJIgjaRUpunQBnM
-	VWbG+ORRWwnvbDQlMsEGFjDPo7fsTZEkiMT3U0uJmjnKgd8qo6DdWvNf
-X-Gm-Gg: Acq92OGsjSJeQC4XhHoxlOfbOIpLg7vnMnac7KSRUL0IWL+/6Hu3rKvpaBIQSfWN0x4
-	EZVdHHNuPsuHFxPTaBkZN4Atry/ECxmyMoOkVRohcX/qYvYk+0dQnsh6Pu8DxbSS3o2laNtTBCd
-	ckXNNLDMRVRwjtTutXvCd+Qvyl6liOx/U36TED+9KHusNOEZxV/TY8fwsvKpxJlJwsCTUs/qpuQ
-	LpyIabXHqbsKg7ZJa11E1rUiBsQLSNf+Cg6B5KhsMthNKTkbc3Mm+XRJuM+iGUa+EA3EpE3DaOz
-	WQiMv/fEWgg+x82eTstlnJhIXmMYEUhc9VG0gB1NQFJhEHdk8RpGdH74bdFJDeSOp+v/Wj27UKk
-	kqiDCzzmekL3McwCHjjv9e+wLUAdW91SpOs6E7Rj21pXovRKsGowzjWs5v7LMp6GWUEWnVOeebM
-	4ANQ==
-X-Received: by 2002:a17:907:7606:b0:bf0:701e:b148 with SMTP id a640c23a62f3a-c05d2a7f421mr83438566b.27.1781679973266;
-        Wed, 17 Jun 2026 00:06:13 -0700 (PDT)
+        bh=VN85jO6g8etsAnhUc2JoU6sdjjboKtQLkjRbxbRf3MM=;
+        b=o5t+C5V1OIX5WobFQEOuiasNOaVy0ZuFKRMARF2RPp86S+O7B7QJ0kLFJ24yh1/BBT
+         Ea+8nSF6NSo3tcl+PrjywqevE+j5keuWUo7AzDjQjHd/FxGO5D0w5LTOIPM/kO7T+QQd
+         KIO2Jl4D1N7glZUVloMN1r4s5zwZWOCLo0O9TxMyL+s09ne95rJg47S/MdkpYRa2fAWy
+         KjenSNr2VAFs/3pMiByfNWJTHH1M1dqJmWhamZHKj+aHG0tYNL4q5rqbEbKsYB+OpiOF
+         yDyRtmxqWtGBQ+6MsZZECI4dMNtVjNk3pt63jwIZ/MeokSn8sXpD0AjJq33rzF5e4oI5
+         K89A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1781679976; x=1782284776;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=VN85jO6g8etsAnhUc2JoU6sdjjboKtQLkjRbxbRf3MM=;
+        b=fBfkEJhtMYaxD5T5lk39DmE6c1Zre3/g/sdF6Xhs0DFz7Sh7gwnMJKZXir9KYAa5De
+         xbFKIgfL1QiTBORTuT0HIpTnOinsP5cnrUlfrlNoLDl5++meKwtMDIWOZdKipWsGiBeb
+         YBI5vhf/rAAWqiRD6nWv97uMhI39L/r4kvIuPKughA8V20WWbD6iGtyrcHlnlkidyDqQ
+         Iecno19M8ZwZB2ViugBnikW7UlCD/QfAfHvxh4+VWE2a85lhOPIURl25iuIyWf4FFKZS
+         522RzzSwGHxiRbdbG4uOJE2a89Ho0CIAAjA9gs2elQh40HZjUY7ZfSM2bRmVLchmtXaZ
+         B4Zg==
+X-Gm-Message-State: AOJu0YztKvz74Mp8qOJJ3L0Tlcx4+81JWJ7z5ZCtk9qqYKEd4bGKut9K
+	G3nCjmHuLoNQF0I/5FqtHbRjv/51xKGTtG9fJ4tCJnzkz92CoO+ZIlTg
+X-Gm-Gg: Acq92OHKd1Vcp9O5hn7nA0huFU6nM1w+Z35vcSwDDPlPjwB3ENuqINq+4rOJOGYXk0Q
+	gkcTiFnJoRPTol8x5RsjAO/NhRxVn/2MI9hej6QZvQvtn87k0ubwhot4NEeieekwwr6dl5vTuOa
+	gCZpYLVARR8GHHm9USh5JGcWZBw2U7O+k/MfidxMBhOlTx0I80jnv9WQ4wSzhTv7s6vr3E2AlHY
+	EPuQTFgHaG8gElI3ccdxpNbO5HQeWzSZGPSbH//k5EqPIvjdnUNgSqPNER6+JCdQRnUsDYDLNLe
+	xwCjz/kiw7iNjfdx0+IM0IBZnH1B8W7DlqfJezu1C3kK04qQ6TOP70qQ6sXWNtOlY+E9nY9yoPm
+	insS9CKqikDDgUvJEaKjkRWRB1goume9CAFgYBymvGyi62Lnb2Ke5/Q6oh8/4iosg+5Q8pWRF4h
+	liww==
+X-Received: by 2002:a17:907:3f0a:b0:bec:6c5c:cced with SMTP id a640c23a62f3a-c05a69ec26dmr196055766b.28.1781679975407;
+        Wed, 17 Jun 2026 00:06:15 -0700 (PDT)
 Received: from xeon ([188.163.112.61])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-bfdb7b6e6c9sm752857266b.39.2026.06.17.00.06.12
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-bfdb7b6e6c9sm752857266b.39.2026.06.17.00.06.13
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 17 Jun 2026 00:06:12 -0700 (PDT)
+        Wed, 17 Jun 2026 00:06:14 -0700 (PDT)
 From: Svyatoslav Ryhel <clamor95@gmail.com>
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
 	Rob Herring <robh@kernel.org>,
@@ -65,10 +67,12 @@ To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
 Cc: linux-input@vger.kernel.org,
 	devicetree@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH v6 0/2] input: misc: add support for Imagis ISA1200 haptic motor driver
-Date: Wed, 17 Jun 2026 10:05:25 +0300
-Message-ID: <20260617070528.35006-1-clamor95@gmail.com>
+Subject: [PATCH v6 1/2] dt-bindings: input: Document Imagis ISA1200 haptic motor driver
+Date: Wed, 17 Jun 2026 10:05:26 +0300
+Message-ID: <20260617070528.35006-2-clamor95@gmail.com>
 X-Mailer: git-send-email 2.53.0
+In-Reply-To: <20260617070528.35006-1-clamor95@gmail.com>
+References: <20260617070528.35006-1-clamor95@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -77,78 +81,167 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The ISA1200 is a haptic feedback unit from Imagis Technology using two
-motors for haptic feedback in mobile phones. Used in many mobile devices
-c. 2012 including Samsung Galxy S Advance GT-I9070 (Janice), Samsung Beam
-GT-I8350 (Gavini), LG Optimus 4X P880 and LG Optimus Vu P895.
+Document the Imagis ISA1200 haptic motor driver, used primarily in mobile
+handheld devices and capable of supporting up to two motors.
 
 The exact datasheet for the ISA1200 is not available; all data was modeled
 based on available downstream kernel sources for various devices and
 fragments of information scattered across the internet.
 
+Signed-off-by: Svyatoslav Ryhel <clamor95@gmail.com>
+Reviewed-by: Rob Herring (Arm) <robh@kernel.org>
 ---
-Changes in v6:
-- added minItems for gpios
-- included changes by Dmitry Torokhov
-
-Changes in v5:
-- added supplies to private structure
-- clk_on dropped
-- ret > err
-- added active flag to track status
-- all hardware manipulations consolidated in start/stop
-- dropped mutex from work
-- dropped active check from isa1200_vibrator_close it was
-  moved to stop directly
-- dropped hw maniplations from probe
-- bustype set to BUS_I2C
-- adjusted error strings
-- fixed cancel_work_sync in isa1200_suspend
-
-Changes in v4:
-- added INPUT_FF_MEMLESS option selection
-- fixed missing clock status set
-- guard start/stop calls in isa1200_play_work with lock
-- clamp ldo voltages to allowed range
-- fixed imagis,pll-div parsing
-- dropped Tested-by from schema adding commit
-
-Changes in v3:
-- added clock state tracking
-- dropped level check in vibrator close
-- added clkdiv clamping
-- added comments regarding registers 5 and 6
-
-Changes in v2:
-- imagis,clk-div switched to accept actual divider value
-- dropped DT header
-- adjusted imagis,period-ns range
-- initiated hctrl0 and hctrl1 values in isa1200_start
-- fixed situation when PWM might return -EPROBE_DEFER to be
-  treated properly
-- added chech a clock or PWM is available
-- fixed regulator voltages check being off by 10
-- added chech if state.period is not zero
-- added action call to disable clock and gpios on error
-- used managed version of work init
-- added work cancel on suspend
-- PW calls are done under mutex lock
----
-
-Linus Walleij (1):
-  Input: isa1200 - new driver for Imagis ISA1200
-
-Svyatoslav Ryhel (1):
-  dt-bindings: input: Document Imagis ISA1200 haptic motor driver
-
- .../bindings/input/imagis,isa1200.yaml        | 141 +++++
- drivers/input/misc/Kconfig                    |  12 +
- drivers/input/misc/Makefile                   |   1 +
- drivers/input/misc/isa1200.c                  | 536 ++++++++++++++++++
- 4 files changed, 690 insertions(+)
+ .../bindings/input/imagis,isa1200.yaml        | 141 ++++++++++++++++++
+ 1 file changed, 141 insertions(+)
  create mode 100644 Documentation/devicetree/bindings/input/imagis,isa1200.yaml
- create mode 100644 drivers/input/misc/isa1200.c
 
+diff --git a/Documentation/devicetree/bindings/input/imagis,isa1200.yaml b/Documentation/devicetree/bindings/input/imagis,isa1200.yaml
+new file mode 100644
+index 000000000000..4bc8630edcdd
+--- /dev/null
++++ b/Documentation/devicetree/bindings/input/imagis,isa1200.yaml
+@@ -0,0 +1,141 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/input/imagis,isa1200.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: Imagis ISA1200 haptic motor driver
++
++maintainers:
++  - Svyatoslav Ryhel <clamor95@gmail.com>
++  - Linus Walleij <linusw@kernel.org>
++
++description:
++  The ISA1200 is a high-performance enhanced haptic motor driver designed
++  for mobile hand-held devices. It supports various voltages for both ERM
++  (Eccentric Rotating Mass) and LRA (Linear Resonant Actuator) type
++  actuators. Thanks to an embedded LDO, battery power can be used directly
++  in handheld applications.
++
++properties:
++  compatible:
++    const: imagis,isa1200
++
++  reg:
++    maxItems: 1
++
++  control-gpios:
++    description:
++      One or two GPIOs flagged as active high linked to HEN and LEN pins
++    minItems: 1
++    maxItems: 2
++
++  clocks:
++    maxItems: 1
++
++  pwms:
++    maxItems: 1
++
++  vdd-supply:
++    description:
++      Regulator for 2.4V - 5.5V power supply
++
++  vddp-supply:
++    description:
++      Regulator for 2.4V - 3.6V IO power supply
++
++  imagis,clk-div:
++    $ref: /schemas/types.yaml#/definitions/uint32
++    description:
++      Divider for the external input clock/PWM
++    enum: [128, 256, 512, 1024]
++    default: 128
++
++  imagis,pll-div:
++    $ref: /schemas/types.yaml#/definitions/uint32
++    description:
++      Divider for the internal PLL clock
++    minimum: 1
++    maximum: 15
++    default: 1
++
++  imagis,mode:
++    $ref: /schemas/types.yaml#/definitions/uint32
++    description: |
++      Defines the motor type isa1200 drives
++      0 - LRA (Linear Resonant Actuator)
++      1 - ERM (Eccentric Rotating Mass)
++    enum: [0, 1]
++    default: 0
++
++  imagis,period-ns:
++    description:
++      Period of the internal PWM channel in nanoseconds.
++    minimum: 10000
++    maximum: 30000
++
++  imagis,duty-cycle-ns:
++    description:
++      Duty cycle of the external/internal PWM channel in nanoseconds,
++      defaults to 50% of the channel's period
++
++  ldo:
++    $ref: /schemas/regulator/regulator.yaml#
++    type: object
++    description:
++      Embedded LDO regulator with voltage range 2.3V - 3.8V
++    unevaluatedProperties: false
++
++    required:
++      - regulator-min-microvolt
++      - regulator-max-microvolt
++
++required:
++  - compatible
++  - reg
++  - ldo
++
++oneOf:
++  - required:
++      - clocks
++      - imagis,period-ns
++  - required:
++      - pwms
++
++additionalProperties: false
++
++examples:
++  - |
++    #include <dt-bindings/gpio/gpio.h>
++
++    i2c {
++        #address-cells = <1>;
++        #size-cells = <0>;
++
++        haptic-engine@49 {
++            compatible = "imagis,isa1200";
++            reg = <0x49>;
++
++            clocks = <&isa1200_refclk>;
++
++            control-gpios = <&gpio 22 GPIO_ACTIVE_HIGH>,
++                            <&gpio 23 GPIO_ACTIVE_HIGH>;
++
++            vdd-supply = <&vdd_3v3_vbat>;
++            vddp-supply = <&vdd_2v8_vvib>;
++
++            imagis,clk-div = <256>;
++            imagis,pll-div = <2>;
++
++            imagis,mode = <0>; /* LRA_MODE */
++
++            imagis,period-ns = <13400>;
++            imagis,duty-cycle-ns = <100>;
++
++            ldo {
++                regulator-name = "vdd_vib";
++                regulator-min-microvolt = <2300000>;
++                regulator-max-microvolt = <2300000>;
++            };
++        };
++    };
 -- 
 2.53.0
 

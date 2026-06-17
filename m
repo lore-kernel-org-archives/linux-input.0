@@ -1,191 +1,238 @@
-Received: from mail-dy1-f176.google.com (mail-dy1-f176.google.com [74.125.82.176])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from out-170.mta0.migadu.com (out-170.mta0.migadu.com [91.218.175.170])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5BAA42D12EC
-	for <linux-input@vger.kernel.org>; Tue, 16 Jun 2026 23:03:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.176
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 357BB18C2C
+	for <linux-input@vger.kernel.org>; Wed, 17 Jun 2026 00:18:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.170
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781650994; cv=none; b=aOWm4fprN8YVBMSmb0v2HAZTlq6vBJ865hR914VtuuirLZdT7vvJNXyThefJwoBiah+tueRatB9Juj07yO3TQWFRNuK001iGdoqkbazDOJw7OCvb7hnxsjsYW8BDZ70ObmovfsBwH7ITryG8y/HHftsqVH/H80QhfVy8eRE7ezo=
+	t=1781655504; cv=none; b=P0dGvXNXoa3jBj2cz3wcKLzKuqdsYeqQ73kezpP+VZZIyvtT2Y1uLvyabf2Q6VwkhJtURKzFJFzIEl2UNL4MIG9sEjkRCj0WEY/MvYVZZf8DXE8eTbzsMsFu0IG2aMrSE1ebrZ30WY6sfCBwL2DmuZAuTM4k0w1oFDz4BesM3HI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781650994; c=relaxed/simple;
-	bh=/+JA0/+x8xTxp72BYKMx9RPOmXh/OU0QdeYU6tSRD70=;
-	h=Mime-Version:Content-Type:Date:Message-Id:From:To:Cc:Subject:
-	 References:In-Reply-To; b=A6SajX+N24AnhHVk3tLS9vk7qhB0Q8l9waOE+N/E1VGWd7ukK3D2qFInja50iA10poJdSDzrbOTzwtctyvTpyZys/mln2Ov7A2D9bknII9jOJkSOFZVgG1inO76G5Sr0rgV/IkGJUtCBvNAy1c9+5ukU88g6uaFiumD8MBeLBxo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=etsalapatis.com; spf=pass smtp.mailfrom=etsalapatis.com; dkim=pass (2048-bit key) header.d=etsalapatis-com.20251104.gappssmtp.com header.i=@etsalapatis-com.20251104.gappssmtp.com header.b=GR+qpQMo; arc=none smtp.client-ip=74.125.82.176
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=etsalapatis.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=etsalapatis.com
+	s=arc-20240116; t=1781655504; c=relaxed/simple;
+	bh=/a0nN0g51dH4Q3+N7wWTtULmQMy1GjtA+yb9f8CcLO0=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=TsEEqxiVapQdJswMZy/lowPSpERA0DfVnYiknZegBlWycRDwUuPDE8IfZvJ4AVnvIv6BKVM62CySxXoEmLBSeyl5iwPC02cBug2kbG4OXZNy73Yl+urQV9sSjIC9C8qtH6zGxeVhmNs5UKxoLFfxUbf2BOxSP6hHcqIrPIW7yt0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=jiy+zBRc; arc=none smtp.client-ip=91.218.175.170
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=etsalapatis-com.20251104.gappssmtp.com header.i=@etsalapatis-com.20251104.gappssmtp.com header.b="GR+qpQMo"
-Received: by mail-dy1-f176.google.com with SMTP id 5a478bee46e88-30bcdf8232fso590531eec.0
-        for <linux-input@vger.kernel.org>; Tue, 16 Jun 2026 16:03:13 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=etsalapatis-com.20251104.gappssmtp.com; s=20251104; t=1781650992; x=1782255792; darn=vger.kernel.org;
-        h=in-reply-to:references:subject:cc:to:from:message-id:date
-         :content-transfer-encoding:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=WH6RTCAKthQn8D3HEOAc82IdePItio5VG4Tc4WQ1DFk=;
-        b=GR+qpQMoN7BRETWCDlZiEijbzyeFfvx83pX291ZwwBNT2ug4k9Q90bpRLQ+9tpahH/
-         tDFYpdISe/Im0C8GibLgf8hfxzhfq6Orcbn9MiKZXsmI1zcN0rQNPF0FZGz9aAeHM5Lt
-         oF0YAT4V4zhDOcWh1y+Q9IlIJ4lag7aEscVJPDUHOA6QuJmDSnJ4+oe9Dsgk63a9UljN
-         /lnAN4t9BAqIG/d2ojtioeu8kkySNhafC2vUbFzn9VwVzGPYcN8nz19CKQyCQybpy2BY
-         sAeb0dKKJyP51yC/n9gfJ4YdwGHnI+0G1BEwvFxXCtDoX3TQTcyZGkQC5/YOba6XR69E
-         nTaQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781650992; x=1782255792;
-        h=in-reply-to:references:subject:cc:to:from:message-id:date
-         :content-transfer-encoding:mime-version:x-gm-gg:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=WH6RTCAKthQn8D3HEOAc82IdePItio5VG4Tc4WQ1DFk=;
-        b=NyIeRSI52uzJlC/qpIfpIoXvQ9SDy6YnE2kS8OMn7y5h2hthuC+iHxoQ2C4E0WfP56
-         z5afqytDsBgj/dMD27FAKM+IjysHUTGhDhuNVhhwkwYtVo5cPU541hRiZa+zdEPJiauK
-         RAmolADy2YiYi8B+wgGKjGyNi0XU4xnGvXBoIRT0rrFCHcRBjT1FNkXwYLSEhAEfoord
-         hok4/E7NQy7CdkQjOLgie89H5b2uusOCDxi4lfqncDcu+7ehk55CqSGnJWf7rBNQzbY3
-         Tgeh71nOqGWc4V4fB9r/e9nEBBRIjsOiK4dXLTksv02h3kJZ4v9KUbyODHHQgpV0k11Z
-         MntQ==
-X-Forwarded-Encrypted: i=1; AFNElJ+7zafS1mecZbzOynWjO2vKUSEOByQ7OqF2k3lz4mteXqhPri8YS/mboo7Oe9mnIrVG+fRwFVhxZZWCZw==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yz5oy0mQwXaGVg5T5MRVq1bt3MrGOKVjgoIU46nLJzFsPAAL+Qs
-	m/61P2QYprcwjxgNOzINzgBG2OGufIhEZYd/YpY+PWNnSC+I1Le3nEScywoKcIuUgHc=
-X-Gm-Gg: AfdE7cnkF5tPr0UKkuMjbzeec2Xm/eLjBeT9t0cQiklgSWpcQInEz67Z1fnPcyfaB6B
-	NTvGuFcfy97vQk1LLt5paCR5AiXgR42LnEukQAvvNXZDWNEo0BpDP7gjQoFoG7X+qctRPLgb/cA
-	kai1Ci4d02rQg1b5QPZItO4RpApIujePXoJr+lDWKqAKGctheN0ZfbzyKCCs1GdyioawIJWRcg6
-	xc+I+l/SGxh5eDb6I4kz6NMqmUarZV82BLdNGJW9iBVW6DwaoheluxV5wjfDjsB0pt+aj51ZS+N
-	Nfi7JC5ZVzCN3iAH4Pp6yighUBb7NVVgAmvMhQad9fByfh+/rlzcvvG9vhPsS6YpyoXo7S7vN+q
-	mRboSW+nLqxMz+VbKeCE+wdZDAn6hlJn98mCp3mlpMP1RXndmntCH9GH87QEqcTiAYEbZQWsR4g
-	3+FAFhkGKbGncCBOU=
-X-Received: by 2002:a05:7300:cb88:b0:2de:c5ca:c1f3 with SMTP id 5a478bee46e88-30bc996dedemr744821eec.4.1781650991914;
-        Tue, 16 Jun 2026 16:03:11 -0700 (PDT)
-Received: from localhost ([2620:10d:c090:600::1a8e])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3081ddaf69asm21582184eec.0.2026.06.16.16.03.09
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 16 Jun 2026 16:03:11 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="jiy+zBRc"
+Message-ID: <5006ff55-846e-4812-bc89-b270fbef6ccc@linux.dev>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+	t=1781655491;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=2xr8U8szjsbmbYU3Ure/0/vr0G/GkO5uHuBolPL42e0=;
+	b=jiy+zBRcIs0OS1zCaDXGjVnyUTtnK3a/nz6U78jTrUFkbhvsnpONuzTQ3ub94bMKCu7C8y
+	+FQ2JTKR5Rom5ktw1Ul/pygc6xzLr0YDgqcnSlatK5WIH5NdieNHYscyqrpUMaGgQRcTRj
+	QglaQAAMA54nmfkLMdPRcyWbnk5lQqs=
+Date: Wed, 17 Jun 2026 02:18:08 +0200
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+Subject: Re: [PATCH v4 4/5] HID: asus: add support for xgm led
+To: Antheas Kapenekakis <lkml@antheas.dev>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
+ Benjamin Tissoires <bentiss@kernel.org>, Jiri Kosina <jikos@kernel.org>,
+ "Luke D . Jones" <luke@ljones.dev>, Mateusz Schyboll <dragonn@op.pl>,
+ Denis Benato <benato.denis96@gmail.com>,
+ Connor Belli <connorbelli2003@gmail.com>
+References: <20260615165058.3845-1-denis.benato@linux.dev>
+ <20260615165058.3845-5-denis.benato@linux.dev>
+ <CAGwozwGfwXeC-SLbbHhHN7_a+Uz8G9ToQcb54XRrcGru3GG2Lg@mail.gmail.com>
+Content-Language: en-US
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+From: Denis Benato <denis.benato@linux.dev>
+In-Reply-To: <CAGwozwGfwXeC-SLbbHhHN7_a+Uz8G9ToQcb54XRrcGru3GG2Lg@mail.gmail.com>
 Content-Type: text/plain; charset=UTF-8
-Date: Tue, 16 Jun 2026 19:03:08 -0400
-Message-Id: <DJAUKD3DHGGL.18W70CTDB1G04@etsalapatis.com>
-From: "Emil Tsalapatis" <emil@etsalapatis.com>
-To: "Yiyang Chen" <chenyy23@mails.tsinghua.edu.cn>, "Jiri Kosina"
- <jikos@kernel.org>, "Benjamin Tissoires" <bentiss@kernel.org>,
- <bpf@vger.kernel.org>, <linux-input@vger.kernel.org>
-Cc: "Shuah Khan" <shuah@kernel.org>, "Alexei Starovoitov" <ast@kernel.org>,
- "Daniel Borkmann" <daniel@iogearbox.net>, "Andrii Nakryiko"
- <andrii@kernel.org>, "Martin KaFai Lau" <martin.lau@linux.dev>, "Eduard
- Zingerman" <eddyz87@gmail.com>, "Kumar Kartikeya Dwivedi"
- <memxor@gmail.com>, "Song Liu" <song@kernel.org>, "Yonghong Song"
- <yonghong.song@linux.dev>, "Jiri Olsa" <jolsa@kernel.org>,
- <linux-kselftest@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH bpf-next 2/2] selftests/hid: Cover hid_bpf_get_data()
- size overflow
-X-Mailer: aerc 0.21.0-0-g5549850facc2
-References: <cover.1781627122.git.chenyy23@mails.tsinghua.edu.cn>
- <49d892af0a5e994676723a81d2584fb91bc22a9d.1781627122.git.chenyy23@mails.tsinghua.edu.cn>
-In-Reply-To: <49d892af0a5e994676723a81d2584fb91bc22a9d.1781627122.git.chenyy23@mails.tsinghua.edu.cn>
+Content-Transfer-Encoding: 7bit
+X-Migadu-Flow: FLOW_OUT
 
-On Tue Jun 16, 2026 at 12:35 PM EDT, Yiyang Chen wrote:
-> Add a HID-BPF regression check for hid_bpf_get_data() requests whose
-> size would overflow when added to the offset.
->
-> The new rdesc fixup callback asks for offset 2 and size ~0ULL, then
-> records whether the helper returns NULL. A vulnerable kernel returns a
-> non-NULL pointer because the runtime check wraps the addition. A fixed
-> kernel rejects the request. The test only checks the helper result and
-> does not dereference the returned pointer.
->
-> Also add KHDR_INCLUDES to the HID selftest build so hid_bpf.c sees the
-> current kernel UAPI HID definitions on systems whose installed headers do
-> not provide enum hid_report_type.
->
-> Signed-off-by: Yiyang Chen <chenyy23@mails.tsinghua.edu.cn>
-> ---
->  tools/testing/selftests/hid/Makefile    |  2 +-
->  tools/testing/selftests/hid/hid_bpf.c   | 11 +++++++++++
->  tools/testing/selftests/hid/progs/hid.c | 18 ++++++++++++++++++
->  3 files changed, 30 insertions(+), 1 deletion(-)
->
-> diff --git a/tools/testing/selftests/hid/Makefile b/tools/testing/selftes=
-ts/hid/Makefile
-> index 50ec9e0406aba..357c6eb5ff5ee 100644
-> --- a/tools/testing/selftests/hid/Makefile
-> +++ b/tools/testing/selftests/hid/Makefile
-> @@ -24,7 +24,7 @@ CXX ?=3D $(CROSS_COMPILE)g++
-> =20
->  HOSTPKG_CONFIG :=3D pkg-config
-> =20
-> -CFLAGS +=3D -g -O0 -rdynamic -Wall -Werror -I$(OUTPUT)
-> +CFLAGS +=3D -g -O0 -rdynamic -Wall -Werror -I$(OUTPUT) $(KHDR_INCLUDES)
->  CFLAGS +=3D -I$(OUTPUT)/tools/include
-> =20
->  LDLIBS +=3D -lelf -lz -lrt -lpthread
-> diff --git a/tools/testing/selftests/hid/hid_bpf.c b/tools/testing/selfte=
-sts/hid/hid_bpf.c
-> index 1e979fb3542ba..f0a210900e63d 100644
-> --- a/tools/testing/selftests/hid/hid_bpf.c
-> +++ b/tools/testing/selftests/hid/hid_bpf.c
-> @@ -887,6 +887,17 @@ TEST_F(hid_bpf, test_rdesc_fixup)
->  	ASSERT_EQ(rpt_desc.value[4], 0x42);
->  }
-> =20
-> +TEST_F(hid_bpf, test_rdesc_fixup_get_data_overflow)
-> +{
-> +	const struct test_program progs[] =3D {
-> +		{ .name =3D "hid_rdesc_fixup_get_data_overflow" },
-> +	};
-> +
-> +	LOAD_PROGRAMS(progs);
-> +
-> +	ASSERT_EQ(self->skel->bss->get_data_overflow_check, 1);
 
-Can you just use the return value of the method? Why the separate
-variable?
+On 6/15/26 23:55, Antheas Kapenekakis wrote:
+> On Mon, 15 Jun 2026 at 18:51, Denis Benato <denis.benato@linux.dev> wrote:
+>> XG mobile stations have very bright leds behind the fan that can be
+>> turned either ON or OFF: add a cled interface to allow controlling the
+>> brightness of those red leds.
+>>
+>> Signed-off-by: Denis Benato <denis.benato@linux.dev>
+>> ---
+>>  drivers/hid/hid-asus.c | 91 ++++++++++++++++++++++++++++++++++++++++++
+>>  1 file changed, 91 insertions(+)
+>>
+>> diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
+>> index 6896730efafc..e68a6d93369d 100644
+>> --- a/drivers/hid/hid-asus.c
+>> +++ b/drivers/hid/hid-asus.c
+>> @@ -51,6 +51,8 @@ MODULE_DESCRIPTION("Asus HID Keyboard and TouchPad");
+>>  #define FEATURE_KBD_LED_REPORT_ID1 0x5d
+>>  #define FEATURE_KBD_LED_REPORT_ID2 0x5e
+>>
+>> +#define ROG_XGM_REPORT_SIZE 300
+>> +
+>>  #define ROG_ALLY_REPORT_SIZE 64
+>>  #define ROG_ALLY_X_MIN_MCU 313
+>>  #define ROG_ALLY_MIN_MCU 319
+>> @@ -143,6 +145,11 @@ struct asus_worker {
+>>         bool removed;
+>>  };
+>>
+>> +struct asus_xgm_led {
+>> +       struct led_classdev cdev;
+>> +       struct hid_device *hdev;
+>> +};
+>> +
+>>  struct asus_touchpad_info {
+>>         int max_x;
+>>         int max_y;
+>> @@ -169,6 +176,7 @@ struct asus_drvdata {
+>>         unsigned long battery_next_query;
+>>         struct asus_hid_listener listener;
+>>         bool fn_lock;
+>> +       struct asus_xgm_led *xgm_led;
+>>  };
+>>
+>>  static int asus_report_battery(struct asus_drvdata *, u8 *, int);
+>> @@ -1119,6 +1127,26 @@ static int asus_battery_probe(struct hid_device *hdev)
+>>         return ret;
+>>  }
+>>
+>> +static int asus_xgm_led_set(struct led_classdev *led_cdev, enum led_brightness value)
+>> +{
+>> +       const u8 buf[ROG_XGM_REPORT_SIZE] = {
+>> +               FEATURE_KBD_LED_REPORT_ID2, 0xC5, (value) ? 0x50 : 0x00
+>> +       };
+>> +       struct asus_xgm_led *xgm = container_of(led_cdev, struct asus_xgm_led, cdev);
+>> +       int ret;
+>> +
+>> +       ret = asus_kbd_set_report(xgm->hdev, buf, ROG_XGM_REPORT_SIZE);
+>> +       if (ret < 0) {
+>> +               hid_err(xgm->hdev, "Unable to set XG mobile led state: %d\n", ret);
+>> +               return ret;
+>> +       } else if (ret != ROG_XGM_REPORT_SIZE) {
+>> +               hid_err(xgm->hdev, "Unexpected partial transfer to XG mobile: %d\n", ret);
+>> +               return -EIO;
+>> +       }
+>> +
+>> +       return 0;
+>> +}
+>> +
+>>  static int asus_input_configured(struct hid_device *hdev, struct hid_input *hi)
+>>  {
+>>         struct input_dev *input = hi->input;
+>> @@ -1343,9 +1371,52 @@ static int asus_start_multitouch(struct hid_device *hdev)
+>>         return 0;
+>>  }
+>>
+>> +static int asus_xgm_init(struct hid_device *hdev, struct asus_drvdata *drvdata)
+>> +{
+>> +       const char *name;
+>> +       int ret;
+>> +
+>> +       drvdata->xgm_led = devm_kzalloc(&hdev->dev, sizeof(*drvdata->xgm_led), GFP_KERNEL);
+>> +       if (drvdata->xgm_led == NULL)
+>> +               return -ENOMEM;
+>> +
+>> +       name = devm_kasprintf(&hdev->dev, GFP_KERNEL, "asus:xgm-%s:led",
+>> +                             strlen(hdev->uniq) ? hdev->uniq : dev_name(&hdev->dev));
+>> +
+>> +       if (name == NULL) {
+>> +               ret = -ENOMEM;
+>> +               goto asus_xgm_init_err;
+>> +       }
+>> +
+>> +       drvdata->xgm_led->hdev = hdev;
+>> +       drvdata->xgm_led->cdev.name = name;
+>> +       drvdata->xgm_led->cdev.brightness = 1;
+>> +       drvdata->xgm_led->cdev.max_brightness = 1;
+>> +       drvdata->xgm_led->cdev.brightness_set_blocking = asus_xgm_led_set;
+>> +
+>> +       /* LED state is arbitrary on boot, set a default */
+>> +       ret = asus_xgm_led_set(&drvdata->xgm_led->cdev, drvdata->xgm_led->cdev.brightness);
+>> +       if (ret) {
+>> +               hid_err(hdev, "Asus failed to set xgm led: %d\n", ret);
+>> +               goto asus_xgm_init_err;
+>> +       }
+>> +
+>> +       ret = devm_led_classdev_register(&hdev->dev, &drvdata->xgm_led->cdev);
+>> +       if (ret) {
+>> +               hid_err(hdev, "Asus failed to register xgm led: %d\n", ret);
+>> +               goto asus_xgm_init_err;
+>> +       }
+>> +
+>> +       return 0;
+>> +asus_xgm_init_err:
+>> +       drvdata->xgm_led = NULL;
+>> +       return ret;
+>> +}
+>> +
+>>  static int __maybe_unused asus_resume(struct hid_device *hdev)
+>>  {
+>>         struct asus_drvdata *drvdata = hid_get_drvdata(hdev);
+>> +       int ret;
+>>
+>>         /*
+>>          * If we have a backlight listener registered, restore the previous state,
+>> @@ -1355,7 +1426,17 @@ static int __maybe_unused asus_resume(struct hid_device *hdev)
+>>         if (drvdata->listener.brightness_set)
+>>                 asus_kbd_backlight_set(&drvdata->listener, drvdata->kbd_backlight_brightness);
+>>
+>> +       if (drvdata->xgm_led) {
+>> +               ret = asus_xgm_led_set(&drvdata->xgm_led->cdev, drvdata->xgm_led->cdev.brightness);
+>> +               if (ret) {
+>> +                       hid_err(hdev, "Asus failed to restore xgm brightness: %d\n", ret);
+>> +                       goto asus_resume_err;
+>> +               }
+>> +       }
+>> +
+>>         return 0;
+>> +asus_resume_err:
+>> +       return ret;
+>>  }
+>>
+>>  static int __maybe_unused asus_reset_resume(struct hid_device *hdev)
+>> @@ -1484,6 +1565,16 @@ static int asus_probe(struct hid_device *hdev, const struct hid_device_id *id)
+>>                 }
+>>         }
+>>
+>> +       if (asus_has_report_id(hdev, FEATURE_KBD_REPORT_ID) &&
+>> +           ((hdev->product == USB_DEVICE_ID_ASUSTEK_XGM_2022) ||
+>> +            (hdev->product == USB_DEVICE_ID_ASUSTEK_XGM_2023))) {
+>> +               ret = asus_xgm_init(hdev, drvdata);
+>> +               if (ret) {
+>> +                       hid_err(hdev, "Failed to initialize xg mobile: %d\n", ret);
+>> +                       goto err_stop_hw;
+>> +               }
+>> +       }
+>> +
+> reset_resume has a special meaning and perhaps should not have been
+> used for this driver at all. Check if resume works and if it does use
+> that instead.
+I am not using reset_resume for xgm.
 
-> +}
-> +
->  static int libbpf_print_fn(enum libbpf_print_level level,
->  			   const char *format, va_list args)
->  {
-> diff --git a/tools/testing/selftests/hid/progs/hid.c b/tools/testing/self=
-tests/hid/progs/hid.c
-> index 5ecc845ef7921..c6ae2cd045b0e 100644
-> --- a/tools/testing/selftests/hid/progs/hid.c
-> +++ b/tools/testing/selftests/hid/progs/hid.c
-> @@ -13,6 +13,7 @@ struct attach_prog_args {
-> =20
->  __u64 callback_check =3D 52;
->  __u64 callback2_check =3D 52;
-> +__u64 get_data_overflow_check;
-> =20
->  SEC("?struct_ops/hid_device_event")
->  int BPF_PROG(hid_first_event, struct hid_bpf_ctx *hid_ctx, enum hid_repo=
-rt_type type)
-> @@ -240,6 +241,23 @@ struct hid_bpf_ops rdesc_fixup =3D {
->  	.hid_rdesc_fixup =3D (void *)hid_rdesc_fixup,
->  };
-> =20
-> +SEC("?struct_ops.s/hid_rdesc_fixup")
-> +int BPF_PROG(hid_rdesc_fixup_get_data_overflow, struct hid_bpf_ctx *hid_=
-ctx)
-> +{
-> +	__u8 *data;
-> +
-> +	data =3D hid_bpf_get_data(hid_ctx, 2 /* offset */, ~0ULL /* size */);
-> +	if (!data)
-> +		get_data_overflow_check =3D 1;
-> +
-> +	return 0;
-> +}
-> +
-> +SEC(".struct_ops.link")
-> +struct hid_bpf_ops rdesc_fixup_get_data_overflow =3D {
-> +	.hid_rdesc_fixup =3D (void *)hid_rdesc_fixup_get_data_overflow,
-> +};
-> +
->  SEC("?struct_ops/hid_device_event")
->  int BPF_PROG(hid_test_insert1, struct hid_bpf_ctx *hid_ctx, enum hid_rep=
-ort_type type)
->  {
+reset_resume will become important to recover the ally,
+but for xg mobile is unused (and useless).
+> Other than that and the refactor patch I'd rather see separately, the
+> other 4 patches look fine to me.
+Fair, I'll wait for maintainers to tell what they like the most
+and go from there.
 
+I agree there are things not really much related here
+but at least this way the order to apply them is clear.
+> Reviewed-by: Antheas Kapenekakis <lkml@antheas.dev>
+Thanks,
+Denis
+> Best,
+> Antheas
+>
+>>         /* Laptops keyboard backlight is always at 0x5a */
+>>         if (is_vendor && (drvdata->quirks & QUIRK_USE_KBD_BACKLIGHT) &&
+>>             (asus_has_report_id(hdev, FEATURE_KBD_REPORT_ID)) &&
+>> --
+>> 2.47.3
+>>
+>>

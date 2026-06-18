@@ -1,54 +1,54 @@
-Received: from OSPPR02CU001.outbound.protection.outlook.com (mail-norwayeastazon11013033.outbound.protection.outlook.com [40.107.159.33])
+Received: from AS8PR04CU009.outbound.protection.outlook.com (mail-westeuropeazon11011059.outbound.protection.outlook.com [52.101.70.59])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ECBAE3C9894;
-	Thu, 18 Jun 2026 07:29:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.159.33
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 448273C943F;
+	Thu, 18 Jun 2026 07:29:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.70.59
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781767763; cv=fail; b=M3ce/FLPW3j2VbHmZIPI4Mf2xeD8Fj6EzdQf8V/BsomL8x66fylIEVGAzroQf81gUunlj0vgs46smZNvNzEijiL/rsfCX+1Ez0ZJLa+oI+CFT0oQtpnjF98ywoLrEzsXPz04cjVpJpw1lJKlRy7DTBzFdHHNYerQuLJ1Q0cIGvE=
+	t=1781767769; cv=fail; b=pqIF/P9/tPr+5qqkSBZrkrAZgOeLDAl6+WOqs56vjF3rTeQpfi4Q+6/OEMwVcUcp/MKNIwJobVVYcJYUFWFfcHseWPZBHrpSjd5xsVuhga+6fFCxghxWx9zK2D3N9aTVdEVqKRAtPI4jy0utzfafJzrVZw2P04QSSZ3p9qM1+XQ=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781767763; c=relaxed/simple;
-	bh=AJQEKIoi2VhwpW49EK4+vD/T1pJyv4+nKZ8qkOyWGH0=;
+	s=arc-20240116; t=1781767769; c=relaxed/simple;
+	bh=drW4dsnI339pR777yzuDqleQKr3giiq4ZP9wvQ9mjEY=;
 	h=From:Date:Subject:Content-Type:Message-Id:References:In-Reply-To:
-	 To:Cc:MIME-Version; b=c+Ry9y0QK6FWJlmC+ngWzMy1vWYT9nAbrZNWIrJ2zR9k5vx2LS+jHASWc0nnon1ArVAnngk2q6OOlByPhwpW2lNFj22RE92GK4EO8RsXNnr5IvDcKceUlvGH+jVjwPQLCBlPJ6BIXGKjP6ntrLWsVatULzkx+HLL6bX2UN7Q9Nw=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=oss.nxp.com; spf=pass smtp.mailfrom=oss.nxp.com; dkim=pass (2048-bit key) header.d=NXP1.onmicrosoft.com header.i=@NXP1.onmicrosoft.com header.b=FP9+wxR8; arc=fail smtp.client-ip=40.107.159.33
+	 To:Cc:MIME-Version; b=n/gyS63+ouFJWgqmPHBnQ78oDwpoWjU0Ev1N+9W1PQF/5k8nG+PlYOd9kYAVQS+EVsBUGcLYIVRwxeB5u1zCDC0q1IouxizfcoD4O/6Ww8XS5gTktwIEr/PvQSOS/L4yneq9jC+NF3uo1NB/CZVu7BarKWZ7jcwHIB4ZOK6t40g=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=oss.nxp.com; spf=pass smtp.mailfrom=oss.nxp.com; dkim=pass (2048-bit key) header.d=NXP1.onmicrosoft.com header.i=@NXP1.onmicrosoft.com header.b=s/uTWWfK; arc=fail smtp.client-ip=52.101.70.59
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=oss.nxp.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.nxp.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=NXP1.onmicrosoft.com header.i=@NXP1.onmicrosoft.com header.b="FP9+wxR8"
+	dkim=pass (2048-bit key) header.d=NXP1.onmicrosoft.com header.i=@NXP1.onmicrosoft.com header.b="s/uTWWfK"
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=tIE03nWil09HgEJ4GRoRe4lHF3yYeFQay6/5IzJapMVoO8fhqEXSYErCpoCqlw+mv7MWbnAWp7gqiZhI+ZqmlSPq1oGfplijZFDXu5BNmwkSoeHSW9JSLNsyYksbXihFT0XEbn9rbXuqPtome/VmSgceEQFqaHUB7IBbxtcpuuLJ6qjsqz/0X3LV0PcVJT0rQ1aE8myelL1Tq5QVlADPPfAbufKjRTj3AgTxgaI4m8tAKcQQLwwcMUaHRWiK1HFwx6mOiMVrcHC2s0x1tdiGckKGtS03y4g1eXECoHafw+cE9HnpuOdu/nbvNSZdHrQPWPNkTtMiz4Z7eknSfRhUKA==
+ b=Qnjp+w3awErYWTR2PhnLurGR2Upz09U6xsX+7AaJsMUUcqqd1jP3VqTSI5StZ5j40Hh8R7RZ9fWq7E2YkP9Qib4rSfKEKP1mp0XRp4uBRfb8CHwlQMSFuEH8IFjlBjWaU1MDWN9zr5QyPOnp/I0ipT2HwjkW3g8JP3eg0y4lvYKeWdBwpgCDzMw5cVwTbFiESjvtE44DTapE+Ub+52IwP5kMCCQXp/t9/5Rzg2eGvt47Cuir+U5RMN6PCI/be2Yxm8Z2Kxa41beIuSExje0hrdfsv2N+64Hi8DHH1Rnkua6HHMCw7W/O71wD4csN806aYI79Q6KJxd6mz7yF43xtpQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector10001;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=L6YuZnggeGpAV9lnymgHDVsZ4OhqISVjDOmgKLpBagI=;
- b=iJndrB6q1kqmj4gToU9xT2+AmYQ3apJr9YMiUPlUVrj1RjEqCzu4vLPUPSRd66ybvMPERAcg7KmnPAe86ApYwV+idC1X1HPWshTmzg0ug07N38u2Nsk6g8up1+QrAbAHC87ILHT6iyz3dXuQlPRzLVD+je2j2O2b3iK4k6aFhVndi4cX7k2oeIZ/fswVopGCJTm4URQtMoVvh3pqV1zYQ/LfjhIRFUry4l7Arp2NrVuNzYvnlPX+mj329lZa+Z4eaNhV89xYMaF2OoRuWsEXxnm6c1kRrA3gMgtmhZE1R33PfFHFK/HrUUfcSW/Qx2N1LURRd9HvWav20NyzZOoq6A==
+ bh=LaRTu4zzQP3iSz56PcXqi+9vv8i3HD6cMl6Rtpk+zBc=;
+ b=wtO248r5Rai9Z6BbNIy2x9+6llp/6qZsD1s/Xn6QyOn6Y/SteX10IjgW/MyMDM69agUziGDuPuA6Pf9vYyUL6fjKCSgJ3FTbfXyCLT2Gl23iASYqE13whIzi1cbMeDNp4VxO3nCDUYdS07z7Ge5ETbSkOLS3w4sD9qb15fND2HvWOB1QFlnZBA5FVUfVJ8a61DCJE8OUDWPeFNNHLS2qT/natLRp4Vs0UaPNIZqRCnGmPVWV8sM4RMZ33tdsupm0wCqQJxe6zDy8sytryTuI+85flJJwRninSl/II7Kyyx5cOdKLMHQh+9ujzpTyy+clbA++Wkj5nEgxJTVE+xWtDA==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=oss.nxp.com; dmarc=pass action=none header.from=oss.nxp.com;
  dkim=pass header.d=oss.nxp.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=NXP1.onmicrosoft.com;
  s=selector1-NXP1-onmicrosoft-com;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=L6YuZnggeGpAV9lnymgHDVsZ4OhqISVjDOmgKLpBagI=;
- b=FP9+wxR8glCYQPs5VFkOGRysqeJM8Y7zeHGLE0bxEuMKZhP9fqyTv1wbiw8TC98SizViYmfmK3Oru55oQyyPs/usn4YJhh56MqN6Ke/6ASf4EeFBjv5XrMBUl09tlEwp8NQuaDMD7X9SYqzPiV0B7NU9Js0WpFW1xXy69NVYmEXaeCccP89we8+tFrYFfzIBf/fwBqix5QdPy000al7n4goVyDwU6pf+NsozspwmBTrx3/aZ9ma5ybxqdpXIdQQiOEDdCVlD0US52dZJy/CkWFXcPyzpP2TZGMR33jySrdY/fOnTk0i6DyNcBH/Tk+qL4G50TuPqHIF9x3c7XsphAg==
+ bh=LaRTu4zzQP3iSz56PcXqi+9vv8i3HD6cMl6Rtpk+zBc=;
+ b=s/uTWWfKEG/xdKqnBmXoYXKhD5gjNuyrNrdwNf8hrPfjeJhrZiDFA+XFkkGCN3uGrnBH2ltQsVPkzUlfKriQ6Yf4BMbv6z82Z7pp2YTxiqIFv0s+xideMynE8wC3fKrAyK6vHiQaIf/PEBLZBIDIbvmoePaxMMcxvzLkTherpJ8wMzFDnSWQjFaDXbEN0dx05BBFlB0MMJzxw6y9aK2Rb3HdprqssY10+7zc1CK1QQ3+I6KCJA1nbfLT0RL+NgjFRlqsjimOA8c43OwlfOR3W9Ih6Xf/vePQsfD5qlbKM3WnZOZaHbuVWzGYZgtBJDLziW3MNqSAaiCpiHzqLH91Kw==
 Authentication-Results: dkim=none (message not signed)
  header.d=none;dmarc=none action=none header.from=oss.nxp.com;
 Received: from VI1PR04MB5807.eurprd04.prod.outlook.com (2603:10a6:803:ec::21)
  by PA2PR04MB10157.eurprd04.prod.outlook.com (2603:10a6:102:409::15) with
  Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.113.18; Thu, 18 Jun
- 2026 07:29:18 +0000
+ 2026 07:29:23 +0000
 Received: from VI1PR04MB5807.eurprd04.prod.outlook.com
  ([fe80::3da4:2827:d637:37de]) by VI1PR04MB5807.eurprd04.prod.outlook.com
  ([fe80::3da4:2827:d637:37de%4]) with mapi id 15.21.0113.015; Thu, 18 Jun 2026
- 07:29:17 +0000
+ 07:29:23 +0000
 From: joy.zou@oss.nxp.com
-Date: Thu, 18 Jun 2026 15:31:48 +0800
-Subject: [PATCH v4 3/4] Input: snvs_pwrkey - use local device pointer to
- simple code
+Date: Thu, 18 Jun 2026 15:31:49 +0800
+Subject: [PATCH v4 4/4] Input: snvs_pwrkey - report press event in
+ interrupt handler
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260618-b4-pwrkey-v4-3-4bfda105bdf3@oss.nxp.com>
+Message-Id: <20260618-b4-pwrkey-v4-4-4bfda105bdf3@oss.nxp.com>
 References: <20260618-b4-pwrkey-v4-0-4bfda105bdf3@oss.nxp.com>
 In-Reply-To: <20260618-b4-pwrkey-v4-0-4bfda105bdf3@oss.nxp.com>
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
@@ -59,8 +59,8 @@ Cc: Joy Zou <joy.zou@oss.nxp.com>, imx@lists.linux.dev,
  linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
  Joy Zou <joy.zou@nxp.com>
 X-Mailer: b4 0.15.2
-X-ClientProxiedBy: SI2PR02CA0024.apcprd02.prod.outlook.com
- (2603:1096:4:195::18) To VI1PR04MB5807.eurprd04.prod.outlook.com
+X-ClientProxiedBy: MA5P287CA0159.INDP287.PROD.OUTLOOK.COM
+ (2603:1096:a01:1ba::13) To VI1PR04MB5807.eurprd04.prod.outlook.com
  (2603:10a6:803:ec::21)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
@@ -70,195 +70,227 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 X-MS-PublicTrafficType: Email
 X-MS-TrafficTypeDiagnostic: VI1PR04MB5807:EE_|PA2PR04MB10157:EE_
-X-MS-Office365-Filtering-Correlation-Id: c71d86e4-ddfb-4ec4-797c-08decd0b4e3d
+X-MS-Office365-Filtering-Correlation-Id: d0fcbf97-bd0d-4070-bc07-08decd0b51bd
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|23010399003|1800799024|376014|19092799006|366016|11063799006|56012099006|18002099003|22082099003;
+	BCL:0;ARA:13230040|23010399003|1800799024|376014|19092799006|366016|6133799003|11063799006|56012099006|18002099003|22082099003;
 X-Microsoft-Antispam-Message-Info:
-	oSxv/zwzIC5PZrdCUrFMLRIcad0knzeAvfSejBO3rkE/oc499MRVy7AUt7atvKTV0u6gzASsSmBq3pNRxURiz8Yero7uJ7mptweTedzMtrCSvsuM/gNpZ+TJqIASrA+tJPfxx/sV+ucqsup/m23vK4BDlBWEDKPX5vt/H37twONs+GcCnslVgF3Sj5KmN9LzEmULQInUDcpL8gTKT9TEtGiNHKDhtxOXbcV0QrZqtpagehp4b1Xw37qkdnTQq/9h4iqp2aaSQ2n7UTb0+kCZtfvNZGC9oxo9RFfaba10zAKFt7/ExMITiX5lS/cCtyUNcDg7LL+FWDpM0j0HHE7oRpWPdKFlQ8P7iQPcEDhdTJoCLnViBdMG/AytKp+ftTsT/ENjNTvEMxYoEdIZJssUw8xwHNsaWMVHLAhbsd6zugzLqang5Wxwc/U4OxZrx+HIv3pDWKBoFC6BgfSI5VMZ/syiMM2ufuXqY+xu+WrMkbVlzI+F7xrly8Qvux0j5DcfWEugJu1VAO6liD7aeVYI3ASdGIVAIFSoqggsiChfhYAI4ievsfusViv3S+hAYemmLFUV9hycK+3D0cIYvpigmM817T8Kfp7klaullRptywAvS6xpWCmUqHg7JIVvuIbzhvvuTJV2WGplQywpCSWPja5bn3c1kbyvR/UkLoTo5u4HZQvAky3S6+7NbZcIbXnf
+	LXMeq5ldxfV8c/nG7HelB+daDK3Y8spKwzTa9We8Vikk/VJDkt8fHFxaMlYxr1HJD3dIjpzgnv0zIXiThDQ2GG2vfr8/kFu4MggiDlzHW3fWDnDxcXp2HpO80Si0Lqkzuy/p0UF/4qzSx53IyAYECCiPTqfWgTznWVuaZGjCMTztLjg0n46/ovmhCpoPVmZt6cQf8RxUnhxpjrx1gIkTwjNHGqQiaZiF7WWebUa7yTpy7WJfLmeNqZV6X/NjvyE2+ibsh8azPS3g4P1q0LDqw6dQr8aLfkWKOi5TPzCpPmrlv48UY8pTkpP56sBIPRX0qoBlx5CMBBBZd1CZlT/atXB6BHHEC3spf6yZCGhc0mxm16BoIcVj/D2ijK9CkrdokJ+SmECiSrs/eYpl7uvbWtdNB1eDFmF8Q6chSwlrSqLR6kyGMwdBOar9e7Dqg22ixLpp0P5p7tCxFWuxYPrZwFwe68WoyucBvj0nG8wH1j/iUBSfgIH+FGm6sVIV5e15USMwX0V0pmpUArP91WuHk1xgj8MnSRrK1sfT5ueDLclG2H3vx2hmdWcUaBtn5n38pikq8WAJKPFGoD68RpLuwqK7gCgN4TI53aQhkr5O1dmRAuJx260lHppGg1wpFUHTIqfh7j6dowIPaVYKwHFMwMF3T5KbE/22G+5m9hK12gWE8Uq8qTPTRi442YD51QB9
 X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:VI1PR04MB5807.eurprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(23010399003)(1800799024)(376014)(19092799006)(366016)(11063799006)(56012099006)(18002099003)(22082099003);DIR:OUT;SFP:1101;
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:VI1PR04MB5807.eurprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(23010399003)(1800799024)(376014)(19092799006)(366016)(6133799003)(11063799006)(56012099006)(18002099003)(22082099003);DIR:OUT;SFP:1101;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
 X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?eW9PaXlRWUxzUVI1SEJqUXI3TUQ4N2dVRlkvMFFiZmlNeUVCbVQwa25zdFNa?=
- =?utf-8?B?TllwekhzdUlnL24xbFZ3QWZOYWJUNFVhamp1Z2xrMUdGSzR0VGt0bkxJb2R5?=
- =?utf-8?B?UnFSTUZFK0JHaWpYVmo3ak5zZklIWVNmUUFlRWplOUpXQSttZDloVHNFT0ll?=
- =?utf-8?B?dEF1YkdnbGFDQk96bkNpM2xvTVIyNUxHbTRQZHFqekdQbjZrblYzVVlFb2FU?=
- =?utf-8?B?OS8yTTVndS80bEUxR0F5VktOU3VrQ25vSmU2dVJnNTZySlBOUzV4aEVxZjhu?=
- =?utf-8?B?SHQ3VWhpTFFBdVJyTytaL0lQaXFsK0hkOUphN1FXMzRKSUdBVVFLOXJOa1VF?=
- =?utf-8?B?R1lOa0tLWTR3UUI0aEZXVzNFMUEyeXlSdzhYT2xhdDNZU0ZoN25GQkNlVWVR?=
- =?utf-8?B?cTdzN0J5K3N0cmtNdFdRZG5idGdkK2tBb3dEdEs0S3VLUmRYdER2UFJyUk8y?=
- =?utf-8?B?b0orb1NSd1RCMG1ESEl0NEdrRVIyMHVHY2V0OWYwNFpKR0lQcXVqR2NlL3Ez?=
- =?utf-8?B?UGxSbUNjU0JYenNJc2ovRGoxTnN1RWgzRmQ5QUszcW43OUlNc055N0lzNExS?=
- =?utf-8?B?ZmVOTGtMajk0UnNWWEpGS1VmTS9ZajZDa2loQW9TeGs2bUhIYkh6WldpekYw?=
- =?utf-8?B?NmVRVFBYaWJteDdwQU5BdkQvNVpxWHFMRnowdWRIL2x2Nk0zRk9TZWtrWmhV?=
- =?utf-8?B?R1lEMUZmZ0RheXVPZTR2ZndvMTE5UzBhVENXTmNUc3VUUEpIa2tVTjdJQlR1?=
- =?utf-8?B?ZDVzL3ZwVVREdjRMV05VdUo3d3hHQzZJVHZrNmtiTEswSklNcW5FakllS1RF?=
- =?utf-8?B?S3BMM2w1YmR2NVdhQXQ3YnNNVW1rdVJPWlB6OXg1UWM2cHJWZUhCRTB1Um1v?=
- =?utf-8?B?cjlGK1JyZ3hpLzRIL1BrQ1B4UE9EU1FNaHNxaituZnV1dFo1VWx3d3dwdXM4?=
- =?utf-8?B?QXE5SFE5L0VqamQwTnFSeXcxMWxVU0o3S3pGdXJ3SHRKVUp2eW8zbjBoQTRa?=
- =?utf-8?B?ZVB2eDkvYUJSMnUyZ1EwaUNROTk0S0g0ZTRWa3I2SFI1NFBndDcwcmw5SlFV?=
- =?utf-8?B?Slh1Zms3SDdFQTIvUGVjZGN5eURqbWlXbkxzUUdicHdHMnB5Vk9uOU5ad3g2?=
- =?utf-8?B?RzAwdnZLQ2h5ZUhES0VSZkhEck05ZklRakJUWHY1WGRVQnlGcnFKbldMc0VE?=
- =?utf-8?B?R3Z5QXZpTDg2RTFadnRnNmNtUFVqNE5STXdpbS9qcUlFV2pZSm54N282aWJu?=
- =?utf-8?B?M0NaazdhcG93eEZZVmZjczAxTkdJbFJuS2xLZkJDMWUxYzR3Vm83YlBoeEls?=
- =?utf-8?B?Z0F4Vmc1OWNpNUQ0NWNHalhUeWIycnhIWXk4K2hKbzdDeDZJd1Z3dkRLZDBX?=
- =?utf-8?B?dGpJQ2NTV2t1YmN4dGhjbVJKL3lLMFV5UzZlMnFzbmtEQ1A5M1NIM2xwMkZl?=
- =?utf-8?B?ZFFzR1NCL3lHd3V2ZWJPa3lxU25uM2d5cXpiT2hpREdmaC82U0FFMnlNaVpR?=
- =?utf-8?B?aDhWUjkyZzVmOHRPRnljZmU3cVZsMVZYMlVZUHJEbmpzT3FJRkIzdHlqVnl2?=
- =?utf-8?B?REhCWk9hMDBVNEdEZ1BtOWZ6MUlKV1RMc1hJeUFlNVdwd2xkV2pGZTJqeHln?=
- =?utf-8?B?MWpSNWM0RGJQYkU4ZklPL0YvVUxOckExcU1iRHBBOEdGeXBEM1VxelUrMWsx?=
- =?utf-8?B?SFVOL25NSld3SmpMZlpqdVIzcXNFSy9JdFU0akk0azhqNWN1K1V6bTBOOVhw?=
- =?utf-8?B?ZS9kVWFrTGhnNFBBcnBTMm5FTWZVeHhmb1BXQzN0WGZybmdzdU80Z2lIRko3?=
- =?utf-8?B?NzFwcEJQQS96NVE1TWFnQ3pJRHFOSGI4bExlVVRuWXF3cmx1M1krRiszNmtk?=
- =?utf-8?B?VnJsOXZ2TSt1VGVrbkZGREJETG1Fd0lUTjRzYjlTb1JwblBpREIvZ0pMVG1B?=
- =?utf-8?B?R1ZreDFHSXdOZVdkN2hLekVLbkxxU25SV21rRDVCTVppMlVYZUlseXhYNWY4?=
- =?utf-8?B?TkExWHdBRkZmY0IyWnh6R3AvNzBDTTZnMm0yemhDcXNvbTNXeGJ1N0d6eVZa?=
- =?utf-8?B?OUE3cDNodDljKzB3dkd6OG10OStORjVNUy9MdThGSUdJeFFibWQrSG5CWmNu?=
- =?utf-8?B?K0NuRU0rYW5aVG9mMC9wRDhUTEV1RDlMYUtRVkRrU1ZtV2QzU1JwWDZpcmds?=
- =?utf-8?B?Sm9XdGllUndrT2djRUJDN0xuN2RacEFOU0dBT3NmQUVQOTI0ejFXcmNkRUh2?=
- =?utf-8?B?d2VlSEFwUXA2aElQOXBka0VuS1M3MHZrNVlvUWovMHhLUVdCazd4MHEzSGxq?=
- =?utf-8?B?MmJhdGZ6L3VBSDlJRlNhckozVEFtcWNKSEJBanhiWGM5S2RwRWNtbnpKTGNv?=
- =?utf-8?Q?mEPrrqk7m4ygeDuLiAg1cAdW6A8ZJ2EKbmkAD?=
+	=?utf-8?B?MzZ2NmNvdHhZSk42Wm9Dc1ZZWm1QOUhyd0dkalZ1VHlERExwdjgzL0lUSytL?=
+ =?utf-8?B?WUJrM1ZoNklVUmJCVFNpR3lnZkxIU0E2TEJZZ0hIeE9mc3dRQ09GbmsrVnJU?=
+ =?utf-8?B?ZXBrTC9xSnIycEk0QlRFZWxXK2VDQXBDVldPZkFQZXVySGsrZnBtRFNxdnAz?=
+ =?utf-8?B?T080TVh0TXUySHVjbnJQblpKckxoVWluWUw5eEplUHZpN2gwMGJWeFNBSXhu?=
+ =?utf-8?B?blRGMU9zZ0wrRVJPZVZ6ajNCblNiYVhvNWFhcW5Rd2htOWl6UTAxTmZVNkFU?=
+ =?utf-8?B?RVFFQW1EWVNSZUNOWE5DZ1lNOXBxZVFyellDMDV3eStNU3pKR1dZUEhMMG1w?=
+ =?utf-8?B?UFpOcGs5Qy9meEpDSytrb0ZXTitjZjZ1NlF2T1dGZUpJV00xV2lhUVNFMXh3?=
+ =?utf-8?B?WWdYRWVDS0p3Q3Q5ZExLWXE5Uy9sQy8xa3Fibm5Ra2hIcGhmR3JrT0lQZzRw?=
+ =?utf-8?B?a3FtOFhvSEc5bk1CQzQ4QXBFb3BjcDBlOHJkc3V6OTFrZWwrRXZRWVEzbjEr?=
+ =?utf-8?B?dkJDd2N4bHlZdFVqalZLZzBNSkxkcjRhRmJXbThnNzJZcGg5QmhLYnhxamhr?=
+ =?utf-8?B?S1UrNDFZQXJIVkw5TXE5NXZwemhZRm9Md2VyaEY0WmNxc2gyYmJNU1JFN1Y5?=
+ =?utf-8?B?U1hyd2J0SEw1Mm5wNGVkcml4eXBQTDZiNWtTNGszd09FQi91a2FSOC9NMWt5?=
+ =?utf-8?B?dXVua0JlTHBxemtOdW8xSDM5a3gyLzJNY1hYWXFUQXZOYTlqWlZLNldMKzZ4?=
+ =?utf-8?B?bHJ1M1hXZnIxVUd5aEdaNU5xRzRoazFzeTgxa2ovQjJuYkVVOTFvdGZSS2V1?=
+ =?utf-8?B?bUdKcDVLREZJbTUvTUx4WXpMMHI1WW1lWEZxTXAxeUlsRU13R1BBU25CeGZI?=
+ =?utf-8?B?QkpsK1AyTnpPTjJobExRenJhazF5bkxXZFAyLzhMZllxWVpSR281bFBZaGpY?=
+ =?utf-8?B?clVPT1R0cWszQisxL2FmQk1uZzMrZWtHUFFoeHZNa0p3SDlDVWlxQVNVYUxY?=
+ =?utf-8?B?eGRvNXhndGRDbkRTdURhS1Q0aHB0L2xOdFJ6VkdZZEdZRDNIUHliUjB2Rmk1?=
+ =?utf-8?B?RjBhV2VZdWFadDkvaWo0NEJKbXJyZ0dtNHF6a3VQNXpuREVLR2FPazdCbGYv?=
+ =?utf-8?B?UHloYlVPSXc0RXhGWmhvVjBFU0gvaFpkTEh4alVtMjNDTWVuUy9OZmdxT21i?=
+ =?utf-8?B?ZDlVQTBObFVLcjFyeXhxZjVCekhieDNMNGdxcTJYTXZybnV1eFhpNE0wOFVC?=
+ =?utf-8?B?bFpOZGYyL2UrY0RjOHpFVlJmZytsVHFJa2FrTnJyaUcyWHdjUHN4OHEyKzFM?=
+ =?utf-8?B?cG5RaCtvQkhIcmpjWnVIMWFHL0M4em91WmVHNnllZXFWNVY0KzZ6dDI0ZU1n?=
+ =?utf-8?B?OTdKZmNQQVEvYmtNdWhPeVA3MWI5R3o4cmw2ZC90RXp1VENMWU8vaC92Wm1I?=
+ =?utf-8?B?MWJYejBLdS9BNzVnRlorVkhCd0lqL0tKejl0K0c1eFpQQTZIdnQ3MG1jTFV5?=
+ =?utf-8?B?bHcrbG5vMXIvcys0Q3BSVmdQMzMydU5YS08rc1REYzZzbks0R2d5ZjVEN2or?=
+ =?utf-8?B?KzcyWTNzeUFKeG1weXE0eUdsTmcxS2pWMGV1UlMvR212NTJtZ2ZMRURVYmNO?=
+ =?utf-8?B?YWZtdkpYM1RsdmFQQm1GMnV3eHFjeWx2LzNicmF3NUxQV25kRzhZcnZWekJq?=
+ =?utf-8?B?Nm0yVndubzB2MmhMb2k3TUVranduMncxUldoTjVkeHB3TDl0WTdWb1ZKekli?=
+ =?utf-8?B?bW5BNXRBSmlsNUg0MjR2QStmeGo5WWkwVTJmM1VLbGNSL0tiTVI2cEMySHYv?=
+ =?utf-8?B?a3JRcEE3MjJTSkZCSFZvZERFemVmR2E1RU9rbkMwNlJYUXhXTGhVMklneHg4?=
+ =?utf-8?B?Vkh0ZzBscVI4VmZ3UjBSY0hUa0owM3ovMW1UQnBpSUVCM0RkSi8yMitKZFk1?=
+ =?utf-8?B?cjFDb2pTcjlNUDBYTGh4YlhDbWxIM1dqZE5XUnFpT2VWMEh0QUlwVlJGZE5N?=
+ =?utf-8?B?QjdqMVFHZ2M1VThQZ0lKSU5wMmUvUThxODllUWk3N1VCVjlCTlJHSGdTT1BD?=
+ =?utf-8?B?SCt2R2RuNUk3M2V3aWx2R1l4QUNUSDNIQVRTU0lsdjRRMlFaSENaUWViVGJF?=
+ =?utf-8?B?TnBZRFpNSUtYV0NJOFYvNHBoeFMrQjJYeXE0b25oRDZoK2xad1R3UW8xRmJo?=
+ =?utf-8?B?UWNDMnNINGhCcFpuZHRxQXhTallqQjd2anFCK1RwMnBzc01uRW5IeThHMjdX?=
+ =?utf-8?B?emxWQjc4Y3l4VWlYWUJEMWoyQ1FSK2N3WXhUNjBPNDBYTUZPZzVhaGZUbG1W?=
+ =?utf-8?B?N3dmRVZOUGhCQTh6cElDZUdQb3AvM1EzSnRoQUVYVG1XY2xzajdFc2xSdS9K?=
+ =?utf-8?Q?6uclUt/WfZfNDZzmTrEE3tqRZeLhjvBBlPhH8?=
 X-OriginatorOrg: oss.nxp.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: c71d86e4-ddfb-4ec4-797c-08decd0b4e3d
+X-MS-Exchange-CrossTenant-Network-Message-Id: d0fcbf97-bd0d-4070-bc07-08decd0b51bd
 X-MS-Exchange-CrossTenant-AuthSource: VI1PR04MB5807.eurprd04.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 18 Jun 2026 07:29:17.7502
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 18 Jun 2026 07:29:23.4600
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: BOO25fzB0qYkheK8n9jRJFXbAnmw8eUhyFngj3UoA14HXLYMGfDCY9CCWHAmFaN2prpjOZIHERoQYppNItRIvTEx5utUEmqwWxVkgaVxRwiOokniYg7FZ2tLHYAJjypn
+X-MS-Exchange-CrossTenant-UserPrincipalName: rTuvLM2276RpVvQoGvoNqvKFzNlpzZiEXZsKyBm737DXQMx1Keu3MBba9j351+aaJkuO0A/Z7X4Y+i8vl2IjLylS5GRqsbiOk64nmuRVJnjsjPSkfbIfj5FMGj8c2zGH
 X-MS-Exchange-Transport-CrossTenantHeadersStamped: PA2PR04MB10157
 
 From: Joy Zou <joy.zou@nxp.com>
 
-Use local struct device pointer to avoid reference the platform_device
-pointer every time.
+The driver implements debounce protection using a timer-based mechanism:
+when a key interrupt occurs, a timer is scheduled to verify the key state
+after DEBOUNCE_TIME before reporting the event. This works well during
+normal operation.
 
-No functional change.
+However, key press events can be lost during system resume on platforms
+like i.MX8MQ-EVK because:
+1. During the no_irq resume phase, PCIe driver restoration can take up to
+200ms with IRQs disabled.
+2. The power key interrupt remains pending during the no_irq phase.
+3. If the key is released before IRQs are re-enabled, the timer eventually
+runs but sees the key as released and skips reporting the event.
 
-Reviewed-by: Frank Li <Frank.Li@nxp.com>
+Report key press events directly in interrupt handler to prevent event
+loss during system suspend. This is safe because:
+
+1. Only one event is reported per suspend cycle.
+2. Normal operation retains the existing timer-based debounce mechanism.
+
 Signed-off-by: Joy Zou <joy.zou@nxp.com>
 ---
-Changes for v4:
-1. Add Reviewed-by tag.
+Changes for v3:
+1. Add spinlock for pdata->keystate and pdata->suspended per AI review
+   comments.
+2. Replace hardcode value 1 with local variable keystate in input_report_key()
+   under suspended.
 
 Changes for v2:
-1. Use dev instead of &pdev->dev for devm_input_allocate_device(),
-   which was missed in patch v1 per AI review comments.
-2. Modify commit message.
+1. Add a boolean variable suspended and PM callback functions to replace
+   the use of the is_suspended field per AI review comments.
+2. Move event report handle to else branch in suspended state, since the
+   pdata->minor_rev == 0 branch has no debounce detection per AI review
+   comments.
+3. Modify the commit message.
 ---
- drivers/input/keyboard/snvs_pwrkey.c | 41 ++++++++++++++++++------------------
- 1 file changed, 21 insertions(+), 20 deletions(-)
+ drivers/input/keyboard/snvs_pwrkey.c | 60 ++++++++++++++++++++++++++++++++++--
+ 1 file changed, 57 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/input/keyboard/snvs_pwrkey.c b/drivers/input/keyboard/snvs_pwrkey.c
-index d58bbbe9fd58..cbe44a38d2b3 100644
+index cbe44a38d2b3..98c33d0bb1ec 100644
 --- a/drivers/input/keyboard/snvs_pwrkey.c
 +++ b/drivers/input/keyboard/snvs_pwrkey.c
-@@ -112,6 +112,7 @@ static void imx_snvs_pwrkey_act(void *pdata)
- 
- static int imx_snvs_pwrkey_probe(struct platform_device *pdev)
- {
-+	struct device *dev = &pdev->dev;
- 	struct pwrkey_drv_data *pdata;
+@@ -39,6 +39,8 @@ struct pwrkey_drv_data {
+ 	int keycode;
+ 	int keystate;  /* 1:pressed */
+ 	int wakeup;
++	bool suspended; /* Track suspend state */
++	spinlock_t lock; /* Protects keystate and suspended */
+ 	struct timer_list check_timer;
  	struct input_dev *input;
- 	struct device_node *np;
-@@ -122,26 +123,26 @@ static int imx_snvs_pwrkey_probe(struct platform_device *pdev)
- 	u32 vid;
+ 	u8 minor_rev;
+@@ -49,14 +51,21 @@ static void imx_imx_snvs_check_for_events(struct timer_list *t)
+ 	struct pwrkey_drv_data *pdata = timer_container_of(pdata, t,
+ 							   check_timer);
+ 	struct input_dev *input = pdata->input;
++	bool state_changed = false;
+ 	u32 state;
  
- 	/* Get SNVS register Page */
--	np = pdev->dev.of_node;
-+	np = dev->of_node;
- 	if (!np)
--		return dev_err_probe(&pdev->dev, -ENODEV, "Device tree node not found\n");
-+		return dev_err_probe(dev, -ENODEV, "Device tree node not found\n");
+ 	regmap_read(pdata->snvs, SNVS_HPSR_REG, &state);
+ 	state = state & SNVS_HPSR_BTN ? 1 : 0;
  
--	pdata = devm_kzalloc(&pdev->dev, sizeof(*pdata), GFP_KERNEL);
-+	pdata = devm_kzalloc(dev, sizeof(*pdata), GFP_KERNEL);
- 	if (!pdata)
- 		return -ENOMEM;
+-	/* only report new event if status changed */
+-	if (state ^ pdata->keystate) {
+-		pdata->keystate = state;
++	scoped_guard(spinlock_irqsave, &pdata->lock) {
++		/* only report new event if status changed */
++		if (state ^ pdata->keystate) {
++			pdata->keystate = state;
++			state_changed = true;
++		}
++	}
++
++	if (state_changed) {
+ 		input_event(input, EV_KEY, pdata->keycode, state);
+ 		input_sync(input);
+ 		pm_relax(pdata->input->dev.parent);
+@@ -74,6 +83,8 @@ static irqreturn_t imx_snvs_pwrkey_interrupt(int irq, void *dev_id)
+ 	struct platform_device *pdev = dev_id;
+ 	struct pwrkey_drv_data *pdata = platform_get_drvdata(pdev);
+ 	struct input_dev *input = pdata->input;
++	bool suspended;
++	int keystate;
+ 	u32 lp_status;
  
- 	pdata->snvs = syscon_regmap_lookup_by_phandle(np, "regmap");
- 	if (IS_ERR(pdata->snvs))
--		return dev_err_probe(&pdev->dev, PTR_ERR(pdata->snvs), "Can't get snvs syscon\n");
-+		return dev_err_probe(dev, PTR_ERR(pdata->snvs), "Can't get snvs syscon\n");
- 
- 	if (of_property_read_u32(np, "linux,keycode", &pdata->keycode)) {
- 		pdata->keycode = KEY_POWER;
--		dev_warn(&pdev->dev, "KEY_POWER without setting in dts\n");
-+		dev_warn(dev, "KEY_POWER without setting in dts\n");
- 	}
- 
--	clk = devm_clk_get_optional_enabled(&pdev->dev, NULL);
-+	clk = devm_clk_get_optional_enabled(dev, NULL);
- 	if (IS_ERR(clk))
--		return dev_err_probe(&pdev->dev, PTR_ERR(clk),
-+		return dev_err_probe(dev, PTR_ERR(clk),
- 				     "Failed to get snvs clock (%pe)\n", clk);
- 
- 	pdata->wakeup = of_property_read_bool(np, "wakeup-source");
-@@ -162,7 +163,7 @@ static int imx_snvs_pwrkey_probe(struct platform_device *pdev)
- 			bpt = (val / 5) - 1;
- 			break;
- 		default:
--			return dev_err_probe(&pdev->dev, -EINVAL,
-+			return dev_err_probe(dev, -EINVAL,
- 					     "power-off-time-sec %d out of range\n", val);
+ 	pm_wakeup_event(input->dev.parent, 0);
+@@ -92,6 +103,21 @@ static irqreturn_t imx_snvs_pwrkey_interrupt(int irq, void *dev_id)
+ 			input_sync(input);
+ 			pm_relax(input->dev.parent);
+ 		} else {
++			/*
++			 * Report key press events directly in interrupt handler to prevent event
++			 * loss during system suspend.
++			 */
++			scoped_guard(spinlock_irqsave, &pdata->lock) {
++				suspended = pdata->suspended;
++				if (suspended) {
++					pdata->keystate = 1;
++					keystate = pdata->keystate;
++				}
++			}
++			if (suspended) {
++				input_report_key(input, pdata->keycode, keystate);
++				input_sync(input);
++			}
+ 			mod_timer(&pdata->check_timer,
+ 			          jiffies + msecs_to_jiffies(DEBOUNCE_TIME));
  		}
+@@ -151,6 +177,7 @@ static int imx_snvs_pwrkey_probe(struct platform_device *pdev)
+ 	if (pdata->irq < 0)
+ 		return pdata->irq;
  
-@@ -180,9 +181,9 @@ static int imx_snvs_pwrkey_probe(struct platform_device *pdev)
- 
- 	timer_setup(&pdata->check_timer, imx_imx_snvs_check_for_events, 0);
- 
--	input = devm_input_allocate_device(&pdev->dev);
-+	input = devm_input_allocate_device(dev);
- 	if (!input)
--		return dev_err_probe(&pdev->dev, -ENOMEM, "failed to allocate the input device\n");
-+		return dev_err_probe(dev, -ENOMEM, "failed to allocate the input device\n");
- 
- 	input->name = pdev->name;
- 	input->phys = "snvs-pwrkey/input0";
-@@ -191,27 +192,27 @@ static int imx_snvs_pwrkey_probe(struct platform_device *pdev)
- 	input_set_capability(input, EV_KEY, pdata->keycode);
- 
- 	/* input customer action to cancel release timer */
--	error = devm_add_action(&pdev->dev, imx_snvs_pwrkey_act, pdata);
-+	error = devm_add_action(dev, imx_snvs_pwrkey_act, pdata);
- 	if (error)
--		return dev_err_probe(&pdev->dev, error, "failed to register remove action\n");
-+		return dev_err_probe(dev, error, "failed to register remove action\n");
- 
- 	pdata->input = input;
- 	platform_set_drvdata(pdev, pdata);
- 
--	error = devm_request_irq(&pdev->dev, pdata->irq,
--			       imx_snvs_pwrkey_interrupt,
--			       0, pdev->name, pdev);
-+	error = devm_request_irq(dev, pdata->irq,
-+				 imx_snvs_pwrkey_interrupt,
-+				 0, pdev->name, pdev);
- 	if (error)
--		return dev_err_probe(&pdev->dev, error, "interrupt not available.\n");
-+		return dev_err_probe(dev, error, "interrupt not available.\n");
- 
- 	error = input_register_device(input);
- 	if (error < 0)
--		return dev_err_probe(&pdev->dev, error, "failed to register input device\n");
-+		return dev_err_probe(dev, error, "failed to register input device\n");
- 
--	device_init_wakeup(&pdev->dev, pdata->wakeup);
--	error = dev_pm_set_wake_irq(&pdev->dev, pdata->irq);
-+	device_init_wakeup(dev, pdata->wakeup);
-+	error = dev_pm_set_wake_irq(dev, pdata->irq);
- 	if (error)
--		dev_err(&pdev->dev, "irq wake enable failed.\n");
-+		dev_err(dev, "irq wake enable failed.\n");
- 
++	spin_lock_init(&pdata->lock);
+ 	error = of_property_read_u32(np, "power-off-time-sec", &val);
+ 	if (!error) {
+ 		switch (val) {
+@@ -217,6 +244,32 @@ static int imx_snvs_pwrkey_probe(struct platform_device *pdev)
  	return 0;
  }
+ 
++static int __maybe_unused imx_snvs_pwrkey_suspend(struct device *dev)
++{
++	struct platform_device *pdev = to_platform_device(dev);
++	struct pwrkey_drv_data *pdata = platform_get_drvdata(pdev);
++
++	scoped_guard(spinlock_irqsave, &pdata->lock)
++		pdata->suspended = true;
++
++	return 0;
++}
++
++static int __maybe_unused imx_snvs_pwrkey_resume(struct device *dev)
++{
++	struct platform_device *pdev = to_platform_device(dev);
++	struct pwrkey_drv_data *pdata = platform_get_drvdata(pdev);
++
++	scoped_guard(spinlock_irqsave, &pdata->lock)
++		pdata->suspended = false;
++
++	return 0;
++}
++
++static SIMPLE_DEV_PM_OPS(imx_snvs_pwrkey_pm_ops,
++			 imx_snvs_pwrkey_suspend,
++			 imx_snvs_pwrkey_resume);
++
+ static const struct of_device_id imx_snvs_pwrkey_ids[] = {
+ 	{ .compatible = "fsl,sec-v4.0-pwrkey" },
+ 	{ /* sentinel */ }
+@@ -227,6 +280,7 @@ static struct platform_driver imx_snvs_pwrkey_driver = {
+ 	.driver = {
+ 		.name = "snvs_pwrkey",
+ 		.of_match_table = imx_snvs_pwrkey_ids,
++		.pm   = &imx_snvs_pwrkey_pm_ops,
+ 	},
+ 	.probe = imx_snvs_pwrkey_probe,
+ };
 
 -- 
 2.34.1

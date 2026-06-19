@@ -1,435 +1,292 @@
-Received: from mail-pl1-f174.google.com (mail-pl1-f174.google.com [209.85.214.174])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AFEC831F995
-	for <linux-input@vger.kernel.org>; Fri, 19 Jun 2026 07:36:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.174
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BF76E323417
+	for <linux-input@vger.kernel.org>; Fri, 19 Jun 2026 07:45:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781854581; cv=none; b=D0Fl+oU2zm5iRfc8LNOuzpGvbhTTIGMhYEUBY0KBo5IJcaqhsgPdf0mXgN7j4B0LNUzV9eyC/upFvHXJ7HJMGL9p3uHVtu8ydXpbAv+IW1zXlndnAju1zOMpoSVCCBihGFMQRToSDibOjDKZ3fAym7hDelhFzMoaKsMUs//VmxA=
+	t=1781855145; cv=none; b=b3Jsve5Nqr4kbUMdVBPGtVsl+PDIzq7bEPAUll83w93ojdFiocT2XFe1T28//ssV3vZ+565M4srBFxnBsGbteF3zC31IaFZNklh79LwWeL2RYb6+ZdHxum4GhjI0tsWYqAqXGiI2yCVRDBAcjXWlbI+jP8T7w116uVQZFP1+700=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781854581; c=relaxed/simple;
-	bh=dMF7ubYW1j5n5hSg6RDtBXpRhjVstRU2yawJ/srD/+g=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=rQhJzRTvX+q5oaSqKGDE7pdleqyOKiCbYurUusDYgDQCC8/p+ERYgE4f1TW9WFyAQerWAhoNzX4icZp4REYJGYJ8H2TtCDbXtCcEAdzTGyB/E+3YWaFWRGpiZ5adVx060Ocnz2ZhB52mDHaQVDZcSAPA7wUuisGW7M7oCKUY/PQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=MjaKm9W6; arc=none smtp.client-ip=209.85.214.174
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1781855145; c=relaxed/simple;
+	bh=+eYRPxPyuSLQhgA5FluhSBH5DM1N8iqQ0pviBZhorUY=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=LB+CLxqSvuhgzCvyk6/scxSm4h6q45XNJAUM5+ZNMFguYrDZlSLp/djKAfJXEfJUdd73XS/5pvpBZfS34+iIUK5y3ZbjsuZ4lt6JjFWUCeUI0wgZVxu6bZ5bPCv2R42qOCr4Gyht9PQOQ4BxSmafLq8LCx46Ql7tuNqTjrSQEjU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=bKDFg/rJ; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="MjaKm9W6"
-Received: by mail-pl1-f174.google.com with SMTP id d9443c01a7336-2c6c9e02e7dso11517425ad.2
-        for <linux-input@vger.kernel.org>; Fri, 19 Jun 2026 00:36:18 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1781854578; x=1782459378; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=wTPHhG2ig7dh2UeaKPsPz6Mr0hMJ1emlUV2gSrdxNaI=;
-        b=MjaKm9W6vfBoWN63FuXazGjeDTjMIb+WYXAkuDyRET+sMGZvp16uBxc3EbtRq9qv2P
-         y0FtEgniwhLAgtGpvYBoIEZcaicE2FqLaKm53TmPWrYmPvWedbmj7iKPucUCKvc7Qvey
-         LeCQZjUKkeQnEaaHfT8n0gU/hMzv50H4PqNA+LnVOJuELlfbciAeB/UkmnwZT8cP22hF
-         hhDa/ar8qvq+jXz77fPrN3fi10mJ00mT7ME3idhnu95d7RnSU337wUtEmmKF5Qkj5DiI
-         vmNwg1kPX/ZUr6+WBGZYoUOQ8ArE4iknLi0w3XgOjO6weyQT34RpEMgxKKLk3wSWon13
-         KZfQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781854578; x=1782459378;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=wTPHhG2ig7dh2UeaKPsPz6Mr0hMJ1emlUV2gSrdxNaI=;
-        b=QhFiszxSTiGXW2phPwoclsucTD1Tvj70KWLJJlIAbxAqpr0Vp4mHUaSUb2ZNsKSDxj
-         N0ET+XDmNMpIp2lw3sVDmFwa7NGrVlmVRM0w0Pdd1LJP9jifHbH/zUrJ3lJ7FcJKuES4
-         EbluHTYdMYNjEbm7CmSiKl59ueZSPwNd1rSu07+dP8s//f4R178CLueQRvcsv7VFKpEy
-         kK+3PfyXfSLhjNchaSGrOP7ucocdVy8Gv+jKJtxnOM+wvi+mZ6Req29h6/FkOSjrNMXX
-         FofoOXx04tzCcAomgLTIJsS6Lx/UrZi9Lrtrasfq8tEqK+7w/pxTKWBZj3ntlTNF7yfG
-         EjqA==
-X-Gm-Message-State: AOJu0YxPsxAWa/4pvYgZsHqdTjiHUpKAr0no+3x++KojT2FGiOpbdHlA
-	/ktATrikAHBXE0g2sVKH28pfcjku6CwV6KTEdkGdt8lIM+nzqEUMxapw
-X-Gm-Gg: AfdE7cnVePnmwXVtlW+Rvzvv1DQa1zMNnCrvloLY72xnWTT4H82bNeSoX2E2qYs51ot
-	rOsU7ZyNvmA3Z3PGY8rzrNILuMJLzyCZdKJwBlbtvm7jG46oxixDh3pXlLlJC4WWYmNN+kpXsJe
-	6VyGdNUtpT5+jSojSIbXwnD1RyyWr1KD/UTCluUKS90J4N8ipfUSyI/3bKjTitBl6D7FpV/nDxl
-	44Yg7nSHsqaJvEKgBZZ/0UqTVXZedPQaBSHOk8LwblimiorX1d4FLZp3XaGOJ4+thntjWvFlPhe
-	rtzTjcIaL1IaXTQIS/TBveU8cqfrmEZPrxHuP7v4AaG6z2+BRErZBZ8AgQAkYZZtKZ92g2abRs+
-	n7/mpSw8del+MQHNejs7a8EVgJKMZWfCQv4gjYJUwVy7dfJe0OX+fUiTk+RUf6sSlgSyMaCZfv8
-	rjncXGHjyD9Y2lQy4/FxF9wyJIpMHRpUvluiwSF+3KwVLLJY4sU9ZhGoSqE9mg5Uw+SODms+m58
-	o2X9lIeDpjbjlHjQ/SibJ4geq7NPfa4lyNYk+JD2Y4=
-X-Received: by 2002:a17:902:d4ca:b0:2b7:abc0:3bd7 with SMTP id d9443c01a7336-2c718c9b912mr32184005ad.9.1781854577620;
-        Fri, 19 Jun 2026 00:36:17 -0700 (PDT)
-Received: from arch.localdomain ([2401:4900:1c08:3723:80ea:2614:6e13:5570])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2c7208e2a45sm13692105ad.32.2026.06.19.00.36.14
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 19 Jun 2026 00:36:17 -0700 (PDT)
-From: krishgulati7@gmail.com
-To: bentiss@kernel.org
-Cc: linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	jikos@kernel.org,
-	Krish Gulati <krishgulati7@gmail.com>
-Subject: [RFC PATCH] HID: BPF: add keyboard behavioral anomaly detection
-Date: Fri, 19 Jun 2026 13:06:03 +0530
-Message-ID: <20260619073607.393248-1-krishgulati7@gmail.com>
-X-Mailer: git-send-email 2.54.0
-In-Reply-To: <adSxXidgeWF0-Ewn@beelink>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="bKDFg/rJ"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 281E81F00A3A;
+	Fri, 19 Jun 2026 07:45:43 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1781855143;
+	bh=QgwwrZk/7D7TDY2vh6wEy1+Z6gnoJ12vjKJ+oa1LJE4=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=bKDFg/rJfutzOw/Z11o6OdwCIII6L7abHZOnHW79+/JHRIHd0m/9zS2J9GFM/8XdN
+	 eZ1IVnWDOlGAhb0eqWGfyNuB39bCQb4GuOEtgRSYt8X+zJElmt7Vn6lNDk6Pim8czR
+	 ASt5bggI4AzSoYN27cW8u9JmLi7vJ0lx//FWNWeIvbv3xPzrXWqCJI5ayDPO5BEEiv
+	 KVLjk4llNsuXikqUbfLQT+5l+Hc+QHWIq6I7Qrb0TUGDsQsQ5PQr3+U2DXhy8bmeFi
+	 apkddL39F7gShtWdVzVJFdvrEDgaYjQnUR56urAoDZH3j7zow0Y56Rzr+89oxI1IDb
+	 XzVv+xy3kr02w==
+From: sashiko-bot@kernel.org
+Subject: Re: [RFC PATCH] HID: BPF: add keyboard behavioral anomaly detection
+Reply-To: sashiko-reviews@lists.linux.dev
+To: krishgulati7@gmail.com
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <20260619073607.393248-1-krishgulati7@gmail.com>
 References: <adSxXidgeWF0-Ewn@beelink>
+ <20260619073607.393248-1-krishgulati7@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Fri, 19 Jun 2026 07:45:42 +0000
+Message-Id: <20260619074543.281E81F00A3A@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
 
-From: Krish Gulati <krishgulati7@gmail.com>
+Thank you for your contribution! Sashiko AI review found 7 potential issue(=
+s) to consider:
+- [Critical] Evasion of detector via large HID descriptors with padded payl=
+oads.
+- [High] Missing Report ID validation causes false positives and state corr=
+uption on composite devices.
+- [High] Mismatched report size rounding causes silent event dropping and l=
+ogical out-of-bounds reads.
+- [High] LRU map eviction permanently disables detection for a device inste=
+ad of resetting its state.
+- [High] Uninitialized padding bytes in the stack-allocated `struct dev_inf=
+o` will cause the BPF verifier to reject the program.
+- [High] Keystroke heuristic fails to detect keys when no empty report is s=
+ent between strokes (morphed keys).
+- [Medium] Missing `bpf_spin_lock` protection allows data races between con=
+current `kdb_hook` or `probe` invocations.
+--
 
-Implements a HID-BPF struct_ops program that detects behaviorally
-anomalous keyboard input consistent with automated HID injection
-attacks (USB Rubber Ducky and similar).
+commit 103b2fc551543479bbac0ff3ea588c3508776a4c
+Author: Krish Gulati <krishgulati7@gmail.com>
+HID: BPF: add keyboard behavioral anomaly detection
 
-This is a direct response to Benjamin Tissoires's recommendation in
-the hid-omg-detect review thread [1], where a kernel driver approach
-was rejected on the grounds that a HID driver can only bind exclusively
-to a device, racing with and displacing the legitimate driver. The
-HID-BPF struct_ops approach resolves this: the program attaches
-alongside the existing driver, receives the raw event stream before
-kernel processing, and never takes exclusive ownership of the device.
-
-Two independent detection signals are implemented:
-
-Post-Enumeration Delay (PED):
-  Measures the delta between device connection (recorded at probe()
-  time via bpf_ktime_get_ns()) and the first input packet. Legitimate
-  users take hundreds of milliseconds to react after plugging in a
-  device; injection tools begin transmitting within 25-100ms. Events
-  are classified into three bands: SUSPICIOUS (<50ms), WARNING
-  (<300ms), and NORMAL (>=300ms). Thresholds are placeholder values
-  and MUST be empirically calibrated before production use.
-
-Welford online variance (inter-keystroke timing):
-  Tracks keydown-to-keydown intervals per device using Welford's
-  single-pass online algorithm. BPF forbids floating-point, so the
-  running mean is maintained in fixed-point (scaled by 1024) to
-  prevent integer truncation at small counts. Intervals exceeding
-  10 seconds are treated as typing-session breaks and excluded from
-  the variance calculation. Detection fires after
-  HID_GUARD_MIN_SAMPLES (5) samples when variance falls below
-  HID_GUARD_VARIANCE_THRESH_MS2 (1600 ms^2), flagging suspiciously
-  metronomic timing inconsistent with human input.
-
-Per-device state (Welford accumulators, PED timestamp, report size)
-is maintained in a BPF_MAP_TYPE_LRU_HASH keyed by hid->id. The LRU
-eviction policy prevents map exhaustion at the cost of two documented
-trade-offs: eviction can silently reset Welford history (potential
-map-flood attack) and may clear connection_time (PED blindspot on
-device re-wake after eviction).
-
-Detection results are currently surfaced via bpf_printk(). A
-BPF_MAP_TYPE_RINGBUF interface with configurable userspace daemon
-is planned; deferred pending validation of detection heuristics.
-
-Signal design is grounded in: Neuner et al., "USBlock: Blocking
-USB-based Keylogger Attacks", DBSec 2018.
-
-[1] https://lore.kernel.org/linux-input/adSxXidgeWF0-Ewn@beelink/
+This patch implements a HID-BPF struct_ops program that detects automated
+HID injection attacks. It does this by measuring post-enumeration delay
+and tracking inter-keystroke timing using Welford's online variance algorit=
+hm.
+State is stored in an LRU hash map keyed by the HID ID.
 
 Link: https://lore.kernel.org/linux-input/adSxXidgeWF0-Ewn@beelink/
 
-Signed-off-by: Krish Gulati <krishgulati7@gmail.com>
----
- src/bpf/testing/0010-Generic__keyboard.bpf.c | 285 +++++++++++++++++++
- 1 file changed, 285 insertions(+)
- create mode 100644 src/bpf/testing/0010-Generic__keyboard.bpf.c
+> diff --git a/src/bpf/testing/0010-Generic__keyboard.bpf.c b/src/bpf/testi=
+ng/0010-Generic__keyboard.bpf.c
+> index 0000000000000..91145870768f6
+> --- /dev/null
+> +++ b/src/bpf/testing/0010-Generic__keyboard.bpf.c
 
-diff --git a/src/bpf/testing/0010-Generic__keyboard.bpf.c b/src/bpf/testing/0010-Generic__keyboard.bpf.c
-new file mode 100644
-index 0000000..9114587
---- /dev/null
-+++ b/src/bpf/testing/0010-Generic__keyboard.bpf.c
-@@ -0,0 +1,285 @@
-+// SPDX-License-Identifier: GPL-2.0-only
-+#include "hid_bpf.h"
-+#include "hid_bpf_helpers.h"
-+#include "hid_report_helpers.h"
-+#include "hid_usages.h"
-+#include "vmlinux.h"
-+#include <bpf/bpf_tracing.h>
-+
-+#define HID_GUARD_NSEC_PER_MSEC 1000000ULL
-+/*
-+ * Post-enumeration delay thresholds (raw nanoseconds, matching
-+ * connection_time and first_packet_time which are both __u64
-+ * bpf_ktime_get_ns() values).
-+ *
-+ * LIMITATIONS: placeholder values based on rough figures from USB
-+ * Rubber Ducky DETECT_READY research (modern hosts HID-ready in
-+ * ~25-100ms) versus typical human reaction time after device
-+ * connection (hundreds of ms to low seconds). NOT derived from a
-+ * controlled study of this specific signal and MUST be empirically
-+ * calibrated against real device/host combinations before any
-+ * production use. Treat as a tunable, not a validated security
-+ * boundary.
-+ */
-+#define HID_GUARD_PED_SUSPICIOUS_THRESH (50 * HID_GUARD_NSEC_PER_MSEC)
-+#define HID_GUARD_PED_WARNING_THRESH (300 * HID_GUARD_NSEC_PER_MSEC)
-+
-+/*not derived from real typing data yet*/
-+#define HID_GUARD_MIN_SAMPLES 5
-+
-+/*
-+ * Variance is "too metronomic
-+ * to be a human," expressed in ms^2 so we never need sqrt().
-+ */
-+#define HID_GUARD_VARIANCE_THRESH_MS2 (40ULL * 40ULL)
-+
-+/*
-+ * Idle gaps this large are treated as a break in the typing session,
-+ * not a sample — interval excluded from Welford, timer rebased.
-+ * Borrowed threshold from hid-omg-detect (10s); not independently
-+ * validated for this signal.
-+ */
-+#define HID_GUARD_IDLE_GAP_THRESH_MS (10ULL * 1000ULL)
-+
-+/*
-+ * fixed-point factor: BPF has no floating values, so mean is stored as
-+ * real_mean * HID_GUARD_WELFORD_SCALE.
-+ * Without this, delta/count truncates to 0
-+ * as soon as count exceeds the typical delta (in millisecond)
-+ */
-+#define HID_GUARD_WELFORD_SCALE 1024
-+
-+enum hid_guard_ped_flag {
-+	HID_GUARD_PED_NO_ENTRY = 0,
-+	HID_GUARD_PED_SUSPICIOUS = 1,
-+	HID_GUARD_PED_WARNING = 2,
-+	HID_GUARD_PED_NORMAL = 3,
-+};
-+
-+struct dev_info {
-+	__u64 connection_time;
-+	__u32 report_size;
-+	__u64 prev_report[32];
-+	/*welford's variables*/
-+	__u64 prev_keydown_ts;
-+	__u64 count;
-+	__s64 mean;
-+	__u64 M2;
-+	/*
-+	 * unsigned as delta * delta2 is always >= 0
-+	 * (as delta2 is delta scaled by the same sign)
-+	 */
-+};
-+
-+/*
-+ * BPF_MAP_TYPE_LRU_HASH:
-+ * Using an LRU map automatically prevents exhaustion by silently evicting
-+ * the oldest idle devices. It requires no syntax changes to the rest of the
-+ * code (lookup/update helpers work identically), but introduces behavioral
-+ * trade-offs:
-+ *
-+ * 1. Eviction wipes Welford variance history. An attacker
-+ *    could theoretically flood the map to flush their device and reset their
-+ *    score.
-+ * 2. PED Blindspot: Eviction deletes the 'connection_time' set during probe().
-+ *    If an evicted device wakes up, it will bypass post-enumeration delay
-+ *    checks.
-+ */
-+struct {
-+	__uint(type, BPF_MAP_TYPE_LRU_HASH);
-+	__type(key, __u32);
-+	__type(value, struct dev_info);
-+	__uint(max_entries, 128);
-+} dev_details SEC(".maps");
-+
-+/*
-+ * POST ENUMERATION DELAY
-+ *
-+ * Computes the delta between the first input packet timestamp and
-+ * connection_time (set at probe() time), both raw __u64 nanoseconds
-+ * from bpf_ktime_get_ns(). Called once per device, the caller gates
-+ * this on connection_time != 0, and this function clears it to 0
-+ * afterward so it never runs twice for the same device.
-+ *
-+ * Returns a hid_guard_ped_flag classifying the delay.
-+ */
-+static __always_inline enum hid_guard_ped_flag
-+post_enumeration_delay(struct dev_info *info, __u64 first_packet_time)
-+{
-+	__u64 delta;
-+
-+	if (first_packet_time < info->connection_time)
-+		return HID_GUARD_PED_NO_ENTRY;
-+
-+	delta = first_packet_time - info->connection_time;
-+
-+	if (delta < HID_GUARD_PED_SUSPICIOUS_THRESH)
-+		return HID_GUARD_PED_SUSPICIOUS;
-+	if (delta < HID_GUARD_PED_WARNING_THRESH)
-+		return HID_GUARD_PED_WARNING;
-+
-+	return HID_GUARD_PED_NORMAL;
-+}
-+
-+static __always_inline void welford(struct dev_info *dev_state,
-+				    __u64 interval_ms)
-+{
-+	__s64 x = (__s64)interval_ms * HID_GUARD_WELFORD_SCALE;
-+	__s64 delta, delta2, delta_abs, signed_div_res;
-+	__u64 div_res;
-+
-+	dev_state->count++;
-+	delta = x - dev_state->mean;
-+	delta_abs = delta < 0 ? -delta : delta;
-+	div_res = (__u64)delta_abs / (__u64)dev_state->count;
-+	signed_div_res = delta < 0 ? -(__s64)div_res : (__s64)div_res;
-+
-+	dev_state->mean += signed_div_res;
-+	delta2 = x - dev_state->mean;
-+
-+	dev_state->M2 += (__u64)(delta * delta2);
-+
-+	bpf_printk("W[Count:%llu] Int:%llu ms, scaled_x:%lld\n",
-+		   dev_state->count, interval_ms, x);
-+	bpf_printk("  -> delta1:%lld, mean:%lld\n", delta, dev_state->mean);
-+	bpf_printk("  -> delta2:%lld, M2:%llu\n", delta2, dev_state->M2);
-+}
-+
-+HID_BPF_CONFIG(HID_DEVICE(BUS_USB, HID_GROUP_ANY, HID_VID_ANY, HID_PID_ANY),
-+	       HID_DEVICE(BUS_BLUETOOTH, HID_GROUP_ANY, HID_VID_ANY,
-+			  HID_PID_ANY));
-+
-+SEC(HID_BPF_DEVICE_EVENT)
-+int BPF_PROG(kdb_hook, struct hid_bpf_ctx *hctx)
-+{
-+	__u32 hid_id = hctx->hid->id;
-+
-+	struct dev_info *info;
-+
-+	info = bpf_map_lookup_elem(&dev_details, &hid_id);
-+
-+	if (!info)
-+		return 0;
-+
-+	__u32 size = info->report_size;
-+	__u32 fetch_size;
-+	__u8 *data;
-+
-+	if (size <= 8)
-+		fetch_size = 8;
-+	else if (size <= 16)
-+		fetch_size = 16;
-+	else
-+		fetch_size = 32;
-+
-+	data = hid_bpf_get_data(hctx, 0, fetch_size);
-+
-+	if (!data)
-+		return 0;
-+	int now_active_ks = 0, was_active_ks = 0;
-+#pragma unroll
-+	for (int i = 0; i < 32; i++) {
-+		if (i >= fetch_size)
-+			break;
-+		now_active_ks += ((__u8)data[i] + 255) >> 8;
-+		was_active_ks += ((__u8)info->prev_report[i] + 255) >> 8;
-+
-+		info->prev_report[i] = data[i];
-+	}
-+
-+	__u64 current_ms = bpf_ktime_get_ns() / HID_GUARD_NSEC_PER_MSEC;
-+
-+	if (now_active_ks > was_active_ks) {
-+		if (info->prev_keydown_ts != 0) {
-+			__u64 interval_ms = current_ms - info->prev_keydown_ts;
-+
-+			if (interval_ms < HID_GUARD_IDLE_GAP_THRESH_MS) {
-+				welford(info, interval_ms);
-+			} else {
-+				bpf_printk(
-+					"hid %d: idle gap %llu ms excluded from sample\n",
-+					hid_id, interval_ms);
-+			}
-+		}
-+
-+		if (info->count >= HID_GUARD_MIN_SAMPLES) {
-+			__u64 variance_m2 =
-+				info->M2 /
-+				((__u64)HID_GUARD_WELFORD_SCALE *
-+				 HID_GUARD_WELFORD_SCALE * (info->count - 1));
-+			/*
-+			 * the initial interval x was multiplied by HID_GUARD_WELFORD_SCALE, both
-+			 * delta and delta2 are also scaled by that factor,
-+			 * thus scale^2 in the denominator
-+			 */
-+			if (variance_m2 < HID_GUARD_VARIANCE_THRESH_MS2) {
-+				bpf_printk(
-+					"hid %d: Suspeciously regular typing, variance=%llu ms^2\n",
-+					hid_id, variance_m2);
-+			}
-+		}
-+
-+		info->prev_keydown_ts = current_ms;
-+	}
-+
-+	if (info->connection_time != 0) {
-+		enum hid_guard_ped_flag ped_flag =
-+			post_enumeration_delay(info, bpf_ktime_get_ns());
-+
-+		bpf_printk("PED flag for hid %d: %d\n", hid_id, ped_flag);
-+
-+		/*
-+		 * Prevent re-evaluation on subsequent packets for this device
-+		 */
-+		info->connection_time = 0;
-+	}
-+	return 0;
-+}
-+
-+HID_BPF_OPS(hook_keyboard) = {
-+	.hid_device_event = (void *)kdb_hook,
-+};
-+
-+struct hid_rdesc_descriptor HID_REPORT_DESCRIPTOR;
-+
-+SEC("syscall")
-+int probe(struct hid_bpf_probe_args *ctx)
-+{
-+	struct hid_rdesc_report *input;
-+	struct hid_rdesc_field *field;
-+	struct hid_rdesc_collection *col;
-+
-+	hid_bpf_for_each_input_report(&HID_REPORT_DESCRIPTOR, input) {
-+		__u32 size_in_bytes = (input->size_in_bits + 7) / 8;
-+
-+		bpf_printk("Report size: %d\n", size_in_bytes);
-+		if (input->report_id != 0)
-+			size_in_bytes += 1;
-+
-+		bpf_printk("Report size after report_id: %d\n", size_in_bytes);
-+
-+		hid_bpf_for_each_field(input, field) {
-+			hid_bpf_for_each_collection(field, col) {
-+				if (col->usage_page ==
-+					    HidUsagePage_GenericDesktop &&
-+				    col->usage_id == HidUsage_GD_Keyboard) {
-+					__u32 key = ctx->hid;
-+					struct dev_info info = {
-+						.connection_time =
-+							bpf_ktime_get_ns(),
-+						.count = 0,
-+						.report_size = size_in_bytes
-+					};
-+					bpf_map_update_elem(&dev_details, &key,
-+							    &info, BPF_ANY);
-+					ctx->retval = 0;
-+					return 0;
-+				}
-+			}
-+		}
-+	}
-+	ctx->retval = -EINVAL;
-+	return 0;
-+}
-+
-+char _license[] SEC("license") = "GPL";
---
-2.54.0
+[ ... ]
 
+> +static __always_inline void welford(struct dev_info *dev_state,
+> +				    __u64 interval_ms)
+> +{
+> +	__s64 x =3D (__s64)interval_ms * HID_GUARD_WELFORD_SCALE;
+> +	__s64 delta, delta2, delta_abs, signed_div_res;
+> +	__u64 div_res;
+> +
+> +	dev_state->count++;
+
+[Severity: Medium]
+Will this lockless compound update be corrupted by concurrent executions?
+
+The dev_details LRU hash map stores per-device state which kdb_hook() reads
+and modifies directly via a map value pointer locklessly. Updating Welford
+variance (count, mean, M2) is a compound operation.
+
+If kdb_hook() executes concurrently for the same device, such as across
+multiple endpoints on a composite device, or if the userspace probe()
+program is executed simultaneously, torn reads and writes will occur.
+
+Does this structure require a bpf_spin_lock to prevent data races?
+
+> +	delta =3D x - dev_state->mean;
+
+[ ... ]
+
+> +SEC(HID_BPF_DEVICE_EVENT)
+> +int BPF_PROG(kdb_hook, struct hid_bpf_ctx *hctx)
+> +{
+> +	__u32 hid_id =3D hctx->hid->id;
+> +
+> +	struct dev_info *info;
+> +
+> +	info =3D bpf_map_lookup_elem(&dev_details, &hid_id);
+> +
+> +	if (!info)
+> +		return 0;
+
+[Severity: High]
+Does an LRU map eviction permanently disable detection for a device instead
+of resetting its state?
+
+The dev_details map uses BPF_MAP_TYPE_LRU_HASH with 128 max entries.
+When a device is evicted, bpf_map_lookup_elem() returns NULL, and
+kdb_hook() immediately returns 0, completely ignoring the event.
+
+Because elements are only inserted by the userspace probe() program, an
+evicted device is never automatically re-inserted by the kernel hook.
+
+Could an attacker deliberately present 128 dummy HID interfaces to flood
+the map, permanently evict the payload device, and bypass the guard entirel=
+y?
+
+> +
+> +	__u32 size =3D info->report_size;
+> +	__u32 fetch_size;
+> +	__u8 *data;
+> +
+> +	if (size <=3D 8)
+> +		fetch_size =3D 8;
+> +	else if (size <=3D 16)
+> +		fetch_size =3D 16;
+> +	else
+> +		fetch_size =3D 32;
+
+[Severity: Critical]
+Does hardcapping the analysis size to 32 bytes allow attackers to evade
+detection by padding their malicious HID descriptor?
+
+An attacker could craft a custom USB HID descriptor that defines dummy
+fields or padding for the first 32 bytes, placing the actual Keyboard Usage
+page array at offset 32 or higher.
+
+The loop will only iterate over the static padding and completely ignore
+the keystrokes. Meanwhile, the Linux HID subsystem correctly parses the full
+report and processes the hidden keycodes, allowing arbitrary keystroke
+injection that bypasses this guard.
+
+> +
+> +	data =3D hid_bpf_get_data(hctx, 0, fetch_size);
+> +
+> +	if (!data)
+> +		return 0;
+
+[Severity: High]
+Will this size rounding cause silent event dropping and logical out-of-boun=
+ds
+reads?
+
+The BPF program rounds info->report_size up to a power-of-two fetch_size
+(8, 16, or 32). If a keyboard has a 9-byte report, fetch_size becomes 16.
+
+If the kernel's ctx->allocated_size for this device is exactly 9 bytes,
+hid_bpf_get_data(hctx, 0, 16) will exceed the bounds and return NULL.
+The program then returns 0, silently skipping analysis for the report
+while the kernel continues processing the keystrokes.
+
+If allocated_size is large enough, the loop uses fetch_size as the upper
+bound, reading past valid report data into padding or uninitialized memory,
+polluting the active key tracking.
+
+> +	int now_active_ks =3D 0, was_active_ks =3D 0;
+> +#pragma unroll
+> +	for (int i =3D 0; i < 32; i++) {
+> +		if (i >=3D fetch_size)
+> +			break;
+> +		now_active_ks +=3D ((__u8)data[i] + 255) >> 8;
+
+[Severity: High]
+Will this logic indiscriminately process all incoming raw reports, even
+those not belonging to the keyboard?
+
+Many HID keyboards are composite devices, such as wireless keyboard and
+mouse receivers, that send multiple report types over the same interface.
+
+Since the report ID is observed in probe() but not stored in dev_info,
+this hook counts all non-zero bytes across all input reports as keystrokes.
+Mouse movements, which send reports with changing non-zero bytes, will be
+incorrectly interpreted as rapid keystrokes.
+
+Will this corrupt the Welford variance tracking and cause false positive
+anomaly detections?
+
+> +		was_active_ks +=3D ((__u8)info->prev_report[i] + 255) >> 8;
+> +
+> +		info->prev_report[i] =3D data[i];
+> +	}
+> +
+> +	__u64 current_ms =3D bpf_ktime_get_ns() / HID_GUARD_NSEC_PER_MSEC;
+> +
+> +	if (now_active_ks > was_active_ks) {
+
+[Severity: High]
+Does this heuristic fail to detect keys when no empty report is sent
+between strokes?
+
+The detection logic relies strictly on an increase in the total number of
+non-zero bytes to identify a keypress.
+
+Automated injection tools routinely optimize injections by morphing
+keycodes directly without sending an intervening empty (all-zeros) report.
+If an attacker's tool changes key 'A' to key 'B' in consecutive reports,
+both reports have exactly one non-zero byte.
+
+The condition 1 > 1 evaluates to false, causing the keystroke to be missed
+and bypassing the variance check entirely.
+
+[ ... ]
+
+> +SEC("syscall")
+> +int probe(struct hid_bpf_probe_args *ctx)
+> +{
+> +	struct hid_rdesc_report *input;
+> +	struct hid_rdesc_field *field;
+> +	struct hid_rdesc_collection *col;
+> +
+> +	hid_bpf_for_each_input_report(&HID_REPORT_DESCRIPTOR, input) {
+> +		__u32 size_in_bytes =3D (input->size_in_bits + 7) / 8;
+> +
+> +		bpf_printk("Report size: %d\n", size_in_bytes);
+> +		if (input->report_id !=3D 0)
+> +			size_in_bytes +=3D 1;
+
+[Severity: High]
+Is the report ID needed here to validate incoming reports later?
+
+The report ID is observed here but not stored in the map, making it
+impossible for kdb_hook() to distinguish between keyboard reports and
+other HID reports on a composite device.
+
+> +
+> +		bpf_printk("Report size after report_id: %d\n", size_in_bytes);
+> +
+> +		hid_bpf_for_each_field(input, field) {
+> +			hid_bpf_for_each_collection(field, col) {
+> +				if (col->usage_page =3D=3D
+> +					    HidUsagePage_GenericDesktop &&
+> +				    col->usage_id =3D=3D HidUsage_GD_Keyboard) {
+> +					__u32 key =3D ctx->hid;
+> +					struct dev_info info =3D {
+> +						.connection_time =3D
+> +							bpf_ktime_get_ns(),
+> +						.count =3D 0,
+> +						.report_size =3D size_in_bytes
+> +					};
+
+[Severity: High]
+Will the uninitialized padding bytes in this struct cause the BPF verifier
+to reject the program?
+
+The dev_info object is initialized using a designated initializer list.
+While this zero-initializes unspecified members, it does not guarantee that
+the compiler will zero the 4 bytes of padding between report_size and
+prev_report.
+
+The BPF verifier strictly tracks initialization of stack memory at the byte
+level. When bpf_map_update_elem() reads the struct from the stack, the
+verifier will detect the uninitialized padding and reject the program with
+an 'invalid indirect read from stack' error.
+
+Should this structure be explicitly zeroed using __builtin_memset?
+
+> +					bpf_map_update_elem(&dev_details, &key,
+> +							    &info, BPF_ANY);
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260619073607.3932=
+48-1-krishgulati7@gmail.com?part=3D1

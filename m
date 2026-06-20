@@ -1,191 +1,114 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 63E812DC32C
-	for <linux-input@vger.kernel.org>; Sat, 20 Jun 2026 11:40:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+Received: from azure-sdnproxy.icoremail.net (azure-sdnproxy.icoremail.net [4.193.249.245])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 53B8B224F3;
+	Sat, 20 Jun 2026 14:22:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=4.193.249.245
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781955633; cv=none; b=ButHW7h3dpg10XBrFHAvwd5AAd1DwjTeT8hI8xdfEhQxKYM9spf4MbG6wprAZy+ZAEmIUK5AydmmQU1wo/R/qOLI8MZV1dSK7ZowYoGA+LCCDtl65lpO/zqa0rNhN9YiFqXq0nJ8aW3OLxNGE+Hz8VSxHRZmJKveCsAysIjgVjU=
+	t=1781965375; cv=none; b=nbMkpLIhEoDTRInG6XqmNAsnpfHDXBstbYIM8oOIm7xBX2iDJIr96eTZxgWzdVrjvMFUb3cjH1nVoFJHjJ48Q22vd8IE2/A1eucDo6a8s+v6INuPeCy83oNveVhifAk69Jh6zou5uFdKcV9yfCcuChyijOK0uRwxKbeCmsZ49Hc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781955633; c=relaxed/simple;
-	bh=HxLhnvc97lsFYSvPkObvqg5FDcfii45Uk7F0H3yUUfY=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=dSO7Owyj3eoTi8gtlaYB9NucRgB13vqOO03sQo5s+qPeSyJBzQ8WYAwZq8Pr8BYLPoIq6ZruO1g+55eG0AUEYCYnnxi+1Bh8RZ5F37rR2jRsuqG5NRawe7U2dfXgWOmeQLgYN9vGHZcVmGlAu2HPXCxvtntyTUHFd2cg0qadROQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=V7n4GL69; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1781965375; c=relaxed/simple;
+	bh=eKV78Cg24xS2tDh5BHI9wGlGxETb4a8lrNbht2SvlJk=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=dS+cRoKIitIAnvQEzD6ezV8crvBNY8J6jd6B16oXLtvSrflheayOSR7i3OzazCZG4qxvxbnKy0r7eHo/WiCrAFcYbT1on2fXWiR9OIZr79J1pWPfSXy+4grc9WNnu8I37L/4CNv9KCVju9UAfn1IGlKx3zmBU6LlolgtgsdCR34=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=mails.tsinghua.edu.cn; spf=pass smtp.mailfrom=mails.tsinghua.edu.cn; dkim=pass (1024-bit key) header.d=mails.tsinghua.edu.cn header.i=@mails.tsinghua.edu.cn header.b=kSvQya12; arc=none smtp.client-ip=4.193.249.245
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=mails.tsinghua.edu.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mails.tsinghua.edu.cn
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="V7n4GL69"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4D7F51F000E9;
-	Sat, 20 Jun 2026 11:40:31 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1781955632;
-	bh=WyYD4DmIoSB8HwaJ2ZeuKjyhRj88y8AL8kdQCALfqUs=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=V7n4GL690aqCzTO7m1bM7/WMlbzYb2twSaeLgvY5mTUy1blANiqyQSQ9VfnqtGdYJ
-	 qEWn42WQNN2fHmm6XmLZHmPb09ZcF+dd7KZQtjVj8JROa29HyurORmPvU+KDvLlDYA
-	 WOLu5FUbBoybqVI4RDzT081MgD61PJ8101UTUdfFpMX9wfODyJxlRrVinvJDHfBr9v
-	 zpRhOQo8FGCYFYyo/i/6Y3Dx0fEutQkakaO1JVXBK+ssdi6I7YKXruuT0yHgJCIr5y
-	 HV7bU3pNe3X0vRIqKoxMg6vdgcZHAfsaAJwSk0yOZYRO0xzfSMhxECzQYgARth3Vsf
-	 Gxfu5q6EAAuMg==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 RESEND] HID: appletb-kbd: add option to switch
- default layer on double pressing fn key
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Aditya Garg" <gargaditya08@proton.me>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260620112635.17246-1-gargaditya08@proton.me>
-References: <20260620112635.17246-1-gargaditya08@proton.me>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Sat, 20 Jun 2026 11:40:30 +0000
-Message-Id: <20260620114031.4D7F51F000E9@smtp.kernel.org>
+	dkim=pass (1024-bit key) header.d=mails.tsinghua.edu.cn header.i=@mails.tsinghua.edu.cn header.b="kSvQya12"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=mails.tsinghua.edu.cn; s=dkim; h=Received:From:To:Cc:Subject:
+	Date:Message-Id:In-Reply-To:References:MIME-Version:
+	Content-Transfer-Encoding; bh=/SxY0nOvQJLzkWoR8G6HQYMCgBAOyM2oKj
+	ZM5THvRwM=; b=kSvQya12YWeFcbKEZ7s/KDC+Tg0vrY0HSS2BaJY3AQ//KHMcaj
+	/M8jWAtjk7d56xtIVHC63+Vc2yowxlMrES7TP/U0Q0aXv60tlUCNJFJm/Vrl68aw
+	OqS/Mxm2uRd3tHxd2Zi0AE8y//Nt9bBASVgq9UacMwGqXEzslQVQ9fLtg=
+Received: from c9a6c405b3f2.. (unknown [202.112.238.121])
+	by web5 (Coremail) with SMTP id zAQGZQBH0bsbojZqXHGQAg--.53711S3;
+	Sat, 20 Jun 2026 22:22:37 +0800 (CST)
+From: Yiyang Chen <chenyy23@mails.tsinghua.edu.cn>
+To: Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>,
+	bpf@vger.kernel.org,
+	linux-input@vger.kernel.org
+Cc: Yiyang Chen <chenyy23@mails.tsinghua.edu.cn>,
+	Shuah Khan <shuah@kernel.org>,
+	Alexei Starovoitov <ast@kernel.org>,
+	Daniel Borkmann <daniel@iogearbox.net>,
+	Andrii Nakryiko <andrii@kernel.org>,
+	Martin KaFai Lau <martin.lau@linux.dev>,
+	Eduard Zingerman <eddyz87@gmail.com>,
+	Kumar Kartikeya Dwivedi <memxor@gmail.com>,
+	Song Liu <song@kernel.org>,
+	Yonghong Song <yonghong.song@linux.dev>,
+	Jiri Olsa <jolsa@kernel.org>,
+	linux-kselftest@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH bpf-next v2 1/2] HID: bpf: Fix hid_bpf_get_data() range check
+Date: Sat, 20 Jun 2026 14:22:16 +0000
+Message-Id: <6dbee73169b80f27a63dbf3db3488649df61b65d.1781964949.git.chenyy23@mails.tsinghua.edu.cn>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <cover.1781964949.git.chenyy23@mails.tsinghua.edu.cn>
+References: <cover.1781627122.git.chenyy23@mails.tsinghua.edu.cn> <cover.1781964949.git.chenyy23@mails.tsinghua.edu.cn>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:zAQGZQBH0bsbojZqXHGQAg--.53711S3
+X-Coremail-Antispam: 1UD129KBjvJXoW7CrWrJFy5CFyUJFyrWrWkCrg_yoW8XrWUpw
+	s5JrWakr42qrn7Ar4DKr4kGayrCa92g34UGFy8uF98uwnxXF1UJFyDtF98uay5Ar95CF9r
+	KrZ0qr1xXr17AaUanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDU0xBIdaVrnRJUUUdjb7Iv0xC_Cr1lb4IE77IF4wAFF20E14v26rWj6s0DM7CY07I2
+	0VC2zVCF04k26cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28IrcIa0xkI8VA2jI
+	8067AKxVWUGwA2048vs2IY020Ec7CjxVAFwI0_Gr0_Xr1l8cAvFVAK0II2c7xJM28CjxkF
+	64kEwVA0rcxSw2x7M28EF7xvwVC0I7IYx2IY67AKxVW5JVW7JwA2z4x0Y4vE2Ix0cI8IcV
+	CY1x0267AKxVWxJVW8Jr1l84ACjcxK6I8E87Iv67AKxVW0oVCq3wA2z4x0Y4vEx4A2jsIE
+	c7CjxVAFwI0_GcCE3s1lnxkEFVAIw20F6cxK64vIFxWle2I262IYc4CY6c8Ij28IcVAaY2
+	xG8wAqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E2Ix0cI8IcVAFwI0_Jr0_Jr4lYx0Ex4A2
+	jsIE14v26r1j6r4UMcvjeVCFs4IE7xkEbVWUJVW8JwACjcxG0xvY0x0EwIxGrwACjI8F5V
+	A0II8E6IAqYI8I648v4I1lFIxGxcIEc7CjxVA2Y2ka0xkIwI1lc7CjxVAaw2AFwI0_GFv_
+	Wrylc2xSY4AK67AK6ry5MxAIw28IcxkI7VAKI48JMxC20s026xCaFVCjc4AY6r1j6r4UMI
+	8I3I0E5I8CrVAFwI0_Jr0_Jr4lx2IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AK
+	xVW8ZVWrXwCIc40Y0x0EwIxGrwCI42IY6xIIjxv20xvE14v26r1j6r1xMIIF0xvE2Ix0cI
+	8IcVCY1x0267AKxVW8JVWxJwCI42IY6xAIw20EY4v20xvaj40_Jr0_JF4lIxAIcVC2z280
+	aVAFwI0_Jr0_Gr1lIxAIcVC2z280aVCY1x0267AKxVW8JVW8JrUvcSsGvfC2KfnxnUUI43
+	ZEXa7sRXNVgUUUUUU==
+X-CM-SenderInfo: xfkh05r1stqzpdlo2hxwvl0wxkxdhvlgxou0/
 
-Thank you for your contribution! Sashiko AI review found 4 potential issue(=
-s) to consider:
+hid_bpf_get_data() returns a pointer into the HID-BPF context data when
+the caller-provided offset and size fit inside ctx->allocated_size.
 
-New issues:
-- [Medium] The driver dynamically mutates a read-only global module paramet=
-er without synchronization.
-- [Medium] Zero-initialization of `kbd->last_fn_press` paired with jiffies =
-wrap logic causes spurious double-press detections during the first 5 minut=
-es of system uptime.
+The current check adds rdwr_buf_size and offset before comparing the
+result against ctx->allocated_size. Since both values are unsigned, a
+very large size can wrap the sum below ctx->allocated_size and make the
+helper return a pointer even though the requested range is not contained
+in the backing buffer.
 
-Pre-existing issues:
-- [High] Calling sleeping functions (`hid_hw_power`, `pm_runtime_get_sync`)=
- from the atomic input event handler causes 'BUG: scheduling while atomic'.
-- [High] Probe enables hardware events before setting driver data, causing =
-a NULL pointer dereference.
---
+Use a non-wrapping range check instead: reject offsets beyond the
+allocation, then compare the requested size with the remaining bytes
+after the offset.
 
-commit e33a32d065a3f43246ae8063aed73e4573a2176b
-Author: Aditya Garg <gargaditya08@proton.me>
+Fixes: 658ee5a64fcf ("HID: bpf: allocate data memory for device_event BPF programs")
+Signed-off-by: Yiyang Chen <chenyy23@mails.tsinghua.edu.cn>
+---
+ drivers/hid/bpf/hid_bpf_dispatch.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-HID: appletb-kbd: add option to switch default layer on double pressing fn =
-key
+diff --git a/drivers/hid/bpf/hid_bpf_dispatch.c b/drivers/hid/bpf/hid_bpf_dispatch.c
+index d0130658091b0..09b45c40d84f0 100644
+--- a/drivers/hid/bpf/hid_bpf_dispatch.c
++++ b/drivers/hid/bpf/hid_bpf_dispatch.c
+@@ -299,7 +299,8 @@ hid_bpf_get_data(struct hid_bpf_ctx *ctx, unsigned int offset, const size_t rdwr
+ 
+ 	ctx_kern = container_of(ctx, struct hid_bpf_ctx_kern, ctx);
+ 
+-	if (rdwr_buf_size + offset > ctx->allocated_size)
++	if (offset > ctx->allocated_size ||
++	    rdwr_buf_size > ctx->allocated_size - offset)
+ 		return NULL;
+ 
+ 	return ctx_kern->data + offset;
+-- 
+2.34.1
 
-This patch enables a user to switch the default layer from media to fn
-keys and vice-versa upon double pressing the fn key. This behaviour can
-be configured using the double_press_switch_time module parameter whose
-value depicts the time in milliseconds within which the fn key must be
-pressed again to switch the default layer. If set to 0, it simply
-disables this behaviour.
-
-> diff --git a/drivers/hid/hid-appletb-kbd.c b/drivers/hid/hid-appletb-kbd.c
-> index 462010a758993..34bfc595949dc 100644
-> --- a/drivers/hid/hid-appletb-kbd.c
-> +++ b/drivers/hid/hid-appletb-kbd.c
-
-[ ... ]
-
-> @@ -250,15 +269,42 @@ static void appletb_kbd_inp_event(struct input_hand=
-le *handle, unsigned int type
->  			      unsigned int code, int value)
->  {
->  	struct appletb_kbd *kbd =3D handle->private;
-> =20
->  	reset_inactivity_timer(kbd);
-> =20
-> -	if (type =3D=3D EV_KEY && code =3D=3D KEY_FN && appletb_tb_fn_toggle &&
-> -		(kbd->current_mode =3D=3D APPLETB_KBD_MODE_SPCL ||
-> -		 kbd->current_mode =3D=3D APPLETB_KBD_MODE_FN)) {
-> +	if (type =3D=3D EV_KEY && code =3D=3D KEY_FN &&
-> +	    (kbd->current_mode =3D=3D APPLETB_KBD_MODE_SPCL ||
-> +	     kbd->current_mode =3D=3D APPLETB_KBD_MODE_FN)) {
-> +
->  		if (value =3D=3D 1) {
-> -			kbd->saved_mode =3D kbd->current_mode;
-> -			appletb_kbd_set_mode(kbd, kbd->current_mode =3D=3D APPLETB_KBD_MODE_S=
-PCL
-> -						? APPLETB_KBD_MODE_FN : APPLETB_KBD_MODE_SPCL);
-> +			if (appletb_tb_double_press_switch_layers > 0) {
-> +				unsigned long now =3D jiffies;
-> +
-> +				if (time_before(now, kbd->last_fn_press +
-> +					msecs_to_jiffies(appletb_tb_double_press_switch_layers))) {
-
-[Severity: Medium]
-Since the system jiffies timer initializes to a negative value at boot, does
-evaluating time_before() with a zero-initialized kbd->last_fn_press cause
-spurious double-press detections during the first 5 minutes of system uptim=
-e?
-
-> +
-> +					appletb_tb_def_mode =3D
-> +						appletb_switch_mode(
-> +							appletb_tb_def_mode);
-
-[Severity: Medium]
-Since appletb_tb_def_mode is a global module parameter with read-only
-permissions, does dynamically reassigning it here violate its read-only
-contract and globally modify the default layer for all device instances
-instead of applying the state locally to the specific kbd instance?
-
-> +
-> +					appletb_kbd_set_mode(kbd,
-> +						appletb_tb_def_mode);
-
-[Severity: High]
-This isn't a bug introduced by this patch, but does appletb_kbd_set_mode()
-unconditionally call hid_hw_power(), which can sleep via pm_runtime_get_syn=
-c()?
-
-Since the input core invokes appletb_kbd_inp_event() from atomic context wi=
-th
-the dev->event_lock spinlock held and local IRQs disabled, can this trigger=
- a
-scheduling while atomic bug?
-
-> +
-> +					kbd->saved_mode =3D appletb_tb_def_mode;
-> +					kbd->last_fn_press =3D 0;
-
-[Severity: Medium]
-Does explicitly resetting last_fn_press back to 0 here cause the spurious
-evaluations to continue for subsequent presses within the first 5 minutes of
-uptime?
-
-> +
-> +					return;
-> +				}
-> +
-> +				kbd->last_fn_press =3D now;
-> +			}
-> +			if (appletb_tb_fn_toggle) {
-> +				kbd->saved_mode =3D kbd->current_mode;
-> +
-> +				appletb_kbd_set_mode(kbd,
-> +					appletb_switch_mode(kbd->current_mode));
-> +			}
-> +
->  		} else if (value =3D=3D 0) {
-> -			if (kbd->saved_mode !=3D kbd->current_mode)
-> +			if (appletb_tb_fn_toggle &&
-> +			    kbd->saved_mode !=3D kbd->current_mode)
->  				appletb_kbd_set_mode(kbd, kbd->saved_mode);
->  		}
->  	}
-
-[Severity: High]
-This is a pre-existing issue, but does appletb_kbd_probe() enable hardware
-events before setting the driver data?
-
-drivers/hid/hid-appletb-kbd.c:appletb_kbd_probe() {
-    ...
-    ret =3D hid_hw_start(hdev, HID_CONNECT_HIDINPUT);
-    ...
-    hid_set_drvdata(hdev, kbd);
-    ...
-}
-
-Once the hardware is opened, it can immediately begin delivering HID reports
-which invoke appletb_kbd_hid_event(). Could appletb_kbd_hid_event() fetch an
-uninitialized NULL pointer from hid_get_drvdata(hdev) and pass it to
-reset_inactivity_timer(), causing a NULL pointer dereference?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260620112635.1724=
-6-1-gargaditya08@proton.me?part=3D1

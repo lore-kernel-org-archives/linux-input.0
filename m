@@ -1,29 +1,29 @@
-Received: from azure-sdnproxy.icoremail.net (azure-sdnproxy.icoremail.net [4.193.249.245])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 53B8B224F3;
-	Sat, 20 Jun 2026 14:22:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=4.193.249.245
+Received: from zg8tmtyylji0my4xnjqumte4.icoremail.net (zg8tmtyylji0my4xnjqumte4.icoremail.net [162.243.164.118])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id C2D983242AC;
+	Sat, 20 Jun 2026 14:22:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=162.243.164.118
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781965375; cv=none; b=nbMkpLIhEoDTRInG6XqmNAsnpfHDXBstbYIM8oOIm7xBX2iDJIr96eTZxgWzdVrjvMFUb3cjH1nVoFJHjJ48Q22vd8IE2/A1eucDo6a8s+v6INuPeCy83oNveVhifAk69Jh6zou5uFdKcV9yfCcuChyijOK0uRwxKbeCmsZ49Hc=
+	t=1781965375; cv=none; b=SAW4FaHCqjLSETup5e5V9fZXqP/CJW3J9ntel1Co6KZCaK2IPfQGzFYW4iJCkH1pzzLkD9B0vkwwxSpF4HdZwnh1HG40I+Qw9ma7y7sb5lZ2eR2GkYZ+/lVmfadz4E9LmkJQuaL1pDUybtrcqDghnBOpakLB9lQvliPttNY7LAg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1781965375; c=relaxed/simple;
-	bh=eKV78Cg24xS2tDh5BHI9wGlGxETb4a8lrNbht2SvlJk=;
+	bh=Qq4qRaR6cyuaf8bfnOwlcdMg/K0Eld5LP9Zp59TaI0M=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=dS+cRoKIitIAnvQEzD6ezV8crvBNY8J6jd6B16oXLtvSrflheayOSR7i3OzazCZG4qxvxbnKy0r7eHo/WiCrAFcYbT1on2fXWiR9OIZr79J1pWPfSXy+4grc9WNnu8I37L/4CNv9KCVju9UAfn1IGlKx3zmBU6LlolgtgsdCR34=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=mails.tsinghua.edu.cn; spf=pass smtp.mailfrom=mails.tsinghua.edu.cn; dkim=pass (1024-bit key) header.d=mails.tsinghua.edu.cn header.i=@mails.tsinghua.edu.cn header.b=kSvQya12; arc=none smtp.client-ip=4.193.249.245
+	 MIME-Version; b=HzN0jXOcChuLgA+0EW+D3dYgyTFhjOoN27XRJSca62zDpVtVLZYLoZO+Xza8Ni2t0Rp6ptYo/yNUObjcnyWjqNt/1/T4hHduiO/zZsVxdmyfafoVj1MVba+kNCJK/K25uY2Jvwk6MM7oV6kmUrp84k8fZSrnNFeKgKD92VjtRZQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=mails.tsinghua.edu.cn; spf=pass smtp.mailfrom=mails.tsinghua.edu.cn; dkim=pass (1024-bit key) header.d=mails.tsinghua.edu.cn header.i=@mails.tsinghua.edu.cn header.b=F2MTBXaN; arc=none smtp.client-ip=162.243.164.118
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=mails.tsinghua.edu.cn
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mails.tsinghua.edu.cn
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=mails.tsinghua.edu.cn header.i=@mails.tsinghua.edu.cn header.b="kSvQya12"
+	dkim=pass (1024-bit key) header.d=mails.tsinghua.edu.cn header.i=@mails.tsinghua.edu.cn header.b="F2MTBXaN"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=mails.tsinghua.edu.cn; s=dkim; h=Received:From:To:Cc:Subject:
 	Date:Message-Id:In-Reply-To:References:MIME-Version:
-	Content-Transfer-Encoding; bh=/SxY0nOvQJLzkWoR8G6HQYMCgBAOyM2oKj
-	ZM5THvRwM=; b=kSvQya12YWeFcbKEZ7s/KDC+Tg0vrY0HSS2BaJY3AQ//KHMcaj
-	/M8jWAtjk7d56xtIVHC63+Vc2yowxlMrES7TP/U0Q0aXv60tlUCNJFJm/Vrl68aw
-	OqS/Mxm2uRd3tHxd2Zi0AE8y//Nt9bBASVgq9UacMwGqXEzslQVQ9fLtg=
+	Content-Transfer-Encoding; bh=/YSzKvP+6OvD5Tjl/dg3jAaqkQM9nPdYE6
+	tSdOD5rpY=; b=F2MTBXaN6MPAO4gcVY131F+fmg6vQuRcUuoDgMUo++lNioYOap
+	fMw/6Aiy+jq5HZPzhIO/Xoe/yX/MjG/rID5nOjAZTY4emRnS8ASsAlKY+lYRaogk
+	AFus8HmVEmVD4lzDKZF+l21nvTYhpkrnKVm/YHzIPKGHq4UrzwWFOx/ak=
 Received: from c9a6c405b3f2.. (unknown [202.112.238.121])
-	by web5 (Coremail) with SMTP id zAQGZQBH0bsbojZqXHGQAg--.53711S3;
-	Sat, 20 Jun 2026 22:22:37 +0800 (CST)
+	by web5 (Coremail) with SMTP id zAQGZQBH0bsbojZqXHGQAg--.53711S2;
+	Sat, 20 Jun 2026 22:22:32 +0800 (CST)
 From: Yiyang Chen <chenyy23@mails.tsinghua.edu.cn>
 To: Jiri Kosina <jikos@kernel.org>,
 	Benjamin Tissoires <bentiss@kernel.org>,
@@ -42,12 +42,12 @@ Cc: Yiyang Chen <chenyy23@mails.tsinghua.edu.cn>,
 	Jiri Olsa <jolsa@kernel.org>,
 	linux-kselftest@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH bpf-next v2 1/2] HID: bpf: Fix hid_bpf_get_data() range check
-Date: Sat, 20 Jun 2026 14:22:16 +0000
-Message-Id: <6dbee73169b80f27a63dbf3db3488649df61b65d.1781964949.git.chenyy23@mails.tsinghua.edu.cn>
+Subject: [PATCH bpf-next v2 0/2] HID: bpf: Fix hid_bpf_get_data() range check
+Date: Sat, 20 Jun 2026 14:22:15 +0000
+Message-Id: <cover.1781964949.git.chenyy23@mails.tsinghua.edu.cn>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <cover.1781964949.git.chenyy23@mails.tsinghua.edu.cn>
-References: <cover.1781627122.git.chenyy23@mails.tsinghua.edu.cn> <cover.1781964949.git.chenyy23@mails.tsinghua.edu.cn>
+In-Reply-To: <cover.1781627122.git.chenyy23@mails.tsinghua.edu.cn>
+References: <cover.1781627122.git.chenyy23@mails.tsinghua.edu.cn>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -55,60 +55,77 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:zAQGZQBH0bsbojZqXHGQAg--.53711S3
-X-Coremail-Antispam: 1UD129KBjvJXoW7CrWrJFy5CFyUJFyrWrWkCrg_yoW8XrWUpw
-	s5JrWakr42qrn7Ar4DKr4kGayrCa92g34UGFy8uF98uwnxXF1UJFyDtF98uay5Ar95CF9r
-	KrZ0qr1xXr17AaUanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDU0xBIdaVrnRJUUUdjb7Iv0xC_Cr1lb4IE77IF4wAFF20E14v26rWj6s0DM7CY07I2
-	0VC2zVCF04k26cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28IrcIa0xkI8VA2jI
-	8067AKxVWUGwA2048vs2IY020Ec7CjxVAFwI0_Gr0_Xr1l8cAvFVAK0II2c7xJM28CjxkF
-	64kEwVA0rcxSw2x7M28EF7xvwVC0I7IYx2IY67AKxVW5JVW7JwA2z4x0Y4vE2Ix0cI8IcV
-	CY1x0267AKxVWxJVW8Jr1l84ACjcxK6I8E87Iv67AKxVW0oVCq3wA2z4x0Y4vEx4A2jsIE
-	c7CjxVAFwI0_GcCE3s1lnxkEFVAIw20F6cxK64vIFxWle2I262IYc4CY6c8Ij28IcVAaY2
-	xG8wAqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E2Ix0cI8IcVAFwI0_Jr0_Jr4lYx0Ex4A2
-	jsIE14v26r1j6r4UMcvjeVCFs4IE7xkEbVWUJVW8JwACjcxG0xvY0x0EwIxGrwACjI8F5V
-	A0II8E6IAqYI8I648v4I1lFIxGxcIEc7CjxVA2Y2ka0xkIwI1lc7CjxVAaw2AFwI0_GFv_
-	Wrylc2xSY4AK67AK6ry5MxAIw28IcxkI7VAKI48JMxC20s026xCaFVCjc4AY6r1j6r4UMI
-	8I3I0E5I8CrVAFwI0_Jr0_Jr4lx2IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AK
-	xVW8ZVWrXwCIc40Y0x0EwIxGrwCI42IY6xIIjxv20xvE14v26r1j6r1xMIIF0xvE2Ix0cI
-	8IcVCY1x0267AKxVW8JVWxJwCI42IY6xAIw20EY4v20xvaj40_Jr0_JF4lIxAIcVC2z280
-	aVAFwI0_Jr0_Gr1lIxAIcVC2z280aVCY1x0267AKxVW8JVW8JrUvcSsGvfC2KfnxnUUI43
-	ZEXa7sRXNVgUUUUUU==
+X-CM-TRANSID:zAQGZQBH0bsbojZqXHGQAg--.53711S2
+X-Coremail-Antispam: 1UD129KBjvJXoW7CrW5uw1fuFWkZryUCrW3Wrg_yoW8KFy3pa
+	95GrsIkr1DtF9rWw17ArW8Ary5Ga97XayUGry8ZFyUZ3ZagFn7JFyIkryDWF90k3yYgr1a
+	9a40qrsFgw12yFDanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDU0xBIdaVrnRJUUUPj14x267AKxVW5JVWrJwAFc2x0x2IEx4CE42xK8VAvwI8IcIk0
+	rVWrJVCq3wAFIxvE14AKwVWUJVWUGwA2ocxC64kIII0Yj41l84x0c7CEw4AK67xGY2AK02
+	1l84ACjcxK6xIIjxv20xvE14v26ryj6F1UM28EF7xvwVC0I7IYx2IY6xkF7I0E14v26F4j
+	6r4UJwA2z4x0Y4vEx4A2jsIE14v26rxl6s0DM28EF7xvwVC2z280aVCY1x0267AKxVW0oV
+	Cq3wAac4AC62xK8xCEY4vEwIxC4wAS0I0E0xvYzxvE52x082IY62kv0487Mc02F40EFcxC
+	0VAKzVAqx4xG6I80ewAv7VC0I7IYx2IY67AKxVWUJVWUGwAv7VC2z280aVAFwI0_Jr0_Gr
+	1lOx8S6xCaFVCjc4AY6r1j6r4UM4x0Y48IcxkI7VAKI48JM4x0x7Aq67IIx4CEVc8vx2IE
+	rcIFxwACI402YVCY1x02628vn2kIc2xKxwCY1x0262kKe7AKxVW8ZVWrXwCY02Avz4vE14
+	v_Xryl42xK82IYc2Ij64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AK
+	xVWUJVWUGwC20s026x8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r4a6rW5MIIYrx
+	kI7VAKI48JMIIF0xvE2Ix0cI8IcVAFwI0_Jr0_JF4lIxAIcVC0I7IYx2IY6xkF7I0E14v2
+	6r4j6F4UMIIF0xvE42xK8VAvwI8IcIk0rVWUJVWUCwCI42IY6I8E87Iv67AKxVWUJVW8Jw
+	CI42IY6I8E87Iv6xkF7I0E14v26r4j6r4UJbIYCTnIWIevJa73UjIFyTuYvjTRt5r4UUUU
+	U
 X-CM-SenderInfo: xfkh05r1stqzpdlo2hxwvl0wxkxdhvlgxou0/
 
-hid_bpf_get_data() returns a pointer into the HID-BPF context data when
+hid_bpf_get_data() exposes a pointer into the HID-BPF context data when
 the caller-provided offset and size fit inside ctx->allocated_size.
+The helper currently checks that range with:
 
-The current check adds rdwr_buf_size and offset before comparing the
-result against ctx->allocated_size. Since both values are unsigned, a
-very large size can wrap the sum below ctx->allocated_size and make the
-helper return a pointer even though the requested range is not contained
-in the backing buffer.
+  rdwr_buf_size + offset > ctx->allocated_size
 
-Use a non-wrapping range check instead: reject offsets beyond the
-allocation, then compare the requested size with the remaining bytes
-after the offset.
+Since both operands are unsigned, a very large size can wrap the sum and
+make an out-of-range request look valid.
 
-Fixes: 658ee5a64fcf ("HID: bpf: allocate data memory for device_event BPF programs")
-Signed-off-by: Yiyang Chen <chenyy23@mails.tsinghua.edu.cn>
----
- drivers/hid/bpf/hid_bpf_dispatch.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+Patch 1 changes the helper to reject offset values beyond the allocation
+and then compare the requested size against the remaining bytes.
 
-diff --git a/drivers/hid/bpf/hid_bpf_dispatch.c b/drivers/hid/bpf/hid_bpf_dispatch.c
-index d0130658091b0..09b45c40d84f0 100644
---- a/drivers/hid/bpf/hid_bpf_dispatch.c
-+++ b/drivers/hid/bpf/hid_bpf_dispatch.c
-@@ -299,7 +299,8 @@ hid_bpf_get_data(struct hid_bpf_ctx *ctx, unsigned int offset, const size_t rdwr
- 
- 	ctx_kern = container_of(ctx, struct hid_bpf_ctx_kern, ctx);
- 
--	if (rdwr_buf_size + offset > ctx->allocated_size)
-+	if (offset > ctx->allocated_size ||
-+	    rdwr_buf_size > ctx->allocated_size - offset)
- 		return NULL;
- 
- 	return ctx_kern->data + offset;
+Patch 2 adds a HID-BPF regression check that asks hid_bpf_get_data() for
+offset 2 and size ~0ULL from an rdesc_fixup callback and expects NULL.
+It also adds KHDR_INCLUDES to the HID selftest build so the userspace
+test sees current kernel UAPI HID definitions.
+
+Validation, rebased and tested on bpf-next master e4287bf34f97
+("selftests/bpf: Work around llvm stack overflow in crypto progs"):
+
+  git diff --check e4287bf34f97..HEAD: OK
+  scripts/checkpatch.pl --strict -g e4287bf34f97..HEAD: OK
+  make O=/root/ebpf-verifier-bug-detection/kernel-build/bpf-next-hidbpf-20260616 \
+    drivers/hid/bpf/hid_bpf_dispatch.o: OK
+  make -C tools/testing/selftests/hid \
+    O=/root/ebpf-verifier-bug-detection/kernel-build/bpf-next-hidbpf-20260616 \
+    OUTPUT=/tmp/hid-selftest-026-v2 \
+    VMLINUX_BTF=/root/ebpf-verifier-bug-detection/kernel-build/bpf-next-hidbpf-20260616/vmlinux \
+    KHDR_INCLUDES=-isystem /root/ebpf-verifier-bug-detection/kernel-build/bpf-next-hidbpf-20260616/usr/include \
+    hid_bpf: OK
+
+Changes in v2:
+  - Drop the temporary data variable around the overflow
+    hid_bpf_get_data() call in the selftest callback.
+  - Correct the Fixes tag to commit 658ee5a64fcf ("HID: bpf: allocate
+    data memory for device_event BPF programs").
+
+v1: https://lore.kernel.org/bpf/cover.1781627122.git.chenyy23@mails.tsinghua.edu.cn/
+
+Yiyang Chen (2):
+  HID: bpf: Fix hid_bpf_get_data() range check
+  selftests/hid: Cover hid_bpf_get_data() size overflow
+
+ drivers/hid/bpf/hid_bpf_dispatch.c      |  3 ++-
+ tools/testing/selftests/hid/Makefile    |  2 +-
+ tools/testing/selftests/hid/hid_bpf.c   | 11 +++++++++++
+ tools/testing/selftests/hid/progs/hid.c | 15 +++++++++++++++
+ 4 files changed, 29 insertions(+), 2 deletions(-)
+
+
+base-commit: e4287bf34f97a88c7d9322f5bde828724c073a6b
 -- 
 2.34.1
 

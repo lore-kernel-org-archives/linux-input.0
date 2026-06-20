@@ -1,108 +1,65 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A5E9733E36A;
-	Sat, 20 Jun 2026 15:11:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 19A5919046E
+	for <linux-input@vger.kernel.org>; Sat, 20 Jun 2026 16:39:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781968269; cv=none; b=DwvIYTvsbsuJ1ZQlO5brZK29VYv64OhIMYs3Z9ljfHdGQ+ePv25paMC0u+JwBktOeTSJ+2ZhJFAAmc74hngw4QlIosQQODN+l4iCP/Xoepn2S/sNb6zrTw2V5s2EumhofSpSaPTMtIhqEprVBoTGsAXS4gN6vABOecy4ccGSWRk=
+	t=1781973568; cv=none; b=g3/NvL4fF6OkrLQPJVCmWX4okrsJ1jgqwmanI9LMB/uC5wFKkFJERgQgFh2u/hnazkiWhq8QwxrHK4BXSF/LYu7eaCAcS/BT2fL0mq8cKw9HCTQl9ADB78hCbZwdZYLOVd4pak3Mx3NZtT/EjRkz4B/XXgMrf+WY/4FlxZU+2Xc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781968269; c=relaxed/simple;
-	bh=JSSy07a1fddV0ZEcUrT8Xs2OmKCf7cuJkbRuUvXWwg8=;
-	h=Content-Type:MIME-Version:Message-Id:In-Reply-To:References:
-	 Subject:From:To:Cc:Date; b=qpapKnzwgv18YX61Z8yCa6oyG2WcbYROVZsUYUbMOSLKSRY+ocwqzVcKr4YLozmPnJmI9/hqRyuQkjr2fLU2Uc9q8TYOSZkEE4QyWsAmEqsQ8A/Ma41yvqs26M9Io4D5bdN81/U+qMeFHtgiaZJdsc8TkreY7nAL5V3w5aemTMQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=F+CAstK3; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1781973568; c=relaxed/simple;
+	bh=haxd7f6tL5rzZqm9lNvJ4G/QHDZZOIyw/6DVdjGwId4=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=k3IxtvCmxRIgjVL9YlsrYy0g6yTsrPf3ouX4A1zSYZg0HfUUeRBRCQ3/h+hhIjEFxOFIM5EmRBCXWFdKYuoSuOwPvGD2R6roxUrdvJJwQJeFYZ7/4BC5sJnPrWtKfafd8Cm4uzpTqyyoGFh3H0F0QbhAUjsD4q89HgBxXxZuSU8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=zlYOE3hX; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=2ti3fjzx; arc=none smtp.client-ip=193.142.43.55
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="F+CAstK3"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BECD71F00A3A;
-	Sat, 20 Jun 2026 15:11:07 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1781968268;
-	bh=ukvHGq6sDhVLiCbcFdESl+aKas2jmQWGuLL7J0OAtjQ=;
-	h=In-Reply-To:References:Subject:From:To:Cc:Date;
-	b=F+CAstK3tdpZSW3Q6bkfVIycW48WP7zOAuSrYARXh4FjPaQeRSMSV/4VKrDXjdMRt
-	 b/lIINfF54mkxL/O9HPiTBmYLmQMh6GSLn+RvqajVDwbNhq3sPRvFNaXBeDIVeEojU
-	 QFfpxo8rUHbZg1qccgxn2XHHv5xUHIeMhtHlogTgqORBnbEojgkRX6r598kMZQ1nna
-	 RhUGn7rASzEmg5NJ0e9ui/CXLyN4yX7W0NR0RKkkxZKZrfFrNzSWcbvZqIIuYE6+z+
-	 s/sj0ZV4aSXBDgjJSU4+DF7DlKxsKISgtD+9Xtf6nfKMBF+Wjw0StUzKQKJnRAElKz
-	 4SoUu9WfwVecw==
-Content-Type: multipart/mixed; boundary="===============7268032707533913629=="
+	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="zlYOE3hX";
+	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="2ti3fjzx"
+From: John Ogness <john.ogness@linutronix.de>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+	s=2020; t=1781973558;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type;
+	bh=YkteGjANYaDNAmsvxKj6wfMvNJw00T3AeDpa3YWOz2I=;
+	b=zlYOE3hX/Gehd2Oo7U1EfnXqZ2uj5eTwinzrNmEsDUv5Ukx1TOjy7oVsCQsyoj48zoCiXk
+	v0G/0DusCuxYbAFEMrLRm9TavUOi5kIWxoAc1k/vJ2SPF6A3HAw9XtK2+c887pyqrrgwA8
+	rD0nhvmGcz4FUDpGHOGL9GY7BGax0UjzRI6FZ6zeuKpIZpE2oG5whxDegC6EXZG8gHs8Mn
+	Jtmwl5B5PUCaVzLm4sheBUKCT7K75LFAyfN3hEUvn1PtO+oW8+pyj8y+Aa2371ZEg7gq5F
+	gwTM7FJS3POsMLIr4xbBTXZ37qdu8NPdkcyxF0kWDNu1ccTE6NXveDfcjxsmvQ==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+	s=2020e; t=1781973558;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type;
+	bh=YkteGjANYaDNAmsvxKj6wfMvNJw00T3AeDpa3YWOz2I=;
+	b=2ti3fjzxOpBYYL8fAp5xfCRn71SmXZqQ9EH05LtueaQvzbdypltEzOlvl0UWbLX70ZugFM
+	CtnzeMSHZUPKMjDQ==
+To: Benjamin Tissoires <bentiss@kernel.org>
+Cc: linux-input@vger.kernel.org
+Subject: psmouse: missing pnpID?
+Date: Sat, 20 Jun 2026 18:45:18 +0206
+Message-ID: <878q896ua1.fsf@jogness.linutronix.de>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Message-Id: <b3b148b42eb198ac7194c1c0547e47275b9f5d31133eececaf1389f17caed5af@mail.kernel.org>
-In-Reply-To: <b9c4b268b403e2b41362dd678dca8feb35d34a9c.1781964949.git.chenyy23@mails.tsinghua.edu.cn>
-References: <b9c4b268b403e2b41362dd678dca8feb35d34a9c.1781964949.git.chenyy23@mails.tsinghua.edu.cn>
-Subject: Re: [PATCH bpf-next v2 2/2] selftests/hid: Cover hid_bpf_get_data() size overflow
-From: bot+bpf-ci@kernel.org
-To: chenyy23@mails.tsinghua.edu.cn,jikos@kernel.org,bentiss@kernel.org,bpf@vger.kernel.org,linux-input@vger.kernel.org
-Cc: chenyy23@mails.tsinghua.edu.cn,shuah@kernel.org,ast@kernel.org,daniel@iogearbox.net,andrii@kernel.org,martin.lau@linux.dev,eddyz87@gmail.com,memxor@gmail.com,song@kernel.org,yonghong.song@linux.dev,jolsa@kernel.org,linux-kselftest@vger.kernel.org,linux-kernel@vger.kernel.org,ast@kernel.org,andrii@kernel.org,daniel@iogearbox.net,martin.lau@kernel.org,eddyz87@gmail.com,yonghong.song@linux.dev,clm@meta.com,ihor.solodrai@linux.dev
-Date: Sat, 20 Jun 2026 15:11:07 +0000 (UTC)
+Content-Type: text/plain
 
---===============7268032707533913629==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
+Hi,
 
-> selftests/hid: Cover hid_bpf_get_data() size overflow
->
->     Add a HID-BPF regression check for hid_bpf_get_data() requests whose
->     size would overflow when added to the offset.
->
->     The new rdesc fixup callback asks for offset 2 and size ~0ULL, then
->     records whether the helper returns NULL. A vulnerable kernel returns a
->     non-NULL pointer because the runtime check wraps the addition. A fixed
->     kernel rejects the request. The test only checks the helper result and
->     does not dereference the returned pointer.
->
->     Also add KHDR_INCLUDES to the HID selftest build so hid_bpf.c sees the
->     current kernel UAPI HID definitions on systems whose installed headers do
->     not provide enum hid_report_type.
->
->     Signed-off-by: Yiyang Chen <chenyy23@mails.tsinghua.edu.cn>
+I have an HP laptop, running a fresh install of Debian/trixie and I see
+the boot message:
 
-This adds a regression test for the hid_bpf_get_data() size-overflow
-bug, where the range check wrapped on a large size and returned an
-out-of-bounds pointer.
+    psmouse serio1: synaptics: Your touchpad (PNP: SYN3286 PNP0f13) says
+    it can support a different bus. If i2c-hid and hid-rmi are not used,
+    you might want to try setting psmouse.synaptics_intertouch to 1 and
+    report this to linux-input@vger.kernel.org.
 
-That wrapping check was introduced in 658ee5a64fcf, and the fix commit
-carries a Fixes: tag for it. Should this test commit carry the same tag?
+Indeed, touchpad and keyboard do not work unless I add
+psmouse.synaptics_intertouch=1 as a boot argument. I am happy using this
+boot argument, but it sounds like you are trying to collect some data on
+this. Please let me know if I should provide any specific data.
 
-  Fixes: 658ee5a64fcf ("HID: bpf: allocate data memory for device_event BPF programs")
-
-> diff --git a/tools/testing/selftests/hid/progs/hid.c b/tools/testing/selftests/hid/progs/hid.c
-> index 5ecc845ef792..b21fbb13c926 100644
-> --- a/tools/testing/selftests/hid/progs/hid.c
-> +++ b/tools/testing/selftests/hid/progs/hid.c
-> @@ -240,6 +241,20 @@ struct hid_bpf_ops rdesc_fixup = {
->  	.hid_rdesc_fixup = (void *)hid_rdesc_fixup,
->  };
->
-> +SEC("?struct_ops.s/hid_rdesc_fixup")
-> +int BPF_PROG(hid_rdesc_fixup_get_data_overflow, struct hid_bpf_ctx *hid_ctx)
-> +{
-> +	if (!hid_bpf_get_data(hid_ctx, 2 /* offset */, ~0ULL /* size */))
-> +		get_data_overflow_check = 1;
-> +
-> +	return 0;
-> +}
-
-This was raised on an earlier posting and does not look addressed:
-the callback stores the result in the get_data_overflow_check global
-and always returns 0, while the userspace test asserts on that global
-rather than on the callback return value.
-
-Could the callback just return the helper result so the test can check
-the return value directly, instead of routing it through a separate
-global?
-
-
----
-AI reviewed your patch. Please fix the bug or email reply why it's not a bug.
-See: https://github.com/kernel-patches/vmtest/blob/master/ci/claude/README.md
-
-CI run summary: https://github.com/kernel-patches/bpf/actions/runs/27874238868
---===============7268032707533913629==--
+John Ogness

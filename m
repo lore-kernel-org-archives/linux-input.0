@@ -1,43 +1,43 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AE0E1233722;
-	Sat, 20 Jun 2026 20:15:21 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8BD1B358360;
+	Sat, 20 Jun 2026 20:16:47 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781986522; cv=none; b=mtXk0Z5SZi6tYVgUBvAsHfIcZDmdxAdcb1YGewZZdENoBHvsV60OGIUC2DbemajZfIj7ceRP9BGnnC9fo3CKbXMcksahNp7mYVsxf8nYN8M/+/xCW2MpAhsCDTwVWX4ZitzE0gXB8PQBEJAM33mwQ7xaiVo/PMCs4YB7I6czRV4=
+	t=1781986608; cv=none; b=G1rGI+o+Fe8EtbsElu+awUv0TEXJK72KwFEWQ3IOFvUCHXD8hYY3fC87MNz2FKCIf5aJgHanYuZY1QIMtqS0S+cYEDaWz34nNemFxqlRtgSYn66pPphDgn/zRZii4fyJx8quPPLjnIxPlCnhX+s5JFHc9n46wcumgKZUyf0SrW4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781986522; c=relaxed/simple;
-	bh=/pil+m7j4sVay4PdNm2ozLO0rl3WL20yGxLmIoF3+hA=;
+	s=arc-20240116; t=1781986608; c=relaxed/simple;
+	bh=vj3ImRMWodpY9FllxyNiZV6Cym2RgZm91uhXi3J+NuQ=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=BoxuwsCtXJfpRpomtKQMHY7dcbWtqA6imG7057qzn29/5BQVrw2o7Elzn8BHWZQB1W5uiBmQicJNPrk9TbuoAr+NqDcCMQbP8ZkREQOrQUAfEuSmlu7JUMQGAHMy6Bf9lXXG1S0XWoAjoOaIF1SZaw1LX+jtvA7g/TrYzAmJ8IE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=F3fuwx4S; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=kzmiwAGE6kORohtxj9ZZSKJ//frFCHFUUR0iSk1nr+qYnpw+zufnHDpLWXuNMCY5rBcnZKgrS7ZL1DfgKaVPod6H/J0PY+/q0wLVTlCqsRZ/xvbaj1Nlc7f/c3mLlU67MIJnptKQoF//jhW4yfSYFFMZgLjuxpRfPYj0dXNtIe0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=QTE2Ku2Y; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="F3fuwx4S"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01B531F000E9;
-	Sat, 20 Jun 2026 20:15:20 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="QTE2Ku2Y"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB5751F000E9;
+	Sat, 20 Jun 2026 20:16:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1781986521;
-	bh=1SypZ2M3P53VWCWSd9RYA3KcLGNIXBQUShma5dU9VZQ=;
+	s=k20260515; t=1781986607;
+	bh=8QUyYWD/qhFEMT7av/3V09I/iqH+Z806MnS05K8thAk=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=F3fuwx4Sqh7AoJGgqFJK98SLeFPccnCDtNsdaA6TFHd0VxmFo9lA4DhBJew1dAdhs
-	 SDRQ7giCwSd/U7hE2G5K7cvYc+A6Jss1rTCl5WfDqTnyD56Xqou8SpJJjYK2MrF9Nb
-	 8g94U/6vp+Z4mF8Ti0mXwnT646fTP7VmcPmLcU1vWb1+H8EnJ8nzsTe0lUqDWt72sX
-	 XU+oDnlmpZB57YNIStmLtZpFLZ7ZQSduNgXUQ8ChzJAYqXH1zZOIdfrrTLUpWjyWqX
-	 SLVPLpQn40fort8QIoj9ooun6WE/z+NGPA8xf2bXo5ADWuA++VS7ACybUuylp/KinU
-	 ZK8iO0XIn9VIg==
+	b=QTE2Ku2YsVJ7JYCqmbsZeASVr33eUtslf0VB4HxPOgDXf0IWsuQj2FyWdHnLIP3U3
+	 j8qBUCLs8mCxv8AcSxlagOpxBN944AgBYBehp7b7KnLggEjmYE4k7b6nLeDgOdNRva
+	 oa11mm+7JwTTsvi+MQEPOKQcKQbWhV+qOtMDqkncqd81Nqmn08JIAGF2eZnG+ILykC
+	 lzigSurfsKfS5d3hPQEu7HrRMpsFobmNbZkXQdsnGMtFOIOXXtJFtR9TfKaUJSLs2P
+	 XDm3x/UoVtdL1uvKLn4IX6/cVVMnj5WF5xGWWQfYBwjixweydf+NMmmsR7j8q8j/dh
+	 9CN1rQmOcaXzA==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v8 3/9] regulator: dt-bindings: Add MediaTek MT6392 PMIC
+Subject: Re: [PATCH v8 7/9] pinctrl: mediatek: mt6397: Add MediaTek MT6392
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Luca Leonardo Scorcia" <l.scorcia@gmail.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, robh@kernel.org, conor+dt@kernel.org, devicetree@vger.kernel.org
-In-Reply-To: <20260620200032.334192-4-l.scorcia@gmail.com>
+Cc: devicetree@vger.kernel.org, robh@kernel.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, conor+dt@kernel.org
+In-Reply-To: <20260620200032.334192-8-l.scorcia@gmail.com>
 References: <20260620200032.334192-1-l.scorcia@gmail.com>
- <20260620200032.334192-4-l.scorcia@gmail.com>
+ <20260620200032.334192-8-l.scorcia@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Sat, 20 Jun 2026 20:15:20 +0000
-Message-Id: <20260620201521.01B531F000E9@smtp.kernel.org>
+Date: Sat, 20 Jun 2026 20:16:46 +0000
+Message-Id: <20260620201646.EB5751F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -46,157 +46,102 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
 Thank you for your contribution! Sashiko AI review found 3 potential issue(=
 s) to consider:
-- [Medium] Invalid use of array validation keywords (`items`, `maxItems`) o=
-n the scalar `regulator-initial-mode` property, allowing any integer value =
-to bypass the intended enum constraints.
-- [Low] The dt-binding YAML file is completely missing an `examples:` secti=
-on.
-- [Low] Exposing an internal, hardwired connection (`avddldo-supply`) as an=
- external device tree property.
+
+Pre-existing issues:
+- [High] NULL pointer dereference triggered on `gpio_to_irq()` for MT6397 p=
+ins.
+- [High] Use-After-Free in gpiolib due to missing devres registration and `=
+.remove` callback.
+- [High] Use-After-Free in IRQ handler from non-devres chained handler regi=
+stration.
 --
 
-commit 17d808769b24018a674d4068d9bab99043b30c55
+commit b7ca497bf50208e7b29acdf520d006f2e9f79e4b
 Author: Luca Leonardo Scorcia <l.scorcia@gmail.com>
 
-regulator: dt-bindings: Add MediaTek MT6392 PMIC
-
-Add bindings for the regulators found in the MediaTek MT6392 PMIC,
-usually found in board designs using the MediaTek MT8516/MT8167 SoCs.
-
-> diff --git a/Documentation/devicetree/bindings/regulator/mediatek,mt6392-=
-regulator.yaml b/Documentation/devicetree/bindings/regulator/mediatek,mt639=
-2-regulator.yaml
-> new file mode 100644
-> index 0000000000000..f3d5a3498d184
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/regulator/mediatek,mt6392-regulat=
-or.yaml
-> @@ -0,0 +1,118 @@
+pinctrl: mediatek: mt6397: Add MediaTek MT6392
+   =20
+Add support for the MT6392 pinctrl device, which is very similar to
+MT6397 with a handful of different property values and its own pins
+definition.
+   =20
+> diff --git a/drivers/pinctrl/mediatek/pinctrl-mt6397.c b/drivers/pinctrl/=
+mediatek/pinctrl-mt6397.c
+> index 03d0f65d7bcc1..8ba02e70595ce 100644
+> --- a/drivers/pinctrl/mediatek/pinctrl-mt6397.c
+> +++ b/drivers/pinctrl/mediatek/pinctrl-mt6397.c
 
 [ ... ]
 
-> +  vproc-supply:
-> +    description: Supply for buck regulator vproc
-> +  vcore-supply:
-> +    description: Supply for buck regulator vcore
-> +  vsys-supply:
-> +    description: Supply for buck regulator vsys
-> +  avddldo-supply:
-> +    description:
-> +      Supply for AVDD LDOs (vm, vio18, vcn18, vcamd, vcamio). According =
-to the data sheet
-> +      this is an internal supply derived from vsys.
-
-[Severity: Low]
-Should this internal supply be exposed as an external device tree property?
-
-Since the description notes this is an internal supply derived from vsys,
-exposing it here requires board device trees to describe internal IC routing
-instead of external hardware wiring.
-
-[ ... ]
-
-> +patternProperties:
-> +  "^v(core|proc|sys)$":
-> +    description: Buck regulators
-> +    type: object
-> +    $ref: regulator.yaml#
-> +    unevaluatedProperties: false
-> +    properties:
-> +      regulator-allowed-modes:
-> +        description:
-> +          BUCK regulators can set regulator-allowed-modes to values spec=
-ified in
-> +          dt-bindings/regulator/mediatek,mt6392-regulator.h
-> +        items:
-> +          enum: [0, 1]
-> +        minItems: 1
-> +        maxItems: 2
-> +      regulator-initial-mode:
-> +        description:
-> +          BUCK regulators can set regulator-initial-mode to values speci=
-fied in
-> +          dt-bindings/regulator/mediatek,mt6392-regulator.h
-> +        items:
-> +          enum: [0, 1]
-> +        maxItems: 1
-
-[Severity: Medium]
-Is it correct to use array validation keywords like items and maxItems for
-regulator-initial-mode?
-
-Since regulator-initial-mode is defined as a scalar uint32 in regulator.yam=
-l,
-applying array constraints to it causes the schema validation to ignore the=
-m.
-This allows any arbitrary integer value to bypass the enum constraints.
-
-[ ... ]
-
-> +  "^v(adc18|camio|cn18|io18|xo22|m25|aud28|io28|rtc|usb)$":
-> +    description: LDOs with fixed output and mode setting
-> +    type: object
-> +    $ref: regulator.yaml#
-> +    unevaluatedProperties: false
-> +    properties:
-> +      regulator-allowed-modes:
-
-[ ... ]
-
-> +      regulator-initial-mode:
-> +        description:
-> +          LDO regulators can set regulator-initial-mode to values specif=
-ied in
-> +          dt-bindings/regulator/mediatek,mt6392-regulator.h
-> +        items:
-> +          enum: [0, 2]
-> +        maxItems: 1
-
-[Severity: Medium]
-Does this have the same issue with array validation keywords being applied =
-to
-a scalar property?
-
-[ ... ]
-
-> +  "^v(aud22|camaf|camd|cn35|efuse|emc3v3|gp1|gp2|m|mc|mch)$":
-> +    description: LDOs with adjustable output and mode setting
-> +    type: object
-> +    $ref: regulator.yaml#
-> +    unevaluatedProperties: false
-> +    properties:
-> +      regulator-allowed-modes:
-
-[ ... ]
-
-> +      regulator-initial-mode:
-> +        description:
-> +          LDO regulators can set regulator-initial-mode to values specif=
-ied in
-> +          dt-bindings/regulator/mediatek,mt6392-regulator.h
-> +        items:
-> +          enum: [0, 2]
-> +        maxItems: 1
-
-[Severity: Medium]
-This regulator-initial-mode property also appears to be using array validat=
-ion
-keywords for a scalar value.
-
+> @@ -40,13 +62,24 @@ static const struct mtk_pinctrl_devdata mt6397_pinctr=
+l_data =3D {
+>  static int mt6397_pinctrl_probe(struct platform_device *pdev)
+>  {
+>  	struct mt6397_chip *mt6397;
+> +	const struct mtk_pinctrl_devdata *data;
 > +
-> +required:
-> +  - compatible
-> +
-> +additionalProperties: false
+> +	data =3D device_get_match_data(&pdev->dev);
+> +	if (!data)
+> +		return -ENOENT;
+> =20
+>  	mt6397 =3D dev_get_drvdata(pdev->dev.parent);
+> -	return mtk_pctrl_init(pdev, &mt6397_pinctrl_data, mt6397->regmap);
+> +	return mtk_pctrl_init(pdev, data, mt6397->regmap);
 
-[Severity: Low]
-Is there an examples section missing from this file?
+[Severity: High]
+This is a pre-existing issue, but does mtk_pctrl_init() leave pctl->eint
+uninitialized for these devices, leading to a NULL pointer dereference?
 
-Device tree binding guidelines require every standalone schema file to incl=
-ude
-an examples section to provide a validated example of the device node and to
-pass dt_binding_check validation.
+Because neither mt6392_pinctrl_data nor mt6397_pinctrl_data initialize
+the eint_hw field, mtk_pctrl_init() skips mtk_eint_init().
+
+If gpio_to_irq() is later invoked on these pins, it calls down through:
+
+mtk_gpio_to_irq()
+   mtk_eint_find_irq(pctl->eint, eint_n)
+      irq_find_mapping(eint->domain, eint_n)
+
+Will this dereference the NULL pctl->eint pointer directly?
+
+[Severity: High]
+This isn't a bug introduced by this patch, but does the driver lack proper
+devres cleanup for the gpiochip?
+
+In mtk_pctrl_init(), pctl->chip is allocated using devm_kzalloc() and
+then registered globally:
+
+mtk_pctrl_init()
+   pctl->chip =3D devm_kzalloc(...)
+   gpiochip_add_data(pctl->chip, pctl)
+
+Since gpiochip_add_data() does not use devres tracking, and the driver
+lacks a .remove callback or suppress_bind_attrs, unbinding the driver
+via sysfs will immediately free pctl->chip. Can this leave a dangling
+pointer in gpiolib, leading to a use-after-free?
+
+[Severity: High]
+This is also a pre-existing issue, but does the IRQ handler registration
+capture a devm-allocated pointer without devres tracked cleanup?
+
+For MediaTek pinctrl devices that do initialize EINT, mtk_eint_do_init()
+registers the chained handler:
+
+mtk_eint_do_init()
+   irq_set_chained_handler_and_data(eint->irq, mtk_eint_irq_handler, eint)
+
+If the driver is unbound, the devm allocated eint structure will be freed.
+Does the lack of a cleanup function mean the subsystem could later trigger
+mtk_eint_irq_handler() with the freed eint pointer?
+
+>  }
+> =20
+>  static const struct of_device_id mt6397_pctrl_match[] =3D {
+> -	{ .compatible =3D "mediatek,mt6397-pinctrl", },
+> +	{
+> +		.compatible =3D "mediatek,mt6392-pinctrl",
+> +		.data =3D &mt6392_pinctrl_data
+> +	}, {
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260620200032.3341=
-92-1-l.scorcia@gmail.com?part=3D3
+92-1-l.scorcia@gmail.com?part=3D7

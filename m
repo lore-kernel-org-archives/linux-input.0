@@ -1,44 +1,44 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DEB5D1A6836;
-	Sun, 21 Jun 2026 08:28:18 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 760D01A6836;
+	Sun, 21 Jun 2026 08:29:05 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782030499; cv=none; b=WXiisCU2IFpEkcCZSRIyh2UW2tOInthbqWtmgDMHoyw+AcwWDA0B5XjAI3iLWmlDDUceFIGYVlVucYt9yS05SVCll9KxiZ6NBEEJOCRedXPjDNH7qbxPtyfA/MWJKeKpDTiFs2nXP6OFPU9hVe5rwnmudRrdF2Z7C5DEeKAOj6U=
+	t=1782030546; cv=none; b=fCuDyGK9+pgb4THi89ib8wOB+EfihUX0hWKheDDL6LShmY62M2+kZPVaa1Pd/flXDuPvSdu2T0UK91vIhkYSgoQmfQ7ktG/OS5yOVgUe0NksFN62seVHg3kB4FhLqqYQubkLIYDBhLHz9a8dssvMmuLXkTXT9pztu294d0o4eKM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782030499; c=relaxed/simple;
-	bh=HxWvA8thnN/i6lhpt9d1jR1BQibREwSMNWrvvn+8jBY=;
+	s=arc-20240116; t=1782030546; c=relaxed/simple;
+	bh=v8kxL6hcRbJW9BDaY/kEhi7Vq7ZGw8MEE35CkWnWjm4=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=nnyYSqDLb97UpiLXRK05G49tIZ9ORDMJPPF0asMoikykwri2hLhaalpyBh7hSwkJge0YMDjjXguWhCdUtzUBn8isYw4UwTsQlDdxHnnpsfeVo/mCsUWVCKyH7LupxJZlOHM4N42Q/S5zkahBT1xuO7NpmudlTHja5K3LXuXU9qI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=jlOXErVS; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=fgwqse/b2N3FUodmtUnIf+P3j1U65zBEIzvpIEuHYHGWTW0UZyUgDMA55wnPy7sUSYSnEaVfqSKiTfRShPuzx98jPDNbGmnAvY93nI023qJeW5UKmibZfqaxdmCAVrL1ivIe15A/TICiWx+uAUJSC26NNSNyFreenGnYIlcmDEY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=cLLQoiGC; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="jlOXErVS"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 428DB1F000E9;
-	Sun, 21 Jun 2026 08:28:18 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="cLLQoiGC"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0302B1F000E9;
+	Sun, 21 Jun 2026 08:29:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1782030498;
-	bh=2L6kKHlsjLdT0kU0g0n3uuer0y758z+IMlNK9GBYCQU=;
+	s=k20260515; t=1782030545;
+	bh=rKY1RtU6HFUM0R7fObA2dERuWT/tfwuyau9ZdOZULD0=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=jlOXErVSNNEW9V6NTrb27h1CLRRcm3CMT0HqyR/QdoPyd0MYmo17iIbxtFCxqROLh
-	 373c/leFjhiYOGHO6i3QGjHtjcOdRulFO/vrzxCZ1zEu1GMxIf0zbyMhir9lL2dYwA
-	 ESRcj2YvBByhkrr+sGhLd/H1k8CpBBwcwxWTMaF/V3dd7MSGf46BsETjZxqJOJew4+
-	 iAZXkngQNbOc1byHlD67R5N0Wky8kweSi28vjCo6R/IsoDff42oj3JsJwpH4Du8X1j
-	 6xfuBjaesV+SbIiOfMCYryJQ6ZadSKh+8pjsvZt6/Yg2WqZcvIYtIHKxstPabQveLN
-	 Sl2QMGBVud3mQ==
+	b=cLLQoiGCDLiVxYv/Sver+iA7+pzMEYjWp9EfOtdukOuSv5DM6HFybrpWpQO5osK/i
+	 D18UF3xgAh3ciWVls5NDH2eSzN3suH5p8kAQEi36l5TmKaAfO29zmcss+podi8KNAC
+	 wByBjeUYLewKA9IIYBrlDH6WEhZd1hDCxKbz0PQsftP89UYQvF4YN+PEIeu0ktzPJV
+	 X0xtDhJhjiHfl+F06D9cgIArkSnOXfenWzmSZ00CK7XX1uF+IjDTra/LCOwBGYcWMm
+	 EBscl0adMw+zQ5GhPAwkXkNjkr0Z7Ja/B7l/X29FxGFH6lgrj8XxTtho9EX6MPYcBY
+	 +5AFg0BKARf5w==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v9 6/9] input: keyboard: mtk-pmic-keys: Add MT6392
- support
+Subject: Re: [PATCH v9 4/9] mfd: mt6397: Use MFD_CELL_* to describe
+ sub-devices
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Luca Leonardo Scorcia" <l.scorcia@gmail.com>
-Cc: robh@kernel.org, dmitry.torokhov@gmail.com, devicetree@vger.kernel.org, conor+dt@kernel.org, linux-input@vger.kernel.org
-In-Reply-To: <20260621081634.467858-7-l.scorcia@gmail.com>
+Cc: devicetree@vger.kernel.org, linux-input@vger.kernel.org, robh@kernel.org, conor+dt@kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20260621081634.467858-5-l.scorcia@gmail.com>
 References: <20260621081634.467858-1-l.scorcia@gmail.com>
- <20260621081634.467858-7-l.scorcia@gmail.com>
+ <20260621081634.467858-5-l.scorcia@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Sun, 21 Jun 2026 08:28:17 +0000
-Message-Id: <20260621082818.428DB1F000E9@smtp.kernel.org>
+Date: Sun, 21 Jun 2026 08:29:04 +0000
+Message-Id: <20260621082905.0302B1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -49,62 +49,61 @@ Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
 
 Pre-existing issues:
-- [High] Potential array overflow when iterating over device tree child nod=
-es if disabled nodes are present.
+- [High] Missing unregister_pm_notifier() on probe error path and driver un=
+bind.
 --
 
-commit 59fc7db0ad7a68e49a6e83f5d6e6861165fb6460
-Author: Val Packett <val@packett.cool>
-Subject: input: keyboard: mtk-pmic-keys: Add MT6392 support
+commit ad0ff6ef61b51852f825a12aebf3d2e548ceb3dd
+Author: Luca Leonardo Scorcia <l.scorcia@gmail.com>
 
-This commit adds support for the MT6392 PMIC to the MediaTek PMIC keys driv=
-er
-by introducing its specific register definitions.
+mfd: mt6397: Use MFD_CELL_* to describe sub-devices
 
-> diff --git a/drivers/input/keyboard/mtk-pmic-keys.c b/drivers/input/keybo=
-ard/mtk-pmic-keys.c
-> index c78d9f6d97c4f..8b4a89fce4fb1 100644
-> --- a/drivers/input/keyboard/mtk-pmic-keys.c
-> +++ b/drivers/input/keyboard/mtk-pmic-keys.c
+This commit updates the sub-device descriptions in mt6397-core.c to use the
+MFD_CELL_* macros. There are no functional changes intended.
+
+> diff --git a/drivers/mfd/mt6397-core.c b/drivers/mfd/mt6397-core.c
+> index 1bdacda9a933f..ccd97d66d7f1c 100644
+> --- a/drivers/mfd/mt6397-core.c
+> +++ b/drivers/mfd/mt6397-core.c
 
 [ ... ]
 
 [Severity: High]
-This isn't a bug introduced by this patch, but there is a pre-existing issue
-in mtk_pmic_keys_probe().
+This is a pre-existing issue, but while reviewing this driver I noticed
+a potential problem in the probe error path and teardown lifecycle.
 
-Is it possible for the loop iteration to cause an out-of-bounds array acces=
-s?
+In mt6397_irq_init() (drivers/mfd/mt6397-irq.c), a PM notifier is
+registered:
 
-The code starts by validating the available child node count against the
-maximum allowed keys:
+mt6397_irq_init() {
+    ...
+	register_pm_notifier(&chip->pm_nb);
+	return 0;
+}
 
-	keycount =3D of_get_available_child_count(node);
-	if (keycount > MTK_PMIC_MAX_KEY_COUNT ||
-	    keycount > ARRAY_SIZE(irqnames)) {
-		dev_err(keys->dev, "too many keys defined (%d)\n", keycount);
-		return -EINVAL;
+However, if devm_mfd_add_devices() fails later in mt6397_probe(), the
+function returns an error without unregistering this notifier:
+
+drivers/mfd/mt6397-core.c:mt6397_probe() {
+    ...
+	ret =3D devm_mfd_add_devices(&pdev->dev, PLATFORM_DEVID_NONE,
+				   pmic_core->cells, pmic_core->cell_size,
+				   NULL, 0, pmic->irq_domain);
+	if (ret) {
+		irq_domain_remove(pmic->irq_domain);
+		dev_err(&pdev->dev, "failed to add child devices: %d\n", ret);
 	}
 
-However, the loop below it iterates over all child nodes, including those
-with status=3D"disabled":
+	return ret;
+}
 
-	for_each_child_of_node_scoped(node, child) {
-		keys->keys[index].regs =3D &mtk_pmic_regs->keys_regs[index];
+Since the pmic structure is managed by devres and will be freed on probe
+failure, does this leave a dangling pointer in the global PM notifier list
+that could cause a use-after-free on the next suspend/resume transition?
 
-		keys->keys[index].irq =3D
-			platform_get_irq_byname(pdev, irqnames[index]);
-
-If a device tree happens to contain more than two child nodes in total but
-only two or fewer are marked as available, the initial keycount check passe=
-s.
-
-The loop will then execute more than twice, and when the index reaches 2,
-it overflows the keys->keys array and the irqnames array.
-
-Would it be better to use for_each_available_child_of_node_scoped() here
-instead to safely skip the disabled nodes?
+Additionally, would this same situation occur on driver unbind via sysfs,
+since there appears to be no .remove callback to unregister the notifier?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260621081634.4678=
-58-1-l.scorcia@gmail.com?part=3D6
+58-1-l.scorcia@gmail.com?part=3D4

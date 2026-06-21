@@ -1,188 +1,110 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ej1-f48.google.com (mail-ej1-f48.google.com [209.85.218.48])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CB7AA1BBBFC;
-	Sat, 20 Jun 2026 20:20:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781986828; cv=none; b=R3m9m1l/gETILHVuVKr72TBcO7oZoiwmENpQEKSghcwyhZbdoyKto1DbVGa9/rGyB9ARyV5+XhTvZmJibJLJMcct+Z2r1iKq0CPcRPXaJqlX4tlCqNmx7CpgX+gkjlf5JeTv6afm8xzz9kEZgwZAfEyxixQbfil9E2pLibvx2Pc=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781986828; c=relaxed/simple;
-	bh=nqYqjOk4j+oE7aCDJPEoB/JCtbtNCbBIPOo07TX9kRA=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=mpEQSnd2VGSn7mcgRDMtYbSZKb6Q5xvsmFwdcrP9sH1L05jwWIA3AEb4VnfhZP1xK057e7fSidkA9qL+4urzrWWIgbvFmBvrLcnfpmQJYeF9nL0sw9vbX/lq0Qpfl/eYyd0O40L3UBQl/ggY0IaQ6fGssix01jSAyRqxDXSAaKQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=CdvK8dLA; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AAE6C26CE39
+	for <linux-input@vger.kernel.org>; Sun, 21 Jun 2026 07:55:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.218.48
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1782028537; cv=pass; b=LG0SOEnNwICo4xtvjCcoZK6dCwS4N0DbdMdN7AdKg2bk1gpZIqIkVDJHRLH5O7GIFsdTMoDUabbtYsXoJXl28NvHsXHPB6EBcvksYKpqPvMGgGLewrL4xaK4cDC0hartdMbG4oySbEDHQnyuE3M5Jg/SXaMkwEq3DR29mZqdWo4=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1782028537; c=relaxed/simple;
+	bh=bT+kSAr+cktWWhCVIYao26NUUMqDDZx8mDGFg9kSW1U=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=IcUsJqKno3h3E1dbAqCulr4+j3Zf2l7GHKAUZAlKneyDe9xm3QTHq/fluo2yosP4UlCX83S6FyaZOFc9nR7vJgbaUpnuIL934f+rf6J8izH5gUHnZ8jrtNUjI2XsVD2WJV+6MxkCCKb9CC56QR46eg3m/aPVqMvQSypwU5uxm84=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=GWEeaYI4; arc=pass smtp.client-ip=209.85.218.48
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="CdvK8dLA"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60DA61F000E9;
-	Sat, 20 Jun 2026 20:20:27 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1781986827;
-	bh=ewSJ83lhVOKCYpslreUMagMR8vYWz99qTIX7kbQlz1g=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=CdvK8dLAHTloAw3rZ+jslaBlJaUjHI46eWn/3UCnldjhqCuirv5fpcaKPcPa8oLqS
-	 wdzA2s3kkSuMQI3jpuAjSTAfku9AhIfaJUdAlMO01h2FN7w10270X3wlFQYwVI1ovn
-	 jF+XIR/ARLjE9nhzp88byLhQ0vwQ/EqxhfjcGRJBzQtCHdC970bGqZxkWa0G8ZOTtt
-	 x0nwi8sOAOY4VLCgBv+sB2IqqBOg5BDTB+0vzU8INRvVgbiJ8aoUjP3sRvLYZAf0af
-	 faA2P6/Gje9mh0VnQmn0PkmFAHc6lWkgUcRBs7VQjQQnp5QYIhlQjbl0JU9wZaVM20
-	 dN3HZWaSJmtQw==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v8 5/9] mfd: mt6397: Add support for MT6392 PMIC
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Luca Leonardo Scorcia" <l.scorcia@gmail.com>
-Cc: conor+dt@kernel.org, devicetree@vger.kernel.org, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, robh@kernel.org
-In-Reply-To: <20260620200032.334192-6-l.scorcia@gmail.com>
-References: <20260620200032.334192-1-l.scorcia@gmail.com>
- <20260620200032.334192-6-l.scorcia@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Sat, 20 Jun 2026 20:20:27 +0000
-Message-Id: <20260620202027.60DA61F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="GWEeaYI4"
+Received: by mail-ej1-f48.google.com with SMTP id a640c23a62f3a-c0c15bd6b8fso154485066b.0
+        for <linux-input@vger.kernel.org>; Sun, 21 Jun 2026 00:55:36 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1782028535; cv=none;
+        d=google.com; s=arc-20240605;
+        b=PUefksELrjenSD1IKtsYHyb67fz62i+Vkpe/OwO+GZ3lN+coF3QY8jo3ePtJjoOtCr
+         GRu2XwMRaoqfoIqbY/dNrWbSn5+iWr8I4F2h27a421OOIMM+xS7RL8t7v8VvFX6L1ewk
+         uLxPwJS5FOhkfHlCiS2Qb4SpGbJT8iJaY4kqIYItzdT+xNf4T1vq7a9Yv4lrml3Rm17I
+         3RceffZfxSufCBQjC81fcrFQFlc9J0C+4aZXovOWEu+pZa8z3wNd7vw8e+c3iNwkPUvB
+         Ad843sC2m3odoBlp0ImdEzJ1Szhu8+M2Zdw0J9dqAEsk3Y4t/vRSK0fno7D3Zg1BqP68
+         //Gg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:dkim-signature;
+        bh=hMvYItPyzRe1gzBuo0wIhzY+wWucW3fQKtqTXdUcD40=;
+        fh=+jtkrdqRfwcWJdcDFez52lnabtYrU07utyDcg0dEAOQ=;
+        b=JsydeZWkYDUt2YROTJEKrsiqAYXJC+sc3LLILsDmrNqTAjb21Dnh6ChZbLfyI+B1MM
+         X/caAugcy3gYyFghmhBwLmlh1DSBWar0IAyShZiuCvt+tVRHLYOiLz3dunVdskUUzVQi
+         nqjIcGoCtknjiqmWfVP6f24SxsfItfSHykJ/daxMUSqsNY3RxJ+XuyGeUhpFHU6F3DqL
+         sAOBd5SLMs++R/XS2dySgcxAvfeBhsOkx+9P4+x+wn/HPyjODE8vgzp2EkoZd/mo6zeP
+         THGBH49wzIj0EYcuXaBFzYgriLzS7OjZez18fok/O4Coql69Q6i+uRFPYau4zARTytyQ
+         KpHA==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1782028535; x=1782633335; darn=vger.kernel.org;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=hMvYItPyzRe1gzBuo0wIhzY+wWucW3fQKtqTXdUcD40=;
+        b=GWEeaYI4Aj8KgcCRXTTzwq52W1u6Pqo7eXhek1TWd9OFtwcLeoVDQayNGJqN1PTZ5o
+         LmbGGOnxQFPOyKSL0A2kQWfrYRbx65JLmx0GZVLkPR3NLR9t4XmNcLXA2OeiU987zTlq
+         L6Uwgxp/Q6g+Ob/bTBC6w+efIZok3c8gFKvzCFCbHeRX66C9Sz0CVDuDSi8lHDyHf1rt
+         xS9z08vI8/ga+FEruWmiR0byDj3mrKFyTJU+SeHGI8/snB3x+Exsvcbh1HIsraw+a+5W
+         OhGpQoCTIwCq/Jcfx0vVQwRerIdMdapgWPId1O2cmI6ffshz/etILyYmZcbUGobNkvfW
+         6ZjA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1782028535; x=1782633335;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=hMvYItPyzRe1gzBuo0wIhzY+wWucW3fQKtqTXdUcD40=;
+        b=PILQCYbraG4t9n3gg+TBNAwfSzR1tMX3sH2DBFrjsIBY0BwudJDaP6GV2O+8xfcMBd
+         90HuF1L2IxA0DrsZwJHZfjIUIf18uaEtuLWjdqpjTAmpMIuobTXYXFrOL49OKCkfG+SD
+         CKCA8si+3idCmvV7JQPfC2UHKpkGxgtpYteuww/2hVw/1xt2fNQsK4zg7OMuMJ9KoHCg
+         66Ia80hvoQl2D6eAk26Om4akUPh2bFAXjBT85MNhTaGNxBDPZmaxIbSbos5PDBJbxT7/
+         RUcs/nHMJXpv2wD4bf5UdXBLQxwv1yozSkvYa3ci/aJ607qhuXHDvEpC6aJCp/eBhFx6
+         tJNw==
+X-Forwarded-Encrypted: i=1; AFNElJ9Nw14lIUsRhK0H+vGPzt26YT3k4n7aGPlC0UO/jmMwBdhQsxp8ubrJiPw4OVhOaFGY8h9bgatyppwDFA==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yz6Q+SohmENoFgomfXi0bpOKHr8EHK3OSYl0PbNoeveyPbGSZEN
+	9cQfj/ef9uZNR9SYmZvFD2JOTMadmcpPEdPa1Iv6x9bYg2K3zaj4Osw9Jx0UqajTIaB2QAJZsUW
+	hlUiE1AbFAgGXwKY18nb2vXXClZZlzB4=
+X-Gm-Gg: AfdE7cnuNc7L3xF96dW4nzh3BTkDfBh3zeHfCYgFuavM6Q87jOEAywmb5qCtXoz6nOB
+	F8+3oPE3JEAcm/DBKmYKWpogLNfNKzcjse+rBqQevB6Ekc3pO3ISWLzCJw/EoKLnUqX7L2XnrDS
+	pTBk6ffuwZw0/Jryrwoo+TAQy/kCsN7mIAIvKBEmFh4UPQVU7XapIboaj0e3LUzrc/NM2Iq/emT
+	7+qQEQXw3Az6HWkBQ5YP+xuhO4Zv++NvbOvK4UQo350xec7aXCQ2yjPS+9ofvJ+0jqut2PuRjmb
+	5dXSiRyot4wDGA+Ia8Ytj9VtotRm
+X-Received: by 2002:a17:907:6d27:b0:bdf:8e2a:1092 with SMTP id
+ a640c23a62f3a-c097adb13f9mr573581866b.3.1782028534767; Sun, 21 Jun 2026
+ 00:55:34 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+References: <20260620200032.334192-1-l.scorcia@gmail.com>
+In-Reply-To: <20260620200032.334192-1-l.scorcia@gmail.com>
+From: Luca Leonardo Scorcia <l.scorcia@gmail.com>
+Date: Sun, 21 Jun 2026 09:55:23 +0200
+X-Gm-Features: AVVi8CfSZq6Enj-XJKx5vjhFc4xd-jMn2ZAzgLd4cUoBxN01IhUJaqR7lto47H4
+Message-ID: <CAORyz2KB3jaRc5EFhDSuPox794UUeDgT5kRFe=jFg_rXuR9eSQ@mail.gmail.com>
+Subject: Re: [PATCH v8 0/9] Add support for MT6392 PMIC
+To: linux-mediatek@lists.infradead.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh@kernel.org>, 
+	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, Sen Chu <sen.chu@mediatek.com>, 
+	Sean Wang <sean.wang@mediatek.com>, Macpaul Lin <macpaul.lin@mediatek.com>, 
+	Lee Jones <lee@kernel.org>, Matthias Brugger <matthias.bgg@gmail.com>, 
+	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, 
+	Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, 
+	Linus Walleij <linusw@kernel.org>, Louis-Alexis Eyraud <louisalexis.eyraud@collabora.com>, 
+	Val Packett <val@packett.cool>, Julien Massot <julien.massot@collabora.com>, 
+	Fabien Parent <parent.f@gmail.com>, Akari Tsuyukusa <akkun11.open@gmail.com>, 
+	Chen Zhong <chen.zhong@mediatek.com>, linux-input@vger.kernel.org, 
+	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	linux-pm@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
+	linux-gpio@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
-s) to consider:
-
-Pre-existing issues:
-- [High] Missing unregister_pm_notifier() causes Use-After-Free of PM notif=
-ier block on probe error and driver unbind.
-- [High] The IRQ domain is created with a hardcoded size of MT6397_IRQ_NR (=
-32), which breaks PMICs like MT6328 that use a third interrupt register (hw=
-irqs 32-47).
-- [High] `mt6397_irq_pm_notifier` modifies IRQ mask registers concurrently =
-with running tasks, causing race conditions.
---
-
-commit 15d5fe2891c82970874377c126d0244fd87f5699
-Author: Fabien Parent <parent.f@gmail.com>
-
-mfd: mt6397: Add support for MT6392 PMIC
-
-Align the MT6397 PMIC driver to other MFD drivers by passing only an
-identifier through mt6397_of_match[*].data and add support for the MT6392
-PMIC and its regulator, RTC, keys and pinctrl devices.
-
-> diff --git a/drivers/mfd/mt6397-core.c b/drivers/mfd/mt6397-core.c
-> index ccd97d66d7f1c..f683e878543e1 100644
-> --- a/drivers/mfd/mt6397-core.c
-> +++ b/drivers/mfd/mt6397-core.c
-[ ... ]
-> @@ -278,6 +311,7 @@ static int mt6397_probe(struct platform_device *pdev)
->  	unsigned int id =3D 0;
->  	struct mt6397_chip *pmic;
->  	const struct chip_data *pmic_core;
-> +	int chip_variant;
-> =20
->  	pmic =3D devm_kzalloc(&pdev->dev, sizeof(*pmic), GFP_KERNEL);
->  	if (!pmic)
-> @@ -293,9 +327,36 @@ static int mt6397_probe(struct platform_device *pdev)
->  	if (!pmic->regmap)
->  		return -ENODEV;
-> =20
-> -	pmic_core =3D of_device_get_match_data(&pdev->dev);
-> -	if (!pmic_core)
-> +	chip_variant =3D (unsigned int)(uintptr_t)device_get_match_data(&pdev->=
-dev);
-> +	switch (chip_variant) {
-[ ... ]
-> +	case MT6392_CHIP_ID:
-> +		pmic_core =3D &mt6392_core;
-> +		break;
-[ ... ]
-
-[Severity: High]
-This isn't a bug introduced by this patch, but looking at the error path of
-mt6397_probe() in drivers/mfd/mt6397-core.c:
-
-	ret =3D pmic_core->irq_init(pmic);
-	if (ret)
-		return ret;
-
-	ret =3D devm_mfd_add_devices(&pdev->dev, PLATFORM_DEVID_NONE,
-				   pmic_core->cells, pmic_core->cell_size,
-				   NULL, 0, pmic->irq_domain);
-	if (ret) {
-		irq_domain_remove(pmic->irq_domain);
-		dev_err(&pdev->dev, "failed to add child devices: %d\n", ret);
-	}
-
-	return ret;
-
-Since mt6397_irq_init() registers a PM notifier with register_pm_notifier(),
-if devm_mfd_add_devices() fails (or when the driver is unbound), the devres
-cleanup will automatically free the pmic structure containing the pm_nb
-notifier block.
-
-Because unregister_pm_notifier() is never called in this error path or in a
-remove callback, will this leave a dangling pointer in the PM subsystem that
-causes a Use-After-Free during the next suspend/resume cycle?
-
-
-> diff --git a/drivers/mfd/mt6397-irq.c b/drivers/mfd/mt6397-irq.c
-> index 5d2e5459f7444..80ea5b92d232f 100644
-> --- a/drivers/mfd/mt6397-irq.c
-> +++ b/drivers/mfd/mt6397-irq.c
-[ ... ]
-> @@ -203,6 +205,12 @@ int mt6397_irq_init(struct mt6397_chip *chip)
->  		chip->int_status[0] =3D MT6397_INT_STATUS0;
->  		chip->int_status[1] =3D MT6397_INT_STATUS1;
->  		break;
-> +	case MT6392_CHIP_ID:
-> +		chip->int_con[0] =3D MT6392_INT_CON0;
-> +		chip->int_con[1] =3D MT6392_INT_CON1;
-> +		chip->int_status[0] =3D MT6392_INT_STATUS0;
-> +		chip->int_status[1] =3D MT6392_INT_STATUS1;
-> +		break;
-> =20
->  	default:
->  		dev_err(chip->dev, "unsupported chip: 0x%x\n", chip->chip_id);
-
-[Severity: High]
-This is a pre-existing issue, but further down in mt6397_irq_init() in
-drivers/mfd/mt6397-irq.c, the linear IRQ domain is allocated with a hardcod=
-ed
-size:
-
-	chip->irq_domain =3D irq_domain_create_linear(dev_fwnode(chip->dev), MT639=
-7_IRQ_NR,
-						    &mt6397_irq_domain_ops, chip);
-
-Since MT6397_IRQ_NR is 32, but PMICs like MT6328 use a third interrupt
-status register for hardware IRQs 32-47:
-
-	if (mt6397->int_status[2])
-		mt6397_irq_handle_reg(mt6397, mt6397->int_status[2], 32);
-
-Won't irq_find_mapping() silently fail to find a mapping for any interrupts
-at index 32 or higher, breaking functionality for those higher-numbered
-interrupts?
-
-
-[Severity: High]
-This is also a pre-existing issue, but mt6397_irq_pm_notifier() in
-drivers/mfd/mt6397-irq.c writes directly to the PMIC's interrupt control
-registers without locking:
-
-	case PM_SUSPEND_PREPARE:
-		regmap_write(chip->regmap,
-			     chip->int_con[0], chip->wake_mask[0]);
-
-Because PM_SUSPEND_PREPARE runs before user tasks are frozen, running tasks
-can concurrently request or enable an IRQ. When this happens,
-mt6397_irq_sync_unlock() will acquire irqlock and write irq_masks_cur
-to the same registers:
-
-	regmap_write(mt6397->regmap, mt6397->int_con[0],
-		     mt6397->irq_masks_cur[0]);
-
-Could this concurrent modification overwrite the suspend configuration
-established by the notifier, leading to lost wakeup sources or spurious
-interrupts?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260620200032.3341=
-92-1-l.scorcia@gmail.com?part=3D5
+Sashiko review of v8 pointed out some easy-to-fix but real issues.
+Please ignore this series as I have fixed them and I will send out v9.
+-- 
+Luca Leonardo Scorcia
+l.scorcia@gmail.com

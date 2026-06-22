@@ -1,199 +1,525 @@
-Received: from ixit.cz (ixit.cz [185.100.197.86])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qt1-f179.google.com (mail-qt1-f179.google.com [209.85.160.179])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EFB9219CD1D;
-	Sun, 21 Jun 2026 17:11:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.100.197.86
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C1F3B243964
+	for <linux-input@vger.kernel.org>; Mon, 22 Jun 2026 02:18:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.179
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782061913; cv=none; b=A90cH6n8uLQeBaS2i8u9TrMzShAtq16jvJm5a4nB/MnSuuX1IvIVvD6cisnVhWe4eOeNJ27D0jb8j6Er73F9KN285zcQhrx6FXtwVEDPBrnpjfhaldQUy9hOHfFam5YcnNVxt6lXMuABBu8oXcrKhKJF1ZBGLGFsJQ2qQew+WWk=
+	t=1782094707; cv=none; b=VS1X2/oR5Ktdjb5aB8mFts2mIXRb56/NMGOXd31FBAJSgFi30wtm50U9uDJTVRBAqzqkAx5ryxCw/dGM3pWs2Ik0xER2pvJK4+r6T9Ch/n+wtBMBk8t8QUg5SkhePaXn6KYzS/k0mxc026e6zCXj06341Dv9SC+ST67xDzumMt0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782061913; c=relaxed/simple;
-	bh=MIXzP6z3IJlflBPzTDZAqFAWGWJuUfaQFqcEUGDSMPo=;
-	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
-	 In-Reply-To:Content-Type; b=P3krvsG9mpIY0VAWJyYB4gFbpxsc0BZvgRBu6csWZCOvJ5s4NM5rDs+2Bt8URDQNQDK5AzkWpzOrUgwPbPiYVKQPKirvh17QXuPgoVGQE98IjhPTNNbMQcDKskVyPCoycXTxeRrTSDNGTxMWd5nIRIGGNJNzrcWqYU8uROjibG4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=ixit.cz; spf=pass smtp.mailfrom=ixit.cz; dkim=pass (1024-bit key) header.d=ixit.cz header.i=@ixit.cz header.b=1606aFCw; arc=none smtp.client-ip=185.100.197.86
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=ixit.cz
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ixit.cz
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=ixit.cz header.i=@ixit.cz header.b="1606aFCw"
-Received: from [10.0.0.200] (unknown [10.88.125.21])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange x25519)
-	(No client certificate requested)
-	by ixit.cz (Postfix) with ESMTPSA id BC72F5340414;
-	Sun, 21 Jun 2026 19:11:45 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ixit.cz; s=dkim;
-	t=1782061906;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=tKZWV1qa3iWpS/GlfPS3WgV/fVjbIu/pDZ53OQskYG0=;
-	b=1606aFCwHjlKbkDtqEgnA7jMFXPFD6NwmrTYEb4Ab4xUZKIumNsW4M24AHVBJZOXH2TSSt
-	BwBxC6vhCIARzeXaAX/A61aI5zCKVOVOdAJx3JXr6/wj88AoZ1qY9imZy4m0I4fu8KgEZI
-	CU4q7PDrvY2UNUpZYaa8CYRg8i3DjGk=
-Message-ID: <742c7a13-9465-40e8-8990-e679712e9784@ixit.cz>
-Date: Sun, 21 Jun 2026 19:11:45 +0200
+	s=arc-20240116; t=1782094707; c=relaxed/simple;
+	bh=2aIc81e7zgVCSGwg9BcYlkBhCHjD3SPNGgi5dsXX11w=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=CvTL/EgFQ+ct/yDZPeS0cx/xgeqVrOldHDv0bAV+JwjWQIV2QFRriHWasqQJMAed4OwFvy6NfBNZu8DHBnhTm/zmfBhtjGPpwki1i3O23of3TfL4W4aYIqNwsf8tTGJeUomWofUnRRGRkEpIsq2FmQCDZA2UquURFxMDiBnLg0s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schn.dev; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.160.179
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schn.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Received: by mail-qt1-f179.google.com with SMTP id d75a77b69052e-51a1fe8f578so12812481cf.2
+        for <linux-input@vger.kernel.org>; Sun, 21 Jun 2026 19:18:24 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1782094704; x=1782699504;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=dNikyZm6mxu5CT1Yr4F1TS6t1pCrRSo57G6mvGwXs9Q=;
+        b=iavg65+av/vcXqMKYV7X4nOHd7U66xjUOu27PVAK5e4Fwq/FbKU3wNet2lZdkLCb9l
+         JNcLct986H7y3dbsQMg2tesqqg0gJtY2/CSgUO2KYytxhMHyIFVWvZSKuMtmovE0l/J4
+         NGY34pBym7o0gfW4NgFzCQ7hnBEV/mszXzlNDq0WS4IwsUSkivt0JGt8u2ixTdIA6ejq
+         48ULKnLMwEp/ylFKpPfbHh1pOBhh4db+/qyZMxvesruznqngW8yz88rZWcNsA3Q9Kb31
+         oDxtNGzWppZA+whpv3tN3KV8Ug7n/hLNo/knc2Dc7/ONttEXYYKL8a1Rv4EveGPvnYvt
+         0pPA==
+X-Gm-Message-State: AOJu0YyBJpqTyPQrWAx3+JXsnIMiAxzTBF8TFngqmjBm+SzlaItb5/df
+	bq/JcN92pCBpH+6Yf7eeTGEtIhW4x34lTqUnPvwr36rj0wKF0RcRX4pwXyaxuPprlZc=
+X-Gm-Gg: AfdE7ck/V5g+KFgo91fwsYZYADnYE1EjBZJ7xpy3erzXrvTNT2uDnlioibjc/8l0NLY
+	ccHE//baIVoxXi0gYnAQizlkWcO+lv8euXwP4uD/n3Dj92ppuPWEacq5WW1bf5Q2kZUBZN+t4lc
+	BzsdRQOVSfWnOaKY8gyfHPEauh0IQcZt/FzWXTUUwVTEq5gLSz5kwTQlT518ee54tRWwD5NE7ax
+	JA4IxXIKZoKk9Y7iV6kNtWJ1EtASfHmNlB8ebMmS0HzEa30pnJBAftKtaR6c7V66ZDS6iOa8xup
+	66ag4NY0VDJBE+YoCAIG+AKuQEHizIMgQcNen76wNUqRMl+syeZCL2fZwRZt4V/RpQ49It3N2NW
+	blXu0khkjZGgHysoai5FtP0WvVXXPlF8C5P8XyMRNE5hJ+f8j0yIrbLLDrMEAA6gGBWrpgbgImy
+	NpAJnhZCjA/qLTFb5ZsohNWs963kSR0NlxikEmDAE5fHU=
+X-Received: by 2002:a05:622a:13c8:b0:517:9003:e1a with SMTP id d75a77b69052e-519f02c07f1mr154163221cf.21.1782094703667;
+        Sun, 21 Jun 2026 19:18:23 -0700 (PDT)
+Received: from desktop-sofia ([2804:14d:ba4e:8353:8f7f:4b88:a059:f87e])
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-8df7f6fa32esm80863286d6.14.2026.06.21.19.18.18
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 21 Jun 2026 19:18:22 -0700 (PDT)
+From: Sofia Schneider <sofia@schn.dev>
+To: jikos@kernel.org,
+	bentiss@kernel.org
+Cc: linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Sofia Schneider <sofia@schn.dev>
+Subject: [PATCH] HID: hyperx-headset: Add support for HyperX headset devices
+Date: Sun, 21 Jun 2026 23:17:24 -0300
+Message-ID: <20260622021744.145340-1-sofia@schn.dev>
+X-Mailer: git-send-email 2.54.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 2/2] arm64: dts: qcom: sdm845-oneplus: Update
- compatible to include model
-From: David Heidelberg <david@ixit.cz>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
- Conor Dooley <conor+dt@kernel.org>, "Jason A. Donenfeld" <Jason@zx2c4.com>,
- Matthias Schiffer <matthias.schiffer@ew.tq-group.com>,
- Vincent Huang <vincent.huang@tw.synaptics.com>,
- Bjorn Andersson <andersson@kernel.org>,
- Konrad Dybcio <konradybcio@kernel.org>, linux-input@vger.kernel.org,
- devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-arm-msm@vger.kernel.org, phone-devel@vger.kernel.org,
- Krzysztof Kozlowski <krzk@kernel.org>,
- Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>
-References: <20260523-synaptics-rmi4-dt-v2-0-0645122babdc@ixit.cz>
- <20260523-synaptics-rmi4-dt-v2-2-0645122babdc@ixit.cz>
- <ahdoBl3qCTyvlYJf@google.com> <1d0e7e31-f808-4347-955a-7246dea208f5@ixit.cz>
-Content-Language: en-US
-Autocrypt: addr=david@ixit.cz; keydata=
- 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
-In-Reply-To: <1d0e7e31-f808-4347-955a-7246dea208f5@ixit.cz>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-On 28/05/2026 00:13, David Heidelberg wrote:
-> On 27/05/2026 23:56, Dmitry Torokhov wrote:
->> Hi David,
->>
->> On Sat, May 23, 2026 at 11:45:35AM +0200, David Heidelberg via B4 Relay wrote:
->>> From: David Heidelberg <david@ixit.cz>
->>>
->>> We know the driver is reporting s3706b, introduce the compatible so we
->>> can more easily introduce quirks for weird touchscreen replacements in
->>> followup series.
->>>
->>> Reviewed-by: Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>
->>> Signed-off-by: David Heidelberg <david@ixit.cz>
->>> ---
->>>   arch/arm64/boot/dts/qcom/sdm845-oneplus-common.dtsi | 2 +-
->>>   1 file changed, 1 insertion(+), 1 deletion(-)
->>>
->>> diff --git a/arch/arm64/boot/dts/qcom/sdm845-oneplus-common.dtsi b/arch/ 
->>> arm64/boot/dts/qcom/sdm845-oneplus-common.dtsi
->>> index 6b7378cf4d493..148164d456a5a 100644
->>> --- a/arch/arm64/boot/dts/qcom/sdm845-oneplus-common.dtsi
->>> +++ b/arch/arm64/boot/dts/qcom/sdm845-oneplus-common.dtsi
->>> @@ -475,17 +475,17 @@ bq27441_fg: bq27441-battery@55 {
->>>       };
->>>   };
->>>   &i2c12 {
->>>       status = "okay";
->>>       clock-frequency = <400000>;
->>>       synaptics-rmi4-i2c@20 {
->>> -        compatible = "syna,rmi4-i2c";
->>> +        compatible = "syna,rmi4-s3706b", "syna,rmi4-i2c";
->>
->> So I believe we established that this device (s3706b) does not in fact
->> implement rmi4 protocol properly. Why do we have "syna,rmi4-i2c" as a
->> fallback? Shouldn't it be just "syna,rmi4-s3706b"?
-> 
-> The vendor supplies s3706b which does implement the RMI4 properly.
-> 
-> The 3rd party replacement impersonating original parts may not implement it 
-> properly, but I don't address this issue in this initial submission.
-> 
-> With this compatible we know which original part is used by the vendor and 
-> installed in the phones, so later we can deduct specific sequences for the 
-> replacement aftermarket parts to keep phone touchscreen working same as they do 
-> on Android without affecting other devices.
+Introduce a HID driver for HyperX Cloud III Wireless headsets,
+supporting battery reporting and connection status.
 
-Hello Dmitry.
+Tested with a HyperX Cloud III Wireless only, for lack of
+other testable devices.
 
-May I ask what is currently preventing this series from moving forward?
+Signed-off-by: Sofia Schneider <sofia@schn.dev>
+---
+ MAINTAINERS                      |   6 +
+ drivers/hid/Kconfig              |  11 +
+ drivers/hid/Makefile             |   1 +
+ drivers/hid/hid-hyperx-headset.c | 374 +++++++++++++++++++++++++++++++
+ drivers/hid/hid-ids.h            |   1 +
+ 5 files changed, 393 insertions(+)
+ create mode 100644 drivers/hid/hid-hyperx-headset.c
 
-The first version was posted in 2023 [1]. I picked it up again in 2025 [2] and 
-am now on the 9th iteration (this patchset). At this point, the series has been 
-under discussion for well over a year, with relatively little feedback and 
-increasingly long gaps between review rounds.
-
-The current approach is based on the guidance I have received so far, including 
-suggestions from the device-tree maintainers. When concerns were raised, I tried 
-to address them and rework the series accordingly.
-
-What I am struggling with is understanding what specific issue still needs to be 
-resolved before these patches can be accepted. If there are remaining 
-requirements, objections to the approach, or technical concerns that I have not 
-addressed, I would appreciate having them stated explicitly so I can work on them.
-
-I also split out the straightforward, self-contained changes in the hope that at 
-least those could progress independently while I continued working on any 
-follow-up requirements. However, even those patches do not appear to be moving 
-forward.
-
-Could you please clarify what outcome you would like to see from this series, 
-and what concrete changes would be required to get it accepted?
-
-Thank you,
-David
-
-
-[1] 
-https://lore.kernel.org/all/20230929-caleb-rmi4-quirks-v1-0-cc3c703f022d@linaro.org/
-[2] https://lore.kernel.org/all/20250402-synaptics-rmi4-v4-0-1bb95959e564@ixit.cz/
-
-> 
-> David
-> 
->>
->> Thanks.
->>
-> 
-
+diff --git a/MAINTAINERS b/MAINTAINERS
+index d8252026bbd4..fa49655255f6 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -11419,6 +11419,12 @@ F:	include/uapi/linux/hid*
+ F:	samples/hid/
+ F:	tools/testing/selftests/hid/
+ 
++HID HYPERX HEADSET DRIVER
++M:	Sofia Schneider <sofia@schn.dev>
++L:	linux-input@vger.kernel.org
++S:	Maintained
++F:	drivers/hid/hid-hyperx-headset.c
++
+ HID LOGITECH DRIVERS
+ R:	Filipe Laíns <lains@riseup.net>
+ L:	linux-input@vger.kernel.org
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index f9bcaeb66385..e9f5f1f982c9 100644
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -1215,6 +1215,17 @@ config HID_HYPERV_MOUSE
+ 	help
+ 	Select this option to enable the Hyper-V mouse driver.
+ 
++config HID_HYPERX_HEADSET
++	tristate "HyperX headset devices"
++	depends on USB_HID
++	select POWER_SUPPLY
++	help
++	Support for HyperX headset devices.
++
++	Say Y here if you would like to enable support for HyperX headset devices.
++	To compile this driver as a module, choose M here: the module will be called
++	hid-hyperx-headset.
++
+ config HID_SMARTJOYPLUS
+ 	tristate "SmartJoy PLUS PS2/USB adapter support"
+ 	help
+diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
+index 23e6e3dd0c56..9f3fd2c21837 100644
+--- a/drivers/hid/Makefile
++++ b/drivers/hid/Makefile
+@@ -67,6 +67,7 @@ obj-$(CONFIG_HID_HOLTEK)	+= hid-holtek-kbd.o
+ obj-$(CONFIG_HID_HOLTEK)	+= hid-holtek-mouse.o
+ obj-$(CONFIG_HID_HOLTEK)	+= hid-holtekff.o
+ obj-$(CONFIG_HID_HYPERV_MOUSE)	+= hid-hyperv.o
++obj-$(CONFIG_HID_HYPERX_HEADSET)	+= hid-hyperx-headset.o
+ obj-$(CONFIG_HID_ICADE)		+= hid-icade.o
+ obj-$(CONFIG_HID_ITE)		+= hid-ite.o
+ obj-$(CONFIG_HID_JABRA)		+= hid-jabra.o
+diff --git a/drivers/hid/hid-hyperx-headset.c b/drivers/hid/hid-hyperx-headset.c
+new file mode 100644
+index 000000000000..18dc3e4f7e85
+--- /dev/null
++++ b/drivers/hid/hid-hyperx-headset.c
+@@ -0,0 +1,374 @@
++// SPDX-License-Identifier: GPL-2.0-only
++/*
++ *  HID driver for HyperX headsets
++ *
++ *  Supports HyperX Cloud III Wireless headsets.
++ *
++ *  Copyright (c) 2026 Sofia Schneider
++ */
++
++#include <linux/usb.h>
++#include <linux/hid.h>
++
++#include "hid-ids.h"
++
++#define HYPERX_POLL_INTERVAL_MS (2 * 60 * 1000)
++
++#define HYPERX_REPORT_ID 0x66
++#define HYPERX_PACKET_SIZE 62
++
++#define HYPERX_CMD_GET_CONNECTED 0x82
++#define HYPERX_CMD_GET_BATTERY 0x89
++#define HYPERX_CMD_GET_CHARGING 0x8A
++
++#define HYPERX_RESP_CONNECTED 0x0B
++#define HYPERX_RESP_CHARGING 0x0C
++#define HYPERX_RESP_BATTERY 0x0D
++
++#define HYPERX_PREFIX "HP, Inc "
++#define HYPERX_PREFIX_LEN strlen(HYPERX_PREFIX)
++
++struct hyperx_headset_device {
++	struct hid_device *hdev;
++	struct power_supply *battery;
++
++	spinlock_t lock;
++	u8 battery_level;
++	bool is_charging;
++	bool is_connected;
++
++	struct delayed_work poll_work;
++	struct work_struct battery_work;
++};
++
++static const enum power_supply_property hyperx_headset_battery_props[] = {
++	POWER_SUPPLY_PROP_PRESENT,	POWER_SUPPLY_PROP_ONLINE,
++	POWER_SUPPLY_PROP_STATUS,	POWER_SUPPLY_PROP_CAPACITY,
++	POWER_SUPPLY_PROP_SCOPE,	POWER_SUPPLY_PROP_MODEL_NAME,
++	POWER_SUPPLY_PROP_MANUFACTURER,
++};
++
++static int hyperx_headset_battery_get_property(struct power_supply *psy,
++					       enum power_supply_property psp,
++					       union power_supply_propval *val)
++{
++	struct hyperx_headset_device *drvdata = power_supply_get_drvdata(psy);
++	unsigned long flags;
++	int ret = 0;
++
++	spin_lock_irqsave(&drvdata->lock, flags);
++
++	switch (psp) {
++	case POWER_SUPPLY_PROP_PRESENT:
++		val->intval = 1;
++		break;
++	case POWER_SUPPLY_PROP_ONLINE:
++		val->intval = drvdata->is_connected ? 1 : 0;
++		break;
++	case POWER_SUPPLY_PROP_CAPACITY:
++		val->intval = drvdata->battery_level;
++		break;
++	case POWER_SUPPLY_PROP_SCOPE:
++		val->intval = POWER_SUPPLY_SCOPE_DEVICE;
++		break;
++	case POWER_SUPPLY_PROP_STATUS:
++		if (!drvdata->is_connected)
++			val->intval = POWER_SUPPLY_STATUS_UNKNOWN;
++		else if (drvdata->is_charging)
++			val->intval = POWER_SUPPLY_STATUS_CHARGING;
++		else if (drvdata->battery_level == 100)
++			val->intval = POWER_SUPPLY_STATUS_FULL;
++		else
++			val->intval = POWER_SUPPLY_STATUS_DISCHARGING;
++		break;
++	case POWER_SUPPLY_PROP_MODEL_NAME:
++		val->strval = drvdata->hdev->name;
++		while (!strncmp(val->strval, HYPERX_PREFIX, HYPERX_PREFIX_LEN))
++			val->strval += HYPERX_PREFIX_LEN;
++		break;
++	case POWER_SUPPLY_PROP_MANUFACTURER:
++		val->strval = "HyperX";
++		break;
++
++	default:
++		ret = -EINVAL;
++		break;
++	}
++
++	spin_unlock_irqrestore(&drvdata->lock, flags);
++	return ret;
++}
++
++static const struct power_supply_desc hyperx_headset_battery_desc = {
++	.name = "hyperx_headset_battery",
++	.type = POWER_SUPPLY_TYPE_BATTERY,
++	.properties = hyperx_headset_battery_props,
++	.num_properties = ARRAY_SIZE(hyperx_headset_battery_props),
++	.get_property = hyperx_headset_battery_get_property,
++};
++
++static int hyperx_headset_send_command(struct hyperx_headset_device *drvdata,
++				       u8 command)
++{
++	struct hid_device *hdev = drvdata->hdev;
++	u8 *buf;
++	int ret;
++
++	buf = kzalloc(HYPERX_PACKET_SIZE, GFP_KERNEL);
++	if (!buf)
++		return -ENOMEM;
++
++	buf[0] = HYPERX_REPORT_ID;
++	buf[1] = command;
++
++	ret = hid_hw_raw_request(hdev, HYPERX_REPORT_ID, buf,
++				 HYPERX_PACKET_SIZE, HID_OUTPUT_REPORT,
++				 HID_REQ_SET_REPORT);
++
++	if (ret < 0)
++		hid_err(hdev, "hw_raw_request failed (command 0x%02x)\n",
++			command);
++
++	kfree(buf);
++	return ret;
++}
++
++static void hyperx_headset_poll_work(struct work_struct *work)
++{
++	struct hyperx_headset_device *drvdata = container_of(
++		work, struct hyperx_headset_device, poll_work.work);
++
++	hyperx_headset_send_command(drvdata, HYPERX_CMD_GET_CONNECTED);
++	hyperx_headset_send_command(drvdata, HYPERX_CMD_GET_BATTERY);
++	hyperx_headset_send_command(drvdata, HYPERX_CMD_GET_CHARGING);
++
++	schedule_delayed_work(&drvdata->poll_work,
++			      msecs_to_jiffies(HYPERX_POLL_INTERVAL_MS));
++}
++
++static void hyperx_headset_set_wireless_status(struct hid_device *hdev,
++					       bool connected)
++{
++	struct usb_interface *intf;
++
++	if (!hid_is_usb(hdev))
++		return;
++
++	intf = to_usb_interface(hdev->dev.parent);
++	usb_set_wireless_status(intf, connected ?
++					      USB_WIRELESS_STATUS_CONNECTED :
++					      USB_WIRELESS_STATUS_DISCONNECTED);
++}
++
++static void hyperx_headset_battery_work(struct work_struct *work)
++{
++	struct hyperx_headset_device *drvdata =
++		container_of(work, struct hyperx_headset_device, battery_work);
++	struct power_supply_config battery_cfg = { .drv_data = drvdata };
++	unsigned long flags;
++	bool connected;
++
++	spin_lock_irqsave(&drvdata->lock, flags);
++	connected = drvdata->is_connected;
++	spin_unlock_irqrestore(&drvdata->lock, flags);
++
++	hyperx_headset_set_wireless_status(drvdata->hdev, connected);
++
++	if (connected && !drvdata->battery) {
++		struct power_supply *ps;
++
++		ps = power_supply_register(&drvdata->hdev->dev,
++					   &hyperx_headset_battery_desc,
++					   &battery_cfg);
++		if (IS_ERR(ps)) {
++			hid_err(drvdata->hdev,
++				"power_supply_register failed\n");
++			return;
++		}
++
++		power_supply_powers(ps, &drvdata->hdev->dev);
++
++		spin_lock_irqsave(&drvdata->lock, flags);
++		drvdata->battery = ps;
++		spin_unlock_irqrestore(&drvdata->lock, flags);
++	} else if (!connected && drvdata->battery) {
++		struct power_supply *ps;
++
++		spin_lock_irqsave(&drvdata->lock, flags);
++		ps = drvdata->battery;
++		drvdata->battery = NULL;
++		spin_unlock_irqrestore(&drvdata->lock, flags);
++
++		power_supply_unregister(ps);
++	}
++}
++
++static void
++hyperx_headset_parse_battery_event(struct hyperx_headset_device *drvdata,
++				   u8 *data)
++{
++	unsigned long flags;
++	u8 state1 = data[2];
++	u8 state2 = data[3];
++	u8 level = data[4];
++
++	// Battery event is invalid if both states are 0
++	if (state1 == 0 && state2 == 0)
++		return;
++
++	spin_lock_irqsave(&drvdata->lock, flags);
++
++	if (drvdata->battery_level != level) {
++		drvdata->battery_level = level;
++
++		if (drvdata->battery)
++			power_supply_changed(drvdata->battery);
++	}
++
++	spin_unlock_irqrestore(&drvdata->lock, flags);
++}
++
++static void
++hyperx_headset_parse_charging_event(struct hyperx_headset_device *drvdata,
++				    u8 *data)
++{
++	unsigned long flags;
++	bool charging = (data[2] == 1);
++
++	spin_lock_irqsave(&drvdata->lock, flags);
++
++	if (drvdata->is_charging != charging) {
++		drvdata->is_charging = charging;
++
++		if (drvdata->battery)
++			power_supply_changed(drvdata->battery);
++	}
++
++	spin_unlock_irqrestore(&drvdata->lock, flags);
++}
++
++static void
++hyperx_headset_parse_connected_event(struct hyperx_headset_device *drvdata,
++				     u8 *data)
++{
++	unsigned long flags;
++	bool state_changed = false;
++	bool connected = (data[2] == 1);
++
++	spin_lock_irqsave(&drvdata->lock, flags);
++
++	if (drvdata->is_connected != connected) {
++		drvdata->is_connected = connected;
++		state_changed = true;
++	}
++
++	spin_unlock_irqrestore(&drvdata->lock, flags);
++
++	if (state_changed)
++		schedule_work(&drvdata->battery_work);
++}
++
++static int hyperx_headset_probe(struct hid_device *hdev,
++				const struct hid_device_id *id)
++{
++	int ret;
++	struct hyperx_headset_device *drvdata;
++
++	drvdata = devm_kzalloc(&hdev->dev, sizeof(*drvdata), GFP_KERNEL);
++	if (drvdata == NULL)
++		return -ENOMEM;
++	drvdata->hdev = hdev;
++	drvdata->is_connected = false;
++	drvdata->is_charging = false;
++	drvdata->battery_level = 100;
++	spin_lock_init(&drvdata->lock);
++	hid_set_drvdata(hdev, drvdata);
++
++	INIT_DELAYED_WORK(&drvdata->poll_work, hyperx_headset_poll_work);
++	INIT_WORK(&drvdata->battery_work, hyperx_headset_battery_work);
++
++	ret = hid_parse(hdev);
++	if (ret != 0) {
++		hid_err(hdev, "parse failed\n");
++		return ret;
++	}
++
++	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
++	if (ret != 0) {
++		hid_err(hdev, "hw_start failed\n");
++		return ret;
++	}
++
++	schedule_delayed_work(&drvdata->poll_work, 0);
++
++	return 0;
++}
++
++static int hyperx_headset_raw_event(struct hid_device *hdev,
++				    struct hid_report *report, u8 *data,
++				    int size)
++{
++	struct hyperx_headset_device *drvdata = hid_get_drvdata(hdev);
++
++	if (size < 5 || data[0] != HYPERX_REPORT_ID)
++		return 0;
++
++	switch (data[1]) {
++	case HYPERX_CMD_GET_CONNECTED:
++	case HYPERX_RESP_CONNECTED:
++		hyperx_headset_parse_connected_event(drvdata, data);
++		break;
++
++	case HYPERX_CMD_GET_BATTERY:
++	case HYPERX_RESP_BATTERY:
++		hyperx_headset_parse_battery_event(drvdata, data);
++		break;
++
++	case HYPERX_CMD_GET_CHARGING:
++	case HYPERX_RESP_CHARGING:
++		hyperx_headset_parse_charging_event(drvdata, data);
++		break;
++
++	default:
++		break;
++	}
++
++	return 0;
++}
++
++static void hyperx_headset_remove(struct hid_device *hdev)
++{
++	struct hyperx_headset_device *drvdata = hid_get_drvdata(hdev);
++
++	if (drvdata) {
++		cancel_delayed_work_sync(&drvdata->poll_work);
++		cancel_work_sync(&drvdata->battery_work);
++
++		if (drvdata->battery) {
++			power_supply_unregister(drvdata->battery);
++			drvdata->battery = NULL;
++		}
++	}
++
++	hid_hw_stop(hdev);
++}
++
++static const struct hid_device_id hyperx_headset_devices[] = {
++	{ HID_USB_DEVICE(USB_VENDOR_ID_HP,
++			 USB_DEVICE_ID_HP_HYPERX_CLOUD_III_WIRELESS) },
++	{}
++};
++MODULE_DEVICE_TABLE(hid, hyperx_headset_devices);
++
++static struct hid_driver hyperx_headset_driver = {
++	.name = "hyperx-headset",
++	.id_table = hyperx_headset_devices,
++	.probe = hyperx_headset_probe,
++	.raw_event = hyperx_headset_raw_event,
++	.remove = hyperx_headset_remove,
++};
++module_hid_driver(hyperx_headset_driver);
++
++MODULE_AUTHOR("Sofia Schneider <sofia@schn.dev>");
++MODULE_DESCRIPTION("HID driver for HyperX headsets");
++MODULE_LICENSE("GPL");
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 1059922baaac..aa2c3a71315b 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -696,6 +696,7 @@
+ #define USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE_0941	0x0941
+ #define USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE_0641	0x0641
+ #define USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE_1f4a	0x1f4a
++#define USB_DEVICE_ID_HP_HYPERX_CLOUD_III_WIRELESS 0x05b7
+ 
+ #define USB_VENDOR_ID_HUION		0x256c
+ #define USB_DEVICE_ID_HUION_TABLET	0x006e
 -- 
-David Heidelberg
+2.54.0
 

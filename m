@@ -1,151 +1,131 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-yw1-f179.google.com (mail-yw1-f179.google.com [209.85.128.179])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3354A3AA9CA;
-	Mon, 22 Jun 2026 12:43:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782132211; cv=none; b=PKyaQROAaNuqjN+dDN9O5/+D6YnQfWvC0zXKberJ7Rhi6RoccM8vTFUBqQqg0+r2+t7R4+EinPw70Ia3xfVA1LSywWvLIHLH4zvRQKAQn0ZYXvjDGexCSxRkbUujWqz0rRnZuLw11xIb89SJUlRBHmt84Xs23dWZH1p5cWdB6Zw=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782132211; c=relaxed/simple;
-	bh=VPXhLYolPJky/bmGpOtL6BCFAOJr/UlWCP4UfZnTxp8=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Slnvc7OMlrnLqC9ueUVwuism51DrCj9rTAQjbBc8x6OmH2Ma7eJ4KD2rX9Lbr9CF7tpf4v9y2b7pA542Cy/BcytKGXbhbvvEElE1YJtN0AICBSNkpT5+wtCvIvvdCmDmtoNlfm6J4+9n0b7cHHuhOEDjs08SvmZ51AJ5lCNR7Z4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=kQT0Aggv; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D6E1D327C0D
+	for <linux-input@vger.kernel.org>; Mon, 22 Jun 2026 15:21:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.128.179
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1782141670; cv=pass; b=eCCgU4r4sAaJjIZpWR7C9QGq8di1E2xnzPjGTEQAOkmhytWGnRxAk+uMGFG1szeddHnZcBxNFZFiPGzTTmWQF/2k8FdJPdGYhttHKYyWTKYehPyYg9mK03NmPdo6RyOoCRbGJosHU1whmLvCSKF9tnWolrIDheiUm3Cg0sn35D0=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1782141670; c=relaxed/simple;
+	bh=8zvipcslBvGLMROe27G8a4yy9yYjiXdUNW/PADn7MPY=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=UZQljne8nJnPh7c9GpWCkNHt2MbZr32mBFlgJcQHHinwKiLzSqUxDSWB4QmUBzJ+eDGBxQeG6jGJNILUrxHAa2DoiyChb3wtDF2df/HWDZ0bggKiGWIYI+g21NQjg9kulUBct/n7N/PZoRlj3myVt0/u9rQIh63u+4CIzF01jP8=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Hp/xCq0j; arc=pass smtp.client-ip=209.85.128.179
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="kQT0Aggv"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4CD1C1F000E9;
-	Mon, 22 Jun 2026 12:43:24 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1782132209;
-	bh=Ktd9L/8eCw8OPrie6XpyZ7GE0rbforFgxl4XSZd21ws=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=kQT0AggvrEXH6OftsFjazJW5HMf41Rhn5Le5gxrewHnXg4ai1wdugrZtcgwDsoIj+
-	 LLZINGnsyZfY0UEkSWtbUjPSkRgUf8e/njZj82VUQ7ft4hdKj49iqfQmpTGKwJlpcD
-	 P8QgijVElsLhtKOhKh8C8e/80xgKCyaJdS5FD3VV9DAFyti4v6uFHEcnGx7agWTiZi
-	 Na6JbnHQmlPxhwW+HRzMmiLUHAxIPL96+1QWqT5VgNjkGKWzPUKK/CpJoFoHAxF/ah
-	 JfJmkGaQGwPfP4Q91b3bueyBERIbk0rOc9YLIQ2RKHUJKF9RBrskWLdWxkIl5Ag6kf
-	 vDpKU5gXBxwZg==
-Message-ID: <17e73192-85a6-472b-b3ce-7b64712b85fa@kernel.org>
-Date: Mon, 22 Jun 2026 14:43:21 +0200
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Hp/xCq0j"
+Received: by mail-yw1-f179.google.com with SMTP id 00721157ae682-7fffb090ddfso46041217b3.1
+        for <linux-input@vger.kernel.org>; Mon, 22 Jun 2026 08:21:08 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1782141668; cv=none;
+        d=google.com; s=arc-20240605;
+        b=PYlxEvFZdCpPCrc8Dj0DjDzhrAkTcAVIlKvCpfhZJAQil1oHgoomlPO8ftQp4KXk70
+         b64RTYNaemClUKh2zm/L0CmYSTxKkDiRYuWbCpms5MTBDIpSYoPEgr3J9K8Azrc7ZNht
+         /rjgG+5zug0S2Ca/UgnFnxwa77REaCrkcm0EUbuiEtM/Xyj2GF8pVqaPVWV1zGxwIfSp
+         WpW3uaZ4eve2khOc8lqFoBOnTsjJ/HYFIUtCBNdKlzbXZFJh2lKnegfw+maLc3YEJHNX
+         ckMpH90FCiPrHawI/2ZcL3JONMCa5ffM9AsN1fbj5Y6LJtKXG3lVQJ7y84kA69W50MIM
+         93Hw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=8HFbjIkyjH5nmGj3I8BWSKEfArELaB0NC6yKhSNZlpI=;
+        fh=IWy4vznMuQkpaETq8AEVzaJrun58p5PCVFNYrsf5wIE=;
+        b=U4aFPgzAVoOl9ZyeRYl1xXX48osqcIm2pTfByZXxuqo2Pn8hzCJn+vWvceLnsu/HFs
+         p/PnyVJn0kTz7yJSu1BK5ZoP7vrBdz+w2HYf2R25w9hoibWz+2heT9lvIEWo1LE+jsPF
+         YfSez4bOtxKwpeg/xjxy00mbY8osVasWLeD6Heg4sKZrlnnL48CG7hLC+QwwxP+NbVPl
+         x7TrYKgPFkWpxoazCGtss9YQ32lCJer3M8k5S+6VdtoAIX9Ri3I966vv6VZmf4wW1TW2
+         SbcIBDvQcgOMpXENO4EX5v8Q5xtzt9ZLRfEaw90kOXmdS+TXje+3JHZV2VDE1QzFe/iQ
+         vxNw==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1782141668; x=1782746468; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=8HFbjIkyjH5nmGj3I8BWSKEfArELaB0NC6yKhSNZlpI=;
+        b=Hp/xCq0jSmF/cz6Yersg9ROypQzUYsFPMudkA9AnxhQY9DVZmA2MNW1svteEvdjuJf
+         ZJN5bsAPITiqorkm11y0YhAZ4jw4tSTyp8PZtbODaXeMwZ3ue0M3a3Ts38ROalbmEZxt
+         JI5jE5mwEP2XebzDjD8dj6XhGJ01fATQHBfdwVj+nrHjqthwL0EUMKORPGyRYzAa9NjR
+         eGq2Y4MT8F6snMFB25EVbQQfIOB5l+HzDU5hfBkOwBE0xn9bMOh9+uStqPohgKFdy57r
+         claKS6y3XT2DmZ22+A9h+wfF6KyMwHxX60AGPdWGvfidTAuCz3x+VBOH+ibHV6i2+FVk
+         PbhA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1782141668; x=1782746468;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=8HFbjIkyjH5nmGj3I8BWSKEfArELaB0NC6yKhSNZlpI=;
+        b=OU8J2HEfbU4GtMHzBLyJ9c+yinsVr8dyNQU116DdR3OLmJ+0IyoPMPypFchAksHF+Z
+         oSpLSekNlY6FAsRPJ71b268s64n1ROqd1VYRujVfxaK33CY/EzA45hPGHxiQ+wxGB0de
+         SetuEdMtDx/glL7a+WDaRVw7KpS8IWp7TQsQ1CdiNEi2Uae8dwmyq0YgXdYbO7YqqR2c
+         D+GXZftqERxkowdPsFbLXU32f3BuAdvumq1rct1zolCIDiT8K21hxznVPvQgzoH2FoSe
+         VwU2oeGrPqpkrLpY0OTVKmWuVuVfl8k0FKAgwcwYCmaUKTyEN7lE8ZiW++Xpfv0w1GRQ
+         Azew==
+X-Forwarded-Encrypted: i=1; AHgh+Rpo8Ou/mnSFsO4w9bLHIi6VUla8MB64qSsqxppmJ64+UaOPX8m/vwHSJKvMwlBENx7y50G4EOly+N0RgQ==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yzg/IznO0uizm0wJDnF8cx/KzyXCQ6MoOZfGJoScQwG88qZBBIu
+	/vpkTOfVvezPUdqxR8blSv05Ew8Bn1AKB+TVM83mfm2ttndPVgSEJt8PlSobgkSkgC28FhkRdgN
+	Dmy+8I9ETmJ7iuofpT+/reltHUZt8z1I=
+X-Gm-Gg: AfdE7cmt0MoBR6J51gYK7km0Bi8yK8YfkC/+xoVt/ArQBzqZNi7HuYWTe3+7I5yqP2a
+	HqVm0DVXD0AN9A4fVJP1gaXiU11pnODPci0QUrUN0i6sBYlUZfNZIgEwFrl2EH0QOZ7mxmvG6cM
+	/ci3aeb/8+jU5bOI3ZAZcVcYuMWVGcpM4sZk/qnr8SAtvcFE0lMv6M3G7J8/OaI8s+aI8HF96o4
+	39JmlNXrwK/I9m05jA5MAbM5SaKOCLUtESPKUEwxyF1RM/IUZ4bcy8HUW12LLzNGRAo/KwdEQ==
+X-Received: by 2002:a05:690c:39c:b0:7bd:73f3:7a58 with SMTP id
+ 00721157ae682-801216280e6mr120841637b3.11.1782141667701; Mon, 22 Jun 2026
+ 08:21:07 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 1/4] dt-bindings: input: Add binding for Qualcomm SPMI
- PMIC haptics
-To: Fenglin Wu <fenglin.wu@oss.qualcomm.com>
-Cc: linux-arm-msm@vger.kernel.org, Dmitry Torokhov
- <dmitry.torokhov@gmail.com>, Rob Herring <robh@kernel.org>,
- Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley
- <conor+dt@kernel.org>, Lee Jones <lee@kernel.org>,
- Stephen Boyd <sboyd@kernel.org>, Bjorn Andersson <andersson@kernel.org>,
- Konrad Dybcio <konradybcio@kernel.org>,
- David Collins <david.collins@oss.qualcomm.com>,
- Subbaraman Narayanamurthy <subbaraman.narayanamurthy@oss.qualcomm.com>,
- Kamal Wadhwa <kamal.wadhwa@oss.qualcomm.com>, kernel@oss.qualcomm.com,
- linux-input@vger.kernel.org, devicetree@vger.kernel.org,
- linux-kernel@vger.kernel.org
-References: <20260616-qcom-spmi-haptics-v1-0-d24e422de6b4@oss.qualcomm.com>
- <20260616-qcom-spmi-haptics-v1-1-d24e422de6b4@oss.qualcomm.com>
- <20260617-wakeful-gorilla-of-feminism-75287c@quoll>
- <c7191868-d141-4095-b703-230237721f28@oss.qualcomm.com>
- <44778bec-68c5-426d-bc05-b4013630b3ee@kernel.org>
- <20fa15e1-316b-44fa-b59d-99cb7fe78bb0@oss.qualcomm.com>
-From: Krzysztof Kozlowski <krzk@kernel.org>
-Content-Language: en-US
-Autocrypt: addr=krzk@kernel.org; keydata=
- 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
-In-Reply-To: <20fa15e1-316b-44fa-b59d-99cb7fe78bb0@oss.qualcomm.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+References: <20260622052135.1804135-1-sanjayembedded@gmail.com>
+In-Reply-To: <20260622052135.1804135-1-sanjayembedded@gmail.com>
+From: Maxwell Doose <m32285159@gmail.com>
+Date: Mon, 22 Jun 2026 10:18:45 -0500
+X-Gm-Features: AVVi8CeJhQ1YA9yY3iSTy2JTki3SbfzKbLRF3Z3-5aNIG5o5PJNrGqwFOvwLbOQ
+Message-ID: <CAKqfh0HeGExuwMpdcW3=OH8Qm=Y261dc2AJs=e8Cyj79_FE48Q@mail.gmail.com>
+Subject: Re: [PATCH v1] iio: temperature: hid-sensor-temperature: switch to
+ non-devm iio_device_register()
+To: Sanjay Chitroda <sanjayembeddedse@gmail.com>
+Cc: jikos@kernel.org, jic23@kernel.org, srinivas.pandruvada@linux.intel.com, 
+	dlechner@baylibre.com, nuno.sa@analog.com, andy@kernel.org, 
+	hongyan.song@intel.com, linux-input@vger.kernel.org, 
+	linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On 22/06/2026 04:28, Fenglin Wu wrote:
-> 
-> On 6/19/2026 12:18 PM, Krzysztof Kozlowski wrote:
->> On 17/06/2026 13:02, Fenglin Wu wrote:
->>> On 6/17/2026 6:35 PM, Krzysztof Kozlowski wrote:
->>>> On Tue, Jun 16, 2026 at 03:08:24AM -0700, Fenglin Wu wrote:
->>>>> ....
->>>>> +
->>>>> +  qcom,lra-period-us:
->>>>> +    description:
->>>>> +      LRA actuator initial resonance period in microseconds
->>>>> +      (1,000,000 / resonant_freq_hz).  Used to configure T_LRA-based play
->>>>> +      rates and the auto-resonance zero-crossing window.
->>>> This does not feel like static characteristic. Isn't period depending on
->>>> intensity of vibration you want to have? Why would that be fixed per
->>>> board?
->>> This period is specifically used for playbacks that require
->>> auto-resonance to be enabled, which I referred to as "T_LRA-based" and
->>> "auto-resonance zero-crossing window." It plays a key role in the
->>> "DIRECT_PLAY" mode, which produces a constant vibration effect. To
->>> adjust the vibration intensity during this constant effect, the hardware
->>> does it by scaling the peak voltage of the driver signals, rather than
->>> changing the frequency.
->> But maybe changing frequency runtime still would be useful?
-> It could be, but the LRA F0 (resonant frequency) still needs to be the 
-> starting point. You can control vibration intensity by driving the LRA 
-> slightly off resonance by a given percentage—for example, to reach 50% 
-> vibration, you could probably drive it 10% off resonant frequency, and 
-> that mapping also depends on the LRA characteristic. Keep in mind that 
-> LRA is a spring-mass resonant system, so its output is not linear with 
-> driving frequency; it is a High_Q system, and its output actually shows 
-> a sharp peak at the resonance point. By contrast, the relationship 
-> between driving voltage and its output is much more linear, so scaling 
-> vibration intensity by adjusting the driving voltage is easier to 
-> control. Qcom haptics HW scales vibration intensity in DIRECT_PLAY mode 
-> (for constant vibration effect) by scaling the driving voltage instead. 
-> That said, the HW can also change the driving waveform frequency by 
-> updating the T-LRA registers, and this property has to be specified as 
-> an initial value; otherwise, you won't have a baseline to achieve that.
-> 
+On Mon, Jun 22, 2026 at 12:21=E2=80=AFAM Sanjay Chitroda
+<sanjayembeddedse@gmail.com> wrote:
+>
+> From: Sanjay Chitroda <sanjayembeddedse@gmail.com>
+>
+> Avoid using devm_iio_device_register(), as this driver requires explicit
+> error handling and teardown ordering.
+>
+> Mixing devm_* APIs with goto-based error unwinding breaks the expected
+> LIFO resource release model and can introduce race windows during device
+> removal. In particular, the IIO device may remain visible to userspace
+> while dependent resources are already being freed, potentially leading
+> to use-after-free issues.
+>
+> Add explicit iio_device_unregister() call in the teardown path to ensure
+> deterministic cleanup and follow kernel resource management conventions.
+>
+> Fixes: 59d0f2da3569 ("iio: hid: Add temperature sensor support")
+> Signed-off-by: Sanjay Chitroda <sanjayembeddedse@gmail.com>
+> ---
+>  drivers/iio/temperature/hid-sensor-temperature.c | 3 ++-
+>  1 file changed, 2 insertions(+), 1 deletion(-)
+>
 
-OK, property is fine.
+My rb will be a tad redundant but
 
-Best regards,
-Krzysztof
+Reviewed-by: Maxwell Doose <m32285159@gmail.com>
+
+and should Cc stable as Andy said but hopefully Jonathan can amend :)
+
+--=20
+best regards,
+max

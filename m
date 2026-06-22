@@ -1,149 +1,162 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D317F241C8C
-	for <linux-input@vger.kernel.org>; Mon, 22 Jun 2026 05:39:34 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6825F241C8C
+	for <linux-input@vger.kernel.org>; Mon, 22 Jun 2026 05:42:48 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782106775; cv=none; b=R2ijsy271tWLnaq+pleNPxK+D6z3VniDOMcf8XUxvLM7CNEjbzVl+NSlhRsA+B5EZu4upUgnKPq9pWifPcxk/s4UafFt/pZDRE3VhC5PBkp54eUgJ0Il7+BGSs35/or7kauUPOidSd+x1MzSCMQkkZMF+GTQdfWD8yBca8WiIjs=
+	t=1782106969; cv=none; b=VDfrl7r8owRMdbo72W+g2tzMwgxeg8YrGTW2Dv4KJlAjIBXXQuU3ORlOvTxfVvA5IWj0Ehy7ug7tksZw518hqf/Je4/sNPi+o7jYD3MS2xewOGe+QUBhqfXJlzR6ualZNAD1kqsLvqwlxmm4pZK2ZHCXK9whMC9uQ9p5Q9c96Tc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782106775; c=relaxed/simple;
-	bh=OERz+17IjVNNL9p5CytOLH7Eb+4BWMDmT1qn/DxT64U=;
+	s=arc-20240116; t=1782106969; c=relaxed/simple;
+	bh=I4dXchJW9el9Do6emOC3LtNwCvkSdCDM2R0AnpjdJa0=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=UYu9xp3dVhW/nOKbscfoh/ayNSbkvq39QaB8kTYXmreaolh+3AivcLtgPO60lRZo3h1KV9Y/LS2x4D0pBgIK4/iLyBzB9Ve645Sgc7CcmjILAGY1EBCcHZnGqNiwFC27ld3MGo3TyU1MD9ojGUsO16kGmZwRp0rbp0lJT9C6B4k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=iOrQnbgX; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=StidNBeiggfWAqsqgvTace3ta0eowPSJnscXRQIaJ8O9xXinG0zSVNgh39YRJkAjHzAdI2lJUPZOsRVFs+/oUEshm68Drt/6pmhg0AJA6jKVJ20AcF+EbCuOLOkDYxx6b2hjj3X9L3u2D3ZUVhlkd7MT6wDVdy/+pt9MLId4wc4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=GTDbG8TO; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="iOrQnbgX"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5CC211F000E9;
-	Mon, 22 Jun 2026 05:39:34 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="GTDbG8TO"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 06FA21F000E9;
+	Mon, 22 Jun 2026 05:42:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1782106774;
-	bh=8yTszHzuJYs/ngpVuybzt/Yj2HysP+OgFbegzKVReY4=;
+	s=k20260515; t=1782106968;
+	bh=xq7iXlWx9Gs+aihejK04X/Wb1Wkcg8gIp2aaladz0hM=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=iOrQnbgXqUicnUd35v3rGaEJMm57hyPYi3o9XLpIMazGBOQ2o42EJ2RuhvQk6WKA7
-	 NG+UH5WB4YOWejf7hwqMBn9N7XrF2Pt5xK3F8FiA6R5l9DzztvK5xjVQ1hG6wxdXWP
-	 2N0Ug/WrcW8aONefmoBBzMZbXP2ewg4+1kHihQEq/UJ3I8vGvka+KbPfeq8GWMSy+G
-	 yrQSLle+h6uDDz2Gm74jClfXSqpSmGfHSrNV8pw6jG5/mhcNaXiwPV1QpRqD3D9E77
-	 6R+hgAipe+wmNoJZRdAiEdOy+yofulCviMbMVmewlQFIsYcE1U/Q7guIOUN4cZBWXy
-	 YpRZuewhcztjg==
+	b=GTDbG8TOUn9Ch0T1O+swPoJ3RZDxtToqaytL/IKyQO6E2Uj+dzBeYTSSMax8PWDzT
+	 law0HWIQtf8LddqLIACjQ7A6Axe9HKG6K2Mfq125MOaQfZBrubxE5QDsGRkbuTd8Zw
+	 gtTohPKA8hZ4bugEOUKf1acO4r3N8E6p//3jQqva08ygF9hjdcY4qd/XV4mw98jC/c
+	 vdGJVZORWEvhzfPkE13eTDZMy9Xb1vDygO3XkzESvRaP14PUhQm1zadNyUuNx5u6JA
+	 SIvIAb2zf67zTQ7R8/J+0qRqqJvldTad1BTRKA9f3wGZt1ryzNK9/+vWtkVdnoA0LF
+	 QFpMFZI2eQOzA==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v1] iio: temperature: hid-sensor-temperature: switch to
- non-devm iio_device_register()
+Subject: Re: [PATCH v2 5/8] iio: light: hid-sensor-prox: Avoid race between
+ callback setup and device exposure
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Sanjay Chitroda" <sanjayembeddedse@gmail.com>
 Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260622052135.1804135-1-sanjayembedded@gmail.com>
-References: <20260622052135.1804135-1-sanjayembedded@gmail.com>
+In-Reply-To: <20260622-5-june-hid-iio-race-fixes-v2-5-1cfabcd1881e@gmail.com>
+References: <20260622-5-june-hid-iio-race-fixes-v2-0-1cfabcd1881e@gmail.com>
+ <20260622-5-june-hid-iio-race-fixes-v2-5-1cfabcd1881e@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Mon, 22 Jun 2026 05:39:33 +0000
-Message-Id: <20260622053934.5CC211F000E9@smtp.kernel.org>
+Date: Mon, 22 Jun 2026 05:42:47 +0000
+Message-Id: <20260622054248.06FA21F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+Thank you for your contribution! Sashiko AI review found 3 potential issue(=
 s) to consider:
 
+New issues:
+- [Critical] The reordering introduces a Use-After-Free race condition in t=
+he probe error path due to a lack of synchronization when removing the call=
+back.
+- [Critical] Reordering `sensor_hub_remove_callback()` after `iio_device_un=
+register()` creates a severe race condition where lockless list traversal r=
+aces with IIO buffer teardown, potentially causing an infinite loop.
+
 Pre-existing issues:
-- [Critical] Concurrent execution of HID sensor hub callbacks and device un=
-bind leads to a Use-After-Free of `indio_dev`.
-- [High] The static global `temperature_callbacks` struct is mutated during=
- probe, causing data corruption and cross-device routing bugs when multiple=
- sensors are present.
+- [Critical] Preexisting Use-After-Free in the device remove path due to la=
+ck of callback synchronization.
 --
 
-commit 829c19b8a370c5d8b09345d4e07b865deb47a88f
+commit a4fd8cfbe15835905bbb5054997cb2a8715dcdd2
 Author: Sanjay Chitroda <sanjayembeddedse@gmail.com>
 
-iio: temperature: hid-sensor-temperature: switch to non-devm iio_device_reg=
-ister()
+iio: light: hid-sensor-prox: Avoid race between callback setup and device e=
+xposure
 
-This commit replaces devm_iio_device_register() with iio_device_register()=
-=20
-to ensure deterministic cleanup. It adds an explicit iio_device_unregister(=
-)=20
-call in the remove path to fix potential use-after-free race conditions=20
-during device removal.
+The driver currently exposes the IIO device to userspace before completing
+sensor hub callback registration, and similarly removes callbacks while the
+device can still be accessed during teardown. This reorders probe and remove
+paths to avoid a race window.
 
-> diff --git a/drivers/iio/temperature/hid-sensor-temperature.c b/drivers/i=
-io/temperature/hid-sensor-temperature.c
-> index 9f628a8e5cfbe..34bff7e9f3a33 100644
-> --- a/drivers/iio/temperature/hid-sensor-temperature.c
-> +++ b/drivers/iio/temperature/hid-sensor-temperature.c
-> @@ -244,7 +244,7 @@ static int hid_temperature_probe(struct platform_devi=
-ce *pdev)
->  	if (ret)
->  		goto error_remove_trigger;
-> =20
-> -	ret =3D devm_iio_device_register(indio_dev->dev.parent, indio_dev);
-> +	ret =3D iio_device_register(indio_dev);
-
-[Severity: High]
-This isn't a bug introduced by this patch, but looking at the probe function
-just prior to this registration, is there a risk of corrupting device routi=
-ng
-when multiple sensors are present?
-
-The driver defines temperature_callbacks as a static global struct:
-
-static struct hid_sensor_hub_callbacks temperature_callbacks =3D {
-        .send_event =3D &temperature_proc_event,
-        .capture_sample =3D &temperature_capture_sample,
-};
-
-During hid_temperature_probe(), the current device's pdev is directly
-assigned to temperature_callbacks.pdev.
-
-If a system has multiple HID temperature sensors, does the last probed sens=
-or
-overwrite this global pointer? It seems like when sensor_hub_raw_event()
-processes hardware events, it might fetch the shared struct and pass the
-single overwritten pdev to temperature_capture_sample(). Would this cause t=
-he
-data from all temperature sensors to be written exclusively into the IIO st=
-ate
-of the last probed sensor?
+> diff --git a/drivers/iio/light/hid-sensor-prox.c b/drivers/iio/light/hid-=
+sensor-prox.c
+> index 9059f00f0cedf..11609dc4c5dc6 100644
+> --- a/drivers/iio/light/hid-sensor-prox.c
+> +++ b/drivers/iio/light/hid-sensor-prox.c
 
 [ ... ]
 
-> @@ -264,6 +264,7 @@ static void hid_temperature_remove(struct platform_de=
-vice *pdev)
->  	struct iio_dev *indio_dev =3D platform_get_drvdata(pdev);
->  	struct temperature_state *temp_st =3D iio_priv(indio_dev);
+> @@ -325,13 +319,19 @@ static int hid_prox_probe(struct platform_device *p=
+dev)
+>  					   &prox_state->callbacks);
+>  	if (ret < 0) {
+>  		dev_err(&pdev->dev, "callback reg failed\n");
+> -		goto error_iio_unreg;
+> +		goto error_remove_trigger;
+> +	}
+> +
+> +	ret =3D iio_device_register(indio_dev);
+> +	if (ret) {
+> +		dev_err(&pdev->dev, "device register failed\n");
+> +		goto error_remove_callback;
+>  	}
 > =20
-> +	iio_device_unregister(indio_dev);
->  	sensor_hub_remove_callback(hsdev, HID_USAGE_SENSOR_TEMPERATURE);
+>  	return ret;
+> =20
+> -error_iio_unreg:
+> -	iio_device_unregister(indio_dev);
+> +error_remove_callback:
+> +	sensor_hub_remove_callback(hsdev, hsdev->usage);
 
 [Severity: Critical]
-This is a pre-existing issue, but I wanted to ask about the teardown order
-here.
+Could this introduce a use-after-free if the callback fires during error
+handling?
 
-In hid_temperature_remove(), we call sensor_hub_remove_callback(), which
-removes the callback from the sensor hub's list under dyn_callback_lock.
-However, it doesn't appear to synchronize with or wait for concurrently
-executing callback handlers like sensor_hub_raw_event() to finish before
-returning.
+Looking at sensor_hub_remove_callback(), it unlinks the callback from the
+list but does not appear to wait for actively executing handlers to finish.
+If a sensor event triggers concurrently, hid_prox_probe() could return,
+allowing the devres framework to free the indio_dev and prox_state memory.
 
-Since indio_dev is allocated with devm_iio_device_alloc() during probe, it
-will be freed by devres immediately after hid_temperature_remove() returns.
+Would an actively executing callback then dereference this freed memory?
 
-If sensor_hub_raw_event() is executing concurrently and has already retriev=
-ed
-the callback pointer, could it pass the pdev to temperature_capture_sample()
-and perform a use-after-free write on the freed private state?
+>  error_remove_trigger:
+>  	hid_sensor_remove_trigger(indio_dev, &prox_state->common_attributes);
+>  	return ret;
+> @@ -344,8 +344,8 @@ static void hid_prox_remove(struct platform_device *p=
+dev)
+>  	struct iio_dev *indio_dev =3D platform_get_drvdata(pdev);
+>  	struct prox_state *prox_state =3D iio_priv(indio_dev);
+> =20
+> -	sensor_hub_remove_callback(hsdev, hsdev->usage);
+>  	iio_device_unregister(indio_dev);
+> +	sensor_hub_remove_callback(hsdev, hsdev->usage);
 
-For example:
-temp_st->scan.temperature_data =3D *(s32 *)raw_data;
+[Severity: Critical]
+Does reordering these calls create a race condition with IIO buffer teardow=
+n?
 
-Should we be flushing or waiting for running callbacks to complete before
-letting the device context be freed?
+By unregistering the IIO device before removing the sensor hub callback, a
+concurrently firing callback could invoke iio_push_to_buffers() while
+iio_device_unregister() is tearing down the buffers.
 
->  	hid_sensor_remove_trigger(indio_dev, &temp_st->common_attributes);
+iio_push_to_buffers() traverses the buffer list locklessly:
+
+    list_for_each_entry(buf, &iio_dev_opaque->buffer_list, buffer_list) {
+
+At the same time, iio_device_unregister() modifies this list using
+list_del_init() via iio_buffer_deactivate(). If the lockless iterator
+evaluates a buffer node exactly when list_del_init() resets its pointers to
+point to itself, could this cause an endless loop and a hard CPU stall?
+
+[Severity: Critical]
+This is a pre-existing issue, but does sensor_hub_remove_callback() properly
+synchronize with active callbacks before returning?
+
+Since sensor_hub_remove_callback() unlinks the callback but does not wait
+for executions of sensor_hub_raw_event() to finish, hid_prox_remove() can
+return while callbacks are still running.
+
+Once the function returns, the devres framework frees indio_dev and
+prox_state. Can this lead to a use-after-free when the still-running
+callback attempts to access the freed memory?
+
+>  	hid_sensor_remove_trigger(indio_dev, &prox_state->common_attributes);
 >  }
 
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260622052135.1804=
-135-1-sanjayembedded@gmail.com?part=3D1
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260622-5-june-hid=
+-iio-race-fixes-v2-0-1cfabcd1881e@gmail.com?part=3D5

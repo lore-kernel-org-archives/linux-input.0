@@ -1,127 +1,172 @@
-Received: from zg8tmja2lje4os4yms4ymjma.icoremail.net (zg8tmja2lje4os4yms4ymjma.icoremail.net [206.189.21.223])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 1074B2FE0F;
-	Mon, 22 Jun 2026 05:51:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=206.189.21.223
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CF26E3126D6
+	for <linux-input@vger.kernel.org>; Mon, 22 Jun 2026 06:03:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782107471; cv=none; b=l2xxR6PO1H40HxLUN1ZsI++qpm/FidoxD61oSGqV0QXQFxLvNjJd1zbDx4qRlUqXc7XGX5821sNhI9qL4h/w21gir5jj+KQIJq7o5mTjB3mRHeWbZS/alkuddjM9eNxWf6fapTxCQQhR8SzdmOiTACpS9yzOv5hxoH0ipRA9nX8=
+	t=1782108213; cv=none; b=i0DFI2Y3Q0EkVOpxDV0U+22BqcZyoiDfY7tG08dAwJ4eNvd6KsZ+ZFFwrhungfw9DeiPQVTGuMtVyITtHgCzM/DzHgA8BgGf9oksU1Sc+JZQbSuE/KoLjqCkLscGihRtTjjtLvnHFsoZDs5TDmaRl2wqMSTtfFChn4cOJ+7Ross=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782107471; c=relaxed/simple;
-	bh=PjVTgdY6rEqsXENe70BI7SH0qlL2soygiWUC/3Citek=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=j0Sav+UniIPr2BlaWVk1FKIjlV/hH0epuERy1O2JgonBbX6ZKBsQSbndRFkX2QZbfnbLktSG08rNVOuaTAo2omw0jfVK4uRL9KuZglnK6spR/9fHHEDMsbX1fm2Ka9guUL4mCxobUOxTHrowJ8DsYdbL9sJlb8jKR8V2wzDMTII=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=mails.tsinghua.edu.cn; spf=pass smtp.mailfrom=mails.tsinghua.edu.cn; dkim=pass (1024-bit key) header.d=mails.tsinghua.edu.cn header.i=@mails.tsinghua.edu.cn header.b=WlMEpfWT; arc=none smtp.client-ip=206.189.21.223
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=mails.tsinghua.edu.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mails.tsinghua.edu.cn
+	s=arc-20240116; t=1782108213; c=relaxed/simple;
+	bh=tIjQHlKOz7JQPOrPz5KwQMjYkJU38QN0kIAJZkNf+to=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=AkcXEUbDZhKCkt8sMwz7E0bZPerYIES2vGG6c69uO5qbdaVqFlVIH2RMc13XJCeLeYf+olqVPh2DGmg0nnKdY1ik2ad1oGnFvc5Vx9sfxlDbqXy/RNlSF+DZqzwC0+I+Gdntgby4PZdp5EkHiCrARClitR76JxdSsFgrLYukFGo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=JsNAQM35; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=mails.tsinghua.edu.cn header.i=@mails.tsinghua.edu.cn header.b="WlMEpfWT"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=mails.tsinghua.edu.cn; s=dkim; h=Received:From:To:Cc:Subject:
-	Date:Message-Id:In-Reply-To:References:MIME-Version:
-	Content-Transfer-Encoding; bh=5lDTCjNMcgKSqs9mk4C/OB6GQoEtmwOGp4
-	smLe5gbXg=; b=WlMEpfWTpkylM+kUGVphQ1yk3ldnH8hEYVkRUY4COSRIg5eU73
-	erYMFq8SxA/R9UIjHWfnLav0TYHqYUjstsKVVazZQyX5jK0Pvk1bLd77E/uwH3E5
-	gbBsn/bQwN2AV4nV5U1yzNEcRCl/hH1/IZ+JaY+nsulocHnm3YNZyi7Dw=
-Received: from c9a6c405b3f2.. (unknown [202.112.238.121])
-	by web5 (Coremail) with SMTP id zAQGZQDnnr4xzThqn6KaAg--.38470S2;
-	Mon, 22 Jun 2026 13:50:55 +0800 (CST)
-From: Yiyang Chen <chenyy23@mails.tsinghua.edu.cn>
-To: bot+bpf-ci@kernel.org
-Cc: andrii@kernel.org,
-	ast@kernel.org,
-	bentiss@kernel.org,
-	bpf@vger.kernel.org,
-	chenyy23@mails.tsinghua.edu.cn,
-	clm@meta.com,
-	daniel@iogearbox.net,
-	eddyz87@gmail.com,
-	ihor.solodrai@linux.dev,
-	jikos@kernel.org,
-	jolsa@kernel.org,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	linux-kselftest@vger.kernel.org,
-	martin.lau@kernel.org,
-	martin.lau@linux.dev,
-	memxor@gmail.com,
-	shuah@kernel.org,
-	song@kernel.org,
-	yonghong.song@linux.dev
-Subject: Re: [PATCH bpf-next v2 2/2] selftests/hid: Cover hid_bpf_get_data() size overflow
-Date: Mon, 22 Jun 2026 05:50:40 +0000
-Message-Id: <20260622055040.1929254-1-chenyy23@mails.tsinghua.edu.cn>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <b3b148b42eb198ac7194c1c0547e47275b9f5d31133eececaf1389f17caed5af@mail.kernel.org>
-References: <b3b148b42eb198ac7194c1c0547e47275b9f5d31133eececaf1389f17caed5af@mail.kernel.org>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="JsNAQM35"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 707001F000E9;
+	Mon, 22 Jun 2026 06:03:32 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1782108212;
+	bh=rAz+TBiCDiP9fGkDCTU90SHhGPqm7nhkg8WTpNjvsyM=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=JsNAQM35xt2CBTUN54K2dAZkDiYSbop7CGGnpp5+4tFJrN4gMdkSny2wcA5T0JYWz
+	 TTdTpO0N00Sg1RROqlvFMIdgiaFImNgKPnPrW+mXb2yFwFhafTxzX1ZrfYcajiumKb
+	 ksJXb30PxF7Y7VomaSb5GN7H9jHehC0h83eZVcKqH06FblFnrds5smVOzOragridRE
+	 pQrAO9eO7XbUxnYPI0vaLI7C2VbXItIfPT5S/xtjNACC0NkGEseyX4QiH+SAPcD+71
+	 39H3k6zQ6Fg61QWX/1BhC93jQqowvdYZuwBcF572es1d6rjsGYnhgb/Zh4Ijz4yRGJ
+	 zK0H8tmKE1HmQ==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v2 8/8] iio: accel: hid-sensor-accel-3d: Avoid race
+ between callback setup and device exposure
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Sanjay Chitroda" <sanjayembeddedse@gmail.com>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <20260622-5-june-hid-iio-race-fixes-v2-8-1cfabcd1881e@gmail.com>
+References: <20260622-5-june-hid-iio-race-fixes-v2-0-1cfabcd1881e@gmail.com>
+ <20260622-5-june-hid-iio-race-fixes-v2-8-1cfabcd1881e@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Mon, 22 Jun 2026 06:03:32 +0000
+Message-Id: <20260622060332.707001F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:zAQGZQDnnr4xzThqn6KaAg--.38470S2
-X-Coremail-Antispam: 1UD129KBjvJXoW7Zw43tF4DZF4UGr1xZrWxtFb_yoW8tryfpr
-	y5uay7Kr1DKF1I9rnrAw18AF1FvFsxXF43Jr1kGFy5Cws8CF4Igry3WryYva1rCwsY934j
-	va1qva9xCa1kCaDanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDU0xBIdaVrnRJUUUPY14x267AKxVW5JVWrJwAFc2x0x2IEx4CE42xK8VAvwI8IcIk0
-	rVWrJVCq3wAFIxvE14AKwVWUJVWUGwA2ocxC64kIII0Yj41l84x0c7CEw4AK67xGY2AK02
-	1l84ACjcxK6xIIjxv20xvE14v26w1j6s0DM28EF7xvwVC0I7IYx2IY6xkF7I0E14v26r4U
-	JVWxJr1l84ACjcxK6I8E87Iv67AKxVW0oVCq3wA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_Gc
-	CE3s1lnxkEFVAIw20F6cxK64vIFxWle2I262IYc4CY6c8Ij28IcVAaY2xG8wAqx4xG64xv
-	F2IEw4CE5I8CrVC2j2WlYx0E2Ix0cI8IcVAFwI0_Jr0_Jr4lYx0Ex4A2jsIE14v26r1j6r
-	4UMcvjeVCFs4IE7xkEbVWUJVW8JwACjcxG0xvY0x0EwIxGrwACjI8F5VA0II8E6IAqYI8I
-	648v4I1lFIxGxcIEc7CjxVA2Y2ka0xkIwI1lc7CjxVAaw2AFwI0_GFv_Wrylc2xSY4AK67
-	AK6r4rMxAIw28IcxkI7VAKI48JMxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8CrVAF
-	wI0_Jr0_Jr4lx2IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVW8ZVWrXwCIc4
-	0Y0x0EwIxGrwCI42IY6xIIjxv20xvE14v26r1j6r1xMIIF0xvE2Ix0cI8IcVCY1x0267AK
-	xVW8JVWxJwCI42IY6xAIw20EY4v20xvaj40_Jr0_JF4lIxAIcVC2z280aVAFwI0_Jr0_Gr
-	1lIxAIcVC2z280aVCY1x0267AKxVW8Jr0_Cr1UYxBIdaVFxhVjvjDU0xZFpf9x0pRh2-OU
-	UUUU=
-X-CM-SenderInfo: xfkh05r1stqzpdlo2hxwvl0wxkxdhvlgxou0/
 
-On Sat, Jun 20, 2026 at 03:11:00PM +0000, bot+bpf-ci@kernel.org wrote:
-> That wrapping check was introduced in 658ee5a64fcf, and the fix commit
-> carries a Fixes: tag for it. Should this test commit carry the same tag?
->
->   Fixes: 658ee5a64fcf ("HID: bpf: allocate data memory for device_event BPF programs")
+Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+s) to consider:
 
-Yes, I will add the same Fixes tag to the selftest patch in v3 so the
-regression test is tied to the commit that introduced the wrapping check.
+Pre-existing issues:
+- [Critical] Pre-existing Use-After-Free during driver removal or probe fai=
+lure due to lack of callback synchronization.
+- [High] Pre-existing race condition between data push and buffer disable l=
+eading to infinite loop.
+- [High] Missing length validation on `raw_data` in `accel_3d_capture_sampl=
+e` leads to out-of-bounds reads and potential Information Leak.
+--
 
-> This was raised on an earlier posting and does not look addressed:
-> the callback stores the result in the get_data_overflow_check global
-> and always returns 0, while the userspace test asserts on that global
-> rather than on the callback return value.
->
-> Could the callback just return the helper result so the test can check
-> the return value directly, instead of routing it through a separate
-> global?
+commit d6d7cec4acad5d2e20a4e415413ae49c117fe317
+Author: Sanjay Chitroda <sanjayembeddedse@gmail.com>
 
-The callback's return value is not something the test can observe
-directly.  call_hid_bpf_rdesc_fixup() consumes it as a kernel-side
-contract: a negative value falls back to the original report descriptor,
-and a positive value becomes the new descriptor size (*size = ret).  Its
-only userspace-visible effect is therefore the report descriptor size,
-so checking the return value would amount to checking that size, which
-means perturbing it.
+iio: accel: hid-sensor-accel-3d: Avoid race between callback setup and devi=
+ce exposure
 
-Since the callback returns int and hid_bpf_get_data() returns a pointer,
-the only way to return the helper result is to convert it, e.g.
+This patch reorders the probe and remove paths in the hid-sensor-accel-3d
+driver to ensure callbacks are registered before device exposure and removed
+after the device is unregistered. This aims to prevent race conditions where
+userspace might enable buffers before callbacks are fully set up.
 
-	return !hid_bpf_get_data(hid_ctx, 2, ~0ULL);
+> diff --git a/drivers/iio/accel/hid-sensor-accel-3d.c b/drivers/iio/accel/=
+hid-sensor-accel-3d.c
+> index 42c4259bf2094..12481cfe9800a 100644
+> --- a/drivers/iio/accel/hid-sensor-accel-3d.c
+> +++ b/drivers/iio/accel/hid-sensor-accel-3d.c
+> @@ -386,12 +386,6 @@ static int hid_accel_3d_probe(struct platform_device=
+ *pdev)
+>  		return ret;
+>  	}
+> =20
+> -	ret =3D iio_device_register(indio_dev);
+> -	if (ret) {
+> -		dev_err(&pdev->dev, "device register failed\n");
+> -		goto error_remove_trigger;
+> -	}
+> -
+>  	accel_state->callbacks.send_event =3D accel_3d_proc_event;
+>  	accel_state->callbacks.capture_sample =3D accel_3d_capture_sample;
 
-On a fixed kernel the helper returns NULL, so this returns 1 and the
-dispatch path truncates the report descriptor to 1 byte mid-test.  The
-BSS variable records that the helper rejected the overflowing range
-while the callback still returns 0 and leaves the descriptor untouched.
+[Severity: High]
+This isn't a bug introduced by this patch, but does this callback setup lea=
+ve
+us vulnerable to an out-of-bounds read?
 
-This matches the existing convention in progs/hid.c: callback_check and
-callback2_check are BPF-side globals the userspace tests assert on, and
-the existing hid_rdesc_fixup callback returns a positive size only when
-it actually rewrites the descriptor (sizeof(rdesc) + 73).  The overflow
-probe does not rewrite anything, so it returns 0 and reports the
-helper's rejection through the BSS variable.
+Looking at accel_3d_capture_sample(), it casts the incoming raw_data pointer
+without checking if raw_len is sufficiently large:
 
-Thanks,
-Yiyang
+accel_3d_capture_sample()
+    accel_state->scan.accel_val[CHANNEL_SCAN_INDEX_X + offset] =3D
+        *(u32 *)raw_data;
 
+Since raw_len is derived directly from the HID report descriptor provided by
+the device, could a malicious device declare an artificially small field
+(e.g., 1 byte) causing us to read adjacent kernel slab memory when
+dereferencing as a u32 or int64_t?
+
+>  	accel_state->callbacks.pdev =3D pdev;
+> @@ -399,13 +393,19 @@ static int hid_accel_3d_probe(struct platform_devic=
+e *pdev)
+
+[ ... ]
+
+> @@ -418,8 +418,8 @@ static void hid_accel_3d_remove(struct platform_devic=
+e *pdev)
+>  	struct iio_dev *indio_dev =3D platform_get_drvdata(pdev);
+>  	struct accel_3d_state *accel_state =3D iio_priv(indio_dev);
+> =20
+> -	sensor_hub_remove_callback(hsdev, hsdev->usage);
+>  	iio_device_unregister(indio_dev);
+
+[Severity: High]
+This isn't a bug introduced by this patch, but could this unregister sequen=
+ce
+trigger an infinite loop during a concurrent data push?
+
+If accel_3d_proc_event() is executing asynchronously in the HID event
+context and observes data_ready > 0, it prepares to call
+iio_push_to_buffers().
+
+If preempted, another thread could execute this remove path:
+
+hid_accel_3d_remove()
+  -> iio_device_unregister()
+    -> iio_disable_all_buffers()
+      -> iio_buffer_deactivate_all()
+        -> iio_buffer_deactivate()
+
+iio_buffer_deactivate() uses list_del_init(&buffer->buffer_list), which mak=
+es
+the list node self-referential. When iio_push_to_buffers() resumes its
+lockless list_for_each_entry() traversal, will it infinite loop on this nod=
+e?
+
+> +	sensor_hub_remove_callback(hsdev, hsdev->usage);
+
+[Severity: Critical]
+This is a pre-existing issue, but does this callback removal leave a window
+for a use-after-free?
+
+sensor_hub_remove_callback() removes the callback from the list under a
+spinlock but does not appear to wait for concurrently executing
+sensor_hub_raw_event() handlers to complete.
+
+Once hid_accel_3d_remove() returns, the devres framework will immediately
+free indio_dev and accel_state. If a concurrent sensor_hub_raw_event() alre=
+ady
+fetched the callback pointer:
+
+sensor_hub_raw_event()
+    if (callback->capture_sample) {
+        if (report->field[i]->logical)
+            callback->capture_sample(hsdev, ...);
+
+Could it dereference the freed accel_state to execute capture_sample and
+send_event, resulting in a use-after-free?
+
+>  	hid_sensor_remove_trigger(indio_dev, &accel_state->common_attributes);
+>  }
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260622-5-june-hid=
+-iio-race-fixes-v2-0-1cfabcd1881e@gmail.com?part=3D8

@@ -1,135 +1,84 @@
-Received: from mail-dy1-f172.google.com (mail-dy1-f172.google.com [74.125.82.172])
+Received: from mail-ot1-f72.google.com (mail-ot1-f72.google.com [209.85.210.72])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 884D533EAF9
-	for <linux-input@vger.kernel.org>; Mon, 22 Jun 2026 18:18:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.172
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BED39348C76
+	for <linux-input@vger.kernel.org>; Mon, 22 Jun 2026 20:32:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.72
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782152307; cv=none; b=WGZIEMCUB8RRj+4vt8WV0xYIGJNil0fH9/vEBON6OSL4Y8IVMVtq+KWjkRttInYf59jAb1QJ+yk4ltaM+XxKA3pGahlb2yZOfMPScXJGTbmHng+KoUFot+0v/5kuC21Loix1u0jw9z2WKJMnLok309WMhr1aW+w99tGIgP8jETU=
+	t=1782160358; cv=none; b=MF2+EMWO1RjARlxOpd1wI0DtnzR2tadQPCe4aeZ+vVuA60OzSN6Xdwo6LMtP6fcoknZ3i1knwZPG2Z+nZ5efAQ2PyB8KsX++RFNc6rk3IXxYMku7b9y1+FeGUG0KeaonK8wwSC8dh39OYakvYkHJvuhTTdhf0sEeZUUXFNXzhGM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782152307; c=relaxed/simple;
-	bh=BPs0E0Sg6JSePXrntU9OMcGGkos5S/qvj3HCBcV4X7Y=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=hIEpw++3vBb1pUVrOLi6gVBItk/1tUSzuRpbWHZIsrcJxHtX3vP6k6aZiKdqjk7uSh6meIcIWSRXQ3TUPawa2eJ4UfnLPbpRWnM1mDg1v7arocY3OTg4AaE8TwHXpgj378O/HPhCR0fqQ8HK4qeH3uxZ/8npGstoo8T3ySeKviQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=TD53GlfJ; arc=none smtp.client-ip=74.125.82.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="TD53GlfJ"
-Received: by mail-dy1-f172.google.com with SMTP id 5a478bee46e88-30c52cc5285so743551eec.1
-        for <linux-input@vger.kernel.org>; Mon, 22 Jun 2026 11:18:26 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1782152306; x=1782757106; darn=vger.kernel.org;
-        h=mime-version:user-agent:content-transfer-encoding:references
-         :in-reply-to:date:cc:to:from:subject:message-id:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=8UVsKCK9kHa09INWL8qmL+CtZFk3R2BbfKJt8UkBDd4=;
-        b=TD53GlfJXNQrbigVFEhwBvEkYKlxBUSicqZ9kNsYrEGy10ELYPKboOlhoB9GxevsXB
-         v371mFBVez4m2lP3AFmC/WnF41GMe1P0doQ062fUIUP+lTF9ylYroXnOlYxPsGOn2Hwn
-         8h4LKcwmBYopmARtpCYeGoUrwr3LVi7kiKr3HXFbTBwGcfIF7VrscB9e4IhVuSb37qDU
-         Rdg7v1vV2zzu2dL/erFAGJUg9HAWS7AO6ODrY6QmigJbNPCNXrZ1UlARbNF3HNkx2HeT
-         28zEDme0Q9QKJpU/o3cU7epWMl96/UGUQpamM3ge4iVUoj4rM2VmIjpi3bjXLuiBp2ZE
-         beeg==
+	s=arc-20240116; t=1782160358; c=relaxed/simple;
+	bh=HstwZhg7IRIqyi1nIX52ZJM5QvbS7sQfXYBrXHXhUQs=;
+	h=MIME-Version:Date:Message-ID:Subject:From:To:Content-Type; b=TcYom+BPeVgbIcIhm9oHBvSpX0xw0c5RLBdWHUlgAJ9+Ypf97dsB4DOTiuUhxbU8Bal43G2X7klWkazO2roAlfC4EeNJUpCbijORVp1dthlmcQ0dZrqUngklgmxr3qjvbZPKwGPb2JlQqqkIXYXaYtUuOwGAd0gXyzxS4X57OF8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.210.72
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
+Received: by mail-ot1-f72.google.com with SMTP id 46e09a7af769-7e6f45ce9ceso6551910a34.2
+        for <linux-input@vger.kernel.org>; Mon, 22 Jun 2026 13:32:37 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1782152306; x=1782757106;
-        h=mime-version:user-agent:content-transfer-encoding:references
-         :in-reply-to:date:cc:to:from:subject:message-id:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=8UVsKCK9kHa09INWL8qmL+CtZFk3R2BbfKJt8UkBDd4=;
-        b=j4TbBmrBwM4cHaekn+3UrzftpARfG/n6a3FtU7HeaNw3O+eTRpBWGzfNnucgSU/Jyw
-         MT3ctnVWFKmGKIITQC07ngO/rvP4Iw3TCDdKwMTRYLzBjzP+H08uhtTpRF8y7Rhz3ZP4
-         wDrnrgR0tRs1nq6TJ5heoqHj/E5pbJ1S60xKxjg/O7jX9zTwgwrfkmpftdKAhtG8ZW9I
-         T9oXGGUo1yX4nsBIHYRF+Rnk4qSlDy3YU7izsSouJtWn95rTZeZwk5wPrV2VZCOxY0jy
-         D1k4/AcnafxThNEobVMRkMIUfCsfKYiFlLFqBwmlW+TnMnSUZWSwgioV0IXWLC6Lkv9f
-         oAkw==
-X-Forwarded-Encrypted: i=1; AHgh+RroCfCGYRvi9E3/i+eK749c8bcipazd4cj2zNJMnmSTOmGKlewMMHSra46yBeFJ2q1m7gfQKmCCtwm97w==@vger.kernel.org
-X-Gm-Message-State: AOJu0YzfXFDlrU95hi0jC3yC0VFn/+yyoMZ88UdlRhsSqaep3rbb4K5P
-	pHm5NKCoSE5kKvE3nl9V5Ui0sk0dw2eOe9JP/HpDPzphCbUtstAu1F1X
-X-Gm-Gg: AfdE7cmsxlPvCbkAahiabNDutDNqySqMF+Ww6P7x+s7PI4koGFrCyB8Pf/ylEDviGiN
-	Rnss+RSHSW6FPy6phjSyDl3oVMx3zhtV9b9SZxrEY/C8tWSKq/Ct100BzZYI50h1eXyhAe53Bvy
-	Hs6rSmE7t7W4mmp53mrnSct+t2grhh6gl3i44CH1k4+Y2Y2Vm27g2aKX7B3Poh0heBl38/4vwmL
-	kQ1r3HrLkqV+TCKjqQ3P5FEUsi6zRFgCsA377nZyQ8bfvbILK83qyJ+ibzQ+kNTLiwdXyxk45MH
-	BvExS5UEJcf6I7iwOF1EAsl9tEp/9SzMpbDoAHW897oBNs8jdyuv79V8A9DKMLrouXyIxIbB2JC
-	eqLyrPysVjJjY9xkJ7m8sev3TkMrUzjRUlK/1V3pR3YM1k0d8bSlRQtEWQJ7V0Cge/zmA16Y0gk
-	5jUG7+z11djv/rD9IxKxE2QIFXR1/JDMa5LPWDoYJw+zKhFEuhtHdsd9/mbTgsPbW1Vj8=
-X-Received: by 2002:a05:7300:3c15:b0:304:ccdd:594a with SMTP id 5a478bee46e88-30c06d4bd52mr13258922eec.5.1782152305404;
-        Mon, 22 Jun 2026 11:18:25 -0700 (PDT)
-Received: from ?IPv6:2a03:83e0:115c:1:6e2:c699:67c:63fe? ([2620:10d:c090:500::1:5387])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-30c1bd8d75csm10223340eec.15.2026.06.22.11.18.23
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 22 Jun 2026 11:18:25 -0700 (PDT)
-Message-ID: <ea4cec012200acbca4a772898967bdc6f5f6aae1.camel@gmail.com>
-Subject: Re: [PATCH bpf-next v3 1/3] HID: bpf: Fix hid_bpf_get_data() range
- check
-From: Eduard Zingerman <eddyz87@gmail.com>
-To: Yiyang Chen <chenyy23@mails.tsinghua.edu.cn>, Jiri Kosina
- <jikos@kernel.org>,  Benjamin Tissoires	 <bentiss@kernel.org>,
- bpf@vger.kernel.org, linux-input@vger.kernel.org
-Cc: Shuah Khan <shuah@kernel.org>, Alexei Starovoitov <ast@kernel.org>, 
- Daniel Borkmann <daniel@iogearbox.net>, Andrii Nakryiko
- <andrii@kernel.org>, Martin KaFai Lau <martin.lau@linux.dev>,  Kumar
- Kartikeya Dwivedi	 <memxor@gmail.com>, Song Liu <song@kernel.org>, Yonghong
- Song	 <yonghong.song@linux.dev>, Jiri Olsa <jolsa@kernel.org>, 
-	linux-kselftest@vger.kernel.org, linux-kernel@vger.kernel.org
-Date: Mon, 22 Jun 2026 11:18:22 -0700
-In-Reply-To: <20260622073011.423657-1-chenyy23@mails.tsinghua.edu.cn>
-References: <20260622065246.414380-1-chenyy23@mails.tsinghua.edu.cn>
-	 <20260622073011.423657-1-chenyy23@mails.tsinghua.edu.cn>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.60.1 (3.60.1-1.fc44) 
+        d=1e100.net; s=20251104; t=1782160357; x=1782765157;
+        h=to:from:subject:message-id:date:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=Qs14AwhXpNMRn8D+6PI36uQyu7vwxfVrrBnGoG+Tt9U=;
+        b=Xmzb7SYoKIN8ZrAuVIOcqFITZzLP2+uw9TLnN7YRLXw3NwmmuARGM6GNTL0Oo5pVms
+         C5SYxCmYt1uWWVCC/InvpOT1sDIticcbkPVmJMqbVkr7hRF9VLNJ2HyzLvcbMpnAQwfb
+         6Y5QE5yfWtdy4NYe6c9I+gDJw46txOwEYKJESlEsBHmk9fO/4WLHlLdniG77+1C/C5WF
+         8hltKihg2/OsPaovgToiGGh4d5BhTH9dJ/OL1z9BBBVLN1OB3VmJdTeAcZvh5Mvmslaj
+         IrE0flEBZ67p9D4r96o0OoaTIq5wxRlnSok2n/FFHsCRwC3dQZPDGQIJ+G5+2cyGd3qQ
+         jVzA==
+X-Gm-Message-State: AOJu0YymhuBP5rrBFwMlJQYKsE4CkSrACJh97GnvAzcqDjITXzdjtpa/
+	i3KOm/l57ildZaeHwOlCN0BRQGbgJhOo6vsP75xCfkggU3Job37Ci1LF/w+eaEN04O8yp720l4A
+	qj6aYTbbF1MSJSsUMz8IxgmNco9AR5kMeO/FMF8wiCVuJUDRM5C0Cak9JOUA=
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+X-Received: by 2002:a05:6808:1513:b0:48c:b2d1:8c97 with SMTP id
+ 5614622812f47-48cb2d19bb1mr6323554b6e.40.1782160356866; Mon, 22 Jun 2026
+ 13:32:36 -0700 (PDT)
+Date: Mon, 22 Jun 2026 13:32:36 -0700
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <6a399be4.b71f6517.a55ba.0003.GAE@google.com>
+Subject: [syzbot] Monthly input report (Jun 2026)
+From: syzbot <syzbot+list708c459da31658a72d0e@syzkaller.appspotmail.com>
+To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	syzkaller-bugs@googlegroups.com
+Content-Type: text/plain; charset="UTF-8"
 
-On Mon, 2026-06-22 at 07:30 +0000, Yiyang Chen wrote:
-> hid_bpf_get_data() returns a pointer into the HID-BPF context data when
-> the caller-provided offset and size fit inside ctx->allocated_size.
->=20
-> The current check adds rdwr_buf_size and offset before comparing the
-> result against ctx->allocated_size. Since both values are unsigned, a
-> very large size can wrap the sum below ctx->allocated_size and make the
-> helper return a pointer even though the requested range is not contained
-> in the backing buffer.
->=20
-> Use a non-wrapping range check instead: reject offsets beyond the
-> allocation, then compare the requested size with the remaining bytes
-> after the offset.
->=20
-> Fixes: 658ee5a64fcf ("HID: bpf: allocate data memory for device_event BPF=
- programs")
-> Signed-off-by: Yiyang Chen <chenyy23@mails.tsinghua.edu.cn>
-> ---
->  drivers/hid/bpf/hid_bpf_dispatch.c | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
->=20
-> diff --git a/drivers/hid/bpf/hid_bpf_dispatch.c b/drivers/hid/bpf/hid_bpf=
-_dispatch.c
-> index d0130658091b0..09b45c40d84f0 100644
-> --- a/drivers/hid/bpf/hid_bpf_dispatch.c
-> +++ b/drivers/hid/bpf/hid_bpf_dispatch.c
-> @@ -299,7 +299,8 @@ hid_bpf_get_data(struct hid_bpf_ctx *ctx, unsigned in=
-t offset, const size_t rdwr
-> =20
->  	ctx_kern =3D container_of(ctx, struct hid_bpf_ctx_kern, ctx);
-> =20
-> -	if (rdwr_buf_size + offset > ctx->allocated_size)
-> +	if (offset > ctx->allocated_size ||
-> +	    rdwr_buf_size > ctx->allocated_size - offset)
+Hello input maintainers/developers,
 
-Nit: imo, this is harder to read, I'd define a variable to hold the
-     buffer end position, update it using check_add_overflow and
-     then compare it against ctx->allocated_size, e.g.:
+This is a 31-day syzbot report for the input subsystem.
+All related reports/information can be found at:
+https://syzkaller.appspot.com/upstream/s/input
 
-  if (check_add_overflow(rdwr_buf_size, offset, &end) || end > ctx->allocat=
-ed_size)
-      ...
+During the period, 1 new issues were detected and 0 were fixed.
+In total, 18 issues are still open and 63 have already been fixed.
+There are also 4 low-priority issues.
 
-pw-bot: cr
+Some of the still happening issues:
 
->  		return NULL;
-> =20
->  	return ctx_kern->data + offset;
+Ref Crashes Repro Title
+<1> 2096    No    possible deadlock in evdev_pass_values (2)
+                  https://syzkaller.appspot.com/bug?extid=13d3cb2a3dc61e6092f5
+<2> 705     Yes   KASAN: slab-out-of-bounds Read in mcp2221_raw_event (2)
+                  https://syzkaller.appspot.com/bug?extid=1018672fe70298606e5f
+<3> 215     Yes   WARNING in cm109_input_open/usb_submit_urb (3)
+                  https://syzkaller.appspot.com/bug?extid=ac0f9c4cc1e034160492
+<4> 122     No    KASAN: slab-use-after-free Read in report_descriptor_read
+                  https://syzkaller.appspot.com/bug?extid=bc537ca7a0efe33988eb
+
+---
+This report is generated by a bot. It may contain errors.
+See https://goo.gl/tpsmEJ for more information about syzbot.
+syzbot engineers can be reached at syzkaller@googlegroups.com.
+
+To disable reminders for individual bugs, reply with the following command:
+#syz set <Ref> no-reminders
+
+To change bug's subsystems, reply with:
+#syz set <Ref> subsystems: new-subsystem
+
+You may send multiple commands in a single email message.

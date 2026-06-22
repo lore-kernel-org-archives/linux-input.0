@@ -1,67 +1,67 @@
-Received: from mail-pl1-f173.google.com (mail-pl1-f173.google.com [209.85.214.173])
+Received: from mail-pl1-f178.google.com (mail-pl1-f178.google.com [209.85.214.178])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D0B63352024
-	for <linux-input@vger.kernel.org>; Mon, 22 Jun 2026 05:30:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 505A2233956
+	for <linux-input@vger.kernel.org>; Mon, 22 Jun 2026 05:30:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782106251; cv=none; b=oIgQxeA4FtBHfgMTfHVzpTe/KdMVHUsUphHNrMjWt/AUzGj5GzKdUTEl4Cjwi3mytXcpq0Ssf5J/Mcnj3jKptxWM1fgjtpwEjAnmdO7I0q6GSgROtonbUAkwQxRblZvjCIBx5a3F0PhVbtLuv+sdFDiI4WG7AZ2WlMcsmhaHln0=
+	t=1782106255; cv=none; b=UjuFhE/vki/ONSOJhVvDGyddR43AWLUI8/7eIDt41pvfCQtJJERPRLPFaw23vfRoglDU3Ag3cOmkOnxuW/HYaRHh8CoK3edzHnDJsdOzhLlErdfcnMj41imihjTkab5hPvSGs3HpuM2HQ5jPQZZJXdBvHjSrVORQpNpmLj+QqFI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782106251; c=relaxed/simple;
-	bh=QGvsaucVFIq+xHwax4bTuaj6Aom0zgs9eEWQ8ibyPI4=;
+	s=arc-20240116; t=1782106255; c=relaxed/simple;
+	bh=VFGoiXGki0bhoIsViuQH4DkrJinlVWY3FP89NJlAakg=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=W9NRCmBn6Pwx5jDH5DYBxKAMKNiXKHgXmfjganjue3IT0UoOfxgatiYbkYSQAMWWjvSjDdSWOTLOsXabU1ZijKXB1w6D9O92qzGk7S8EBE4rkA/mIqY92x1GAbOzAdOJpoSXT9om+U3Y+5zmvkI1Dbzn9Y7ncUL8bjyJ1j1oImU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=eMW5blz0; arc=none smtp.client-ip=209.85.214.173
+	 In-Reply-To:To:Cc; b=oLkoMlp/v66w2PmLa+60LNTMUJXBr2bdgv4Nt70Yy5TTlubfeD89IMJ0LqhqD/MQeDISwmH0jM3K6BVgy73gCUE1NVZzExPozIVZuUx3BdMeXPsvyFccR7I8XqjSkQu33fTcdd0ahbbfPsfg32rj1EsX4Kj7KyOC9IyhuMZlKYA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=UiMQFWn8; arc=none smtp.client-ip=209.85.214.178
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="eMW5blz0"
-Received: by mail-pl1-f173.google.com with SMTP id d9443c01a7336-2c6fcfcdb2bso30084645ad.1
-        for <linux-input@vger.kernel.org>; Sun, 21 Jun 2026 22:30:48 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="UiMQFWn8"
+Received: by mail-pl1-f178.google.com with SMTP id d9443c01a7336-2bf2247e38eso45796705ad.3
+        for <linux-input@vger.kernel.org>; Sun, 21 Jun 2026 22:30:53 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1782106248; x=1782711048; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1782106252; x=1782711052; darn=vger.kernel.org;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=ffTnpdEoTSHY7O4F9+RQTZoyKdhcNy9gFtLZp56SK4I=;
-        b=eMW5blz0y+fxTlmETWuGrMXVdplJ1DU81A67x1nh3dodqD8+UihigH/e6L0HpAbYXO
-         MolzWgM8wytIuaDgrlvgT/7UKeIXN96A8yo/1kfnH/UmQqvh5UvskAsgbq9dVf1LYNrA
-         TgG3av9BI+pRX8eKkBDIyBf7omre8Vpi3vcLjclCczV4XhQhaNd9YVTAl0tv7QOU49KU
-         sCmYq9V2a7CBiMAAh870Q8LGNxywjascaDvZZbQqkBRow9ztAvfJ7DiyCWss+a+q78P5
-         HQi0/DIbSY6IoQMbsPFl3+21LkOTSqDDnlEHCaR408hfTrxRZhF0DZMXWl9uo1AnkA/7
-         p01Q==
+        bh=3tVcLshRPaZRd65d/wCo/MveF/lKliRRr0tnZ1bcPS8=;
+        b=UiMQFWn8QDWvt8EE+kE+ZMqvQSsVQBqiktFm3YoTdQgrFzyufU/T0qItVgbTKIYAp2
+         noKifoi4XnCMUGjfii8sF20OVQr2HpmaYN6BV27I8Hp3dKm4P4+rYEXwyHe1f6uqGk4A
+         XwwS9qUEW1AjNqaubr+FNq0R/ko8pGodrk53GZ/QIqF+3aqjjIVwmFtzRU2MIfof1Aep
+         oT0oYaHI1/B+E2QXzetpH68MyMEJwlE+4lgZQlrFcn72EcqyuwudFTpjq99t0ipJDaHF
+         jy5Dyf7sLc/PUdN3L6H1FfFvXpGE9UsXno99UxzjRUoe/BO590UwQk1xjVHTfpQtTxfk
+         WEvg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1782106248; x=1782711048;
+        d=1e100.net; s=20251104; t=1782106252; x=1782711052;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:x-gm-gg:x-gm-message-state:from:to
          :cc:subject:date:message-id:reply-to;
-        bh=ffTnpdEoTSHY7O4F9+RQTZoyKdhcNy9gFtLZp56SK4I=;
-        b=ZH3z3wYrz9u0PN08Z8ZN+A6yqfJDAYzbR32C6Tzv/byqRI6OZQzDA25BEkjL3cU9+S
-         DSAa3XoBt5cyCIm6aBAaTjG3CnxR5BcVBDOFIyjfV2uFFe3xjlmXPd7GYN3x3vp2Q7Bn
-         BFKACNvl8Jivzmgz8PfeWrLuZ4FeTnVMCw72a8F1vA7ELPaMGoEK00IX+YJqiisKG9BS
-         sdZJcuE33iFa7SItvFfCwQOEBKD+1xrWkYaWS7WAlSPhELmlKv9R6pyHgLIGyAN5whSi
-         7ljR06D7RiS1puz3KtKGI6Uvaq3pnzwLRfTUSbkldU8XY1fej9dFr8L15CTxXA6bpzV3
-         LugA==
-X-Gm-Message-State: AOJu0YyA7nSG5n6hV0Y3O2mKgusAD8uL3sx61Z42vBvs1eqBx3H45BTM
-	yuK7U55ejDyy9muTbH+8oEYL5rIlxlvmmVHHRZQYgXNEq9SX/7/XZJEW
-X-Gm-Gg: AfdE7cnrjVzo+/4HpdqkAX+DPAAQtPnMNama7TDesc71cMU0w006yY6brNqjdwqy87i
-	be2zXj+bHIsOmwjF7u2hUan4HVJLDYz4XGe6NNl69kdSDbtOYVsi+10y4UwXpTxgx++WfuItKsP
-	Z11OGd6YundeQo5UE8giF75HLh6yZZfJy9Oaw7LgmH0zrJ1rkAmZLo7QO3TjIwxSjK/z0BUcebv
-	Da6ar0NS7s+JeOjWCF1Ez4sodAa90LViUTmpgx8jb1U5V6Z6DdaWLWuCr/koYtccwJTe25XsT9h
-	Dip4+M7M+Qvfy4wEv2wOVb4MhGzj9D/ioOSaoB9/EDzacOv3WP5D5A8lBdyMjU6qbJRHZpsB5A2
-	auzz6/AuBSFxIRJECgx1XziNHwyeT2jROzNolNpSze5pdnLOGvlB2tfFgyaEH877Ye5DQExgkcf
-	aN+cd81Uv4PHkwKUiRA5jUtQf6phQf6alNdKAyHA==
-X-Received: by 2002:a17:902:ce8b:b0:2c6:d5da:838d with SMTP id d9443c01a7336-2c725dd032dmr136745235ad.33.1782106248133;
-        Sun, 21 Jun 2026 22:30:48 -0700 (PDT)
+        bh=3tVcLshRPaZRd65d/wCo/MveF/lKliRRr0tnZ1bcPS8=;
+        b=DlMeZHsCaSa7p1DFplpQB0Tdw2NGPYtFWil1AW6Fj0ZbE2JOfCo6/DnfN70DIXr/+O
+         LMJPKqh92fBh5StE1Ah+TkCvhqCVn6heAtemqrXzZXR3PFkUCbSwmG887JvlwZjwTEe2
+         dL0ZJ0X275YjiAyuS/oTZsEdP8ReyZIEiSfzn1hJSMTBfXuLCoxhpyAMe4jTycl2AyS0
+         Uu9KJLi6o84aUeU5mvqgHco+oVgc6n/1UVgoyW+y2WZCUr3fu9snrXeXrTawu8hj7nRi
+         d0Knewrq8YWT5mSchfnjqPCKU4xOyYNAwXSeEOmTYxBLASWQ1+sTPBWe81zmLaB5Zenh
+         Fj9A==
+X-Gm-Message-State: AOJu0YxuRMs155IekBfJtv5xE/NKcIKiuF/FvnmfAwFn1zMwJ3rJU2PV
+	1HdwbqGQLudPYez0I2HqlLV3zIfa9N3pjI22HDvrF12KC/Tm1OTQX0Fc
+X-Gm-Gg: AfdE7cmM8Tc3AcZIMx7Ypj4e364bOcRpygas07tAjjpB7MMdtrLDq+yT5eiZUoXHZH0
+	7z3Mrq+mAZBJMvrUg4LaDHx43lfYMQOPWlM9sP/rGuP7otgtIT+DxdiPiv9LVsG31BhjgHofqt0
+	QtTYgs58WKH1w/ENt/CIZn5009Zg4PJvt6WlfReBy14Kl8FUtdbnjz2ksEhqltFf0/7d4tqXqFh
+	aFfYWXxvWJmsrn+AfZmwLFsizUl867MGL+d8XbLMAnTbBnkwd7gzd2qKvp7MX2LlbrLvwYU9Px/
+	CJ2moE/wvxnOjgYNfvWk5gS++IaRCRfNrnc6EbDmyTx0ytCbAT719RhmraNfm7ULuL/xK1n3Pen
+	Y/rt0knbvT7m1nrzw0ihl2rTbkb3liqr5rSacCM3aaeKRQLx1Jcta9MHv9G/XYJmZOBROs0NjTk
+	iaEY+1yJlDpHRnSlrBrJKNYXoX905i2w7ezpAMPA==
+X-Received: by 2002:a17:903:3c4e:b0:2c0:af09:f3c7 with SMTP id d9443c01a7336-2c718f95888mr131872655ad.30.1782106252614;
+        Sun, 21 Jun 2026 22:30:52 -0700 (PDT)
 Received: from hu-ckantibh-hyd.qualcomm.com ([202.46.23.25])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2c743fd6420sm63932315ad.70.2026.06.21.22.30.43
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2c743fd6420sm63932315ad.70.2026.06.21.22.30.48
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 21 Jun 2026 22:30:47 -0700 (PDT)
+        Sun, 21 Jun 2026 22:30:52 -0700 (PDT)
 From: Sanjay Chitroda <sanjayembeddedse@gmail.com>
 X-Google-Original-From: Sanjay Chitroda <sanjayembedded@gmail.com>
-Date: Mon, 22 Jun 2026 11:00:03 +0530
-Subject: [PATCH v2 7/8] iio: magnetometer: hid-sensor-magn-3d: Avoid race
- between callback setup and device exposure
+Date: Mon, 22 Jun 2026 11:00:04 +0530
+Subject: [PATCH v2 8/8] iio: accel: hid-sensor-accel-3d: Avoid race between
+ callback setup and device exposure
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -70,7 +70,7 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260622-5-june-hid-iio-race-fixes-v2-7-1cfabcd1881e@gmail.com>
+Message-Id: <20260622-5-june-hid-iio-race-fixes-v2-8-1cfabcd1881e@gmail.com>
 References: <20260622-5-june-hid-iio-race-fixes-v2-0-1cfabcd1881e@gmail.com>
 In-Reply-To: <20260622-5-june-hid-iio-race-fixes-v2-0-1cfabcd1881e@gmail.com>
 To: Jiri Kosina <jikos@kernel.org>, Jonathan Cameron <jic23@kernel.org>, 
@@ -104,14 +104,14 @@ This avoids a race window leading to data loss.
 
 Signed-off-by: Sanjay Chitroda <sanjayembeddedse@gmail.com>
 ---
- drivers/iio/magnetometer/hid-sensor-magn-3d.c | 20 ++++++++++----------
+ drivers/iio/accel/hid-sensor-accel-3d.c | 20 ++++++++++----------
  1 file changed, 10 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/iio/magnetometer/hid-sensor-magn-3d.c b/drivers/iio/magnetometer/hid-sensor-magn-3d.c
-index 23884825eb00..acae77273bd5 100644
---- a/drivers/iio/magnetometer/hid-sensor-magn-3d.c
-+++ b/drivers/iio/magnetometer/hid-sensor-magn-3d.c
-@@ -513,12 +513,6 @@ static int hid_magn_3d_probe(struct platform_device *pdev)
+diff --git a/drivers/iio/accel/hid-sensor-accel-3d.c b/drivers/iio/accel/hid-sensor-accel-3d.c
+index 42c4259bf209..12481cfe9800 100644
+--- a/drivers/iio/accel/hid-sensor-accel-3d.c
++++ b/drivers/iio/accel/hid-sensor-accel-3d.c
+@@ -386,12 +386,6 @@ static int hid_accel_3d_probe(struct platform_device *pdev)
  		return ret;
  	}
  
@@ -121,11 +121,11 @@ index 23884825eb00..acae77273bd5 100644
 -		goto error_remove_trigger;
 -	}
 -
- 	magn_state->callbacks.send_event = magn_3d_proc_event;
- 	magn_state->callbacks.capture_sample = magn_3d_capture_sample;
- 	magn_state->callbacks.pdev = pdev;
-@@ -526,13 +520,19 @@ static int hid_magn_3d_probe(struct platform_device *pdev)
- 					&magn_state->callbacks);
+ 	accel_state->callbacks.send_event = accel_3d_proc_event;
+ 	accel_state->callbacks.capture_sample = accel_3d_capture_sample;
+ 	accel_state->callbacks.pdev = pdev;
+@@ -399,13 +393,19 @@ static int hid_accel_3d_probe(struct platform_device *pdev)
+ 					&accel_state->callbacks);
  	if (ret < 0) {
  		dev_err(&pdev->dev, "callback reg failed\n");
 -		goto error_iio_unreg;
@@ -143,18 +143,18 @@ index 23884825eb00..acae77273bd5 100644
 -error_iio_unreg:
 -	iio_device_unregister(indio_dev);
 +error_remove_callback:
-+	sensor_hub_remove_callback(hsdev, HID_USAGE_SENSOR_COMPASS_3D);
++	sensor_hub_remove_callback(hsdev, hsdev->usage);
  error_remove_trigger:
- 	hid_sensor_remove_trigger(indio_dev, &magn_state->magn_flux_attributes);
+ 	hid_sensor_remove_trigger(indio_dev, &accel_state->common_attributes);
  	return ret;
-@@ -545,8 +545,8 @@ static void hid_magn_3d_remove(struct platform_device *pdev)
+@@ -418,8 +418,8 @@ static void hid_accel_3d_remove(struct platform_device *pdev)
  	struct iio_dev *indio_dev = platform_get_drvdata(pdev);
- 	struct magn_3d_state *magn_state = iio_priv(indio_dev);
+ 	struct accel_3d_state *accel_state = iio_priv(indio_dev);
  
--	sensor_hub_remove_callback(hsdev, HID_USAGE_SENSOR_COMPASS_3D);
+-	sensor_hub_remove_callback(hsdev, hsdev->usage);
  	iio_device_unregister(indio_dev);
-+	sensor_hub_remove_callback(hsdev, HID_USAGE_SENSOR_COMPASS_3D);
- 	hid_sensor_remove_trigger(indio_dev, &magn_state->magn_flux_attributes);
++	sensor_hub_remove_callback(hsdev, hsdev->usage);
+ 	hid_sensor_remove_trigger(indio_dev, &accel_state->common_attributes);
  }
  
 

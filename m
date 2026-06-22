@@ -1,169 +1,127 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 802F02FE0F
-	for <linux-input@vger.kernel.org>; Mon, 22 Jun 2026 05:50:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+Received: from zg8tmja2lje4os4yms4ymjma.icoremail.net (zg8tmja2lje4os4yms4ymjma.icoremail.net [206.189.21.223])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 1074B2FE0F;
+	Mon, 22 Jun 2026 05:51:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=206.189.21.223
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782107429; cv=none; b=qsnnc4QanmdBH0rU7bbxVqBjXzYbIqB3D+Y+H2w1+0IE7cCF0a5ilZ49hQmj4u0B8+CczW70kpLytpAo1HWokC5aKXgUWYU9C6yefcsbWKNqPlUyVW1z9/W8tudfjX8UtTxQwJ/cMV4mCDmi5KyEnS4vmprv+8exonMXSL+mu6c=
+	t=1782107471; cv=none; b=l2xxR6PO1H40HxLUN1ZsI++qpm/FidoxD61oSGqV0QXQFxLvNjJd1zbDx4qRlUqXc7XGX5821sNhI9qL4h/w21gir5jj+KQIJq7o5mTjB3mRHeWbZS/alkuddjM9eNxWf6fapTxCQQhR8SzdmOiTACpS9yzOv5hxoH0ipRA9nX8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782107429; c=relaxed/simple;
-	bh=NDmS9j8YQ28joA5ygp8f/XIjecR5j60NAsSJdki1WEo=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=idGkndLXV5EQtjXp5AkLXb72uEWk4jMgFTRRDFMi4J454XIlGj9sIfs+dvZdEgyp47k1jB/jOPDmixgIn760DWnfKXp10HdXCw2SbDxX9ycK2bU2DA0X+iLogX6gHgc7pDLYBV6LQEnkiHd5STJ5UJTyZ5zLNjLxYwwDRer1Ruc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=nRM7cNGX; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1782107471; c=relaxed/simple;
+	bh=PjVTgdY6rEqsXENe70BI7SH0qlL2soygiWUC/3Citek=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=j0Sav+UniIPr2BlaWVk1FKIjlV/hH0epuERy1O2JgonBbX6ZKBsQSbndRFkX2QZbfnbLktSG08rNVOuaTAo2omw0jfVK4uRL9KuZglnK6spR/9fHHEDMsbX1fm2Ka9guUL4mCxobUOxTHrowJ8DsYdbL9sJlb8jKR8V2wzDMTII=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=mails.tsinghua.edu.cn; spf=pass smtp.mailfrom=mails.tsinghua.edu.cn; dkim=pass (1024-bit key) header.d=mails.tsinghua.edu.cn header.i=@mails.tsinghua.edu.cn header.b=WlMEpfWT; arc=none smtp.client-ip=206.189.21.223
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=mails.tsinghua.edu.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mails.tsinghua.edu.cn
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="nRM7cNGX"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0037D1F000E9;
-	Mon, 22 Jun 2026 05:50:27 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1782107428;
-	bh=xQpUJRR17/z33M9bdBsapiQtqeY5zg0Vj99Tu3K82gE=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=nRM7cNGXqGUiheAuWai+mOEGgNMKx1txsdjiFxwj8ysZjHCoGNBb3oCoYE4Zpc64z
-	 9Lvb5VqMw+eOHD6v/CDN4FokZzY4aIYpbiTWTxRa5exDOvHE9hcmV1S7SKcjiUbyS1
-	 KXCqo9d43X1cyDly5sdqGFmedEeXL4EfICgO2GHHiVFfAeIX+bbPqMWB9sODmqq5yr
-	 Gmey9wYrnPjpKpvbGWhNc+zNeRg542EVV3+aniLSfZAJ17osPWdCH5mECMXuSp7Y9x
-	 GZ4YDZvgQAQmn0ImsdiUo/AVcXgpx+B6XIz5oeKJDSpD6/piWK5hpHOwXaDOLS4IvS
-	 cRcQ+6CouRvYw==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 7/8] iio: magnetometer: hid-sensor-magn-3d: Avoid
- race between callback setup and device exposure
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Sanjay Chitroda" <sanjayembeddedse@gmail.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260622-5-june-hid-iio-race-fixes-v2-7-1cfabcd1881e@gmail.com>
-References: <20260622-5-june-hid-iio-race-fixes-v2-0-1cfabcd1881e@gmail.com>
- <20260622-5-june-hid-iio-race-fixes-v2-7-1cfabcd1881e@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Mon, 22 Jun 2026 05:50:27 +0000
-Message-Id: <20260622055028.0037D1F000E9@smtp.kernel.org>
+	dkim=pass (1024-bit key) header.d=mails.tsinghua.edu.cn header.i=@mails.tsinghua.edu.cn header.b="WlMEpfWT"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=mails.tsinghua.edu.cn; s=dkim; h=Received:From:To:Cc:Subject:
+	Date:Message-Id:In-Reply-To:References:MIME-Version:
+	Content-Transfer-Encoding; bh=5lDTCjNMcgKSqs9mk4C/OB6GQoEtmwOGp4
+	smLe5gbXg=; b=WlMEpfWTpkylM+kUGVphQ1yk3ldnH8hEYVkRUY4COSRIg5eU73
+	erYMFq8SxA/R9UIjHWfnLav0TYHqYUjstsKVVazZQyX5jK0Pvk1bLd77E/uwH3E5
+	gbBsn/bQwN2AV4nV5U1yzNEcRCl/hH1/IZ+JaY+nsulocHnm3YNZyi7Dw=
+Received: from c9a6c405b3f2.. (unknown [202.112.238.121])
+	by web5 (Coremail) with SMTP id zAQGZQDnnr4xzThqn6KaAg--.38470S2;
+	Mon, 22 Jun 2026 13:50:55 +0800 (CST)
+From: Yiyang Chen <chenyy23@mails.tsinghua.edu.cn>
+To: bot+bpf-ci@kernel.org
+Cc: andrii@kernel.org,
+	ast@kernel.org,
+	bentiss@kernel.org,
+	bpf@vger.kernel.org,
+	chenyy23@mails.tsinghua.edu.cn,
+	clm@meta.com,
+	daniel@iogearbox.net,
+	eddyz87@gmail.com,
+	ihor.solodrai@linux.dev,
+	jikos@kernel.org,
+	jolsa@kernel.org,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	linux-kselftest@vger.kernel.org,
+	martin.lau@kernel.org,
+	martin.lau@linux.dev,
+	memxor@gmail.com,
+	shuah@kernel.org,
+	song@kernel.org,
+	yonghong.song@linux.dev
+Subject: Re: [PATCH bpf-next v2 2/2] selftests/hid: Cover hid_bpf_get_data() size overflow
+Date: Mon, 22 Jun 2026 05:50:40 +0000
+Message-Id: <20260622055040.1929254-1-chenyy23@mails.tsinghua.edu.cn>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <b3b148b42eb198ac7194c1c0547e47275b9f5d31133eececaf1389f17caed5af@mail.kernel.org>
+References: <b3b148b42eb198ac7194c1c0547e47275b9f5d31133eececaf1389f17caed5af@mail.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:zAQGZQDnnr4xzThqn6KaAg--.38470S2
+X-Coremail-Antispam: 1UD129KBjvJXoW7Zw43tF4DZF4UGr1xZrWxtFb_yoW8tryfpr
+	y5uay7Kr1DKF1I9rnrAw18AF1FvFsxXF43Jr1kGFy5Cws8CF4Igry3WryYva1rCwsY934j
+	va1qva9xCa1kCaDanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDU0xBIdaVrnRJUUUPY14x267AKxVW5JVWrJwAFc2x0x2IEx4CE42xK8VAvwI8IcIk0
+	rVWrJVCq3wAFIxvE14AKwVWUJVWUGwA2ocxC64kIII0Yj41l84x0c7CEw4AK67xGY2AK02
+	1l84ACjcxK6xIIjxv20xvE14v26w1j6s0DM28EF7xvwVC0I7IYx2IY6xkF7I0E14v26r4U
+	JVWxJr1l84ACjcxK6I8E87Iv67AKxVW0oVCq3wA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_Gc
+	CE3s1lnxkEFVAIw20F6cxK64vIFxWle2I262IYc4CY6c8Ij28IcVAaY2xG8wAqx4xG64xv
+	F2IEw4CE5I8CrVC2j2WlYx0E2Ix0cI8IcVAFwI0_Jr0_Jr4lYx0Ex4A2jsIE14v26r1j6r
+	4UMcvjeVCFs4IE7xkEbVWUJVW8JwACjcxG0xvY0x0EwIxGrwACjI8F5VA0II8E6IAqYI8I
+	648v4I1lFIxGxcIEc7CjxVA2Y2ka0xkIwI1lc7CjxVAaw2AFwI0_GFv_Wrylc2xSY4AK67
+	AK6r4rMxAIw28IcxkI7VAKI48JMxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8CrVAF
+	wI0_Jr0_Jr4lx2IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVW8ZVWrXwCIc4
+	0Y0x0EwIxGrwCI42IY6xIIjxv20xvE14v26r1j6r1xMIIF0xvE2Ix0cI8IcVCY1x0267AK
+	xVW8JVWxJwCI42IY6xAIw20EY4v20xvaj40_Jr0_JF4lIxAIcVC2z280aVAFwI0_Jr0_Gr
+	1lIxAIcVC2z280aVCY1x0267AKxVW8Jr0_Cr1UYxBIdaVFxhVjvjDU0xZFpf9x0pRh2-OU
+	UUUU=
+X-CM-SenderInfo: xfkh05r1stqzpdlo2hxwvl0wxkxdhvlgxou0/
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
-s) to consider:
+On Sat, Jun 20, 2026 at 03:11:00PM +0000, bot+bpf-ci@kernel.org wrote:
+> That wrapping check was introduced in 658ee5a64fcf, and the fix commit
+> carries a Fixes: tag for it. Should this test commit carry the same tag?
+>
+>   Fixes: 658ee5a64fcf ("HID: bpf: allocate data memory for device_event BPF programs")
 
-New issues:
-- [High] Reversing teardown order introduces severe race condition leading =
-to list corruption and use-after-free.
-- [High] Reordering probe sequence introduces a Use-After-Free (UAF) vulner=
-ability on the error path.
+Yes, I will add the same Fixes tag to the selftest patch in v3 so the
+regression test is tied to the commit that introduced the wrapping check.
 
-Pre-existing issues:
-- [High] Direct unaligned and out-of-bounds dereference of `raw_data` buffe=
-r.
---
+> This was raised on an earlier posting and does not look addressed:
+> the callback stores the result in the get_data_overflow_check global
+> and always returns 0, while the userspace test asserts on that global
+> rather than on the callback return value.
+>
+> Could the callback just return the helper result so the test can check
+> the return value directly, instead of routing it through a separate
+> global?
 
-commit 88cf07ac8710a7390dc946776d5f89db30869a24
-Author: Sanjay Chitroda <sanjayembeddedse@gmail.com>
+The callback's return value is not something the test can observe
+directly.  call_hid_bpf_rdesc_fixup() consumes it as a kernel-side
+contract: a negative value falls back to the original report descriptor,
+and a positive value becomes the new descriptor size (*size = ret).  Its
+only userspace-visible effect is therefore the report descriptor size,
+so checking the return value would amount to checking that size, which
+means perturbing it.
 
-iio: magnetometer: hid-sensor-magn-3d: Avoid race between callback setup an=
-d device exposure
+Since the callback returns int and hid_bpf_get_data() returns a pointer,
+the only way to return the helper result is to convert it, e.g.
 
-The driver currently exposes the IIO device to userspace before
-completing sensor hub callback registration, and similarly removes
-callbacks while the device can still be accessed during teardown.
+	return !hid_bpf_get_data(hid_ctx, 2, ~0ULL);
 
-> diff --git a/drivers/iio/magnetometer/hid-sensor-magn-3d.c b/drivers/iio/=
-magnetometer/hid-sensor-magn-3d.c
-> --- a/drivers/iio/magnetometer/hid-sensor-magn-3d.c
-> +++ b/drivers/iio/magnetometer/hid-sensor-magn-3d.c
-[ ... ]
-> @@ -526,13 +520,19 @@ static int hid_magn_3d_probe(struct platform_device=
- *pdev)
->  					&magn_state->callbacks);
->  	if (ret < 0) {
->  		dev_err(&pdev->dev, "callback reg failed\n");
-> -		goto error_iio_unreg;
-> +		goto error_remove_trigger;
-> +	}
-> +
-> +	ret =3D iio_device_register(indio_dev);
-> +	if (ret) {
-> +		dev_err(&pdev->dev, "device register failed\n");
-> +		goto error_remove_callback;
->  	}
-> =20
->  	return ret;
-> =20
-> -error_iio_unreg:
-> -	iio_device_unregister(indio_dev);
-> +error_remove_callback:
-> +	sensor_hub_remove_callback(hsdev, HID_USAGE_SENSOR_COMPASS_3D);
+On a fixed kernel the helper returns NULL, so this returns 1 and the
+dispatch path truncates the report descriptor to 1 byte mid-test.  The
+BSS variable records that the helper rejected the overflowing range
+while the callback still returns 0 and leaves the descriptor untouched.
 
-[Severity: High]
-If iio_device_register() fails, does this error path allow a use-after-free
-if a concurrent HID event is processing?
+This matches the existing convention in progs/hid.c: callback_check and
+callback2_check are BPF-side globals the userspace tests assert on, and
+the existing hid_rdesc_fixup callback returns a positive size only when
+it actually rewrites the descriptor (sizeof(rdesc) + 73).  The overflow
+probe does not rewrite anything, so it returns 0 and reports the
+helper's rejection through the BSS variable.
 
-sensor_hub_remove_callback() removes the callback from the list lock, but it
-does not synchronize with currently executing events. If an event is execut=
-ing
-inside sensor_hub_raw_event() calling magn_3d_capture_sample(), and we retu=
-rn
-an error here, devres will immediately free the indio_dev and magn_state me=
-mory.
+Thanks,
+Yiyang
 
-Could the still-executing callback dereference freed memory?
-
->  error_remove_trigger:
->  	hid_sensor_remove_trigger(indio_dev, &magn_state->magn_flux_attributes);
->  	return ret;
-> @@ -545,8 +545,8 @@ static void hid_magn_3d_remove(struct platform_device=
- *pdev)
->  	struct iio_dev *indio_dev =3D platform_get_drvdata(pdev);
->  	struct magn_3d_state *magn_state =3D iio_priv(indio_dev);
-> =20
-> -	sensor_hub_remove_callback(hsdev, HID_USAGE_SENSOR_COMPASS_3D);
->  	iio_device_unregister(indio_dev);
-> +	sensor_hub_remove_callback(hsdev, HID_USAGE_SENSOR_COMPASS_3D);
-
-[Severity: High]
-Does changing this teardown order introduce list corruption?
-
-iio_device_unregister() disables IIO buffers, which iterates and modifies
-the IIO device's buffer_list using list_del_init(). Because the callback
-is still active here, a concurrent hardware event can invoke
-magn_3d_proc_event() which calls iio_push_to_buffers_with_timestamp().
-
-iio_push_to_buffers_with_timestamp() iterates the exact same buffer_list
-locklessly. Can iterating this linked list concurrently with node deletion
-cause list corruption and an eventual use-after-free?
-
->  	hid_sensor_remove_trigger(indio_dev, &magn_state->magn_flux_attributes);
->  }
-
-[ ... ]
-
-[Severity: High]
-This isn't a bug introduced by this patch, but I noticed a potential alignm=
-ent
-and out-of-bounds problem in magn_3d_capture_sample():
-
-magn_3d_capture_sample() {
-    ...
-    magn_state->timestamp =3D
-        hid_sensor_convert_timestamp(&magn_state->magn_flux_attributes,
-                                     *(s64 *)raw_data);
-    ...
-}
-
-Does casting the raw_data buffer directly to an s64 pointer guarantee
-alignment and bounds safety?
-
-Since raw_data points directly into the parsed HID report, it might not be
-8-byte aligned, which could cause an alignment fault on architectures that
-do not support hardware unaligned access.
-
-Additionally, if the device hardware reports a smaller data length (such as=
- a
-32-bit timestamp), dereferencing it as an s64 will read past the valid
-boundaries of the HID report payload.
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260622-5-june-hid=
--iio-race-fixes-v2-0-1cfabcd1881e@gmail.com?part=3D7

@@ -1,66 +1,66 @@
-Received: from mail-pl1-f182.google.com (mail-pl1-f182.google.com [209.85.214.182])
+Received: from mail-pl1-f174.google.com (mail-pl1-f174.google.com [209.85.214.174])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 970E235B137
-	for <linux-input@vger.kernel.org>; Mon, 22 Jun 2026 05:30:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.182
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 16AC535A3B8
+	for <linux-input@vger.kernel.org>; Mon, 22 Jun 2026 05:30:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782106240; cv=none; b=L48MwpemkChd3TBzDtblN4HSIyyR7f5DHZcpU+LquOk0dh6FQMq2Fr48+whYhvvQH4ERp2sH63wB8Lm1dDDGah4ce7rEnX3kA/VUyNRvIL02fnsqhOKx85ci5I2TxicIpqqScH1ho8T/MY5INCHs66vQfH9Cf9qoSvRAyjUyyiw=
+	t=1782106245; cv=none; b=KeQSBcCyj5J3iv39fEmQJdiieUTbobUAfDLaZDJwLyPIodIyWaU27REPyaKBdZuvNoIIM09EKycu2jWz48k77bJHVo7C4eR0rRcPLzC3Ou0Ff9YM3KIqxNg+xwclVfYTd4I0JZuJLq01GyC8Lj4zNAlEj0OSHZERbfRTuqI9QLo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782106240; c=relaxed/simple;
-	bh=bry/qy/huZgB5q2NICIwly/7N/mAm2guehNuSSyVzic=;
+	s=arc-20240116; t=1782106245; c=relaxed/simple;
+	bh=NdRzCGsmD2gA9WT/hiU6asZ/sU2daMgn0fUIABhbW/Q=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=qvBmN+Lkq0SJvjoVCmjzjCxk8MaZp/sIULsjTmoVdS5KflE1wLYIdfw/ZnXAF/JiYF6dkktCCzU05yFco5iOEcAq3nDhlNK1QshMlCk1HWWj8gAAT1oWpnBuGz1ZN2E/aD3U3fXPiw6yLUpfXtjCLzgsgtBoRKdMHvocqDYJYr8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=NJp9OGX9; arc=none smtp.client-ip=209.85.214.182
+	 In-Reply-To:To:Cc; b=KJ6/C1WgUcKcyzfaNzNf2jTbVKaFNmzVtbikV9F1tUNORuLaDnRvNA2Zv8B1SSRgRoYKgDYbcci1vwkbS0kWEbhrxiK1fA5jACk8qRujYFLs+EDZ+yHlP3PMN0KinRP4n+w05PPzbGeEe+0JUQ4IG2k0yfJBmmIgN5+jELkNaKg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=OBOWfvEc; arc=none smtp.client-ip=209.85.214.174
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="NJp9OGX9"
-Received: by mail-pl1-f182.google.com with SMTP id d9443c01a7336-2c6bc87f4d5so14766895ad.1
-        for <linux-input@vger.kernel.org>; Sun, 21 Jun 2026 22:30:39 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="OBOWfvEc"
+Received: by mail-pl1-f174.google.com with SMTP id d9443c01a7336-2c0b9328c4aso27359785ad.0
+        for <linux-input@vger.kernel.org>; Sun, 21 Jun 2026 22:30:43 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1782106239; x=1782711039; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1782106243; x=1782711043; darn=vger.kernel.org;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=j3OxBcRPfrQUdQw9nRWbA+0f4GedPZWKH0C4Q4v6P3M=;
-        b=NJp9OGX99Jo76g5HTuJ12UY/F78WBdqE5Z+gPIzQKZKnzF0m29WHjuROUmxoZZmi4U
-         Mquu6XDHe98/H8FajZ/KdKlC+N4DXQaODvrmoI+adKI2jzAH9Clv8kZacUWXX76rudy2
-         qkszMDTu+ymiaBL6St1OxXCRpw8amk3oW7/SeLQFE3PvmcmEzEFnKCLgrIfryLWLeHll
-         cYULTiIAIgT0c6KA1D1bK1n3WDevsWvICl7XuWysctzGLAAJSZxAGywY0CU8H0lcFyia
-         Jpv6AeYFeVMDCBls8+j+heQrc5pa07zcqJUAwhdoB8+CN/RVk5gJMleL7XpudJ/ccNnU
-         22pQ==
+        bh=wXIfNj+td1g2UGFAa2Fx1dBFxQFwQ+k/ADjSsFv/Ulg=;
+        b=OBOWfvEcPDcNqDTExmAqqTeJDwySxuspJ1vYgIxwM5WuQncaNIcHMbMtF7EcDlY3F2
+         I2O9oguDW5OJBJy6lOH2IHZAP4+Dh1SRcK4l+DJYfQEzZZ+zWc0y7Ocvt841lbGgLJGn
+         4VumPTCjSDE/CB16zVlYMauz7m13grT5UXPJshCIDtELikHROnyyhGVBmgal2Nx7iPyI
+         6GSIPlC9u7qOK9ogF8f+jDUm8XdpZDStzuzh+R6fXPOOY1hIrT9EnPz/YgcvuMet/9JV
+         TL+3NNzwuP9EtbOZMchMQRZTjVkky5UmK42BtKtgptcAhdhnB49R1Ns+mPIEPfgXcP4F
+         NisQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1782106239; x=1782711039;
+        d=1e100.net; s=20251104; t=1782106243; x=1782711043;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:x-gm-gg:x-gm-message-state:from:to
          :cc:subject:date:message-id:reply-to;
-        bh=j3OxBcRPfrQUdQw9nRWbA+0f4GedPZWKH0C4Q4v6P3M=;
-        b=Fp8JxeA+qR1+2Pji2DBh/tw+qO8x5956wvRrba7YrEK0yeQif8dVr6jx45YNRUFDBd
-         0H9duQuMAyrbd2PcOuY5g/3NlvBVjRKYzQLig1iRV3SL8p7aPBCq6LnalLxOLtNk+17N
-         JGfcHOEvVMHGRy/Sw+eOyX4qMzTok83wZ3TDMedFETBira8prun3XucZqbF9ubsJcq7D
-         KO1gwXfnNB3dvU4IhIKZwd/S5sIZx0qAqNOylrrdSFtBEadoHaPmrXZRyReKsuERaprP
-         1d8zma+nCPpk76Xz30Bdow36g/mpy1U2nUKU7IwNXXKGIWAfhazJ4kP4xc9BSQvjckrP
-         TPbA==
-X-Gm-Message-State: AOJu0YycRvD9N6YtEz1SHfVW5BsniuTB4NWIFmwK7f+UxhF7Unsoj32Q
-	j2uxjHYm18d50eGhivdpVneMIN6vzGgEw/DA6Dj2dxec1m/4etccsQdMoyaKNQ==
-X-Gm-Gg: AfdE7ck5XYXV0cZNw+PL5rWmyaYxg6oUuyNKcbp/Wkj89qCQ5rp2Oiy5nxAoa6cH7XN
-	MPEHWcjNb1G5pO+edP3pSnu0hRxQTgz5NFfdvsrfk597o6Teq2a/NXNKaamHlb2ceDnd/1jr7+T
-	Bqnj4ZiCldy1eifeQWSqPuNU0RziaIzmFPgeLZaYGTtfGDIVj+JMI5KEEIOzdBw84urBdIDtrTz
-	cFGYMDHtyElbloV708xg270rbdgJIsoaKjluhuVEpHltjJZLfhRBbkObGk6OBe+wS8+TExqJI7l
-	ziIkQh2SwmE1Fy4OjtfGHPwgyK5yLTehB1OO2IT50gq0jMjo60BpLGmXRZDHihsR9rlgUnV36CW
-	r3qrCZLME9OriBju7SsrW9m6gSpOJImdkFL/C1eZbAsYtyg0hTs7GaCk8vYMiXBYqwKHNAFL1mr
-	2ksSOrVeKm7o1nvVx5vXwh8+ceQ3gMR7n1W9UEsw==
-X-Received: by 2002:a17:903:2c47:b0:2bf:128d:f7ff with SMTP id d9443c01a7336-2c7426f1797mr96126445ad.16.1782106238887;
-        Sun, 21 Jun 2026 22:30:38 -0700 (PDT)
+        bh=wXIfNj+td1g2UGFAa2Fx1dBFxQFwQ+k/ADjSsFv/Ulg=;
+        b=gi2KLJvpBPH+VcaZc+X2DUb/capWaCSN3yLwYWhmNU7XLrG80d5mPgnsOHWdn1nfPp
+         8u7Mib2vr3Fck9FUApZOArXgEzPEWqvNq241BMY8QuG+ao7oJbxpaWVG7aqykcHLHiI8
+         tdYQ21d0pM3d6J66/tifSEWLOBIGMRfoAZqEfYam+IAAWmWd4tH7DUonpLHlPWe7flod
+         HgERV04EODreUujj5gDdnI/NzAKTaPRQVsOmdE/ifYgpWNCb2JNnfvTcj2PCnZkwzKj0
+         XYY9isSuwovbzsZ8Clq4FBZLSru6FN3GalOsGLTNTLFUehY4NE48iP8ohvjB2EorZIpv
+         x69g==
+X-Gm-Message-State: AOJu0YyZBUeLiDscTHVOv08YbFhRsqvjXljsqDuKxBuRLDIDwYjPJw04
+	Xiubi8ouAwBc0h1Jf4mjpC/jJ0pW5H5kA6o+iY3M6kptlAc5CV9a3kbm
+X-Gm-Gg: AfdE7clZ5dipVx0WZDCWRmMbzAQ2DpgGT//dCDJLXNwkAfgm3mf3aKn8pdFZE5m0xGI
+	sYV5e1TSTmFEdQ7BRb/lMUdvkD3AlQmhRv27LRXY+D31nYh/PnKOoQAzVNEhywZlkitnZJbxXTQ
+	P6Txk/8t9awhlYveuBSa3nTwmNxcZd+TSkxtYdmYTFehv5kVr/zkfd1iERzbSoQgBnIsFH+gB6a
+	YFp3AUzhmt1iVMEiUns1hJ1C12T+2ycjkrlpcZd5/clOaGsg+CTOjaMDW0Fw1LQkvsp2M2avNW+
+	vxLm0JkXoCLNOcJkOJlBSWy+pX7jZJuj4ihiAYKNeDZOz0o3Q++uXU4OdTULjzg4H7UtbCTP8jX
+	hiXLQbi5XCOHy6tt05KB+tF+jyutch6dsIwcG6qnNVvdqcDCnZWBjR+00DeZ1QMSyMfjz48GsBH
+	9Bt7qOV7DTEuUY8qWKWrgVC1Oa6eUyfiN2yZEB6w==
+X-Received: by 2002:a17:903:906:b0:2be:3434:4e28 with SMTP id d9443c01a7336-2c742b1ce87mr85206335ad.19.1782106243367;
+        Sun, 21 Jun 2026 22:30:43 -0700 (PDT)
 Received: from hu-ckantibh-hyd.qualcomm.com ([202.46.23.25])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2c743fd6420sm63932315ad.70.2026.06.21.22.30.34
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2c743fd6420sm63932315ad.70.2026.06.21.22.30.39
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 21 Jun 2026 22:30:38 -0700 (PDT)
+        Sun, 21 Jun 2026 22:30:43 -0700 (PDT)
 From: Sanjay Chitroda <sanjayembeddedse@gmail.com>
 X-Google-Original-From: Sanjay Chitroda <sanjayembedded@gmail.com>
-Date: Mon, 22 Jun 2026 11:00:01 +0530
-Subject: [PATCH v2 5/8] iio: light: hid-sensor-prox: Avoid race between
+Date: Mon, 22 Jun 2026 11:00:02 +0530
+Subject: [PATCH v2 6/8] iio: light: hid-sensor-als: Avoid race between
  callback setup and device exposure
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
@@ -70,7 +70,7 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260622-5-june-hid-iio-race-fixes-v2-5-1cfabcd1881e@gmail.com>
+Message-Id: <20260622-5-june-hid-iio-race-fixes-v2-6-1cfabcd1881e@gmail.com>
 References: <20260622-5-june-hid-iio-race-fixes-v2-0-1cfabcd1881e@gmail.com>
 In-Reply-To: <20260622-5-june-hid-iio-race-fixes-v2-0-1cfabcd1881e@gmail.com>
 To: Jiri Kosina <jikos@kernel.org>, Jonathan Cameron <jic23@kernel.org>, 
@@ -104,14 +104,14 @@ This avoids a race window leading to data loss.
 
 Signed-off-by: Sanjay Chitroda <sanjayembeddedse@gmail.com>
 ---
- drivers/iio/light/hid-sensor-prox.c | 20 ++++++++++----------
+ drivers/iio/light/hid-sensor-als.c | 20 ++++++++++----------
  1 file changed, 10 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/iio/light/hid-sensor-prox.c b/drivers/iio/light/hid-sensor-prox.c
-index 9059f00f0ced..11609dc4c5dc 100644
---- a/drivers/iio/light/hid-sensor-prox.c
-+++ b/drivers/iio/light/hid-sensor-prox.c
-@@ -312,12 +312,6 @@ static int hid_prox_probe(struct platform_device *pdev)
+diff --git a/drivers/iio/light/hid-sensor-als.c b/drivers/iio/light/hid-sensor-als.c
+index ae2fda8dc500..823bb56b9873 100644
+--- a/drivers/iio/light/hid-sensor-als.c
++++ b/drivers/iio/light/hid-sensor-als.c
+@@ -406,25 +406,25 @@ static int hid_als_probe(struct platform_device *pdev)
  		return ret;
  	}
  
@@ -121,11 +121,10 @@ index 9059f00f0ced..11609dc4c5dc 100644
 -		goto error_remove_trigger;
 -	}
 -
- 	prox_state->callbacks.send_event = prox_proc_event;
- 	prox_state->callbacks.capture_sample = prox_capture_sample;
- 	prox_state->callbacks.pdev = pdev;
-@@ -325,13 +319,19 @@ static int hid_prox_probe(struct platform_device *pdev)
- 					   &prox_state->callbacks);
+ 	als_state->callbacks.send_event = als_proc_event;
+ 	als_state->callbacks.capture_sample = als_capture_sample;
+ 	als_state->callbacks.pdev = pdev;
+ 	ret = sensor_hub_register_callback(hsdev, hsdev->usage, &als_state->callbacks);
  	if (ret < 0) {
  		dev_err(&pdev->dev, "callback reg failed\n");
 -		goto error_iio_unreg;
@@ -145,16 +144,16 @@ index 9059f00f0ced..11609dc4c5dc 100644
 +error_remove_callback:
 +	sensor_hub_remove_callback(hsdev, hsdev->usage);
  error_remove_trigger:
- 	hid_sensor_remove_trigger(indio_dev, &prox_state->common_attributes);
+ 	hid_sensor_remove_trigger(indio_dev, &als_state->common_attributes);
  	return ret;
-@@ -344,8 +344,8 @@ static void hid_prox_remove(struct platform_device *pdev)
+@@ -437,8 +437,8 @@ static void hid_als_remove(struct platform_device *pdev)
  	struct iio_dev *indio_dev = platform_get_drvdata(pdev);
- 	struct prox_state *prox_state = iio_priv(indio_dev);
+ 	struct als_state *als_state = iio_priv(indio_dev);
  
 -	sensor_hub_remove_callback(hsdev, hsdev->usage);
  	iio_device_unregister(indio_dev);
 +	sensor_hub_remove_callback(hsdev, hsdev->usage);
- 	hid_sensor_remove_trigger(indio_dev, &prox_state->common_attributes);
+ 	hid_sensor_remove_trigger(indio_dev, &als_state->common_attributes);
  }
  
 

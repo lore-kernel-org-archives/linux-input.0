@@ -1,191 +1,107 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mail-244123.protonmail.ch (mail-244123.protonmail.ch [109.224.244.123])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 14E60390C8C
-	for <linux-input@vger.kernel.org>; Tue, 23 Jun 2026 07:07:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 658A2344DB1;
+	Tue, 23 Jun 2026 07:29:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=109.224.244.123
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782198430; cv=none; b=QDBdiWcd3OERjzfuF7WsUePUFrRRojb/tHCrnVahBKl6tRAIpp+dsfDAGk8DnsFzjd7p4NDJiooiSaVx+EQ6KvuNRexBc6Rl5Sfs30woDSaioen72xc5CDVPvvhGPUaFu+oluk9p/kHJKC7lDnZ3DTFKKcAoM8VTxbV1E5xDziE=
+	t=1782199800; cv=none; b=FnM+6Bb2ng4dzgKHitYAqfv47NaRojongMaE+S5Rm1jPp0DPIp9F+gM6OwTY8VowZ7ouHzNWV6T0ZaF2quDFwLabOmIS8l1K/mNbNtqxochDQkkSFFOGbqLJbqwg675AVhgLxcJnBNEqjwIkpE4yhghwXs16ZpajVwC+ghQT7SM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782198430; c=relaxed/simple;
-	bh=aXJrV2fi5QZ0DS9AC62JkAfwprQQCJK6rbZF+1VunXU=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=hFyCExMf94kEWuKIdN1fJOTWwrrtUozXbJw9UbPJXIrFvfdP9rty4Ur9rsTxfXfrb2JMREkjyL1Yr1B6M710oWJXcFXzoxJJFNhRPw4Tk0bIkaN6GaKbZnnoCeBc+wouvk2heMU+8eRV/bphdobK21OcIeIwvBn0nmKgN3nTWhc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=g8FAIQ2Q; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1782199800; c=relaxed/simple;
+	bh=KMk4+UpY1tucOrd3M1WYKBaRhOiNERTxzQP+PYfa13g=;
+	h=Date:To:From:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=f811pMgWgbPHB1tj7l7BYg2YM+9oNEWLLhh81qxlh2VygO5ivllOECASm5nINtPHwqbRODiE/hjFQsniP2OR5XtKiGd/5sS/usC574u8ug5t2Ohif+SjdqC9I5MPmR2dzt/UjASs7wB7AV7KBWAet/IqMhyOnsxL6aB8nKVHjdA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=proton.me; spf=pass smtp.mailfrom=proton.me; dkim=pass (2048-bit key) header.d=proton.me header.i=@proton.me header.b=GlUgLY1J; arc=none smtp.client-ip=109.224.244.123
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=proton.me
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=proton.me
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="g8FAIQ2Q"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79F691F000E9;
-	Tue, 23 Jun 2026 07:07:08 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1782198428;
-	bh=a7eB8EpqeBDUNs9uPoyfIsDVqKB0E3tOqLxhgU/AqSg=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=g8FAIQ2Qz+rApWB2XjLzI1dh8A9Kx30Uw64cO4rRGzdSrdOeSTRwr2/vcgQEcC8lR
-	 MGSoqPi/2TuZ/062MPVVFD/2rARnoBpomTdZ4jlN4P2E5/i38PuwABcFxtAvy3RaB3
-	 FlnwzAFNrNinIq8AdJBfKuv+JX1mbRlhc3tJAg0gP2aGiRTnzAnGkYf5ri8MXfLAOq
-	 YnqS5qWTyppGOIoOEfk+9XdFjDZjX8pZwKbEagDtAEYVsc+Bv5SXR92GLnKv0Ii74A
-	 wJV0buldvX0ktOL8tD3vR9SFyraKwKda164tijrf4qtujQC+bmw6RH7kG+aiMDOHUB
-	 NhQi2QOHwfzxw==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] HID: logitech-hidpp: Fix FF device cleanup on init
- failure
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Haoxiang Li" <haoxiang_li2024@163.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260623065200.1966629-1-haoxiang_li2024@163.com>
-References: <20260623065200.1966629-1-haoxiang_li2024@163.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Tue, 23 Jun 2026 07:07:08 +0000
-Message-Id: <20260623070708.79F691F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=proton.me header.i=@proton.me header.b="GlUgLY1J"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=proton.me;
+	s=protonmail; t=1782199793; x=1782458993;
+	bh=DPX3vJ6VjtVf13lVpQIdZ7MpYcPAWNqpPi38FLSMhxc=;
+	h=Date:To:From:Cc:Subject:Message-ID:In-Reply-To:References:
+	 Feedback-ID:From:To:Cc:Date:Subject:Reply-To:Feedback-ID:
+	 Message-ID:BIMI-Selector;
+	b=GlUgLY1JLFMOdzxhwst9nJJ5C/nPrOUTQtLuCBHiQwV/C736sahcQ6pudqOeAw90n
+	 Lbrw0v7iHbQlAv9EGLAENkllJo/UDtqCmyjcB8U4Tx9JLuBeqSBpt/al6wWgBhNijv
+	 0YsT4RZ0K6nDiZUZV2DalawU6lDBplBirbODls3DcBtlj1MYvU8PNtpVr3JkSMLFeu
+	 EhF/k3nIu6h3xSYicvl5IXOhpAQc+iZ3RzmF2bTnDIw/1iCicBdiBivBUjLS8enEhH
+	 R/f9SXzl/MquofTZ0nKmg7ln6Ze1fVquWvcs4HsjXulMU219G1z7tkU3MUd1aMsMnM
+	 jSlM59ow6+9Cw==
+Date: Tue, 23 Jun 2026 07:29:45 +0000
+To: Andi Shyti <andi.shyti@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Bryam Vargas <hexlabsecurity@proton.me>
+Cc: Benjamin Tissoires <bentiss@kernel.org>, Wolfram Sang <wsa+renesas@sang-engineering.com>, Wolfram Sang <wsa@kernel.org>, itewqq <shipeiqu@sjtu.edu.cn>, linux-i2c@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Input: synaptics-rmi4 - bound the SMBus block read to the caller buffer
+Message-ID: <20260623072935.276387-1-hexlabsecurity@proton.me>
+In-Reply-To: <ajoXuK4DrgSriiww@google.com>
+References: <20260613-b4-disp-2e033955-v1-1-43ab7281667a@proton.me> <ajoXuK4DrgSriiww@google.com>
+Feedback-ID: 199661219:user:proton
+X-Pm-Message-ID: 6ead51569519df1a2340ff22c977903736019706
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
-Thank you for your contribution! Sashiko AI review found 4 potential issue(=
-s) to consider:
+On 2026-06-23, Dmitry Torokhov wrote:
+> Wolfram, any chance we could get this in? I am getting patches for OOB
 
-New issues:
-- [High] Calling `input_ff_destroy(dev)` leaves a dangling `dev->flush` poi=
-nter, causing a guaranteed NULL pointer dereference when the device file is=
- closed.
-- [High] Calling `input_ff_destroy(dev)` on an active, registered device in=
- the error path introduces a Use-After-Free race condition.
+Andi, looping you in -- MAINTAINERS hands I2C to you as of v7.1, and this i=
+s
+Dmitry's 2024 i2c-core safety patch, which I just retested against current
+mainline.
 
-Pre-existing issues:
-- [Critical] Use-After-Free in `hidpp_ff_destroy()` due to mismatched lifec=
-ycles between `devm`-managed driver data and `input_dev` lifecycle.
-- [High] Input device capabilities are initialized after registration, viol=
-ating subsystem lifecycle rules and exposing incomplete state to userspace.
---
-
-commit 1a99b024f97c7dab9fe8188d726db401b73dd317
-Author: Haoxiang Li <haoxiang_li2024@163.com>
-
-    HID: logitech-hidpp: Fix FF device cleanup on init failure
-
-    hidpp_ff_init() creates the input force-feedback device with
-    input_ff_create(), then allocates the HID++ FF private data,
-    effect ID array, and workqueue.
-   =20
-    If any of those allocations fail after input_ff_create() succeeds,
-    the function returns an error without destroying the FF device.
-    Add an unwind path that frees the private allocations made by
-    hidpp_ff_init() and calls input_ff_destroy() for failures after
-    input_ff_create() succeeds.
-
-diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hi=
-dpp.c
-index ccbf28869a968..95f84efa77069 100644
---- a/drivers/hid/hid-logitech-hidpp.c
-+++ b/drivers/hid/hid-logitech-hidpp.c
-@@ -2859,18 +2859,19 @@ static int hidpp_ff_init(struct hidpp_device *hidpp,
- 	 * ownership to FF core
- 	 */
-
-[Severity: High]
-This is a pre-existing issue, but does initializing input device capabiliti=
-es
-after registration violate subsystem lifecycle rules and expose incomplete
-state to userspace?
-
-Because hidpp_probe() calls hid_connect() (which registers the device)
-before calling hidpp_ff_init(), can userspace open the device and issue
-ioctls immediately upon registration, before hidpp_ff_init() has fully
-configured the FF capabilities:
-
-    for (j =3D 0; hidpp_ff_effects[j] >=3D 0; j++)
-        set_bit(hidpp_ff_effects[j], dev->ffbit);
-
->  	data =3D kmemdup(data, sizeof(*data), GFP_KERNEL);
-> -	if (!data)
-> -		return -ENOMEM;
-> +	if (!data) {
-> +		error =3D -ENOMEM;
-> +		goto err_destroy_ff;
-> +	}
-
-[ ... ]
-
->  	data->wq =3D create_singlethread_workqueue("hidpp-ff-sendqueue");
->  	if (!data->wq) {
-> -		kfree(data->effect_ids);
-> -		kfree(data);
-> -		return -ENOMEM;
-> +		error =3D -ENOMEM;
-> +		goto err_free_effect_ids;
->  	}
-> =20
->  	data->hidpp =3D hidpp;
-
-[Severity: Critical]
-This is a pre-existing issue, but could this lead to a use-after-free in
-hidpp_ff_destroy() due to mismatched lifecycles?
-
-The hidpp_device structure is allocated using devm_kzalloc() in hidpp_probe=
-(),
-meaning it is freed by devres immediately after the driver's remove()
-callback completes.
-
-However, the input_dev is reference-counted and outlives the driver binding
-if a userspace process holds the event file descriptor open. When the proce=
+Dmitry, it works. You asked me to try it on the rmi_smbus stack overflow I
+reported. On current mainline (master 502d801f0ab0) the patch applies with =
+no
+change after ~20 months. i2c-core-smbus.o builds, and so do the unchanged 3=
+-arg
+callers (ipmi_ssif, pmbus_core) and the 4-arg form. Nothing takes the addre=
 ss
-finally closes the fd, input_free_device() calls hidpp_ff_destroy(), which
-dereferences data->hidpp to access hid_dev:
+of i2c_smbus_read_block_data(), so the transition macro compiles for every
+caller -- each of the ~82 is a plain 3- or 4-arg call.
 
-    struct hid_device *hid =3D data->hidpp->hid_dev;
+The concrete user that was missing in 2024: rmi_read_pdt_entry() reads a PD=
+T
+entry into an on-stack u8 buf[6], and smb_block_read() hands that buffer to
+i2c_smbus_read_block_data() with no size, so a device reporting a block cou=
+nt
+of 7..32 smashes the stack. The 4-arg form bounds it to 6:
 
-Could this trigger a use-after-free if a local user holds the input device
-open during a device unplug or driver unbind?
+    -=09retval =3D i2c_smbus_read_block_data(client, commandcode, buf);
+    +=09retval =3D i2c_smbus_read_block_data(client, commandcode, len, buf)=
+;
 
-[ ... ]
+Why 4-arg specifically: the 3-arg default (length =3D I2C_SMBUS_BLOCK_MAX) =
+is
+byte-identical to today's code, so the core patch alone doesn't fix an
+undersized caller -- the safety comes from moving each such caller to 4-arg=
+,
+which the rmi_smbus conversion above demonstrates.
 
-> @@ -2900,6 +2901,14 @@ static int hidpp_ff_init(struct hidpp_device *hidp=
-p,
->  		 version);
-> =20
->  	return 0;
-> +
-> +err_free_effect_ids:
-> +	kfree(data->effect_ids);
-> +err_free_data:
-> +	kfree(data);
-> +err_destroy_ff:
-> +	input_ff_destroy(dev);
+rmi_smbus is the undersized caller here; the other block-data callers I che=
+cked
+size to I2C_SMBUS_BLOCK_MAX, so this is the one live conversion for now and=
+ the
+macro mainly guards the next small buffer.
 
-[Severity: High]
-Is it possible that calling input_ff_destroy(dev) here leaves a dangling
-dev->flush pointer?
+I build-tested the above on mainline and A/B-verified the bound with a
+userspace ASan mirror (-m64 and -m32; the unbounded value is device payload=
+,
+not bus timing, so no RMI hardware is needed): 3-arg/today faults for a cou=
+nt
+of 7..32 into buf[6], 4-arg is clean for every count. I didn't boot-test a
+patched kernel, so I'm not sending a Tested-by tag -- but happy to add one =
+if
+you want a specific config exercised.
 
-This frees dev->ff but does not clear the dev->flush =3D input_ff_flush
-callback set earlier by input_ff_create().
+I can post the rmi_smbus conversion as a formal patch on top of yours (it's
+ready, checkpatch-clean), or you can fold it -- whichever you prefer.
 
-Since hidpp_probe() ignores the initialization error, the input device
-remains registered. If a userspace process opens and then closes the event
-node, evdev_release() calls input_flush_device(), triggering
-input_ff_flush():
+Thanks,
+Bryam
 
-    guard(mutex)(&ff->mutex);
-
-Does this cause a guaranteed NULL pointer dereference because dev->ff is now
-NULL?
-
-[Severity: High]
-Additionally, since hidpp_ff_init() runs after hid_connect() has already
-registered the device, it is visible to userspace.
-
-If input_ff_create() succeeds, it sets the EV_FF bit. If a concurrent thread
-immediately issues an EVIOCSFF ioctl, calling input_ff_upload() which uses
-dev->ff, and this error path triggers simultaneously calling
-input_ff_destroy(dev):
-
-    input_ff_destroy(dev);
-
-Could this regression result in a use-after-free in the force-feedback ioctl
-handler without any synchronization?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260623065200.1966=
-629-1-haoxiang_li2024@163.com?part=3D1

@@ -1,143 +1,126 @@
-Received: from mail-dl1-f47.google.com (mail-dl1-f47.google.com [74.125.82.47])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from out162-62-57-87.mail.qq.com (out162-62-57-87.mail.qq.com [162.62.57.87])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6EF1235F60E
-	for <linux-input@vger.kernel.org>; Tue, 23 Jun 2026 01:16:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E092B13C9C4;
+	Tue, 23 Jun 2026 02:05:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=162.62.57.87
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782177385; cv=none; b=BNlvs0IxOQ9eytde6Eb0dj3O1fS8GZcYUxKejg5IKOAhBBWsnpkgMeF2tWA0bBX9hoCmkGziCgQaFhGL7BrhP79HNGINGFUXkPTI/TwQO97nLQCZIbll99oL33l35TUxRBW786OTqi5iR7onqLUnqwcEGQKvY1daFlmuBwA28Rs=
+	t=1782180353; cv=none; b=PEZFs9L3DSIKXL65S0g6uTrEnkcD2zPlPj5GcIJlKjX6gFv48/KIP2KPeXJ8tMSleQt/mICoj7bvI3qBIImqVGVd9S7EH81lVU5njmJumS97pTabrl45D7ihJhvjVVIx/jby/803XDwx3g26IaIM74cgc6Uuogc2qxQJIeqzNyE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782177385; c=relaxed/simple;
-	bh=lgWpE2gY+g/2MbX+tAt1Noq8uPOKkbtQSpA48syYG+M=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=dT7gEH2L/3JS81E6730qDFvGGzqQtkOSI8kX0tmCFwPCH2PBJCoVTdUrqxSRf7JN909QB/dMRy+dZN0rsa6m/AsiknAEJ0pv4ovBfuuapHVkz3H4GvpUBJ5Q90B7Uzh4Fz6D9A4Fsu2x708hAjGVlxs91SiZ4gAorI93gDeIti4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=BxDuxYwp; arc=none smtp.client-ip=74.125.82.47
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1782180353; c=relaxed/simple;
+	bh=2uHEyOL7J8wczbfq0wsGkUfh4LBRCgX6lX6v0C3egbY=;
+	h=Message-ID:From:To:Cc:Subject:Date:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=Sk0uP6MvabMhntRrFw2MSGhHcLXQ4jxIl3bieuhdxtA2k9nSPPaKlfNU6wTVE3OCJgE0CSqhurSW2uQ2qk+kOKE1uBc66XV3wlnheqJkYm76Uwr3LreR3Hzx5Bc1QTtCrYTqQzMZPpn0Y9lmAvLhsDD14MkMOGKDNo4fDKETFTg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=Red54.com; spf=pass smtp.mailfrom=red54.com; dkim=pass (1024-bit key) header.d=qq.com header.i=@qq.com header.b=H3dfA4Oc; arc=none smtp.client-ip=162.62.57.87
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=Red54.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=red54.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="BxDuxYwp"
-Received: by mail-dl1-f47.google.com with SMTP id a92af1059eb24-137eb0d76beso465156c88.0
-        for <linux-input@vger.kernel.org>; Mon, 22 Jun 2026 18:16:24 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1782177383; x=1782782183; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=33paqDjGP10yh/AMCFQnglsldxp5YtWteEECzRsr7y0=;
-        b=BxDuxYwp1NqqVKsJ+/o0SwbCM1lOFvoelg7uEYdG4/NyBdhFSq1SkeCBFjqLdisNqD
-         By4Ycg5tWe+Ln99wokg7yrqwHks0bfrzntBxnjXoWnmVAUcKPncjW5K83XkSAWK0Glxr
-         Tk5lgtvDbbFCYRntZYgBGDbr53b54kzB0KgUku05Qlc3a4r8nA8OUxmxGbcq9/iHmLg8
-         RkPdXZDNLNCusRdB3cTW/WCC9YD4hyn8dmBE7BDPSWeZ4nqBo85c3lQPcIELw9XT3S+c
-         cYuJAnPmuqY6SQhTd5BXQDA0olYYpcUwSLY/58j/HdhbHG2r9ymipLcKO2bWYIu7V5WK
-         XALA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1782177383; x=1782782183;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=33paqDjGP10yh/AMCFQnglsldxp5YtWteEECzRsr7y0=;
-        b=PX8FZ4B4QxRlW6q0vEJdARXxHDB7WF6mLHo738k25R/xNWU/FN3UMcuYdI2aR1N4dE
-         WJzSYPjr87ebWZCR91OjH5T2XONk4jrNsmnxHW/8ua3G36M+COlWnsWc/VOTCV+CdrnR
-         DoCD0K2waPy3BrkLxWUCp60atPouZQo7iYleIqPcFLzhfWO0GAQZeke8fV+Jf7cxjVC7
-         fnuJ8Pq/wv3bGvDLy2IQQH8ut9UfSepAnApglD+MByppq1LtH+CKS9/eULURjp7xBvrh
-         j6noyEuYEx/owL9OGo8g+RoPn66+zEFbddJHSwqRf91BTJ3v/q3tQy4nlTTncoS9ey9Q
-         IR0w==
-X-Forwarded-Encrypted: i=1; AHgh+Rohzm+afzZ1w5/porPbOtMGEphPknlQiX4EsEpllj1aOqS1vA1DWOBiaC8VkzJkyEz0kezlxc3ad4kwvw==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yxz88TbiXoq5P61i9gRX5rfkg8DmM9NsHhC+UsdTNtZS7Mp72xl
-	5BHzPpLdjRTtuDt9ewuZoFVG+FO8nDBxgxWdpi8mmzQ/rkrFLJmOTFpi
-X-Gm-Gg: AfdE7cka05wQgS/YDsRdE4dEZr7QXxfpuvCE4BIujxq24r19Ycc7mvau0x7fHSWmMRX
-	kTEDXPGpTFMSqRb1Xlk3pKeO28ZK9x3o6bJLDzlodRXGIqVVKvCxeQ2GVdKVD6c05/NhjR6pk18
-	2Nf5gjWnR+kNus7mVs8xRDH0h2kRjy51NqnUTp5jVt+ONVkzEdcG8X921dxACa5uum9USUyaKE2
-	MVrgo5SfdGyNoOZF2cg9iloSDvkR8+yAUWp8+EIKMfXj/SF0Ipbgdi7FU1qAMb4vbbYFEK6SF0C
-	fvMbLbD+sRh5f/Kq7xruITuOGAKT+z1b2PLaEaWJqeG1Cydh6bkZdMq5mOe6IypintCGO4rkVia
-	HrfXWqN9aRLUpe8bOfcNZWCWDCkGO+OVMm0QY7oDqNGjcAa3Cgj5+bX/0nq0IcOot99zKYdlaWe
-	+nKPmPiUa3UxAhKW1csSJPkf9rdr+9qJ6g0jFY8KH1TKwaGf1Z5aFnXw==
-X-Received: by 2002:a05:7300:642a:b0:2c9:ee15:a0ee with SMTP id 5a478bee46e88-30c555b8663mr1397387eec.12.1782177383418;
-        Mon, 22 Jun 2026 18:16:23 -0700 (PDT)
-Received: from google.com ([2a00:79e0:2ebe:8:7d8d:3bdf:d563:1911])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-30c1bdffa83sm15845220eec.23.2026.06.22.18.16.22
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 22 Jun 2026 18:16:22 -0700 (PDT)
-Date: Mon, 22 Jun 2026 18:16:19 -0700
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: "Wang, Jie" <jie.wang@intel.com>
-Cc: Henk Vergonet <Henk.Vergonet@gmail.com>, 
-	"linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, 
-	"syzbot+039eab266c6321a174bd@syzkaller.appspotmail.com" <syzbot+039eab266c6321a174bd@syzkaller.appspotmail.com>, 
-	"syzkaller-bugs@googlegroups.com" <syzkaller-bugs@googlegroups.com>
-Subject: Re: [PATCH] Input: yealink - stop URB resubmission on completion
- error
-Message-ID: <ajneBssfVm3NAEKa@google.com>
-References: <68bba4fb.050a0220.192772.01a4.GAE@google.com>
- <20260616110440.1073059-1-jie.wang@intel.com>
- <ajGfjuo3MTlezkYX@google.com>
- <DS0PR11MB64484A4A38381336F2AC0C3F98E42@DS0PR11MB6448.namprd11.prod.outlook.com>
+	dkim=pass (1024-bit key) header.d=qq.com header.i=@qq.com header.b="H3dfA4Oc"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qq.com; s=s201512;
+	t=1782180345; bh=A0ckX5UaxOA4E9S6nP1w1P1HE0pBxIlcM4UzfJrCk2k=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References;
+	b=H3dfA4OcYuhsdmFgrF20gbcG8wWre2HTnmAJf01ec4QOKGBMS9Xz/JKC87V6Fbega
+	 td4PMiAvxLHFtZDsTi8sDRnYzqUnpHtlHdnVAg85nsZbfzdpOkL9hDFoR09PYwZy2u
+	 LmUpOjUwgP8K2+ZAjhxizLHQNhfkWv/u0NqA4fHs=
+Received: from mail.red54.com ([103.253.24.18])
+	by newxmesmtplogicsvrsza63-0.qq.com (NewEsmtp) with SMTP
+	id 15F0B4E6; Tue, 23 Jun 2026 10:05:31 +0800
+X-QQ-mid: xmsmtpt1782180331tbpq048x4
+Message-ID: <tencent_9F36AD4CCF9BB5FADFD7B3557BCE0F412006@qq.com>
+X-QQ-XMAILINFO: NibnO81X6Pb5F8h/Nz09PgZOlSqepxZ8Q6P/5I9lTSNQghFRcX746EoyexeNPv
+	 /fi6ODJzIYVvEOB4wbxhlR5F+eQHLH0+tMz/bXETIpC+BMIwH2n38eIsBXyGWvyd/JqYmA52QFIi
+	 3VKKVp7FMQaeEclTwk5NZtLa1HaFLBdBU3xG041Rw5ZosLysQ9gEAqwqvlFv875mkMUcRfk5eJiM
+	 bDvbvh2YgZPcwJpLHvIQklN/J4BY2LLDwu7RhUYe0F29BY6KKdGeveCuokRA0mPevXkfBHDXimiX
+	 pQLznnH6gENiWj8+KhW7rdyCtS6d77ZXkNT0Tc8xANAP0VeKq/+B4w8OhYmx8P20vMpRqo809fN8
+	 uKTcmKxxLosFjtXu1L5odlFISfjI00JNo7kc1DQD0WzHOZoQbu4m58Hs83BSHwOxHewOM7c+yuZp
+	 xGp8KgbH7XC48sd81bceKyHOgYvjXwzNOypXCNQ3obKdf7TBPcdZMBhyKjV6OMV9vzsZdKyQOoqf
+	 4HKfvjpfjF/GAyAVptfViJufl7Ka18VxP11AVCSOQxjB4lhEZlEO0hasTF1ms04CF4KCmnAifhIw
+	 4X2plu8prwTe/sxzhtD6TqhVHOWd9XxNQlB/ISr0dlGuLqcsLmaQiv11whRqjlY6Lh1CKg2ktBmA
+	 E0BvPD8C1NQKSjdsGn5zXmrODQqVwCtmrJWdz20p6bp2eD7YwtPbltnVW2mnmM35SqXDrqBArSvc
+	 YEk5Bbg1u0O9EOf8TcBrRFsJrJBmtQeabNHQudTrGD0ANZNKV+sofFTDXKgEIcpWoZfPv+saCTcU
+	 Q+WY/G3tbtvFJMgfFFVZSa/LBwTdW+moWaLfEKoMAvP7/QDQn9WxuRCCdL+Vf8kmuhbkw3ExpASM
+	 /su+ojyUu7cu7LGLTjiuDFMpmeZ1MkOmuxo6twn+sRVWNfnSXEwrxzegZKBNTRjutVCrqkzzrCnH
+	 ydPzeSe0ZtiGxFybh+7OsqgMhvFW1FxCqolqw1qbFZb8vprEIa2cRHIxXnsSGBijhxq9FkWX/UNK
+	 myRuRE58oif7zMJ3Mx0ytlEgWbbNJPshq5nPFDwnTN1xXUd+3Kt3KQD7XedovCXp8XldG986BXzn
+	 K+V5fJ
+X-QQ-XMRINFO: OWPUhxQsoeAVwkVaQIEGSKwwgKCxK/fD5g==
+Sender: yeking@red54.com
+From: =?UTF-8?q?=E8=B0=A2=E8=87=B4=E9=82=A6=20=28XIE=20Zhibang=29?= <Yeking@Red54.com>
+To: linux-input@vger.kernel.org,
+	hansg@kernel.org,
+	dmitry.torokhov@gmail.com,
+	bentiss@kernel.org
+Cc: Yeking@Red54.com,
+	dianders@chromium.org,
+	jikos@kernel.org,
+	linux-kernel@vger.kernel.org,
+	sashiko-bot@kernel.org,
+	sashiko-reviews@lists.linux.dev,
+	superm1@kernel.org
+Subject: Re: [PATCH v3] HID: i2c-hid: Refactor _DSM helper and add i2c-hid-acpi-prp0001 driver
+Date: Tue, 23 Jun 2026 02:05:14 +0000
+X-OQ-MSGID: <20260623020516.294389-1-Yeking@Red54.com>
+X-Mailer: git-send-email 2.43.0
+In-Reply-To: <0ff827b8-4690-4ec7-9025-6816befd1d7b@kernel.org>
+References: <0ff827b8-4690-4ec7-9025-6816befd1d7b@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <DS0PR11MB64484A4A38381336F2AC0C3F98E42@DS0PR11MB6448.namprd11.prod.outlook.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-On Wed, Jun 17, 2026 at 05:49:07AM +0000, Wang, Jie wrote:
-> Hi Dmitry,
+Hi Hans, hi Benjamin,
+
+On Tue, Jun 09, 2026 at 03:07:53PM +0200, Hans de Goede wrote:
+> Hi,
 > 
-> Thank you for the review.
+> On 9-Jun-26 12:10, 谢致邦 (XIE Zhibang) wrote:
+> > Hi Hans,
+> > 
+> > Thanks for the review.
+> > 
+> > The current header-based approach lets i2c-hid-acpi-prp0001.c work
+> > independently by just including a header for the _DSM helper. Switching
+> > to EXPORT_SYMBOL_GPL would force prp0001 to depend on i2c-hid-acpi —
+> > a Kconfig "depends on I2C_HID_ACPI", plus module-level dependency at
+> > load time — all for sharing a single function. I find that hard to
+> > accept.
+> > 
+> > I understand that adding a new header for one prototype is unusual,
+> > though it contains only a single static inline function and introduces
+> > no runtime dependency between the two drivers.
+> > 
+> > Looking back at the full discussion: Benjamin made it clear from the
+> > start that he doesn't want i2c-hid-of.c handling ACPI _DSM fallback.
+> > His line is that ACPI devices and OF devices should each go through
+> > their own drivers without cross-contamination. If you still prefer
+> > exporting the function from i2c-hid-acpi.c, then prp0001 would have to
+> > drag i2c-hid-acpi along with it — an independent leaf driver turned
+> > into something that can't stand alone.
 > 
-> > -----Original Message-----
-> > From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> > Sent: Wednesday, June 17, 2026 3:17 AM
-> > To: Wang, Jie <jie.wang@intel.com>
-> > Cc: Henk Vergonet <Henk.Vergonet@gmail.com>; linux-input@vger.kernel.org;
-> > linux-kernel@vger.kernel.org;
-> > syzbot+039eab266c6321a174bd@syzkaller.appspotmail.com; syzkaller-
-> > bugs@googlegroups.com
-> > Subject: Re: [PATCH] Input: yealink - stop URB resubmission on completion error
-> > 
-> > Hi Jie,
-> > 
-> > On Tue, Jun 16, 2026 at 11:04:40AM +0000, Jie Wang wrote:
-> > > urb_irq_callback() and urb_ctl_callback() resubmit each other's URBs
-> > > regardless of completion status. When the device returns a persistent
-> > > error (-EPROTO), this creates an unthrottled resubmission loop that
-> > > starves the CPU and triggers RCU stalls.
-> > >
-> > > Stop resubmitting on any non-zero URB status, following the standard
-> > > completion pattern used by other USB input drivers.
-> > >
-> > > Reported-by: syzbot+039eab266c6321a174bd@syzkaller.appspotmail.com
-> > > Closes: https://syzkaller.appspot.com/bug?extid=039eab266c6321a174bd
-> > > Signed-off-by: Jie Wang <jie.wang@intel.com>
-> > 
-> > It would be good to have a helper like
-> > 
-> > bool usb_is_permanent_error(struct urb *urb, struct device *dev);
-> > 
-> > instead of having this "switch" in all the drivers. It also unclear whether we should
-> > not attempt to re-submit the URB on errors other than ECONNRESET, ENOENT, or
-> > ESHUTDOWN.
-> > 
+> Well it is a special case/version of the ACPI driver so depending
+> on it seems fine to me.
 > 
-> For the helper - how about a local yealink_urb_check_status() in v2?
-> A usb_is_permanent_error() in usb.h would benefit more drivers
-> across the tree, but that's a larger effort best done separately.
-
-I do not think we are in a rush to fix this: the driver is old and I
-have no idea how many users actually have the device.
-
+> Anyways if you prefer the inline function in header solution that is
+> fine with me.
 > 
-> For resubmission - I'm thinking stop immediately on -ECONNRESET,
-> -ENOENT, -ESHUTDOWN, and for 
-> everything else retry up to 50 consecutive errors before giving up.
-> Counter resets on any successful completion, so transient bus glitches
-> recover but a dead device won't spin thThat is probably reasonable.e CPU forever.
+> Lets see what bentiss has to say about this.
+> 
+> Regards,
+> 
+> Hans
+> 
 
-That is sounds reasonable.
+Friendly ping — v5 was posted on Jun 12:
+https://lore.kernel.org/all/tencent_8AE8ED913FEC8151B4BA3D85D6BB7F3ACF08@qq.com/
 
+No further review comments have come in.
 
-Thanks.
+Is there anything else you'd like changed, or can we move forward?
 
--- 
-Dmitry
+Regards,
+Zhibang
+

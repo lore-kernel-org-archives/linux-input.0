@@ -1,126 +1,100 @@
-Received: from out162-62-57-87.mail.qq.com (out162-62-57-87.mail.qq.com [162.62.57.87])
+Received: from m16.mail.163.com (m16.mail.163.com [117.135.210.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E092B13C9C4;
-	Tue, 23 Jun 2026 02:05:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=162.62.57.87
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9D72413790B;
+	Tue, 23 Jun 2026 02:20:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=117.135.210.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782180353; cv=none; b=PEZFs9L3DSIKXL65S0g6uTrEnkcD2zPlPj5GcIJlKjX6gFv48/KIP2KPeXJ8tMSleQt/mICoj7bvI3qBIImqVGVd9S7EH81lVU5njmJumS97pTabrl45D7ihJhvjVVIx/jby/803XDwx3g26IaIM74cgc6Uuogc2qxQJIeqzNyE=
+	t=1782181220; cv=none; b=siFZaqZ5ZEU9WNY18dnANtU0BQGRj/ndckiC0ZQFbSHJz+N6txedBp9zZZhHXak6YZ4BGdugjtk2FpPwb7j6XEj27OZX17Qr2hSuDTVrRc+BzJK9LskMKgHIkLbLATeEOZvqJzlFCZNFkasHhV+92MuCxhItc6h26t88Xw7kRnY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782180353; c=relaxed/simple;
-	bh=2uHEyOL7J8wczbfq0wsGkUfh4LBRCgX6lX6v0C3egbY=;
-	h=Message-ID:From:To:Cc:Subject:Date:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=Sk0uP6MvabMhntRrFw2MSGhHcLXQ4jxIl3bieuhdxtA2k9nSPPaKlfNU6wTVE3OCJgE0CSqhurSW2uQ2qk+kOKE1uBc66XV3wlnheqJkYm76Uwr3LreR3Hzx5Bc1QTtCrYTqQzMZPpn0Y9lmAvLhsDD14MkMOGKDNo4fDKETFTg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=Red54.com; spf=pass smtp.mailfrom=red54.com; dkim=pass (1024-bit key) header.d=qq.com header.i=@qq.com header.b=H3dfA4Oc; arc=none smtp.client-ip=162.62.57.87
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=Red54.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=red54.com
+	s=arc-20240116; t=1782181220; c=relaxed/simple;
+	bh=BEUQpRHR9mK6IVq3MvDAZOYspmRh+kgLMLqLrM3JujI=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=mQbHEtAC+0GTL4T5fD/6njwgdNfi4UFwPIH2M1mTBKdkNKtukk6LVqahgaGyJDABsdlRZz5/FfnlkE1vZEnn53lCt7yiJ2qrJby3HhOy2faCcsBhSroYIS7CPrMmHcaQhZ3r7Si3ForJuimsjXaVJPs6J2BnNZy9m305Ik3eC1g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=Xptokx2T; arc=none smtp.client-ip=117.135.210.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=qq.com header.i=@qq.com header.b="H3dfA4Oc"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qq.com; s=s201512;
-	t=1782180345; bh=A0ckX5UaxOA4E9S6nP1w1P1HE0pBxIlcM4UzfJrCk2k=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=H3dfA4OcYuhsdmFgrF20gbcG8wWre2HTnmAJf01ec4QOKGBMS9Xz/JKC87V6Fbega
-	 td4PMiAvxLHFtZDsTi8sDRnYzqUnpHtlHdnVAg85nsZbfzdpOkL9hDFoR09PYwZy2u
-	 LmUpOjUwgP8K2+ZAjhxizLHQNhfkWv/u0NqA4fHs=
-Received: from mail.red54.com ([103.253.24.18])
-	by newxmesmtplogicsvrsza63-0.qq.com (NewEsmtp) with SMTP
-	id 15F0B4E6; Tue, 23 Jun 2026 10:05:31 +0800
-X-QQ-mid: xmsmtpt1782180331tbpq048x4
-Message-ID: <tencent_9F36AD4CCF9BB5FADFD7B3557BCE0F412006@qq.com>
-X-QQ-XMAILINFO: NibnO81X6Pb5F8h/Nz09PgZOlSqepxZ8Q6P/5I9lTSNQghFRcX746EoyexeNPv
-	 /fi6ODJzIYVvEOB4wbxhlR5F+eQHLH0+tMz/bXETIpC+BMIwH2n38eIsBXyGWvyd/JqYmA52QFIi
-	 3VKKVp7FMQaeEclTwk5NZtLa1HaFLBdBU3xG041Rw5ZosLysQ9gEAqwqvlFv875mkMUcRfk5eJiM
-	 bDvbvh2YgZPcwJpLHvIQklN/J4BY2LLDwu7RhUYe0F29BY6KKdGeveCuokRA0mPevXkfBHDXimiX
-	 pQLznnH6gENiWj8+KhW7rdyCtS6d77ZXkNT0Tc8xANAP0VeKq/+B4w8OhYmx8P20vMpRqo809fN8
-	 uKTcmKxxLosFjtXu1L5odlFISfjI00JNo7kc1DQD0WzHOZoQbu4m58Hs83BSHwOxHewOM7c+yuZp
-	 xGp8KgbH7XC48sd81bceKyHOgYvjXwzNOypXCNQ3obKdf7TBPcdZMBhyKjV6OMV9vzsZdKyQOoqf
-	 4HKfvjpfjF/GAyAVptfViJufl7Ka18VxP11AVCSOQxjB4lhEZlEO0hasTF1ms04CF4KCmnAifhIw
-	 4X2plu8prwTe/sxzhtD6TqhVHOWd9XxNQlB/ISr0dlGuLqcsLmaQiv11whRqjlY6Lh1CKg2ktBmA
-	 E0BvPD8C1NQKSjdsGn5zXmrODQqVwCtmrJWdz20p6bp2eD7YwtPbltnVW2mnmM35SqXDrqBArSvc
-	 YEk5Bbg1u0O9EOf8TcBrRFsJrJBmtQeabNHQudTrGD0ANZNKV+sofFTDXKgEIcpWoZfPv+saCTcU
-	 Q+WY/G3tbtvFJMgfFFVZSa/LBwTdW+moWaLfEKoMAvP7/QDQn9WxuRCCdL+Vf8kmuhbkw3ExpASM
-	 /su+ojyUu7cu7LGLTjiuDFMpmeZ1MkOmuxo6twn+sRVWNfnSXEwrxzegZKBNTRjutVCrqkzzrCnH
-	 ydPzeSe0ZtiGxFybh+7OsqgMhvFW1FxCqolqw1qbFZb8vprEIa2cRHIxXnsSGBijhxq9FkWX/UNK
-	 myRuRE58oif7zMJ3Mx0ytlEgWbbNJPshq5nPFDwnTN1xXUd+3Kt3KQD7XedovCXp8XldG986BXzn
-	 K+V5fJ
-X-QQ-XMRINFO: OWPUhxQsoeAVwkVaQIEGSKwwgKCxK/fD5g==
-Sender: yeking@red54.com
-From: =?UTF-8?q?=E8=B0=A2=E8=87=B4=E9=82=A6=20=28XIE=20Zhibang=29?= <Yeking@Red54.com>
-To: linux-input@vger.kernel.org,
-	hansg@kernel.org,
-	dmitry.torokhov@gmail.com,
+	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="Xptokx2T"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
+	s=s110527; h=From:To:Subject:Date:Message-Id:MIME-Version; bh=AA
+	pBkoYfrLQj//pYQiYgj0Ho/WlpR8ZIJCg9xFcjyM8=; b=Xptokx2TfiFZ0j+UWb
+	wzoTzwLYpDPrToMjFeZFr0nXkZS5faDUamGv2QyqfgpmTMJJb5S9UPws9/0z/SPz
+	ur6QC/DU1pcqtdV0v5Xzyz+2jZREbFarHS5HMQiCsXBv4wVG6JlFdbNecaz+lKW4
+	s8a6QiTweB8I+YPdYc/YknEdI=
+Received: from localhost.localdomain (unknown [])
+	by gzsmtp3 (Coremail) with SMTP id PigvCgD3n_5I7Tlqe3yTDw--.4746S2;
+	Tue, 23 Jun 2026 10:19:53 +0800 (CST)
+From: Haoxiang Li <haoxiang_li2024@163.com>
+To: jikos@kernel.org,
+	jic23@kernel.org,
+	srinivas.pandruvada@linux.intel.com,
 	bentiss@kernel.org
-Cc: Yeking@Red54.com,
-	dianders@chromium.org,
-	jikos@kernel.org,
+Cc: linux-input@vger.kernel.org,
+	linux-iio@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
-	sashiko-bot@kernel.org,
-	sashiko-reviews@lists.linux.dev,
-	superm1@kernel.org
-Subject: Re: [PATCH v3] HID: i2c-hid: Refactor _DSM helper and add i2c-hid-acpi-prp0001 driver
-Date: Tue, 23 Jun 2026 02:05:14 +0000
-X-OQ-MSGID: <20260623020516.294389-1-Yeking@Red54.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <0ff827b8-4690-4ec7-9025-6816befd1d7b@kernel.org>
-References: <0ff827b8-4690-4ec7-9025-6816befd1d7b@kernel.org>
+	Haoxiang Li <haoxiang_li2024@163.com>,
+	stable@vger.kernel.org
+Subject: [PATCH] HID: hid-sensor-custom: Fix sysfs group leak on failure
+Date: Tue, 23 Jun 2026 10:19:50 +0800
+Message-Id: <20260623021950.1736413-1-haoxiang_li2024@163.com>
+X-Mailer: git-send-email 2.25.1
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:PigvCgD3n_5I7Tlqe3yTDw--.4746S2
+X-Coremail-Antispam: 1Uf129KBjvJXoWxJr1UAryDWFWDAF1DCFW3Jrb_yoW8Ww18pa
+	92yr9xuw13Gw17A3yUJFZ0qay8Kr4rZFy8XFZrW3savr15AryDKr1xta4jvrWUAFW7G3s7
+	JF4jv3sxCa4qkr7anT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x0piknY5UUUUU=
+X-CM-SenderInfo: xkdr5xpdqjszblsqjki6rwjhhfrp/xtbC7Qp25Go57UpnqAAA3O
 
-Hi Hans, hi Benjamin,
+hid_sensor_custom_add_attributes() creates one sysfs group for each
+custom sensor field. If sysfs_create_group() fails after some groups
+have already been created, the function currently breaks out of the
+loop and returns the error directly.
 
-On Tue, Jun 09, 2026 at 03:07:53PM +0200, Hans de Goede wrote:
-> Hi,
-> 
-> On 9-Jun-26 12:10, 谢致邦 (XIE Zhibang) wrote:
-> > Hi Hans,
-> > 
-> > Thanks for the review.
-> > 
-> > The current header-based approach lets i2c-hid-acpi-prp0001.c work
-> > independently by just including a header for the _DSM helper. Switching
-> > to EXPORT_SYMBOL_GPL would force prp0001 to depend on i2c-hid-acpi —
-> > a Kconfig "depends on I2C_HID_ACPI", plus module-level dependency at
-> > load time — all for sharing a single function. I find that hard to
-> > accept.
-> > 
-> > I understand that adding a new header for one prototype is unusual,
-> > though it contains only a single static inline function and introduces
-> > no runtime dependency between the two drivers.
-> > 
-> > Looking back at the full discussion: Benjamin made it clear from the
-> > start that he doesn't want i2c-hid-of.c handling ACPI _DSM fallback.
-> > His line is that ACPI devices and OF devices should each go through
-> > their own drivers without cross-contamination. If you still prefer
-> > exporting the function from i2c-hid-acpi.c, then prp0001 would have to
-> > drag i2c-hid-acpi along with it — an independent leaf driver turned
-> > into something that can't stand alone.
-> 
-> Well it is a special case/version of the ACPI driver so depending
-> on it seems fine to me.
-> 
-> Anyways if you prefer the inline function in header solution that is
-> fine with me.
-> 
-> Lets see what bentiss has to say about this.
-> 
-> Regards,
-> 
-> Hans
-> 
+Fix this by adding a local unwind path when sysfs_create_group() fails.
+The unwind path removes all sysfs groups that were successfully created
+before the failure and frees sensor_inst->fields.
 
-Friendly ping — v5 was posted on Jun 12:
-https://lore.kernel.org/all/tencent_8AE8ED913FEC8151B4BA3D85D6BB7F3ACF08@qq.com/
+Fixes: 4a7de0519df5 ("HID: sensor: Custom and Generic sensor support")
+Cc: stable@vger.kernel.org
+Signed-off-by: Haoxiang Li <haoxiang_li2024@163.com>
+---
+ drivers/hid/hid-sensor-custom.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-No further review comments have come in.
-
-Is there anything else you'd like changed, or can we move forward?
-
-Regards,
-Zhibang
+diff --git a/drivers/hid/hid-sensor-custom.c b/drivers/hid/hid-sensor-custom.c
+index afffea894021..cd676516e6b0 100644
+--- a/drivers/hid/hid-sensor-custom.c
++++ b/drivers/hid/hid-sensor-custom.c
+@@ -609,7 +609,7 @@ static int hid_sensor_custom_add_attributes(struct hid_sensor_custom
+ 					 &sensor_inst->fields[i].
+ 					 hid_custom_attribute_group);
+ 		if (ret)
+-			break;
++			goto err_remove_groups;
+ 
+ 		/* For power or report field store indexes */
+ 		if (sensor_inst->fields[i].attribute.attrib_id ==
+@@ -621,6 +621,13 @@ static int hid_sensor_custom_add_attributes(struct hid_sensor_custom
+ 	}
+ 
+ 	return ret;
++
++err_remove_groups:
++	while (--i >= 0)
++		sysfs_remove_group(&sensor_inst->pdev->dev.kobj,
++				   &sensor_inst->fields[i].hid_custom_attribute_group);
++	kfree(sensor_inst->fields);
++	return ret;
+ }
+ 
+ static void hid_sensor_custom_remove_attributes(struct hid_sensor_custom *
+-- 
+2.25.1
 

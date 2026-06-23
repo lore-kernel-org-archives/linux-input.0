@@ -1,62 +1,62 @@
 Received: from mail-qt1-f179.google.com (mail-qt1-f179.google.com [209.85.160.179])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DCCB138E5DC
-	for <linux-input@vger.kernel.org>; Tue, 23 Jun 2026 17:23:20 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7593B38B7A1
+	for <linux-input@vger.kernel.org>; Tue, 23 Jun 2026 17:23:21 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.179
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782235402; cv=none; b=nePx79hcRZD5EJYSAwBtUWTXgsdk/0/xZJhMkt0e8jBW13+oD8S+bKxTQAJpqlkNQ8qHTnN+AD4+qDy9VQDynNIVc4dZLOc3m15VmsBp1qFPvCBsBVpKXd9V+WUW294RXVzVMo6bq5FpO6z9i0GzJY4nB4nKrJF8/Ry9xyn1VNY=
+	t=1782235403; cv=none; b=s3swBJ7nPohEwWcyEA4rWsqKPOh3+zzfus/Lhm+r91WzIryOnUcTCC6+ebEg2JYQOBNKvbC0Y4FnbqXVikC/6SRteQQqOxy5m5ozr4r/aIZzbREWR1JuMqNEKHzXiP+uSdXyp5cFvyrV50Z5eF285irJRfTOKnX2iSUoDY/nqlw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782235402; c=relaxed/simple;
-	bh=5sQlbeFI8cyApWCjx8nktmxTD0MRAZjD7L3pz3SRJR4=;
+	s=arc-20240116; t=1782235403; c=relaxed/simple;
+	bh=kxP6LNpmuMPeRo/1DHYVkK9vYC25+9G+iv+jK4cri9o=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=lF0BCeO9jcD2NUjt0MoMKBBP40UBZHMt8yBs0kmIjOHCnmmCw+tXhXjxcd+/YPWL4LjduEzDSsM639QbPMcDJq1k1PD5uI5573KK0Kr2aysCq0tJej/Lx7CkTMrGSQmJ9HBl9WmuXd2MhgMpoHR4cjblS1430PJt0BQtCEaiUBg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=WtWTsmEj; arc=none smtp.client-ip=209.85.160.179
+	 MIME-Version; b=Fw/hsFj12okGSHaQmA6WjFZKSj0XQtgTBUIFFIvuTAEoVXEmso/2Iu4Q8OTppv28+abn0WCUlz+KKVxIKB2vSrqXfZVgIn0aN7+jjX5q6Cj3v+WawK/uNgA8cu4IpngYUXNya5R6DWw1ljVQehnsSVPqbhmJ14O0pgP1F5PKAds=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=qoqyKVml; arc=none smtp.client-ip=209.85.160.179
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="WtWTsmEj"
-Received: by mail-qt1-f179.google.com with SMTP id d75a77b69052e-51a1fe8f578so109591cf.2
-        for <linux-input@vger.kernel.org>; Tue, 23 Jun 2026 10:23:20 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="qoqyKVml"
+Received: by mail-qt1-f179.google.com with SMTP id d75a77b69052e-51788280e71so344871cf.0
+        for <linux-input@vger.kernel.org>; Tue, 23 Jun 2026 10:23:21 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20251104; t=1782235400; x=1782840200; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=CC9uw0U9l70gRh7X4E8leOAl28Flmwa2bdYh8pY671Y=;
-        b=WtWTsmEj1M9pueJ+L3V+sVft2LulqOzqyO2ZM1mvZ1f71N3dk1FcBwmEOF7MZZPp7D
-         1Hbh4VUmIogOU4cObNjvO4kfYjCQYmBB9Sg/c9wfvD3bl/+uBWNuVESor4ORJSd0fhAF
-         XbFCrsikfT83eDA30qeWr7HsMWZuVMJBS9rAIlbxbnWd/HtFJcj8hEVdnehrkVNkY2rk
-         /ATtO6tGNwtE2zRpjH6/18IwrJVyYxypiS5B2refM7ZJZ32aYitsz5pCt8ggjU2ENTUv
-         RgZGSEG3BXj9JjVkShuaBmNb4ZWVVO7gIG7cZu9O48Dbd7aar2jh1Q5uQXwi+b13KpAT
-         KQ1A==
+        bh=toVb3XeUyvgVY5ouIuGchQv5MOZwstQQcaCF09SpULY=;
+        b=qoqyKVmlZfxC4rpLv6z2MTT4gfLts6GQd4T2/WH+TZPbex03/ftpfCwSDs9tIseobU
+         QpjEi8m4C97akYcFpbbGtvvwFemjHpVWcNMzOrOHOQ9I4Wk66EdwgQoUtAcg2lMxErrq
+         GIATxPXtNb82cjCXey2sNPXS+z/99yqZYNAltK99Qss6HnbyvW7NWBVnFpZah4cUT5cg
+         r/DzoUOpLdOqtA3JWuafWcRVD+zCWoucsLhrxfKSGTqIFAU8Ncd+5XC7q/vdp1WnXyla
+         nXPzsBZsvFCZ22Zn3SlddXGLBJ5PDWC16M6lG1RVHBPP9VAiQ04joMSTa/izx/SJBcXi
+         ItRA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20251104; t=1782235400; x=1782840200;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=CC9uw0U9l70gRh7X4E8leOAl28Flmwa2bdYh8pY671Y=;
-        b=DB0cZUEYcyS3fpMnmV+tBpiIxVSvaEdzEENV6tfYANf+/9cQ6ahwpkexdwBaWB3Xeu
-         aMegNbvSzRVkWYGXdBnzGFtOBHN0t9eW5BHYjBz0jccMPKCAGFDc97wqRTOKu8Zoo3E9
-         pG+W/3DJuwWKWb/M718YI2mca7D/ZCtj0yiTZX5CKrrPB/THO2dXBF32xAn0iCwApvn9
-         sjRWEyqetOkpRR5LwvTghlUUybQtpFq3L2u0/362ZBSeCUJpZOS8860HStF3eWR0vsbj
-         h8nTrcbDFrXDsy6UZi8ktgdy58U/3U73rB9Y7qtpi/YkJY/ImMjaUmvnyAHgjtmJCPAo
-         cXDw==
-X-Gm-Message-State: AOJu0YypmFEBQyp9Xgpwq4NUaCfW7xMRTp2upgNhcJ3vlT64cs1Rw4H6
-	z2D69dre/Mok6c2YF0A+8pkCBB63EtnKW/gsaDX0yFAwMnnsx5i27f/e
-X-Gm-Gg: AfdE7ckOcQXvddeeCJ3SpkSxyS7bN6xDgi+Qyz322rB5RkfQZ5I0Jlk6g863VBEDANF
-	EkTYYmcFoNnnCz6lftZ7yhgCvIKxMbdur68KuHCNLS7+8gJxMBoXySk0NHLm1AXAxKdIBRzsjNR
-	2GbH11WWtKfA2phXUCV9f8DTIVqvlarrkVcUr/MTSkWqfRL3erHedJgdNIzDJWNcQLrROUfctUF
-	jt1sl6bRdj8oJlZjXBlTCcNR8k2eU327Apk4pQebHqXZn0s8VxfE7GB7HZuSzRPCSSyenuFj38H
-	qYTlERMuAvlOpTAIjxfTd50jX4pi2fYQqi9iEtuE7XEI0ajHV6x3p2fiCvZX+zA/5zZPcZf3IeG
-	Nm8uJaEG/lYc8nL84f/ZD5KLKWxkgAJccfQkcyHCM/2Yve0Gj7YipS1YrFVJF4gN/t1bon1kig/
-	mZSZaq7TFcRvUyMl8CRdf5jxzB0vuZfEsLiCchaObbsyGmaVcUyJpxqb+utx4=
-X-Received: by 2002:ac8:5c8f:0:b0:50d:82db:773e with SMTP id d75a77b69052e-51a54890e6amr55359511cf.47.1782235399835;
-        Tue, 23 Jun 2026 10:23:19 -0700 (PDT)
+        bh=toVb3XeUyvgVY5ouIuGchQv5MOZwstQQcaCF09SpULY=;
+        b=ceRWIDV4UqF9A67frlN6fQ+RePQgw+V8eT1EBC1v/BY0Cr7TfZiHcMzavNurfBoiyS
+         d7K5P0gIJR1uhcIORD8Xb8UUMa1P/f2HxmNsev00KPwGnE8Sc3N17sONvHn1yLvYsNdw
+         L36KgP5gDWwN4fCavxdbrVYsUWSUlxZs19lBzINTkD1SwbVO9BLHjOC/deE0Ej3oamBy
+         C4xp91E1vQ2tdpt+5oUr2ps6hQqXszChONP3VkPI3d2NKFq0PcAqs3AaCSrugGqnErbn
+         iqxR1Uh6Fy/Z4ERWB9dD+09rQghI8dUm8cba9m2sqeXwYkBFgXOvBRcxlx0sLdzX4nYJ
+         mDhg==
+X-Gm-Message-State: AOJu0YyEeSYltA7Z7UFJeF0G7s3tNpaHl7hMHP0AWss36vcwqidUVbkW
+	T7S2IT0aHenSRUQMxREp5LCnFfFKayhPkun06HOcWmXzuo4IsmjHBDIG
+X-Gm-Gg: AfdE7clY3J0JiNIEJEmFR5EmZ8mwcVDnkpgGzo/rnlLWFA4QvUqX+l9mnC5zzcXpBlz
+	cbj/zdQqnpvBGkMXa9Wgh48oU5OL+IU7S9Pc6mAhZ8cGsfNiYhkCixJgnBJErpW4MAFkmeRTxgC
+	zf1L/mclQcwhXJtNiB9eoFrIJC7klnwj0b7sFnpGnzF+WXWOOR6GBV0j1aAk2zQBM6UoBC6js42
+	FAiQKzvAiFGui/C7NDkK9vNGYUMMbd6cRnSWT5gY+F3uKZCPW1BNpTxfKYyjxf6jTrE5PlxEBjE
+	O6CCtRD6uY2hCdun51PMSyPtOQ/upM2xn2Stmrio8l97SRNpDxE0hEAOov1QEvetho+XCAZ4PJe
+	CwTCp7PNlfPoBFU8Y8lVlhxzXwTzHBQ5rtWmPXy/ENqLcpiaoMHSmQUNHoPMj2lD897WzDK9V+a
+	8dRMXIj39xtNe3AxPeATnzl8iIcrskF+FAfcT7uCGjbgH+xySa
+X-Received: by 2002:ac8:5f0b:0:b0:517:75d8:b960 with SMTP id d75a77b69052e-51a06ad95e8mr231700321cf.43.1782235400576;
+        Tue, 23 Jun 2026 10:23:20 -0700 (PDT)
 Received: from achantapc.mynetworksettings.com ([2600:4040:124c:e000:ff10:313f:67f6:deeb])
         by smtp.gmail.com with ESMTPSA id d75a77b69052e-51a515c72c1sm29390531cf.10.2026.06.23.10.23.19
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 23 Jun 2026 10:23:19 -0700 (PDT)
+        Tue, 23 Jun 2026 10:23:20 -0700 (PDT)
 From: Sriman Achanta <srimanachanta@gmail.com>
 To: Jiri Kosina <jikos@kernel.org>,
 	Benjamin Tissoires <bentiss@kernel.org>
@@ -66,9 +66,9 @@ Cc: linux-input@vger.kernel.org,
 	Christian Mayer <git@mayer-bgk.de>,
 	Bastien Nocera <hadess@hadess.net>,
 	Sriman Achanta <srimanachanta@gmail.com>
-Subject: [PATCH v4 09/10] HID: steelseries: Add async status interface support
-Date: Tue, 23 Jun 2026 13:23:09 -0400
-Message-ID: <20260623172310.272708-10-srimanachanta@gmail.com>
+Subject: [PATCH v4 10/10] HID: steelseries: Add support for Arctis Nova 7 Gen2 family
+Date: Tue, 23 Jun 2026 13:23:10 -0400
+Message-ID: <20260623172310.272708-11-srimanachanta@gmail.com>
 X-Mailer: git-send-email 2.54.0
 In-Reply-To: <20260623172310.272708-1-srimanachanta@gmail.com>
 References: <20260623172310.272708-1-srimanachanta@gmail.com>
@@ -80,220 +80,163 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Some headsets expose a second HID interface that sends battery and
-connection updates on its own. Watching that interface lets the driver
-stop polling the sync interface. Add a
-steelseries_device_info::async_interface field and the code to handle
-it:
+The Arctis Nova 7 Gen2 headsets answer status polls, but they also send
+unsolicited battery and connection updates on a second HID interface
+(interface 5). Use that interface through async_interface so the driver
+does not have to poll. Add request and parse helpers for the Gen2 status
+format (0xb0/0xb7/0xb9/0xbb opcodes).
 
-  - The driver binds both the sync and async interfaces. The async
-    interface shares the steelseries_device created by the sync
-    interface. It finds the sibling with usb_ifnum_to_if(), takes a
-    reference, and returns -EPROBE_DEFER until the sync interface has
-    probed. If the sync interface never binds, the async interface
-    defers forever, which is fine here.
-  - raw_event() now holds sd->lock and re-checks sd->removed so events
-    on either interface are serialised against removal.
-  - status_work runs once for async devices instead of rearming. A
-    single status request is sent when the headset connects to get the
-    initial battery level.
+Add the eight USB product IDs that share this protocol:
 
-No device sets async_interface yet. This is the infrastructure for the
-next commit.
+  0x22a1  Arctis Nova 7 2026
+  0x22a7  Arctis Nova 7P 2026
+  0x22a5  Arctis Nova 7X 2026
+  0x22a9  Arctis Nova 7 Diablo 2026
+  0x227e  Arctis Nova 7 Gen 2
+  0x2258  Arctis Nova 7X Gen 2
+  0x229e  Arctis Nova 7X Gen 2 (alternate PID)
+  0x22ad  Arctis Nova 7X Gen 2 (alternate PID)
 
 Signed-off-by: Sriman Achanta <srimanachanta@gmail.com>
 ---
- drivers/hid/hid-steelseries-arctis.c | 121 +++++++++++++++++++++------
- 1 file changed, 97 insertions(+), 24 deletions(-)
+ drivers/hid/hid-ids.h                |  8 ++++
+ drivers/hid/hid-quirks.c             |  8 ++++
+ drivers/hid/hid-steelseries-arctis.c | 63 ++++++++++++++++++++++++++++
+ 3 files changed, 79 insertions(+)
 
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 915e936cbf8b..6b5be86b1bdf 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -1379,6 +1379,14 @@
+ #define USB_DEVICE_ID_STEELSERIES_SRWS1	0x1410
+ #define USB_DEVICE_ID_STEELSERIES_ARCTIS_1_X	0x12b6
+ #define USB_DEVICE_ID_STEELSERIES_ARCTIS_9	0x12c2
++#define USB_DEVICE_ID_STEELSERIES_ARCTIS_NOVA_7_2026	0x22a1
++#define USB_DEVICE_ID_STEELSERIES_ARCTIS_NOVA_7_P_2026	0x22a7
++#define USB_DEVICE_ID_STEELSERIES_ARCTIS_NOVA_7_X_2026	0x22a5
++#define USB_DEVICE_ID_STEELSERIES_ARCTIS_NOVA_7_DIABLO_2026	0x22a9
++#define USB_DEVICE_ID_STEELSERIES_ARCTIS_NOVA_7_GEN2	0x227e
++#define USB_DEVICE_ID_STEELSERIES_ARCTIS_NOVA_7_X_GEN2	0x2258
++#define USB_DEVICE_ID_STEELSERIES_ARCTIS_NOVA_7_X_GEN2_2	0x229e
++#define USB_DEVICE_ID_STEELSERIES_ARCTIS_NOVA_7_X_GEN2_3	0x22ad
+ 
+ #define USB_VENDOR_ID_SUN		0x0430
+ #define USB_DEVICE_ID_RARITAN_KVM_DONGLE	0xcdab
+diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
+index f546179858c2..40a761b5df91 100644
+--- a/drivers/hid/hid-quirks.c
++++ b/drivers/hid/hid-quirks.c
+@@ -749,6 +749,14 @@ static const struct hid_device_id hid_have_special_driver[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_STEELSERIES, USB_DEVICE_ID_STEELSERIES_SRWS1) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_STEELSERIES, USB_DEVICE_ID_STEELSERIES_ARCTIS_1_X) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_STEELSERIES, USB_DEVICE_ID_STEELSERIES_ARCTIS_9) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_STEELSERIES, USB_DEVICE_ID_STEELSERIES_ARCTIS_NOVA_7_2026) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_STEELSERIES, USB_DEVICE_ID_STEELSERIES_ARCTIS_NOVA_7_P_2026) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_STEELSERIES, USB_DEVICE_ID_STEELSERIES_ARCTIS_NOVA_7_X_2026) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_STEELSERIES, USB_DEVICE_ID_STEELSERIES_ARCTIS_NOVA_7_DIABLO_2026) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_STEELSERIES, USB_DEVICE_ID_STEELSERIES_ARCTIS_NOVA_7_GEN2) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_STEELSERIES, USB_DEVICE_ID_STEELSERIES_ARCTIS_NOVA_7_X_GEN2) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_STEELSERIES, USB_DEVICE_ID_STEELSERIES_ARCTIS_NOVA_7_X_GEN2_2) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_STEELSERIES, USB_DEVICE_ID_STEELSERIES_ARCTIS_NOVA_7_X_GEN2_3) },
+ #endif
+ #if IS_ENABLED(CONFIG_HID_SUNPLUS)
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SUNPLUS, USB_DEVICE_ID_SUNPLUS_WDESKTOP) },
 diff --git a/drivers/hid/hid-steelseries-arctis.c b/drivers/hid/hid-steelseries-arctis.c
-index 734cf1eb8789..2208d0e4cd2a 100644
+index 2208d0e4cd2a..eecd384b1a33 100644
 --- a/drivers/hid/hid-steelseries-arctis.c
 +++ b/drivers/hid/hid-steelseries-arctis.c
-@@ -26,6 +26,7 @@ struct steelseries_device_info {
- 	unsigned long capabilities;
- 
- 	u8 sync_interface;
-+	u8 async_interface;
- 
- 	int (*request_status)(struct hid_device *hdev);
- 	void (*parse_status)(struct steelseries_device *sd, u8 *data, int size);
-@@ -272,7 +273,8 @@ static void steelseries_status_timer_work_handler(struct work_struct *work)
- 	sd->info->request_status(sd->hdev);
- 
- 	spin_lock_irqsave(&sd->lock, flags);
--	if (!sd->removed)
-+	/* Async devices push status events themselves; only poll once. */
-+	if (!sd->removed && !sd->info->async_interface)
- 		schedule_delayed_work(&sd->status_work,
- 				msecs_to_jiffies(STEELSERIES_HEADSET_STATUS_TIMEOUT_MS));
- 	spin_unlock_irqrestore(&sd->lock, flags);
-@@ -316,6 +318,23 @@ static int steelseries_battery_register(struct steelseries_device *sd)
- 	return 0;
+@@ -114,6 +114,13 @@ static int steelseries_arctis_9_request_status(struct hid_device *hdev)
+ 	return steelseries_send_feature_report(hdev, data, sizeof(data));
  }
  
-+static struct hid_device *steelseries_get_sibling_hdev(struct hid_device *hdev,
-+						       int interface_num)
++static int steelseries_arctis_nova_request_status(struct hid_device *hdev)
 +{
-+	struct usb_interface *intf = to_usb_interface(hdev->dev.parent);
-+	struct usb_device *usb_dev = interface_to_usbdev(intf);
-+	struct usb_interface *sibling_intf;
-+	struct hid_device *sibling_hdev;
++	const u8 data[] = { 0x00, 0xb0 };
 +
-+	sibling_intf = usb_ifnum_to_if(usb_dev, interface_num);
-+	if (!sibling_intf)
-+		return NULL;
-+
-+	sibling_hdev = usb_get_intfdata(sibling_intf);
-+
-+	return sibling_hdev;
++	return steelseries_send_output_report(hdev, data, sizeof(data));
 +}
 +
- static int steelseries_arctis_probe(struct hid_device *hdev,
- 				    const struct hid_device_id *id)
- {
-@@ -337,39 +356,76 @@ static int steelseries_arctis_probe(struct hid_device *hdev,
- 	if (ret)
- 		return ret;
- 
--	/* Let hid-generic handle non-sync interfaces */
--	if (interface_num != info->sync_interface)
-+	/* Let hid-generic handle non-vendor or unknown interfaces */
-+	if (interface_num != info->sync_interface &&
-+	    (!info->async_interface || interface_num != info->async_interface))
- 		return hid_hw_start(hdev, HID_CONNECT_DEFAULT);
- 
--	sd = kzalloc_obj(*sd, GFP_KERNEL);
--	if (!sd)
--		return -ENOMEM;
-+	if (interface_num == info->sync_interface) {
-+		sd = kzalloc_obj(*sd, GFP_KERNEL);
-+		if (!sd)
-+			return -ENOMEM;
- 
--	kref_init(&sd->refcnt);
--	sd->hdev = hdev;
--	sd->info = info;
--	spin_lock_init(&sd->lock);
-+		kref_init(&sd->refcnt);
-+		sd->hdev = hdev;
-+		sd->info = info;
-+		spin_lock_init(&sd->lock);
- 
--	hid_set_drvdata(hdev, sd);
-+		hid_set_drvdata(hdev, sd);
- 
--	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
--	if (ret)
--		goto err_put;
-+		ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
-+		if (ret)
-+			goto err_put;
- 
--	ret = hid_hw_open(hdev);
--	if (ret)
--		goto err_stop;
-+		ret = hid_hw_open(hdev);
-+		if (ret)
-+			goto err_stop;
-+
-+		if (info->capabilities & SS_CAP_BATTERY) {
-+			ret = steelseries_battery_register(sd);
-+			if (ret < 0)
-+				hid_warn(hdev, "Failed to register battery: %d\n", ret);
-+		}
- 
--	if (info->capabilities & SS_CAP_BATTERY) {
--		ret = steelseries_battery_register(sd);
--		if (ret < 0)
--			hid_warn(hdev, "Failed to register battery: %d\n", ret);
-+		INIT_DELAYED_WORK(&sd->status_work, steelseries_status_timer_work_handler);
-+		schedule_delayed_work(&sd->status_work, msecs_to_jiffies(100));
-+
-+		return 0;
+ /*
+  * Headset battery helpers
+  */
+@@ -163,6 +170,30 @@ static void steelseries_arctis_9_parse_status(struct steelseries_device *sd,
  	}
- 
--	INIT_DELAYED_WORK(&sd->status_work, steelseries_status_timer_work_handler);
--	schedule_delayed_work(&sd->status_work, msecs_to_jiffies(100));
-+	/*
-+	 * The async interface shares the steelseries_device created by the
-+	 * sync interface. Defer until the sync interface has probed and
-+	 * published its drvdata.
-+	 */
-+	if (info->async_interface && interface_num == info->async_interface) {
-+		struct hid_device *master_hdev;
- 
--	return 0;
-+		master_hdev = steelseries_get_sibling_hdev(hdev, info->sync_interface);
-+
-+		if (!master_hdev || !hid_get_drvdata(master_hdev))
-+			return -EPROBE_DEFER;
-+
-+		sd = hid_get_drvdata(master_hdev);
-+		kref_get(&sd->refcnt);
-+		hid_set_drvdata(hdev, sd);
-+
-+		ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
-+		if (ret) {
-+			kref_put(&sd->refcnt, steelseries_device_release);
-+			return ret;
-+		}
-+
-+		ret = hid_hw_open(hdev);
-+		if (ret) {
-+			hid_hw_stop(hdev);
-+			kref_put(&sd->refcnt, steelseries_device_release);
-+			return ret;
-+		}
-+		return 0;
-+	}
-+
-+	return -ENODEV;
- 
- err_stop:
- 	hid_hw_stop(hdev);
-@@ -426,10 +482,21 @@ static int steelseries_arctis_raw_event(struct hid_device *hdev,
- 	u8 old_capacity;
- 	bool old_connected;
- 	bool old_charging;
-+	bool is_async_interface;
-+	unsigned long flags;
- 
- 	if (!sd)
- 		return 0;
- 
-+	is_async_interface = (hdev != sd->hdev);
-+
-+	spin_lock_irqsave(&sd->lock, flags);
-+
-+	if (sd->removed) {
-+		spin_unlock_irqrestore(&sd->lock, flags);
-+		return 0;
-+	}
-+
- 	old_capacity = sd->battery_capacity;
- 	old_connected = sd->headset_connected;
- 	old_charging = sd->battery_charging;
-@@ -442,6 +509,10 @@ static int steelseries_arctis_raw_event(struct hid_device *hdev,
- 			old_connected ? "" : "not ",
- 			sd->headset_connected ? "" : "not ");
- 
-+		if (sd->headset_connected && !old_connected &&
-+		    sd->info->async_interface && is_async_interface)
-+			schedule_delayed_work(&sd->status_work, 0);
-+
- 		if (sd->battery) {
- 			steelseries_headset_set_wireless_status(sd->hdev,
- 							       sd->headset_connected);
-@@ -465,6 +536,8 @@ static int steelseries_arctis_raw_event(struct hid_device *hdev,
- 			power_supply_changed(sd->battery);
- 	}
- 
-+	spin_unlock_irqrestore(&sd->lock, flags);
-+
- 	return 0;
  }
  
++static void steelseries_arctis_nova_7_gen2_parse_status(struct steelseries_device *sd,
++							u8 *data, int size)
++{
++	if (size < 4)
++		return;
++
++	switch (data[0]) {
++	case 0xb0:
++		sd->headset_connected = (data[1] == 0x03);
++		sd->battery_capacity = data[2];
++		sd->battery_charging = (data[3] == 0x01);
++		break;
++	case 0xb7:
++		sd->battery_capacity = data[1];
++		break;
++	case 0xb9:
++		sd->headset_connected = (data[1] == 0x03);
++		break;
++	case 0xbb:
++		sd->battery_charging = (data[1] == 0x01);
++		break;
++	}
++}
++
+ /*
+  * Device info definitions
+  */
+@@ -181,6 +212,14 @@ static const struct steelseries_device_info arctis_9_info = {
+ 	.parse_status = steelseries_arctis_9_parse_status,
+ };
+ 
++static const struct steelseries_device_info arctis_nova_7_gen2_info = {
++	.sync_interface = 3,
++	.async_interface = 5,
++	.capabilities = SS_CAP_BATTERY,
++	.request_status = steelseries_arctis_nova_request_status,
++	.parse_status = steelseries_arctis_nova_7_gen2_parse_status,
++};
++
+ /*
+  * Headset wireless status and battery infrastructure
+  */
+@@ -548,6 +587,30 @@ static const struct hid_device_id steelseries_arctis_devices[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_STEELSERIES,
+ 			 USB_DEVICE_ID_STEELSERIES_ARCTIS_9),
+ 	  .driver_data = (unsigned long)&arctis_9_info },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_STEELSERIES,
++			 USB_DEVICE_ID_STEELSERIES_ARCTIS_NOVA_7_2026),
++	  .driver_data = (unsigned long)&arctis_nova_7_gen2_info },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_STEELSERIES,
++			 USB_DEVICE_ID_STEELSERIES_ARCTIS_NOVA_7_P_2026),
++	  .driver_data = (unsigned long)&arctis_nova_7_gen2_info },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_STEELSERIES,
++			 USB_DEVICE_ID_STEELSERIES_ARCTIS_NOVA_7_X_2026),
++	  .driver_data = (unsigned long)&arctis_nova_7_gen2_info },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_STEELSERIES,
++			 USB_DEVICE_ID_STEELSERIES_ARCTIS_NOVA_7_DIABLO_2026),
++	  .driver_data = (unsigned long)&arctis_nova_7_gen2_info },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_STEELSERIES,
++			 USB_DEVICE_ID_STEELSERIES_ARCTIS_NOVA_7_GEN2),
++	  .driver_data = (unsigned long)&arctis_nova_7_gen2_info },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_STEELSERIES,
++			 USB_DEVICE_ID_STEELSERIES_ARCTIS_NOVA_7_X_GEN2),
++	  .driver_data = (unsigned long)&arctis_nova_7_gen2_info },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_STEELSERIES,
++			 USB_DEVICE_ID_STEELSERIES_ARCTIS_NOVA_7_X_GEN2_2),
++	  .driver_data = (unsigned long)&arctis_nova_7_gen2_info },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_STEELSERIES,
++			 USB_DEVICE_ID_STEELSERIES_ARCTIS_NOVA_7_X_GEN2_3),
++	  .driver_data = (unsigned long)&arctis_nova_7_gen2_info },
+ 	{}
+ };
+ MODULE_DEVICE_TABLE(hid, steelseries_arctis_devices);
 -- 
 2.54.0
 

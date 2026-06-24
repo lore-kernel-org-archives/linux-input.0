@@ -1,193 +1,184 @@
-Received: from mail-dl1-f43.google.com (mail-dl1-f43.google.com [74.125.82.43])
+Received: from mail-dy1-f174.google.com (mail-dy1-f174.google.com [74.125.82.174])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 950D334753B
-	for <linux-input@vger.kernel.org>; Wed, 24 Jun 2026 04:14:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.43
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 846F329ACDD
+	for <linux-input@vger.kernel.org>; Wed, 24 Jun 2026 04:28:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782274477; cv=none; b=RxldEOKqFf3yGPtQexrNRwBcFmDnruk9TbbQmp6i0YEqijxIR82fEBojcZP6CUMD+HWENuDBnlvRb3VrtV6qpejzqquQxPOMLac59dftmnJT0E4WUdsMpz1Et1t+8o6SUMHrh3iQfgc1uYmK28MVDN5tH2oCOqPu6ZuuG/TWJcw=
+	t=1782275294; cv=none; b=oYNtpOKTX5a5CTADeHf5+sVzlH5u7CSYPdk0WWtjU7PpkhvvGXRrS54rsQlMo23BbydwK0U/3DU97KDq56TcRQNAUcD3Hq0aOtx3EIVUxjZr0dsDgfs7UqhLiM46+hamq8SdkglUAyEpfHqOkOH6FFEINgls0pUhoVrhXIYmi5o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782274477; c=relaxed/simple;
-	bh=F64ZVJVMK5lCsBFog81Qx1aMpxm/GHjOMlsLOnzQQqA=;
+	s=arc-20240116; t=1782275294; c=relaxed/simple;
+	bh=CatfsTP8wXiX+fsqwI5MUAVJoIpCzIOidq0t0/coTaI=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=OPLgOE1E+OGAKDWZjYk5XGGVPlxyAkqsi9jYkjIRKgX+4POERvAKuvlMmjWSE762uTF437icGvLvYzp0GarqSCEWSNosjgAbH6T9vxr8OCpqpjlSV4VZzNYX1b7NNh3nws1CErb6NnSxJDd2AegJJongip1AaGlnDy10hPpWDjo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=VOJsNLtu; arc=none smtp.client-ip=74.125.82.43
+	 Content-Type:Content-Disposition:In-Reply-To; b=lfMM3f5qDIaqPBpz2aZ/OZLA/phhL7YVVp+jVR2CulRI4JlloJwWr/d/UakfQM7ZxSoPGeLG37k6OIXKJFhT8pYqaYHA/zc6MMCviM34RzDzNf77TYsf5MZao/nldxUEXGNgg8G3ZrDhEHP8wBMkdp7GQTEikl+ZISaqeZ/G9Zs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=qYhKUN2J; arc=none smtp.client-ip=74.125.82.174
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="VOJsNLtu"
-Received: by mail-dl1-f43.google.com with SMTP id a92af1059eb24-139986373b8so794638c88.0
-        for <linux-input@vger.kernel.org>; Tue, 23 Jun 2026 21:14:36 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="qYhKUN2J"
+Received: by mail-dy1-f174.google.com with SMTP id 5a478bee46e88-30c23abc62eso609373eec.1
+        for <linux-input@vger.kernel.org>; Tue, 23 Jun 2026 21:28:12 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1782274476; x=1782879276; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=vKtWlzZGcSqpr4oYtvBHGz8mTHnWwBOUsRR1pMRsq7A=;
-        b=VOJsNLtubLiIPLIseXckT4SbZcCwJDwxC8TCOtv5KVcTPzwz/LLjFKEa5kUEB3CzCa
-         5+AK24KW+lJ95Ch4lF2Gm82842IKu9P40XGOv7t5gsZcm9E4OI/pkgvrzThlO/OpuzLF
-         zOFz8Tdmb05Idg6EOEBt2Z7HILo7h9g55qnYe/WifeJYOmSHeLo70VulrB9Y97L48FE/
-         SVcN5Whp4dxNdQxXxbg9dDtEnnyLgUl3/dZLEKkbtqa9VJShuXoRpTsruNXYlHmUy36L
-         BrOszkiPj9IFshUszebcD/b1HW6p5zWyzFRcUUqqpun6E+xS+SJZlVrUAI382k0tosi6
-         Tz7g==
+        d=gmail.com; s=20251104; t=1782275292; x=1782880092; darn=vger.kernel.org;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=EEdnK3yMj7vaMPJob7ZvZ1mk4WeNg/B5FxtgUQVR5Lw=;
+        b=qYhKUN2JvsDeCQcXG2CFYYYHESi3M4W9NrqLLmN0s4K5e/6fumhDEwdAIa8weo7sNJ
+         cTRw4u34s2QV1nP95cqA00iKK0rCYKBLwsbvIYJxQ+HkYzQLXpC9Tgj8A1SUhk2XSftu
+         n+73V0qDaWHErvlo2PwDVVdDf1vuw4ceFaaGd1MmpjcmcGYmow7GfDYIYluy4fYzN3cu
+         QLi5B5El+xhe34yu8zpIdDx2W8f6pJrNX6ta6XDAb2kRo8tIhU0QLRFiyvIfQqQapifL
+         CtGAPc2wNo4vwMxsHgV9L4ahVyjQFTcNKbFjVvO5EGXUWOLB29zlpsUaUI0W+bi41i3m
+         s+Ig==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1782274476; x=1782879276;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=vKtWlzZGcSqpr4oYtvBHGz8mTHnWwBOUsRR1pMRsq7A=;
-        b=FCnFHvcWhJeyYu1V653h8P2B7NPzRPzeqqz7BRf1ph6mrl1d/zMu+3WKnR8hGAkCgB
-         zRg7SoRqmCO6dS+qDHXg6H5y42WcGEvoNn1eXO/oZsSfxd8gckYADYOvjPjTYl0pywBm
-         gzo3Af/CoqQFAcyhgN59M75jVsKu+1n2Hw/07AHfQ6QHQssFoyEW2vZwcnEC6Z4voOn3
-         idF1dEZ1dGcbqJbhTAzrQgUB9HbQjX8mPZ5QzgoVcmnCv6nPhuILbwvRUQ681clCQIiA
-         bkU+ibkuv45Fbul3obdktuTYNEspd5oxhrymUwACdnJbEuoAf6uYAZDPZMKttM8UJvcV
-         R3sQ==
-X-Gm-Message-State: AOJu0YzlZDMsYIkZVWu18SkDnZcUzs+4WkSq7Yij/B7iAxlc7FbpKzJ1
-	q/Yl7v+FWZ/oPKAGEAl9brz4LIRqANMK4EnnTOYcV/tlIllBXo8IAgUJ
-X-Gm-Gg: AfdE7ckxW28z6XdwHw4Ga6Q96OJOhK4noRlG4F5lwkrWDn28l9t9E9blVpXmiZPOen8
-	Nn+ybbgc6ADnWIlbjXy7JR9UU10J1JaKZK2xDgohvrnaFXI0Banv7AokKWVc69p2ZTGo7mESzAL
-	NfEfFJvD9gyd+yoGqM0S1BWMNh4dxJnzFSg3X0TpOgeLAvVOQEhJBtfIN0OBqe7J9MotPfevw6o
-	IRTGWLRATXNMUmGXt1w6HxUUTex7qJssLWe3kqf/mysF65TaCiE9ttoHL+O1zlctR7aWiVWZYBU
-	WnSp/lenCiNPXAkYYKo03TS9T1dVwlcz4MqPYiJj7Jv89uYvux3Rxl8FyugHSE6tnHga6dEFUv5
-	Ruzz0w+Hc+dBTBeYeYGFX591KQsRNGfGaBEL9CJLcMQQFGCKrWHTlmdbhOn82xiVez42WQptb9V
-	4PQlGET+9K3LrEBjFUXKJ1cxHT7hI862Y4GVNaXZXCv1cnW0poFRPQWw==
-X-Received: by 2002:a05:7022:128f:b0:138:5049:cb7c with SMTP id a92af1059eb24-139d0cd9467mr1322277c88.36.1782274475590;
-        Tue, 23 Jun 2026 21:14:35 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1782275292; x=1782880092;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=EEdnK3yMj7vaMPJob7ZvZ1mk4WeNg/B5FxtgUQVR5Lw=;
+        b=ViUnDPoYWkphmxDLAa4k6IlboSJP4T2BbpLAelDC/zSr+kYE2IZ+OcYpoA2k91CsQj
+         sUqGVe73ZA/Zq/7egIwByWLCJ8kUpWLQ2jU429WceY0/SOVprhe6GBpKK1jh+JytenPo
+         UfVjMTylMPP9Vvj8/7PhAc4SRk5433o8az+to2pGodXuhEhY/qSqP44ShDJJrXpClvf/
+         UqeVCvA9KNsVKXF3ZGurnxSpd39HsgxK4hqtHL+A+3OdCcbvZvR6UpghzTn3KrvzKeKu
+         D6UsS1RkAaNQ8z30kDngsPEwGnUuWiTANSv8VQm05PwqDj0ky1HeCIby3yQLSUPc0z2e
+         uZRA==
+X-Forwarded-Encrypted: i=1; AHgh+RpBPRyp2RB+FWszsC9EgGxioe0zdGVP5PuFsPJWnYkZk+JQRWcr4WIJTUsLpIaqjDLWeORwJmx8CRbQew==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yx73KwMydbKBeVVEA9MYSabT5QfnqAr5FEhS4lXvUm9uApzh3Wd
+	ONE9m7AB1t3J6Kmbw+OyQbmKQCXMOqaNM9/PdQ0ET83D1gYzL3Xb5IsS
+X-Gm-Gg: AfdE7cnV8yi6vlmygI8Sc0HuPNS1cFiRQPkduXfdVAGFYcmFFjfLD8eQ/5l7FBoE+CK
+	fUDBcEXoXp3su2hzrz4mJhMYFTVMu0mH18AayCZszzrblX0eQgVXjZ8VJ2rfzxF+GlxOspzhcJN
+	ksJK3pvxuE4W5Hw12hgSqLE7Jwv37mmzFnrCM/TY+q5LM8LCwY3FqFhKoiHmV783zEmwALgKj5d
+	5GCpRoJDaPQ631rItPy1LTxA8CyztTDRhxQSfzpoIroBqHvTIZdK9rWREHijdTpCfd3jFQsh+gb
+	1NJkCsf+dZ7Ojv/cEYTc9fuVwv+VvMDDrmimeUgXEJ19G5kIIucxmmQS6vQoz9yNkhxUz+IunR6
+	2XV/xGMWPKNjHjoweT9ox+ekzeeMaYhMC2a3PyNHMv77da7/pHotKTJZ5/MQO5cCJviksnsjkTE
+	LfLkh5ReabK1xoJgzleguxPYokZHBFfF6cY3wXTJHySe0gUSJPvzoJKQ==
+X-Received: by 2002:a05:7300:5415:b0:2ed:e14:7f5c with SMTP id 5a478bee46e88-30c68e42cfcmr2209522eec.32.1782275291490;
+        Tue, 23 Jun 2026 21:28:11 -0700 (PDT)
 Received: from google.com ([2a00:79e0:2ebe:8:6026:1e6d:4a80:9bd0])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-30c1bd8d6edsm20547205eec.14.2026.06.23.21.14.34
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-30c6f4993a1sm640193eec.17.2026.06.23.21.28.09
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 23 Jun 2026 21:14:34 -0700 (PDT)
-Date: Tue, 23 Jun 2026 21:14:31 -0700
+        Tue, 23 Jun 2026 21:28:10 -0700 (PDT)
+Date: Tue, 23 Jun 2026 21:28:07 -0700
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Rosen Penev <rosenp@gmail.com>
-Cc: linux-input@vger.kernel.org, Matthias Brugger <matthias.bgg@gmail.com>, 
-	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, 
-	"open list:ARM/Mediatek SoC support" <linux-kernel@vger.kernel.org>, 
-	"moderated list:ARM/Mediatek SoC support" <linux-arm-kernel@lists.infradead.org>, 
-	"moderated list:ARM/Mediatek SoC support" <linux-mediatek@lists.infradead.org>
-Subject: Re: [PATCH] Input: mtk-pmic-keys: Count available keys during probe
- instead of pre-counting
-Message-ID: <ajtX-cVWFmmkVO7M@google.com>
-References: <20260528235600.312045-1-rosenp@gmail.com>
+To: David Heidelberg <david@ixit.cz>
+Cc: Rob Herring <robh@kernel.org>, 
+	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
+	"Jason A. Donenfeld" <Jason@zx2c4.com>, Matthias Schiffer <matthias.schiffer@ew.tq-group.com>, 
+	Vincent Huang <vincent.huang@tw.synaptics.com>, Bjorn Andersson <andersson@kernel.org>, 
+	Konrad Dybcio <konradybcio@kernel.org>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org, phone-devel@vger.kernel.org, 
+	Krzysztof Kozlowski <krzk@kernel.org>, Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>
+Subject: Re: [PATCH v2 2/2] arm64: dts: qcom: sdm845-oneplus: Update
+ compatible to include model
+Message-ID: <ajtaUb4YmyZTDLmQ@google.com>
+References: <20260523-synaptics-rmi4-dt-v2-0-0645122babdc@ixit.cz>
+ <20260523-synaptics-rmi4-dt-v2-2-0645122babdc@ixit.cz>
+ <ahdoBl3qCTyvlYJf@google.com>
+ <1d0e7e31-f808-4347-955a-7246dea208f5@ixit.cz>
+ <742c7a13-9465-40e8-8990-e679712e9784@ixit.cz>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20260528235600.312045-1-rosenp@gmail.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <742c7a13-9465-40e8-8990-e679712e9784@ixit.cz>
 
-Hi Rosen,
+Hi David,
 
-On Thu, May 28, 2026 at 04:56:00PM -0700, Rosen Penev wrote:
-> Replace the separate of_get_available_child_count() pre-count and
-> validation step with a single pass through for_each_child_of_node_scoped().
-> Skip unavailable child nodes and bail out if more than
-> MTK_PMIC_MAX_KEY_COUNT available keys are found. Set nkeys after the
-> loop so suspend/resume iterate only over initialized entries.
+On Sun, Jun 21, 2026 at 07:11:45PM +0200, David Heidelberg wrote:
+> On 28/05/2026 00:13, David Heidelberg wrote:
+> > On 27/05/2026 23:56, Dmitry Torokhov wrote:
+> > > Hi David,
+> > > 
+> > > On Sat, May 23, 2026 at 11:45:35AM +0200, David Heidelberg via B4 Relay wrote:
+> > > > From: David Heidelberg <david@ixit.cz>
+> > > > 
+> > > > We know the driver is reporting s3706b, introduce the compatible so we
+> > > > can more easily introduce quirks for weird touchscreen replacements in
+> > > > followup series.
+> > > > 
+> > > > Reviewed-by: Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>
+> > > > Signed-off-by: David Heidelberg <david@ixit.cz>
+> > > > ---
+> > > >   arch/arm64/boot/dts/qcom/sdm845-oneplus-common.dtsi | 2 +-
+> > > >   1 file changed, 1 insertion(+), 1 deletion(-)
+> > > > 
+> > > > diff --git a/arch/arm64/boot/dts/qcom/sdm845-oneplus-common.dtsi
+> > > > b/arch/ arm64/boot/dts/qcom/sdm845-oneplus-common.dtsi
+> > > > index 6b7378cf4d493..148164d456a5a 100644
+> > > > --- a/arch/arm64/boot/dts/qcom/sdm845-oneplus-common.dtsi
+> > > > +++ b/arch/arm64/boot/dts/qcom/sdm845-oneplus-common.dtsi
+> > > > @@ -475,17 +475,17 @@ bq27441_fg: bq27441-battery@55 {
+> > > >       };
+> > > >   };
+> > > >   &i2c12 {
+> > > >       status = "okay";
+> > > >       clock-frequency = <400000>;
+> > > >       synaptics-rmi4-i2c@20 {
+> > > > -        compatible = "syna,rmi4-i2c";
+> > > > +        compatible = "syna,rmi4-s3706b", "syna,rmi4-i2c";
+> > > 
+> > > So I believe we established that this device (s3706b) does not in fact
+> > > implement rmi4 protocol properly. Why do we have "syna,rmi4-i2c" as a
+> > > fallback? Shouldn't it be just "syna,rmi4-s3706b"?
+> > 
+> > The vendor supplies s3706b which does implement the RMI4 properly.
+> > 
+> > The 3rd party replacement impersonating original parts may not implement
+> > it properly, but I don't address this issue in this initial submission.
+> > 
+> > With this compatible we know which original part is used by the vendor
+> > and installed in the phones, so later we can deduct specific sequences
+> > for the replacement aftermarket parts to keep phone touchscreen working
+> > same as they do on Android without affecting other devices.
 > 
-> Also use a key variable in the loop for clarity.
+> Hello Dmitry.
 > 
-> Use of_device_get_match_data() to fetch the PMIC key register data directly
-> instead of open-coding an of_match_device() lookup.
-
-Please split this out into a separate patch.
-
+> May I ask what is currently preventing this series from moving forward?
 > 
-> This also lets the driver drop the of_device.h include.
+> The first version was posted in 2023 [1]. I picked it up again in 2025 [2]
+> and am now on the 9th iteration (this patchset). At this point, the series
+> has been under discussion for well over a year, with relatively little
+> feedback and increasingly long gaps between review rounds.
 > 
-> Assisted-by: OpenCode:BigPickle
-> Signed-off-by: Rosen Penev <rosenp@gmail.com>
-> ---
->  drivers/input/keyboard/mtk-pmic-keys.c | 53 ++++++++++++--------------
->  1 file changed, 24 insertions(+), 29 deletions(-)
+> The current approach is based on the guidance I have received so far,
+> including suggestions from the device-tree maintainers. When concerns were
+> raised, I tried to address them and rework the series accordingly.
 > 
-> diff --git a/drivers/input/keyboard/mtk-pmic-keys.c b/drivers/input/keyboard/mtk-pmic-keys.c
-> index c78d9f6d97c4..e34856693ee2 100644
-> --- a/drivers/input/keyboard/mtk-pmic-keys.c
-> +++ b/drivers/input/keyboard/mtk-pmic-keys.c
-> @@ -16,7 +16,6 @@
->  #include <linux/mfd/mt6397/core.h>
->  #include <linux/mfd/mt6397/registers.h>
->  #include <linux/module.h>
-> -#include <linux/of_device.h>
->  #include <linux/of.h>
->  #include <linux/platform_device.h>
->  #include <linux/regmap.h>
-> @@ -147,6 +146,7 @@ struct mtk_pmic_keys {
->  	struct input_dev *input_dev;
->  	struct device *dev;
->  	struct regmap *regmap;
-> +	unsigned int nkeys;
->  	struct mtk_pmic_keys_info keys[MTK_PMIC_MAX_KEY_COUNT];
->  };
->  
-> @@ -267,7 +267,7 @@ static int mtk_pmic_keys_suspend(struct device *dev)
->  	struct mtk_pmic_keys *keys = dev_get_drvdata(dev);
->  	int index;
->  
-> -	for (index = 0; index < MTK_PMIC_MAX_KEY_COUNT; index++) {
-> +	for (index = 0; index < keys->nkeys; index++) {
->  		if (keys->keys[index].wakeup) {
->  			enable_irq_wake(keys->keys[index].irq);
->  			if (keys->keys[index].irq_r > 0)
-> @@ -283,7 +283,7 @@ static int mtk_pmic_keys_resume(struct device *dev)
->  	struct mtk_pmic_keys *keys = dev_get_drvdata(dev);
->  	int index;
->  
-> -	for (index = 0; index < MTK_PMIC_MAX_KEY_COUNT; index++) {
-> +	for (index = 0; index < keys->nkeys; index++) {
->  		if (keys->keys[index].wakeup) {
->  			disable_irq_wake(keys->keys[index].irq);
->  			if (keys->keys[index].irq_r > 0)
-> @@ -325,24 +325,23 @@ MODULE_DEVICE_TABLE(of, of_mtk_pmic_keys_match_tbl);
->  static int mtk_pmic_keys_probe(struct platform_device *pdev)
->  {
->  	int error, index = 0;
-> -	unsigned int keycount;
->  	struct mt6397_chip *pmic_chip = dev_get_drvdata(pdev->dev.parent);
->  	struct device_node *node = pdev->dev.of_node;
->  	static const char *const irqnames[] = { "powerkey", "homekey" };
->  	static const char *const irqnames_r[] = { "powerkey_r", "homekey_r" };
->  	struct mtk_pmic_keys *keys;
->  	const struct mtk_pmic_regs *mtk_pmic_regs;
-> +	struct mtk_pmic_keys_info *key;
->  	struct input_dev *input_dev;
-> -	const struct of_device_id *of_id =
-> -		of_match_device(of_mtk_pmic_keys_match_tbl, &pdev->dev);
->  
->  	keys = devm_kzalloc(&pdev->dev, sizeof(*keys), GFP_KERNEL);
->  	if (!keys)
->  		return -ENOMEM;
-> -
->  	keys->dev = &pdev->dev;
->  	keys->regmap = pmic_chip->regmap;
-> -	mtk_pmic_regs = of_id->data;
-> +	mtk_pmic_regs = of_device_get_match_data(&pdev->dev);
-> +	if (!mtk_pmic_regs)
-> +		return -EINVAL;
->  
->  	keys->input_dev = input_dev = devm_input_allocate_device(keys->dev);
->  	if (!input_dev) {
-> @@ -356,31 +355,26 @@ static int mtk_pmic_keys_probe(struct platform_device *pdev)
->  	input_dev->id.product = 0x0001;
->  	input_dev->id.version = 0x0001;
->  
-> -	keycount = of_get_available_child_count(node);
-> -	if (keycount > MTK_PMIC_MAX_KEY_COUNT ||
-> -	    keycount > ARRAY_SIZE(irqnames)) {
-> -		dev_err(keys->dev, "too many keys defined (%d)\n", keycount);
-> -		return -EINVAL;
-> -	}
-> +	for_each_available_child_of_node_scoped(node, child) {
+> What I am struggling with is understanding what specific issue still needs
+> to be resolved before these patches can be accepted. If there are remaining
+> requirements, objections to the approach, or technical concerns that I have
+> not addressed, I would appreciate having them stated explicitly so I can
+> work on them.
+> 
+> I also split out the straightforward, self-contained changes in the hope
+> that at least those could progress independently while I continued working
+> on any follow-up requirements. However, even those patches do not appear to
+> be moving forward.
+> 
+> Could you please clarify what outcome you would like to see from this
+> series, and what concrete changes would be required to get it accepted?
 
-Let's keep using for_each_child_of_node_scoped() and check
-of_device_is_available() inside the loop. This will allow marking a key
-as disabled without shifting it's meaning (power key vs home key).
+I am still confused about how you want to differentiate between the full
+RMI4 support vs the OnePlus flavor. The "syna,rmi4-s3706b", as you
+mentioned, implements RMI4 protocol properly, so we do not need to
+actually have it documented neither in binding nor in DTS.
 
-In the rest of the driver we should be able to determine if key is set
-up checking for key->irq > 0.
+The issue you have with after-market parts that are not compliant and we
+need to figure out how to deal with them. Inside the driver I
+essentially need a"incomplete protocol" flag that we can use to
+implement additional checks or skip known to be not implemented
+functions/queries. In DT we could introduce something like
+"oneplus,rmi4-i2c" that is decidedly not compatible with "syna,rmi4-i2c"
+and neither one should be a fallback for the other.
+
+This of course needs buy-in from DT maintainers.
+
+Does this make sense?
 
 Thanks.
 

@@ -1,71 +1,71 @@
-Received: from mail-dy1-f182.google.com (mail-dy1-f182.google.com [74.125.82.182])
+Received: from mail-dy1-f171.google.com (mail-dy1-f171.google.com [74.125.82.171])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4079132570D
-	for <linux-input@vger.kernel.org>; Wed, 24 Jun 2026 05:50:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.182
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C38DF3264D4
+	for <linux-input@vger.kernel.org>; Wed, 24 Jun 2026 05:50:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.171
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782280217; cv=none; b=r8LBTLnaQRN65dtM5Lc/jPsrVeaMnBEUunO96+v4Ia5Iz4wxzMmSRLOSg/0NA9NB1BjNz1GIQfegLCri1EwR6N13gXxJrnCVFR745moa6xHhIJlGxIMCvlQBzkb9Exf+jUaJHmY4xZF5A8nEE9IRVHsuWq6LEkV5FordvJzvhWs=
+	t=1782280222; cv=none; b=CktgxdqIJMkRu1T1Vb22pdC93CjCBAvMVbjyibUOmM+P1ytaN34e6jrD3FUi3XccoSiX/FcmyHcZZEZCexYjZK202wbUL4xS6/RMRdwPsHUmn+Mu83RdhKJtC3aCCmmcc6YqjH5Wo9T9PKUDIquWYJcTdZ3g7MucVxRnW5bQPOE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782280217; c=relaxed/simple;
-	bh=TwiVGZE/cuOmWdJJ140dlIbrb3T4IAV5EW0SjxJneQc=;
+	s=arc-20240116; t=1782280222; c=relaxed/simple;
+	bh=XvDPWVQFFZ+/W+KV7IWEbTvPQwPSK1USVayR9eUFTKY=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=mjKxuyB/G34okm8TnkGER98DDWVgrXUH7wwZvIYrmvszfz9tJCX3VsxL36gRZO8AjHfjSXvaVykAHdqVhpvG5NJ8sNgaLjI2yFafTOy/7WrMUJFSmVnVc239mG86926nmaW8CnzSTw75vLquUz05HcjIkG2NUC4+XzwMdA2+S8A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ZaVw5Ps8; arc=none smtp.client-ip=74.125.82.182
+	 MIME-Version; b=MMGHErxNj3qHSWo+tBuMGaChojpZQrCWYqAU+UVwR5lOSCAmpBIF7O6jooYTVpvbEmMY9KilJTflHumvdXYh6SEv7AQ/e6ycQCbivKh8V5aY8TQHVtLDqQVnG8SgA7JKoQx4JgqcMNB5222M0UBZGOFnRtkFluktinOGDnWjLxY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=NwsLuARK; arc=none smtp.client-ip=74.125.82.171
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ZaVw5Ps8"
-Received: by mail-dy1-f182.google.com with SMTP id 5a478bee46e88-30b6dad2382so1121074eec.0
-        for <linux-input@vger.kernel.org>; Tue, 23 Jun 2026 22:50:16 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="NwsLuARK"
+Received: by mail-dy1-f171.google.com with SMTP id 5a478bee46e88-30c6836fea9so408274eec.1
+        for <linux-input@vger.kernel.org>; Tue, 23 Jun 2026 22:50:17 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1782280215; x=1782885015; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1782280217; x=1782885017; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=0Mp2tjlqoqiSzDWEvjpQJpeD9swQKcxQhwmEs2BGYOM=;
-        b=ZaVw5Ps8KlXsEv7kyu+YwAmOEgUPc1fcEnuHnuib+wzKvHccdvg44zCJums7FABzd6
-         zd4vSmW8k/JJ/x+dL4U75NgHGVEkTr39om1nJdCHAAKgOtPT4GgTrcFz4iHKY1AsReVF
-         OG499ISseuD875no3COYjW2ksW2daFd5inRZa+P37LPUCjaJtSJLtyReTZofV3rkIRGU
-         XDCaUPBUNzcDS3x3LXhYw6nDLFB0rxVm07jTJzNs9irEbaOBySUZ7ZKWgwjpcIctl6Sg
-         divKpOjWy0hO8KanVkDmhIkLqmf4I2qS+O0SCRGqQZ6t3sWmtRdOam2QwOLpxRguU9JF
-         lA2Q==
+        bh=t/ZTM1/Hicez5dQdAEIebDh1Q953KjiBA9EgiqU8M9U=;
+        b=NwsLuARK3Sb8IKGj1ExQE8HlbkJPRsGPwgDqzmygIjZ269VbpEeQqSEeiTyXtlbNHr
+         ykynB2EwALyQx340zYF+zqpVHC7hmcx0z/S+6WlsOuW4wrV+T6GehZCFtCXtk/O+HEzR
+         UpU1NTwuvkufjd1xs7Y0ogyipsS1nNMDbTkoOGPqnqLrz0wk9lTBvkfNBVQs6lXWnL4o
+         lmkppKhiP9r3wxCC8XzFyCvuJ+Mtu/Dpq156AsGwbhGx5T7m7sarrHFGvuw/VZw1kyjC
+         8Wr+SBCDlxMki2e9rC033+Tv4o5YZqLn6lrjtEwFPoY0WqhfTQWYKRnfhpeeBx0BGEag
+         LTRw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1782280215; x=1782885015;
+        d=1e100.net; s=20251104; t=1782280217; x=1782885017;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=0Mp2tjlqoqiSzDWEvjpQJpeD9swQKcxQhwmEs2BGYOM=;
-        b=qFzGWbawQMLfqgXhQrsMciRETgjqLv1RbCKd8aYYEhyoATxcESNXd8cWrRsW5EmkFP
-         q9NEwejaN9PtcwZcgOj0S6CQm+KHYeQYY1zUvBzkYn8uBI/LNAw+NJnolsNVr/KmFuxF
-         jYYFZ+tdC3+Mb7LtyAQuZYx0Ar07SVRfHb+eyeVGQtCPyDmOb2c1jYWjny6FPNw/JWc8
-         nGXKLxl5kBBMFUl1dc+zDscqTiekjER1/rruOMSMT/9gh9L8gqFnvWREVnn5p3Ww650c
-         /+0c5hzvckSO7QsvLZSj7/RFR8g2CYIgZH48HoeGEO3YkmjoLtJl+WIBC7MCtFSvAKNx
-         nhMg==
-X-Gm-Message-State: AOJu0YxVH5MLNg6s0QhLtXup9/N7+rA3eikwu24t+Vr7qcdCEWgJAnA7
-	T3Bobs+sjXmCtxi0o+X0L6BwOl5S3nEo6il3jeJqGSwTdJKavRZeWT3yIh8vRg==
-X-Gm-Gg: AfdE7cm4mMUwg4l+gqn9VtWeBf1R3gE7R9so3B7ptRhrKE6VDztfX8LhHK/NC5TNbsE
-	2ATeZDEEL0ETqleCZ88ulnfVSxiLsKST3nW+LlCuW8RcoA6W3Iwj5zEN5wM6VFYEX4TW7jaPzek
-	TzavGpv8fUd8AtH9iavLZb1o57km/3qtN+s0cP8ZjZTtEd4qwlUr1VDBpjdPofqiC1klqv5PlgE
-	dkqZi8ChuA3AzSYUDcgtrehhGQV+hD51GxY5NPpLWgT4jAP0fKWj3Sq1GGW4QqRnNUMBftJOIV2
-	98NNbS4KVoirxbUC6H4OXa83AjDuM0It9sPCNCg261edkQdCXOzhQwoCN9+1Sm7XREecjGLSTsX
-	/uoYvveg3yFd0hXtFya21epXllkEwc9xaXy5hr/VzZtIPJ3zjctMIG7jj6qg4aKfNPjdZUdI6pB
-	d0bggQiW7qUAkAIGSBHPfKwwp5Mz4kPyEr5O8qdva3kerCCh31hPbLXWAyea5rv02VUzmT4AJ0Z
-	4jo
-X-Received: by 2002:a05:7300:3242:b0:2be:833c:149d with SMTP id 5a478bee46e88-30c58cde733mr5020377eec.28.1782280215291;
-        Tue, 23 Jun 2026 22:50:15 -0700 (PDT)
+        bh=t/ZTM1/Hicez5dQdAEIebDh1Q953KjiBA9EgiqU8M9U=;
+        b=XieUiWqytUrCRtdCZAz+j/2c4HJ4hUvOrwG8EAdnBXlQcTKxOSZS+tS35NkjXwfmQx
+         bIl/W4Bm77l1YXjnOmc07XExMCgE7ZMlnQ7I3yYnmnHHebAX8py4CjXHhIOGgWAEGeOa
+         PIdCq87e+/nG7r2NqZFE7kB7ejGfME9yNlXasI+6XnETZp+B7fQ7/6oSjlHFzqBPKOFF
+         AaO9uXk4fOPqgzyhrQQ4sowZbtfP57TXF3qhcvXkHecu4TBGDqUJ9mpmMrvZ5XQiNw5R
+         QM+NlRU2l4q2EVDO1s6m1ah87tsoxpixhWm7YstP76QHxAod0vvcRnNytwxtJ9jMFDCV
+         vMRg==
+X-Gm-Message-State: AOJu0YwgIU/V+fQKuKi8NS10GE44uk9mmrxhC4xHtuUiL8UvMo/zLOBU
+	pjtXFabkTTlN8R0gun7G3QDJoSz2WKoQLnusKJDR23q2ax2/j6CLQCsEd+FtBQ==
+X-Gm-Gg: AfdE7cldxuRhk7R0bqW1Ew/Cmkbwm90pFLzZX3NTrNPyWoUhqQ0kpv7pitrDN9wy6MI
+	H0YKCGLG6j8ebqRUs8sEMqTjxHNhJEZmgFlFYRv0x1jxMmVniXgEVG0vdXVQ8iOmR5AwbyaWwiX
+	s6kSJmCiHM/ZrLmndFbskxLUrtc0fX01AwqyEp88DXME4gLMnPR4+qcAT7tad2jqnfs3B/8+MWI
+	4jiXKYgcNt2LHPfdzwAeV09pq6UeGSON9L9BpQgDFHyy2cFawtS+flIK5EFS8cuyDcmo8Si7e1h
+	ryV772fwPGw5RM9ub/S3fbfh+EIweoVd3B+Ra1PfCFn+PJtORDgLsmgQ24kvjXReEgby1P61Aaq
+	JZ7d/D8EQHuUgi5XTgSnzUN/0gO5cQvOaDz+QTEgWzj2qvh1Yun7l28JODJJVXtTu6bg74kc48P
+	xfXv2ip1w3DMxlYVX4rr2tiZ52xBJ+anbDcdxkihCY66sIOGxfaiELdl2uudSccJeTMtJuXDQYc
+	if/
+X-Received: by 2002:a05:7022:410:b0:138:501f:46b2 with SMTP id a92af1059eb24-139c3c124b4mr5145692c88.1.1782280216712;
+        Tue, 23 Jun 2026 22:50:16 -0700 (PDT)
 Received: from dtor-ws.sjc.corp.google.com ([2a00:79e0:2ebe:8:6026:1e6d:4a80:9bd0])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-30c430553d1sm14073419eec.11.2026.06.23.22.50.14
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-30c430553d1sm14073419eec.11.2026.06.23.22.50.15
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 23 Jun 2026 22:50:14 -0700 (PDT)
+        Tue, 23 Jun 2026 22:50:15 -0700 (PDT)
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 To: linux-input@vger.kernel.org,
 	Jiri Kosina <jikos@kernel.org>,
 	Benjamin Tissoires <bentiss@kernel.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 3/4] Input: defer handler's start() until device is opened
-Date: Tue, 23 Jun 2026 22:50:06 -0700
-Message-ID: <20260624055008.2494980-3-dmitry.torokhov@gmail.com>
+Subject: [PATCH 4/4] Input: ensure device is ready before delivering events
+Date: Tue, 23 Jun 2026 22:50:07 -0700
+Message-ID: <20260624055008.2494980-4-dmitry.torokhov@gmail.com>
 X-Mailer: git-send-email 2.55.0.rc0.799.gd6f94ed593-goog
 In-Reply-To: <20260624055008.2494980-1-dmitry.torokhov@gmail.com>
 References: <20260624055008.2494980-1-dmitry.torokhov@gmail.com>
@@ -77,125 +77,242 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-When registering an input handle, handler->start() is currently called
-immediately. However, the input device might not be fully opened or
-ready to process events at this stage, meaning any state synchronization
-events (like setting LED states) injected by the handler's start method
-might be dropped.
+When a device is opened via input_open_device(), the driver's open()
+callback is invoked. Some drivers, like cm109, submit URBs or perform
+other hardware initialization in their open() callbacks.
 
-Move the handler->start() invocation to input_open_device(). If it is
-the first handle opening the device, start() is called after the driver's
-open() method has successfully completed and the device is fully prepared.
+However, the input core does not prevent dev->event() from being called
+concurrently during the driver's open() execution. For instance, if a
+console beep occurs, the kbd handler might inject an EV_SND event. This
+can lead to double list_add BUGs if the driver submits the same URB in
+both open() and event() paths without adequate synchronization.
 
-To facilitate this, factor out the device startup logic (calling driver's
-open and starting polling) into input_start_device().
+To fix this, introduce a ready flag in the input_dev structure.
+For complex devices (where dev->open is defined), this flag is set to true
+only after the driver's open() method successfully completes. The core now
+checks ready in input_event_dispose() and input_dev_toggle()
+to prevent events from reaching the hardware before it is fully prepared.
+For simple devices (no open callback), events are delivered immediately.
 
-For passive observer handlers, their start() method is also deferred
-until the handle is opened. Since opening a passive observer handle does
-not start the underlying hardware device, their start() method is called
-immediately upon opening, regardless of whether the device is active.
+We also replay the logical state in input_open_device() by calling
+input_dev_toggle() right after marking the device ready, ensuring no
+events are permanently lost.
 
-Fixes: c7e8dc6ee6d5 ("Input: add start() method to input handlers")
+In the inhibit path, we ensure that physical feedback (LEDs/sounds) is
+turned off before the device is closed, and we synchronize the inhibited
+state transition under the event lock to prevent races with incoming events.
+
+Assisted-by: Antigravity:gemini-3.5-flash
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 ---
- drivers/input/input.c | 45 +++++++++++++++++++++++++------------------
- include/linux/input.h |  5 +++--
- 2 files changed, 29 insertions(+), 21 deletions(-)
+ drivers/input/input.c | 107 ++++++++++++++++++++++++++----------------
+ include/linux/input.h |  12 +++--
+ 2 files changed, 75 insertions(+), 44 deletions(-)
 
 diff --git a/drivers/input/input.c b/drivers/input/input.c
-index c2a038d31beb..0a95cbdc467e 100644
+index 0a95cbdc467e..724cc146fc09 100644
 --- a/drivers/input/input.c
 +++ b/drivers/input/input.c
-@@ -568,6 +568,28 @@ void input_release_device(struct input_handle *handle)
+@@ -318,7 +318,7 @@ static int input_get_disposition(struct input_dev *dev,
+ static void input_event_dispose(struct input_dev *dev, int disposition,
+ 				unsigned int type, unsigned int code, int value)
+ {
+-	if ((disposition & INPUT_PASS_TO_DEVICE) && dev->event)
++	if ((disposition & INPUT_PASS_TO_DEVICE) && dev->event && dev->ready)
+ 		dev->event(dev, type, code, value);
+ 
+ 	if (disposition & INPUT_PASS_TO_HANDLERS) {
+@@ -568,6 +568,48 @@ void input_release_device(struct input_handle *handle)
  }
  EXPORT_SYMBOL(input_release_device);
  
-+static int input_start_device(struct input_dev *dev)
++#define INPUT_DO_TOGGLE(dev, type, bits, on)				\
++	do {								\
++		int i;							\
++		bool active;						\
++									\
++		if (!test_bit(EV_##type, dev->evbit))			\
++			break;						\
++									\
++		for_each_set_bit(i, dev->bits##bit, type##_CNT) {	\
++			active = test_bit(i, dev->bits);		\
++			if (!active && !on)				\
++				continue;				\
++									\
++			dev->event(dev, EV_##type, i, on ? active : 0);	\
++		}							\
++	} while (0)
++
++/*
++ * Iterate through the logical state of the input device (LEDs, sounds,
++ * auto-repeat) and explicitly push that state down to the hardware
++ * via dev->event() to match the current logical state (if activate is true),
++ * or forcibly turn off all feedback like LEDs and sounds during teardown
++ * or suspend (if activate is false).
++ *
++ * Primarily used as a state-replay mechanism after a device is opened
++ * or uninhibited, as events might have been dropped by the core while the
++ * hardware was not marked as ready.
++ */
++static void input_dev_toggle(struct input_dev *dev, bool activate)
 +{
-+	int error;
++	if (!dev->event || !dev->ready)
++		return;
 +
-+	lockdep_assert_held(&dev->mutex);
++	INPUT_DO_TOGGLE(dev, LED, led, activate);
++	INPUT_DO_TOGGLE(dev, SND, snd, activate);
 +
-+	if (dev->users++ == 0 && !dev->inhibited) {
-+		if (dev->open) {
-+			error = dev->open(dev);
-+			if (error) {
-+				dev->users--;
-+				return error;
-+			}
-+		}
-+
-+		if (dev->poller)
-+			input_dev_poller_start(dev->poller);
++	if (activate && test_bit(EV_REP, dev->evbit)) {
++		dev->event(dev, EV_REP, REP_PERIOD, dev->rep[REP_PERIOD]);
++		dev->event(dev, EV_REP, REP_DELAY, dev->rep[REP_DELAY]);
 +	}
-+
-+	return 0;
 +}
 +
- /**
-  * input_open_device - open input device
-  * @handle: handle through which device is being accessed
-@@ -586,21 +608,9 @@ int input_open_device(struct input_handle *handle)
- 
- 		handle->open++;
- 
--		if (handle->handler->passive_observer)
--			return 0;
--
--		if (dev->users++ || dev->inhibited) {
--			/*
--			 * Device is already opened and/or inhibited,
--			 * so we can exit immediately and report success.
--			 */
--			return 0;
--		}
--
--		if (dev->open) {
--			error = dev->open(dev);
-+		if (!handle->handler->passive_observer) {
-+			error = input_start_device(dev);
- 			if (error) {
--				dev->users--;
- 				handle->open--;
- 				/*
- 				 * Make sure we are not delivering any more
-@@ -611,8 +621,8 @@ int input_open_device(struct input_handle *handle)
+ static int input_start_device(struct input_dev *dev)
+ {
+ 	int error;
+@@ -583,6 +625,11 @@ static int input_start_device(struct input_dev *dev)
  			}
  		}
  
--		if (dev->poller)
--			input_dev_poller_start(dev->poller);
-+		if (handle->open == 1 && handle->handler->start)
-+			handle->handler->start(handle);
++		scoped_guard(spinlock_irq, &dev->event_lock) {
++			dev->ready = true;
++			input_dev_toggle(dev, true);
++		}
++
+ 		if (dev->poller)
+ 			input_dev_poller_start(dev->poller);
+ 	}
+@@ -661,6 +708,10 @@ void input_close_device(struct input_handle *handle)
+ 		if (!--dev->users && !dev->inhibited) {
+ 			if (dev->poller)
+ 				input_dev_poller_stop(dev->poller);
++
++			scoped_guard(spinlock_irq, &dev->event_lock)
++				dev->ready = false;
++
+ 			if (dev->close)
+ 				dev->close(dev);
+ 		}
+@@ -1712,37 +1763,6 @@ static int input_dev_uevent(const struct device *device, struct kobj_uevent_env
+ 	return 0;
+ }
+ 
+-#define INPUT_DO_TOGGLE(dev, type, bits, on)				\
+-	do {								\
+-		int i;							\
+-		bool active;						\
+-									\
+-		if (!test_bit(EV_##type, dev->evbit))			\
+-			break;						\
+-									\
+-		for_each_set_bit(i, dev->bits##bit, type##_CNT) {	\
+-			active = test_bit(i, dev->bits);		\
+-			if (!active && !on)				\
+-				continue;				\
+-									\
+-			dev->event(dev, EV_##type, i, on ? active : 0);	\
+-		}							\
+-	} while (0)
+-
+-static void input_dev_toggle(struct input_dev *dev, bool activate)
+-{
+-	if (!dev->event)
+-		return;
+-
+-	INPUT_DO_TOGGLE(dev, LED, led, activate);
+-	INPUT_DO_TOGGLE(dev, SND, snd, activate);
+-
+-	if (activate && test_bit(EV_REP, dev->evbit)) {
+-		dev->event(dev, EV_REP, REP_PERIOD, dev->rep[REP_PERIOD]);
+-		dev->event(dev, EV_REP, REP_DELAY, dev->rep[REP_DELAY]);
+-	}
+-}
+-
+ /**
+  * input_reset_device() - reset/restore the state of input device
+  * @dev: input device whose state needs to be reset
+@@ -1770,21 +1790,25 @@ static int input_inhibit_device(struct input_dev *dev)
+ 		return 0;
+ 
+ 	if (dev->users) {
+-		if (dev->close)
+-			dev->close(dev);
+ 		if (dev->poller)
+ 			input_dev_poller_stop(dev->poller);
++
++		scoped_guard(spinlock_irq, &dev->event_lock) {
++			input_dev_toggle(dev, false);
++			dev->ready = false;
++		}
++
++		if (dev->close)
++			dev->close(dev);
  	}
  
- 	return 0;
-@@ -2662,9 +2672,6 @@ int input_register_handle(struct input_handle *handle)
- 	 */
- 	list_add_tail_rcu(&handle->h_node, &handler->h_list);
+ 	scoped_guard(spinlock_irq, &dev->event_lock) {
+ 		input_mt_release_slots(dev);
+ 		input_dev_release_keys(dev);
+ 		input_handle_event(dev, EV_SYN, SYN_REPORT, 1);
+-		input_dev_toggle(dev, false);
++		dev->inhibited = true;
+ 	}
  
--	if (handler->start)
--		handler->start(handle);
+-	dev->inhibited = true;
 -
  	return 0;
  }
- EXPORT_SYMBOL(input_register_handle);
+ 
+@@ -1804,12 +1828,15 @@ static int input_uninhibit_device(struct input_dev *dev)
+ 			if (error)
+ 				return error;
+ 		}
+-	}
+ 
+-	dev->inhibited = false;
++		guard(spinlock_irq)(&dev->event_lock);
++		dev->ready = true;
++	}
+ 
+-	scoped_guard(spinlock_irq, &dev->event_lock)
++	scoped_guard(spinlock_irq, &dev->event_lock) {
++		dev->inhibited = false;
+ 		input_dev_toggle(dev, true);
++	}
+ 
+ 	if (dev->users && dev->poller)
+ 		input_dev_poller_start(dev->poller);
 diff --git a/include/linux/input.h b/include/linux/input.h
-index 3022bb730898..f7a2cfad5448 100644
+index f7a2cfad5448..a307a3f6d5e2 100644
 --- a/include/linux/input.h
 +++ b/include/linux/input.h
-@@ -284,8 +284,9 @@ struct input_handle;
-  * @connect: called when attaching a handler to an input device
-  * @disconnect: disconnects a handler from input device
-  * @start: starts handler for given handle. This function is called by
-- *	input core right after connect() method and also when a process
-- *	that "grabbed" a device releases it
-+ *	input core when device is open and ready to process events,
-+ *	and also when device is uninhibited or when a process that "grabbed"
-+ *	a device releases it
-  * @passive_observer: set to %true by drivers only interested in observing
-  *	data stream from devices if there are other users present. Such
-  *	drivers will not result in starting underlying hardware device
+@@ -128,11 +128,14 @@ enum input_clock_type {
+  * @devres_managed: indicates that devices is managed with devres framework
+  *	and needs not be explicitly unregistered or freed.
+  * @timestamp: storage for a timestamp set by input_set_timestamp called
+- *  by a driver
++ *	by a driver
+  * @inhibited: indicates that the input device is inhibited. If that is
+- * the case then input core ignores any events generated by the device.
+- * Device's close() is called when it is being inhibited and its open()
+- * is called when it is being uninhibited.
++ *	the case then input core ignores any events generated by the device.
++ *	Device's close() is called when it is being inhibited and its open()
++ *	is called when it is being uninhibited.
++ * @ready: indicates that the device has been successfully opened and is
++ *	prepared to process events (like LEDs or sounds) sent from the
++ *	input core.
+  */
+ struct input_dev {
+ 	const char *name;
+@@ -209,6 +212,7 @@ struct input_dev {
+ 	ktime_t timestamp[INPUT_CLK_MAX];
+ 
+ 	bool inhibited;
++	bool ready;
+ };
+ #define to_input_dev(d) container_of(d, struct input_dev, dev)
+ 
 -- 
 2.55.0.rc0.799.gd6f94ed593-goog
 

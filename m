@@ -1,253 +1,171 @@
-Received: from ixit.cz (ixit.cz [185.100.197.86])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E0D473C8719;
-	Wed, 24 Jun 2026 14:37:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.100.197.86
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 060043D565D
+	for <linux-input@vger.kernel.org>; Wed, 24 Jun 2026 14:52:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782311855; cv=none; b=AIh5YePsTnGrx3oUHMDncvCUiPzZot1RJ402HOcG5G37yM+7w0wlkI9ZkQT/lT3Mq3Azh0tIX3aItIgpq8GR64tT8/8H79rCY3p7bvi97qWeLCZ1ZHqxm5FKhbSrPgWZColRYYdvYUQNgOot7LzaNaZgHYSCahzbbtcN2V5sYLk=
+	t=1782312740; cv=none; b=cDRVkUfO4qfiMBCMp/Gjiv8svamVVUtpXBfxGB6LFCHTHaa00QpznPAVViJ0sVq3Ei6lSC3Yf3tcYCBSYqhiHYL4/z3lMxcBIuADhPigOAnY9DFgU4xo0CbQd1T8ONpX+4ndbyD2f49s93Jo6ZpT8C4WtPvc+X4VIsrgu/WGs38=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782311855; c=relaxed/simple;
-	bh=X5+06UqZzkHrP6XrYqi7IbD4LXgp8YyzW7DWroQ38NU=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=EMpJfsoETnZi6wprqtqt/FooIWI52jlsgb5EQ2GqLoFwzywV007ABtrZCOSJvyNKCXDEaiOtPgD8y3Ug5FF7fZvunzpXFgPtbaUnvMjft6BLkQp2tS3FQ7cUaH0VawQ2OIGPh6PVBtD7IoDgQM2pXhlpmzkfXso+95Xp7eeEWJw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=ixit.cz; spf=pass smtp.mailfrom=ixit.cz; dkim=pass (1024-bit key) header.d=ixit.cz header.i=@ixit.cz header.b=D4Ovcwk8; arc=none smtp.client-ip=185.100.197.86
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=ixit.cz
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ixit.cz
+	s=arc-20240116; t=1782312740; c=relaxed/simple;
+	bh=gQT0Dh4w1FRsnGNXIf+ZAjjFe2JbvwsEarhaidrTAYY=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=qrfO9e813jcf8zbWk+8o3jRrYs+7+F8HrEAEEZtgpsOy/KzGlU8nMLnx4AyjZB/kma/s3on6b7glfHIft7UW9HdHqBgecEBOm6g01RurlGeeWw6ymScCXglOVLCt4Brp7Hz7BSxm0VJaVpTFGrIAqdjgtOEg/Fka/rbAQa+5R3Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=CMWk/WKy; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=ixit.cz header.i=@ixit.cz header.b="D4Ovcwk8"
-Received: from [10.0.0.200] (unknown [10.88.125.21])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by ixit.cz (Postfix) with ESMTPSA id 8C6D05341340;
-	Wed, 24 Jun 2026 16:37:25 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ixit.cz; s=dkim;
-	t=1782311845;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=m4ErC33RfBLiCY2kdeSnjPaFzr/CFyTNYdB6Jj+bpow=;
-	b=D4Ovcwk8Jyqkpx6KcpNfckOx/0BHHRfU/e0Lhao3aZczIkjICR90jBr8AG3hxbhM7Z2fy5
-	ML7H8XGFq1DDRKE0iz5Kyx4f945Sf2zfsyJ3BFjjqWwDSxvwqaNUr1nYACXh2NaK4y7g9D
-	2d9+Oz62YcaJE7M3hYprMcOlCHxBRrA=
-Message-ID: <52b7dd3a-3f6f-474c-8386-4fc2776b185b@ixit.cz>
-Date: Wed, 24 Jun 2026 16:37:25 +0200
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="CMWk/WKy"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 275F71F000E9;
+	Wed, 24 Jun 2026 14:52:16 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1782312736;
+	bh=u5Rpwg/dBcCUYg6dJFPoeoa3BbCgw+SAMnFOVGymUNE=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=CMWk/WKyNOZ+3mI9At+Pw2pX+UlBBQdnR7IYWaihRVyDnuxBoVkM6nVKBLQFjpIP0
+	 fvCt7RpttL5120twS1zvhQKdUKSUOt0mdkSynzIrMTgly3miQeJU1bLBSDm1bH73R/
+	 HzppKj22BuW0j54kzd5Wp2LyyjkaIO4BiXgRpB22LWdRopoTat/XJhNzK1xQoYkxMv
+	 MnILEMCFKtCawF04AjijzvP6FcKMibM2rJTEvrH8MjMKjBCqG6h9cDpyrcfbFt+aWL
+	 utLbve9Cr/J3Tqa5Hss2js7+xc+e63dSqC/QyUwuGPhfywz2Hq99TTejAyi/pU39jC
+	 1d1tF1XwPeXjw==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH] HID: amd_sfh: return an error when response wait times
+ out
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Pengpeng Hou" <pengpeng@iscas.ac.cn>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20260624143558.39306-1-pengpeng@iscas.ac.cn>
+References: <20260624143558.39306-1-pengpeng@iscas.ac.cn>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Wed, 24 Jun 2026 14:52:15 +0000
+Message-Id: <20260624145216.275F71F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 2/2] arm64: dts: qcom: sdm845-oneplus: Update
- compatible to include model
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
- Krzysztof Kozlowski <krzk+dt@kernel.org>,
- Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>
-Cc: Rob Herring <robh@kernel.org>, Conor Dooley <conor+dt@kernel.org>,
- "Jason A. Donenfeld" <Jason@zx2c4.com>,
- Matthias Schiffer <matthias.schiffer@ew.tq-group.com>,
- Vincent Huang <vincent.huang@tw.synaptics.com>,
- Bjorn Andersson <andersson@kernel.org>,
- Konrad Dybcio <konradybcio@kernel.org>, linux-input@vger.kernel.org,
- devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-arm-msm@vger.kernel.org, phone-devel@vger.kernel.org,
- Krzysztof Kozlowski <krzk@kernel.org>
-References: <20260523-synaptics-rmi4-dt-v2-0-0645122babdc@ixit.cz>
- <20260523-synaptics-rmi4-dt-v2-2-0645122babdc@ixit.cz>
- <ahdoBl3qCTyvlYJf@google.com> <1d0e7e31-f808-4347-955a-7246dea208f5@ixit.cz>
- <742c7a13-9465-40e8-8990-e679712e9784@ixit.cz> <ajtaUb4YmyZTDLmQ@google.com>
-Content-Language: en-US
-From: David Heidelberg <david@ixit.cz>
-Autocrypt: addr=david@ixit.cz; keydata=
- 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
-In-Reply-To: <ajtaUb4YmyZTDLmQ@google.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
 
-On 24/06/2026 06:28, Dmitry Torokhov wrote:
-> Hi David,
-> 
-> On Sun, Jun 21, 2026 at 07:11:45PM +0200, David Heidelberg wrote:
->> On 28/05/2026 00:13, David Heidelberg wrote:
->>> On 27/05/2026 23:56, Dmitry Torokhov wrote:
->>>> Hi David,
->>>>
->>>> On Sat, May 23, 2026 at 11:45:35AM +0200, David Heidelberg via B4 Relay wrote:
->>>>> From: David Heidelberg <david@ixit.cz>
->>>>>
->>>>> We know the driver is reporting s3706b, introduce the compatible so we
->>>>> can more easily introduce quirks for weird touchscreen replacements in
->>>>> followup series.
->>>>>
->>>>> Reviewed-by: Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>
->>>>> Signed-off-by: David Heidelberg <david@ixit.cz>
->>>>> ---
->>>>>    arch/arm64/boot/dts/qcom/sdm845-oneplus-common.dtsi | 2 +-
->>>>>    1 file changed, 1 insertion(+), 1 deletion(-)
->>>>>
->>>>> diff --git a/arch/arm64/boot/dts/qcom/sdm845-oneplus-common.dtsi
->>>>> b/arch/ arm64/boot/dts/qcom/sdm845-oneplus-common.dtsi
->>>>> index 6b7378cf4d493..148164d456a5a 100644
->>>>> --- a/arch/arm64/boot/dts/qcom/sdm845-oneplus-common.dtsi
->>>>> +++ b/arch/arm64/boot/dts/qcom/sdm845-oneplus-common.dtsi
->>>>> @@ -475,17 +475,17 @@ bq27441_fg: bq27441-battery@55 {
->>>>>        };
->>>>>    };
->>>>>    &i2c12 {
->>>>>        status = "okay";
->>>>>        clock-frequency = <400000>;
->>>>>        synaptics-rmi4-i2c@20 {
->>>>> -        compatible = "syna,rmi4-i2c";
->>>>> +        compatible = "syna,rmi4-s3706b", "syna,rmi4-i2c";
->>>>
->>>> So I believe we established that this device (s3706b) does not in fact
->>>> implement rmi4 protocol properly. Why do we have "syna,rmi4-i2c" as a
->>>> fallback? Shouldn't it be just "syna,rmi4-s3706b"?
->>>
->>> The vendor supplies s3706b which does implement the RMI4 properly.
->>>
->>> The 3rd party replacement impersonating original parts may not implement
->>> it properly, but I don't address this issue in this initial submission.
->>>
->>> With this compatible we know which original part is used by the vendor
->>> and installed in the phones, so later we can deduct specific sequences
->>> for the replacement aftermarket parts to keep phone touchscreen working
->>> same as they do on Android without affecting other devices.
->>
->> Hello Dmitry.
->>
->> May I ask what is currently preventing this series from moving forward?
->>
->> The first version was posted in 2023 [1]. I picked it up again in 2025 [2]
->> and am now on the 9th iteration (this patchset). At this point, the series
->> has been under discussion for well over a year, with relatively little
->> feedback and increasingly long gaps between review rounds.
->>
->> The current approach is based on the guidance I have received so far,
->> including suggestions from the device-tree maintainers. When concerns were
->> raised, I tried to address them and rework the series accordingly.
->>
->> What I am struggling with is understanding what specific issue still needs
->> to be resolved before these patches can be accepted. If there are remaining
->> requirements, objections to the approach, or technical concerns that I have
->> not addressed, I would appreciate having them stated explicitly so I can
->> work on them.
->>
->> I also split out the straightforward, self-contained changes in the hope
->> that at least those could progress independently while I continued working
->> on any follow-up requirements. However, even those patches do not appear to
->> be moving forward.
->>
->> Could you please clarify what outcome you would like to see from this
->> series, and what concrete changes would be required to get it accepted?
-> 
-> I am still confused about how you want to differentiate between the full
-> RMI4 support vs the OnePlus flavor. The "syna,rmi4-s3706b", as you
-> mentioned, implements RMI4 protocol properly, so we do not need to
-> actually have it documented neither in binding nor in DTS.
+Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+s) to consider:
 
---- part 1 ---
+New issues:
+- [High] The timeout error codes returned by the patch are silently discard=
+ed, rendering the fix ineffective.
 
-This series addresses identification within device-tree. It's normal recommended 
-practice.
+Pre-existing issues:
+- [High] Data race on the shared cli_data->cur_hid_dev variable causes spur=
+ious timeouts and missed wakeups.
+- [High] A timeout in amdtp_wait_for_response leaves a stalled request in t=
+he queue, permanently desynchronizing the state machine.
+--
 
-If we know, the device ships specific, but **compliant** variant, we just put it 
-as compatible = "more-specific", "less-specific"; in this case 
-"syna,rmi4-s3706b", "syna,rmi4-i2c"
+commit e8a7b9fc56953c32e53def387e9ca9eac4750f78
+Author: Pengpeng Hou <pengpeng@iscas.ac.cn>
 
-This approach is used everywhere. This has nothing to do with after-market parts.
+HID: amd_sfh: return an error when response wait times out
+   =20
+amdtp_wait_for_response() waits for request_done before completing a
+report request. wait_event_interruptible_timeout() returns 0 when the
+wait expires, but the current code treats only negative values as errors
+and returns success on timeout. This commit returns -ETIMEDOUT when the
+response wait expires.
 
---- part 2 (irrelevant for this series) ---
+> diff --git a/drivers/hid/amd-sfh-hid/amd_sfh_hid.c b/drivers/hid/amd-sfh-=
+hid/amd_sfh_hid.c
+> index b04f675d49b0d..8f88f965fbd55 100644
+> --- a/drivers/hid/amd-sfh-hid/amd_sfh_hid.c
+> +++ b/drivers/hid/amd-sfh-hid/amd_sfh_hid.c
+> @@ -87,16 +87,17 @@ static int amdtp_wait_for_response(struct hid_device =
+*hid)
+>  			break;
+>  	}
+> =20
+> -	if (!cli_data->request_done[i])
+> +	if (!cli_data->request_done[i]) {
+>  		ret =3D wait_event_interruptible_timeout(hid_data->hid_wait,
+>  						       cli_data->request_done[i],
+>  						       msecs_to_jiffies(AMD_SFH_RESPONSE_TIMEOUT));
+> -	if (ret =3D=3D -ERESTARTSYS)
+> -		return -ERESTARTSYS;
+> -	else if (ret < 0)
+> -		return -ETIMEDOUT;
+> -	else
+> -		return 0;
+> +		if (ret =3D=3D -ERESTARTSYS)
+> +			return -ERESTARTSYS;
+> +		if (ret <=3D 0)
+> +			return -ETIMEDOUT;
 
-> 
-> The issue you have with after-market parts that are not compliant and we
-> need to figure out how to deal with them. Inside the driver I
+[Severity: High]
+The patch returns -ETIMEDOUT here, but amdtp_wait_for_response() is registe=
+red
+as the .wait callback in struct hid_ll_driver.
 
-As was suggested by device-tree folks, this is the first step, there isn't 
-better one available. If there is, please suggest one, and I'll apply it.
+When called via the wrapper hid_hw_wait(), the return value is discarded:
 
-> essentially need a"incomplete protocol" flag that we can use to
-> implement additional checks or skip known to be not implemented
-> functions/queries. In DT we could introduce something like
-> "oneplus,rmi4-i2c" that is decidedly not compatible with "syna,rmi4-i2c"
-> and neither one should be a fallback for the other.
-> 
-> This of course needs buy-in from DT maintainers.
+include/linux/hid.h:hid_hw_wait()
+static inline void hid_hw_wait(struct hid_device *hdev)
+{
+        if (hdev->ll_driver->wait)
+                hdev->ll_driver->wait(hdev);
+}
 
-As you can see, this still holds Acked-by and Reviewed-by from the relevant 
-people - Krzysztof and Konrad.
+Does this mean the caller (HID core) never sees the error code and proceeds=
+ as
+if the wait succeeded?
 
-> 
-> Does this make sense?
+[Severity: High]
+This isn't a bug introduced by this patch, but if this times out, does it
+leave a stalled request in the queue?
 
-For the scope we're discussing it doesn't seems so.
+In amd_sfh_get_report(), requests are queued to cli_data->req_list. If we
+exit here, the request node isn't removed. Later, amd_sfh_work() pops and
+processes it:
 
-This discussion should be associated with the last revision of the full series I 
-sent 3 months ago. We're in very unflattering state, where:
+drivers/hid/amd-sfh-hid/amd_sfh_client.c:amd_sfh_work()
+        req_node =3D list_last_entry(&req_list->list, struct request_list, =
+list);
+        list_del(&req_node->list);
 
-   2018 - these aftermarket touchscreen worked on Android well enough for people 
-to have working touch (let's say with slightly worse experience then the original).
+Will this cause the background worker to process timed-out requests and
+prematurely wake up future requests with stale data, permanently
+desynchronizing the request queue?
 
-   2026 in the mainline, we cannot even more forward and report to user-space 
-there is aftermarket non-compliant piece of hardware installed.
+> +	}
+> +
+> +	return 0;
+>  }
+> =20
+>  void amdtp_hid_wakeup(struct hid_device *hid)
+>  {
+>  	struct amdtp_hid_data *hid_data;
+>  	struct amdtp_cl_data *cli_data;
+> =20
+>  	if (hid) {
+>  		hid_data =3D hid->driver_data;
+>  		cli_data =3D hid_data->cli_data;
+>  		cli_data->request_done[cli_data->cur_hid_dev] =3D true;
 
-Actionable steps I suggest after this series lands:
+[Severity: High]
+This is a pre-existing issue, but is there a data race on
+cli_data->cur_hid_dev?
 
-1. don't do any changes, but since we know what 3rd party touchscreen do 
-incorrectly deviating from the standard, REPORT it to the userspace, so USER 
-know, their device (phone/tablet) doesn't have original part.
+amd_sfh_set_report() updates cur_hid_dev locklessly:
 
-2. then figure out, IF we can reasonably well workaround it and HOW to do it
+drivers/hid/amd-sfh-hid/amd_sfh_client.c:amd_sfh_set_report()
+    cli_data->cur_hid_dev =3D i;
 
-These two steps present some progress which could be discussed and could lead us 
-somewhere, what do you think?
+If a SET_REPORT request is issued concurrently with a GET_REPORT worker, co=
+uld
+cur_hid_dev be overwritten, causing amdtp_hid_wakeup() to set request_done =
+for
+the wrong device index and leaving the original device's waiter to permanen=
+tly
+time out?
 
-David
+>  		wake_up_interruptible(&hid_data->hid_wait);
+>  	}
+>  }
 
-> 
-> Thanks.
-> 
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260624143558.3930=
+6-1-pengpeng@iscas.ac.cn?part=3D1

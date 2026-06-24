@@ -1,70 +1,74 @@
-Received: from mail-dy1-f176.google.com (mail-dy1-f176.google.com [74.125.82.176])
+Received: from mail-dy1-f170.google.com (mail-dy1-f170.google.com [74.125.82.170])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A72A086341
-	for <linux-input@vger.kernel.org>; Wed, 24 Jun 2026 05:50:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.176
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B92DB2FA0DF
+	for <linux-input@vger.kernel.org>; Wed, 24 Jun 2026 05:50:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.170
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782280214; cv=none; b=Oqn1ZmhfwR6ni7WWHj1RtYZMDJfwmmbl9hC1zy87uVCrjVLzHtbr+bgcZoTNUNevkI2hdGSt6oU6u9OBpCGjly5YTqsVBW41Dy4KvAXSwPydHNJBajWelzIVAhSZBIUMpKM4yhunibzDi1e6CqXmcsWey2h1tQYfaTo0GBc4h9c=
+	t=1782280215; cv=none; b=eX91ThDFCTchatSJwVkm6EmSxzx9fpuGdwOJ7x3U20jmgUO0fMbgv66HCO3IK/b5qq1xFMoGlazbOg5LF5f9fO2K3E3kzlC2VSDfhR1wnTs7zjDRvwj7dexLjZ7KuIUlDcktOg2WSm0s19pmjkzdGfh/xreJv0SPvyDGLDQg2fQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782280214; c=relaxed/simple;
-	bh=CcE0Dudb2hSXk3MW3lbVX9y1nyCymX9IQ3oylOG0uAA=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=KkiSginGfYNI7kvby9oXLlpxtMPMRu6kHdkv9xm9XrM4Cgu+rEcwz0y9hNtkBiWm3ByjYS0z5DWPry9iAIQ24uDJTP/maqeA4gyQ2xpl25l+FYaSc073Fs+7BGpLoRACDHiE791AZAJsIwAvkObfKDmaMYtCQfEup1qAZ44osvc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=rtKU6CNZ; arc=none smtp.client-ip=74.125.82.176
+	s=arc-20240116; t=1782280215; c=relaxed/simple;
+	bh=05+aOvlh0HZQOhYyVz5PrqvmvdEPjszq0SezpRNhrvU=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=GzsbxEmOrnfUT6NoYoHvSX/sk7ogWXj7Na5syvsmhWN4yu0anvY1OXj8NpJSQi7rFx3keWBmFba4hKHR9JKseg9huqUSgHi9HXF3UuKhr+w3ela0wXW1cJQ3/5UVXOFrLo0s+jboXzZqln5e9ionjPWtzJl898cYKxJsHF2MZcU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=gCyK/v7L; arc=none smtp.client-ip=74.125.82.170
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="rtKU6CNZ"
-Received: by mail-dy1-f176.google.com with SMTP id 5a478bee46e88-30c55adcf66so648018eec.0
-        for <linux-input@vger.kernel.org>; Tue, 23 Jun 2026 22:50:13 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="gCyK/v7L"
+Received: by mail-dy1-f170.google.com with SMTP id 5a478bee46e88-30c591fb1cbso891476eec.1
+        for <linux-input@vger.kernel.org>; Tue, 23 Jun 2026 22:50:14 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1782280213; x=1782885013; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=sLN0p0Yy0XlqcAwEHaNOA0OsCLj+6eIMg15TnW4L3IA=;
-        b=rtKU6CNZpkMAdtURsaYQL2AkoKao+RzQEltBYts8DdnPPPA4mxN8x77Umuja1j/GT7
-         7mA1b4NnkYU1WSrz+up9NRqd3/MVX2XWJLcMkkTOLzMciyKcQ8QEh12aF74JRCFoRZEW
-         MOtfYkUlv1ON6gy1lrJ3a1KF2kbpplFLLa1VKRo7fwKGQaPRwZsD6bqPRgoTFoodI3/Y
-         9b16Mha8mXsxS3QdyjWxkX6SXpIEXsuCT4lUEjEP+1MM/Q2F3mF8zaN+CJA8K0YEXMCH
-         vI7OVU1DAsOJVLmUvc3/GCm+3P7YkMx+iOet469bY7q9sG+U8o6QIbCiAYvYnKFAMl0+
-         9uSQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1782280213; x=1782885013;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=gmail.com; s=20251104; t=1782280214; x=1782885014; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=sLN0p0Yy0XlqcAwEHaNOA0OsCLj+6eIMg15TnW4L3IA=;
-        b=IQF4O3pCOUAh7bX22xp9ESklMlkeTr40rISDZGUfpIC6D3t7kfQpHGx7Ugw6htrI2K
-         EparRyDw6I3WUaoYOOCJIk9/9+aNp9dsALilEzj6IhIIVejlIhfGX30r9UUebnicPq6/
-         24r3c/g4Ng1LfHYBuTuHD6bpdINavXeseEHwXgxwU1hgu0qVyZq6nVuTROHohqkiJ7LP
-         VGTNK2iX0Wo1UEzTK2vbgrOxQH8KoEEi63SL28nCVK/xZyGzhQoMKmx7GSdSYsanzQvS
-         A22fV8S6mvZgh9C89Dkcy3RtNAXvOyy9yzQWuE08t8j9iSwDyyncwJpK77wuitMqXY96
-         isgg==
-X-Gm-Message-State: AOJu0YxYiKAQXrxpwyl6aejSocqXbFGHOoFqACACLfQMm3EEGDUbEhPP
-	CP3J8aEJR3CQXmNvTsAla7EJXQ83uFq4lWU4qBEZcZtvfhkafsmyU6IeYki6ag==
-X-Gm-Gg: AfdE7cmfYanbzuS/VfPR6SDfDDzvUXLQlECZ6zAe5Xd8WhvUAblvo9BLwIMLYvuRKcS
-	apomltZmFyDJs7pWe+/pZon+FXfoNs8uncfVO20puHZDJ4X1CHxAy6501yY6TUA6Fj35gV28q7x
-	OU4U+iTTJMjtrDd66lqoWyERu5u20O21RILbTuILp7SpblcXWuX0zk5x4nQPeKaGTiIJrO90StH
-	kjcmhJg6c4GKKAX/23LEr9kASNMzHlvfWLLBoJGchuU3JZGhimSBfuCDp9fb4in31YA8rj7aOeg
-	9QxtKfLX4e3lVthM3SPtb/qys4vW9hoTzJeUWNBT3Jwp0f7isdjqVaH12qh4df6dKYDSJQQnjgK
-	EinlsbAQoUvSm4ApgeTUT4lTBTb/OSp5mZg5PKu5heUHLFPDRhX3iiBXckzXM6VIqhRBm4LhSDQ
-	GX+Z0ifW3wRiG5VjGiIt9iQ8U5MwiQhbo/F5JtotwleOB8ZLE2sbyw62UVMPDRXKF44n0eNDzhy
-	79Y
-X-Received: by 2002:a05:693c:638c:10b0:30c:6a50:3805 with SMTP id 5a478bee46e88-30c6a5039f6mr1070499eec.28.1782280212604;
-        Tue, 23 Jun 2026 22:50:12 -0700 (PDT)
+        bh=AE3z5I4Z7m9Rcvx2p4OS98P/noBS4oQPrdI99uWQsMU=;
+        b=gCyK/v7L+DK4H7PE5IBIDpmz0Nt5SIYUkc4kEVJWMjp/TaBlF89RMiAwdBBcxQHCnH
+         dAfwYr1o0I+c9oQHSbThWm4lStiHBTz0c/AnwosvyYVEzc6Zf0qHdQC/FkH+0Qcq9HHw
+         rmfcY/6Ibn2s81o6iRdd375Xfrlflej+Nm74KnJ3Y2pKBpJiav8gFUs+9IUxjGRFN0vT
+         rlf7XGtAfO7KrjUalQFR2A55Bs1fV0cOB2mGdS563pU75OuY0R2yO/DCTbG7wWD/lHgP
+         DpxihRi0VwKZlaCnT2ToYJl9Hs2CFLxEXGtoBUvy17Ql0AhU7ehi0dfO/Of6tPP8H7UF
+         m1Pg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1782280214; x=1782885014;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=AE3z5I4Z7m9Rcvx2p4OS98P/noBS4oQPrdI99uWQsMU=;
+        b=LQZsELGvIWimdj9u9XTANgxl/PeKUTk/MxsoDoBa4t/vdyIUPB2fDtk/PzTy+US2fD
+         ltfYixVUiTy2Lx2ShSnRGAoU40YU7rUEVk45pQrdC/gBCYh1kmbE/HbDBlFGJ7A0VABR
+         zlM1rMADOD6ZqVgSF+Z4cMTTBQa3tbKF6mZbQ6uJaHVV2UOnIJaRM7o8/6T475XnXqzd
+         xyT4cvd6OrGCXGUa8IECWbQ8DzZ+bDR54jPgLMI2yMEJRpBt0mvCDbtP+JRVAmETShcd
+         U2cSabLAIe5xaSXbuJdS18rMJFCKy20LFW3Kk5odrBsyTXivsbEyTEZInorLdhHXYAc6
+         J1Gg==
+X-Gm-Message-State: AOJu0YxYhUVRJTCxkiWdrM38Z59c/yx6+sWr9lvqvAUWLNSa+9XuZkxz
+	gk96FsLoFwIxvc2IAYV/yQlkZhIMwsW9ElCPKtJrr2kDZB8YMQISdMBa3iDu7Q==
+X-Gm-Gg: AfdE7cnwloeVJJr3DGY/DB/3QHQto+CVL40U2UoITYhqWUKk83wjXIc7HSxQMxZFzKj
+	oor4k1TiOgpOz44/evY17l59ljJfLCs/hkzvD18OavUMDS/sckSwtT8cGHYMdVxNAFZafay6il4
+	RAc7kopZcSvglL/tjz8YgeG+qyEVynzLSL4XJwPuBtpJWshAIM7tseKnjXL3qTj/UfEQ1icuuXL
+	J+G5xO76OWCT+x4o4qn9VMctvZq2l9nLBxq0BjVdXy+V1Rp9lYK7wSzaw5vnQubyNvF4FDEjaIM
+	2lBUR7qk+nJwuCbx4YOYeRvpnDXZej7y7I8efjl/MwKTvHDGoK67JkeWQ2BuHojdh02NbBNxnoA
+	ubSr4xfJrCZf2XNjiPoIEReTIq6MNdJhf/xVr4xIQthWxk7ahYUTMDeUGHfnWkG0jbmAum525yz
+	xQYZZWBOKuEW+OewJjjAV0KQCiKIk0co4R5TIgQtgDhS+gTEyXgPV3AEkcNPruqgFSPuwmQbGCh
+	h1ibfsn7/c4rSQ=
+X-Received: by 2002:a05:7300:1483:b0:304:df8b:71ee with SMTP id 5a478bee46e88-30c68c77c87mr2503702eec.7.1782280213830;
+        Tue, 23 Jun 2026 22:50:13 -0700 (PDT)
 Received: from dtor-ws.sjc.corp.google.com ([2a00:79e0:2ebe:8:6026:1e6d:4a80:9bd0])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-30c430553d1sm14073419eec.11.2026.06.23.22.50.11
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-30c430553d1sm14073419eec.11.2026.06.23.22.50.12
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 23 Jun 2026 22:50:12 -0700 (PDT)
+        Tue, 23 Jun 2026 22:50:13 -0700 (PDT)
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 To: linux-input@vger.kernel.org,
 	Jiri Kosina <jikos@kernel.org>,
 	Benjamin Tissoires <bentiss@kernel.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 1/4] Input: fix poller start order on uninhibit
-Date: Tue, 23 Jun 2026 22:50:04 -0700
-Message-ID: <20260624055008.2494980-1-dmitry.torokhov@gmail.com>
+Subject: [PATCH 2/4] Input: call handler->start() when uninhibiting device
+Date: Tue, 23 Jun 2026 22:50:05 -0700
+Message-ID: <20260624055008.2494980-2-dmitry.torokhov@gmail.com>
 X-Mailer: git-send-email 2.55.0.rc0.799.gd6f94ed593-goog
+In-Reply-To: <20260624055008.2494980-1-dmitry.torokhov@gmail.com>
+References: <20260624055008.2494980-1-dmitry.torokhov@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -73,40 +77,42 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-When uninhibiting a device, we start the poller before marking the
-device as uninhibited (setting dev->inhibited = false). Since the
-poller immediately polls the device and reports events via input_event(),
-these initial events are dropped because dev->inhibited is still true.
+When an input device is inhibited via input_inhibit_device(), the driver
+is closed and physical feedback (like LEDs and sounds) is toggled off.
+However, from the input core's perspective, the handles remain open.
 
-Fix this by starting the poller only after the device is fully uninhibited
-and its state is replayed.
+When the device is later uninhibited, the driver is re-opened. While the
+core restores simple LED states via input_dev_toggle(), complex handlers
+(such as vt/keyboard) may need to re-synchronize their broader logical
+state with the hardware.
 
 Fixes: a181616487db ("Input: Add "inhibited" property")
 Assisted-by: Antigravity:gemini-3.5-flash
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 ---
- drivers/input/input.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/input/input.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
 diff --git a/drivers/input/input.c b/drivers/input/input.c
-index cf6fecea79b8..d99dfe69e12d 100644
+index d99dfe69e12d..c2a038d31beb 100644
 --- a/drivers/input/input.c
 +++ b/drivers/input/input.c
-@@ -1793,8 +1793,6 @@ static int input_uninhibit_device(struct input_dev *dev)
- 			if (error)
- 				return error;
- 		}
--		if (dev->poller)
--			input_dev_poller_start(dev->poller);
- 	}
+@@ -1780,6 +1780,7 @@ static int input_inhibit_device(struct input_dev *dev)
  
- 	dev->inhibited = false;
-@@ -1802,6 +1800,9 @@ static int input_uninhibit_device(struct input_dev *dev)
- 	scoped_guard(spinlock_irq, &dev->event_lock)
- 		input_dev_toggle(dev, true);
+ static int input_uninhibit_device(struct input_dev *dev)
+ {
++	struct input_handle *handle;
+ 	int error;
  
-+	if (dev->users && dev->poller)
-+		input_dev_poller_start(dev->poller);
+ 	guard(mutex)(&dev->mutex);
+@@ -1803,6 +1804,11 @@ static int input_uninhibit_device(struct input_dev *dev)
+ 	if (dev->users && dev->poller)
+ 		input_dev_poller_start(dev->poller);
+ 
++	list_for_each_entry(handle, &dev->h_list, d_node) {
++		if (handle->open && handle->handler->start)
++			handle->handler->start(handle);
++	}
 +
  	return 0;
  }

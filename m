@@ -1,189 +1,121 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8E72038BF62
-	for <linux-input@vger.kernel.org>; Wed, 24 Jun 2026 09:59:14 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E80A925EF87;
+	Wed, 24 Jun 2026 10:05:59 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782295155; cv=none; b=p0TiMKWRuCTJDXTOQcwTc2MhIQcnGQM4I5QnMLtv5p0Nt8aPX7B+hqb79ulA3MhGdPjUFfzvHUrnmPTCD+y9WjSTA3tcG1qLQkEQ3cDWwZrYsiVVAcIo+1y7+VUgS7vC3FckNIm/+BxHPj6hldRnqgbThUYYUQKyx2tJcCSSkKs=
+	t=1782295560; cv=none; b=GBlUFPVnhAtUtUE47+wn7nGfYGgqpZlUUi+64oIpZQdM6tEYUrOtro33HA4st/Fk9cTkgvvUDUtKuX/+gSXP7YKGWXlqYhbnF8mEZGrXA/gts4wEs9LmJPoWzS1dvZbztDIqlk7W/CFxC7OFxRkDSidQ0xG+kYZrVvFdZQfrm9g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782295155; c=relaxed/simple;
-	bh=e7J2CPRFIR69JeZyDFNtW6q5HGld60vZ76v9QJ4AzmQ=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=DOED+iCm7TobaxDX09Qk6i8JZ1WKXnfujWTp7GvEtgW3h6PL22YKDTGdSPW4TCxSuHxiYYstJP7AxHOlasWmGve+u00RZpEIEXbX/YKdNrbmWQeOTAPuM4uNgTSS7/URd9bVT0pYeuJo4/TM7uj9C9qiqt0mcwqa50TXWyFzxg8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=AbaIU31q; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1782295560; c=relaxed/simple;
+	bh=yTaf8+cwFGrJkJIpK7E3iMU4kQnszg+RCuTluMkdJT0=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=Rw5J0XeckTLJlX+0TMV5yVSuEQKcyLAbVx3uJd/XNGv8PKWLQ0CkhpHWod47cwhV7ILKm+/z/ZZtsM+bU3xaZtz3T8BGVw8HLh691FQEMxz8IoF16IGJCiPvEj3oyQMc2GvemVeZppmsvNSSvGjTg+pxN964D7oNNGCHUgzFhwo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=VYEKWhwn; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="AbaIU31q"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 154B61F000E9;
-	Wed, 24 Jun 2026 09:59:14 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="VYEKWhwn"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3E9961F000E9;
+	Wed, 24 Jun 2026 10:05:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1782295154;
-	bh=QSTU4d25wktc3uKoCtQqiIw7Y/j/aR40+DVSUzyksdk=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=AbaIU31qVwtLZw5Dnbb9lUCipA5j348u4NCNBfv78T0khtxc56IIepJLrSfQnm1s5
-	 NmLGt1zFM+/OiiiBnorTsFY4maq1BZKQGxeFPi6LmiQfljuIpvkCL9XQg16HcQYVXZ
-	 oHLPdoc1szLpT2aOo1nWW1cpqO8ctow7SwhBJ8JhapYTZKVgRAxpUv/AqBFTD/QcXe
-	 dlQGWJA0S66NLc0spqMvmKeUV0ANL260lGsXR4s6Q/Ey9BBaJIerw9om4RLxrYz5cu
-	 q3/H67U934Fk+2i0y/Xv2qj1XuUU6/IxdeN1NM8xYDbXTUxVVMDrxSK9prFuH4XukE
-	 sfBWYJX06m1WA==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] Input: gscps2 - advance receive buffer write index
-Reply-To: sashiko-reviews@lists.linux.dev
-To: raoxu <raoxu@uniontech.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <460B5655BA580C60+20260624094739.850306-1-raoxu@uniontech.com>
-References: <460B5655BA580C60+20260624094739.850306-1-raoxu@uniontech.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Wed, 24 Jun 2026 09:59:13 +0000
-Message-Id: <20260624095914.154B61F000E9@smtp.kernel.org>
+	s=k20260515; t=1782295559;
+	bh=QrrmQfWJkLaBIO1IWz9eNviRNN6l1VkZ2QJFu47ynLw=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To;
+	b=VYEKWhwn4OsN+eq5wselLqqmlUF8guXF8y6R169+B4OkYT4gNmZ8QgXPVDrTLsZO0
+	 k747LvO8n2HLQcUVNoONLzhpKr5pLJDYWV8cyDctByw/VPRCOnmbzrHKdAWFdragdr
+	 VdQVHLJISQm+7mw3ryDSqVYnhJ0DlvGmkW2wnKW6RyOyWUZYlICiX1A5gq6P8mDeAJ
+	 y5pgYKki5/GH+UVRSZxGcHIsN6Hn1idp2ErmkTvhSs5hCCt0fIFrgcTgehdcY2GAFy
+	 tfr3Wi/G8JokLMayz02ox6tSIggVUlJIeavKtRAo0pM/dnuCXIeS6oA2NMHog649zu
+	 Pd+LU1YKAvscw==
+Message-ID: <4ba2eeed-71f8-4799-b261-e4e2c268043e@kernel.org>
+Date: Wed, 24 Jun 2026 12:05:50 +0200
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 0/4] input: misc: Add an initial driver for haptics inside
+ Qcom PMIH010x PMIC
+To: Fenglin Wu <fenglin.wu@oss.qualcomm.com>
+Cc: linux-arm-msm@vger.kernel.org, Dmitry Torokhov
+ <dmitry.torokhov@gmail.com>, Rob Herring <robh@kernel.org>,
+ Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley
+ <conor+dt@kernel.org>, Lee Jones <lee@kernel.org>,
+ Stephen Boyd <sboyd@kernel.org>, Bjorn Andersson <andersson@kernel.org>,
+ Konrad Dybcio <konradybcio@kernel.org>,
+ David Collins <david.collins@oss.qualcomm.com>,
+ Subbaraman Narayanamurthy <subbaraman.narayanamurthy@oss.qualcomm.com>,
+ Kamal Wadhwa <kamal.wadhwa@oss.qualcomm.com>, kernel@oss.qualcomm.com,
+ linux-input@vger.kernel.org, devicetree@vger.kernel.org,
+ linux-kernel@vger.kernel.org
+References: <20260616-qcom-spmi-haptics-v1-0-d24e422de6b4@oss.qualcomm.com>
+ <20260617-spry-greedy-chital-1276e0@quoll>
+ <be2b54a5-ce9d-49a2-80e1-60da874350d9@oss.qualcomm.com>
+From: Krzysztof Kozlowski <krzk@kernel.org>
+Content-Language: en-US
+Autocrypt: addr=krzk@kernel.org; keydata=
+ xsFNBFVDQq4BEAC6KeLOfFsAvFMBsrCrJ2bCalhPv5+KQF2PS2+iwZI8BpRZoV+Bd5kWvN79
+ cFgcqTTuNHjAvxtUG8pQgGTHAObYs6xeYJtjUH0ZX6ndJ33FJYf5V3yXqqjcZ30FgHzJCFUu
+ JMp7PSyMPzpUXfU12yfcRYVEMQrmplNZssmYhiTeVicuOOypWugZKVLGNm0IweVCaZ/DJDIH
+ gNbpvVwjcKYrx85m9cBVEBUGaQP6AT7qlVCkrf50v8bofSIyVa2xmubbAwwFA1oxoOusjPIE
+ J3iadrwpFvsZjF5uHAKS+7wHLoW9hVzOnLbX6ajk5Hf8Pb1m+VH/E8bPBNNYKkfTtypTDUCj
+ NYcd27tjnXfG+SDs/EXNUAIRefCyvaRG7oRYF3Ec+2RgQDRnmmjCjoQNbFrJvJkFHlPeHaeS
+ BosGY+XWKydnmsfY7SSnjAzLUGAFhLd/XDVpb1Een2XucPpKvt9ORF+48gy12FA5GduRLhQU
+ vK4tU7ojoem/G23PcowM1CwPurC8sAVsQb9KmwTGh7rVz3ks3w/zfGBy3+WmLg++C2Wct6nM
+ Pd8/6CBVjEWqD06/RjI2AnjIq5fSEH/BIfXXfC68nMp9BZoy3So4ZsbOlBmtAPvMYX6U8VwD
+ TNeBxJu5Ex0Izf1NV9CzC3nNaFUYOY8KfN01X5SExAoVTr09ewARAQABzSVLcnp5c3p0b2Yg
+ S296bG93c2tpIDxrcnprQGtlcm5lbC5vcmc+wsGPBBMBCgA5AhsDBgsJCAcDAgYVCAIJCgsE
+ FgIDAQIeAQIXgBYhBJvQfg4MUfjVlne3VBuTQ307QWKbBQJp2mE8AAoJEBuTQ307QWKbeaIP
+ /ihHTkTW4KsN/DQ945JJbyu5tI0J80Wue7QyyLPglyKfhgb5cLLNPpOC8cCIJsc7+W3i2P38
+ s2c1cOH6CYGE7E9ur3Vfme8NW2S2I/Z8VC7bZnzyS23wT17LrsdS/qCpx4o8U+pt/xdXDKph
+ EGRYrIEmMpUWvyYzyYKGIe25FtaayIIKpq8eZYyFcp2f/sG5IkOW5uZzHPMPdcm87jU7fyuQ
+ rAU2vx9r+ulUfQ/q9Z2roC/ode3l7t2pN7BCBCsUDp6JCrUyZrtT1e7EbA0ZRP3aOBNk2P2E
+ DQOgJGjGdO5Yx2Y9LFtltu6JbsBJHi1syGRX3AtQYOMc4Y1WGoeZJmMlvKj2ZqqXNkcWi2DS
+ IQEWB0uW6CqFsBBIMGDa+6OzdaVO/uAVXWDWml02Men3CILdI1MbVjoh8ECqYUY7OQ+JJvNN
+ vnliuq5WM3Ghd3jg/LZZrxXjdIginRHFQCjIJYLKpLZWm1/iDFedcfzqRNYmTtqscdCNHW41
+ oT3Z7BmO9xwdjuwBS6nmS6JJwkbf5Ot2QR4pB/DRU7ZwjT1qHe+9r9gF32wXVQatHNGK/VVu
+ sfwOnkdxCWkp/qb2gdQRmZh+SedStWshigH6sNfuHBloF/q+hjMRc8b2m326OZdrbSHwY1Sz
+ vti8Hn7n8NjdHO9LKB7BIdjkA9DA5WsqOuVCzsFNBFVDXDQBEADNkrQYSREUL4D3Gws46JEo
+ Z9HEQOKtkrwjrzlw/tCmqVzERRPvz2Xg8n7+HRCrgqnodIYoUh5WsU84N03KlLueMNsWLJBv
+ BaubYN4JuJIdRr4dS4oyF1/fQAQPHh8Thpiz0SAZFx6iWKB7Qrz3OrGCjTPcW6eiOMheesVS
+ 5hxietSmlin+SilmIAPZHx7n242u6kdHOh+/SyLImKn/dh9RzatVpUKbv34eP1wAGldWsRxb
+ f3WP9pFNObSzI/Bo3kA89Xx2rO2roC+Gq4LeHvo7ptzcLcrqaHUAcZ3CgFG88CnA6z6lBZn0
+ WyewEcPOPdcUB2Q7D/NiUY+HDiV99rAYPJztjeTrBSTnHeSBPb+qn5ZZGQwIdUW9YegxWKvX
+ XHTwB5eMzo/RB6vffwqcnHDoe0q7VgzRRZJwpi6aMIXLfeWZ5Wrwaw2zldFuO4Dt91pFzBSO
+ IpeMtfgb/Pfe/a1WJ/GgaIRIBE+NUqckM+3zJHGmVPqJP/h2Iwv6nw8U+7Yyl6gUBLHFTg2h
+ YnLFJI4Xjg+AX1hHFVKmvl3VBHIsBv0oDcsQWXqY+NaFahT0lRPjYtrTa1v3tem/JoFzZ4B0
+ p27K+qQCF2R96hVvuEyjzBmdq2esyE6zIqftdo4MOJho8uctOiWbwNNq2U9pPWmu4vXVFBYI
+ GmpyNPYzRm0QPwARAQABwsF2BBgBCgAgAhsMFiEEm9B+DgxR+NWWd7dUG5NDfTtBYpsFAmna
+ YUkACgkQG5NDfTtBYptX+BAApg32CkxwNucNEi8WfWA8oKkW0y8YDuY6ORMo9FWNGiT/OTy0
+ vyJrLocrpn86zwfjVp+eCrssPYh8eqJfnWqmYv6ACQtHPYzPZQ3mSo8H97Z01oUxITzCxpXm
+ ZkLgPIqtDPcC2E3dPM/fVxcyowM8XsaMA9wcsaUYrta8toOq2b9tKcjleKMfMrm0gQ9u7wUc
+ QbLkwj6TCLOwucb07GXzLTNF9PZmaDUpKAZjMjmrW+le+SFvQbhamx0rxLWPR0NWntXpbCn+
+ +ACch03p/JyTBVktxFsFyCt7pTPE1kEaeuXBTe/a2D9iQvRxRW19LvuO2e59/u1wYUiH/orz
+ wbIC2S4dBsPAPihL3ztOU1yE86GPyQtSE0kU+/7snnLt4QGi6PChf3t5gnNjAzjUUovO8rgI
+ c+5yN5heq5loYHgK6OQ9OlHzsPHO9e9MOQcKlFycs1pyijFGzDwdNUm/SchK8iWT2QApTx4A
+ K9bCVaboTA2T77QYkRcRJYSsO1alGX0ome/hMLD1daXlkrNUp1HWa3K4iytLRXjCSIorWiGs
+ n+q3krnpXu3TFkA8qtOFZMdnIiFuiq1yLT8hptsV5xh1TA2nsVvSYiaCr3q4s4BKjS/KrLDb
+ qoxzw8ISjdUp4pA85vb6YLCmb39NgidD+7PmAr65lBNveIFynTgsja1rRQ4=
+In-Reply-To: <be2b54a5-ce9d-49a2-80e1-60da874350d9@oss.qualcomm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-Thank you for your contribution! Sashiko AI review found 5 potential issue(=
-s) to consider:
+On 24/06/2026 09:20, Fenglin Wu wrote:
+> 
+> On 6/17/2026 6:42 PM, Krzysztof Kozlowski wrote:
+>> On Tue, Jun 16, 2026 at 03:08:23AM -0700, Fenglin Wu wrote:
+>>
+>> Here - the first sentence - is where you mention merging
+>> constraints/strategy/dependencies. Your MFD patch depends on ealier
+>> ones.
+>>
+> Did you mean that these 2 MFD binding changes should be listed as the 
+> dependency of the MFD patch?
 
-Pre-existing issues:
-- [High] Lockless access to the ring buffer consumer index causes a data ra=
-ce and buffer corruption.
-- [High] Lockless modifications and traversals of the global `ps2port_list`=
- lead to list corruption and use-after-free.
-- [High] Registering the shared IRQ before adding the device to the port li=
-st creates a window for an unhandled interrupt storm.
-- [High] Unbounded hardware polling loops can hang the CPU if the device en=
-ters a faulty state.
-- [High] The shared interrupt handler unconditionally returns `IRQ_HANDLED`=
-, defeating the kernel's spurious interrupt detector.
---
+No. Act as maintainer. Clone Linus tree, apply the patch and see if
+everything works. My claim is that nothing works and maintainer tree is
+broken.
 
-commit b6fd4271cba05f59b05437ee042428ed8db2fb92
-Author: Xu Rao <raoxu@uniontech.com>
-
-Input: gscps2 - advance receive buffer write index
-
-Commit 44f920069911 moved the receive loop into gscps2_read_data() and
-gscps2_report_data(), but omitted the producer index update. This patch
-restores the omitted index update so data reaches the serio core.
-
-> diff --git a/drivers/input/serio/gscps2.c b/drivers/input/serio/gscps2.c
-> index 22b2f57fd91f5..bf9b993f57330 100644
-> --- a/drivers/input/serio/gscps2.c
-> +++ b/drivers/input/serio/gscps2.c
-> @@ -219,6 +219,7 @@ static void gscps2_read_data(struct gscps2port *ps2po=
-rt)
->  		ps2port->buffer[ps2port->append].str =3D status;
->  		ps2port->buffer[ps2port->append].data =3D
->  				gscps2_readb_input(ps2port->addr);
-> +		ps2port->append =3D (ps2port->append + 1) & BUFFER_SIZE;
->  	} while (true);
->  }
-
-[Severity: High]
-This is a pre-existing issue, but can this unbounded loop hang the CPU?
-
-If the hardware enters a faulty state or is hot-unplugged, reading the stat=
-us
-register might continually return 0xFF. The loop condition earlier in this
-function:
-
-	if (!(status & GSC_STAT_RBNE))
-		break;
-
-would remain true forever (0xFF & 0x01). Similar unbounded polling exists in
-gscps2_flush() and gscps2_writeb_output(). Should there be a timeout or ret=
-ry
-limit here?
-
-[Severity: High]
-This isn't a bug introduced by this patch, but does the lockless access to
-ps2port->act cause a data race?
-
-In gscps2_report_data(), ps2port->act is evaluated and advanced without
-holding ps2port->lock:
-
-gscps2_report_data() {
-    ...
-    while (ps2port->act !=3D ps2port->append) {
-        ...
-        ps2port->act =3D (ps2port->act + 1) & BUFFER_SIZE;
-    }
-}
-
-Since gscps2_interrupt() can be called synchronously from process context
-(like in gscps2_writeb_output() with gscps2_interrupt(0, NULL)) while local
-interrupts are enabled, a hardware IRQ could fire concurrently on another C=
-PU.
-
-Could both CPUs execute gscps2_report_data() simultaneously and corrupt the
-buffer?
-
-[Severity: High]
-This isn't a bug introduced by this patch, but is it safe to iterate
-ps2port_list without locks?
-
-gscps2_probe() and gscps2_remove() modify the global ps2port_list locklessl=
-y:
-
-gscps2_probe() {
-    ...
-    list_add_tail(&ps2port->node, &ps2port_list);
-}
-
-Meanwhile, gscps2_interrupt() iterates this list without any locks:
-
-gscps2_interrupt() {
-    ...
-    list_for_each_entry(ps2port, &ps2port_list, node) {
-}
-
-Since gscps2_interrupt() can be invoked at any time by a shared hardware IRQ
-or manually via gscps2_writeb_output(), could this traversal race with a
-concurrent probe or remove operation on a different CPU and lead to a
-use-after-free?
-
-[Severity: High]
-This isn't a bug introduced by this patch, but does registering the shared
-IRQ before adding the device to the port list create an interrupt storm
-window?
-
-In gscps2_probe(), the IRQ is requested before the device is added to the
-list:
-
-gscps2_probe() {
-    ...
-    if (request_irq(dev->irq, gscps2_interrupt, IRQF_SHARED, ...))
-    ...
-    list_add_tail(&ps2port->node, &ps2port_list);
-}
-
-If an interrupt fires immediately after registration, gscps2_interrupt() wi=
-ll
-iterate the list, find nothing, and return IRQ_HANDLED without clearing the
-hardware interrupt condition. For a level-triggered IRQ, could this
-immediately re-fire and hang the CPU?
-
-[Severity: High]
-This isn't a bug introduced by this patch, but does the interrupt handler
-always return IRQ_HANDLED?
-
-gscps2_interrupt() is registered with IRQF_SHARED, but exits unconditionally
-claiming it handled the interrupt:
-
-gscps2_interrupt() {
-    ...
-    return IRQ_HANDLED;
-}
-
-If a different device sharing the same IRQ line continuously asserts the
-interrupt due to a fault, the kernel relies on handlers returning IRQ_NONE
-to detect the spurious storm and safely disable the IRQ line.
-
-By always returning IRQ_HANDLED, does this prevent the kernel from detecting
-spurious interrupts from neighboring devices?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/460B5655BA580C60+20=
-260624094739.850306-1-raoxu@uniontech.com?part=3D1
+Best regards,
+Krzysztof

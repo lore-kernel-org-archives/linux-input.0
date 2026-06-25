@@ -1,33 +1,33 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5B1353BCD3E;
-	Thu, 25 Jun 2026 06:19:29 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 33718364028;
+	Thu, 25 Jun 2026 06:21:42 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782368370; cv=none; b=MN4u8AAk3kctaZt2Cl6zUbXYFv5ZiCBgnLFTZYuh2o6LoUg2IbEzN/3WDhK5MfEeImVYqn1t/16pPMtET558DVC3MpzMawKBUirwxzJQ+Q5eOq39LPjowNfb6RVwyx9/8kbsCc3m5lO2G2ylNL1N21U64q7ulQLdIroG8zDn4PI=
+	t=1782368503; cv=none; b=jOu9qK4SzsttkKaOzldFnyANtsb6OeGM3f/wofUZ+y8vMCjh5VMhny8K/RnABtHYxhe9WpcvlgIhW6pZE64d3ZDq7Zl4iStpcjiIUdMZOHnILJVXYgov9qixdum697nOimG1UB6QIbT0DVO4A9WrMQezkj8v/Ielk9S+9x8banU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782368370; c=relaxed/simple;
-	bh=OHu3INHhC6GM5x15hjt0kKHx1HxFhm1nphDJsxQCeb8=;
+	s=arc-20240116; t=1782368503; c=relaxed/simple;
+	bh=vPx6lCqmoiWxreycWp2rq/gREKvI9/QxpGD6u1lLsSw=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=cOhNCAqRANdEL4oSynZ6q8yu29eIv2oBfRfQv42paW2FSDL+8L4x0ii2LdDFZuvDRxDYsIotUInEXM0kmQZ5OaC+9kHkOGn11xJzT8BERgQqFJJ9l4fIVvEeoLvrYstOpJdTdr27Mn8BYic3bzWHjbaoADlLeDDVsTgs+8WVZzs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=N3VhKH4U; arc=none smtp.client-ip=100.103.45.18
+	 In-Reply-To:Content-Type; b=I4c9HgzZU/coKAZ+5Knol9DOCRMb29pIhxZzbf2mAd8LPfh+/ff5ijgS8wWgveVHvSx3Nc9LeH7KtfMm+qxheY949JBJLZ4UwxVIJ6TScCCDWH2PhFv/Wr0qKoyQhlRxuzVDbnBfrj9Wg1mjFJyIKtvxft0HeY2z8jrEEg9nOuw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=GLykoh8W; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="N3VhKH4U"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D83AE1F000E9;
-	Thu, 25 Jun 2026 06:19:22 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="GLykoh8W"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 63B0D1F000E9;
+	Thu, 25 Jun 2026 06:21:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1782368369;
-	bh=F6jDr9KpDhaDFPS84eQPLuYywd+xc1qzVpbub25pSRE=;
+	s=k20260515; t=1782368501;
+	bh=nkmkcb1pqmx0XdGKwQVNQsBLiiBpOI2qh/mDyWOEnjE=;
 	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=N3VhKH4UMW3RI8RSl5dXlx2z4EvrSsWDMKcWudsIyGj4c3HBqGOUQIhr2n0q6Dkiu
-	 zMXFTL2IKYtM+OibIoy2tPIMEMGXWH2pZ4N5rsPs8xWPeneJWxMEyCp6PISkqggfb9
-	 fUUL+DMLAL8awN/kZMUiPV+7w6qHTpJ5H/vdDliZn1PnGAVzzH+hGTBBX/VBSHgM5z
-	 w0pVyd4jvZ7jwzgmc1q5fHbV4H5BoyjnNR+4Xtd1JsAg/9LUcy7rBd8gG2TT+YjVg1
-	 sRMApzhcM9QU7DA4o5d8pDzsYPBngUO1tecSQ5K4s9t3wi9iSGh12rF3C4UQ4KA9Wb
-	 pZNloOBcDSTog==
-Message-ID: <91cc96b0-d25f-436d-a0c7-fec39bf72393@kernel.org>
-Date: Thu, 25 Jun 2026 08:19:20 +0200
+	b=GLykoh8W4B0xQ7Ag2NUKFDg0Vu63cKH+K+Ra7mddPqi+aznXI5Eek5iqm+dWV2mW/
+	 dKbxL1elRbdTjYlYeNALOfkQfjkwKuEnAwgfEYB31SVZ7JxR5sgexZn5qwLH1EJ8Xw
+	 y87teKUYixlVGglwgWpvSyKj3b9NdLZ81JFPvf9D6xwfp1ZzZj73yVKFN3viIvd2D8
+	 yyBVQb7a9DasaH3YYlzzlUFQDvYbxDcVTqri/JltAKShAHG6WIMAKpAJ36DH+Vj8sf
+	 FS+YPRsAfoBoUEphuZpu342PxTHdEtnc/e9n9LzgwktBfUDwyRem1ZxcOl03967Co0
+	 TlSJ5/cyJYAJA==
+Message-ID: <1954394d-88dc-4b8b-be71-57b1429f893f@kernel.org>
+Date: Thu, 25 Jun 2026 08:21:34 +0200
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -35,25 +35,21 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 0/4] input: misc: Add an initial driver for haptics inside
- Qcom PMIH010x PMIC
-To: Fenglin Wu <fenglin.wu@oss.qualcomm.com>
-Cc: linux-arm-msm@vger.kernel.org, Dmitry Torokhov
- <dmitry.torokhov@gmail.com>, Rob Herring <robh@kernel.org>,
+Subject: Re: [PATCH v2 2/3] dt-bindings: mfd: qcom,spmi-pmic: Document haptics
+ device
+To: Fenglin Wu <fenglin.wu@oss.qualcomm.com>, linux-arm-msm@vger.kernel.org,
+ Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh@kernel.org>,
  Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley
  <conor+dt@kernel.org>, Lee Jones <lee@kernel.org>,
  Stephen Boyd <sboyd@kernel.org>, Bjorn Andersson <andersson@kernel.org>,
- Konrad Dybcio <konradybcio@kernel.org>,
- David Collins <david.collins@oss.qualcomm.com>,
+ Konrad Dybcio <konradybcio@kernel.org>
+Cc: David Collins <david.collins@oss.qualcomm.com>,
  Subbaraman Narayanamurthy <subbaraman.narayanamurthy@oss.qualcomm.com>,
  Kamal Wadhwa <kamal.wadhwa@oss.qualcomm.com>, kernel@oss.qualcomm.com,
  linux-input@vger.kernel.org, devicetree@vger.kernel.org,
  linux-kernel@vger.kernel.org
-References: <20260616-qcom-spmi-haptics-v1-0-d24e422de6b4@oss.qualcomm.com>
- <20260617-spry-greedy-chital-1276e0@quoll>
- <be2b54a5-ce9d-49a2-80e1-60da874350d9@oss.qualcomm.com>
- <4ba2eeed-71f8-4799-b261-e4e2c268043e@kernel.org>
- <36043887-6bbd-4b2d-941c-bf222786b80d@oss.qualcomm.com>
+References: <20260624-qcom-spmi-haptics-v2-0-b9118e60f3e3@oss.qualcomm.com>
+ <20260624-qcom-spmi-haptics-v2-2-b9118e60f3e3@oss.qualcomm.com>
 From: Krzysztof Kozlowski <krzk@kernel.org>
 Content-Language: en-US
 Autocrypt: addr=krzk@kernel.org; keydata=
@@ -99,31 +95,26 @@ Autocrypt: addr=krzk@kernel.org; keydata=
  K9bCVaboTA2T77QYkRcRJYSsO1alGX0ome/hMLD1daXlkrNUp1HWa3K4iytLRXjCSIorWiGs
  n+q3krnpXu3TFkA8qtOFZMdnIiFuiq1yLT8hptsV5xh1TA2nsVvSYiaCr3q4s4BKjS/KrLDb
  qoxzw8ISjdUp4pA85vb6YLCmb39NgidD+7PmAr65lBNveIFynTgsja1rRQ4=
-In-Reply-To: <36043887-6bbd-4b2d-941c-bf222786b80d@oss.qualcomm.com>
+In-Reply-To: <20260624-qcom-spmi-haptics-v2-2-b9118e60f3e3@oss.qualcomm.com>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
-On 25/06/2026 03:41, Fenglin Wu wrote:
+On 25/06/2026 04:00, Fenglin Wu wrote:
+> Some of the Qualcomm SPMI PMIC has haptics device in it, add it in the
+> device list.
 > 
-> On 6/24/2026 6:05 PM, Krzysztof Kozlowski wrote:
->> No. Act as maintainer. Clone Linus tree, apply the patch and see if
->> everything works. My claim is that nothing works and maintainer tree is
->> broken.
->>
->> Best regards,
->> Krzysztof
-> 
-> Thanks for the explanation. I just did that and I didn't see conflict 
-> when applying the binding and driver changes, but I did see a conflict 
-> when applying the DTS change. I will drop the DTS change 1st and resend 
-> them after the driver and binding changes get accepted.
+> Signed-off-by: Fenglin Wu <fenglin.wu@oss.qualcomm.com>
+> ---
+>  Documentation/devicetree/bindings/mfd/qcom,spmi-pmic.yaml | 4 ++++
+>  1 file changed, 4 insertions(+)
 
+Still nothing about merging issue/dependency I asked to explain. You did
+not solve it, you did not mention it how I asked. We speak about basics
+of Linux kernel development process. If you cannot get this, even after
+I directed you in v1, then you need to attend internal trainings or read
+internal docs (go/upstream) where this is explained.
 
-That is not what I meant and you did not follow maintainer process. And
-why did you ignore second binding? Identify how many separate
-maintainers are here and act like them. I looked again at your patchset
-and I am sure about that - patchset is unmergeable by Lee.
-
+I drop the patches from DT Patchwork.
 
 Best regards,
 Krzysztof

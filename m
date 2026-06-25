@@ -1,167 +1,170 @@
-Received: from mail-dl1-f47.google.com (mail-dl1-f47.google.com [74.125.82.47])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1870E383313
-	for <linux-input@vger.kernel.org>; Thu, 25 Jun 2026 01:53:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7ECC53A7F4C
+	for <linux-input@vger.kernel.org>; Thu, 25 Jun 2026 02:00:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.180.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782352392; cv=none; b=HjUUx+wLd1Hd86oGEcAqTctAJxLQPjXjiErgmrR8HfhZ/tJ9NXRV24+i41Qm3VPn9MhFTm9G9UBsckjzFxyWx7cxB5HTySdwV9m1o5zjICc1r94A3fJBraMAsLISmrbUgwuBcuLCz4YMXhhD0T9j/NjbbqRwc/BLfeYGDBPb9UY=
+	t=1782352849; cv=none; b=cQ76nMnXDGQLYx40myEjR9Ns2GOXCxt5o+O/0gdo6c1x2KimR2SJHDVF575LFjzcDjUtiC+IpfZ+cdfpfVZLHkJbeas1WrTdV4NsV6sSRzSE52aBT8B8LpsSLG5piot2/51FygS6VPsuOPBPLcVL4jYPza2dK/GYcg1muoK06pM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782352392; c=relaxed/simple;
-	bh=vwZTQ9gB8Ctb4K4qxhLn9dMYc0JvVO+/LzpdmYdL99o=;
-	h=Date:From:To:CC:Subject:In-Reply-To:References:Message-ID:
-	 MIME-Version:Content-Type; b=L61gTz5Rq88LqP+puvu/5HpRT+IoCTDlf8s4Mqs712aDK2jObRzGvyZy0CD9L8PAfPskRFkGFLS/+3q8sBKWTy0oA5tb7hNExg98bvZ1PjynbDq6z2zCpw4p+IYeJNg2AupTK3zOLysjkcbOQr5MY1b5m3CGoDiA2NqqT8x46lI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=jBpsm2cd; arc=none smtp.client-ip=74.125.82.47
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1782352849; c=relaxed/simple;
+	bh=TwIeX7dWxmVsmvw4YK0bm5xz6TMcOrj4WJjtApbR6H4=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=Vbxbq2H+ws4ozcKat60GoSg59Dpc2E2VMw0GTm+jFk9sxfT6v9AFMEDIbtvcEzeWMXawqmb86Qi83ReaseNOz+hspbppqV64a6X7YDYDAeSvPPTaJiGJdtFniZ2zpwY+q1wjP/cIvb5PM427ElSadUpy+hJAShN4E+ZRVP7UPSs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=Nw94ETJ+; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=eLsZ432E; arc=none smtp.client-ip=205.220.180.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jBpsm2cd"
-Received: by mail-dl1-f47.google.com with SMTP id a92af1059eb24-139d5c9a495so2249704c88.0
-        for <linux-input@vger.kernel.org>; Wed, 24 Jun 2026 18:53:09 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="Nw94ETJ+";
+	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="eLsZ432E"
+Received: from pps.filterd (m0279873.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 65OLqcok366646
+	for <linux-input@vger.kernel.org>; Thu, 25 Jun 2026 02:00:47 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
+	cc:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
+	ze57ivEQaVhQmk2GKsdaZS8G8SlBGCxdyc/OInFHA+k=; b=Nw94ETJ+BM4TaZRu
+	ZUFmUCB2c69twa3XAWukijHgrqfHzSrgXNxFpf0ppVGssUmjIFd/tcn3/vxj2qJT
+	nb7SO+y8GF2YHuoLshphnV1JfCXm3LsQEaRf94gHXBpsBa6zTRLMkrRTkU9bZ7ex
+	Xe0l8gHszTwdFZlNS1OKN1/AoFFDS2IMpkkGovXW/cD1oNXXnw63fZUye63JiCdO
+	ywL/VyLi+6bUuJfYxgXSjAWM18tHklB42fJL5kWEMG7KgcikSeE4TMw5QojKAxIA
+	eDTRKjYp94a+CbkwiZaaGGDDcr6dMIgHfFq5HWQKIERka2q1sL78NvSIfr4FBMvg
+	9PLkUA==
+Received: from mail-dy1-f199.google.com (mail-dy1-f199.google.com [74.125.82.199])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4f05ar515j-1
+	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
+	for <linux-input@vger.kernel.org>; Thu, 25 Jun 2026 02:00:47 +0000 (GMT)
+Received: by mail-dy1-f199.google.com with SMTP id 5a478bee46e88-30c62861b3bso852191eec.0
+        for <linux-input@vger.kernel.org>; Wed, 24 Jun 2026 19:00:47 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1782352389; x=1782957189; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:references
-         :in-reply-to:user-agent:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=CzOfu5Lq5E9H88P/ukWScskr+7REIahe2+HdHdRazIs=;
-        b=jBpsm2cdAxIC3qh9hiKaMyRcGMf0d4kJuWbM468RKw8ZKM0x7c5/iBlFhQrn3WWBs+
-         7AymFOB+1PlrT3x8c6oGLMUZ7tmPSqJCzxAjeValfUgX5su0Bne8b3LI2vdbOQSc74mU
-         O63oS3hGEJwrc0wrvCaJ5bgu6Ga4drnhFqe8ctBZPnt/EXWW3cZiz7Jad9eVhzYa/QgS
-         R9NxPfz+O49e955X5q1CU9z87/WTK+JVVTX8UzolsmIm3mv6vMHd+5rcUHP3JpV+05Dh
-         qq+KkRFwJbSbIoCooszPjfBIRlYXrtCCcJbtO79sMNkQ8LsdZw9xDtqcqvD5DLHDoANW
-         Qtig==
+        d=oss.qualcomm.com; s=google; t=1782352846; x=1782957646; darn=vger.kernel.org;
+        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
+         :mime-version:subject:date:from:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=ze57ivEQaVhQmk2GKsdaZS8G8SlBGCxdyc/OInFHA+k=;
+        b=eLsZ432EQw8XSbjQVn/Bbh1PqJIeciilEE4gNPpIj3IMP/JWD0cPu7LJ/MaZ6e80UM
+         mDmalplnQXI5NIOfjWTmmqwfqGtFAEawNVgeIEK7jj9ei30fvlBwyE+pWOOZmYGRFZCp
+         PIC7TiTlsO2u3TJpicGpfdCY9eVU7VcGBKPd9kue0hb5N2Iq0cPApsypifRO6wRszJEe
+         6PdL8dEY3p+HF9c8Q9UiGehbwvyOIB8ZBIRSvksy3Y996d6G/Jvet/EPf9jBZa/u0V9C
+         V128uI39nWfIBOvnIeYTcMUzyIa6+k6aRXrKhO60qiz83khRhiZSORlxZ+oDlHPFg5mU
+         bcUw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1782352389; x=1782957189;
-        h=content-transfer-encoding:mime-version:message-id:references
-         :in-reply-to:user-agent:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=CzOfu5Lq5E9H88P/ukWScskr+7REIahe2+HdHdRazIs=;
-        b=A+sp7DNKzEiddq9xooK0+EaT+73gk9DKZKAEVEybjsVmQkagRIsp8MsTK/TRhzJyr9
-         YJ/wHAIoA3N4Zsy0naRLzQW6tXIgdnZMlGtmEgGeWwEtVo/INsOknwCkFEweJbvMDuwf
-         T5N9WbrNiNwNtYP4dzQmB9IY6SLvV3TfrlggfAxIq1spXcX3CTGi2cyhZ1pdcSICnXy2
-         xAX3o6o6yWpq49GLU+2Fw4dpxhRFthmKN1FnQ35N61Zvgb66vZmz5kiuN02mzZT1wTx1
-         MdH1NFgDl14hfGspqA2wQosH8MPeFdQ6RTKzRWvjMmNc6ScCKm5arXD+h1L+S4q+chVE
-         PRUw==
-X-Forwarded-Encrypted: i=1; AFNElJ9xFiqHmw1USbZ57S8KtT+qbHF7JRX6QLd+kvyUfp73wLaiDsxuJHaXxtM+925jakl1/JTUpskpRgSrFg==@vger.kernel.org
-X-Gm-Message-State: AOJu0YwccwHDrZsAfBSKUrcdA8TJNWfvv2V5RcET/8vuPHbMA+5/vShF
-	TGcSSy5WTNmE5IpjszQQfCALuI1TQfu6hj+Qd9KmcByRpVjX861sxF1F
-X-Gm-Gg: AfdE7cnZspsMMtz8KZmUQ/eRW2pv4G88mgeapahMPVrPRAJJQC5vC54MNoKTBUiRT9d
-	9Ewp7al4Vj3/iBlkHCLT1iqxL22Dn/i5PmDPYfF6m9kho6ORsKxf1d2lWvlVmP/rdcKYyyuHMGO
-	qIDRm1URLN3abqBuNlh19yr7pj18XHAaEsh5o5whKobFZRZ4u7g9DkEQvRZ4QA1KqLWOco97Q8B
-	E/+HS7WeFMknywEhBYLPKGQ6wxHmXfp/tUJfBRel+VIh5J/gCPeNS3aWbkZFpgWQCWYC0CENhW1
-	bKGTUfAUNmIK8JuT/u/IxF1iPqsg30vbO2yKlXLtN//kjbjmvHRWFkIdtaMrTEFflPhgLtfSMdz
-	3X3FNOm1wYRobbmNl2HdS6TxnIjieDS0gATQ403pVwSGtP6xPwWoysT2G2MAkVqfAkRDt5NJ7kD
-	SwoDPXcMe6vRoYzpIJti3jUOIPJRvBvxnZkeFE8FBTLQ52n24=
-X-Received: by 2002:a05:7022:1b02:b0:139:ba7d:84a7 with SMTP id a92af1059eb24-139dbab9cc3mr479372c88.13.1782352388816;
-        Wed, 24 Jun 2026 18:53:08 -0700 (PDT)
-Received: from ehlo.thunderbird.net ([2401:4900:8899:9e33:2452:7e79:e768:7b49])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-139d8f318f3sm2791314c88.2.2026.06.24.18.52.53
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 24 Jun 2026 18:52:54 -0700 (PDT)
-Date: Thu, 25 Jun 2026 07:22:49 +0530
-From: Sanjay Chitroda <sanjayembeddedse@gmail.com>
-To: Jonathan Cameron <jic23@kernel.org>,
- srinivas pandruvada <srinivas.pandruvada@linux.intel.com>
-CC: Maxwell Doose <m32285159@gmail.com>, jikos@kernel.org, dlechner@baylibre.com,
- nuno.sa@analog.com, andy@kernel.org, hongyan.song@intel.com,
- linux-input@vger.kernel.org, linux-iio@vger.kernel.org,
- linux-kernel@vger.kernel.org
-Subject: =?US-ASCII?Q?Re=3A_=5BPATCH_v1=5D_iio=3A_temperature=3A_hid-sensor-temp?=
- =?US-ASCII?Q?erature=3A_switch_to_non-devm_iio=5Fdevice=5Fregister=28=29?=
-User-Agent: Thunderbird for Android
-In-Reply-To: <20260623200616.56a44b3e@jic23-huawei>
-References: <20260622052135.1804135-1-sanjayembedded@gmail.com> <767892206bf6a10de4122f5e1faa8481541170ca.camel@linux.intel.com> <CAKqfh0Hk12rA7wkU9wbse=n9qbOgbmxK0vhP6Enj-R2yKCohuQ@mail.gmail.com> <0e198f80c6f28e448611e02e1fe20af632931dd3.camel@linux.intel.com> <20260623200616.56a44b3e@jic23-huawei>
-Message-ID: <438AD440-7511-4F04-B6D7-53C0D61AE733@gmail.com>
+        d=1e100.net; s=20251104; t=1782352846; x=1782957646;
+        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
+         :mime-version:subject:date:from:x-gm-gg:x-gm-message-state:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=ze57ivEQaVhQmk2GKsdaZS8G8SlBGCxdyc/OInFHA+k=;
+        b=jNa2YANruIuazjfmm37OUs2hRapaQld+QFSh6ppkxa6CrzMHeVjSSQ36Qml0JaAMdl
+         rz9ryqfQ9rwJOtUKnkkozei0FGJ12OIA1nCX9YpgI/BbZcPbS2i/0lJKXpKVCiGv1O4p
+         tE274zh3mNmfr7lDihlg0lJTRrAibm20Tb05x1EmgBpehRWCnj/qAv43kFXrOZ61NSAZ
+         YQfPyVd34vcNgSTXyE1dhVD3+RDsihwaVBeOoX40UUnj+oVrNPqg/O+h49SKWq0yyUV4
+         qsrVeuhiuOVEYF7iSdjmXVMYhpds6qYDCcvNdjbBHdP5TvBVkjBEQr55kc06XyOhL+BN
+         379w==
+X-Forwarded-Encrypted: i=1; AHgh+RqKY5lJNEXign7KzGRKcPXTn/b9Haa/eMvokqELJht/thj0IlUpOB7Tk+x8twG6vo0FP6vrpdwREXEAFA==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yy3E/K9vniIGJt1exYuRQrElnAzewNtgX3oOZ4QDBNh2DJxKqIU
+	e9U/0VqKGVDfBzV67nvym/OOR9FexwxQ2RpUlsbNcs4oP5E6K//Ol0gsLHUtzckqtLN4dODFqa5
+	y/0q/FcZ37MUB8hhkk+WmqcoIgXDPGlRt2lRcddI671R0LylYFheKD1UTbb+tRKO4Nw==
+X-Gm-Gg: AfdE7ckPRsMRG97aT8Rg6BcetgiPTsA/CiDvI1Kf+LBv8vFn4u+a8AXQT5/nylwfSSk
+	IxhTidH8PWFodWf5U0BxMDvQpQtYYXpyH5UVOZ8X6WaPFcyKe7t+owPhQI9XVPSUWM0zPzmi+HT
+	R/nELJBfOr+6/J89BOAGnfeb/C/TuplAYsYvkklyoZ69Rweqhl7SsYyahzmqC/1/e4L/V0R0o3D
+	AIQ0nkcrKV6WTPu5LZixrd0YtqvQrsTkSyaUljhEACD0eOUqTxFWFClYEkM88DTrGAFp68Ovr0Z
+	QXPK3tOM2MAYpUuEN7wZudwniu8UWdjaSqGRncDOCN9ryCKYSjEMwOK/LCIysUV1HzuTTJ7o+8t
+	z89MoMa2loGnH7eLyWSL5KdxxiCg7mMtyf/eI6pyntMOpEacWjfps72O5Y+jmoZA=
+X-Received: by 2002:a05:7300:b586:b0:304:18be:55a5 with SMTP id 5a478bee46e88-30c84d15d55mr618622eec.22.1782352846406;
+        Wed, 24 Jun 2026 19:00:46 -0700 (PDT)
+X-Received: by 2002:a05:7300:b586:b0:304:18be:55a5 with SMTP id 5a478bee46e88-30c84d15d55mr618584eec.22.1782352845742;
+        Wed, 24 Jun 2026 19:00:45 -0700 (PDT)
+Received: from hu-fenglinw-lv.qualcomm.com (Global_NAT1.qualcomm.com. [129.46.96.20])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-30c7c8afca8sm2933939eec.17.2026.06.24.19.00.45
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 24 Jun 2026 19:00:45 -0700 (PDT)
+From: Fenglin Wu <fenglin.wu@oss.qualcomm.com>
+Date: Wed, 24 Jun 2026 19:00:37 -0700
+Subject: [PATCH v2 2/3] dt-bindings: mfd: qcom,spmi-pmic: Document haptics
+ device
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
- charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20260624-qcom-spmi-haptics-v2-2-b9118e60f3e3@oss.qualcomm.com>
+References: <20260624-qcom-spmi-haptics-v2-0-b9118e60f3e3@oss.qualcomm.com>
+In-Reply-To: <20260624-qcom-spmi-haptics-v2-0-b9118e60f3e3@oss.qualcomm.com>
+To: linux-arm-msm@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Rob Herring <robh@kernel.org>,
+        Krzysztof Kozlowski <krzk+dt@kernel.org>,
+        Conor Dooley <conor+dt@kernel.org>, Lee Jones <lee@kernel.org>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Bjorn Andersson <andersson@kernel.org>,
+        Konrad Dybcio <konradybcio@kernel.org>
+Cc: David Collins <david.collins@oss.qualcomm.com>,
+        Subbaraman Narayanamurthy <subbaraman.narayanamurthy@oss.qualcomm.com>,
+        Kamal Wadhwa <kamal.wadhwa@oss.qualcomm.com>, kernel@oss.qualcomm.com,
+        linux-input@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Fenglin Wu <fenglin.wu@oss.qualcomm.com>
+X-Mailer: b4 0.16-dev-17187
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1782352843; l=891;
+ i=fenglin.wu@oss.qualcomm.com; s=20260324; h=from:subject:message-id;
+ bh=TwIeX7dWxmVsmvw4YK0bm5xz6TMcOrj4WJjtApbR6H4=;
+ b=RWnpqqugPMLb6oMeuWHpmn19vMXUaJk5ZOAwNR/9o9ryQgbsienpos1/5XV4LNqWOHFvmGnZW
+ A4o8ziT8+UqCpmYZlno6lb1wOF9Q8udFWf78MAO41Gq/20a8UhWA1Bs
+X-Developer-Key: i=fenglin.wu@oss.qualcomm.com; a=ed25519;
+ pk=hJdt3E7o54lql+miD2GaxwF74cDyhgNwMbmFOZ46bRU=
+X-Proofpoint-ORIG-GUID: XbKQHBRlZ9XdQ5FYO_yZdAPlOLUiT3oS
+X-Authority-Analysis: v=2.4 cv=EuLiaycA c=1 sm=1 tr=0 ts=6a3c8bcf cx=c_pps
+ a=cFYjgdjTJScbgFmBucgdfQ==:117 a=ouPCqIW2jiPt+lZRy3xVPw==:17
+ a=IkcTkHD0fZMA:10 a=FelO9ux0wxsA:10 a=s4-Qcg_JpJYA:10
+ a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22 a=rJkE3RaqiGZ5pbrm-msn:22
+ a=EUspDBNiAAAA:8 a=aKV5VrVIVVfq6qmweGsA:9 a=QEXdDO2ut3YA:10
+ a=scEy_gLbYbu1JhEsrz4S:22
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNjI1MDAxNSBTYWx0ZWRfX+yxt/tyUhf86
+ lhiL+5DCigLePimYO1k+3zcOcVW9sq/d3irpKx9uQWYc3CQOSkdV3Pihpe9XPPDYzpJ3/WWwxvL
+ vufe4t5o9Oruv5XIVkD6zYaUNAmX9VI=
+X-Proofpoint-GUID: XbKQHBRlZ9XdQ5FYO_yZdAPlOLUiT3oS
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjI1MDAxNSBTYWx0ZWRfXwvgUzokXfz+s
+ 4g4aRXop0TdSen/RrbPRV1mz6d50ZrSDqG/GwVoAVV/pLBA3/WIdzasM/dwe8e2P7fQpIs0yFqT
+ W503Cj5HsFWz+olppXLJsm+1locrtQxH/vhJMw2xVrr9t65pRkB2pBTloR3HICLAEF+sNC0srQC
+ sedbHhelVa0DVGvAfGXe7wI7P0Bxc4YsAXV5mQz1xofdCmYycHIJnwrvmX3NK7xYUNtn1KFDun2
+ 3is9gIEVEZmznT3w8yDzxg20+cHJRDDVV3X7tYp6UzcrjK8iLUK46a5LSJp+bGGoNouJc5spUho
+ 4ElMDvEASJuu4all8xLYDbAB91GG/CBbKYI6FtHTosrBXNmkvMk+5pcVkfxa5hGBPTTzMoDZl2W
+ JKYb1ya2HnffOiYRoNo0UbLlWh3/bL6rM4DXqJN5W3EO742l6AfnpZw6icO3x5WdrAIvDvkPuP3
+ loBbOWLr3P8CpSACJpw==
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
+ definitions=2026-06-24_04,2026-06-24_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ bulkscore=0 impostorscore=0 lowpriorityscore=0 suspectscore=0 adultscore=0
+ malwarescore=0 phishscore=0 clxscore=1015 priorityscore=1501 spamscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2606250015
 
+Some of the Qualcomm SPMI PMIC has haptics device in it, add it in the
+device list.
 
+Signed-off-by: Fenglin Wu <fenglin.wu@oss.qualcomm.com>
+---
+ Documentation/devicetree/bindings/mfd/qcom,spmi-pmic.yaml | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-On 24 June 2026 12:36:16=E2=80=AFam IST, Jonathan Cameron <jic23@kernel=2E=
-org> wrote:
->On Mon, 22 Jun 2026 13:50:22 -0700
->srinivas pandruvada <srinivas=2Epandruvada@linux=2Eintel=2Ecom> wrote:
->
->> On Mon, 2026-06-22 at 10:27 -0500, Maxwell Doose wrote:
->> > On Mon, Jun 22, 2026 at 10:26=E2=80=AFAM srinivas pandruvada
->> > <srinivas=2Epandruvada@linux=2Eintel=2Ecom> wrote: =20
->> > >=20
->> > > On Mon, 2026-06-22 at 10:51 +0530, Sanjay Chitroda wrote: =20
->> > > > From: Sanjay Chitroda <sanjayembeddedse@gmail=2Ecom>
->> > > >=20
->> > > > Avoid using devm_iio_device_register(), as this driver requires
->> > > > explicit
->> > > > error handling and teardown ordering=2E
->> > > >=20
->> > > > Mixing devm_* APIs with goto-based error unwinding breaks the
->> > > > expected
->> > > > LIFO resource release model and can introduce race windows during
->> > > > device
->> > > > removal=2E In particular, the IIO device may remain visible to
->> > > > userspace
->> > > > while dependent resources are already being freed, potentially
->> > > > leading
->> > > > to use-after-free issues=2E =20
->> > >=20
->> > > Please explain this use after free case here=2E
->> > >=20
->> > > Thanks,
->> > > Srinivas =20
->> >=20
->> > My guess is that because the device would still be registered but
->> > would actually be removed, sysfs still has "wild" pointers to
->> > read_raw() and write_raw() (which don't exist anymore), causing the
->> > UAF=2E If I'm wrong feel free to correct me though=2E =20
->>=20
->> iio_device_unregister() will be last one to be called after device
->> removal from devm action handler=2E This will cleanup attributes=2E So,
->> read_raw() or write_raw() can be called=2E The problem can be handlers
->> for read_raw() and write_raw() if anything there which are dependent on
->> clean done by hid_temperature_remove()=2E Here callbacks are cleaned up=
-,
->> so nothing to respond to read  sensor_hub_input_attr_get_raw_value(),
->> so it has to wait for 5 seconds to timeout, which is not great=2E So
->> nothing against change done here=2E
->>=20
->> But still not sure any use after free case, unless I am missing
->> something=2E
->>=20
->Agreed that to call UAF you need an explained path (and preferably
->testing that it happens)=2E  The timeout issue Srinivas calls out is
->sufficient for us to merge this as a fix, but the patch description
->should then talk about that=2E
->
-Thank you all for the review=2E
+diff --git a/Documentation/devicetree/bindings/mfd/qcom,spmi-pmic.yaml b/Documentation/devicetree/bindings/mfd/qcom,spmi-pmic.yaml
+index 644c42b5e2e5..773f4cba5935 100644
+--- a/Documentation/devicetree/bindings/mfd/qcom,spmi-pmic.yaml
++++ b/Documentation/devicetree/bindings/mfd/qcom,spmi-pmic.yaml
+@@ -165,6 +165,10 @@ patternProperties:
+     type: object
+     $ref: /schemas/pinctrl/qcom,pmic-gpio.yaml#
+ 
++  "^haptics@[0-9a-f]+$":
++    type: object
++    $ref: /schemas/input/qcom,spmi-haptics.yaml#
++
+   "^led-controller@[0-9a-f]+$":
+     type: object
+     $ref: /schemas/leds/qcom,spmi-flash-led.yaml#
 
-I investigated the remove path in more detail=2E I agree that my original =
-use-after-free explanation was not sufficiently justified=2E
+-- 
+2.43.0
 
-The issue is actually the teardown ordering=2E With "devm_iio_device_regis=
-ter()", the IIO device remains registered until the devres cleanup phase, w=
-hile "remove()" first removes the sensor hub callback=2E During this window=
-, the IIO device is still visible to userspace and "read_raw()" requests ma=
-y be issued=2E These requests eventually wait for a response from the senso=
-r hub callback, but the callback has already been removed, resulting in the=
- operation timing out=2E
-
-I'll update the commit message in v2 to describe this observable behaviour=
- instead of mentioning a potential use-after-free=2E The code change itself=
- remains the same=2E
-
-Thanks, Sanjay
-
->Thanks,
->
->Jonathan
->> Thanks,
->> Srinivas
->>=20
->>=20
->

@@ -1,144 +1,64 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2562C3803DA;
-	Thu, 25 Jun 2026 08:25:56 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2CDE12253EB;
+	Thu, 25 Jun 2026 08:26:07 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782375958; cv=none; b=TRjKSiDg6r9jzGjt+HZwmH+4IUCtr7dQBjVQaX3XDBw58zcETvTLFqBvLikY0fZrWz+3kab1YgymIUrz04AUAW45PJiq7snKtA8u2XWg4oYCYKRoqVN1f3TUExRAFmp4Na1cx3t7vKLZV2FPQQdIFAudBe3apuyZUPFJ/NDCHWM=
+	t=1782375969; cv=none; b=uyYw5KicnX333Ce2SZ/ToJ3Lax4PVaUj+LFIqIms62rqLiyPeKUtCU+g3LV60IpaeT8+XfDQalrD/nDwfBxKmMBn7Jdz/6baZKbac9G8bcvA98xgusocXdWf7AD+MHoQ8Y5H0FrYSFaly6RaOE6wQXHFnjjqhgsmKPtfahUwsS8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782375958; c=relaxed/simple;
-	bh=nioTCmPU+3eWZ+mVwk4Hy7ZZSWwSbIlHuVOftDsQGyc=;
+	s=arc-20240116; t=1782375969; c=relaxed/simple;
+	bh=ogAQWFWgAEmefIFeK/00KKpXvA8UTvhOmXX+TiM8k7I=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=EyCNMVs886taakChDu5mrk/KtXfg40OojZ+7y9p0HzDynrv8a2oIP86bM8n0SU4bcO0sTMykL/YjrBjuiVU+EHLHgs31PzwTNqfVnw6IgLrTpAO3VDdiH8aO1nz8hBiuGov0f46yr+fFCHQckbPZYsesBeKWmnmOH7Hu8HwG288=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=MsJJb3sH; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=s308C9Z9kbG1IgsHyriTipp8P3Ifj2GA3EnlrEp3AJm+/nysiVWEqKWw8IYVso649LiHNDZ5B/GT1Q6d/VNCKD/EtPyRLMjpwk0okk9LdYmtZn4O6Tdh5E9RdDjHvSPm3C82NCWPOQwSzCCYQiTNbEfXAooPPa3q+PY/LbelwPw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=n4AwCQrb; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="MsJJb3sH"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65EAA1F000E9;
-	Thu, 25 Jun 2026 08:25:56 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="n4AwCQrb"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 512B21F000E9;
+	Thu, 25 Jun 2026 08:26:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1782375956;
-	bh=354NPE8AP7arpQosrf7bkBmCMHrDGRR+bntXsxfJAlE=;
+	s=k20260515; t=1782375967;
+	bh=ogAQWFWgAEmefIFeK/00KKpXvA8UTvhOmXX+TiM8k7I=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=MsJJb3sHZ3oEe+WWbdqauiG3A/grjbCWE3PSBatzR5jqSk8ApKLBd2jzw5w3W5D17
-	 +hekyYafmG9MykvRU2MUtrs/oKrOs6ucFFeyHfTK/jFDgJUIk+7trZBsAMOuxnYgTQ
-	 AastkE0dN51nFQ9S2/vvGOhXlCf0P3NActSFXGL1HZ3EvUDs4pSBXXL80AG85MNcFO
-	 Whcdb8aepTzwL8n+jWoHh4/qVNKR3PLUC/K/P+SY0q5B2+O1rzSH2/TduXT/iL89AV
-	 FGyq7bqphopLnkjTViC4Ttvrh2nN1Q8bOO+8NUmW63FZf+CglFast3QzSePTRl8iJf
-	 FICwm5qESN84w==
+	b=n4AwCQrbV+OQCQokPZg1Ct+t7bfVK1nA51j0TEDMNAzAg5ly9TKHcsMLk8XTgag8b
+	 TFIWRGAdvr11iH89t7ouqGoLhcxEULlcB7YEaiBhVpDkaCz4wJ4c/qh4gbEWLTiKWz
+	 i56GO7uUEFwkQ+vVYi0uXC2CrhG2T15gL7dtJEn08CG9OT/mGE5XDP7LeTMFdoHjy+
+	 wBRI4yNTXSIHQ8aOKgxBrE6a99zZLNwINadE6j10U01YhQJ69Huyj5fbVCXUU/ZcWX
+	 ih45SeoitABKwtdb/oyTQBoPIFfOycFFeO2BiGlL/OeQ+RPeekzvkbNb/IG/18cw66
+	 M0u6/UuIG9F0g==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v9 4/7] input: keyboard: Add driver for ASUS Transformer
- dock multimedia keys
+Subject: Re: [PATCH v9 2/7] mfd: Add driver for ASUS Transformer embedded
+ controller
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Svyatoslav Ryhel" <clamor95@gmail.com>
-Cc: robh@kernel.org, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, lee@kernel.org, devicetree@vger.kernel.org, conor+dt@kernel.org, linux-leds@vger.kernel.org
-In-Reply-To: <20260625081529.22447-5-clamor95@gmail.com>
+Cc: conor+dt@kernel.org, lee@kernel.org, linux-input@vger.kernel.org, devicetree@vger.kernel.org, robh@kernel.org, linux-leds@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20260625081529.22447-3-clamor95@gmail.com>
 References: <20260625081529.22447-1-clamor95@gmail.com>
- <20260625081529.22447-5-clamor95@gmail.com>
+ <20260625081529.22447-3-clamor95@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 25 Jun 2026 08:25:56 +0000
-Message-Id: <20260625082556.65EAA1F000E9@smtp.kernel.org>
+Date: Thu, 25 Jun 2026 08:26:06 +0000
+Message-Id: <20260625082607.512B21F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
-- [Medium] Explicitly calling `input_unregister_device()` on a device alloc=
-ated with `devm_input_allocate_device()`.
---
+> From: Micha=C5=82 Miros=C5=82aw <mirq-linux@rere.qmqm.pl>
+>=20
+> Support Nuvoton NPCE795-based ECs as used in Asus Transformer TF201,
+> TF300T, TF300TG, TF300TL and TF700T pad and dock, as well as TF101 dock
+> and TF600T, P1801-T and TF701T pad. This is a glue driver handling
+> detection and common operations for EC's functions.
+>=20
+> Co-developed-by: Svyatoslav Ryhel <clamor95@gmail.com>
+> Signed-off-by: Svyatoslav Ryhel <clamor95@gmail.com>
+> Signed-off-by: Micha=C5=82 Miros=C5=82aw <mirq-linux@rere.qmqm.pl>
 
-commit b1b4cf8c044b790c2019bf0bb44a52ad2de52358
-Author: Micha=C5=82 Miros=C5=82aw <mirq-linux@rere.qmqm.pl>
-
-input: keyboard: Add driver for ASUS Transformer dock multimedia keys
-
-This patch adds support for the multimedia top button row of the ASUS
-Transformer's Mobile Dock keyboard. It tracks keyboard input events for
-AltGr presses to switch to multimedia keys.
-
-> diff --git a/drivers/input/keyboard/asus-transformer-ec-keys.c b/drivers/=
-input/keyboard/asus-transformer-ec-keys.c
-> new file mode 100644
-> index 0000000000000..53aff3ce7146d
-> --- /dev/null
-> +++ b/drivers/input/keyboard/asus-transformer-ec-keys.c
-
-[ ... ]
-
-> +static int asus_ec_keys_probe(struct platform_device *pdev)
-> +{
-> +	struct i2c_client *parent =3D to_i2c_client(pdev->dev.parent);
-> +	struct asusec_core *ec =3D dev_get_drvdata(pdev->dev.parent);
-> +	struct device *dev =3D &pdev->dev;
-> +	struct asus_ec_keys_data *priv;
-> +	int error;
-> +
-> +	priv =3D devm_kzalloc(dev, sizeof(*priv), GFP_KERNEL);
-> +	if (!priv)
-> +		return -ENOMEM;
-> +
-> +	platform_set_drvdata(pdev, priv);
-> +	priv->ec =3D ec;
-> +
-> +	priv->xidev =3D devm_input_allocate_device(dev);
-
-[ ... ]
-
-> +	error =3D input_register_device(priv->xidev);
-> +	if (error)
-> +		return dev_err_probe(dev, error,
-> +				     "failed to register extension keys\n");
-> +
-> +	error =3D asus_ec_keys_register_handler(dev, priv);
-> +	if (error) {
-> +		input_unregister_device(priv->xidev);
-
-[Severity: Medium]
-Since priv->xidev is allocated with devm_input_allocate_device() earlier in
-asus_ec_keys_probe(), does explicitly calling input_unregister_device()
-here in the error path lead to a double-unregistration when the managed API
-automatic cleanup triggers?
-
-> +		return error;
-> +	}
-> +
-> +	priv->nb.notifier_call =3D asus_ec_keys_notify;
-> +
-> +	error =3D blocking_notifier_chain_register(&ec->notify_list, &priv->nb);
-> +	if (error) {
-> +		input_unregister_device(priv->xidev);
-
-[Severity: Medium]
-Could manually unregistering the devm-managed input device here in the
-notifier registration error path similarly cause a double-unregistration?
-
-> +		input_unregister_handler(&priv->input_handler);
-> +		return error;
-> +	}
-> +
-> +	return 0;
-> +}
-> +
-> +static void asus_ec_keys_remove(struct platform_device *pdev)
-> +{
-> +	struct asus_ec_keys_data *priv =3D platform_get_drvdata(pdev);
-> +	struct asusec_core *ec =3D priv->ec;
-> +
-> +	blocking_notifier_chain_unregister(&ec->notify_list, &priv->nb);
-> +	input_unregister_handler(&priv->input_handler);
-> +	input_unregister_device(priv->xidev);
-
-[Severity: Medium]
-Does bypassing the automatic devm lifecycle by explicitly calling
-input_unregister_device() in asus_ec_keys_remove() on a managed device lead
-to double-unregistration when the device is unbound?
-
-> +}
+Sashiko has reviewed this patch and found no issues. It looks great!
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260625081529.2244=
-7-1-clamor95@gmail.com?part=3D4
+7-1-clamor95@gmail.com?part=3D2
+

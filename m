@@ -1,216 +1,159 @@
-Received: from mail-yx1-f53.google.com (mail-yx1-f53.google.com [74.125.224.53])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8F4132517AF
-	for <linux-input@vger.kernel.org>; Wed, 24 Jun 2026 22:41:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.224.53
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782340904; cv=pass; b=KRTa3F9bT5Jy4xxPYDId0jivVD3d0ktQBKsvHnSieZEHpw94JYW783YxyRtklY/HviSvbcdPsVSCXCe3qCjOiGHUnBce3BqHjwcxcZdReOdqR4Zacvhki3NO6Jw0+Nfcbww2MJxpMT3kEcDYMuyUhw3Vl4LamRqpAXdNcSY16bU=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782340904; c=relaxed/simple;
-	bh=lGJ2gfHSnw57MpbofjpuTPtD42d8yiISwF4In2IuKDk=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=I6NeDf8BMQRvmIfKKDpaYWncSrVBmmJiUruExFxZiI86MXrIdEotY8XuImw6j3Pw/2gjyEd+BY33LbavV8jsxGbQDUwVYN3GedWhJ6SEiMqtgyMix0VQ3FA5InrPqh1JMYABNVVzQ97x3H4HDhRv9IoYEc3Cq+WoJJRuJn23zl8=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=dW2p/xDn; arc=pass smtp.client-ip=74.125.224.53
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E2172372EC2
+	for <linux-input@vger.kernel.org>; Thu, 25 Jun 2026 01:41:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.180.131
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1782351673; cv=none; b=DnqZENx9YxnpfVAgWb7nyr4em1HjdBLS5MBJAyoZJrxfZ/WTNrn+YCl3OdNBrvPlTRCGEVSLDgN8qVFMjC6nYY/eTl7N6ya1p7mUHa0hFd+gW0mR4qcGSQw9tn/AuIWwgSr0fEpXbnA/Sm7qxNe2viYLyH9efOrSLyPaMHAwl5k=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1782351673; c=relaxed/simple;
+	bh=lEH/0FVTYKey35oWiIRJMOOR4UYB4BRjSlE4Qwc0ta8=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=aGJk4q39t13GUeoV9dFs6pagvM8wL4ldpjzUMCKCS9wXIbd81gRW3vCncGg8QvsC+3EyxBO4zOz30/JVRtdb8k64ifoE3CZauxrmELVbsFJqaCt0Uo7EEHuVMmojvqZo+TFZtLU48esm3L7UKTyazp2qBCTr2Gnbvp5Adfr3aVc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=maaJc0gp; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=hs3XCP+B; arc=none smtp.client-ip=205.220.180.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="dW2p/xDn"
-Received: by mail-yx1-f53.google.com with SMTP id 956f58d0204a3-662d484ff3bso1612907d50.1
-        for <linux-input@vger.kernel.org>; Wed, 24 Jun 2026 15:41:41 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1782340900; cv=none;
-        d=google.com; s=arc-20240605;
-        b=aGdHgd4lR4HwEPQIJuKTg+nE8c6SS1IdJUpLcXBPQcxTCgTCrK2yu888z4CJG2k15h
-         KDEkrToTRQroVAzjRU9wLsji4H+bfTPCVdxpB0Rrs9zhbabbkSdU10RW0yWHn9on1+vc
-         vlFOBLkf0oxXNfu9RJbwLWNPpkS0XHf7xCbcbzz3Ub8pqTgmTWgQUx3C2j/PWoN39zai
-         +kSCgOVAWcRW8clIcQ6qUNEE9w9LC80UDcqZVCSGTwW9ocjOmIr7NfZgtgmAs+yrPm7O
-         CQkXlpRE0U0lWp3uW4MnNN0g9vFdIl7bzvMVV8Gfn5C896nnKUSkom04/IujnVpc9afX
-         aNZg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=y1uYuwI5UQMrf4FOORVNSBAqq2rAsy2aYavTdYoUa1c=;
-        fh=/X37NMGJuGV1fvx9euliAs/QCHvyVyiXUAvz4jqoFpE=;
-        b=Jt6MJz68MmiITS0tO/5PU/8xZFFWZrdn1V64H9yzSNy8O7B0l1B5Kms+LMoV4GvykJ
-         srvnRHtadDr4e1b2pOgegSg+SsvX0PpeRXb3cK2d/gEn9LdnicxmgDIxUobgIwSTHyzM
-         +UrzOwTU67WWeO2FG2GdA9gWUPmciAc9ASQ5FG82nez1lT0USm1IUBgkoOPn6BX54kGT
-         qU5Rf1p4uvkNs5CCSPyV4EIjglb9DnYFkDJ+dax8sYOscuVl2i+MR3WF9g5ZX0YcPy19
-         XK9ZwOlVqYIRkRx61pYJiKrgT1COMQvZAQzS8jgoudcSnSYqtt7ccgVky7t1FNUtltCY
-         gzOg==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="maaJc0gp";
+	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="hs3XCP+B"
+Received: from pps.filterd (m0279869.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 65OLqLok486364
+	for <linux-input@vger.kernel.org>; Thu, 25 Jun 2026 01:41:11 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
+	cc:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
+	l2IoxnuDNAwtIVygEfamkJMcz5ltQTuXoulZAxcflDI=; b=maaJc0gpDeT/uRtu
+	1ZbDSakquHwFQPTLlZTrriiTb0oELBSIJb15sNhTZIAI0UhN+NG5s3LnGIa4UNWp
+	eEJVb+atgNPeY4GOpdQEMrJCvNhGL29DoRUxudF+MEscCdfPYZknc0DTySttkR3r
+	1IqUqQz1rY4fsgNh1JtEuxDQOTBWjt2CFmJvLdVMzQuAyT9187/RyIWb2Aeg8oJu
+	ziBEhiofkgdhzvd7ZLAfS1agCQo2GcwOU7Bz2Y/czSYB/74WB1SmwvousdJw8xOk
+	fStwj1Tn2dr8aHDZetfq9Eqcm8gyTvDt1luXERGlA6FinG/8RVD4idRzLimZKIXg
+	AvwY6Q==
+Received: from mail-pl1-f197.google.com (mail-pl1-f197.google.com [209.85.214.197])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4f0996m8u9-1
+	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
+	for <linux-input@vger.kernel.org>; Thu, 25 Jun 2026 01:41:10 +0000 (GMT)
+Received: by mail-pl1-f197.google.com with SMTP id d9443c01a7336-2c6a9bbcc53so15997185ad.2
+        for <linux-input@vger.kernel.org>; Wed, 24 Jun 2026 18:41:10 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1782340900; x=1782945700; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=y1uYuwI5UQMrf4FOORVNSBAqq2rAsy2aYavTdYoUa1c=;
-        b=dW2p/xDnzbQ9mbLScYUzd7PnKSNpkJESeKG924BUrn1jmL+ljc7KtHQWWvBud+Ewcg
-         unlN6D3NkMo2vpwQG5L2TCvgRJzsO2lmtdfD0rVsnr9yaCzHyM9hjE7qEHNZb7IWmAFY
-         EEBzWBepqhknWSDvwRVluuvBYEoTbWoyNNNHE=
+        d=oss.qualcomm.com; s=google; t=1782351670; x=1782956470; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=l2IoxnuDNAwtIVygEfamkJMcz5ltQTuXoulZAxcflDI=;
+        b=hs3XCP+BTqwFx11Pnkq7XaZLLF+XDegoPOLJY7BpNsleOrZbDgxWrEVZT+AUiFpMWM
+         LA6pDDGva2ofkMeSE9SUSogpyAbdxYfiRnpLIuXWlpabz5wkHWxWrPlQ8ODGBeyq98zh
+         x/a6OvbJ/ojTQY9gP+MxDnOSuUKfwQuOE2LUkiMuN9FZdU/Af8+hoih/p16rR7PYhrma
+         DdvImyhga9i069L/NUnkO5BLWuh1hdIAZN99cTSMiCztTgCP/tNLD43wXwDrE+T1UIZV
+         XiyFW2DRgQ8jX8E9mZmlCsf2P06W5kDtaoCzZ3N07ohzTDquPp0+HuMxiZwoy3cxvtVx
+         jWRA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1782340900; x=1782945700;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=y1uYuwI5UQMrf4FOORVNSBAqq2rAsy2aYavTdYoUa1c=;
-        b=TRX01LOWY9H34sS8GrHIbhjzxpS1D57NK2iAggNxwGUFFiuFEh/rLwZ0BiXOmYhenJ
-         zWVebkF0NBDWkMSY9orI4QO2kvl/kp8g9PwyS4NXCicvWwUofDY3AdNemAjIsXiAgEIx
-         egPyrxzz65k8utjWTlJrXHKdCzvpvvH9TseuNdDOV6HOdXNQGd9yPeMoJlLX7xJ0wTwX
-         3ubHYsYgaGq23/vLucoysWtC1v+DCaeXDNeNj9zK1NFzOQIz1diqcxYNlZup53xiJKmI
-         l7O3VIsD3lgzwpACMdsqVMomPIdru91Ea7Qbi6oKRLEMbUFA65n4XByO1qahPUi88g59
-         sg7g==
-X-Forwarded-Encrypted: i=1; AHgh+RqCblIVEtH7oQ08EFaOLs1e4/8S8RLwRp9J2grMPa9aImIeTNUl+1CJCkiS+RnQUuObl/UGm8Y1dcci2A==@vger.kernel.org
-X-Gm-Message-State: AOJu0YygezL/a8BC1UBw+74rxOKInTLSi9KVgXHXP17iDBHlhx6q4du/
-	ipAvudQ91E9BEEYnoIWNJOS+kJ8fwXBBE0bgT2yu4B3Unvo6x6D8sSu9VhDnn6rWex7cJmiw/Ou
-	625sqEp+PBXacEuGMaeiDJDBIvOjhWWwyO0iWVtciAGcTOsL16o4FxrYh
-X-Gm-Gg: AfdE7cnHWU8TJmcghqT3fv2V/i/JneakGcIX1RdTCU1nluc8BV3p6rqDJGKr0U3v9jf
-	IUj1NjCIVYiE5A0UxL8RIFwUJzS7/4OjkLVr3CEKtpdijWdxYWHT8Rk+E5PZbkCEY9HZx7JVBMd
-	cvjLV8/N1AKlO7kZmV8jtnfd1KOVfdVptYS4k64xv409umq5zVh+McZU3HJe3PkSxp8MYcejkjX
-	CLSRYBmWLNLhxIXw8TPbwmeILl/K3s40L3Qh6D8tEA8w8YdtBET3GHBoxDHUHnL3etaoRDQaLm4
-	n0oMCq2oEJRFNOT/FFL8n/JRTg==
-X-Received: by 2002:a05:690e:13c6:b0:65d:7d86:7758 with SMTP id
- 956f58d0204a3-6636e4fd15dmr4910430d50.59.1782340900600; Wed, 24 Jun 2026
- 15:41:40 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1782351670; x=1782956470;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=l2IoxnuDNAwtIVygEfamkJMcz5ltQTuXoulZAxcflDI=;
+        b=scdvwQRckaNoIM9LpGpGHZ6OoF7mwfP9pIjiZzUfX4LIOYjaY361eQT6Z4IBvNa0V8
+         /AvLUXtZxxDnSJ5YQeqwHRtcL+LTqLFQNKNnuV2VSptM6tgm34ijd6yhHFeEf4VqdjMp
+         s878Z/5kDCvlID8XWpPYJ7HYqUER7KuKxtztzYSFOmL50wayd6vAzps38N1j4Ko36K4s
+         PdWLyJEe6je12M8D3o6yheA9BlOJYG5pA75nNKUp8kQFRqWHPCgMAThuMfeL4pxNo1Gg
+         mttR5C9w5fHNEWmgr/Iv43gjN6dQoVnmwQBiIbq5mHNU3S0KJ0o8FIOYkBA24mhCN+Ld
+         Mu5Q==
+X-Forwarded-Encrypted: i=1; AHgh+Ro2SU/O3/jARd5xpzacb+KrAf324Dcq4YmH9QbUsRXHLU8VC6ZCJ5kju/C2/9UxLY+/dS9zZzEnSsKE3w==@vger.kernel.org
+X-Gm-Message-State: AOJu0YzIU8TCv+ohsVpRTFfNYVqGLvzCSZoqdvgFKlnQuxLgswFH/cIA
+	tVcA/aiBUvkEVvKgtOmA0JM9eMFCcBdsHBLW1Kvs8BZTZHyDmvxqw0g5UGwBs4kA5bss0v3Hfy7
+	6gbaarWu7bJP/PbCZP1xBCBB9tjW4DqWrOnapdUKuH0lzUKM6s+AZl3JfhH4G9qkd7w==
+X-Gm-Gg: AfdE7ckSZWaE5KCgB1/9Tr+KXVel5s/NL5JsElIdjhQxMh8yOoUZfhcrDkFMLOn5bc+
+	OotMsGXNrq6A4JgU6hLUMFclwI+sLxBnUVXPrBG/GPWyCL+rcwcIOQP/pAayykZGWT5z3BxM1Sq
+	2vjzu0DcEtGC0Wi5s+8qmBDTmsa1oPC/JaKyPufdScVTP+3Olag1IJ96ZbRqWpxlBlIrED2GSr/
+	r24AKWfBM2HXytsiloqkpbNypbcwwKAZR9vahM2yLDGYsXbhkppV933K7niTmbU/D7IZ8XL8hl1
+	aOexjLmmBmlqHFE31G7YWywYWj7RvHX4+Bc2GQPxiGVKrD9GulxWVwtUsnwz/1oJDNMwqz1PwxF
+	xejwlDo4qxBHFxlmwZf6+/bmrufGk2A1TQmt4
+X-Received: by 2002:a17:902:ef03:b0:2bf:7b62:a038 with SMTP id d9443c01a7336-2c7fc88e6d8mr5510105ad.9.1782351669901;
+        Wed, 24 Jun 2026 18:41:09 -0700 (PDT)
+X-Received: by 2002:a17:902:ef03:b0:2bf:7b62:a038 with SMTP id d9443c01a7336-2c7fc88e6d8mr5509835ad.9.1782351669439;
+        Wed, 24 Jun 2026 18:41:09 -0700 (PDT)
+Received: from [10.239.155.28] ([114.94.8.21])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2c7f5ae7a7csm8373935ad.22.2026.06.24.18.41.04
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 24 Jun 2026 18:41:08 -0700 (PDT)
+Message-ID: <36043887-6bbd-4b2d-941c-bf222786b80d@oss.qualcomm.com>
+Date: Thu, 25 Jun 2026 09:41:02 +0800
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260609-send-upstream-v4-3-b843d5e6ced3@chromium.org> <20260609045604.44FE71F00893@smtp.kernel.org>
-In-Reply-To: <20260609045604.44FE71F00893@smtp.kernel.org>
-From: Jingyuan Liang <jingyliang@chromium.org>
-Date: Wed, 24 Jun 2026 15:41:29 -0700
-X-Gm-Features: AVVi8CcTKZzbbZlWyreRB8uD4ucjtFXbjur0kDwQgo7E4rh-_3tMMR2pon7swuI
-Message-ID: <CAEe3GZFVuy_Y-qHtXtdiZkoQk3vK357ZnJO2A_1WroQASSbs8g@mail.gmail.com>
-Subject: Re: [PATCH v4 03/11] HID: spi-hid: add transport driver skeleton for
- HID over SPI bus
-To: sashiko-reviews@lists.linux.dev
-Cc: robh@kernel.org, conor+dt@kernel.org, devicetree@vger.kernel.org, 
-	dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 0/4] input: misc: Add an initial driver for haptics inside
+ Qcom PMIH010x PMIC
+To: Krzysztof Kozlowski <krzk@kernel.org>
+Cc: linux-arm-msm@vger.kernel.org,
+        Dmitry Torokhov
+ <dmitry.torokhov@gmail.com>,
+        Rob Herring <robh@kernel.org>,
+        Krzysztof Kozlowski <krzk+dt@kernel.org>,
+        Conor Dooley
+ <conor+dt@kernel.org>, Lee Jones <lee@kernel.org>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Bjorn Andersson <andersson@kernel.org>,
+        Konrad Dybcio <konradybcio@kernel.org>,
+        David Collins <david.collins@oss.qualcomm.com>,
+        Subbaraman Narayanamurthy <subbaraman.narayanamurthy@oss.qualcomm.com>,
+        Kamal Wadhwa <kamal.wadhwa@oss.qualcomm.com>, kernel@oss.qualcomm.com,
+        linux-input@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+References: <20260616-qcom-spmi-haptics-v1-0-d24e422de6b4@oss.qualcomm.com>
+ <20260617-spry-greedy-chital-1276e0@quoll>
+ <be2b54a5-ce9d-49a2-80e1-60da874350d9@oss.qualcomm.com>
+ <4ba2eeed-71f8-4799-b261-e4e2c268043e@kernel.org>
+Content-Language: en-US
+From: Fenglin Wu <fenglin.wu@oss.qualcomm.com>
+In-Reply-To: <4ba2eeed-71f8-4799-b261-e4e2c268043e@kernel.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Proofpoint-GUID: t81B2eT50O1W58L9L0TLxHkX9JEfj2vl
+X-Proofpoint-ORIG-GUID: t81B2eT50O1W58L9L0TLxHkX9JEfj2vl
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNjI1MDAxMiBTYWx0ZWRfX7NVJ/g0aEKib
+ /+VnvnlrQjBx7LYYL2+sPpU1Eb3aBc96leYRySsvRuq4NhYgXgmld+JUyCRpQhUReaOEUb2axg2
+ PP04HupjORG5zfnxar7h/WB/0U3zAwQ=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjI1MDAxMiBTYWx0ZWRfX9Q9aV07YpmmO
+ s93YEDmeuntdgaZa2sbVKdJddgCckXx1pAo3FnFTM5SIC4/mcydqpBNsrMM8qie5rq+N1zKfBlt
+ /XaL9dsXODbWsh7ik5Yuwd8lk8gcVsEHkuArzInaHziw6b6C2PIKyvMdGHWoJ/9NyR3ucyaBo4o
+ bcm7ddFrZzfQz3cgjmtXEx/vlcX/SRV88SmGpZ9m6MUNRLPBV0BXio+f26/KyjkJnvjK+/IjfIt
+ RbL2Up94ElEAOEMvHuC95l5Qz3KoPCn0Pb0OEUJ/S7gqWmnN4cT7Hr0/vPKDoxVKweGR4Zpe70N
+ NI+L6/nTOaEA7zvXXh0MC3ynxRGaCeOWR2cW4HU5NFmQghvJTVuGexB+CZCvw62mAvyLFldup9e
+ cMwckQf15kdf4udh1ciO2Oa/Cj42soQP17Gf2X28XVirpez25nSjr182wYvlAETF4ZBNXJGUio6
+ yv4MLerInPPZ9Bg/JDg==
+X-Authority-Analysis: v=2.4 cv=Tv/WQjXh c=1 sm=1 tr=0 ts=6a3c8736 cx=c_pps
+ a=cmESyDAEBpBGqyK7t0alAg==:117 a=Uz3yg00KUFJ2y2WijEJ4bw==:17
+ a=IkcTkHD0fZMA:10 a=FelO9ux0wxsA:10 a=s4-Qcg_JpJYA:10
+ a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22 a=_glEPmIy2e8OvE2BGh3C:22
+ a=miLeENm1gDbChLBegJYA:9 a=QEXdDO2ut3YA:10 a=1OuFwYUASf3TG4hYMiVC:22
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
+ definitions=2026-06-24_04,2026-06-24_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ priorityscore=1501 suspectscore=0 clxscore=1015 bulkscore=0 adultscore=0
+ lowpriorityscore=0 impostorscore=0 spamscore=0 malwarescore=0 phishscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2606250012
 
-On Mon, Jun 8, 2026 at 9:56=E2=80=AFPM <sashiko-bot@kernel.org> wrote:
->
-> Thank you for your contribution! Sashiko AI review found 2 potential issu=
-e(s) to consider:
-> - [High] Embedded arrays `read_approval_header` and `read_approval_body` =
-are used for SPI DMA transfers without cacheline alignment, risking memory =
-corruption.
-> - [Medium] Unchecked return values of reset operations in `spi_hid_dev_in=
-it` and `spi_hid_resume`
-> --
->
-> commit ea35a3a23739acaca367a8d250ef25c96d22df36
-> Author: Angela Czubak <acz@semihalf.com>
->
-> HID: spi-hid: add transport driver skeleton for HID over SPI bus
->
-> Create spi-hid folder and add Kconfig and Makefile for spi-hid driver.
-> Add basic device structure, definitions, and probe/remove functions.
->
-> > diff --git a/drivers/hid/spi-hid/spi-hid-core.c b/drivers/hid/spi-hid/s=
-pi-hid-core.c
-> > new file mode 100644
-> > index 0000000000000..02a7608c4b882
-> > --- /dev/null
-> > +++ b/drivers/hid/spi-hid/spi-hid-core.c
-> > @@ -0,0 +1,213 @@
->
-> [ ... ]
->
-> > +/* Driver context */
-> > +struct spi_hid {
-> > +     struct spi_device       *spi;   /* spi device. */
-> > +     struct hid_device       *hid;   /* pointer to corresponding HID d=
-ev. */
-> > +
-> > +     struct spihid_ops       *ops;
-> > +     struct spi_hid_conf     *conf;
-> > +
-> > +     enum hidspi_power_state power_state;
-> > +
-> > +     u32 regulator_error_count;
-> > +     int regulator_last_error;
-> > +     u32 bus_error_count;
-> > +     int bus_last_error;
-> > +     u32 dir_count;  /* device initiated reset count. */
-> > +};
->
-> [Severity: High]
-> Does embedding the read_approval_header and read_approval_body arrays dir=
-ectly
-> in this struct for SPI DMA transfers risk memory corruption?
->
-> When these buffers are passed as tx_buf to spi_sync() (e.g. in
-> spi_hid_input_sync()), they lack the ____cacheline_aligned directive. On
-> architectures with non-coherent DMA, cache maintenance operations could
-> encompass adjacent struct members.
->
-> Concurrent CPU writes to those adjacent members during the DMA mapping wi=
-ndow
-> will be destroyed, leading to memory corruption.
->
-> Should these buffers be cacheline aligned, or dynamically allocated?
 
-read_approval_header and read_approval_body arrays are not in this patch.
+On 6/24/2026 6:05 PM, Krzysztof Kozlowski wrote:
+> No. Act as maintainer. Clone Linus tree, apply the patch and see if
+> everything works. My claim is that nothing works and maintainer tree is
+> broken.
+>
+> Best regards,
+> Krzysztof
 
->
-> [ ... ]
->
-> > +int spi_hid_core_probe(struct spi_device *spi, struct spihid_ops *ops,
-> > +                    struct spi_hid_conf *conf)
-> > +{
->
-> [ ... ]
->
-> > +     /*
-> > +      * At the end of probe we initialize the device:
-> > +      *   0) assert reset, bias the interrupt line
-> > +      *   1) sleep minimal reset delay
-> > +      *   2) request IRQ
-> > +      *   3) power up the device
-> > +      *   4) deassert reset (high)
-> > +      * After this we expect an IRQ with a reset response.
-> > +      */
-> > +
-> > +     shid->ops->assert_reset(shid->ops);
-> > +
-> > +     shid->ops->sleep_minimal_reset_delay(shid->ops);
->
-> [ ... ]
->
-> > +     error =3D shid->ops->power_up(shid->ops);
-> > +     if (error) {
-> > +             dev_err(dev, "%s: could not power up\n", __func__);
-> > +             return error;
-> > +     }
-> > +
-> > +     shid->ops->deassert_reset(shid->ops);
->
-> [Severity: Medium]
-> Can hardware reset failures be masked here?
->
-> The assert_reset and deassert_reset callbacks return integer error codes.
-> However, their return values are ignored in spi_hid_core_probe() (as well=
- as
-> resume paths).
->
-> If deassert_reset() fails, the device may remain in reset, causing the dr=
-iver
-> to hang waiting for a reset response IRQ that will never arrive.
->
-> Should these return values be checked and handled?
->
-> > +
-> > +     dev_dbg(dev, "%s: d3 -> %s\n", __func__,
-> > +             spi_hid_power_mode_string(shid->power_state));
-> > +
-> > +     return 0;
-> > +}
->
-> --
-> Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260609-send-ups=
-tream-v4-0-b843d5e6ced3@chromium.org?part=3D3
+Thanks for the explanation. I just did that and I didn't see conflict 
+when applying the binding and driver changes, but I did see a conflict 
+when applying the DTS change. I will drop the DTS change 1st and resend 
+them after the driver and binding changes get accepted.
+
+

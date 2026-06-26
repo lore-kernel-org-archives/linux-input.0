@@ -1,139 +1,94 @@
-Received: from ixit.cz (ixit.cz [185.100.197.86])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-dl1-f52.google.com (mail-dl1-f52.google.com [74.125.82.52])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5221C32C923;
-	Fri, 26 Jun 2026 15:01:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.100.197.86
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BD0CF3ACA70
+	for <linux-input@vger.kernel.org>; Fri, 26 Jun 2026 18:04:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.52
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782486093; cv=none; b=n6WYMFRysxmPqzkzw+0ikGPzzW90IkMUpcYglxmmpKp0gOIE0Ob1RJz+kjNeQUMCHHGlE2kiKgQ5L6BUfYv8/rtLt3U525NQFlG9R1B3ZVaVyts0v/SJ8IlC/Wk+mxkKoT9jD+pcF8wpVXETAd8kYRbi2o3oNu2yiA6ZLGr5Zmk=
+	t=1782497093; cv=none; b=hCzaz0oJqWX6z+ZR4wlubdA8BGmmYDS/IJKzspsNJBltFI7QLRHz98R3l9iCGaPYS4PT1qq3fR5Wth5Z+kmc3SAshIfG4ste2akDS4GSUvocN29eLkVcHKfAs/PR+6lNl8qkW3ZUhwXJc8vThNh9L0S9MC2WxsUvK9eBEZKwpWQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782486093; c=relaxed/simple;
-	bh=7YIdIu2YmWv8wYM6bDoJh8Ypid2o9EiN+GVbPWYER68=;
-	h=Message-ID:Date:MIME-Version:To:From:Subject:Cc:Content-Type; b=f8ipWWbQD32JJM3AcWQe3yvvnxaZ0cWYuNEvbfrmS3XTCS1wgLGtAQNX6ixhcV8sfQ/On5BgImf7rYObXBihRg21BaOaY+Df1mHXsSabEqH0j092YbD1QdwdJ7FaklpK4UvsnEJg5mP9u9epb5HpP0rpdk9kCoe6zz1h+vRux54=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=ixit.cz; spf=pass smtp.mailfrom=ixit.cz; dkim=pass (1024-bit key) header.d=ixit.cz header.i=@ixit.cz header.b=bWxFRAbZ; arc=none smtp.client-ip=185.100.197.86
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=ixit.cz
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ixit.cz
+	s=arc-20240116; t=1782497093; c=relaxed/simple;
+	bh=z8Z1tyj67EUk3MPWIIyBdJ9mDywQyZFhUBgWKJ6O/tc=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=beIIxfMwH4FV/d4B3ChJRkWOSv4RF2vBbrpKDPf2/hmpeHTVe9w6TCgTixeQRorImujo3nv0gZPXLafGyP5/4Fo33Kr0CxZLAO0ZFL15XMpYqsfcg7Boeh3pnCUIBOjnzwANbSC0l5pkTfndPrA/XuVU/z6Rw0LYOivSbxzDin4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=DjO6SoIV; arc=none smtp.client-ip=74.125.82.52
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=ixit.cz header.i=@ixit.cz header.b="bWxFRAbZ"
-Received: from [10.0.0.200] (unknown [10.88.125.21])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by ixit.cz (Postfix) with ESMTPSA id 261C85340D28;
-	Fri, 26 Jun 2026 17:01:26 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ixit.cz; s=dkim;
-	t=1782486086;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:autocrypt:autocrypt;
-	bh=eS9Cr0idE9ftNPFvkJhlBXCojOvtJBy5GMAcWdoWzq4=;
-	b=bWxFRAbZBghMvI43kNn969SAztsfWJAuxcoBXdImoyxcUcCKg1wiTOfmjbSiZY3PFZSWOn
-	L2f2WrmDhoZU2CPkVDr+R2weZGzGgOAhsUvPX1oe2lPAT0N0mEKiy3wx5HKiAT+j9YKhDM
-	Q0jU3EhRT812msg9skS2cWzrznEEeEE=
-Message-ID: <5e71981e-6c1a-45da-b6d7-bf6a4d5cb847@ixit.cz>
-Date: Fri, 26 Jun 2026 17:01:25 +0200
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="DjO6SoIV"
+Received: by mail-dl1-f52.google.com with SMTP id a92af1059eb24-13809223fd4so1547188c88.1
+        for <linux-input@vger.kernel.org>; Fri, 26 Jun 2026 11:04:50 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1782497090; x=1783101890; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=9OkBWcuqiVi2Oi1XLIlP1/KWmn1hoQRfpnxlYVW+DUo=;
+        b=DjO6SoIVRMwfzcHDgztNS6tA7OkI26dS+7b6KgetWxgzpBUsSUGBd2X0y8CXE7fe/r
+         ZcAmbyivySHEVrAY8nERtUZSlMBOxbYhUnQ6LcoTbczxNp/3h1aeHwsiE3TNpRFNYMDV
+         3HLDENGV5WlVnQBAZT1hiQCetjifaN+xjdQ+spVBSG0ClREh/XJYakf7H/Z82MfSsyYx
+         DTr/p61gIY9GnBGa59dMwQmrSkk6Jay65mJRDAJV1bwbhZyyVVfURiZnlYWLZoU08ZqL
+         VhqmPdZYpzIBBjzr0D9NwSrTxDHI1RkqgI+ZTyXT3bKMInXBIcVdq8R/FuPd0j8OXLbu
+         e2yw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1782497090; x=1783101890;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=9OkBWcuqiVi2Oi1XLIlP1/KWmn1hoQRfpnxlYVW+DUo=;
+        b=gEzXmiHY/jwNEm4nprRjpAK4HoZH5Z0pXhZtrc7vQo0OVx7zCU3dJFbkM9nvKPwUKg
+         X+zmBdwVAAAuLS7uNqmrtg+3IHc/7nktU3pV2bm/0R+tGLMyxiRvl1TTYVx0hSFPOc8r
+         sgWKXs2TM1OLIFVV24ak3fwI8f2nwvVXcMoZmTrlZtYnAM8oh+SUCeOZubQiOTM+xYP6
+         Z8MhkUuS/IR8PfQHZRsdE6CzYpisvQXqv6X6685fajNh9IqvKHgRAoS/8/+Fqj69CxkG
+         dSH/5ysk9StHCD56nCx492m45wsPze56qzl536f3HCqKJsOR/0+eIVzQyh2jGnlUGaOS
+         o4bw==
+X-Gm-Message-State: AOJu0Yy+vyznJgg7vzaZcV1hxdJqY9NPDfGzmIUsFSOWcx6xIFBMi+Ld
+	DtS7X5FqgKVTzMBaB0TacC2IO9vO2+XH9ldrc1+aS/7JbuRHT8hJGnnf
+X-Gm-Gg: AfdE7clab1pqq6xMMCxhZUN01HKu6HbZMha9/sXEptWotEraKJ6cGwfiSAZlqnIyxa9
+	QsaqiWDH7vSE2P0WyjRlfsa2iKDMa4QwgmoGslt4zgGIdUv36e+tsyZDVdIuH8RASK7dVEbWlzn
+	SVL92Pr4Gp2FuQAAt6iyx7B567nVMU7OFls93YZdR04CvMGTmtQYYy1QkIR8hN3SAKGM0hFs/dI
+	/l89pxcknZvzcg5hYH4rBQwW/uwuMl4gpaBaPIlhbuRQBWMNbVVy0Afwh+HtriWJU6ThFosfwlg
+	G59LSJDM4prh6eAcqRESBM0KcamZ3f/E81or8ZfxM7KrAePw+ZS9MaC4EGsa/14aekLdGfBR3Zp
+	Wl2eLJBdfkVpyuza4HREQJIjV+MfCHhKCKEYD18u3QRfhP8V+gH8zrPHhNoraZulHfoHJN0F3I7
+	cP6+DeRJ/LCHDpIYYDsSkZeVdMCC3WgOuslOhKE9zIbmrmEniV1+tBHw==
+X-Received: by 2002:a05:7022:e0e:b0:139:c724:79e5 with SMTP id a92af1059eb24-139dbac7a8cmr6184561c88.35.1782497089694;
+        Fri, 26 Jun 2026 11:04:49 -0700 (PDT)
+Received: from google.com ([2a00:79e0:2ebe:8:a474:bf4a:4966:8d97])
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-139d8f318e7sm20302489c88.3.2026.06.26.11.04.48
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 26 Jun 2026 11:04:49 -0700 (PDT)
+Date: Fri, 26 Jun 2026 11:04:46 -0700
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Shashwat Agrawal <shashwatagrawal473@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Input: synaptics - enable InterTouch on Dell Inspiron
+ 3521
+Message-ID: <aj6_LZufV_eKSdaJ@google.com>
+References: <20260626130051.2574-1-shashwatagrawal473@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Content-Language: en-US
-To: linux-input@vger.kernel.org, netdev@vger.kernel.org,
- Dmitry Torokhov <dmitry.torokhov@gmail.com>,
- LKML <linux-kernel@vger.kernel.org>
-From: David Heidelberg <david@ixit.cz>
-Subject: detection and reporting of replacement and aftermarket parts
-Autocrypt: addr=david@ixit.cz; keydata=
- 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
-Cc: Petr Hodina <petr.hodina@protonmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260626130051.2574-1-shashwatagrawal473@gmail.com>
 
-Hello.
+On Fri, Jun 26, 2026 at 06:30:51PM +0530, Shashwat Agrawal wrote:
+> The Synaptics touchpad on Dell Inspiron 3521 (PNP ID DLL0597) advertises
+> InterTouch / SMBus support, but is not on the SMBus passlist, so the
+> driver falls back to PS/2 and logs a hint to try
+> psmouse.synaptics_intertouch=1.
+> 
+> Add DLL0597 to smbus_pnp_ids so InterTouch is enabled automatically on
+> this model (and other Dells that reuse the same PNP ID).
+> 
+> Hardware: Dell Inc. Inspiron 3521 (board 06RYX8, BIOS A07),
+> Synaptics fw 8.1 / board id 2382, firmware_id "PNP: DLL0597 PNP0f13".
+> 
+> Signed-off-by: Shashwat Agrawal <shashwatagrawal473@gmail.com>
 
-As we port Linux phones to the mainline kernel, we often encounter devices with 
-replaced screens (and touchscreens).
+Applied, thank you.
 
-Many these devices are replaced with original parts, but mostly in Asia markets, 
-very often replacement parts are not original, but knockoffs.
-
-I would see value in providing information via tools and/or GUI [1] to the 
-users, that parts of their phone has been replaced.
-
-There is multiple reasons, including user awareness when buying the device, or 
-developer debugging user problem being aware that device been serviced.
-
-Right now, I'm not aware any vendor (outside of Apple, which is unsupported by 
-Linux) shipping list of serial number of the components in the phone inside some 
-memory region or EEPROM.
-
-When we **can** do with information currently available, is to detect:
-  1. different chip used, than what manufacturer declared (e.g. matching the 
-model device-tree compatible property), thus implying replacement part
-  2. the chip not being fully compliant with the vendor specification, thus 
-implying non-original part
-
-This doesn't cover all cases, but could already give user and developer valuable 
-information why:
-1. component isn't fully supported (let say driver doesn't have support for this 
-variant)
-2. component misbehave, if non-original part doesn't follow specification properly
-
-I think the display/touchscreen part is most often affected, so thus why I would 
-like to start discussion here, but I think this issue apply to many other 
-components (I recall some FTDI discussions long time ago)
-
-In the end, would be nice to have devlink-info-like [2] reporting in the input 
-subsystem extended by not only reporting on-device / in-memory firmware, but 
-also the driver reporting non-complaint non-original replacements (Cc: netdev).
-
-I'm very interested in feedback or/and ideas how this situations can be handled.
-
-Thank you
-David
-
-[1] https://support.apple.com/en-us/102658
-[2] https://docs.kernel.org/networking/devlink/devlink-info.html
+-- 
+Dmitry

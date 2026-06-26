@@ -1,224 +1,165 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-dy1-f179.google.com (mail-dy1-f179.google.com [74.125.82.179])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 54B1C3E3C68;
-	Fri, 26 Jun 2026 07:42:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782459742; cv=none; b=oK4F4zcRe2Y91UkR5I8i07YQ+KWKQvCGP2sUt3Q6B6h+6UCNZLn9SNj6Rj8dG1MqLAzDP6s+FMXp/PajUhPEXBZWb3TDiAk4wk9Cr9HCfcXa4W+m1v88Q3jVIreq/TnhU412QyC247jRZDVzANKEECgBBoP5DHbPWYVLMmajISA=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782459742; c=relaxed/simple;
-	bh=/9bJzCLXu+XRWRNZvRgGOcrm76MKLAlFsEhJkA0NLp0=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=kyhcQ5DZZ2AIg2CT0R4SucdiIPyF7FvQws+U/DpOiHN83UsJNHn24lMKAjD6smBUqqXuxATZoU/c1i1fhmFITT/dlOkGYV9wRKlRsANejMYwYLt6UcpbiG53MOGMoPCVP+4dE1qBkyEWBnVK1YeCp7FvHW3VgnTdjRRiHIBA/AQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=OoQCFvDp; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A13193DC4D0
+	for <linux-input@vger.kernel.org>; Fri, 26 Jun 2026 07:45:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.82.179
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1782459935; cv=pass; b=SeKhBzgj7MSSRHKy6uvnoeDncl/HqjHV5pEJNHOWdHZ+5GF2j11uN3gl9YeAJj95k3ZqtSOB4sjEHlKqa4MiEgRqMm2hVyy4jhBzSX2xYxIAeakmIYHTXCmKQO3qJjtMhZ+Z/MrQCtDRnmmmvIYhMXDsrziimuBgaTZLBzubWIE=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1782459935; c=relaxed/simple;
+	bh=ge+ySkSvSTzpeQ1S1iz53f9gihYI4+PsNWb353vU1hk=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=MrEWtyyYPL1l7lAJ9qqUm/BUU3cv2ttxKee/IfS8QyYs6V/QHOi7aCaAO/Z8e187vxFyRtQR4zyHPWizRTL++eEHNZ5an0VdHEyIGiGb4uvaYcUYM3qfd0W/VMhjf8YjBbPtvGPP7l4mXNC/AdWZkngNX1ZOLDp9yb+FlTfjZ54=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=jxfAayX7; arc=pass smtp.client-ip=74.125.82.179
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="OoQCFvDp"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A29E1F000E9;
-	Fri, 26 Jun 2026 07:42:16 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1782459741;
-	bh=etYENOeSZId+ruwOU1toe2ZhPkwps93/WrI7AqM4gz8=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=OoQCFvDpvxlup1UMU6B1GZC/J+bKGycENqNE3EFhgcwOCVlerqtANzW4Oa+p6tRKN
-	 QAtDbcwFDFnbbZuo2u63qW0RaCEOg9l3eSbJVKRzfAg1XHGLIrDKru27/766ikyNfO
-	 Zv8J3tg8EtvGLRQU48YfuUy6pv+Htu7ucmkrhCkoDRuCWJo/CP0lj53As4YUlbIbsr
-	 9A89rtFXVSm+TlJRLvM7pZg+OOFR3tnL3gIhNMOQFWHAxfGoqFo9vg4wtcSc0WURtT
-	 4IoCR9TJeoOBzGTpU56kw3ZazeTKGhzugONO6XIpBT6NOSxyFNWLxNxKY+cUZQlJNH
-	 hvy6RnqopDwFQ==
-Message-ID: <001abe91-5b9a-4d8b-a52a-fff1b1558ba4@kernel.org>
-Date: Fri, 26 Jun 2026 09:42:13 +0200
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jxfAayX7"
+Received: by mail-dy1-f179.google.com with SMTP id 5a478bee46e88-30c99ccb1afso640943eec.1
+        for <linux-input@vger.kernel.org>; Fri, 26 Jun 2026 00:45:32 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1782459932; cv=none;
+        d=google.com; s=arc-20260327;
+        b=g9R2GUNvcvdUwnUCr6lXNuoSdBDY0143yYc8sBa8aUPq4rpPsgekgwTW4MNcrueoHm
+         q/Uw9fw7HBiRWDft0iXjtp5NrvoqRqdyxNM6vB5NgIbjt46R/9F+lSprs9aD3yJjXqCS
+         5gz6TBOjDoIiATM9pftlCGTK5whGYUOoF+V0CxOFDGnH8eWv96sDz+uC9dzOCNnvMCgT
+         YJQIZBOCX++LjA51rpGB5u4k+UU/z5BpdQidNPsjr/qKZyD+7ywvjqAnQAZOXiFmP9JC
+         wnyj2ybvpNtvlVrMQwGcKo0SwPv/L8oUA/6n+DdFyjg+SNRLNNoiOW7nOBbp+IFd408W
+         rcJQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=hSE+T8Vd1MLikSGDmSCJ4AKkeGzaDcArm4bG+QIsXTg=;
+        fh=tq/O9CLE4kQZ/pldVqi8lXjscQM5vRvqMIz1HWhrQoo=;
+        b=rx+6XCAfimB+8rYI9Sa+4RiNtgCQo+tLuHNtt3eyo103LJVSaCTSPLsqW2V87cvNLz
+         pm4VBeFh6+QUHC1fSDR1lMgmV1TIyL1mGNqd6YPhLMG3zG7eUpaRzp2bFVQeoIrgbL+6
+         r7P546C0p5bJVPqLDhnUlN7YhZhcRNJ82R46Pt3mgka/b0kaicspdon0izFmt8qN9HBp
+         r5Y8vZG1TFNhS9V4vOxof6nS7ycXArujodrGl7isMWJR76ZXKToen57owFBUiFqtV27Z
+         ITup3T2kZ/QQusPUvTGg/ylY7dlx/5ZRkQSxJK7+1uvDx/oNaA4uVA7q4S7JIz5PlpyY
+         XhKQ==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1782459932; x=1783064732; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=hSE+T8Vd1MLikSGDmSCJ4AKkeGzaDcArm4bG+QIsXTg=;
+        b=jxfAayX7c7L53/cL2q8lINv/3hCoh0beRvAv3+2rHLLvkUwNCT+IVtzruSc83kCWvv
+         DJNs/2YuCAl7dC3tb4hIHh5/BayzqCvwcG1PLYs/bAB1ndhpXrOCC3UMKb76bLJti3QP
+         CrjUPOS3QDUJSLnDLMfBLMPvy1XwZ9XWu9LnILMRLY0bQ3aRdCATAdgNZYwO+cxSWtgl
+         iHw+rYwaQYV0uHECkHeazUngxT4G3bXPoueAsmejtMt/kQlnJ/f42BWESZPstf01qMRh
+         378FEhUrD0b7/c4iIO9x44svzmqC6BZWTcrUkiu8Rij0xF5RTYtUAzO9oOf4cGEM9BHr
+         xZOg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1782459932; x=1783064732;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=hSE+T8Vd1MLikSGDmSCJ4AKkeGzaDcArm4bG+QIsXTg=;
+        b=ilpuTcKamm+Xw83cxNomDXXhd6KOoumXDUSQgJqICNlMn6CjBfpJj8DlkwIR5YwDZR
+         ZUzG7PN9tqH3PnNWBj7d6kjXZRgTh+JfCLOiTcvUl/mxZ5aL8Q17x/qwqLjpP5AAql7X
+         OdYEJiE7BrusSp4bciaIYa4Obj0CbcpYsjhQ1wqIgiZEayzmXtyjooNGk8bDizbWlbIe
+         kBrhqvT1/5OHJZR/dtk7OyYfwrCzp5xuP37BbalcfzkDIC4z6P+nk/3/+SmvOIU+XYQz
+         a4KjdN7UL4ceQtgRoSRkkg6D449BRjwH1EQmyo6yQQ/Zx620e8jK3MpRkBYLKlpYZBAo
+         0g7w==
+X-Forwarded-Encrypted: i=1; AHgh+RoZQkAUGWEGykZM4eqKz6eHaLRoYiNmBbk4AVQm3/Cz3fZjW3KjbCNJr+qo47UG73BSSZSS5ODyIeBvGw==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yxj+CikYS7NIncqWzl2W+2JmS8VZDx9LGqi3nOKfj21n61tiTKD
+	NhXbdJLC8NZ3t4N5Ztb6nQl83YLuVq2vMW72WL0d5+8xN2zjQbiHS8Onwu9I+7P2nKdlTrCImWz
+	1gwEbhbf7P2SIxTUNZSATKpgjOwK7XVM=
+X-Gm-Gg: AfdE7ckvJifxuCpZqibeMzdtBIMTUzsOdP7VmzyaZS72v8pclhzryq0Vye5n0TYy2iY
+	t15DU+OFLJ3PCiKaYpNSCiEr6aY+/ouqmJ1JmuJ02/uGDYb58F9gu1vLlK9RjHZnzkmd5Q4b7U4
+	jOSxeIYctoGQWDubidafhTwUj3gDSebsLxhYjDBcIeCOW5f51tJAXV+K0WhZXsX3kLB0ptJ91Z0
+	XFR5M7a+eXJSxxXAVSIJ9SOULx2YvvNpcPybY9Pl+YfoHN47I13IsUxAZIDZ4kM7dKWff3gBksA
+	jqSV/QFzhDXhzFoa6zLUm088YP1UzA==
+X-Received: by 2002:a05:7300:d08:b0:304:ccdd:594a with SMTP id
+ 5a478bee46e88-30c84d12a7cmr5988818eec.5.1782459931718; Fri, 26 Jun 2026
+ 00:45:31 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 2/2] arm64: dts: qcom: sdm845-oneplus: Update
- compatible to include model
+References: <20260617070528.35006-1-clamor95@gmail.com> <20260617070528.35006-3-clamor95@gmail.com>
+ <aj28fvj34b4_VI3k@google.com>
+In-Reply-To: <aj28fvj34b4_VI3k@google.com>
+From: Svyatoslav Ryhel <clamor95@gmail.com>
+Date: Fri, 26 Jun 2026 10:45:20 +0300
+X-Gm-Features: AVVi8CccXP_mAYvaQ06OenJXyIA8FoomOKdGLmNiaJ4doTQTPO6HkKiB97iqG30
+Message-ID: <CAPVz0n0Ja0eKrpirtMxK8bkTV0NY-UoKU0c09qLEF-xMWmOzKQ@mail.gmail.com>
+Subject: Re: [PATCH v6 2/2] Input: isa1200 - new driver for Imagis ISA1200
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: David Heidelberg <david@ixit.cz>, Krzysztof Kozlowski
- <krzk+dt@kernel.org>, Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>,
- Rob Herring <robh@kernel.org>, Conor Dooley <conor+dt@kernel.org>,
- "Jason A. Donenfeld" <Jason@zx2c4.com>,
- Matthias Schiffer <matthias.schiffer@ew.tq-group.com>,
- Vincent Huang <vincent.huang@tw.synaptics.com>,
- Bjorn Andersson <andersson@kernel.org>,
- Konrad Dybcio <konradybcio@kernel.org>, linux-input@vger.kernel.org,
- devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-arm-msm@vger.kernel.org, phone-devel@vger.kernel.org
-References: <20260523-synaptics-rmi4-dt-v2-0-0645122babdc@ixit.cz>
- <20260523-synaptics-rmi4-dt-v2-2-0645122babdc@ixit.cz>
- <ahdoBl3qCTyvlYJf@google.com> <1d0e7e31-f808-4347-955a-7246dea208f5@ixit.cz>
- <742c7a13-9465-40e8-8990-e679712e9784@ixit.cz> <ajtaUb4YmyZTDLmQ@google.com>
- <52b7dd3a-3f6f-474c-8386-4fc2776b185b@ixit.cz> <ajxakXFuKAkhdZLN@google.com>
- <f81e4d83-90d9-47c8-aee9-319df3f8b0fb@kernel.org>
- <aj1OhZQjO5nNYlAo@google.com>
-From: Krzysztof Kozlowski <krzk@kernel.org>
-Content-Language: en-US
-Autocrypt: addr=krzk@kernel.org; keydata=
- xsFNBFVDQq4BEAC6KeLOfFsAvFMBsrCrJ2bCalhPv5+KQF2PS2+iwZI8BpRZoV+Bd5kWvN79
- cFgcqTTuNHjAvxtUG8pQgGTHAObYs6xeYJtjUH0ZX6ndJ33FJYf5V3yXqqjcZ30FgHzJCFUu
- JMp7PSyMPzpUXfU12yfcRYVEMQrmplNZssmYhiTeVicuOOypWugZKVLGNm0IweVCaZ/DJDIH
- gNbpvVwjcKYrx85m9cBVEBUGaQP6AT7qlVCkrf50v8bofSIyVa2xmubbAwwFA1oxoOusjPIE
- J3iadrwpFvsZjF5uHAKS+7wHLoW9hVzOnLbX6ajk5Hf8Pb1m+VH/E8bPBNNYKkfTtypTDUCj
- NYcd27tjnXfG+SDs/EXNUAIRefCyvaRG7oRYF3Ec+2RgQDRnmmjCjoQNbFrJvJkFHlPeHaeS
- BosGY+XWKydnmsfY7SSnjAzLUGAFhLd/XDVpb1Een2XucPpKvt9ORF+48gy12FA5GduRLhQU
- vK4tU7ojoem/G23PcowM1CwPurC8sAVsQb9KmwTGh7rVz3ks3w/zfGBy3+WmLg++C2Wct6nM
- Pd8/6CBVjEWqD06/RjI2AnjIq5fSEH/BIfXXfC68nMp9BZoy3So4ZsbOlBmtAPvMYX6U8VwD
- TNeBxJu5Ex0Izf1NV9CzC3nNaFUYOY8KfN01X5SExAoVTr09ewARAQABzSVLcnp5c3p0b2Yg
- S296bG93c2tpIDxrcnprQGtlcm5lbC5vcmc+wsGPBBMBCgA5AhsDBgsJCAcDAgYVCAIJCgsE
- FgIDAQIeAQIXgBYhBJvQfg4MUfjVlne3VBuTQ307QWKbBQJp2mE8AAoJEBuTQ307QWKbeaIP
- /ihHTkTW4KsN/DQ945JJbyu5tI0J80Wue7QyyLPglyKfhgb5cLLNPpOC8cCIJsc7+W3i2P38
- s2c1cOH6CYGE7E9ur3Vfme8NW2S2I/Z8VC7bZnzyS23wT17LrsdS/qCpx4o8U+pt/xdXDKph
- EGRYrIEmMpUWvyYzyYKGIe25FtaayIIKpq8eZYyFcp2f/sG5IkOW5uZzHPMPdcm87jU7fyuQ
- rAU2vx9r+ulUfQ/q9Z2roC/ode3l7t2pN7BCBCsUDp6JCrUyZrtT1e7EbA0ZRP3aOBNk2P2E
- DQOgJGjGdO5Yx2Y9LFtltu6JbsBJHi1syGRX3AtQYOMc4Y1WGoeZJmMlvKj2ZqqXNkcWi2DS
- IQEWB0uW6CqFsBBIMGDa+6OzdaVO/uAVXWDWml02Men3CILdI1MbVjoh8ECqYUY7OQ+JJvNN
- vnliuq5WM3Ghd3jg/LZZrxXjdIginRHFQCjIJYLKpLZWm1/iDFedcfzqRNYmTtqscdCNHW41
- oT3Z7BmO9xwdjuwBS6nmS6JJwkbf5Ot2QR4pB/DRU7ZwjT1qHe+9r9gF32wXVQatHNGK/VVu
- sfwOnkdxCWkp/qb2gdQRmZh+SedStWshigH6sNfuHBloF/q+hjMRc8b2m326OZdrbSHwY1Sz
- vti8Hn7n8NjdHO9LKB7BIdjkA9DA5WsqOuVCzsFNBFVDXDQBEADNkrQYSREUL4D3Gws46JEo
- Z9HEQOKtkrwjrzlw/tCmqVzERRPvz2Xg8n7+HRCrgqnodIYoUh5WsU84N03KlLueMNsWLJBv
- BaubYN4JuJIdRr4dS4oyF1/fQAQPHh8Thpiz0SAZFx6iWKB7Qrz3OrGCjTPcW6eiOMheesVS
- 5hxietSmlin+SilmIAPZHx7n242u6kdHOh+/SyLImKn/dh9RzatVpUKbv34eP1wAGldWsRxb
- f3WP9pFNObSzI/Bo3kA89Xx2rO2roC+Gq4LeHvo7ptzcLcrqaHUAcZ3CgFG88CnA6z6lBZn0
- WyewEcPOPdcUB2Q7D/NiUY+HDiV99rAYPJztjeTrBSTnHeSBPb+qn5ZZGQwIdUW9YegxWKvX
- XHTwB5eMzo/RB6vffwqcnHDoe0q7VgzRRZJwpi6aMIXLfeWZ5Wrwaw2zldFuO4Dt91pFzBSO
- IpeMtfgb/Pfe/a1WJ/GgaIRIBE+NUqckM+3zJHGmVPqJP/h2Iwv6nw8U+7Yyl6gUBLHFTg2h
- YnLFJI4Xjg+AX1hHFVKmvl3VBHIsBv0oDcsQWXqY+NaFahT0lRPjYtrTa1v3tem/JoFzZ4B0
- p27K+qQCF2R96hVvuEyjzBmdq2esyE6zIqftdo4MOJho8uctOiWbwNNq2U9pPWmu4vXVFBYI
- GmpyNPYzRm0QPwARAQABwsF2BBgBCgAgAhsMFiEEm9B+DgxR+NWWd7dUG5NDfTtBYpsFAmna
- YUkACgkQG5NDfTtBYptX+BAApg32CkxwNucNEi8WfWA8oKkW0y8YDuY6ORMo9FWNGiT/OTy0
- vyJrLocrpn86zwfjVp+eCrssPYh8eqJfnWqmYv6ACQtHPYzPZQ3mSo8H97Z01oUxITzCxpXm
- ZkLgPIqtDPcC2E3dPM/fVxcyowM8XsaMA9wcsaUYrta8toOq2b9tKcjleKMfMrm0gQ9u7wUc
- QbLkwj6TCLOwucb07GXzLTNF9PZmaDUpKAZjMjmrW+le+SFvQbhamx0rxLWPR0NWntXpbCn+
- +ACch03p/JyTBVktxFsFyCt7pTPE1kEaeuXBTe/a2D9iQvRxRW19LvuO2e59/u1wYUiH/orz
- wbIC2S4dBsPAPihL3ztOU1yE86GPyQtSE0kU+/7snnLt4QGi6PChf3t5gnNjAzjUUovO8rgI
- c+5yN5heq5loYHgK6OQ9OlHzsPHO9e9MOQcKlFycs1pyijFGzDwdNUm/SchK8iWT2QApTx4A
- K9bCVaboTA2T77QYkRcRJYSsO1alGX0ome/hMLD1daXlkrNUp1HWa3K4iytLRXjCSIorWiGs
- n+q3krnpXu3TFkA8qtOFZMdnIiFuiq1yLT8hptsV5xh1TA2nsVvSYiaCr3q4s4BKjS/KrLDb
- qoxzw8ISjdUp4pA85vb6YLCmb39NgidD+7PmAr65lBNveIFynTgsja1rRQ4=
-In-Reply-To: <aj1OhZQjO5nNYlAo@google.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Cc: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+	Conor Dooley <conor+dt@kernel.org>, Linus Walleij <linusw@kernel.org>, linux-input@vger.kernel.org, 
+	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On 25/06/2026 18:57, Dmitry Torokhov wrote:
-> Hi Krzysztof,
-> 
-> On Thu, Jun 25, 2026 at 10:23:54AM +0200, Krzysztof Kozlowski wrote:
->> On 25/06/2026 06:53, Dmitry Torokhov wrote:
->>> On Wed, Jun 24, 2026 at 04:37:25PM +0200, David Heidelberg wrote:
->>>> On 24/06/2026 06:28, Dmitry Torokhov wrote:
->>>>> Hi David,
->>>>>
->>>>> On Sun, Jun 21, 2026 at 07:11:45PM +0200, David Heidelberg wrote:
->>>>>> On 28/05/2026 00:13, David Heidelberg wrote:
->>>>>>> On 27/05/2026 23:56, Dmitry Torokhov wrote:
->>>>>>>> Hi David,
->>>>>>>>
->>>>>>>> On Sat, May 23, 2026 at 11:45:35AM +0200, David Heidelberg via B4 Relay wrote:
->>>>>>>>> From: David Heidelberg <david@ixit.cz>
->>>>>>>>>
->>>>>>>>> We know the driver is reporting s3706b, introduce the compatible so we
->>>>>>>>> can more easily introduce quirks for weird touchscreen replacements in
->>>>>>>>> followup series.
->>>>>>>>>
->>>>>>>>> Reviewed-by: Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>
->>>>>>>>> Signed-off-by: David Heidelberg <david@ixit.cz>
->>>>>>>>> ---
->>>>>>>>>    arch/arm64/boot/dts/qcom/sdm845-oneplus-common.dtsi | 2 +-
->>>>>>>>>    1 file changed, 1 insertion(+), 1 deletion(-)
->>>>>>>>>
->>>>>>>>> diff --git a/arch/arm64/boot/dts/qcom/sdm845-oneplus-common.dtsi
->>>>>>>>> b/arch/ arm64/boot/dts/qcom/sdm845-oneplus-common.dtsi
->>>>>>>>> index 6b7378cf4d493..148164d456a5a 100644
->>>>>>>>> --- a/arch/arm64/boot/dts/qcom/sdm845-oneplus-common.dtsi
->>>>>>>>> +++ b/arch/arm64/boot/dts/qcom/sdm845-oneplus-common.dtsi
->>>>>>>>> @@ -475,17 +475,17 @@ bq27441_fg: bq27441-battery@55 {
->>>>>>>>>        };
->>>>>>>>>    };
->>>>>>>>>    &i2c12 {
->>>>>>>>>        status = "okay";
->>>>>>>>>        clock-frequency = <400000>;
->>>>>>>>>        synaptics-rmi4-i2c@20 {
->>>>>>>>> -        compatible = "syna,rmi4-i2c";
->>>>>>>>> +        compatible = "syna,rmi4-s3706b", "syna,rmi4-i2c";
->>>>>>>>
->>>>>>>> So I believe we established that this device (s3706b) does not in fact
->>>>>>>> implement rmi4 protocol properly. Why do we have "syna,rmi4-i2c" as a
->>>>>>>> fallback? Shouldn't it be just "syna,rmi4-s3706b"?
->>>>>>>
->>>>>>> The vendor supplies s3706b which does implement the RMI4 properly.
->>>>>>>
->>>>>>> The 3rd party replacement impersonating original parts may not implement
->>>>>>> it properly, but I don't address this issue in this initial submission.
->>>>>>>
->>>>>>> With this compatible we know which original part is used by the vendor
->>>>>>> and installed in the phones, so later we can deduct specific sequences
->>>>>>> for the replacement aftermarket parts to keep phone touchscreen working
->>>>>>> same as they do on Android without affecting other devices.
->>>>>>
->>>>>> Hello Dmitry.
->>>>>>
->>>>>> May I ask what is currently preventing this series from moving forward?
->>>>>>
->>>>>> The first version was posted in 2023 [1]. I picked it up again in 2025 [2]
->>>>>> and am now on the 9th iteration (this patchset). At this point, the series
->>>>>> has been under discussion for well over a year, with relatively little
->>>>>> feedback and increasingly long gaps between review rounds.
->>>>>>
->>>>>> The current approach is based on the guidance I have received so far,
->>>>>> including suggestions from the device-tree maintainers. When concerns were
->>>>>> raised, I tried to address them and rework the series accordingly.
->>>>>>
->>>>>> What I am struggling with is understanding what specific issue still needs
->>>>>> to be resolved before these patches can be accepted. If there are remaining
->>>>>> requirements, objections to the approach, or technical concerns that I have
->>>>>> not addressed, I would appreciate having them stated explicitly so I can
->>>>>> work on them.
->>>>>>
->>>>>> I also split out the straightforward, self-contained changes in the hope
->>>>>> that at least those could progress independently while I continued working
->>>>>> on any follow-up requirements. However, even those patches do not appear to
->>>>>> be moving forward.
->>>>>>
->>>>>> Could you please clarify what outcome you would like to see from this
->>>>>> series, and what concrete changes would be required to get it accepted?
->>>>>
->>>>> I am still confused about how you want to differentiate between the full
->>>>> RMI4 support vs the OnePlus flavor. The "syna,rmi4-s3706b", as you
->>>>> mentioned, implements RMI4 protocol properly, so we do not need to
->>>>> actually have it documented neither in binding nor in DTS.
->>>>
->>>> --- part 1 ---
->>>>
->>>> This series addresses identification within device-tree. It's normal
->>>> recommended practice.
->>>>
->>>> If we know, the device ships specific, but **compliant** variant, we just
->>>> put it as compatible = "more-specific", "less-specific"; in this case
->>>> "syna,rmi4-s3706b", "syna,rmi4-i2c"
->>>>
->>>> This approach is used everywhere. This has nothing to do with after-market parts.
->>>
->>> We do this in many cases, sometimes when a part has different timings or
->>> maybe additional functionality compared to the base model.
->>
->> Generic expectation is to have always dedicated front compatible for
->> every device. rmi4-i2c is not really specific enough, more like a
->> family, thus a specific device compatible is essential by the DT rules.
-> 
-> Essential in what way? What will break if such compatible is not there?
+=D0=BF=D1=82, 26 =D1=87=D0=B5=D1=80=D0=B2. 2026=E2=80=AF=D1=80. =D0=BE 02:4=
+5 Dmitry Torokhov <dmitry.torokhov@gmail.com> =D0=BF=D0=B8=D1=88=D0=B5:
+>
+> Hi Svyatoslav,
+>
+> On Wed, Jun 17, 2026 at 10:05:27AM +0300, Svyatoslav Ryhel wrote:
+> > From: Linus Walleij <linusw@kernel.org>
+> >
+> > The ISA1200 is a haptic feedback unit from Imagis Technology using two
+> > motors for haptic feedback in mobile phones. Used in many mobile device=
+s
+> > c. 2012 including Samsung Galxy S Advance GT-I9070 (Janice), Samsung Be=
+am
+> > GT-I8350 (Gavini), LG Optimus 4X P880 and LG Optimus Vu P895.
+> >
+> > The exact datasheet for the ISA1200 is not available; all data was mode=
+led
+> > based on available downstream kernel sources for various devices and
+> > fragments of information scattered across the internet.
+> >
+> > Tested-by: Linus Walleij <linusw@kernel.org> # GT-I9070 Janice
+> > Signed-off-by: Linus Walleij <linusw@kernel.org>
+> > Co-developed-by: Svyatoslav Ryhel <clamor95@gmail.com>
+> > Signed-off-by: Svyatoslav Ryhel <clamor95@gmail.com>
+>
+>
+> Sashiko convinced me that using mutex_trylock() in the playback work
+> handler will result in dropping requests and that we are safe not taking
+> the lock there at all. Can you please try the following modification?
+>
+> diff --git a/drivers/input/misc/isa1200.c b/drivers/input/misc/isa1200.c
+> index c61adc4b605c..fb7f68fa0a2b 100644
+> --- a/drivers/input/misc/isa1200.c
+> +++ b/drivers/input/misc/isa1200.c
+> @@ -253,15 +253,12 @@ static void isa1200_stop(struct isa1200 *isa)
+>  static void isa1200_play_work(struct work_struct *work)
+>  {
+>         struct isa1200 *isa =3D container_of(work, struct isa1200, play_w=
+ork);
+> -       struct input_dev *input =3D isa->input;
+> -
+> -       scoped_guard(mutex_try, &input->mutex) {
+> -               if (!isa->suspended) {
+> -                       if (isa->level)
+> -                               isa1200_start(isa);
+> -                       else
+> -                               isa1200_stop(isa);
+> -               }
+> +
+> +       if (!READ_ONCE(isa->suspended)) {
+> +               if (isa->level)
+> +                       isa1200_start(isa);
+> +               else
+> +                       isa1200_stop(isa);
+>         }
+>  }
+>
+>
+> If this works no need to resend, I'll fold on my side.
+>
 
-Essential by the rules we defined for DT and documented in writing-bindings.
+It does work fine. Thank you.
 
-> We have lived without it for many years and will continue live happily
-> without it for years to come.
-
-
-Does not matter if compatible is used or not. The rules are dictating that.
-
-Best regards,
-Krzysztof
+> Thanks.
+>
+> --
+> Dmitry

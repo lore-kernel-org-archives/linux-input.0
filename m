@@ -1,121 +1,118 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 64EEC3A9D80
-	for <linux-input@vger.kernel.org>; Fri, 26 Jun 2026 05:29:03 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C244D3AEB5C
+	for <linux-input@vger.kernel.org>; Fri, 26 Jun 2026 05:29:40 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782451753; cv=none; b=YkdF8v1dYBlcCIpdXJ6dCKZfcw3HZPmMNnJon76+XHkaQhmb9+W/GCZtYoHQr6ewvtYPajkmfbEcXknAwU/tAl4hmr/zEvLIISEhEKuhKB9DZzf6IFRnp9UeDebUH1BgytfcRhPSa3Y/fuARlXr5yP9lz/qtVQ4MABfWSNBu8j4=
+	t=1782451788; cv=none; b=G0hAyNXXcxi/A7vIQ3b+5DShDlw5o9brTNfoFSNnc4ArndUg/3/8sF6CAr457e6amYIeygtniKfj2mHomVkgOMQsXycUx32DsWU9abhcYzJFf2bFBxYKUYQ5th1dy+wDc5HNS7MiW47Vd9tWI05dZ7GqNoZoeFqnCJq6uQ09r1A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782451753; c=relaxed/simple;
-	bh=+dW+ifB+grAj3kpJq8Pl1AHCATMxxy5nP2z4QNaL4pw=;
+	s=arc-20240116; t=1782451788; c=relaxed/simple;
+	bh=Zyw+c3RVe6wODIa8A1UKs+e6CUjDpQeuZxD+J7ksKws=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=CUHczoFJ5M9JxivbQyK4by+R3GehwbuWZHuxgRgF8VfcxemSvL85XNCuir362QdWyyOSfSjznnx9wbAUXjyaOffBJBJlb1C7xsqVRzmNC6ZUA5fQgHjZcyxsrJiMasCvC6N/VdqnWMX2FegazH7CenUus16EczeUcZ45aCt1nlk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=k0Z8LagT; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=uxFGfpPTF6ptKfRmKeuCEpc4PZq/iuetKGc+UZCjXIw9BMb+MTHaSmadpji5DpasROACXmDCIBFqwkPg6r8z3f/V0O0Wrxo3O1nwOwObXc5OmjjE+KS9xQxCSqQB2UEwdGjc2xjW3HPPc5FCboCvF7WGb7aR0BvFEfrMMVODP4M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=MZG9YrCH; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="k0Z8LagT"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1FED01F000E9;
-	Fri, 26 Jun 2026 05:29:03 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="MZG9YrCH"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 919E71F000E9;
+	Fri, 26 Jun 2026 05:29:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1782451743;
-	bh=/H7LEm3FEbabgHEnXyYt6a6BsNqrLXZgx9kuXDL/PhA=;
+	s=k20260515; t=1782451779;
+	bh=9gUtUZQ9ze6fI4MRM6J/Awg4BtpMAMbawtMNBP7UBr4=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=k0Z8LagT51NKXMVqiJ20NcOEomWOwQ2TfNEvDtVRR9MyFJlcGRq29VFvka5a9KAf8
-	 1CthTqnMDTXGLMiRcLThuw57TKoaT4mRwMXLyn8rWq3ufNJuur2AVI6WEGwUXbwxRx
-	 u/NAOPKZ1ewIIMe5NYRi6Jr2LmNfgTeVO+ypv/3q4f7gra7sX7IeCQRgrzWg2cr79E
-	 2EQb7Yo3k+42cIKGUdUKUAKJLHj3hIQSgi0Fw8VEr5pOXwg02hXiHxIWWZaWM7Qa/h
-	 TmdIudifWdtXkggO4F00tlGmFm2L6K86w98g3+NAPKUp3+ufw+gIANvq3yqiRlwyKR
-	 QVSXHIdRuv2Hg==
+	b=MZG9YrCHfsSmc2Dh+aGLU57fcqU/pd7Bekba+W3f5RVGdqPMrjxtSnHUX3lrgFE5Y
+	 BukziNiSpO+BWPb6CPWsfIyE/M/6K0JdyDKoj6l5q3dbED1SusCAprUGpu3HKrPSjf
+	 rHSdiELSmaGIg6ZRo0byeMOAkLR/ZsRXj0Jci5cXzO/jHf5BpZL47Pw816JCLpc2oH
+	 8He41/NKEEoDR33PHcKXaoTy6DLva6+jpRQZhZDnwMR1Ki09aICwa1OBEdRm1+8pE6
+	 3PuaYx9jUGeIzuO9T5dt39/lHmPB30DhuagX08jrC9AWSwQN7SvFvAqnK7bNlxv2Ge
+	 gMM6wYj+Em04Q==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 08/10] Input: synaptics-rmi4 - F54 style and typo fixes
+Subject: Re: [PATCH 09/10] Input: synaptics-rmi4 - change report_size to
+ size_t in F54
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260626051802.4033172-8-dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20260626051802.4033172-9-dmitry.torokhov@gmail.com>
 References: <20260626051802.4033172-1-dmitry.torokhov@gmail.com>
- <20260626051802.4033172-8-dmitry.torokhov@gmail.com>
+ <20260626051802.4033172-9-dmitry.torokhov@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 26 Jun 2026 05:29:02 +0000
-Message-Id: <20260626052903.1FED01F000E9@smtp.kernel.org>
+Date: Fri, 26 Jun 2026 05:29:39 +0000
+Message-Id: <20260626052939.919E71F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
 
-New issues:
-- [Low] The newly added comments incorrectly describe the lock coverage for=
- `status_mutex` and `data_mutex`.
-
 Pre-existing issues:
-- [High] Embedding a `struct video_device` in a `devm_kzalloc`-managed stru=
-cture causes a use-after-free on device unbind.
+- [High] The v4l2 device structure (vdev, queue, and lock) is embedded with=
+in devm-allocated f54_data, causing a use-after-free and locking of a freed=
+ mutex on device close if userspace holds the device open past removal.
 --
 
-commit 7a52e1aa5971437b387ed577aeae2fd8da17b2ba
+commit f2033554c93a59d85d1cecf56a498ef9493e4022
 Author: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Input: synaptics-rmi4 - F54 style and typo fixes
+Input: synaptics-rmi4 - change report_size to size_t in F54
 
-This commit cleans up style issues in rmi_f54.c reported by checkpatch.pl.
-It converts bit shifts to BIT() macros, aligns assignments and arguments,
-fixes typos, and adds mutex documentation comments.
+Change report_size from int to size_t in struct f54_data and update all
+its usages. This avoids signed/unsigned comparison warnings when
+comparing with size_t variables and matches the signature of
+rmi_read_block() which takes size_t for length.
 
 > diff --git a/drivers/input/rmi4/rmi_f54.c b/drivers/input/rmi4/rmi_f54.c
-> index 93526feea5636..850e1742c480a 100644
+> index 850e1742c480a..5d045ece3c2f2 100644
 > --- a/drivers/input/rmi4/rmi_f54.c
 > +++ b/drivers/input/rmi4/rmi_f54.c
-[ ... ]
-> @@ -109,8 +109,8 @@ struct f54_data {
+> @@ -105,7 +105,7 @@ struct f54_data {
+>  	enum rmi_f54_report_type report_type;
+>  	u8 *report_data;
+>  	size_t max_report_size;
+> -	int report_size;
+> +	size_t report_size;
 >  	int report_error;
 > =20
 >  	bool is_busy;
-> -	struct mutex status_mutex;
-> -	struct mutex data_mutex;
-> +	struct mutex status_mutex; /* Protects is_busy and command state */
-> +	struct mutex data_mutex;   /* Protects report_data buffer */
-
-[Severity: Low]
-Are these comments accurate regarding the lock coverage?
-
-Looking at rmi_f54_request_report() and rmi_f54_work(), it appears that
-is_busy, cmd_done, and timeout are explicitly modified while holding
-data_mutex, not status_mutex.
-
-status_mutex appears to be used to serialize calls to rmi_f54_buffer_queue()
-instead.
-
-[ ... ]
-> @@ -709,7 +709,7 @@ static int rmi_f54_probe(struct rmi_function *fn)
->  	f54->max_report_size =3D array3_size(tx, rx, sizeof(u16));
->  	f54->report_data =3D devm_kzalloc(&fn->dev, f54->max_report_size,
->  					GFP_KERNEL);
-> -	if (f54->report_data =3D=3D NULL)
-> +	if (!f54->report_data)
->  		return -ENOMEM;
-> =20
->  	INIT_DELAYED_WORK(&f54->work, rmi_f54_work);
 
 [Severity: High]
-This isn't a bug introduced by this patch, but does allocating the f54_data
-structure with devm_kzalloc() earlier in rmi_f54_probe() lead to a
-use-after-free on device unbind?
+This is a pre-existing issue, but could embedding the V4L2 device structures
+inside the devm-allocated f54_data lead to a use-after-free?
 
-If a userspace process opens the v4l2 device node, and concurrently the
-physical device is hot-unplugged or unbound via sysfs, devm will
-automatically free the f54_data memory.
+If a user holds the /dev/videoX node open during driver unbind,
+rmi_f54_remove() completes and the devm framework frees the f54_data memory:
 
-However, since the release callback for the embedded struct video_device is
-set to video_device_release_empty, the v4l2 core retains a reference to the
-embedded video_device.
+drivers/input/rmi4/rmi_f54.c:rmi_f54_remove() {
+    struct f54_data *f54 =3D dev_get_drvdata(&fn->dev);
 
-Could it then access the already-freed memory during ioctls or when the last
-file descriptor is closed?
+    video_unregister_device(&f54->vdev);
+    v4l2_device_unregister(&f54->v4l2);
+    cancel_delayed_work_sync(&f54->work);
+    destroy_workqueue(f54->workqueue);
+}
+
+When the user later closes the file descriptor, it triggers the V4L2
+release path. v4l2_release() calling vb2_fop_release() accesses the
+embedded queue and attempts to acquire the vdev->queue->lock, which
+points to the freed f54->lock:
+
+drivers/input/rmi4/rmi_f54.c:rmi_f54_probe() {
+    ...
+    f54 =3D devm_kzalloc(&fn->dev, sizeof(struct f54_data), GFP_KERNEL);
+    ...
+    f54->vdev =3D rmi_f54_video_device;
+    f54->vdev.v4l2_dev =3D &f54->v4l2;
+    f54->vdev.lock =3D &f54->lock;
+    ...
+}
+
+Should the video_device be dynamically allocated and reference counted rath=
+er
+than relying on devm management?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260626051802.4033=
-172-1-dmitry.torokhov@gmail.com?part=3D8
+172-1-dmitry.torokhov@gmail.com?part=3D9

@@ -1,116 +1,137 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 063053A8746
-	for <linux-input@vger.kernel.org>; Fri, 26 Jun 2026 05:27:55 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1ABFD3AC0E5
+	for <linux-input@vger.kernel.org>; Fri, 26 Jun 2026 05:28:11 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782451687; cv=none; b=F+ewzcNGiOQZ5/B4wKAPjjnXp1SzSx+O5mq6FN6wqFZLnDJzrEqo7gF7cbU56oEyEeCtv0XB5XGiK2mIt/QCELqCh5NMEmBS0l8Znct85yP0qejEgxOl/axaJbrYB7mqweeH/hA4Pc4X8yig7K6FSaMJn2GSiISiPPO3weMVY38=
+	t=1782451700; cv=none; b=kA3rN0p5c9MjLKX6McfdQd/Q43oqHz6UwcVWq+RwwSpqsyICg4s14g+5/IyyysWzUVwUrnXnHgwqfT7c/oQWEhCz36Q8PViefyuewO+MvhacRKF9LzXfFlgxEoIdqgGn+eM+FdX6QmEiXURS0WpAjcteWBWMfDQbxxGJxGIl9k0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782451687; c=relaxed/simple;
-	bh=aMDKvuzerWFzolZp0y0xTVAEvZ3EL4CbacA+SoUXpi8=;
+	s=arc-20240116; t=1782451700; c=relaxed/simple;
+	bh=azZaoSz5oaV8njoNv4zlvmiEJk6USTgscP5RdAcbPTM=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=ouYin/uU9HpCGkZ56xM7TJPtXI6zUpVsTVYFbpT1vx7hXHpGoBrCAl4t56BFXDgOevi1P6MBRp/LWzRqXjhzV5tP+s3iKQR7dhjUXbrt83GT+fLrhpf09olRw5xMPSNWpAbpG4WdxjYLs2WWCszOm06HuaVzoRxNdsu6GTLI3rk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Wvb9gBSg; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=sWFIwrpVwbhP667lNPpedDjBlXhkCPfCQzgzzcjeNzuw4WanotBTHLGh5skBNJv8Idw49XBTq/NHIxKBm7Q4Hi+srESGzE70LA3MnNBLs9b2GCqHjxF1bN23eweMRxgSfyEcqbx4BBTULDtB3QJp83Xrzjq5kQa9+LAnhkvMle8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=he8MJEud; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Wvb9gBSg"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C55FB1F00A3A;
-	Fri, 26 Jun 2026 05:27:54 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="he8MJEud"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7B131F000E9;
+	Fri, 26 Jun 2026 05:28:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1782451675;
-	bh=YQXSPc+eUuO1COVHa2Y86nHNqW4qIvrqbllAL88WPdc=;
+	s=k20260515; t=1782451690;
+	bh=UeBUQX+LKgwi2hIPWcOTOd7V/pLrGARlLkhXhpHzLWk=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=Wvb9gBSgUjPYfMG1hbC2PDyffikOiv+RE/WPv+WPOMIZ/tuyb6m5blPUL8tZaRQ78
-	 xesnNIKqisd5fR0hTutGJ1tlORgc2kHS4SylBOR+gHlyR2QJudpTvc4lBpZyF0APsW
-	 n8U1bWKshGHkHYiV+CM2T9kNWmPam5QDSpyOXTpCf7h725y8AtarSCfup5/Qjsq2Uk
-	 Q1TgcPMeqNLzQ+qG7UiCIEy1IYtf7tNahQkAn73NesRUcuGQkvPiPd57KrjjLoQbnv
-	 d9gUvl9YBuzb87tyYLh75zZg7kTFvlYBlfx2MPdfz02P9lEhydmETqozzaPqT0/kWW
-	 hZzeu0O6+ZDmw==
+	b=he8MJEudiZq9uCXAoygVuYuw7BcZ+yShdUrYgbuR0/QGJ3DOPmAjQszJqhkcIXEN0
+	 7f675+TGJdKpiK9cBl+D8CN+0pmtKZC9ADuzY2FpHwgNH7uuGas5dOhnOgGGvDkfUl
+	 DZu2T0sdrSP0MbhYxMnfLtkO26xbCn8lQL+60KLXTY0sZYFPk+RLA7TDX5uStU8Rdm
+	 pPrw3U1FhXIU7O3AyoKoZyaIO+OK76JB0lFWtdt6sGSZm/EygysVZ5sQajfjVY7mXg
+	 ipAF03YmWKwvO5H+/TUyxbaVl8D3GZ9dfeVxKi1myrCZyjXa/UIoisqJU933HJsIZn
+	 DobQzgsyAnAVQ==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 05/10] Input: synaptics-rmi4 - block s_input when F54
- queue is busy
+Subject: Re: [PATCH 04/10] Input: synaptics-rmi4 - cancel delayed work on
+ F54 remove
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260626051802.4033172-5-dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20260626051802.4033172-4-dmitry.torokhov@gmail.com>
 References: <20260626051802.4033172-1-dmitry.torokhov@gmail.com>
- <20260626051802.4033172-5-dmitry.torokhov@gmail.com>
+ <20260626051802.4033172-4-dmitry.torokhov@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 26 Jun 2026 05:27:54 +0000
-Message-Id: <20260626052754.C55FB1F00A3A@smtp.kernel.org>
+Date: Fri, 26 Jun 2026 05:28:10 +0000
+Message-Id: <20260626052810.A7B131F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
 s) to consider:
 
 Pre-existing issues:
-- [High] Using `devm_kzalloc` for a structure containing a V4L2 `video_devi=
-ce` with `video_device_release_empty` leads to a Use-After-Free on unbind.
+- [High] The `video_device` structure is embedded in a `devm`-allocated con=
+tainer with an empty release callback, leading to a Use-After-Free if the V=
+4L2 device file is kept open after unbind.
+- [High] Concurrent V4L2 ioctls are not synchronized or aborted during `rmi=
+_f54_remove()`, leading to a Use-After-Free when an active ioctl times out =
+or accesses a destroyed workqueue.
 --
 
-commit 49068cdcddfc12eacb30d46e9f92bd95fd14648f
+commit 169f0c9cee8746030206895c2135191d57259b56
 Author: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Input: synaptics-rmi4 - block s_input when F54 queue is busy
+Input: synaptics-rmi4 - cancel delayed work on F54 remove
 
-Changing the input (diagnostic report type) mid-stream changes the report s=
-ize.
-Since V4L2 buffers are allocated based on the size at stream start, changing
-the input while streaming could lead to a heap buffer overflow if the new s=
-ize
-is larger than the allocated buffers.
+This commit ensures that pending delayed work is cancelled before destroying
+the workqueue in rmi_f54_remove() to prevent a potential Use-After-Free. It
+fixes a race condition where a timer handler might run after the workqueue
+is destroyed or the devm-allocated f54 structure is freed.
 
 > diff --git a/drivers/input/rmi4/rmi_f54.c b/drivers/input/rmi4/rmi_f54.c
-> index aebe74d2032cd..e86dfc9ce7d9a 100644
 > --- a/drivers/input/rmi4/rmi_f54.c
 > +++ b/drivers/input/rmi4/rmi_f54.c
-> @@ -445,7 +445,12 @@ static int rmi_f54_set_input(struct f54_data *f54, u=
-nsigned int i)
+> @@ -749,6 +749,7 @@ static void rmi_f54_remove(struct rmi_function *fn)
 > =20
->  static int rmi_f54_vidioc_s_input(struct file *file, void *priv, unsigne=
-d int i)
->  {
-> -	return rmi_f54_set_input(video_drvdata(file), i);
-> +	struct f54_data *f54 =3D video_drvdata(file);
+>  	video_unregister_device(&f54->vdev);
 
 [Severity: High]
-This isn't a bug introduced by this patch, but could this f54 pointer
-reference freed memory during a device unbind?
+This is a pre-existing issue, but the video_device structure is embedded in
+a devm-allocated container with an empty release callback. This circumvents
+the V4L2 core's mechanism to defer freeing the structure until all file
+descriptors are closed:
 
-In rmi_f54_probe(), the f54_data structure is allocated with devm_kzalloc():
+drivers/input/rmi4/rmi_f54.c:rmi_f54_video_device {
+    ...
+    .release =3D video_device_release_empty,
+};
 
+In rmi_f54_probe():
     f54 =3D devm_kzalloc(&fn->dev, sizeof(struct f54_data), GFP_KERNEL);
 
-This ties its lifetime to the physical device rather than the V4L2 character
-device reference count. The release callback for the video device is also s=
-et
-to a dummy function in rmi_f54_video_device:
+If a userspace application holds the V4L2 device file descriptor open while
+an unbind occurs, video_unregister_device() returns and devm immediately
+frees f54_data. Closing the file descriptor later or issuing ioctls will
+access the freed f54_data container. Could this lead to a Use-After-Free?
 
-    .release =3D video_device_release_empty,
+>  	v4l2_device_unregister(&f54->v4l2);
+> +	cancel_delayed_work_sync(&f54->work);
+>  	destroy_workqueue(f54->workqueue);
 
-During unbind, rmi_f54_remove() calls video_unregister_device(&f54->vdev) b=
-ut
-returns immediately. This unregisters the V4L2 device without synchronously
-waiting for userspace to close open file descriptors, leaving ongoing V4L2
-file descriptors pointing at memory that is about to be freed by devres.
+[Severity: High]
+This isn't a bug introduced by this patch, but does this teardown sequence
+destroy resources locklessly while V4L2 ioctls can still be executing?
 
-If a userspace application keeps the V4L2 device node open, would subsequent
-operations or closes (such as vb2_fop_release) attempt to access the vdev a=
-nd
-queue embedded within this already-freed f54_data memory?
+During rmi_f54_remove(), we unregister the video device, cancel the work,
+and destroy the workqueue without acquiring f54->lock.
 
-> +
-> +	if (vb2_is_busy(&f54->queue))
-> +		return -EBUSY;
-> +
-> +	return rmi_f54_set_input(f54, i);
+If a concurrent VIDIOC_QBUF ioctl executing rmi_f54_buffer_queue() is
+blocked:
+
+drivers/input/rmi4/rmi_f54.c:rmi_f54_buffer_queue() {
+    ...
+    if (!wait_for_completion_timeout(&f54->cmd_done,
+                                     msecs_to_jiffies(1000))) {
+    ...
+}
+
+The remove() function cancels the delayed work (so cmd_done never completes)
+and returns, allowing devm to free f54_data. When the timeout expires in the
+blocked ioctl, it will access the freed f54 pointer.
+
+Additionally, a concurrent ioctl might attempt to queue work:
+
+drivers/input/rmi4/rmi_f54.c:rmi_f54_request_report() {
+    ...
+    queue_delayed_work(f54->workqueue, &f54->work, 0);
+    ...
+}
+
+If this runs right after rmi_f54_remove() has destroyed the workqueue, could
+it cause a crash? Should the teardown sequence serialize with active V4L2
+ioctls?
+
 >  }
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260626051802.4033=
-172-1-dmitry.torokhov@gmail.com?part=3D5
+172-1-dmitry.torokhov@gmail.com?part=3D4

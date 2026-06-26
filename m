@@ -1,39 +1,37 @@
 Received: from ixit.cz (ixit.cz [185.100.197.86])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 308E73750D6;
-	Fri, 26 Jun 2026 14:11:32 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5221C32C923;
+	Fri, 26 Jun 2026 15:01:31 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.100.197.86
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782483093; cv=none; b=fqRvQbzD1kf/D0J16EsE6VzYwCtboPw9WmyccSjf7L3iTUzdYo6Pme/vxLrEpwwj9RqvQWjqFsItQelTHgadrUUplJbwE84M+ByTii+boYCqpKn52vYaZelTTpProJZpgDDkgS7JiN3BhU9xo4FQ3U92IGjYs2KsPFq1oekBzHk=
+	t=1782486093; cv=none; b=n6WYMFRysxmPqzkzw+0ikGPzzW90IkMUpcYglxmmpKp0gOIE0Ob1RJz+kjNeQUMCHHGlE2kiKgQ5L6BUfYv8/rtLt3U525NQFlG9R1B3ZVaVyts0v/SJ8IlC/Wk+mxkKoT9jD+pcF8wpVXETAd8kYRbi2o3oNu2yiA6ZLGr5Zmk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782483093; c=relaxed/simple;
-	bh=6C5hArhWwYzdaJr2MzciUWsQUrFgJpjcA2bCkwkiVPE=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Fdk9zQ/wIy55ub+FBiCxshHVQV/mw4IvkickTFZQkWqhBcTx3WizTvUbM+LwWbDTkIpRJqgp7LLg2NvhjvkZsONRgNWbXHIUIH5t5leIWZwRJx04UohNLUlfw74Irs6C5HtYAp6vG1R/HhUcwUZY6sMzu+GiDOarkfP3+4YGmsA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=ixit.cz; spf=pass smtp.mailfrom=ixit.cz; dkim=pass (1024-bit key) header.d=ixit.cz header.i=@ixit.cz header.b=Uf4675RJ; arc=none smtp.client-ip=185.100.197.86
+	s=arc-20240116; t=1782486093; c=relaxed/simple;
+	bh=7YIdIu2YmWv8wYM6bDoJh8Ypid2o9EiN+GVbPWYER68=;
+	h=Message-ID:Date:MIME-Version:To:From:Subject:Cc:Content-Type; b=f8ipWWbQD32JJM3AcWQe3yvvnxaZ0cWYuNEvbfrmS3XTCS1wgLGtAQNX6ixhcV8sfQ/On5BgImf7rYObXBihRg21BaOaY+Df1mHXsSabEqH0j092YbD1QdwdJ7FaklpK4UvsnEJg5mP9u9epb5HpP0rpdk9kCoe6zz1h+vRux54=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=ixit.cz; spf=pass smtp.mailfrom=ixit.cz; dkim=pass (1024-bit key) header.d=ixit.cz header.i=@ixit.cz header.b=bWxFRAbZ; arc=none smtp.client-ip=185.100.197.86
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=ixit.cz
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ixit.cz
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=ixit.cz header.i=@ixit.cz header.b="Uf4675RJ"
+	dkim=pass (1024-bit key) header.d=ixit.cz header.i=@ixit.cz header.b="bWxFRAbZ"
 Received: from [10.0.0.200] (unknown [10.88.125.21])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by ixit.cz (Postfix) with ESMTPSA id 639055340139;
-	Fri, 26 Jun 2026 16:11:28 +0200 (CEST)
+	by ixit.cz (Postfix) with ESMTPSA id 261C85340D28;
+	Fri, 26 Jun 2026 17:01:26 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ixit.cz; s=dkim;
-	t=1782483088;
+	t=1782486086;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=HTCmCgqDJk51YW5CVQgQ9h2UDSSC2DWCPmLn+V/EXWc=;
-	b=Uf4675RJd8MkDZp4kSGXR6RHR5XZbmq07Yr6ws9alDkZSLKoCHZtQyx4ieqBrUl5ayh45n
-	S6svrVSGyPGeRPL3bGmluLICAJ6VKLfg2YYu2QXVbcw6IkELJfT0pslC7U8sn00jeOlrLT
-	iXRV+6QCcfszUPn9UqJ1Hf6E16zF8vY=
-Message-ID: <71691c8e-f05e-4f3a-9507-9a590fd5e2c5@ixit.cz>
-Date: Fri, 26 Jun 2026 16:11:28 +0200
+	 content-transfer-encoding:content-transfer-encoding:autocrypt:autocrypt;
+	bh=eS9Cr0idE9ftNPFvkJhlBXCojOvtJBy5GMAcWdoWzq4=;
+	b=bWxFRAbZBghMvI43kNn969SAztsfWJAuxcoBXdImoyxcUcCKg1wiTOfmjbSiZY3PFZSWOn
+	L2f2WrmDhoZU2CPkVDr+R2weZGzGgOAhsUvPX1oe2lPAT0N0mEKiy3wx5HKiAT+j9YKhDM
+	Q0jU3EhRT812msg9skS2cWzrznEEeEE=
+Message-ID: <5e71981e-6c1a-45da-b6d7-bf6a4d5cb847@ixit.cz>
+Date: Fri, 26 Jun 2026 17:01:25 +0200
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -41,29 +39,12 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 2/2] arm64: dts: qcom: sdm845-oneplus: Update
- compatible to include model
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
- Bjorn Andersson <andersson@kernel.org>
-Cc: Krzysztof Kozlowski <krzk@kernel.org>,
- Krzysztof Kozlowski <krzk+dt@kernel.org>,
- Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>,
- Conor Dooley <conor+dt@kernel.org>, "Jason A. Donenfeld" <Jason@zx2c4.com>,
- Matthias Schiffer <matthias.schiffer@ew.tq-group.com>,
- Vincent Huang <vincent.huang@tw.synaptics.com>,
- Konrad Dybcio <konradybcio@kernel.org>, linux-input@vger.kernel.org,
- devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-arm-msm@vger.kernel.org, phone-devel@vger.kernel.org,
- Rob Herring <robh@kernel.org>
-References: <20260523-synaptics-rmi4-dt-v2-2-0645122babdc@ixit.cz>
- <ahdoBl3qCTyvlYJf@google.com> <1d0e7e31-f808-4347-955a-7246dea208f5@ixit.cz>
- <742c7a13-9465-40e8-8990-e679712e9784@ixit.cz> <ajtaUb4YmyZTDLmQ@google.com>
- <52b7dd3a-3f6f-474c-8386-4fc2776b185b@ixit.cz> <ajxakXFuKAkhdZLN@google.com>
- <f81e4d83-90d9-47c8-aee9-319df3f8b0fb@kernel.org>
- <aj1OhZQjO5nNYlAo@google.com> <32affded-bae2-46c4-a702-2054fbfe46a8@ixit.cz>
- <aj4QUY5p7gqLplVT@google.com>
 Content-Language: en-US
+To: linux-input@vger.kernel.org, netdev@vger.kernel.org,
+ Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+ LKML <linux-kernel@vger.kernel.org>
 From: David Heidelberg <david@ixit.cz>
+Subject: detection and reporting of replacement and aftermarket parts
 Autocrypt: addr=david@ixit.cz; keydata=
  xsFNBF5v1x4BEADS3EddwsNsvVAI1XF8uQKbdYPY/GhjaSLziwVnbwv5BGwqB1tfXoHnccoA
  9kTgKAbiXG/CiZFhD6l4WCIskQDKzyQN3JhCUIxh16Xyw0lECI7iqoW9LmMoN1dNKcUmCO9g
@@ -107,19 +88,52 @@ Autocrypt: addr=david@ixit.cz; keydata=
  zRKcgRumz2Tc1ouHj6qINlzEe3a5ldctIn/dvR1l2Ko7GBTG+VGp9U5NOAEkGpxHG9yg6eeY
  fFYnMme51H/HKiyUlFiE3yd5LSmv8Dhbf+vsI4x6BOOOq4Iyop/Exavj1owGxW0hpdUGcCl1
  ovlwVPO/6l/XLAmSGwdnGqok5eGZQzSst0tj9RC9O0dXO1TZocOsf0tJ8dR2egX4kxM=
-In-Reply-To: <aj4QUY5p7gqLplVT@google.com>
+Cc: Petr Hodina <petr.hodina@protonmail.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
-[...]
+Hello.
 
-> 
-> OK, I applied the binding change, the dts change should go through some
-> other tree.
-> 
-> Thanks.
-> 
+As we port Linux phones to the mainline kernel, we often encounter devices with 
+replaced screens (and touchscreens).
 
-Thank you, I think Bjorn will be picking the dts change :)
+Many these devices are replaced with original parts, but mostly in Asia markets, 
+very often replacement parts are not original, but knockoffs.
 
+I would see value in providing information via tools and/or GUI [1] to the 
+users, that parts of their phone has been replaced.
+
+There is multiple reasons, including user awareness when buying the device, or 
+developer debugging user problem being aware that device been serviced.
+
+Right now, I'm not aware any vendor (outside of Apple, which is unsupported by 
+Linux) shipping list of serial number of the components in the phone inside some 
+memory region or EEPROM.
+
+When we **can** do with information currently available, is to detect:
+  1. different chip used, than what manufacturer declared (e.g. matching the 
+model device-tree compatible property), thus implying replacement part
+  2. the chip not being fully compliant with the vendor specification, thus 
+implying non-original part
+
+This doesn't cover all cases, but could already give user and developer valuable 
+information why:
+1. component isn't fully supported (let say driver doesn't have support for this 
+variant)
+2. component misbehave, if non-original part doesn't follow specification properly
+
+I think the display/touchscreen part is most often affected, so thus why I would 
+like to start discussion here, but I think this issue apply to many other 
+components (I recall some FTDI discussions long time ago)
+
+In the end, would be nice to have devlink-info-like [2] reporting in the input 
+subsystem extended by not only reporting on-device / in-memory firmware, but 
+also the driver reporting non-complaint non-original replacements (Cc: netdev).
+
+I'm very interested in feedback or/and ideas how this situations can be handled.
+
+Thank you
 David
+
+[1] https://support.apple.com/en-us/102658
+[2] https://docs.kernel.org/networking/devlink/devlink-info.html

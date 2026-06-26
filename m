@@ -1,71 +1,71 @@
-Received: from mail-dy1-f180.google.com (mail-dy1-f180.google.com [74.125.82.180])
+Received: from mail-dy1-f181.google.com (mail-dy1-f181.google.com [74.125.82.181])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 56FF33A59A8
-	for <linux-input@vger.kernel.org>; Fri, 26 Jun 2026 05:18:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.180
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BC1A13A6B67
+	for <linux-input@vger.kernel.org>; Fri, 26 Jun 2026 05:18:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.181
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782451099; cv=none; b=dLjBhskRPCUp8hUD5Fllaai9Gi4I2X51bwFiQ6LWiNK5ZyDg7Ho+ZXlAT9SVFHv8FnPwm7xIrNdSjGZ82VuU3CIpuu2TTUO4+qfPEhUKNqyFSxKPmFGl18e7wLF0n6MnMBo4fsNVvf1XLPKBttFdN0S9bqp+L+eSeezp4amgMj0=
+	t=1782451100; cv=none; b=YrxS5eF1hGuwNb23yIZGXpOwLmXpDtuskUHgTd8iuhZfmeeR8Uo3xcXjvVozJFXoFmRqECwH/LfDo6RnbUoq7WkPS68QQOw8uo/DTQkRoU0t9C9Aw27S7S5yl45k5WKHXMCpisoKQJdJ8nixfJ8+Zf8h5nLnaEfblxWg1ui+P2Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782451099; c=relaxed/simple;
-	bh=yMXPdGDW2lfGhnHWFTL7FoN3LjO+95A3FRC+1uOxj7U=;
+	s=arc-20240116; t=1782451100; c=relaxed/simple;
+	bh=S7VgKpfTgBnjIiGJp9xV7qsZ8eY/ftmXoOJ79RnATH4=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=AcN2KpVbF01HspjXi1Oowbf1bZRKLAprwsT9zlLYYYPKnPX14eJM6pcz36LyICR8jgRsfhmxeGFn39RSsvNPPumHJOKZLU4Ho5x+fPh6bQ269aiY5C+iMw43hoQ58pYYgB0edDfPW9YtciejkHoMxyXPVaLFjyNUegnGOL1sSZU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=VSvzPTye; arc=none smtp.client-ip=74.125.82.180
+	 MIME-Version; b=EVfCGls+p11NXeTC1Mvkg09mSruTNPfPrOEzibrfMSLXT+001VS+joissSdzN74yPRAw7B7cuUwhY3kRHGb/GV+FwqPQA1o/ol/7VsBXGgdcebLE7JhdgzjI2cj43dxjM7i3dtI5Q0zuiFthI269FixWN9ZhL9QtiFSbO44PQ7U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Wzlih0Yf; arc=none smtp.client-ip=74.125.82.181
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="VSvzPTye"
-Received: by mail-dy1-f180.google.com with SMTP id 5a478bee46e88-30bc806fcf8so781017eec.1
-        for <linux-input@vger.kernel.org>; Thu, 25 Jun 2026 22:18:18 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Wzlih0Yf"
+Received: by mail-dy1-f181.google.com with SMTP id 5a478bee46e88-30c591fb1cbso890302eec.1
+        for <linux-input@vger.kernel.org>; Thu, 25 Jun 2026 22:18:19 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1782451098; x=1783055898; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1782451099; x=1783055899; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=POLQLR6buhFN05Ket/1VgymD6hL5YrZUJpiEgczNqtQ=;
-        b=VSvzPTyeQ1wp/UTJ1iLMdfqFlMLFPQ3jlLm+P0JcwL4MtofDTPNxENjAkMhmXCcHnO
-         JspvQwKWurD3SnxYqkTnK/ljo1hZ/jbbpnF0TNoJxPgWEvUkzlc080DL5s3fCiRf44bH
-         GQ0suBj5Ir/NKBz2QI0/imuYRa6t3Nk91S6cUyY6baFgzxWDhlEoVu+VsqZ7yFYntK4p
-         c0PCCeHf6y0IgsjlvIoNZYew6EiHhiGcUAcpqMzABNPb+6f5X3dA/27EwoQga/nLFaVH
-         fCt48M1GcCvA+eLNRs0JcMepG3r2NCBdDMrQXC3zM4X0ZI7MBsQ42TbPFriovkNJsHw2
-         wXpQ==
+        bh=cvogOYoQA8k/YjrXfsKH1k1eYaj9ZaJ63lBakDvIi20=;
+        b=Wzlih0YfkY4ks6ybRL5TjcVX3UcJNt1EwS2sez0d++ncFEX87FezpJJuyOhW49xZn7
+         7/QahloI2hLel9rsR+/faD26QVTKfwadKarab53LbTBkdOhu2jPWDBvvaRn4Qc/qEntG
+         FEHI8gvP+EQJJia1VtgtE2DZ8f/lK3x6Gxkh0C25myeZYvwhTmCMhgg1HlRZnAwlyxlr
+         nGYR5DOlClTbs2/FQC0nA0gDKvU9aDvku0CnJbkz5oizDm3o0DIox6p5cVzsknlkCD74
+         HKYCgMlNhb79Qm69tarJET4CHSOD2v/Nj5mAJCOfjjb9St02KNwDV889Ev1KCFe7ul/M
+         ElkA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1782451098; x=1783055898;
+        d=1e100.net; s=20251104; t=1782451099; x=1783055899;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=POLQLR6buhFN05Ket/1VgymD6hL5YrZUJpiEgczNqtQ=;
-        b=JtqE5fq1I7Eh6rVPRYHVQXXuCCHTcq4Dxn707X9/SSv8suucZkYMsSVlp3lzDfxzOC
-         j0NignOyHRwp51j8HQeXBFFRzA2oC0LtSaHBdlDIScHNrysOAb9wdI3LYvDHk+nHTfj8
-         DSqmu8q6qHLUH9N+TEs4lvPjhk2+olYMykmMK2KK8Pgg/CGseoPxDtS1q8srC1dNC33c
-         ZQc/eDQxuNSeY2DFCnei/37KCw4Ji/bdNVqUL97BSKzgo2gbPCEnZ3MQ9enKodPBBX8o
-         mazGWePCZbITk3Y7/4nGuf2x4Ciwt+bZ1/Nvb++80HoD+hLKHG0FwH+Z76JRmpUfUN48
-         wmiA==
-X-Gm-Message-State: AOJu0YwIq8Qs1INnvMn36d441m8JpkOcJkmCZ2H+olrryAGHJjnn/XMG
-	ioqiwfeCplRDSNy/kj6wYHB/1RJgxWMsvovbZZ5M7h0CRPBWerh4K5mO
-X-Gm-Gg: AfdE7ckjtIb3ihqJM8N0onq0JR+xP0YGCqU5wAd6amB/S5q89APuN+WtRoIfXPWlWTJ
-	z9YC4lC1pxayi5d01fp3SPFShx8WHtCLdBaGhGERJWWvbKGZKIdebT1wMwwC+BkGJFvs7XNTfQc
-	/GT+1bUzunSfpKf7t1JFcdOtxCLZLpKGRXIcpbtYKZ5bNXShmoERygbk+kv3YKDuCDCMBZHwdTr
-	ZrnPPbhvlgI6IpBetx7Vt/DRMa2zmg2IakwDTJ6i7yKfZkuRUEb7aX3RFzTZIMfwC3LerNVlFrD
-	bR/E65BrOKprWprOz8GQPSZT8KcoiF9GGRhE7d9tszZeoYuyfUn2EfU5dRqO8lO8uGLo4qmJe0g
-	B9mXtPUqUaCSUqPZurFpDAHzqflB6y16rirut7cFJNpCGS/QkipQkeS4q+I5qaKk7nSAK4mZpUo
-	foXV5rYxxhd6RWhRYN+4NI1UWM3l44WlsYmHGFmnQO+dD4AUEKQdzLOFZjLz34FQ7VMIL3IEZ4i
-	61p
-X-Received: by 2002:a05:693c:2285:b0:30c:45de:8fbc with SMTP id 5a478bee46e88-30c84b64cb7mr5070108eec.9.1782451097513;
-        Thu, 25 Jun 2026 22:18:17 -0700 (PDT)
+        bh=cvogOYoQA8k/YjrXfsKH1k1eYaj9ZaJ63lBakDvIi20=;
+        b=qQJHRwB+OYGyTbd8Wxt93i1OPHE1zQnZ9cMr8+s/kL63F7W7z0KblPrMpwCohpZ8fZ
+         vJJB1wjxfAs6KLG5Tqsbm11GZRkWsgEDqPY0x3A/AIB5FWMCDJABYAFKKAK9XjDL895p
+         vQYuaWtrb9bIBTSFIe+lNs01SQPghEDHXll3HRYdZAOfjXITCOvLjQszd4/77KY+2Qhz
+         fIa4qqAhIZt3DDuDkH/VHI1gUidkHYpFzq9i8ILlHP/HiQJ3M3lM3PWOr/fyec5uhCDg
+         NJtde/EYzuOX7efhImit/z63iAONuhuFoS9DHQUxzsPHOPk81BIqRq9+zM81jBHtNR1e
+         MhJA==
+X-Gm-Message-State: AOJu0Yzshh9ZdF86AZpWC0azC6iQnjXHkLy1B9NbY2M+L5JnA8i0Bknf
+	eMyDXuFYFdaAs6mfbzXfdJUuegQ4v/ylfLdjl/agrCrxR1+ZjIb7+GqF
+X-Gm-Gg: AfdE7cnBxazw5c2HmUOgFmcxSSXFjXSAMkm0sAr/RARlNJ/cn847OCOMITejPcLG4Xu
+	CETukFr7KoddW8MwAsHeGS8wNqLpj2MVM/NRCmS6lPeCQgk/DylG5D/pQ460ljlJQPREHEuayal
+	/vgGBtQLEUl5Xs6ja+mCwfE6YDScdQyqygs6uE/TrlHMNOkGsATzF98q5lLpc0qVzk+PoDjDmNm
+	uwtpqyn0J2gm+vc0cK3Vb8sVVAU3WB8C4hSxnKSsHM0aUZbtT5HFEHyy7g2/PdCRvfXfr009CdL
+	HCCvAYTmVbnFvgUeuZpQ+On/OnEXLCElgemhDUtol1PoMQq55wKt6KuCQpiOcOwdqPLE5T1gSGR
+	jpYnPTW87aHY2WN9ty2zioG5gb2tjezyaCuT/gtygMzzK7j2X1oFmEdYP42hJaL4r3NwmNUUHiV
+	OUGBaCuYIwgBGA0BSJbiI+AM80gjFW/SnMgp8ji3a5n+o3O518r7n408Jh3ZroPDa3PO311Yl03
+	R52
+X-Received: by 2002:a05:7300:2321:b0:30a:e52d:fb27 with SMTP id 5a478bee46e88-30c84b84f6dmr5504142eec.11.1782451098857;
+        Thu, 25 Jun 2026 22:18:18 -0700 (PDT)
 Received: from dtor-ws.sjc.corp.google.com ([2a00:79e0:2ebe:8:a474:bf4a:4966:8d97])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-30c7c9e9214sm14804188eec.20.2026.06.25.22.18.16
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-30c7c9e9214sm14804188eec.20.2026.06.25.22.18.17
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 25 Jun 2026 22:18:16 -0700 (PDT)
+        Thu, 25 Jun 2026 22:18:18 -0700 (PDT)
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 To: Bryam Vargas <hexlabsecurity@proton.me>,
 	Hans Verkuil <hverkuil@kernel.org>
 Cc: linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH 09/10] Input: synaptics-rmi4 - change report_size to size_t in F54
-Date: Thu, 25 Jun 2026 22:17:58 -0700
-Message-ID: <20260626051802.4033172-9-dmitry.torokhov@gmail.com>
+Subject: [PATCH 10/10] Input: synaptics-rmi4 - use __le16 for FIFO offset in F54
+Date: Thu, 25 Jun 2026 22:17:59 -0700
+Message-ID: <20260626051802.4033172-10-dmitry.torokhov@gmail.com>
 X-Mailer: git-send-email 2.55.0.rc0.799.gd6f94ed593-goog
 In-Reply-To: <20260626051802.4033172-1-dmitry.torokhov@gmail.com>
 References: <20260626051802.4033172-1-dmitry.torokhov@gmail.com>
@@ -77,83 +77,51 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Change report_size from int to size_t in struct f54_data and update all
-its usages. This avoids signed/unsigned comparison warnings when
-comparing with size_t variables and matches the signature of
-rmi_read_block() which takes size_t for length.
-
-Also move the declaration of the loop variable 'i' into the 'for' loop
-header.
+Instead of manually splitting the 16-bit offset into a 2-byte array,
+use __le16 and cpu_to_le16() to serialize the FIFO offset in
+rmi_f54_work(). This is cleaner and more portable.
 
 Assisted-by: Antigravity:gemini-3.5-flash
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 ---
- drivers/input/rmi4/rmi_f54.c | 15 +++++++--------
- 1 file changed, 7 insertions(+), 8 deletions(-)
+ drivers/input/rmi4/rmi_f54.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/input/rmi4/rmi_f54.c b/drivers/input/rmi4/rmi_f54.c
-index 850e1742c480..5d045ece3c2f 100644
+index 5d045ece3c2f..3eeb189be18b 100644
 --- a/drivers/input/rmi4/rmi_f54.c
 +++ b/drivers/input/rmi4/rmi_f54.c
-@@ -105,7 +105,7 @@ struct f54_data {
- 	enum rmi_f54_report_type report_type;
- 	u8 *report_data;
- 	size_t max_report_size;
--	int report_size;
-+	size_t report_size;
- 	int report_error;
+@@ -15,6 +15,7 @@
+ #include <media/v4l2-ioctl.h>
+ #include <media/videobuf2-v4l2.h>
+ #include <media/videobuf2-vmalloc.h>
++#include <asm/byteorder.h>
+ #include "rmi_driver.h"
  
- 	bool is_busy;
-@@ -355,7 +355,7 @@ static void rmi_f54_buffer_queue(struct vb2_buffer *vb)
- 	}
- 
- 	if (f54->report_size > vb2_plane_size(vb, 0)) {
--		dev_err(&f54->fn->dev, "Buffer too small (%lu < %d)\n",
-+		dev_err(&f54->fn->dev, "Buffer too small (%lu < %zu)\n",
- 			vb2_plane_size(vb, 0), f54->report_size);
- 		state = VB2_BUF_STATE_ERROR;
- 		goto data_done;
-@@ -553,10 +553,9 @@ static void rmi_f54_work(struct work_struct *work)
+ #define F54_NAME		"rmi4_f54"
+@@ -552,7 +553,6 @@ static void rmi_f54_work(struct work_struct *work)
+ {
  	struct f54_data *f54 = container_of(work, struct f54_data, work.work);
  	struct rmi_function *fn = f54->fn;
- 	u8 fifo[2];
--	int report_size;
-+	size_t report_size;
+-	u8 fifo[2];
+ 	size_t report_size;
  	u8 command;
  	int error;
--	int i;
+@@ -597,12 +597,11 @@ static void rmi_f54_work(struct work_struct *work)
  
- 	mutex_lock(&f54->data_mutex);
+ 	for (size_t i = 0; i < report_size; i += F54_REPORT_DATA_SIZE) {
+ 		size_t size = min_t(size_t, F54_REPORT_DATA_SIZE, report_size - i);
++		__le16 fifo = cpu_to_le16(i);
  
-@@ -569,7 +568,7 @@ static void rmi_f54_work(struct work_struct *work)
- 	}
- 
- 	if (report_size > f54->max_report_size) {
--		dev_err(&fn->dev, "Report size %d exceeds buffer size %zu\n",
-+		dev_err(&fn->dev, "Report size %zu exceeds buffer size %zu\n",
- 			report_size, f54->max_report_size);
- 		error = -EINVAL;
- 		goto out;
-@@ -596,8 +595,8 @@ static void rmi_f54_work(struct work_struct *work)
- 
- 	rmi_dbg(RMI_DEBUG_FN, &fn->dev, "Get report command completed, reading data\n");
- 
--	for (i = 0; i < report_size; i += F54_REPORT_DATA_SIZE) {
--		int size = min(F54_REPORT_DATA_SIZE, report_size - i);
-+	for (size_t i = 0; i < report_size; i += F54_REPORT_DATA_SIZE) {
-+		size_t size = min_t(size_t, F54_REPORT_DATA_SIZE, report_size - i);
- 
- 		fifo[0] = i & 0xff;
- 		fifo[1] = i >> 8;
-@@ -613,7 +612,7 @@ static void rmi_f54_work(struct work_struct *work)
- 				       F54_REPORT_DATA_OFFSET,
- 				       f54->report_data + i, size);
+-		fifo[0] = i & 0xff;
+-		fifo[1] = i >> 8;
+ 		error = rmi_write_block(fn->rmi_dev,
+ 					fn->fd.data_base_addr + F54_FIFO_OFFSET,
+-					fifo, sizeof(fifo));
++					&fifo, sizeof(fifo));
  		if (error) {
--			dev_err(&fn->dev, "%s: read [%d bytes] returned %d\n",
-+			dev_err(&fn->dev, "%s: read [%zu bytes] returned %d\n",
- 				__func__, size, error);
+ 			dev_err(&fn->dev, "Failed to set fifo start offset\n");
  			goto out;
- 		}
 -- 
 2.55.0.rc0.799.gd6f94ed593-goog
 

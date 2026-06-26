@@ -1,105 +1,125 @@
-Received: from mail-pg1-f176.google.com (mail-pg1-f176.google.com [209.85.215.176])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from ixit.cz (ixit.cz [185.100.197.86])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A3AA83F7898
-	for <linux-input@vger.kernel.org>; Fri, 26 Jun 2026 13:01:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.176
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 308E73750D6;
+	Fri, 26 Jun 2026 14:11:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.100.197.86
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782478865; cv=none; b=N/VhtBkVNp9jrdabmu+HRuz9y0Qb/FUdGJrnmIOmV9aYyzhdRfOOxmkphDTmpGou8yHSyDcu/n66doiRshAVPF0eWZ0iDoCxQkTOEjnDV+bRBYGpr5OF7XgW5erfT9f48GiemQEdwhAr/ZjiAe7WRneWSy+Ho9ZTWfe5lHHVNhc=
+	t=1782483093; cv=none; b=fqRvQbzD1kf/D0J16EsE6VzYwCtboPw9WmyccSjf7L3iTUzdYo6Pme/vxLrEpwwj9RqvQWjqFsItQelTHgadrUUplJbwE84M+ByTii+boYCqpKn52vYaZelTTpProJZpgDDkgS7JiN3BhU9xo4FQ3U92IGjYs2KsPFq1oekBzHk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782478865; c=relaxed/simple;
-	bh=JkZi4hVDHcCCZsBfm7YqGZn3PdRmgaWziQhFofkbaTI=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=eF6W3MboEZ7GMP28mgrxh8G5SEM0TSlJByYZj6eHUIBIVTi+xmrVhejF1Xevl37+MTJZtg0ty87NCC0qIRfPes7+mxEOeIaffOd0YXSMNYB4DwZF4oXlcgSRcQE3/wafHdfhfrCVzwqRVM/5ULRBxV8U9m1YT/YWlYV3AuLnmQE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=p/vukIEA; arc=none smtp.client-ip=209.85.215.176
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1782483093; c=relaxed/simple;
+	bh=6C5hArhWwYzdaJr2MzciUWsQUrFgJpjcA2bCkwkiVPE=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=Fdk9zQ/wIy55ub+FBiCxshHVQV/mw4IvkickTFZQkWqhBcTx3WizTvUbM+LwWbDTkIpRJqgp7LLg2NvhjvkZsONRgNWbXHIUIH5t5leIWZwRJx04UohNLUlfw74Irs6C5HtYAp6vG1R/HhUcwUZY6sMzu+GiDOarkfP3+4YGmsA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=ixit.cz; spf=pass smtp.mailfrom=ixit.cz; dkim=pass (1024-bit key) header.d=ixit.cz header.i=@ixit.cz header.b=Uf4675RJ; arc=none smtp.client-ip=185.100.197.86
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=ixit.cz
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ixit.cz
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="p/vukIEA"
-Received: by mail-pg1-f176.google.com with SMTP id 41be03b00d2f7-c86307c4e6bso345946a12.0
-        for <linux-input@vger.kernel.org>; Fri, 26 Jun 2026 06:01:00 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1782478859; x=1783083659; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=Y2YPNBvNuBCeG+eopPMvsfTU3fFLr5zHcu+u5wa7dHw=;
-        b=p/vukIEATxgcgNeBVGbI4PRinbNsBdkLpl9WfD9pvtke5e8ivO0vlvyD1Pbu7t+7rK
-         hdFt5WgPZsBf6flBIB3RfaXY4lCP8j3gp3Ku6t2ok12BwIDnsFTkOwK25dyS2uYyLib3
-         HJtTz28fSgAT29hgrMLujRtcLbaek28g4xBoRXYxmTcIoGPLdeSz7e85SdDePf36+rSQ
-         gfXMQxrrHH6N8mOYjmEAZdpg3nia4ZKnEKC/Gl+PNmX2pLUCYVnXB9VLMEA/5gIz0neT
-         UXd+ZAId6809LXc+Ra/fkq0Y9hf02KJsz+GJULum6tox6Cybxx366EAcv74zCZlaJg0T
-         RL6A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1782478859; x=1783083659;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=Y2YPNBvNuBCeG+eopPMvsfTU3fFLr5zHcu+u5wa7dHw=;
-        b=hhYSSkK/z5uoLdrfGQCQ6/LO1yPwJPXKPFQJl7F6uaLHI6u3ko4/ylxAfxDdwj6iGI
-         Q+Odq1OYQGk2vG27mQjw9v4SjQir5zJB0WXCwmoMtbpCEbpHlAIXsxysxzVeupdnsC5A
-         BT4CYhEoCnZ4csZqxxz3cyQaB36axFUKtEqGck0EDEYrmJroqdqEzBPiyjdNqdwNGBgy
-         6/tFy5KIE86T1JnUgA7NYYhj3eN4DN/jArFJKX9Rm2qY+ef3k/mFqmTBHYM1l/Zc2s4b
-         DngWpDEdbKPZhI8a5oR5eHVzU1G0w93yfK6WAWgh7BN0Y2mx029YJt4Us1XCdlZPRvm9
-         EbPA==
-X-Gm-Message-State: AOJu0YxUnPyBdEBTzEA+UBf/5damXNEzSn5tDlBoaau1dFCvaI54SrNu
-	vbdgCPJnOA9U+WObLd0qThPgkx7ok/15Hn9+DakMIIJ7lL2ZaTaeSONO
-X-Gm-Gg: AfdE7cl8/tW0iMuRKm+JQ2+W1dpKRRV8F2ApR3zDzOA2V9ofju2jXmYa9U2Fl+ozgIk
-	5yYVh+6zdD4rmFIzPbk5+2Fqn/3ztnAOGDFAr5b/TFtARbqoO/jH8xFOiEP3dnuyXzyWjgAL/KZ
-	mmm6PI2NdNGBAcKOvlrzx5WdFi23WUcqzRmz8iM+2aonCYnUFw39aLAh+hShc65i1dtDtH9YM0N
-	Jey72sCLu+leorKBfR5w9o/V7yU1PZaxYX8dEkb5HnxrULw3H5HOSBkCQfgeHuhNew+oWvrS6UI
-	5gP5OON+narc9e7n3BiIqNh7FwRj5LXzzohnIKo/K0+68cJ6R6MCLTKvxNyCch12ak7V2ezjwzL
-	Rk3YItOS/ArFjFJnsmkH4qD8f88R4RIuYwVIpCDl/oOL5qBMkIcmgIMomWTGCtPilFhca24bpY3
-	sRBMHX8S+fw5OtErNi9dauRA==
-X-Received: by 2002:a05:6a00:94fa:b0:845:c4e3:3c6f with SMTP id d2e1a72fcca58-845d25f045emr293125b3a.36.1782478858992;
-        Fri, 26 Jun 2026 06:00:58 -0700 (PDT)
-Received: from archlap ([2409:40c2:705c:c67d:dc8e:e453:e08a:4145])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-845a413c7ecsm7453257b3a.56.2026.06.26.06.00.56
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 26 Jun 2026 06:00:58 -0700 (PDT)
-From: Shashwat Agrawal <shashwatagrawal473@gmail.com>
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Shashwat Agrawal <shashwatagrawal473@gmail.com>
-Subject: [PATCH] Input: synaptics - enable InterTouch on Dell Inspiron 3521
-Date: Fri, 26 Jun 2026 18:30:51 +0530
-Message-ID: <20260626130051.2574-1-shashwatagrawal473@gmail.com>
-X-Mailer: git-send-email 2.54.0
+	dkim=pass (1024-bit key) header.d=ixit.cz header.i=@ixit.cz header.b="Uf4675RJ"
+Received: from [10.0.0.200] (unknown [10.88.125.21])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by ixit.cz (Postfix) with ESMTPSA id 639055340139;
+	Fri, 26 Jun 2026 16:11:28 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ixit.cz; s=dkim;
+	t=1782483088;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=HTCmCgqDJk51YW5CVQgQ9h2UDSSC2DWCPmLn+V/EXWc=;
+	b=Uf4675RJd8MkDZp4kSGXR6RHR5XZbmq07Yr6ws9alDkZSLKoCHZtQyx4ieqBrUl5ayh45n
+	S6svrVSGyPGeRPL3bGmluLICAJ6VKLfg2YYu2QXVbcw6IkELJfT0pslC7U8sn00jeOlrLT
+	iXRV+6QCcfszUPn9UqJ1Hf6E16zF8vY=
+Message-ID: <71691c8e-f05e-4f3a-9507-9a590fd5e2c5@ixit.cz>
+Date: Fri, 26 Jun 2026 16:11:28 +0200
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 2/2] arm64: dts: qcom: sdm845-oneplus: Update
+ compatible to include model
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+ Bjorn Andersson <andersson@kernel.org>
+Cc: Krzysztof Kozlowski <krzk@kernel.org>,
+ Krzysztof Kozlowski <krzk+dt@kernel.org>,
+ Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>,
+ Conor Dooley <conor+dt@kernel.org>, "Jason A. Donenfeld" <Jason@zx2c4.com>,
+ Matthias Schiffer <matthias.schiffer@ew.tq-group.com>,
+ Vincent Huang <vincent.huang@tw.synaptics.com>,
+ Konrad Dybcio <konradybcio@kernel.org>, linux-input@vger.kernel.org,
+ devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-arm-msm@vger.kernel.org, phone-devel@vger.kernel.org,
+ Rob Herring <robh@kernel.org>
+References: <20260523-synaptics-rmi4-dt-v2-2-0645122babdc@ixit.cz>
+ <ahdoBl3qCTyvlYJf@google.com> <1d0e7e31-f808-4347-955a-7246dea208f5@ixit.cz>
+ <742c7a13-9465-40e8-8990-e679712e9784@ixit.cz> <ajtaUb4YmyZTDLmQ@google.com>
+ <52b7dd3a-3f6f-474c-8386-4fc2776b185b@ixit.cz> <ajxakXFuKAkhdZLN@google.com>
+ <f81e4d83-90d9-47c8-aee9-319df3f8b0fb@kernel.org>
+ <aj1OhZQjO5nNYlAo@google.com> <32affded-bae2-46c4-a702-2054fbfe46a8@ixit.cz>
+ <aj4QUY5p7gqLplVT@google.com>
+Content-Language: en-US
+From: David Heidelberg <david@ixit.cz>
+Autocrypt: addr=david@ixit.cz; keydata=
+ xsFNBF5v1x4BEADS3EddwsNsvVAI1XF8uQKbdYPY/GhjaSLziwVnbwv5BGwqB1tfXoHnccoA
+ 9kTgKAbiXG/CiZFhD6l4WCIskQDKzyQN3JhCUIxh16Xyw0lECI7iqoW9LmMoN1dNKcUmCO9g
+ lZxQaOl+1bY/7ttd7DapLh9rmBXJ2lKiMEaIpUwb/Nw0d7Enp4Jy2TpkhPywIpUn8CoJCv3/
+ 61qbvI9y5utB/UhfMAUXsaAgwEJyGPAqHlC0YZjaTwOu+YQUE3AFzhCbksq95CwDz4U4gdls
+ dmv9tkATfu2OmzERZQ6vJTehK0Pu4l5KmCAzYg42I9Dy4E6b17x6NncKbcByQFOXMtG0qVUk
+ F1yeeOQUHwu+8t3ZDMBUhCkRL/juuoqLmyDWKMc0hKNNeZ9BNXgB8fXkRLWEUfgDXsFyEkKp
+ NxUy5bDRlivf6XfExnikk5kj9l2gGlNQwqROti/46bfbmlmc/a2GM4k8ZyalHNEAdwtXYSpP
+ 8JJmlbQ7hNTLkc3HQLRsIocN5th/ur7pPMz1Beyp0gbE9GcOceqmdZQB80vJ01XDyCAihf6l
+ AMnzwpXZsjqIqH9r7T7tM6tVEVbPSwPt4eZYXSoJijEBC/43TBbmxDX+5+3txRaSCRQrG9dY
+ k3mMGM3xJLCps2KnaqMcgUnvb1KdTgEFUZQaItw7HyRd6RppewARAQABzSBEYXZpZCBIZWlk
+ ZWxiZXJnIDxkYXZpZEBpeGl0LmN6PsLBlAQTAQgAPgIbAwULCQgHAgYVCgkICwIEFgIDAQIe
+ AQIXgBYhBNd6Cc/u3Cu9U6cEdGACP8TTSSByBQJl+KksBQkPDaAOAAoJEGACP8TTSSBy6IAQ
+ AMqFqVi9LLxCEcUWBn82ssQGiVSDniKpFE/tp7lMXflwhjD5xoftoWOmMYkiWE86t5x5Fsp7
+ afALx7SEDz599F1K1bLnaga+budu55JEAYGudD2WwpLJ0kPzRhqBwGFIx8k6F+goZJzxPDsf
+ loAtXQE62UvEKa4KRRcZmF0GGoRsgA7vE7OnV8LMeocdD3eb2CuXLzauHAfdvqF50IfPH/sE
+ jbzROiAZU+WgrwU946aOzrN8jVU+Cy8XAccGAZxsmPBfhTY5f2VN1IqvfaRdkKKlmWVJWGw+
+ ycFpAEJKFRdfcc5PSjUJcALn5C+hxzL2hBpIZJdfdfStn+DWHXNgBeRDiZj1x6vvyaC43RAb
+ VXvRzOQfG4EaMVMIOvBjBA/FtIpb1gtXA42ewhvPnd5RVCqD9YYUxsVpJ9d+XsAy7uib3BsV
+ W2idAEsPtoqhVhq8bCUs/G4sC2DdyGZK8MRFDJqciJSUbqA+5z1ZCuE8UOPDpZKiW6H/OuOM
+ zDcjh0lOzr4p+/1TSg1PbUh7fQ+nbMuiT044sC1lLtJK0+Zyn0GwhR82oNM4fldNsaHRW42w
+ QGD35+eNo5Pvb3We5XRMlBdhFnj7Siggp4J8/PJ6MJvRyC+RIJPGtbdMB2/RxWunFLn87e5w
+ UgwR9jPMHAstuTR1yR23c4SIYoQ2fzkrRzuazsFNBF5v1x4BEADnlrbta2WL87BlEOotZUh0
+ zXANMrNV15WxexsirLetfqbs0AGCaTRNj+uWlTUDJRXOVIwzmF76Us3I2796+Od2ocNpLheZ
+ 7EIkq8budtLVd1c06qJ+GMraz51zfgSIazVInNMPk9T6fz0lembji5yEcNPNNBA4sHiFmXfo
+ IhepHFOBApjS0CiOPqowYxSTPe/DLcJ/LDwWpTi37doKPhBwlHev1BwVCbrLEIFjY0MLM0aT
+ jiBBlyLJaTqvE48gblonu2SGaNmGtkC3VoQUQFcVYDXtlL9CVbNo7BAt5gwPcNqEqkUL60Jh
+ FtvVSKyQh6gn7HHsyMtgltjZ3NKjv8S3yQd7zxvCn79tCKwoeNevsvoMq/bzlKxc9QiKaRPO
+ aDj3FtW7R/3XoKJBY8Hckyug6uc2qYWRpnuXc0as6S0wfek6gauExUttBKrtSbPPHiuTeNHt
+ NsT4+dyvaJtQKPBTbPHkXpTO8e1+YAg7kPj3aKFToE/dakIh8iqUHLNxywDAamRVn8Ha67WO
+ AEAA3iklJ49QQk2ZyS1RJ2Ul28ePFDZ3QSr9LoJiOBZv9XkbhXS164iRB7rBZk6ZRVgCz3V6
+ hhhjkipYvpJ/fpjXNsVL8jvel1mYNf0a46T4QQDQx4KQj0zXJbC2fFikAtu1AULktF4iEXEI
+ rSjFoqhd4euZ+QARAQABwsF8BBgBCAAmAhsMFiEE13oJz+7cK71TpwR0YAI/xNNJIHIFAmX4
+ qVAFCQ8NoDIACgkQYAI/xNNJIHKN4A/+Ine2Ii7JiuGITjJkcV6pgKlfwYdEs4eFD1pTRb/K
+ 5dprUz3QSLP41u9OJQ23HnESMvn31UENk9ffebNoW7WxZ/8cTQY0JY/cgTTrlNXtyAlGbR3/
+ 3Q/VBJptf04Er7I6TaKAmqWzdVeKTw33LljpkHp02vrbOdylb4JQG/SginLV9purGAFptYRO
+ 8JNa2J4FAQtQTrfOUjulOWMxy7XRkqK3QqLcPW79/CFn7q1yxamPkpoXUJq9/fVjlhk7P+da
+ NYQpe4WQQnktBY29SkFnvfIAwqIVU8ix5Oz8rghuCcAdR7lEJ7hCX9bR0EE05FOXdZy5FWL9
+ GHvFa/Opkq3DPmFl/0nt4HJqq1Nwrr+WR6d0414oo1n2hPEllge/6iD3ZYwptTvOFKEw/v0A
+ yqOoYSiKX9F7Ko7QO+VnYeVDsDDevKic2T/4GDpcSVd9ipiKxCQvUAzKUH7RUpqDTa+rYurm
+ zRKcgRumz2Tc1ouHj6qINlzEe3a5ldctIn/dvR1l2Ko7GBTG+VGp9U5NOAEkGpxHG9yg6eeY
+ fFYnMme51H/HKiyUlFiE3yd5LSmv8Dhbf+vsI4x6BOOOq4Iyop/Exavj1owGxW0hpdUGcCl1
+ ovlwVPO/6l/XLAmSGwdnGqok5eGZQzSst0tj9RC9O0dXO1TZocOsf0tJ8dR2egX4kxM=
+In-Reply-To: <aj4QUY5p7gqLplVT@google.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-The Synaptics touchpad on Dell Inspiron 3521 (PNP ID DLL0597) advertises
-InterTouch / SMBus support, but is not on the SMBus passlist, so the
-driver falls back to PS/2 and logs a hint to try
-psmouse.synaptics_intertouch=1.
+[...]
 
-Add DLL0597 to smbus_pnp_ids so InterTouch is enabled automatically on
-this model (and other Dells that reuse the same PNP ID).
+> 
+> OK, I applied the binding change, the dts change should go through some
+> other tree.
+> 
+> Thanks.
+> 
 
-Hardware: Dell Inc. Inspiron 3521 (board 06RYX8, BIOS A07),
-Synaptics fw 8.1 / board id 2382, firmware_id "PNP: DLL0597 PNP0f13".
+Thank you, I think Bjorn will be picking the dts change :)
 
-Signed-off-by: Shashwat Agrawal <shashwatagrawal473@gmail.com>
----
- drivers/input/mouse/synaptics.c | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-index c70502e24031..2170bbe4c589 100644
---- a/drivers/input/mouse/synaptics.c
-+++ b/drivers/input/mouse/synaptics.c
-@@ -164,6 +164,7 @@ static const char * const topbuttonpad_pnp_ids[] = {
- #ifdef CONFIG_MOUSE_PS2_SYNAPTICS_SMBUS
- static const char * const smbus_pnp_ids[] = {
- 	/* all of the topbuttonpad_pnp_ids are valid, we just add some extras */
-+	"DLL0597", /* Dell Inspiron 3521 */
- 	"DLL060d", /* Dell Precision M3800 */
- 	"LEN0048", /* X1 Carbon 3 */
- 	"LEN0046", /* X250 */
--- 
-2.54.0
-
+David

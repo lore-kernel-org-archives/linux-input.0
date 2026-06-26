@@ -1,73 +1,71 @@
-Received: from mail-dy1-f180.google.com (mail-dy1-f180.google.com [74.125.82.180])
+Received: from mail-dl1-f49.google.com (mail-dl1-f49.google.com [74.125.82.49])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1C26920DD51
-	for <linux-input@vger.kernel.org>; Thu, 25 Jun 2026 23:45:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.180
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2B15625B087
+	for <linux-input@vger.kernel.org>; Fri, 26 Jun 2026 00:47:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.49
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782431141; cv=none; b=ovaNh3O6Ku94IECBunsq10ObNVJP1DIEPJOEH0/igXQeST2CWhk5gChT5JwNcbkWPn8vef7zbB+koi49nhvgRUv0sn6E/w8XvAziUQgLOqJqgTrVyZMt6zWNjG3XrHPq+eB2JkmK+zE3d7ekASodsAcmiaxlL4YvClTsOH3dWWc=
+	t=1782434831; cv=none; b=oBQaD39DjZJlY0g2O7+EhNX2+7XC/aOFPbrtOTp4FQbmLcJbUh9C3lYFXs2gbOOz4PyRAG4KzECDz97vTb2KM4jz2P1voCzs37sMjS8cqnSeqfeHlt1y/YTUS3HCpvu8x+dmsdRIvJ7VAuyXNEUKxbqDbUkcc8CRrCkwtrql4Vc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782431141; c=relaxed/simple;
-	bh=zho+bds/K3sr8/g+6AtV9BHLkTqIWWluRxW2zUqjJmk=;
+	s=arc-20240116; t=1782434831; c=relaxed/simple;
+	bh=6yrkd+f6Od2f0s6kOTu9gBsVj1K7M8+rMQ/nmU9kYuE=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=QpNaS1OTSU6KBEedImXJxFXQ8mgK9EYDf4rmnBTNykgxEtffpY0Mg7UPD5HGNqpECVK/dUHhAXyYufRkAekknjGXBhR9E6M3Hor4KGNKJkwGsEpgxf2emX+RNtK8M+L5zED6N4nlhdv3dLGKwbPA3ESzr0N9Lrp4I3MJ1AIT9p4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=HX1UzVmN; arc=none smtp.client-ip=74.125.82.180
+	 Content-Type:Content-Disposition:In-Reply-To; b=MDs7c9Hl4gCwX7n2K5KjGKGJ1CU1bKTnSnR0QUHkuSsYDLFYFRzlM0Jv1MgKKUaFVAyf9qJvvTpwHGTvcmUvQQ8pm+pjvu/Fw0ai2AnA6V/Wx9juBcFwHTzpKg7qmVghtXQRPn+bgmTxGa33229gId9m0GBTr1LbGZnl1PQOEvE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=l6YYhv4K; arc=none smtp.client-ip=74.125.82.49
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="HX1UzVmN"
-Received: by mail-dy1-f180.google.com with SMTP id 5a478bee46e88-30bf132969bso654001eec.0
-        for <linux-input@vger.kernel.org>; Thu, 25 Jun 2026 16:45:38 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="l6YYhv4K"
+Received: by mail-dl1-f49.google.com with SMTP id a92af1059eb24-1384ebe7a10so1081174c88.1
+        for <linux-input@vger.kernel.org>; Thu, 25 Jun 2026 17:47:09 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1782431138; x=1783035938; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1782434829; x=1783039629; darn=vger.kernel.org;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=gAeg/0vb+Xz33u79vnkEfiy2hWyqVw1XPl1l+y0c8QQ=;
-        b=HX1UzVmNIETGP/IykGirRUGNjgfm0ctMQ3Mfh3zMmVqAv93lLura1SJmNOZfKYKm0B
-         4FmSN4r9q7HNjcJwY0+bydn/2y96zkO06eVkNHrSuwc/Zpn1Od+sKAJtACnBiIYhL6uZ
-         mN0RTe8ourxGZ8PZogtZFv68CaraMlrmwLFNedPdmowuutM/X+VlE8XeWXvewZ+fSXdi
-         R8x0vEUZ1mWMjFe6tdp5/rtRAylgPraNhXCPmknqu5lm6s0hNv6bTCXRFwDCmvC588ik
-         h1p05z207EBzsAV21ddAbrswgYC0sRoO5bs7R0hT1+/R5kvGHBvBkww948vEz2rxmsdy
-         8yzg==
+        bh=iAkgYZFIckmLQ72JHdZDQUywabEfED+EFNSDTArDkJw=;
+        b=l6YYhv4Kzq+C7LajfngWTQAcU3HeDExKpEhE9OdhtG4BJXAWyW0hBl0t1dSTLJGhZr
+         ZAe+BkohaSw1psy21Dhq0btblOFnbDA5to0XuN1uXID3VDYPuBaHWBAPM4wtBw9S+6/m
+         c4pjH5+q49qcfYTetnHpZ3pLFVJs4AsNQ2ZljDxXLu2UH2f1Tb+xI6X7M7MqsUwERADF
+         qULPrWLaEQsH9rqoy3Jv1OefkmryQnRVpdOxRCgCbbJ/OlnSOxnaa18iJedzqASZyEyt
+         aq00OrF6Fapk6GmYkG/leAI8At6Om6D8GsHakjp4Mcgyz6bjwyUIYZck0W4zHlGyIxYI
+         TYtA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1782431138; x=1783035938;
+        d=1e100.net; s=20251104; t=1782434829; x=1783039629;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=gAeg/0vb+Xz33u79vnkEfiy2hWyqVw1XPl1l+y0c8QQ=;
-        b=M98jqoB8Ye1+2zZ+1ioeCfz4N9dWK8aHTDoXHA5nYpfL0XN9Dx/7iaB9zDzmfLQuRf
-         OD+jrubV2fXW5v0//HI9PA+pFq70EtpplfA5d4e6a40rVd3/Mlemibr25sTgW+jViks5
-         6gb7JL1AskM5G14O9aUNmP0JOnvw3ZoTpylp6rWAI2JiKfeWuhM/6bkUmXKNbydrpbZz
-         yBXDu3Z2fhSUbGK1Nzg6O1Q6RP7WJ7IwxHsG41Ty2coutD4TZ273qkls10rHjHFSBGkw
-         4yGEyj8ap9Tx7PYRszzwcYoXDKFU2Q6gbWk/7TATsAkYXmfK6muI+eIcD57MyIvRFV7S
-         BA8g==
-X-Forwarded-Encrypted: i=1; AHgh+RoioxlKqzOAmGwLjHZVlOYxdIu4ONAWyhUHznKMYCzW5U7W5Jq2ZhGoYdQJI7a+XdlYkD0kzu0P1SMTvg==@vger.kernel.org
-X-Gm-Message-State: AOJu0YyRclewEZSShKpTFiKzyc1H8pgjYPpWFFDlo/2rvnDAcvBn7OzV
-	cU279lXjXMZvD07QE5TuYhi1bb8MrSZiaRpMTqUSShJOIQM/whvDS7NE
-X-Gm-Gg: AfdE7cneurftQiRFSaq7Ka2wv29YyuSHUFT/t6Qm6n33EL5MrJmeXS41hZKyaVhv9vm
-	f0vuaYPLv91OjCyfY8MagAbNlkiNr1misQ+x7jgmbvbpIkvC+mcFYj3oQc3XNEMfFBMH6nBJ3kw
-	TlH2uL4ofg9dYO7CGtAOut+ugRr43IZqLU6/WdnmlXihS8J9QX+lHag53+GnMSOPjIXZ3TnqXfg
-	OuzbnJ4c2aHhvDQEIbll7WIX6VEfx6WCqndtY9mu22euc4Tt0B0T9X41vEtIIAWpzq+yriAS8ZQ
-	j7hGmfHbqFe6YXkx+LX3TUkQGwSCxFK7xMAF0bV3jB+mEE72D1ddrW7BpyuCfW32Z12mJ8hJKB3
-	DlDtUe7bgvrqtoMuElxPEmyuktWbZT+6JWBxvbnfhoaVjJMNz3WaOXP7Rt7JKH1DW6exwPsUfAd
-	EEx0R3/VdIpIr4bzVw58tpMs/bvF/GkrcgziLhoT5jWFdzshyF4QKtCg==
-X-Received: by 2002:a05:7300:760a:b0:30b:f0c6:12c8 with SMTP id 5a478bee46e88-30c84ba31edmr4946004eec.9.1782431138182;
-        Thu, 25 Jun 2026 16:45:38 -0700 (PDT)
-Received: from google.com ([2a00:79e0:2ebe:8:c782:a4ca:fcbd:6ba7])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-30c7c8afc91sm12621344eec.14.2026.06.25.16.45.36
+        bh=iAkgYZFIckmLQ72JHdZDQUywabEfED+EFNSDTArDkJw=;
+        b=NlH2N9JukUYID7IclKvu7eb83eq3wTfy6MdQkmWKLheFCLAbPAT7yL7/d/Y1XaTRvf
+         jeDgk8CM8Shoi2aE4fVBK+slUg4E5NrJQwFLi8NUw/0WZ+6akm7jTxjoaiUYO1/Gqf6s
+         dO4IxUCR1UwEXit2WNQ07zigLppGIu9pu6rJKluYUItxnanYVh79tc1oDlnEGQmQ58BO
+         Ton1hd680n5pQNF0EwIPmrPYldBzUS/O2VS5j6kRsEya7tWx5TSAIQQZkktn5G7blJvJ
+         7UPMSLfWEuUNLvRcN9qTxY7IeSPnc5kB4gzkMMSuusXb/w2yuQmU8M/41F6mktI1lnf/
+         0M5Q==
+X-Forwarded-Encrypted: i=1; AFNElJ8Kxf08xTC2QLH6sJqwSObWhOVjZWveeL0r/qBYhi9W0A2MnggF1tZ/YzNYJ0VO/2Qlt3e5pCm1Zs7VhQ==@vger.kernel.org
+X-Gm-Message-State: AOJu0YxeA9YihrUNcX9RqGfX1kxYveeFh9mG2102bJFqZD8QX8cgi48z
+	o4mwWnih53JXNf4BdsCgtnKLdT9dGFHjyqPxb1JQS/AJGH94CsxFiC/U
+X-Gm-Gg: AfdE7ckOZ0HneOu2iRyk3mQGV7ebTjPSFbuCiEq84LAeKGX3S+Jsk7sGUqNqBL0Kw6N
+	jmk9koIPEk98OoEOL5sLcl+Bl/sJYADiwBcX8NvREkVQSjc2KVrEnY90R4GnbW5j78ytHi3LdsG
+	Ntr5uWp4bHUnalsV+z1vyhE7TUMEjhDmcjca36yOQxz8I2znIEHmSC+5ZSzNmXNKW1IuYwE36FW
+	LBNkGtpTmG5AIztpDHnhd2C9mHhDRubw0/7iU+jbMe1U8cTajKBPKQqbepbFcKPES1refZ8cMVm
+	NTFmtZvLKmlN6y868qPRsqFMebIHq+vX0eGLmZ+g8yIUensplZhbGXLCHH+nJT8cBFf2uCsl/ag
+	h55hK/IkKBLuuEfetjnqchMCbDHHNqNNQ7XGmO17HHb31ziwFa86B2eiiBNiAuzuA66o4rUO/3X
+	xLcwShSm0Uk4H4cuRWgdwjm2iTpFsoEJljjEzWOvs5JvNDCAVlNfr6fw==
+X-Received: by 2002:a05:7023:a4b:10b0:139:dd81:70bb with SMTP id a92af1059eb24-139dd8195efmr2446115c88.30.1782434829133;
+        Thu, 25 Jun 2026 17:47:09 -0700 (PDT)
+Received: from google.com ([2a00:79e0:2ebe:8:a474:bf4a:4966:8d97])
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-139d912197bsm19501767c88.15.2026.06.25.17.47.08
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 25 Jun 2026 16:45:37 -0700 (PDT)
-Date: Thu, 25 Jun 2026 16:45:34 -0700
+        Thu, 25 Jun 2026 17:47:08 -0700 (PDT)
+Date: Thu, 25 Jun 2026 17:47:05 -0700
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Svyatoslav Ryhel <clamor95@gmail.com>
-Cc: Rob Herring <robh@kernel.org>, 
-	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
-	Linus Walleij <linusw@kernel.org>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, 
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v6 2/2] Input: isa1200 - new driver for Imagis ISA1200
-Message-ID: <aj28fvj34b4_VI3k@google.com>
-References: <20260617070528.35006-1-clamor95@gmail.com>
- <20260617070528.35006-3-clamor95@gmail.com>
+To: hexlabsecurity@proton.me
+Cc: linux-kernel@vger.kernel.org, Hans de Goede <hansg@kernel.org>, 
+	Vincent Huang <vincent.huang@tw.synaptics.com>, linux-input@vger.kernel.org, 
+	Andrew Duggan <aduggan@synaptics.com>
+Subject: Re: [PATCH 0/2] (no cover subject)
+Message-ID: <aj3L98m2MI9fzy8Q@google.com>
+References: <20260614-b4-disp-818d6bda-v1-0-cf39a3615085@proton.me>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -76,62 +74,59 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260617070528.35006-3-clamor95@gmail.com>
+In-Reply-To: <20260614-b4-disp-818d6bda-v1-0-cf39a3615085@proton.me>
 
-Hi Svyatoslav,
-
-On Wed, Jun 17, 2026 at 10:05:27AM +0300, Svyatoslav Ryhel wrote:
-> From: Linus Walleij <linusw@kernel.org>
+On Sun, Jun 14, 2026 at 12:36:10AM -0500, Bryam Vargas via B4 Relay wrote:
+> From be2c4843f6145374f28edd25cef43c9373542874 Mon Sep 17 00:00:00 2001
+> Message-ID: <cover.1781415009.git.hexlabsecurity@proton.me>
+> From: Bryam Vargas <hexlabsecurity@proton.me>
+> Date: Sun, 14 Jun 2026 00:30:09 -0500
+> Subject: [PATCH 0/2] Input: synaptics-rmi4 - fix out-of-bounds keymap access on large GPIO counts
 > 
-> The ISA1200 is a haptic feedback unit from Imagis Technology using two
-> motors for haptic feedback in mobile phones. Used in many mobile devices
-> c. 2012 including Samsung Galxy S Advance GT-I9070 (Janice), Samsung Beam
-> GT-I8350 (Gavini), LG Optimus 4X P880 and LG Optimus Vu P895.
+> The RMI4 F3A and F30 function handlers size their GPIO/LED key map to
+> min(device_gpio_count, TRACKSTICK_RANGE_END) == at most 6 entries, but
+> then consume that map with the full, unclamped device-reported count in
+> two places: the attention-interrupt report loop, and input->keycodemax
+> (while input->keycode points at the small allocation).
 > 
-> The exact datasheet for the ISA1200 is not available; all data was modeled
-> based on available downstream kernel sources for various devices and
-> fragments of information scattered across the internet.
+> A device that reports a GPIO/LED count greater than 6 therefore yields a
+> key map of at most 12 bytes that is indexed up to count-1:
 > 
-> Tested-by: Linus Walleij <linusw@kernel.org> # GT-I9070 Janice
-> Signed-off-by: Linus Walleij <linusw@kernel.org>
-> Co-developed-by: Svyatoslav Ryhel <clamor95@gmail.com>
-> Signed-off-by: Svyatoslav Ryhel <clamor95@gmail.com>
+>   - rmi_f3a_attention() / rmi_f30_attention() read gpio[led]_key_map[i]
+>     out of bounds on every attention interrupt (device-triggered), and
+> 
+>   - the input core's default keymap ioctls bound the index only against
+>     keycodemax, so EVIOCGKEYCODE reads adjacent slab memory back to user
+>     space and EVIOCSKEYCODE writes a caller-controlled u16 past the
+>     allocation -- a controlled out-of-bounds heap write reachable by any
+>     process that can open the evdev node.
+> 
+> Both handlers have the same shape; F3A was copied from F30. Patch 1 fixes
+> F3A, patch 2 fixes F30. The one-line fix in each sizes the key map to the
+> full device count; the mapping loop is unchanged (it still populates only
+> the first min(count, 6) entries, the rest stay KEY_RESERVED and are
+> skipped on report), and keycodemax now matches the allocation, closing
+> the interrupt and both ioctl paths.
+> 
+> Reproduced with KASAN on a faithful in-kernel model of each handler
+> (kmalloc-16 bucket, 12-byte request, reported count = 127):
+> 
+>   # without the patch -- attention read path
+>   BUG: KASAN: slab-out-of-bounds in rmi_f3a_attention
+>   Read of size 2 ... 0 bytes to the right of allocated 12-byte region
+>     ... cache kmalloc-16
+> 
+>   # without the patch -- EVIOCSKEYCODE write path
+>   BUG: KASAN: slab-out-of-bounds ...
+>   Write of size 2 ... 0 bytes to the right of allocated 12-byte region
+> 
+>   # with the patch (key map sized to the full count): clean
+>   # benign device (reported count <= 6): clean
+> 
+> The full read and write splats and a 32/64-bit ASan model of the same
+> geometry are available on request.
 
-
-Sashiko convinced me that using mutex_trylock() in the playback work
-handler will result in dropping requests and that we are safe not taking
-the lock there at all. Can you please try the following modification?
-
-diff --git a/drivers/input/misc/isa1200.c b/drivers/input/misc/isa1200.c
-index c61adc4b605c..fb7f68fa0a2b 100644
---- a/drivers/input/misc/isa1200.c
-+++ b/drivers/input/misc/isa1200.c
-@@ -253,15 +253,12 @@ static void isa1200_stop(struct isa1200 *isa)
- static void isa1200_play_work(struct work_struct *work)
- {
- 	struct isa1200 *isa = container_of(work, struct isa1200, play_work);
--	struct input_dev *input = isa->input;
--
--	scoped_guard(mutex_try, &input->mutex) {
--		if (!isa->suspended) {
--			if (isa->level)
--				isa1200_start(isa);
--			else
--				isa1200_stop(isa);
--		}
-+
-+	if (!READ_ONCE(isa->suspended)) {
-+		if (isa->level)
-+			isa1200_start(isa);
-+		else
-+			isa1200_stop(isa);
- 	}
- }
- 
-
-If this works no need to resend, I'll fold on my side.
-
-Thanks.
+Applied the lot, thank you.
 
 -- 
 Dmitry

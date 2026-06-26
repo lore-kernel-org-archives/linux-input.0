@@ -1,72 +1,73 @@
-Received: from mail-dl1-f48.google.com (mail-dl1-f48.google.com [74.125.82.48])
+Received: from mail-dl1-f47.google.com (mail-dl1-f47.google.com [74.125.82.47])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 64B7D396B70
-	for <linux-input@vger.kernel.org>; Fri, 26 Jun 2026 05:18:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.48
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B423539DBE0
+	for <linux-input@vger.kernel.org>; Fri, 26 Jun 2026 05:18:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.47
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782451091; cv=none; b=idQTYAJKB+bo2XsF1YG0xh755xEY4ieuEHXlqqgHnWJPjOTm9qXXC3jlEMDtxb5eedkMoTfx0Rx6vcLqMZ1jXX9lk8rFpC4rme48w4HMeCBJhCDg6bAU6n0L60NOwMp3emRxYhpwc+265xDjsZYWGwlxMAE+Aw5LcxKYaOFaOYk=
+	t=1782451092; cv=none; b=FGIVy0EMuJ/Nem6VA5Fsfp3HcTYhF4iwDKXS4LlXVNGNZ8nGLNBGXMwT/bCIZfioYHDB5QiNPmjtSDXmX0Wv3CBWZw7MUXQnM1zBci4wC46C4ZIbGktdUHDFszDYKYn4NjHolYQ2wvi9zGp3Aw3sd4WmvrEcsvRgIt33/OToRpA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782451091; c=relaxed/simple;
-	bh=xzeEhHEyQCRH9yR9joDMads1uaHmYunLiX/nHJEP0QI=;
+	s=arc-20240116; t=1782451092; c=relaxed/simple;
+	bh=w9BRv4G/Z4TxVw3Bis+zhuru73hqyT+jHylpJ1c6Fq8=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=nVP8wjyZhNpNFKh3QwwFrfVvXHif+iRPgCk6rx7cN1HXN72kI8r4YJThoyHTenDWK5y8cwrwQ/EsvKm6dIeM1FtAiGRBgp+tUJxBANKnmGEX4jBHK8/HZL0HHpxixN84t/MWM+AtNwG27bzWDS6UvebdjhPOoc9Es7KP4UatsNM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=AFQHoXli; arc=none smtp.client-ip=74.125.82.48
+	 MIME-Version; b=Pju2G+WbOs6VDStoTXw2Bnwe2fr7zxAzUb5rMIw3RADViDBRRb8XOqeASg76HPsLyS+7zHmXlrqTckSmC/XjUQ86UnXTBSH4dXrX7k9A8hoIOd+rfsjskJEervAMRz9w65xTVnQhCa+MrvRH99obnfaOSs08U9aIPV3DI6/I3+Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=rwnlIc2h; arc=none smtp.client-ip=74.125.82.47
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="AFQHoXli"
-Received: by mail-dl1-f48.google.com with SMTP id a92af1059eb24-1363fe80fe8so1335900c88.0
-        for <linux-input@vger.kernel.org>; Thu, 25 Jun 2026 22:18:10 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="rwnlIc2h"
+Received: by mail-dl1-f47.google.com with SMTP id a92af1059eb24-1363fe80fe8so1335928c88.0
+        for <linux-input@vger.kernel.org>; Thu, 25 Jun 2026 22:18:11 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1782451089; x=1783055889; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1782451091; x=1783055891; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=xfyMoOrj1XhKeMiEVwgSjYoIFZP5QHNbRipRhkiiuRo=;
-        b=AFQHoXli454V7cZcl+BG6hB+QvAWSTuMjcAEgTu+sjHXG+YKGVjC7s5ixKGwN3O2FZ
-         /buHdbFyq/9aPzJjfGUgLzYghaIY0mU6766TgUSkUZWRLh8CJGYmj2so50ieAlg3t0hr
-         0apV+X80Gyu7hOgU7NFSpmlZe18UDZwVBi8sumLFdCcaGAcTRdZUHVkvQbJnhyuJ80EQ
-         g9CmG5ohCw2G0w7se8J72fuiRdlXbqaJb/BZ3PFGt402mwRXSdyMItKwyb1MN3zp5KlG
-         +IeC8BP2MIvvQBM/e+5CZhNOejeNpqzt7EB287Ht0bTN9ZfFIrsMhWxtnh37W1/3zEHK
-         X2wg==
+        bh=T5KCEVqg43xVNnx9u3vD7/j+0QLcI2+mbLsn7eDrFzY=;
+        b=rwnlIc2ha7t6wf5fC1Klh9IWELwQEJ6RcZRf9yIJfRdAimT6kvb7DjIU/wWeaJHG7g
+         0d4/Qvv+6WpsJcixJDMQ/BcZkWUfOYn4/LyY3f5PfONJUD5NBIGVbG531f+zhhRz+hhj
+         xQQO2ipy3N/9cjAhpiv/R683c3g0TayVpaRpWLzAV1EJ+mebLVVsJy/7erWnRWtaLNqz
+         nWYdyOZfqwb4G6JCtIiYJM2d5aK2Zop99AtkbjD3+h2fSZ4DwJiJjncTtVWucSeJllPW
+         xtmc4NqwY9B4WNyES3QP2VxJ//COio3BaXiW40KGF0TU6dVf3Ji3t9ea326fCpeNxS8H
+         U1XQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1782451089; x=1783055889;
+        d=1e100.net; s=20251104; t=1782451091; x=1783055891;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=xfyMoOrj1XhKeMiEVwgSjYoIFZP5QHNbRipRhkiiuRo=;
-        b=bIh4Q1ASBfYq2OqYF/eUConmBg8GeoY96ne5O4fLP+Rw4OvqqJIvvsDIZfoe13DChO
-         bxVUo8xBfJoYSWk1qVGuDBICnuTm45uwtoNUCT2ppZvdsvJmbx7TIjU8XHpzLd95pVd8
-         aUHxJv0oYTW8I3kYs6PGi/yypYCnP4noPseGniWLs+TgVRr4EzPhmeFZ2mRn4Rg1+ZZb
-         ZbQTFEuUZbXSEA87TawBJ6u/srFqGIjs0u764eZ3ZS9gvIgyLfCzlEg6DHunxYWgbsb0
-         LhmKMBquvnk2qVdfYg3WWdXaTLO2MPYT1KTCH536JAObW5GoaMnlsA8L5/fZCVHWIQzb
-         QJzw==
-X-Gm-Message-State: AOJu0YzoznXiaewPcenOMaF01ZHJH6wQIEJ+4SULi+V0AQp/1A8glOPs
-	joVAqJ/g4ILx4GasdYI9NihWEmgLzG54M+POtkVz/XTVsxx2zM8/GIEr
-X-Gm-Gg: AfdE7cmGe+fGLGjp9msdHxl+QrDtw102oy1ycQ1oXqDSnBQZkg2Ch9vVTRZJyrDZ3RT
-	dVlYkcfv8amr9pztFW4bbpBi1fBNiQ/J8o3dRJS174Oc5mm77nzSck/UDgTlN5PRsFFEZPy1OD/
-	+r12ziaFDBCEeuo+Q6qht4/H8bnvAcXN4+ZnYUL/4i3NVcKTEWH5skLGn3ufKRqknetkdPDiqTD
-	PTiL7C0BtpNvJnnTjWrFzz0ghkvTpmJdkUIPGHTkTBfYndd8854M9QvkBmcgZ+iVcaPuvGOcyu2
-	UcyjESUOdvRu7cXAHXpp0X/cOeCZczX2ci2/B1uO6OXsD63nrC+dI/2y0ujqj04+dv1G0hj2Gzt
-	qLXR3rTHoBIBQLWwwVnRxEJ8x6XvZxNfgvDtNJ9QGJ689SbDKJNYHxcbfZdaoIAlwkYevSYWRjA
-	K187kNIwnEbMQQ5luzC13QjR7StseufVkcVYLXcboJnDgmuf7mIasvKeIb259ZwWxa4pJ++8NAL
-	yvmWebENOmiEn4=
-X-Received: by 2002:a05:7300:7246:b0:30c:5a5:df4f with SMTP id 5a478bee46e88-30c84eb9cf8mr6385940eec.16.1782451089397;
-        Thu, 25 Jun 2026 22:18:09 -0700 (PDT)
+        bh=T5KCEVqg43xVNnx9u3vD7/j+0QLcI2+mbLsn7eDrFzY=;
+        b=ifAGKuDCqhBoNNlbJExRScjkq8T/vfGf4fD1o2UwM5HJ+7TooJhDFFUESSSJIsglKp
+         kWSOlj71LYR8PSXF72qXVgzGMzM0SJPnT27IZA13POdnUZI/5sWsqmsM/Q27qBpVM6f4
+         pCfI1yigF/uhRYGudjSBWpw0VkDxiTs36VlorjtIvMrgLaXo+Y5iETPJ3qWZ0FfcX6dz
+         sI2XVKtS4J/tHirzlj/SObu8sZDw7lBRcvvkNAUvVa4bKwWUwF2pkIzt4/CwEGk7WQBJ
+         ykg4LwYS7q8ZYLXbxN42Y9sGVfThRh4uJMOdaGj8LKGq3vlyjBPJKEGGNPyltNUKX1cF
+         84nA==
+X-Gm-Message-State: AOJu0Yw3+GPKtOmw2N9iP+VrzUD6HRSePhacrKTVS90mHHCq0o+F80Kd
+	mnSm6rkpTARvAzRXcph5NQ1S5h0kCmcHwFjqDFdxK8UzSQGhJ4uVysJl
+X-Gm-Gg: AfdE7ckIR40J0alvJI7WoQe5lZ9/V5lvggQpn5woRXErY3OhmOgoOeKqesLsIV9V70k
+	eHcClCjkH1hlPOfqxhJXuHrvO5aWu5Rl7muAJdNjv2Xr3pnM/GkZ2jRSmmUgT2CNjoFGYGwO2Im
+	O43/7d887VJL9JfIXV4zzFGd4r3AiqP8g/2ttAS2ft7tPIH5+VLDnpOJl+NwK9WVeQwJoy/dbsY
+	TcssC0EoIjufAJnIvPFtjl3fUx14dWEfuuaeT3CxNbImbQR9bSnkJyIM3gy5nLIb/ie9MZrb3Lw
+	eW/ZEFYk+WDJ/hTszMKu5cXkB5qzV5ITz7Zuxdd4G/EzpubtmzvbJxVYO0VQBtABX/kVfjppaUe
+	k2XaPrnLnKMZjPSDLLrOhtxD3oNlF9T9/8y/VLfGdlq+poFYbxfXATdDMh4yWFyxMdz1egTysC6
+	lgoPY+gXXrWUNJXsXmkoyAAZoYApdn1mCkXxjRBlyxvcS1YvJ5YtYSgANcz9aPdrHTuLFqkL2RC
+	s8W
+X-Received: by 2002:a05:7300:1821:b0:2ef:83d4:647f with SMTP id 5a478bee46e88-30c84f216d4mr5261124eec.25.1782451090822;
+        Thu, 25 Jun 2026 22:18:10 -0700 (PDT)
 Received: from dtor-ws.sjc.corp.google.com ([2a00:79e0:2ebe:8:a474:bf4a:4966:8d97])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-30c7c9e9214sm14804188eec.20.2026.06.25.22.18.08
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-30c7c9e9214sm14804188eec.20.2026.06.25.22.18.09
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 25 Jun 2026 22:18:08 -0700 (PDT)
+        Thu, 25 Jun 2026 22:18:10 -0700 (PDT)
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 To: Bryam Vargas <hexlabsecurity@proton.me>,
 	Hans Verkuil <hverkuil@kernel.org>
 Cc: linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
+	sashiko-bot@kernel.org,
 	stable@vger.kernel.org
-Subject: [PATCH 03/10] Input: synaptics-rmi4 - bound the F54 report size to the allocated buffer
-Date: Thu, 25 Jun 2026 22:17:52 -0700
-Message-ID: <20260626051802.4033172-3-dmitry.torokhov@gmail.com>
+Subject: [PATCH 04/10] Input: synaptics-rmi4 - cancel delayed work on F54 remove
+Date: Thu, 25 Jun 2026 22:17:53 -0700
+Message-ID: <20260626051802.4033172-4-dmitry.torokhov@gmail.com>
 X-Mailer: git-send-email 2.55.0.rc0.799.gd6f94ed593-goog
 In-Reply-To: <20260626051802.4033172-1-dmitry.torokhov@gmail.com>
 References: <20260626051802.4033172-1-dmitry.torokhov@gmail.com>
@@ -78,84 +79,37 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-From: Bryam Vargas <hexlabsecurity@proton.me>
+Ensure that any pending delayed work is cancelled before destroying
+the workqueue in rmi_f54_remove() to prevent a potential Use-After-Free.
 
-rmi_f54_work() reads a diagnostics report from the device into
-f54->report_data, sizing the transfer with rmi_f54_get_report_size():
+While destroy_workqueue() drains the queue, it does not cancel pending
+timers for delayed work. If the timer has not yet expired when
+destroy_workqueue() is called, the work is not in the queue yet. Once
+the timer expires later, the timer handler will attempt to queue the
+work onto the already destroyed workqueue, or access the freed f54
+structure (since it is devm-allocated), leading to a crash.
 
-	report_size = rmi_f54_get_report_size(f54);
-	...
-	for (i = 0; i < report_size; i += F54_REPORT_DATA_SIZE) {
-		int size = min(F54_REPORT_DATA_SIZE, report_size - i);
-		...
-		rmi_read_block(.., f54->report_data + i, size);
-	}
-
-report_data is allocated once at probe from F54's own electrode counts
-(array3_size(f54->num_tx_electrodes, f54->num_rx_electrodes, sizeof(u16))),
-but rmi_f54_get_report_size() computes the size from
-drv_data->num_*_electrodes when those are set, i.e. from the F55
-function's electrode counts. Both counts come straight from device
-queries (F54 and F55 each report up to 255 electrodes) and nothing
-constrains the F55 counts to the F54 ones.
-
-A malicious or malfunctioning RMI4 device that reports larger F55
-electrode counts than its F54 counts makes report_size exceed the
-allocation, so the read loop writes past report_data (and the V4L2
-dequeue memcpy() then reads past it). On conforming hardware the F55
-configured electrodes are a subset of the F54 physical electrodes, so
-report_size never exceeds the buffer and well-behaved devices are
-unaffected.
-
-Record the allocation size and reject a report that does not fit,
-mirroring the existing zero-size check.
-
-Fixes: c762cc68b6a1 ("Input: synaptics-rmi4 - propagate correct number of rx and tx electrodes to F54")
+Fixes: 3a762dbd5347 ("[media] Input: synaptics-rmi4 - add support for F54 diagnostics")
+Reported-by: sashiko-bot@kernel.org
 Cc: stable@vger.kernel.org
-Signed-off-by: Bryam Vargas <hexlabsecurity@proton.me>
 Assisted-by: Antigravity:gemini-3.5-flash
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 ---
- drivers/input/rmi4/rmi_f54.c | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ drivers/input/rmi4/rmi_f54.c | 1 +
+ 1 file changed, 1 insertion(+)
 
 diff --git a/drivers/input/rmi4/rmi_f54.c b/drivers/input/rmi4/rmi_f54.c
-index 8eac320c43e3..75839a54656b 100644
+index 75839a54656b..aebe74d2032c 100644
 --- a/drivers/input/rmi4/rmi_f54.c
 +++ b/drivers/input/rmi4/rmi_f54.c
-@@ -104,6 +104,7 @@ struct f54_data {
+@@ -749,6 +749,7 @@ static void rmi_f54_remove(struct rmi_function *fn)
  
- 	enum rmi_f54_report_type report_type;
- 	u8 *report_data;
-+	size_t max_report_size;
- 	int report_size;
+ 	video_unregister_device(&f54->vdev);
+ 	v4l2_device_unregister(&f54->v4l2);
++	cancel_delayed_work_sync(&f54->work);
+ 	destroy_workqueue(f54->workqueue);
+ }
  
- 	bool is_busy;
-@@ -548,6 +549,13 @@ static void rmi_f54_work(struct work_struct *work)
- 		goto out;     /* retry won't help */
- 	}
- 
-+	if (report_size > f54->max_report_size) {
-+		dev_err(&fn->dev, "Report size %d exceeds buffer size %zu\n",
-+			report_size, f54->max_report_size);
-+		error = -EINVAL;
-+		goto out;
-+	}
-+
- 	/*
- 	 * Need to check if command has completed.
- 	 * If not try again later.
-@@ -678,8 +686,8 @@ static int rmi_f54_probe(struct rmi_function *fn)
- 
- 	rx = f54->num_rx_electrodes;
- 	tx = f54->num_tx_electrodes;
--	f54->report_data = devm_kzalloc(&fn->dev,
--					array3_size(tx, rx, sizeof(u16)),
-+	f54->max_report_size = array3_size(tx, rx, sizeof(u16));
-+	f54->report_data = devm_kzalloc(&fn->dev, f54->max_report_size,
- 					GFP_KERNEL);
- 	if (f54->report_data == NULL)
- 		return -ENOMEM;
 -- 
 2.55.0.rc0.799.gd6f94ed593-goog
 

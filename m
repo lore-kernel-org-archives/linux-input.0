@@ -1,100 +1,111 @@
-Received: from mail-dy1-f175.google.com (mail-dy1-f175.google.com [74.125.82.175])
+Received: from mail-ed1-f47.google.com (mail-ed1-f47.google.com [209.85.208.47])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E2B6A3A0E81
-	for <linux-input@vger.kernel.org>; Fri, 26 Jun 2026 21:18:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.175
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 742203BFE31
+	for <linux-input@vger.kernel.org>; Fri, 26 Jun 2026 21:43:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.47
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782508726; cv=none; b=gIVAV47lDsuAD8lJpEzOqA8ck+LOHGj7wc3ktL5Mcjy6Hq4oQTgO8BWA6wNSs5henoPkqmttZZ7HDWHqGy44Ic+jWLqx5WVYl65e8oSxmaaWD8u7wlpoJrE904JNpcWss/qe9ScsQi2rqFuGOb831r0Sf8ElAszL4ndVMmKCPJE=
+	t=1782510198; cv=none; b=RjppR/d+VHugCT1y7G1noBaEkM/LS/6hMsIrgMfhVOmuNEZI+/UbJQfjekL2ijSZjKTd3sBN+Jii9QmmqFGmLjmVir8eWgBqnJo/WYBhcewDF0f8reWm8h9zcUEnuj9CgXt6Rgd/QWKU6gdxRwqbavwXXLmWtgL0lMT6Y1/aSiQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782508726; c=relaxed/simple;
-	bh=IkV7U9ogkKqOnX0NBoUpimxq9cdoyREC1nAvxyqFT2s=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Th8ASqoHGOLi1YJTEVWkv9FOcq4NJJQMoPlvwDILeIahftnkqo2IWYo6zdXzqEBI+egJ9GMTS17gpuaLev0oRsevu8JUQ0fgNL08/NdcPySW6UYhL1viYPfLu4LfR7U/fHbkdIOd4XFRqqzC+mbWOHRpdOR9Ojd7WKs+RcHBzaE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=MtcoFo7v; arc=none smtp.client-ip=74.125.82.175
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1782510198; c=relaxed/simple;
+	bh=WCK5RAk1zCdP4c1gcbjSWj0Nfx6JIBiJNNlUouygubM=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Grf6yg05WvvwbPs/QCQdQAXwfCDIqOAbgXJ6MeU4A0ikb+qS8OEAflXBzqEx0lHT3sS60vxMyayznlXKcWjDTqUml9azGYnJLmbnbXQiJ5xgargR07q5KS7fx2GD/UW63TBg+mJ3vNjqgQW3f8C3C9qEOb7Wb4r3948IjufXzm8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=mide.dk; spf=none smtp.mailfrom=mide.dk; dkim=pass (2048-bit key) header.d=mide-dk.20251104.gappssmtp.com header.i=@mide-dk.20251104.gappssmtp.com header.b=W1YUXR8S; arc=none smtp.client-ip=209.85.208.47
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=mide.dk
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=mide.dk
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="MtcoFo7v"
-Received: by mail-dy1-f175.google.com with SMTP id 5a478bee46e88-30c944aacbaso370754eec.1
-        for <linux-input@vger.kernel.org>; Fri, 26 Jun 2026 14:18:44 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=mide-dk.20251104.gappssmtp.com header.i=@mide-dk.20251104.gappssmtp.com header.b="W1YUXR8S"
+Received: by mail-ed1-f47.google.com with SMTP id 4fb4d7f45d1cf-695f6438518so2079357a12.0
+        for <linux-input@vger.kernel.org>; Fri, 26 Jun 2026 14:43:17 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1782508724; x=1783113524; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=ZhyPf6GQJmpSddVhdbYcqKz2oPB1WGoH9FVCpWvWJTY=;
-        b=MtcoFo7v6l48mYtL+pRGB/KDvPm4pAhaSuRtc6EG7kT5IOEdG/9E981Vck64qb48UP
-         lTY0mwdsvxlkGwF8+ISxz8I2P7O2uTNuTQ1wiw687KjVVbdi5w9rvlTWX1ASMOtKIYjU
-         +NlyOhMP3tyT15yLwQEJgDv8Yrc5BMLH5vuac2VPdVw451roNBbYv5DpC5vhAJ96oyRl
-         lJNxLWsigmA4BcYeUxp31CJDFD3oi1bDr+th8zVi0+LLi/6PtS1cEAQ/ezVxy/kX9/xB
-         pkhBbwQLjMJBVtkqJpOKBkUAVHoLOUbDGS1sDWyhKiLJJGbgxQcbYGNwVpi/CfBtZJgA
-         eAVQ==
+        d=mide-dk.20251104.gappssmtp.com; s=20251104; t=1782510196; x=1783114996; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=IVS51nQcnzfBBjuOddkxlKtX7yJkhFrdX5YZEJPsN3g=;
+        b=W1YUXR8SNgCVMGHfP4XNyQDUa5/hdMuwcIJTiKjpSimTEt8Z4rWXX+EO5eV3mtl/Of
+         DdDG2og6E92B8nWi1VNoHBDmfhn64GwDeXsscfysFzhHe2+280PHTcnAFwHV7St17QoI
+         tIJaY36vLQ6UCMRXJ7R5Y/O5cRjyXv05slLgPpXCmotk4LZtnZrN8VJ8TNquGaBlZwK0
+         BV9RtHSG2UGnRECCbzRKNmwqVQ1vW0hJuksnvU6CgTnspZxcQfcPnDkDxba3DZomDoLW
+         AdJKBt4Z34kQKwZefeeo5rP+rY92hIXRWWhEKIGu3VSGI3jbYDJ47s7flPWllPbcFUdq
+         g2Tg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1782508724; x=1783113524;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=ZhyPf6GQJmpSddVhdbYcqKz2oPB1WGoH9FVCpWvWJTY=;
-        b=Hhhi2ZJr341RITKqalMecDzGYK6USSzZ3ObeMR8ZpGirjgABh46sVg4ZIx+QrxevNd
-         RZANF2XnkyEaUT8JP7ufeQoDvj3lBQN4JlylT4aEuxGLosJZPAoQ4ReL2kYBwtVnf8NQ
-         AAALS1F+EWQcokpZn97myt5cchgY7HzeVt4jNbwd2HtaOVdQ3/u7ONyIxeq/P81gpZ2K
-         yDdcglU0iGcCzll+38LhLLVZQ3cvT3SX/7S/uWxMYHeDa6H4q3juFYMk12Y5uBzGwA5W
-         QR6p4xM7CXbU8nd+0jyYhK/FAbk7grpCB8U30B7yVIkXhPji81GfrkpMGMQbONdmHCK8
-         3ydw==
-X-Gm-Message-State: AOJu0Ywla23mn9so1d+FLqDjnVcHPSE4Dcx/u78SwNXfbizUv4J500Hq
-	aJY88aoSu65ycwIYyCzpVPwSQe//bwCf8OTHHHsrp9IYU9aFIAyWGhBD
-X-Gm-Gg: AfdE7cnFnXLnKG50PywHtLbw7xM+4izgujG+LsPeC06raBhv5boFWDX57pzp363AZkD
-	Rk6ghme246XO75FT7Cpuj/Q+x7LcVV8yEc7/urVDxABR8Gq5m6Ydk6ROdXcEVbyV72d+oJmanNT
-	i/Uk2GjtaFZZXEfWyc6oX2IeB22Y8RVBhzZxJbPxF6G9EkbvUfks4hY2cs8Q+w6vx50+08XTLY8
-	bxusIYaH6WFaGSSxRj17RQt9qQiMsqa5/2VGp7otAwoeSR2o902TnLZz4Yx8T2Eus1qyStjB5+R
-	gDhu/iMa+i2uN0YgSj5wuVCnw8SmpAEcGViSirkizBsBFEgVgn797GKic5soGwgLoy6tf7oAF23
-	A+WXCASVOTvmbQZD5O2x6E9QfneSJyvG+vNKqwRh/7AqYdBmTN5ZKEsJimIExgT62Q7H3xe4Npa
-	+5JjL1XJsDZJG9ZGmQMcmby6ulProT8OARl442lT3Mu+kk0fs9p7X9PA==
-X-Received: by 2002:a05:7300:e6c4:b0:30c:38ed:46b0 with SMTP id 5a478bee46e88-30c84fa74a2mr8166705eec.16.1782508724032;
-        Fri, 26 Jun 2026 14:18:44 -0700 (PDT)
-Received: from google.com ([2a00:79e0:2ebe:8:a474:bf4a:4966:8d97])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-30c7c52c664sm23589430eec.8.2026.06.26.14.18.42
+        d=1e100.net; s=20251104; t=1782510196; x=1783114996;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=IVS51nQcnzfBBjuOddkxlKtX7yJkhFrdX5YZEJPsN3g=;
+        b=dczvLkhDURxUKvZ1uYfXdPMtIO9FibWDCiWXT/rkOGeIW4zmv80exeu2F7lT1fCb8X
+         T4vrc0u5CXI4k8M2THXklcX6CSemzfsk/oSZYbY5ctvQ0dCnMVxeIVF85gcuJM/6/Bg9
+         ILeQiCF3YajQlnMRpGUGp0xt/8OL/WzuegEJrHMLzYhLhEzfOhQ0TtvzL3NRyCZ2JfP1
+         YZk3W4K54jgjPfky+WvGssgrB4hRL/i7X96F/n0qAPDK3u38UZ24X+gQgRuH5icx931q
+         1shNbqpHUp6LQq1NGvSWrm2kB2hx9sHP/ue+4tDb7Wwh/BVZGrGsPR5FTjqs0FCY04eI
+         aQhA==
+X-Gm-Message-State: AOJu0Yyhz976nrXkqI93e7WKYom5OZ9NBGsLJPJzMi0KMxvCcv8cgDzO
+	eKXqhnkx0LmWfKpXumx5qxlrRip4dvMXB2Bvtkspjno4Rep6TDSOoRguWNUGwe2b6GUVF8brues
+	C1g9KCg==
+X-Gm-Gg: AfdE7ckaTs8mBJNqKuxD0Era07qAwHKuF5zuoVyN/Xr2veQAWRb2RWDTa/kF7qjDnnh
+	tb4orHY5yjLuxImNhFKg6GZLfobfsSf1NWUEHoyO2NnATX7qAJYXM+AjclwJJ/DLreIV+zHnN+o
+	dzZRie37Vs3KD9GB5qm/jHyCiBuDzZ4tr9xxJ0ogas2b8vyriCNzNfS3sz5Gaqciz950ClRM6+J
+	+eMrHBeHwW5LhRCZOJ3PFXRAmeKKMOdqsKST3Fp7meTlcurWag4vJMQz3HLWp1y3zfKkCJybHjl
+	Ql8dYb1gjbrMntdfI4J8se9J9Nz89+7Z66VKQxv11pYAV9L/gsJRs6quvhDzGq5lEpUaJ4kv1fK
+	TGipsVZbl82xPSMc4WAM8zCz02d2M/Dp3R2UI26tMI+NPIzc+e2yVPPqHAYVbTByRpP9tWmiunS
+	tVwuzpxRaRi7gJLxu4lnLV2is45u2EZdnFgaRneeKuX0pjcdTBHI7mEj4VlNX8btBbX0Sek9/VG
+	CfKKd5dQzH4kdk=
+X-Received: by 2002:a05:6402:e98:b0:698:3b7b:e492 with SMTP id 4fb4d7f45d1cf-6983b7beca9mr745983a12.40.1782510195338;
+        Fri, 26 Jun 2026 14:43:15 -0700 (PDT)
+Received: from localhost.localdomain (78-31-252-186.static.kviknet.net. [78.31.252.186])
+        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-697f3aece6dsm3385821a12.12.2026.06.26.14.43.12
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 26 Jun 2026 14:18:43 -0700 (PDT)
-Date: Fri, 26 Jun 2026 14:18:40 -0700
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: David Heidelberg <david@ixit.cz>
-Cc: linux-input@vger.kernel.org, 
-	Linux Next Mailing List <linux-next@vger.kernel.org>
-Subject: Re: [regression] synaptics-rmi4: Failed to read the Control Register
- Descriptor: EIO
-Message-ID: <aj7saJXgFX--gP_8@google.com>
-References: <de6d34b7-619c-46bd-a6e3-a3917b318571@ixit.cz>
+        Fri, 26 Jun 2026 14:43:13 -0700 (PDT)
+From: Kristian Mide <kristian@mide.dk>
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Kristian Mide <kristian@mide.dk>
+Subject: [PATCH 0/2] Input: ilitek_ts: add stylus support for 0x0c reports
+Date: Fri, 26 Jun 2026 23:42:46 +0200
+Message-ID: <20260626214248.5563-1-kristian@mide.dk>
+X-Mailer: git-send-email 2.54.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <de6d34b7-619c-46bd-a6e3-a3917b318571@ixit.cz>
+Content-Transfer-Encoding: 8bit
 
-Hi David,
+Hi,
 
-On Fri, Jun 26, 2026 at 11:09:54PM +0200, David Heidelberg wrote:
-> With next-20260626 without any additional patches, the synaptics fails on
-> OnePlus 6T with:
-> 
-> ```
-> [   16.620292] rmi4_i2c 12-0020: registering I2C-connected sensor
-> [   16.857617] rmi4_f01 rmi4-00.fn01: found RMI device, manufacturer:
-> Synaptics, product: S3706B, fw id: 2852315
-> [   16.867324] rmi4_f12 rmi4-00.fn12: Failed to read the Control Register
-> Descriptor: -5
-> [   16.867338] rmi4_f12 rmi4-00.fn12: probe with driver rmi4_f12 failed with
-> error -5
-> ```
+I bought a CHUWI Hi10 Max and was annoyed to find that the built-in
+stylus was not usable with the upstream ilitek_ts driver.
 
-Yes, at least a98518e72439 "Input: rmi4 - fix register descriptor address
-calculation" is wrong and needs to be reverted.
+This small series adds support for the pen report format emitted by the
+device, exposing the stylus as a separate input device with hover,
+pressure, and side-button support. The pen device is created lazily on
+first pen report so touchscreen-only hardware does not advertise stylus
+capabilities up front.
 
-Thanks.
+The packet format was reverse engineered on this device. In particular,
+report ID 0x0c appears to carry pen events, pressure comes from
+buf[6..7] shifted right by one, and the side buttons map to two bits in
+buf[1].
+
+The second patch is unrelated to the pen support itself, but keeps the
+existing wrong-report logging from flooding dmesg when unexpected packets
+repeat quickly.
+
+On the tested CHUWI Hi10 Max this makes the pen usable in GNOME/Krita,
+including pressure and side buttons.
+
+Thanks,
+Kristian
+
+Kristian Mide (2):
+  Input: ilitek_ts: add stylus input support
+  Input: ilitek_ts: ratelimit unexpected report logging
+
+ drivers/input/touchscreen/ilitek_ts_i2c.c | 134 +++++++++++++++++++++-
+ 1 file changed, 133 insertions(+), 1 deletion(-)
 
 -- 
-Dmitry
+2.54.0

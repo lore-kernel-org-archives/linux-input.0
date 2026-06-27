@@ -1,218 +1,90 @@
-Received: from endrift.com (endrift.com [173.255.198.10])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-dy1-f180.google.com (mail-dy1-f180.google.com [74.125.82.180])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9C98E331EDB
-	for <linux-input@vger.kernel.org>; Sat, 27 Jun 2026 02:49:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=173.255.198.10
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 68CC51CAA68
+	for <linux-input@vger.kernel.org>; Sat, 27 Jun 2026 05:25:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.180
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782528547; cv=none; b=SK1goj4K34NkAz9HKnjfd4Dr7yjBWfb0SH8g2x5GafRsOwKv01ztNyOJxrHbRh+B/86nOtS8IuhVTxjKgwReHmfLVk/aao7OEkHCYhFUgWuuJnUd1/mPO9xg57fjd1N+r07eyqj4OMEWQ9WNgCQpFUu1ql+dXxjwO/4EmtgFZI4=
+	t=1782537932; cv=none; b=G+XRnRgwlFUApGXfEF6uXOvf+qzCj5CAvRFh/yS9m2kjqmbQv6DAe1mkl/XGPIZ8M9NVvxrsbyoeCtsqsXRDnKO1TrAwTPR6yBon6cIa9UB0n6Aw+pti9mAWGkRaqr83n506uZGnRkcYAaIHv750NxYlW8Ed6SnlIaGPicoLvPY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782528547; c=relaxed/simple;
-	bh=jPLnq9IkllUduvJMQq8tSFBLws/cOlxc+i3QLLMxLZM=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=DbLTV/Z3inr70ZUhtbJ4m6mOmofbloCnq3kie2TJ3/IxnSIp+A4gxEx35WFWsOXQEfwbXXbM2MjnOpXu8oSJy+aa2nSv7gslWFuU+v78PK/BvIA9Ju8r0IGzFpLv1V1ugb50Uj0RacRLd4Ctkdo7UYCBjHU14QfDj8uGDG1efgs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com; spf=pass smtp.mailfrom=endrift.com; dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b=pV8fHis/; arc=none smtp.client-ip=173.255.198.10
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=endrift.com
+	s=arc-20240116; t=1782537932; c=relaxed/simple;
+	bh=uMZWn35TU6cT7lFUh7QJ7pzaaAe5RKvrKK7AXHsvuVo=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=DLSV58VYhwGdlMQHgxaiuun8DoFwqE/jvvYVoLbmaWlznYInDz5MQAtop2hxCG5O08ieYG1a28FSHI025XQRVEu7syPyFvfyWF3sDP5GKNZJTWXdnubaHzyjwjLk8iBXqoXB+7B/5VmL7yp5PUSTPkrSYbA70IYkT+q2yrqnyJo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Mjtfmfz+; arc=none smtp.client-ip=74.125.82.180
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b="pV8fHis/"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=endrift.com; s=2020;
-	t=1782528540; bh=jPLnq9IkllUduvJMQq8tSFBLws/cOlxc+i3QLLMxLZM=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=pV8fHis/EH91kx38B/7mZd/s/NEZ4uWejuB5r3qGnTBSwzAtYdfGPAgNZiJFVXfYT
-	 sZB+3GCKZ7OlSybo88DNfm9aQOlOFQWFDSNfJAYm/cY6XaBJ2kdozNzIBq6Trb95fV
-	 GTgMMrJNi9FGPxm8upWY/Yk/8BRVGkq4n9cuisvmGiVuTS1R0OyD+8PCTnhIXGDBKW
-	 BBKfKPIXDV2xaetJ+d9aj05HOLMj/iOlCp5t8XT7BcXXVBYr0z7mB6+C3RN+fivXj0
-	 YwfQvq8XP0o1KUApAbg2Fh08gTi4vyM6eRI5J84KZhe1btkDh8L0L/75Il+lYagrrm
-	 vPu7iVnAYzXeQ==
-Received: from [192.168.0.27] (71-212-73-87.tukw.qwest.net [71.212.73.87])
-	by endrift.com (Postfix) with ESMTPSA id 56F40A018;
-	Fri, 26 Jun 2026 19:49:00 -0700 (PDT)
-Message-ID: <39371007-e06c-49d9-8465-2f9de2955c63@endrift.com>
-Date: Fri, 26 Jun 2026 19:48:58 -0700
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Mjtfmfz+"
+Received: by mail-dy1-f180.google.com with SMTP id 5a478bee46e88-30bf8b2bd20so3609985eec.0
+        for <linux-input@vger.kernel.org>; Fri, 26 Jun 2026 22:25:30 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1782537929; x=1783142729; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=EtG3amUD5t4Bk8QXwCkGIWpIV9NGLro50H5UE4maCcQ=;
+        b=Mjtfmfz+48xqE62KRIITDS5SnnB4WhGqiad/4OvIHGCrcdxzvJJo/mA7mr4S1Dvg24
+         BGgoDfo4yVTeffpi33YooDzrRxEbbqYwPUP/gVHQEQMA6UF3uf5E6jaRObJhRZ56Nzen
+         VWaypzxGa2iNh7nVcgLkWdjyfPJOwfbrWL0dvUhrihYqtNg1tBmd5EH99uorLtP28u6A
+         dq85EJmKr7MIGOhItmjk6B7P8k9ffDSBoTH/rZ0z75oxIrG1I5XP7Yw9Tp/VHEaf/lhe
+         +VlVu556csu4Z0ekjLJ2+hfL4hnOWNV4S/vqYj107GTpalZyNk1zX1ohRkCFIBFM+45P
+         WvBQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1782537929; x=1783142729;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=EtG3amUD5t4Bk8QXwCkGIWpIV9NGLro50H5UE4maCcQ=;
+        b=dVmWjYvfzxImGyj5MSmvgAugTJHDFykKIQXyXjKIHNQl9CQEE12FQjUTNK0KDXGG6F
+         gq4ZbMbet0+/CeoBlxMEp61a1bD7+J6VBt5P+bAa4AhdD+C/Qw7vqSQkYSUYs4VSTGgm
+         qXI61LB1KCxnhTwgHg3v8QeHIm7pajPTkDSsv/OKg7k4HjgyMVXMqyR4dJPKWDRVfDDX
+         8mQccuDlREI/4+aCvP3SaCJ0tbr76XI4o8yrjueN+IavvRmZub7oTdTqckTrvSEF6Xql
+         NvI5EvWG/H4guCpnLcsHvwEjZ5rRemehVlRIV0UIWHKVmJb9eoU+0wk0yo3LPGtRiUSw
+         kE2w==
+X-Forwarded-Encrypted: i=1; AHgh+RrJ+nr6AqVtSOAYzSV+Xg9a4w4bJk3o1kaF5FuG+FRHmVAbrkndIQyfaNrnRquePyS7qmDn28SKia1y6g==@vger.kernel.org
+X-Gm-Message-State: AOJu0YzNDGFcD5gWUA2yDt2zrPSkUH1+OEFTnb6RCJJ+a0bYnDUTMlwf
+	JlmtEqeuBG13QwTjW++dVzMLuWR+xw6rifoPKPfyxe9jdXwzZqqk6w80
+X-Gm-Gg: AfdE7ckrFHr0pFcN5nyD8sPzCnR6TVY1uYw6KtBP5VwnkeH1KyyNYop1iZnl9zsf3en
+	EWnUJmyt8veyfiVCpWsggLPxypKWF7icA54zb5clfPF9I4Fwj1YaH/WW4dzOIN2LqvAHoDDyveP
+	4Tf50/gmX31i7Q38mRvJ8c6xlrSfiIzGBfYOilhQiCraJYUVirWCZfPzYxrx3U706PrUrepj1OG
+	HESJo7oJ9DG6MAtHRY5/NOQJ88Lnuz53GxuqVx74hQPOMsUZR3EktLySZ6nDiGXWN/HH3tvYVaa
+	w/4l4h9PtEzGf1yUr4oMbQ5OW/9zkf/IJtyE2fF0S6VE2vI+qrCm+V4lHLkzEACBQnF+ya9ujKK
+	LBq8AOdfI/N+Hy1H0TZlAfgwnobdh5umm2fHAca7SS8t9n5O68dRvfGEDhldjCUhb+JdhFj34Hq
+	/EvPYZFf2oDiLoRuq7VnxUUZHgBFxTL2gifXpvTimg7O5BQjfNrUlI
+X-Received: by 2002:a05:7301:3c8b:b0:30c:ab97:d7ae with SMTP id 5a478bee46e88-30cab97dc0amr2520378eec.40.1782537929343;
+        Fri, 26 Jun 2026 22:25:29 -0700 (PDT)
+Received: from google.com ([2a00:79e0:2ebe:8:e062:ec60:2d87:502])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-30c7c4c691dsm23022178eec.5.2026.06.26.22.25.28
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 26 Jun 2026 22:25:28 -0700 (PDT)
+Date: Fri, 26 Jun 2026 22:25:25 -0700
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Oliver <oliverburns.kernel@gmail.com>
+Cc: kees@kernel.org, linux-input@vger.kernel.org, 
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Input: sur40: fix MAX_CONTACTS value based on PixelSense
+ specification
+Message-ID: <aj9ewPft1xOb-9dL@google.com>
+References: <20260614230847.4938-1-oliverburns.kernel@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v6 2/3] HID: nintendo: Add rumble support for Switch 2
- controllers
-To: sashiko-reviews@lists.linux.dev
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-References: <20260625045948.2343168-1-vi@endrift.com>
- <20260625045948.2343168-3-vi@endrift.com>
- <20260625051833.C1A131F000E9@smtp.kernel.org>
-Content-Language: en-US
-From: Vicki Pfau <vi@endrift.com>
-Autocrypt: addr=vi@endrift.com; keydata=
- xsBNBFtJAmYBCADmRIN9O/aBbYc93lUMvG2hPip++otLit+65EwNHB1y9BmbVr0Q8Tz7rbAM
- K2mB0EiA4Z3DesoLIOzlJq0E4fgDsAi8ok/i7aTx35d0Qeab95GEdkCMcL98xNJE0agq+KYk
- pnvFlhdyC23K32KdOijsUqqbd86GgxRZmuf/Yf932KxKAj+n0aFBw5y6i0ep7WQBF6ytpqah
- Uzy04D//smiTr6rrXg+C09MX0XZ2Fvcv3gmimnoV6C/ZCO1Zecqyhrs0YFfdIhFEBp2ItYim
- MoeU4g6y726gyRO/+wwzZkryJMU8hHootzW1gUylZeELSwx8uIJSHFiLE7AK+M5soPtDABEB
- AAHNG1ZpY2tpIFBmYXUgPHZpQGVuZHJpZnQuY29tPsLAjgQTAQoAOBYhBNj+0QMp9OPSosB4
- 6X72E7X7Nb0rBQJbSQJmAhsDBQsJCAcCBhUKCQgLAgQWAgMBAh4BAheAAAoJEH72E7X7Nb0r
- WIcH/0GnIOkmAyy2UlgS/VKi193ZRWYJjBfUncIBf57gLt1KYY0PvUoR9MVvkLqcx8vaCxWh
- bVSqzxT6WU1ECp/URdQV2W4IGB6W4B8rT3VGw0QzbVVQRmt6vReEMFVL+vBfgHKTRBItiy7x
- Bd+JZDusiyrrGok9TqqkBYlZPWE29ajiOAe05N1UhuRq7y8w/bOkzFD36ohMtfqV4hByWV+q
- d0LujqgZm1AkM1FqpJ4j8h1Gox5rpmWfaHJmBQ8HcKqQfwACQCvDNHS2vlTXJYfxlh+mVerL
- YKZgWnyvqx4pLKqJOXQKssIaDjnDfTu6bQgXvhaKb1+piBUYuoe9/+3E15TOwE0EW0kCZgEI
- AL/KzT+NR1/LbJ7Kuv3gAHFp+S7cfyyPSamN6i6/X135vNSawG7g81iWUweAW6YahFA2haqw
- t+8/Bm9Dzc8rF6RHCElK1GoHiF4SIYQxjqPo2wwqvTad9FblWTfaYRKfVDvNz2Rz4i681JrR
- 8gizvzJPX+gocH7FMzPwb1DAwL2kKA5wilgAGSv8nZqeG55hNt2t/XiT6Yd97DJv86D24UUP
- BetLTq2jUWtX+omt+JhF3QzMjnyGQYKHNXUB/ipBxNSkwnDrWg/f1EjDtNzuOHManJDC9Bqi
- qhi1abiTNlmmewI5iLEnnxzfSKS5HO9nCC1szl229DHwIMH7jA+G+z0AEQEAAcLAdgQYAQoA
- IBYhBNj+0QMp9OPSosB46X72E7X7Nb0rBQJbSQJmAhsMAAoJEH72E7X7Nb0roioIAM0oDKEU
- QH7Og4+AXm35uklIiCX6cFQPgDVlQn7M/QFLnEhhCfPTt8PkIIN4dLgs4lIJxExpgQWgOLUX
- h+ZLLupzZXoysAXfdwNLf/RqRed/zTZbUjssy4D7yeNIJThzU32kDy0Hx3pMNM/Hd9yaXmHL
- LDkfwcyQuqA9+eeOogkDC8inLNLfYQ8JtVQZuWppNcbOZkBxfMVAmPHg6C9fe2biQFojoLPe
- 4nQheprKfBp5QsY2cIjP8kaWPpfJEJ5i2aNgtrfebEzjYoWWLkK78Lo8qABdxkVhH6rhAlw2
- rVf41cHNCfHF7ddvOb9IItWacXxYn7ql+dI/Se3+ISWDboQ=
-In-Reply-To: <20260625051833.C1A131F000E9@smtp.kernel.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260614230847.4938-1-oliverburns.kernel@gmail.com>
 
+On Mon, Jun 15, 2026 at 12:08:47AM +0100, Oliver wrote:
+> The Samsung SUR40 with Microsoft PixelSense is offically specified to
+> support 52 simultaneuous touch contacts, not 64. The value of 64 was an
+> unverified guess as noted by the FIXME comment. Update MAX_CONTACTS to
+> match the documented hardware specification and remove the FIXME.
+> 
+> Signed-off-by: Oliver <oliverburns.kernel@gmail.com>
 
+Applied, thank you.
 
-On 6/24/26 10:18 PM, sashiko-bot@kernel.org wrote:
-> Thank you for your contribution! Sashiko AI review found 5 potential issue(s) to consider:
-> - [High] Unsynchronized accesses to ns2->hdev allow rumble work to read a closing device pointer, leading to a TOCTOU NULL pointer dereference.
-> - [High] cancel_delayed_work_sync() is called on an uninitialized work structure if the configuration interface detaches without the HID interface probing.
-> - [High] Use-after-free of ns2 due to the input core's memless force feedback timer outliving the driver's private data.
-> - [Medium] Arithmetic underflow in schedule_delayed_work() delay calculation causes the rumble worker to permanently hang if its execution is delayed.
-> - [Low] Unused static constant array switch2_zero_data leads to dead code.
-> --
-> 
-> commit 93841885eb908e1356dc311955f33fee3d1428c6
-> Author: Vicki Pfau <vi@endrift.com>
-> 
-> HID: nintendo: Add rumble support for Switch 2 controllers
->     
-> This commit adds basic rumble support for the Switch 2 controllers. It
-> introduces delayed work and force feedback support.
-> 
->> diff --git a/drivers/hid/hid-nintendo.c b/drivers/hid/hid-nintendo.c
->> index 6573fd31a232a..ae360f4d15d1a 100644
->> --- a/drivers/hid/hid-nintendo.c
->> +++ b/drivers/hid/hid-nintendo.c
-> 
-> [ ... ]
-> 
->> @@ -3133,9 +3183,12 @@ static const uint8_t switch2_init_cmd_data[] = {
->>  };
->>  
->>  static const uint8_t switch2_one_data[] = { 0x01, 0x00, 0x00, 0x00 };
->> +#if IS_ENABLED(CONFIG_NINTENDO_FF)
->> +static const uint8_t switch2_zero_data[] = { 0x00, 0x00, 0x00, 0x00 };
->> +#endif
-> 
-> [Severity: Low]
-> Is this unused variable intentional? It appears switch2_zero_data is never
-> utilized anywhere in the codebase.
-
-Looks like leftover from a previous iteration. Removing.
-
-> 
-> [ ... ]
-> 
->> +static int switch2_play_effect(struct input_dev *dev, void *data, struct ff_effect *effect)
->> +{
->> +	struct switch2_controller *ns2 = input_get_drvdata(dev);
->> +
->> +	if (effect->type != FF_RUMBLE)
->> +		return 0;
->> +
->> +	guard(spinlock_irqsave)(&ns2->rumble_lock);
-> 
-> [Severity: High]
-> Can this result in a use-after-free when the input device outlives the driver
-> data?
-> 
-> During device removal, switch2_controller_put() explicitly calls kfree(ns2).
-> However, the input device is devres-managed and its lifetime is tied to
-> userspace holding its file descriptor open. Since the input core's memless
-> force feedback timer is only destroyed when the input device is released,
-> the timer callback switch2_play_effect() could potentially fire after ns2
-> has been freed.
-
-I will see about tying this into the ref system I added for patch 1 to delay the free.> 
-> [ ... ]
-> 
->> +static void switch2_rumble_work(struct work_struct *work)
->> +{
-> 
-> [ ... ]
-> 
->> +	if (active) {
->> +		unsigned long interval = msecs_to_jiffies(2);
->> +		uint64_t current_jiffies = get_jiffies_64();
->> +
->> +		if (!ns2->last_rumble_work)
->> +			ns2->last_rumble_work = current_jiffies;
->> +		else
->> +			ns2->last_rumble_work += interval;
->> +		schedule_delayed_work(&ns2->rumble_work,
->> +			ns2->last_rumble_work + interval - current_jiffies);
-> 
-> [Severity: Medium]
-> Could this delay calculation underflow?
-> 
-> If the worker thread is delayed by the scheduler such that current_jiffies
-> exceeds the expected execution time (ns2->last_rumble_work + interval), the
-> unsigned arithmetic could underflow to a value near ULONG_MAX. This would
-> schedule the next rumble update weeks in the future, permanently hanging the
-> force feedback mechanism.
-
-I think I've seen this. I have trouble reproducing it but I'll fix this and hopefully it'll stop reproducing.
-
-> 
->> +	} else {
->> +		ns2->last_rumble_work = 0;
->> +	}
->> +	spin_unlock_irqrestore(&ns2->rumble_lock, flags);
->> +
->> +	if (!ns2->hdev)
->> +		cancel_delayed_work(&ns2->rumble_work);
->> +	else
->> +		ret = hid_hw_output_report(ns2->hdev, ns2->rumble_buffer, 64);
-> 
-> [Severity: High]
-> Is it possible for a concurrent removal to cause a NULL pointer dereference
-> here?
-> 
-> Because ns2->hdev is read outside of any lock, there may be a window where it
-> is verified as non-NULL, but then set to NULL by a concurrent
-> switch2_remove() before being passed to hid_hw_output_report(). This appears
-> structurally possible if userspace invokes switch2_play_effect() and
-> reschedules the worker right after the initial cancellation in
-> switch2_remove().
-> 
-> [ ... ]
-
-Fixing.
-
-> 
->> @@ -3358,6 +3521,10 @@ static void switch2_controller_put(struct switch2_controller *ns2)
->>  	if (input)
->>  		input_unregister_device(input);
->>  
->> +#if IS_ENABLED(CONFIG_NINTENDO_FF)
->> +	cancel_delayed_work_sync(&ns2->rumble_work);
->> +#endif
-> 
-> [Severity: High]
-> Could this cancel operation act on an uninitialized work structure?
-> 
-> The switch2_probe() function initializes the work structure:
-> 
->     INIT_DELAYED_WORK(&ns2->rumble_work, switch2_rumble_work);
-> 
-> If the configuration interface detaches before the HID interface probes,
-> ns2->rumble_work might remain zero-initialized. When switch2_controller_put()
-> is called, unconditionally invoking cancel_delayed_work_sync() on this
-> uninitialized work structure could trigger lockdep warnings and kernel panics.
-> 
-
-This will be fixed by my probe refactor already.
+-- 
+Dmitry

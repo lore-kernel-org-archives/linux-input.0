@@ -1,562 +1,101 @@
-Received: from mail-dy1-f176.google.com (mail-dy1-f176.google.com [74.125.82.176])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mail-10629.protonmail.ch (mail-10629.protonmail.ch [79.135.106.29])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 425FA37DEAF
-	for <linux-input@vger.kernel.org>; Sat, 27 Jun 2026 21:02:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.176
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 47E33313E29;
+	Sat, 27 Jun 2026 21:38:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=79.135.106.29
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782594141; cv=none; b=E8UoRuMmAi3yL937bBzTtYDP9nf/E6mUF7AdFvs95wNTqy5j/Ji+e5kA3tvtZOwiha6Vqoep8n4bvlnb5U7e615VGrOUbX+43FiMPStwnb7DQAxs7/zaIRBZbjEk2MuFP0WNxFCUAyrc6dMq4poBxCPhrC4I3RHv+Mh8s6HITyA=
+	t=1782596339; cv=none; b=cbY0j7+nhMC1yocCvZ/Qzbg9lzWEFgzKDDHwY8Ti++vZI7jkveQfdoVvZBviR2+tMztgBdOVlwYT8zwk1GHxcq95wfi5KmklkH3HsXpVPtd6TMoriWJFc9Z437QO4Aro03EOishWg57wycjpnFQLI+WMXO0ypTXYT5H4mY43zyQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782594141; c=relaxed/simple;
-	bh=DujptGSSmMF2ViBXGb+WxXWPOuAu7F9eJkj1CtqUvQU=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=sw7jowcItz9RU2Dk3NxT+NhPZVOsc9UyYMeLJ+vJrMSrLro0LpeTcaURSjRGh/6mwS28VXxAlOYKBieOzYs6WMQczl61H7bUM9gEr7vUCHkgRkQPYWtD6C9w6YRpizw9Wv+eCP630kPjVjUhlriAm5ky/WT02ggGFhIfBnvrtTY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schn.dev; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=74.125.82.176
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schn.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Received: by mail-dy1-f176.google.com with SMTP id 5a478bee46e88-304f590dd91so2866643eec.0
-        for <linux-input@vger.kernel.org>; Sat, 27 Jun 2026 14:02:20 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1782594139; x=1783198939;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=8CvvSpoZ0kYQR6u2iXtTnLQHhcU6XWgYTf1tnK/jfds=;
-        b=s0PqrLP/l4MahAJTSXS98bOppJpHqIBOapYdemOOSYj5ZaQc3pZIh5OuArlAEJAv4t
-         cDKZZqwVETPNON9E4fzknBtuVQJAnlKyI2xYT+xact9jaMS4m8UiFRZfGIcMCMXtHgZ2
-         4OkdAOHdL3LTQ/Hgh0gNQK9w4/htRafP4g+TWGqdEXDmGlFs3+OKjJLpjjQowKnFqZUJ
-         q3qllQBLngzJDfzNpIk7XEnNu4FcWTJtSuVogolc7vALmofHCDxST7Qv6HOUZkRsuaAN
-         qkfoPMZdQZ3pQg4xIca5Y3MPqeOuNXWYM+y0021Kqt7Dl0hMjFOPs6OiOANsHqnGh7F5
-         22Kw==
-X-Gm-Message-State: AOJu0YyQvR2FbHgiJ5lp1cpBZA5WlWnMRyq2C6zP1UetQEJ4vLLkLpkU
-	9Ng+QlGwyspC8W1kMYoYEJQO9q2EkH0JohR4BQs2LBs4AXH2pb5g3zna
-X-Gm-Gg: AfdE7clYCCO2v0jbC1t6qUh/NQ4Sbqxwp1ef+IOwFMYJVT2SvQI2Q2SPxuVYazYN/US
-	5EHdL1ujOj+l4GHu+6jQxCeFgf7vdo05JgBbMEETYOQj6HY+MYGDUp/f2W45XxvYoIltKT4Bwfr
-	HFchBGb6L80SyyeSj386UrwV+zncoXhpYxeT4/EpnBx9TZYm3SVDvs3AzjGTsloVrkO9INnGYIU
-	aDimZmHNmRAcUtZV9L4w/ZiO13ZjVbx6fxS7PFMRXzg+BDOqj9wcNijIW3N3LHJ75mH9Rs3heLs
-	gXDwCip9VUKJz7SQwanhJTqDA8NTsUiphzjagdgLr6iJL7gWGTyszlX1P881Y6fuzMlaS27AMdm
-	/vOTV68ETqX82dHcBJWGxc7y8IqkD/vgChsApnhTjUgmYvGqS8jeEsWcucaLK/gaoXKOfERngl4
-	8ZnU4CyfplfgnvMN9HhpqUQNCd68x57Sm94q2FAsWuiMU=
-X-Received: by 2002:a05:7301:4e8a:b0:303:f2fc:c483 with SMTP id 5a478bee46e88-30c84cf3f9cmr11050363eec.1.1782594139042;
-        Sat, 27 Jun 2026 14:02:19 -0700 (PDT)
-Received: from desktop-sofia ([2804:14d:ba4e:8353:8f7f:4b88:a059:f87e])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-30ca5f14f8asm16966820eec.6.2026.06.27.14.02.17
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 27 Jun 2026 14:02:18 -0700 (PDT)
-From: Sofia Schneider <sofia@schn.dev>
-To: jikos@kernel.org,
-	bentiss@kernel.org
-Cc: linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Sofia Schneider <sofia@schn.dev>
-Subject: [PATCH v3] HID: hyperx-headset: Add support for HyperX headset devices
-Date: Sat, 27 Jun 2026 18:01:29 -0300
-Message-ID: <20260627210206.1061062-1-sofia@schn.dev>
-X-Mailer: git-send-email 2.54.0
+	s=arc-20240116; t=1782596339; c=relaxed/simple;
+	bh=TMYBMZ7b60V9pA1xG/2ua5+4oeFPX30HOydULRWxRnU=;
+	h=Date:To:From:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=noxTGzebg3uM/cYWBZy8UpKu05Y62u43F3qO+lz0fhCsXL4hr5K2xTpcWovqmiJ1RHNOHrlopA9dgzYzcPKbENAR64VTOZDQuBcSIKg/bWzw17QdKLXdV8ns0lo6n8ljnYp6DkiS/1F15/psFw/7tHFGrbqngkHukN/HxWt359w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=proton.me; spf=pass smtp.mailfrom=proton.me; dkim=pass (2048-bit key) header.d=proton.me header.i=@proton.me header.b=NMpGRd8b; arc=none smtp.client-ip=79.135.106.29
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=proton.me
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=proton.me
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=proton.me header.i=@proton.me header.b="NMpGRd8b"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=proton.me;
+	s=protonmail; t=1782596332; x=1782855532;
+	bh=TMYBMZ7b60V9pA1xG/2ua5+4oeFPX30HOydULRWxRnU=;
+	h=Date:To:From:Cc:Subject:Message-ID:In-Reply-To:References:
+	 Feedback-ID:From:To:Cc:Date:Subject:Reply-To:Feedback-ID:
+	 Message-ID:BIMI-Selector;
+	b=NMpGRd8bTcMgO0cujZ9waQZnQoV5+RGgQgwotnypYh9ZTmq+ybCPsymPPjN4up51c
+	 0NMAY3mclCFp0HvveWVB44mA5DZKGHlIi94+pF1ljBX5PZ/3t+a9CfGI+5KbmRpq8n
+	 ZMdPtfXhPnNIA5j+eZ3PEpGmGAMYGQdCsgPjbG1WBvnWNtqPELZNZjGJP1YlqWxpGM
+	 Uja2IAFlNpz4DxWepDE3bYPbCXc1HcOmtUAnBVPl+jDVqAo2TBvNZxFbV25tGfxizB
+	 BZvsPqANcaGF6CUB2Ib2NzqjUb/ncK4o/NgIp0Z+8LebEbtk484V5NkCt9rhIHL6wK
+	 htzqOkJ3A4hhw==
+Date: Sat, 27 Jun 2026 21:38:49 +0000
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Bryam Vargas <hexlabsecurity@proton.me>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>, Benjamin Tissoires <bentiss@kernel.org>
+Subject: Re: [PATCH] Input: synaptics-rmi4 - bound the F54 report size to the allocated buffer
+Message-ID: <20260627213845.34644-1-hexlabsecurity@proton.me>
+In-Reply-To: <aj4LoEHHCMqUnyy2@google.com>
+References: <20260613-b4-disp-6721686c-v1-1-4d5bb84ee520@proton.me> <aj4LoEHHCMqUnyy2@google.com>
+Feedback-ID: 199661219:user:proton
+X-Pm-Message-ID: 85ee5445d484aa3a31a2484472e6a4e6d1e4304a
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
-Introduce a HID driver for HyperX Cloud III Wireless headsets,
-supporting battery reporting and connection status.
+Hi Dmitry,
 
-Tested with a HyperX Cloud III Wireless only, for lack of
-other testable devices.
+Thanks for picking this up and keeping the authorship on 03.
 
-Signed-off-by: Sofia Schneider <sofia@schn.dev>
----
-v2 -> v3:                                                                                                                     
-- Unregister power supply on hid_hw_start() failure in probe() to prevent UAF/resource leak.                                                  
-																													
-v1 -> v2:
-- Call hid_hw_stop() before cancelling work queues in remove() to prevent UAF.
-- Safe unregistration of power supply using the spinlock in remove() to prevent race conditions.
-- Cancel battery_work in the hid_hw_start() error path in probe() to prevent UAF.
-- Dynamically allocate power supply names to avoid sysfs naming collisions.
+> there are more changes needed in F54. I incorporated it in the series I
+> just posted, would appreviate if you could review it.
 
-v1: https://lore.kernel.org/linux-input/20260622022800.D01D51F000E9@smtp.kernel.org/T/
-v2: https://lore.kernel.org/linux-input/20260627204840.2DD671F000E9@smtp.kernel.org/T/
+Went through all ten. It holds together. A few things worth flagging:
 
- MAINTAINERS                      |   6 +
- drivers/hid/Kconfig              |  11 +
- drivers/hid/Makefile             |   1 +
- drivers/hid/hid-hyperx-headset.c | 399 +++++++++++++++++++++++++++++++
- drivers/hid/hid-ids.h            |   1 +
- 5 files changed, 418 insertions(+)
- create mode 100644 drivers/hid/hid-hyperx-headset.c
+Backport ordering is the one to act on. 03 leans on 02's control flow: its
+report_size > max_report_size guard lands in the worker tail that 02 folds
+into the single out: write. And 03's Fixes: c762cc68b6a1 (Nov 2016) postdat=
+es
+02's Fixes: 3a762dbd5347 (Jul 2016), so any stable tree old enough to want =
+03
+still carries the abort:/error: form 02 reworks; cherry-picking 03 alone
+conflicts on that hunk, and 06 touches the same tail. Keeping 02 -> 03 -> 0=
+6
+together for stable (or a dependency note on 03) keeps AUTOSEL from taking =
+03
+on its own.
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index d8252026bbd4..fa49655255f6 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -11419,6 +11419,12 @@ F:	include/uapi/linux/hid*
- F:	samples/hid/
- F:	tools/testing/selftests/hid/
- 
-+HID HYPERX HEADSET DRIVER
-+M:	Sofia Schneider <sofia@schn.dev>
-+L:	linux-input@vger.kernel.org
-+S:	Maintained
-+F:	drivers/hid/hid-hyperx-headset.c
-+
- HID LOGITECH DRIVERS
- R:	Filipe Laíns <lains@riseup.net>
- L:	linux-input@vger.kernel.org
-diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index f9bcaeb66385..e9f5f1f982c9 100644
---- a/drivers/hid/Kconfig
-+++ b/drivers/hid/Kconfig
-@@ -1215,6 +1215,17 @@ config HID_HYPERV_MOUSE
- 	help
- 	Select this option to enable the Hyper-V mouse driver.
- 
-+config HID_HYPERX_HEADSET
-+	tristate "HyperX headset devices"
-+	depends on USB_HID
-+	select POWER_SUPPLY
-+	help
-+	Support for HyperX headset devices.
-+
-+	Say Y here if you would like to enable support for HyperX headset devices.
-+	To compile this driver as a module, choose M here: the module will be called
-+	hid-hyperx-headset.
-+
- config HID_SMARTJOYPLUS
- 	tristate "SmartJoy PLUS PS2/USB adapter support"
- 	help
-diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
-index 23e6e3dd0c56..9f3fd2c21837 100644
---- a/drivers/hid/Makefile
-+++ b/drivers/hid/Makefile
-@@ -67,6 +67,7 @@ obj-$(CONFIG_HID_HOLTEK)	+= hid-holtek-kbd.o
- obj-$(CONFIG_HID_HOLTEK)	+= hid-holtek-mouse.o
- obj-$(CONFIG_HID_HOLTEK)	+= hid-holtekff.o
- obj-$(CONFIG_HID_HYPERV_MOUSE)	+= hid-hyperv.o
-+obj-$(CONFIG_HID_HYPERX_HEADSET)	+= hid-hyperx-headset.o
- obj-$(CONFIG_HID_ICADE)		+= hid-icade.o
- obj-$(CONFIG_HID_ITE)		+= hid-ite.o
- obj-$(CONFIG_HID_JABRA)		+= hid-jabra.o
-diff --git a/drivers/hid/hid-hyperx-headset.c b/drivers/hid/hid-hyperx-headset.c
-new file mode 100644
-index 000000000000..1564432a225c
---- /dev/null
-+++ b/drivers/hid/hid-hyperx-headset.c
-@@ -0,0 +1,399 @@
-+// SPDX-License-Identifier: GPL-2.0-only
-+/*
-+ *  HID driver for HyperX headsets
-+ *
-+ *  Supports HyperX Cloud III Wireless headsets.
-+ *
-+ *  Copyright (c) 2026 Sofia Schneider
-+ */
-+
-+#include <linux/usb.h>
-+#include <linux/hid.h>
-+
-+#include "hid-ids.h"
-+
-+#define HYPERX_POLL_INTERVAL_MS (2 * 60 * 1000)
-+
-+#define HYPERX_REPORT_ID 0x66
-+#define HYPERX_PACKET_SIZE 62
-+
-+#define HYPERX_CMD_GET_CONNECTED 0x82
-+#define HYPERX_CMD_GET_BATTERY 0x89
-+#define HYPERX_CMD_GET_CHARGING 0x8A
-+
-+#define HYPERX_RESP_CONNECTED 0x0B
-+#define HYPERX_RESP_CHARGING 0x0C
-+#define HYPERX_RESP_BATTERY 0x0D
-+
-+#define HYPERX_PREFIX "HP, Inc "
-+#define HYPERX_PREFIX_LEN strlen(HYPERX_PREFIX)
-+
-+struct hyperx_headset_device {
-+	struct hid_device *hdev;
-+	struct power_supply *battery;
-+	struct power_supply_desc battery_desc;
-+
-+	spinlock_t lock;
-+	u8 battery_level;
-+	bool is_charging;
-+	bool is_connected;
-+
-+	struct delayed_work poll_work;
-+	struct work_struct battery_work;
-+};
-+
-+static const enum power_supply_property hyperx_headset_battery_props[] = {
-+	POWER_SUPPLY_PROP_PRESENT,	POWER_SUPPLY_PROP_ONLINE,
-+	POWER_SUPPLY_PROP_STATUS,	POWER_SUPPLY_PROP_CAPACITY,
-+	POWER_SUPPLY_PROP_SCOPE,	POWER_SUPPLY_PROP_MODEL_NAME,
-+	POWER_SUPPLY_PROP_MANUFACTURER,
-+};
-+
-+static int hyperx_headset_battery_get_property(struct power_supply *psy,
-+					       enum power_supply_property psp,
-+					       union power_supply_propval *val)
-+{
-+	struct hyperx_headset_device *drvdata = power_supply_get_drvdata(psy);
-+	unsigned long flags;
-+	int ret = 0;
-+
-+	spin_lock_irqsave(&drvdata->lock, flags);
-+
-+	switch (psp) {
-+	case POWER_SUPPLY_PROP_PRESENT:
-+		val->intval = 1;
-+		break;
-+	case POWER_SUPPLY_PROP_ONLINE:
-+		val->intval = drvdata->is_connected ? 1 : 0;
-+		break;
-+	case POWER_SUPPLY_PROP_CAPACITY:
-+		val->intval = drvdata->battery_level;
-+		break;
-+	case POWER_SUPPLY_PROP_SCOPE:
-+		val->intval = POWER_SUPPLY_SCOPE_DEVICE;
-+		break;
-+	case POWER_SUPPLY_PROP_STATUS:
-+		if (!drvdata->is_connected)
-+			val->intval = POWER_SUPPLY_STATUS_UNKNOWN;
-+		else if (drvdata->is_charging)
-+			val->intval = POWER_SUPPLY_STATUS_CHARGING;
-+		else if (drvdata->battery_level == 100)
-+			val->intval = POWER_SUPPLY_STATUS_FULL;
-+		else
-+			val->intval = POWER_SUPPLY_STATUS_DISCHARGING;
-+		break;
-+	case POWER_SUPPLY_PROP_MODEL_NAME:
-+		val->strval = drvdata->hdev->name;
-+		while (!strncmp(val->strval, HYPERX_PREFIX, HYPERX_PREFIX_LEN))
-+			val->strval += HYPERX_PREFIX_LEN;
-+		break;
-+	case POWER_SUPPLY_PROP_MANUFACTURER:
-+		val->strval = "HyperX";
-+		break;
-+
-+	default:
-+		ret = -EINVAL;
-+		break;
-+	}
-+
-+	spin_unlock_irqrestore(&drvdata->lock, flags);
-+	return ret;
-+}
-+
-+
-+
-+static int hyperx_headset_send_command(struct hyperx_headset_device *drvdata,
-+				       u8 command)
-+{
-+	struct hid_device *hdev = drvdata->hdev;
-+	u8 *buf;
-+	int ret;
-+
-+	buf = kzalloc(HYPERX_PACKET_SIZE, GFP_KERNEL);
-+	if (!buf)
-+		return -ENOMEM;
-+
-+	buf[0] = HYPERX_REPORT_ID;
-+	buf[1] = command;
-+
-+	ret = hid_hw_raw_request(hdev, HYPERX_REPORT_ID, buf,
-+				 HYPERX_PACKET_SIZE, HID_OUTPUT_REPORT,
-+				 HID_REQ_SET_REPORT);
-+
-+	if (ret < 0)
-+		hid_err(hdev, "hw_raw_request failed (command 0x%02x)\n",
-+			command);
-+
-+	kfree(buf);
-+	return ret;
-+}
-+
-+static void hyperx_headset_poll_work(struct work_struct *work)
-+{
-+	struct hyperx_headset_device *drvdata = container_of(
-+		work, struct hyperx_headset_device, poll_work.work);
-+
-+	hyperx_headset_send_command(drvdata, HYPERX_CMD_GET_CONNECTED);
-+	hyperx_headset_send_command(drvdata, HYPERX_CMD_GET_BATTERY);
-+	hyperx_headset_send_command(drvdata, HYPERX_CMD_GET_CHARGING);
-+
-+	schedule_delayed_work(&drvdata->poll_work,
-+			      msecs_to_jiffies(HYPERX_POLL_INTERVAL_MS));
-+}
-+
-+static void hyperx_headset_set_wireless_status(struct hid_device *hdev,
-+					       bool connected)
-+{
-+	struct usb_interface *intf;
-+
-+	if (!hid_is_usb(hdev))
-+		return;
-+
-+	intf = to_usb_interface(hdev->dev.parent);
-+	usb_set_wireless_status(intf, connected ?
-+					      USB_WIRELESS_STATUS_CONNECTED :
-+					      USB_WIRELESS_STATUS_DISCONNECTED);
-+}
-+
-+static void hyperx_headset_battery_work(struct work_struct *work)
-+{
-+	struct hyperx_headset_device *drvdata =
-+		container_of(work, struct hyperx_headset_device, battery_work);
-+	struct power_supply_config battery_cfg = { .drv_data = drvdata };
-+	unsigned long flags;
-+	bool connected;
-+
-+	spin_lock_irqsave(&drvdata->lock, flags);
-+	connected = drvdata->is_connected;
-+	spin_unlock_irqrestore(&drvdata->lock, flags);
-+
-+	hyperx_headset_set_wireless_status(drvdata->hdev, connected);
-+
-+	if (connected && !drvdata->battery) {
-+		struct power_supply *ps;
-+
-+		ps = power_supply_register(&drvdata->hdev->dev,
-+					   &drvdata->battery_desc,
-+					   &battery_cfg);
-+		if (IS_ERR(ps)) {
-+			hid_err(drvdata->hdev,
-+				"power_supply_register failed\n");
-+			return;
-+		}
-+
-+		power_supply_powers(ps, &drvdata->hdev->dev);
-+
-+		spin_lock_irqsave(&drvdata->lock, flags);
-+		drvdata->battery = ps;
-+		spin_unlock_irqrestore(&drvdata->lock, flags);
-+	} else if (!connected && drvdata->battery) {
-+		struct power_supply *ps;
-+
-+		spin_lock_irqsave(&drvdata->lock, flags);
-+		ps = drvdata->battery;
-+		drvdata->battery = NULL;
-+		spin_unlock_irqrestore(&drvdata->lock, flags);
-+
-+		power_supply_unregister(ps);
-+	}
-+}
-+
-+static void
-+hyperx_headset_parse_battery_event(struct hyperx_headset_device *drvdata,
-+				   u8 *data)
-+{
-+	unsigned long flags;
-+	u8 state1 = data[2];
-+	u8 state2 = data[3];
-+	u8 level = data[4];
-+
-+	// Battery event is invalid if both states are 0
-+	if (state1 == 0 && state2 == 0)
-+		return;
-+
-+	spin_lock_irqsave(&drvdata->lock, flags);
-+
-+	if (drvdata->battery_level != level) {
-+		drvdata->battery_level = level;
-+
-+		if (drvdata->battery)
-+			power_supply_changed(drvdata->battery);
-+	}
-+
-+	spin_unlock_irqrestore(&drvdata->lock, flags);
-+}
-+
-+static void
-+hyperx_headset_parse_charging_event(struct hyperx_headset_device *drvdata,
-+				    u8 *data)
-+{
-+	unsigned long flags;
-+	bool charging = (data[2] == 1);
-+
-+	spin_lock_irqsave(&drvdata->lock, flags);
-+
-+	if (drvdata->is_charging != charging) {
-+		drvdata->is_charging = charging;
-+
-+		if (drvdata->battery)
-+			power_supply_changed(drvdata->battery);
-+	}
-+
-+	spin_unlock_irqrestore(&drvdata->lock, flags);
-+}
-+
-+static void
-+hyperx_headset_parse_connected_event(struct hyperx_headset_device *drvdata,
-+				     u8 *data)
-+{
-+	unsigned long flags;
-+	bool state_changed = false;
-+	bool connected = (data[2] == 1);
-+
-+	spin_lock_irqsave(&drvdata->lock, flags);
-+
-+	if (drvdata->is_connected != connected) {
-+		drvdata->is_connected = connected;
-+		state_changed = true;
-+	}
-+
-+	spin_unlock_irqrestore(&drvdata->lock, flags);
-+
-+	if (state_changed)
-+		schedule_work(&drvdata->battery_work);
-+}
-+
-+static int hyperx_headset_probe(struct hid_device *hdev,
-+				const struct hid_device_id *id)
-+{
-+	int ret;
-+	struct hyperx_headset_device *drvdata;
-+
-+	drvdata = devm_kzalloc(&hdev->dev, sizeof(*drvdata), GFP_KERNEL);
-+	if (drvdata == NULL)
-+		return -ENOMEM;
-+	drvdata->hdev = hdev;
-+	drvdata->is_connected = false;
-+	drvdata->is_charging = false;
-+	drvdata->battery_level = 100;
-+	spin_lock_init(&drvdata->lock);
-+	hid_set_drvdata(hdev, drvdata);
-+
-+	drvdata->battery_desc.type = POWER_SUPPLY_TYPE_BATTERY;
-+	drvdata->battery_desc.properties = hyperx_headset_battery_props;
-+	drvdata->battery_desc.num_properties = ARRAY_SIZE(hyperx_headset_battery_props);
-+	drvdata->battery_desc.get_property = hyperx_headset_battery_get_property;
-+	drvdata->battery_desc.name = devm_kasprintf(&hdev->dev, GFP_KERNEL,
-+						    "hyperx_headset_battery_%s",
-+						    strlen(hdev->uniq) ?
-+						    hdev->uniq : dev_name(&hdev->dev));
-+	if (!drvdata->battery_desc.name)
-+		return -ENOMEM;
-+
-+	INIT_DELAYED_WORK(&drvdata->poll_work, hyperx_headset_poll_work);
-+	INIT_WORK(&drvdata->battery_work, hyperx_headset_battery_work);
-+
-+	ret = hid_parse(hdev);
-+	if (ret != 0) {
-+		hid_err(hdev, "parse failed\n");
-+		return ret;
-+	}
-+
-+	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
-+	if (ret != 0) {
-+		struct power_supply *ps;
-+		unsigned long flags;
-+
-+		hid_err(hdev, "hw_start failed\n");
-+		cancel_work_sync(&drvdata->battery_work);
-+
-+		spin_lock_irqsave(&drvdata->lock, flags);
-+		ps = drvdata->battery;
-+		drvdata->battery = NULL;
-+		spin_unlock_irqrestore(&drvdata->lock, flags);
-+
-+		if (ps)
-+			power_supply_unregister(ps);
-+
-+		return ret;
-+	}
-+
-+	schedule_delayed_work(&drvdata->poll_work, 0);
-+
-+	return 0;
-+}
-+
-+static int hyperx_headset_raw_event(struct hid_device *hdev,
-+				    struct hid_report *report, u8 *data,
-+				    int size)
-+{
-+	struct hyperx_headset_device *drvdata = hid_get_drvdata(hdev);
-+
-+	if (size < 5 || data[0] != HYPERX_REPORT_ID)
-+		return 0;
-+
-+	switch (data[1]) {
-+	case HYPERX_CMD_GET_CONNECTED:
-+	case HYPERX_RESP_CONNECTED:
-+		hyperx_headset_parse_connected_event(drvdata, data);
-+		break;
-+
-+	case HYPERX_CMD_GET_BATTERY:
-+	case HYPERX_RESP_BATTERY:
-+		hyperx_headset_parse_battery_event(drvdata, data);
-+		break;
-+
-+	case HYPERX_CMD_GET_CHARGING:
-+	case HYPERX_RESP_CHARGING:
-+		hyperx_headset_parse_charging_event(drvdata, data);
-+		break;
-+
-+	default:
-+		break;
-+	}
-+
-+	return 0;
-+}
-+
-+static void hyperx_headset_remove(struct hid_device *hdev)
-+{
-+	struct hyperx_headset_device *drvdata = hid_get_drvdata(hdev);
-+	struct power_supply *ps = NULL;
-+	unsigned long flags;
-+
-+	hid_hw_stop(hdev);
-+
-+	if (drvdata) {
-+		cancel_delayed_work_sync(&drvdata->poll_work);
-+		cancel_work_sync(&drvdata->battery_work);
-+
-+		spin_lock_irqsave(&drvdata->lock, flags);
-+		ps = drvdata->battery;
-+		drvdata->battery = NULL;
-+		spin_unlock_irqrestore(&drvdata->lock, flags);
-+
-+		if (ps)
-+			power_supply_unregister(ps);
-+	}
-+}
-+
-+
-+static const struct hid_device_id hyperx_headset_devices[] = {
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_HP,
-+			 USB_DEVICE_ID_HP_HYPERX_CLOUD_III_WIRELESS) },
-+	{}
-+};
-+MODULE_DEVICE_TABLE(hid, hyperx_headset_devices);
-+
-+static struct hid_driver hyperx_headset_driver = {
-+	.name = "hyperx-headset",
-+	.id_table = hyperx_headset_devices,
-+	.probe = hyperx_headset_probe,
-+	.raw_event = hyperx_headset_raw_event,
-+	.remove = hyperx_headset_remove,
-+};
-+module_hid_driver(hyperx_headset_driver);
-+
-+MODULE_AUTHOR("Sofia Schneider <sofia@schn.dev>");
-+MODULE_DESCRIPTION("HID driver for HyperX headsets");
-+MODULE_LICENSE("GPL");
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 1059922baaac..aa2c3a71315b 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -696,6 +696,7 @@
- #define USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE_0941	0x0941
- #define USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE_0641	0x0641
- #define USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE_1f4a	0x1f4a
-+#define USB_DEVICE_ID_HP_HYPERX_CLOUD_III_WIRELESS 0x05b7
- 
- #define USB_VENDOR_ID_HUION		0x256c
- #define USB_DEVICE_ID_HUION_TABLET	0x006e
--- 
-2.54.0
+01 is correct but instance-complete: a device honestly reporting a large F5=
+5
+num_tx still oversizes report_size until 03 lands. Maybe a line in its comm=
+it
+log pointing at 03.
+
+One aside, not for this series: F54_FIFO_OFFSET is 16-bit but report_size
+reaches 2 * 255 * 255 =3D 130050, so past 65535 the start offset wraps and =
+the
+device reads from the wrong place. It stays in bounds (report_data + i trac=
+ks
+the same product), so it's correctness, not safety; maybe a later guard.
+
+Otherwise it's straightforward. For the series:
+
+Reviewed-by: Bryam Vargas <hexlabsecurity@proton.me>
+
+03 is the one I sent, so drop it there. On the memory-safety patches I ran =
+an
+in-kernel A/B under KASAN: the unpatched arm overruns the plane (07), deliv=
+ers
+the stale frame (06), or overruns report_data (03's class); the patched arm=
+ is
+clean. So for 05, 06 and 07:
+
+Tested-by: Bryam Vargas <hexlabsecurity@proton.me>
+
+Thanks,
+Bryam
 

@@ -1,62 +1,62 @@
-Received: from mail-wm1-f50.google.com (mail-wm1-f50.google.com [209.85.128.50])
+Received: from mail-wm1-f43.google.com (mail-wm1-f43.google.com [209.85.128.43])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2C6AF2D7393
-	for <linux-input@vger.kernel.org>; Sun, 28 Jun 2026 16:46:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.50
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 31F192DCF74
+	for <linux-input@vger.kernel.org>; Sun, 28 Jun 2026 16:46:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782665217; cv=none; b=HK49y15D3D7pP6kvyy5RXztkRXD5zDLNb3KpvRKBoKFK09Ye3eLxBPVmeGiL/5yf/t9dp4becIezwkWeLG/nFSKB4D6upj1GyPDmBUtYHUFH9MXdEZXboEGldScPhH3XXukJ4rxoB+7gQ0/e8lej5vm+DdTH0mAAzB1CfcCA7lE=
+	t=1782665219; cv=none; b=fK6ba7BaUWF5BGyZREz1Ba+umT0xyZ38LGMxcxEAPoO6dKcIHSJQTkylukdWpF9Bz1BwB/6aRVKD+pUMoti1N3w/18jKrWitKssVow9hwkXS5tbKztXGslXttFP4VOXabTmRtHo0aKaMB9uG9DPCHEt0fpm5FfYDu8G7NtSrv/g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782665217; c=relaxed/simple;
-	bh=ReLUpbKCCfPRSlFp67b24hj0Q8lRvyhr90kcdYzXrLo=;
+	s=arc-20240116; t=1782665219; c=relaxed/simple;
+	bh=NQDd7aTipShpTJcS/n12Lt/5N2jpXVMDt5mnwkK1bwI=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=GXsXSfmnTb1K+GsjLumyX9PTrgMBfktq4t8l/jii2MCUKPz62ada2IaE9DvEXeIzjgWIVFjjIE2EZ5QurW+S2EB8mGHLi4DcQBM1Kh0V5I7Hyod9CHlC6/aSzC5EIyUttx1yXd3Ni5ycQ/WtbQ1Uwe7AEVjlekxHdSeY6AbGhRY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=YFX8oNux; arc=none smtp.client-ip=209.85.128.50
+	 MIME-Version; b=G5cC7phbXXj1En7eHPwVOGl14NmbBkmp1vcfi7rJpl8FQ7/z+GPoVUvkqyRQdFNbbTsFPnyh5S987YOcy2P3LV+BcOIpHBQ0S//jZG6cVqYLYtP9tW4PVj5OLc8CU7J9K/NClgD79VCoHJ3xk8KPEo/fIFoKHE09O8YLjeh8yRc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=jO/1wq9h; arc=none smtp.client-ip=209.85.128.43
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="YFX8oNux"
-Received: by mail-wm1-f50.google.com with SMTP id 5b1f17b1804b1-49270f771c9so6634295e9.0
-        for <linux-input@vger.kernel.org>; Sun, 28 Jun 2026 09:46:55 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jO/1wq9h"
+Received: by mail-wm1-f43.google.com with SMTP id 5b1f17b1804b1-4903d730b1fso33185755e9.2
+        for <linux-input@vger.kernel.org>; Sun, 28 Jun 2026 09:46:57 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1782665215; x=1783270015; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1782665217; x=1783270017; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=woNdZCNc/MzUa1vCL/yO/R3w6USI7p6fKOo+IjB4YGg=;
-        b=YFX8oNuxj6MJLgHvXNqzJTIUoaVaF5gQsJWzLnADv0JCd0vVoepNHGAbvMiiQ6zdXS
-         ui1ZGcxpzykrPiZyinfdklRT8v2zKNbrrMekBvC8l709bz8o0scTuUNKWt3n2UAu8OXW
-         s8GBb5ZYYdPdJW126NeWbyTfldHgBuO6JW/3JVaIPVaGTgpGsmjXMORC/ZbCorqi5P+N
-         lp/RmB4I14PM+/GsVtFRxGBmQiMGXY7q1qw0yPLPK3dhSK+8XlI9smj2MktX0hP2BUCC
-         kcipEsUJX5acK42zDwE2EUqhN/f+N2K3onrxSD5BPjVFaHm2+w1eDo0AtsmM6nh0DJbf
-         8f5w==
+        bh=L94599a5h3xEYD+xTPZLiwZIaocGIw8FBQJTuHEMGZ0=;
+        b=jO/1wq9h1BwpU/Fi5+ORAYZJCevPtak0BopjfqJqXd8iFhs2hvS44oJZnQX/Y8U+X5
+         tYJklpM6zdMWhR2SjQyMJtgI+HvvpwODEj6MJyfiLJB/BzQnuwkPgn1azJS2UeUgHSkF
+         zbETCpQFkxpFz8LtoMBZAhdL200HJmKLU/8fH87oMRGzbNsJVO78e1qetRAHWKb5d/BN
+         VfKPpL8mmwZdX3efQBhbUHgLqzyAhKXCNd6WBDLIDSGojD2+YJwbqqSVgQf5zOssSGmP
+         kYpGPxcqqo6ZPFFZko5VAS8OCSIywK8sTWBEll/GXtQYykNEEmsNYxO1c/dwGZBJAi3J
+         KIYg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1782665215; x=1783270015;
+        d=1e100.net; s=20251104; t=1782665217; x=1783270017;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=woNdZCNc/MzUa1vCL/yO/R3w6USI7p6fKOo+IjB4YGg=;
-        b=nJvNlTK/GH4Yu9OqdJaXixRC9jQYLwp9eNXmF0Yv5KYbe+yqI+4wXWRpkKq7AOK9A8
-         ni/I9Rttuv8abpJO6AlJ1tVGnxnJ5/Fcxdc1nXRGFSDpqYH815S2k7IONg7U5nBS9JLu
-         9BdI1uJ6/lzkcLddG7iLFQSEtlzpJK3Tn0KKdILaxqaULxNLBYPyqlCqeEd+kZxehDFc
-         VSefJkkydTtLLyeJAh8dKue7U7DT4KKCRBTmDQYoUKzUNMe1wqi7BlTSBEbD2LUds4jU
-         iofm/2iOUVsK88DaTrY3k8ucAmyNYrKfg+uuveMrM+vR2jy/KPsiJhlf6kFv696kOViP
-         gmMA==
-X-Gm-Message-State: AOJu0Yy44YWxmG1DOTza19PCE9XQbqagfpLWGSPpjn+yBPxMl3bkx8ei
-	TTyBW9UacP9zkZ5SDRsiSfWerFhIxRS/gC1m2cAjpgyHIVCw8DPjUL+n
-X-Gm-Gg: AfdE7clO1/ZE1kaniqvy5vOHkiBWgUvBSJ0wxJyzHBZVutTVPONW4/DpcHRpZhitgWe
-	JKJz/V9ateIe+09GgrKx+KzVlgyOBuVxCNkdorfvMLuq8jX/Gpx+LXm23xu4/sE/UFXYIAu9yAh
-	C8KbE+eTEUW27HOqApH6EZ2F1FAjJE2OnLnKnaOa1EwSBveZGZqzqAp/VjXBXty3IcNRYqSKIve
-	QBRUWORzatxBxT2xUWhRNz5NYc0HTm64tporPlhfDEgG5AAcszx/SfKtJGGrcW9+XZdT5v9LW/0
-	R9XTr0O6f15AqCwDtipc+/Q+1S9VQHpERgKa4oMzZJcmO+by5UjSkSdXNVKVkzMYhVGVLPTf6r1
-	1Gjl0mK1o7JEQoAwVDWNKkylNzDpCxTu3J3N3MjqR/GuaIxp+8bR+CaoWVxoLFfkEjdXMp8C+FX
-	S4j/eGln6hQrN59fqO9XLZKpGbVQ==
-X-Received: by 2002:a05:600c:4e4b:b0:490:b724:5085 with SMTP id 5b1f17b1804b1-4926689ab05mr198128225e9.33.1782665214551;
-        Sun, 28 Jun 2026 09:46:54 -0700 (PDT)
+        bh=L94599a5h3xEYD+xTPZLiwZIaocGIw8FBQJTuHEMGZ0=;
+        b=ofxCQ6y54girOl3DoYiGYyT9IEtiC4NxYBv/vPJMLj8NlMFoq0auBXtwJjzaNGNwfS
+         DxwIFNrZz2K0gWxdyzaoOo3h0CJuFk6kaVF+aCt9MNTtWpbsVW2/JaZ2xF3HTqesXXHL
+         MVpacXVCXATlLaUidFBvLbazF+8AwHlM7Eop1NOdKBCyXGy9KpCe4DDVpoKJq+hIp1z3
+         bBpz9VwSpJHr/72kAxlFYRe0X3Y7T8ZAE0utaz8bejkHCmsiV976EzixnlZSFyCAsHdB
+         yX7XnzFiOJVmYJ6kVod79ttmgGsj6EHAzzN4UAiosGeLa0RmVKrz4jgKCrRL3zEItLFC
+         0oyw==
+X-Gm-Message-State: AOJu0YxfRc7M3qejoREbL4GoJtJi9JiaMuxLmRma5QItYtnwAhs3Nox+
+	mtF/ZZNYHmHGPTMOrNaqPNuYz/y1nNQnV/Dz/A1c0hkfuQI14lsDM3EK
+X-Gm-Gg: AfdE7cmFoui+bjlDAcDY/9lmmo6S6qMaarCKFVbsImVbdwqEm8DYiUbCWs0TtJQApB0
+	iEQ2l42XjEoG2F5TxrKcTN9OmmvRRnG2xwswhX8nlJyOxiQcd01sS2r5NpyH6mWLWU8Tq3iml3o
+	/gyBQfucaGe2JQ7BVqGZiYmtaPugygKpn5b2xakUFVNQfSqQ+W0n4wENcvOjkQ2XKBNCZ1itBtu
+	Fxw2pIQl9BjAfkIj4EBqBORGYWiiFOR9rMrz1RzAVsqvdlHjhcUn+nl5sl0QcS6kvJ7hXgOR/Vv
+	uxAiey9tz/cbK2Nyu+Y9440PojdqlmHRWsRR2vkSqT0OV1X6pT0VW4Zci0ztdeQ4DJqEW3KQ4aW
+	AA2PpmbuKGm8PICyjVPCkTOnIf7dLKJivb7ipU6aOG9wvQzBrDAdpwQ/DhktBMlysPnvb5G7PQ3
+	fY6tdSttRiib5+aDXiScj3TMv8mg==
+X-Received: by 2002:a05:600c:8109:b0:490:bad9:de43 with SMTP id 5b1f17b1804b1-492667ca5fbmr212753085e9.0.1782665216285;
+        Sun, 28 Jun 2026 09:46:56 -0700 (PDT)
 Received: from Dev-Null-MSI ([2a0d:3344:52ac:a808:98a4:4381:be45:536f])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4926c285fc1sm162770715e9.1.2026.06.28.09.46.52
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4926c285fc1sm162770715e9.1.2026.06.28.09.46.54
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 28 Jun 2026 09:46:54 -0700 (PDT)
+        Sun, 28 Jun 2026 09:46:55 -0700 (PDT)
 From: Yousef Alhouseen <alhouseenyousef@gmail.com>
 To: Stefan Achatz <erazor_de@users.sourceforge.net>,
 	Jiri Kosina <jikos@kernel.org>,
@@ -65,9 +65,9 @@ Cc: linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	stable@vger.kernel.org,
 	Yousef Alhouseen <alhouseenyousef@gmail.com>
-Subject: [PATCH 4/6] HID: roccat-kovaplus: reject short button reports
-Date: Sun, 28 Jun 2026 18:46:09 +0200
-Message-ID: <20260628164611.17467-4-alhouseenyousef@gmail.com>
+Subject: [PATCH 5/6] HID: roccat-konepure: reject short button reports
+Date: Sun, 28 Jun 2026 18:46:10 +0200
+Message-ID: <20260628164611.17467-5-alhouseenyousef@gmail.com>
 X-Mailer: git-send-email 2.54.0
 In-Reply-To: <20260628164611.17467-1-alhouseenyousef@gmail.com>
 References: <20260628164611.17467-1-alhouseenyousef@gmail.com>
@@ -79,35 +79,34 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The Kovaplus raw-event helpers cast button reports to a five-byte
-structure and read all payload fields without checking the received size.
-A malformed USB device can therefore trigger out-of-bounds reads from a
-short input report.
+konepure_raw_event() forwards button reports directly to
+roccat_report_event(), which copies the fixed eight-byte report size
+registered by this driver. A malformed USB device can send a shorter
+report and make that copy read beyond the input buffer.
 
-Require a complete button report before updating or forwarding it.
+Only forward complete button reports.
 
-Fixes: 0e70f97f257e ("HID: roccat: Add support for Kova[+] mouse")
+Fixes: 8936aa31cd5f ("HID: roccat: add support for Roccat Kone Pure gaming mouse")
 Cc: stable@vger.kernel.org
 Signed-off-by: Yousef Alhouseen <alhouseenyousef@gmail.com>
 ---
- drivers/hid/hid-roccat-kovaplus.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/hid/hid-roccat-konepure.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/hid/hid-roccat-kovaplus.c b/drivers/hid/hid-roccat-kovaplus.c
-index 9ec42c218ef9..55de262e165b 100644
---- a/drivers/hid/hid-roccat-kovaplus.c
-+++ b/drivers/hid/hid-roccat-kovaplus.c
-@@ -614,6 +614,10 @@ static int kovaplus_raw_event(struct hid_device *hdev,
- 	if (kovaplus == NULL)
+diff --git a/drivers/hid/hid-roccat-konepure.c b/drivers/hid/hid-roccat-konepure.c
+index 7f753dfc2a10..d17dee18ac2b 100644
+--- a/drivers/hid/hid-roccat-konepure.c
++++ b/drivers/hid/hid-roccat-konepure.c
+@@ -181,7 +181,8 @@ static int konepure_raw_event(struct hid_device *hdev,
+ 			!= USB_INTERFACE_PROTOCOL_MOUSE)
  		return 0;
  
-+	if (data[0] == KOVAPLUS_MOUSE_REPORT_NUMBER_BUTTON &&
-+	    size < sizeof(struct kovaplus_mouse_report_button))
-+		return 0;
-+
- 	kovaplus_keep_values_up_to_date(kovaplus, data);
+-	if (data[0] != KONEPURE_MOUSE_REPORT_NUMBER_BUTTON)
++	if (data[0] != KONEPURE_MOUSE_REPORT_NUMBER_BUTTON ||
++	    size < sizeof(struct konepure_mouse_report_button))
+ 		return 0;
  
- 	if (kovaplus->roccat_claimed)
+ 	if (konepure != NULL && konepure->roccat_claimed)
 -- 
 2.54.0
 

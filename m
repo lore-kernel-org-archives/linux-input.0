@@ -1,63 +1,63 @@
-Received: from mail-yw1-f173.google.com (mail-yw1-f173.google.com [209.85.128.173])
+Received: from mail-yw1-f181.google.com (mail-yw1-f181.google.com [209.85.128.181])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2552C2D838E
-	for <linux-input@vger.kernel.org>; Sun, 28 Jun 2026 16:36:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2D4012D9EE4
+	for <linux-input@vger.kernel.org>; Sun, 28 Jun 2026 16:36:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.181
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782664575; cv=none; b=gbid/iUblLFDtknLC8j1EuY8X7TZm+bUZ4tI1aslHW0QOyWrAvrLNHCHRGEmKO18pAA+oPpVbt/6Mook9kBsCtvSavDsJKBDxfpSaHeKoS33fb1Xyjz+H/om3QdVUimC7kaVqFvQ60nO7AneCwCbFtX8LI3Yp3H4U4qLTJBRG40=
+	t=1782664576; cv=none; b=Qu36qwdwnxkmh5ARv6LIKTSmUKLhSs2PO+GeVniu2gHevvdpB8SH8eK2A7W+ou1K1KOGRL+l7b/KsXNdFKouB4dm1073Ymgk6LKOfPLlV/WxVcu35elcU7TmIPVI8XCs9SW/DAped5peP1hhHiQG/PUtIBetMIqsN+PMwcM2ODI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782664575; c=relaxed/simple;
-	bh=BNwN1Nj8dybsZAvcjPKnwuKZ8iq6jeSsMk9qriP/fVU=;
+	s=arc-20240116; t=1782664576; c=relaxed/simple;
+	bh=Dzm/2Mq150RuPlaAtMlFI0lpKRikrDTWDtmhd2EHuZc=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=upWNQ2nCzJDh2Pd7wGljSWyjJBSwkvePQhMW2+BYR4rdLyRIteagE1dADCKXN20VfMTsWhm37pHhKXN1F3Pvjc8ZyT2u00NRRQlWQZ23ZDW1KyJIx+JzJ0KRaKgPU8bPysMTmBBy6DPopx6rEr8yczElKLAbYJL++5JXd7sEZb8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=cqvFxo3r; arc=none smtp.client-ip=209.85.128.173
+	 MIME-Version; b=OgE05M5w/TiT7NAh9kjG5HMHej2hJ+rI2NyX9CHnfALFctbZuQ6j63aa5l6mHux/ZdA/6JO9sLRBZREJ41MJsZVuVBzGUJ34FjmG6pS5tYBgwfcNV8xUxmmZi6cVSp6jCuBtvXRnroeEXw6KKPfMd7eNKp/97L3rmVOTqBFnfW8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=sCnou9TD; arc=none smtp.client-ip=209.85.128.181
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="cqvFxo3r"
-Received: by mail-yw1-f173.google.com with SMTP id 00721157ae682-7fe4808741eso26557287b3.1
-        for <linux-input@vger.kernel.org>; Sun, 28 Jun 2026 09:36:12 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="sCnou9TD"
+Received: by mail-yw1-f181.google.com with SMTP id 00721157ae682-80bab6cf5ebso22610417b3.1
+        for <linux-input@vger.kernel.org>; Sun, 28 Jun 2026 09:36:14 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1782664572; x=1783269372; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1782664574; x=1783269374; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=XoukpSn0XidsboLVp1WFiGbHVvRe/31Qvf7l3Vt/lN4=;
-        b=cqvFxo3rzry1BhkRKKgLkAoD3xSI+LTAcIfLjRq/hATkA6XiqXBkhThmYW7XzcZC2w
-         Thj3cRkp+700a9fnfxldYEs4JfQNN0MkAvofMzPAvV0ZgPrshixS1nHDrD/TP3UCgYgI
-         MnuFg6CWQ4bJpyWY16Ej2Mawq3Dc02j4rXg4gNws5B4F/Zl5PqNNA2AT4tdlvjNdq0N0
-         JLFqTDKaCqFuNQU+T+m1l6/zPYij6KI1EobqeHL6MyIuXlsobZRkm6A7cZKBpwKiCICZ
-         rAYqwlgiuPAbdoBflKqZF+/EOr4f3/P0sYV8DK4l/9aikZRg80WtbX5uynW048OE51wx
-         DD8w==
+        bh=cK20Prk6Ya4IGoxcL3yINT5DZ9onNoyQ930594kHMCg=;
+        b=sCnou9TDaw/osbNb4Nbmo5WlwIaGjdsLb86o6KpdxM9mgwHicXcrBejxZCjZXz9SAt
+         YMJB9/9TNXPIYr2w7ovNycI/ezd1/AiwI2KJDhOwzi8BdXC0lExg3aa7AcMmzI/HvNQl
+         TRep2IXzpPOzp+UokpDSrA1ldFXZHF7ciAGz7smGwB6cYNj7yaM0EJt2Jr6esCVAoP+g
+         dVkVGTAgYOgZMlVAD/duDC2Qt8e5qyjZM/5YMdQ8DUFj53l3ev7Ax323B9EugGYpUBIO
+         uFWb4Q7SklpUz+pcDsKmhk2tkBpq1o0OQc6MvlIHhppvnToMOW94AuZWq2MC+QX397o1
+         /e3A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1782664572; x=1783269372;
+        d=1e100.net; s=20251104; t=1782664574; x=1783269374;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=XoukpSn0XidsboLVp1WFiGbHVvRe/31Qvf7l3Vt/lN4=;
-        b=JmT0epjGeiDdJNJ6QDKgbJwxrPl1tHtrJoQMkkZo06p/EdDZoqwTc/D4dAJKPDTXXx
-         edSirAKeHTgwkbqAD6w4RU6Z/LKpI4fo+z0W/q+ccYpNiiPRf7IYkB1zBnvaSJjgesGE
-         paSAnWVfMbbF/i7QlTvqlsDXn7bbHCKeMt+f7Ai/wih7BUY130xbijXugP+68fqaaZGS
-         3a9sOQbWvsZeg2Hmmjk9BPR+5dzs+IN2+DxRmbUFzHjhNythSEB1lMVTAVEXmSVFI15j
-         XMuuvprUcByNsHznl/3IGesfFVvL5+fhzmEoA0HYxtbdICmUL9YQ6jPnUpns7Nb+3gfw
-         TKmg==
-X-Forwarded-Encrypted: i=1; AHgh+RobzBWTYwGTMyVy6khdME6mq4fcXhjVykH35D9bLyzPzknPUeCG+zmcAvKqxLVoJR0Q0XfGcR72VC+gYw==@vger.kernel.org
-X-Gm-Message-State: AOJu0YxjgFspR8VgjuqL924FxbUVofw8ugkCPjN+IEMDSkxjMBOCMxNG
-	eJQ0FOI9GxgqPGPJ6BksryilAcivewBAKmEEorMKd2iT6ocboacWiAfd
-X-Gm-Gg: AfdE7ck9e0xgy9CW2opQH/yH8h4ZIss5j1cFVC5iNGnN9NfHjqiBVsFsyR7XZfiIfLO
-	J9fByXEdmx40WkclvCqhWz3T7aESV9/fWfVjBkMotw553AaMiO/+njCNatP2RQEzlQjbnoP84yw
-	SyUHQmrPo7/y+p1pR+GNo1b36yy61jV9FWgGOa3mUlux15/OUKDp4N8uO+8lMJf4/jLV6p/hupg
-	bARY0VJNbWaA3AQH/nVF5EW0DsRAnSRvttO4q7SIRCa10rzth5v05REZAr6Bnl3edgwX0Fn8CGc
-	LvRmMwjyZ4O5Jx5RdCoVLRFcyekCtE/Cifiqs8sYEZIsnmMy1u6W9KE0yGwM0ySfol+slnYcHBH
-	gtvUCblAsXyP0GraZtzGxMIh/ZV9tLJgoT9fm+s1zAAYAQDR2ySALvUzKGyyyACY6fH689wnahu
-	kVUJtUmDjKa+2lT6C222UtOo9GJA==
-X-Received: by 2002:a05:690c:7243:b0:80c:85b6:7644 with SMTP id 00721157ae682-80c85b699a3mr74070797b3.57.1782664571895;
-        Sun, 28 Jun 2026 09:36:11 -0700 (PDT)
+        bh=cK20Prk6Ya4IGoxcL3yINT5DZ9onNoyQ930594kHMCg=;
+        b=R0XcdCFr8y4twBScD8tPibhnGc6Wu0bxLZjpS3je1FxR92o7dTRcz0cG7+LbsxsGM0
+         i38m5rJch+KaHCvQwkT99Jb7g/mP/C24/yB/Vxn0riT3QiQOHuQKOb8dpOLxemXwiMUw
+         Iw1MsG8dnY5Wrz/WAXTm/BRwtkEQbw2BXSYJRea7SVD2lqKvd4JT6VG+XB+shVuLbYCn
+         KvEHhNoDrjPYZb2CPj6hkBFD4MUy1bV8ZPj/+G0Xmg4VvJ+uNTlGKuuwVBY4VdoZBeuV
+         oCVi/UMnZWR4TYX9Gzes3Gv0YEGhebEInk80NsGPXG+TAt8fsolxmurrLUEJkcvPv9mm
+         qg8Q==
+X-Forwarded-Encrypted: i=1; AHgh+RqGQ1FhKn3mGelHKbk4xkj2u+x73AZ3nYCrTH1FKOCsKrc0aI1K8Y2jV+vl8DFZMjSIHikSKkivIhSDug==@vger.kernel.org
+X-Gm-Message-State: AOJu0YzbiiDw5HXmwVDs8XNnjXF7SVH/OglwXRdpdpM7pde2mSSAp3lG
+	fPUkY1MjG8sU29PdSMJjNV2Hsqwh5Z2psmWF1p7nvgGemBLKl3NITNCw
+X-Gm-Gg: AfdE7clYPBpAuaHIsBDj+ZtDSwCHsKH5mQ1diNsD1ZVArX5oysijTj5UHdxl0gOYJvF
+	sZO4zs4T39LXOFQK4Y58ZKX1FK1g1P8GA0NfoLU7AB5fT9Ahn4yT6u4oSc3N6uSqBLk/HE7u1Fp
+	HjlHVIqrjJUPuDEeJx1VvS5Kl+6iSzJpIsdlnu59jW4CVqlWTeAAgqu/1Gh29G6kUuyfy0GO0hu
+	PR07rtjvE8RUEP4RR4brOnWu5bSncEKDrzlQenrqZgAxsR6EeN7SSIEcAdJjhXUrO1tKJVBgZpA
+	C/JW5e0DSiZE+yXPZathvblKoLFpUp7BR1woBqz0uZ+oulMoFzke4QqGZEkO3BV6cfmgIfIVvAt
+	QCpetFzlC9yhrfV4spq0jcBhz8YVOT2Md6j0ceWclaIoiFyJGADHujUAlO0YBXLzJ1TYf57KUXi
+	HUmiQKt1VkvSbQrgVapxlBzjfMSA==
+X-Received: by 2002:a05:690c:6b01:b0:80b:b76d:650 with SMTP id 00721157ae682-80bb76d0704mr85139297b3.31.1782664574020;
+        Sun, 28 Jun 2026 09:36:14 -0700 (PDT)
 Received: from Dev-Null-MSI ([2a0d:3344:52ac:a808:98a4:4381:be45:536f])
-        by smtp.gmail.com with ESMTPSA id 00721157ae682-80ea903f74fsm6294817b3.21.2026.06.28.09.36.09
+        by smtp.gmail.com with ESMTPSA id 00721157ae682-80ea903f74fsm6294817b3.21.2026.06.28.09.36.12
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 28 Jun 2026 09:36:11 -0700 (PDT)
+        Sun, 28 Jun 2026 09:36:13 -0700 (PDT)
 From: Yousef Alhouseen <alhouseenyousef@gmail.com>
 To: Jiri Kosina <jikos@kernel.org>,
 	Benjamin Tissoires <bentiss@kernel.org>
@@ -66,9 +66,9 @@ Cc: Stefan Achatz <erazor_de@users.sourceforge.net>,
 	linux-kernel@vger.kernel.org,
 	stable@vger.kernel.org,
 	Yousef Alhouseen <alhouseenyousef@gmail.com>
-Subject: [PATCH 3/4] HID: zydacron: reject short key reports
-Date: Sun, 28 Jun 2026 18:35:26 +0200
-Message-ID: <20260628163527.14279-3-alhouseenyousef@gmail.com>
+Subject: [PATCH 4/4] HID: roccat-savu: reject short special reports
+Date: Sun, 28 Jun 2026 18:35:27 +0200
+Message-ID: <20260628163527.14279-4-alhouseenyousef@gmail.com>
 X-Mailer: git-send-email 2.54.0
 In-Reply-To: <20260628163527.14279-1-alhouseenyousef@gmail.com>
 References: <20260628163527.14279-1-alhouseenyousef@gmail.com>
@@ -80,34 +80,49 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The raw-event handler reads data[1] for report IDs 2 and 3 without
-checking that the report includes a payload byte. A malformed USB device
-can submit a report containing only the report ID and trigger an
-out-of-bounds read.
+savu_report_to_chrdev() casts special reports to a five-byte structure and
+reads all of its payload fields without checking the received size. A
+malformed USB device can therefore trigger out-of-bounds reads from the
+input buffer when the character device is claimed.
 
-Ignore the key value when the payload byte is missing.
+Pass the report size into the helper and require the complete structure.
 
-Fixes: d0742abaa1c3 ("HID: add omitted hid-zydacron.c file")
+Fixes: 6a2a6390cf09 ("HID: roccat: add support for Roccat Savu")
 Cc: stable@vger.kernel.org
 Signed-off-by: Yousef Alhouseen <alhouseenyousef@gmail.com>
 ---
- drivers/hid/hid-zydacron.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/hid/hid-roccat-savu.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/hid/hid-zydacron.c b/drivers/hid/hid-zydacron.c
-index 1aae80f848f5..b882d2a0ba1a 100644
---- a/drivers/hid/hid-zydacron.c
-+++ b/drivers/hid/hid-zydacron.c
-@@ -129,6 +129,9 @@ static int zc_raw_event(struct hid_device *hdev, struct hid_report *report,
- 		switch (report->id) {
- 		case 0x02:
- 		case 0x03:
-+			if (size < 2)
-+				break;
-+
- 			switch (data[1]) {
- 			case 0x10:
- 				key = KEY_MODE;
+diff --git a/drivers/hid/hid-roccat-savu.c b/drivers/hid/hid-roccat-savu.c
+index 679136933560..04fa4c50cfa4 100644
+--- a/drivers/hid/hid-roccat-savu.c
++++ b/drivers/hid/hid-roccat-savu.c
+@@ -152,12 +152,13 @@ static void savu_remove(struct hid_device *hdev)
+ }
+ 
+ static void savu_report_to_chrdev(struct roccat_common2_device const *savu,
+-		u8 const *data)
++		u8 const *data, int size)
+ {
+ 	struct savu_roccat_report roccat_report;
+ 	struct savu_mouse_report_special const *special_report;
+ 
+-	if (data[0] != SAVU_MOUSE_REPORT_NUMBER_SPECIAL)
++	if (data[0] != SAVU_MOUSE_REPORT_NUMBER_SPECIAL ||
++	    size < sizeof(*special_report))
+ 		return;
+ 
+ 	special_report = (struct savu_mouse_report_special const *)data;
+@@ -183,7 +184,7 @@ static int savu_raw_event(struct hid_device *hdev,
+ 		return 0;
+ 
+ 	if (savu->roccat_claimed)
+-		savu_report_to_chrdev(savu, data);
++		savu_report_to_chrdev(savu, data, size);
+ 
+ 	return 0;
+ }
 -- 
 2.54.0
 

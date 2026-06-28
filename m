@@ -1,113 +1,213 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from smtp153-171.sina.com.cn (smtp153-171.sina.com.cn [61.135.153.171])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 04FC529994B
-	for <linux-input@vger.kernel.org>; Sun, 28 Jun 2026 17:01:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BF70D3A6B8E
+	for <linux-input@vger.kernel.org>; Sun, 28 Jun 2026 22:28:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=61.135.153.171
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782666072; cv=none; b=IUYfeTE15d0qWkZ0nqV8lxtBhlpXysM70hYCwRYs6grLFqfntco+jFvbQLQlEL3IUpILd5hemyb/TKu6sEpKOXfZ+FFvlH3JYUzI1mT595WlhfZkL43toogzVnXfO1FrveZaeYcxOnokpsGMbCsMfl+0IPjw7lWtC2d4kZ3QpRY=
+	t=1782685739; cv=none; b=SmkebXRJSP0NCkufi5+YLLicMuCp6Jv824Rx3r+B3hHrK+42h6zXpzBAnJSwW0RQ291X60piy7E7g678tMWdZYR9tQaejb6Ysjgbr1FL2xXnCpi8tcwNwvY81cHSVPnC/wecTul/eTcwwjvS+TOmdOs78Niw7U1vbsVyF5+cQRA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782666072; c=relaxed/simple;
-	bh=S8hWimn9dGwsOM8n99bEqo5uasrHRdlBFDOGqQvvrbM=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=ezF+qcBHkubOSWnbBVyzG+AR0N2K26Qa9/xYpuigrkHyn8CkFkyrtrTibD3Al5K5nFnBQYtRAz885wp0r7sjQ5vZI9jSkX3Z4rG2B05U6wBm+thZkUbo3gFtqzcXbMrOIwg6me5FucOrdeZOZ/Ym/nudQv/AbtTAPuMpn8WCpnQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=CbofTwtY; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1782685739; c=relaxed/simple;
+	bh=wGYpFsjex/GCY9A+FuTsvSXCPQg5jHoqyNSdYqZu1WU=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=rvGz/t6ofsQNvbw7s6Wo5DQQ9idKawKihUl4Isznnxt0yYb3NiPdQuZ8Gj4pZ2UEfLu7d+RWARCkUtqJAvzdVGeQBldxvyB/cq6mD1f5dHI1PDO/SuM4pXUjHc3nFyF5qqYbgUlaCyRBKF5Z+a+rr1VyyYuhgYralaBRxSt3wZs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=sina.com; spf=pass smtp.mailfrom=sina.com; dkim=pass (1024-bit key) header.d=sina.com header.i=@sina.com header.b=ZtefNvSx; arc=none smtp.client-ip=61.135.153.171
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=sina.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sina.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="CbofTwtY"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71EB91F000E9;
-	Sun, 28 Jun 2026 17:01:10 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1782666070;
-	bh=IQO3BpvyDCBBH38Uwkci+D4+2tKVXnUNDFjaf+RZw34=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=CbofTwtY+GcvViiVMmGHBGJdtpqYzIWgFjJS9iGV3P3LJQ8cCMHMXEv1KUo3Cd0QB
-	 PPPIZNQ6rDsbH3ZQFdJkAHQzTbmNFuAUncLLtyhC58N+FNH9Y/2nNWUxMpqK3+RCqJ
-	 ZUQMBfZOJtyCo68IUBrpWBylwSsb6/OOD7wA0LwrJvZSDbfdyjbAC+vaZu2SQaY/sQ
-	 dAfMOs57tKL7yWsYhB1uRyqA5Fl0vcaVKxnDraDIkblp5DeheyckTUEhqtQLL+nKWZ
-	 9eA13NVOSDQatOU5UauY6cAO9PZhjAS7VvxB/ev1D2+7Qo6JFItwGbVSRIAWvt2pOC
-	 JflB9zFS7HPqQ==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 6/6] HID: roccat-ryos: reject short special reports
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Yousef Alhouseen" <alhouseenyousef@gmail.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260628164611.17467-6-alhouseenyousef@gmail.com>
-References: <20260628164611.17467-1-alhouseenyousef@gmail.com>
- <20260628164611.17467-6-alhouseenyousef@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Sun, 28 Jun 2026 17:01:09 +0000
-Message-Id: <20260628170110.71EB91F000E9@smtp.kernel.org>
+	dkim=pass (1024-bit key) header.d=sina.com header.i=@sina.com header.b="ZtefNvSx"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=sina.com; s=201208; t=1782685734;
+	bh=BAEX8aiOH6dT1GznRr9coicnP9iFd2gwEqT4dY7X+/g=;
+	h=From:Subject:Date:Message-ID;
+	b=ZtefNvSxyeyzrGvfWlPKVrEHSCbF7P+W7TwDpXMwo9vq12I2nhAdw28fnmI4WQLGC
+	 vBhcgAvNtaqZklRDasFj7Cy6yTVYB0Ef7n9nuixaTofq/mNQII9q2R9l2HbBeeJfJV
+	 Q5QP81+ddP45l03PwYtNKbRCpCesnKvgeWUrWPoM=
+X-SMAIL-HELO: localhost.localdomain
+Received: from unknown (HELO localhost.localdomain)([114.249.62.144])
+	by sina.com (10.54.253.34) with ESMTP
+	id 6A419F8D00003478; Sun, 29 Jun 2026 06:26:24 +0800 (CST)
+X-Sender: hdanton@sina.com
+X-Auth-ID: hdanton@sina.com
+Authentication-Results: sina.com;
+	 spf=none smtp.mailfrom=hdanton@sina.com;
+	 dkim=none header.i=none;
+	 dmarc=none action=none header.from=hdanton@sina.com
+X-SMAIL-MID: 7340946292108
+X-SMAIL-UIID: 26DF4A2D11AA4ABB93D11DE157D1456F-20260629-062624-1
+From: Hillf Danton <hdanton@sina.com>
+To: Yousef Alhouseen <alhouseenyousef@gmail.com>
+Cc: Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>,
+	linux-input@vger.kernel.org,
+	linux-usb@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	syzbot+563191a4939ddbfe73d4@syzkaller.appspotmail.com
+Subject: Re: [PATCH] HID: hiddev: keep state alive through disconnect unlock
+Date: Mon, 29 Jun 2026 06:26:15 +0800
+Message-ID: <20260628222617.226-1-hdanton@sina.com>
+In-Reply-To: <20260628093245.42065-1-alhouseenyousef@gmail.com>
+References: 
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
+On Sun, 28 Jun 2026 11:32:45 +0200 Yousef Alhouseen wrote:
+> hiddev_disconnect() drops existancelock before freeing the hiddev state,
+> but a waiting final file release can run as soon as the mutex becomes
+> available. On PREEMPT_RT, that waiter may free hiddev while the disconnect
+> thread is still executing the mutex slow-unlock path, causing a
+> use-after-free in the mutex implementation.
+> 
+The root cause is not specified as clearly as expected.
 
-Pre-existing issues:
-- [High] The `roccat_report_event()` function acquires sleepable mutexes wh=
-ile running in an atomic context (USB URB completion handler), which leads =
-to a "scheduling while atomic" BUG.
---
+	hiddev_disconnect()	hiddev_release()
+	---			---
+	mutex_lock(&hiddev->existancelock);
+	hiddev->exist = 0;
 
-commit de88f5cf3ef84f642bf5e1815c5ed0d7ee05a061
-Author: Yousef Alhouseen <alhouseenyousef@gmail.com>
+	if (hiddev->open) {
+		hid_hw_close(hiddev->hid);
+		wake_up_interruptible(&hiddev->wait);
+		mutex_unlock(&hiddev->existancelock);
+		__mutex_unlock_slowpath()
+		raw_spin_lock_irqsave()   //UAF
 
-HID: roccat-ryos: reject short special reports
+				mutex_lock(&list->hiddev->existancelock);
+				if (!--list->hiddev->open) {
+					if (list->hiddev->exist) {
+						hid_hw_close(list->hiddev->hid);
+						hid_hw_power(list->hiddev->hid, PM_HINT_NORMAL);
+					} else {
+						mutex_unlock(&list->hiddev->existancelock);
+						kfree(list->hiddev); // free mem
+						vfree(list);
+						return 0;
+					}
+				}
+				mutex_unlock(&list->hiddev->existancelock);
 
-This commit fixes an out-of-bounds read in ryos_raw_event() by ensuring
-that only complete special reports are forwarded to the character-device
-layer. It drops reports that are shorter than the expected report size.
+Given the syzbot report, uaf occured upon acquiring the raw spinlock in
+__mutex_unlock_slowpath(), but no mutex waiter could be waken up without
+the raw spinlock held, thus the report sounds false positive.
 
-> diff --git a/drivers/hid/hid-roccat-ryos.c b/drivers/hid/hid-roccat-ryos.c
-> index db83f42457da5..5087defc7c373 100644
-> --- a/drivers/hid/hid-roccat-ryos.c
-> +++ b/drivers/hid/hid-roccat-ryos.c
-> @@ -189,7 +189,8 @@ static int ryos_raw_event(struct hid_device *hdev,
->  			!=3D RYOS_USB_INTERFACE_PROTOCOL)
->  		return 0;
-> =20
-> -	if (data[0] !=3D RYOS_REPORT_NUMBER_SPECIAL)
-> +	if (data[0] !=3D RYOS_REPORT_NUMBER_SPECIAL ||
-> +	    size < sizeof(struct ryos_report_special))
->  		return 0;
-> =20
->  	if (ryos !=3D NULL && ryos->roccat_claimed)
->  		roccat_report_event(ryos->chrdev_minor, data);
-
-[Severity: High]
-This is a pre-existing issue, but is it safe to call roccat_report_event()
-from this context?
-
-The ryos_raw_event() callback executes in an atomic context (softirq)
-during the USB URB completion handler:
-
-hid_irq_in()
-  hid_safe_input_report()
-    __hid_input_report()
-      hdrv->raw_event() -> ryos_raw_event()
-
-However, looking at drivers/hid/hid-roccat.c, roccat_report_event() acquires
-sleepable mutexes:
-
-roccat_report_event()
-{
-        ...
-        mutex_lock(&device->readers_lock);
-        mutex_lock(&device->cbuf_lock);
-        ...
-}
-
-Will this sequence trigger a scheduling while atomic bug when a valid
-special report is received and forwarded?
-
-> =20
+> Give the connection and each open file an explicit reference. Drop each
+> reference only after its existancelock critical section has completed, so
+> the state cannot be freed from the other unlock path.
+> 
+> Fixes: 079034073faf ("HID: hiddev cleanup -- handle all error conditions properly")
+> Reported-by: syzbot+563191a4939ddbfe73d4@syzkaller.appspotmail.com
+> Closes: https://syzkaller.appspot.com/bug?extid=563191a4939ddbfe73d4
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Yousef Alhouseen <alhouseenyousef@gmail.com>
+> ---
+>  drivers/hid/usbhid/hiddev.c | 37 +++++++++++++++++++------------------
+>  include/linux/hiddev.h      |  2 ++
+>  2 files changed, 21 insertions(+), 18 deletions(-)
+> 
+> diff --git a/drivers/hid/usbhid/hiddev.c b/drivers/hid/usbhid/hiddev.c
+> index 6378801b22c6..21396481995b 100644
+> --- a/drivers/hid/usbhid/hiddev.c
+> +++ b/drivers/hid/usbhid/hiddev.c
+> @@ -46,6 +46,12 @@ struct hiddev_list {
+>  	struct mutex thread_lock;
+>  };
+>  
+> +static void hiddev_put(struct hiddev *hiddev)
+> +{
+> +	if (refcount_dec_and_test(&hiddev->refcount))
+> +		kfree(hiddev);
+> +}
+> +
+>  /*
+>   * Find a report, given the report's type and ID.  The ID can be specified
+>   * indirectly by REPORT_ID_FIRST (which returns the first report of the given
+> @@ -216,26 +222,21 @@ static int hiddev_fasync(int fd, struct file *file, int on)
+>  static int hiddev_release(struct inode * inode, struct file * file)
+>  {
+>  	struct hiddev_list *list = file->private_data;
+> +	struct hiddev *hiddev = list->hiddev;
+>  	unsigned long flags;
+>  
+> -	spin_lock_irqsave(&list->hiddev->list_lock, flags);
+> +	spin_lock_irqsave(&hiddev->list_lock, flags);
+>  	list_del(&list->node);
+> -	spin_unlock_irqrestore(&list->hiddev->list_lock, flags);
+> +	spin_unlock_irqrestore(&hiddev->list_lock, flags);
+>  
+> -	mutex_lock(&list->hiddev->existancelock);
+> -	if (!--list->hiddev->open) {
+> -		if (list->hiddev->exist) {
+> -			hid_hw_close(list->hiddev->hid);
+> -			hid_hw_power(list->hiddev->hid, PM_HINT_NORMAL);
+> -		} else {
+> -			mutex_unlock(&list->hiddev->existancelock);
+> -			kfree(list->hiddev);
+> -			vfree(list);
+> -			return 0;
+> -		}
+> +	mutex_lock(&hiddev->existancelock);
+> +	if (!--hiddev->open && hiddev->exist) {
+> +		hid_hw_close(hiddev->hid);
+> +		hid_hw_power(hiddev->hid, PM_HINT_NORMAL);
+>  	}
+>  
+> -	mutex_unlock(&list->hiddev->existancelock);
+> +	mutex_unlock(&hiddev->existancelock);
+> +	hiddev_put(hiddev);
+>  	vfree(list);
+>  
 >  	return 0;
+> @@ -270,6 +271,7 @@ static int __hiddev_open(struct hiddev *hiddev, struct file *file)
+>  	spin_unlock_irq(&hiddev->list_lock);
+>  
+>  	file->private_data = list;
+> +	refcount_inc(&hiddev->refcount);
+>  
+>  	return 0;
+>  
+> @@ -897,6 +899,7 @@ int hiddev_connect(struct hid_device *hid, unsigned int force)
+>  	INIT_LIST_HEAD(&hiddev->list);
+>  	spin_lock_init(&hiddev->list_lock);
+>  	mutex_init(&hiddev->existancelock);
+> +	refcount_set(&hiddev->refcount, 1);
+>  	hid->hiddev = hiddev;
+>  	hiddev->hid = hid;
+>  	hiddev->exist = 1;
+> @@ -937,9 +940,7 @@ void hiddev_disconnect(struct hid_device *hid)
+>  	if (hiddev->open) {
+>  		hid_hw_close(hiddev->hid);
+>  		wake_up_interruptible(&hiddev->wait);
+> -		mutex_unlock(&hiddev->existancelock);
+> -	} else {
+> -		mutex_unlock(&hiddev->existancelock);
+> -		kfree(hiddev);
+>  	}
+> +	mutex_unlock(&hiddev->existancelock);
+> +	hiddev_put(hiddev);
 >  }
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260628164611.1746=
-7-1-alhouseenyousef@gmail.com?part=3D6
+> diff --git a/include/linux/hiddev.h b/include/linux/hiddev.h
+> index 2164c03d2c72..8e9f8a33e359 100644
+> --- a/include/linux/hiddev.h
+> +++ b/include/linux/hiddev.h
+> @@ -13,6 +13,7 @@
+>  #ifndef _HIDDEV_H
+>  #define _HIDDEV_H
+>  
+> +#include <linux/refcount.h>
+>  #include <uapi/linux/hiddev.h>
+>  
+>  
+> @@ -24,6 +25,7 @@ struct hiddev {
+>  	int minor;
+>  	int exist;
+>  	int open;
+> +	refcount_t refcount;
+>  	struct mutex existancelock;
+>  	wait_queue_head_t wait;
+>  	struct hid_device *hid;
+> -- 
+> 2.54.0

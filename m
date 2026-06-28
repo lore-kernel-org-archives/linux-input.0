@@ -1,176 +1,127 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f48.google.com (mail-wm1-f48.google.com [209.85.128.48])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AACDC38D
-	for <linux-input@vger.kernel.org>; Sat, 27 Jun 2026 22:57:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0D10F2771E
+	for <linux-input@vger.kernel.org>; Sun, 28 Jun 2026 00:41:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.48
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782601070; cv=none; b=CbxnfZzDyzNFT3iHovbSXzIdZf6l4adYsYI/v0q28QlQajs3D6FkTaBaNmstDCv1bJjil2islaucN3RxUcz5nFG5zSLqZI7rMsEuVOnWFsY06LlOJXq5IyVfEC++FqlowfMwbQk+2zLTAVzPWVzcBgZwPDoM/cBVJM66ywab5R8=
+	t=1782607280; cv=none; b=sC7b+A6BDzmya95dNinDB/0BZD/+Itf4dgBw/3O4jyJpts//AwIydu2ecISGvP5Rh9uUTrSX5H9pA4BPt80LOCtL2GeGLhHi0ygqxSTgtAQd1tHoonlGBS3dxCBQSiynexJTBFmuI/elIHjZLCXVkhGr8F2bFSvWGYMPxNNPnFo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782601070; c=relaxed/simple;
-	bh=W4NxCOKjyxMn06TeiWpoRlZ1eS8hI77iGRHDZKtjmb0=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=pOTfP99dviACsPKYqlxdE0OQifgTeRGM+YKNWYmJHNNp8+6d1IVUsY4i2+4kE5FgQUlYS+tzX0fgqd/A4tzgCIpfNJIUEtEs/jOLG0ts8pGWTS/F95D/qzchESuBkwaLi5Mh7xCfYZ1kUrpC85ECw8KW2v+Mbov1JPKDVDNeGgA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=TuPTCrCw; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1782607280; c=relaxed/simple;
+	bh=rWjqEsg8y8fWOyDjFJ9raEp1vcQ0MX+Lr9ujI9x9ac0=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=HVcG53076s2hN8Rppgz0P8ASzsOcpDXutfkxIvi3I5Fs8XzlBlBMCekAnnP3crxlsm74tAvI7i0iYMeFw14YS3mc8deZJBijT76zzZ2Vl/JMU2GA7oKwU33Ysn16sNH+USLk4QEa+ec7tmntr4sYcApFdcIjr3JqX6Ki4E5hAKg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=TuXv5j2U; arc=none smtp.client-ip=209.85.128.48
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="TuPTCrCw"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 058711F000E9;
-	Sat, 27 Jun 2026 22:57:48 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1782601069;
-	bh=q6+NZVWzkicoxeeaML+Dw9BqTEtHWmpV/oWgNkkcRuQ=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=TuPTCrCw7W5B+oZlT+HudVBv0m+yeLLm2NGeHD9Ilb2kbwPLhOl9TI/7nW2/7Ny3k
-	 jczcVQqUjLGbbaUxEDAoEFvzVATSerIa7y3y4HDk6vxYYwipJUAFCE1ue0KPlgRsk4
-	 0Dy+6YRYXzRQDqpceY5aD5pGZpnQIKDUe3w0YftMrdG++WRRWxwutc08gq9Que9UI0
-	 AN0dVF3ExPVi0ondKOPoJFU9V6YN9jO1BdnZQPsviodrKGMnxJmMJ04dd5z/TGfbh/
-	 j6ETCTl5BebIIq6CvGKucyV9c0CHJ8ER/StEPf7N/too0FrYblzYMxqRSnVSkZV6fM
-	 +ck8yoHuxab4w==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] HID: intel-ish-hid: ignore post-init ENUM_DEVICES from
- firmware
-Reply-To: sashiko-reviews@lists.linux.dev
-To: Wahid7852 <wahidzk0091@gmail.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260627224753.35075-1-wahidzk0091@gmail.com>
-References: <20260627224753.35075-1-wahidzk0091@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Sat, 27 Jun 2026 22:57:48 +0000
-Message-Id: <20260627225749.058711F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="TuXv5j2U"
+Received: by mail-wm1-f48.google.com with SMTP id 5b1f17b1804b1-493a5d32e8cso3786845e9.1
+        for <linux-input@vger.kernel.org>; Sat, 27 Jun 2026 17:41:18 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1782607277; x=1783212077; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=7pGgA6WV0tEq+UyEYEyNRruqDa18VnUsaxpJDdI4WVw=;
+        b=TuXv5j2UVtuyPRzLIHokGWG9fFK8tS5oXbkZG8Yi3oauUZPsOzO/x30ru3ZE/cLul1
+         m2w1/oCsoNnD5Ny6oe2K8QzUrOE0TtUuW+pBwi7F39Psosp47v2A5CeHYghjYlyyVCNm
+         Sow7JeUF1GicCASowHeUaIRNrkMs+g9hj35oCl6UDZHmCzhRhLZmBN9Js+HT1d/12S5W
+         ulO+Udq319UZE/Il42O/laeO6C7slOyQblcgmCHkgG3WlwfzzuxjSAT9QUpwYim/QXJF
+         U0pGjV7H27TnZaTIIyja2pL0jrZTU7lRUT/pR4EXR71CAvPPesMpxk6hcReerv6+ytGt
+         X7BQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1782607277; x=1783212077;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=7pGgA6WV0tEq+UyEYEyNRruqDa18VnUsaxpJDdI4WVw=;
+        b=rWvP2cXMwf5/95WMdjwDRl5qMeReyRdiaZJAf4v3zvWb8twHNdM/PDdONq/yn2+POy
+         e8Fa2c4MCBlX0JbQGLAQvOF5kkC2RiSzm/an7Gzc4Dr4daoGAJ7OuaBWsqyfPQSBQw4D
+         ywX+SAUAYXxFMZuT8ffCHuAqfv5KduWdovQSL5uceIZmHKCK9o+yF6dr4E4HoI9qOfBJ
+         tn+UWwWnRgMzuIlbAKFkbTsLL0XeMuz4oymquOwCzuiI3EUD7p48NHGuzkq5HveU+D77
+         2mC+0eiN4wwUjNc1G6uKNVcKAK8k8LG3ndE31txxaSnHoB9iopsWxeC3caMwemZXCJa5
+         XmHQ==
+X-Gm-Message-State: AOJu0Yx/jheV/IeS+h6Z0iUO9A9HaY+81jB67yrY72zsY34qxkCjh+TF
+	7XBnVZyLmY7oOHiUJ3kgP8g7zSNLdD7FtN0zQF7vyJQiDN6thVwx99om
+X-Gm-Gg: AfdE7cmHPwf0jp8sPZvko3KXehCizqtq6GBBc9gjG/uS7enF+nESUgyexdk9rHCAMAQ
+	eEn/LbYjvBEcubNSmYaFaSSLpWtoUmCkizid52NZj/alt+BEMLvw8qDG0tPBlbunDvgzq44LDJP
+	byEHJRBSUKbM3MySC9IyxiTy3XbdTkSyW/doBv5aiFb60qUbNg3/wa9KT9lK/lfmFqErNp9vJC2
+	ZqCCsIqfR7Cba2CrULnfIYs/ZxWR55VIUrK3Vh66ejLdoWus6pHIzzbkOLMEcjl56EZg+G59Iqn
+	KVAwO6bpQbYrKGfgwIqoWWK1YHSUP/TvGVGfVlRRZVAAaQXeOdOpdWSXReu8hEp7qFpp0p3jSTM
+	k2andSDXSPD17i+8Hrma9B9lzVi7+MhLBr6m0LHisQ2YHOosyK/bJmQAh4t+p9OAOIMiQQk0YX+
+	M92H6Wld9G2fQNk8hs5RIpeDC2PQ==
+X-Received: by 2002:a05:600c:4e4c:b0:492:3773:a230 with SMTP id 5b1f17b1804b1-49266893338mr175946575e9.27.1782607277184;
+        Sat, 27 Jun 2026 17:41:17 -0700 (PDT)
+Received: from Dev-Null-MSI ([2a0d:3344:52ac:a808:98a4:4381:be45:536f])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49268fde98csm208373005e9.6.2026.06.27.17.41.14
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 27 Jun 2026 17:41:15 -0700 (PDT)
+From: Yousef Alhouseen <alhouseenyousef@gmail.com>
+To: Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>
+Cc: linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Vicki Pfau <vi@endrift.com>,
+	stable@vger.kernel.org,
+	syzbot+75f3f9bff8c510602d36@syzkaller.appspotmail.com,
+	Yousef Alhouseen <alhouseenyousef@gmail.com>
+Subject: [PATCH] HID: steam: reject short serial number reports
+Date: Sun, 28 Jun 2026 02:41:06 +0200
+Message-ID: <20260628004106.26920-1-alhouseenyousef@gmail.com>
+X-Mailer: git-send-email 2.54.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
-s) to consider:
+steam_recv_report() may return a short positive response and copies
+only the bytes actually received. steam_get_serial() nevertheless reads
+the full three-byte header and trusts its length without checking that
+the serial payload was returned.
 
-Pre-existing issues:
-- [Critical] Duplicate firmware responses during initialization (ENUM_DEVIC=
-ES, GET_HID_DESCRIPTOR, GET_REPORT_DESCRIPTOR) cause heap buffer overflows.
-- [High] Missing payload length validation and flawed bounds checks in HOST=
-IF_DM_ENUM_DEVICES parsing lead to out-of-bounds memory reads.
-- [High] Unscaled pointer arithmetic and integer underflow in HOSTIF_PUBLIS=
-H_INPUT_REPORT_LIST lead to massive out-of-bounds memory accesses.
---
+A malformed USB device can therefore make the driver read uninitialized
+stack bytes. With a complete-looking short header, those bytes can also
+be copied into steam->serial_no and printed.
 
-commit 44b4c0eea0f41216fd9e39bd67a4356eeadc37c7
-Author: Wahid <wahidzk0091@gmail.com>
+Account for the stripped report ID in the return value and reject replies
+that do not contain both the header and its declared payload.
 
-HID: intel-ish-hid: ignore post-init ENUM_DEVICES from firmware
+Fixes: c164d6abf384 ("HID: add driver for Valve Steam Controller")
+Reported-by: syzbot+75f3f9bff8c510602d36@syzkaller.appspotmail.com
+Closes: https://syzkaller.appspot.com/bug?extid=75f3f9bff8c510602d36
+Cc: stable@vger.kernel.org
+Signed-off-by: Yousef Alhouseen <alhouseenyousef@gmail.com>
+---
+ drivers/hid/hid-steam.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-This commit splits the guard condition for HOSTIF_DM_ENUM_DEVICES messages
-to safely discard valid ENUM_DEVICES messages that arrive after
-initialization is complete. This prevents unnecessary ISH soft-resets
-caused by periodic firmware announcements.
+diff --git a/drivers/hid/hid-steam.c b/drivers/hid/hid-steam.c
+index 197126d6e081..8c8bfb10e8b8 100644
+--- a/drivers/hid/hid-steam.c
++++ b/drivers/hid/hid-steam.c
+@@ -454,11 +454,20 @@ static int steam_get_serial(struct steam_device *steam)
+ 	ret = steam_recv_report(steam, reply, sizeof(reply));
+ 	if (ret < 0)
+ 		goto out;
++	/* hid_hw_raw_request() counts the stripped report ID byte. */
++	if (ret < 4) {
++		ret = -EIO;
++		goto out;
++	}
+ 	if (reply[0] != ID_GET_STRING_ATTRIBUTE || reply[1] < 1 ||
+ 	    reply[1] > sizeof(steam->serial_no) || reply[2] != ATTRIB_STR_UNIT_SERIAL) {
+ 		ret = -EIO;
+ 		goto out;
+ 	}
++	if (ret - 1 < 3 + reply[1]) {
++		ret = -EIO;
++		goto out;
++	}
+ 	reply[3 + STEAM_SERIAL_LEN] = 0;
+ 	strscpy(steam->serial_no, reply + 3, reply[1]);
+ out:
+-- 
+2.54.0
 
-> diff --git a/drivers/hid/intel-ish-hid/ishtp-hid-client.c b/drivers/hid/i=
-ntel-ish-hid/ishtp-hid-client.c
-> --- a/drivers/hid/intel-ish-hid/ishtp-hid-client.c
-> +++ b/drivers/hid/intel-ish-hid/ishtp-hid-client.c
-> @@ -113,8 +113,7 @@ static void process_recv(struct ishtp_cl *hid_ishtp_c=
-l, void *recv_buf,
-> =20
->  		switch (recv_msg->hdr.command & CMD_MASK) {
->  		case HOSTIF_DM_ENUM_DEVICES:
-> -			if ((!(recv_msg->hdr.command & ~CMD_MASK) ||
-> -					client_data->init_done)) {
-> +			if (!(recv_msg->hdr.command & ~CMD_MASK)) {
->  				++client_data->bad_recv_cnt;
->  				report_bad_packet(hid_ishtp_cl, recv_msg,
->  						  cur_pos,
-> @@ -122,6 +121,8 @@ static void process_recv(struct ishtp_cl *hid_ishtp_c=
-l, void *recv_buf,
->  				ish_hw_reset(ishtp_get_ishtp_device(hid_ishtp_cl));
->  				break;
->  			}
-> +			if (client_data->init_done)
-> +				break;
->  			client_data->hid_dev_count =3D (unsigned int)*payload;
-
-[Severity: High]
-This is a pre-existing issue, but does this code read out-of-bounds memory
-if the payload length is zero?
-
-If a HOSTIF_DM_ENUM_DEVICES message is received with a zero-length payload,
-*payload is dereferenced here without validation.
-
-Furthermore, in the loop that follows:
-
-process_recv() {
-    ...
-    for (i =3D 0; i < client_data->hid_dev_count; ++i) {
-        ...
-        if (1 + sizeof(struct device_info) * i >=3D data_len)
-            break;
-           =20
-        dev_info =3D (struct device_info *)(payload + 1 +
-            sizeof(struct device_info) * i);
-           =20
-        if (client_data->hid_devices)
-            memcpy(client_data->hid_devices + i, dev_info,
-                   sizeof(struct device_info));
-    ...
-}
-
-The bounds check compares the relative payload offset against the absolute
-buffer size (data_len) instead of the payload size. This allows the offset
-to read out-of-bounds memory, which is then copied into the persistent
-device information cache, leaking the contents.
-
->  			if (!client_data->hid_devices)
->  				client_data->hid_devices =3D devm_kcalloc(
-
-[Severity: Critical]
-This is a pre-existing issue, but can duplicate firmware responses cause a
-heap buffer overflow here?
-
-If multiple HOSTIF_DM_ENUM_DEVICES or GET_HID_DESCRIPTOR messages arrive
-back-to-back before init_done becomes true, this allocation is incorrectly
-skipped because the pointer is already non-NULL.
-
-The memory is then copied into the existing buffer based on a potentially
-larger, unvalidated hid_dev_count or payload_len:
-
-process_recv() {
-    ...
-    memcpy(client_data->hid_devices + i, dev_info,
-           sizeof(struct device_info));
-    ...
-    memcpy(client_data->hid_descr[curr_hid_dev], payload, payload_len);
-    ...
-}
-
-This could cause memory to be copied into the original buffer without
-reallocation, causing a heap buffer overflow.
-
-[ ... ]
-
-[Severity: High]
-This is a pre-existing issue, but is there an integer underflow and pointer
-arithmetic issue when parsing HOSTIF_PUBLISH_INPUT_REPORT_LIST?
-
-Looking further down in process_recv():
-
-process_recv() {
-    ...
-    case HOSTIF_PUBLISH_INPUT_REPORT_LIST:
-        ...
-        payload_len =3D report_len - sizeof(struct hostif_msg_hdr);
-        ...
-        report +=3D sizeof(*report) + payload_len;
-    ...
-}
-
-If the firmware-controlled report_len is less than 6
-(sizeof(struct hostif_msg_hdr)), payload_len underflows.
-
-Additionally, because report is a typed pointer (struct report *), this
-addition is implicitly scaled by sizeof(struct report) (8 bytes), advancing
-the pointer out of bounds by a factor of 8.
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260627224753.3507=
-5-1-wahidzk0091@gmail.com?part=3D1

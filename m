@@ -1,168 +1,124 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-dy1-f179.google.com (mail-dy1-f179.google.com [74.125.82.179])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AE1D434CDD
-	for <linux-input@vger.kernel.org>; Sun, 28 Jun 2026 02:09:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E82EC2D47E9
+	for <linux-input@vger.kernel.org>; Sun, 28 Jun 2026 05:11:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.179
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782612579; cv=none; b=jOgws5CsN1nXSFCB7ERe3ogdGI1GX+Ojq7PCGsHa+mdWQZ01Bwie4Ma9Q3DvxNCgzKnZ7nA94uz/rK4IihSICCeR8NiOs0MKGAKAv14D1FWNRBrYe+uRf706vo7+aYQFVqdMOzwflO1Th5LFkrgP61WZ9jghTcliADXia7kxbuI=
+	t=1782623497; cv=none; b=hUrcz9bSjQKHw7YdVGgxackseOJvLeXfq8LSsBp1C4V/16+Eie9oeb9/Ck1YY0ZviV2gv8LXsBwJ89b1E2UlrUQnBDImbpmks9D2akrA4Xw8K/KPTPI9TNGN/lYRDQsh62VnVTOmD/MtKkUICWW9G8YZx2f9yvGHhMCjFgmtelk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782612579; c=relaxed/simple;
-	bh=zck6icy+x4vsdFg8GYcKL+8TiqTcgBrqQ8w4F+1NJpg=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=iQgIcBaYZuaf1dx2WvgFHbPgRtuWke6UzUdDnrU2E6C0B3/nOPsahiE8UjUedUgHviD8MRjcFiaNoCF9UeSuvU5UeovbJykqGBpUzTtuz88MsOf0qXkUlHT14qzDAnH5xXGGvPXTTVsqRvWJAWHApzC85wT5J1zjR0ZgDdNHLKA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=TCDkr0ju; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1782623497; c=relaxed/simple;
+	bh=bSYleusCHZ0QyyO2IrNM/PMBcF4xrI6PqFFbXUozNm4=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition; b=VaFi5uFlz+9o0nCq7vmTd4cam+PmpewdQWpSvbQxOotzzhAtue3S4WwTrE7R2txB1q/UYSix9Dw6GdUEegFDbXRcEPGMlFlA3zxY0ZGZ9MSBrxvP5EBPaWBijBAseC6BgM1YYoRRBUYE+tWroLSuTubZHgrEWlpn7XF8khSGorE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=RxbZFmf7; arc=none smtp.client-ip=74.125.82.179
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="TCDkr0ju"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E9841F00A3A;
-	Sun, 28 Jun 2026 02:09:38 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1782612578;
-	bh=RpcpPkH9Pv2xfYkDvv49ONW+AEheqiH6RgsnoLj0Jtg=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=TCDkr0juRAdnHUgvh4FYrmQ1JZRdBbb+oft/ML+uTJDoZWsERA6AKe3k3cMhWrn2q
-	 eLgcwkSvbzZZX1n40K73dNTG1QJcGM7tedKkbTOnM6nn36xcFDF5JFegVu4FJIQrzy
-	 iFMPm78R4dXciDi6MMRmhjEeqSN3oz0IIwSk5kWyeDV9qIALRkj+sISTeEYOY6s8Ll
-	 U2hjfCm4KjWNcUVCULVCU+M5s2Rro3/ej7xlGl+5yCRJlEjLbiXPEZ4GwthPGH5VGt
-	 zvbminU0FIEj0JNSfQkcB6qJNgAqnjTTpwQj8iOkjPHeMuMfiBcsphcLmwgpRlChBh
-	 RYc9Vjd6Jnkyg==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 1/2] input: atkbd: add softleds quirk for broken EC PS/2
- emulation
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Rodnei Cilto" <rodnei.cilto@gmail.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260628-ideapad-kbd-leds-v1-1-50b421d94927@gmail.com>
-References: <20260628-ideapad-kbd-leds-v1-0-50b421d94927@gmail.com>
- <20260628-ideapad-kbd-leds-v1-1-50b421d94927@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Sun, 28 Jun 2026 02:09:37 +0000
-Message-Id: <20260628020938.1E9841F00A3A@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="RxbZFmf7"
+Received: by mail-dy1-f179.google.com with SMTP id 5a478bee46e88-30b6dad2382so4463686eec.0
+        for <linux-input@vger.kernel.org>; Sat, 27 Jun 2026 22:11:35 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1782623495; x=1783228295; darn=vger.kernel.org;
+        h=content-disposition:mime-version:message-id:subject:cc:to:from:date
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=a89Djl+57FpDQgfH1zvXXAXdoXloeM6dPQEBvdj2AmU=;
+        b=RxbZFmf7ngUjMraQPrqyWhKYeyUmUiJnrhw5pySwGtGvpG7d8DBA9smqN0NOlb9LCx
+         8TMaHrbRX0HndizWFOgneAnNne8crwO7nGkQOCdYMoyHgON/fs6FtSWXeRbo1lLnln7y
+         2SBBtEXEeVsrouS2f/iiQjulIakvvLfIr+pxGqPqqo0iIbVdBby4gr7DpzFkFafJnpsn
+         nYPIrTWfPZp1nJQidYLfyk7ZizXzbySnuqsxlHVUrlkITtSlix7y88gQpS8sjNa3KPXY
+         SaDuLVy0KcFR5//JHaye3cvQb6EeQ+TkGa5rbSzrOpgRMoz6ohFaNnqowOJCORQp/YbX
+         JlQw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1782623495; x=1783228295;
+        h=content-disposition:mime-version:message-id:subject:cc:to:from:date
+         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=a89Djl+57FpDQgfH1zvXXAXdoXloeM6dPQEBvdj2AmU=;
+        b=fZQ6mQc6Uc9hbklV7L0Q+edl3PhsAeqrjE8Z7hZvQ5JZ12jmysu5RBxUvOztRwlcLV
+         KzCgo3DFB5aSU3oPfuzgdacZJXrmZYKaWFk1teySdIXmN6TP6bIloj+PYMTXML6BK6Cu
+         fNAwmwMuKMQ57QExhIm2A6HewXsfPTn2HFoMxkVowUsNan0JwAKltFVSktyU70YhFpFe
+         vEXKk/o3ndThc1F6LUFWnkn7bDv61aCwTB2T0Y/bq00SG7AtHIOR1OfKzz2oevKJ2iU/
+         N9a1ngFLcwHibzADWiNzU1L66rGyL7bUsECpPtFgWvYwgmJbZrNYKiOFUCjBRI7ZN7mZ
+         1u2A==
+X-Forwarded-Encrypted: i=1; AHgh+RoiCEznX1Bz6pX+XT3QyejZmobMkWRETND4/o73U2n5O/wBMq6uwyaCnSKVSCIXhIunBYrx/1J07AACAA==@vger.kernel.org
+X-Gm-Message-State: AOJu0YwgWL4O+c/7JF3pleAlIokMo9vY0Y4sy9w1M+HD3hd79Z6yikZr
+	pHHty8dvp70iiaJvycRFu7xMq4YlgQuk7Qcl79zaI/SlbY4d8thYbIOPsBKt4A==
+X-Gm-Gg: AfdE7cm7GG2DJd+LUbSeYujqzQRJ3Qz8vtZdYYBZsVrfaH93L47Y38grAzFVpjJn2f0
+	1BGWg7ONQuuLv0yztGUlt5S07ZJgc2b3A8VJM+PZEkDlgjTYRMK5wGNw//W4wIyxqgiI5wX6855
+	rJCJnPTczs2zvIp2eglXq7A9kjVNRv9RSGheMlNLljAIefA1ukqWdwKbnHLslKeH+TFIiz7JpA/
+	EEjAQwtgFJtQ0xKJT6ZR/BztCrO63Ia1g9GhM+HhK1MoxUtUL/ttAXIfb8W89EETiKkyl0eVLZ8
+	J3NVD8Zjqf0wyYHQ3eSNC5yroIYCA/uU84KddygnEkniP14oWMWlcDLIJ96ukdG7BqgHkpOq2pE
+	GpOeDIzh96sBUh5VPozDUe+EZHxJZPORW5vPwZDI2NuE4/g904diG30Bxs/al399aqv1hxwkNpZ
+	SrlUd0FXJ8yu7/IhCoHLFcNcVJghEuyMTVEGiPPgZ123DUzOpXbLahmQ==
+X-Received: by 2002:a05:7301:9c95:b0:304:e587:5063 with SMTP id 5a478bee46e88-30c84b6f548mr13698620eec.12.1782623494751;
+        Sat, 27 Jun 2026 22:11:34 -0700 (PDT)
+Received: from google.com ([2a00:79e0:2ebe:8:977e:876b:dc75:9723])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-30d3af0d2e4sm12598283eec.22.2026.06.27.22.11.33
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 27 Jun 2026 22:11:33 -0700 (PDT)
+Date: Sat, 27 Jun 2026 22:11:31 -0700
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+Subject: [git pull] Input updates for v7.2-rc0 (part 2)
+Message-ID: <akCs9sqkWvpJnCpK@google.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
-s) to consider:
+Hi Linus,
 
-New issues:
-- [High] The `atkbd` driver mutates the parent `serio` port's `write` funct=
-ion pointer to `NULL`, which is a driver model violation and permanently co=
-rrupts the bus state.
-- [Medium] The newly added early return `if (atkbd->softleds) return 0;` in=
-side `atkbd_set_leds()` is completely unreachable dead code.
+Please pull from:
 
-Pre-existing issues:
-- [High] A pre-existing race condition in `atkbd_disconnect()` can lead to =
-a Use-After-Free of the `input_dev` structure in `atkbd_event_work()`.
---
+	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git tags/input-for-v7.2-rc0-2
 
-commit 449f71d6f3b7e8daf08e55bc0da16d0f59475df4
-Author: Rodnei Cilto <rodnei.cilto@gmail.com>
+to receive updates for the input subsystem. You will get:
 
-input: atkbd: add softleds quirk for broken EC PS/2 emulation
+- Updates to Synaptics RMI4 driver to fix potential OOB accesses in
+  F30 and F3A keymap handling
 
-This commit introduces the atkbd_softleds mode to handle broken EC PS/2
-emulation on some Lenovo IdeaPad laptops. It combines dumbkbd behaviour with
-EV_LED registration to keep LED states visible to userspace without sending
-the SETLEDS command. DMI entries are added for the Lenovo IdeaPad 83RR and
-83SR.
+- A workaround in Synaptics RMI4 to tolerate buggy firmware on some
+  touchpads (e.g. ThinkPad T14 Gen 1) that report incomplete register
+  descriptor structures, preventing probe failures
 
-> diff --git a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/atkb=
-d.c
-> index 8cb4dc6fb1658..826a21dc016ab 100644
-> --- a/drivers/input/keyboard/atkbd.c
-> +++ b/drivers/input/keyboard/atkbd.c
-> @@ -600,6 +602,14 @@ static int atkbd_set_leds(struct atkbd *atkbd)
->  	struct input_dev *dev =3D atkbd->dev;
->  	u8 param[2];
-> =20
-> +	/*
-> +	 * softleds: EC PS/2 emulation does not support AT commands
-> +	 * after initialization. Accept LED state from userspace but
-> +	 * never send SETLEDS (0xED) to avoid scancode corruption.
-> +	 */
-> +	if (atkbd->softleds)
-> +		return 0;
-> +
+- A revert of an incorrect register descriptor address calculation in
+  Synaptics RMI4 driver
 
-[Severity: Medium]
-Is this early return reachable? When atkbd_softleds is active, atkbd_connec=
-t()
-sets atkbd->write =3D false.
+- A fix for a regression in HP GSC PS/2 (gscps2) driver where the
+  receive buffer write index was not advanced, leaving keyboard and
+  mouse unusable.
 
-When an EV_LED event occurs, atkbd_event() checks atkbd->write and immediat=
-ely
-returns -1, dropping the event before atkbd_schedule_event_work() is called.
+Changelog:
+---------
 
-Does this mean atkbd_set_leds() is never executed by the workqueue in this
-mode, and this check will never be triggered?
+Bryam Vargas (2):
+      Input: synaptics-rmi4 - bound the F3A keymap to the GPIO count
+      Input: synaptics-rmi4 - bound the F30 keymap to the GPIO/LED count
 
-[ ... ]
+Dmitry Torokhov (2):
+      Revert "Input: rmi4 - fix register descriptor address calculation"
+      Input: rmi4 - tolerate short register descriptor structure
 
-> @@ -1291,6 +1301,12 @@ static int atkbd_connect(struct serio *serio, stru=
-ct serio_driver *drv)
->  	if (atkbd->softrepeat)
->  		atkbd->softraw =3D true;
-> =20
-> +	if (atkbd_softleds) {
-> +		serio->write =3D NULL;
-> +		atkbd->write =3D false;
-> +		atkbd->softleds =3D true;
-> +	}
-> +
+Xu Rao (1):
+      Input: gscps2 - advance receive buffer write index
 
-[Severity: High]
-Does this permanently modify the parent bus provider's function pointer
-(serio->write)?
+Diffstat:
+--------
 
-If atkbd is unbound and another driver (e.g., serio_raw) binds to the same
-port, or if atkbd is rebound, would the port remain crippled and unable to
-transmit due to serio->write still being NULL?
+ drivers/input/rmi4/rmi_driver.c | 39 ++++++++++++++++++++++++++-------------
+ drivers/input/rmi4/rmi_f30.c    |  2 +-
+ drivers/input/rmi4/rmi_f3a.c    |  2 +-
+ drivers/input/serio/gscps2.c    |  1 +
+ 4 files changed, 29 insertions(+), 15 deletions(-)
 
-[Severity: High]
-This is a pre-existing issue, but can this sequence lead to a use-after-free
-if a privileged user unbinds the driver while LED or repeat rate events are
-being processed?
+Thanks.
 
-In atkbd_disconnect(), input_unregister_device() is called before
-cancel_delayed_work_sync():
 
-drivers/input/keyboard/atkbd.c:atkbd_disconnect() {
-    ...
-    input_unregister_device(atkbd->dev);
-
-    /*
-     * Make sure we don't have a command in flight.
-     ...
-     */
-    cancel_delayed_work_sync(&atkbd->event_work);
-    ...
-}
-
-If atkbd_event_work() starts executing on another CPU, it acquires
-atkbd->mutex and checks atkbd->enabled. If preempted immediately after this
-check, atkbd_disconnect() can proceed to set atkbd->enabled =3D false,
-unregister and free the input device, and then block on
-cancel_delayed_work_sync().
-
-When the worker thread resumes, it calls atkbd_set_leds():
-
-drivers/input/keyboard/atkbd.c:atkbd_event_work() {
-    ...
-    if (!atkbd->enabled) {
-        ...
-    } else {
-        if (test_and_clear_bit(ATKBD_LED_EVENT_BIT, &atkbd->event_mask))
-            atkbd_set_leds(atkbd);
-    ...
-}
-
-Would atkbd_set_leds() then dereference the now-freed atkbd->dev?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260628-ideapad-kb=
-d-leds-v1-0-50b421d94927@gmail.com?part=3D1
+-- 
+Dmitry

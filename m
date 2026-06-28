@@ -1,118 +1,180 @@
-Received: from mail-wm1-f48.google.com (mail-wm1-f48.google.com [209.85.128.48])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 76EC12E5B29
-	for <linux-input@vger.kernel.org>; Sun, 28 Jun 2026 09:37:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.48
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D686434E74B
+	for <linux-input@vger.kernel.org>; Sun, 28 Jun 2026 09:51:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782639468; cv=none; b=h1Uz9Dy4ZXmYHdPHXIubGvbZfeh29g5RgNCevQQ77wyfXZqWam7WYHTZ/4SCwMTTcpDguhbzawmues4WOuyL+YBX+Ges+16/P2Kv/aQAVhWq3RA0H0vTMp8CD2v0/3z2rvSvYUmFiTBO/avubdqJr7tMruJTYZVHfXfBbyP0fRc=
+	t=1782640265; cv=none; b=LSteZa0CPH5O0UgiGbUPhxdEdGgxMzcgz3Iiao8W1aUM+i175orsee4FV3GSlyHAoanStu+wScMXN/S35HRjTDUuNvWE1/kRjLEH2e+jAkrM2EqeHXWUfAYdF+TNJqhOaSsz5jdRiZiKtceeeDx2VEq7ggCd6E+K3vTD2f56zKE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782639468; c=relaxed/simple;
-	bh=KUxc5s+Ozy/mh8LcygImhFbcgR+t8ibAmyTyILx/d9Q=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Wt8DVm35HKZUg9wzgJ/zc0OVYnhym9HwZYZQ/u58joEh9N9/jiOqeApYb8d4E5QZPaYiLmWDY6OXeAAe4c1aQYqllJoyYevnvAHGnoxwtk3juE6hdnSbXpTpMYTiDQYmn7IQyd9weR0dBf8M4ZqMCCWYg8lphaCrmyZs5mkDPaI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=lX4F6utV; arc=none smtp.client-ip=209.85.128.48
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1782640265; c=relaxed/simple;
+	bh=35SNSucFb/Uzrykl2zEjnF+mYflAqPZh4HwGT+NVpbY=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=PZx7r7lJ7Ts4Jg0WXyQ2bqE/NwMZqTD3Ikj+X9u+6DHTNmBZpIlLIkaIyAp9pnBcNyuzRYX0huoAtVlGX9xgwlrbOaSS4VsV+W040oWn/QkB1JbefJAn5IQw/Lej5ZgGppOpkMTvwJMCH6Chc3AiNsxuqkaW+OFkfUtVLSTWYqQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=mVTDoaPo; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="lX4F6utV"
-Received: by mail-wm1-f48.google.com with SMTP id 5b1f17b1804b1-4938d60c035so7857335e9.0
-        for <linux-input@vger.kernel.org>; Sun, 28 Jun 2026 02:37:47 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1782639466; x=1783244266; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=6FQzT0Pfxjs6kdPKaUfr6F0wexDd7Xo9qWKJhKghTGM=;
-        b=lX4F6utViTkAkMfBZWiugZaSidMyROeH2ORe4flDMRrXPEq03BFE8YqO48noC7ORgJ
-         KS/Djl5Jtzy17C+BWenVMkQwLcEAdm6418RhwTzY9JsmVeMuBOnsDohcHeIA23w3tSBb
-         VvkY2Xr5wY7GYNc32dBJR2JH8rTWWPAFcyxV5SkxAQJ5IS1qvcuUAkAkvU8iIklv9lFG
-         oNIlNlBuFfiuf3Hk0XLfITZwaEc61CZWlV4IlF643fFK3tV+NiMwOiH8f7VZh75NtFFc
-         KDvfnY925GCE7N7wR1+lSRsv68SwpjNL+ltfc273yfoYlHR33HLbDj9MDiNLyt/Dag0s
-         gYJw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1782639466; x=1783244266;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=6FQzT0Pfxjs6kdPKaUfr6F0wexDd7Xo9qWKJhKghTGM=;
-        b=NUJdQ/K8OlzszHp+d3iTO2Dm68QrPtcuWP+vX3UC9Ec6tZpSH4J2gwdQfWZsXdwVA+
-         ztK3X7Ow+Oj2BWKbs9oALCwrhYf8vaxfGt2xrNzldtLWkOne4hK6xFAN5PVqV4jwYB2C
-         Y6t7dNBhqc7nrF6AOj7nwMcMSL2+tTvT9HHXW48Z5VFa/8Io4jST/WMoltkbeH2I2Jzh
-         14HblSxhUZfDTvVc9JNhYB4wni4orpTE0PjqqcuA3zlLiJR3gXkE1gPd6IPWoy3XIqJb
-         Sbo7LYzCJbW6ntifjcGCaCt1SZP/28kQdO3/P5oDzrLzzL6uNdzEH68IgdbKwRyBon0e
-         glYQ==
-X-Forwarded-Encrypted: i=1; AFNElJ9mLlZTrV2PXaiRawaJbR9cZAp3jv8uILzWb8/G+pilezR0a0js8uDqVIYEdaPH7kMTYUTr9xFtRkZpWA==@vger.kernel.org
-X-Gm-Message-State: AOJu0YxEeMb10Msu2eX0BmK4cZRX+4lUh6AhDrU+YzLdGOZXBY2cmqR6
-	4V7ysLONw3BlSFRhZlAD+hON3kACAeRQ3POc+lH6/SNibulH6tSjmkm2
-X-Gm-Gg: AfdE7cnbtHRWI2pu6JijEgP3VRj6/SLbNtWWdLoguU/nI9z7BFjk+YDtm/N6tVp+Ltd
-	ZHNegisTv96ibN7qU6h8In7GIuO/RfUNShY0gv6OV4TyQh8miI+5kGeGKSwlZVT5F6DfxhGbS56
-	q79I/ReNGzPHXl/Ac1VeADX/3AnL08orOkAotqzJPrJKep8xF3qo18YUuLM3T23LIV+m3DvK0Xn
-	u80GGpACaUh0mRKudzu/TZf4zMPBnZvUA3PQVPxgo8vZbDb/3cLWjfZUEBKG16Evwz6T65gdZPa
-	ETRLkZlnROAdJ9bvxPNvdaKVhnyid5+rYBvgUamY0E5WrenrWHq9LTHcj5Ydl9b3gWnl67i+M0y
-	L90DeQtNbIpJqqG0YFq7RvAZwmjY+fb0y7gRtvYwcMhK9UzTebvNn8JAUdWDeEbrvbyf84Mg14I
-	VBo6XTcSy0yz+Ko3ep8oMFgFaFzg==
-X-Received: by 2002:a05:600c:1c17:b0:492:7019:caca with SMTP id 5b1f17b1804b1-4927019cb17mr131689195e9.26.1782639465516;
-        Sun, 28 Jun 2026 02:37:45 -0700 (PDT)
-Received: from Dev-Null-MSI ([2a0d:3344:52ac:a808:98a4:4381:be45:536f])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-492690988e0sm246657585e9.14.2026.06.28.02.37.44
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 28 Jun 2026 02:37:45 -0700 (PDT)
-From: Yousef Alhouseen <alhouseenyousef@gmail.com>
-To: Rishi Gupta <gupt21@gmail.com>,
-	Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>
-Cc: linux-i2c@vger.kernel.org,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	stable@vger.kernel.org,
-	syzbot+1018672fe70298606e5f@syzkaller.appspotmail.com,
-	Yousef Alhouseen <alhouseenyousef@gmail.com>
-Subject: [PATCH] HID: mcp2221: reject short input reports
-Date: Sun, 28 Jun 2026 11:36:58 +0200
-Message-ID: <20260628093658.43445-1-alhouseenyousef@gmail.com>
-X-Mailer: git-send-email 2.54.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="mVTDoaPo"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 105A41F000E9;
+	Sun, 28 Jun 2026 09:51:02 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1782640262;
+	bh=QHJmB5kOGr4b4/MZbWP7J7WkiLkxYHIF2ZOcK1Bo1/g=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=mVTDoaPoalblNezab/0ENgzeZb/YSzs/uyaQeAOipcBSeURu1YW++H2EJgQLv7bif
+	 AVtvxKfw/pzVyq2itXwDECVRA3fZwNqWDF2KzpzfMcA1oRsQ8ldb2U5Hv/h5elMBYR
+	 R2KPDASFH+gHTQOcpO5uZLv6glHlHkNY7knMX52qk/q0mm61kyb6DkCq6InCIa8/I2
+	 SB+W9Y+S9ImxKywz3GfSDKO9Ppec3zQTFxkI3jEdCGUYkkTpKoVvh3CWTQOuhLS5qJ
+	 XK7QwQZnZvcm0jwiImPZWxkJQQ9PMN3RxiGfQi4YTQBH8h8ve3+rtukdYQpdd9LDlT
+	 6a06hbRVMoUAw==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH] HID: mcp2221: reject short input reports
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Yousef Alhouseen" <alhouseenyousef@gmail.com>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <20260628093658.43445-1-alhouseenyousef@gmail.com>
+References: <20260628093658.43445-1-alhouseenyousef@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Sun, 28 Jun 2026 09:51:01 +0000
+Message-Id: <20260628095102.105A41F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+
+Thank you for your contribution! Sashiko AI review found 4 potential issue(=
+s) to consider:
+
+Pre-existing issues:
+- [Critical] Use-After-Free and kernel stack corruption due to un-cleared m=
+cp->rxbuf on timeout.
+- [Critical] Stack buffer overflow due to using uninitialized memory as I2C=
+ read length.
+- [High] Delayed USB reports indiscriminately complete pending waits, causi=
+ng state desynchronization.
+- [High] Static retries variable underflow causes infinite loop of workqueu=
+e rescheduling.
+--
+
+commit 421d556dea19ceb8f40a640c782b6801d60f43cd
+Author: Yousef Alhouseen <alhouseenyousef@gmail.com>
+
+HID: mcp2221: reject short input reports
 
 The MCP2221 raw-event callback reads fixed offsets from the 64-byte input
 report, including data[50] and a variable payload beginning at data[4].
-Raw-event callbacks run before HID core extends short reports to their
-declared size, so a malformed USB device can make these accesses run past
-the received buffer.
+This rejects reports whose size does not match the protocol and completes
+the pending command with -EMSGSIZE.
 
-Reject reports whose size does not match the protocol and complete the
-pending command with -EMSGSIZE so its caller does not wait for a timeout.
+Closes: https://syzkaller.appspot.com/bug?extid=3D1018672fe70298606e5f
 
-Fixes: 67a95c21463d ("HID: mcp2221: add usb to i2c-smbus host bridge")
-Reported-by: syzbot+1018672fe70298606e5f@syzkaller.appspotmail.com
-Closes: https://syzkaller.appspot.com/bug?extid=1018672fe70298606e5f
-Cc: stable@vger.kernel.org
-Signed-off-by: Yousef Alhouseen <alhouseenyousef@gmail.com>
----
- drivers/hid/hid-mcp2221.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+> diff --git a/drivers/hid/hid-mcp2221.c b/drivers/hid/hid-mcp2221.c
+> index e4ddd8e9293b6..311b51c17b4e4 100644
+> --- a/drivers/hid/hid-mcp2221.c
+> +++ b/drivers/hid/hid-mcp2221.c
+> @@ -861,6 +861,12 @@ static int mcp2221_raw_event(struct hid_device *hdev,
+>  	u8 *buf;
+>  	struct mcp2221 *mcp =3D hid_get_drvdata(hdev);
+> =20
+> +	if (size !=3D sizeof(mcp->txbuf)) {
+> +		mcp->status =3D -EMSGSIZE;
+> +		complete(&mcp->wait_in_report);
+> +		return 1;
+> +	}
+> +
 
-diff --git a/drivers/hid/hid-mcp2221.c b/drivers/hid/hid-mcp2221.c
-index e4ddd8e9293b..311b51c17b4e 100644
---- a/drivers/hid/hid-mcp2221.c
-+++ b/drivers/hid/hid-mcp2221.c
-@@ -861,6 +861,12 @@ static int mcp2221_raw_event(struct hid_device *hdev,
- 	u8 *buf;
- 	struct mcp2221 *mcp = hid_get_drvdata(hdev);
- 
-+	if (size != sizeof(mcp->txbuf)) {
-+		mcp->status = -EMSGSIZE;
-+		complete(&mcp->wait_in_report);
-+		return 1;
-+	}
-+
- 	switch (data[0]) {
- 
- 	case MCP2221_I2C_WR_DATA:
--- 
-2.54.0
+[Severity: High]
+This is a pre-existing issue, but does mcp2221_raw_event() indiscriminately
+complete pending waits for any incoming report without matching it to the
+pending request?
 
+If a previous request times out, and a delayed USB response arrives later,
+it appears it could prematurely wake up a new command's wait queue with
+incorrect status and data:
+
+drivers/hid/hid-mcp2221.c:mcp2221_raw_event() {
+	...
+	case MCP2221_I2C_WR_DATA:
+	...
+		complete(&mcp->wait_in_report);
+		break;
+	...
+}
+
+[Severity: Critical]
+This isn't a bug introduced by this patch, but can this lead to stack
+corruption if a request times out?
+
+In mcp_i2c_smbus_read(), if mcp_send_data_req_status() fails or times out,
+it returns immediately without clearing mcp->rxbuf:
+
+drivers/hid/hid-mcp2221.c:mcp_i2c_smbus_read() {
+	...
+	ret =3D mcp_send_data_req_status(mcp, mcp->txbuf, 4);
+	if (ret)
+		return ret;
+	...
+}
+
+Since mcp->rxbuf can point to a caller-provided stack buffer (like
+union i2c_smbus_data), the stack frame is popped upon return. If a delayed
+USB response arrives later, wouldn't mcp2221_raw_event() blindly write into
+this dangling mcp->rxbuf pointer?
+
+drivers/hid/hid-mcp2221.c:mcp2221_raw_event() {
+	...
+			if (data[2] =3D=3D MCP2221_I2C_READ_COMPL ||
+			    data[2] =3D=3D MCP2221_I2C_READ_PARTIAL) {
+				...
+				buf =3D mcp->rxbuf;
+				memcpy(&buf[mcp->rxbuf_idx], &data[4], data[3]);
+	...
+}
+
+[Severity: Critical]
+This is a pre-existing issue, but does mcp_smbus_xfer() use uninitialized
+stack memory as the I2C read length during a block read?
+
+drivers/hid/hid-mcp2221.c:mcp_smbus_xfer() {
+	...
+			ret =3D mcp_i2c_smbus_read(mcp, NULL,
+						MCP2221_I2C_RD_RPT_START,
+						addr, data->block[0] + 1,
+						data->block);
+	...
+}
+
+The union i2c_smbus_data provided by the caller is uninitialized stack memo=
+ry
+on read. This configures mcp->rxbuf_size to an arbitrarily large value. Cou=
+ld
+this lead to a massive stack buffer overflow when mcp2221_raw_event() copies
+up to this value into the statically sized 34-byte data->block stack buffer?
+
+[Severity: High]
+This is a pre-existing issue, but could the statically scoped retries varia=
+ble
+in mcp_init_work() cause an infinite reschedule loop?
+
+drivers/hid/hid-mcp2221.c:mcp_init_work() {
+	static int retries =3D 5;
+	...
+reschedule_task:
+	...
+	if (!retries--)
+		return;
+
+	/* Device is not ready to read SRAM or FLASH data, try again */
+	schedule_delayed_work(&mcp->init_work, msecs_to_jiffies(100));
+}
+
+Since retries is static, when initialization fails 6 times, it reaches 0,
+returns, and decrements to -1. On a subsequent failure, retries starts at -=
+1.
+Because !(-1) is false, it bypasses the return, decrements to -2, and
+unconditionally schedules the delayed work every 100ms forever.
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260628093658.4344=
+5-1-alhouseenyousef@gmail.com?part=3D1

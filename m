@@ -1,228 +1,170 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-yw1-f182.google.com (mail-yw1-f182.google.com [209.85.128.182])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0BF521B6D08
-	for <linux-input@vger.kernel.org>; Sun, 28 Jun 2026 13:51:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782654667; cv=none; b=jhKN66LLca/VN1pIOI5O/XfCsj6axWZewC0qptf7R+no2KYtsvQSPLehCjv4u90S2QjbvbJKLUuKmfh+VSR32wKidXAMZ+zyXXSc47kxNFyqhV3c45PVm+JZIhplejjvIAC7m+f+hDY0bz2U76EnwBZLNdPDWujea9Z/nYRfvzY=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782654667; c=relaxed/simple;
-	bh=tRc5L4wAX03CoAxUJzGkdyBWv/XymjOPCmdmbMVf/Kk=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=gFhufl4rpjpLycT+GMrmtMN0IezN/GUFiiige9x6B6zZIW/vQ2ddthBDN+SLH821oKSrEn3QWZ0l4NRpaLwzvFo3f3qAOY7Xw4PX3cyUNLU37zgP/P7/zWA2ZjF+GqMCgGEaVQa11MIrpy5JIk673KLmsA+cBKZs3+/BsYWIAnY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=X5kzBAYz; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E05CAF507
+	for <linux-input@vger.kernel.org>; Sun, 28 Jun 2026 16:23:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.128.182
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1782663831; cv=pass; b=qwwYEQc0WyU24qiznoJ9kAoK2O3K6SHtJYdeobVmvy5Y04eDwGALFlHAXyhZHkz/v8q7wVPCl/fPuzTPxXDwHPuus6Oe6+WbEp2bYS0GpsHGa3l3fuIQ6zJM1OQb+ef0A2ij4j0MWkRkcV9oBd38Oxj8Z6cZAShY5zliIZ3hEc8=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1782663831; c=relaxed/simple;
+	bh=5OLImKYP/mPH8qI5V/oFbG+GvYL5S1bGpUq89sWRLyo=;
+	h=In-Reply-To:References:MIME-Version:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=tMn86bA7KK/mFMOJ5znSiBkIenBsznvZW+MrTwfGIbaXrJAHBoAJnE3jW6jtd97MHAIpPpXxc4VqXpVAMptefF94ew65qN6heetBGJJ+t8AOlNA5lXqZbjqMrqZvSoCvPYhGqz1pIdpEWrp/d8+a8x1b5OwK+z13OFqKXWfbwRw=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=FNdUWzHL; arc=pass smtp.client-ip=209.85.128.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="X5kzBAYz"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3AC751F000E9;
-	Sun, 28 Jun 2026 13:51:05 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1782654665;
-	bh=VdGZl1PwCGAXT9FwZnx75JcqYPNL33j5MAIlidM2Glw=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=X5kzBAYz86EB8tusskE7PD3Hphr1L8uiORYVLcw8JXbImo/2bg6/A+zssP7UZXxCc
-	 PlGTaD7r3ljeMvhuR6pG3xt0VswIQMneIQoj/ec14Iz+LQyp6mrMiaKqZP06iM3HGj
-	 xMKgxyMu5SzIHw0770Xo+wjHzpDainR6E8mF3CctvhiGDscsPgO96BxrmZIU2j2Dw8
-	 oUs4xxIac6yv0/W8f90l8GCWnbD0IQrog9Jy6Qg+JsO3Pbw9wN+290/FzywKFEOZbw
-	 mYh+A1EcgYd4A/xBmF7s+ISRCNahJuNlcEkig19mgPlM/RQQaqQLtZOulhlPh+LuRB
-	 DJQGNcEt3VgIw==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] HID: intel-thc-hid: intel-quickspi: validate report
- size before copy
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "HyeongJun An" <sammiee5311@gmail.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260628133717.941389-1-sammiee5311@gmail.com>
-References: <20260628133717.941389-1-sammiee5311@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Sun, 28 Jun 2026 13:51:04 +0000
-Message-Id: <20260628135105.3AC751F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="FNdUWzHL"
+Received: by mail-yw1-f182.google.com with SMTP id 00721157ae682-80bab6cf5ebso22552607b3.1
+        for <linux-input@vger.kernel.org>; Sun, 28 Jun 2026 09:23:49 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1782663829; cv=none;
+        d=google.com; s=arc-20260327;
+        b=JXcz4+0qf3Ojt3GfGcFEX6ZdqoouU7RTWdpk+8cmJODB7U/S7jm/2eI/O+8A8afRRy
+         ryDe3Lk7UWFPd6NaWsYbSOx4hkvvjC4HJeTnn/nK9lL8MKdFD4H7Ovg6iFBeBxH5zsv7
+         FET34p+wEv7FyXku48gEH32PHrYxnqzWRaHa0ayKumPR/e1/h1H20UK0ebkyb/HeL1WF
+         Fj8XLEIOneYOe7xtsDKCdOnOpuTHNKY2WKlHmbUkHE6txlw99Ex9t4kVSZHJMo0XDi/W
+         cJOAtQcE2RB2RApbZqnMVICHf7ZtPy9FiiO4ucfnNdcMOcjESiH0VD6jfvA71spy8zp6
+         yuig==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :mime-version:references:in-reply-to:dkim-signature;
+        bh=5OLImKYP/mPH8qI5V/oFbG+GvYL5S1bGpUq89sWRLyo=;
+        fh=Zo/V8w6H/beZM8erurRY8NR4i9IxeFhCcd4pif+9iDg=;
+        b=I3c2GonM+eduXkFYGMMEQszKb7LKw9gXcjc1+flzazcTg3dxsC1ZJxiHVHizBztXGN
+         VK9AFN8HP8Ahre7JHJotK44/NdeVFLq97B3baAF+ggFFqbhKwyDWlNXPzLQ3sSTfIpvh
+         EADkpIMqQqBgPMtg8H+tfo4JoeXMxXWwh8z463tsxbju+diBJKpUgT6iLBKKfe3u3WNL
+         8FobXfgUhhv48lnmUSRFBwxLDINSPD9nCuE8Gh3oVVkH/QZC0cVsi3WLoVOm+GEXmU6c
+         NxvCUG6/8IUQvMzhubqffO5QGfwZYRI41t01DVTQIzSn/ifuadkxVJvnMoBrBDh0xjcl
+         2x4g==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1782663829; x=1783268629; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :mime-version:references:in-reply-to:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=5OLImKYP/mPH8qI5V/oFbG+GvYL5S1bGpUq89sWRLyo=;
+        b=FNdUWzHL+JaJMuq4NFFdca+2lRDsUd5oSMptFzGAD1BUSEOu9BVroXtMfz3SIQHj8G
+         6NPl1X4nqio2fwqFm2mj3w+wkZsBY2dv0aZ6cWhTesxgsf242j/+lVpv8A2FZ0nPXpwt
+         9aGqLT80AGAazqi7gkIUWpQwtLtLx5ZmM7wyVNbE6ZdjHVWvGsHI1lVrnvJUztdqDes3
+         YCvQBk0r9DNf/3FndsRzdYrxFQOJdS2pnO1CuDVn0hTYAKWHUV6/Yr681+fT2flyzkgw
+         SvWfGJS0VpGSgMfYMsEm0sh6uZOKvpLirGYITBeNBNR75m+FZ8jlip04UQrZzxB/HUW4
+         YUCg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1782663829; x=1783268629;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :mime-version:references:in-reply-to:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=5OLImKYP/mPH8qI5V/oFbG+GvYL5S1bGpUq89sWRLyo=;
+        b=dmWQAkujqdQ0kKyjnzt+iqjQUuCBJwi8HjZF9ESuwjSswJSomJbDKMR7z40Nwb0Sc1
+         pwoYwPSTmS/oMcDraHdo237fxj/AeRz/3cNTVT6OJTW9HsAxVikjYxO5Do7jFcXv0ya0
+         kLVkJAzOxejtNUueiQw+Fo+hQ8cI+Ubcoa2Dj2Nnnv6+4KayjnVukO+rwOC9wQqC84ow
+         L8ICKeExL9sWuMVA4TjjByia+pyA52nA7j9k/vPIJ/lT/g3O8i3cuYlYMiQI+4RJXZsr
+         MVye72wCCSZwp5hsFvop9Ue8YKt2V06UzHpb2xWxGH89mBzqMQWxh8MSMylp9NEqneXr
+         rJWw==
+X-Gm-Message-State: AOJu0YzRUAuKQHvXVdEZJNnzSbm9wTWqpY99fHRsdzaJKQXtqnDx80DP
+	OJj13RE59YjGTrmWdkvVAsqhVSi1ehK6CHxuCZOf/H9WV2p+ZCn9qI2OCo/uT9kthQxEF13xqQB
+	0tik6iUqMV5665vehCpxBljhn3FzEJ30=
+X-Gm-Gg: AfdE7cmg7s2sDMhgew5HtGH99gMIsHVi/FMH+pgvRZ7ZKpnzt0OYSSMhecQF241XF3k
+	olIS7QlIircuZt1D/fSX2yfNgX0cPCDuK+uMXdi6qmglPUg/Od1asAXXs4QU61AYOx9dJPugNGk
+	feV7fMmOXSDgoXfhcxks6dDGU5k67njhw65XEMk1RIs2VwyF+X9cM7rwR/KOfER/LURj92hNw8S
+	wd+8rCLMlATw0PpTZuNqrqHteDGetQQO7MxLXA8ygav/7kCVoUHC9wKgQPXPDg/m/H+lB7+nQ==
+X-Received: by 2002:a05:690c:112:b0:7ea:3cda:4246 with SMTP id
+ 00721157ae682-80670e4828dmr202936807b3.3.1782663828777; Sun, 28 Jun 2026
+ 09:23:48 -0700 (PDT)
+Received: from 77377267392 named unknown by gmailapi.google.com with HTTPREST;
+ Sun, 28 Jun 2026 09:23:47 -0700
+Received: from 77377267392 named unknown by gmailapi.google.com with HTTPREST;
+ Sun, 28 Jun 2026 09:23:47 -0700
+In-Reply-To: <612b5987-1bc6-4b42-bfba-9c72ee5d51dc@endrift.com>
+References: <20260628004106.26920-1-alhouseenyousef@gmail.com> <612b5987-1bc6-4b42-bfba-9c72ee5d51dc@endrift.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+From: Yousef Alhouseen <alhouseenyousef@gmail.com>
+Date: Sun, 28 Jun 2026 09:23:47 -0700
+X-Gm-Features: AVVi8Cf_Hsynpd7VFdZCCXNQws45bnaGAsdX41yi79mlGX0Szrz_YJ4WDc7NEQE
+Message-ID: <CAMuQ4bUX-jpuX8LcCpAwb1b+OoK+jP2TtpU3BY4HvERM69iG+A@mail.gmail.com>
+Subject: Re: [PATCH] HID: steam: reject short serial number reports
+To: Vicki Pfau <vi@endrift.com>, Jiri Kosina <jikos@kernel.org>, 
+	Benjamin Tissoires <bentiss@kernel.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	stable@vger.kernel.org, syzbot+75f3f9bff8c510602d36@syzkaller.appspotmail.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Thank you for your contribution! Sashiko AI review found 5 potential issue(=
-s) to consider:
+Hi Vicki,
 
-New issues:
-- [High] The newly introduced bounds check rejects valid, maximum-sized out=
-put reports.
+That broader fix sounds preferable. Please go ahead and split it out
+and submit it; I will drop this version to avoid overlapping work.
 
-Pre-existing issues:
-- [Critical] Heap buffer overflow in GET_REPORT requests due to ignored use=
-r space length parameter.
-- [High] Data races and waitqueue corruption due to concurrent lockless HID=
- requests.
-- [High] Heap buffer overflow in incoming report processing due to missing =
-buffer bounds check.
-- [High] Heap buffer overflow in `read_dma_buffer()` due to 4K max packet s=
-ize rounding.
---
+Thanks,
+Yousef
 
-commit c642b7d6dc654ce88acbb51328c011ab2d5e04f0
-Author: HyeongJun An <sammiee5311@gmail.com>
-
-    HID: intel-thc-hid: intel-quickspi: validate report size before copy
-
-    write_cmd_to_txdma() builds an output report in qsdev->report_buf, a he=
-ap
-    buffer allocated in quickspi_alloc_report_buf() to the device-descriptor
-    derived max_report_len. This patch records the report_buf allocation si=
-ze
-    and rejects reports that do not fit before copying.
-
-> diff --git a/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c b/dr=
-ivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c
-> index 4ae2e1718b30c..1695efd5961d7 100644
-> --- a/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c
-> +++ b/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c
-> @@ -559,6 +559,8 @@ static int quickspi_alloc_report_buf(struct quickspi_=
-device *qsdev)
->  	if (!qsdev->report_buf)
->  		return -ENOMEM;
-> =20
-> +	qsdev->report_buf_size =3D max_report_len;
-> +
-
-[Severity: High]
-Since this size is based on the unadjusted device descriptor maximums, will
-this reject valid maximum-sized output reports?
-
-When the driver builds an output report in write_cmd_to_txdma(), it prepends
-HIDSPI_OUTPUT_REPORT_HEADER_SIZE. If a maximum-sized report is sent, the
-combined size will exceed qsdev->report_buf_size and trigger the new bounds
-check.
-
->  	return 0;
->  }
-> =20
-
-[ ... ]
-
-> diff --git a/drivers/hid/intel-thc-hid/intel-quickspi/quickspi-protocol.c=
- b/drivers/hid/intel-thc-hid/intel-quickspi/quickspi-protocol.c
-> index cb19057f1191b..db6054843e777 100644
-> --- a/drivers/hid/intel-thc-hid/intel-quickspi/quickspi-protocol.c
-> +++ b/drivers/hid/intel-thc-hid/intel-quickspi/quickspi-protocol.c
-> @@ -30,6 +30,9 @@ static int write_cmd_to_txdma(struct quickspi_device *q=
-sdev,
-> =20
->  	write_buf =3D (struct output_report *)qsdev->report_buf;
-> =20
-> +	if (HIDSPI_OUTPUT_REPORT_SIZE(report_buf_len) > qsdev->report_buf_size)
-> +		return -EINVAL;
-> +
->  	write_buf->output_hdr.report_type =3D report_type;
->  	write_buf->output_hdr.content_len =3D cpu_to_le16(report_buf_len);
->  	write_buf->output_hdr.content_id =3D report_id;
-> =20
->  	if (report_buf && report_buf_len > 0)
->  		memcpy(write_buf->content, report_buf, report_buf_len);
-
-[Severity: High]
-This is a pre-existing issue, but can multiple threads corrupt
-qsdev->report_buf by executing this concurrently?
-
-Since HID core does not serialize raw_request, multiple threads performing
-concurrent HID ioctls (like HIDIOCGFEATURE and HIDIOCSFEATURE) could enter
-write_cmd_to_txdma() simultaneously. Without locking, they would overwrite =
-the
-shared qsdev->report_buf with their respective headers and payloads.
-
-This concurrent access could also corrupt the shared waitqueue state when
-handling the responses:
-
-drivers/hid/intel-thc-hid/intel-quickspi/quickspi-protocol.c:quickspi_handl=
-e_input_data() {
-    ...
-    qsdev->get_report_cmpl =3D true;
-    wake_up_interruptible(&qsdev->get_report_cmpl_wq);
-    ...
-}
-
-[Severity: Critical]
-This is a pre-existing issue, but does quickspi_get_report() overflow the
-caller's buffer during GET_REPORT requests?
-
-When a user space process issues a GET_REPORT ioctl with a smaller buffer,
-hid_hw_raw_request() allocates a kernel buffer matching the requested lengt=
-h.
-However, quickspi_hid_raw_request() discards this length parameter:
-
-drivers/hid/intel-thc-hid/intel-quickspi/quickspi-hid.c:quickspi_hid_raw_re=
-quest() {
-    ...
-    ret =3D quickspi_get_report(qsdev, rtype, reportnum, buf);
-    ...
-}
-
-Then quickspi_get_report() copies the full device-supplied response into th=
-is
-potentially smaller buffer:
-
-drivers/hid/intel-thc-hid/intel-quickspi/quickspi-protocol.c:quickspi_get_r=
-eport() {
-    ...
-    memcpy(buf, qsdev->report_buf, qsdev->report_len);
-    ...
-}
-
-[Severity: High]
-This is a pre-existing issue, but does quickspi_handle_input_data() lack
-bounds checking before copying incoming reports?
-
-When a device responds to a GET_FEATURE or GET_INPUT_REPORT, the function
-trusts the incoming input_len:
-
-drivers/hid/intel-thc-hid/intel-quickspi/quickspi-protocol.c:quickspi_handl=
-e_input_data() {
-    ...
-    qsdev->report_len =3D sizeof(body_hdr->content_id) + input_len;
-    input_report =3D input_body->content - sizeof(body_hdr->content_id);
-
-    memcpy(qsdev->report_buf, input_report, qsdev->report_len);
-    ...
-}
-
-If a compromised or malicious SPI device sends an artificially large input_=
-len
-that fits within the DMA transaction's packet bounds (up to 4K) but exceeds
-qsdev->report_buf_size, this memcpy will overflow the strictly allocated
-qsdev->report_buf.
-
-[Severity: High]
-This is a pre-existing issue, but can the 4K packet size rounding in the DMA
-configuration lead to a heap overflow?
-
-dma_set_max_packet_size() rounds up the requested DMA max packet sizes (such
-as max_input_len) to a 4K boundary:
-
-drivers/hid/intel-thc-hid/intel-thc/intel-thc-dma.c:dma_set_max_packet_size=
-() {
-    ...
-    dma_config->max_packet_size =3D ALIGN(size, SZ_4K);
-    ...
-}
-
-When read_dma_buffer() receives data, it bounds-checks mes_len against this
-4K-aligned max_packet_size before copying into the caller's buffer:
-
-drivers/hid/intel-thc-hid/intel-thc/intel-thc-dma.c:read_dma_buffer() {
-    ...
-    if (mes_len > read_config->max_packet_size) {
-        ...
-    }
-    ret =3D sg_copy_to_buffer(sg, nent, read_buff, mes_len);
-    ...
-}
-
-If a malicious device returns more data than max_input_len but less than the
-4K boundary, the check passes. Since qsdev->input_buf was allocated without
-this 4K alignment, the copy will overflow the buffer.
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260628133717.9413=
-89-1-sammiee5311@gmail.com?part=3D1
+On Sat, 27 Jun 2026 17:47:40 -0700, Vicki Pfau <vi@endrift.com> wrote:
+> Hi Yousef,
+>
+> On 6/27/26 5:41 PM, Yousef Alhouseen wrote:
+> > steam_recv_report() may return a short positive response and copies
+> > only the bytes actually received. steam_get_serial() nevertheless reads
+> > the full three-byte header and trusts its length without checking that
+> > the serial payload was returned.
+> >
+> > A malformed USB device can therefore make the driver read uninitialized
+> > stack bytes. With a complete-looking short header, those bytes can also
+> > be copied into steam->serial_no and printed.
+> >
+> > Account for the stripped report ID in the return value and reject repli=
+es
+> > that do not contain both the header and its declared payload.
+> >
+> > Fixes: c164d6abf384 ("HID: add driver for Valve Steam Controller")
+> > Reported-by: syzbot+75f3f9bff8c510602d36@syzkaller.appspotmail.com
+> > Closes: https://syzkaller.appspot.com/bug?extid=3D75f3f9bff8c510602d36
+> > Cc: stable@vger.kernel.org
+> > Signed-off-by: Yousef Alhouseen <alhouseenyousef@gmail.com>
+> > ---
+> > drivers/hid/hid-steam.c | 9 +++++++++
+> > 1 file changed, 9 insertions(+)
+> >
+> > diff --git a/drivers/hid/hid-steam.c b/drivers/hid/hid-steam.c
+> > index 197126d6e081..8c8bfb10e8b8 100644
+> > --- a/drivers/hid/hid-steam.c
+> > +++ b/drivers/hid/hid-steam.c
+> > @@ -454,11 +454,20 @@ static int steam_get_serial(struct steam_device *=
+steam)
+> > ret =3D steam_recv_report(steam, reply, sizeof(reply));
+> > if (ret < 0)
+> > goto out;
+> > + /* hid_hw_raw_request() counts the stripped report ID byte. */
+> > + if (ret < 4) {
+> > + ret =3D -EIO;
+> > + goto out;
+> > + }
+> > if (reply[0] !=3D ID_GET_STRING_ATTRIBUTE || reply[1] < 1 ||
+> > reply[1] > sizeof(steam->serial_no) || reply[2] !=3D ATTRIB_STR_UNIT_SE=
+RIAL) {
+> > ret =3D -EIO;
+> > goto out;
+> > }
+> > + if (ret - 1 < 3 + reply[1]) {
+> > + ret =3D -EIO;
+> > + goto out;
+> > + }
+> > reply[3 + STEAM_SERIAL_LEN] =3D 0;
+> > strscpy(steam->serial_no, reply + 3, reply[1]);
+> > out:
+>
+> I already have locally a patch that fixes this as part of my pending Stea=
+m Controller 2 support. However, it chooses to fix it in a different way th=
+at would affect all uses of steam_recv_report instead of per-callsite (with=
+ only one callsite fixed). I am hoping to get this patchset submitted soon,=
+ once more widescale testing is done, but if you want in the meantime I can=
+ pull out that single fix and submit it separately; it's a bit more sprawli=
+ng and involves adding a new function for combined send/recv.
+>
+> Vicki

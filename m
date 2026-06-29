@@ -1,91 +1,177 @@
-Received: from mail-out.m-online.net (mail-out.m-online.net [212.18.0.9])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 12ED4377EA9;
-	Mon, 29 Jun 2026 14:09:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=212.18.0.9
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BE3D23E0C7B
+	for <linux-input@vger.kernel.org>; Mon, 29 Jun 2026 14:10:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782742149; cv=none; b=ZkwUyBhW5i/JO/LLbzyF73rm0KWbD8kzJ4buUfzfN+GOkuGaeH3um18l6xGBj5Eaj0YsAQPnp46lkKadF+7c3EJjR8OHr9Qm2OcOpNzQ4EkFX+EyGUP1fo7n5Qc6tf4OP4msVppJr+qoFUataiiP9Vam+/85rapgfy3CQZvhC18=
+	t=1782742217; cv=none; b=qfbiIyVf7JfcxfVMcCxF92l3YLZrk9IEQPEu2FAw9WakDjcF0xWckcjZU57AJq3HldTqN45ougahukX/wRFMbnx9EHYglGFuRq4BZg68uNs0Pg+T5FGyiXNClsTgrWaPEon08j1dNt8uE+jtiPATaLghBB2gbPwBnmQBBHLNqYY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782742149; c=relaxed/simple;
-	bh=g9dFPNs9RCiJ30PbQ83xQiLIkKE/aoKc7Ch+A3Ps5Fg=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=Ha9GhqP0Hgtd3pKbOvoi+quZWFtEDEc2ohwpM+m0EjfVM2wX/2wbZqb3aRk9ixfkuQz83jzB7WjN02Dys6TON4NGH9mqjmLokOYX5Ri/BDNesjO3v6ECXv9DvCUmZPzU44V5NIUekgTUZ6r8G7UlxYg/s+XHXueN2Pdjrq3RIME=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org; spf=none smtp.mailfrom=linux-m68k.org; arc=none smtp.client-ip=212.18.0.9
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux-m68k.org
-Received: from mail-out.m-online.net (mail-out.m-online.net [212.18.0.9])
-	by mail-out.m-online.net (Postfix) with ESMTP id 4gpnxf56FLz1r5hc;
-	Mon, 29 Jun 2026 16:01:10 +0200 (CEST)
-Received: from frontend03.mail.m-online.net (unknown [192.168.6.182])
-	by mail-out.m-online.net (Postfix) with ESMTP id 4gpnxc5SYXz1r5hL;
-	Mon, 29 Jun 2026 16:01:08 +0200 (CEST)
-Received: from localhost (dynscan3.mnet-online.de [192.168.6.87])
-	by mail.m-online.net (Postfix) with ESMTP id 4gpnxb4V3wz1qqlS;
-	Mon, 29 Jun 2026 16:01:07 +0200 (CEST)
-X-Virus-Scanned: amavis at mnet-online.de
-Received: from mail.mnet-online.de ([192.168.6.182])
- by localhost (dynscan3.mail.m-online.net [192.168.6.87]) (amavis, port 10024)
- with ESMTP id 0SnzNWDJyvXI; Mon, 29 Jun 2026 16:01:01 +0200 (CEST)
-X-Auth-Info: MEDGnkGkok4HHiiAHx6Yp9YpyEe4vG/D2GYhM3WXSTA4/H/l6K4jcFYiosjPmxQG
-Received: from hawking (unknown [80.255.5.134])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange ECDHE (P-256) server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mail.mnet-online.de (Postfix) with ESMTPSA;
-	Mon, 29 Jun 2026 16:01:01 +0200 (CEST)
-From: Andreas Schwab <schwab@linux-m68k.org>
-To: Arnd Bergmann <arnd@kernel.org>
-Cc: linux-gpio@vger.kernel.org,  Arnd Bergmann <arnd@arndb.de>,  Bartosz
- Golaszewski <brgl@kernel.org>,  Andrew Lunn <andrew@lunn.ch>,  Sebastian
- Hesselbarth <sebastian.hesselbarth@gmail.com>,  Gregory Clement
- <gregory.clement@bootlin.com>,  Frank Li <Frank.Li@nxp.com>,  Robert
- Jarzmik <robert.jarzmik@free.fr>,  Krzysztof Kozlowski <krzk@kernel.org>,
-  Greg Ungerer <gerg@linux-m68k.org>,  Thomas Bogendoerfer
- <tsbogend@alpha.franken.de>,  Hauke Mehrtens <hauke@hauke-m.de>,
-  =?utf-8?Q?Rafa=C5=82_Mi=C5=82ecki?= <zajec5@gmail.com>,  Yoshinori Sato
- <ysato@users.sourceforge.jp>,
-  John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,  Linus Walleij
- <linusw@kernel.org>,  Dmitry Torokhov <dmitry.torokhov@gmail.com>,  Jakub
- Kicinski <kuba@kernel.org>,  Paolo Abeni <pabeni@redhat.com>,  Dominik
- Brodowski <linux@dominikbrodowski.net>,  linux-kernel@vger.kernel.org,
-  linux-arm-kernel@lists.infradead.org,  linux-samsung-soc@vger.kernel.org,
-  patches@opensource.cirrus.com,  linux-m68k@lists.linux-m68k.org,
-  linux-mips@vger.kernel.org,  linux-sh@vger.kernel.org,
-  linux-input@vger.kernel.org,  linux-media@vger.kernel.org,
-  netdev@vger.kernel.org,  linux-sunxi@lists.linux.dev,
-  linux-phy@lists.infradead.org,  linux-rockchip@lists.infradead.org,
-  linux-sound@vger.kernel.org
-Subject: Re: [PATCH 00/13] treewide: replace linux/gpio.h
-In-Reply-To: <20260629132633.1300009-1-arnd@kernel.org> (Arnd Bergmann's
-	message of "Mon, 29 Jun 2026 15:26:20 +0200")
-References: <20260629132633.1300009-1-arnd@kernel.org>
-Date: Mon, 29 Jun 2026 16:01:00 +0200
-Message-ID: <mvmik71win7.fsf@suse.de>
-User-Agent: Gnus/5.13 (Gnus v5.13)
+	s=arc-20240116; t=1782742217; c=relaxed/simple;
+	bh=Sx/HCGkO2WocpDxK+GZfJHbDPEgKm3J3BGfdALs2804=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=rTycwQqxahq86yskvCoPHB0NrNsQo2lOoJ232G3RQvaRbiJHYcBL2IRzQtUvH4H4UM6RkTZcN/OOU+CcJ6mN7DQFuliMsmuhZP8coDXneWMqor9TFsA0Ky+bL3G6/ZHCJHHxmU+3HdcRChDPfbLM37RYZjeDX+vQBSAaa6KIpvU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Et52j218; arc=none smtp.client-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Et52j218"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D45851F000E9;
+	Mon, 29 Jun 2026 14:10:12 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1782742213;
+	bh=SKkUAgoS3h5nEkmbuI6vSXcSZvIEQ0cyvR2Cvxu5eG0=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=Et52j218Qe4P2/mxi7eXgxC8qQo2WgankqHGeGoZlamtXAV6h7YOSIVrf+EvXsLd3
+	 uHrtbuf9JDDX8MZkQoZz3HS3wVljurmzfdjilJ67R3+T64t8uCR5vKf1XIz+CpszbH
+	 WM7hN8MH9rmnqB4YBgUS8zu6pPrfx5fFjDeUA/cwqhcVFQdZarZJITe0a1HgvvKSPi
+	 YpuZ5xrcJnf6iTxzWAeS5zuxudxozQCrZ6gq9aeYXftVOtt6fAuvf9EVbS8vocHx10
+	 9ekCrl85VfmYMWtZGX+hpXr/GfKAwLGuG4HB2C5zJV4nW0mVzPnSQaeveYGDO/om0B
+	 jY4esFcGcaSzw==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH] [RFC] gpiolib: introduce gpio_name() helper
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Arnd Bergmann" <arnd@kernel.org>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, dri-devel@lists.freedesktop.org
+In-Reply-To: <20260629135917.1308621-1-arnd@kernel.org>
+References: <20260629135917.1308621-1-arnd@kernel.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Mon, 29 Jun 2026 14:10:12 +0000
+Message-Id: <20260629141012.D45851F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain
 
-On Jun 29 2026, Arnd Bergmann wrote:
+Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+s) to consider:
 
-> From: Arnd Bergmann <arnd@arndb.de>
->
-> The linux/gpio.h header used to be the global definition for the gpio
-> interfaces, with 1100 users back in linux-3.17. In linux-7.2, only about
-> 130 of those remain, so this series cleans out the rest.
->
-> In each subsystem, we can replace the header either with
-> linux/gpio/consumer.h for users of the modern gpio descriptor interface,
+Pre-existing issues:
+- [High] Uncanceled timer in the probe error path leads to a Use-After-Free=
+ when the timer fires.
+- [High] Uncanceled delayed work in the probe error path and early IRQ requ=
+est lead to Use-After-Free.
+- [High] The return value of extcon_rtk_type_c_edev_register() is assigned =
+but never checked, leading to silent failures.
+--
 
-A few of them already used <linux/gpio/consumer.h>, and is duplicated
-now.
+commit fd9fdd473dd5d54a8f94bae5e74133accbec590a
+Author: Arnd Bergmann <arnd@arndb.de>
 
--- 
-Andreas Schwab, schwab@linux-m68k.org
-GPG Key fingerprint = 7578 EB47 D4E5 4D69 2510  2552 DF73 E780 A9DA AEC1
-"And now for something completely different."
+gpiolib: introduce gpio_name() helper
+
+Most remaining users of desc_to_gpio() only call it for printing debug
+information.
+
+Replace this with a new gpiod_name() helper that returns the
+gpio_desc->name string after checking the gpio_desc pointer.
+
+> diff --git a/drivers/extcon/extcon-rtk-type-c.c b/drivers/extcon/extcon-r=
+tk-type-c.c
+> index 82b60b927e41a..fb57e9d7ddb63 100644
+> --- a/drivers/extcon/extcon-rtk-type-c.c
+> +++ b/drivers/extcon/extcon-rtk-type-c.c
+> @@ -1356,8 +1356,8 @@ static int extcon_rtk_type_c_probe(struct platform_=
+device *pdev)
+>  				(int)PTR_ERR(gpio));
+>  		} else {
+>  			type_c->rd_ctrl_gpio_desc =3D gpio;
+> -			dev_dbg(dev, "%s get rd-ctrl-gpios (id=3D%d) OK\n",
+> -				__func__, desc_to_gpio(gpio));
+> +			dev_dbg(dev, "%s get rd-ctrl-gpios (id=3D%s) OK\n",
+> +				__func__, gpiod_name(gpio));
+>  		}
+>  	}
+
+[Severity: High]
+This is a pre-existing issue, but I noticed a potential use-after-free if
+extcon_rtk_type_c_init() fails.
+
+In extcon_rtk_type_c_probe(), the code requests an IRQ before the delayed
+work is initialized:
+
+	ret =3D devm_request_irq(dev, type_c->irq, type_c_detect_irq, ...);
+	...
+	INIT_DELAYED_WORK(&type_c->delayed_work, host_device_switch);
+
+	ret =3D extcon_rtk_type_c_init(type_c);
+	if (ret) {
+		dev_err(dev, "%s failed to init type_c\n", __func__);
+		goto err;
+	}
+
+Could an early interrupt schedule the uninitialized work?
+
+Also, if extcon_rtk_type_c_init() fails, the code jumps to the err label
+and returns without canceling the delayed work. Since the structure is
+freed by devres, will this cause a use-after-free when the work executes?
+
+[Severity: High]
+This is also a pre-existing issue, but further down in the same function,
+the return value of extcon_rtk_type_c_edev_register() is assigned to ret
+but is not checked:
+
+	ret =3D extcon_rtk_type_c_edev_register(type_c);
+
+	create_debug_files(type_c);
+
+	return 0;
+
+Could this mask a registration failure, since the function unconditionally
+returns 0?
+
+[ ... ]
+
+> diff --git a/drivers/usb/gadget/udc/at91_udc.c b/drivers/usb/gadget/udc/a=
+t91_udc.c
+> index 5aa360ba4f039..0993136043870 100644
+> --- a/drivers/usb/gadget/udc/at91_udc.c
+> +++ b/drivers/usb/gadget/udc/at91_udc.c
+> @@ -1896,8 +1896,8 @@ static int at91udc_probe(struct platform_device *pd=
+ev)
+>  					gpiod_to_irq(udc->board.vbus_pin),
+>  					at91_vbus_irq, 0, driver_name, udc);
+>  			if (retval) {
+> -				DBG("request vbus irq %d failed\n",
+> -				    desc_to_gpio(udc->board.vbus_pin));
+> +				DBG("request vbus irq %s failed\n",
+> +				    gpiod_name(udc->board.vbus_pin));
+>  				goto err_unprepare_iclk;
+>  			}
+>  		}
+
+[Severity: High]
+This is a pre-existing issue, but there appears to be a missing timer clean=
+up
+in the probe error path.
+
+In at91udc_probe(), when vbus_polled is true, a timer is armed:
+
+		if (udc->board.vbus_polled) {
+			INIT_WORK(&udc->vbus_timer_work, at91_vbus_timer_work);
+			timer_setup(&udc->vbus_timer, at91_vbus_timer, 0);
+			mod_timer(&udc->vbus_timer,
+				  jiffies + VBUS_POLL_TIMEOUT);
+		}
+
+If usb_add_gadget_udc() fails later, the code jumps to err_unprepare_iclk
+and returns without deleting the timer:
+
+	retval =3D usb_add_gadget_udc(dev, &udc->gadget);
+	if (retval)
+		goto err_unprepare_iclk;
+	...
+err_unprepare_iclk:
+	clk_unprepare(udc->iclk);
+err_unprepare_fclk:
+	clk_unprepare(udc->fclk);
+
+	return retval;
+
+If the probe fails, devres will free the udc structure. Does this mean the
+timer can still fire and access the freed udc memory, causing a
+use-after-free?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260629135917.1308=
+621-1-arnd@kernel.org?part=3D1

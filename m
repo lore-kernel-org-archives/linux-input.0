@@ -1,31 +1,31 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8F13A4071FE;
-	Mon, 29 Jun 2026 13:27:36 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9B498406285;
+	Mon, 29 Jun 2026 13:27:43 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782739657; cv=none; b=mruFTLlwkS5WuwO9qvKxhPICNOxwQgTFjcb4jHiEG+LGX1eqGXWIlPw/qKmwZIKNISfS89iVA1Siu7OF0FmL8wPg/bQAxP0Rlnc5y8O7/9hLNE43lgGfnAQQwgBCgME79IeDk46FBLsVTI0fG2z2HfNPhDndB8uqJnOnjv4eTAQ=
+	t=1782739664; cv=none; b=mhMb9saHlBxARNGUYfJmNfETDykh/fd70T8yfitrIuKBr6uMNah3Y2d16+ciJSlysQLIuJlIFd65OJnYebrVGT0Oif7r0TtJKVhgi/rh0VVxM9sFE/hRoj+r8ANC/TZuH6k2kJwBAczRucuK6c3yzACLctf2WszvKBJV3kyKIVo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782739657; c=relaxed/simple;
-	bh=CltlL4gLl6R/aUyo3NNWu4aPN7uRAiEFCORu6U1GoVI=;
+	s=arc-20240116; t=1782739664; c=relaxed/simple;
+	bh=IjnoD63PUxKmwy2OelXaHu6mAwyznQFju9qEwhzBEtQ=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=h9r2tXp4s/JhMOcfnifhQyFZ2aqqqwchM2SXkqLZJ1qRFReZsw5aEyqwQZmHtvDzFcWm6FSlVMhfCCj6UaG3hvbIs64OHraok/ZjVo62m4aIj2d995fPxzDmEqZHn3fqktzH2Ic8l5KfE17cP85QfJ4N2v10pOEDXowpHqMpULk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=W3XxLeAX; arc=none smtp.client-ip=100.103.45.18
+	 MIME-Version; b=SL7nPvuX0nfMAVWIQqY9tpbTjmA9k388b6ycyHKIpOKzB4Gaojna77k7cvKhkGmlTFVWaOJ+VNzckU3oAeGj5lGdf+MBYddzns4YgAM0Fkc7u7oSdSYAEhjcGnSA7ZGSX2rhr8/vmaYnGsx1OZtrbpPusbr8yn/E+82UOAvyHyw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=n0ckMEDN; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="W3XxLeAX"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB7A51F00A3A;
-	Mon, 29 Jun 2026 13:27:29 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="n0ckMEDN"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E9D0B1F000E9;
+	Mon, 29 Jun 2026 13:27:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1782739656;
-	bh=qVU/cQLnaenh7G2gzskwzWByJ5M8lYz7G2KTZBNaXl0=;
+	s=k20260515; t=1782739663;
+	bh=sRJYXoqWCiZ6ApNEThTWgx3+Cj7z8E/TIwsvi5Pcnyo=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=W3XxLeAX94oAJwi6KccusZYNep78lyadH1eGcnGUUrL8zeW/m5ri9nxkqGDZRVcob
-	 uG/2mwq0oEhrUpgvYlMUhA3Hn5e6ilprAecYZlavcYxGt6RxCLr6ZNWbi0lLGO7M8w
-	 c6SLMjx6ofeUljl4HXzXKp883719e6wAMUAfKDx8R9PQuEFLSobHJ8ut89AIBVSa39
-	 6N7miTIf1RiXSvruCB9D4e6uyU8ULFKrNz4Tnr1co4c9L3Vk1jsaW2gNYufFcgpvl4
-	 WaJhLoivp0gvakiWmOrUevc7Ne1ZfGmIknu6R8MWz6qBGSe8WltGzyUuzHPzJ1TdF+
-	 7naoLS346ECgg==
+	b=n0ckMEDNYI3vfl11sh6myJdKtsPmw6j/S+5oU1JiNgB7S0rDcWyAhd6ptFauFBHmT
+	 VqqmKk6bmTDwYN3/oD1x4iDxEeiSf4J/cbiRVWMkip/xETGZrP8vpzxUvsQYYWa5Te
+	 Y5u6PwYaFoZRi6cCY5bq26SEvwgitBbAlRa55Wky/V4hEspwQYbQDGjIPP2B/XXQ4q
+	 TBUHZR+5sZKDYq4dtVxS/7Q9atYdco29CCSA7f1+14EG1u1Cgd3rHHlD3rf9nP54EA
+	 VN/iRji/EQD/uTEHZ6uGzg1lLTuMU42tJSMT2sb8RuLMFI3yLP5XbsvIvHY0hPwOae
+	 0Q1U9yakmt6fg==
 From: Arnd Bergmann <arnd@kernel.org>
 To: linux-gpio@vger.kernel.org
 Cc: Arnd Bergmann <arnd@arndb.de>,
@@ -61,9 +61,9 @@ Cc: Arnd Bergmann <arnd@arndb.de>,
 	linux-phy@lists.infradead.org,
 	linux-rockchip@lists.infradead.org,
 	linux-sound@vger.kernel.org
-Subject: [PATCH 07/13] ASoC: replace linux/gpio.h inclusions
-Date: Mon, 29 Jun 2026 15:26:27 +0200
-Message-Id: <20260629132633.1300009-8-arnd@kernel.org>
+Subject: [PATCH 08/13] pcmcia: replace linux/gpio.h inclusions
+Date: Mon, 29 Jun 2026 15:26:28 +0200
+Message-Id: <20260629132633.1300009-9-arnd@kernel.org>
 X-Mailer: git-send-email 2.39.5
 In-Reply-To: <20260629132633.1300009-1-arnd@kernel.org>
 References: <20260629132633.1300009-1-arnd@kernel.org>
@@ -77,54 +77,84 @@ Content-Transfer-Encoding: 8bit
 
 From: Arnd Bergmann <arnd@arndb.de>
 
-linux/gpio.h is going away,s o use linux/gpio/consumer.h instead.
+The pcmcia drivers all use the legacy interfaces, so convert to
+include linux/gpio/legacy.h instead.
 
 Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 ---
- sound/soc/codecs/cs42l84.c | 2 +-
- sound/soc/codecs/cx2072x.c | 2 +-
- sound/soc/codecs/dmic.c    | 2 +-
- 3 files changed, 3 insertions(+), 3 deletions(-)
+ drivers/pcmcia/bcm63xx_pcmcia.c | 2 +-
+ drivers/pcmcia/db1xxx_ss.c      | 2 +-
+ drivers/pcmcia/sa1100_h3600.c   | 2 +-
+ drivers/pcmcia/soc_common.c     | 2 +-
+ drivers/pcmcia/xxs1500_ss.c     | 2 +-
+ 5 files changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/sound/soc/codecs/cs42l84.c b/sound/soc/codecs/cs42l84.c
-index f2a58163de0e..36c3abc21fed 100644
---- a/sound/soc/codecs/cs42l84.c
-+++ b/sound/soc/codecs/cs42l84.c
-@@ -16,7 +16,7 @@
- #include <linux/init.h>
- #include <linux/delay.h>
- #include <linux/i2c.h>
--#include <linux/gpio.h>
-+#include <linux/gpio/consumer.h>
- #include <linux/regmap.h>
+diff --git a/drivers/pcmcia/bcm63xx_pcmcia.c b/drivers/pcmcia/bcm63xx_pcmcia.c
+index 724fd6ee0fd0..1612b5d76975 100644
+--- a/drivers/pcmcia/bcm63xx_pcmcia.c
++++ b/drivers/pcmcia/bcm63xx_pcmcia.c
+@@ -14,7 +14,7 @@
  #include <linux/slab.h>
- #include <linux/acpi.h>
-diff --git a/sound/soc/codecs/cx2072x.c b/sound/soc/codecs/cx2072x.c
-index 83c6cbd40804..0dd35fa86cc5 100644
---- a/sound/soc/codecs/cx2072x.c
-+++ b/sound/soc/codecs/cx2072x.c
-@@ -11,7 +11,7 @@
- #include <linux/acpi.h>
- #include <linux/clk.h>
  #include <linux/delay.h>
+ #include <linux/pci.h>
 -#include <linux/gpio.h>
-+#include <linux/gpio/consumer.h>
- #include <linux/init.h>
- #include <linux/i2c.h>
- #include <linux/module.h>
-diff --git a/sound/soc/codecs/dmic.c b/sound/soc/codecs/dmic.c
-index 61e1bf1b3c9e..8b05d6f9b429 100644
---- a/sound/soc/codecs/dmic.c
-+++ b/sound/soc/codecs/dmic.c
-@@ -6,7 +6,7 @@
++#include <linux/gpio/legacy.h>
+ 
+ #include <bcm63xx_regs.h>
+ #include <bcm63xx_io.h>
+diff --git a/drivers/pcmcia/db1xxx_ss.c b/drivers/pcmcia/db1xxx_ss.c
+index 7b896d7dbc9f..410d24762f13 100644
+--- a/drivers/pcmcia/db1xxx_ss.c
++++ b/drivers/pcmcia/db1xxx_ss.c
+@@ -23,7 +23,7 @@
   */
  
  #include <linux/delay.h>
 -#include <linux/gpio.h>
-+#include <linux/gpio/consumer.h>
++#include <linux/gpio/legacy.h>
+ #include <linux/interrupt.h>
+ #include <linux/pm.h>
+ #include <linux/module.h>
+diff --git a/drivers/pcmcia/sa1100_h3600.c b/drivers/pcmcia/sa1100_h3600.c
+index 10cb99c20a7f..6c52d90795eb 100644
+--- a/drivers/pcmcia/sa1100_h3600.c
++++ b/drivers/pcmcia/sa1100_h3600.c
+@@ -11,7 +11,7 @@
+ #include <linux/interrupt.h>
+ #include <linux/init.h>
+ #include <linux/delay.h>
+-#include <linux/gpio.h>
++#include <linux/gpio/legacy.h>
+ 
+ #include <mach/hardware.h>
+ #include <asm/irq.h>
+diff --git a/drivers/pcmcia/soc_common.c b/drivers/pcmcia/soc_common.c
+index 87aa3f667117..23585e3968e9 100644
+--- a/drivers/pcmcia/soc_common.c
++++ b/drivers/pcmcia/soc_common.c
+@@ -32,8 +32,8 @@
+ 
+ 
+ #include <linux/cpufreq.h>
+-#include <linux/gpio.h>
  #include <linux/gpio/consumer.h>
- #include <linux/platform_device.h>
- #include <linux/regulator/consumer.h>
++#include <linux/gpio/legacy.h>
+ #include <linux/init.h>
+ #include <linux/interrupt.h>
+ #include <linux/io.h>
+diff --git a/drivers/pcmcia/xxs1500_ss.c b/drivers/pcmcia/xxs1500_ss.c
+index 8a8aae1843b5..ba1bd0f9d9f8 100644
+--- a/drivers/pcmcia/xxs1500_ss.c
++++ b/drivers/pcmcia/xxs1500_ss.c
+@@ -7,7 +7,7 @@
+  */
+ 
+ #include <linux/delay.h>
+-#include <linux/gpio.h>
++#include <linux/gpio/legacy.h>
+ #include <linux/interrupt.h>
+ #include <linux/io.h>
+ #include <linux/ioport.h>
 -- 
 2.39.5
 

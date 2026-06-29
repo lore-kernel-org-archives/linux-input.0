@@ -1,126 +1,206 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.11])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f53.google.com (mail-wm1-f53.google.com [209.85.128.53])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D5068426D29;
-	Mon, 29 Jun 2026 15:23:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.11
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7C15B1C84D7
+	for <linux-input@vger.kernel.org>; Mon, 29 Jun 2026 15:30:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.53
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782746610; cv=none; b=Rb2SQCgiYof/5eTbg9Yr/5EVaGHZgghVAdpgUQKJYmSUrpVzLK/KdcE2md4IUoa1zdkLtMBsBT+/nA4fl1RT6XJHy1wFc6iTZfjnnX1LT1AV7lukw6ob3QBel5Wh3oRl7xi2ifYnfxx3UTPtkSEY632lIJyxLjhPnxMKEwmyTjA=
+	t=1782747029; cv=none; b=qRUSBdW3aCzfcLV3kEIP5AobuCZjkb1fniLdfZvddbmNfpcp6+3H3TvBGJ/4yNapbNGVirGaBQC4f8bftH7EbeuyRO05a/F9tUHClXdmi4lmcjTEseDgWFOsJsySw/3+fTW/ncMVC7i/ScAFsr3lC6uv5aKfg7DfM8YqHR6kJgQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782746610; c=relaxed/simple;
-	bh=ikG8LyC1XcdBJf6tJzF7Bt/BQgmZRgtL19n+WxN3KCI=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=HEfA8WcMa/z8z/haPaMwFMUHbtSy0y1BWIvWmhF/boI/G2upFHIC7oNI9ttta+3OAPj5DbGk48FGeTR57S4l2H1eDZl+gACVxFFw91Qgja2bQ+vBBu+XIx9e5wnA7ucH95GCsHiHZjaV/avOj4V+IBwCwjmjHGPsC7DtZKv9ULg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=MttTyO8L; arc=none smtp.client-ip=192.198.163.11
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1782747029; c=relaxed/simple;
+	bh=ZblhU4T4gUC+SFMGo/LcEaT9saHx77/RW0RYQsX5ve8=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=seEOaxD8sLZ9UAqtuaGDX2xwgXh6rumgdW3gspvQebQAPifZtyUCPwpkjovfsVQIj0hVaW6SVf8g71Q4YgT4gg9pwo7P10AHM6JFpcVUQORm4UAollWqTLtmXCyg5UlMcmQPmCSsXGvzMdJRf9f28Q9EbsRFEcgXNTDiSRAs7qY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=RyJp/X6B; arc=none smtp.client-ip=209.85.128.53
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="MttTyO8L"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1782746608; x=1814282608;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=ikG8LyC1XcdBJf6tJzF7Bt/BQgmZRgtL19n+WxN3KCI=;
-  b=MttTyO8L1ct2KvTGJaLRWCVwN4SGxjOmgbnzswLlWgeVBPQztTpu7zLz
-   wsrnu0grXvnBch0n7/+Cl3tMFTvh7teNu57Kor2zEq2CCYhQ7XC04xx0k
-   vHSJmGfmQUXLv8Z1OaqA+i3ATFtt0fC62JhMwpvPxzKzdLySvjIWWiQ5l
-   dPyrrI1d27HLaE4EPVg9xSk3VpRnuCLvdNH3IZeX3b5RvXqOiUA2jphGn
-   At4GQ1cJyqlQgzGB3K6rBFOMJWwyY5cZxVBdvVnnqEI4PfJ6YB752Rsl9
-   utHl3TVPTXwyX9wRbZTmK+P2n+TGc58ppdron3g+Mxc36nAmsfrGGzgpe
-   g==;
-X-CSE-ConnectionGUID: 1a3yruufQASLYQzulWkzEw==
-X-CSE-MsgGUID: 6EZfrAeSS0eCEnvQw11iUw==
-X-IronPort-AV: E=McAfee;i="6800,10657,11832"; a="94023536"
-X-IronPort-AV: E=Sophos;i="6.24,232,1774335600"; 
-   d="scan'208";a="94023536"
-Received: from fmviesa009.fm.intel.com ([10.60.135.149])
-  by fmvoesa105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Jun 2026 08:23:26 -0700
-X-CSE-ConnectionGUID: 7N2MW441QaazjVGcO5Si8w==
-X-CSE-MsgGUID: QtCGyfNORrCYVEX/UtpPDg==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.24,232,1774335600"; 
-   d="scan'208";a="245635032"
-Received: from kniemiec-mobl1.ger.corp.intel.com (HELO localhost) ([10.245.244.207])
-  by fmviesa009-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Jun 2026 08:23:22 -0700
-Date: Mon, 29 Jun 2026 18:23:19 +0300
-From: Andy Shevchenko <andriy.shevchenko@intel.com>
-To: Arnd Bergmann <arnd@kernel.org>
-Cc: Linus Walleij <linusw@kernel.org>,
-	Bartosz Golaszewski <brgl@kernel.org>,
-	Arnd Bergmann <arnd@arndb.de>,
-	Marcel Holtmann <marcel@holtmann.org>,
-	MyungJoo Ham <myungjoo.ham@samsung.com>,
-	Chanwoo Choi <cw00.choi@samsung.com>,
-	Geert Uytterhoeven <geert+renesas@glider.be>,
-	Andy Shevchenko <andy@kernel.org>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Ulf Hansson <ulfh@kernel.org>, linux-bluetooth@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org,
-	dri-devel@lists.freedesktop.org, linux-i2c@vger.kernel.org,
-	linux-iio@vger.kernel.org, linux-input@vger.kernel.org,
-	linux-mmc@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	linux-pm@vger.kernel.org, linux-usb@vger.kernel.org
-Subject: Re: [PATCH] [RFC] gpiolib: introduce gpio_name() helper
-Message-ID: <akKN59lv55CXS3HU@ashevche-desk.local>
-References: <20260629135917.1308621-1-arnd@kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="RyJp/X6B"
+Received: by mail-wm1-f53.google.com with SMTP id 5b1f17b1804b1-490cf3000f0so29027765e9.1
+        for <linux-input@vger.kernel.org>; Mon, 29 Jun 2026 08:30:28 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1782747027; x=1783351827; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=zbaI5Q/eJ17Mm9qyxMZzWRHjz2c8M5UHrnu/UKsWJac=;
+        b=RyJp/X6BpAqL/e/jvgXiwsSFMv31ZMrQY5LiA/0Ie/+4lt754QJ9pGnTCji0xBm6hk
+         iABAah7OEugVkehECWJCimxLI8WYNlZ+sfhI6vZddDMCaPA6QEYhkjVIwo7hWojpl0xR
+         mf9yAf/sttNdVV7wrv1u8WbLJAEQuYevqIlxq2846aa+feeNU297w410Gib53FDkb7+I
+         HcRKhKk5MRAQ6koHOGLaZUSEAzLr+C5aCxwLMqBh0E/muNNd0c+jA0akMH2IRfoodk8g
+         vjk/YGUzwDQgPPeADqs7sRBHcE7QlFOqRxc59eCFV7KQRWjqvxfr+GxlLrznp/96P+w3
+         2dig==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1782747027; x=1783351827;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=zbaI5Q/eJ17Mm9qyxMZzWRHjz2c8M5UHrnu/UKsWJac=;
+        b=Sj59P6ONmXdqZa9A399qEh4ReI+AbFuS0dwZlyQ8LKX9LzFDayT54naNgcRn1UwWJL
+         FEFK2a48tRSsaLx6p3M5uszEDlIi7P/4ZDqrJfQpr5WhlavQaFzxezYG4v6GxZct1DYl
+         Z32zmSfmGKER7D48Tv5kekJGNDWmUkw0wEXiR46m0EO6LK38/I9CjPjyQslWM/aEfxeG
+         gT6evzpQY3cCiYCq0a/lzpPcz5mt0bwZsyF9CqswQDvyidTdqoaxO9e6tRo35DcEyz6D
+         yL+FFV8b1Sq9w5w98SbQerGQGGzDl176t+AtcrkORWrzX3+k73FUVDIKa1yIzjhvEgM2
+         ZARA==
+X-Gm-Message-State: AOJu0Yz8VgshqIGpyD2Ds9soMg9x8sKQujR+FGfTTqufh5cJAlFkp8RO
+	jagCci2ooQT9uoEY1hY4c5zxZrptTe3Ip2slATgmJzb78RSYFN8ptjCBpNuXl0hiyjA=
+X-Gm-Gg: AfdE7cnk8b+5oHMXgY7RBpWq1pHRpYeKfYojjdFop05GFSxuHJ/OPgq/7M3iEerfSNM
+	6yCuMvbufBA9SC2VhPKdpxfOtK/OESZZWj2kwrApFMQrp/7M0rsyzmA7MpvfjIuRGGkvPXzwJkb
+	Q/aY/69M6Jw3saitddzBra+zhJVVQ6+u7V/hvmaezrv5epdyC8mbWpEemm5/ys5hKjDCZVv2X9e
+	ou9sErG1Wc5U3nwjE5KPjKviKvjaNQuVin8mhPC5UOB0GsOgtpha6rttFTSNo304Kqt+vFTKNwd
+	4AqXnhfGO2OPV1PsTUG1XSXJSSGyawxQTC825+kEkRGiG7JVFDxHyQrEEgSJEQ4umdHjjXM6sOq
+	x3R5YTImlnAgUKzlIkKwCKdqR0AHVieGS8D+4m4cxmPuzKiqjsVaxjMq6ORB+gIVGqqS2960U60
+	xiaKXDjr5E8SMmSH8HCqvwSmGg3A==
+X-Received: by 2002:a05:600c:1912:b0:490:e281:287d with SMTP id 5b1f17b1804b1-493b827f8f7mr2867575e9.1.1782747025567;
+        Mon, 29 Jun 2026 08:30:25 -0700 (PDT)
+Received: from Dev-Null-MSI ([2a0d:3344:52ac:a808:98a4:4381:be45:536f])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-473563c2df7sm12414085f8f.24.2026.06.29.08.30.23
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 29 Jun 2026 08:30:24 -0700 (PDT)
+From: Yousef Alhouseen <alhouseenyousef@gmail.com>
+To: Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>
+Cc: linux-input@vger.kernel.org,
+	linux-usb@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	stable@vger.kernel.org,
+	syzbot+563191a4939ddbfe73d4@syzkaller.appspotmail.com,
+	Yousef Alhouseen <alhouseenyousef@gmail.com>
+Subject: [PATCH v2] HID: hiddev: keep state alive through disconnect unlock
+Date: Mon, 29 Jun 2026 17:29:47 +0200
+Message-ID: <20260629152947.13821-1-alhouseenyousef@gmail.com>
+X-Mailer: git-send-email 2.54.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260629135917.1308621-1-arnd@kernel.org>
-Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
- krs, Bertel Jungin Aukio 5, 02600 Espoo
+Content-Transfer-Encoding: 8bit
 
-On Mon, Jun 29, 2026 at 03:56:29PM +0200, Arnd Bergmann wrote:
+mutex_unlock() clears the mutex owner before taking its wait lock. A
+thread spinning in the final hiddev file release can acquire
+existancelock after hiddev_disconnect() clears the owner, then free
+hiddev before the disconnecting thread reaches the mutex wait lock. This
+causes a use-after-free in the mutex slow unlock path.
 
-> Most remaining users of desc_to_gpio() only call it for printing debug
-> information.
-> 
-> Replace this with a new gpiod_name() helper that returns the
-> gpio_desc->name string after checking the gpio_desc pointer.
+Give the connection and each open file an explicit reference. Drop each
+reference only after its existancelock critical section has completed,
+so neither unlock path can free the mutex while the other is still using
+it.
 
-Oh, that's nice!
+Fixes: 079034073faf ("HID: hiddev cleanup -- handle all error conditions properly")
+Reported-by: syzbot+563191a4939ddbfe73d4@syzkaller.appspotmail.com
+Closes: https://syzkaller.appspot.com/bug?extid=563191a4939ddbfe73d4
+Cc: stable@vger.kernel.org
+Signed-off-by: Yousef Alhouseen <alhouseenyousef@gmail.com>
+---
+Changes in v2:
+- Explain the mutex owner-clear/spinning-contender race in the commit log.
+- No code changes.
 
-...
+ drivers/hid/usbhid/hiddev.c | 37 +++++++++++++++++++------------------
+ include/linux/hiddev.h      |  2 ++
+ 2 files changed, 21 insertions(+), 18 deletions(-)
 
-> +/**
-> + * gpiod_name() - get a name to print for a gpio descriptor
-> + * @desc: gpio or NULL pointer to query
-> + *
-> + * Returns:
-> + * The desc->name field or a dummy string for unknown GPIOs.
-> + */
-> +const char *gpiod_name(const struct gpio_desc *desc)
-> +{
-> +	return desc ? desc->name : "(no gpio)";
-
-Can we get into here with wrong (error pointer descriptor)? Shouldn't you call
-one of validate_desc() / VALIDATE_DESC()?
-
-Also not sure if "(no gpio)" is a good choice. "not requested"? "not provided"?
-
-> +}
-
-...
-
-> +static inline const char *gpiod_name(const struct gpio_desc *desc)
-> +{
-> +	WARN_ON(desc);
-> +	return "(no gpio)";
-
-Hmm... This will be a second copy with a slight potential of going apart from
-the other case. Perhaps a #define? (Yes, yes, I understand that there are pros
-and cons, in particular readability with define is questionable.)
-
-> +}
-
+diff --git a/drivers/hid/usbhid/hiddev.c b/drivers/hid/usbhid/hiddev.c
+index 6378801b22c6..21396481995b 100644
+--- a/drivers/hid/usbhid/hiddev.c
++++ b/drivers/hid/usbhid/hiddev.c
+@@ -46,6 +46,12 @@ struct hiddev_list {
+ 	struct mutex thread_lock;
+ };
+ 
++static void hiddev_put(struct hiddev *hiddev)
++{
++	if (refcount_dec_and_test(&hiddev->refcount))
++		kfree(hiddev);
++}
++
+ /*
+  * Find a report, given the report's type and ID.  The ID can be specified
+  * indirectly by REPORT_ID_FIRST (which returns the first report of the given
+@@ -216,26 +222,21 @@ static int hiddev_fasync(int fd, struct file *file, int on)
+ static int hiddev_release(struct inode * inode, struct file * file)
+ {
+ 	struct hiddev_list *list = file->private_data;
++	struct hiddev *hiddev = list->hiddev;
+ 	unsigned long flags;
+ 
+-	spin_lock_irqsave(&list->hiddev->list_lock, flags);
++	spin_lock_irqsave(&hiddev->list_lock, flags);
+ 	list_del(&list->node);
+-	spin_unlock_irqrestore(&list->hiddev->list_lock, flags);
++	spin_unlock_irqrestore(&hiddev->list_lock, flags);
+ 
+-	mutex_lock(&list->hiddev->existancelock);
+-	if (!--list->hiddev->open) {
+-		if (list->hiddev->exist) {
+-			hid_hw_close(list->hiddev->hid);
+-			hid_hw_power(list->hiddev->hid, PM_HINT_NORMAL);
+-		} else {
+-			mutex_unlock(&list->hiddev->existancelock);
+-			kfree(list->hiddev);
+-			vfree(list);
+-			return 0;
+-		}
++	mutex_lock(&hiddev->existancelock);
++	if (!--hiddev->open && hiddev->exist) {
++		hid_hw_close(hiddev->hid);
++		hid_hw_power(hiddev->hid, PM_HINT_NORMAL);
+ 	}
+ 
+-	mutex_unlock(&list->hiddev->existancelock);
++	mutex_unlock(&hiddev->existancelock);
++	hiddev_put(hiddev);
+ 	vfree(list);
+ 
+ 	return 0;
+@@ -270,6 +271,7 @@ static int __hiddev_open(struct hiddev *hiddev, struct file *file)
+ 	spin_unlock_irq(&hiddev->list_lock);
+ 
+ 	file->private_data = list;
++	refcount_inc(&hiddev->refcount);
+ 
+ 	return 0;
+ 
+@@ -897,6 +899,7 @@ int hiddev_connect(struct hid_device *hid, unsigned int force)
+ 	INIT_LIST_HEAD(&hiddev->list);
+ 	spin_lock_init(&hiddev->list_lock);
+ 	mutex_init(&hiddev->existancelock);
++	refcount_set(&hiddev->refcount, 1);
+ 	hid->hiddev = hiddev;
+ 	hiddev->hid = hid;
+ 	hiddev->exist = 1;
+@@ -937,9 +940,7 @@ void hiddev_disconnect(struct hid_device *hid)
+ 	if (hiddev->open) {
+ 		hid_hw_close(hiddev->hid);
+ 		wake_up_interruptible(&hiddev->wait);
+-		mutex_unlock(&hiddev->existancelock);
+-	} else {
+-		mutex_unlock(&hiddev->existancelock);
+-		kfree(hiddev);
+ 	}
++	mutex_unlock(&hiddev->existancelock);
++	hiddev_put(hiddev);
+ }
+diff --git a/include/linux/hiddev.h b/include/linux/hiddev.h
+index 2164c03d2c72..8e9f8a33e359 100644
+--- a/include/linux/hiddev.h
++++ b/include/linux/hiddev.h
+@@ -13,6 +13,7 @@
+ #ifndef _HIDDEV_H
+ #define _HIDDEV_H
+ 
++#include <linux/refcount.h>
+ #include <uapi/linux/hiddev.h>
+ 
+ 
+@@ -24,6 +25,7 @@ struct hiddev {
+ 	int minor;
+ 	int exist;
+ 	int open;
++	refcount_t refcount;
+ 	struct mutex existancelock;
+ 	wait_queue_head_t wait;
+ 	struct hid_device *hid;
 -- 
-With Best Regards,
-Andy Shevchenko
-
-
+2.54.0

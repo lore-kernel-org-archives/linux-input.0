@@ -1,103 +1,154 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7A28B1ACEDE;
-	Mon, 29 Jun 2026 13:32:02 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 41C731A9B24;
+	Mon, 29 Jun 2026 13:33:09 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782739923; cv=none; b=skbBwqzpDU1tsjX/pVkg7EYYb7A521QH3Ioaq1zPQ6j1LORgNxTaO0yGSFBr9JIZAV/stHopShzCOKO+31ml9BiZpNyMd5JDfSzdpmyhZuZDDU/heBuiSIpIJhqGhGxRLM5O4sxQbLcKsy87FclU2ICiPALWFk0vx6eIxek00+c=
+	t=1782739991; cv=none; b=OX17S4ktp/2pjdWOe+dV+mLfhqxSEpsHQXrTBfFhSZamS0Y/L9DYMIVYI16/nOjIYTf+OFdE+GyEcJGRfUKOle3FipQlG3/xRrU67TsnzqVJ+Vkkkpc6eiLo8k47SyDOExNpfpNUWoGSAv6o/2IPxTqPpzqTa64Sr5Y6sPxfD/8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782739923; c=relaxed/simple;
-	bh=UkwcG2uO6Own9BFxIH8ER5JD24SKVvOinkrPfwNTNKo=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=N6V+8qZe3GBUuPUHL8Yg3iufO7K/y4nRSbe5tKVOSCoilOih0jAVrfCYfDg4zZfVyWXwzq5bmRFw4iOiASiq0X5ijoQDvZDgZ5djIRc8YEUzA4wEvna7guuyC5oSvybWfvVSakaZtE4KVWx89W0voDSmn7BMrK00s/0zDxAzcBs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=QFVMDnom; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1782739991; c=relaxed/simple;
+	bh=QCFBw/xJRQ/J1HKN/dIIyJ1SeNj2agIKOaeZDEM0KSM=;
+	h=Message-ID:Date:MIME-Version:From:Subject:To:Cc:References:
+	 In-Reply-To:Content-Type; b=ujVMGjXF9b67CpaUnIzCzTchopR0keyR7BnkQdV6EsjbWQxOIJLAeyE+Eke1NNL1KJq397XY3NmKCfF8/poeBrDnXhu/Lul1/lHWqm10N3qiOnYlMIFUJ4uZBBEFNDFQV2Dw1SrgOMJ/6aW6iASfPfrcb1arWt6hCTlv3vlVVpA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=jVp7bkZD; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="QFVMDnom"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE78E1F000E9;
-	Mon, 29 Jun 2026 13:32:01 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="jVp7bkZD"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7E8A71F000E9;
+	Mon, 29 Jun 2026 13:33:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1782739922;
-	bh=vdikD+4Kh+7Ra8FylUThHN8QZevrrJLOLL6HRk/crpA=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=QFVMDnomhkpXk2EqW6RP+MULPcvSVUz/kAuw4wluIa3NOxVw7xEl+RhW6m7ubc79+
-	 dGLAnB4CeY6jkckSW3UvToy8c2dwl5ibeG/qvmLX1RDa7jOWVLAW9sMALJ8uTKjn97
-	 gcCXhU23pA4oBktVg19/i6hWLt6A6dXpKVD+LReX+GLsnE8GV/ZLCdmx2G1wzXExKN
-	 Z+oDtE1vRjOivPraHipsY5mkQLe2RDXnFiXT35l1Srd1r4XT1B+D2S/blYFeMpxz4z
-	 HjqxW/92UJ4zA2oHYjEVWQZNthhLX14KA2U7Pumd7RVsGwK09SkDo7ODiOKJh5YbRU
-	 Q3OS9d8mque5w==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 4/6] [v5] Input: gpio-keys: make legacy gpiolib optional
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Arnd Bergmann" <arnd@kernel.org>
-Cc: linux-leds@vger.kernel.org, lee@kernel.org, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260629130329.1291953-5-arnd@kernel.org>
-References: <20260629130329.1291953-1-arnd@kernel.org>
- <20260629130329.1291953-5-arnd@kernel.org>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Mon, 29 Jun 2026 13:32:01 +0000
-Message-Id: <20260629133201.DE78E1F000E9@smtp.kernel.org>
+	s=k20260515; t=1782739989;
+	bh=aVfOEMQ8FHgyc6cNNe2Ze8iDiCaW4tFzEyy8N2ynY0Q=;
+	h=Date:From:Subject:To:Cc:References:In-Reply-To;
+	b=jVp7bkZDWMWWYny/2Cd3m/wnt0A9I0f9IoBhXrpNxcBylYE+T7f3bYwe35LVBSvaF
+	 uUsuz7vJ/sABsA9WRyowtd2l4q3mqP8GfflXSj0SDBeq3DY0e3XzR8yNRVL86PEY6D
+	 5SXyC9QKPFSgmqPW3D5f2ZEYlAzg8fQ24hgYx5Fw4GEG0zZBgCJJDUqfeXWSLNhwDl
+	 zLTGAO6kg8+ysJ6NsodOegQfXsLBFPhbIjddd0qotTFuRx13uznHYH5pbhKvXlgIPO
+	 xb9ipYhfxK3qbewuWWHnXRMchLQ7njWNr3lisl7qNW5bOfI4VcT6hB8t/KnJTMrESS
+	 IqMcRK52uKcnw==
+Message-ID: <525600ac-f304-4a5c-b50c-b0051756c1a6@kernel.org>
+Date: Mon, 29 Jun 2026 15:33:06 +0200
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+From: Hans Verkuil <hverkuil+cisco@kernel.org>
+Subject: Re: [PATCH 4/4] Input: sur40 - fix V4L2 video device lifetime
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+ Hans Verkuil <hverkuil@kernel.org>, linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, sashiko-bot@kernel.org,
+ stable@vger.kernel.org
+References: <20260616051235.1549517-1-dmitry.torokhov@gmail.com>
+ <20260616051235.1549517-4-dmitry.torokhov@gmail.com>
+Content-Language: en-US, nl
+In-Reply-To: <20260616051235.1549517-4-dmitry.torokhov@gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
-- [High] The target patch breaks button hold and debounce functionality for=
- legacy boards that specify both a GPIO and an IRQ in their platform data.
---
+On 16/06/2026 07:12, Dmitry Torokhov wrote:
+> sur40_disconnect() synchronously frees the sur40_state structure (kfree(sur40))
+> while userspace might still hold an open file descriptor to the V4L2 video
+> device node. When userspace later accesses or closes the lingering file
+> descriptor, the V4L2 core invokes file operations (such as vb2_fop_release)
+> that dereference the already freed sur40 memory, resulting in a use-after-free
+> vulnerability.
+> 
+> Fix this by implementing a V4L2 release callback (sur40_video_release) in
+> sur40_video_device to clean up V4L2 components and free the sur40 structure
+> only when the last video file descriptor is closed.
+> 
+> Additionally, update the sur40_probe() error path to call video_unregister_device()
+> and return inline if input initialization fails after video device registration
+> succeeded, allowing the V4L2 release callback to manage cleanup.
+> 
+> Also, call v4l2_device_disconnect() in sur40_disconnect() to safely dissociate
+> the V4L2 device from the parent USB device during unplug.
+> 
+> Reported-by: sashiko-bot@kernel.org
+> Cc: stable@vger.kernel.org
+> Assisted-by: Antigravity:gemini-3.5-flash
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> ---
+>  drivers/input/touchscreen/sur40.c | 27 ++++++++++++++++-----------
+>  1 file changed, 16 insertions(+), 11 deletions(-)
+> 
+> diff --git a/drivers/input/touchscreen/sur40.c b/drivers/input/touchscreen/sur40.c
+> index 1ad68131e3a6..2f0efee23d1e 100644
+> --- a/drivers/input/touchscreen/sur40.c
+> +++ b/drivers/input/touchscreen/sur40.c
+> @@ -806,8 +806,10 @@ static int sur40_probe(struct usb_interface *interface,
+>  	}
+>  
+>  	error = sur40_init_input(sur40);
+> -	if (error)
+> -		goto err_unreg_video;
+> +	if (error) {
+> +		video_unregister_device(&sur40->vdev);
+> +		return error;
+> +	}
+>  
+>  	/* we can register the device now, as it is ready */
+>  	usb_set_intfdata(interface, sur40);
+> @@ -815,8 +817,6 @@ static int sur40_probe(struct usb_interface *interface,
+>  
+>  	return 0;
+>  
+> -err_unreg_video:
+> -	video_unregister_device(&sur40->vdev);
+>  err_free_ctrl:
+>  	v4l2_ctrl_handler_free(&sur40->hdl);
+>  err_unreg_v4l2:
+> @@ -835,13 +835,8 @@ static void sur40_disconnect(struct usb_interface *interface)
+>  	struct sur40_state *sur40 = usb_get_intfdata(interface);
+>  
+>  	input_unregister_device(sur40->input);
+> -
+> -	v4l2_ctrl_handler_free(&sur40->hdl);
+>  	video_unregister_device(&sur40->vdev);
 
-commit 7c2e3c482d0d5858bfbdee73da72e2a7bcba0509
-Author: Arnd Bergmann <arnd@arndb.de>
+This call can free sur40,
 
-Input: gpio-keys: make legacy gpiolib optional
+> -	v4l2_device_unregister(&sur40->v4l2);
+> -
+> -	kfree(sur40->bulk_in_buffer);
+> -	kfree(sur40);
+> +	v4l2_device_disconnect(&sur40->v4l2);
 
-This commit makes the legacy gpiolib interfaces optional in the gpio-keys
-and gpio-keys-polled drivers by enclosing them in an #ifdef block. It also
-modifies the gpio-keys driver to ignore the GPIO number if an IRQ is passed
-to keep the Rohm PMIC drivers working.
+but this call still uses it.
 
-Link: https://lore.kernel.org/all/b3c94552-c104-42e3-be15-7e8362e8039e@gmai=
-l.com/
-Link: https://lore.kernel.org/all/afJXG4_rtaj3l2Dk@google.com/
-Link: https://lore.kernel.org/all/ajQ-CtU131FAJ9ES@google.com/
+The easiest fix is just to swap the two lines.
 
-> diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/=
-gpio_keys.c
-> --- a/drivers/input/keyboard/gpio_keys.c
-> +++ b/drivers/input/keyboard/gpio_keys.c
+Regards,
 
-[ ... ]
+	Hans
 
-> @@ -528,7 +528,8 @@ static int gpio_keys_setup_key(struct platform_device=
- *pdev,
->  			 */
->  			bdata->gpiod =3D NULL;
->  		}
-> -	} else if (gpio_is_valid(button->gpio)) {
-> +#ifdef CONFIG_GPIOLIB_LEGACY
-> +	} else if (!button->irq && gpio_is_valid(button->gpio)) {
+>  
+>  	usb_set_intfdata(interface, NULL);
+>  	dev_dbg(&interface->dev, "%s is now disconnected\n", DRIVER_DESC);
+> @@ -1176,11 +1171,21 @@ static const struct v4l2_ioctl_ops sur40_video_ioctl_ops = {
+>  	.vidioc_streamoff	= vb2_ioctl_streamoff,
+>  };
+>  
+> +static void sur40_video_release(struct video_device *vdev)
+> +{
+> +	struct sur40_state *sur40 = video_get_drvdata(vdev);
+> +
+> +	v4l2_device_unregister(&sur40->v4l2);
+> +	v4l2_ctrl_handler_free(&sur40->hdl);
+> +	kfree(sur40->bulk_in_buffer);
+> +	kfree(sur40);
+> +}
+> +
+>  static const struct video_device sur40_video_device = {
+>  	.name = DRIVER_LONG,
+>  	.fops = &sur40_video_fops,
+>  	.ioctl_ops = &sur40_video_ioctl_ops,
+> -	.release = video_device_release_empty,
+> +	.release = sur40_video_release,
+>  	.device_caps = V4L2_CAP_VIDEO_CAPTURE | V4L2_CAP_TOUCH |
+>  		       V4L2_CAP_READWRITE | V4L2_CAP_STREAMING,
+>  };
 
-[Severity: High]
-Does this skip requesting the legacy GPIO descriptor if an IRQ is provided,
-breaking platforms that explicitly provide both?
-
-Legacy boards (like assabet, collie, or h3xxx) use both a GPIO and an IRQ
-to allow reading the button state alongside a custom IRQ trigger.
-
-By skipping the GPIO setup when an IRQ is provided, bdata->gpiod remains
-NULL. The driver then falls back to its IRQ-only mode where it can no
-longer read the physical state of the GPIO, instead simulating an immediate
-key press and release via a timer.
-
-Could this break button hold and debounce functionality for these legacy
-machines?
-
-[ ... ]
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260629130329.1291=
-953-1-arnd@kernel.org?part=3D4

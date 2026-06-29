@@ -1,41 +1,45 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 444483F8EC2;
-	Mon, 29 Jun 2026 09:18:57 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 11AF93F9F2E;
+	Mon, 29 Jun 2026 09:21:09 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782724738; cv=none; b=pzCXImK5FL5TjpMCKq35+IJtjD2VquUHTmu2ocJBpVQFSKsGS/PX9ZsJbqJP+R5R+BA1VnsWVwtYiQiu5aQ8WeRgDq/qzdkHoo8DZaEe1zE/PyERwHe2vNg5ehxQtnmjVQOoFgwuCEEjyAVm2DtCXrPF3eYHEsm7QyHctQIoRN4=
+	t=1782724871; cv=none; b=p5KkU+LcYMED+Lib0mv/txWwH24uNbUvSzLC5pqbo48le1zs4ehp2mF0aFJD9Zzs/tDh8VomsfaP3PvOqQ7s84lkfJFE0PaIKIcmAz7FkLqWkor0BWCDzXGIIekqSr78l4p7DzRLk2nYk/7dT5gJ3iWvYxlCIV0dvFNeX8ttcnc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782724738; c=relaxed/simple;
-	bh=0ktAWpwvOiVRIYnduTILfNa1q9eZ7bG5klq2YQF07ug=;
+	s=arc-20240116; t=1782724871; c=relaxed/simple;
+	bh=zBmEYxQyao+weZknUOzdBl9opUrgmxcQ3Dt+/QG0vAc=;
 	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
-	 MIME-Version:Content-Type; b=irQjVwwikYJFd3Cvc+l+jAK5pAKDHwLw55sjqOxVVJz6iLmoRidPWH9RMLTDBNPuYokyFZv0SsYTXb+v31YL96Y0SstjpgOITPxEBMxt3cbpaRBe4pj1PrmXWJe/xhy1pPTijFYbHrjPZrK4ml2mA7QJD8L0qwLrIJ4fNwWwMJs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=hxvRybJr; arc=none smtp.client-ip=100.103.45.18
+	 MIME-Version:Content-Type; b=HgTCyLY6aYVw4zOIzTnpeAKAHJxWJyLY0LjeXvUY6lA+0C7XZKKeU8UFo+fB+HargAMbWCkxAyP2Y/zL3aZ8v40uwj/x6BSDkAgji64r9XL4dwGvStdqqSNI0if3gs4EfbirrIGTmObNN+NqoTp4CckvdLq2jDFlkifngNjBng0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=bwahQ1T+; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="hxvRybJr"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D0F51F000E9;
-	Mon, 29 Jun 2026 09:18:56 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="bwahQ1T+"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 107191F000E9;
+	Mon, 29 Jun 2026 09:21:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1782724736;
-	bh=j3cGtzLYHT67m4ZlOG77HLueaDzBGaW8TBNuIJjODys=;
+	s=k20260515; t=1782724869;
+	bh=ouxnXvXcy9WPtGdaW9ah31IFAhA4g1leWJ+w3pSH53Q=;
 	h=Date:From:To:cc:Subject:In-Reply-To:References;
-	b=hxvRybJrpHILES1GQ7IjDtXPIXnDVuN1MTaqpNfxqB6xb4F+hhXTMZNReLiU1WObT
-	 k7QBUIx7N4yOAuGP0CoxmplSw1d7tBvy1T4UzyoTAwP6R1tMrlWhT368Ax3KXPYu/S
-	 ugeUElohobTiAT0UqEF/Fuyo5VJ3skr3ePQJDVB/pKr4noLE8+LIh69LTbbJB5BgQx
-	 weowWvQygXGsqbE7ZBFaA+MdnKtBDwKZVNg/yitfqCw9ZmNZg/+JlMfEzKA7MQcidL
-	 SaEVzZWTfIqKq4ChLzCyM1cfShApeAbDq5G0oiuVa+BXbX3P5wxQQY3f6IbaP8+Y6e
-	 UjvGT7dsr528g==
-Date: Mon, 29 Jun 2026 11:18:54 +0200 (CEST)
+	b=bwahQ1T+gIKSwnoEcQwP770l+1qYB3tcHM0uvgrHVeKFGRK3wcA4oREb5lagf83kP
+	 T1rEzBwMNL7plXFA9IxaSoZDBpvX5lawbFia/fLn5vIPrQJuEGwxpe4yZxOy4A/OTR
+	 xDg0CoXHKTGVyx4NepVjRNCvyjb3lXPvOQ+eJ1H94krL/iEZrGcYtN492uJbTj1gvi
+	 yAwaxbauEPigeoFYn92Eud55AsbaYCUVtkrAT+obB5+jnUeyGleLHVQnupwm7ImFvZ
+	 4/SxIvXQsf9ixvCZ6EynovcXsPMgTEoAIa3d/apEzmDlF5r/9oH/MsOKes5g3f3YFS
+	 omMHeECvdDAIw==
+Date: Mon, 29 Jun 2026 11:21:06 +0200 (CEST)
 From: Jiri Kosina <jikos@kernel.org>
-To: Maoyi Xie <maoyixie.tju@gmail.com>
-cc: Hans de Goede <hansg@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>, 
-    linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] HID: lg-g15: cancel pending work on remove to fix a
- use-after-free
-In-Reply-To: <178176639579.3377656.12792307991044339915@maoyixie.com>
-Message-ID: <np9n823o-9543-9225-8o46-qn6p6q47s3oq@xreary.bet>
-References: <178176639579.3377656.12792307991044339915@maoyixie.com>
+To: Denis Benato <denis.benato@linux.dev>
+cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, 
+    Benjamin Tissoires <bentiss@kernel.org>, 
+    "Luke D . Jones" <luke@ljones.dev>, Mateusz Schyboll <dragonn@op.pl>, 
+    Denis Benato <benato.denis96@gmail.com>, 
+    Antheas Kapenekakis <lkml@antheas.dev>, 
+    Connor Belli <connorbelli2003@gmail.com>
+Subject: Re: [PATCH v5 0/5] HID: asus: security fixes and more hardware
+ support
+In-Reply-To: <20260619001103.1189200-1-denis.benato@linux.dev>
+Message-ID: <rr8s664r-5s34-1815-57ss-32p461sopp45@xreary.bet>
+References: <20260619001103.1189200-1-denis.benato@linux.dev>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -44,32 +48,38 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 
-On Thu, 18 Jun 2026, Maoyi Xie wrote:
+On Fri, 19 Jun 2026, Denis Benato wrote:
 
-> lg_g15_data is allocated with devm and holds a work item. The report
-> handlers schedule that work straight from device input.
-> lg_g15_event() and lg_g15_v2_event() do it on the backlight cycle key,
-> and lg_g510_leds_event() does it too. The worker dereferences the
-> lg_g15_data back through container_of.
+> Hi all,
 > 
-> The driver had no remove callback and never cancelled the work. So if a
-> report scheduled the work and the keyboard was then unplugged, devres
-> freed lg_g15_data while the work was still pending or running, and the
-> worker touched freed memory. This is a use-after-free. It is reachable
-> as a race on device unplug.
+> I have added support for controlling the (way too bright) XG mobile
+> LEDs in hid-asus and added the i2c version of already supported
+> hardware that was probed only when it's a USB: these are two separate
+> features changes and are the only two that are not fixes for
+> pre-existing issue (see below).
 > 
-> Add a remove callback that cancels the work before devres frees the
-> state. g15->work is only initialized for the models that schedule it
-> (G15, G15 v2, G510). The G13 and Z-10 leave it zeroed, so guard the
-> cancel on g15->work.func to avoid cancelling a work that was never set
-> up. The g15 NULL test mirrors the one already in lg_g15_raw_event().
+> Auto-review bot has spotted a bunch of pre-existing problems alongside
+> problems in my own code therefore at this point I am going to fix the
+> more problems I can and including those fixes and improvements in this
+> patchset.
 > 
-> Fixes: 97b741aba918 ("HID: lg-g15: Add keyboard and LCD backlight control")
-> Cc: stable@vger.kernel.org
-> Suggested-by: Hans de Goede <hansg@kernel.org>
-> Signed-off-by: Maoyi Xie <maoyixie.tju@gmail.com>
+> For v4 I decided to follow Antheas' suggestion of reusing the existing
+> workqueue and by making it more generic I solved a good bunch of issues.
+> 
+> The v5 iteration is simply me fixing a bunch of bugs in new code spotted
+> by the bot. Thanks for providing such a useful tool!
+> 
+> On a side node this patchset has a few more warnings: specifically
+> "WARNING: Prefer kzalloc_obj over kzalloc with sizeof" but it's a false
+> positive as that would introduce sleeping calls in atomic contexts.
 
-Thanks, applied.
+Denis,
+
+thanks. Could you please flag which patches you'd prefer to go in still 
+for 7.1 and which ones are not critical and could wait for 7.2? The whole 
+lot is quite big.
+
+Thanks,
 
 -- 
 Jiri Kosina

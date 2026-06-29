@@ -1,106 +1,127 @@
-Received: from mail-qk1-f174.google.com (mail-qk1-f174.google.com [209.85.222.174])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.12])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 02CC04418FF
-	for <linux-input@vger.kernel.org>; Mon, 29 Jun 2026 16:11:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.174
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C3B0937FF42
+	for <linux-input@vger.kernel.org>; Mon, 29 Jun 2026 17:35:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.12
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782749494; cv=none; b=n7Qyt/UjT/dJ/BObBhLTAO3vN0iD3ZVHMiJFC2YUmyfV+upcJoPzxTMJ5dfZXf7oYeFk1v6EG6OzX2Q7Kj00AvFDXqWxoKTh4t7f7RDEbZpE9uxYAiPqv5GkKculZolQbPPCNUX9GocP6vBAjFb2wdTjEI+CuC+CQEDxp0NcOms=
+	t=1782754532; cv=none; b=cSE6OyLeo/sYT4i6L3VBukNWUZYpuXinZb2jfNkjcezhDIWzPa0Rlb6kT+QnCvwXliykk79kOvQD6ovw7lp9IQrS/3uzoAnmJsxDwchXmJigQOKBPvxCexKq0XKmZ9Lo3kMXceHClD6Xbrns7wZ2ZEg7c+LKNorm3sipplZnNT0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782749494; c=relaxed/simple;
-	bh=LHZ+CtSrs1sFgqxg1SDgUv6SV2Q72AbvoN/75du65As=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=JN5WMj2god+SPbeLAl2vT0vwg6erJY2dTV616I7828XiSXzsJOORepfT+BBUE9miCq1srvwrsQ5a5qJ5eDBJgXSC/q/WGD+GvO0BgDQGCpWSelzEdQf8wSmX9gfsXr3qD/1X/zaoxiSt2J73HiJtMG7mqGx1bOUkB+37HaKthOw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.222.174
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Received: by mail-qk1-f174.google.com with SMTP id af79cd13be357-92e57a753f9so109504785a.2
-        for <linux-input@vger.kernel.org>; Mon, 29 Jun 2026 09:11:31 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1782749491; x=1783354291;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=sEWuyLm9nvyhq9LS7vVK2FWNUi6758jMrQo6mncWdtU=;
-        b=l9wH687tBlxl8iggfJeU2FkxS/ToPTxH8u1fAu28/CZ3WjILjD4L2b5Wo+DFZ/2p/n
-         Y264CzILVHmBPSb5OId73LV5uqF6yPwkC9BKOLHrRVSMMNHlcEO8+aGlFCGb75RvGxLi
-         HI/oEqCHNTqYCNLwu1vmYTe+3Bp39stlzLjRJxzEKUee/cxEDVbvfGj5OYvmrH3iZ5+c
-         sQwjnaV6udSRezWEoxf/GlOCHVT755nKbJEEmTEGBRMRqadwB19WoSnKpg1qqYNwdpiP
-         YKbcq5o6mky4xYLS9k8c3CMVuRE+dspx+TRhsA7R8Hvi5lyUX8+mwWOXPuE/c9O/Rkeu
-         WFTQ==
-X-Forwarded-Encrypted: i=1; AFNElJ8fsID1w9AxaYBiXKWH0diXHIztYc6dH72cI3FAlgo2OEE5jEbOmfWK33ukrcI0nOFF+1FAcBHeKu9/4w==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yye3RsGkwJpPiXpeb2X5iqmgwPzgwAWsJ0LwtiQcuC3FllPnweq
-	zipAFo++8IBL/AcZ/6tnixMhL9kCsbYM+BAOq/qbS5u7kgPFXDaF42o8+V82glN3pmU=
-X-Gm-Gg: AfdE7ckD/5avLX1Uxhb4FJQJ1F/OAZb2K9PUcWTmLIDxZejdIXWjC1gNHDE3Y/vqf3Q
-	hlXAXnXlyPYIhNpOa42c2KJF6aieNyhoAXVQHSWK+qoJgN77yWN6fIlNV2KE7wxE3LaW6mGt5TU
-	eWgzR0w/IDnjQAc8jlJnkrG5+za5hA9Vpkg3phUNTfme81A175Xzjvj0XuCnvL1heGEkTDQq6BB
-	MX6ClpUShfDFEqMnFlr2ntdwPkGZy5Gls19uH18+5KbZw9h0SLSHBUXVub7pqfIrm3QiwOtdopC
-	ZPkKp/+y9m161x7k0MeDkmx7mQIHqxHd9dZ62Hz6LzaUSy5kkAUqUH3DV/DHg6VFUUQ/PfO9vC6
-	eQ3fgdgXZ748Y3ONcyHDH4kQZNYk4p81B1zUCC4whXdSAqloNMKUFIa//PvhAXdsd1BBj/+LKZ6
-	cbljBvSRF+ssYKCPmg981Frc4fangz3m+1qVbGYPdsmGQ7wlv0VQ==
-X-Received: by 2002:a05:620a:6018:b0:92e:4f79:2c22 with SMTP id af79cd13be357-92e6287431amr30750485a.69.1782749490630;
-        Mon, 29 Jun 2026 09:11:30 -0700 (PDT)
-Received: from mail-qv1-f48.google.com (mail-qv1-f48.google.com. [209.85.219.48])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-92e621374dbsm18132485a.4.2026.06.29.09.11.30
-        for <linux-input@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 29 Jun 2026 09:11:30 -0700 (PDT)
-Received: by mail-qv1-f48.google.com with SMTP id 6a1803df08f44-8f0079614b2so19486126d6.1
-        for <linux-input@vger.kernel.org>; Mon, 29 Jun 2026 09:11:30 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AHgh+Rqn7GlCik7GKux4uSurKJJ8ShGcUgvl21V+bqWE8aDpDJIwtN9W59+/sJWgf2d2IEQVtsn0uVffBnFM0w==@vger.kernel.org
-X-Received: by 2002:a05:6102:148a:b0:738:ff1b:940 with SMTP id
- ada2fe7eead31-73a365e2846mr277383137.4.1782749070424; Mon, 29 Jun 2026
- 09:04:30 -0700 (PDT)
+	s=arc-20240116; t=1782754532; c=relaxed/simple;
+	bh=FHzECcpE2za9nNe+C8lB6FrxlaMLj2xcMZKRBMe4sEs=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=k6/txFfJZ3/XHHpap1YK9FG3mP7AF+KjmMFvYagchrAFLlOZ85VzUC9phVYqWlITdtkV3eJywagPb3XnFxJcckciXZ8VwZx0v36zUhPBxGuXro2DHTvGQTgmOEYk72sxmd+b/NmKcV/E6+RDrOavlGlr/wkYKUFzWNzG44r0ndk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=n9hwMCHF; arc=none smtp.client-ip=198.175.65.12
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="n9hwMCHF"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1782754531; x=1814290531;
+  h=message-id:subject:from:to:cc:date:in-reply-to:
+   references:content-transfer-encoding:mime-version;
+  bh=FHzECcpE2za9nNe+C8lB6FrxlaMLj2xcMZKRBMe4sEs=;
+  b=n9hwMCHFY/rFS/Xn52Db4juPu161pctHsbb047DqVCM8fqUzyGWh29Yh
+   4VTwMusDXEU45DGFB4JJtlrEisObrvCt3V31LXEzYznnMea9GooRTLeQ7
+   1kOsNtsXRoPadV07w30xM36N1Kn61PupErSDXtKi4dJzSFeJUoaG7muF6
+   T3Aw4k8Nxy+f7gImCrUV9C0s7EfXwAZa0F39hg4xbB3q2O/kYyU38JOKc
+   xn6oIjV+8U/3TOpnX71OWkyxbxLWDLPcWhS9pzbm/oFQnJ7OluKSpVLLG
+   tJMauptrTFsMA3bzxiKdlGQcYA7viKN+c4n9x8n8PUlzBD+RpJr98tzCU
+   A==;
+X-CSE-ConnectionGUID: OSYNDm+yRUSOE7ZJk/LfUg==
+X-CSE-MsgGUID: uz+vrPIEQQ2UtWYwa1lAOA==
+X-IronPort-AV: E=McAfee;i="6800,10657,11832"; a="94949170"
+X-IronPort-AV: E=Sophos;i="6.24,232,1774335600"; 
+   d="scan'208";a="94949170"
+Received: from orviesa006.jf.intel.com ([10.64.159.146])
+  by orvoesa104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Jun 2026 10:35:30 -0700
+X-CSE-ConnectionGUID: QlzFl1PjSGKVoxpa72Glrw==
+X-CSE-MsgGUID: Sg5f6LvWQ7GwQCrCGLjemQ==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.24,232,1774335600"; 
+   d="scan'208";a="250318000"
+Received: from spandruv-desk2.jf.intel.com ([10.88.27.176])
+  by orviesa006-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Jun 2026 10:35:27 -0700
+Message-ID: <dd9ced1905adb4805916b173847282ff168a66b9.camel@linux.intel.com>
+Subject: Re: [PATCH] HID: intel-ish-hid: ignore post-init ENUM_DEVICES from
+ firmware
+From: srinivas pandruvada <srinivas.pandruvada@linux.intel.com>
+To: Wahid7852 <wahidzk0091@gmail.com>, linux-input@vger.kernel.org, "Zhang,
+ Lixu" <lixu.zhang@intel.com>
+Cc: jikos@kernel.org
+Date: Mon, 29 Jun 2026 10:35:27 -0700
+In-Reply-To: <20260627224753.35075-1-wahidzk0091@gmail.com>
+References: <20260627224753.35075-1-wahidzk0091@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.60.2 (3.60.2-1.fc44) 
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260629130329.1291953-1-arnd@kernel.org> <20260629130329.1291953-7-arnd@kernel.org>
-In-Reply-To: <20260629130329.1291953-7-arnd@kernel.org>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Date: Mon, 29 Jun 2026 18:04:19 +0200
-X-Gmail-Original-Message-ID: <CAMuHMdXjJRCW2v=ocjaG1xv2Bhhn1fcgL1YKsV3+MWbhboFtpw@mail.gmail.com>
-X-Gm-Features: AVVi8CeLP4wAatdqRaN_LpUF4e5DDi2Drj76tc85gOykWJhBx1i_jZadj7vLGOk
-Message-ID: <CAMuHMdXjJRCW2v=ocjaG1xv2Bhhn1fcgL1YKsV3+MWbhboFtpw@mail.gmail.com>
-Subject: Re: [PATCH 6/6] [v5] gpiolib: turn off legacy interface by default
-To: Arnd Bergmann <arnd@kernel.org>
-Cc: linux-gpio@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, 
-	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>, Thomas Gleixner <tglx@kernel.org>, 
-	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, 
-	"H. Peter Anvin" <hpa@zytor.com>, Linus Walleij <linusw@kernel.org>, Bartosz Golaszewski <brgl@kernel.org>, 
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee@kernel.org>, 
-	Pavel Machek <pavel@kernel.org>, linux-sh@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-input@vger.kernel.org, linux-leds@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
 
-On Mon, 29 Jun 2026 at 15:18, Arnd Bergmann <arnd@kernel.org> wrote:
-> From: Arnd Bergmann <arnd@arndb.de>
->
-> All users of the legacy interface now select CONFIG_GPIOLIB_LEGACY,
-> so it can be turned off by default and only get built on platforms
-> that still have one unconverted driver.
->
-> Allow turning it on manually for compile testing, in order to keep
-> the build coverage of the legacy drivers in allmodconfig and
-> randconfig.
->
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
++Lixu
+
+On Sun, 2026-06-28 at 04:17 +0530, Wahid7852 wrote:
+> Some ISH firmware versions (observed on Tiger Lake LP, 8086:a0fc,
+> GUID {33AECD58-B679-4E54-9BD9-A04D34F0C226}) periodically re-send an
+> unsolicited HOSTIF_DM_ENUM_DEVICES response roughly every 79 seconds.
+>=20
+> The current guard collapses two distinct cases into one condition:
+>=20
+> =C2=A0 if (!(response_flag) || init_done)=C2=A0 ->=C2=A0 bad packet + ish=
+_hw_reset
+>=20
+> This incorrectly treats a valid post-init firmware announcement as a
+> corrupted packet, triggering an ISH soft-reset and a full ISHTP
+> re-initialisation cycle on each occurrence (~1100 times per day on
+> affected hardware).
+>=20
+> Split the check: reject messages with no response flag as before, but
+> simply discard valid ENUM_DEVICES messages that arrive after init is
+> complete.
+>=20
+> Signed-off-by: Wahid <wahidzk0091@gmail.com>
+Also you need first and last name for sign offs. Not sure this is
+allowed format.
+
+Thanks,
+Srinivas
+
 > ---
-> v5: added patch, now that we are getting closer to completing
->     the series
-
-Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
-
-Gr{oetje,eeting}s,
-
-                        Geert
-
--- 
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+> =C2=A0drivers/hid/intel-ish-hid/ishtp-hid-client.c | 5 +++--
+> =C2=A01 file changed, 3 insertions(+), 2 deletions(-)
+>=20
+> diff --git a/drivers/hid/intel-ish-hid/ishtp-hid-client.c
+> b/drivers/hid/intel-ish-hid/ishtp-hid-client.c
+> index 6d64008f2..ec5e8afe7 100644
+> --- a/drivers/hid/intel-ish-hid/ishtp-hid-client.c
+> +++ b/drivers/hid/intel-ish-hid/ishtp-hid-client.c
+> @@ -113,8 +113,7 @@ static void process_recv(struct ishtp_cl
+> *hid_ishtp_cl, void *recv_buf,
+> =C2=A0
+> =C2=A0		switch (recv_msg->hdr.command & CMD_MASK) {
+> =C2=A0		case HOSTIF_DM_ENUM_DEVICES:
+> -			if ((!(recv_msg->hdr.command & ~CMD_MASK) ||
+> -					client_data->init_done)) {
+> +			if (!(recv_msg->hdr.command & ~CMD_MASK)) {
+> =C2=A0				++client_data->bad_recv_cnt;
+> =C2=A0				report_bad_packet(hid_ishtp_cl,
+> recv_msg,
+> =C2=A0						=C2=A0 cur_pos,
+> @@ -122,6 +121,8 @@ static void process_recv(struct ishtp_cl
+> *hid_ishtp_cl, void *recv_buf,
+> =C2=A0				ish_hw_reset(ishtp_get_ishtp_device(
+> hid_ishtp_cl));
+> =C2=A0				break;
+> =C2=A0			}
+> +			if (client_data->init_done)
+> +				break;
+> =C2=A0			client_data->hid_dev_count =3D (unsigned
+> int)*payload;
+> =C2=A0			if (!client_data->hid_devices)
+> =C2=A0				client_data->hid_devices =3D
+> devm_kcalloc(

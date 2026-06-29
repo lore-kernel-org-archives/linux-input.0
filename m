@@ -1,31 +1,31 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AB29A404BFA;
-	Mon, 29 Jun 2026 13:28:04 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A0FEA400E15;
+	Mon, 29 Jun 2026 13:28:11 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782739685; cv=none; b=s5AryEiabCqIOR7IExhK0fa15larYkOIgTq6wT6yl0PofcunkV9b7LQ4rv7KA0N/XZOPWgfvR3vU1tF0vxZyM+kNykSKzRNqceZJpmBB72uN8DTjdaBrLbjPjYy7V+/Ij2oNyY/Gs0qvyNHOlM4PSM5a6mETbdaVnUI12VS6ocM=
+	t=1782739692; cv=none; b=MbABMK7cZ+21HZrw5C0AjAneEhfuCiT5MHwXfaBeN+6d+7fHQhQNUNQKLlktihghtIGbbRJvrRkdnyxaxOR9L1Rork1lXGSFAU1kzh26ygNCEH7ZLBMF7MsEcCKljimyMkinybkpj7R7eNjB37AgVacTJlTyAmtboLAiFq3fMrk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782739685; c=relaxed/simple;
-	bh=obNPcB+BaZsnpRHlcsBGxQCruLKZ5xXtfc+XJI2PSpg=;
+	s=arc-20240116; t=1782739692; c=relaxed/simple;
+	bh=GNKP1XlJXRKFJBUq6P1pWbPm0LmF/k3EOFPIlsHhd0M=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=RKHn3sSA1kf6VI5uj1pt61I2upm6a4SsfUH9r4J+27vurV7dgF85KFZzFDdHwiF9JTcDUdRjY4aUhl40TxFfJVii8ev/hdOlcKXLEh7JarPFh9KTjDa56WeMMeuG7wQbf3ra+JlrCx8gKcZqV1nql9k/wRi0ZFYRdTfKpQXl6yk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=MdfFbWJ+; arc=none smtp.client-ip=100.103.45.18
+	 MIME-Version; b=h4cYT5HSllBTmooJA3O7zsScekmqDUXRrqoebvoYOOp/3XY2IR4XqTDzJwvv7suPKy0l967x6o7u9cLro7+DztKBe7fWcIJth4C8FbLY5w2KBewTFc/sLVv+Caxj4+UZiL9kk7dP+6qTUAe9R49LwgcIBEPMabwYq/foPqp/FAE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=l+Bjn0TW; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="MdfFbWJ+"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 095261F00A3D;
-	Mon, 29 Jun 2026 13:27:57 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="l+Bjn0TW"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 090611F000E9;
+	Mon, 29 Jun 2026 13:28:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1782739684;
-	bh=NrdLJGMFs8wtvc4BJiEXLk7S18TXVPww8hdTab/uPp0=;
+	s=k20260515; t=1782739691;
+	bh=AbxQxhI8jkWFpggqqu0BJxCVlmjNB8rVpnB3U/bG9/8=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=MdfFbWJ+eRFMBqPEa0RaoTx93bwz14wfILPGSeLWLBjlLfc3/sLoXDbWrIj5zm02+
-	 Cf2hMRjwSDX/HAe9LEvEYerCFkB4Bk3PXB3dCOCCjACDoUXoZNbg8bIRYUlO4u3fYA
-	 d+1jW1L/FhTyHKMjueY3fNJ+ZEn6tUHmVKdynuygFjwpm+i13U8Rgg7ESeNFEllxMf
-	 MEenB1SREnePNOyBX0VPdLwMnOs4/5gV6TKMZk/7FolVupBaKJWIqfsANDATpC5cz+
-	 GtYRhxo3yuIHrBGuNzZr02FwMfR28H0gTO6X9o6PxTogIxu8yfoYD9nvIRoXYg4F/d
-	 k2IOqV+EaupRw==
+	b=l+Bjn0TWuJNScCkv2eF3hy4+9W/x+N/FOa0Y6J7K1PFzRKxbGv4SQUtde7aDOLy8B
+	 jZkrFSnHT6Vb61R5R/ETfTSspiaEh+nheFllga8qyHXfV3yUxDZSenK4zIhVp2ALI+
+	 nzRCJXHiieCva9BC4U/A20qdEbhgbI/dhbWcdg/Jt7oAcq2GDapzVbIFKbACjvCd9P
+	 uYVxIeyS3AcefXCPNeybaedPhtAmuQ8NxzQKp3Kq4z2cU2T7FaobBGokfDAJ0YP4jO
+	 D6rFiTomsxEP9rkITDZ/6mMxQ/dBT7Rjpc7U1oDKGDNycGwvTBYGhfgJLQfBm3ssL7
+	 lcm3OEdYqXtkw==
 From: Arnd Bergmann <arnd@kernel.org>
 To: linux-gpio@vger.kernel.org
 Cc: Arnd Bergmann <arnd@arndb.de>,
@@ -61,9 +61,9 @@ Cc: Arnd Bergmann <arnd@arndb.de>,
 	linux-phy@lists.infradead.org,
 	linux-rockchip@lists.infradead.org,
 	linux-sound@vger.kernel.org
-Subject: [PATCH 11/13] Input: matrix_keyboard - replace linux/gpio.h inclusion
-Date: Mon, 29 Jun 2026 15:26:31 +0200
-Message-Id: <20260629132633.1300009-12-arnd@kernel.org>
+Subject: [PATCH 12/13] gpib: gpio: replace linux/gpio.h inclusion
+Date: Mon, 29 Jun 2026 15:26:32 +0200
+Message-Id: <20260629132633.1300009-13-arnd@kernel.org>
 X-Mailer: git-send-email 2.39.5
 In-Reply-To: <20260629132633.1300009-1-arnd@kernel.org>
 References: <20260629132633.1300009-1-arnd@kernel.org>
@@ -81,22 +81,22 @@ linux/gpio.h is going away, so use linux/gpio/consumer.h instead.
 
 Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 ---
- drivers/input/keyboard/matrix_keypad.c | 2 +-
+ drivers/gpib/gpio/gpib_bitbang.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/input/keyboard/matrix_keypad.c b/drivers/input/keyboard/matrix_keypad.c
-index e50a6fea9a60..98d0269a978f 100644
---- a/drivers/input/keyboard/matrix_keypad.c
-+++ b/drivers/input/keyboard/matrix_keypad.c
-@@ -16,7 +16,7 @@
- #include <linux/interrupt.h>
- #include <linux/jiffies.h>
- #include <linux/module.h>
+diff --git a/drivers/gpib/gpio/gpib_bitbang.c b/drivers/gpib/gpio/gpib_bitbang.c
+index 0e227980b493..2e8d895db06a 100644
+--- a/drivers/gpib/gpio/gpib_bitbang.c
++++ b/drivers/gpib/gpio/gpib_bitbang.c
+@@ -64,7 +64,7 @@
+ #include <linux/gpio/consumer.h>
+ #include <linux/gpio/driver.h>
+ #include <linux/gpio/machine.h>
 -#include <linux/gpio.h>
 +#include <linux/gpio/consumer.h>
- #include <linux/input/matrix_keypad.h>
- #include <linux/slab.h>
- #include <linux/of.h>
+ #include <linux/irq.h>
+ 
+ static int sn7516x_used = 1, sn7516x;
 -- 
 2.39.5
 

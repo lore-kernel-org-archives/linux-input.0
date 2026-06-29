@@ -1,105 +1,259 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0EC4E36EAA7;
-	Mon, 29 Jun 2026 13:25:06 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E488B403EB5;
+	Mon, 29 Jun 2026 13:26:47 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782739507; cv=none; b=cg6Y0mV4Zujb+zB6djwAvDmTtyA9roqUqGplY4+f/qnoxSwKUGbBUjVOPXMF5RlzpZy3RT7rT3AEjbbFsfINmGFkI+N1pqdkDafPWrLzqrKK6U+4nRONPhVr85k27ONRkEh22C0qL3HFB7OTh7t0Z7BHW5NrmANnU9G9uVis0MI=
+	t=1782739609; cv=none; b=XaIh+jDeGqeIw/ZVzWGxQoDAZ5r7S7qPGtQrdIxzojjLvbWssz9eYlmMcrqECuT3XBf/rCr/QClvr3/35noqp0QLfzNPbQNbu6ukoP0RMDaSzMZzzKUQa6YHgmw3zkbt59PJ68/66Yfvp9LU9HAKI6WSDfPcC+wOgDM3GBWjqgg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782739507; c=relaxed/simple;
-	bh=1hmK4kR6HF7Gta7tXwU42CkYKLd5g0ySBKIpa0699d4=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=aLo7SpJdozBlxbX6WRloA7JT0MEp7fQ1BIT+4QCXWCO+0fJTTOi5uLTVF3XH1TVXz4x8RTZCQegCRGLNuR4TslRX4BZho1a6pUwZmLUSnAuDc5atvFYbjJB9sQhLDoFTea1JLYYGBOCnbumLs+DzbN9LCVEnbDlGnTqTvtgetPo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=aqVlWE1j; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1782739609; c=relaxed/simple;
+	bh=3I9zyzkVdbsSVB8VOhT5PsQ+7G+zS3OZld35IU7mR88=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version:Content-Type; b=aXkwQ97vaYswg//aMcXXY8ektj2kdKlCzBtXw+T5wS8Y5PYct2dbACtBAYKz4Zt5UlwYJCj714pz/mkFJhw1KxzYH1JU4MGDgBYvq0IR0qAi+sDWc2QGhTCzi7I8dnLWtTRgW1arVrSFKKrU6HZoNCu3bKGaZ+Uit9+rVaNA8fc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=KD4wn8FG; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="aqVlWE1j"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A53EB1F000E9;
-	Mon, 29 Jun 2026 13:25:05 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="KD4wn8FG"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F74D1F000E9;
+	Mon, 29 Jun 2026 13:26:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1782739506;
-	bh=sgRsY4zYtIbLv8rc2NSjx7kjzejcvcpW4xrjI6sFxYQ=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=aqVlWE1jmO2Gfb0adrc11FvVfgpThXO75fChvAIafjVEl5O4gqNLxCU5ZfrugpfQW
-	 TN+K71uwsmzKOPQB23HjhJYZkS3ftqyLQD2Pg4B9F6qVow5tlE69lDv0TKMGUC+C9i
-	 ilRoxjdogoYbHaxrkrXlCMBagbHoiXZPuXLBsR5PtUCApHqVhzjnhpMzyAYap/xbFw
-	 Niz+KQibNssVK7KQAZq2n7xDg6QWmXEPYh+D+YlQPCGD5W9p8KgclHxa1mKhYNhmHX
-	 A8uNTJsaOrXkLAP8burFvOm5rZ3vo8e7YOBgpc9wOrZMFOzfZ/vd1VZ8E5pWrclBMa
-	 kf3AQEVVPSjwQ==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 2/6] [v5] x86/olpc: select GPIOLIB_LEGACY
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Arnd Bergmann" <arnd@kernel.org>
-Cc: linux-input@vger.kernel.org, lee@kernel.org, dmitry.torokhov@gmail.com, linux-leds@vger.kernel.org
-In-Reply-To: <20260629130329.1291953-3-arnd@kernel.org>
-References: <20260629130329.1291953-1-arnd@kernel.org>
- <20260629130329.1291953-3-arnd@kernel.org>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Mon, 29 Jun 2026 13:25:05 +0000
-Message-Id: <20260629132505.A53EB1F000E9@smtp.kernel.org>
+	s=k20260515; t=1782739607;
+	bh=fhZO9CCgyPTpV3ZQrTdwjnuLM+E9OikVfMuSHmZTx2M=;
+	h=From:To:Cc:Subject:Date;
+	b=KD4wn8FGWGE30eCOOOA+dBSAHZGgiXwZF29kfKE4F2uQuFsP5YxhKF+kJLGZQW+xN
+	 c1FQZuucS/z/TV0fUUP3z4XSiOfaV3yT+/2dhnHni5ghGczyBnpiiVQ4ssE+H6KI6m
+	 MB5KQA2l+xKim04AISyQhaPf4EpWJZCa1m2px2f9EeLMQklyKDL02qd8dJNCvthmg8
+	 6PFfsK+SnbxyFSGpVQU5s9PrLcj+ipaSFtc1VHy+j8TWTBJDs/nEBBWvwVfu9LYai2
+	 5NMag8oZZwUnP9IBEXZ+74fbYASdIvn/nsUwGvCqlg0YWSzWL9DSAQY7zE04B/0xQI
+	 Auc5QmUPHo7UQ==
+From: Arnd Bergmann <arnd@kernel.org>
+To: linux-gpio@vger.kernel.org
+Cc: Arnd Bergmann <arnd@arndb.de>,
+	Bartosz Golaszewski <brgl@kernel.org>,
+	Andrew Lunn <andrew@lunn.ch>,
+	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
+	Gregory Clement <gregory.clement@bootlin.com>,
+	Frank Li <Frank.Li@nxp.com>,
+	Robert Jarzmik <robert.jarzmik@free.fr>,
+	Krzysztof Kozlowski <krzk@kernel.org>,
+	Greg Ungerer <gerg@linux-m68k.org>,
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+	Hauke Mehrtens <hauke@hauke-m.de>,
+	=?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <zajec5@gmail.com>,
+	Yoshinori Sato <ysato@users.sourceforge.jp>,
+	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+	Linus Walleij <linusw@kernel.org>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>,
+	Dominik Brodowski <linux@dominikbrodowski.net>,
+	linux-kernel@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-samsung-soc@vger.kernel.org,
+	patches@opensource.cirrus.com,
+	linux-m68k@lists.linux-m68k.org,
+	linux-mips@vger.kernel.org,
+	linux-sh@vger.kernel.org,
+	linux-input@vger.kernel.org,
+	linux-media@vger.kernel.org,
+	netdev@vger.kernel.org,
+	linux-sunxi@lists.linux.dev,
+	linux-phy@lists.infradead.org,
+	linux-rockchip@lists.infradead.org,
+	linux-sound@vger.kernel.org
+Subject: [PATCH 00/13] treewide: replace linux/gpio.h
+Date: Mon, 29 Jun 2026 15:26:20 +0200
+Message-Id: <20260629132633.1300009-1-arnd@kernel.org>
+X-Mailer: git-send-email 2.39.5
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
-- [Low] The patch introduces `#include <linux/gpio/legacy.h>` but this file=
- does not exist in the tree, causing a fatal compiler error.
---
+From: Arnd Bergmann <arnd@arndb.de>
 
-commit 0da87dc4a65872189dc6e83e56582e1870d842f6
-Author: Arnd Bergmann <arnd@arndb.de>
+The linux/gpio.h header used to be the global definition for the gpio
+interfaces, with 1100 users back in linux-3.17. In linux-7.2, only about
+130 of those remain, so this series cleans out the rest.
 
-x86/olpc: select GPIOLIB_LEGACY
+In each subsystem, we can replace the header either with
+linux/gpio/consumer.h for users of the modern gpio descriptor interface,
+or linux/gpio/legacy.h for the few remaining users of the old number
+based interface.
 
-This commit selects CONFIG_GPIOLIB_LEGACY for the OLPC platform to resolve
-implicit declaration warnings for legacy GPIO functions. It also updates
-dependencies for the cs5535audio driver to require the legacy GPIO library.
+All patches in this series can get applied independently, so my
+preference would be for each subsystem maintainer to apply these
+directly, with the rest going into the gpio tree at some point.
 
-[ ... ]
+The final patch here obviously needs to wait for all the others
+to get merged first.
 
-> diff --git a/arch/x86/platform/olpc/olpc-xo1-sci.c b/arch/x86/platform/ol=
-pc/olpc-xo1-sci.c
-> index 30751b42d54ef..a5b47960ba32e 100644
-> --- a/arch/x86/platform/olpc/olpc-xo1-sci.c
-> +++ b/arch/x86/platform/olpc/olpc-xo1-sci.c
-> @@ -9,7 +9,7 @@
-> =20
->  #include <linux/cs5535.h>
->  #include <linux/device.h>
-> -#include <linux/gpio.h>
-> +#include <linux/gpio/legacy.h>
+      Arnd
 
-[Severity: Low]
-Does this cause a build failure when setup_ec_sci() and other functions in
-this file are compiled? It appears include/linux/gpio/legacy.h does not exi=
-st
-in the tree, and the legacy GPIO APIs might still be declared directly in
-include/linux/gpio.h.
+Arnd Bergmann (13):
+  ARM: replace linux/gpio.h inclusions
+  m68k/coldfire: replace linux/gpio.h inclusions
+  mips: replace linux/gpio.h inclusions
+  sh: replace linux/gpio.h inclusions
+  mfd: replace linux/gpio.h inclusions
+  [net-next] net: replace linux/gpio.h inclusions
+  ASoC: replace linux/gpio.h inclusions
+  pcmcia: replace linux/gpio.h inclusions
+  phy: replace linux/gpio.h inclusions
+  media: replace linux/gpio.h inclusions
+  Input: matrix_keyboard - replace linux/gpio.h inclusion
+  gpib: gpio: replace linux/gpio.h inclusion
+  gpiolib: remove linux/gpio.h
 
-[ ... ]
+ MAINTAINERS                                   |  1 -
+ arch/arm/mach-davinci/da850.c                 |  2 +-
+ arch/arm/mach-dove/mpp.c                      |  2 +-
+ arch/arm/mach-mv78xx0/buffalo-wxl-setup.c     |  2 +-
+ arch/arm/mach-mv78xx0/irq.c                   |  2 +-
+ arch/arm/mach-mv78xx0/mpp.c                   |  2 +-
+ arch/arm/mach-mvebu/pm.c                      |  2 +-
+ arch/arm/mach-mxs/mach-mxs.c                  |  2 +-
+ arch/arm/mach-orion5x/board-d2net.c           |  2 +-
+ arch/arm/mach-orion5x/board-rd88f5182.c       |  2 +-
+ arch/arm/mach-orion5x/dns323-setup.c          |  2 +-
+ arch/arm/mach-orion5x/irq.c                   |  2 +-
+ arch/arm/mach-orion5x/kurobox_pro-setup.c     |  2 +-
+ arch/arm/mach-orion5x/mv2120-setup.c          |  2 +-
+ arch/arm/mach-orion5x/net2big-setup.c         |  2 +-
+ .../arm/mach-orion5x/terastation_pro2-setup.c |  2 +-
+ arch/arm/mach-orion5x/ts209-setup.c           |  2 +-
+ arch/arm/mach-orion5x/ts409-setup.c           |  2 +-
+ arch/arm/mach-pxa/am200epd.c                  |  2 +-
+ arch/arm/mach-pxa/am300epd.c                  |  2 +-
+ arch/arm/mach-pxa/generic.c                   |  2 +-
+ arch/arm/mach-pxa/gumstix.c                   |  2 +-
+ arch/arm/mach-pxa/mfp-pxa2xx.c                |  2 +-
+ arch/arm/mach-pxa/pxa25x.c                    |  2 +-
+ arch/arm/mach-pxa/pxa27x.c                    |  2 +-
+ arch/arm/mach-pxa/reset.c                     |  2 +-
+ arch/arm/mach-pxa/sharpsl_pm.c                |  2 +-
+ arch/arm/mach-pxa/spitz.c                     |  2 +-
+ arch/arm/mach-pxa/spitz_pm.c                  |  2 +-
+ arch/arm/mach-s3c/dev-audio-s3c64xx.c         |  2 +-
+ arch/arm/mach-s3c/devs.c                      |  2 +-
+ arch/arm/mach-s3c/mach-crag6410.c             |  2 +-
+ arch/arm/mach-s3c/pm-gpio.c                   |  2 +-
+ arch/arm/mach-s3c/pm-s3c64xx.c                |  2 +-
+ arch/arm/mach-s3c/setup-fb-24bpp-s3c64xx.c    |  2 +-
+ arch/arm/mach-s3c/setup-i2c0-s3c64xx.c        |  2 +-
+ arch/arm/mach-s3c/setup-i2c1-s3c64xx.c        |  2 +-
+ arch/arm/mach-s3c/setup-keypad-s3c64xx.c      |  2 +-
+ arch/arm/mach-s3c/setup-sdhci-gpio-s3c64xx.c  |  2 +-
+ arch/arm/mach-s3c/setup-spi-s3c64xx.c         |  2 +-
+ arch/arm/mach-sa1100/collie.c                 |  2 +-
+ arch/arm/mach-sa1100/generic.c                |  2 +-
+ arch/arm/mach-sa1100/h3600.c                  |  2 +-
+ arch/arm/mach-sa1100/h3xxx.c                  |  2 +-
+ arch/arm/plat-orion/mpp.c                     |  2 +-
+ arch/m68k/coldfire/device.c                   |  2 +-
+ arch/m68k/include/asm/mcfgpio.h               |  2 +-
+ arch/mips/alchemy/board-xxs1500.c             |  2 +-
+ arch/mips/alchemy/devboards/db1000.c          |  2 +-
+ arch/mips/alchemy/devboards/db1200.c          |  2 +-
+ arch/mips/alchemy/devboards/db1550.c          |  2 +-
+ arch/mips/bcm47xx/workarounds.c               |  2 +-
+ arch/mips/bcm63xx/boards/board_bcm963xx.c     |  1 +
+ .../include/asm/mach-bcm63xx/board_bcm963xx.h |  2 +-
+ arch/mips/txx9/rbtx4927/setup.c               |  2 +-
+ arch/sh/boards/board-magicpanelr2.c           |  2 +-
+ arch/sh/boards/board-sh7757lcr.c              |  2 +-
+ arch/sh/boards/board-urquell.c                |  2 +-
+ arch/sh/boards/mach-ap325rxa/setup.c          |  2 +-
+ arch/sh/boards/mach-ecovec24/setup.c          |  2 +-
+ .../boards/mach-highlander/pinmux-r7785rp.c   |  2 +-
+ arch/sh/boards/mach-kfr2r09/lcd_wqvga.c       |  2 +-
+ arch/sh/boards/mach-kfr2r09/setup.c           |  2 +-
+ arch/sh/boards/mach-migor/lcd_qvga.c          |  2 +-
+ arch/sh/boards/mach-migor/setup.c             |  2 +-
+ arch/sh/boards/mach-rsk/devices-rsk7203.c     |  2 +-
+ arch/sh/boards/mach-rsk/devices-rsk7269.c     |  1 -
+ arch/sh/boards/mach-se/7724/setup.c           |  2 +-
+ .../include/mach-common/mach/magicpanelr2.h   |  2 --
+ arch/sh/kernel/cpu/sh4a/setup-shx3.c          |  2 +-
+ drivers/gpib/gpio/gpib_bitbang.c              |  2 +-
+ drivers/gpio/TODO                             |  4 +---
+ drivers/gpio/gpiolib-cdev.c                   |  2 +-
+ drivers/gpio/gpiolib-legacy.c                 |  3 +--
+ drivers/gpio/gpiolib.c                        |  2 +-
+ drivers/input/keyboard/matrix_keypad.c        |  2 +-
+ drivers/media/pci/ddbridge/ddbridge.h         |  2 +-
+ .../platform/samsung/s3c-camif/camif-core.c   |  2 +-
+ drivers/media/usb/em28xx/em28xx-dvb.c         |  2 +-
+ drivers/mfd/aat2870-core.c                    |  2 +-
+ drivers/mfd/arizona-irq.c                     |  2 +-
+ drivers/mfd/lp3943.c                          |  2 +-
+ drivers/mfd/si476x-cmd.c                      |  2 +-
+ drivers/mfd/si476x-i2c.c                      |  2 +-
+ drivers/mfd/sm501.c                           |  2 +-
+ drivers/mfd/tps6105x.c                        |  2 +-
+ drivers/mfd/tps65911-comparator.c             |  2 +-
+ drivers/mfd/wm8994-irq.c                      |  2 +-
+ drivers/net/dsa/b53/b53_priv.h                |  3 ++-
+ drivers/net/dsa/microchip/ksz8.c              |  2 +-
+ drivers/net/ethernet/allwinner/sun4i-emac.c   |  2 +-
+ .../net/ethernet/apm/xgene/xgene_enet_main.c  |  2 +-
+ .../ethernet/oki-semi/pch_gbe/pch_gbe_main.c  |  2 +-
+ drivers/net/phy/mdio_device.c                 |  2 +-
+ drivers/pcmcia/bcm63xx_pcmcia.c               |  2 +-
+ drivers/pcmcia/db1xxx_ss.c                    |  2 +-
+ drivers/pcmcia/sa1100_h3600.c                 |  2 +-
+ drivers/pcmcia/soc_common.c                   |  2 +-
+ drivers/pcmcia/xxs1500_ss.c                   |  2 +-
+ drivers/phy/broadcom/phy-bcm-ns2-usbdrd.c     |  2 +-
+ drivers/phy/rockchip/phy-rockchip-usbdp.c     |  2 +-
+ drivers/phy/ti/phy-j721e-wiz.c                |  2 +-
+ include/linux/gpio.h                          | 22 -------------------
+ include/linux/mfd/lp3943.h                    |  2 +-
+ include/linux/mfd/ti-lmu.h                    |  2 +-
+ include/linux/mfd/tps65910.h                  |  2 +-
+ include/linux/mfd/ucb1x00.h                   |  2 +-
+ sound/soc/codecs/cs42l84.c                    |  2 +-
+ sound/soc/codecs/cx2072x.c                    |  2 +-
+ sound/soc/codecs/dmic.c                       |  2 +-
+ 110 files changed, 107 insertions(+), 134 deletions(-)
+ delete mode 100644 include/linux/gpio.h
 
-> diff --git a/sound/pci/cs5535audio/cs5535audio_olpc.c b/sound/pci/cs5535a=
-udio/cs5535audio_olpc.c
-> index 122170a410d9e..cfdcc5bf4341e 100644
-> --- a/sound/pci/cs5535audio/cs5535audio_olpc.c
-> +++ b/sound/pci/cs5535audio/cs5535audio_olpc.c
-> @@ -9,7 +9,7 @@
->  #include <sound/info.h>
->  #include <sound/control.h>
->  #include <sound/ac97_codec.h>
-> -#include <linux/gpio.h>
-> +#include <linux/gpio/legacy.h>
+-- 
+2.39.5
 
-[Severity: Low]
-Could this missing include file similarly break the compilation of
-olpc_analog_input() in the sound driver?
-
-[ ... ]
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260629130329.1291=
-953-1-arnd@kernel.org?part=3D2
+Cc: Bartosz Golaszewski <brgl@kernel.org>
+Cc: Andrew Lunn <andrew@lunn.ch>
+Cc: Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
+Cc: Gregory Clement <gregory.clement@bootlin.com>
+Cc: Frank Li <Frank.Li@nxp.com>
+Cc: Robert Jarzmik <robert.jarzmik@free.fr>
+Cc: Krzysztof Kozlowski <krzk@kernel.org>
+Cc: Greg Ungerer <gerg@linux-m68k.org>
+Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Cc: Hauke Mehrtens <hauke@hauke-m.de>
+Cc: "Rafał Miłecki" <zajec5@gmail.com>
+Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
+Cc: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
+Cc: Linus Walleij <linusw@kernel.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Jakub Kicinski <kuba@kernel.org>
+Cc: Paolo Abeni <pabeni@redhat.com>
+Cc: Dominik Brodowski <linux@dominikbrodowski.net>
+Cc: linux-kernel@vger.kernel.org
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linux-samsung-soc@vger.kernel.org
+Cc: patches@opensource.cirrus.com
+Cc: linux-m68k@lists.linux-m68k.org
+Cc: linux-mips@vger.kernel.org
+Cc: linux-sh@vger.kernel.org
+Cc: linux-gpio@vger.kernel.org
+Cc: linux-input@vger.kernel.org
+Cc: linux-media@vger.kernel.org
+Cc: netdev@vger.kernel.org
+Cc: linux-sunxi@lists.linux.dev
+Cc: linux-phy@lists.infradead.org
+Cc: linux-rockchip@lists.infradead.org
+Cc: linux-sound@vger.kernel.org

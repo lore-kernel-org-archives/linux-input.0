@@ -1,177 +1,110 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BE3D23E0C7B
-	for <linux-input@vger.kernel.org>; Mon, 29 Jun 2026 14:10:13 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2B3B03672B1
+	for <linux-input@vger.kernel.org>; Mon, 29 Jun 2026 14:14:04 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782742217; cv=none; b=qfbiIyVf7JfcxfVMcCxF92l3YLZrk9IEQPEu2FAw9WakDjcF0xWckcjZU57AJq3HldTqN45ougahukX/wRFMbnx9EHYglGFuRq4BZg68uNs0Pg+T5FGyiXNClsTgrWaPEon08j1dNt8uE+jtiPATaLghBB2gbPwBnmQBBHLNqYY=
+	t=1782742446; cv=none; b=q/SvfTwMVWHLLfy5WFf9cvqWG0pwcg6CY0QeBJ4NRCDHWrBJm8M2x78AiESO63REM3bsoTNXfmalW/x/vLud+GP+m+O+1AMb0Y+xha8Hh5A4x7fOZKhgyRUSNek3ZhPnRR/dxa/B6bd/HCFYhhJBnEgHgSgcWamz3/TwrM0VjH0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782742217; c=relaxed/simple;
-	bh=Sx/HCGkO2WocpDxK+GZfJHbDPEgKm3J3BGfdALs2804=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=rTycwQqxahq86yskvCoPHB0NrNsQo2lOoJ232G3RQvaRbiJHYcBL2IRzQtUvH4H4UM6RkTZcN/OOU+CcJ6mN7DQFuliMsmuhZP8coDXneWMqor9TFsA0Ky+bL3G6/ZHCJHHxmU+3HdcRChDPfbLM37RYZjeDX+vQBSAaa6KIpvU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Et52j218; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1782742446; c=relaxed/simple;
+	bh=KW8IEw7h3wB+i8CqctSJ9EOR82sULfO4TolMRZgebTY=;
+	h=MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
+	 Subject:Content-Type; b=nN7uNYEn2LI/GGbNJmRBZ4p9iykO2rJfftoBxn3hFH+MVWyE1B9TGLkIe33q5wPt2kx+71SEfDH/Jyc/UFSaFmP8KwcCLna5lAgzYlivMKdAjY2mvrMAWKgrw4/PgzwgT1xNU78xdWl+OGoyi2mkeLoyOsQMB18fn2JtTCIxlww=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=LpnRAdAr; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Et52j218"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D45851F000E9;
-	Mon, 29 Jun 2026 14:10:12 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="LpnRAdAr"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3FD31F000E9
+	for <linux-input@vger.kernel.org>; Mon, 29 Jun 2026 14:14:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1782742213;
-	bh=SKkUAgoS3h5nEkmbuI6vSXcSZvIEQ0cyvR2Cvxu5eG0=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=Et52j218Qe4P2/mxi7eXgxC8qQo2WgankqHGeGoZlamtXAV6h7YOSIVrf+EvXsLd3
-	 uHrtbuf9JDDX8MZkQoZz3HS3wVljurmzfdjilJ67R3+T64t8uCR5vKf1XIz+CpszbH
-	 WM7hN8MH9rmnqB4YBgUS8zu6pPrfx5fFjDeUA/cwqhcVFQdZarZJITe0a1HgvvKSPi
-	 YpuZ5xrcJnf6iTxzWAeS5zuxudxozQCrZ6gq9aeYXftVOtt6fAuvf9EVbS8vocHx10
-	 9ekCrl85VfmYMWtZGX+hpXr/GfKAwLGuG4HB2C5zJV4nW0mVzPnSQaeveYGDO/om0B
-	 jY4esFcGcaSzw==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] [RFC] gpiolib: introduce gpio_name() helper
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Arnd Bergmann" <arnd@kernel.org>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, dri-devel@lists.freedesktop.org
-In-Reply-To: <20260629135917.1308621-1-arnd@kernel.org>
-References: <20260629135917.1308621-1-arnd@kernel.org>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Mon, 29 Jun 2026 14:10:12 +0000
-Message-Id: <20260629141012.D45851F000E9@smtp.kernel.org>
+	s=k20260515; t=1782742444;
+	bh=zgO5KN+Wm0fBYOnN0eVfGFwzS7J9/a8+joS8PR2qCPc=;
+	h=Date:From:To:Cc:In-Reply-To:References:Subject;
+	b=LpnRAdArH10MJQGWXr/wG6j2DXwFTdirzD/406+NFUyUQbXTN6wN3R/qRPdCZQQ5i
+	 hk2J42umaFomTMXtwg9WtzJtOH4hTttEH+oBqm3EMz5HePp/o5qyttvp5A9fHntcZy
+	 xpmbtov0kvxYXdYnu4j/ti9DO1NHHOM0SwiC77g0/aNFwl9Yd8HmJ2IrUg3lsuFeSc
+	 3c8CTGPI9UHo2sIkxG1pvtFItROxEiX2dIKMuoNDli44V4njcvFCYta7s3rXn1dhS3
+	 SAy8smgR6UIgOmq2Pllzm+gR5WUPMV0Crx6aNdtP6ymkzIpftTWJj/T9btstZZ20uG
+	 R279jDAlg25og==
+Received: from phl-compute-04.internal (phl-compute-04.internal [10.202.2.44])
+	by mailfauth.phl.internal (Postfix) with ESMTP id EB8DFF4007B;
+	Mon, 29 Jun 2026 10:14:03 -0400 (EDT)
+Received: from phl-imap-05 ([10.202.2.95])
+  by phl-compute-04.internal (MEProxy); Mon, 29 Jun 2026 10:14:03 -0400
+X-ME-Sender: <xms:q31Cavxu9swq3kAsQkuSNeuj2zXC6Ex19Bw5Dfmq2Wo3YD9snwH3aA>
+    <xme:q31CaiF9gmCzTohxyt3NMs9CtTDF8nwdi1pZx43hvkwCtzgMsX7aTLEp8HQI-pRPQ
+    jl2TsPx2Kw44qckBhkoME5qxLskqQDr0xiR_-QENGY0Syk2cKpEHeQ>
+X-ME-Proxy-Cause: dmFkZTGhgvkS1CpP06NJt7Z0WFiFnobYXvPu8VZnYgjRVToACZ1nB7j7tJxmS6PXCeKzS9
+    i7v+HEi+bEtj9teiL9y8GKllTdv9BQ2GzracmUummtJaLHiVBOppWxOYoMChb2gckZHSs/
+    fR+PttWq4sRibzkVgdUITvED59GSumoBpanoxANnlHO/O/YItY5Ae6idhL2flXxBhrsf9N
+    RIWw+/gK91Iz2q1PGBa5mEXFFSmqWWopqwyCkVq4Bfn20i1i/b9dWQ+TyR/QdSI9iEwBMp
+    QdyZaIq9gdzWuLfHtQwRh1BqipZnNLBjQhABOgXoXCeW14VgvaygoQpTEbV3E8/t03BtGD
+    KoPaPvrQ069915W2LykTC9JveR8/NtGz+I+ct3mzy/lpjC3Du99eTXFHI7O/1yKX8u9PVj
+    YGUqui6YX3Ys8tUQ544SWI7LtK+rFPPoaFAKOf7yiTE1/r4YgJa+P8/PJxs/gtoPytNzew
+    YtEXXtqE6pYgprEm7KzsCmHfTsGKvXJR2WU3bBzzEHlhCz3QOqF+5PXP6EABtze1DixqJe
+    Wv2Y/r7VosldafzF0OR9TOcjUu0kzduM4lz4Tv73skCHAg1DmFtdRzc+VuMhC7TVh3pzxe
+    8r/qGzFUAj4ERyMagEJjCGni+5+KHhpAouoSxPcUqRI31kVelLCPpOcmGoOg
+X-ME-Proxy: <xmx:q31CajlwIlDmxA1ae0OuNxq3mNMSUjwgf825DN51RAJsUxj_w6rXiA>
+    <xmx:q31Caqg_eunFHM9yAicCEQKAbOWXpQbCQEoU3kiFjQ7I8VbnvSzGoA>
+    <xmx:q31Cajdl4eV8_KYjFgZF_60Sl0vTlZtDG58g0Sv1CNmxND0tVGiLng>
+    <xmx:q31CaijyiEao9EIuYHrai8JS5iSNLdWEppg5I3ldZqi0g2t-86rYBg>
+    <xmx:q31CajzaNGVpNFmqMZXg8kdN_zp7q4QiX6s-AJwN3GIgWXuvNvO_qaPO>
+Feedback-ID: i36794607:Fastmail
+Received: by mailuser.phl.internal (Postfix, from userid 501)
+	id B65C5182007E; Mon, 29 Jun 2026 10:14:03 -0400 (EDT)
+X-Mailer: MessagingEngine.com Webmail Interface
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+X-ThreadId: ApXC9W2Mc05c
+Date: Mon, 29 Jun 2026 16:13:41 +0200
+From: "Arnd Bergmann" <arnd@kernel.org>
+To: sashiko-reviews@lists.linux.dev
+Cc: linux-input@vger.kernel.org, linux-leds@vger.kernel.org,
+ "Dmitry Torokhov" <dmitry.torokhov@gmail.com>, "Lee Jones" <lee@kernel.org>
+Message-Id: <356abc3a-ff85-4238-a7b6-83eea744258d@app.fastmail.com>
+In-Reply-To: <20260629134613.F154B1F000E9@smtp.kernel.org>
+References: <20260629130329.1291953-1-arnd@kernel.org>
+ <20260629130329.1291953-7-arnd@kernel.org>
+ <20260629134613.F154B1F000E9@smtp.kernel.org>
+Subject: Re: [PATCH 6/6] [v5] gpiolib: turn off legacy interface by default
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
-s) to consider:
+On Mon, Jun 29, 2026, at 15:46, sashiko-bot@kernel.org wrote:
+> Thank you for your contribution! Sashiko AI review found 2 potential 
+> issue(s) to consider:
+> - [High] Drivers depending on `GPIOLIB_LEGACY` rather than selecting it 
+> are rendered unselectable and silently disabled on normal builds.
+> - [Low] Disabling CONFIG_GPIOLIB_LEGACY by default causes widespread 
+> build failures for platforms and drivers still relying on legacy GPIO 
+> functions.
 
-Pre-existing issues:
-- [High] Uncanceled timer in the probe error path leads to a Use-After-Free=
- when the timer fires.
-- [High] Uncanceled delayed work in the probe error path and early IRQ requ=
-est lead to Use-After-Free.
-- [High] The return value of extcon_rtk_type_c_edev_register() is assigned =
-but never checked, leading to silent failures.
---
+That is the idea, yes: If someone adds back a new legacy user, they
+will get a build failure after this patch.
 
-commit fd9fdd473dd5d54a8f94bae5e74133accbec590a
-Author: Arnd Bergmann <arnd@arndb.de>
+>> All users of the legacy interface now select CONFIG_GPIOLIB_LEGACY,
+>> so it can be turned off by default and only get built on platforms
+>> that still have one unconverted driver.
+>
+> [Severity: High]
+> Is this description entirely accurate?
+>
+> There appear to be drivers that use 'depends on GPIOLIB_LEGACY' rather than
+> selecting it, such as MFD_AAT2870_CORE, MFD_SI476X_CORE, and
+> SND_SOC_TLV320DAC33.
+>
+> If GPIOLIB_LEGACY defaults to 'n' without COMPILE_TEST enabled, will these
+> drivers be rendered unselectable and silently disabled on normal builds?
 
-gpiolib: introduce gpio_name() helper
+Yes, correct. I made sure that all platforms that do use GPIO
+numbers select those symbols. The three drivers listed above
+can only work if a platform has a board file with the corresponding
+platform data, but nothing provides si476x_platform_data or
+aat2870_platform_data, and SND_SOC_TLV320DAC33 is already
+a hidden Kconfig symbol and disabled for all platforms.
 
-Most remaining users of desc_to_gpio() only call it for printing debug
-information.
-
-Replace this with a new gpiod_name() helper that returns the
-gpio_desc->name string after checking the gpio_desc pointer.
-
-> diff --git a/drivers/extcon/extcon-rtk-type-c.c b/drivers/extcon/extcon-r=
-tk-type-c.c
-> index 82b60b927e41a..fb57e9d7ddb63 100644
-> --- a/drivers/extcon/extcon-rtk-type-c.c
-> +++ b/drivers/extcon/extcon-rtk-type-c.c
-> @@ -1356,8 +1356,8 @@ static int extcon_rtk_type_c_probe(struct platform_=
-device *pdev)
->  				(int)PTR_ERR(gpio));
->  		} else {
->  			type_c->rd_ctrl_gpio_desc =3D gpio;
-> -			dev_dbg(dev, "%s get rd-ctrl-gpios (id=3D%d) OK\n",
-> -				__func__, desc_to_gpio(gpio));
-> +			dev_dbg(dev, "%s get rd-ctrl-gpios (id=3D%s) OK\n",
-> +				__func__, gpiod_name(gpio));
->  		}
->  	}
-
-[Severity: High]
-This is a pre-existing issue, but I noticed a potential use-after-free if
-extcon_rtk_type_c_init() fails.
-
-In extcon_rtk_type_c_probe(), the code requests an IRQ before the delayed
-work is initialized:
-
-	ret =3D devm_request_irq(dev, type_c->irq, type_c_detect_irq, ...);
-	...
-	INIT_DELAYED_WORK(&type_c->delayed_work, host_device_switch);
-
-	ret =3D extcon_rtk_type_c_init(type_c);
-	if (ret) {
-		dev_err(dev, "%s failed to init type_c\n", __func__);
-		goto err;
-	}
-
-Could an early interrupt schedule the uninitialized work?
-
-Also, if extcon_rtk_type_c_init() fails, the code jumps to the err label
-and returns without canceling the delayed work. Since the structure is
-freed by devres, will this cause a use-after-free when the work executes?
-
-[Severity: High]
-This is also a pre-existing issue, but further down in the same function,
-the return value of extcon_rtk_type_c_edev_register() is assigned to ret
-but is not checked:
-
-	ret =3D extcon_rtk_type_c_edev_register(type_c);
-
-	create_debug_files(type_c);
-
-	return 0;
-
-Could this mask a registration failure, since the function unconditionally
-returns 0?
-
-[ ... ]
-
-> diff --git a/drivers/usb/gadget/udc/at91_udc.c b/drivers/usb/gadget/udc/a=
-t91_udc.c
-> index 5aa360ba4f039..0993136043870 100644
-> --- a/drivers/usb/gadget/udc/at91_udc.c
-> +++ b/drivers/usb/gadget/udc/at91_udc.c
-> @@ -1896,8 +1896,8 @@ static int at91udc_probe(struct platform_device *pd=
-ev)
->  					gpiod_to_irq(udc->board.vbus_pin),
->  					at91_vbus_irq, 0, driver_name, udc);
->  			if (retval) {
-> -				DBG("request vbus irq %d failed\n",
-> -				    desc_to_gpio(udc->board.vbus_pin));
-> +				DBG("request vbus irq %s failed\n",
-> +				    gpiod_name(udc->board.vbus_pin));
->  				goto err_unprepare_iclk;
->  			}
->  		}
-
-[Severity: High]
-This is a pre-existing issue, but there appears to be a missing timer clean=
-up
-in the probe error path.
-
-In at91udc_probe(), when vbus_polled is true, a timer is armed:
-
-		if (udc->board.vbus_polled) {
-			INIT_WORK(&udc->vbus_timer_work, at91_vbus_timer_work);
-			timer_setup(&udc->vbus_timer, at91_vbus_timer, 0);
-			mod_timer(&udc->vbus_timer,
-				  jiffies + VBUS_POLL_TIMEOUT);
-		}
-
-If usb_add_gadget_udc() fails later, the code jumps to err_unprepare_iclk
-and returns without deleting the timer:
-
-	retval =3D usb_add_gadget_udc(dev, &udc->gadget);
-	if (retval)
-		goto err_unprepare_iclk;
-	...
-err_unprepare_iclk:
-	clk_unprepare(udc->iclk);
-err_unprepare_fclk:
-	clk_unprepare(udc->fclk);
-
-	return retval;
-
-If the probe fails, devres will free the udc structure. Does this mean the
-timer can still fire and access the freed udc memory, causing a
-use-after-free?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260629135917.1308=
-621-1-arnd@kernel.org?part=3D1
+      Arnd

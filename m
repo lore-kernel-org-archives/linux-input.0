@@ -1,45 +1,42 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 11AF93F9F2E;
-	Mon, 29 Jun 2026 09:21:09 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E49F21A6822;
+	Mon, 29 Jun 2026 09:28:41 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782724871; cv=none; b=p5KkU+LcYMED+Lib0mv/txWwH24uNbUvSzLC5pqbo48le1zs4ehp2mF0aFJD9Zzs/tDh8VomsfaP3PvOqQ7s84lkfJFE0PaIKIcmAz7FkLqWkor0BWCDzXGIIekqSr78l4p7DzRLk2nYk/7dT5gJ3iWvYxlCIV0dvFNeX8ttcnc=
+	t=1782725322; cv=none; b=Fuvw8k00jPAFJD7J/X2RT76YWfhD1XjwsOYSmbrkcK7SCihfEyRX9ORHyKYFDcXQh4OMNV4fBZxG2bUKFcE2ek+0MK3rVDE3ojVg7uzQKRfXbWyR1waqmLXXGGJzm92FQJMVnfm2Jb8sgVjcLMKIPSsrNVkU8UGSKH/7C4nAaz0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782724871; c=relaxed/simple;
-	bh=zBmEYxQyao+weZknUOzdBl9opUrgmxcQ3Dt+/QG0vAc=;
+	s=arc-20240116; t=1782725322; c=relaxed/simple;
+	bh=K4jU7F6muLVLr/hezJMUij9Sn0zB6OjemcazGDqW+/4=;
 	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
-	 MIME-Version:Content-Type; b=HgTCyLY6aYVw4zOIzTnpeAKAHJxWJyLY0LjeXvUY6lA+0C7XZKKeU8UFo+fB+HargAMbWCkxAyP2Y/zL3aZ8v40uwj/x6BSDkAgji64r9XL4dwGvStdqqSNI0if3gs4EfbirrIGTmObNN+NqoTp4CckvdLq2jDFlkifngNjBng0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=bwahQ1T+; arc=none smtp.client-ip=100.103.45.18
+	 MIME-Version:Content-Type; b=Ze+WD8vm8FNc9CrTajkt3e5Ocy7Jjb1igLHppbXUw1cNsFGhM5Sl8QDYRblifmdaPIxGB0Ft/005D22bTacUtDFE7lhnlnThNlgWr+WruPBOEnIq5tGhWrWL+eCrPZloMxoVjtgLgtvzrqoSGzvGuVq9zKjM0N+3QO+UQbue+6g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=oXF6XuGF; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="bwahQ1T+"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 107191F000E9;
-	Mon, 29 Jun 2026 09:21:08 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="oXF6XuGF"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07BB11F000E9;
+	Mon, 29 Jun 2026 09:28:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1782724869;
-	bh=ouxnXvXcy9WPtGdaW9ah31IFAhA4g1leWJ+w3pSH53Q=;
+	s=k20260515; t=1782725321;
+	bh=EOgfBcGwHQnas0NoGW1tw3GieJSXGVhk2AHTPYXXB/M=;
 	h=Date:From:To:cc:Subject:In-Reply-To:References;
-	b=bwahQ1T+gIKSwnoEcQwP770l+1qYB3tcHM0uvgrHVeKFGRK3wcA4oREb5lagf83kP
-	 T1rEzBwMNL7plXFA9IxaSoZDBpvX5lawbFia/fLn5vIPrQJuEGwxpe4yZxOy4A/OTR
-	 xDg0CoXHKTGVyx4NepVjRNCvyjb3lXPvOQ+eJ1H94krL/iEZrGcYtN492uJbTj1gvi
-	 yAwaxbauEPigeoFYn92Eud55AsbaYCUVtkrAT+obB5+jnUeyGleLHVQnupwm7ImFvZ
-	 4/SxIvXQsf9ixvCZ6EynovcXsPMgTEoAIa3d/apEzmDlF5r/9oH/MsOKes5g3f3YFS
-	 omMHeECvdDAIw==
-Date: Mon, 29 Jun 2026 11:21:06 +0200 (CEST)
+	b=oXF6XuGFTXZDDz4vsG5ePhJVeU5ohvFsXbkWcZi4RgRktX3W2MXZLBsZBVuAyFBCS
+	 g7J7Cf6vdhlQ6g2Nif/gnO+ABKFRk+83HYtHOSq4D8rCNrmbtaF1Mnk7K7KO7cfEaa
+	 c7ocjTrQ4xiG9BU+EYdXVmp4EiyFpC92rF3NClIXXogH4rI/nO6oPb4B2LwTDDFyM/
+	 YB80sJTkdSh60bVcmmOzthxEgnehwcAQhhAL5BAyDLnFxpiOljAT0t6f97aE8a5fme
+	 GIZsC/EzjwZ/U+Fonw83AYk7h5UudJvaoBmZUiWFqV/Zdn6BZE1wVsBdyQHjXDJrAl
+	 041rMjB4/HgEA==
+Date: Mon, 29 Jun 2026 11:28:38 +0200 (CEST)
 From: Jiri Kosina <jikos@kernel.org>
-To: Denis Benato <denis.benato@linux.dev>
-cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, 
-    Benjamin Tissoires <bentiss@kernel.org>, 
-    "Luke D . Jones" <luke@ljones.dev>, Mateusz Schyboll <dragonn@op.pl>, 
-    Denis Benato <benato.denis96@gmail.com>, 
-    Antheas Kapenekakis <lkml@antheas.dev>, 
-    Connor Belli <connorbelli2003@gmail.com>
-Subject: Re: [PATCH v5 0/5] HID: asus: security fixes and more hardware
- support
-In-Reply-To: <20260619001103.1189200-1-denis.benato@linux.dev>
-Message-ID: <rr8s664r-5s34-1815-57ss-32p461sopp45@xreary.bet>
-References: <20260619001103.1189200-1-denis.benato@linux.dev>
+To: Haoxiang Li <haoxiang_li2024@163.com>
+cc: jic23@kernel.org, srinivas.pandruvada@linux.intel.com, bentiss@kernel.org, 
+    linux-input@vger.kernel.org, linux-iio@vger.kernel.org, 
+    linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH] HID: hid-sensor-custom: Fix sysfs group leak on
+ failure
+In-Reply-To: <20260623021950.1736413-1-haoxiang_li2024@163.com>
+Message-ID: <spo507np-44rr-o950-7s7n-r47nno9p0782@xreary.bet>
+References: <20260623021950.1736413-1-haoxiang_li2024@163.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -48,36 +45,50 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 
-On Fri, 19 Jun 2026, Denis Benato wrote:
+On Tue, 23 Jun 2026, Haoxiang Li wrote:
 
-> Hi all,
+> hid_sensor_custom_add_attributes() creates one sysfs group for each
+> custom sensor field. If sysfs_create_group() fails after some groups
+> have already been created, the function currently breaks out of the
+> loop and returns the error directly.
 > 
-> I have added support for controlling the (way too bright) XG mobile
-> LEDs in hid-asus and added the i2c version of already supported
-> hardware that was probed only when it's a USB: these are two separate
-> features changes and are the only two that are not fixes for
-> pre-existing issue (see below).
+> Fix this by adding a local unwind path when sysfs_create_group() fails.
+> The unwind path removes all sysfs groups that were successfully created
+> before the failure and frees sensor_inst->fields.
 > 
-> Auto-review bot has spotted a bunch of pre-existing problems alongside
-> problems in my own code therefore at this point I am going to fix the
-> more problems I can and including those fixes and improvements in this
-> patchset.
+> Fixes: 4a7de0519df5 ("HID: sensor: Custom and Generic sensor support")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Haoxiang Li <haoxiang_li2024@163.com>
+> ---
+>  drivers/hid/hid-sensor-custom.c | 9 ++++++++-
+>  1 file changed, 8 insertions(+), 1 deletion(-)
 > 
-> For v4 I decided to follow Antheas' suggestion of reusing the existing
-> workqueue and by making it more generic I solved a good bunch of issues.
-> 
-> The v5 iteration is simply me fixing a bunch of bugs in new code spotted
-> by the bot. Thanks for providing such a useful tool!
-> 
-> On a side node this patchset has a few more warnings: specifically
-> "WARNING: Prefer kzalloc_obj over kzalloc with sizeof" but it's a false
-> positive as that would introduce sleeping calls in atomic contexts.
+> diff --git a/drivers/hid/hid-sensor-custom.c b/drivers/hid/hid-sensor-custom.c
+> index afffea894021..cd676516e6b0 100644
+> --- a/drivers/hid/hid-sensor-custom.c
+> +++ b/drivers/hid/hid-sensor-custom.c
+> @@ -609,7 +609,7 @@ static int hid_sensor_custom_add_attributes(struct hid_sensor_custom
+>  					 &sensor_inst->fields[i].
+>  					 hid_custom_attribute_group);
+>  		if (ret)
+> -			break;
+> +			goto err_remove_groups;
+>  
+>  		/* For power or report field store indexes */
+>  		if (sensor_inst->fields[i].attribute.attrib_id ==
+> @@ -621,6 +621,13 @@ static int hid_sensor_custom_add_attributes(struct hid_sensor_custom
+>  	}
+>  
+>  	return ret;
+> +
+> +err_remove_groups:
+> +	while (--i >= 0)
+> +		sysfs_remove_group(&sensor_inst->pdev->dev.kobj,
+> +				   &sensor_inst->fields[i].hid_custom_attribute_group);
+> +	kfree(sensor_inst->fields);
 
-Denis,
-
-thanks. Could you please flag which patches you'd prefer to go in still 
-for 7.1 and which ones are not critical and could wait for 7.2? The whole 
-lot is quite big.
+I believe Sashiko is right here abou the UAF. Could you please fix that 
+and resubmit?
 
 Thanks,
 

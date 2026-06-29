@@ -1,62 +1,79 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail.auroraos.dev (unknown [95.181.193.9])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CE24C419308;
-	Mon, 29 Jun 2026 13:12:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7DD04404BF6;
+	Mon, 29 Jun 2026 13:16:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.181.193.9
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782738756; cv=none; b=W+Lj14MKu6s2AVaTsJWbJm+0ArSinhs1CtR8f8oFlsnPkecIF/h/OPgK2x9BkdGDuBU7unv4WeiynD+WWAdBmvrVydd0QQCfOM5DSvd5+fNiS7qDYvRL4Z9CpSuvRP/CeLHJT8ZMaZekPBTxSxvQtdI1PlXoUa2E8014pkLIWYA=
+	t=1782738977; cv=none; b=b/DG8kWg5N+P0bU40vz5nO4z5W29/YLdcstUZSgQK7M3spi4mV1jOEvMAQqKeDOC50rZMq/rNWfj8Xq1fOdfspDqFFG1PzSPXBwZNAZHqqTCYDkOrcYb+24jPK721og8Gecn2GbCtLyol8zE2h+gADirsD60LlN02IqcSEiiFUk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782738756; c=relaxed/simple;
-	bh=IaAnCU43ti7ZTrUnwH0bkWQiPqQ177g5PV6Evlo5nVk=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=UjwdLueXOHwOLOPwONbV0skmXxWqwwVW02stjaQ9ypLb4iXpASWdVAiadDVOQm86mMMb/eiAjAvkTmk//j1ZyrooRUvQNgobLj4WFzTNyHO+p4lppGAjDVQD7AC2hjAUEySew1kZXFMY5Wj+r4ZwEl2E7NyQ1ScG6ejmrT3yl90=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Bu631/hY; arc=none smtp.client-ip=100.103.45.18
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Bu631/hY"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 32DBB1F01566;
-	Mon, 29 Jun 2026 13:12:33 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1782738753;
-	bh=IaAnCU43ti7ZTrUnwH0bkWQiPqQ177g5PV6Evlo5nVk=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=Bu631/hYdVRmkjeBChVU99EhqgMH1taUKZUCCAOI2TEqBX1OUQAOsXT6dZz5Mu1T3
-	 CLIJpi5V0tRovLCwDkKeK3A9TflbAUjGhkElmsP28gsviYRE2DfTYhOLD/kkUhfdd9
-	 ivwF91Ke0vr14wNoVIBWC1ZIMMBMCDnBGLSU5R3hfvJZ628+Oezj5zb+aM1AnKmFhx
-	 c+ZxNrxf1ipSFms8HpENIPJ/lskTVcdEUoI6HKT1Fx5c2pPyEo5KC9oMvQSre6pVml
-	 JutwZNhjRftunUK3aqJwKcPPaCw0GuzWqf2xghmOpCC8yxhsy9GQc8jWZjxKRN2X20
-	 nZeAEMHV0YXZQ==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 1/6] [v5] sh: select legacy gpiolib interface
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Arnd Bergmann" <arnd@kernel.org>
-Cc: dmitry.torokhov@gmail.com, linux-leds@vger.kernel.org, lee@kernel.org, linux-input@vger.kernel.org
-In-Reply-To: <20260629130329.1291953-2-arnd@kernel.org>
-References: <20260629130329.1291953-1-arnd@kernel.org>
- <20260629130329.1291953-2-arnd@kernel.org>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Mon, 29 Jun 2026 13:12:32 +0000
-Message-Id: <20260629131233.32DBB1F01566@smtp.kernel.org>
+	s=arc-20240116; t=1782738977; c=relaxed/simple;
+	bh=UA2k1r36UA3BJR+NavU2JcUvOjCd1n5ZB7uCc67I2qQ=;
+	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
+	 In-Reply-To:Content-Type; b=ogUwvDnp5xeYXu5XQl9zi+E1sQxHYqbo0PwiYIe1BLX9mPC9dY6glk9hbOBNw+xEWdJ+sq8zimlnl/bQBXSO+UFWdFvfS8qU9VpJQI52eOhcopLWfEQR+PbM64LEoHvuqIJL+SaKxp+SX4q7bj9vlSBTh4L8HEEP4z4BEGiGxCE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=auroraos.dev; spf=pass smtp.mailfrom=auroraos.dev; arc=none smtp.client-ip=95.181.193.9
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=auroraos.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=auroraos.dev
+Received: from [192.168.2.104] (91.79.39.63) by exch16.corp.auroraos.dev
+ (10.189.209.38) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.1847.3; Mon, 29 Jun
+ 2026 16:16:02 +0300
+Message-ID: <df0ed02b-038c-43c2-a84f-b8225f2ffcdd@auroraos.dev>
+Date: Mon, 29 Jun 2026 16:16:02 +0300
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] HID: picolcd: prevent NULL pointer dereference in
+ picolcd_send_and_wait()
+To: Jiri Kosina <jikos@kernel.org>, Georgiy Osokin <g.osokin@auroraos.dev>
+CC: <bonbons@linux-vserver.org>, <bentiss@kernel.org>,
+	<linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+	<lvc-project@linuxtesting.org>
+References: <20260517120639.38003-1-g.osokin@auroraos.dev>
+ <886s5548-p183-3nr0-4836-85968p1non0r@xreary.bet>
+Content-Language: en-US
+From: Sergey Shtylyov <s.shtylyov@auroraos.dev>
+In-Reply-To: <886s5548-p183-3nr0-4836-85968p1non0r@xreary.bet>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: exch16.corp.auroraos.dev (10.189.209.38) To
+ exch16.corp.auroraos.dev (10.189.209.38)
 
-> From: Arnd Bergmann <arnd@arndb.de>
->=20
-> Many board files on sh reference the legacy gpiolib interfaces that
-> are becoming optional. To ensure the boards can keep building, select
-> CONFIG_GPIOLIB_LEGACY on each of the boards that have one of the
-> hardcoded calls.
->=20
-> Cc: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+On 6/29/26 11:46 AM, Jiri Kosina wrote:
 
-Sashiko has reviewed this patch and found no issues. It looks great!
+>> In picolcd_send_and_wait(), an integer overflow of the signed loop counter
+>> 'k' can theoretically lead to a NULL pointer dereference of 'raw_data'.
+>> If the loop executes more than INT_MAX times, 'k' becomes negative,
+>> making the condition 'k < size' true even when 'size' is 0.
+>>
+>> Change the type of 'k' to 'unsigned int' to prevent the overflow and
+>> eliminate the out-of-bounds access.
+>>
+>> Found by Linux Verification Center (linuxtesting.org) with the Svace static
+>> analysis tool.
+>>
+>> Fixes: fabdbf2 ("HID: picoLCD: split driver code")
+> 
+> Next time, please make the shas of commits a little bit longer to avoid
+> uncertainity.
+> 
+>> Signed-off-by: Georgiy Osokin <g.osokin@auroraos.dev>
+> 
+> Applied, thanks!
 
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260629130329.1291=
-953-1-arnd@kernel.org?part=3D1
+   Hm, I think we (with the help of Sashiko [1]) arrived to the conclusion
+that an overflow should never happen with the current ranges of the loop
+counters. We have re-resolved this issue as false positive internally...
+
+[1] https://lore.kernel.org/all/20260517125108.BC3FDC2BCB0@smtp.kernel.org/
+
+> --
+> Jiri Kosina
+> SUSE Labs
+
+MBR, Sergey
 

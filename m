@@ -1,68 +1,69 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.11])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.11])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 545383E92BD;
-	Mon, 29 Jun 2026 15:10:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.11
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D5068426D29;
+	Mon, 29 Jun 2026 15:23:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.11
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782745804; cv=none; b=OY0qM397LWZo1GLv21w++jjnMeFVRfrRs8m1rsdjOGpIBLFJIq5YqH4hKQw1RKpgsDqfyKksqcahs0jHGlUiR156MKyZOdahWEQAtxRmXoRPWtqtxoUb5iZawNMN4NiFQOjbs6RXZ8dqoSTHb3YAO1w8qEqJ70hDWHW5zShGJ6g=
+	t=1782746610; cv=none; b=Rb2SQCgiYof/5eTbg9Yr/5EVaGHZgghVAdpgUQKJYmSUrpVzLK/KdcE2md4IUoa1zdkLtMBsBT+/nA4fl1RT6XJHy1wFc6iTZfjnnX1LT1AV7lukw6ob3QBel5Wh3oRl7xi2ifYnfxx3UTPtkSEY632lIJyxLjhPnxMKEwmyTjA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782745804; c=relaxed/simple;
-	bh=KPvDGPjMqG4x73TK2zJPV7GSwKG2WIpcWNT33r6AJIo=;
+	s=arc-20240116; t=1782746610; c=relaxed/simple;
+	bh=ikG8LyC1XcdBJf6tJzF7Bt/BQgmZRgtL19n+WxN3KCI=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=QtG1HdE+GYo9Tmr6KDzX7IFVJ63u99Xk3Khsr5KW3GCRQ4VrJ/+m2v3db5TsFfXxDNcpzwgLmMhVpPxTYP2KCcYbXBPa/0F89qT7GTkg+GK6khRpEH5hI9vYhhpC0J/go9uF6PrULVew0Vtd2o+VsF+7txYMtu5+4PeLIOQ/H/o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=X8MtNOMV; arc=none smtp.client-ip=198.175.65.11
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=HEfA8WcMa/z8z/haPaMwFMUHbtSy0y1BWIvWmhF/boI/G2upFHIC7oNI9ttta+3OAPj5DbGk48FGeTR57S4l2H1eDZl+gACVxFFw91Qgja2bQ+vBBu+XIx9e5wnA7ucH95GCsHiHZjaV/avOj4V+IBwCwjmjHGPsC7DtZKv9ULg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=MttTyO8L; arc=none smtp.client-ip=192.198.163.11
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="X8MtNOMV"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="MttTyO8L"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1782745804; x=1814281804;
+  t=1782746608; x=1814282608;
   h=date:from:to:cc:subject:message-id:references:
    mime-version:in-reply-to;
-  bh=KPvDGPjMqG4x73TK2zJPV7GSwKG2WIpcWNT33r6AJIo=;
-  b=X8MtNOMVqqrgbmuJ/e8Uwm60puEgWjdSUUdteXbIBWQrq/+CiXR2ToRX
-   PE9HCl+jlpanhkYk4SUC4YGHzXLwGU/MBsLL2XSKX8iEnScCwdl9SNaMa
-   nx9R2/4G5S+NnArrw1/StR4ErkrX8vyrqqC/PUxsAV0CjIPwWllOB55Bm
-   8EQIIetY5tkzWKGnjhVLNW7s4Y316GeEh1j6gFwaMF7PJb2IwdQIDvkWE
-   vlUwpKEb2HGPKAp9zBzfLmu6QV4X61d1n/q2JBEmO1STQMqhS41KZsIZU
-   qCYCTa3S5JxDf/JI2mqgUlgHcbrOMstQJgACsitLzpL+ifwJLtxpW1eRu
-   Q==;
-X-CSE-ConnectionGUID: 7Kl0kvw/R2uPTgChT3T8cg==
-X-CSE-MsgGUID: MlLLlKBxRpmT+oD8Wbl+2Q==
-X-IronPort-AV: E=McAfee;i="6800,10657,11832"; a="93789514"
+  bh=ikG8LyC1XcdBJf6tJzF7Bt/BQgmZRgtL19n+WxN3KCI=;
+  b=MttTyO8L1ct2KvTGJaLRWCVwN4SGxjOmgbnzswLlWgeVBPQztTpu7zLz
+   wsrnu0grXvnBch0n7/+Cl3tMFTvh7teNu57Kor2zEq2CCYhQ7XC04xx0k
+   vHSJmGfmQUXLv8Z1OaqA+i3ATFtt0fC62JhMwpvPxzKzdLySvjIWWiQ5l
+   dPyrrI1d27HLaE4EPVg9xSk3VpRnuCLvdNH3IZeX3b5RvXqOiUA2jphGn
+   At4GQ1cJyqlQgzGB3K6rBFOMJWwyY5cZxVBdvVnnqEI4PfJ6YB752Rsl9
+   utHl3TVPTXwyX9wRbZTmK+P2n+TGc58ppdron3g+Mxc36nAmsfrGGzgpe
+   g==;
+X-CSE-ConnectionGUID: 1a3yruufQASLYQzulWkzEw==
+X-CSE-MsgGUID: 6EZfrAeSS0eCEnvQw11iUw==
+X-IronPort-AV: E=McAfee;i="6800,10657,11832"; a="94023536"
 X-IronPort-AV: E=Sophos;i="6.24,232,1774335600"; 
-   d="scan'208";a="93789514"
-Received: from orviesa001.jf.intel.com ([10.64.159.141])
-  by orvoesa103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Jun 2026 08:10:03 -0700
-X-CSE-ConnectionGUID: /xknQc/XQ/O5QOYBgCiPfA==
-X-CSE-MsgGUID: hSUYX2pDSkK656ZDkQ8Bng==
+   d="scan'208";a="94023536"
+Received: from fmviesa009.fm.intel.com ([10.60.135.149])
+  by fmvoesa105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Jun 2026 08:23:26 -0700
+X-CSE-ConnectionGUID: 7N2MW441QaazjVGcO5Si8w==
+X-CSE-MsgGUID: QtCGyfNORrCYVEX/UtpPDg==
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="6.24,232,1774335600"; 
-   d="scan'208";a="290105338"
+   d="scan'208";a="245635032"
 Received: from kniemiec-mobl1.ger.corp.intel.com (HELO localhost) ([10.245.244.207])
-  by smtpauth.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Jun 2026 08:09:58 -0700
-Date: Mon, 29 Jun 2026 18:09:56 +0300
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+  by fmviesa009-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Jun 2026 08:23:22 -0700
+Date: Mon, 29 Jun 2026 18:23:19 +0300
+From: Andy Shevchenko <andriy.shevchenko@intel.com>
 To: Arnd Bergmann <arnd@kernel.org>
-Cc: linux-gpio@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-	Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
-	Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-	"H. Peter Anvin" <hpa@zytor.com>, Linus Walleij <linusw@kernel.org>,
+Cc: Linus Walleij <linusw@kernel.org>,
 	Bartosz Golaszewski <brgl@kernel.org>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Marcel Holtmann <marcel@holtmann.org>,
+	MyungJoo Ham <myungjoo.ham@samsung.com>,
+	Chanwoo Choi <cw00.choi@samsung.com>,
+	Geert Uytterhoeven <geert+renesas@glider.be>,
+	Andy Shevchenko <andy@kernel.org>,
 	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Lee Jones <lee@kernel.org>, Pavel Machek <pavel@kernel.org>,
-	linux-sh@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-input@vger.kernel.org, linux-leds@vger.kernel.org,
-	Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>
-Subject: Re: [PATCH 5/6] [v5] leds: gpio: make legacy gpiolib interface
- optional
-Message-ID: <akKKxHB6RMymG70Z@ashevche-desk.local>
-References: <20260629130329.1291953-1-arnd@kernel.org>
- <20260629130329.1291953-6-arnd@kernel.org>
+	Ulf Hansson <ulfh@kernel.org>, linux-bluetooth@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org,
+	dri-devel@lists.freedesktop.org, linux-i2c@vger.kernel.org,
+	linux-iio@vger.kernel.org, linux-input@vger.kernel.org,
+	linux-mmc@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	linux-pm@vger.kernel.org, linux-usb@vger.kernel.org
+Subject: Re: [PATCH] [RFC] gpiolib: introduce gpio_name() helper
+Message-ID: <akKN59lv55CXS3HU@ashevche-desk.local>
+References: <20260629135917.1308621-1-arnd@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -71,56 +72,52 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260629130329.1291953-6-arnd@kernel.org>
+In-Reply-To: <20260629135917.1308621-1-arnd@kernel.org>
 Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
  krs, Bertel Jungin Aukio 5, 02600 Espoo
 
-On Mon, Jun 29, 2026 at 03:03:28PM +0200, Arnd Bergmann wrote:
+On Mon, Jun 29, 2026 at 03:56:29PM +0200, Arnd Bergmann wrote:
 
-> There are still a handful of ancient mips/armv5/sh boards that use the
-> gpio_led:gpio member to pass an old-style gpio number, but all modern
-> users have been converted to gpio descriptors.
+> Most remaining users of desc_to_gpio() only call it for printing debug
+> information.
 > 
-> While the CONFIG_GPIOLIB_LEGACY option that guards devm_gpio_request_one()
-> and related helpers is currently turned on in all kernel builds,
-> the plan is to only enable it on the few platforms that actually
-> pass gpio numbers in any platform_data.
-> 
-> Split out the legacy portion of the platform_data handling into a custom
-> helper function that is guarded with in #ifdef block, to allow the
-> the leds-gpio driver to compile cleanly when CONFIG_GPIOLIB_LEGACY
-> gets turned off. Once the last user is converted, this function can
-> be removed.
+> Replace this with a new gpiod_name() helper that returns the
+> gpio_desc->name string after checking the gpio_desc pointer.
+
+Oh, that's nice!
 
 ...
 
->  	gpiod = devm_gpiod_get_index_optional(dev, NULL, idx, GPIOD_OUT_LOW);
-> -	if (IS_ERR(gpiod))
-> -		return gpiod;
+> +/**
+> + * gpiod_name() - get a name to print for a gpio descriptor
+> + * @desc: gpio or NULL pointer to query
+> + *
+> + * Returns:
+> + * The desc->name field or a dummy string for unknown GPIOs.
+> + */
+> +const char *gpiod_name(const struct gpio_desc *desc)
+> +{
+> +	return desc ? desc->name : "(no gpio)";
 
-We can leave these and rather have
+Can we get into here with wrong (error pointer descriptor)? Shouldn't you call
+one of validate_desc() / VALIDATE_DESC()?
 
-	gpiod_set_consumer_name(gpiod, template->name);
-	return gpiod;
+Also not sure if "(no gpio)" is a good choice. "not requested"? "not provided"?
 
-than introduce irregular pattern.
-
-> -	if (gpiod) {
-> +	if (!IS_ERR(gpiod))
->  		gpiod_set_consumer_name(gpiod, template->name);
-> -		return gpiod;
-> -	}
->  
-> -	/*
-> -	 * This is the legacy code path for platform code that
-> -	 * still uses GPIO numbers. Ultimately we would like to get
-> -	 * rid of this block completely.
-> -	 */
-> +	return gpiod;
 > +}
 
-I haven't insisted on this previously as I thought that this was on track to be
-applied. Since it's not (yet), please, amend the change.
+...
+
+> +static inline const char *gpiod_name(const struct gpio_desc *desc)
+> +{
+> +	WARN_ON(desc);
+> +	return "(no gpio)";
+
+Hmm... This will be a second copy with a slight potential of going apart from
+the other case. Perhaps a #define? (Yes, yes, I understand that there are pros
+and cons, in particular readability with define is questionable.)
+
+> +}
 
 -- 
 With Best Regards,

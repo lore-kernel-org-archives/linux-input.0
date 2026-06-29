@@ -1,125 +1,137 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-dy1-f182.google.com (mail-dy1-f182.google.com [74.125.82.182])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 461D940D579
-	for <linux-input@vger.kernel.org>; Sun, 28 Jun 2026 01:14:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DB3DE1A9FBA
+	for <linux-input@vger.kernel.org>; Sun, 28 Jun 2026 01:56:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782609286; cv=none; b=M/pHnRsJHtv84gXn5fQA/jqxAi1ZH6RHaVN6Hau4MNXJ8SN0tYZismqtVbmLzX6lwS6hKlRNVpxefPz88uHJwpxFWsi4usPp+OpMqY1JQTqmXbLr/DXKeExrbeLBDKLJTBkz4A74G+bQ/QczvL0iL8wayLjoD5r+FNhB8vxNEcM=
+	t=1782611817; cv=none; b=SU1w+szNMmP3crwI2VhNNkl4z0vrbnZw28U+BLjxq0wPbBsXztBat88vo/YmkpMdglHrrfpR2MOsEA1Q8K7zsFvANFTvBRq1GrjJto2DaDK1FjLa8K5N8w6mbU9cDPRXkUlmLEIzyahXaQOplDRZBvD9XbzK0PyxcONWC6rdWWw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782609286; c=relaxed/simple;
-	bh=AfraEgTt6c2qHWOqJlCwFIA9Z7WBdlzwEbLr9maPR6E=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=EeBWdCtq9c17NSwavq/KNGlvuS5NsZPGePoQmS3kX63HSn5xN7AT+UAznu/zH1HLcpxpN4hTdCJ9fkaRgvX19v9WGKAH/CL+euNMqvQMwU+ZDHUTC5kPdWYwklWO7f17MlbPO3G0lNUf4lmSAu9RPmq1ujO8emY/d6yInsaF5ZY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=AB3i16D4; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1782611817; c=relaxed/simple;
+	bh=yrPUxcjyMWlLemYbEMKUtlhtm4EF8mKdvdXz6PSkDks=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=PO9E9hlIsXBoxtCnuGi9lDzH09u56Y/VElcTjzHR+K5enwPwWMyrLGiUGPS2mdFnvLVRtqYic0v1YT9QVUncmN1iw0qiJxBts3dJ/+z9MuO0P1pbPSbwosNeVT0yKw5v35a33bsy6YWQLJ1xkG/h89yJYWEUC1OTNlM9UoMjn1E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=lStEDmRl; arc=none smtp.client-ip=74.125.82.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="AB3i16D4"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A61B11F000E9;
-	Sun, 28 Jun 2026 01:14:44 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1782609284;
-	bh=lWRXP1vjkZQURX0GWpKzCx0FJmTb55KnadFS39Pv6Wc=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=AB3i16D4SL2zqOstPVUNyEortr05ojJmEhVqSSJM/ts4BK8j+BtTtzfd5Zw0V+Lq/
-	 d0GIRN3osRKzq/IXSXy7ZwX50CUdXO4yyPNBwAleYQDr+rt7WpXu5JD3B4ji6yesXe
-	 JIrYo+nPR4rCuCyqq8Y7zdA07D31rWNjkDmhLny/g/aqe7MtPRxg4JEfCSXxpfTxTh
-	 dMwTgOtc9nRyh3NHjE7nyD/3P6qDpe8Jwd0OD4LTRXKdbvX53j4BtB9ZRq7c+Fm03B
-	 M+JErpKkVMVFQIPahPCEVqW/v6QtiO3w7LL6wsG73gkPbBcy7Kzz5jbK8IQEyI1Fjy
-	 CWPxKonbjp2tg==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] HID: synchronize input before cleaning up a failed
- probe
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Yousef Alhouseen" <alhouseenyousef@gmail.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260628005846.31248-1-alhouseenyousef@gmail.com>
-References: <20260628005846.31248-1-alhouseenyousef@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Sun, 28 Jun 2026 01:14:44 +0000
-Message-Id: <20260628011444.A61B11F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="lStEDmRl"
+Received: by mail-dy1-f182.google.com with SMTP id 5a478bee46e88-30c965eab27so3268849eec.0
+        for <linux-input@vger.kernel.org>; Sat, 27 Jun 2026 18:56:54 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1782611814; x=1783216614; darn=vger.kernel.org;
+        h=cc:to:content-transfer-encoding:mime-version:message-id:date
+         :subject:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=Dtgt4cBVZP4S3GI2wSPE27UHqX8cHkmhMCtj1VlEfus=;
+        b=lStEDmRl8BIP+oUMq2mihNQa00kp8eXIk1rlG8BFTs3sZwOaKIV50FfkCSmjeylM9S
+         rUXOjLiaA5a6++v+Fomv3/RBCRlqTbG7X2hxn/mP886NsGvGkRRHuJN4Y9IX//UkiaLc
+         5NnTHanO+OsX+89wp4a+hXcAz1jhBgCiTJ/pfo2BzinMFvXbcWIWzdglFRJqZxMXzo0g
+         wpxdJP/QTCnuV9Y9M0ua38J9Z+inwU2/jYAY3ZpRa8dp4GAIItrrcmQ8md0jpOw53LGD
+         /7rcsDe9UnkKktZDS9NuitY7Y3sigTthIINJcE6Kf5DW7JIB2nn+IhZID7XTEFRv1Sfs
+         A7Dw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1782611814; x=1783216614;
+        h=cc:to:content-transfer-encoding:mime-version:message-id:date
+         :subject:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=Dtgt4cBVZP4S3GI2wSPE27UHqX8cHkmhMCtj1VlEfus=;
+        b=N7NnXsUFfXwMoLf45Dqrq3aEmSTD6AJbtEiwhnlJ0HVnCZDESRXcOLyyulFgpx4Q1t
+         bzc3SlwCsA+0lV7d/hOLn6Nn/hFAOxg06YINzz9U1h8oIWvwbDJnni3KH12j5FTQfwWI
+         7WX6AwoBLQlfx7dPVtxgBekitvdPJ9zwJSk2rp1+MSc2mAHErb2VVNIhRMO+OuawTmdp
+         b19hAQwRc4MZIw6l05sIZDzk05WM3WT0z2X4LwWMISc+Q9SZOF4/nbVQZidYW3BymcD+
+         p/qQTTgj0CuOgdprT6MQr/IjvOD7JDIK+fygWs556/us6Q5aLxTJ62Fws3+MkSkHG2LG
+         h4ag==
+X-Gm-Message-State: AOJu0YzIkW51t4r3MyCU3YCSWid9t1+g/VCMYt8WgJ19GGHP8JVCJHia
+	eBcX20keb7MV+rGMDxnGnb+tTXPy4G7g/aYTvJDqHyYW0AJpT/zbu8zIr8qjSpYS
+X-Gm-Gg: AfdE7cnNkX2/RlcNU26/DzsFS3tbr6nFZMBdgQ9LayYyms6HyahuJ9HSXSlOo0lOEyX
+	cpEWAztaOgJe6s3Vc94QVsXyuk96bPlvT8FltprOhuyzvXMNjwDvEzFEJWqYYWXWFGK82gSHJmL
+	3VE3UrT9cZg5oNbNzY5aZenRerpHsc1m6ssKMjNvbF6jkpKfRh2/WLp07YvcThRWnOBh6jFvHPM
+	eEcaefHq3hRNpl5ZUrxv/a98ujDbCHlebrP2DY/UYDL1F4hcadccTXKTEy83fGP/XxvFEoNLxEU
+	8M952dd9laXXcyeJwEqXcWYiARO+mfOhSxqOYKoQ0SUTjy21wTM4llPTYjWiRGdHcMyYD98ZH/i
+	bpbSrxUJxi6dwnrXpO72JnuytsymTFpxY3IqpE3+3USFod8L8fgeZ5kGDIvOonNNGvXInU1qZGE
+	jYuMj4
+X-Received: by 2002:a05:7300:547:b0:30c:38ed:46b5 with SMTP id 5a478bee46e88-30c84c0506amr12835245eec.12.1782611813903;
+        Sat, 27 Jun 2026 18:56:53 -0700 (PDT)
+Received: from [192.168.0.77] ([2804:14c:ca27:80b5::13c4])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-30c7cab28fasm35230883eec.30.2026.06.27.18.56.50
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 27 Jun 2026 18:56:53 -0700 (PDT)
+From: Rodnei Cilto <rodnei.cilto@gmail.com>
+Subject: [PATCH 0/2] Add keyboard LED support for Lenovo IdeaPad 83RR/83SR
+Date: Sun, 28 Jun 2026 22:57:02 -0300
+Message-Id: <20260628-ideapad-kbd-leds-v1-0-50b421d94927@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAO7QQWoC/yXMSwqDMBRG4a3IHRvQgFG7leIgj1+9bbGSqyKIe
+ ze2w29wzkGCyBB6ZAdFbCz8nRLKPCM/2mmA4pBMutCmMLpJhJ1tUG8X1AdBVGn6qqnRWtfWlLI
+ 5ouf9t3x2f8vqXvDL/aHzvABPWkZqdAAAAA==
+X-Change-ID: 20260628-ideapad-kbd-leds-16f587e9ab97
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
+ Ike Panhc <ikepanhc@gmail.com>, Mark Pearson <mpearson-lenovo@squebb.ca>, 
+ "Derek J. Clark" <derekjohn.clark@gmail.com>, 
+ Hans de Goede <hansg@kernel.org>, 
+ =?utf-8?q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ platform-driver-x86@vger.kernel.org, Rodnei Cilto <rodnei.cilto@gmail.com>
+X-Mailer: b4 0.15.2
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1499;
+ i=rodnei.cilto@gmail.com; h=from:subject:message-id;
+ bh=yrPUxcjyMWlLemYbEMKUtlhtm4EF8mKdvdXz6PSkDks=;
+ b=owEBbQKS/ZANAwAKAXzcyu9sg3HEAcsmYgBqQdD+YhbFJyKIi9WTs1hAHsmryBpUxphZChiYn
+ YXqxkQBvraJAjMEAAEKAB0WIQR5JbhU2RB8Rp1i2ol83MrvbINxxAUCakHQ/gAKCRB83MrvbINx
+ xHpsD/43MOgSSLMJGvmZ43GdfRmyGEJqq/r7aGCz5KlrqaBkbI/pidaIGGxet8zkZFcfHEzbYsc
+ 5o9qAdGDQheF5eor92K7w3cf94AQfecuZUpxbJpYRUlPyQnDjB0E95loxo+XnwpmTcHphFLfF0z
+ T8DB/P8ikxyDkUD+eBZEGwgyRhSWoY5WeR0RLWtlDZyOKcbbmNe1T0JI/e23tphK8dVC/I2+gok
+ ClX7W1cS/4FhwSbXTsLrfKhsD75w0FioUoBertrt785L59EtSJYS6+N7Ab0zNF6xXe2ypUa24y9
+ 4Xe1Lm1NUHH1fqiDyWNHu/aQHplZenjBfTIJJfDTDGoDMKpLf5DBW+lIq4l8U2ZQy2Wd8mc6+AX
+ 0TpjrfViodWChmzjxfFU7tjwqYvm6GphkgPcKjscCc5gvFNblAtYxSJtdTVUrG8bpWwpqnI4hSX
+ x4YeAllfR4DpjgGtLFGRRmYbkmMhBahc630Q6Q4Y+nt7ZXHNbrfRj5t+geFpr10PTiaDIfvd90A
+ ANDfzmqo9DP8wadOh577Hrvch7NSQ1g+iCIMXj66ZVu8rbCbfmeY5XkjJI4d84/TKDNBYAHxwY7
+ qp3t3N6mRUI0eGQ1Fp0X8n1lrII/9yLRcx/FOat5Te7gIqwY/TBoyxYK/RMqhuZ/QopD6nRHBJ0
+ tGO6dlMnu4DmhuQ==
+X-Developer-Key: i=rodnei.cilto@gmail.com; a=openpgp;
+ fpr=7925B854D9107C469D62DA897CDCCAEF6C8371C4
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
+This series adds support for the internal keyboard of Lenovo IdeaPad
+laptops based on Wildcat Lake SoC (models 83RR worldwide and 83SR
+Brazil regional variant).
 
-Pre-existing issues:
-- [High] Use-After-Free in hidraw_report_event() due to drivers calling hid=
-_hw_stop() before hid_device_io_stop() on probe error paths.
---
+The EC PS/2 emulation on these models does not fully support the AT
+protocol. Sending the SETLEDS command (0xED) after initialization
+causes the EC to return corrupted scancodes ('**' in i8042.debug),
+rendering the keyboard non-functional.
 
-commit 6c338032433c7e95cf76d26b6790e7b5f487a9b4
-Author: Yousef Alhouseen <alhouseenyousef@gmail.com>
+Patch 1 adds a softleds DMI quirk to atkbd that suppresses 0xED
+while keeping EV_LED capabilities visible to userspace.
 
-HID: synchronize input before cleaning up a failed probe
-   =20
-hid_device_io_start() allows reports to run concurrently with probe. If
-the probe subsequently fails, __hid_device_probe() releases driver
-resources and clears hdev->driver without first excluding those report
-callbacks.
+Patch 2 adds physical CapsLock/NumLock LED control in ideapad-laptop
+via direct EC register access (offset 0xA1) and ACPI _QDF method,
+discovered via DSDT analysis.
 
-Closes: https://syzkaller.appspot.com/bug?extid=3D9eebf5f6544c5e873858
+Rodnei Cilto (2):
+  input: atkbd: add softleds quirk for broken EC PS/2 emulation
+  platform/x86: ideapad-laptop: add CapsLock/NumLock LED via EC
 
-> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-> index 41a79e43c82b3..469b849b7a2a4 100644
-> --- a/drivers/hid/hid-core.c
-> +++ b/drivers/hid/hid-core.c
-> @@ -2835,6 +2835,8 @@ static int __hid_device_probe(struct hid_device *hd=
-ev, struct hid_driver *hdrv)
->  	 */
-> =20
->  	if (ret) {
-> +		if (hdev->io_started)
-> +			hid_device_io_stop(hdev);
+Signed-off-by: Rodnei Cilto <rodnei.cilto@gmail.com>
+---
+Rodnei Cilto (2):
+      input: atkbd: add softleds quirk for broken EC PS/2 emulation
+      platform/x86: ideapad-laptop: add CapsLock/NumLock LED via EC
 
-[Severity: High]
-This is a pre-existing issue, but does this fix cover all the cases where t=
-he
-use-after-free can occur?
+ drivers/input/keyboard/atkbd.c               |  46 ++++++++-
+ drivers/input/serio/i8042-acpipnpio.h        |   3 +
+ drivers/platform/x86/lenovo/ideapad-laptop.c | 143 +++++++++++++++++++++++++++
+ 3 files changed, 191 insertions(+), 1 deletion(-)
+---
+base-commit: 03e2778d1f11de9260543f969e9e888a1c2bf830
+change-id: 20260628-ideapad-kbd-leds-16f587e9ab97
 
-If drivers call hid_hw_stop(hdev) in their own probe error paths before
-returning an error, they might bypass the core's new hid_device_io_stop()
-cleanup.
+Best regards,
+--  
+Rodnei Cilto <rodnei.cilto@gmail.com>
 
-hid_hw_stop() unconditionally calls hid_disconnect(), which frees the hidraw
-object. If HID_QUIRK_ALWAYS_POLL is set (or for Bluetooth devices), polling
-continues, and a concurrent report could enter hidraw_report_event() with a
-dangling pointer before driver_input_lock is taken.
-
-For example, this pattern appears in nintendo_hid_probe():
-
-drivers/hid/hid-nintendo.c:nintendo_hid_probe() {
-    ...
-err_close:
-	hid_hw_close(hdev);
-err_stop:
-	hid_hw_stop(hdev);
-    ...
-}
-
-And similarly in corsairpsu_probe():
-
-drivers/hwmon/corsair-psu.c:corsairpsu_probe() {
-    ...
-fail_and_close:
-	hid_hw_close(hdev);
-fail_and_stop:
-	hid_hw_stop(hdev);
-    ...
-}
-
-Could these drivers also trigger the use-after-free by tearing down the
-hardware and freeing hidraw while IO is still started and driver_input_lock
-is unheld?
-
->  		devres_release_group(&hdev->dev, hdev->devres_group_id);
->  		hid_close_report(hdev);
->  		hdev->driver =3D NULL;
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260628005846.3124=
-8-1-alhouseenyousef@gmail.com?part=3D1

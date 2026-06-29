@@ -1,66 +1,66 @@
-Received: from mail-dy1-f179.google.com (mail-dy1-f179.google.com [74.125.82.179])
+Received: from mail-dy1-f177.google.com (mail-dy1-f177.google.com [74.125.82.177])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9512122126D
-	for <linux-input@vger.kernel.org>; Sun, 28 Jun 2026 01:56:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.179
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 96F5223D2A4
+	for <linux-input@vger.kernel.org>; Sun, 28 Jun 2026 01:57:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782611821; cv=none; b=WStKrpQhcXpfPa4BnAmrg4nl1z7chNJWL4tvzhkAiPZdzS5/uVjulQScwJSxiiZwR/puiycdkvufAPmRscHcuM/tth0YPK5pQf8WNklw4S2W4ErhdJWq1KP/b9IRqKvYcCa0fEqyqkgN667acMcyPn4gnhhpaiye0bau9Fk0Qdc=
+	t=1782611825; cv=none; b=lLPS02zDwy+S1EXXOh1ScIkmcapnBm16shHraTW2sel6hj4w42bbq//v3Z90sPUJPEz27UkPbXeR9mZ39zjRqFmVXe8yAI8pusx9gNfABakWasggmvlg990wH4XAvuL9BtFoY2inV1uTAdl+SOwro9m0bRiWmsDTkbAJh7U8oPw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782611821; c=relaxed/simple;
-	bh=ZAEaxq8KHxi3raDx3jUBO1b8XkrfR68gF0m9FcjoadA=;
+	s=arc-20240116; t=1782611825; c=relaxed/simple;
+	bh=EYpoByBZ2MwnfXcUh6prferEuCti7ZpOpo/yD0HAFbg=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=ZXBTkamssuhSwEsQ61DVGFjAK6coVMy4GXEieWqQNOC5J9Rdje7otbsm9E1hRLTT1+ukszW/NwdaJFYj32/JiVWZ3IRcYxAPpuGdZlDAxAL+/2/wmtIsrOG2noF//Z5Re0Z769DC3AafDtuG70Ri56Gcr+dGl07XrDhT5k5qiK8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=DFxc0E9S; arc=none smtp.client-ip=74.125.82.179
+	 In-Reply-To:To:Cc; b=RyLLvourt0eWBvAmrIsvZQ6CCLTxd7PgirQkKA6Ydb5mP1hx+ea3yXvejUT2car1/pDS1/eyA7Km+z7ODYbZzAM/1dFdepBWuNT1hcGBewgNr8hkUniNtxh0idNyebz9wUKDZeVsHt+x7u6dc2H049QXc61oXeikro65mGJhRG0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=c975WeT3; arc=none smtp.client-ip=74.125.82.177
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="DFxc0E9S"
-Received: by mail-dy1-f179.google.com with SMTP id 5a478bee46e88-30ca1b4b278so3854255eec.0
-        for <linux-input@vger.kernel.org>; Sat, 27 Jun 2026 18:56:58 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="c975WeT3"
+Received: by mail-dy1-f177.google.com with SMTP id 5a478bee46e88-30c99ccb1afso2137240eec.1
+        for <linux-input@vger.kernel.org>; Sat, 27 Jun 2026 18:57:02 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1782611818; x=1783216618; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1782611822; x=1783216622; darn=vger.kernel.org;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=eGjSPqO9EV4oT2YiJnBSjD/F4QD4HC0Av37hHvZ2pPM=;
-        b=DFxc0E9SgKwjG242GJs6ZwYUDUta/Hr+6ZNowsFxbz1ZIIfiVJE5cb+3q39OBnXJW6
-         v83Sddr9k0i3Wn4eDkJlGfQU9kvaN7OAc60tCMW9ls4WPKX9lNnFe8lct7R2AsBDdjni
-         yBYxFFi3YrAFxEFZy2sxcSUhUSInch/gnaverj6TNMeNJI769HVT4REZesHyOKg80vuz
-         xspF8sOBiNVvPc29WcnCkNOgPyMCcjbfmRW6uwalfVBMumvbs0yeR0qBcbUmt2fHBwTy
-         7xyQ12Kb2YWXNFtpAQFsHmywKvDJ2FfBjVpU0ZNNJ21gJeME41JQI5TKjpbVlvRRR2P0
-         mPkw==
+        bh=PHbAq7e0BaONJADB8qFo/3rJ1uHyU1lRNyKX/5az0Cg=;
+        b=c975WeT3C8jwDq815yJOvSFesiJpPP14purV5tUGIy9fgSRsv3xBeONqI1Bwm//O8A
+         gas/2nNMLg5ZIqa/QY/SwIjSMIUA9dWpYmZp3zVZsHgSzxSjMURF1NAHvXOCIUxXxsaR
+         0GIRWZ6sQMq3zKP6BEtK9k1BkmFCPWd6svgFop0yrWCEH54QykXQXUFFzxiWoDy7SjLR
+         +YNyU8GxkV8I19f8Nr83GTH5FHZHRTSLLh7RhX7dqaqcpoNS7KDjmUZzLGAVwTuvrzYG
+         6ACt2tfxnvdQUYEfOtDS2XkbmqX5J9pPn7/E5JcdBl75RYQOOX3CUILqWubBQyx+Pv+8
+         dLGA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1782611818; x=1783216618;
+        d=1e100.net; s=20251104; t=1782611822; x=1783216622;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:x-gm-gg:x-gm-message-state:from:to
          :cc:subject:date:message-id:reply-to;
-        bh=eGjSPqO9EV4oT2YiJnBSjD/F4QD4HC0Av37hHvZ2pPM=;
-        b=U84OckNtd2f12PfEEm2a7ksxO/2JBFe7Tsa/mNmWTJvxYZaIy4OYSRsoyfI8YdAweW
-         hREkg35d/tDojQvBO2h6QQ5BRUGWI9b0TFtUevVYoHtuTeANAS+NhYKKHyS/7rw4BHcI
-         f6M2lMG0PoTMOGCUaQ7FmvqDWdV6nD9rUvidbHPdTv3il0wuGUy2NNjBOMzYWgtdj9I5
-         ELGnIGLthJTyMHksKBU5z9K/Wr5fM0HIzCslXPXwSsbRbL1tYPtZ0iqNhRwNr/hfVVGc
-         mIVMN4uXk1sdplUN8J+OzhtOaB2uBEfzh8VV44ML0aIKall7ym5JOrsLZtSOnsNhVAs8
-         ObiA==
-X-Gm-Message-State: AOJu0Yz8C9cDdYDqIOzCmuARy5DGzsmXpSoU2ItL9dPY0LLZlQXu8G7f
-	s3/Tfommy+ztgvkV1zu7Jfgb+c/h0OzLZqFNGzwPYXD3oEhzOuVQM8jA4x4D8TQy
-X-Gm-Gg: AfdE7cm4TiIL38qe6umdJNrXFLXyyACQVKZZlDrzLeHL+D8KvSd1hPSVDrK4fahp3y3
-	yX2CHOfovYniZmHADIKhSBBY9FoxXbYZ746Bm+7ic0Xf6a6GO5uvkAcklz5cIVRwgncLRAPGdyD
-	NnE52+IGF/QghqcPTPjiGROLsUlYb5PIBL6t05Ye+gQ1FAgI3fJGUoN0tpTLuhs3dlFYwsUL/p5
-	VDIVyP7NOe2A4XF2I4suiXHCrQ7rY5rK47G8zCpWD1H4ZsA3wwHzpdn2J91rO9ieyEuFw1uqDoR
-	nKRdsDZ6jBhW3yojCv9xmmCb6g0l0ZTWsFMs8XsT8cQTEOs60IwH/BAAT3UF/cAI5jDTnyvDW3T
-	lazfjMel5bJa/aMPMLslDcBmIs5LkGAplUJgmvxcHwNESxJa00579fYIF23sVJIGF1CFL2vgAl9
-	Gpls4d
-X-Received: by 2002:a05:7301:5f84:b0:307:37a4:15dd with SMTP id 5a478bee46e88-30c85009ea4mr15028082eec.26.1782611817730;
-        Sat, 27 Jun 2026 18:56:57 -0700 (PDT)
+        bh=PHbAq7e0BaONJADB8qFo/3rJ1uHyU1lRNyKX/5az0Cg=;
+        b=OdLU8mlbOy78c4St8/WsmMrXADyBOOx579sz4T1ToPb+4ClRm7aaiWF5aea6/HzeAa
+         Pyq2qa7drvne/U9JAIirZalZVrraZWzv2dwP9wK3GqApBfZUtHMtOLxhhp/Hi9wHJOD+
+         qDFHKH5rly4URlScuZvqBoAP8/SDDayJ0x6rav8I87cNRDQfixrpj1Q5ArIOuz1Xmtp1
+         I3IGHHKcdCC+kw3C2Xy8TiKIe5uftMs2YN/5mqdWETQ/2NfRXWmUO/PkA+vBMKnxEwi0
+         pM0q/xJlAJ8GO5/VehfKZUG4LoGLV/W7ZZ7/tLYBMNGzZQocEQQwP055EMOmArOg9Ld4
+         1ipA==
+X-Gm-Message-State: AOJu0YyKFG+rHp0assTqsXxORUGmBF2W50G8kl9Jre1epNqur9+VQztr
+	nUE2h+gDMsAmt3vQ7vCi6c2Ea7bRd+zNFBoBkJiv0NEBM9Ht+6Hpt5R3e3RzhFOi
+X-Gm-Gg: AfdE7clJ4+s+pLHhNpR4npSW3uoTHW9HNPjrNOFc/sMpyt85vwU5TQ/ezLwvYqROIb9
+	LCe8N4RcZd6cMZ0vGLzorp8yVvvbLOfSM8dnzsHJDr0WRO6cgc369Uzcb4mP/JPegl7eKOwBRAR
+	8NVS38JI36lzD3c6qu5Ys22Nyr80rjhIsIonovMOnJbRbfqf249ApxWkkxSzpGzrvL7pEyQgYey
+	h02M40vzBKiDTLGd+vhSd1YrQlcGbm3wpRJtZY3aK2eGQtmh6x9eD6jgR2Y2mCbjLXVs7zAwCWN
+	XXZCsJPsbyCxPzkTZGPW8JD11Hz38LShtSnoETNVWy59FZ+RQ/wOytRvnABpfCq8pmqQYL9T6bm
+	gfEWcvenvHFGuOjrB7dzBxbhl5gTDMH+Hx4NiX+LRmsH4h90ZA6sUYknv58C1VFbwywpAn/KuXs
+	cm3FPp
+X-Received: by 2002:a05:693c:88c4:20b0:30c:9ca4:5cb6 with SMTP id 5a478bee46e88-30c9ca45e51mr4798450eec.23.1782611821596;
+        Sat, 27 Jun 2026 18:57:01 -0700 (PDT)
 Received: from [192.168.0.77] ([2804:14c:ca27:80b5::13c4])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-30c7cab28fasm35230883eec.30.2026.06.27.18.56.54
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-30c7cab28fasm35230883eec.30.2026.06.27.18.56.58
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 27 Jun 2026 18:56:57 -0700 (PDT)
+        Sat, 27 Jun 2026 18:57:01 -0700 (PDT)
 From: Rodnei Cilto <rodnei.cilto@gmail.com>
-Date: Sun, 28 Jun 2026 22:57:03 -0300
-Subject: [PATCH 1/2] input: atkbd: add softleds quirk for broken EC PS/2
- emulation
+Date: Sun, 28 Jun 2026 22:57:04 -0300
+Subject: [PATCH 2/2] platform/x86: ideapad-laptop: add CapsLock/NumLock LED
+ via EC
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -69,7 +69,7 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260628-ideapad-kbd-leds-v1-1-50b421d94927@gmail.com>
+Message-Id: <20260628-ideapad-kbd-leds-v1-2-50b421d94927@gmail.com>
 References: <20260628-ideapad-kbd-leds-v1-0-50b421d94927@gmail.com>
 In-Reply-To: <20260628-ideapad-kbd-leds-v1-0-50b421d94927@gmail.com>
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
@@ -80,141 +80,207 @@ To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
  platform-driver-x86@vger.kernel.org, Rodnei Cilto <rodnei.cilto@gmail.com>
 X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=openpgp-sha256; l=5350;
+X-Developer-Signature: v=1; a=openpgp-sha256; l=7695;
  i=rodnei.cilto@gmail.com; h=from:subject:message-id;
- bh=ZAEaxq8KHxi3raDx3jUBO1b8XkrfR68gF0m9FcjoadA=;
- b=owEBbQKS/ZANAwAKAXzcyu9sg3HEAcsmYgBqQdD+fS2OihMwvowkO4C86LokaUl2ZTykc4Gy4
- TiyyFtrJOWJAjMEAAEKAB0WIQR5JbhU2RB8Rp1i2ol83MrvbINxxAUCakHQ/gAKCRB83MrvbINx
- xGqqD/4l7N89lhNnNVfd8ADnkYZaicmEuApb52/wTy+Jsv/Qh9DX6jmy2nDb5jYpInEoimG7nCF
- bgmEJcWH2VUkw3GOB5YaUbQoA/AH4lgFn9xzKe8AjCx59p/kcIDMqxBuGpEKAnJgOmlvijzsgZy
- fdSdb9DDnUMLu7JjhByE5CeiUyjPwMso+aETu9QEfbbxyLkDT445/2SCZuUarLe9Rc/8509WrDw
- P9nhDn8ZR6DmS6BQ8vqrJ7Ln91H78C5q+MPbSdO6AeUj5JSAEhmcliQwn2V8JXy6gHbj2UvKVwt
- L1wVSdjdQbXvGzvAXXpQzc/OsDZkuL8zsnKivCxfFp2Q6Da+FTp5MzQZn8Dd6QhQvc+0MY5y16r
- bgWPHyVQ4JTgd+hcXB4FSNznGNlPRTuS9Dg+Voww0EJ9IEpHJ1VoZw12Z3jqd5ZZ7E/we3EDqpq
- G2snjfbaOuBytJl5RlRE9tbdSxQ6eDGKvIsCRxvnNqWpM1DeEITFkfhRjYsECagA5a8jXjhQxvt
- USO22xI1A6A5cSDySS1PTlhHy1Q7htYeIHVowBidSojAudMND+EZVfXXkrTHaEhKK1UuUzunvzy
- fiPCSP7e+zediJt3wIErNkCRBHDXcbS6NF42634E3ESZdyN8Lusk5cZYQBfcQvPvzpCd1o63/gU
- 507pbgSqHYhcNvg==
+ bh=EYpoByBZ2MwnfXcUh6prferEuCti7ZpOpo/yD0HAFbg=;
+ b=owEBbQKS/ZANAwAKAXzcyu9sg3HEAcsmYgBqQdD/tcObMY7cSxpdYYgyqjc+z8POXKRLQRGpC
+ dZvcNZIc5KJAjMEAAEKAB0WIQR5JbhU2RB8Rp1i2ol83MrvbINxxAUCakHQ/wAKCRB83MrvbINx
+ xN7AD/0Z0Fb8NYLmy1lVGz17lcsjgRAdCSpr5eKKjhgso2Sp2lB+zocoNlfpg9P/R5tuKkvcdZk
+ ycOX9FFGKpdy5R4LibmIMn4S/NcFrRtvKtCJMp08ZP0HH9YDNfJjbiLHU/IKeuLJsffKa855TnJ
+ +Yg14x/VB4w8jw1AuS1pGNTyJ2xepeXE9KHsnrsJ4Hu4cIYfXWcyfDF/xOc/CiVnX9Ocvq7tYWY
+ 3Hf3JM7moR90G3PlYApLeiPazlq9fRv+o2MWDs8cknYE9vpTv1X2n3SZdacf/UxrwwVnvbYheCR
+ LKZrG+yTVZfCSmQQQBG3d/gBemSVor8fZrkyICSd8scb81n1WfRTvPIi9ftvHMtbKQ+aP+5V2Jr
+ /jR/QquqZ9TYIaDGoqF1l+eUpUxxDS42nzQV3t2bRTpeoAFw+IRV94vDSIRoGSkd2qd7r5b5QiL
+ q7w19o0UpDK72YGBui8WAfy514eMNXezzzawd+5oC5n0A68UXdj++CVE1bwddRJAzeGmyam9bFv
+ LVYLRgH6ps6JLZUEyC5N54qLTN3EAzjwtrQvOXkD0omGT2UH6Gx5m7HXss2j4wSbfoDkWUJ3GH2
+ 6m4ngdP0z9cvIN2PrihQEQjfko+HAeKrPLrMgV+fPAP6sXCO+RZlFhnw7whd4nWhHd7gCQsd2s9
+ IoznGcYrfwbTj+w==
 X-Developer-Key: i=rodnei.cilto@gmail.com; a=openpgp;
  fpr=7925B854D9107C469D62DA897CDCCAEF6C8371C4
 
-Some Lenovo IdeaPad laptops (e.g. 83RR/83SR, Wildcat Lake) implement
-PS/2 keyboard emulation via the Embedded Controller (EC) but do not
-fully support the AT protocol. Specifically, sending the SETLEDS
-command (0xED) after initialization causes the EC to return corrupted
-scancodes (reported as '**' in i8042.debug), rendering the keyboard
-non-functional.
+Some Lenovo IdeaPad laptops (e.g. 83RR/83SR, Wildcat Lake) have
+physical CapsLock and NumLock LEDs controlled via the EC.
 
-The existing SERIO_QUIRK_DUMBKBD resolves scancode corruption by
-zeroing serio->write, preventing AT commands. However, LED registration
-in atkbd_set_device_attrs() depends on atkbd->write being set, so
-dumbkbd mode loses EV_LED capabilities entirely.
+The EC exposes CAPL (bit 5) and NUML (bit 4) at offset 0xA1.
+Writing these bits via ec_write() and evaluating _QDF via
+acpi_evaluate_object() causes the firmware to sync EC state to the
+GPIO lines that drive the physical LEDs.
 
-Note: serio->id.extra is __u8 (8 bits only) and cannot be used to
-pass new quirk flags from i8042 to atkbd. The quirk is detected
-directly in atkbd via its DMI quirk table.
+Discovery via DSDT analysis on Lenovo IdeaPad 83RR (Wildcat Lake):
+  - CAPL/NUML at EC offset 0xA1 (bits 5 and 4)
+  - _QDF (_SB.PC00.LPCB.EC0._QDF) reads CAPL/NUML -> SGOV()
+  - GPIO 0x001A1087 -> CapsLock LED physical pin
+  - GPIO 0x001A0485 -> NumLock LED physical pin
+  - ec_read/ec_write exported via EXPORT_SYMBOL in drivers/acpi/ec.c
+    and declared in <linux/acpi.h>
 
-Introduce atkbd_softleds: a DMI-detected mode that combines dumbkbd
-behaviour (serio->write = NULL, no 0xED sent) with EV_LED registration
-so that CapsLock/NumLock/ScrollLock state remains visible to userspace
-via the input subsystem.
-
-Add DMI entries for Lenovo IdeaPad 83RR (Wildcat Lake) and its Brazil
+Add two led_classdev entries (input::capslock, input::numlock)
+guarded by DMI match (features.kbd_leds) for 83RR and its Brazil
 regional variant 83SR.
 
 Signed-off-by: Rodnei Cilto <rodnei.cilto@gmail.com>
 ---
- drivers/input/keyboard/atkbd.c        | 46 ++++++++++++++++++++++++++++++++++-
- drivers/input/serio/i8042-acpipnpio.h |  3 +++
- 2 files changed, 48 insertions(+), 1 deletion(-)
+ drivers/platform/x86/lenovo/ideapad-laptop.c | 143 +++++++++++++++++++++++++++
+ 1 file changed, 143 insertions(+)
 
-diff --git a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/atkbd.c
-index 8cb4dc6fb165..826a21dc016a 100644
---- a/drivers/input/keyboard/atkbd.c
-+++ b/drivers/input/keyboard/atkbd.c
-@@ -212,6 +212,7 @@ struct atkbd {
- 	bool softrepeat;
- 	bool softraw;
- 	bool scroll;
-+	bool softleds;		/* suppress 0xED, register EV_LED in software */
- 	bool enabled;
+diff --git a/drivers/platform/x86/lenovo/ideapad-laptop.c b/drivers/platform/x86/lenovo/ideapad-laptop.c
+index 4fbc904f1fc3..03e3f234067c 100644
+--- a/drivers/platform/x86/lenovo/ideapad-laptop.c
++++ b/drivers/platform/x86/lenovo/ideapad-laptop.c
+@@ -42,6 +42,17 @@
  
- 	/* Accessed only from interrupt */
-@@ -245,6 +246,7 @@ static unsigned int (*atkbd_platform_scancode_fixup)(struct atkbd *, unsigned in
-  * to many commands until full reset (ATKBD_CMD_RESET_BAT) is performed.
+ #include <dt-bindings/leds/common.h>
+ 
++/* EC keyboard LED control (IdeaPad EC PS/2 emulation).
++ * Validated on Lenovo IdeaPad 83RR (Wildcat Lake):
++ *   EC offset 0xA1 bit4=NUML, bit5=CAPL
++ *   _QDF syncs EC state to GPIO -> physical LED
++ * ec_read/ec_write declared in <linux/acpi.h>
++ */
++#define IDEAPAD_EC_KBD_LED_OFFSET	0xA1
++#define IDEAPAD_EC_KBD_LED_NUML_BIT	BIT(4)
++#define IDEAPAD_EC_KBD_LED_CAPL_BIT	BIT(5)
++#define IDEAPAD_ACPI_EC0_QDF_PATH	"\\_SB.PC00.LPCB.EC0._QDF"
++
+ #define IDEAPAD_RFKILL_DEV_NUM	3
+ 
+ enum {
+@@ -198,6 +209,7 @@ struct ideapad_private {
+ 		bool ctrl_ps2_aux_port    : 1;
+ 		bool usb_charging         : 1;
+ 		bool ymc_ec_trigger       : 1;
++		bool kbd_leds             : 1;
+ 	} features;
+ 	struct {
+ 		bool initialized;
+@@ -210,6 +222,11 @@ struct ideapad_private {
+ 		struct led_classdev led;
+ 		unsigned int last_brightness;
+ 	} fn_lock;
++	struct {
++		bool initialized;
++		struct led_classdev capslock;
++		struct led_classdev numlock;
++	} kbd_leds;
+ };
+ 
+ static bool no_bt_rfkill;
+@@ -1587,6 +1604,99 @@ static void ideapad_backlight_notify_brightness(struct ideapad_private *priv)
+ /*
+  * keyboard backlight
   */
- static bool atkbd_skip_deactivate;
-+static bool atkbd_softleds;
- 
- static ssize_t atkbd_attr_show_helper(struct device *dev, char *buf,
- 				      ssize_t (*handler)(struct atkbd *, char *));
-@@ -600,6 +602,14 @@ static int atkbd_set_leds(struct atkbd *atkbd)
- 	struct input_dev *dev = atkbd->dev;
- 	u8 param[2];
- 
-+	/*
-+	 * softleds: EC PS/2 emulation does not support AT commands
-+	 * after initialization. Accept LED state from userspace but
-+	 * never send SETLEDS (0xED) to avoid scancode corruption.
-+	 */
-+	if (atkbd->softleds)
-+		return 0;
-+
- 	param[0] = (test_bit(LED_SCROLLL, dev->led) ? 1 : 0)
- 		 | (test_bit(LED_NUML,    dev->led) ? 2 : 0)
- 		 | (test_bit(LED_CAPSL,   dev->led) ? 4 : 0);
-@@ -1193,7 +1203,7 @@ static void atkbd_set_device_attrs(struct atkbd *atkbd)
- 	input_dev->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_REP) |
- 		BIT_MASK(EV_MSC);
- 
--	if (atkbd->write) {
-+	if (atkbd->write || atkbd->softleds) {
- 		input_dev->evbit[0] |= BIT_MASK(EV_LED);
- 		input_dev->ledbit[0] = BIT_MASK(LED_NUML) |
- 			BIT_MASK(LED_CAPSL) | BIT_MASK(LED_SCROLLL);
-@@ -1291,6 +1301,12 @@ static int atkbd_connect(struct serio *serio, struct serio_driver *drv)
- 	if (atkbd->softrepeat)
- 		atkbd->softraw = true;
- 
-+	if (atkbd_softleds) {
-+		serio->write = NULL;
-+		atkbd->write = false;
-+		atkbd->softleds = true;
-+	}
-+
- 	serio_set_drvdata(serio, atkbd);
- 
- 	err = serio_open(serio, drv);
-@@ -1767,6 +1783,12 @@ static int __init atkbd_deactivate_fixup(const struct dmi_system_id *id)
- 	return 1;
- }
- 
-+static int __init atkbd_setup_softleds(const struct dmi_system_id *id)
++static int ideapad_kbd_led_ec_set(u8 bit, bool on)
 +{
-+	atkbd_softleds = true;
-+	return 1;
++	u8 val;
++	int err;
++
++	err = ec_read(IDEAPAD_EC_KBD_LED_OFFSET, &val);
++	if (err)
++		return err;
++	if (on)
++		val |= bit;
++	else
++		val &= ~bit;
++	err = ec_write(IDEAPAD_EC_KBD_LED_OFFSET, val);
++	if (err)
++		return err;
++	acpi_evaluate_object(NULL, IDEAPAD_ACPI_EC0_QDF_PATH, NULL, NULL);
++	return 0;
 +}
 +
- /*
-  * NOTE: do not add any more "force release" quirks to this table.  The
-  * task of adjusting list of keys that should be "released" automatically
-@@ -1938,6 +1960,28 @@ static const struct dmi_system_id atkbd_dmi_quirk_table[] __initconst = {
- 		},
- 		.callback = atkbd_deactivate_fixup,
- 	},
++static void ideapad_capslock_led_set(struct led_classdev *led_cdev,
++				     enum led_brightness brightness)
++{
++	ideapad_kbd_led_ec_set(IDEAPAD_EC_KBD_LED_CAPL_BIT, brightness != LED_OFF);
++}
++
++static enum led_brightness ideapad_capslock_led_get(struct led_classdev *led_cdev)
++{
++	u8 val;
++
++	if (ec_read(IDEAPAD_EC_KBD_LED_OFFSET, &val))
++		return LED_OFF;
++	return (val & IDEAPAD_EC_KBD_LED_CAPL_BIT) ? LED_ON : LED_OFF;
++}
++
++static void ideapad_numlock_led_set(struct led_classdev *led_cdev,
++				    enum led_brightness brightness)
++{
++	ideapad_kbd_led_ec_set(IDEAPAD_EC_KBD_LED_NUML_BIT, brightness != LED_OFF);
++}
++
++static enum led_brightness ideapad_numlock_led_get(struct led_classdev *led_cdev)
++{
++	u8 val;
++
++	if (ec_read(IDEAPAD_EC_KBD_LED_OFFSET, &val))
++		return LED_OFF;
++	return (val & IDEAPAD_EC_KBD_LED_NUML_BIT) ? LED_ON : LED_OFF;
++}
++
++static int ideapad_kbd_leds_init(struct ideapad_private *priv)
++{
++	int err;
++
++	if (WARN_ON(priv->kbd_leds.initialized))
++		return -EEXIST;
++
++	priv->kbd_leds.capslock.name           = "input::capslock";
++	priv->kbd_leds.capslock.max_brightness = 1;
++	priv->kbd_leds.capslock.brightness_set = ideapad_capslock_led_set;
++	priv->kbd_leds.capslock.brightness_get = ideapad_capslock_led_get;
++	priv->kbd_leds.capslock.flags          = LED_RETAIN_AT_SHUTDOWN;
++
++	err = led_classdev_register(&priv->platform_device->dev,
++				    &priv->kbd_leds.capslock);
++	if (err)
++		return err;
++
++	priv->kbd_leds.numlock.name            = "input::numlock";
++	priv->kbd_leds.numlock.max_brightness  = 1;
++	priv->kbd_leds.numlock.brightness_set  = ideapad_numlock_led_set;
++	priv->kbd_leds.numlock.brightness_get  = ideapad_numlock_led_get;
++	priv->kbd_leds.numlock.flags           = LED_RETAIN_AT_SHUTDOWN;
++
++	err = led_classdev_register(&priv->platform_device->dev,
++				    &priv->kbd_leds.numlock);
++	if (err) {
++		led_classdev_unregister(&priv->kbd_leds.capslock);
++		return err;
++	}
++
++	priv->kbd_leds.initialized = true;
++	return 0;
++}
++
++static void ideapad_kbd_leds_exit(struct ideapad_private *priv)
++{
++	if (!priv->kbd_leds.initialized)
++		return;
++	priv->kbd_leds.initialized = false;
++	led_classdev_unregister(&priv->kbd_leds.numlock);
++	led_classdev_unregister(&priv->kbd_leds.capslock);
++}
++
+ static int ideapad_kbd_bl_check_tristate(int type)
+ {
+ 	return (type == KBD_BL_TRISTATE) || (type == KBD_BL_TRISTATE_AUTO);
+@@ -1832,6 +1942,29 @@ static void ideapad_sync_touchpad_state(struct ideapad_private *priv, bool send_
+ 	priv->r_touchpad_val = value;
+ }
+ 
++static const struct dmi_system_id ideapad_kbd_leds_dmi_table[] = {
 +	{
 +		/*
 +		 * Lenovo IdeaPad 83RR (Wildcat Lake) - EC PS/2 emulation
-+		 * returns corrupted scancodes ('**' in i8042.debug) when
-+		 * receiving AT SETLEDS (0xED) after keyboard initialization.
-+		 * Enable softleds mode: suppress 0xED to hardware while
-+		 * keeping CapsLock/NumLock/ScrollLock visible to userspace.
++		 * controls CapsLock/NumLock LEDs via EC offset 0xA1 + _QDF.
++		 * CAPL=bit5 (0x20), NUML=bit4 (0x10).
++		 * _QDF drives GPIO via SGOV() to physical LED pins.
 +		 */
 +		.matches = {
 +			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
 +			DMI_MATCH(DMI_PRODUCT_NAME, "83RR"),
 +		},
-+		.callback = atkbd_setup_softleds,
 +	},
 +	{
 +		/* Lenovo IdeaPad 83SR (83RR Brazil regional variant) */
@@ -222,25 +288,51 @@ index 8cb4dc6fb165..826a21dc016a 100644
 +			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
 +			DMI_MATCH(DMI_PRODUCT_NAME, "83SR"),
 +		},
-+		.callback = atkbd_setup_softleds,
 +	},
- 	{ }
- };
++	{ }
++};
++
+ static const struct dmi_system_id ymc_ec_trigger_quirk_dmi_table[] = {
+ 	{
+ 		/* Lenovo Yoga 7 14ARB7 */
+@@ -2178,6 +2311,8 @@ static int ideapad_check_features(struct ideapad_private *priv)
+ 	priv->features.touchpad_ctrl_via_ec = touchpad_ctrl_via_ec;
+ 	priv->features.ymc_ec_trigger =
+ 		ymc_ec_trigger || dmi_check_system(ymc_ec_trigger_quirk_dmi_table);
++	priv->features.kbd_leds =
++		dmi_check_system(ideapad_kbd_leds_dmi_table);
  
-diff --git a/drivers/input/serio/i8042-acpipnpio.h b/drivers/input/serio/i8042-acpipnpio.h
-index 8ebdf4fb9030..d233544ebac9 100644
---- a/drivers/input/serio/i8042-acpipnpio.h
-+++ b/drivers/input/serio/i8042-acpipnpio.h
-@@ -79,6 +79,9 @@ static inline void i8042_write_command(int val)
- #define SERIO_QUIRK_DIRECT		BIT(8)
- #define SERIO_QUIRK_DUMBKBD		BIT(9)
- #define SERIO_QUIRK_NOLOOP		BIT(10)
-+/* SERIO_QUIRK_DUMBKBD_LEDS handled via atkbd DMI quirk table.
-+ * serio->id.extra is __u8 (8 bits only), cannot carry this flag.
-+ */
- #define SERIO_QUIRK_NOTIMEOUT		BIT(11)
- #define SERIO_QUIRK_KBDRESET		BIT(12)
- #define SERIO_QUIRK_DRITEK		BIT(13)
+ 	if (!read_ec_data(handle, VPCCMD_R_FAN, &val))
+ 		priv->features.fan_mode = true;
+@@ -2418,6 +2553,12 @@ static int ideapad_acpi_add(struct platform_device *pdev)
+ 			dev_info(&pdev->dev, "FnLock control not available\n");
+ 	}
+ 
++	if (priv->features.kbd_leds) {
++		err = ideapad_kbd_leds_init(priv);
++		if (err)
++			dev_warn(&pdev->dev, "Could not set up kbd LEDs: %d\n", err);
++	}
++
+ 	/*
+ 	 * On some models without a hw-switch (the yoga 2 13 at least)
+ 	 * VPCCMD_W_RF must be explicitly set to 1 for the wifi to work.
+@@ -2477,6 +2618,7 @@ static int ideapad_acpi_add(struct platform_device *pdev)
+ 		ideapad_unregister_rfkill(priv, i);
+ 
+ 	ideapad_fn_lock_led_exit(priv);
++	ideapad_kbd_leds_exit(priv);
+ 	ideapad_kbd_bl_exit(priv);
+ 	ideapad_input_exit(priv);
+ 
+@@ -2506,6 +2648,7 @@ static void ideapad_acpi_remove(struct platform_device *pdev)
+ 		ideapad_unregister_rfkill(priv, i);
+ 
+ 	ideapad_fn_lock_led_exit(priv);
++	ideapad_kbd_leds_exit(priv);
+ 	ideapad_kbd_bl_exit(priv);
+ 	ideapad_input_exit(priv);
+ 	ideapad_debugfs_exit(priv);
 
 -- 
 2.51.0

@@ -1,153 +1,89 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 98B912DECA3
-	for <linux-input@vger.kernel.org>; Sun, 28 Jun 2026 23:27:51 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 968833F660E;
+	Mon, 29 Jun 2026 08:43:37 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782689273; cv=none; b=UB/toT/QzlJkup1zHz/uwxus4GNRQKnG957+deDxJYjZFs14VuWbwEphCxdddBf0k7giFkRpGhlZ79VljVMSCGMiytO6nAtRKJU43+7sJval1vO28dC8D+l+VVs0W09XL79//A4AMyH03HB6O9uXsfN8FjtKZsPsgCsb4aPmVBs=
+	t=1782722619; cv=none; b=fcmp/MowfumoaUSuSkJgbkNYlm3q5aSzPt18ymSa1xVO0K6ZDr3nLUzuvRO7Asz2T0OThTzSUHSTakj6Kg0pcUXbw/35IGh1WUd1qQe0IdCHwP6GDHguT8awJKNUkBsvr0YqG1VFAfZSswmIstUuWSnSyLqmK3zdZr1cSTOF3YE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782689273; c=relaxed/simple;
-	bh=PHnzK6aUBT7f39oCFoCCAtuTlrASNMK810CZCqwRTTY=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=N31TGQuKesSaatmOGltGPoTJm5UWqvP0bBKKgC4E33TVp8iCVyEAsmboHTXsTYr1O0QpZZ4Md1kidDJTutDouA06F4ll7LUxXplk0xF6vSPsVPYKl8HMvmsvdv7m6ziMVlCWpjFjbDukUuDgwFxrmclDwxnk5w4ELA9WPETknl0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=T4ngQ57Y; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1782722619; c=relaxed/simple;
+	bh=V3Y+pjznqNTWp2nOluAcCZvvK+lhVbhY24Px/m0H+/Q=;
+	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
+	 MIME-Version:Content-Type; b=KjmvGsQKae0rMENJDIlpMR37IlsEkbvjTItx2RThRYOScDz6w/V5MFIuoGLN0uNpYHTlOGIOCz+L6P5IHKz7tfrEjveNUaKQu5569BoPitBPrOa8leWJyotQyrUR+DjZ2NZ1l+h5PqKU0Y85arDhfY8pNwW4jQAbavIRQMMzMPU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=TUBECE7K; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="T4ngQ57Y"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90F1E1F000E9;
-	Sun, 28 Jun 2026 23:27:51 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="TUBECE7K"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A32BB1F000E9;
+	Mon, 29 Jun 2026 08:43:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1782689271;
-	bh=SB2VP+DN82GSu/ynzStd9wbdnKEgRvpuIicoYRbPlTE=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=T4ngQ57YJqwd/4Wt6ETTjlJ7xVWGzZEwU6ML3vZhGV3GqWYKdg2NWRL19mytB44/Z
-	 L2LSzMGJn+WvQ76pbqIIn15Jq0cwYRQzDcWQb3SOZclPOxN6WlfE5APkxEL4+tHw84
-	 fe1BmkOFhJbu91uIy4eJLb4aSoBZVbagoTd/Upb38wH/hGGfPSHe7++tIzuY4hi6Wn
-	 ZJc4LhpbAe1goj5VROkW4avaOeMn2TslvQI2ZV81m4+QHR501JlqDoa3vz6WyXTnZp
-	 vnPVIP84Du/uhjdYxaU8Hynquw3Pa13yaMKZ38SyBu+t0GMrEmscKAcBFMd7VJT3m2
-	 eOHOfxsoEn6DQ==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] Input: maplemouse - fix NULL pointer dereference in
- open()
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Florian Fuchs" <fuchsfl@gmail.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260628230715.2982552-1-fuchsfl@gmail.com>
-References: <20260628230715.2982552-1-fuchsfl@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Sun, 28 Jun 2026 23:27:51 +0000
-Message-Id: <20260628232751.90F1E1F000E9@smtp.kernel.org>
+	s=k20260515; t=1782722617;
+	bh=af5o0Wo9E+lxGSHD9ekQ2p0DXrtqndt6rSuYe2jfLFs=;
+	h=Date:From:To:cc:Subject:In-Reply-To:References;
+	b=TUBECE7K90HyG6XyBKl6WOkI4HmBlwaa3P1JH8Tlrqyn3M5qztn5lbVd4UcJb6Vfq
+	 YpIpI0xG3sBIJarT4QziUuWWK0D3AMbdxZr1vSPK1zoWOvzv8b44iZLPDx6z1shcf4
+	 mAPeQphuDWrnXW3YrOctPmkngZiX+OK6IOt4hjnq9gsjsmn2EqLqQs3n++FQ3Qv3cr
+	 GakFy/pJ5nEMxt/S4iFit2V/Pnr6X7KU0/kMl4hnzkAqrKfSoBZ0bfRRpzYTDb0x51
+	 /w9kmN/kl6YpMZSYh9af8DB9sNbB4m20zxbYx+X1fenm2+vFG/M5Hl4b1KULVSTI3E
+	 HOfSJpB9llkiQ==
+Date: Mon, 29 Jun 2026 10:43:34 +0200 (CEST)
+From: Jiri Kosina <jikos@kernel.org>
+To: Manish Khadka <maskmemanish@gmail.com>
+cc: linux-input@vger.kernel.org, Hans de Goede <hansg@kernel.org>, 
+    Benjamin Tissoires <bentiss@kernel.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2] HID: letsketch: fix UAF on inrange_timer at driver
+ unbind
+In-Reply-To: <20260515164200.77039-1-maskmemanish@gmail.com>
+Message-ID: <s02920o0-rq04-31pp-960o-868n59s0q52p@xreary.bet>
+References: <20260515155838.B4247C2BCB3@smtp.kernel.org> <20260515164200.77039-1-maskmemanish@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
+On Fri, 15 May 2026, Manish Khadka wrote:
 
-Pre-existing issues:
-- [High] Initialization of maple bus driver data occurs after exposing the =
-input device to userspace, leading to a potential NULL pointer dereference.
-- [High] Teardown asymmetry causes a race condition where a background call=
-back is inadvertently re-armed during device removal, leading to UAF or NUL=
-L pointer dereference.
---
+> letsketch_driver does not provide a .remove callback, but
+> letsketch_probe() arms a per-device timer:
+> 
+>     timer_setup(&data->inrange_timer, letsketch_inrange_timeout, 0);
+> 
+> The timer is re-armed from letsketch_raw_event() with a 100 ms
+> timeout on every pen-in-range report, and its callback dereferences
+> data->input_tablet to deliver a synthetic BTN_TOOL_PEN release.
+> 
+> letsketch_data is allocated with devm_kzalloc(), and its input_dev
+> fields are devm-allocated via letsketch_setup_input_tablet().  On
+> device unbind (USB unplug or rmmod), the HID core runs its default
+> teardown and devm cleanup frees both letsketch_data and the input
+> devices.  Because no .remove callback exists, nothing drains the
+> timer first: if raw_event armed it within ~100 ms of the unbind,
+> the pending timer fires on freed memory.  This is a UAF read of
+> data and of data->input_tablet, followed by input_report_key() /
+> input_sync() into the freed input_dev.
+> 
+> The same problem can occur on the probe error path: if
+> hid_hw_start() enabled I/O on an always-poll-quirk device and then
+> failed, raw_event may have armed the timer before devm releases
+> data.
+> 
+> Fix by adding a .remove callback that calls hid_hw_stop() first.
+> hid_hw_stop() synchronously kills the URBs that deliver raw_event(),
+> so once it returns no path can re-arm the timer.  timer_shutdown_sync()
+> then drains any in-flight callback and permanently disables further
+> mod_timer() calls.  Apply the same timer_shutdown_sync() in the probe
+> error path so the timer is guaranteed not to outlive data.
+> 
+> Fixes: 33a5c2793451 ("HID: Add new Letsketch tablet driver")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Manish Khadka <maskmemanish@gmail.com>
 
-commit 5babe5754528798c9e3476330c1a7834fe83388a
-Author: Florian Fuchs <fuchsfl@gmail.com>
+Applied, thanks.
 
-Input: maplemouse - fix NULL pointer dereference in open()
+-- 
+Jiri Kosina
+SUSE Labs
 
-Commit 555c765b0cc2 dropped the input_set_drvdata() call in probe, which
-caused a NULL pointer dereference in open() because maple_get_drvdata()
-was still being used. This patch restores input_set_drvdata() and
-converts open() and close() to use input_get_drvdata().
-
-> diff --git a/drivers/input/mouse/maplemouse.c b/drivers/input/mouse/maple=
-mouse.c
-> index c99f7e2342191..c41182766538a 100644
-> --- a/drivers/input/mouse/maplemouse.c
-> +++ b/drivers/input/mouse/maplemouse.c
-
-[ ... ]
-
-> @@ -58,7 +58,7 @@ static int dc_mouse_open(struct input_dev *dev)
-> =20
->  static void dc_mouse_close(struct input_dev *dev)
->  {
-> -	struct dc_mouse *mse =3D maple_get_drvdata(to_maple_dev(&dev->dev));
-> +	struct dc_mouse *mse =3D input_get_drvdata(dev);
-> =20
->  	maple_getcond_callback(mse->mdev, dc_mouse_callback, 0,
->  		MAPLE_FUNC_MOUSE);
->  }
-
-[Severity: High]
-This is a pre-existing issue, but does calling maple_getcond_callback() here
-create a race condition during device removal?
-
-During removal, remove_maple_mouse() clears the callback before unregisteri=
-ng
-the device:
-
-drivers/input/mouse/maplemouse.c:remove_maple_mouse() {
-	...
-	mdev->callback =3D NULL;
-	input_unregister_device(mse->dev);
-	...
-}
-
-If the device is open, input_unregister_device() synchronously calls
-dc_mouse_close(). This unconditionally calls maple_getcond_callback(), which
-re-arms mdev->callback back to dc_mouse_callback.
-
-After input_unregister_device() returns, remove_maple_mouse() clears the
-driver data and frees mse. If a delayed maple bus packet arrives after this,
-dc_mouse_callback() will execute and attempt to use a freed mse pointer or a
-NULL driver data pointer, causing a kernel panic.
-
-Would it be safer to avoid re-arming the callback if the device is being
-removed?
-
-[ ... ]
-
-> @@ -88,6 +88,7 @@ static int probe_maple_mouse(struct device *dev)
->  	mse->dev =3D input_dev;
->  	mse->mdev =3D mdev;
-> =20
-> +	input_set_drvdata(input_dev, mse);
->  	input_dev->evbit[0] =3D BIT_MASK(EV_KEY) | BIT_MASK(EV_REL);
->  	input_dev->keybit[BIT_WORD(BTN_MOUSE)] =3D BIT_MASK(BTN_LEFT) |
->  		BIT_MASK(BTN_RIGHT) | BIT_MASK(BTN_MIDDLE);
-
-[Severity: High]
-This is a pre-existing issue, but is it possible for a callback to fire
-before driver data is fully initialized?
-
-Later in probe_maple_mouse(), the device is registered:
-
-drivers/input/mouse/maplemouse.c:probe_maple_mouse() {
-	...
-	error =3D input_register_device(input_dev);
-	if (error)
-		goto fail_register;
-
-	mdev->driver =3D mdrv;
-	maple_set_drvdata(mdev, mse);
-	...
-}
-
-If userspace immediately opens the device upon registration, dc_mouse_open()
-will schedule dc_mouse_callback(). If the callback executes before
-maple_set_drvdata() completes, maple_get_drvdata(mapledev) inside the
-callback will return NULL, leading to a NULL pointer dereference when
-accessing mse->dev.
-
-Could the maple_set_drvdata() call be moved before input_register_device()
-to prevent this?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260628230715.2982=
-552-1-fuchsfl@gmail.com?part=3D1

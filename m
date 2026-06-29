@@ -1,86 +1,95 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 451321C3BFC;
-	Mon, 29 Jun 2026 13:38:01 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 34E1320D4FF;
+	Mon, 29 Jun 2026 13:38:31 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782740282; cv=none; b=pGUmLg4wDwyV5WHvVKvci2pQc7ZUMe069xCijhCSeahkrGUZmEJ+XJ+6GWL8I64wczwc66PqYDpdXGSvJxqHh2bSTv+dkw4X5XA8kD6AC5qLsm0Mn5lI3AuyiMSbvI+DFCGUlIbh0c90wdREdiOEXL5oO/4oYSduh+owJms7fL4=
+	t=1782740313; cv=none; b=o44E+lPQffQBz6pE1F/sxFRypqxolxzLz42/ix2DkM5L9rB2fqaHyCT3NuVGBvXSC251lKQX86RJFUv/HAUYrH6OQNhiRDez5PMjWn1/nWprY1H9I3W0V6UCZAhBSwt65fT5ARXPX5KrrHAAB5kNAJfpUzxqONodsp5b/w9B3nQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782740282; c=relaxed/simple;
-	bh=h0NzO1io+fgYlm1+qBEUP+mMXcgWEx+u2huOZYmnOlY=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=PF8UXgzfUgLERELZR0N/Kpb2lB8QqvOHdI+gtCRTxPB566PzwqRhV6bm2FVwFyDjrFCZCznWzX8fDeQ1ktvKtYPLe5nVHt2cJYDtQJNcCH2frJIEXpxf2wuNCf5SOfwOp8v7iSvweZUui1PBP4WpA35NSjKVP9fWKhaSlE+RLpo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=jduZfLYz; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1782740313; c=relaxed/simple;
+	bh=mpTA/+VYC+HA6+PPcCutu0WbAvD4u+OnjtqhaSGNV3s=;
+	h=Message-ID:Date:MIME-Version:From:Subject:To:Cc:References:
+	 In-Reply-To:Content-Type; b=CyJApcL2NgOBlgG5kfOaMOzyryTUaNaLh72hIwPC2bO4QZFnDeM94w1Qk0ee5b6Z0AciSOwZni1BBGXjvK49WDwXyNikIBGOglYyjSSmqoan6OKT4msNQGfSpTl9SXbip3V/XbOiImZKg5kgjbTevrWtsADNApUW6ZK5btDaQz0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=HnkWCUK/; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="jduZfLYz"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C8731F000E9;
-	Mon, 29 Jun 2026 13:38:00 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="HnkWCUK/"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D57C1F000E9;
+	Mon, 29 Jun 2026 13:38:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1782740280;
-	bh=8UlMaOm8BTmhX7nDTKw745qE/4Yj1dRnU49r449uo+g=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=jduZfLYzkwdroju15z+zcLIY6Ezoh9dO5Gedy7AgT17GImt66hAuvSUHo7zV2rUwe
-	 Q6tCH8qZDORrCWeranBbZIZkFmVxI+EZJ5G/Fe9XXsN/YfHSQoeilu38DFikksljWr
-	 UwixBseP+ubQib89cCfFhu8NpHo0R78OEvM6uXDXMLqyzpfIIYld1PBsjjp8shuGQb
-	 ujrpErEV/J7neb0IAqED39lAHP+g0N8JN0zKWFnHK2Mzkz4GDrEn0uU/fB1X87vL+y
-	 mm0LSicM20eq8cB/Lhhua8q2uoAeZMq4wsz7FkrMCYXvbI7unDuiaq30E5Hcqz/CA6
-	 E//KGdOXiR2Lg==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 5/6] [v5] leds: gpio: make legacy gpiolib interface
- optional
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Arnd Bergmann" <arnd@kernel.org>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-leds@vger.kernel.org, lee@kernel.org
-In-Reply-To: <20260629130329.1291953-6-arnd@kernel.org>
-References: <20260629130329.1291953-1-arnd@kernel.org>
- <20260629130329.1291953-6-arnd@kernel.org>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Mon, 29 Jun 2026 13:38:00 +0000
-Message-Id: <20260629133800.9C8731F000E9@smtp.kernel.org>
+	s=k20260515; t=1782740311;
+	bh=Qq2Mf2EDmQCeExhAhcrHh/rJ+mTJks6sKOKIPqJwvSM=;
+	h=Date:From:Subject:To:Cc:References:In-Reply-To;
+	b=HnkWCUK/dKIRzXomT9pCP6n+H3Dsy9KnYuDLu9MkprSo7DuyqB3EVuIrq7QN+bJlL
+	 mgN6edFRGHvaNh2q0Z4tqskCdI4TW1Zy1taK8Yzv38NGzaGj4W+sqsVNH/wM7R39Xv
+	 QipaH83TZYxkUlKeLeoaFaj5VmZO6PaJfGmqUELut0S9BrW4HeW/tN6i/cozYyUiE1
+	 oK8ULARX0hGGE8v5rsGOJ3N96NKoToIY48EFAXToeihLQFrD8UsaSTGvuIv8spnqRa
+	 jRr6cnFLxsONoLrF53SeLnOxRyNNtCsn18B4aWKOKonxdWEwcQBQYkdwIqXjHslP6A
+	 UpCpEaAvZ987w==
+Message-ID: <3207beca-c18a-46f6-af1e-63f5b7e3b400@kernel.org>
+Date: Mon, 29 Jun 2026 15:38:29 +0200
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+From: Hans Verkuil <hverkuil+cisco@kernel.org>
+Subject: Re: [PATCH 05/10] Input: synaptics-rmi4 - block s_input when F54
+ queue is busy
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+ Bryam Vargas <hexlabsecurity@proton.me>, Hans Verkuil <hverkuil@kernel.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+ stable@vger.kernel.org
+References: <20260626051802.4033172-1-dmitry.torokhov@gmail.com>
+ <20260626051802.4033172-5-dmitry.torokhov@gmail.com>
+Content-Language: en-US, nl
+In-Reply-To: <20260626051802.4033172-5-dmitry.torokhov@gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
-- [Low] Fatal build error due to missing header file `linux/gpio/legacy.h`.
---
+On 26/06/2026 07:17, Dmitry Torokhov wrote:
+> Changing the input (diagnostic report type) mid-stream changes the
+> report size. Since V4L2 buffers are allocated based on the size at
+> stream start, changing the input while streaming could lead to a
+> heap buffer overflow if the new size is larger than the allocated
+> buffers.
+> 
+> Prevent this by blocking VIDIOC_S_INPUT with -EBUSY if the V4L2 queue
+> is busy (streaming).
+> 
+> Fixes: 3a762dbd5347 ("[media] Input: synaptics-rmi4 - add support for F54 diagnostics")
+> Cc: stable@vger.kernel.org
+> Assisted-by: Antigravity:gemini-3.5-flash
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-commit 2f558c72edeac39e19dec733e556e60219934526
-Author: Arnd Bergmann <arnd@arndb.de>
+Reviewed-by: Hans Verkuil <hverkuil+cisco@kernel.org>
 
-leds: gpio: make legacy gpiolib interface optional
+Regards,
 
-This commit splits out the legacy portion of the platform_data handling into
-a custom helper function guarded by CONFIG_GPIOLIB_LEGACY. The goal is to
-allow the leds-gpio driver to compile cleanly when the legacy configuration
-gets turned off for modern platforms.
+	Hans
 
-Link: https://lore.kernel.org/all/e9252384-a55c-4a91-9c61-06e05a0b2ce4@app.=
-fastmail.com/
+> ---
+>  drivers/input/rmi4/rmi_f54.c | 7 ++++++-
+>  1 file changed, 6 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/input/rmi4/rmi_f54.c b/drivers/input/rmi4/rmi_f54.c
+> index aebe74d2032c..e86dfc9ce7d9 100644
+> --- a/drivers/input/rmi4/rmi_f54.c
+> +++ b/drivers/input/rmi4/rmi_f54.c
+> @@ -445,7 +445,12 @@ static int rmi_f54_set_input(struct f54_data *f54, unsigned int i)
+>  
+>  static int rmi_f54_vidioc_s_input(struct file *file, void *priv, unsigned int i)
+>  {
+> -	return rmi_f54_set_input(video_drvdata(file), i);
+> +	struct f54_data *f54 = video_drvdata(file);
+> +
+> +	if (vb2_is_busy(&f54->queue))
+> +		return -EBUSY;
+> +
+> +	return rmi_f54_set_input(f54, i);
+>  }
+>  
+>  static int rmi_f54_vidioc_g_input(struct file *file, void *priv,
 
-> diff --git a/drivers/leds/leds-gpio.c b/drivers/leds/leds-gpio.c
-> index a3428b22de3a1..740772c2504a1 100644
-> --- a/drivers/leds/leds-gpio.c
-> +++ b/drivers/leds/leds-gpio.c
-> @@ -9,8 +9,8 @@
->  #include <linux/container_of.h>
->  #include <linux/device.h>
->  #include <linux/err.h>
-> -#include <linux/gpio.h>
->  #include <linux/gpio/consumer.h>
-> +#include <linux/gpio/legacy.h>
-
-[Severity: Low]
-Does this cause a build failure? It looks like linux/gpio/legacy.h doesn't
-exist in the kernel source tree, and the legacy GPIO APIs remain conditiona=
-lly
-available within include/linux/gpio.h itself.
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260629130329.1291=
-953-1-arnd@kernel.org?part=3D5

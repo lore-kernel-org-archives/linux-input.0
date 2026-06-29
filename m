@@ -1,42 +1,43 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 705142E7378;
-	Mon, 29 Jun 2026 08:48:35 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2DEAF2E7378;
+	Mon, 29 Jun 2026 08:51:24 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782722916; cv=none; b=WnOekiOV40xQ+vzF2CLBWFccEKFmp98OPvxpfwUhw7ORu3E8D9nngH7Q0vGc0upOfNlVRo/6w52fn+TkH7zXRT889r3nrQz31G0uSgI5Tmt/VbHlE8slvvwiU0zF7TQ0NC79fT+V0r4uw+r7A23l/p2M/z0sV1YkE4CWkSOKYno=
+	t=1782723086; cv=none; b=FFWY9+9RJkNsaeacDC2PTDOnJQdED0ZH3Ufs3VpfdGMnabX/45miAxsqB9S7RUgoKnDUl0/QzILfPGriKOgsygE6BxaZLFFlaB38ev3hUGIdwJDkVEiYarIc7nnvAn5h4lHTsb0M5tTSRoGSzdZM57Ynuub4YchMPiPWw7O6rmw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782722916; c=relaxed/simple;
-	bh=Xz4PzrDwzzuaPETJi0ALD7ld+D497D37i0QlLUH9Lyw=;
+	s=arc-20240116; t=1782723086; c=relaxed/simple;
+	bh=1ZKXjT4eRy/z6NRQl9SKqaX+obrsecDlzBy8qDMBC9k=;
 	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
-	 MIME-Version:Content-Type; b=AAt0e/rmFv3gsGphxZCYeecgHHer8MB6B7rxqo9cnHBgbBNaCD+T3u3jhQMBGqlp+/OXMrKxk4uOoibuGx82W3Y0QignE6JtturhGH8vRzPAsNxz7ue69T1f0gQVqsylSobZXm9X+q5ctY1ttKJ6lbCzgx0rMRxxjpP6e47ZQ64=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ZqBoS++W; arc=none smtp.client-ip=100.103.45.18
+	 MIME-Version:Content-Type; b=hEPyhPo84zh0Mo2htzVEuCFsD1nqoOZk94tGxnfyJDudWT2hpBiM/HEapX2HHitTS5TfW47PP9NLbrwBY0zZCsry5vtMKgLdZPsgQrSSHFeWm0ah0Be3rEYPyYiaUww0II0a2Lh9nFFe3UesuVNq2c22FQa6tR+2mark3RDKrFY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=UyQJ+M1g; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ZqBoS++W"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6CF01F00A3A;
-	Mon, 29 Jun 2026 08:48:34 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="UyQJ+M1g"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 249C01F000E9;
+	Mon, 29 Jun 2026 08:51:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1782722915;
-	bh=VTfuWyce6ubPNkpld3KRHsFA0RKYOz5UW1f33Z20s/Y=;
+	s=k20260515; t=1782723084;
+	bh=XRMxQ/1KD4SMniSfvO3J1a/rKusbAij00E6gOFZB7NI=;
 	h=Date:From:To:cc:Subject:In-Reply-To:References;
-	b=ZqBoS++WYns6mYeGYOP6mq5lrE3inEPYlrR7TYA5+b7084zvRP+bz9IvRK+uQ2wS1
-	 w0OrrNeT8zIEhjjbZ1hI4zIqCGqBYIXlMvfpf6LNl0U+qqKFIe45Opfg+wpm1gYspA
-	 HJ+I8fN2ea42lL/FZjsvJf+uADF7mlcAggLCJvL/Ky+AnWCqDDtaZBMG9NfVnC7pqN
-	 cursc+GIy0jNItap0eoWV95QdEUVz7oJJGHQzsWTNqomdMym7qqBTx1l0k9Wr6dzgH
-	 bJMOFTLr4V3jtyt9Qc4cGGuRKFYmx1trxqtTdUgYS8XMiHe3PUGXaVzPR8JExZRVrr
-	 TkOavGjYxnxOA==
-Date: Mon, 29 Jun 2026 10:48:32 +0200 (CEST)
+	b=UyQJ+M1gOrQaYc9JFSFf1GeFFCRHDLeL8aUMbOtRUNzFmXEi46Wl4Q6q5b4T+iZeh
+	 TT7xCFldS5+7xbtqG6QeM0k4wvOE8lR6yPLarT98SVsnr0HwNeULTRguvZSqMQUZgB
+	 CKXklRRxtJ2Q7UD6O9xDV23w2g7xa2JTMrG7cZ8tbPjyw3YfuzTiko3YQvdZoFzDbZ
+	 Js1VW+PSlIrTRGft+d0hKUTopnhK3/EO/fuwuf4WhVl//EadesoF6El0JJelar2jQ2
+	 8pjy1+MYH/GBdFnVSQC2HX1q2wJf3UqFkRGcZ3H2MRZ7VLVzMLDgxBC776gwg2H4/8
+	 hL7zTqW8mXu8Q==
+Date: Mon, 29 Jun 2026 10:51:22 +0200 (CEST)
 From: Jiri Kosina <jikos@kernel.org>
-To: Philipp Weber <kernel@phwe.de>
-cc: bentiss@kernel.org, eadavis@qq.com, linux-input@vger.kernel.org, 
-    linux-kernel@vger.kernel.org, syzkaller-bugs@googlegroups.com, 
-    syzbot+9eebf5f6544c5e873858@syzkaller.appspotmail.com
-Subject: Re: [RFC PATCH] HID: core: quiesce input in hid_hw_stop() to prevent
- use-after-free
-In-Reply-To: <20260519130014.34521-1-kernel@phwe.de>
-Message-ID: <o6400s42-5np9-50q5-8576-q29r74747380@xreary.bet>
-References: <69eed7e0.a00a0220.7773.0026.GAE@google.com> <20260519130014.34521-1-kernel@phwe.de>
+To: "Derek J. Clark" <derekjohn.clark@gmail.com>
+cc: Benjamin Tissoires <bentiss@kernel.org>, 
+    "Pierre-Loup A . Griffais" <pgriffais@valvesoftware.com>, 
+    Denis Benato <denis.benato@linux.dev>, 
+    Zhouwang Huang <honjow311@gmail.com>, linux-input@vger.kernel.org, 
+    linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v11 0/4] Add MSI Claw HID Configuration Driver
+In-Reply-To: <20260529072111.7565-1-derekjohn.clark@gmail.com>
+Message-ID: <qq26pn5q-96qs-0o7o-9r10-5r78p3862qn6@xreary.bet>
+References: <20260529072111.7565-1-derekjohn.clark@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -45,50 +46,48 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 
-On Tue, 19 May 2026, Philipp Weber wrote:
+On Fri, 29 May 2026, Derek J. Clark wrote:
 
-> A driver's probe calls hid_device_io_start() to enable input delivery,
-> then fails at a later initialization step and unwinds via hid_hw_stop().
-> The unwind frees struct hidraw via hidraw_disconnect() while in-flight
-> HID reports may still be running on another CPU, dereferencing the
-> freed object through hidraw_report_event(). syzbot reports the
-> resulting use-after-free for the corsair-psu HID driver.
+> This series adds an HID Configuration driver for the MSI Claw line of
+> Handheld Gaming PC's. The MSI Claw HID interface provides multiple
+> features, such as the ability to switch between xinput, dinput, and a
+> desktop mode, RGB control, rumble intensity, and mapping of the rear "M"
+> keys. There are additional gamepad modes that are not included in this
+> driver as they appear to be used in assembly line testing or are
+> incomplete in the firmware. During my testing I found them to be unstable.
 > 
-> Edward Adam Davis posted a per-driver fix for corsair-psu that adds
-> an explicit hid_device_io_stop() before hid_hw_stop() in the probe
-> error path ("hwmon: prevent packets from going to driver for probe",
-> 2026-04-28). Auditing the tree shows 15 drivers call
-> hid_device_io_start(); 7 also call hid_device_io_stop() and 8 do not:
+> The initial version of this driver was written by Denis Benato, which
+> contained the initial reverse-engineering and implementation for the
+> gamepad mode switching. This work was later expanded by Zhouwang Huang
+> to include more gamepad modes and additional features. Finally, I
+> refactored the entire driver, fixed multiple bugs, and refined the overall
+> format to conform to kernel driver best practices and style guide.
 > 
->   drivers calling hid_device_io_start() without a matching
->   hid_device_io_stop() before hid_hw_stop():
->     drivers/hwmon/corsair-psu.c       (fix posted by Edward)
->     drivers/hwmon/corsair-cpro.c
->     drivers/hwmon/nzxt-kraken3.c
->     drivers/hwmon/nzxt-smart2.c
->     drivers/hwmon/gigabyte_waterforce.c
->     drivers/hid/hid-logitech-dj.c
->     drivers/hid/hid-nintendo.c
->     drivers/hid/hid-mcp2221.c
+> Claude was used initially by Zhouwang Huang to quickly parse HID captures
+> during the reverse-engineering of some of the features. Since Claude had
+> already been used, as a test of its capabilities I had it implement the
+> rumble intensity attribute after I had already rewritten most of the
+> driver, which I then manually edited to fix some mistakes. I also used
+> Claude to review the driver and these patches for any mistakes and bugs.
 > 
-> Roughly half of all callers of the API are exposed. Centralize the
-> quiesce in hid_hw_stop() so callers do not have to remember the
-> matching stop: if a driver has left hdev->io_started true on entry,
-> call hid_device_io_stop() before hid_disconnect().
-> 
-> For the 7 drivers that already call hid_device_io_stop() correctly,
-> hdev->io_started is false on entry, the guard short-circuits, and
-> behavior is unchanged.
-> 
-> No Fixes: tag because the affected drivers gained their
-> hid_device_io_start() calls independently over years; the bug is a
-> class-wide API misuse rather than a regression from one commit.
-> 
-> Reported-by: syzbot+9eebf5f6544c5e873858@syzkaller.appspotmail.com
-> Closes: https://syzkaller.appspot.com/bug?extid=9eebf5f6544c5e873858
-> Signed-off-by: Philipp Weber <kernel@phwe.de>
+> Assisted-by: Claude:claude-sonnet-4-6
+> Co-developed-by: Denis Benato <denis.benato@linux.dev>
+> Signed-off-by: Denis Benato <denis.benato@linux.dev>
+> Co-developed-by: Zhouwang Huang <honjow311@gmail.com>
+> Signed-off-by: Zhouwang Huang <honjow311@gmail.com>
+> Signed-off-by: Derek J. Clark <derekjohn.clark@gmail.com>
+> ---
+> v11:
+>   - Restore dropped changes from v10.
 
-Applied, thanks.
+Thanks Derek.
+
+Sashiko had quite a few insightful comments, I find especially the one 
+with IRQ-vs-kernel context deadlock on drvdata->profile_lock valid.
+
+Could you please go through those, and address it?
+
+Thanks again for all the effort,
 
 -- 
 Jiri Kosina

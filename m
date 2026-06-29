@@ -1,96 +1,118 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E464221CC5C;
-	Mon, 29 Jun 2026 13:42:03 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A0AB21F2380;
+	Mon, 29 Jun 2026 13:46:14 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782740524; cv=none; b=hYAjZ9SxD5dI2nNinqYIkiPajga1HciBVaocoi1DiGAO5msrSBHxmxr5p+cEmgICbLkDra+zpvprXYkZlORf63OfX+/dnsq6J0ESeX6wOcay45d+1lEg2qAKDTx8lK1HmTvxcqKZSkUX3BvquTGwcAesfkDQq5H7LbTAbVMZS6k=
+	t=1782740775; cv=none; b=N4bYFMaEVmhjATtJjWc0RVEkX0nWbCNW2WKyev6lyFlg4H9hp/T0a8cSBPGUNQsVGGmnHv+wyBqDF82D9dBnhFEjbAzFBf0+ewTRYDdqbJ/Rfr1s6NK/3FuoWJorB+hjP9bfBjwaCVzgu0DXwxRcqAkBrkAsFAUtiFK5morx+8s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782740524; c=relaxed/simple;
-	bh=+kc1qrMrge86KJ2GHrh9yccTm3nB0SSTHbShyzjlAmQ=;
-	h=Message-ID:Date:MIME-Version:From:Subject:To:Cc:References:
-	 In-Reply-To:Content-Type; b=Iyl/JoPQe4FgcwnkDaYnioqSAQd2If2Az01roKxa6HCxvs0WYmmdHpxuqu5pnujvjEhxKaa1JdmRrTOD2ShRRRC2UFo9UFNphfrJOsNQ2z3kLj6ne8eLloZrDEooqRvgqj5jYLGyP82JjUPykrUI33hC7rM0oYyH1gzr1mijGz8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=EfX6H47Q; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1782740775; c=relaxed/simple;
+	bh=ycMCDqX2RofTZZbrE3vCaIyK13N1cECiyG9cwPgnbSM=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=XJBs2O8jwu3MYu5OCk56a+y0NChqNrfML9PMZQemWFxS3V2xEXTPKw08z14g6UeP0GQDppSLCtx+qMNx7i110YCPfPOlDXkz5M3BT9s1k2g3iYDJByyMbCHM3CLBKs8ldNaFmB0hv75Ig3XWXofK5yhku9WsCFP1O+5amUFlVWI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=m5QfJu8I; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="EfX6H47Q"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 399EE1F00A3A;
-	Mon, 29 Jun 2026 13:42:02 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="m5QfJu8I"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F154B1F000E9;
+	Mon, 29 Jun 2026 13:46:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1782740523;
-	bh=Q1s01vKCdffKvBPVSuCqRXO14x2GGOdqipqOEWxN/mc=;
-	h=Date:From:Subject:To:Cc:References:In-Reply-To;
-	b=EfX6H47QFnVPd8Zh8wUukT8qtO2KXShlwYr651j5mGQ9QTTCIWBBEDp0FtQTDzUy3
-	 EdccdlxvB10OQPmCvLtn4+Z1l17Jp9cdCeVtOFvXYOw9B2VaQh57kV4vcTXaOh+SOj
-	 O//eTGOF67eAeMbNQFdMlMaB0LhmpKocKrX1c10RuzvGkd71OkbuNtSRjMZJAN/f6Z
-	 bIETt8rkt+Au4YDPXgHDAp6GQRZvO7GtOpnWNV3+3MzEtJYs7JiBcqtAQX3QVqiQ4x
-	 0g4cbhls7nulz3OkqHXiSVpTkRS63UpftyJQgiySx0140IM6x7u9ewQsQZazVGxMNg
-	 uHXLnJy3vC6SQ==
-Message-ID: <b62fd998-b1ee-4c40-b524-0486016f0ec2@kernel.org>
-Date: Mon, 29 Jun 2026 15:42:00 +0200
+	s=k20260515; t=1782740774;
+	bh=RK0XsgXnFviwdtIwWGULJYGL8GaNcz34XQuV4ICnbXc=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=m5QfJu8Iesfh7z8yBY26vpDQOS74+RnQEwaMXIW9Rrw+M6glF7H+VmgIDGXiXrV4f
+	 6KGBKeiFJY9fXdA4Bbvys9OG7do4Nnd3+CunO+9yCf6acpGyL6MH7zaRcpCfBIrfw3
+	 ySBkO/Hl8N6b9pvg3f5kmtgzKO8yfr6ZIJhMDCSQXFrklfCwWF84/Va+2GavIH6c2B
+	 nWERl0rjSM4wzbNYVdEvTzKbqAxfvvpc5vL2Om978hgnYmvemmIUDIMu/731OSrLfp
+	 4toUPEgT3w6TxOq3TLshpi17aJJZ5GRUzhPUN8VYJyFPsBh84+lvJe8HqoChzEDoFe
+	 ZnLGmc6BAkFMg==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH 6/6] [v5] gpiolib: turn off legacy interface by default
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Arnd Bergmann" <arnd@kernel.org>
+Cc: linux-input@vger.kernel.org, linux-leds@vger.kernel.org, dmitry.torokhov@gmail.com, lee@kernel.org
+In-Reply-To: <20260629130329.1291953-7-arnd@kernel.org>
+References: <20260629130329.1291953-1-arnd@kernel.org>
+ <20260629130329.1291953-7-arnd@kernel.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Mon, 29 Jun 2026 13:46:12 +0000
+Message-Id: <20260629134613.F154B1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-From: Hans Verkuil <hverkuil+cisco@kernel.org>
-Subject: Re: [PATCH 07/10] Input: synaptics-rmi4 - check V4L2 buffer size in
- F54 queue
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
- Bryam Vargas <hexlabsecurity@proton.me>, Hans Verkuil <hverkuil@kernel.org>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
- stable@vger.kernel.org
-References: <20260626051802.4033172-1-dmitry.torokhov@gmail.com>
- <20260626051802.4033172-7-dmitry.torokhov@gmail.com>
-Content-Language: en-US, nl
-In-Reply-To: <20260626051802.4033172-7-dmitry.torokhov@gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
 
-On 26/06/2026 07:17, Dmitry Torokhov wrote:
-> Add a safety check in rmi_f54_buffer_queue() to ensure that the
-> requested report size (f54->report_size) does not exceed the actual
-> allocated size of the V4L2 buffer (vb2_plane_size()).
-> 
-> This provides a defense-in-depth measure against any potential size
-> mismatches between the V4L2 queue and the driver's internal state.
-> 
-> Fixes: 3a762dbd5347 ("[media] Input: synaptics-rmi4 - add support for F54 diagnostics")
-> Cc: stable@vger.kernel.org
-> Assisted-by: Antigravity:gemini-3.5-flash
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> ---
->  drivers/input/rmi4/rmi_f54.c | 7 +++++++
->  1 file changed, 7 insertions(+)
-> 
-> diff --git a/drivers/input/rmi4/rmi_f54.c b/drivers/input/rmi4/rmi_f54.c
-> index c86bc81845bb..93526feea563 100644
-> --- a/drivers/input/rmi4/rmi_f54.c
-> +++ b/drivers/input/rmi4/rmi_f54.c
-> @@ -354,6 +354,13 @@ static void rmi_f54_buffer_queue(struct vb2_buffer *vb)
->  		goto data_done;
->  	}
->  
-> +	if (f54->report_size > vb2_plane_size(vb, 0)) {
-> +		dev_err(&f54->fn->dev, "Buffer too small (%lu < %d)\n",
-> +			vb2_plane_size(vb, 0), f54->report_size);
-> +		state = VB2_BUF_STATE_ERROR;
-> +		goto data_done;
-> +	}
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+s) to consider:
+- [High] Drivers depending on `GPIOLIB_LEGACY` rather than selecting it are=
+ rendered unselectable and silently disabled on normal builds.
+- [Low] Disabling CONFIG_GPIOLIB_LEGACY by default causes widespread build =
+failures for platforms and drivers still relying on legacy GPIO functions.
+--
+
+commit bad1a2df68babe59200c7570528e8b8606464b68
+Author: Arnd Bergmann <arnd@arndb.de>
+
+gpiolib: turn off legacy interface by default
+
+This commit changes the GPIOLIB_LEGACY configuration to default to 'n' inst=
+ead
+of 'y'. It restricts manual selection to builds where COMPILE_TEST is enabl=
+ed,
+intending to only build the legacy interface on platforms that require it.
+
+> All users of the legacy interface now select CONFIG_GPIOLIB_LEGACY,
+> so it can be turned off by default and only get built on platforms
+> that still have one unconverted driver.
+
+[Severity: High]
+Is this description entirely accurate?
+
+There appear to be drivers that use 'depends on GPIOLIB_LEGACY' rather than
+selecting it, such as MFD_AAT2870_CORE, MFD_SI476X_CORE, and
+SND_SOC_TLV320DAC33.
+
+If GPIOLIB_LEGACY defaults to 'n' without COMPILE_TEST enabled, will these
+drivers be rendered unselectable and silently disabled on normal builds?
+
+> diff --git a/drivers/gpio/Kconfig b/drivers/gpio/Kconfig
+> index 020e51e30317a..543de15a12f63 100644
+> --- a/drivers/gpio/Kconfig
+> +++ b/drivers/gpio/Kconfig
+> @@ -4,7 +4,14 @@
+>  #
+> =20
+>  config GPIOLIB_LEGACY
+> -	def_bool y
+> +	bool "Legacy GPIO interfaces" if COMPILE_TEST
+
+[Severity: Low]
+Could disabling this by default cause build failures on legacy platforms th=
+at
+still call GPIO functions but do not explicitly select GPIOLIB_LEGACY?
+
+For instance, arch/arm/mach-pxa/am200epd.c still uses gpio_request():
+
+arch/arm/mach-pxa/am200epd.c:am200_init_gpio_regs() {
+        ...
+        err =3D gpio_request(gpios[i], gpio_names[i]);
+        ...
+}
+
+Because include/linux/gpio.h excludes the legacy prototypes when
+CONFIG_GPIOLIB_LEGACY is disabled, will this cause implicit declaration
+compiler errors during standard builds for architectures like PXA?
+
+> +	help
+> +	  There are a few legacy platforms that use the traditional GPIO
+> +	  number based interfaces instead of GPIO descriptors.
+> +	  Say Y here to enable build testing drivers that are specific
+> +	  to those platforms.
 > +
+> +	  If unsure, say N.
 
-That's the wrong place, it's too late for that check.
-
-This should be checked in the buf_prepare callback. See e.g.
-drivers/media/test-drivers/vivid/vivid-touch-cap.c.
-
-Regards,
-
-	Hans
-
->  	memcpy(ptr, f54->report_data, f54->report_size);
->  	vb2_set_plane_payload(vb, 0, rmi_f54_get_report_size(f54));
->  	state = VB2_BUF_STATE_DONE;
-
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260629130329.1291=
+953-1-arnd@kernel.org?part=3D6

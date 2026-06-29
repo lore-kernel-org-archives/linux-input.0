@@ -1,44 +1,43 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6DF8E4071CD;
-	Mon, 29 Jun 2026 13:18:44 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0EC4E36EAA7;
+	Mon, 29 Jun 2026 13:25:06 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782739125; cv=none; b=WZWy/kcFLrbOh8DnYYLcQrYKAutfnLC/EXzwYW8qEZAfrjfTvVbQ1OavhX01+Jd+YDzTPEW9ApD3C79BBDEC31ZAt/4YXLreA7wsgczUEg/QXDSmh3vN2DyvWJfv64gDd0C7ptlYGAAClmtzJNH3U30OnJD+BKPL6V+sX+pD4Ls=
+	t=1782739507; cv=none; b=cg6Y0mV4Zujb+zB6djwAvDmTtyA9roqUqGplY4+f/qnoxSwKUGbBUjVOPXMF5RlzpZy3RT7rT3AEjbbFsfINmGFkI+N1pqdkDafPWrLzqrKK6U+4nRONPhVr85k27ONRkEh22C0qL3HFB7OTh7t0Z7BHW5NrmANnU9G9uVis0MI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782739125; c=relaxed/simple;
-	bh=6Io9H5zyDtsp8daiesBZnem1dHzaKslMO5y5DHLeTrM=;
+	s=arc-20240116; t=1782739507; c=relaxed/simple;
+	bh=1hmK4kR6HF7Gta7tXwU42CkYKLd5g0ySBKIpa0699d4=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=asblwp33kKzMBPbTPjgRQx5smz1OplweL9g24vUxHtUfKMw/aGLVSIv/I9fLuXcCcK3XTxVWrwXT8NQ3+jbWrOyQQsP/mwpEKwv6+qXE2/KVopZKQBBL7l2n4myNbE8RaWKnjUmYwZTXHp2BJANTZCfto9+2+4bIXGpk8aXsU9s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=LXydnBm0; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=aLo7SpJdozBlxbX6WRloA7JT0MEp7fQ1BIT+4QCXWCO+0fJTTOi5uLTVF3XH1TVXz4x8RTZCQegCRGLNuR4TslRX4BZho1a6pUwZmLUSnAuDc5atvFYbjJB9sQhLDoFTea1JLYYGBOCnbumLs+DzbN9LCVEnbDlGnTqTvtgetPo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=aqVlWE1j; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="LXydnBm0"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD2611F000E9;
-	Mon, 29 Jun 2026 13:18:43 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="aqVlWE1j"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A53EB1F000E9;
+	Mon, 29 Jun 2026 13:25:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1782739124;
-	bh=G1bZy+k/fIknGmXTuSe4aFfBxUmStfVtFOkbU0UcOac=;
+	s=k20260515; t=1782739506;
+	bh=sgRsY4zYtIbLv8rc2NSjx7kjzejcvcpW4xrjI6sFxYQ=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=LXydnBm0DVuoSwDD+7GykPA02e4u0B7FZzgUsY83TWX4KmmeUF5RwQzJgmwOSyvrg
-	 PBU4auo2b7Hq7FyM74kVJyv3pzNuqx1QSoVHzHH2xlwQk6Wv10Z6XCAMC2YGqVa9IR
-	 fwPwlgC2GHml4u65tcwMnBfyMM7BBIIc3m7cqI7CCXuG3ZVHPK6/6iRNQz1MPnJowM
-	 TZMKL234qJaRqEXsY/oW80R6y+pCe9XHt87R04GUlC3k1s55dW2BiJPQ5na9WUk04H
-	 hgnAvtqNy2++VPliAfSKwAYPXtx8bt96ODFG3bi3OVE0DGPYps+/SVxA13sr3LFyiB
-	 Fi/IXQZpe4Alg==
+	b=aqVlWE1jmO2Gfb0adrc11FvVfgpThXO75fChvAIafjVEl5O4gqNLxCU5ZfrugpfQW
+	 TN+K71uwsmzKOPQB23HjhJYZkS3ftqyLQD2Pg4B9F6qVow5tlE69lDv0TKMGUC+C9i
+	 ilRoxjdogoYbHaxrkrXlCMBagbHoiXZPuXLBsR5PtUCApHqVhzjnhpMzyAYap/xbFw
+	 Niz+KQibNssVK7KQAZq2n7xDg6QWmXEPYh+D+YlQPCGD5W9p8KgclHxa1mKhYNhmHX
+	 A8uNTJsaOrXkLAP8burFvOm5rZ3vo8e7YOBgpc9wOrZMFOzfZ/vd1VZ8E5pWrclBMa
+	 kf3AQEVVPSjwQ==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 3/6] [v5] Input: soc_button_array - select
- CONFIG_GPIOLIB_LEGACY
+Subject: Re: [PATCH 2/6] [v5] x86/olpc: select GPIOLIB_LEGACY
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Arnd Bergmann" <arnd@kernel.org>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, lee@kernel.org, linux-leds@vger.kernel.org
-In-Reply-To: <20260629130329.1291953-4-arnd@kernel.org>
+Cc: linux-input@vger.kernel.org, lee@kernel.org, dmitry.torokhov@gmail.com, linux-leds@vger.kernel.org
+In-Reply-To: <20260629130329.1291953-3-arnd@kernel.org>
 References: <20260629130329.1291953-1-arnd@kernel.org>
- <20260629130329.1291953-4-arnd@kernel.org>
+ <20260629130329.1291953-3-arnd@kernel.org>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Mon, 29 Jun 2026 13:18:43 +0000
-Message-Id: <20260629131843.BD2611F000E9@smtp.kernel.org>
+Date: Mon, 29 Jun 2026 13:25:05 +0000
+Message-Id: <20260629132505.A53EB1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -47,40 +46,60 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
 Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [Low] Duplicate inclusion of `<linux/gpio/consumer.h>`.
+- [Low] The patch introduces `#include <linux/gpio/legacy.h>` but this file=
+ does not exist in the tree, causing a fatal compiler error.
 --
 
-commit 2bb9f5b4a775c5b3c871a4230ef5de7eb9ac7ae6
+commit 0da87dc4a65872189dc6e83e56582e1870d842f6
 Author: Arnd Bergmann <arnd@arndb.de>
 
-Input: soc_button_array - select CONFIG_GPIOLIB_LEGACY
+x86/olpc: select GPIOLIB_LEGACY
 
-This commit adds dependencies and selects CONFIG_GPIOLIB_LEGACY for the
-soc_button_array driver since it uses obsolete gpio interfaces. It also
-replaces linux/gpio.h with linux/gpio/consumer.h in the driver source.
-
-Link: https://lore.kernel.org/all/ah-1z9LhVG0wtfBw@google.com/
+This commit selects CONFIG_GPIOLIB_LEGACY for the OLPC platform to resolve
+implicit declaration warnings for legacy GPIO functions. It also updates
+dependencies for the cs5535audio driver to require the legacy GPIO library.
 
 [ ... ]
 
-> diff --git a/drivers/input/misc/soc_button_array.c b/drivers/input/misc/s=
-oc_button_array.c
-> index b8cad415c62ca..eb11bf2e94362 100644
-> --- a/drivers/input/misc/soc_button_array.c
-> +++ b/drivers/input/misc/soc_button_array.c
-> @@ -15,7 +15,7 @@
->  #include <linux/dmi.h>
->  #include <linux/gpio/consumer.h>
->  #include <linux/gpio_keys.h>
+> diff --git a/arch/x86/platform/olpc/olpc-xo1-sci.c b/arch/x86/platform/ol=
+pc/olpc-xo1-sci.c
+> index 30751b42d54ef..a5b47960ba32e 100644
+> --- a/arch/x86/platform/olpc/olpc-xo1-sci.c
+> +++ b/arch/x86/platform/olpc/olpc-xo1-sci.c
+> @@ -9,7 +9,7 @@
+> =20
+>  #include <linux/cs5535.h>
+>  #include <linux/device.h>
 > -#include <linux/gpio.h>
-> +#include <linux/gpio/consumer.h>
+> +#include <linux/gpio/legacy.h>
 
 [Severity: Low]
-This isn't a bug, but is it intentional to include <linux/gpio/consumer.h>
-twice here?
+Does this cause a build failure when setup_ec_sci() and other functions in
+this file are compiled? It appears include/linux/gpio/legacy.h does not exi=
+st
+in the tree, and the legacy GPIO APIs might still be declared directly in
+include/linux/gpio.h.
 
->  #include <linux/platform_device.h>
+[ ... ]
+
+> diff --git a/sound/pci/cs5535audio/cs5535audio_olpc.c b/sound/pci/cs5535a=
+udio/cs5535audio_olpc.c
+> index 122170a410d9e..cfdcc5bf4341e 100644
+> --- a/sound/pci/cs5535audio/cs5535audio_olpc.c
+> +++ b/sound/pci/cs5535audio/cs5535audio_olpc.c
+> @@ -9,7 +9,7 @@
+>  #include <sound/info.h>
+>  #include <sound/control.h>
+>  #include <sound/ac97_codec.h>
+> -#include <linux/gpio.h>
+> +#include <linux/gpio/legacy.h>
+
+[Severity: Low]
+Could this missing include file similarly break the compilation of
+olpc_analog_input() in the sound driver?
+
+[ ... ]
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260629130329.1291=
-953-1-arnd@kernel.org?part=3D3
+953-1-arnd@kernel.org?part=3D2

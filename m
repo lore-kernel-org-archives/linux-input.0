@@ -1,100 +1,105 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3BDC54219E8;
-	Tue, 30 Jun 2026 13:28:42 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F264E267B89
+	for <linux-input@vger.kernel.org>; Tue, 30 Jun 2026 13:32:06 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782826124; cv=none; b=LIJYtED5mJzHO4GFJF4onHLeoXHHjThiI/dp8JtgY8Z5DUUGPOVUKPbdA3BD8iPVmxZqfzKl7gKrMWh4ypuWEMYpynQsNIPwhjspRh4U9S8rjOC3G2nh6FRjdxIaMX/NrkOeb18SpO3RttG4HtPU/69WrPs15PCB0RpG8yFCiEA=
+	t=1782826327; cv=none; b=dO+qxHQLWFcF0g/cyPjojkFXsJH9cWw8TOMvTEaY/vEvQvFFeIhFG4oh6sOc2aW4DyL2meAmWud/kkHAWBPTjhiW3ACmMDuEaipGNHUWzS1x9LOWR91AYdh+YfhE2lzxL1dWOYEne9pcJ4eDiqpQ6OKcPT88V9mDBv1/vsd7YnE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782826124; c=relaxed/simple;
-	bh=mwiLLlab1AraJ2oXobzlrrABJwNTHHdY6faSFfy/GOw=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=JnBbMFGR0I4PB6E/QqJ/wTiCwUudvD1vfhqzOgXucN9XpkGQuBSXrkDtdVoOOdk2ViQt1g6Mi9O2BjY0EhcTr/mlkQ1ji6yxG9tqoxiNWVI2ufio/h9OxtYT9R11+C0owtNN4Eb+xBcdIm4vyS7VsV/1PTXL0iYcJAOQPSKavVI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=GAO/nXJv; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1782826327; c=relaxed/simple;
+	bh=pUGP87N3dRh01nzNx34v2IKIoTsoeIUooZhSLbm34D8=;
+	h=MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
+	 Subject:Content-Type; b=EqL8uAjsah5CeRHjHkDn9LZZ3DP/9VmuhhL/wf2BBkS0bn0QNdJy9rbrYBD615ACuQ+mvclFEd/8lDJqyGqGfpZ0SdvvTF/Typtl5trTCqEWlWh9stl44i3pWGiygSJGQApdekL0Nvs+j1ABJT5G7slaFaP/xO7sZDdf2Rw+4Vk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=BObgqxSH; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="GAO/nXJv"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39AF01F000E9;
-	Tue, 30 Jun 2026 13:28:41 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="BObgqxSH"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57C131F00A3D;
+	Tue, 30 Jun 2026 13:32:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1782826122;
-	bh=StRupOAA1WebvV+A5T+jqB4tjQ20irjm2lrsEBfpF8Q=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=GAO/nXJvCHd3vBWELfb6n5YGt2IfcN1m9XAOvnTtTGfJqzfUPbTTU96HBZkykgF62
-	 nUmFKT4GOuaYZ9semtOlj2yo/pMpeZgYBo/kxaaA6UVkYE5t9TW7hVhp0E77EEPt+w
-	 T8tEBQcgbeVs/zCU8nanMPXVzH0iiaKoDec/d8I3xojqCtEMKExkDWJeER3g9ICDqN
-	 LUCdqqGX4Ikri4uOlJb0nnR1zt4x51Yw5sGSYt/PbPnbFA0VENy+2hKFmYUk3+fliv
-	 trMYurfyNvlPRDjDOYofXaP9kHG5VYlDJTjNs6wU3oB9GP+6FtgrbDZ2/RK6/eJIN6
-	 EBZmRYqxv9wbQ==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 09/13] phy: replace linux/gpio.h inclusions
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Arnd Bergmann" <arnd@kernel.org>
-Cc: neil.armstrong@linaro.org, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, linux-sunxi@lists.linux.dev, vkoul@kernel.org, linux-phy@lists.infradead.org, olteanv@gmail.com
-In-Reply-To: <20260629132633.1300009-10-arnd@kernel.org>
-References: <20260629132633.1300009-1-arnd@kernel.org>
- <20260629132633.1300009-10-arnd@kernel.org>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Tue, 30 Jun 2026 13:28:41 +0000
-Message-Id: <20260630132842.39AF01F000E9@smtp.kernel.org>
+	s=k20260515; t=1782826326;
+	bh=aAbhDqaQViSWt5zPHXRyWbq4kmRvJjFvKbDf+ER8pGU=;
+	h=Date:From:To:Cc:In-Reply-To:References:Subject;
+	b=BObgqxSHtZ4QBBwZ+136wjftYDNlYOvNkz6bMTv9WcUUwUUDui2oz9EKJ1JZV7VuZ
+	 6+bHtttpVWOdrxRL1EFLUSX0zuNXvgSlsricBirzn8YlALXcEn+iTCw0O5BQFGJz0/
+	 RRaB/KclcZcGF7X4zAYLdSl9YZBxcjPkOdZywSZHvaYkw6ppG05TAEq11zdAL2QjoB
+	 o+NyjOydHUZsiSkmGWkLp1Ovwi1707zE5X8yq0qwra9Xr2dJiN2CUzy5Mv/tqrRvwu
+	 ZaykK3WRoGo3LtlJOsu5AsayQJFuPKCINoKkoVqJajtlNebS2boiu5U/HOlbupLMrc
+	 aWeJbjdMlUwJQ==
+Received: from phl-compute-04.internal (phl-compute-04.internal [10.202.2.44])
+	by mailfauth.phl.internal (Postfix) with ESMTP id 8E606F4006E;
+	Tue, 30 Jun 2026 09:32:05 -0400 (EDT)
+Received: from phl-imap-05 ([10.202.2.95])
+  by phl-compute-04.internal (MEProxy); Tue, 30 Jun 2026 09:32:05 -0400
+X-ME-Sender: <xms:VcVDaiTy67sUgiiMVwbnvSJW7dz81qPgmKehCtu9u7dSbc0BxQ4cUQ>
+    <xme:VcVDailFwUshIt4D21UAYBSWuQUCPNXqNVbwaLWPzku1SITlZB3W2BDpqchwRz5RH
+    XGXtqy5IO7AZX-LTqX8__ARdk1Rq8KlnDa6NZrwpk5Qe95k9G7z4A>
+X-ME-Proxy-Cause: dmFkZTEFV+HFyaGWkSwmmP37fRNIJzOiJU0gOhdvRHXHzEj9ColG3iSY6sxN82L5mGmRTd
+    GK4+Ba7tPm6jaARbMINE0Ahv0mgMxjRdNhB/PFN07g/l2wD2e7LRH7zqiKhi3N6Q11FbPc
+    4KbRY3KT9rG0Ia76lhBfKLrN9/wW9jf48a+zV6Ebffwep7tK7gJlIU/YHYmB3x1yf1rUIl
+    c0Au3kPIat//0oWBA5cTFXUZdqt2+ijbNM44y1IMJlniizXCeBFVOWCM6HiX6y/a9KlKCO
+    Lhj3Nb2s8whmySBkw56D9DxEVXYW0+FxGaT4jCzGzbS6qH8AS3y+LwN8MUpqNVWPkCyGeB
+    /mpKa0Zg/II+94VAX4O//BklqNhL/TPkObW7hgXebLwKgbCq9uzXdSlpubGH70nqblYRcC
+    CJmMdb8CUCmvWAcFKSpXDIGTuIgR4fEnkhINytmT5VXSAuN3x8ugNUXjak8viJez0VAM30
+    5tvyN3ef1e/2sL71wGnPqPAm5Z1e9+dWdv9Cl+i+3zvLzL8A4aHxBbrwUyY3tMvaiKCyr/
+    hyK77uC6ibKRuqvc0tYY1nM1kENhB6x9K6W2DAh8fRfrUbNyqf2+d7aKpQWMU9yPHQQxf1
+    IwWR+7D4R81v3bbX6l0jfdXHlzGYz5zpy73o9C3qNWUQZkElCvGDjXFZKTXQ
+X-ME-Proxy: <xmx:VcVDakPMoD5epYrKYdSxxjThmQJBEqNYdkkP1J2lb_Au7abo22TWqA>
+    <xmx:VcVDav7fS5fvf5XWizsDEUkZVdtb1iVtxNm8vj8EXyGrJpzuIKZx6Q>
+    <xmx:VcVDavjCNNocTzQpsLfPzTuGPquTOelhiCxAaEzWRX4A3FzXQ_mbvQ>
+    <xmx:VcVDaseJ4y2hiPw4DlfSWPsklYLUQ216SrhhpsjTw43VDMY1OZ8HKQ>
+    <xmx:VcVDavxvJVZJT1Td9vOpUIcbw3-J1Wjze6ir4__nq00bb0XUcYiCVWwu>
+Feedback-ID: i36794607:Fastmail
+Received: by mailuser.phl.internal (Postfix, from userid 501)
+	id 6E6371820082; Tue, 30 Jun 2026 09:32:05 -0400 (EDT)
+X-Mailer: MessagingEngine.com Webmail Interface
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+X-ThreadId: APtE7QNyC7sF
+Date: Tue, 30 Jun 2026 15:31:45 +0200
+From: "Arnd Bergmann" <arnd@kernel.org>
+To: sashiko-reviews@lists.linux.dev
+Cc: linux-sunxi@lists.linux.dev,
+ "Dmitry Torokhov" <dmitry.torokhov@gmail.com>,
+ "Neil Armstrong" <neil.armstrong@linaro.org>,
+ "Vladimir Oltean" <olteanv@gmail.com>, "Vinod Koul" <vkoul@kernel.org>,
+ linux-phy@lists.infradead.org, linux-input@vger.kernel.org
+Message-Id: <6114033d-ff33-4551-8af1-c82bae0e03bf@app.fastmail.com>
+In-Reply-To: <20260630132838.113F91F00A3A@smtp.kernel.org>
+References: <20260629132633.1300009-1-arnd@kernel.org>
+ <20260629132633.1300009-14-arnd@kernel.org>
+ <20260630132838.113F91F00A3A@smtp.kernel.org>
+Subject: Re: [PATCH 13/13] gpiolib: remove linux/gpio.h
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
-- [Low] Replacing `#include <linux/gpio.h>` with `#include <linux/gpio/cons=
-umer.h>` results in duplicate include directives.
---
+On Tue, Jun 30, 2026, at 15:28, sashiko-bot@kernel.org wrote:
+>>  - When this work is complete (will require some of the items in the
+>> -  following ongoing work as well) we can delete the old global
+>> -  numberspace accessors from <linux/gpio.h> and eventually delete
+>> -  <linux/gpio.h> altogether.
+>> +  following ongoing work as well) we can delete <linux/gpio/lagacy.h>.
+>                                                                 ^^^^^^^^
+> [Severity: Low]
+> This isn't a bug, but there is a typo here (lagacy.h instead of legacy.h).
 
-commit 172e670e08c06c1b704f9f5d80187a66ba9bb20c
-Author: Arnd Bergmann <arnd@arndb.de>
+Fixed now for v2.
 
-phy: replace linux/gpio.h inclusions
-   =20
-linux/gpio.h should no longer be used, convert these instead to
-either linux/gpio/consumer.h or linux/gpio/legacy.h as needed.
+>> -#ifdef CONFIG_GPIOLIB_LEGACY
+>> -#include <linux/gpio/legacy.h>
+>> -#endif /* CONFIG_GPIOLIB_LEGACY */
+>> -
+>> -#endif /* __LINUX_GPIO_H */
+>
+> [Severity: Low]
+> Does removing this header break the build for remaining unconverted legacy
+> GPIO consumers?
 
-> diff --git a/drivers/phy/broadcom/phy-bcm-ns2-usbdrd.c b/drivers/phy/broa=
-dcom/phy-bcm-ns2-usbdrd.c
-> index 8473fa5745296..d9c06129ed23e 100644
-> --- a/drivers/phy/broadcom/phy-bcm-ns2-usbdrd.c
-> +++ b/drivers/phy/broadcom/phy-bcm-ns2-usbdrd.c
-> @@ -3,7 +3,7 @@
-> =20
->  #include <linux/delay.h>
->  #include <linux/extcon-provider.h>
-> -#include <linux/gpio.h>
-> +#include <linux/gpio/consumer.h>
->  #include <linux/gpio/consumer.h>
+There are a few more patches in flight that all have to be applied
+before this one.
 
-[Severity: Low]
-This isn't a bug, but the replacement leaves us with consecutive duplicate
-linux/gpio/consumer.h inclusions. Could the redundant include be removed?
-
-[ ... ]
-
-> diff --git a/drivers/phy/ti/phy-j721e-wiz.c b/drivers/phy/ti/phy-j721e-wi=
-z.c
-> index 7531a8a049123..2233babc00781 100644
-> --- a/drivers/phy/ti/phy-j721e-wiz.c
-> +++ b/drivers/phy/ti/phy-j721e-wiz.c
-> @@ -11,7 +11,7 @@
->  #include <linux/slab.h>
->  #include <linux/clk.h>
->  #include <linux/clk-provider.h>
-> -#include <linux/gpio.h>
-> +#include <linux/gpio/consumer.h>
->  #include <linux/gpio/consumer.h>
-
-[Severity: Low]
-This isn't a bug, but similar to the broadcom phy driver, this creates
-duplicate linux/gpio/consumer.h inclusions here as well. Should the second
-one be dropped?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260629132633.1300=
-009-1-arnd@kernel.org?part=3D9
+     Arnd

@@ -1,197 +1,78 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from cstnet.cn (smtp25.cstnet.cn [159.226.251.25])
+	(using TLSv1.2 with cipher DHE-RSA-AES256-SHA (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 25BF6288D0
-	for <linux-input@vger.kernel.org>; Tue, 30 Jun 2026 06:00:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AD5983019A9;
+	Tue, 30 Jun 2026 06:52:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=159.226.251.25
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782799260; cv=none; b=T5XOfEeD+8BsVBUPMQ+DZQgGACRZNE++jQeoegJdVAJ/neyAAXk4dUOyJ1co/wigidZ3fh3YFxr0TQRALMqIqWrRAQRPjPmldcFZnOQ23jFUpaf3I9gwKyICe2MOeHYOXtYq008ppPOWLEnhVOpi/si0U0AASVNOvGMozk7hv2E=
+	t=1782802371; cv=none; b=CSofjZdS+3xUryh/8zz8N/v4PvK4C0HZv5zoCWyeUzPUtR6MhZCuQP980lbRYNy3di+3Kj/IKHuinbrVhgpIiWT16jd+US/wh0X8+/ETY+tdx1SbQWnDNV2wy251eYs5jP/pq1J56y8Zmvz15X2U1Sl6ctRTgwgQ7EJBtGM0viw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782799260; c=relaxed/simple;
-	bh=FtLAmcbxLKs61F7eZ1uPTbLHZ2vPoHpuK2kNh4kVWss=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=MXeqh7kf5rO2NxHb2JkPoTxq4HBe/E1WhYYu2tRThpc+kBHGIGUuSfSiX46PPFYABozLL3Rw+ExO0JA6vOvB0bkkC1pJGVB1MMI0wvRrej5VroCSxSDxVExEoTAr2xTjOYnY9taDN22yWZndp1hv50k74ZCckHd3ZoFdpECcn90=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=gN36KrOg; arc=none smtp.client-ip=100.103.45.18
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="gN36KrOg"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8B7EB1F000E9;
-	Tue, 30 Jun 2026 06:00:58 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1782799258;
-	bh=XlKvpxgpMgvvIi50OoMOblZ8QeeMXpZQp4vquTSlGxk=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=gN36KrOgJNUFSknLgHeMvuxm0oxzQ8Y5zu0aOD4wYS6f3D6Y60gS45PSoWdd0y+1n
-	 eWeCJxJKJ7Ji7cA4BFgPf05y4a0pLb+7tQoJZ50CHQv9jS+oX0lacy2pkAhhjdZR+1
-	 HiGUN9sdCqYmr5NJK7D0D6xHh1QUyoenlG9Ryh1KlqTrNDM3jCF8jsIDNVucaWSb45
-	 qk5bb0fuTg6J6cYkKSNgHGyUrf7UbeEeIOrQhB3/tGYc9HmMPSlDRBzlZcJ7g4Cre0
-	 6SgrSWvTjKXOIAVm4TqxUfivNmkCHGs5NfzABUhLMH1/HKcSuCiOevj2GrdZ4cv00S
-	 CyMWNlbN/a1hg==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] Input: maplecontrol - set driver data before
- registering input device
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <akNYib9hQFNN1fA9@google.com>
-References: <akNYib9hQFNN1fA9@google.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Tue, 30 Jun 2026 06:00:58 +0000
-Message-Id: <20260630060058.8B7EB1F000E9@smtp.kernel.org>
+	s=arc-20240116; t=1782802371; c=relaxed/simple;
+	bh=paj0HLBqKdGMJFA5RuG7Xl77Zr61av6UWbuoxyY9MWY=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=Xw4m9AeNSZxYMga3Y8Q07Ppn9yekND/k+ueW7K9CikgpQs8G2PXF7kjbBPjGwi1RhgUe/Iej9tX9fUPRx1otBZ97VjYVu8dhEdw8ca/FZN220m5+7b2q5n87hZ0xCSpubZSv9pQc1lkX6XUQ5teGWbbJ8ouNOWjbPDMHas8rSLI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=iscas.ac.cn; spf=pass smtp.mailfrom=iscas.ac.cn; arc=none smtp.client-ip=159.226.251.25
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=iscas.ac.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=iscas.ac.cn
+Received: from 0006-HID-rmi-check-report-length-before-trimming-sentinel-bytes.eml (unknown [111.196.245.140])
+	by APP-05 (Coremail) with SMTP id zQCowABHkcS9Z0NqfhQjFg--.8190S2;
+	Tue, 30 Jun 2026 14:52:46 +0800 (CST)
+From: Pengpeng Hou <pengpeng@iscas.ac.cn>
+To: Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>
+Cc: linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Pengpeng Hou <pengpeng@iscas.ac.cn>
+Subject: [PATCH] HID: rmi: check report length before trimming sentinel bytes
+Date: Tue, 30 Jun 2026 14:52:45 +0800
+Message-ID: <2026063007016439.1-ccfa108-0006-HID-rmi-check-report-length-pengpeng@iscas.ac.cn>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:zQCowABHkcS9Z0NqfhQjFg--.8190S2
+X-Coremail-Antispam: 1UD129KBjvdXoWrZr4kWry5uF1fZrWkur4rXwb_yoW3Cwc_Ww
+	1a9rZrWr13CryIyr1UX34Ivr9aqa95ZF4xZas2vr13AasrZr1kXry8urn5XFyDWw1qgFyq
+	kanrWry8ZrnFgjkaLaAFLSUrUUUUjb8apTn2vfkv8UJUUUU8Yxn0WfASr-VFAUDa7-sFnT
+	9fnUUIcSsGvfJTRUUUb2AFF20E14v26r1j6r4UM7CY07I20VC2zVCF04k26cxKx2IYs7xG
+	6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8w
+	A2z4x0Y4vE2Ix0cI8IcVAFwI0_Xr0_Ar1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Gr0_
+	Cr1l84ACjcxK6I8E87Iv67AKxVW0oVCq3wA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_GcCE3s
+	1le2I262IYc4CY6c8Ij28IcVAaY2xG8wAqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E2Ix0
+	cI8IcVAFwI0_Jr0_Jr4lYx0Ex4A2jsIE14v26r1j6r4UMcvjeVCFs4IE7xkEbVWUJVW8Jw
+	ACjcxG0xvEwIxGrwACjI8F5VA0II8E6IAqYI8I648v4I1lc7CjxVAaw2AFwI0_JF0_Jw1l
+	42xK82IYc2Ij64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWUJV
+	WUGwC20s026x8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r126r1DMIIYrxkI7VAK
+	I48JMIIF0xvE2Ix0cI8IcVAFwI0_Jr0_JF4lIxAIcVC0I7IYx2IY6xkF7I0E14v26r1j6r
+	4UMIIF0xvE42xK8VAvwI8IcIk0rVWUJVWUCwCI42IY6I8E87Iv67AKxVWUJVW8JwCI42IY
+	6I8E87Iv6xkF7I0E14v26r1j6r4UYxBIdaVFxhVjvjDU0xZFpf9x0JUSNtxUUUUU=
+X-CM-SenderInfo: pshqw1xhqjqxpvfd2hldfou0/
 
-Thank you for your contribution! Sashiko AI review found 4 potential issue(=
-s) to consider:
+rmi_check_sanity() trims trailing 0xff sentinel bytes, but its loop
+reads data[valid_size - 1] before checking that valid_size is non-zero.
 
-New issues:
-- [Medium] Dangling pointer to freed memory remains in driver data during t=
-he probe error path.
+Reverse the condition so the length is proved before the last byte is
+inspected.
 
-Pre-existing issues:
-- [Critical] Invalid pointer derivation leading to NULL pointer dereference=
- on device open.
-- [High] Race condition exposing uninitialized driver data to hardware call=
-backs or userspace.
-- [High] Race condition during device unbind leading to a NULL pointer dere=
-ference in the callback.
---
+Signed-off-by: Pengpeng Hou <pengpeng@iscas.ac.cn>
+---
+ drivers/hid/hid-rmi.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-commit 32d63e0cc91d90b1d5a10a7764828de58888a240
-Author: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+diff --git a/drivers/hid/hid-rmi.c b/drivers/hid/hid-rmi.c
+index d4af17f..2bd781f 100644
+--- a/drivers/hid/hid-rmi.c
++++ b/drivers/hid/hid-rmi.c
+@@ -365,7 +365,7 @@ static int rmi_check_sanity(struct hid_device *hdev, u8 *data, int size)
+ 	 * such reports here.
+ 	 */
+ 
+-	while ((data[valid_size - 1] == 0xff) && valid_size > 0)
++	while (valid_size > 0 && data[valid_size - 1] == 0xff)
+ 		valid_size--;
+ 
+ 	return valid_size;
 
-Input: maplecontrol - set driver data before registering input device
-
-This commit modifies the maplecontrol driver to set the driver data before
-calling input_register_device(). This ensures that the driver data is
-available immediately if the device is opened and the callback is triggered.
-
-> diff --git a/drivers/input/joystick/maplecontrol.c b/drivers/input/joysti=
-ck/maplecontrol.c
-> index 7f36f73844a91..6293b6e8148b3 100644
-> --- a/drivers/input/joystick/maplecontrol.c
-> +++ b/drivers/input/joystick/maplecontrol.c
-> @@ -146,7 +148,6 @@ static int probe_maple_controller(struct device *dev)
->  		goto fail;
-> =20
->  	mdev->driver =3D mdrv;
-> -	maple_set_drvdata(mdev, pad);
-> =20
->  	return 0;
-
-[Severity: Medium]
-Since maple_set_drvdata(mdev, pad) was moved before input_register_device(),
-does this leave a dangling pointer to freed memory in the error path?
-
-If input_register_device() fails, it jumps to the fail block:
-
-fail:
-        input_free_device(idev);
-        kfree(pad);
-        maple_set_drvdata(mdev, NULL);
-        return error;
-
-This executes kfree(pad) before maple_set_drvdata(mdev, NULL), temporarily
-leaving a dangling pointer in driver core structures. Should the order be
-updated to clear the driver data before freeing pad?
-
-[Severity: High]
-This isn't a bug introduced by this patch, but does device removal race with
-the maple DMA workqueue leading to a NULL pointer dereference?
-
-When unbinding the device, remove_maple_controller() clears mdev->callback:
-
-drivers/input/joystick/maplecontrol.c:remove_maple_controller() {
-    ...
-    mdev->callback =3D NULL;
-    input_unregister_device(pad->dev);
-    maple_set_drvdata(mdev, NULL);
-    kfree(pad);
-    ...
-}
-
-If the device is still open, input_unregister_device() synchronously invokes
-dc_pad_close(), which inadvertently overwrites mdev->callback back to
-dc_pad_callback:
-
-drivers/input/joystick/maplecontrol.c:dc_pad_close() {
-    ...
-    maple_getcond_callback(pad->mdev, dc_pad_callback, 0, MAPLE_FUNC_CONTRO=
-LLER);
-    ...
-}
-
-The driver then executes maple_set_drvdata(mdev, NULL) and frees memory. A
-pending maple DMA response running in the workqueue can then trigger
-dc_pad_callback(), which fetches the now-NULL drvdata:
-
-drivers/input/joystick/maplecontrol.c:dc_pad_callback() {
-    ...
-    struct dc_pad *pad =3D maple_get_drvdata(mapledev);
-    struct input_dev *dev =3D pad->dev;
-    ...
-}
-
-Could this result in dereferencing pad->dev and crashing the kernel if
-triggered by unbinding the device while it is actively opened by local
-userspace?
-
-[Severity: High]
-This is a pre-existing issue, but is there a race condition exposing
-uninitialized driver data to hardware callbacks or userspace in other maple
-drivers?
-
-In drivers/input/keyboard/maple_keyb.c:probe_maple_kbd():
-
-    maple_getcond_callback(mdev, dc_kbd_callback, HZ/50, MAPLE_FUNC_KEYBOAR=
-D);
-    mdev->driver =3D mdrv;
-    maple_set_drvdata(mdev, kbd);
-
-The callback is armed before the driver data is initialized, allowing the
-interrupt handler to run and read a NULL pointer.
-
-Similarly, in drivers/input/mouse/maplemouse.c:probe_maple_mouse():
-
-    error =3D input_register_device(input_dev);
-    if (error)
-            goto fail_register;
-
-    mdev->driver =3D mdrv;
-    maple_set_drvdata(mdev, mse);
-
-Driver data for the mouse is set after device registration. If the hardware
-callback fires immediately or userspace opens the device concurrently,
-maple_get_drvdata() will return NULL and the callback could dereference it.
-
-[Severity: Critical]
-This is a pre-existing issue, but can this lead to a NULL pointer dereferen=
-ce
-on device open?
-
-Looking at dc_mouse_open() in drivers/input/mouse/maplemouse.c:
-
-    struct dc_mouse *mse =3D maple_get_drvdata(to_maple_dev(&dev->dev));
-    maple_getcond_callback(mse->mdev, dc_mouse_callback, HZ/50, MAPLE_FUNC_=
-MOUSE);
-
-The to_maple_dev macro uses container_of to subtract the offset of dev in
-struct maple_device, and maple_get_drvdata immediately adds the offset back
-via &mdev->dev. This mathematical cancellation means it effectively calls
-dev_get_drvdata(&input_dev->dev).
-
-However, the driver data was actually stored in the maple device (&mdev->de=
-v),
-not the input device. Thus, dev_get_drvdata returns NULL, and the subsequent
-dereference of mse->mdev results in a direct NULL pointer dereference.
-
-The same issue appears in drivers/input/mouse/maplemouse.c:dc_mouse_close():
-
-    struct dc_mouse *mse =3D maple_get_drvdata(to_maple_dev(&dev->dev));
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/akNYib9hQFNN1fA9@go=
-ogle.com?part=3D1

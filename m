@@ -1,43 +1,43 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B74A54192F6;
-	Tue, 30 Jun 2026 13:28:32 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F337141C2F0;
+	Tue, 30 Jun 2026 13:28:33 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782826113; cv=none; b=FT2pyxOOO3YbzW0tXtvXeZML3b0/DMWpRDYFAbia4QmtakCLe7iEdJQyKO9/oUBQsbwlxf1uf1U6oJ+N3Z51LQ8Y9mqlKdfRiUTG9tt10SAiJbAox5K0G9sLLKts0wX0xd7P/chzxnJPiFLtNS3D20Dn5XEtbduO+Ka7yy2Lqvs=
+	t=1782826115; cv=none; b=tEEcrbiAOE9KGSdONPbkNgVZAO+ZS3hfm63b7L5sWot7+DwM8DDsLcND29E1/lv1o9qRtMAlhlOXceyCaICV1d3I2RxH3n6qnJDN1ToQjPcr9+EChEEO77vGgJ9ORKTE7aM+mz6oYGJfA6JF0iwH7CIzpX2N6TEnk9egf+J/dSg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782826113; c=relaxed/simple;
-	bh=CnKS1HSwVcqQokNqyGJhU6syuLsuh1mjGIwRBdW/BOI=;
+	s=arc-20240116; t=1782826115; c=relaxed/simple;
+	bh=e50i/t+otz1MUxjpLg0k+QVIsU/EiHcY8BOMbSdt3oM=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=ClJGb5X18VQTTKPw8+g5jb6O/pjT97H2y30EQ+yc/Iwh/hAEZrLGoTyIzUklorb9BuRxh8neAJLHsKdIhlDV3TRedt57ddGvfBpDJ5I24ev82EC88r3lCOzWCqJjl35bwSo/mXKWqOL80N4Z3E1I5FdkfoGk7PF918w5Q3xjoSI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=TIX6wAuX; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=evbG2Qoc/c6Q63RRa4RcT+94r+E9LT1jpk4Z7L+JJ0Gug3rM4aU9Ltv2yqPTjeTpTZqqFrkUDB2enofkIqEm0Ql/FgJv6cBgLKD6vfZ+6VJi7ZVIoM9eXoiUff2OVNh7u7qVDElKtkBUcbdZIVfiXe+qZ01q6RsCQ7fhIexpabk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Gb3wrXA1; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="TIX6wAuX"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3B9C51F000E9;
-	Tue, 30 Jun 2026 13:28:32 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Gb3wrXA1"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 450051F00A3A;
+	Tue, 30 Jun 2026 13:28:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1782826112;
-	bh=e2NTsoPtc4Ih6RALL6+PVycCsLek2TBHF0lUvpy3RoI=;
+	s=k20260515; t=1782826113;
+	bh=+FAD0oKS3SeQ82yLrtXGWjS6Gjvd3EoOnAU9Vn3DKCA=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=TIX6wAuXFfBZv90wBYlbOQdmfg7Eg0X+THSNseCtbfXPGPHrKRAe2lYy5bTuuhexd
-	 G7K79powpWYszSyqxhCW6qVuR45J0EAql8sy+zPEsFa7I4Kivv/5puEk8sXytxdIe0
-	 5JOSjc7M9MG4j3exhvmkb4G15KUfBzFx/tJoK5Kv1Fx5T008zbn+6yFvV3DQgi9iW5
-	 Zs7DnDcd5DjmkxeKdq/J0NjxZ0ciQ3ZDQSMChWoTlq0MR73osY9RtTZyT5FBz3frHm
-	 9jNfZkcRBg48VzX7HP8TyLZvBU91zHXkcjFU+TA3osQ2hXVwOmefG0kcnTFzolyDSu
-	 YGDueAE2j5wjw==
+	b=Gb3wrXA1wKlOsU4o5YpskKf7EaW/7Z5k4ogtGGTCHbKvSWIXMdTWcQ47xRXvmAuSV
+	 ekA7zkyWW3SYG9AWBvQ0lL8tIAvV3r5t00rg95fP6gXHpoSPh8s6UiAIxJAgkHk59q
+	 furj2i8HbcsnchP5GMCI+RxfNR3SrJUUF6oArUfYjFaWgoyL00Aad9wd582f9AY1vO
+	 IxTj3TLbFkvdB+432Xbn2vr3xf4klRgcrVletBnYDj7dHdXtQIUq+iXwlpnuK2PYuz
+	 6mLzSBSukM8pXEveX79W+u6HVQFoc6Tg3/OaCYPmlyZ1GJ4HwKnE0VYM+OZ2PmOzEP
+	 sW4009xsEb+7A==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 07/13] ASoC: replace linux/gpio.h inclusions
+Subject: Re: [PATCH 08/13] pcmcia: replace linux/gpio.h inclusions
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Arnd Bergmann" <arnd@kernel.org>
-Cc: linux-sunxi@lists.linux.dev, linux-phy@lists.infradead.org, linux-input@vger.kernel.org, olteanv@gmail.com, vkoul@kernel.org, neil.armstrong@linaro.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260629132633.1300009-8-arnd@kernel.org>
+Cc: olteanv@gmail.com, linux-phy@lists.infradead.org, linux-sunxi@lists.linux.dev, vkoul@kernel.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, neil.armstrong@linaro.org
+In-Reply-To: <20260629132633.1300009-9-arnd@kernel.org>
 References: <20260629132633.1300009-1-arnd@kernel.org>
- <20260629132633.1300009-8-arnd@kernel.org>
+ <20260629132633.1300009-9-arnd@kernel.org>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 30 Jun 2026 13:28:31 +0000
-Message-Id: <20260630132832.3B9C51F000E9@smtp.kernel.org>
+Date: Tue, 30 Jun 2026 13:28:32 +0000
+Message-Id: <20260630132833.450051F00A3A@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -46,61 +46,63 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
 Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [Low] The patch introduces duplicate `#include <linux/gpio/consumer.h>` d=
-irectives in `cs42l84.c` and `dmic.c`.
+
+Pre-existing issues:
+- [High] Invalid resource cleanup on error path leading to potential double=
+-free of a devres-managed GPIO descriptor.
 --
 
-commit 5e88ad9a5863dbafbe414c688b31a85827de20da
+commit a1a20647914d78d6a15655dea889e9d53c734136
 Author: Arnd Bergmann <arnd@arndb.de>
 
-ASoC: replace linux/gpio.h inclusions
+pcmcia: replace linux/gpio.h inclusions
 
-This commit updates multiple ASoC codecs to use linux/gpio/consumer.h inste=
-ad
-of the deprecated linux/gpio.h header.
+The pcmcia drivers all use the legacy interfaces, so convert to
+include linux/gpio/legacy.h instead.
 
-> diff --git a/sound/soc/codecs/cs42l84.c b/sound/soc/codecs/cs42l84.c
-> index f2a58163de0ed..36c3abc21fedc 100644
-> --- a/sound/soc/codecs/cs42l84.c
-> +++ b/sound/soc/codecs/cs42l84.c
-> @@ -16,7 +16,7 @@
->  #include <linux/init.h>
->  #include <linux/delay.h>
->  #include <linux/i2c.h>
-> -#include <linux/gpio.h>
-> +#include <linux/gpio/consumer.h>
-
-[Severity: Low]
-This isn't a bug, but does this create a duplicate include? It appears
-linux/gpio/consumer.h is already included further down in this file. Could =
-we
-simply drop the linux/gpio.h include entirely?
-
->  #include <linux/regmap.h>
->  #include <linux/slab.h>
->  #include <linux/acpi.h>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 
 [ ... ]
 
-> diff --git a/sound/soc/codecs/dmic.c b/sound/soc/codecs/dmic.c
-> index 61e1bf1b3c9e6..8b05d6f9b429b 100644
-> --- a/sound/soc/codecs/dmic.c
-> +++ b/sound/soc/codecs/dmic.c
-> @@ -6,7 +6,7 @@
->   */
-> =20
+> diff --git a/drivers/pcmcia/sa1100_h3600.c b/drivers/pcmcia/sa1100_h3600.c
+> index 10cb99c20a7f5..6c52d90795eb4 100644
+> --- a/drivers/pcmcia/sa1100_h3600.c
+> +++ b/drivers/pcmcia/sa1100_h3600.c
+> @@ -11,7 +11,7 @@
+>  #include <linux/interrupt.h>
+>  #include <linux/init.h>
 >  #include <linux/delay.h>
 > -#include <linux/gpio.h>
-> +#include <linux/gpio/consumer.h>
->  #include <linux/gpio/consumer.h>
+> +#include <linux/gpio/legacy.h>
 
-[Severity: Low]
-This isn't a bug, but should we just delete the old include line? Replacing
-it leaves two identical includes back-to-back.
+[Severity: High]
+This isn't a bug introduced by this patch, but I noticed a pre-existing
+issue while reviewing the GPIO include changes.
 
->  #include <linux/platform_device.h>
->  #include <linux/regulator/consumer.h>
+Does the error path in h3600_pcmcia_hw_init() cause a double-free of a
+devres-managed GPIO descriptor?
+
+If gpio_request(H3XXX_EGPIO_OPT_NVRAM_ON) or subsequent legacy GPIO requests
+fail, the code jumps to or falls through to the err01 label:
+
+drivers/pcmcia/sa1100_h3600.c:h3600_pcmcia_hw_init() {
+    ...
+err06:  gpio_free(H3XXX_EGPIO_CARD_RESET);
+err05:  gpio_free(H3XXX_EGPIO_OPT_RESET);
+err04:  gpio_free(H3XXX_EGPIO_OPT_ON);
+err03:  gpio_free(H3XXX_EGPIO_OPT_NVRAM_ON);
+err01:  gpio_free(H3XXX_GPIO_PCMCIA_IRQ0);
+        return err;
+}
+
+The err01 label incorrectly frees H3XXX_GPIO_PCMCIA_IRQ0. This GPIO is
+managed by devres and was not explicitly requested using gpio_request() in
+this function.=20
+
+When devres cleans up the failed probe, it will attempt to free the GPIO
+again. This could lead to a double-free, gpiolib state corruption, kernel
+warnings, or accidentally freeing a GPIO acquired by a concurrent driver.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260629132633.1300=
-009-1-arnd@kernel.org?part=3D7
+009-1-arnd@kernel.org?part=3D8

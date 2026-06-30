@@ -1,114 +1,197 @@
-Received: from mail-dl1-f45.google.com (mail-dl1-f45.google.com [74.125.82.45])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B0C87221721
-	for <linux-input@vger.kernel.org>; Tue, 30 Jun 2026 05:49:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 25BF6288D0
+	for <linux-input@vger.kernel.org>; Tue, 30 Jun 2026 06:00:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782798560; cv=none; b=teYVAMq6LTK8CW4z0VUJnXfjzJn/MH7aPxYESv1W/L745wjW1jxGA7Le0JB7tskTMfOoEo6mSUkQgwpFsL3bhG/Hzc3lyBr10CvoeXRIrgGenAvXjn+oms1VfbgfvyAdugAm4bAarit5l6ylcLEk+6pX0PVsm/j/0kmy7iDyjA4=
+	t=1782799260; cv=none; b=T5XOfEeD+8BsVBUPMQ+DZQgGACRZNE++jQeoegJdVAJ/neyAAXk4dUOyJ1co/wigidZ3fh3YFxr0TQRALMqIqWrRAQRPjPmldcFZnOQ23jFUpaf3I9gwKyICe2MOeHYOXtYq008ppPOWLEnhVOpi/si0U0AASVNOvGMozk7hv2E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782798560; c=relaxed/simple;
-	bh=uFVCqxuvzV/SjM4ctblQMcFsOO8dhR/B1b1CTE7hXgs=;
-	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition; b=DvM//llCCqTntuQvkcOS+D8RejKY9j8O6JWJyAoC5DPMBhkL2/EpxXWwdzcLQYiOudY3+j4NoLsOABvqX9NBpMlIFoj1lxB0zbJElgzoWcBmhZVZYR0A8j25Dp+iYX3dgMxavldRR7Na4d04XCa3/XcxXjqxP1BwQJLw7M/K5jU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=kNc9vikO; arc=none smtp.client-ip=74.125.82.45
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1782799260; c=relaxed/simple;
+	bh=FtLAmcbxLKs61F7eZ1uPTbLHZ2vPoHpuK2kNh4kVWss=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=MXeqh7kf5rO2NxHb2JkPoTxq4HBe/E1WhYYu2tRThpc+kBHGIGUuSfSiX46PPFYABozLL3Rw+ExO0JA6vOvB0bkkC1pJGVB1MMI0wvRrej5VroCSxSDxVExEoTAr2xTjOYnY9taDN22yWZndp1hv50k74ZCckHd3ZoFdpECcn90=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=gN36KrOg; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="kNc9vikO"
-Received: by mail-dl1-f45.google.com with SMTP id a92af1059eb24-139e498e428so140025c88.1
-        for <linux-input@vger.kernel.org>; Mon, 29 Jun 2026 22:49:19 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1782798559; x=1783403359; darn=vger.kernel.org;
-        h=content-disposition:mime-version:message-id:subject:cc:to:from:date
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=G7tAnL5amZcdWJzi4p0de5TpZYJsvurjiCg2/XYr1Xg=;
-        b=kNc9vikOv/C9jq30Lc9ck27naSt5f1CmhgGvQnYJczOgq4gYfh/tTe5cYnyWWL4Jeu
-         i/jplzccv2c98MEb+6d8oyQlVaDgcufriE60Duywlt1E5VVZcZ61lPQxq1lnb8GhgrfF
-         oeMAykYQEkQYGS+w5arvMh5I1REWC7KynQ5H3WGwLhX/wFJXfKCLkjucSHxJEetrK897
-         3Kr9wRSKrERDOSc0tzp8NGFjwVqty9wGBQ7USMgU8hO3u9pAf03+PEmskEUMLU3v9o9t
-         UU2nlcLol4xLEAuVCfAFi9hK64yjV8xRJxhh5WFXVamVsySnlXrAe6xu6FlrLZnmhnW6
-         AylQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1782798559; x=1783403359;
-        h=content-disposition:mime-version:message-id:subject:cc:to:from:date
-         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=G7tAnL5amZcdWJzi4p0de5TpZYJsvurjiCg2/XYr1Xg=;
-        b=aA+kpMj4wp//hNwIuBIxmqi/G+rFbFcaO6fNgUTeRfr6zklmRv/oZG4NIFsHVhH2LS
-         zWJyJGYtwn4UEQj04BB9mB4wpf8f9vHzUfPnwTSHzZSxUBK2UXcVwMtlxZ5Q585FQqHO
-         mQ/6cjAeXeUR40aaTV9GJSXAXStBsisDvgkxdWbeuoabSekDbOq1VyVKDC/g477Zn2yB
-         VEhO9wb6bcwQli78ukMSho7JkrNe9sLC4hvcus/q3/EzRMJOxAe+99SEoH0RBMupYWZp
-         Jl0R0CVO6YDg5d7WyPj1/y42kdWijTg2WGt6g1UfvEeJl588F4XuqCpcyNnIhJs4+vvo
-         Cucg==
-X-Forwarded-Encrypted: i=1; AFNElJ/hZWZIRhx0FRsaHxRHotobPHvSHxGVVD6NkPBs1jThF0TQqy/NTLxd0cXn/GW/ERgf9OacMyNX5f/8+A==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yx0NLXDHKpGNSoYP6qq0OCojzYfnJ96zzcVVJ8VPb7/WM//iyj+
-	NsBXdusVrJPKQBjDi7bWWbuCxUx79QujQD6FSdw3yIsj9NcLm3MgmqRu
-X-Gm-Gg: AfdE7ckUTT9fbG91c7wHn2mo5EdnKLecH2z3eVkrUMwDyuPtWB2Aw55EX6mvI3BmpLg
-	8CKKbyVEtVjCC7ZR/C6soBSoK6+FwSrkFPfBr1kTKK/6NnkLHtwJMuXyh5NQr9Yq44TO1muyc1z
-	2IgHLHc9uEqLc3v0QiOrRZ+Em4qH/Pd7gtuDHp2PACtnw8AwdrFYbXFy0Lu4e/uKfbs9/gXiovO
-	h/9k4rnPLhE+8W97cEg2n4eUm6jwPjPCwbzhZkBHLf/G5pFQbxhVUk5z28DUwPVw+NR23XTPT/s
-	eMHuYBmQZoI/OsvlnznQ//hjrxrOqVL0VB6kxRrXw9f5W+QX6DbVZdv/ZsfczrdHGlsSDO2z0tP
-	H/GxH9Hkus3/9XodOn70cIHnWSqJeQRWjjKEpOll5Q/ziQxhW4AKIZ3SZrwisewbXEI4edqmhsc
-	7oVjSwCVeQR2cl461IGnlnA5X+7k50HnYvUQoM/es6arCvDr49s3l1bA==
-X-Received: by 2002:a05:7300:8ca4:b0:30c:ab96:7306 with SMTP id 5a478bee46e88-30eea0e9753mr398200eec.22.1782798558792;
-        Mon, 29 Jun 2026 22:49:18 -0700 (PDT)
-Received: from google.com ([2a00:79e0:2ebe:8:8d36:e610:a260:756f])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-30ee3264f52sm3901774eec.28.2026.06.29.22.49.17
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 29 Jun 2026 22:49:18 -0700 (PDT)
-Date: Mon, 29 Jun 2026 22:49:15 -0700
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Adrian McMenamin <adrianmcmenamin@gmail.com>, 
-	linux-input@vger.kernel.org
-Cc: Florian Fuchs <fuchsfl@gmail.com>, linux-kernel@vger.kernel.org
-Subject: [PATCH] Input: maplecontrol - set driver data before registering
- input device
-Message-ID: <akNYib9hQFNN1fA9@google.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="gN36KrOg"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8B7EB1F000E9;
+	Tue, 30 Jun 2026 06:00:58 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1782799258;
+	bh=XlKvpxgpMgvvIi50OoMOblZ8QeeMXpZQp4vquTSlGxk=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=gN36KrOgJNUFSknLgHeMvuxm0oxzQ8Y5zu0aOD4wYS6f3D6Y60gS45PSoWdd0y+1n
+	 eWeCJxJKJ7Ji7cA4BFgPf05y4a0pLb+7tQoJZ50CHQv9jS+oX0lacy2pkAhhjdZR+1
+	 HiGUN9sdCqYmr5NJK7D0D6xHh1QUyoenlG9Ryh1KlqTrNDM3jCF8jsIDNVucaWSb45
+	 qk5bb0fuTg6J6cYkKSNgHGyUrf7UbeEeIOrQhB3/tGYc9HmMPSlDRBzlZcJ7g4Cre0
+	 6SgrSWvTjKXOIAVm4TqxUfivNmkCHGs5NfzABUhLMH1/HKcSuCiOevj2GrdZ4cv00S
+	 CyMWNlbN/a1hg==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH] Input: maplecontrol - set driver data before
+ registering input device
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <akNYib9hQFNN1fA9@google.com>
+References: <akNYib9hQFNN1fA9@google.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Tue, 30 Jun 2026 06:00:58 +0000
+Message-Id: <20260630060058.8B7EB1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 
-Set maple driver data before calling input_register_device() to
-ensure that it is available if the device is opened immediately and
-the callback is triggered.
+Thank you for your contribution! Sashiko AI review found 4 potential issue(=
+s) to consider:
 
-Cc: stable@vger.kernel.org
-Assisted-by: Antigravity:gemini-3.5-flash
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
----
- drivers/input/joystick/maplecontrol.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+New issues:
+- [Medium] Dangling pointer to freed memory remains in driver data during t=
+he probe error path.
 
-diff --git a/drivers/input/joystick/maplecontrol.c b/drivers/input/joystick/maplecontrol.c
-index 7f36f73844a9..6293b6e8148b 100644
---- a/drivers/input/joystick/maplecontrol.c
-+++ b/drivers/input/joystick/maplecontrol.c
-@@ -112,6 +112,8 @@ static int probe_maple_controller(struct device *dev)
- 	pad->dev = idev;
- 	pad->mdev = mdev;
- 
-+	maple_set_drvdata(mdev, pad);
-+
- 	idev->open = dc_pad_open;
- 	idev->close = dc_pad_close;
- 
-@@ -146,7 +148,6 @@ static int probe_maple_controller(struct device *dev)
- 		goto fail;
- 
- 	mdev->driver = mdrv;
--	maple_set_drvdata(mdev, pad);
- 
- 	return 0;
- 
--- 
-2.55.0.rc0.799.gd6f94ed593-goog
+Pre-existing issues:
+- [Critical] Invalid pointer derivation leading to NULL pointer dereference=
+ on device open.
+- [High] Race condition exposing uninitialized driver data to hardware call=
+backs or userspace.
+- [High] Race condition during device unbind leading to a NULL pointer dere=
+ference in the callback.
+--
 
+commit 32d63e0cc91d90b1d5a10a7764828de58888a240
+Author: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
--- 
-Dmitry
+Input: maplecontrol - set driver data before registering input device
+
+This commit modifies the maplecontrol driver to set the driver data before
+calling input_register_device(). This ensures that the driver data is
+available immediately if the device is opened and the callback is triggered.
+
+> diff --git a/drivers/input/joystick/maplecontrol.c b/drivers/input/joysti=
+ck/maplecontrol.c
+> index 7f36f73844a91..6293b6e8148b3 100644
+> --- a/drivers/input/joystick/maplecontrol.c
+> +++ b/drivers/input/joystick/maplecontrol.c
+> @@ -146,7 +148,6 @@ static int probe_maple_controller(struct device *dev)
+>  		goto fail;
+> =20
+>  	mdev->driver =3D mdrv;
+> -	maple_set_drvdata(mdev, pad);
+> =20
+>  	return 0;
+
+[Severity: Medium]
+Since maple_set_drvdata(mdev, pad) was moved before input_register_device(),
+does this leave a dangling pointer to freed memory in the error path?
+
+If input_register_device() fails, it jumps to the fail block:
+
+fail:
+        input_free_device(idev);
+        kfree(pad);
+        maple_set_drvdata(mdev, NULL);
+        return error;
+
+This executes kfree(pad) before maple_set_drvdata(mdev, NULL), temporarily
+leaving a dangling pointer in driver core structures. Should the order be
+updated to clear the driver data before freeing pad?
+
+[Severity: High]
+This isn't a bug introduced by this patch, but does device removal race with
+the maple DMA workqueue leading to a NULL pointer dereference?
+
+When unbinding the device, remove_maple_controller() clears mdev->callback:
+
+drivers/input/joystick/maplecontrol.c:remove_maple_controller() {
+    ...
+    mdev->callback =3D NULL;
+    input_unregister_device(pad->dev);
+    maple_set_drvdata(mdev, NULL);
+    kfree(pad);
+    ...
+}
+
+If the device is still open, input_unregister_device() synchronously invokes
+dc_pad_close(), which inadvertently overwrites mdev->callback back to
+dc_pad_callback:
+
+drivers/input/joystick/maplecontrol.c:dc_pad_close() {
+    ...
+    maple_getcond_callback(pad->mdev, dc_pad_callback, 0, MAPLE_FUNC_CONTRO=
+LLER);
+    ...
+}
+
+The driver then executes maple_set_drvdata(mdev, NULL) and frees memory. A
+pending maple DMA response running in the workqueue can then trigger
+dc_pad_callback(), which fetches the now-NULL drvdata:
+
+drivers/input/joystick/maplecontrol.c:dc_pad_callback() {
+    ...
+    struct dc_pad *pad =3D maple_get_drvdata(mapledev);
+    struct input_dev *dev =3D pad->dev;
+    ...
+}
+
+Could this result in dereferencing pad->dev and crashing the kernel if
+triggered by unbinding the device while it is actively opened by local
+userspace?
+
+[Severity: High]
+This is a pre-existing issue, but is there a race condition exposing
+uninitialized driver data to hardware callbacks or userspace in other maple
+drivers?
+
+In drivers/input/keyboard/maple_keyb.c:probe_maple_kbd():
+
+    maple_getcond_callback(mdev, dc_kbd_callback, HZ/50, MAPLE_FUNC_KEYBOAR=
+D);
+    mdev->driver =3D mdrv;
+    maple_set_drvdata(mdev, kbd);
+
+The callback is armed before the driver data is initialized, allowing the
+interrupt handler to run and read a NULL pointer.
+
+Similarly, in drivers/input/mouse/maplemouse.c:probe_maple_mouse():
+
+    error =3D input_register_device(input_dev);
+    if (error)
+            goto fail_register;
+
+    mdev->driver =3D mdrv;
+    maple_set_drvdata(mdev, mse);
+
+Driver data for the mouse is set after device registration. If the hardware
+callback fires immediately or userspace opens the device concurrently,
+maple_get_drvdata() will return NULL and the callback could dereference it.
+
+[Severity: Critical]
+This is a pre-existing issue, but can this lead to a NULL pointer dereferen=
+ce
+on device open?
+
+Looking at dc_mouse_open() in drivers/input/mouse/maplemouse.c:
+
+    struct dc_mouse *mse =3D maple_get_drvdata(to_maple_dev(&dev->dev));
+    maple_getcond_callback(mse->mdev, dc_mouse_callback, HZ/50, MAPLE_FUNC_=
+MOUSE);
+
+The to_maple_dev macro uses container_of to subtract the offset of dev in
+struct maple_device, and maple_get_drvdata immediately adds the offset back
+via &mdev->dev. This mathematical cancellation means it effectively calls
+dev_get_drvdata(&input_dev->dev).
+
+However, the driver data was actually stored in the maple device (&mdev->de=
+v),
+not the input device. Thus, dev_get_drvdata returns NULL, and the subsequent
+dereference of mse->mdev results in a direct NULL pointer dereference.
+
+The same issue appears in drivers/input/mouse/maplemouse.c:dc_mouse_close():
+
+    struct dc_mouse *mse =3D maple_get_drvdata(to_maple_dev(&dev->dev));
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/akNYib9hQFNN1fA9@go=
+ogle.com?part=3D1

@@ -1,115 +1,127 @@
-Received: from mail-qv1-f50.google.com (mail-qv1-f50.google.com [209.85.219.50])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 354C544CF56
-	for <linux-input@vger.kernel.org>; Tue, 30 Jun 2026 17:29:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.50
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7890E1A9B58
+	for <linux-input@vger.kernel.org>; Tue, 30 Jun 2026 17:39:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782840591; cv=none; b=ZGWqfHUa0yQyw81wWElVdqnLIb5VGfJU1TK7D7uD1WQZQIztJNfbiILpjoccb++rAFsrCuOgmDOjXK6i8yTo1teqc2gTRi4SvAahhYwLJW5VcwMvIZN8R2YbhzHzXXvJ5AgwhtYhXqx9NGnVi18aPpmk6jSR49DW5stN1tzUZvk=
+	t=1782841155; cv=none; b=tNPIozJpqfpskuZWH9q8XWTwPBn0AZfmZ3nOEkkMmiusF8LGLpXzhwTuowA1i5FBn5HNRwhIQqQ3gKVCmeOjgtuxFNlvjoWSYqSDoPn8gh9wtU/922hoGqSwfSE0zABPDn0IrRw/JmuZXsAwCti/+VD07EHi03ZIAkMM2l+VDEQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782840591; c=relaxed/simple;
-	bh=Z6gbUjW/XxgzCNZMmP2HZHkwRWigZogbRpHJe+fcckY=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=g0nAEbU+EAmXu/KIvUzhSnLTRBWsj97BFKNrUyPVkrK470it5piBYj+8/KCaLNyh8xYrVoUrWYGKOHwOQOSACHsFxlfOKjZl7Bs+ITe1Z1WYGSjEOPzjJb7FI9K43RNmnhmSBQcHFDfWKD/b+0RnQ88VCeGhGfRNUrFyEFWBqXk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=CBLyVQ9D; arc=none smtp.client-ip=209.85.219.50
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1782841155; c=relaxed/simple;
+	bh=5Uny3ir2A9ciqgowrsQpSxBvB24UNwykyV9kdyR7lz8=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=FCn3hZfSgRUl5cCngv9BMJJF9x9YachPMSe9AgSmfB+TX29zXzCvOfJRExCECLtDSyfQPtAPF70lZtbJ5eKwAuXoqG95FD9plXVV9kb+Dm8LxZE76VAuuUodv7Jkw1DU/iVF5skhRPSu7hG0Yr7iJBO8PlCC26QkZc0DJrHOu2Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=bw/ZTol+; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="CBLyVQ9D"
-Received: by mail-qv1-f50.google.com with SMTP id 6a1803df08f44-8f23e851626so8768256d6.3
-        for <linux-input@vger.kernel.org>; Tue, 30 Jun 2026 10:29:50 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1782840589; x=1783445389; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=B78F1Rnz1PyzO78nWvVsonhs630DctmEHZiwtgkmhqs=;
-        b=CBLyVQ9D/komgVT5v1MvRWuqICdvF0Pyhi9eTFO5/WsTLr3UPbKdGChfIhfLOTWEeX
-         U7FXMSy4kqCQpjeTT+AFlGTnUIqn0PK9AAmpsoQBqP4qXjFBXAu6BhOs418ozL9/vLLd
-         SPPNox2l+R7DunrkkvXJW9W3DjTsbMkuodtSgNQlyWbzxXHqENFS9a2EdaG/bHxNJH9J
-         XARd8z7k/Tq/zUynN3/vCigQs96NiSx/x6dr83k/I0CiINqaDtWIUDrrNmRD2RiL5RRp
-         sKoSjQynzQ/5s5u4xHBRBBDTVjKaMkn8gIcBoBLa3CQF8FcLSmHYM3As/EIcEmcRzaGM
-         Bu5Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1782840589; x=1783445389;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=B78F1Rnz1PyzO78nWvVsonhs630DctmEHZiwtgkmhqs=;
-        b=kC7F/bh01YDwBAn5sMr7fRlW8VEIoVuQEZJgXca5tKwtBiYgWs0WjIuwdaVGN0aAHi
-         H1RjKWk9P3YutSG4PCi4jz7yx7xtjltfTPnS0VfiL9dJ/ONgTqsKmxprFmLDU3gVmDBI
-         2aEzWk6e0g9SaTk2tNxv7COff+R0h08LCmKUOuVe9vP6FnEWMtKjYBDQDOqMQ+gd1H8r
-         od4WGk9jo5Vy6YlDgLOdAsDTukFt7K47yvOQO50ccAJbB0Pub80DcfDiUK1Wwx68UMOt
-         99M5SbzDbGnEviWNObzICtvg6YjjQLPHndCV75nuKWHfCqMcfjshtbAzd8w2sdY+5HWQ
-         Qi5g==
-X-Gm-Message-State: AOJu0YxjW2F6pdP1vMWEAeIfH7OTzl4lFXx8syBC7zUYg1LfTwBXMsTZ
-	4PFo7feJiscQupE3LE4i4MNXlZ9M9VZagL0+W0l7MARFernAPeCHJ4F3
-X-Gm-Gg: AfdE7clATAsy6A5/8Ww2Lc/N/GKblbOB3GESoUQMBDv8+8Li28QLqZhco+Fzh4Mz5OJ
-	PbHccWAGjpKwRslGHIUpGeem8YWPA1fw58NJHbx5guC8zpWOynDXc9xA9QaZBb8m3n2krOOSN8D
-	X7QpGhiIcgD+v9CBReeOAtI4iE7eqW8T2j7+2haXhzNHXuBnYFJG1rE2Cp6aW34bxNuCkHq1u3z
-	RJ/e4PBTzLfk0SJvLogjXiCBzgKqHiG45Qr7eC0vDBZufoQwni1r8tyEh9aeam3eYB2XHDtJKE+
-	Eac5pC0fvWT5hk7g2gD/4dIukYv4V/BShdqzF9cl/boiLSHFcokb0mwr3WfTxBDUsXxlYQDjEly
-	+zCio/8vw2Caz7v2eTKoDGqBZfOfnTqJCAQ0q32gyCe76U1MXWiZMt05AEKcyCLgi//n96+qpRC
-	C1e+dRgLMYyoa4PAR1isFKyUV+KkHZyiDaaW9jv48iT6gFRhyn
-X-Received: by 2002:ad4:5ba8:0:b0:8f0:6185:b633 with SMTP id 6a1803df08f44-8f1bbbded5emr59092966d6.31.1782840583722;
-        Tue, 30 Jun 2026 10:29:43 -0700 (PDT)
-Received: from achantapc.mynetworksettings.com ([2600:4040:122a:dd00:da6a:a6e4:2464:e6a1])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-8f1a69c32cdsm29822906d6.31.2026.06.30.10.29.42
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 30 Jun 2026 10:29:43 -0700 (PDT)
-From: Sriman Achanta <srimanachanta@gmail.com>
-To: Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>
-Cc: linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Bastien Nocera <hadess@hadess.net>,
-	Simon Wood <simon@mungewell.org>,
-	Christian Mayer <git@mayer-bgk.de>,
-	Sriman Achanta <srimanachanta@gmail.com>
-Subject: [PATCH v5 6/9] HID: steelseries: Correct Arctis 9 battery calibration range
-Date: Tue, 30 Jun 2026 13:29:27 -0400
-Message-ID: <4c63c726222039f205afb217ab220daf7e455dcb.1782840133.git.srimanachanta@gmail.com>
-X-Mailer: git-send-email 2.54.0
-In-Reply-To: <cover.1782840133.git.srimanachanta@gmail.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="bw/ZTol+"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6EEC1F000E9;
+	Tue, 30 Jun 2026 17:39:13 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1782841154;
+	bh=qi6r0u4lAvokOTqz0mb95QZjpzlMamT9JyPz/7Aa2OA=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=bw/ZTol+r+QAvgoepdDY0kv9wOrCifDy1xAY3KFwXZyHSzBOIkzCd//sjxOlU08qL
+	 NfVHl+Bczu5Kywy1oqcEHOGbYB6J/V3+Y898vkwKITsIFV3ESvZf+KUFzatvoTdKKB
+	 KQKW+YUEbc8aOGyQmu8A7+uODATqjf6aZmCa+P7UeIPp/yKNmbJAZuk5g7cZO+tYm9
+	 pYcZzbyUGP27MDmTBisguvYpIbhA4KI4I65p+q6Q5yTqwxCqv0120PSzolNvPXdpsb
+	 5qSAAmtYspJixBIdXYR1ztD6/JiOhUdVadcQgOMQsSjunczpvyIRKtfr5KrC7IDbeq
+	 mKHKMkc/qTSkg==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v5 8/9] HID: steelseries: Add async status interface
+ support
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Sriman Achanta" <srimanachanta@gmail.com>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <c993054229da167e96332fc142d372091e8c7406.1782840133.git.srimanachanta@gmail.com>
 References: <cover.1782840133.git.srimanachanta@gmail.com>
+ <c993054229da167e96332fc142d372091e8c7406.1782840133.git.srimanachanta@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Tue, 30 Jun 2026 17:39:13 +0000
+Message-Id: <20260630173913.E6EEC1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-Map the Arctis 9 raw battery value over 0x64 (empty) to 0x9a (full)
-instead of 0x68 to 0x9d. These values match the HeadsetControl project
-[1] and fit the calibration points from an independent reverse
-engineering of the battery tray (about 25% at raw 112, 50% at raw 125)
-[2].
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+s) to consider:
+- [High] Unsynchronized access to the sibling interface's HID device and dr=
+iver data in `steelseries_get_sibling_sd()` leads to Use-After-Free vulnera=
+bilities during concurrent unbinding.
+- [High] Unsafe retrieval of `intfdata` from a sibling USB interface withou=
+t verifying the bound USB driver leads to type confusion.
+--
 
-I do not have this headset. The values come from those references and
-were not measured directly.
+commit 184e416637c40dbd71e035542907c5105f99d55d
+Author: Sriman Achanta <srimanachanta@gmail.com>
 
-[1] https://github.com/Sapd/HeadsetControl/blob/master/lib/devices/steelseries_arctis_9.hpp
-[2] https://magnier.io/reverse-engineering-arctis-9-battery-tray/
+HID: steelseries: Add async status interface support
 
-Signed-off-by: Sriman Achanta <srimanachanta@gmail.com>
----
- drivers/hid/hid-steelseries-arctis.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+This patch adds support for an async status interface on some Steelseries
+headsets. The driver binds both sync and async interfaces, using the async
+interface to push status events and delay its probe until the sync interface
+is fully initialized.
 
-diff --git a/drivers/hid/hid-steelseries-arctis.c b/drivers/hid/hid-steelseries-arctis.c
-index ce5875c03e73..d1552bf6567b 100644
---- a/drivers/hid/hid-steelseries-arctis.c
-+++ b/drivers/hid/hid-steelseries-arctis.c
-@@ -141,7 +141,7 @@ static void steelseries_arctis_9_parse_status(struct steelseries_device *sd,
- 	if (data[0] == 0xaa && data[1] == 0x01) {
- 		sd->headset_connected = true;
- 		sd->battery_charging = (data[4] == 0x01);
--		sd->battery_capacity = steelseries_map_capacity(data[3], 0x68, 0x9d);
-+		sd->battery_capacity = steelseries_map_capacity(data[3], 0x64, 0x9a);
- 	} else {
- 		/* Device off: 0x55 (no status) or 0x03 (stale status). */
- 		sd->headset_connected = false;
--- 
-2.54.0
+> diff --git a/drivers/hid/hid-steelseries-arctis.c b/drivers/hid/hid-steel=
+series-arctis.c
+> --- a/drivers/hid/hid-steelseries-arctis.c
+> +++ b/drivers/hid/hid-steelseries-arctis.c
 
+[ ... ]
+
+> +static struct steelseries_device *
+> +steelseries_get_sibling_sd(struct hid_device *hdev, int interface_num)
+> +{
+> +	struct usb_interface *intf =3D to_usb_interface(hdev->dev.parent);
+> +	struct usb_device *usb_dev =3D interface_to_usbdev(intf);
+> +	struct usb_interface *sibling_intf;
+> +	struct hid_device *sibling_hdev;
+> +	struct steelseries_device *sd;
+> +
+> +	sibling_intf =3D usb_ifnum_to_if(usb_dev, interface_num);
+> +	if (!sibling_intf)
+> +		return NULL;
+> +
+> +	sibling_hdev =3D usb_get_intfdata(sibling_intf);
+> +	if (!sibling_hdev || sibling_hdev->driver !=3D &steelseries_arctis_driv=
+er)
+
+[Severity: High]
+Can a malicious USB device trigger an out-of-bounds read here?
+
+If the device advertises the sync interface as a non-HID class (like Mass
+Storage) but the async interface as HID, the USB core might bind a different
+driver to the sync interface. In that case, usb_get_intfdata() would return
+a driver-specific structure (like struct us_data) rather than a
+struct hid_device.
+
+Would it be safer to verify the bound USB driver on the sibling interface
+before casting the intfdata and dereferencing sibling_hdev->driver?
+
+> +		return NULL;
+> +
+> +	sd =3D hid_get_drvdata(sibling_hdev);
+> +	if (sd)
+> +		kref_get(&sd->refcnt);
+
+[Severity: High]
+Is there a race condition with concurrent unbinding here?
+
+If the sync interface is concurrently unbound (e.g., via sysfs or physical
+disconnection) while the async interface is probing, usb_get_intfdata()
+and hid_get_drvdata() are called without holding device_lock() for the
+sibling interface's device.
+
+Could this allow the hid_device to be freed before checking
+sibling_hdev->driver, or allow the steelseries_device (sd) to be freed
+before kref_get() is called?
+
+> +
+> +	return sd;
+> +}
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/cover.1782840133.gi=
+t.srimanachanta@gmail.com?part=3D8

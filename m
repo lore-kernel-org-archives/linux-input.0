@@ -1,127 +1,107 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from cstnet.cn (smtp25.cstnet.cn [159.226.251.25])
+	(using TLSv1.2 with cipher DHE-RSA-AES256-SHA (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DDA9A1A6838
-	for <linux-input@vger.kernel.org>; Tue, 30 Jun 2026 07:05:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6C26B37E2E5;
+	Tue, 30 Jun 2026 07:19:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=159.226.251.25
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782803131; cv=none; b=sHUay+DxbmQYYgI6rhEWoAwZDFycZ4wgK/MxNgozPDxj7e673g53YUrcIR8A0fGa9HhXOLbEjiMCwNMEZEXdcA3cCwokTv6si3hI2Bk1s9pUxetr59rzLO7VAsCuOlOHfyeMCMAR5FHsDowlx2JH1GP8QDi+TJM8ZqBY2WHizyk=
+	t=1782803977; cv=none; b=DhLp7KRD/KoJeVg2dB4Jd2iRtlcjX2Peyo9IFxEHOEZF4U/WsN/w2c0JVIpOddSw0q90okqVfKtdzCIajMzgmFA92JlKEy5KMt+ZSLXtNJlufLBHMfnVto0lDQFba80r3iIJGIA3C/KXr+o2dLO4mRb7X0H8tduPGwNlzVTLPwQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782803131; c=relaxed/simple;
-	bh=da/CQSiOstM603Kd1t7Yxa5OcSdTPW0Eyeth7DVuPeM=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=YU4l3D6BX20+mTpbOFs/vzWVgtkwnx2rhkhYmq2zb+XQLOaHhavQlfIkyL/aq8eV4NM/musJOuJh3Ft4rQAeQRcvMLpiwGhNONwEcjDxokdoSSlO6tmufjlwGE1kseznYCkDdk/w0FRIAyxBv5jCxXunnv3GvzuxGxJ4wkVBgK8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=NVQ1MJod; arc=none smtp.client-ip=100.103.45.18
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="NVQ1MJod"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E23C1F000E9;
-	Tue, 30 Jun 2026 07:05:30 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1782803130;
-	bh=EX/Dz5qm6QB4XsVTbjIbKq+YlUAyroxcFIBluRnqB6U=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=NVQ1MJod0gurHcedLiigOTqt+TmHQwMymys+LnriEZ1rijkl0PFw68GToW9V8XpR2
-	 knkpYgE2Cimgojc9CkAKPy5panxDgdkOewUF6V5yIMaUHMNsd7gQYi6rS6SXHJ8pfP
-	 SjonRYTwBqD1nR3jZ+hFFO5gXg4z2e4RgT8fjdsFqZdISMlS/YikXk5qHZRzGsljsz
-	 TCHz7b/FjQJqzixsBPJ3acf8MFzExYT/poKJahdA7pkNxRIQQ3ZihTr4kSWb4t0Bmk
-	 QZdfEDZWxzLrnRczLn5RXuxRvQuJ1OXaPeIAw9gPzeaz0p/ISouoURRTqnuUIp8Uh6
-	 eB4KB1qsqxdIw==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] HID: rmi: check report length before trimming sentinel
- bytes
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Pengpeng Hou" <pengpeng@iscas.ac.cn>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <2026063007016439.1-ccfa108-0006-HID-rmi-check-report-length-pengpeng@iscas.ac.cn>
-References: <2026063007016439.1-ccfa108-0006-HID-rmi-check-report-length-pengpeng@iscas.ac.cn>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Tue, 30 Jun 2026 07:05:30 +0000
-Message-Id: <20260630070530.8E23C1F000E9@smtp.kernel.org>
+	s=arc-20240116; t=1782803977; c=relaxed/simple;
+	bh=CYMQhdODRCOy4W3O1MJRjpHOpd9V1ZUjUjhGJX3/pPY=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=nSBE1+1AqsHy6XwnKuPWmyo2Lnw6SwA63Th8wx9vY0liyLq+1QoQ7foq0qLDdBfU3/IMXqJF+lVbgvKwbo0k0XJuf5A7EspWvXpskg6/lH4uGKlVqslFRlg400Muip83fGRfEVn6sFZ7n+51mRBD1SD+gg5gOl+HxGPL+n2tqx4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=iscas.ac.cn; spf=pass smtp.mailfrom=iscas.ac.cn; arc=none smtp.client-ip=159.226.251.25
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=iscas.ac.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=iscas.ac.cn
+Received: from 0008-Input-cyapa---validate-unsupported-PIP-response-length.eml (unknown [111.196.245.140])
+	by APP-05 (Coremail) with SMTP id zQCowAA3xgkFbkNqBDkkFg--.8534S2;
+	Tue, 30 Jun 2026 15:19:33 +0800 (CST)
+From: Pengpeng Hou <pengpeng@iscas.ac.cn>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: "open list:INPUT KEYBOARD, MOUSE, JOYSTICK, TOUCHSCREEN..." <linux-input@vger.kernel.org>,
+	open list <linux-kernel@vger.kernel.org>,
+	Pengpeng Hou <pengpeng@iscas.ac.cn>
+Subject: [PATCH] Input: cyapa - validate unsupported PIP response length
+Date: Tue, 30 Jun 2026 15:19:33 +0800
+Message-ID: <2026063008017969.1-ccfa108-0008-Input-cyapa---validate-unsu-pengpeng@iscas.ac.cn>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:zQCowAA3xgkFbkNqBDkkFg--.8534S2
+X-Coremail-Antispam: 1UD129KBjvJXoW7uF1rKw4kKF4DKr47Kw15Arb_yoW8tr47pF
+	9093W5uryUXa9xtr92yrs8uFW5GanFkFy5KayUX3WfZw1UKFW0gw1IkrnFvr1qvF1rur4S
+	grn5AF4a9rn8JaUanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDU0xBIdaVrnRJUUUya14x267AKxVWUJVW8JwAFc2x0x2IEx4CE42xK8VAvwI8IcIk0
+	rVWrJVCq3wAFIxvE14AKwVWUJVWUGwA2ocxC64kIII0Yj41l84x0c7CEw4AK67xGY2AK02
+	1l84ACjcxK6xIIjxv20xvE14v26F1j6w1UM28EF7xvwVC0I7IYx2IY6xkF7I0E14v26r4j
+	6F4UM28EF7xvwVC2z280aVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv6xkF7I0E14v26rxl6s
+	0DM2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xII
+	jxv20xvE14v26r1j6r18McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x0Yz7v_Jr0_Gr
+	1lF7xvr2IY64vIr41lF7I21c0EjII2zVCS5cI20VAGYxC7MxAIw28IcxkI7VAKI48JMxC2
+	0s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8CrVAFwI0_Jr0_Jr4lx2IqxVCjr7xvwVAFwI
+	0_JrI_JrWlx4CE17CEb7AF67AKxVWUAVWUtwCIc40Y0x0EwIxGrwCI42IY6xIIjxv20xvE
+	14v26r1j6r1xMIIF0xvE2Ix0cI8IcVCY1x0267AKxVWUJVW8JwCI42IY6xAIw20EY4v20x
+	vaj40_Jr0_JF4lIxAIcVC2z280aVAFwI0_Jr0_Gr1lIxAIcVC2z280aVCY1x0267AKxVW8
+	JVW8JrUvcSsGvfC2KfnxnUUI43ZEXa7VUbrMaUUUUUU==
+X-CM-SenderInfo: pshqw1xhqjqxpvfd2hldfou0/
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
+cyapa_sort_tsg_pip_app_resp_data() accepts PIP application
+responses after checking PIP_MIN_APP_RESP_LENGTH bytes.  That covers
+the application command byte at offset 4, but the unsupported-command
+path also reads the status byte at PIP_RESP_STATUS_OFFSET.
 
-Pre-existing issues:
-- [High] `rmi_hid_write_block` writes data into a dynamically allocated hea=
-p buffer `data->writeReport` without verifying that the requested transfer =
-length fits within the allocation.
-- [High] `rmi_hid_read_block` trusts an attacker-controlled length field fr=
-om the device report to read from the dynamically allocated `data->readRepo=
-rt` buffer, leading to an out-of-bounds read of kernel memory.
---
+A short response can advertise PIP_UNSUPPORTED_CMD_RESP_LENGTH in the
+response header while the supplied buffer still contains only the generic
+minimum response.  Validate the unsupported response length before reading
+the status byte.
 
-commit 5629c16e6055ea1ed7974ee398f60300987bc662
-Author: Pengpeng Hou <pengpeng@iscas.ac.cn>
+Signed-off-by: Pengpeng Hou <pengpeng@iscas.ac.cn>
+---
+ drivers/input/mouse/cyapa_gen5.c | 21 ++++++++++++++-------
+ 1 file changed, 14 insertions(+), 7 deletions(-)
 
-HID: rmi: check report length before trimming sentinel bytes
+diff --git a/drivers/input/mouse/cyapa_gen5.c b/drivers/input/mouse/cyapa_gen5.c
+index 59f6e97..733da6d 100644
+--- a/drivers/input/mouse/cyapa_gen5.c
++++ b/drivers/input/mouse/cyapa_gen5.c
+@@ -686,6 +686,7 @@ bool cyapa_sort_tsg_pip_app_resp_data(struct cyapa *cyapa,
+ 		u8 *data, int len)
+ {
+ 	struct cyapa_pip_cmd_states *pip = &cyapa->cmd_states.pip;
++	u8 cmd_code;
+ 	int resp_len;
+ 
+ 	if (!data || len < PIP_MIN_APP_RESP_LENGTH)
+@@ -694,13 +695,19 @@ bool cyapa_sort_tsg_pip_app_resp_data(struct cyapa *cyapa,
+ 	if (data[PIP_RESP_REPORT_ID_OFFSET] == PIP_APP_RESP_REPORT_ID &&
+ 			data[PIP_RESP_RSVD_OFFSET] == PIP_RESP_RSVD_KEY) {
+ 		resp_len = get_unaligned_le16(&data[PIP_RESP_LENGTH_OFFSET]);
+-		if (GET_PIP_CMD_CODE(data[PIP_RESP_APP_CMD_OFFSET]) == 0x00 &&
+-			resp_len == PIP_UNSUPPORTED_CMD_RESP_LENGTH &&
+-			data[5] == pip->in_progress_cmd) {
+-			/* Unsupported command code */
+-			return false;
+-		} else if (GET_PIP_CMD_CODE(data[PIP_RESP_APP_CMD_OFFSET]) ==
+-				pip->in_progress_cmd) {
++		cmd_code = GET_PIP_CMD_CODE(data[PIP_RESP_APP_CMD_OFFSET]);
++		if (cmd_code == 0x00 &&
++		    resp_len == PIP_UNSUPPORTED_CMD_RESP_LENGTH) {
++			if (len < PIP_UNSUPPORTED_CMD_RESP_LENGTH)
++				return false;
++
++			if (data[PIP_RESP_STATUS_OFFSET] == pip->in_progress_cmd) {
++				/* Unsupported command code */
++				return false;
++			}
++		}
++
++		if (cmd_code == pip->in_progress_cmd) {
+ 			/* Correct command response received */
+ 			return true;
+ 		}
 
-rmi_check_sanity() trims trailing 0xff sentinel bytes, but its loop
-reads data[valid_size - 1] before checking that valid_size is non-zero.
-
-Reverse the condition so the length is proved before the last byte is
-inspected.
-
-> diff --git a/drivers/hid/hid-rmi.c b/drivers/hid/hid-rmi.c
-> index d4af17fdba467..2bd781f1e0f53 100644
-> --- a/drivers/hid/hid-rmi.c
-> +++ b/drivers/hid/hid-rmi.c
-> @@ -365,7 +365,7 @@ static int rmi_check_sanity(struct hid_device *hdev, =
-u8 *data, int size)
->  	 * such reports here.
->  	 */
-> =20
-> -	while ((data[valid_size - 1] =3D=3D 0xff) && valid_size > 0)
-> +	while (valid_size > 0 && data[valid_size - 1] =3D=3D 0xff)
->  		valid_size--;
-> =20
->  	return valid_size;
-
-[Severity: High]
-This is a pre-existing issue, but does this code overflow the dynamically
-allocated data->writeReport buffer?
-
-drivers/hid/hid-rmi.c:rmi_hid_write_block() {
-    ...
-	data->writeReport[2] =3D addr & 0xFF;
-	data->writeReport[3] =3D (addr >> 8) & 0xFF;
-	memcpy(&data->writeReport[4], buf, len);
-    ...
-}
-
-A malicious HID device can present a small output_report_size in its HID
-descriptor, which determines the size of the data->writeReport allocation.
-
-By sending parameters that cause the RMI core to perform a large block writ=
-e,
-can the device force rmi_hid_write_block() to process a len that vastly
-exceeds the allocated buffer size?
-
-[Severity: High]
-This isn't a bug introduced by this patch, but could this memcpy() result in
-an out-of-bounds read from the data->readReport buffer?
-
-drivers/hid/hid-rmi.c:rmi_hid_read_block() {
-    ...
-			read_input_count =3D data->readReport[1];
-			memcpy(buf + bytes_read, &data->readReport[2],
-				min(read_input_count, bytes_needed));
-    ...
-}
-
-The function reads read_input_count directly from the incoming HID report
-without validating it against the size of the data->readReport allocation
-(data->input_report_size).
-
-Could a malicious device specify a small input_report_size in its HID
-descriptor but send a large read_input_count byte in the report, causing
-the memcpy() to over-read the kernel heap?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/2026063007016439.1-=
-ccfa108-0006-HID-rmi-check-report-length-pengpeng@iscas.ac.cn?part=3D1

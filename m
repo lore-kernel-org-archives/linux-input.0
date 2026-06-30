@@ -1,43 +1,43 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B2CFF39D6DD;
-	Tue, 30 Jun 2026 13:28:37 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 98668408606;
+	Tue, 30 Jun 2026 13:28:38 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782826118; cv=none; b=YeWMaaFj7/9Px/BbEBVV+OGVehTxSIzaxYn3TXSM05uHr5jcnuwIwChrEN1pcHzg2xWNVlOFqQQkVJOyhvrJ/WPA2Apl7Y/kS1tvE5SnluC1+RTHgR9wNImd3thptohjkG2/Y2t0/H71ozq91Q8CYxQST/Jyl/hneIdo/bf4H4I=
+	t=1782826119; cv=none; b=qmYuo9IVKayuBBmSOsFYwaM18mOmde852qaxZhzjT1XsNjKnhHeQl6a6il15UMJ9gdKJax1OE/gTCS8vhTWI5mTGxfAG7QT3g4iCTBByRk4Obq3Ktn3+lot31274uKQ0rgcZMjbdRYX4Vhw/yQQLAiMHNg++CwZhJSBD2iQVky0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782826118; c=relaxed/simple;
-	bh=IfYEpBhZ2VQERm67C/VQynCi3uKxj1p/0g1zR93Wy3k=;
+	s=arc-20240116; t=1782826119; c=relaxed/simple;
+	bh=9NiflCoc3TKqKY7jEZG95f3gnZnoKca6z317hGOnnqg=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=t+9ULl3//7DZ8n1H9Vmxb5oiPWI6LqL0q4WimuD9hV3/1XRtorCxYqfFXp7KDLMFh0mDoRvD38RFYFfQoOh+cXOO484tjCE2lJQfau0KZD6BvgaflXFVVimOEu4bRSGyCSHbEqKGanqVpyxvRVEV3rWz7C70kHbJrf5Xs4Bq7ps=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Gu88O8ie; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=lkGXWKUk3b+Di7MSd0KmPLh6x0uCt6CHDI5povndgSSb3aPTEzfE3xaNIMkoBu0jQX1rMpXwzBMrWTrb6DlUN/zGyUMGU5M0lI9KZtJZxAmcTpW0P6j1+Ms8rnkUgz6om0qn7eWMREzxevSU+csHulQ0Zzo6+gF3fibDSka9feA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=HlUdN6H+; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Gu88O8ie"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5FF0A1F000E9;
-	Tue, 30 Jun 2026 13:28:36 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="HlUdN6H+"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 113F91F00A3A;
+	Tue, 30 Jun 2026 13:28:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1782826117;
-	bh=w7gjhOObn06IZwCF2h72/yM1H2nbVXiS2binvXxNAqg=;
+	s=k20260515; t=1782826118;
+	bh=pGZSQjypMUdXOQ/qAERccKjvtdXttbB0Lef+ZubLVEo=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=Gu88O8iebsZJCi1hNxtEIPFj1XOpyvcaqbQHSb3FMW8xOkENbkxbs5RbLQPoxLyOO
-	 xVupTwOgiJdZ1SAAiTyHjULy3chcDk0ozGJ38zA8umJTrH4XaUGyHkV4AeP18PFUnt
-	 s/u4bRKKKKSc8abAXMBe6bHFTIu+OpJP7t1y905wRh3uQsbPJWmNuPdnLnSYgpLCsR
-	 z1+5ek6xYoWU4vZK2xf+rp0cSkXkZeeKTmHZvg+vxezY9WFjSJhnnTFoPYpttNZid/
-	 zlzJtTOd1fm7YsC9t+Z3mYbP+X8VKQ9tIKWp+FEFeK+Dm3foOwE7t6sIm/WFSOkWtZ
-	 XA5IPev8NVbFA==
+	b=HlUdN6H+zBVnvK+YP6U2SuoYEXBPxOvvCZgUa9/7NiQPljDR60Y7edF0HbPaXa1yP
+	 uud5XZhetvShN7Oy/ksRjhASsWbssXUiJ/+p2lP309wEoqzpVsEYzLo1iicm63jbgd
+	 elH9z5mwbcc97td+e4M5UfQvqd+ZoravZZFnBYK5CQnQ9qy0cajc/H8BVRU4G96xPj
+	 LZno3zRVD34TluLFJEQPoXbHshpO4osPABIwRRfXwZLY0DHuAcMVJVrXVdCtFb/0YI
+	 KsxiA4Oa77+LXOmHPVQcgNaoU9QQpXYQLIdc5ipOvTLMGMEOsK8+91Jr3pc5bhOHDy
+	 yTLwIOCl7eEVw==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 12/13] gpib: gpio: replace linux/gpio.h inclusion
+Subject: Re: [PATCH 13/13] gpiolib: remove linux/gpio.h
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Arnd Bergmann" <arnd@kernel.org>
-Cc: linux-phy@lists.infradead.org, linux-sunxi@lists.linux.dev, neil.armstrong@linaro.org, vkoul@kernel.org, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, olteanv@gmail.com
-In-Reply-To: <20260629132633.1300009-13-arnd@kernel.org>
+Cc: linux-sunxi@lists.linux.dev, dmitry.torokhov@gmail.com, neil.armstrong@linaro.org, olteanv@gmail.com, vkoul@kernel.org, linux-phy@lists.infradead.org, linux-input@vger.kernel.org
+In-Reply-To: <20260629132633.1300009-14-arnd@kernel.org>
 References: <20260629132633.1300009-1-arnd@kernel.org>
- <20260629132633.1300009-13-arnd@kernel.org>
+ <20260629132633.1300009-14-arnd@kernel.org>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 30 Jun 2026 13:28:35 +0000
-Message-Id: <20260630132836.5FF0A1F000E9@smtp.kernel.org>
+Date: Tue, 30 Jun 2026 13:28:37 +0000
+Message-Id: <20260630132838.113F91F00A3A@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -46,64 +46,77 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
 Thank you for your contribution! Sashiko AI review found 2 potential issue(=
 s) to consider:
-
-New issues:
-- [Low] The patch introduces redundant duplicate `#include <linux/gpio/cons=
-umer.h>` statements in multiple files.
-
-Pre-existing issues:
-- [High] Missing bounds check on `priv->count` in `bb_DAV_interrupt()` can =
-lead to a buffer overflow.
+- [Low] Removing `include/linux/gpio.h` breaks the build for multiple drive=
+rs across the kernel tree that still include it and rely on it for legacy G=
+PIO declarations.
+- [Low] Typographical error in `drivers/gpio/TODO` where `legacy.h` is miss=
+pelled as `lagacy.h`.
 --
 
-commit 198cff3fadd8f7ab5db98a0ff2a666f4ac7f1bf0
+commit eb8b9c8709d4fc96f518f3578deb6f0d05993604
 Author: Arnd Bergmann <arnd@arndb.de>
 
-gpib: gpio: replace linux/gpio.h inclusion
+gpiolib: remove linux/gpio.h
 
-linux/gpio.h is going away, so use linux/gpio/consumer.h instead.
+This commit removes the include/linux/gpio.h header entirely, cleaning up
+leftover bits under the assumption that all drivers have been converted to
+consumer.h or legacy.h. It also updates internal gpiolib includes and a=20
+TODO file accordingly.
 
-> diff --git a/drivers/gpib/gpio/gpib_bitbang.c b/drivers/gpib/gpio/gpib_bi=
-tbang.c
-> index 0e227980b493a..2e8d895db06a5 100644
-> --- a/drivers/gpib/gpio/gpib_bitbang.c
-> +++ b/drivers/gpib/gpio/gpib_bitbang.c
-> @@ -64,7 +64,7 @@
->  #include <linux/gpio/consumer.h>
->  #include <linux/gpio/driver.h>
->  #include <linux/gpio/machine.h>
-> -#include <linux/gpio.h>
-> +#include <linux/gpio/consumer.h>
+> diff --git a/drivers/gpio/TODO b/drivers/gpio/TODO
+> index 7ce80fde1f17e..894c7e1af252a 100644
+> --- a/drivers/gpio/TODO
+> +++ b/drivers/gpio/TODO
+> @@ -52,9 +52,7 @@ Work items:
+>    base can be made dynamic (set to -1) if CONFIG_GPIO_SYSFS is disabled.
+> =20
+>  - When this work is complete (will require some of the items in the
+> -  following ongoing work as well) we can delete the old global
+> -  numberspace accessors from <linux/gpio.h> and eventually delete
+> -  <linux/gpio.h> altogether.
+> +  following ongoing work as well) we can delete <linux/gpio/lagacy.h>.
+                                                                ^^^^^^^^
+[Severity: Low]
+This isn't a bug, but there is a typo here (lagacy.h instead of legacy.h).
+
+[ ... ]
+
+> diff --git a/include/linux/gpio.h b/include/linux/gpio.h
+> deleted file mode 100644
+> index b0d4942a65de2..0000000000000
+> --- a/include/linux/gpio.h
+> +++ /dev/null
+> @@ -1,22 +0,0 @@
+[ ... ]
+> -#ifdef CONFIG_GPIOLIB_LEGACY
+> -#include <linux/gpio/legacy.h>
+> -#endif /* CONFIG_GPIOLIB_LEGACY */
+> -
+> -#endif /* __LINUX_GPIO_H */
 
 [Severity: Low]
-This isn't a bug, but does this introduce a duplicate include of
-linux/gpio/consumer.h? It appears to already be included a few lines above.
+Does removing this header break the build for remaining unconverted legacy
+GPIO consumers?
 
-Similar duplicate includes might have been added to other files like
-drivers/input/keyboard/matrix_keypad.c and drivers/net/phy/mdio_device.c
-if they were also part of this series.
+For example, drivers/input/keyboard/gpio_keys.c:gpio_keys_setup_key() still
+appears to rely on this header for devm_gpio_request_one():
 
->  #include <linux/irq.h>
-> =20
->  static int sn7516x_used =3D 1, sn7516x;
+    error =3D devm_gpio_request_one(dev, button->gpio, GPIOF_IN, desc);
 
-While reviewing this file, I noticed a separate issue in bb_DAV_interrupt().
+Similarly, drivers/leds/leds-gpio.c:gpio_led_get_gpiod() also relies on it:
 
-[Severity: High]
-This is a pre-existing issue, but does this lack of a bounds check on
-priv->count lead to a buffer overflow?
+    ret =3D devm_gpio_request_one(dev, template->gpio, GPIOF_OUT_INIT_LOW,
+                                template->name);
 
-drivers/gpib/gpio/gpib_bitbang.c:bb_DAV_interrupt() {
-        ...
-        priv->rbuf[priv->count++] =3D get_data_lines();
-        priv->end =3D !gpiod_get_value(EOI);
-        ...
-}
+And arch/x86/platform/olpc/olpc-xo1-sci.c:setup_ec_sci() still uses
+gpio_request():
 
-If the hardware line DAV goes low multiple times while priv->r_busy is set
-without waiting for the normal NRFD/NDAC handshake, could priv->count exceed
-the allocated buffer size and corrupt memory?
+    r =3D gpio_request(OLPC_GPIO_ECSCI, "OLPC-ECSCI");
+
+Will these drivers fail to compile since functions like devm_gpio_request_o=
+ne()
+and gpio_request() will now be missing or implicitly declared?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260629132633.1300=
-009-1-arnd@kernel.org?part=3D12
+009-1-arnd@kernel.org?part=3D13

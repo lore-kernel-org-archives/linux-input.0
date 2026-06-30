@@ -1,296 +1,189 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6322B3E5EF3
-	for <linux-input@vger.kernel.org>; Tue, 30 Jun 2026 09:06:34 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9061F37A498
+	for <linux-input@vger.kernel.org>; Tue, 30 Jun 2026 09:07:53 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782810395; cv=none; b=fXJm7+8HK6Wzxed+VAc7CMIaTeSiZIL2+NtXpWsdbDxInJ69q+Sd1GKzDW8o8zODxjmuLjC/4rjTxKRGMB3GZ2ZrkRE7UrXRjtFbUXeRKQxld7zKt45XMRWq08GCPL1rnVKEE+FSCEqz1ltZLuY94yGcILD/rPuBPZqVNR6vGpA=
+	t=1782810474; cv=none; b=b6Kc7XeCBs0EK5oGuUeIk+HOpdsxK86Gl2zQut+AigAOIWRymWOxu0YvvCc/wmyKz8OQA1k4WkFl8LhGf8FgJj4M0O4oLn6/f1g+p1GhGb3Vh/4KEHOsqVoNMAPXMnEwflbBMxdGdKYol+8AZY9mQs27f+T5QsgvV9Ti5RAi2TM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782810395; c=relaxed/simple;
-	bh=apFMzrWtMG964I2vF2dyEYK+8531MNWrkic5aOHUwrU=;
+	s=arc-20240116; t=1782810474; c=relaxed/simple;
+	bh=plm8L2Jt5sQr02Az7mKNE4nJ+96WgXXQNPoSgDyXuUQ=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=P4Q5B3JvLK4zXMjIKeUMdY2RP4GgFtygpCzrRIPEZvzUX6gbMcda6EQO8ToWqLR27MauMuW1F9aXOM+8FJXQDm5Mi7GQogFIt7ucptJWeta23JGCf+hautPO4xsOYLRNMHIAR7uOziNBfAdlXjeuFk0YWpwMVcoFX2/uXneSCMI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=h8xgvnL9; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=ue3W094GF5dU615cr6C/FukVyexngWbIH6dzzEniFB/suwxnQpDsl/M/Jislkh/6pdabSaw9i6HTmi995wm8jeohXL5MAWxc1CsD7BpzHAqAmeBiprUPEvdcsSTJhQfbwo1JBuC150HgX9bofz6+/kke0OoS5sivkyH1uirxr9Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Sh6KZLqo; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="h8xgvnL9"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 118841F000E9;
-	Tue, 30 Jun 2026 09:06:33 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Sh6KZLqo"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 05D111F000E9;
+	Tue, 30 Jun 2026 09:07:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1782810394;
-	bh=Xr/utsWOsrO4iphBr9uNOoa9imckf9o4OwZUpViXGxE=;
+	s=k20260515; t=1782810473;
+	bh=0qYzEn13Kg3gX3o0Kx9BXKqFKudXTlVX9hHvmXVaWU4=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=h8xgvnL9pnnM7uNPa06xSzdB9oUrhmqnJIGyQRxnIOywgF9TPljzh3trN12fGguUM
-	 WfgCylsb5zmdvREqwA3AtQZYywd7cN8627tQUY2QboBoeW0DYiM0TpMXOQrwXn2XU2
-	 NSA5IZPEjKanNmKnIO1/f0PTylZjbDcByDeBRtqLUBMZvt5LyQ1wqjwXGEK4aYxQWZ
-	 sxrR8GsKlwPB6TiiUu6K5Ipt96kIuxtRg6NwXJBO8SFJDzD+dzjz5kYn1/OeAOrXgv
-	 8EkkUnzZNxAdtxzdvH+p6UbaGTOx8qpIQ3KZWln/xYYynpfVbFoZSimG2OPntZBQg5
-	 g1vCefp/La7og==
+	b=Sh6KZLqoqby5E0qE2dTz3V9VscoYx/O7HppzUE2IJdXkrK618X2Qzg06ekcBaQTlx
+	 6PugYiNcHDdI+C4TBnb40V4u8mDmNSTOtylLkUjuHsmq+lURn5HriXEN+h4+S0EjJw
+	 V3X0muMdH99hu+Shr0Tzrz4euji5hc3xbQ6PzuK+iarDb8D2aEyu+XCr5j1ZtfayCr
+	 QC2l8LkIis74px0v/d+Tz4zc2MbaoKyANve5JHKOS+oOOoDD/cqeS4X/jGemwTwtfT
+	 kpekEyGILT8eHpGAIkTrzk0h+Qc6MAhZfuO1IToKajbKv1NXywJFwljLzo09Ubn/kw
+	 rVah2dudwrx4A==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v7 1/3] HID: nintendo: Add preliminary Switch 2
- controller driver
+Subject: Re: [PATCH v7 2/3] HID: nintendo: Add rumble support for Switch 2
+ controllers
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Vicki Pfau" <vi@endrift.com>
 Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260630084838.2313379-2-vi@endrift.com>
+In-Reply-To: <20260630084838.2313379-3-vi@endrift.com>
 References: <20260630084838.2313379-1-vi@endrift.com>
- <20260630084838.2313379-2-vi@endrift.com>
+ <20260630084838.2313379-3-vi@endrift.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 30 Jun 2026 09:06:32 +0000
-Message-Id: <20260630090633.118841F000E9@smtp.kernel.org>
+Date: Tue, 30 Jun 2026 09:07:52 +0000
+Message-Id: <20260630090753.05D111F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 7 potential issue(=
+Thank you for your contribution! Sashiko AI review found 3 potential issue(=
 s) to consider:
-- [High] Missing lock release in URB error cleanup loops causes an immediat=
-e self-deadlock.
-- [High] Incorrect teardown sequence in USB disconnect and probe error path=
-s allows use-after-free of the controller and USB context.
-- [High] Calling `ida_free()` with an unallocated ID (U32_MAX) on probe fai=
-lure causes a BUG_ON / kernel panic.
-- [High] Devres lifecycle violation for the input device and LEDs causes a =
-severe Use-After-Free during teardown.
-- [High] Overwriting the active configuration pointer if multiple matching =
-USB interfaces are probed leads to a kernel panic on disconnect.
-- [Medium] Type Confusion in LED brightness callback when casting an `input=
-_dev->dev` pointer to a `hid_device`.
-- [Medium] Early returns on unhandled URB error statuses permanently leak U=
-RB slots and fail to clean up state.
+- [High] The delay calculation in `switch2_rumble_work` causes an unbounded=
+ timer catch-up loop, flooding the USB bus with back-to-back output reports=
+ if the worker is delayed.
+- [High] Sending an embedded, non-cacheline-aligned struct member (`ns2->ru=
+mble_buffer`) to `hid_hw_output_report()` can cause memory corruption durin=
+g DMA.
+- [High] The teardown sequence calls `hid_hw_stop()` before cancelling the =
+rumble work and unregistering the input device, allowing output reports to =
+be sent to a stopped device.
 --
 
-commit 7e33d97c8c5d7d9d33a04e0a368779204b06f73d
+commit 6d9250862d78279cc28f8c0b3c447d3a7da2e69c
 Author: Vicki Pfau <vi@endrift.com>
 
-HID: nintendo: Add preliminary Switch 2 controller driver
+HID: nintendo: Add rumble support for Switch 2 controllers
 
-This commit introduces a new driver for Nintendo Switch 2 controllers. It
-implements a split-driver design with a main HID interface and a secondary
-USB configuration interface. Support is included for basic input on Joy-Con=
- 2,
-Pro Controller 2, and GameCube NSO controllers.
-
-> diff --git a/drivers/input/joystick/nintendo-switch2-usb.c b/drivers/inpu=
-t/joystick/nintendo-switch2-usb.c
-> index 0000000000000..632af1a8638a7
-> --- /dev/null
-> +++ b/drivers/input/joystick/nintendo-switch2-usb.c
-[ ... ]
-> +static void switch2_bulk_out(struct urb *urb)
-> +{
-[ ... ]
-> +	switch (urb->status) {
-> +	case 0:
-> +		break;
-> +	case -ECONNRESET:
-> +	case -ENOENT:
-> +	case -ESHUTDOWN:
-> +		dev_dbg(&ns2_usb->udev->dev, "shutting down output urb: %d\n", urb->st=
-atus);
-> +		return;
-> +	default:
-> +		dev_dbg(&ns2_usb->udev->dev, "unknown output urb status: %d\n", urb->s=
-tatus);
-> +		return;
-> +	}
-> +
-> +	for (i =3D 0; i < NS2_OUT_URBS; i++) {
-> +		if (ns2_usb->bulk_out[i].urb !=3D urb)
-
-[Severity: Medium]
-If the URB status falls into the default case, this function prints a debug
-message and returns immediately. Does this skip the loop below that is supp=
-osed
-to free the URB slot by setting its state to NS2_URB_FREE? If this occurs
-multiple times, it seems all URB slots will remain permanently in-use, lead=
-ing
-to -ENOBUFS errors on future attempts.
-
-[ ... ]
-> +static int switch2_usb_probe(struct usb_interface *intf, const struct us=
-b_device_id *id)
-> +{
-[ ... ]
-> +	if (ret < 0) {
-> +		cancel_work_sync(&ns2_usb->message_in_work);
-> +		goto err_free_out;
-> +	}
-> +
-> +	return 0;
-> +
-> +err_free_out:
-
-[Severity: High]
-In this error path, cancel_work_sync() is called before the IN URBs are
-killed at err_free_in. If an IN URB completes immediately after
-cancel_work_sync(), could it requeue the work? This would leave the work
-active while the USB device context is being destroyed, potentially leading=
- to
-a use-after-free.
-
-[ ... ]
-> +	usb_kill_anchored_urbs(&ns2_usb->bulk_out_anchor);
-> +	for (i =3D 0; i < NS2_OUT_URBS; i++) {
-> +		spin_lock_irqsave(&ns2_usb->bulk_out_lock, flags);
-> +		urb =3D ns2_usb->bulk_out[i].urb;
-> +		data =3D ns2_usb->bulk_out[i].data;
-> +		if (!urb)
-> +			continue;
-> +
-> +		ns2_usb->bulk_out[i].urb =3D NULL;
-
-[Severity: High]
-When urb is NULL, this loop executes the continue statement while the=20
-bulk_out_lock is held. Will this cause the next iteration to attempt to
-acquire the same spinlock and immediately deadlock the CPU?
-
-[ ... ]
-> +err_free_in:
-> +	usb_kill_anchored_urbs(&ns2_usb->bulk_in_anchor);
-> +	for (i =3D 0; i < NS2_IN_URBS; i++) {
-> +		spin_lock_irqsave(&ns2_usb->bulk_in_lock, flags);
-> +		urb =3D ns2_usb->bulk_in[i].urb;
-> +		data =3D ns2_usb->bulk_in[i].data;
-> +		if (!urb)
-> +			continue;
-> +
-> +		ns2_usb->bulk_in[i].urb =3D NULL;
-
-[Severity: High]
-Similarly, does this continue statement skip unlocking bulk_in_lock, causing
-a deadlock on the next iteration?
-
-[ ... ]
-> +static void switch2_usb_disconnect(struct usb_interface *intf)
-> +{
-[ ... ]
-> +	switch2_controller_detach_cfg(ns2_usb->cfg.parent);
-> +
-> +	usb_kill_anchored_urbs(&ns2_usb->bulk_out_anchor);
-[ ... ]
-> +	cancel_work_sync(&ns2_usb->message_in_work);
-> +	usb_kill_anchored_urbs(&ns2_usb->bulk_in_anchor);
-
-[Severity: High]
-Is this teardown sequence safe? switch2_controller_detach_cfg() drops the
-refcount on the controller, potentially freeing it while message_in_work is
-still active. Furthermore, cancel_work_sync() is called before killing the =
-IN
-URBs, which might allow the IN URB completion handler to reschedule the work
-after we've attempted to cancel it. This seems to create multiple race wind=
-ows
-for a use-after-free.
+This adds rumble support for both the "HD Rumble" linear resonant actuator
+type as used in the Joy-Cons and Pro Controller, as well as the eccentric
+rotating mass type used in the GameCube controller. Note that since there's
+currently no API for exposing full control of LRAs with evdev, it only
+simulates a basic rumble for now.
 
 > diff --git a/drivers/hid/hid-nintendo.c b/drivers/hid/hid-nintendo.c
-> index e7302ec01ff1f..b9e2e708e28f3 100644
+> index b9e2e708e28f3..a53c554a54ae3 100644
 > --- a/drivers/hid/hid-nintendo.c
 > +++ b/drivers/hid/hid-nintendo.c
 [ ... ]
-> +static int switch2_player_led_brightness_set(struct led_classdev *led,
-> +					    enum led_brightness brightness)
-> +{
-> +	struct device *dev =3D led->dev->parent;
-> +	struct hid_device *hdev =3D to_hid_device(dev);
-> +	struct switch2_controller *ns2 =3D hid_get_drvdata(hdev);
-
-[Severity: Medium]
-The LEDs are registered with the input device as their parent, so
-led->dev->parent points to the input_dev's device struct. Does using
-to_hid_device() here perform an invalid cast? While hid_get_drvdata() might
-accidentally work due to struct layout overlaps for the driver_data pointer,
-casting an input_dev device to a hid_device looks like a strict-aliasing
-violation.
-
-[ ... ]
-> +static int switch2_init_input(struct switch2_controller *ns2)
-> +{
-[ ... ]
-> +	input =3D devm_input_allocate_device(&hdev->dev);
-[ ... ]
-> +		ret =3D devm_led_classdev_register(&input->dev, led);
-
-[Severity: High]
-The input device and LEDs are allocated using devm, tying their lifecycle to
-the HID device. However, the physical memory for the leds array is embedded
-inside the ns2 structure, which is managed via manual krefs and freed in
-switch2_kref_put(). When the controller is removed, ns2 is freed immediatel=
-y,
-but the devres cleanup for the LEDs will run later when the HID device unbi=
-nds.
-Could this lead to the LED core accessing the already-freed ns2 memory?
-
-[ ... ]
-> +static int switch2_probe(struct hid_device *hdev, const struct hid_devic=
-e_id *id)
-> +{
-[ ... ]
-> +	ns2->player_id =3D U32_MAX;
-> +	ret =3D ida_alloc(&nintendo_player_id_allocator, GFP_KERNEL);
-> +	if (ret < 0)
-> +		hid_warn(hdev, "Failed to allocate player ID, skipping; ret=3D%d\n", r=
-et);
-> +	else
-> +		ns2->player_id =3D ret;
-[ ... ]
-> +err_cleanup:
-> +	ida_free(&nintendo_player_id_allocator, ns2->player_id);
-
-[Severity: High]
-If ida_alloc() fails, ns2->player_id remains U32_MAX. If probe later fails
-and jumps to err_cleanup, ida_free() is called unconditionally. Since
-ida_free() expects a valid signed integer ID, passing U32_MAX (-1) will
-trigger a BUG_ON. Should there be a check before freeing?
-
-[ ... ]
-> +static void switch2_remove(struct hid_device *hdev)
-> +{
-> +	struct switch2_controller *ns2 =3D hid_get_drvdata(hdev);
+> @@ -3043,8 +3056,45 @@ struct switch2_controller {
+> =20
+>  	uint32_t player_id;
+>  	struct led_classdev leds[4];
 > +
-> +	hid_hw_close(hdev);
-> +	hid_hw_stop(hdev);
-> +	mutex_lock(&ns2->lock);
-> +	ida_free(&nintendo_player_id_allocator, ns2->player_id);
+> +#if IS_ENABLED(CONFIG_NINTENDO_FF)
+> +	spinlock_t rumble_lock;
+> +	uint8_t rumble_seq;
+> +	union {
+> +		struct switch2_hd_rumble hd;
+> +		struct switch2_erm_rumble sd;
+> +	} rumble;
+> +	uint64_t last_rumble_work;
+> +	struct delayed_work rumble_work;
+> +	uint8_t rumble_buffer[64];
 
 [Severity: High]
-Similar to the probe error path, if the device was successfully probed but
-ida_alloc() had initially failed, removing the device will call ida_free() =
-on
-U32_MAX, triggering a BUG_ON.
+Does this pass an embedded, non-cacheline-aligned array to the DMA layer?
 
+The USB DMA API requires that data buffers passed to it are dynamically
+allocated (e.g., via kmalloc()) to ensure they are cache-line aligned.
+Because rumble_buffer is embedded directly in struct switch2_controller, it
+shares a cache line with other members like rumble_work.
+
+Could this lead to memory corruption of adjacent struct members during
+DMA cache invalidation on non-coherent architectures when passed to
+hid_hw_output_report() in switch2_rumble_work()?
+
+> +#endif
+>  };
 [ ... ]
-> +int switch2_controller_attach_cfg(const char *phys, struct switch2_cfg_i=
-ntf *cfg)
+> +static void switch2_rumble_work(struct work_struct *work)
 > +{
 [ ... ]
-> +	mutex_lock(&ns2->lock);
-> +	WARN_ON(ns2->cfg);
-> +	ns2->cfg =3D cfg;
+> +	if (active) {
+> +		unsigned long interval =3D msecs_to_jiffies(2);
+> +		uint64_t current_jiffies =3D get_jiffies_64();
+> +
+> +		if (!ns2->last_rumble_work)
+> +			ns2->last_rumble_work =3D current_jiffies;
+> +		else
+> +			ns2->last_rumble_work +=3D interval;
+> +
+> +		if (ns2->last_rumble_work + interval >=3D current_jiffies)
+> +			schedule_delayed_work(&ns2->rumble_work,
+> +				ns2->last_rumble_work + interval - current_jiffies);
+> +		else
+> +			schedule_delayed_work(&ns2->rumble_work, 0);
 
 [Severity: High]
-If multiple USB interfaces from the same device match and trigger probes,
-this function emits a warning but proceeds to overwrite ns2->cfg. This brea=
-ks
-the one-to-one linkage. Should this return -EBUSY instead of overwriting?
+Can this delay calculation result in an unbounded timer catch-up loop?
 
+If the switch2_rumble_work() worker is delayed (e.g., due to system load
+or slow synchronous transfers), last_rumble_work will fall behind
+current_jiffies. The function appears to attempt to catch up by continually
+adding the fixed 2ms interval to last_rumble_work and scheduling the next
+execution with 0 delay.
+
+For example, a 100ms stall might result in 50 back-to-back executions.
+Could this flood the USB bus with zero-delay output reports, wasting CPU
+resources and potentially degrading the device or bus?
+
+> +	} else {
+> +		ns2->last_rumble_work =3D 0;
+> +	}
+> +
+> +	mutex_lock(&ns2->lock);
+> +	if (!ns2->hdev) {
+> +		cancel_delayed_work(&ns2->rumble_work);
+> +	} else {
+> +		ret =3D hid_hw_output_report(ns2->hdev, ns2->rumble_buffer, 64);
 [ ... ]
-> +void switch2_controller_detach_cfg(struct switch2_controller *ns2)
-> +{
-> +	mutex_lock(&ns2->lock);
+> @@ -4009,6 +4210,9 @@ static void switch2_remove(struct hid_device *hdev)
+> =20
+>  	hid_hw_close(hdev);
+>  	hid_hw_stop(hdev);
+> +#if IS_ENABLED(CONFIG_NINTENDO_FF)
+> +	cancel_delayed_work_sync(&ns2->rumble_work);
+> +#endif
+>  	mutex_lock(&ns2->lock);
+>  	ida_free(&nintendo_player_id_allocator, ns2->player_id);
+>  	WARN_ON(ns2->hdev !=3D hdev);
+> +	ns2->hdev =3D NULL;
 
 [Severity: High]
-If the active configuration pointer was overwritten due to multiple interfa=
-ces,
-when the first interface disconnects, it will clear the parent pointer on t=
-he
-second interface's config. When the second interface then disconnects, it w=
-ill
-pass a NULL ns2 pointer to this function, causing an immediate NULL pointer
-dereference when attempting to lock ns2->lock.
+Does this teardown sequence allow output reports to be sent to a stopped
+device?
+
+Here, hid_hw_stop() is called to stop the underlying HID transport,
+followed by cancel_delayed_work_sync(&ns2->rumble_work). If the worker
+thread was preempted just before acquiring ns2->lock in
+switch2_rumble_work():
+
+Worker thread:
+    mutex_lock(&ns2->lock);
+    // preempted before lock acquisition
+
+Teardown:
+    hid_hw_stop(hdev);
+    cancel_delayed_work_sync(&ns2->rumble_work); // waits for worker
+
+Worker thread resumes:
+    if (!ns2->hdev) // hdev is still valid here, set to NULL later
+        ...
+    else
+        ret =3D hid_hw_output_report(ns2->hdev, ns2->rumble_buffer, 64);
+
+Could the worker thread then execute hid_hw_output_report() on the stopped
+device, potentially causing undefined behavior in the transport drivers?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260630084838.2313=
-379-1-vi@endrift.com?part=3D1
+379-1-vi@endrift.com?part=3D2

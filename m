@@ -1,163 +1,127 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6B0BE78F2F
-	for <linux-input@vger.kernel.org>; Tue, 30 Jun 2026 07:04:23 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DDA9A1A6838
+	for <linux-input@vger.kernel.org>; Tue, 30 Jun 2026 07:05:30 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782803064; cv=none; b=nbZ9xQGVDcDSA2zYM6KQqVCU2jWGAh7h+xCoM97HnJsYlI6jR6BS7eT7biaSYKoE+hfSGRSct7V4VF1W6LrescKtIr2Hc7lQNGOnnFUYcHr7Zm6nzJgaLzPptgkXLBAhh6NrVCLKtGm/3XY/zydcPQRSKZQqyUrWiE+OGqhfW1A=
+	t=1782803131; cv=none; b=sHUay+DxbmQYYgI6rhEWoAwZDFycZ4wgK/MxNgozPDxj7e673g53YUrcIR8A0fGa9HhXOLbEjiMCwNMEZEXdcA3cCwokTv6si3hI2Bk1s9pUxetr59rzLO7VAsCuOlOHfyeMCMAR5FHsDowlx2JH1GP8QDi+TJM8ZqBY2WHizyk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782803064; c=relaxed/simple;
-	bh=yRbD8kdfgcbSuhAs8QNzn/gohbi3IZN2C1Q1XQgwSvw=;
+	s=arc-20240116; t=1782803131; c=relaxed/simple;
+	bh=da/CQSiOstM603Kd1t7Yxa5OcSdTPW0Eyeth7DVuPeM=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=UZJE2u/O3Az6XbglmfzP7+4xPg+w33OMVzKk5kwVf4TgelWggK7XA7BAnPIDkSy7yOe+BpICcsy2cHWqD8JuZ+Z1ENumK8svyxiZrt7RxM07PEFFtsPbh/xT931qiFbbNOwKQC867YCSzMZ9BYEwivwkc0lnhR9XvBsurMluYO4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=hWbxvVv/; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=YU4l3D6BX20+mTpbOFs/vzWVgtkwnx2rhkhYmq2zb+XQLOaHhavQlfIkyL/aq8eV4NM/musJOuJh3Ft4rQAeQRcvMLpiwGhNONwEcjDxokdoSSlO6tmufjlwGE1kseznYCkDdk/w0FRIAyxBv5jCxXunnv3GvzuxGxJ4wkVBgK8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=NVQ1MJod; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="hWbxvVv/"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 459181F000E9;
-	Tue, 30 Jun 2026 07:04:22 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="NVQ1MJod"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E23C1F000E9;
+	Tue, 30 Jun 2026 07:05:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1782803063;
-	bh=CVXNyAJYHT9mzhyOJln3JIOoWkMLFybcRsWzjYn1M78=;
+	s=k20260515; t=1782803130;
+	bh=EX/Dz5qm6QB4XsVTbjIbKq+YlUAyroxcFIBluRnqB6U=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=hWbxvVv/d68t8T4tP/1LF4wjFYcw/9O4evl/fYRyhf4hFPztsYGPVdjdTRGG52b/V
-	 JGNf+oOc+Sqe2Usi3dFsBzG6+2m2fijReoE94O6i+ACebnp3ECyWqh3nYOI3km/sV8
-	 B0qNGcmCZ4bDjt/nTIvyj0Ljq4phPceLTse731Vf8TQAk5Qgpul4cbqe7BNBxJgD4T
-	 tohiISTFWJ4fMt6AwB7SdAhQeHaOIS63CJBGLlUz3zzA5yqyjFX4e25hYflNTkcfaB
-	 PKz/dgorpT2tIrc5uuvR7tr5naQUsl1hMqDNYF13CInk3rIqm+Tztd+8i4Rr9cS6y2
-	 MRBGWpzqvsJAA==
+	b=NVQ1MJod0gurHcedLiigOTqt+TmHQwMymys+LnriEZ1rijkl0PFw68GToW9V8XpR2
+	 knkpYgE2Cimgojc9CkAKPy5panxDgdkOewUF6V5yIMaUHMNsd7gQYi6rS6SXHJ8pfP
+	 SjonRYTwBqD1nR3jZ+hFFO5gXg4z2e4RgT8fjdsFqZdISMlS/YikXk5qHZRzGsljsz
+	 TCHz7b/FjQJqzixsBPJ3acf8MFzExYT/poKJahdA7pkNxRIQQ3ZihTr4kSWb4t0Bmk
+	 QZdfEDZWxzLrnRczLn5RXuxRvQuJ1OXaPeIAw9gPzeaz0p/ISouoURRTqnuUIp8Uh6
+	 eB4KB1qsqxdIw==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] Input: usbtouchscreen - validate Nexio reply length
+Subject: Re: [PATCH] HID: rmi: check report length before trimming sentinel
+ bytes
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Pengpeng Hou" <pengpeng@iscas.ac.cn>
 Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <2026063007023179.2-ccfa108-0009-Input-usbtouchscreen---vali-pengpeng@iscas.ac.cn>
-References: <2026063007023179.2-ccfa108-0009-Input-usbtouchscreen---vali-pengpeng@iscas.ac.cn>
+In-Reply-To: <2026063007016439.1-ccfa108-0006-HID-rmi-check-report-length-pengpeng@iscas.ac.cn>
+References: <2026063007016439.1-ccfa108-0006-HID-rmi-check-report-length-pengpeng@iscas.ac.cn>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 30 Jun 2026 07:04:21 +0000
-Message-Id: <20260630070422.459181F000E9@smtp.kernel.org>
+Date: Tue, 30 Jun 2026 07:05:30 +0000
+Message-Id: <20260630070530.8E23C1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 4 potential issue(=
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
 s) to consider:
 
 Pre-existing issues:
-- [Critical] Missing `usb_kill_urb()` in `usbtouch_disconnect` for devices =
-with `irq_always` leads to a Use-After-Free.
-- [High] Missing URB restart in `usbtouch_reset_resume` for `irq_always` de=
-vices.
-- [High] Heap out-of-bounds read in `usbtouch_process_multi()` when handlin=
-g fragmented packets from a malicious device.
-- [Medium] The driver unconditionally submits a shared ACK URB in the inter=
-rupt handler without checking if it is already active, leading to a WARN lo=
-g-spam Denial of Service.
+- [High] `rmi_hid_write_block` writes data into a dynamically allocated hea=
+p buffer `data->writeReport` without verifying that the requested transfer =
+length fits within the allocation.
+- [High] `rmi_hid_read_block` trusts an attacker-controlled length field fr=
+om the device report to read from the dynamically allocated `data->readRepo=
+rt` buffer, leading to an out-of-bounds read of kernel memory.
 --
 
-commit 5d3372d0fad0625b140375a0207438f22cdad247
+commit 5629c16e6055ea1ed7974ee398f60300987bc662
 Author: Pengpeng Hou <pengpeng@iscas.ac.cn>
 
-Input: usbtouchscreen - validate Nexio reply length
+HID: rmi: check report length before trimming sentinel bytes
 
-This commit updates nexio_init() to require at least two bytes of reply=20
-data before checking the embedded reply length at buf[1]. This prevents=20
-reading uninitialized or out-of-bounds data when actual_len is 1.
+rmi_check_sanity() trims trailing 0xff sentinel bytes, but its loop
+reads data[valid_size - 1] before checking that valid_size is non-zero.
 
-> diff --git a/drivers/input/touchscreen/usbtouchscreen.c b/drivers/input/t=
-ouchscreen/usbtouchscreen.c
-> index 0bbacb517c286..0e07bcce5f96b 100644
-> --- a/drivers/input/touchscreen/usbtouchscreen.c
-> +++ b/drivers/input/touchscreen/usbtouchscreen.c
-> @@ -1011,7 +1011,7 @@ static int nexio_init(struct usbtouch_usb *usbtouch)
->  		ret =3D usb_bulk_msg(dev, usb_rcvbulkpipe(dev, input_ep),
->  				   buf, NEXIO_BUFSIZE, &actual_len,
->  				   NEXIO_TIMEOUT);
-> -		if (ret < 0 || actual_len < 1 || buf[1] !=3D actual_len)
-> +		if (ret < 0 || actual_len < 2 || buf[1] !=3D actual_len)
->  			continue;
->  		switch (buf[0]) {
->  		case 0x83:	/* firmware version */
+Reverse the condition so the length is proved before the last byte is
+inspected.
 
-[Severity: High]
-This isn't a bug introduced by this patch, but is it possible that the
-polling URB will never be restarted for irq_always devices after a reset?
-
-In usbtouch_reset_resume():
-
-	if (usbtouch->is_open)
-		return usb_submit_urb(usbtouch->irq, GFP_NOIO);
-
-Unlike usbtouch_resume(), this misses the || usbtouch->type->irq_always
-condition. If an irq_always device goes through a reset-resume cycle while
-not actively opened by userspace, does this permanently break the hardware
-polling contract and freeze the device until it is explicitly reopened?
-
-[Severity: Critical]
-This is a pre-existing issue, but does usbtouch_disconnect() have a
-use-after-free risk for irq_always devices?
-
-usbtouch_disconnect() calls:
-
-	usb_free_urb(usbtouch->irq);
-	if (usbtouch->type->exit)
-		usbtouch->type->exit(usbtouch);
-	usbtouch_free_buffers(interface_to_usbdev(intf), usbtouch);
-	kfree(usbtouch);
-
-Since usbtouch_close() omits calling usb_kill_urb() for irq_always devices,
-and usb_free_urb() only decrements the reference count without cancelling
-the in-flight URB, the URB remains active.=20
-
-When usbtouch_disconnect() returns, usb_disable_interface() will forcibly
-cancel active URBs, triggering the completion handler usbtouch_irq():
-
-	struct usbtouch_usb *usbtouch =3D urb->context;
-	struct device *dev =3D &usbtouch->interface->dev;
-
-Won't this completion handler access the already-freed usbtouch context
-upon normal device unbind or unplug?
+> diff --git a/drivers/hid/hid-rmi.c b/drivers/hid/hid-rmi.c
+> index d4af17fdba467..2bd781f1e0f53 100644
+> --- a/drivers/hid/hid-rmi.c
+> +++ b/drivers/hid/hid-rmi.c
+> @@ -365,7 +365,7 @@ static int rmi_check_sanity(struct hid_device *hdev, =
+u8 *data, int size)
+>  	 * such reports here.
+>  	 */
+> =20
+> -	while ((data[valid_size - 1] =3D=3D 0xff) && valid_size > 0)
+> +	while (valid_size > 0 && data[valid_size - 1] =3D=3D 0xff)
+>  		valid_size--;
+> =20
+>  	return valid_size;
 
 [Severity: High]
-This isn't a bug introduced by this patch, but does usbtouch_process_multi()
-properly validate bounds against the actual packet length?
+This is a pre-existing issue, but does this code overflow the dynamically
+allocated data->writeReport buffer?
 
-	tmp =3D pkt_len - usbtouch->buf_len;
-	if (usbtouch->buf_len + tmp >=3D usbtouch->type->rept_size)
-		goto out_flush_buf;
-	memcpy(usbtouch->buffer + usbtouch->buf_len, pkt, tmp);
+drivers/hid/hid-rmi.c:rmi_hid_write_block() {
+    ...
+	data->writeReport[2] =3D addr & 0xFF;
+	data->writeReport[3] =3D (addr >> 8) & 0xFF;
+	memcpy(&data->writeReport[4], buf, len);
+    ...
+}
 
-If a device advertises a small wMaxPacketSize, the usbtouch->data buffer
-is allocated small. When calculating tmp to read from the current URB
-payload pkt, it doesn't verify that the received data length is at least
-tmp.=20
+A malicious HID device can present a small output_report_size in its HID
+descriptor, which determines the size of the data->writeReport allocation.
 
-If tmp is greater than the received length, will this memcpy() read past
-the end of the newly received data and out of the bounds of the small heap
-allocation?
+By sending parameters that cause the RMI core to perform a large block writ=
+e,
+can the device force rmi_hid_write_block() to process a len that vastly
+exceeds the allocated buffer size?
 
-[Severity: Medium]
-This is a pre-existing issue, but can the unconditional submission of
-the ACK URB lead to a log-spam denial of service?
+[Severity: High]
+This isn't a bug introduced by this patch, but could this memcpy() result in
+an out-of-bounds read from the data->readReport buffer?
 
-In nexio_read_data():
+drivers/hid/hid-rmi.c:rmi_hid_read_block() {
+    ...
+			read_input_count =3D data->readReport[1];
+			memcpy(buf + bytes_read, &data->readReport[2],
+				min(read_input_count, bytes_needed));
+    ...
+}
 
-	/* send ACK */
-	ret =3D usb_submit_urb(priv->ack, GFP_ATOMIC);
-	if (ret)
-		dev_warn(dev, "Failed to submit ACK URB: %d\n", ret);
+The function reads read_input_count directly from the incoming HID report
+without validating it against the size of the data->readReport allocation
+(data->input_report_size).
 
-If a device sends rapid touch packets via the bulk IN endpoint faster
-than they can be acknowledged, the driver will attempt to submit the
-already-active ACK URB.=20
-
-Since the USB core rejects resubmitting an active URB and emits a kernel
-warning, could a malicious or buggy device spam IN packets to trigger a
-continuous stream of kernel WARN stack traces?
+Could a malicious device specify a small input_report_size in its HID
+descriptor but send a large read_input_count byte in the report, causing
+the memcpy() to over-read the kernel heap?
 
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/2026063007023179.2-=
-ccfa108-0009-Input-usbtouchscreen---vali-pengpeng@iscas.ac.cn?part=3D1
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/2026063007016439.1-=
+ccfa108-0006-HID-rmi-check-report-length-pengpeng@iscas.ac.cn?part=3D1

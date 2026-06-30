@@ -1,174 +1,120 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 29FF6383C64
-	for <linux-input@vger.kernel.org>; Tue, 30 Jun 2026 07:38:05 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 54E633590A9
+	for <linux-input@vger.kernel.org>; Tue, 30 Jun 2026 07:45:37 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782805087; cv=none; b=L3cW3XVxlXEjH7SyroIpckq1q1yFPt5RelF23nAiM2iD91mms3Ym3tE4bG6gb1TU1Pn+wuDLdfg5j/qKi3AofGiYT18wIYmzq86e5z5QMdT/fqcSzuVS9hU2pW2EJEVriwbyZ4BVT//RvvDKYHPcRdZeennJ9S4bbTUrLBKZoU4=
+	t=1782805538; cv=none; b=BNQ/MFKIMAXXSSOs7bFOMubeSOMUtp4IJNIgG2CfrjnNWaCzSqfmatz5elzRYH+As7aMzVyNJdI/5qcyOJJvdVSreVtrMENygx1UgLX4w7Tw5OZGnoBShH+HSNMX3aJzwYWUgxsdnO/hR4+VM9jWyoTeDQ6oYo1J2pCMsEhl2Hs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782805087; c=relaxed/simple;
-	bh=fTNP/fxK8N0RVVudYn4Klci0fFaT/gJJ9yWqGqTR8Pk=;
+	s=arc-20240116; t=1782805538; c=relaxed/simple;
+	bh=y+F4fJTWrD67n636c509BjVq/XDpgd2gBCKI2dNNzGQ=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=FdfvY5iUIyD/s042u2f4wr6XNhGotW5hz2MC1ELmZXbuGHZAkY7h11P2yQe8bYYiZXUrWtlAeFLhtVTJ0TtGMVVCtk+877mIB7wF8BEKEH3SfomBOQYIdL29X18Qu2CzLXYtiSkSNmyReZWZO+2O2Z/Bc5DzBmTmLAylPBfrcNw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=GhbF3JnW; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=ft/JniGy6PDyKTq1d8TKf2L+zXT3XY+kKFfKrp/csMySqN2YI5w76vBsO+v77QAn4radwHCYXSKpxj/zYrwy6D2+W7g1W33Yzhbt0aGPV9MS9qKcP3dsWsu4KfF3yh9t6Wj1vQuve36J2Xg2Emx/Ps8EADqllEZClDxMErStfME=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=QKExl2FJ; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="GhbF3JnW"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 858061F000E9;
-	Tue, 30 Jun 2026 07:38:05 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="QKExl2FJ"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 03B311F000E9;
+	Tue, 30 Jun 2026 07:45:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1782805085;
-	bh=jQErWCsSfzQqrfluuwatKVOKwfbNngICc44BbZKKdus=;
+	s=k20260515; t=1782805537;
+	bh=uLkuba/o/Nt/cUFVoQb6M9XashJb0UfuzhZOR2iBfVs=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=GhbF3JnWZiEGRIM+H84LqcUzActEKaAO6uoVYUW1rvVg74s20+/HvO+JXpdFOVYxu
-	 zKo5wYGKueKb5vw1KUaNwMdMiklSs579QrzmusVYEEJBisJmABXNLYt56Bhh5m8u8q
-	 ZRyMZGzWYvw61AuI677iQJ7IcLxMrdxV/UyjmfjpzeaU9fsOz4/i0+RWfAVTaiYK92
-	 BDYD+RCaS9JkVLNSFk/2ALaNm6WUIE61dypDg+BtfEWmsAyx2KzxiGplmOiPEepykT
-	 53W42c/BN9zLwUI37mBCrI9hF/HBB40TT784XLEFLnojOvz0a6RyM07lsRkYI0pLog
-	 QzjYyNbUpo0Cg==
+	b=QKExl2FJYXbw5RtrBaO0ZCJ5jjcb+jEhZZepcox9Hp+z9QEskMxqk5kyKizRfa21x
+	 ZfWDqU5vvCjQ77ib4/udNKDl5bnwuaw5+g3W74IrIP9f6ye1v1YbuPqLea9lKE4Fr+
+	 pQ/+CXAAlubL3dBqRiy5Ejzl22H3XuAIiCLZEtdNhO1uw+X03GGNJ1vW3t2wXUocnm
+	 iVl4RcvwP/h54rCe+/JiymF953KU+aZCzslaJKJ3WzzQ8YmGyTpUhSJOOCcRZEUdbp
+	 yrzDoDn4kKhCmsQ9AimmTM4N3rLI/Zi61apVtMe5FvMiwYHYBZBt5xj21ueH8mTh8e
+	 WNkeY0F1gbVsA==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] Input: cyapa - validate unsupported PIP response length
+Subject: Re: [PATCH] Input: hynitron_cstxxx - validate touch count against
+ buffer
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Pengpeng Hou" <pengpeng@iscas.ac.cn>
 Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <2026063008017969.1-ccfa108-0008-Input-cyapa---validate-unsu-pengpeng@iscas.ac.cn>
-References: <2026063008017969.1-ccfa108-0008-Input-cyapa---validate-unsu-pengpeng@iscas.ac.cn>
+In-Reply-To: <2026063009041899.4-ccfa108-0047-Input-hynitron_cstxxx---val-pengpeng@iscas.ac.cn>
+References: <2026063009041899.4-ccfa108-0047-Input-hynitron_cstxxx---val-pengpeng@iscas.ac.cn>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 30 Jun 2026 07:38:05 +0000
-Message-Id: <20260630073805.858061F000E9@smtp.kernel.org>
+Date: Tue, 30 Jun 2026 07:45:36 +0000
+Message-Id: <20260630074537.03B311F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
 
 Pre-existing issues:
-- [Critical] Stack buffer overflow in `cyapa_pip_irq_handler` when reading =
-touch reports.
-- [High] Stack out-of-bounds read in `cyapa_gen5_read_panel_scan_raw_data` =
-during raw data parsing.
-- [High] Stack out-of-bounds read and kernel infinite loop in `cyapa_gen5_r=
-ead_idac_data`.
+- [High] The driver passes stack-allocated memory to `i2c_transfer()` and `=
+i2c_master_send()`, which can cause memory corruption or system crashes if =
+the underlying I2C controller uses DMA.
 --
 
-commit 577a902f2ff46d9f3cceff655a89f68889610a56
+commit c00eb5cc820dacf72d27095570836d29b4df9d2d
 Author: Pengpeng Hou <pengpeng@iscas.ac.cn>
 
-Input: cyapa - validate unsupported PIP response length
+Input: hynitron_cstxxx - validate touch count against buffer
 
-cyapa_sort_tsg_pip_app_resp_data() accepts PIP application
-responses after checking PIP_MIN_APP_RESP_LENGTH bytes.  That covers
-the application command byte at offset 4, but the unsupported-command
-path also reads the status byte at PIP_RESP_STATUS_OFFSET.
+Bounds the device-reported touch count against the chip limit and buffer
+layout before parsing touch slots.
 
-A short response can advertise PIP_UNSUPPORTED_CMD_RESP_LENGTH in the
-response header while the supplied buffer still contains only the generic
-minimum response.  Validate the unsupported response length before reading
-the status byte.
-
-> diff --git a/drivers/input/mouse/cyapa_gen5.c b/drivers/input/mouse/cyapa=
-_gen5.c
-> index 59f6e97d54827..733da6d324331 100644
-> --- a/drivers/input/mouse/cyapa_gen5.c
-> +++ b/drivers/input/mouse/cyapa_gen5.c
-> @@ -686,6 +686,7 @@ bool cyapa_sort_tsg_pip_app_resp_data(struct cyapa *c=
-yapa,
->  		u8 *data, int len)
->  {
->  	struct cyapa_pip_cmd_states *pip =3D &cyapa->cmd_states.pip;
-> +	u8 cmd_code;
->  	int resp_len;
+> diff --git a/drivers/input/touchscreen/hynitron_cstxxx.c b/drivers/input/=
+touchscreen/hynitron_cstxxx.c
+> index 1d8ca90dcda69..6644272bc72a4 100644
+> --- a/drivers/input/touchscreen/hynitron_cstxxx.c
+> +++ b/drivers/input/touchscreen/hynitron_cstxxx.c
+> @@ -313,6 +313,12 @@ static void cst3xx_touch_report(struct i2c_client *c=
+lient)
+>  		return;
 > =20
->  	if (!data || len < PIP_MIN_APP_RESP_LENGTH)
-
-[ ... ]
-
->  		/* Read mutual global idac or local mutual/self PWC data. */
->  		offset +=3D read_len;
->  		for (i =3D 10; i < (read_len + GEN5_RESP_DATA_STRUCTURE_OFFSET);
->  				i +=3D *data_size) {
->  			value =3D cyapa_parse_structure_data(resp_data[9],
->  					&resp_data[i], *data_size);
+>  	touch_cnt =3D buf[5] & CST3XX_TOUCH_COUNT_MASK;
 
 [Severity: High]
-This is a pre-existing issue, but does this loop in
-cyapa_gen5_read_idac_data() risk an infinite loop or out-of-bounds read?
+This isn't a bug introduced by this patch, but is it safe to use
+stack-allocated memory for I2C transfers?
 
-If a malicious I2C peripheral sets the data size (derived from resp_data[9])
-to 0, wouldn't the loop fail to increment i and hang the CPU?
+Looking at cst3xx_touch_report(), buf is allocated on the stack and passed
+down to cst3xx_i2c_read_register():
 
-Additionally, doesn't blindly trusting read_len (derived from resp_data[7:8=
-])
-for the loop bound risk reading past the bounds of the 256-byte resp_data
-stack array?
+drivers/input/touchscreen/hynitron_cstxxx.c:cst3xx_touch_report() {
+        ...
+        u8 buf[28];
+        ...
+        err =3D cst3xx_i2c_read_register(client, CST3XX_TOUCH_DATA_PART_REG,
+                                       buf, 28);
+        ...
+}
 
-[ ... ]
+The cst3xx_i2c_read_register() function also appears to allocate its regist=
+er
+address buffer on the stack:
 
-> 		read_elements =3D get_unaligned_le16(&resp_data[7]);
-> 		if (read_elements =3D=3D 0)
-> 			break;
->=20
-> 		data_size =3D (resp_data[9] & GEN5_PWC_DATA_ELEMENT_SIZE_MASK);
-> 		offset +=3D read_elements;
-> 		if (read_elements) {
-> 			for (i =3D GEN5_RESP_DATA_STRUCTURE_OFFSET;
-> 			     i < (read_elements * data_size +
-> 					GEN5_RESP_DATA_STRUCTURE_OFFSET);
-> 			     i +=3D data_size) {
-> 				value =3D cyapa_parse_structure_data(resp_data[9],
-> 						&resp_data[i], data_size);
+drivers/input/touchscreen/hynitron_cstxxx.c:cst3xx_i2c_read_register() {
+        ...
+        __le16 buf =3D cpu_to_le16(reg);
+        ...
+                .buf =3D (u8 *)&buf,
+        ...
+}
 
-[Severity: High]
-This isn't a bug introduced by this patch, but does this risk an out-of-bou=
-nds
-read on the kernel stack in cyapa_gen5_read_panel_scan_raw_data()?
+If the underlying I2C adapter driver uses DMA to perform the transfer, mapp=
+ing
+stack memory for DMA can cause cache coherency issues, memory corruption, or
+kernel panics, particularly when CONFIG_VMAP_STACK is enabled.
 
-If the device returns a large read_elements value, the loop condition appea=
-rs
-to allow cyapa_parse_structure_data() to read far beyond the bounds of the
-256-byte resp_data stack array.
-
-[ ... ]
-
-> int cyapa_pip_irq_handler(struct cyapa *cyapa)
-> {
-> 	struct device *dev =3D &cyapa->client->dev;
-> 	struct cyapa_pip_report_data report_data;
-> 	unsigned int report_len;
-> 	int ret;
->=20
-> 	if (!cyapa_is_pip_app_mode(cyapa)) {
-> 		dev_err(dev, "invalid device state, gen=3D%d, state=3D0x%02x\n",
-> 			cyapa->gen, cyapa->state);
-> 		return -EINVAL;
-> 	}
->=20
-> 	ret =3D cyapa_i2c_pip_read(cyapa, (u8 *)&report_data,
-> 			PIP_RESP_LENGTH_SIZE);
-
-[ ... ]
-
-> 	/* Idle, no data for report. */
-> 	if (report_len =3D=3D PIP_RESP_LENGTH_SIZE)
-> 		return 0;
->=20
-> 	ret =3D cyapa_i2c_pip_read(cyapa, (u8 *)&report_data, report_len);
-
-[Severity: Critical]
-This is a pre-existing issue, but could this lead to a stack buffer overflow
-in cyapa_pip_irq_handler()?
-
-The report_data structure is 127 bytes on the stack, but an untrusted
-report_len from the device is used in cyapa_i2c_pip_read(). Since the read
-wrapper only caps the length to 256 bytes (CYAPA_REG_MAP_SIZE), can't a
-compromised peripheral supply a length that overflows the buffer and corrup=
-ts
-the stack?
+> +	if (touch_cnt > ts_data->chip->max_touch_num ||
+> +	    (touch_cnt > 1 && touch_cnt * 5 + 2 >=3D sizeof(buf))) {
+> +		dev_err(&client->dev, "cst3xx touch read failure\n");
+> +		return;
+> +	}
+> +
+>  	/*
+>  	 * Check the check bit of the last touch slot. The check bit is
+>  	 * always present after touch point 1 for valid data, and then
 
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/2026063008017969.1-=
-ccfa108-0008-Input-cyapa---validate-unsu-pengpeng@iscas.ac.cn?part=3D1
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/2026063009041899.4-=
+ccfa108-0047-Input-hynitron_cstxxx---val-pengpeng@iscas.ac.cn?part=3D1

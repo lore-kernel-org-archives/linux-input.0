@@ -1,363 +1,88 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1C2FC41B35C;
-	Tue, 30 Jun 2026 12:54:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 18078416D17;
+	Tue, 30 Jun 2026 13:10:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782824087; cv=none; b=LNFk0qsOD+XF8uroi6b8sKOvER5Qif/T3RuQ4153GVtTrNBNAcRwlEN1+oewkSRYliHLEtxBAs9/Hk0YOvrAwdbpshawxmr2EZnkuWMd/4hStfxDTnD/Pl0PyxHntutPfdV1xYZ/FJ1VL2dHcqd/fxIukGcON+yTGRNOTDjiOIk=
+	t=1782825022; cv=none; b=PXXyec10Ie0oqntyqhPcI+gQ02OVwmCTbNSoLLE4UUoTu7u/h329z6RJwvQXkX9mX8BxKujW99I9XgBacuVaihPrVPwmkMGkPH+7VtybdAzw8FndnBuD3SCW2mUrs8aJ4R/dmD8xiD0clGRupg+oFY8o8ZXJwotSLH72g7RrTHg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782824087; c=relaxed/simple;
-	bh=yK9GorJI2zs51fTbqrxqvqqQ4oBQGVRQz2tLSsxzY4Y=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=DKtWEFwn2voj8siN7DczELg58ZwCfG0PySgWcK8XPoyzOuXOboJAUrWUwNqnCzw/hqnmSLvfVySxd7ci0FIa9utH4eAcTxN9gj5SZ3ZSnGHJfNAjAybjwHqyqDjZTFsDUFLRJS1CWV41vz02hRM5HItZNlBGJ1vwTejejwLgTCM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=KBhpCbMp; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1782825022; c=relaxed/simple;
+	bh=2DwouDtvhu+LBQwnOw/5wk9oZdseE3IN96soFMzOsf0=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=d4QQeP+MaTwHn9HpOatZBXZXsJy4SJlz4FSH7L7qQsntgSi+K5bbT3TB9QM0FsEUFviXeH/XVeVkXttzmR9Re6GIDOSjZKxoBRVb85uIoHCEiKAfVxtH6ttAENp0HvKK0QmJynENljsw7wIRQFGW3rqYKhtDhW9FNHNkKp6fpDA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=RPaPqu1t; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="KBhpCbMp"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id EA910C2BCC9;
-	Tue, 30 Jun 2026 12:54:46 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1782824087;
-	bh=yK9GorJI2zs51fTbqrxqvqqQ4oBQGVRQz2tLSsxzY4Y=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
-	b=KBhpCbMpclL+VvdKGdEJrd+y5srLgEZQVqom9eIpI+Dpch1WwfPJEAKkYpKuHgiAq
-	 FS115EW9LMDliFxp/gyWYK1Iw8+B98nVaMUhLFYYjU/GgsNctwoVsVDfnDrRcq8SDv
-	 Bheq9jt8kK5PphulPbTpraNvw6aS5XupE9BgWmKwcdEj6EDdY16IAReCBcRq1/GnoE
-	 RU8krIIbU/kepJR/zLoxV224U9Rv9bEEIcAxrOGAq62K48Kcfb/4xa8QnEXTvrWkOb
-	 Y3MNH7NexY8eBqQbpcXZzwG+h3M+f1C/+Jwd4JUS7RDWhO5acoJ0B0G/jgNP+Wyent
-	 H1x2Y5jLlynTQ==
-Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E12C3C43327;
-	Tue, 30 Jun 2026 12:54:46 +0000 (UTC)
-From: Michael Reeves via B4 Relay <devnull+michael.reeves077.gmail.com@kernel.org>
-Date: Tue, 30 Jun 2026 22:54:38 +1000
-Subject: [PATCH 10/10] arm64: dts: apple: Enable DockChannel HID on M2 and
- M3 laptops
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="RPaPqu1t"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90D021F00A3A;
+	Tue, 30 Jun 2026 13:10:18 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1782825019;
+	bh=sqOiu5B9EF2puSGiP3TqHNAjCpWng7/BEsdp57dPPMQ=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=RPaPqu1tB+QJA3VIQmmhGTxXPBnbtwnQYTZaFR7dtRABGo4lSOnw/PI37YjwumuCA
+	 W2UVbNe1DmEPqBOCzJJE/4dox72gpXKxHLBWYR2kx1PIe0aBsex2qeMjhdIH/vW0IB
+	 xZAKhkU+Gy6u5jp7iMguB/7Tns8DGdV+oYx6PEYnDr08sE2SaXyaKPn6Rk/tb7tpf9
+	 uP0A5w11uZIaYp6Kl3SRKwiIWiZShiHMBbTjumO1UtgE4fecDgt2hRIU+1GwjPKqx0
+	 zaYLLQkCVwxHFsyvWDxmRKOdDbCC4Z1wo0h15cHFzPpKXqUMq+lEjYjbBw3m2TX6tQ
+	 BsZuqSX07L6tA==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH 04/10] dt-bindings: input: apple: Add DockChannel HID
+ transport
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Michael Reeves via B4 Relay" <devnull+michael.reeves077.gmail.com@kernel.org>
+Cc: conor+dt@kernel.org, linux-input@vger.kernel.org, devicetree@vger.kernel.org, robh@kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20260630-apple-mtp-keyboard-final-v1-4-506d936a1707@gmail.com>
+References: <20260630-apple-mtp-keyboard-final-v1-0-506d936a1707@gmail.com>
+ <20260630-apple-mtp-keyboard-final-v1-4-506d936a1707@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Tue, 30 Jun 2026 13:10:17 +0000
+Message-Id: <20260630131018.90D021F00A3A@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20260630-apple-mtp-keyboard-final-v1-10-506d936a1707@gmail.com>
-References: <20260630-apple-mtp-keyboard-final-v1-0-506d936a1707@gmail.com>
-In-Reply-To: <20260630-apple-mtp-keyboard-final-v1-0-506d936a1707@gmail.com>
-To: Sven Peter <sven@kernel.org>, Janne Grunau <j@jannau.net>, 
- Neal Gompa <neal@gompa.dev>, Jassi Brar <jassisinghbrar@gmail.com>, 
- Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
- Conor Dooley <conor+dt@kernel.org>, Hector Martin <marcan@marcan.st>, 
- "Joerg Roedel (AMD)" <joro@8bytes.org>, Will Deacon <will@kernel.org>, 
- Robin Murphy <robin.murphy@arm.com>, 
- Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jikos@kernel.org>, 
- Benjamin Tissoires <bentiss@kernel.org>
-Cc: asahi@lists.linux.dev, linux-arm-kernel@lists.infradead.org, 
- linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, 
- iommu@lists.linux.dev, linux-input@vger.kernel.org, 
- Michael Reeves <michael.reeves077@gmail.com>
-X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1782824083; l=6180;
- i=michael.reeves077@gmail.com; s=20260105; h=from:subject:message-id;
- bh=tv27VX+CaTGZeapPRJMnGAMPH4P1r9z5DHhM9G5AeOE=;
- b=zWEgyKLqb7DYVLvaL+tRccLtoK0/mCGzg4iLmXtFH8zbgRDoMOuTzjnwtAwiOBUUdzqKDaSVd
- u96i5HuJzPLA0KJi2OEMocQlcZP1UlTnM2yym4ZyJhgOtzNjVxCUy77
-X-Developer-Key: i=michael.reeves077@gmail.com; a=ed25519;
- pk=QIrgWBGCm3LG0YYc6MLCDkwuVXLTGGooVBdWX/KhSiU=
-X-Endpoint-Received: by B4 Relay for michael.reeves077@gmail.com/20260105
- with auth_id=591
-X-Original-From: Michael Reeves <michael.reeves077@gmail.com>
-Reply-To: michael.reeves077@gmail.com
 
-From: Michael Reeves <michael.reeves077@gmail.com>
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
+- [Low] The custom property `hid-country-code` lacks a vendor prefix.
+--
 
-Enable the MTP mailbox, DART, DockChannel mailbox, and HID transport on
-the M2 and M3 laptop device trees using this internal input path.
+commit 0afec3dbb1ad0bf9e9d68a29699cf412f978e322
+Author: Michael Reeves <michael.reeves077@gmail.com>
 
-Add a keyboard alias and keyboard child node for each machine so the
-transport can expose the internal keyboard.
+dt-bindings: input: apple: Add DockChannel HID transport
 
-Co-developed-by: Hector Martin <marcan@marcan.st>
-Signed-off-by: Hector Martin <marcan@marcan.st>
-Signed-off-by: Michael Reeves <michael.reeves077@gmail.com>
----
- arch/arm64/boot/dts/apple/t602x-j414-j416.dtsi | 25 +++++++++++++++++++++++++
- arch/arm64/boot/dts/apple/t8112-j413.dts       | 20 ++++++++++++++++++++
- arch/arm64/boot/dts/apple/t8112-j415.dts       | 20 ++++++++++++++++++++
- arch/arm64/boot/dts/apple/t8112-j493.dts       | 22 +++++++++++++++++++++-
- arch/arm64/boot/dts/apple/t8122-j504.dts       | 22 ++++++++++++++++++++++
- arch/arm64/boot/dts/apple/t8122-j613.dts       | 23 +++++++++++++++++++++++
- arch/arm64/boot/dts/apple/t8122-j615.dts       | 23 +++++++++++++++++++++++
- 7 files changed, 154 insertions(+), 1 deletion(-)
+This commit adds the device tree binding schema for the Apple DockChannel H=
+ID
+transport. It defines the required properties including mailboxes, IOMMUs,
+and an optional keyboard child node for layout variants.
 
-diff --git a/arch/arm64/boot/dts/apple/t602x-j414-j416.dtsi b/arch/arm64/boot/dts/apple/t602x-j414-j416.dtsi
-index 0e806d8ddf81..46ed5ea86242 100644
---- a/arch/arm64/boot/dts/apple/t602x-j414-j416.dtsi
-+++ b/arch/arm64/boot/dts/apple/t602x-j414-j416.dtsi
-@@ -16,6 +16,12 @@
- 
- #include "t600x-j314-j316.dtsi"
- 
-+/ {
-+	aliases {
-+		keyboard = &keyboard;
-+	};
-+};
-+
- &framebuffer0 {
- 	power-domains = <&ps_disp0_cpu0>, <&ps_dptx_phy_ps>;
- };
-@@ -43,3 +49,22 @@ &wifi0 {
- &bluetooth0 {
- 	compatible = "pci14e4,5f72";
- };
-+
-+&mtp_mbox {
-+	status = "okay";
-+};
-+
-+&mtp_dart {
-+	status = "okay";
-+};
-+
-+&mtp_dockchannel {
-+	status = "okay";
-+};
-+
-+&mtp_hid {
-+	status = "okay";
-+
-+	keyboard: keyboard {
-+	};
-+};
-diff --git a/arch/arm64/boot/dts/apple/t8112-j413.dts b/arch/arm64/boot/dts/apple/t8112-j413.dts
-index 1a08a41f369b..1256e7cd9876 100644
---- a/arch/arm64/boot/dts/apple/t8112-j413.dts
-+++ b/arch/arm64/boot/dts/apple/t8112-j413.dts
-@@ -20,6 +20,7 @@ / {
- 
- 	aliases {
- 		bluetooth0 = &bluetooth0;
-+		keyboard = &keyboard;
- 		wifi0 = &wifi0;
- 	};
- 
-@@ -91,3 +92,22 @@ &i2c4 {
- &fpwm1 {
- 	status = "okay";
- };
-+
-+&mtp_mbox {
-+	status = "okay";
-+};
-+
-+&mtp_dart {
-+	status = "okay";
-+};
-+
-+&mtp_dockchannel {
-+	status = "okay";
-+};
-+
-+&mtp_hid {
-+	status = "okay";
-+
-+	keyboard: keyboard {
-+	};
-+};
-diff --git a/arch/arm64/boot/dts/apple/t8112-j415.dts b/arch/arm64/boot/dts/apple/t8112-j415.dts
-index e37c56d9fb4d..1db3500e991f 100644
---- a/arch/arm64/boot/dts/apple/t8112-j415.dts
-+++ b/arch/arm64/boot/dts/apple/t8112-j415.dts
-@@ -20,6 +20,7 @@ / {
- 
- 	aliases {
- 		bluetooth0 = &bluetooth0;
-+		keyboard = &keyboard;
- 		wifi0 = &wifi0;
- 	};
- 
-@@ -91,3 +92,22 @@ &i2c4 {
- &fpwm1 {
- 	status = "okay";
- };
-+
-+&mtp_mbox {
-+	status = "okay";
-+};
-+
-+&mtp_dart {
-+	status = "okay";
-+};
-+
-+&mtp_dockchannel {
-+	status = "okay";
-+};
-+
-+&mtp_hid {
-+	status = "okay";
-+
-+	keyboard: keyboard {
-+	};
-+};
-diff --git a/arch/arm64/boot/dts/apple/t8112-j493.dts b/arch/arm64/boot/dts/apple/t8112-j493.dts
-index ec116da3e4dd..5deb2dd9802a 100644
---- a/arch/arm64/boot/dts/apple/t8112-j493.dts
-+++ b/arch/arm64/boot/dts/apple/t8112-j493.dts
-@@ -1,6 +1,6 @@
- // SPDX-License-Identifier: GPL-2.0+ OR MIT
- /*
-- * Apple MacBook Pro (13-inch, M1, 2022)
-+ * Apple MacBook Pro (13-inch, M2, 2022)
-  *
-  * target-type: J493
-  *
-@@ -24,6 +24,7 @@ / {
- 	 */
- 	aliases {
- 		bluetooth0 = &bluetooth0;
-+		keyboard = &keyboard;
- 		touchbar0 = &touchbar0;
- 		wifi0 = &wifi0;
- 	};
-@@ -146,3 +147,22 @@ touchbar0: touchbar@0 {
- 		touchscreen-inverted-y;
- 	};
- };
-+
-+&mtp_mbox {
-+	status = "okay";
-+};
-+
-+&mtp_dart {
-+	status = "okay";
-+};
-+
-+&mtp_dockchannel {
-+	status = "okay";
-+};
-+
-+&mtp_hid {
-+	status = "okay";
-+
-+	keyboard: keyboard {
-+	};
-+};
-diff --git a/arch/arm64/boot/dts/apple/t8122-j504.dts b/arch/arm64/boot/dts/apple/t8122-j504.dts
-index 464491b55b01..0d93ac72fff9 100644
---- a/arch/arm64/boot/dts/apple/t8122-j504.dts
-+++ b/arch/arm64/boot/dts/apple/t8122-j504.dts
-@@ -18,6 +18,10 @@ / {
- 	compatible = "apple,j504", "apple,t8122", "apple,arm-platform";
- 	model = "Apple MacBook Pro (14-inch, M3, 2023)";
- 
-+	aliases {
-+		keyboard = &keyboard;
-+	};
-+
- 	led-controller {
- 		compatible = "pwm-leds";
- 		led-0 {
-@@ -35,3 +39,21 @@ &fpwm1 {
- 	status = "okay";
- };
- 
-+&mtp_mbox {
-+	status = "okay";
-+};
-+
-+&mtp_dart {
-+	status = "okay";
-+};
-+
-+&mtp_dockchannel {
-+	status = "okay";
-+};
-+
-+&mtp_hid {
-+	status = "okay";
-+
-+	keyboard: keyboard {
-+	};
-+};
-diff --git a/arch/arm64/boot/dts/apple/t8122-j613.dts b/arch/arm64/boot/dts/apple/t8122-j613.dts
-index 51894ea705e7..e77b1ad869eb 100644
---- a/arch/arm64/boot/dts/apple/t8122-j613.dts
-+++ b/arch/arm64/boot/dts/apple/t8122-j613.dts
-@@ -17,6 +17,10 @@ / {
- 	compatible = "apple,j613", "apple,t8122", "apple,arm-platform";
- 	model = "Apple MacBook Air (13-inch, M3, 2024)";
- 
-+	aliases {
-+		keyboard = &keyboard;
-+	};
-+
- 	led-controller {
- 		compatible = "pwm-leds";
- 		led-0 {
-@@ -33,3 +37,22 @@ led-0 {
- &fpwm1 {
- 	status = "okay";
- };
-+
-+&mtp_mbox {
-+	status = "okay";
-+};
-+
-+&mtp_dart {
-+	status = "okay";
-+};
-+
-+&mtp_dockchannel {
-+	status = "okay";
-+};
-+
-+&mtp_hid {
-+	status = "okay";
-+
-+	keyboard: keyboard {
-+	};
-+};
-diff --git a/arch/arm64/boot/dts/apple/t8122-j615.dts b/arch/arm64/boot/dts/apple/t8122-j615.dts
-index 2a1970c1bc90..5da0021d40f8 100644
---- a/arch/arm64/boot/dts/apple/t8122-j615.dts
-+++ b/arch/arm64/boot/dts/apple/t8122-j615.dts
-@@ -17,6 +17,10 @@ / {
- 	compatible = "apple,j615", "apple,t8122", "apple,arm-platform";
- 	model = "Apple MacBook Air (15-inch, M3, 2024)";
- 
-+	aliases {
-+		keyboard = &keyboard;
-+	};
-+
- 	led-controller {
- 		compatible = "pwm-leds";
- 		led-0 {
-@@ -33,3 +37,22 @@ led-0 {
- &fpwm1 {
- 	status = "okay";
- };
-+
-+&mtp_mbox {
-+	status = "okay";
-+};
-+
-+&mtp_dart {
-+	status = "okay";
-+};
-+
-+&mtp_dockchannel {
-+	status = "okay";
-+};
-+
-+&mtp_hid {
-+	status = "okay";
-+
-+	keyboard: keyboard {
-+	};
-+};
+> diff --git a/Documentation/devicetree/bindings/input/apple,dockchannel-hi=
+d.yaml b/Documentation/devicetree/bindings/input/apple,dockchannel-hid.yaml
+> new file mode 100644
+> index 0000000000000..dbba4fc389710
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/input/apple,dockchannel-hid.yaml
+[ ... ]
+> +  keyboard:
+> +    type: object
+> +    properties:
+> +      hid-country-code:
 
--- 
-2.51.2
+[Severity: Low]
+Should this custom property include a vendor prefix? Hardware-specific
+properties not defined in a generic schema generally require a vendor prefix
+(like apple,hid-country-code) to prevent future namespace collisions.
 
+> +        $ref: /schemas/types.yaml#/definitions/uint32
+> +        description:
+> +          HID country code for the keyboard layout variant.
+> +
+> +    additionalProperties: false
 
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260630-apple-mtp-=
+keyboard-final-v1-0-506d936a1707@gmail.com?part=3D4

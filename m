@@ -1,120 +1,102 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 54E633590A9
-	for <linux-input@vger.kernel.org>; Tue, 30 Jun 2026 07:45:37 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BA95D3E51DE
+	for <linux-input@vger.kernel.org>; Tue, 30 Jun 2026 07:53:52 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782805538; cv=none; b=BNQ/MFKIMAXXSSOs7bFOMubeSOMUtp4IJNIgG2CfrjnNWaCzSqfmatz5elzRYH+As7aMzVyNJdI/5qcyOJJvdVSreVtrMENygx1UgLX4w7Tw5OZGnoBShH+HSNMX3aJzwYWUgxsdnO/hR4+VM9jWyoTeDQ6oYo1J2pCMsEhl2Hs=
+	t=1782806033; cv=none; b=XeWaM/jqPXPDP8FncRxu38st0nT4fo3QuCl5pZ9tj1d6WXU2YWg9YS4ymRW7WW9z64NJbS1ftxvnLUbEVubgwvB3KXGjCIZPxN3MwESys2Gf+PCs5usgjZmjktCi47Ks13VUiaH/7XeZLtKIOpKOxWF4dGPDG+fnjh2+5wKw2Ds=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782805538; c=relaxed/simple;
-	bh=y+F4fJTWrD67n636c509BjVq/XDpgd2gBCKI2dNNzGQ=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=ft/JniGy6PDyKTq1d8TKf2L+zXT3XY+kKFfKrp/csMySqN2YI5w76vBsO+v77QAn4radwHCYXSKpxj/zYrwy6D2+W7g1W33Yzhbt0aGPV9MS9qKcP3dsWsu4KfF3yh9t6Wj1vQuve36J2Xg2Emx/Ps8EADqllEZClDxMErStfME=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=QKExl2FJ; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1782806033; c=relaxed/simple;
+	bh=DKWuHMD8ADL0zKU3qzM6I+0+Ls324mTKAtUCV8uTQCo=;
+	h=From:In-Reply-To:MIME-Version:References:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=P4HbXiuq4oSerAEY6vqQmYl7aShsYOVjTDbfME4GKuy48AboVfqRKPtnToq+eH16q4UQFshCzEmFlvtjMrQI+1P+AgS7wP4YvX6rCA1Fr6Fkyz6pfBbtmQh8vilU4V0St2zl+WBrPVy8xs4tjfE52mgZsGPozYdG4tN1+y1LHxw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=SzEeikn2; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="QKExl2FJ"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 03B311F000E9;
-	Tue, 30 Jun 2026 07:45:36 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="SzEeikn2"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 951371F0156A
+	for <linux-input@vger.kernel.org>; Tue, 30 Jun 2026 07:53:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1782805537;
-	bh=uLkuba/o/Nt/cUFVoQb6M9XashJb0UfuzhZOR2iBfVs=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=QKExl2FJYXbw5RtrBaO0ZCJ5jjcb+jEhZZepcox9Hp+z9QEskMxqk5kyKizRfa21x
-	 ZfWDqU5vvCjQ77ib4/udNKDl5bnwuaw5+g3W74IrIP9f6ye1v1YbuPqLea9lKE4Fr+
-	 pQ/+CXAAlubL3dBqRiy5Ejzl22H3XuAIiCLZEtdNhO1uw+X03GGNJ1vW3t2wXUocnm
-	 iVl4RcvwP/h54rCe+/JiymF953KU+aZCzslaJKJ3WzzQ8YmGyTpUhSJOOCcRZEUdbp
-	 yrzDoDn4kKhCmsQ9AimmTM4N3rLI/Zi61apVtMe5FvMiwYHYBZBt5xj21ueH8mTh8e
-	 WNkeY0F1gbVsA==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] Input: hynitron_cstxxx - validate touch count against
- buffer
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Pengpeng Hou" <pengpeng@iscas.ac.cn>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <2026063009041899.4-ccfa108-0047-Input-hynitron_cstxxx---val-pengpeng@iscas.ac.cn>
-References: <2026063009041899.4-ccfa108-0047-Input-hynitron_cstxxx---val-pengpeng@iscas.ac.cn>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Tue, 30 Jun 2026 07:45:36 +0000
-Message-Id: <20260630074537.03B311F000E9@smtp.kernel.org>
+	s=k20260515; t=1782806030;
+	bh=QLk1TuOjiNPuCpTV4xCdDTaOjHQTK3QruyZKcZY7x1Q=;
+	h=From:In-Reply-To:References:Date:Subject:To:Cc;
+	b=SzEeikn298ntM12mqrr6eeAuWBznUx8HGeKI8OO6J1rAXqZe+DG8eH3kpdxS2Qwc/
+	 BEgTe/7fHp8h71X6sCGG3fIihS5C6QKcHYkMaNYrgPUk3rcaSPmJDnw8ZoM5yrlTQE
+	 KvW3inqTRly1yX4cupxJ6KIIy4QWzwTYakuwLMqpuMM/p2OaqREIyxEYDMqln50mnE
+	 C1NSCn+lHyKd79yClTWWWIpGeXloq0qHFR7J5NJc/x4YvTZ2+1E8CMWE8qqPT9V+G8
+	 G9xFlM4DvUB/S9Qvyumv8uzp49Hn1jyEjfrRcGIK8Lu7u5c1SmS6vDV9TdRuWHIBZh
+	 32YpQJymIWJ5Q==
+Received: by mail-lj1-f181.google.com with SMTP id 38308e7fff4ca-39b14cf91b9so10056141fa.0
+        for <linux-input@vger.kernel.org>; Tue, 30 Jun 2026 00:53:50 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AHgh+Rr5s1xqM8JhLwDEO/EczFaR5tEGUpyJLTmhU8+xsNwcUifTuIT0HIYVABb8N/TFgs8LcwGdwE4EICvoig==@vger.kernel.org
+X-Gm-Message-State: AOJu0YzGoDxPnEBzTP9xNzFsCx4SWmjF5vu3pHtlxD803YxMx+O1XP+Q
+	QsNdYkLo1Fs0G9wBFsYfFwXCkLTl37AOQIUSNWgkGRnxI2gTy3rTvk5YHmFCfHplQ9IRq8YwFfE
+	SGBooUo5WwNrgzvVlq0SAg3/WgUEGB3DDoVDOILMGkQ==
+X-Received: by 2002:a05:651c:2203:b0:39b:d0:e992 with SMTP id
+ 38308e7fff4ca-39b1da26188mr5158341fa.4.1782806029201; Tue, 30 Jun 2026
+ 00:53:49 -0700 (PDT)
+Received: from 969154062570 named unknown by gmailapi.google.com with
+ HTTPREST; Tue, 30 Jun 2026 00:53:46 -0700
+Received: from 969154062570 named unknown by gmailapi.google.com with
+ HTTPREST; Tue, 30 Jun 2026 00:53:46 -0700
+From: Bartosz Golaszewski <brgl@kernel.org>
+In-Reply-To: <20260629132633.1300009-1-arnd@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+References: <20260629132633.1300009-1-arnd@kernel.org>
+Date: Tue, 30 Jun 2026 00:53:46 -0700
+X-Gmail-Original-Message-ID: <CAMRc=McnpZK+XeMcVfrBeh8SWa44UsVSJD0GJ1pXYhiFqzdpaQ@mail.gmail.com>
+X-Gm-Features: AVVi8CcPrvp2PMd39-Ep5NDuNXP5lZT9A5toOBbKSjeAVmB0_7rIggX2JLATmJ0
+Message-ID: <CAMRc=McnpZK+XeMcVfrBeh8SWa44UsVSJD0GJ1pXYhiFqzdpaQ@mail.gmail.com>
+Subject: Re: [PATCH 00/13] treewide: replace linux/gpio.h
+To: Arnd Bergmann <arnd@kernel.org>
+Cc: linux-gpio@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, 
+	Bartosz Golaszewski <brgl@kernel.org>, Andrew Lunn <andrew@lunn.ch>, 
+	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>, 
+	Gregory Clement <gregory.clement@bootlin.com>, Frank Li <Frank.Li@nxp.com>, 
+	Robert Jarzmik <robert.jarzmik@free.fr>, Krzysztof Kozlowski <krzk@kernel.org>, 
+	Greg Ungerer <gerg@linux-m68k.org>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, 
+	Hauke Mehrtens <hauke@hauke-m.de>, =?UTF-8?B?UmFmYcWCIE1pxYJlY2tp?= <zajec5@gmail.com>, 
+	Yoshinori Sato <ysato@users.sourceforge.jp>, 
+	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>, Linus Walleij <linusw@kernel.org>, 
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jakub Kicinski <kuba@kernel.org>, 
+	Paolo Abeni <pabeni@redhat.com>, Dominik Brodowski <linux@dominikbrodowski.net>, 
+	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
+	linux-samsung-soc@vger.kernel.org, patches@opensource.cirrus.com, 
+	linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, 
+	linux-sh@vger.kernel.org, linux-input@vger.kernel.org, 
+	linux-media@vger.kernel.org, netdev@vger.kernel.org, 
+	linux-sunxi@lists.linux.dev, linux-phy@lists.infradead.org, 
+	linux-rockchip@lists.infradead.org, linux-sound@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
+On Mon, 29 Jun 2026 15:26:20 +0200, Arnd Bergmann <arnd@kernel.org> said:
+> From: Arnd Bergmann <arnd@arndb.de>
+>
+> The linux/gpio.h header used to be the global definition for the gpio
+> interfaces, with 1100 users back in linux-3.17. In linux-7.2, only about
+> 130 of those remain, so this series cleans out the rest.
+>
+> In each subsystem, we can replace the header either with
+> linux/gpio/consumer.h for users of the modern gpio descriptor interface,
+> or linux/gpio/legacy.h for the few remaining users of the old number
+> based interface.
+>
+> All patches in this series can get applied independently, so my
+> preference would be for each subsystem maintainer to apply these
+> directly, with the rest going into the gpio tree at some point.
+>
+> The final patch here obviously needs to wait for all the others
+> to get merged first.
+>
+>       Arnd
 
-Pre-existing issues:
-- [High] The driver passes stack-allocated memory to `i2c_transfer()` and `=
-i2c_master_send()`, which can cause memory corruption or system crashes if =
-the underlying I2C controller uses DMA.
---
+Thanks for doing this Arnd!
 
-commit c00eb5cc820dacf72d27095570836d29b4df9d2d
-Author: Pengpeng Hou <pengpeng@iscas.ac.cn>
+For the series:
 
-Input: hynitron_cstxxx - validate touch count against buffer
-
-Bounds the device-reported touch count against the chip limit and buffer
-layout before parsing touch slots.
-
-> diff --git a/drivers/input/touchscreen/hynitron_cstxxx.c b/drivers/input/=
-touchscreen/hynitron_cstxxx.c
-> index 1d8ca90dcda69..6644272bc72a4 100644
-> --- a/drivers/input/touchscreen/hynitron_cstxxx.c
-> +++ b/drivers/input/touchscreen/hynitron_cstxxx.c
-> @@ -313,6 +313,12 @@ static void cst3xx_touch_report(struct i2c_client *c=
-lient)
->  		return;
-> =20
->  	touch_cnt =3D buf[5] & CST3XX_TOUCH_COUNT_MASK;
-
-[Severity: High]
-This isn't a bug introduced by this patch, but is it safe to use
-stack-allocated memory for I2C transfers?
-
-Looking at cst3xx_touch_report(), buf is allocated on the stack and passed
-down to cst3xx_i2c_read_register():
-
-drivers/input/touchscreen/hynitron_cstxxx.c:cst3xx_touch_report() {
-        ...
-        u8 buf[28];
-        ...
-        err =3D cst3xx_i2c_read_register(client, CST3XX_TOUCH_DATA_PART_REG,
-                                       buf, 28);
-        ...
-}
-
-The cst3xx_i2c_read_register() function also appears to allocate its regist=
-er
-address buffer on the stack:
-
-drivers/input/touchscreen/hynitron_cstxxx.c:cst3xx_i2c_read_register() {
-        ...
-        __le16 buf =3D cpu_to_le16(reg);
-        ...
-                .buf =3D (u8 *)&buf,
-        ...
-}
-
-If the underlying I2C adapter driver uses DMA to perform the transfer, mapp=
-ing
-stack memory for DMA can cause cache coherency issues, memory corruption, or
-kernel panics, particularly when CONFIG_VMAP_STACK is enabled.
-
-> +	if (touch_cnt > ts_data->chip->max_touch_num ||
-> +	    (touch_cnt > 1 && touch_cnt * 5 + 2 >=3D sizeof(buf))) {
-> +		dev_err(&client->dev, "cst3xx touch read failure\n");
-> +		return;
-> +	}
-> +
->  	/*
->  	 * Check the check bit of the last touch slot. The check bit is
->  	 * always present after touch point 1 for valid data, and then
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/2026063009041899.4-=
-ccfa108-0047-Input-hynitron_cstxxx---val-pengpeng@iscas.ac.cn?part=3D1
+Acked-by: Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>

@@ -1,38 +1,38 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B83BD410D32;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E4386413245;
 	Tue, 30 Jun 2026 12:54:46 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782824086; cv=none; b=okTWgibYIez5xpMsTlo/M3IhynX01olhjBOrh84MD9t5+X0FLZ8oijP5d7D2nd0z14NE+f5S3L3eLKOs/Ea1TSzv27yMT0Xqp6OFWTQMX0SooUki0Ax2hmYtM9PJSlx50nRrdTp5Wdkz7FOOqMCy1vkNX/jPJAyfkORc6+gwJN0=
+	t=1782824087; cv=none; b=rbuG+u876Ep52S3nI/8gMfCWIJqxPsntrYABZOJvQZ67VTHXDwM7/wy7Jqmwn7edEh7kmeEdcyeT77k+Y6blKExz8KlCy3Lb2sz1jQvplwIi6QvNUD8XfxcYnkqQsXQ3yc3C1x84o7qao4REzmaOLrquhBI0UJasbPfv/Opv8VI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782824086; c=relaxed/simple;
-	bh=ofT9+j5+38wC3ohGcRL3g+6NUmTh2utIOvaD/eO4TF8=;
+	s=arc-20240116; t=1782824087; c=relaxed/simple;
+	bh=/hlpe6cnaNnjH8M3ZgDbGLL+CA8dnfXHdAP46wuyD1Y=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=gtPn/XrqwDkgk7NdIIqxiAmtHYavASju9S4gOl9REPwdzSFzieIl1iArHM7XFz898LFawsx/UAsYEV1gEIIkDYZJohLDbXfLHCDiNJN9ks7oCPDO/sKyLa8V8V+Fl8YGACjVC9s++9YIYFqWOoqjaV/DsvwfGo4iAeDB6Y5Up9U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=bMywBnye; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:To:Cc; b=kv0RIn3W665TfcpQydZVNJFY+SXijZU28HbvMGKGmq3Mq7ltazzvS+MrxweDg5qa5ZZN7EHx77O5hscm6SLwXyb8M2u02doZR8g6q5nHrLZoZArSAM8XFbgCQ6YCDoEAORa0edomMrWyDb6g6UZhOjAXED+JGRkphXaHIdPNTgw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=fi2Qexid; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="bMywBnye"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 7F526C4AF0D;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="fi2Qexid"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id B1B17C2BCF6;
 	Tue, 30 Jun 2026 12:54:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
 	s=k20201202; t=1782824086;
-	bh=ofT9+j5+38wC3ohGcRL3g+6NUmTh2utIOvaD/eO4TF8=;
+	bh=/hlpe6cnaNnjH8M3ZgDbGLL+CA8dnfXHdAP46wuyD1Y=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
-	b=bMywBnyemN36RoPhEemCNKf/dyoahgCi9bwVlMvRKKwq6dTeyXM9ob/L/c/lPON4S
-	 hmVrvp8rEvYokwpiLXh2rPuCpAV+XHGU9HQYHmL+yg7PKgBymnVS5tECrlR1gxWYAr
-	 5yFdeTA/cO9cy99HMspaRCwlGL933jpTai+ZfS3mGcfnqxcFGzEu0YTeUEjsagKpqS
-	 QXk8jR5sJJs6ncip5uayeKJkFkNSBODrefhK5zihAZ5Pi5P35Qpwc+empZceMBCqdL
-	 IAjHZodYI+asz8OLETwTADZ+P9Jxn5p0g3IOy6rth29c16G7wH3ZY6ZYgh2AH0N/9e
-	 5DQ+qgjwXRNHw==
+	b=fi2QexidsvJlA0AaAArvBcIc3zfYhzv/gbKTJqDAs2AfX2ba/W8lKosjgk9hNyfvg
+	 9PaLsLs8HCIr//R+QghJBkUyT3khbcK1RkE2lTvn4gRL+9lf1yYunLHdMbwNVeHh+v
+	 JQrZ91TS7CDIipurznVoR89V41cyFTGI+J8Wkf70s+aVTgElA8lJjpxEXdetU/W9Yw
+	 YKoL1tOBfodtQF3zWG697gcMeHJuRfIDidAx3TeUIuXDHCcIk1WSEp32o6NHSBPQ5N
+	 97iy1XiU3cI4x2yaIEuAc1WdM+qMBPLbRFdjgqYik26Lp2UgCgRrzZKx7nuJwPzLJV
+	 WGpUlGRry2tRg==
 Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 76F38C43458;
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A9441C43458;
 	Tue, 30 Jun 2026 12:54:46 +0000 (UTC)
 From: Michael Reeves via B4 Relay <devnull+michael.reeves077.gmail.com@kernel.org>
-Date: Tue, 30 Jun 2026 22:54:32 +1000
-Subject: [PATCH 04/10] dt-bindings: input: apple: Add DockChannel HID
- transport
+Date: Tue, 30 Jun 2026 22:54:35 +1000
+Subject: [PATCH 07/10] HID: apple: Add support for DockChannel HID
+ keyboards
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -41,7 +41,7 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260630-apple-mtp-keyboard-final-v1-4-506d936a1707@gmail.com>
+Message-Id: <20260630-apple-mtp-keyboard-final-v1-7-506d936a1707@gmail.com>
 References: <20260630-apple-mtp-keyboard-final-v1-0-506d936a1707@gmail.com>
 In-Reply-To: <20260630-apple-mtp-keyboard-final-v1-0-506d936a1707@gmail.com>
 To: Sven Peter <sven@kernel.org>, Janne Grunau <j@jannau.net>, 
@@ -57,11 +57,11 @@ Cc: asahi@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
  iommu@lists.linux.dev, linux-input@vger.kernel.org, 
  Michael Reeves <michael.reeves077@gmail.com>
 X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1782824083; l=3901;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1782824083; l=8555;
  i=michael.reeves077@gmail.com; s=20260105; h=from:subject:message-id;
- bh=S+mJ7/0W8yggglspV7mBGvZpocgLQ5/14vlk/i1q+EE=;
- b=kvnAjnNdsJMkbhDfx6ggwVclKX6UNdtvslL6PgSX5VfGVa+W8FQ7uZQuvrQ1zINfACt6W6h3V
- iukHyN9YO1BCIuVAMwl8S5q+rX7wb4xI0Gj4oggqMX5z4yJZxKtSMB+
+ bh=6yE6aPZb9tp6hFgVMnmA6H50KbXFNGStoSs+JCgZxl0=;
+ b=OpXm1MgNkoDy8VFQrjkrrXlTcOxcFF3aH5P9H/l26/nx7yJoWCrq7WjkQdz4JA26KJpJSrAy/
+ KTzmxv9DIlFDxT18Lf/5y7YBG5sHOZZJjxfnK+o6hr8TGI0oyBy+C4g
 X-Developer-Key: i=michael.reeves077@gmail.com; a=ed25519;
  pk=QIrgWBGCm3LG0YYc6MLCDkwuVXLTGGooVBdWX/KhSiU=
 X-Endpoint-Received: by B4 Relay for michael.reeves077@gmail.com/20260105
@@ -71,128 +71,232 @@ Reply-To: michael.reeves077@gmail.com
 
 From: Michael Reeves <michael.reeves077@gmail.com>
 
-Apple internal keyboards and trackpads behind MTP are exposed through a
-DockChannel HID transport.
+DockChannel keyboards are registered as host-bus Apple HID devices
+instead of USB or Bluetooth devices.
 
-Add the client binding tying together the RTKit ASC mailbox,
-DockChannel mailbox, and MTP DART. The keyboard child can provide the
-HID country code used by hid-apple to distinguish layout variants.
+Match them in hid-apple, use the modern Magic Keyboard function-key
+table, and fix up the oversized report-size descriptor pattern before
+parsing.
 
 Signed-off-by: Michael Reeves <michael.reeves077@gmail.com>
 ---
- .../bindings/input/apple,dockchannel-hid.yaml      | 91 ++++++++++++++++++++++
- MAINTAINERS                                        |  1 +
- 2 files changed, 92 insertions(+)
+ drivers/hid/hid-apple.c | 139 ++++++++++++++++++++++++++++++++----------------
+ include/linux/hid.h     |   1 +
+ 2 files changed, 94 insertions(+), 46 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/input/apple,dockchannel-hid.yaml b/Documentation/devicetree/bindings/input/apple,dockchannel-hid.yaml
-new file mode 100644
-index 000000000000..dbba4fc38971
---- /dev/null
-+++ b/Documentation/devicetree/bindings/input/apple,dockchannel-hid.yaml
-@@ -0,0 +1,91 @@
-+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/input/apple,dockchannel-hid.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
+diff --git a/drivers/hid/hid-apple.c b/drivers/hid/hid-apple.c
+index bf7dd0fbf249..47c6ec09d5fa 100644
+--- a/drivers/hid/hid-apple.c
++++ b/drivers/hid/hid-apple.c
+@@ -390,6 +390,12 @@ static bool apple_is_omoton_kb066(struct hid_device *hdev)
+ 		strcmp(hdev->name, "Bluetooth Keyboard") == 0;
+ }
+ 
++static bool apple_is_dockchannel_keyboard(struct hid_device *hdev)
++{
++	return hdev->bus == BUS_HOST &&
++	       hdev->group == HID_GROUP_APPLE_DOCKCHANNEL;
++}
 +
-+title: Apple DockChannel HID Transport
+ static inline void apple_setup_key_translation(struct input_dev *input,
+ 		const struct apple_key_translation *table)
+ {
+@@ -477,53 +483,57 @@ static int hidinput_apple_event(struct hid_device *hid, struct input_dev *input,
+ 		asc->fn_on = !!value;
+ 
+ 	if (real_fnmode) {
+-		switch (hid->product) {
+-		case USB_DEVICE_ID_APPLE_ALU_WIRELESS_ANSI:
+-		case USB_DEVICE_ID_APPLE_ALU_WIRELESS_ISO:
+-		case USB_DEVICE_ID_APPLE_ALU_WIRELESS_JIS:
+-		case USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_ANSI:
+-		case USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_ISO:
+-		case USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_JIS:
+-		case USB_DEVICE_ID_APPLE_ALU_WIRELESS_2011_ANSI:
+-		case USB_DEVICE_ID_APPLE_ALU_WIRELESS_2011_ISO:
+-		case USB_DEVICE_ID_APPLE_ALU_WIRELESS_2011_JIS:
+-			table = magic_keyboard_alu_fn_keys;
+-			break;
+-		case USB_DEVICE_ID_APPLE_MAGIC_KEYBOARD_2015:
+-		case USB_DEVICE_ID_APPLE_MAGIC_KEYBOARD_NUMPAD_2015:
+-			table = magic_keyboard_2015_fn_keys;
+-			break;
+-		case USB_DEVICE_ID_APPLE_MAGIC_KEYBOARD_2021:
+-		case USB_DEVICE_ID_APPLE_MAGIC_KEYBOARD_FINGERPRINT_2021:
+-		case USB_DEVICE_ID_APPLE_MAGIC_KEYBOARD_NUMPAD_2021:
+-		case USB_DEVICE_ID_APPLE_MAGIC_KEYBOARD_2024:
+-		case USB_DEVICE_ID_APPLE_MAGIC_KEYBOARD_FINGERPRINT_2024:
+-		case USB_DEVICE_ID_APPLE_MAGIC_KEYBOARD_NUMPAD_2024:
++		if (apple_is_dockchannel_keyboard(hid)) {
+ 			table = magic_keyboard_2021_and_2024_fn_keys;
+-			break;
+-		case USB_DEVICE_ID_APPLE_WELLSPRINGT2_J132:
+-		case USB_DEVICE_ID_APPLE_WELLSPRINGT2_J213:
+-		case USB_DEVICE_ID_APPLE_WELLSPRINGT2_J680:
+-		case USB_DEVICE_ID_APPLE_WELLSPRINGT2_J680_ALT:
+-			table = macbookpro_no_esc_fn_keys;
+-			break;
+-		case USB_DEVICE_ID_APPLE_WELLSPRINGT2_J152F:
+-		case USB_DEVICE_ID_APPLE_WELLSPRINGT2_J214K:
+-		case USB_DEVICE_ID_APPLE_WELLSPRINGT2_J223:
+-			table = macbookpro_dedicated_esc_fn_keys;
+-			break;
+-		case USB_DEVICE_ID_APPLE_WELLSPRINGT2_J140K:
+-		case USB_DEVICE_ID_APPLE_WELLSPRINGT2_J230K:
+-			table = apple_fn_keys;
+-			break;
+-		default:
+-			if (hid->product >= USB_DEVICE_ID_APPLE_WELLSPRING4_ANSI &&
+-			    hid->product <= USB_DEVICE_ID_APPLE_WELLSPRING4A_JIS)
+-				table = macbookair_fn_keys;
+-			else if (hid->product < 0x21d || hid->product >= 0x300)
+-				table = powerbook_fn_keys;
+-			else
++		} else {
++			switch (hid->product) {
++			case USB_DEVICE_ID_APPLE_ALU_WIRELESS_ANSI:
++			case USB_DEVICE_ID_APPLE_ALU_WIRELESS_ISO:
++			case USB_DEVICE_ID_APPLE_ALU_WIRELESS_JIS:
++			case USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_ANSI:
++			case USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_ISO:
++			case USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_JIS:
++			case USB_DEVICE_ID_APPLE_ALU_WIRELESS_2011_ANSI:
++			case USB_DEVICE_ID_APPLE_ALU_WIRELESS_2011_ISO:
++			case USB_DEVICE_ID_APPLE_ALU_WIRELESS_2011_JIS:
++				table = magic_keyboard_alu_fn_keys;
++				break;
++			case USB_DEVICE_ID_APPLE_MAGIC_KEYBOARD_2015:
++			case USB_DEVICE_ID_APPLE_MAGIC_KEYBOARD_NUMPAD_2015:
++				table = magic_keyboard_2015_fn_keys;
++				break;
++			case USB_DEVICE_ID_APPLE_MAGIC_KEYBOARD_2021:
++			case USB_DEVICE_ID_APPLE_MAGIC_KEYBOARD_FINGERPRINT_2021:
++			case USB_DEVICE_ID_APPLE_MAGIC_KEYBOARD_NUMPAD_2021:
++			case USB_DEVICE_ID_APPLE_MAGIC_KEYBOARD_2024:
++			case USB_DEVICE_ID_APPLE_MAGIC_KEYBOARD_FINGERPRINT_2024:
++			case USB_DEVICE_ID_APPLE_MAGIC_KEYBOARD_NUMPAD_2024:
++				table = magic_keyboard_2021_and_2024_fn_keys;
++				break;
++			case USB_DEVICE_ID_APPLE_WELLSPRINGT2_J132:
++			case USB_DEVICE_ID_APPLE_WELLSPRINGT2_J213:
++			case USB_DEVICE_ID_APPLE_WELLSPRINGT2_J680:
++			case USB_DEVICE_ID_APPLE_WELLSPRINGT2_J680_ALT:
++				table = macbookpro_no_esc_fn_keys;
++				break;
++			case USB_DEVICE_ID_APPLE_WELLSPRINGT2_J152F:
++			case USB_DEVICE_ID_APPLE_WELLSPRINGT2_J214K:
++			case USB_DEVICE_ID_APPLE_WELLSPRINGT2_J223:
++				table = macbookpro_dedicated_esc_fn_keys;
++				break;
++			case USB_DEVICE_ID_APPLE_WELLSPRINGT2_J140K:
++			case USB_DEVICE_ID_APPLE_WELLSPRINGT2_J230K:
+ 				table = apple_fn_keys;
++				break;
++			default:
++				if (hid->product >= USB_DEVICE_ID_APPLE_WELLSPRING4_ANSI &&
++				    hid->product <= USB_DEVICE_ID_APPLE_WELLSPRING4A_JIS)
++					table = macbookair_fn_keys;
++				else if (hid->product < 0x21d || hid->product >= 0x300)
++					table = powerbook_fn_keys;
++				else
++					table = apple_fn_keys;
++			}
+ 		}
+ 
+ 		trans = apple_find_translation(table, code);
+@@ -659,6 +669,7 @@ static void apple_battery_timer_tick(struct timer_list *t)
+ /*
+  * MacBook JIS keyboard has wrong logical maximum
+  * Magic Keyboard JIS has wrong logical maximum
++ * Internal DockChannel keyboards can advertise oversized report sizes
+  */
+ static const __u8 *apple_report_fixup(struct hid_device *hdev, __u8 *rdesc,
+ 		unsigned int *rsize)
+@@ -699,6 +710,27 @@ static const __u8 *apple_report_fixup(struct hid_device *hdev, __u8 *rdesc,
+ 		rdesc[3] = 0x06;
+ 	}
+ 
++	if (apple_is_dockchannel_keyboard(hdev) && *rsize >= 5) {
++		int i;
 +
-+maintainers:
-+  - Michael Reeves <michael.reeves077@gmail.com>
++		for (i = 0; i <= *rsize - 5; i++) {
++			if (rdesc[i] == 0x76 && rdesc[i + 1] == 0x00 &&
++			    rdesc[i + 2] == 0x40 && rdesc[i + 3] == 0x95) {
++				u8 count = rdesc[i + 4];
 +
-+description:
-+  HID transport for keyboard and trackpad devices connected via the
-+  DockChannel FIFO mailbox on Apple Silicon SoCs. The endpoint includes a
-+  small RTKit coprocessor called MTP which must be booted before the HID
-+  transport becomes available.
++				if (count > 0 && count < 32) {
++					hid_info(hdev,
++						 "fixing up DockChannel report size\n");
++					rdesc[i] = 0x75;
++					rdesc[i + 1] = 0x08;
++					rdesc[i + 2] = 0x96;
++					rdesc[i + 3] = 0x00;
++					rdesc[i + 4] = count * 8;
++				}
++			}
++		}
++	}
 +
-+properties:
-+  compatible:
-+    oneOf:
-+      - items:
-+          - const: apple,t8112-dockchannel-hid
-+      - items:
-+          - enum:
-+              - apple,t6020-dockchannel-hid
-+              - apple,t8122-dockchannel-hid
-+          - const: apple,t8112-dockchannel-hid
+ 	return rdesc;
+ }
+ 
+@@ -763,7 +795,7 @@ static int apple_input_configured(struct hid_device *hdev,
+ 	struct apple_sc *asc = hid_get_drvdata(hdev);
+ 
+ 	if (((asc->quirks & APPLE_HAS_FN) && !asc->fn_found) || apple_is_omoton_kb066(hdev)) {
+-		hid_info(hdev, "Fn key not found (Apple Wireless Keyboard clone?), disabling Fn key handling\n");
++		hid_info(hdev, "Disabling function quirk for device without function key\n");
+ 		asc->quirks &= ~APPLE_HAS_FN;
+ 	}
+ 
+@@ -1003,6 +1035,17 @@ static void apple_remove(struct hid_device *hdev)
+ 	hid_hw_stop(hdev);
+ }
+ 
++static bool apple_match(struct hid_device *hdev, bool ignore_special_driver)
++{
++	if (ignore_special_driver)
++		return false;
 +
-+  reg:
-+    items:
-+      - description: Coprocessor ASC registers
-+      - description: Coprocessor SRAM/mailbox registers
++	if (hdev->group == HID_GROUP_APPLE_DOCKCHANNEL)
++		return apple_is_dockchannel_keyboard(hdev);
 +
-+  reg-names:
-+    items:
-+      - const: coproc-asc
-+      - const: coproc-sram
++	return true;
++}
 +
-+  mboxes:
-+    items:
-+      - description: ASC mailbox used for RTKit control
-+      - description: DockChannel FIFO mailbox used for HID packets
-+
-+  mbox-names:
-+    items:
-+      - const: asc
-+      - const: dockchannel
-+
-+  iommus:
-+    maxItems: 1
-+
-+  keyboard:
-+    type: object
-+    properties:
-+      hid-country-code:
-+        $ref: /schemas/types.yaml#/definitions/uint32
-+        description:
-+          HID country code for the keyboard layout variant.
-+
-+    additionalProperties: false
-+
-+required:
-+  - compatible
-+  - reg
-+  - reg-names
-+  - mboxes
-+  - mbox-names
-+  - iommus
-+
-+additionalProperties: false
-+
-+examples:
-+  - |
-+    soc {
-+        #address-cells = <2>;
-+        #size-cells = <2>;
-+
-+        hid@24e400000 {
-+            compatible = "apple,t8112-dockchannel-hid";
-+            reg = <0x2 0x4e400000 0x0 0x4000>,
-+                  <0x2 0x4ec00000 0x0 0x100000>;
-+            reg-names = "coproc-asc", "coproc-sram";
-+            mboxes = <&mtp_mbox>, <&mtp_dockchannel>;
-+            mbox-names = "asc", "dockchannel";
-+            iommus = <&mtp_dart 1>;
-+
-+            keyboard {
-+                hid-country-code = <0>;
-+            };
-+        };
-+    };
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 741974f0f326..1f3c2cdb6e19 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -2589,6 +2589,7 @@ F:	Documentation/devicetree/bindings/gpio/apple,smc-gpio.yaml
- F:	Documentation/devicetree/bindings/gpu/apple,agx.yaml
- F:	Documentation/devicetree/bindings/hwmon/apple,smc-hwmon.yaml
- F:	Documentation/devicetree/bindings/i2c/apple,i2c.yaml
-+F:	Documentation/devicetree/bindings/input/apple,dockchannel-hid.yaml
- F:	Documentation/devicetree/bindings/input/touchscreen/apple,z2-multitouch.yaml
- F:	Documentation/devicetree/bindings/interrupt-controller/apple,*
- F:	Documentation/devicetree/bindings/iommu/apple,dart.yaml
+ static const struct hid_device_id apple_devices[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MIGHTYMOUSE),
+ 		.driver_data = APPLE_MIGHTYMOUSE | APPLE_INVERT_HWHEEL },
+@@ -1224,6 +1267,9 @@ static const struct hid_device_id apple_devices[] = {
+ 		.driver_data = APPLE_HAS_FN | APPLE_ISO_TILDE_QUIRK },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_TOUCHBAR_BACKLIGHT),
+ 		.driver_data = APPLE_MAGIC_BACKLIGHT },
++	{ HID_DEVICE(BUS_HOST, HID_GROUP_APPLE_DOCKCHANNEL,
++		     HID_ANY_ID, HID_ANY_ID),
++		.driver_data = APPLE_HAS_FN | APPLE_ISO_TILDE_QUIRK },
+ 
+ 	{ }
+ };
+@@ -1232,6 +1278,7 @@ MODULE_DEVICE_TABLE(hid, apple_devices);
+ static struct hid_driver apple_driver = {
+ 	.name = "apple",
+ 	.id_table = apple_devices,
++	.match = apple_match,
+ 	.report_fixup = apple_report_fixup,
+ 	.probe = apple_probe,
+ 	.remove = apple_remove,
+diff --git a/include/linux/hid.h b/include/linux/hid.h
+index 47dc0bc89fa4..0d40deec6295 100644
+--- a/include/linux/hid.h
++++ b/include/linux/hid.h
+@@ -441,6 +441,7 @@ struct hid_item {
+ #define HID_GROUP_STEAM				0x0103
+ #define HID_GROUP_LOGITECH_27MHZ_DEVICE		0x0104
+ #define HID_GROUP_VIVALDI			0x0105
++#define HID_GROUP_APPLE_DOCKCHANNEL		0x0106
+ 
+ /*
+  * HID protocol status
 
 -- 
 2.51.2

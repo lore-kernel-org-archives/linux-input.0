@@ -1,82 +1,174 @@
-Received: from cstnet.cn (smtp25.cstnet.cn [159.226.251.25])
-	(using TLSv1.2 with cipher DHE-RSA-AES256-SHA (256/256 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F0DF22E7387;
-	Tue, 30 Jun 2026 07:31:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=159.226.251.25
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 29FF6383C64
+	for <linux-input@vger.kernel.org>; Tue, 30 Jun 2026 07:38:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782804670; cv=none; b=k9Qc0vo9lXzaj3OitrbCMKKRfcy7nYsK0UCwfkzm5bQxcaqlTO5FMSE5jSsgdRlkMSRQ7ARxh1JBR3D8O9p9Zb7zeoVKSYZSG2tDidvDITPRIvI+efvjv53T0lVQSJ8Auvms/IxAH0hhaTudK2kWiULPeKtblFpnLB8Yxm0InfU=
+	t=1782805087; cv=none; b=L3cW3XVxlXEjH7SyroIpckq1q1yFPt5RelF23nAiM2iD91mms3Ym3tE4bG6gb1TU1Pn+wuDLdfg5j/qKi3AofGiYT18wIYmzq86e5z5QMdT/fqcSzuVS9hU2pW2EJEVriwbyZ4BVT//RvvDKYHPcRdZeennJ9S4bbTUrLBKZoU4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782804670; c=relaxed/simple;
-	bh=jIaa5S3O1Yi+T7FJAJZqE2P04uSD7X8lxQPDrMVsGB4=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=Jz/FjAJz+5+L286tkiJaFIcBe+CZ19WB1+h1FcxmQuDMBurcGlNfS8ZDTgKCut2IbqjecDdUsZvoi80mOs0JnWZs4fsU80wSHOXHWqXSMsi9/XOJS5cdEE/svPl+weHGSBI/3ftfM1fsdCPBeKoyHDLFiMFLnMHdr8dA5fLmqCU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=iscas.ac.cn; spf=pass smtp.mailfrom=iscas.ac.cn; arc=none smtp.client-ip=159.226.251.25
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=iscas.ac.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=iscas.ac.cn
-Received: from 0047-Input-hynitron_cstxxx---validate-touch-count-against-buffer.eml (unknown [111.196.245.140])
-	by APP-05 (Coremail) with SMTP id zQCowAD3fAC6cENqfK8kFg--.58042S2;
-	Tue, 30 Jun 2026 15:31:06 +0800 (CST)
-From: Pengpeng Hou <pengpeng@iscas.ac.cn>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Pengpeng Hou <pengpeng@iscas.ac.cn>
-Subject: [PATCH] Input: hynitron_cstxxx - validate touch count against buffer
-Date: Tue, 30 Jun 2026 15:30:14 +0800
-Message-ID: <2026063009041899.4-ccfa108-0047-Input-hynitron_cstxxx---val-pengpeng@iscas.ac.cn>
+	s=arc-20240116; t=1782805087; c=relaxed/simple;
+	bh=fTNP/fxK8N0RVVudYn4Klci0fFaT/gJJ9yWqGqTR8Pk=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=FdfvY5iUIyD/s042u2f4wr6XNhGotW5hz2MC1ELmZXbuGHZAkY7h11P2yQe8bYYiZXUrWtlAeFLhtVTJ0TtGMVVCtk+877mIB7wF8BEKEH3SfomBOQYIdL29X18Qu2CzLXYtiSkSNmyReZWZO+2O2Z/Bc5DzBmTmLAylPBfrcNw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=GhbF3JnW; arc=none smtp.client-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="GhbF3JnW"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 858061F000E9;
+	Tue, 30 Jun 2026 07:38:05 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1782805085;
+	bh=jQErWCsSfzQqrfluuwatKVOKwfbNngICc44BbZKKdus=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=GhbF3JnWZiEGRIM+H84LqcUzActEKaAO6uoVYUW1rvVg74s20+/HvO+JXpdFOVYxu
+	 zKo5wYGKueKb5vw1KUaNwMdMiklSs579QrzmusVYEEJBisJmABXNLYt56Bhh5m8u8q
+	 ZRyMZGzWYvw61AuI677iQJ7IcLxMrdxV/UyjmfjpzeaU9fsOz4/i0+RWfAVTaiYK92
+	 BDYD+RCaS9JkVLNSFk/2ALaNm6WUIE61dypDg+BtfEWmsAyx2KzxiGplmOiPEepykT
+	 53W42c/BN9zLwUI37mBCrI9hF/HBB40TT784XLEFLnojOvz0a6RyM07lsRkYI0pLog
+	 QzjYyNbUpo0Cg==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH] Input: cyapa - validate unsupported PIP response length
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Pengpeng Hou" <pengpeng@iscas.ac.cn>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <2026063008017969.1-ccfa108-0008-Input-cyapa---validate-unsu-pengpeng@iscas.ac.cn>
+References: <2026063008017969.1-ccfa108-0008-Input-cyapa---validate-unsu-pengpeng@iscas.ac.cn>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Tue, 30 Jun 2026 07:38:05 +0000
+Message-Id: <20260630073805.858061F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:zQCowAD3fAC6cENqfK8kFg--.58042S2
-X-Coremail-Antispam: 1UD129KBjvdXoW7JFyUWw4kAr4rZFy7AF15twb_yoWkGrc_ur
-	yUXFs3Ww1qkFWktrnrG3Z3ZrZ7Ka18Zrn3Z3yDt3yftr1xGwsayF9F9a1YyryUJFWUAw17
-	CwsxWayFvw1S9jkaLaAFLSUrUUUUjb8apTn2vfkv8UJUUUU8Yxn0WfASr-VFAUDa7-sFnT
-	9fnUUIcSsGvfJTRUUUbFAFF20E14v26r1j6r4UM7CY07I20VC2zVCF04k26cxKx2IYs7xG
-	6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8w
-	A2z4x0Y4vE2Ix0cI8IcVAFwI0_Ar0_tr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Cr0_
-	Gr1UM28EF7xvwVC2z280aVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv6xkF7I0E14v26rxl6s
-	0DM2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xII
-	jxv20xvE14v26r1q6rW5McIj6I8E87Iv67AKxVW8JVWxJwAm72CE4IkC6x0Yz7v_Jr0_Gr
-	1lF7xvr2IY64vIr41lF7I21c0EjII2zVCS5cI20VAGYxC7MxAIw28IcxkI7VAKI48JMxC2
-	0s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8CrVAFwI0_Jr0_Jr4lx2IqxVCjr7xvwVAFwI
-	0_JrI_JrWlx4CE17CEb7AF67AKxVWUAVWUtwCIc40Y0x0EwIxGrwCI42IY6xIIjxv20xvE
-	14v26r1I6r4UMIIF0xvE2Ix0cI8IcVCY1x0267AKxVW8JVWxJwCI42IY6xAIw20EY4v20x
-	vaj40_Jr0_JF4lIxAIcVC2z280aVAFwI0_Gr0_Cr1lIxAIcVC2z280aVCY1x0267AKxVW8
-	JVW8JrUvcSsGvfC2KfnxnUUI43ZEXa7VUjTKZJUUUUU==
-X-CM-SenderInfo: pshqw1xhqjqxpvfd2hldfou0/
 
-cst3xx_touch_report() uses the device-reported touch count to compute
-the check-byte offset and to parse touch slots in a fixed 28-byte
-buffer.
+Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+s) to consider:
 
-Bound the touch count against the chip limit and the buffer layout
-before parsing.
+Pre-existing issues:
+- [Critical] Stack buffer overflow in `cyapa_pip_irq_handler` when reading =
+touch reports.
+- [High] Stack out-of-bounds read in `cyapa_gen5_read_panel_scan_raw_data` =
+during raw data parsing.
+- [High] Stack out-of-bounds read and kernel infinite loop in `cyapa_gen5_r=
+ead_idac_data`.
+--
 
-Signed-off-by: Pengpeng Hou <pengpeng@iscas.ac.cn>
----
- drivers/input/touchscreen/hynitron_cstxxx.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+commit 577a902f2ff46d9f3cceff655a89f68889610a56
+Author: Pengpeng Hou <pengpeng@iscas.ac.cn>
 
-diff --git a/drivers/input/touchscreen/hynitron_cstxxx.c b/drivers/input/touchscreen/hynitron_cstxxx.c
-index 1d8ca90..6644272 100644
---- a/drivers/input/touchscreen/hynitron_cstxxx.c
-+++ b/drivers/input/touchscreen/hynitron_cstxxx.c
-@@ -313,6 +313,12 @@ static void cst3xx_touch_report(struct i2c_client *client)
- 		return;
- 
- 	touch_cnt = buf[5] & CST3XX_TOUCH_COUNT_MASK;
-+	if (touch_cnt > ts_data->chip->max_touch_num ||
-+	    (touch_cnt > 1 && touch_cnt * 5 + 2 >= sizeof(buf))) {
-+		dev_err(&client->dev, "cst3xx touch read failure\n");
-+		return;
-+	}
-+
- 	/*
- 	 * Check the check bit of the last touch slot. The check bit is
- 	 * always present after touch point 1 for valid data, and then
+Input: cyapa - validate unsupported PIP response length
 
+cyapa_sort_tsg_pip_app_resp_data() accepts PIP application
+responses after checking PIP_MIN_APP_RESP_LENGTH bytes.  That covers
+the application command byte at offset 4, but the unsupported-command
+path also reads the status byte at PIP_RESP_STATUS_OFFSET.
+
+A short response can advertise PIP_UNSUPPORTED_CMD_RESP_LENGTH in the
+response header while the supplied buffer still contains only the generic
+minimum response.  Validate the unsupported response length before reading
+the status byte.
+
+> diff --git a/drivers/input/mouse/cyapa_gen5.c b/drivers/input/mouse/cyapa=
+_gen5.c
+> index 59f6e97d54827..733da6d324331 100644
+> --- a/drivers/input/mouse/cyapa_gen5.c
+> +++ b/drivers/input/mouse/cyapa_gen5.c
+> @@ -686,6 +686,7 @@ bool cyapa_sort_tsg_pip_app_resp_data(struct cyapa *c=
+yapa,
+>  		u8 *data, int len)
+>  {
+>  	struct cyapa_pip_cmd_states *pip =3D &cyapa->cmd_states.pip;
+> +	u8 cmd_code;
+>  	int resp_len;
+> =20
+>  	if (!data || len < PIP_MIN_APP_RESP_LENGTH)
+
+[ ... ]
+
+>  		/* Read mutual global idac or local mutual/self PWC data. */
+>  		offset +=3D read_len;
+>  		for (i =3D 10; i < (read_len + GEN5_RESP_DATA_STRUCTURE_OFFSET);
+>  				i +=3D *data_size) {
+>  			value =3D cyapa_parse_structure_data(resp_data[9],
+>  					&resp_data[i], *data_size);
+
+[Severity: High]
+This is a pre-existing issue, but does this loop in
+cyapa_gen5_read_idac_data() risk an infinite loop or out-of-bounds read?
+
+If a malicious I2C peripheral sets the data size (derived from resp_data[9])
+to 0, wouldn't the loop fail to increment i and hang the CPU?
+
+Additionally, doesn't blindly trusting read_len (derived from resp_data[7:8=
+])
+for the loop bound risk reading past the bounds of the 256-byte resp_data
+stack array?
+
+[ ... ]
+
+> 		read_elements =3D get_unaligned_le16(&resp_data[7]);
+> 		if (read_elements =3D=3D 0)
+> 			break;
+>=20
+> 		data_size =3D (resp_data[9] & GEN5_PWC_DATA_ELEMENT_SIZE_MASK);
+> 		offset +=3D read_elements;
+> 		if (read_elements) {
+> 			for (i =3D GEN5_RESP_DATA_STRUCTURE_OFFSET;
+> 			     i < (read_elements * data_size +
+> 					GEN5_RESP_DATA_STRUCTURE_OFFSET);
+> 			     i +=3D data_size) {
+> 				value =3D cyapa_parse_structure_data(resp_data[9],
+> 						&resp_data[i], data_size);
+
+[Severity: High]
+This isn't a bug introduced by this patch, but does this risk an out-of-bou=
+nds
+read on the kernel stack in cyapa_gen5_read_panel_scan_raw_data()?
+
+If the device returns a large read_elements value, the loop condition appea=
+rs
+to allow cyapa_parse_structure_data() to read far beyond the bounds of the
+256-byte resp_data stack array.
+
+[ ... ]
+
+> int cyapa_pip_irq_handler(struct cyapa *cyapa)
+> {
+> 	struct device *dev =3D &cyapa->client->dev;
+> 	struct cyapa_pip_report_data report_data;
+> 	unsigned int report_len;
+> 	int ret;
+>=20
+> 	if (!cyapa_is_pip_app_mode(cyapa)) {
+> 		dev_err(dev, "invalid device state, gen=3D%d, state=3D0x%02x\n",
+> 			cyapa->gen, cyapa->state);
+> 		return -EINVAL;
+> 	}
+>=20
+> 	ret =3D cyapa_i2c_pip_read(cyapa, (u8 *)&report_data,
+> 			PIP_RESP_LENGTH_SIZE);
+
+[ ... ]
+
+> 	/* Idle, no data for report. */
+> 	if (report_len =3D=3D PIP_RESP_LENGTH_SIZE)
+> 		return 0;
+>=20
+> 	ret =3D cyapa_i2c_pip_read(cyapa, (u8 *)&report_data, report_len);
+
+[Severity: Critical]
+This is a pre-existing issue, but could this lead to a stack buffer overflow
+in cyapa_pip_irq_handler()?
+
+The report_data structure is 127 bytes on the stack, but an untrusted
+report_len from the device is used in cyapa_i2c_pip_read(). Since the read
+wrapper only caps the length to 256 bytes (CYAPA_REG_MAP_SIZE), can't a
+compromised peripheral supply a length that overflows the buffer and corrup=
+ts
+the stack?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/2026063008017969.1-=
+ccfa108-0008-Input-cyapa---validate-unsu-pengpeng@iscas.ac.cn?part=3D1

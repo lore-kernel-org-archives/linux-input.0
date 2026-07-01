@@ -1,119 +1,228 @@
-Received: from mail-yx1-f54.google.com (mail-yx1-f54.google.com [74.125.224.54])
+Received: from mail-pj2-f1.google.com (mail-pj2-f1.google.com [74.125.227.129])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 62C55349CE2
-	for <linux-input@vger.kernel.org>; Wed,  1 Jul 2026 14:37:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.224.54
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782916626; cv=pass; b=IKJ/9/jZBE9o4MKoZeXnD7HkemDiHXnPmEty46mhB9OPL9O9HzIBHo6sgKUtWLuitaJLPya96c06EpFWmFxhMtoJ6y7Z+Wv/kg4OK2Fgc+ze7NAnAVftLd0zBEzxQ/RuuSbQ6TvUQib6TDQQTVuoVpvSGjbV9hcSctoWgStxu/M=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782916626; c=relaxed/simple;
-	bh=uxK3787kwBaK3XoNUtICKMe+9KxBA8wczg+LhmRdR0w=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=d2wf6Orm2qOyox9kKnfAoALUBhSwbPF6BbsilhDmNvbA3bJq3zXR06COBUsQZvlQ+bqcjZ3WgICW1LX9prrOkukN+d2D4vKgmyFu9BCj400eQAnS0EClwA+nbDjveVLQcCGzhpc4ZKlcqYSr1z9kgOq4gE8BmU2Ri5RYuunHU4k=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=KcLIFROv; arc=pass smtp.client-ip=74.125.224.54
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1AFC5390C9A
+	for <linux-input@vger.kernel.org>; Wed,  1 Jul 2026 17:13:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.227.129
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1782926031; cv=none; b=bwp45qUcp+AOEQ+D86QUgYwpwW4Cuj/Ol0XR171RZItCZ6WS7yMnfwEslg0spZFJZ9QIBGd/QbWCO0p3Aewlx5Jbm6RJNNKCGt3xexRHZLsfzMYQJoO7hQitf3cPY2LWXkU2hm5AzhkXTv36bOLldX/m537FhzktmlGwm146OQY=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1782926031; c=relaxed/simple;
+	bh=kKTeujLS9a68lTaT3jxbumlF5HSR11tXhUWpjVgLfuI=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=QgWSjVJybNxISCr7tby8ntgpUwtLHPdWgl3yDhqebbcbw2a+eAUSnwTHm1VUpNTiFXrcWiArkUTej1Sc8ILUVmo3QGeJEhlXhasc0B1fzLx/DuDfCAszEx4lQ7tPPtNjDk5ibV2MynyGskL+ShdT7qoiaxhJXvaSGqXfu390yiI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=cystack.net; spf=pass smtp.mailfrom=cystack.net; dkim=pass (2048-bit key) header.d=cystack-net.20251104.gappssmtp.com header.i=@cystack-net.20251104.gappssmtp.com header.b=nwhAI+7M; arc=none smtp.client-ip=74.125.227.129
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=cystack.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=cystack.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="KcLIFROv"
-Received: by mail-yx1-f54.google.com with SMTP id 956f58d0204a3-66493875766so917334d50.0
-        for <linux-input@vger.kernel.org>; Wed, 01 Jul 2026 07:37:05 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1782916624; cv=none;
-        d=google.com; s=arc-20260327;
-        b=UxnuJIvzOBsmnD6Amgor2BtHqKSGFZNBuHsZChEul/6sANUbo9UEzMN5f2cLolxbqT
-         NPxspzTBjsvR/7d1R26xMTyxHb6rUIobTYuna/ZTcUdLIED2d8ipu3tfOYtZc0/RNIrH
-         vdNTdHdclJjQ2nm0iJ2Gn5z+GB+3v8GYgB0BLkPdnu6iluq98qQHLHqGfuFtU7eoghg8
-         MfqYmHrfdJZLM7OBaPv+XZKyVFSrzSDu/uaCH4hXEdDyD7G7W2vv7bnih/xDpKgwXp/B
-         inu3ZPEQTc2DmkPkRZrThC72C4od1eSu9SeDowiP3Hzsv/HhfCpDwjnlmsjgF7COb3Bq
-         PcJQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=uxK3787kwBaK3XoNUtICKMe+9KxBA8wczg+LhmRdR0w=;
-        fh=5R5+W68lpRnSQxiT84Iu14lreXcHxuVw4L+OW+v7xoQ=;
-        b=N+XA83Liepyy+TV+lCBj2T+XoXXqEe6VMynshj2zVw6CqSQCdraByls1I+R1dj10e7
-         ilGtsMb7IIy05pT2nHbYLNxaGuNOOuwlTi8+Vi3ReI1y/rOHVX4rU3zpzu44x2KSgfK/
-         irLsokQNcHH9lpPCzpPPIB6mAIaVPL6DqDj5qe/U6La9Zn0emJb+PSSQIvjhTmMYIrCW
-         FubQfA7ezIBbFYZ8WvtYKStseMYb+gJ3/gpQ58HHhazjNxmaekUEfIwHTLoUxmbd9vv/
-         MQ7gK6rrv6cv3/x46eDbBraL9tVhu6KltLaXjVEKURtzzDoEqMT1zj7aVgv07tNBWalx
-         y+fg==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=cystack-net.20251104.gappssmtp.com header.i=@cystack-net.20251104.gappssmtp.com header.b="nwhAI+7M"
+Received: by mail-pj2-f1.google.com with SMTP id d9443c01a7336-2c980dac2b2so2644255ad.0
+        for <linux-input@vger.kernel.org>; Wed, 01 Jul 2026 10:13:49 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1782916624; x=1783521424; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
+        d=cystack-net.20251104.gappssmtp.com; s=20251104; t=1782926029; x=1783530829; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=uxK3787kwBaK3XoNUtICKMe+9KxBA8wczg+LhmRdR0w=;
-        b=KcLIFROvJOuzpWsxD3ti13L4keeANGdVaWBLTeTr8HcrrPCGnA7hEYXnYHsfmC0UCT
-         4qe/nkVaFEoiIftiwmCPHaBqpwxB1zt8++SWv38/OW/OkmDhknmRj6vwiCFDNt6T7XhC
-         RwkbTfREvitX+8MgL3YCwQ2GRe92P7XVm5m/cv83JhH1UeU1g33at7fSeDN60z6Arneg
-         8GcmQmB/YjmXh4JtNPQ6VBTr+Vl0GC+vLisyr2oPtnrtlZ9xjQJ6RKe27l5RKZkF1GXR
-         bCqc7FHJC53wBVdmAIt7xe6GTO9B1prI46HvGBLMxN6B6LfXX1Hm815rTv8wk6Ij/TGs
-         sYcg==
+        bh=enoWlMtun1s/5aE0gWfbvE36ga7ngFUQHQ5/PNaJTIU=;
+        b=nwhAI+7Mf99VMmVGnBWrX4WfCaL5oNxokFNlsu+pq9TaF0Mm2vMA1s4GXAQ+xgMjnC
+         QjaxuvSQK52+u+jd7Bg0FIHsFg+2xPJv9CGNxbPmd+3OJ90uWvpXeiGbvlhlHlnqi1gV
+         xYzhUwd1C6F/Q+jjGV4nKKwJq7nideAKF5jE4ALBItNUuVZ+k32aynyTAHiIhwRe55gP
+         Ofh+Spn/QjwhYg4DO/hYfmGCzmuImmI8wywrBYigFg7SzRw+S/UaSNykc2XwHkqzDRjf
+         qQeL1bUjGQSDDaL1/teGf2S4MovxPh8WYnjz436Kq2gUhD/HUtqqyVu7gn6tnpbjQBbg
+         38Ug==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1782916624; x=1783521424;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+        d=1e100.net; s=20251104; t=1782926029; x=1783530829;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=uxK3787kwBaK3XoNUtICKMe+9KxBA8wczg+LhmRdR0w=;
-        b=AXYcNM7mOjJ3tZCOeg1bNbDEY2B585iqm6p9NURHVcFT6C+xYC5XXeEorlk8PBrVIm
-         Sa7nzbXM1XBPA8ZPzB7ipuUK7Ph5B1nZUgTNEWd20bBq37xQQ+vsgcWXs0livxQaY8fG
-         x1ULeJk41aGF0djhKJsm1LSKXj3SurzstWF6y/0WCLFeTPQ/FiGKGoQboSNhR4lqrYe/
-         zimEhz8kx7g/DRIPliJQVQSfoaTAyaeb+j8AFIoO+wNFwKnx2pPY5p9KbqHCN4HqM27v
-         gcq3sgMH3xtC+nSgTNiT93C9J7EkMDHsskkYX7Rd32DbOfoxM4XrP05gi2PcQUJIB7U+
-         SNiQ==
-X-Forwarded-Encrypted: i=1; AHgh+Roqnq2YpeWVE+I0DoM8Rgd1CV++VUl9xd4OHMX70Trg2+my5Y5ssDvsXYK/LjHHAZ4nKzpiVUHo5UC50A==@vger.kernel.org
-X-Gm-Message-State: AOJu0YzvzzIX8jLj7XzhqI5WO8QM3QZd5vMfS+hLjp3U2SbzYsrbNSBR
-	zfxrT0+nmrssaela4hQCGRIameFM3QZjG8jR2rxPmZI9C71JPVcaees6Q+PZKZuMfaWFovD4m1j
-	E5aDlurbSXsaL+jOomb+wiiFKdUv0Xcw=
-X-Gm-Gg: AfdE7clhS5t3oJBnBN2BUClMz5Jsa67jxOy5+NTudrfij7bjYGdxEzZBDPyK0fjB5kD
-	6FdmpL4+C5avKq5QMzpq0iufXTD9YKu5RrVATFCwXwQRycD+ic12vFa88OVXpEsuF3U/GKmfduU
-	APi/dI+L+FJfEeKz4wU8CNH/WL85GbrfmOH9Hbc+Dfd8WJbpK+E/Scb7g/WC9CbOOA3oZfRW1p0
-	XE8UISMLqVjAZx6YkgV6yVyUJwGcemElT7t36ibYucbmywC6Mbl2EI0sOUCu1WokedOPCEfshe/
-	T3Fayjyv5SZ86q8LT5fvjR0iz5h9sG3WyoieZvVrYovQOuKLroTWyc6YrluL8A==
-X-Received: by 2002:a05:690e:b8d:b0:664:ae68:33b0 with SMTP id
- 956f58d0204a3-66521d75bb2mr1788278d50.81.1782916624248; Wed, 01 Jul 2026
- 07:37:04 -0700 (PDT)
+        bh=enoWlMtun1s/5aE0gWfbvE36ga7ngFUQHQ5/PNaJTIU=;
+        b=liZhjHDSG5y1unazJH+fNvPaeFg6mKPEPMtr/JpyyHnDtXj/tHqi6zcbw0omhc2S+P
+         e6Giilrk1RjTkmzX57XM033MhbBm6fUQksnpMYtC3QU6Znnrd/ROEcS9UfXgeRAD/+lC
+         SAu+66I5uFpm/srkP48Qd1XyUQu+AYF0i1MXpdZ1IR86aKOnypKkz/Z1OYOe359VG4hy
+         Kt93tuVcixdw4FDEDqbBes6vLQm+rWYMqlQLCJP13R4Uf1H6Kb5SYfnk2TrYPnr2jGYR
+         7HXG8J4IxBmBPflMjBY2QML7vjDTwfB8NDu/Sjb0g8LGyMa9LZ7RydqxI7PN1eUHWti/
+         vepg==
+X-Gm-Message-State: AOJu0Yy0QQkriPdeVACVbejHwIIeb+1l7LxnrMzb1JQd6f43DASOk0Rv
+	ShIJa7apPnGwWKA8C4vecor6GhJBA4C+v+LIibWz/g5zHOqbjGTp/haKsMVBLlkY2MA=
+X-Gm-Gg: AfdE7cm3ovxqeiiUA1gwfZq3g5Kb0gwC3AUYZjw5JkwBIysFNTIUXaaVwy74JHdrMrV
+	WQ0xXZqd1TT3GihlMOKCh2eUyEZy1PevxURfc/pGVRRwNJa19moaKsPgxG6iUMZE3StehjOE7ro
+	OraerQpPnE93MEAdntZZdeYopsDVTsx1tP2rr4mu7atyR45vOEUPfRks4pkT+OOpQzzSelrjvIS
+	HssKCWafwMOkicYMR+dshDS1Tv1PSAffW1TSNxCSPw6NSAc0VLbkZRZGKGrlqXTf6yvbRWZDf7M
+	yJAl9rwTXGuYZwtzgK4uHZGG43oGSzqMXukSWU0S2sxkWUjDeUvIUHmuXBdTIP1U12oqBcsZP2z
+	T1E2xhzXkODZSHrtkjUeve3OF/nK3CBLB/WzukIk0V8+sI8pE6e4/bFnn8YlfJFgsJYGKgZj8xT
+	WFKxB9m0E1693tZKvQ6QhFpWizyQ8JKtPKWD7xZlQ=
+X-Received: by 2002:a17:902:db12:b0:2c6:9f66:d573 with SMTP id d9443c01a7336-2ca7e67eda5mr27897885ad.2.1782926029330;
+        Wed, 01 Jul 2026 10:13:49 -0700 (PDT)
+Received: from localhost.localdomain ([171.225.202.83])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2ca9a8de800sm1329215ad.12.2026.07.01.10.13.47
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 01 Jul 2026 10:13:48 -0700 (PDT)
+From: Trung Nguyen <trungnh@cystack.net>
+To: bentiss@kernel.org,
+	jikos@kernel.org
+Cc: linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Trung Nguyen <trungnh@cystack.net>,
+	stable@vger.kernel.org
+Subject: [PATCH 1/2] HID: multitouch: fix out-of-bounds bit access on mt_io_flags
+Date: Thu,  2 Jul 2026 00:13:19 +0700
+Message-ID: <20260701171320.16367-1-trungnh@cystack.net>
+X-Mailer: git-send-email 2.45.1.windows.1
+In-Reply-To: <CAO-hwJLS6uAX__aGkmpcDQ8v6GJaHGrL+TOYXVRX6jvjzNW+wg@mail.gmail.com>
+References: <CAO-hwJLS6uAX__aGkmpcDQ8v6GJaHGrL+TOYXVRX6jvjzNW+wg@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260630-apple-mtp-keyboard-final-v1-0-506d936a1707@gmail.com>
- <20260630-apple-mtp-keyboard-final-v1-4-506d936a1707@gmail.com> <20260630-halves-magnesium-856f9c7d60b2@spud>
-In-Reply-To: <20260630-halves-magnesium-856f9c7d60b2@spud>
-From: Michael Reeves <michael.reeves077@gmail.com>
-Date: Thu, 2 Jul 2026 00:36:52 +1000
-X-Gm-Features: AVVi8Cc_Z2Ec3ueDKeRbjSSEO7FpMbGiHoLBEK8cPVlZ9DBrXWtcjp1MzslxPtM
-Message-ID: <CANpmGNs9PuH52ngbZq6jGHuJkoZ=Jz+PRk8Bq7Rn21g9KsotEQ@mail.gmail.com>
-Subject: Re: [PATCH 04/10] dt-bindings: input: apple: Add DockChannel HID transport
-To: Conor Dooley <conor@kernel.org>
-Cc: Sven Peter <sven@kernel.org>, Janne Grunau <j@jannau.net>, Neal Gompa <neal@gompa.dev>, 
-	Jassi Brar <jassisinghbrar@gmail.com>, Rob Herring <robh@kernel.org>, 
-	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
-	Hector Martin <marcan@marcan.st>, "Joerg Roedel (AMD)" <joro@8bytes.org>, Will Deacon <will@kernel.org>, 
-	Robin Murphy <robin.murphy@arm.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
-	Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>, asahi@lists.linux.dev, 
-	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, 
-	devicetree@vger.kernel.org, iommu@lists.linux.dev, 
-	linux-input@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Wed, Jul 1, 2026 at 3:08=E2=80=AFAM Conor Dooley <conor@kernel.org> wrot=
-e:
-[...]
-> > +++ b/Documentation/devicetree/bindings/input/apple,dockchannel-hid.yam=
-l
->
-> Same thing here about the filename. Looks good otherwise, so please
-> change that.
-> pw-bot: changes-requested
->
-> Reviewed-by: Conor Dooley <conor.dooley@microchip.com>
->
-> Thanks,
-> Conor.
-Thanks again, will also adjust this name in v2.
+mt_io_flags is a single unsigned long, but mt_process_slot(),
+mt_release_pending_palms() and mt_release_contacts() use it as a
+per-slot bitmap indexed by the slot number. That slot number is only
+bounded by td->maxcontacts, which is taken from the device's
+ContactCountMaximum feature report and can be up to 255, not by
+BITS_PER_LONG.
+
+As a result, a multitouch device that advertises a large contact count
+makes set_bit()/clear_bit() operate past the mt_io_flags word and
+corrupt the adjacent members of struct mt_device. The sticky-fingers
+release timer is the easiest way to reach this. mt_release_contacts()
+runs
+
+	for (i = 0; i < mt->num_slots; i++)
+		clear_bit(i, &td->mt_io_flags);
+
+with num_slots == maxcontacts. For maxcontacts around 250 the loop
+clears the bits that overlap td->applications.next, zeroing that list
+head, and the list_for_each_entry() that immediately follows then
+dereferences NULL. The kernel panics from timer (softirq) context. On a
+KASAN build this shows up as a general protection fault in
+mt_release_contacts() with a null-ptr-deref at offset 0x58, which is
+offsetof(struct mt_application, num_received).
+
+The state is reachable from an untrusted USB or Bluetooth HID
+multitouch device; no local privileges are required.
+
+Store the per-slot active state in a separately allocated bitmap sized
+for maxcontacts, the same pattern already used for pending_palm_slots,
+and keep only MT_IO_FLAGS_RUNNING in mt_io_flags. The two
+"mt_io_flags & MT_IO_SLOTS_MASK" arming checks become
+bitmap_empty(td->active_slots, td->maxcontacts).
+
+Move MT_IO_FLAGS_RUNNING back to bit 0. It was bumped to bit 32 by the
+same commit to leave the low byte for the slot bits; with the slot bits
+gone it fits in bit 0 again, which also keeps it within the unsigned
+long on 32-bit.
+
+Fixes: 46f781e0d151 ("HID: multitouch: fix sticky fingers")
+Cc: stable@vger.kernel.org
+Signed-off-by: Trung Nguyen <trungnh@cystack.net>
+---
+ drivers/hid/hid-multitouch.c | 32 ++++++++++++++++++++------------
+ 1 file changed, 20 insertions(+), 12 deletions(-)
+
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index 0495152091e3..edb37b4c867e 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -31,6 +31,7 @@
+  * [1] https://gitlab.freedesktop.org/libevdev/hid-tools
+  */
+ 
++#include <linux/bitmap.h>
+ #include <linux/bits.h>
+ #include <linux/device.h>
+ #include <linux/hid.h>
+@@ -97,8 +98,7 @@ enum report_mode {
+ 	TOUCHPAD_REPORT_ALL = TOUCHPAD_REPORT_BUTTONS | TOUCHPAD_REPORT_CONTACTS,
+ };
+ 
+-#define MT_IO_SLOTS_MASK		GENMASK(7, 0) /* reserve first 8 bits for slot tracking */
+-#define MT_IO_FLAGS_RUNNING		32
++#define MT_IO_FLAGS_RUNNING		0
+ 
+ static const bool mtrue = true;		/* default for true */
+ static const bool mfalse;		/* default for false */
+@@ -174,10 +174,9 @@ struct mt_device {
+ 	struct timer_list release_timer;	/* to release sticky fingers */
+ 	struct hid_haptic_device *haptic;	/* haptic related configuration */
+ 	struct hid_device *hdev;	/* hid_device we're attached to */
+-	unsigned long mt_io_flags;	/* mt flags (MT_IO_FLAGS_RUNNING)
+-					 * first 8 bits are reserved for keeping the slot
+-					 * states, this is fine because we only support up
+-					 * to 250 slots (MT_MAX_MAXCONTACT)
++	unsigned long mt_io_flags;	/* mt flags (MT_IO_FLAGS_RUNNING) */
++	unsigned long *active_slots;	/* bitmap of slots with an active
++					 * contact, sized for maxcontacts
+ 					 */
+ 	__u8 inputmode_value;	/* InputMode HID feature value */
+ 	__u8 maxcontacts;
+@@ -1036,7 +1035,7 @@ static void mt_release_pending_palms(struct mt_device *td,
+ 
+ 	for_each_set_bit(slotnum, app->pending_palm_slots, td->maxcontacts) {
+ 		clear_bit(slotnum, app->pending_palm_slots);
+-		clear_bit(slotnum, &td->mt_io_flags);
++		clear_bit(slotnum, td->active_slots);
+ 
+ 		input_mt_slot(input, slotnum);
+ 		input_mt_report_slot_inactive(input);
+@@ -1247,9 +1246,9 @@ static int mt_process_slot(struct mt_device *td, struct input_dev *input,
+ 		input_event(input, EV_ABS, ABS_MT_TOUCH_MAJOR, major);
+ 		input_event(input, EV_ABS, ABS_MT_TOUCH_MINOR, minor);
+ 
+-		set_bit(slotnum, &td->mt_io_flags);
++		set_bit(slotnum, td->active_slots);
+ 	} else {
+-		clear_bit(slotnum, &td->mt_io_flags);
++		clear_bit(slotnum, td->active_slots);
+ 	}
+ 
+ 	return 0;
+@@ -1384,7 +1383,7 @@ static void mt_touch_report(struct hid_device *hid,
+ 	 * defect.
+ 	 */
+ 	if (app->quirks & MT_QUIRK_STICKY_FINGERS) {
+-		if (td->mt_io_flags & MT_IO_SLOTS_MASK)
++		if (!bitmap_empty(td->active_slots, td->maxcontacts))
+ 			mod_timer(&td->release_timer,
+ 				  jiffies + msecs_to_jiffies(100));
+ 		else
+@@ -1443,6 +1442,15 @@ static int mt_touch_input_configured(struct hid_device *hdev,
+ 	if (td->is_pressurepad)
+ 		__set_bit(INPUT_PROP_PRESSUREPAD, input->propbit);
+ 
++	if (!td->active_slots) {
++		td->active_slots = devm_kcalloc(&td->hdev->dev,
++						BITS_TO_LONGS(td->maxcontacts),
++						sizeof(long),
++						GFP_KERNEL);
++		if (!td->active_slots)
++			return -ENOMEM;
++	}
++
+ 	app->pending_palm_slots = devm_kcalloc(&hi->input->dev,
+ 					       BITS_TO_LONGS(td->maxcontacts),
+ 					       sizeof(long),
+@@ -2062,7 +2070,7 @@ static void mt_release_contacts(struct hid_device *hid)
+ 			for (i = 0; i < mt->num_slots; i++) {
+ 				input_mt_slot(input_dev, i);
+ 				input_mt_report_slot_inactive(input_dev);
+-				clear_bit(i, &td->mt_io_flags);
++				clear_bit(i, td->active_slots);
+ 			}
+ 			input_mt_sync_frame(input_dev);
+ 			input_sync(input_dev);
+@@ -2085,7 +2093,7 @@ static void mt_expired_timeout(struct timer_list *t)
+ 	 */
+ 	if (test_and_set_bit_lock(MT_IO_FLAGS_RUNNING, &td->mt_io_flags))
+ 		return;
+-	if (td->mt_io_flags & MT_IO_SLOTS_MASK)
++	if (!bitmap_empty(td->active_slots, td->maxcontacts))
+ 		mt_release_contacts(hdev);
+ 	clear_bit_unlock(MT_IO_FLAGS_RUNNING, &td->mt_io_flags);
+ }
+-- 
+2.45.1.windows.1
+

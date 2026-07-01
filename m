@@ -1,35 +1,58 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.9])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E8EFF3368BA;
-	Wed,  1 Jul 2026 00:00:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 84E6F135A53;
+	Wed,  1 Jul 2026 02:04:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.9
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782864031; cv=none; b=kAmhrsAfXa2uhnckYz5DNAchoVcC3xbZzLhkn6nxhmDPK6bBDWEXxfUFe0ZDA47Heq8kqNbOLRsdcUc7xTbVtpsJSkrIQ/06q+SfbotZ/FDDfkYp52qMRAYdU404cIIPotnJqgaDhpmxqbC07i8hpbnr7Ey1epy98vAZl6tegTI=
+	t=1782871451; cv=none; b=b1sB3ye3WIULzSOnju0UmAh0en/7F0TZ59LUrgvOsCRt5V2z1rJ5gqyy337Oz0js7rMa5e2qCFe6oOxhYCl/JdUTm7k7VrPVx/N+PkK8B5prHIKeAG/4cjQ+uDOLGH69fIn/RPivzmVyRd+d28/OT5DKhT/bxOdcfA6lT+e+b/s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782864031; c=relaxed/simple;
-	bh=aDd6xnbNXHwGM13+mfbTZqc1/QPJzS5RFcPsKU4bTP0=;
-	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc; b=ON6lalgqWpigkeE+34eEtYwKoVpDjGEUwiMsQRde93WjmswqazBCrM1J4s+KxX+dd3BGVI0ohp0yBXBq93Bof4kdff6g57vS78uAfBt91dTUu0HIs3A7fCNN8d+LrSdz6mvMCeyUjLAAkOjm00+L39weykoIsAzKOversISGP0s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=D2aridIB; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1782871451; c=relaxed/simple;
+	bh=pCr/ogT3NMm4i1Rb31y1psS0sAA7i7ybnrnFaiAGaxo=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Ej/ZCSl3ais8MfyokT5nET6Sh5v4nJdG/MiTKY6X0G5scMS8ChRBDR2iVM0hMvYLG6mkrVdtQWAgNeFK1Xe8G77KSLOHCNQIQX977BzWBvPwQtmyUAaWAcpbr/x64T7TnAPUSdFc8EKRI62zY/x0JG/O1v1YaNubTWaj52OTt8c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=b+ebNL0P; arc=none smtp.client-ip=198.175.65.9
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="D2aridIB"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A0A91F000E9;
-	Wed,  1 Jul 2026 00:00:29 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1782864029;
-	bh=/q/M4iftPwXwOXkuB442nTPnYH/p2eAZGJdhwDTouz8=;
-	h=Subject:From:Date:References:In-Reply-To:To:Cc;
-	b=D2aridIB3ZeNJJR3QUrliEur8twz15o6NHQ3r4VfEqZ4ETR7iR4Pcmpw5QOls9KWg
-	 ltdTxZYZRZUW7G04XshPf1tQrDKzMzGzkUSCpoRrq01HHBFl6KI1ZNg+A0EihUDQ85
-	 Nn9/j5cFtBd93A8542gMmvRvLNPhVlsZlGm/unA5oSqjRfx0Sssw6SyErZ08s5sS0r
-	 wdXiV9NryfEhhimef0etZQj0seb/z8TTI9ZjY0OFngTzUGWG5UiWq5EZlaVgH5tvzo
-	 7uagUhv9ei4cRcZc7VrB0c2q7hSjQx6n5p1nbz8XvvSHDY8gNuo7YLSf228yTJeONP
-	 M3PWol6eIbbXA==
-Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 939E5393A963;
-	Wed,  1 Jul 2026 00:00:14 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="b+ebNL0P"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1782871449; x=1814407449;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=pCr/ogT3NMm4i1Rb31y1psS0sAA7i7ybnrnFaiAGaxo=;
+  b=b+ebNL0PkNNToPb4mOZggpnyh4i/SvjRxvlHMoTPzaTj3bbI7GkChpmp
+   e9u+FheWHKStIS9DSf5abp4dcYI7TyUVwUM1ZDdOQD4UYJ8DrJxbPUIgk
+   kWy2NEB1eMzjicyZVtTT/knyqk/Hf39KttTDcPZfXKeSqxpNoTsj/vw9s
+   aZLSqu9OyY2X9GyVcV1pkbx5VJohZR8Rfs6Xkm5elDMG4TKPz//K6RrLK
+   mGmEOVZA9oLlXkBrgxBolC7KayZyqwZC28N6l38q9fLN21bB+HrAmlCMH
+   QckARKwmCs2bcrjJkn8HsSeElqnQ5cdR7rg4Xr5QNX9c7+moeqeA5otN4
+   w==;
+X-CSE-ConnectionGUID: Z3sriX9lTPKOXzPwEZPgDA==
+X-CSE-MsgGUID: 3EXZf67URP6KA457lzjlQw==
+X-IronPort-AV: E=McAfee;i="6800,10657,11833"; a="106386311"
+X-IronPort-AV: E=Sophos;i="6.24,235,1774335600"; 
+   d="scan'208";a="106386311"
+Received: from orviesa008.jf.intel.com ([10.64.159.148])
+  by orvoesa101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 30 Jun 2026 19:04:08 -0700
+X-CSE-ConnectionGUID: 8Kca/6ROS+edgUfNElpjdA==
+X-CSE-MsgGUID: P3vcWGB4Rg6KP9eKl8pIeg==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.24,235,1774335600"; 
+   d="scan'208";a="251997812"
+Received: from shsensorbuild.sh.intel.com ([10.239.132.250])
+  by orviesa008.jf.intel.com with ESMTP; 30 Jun 2026 19:04:06 -0700
+From: Even Xu <even.xu@intel.com>
+To: bentiss@kernel.org,
+	jikos@kernel.org
+Cc: srinivas.pandruvada@linux.intel.com,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Even Xu <even.xu@intel.com>
+Subject: [PATCH 0/3] HID: Intel-thc-hid: Refine error recovery flow
+Date: Wed,  1 Jul 2026 10:04:29 +0800
+Message-ID: <20260701020432.3774514-1-even.xu@intel.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -37,79 +60,51 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH 00/13] treewide: replace linux/gpio.h
-From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: 
- <178286401313.341356.16335263979724856348.git-patchwork-notify@kernel.org>
-Date: Wed, 01 Jul 2026 00:00:13 +0000
-References: <20260629132633.1300009-1-arnd@kernel.org>
-In-Reply-To: <20260629132633.1300009-1-arnd@kernel.org>
-To: Arnd Bergmann <arnd@kernel.org>
-Cc: linux-gpio@vger.kernel.org, arnd@arndb.de, brgl@kernel.org,
- andrew@lunn.ch, sebastian.hesselbarth@gmail.com, gregory.clement@bootlin.com,
- Frank.Li@nxp.com, robert.jarzmik@free.fr, krzk@kernel.org,
- gerg@linux-m68k.org, tsbogend@alpha.franken.de, hauke@hauke-m.de,
- zajec5@gmail.com, ysato@users.sourceforge.jp, glaubitz@physik.fu-berlin.de,
- linusw@kernel.org, dmitry.torokhov@gmail.com, kuba@kernel.org,
- pabeni@redhat.com, linux@dominikbrodowski.net, linux-kernel@vger.kernel.org,
- linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org,
- patches@opensource.cirrus.com, linux-m68k@lists.linux-m68k.org,
- linux-mips@vger.kernel.org, linux-sh@vger.kernel.org,
- linux-input@vger.kernel.org, linux-media@vger.kernel.org,
- netdev@vger.kernel.org, linux-sunxi@lists.linux.dev,
- linux-phy@lists.infradead.org, linux-rockchip@lists.infradead.org,
- linux-sound@vger.kernel.org
 
-Hello:
+This series refines the fatal error recovery flow for the Intel THC
+(Touch Host Controller) subsystem, covering both the QuickI2C and
+QuickSPI drivers.
 
-This series was applied to netdev/net-next.git (main)
-by Jakub Kicinski <kuba@kernel.org>:
+Currently, when a fatal DMA error is detected in the IRQ thread handler,
+the recovery is performed inline: the interrupt handler calls
+try_recover() directly, which unconfigures and reconfigures the DMA
+engine.
 
-On Mon, 29 Jun 2026 15:26:20 +0200 you wrote:
-> From: Arnd Bergmann <arnd@arndb.de>
-> 
-> The linux/gpio.h header used to be the global definition for the gpio
-> interfaces, with 1100 users back in linux-3.17. In linux-7.2, only about
-> 130 of those remain, so this series cleans out the rest.
-> 
-> In each subsystem, we can replace the header either with
-> linux/gpio/consumer.h for users of the modern gpio descriptor interface,
-> or linux/gpio/legacy.h for the few remaining users of the old number
-> based interface.
-> 
-> [...]
+This approach has several problems:
+1. Recovery runs in the IRQ thread context, which is not ideal for
+   potentially slow reset operations.
+2. The interrupt is re-enabled before recovery completes, risking an
+   interrupt storm if DMA errors persist.
+3. The DMA reset logic is open-coded in each protocol driver, leading
+   to duplication and divergence over time.
 
-Here is the summary with links:
-  - [01/13] ARM: replace linux/gpio.h inclusions
-    (no matching commit)
-  - [02/13] m68k/coldfire: replace linux/gpio.h inclusions
-    (no matching commit)
-  - [03/13] mips: replace linux/gpio.h inclusions
-    (no matching commit)
-  - [04/13] sh: replace linux/gpio.h inclusions
-    (no matching commit)
-  - [05/13] mfd: replace linux/gpio.h inclusions
-    (no matching commit)
-  - [06/13,net-next] net: replace linux/gpio.h inclusions
-    https://git.kernel.org/netdev/net-next/c/a53d1872f2be
-  - [07/13] ASoC: replace linux/gpio.h inclusions
-    (no matching commit)
-  - [08/13] pcmcia: replace linux/gpio.h inclusions
-    (no matching commit)
-  - [09/13] phy: replace linux/gpio.h inclusions
-    (no matching commit)
-  - [10/13] media: replace linux/gpio.h inclusions
-    (no matching commit)
-  - [11/13] Input: matrix_keyboard - replace linux/gpio.h inclusion
-    (no matching commit)
-  - [12/13] gpib: gpio: replace linux/gpio.h inclusion
-    (no matching commit)
-  - [13/13] gpiolib: remove linux/gpio.h
-    (no matching commit)
+This patch series addresses all of the above:
 
-You are awesome, thank you!
+By adding a new thc_rxdma_reset() API to the THC core layer, QuickI2C
+and QuickSPI drivers can call it respectively to refine the recovery
+callback.
+
+The synchronous try_recover() call in the IRQ thread is replaced with
+schedule_work(), deferring recovery to a workqueue.  Within the work
+function:
+- The interrupt line is disabled before any DMA manipulation.
+- thc_rxdma_reset() is used instead of the open-coded sequence.
+- On failure the device is marked DISABLED and the interrupt remains
+  off, preventing an interrupt storm.
+
+Even Xu (3):
+  HID: Intel-thc-hid: Intel-thc: Add API to reset read DMA
+  HID: Intel-thc-hid: Intel-quicki2c: Refine recover callback
+  HID: Intel-thc-hid: Intel-quickspi: Refine recover callback
+
+ .../intel-quicki2c/pci-quicki2c.c             | 31 +++++++---------
+ .../intel-quicki2c/quicki2c-dev.h             |  2 +
+ .../intel-quickspi/pci-quickspi.c             | 37 +++++++------------
+ .../intel-quickspi/quickspi-dev.h             |  2 +
+ .../intel-thc-hid/intel-thc/intel-thc-dma.c   | 37 +++++++++++++++++++
+ .../intel-thc-hid/intel-thc/intel-thc-dma.h   |  1 +
+ 6 files changed, 68 insertions(+), 42 deletions(-)
+
 -- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
+2.43.0
 

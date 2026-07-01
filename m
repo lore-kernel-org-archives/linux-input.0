@@ -1,69 +1,65 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from users.org.uk (users.org.uk [91.203.57.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A2FEF38E8B7;
-	Wed,  1 Jul 2026 19:12:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CFDC83A5E88
+	for <linux-input@vger.kernel.org>; Wed,  1 Jul 2026 19:23:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.203.57.137
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782933136; cv=none; b=QEmQuVV8BTtcQksgtehhelmmIFvzfzIymThvMMQ8wmyYd/gOMNM58soKg1TIYUkSz9krTw0O0VJxWARHrDv7vvtpz6Fys5ozCIgdZGlLNNT9EFGMkcCZo0nxZbxSq1SpgTJrP1+oSjXkL8Y3/OFncKMEZBm840jjhj2qKNcT/t4=
+	t=1782933784; cv=none; b=gWLLL0lK+cyQ42EuNjNXwK6gDLegVUqNVhM0afwtCxoHvMMS03j3ptn+k28nozVPITYjJaJQEhgTWRF1dmN9San89voYAs8hde0XAQrpn7Pnua4KSuQGS1/G6YSBXlBNgXJq9rlDRd1Vj9DHeLxR5QhNa5a50XbiwlSOeMoPOXQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782933136; c=relaxed/simple;
-	bh=OH5EEkppZ9NjgziN3FSpK79YkP3ZYDPu14TAWEBCnlQ=;
-	h=From:To:Cc:In-Reply-To:References:Subject:Message-Id:Date:
-	 MIME-Version:Content-Type; b=CYFLrTpBIwSin6v1PxVcVS0Ktuso2dJWHhQ7ME9GCD6gKY2I/hCxZy7AFwqgarFNy5xF26LPcVzLPxZE5zqmAM8lkJ62REaaEAOHwtr8h1D13UpGN2DJQgVNPcdDfMgrPfewovI+FBMHnudcfLuRSPlP3y8s7VnSQjB1T6VqnrA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=n6tXH1a4; arc=none smtp.client-ip=100.103.45.18
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="n6tXH1a4"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 880FB1F000E9;
-	Wed,  1 Jul 2026 19:12:14 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1782933135;
-	bh=FAVN0K3aWofL7Gfpend30Bgse66P/dAvdfdDljeXASA=;
-	h=From:To:Cc:In-Reply-To:References:Subject:Date;
-	b=n6tXH1a4qFiXvds8LEgTYerkotQrPIZXgdSdGVfflQ+mVXeO4f6SJpvqy5uX+oIjY
-	 bFSO1cO4J3u2MhrWnTLEBPMUF5O1Gvv4FyaWP0vbo5k7ssgX1Jb4v9sx2ew8QeKNuZ
-	 4YIAaILSRWwXfl/oUebcbCvf5KQ2ScC2pcgNFYIGPQMPSOV94iK8Pei0TbnqtdtrwD
-	 iJLEGLH/JZ1Jfl8djXlrN8vgDzUJeyXw2DAf/YarEJ6JXN/R79T3Iov4HiydDTgk6i
-	 l8ThFhckGncW1As/ADf1EV4a3WUcskCKOOp94dhorRyb+OekRuHy1EHBzJnxS+UGjg
-	 D3iO7z/m0UBfw==
-From: Benjamin Tissoires <bentiss@kernel.org>
-To: jikos@kernel.org, Trung Nguyen <trungnh@cystack.net>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
- stable@vger.kernel.org
-In-Reply-To: <20260701171320.16367-1-trungnh@cystack.net>
-References: <20260701171320.16367-1-trungnh@cystack.net>
-Subject: Re: [PATCH 1/2] HID: multitouch: fix out-of-bounds bit access on
- mt_io_flags
-Message-Id: <178293313430.4023988.4170644137345282702.b4-ty@b4>
-Date: Wed, 01 Jul 2026 21:12:14 +0200
+	s=arc-20240116; t=1782933784; c=relaxed/simple;
+	bh=LR8y51jW3/YWN7nxi+BuPezXxOa7zgsn0Tp4au0fmis=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=ppzGnJWtEZkyKmDz0A7CtPRU6pNTj+CgoQSObGYtf+iBqfmfYHS/Ejne4PUxb2LYrGo5/9Mzast/Clbrnh3NrTPALwoxHjUsBf5aq756ymcudO2vBxU7Tdl8ALJW20GlgZ0yzqOfO8bhFnnJBvlG16nW/d8Bluo1Fgs2aH1QySw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arachsys.com; spf=pass smtp.mailfrom=arachsys.com; arc=none smtp.client-ip=91.203.57.137
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arachsys.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arachsys.com
+Received: from [92.19.12.217] (helo=rawagajah)
+	by users.org.uk with esmtpsa (TLS1.3) tls TLS_AES_256_GCM_SHA384
+	(envelope-from <richard@arachsys.com>)
+	id 1wf0Jr-000000007cL-2h1k;
+	Wed, 01 Jul 2026 19:09:59 +0000
+From: Richard Davies <richard@arachsys.com>
+To: linux-input@vger.kernel.org,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Mathias Gottschlag <mgottschlag@gmail.com>,
+	Hans de Goede <hdegoede@redhat.com>,
+	Richard Davies <richard@arachsys.com>
+Subject: [PATCH] Input: focaltech - fix array out-of-bounds in focaltech_process_rel_packet
+Date: Wed,  1 Jul 2026 20:09:32 +0100
+Message-ID: <20260701190932.14960-1-richard@arachsys.com>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-Mailer: b4 0.15.2
+Content-Transfer-Encoding: 8bit
 
-On Thu, 02 Jul 2026 00:13:19 +0700, Trung Nguyen wrote:
-> mt_io_flags is a single unsigned long, but mt_process_slot(),
-> mt_release_pending_palms() and mt_release_contacts() use it as a
-> per-slot bitmap indexed by the slot number. That slot number is only
-> bounded by td->maxcontacts, which is taken from the device's
-> ContactCountMaximum feature report and can be up to 255, not by
-> BITS_PER_LONG.
-> 
-> [...]
+Make finger2 (and also finger1) unsigned, so that if the finger index in
+the packet is 0 then subtracting 1 creates an array index which overflows
+above the existing check for FOC_MAX_FINGERS, as the existing comment says
+it should, instead of writing to state->fingers[-1].
 
-Applied to https://git.kernel.org/pub/scm/linux/kernel/git/hid/hid.git (for-7.2/upstream-fixes), thanks!
+Fixes: 05be1d079ec0 ("Input: psmouse - support for the FocalTech PS/2 protocol extensions")
+Signed-off-by: Richard Davies <richard@arachsys.com>
+---
+ drivers/input/mouse/focaltech.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-[1/2] HID: multitouch: fix out-of-bounds bit access on mt_io_flags
-      https://git.kernel.org/hid/hid/c/8813b0612275
-[2/2] selftests/hid: multitouch: test a large ContactCountMaximum
-      https://git.kernel.org/hid/hid/c/b6eb022890c7
-
-Cheers,
+diff --git a/drivers/input/mouse/focaltech.c b/drivers/input/mouse/focaltech.c
+index 43f9939b7c63..d3ad4af5aa09 100644
+--- a/drivers/input/mouse/focaltech.c
++++ b/drivers/input/mouse/focaltech.c
+@@ -197,7 +197,7 @@ static void focaltech_process_rel_packet(struct psmouse *psmouse,
+ {
+ 	struct focaltech_data *priv = psmouse->private;
+ 	struct focaltech_hw_state *state = &priv->state;
+-	int finger1, finger2;
++	unsigned int finger1, finger2;
+ 
+ 	state->pressed = packet[0] >> 7;
+ 	finger1 = ((packet[0] >> 4) & 0x7) - 1;
 -- 
-Benjamin Tissoires <bentiss@kernel.org>
+2.53.0
 

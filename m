@@ -1,110 +1,77 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from endrift.com (endrift.com [173.255.198.10])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3D3872DB78C
-	for <linux-input@vger.kernel.org>; Wed,  1 Jul 2026 06:43:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 43153299927
+	for <linux-input@vger.kernel.org>; Wed,  1 Jul 2026 06:57:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=173.255.198.10
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782888226; cv=none; b=SZ1J4JRgTJyp+g5Bhkl5ePCYjOgjR/udQW+KBjr5qzVvWY3XKJ5+NIfrVeB480wyKlh4xbg2tzXst2gSrxfkR81uPJJi4hzOJHUQN1sG03yTIa+6Bvl1f1SZPwvZR3KrTOjGEnu7WZw/+7TXPtwS4lxibCVv/PIHjxlsckpv+Mo=
+	t=1782889031; cv=none; b=ceY1/i/7lAZEjZIHRAN3tHjq5t9O1cNARrmVW4imE2OwcFGhkP59VObBmY6cNm1rZHsMZJxNf/hKDBBAgXns7+2QIrhTAuOjh4AyldTUKLvI+bhYg9D9Y+YyU2OPIKaUTH06NvJyRvUS2Lz9LN5wsW6BS9KBmaqvhBiO6cwzzdE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782888226; c=relaxed/simple;
-	bh=F2itCEhYpmLFQb7edGPeVqfafbVhUVvTViR3SrbMvdo=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=Gxhkz69xxQUX2fI+fR5X4Z5a8EmksfgwtzljvK3Y7gXLr4S4eiBppBdvK2wX4EG6XmKH4Kqtz2tPdQQJ39YgsWbdg6HzbHO6WvhQ/VFsOwOfrcmQTx7pVZWj6vR0Li11VTMMdAh2MfzZ48pSQHjH4uM4NnN51AP2osjhpIfkJ7k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=cmEzLkZ4; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1782889031; c=relaxed/simple;
+	bh=6sfVGAyWDhadP2tsZgK0mMZ+imuFcFyEkjyy8s73PHk=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=QsVUxvsDe4bFnhCnrKaLoJBGW5/pEneCzvo26j7sL29jaZe3u+esUjncEPFAq29fgxIYdVXoq2rXQG3xVvcLiTU/gCxxB9hT0e0L5gQg2kX2rwhhuWS4nMk3LrcEwS/Wo5szF12DFJ2a6lUyggRzvPz/xRUmdZ6QCTXmH+3NnHM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com; spf=pass smtp.mailfrom=endrift.com; dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b=E8cYORrH; arc=none smtp.client-ip=173.255.198.10
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=endrift.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="cmEzLkZ4"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 920EE1F000E9;
-	Wed,  1 Jul 2026 06:43:44 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1782888224;
-	bh=6LmAQbUDhqgKcTNQ30JsL7fhNFlaM7ebg5aZHFScJ3c=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=cmEzLkZ4/K2wVgJZwTIxIrPM6rtDTJE8afauGzRURA4oNKFPMuZYsxe+pFzboiQC0
-	 gUUM5Ed6Zn6baK02zfZHAGCFVvv2GTUQT0YZPM4ix0OsO2PUGnT+6Y4vbvUO96JA/J
-	 L4i1jW2R/c+OCWUfPvhKWkE66HpZjwyuySGaBymsPDMWtIwvZPYPsuN2zgWLzSq8Dj
-	 P4JiAJXVwps16JiC0AglNA0P8/S/UFdFc2uKxtpp2Kqt/Lm8T18uEBg0+l9fZ9PStE
-	 Zvm0URIKmYGxsT6Tmxd3hVDIpxj54T21c5LJeVsHD+ehjhAkVFEjXxFk6za2SPdMuO
-	 5ECwjdOGEZEyA==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v4] HID: logitech-hidpp: Add support for HID++
- Multi-Platform feature (0x4531)
-Reply-To: sashiko-reviews@lists.linux.dev
-To: DevExalt <exalt.dev.team@gmail.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260701063022.29547-1-exalt.dev.team@gmail.com>
-References: <20260625080807.74157-1-exalt.dev.team@gmail.com>
- <20260701063022.29547-1-exalt.dev.team@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Wed, 01 Jul 2026 06:43:43 +0000
-Message-Id: <20260701064344.920EE1F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b="E8cYORrH"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=endrift.com; s=2020;
+	t=1782889029; bh=6sfVGAyWDhadP2tsZgK0mMZ+imuFcFyEkjyy8s73PHk=;
+	h=From:To:Cc:Subject:Date:From;
+	b=E8cYORrHYSXbAXuwVlNYnYLjm2qfzxwMufajcLu1Es2mUwCYKgXdy+L/R0T0nDQlY
+	 ASC3gCyLEcQ31hNoT1XjDZq+lFJ6IwgGGvdFavMc9lgQHHWIZi1vLlae96dCjMStBF
+	 6NXiH3WUN9Z05yfCTxnvaBuiSzhDbKlB3f0kZgDV7F1zvuwqAZYmWvldpaiG+epuCU
+	 Ptjm7qnWb8GbpbUmwAWwxlWGFeOTVP4rFxMZUzCukNPNr+bFhWTDXSnIv7mMM9ywD0
+	 FTvErrQmUUA6BDMAUxnkpnZwm5/xMdHHk3POPTVluZLkf+W8vWpMYS8LR0lgUA3qXX
+	 VjTXxhMrgGaGw==
+Received: from microtis.vulpes.eutheria.net (71-212-73-87.tukw.qwest.net [71.212.73.87])
+	by endrift.com (Postfix) with ESMTPSA id 05F01A073;
+	Tue, 30 Jun 2026 23:57:08 -0700 (PDT)
+From: Vicki Pfau <vi@endrift.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>,
+	linux-input@vger.kernel.org
+Cc: Vicki Pfau <vi@endrift.com>,
+	Silvan Jegen <s.jegen@gmail.com>
+Subject: [PATCH v9 0/3] HID: nintendo: Add preliminary Switch 2 controller driver
+Date: Tue, 30 Jun 2026 23:56:01 -0700
+Message-ID: <20260701065606.4169999-1-vi@endrift.com>
+X-Mailer: git-send-email 2.54.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
-- [Medium] FAP command macros incorrectly embed a hardcoded Client ID, viol=
-ating the subsystem's software ID convention.
---
+This series adds preliminary support for Switch 2 controllers using the
+same split-driver model as previous versions. This is a minor iteration on
+v7, fixing errors pointed out by sashiko.
 
-commit 18d7a2d2e6622c1a347a9e072d766882d23cb46c
-Author: Baraa Atta (Dev Exalt) <exalt.dev.team@gmail.com>
+At this point I'm pretty sure that what's left are imagined errors. It has
+a lot of ideas of what can be run concurrently that I'm no longer convinced
+of. If nothing obvious stands out, I'd like a review from a human before
+fixing more nothings from sashiko.
 
-HID: logitech-hidpp: Add support for HID++ Multi-Platform feature (0x4531)
+Vicki Pfau (3):
+  HID: nintendo: Add preliminary Switch 2 controller driver
+  HID: nintendo: Add rumble support for Switch 2 controllers
+  HID: nintendo: Add unified report format support
 
-Adds support in the Logitech HID++ driver for the HID++ Multi-Platform
-feature (0x4531), introducing a per-device sysfs attribute "platform" to
-allow selecting a target operating system platform.
+ MAINTAINERS                                   |    1 +
+ drivers/hid/Kconfig                           |   19 +-
+ drivers/hid/hid-ids.h                         |    4 +
+ drivers/hid/hid-nintendo.c                    | 1670 ++++++++++++++++-
+ drivers/hid/hid-nintendo.h                    |   72 +
+ drivers/input/joystick/Kconfig                |   11 +
+ drivers/input/joystick/Makefile               |    1 +
+ drivers/input/joystick/nintendo-switch2-usb.c |  464 +++++
+ 8 files changed, 2201 insertions(+), 41 deletions(-)
+ create mode 100644 drivers/hid/hid-nintendo.h
+ create mode 100644 drivers/input/joystick/nintendo-switch2-usb.c
 
-> diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-=
-hidpp.c
-> index 90b0184df777f..b3b846c8bdaf8 100644
-> --- a/drivers/hid/hid-logitech-hidpp.c
-> +++ b/drivers/hid/hid-logitech-hidpp.c
-[ ... ]
-> @@ -4423,6 +4426,398 @@ static bool hidpp_application_equals(struct hid_d=
-evice *hdev,
->  	return report && report->application =3D=3D application;
->  }
-> =20
-> +/* ---------------------------------------------------------------------=
------ */
-> +/* 0x4531: Multi-Platform Support                                       =
-      */
-> +/* ---------------------------------------------------------------------=
------ */
-[ ... ]
-> +#define HIDPP_MULTIPLATFORM_FEAT_ID			0x4531
-> +#define HIDPP_MULTIPLATFORM_GET_FEATURE_INFO		0x0F
-> +#define HIDPP_MULTIPLATFORM_GET_PLATFORM_DESCRIPTOR	0x1F
-> +#define HIDPP_MULTIPLATFORM_SET_CURRENT_PLATFORM	0x3F
+-- 
+2.54.0
 
-[Severity: Medium]
-Do these FAP command constants incorrectly have the Client ID 0xF baked into
-the lower nibble? By subsystem design, they should specify only the function
-index (e.g., 0x00, 0x10, 0x30).
-
-Because these constants hardcode 0xF, when hidpp_send_fap_command_sync() is
-called to format the message:
-
-drivers/hid/hid-logitech-hidpp.c:hidpp_send_fap_command_sync() {
-    ...
-    message->fap.funcindex_clientid =3D funcindex_clientid | LINUX_KERNEL_S=
-W_ID;
-    ...
-}
-
-The bitwise OR with LINUX_KERNEL_SW_ID (which is 1) will result in 0xF,
-bypassing the driver's intentional Linux Kernel Software ID allocation.
-
-Could this incorrect Client ID cause the device to misattribute state chang=
-es
-or fail to route events back to the kernel properly?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260701063022.2954=
-7-1-exalt.dev.team@gmail.com?part=3D1

@@ -1,75 +1,75 @@
 Received: from mail-pj2-f1.google.com (mail-pj2-f1.google.com [74.125.227.129])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1AFC5390C9A
-	for <linux-input@vger.kernel.org>; Wed,  1 Jul 2026 17:13:49 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5CD674968F6
+	for <linux-input@vger.kernel.org>; Wed,  1 Jul 2026 17:13:53 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.227.129
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782926031; cv=none; b=bwp45qUcp+AOEQ+D86QUgYwpwW4Cuj/Ol0XR171RZItCZ6WS7yMnfwEslg0spZFJZ9QIBGd/QbWCO0p3Aewlx5Jbm6RJNNKCGt3xexRHZLsfzMYQJoO7hQitf3cPY2LWXkU2hm5AzhkXTv36bOLldX/m537FhzktmlGwm146OQY=
+	t=1782926034; cv=none; b=mRPWbE8BzooI9MwNvQ0Ifg8xRsSNEPV148nLoTV4/qZfsqmL05YBBcZYDUhH+3hGwYeGU8i8hslIsNHQ8cgv1aIZSMgllmJZybr0D6HdTFRQGNge00lXNYVFOupwIXQonSo4wT18e32j0UhlPS0t6NvuCbWWFWlj4a9e8YtKMa8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782926031; c=relaxed/simple;
-	bh=kKTeujLS9a68lTaT3jxbumlF5HSR11tXhUWpjVgLfuI=;
+	s=arc-20240116; t=1782926034; c=relaxed/simple;
+	bh=aX+b6stSXbvbCLvNaywrRDff11ZszdhZCoQEsYdRPx0=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=QgWSjVJybNxISCr7tby8ntgpUwtLHPdWgl3yDhqebbcbw2a+eAUSnwTHm1VUpNTiFXrcWiArkUTej1Sc8ILUVmo3QGeJEhlXhasc0B1fzLx/DuDfCAszEx4lQ7tPPtNjDk5ibV2MynyGskL+ShdT7qoiaxhJXvaSGqXfu390yiI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=cystack.net; spf=pass smtp.mailfrom=cystack.net; dkim=pass (2048-bit key) header.d=cystack-net.20251104.gappssmtp.com header.i=@cystack-net.20251104.gappssmtp.com header.b=nwhAI+7M; arc=none smtp.client-ip=74.125.227.129
+	 MIME-Version; b=iL4guQrTf5vXGF2+n7PB0HcxKawjnBt6oajg0OY5QaxuKxVAQwJntk+wmlBDel/5wmLSsXL6dlTSQk6lL0oakqsvZAB7i6o5D0GT0AYJHA9fFqfvLkrIL9ddWNDzXBqIfF7f6VTiVIKehivMSHnttNI83V6IWFlUYja3GTBXkB0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=cystack.net; spf=pass smtp.mailfrom=cystack.net; dkim=pass (2048-bit key) header.d=cystack-net.20251104.gappssmtp.com header.i=@cystack-net.20251104.gappssmtp.com header.b=tyTR4EYa; arc=none smtp.client-ip=74.125.227.129
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=cystack.net
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=cystack.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=cystack-net.20251104.gappssmtp.com header.i=@cystack-net.20251104.gappssmtp.com header.b="nwhAI+7M"
-Received: by mail-pj2-f1.google.com with SMTP id d9443c01a7336-2c980dac2b2so2644255ad.0
-        for <linux-input@vger.kernel.org>; Wed, 01 Jul 2026 10:13:49 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=cystack-net.20251104.gappssmtp.com header.i=@cystack-net.20251104.gappssmtp.com header.b="tyTR4EYa"
+Received: by mail-pj2-f1.google.com with SMTP id d9443c01a7336-2c9f52ad059so3372715ad.1
+        for <linux-input@vger.kernel.org>; Wed, 01 Jul 2026 10:13:53 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=cystack-net.20251104.gappssmtp.com; s=20251104; t=1782926029; x=1783530829; darn=vger.kernel.org;
+        d=cystack-net.20251104.gappssmtp.com; s=20251104; t=1782926033; x=1783530833; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=enoWlMtun1s/5aE0gWfbvE36ga7ngFUQHQ5/PNaJTIU=;
-        b=nwhAI+7Mf99VMmVGnBWrX4WfCaL5oNxokFNlsu+pq9TaF0Mm2vMA1s4GXAQ+xgMjnC
-         QjaxuvSQK52+u+jd7Bg0FIHsFg+2xPJv9CGNxbPmd+3OJ90uWvpXeiGbvlhlHlnqi1gV
-         xYzhUwd1C6F/Q+jjGV4nKKwJq7nideAKF5jE4ALBItNUuVZ+k32aynyTAHiIhwRe55gP
-         Ofh+Spn/QjwhYg4DO/hYfmGCzmuImmI8wywrBYigFg7SzRw+S/UaSNykc2XwHkqzDRjf
-         qQeL1bUjGQSDDaL1/teGf2S4MovxPh8WYnjz436Kq2gUhD/HUtqqyVu7gn6tnpbjQBbg
-         38Ug==
+        bh=bDOhWO02xhzurUfA2UXQXMdQzVrek1e0JWgIJjmjJbw=;
+        b=tyTR4EYaAPQukLIB+Y4tHGxFLi5amaujULxIiw70V5F3HTAIGLkOljEPnRSQzEkmZ4
+         FXMCvhlfxy8A83Qx072aGk6+hIZADG5DzrsVtUNfWA8FrDq5TS+n2ndOoHT/DujPPXK2
+         0Qz1sizLPf1M0sEnbR9wPtSUFdkKkG42yEcHmCbkyF2SYQZkkRswJN5TaLwsUaXESm+k
+         Wz7/DJ/DWQ+DRUUrnssFo6CYIExAX5Bm/aKXZl8D3ytgCX7621e2ABQD22uhqC1BMrJc
+         chbqxVTf+EnrhxTYjsLFWP0+N0xmq58hxSnMvC0iSrbjLn3ATnG5CCQ0vLbsvuRG2NJk
+         PhHw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1782926029; x=1783530829;
+        d=1e100.net; s=20251104; t=1782926033; x=1783530833;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=enoWlMtun1s/5aE0gWfbvE36ga7ngFUQHQ5/PNaJTIU=;
-        b=liZhjHDSG5y1unazJH+fNvPaeFg6mKPEPMtr/JpyyHnDtXj/tHqi6zcbw0omhc2S+P
-         e6Giilrk1RjTkmzX57XM033MhbBm6fUQksnpMYtC3QU6Znnrd/ROEcS9UfXgeRAD/+lC
-         SAu+66I5uFpm/srkP48Qd1XyUQu+AYF0i1MXpdZ1IR86aKOnypKkz/Z1OYOe359VG4hy
-         Kt93tuVcixdw4FDEDqbBes6vLQm+rWYMqlQLCJP13R4Uf1H6Kb5SYfnk2TrYPnr2jGYR
-         7HXG8J4IxBmBPflMjBY2QML7vjDTwfB8NDu/Sjb0g8LGyMa9LZ7RydqxI7PN1eUHWti/
-         vepg==
-X-Gm-Message-State: AOJu0Yy0QQkriPdeVACVbejHwIIeb+1l7LxnrMzb1JQd6f43DASOk0Rv
-	ShIJa7apPnGwWKA8C4vecor6GhJBA4C+v+LIibWz/g5zHOqbjGTp/haKsMVBLlkY2MA=
-X-Gm-Gg: AfdE7cm3ovxqeiiUA1gwfZq3g5Kb0gwC3AUYZjw5JkwBIysFNTIUXaaVwy74JHdrMrV
-	WQ0xXZqd1TT3GihlMOKCh2eUyEZy1PevxURfc/pGVRRwNJa19moaKsPgxG6iUMZE3StehjOE7ro
-	OraerQpPnE93MEAdntZZdeYopsDVTsx1tP2rr4mu7atyR45vOEUPfRks4pkT+OOpQzzSelrjvIS
-	HssKCWafwMOkicYMR+dshDS1Tv1PSAffW1TSNxCSPw6NSAc0VLbkZRZGKGrlqXTf6yvbRWZDf7M
-	yJAl9rwTXGuYZwtzgK4uHZGG43oGSzqMXukSWU0S2sxkWUjDeUvIUHmuXBdTIP1U12oqBcsZP2z
-	T1E2xhzXkODZSHrtkjUeve3OF/nK3CBLB/WzukIk0V8+sI8pE6e4/bFnn8YlfJFgsJYGKgZj8xT
-	WFKxB9m0E1693tZKvQ6QhFpWizyQ8JKtPKWD7xZlQ=
-X-Received: by 2002:a17:902:db12:b0:2c6:9f66:d573 with SMTP id d9443c01a7336-2ca7e67eda5mr27897885ad.2.1782926029330;
-        Wed, 01 Jul 2026 10:13:49 -0700 (PDT)
+        bh=bDOhWO02xhzurUfA2UXQXMdQzVrek1e0JWgIJjmjJbw=;
+        b=lbH/C5bZ9bnJ7HrE843RbNJQq0Da0Kg5sOaSm2iEy/9YTD9pKoFjlgwgtVGdJAzLJQ
+         zlpF3tACU+KbOVx4dl3DbV4ul+LZIFyvdIkK/Vu/7FTc9ZOu6jF/1ZHryUZ48NBLzlkr
+         HH4BK0QI1Cf/VSKHAx+QUs/Y8IP66oVfNxjvWXwzc/pmlafa6VF89T4TXAWwdYZcxdH8
+         n78NgAxkkDxjJPLbIqjS4eM4Px4eaG7qa5+Tsnrztr551Sr9NRD6HSpb1M6S1vqD1013
+         RujQVnSDxbNiIDB/lP8Y8lw1K3Io1AAx3yfK+SxiBXv9rbt44Su0iwz1c92VfeCBwo5d
+         7aoQ==
+X-Gm-Message-State: AOJu0YwORlgo0pv7RXH/EUiw0aW/GUBkx331cKkz9+/YTlrLp7RLnhc6
+	3DFpgTk06ZplyZVXPg2r8p3cEFAjYY8wqA4cjB354S91N7jeaV1JxC8i7VcvWBjs1Fk=
+X-Gm-Gg: AfdE7cm1KBd9lc2/xedRfy26wra7LmqcShbsi2F/zPp7JDM10B2J503R88uBf0PTMTq
+	4D2T59quScwkh6xER95BH7e6yN39w+3PR6bBUCdn7hGI6Ua33YkXfZs34KiUwP3z1prum/QaMGV
+	bALSnkomC73jBRljGbGLRtWzj5i8KAH4O8L2T4Hmfk3HYqz0zf1hSY4sy3pVSDJy/CLcdqjpOz9
+	Vra6FlIhSlM/Emj5gA/DXuhsWlnD7H2yOhFjXd85W2vzik5XEwrIDXt7IVuI8/YbpuvpHFcnPRR
+	Jf0oK/Fy6bPNbcx+M4n5/tARnckP0IexeY+OjisbNUfUCzPMCDWqTGtQUPjX3GnE7nynBDEKRsV
+	/xYstxMbHKM+erFC29ppwHH+U24HcyRgK4KrQS/nUwqxCNpzpYT/wvzqC/dZ+lpGl/RvOXvkH6G
+	fLfvB9zuHRGp/ecp19g0Y4lxPdFxoq2Zo+IWXDLzrAl8pqn2AfMw==
+X-Received: by 2002:a17:902:d548:b0:2c9:e8a4:811d with SMTP id d9443c01a7336-2ca7e880c39mr26962075ad.38.1782926032498;
+        Wed, 01 Jul 2026 10:13:52 -0700 (PDT)
 Received: from localhost.localdomain ([171.225.202.83])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2ca9a8de800sm1329215ad.12.2026.07.01.10.13.47
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2ca9a8de800sm1329215ad.12.2026.07.01.10.13.49
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 01 Jul 2026 10:13:48 -0700 (PDT)
+        Wed, 01 Jul 2026 10:13:51 -0700 (PDT)
 From: Trung Nguyen <trungnh@cystack.net>
 To: bentiss@kernel.org,
 	jikos@kernel.org
 Cc: linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
-	Trung Nguyen <trungnh@cystack.net>,
-	stable@vger.kernel.org
-Subject: [PATCH 1/2] HID: multitouch: fix out-of-bounds bit access on mt_io_flags
-Date: Thu,  2 Jul 2026 00:13:19 +0700
-Message-ID: <20260701171320.16367-1-trungnh@cystack.net>
+	Trung Nguyen <trungnh@cystack.net>
+Subject: [PATCH 2/2] selftests/hid: multitouch: test a large ContactCountMaximum
+Date: Thu,  2 Jul 2026 00:13:20 +0700
+Message-ID: <20260701171320.16367-2-trungnh@cystack.net>
 X-Mailer: git-send-email 2.45.1.windows.1
-In-Reply-To: <CAO-hwJLS6uAX__aGkmpcDQ8v6GJaHGrL+TOYXVRX6jvjzNW+wg@mail.gmail.com>
+In-Reply-To: <20260701171320.16367-1-trungnh@cystack.net>
 References: <CAO-hwJLS6uAX__aGkmpcDQ8v6GJaHGrL+TOYXVRX6jvjzNW+wg@mail.gmail.com>
+ <20260701171320.16367-1-trungnh@cystack.net>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -78,151 +78,161 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-mt_io_flags is a single unsigned long, but mt_process_slot(),
-mt_release_pending_palms() and mt_release_contacts() use it as a
-per-slot bitmap indexed by the slot number. That slot number is only
-bounded by td->maxcontacts, which is taken from the device's
-ContactCountMaximum feature report and can be up to 255, not by
-BITS_PER_LONG.
+Add a regression test for the out-of-bounds bit operations on
+struct mt_device.mt_io_flags.
 
-As a result, a multitouch device that advertises a large contact count
-makes set_bit()/clear_bit() operate past the mt_io_flags word and
-corrupt the adjacent members of struct mt_device. The sticky-fingers
-release timer is the easiest way to reach this. mt_release_contacts()
-runs
+A HID multitouch device can advertise a ContactCountMaximum far larger
+than the number of contacts a single report describes, up to 255. The
+driver used to keep the per-slot active state in the bits of a single
+unsigned long and index set_bit()/clear_bit() by the slot number, so such
+a device drove those operations out of bounds. The sticky-fingers release
+timer made it fatal: mt_release_contacts() cleared one bit per slot and
+overwrote the adjacent members of struct mt_device.
 
-	for (i = 0; i < mt->num_slots; i++)
-		clear_bit(i, &td->mt_io_flags);
+The new device advertises a ContactCountMaximum of 250 while exposing only
+a few finger collections (a large contact count cannot be expressed with
+one finger collection per contact within the HID descriptor size limit).
+The test sends a single contact and lets the 100ms sticky-fingers timer
+release it. A kernel without the fix panics in mt_release_contacts(); a
+fixed kernel reports the release cleanly.
 
-with num_slots == maxcontacts. For maxcontacts around 250 the loop
-clears the bits that overlap td->applications.next, zeroing that list
-head, and the list_for_each_entry() that immediately follows then
-dereferences NULL. The kernel panics from timer (softirq) context. On a
-KASAN build this shows up as a general protection fault in
-mt_release_contacts() with a null-ptr-deref at offset 0x58, which is
-offsetof(struct mt_application, num_received).
-
-The state is reachable from an untrusted USB or Bluetooth HID
-multitouch device; no local privileges are required.
-
-Store the per-slot active state in a separately allocated bitmap sized
-for maxcontacts, the same pattern already used for pending_palm_slots,
-and keep only MT_IO_FLAGS_RUNNING in mt_io_flags. The two
-"mt_io_flags & MT_IO_SLOTS_MASK" arming checks become
-bitmap_empty(td->active_slots, td->maxcontacts).
-
-Move MT_IO_FLAGS_RUNNING back to bit 0. It was bumped to bit 32 by the
-same commit to leave the low byte for the slot bits; with the slot bits
-gone it fits in bit 0 again, which also keeps it within the unsigned
-long on 32-bit.
-
-Fixes: 46f781e0d151 ("HID: multitouch: fix sticky fingers")
-Cc: stable@vger.kernel.org
 Signed-off-by: Trung Nguyen <trungnh@cystack.net>
 ---
- drivers/hid/hid-multitouch.c | 32 ++++++++++++++++++++------------
- 1 file changed, 20 insertions(+), 12 deletions(-)
+ .../selftests/hid/tests/test_multitouch.py    | 114 ++++++++++++++++++
+ 1 file changed, 114 insertions(+)
 
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index 0495152091e3..edb37b4c867e 100644
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -31,6 +31,7 @@
-  * [1] https://gitlab.freedesktop.org/libevdev/hid-tools
-  */
+diff --git a/tools/testing/selftests/hid/tests/test_multitouch.py b/tools/testing/selftests/hid/tests/test_multitouch.py
+index fa4fb2054bd4..7897340118b4 100644
+--- a/tools/testing/selftests/hid/tests/test_multitouch.py
++++ b/tools/testing/selftests/hid/tests/test_multitouch.py
+@@ -513,6 +513,79 @@ class SmartTechDigitizer(Digitizer):
+         return absinfo is not None and absinfo.resolution == 3
  
-+#include <linux/bitmap.h>
- #include <linux/bits.h>
- #include <linux/device.h>
- #include <linux/hid.h>
-@@ -97,8 +98,7 @@ enum report_mode {
- 	TOUCHPAD_REPORT_ALL = TOUCHPAD_REPORT_BUTTONS | TOUCHPAD_REPORT_CONTACTS,
- };
  
--#define MT_IO_SLOTS_MASK		GENMASK(7, 0) /* reserve first 8 bits for slot tracking */
--#define MT_IO_FLAGS_RUNNING		32
-+#define MT_IO_FLAGS_RUNNING		0
- 
- static const bool mtrue = true;		/* default for true */
- static const bool mfalse;		/* default for false */
-@@ -174,10 +174,9 @@ struct mt_device {
- 	struct timer_list release_timer;	/* to release sticky fingers */
- 	struct hid_haptic_device *haptic;	/* haptic related configuration */
- 	struct hid_device *hdev;	/* hid_device we're attached to */
--	unsigned long mt_io_flags;	/* mt flags (MT_IO_FLAGS_RUNNING)
--					 * first 8 bits are reserved for keeping the slot
--					 * states, this is fine because we only support up
--					 * to 250 slots (MT_MAX_MAXCONTACT)
-+	unsigned long mt_io_flags;	/* mt flags (MT_IO_FLAGS_RUNNING) */
-+	unsigned long *active_slots;	/* bitmap of slots with an active
-+					 * contact, sized for maxcontacts
- 					 */
- 	__u8 inputmode_value;	/* InputMode HID feature value */
- 	__u8 maxcontacts;
-@@ -1036,7 +1035,7 @@ static void mt_release_pending_palms(struct mt_device *td,
- 
- 	for_each_set_bit(slotnum, app->pending_palm_slots, td->maxcontacts) {
- 		clear_bit(slotnum, app->pending_palm_slots);
--		clear_bit(slotnum, &td->mt_io_flags);
-+		clear_bit(slotnum, td->active_slots);
- 
- 		input_mt_slot(input, slotnum);
- 		input_mt_report_slot_inactive(input);
-@@ -1247,9 +1246,9 @@ static int mt_process_slot(struct mt_device *td, struct input_dev *input,
- 		input_event(input, EV_ABS, ABS_MT_TOUCH_MAJOR, major);
- 		input_event(input, EV_ABS, ABS_MT_TOUCH_MINOR, minor);
- 
--		set_bit(slotnum, &td->mt_io_flags);
-+		set_bit(slotnum, td->active_slots);
- 	} else {
--		clear_bit(slotnum, &td->mt_io_flags);
-+		clear_bit(slotnum, td->active_slots);
- 	}
- 
- 	return 0;
-@@ -1384,7 +1383,7 @@ static void mt_touch_report(struct hid_device *hid,
- 	 * defect.
- 	 */
- 	if (app->quirks & MT_QUIRK_STICKY_FINGERS) {
--		if (td->mt_io_flags & MT_IO_SLOTS_MASK)
-+		if (!bitmap_empty(td->active_slots, td->maxcontacts))
- 			mod_timer(&td->release_timer,
- 				  jiffies + msecs_to_jiffies(100));
- 		else
-@@ -1443,6 +1442,15 @@ static int mt_touch_input_configured(struct hid_device *hdev,
- 	if (td->is_pressurepad)
- 		__set_bit(INPUT_PROP_PRESSUREPAD, input->propbit);
- 
-+	if (!td->active_slots) {
-+		td->active_slots = devm_kcalloc(&td->hdev->dev,
-+						BITS_TO_LONGS(td->maxcontacts),
-+						sizeof(long),
-+						GFP_KERNEL);
-+		if (!td->active_slots)
-+			return -ENOMEM;
-+	}
++class MinWin8TSParallelBigContactMax(Digitizer):
++    """A parallel Win8 touchscreen that advertises a ContactCountMaximum much
++    larger than the number of contacts it actually reports.
 +
- 	app->pending_palm_slots = devm_kcalloc(&hi->input->dev,
- 					       BITS_TO_LONGS(td->maxcontacts),
- 					       sizeof(long),
-@@ -2062,7 +2070,7 @@ static void mt_release_contacts(struct hid_device *hid)
- 			for (i = 0; i < mt->num_slots; i++) {
- 				input_mt_slot(input_dev, i);
- 				input_mt_report_slot_inactive(input_dev);
--				clear_bit(i, &td->mt_io_flags);
-+				clear_bit(i, td->active_slots);
- 			}
- 			input_mt_sync_frame(input_dev);
- 			input_sync(input_dev);
-@@ -2085,7 +2093,7 @@ static void mt_expired_timeout(struct timer_list *t)
- 	 */
- 	if (test_and_set_bit_lock(MT_IO_FLAGS_RUNNING, &td->mt_io_flags))
- 		return;
--	if (td->mt_io_flags & MT_IO_SLOTS_MASK)
-+	if (!bitmap_empty(td->active_slots, td->maxcontacts))
- 		mt_release_contacts(hdev);
- 	clear_bit_unlock(MT_IO_FLAGS_RUNNING, &td->mt_io_flags);
- }
++    Such firmware makes the driver allocate that many input slots (up to 255)
++    while the input report only carries a few contacts. This is what used to
++    drive the per-slot bit operations on mt_io_flags out of bounds. The number
++    of contacts a HID report can describe is limited by the descriptor size,
++    so a large ContactCountMaximum can only be expressed this way, decoupled
++    from the number of finger collections."""
++
++    def __init__(self, n_fingers=5, contact_max=250):
++        self.phys_max = 120, 90
++        rdesc_finger_str = f"""
++            Usage Page (Digitizers)
++            Usage (Finger)
++            Collection (Logical)
++             Report Size (1)
++             Report Count (1)
++             Logical Minimum (0)
++             Logical Maximum (1)
++             Usage (Tip Switch)
++             Input (Data,Var,Abs)
++             Report Size (7)
++             Logical Maximum (127)
++             Input (Cnst,Var,Abs)
++             Report Size (8)
++             Logical Maximum (255)
++             Usage (Contact Id)
++             Input (Data,Var,Abs)
++             Report Size (16)
++             Unit Exponent (-1)
++             Unit (SILinear: cm)
++             Logical Maximum (4095)
++             Physical Minimum (0)
++             Physical Maximum ({self.phys_max[0]})
++             Usage Page (Generic Desktop)
++             Usage (X)
++             Input (Data,Var,Abs)
++             Physical Maximum ({self.phys_max[1]})
++             Usage (Y)
++             Input (Data,Var,Abs)
++            End Collection
++"""
++        rdesc_str = f"""
++           Usage Page (Digitizers)
++           Usage (Touch Screen)
++           Collection (Application)
++            Report ID (1)
++            {rdesc_finger_str * n_fingers}
++            Unit Exponent (-4)
++            Unit (SILinear: s)
++            Logical Maximum (65535)
++            Physical Maximum (65535)
++            Usage Page (Digitizers)
++            Usage (Scan Time)
++            Input (Data,Var,Abs)
++            Report Size (8)
++            Logical Maximum (255)
++            Usage (Contact Count)
++            Input (Data,Var,Abs)
++            Report ID (2)
++            Logical Maximum ({contact_max})
++            Usage (Contact Max)
++            Feature (Data,Var,Abs)
++          End Collection
++          {Digitizer.msCertificationBlob(68)}
++"""
++        super().__init__(
++            f"uhid test parallel big contact max {contact_max}", rdesc_str
++        )
++
++
+ class BaseTest:
+     class TestMultitouch(base.BaseTestCase.TestUhid):
+         kernel_modules = [KERNEL_MODULE]
+@@ -1735,6 +1808,47 @@ class TestMinWin8TSParallel(BaseTest.TestWin8Multitouch):
+         return MinWin8TSParallel(10)
+ 
+ 
++class TestMinWin8TSParallelBigContactMax(base.BaseTestCase.TestUhid):
++    """Regression test for the out-of-bounds bit operations on
++    struct mt_device.mt_io_flags.
++
++    A Win8 touchscreen may advertise a ContactCountMaximum much larger than
++    the number of contacts it reports. The driver used to keep the per-slot
++    active state in the bits of a single unsigned long while indexing
++    set_bit()/clear_bit() by the slot number, so such a device drove those bit
++    operations out of bounds. The sticky-fingers release timer made it fatal:
++    mt_release_contacts() cleared one bit per slot, overwrote the adjacent
++    struct mt_device members and panicked the kernel.
++
++    Send a single contact, let the 100ms sticky-fingers timer release it, and
++    check that the kernel reports the release cleanly instead of crashing."""
++
++    kernel_modules = [KERNEL_MODULE]
++
++    def create_device(self):
++        return MinWin8TSParallelBigContactMax()
++
++    def test_sticky_fingers_release_big_contact_max(self):
++        uhdev = self.uhdev
++        evdev = uhdev.get_evdev()
++
++        assert evdev.num_slots == uhdev.max_contacts
++
++        t0 = Touch(1, 5, 10)
++        r = uhdev.event([t0])
++        events = uhdev.next_sync_events()
++        self.debug_reports(r, uhdev, events)
++        assert evdev.slots[0][libevdev.EV_ABS.ABS_MT_TRACKING_ID] == 0
++
++        # do not release the contact; the sticky-fingers timer must do it
++        # after 100ms, which is where the out-of-bounds release used to hit
++        time.sleep(0.2)
++        events = uhdev.next_sync_events()
++        self.debug_reports(r, uhdev, events)
++        assert libevdev.InputEvent(libevdev.EV_KEY.BTN_TOUCH, 0) in events
++        assert evdev.slots[0][libevdev.EV_ABS.ABS_MT_TRACKING_ID] == -1
++
++
+ class TestMinWin8TSHybrid(BaseTest.TestWin8Multitouch):
+     def create_device(self):
+         return MinWin8TSHybrid()
 -- 
 2.45.1.windows.1
 

@@ -1,79 +1,141 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from flow-a3-smtp.messagingengine.com (flow-a3-smtp.messagingengine.com [103.168.172.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1672E3B19BA;
-	Wed,  1 Jul 2026 08:31:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D1FB2126C03;
+	Wed,  1 Jul 2026 08:32:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.138
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782894672; cv=none; b=LS8OhG5lQgvteWtF+9kzMeOgWoU/9KpCzD+BlfmQ5beSXm0Pwf7IvcTCqDaHCq4caBM2rR0Ty+ixr4Ferr9v2pVS2gqP9TFIXTFZ9PjaxDnHU9Rmv8IsHUvJ2gG1jpfEnUJhY1ZdlMw0KCOTuIpg61fIKVrdPIoa1+mR1Iui/G4=
+	t=1782894740; cv=none; b=iSNRVIMYChyKjO/xwzmfRVUnH4lNGGfRIV8689Y6OKHaXKAn/0eGm2itr3SyKAaxmqemW+xsfScIs4WXTDgiQSrA6yCJALRq2Lh/IepQw0YEuELaAFUtGH11eOlf5yEgrOeEWIb3y50XRCth9sy5CDCod5COyiflnQEFZfWyT6U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782894672; c=relaxed/simple;
-	bh=jprOyV/DD4/LfRUQG4yVWARPLbfqTCpN1bGCNR/tePI=;
-	h=From:To:Cc:In-Reply-To:References:Subject:Message-Id:Date:
-	 MIME-Version:Content-Type; b=WjsNkASsgAtcWrpZtwrCAq0WYCIyVqpvhmpTuTbSfItHZokztJAO32jf0P1OL8jWZjYhx8zbou5qevhmlp0VM1OT0RoW3aKqrPRO1hdxwtEFWr12NxmRF5pEoFhl8E43YXiWmH70hcczGgeBiyWuIp5H/a20xjeZU30sQ200A6I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Phs5DCuD; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1782894740; c=relaxed/simple;
+	bh=ue4wzFqFJKqL2WfmlTkgjVeQXRsUBYlyz2PcQ/gXSIw=;
+	h=MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
+	 Subject:Content-Type; b=mf33lmYuMt58EIBsyDzKPmOcx1Te6e+NgDoA713c6rJpD3Ly8bF4NBC4mR8jvP8lzi6kg5c786SjJ/fGiBkXKX/I0c9OXK/GmXRfbomBZfVvfdHAqLO+MmFL36voEHViYiU3E2TxQghfAdZwwsvDxubIrZyl3vXCvib6VcJrrvU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de; spf=pass smtp.mailfrom=arndb.de; dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b=pk4AtDVr; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=aPVd6uLE; arc=none smtp.client-ip=103.168.172.138
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arndb.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Phs5DCuD"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E05351F00A3E;
-	Wed,  1 Jul 2026 08:31:07 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1782894670;
-	bh=SV6y/pSdqriYvdQyK430YEucFJ4EprNC4pyu5Kq6/To=;
-	h=From:To:Cc:In-Reply-To:References:Subject:Date;
-	b=Phs5DCuDYJ4dTGbjlfavjjBD1qS9aVBplqquSLvvQu63y7OHaSA4h+obDeffot0cQ
-	 bcJR/ob7vSBG+op5+TwdsdDUzgXQoqOX3wF1LQ++iqLbLOiN4Ip/1pTrD21G84EnXG
-	 DRtuPw/eqvc82s3H4I3CZb6qQuxA12gVspKs/gMvKSmiEO11/CVAQxokKI19EBdaQg
-	 wJCyglBDi3LP+UMCHo6c028oqTyd6T+shgWBCXP3kKLPuhIa7PakM561FFZexP/ySv
-	 zITnF0LR2Yfq7aoIXY1tOuxnrBYNeNEcUVt687Yx1FYvBHVAWQW1ZWgzrTdDq9HKOI
-	 mDMIjwe9kAqXg==
-From: Benjamin Tissoires <bentiss@kernel.org>
-To: Jiri Kosina <jikos@kernel.org>, bpf@vger.kernel.org, 
- linux-input@vger.kernel.org, Yiyang Chen <chenyy23@mails.tsinghua.edu.cn>
-Cc: Shuah Khan <shuah@kernel.org>, Alexei Starovoitov <ast@kernel.org>, 
- Daniel Borkmann <daniel@iogearbox.net>, Andrii Nakryiko <andrii@kernel.org>, 
- Martin KaFai Lau <martin.lau@linux.dev>, 
- Eduard Zingerman <eddyz87@gmail.com>, 
- Kumar Kartikeya Dwivedi <memxor@gmail.com>, Song Liu <song@kernel.org>, 
- Yonghong Song <yonghong.song@linux.dev>, Jiri Olsa <jolsa@kernel.org>, 
- linux-kselftest@vger.kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20260623062315.2694160-1-chenyy23@mails.tsinghua.edu.cn>
-References: <20260623062315.2694160-1-chenyy23@mails.tsinghua.edu.cn>
-Subject: Re: [PATCH bpf-next v4 0/3] HID: bpf: Fix hid_bpf_get_data() range
- check
-Message-Id: <178289466766.3396796.5020458265842663360.b4-ty@b4>
-Date: Wed, 01 Jul 2026 10:31:07 +0200
+	dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b="pk4AtDVr";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="aPVd6uLE"
+Received: from phl-compute-04.internal (phl-compute-04.internal [10.202.2.44])
+	by mailflow.phl.internal (Postfix) with ESMTP id 10A071380095;
+	Wed,  1 Jul 2026 04:32:19 -0400 (EDT)
+Received: from phl-imap-05 ([10.202.2.95])
+  by phl-compute-04.internal (MEProxy); Wed, 01 Jul 2026 04:32:19 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
+	:cc:content-transfer-encoding:content-type:content-type:date
+	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to; s=fm1; t=1782894739;
+	 x=1782901939; bh=VCjnwi8QfYnO+8yzfpol694kVs5T+6OkOnlzLTl6vgw=; b=
+	pk4AtDVr7X0Ga3ZeWprkuDgz4D0ADwYPDjiF6dJpeDjRBJwKFomQfgV1i2cUPfwS
+	YGG7oxHtxzxWOI/oCF1vTenXM/Bxnl+jzvqa2o4Uav3luge6v1KsVb0Z58Ux10SH
+	ihh0bvVj3hWOmrddUlZbKOAN4x35MKqgbBPgbBV3RnkOt941tQlZLmtzA0NS1gVa
+	wZi+BX1NBKmJrTAwiAoLRjtW42OtB7SEAhpJrWi1lBjP1k7jAL8lyCFZnVDg89+r
+	yq3ugkbXbTZjzlXrAoPV90L435jnotEuAcLSM1fiUThBWAv5FA+0Gj5gsyx2KLQ7
+	ZckqFzlkSmSQZ4fn81X3Mw==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-transfer-encoding
+	:content-type:content-type:date:date:feedback-id:feedback-id
+	:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to:x-me-proxy
+	:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; t=1782894739; x=
+	1782901939; bh=VCjnwi8QfYnO+8yzfpol694kVs5T+6OkOnlzLTl6vgw=; b=a
+	PVd6uLEv7fU/TFcABcQ+6PpHoMr8BHiJ+7VXlOffrKOqC36QNz/tVpyV3NvzfTod
+	D12qmE6PIf6WHNeISxeR2PjY2027TmvjNXrFxvtY38cmVNKGAlsBHfYZaEPMldtj
+	Lx4aKKaBkPRT88prowJPqxRuZQHVZjBoqJ5QCw0xSe6s44p1rQ086mjOsoX28TPW
+	9xsDJn/pATFSr1374Jh2BlzoBgdD3L6Pec9oMRKCmjzb9eZyHTCmKVWo3RDAktE8
+	tNkami4hj34GWAN2LivncENYiAdNktm7yzF+45KtV6dfaEprjLbvQJRIJu7kUuvb
+	iayg2SwCno/GXgKqzIgsQ==
+X-ME-Sender: <xms:ktBEau0GTKniJ8UB3YIuVYzf3eXVLN7QylKoL2Bg3MvVCc4pVtvVDA>
+    <xme:ktBEar60oidT1BA9rF5zAoFVaPJxONWxBjLfRIadX_dUCe2QqF-rSuhjZX7RPcIt0
+    McilfieaxXTrUq93k9EhmP2DAH4aUXqX6JoopoRear13Gt0vfqWdww>
+X-ME-Proxy-Cause: dmFkZTG0B4Rq0E7HZkR0pnZ163rac2T7w/EKBvk1H137+LZ1DDmAdSv9ox5RZtU3ubf1at
+    u6WZgpkWy1yZ+xPhMEysBiXHkI/FAG+tA+IsC7Ro0iyP9baBdW/Gqq+MlndGYuJGyVzQes
+    sd0BE3aLNH4YSDGlgFLBNAaYaG4sOQZZhfVJ0T/DQs+GdE4ZINEDpFh6AD1t6CMHbDFHDW
+    Dyb4WNYJUZVB9C+3CFefMMbkInAN2w2O60GzAhBejddPbYdKqDE8euqw5cyFrUqYL7HsI0
+    R+mzjjbALXsHGc4CbyBPpSyrrc7KFjZiKMINe5pj5pPVKzR16ORlRpADFkdNJmxEZmU+Hi
+    ynyy/p0s3wJ+5wEoNPryrkVk9wTT8gYX2NL2ziGtuHO0uNldRlrz3biDchZ5dvxLIoQPIf
+    4Ys0zoOwEAUJHKft5OKDDA9H2IMg5sfzB6cDfIpFIN0QNKHe1GarKKRW9xzRvvwFTC0xOM
+    y4BJJZ5HI/iFaCrklCySRsAU30y83NuxwPgF9nAHDnQAYLQGdVKWf6ZBWmjRbJTc4RScn0
+    PuPIT1IbJ8nqZLck0tWGST4XHneH+nQKFfqBV2Q8vd0Qp009muP0neRLplYkqbtscaQsro
+    HqRhq0vRLrdvrrofCQK3xJLqp8yB0cEt3pLS1D0HPb/YWgaYMdL06KmwXiqQ
+X-ME-Proxy: <xmx:ktBEaqLzev-1LnQpM8aDMtsrxpbXI8sZxIxM5-kJ2egQIJ0_s1wuwQ>
+    <xmx:ktBEaituhqNUPSQSy6pSO_Qxs07LiQTb2hOujvou545SdGJ0hWLeNQ>
+    <xmx:ktBEajm5fZl4R56Cjs77mdXM8OA19dWCSOQIvEyWIusUmQRiQ2DdOA>
+    <xmx:ktBEaplfx6UlRi6-9Vko4Drjuya6hEFHgk8ptOVgSj4h5IyVGGcNBQ>
+    <xmx:k9BEalsyhw0QnIjnuvZrS58BD58_C1KJuzD7-U3z5P3C3pb2O69T_it9>
+Feedback-ID: i56a14606:Fastmail
+Received: by mailuser.phl.internal (Postfix, from userid 501)
+	id 1786E182007E; Wed,  1 Jul 2026 04:32:18 -0400 (EDT)
+X-Mailer: MessagingEngine.com Webmail Interface
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+X-ThreadId: A045QOfflcQ7
+Date: Wed, 01 Jul 2026 10:31:37 +0200
+From: "Arnd Bergmann" <arnd@arndb.de>
+To: "Geert Uytterhoeven" <geert@linux-m68k.org>
+Cc: "Arnd Bergmann" <arnd@kernel.org>, "Linus Walleij" <linusw@kernel.org>,
+ "Bartosz Golaszewski" <brgl@kernel.org>,
+ "Marcel Holtmann" <marcel@holtmann.org>,
+ "MyungJoo Ham" <myungjoo.ham@samsung.com>,
+ "Chanwoo Choi" <cw00.choi@samsung.com>,
+ "Geert Uytterhoeven" <geert+renesas@glider.be>,
+ "Andy Shevchenko" <andy@kernel.org>,
+ "Dmitry Torokhov" <dmitry.torokhov@gmail.com>,
+ "Ulf Hansson" <ulfh@kernel.org>, linux-bluetooth@vger.kernel.org,
+ linux-kernel@vger.kernel.org,
+ "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
+ dri-devel@lists.freedesktop.org, linux-i2c@vger.kernel.org,
+ linux-iio@vger.kernel.org, linux-input@vger.kernel.org,
+ "linux-mmc @ vger . kernel . org" <linux-mmc@vger.kernel.org>,
+ linux-arm-kernel@lists.infradead.org, linux-pm@vger.kernel.org,
+ linux-usb@vger.kernel.org
+Message-Id: <72746bd8-8ba3-4369-a2e9-60795f183813@app.fastmail.com>
+In-Reply-To: 
+ <CAMuHMdWhv8i6tkmOJU_ee9LAV7mMcQHe9FXgqTHCjGiEMWvn8Q@mail.gmail.com>
+References: <20260629135917.1308621-1-arnd@kernel.org>
+ <CAMuHMdXhsM4JzArRuB=A46N-Ogbn2Fans+PVJVA-hEytFq=DeQ@mail.gmail.com>
+ <ff4d7043-1929-4fa1-ba5e-f28403ad6fcc@app.fastmail.com>
+ <CAMuHMdWhv8i6tkmOJU_ee9LAV7mMcQHe9FXgqTHCjGiEMWvn8Q@mail.gmail.com>
+Subject: Re: [PATCH] [RFC] gpiolib: introduce gpio_name() helper
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Mailer: b4 0.15.2
 
-On Tue, 23 Jun 2026 06:23:12 +0000, Yiyang Chen wrote:
-> hid_bpf_get_data() exposes a pointer into the HID-BPF context data when
-> the caller-provided offset and size fit inside ctx->allocated_size.
-> The helper currently checks that range with:
-> 
->   rdwr_buf_size + offset > ctx->allocated_size
-> 
-> Since both operands are unsigned, a very large size can wrap the sum and
-> make an out-of-range request look valid.
-> 
-> [...]
+On Tue, Jun 30, 2026, at 18:01, Geert Uytterhoeven wrote:
+> On Mon, 29 Jun 2026 at 19:54, Arnd Bergmann <arnd@arndb.de> wrote:
+>> On Mon, Jun 29, 2026, at 17:29, Geert Uytterhoeven wrote:
 
-Applied to https://git.kernel.org/pub/scm/linux/kernel/git/hid/hid.git (for-7.2/upstream-fixes), thanks!
+>> > Same results for instantiation using sysfs or configfs[1], although
+>> > the latter does have optional support for specifying the name.
+>>
+>> I wonder how many of the other instances have the same problem
+>> then. Would it be appropriate for gpiochip_fwd_desc_add() to set
+>> a name itself to address this one?
+>
+> I don't think it would be appropriate for the GPIO aggregator to set
+> that name.  What we want to print here (for debugging) is the physical
+> GPIO that an aggregator's GPIO is mapped to, not some consumer or line
+> name (which is not guaranteed to be unique).
 
-[1/3] HID: bpf: Fix hid_bpf_get_data() range check
-      https://git.kernel.org/hid/hid/c/2d044049421d
-[2/3] selftests/hid: Load only requested struct_ops maps
-      https://git.kernel.org/hid/hid/c/5aad55011a37
-[3/3] selftests/hid: Cover hid_bpf_get_data() size overflow
-      https://git.kernel.org/hid/hid/c/eebbef7c468a
+Ok.
 
-Cheers,
--- 
-Benjamin Tissoires <bentiss@kernel.org>
+> E.g. "<chip-name>.<offset>" would be fine.  As gpiod_name() can only
+> return a fixed string or an existing string, it can't return such a
+> formatted string, though. And consumers don't have access to chip info?
 
+The gpiod_hwgpio() function is exported to consumers, so they can
+already print that instead of desc_to_gpio() if the local number
+is sufficient. If we really care about the <chip-name> portion for
+any of the debug prints, we could export another function that
+returns maybe gpiod_to_chip(gpiod)->label or
+dev_name(&gpiod_to_gpio_device(gpiod)->dev), which are both
+constant strings we can print.
+
+It looks like we can also replace most of the remaining callers
+of desc_to_gpio() with gpiod_hwgpio().
+
+       Arnd

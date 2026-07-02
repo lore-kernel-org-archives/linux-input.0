@@ -1,172 +1,87 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from m16.mail.163.com (m16.mail.163.com [220.197.31.3])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6AD2931355D
-	for <linux-input@vger.kernel.org>; Thu,  2 Jul 2026 03:58:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 240E94B8DED;
+	Thu,  2 Jul 2026 09:49:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=220.197.31.3
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782964739; cv=none; b=Cg1SYfLDQMWBcCl+X0tiroDvFnmw68KcfH2oXYX17ZlNtXjdo3MmtqcOJveSKAJu0v+Tl5Jxs4pDjpnV8Whq/MqaXMIPEcF87N5RCKUGWmXp1ZQOU/60a7ggzdgKETJPlNHyfbvSicVIhtd+R5r2+uu1EyI6rLgltj2JOh8TQoY=
+	t=1782985766; cv=none; b=fTyJYuMclje87Gtvxw9dmJtcGVM0ig4jE50NfTI+ckTimKMSO3bdeXVyIhtqwz6H2yuDKlgNMO/Od4UJq6t3EozXgOGGX0CQyk7apmTFWbtXCtsYJf0cJhequG9w92V5LKJk5dC0G17WLH+ZF4O2wwc/mGsUT9CICEmOj26W7Nc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782964739; c=relaxed/simple;
-	bh=F3WKj4IdVyTVntDyMG90YfPl/jkwCZyyYN/YCLEvghg=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=LdRuZ+fGWnA483FwbWBfW81uIXXFHyEm47qrTdwQl1cCRwsBXkwBWJbD2mL4usKwt6mWmlUvf/C9CTm73cYpgq0X7PTLx224lfSAv6Zpw9V8q8tGU6+m4gso9AMimeE1/Kn6cXjC30UzGQlUnDcfBrJ7cPAPlP2htzlOab/2eQM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=NDv4GYC2; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1782985766; c=relaxed/simple;
+	bh=isWFYA8ybeHHkdHMBHm+E+pTokRVq6BgCHeyjnO+wJk=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=HZW3JYD2J7B+w8bEBTAP43gBs31cMeHD7CgCm/q3W2WBFXBk6PTudnXgM04LW9AD8wVztOATGdjqEPMs0bwFsQYO4K24m8LonLd276TBPBMur/zBI+MxqNT/EfsbdVmTs+saSYPlWppZMXUfQL0E0f23xsQGl5Qj3WBttMNB2H4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=geDx/TS8; arc=none smtp.client-ip=220.197.31.3
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="NDv4GYC2"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E00601F000E9;
-	Thu,  2 Jul 2026 03:58:57 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1782964738;
-	bh=hJmOU+lkGOMqHihLFBrFsr59WmkOVjTxQ/DPAKAccJw=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=NDv4GYC2KvJ1jPi4ntX9sqQJ7992MK67xmWkczZmxSQVjJj5+IYKk4s2DzkiiB0tU
-	 v/gnoGYpmxqt7AeLXec43kL0TejJeUR0Nphdt8gSomXNZHQL83KhvXAfpRespez4cJ
-	 T2cDMFq940m3KbgFAf5T5TTJxkjdZ2Cd71vSYJRYjZQPnX7jHmOeIe7dhvZBEzZ7Ct
-	 1trKt8DkzJ1v6SE2B+16IOzSmGCH93HOjQhfNxFWonFHwOo+R9BfsgZ6BZvKwfgCpB
-	 gxITQZcWXrf/ceIOA8qb++qYl+z1RBHpfgxmJECUnnwOKlLpgfCYDR9sfHjXwIoN9p
-	 s59plIY4+vtww==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v10 2/3] HID: nintendo: Add rumble support for Switch 2
- controllers
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Vicki Pfau" <vi@endrift.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260702034106.1498056-3-vi@endrift.com>
-References: <20260702034106.1498056-1-vi@endrift.com>
- <20260702034106.1498056-3-vi@endrift.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Thu, 02 Jul 2026 03:58:57 +0000
-Message-Id: <20260702035857.E00601F000E9@smtp.kernel.org>
+	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="geDx/TS8"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
+	s=s110527; h=From:To:Subject:Date:Message-Id:MIME-Version; bh=o+
+	RD2Gl/ANOuiF6JqYBAMlYeaEToZ8LmhvFWSqRBxXM=; b=geDx/TS8JgktnxN9Rv
+	nHk4yGVotltrm2H2i0wMA0kXgyszwLxz1tNjyz/RO8M7ECm/cGilIFJWkX6mWSK0
+	HCXuOdQoIg8kglkG2mMTfN8voE3XtVNXuVYylClhUECvQGoHdYbmaR/KfyAwCgSY
+	JOyS2jYc2kMKWmGseExwiZntw=
+Received: from localhost.localdomain (unknown [])
+	by gzga-smtp-mtada-g1-4 (Coremail) with SMTP id _____wD3D1QJNEZqmQaAHQ--.59490S2;
+	Thu, 02 Jul 2026 17:48:59 +0800 (CST)
+From: Haoxiang Li <haoxiang_li2024@163.com>
+To: jikos@kernel.org,
+	jic23@kernel.org,
+	srinivas.pandruvada@linux.intel.com,
+	bentiss@kernel.org
+Cc: linux-input@vger.kernel.org,
+	linux-iio@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Haoxiang Li <haoxiang_li2024@163.com>
+Subject: [PATCH v2 0/2] HID: sensor: custom: Fix fields lifetime issues
+Date: Thu,  2 Jul 2026 17:48:54 +0800
+Message-Id: <20260702094856.1105555-1-haoxiang_li2024@163.com>
+X-Mailer: git-send-email 2.25.1
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:_____wD3D1QJNEZqmQaAHQ--.59490S2
+X-Coremail-Antispam: 1Uf129KBjvdXoW7Gw4kCF13AFy5ury7CrW8Xrb_yoWkKrX_u3
+	yDtF95Kw1DW3WkZa17CFn8J397GrZ7Zw45ZFZYyayftryxXayDGrW8trsIgr17Xa1kJr1U
+	KFZ0va4xZwn7ujkaLaAFLSUrUUUUjb8apTn2vfkv8UJUUUU8Yxn0WfASr-VFAUDa7-sFnT
+	9fnUUvcSsGvfC2KfnxnUUI43ZEXa7sRuUDJ3UUUUU==
+X-CM-SenderInfo: xkdr5xpdqjszblsqjki6rwjhhfrp/xtbCxgs7qWpGNAuX4QAA36
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
-s) to consider:
-- [High] The devres-managed delayed work `ns2->rumble_work` is bound to the=
- `input->dev` lifecycle, but resides in `ns2`, leading to a Use-After-Free.
-- [High] LEDs registered with `devm_led_classdev_register` on `input->dev` =
-outlive the controller context `ns2`, leading to a Use-After-Free when sysf=
-s attributes are accessed.
-- [Medium] Unconditional cancellation of potentially uninitialized `ns2->ru=
-mble_work` in `switch2_remove()` causes lockdep splats and kernel warnings.
---
+Hi,
 
-commit 62e28913646bc7a9de5cfbf6dcd030ac10396625
-Author: Vicki Pfau <vi@endrift.com>
+This series fixes lifetime issues around sensor_inst->fields and the
+sysfs attributes that can access it.
 
-    HID: nintendo: Add rumble support for Switch 2 controllers
-   =20
-    This adds rumble support for both the "HD Rumble" linear resonant actua=
-tor
-    type as used in the Joy-Cons and Pro Controller, as well as the eccentr=
-ic
-    rotating mass type used in the GameCube controller. Note that since the=
-re's
-    currently no API for exposing full control of LRAs with evdev, it only
-    simulates a basic rumble for now.
+The first patch fixes the remove path by removing enable_sensor before
+freeing the field attributes. enable_sensor_store() can dereference
+power_state and report_state, which point into sensor_inst->fields.
 
-    Signed-off-by: Vicki Pfau <vi@endrift.com>
+The second patch fixes the original field sysfs group leak on probe
+failure. It creates the field attributes before exposing enable_sensor,
+then unwinds any field groups that were created before a later
+sysfs_create_group() failure.
 
-> diff --git a/drivers/hid/hid-nintendo.c b/drivers/hid/hid-nintendo.c
-> index f82034decb9ee..71a04c438271f 100644
-> --- a/drivers/hid/hid-nintendo.c
-> +++ b/drivers/hid/hid-nintendo.c
+Thanks, Jiri, for the review and for pointing out the UAF concern.
 
-[ ... ]
+Changes in v2:
+- Split the fix into two patches.
+- Fix the pre-existing remove path ordering issue.
+- Create field attributes before exposing enable_sensor.
+- Unwind already-created field sysfs groups on failure.
 
-> @@ -3332,6 +3502,26 @@ static int switch2_init_input(struct switch2_contr=
-oller *ns2)
->  		return -EINVAL;
->  	}
-> =20
-> +#if IS_ENABLED(CONFIG_NINTENDO_FF)
-> +	ns2->rumble_buffer =3D devm_kzalloc(&input->dev, 64, GFP_KERNEL);
-> +	if (!ns2->rumble_buffer) {
-> +		input_free_device(input);
-> +		return -ENOMEM;
-> +	}
-> +	ret =3D devm_delayed_work_autocancel(&input->dev, &ns2->rumble_work, sw=
-itch2_rumble_work);
+Haoxiang Li (2):
+  HID: sensor: custom: Remove enable_sensor before freeing fields
+  HID: sensor: custom: Fix field sysfs group cleanup on failure
 
-[Severity: High]
-Could this lead to a use-after-free? ns2->rumble_work is tied to the
-lifecycle of input->dev, but it resides in ns2. If the physical controller
-is unplugged:
+ drivers/hid/hid-sensor-custom.c | 25 ++++++++++++++++---------
+ 1 file changed, 16 insertions(+), 9 deletions(-)
 
-switch2_remove()
-  kref_put(&ns2->refcount, switch2_kref_put);
-    kfree(ns2);
 
-If a userspace process holds the input device open, input->dev remains aliv=
-e.
-When the file descriptor is finally closed, the devres cleanup for input->d=
-ev
-will execute and attempt to cancel the delayed work on the already-freed ns2
-structure.
+base-commit: ef0c9f75a19532d7675384708fc8621e10850104
+-- 
+2.25.1
 
-[Severity: High]
-Are there similar lifecycle issues with the LED registration? If the LED cl=
-ass
-device is registered using devm_led_classdev_register(&input->dev, led), it
-decouples the LED lifecycle from the controller context.
-
-If the controller is unplugged and ns2 is freed, but the input device remai=
-ns
-open, could a write to the sysfs brightness file trigger a use-after-free?
-
-switch2_player_led_brightness_set()
-  struct switch2_controller *ns2 =3D input_get_drvdata(input);
-  if (!ns2)
-      return -ENODEV;
- =20
-  guard(mutex)(&ns2->lock);
-
-Would dereferencing ns2 here cause memory corruption if the context has
-already been freed?
-
-> +	if (ret < 0) {
-> +		input_free_device(input);
-> +		return ret;
-> +	}
-> +
-> +	input_set_capability(input, EV_FF, FF_RUMBLE);
-> +	ret =3D input_ff_create_memless(input, NULL, switch2_play_effect);
-> +	if (ret) {
-> +		input_free_device(input);
-> +		return ret;
-> +	}
-> +#endif
-
-[ ... ]
-
-> @@ -4038,6 +4245,9 @@ static void switch2_remove(struct hid_device *hdev)
->  	ns2->hdev =3D NULL;
->  	ida_free(&nintendo_player_id_allocator, ns2->player_id);
->  	mutex_unlock(&ns2->lock);
-> +#if IS_ENABLED(CONFIG_NINTENDO_FF)
-> +	cancel_delayed_work_sync(&ns2->rumble_work);
-
-[Severity: Medium]
-Will this execute safely if the delayed work was never initialized?
-
-Since ns2 is zero-allocated and ns2->rumble_work is only initialized in
-switch2_init_input(), what happens if the device is unplugged or fails
-initialization before switch2_init_input() is called?
-
-Would calling cancel_delayed_work_sync() on a zero-initialized work structu=
-re
-trigger lockdep splats or kernel warnings?
-
-> +#endif
->  	kref_put(&ns2->refcount, switch2_kref_put);
->  	hid_hw_close(hdev);
->  	hid_hw_stop(hdev);
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260702034106.1498=
-056-1-vi@endrift.com?part=3D2

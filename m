@@ -1,32 +1,32 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4B63531F9B5;
-	Thu,  2 Jul 2026 17:29:17 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B093C344D9D;
+	Thu,  2 Jul 2026 17:30:05 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783013359; cv=none; b=GaJYNUS87TtsRyCJCt2p18fbaGrpF7AwgwEnDPmEk5F+A3D75OeILiWjqekCiwLqvTaWJ0+6LGgo/vE5HKNB1I6BsgeiwVIWPboMpOaFN5LfxX4JxU8msUZ6ckQATXKlMiqB0OzO2zvBjOQmDlvADjeSdTGe+3Rh0lYIGzgPhgM=
+	t=1783013406; cv=none; b=qrmSK4TifwmgWaGm79ddvVY1kddx8nSX8l9ypxGKrWgemFCLzL9q2jTf+YyELSutSDk1kePmbD0EnVndH4NyXI9cKU4KjM59P9wakv13U49abTNbiNcIwMy9d/R1pXXt1R3yFbr92tSeBVib5oOuGZzBFGoLOp1lZCwvd0U9o+U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783013359; c=relaxed/simple;
-	bh=2tcY+aGgYPWHtj9yT/LqegciHTB7sLBWM8NMS9o/Ef8=;
+	s=arc-20240116; t=1783013406; c=relaxed/simple;
+	bh=Xyn2/99GX/7c2H0Ee1whEz5BD82cWGwNvvm0q1n3B2E=;
 	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=lvjn+YUwFFFAPl8J8chNXtWoGJ2HSdRdSmtcgPl6kQmJ99u93CNkjwW+dveISkVl8JejpZPG3iu39xBr+x7qyadIfd8o5AdLeaXkmxV9j46yreSBNgHtzFmDsH3J+yKW5P3gc5xsCq+arKysFagzlXm/qhLOg+tGE291HnIB1fg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ZK58KyvP; arc=none smtp.client-ip=100.103.45.18
+	 MIME-Version:Content-Type; b=DgHXpL8jF/tn3Drel0iXZ1nIMhv2R1ThypAZSqKwx9+8PyQ2N8o5kc9btV8hrqeDAisc4xDly+ae3BuvAuuKCOrnZabdsfAzOL7ZTXElyewV798czVirAp8bUTNPelG94cJacLKMj/j0FMPkT63+F46BF1JaYbBbD2l9GQ++Yys=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=huvQ0kSy; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ZK58KyvP"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0FD471F000E9;
-	Thu,  2 Jul 2026 17:29:17 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="huvQ0kSy"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 41B741F00A3A;
+	Thu,  2 Jul 2026 17:30:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1783013357;
-	bh=ArDFk62S1ooc1s9sBqz0K16vudhtEHnY/wAxtOBbcGI=;
+	s=k20260515; t=1783013405;
+	bh=wrJBBYZOrJ7qozo+c3a+Xva6cnlQxvDDH11n4sJseHE=;
 	h=Date:From:To:Cc:Subject:In-Reply-To:References;
-	b=ZK58KyvPjgaGrbjjrjB1yPnKIiN6vQKSSPvF/BEn7FvNeUadS8TW6AfT6t7B0ETF6
-	 pL65Ssl9tTXp8KV4gJIhyw+wN91lmP+BqNUaTqTTU0oNU8geli05PLHP7+izQImXUg
-	 rySIz3iGW+LOAUiOv97xlE7QoZenM9/igXWFe//aVxxWKo0ZMo6tEUsNDRZYhqxU+l
-	 6xIi2GMUfQl9Ux4/fe5rURQ4P2PM/+dN+hODj/PHc0bqNcjpy1cN5amhZxxxk50zKa
-	 xHRt0fNtPWgutaVq6FMgvLPZyqxtKFRZ94S4TVp0beocxdyCCBZPOJd6lPEd5X7CbA
-	 r84t6iFVH/vcA==
-Date: Thu, 2 Jul 2026 18:29:14 +0100
+	b=huvQ0kSy1DHxB3XuIQIbKSC7LDjerAlG2Bd74l+VaLABpUb/nkiIei9e5G7Gp9bBK
+	 aeGlfllsWinJKVu1z0x+M80hytz2uu2ChPi5DzliSOtidK/DKZrVuHn99r9Sy4cL7N
+	 Yx7RXM+KYIJytM2ZcP+7q+qphamepMqUTn0ri3g9JC7IDNf2i5/4dSRDdN9nx0UObR
+	 XFjwiJe4daefDLK7MEr1qYF3iL4rHfLaq03aHm8Hw6aJ3/nurtEGGe6Of5YbroM6X/
+	 tlRmR2JLJ6VCrKqgJf4TkRqDNMOP5MF2W0H9A5mmEX1+ViTOJaJNoa14Tni9xNrWSi
+	 yh2d2IGJ9Rwjg==
+Date: Thu, 2 Jul 2026 18:30:01 +0100
 From: Jonathan Cameron <jic23@kernel.org>
 To: Sanjay Chitroda via B4 Relay
  <devnull+sanjayembeddedse.gmail.com@kernel.org>
@@ -35,12 +35,11 @@ Cc: sanjayembeddedse@gmail.com, David Lechner <dlechner@baylibre.com>, Nuno
  Jiri Kosina <jikos@kernel.org>, Srinivas Pandruvada
  <srinivas.pandruvada@linux.intel.com>, linux-iio@vger.kernel.org,
  linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
-Subject: Re: [PATCH v2 6/6] iio: temperature: hid-sensor-temperature: use
- common device for devres
-Message-ID: <20260702182914.3b2d1126@jic23-huawei>
-In-Reply-To: <20260702-15-jun-hid-iio-alignment-v2-6-b87f01f5efbc@gmail.com>
+Subject: Re: [PATCH v2 1/6] iio: hid-sensors: add/remove blank line
+Message-ID: <20260702183001.2964c42a@jic23-huawei>
+In-Reply-To: <20260702-15-jun-hid-iio-alignment-v2-1-b87f01f5efbc@gmail.com>
 References: <20260702-15-jun-hid-iio-alignment-v2-0-b87f01f5efbc@gmail.com>
-	<20260702-15-jun-hid-iio-alignment-v2-6-b87f01f5efbc@gmail.com>
+	<20260702-15-jun-hid-iio-alignment-v2-1-b87f01f5efbc@gmail.com>
 X-Mailer: Claws Mail 4.4.0 (GTK 3.24.52; x86_64-pc-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
@@ -48,51 +47,64 @@ List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-On Thu, 02 Jul 2026 21:48:03 +0530
-Sanjay Chitroda via B4 Relay <devnull+sanjayembeddedse.gmail.com@kernel.org=
-> wrote:
+On Thu, 02 Jul 2026 21:47:58 +0530
+Sanjay Chitroda via B4 Relay <devnull+sanjayembeddedse.gmail.com@kernel.org> wrote:
 
 > From: Sanjay Chitroda <sanjayembeddedse@gmail.com>
->=20
-> kmemdup() is used for memory that is logically tied to the HID
-> platform device, even though the driver binds into the IIO framework.
->=20
-> Using &indio_dev->dev for devres allocations works functionally, but it
-> results in two separate devres ownership trees=E2=80=94one for the HID
-> platform device (pdev) and another for the IIO device (indio_dev).
->=20
-> The devres framework is intended to have a single, well-defined parent
-> device. Since the memory originates from HID sensor probing and is not
-> IIO-specific, &pdev->dev is the correct and logical owner.
->=20
-> Switch to using the platform device for devm_kmemdup() so that all
-> resources are released deterministically and consistently.
->=20
+> 
+> Add a blank line after variable declarations and remove multiple blank
+> line across HID sensor IIO drivers to improve readability and align
+> with kernel coding style.
+> 
 > Signed-off-by: Sanjay Chitroda <sanjayembeddedse@gmail.com>
-Applied this one.
 > ---
->  drivers/iio/temperature/hid-sensor-temperature.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
->=20
-> diff --git a/drivers/iio/temperature/hid-sensor-temperature.c b/drivers/i=
-io/temperature/hid-sensor-temperature.c
-> index 18da85e6c60e..6dfb606a53af 100644
-> --- a/drivers/iio/temperature/hid-sensor-temperature.c
-> +++ b/drivers/iio/temperature/hid-sensor-temperature.c
-> @@ -213,8 +213,8 @@ static int hid_temperature_probe(struct platform_devi=
-ce *pdev)
->  	if (ret)
->  		return ret;
-> =20
-> -	temp_chans =3D devm_kmemdup(&indio_dev->dev, temperature_channels,
-> -				sizeof(temperature_channels), GFP_KERNEL);
-> +	temp_chans =3D devm_kmemdup(&pdev->dev, temperature_channels,
-> +				  sizeof(temperature_channels), GFP_KERNEL);
->  	if (!temp_chans)
->  		return -ENOMEM;
-> =20
->=20
+Given this one is small enough that the churn concern isn't relevant.
+Applied.
+
+Thanks,
+
+Jonathan
+
+>  drivers/iio/common/hid-sensors/hid-sensor-attributes.c | 1 -
+>  drivers/iio/common/hid-sensors/hid-sensor-trigger.c    | 3 +++
+>  2 files changed, 3 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/iio/common/hid-sensors/hid-sensor-attributes.c b/drivers/iio/common/hid-sensors/hid-sensor-attributes.c
+> index c115a72832b2..2f0a1ea42f48 100644
+> --- a/drivers/iio/common/hid-sensors/hid-sensor-attributes.c
+> +++ b/drivers/iio/common/hid-sensors/hid-sensor-attributes.c
+> @@ -282,7 +282,6 @@ int hid_sensor_read_raw_hyst_rel_value(struct hid_sensor_common *st, int *val1,
+>  }
+>  EXPORT_SYMBOL_NS(hid_sensor_read_raw_hyst_rel_value, "IIO_HID");
+>  
+> -
+>  int hid_sensor_write_raw_hyst_value(struct hid_sensor_common *st,
+>  					int val1, int val2)
+>  {
+> diff --git a/drivers/iio/common/hid-sensors/hid-sensor-trigger.c b/drivers/iio/common/hid-sensors/hid-sensor-trigger.c
+> index 417c4ab8c1b2..c8ccf96f3d03 100644
+> --- a/drivers/iio/common/hid-sensors/hid-sensor-trigger.c
+> +++ b/drivers/iio/common/hid-sensors/hid-sensor-trigger.c
+> @@ -314,7 +314,9 @@ static int __maybe_unused hid_sensor_resume(struct device *dev)
+>  {
+>  	struct iio_dev *indio_dev = dev_get_drvdata(dev);
+>  	struct hid_sensor_common *attrb = iio_device_get_drvdata(indio_dev);
+> +
+>  	schedule_work(&attrb->work);
+> +
+>  	return 0;
+>  }
+>  
+> @@ -322,6 +324,7 @@ static int __maybe_unused hid_sensor_runtime_resume(struct device *dev)
+>  {
+>  	struct iio_dev *indio_dev = dev_get_drvdata(dev);
+>  	struct hid_sensor_common *attrb = iio_device_get_drvdata(indio_dev);
+> +
+>  	return _hid_sensor_power_state(attrb, true);
+>  }
+>  
+> 
 

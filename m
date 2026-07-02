@@ -1,26 +1,26 @@
 Received: from metis.whiteo.stw.pengutronix.de (metis.whiteo.stw.pengutronix.de [185.203.201.7])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B25D538D3E6
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B26693932D5
 	for <linux-input@vger.kernel.org>; Thu,  2 Jul 2026 22:29:51 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.203.201.7
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783031394; cv=none; b=TN1GXPozZryvUXcepaEaUCS6fVO6LDtB5D//7YC7pWXiK/PipRLYLqQc0uSlKQqtgvErAAtAzGIx6BaE4tHC5gxCn79uBnCAVViDfRz4rADEz4wDywehuGkvTBrBzD/01B3nJWf4eQxmIEUqaD/w1ldQWA/jriNbQbvgbh2Z38s=
+	t=1783031395; cv=none; b=gLcLnenDya42epsRMPpiSMQsGZOr3LiXPbAyJFt8iWL41zHH/I3/6UR1nDM/HkkulVqIdxICwtXuvvD6aAdUfKwmRNwOh3FdCf/SF217sBMTY5eTdVXSSPJssoc574uGiGZ277iWvrGc0tjUJksbu3yeDrG0c19EaGP9eLmDEtg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783031394; c=relaxed/simple;
-	bh=vY/DrvzQ9jVXqiUEGcg1LQSeY/zjCRXQQ8dW52tLFcE=;
-	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=K5pCMhS0bO+QtKNstLEbrxGZCowlKmXZZ3F0ofjccT56JbcgNi+3XmZiXYfwUmRyZkWsFzUkn2sF934/GW08knwqOAaJLBFVSmQNuvF/QHIfdgf8Ib7oJBB5W4iEfZckEGWVChtvx3Q2QfoX7HjYnkuHa2XeV86Qfc2vuO6K0m0=
+	s=arc-20240116; t=1783031395; c=relaxed/simple;
+	bh=wzHE1s+2gX2BTWsN80A15vJGvuGnxkYOLrgZhcQZ1X8=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=Xnom0dvUgbnnVrETmcxiFPoeWgwNU3xvhuZ8By0uBnnqxmKwSWNyKA7B3L2JbAmpWQepZnbEWPPu3Li4jiHzsi1CHpEj8bS0w1ZIORb1/73evXkKs4Jnznq0VOQ7O91lRMj3ANyEv/K/h5qsznvFY7iUfMC6q/3g09ud1f77q58=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=pengutronix.de; spf=pass smtp.mailfrom=pengutronix.de; arc=none smtp.client-ip=185.203.201.7
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=pengutronix.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=pengutronix.de
 Received: from dude02.red.stw.pengutronix.de ([2a0a:edc0:0:1101:1d::28])
 	by metis.whiteo.stw.pengutronix.de with esmtp (Exim 4.92)
 	(envelope-from <m.felsch@pengutronix.de>)
-	id 1wfPuh-0007oz-H9; Fri, 03 Jul 2026 00:29:43 +0200
+	id 1wfPuh-0007oz-Ls; Fri, 03 Jul 2026 00:29:43 +0200
 From: Marco Felsch <m.felsch@pengutronix.de>
-Subject: [PATCH v6 0/4] Input: Add support for TouchNetix aXiom touchscreen
-Date: Fri, 03 Jul 2026 00:29:24 +0200
-Message-Id: <20260703-v6-10-topic-touchscreen-axiom-v6-0-1aa50ba3bc5a@pengutronix.de>
+Date: Fri, 03 Jul 2026 00:29:26 +0200
+Subject: [PATCH v6 2/4] dt-bindings: vendor-prefixes: Add TouchNetix AS
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -29,12 +29,9 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-B4-Tracking: v=1; b=H4sIAETmRmoC/4XPwWqEQAwG4FdZ5twpyTgTnZ76HqWHccyuc6jK6
- Ipl8d0bhaWFCl4CfwJfkocaOSce1dvloTLPaUx9J4FeLiq2obuxTo1kZcBYKMHqmTSCnvohRan
- 32I4xM3c6LKn/kpErCblCQFRiDJmvadn9j0/JbRqnPn/v62bcuruMiP5EnlGDJjTWG1f7Eqv3g
- bvbfcp9l5bXhtXGz+ZJOnDmlDRCBsdNLWcHAjgki1+yMnhGFkJ6CzEyU1OH4pC0T5IAgc5Iu5H
- sa/Kxku/pkHR/SDy90gl59ZYhsCGK9T9yXdcfqtVEThsCAAA=
-X-Change-ID: 20240704-v6-10-topic-touchscreen-axiom-105761e81011
+Message-Id: <20260703-v6-10-topic-touchscreen-axiom-v6-2-1aa50ba3bc5a@pengutronix.de>
+References: <20260703-v6-10-topic-touchscreen-axiom-v6-0-1aa50ba3bc5a@pengutronix.de>
+In-Reply-To: <20260703-v6-10-topic-touchscreen-axiom-v6-0-1aa50ba3bc5a@pengutronix.de>
 To: andrew.thomas@touchnetix.com, Luis Chamberlain <mcgrof@kernel.org>, 
  Russ Weight <russ.weight@linux.dev>, 
  Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
@@ -49,7 +46,6 @@ To: andrew.thomas@touchnetix.com, Luis Chamberlain <mcgrof@kernel.org>,
 Cc: linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, 
  linux-input@vger.kernel.org, kernel@pengutronix.de, 
  Marco Felsch <m.felsch@pengutronix.de>, 
- Mamta Shukla <mamta.shukla@leica-geosystems.com>, 
  Krzysztof Kozlowski <krzk@kernel.org>
 X-Mailer: b4 0.14.2
 X-SA-Exim-Connect-IP: 2a0a:edc0:0:1101:1d::28
@@ -57,126 +53,31 @@ X-SA-Exim-Mail-From: m.felsch@pengutronix.de
 X-SA-Exim-Scanned: No (on metis.whiteo.stw.pengutronix.de); SAEximRunCond expanded to false
 X-PTX-Original-Recipient: linux-input@vger.kernel.org
 
-Hi,
+From: Kamel Bouhara <kamel.bouhara@bootlin.com>
 
-this adds the support for the TouchNetix aXiom touchcontroller family.
+Add vendor prefix for TouchNetix AS (https://www.touchnetix.com/products/).
 
-The following features are added:
- - I2C communication
- - Input event handling
- - Touchcontroller firmware (AXFW) updates
- - Touchcontroller config (TH2CFGBIN) updates
- - Poll or IRQ support
-
-Many thanks for Dmitry's input on my v5. I included all changes
-requested from him.
-
-Regards,
-  Marco
-
-Changes in v7:
-- Link to v6: https://lore.kernel.org/all/20260303-v6-10-topic-touchscreen-axiom-v6-0-8ac755add12b@pengutronix.de/
-- Rebased on top of 7.2-rc1
-- Fix U33 rev.6 usage (Mamta)
-- Fix bootloader mode handling, required to disable the IRQ (Andrew)
-- Fix bug in usage table population which led to a nullptr bug (Andrew)
-
-Changes in v6:
-- Link to v5: https://lore.kernel.org/r/20260111-v6-10-topic-touchscreen-axiom-v5-0-f94e0ae266cb@pengutronix.de
-- Fix update POLL mode
-- Fix max. input values
-- Resolve some "TODO" and "Downstream" comments (Andrew)
-- Add 0d, xl fw_variant (Andrew)
-- Use 2sec timeout for u02 swreset (Andrew)
-- Fix IRQ-runmode input-device registration after FW update
-- Drop legacy ALC firmware support, since no fw sanity check could be performed
-  which is bad for user experience if they provided the wrong file accidentally.
-- drop BLP_PRE_MODE
-- make AXIOM_U31 rev.1 required
-- axiom_usage_supported: drop iter and instead use new usage_table_by_baseaddr
-- axiom_axfw_fw_write: drop goto error handling
-- adapt comments
-- rework axiom_i2c_probe (Dmitry)
-- rework axiom_power_*_device and axiom_parse_firmware (Dmitry)
-- rework axiom_register_input_dev (Dmitry)
-- rework axiom_register_fwl (Dmitry)
-- rework axiom_cfg_fw_cancel (Dmitry)
-- rework axiom_cfg_fw_write (Dmitry)
-- rework axiom_verify_volatile_mem (Dmitry)
-- rework axiom_write_cfg_chunk (Dmitry)
-- rework axiom_cfg_fw_prepare (Dmitry)
-- rework axiom_axfw_fw_* functions (Dmitry)
-- rework axiom_blp_reset (Dmitry)
-- rework axiom_blp_write_chunk (Dmitry)
-- rework axiom_enter_bootloader_mode (Dmitry)
-- rework axiom_axfw_fw_prepare (Dmitry)
-- rework regmap_read/write (Dmitry)
-- rework axiom_u34_rev1_process_report (Dmitry)
-- rework axiom_cdu_wait_idle (Dmitry)
-- rework axiom_u64_cds_enabled (Dmitry)
-- rework axiom_u42_get_touchslots (Dmitry)
-- rework axiom_u33_read (s/ret/error/) (Dmitry)
-- rework axiom_u31_device_discover (Dmitry)
-- simple s/ret/error/ (Dmitry)
-- rework u04 handling (Dmitry)
-- rework u02 handling (Dmitry)
-- align function name accordingly (Dmitry)
-- fix indentation (Dmitry)
-
-Changes in v5:
-- Link to v4: https://lore.kernel.org/r/20260106-v6-10-topic-touchscreen-axiom-v4-0-9e9b69c84926@pengutronix.de
-- fix sysfs documentation description indentation and date
-
-Changes in v4:
-- Link to v3: https://lore.kernel.org/r/20250821-v6-10-topic-touchscreen-axiom-v3-0-940ccee6dba3@pengutronix.de
-- rebased on top of v6.19-rc1
-- collect r-b tags
-
-Changes in v3:
-- Link to v2: https://lore.kernel.org/r/20250529-v6-10-topic-touchscreen-axiom-v2-0-a5edb105a600@pengutronix.de
-- firmware: fix commit message (Russ)
-- dt-bindings: Add ack from Krzysztof
-- dt-bindings: make use of GPIO_ACTIVE_LOW (Krzysztof)
-- dt-bindings: drop 'panel: true' property (Krzysztof)
-- driver: make use of sysfs_emit (Greg)
-- driver: s/WARN()/dev_warn()/ to not take down the system (Greg)
-- driver: fix build dependency error by adding "depends on DRM || !DRM"
-- driver: harmonize usage printing to u%02X
-
-Changes in v2:
-- Link to v1: https://lore.kernel.org/r/20241119-v6-10-topic-touchscreen-axiom-v1-0-6124925b9718@pengutronix.de
-- Rework the firmware-duplicate handling -> expose the error to the
-  userspace
-- Drop Krzysztof Kozlowski ACK and RB
-- Add panel-follower support
-- Add sysfs-driver-input-touchnetix-axiom documentation
-- Add support for new firmware 4.8.9
-- Add support to handle 2D and 3D firmware
-
+Signed-off-by: Kamel Bouhara <kamel.bouhara@bootlin.com>
+Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Signed-off-by: Marco Felsch <m.felsch@pengutronix.de>
 ---
-Kamel Bouhara (2):
-      dt-bindings: vendor-prefixes: Add TouchNetix AS
-      dt-bindings: input: Add TouchNetix axiom touchscreen
+ Documentation/devicetree/bindings/vendor-prefixes.yaml | 2 ++
+ 1 file changed, 2 insertions(+)
 
-Marco Felsch (2):
-      firmware_loader: expand firmware error codes with up-to-date error
-      Input: Add TouchNetix aXiom I2C Touchscreen support
+diff --git a/Documentation/devicetree/bindings/vendor-prefixes.yaml b/Documentation/devicetree/bindings/vendor-prefixes.yaml
+index 396044f368e7cf0ca1436713ae44f1950259f006..b8450050d7299cea2b5cf6f57fe71f5ead1140c8 100644
+--- a/Documentation/devicetree/bindings/vendor-prefixes.yaml
++++ b/Documentation/devicetree/bindings/vendor-prefixes.yaml
+@@ -1715,6 +1715,8 @@ patternProperties:
+     description: Toradex AG
+   "^toshiba,.*":
+     description: Toshiba Corporation
++  "^touchnetix,.*":
++    description: TouchNetix AS
+   "^toumaz,.*":
+     description: Toumaz
+   "^tpk,.*":
 
- .../testing/sysfs-driver-input-touchnetix-axiom    |   80 +
- .../input/touchscreen/touchnetix,ax54a.yaml        |   62 +
- .../devicetree/bindings/vendor-prefixes.yaml       |    2 +
- drivers/base/firmware_loader/sysfs_upload.c        |    1 +
- drivers/input/touchscreen/Kconfig                  |   17 +
- drivers/input/touchscreen/Makefile                 |    1 +
- drivers/input/touchscreen/touchnetix_axiom.c       | 3141 ++++++++++++++++++++
- include/linux/firmware.h                           |    2 +
- lib/test_firmware.c                                |    1 +
- 9 files changed, 3307 insertions(+)
----
-base-commit: dc59e4fea9d83f03bad6bddf3fa2e52491777482
-change-id: 20240704-v6-10-topic-touchscreen-axiom-105761e81011
-
-Best regards,
 -- 
-Marco Felsch <m.felsch@pengutronix.de>
+2.47.3
 

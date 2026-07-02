@@ -1,154 +1,129 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from endrift.com (endrift.com [173.255.198.10])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7E6DF3803C1
-	for <linux-input@vger.kernel.org>; Thu,  2 Jul 2026 22:04:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 293CB342510
+	for <linux-input@vger.kernel.org>; Thu,  2 Jul 2026 22:23:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=173.255.198.10
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783029868; cv=none; b=FKdBuCS/LlUjG2a9cYKIBq+aqhQEajEfOx1OtmGDSeU+BxNvpPeCTPFKXyI63GfEfgqticl2tPPawvZH67TINH92EnA4e+CsxVh/J9fuxTGdgmwFr4altB6izlzKD9bp63m/v2DGtSTP47UK8UHvFncrrGUYszQyWubmn9oALoo=
+	t=1783030983; cv=none; b=YH2K9d3RL2Hr43Or/xL3lrLxMSKx04JzXHVlrOPjfNA2s9ex094J0UDgOop4zWIyp3YP/3n3KpoLqrOsL19366yio1B0X/VCHe/U1RaQpuYweajYnst8wqvmmb40E1Xv27pyVBILjBlyIn4a6Wj14tF94UqbbXI3QNSiFiDP4ss=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783029868; c=relaxed/simple;
-	bh=lK29aeAiJJ/wPjtfk2os/tYRHZ0ETp2LXPFlVEDQc+M=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=bTo7vD3O/BY9tF7ZZdPPtAZmBxHp9bbX5KSs9Uo0/ACQBLSo/dsIR35qenFYx0ab1p6tWOpCaD+tdut2W+lYhIvGGIvnrXIUTT1qYCWAsKfZJ+86cq80hoxVgtSQnJcOPz5v0/MIJ/PobofYF58HV0dL2RdfZWEWBsNVUBjZ/M0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=FSJfrRV9; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1783030983; c=relaxed/simple;
+	bh=q5UpsHz/krcp9G/Vmy66VY51+9SeRHyM/4YaQPC3Cuo=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=SCFaNuYN7u1ohtWKq3giTHD9LTXhJxZ0vUhC9eVid7NdxiK9eCCe1H2qlG6UBC2o+Hg6QGNgegDiPKdLKyeT1YOJZ3+SGpdUwuMsUTnrPs2NMCzbSwrv6t62sYFALY/JChbF+gI6CBspLvc5M6dOx+CV6f62GTj3cAmzA/D9bRI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com; spf=pass smtp.mailfrom=endrift.com; dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b=sqJQ6reo; arc=none smtp.client-ip=173.255.198.10
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=endrift.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="FSJfrRV9"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 593851F000E9;
-	Thu,  2 Jul 2026 22:04:25 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1783029867;
-	bh=grA/B8iZUc0iF5a1prRmjg17K5GipFD8ePhOrMlzzTw=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=FSJfrRV9usQhIXBb0VxEHo+3lQbulOTfSlHQYpe3SFYhuSG2PgdvDW+GpZnSe09Et
-	 H+u/oUObdtZFmnTL3XEtlwPLLEW2EWJNorxbYyhCgjf9S4dHQNNC3x0Y6O3Q+VzxRe
-	 jdF4DmuICJZYKj4qVCRVRcutjgpH+q8FK/p1WvmI3HyHmFAJBd6e2Na1PffLPpAsWW
-	 5sOxqxy5FpHH+4u9svY5C61P8UxscFw0F1Mo/STXEHpRwsrt2DD8Rplz/ADuNHxSes
-	 Ufnt2rzwL/ukUmKA0C5VokJdGAK+ea0MnNL2v1WkhipejwSvAM6/asQD6C5e9jvZHU
-	 jqMBRCk6BNB9g==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v11 2/3] HID: nintendo: Add rumble support for Switch 2
- controllers
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Vicki Pfau" <vi@endrift.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260702214704.1859350-3-vi@endrift.com>
-References: <20260702214704.1859350-1-vi@endrift.com>
- <20260702214704.1859350-3-vi@endrift.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Thu, 02 Jul 2026 22:04:24 +0000
-Message-Id: <20260702220426.593851F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b="sqJQ6reo"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=endrift.com; s=2020;
+	t=1783030981; bh=q5UpsHz/krcp9G/Vmy66VY51+9SeRHyM/4YaQPC3Cuo=;
+	h=From:To:Cc:Subject:Date:From;
+	b=sqJQ6reoXE3CoG0F+arMQnXAetdO9AC17258sQY0hMAvqf6LNjjjJQgDPEKVhtZcb
+	 ccXqqZdlgqXzJfStV5f91gs2WlzXeJwaS21GlC3PCunniBb7LvK/t4e5lXLKFwaPqs
+	 /OHsgNyvYtAMZGQqcvhRlgvAvHNrqpsB/HfU1oVfLJicOV02Z18hIgc0a0tUJF/ouX
+	 scOYoU66mCTatOO40ps5diQLx7syX8/weqQRWdPlYfRWdkh7GTi2oFdqmKei2v7SfZ
+	 y2IvM/hXlkuPGFatK0jLQ8JJhyrVZteRj1nS6YaluRS3V1gzjtA3M0+K6bdnW7Kxkh
+	 mxIcsuM7nwFgQ==
+Received: from microtis.vulpes.eutheria.net (71-212-73-87.tukw.qwest.net [71.212.73.87])
+	by endrift.com (Postfix) with ESMTPSA id 3384CA023;
+	Thu, 02 Jul 2026 15:23:01 -0700 (PDT)
+From: Vicki Pfau <vi@endrift.com>
+To: Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>,
+	linux-input@vger.kernel.org
+Cc: Vicki Pfau <vi@endrift.com>,
+	Yousef Alhouseen <alhouseenyousef@gmail.com>
+Subject: [PATCH 01/10] HID: steam: Update documentation
+Date: Thu,  2 Jul 2026 15:21:34 -0700
+Message-ID: <20260702222145.1863104-1-vi@endrift.com>
+X-Mailer: git-send-email 2.54.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
+Mark myself as the maintainer, as well as adding myself as an author.
 
-New issues:
-- [High] Use-After-Free of rumble_work and controller state due to devm lif=
-ecycle mismatch
+It also makes some minor updates to comments, such as correcly calling the
+left menu key view and retroactively renaming the original Steam Controller
+as Steam Controller (2015), in preparation for support for the 2026 model.
 
-Pre-existing issues:
-- [High] Circular reference in LED devm registration causes permanent memor=
-y leak and Use-After-Free
---
+Signed-off-by: Vicki Pfau <vi@endrift.com>
+---
+ MAINTAINERS             |  6 ++++++
+ drivers/hid/hid-steam.c | 13 +++++++------
+ 2 files changed, 13 insertions(+), 6 deletions(-)
 
-commit 24b9a46372beedd9b4a7b187b2ec2e8fa3058997
-Author: Vicki Pfau <vi@endrift.com>
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 4ecd282f8f52..2ed29e970023 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -11500,6 +11500,12 @@ F:	drivers/hid/hid-sensor-*
+ F:	drivers/iio/*/hid-*
+ F:	include/linux/hid-sensor-*
+ 
++HID STEAM CONTROLLER
++M:	Vicki Pfau <vi@endrift.com>
++L:	linux-input@vger.kernel.org
++S:	Maintained
++F:	drivers/hid/hid-steam.c
++
+ HID VRC-2 CAR CONTROLLER DRIVER
+ M:	Marcus Folkesson <marcus.folkesson@gmail.com>
+ L:	linux-input@vger.kernel.org
+diff --git a/drivers/hid/hid-steam.c b/drivers/hid/hid-steam.c
+index 197126d6e081..a854d6360a0e 100644
+--- a/drivers/hid/hid-steam.c
++++ b/drivers/hid/hid-steam.c
+@@ -48,6 +48,7 @@
+ MODULE_DESCRIPTION("HID driver for Valve Steam Controller");
+ MODULE_LICENSE("GPL");
+ MODULE_AUTHOR("Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>");
++MODULE_AUTHOR("Vicki Pfau <vi@endrift.com>");
+ 
+ static bool lizard_mode = true;
+ 
+@@ -1413,9 +1414,9 @@ static inline s16 steam_le16(u8 *data)
+  *  9.1  | BTN_DPAD_RIGHT | left-pad right
+  *  9.2  | BTN_DPAD_LEFT  | left-pad left
+  *  9.3  | BTN_DPAD_DOWN  | left-pad down
+- *  9.4  | BTN_SELECT | menu left
++ *  9.4  | BTN_SELECT | view
+  *  9.5  | BTN_MODE   | steam logo
+- *  9.6  | BTN_START  | menu right
++ *  9.6  | BTN_START  | menu
+  *  9.7  | BTN_GRIPL  | left back lever
+  * 10.0  | BTN_GRIPR  | right back lever
+  * 10.1  | --         | left-pad clicked
+@@ -1541,9 +1542,9 @@ static void steam_do_input_event(struct steam_device *steam,
+  *  9.1  | BTN_DPAD_RIGHT | left-pad right
+  *  9.2  | BTN_DPAD_LEFT  | left-pad left
+  *  9.3  | BTN_DPAD_DOWN  | left-pad down
+- *  9.4  | BTN_SELECT | menu left
++ *  9.4  | BTN_SELECT | view
+  *  9.5  | BTN_MODE   | steam logo
+- *  9.6  | BTN_START  | menu right
++ *  9.6  | BTN_START  | menu
+  *  9.7  | BTN_GRIPL2 | left bottom grip button
+  *  10.0 | BTN_GRIPR2 | right bottom grip button
+  *  10.1 | BTN_THUMB  | left pad pressed
+@@ -1850,11 +1851,11 @@ MODULE_PARM_DESC(lizard_mode,
+ 	"Enable mouse and keyboard emulation (lizard mode) when the gamepad is not in use");
+ 
+ static const struct hid_device_id steam_controllers[] = {
+-	{ /* Wired Steam Controller */
++	{ /* Wired Steam Controller (2015) */
+ 	  HID_USB_DEVICE(USB_VENDOR_ID_VALVE,
+ 		USB_DEVICE_ID_STEAM_CONTROLLER)
+ 	},
+-	{ /* Wireless Steam Controller */
++	{ /* Wireless Steam Controller (2015) */
+ 	  HID_USB_DEVICE(USB_VENDOR_ID_VALVE,
+ 		USB_DEVICE_ID_STEAM_CONTROLLER_WIRELESS),
+ 	  .driver_data = STEAM_QUIRK_WIRELESS
+-- 
+2.54.0
 
-HID: nintendo: Add rumble support for Switch 2 controllers
-
-This adds rumble support for both the "HD Rumble" linear resonant actuator
-type as used in the Joy-Cons and Pro Controller, as well as the eccentric
-rotating mass type used in the GameCube controller.
-
-> diff --git a/drivers/hid/hid-nintendo.c b/drivers/hid/hid-nintendo.c
-> index e21c369218325..a36f4fd9a1da5 100644
-> --- a/drivers/hid/hid-nintendo.c
-> +++ b/drivers/hid/hid-nintendo.c
-[ ... ]
-> @@ -3209,6 +3260,125 @@ static void switch2_kref_put(struct kref *refcoun=
-t)
->  	kfree(ns2);
->  }
-> =20
-> +#if IS_ENABLED(CONFIG_NINTENDO_FF)
-[ ... ]
-> +static void switch2_rumble_work(struct work_struct *work)
-> +{
-> +	struct switch2_controller *ns2 =3D container_of(to_delayed_work(work),
-> +						      struct switch2_controller, rumble_work);
-> +	unsigned long flags;
-> +	bool active;
-> +	int ret =3D 0;
-> +
-> +	spin_lock_irqsave(&ns2->rumble_lock, flags);
-
-[Severity: High]
-If the device is unplugged and `ns2` is manually freed, can this work
-function execute concurrently and attempt to acquire `ns2->rumble_lock`
-on freed memory?
-
-> +	ns2->rumble_buffer[0x1] =3D 0x50 | ns2->rumble_seq;
-[ ... ]
-> @@ -3332,6 +3502,26 @@ static int switch2_init_input(struct switch2_contr=
-oller *ns2)
->  		return -EINVAL;
->  	}
-> =20
-
-[Severity: High]
-This is a pre-existing issue, but does registering the LED devices with
-devm create a circular reference by binding the LED devres to the input
-device while simultaneously setting it as the parent?
-
-The driver core's device_add() function automatically takes a reference to
-the parent device (&input->dev). Since devres is attached to the same
-parent, it waits for the parent's refcount to drop to 0 before unregistering
-the LEDs, which means neither can be released.=20
-
-Does this permanently leak the input device, LED devices, and devm
-allocations?=20
-
-Furthermore, because `ns2` is freed manually upon device removal, could
-lingering LED sysfs attributes trigger a use-after-free crash if a user
-writes to them, causing switch2_player_led_brightness_set() to dereference
-the freed `ns2` pointer?
-
-> +#if IS_ENABLED(CONFIG_NINTENDO_FF)
-> +	ns2->rumble_buffer =3D devm_kzalloc(&input->dev, 64, GFP_KERNEL);
-> +	if (!ns2->rumble_buffer) {
-> +		input_free_device(input);
-> +		return -ENOMEM;
-> +	}
-> +	ret =3D devm_delayed_work_autocancel(&input->dev, &ns2->rumble_work, sw=
-itch2_rumble_work);
-
-[Severity: High]
-Does binding the rumble work lifecycle to &input->dev cause a
-use-after-free when `ns2` is manually freed?
-
-If a user unplugs the controller while holding the input device open,
-`ns2` is freed in the removal path, but the devres cleanup for the input
-device will run later.=20
-
-Will this result in the devres cleanup unconditionally calling
-cancel_delayed_work_sync(&ns2->rumble_work) on the already-freed
-`ns2` pointer?
-
-> +	if (ret < 0) {
-> +		input_free_device(input);
-> +		return ret;
-> +	}
-> +
-> +	input_set_capability(input, EV_FF, FF_RUMBLE);
-> +	ret =3D input_ff_create_memless(input, NULL, switch2_play_effect);
-[ ... ]
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260702214704.1859=
-350-1-vi@endrift.com?part=3D2

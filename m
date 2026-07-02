@@ -1,97 +1,104 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6CCFE33A715;
-	Thu,  2 Jul 2026 17:27:01 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DF1F41A682A
+	for <linux-input@vger.kernel.org>; Thu,  2 Jul 2026 17:28:55 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783013222; cv=none; b=f42wkMXMMLgi3z52qQBz4GPRifDAMW+jqLiIhxrPgi8wXbGW3q/VhvzLNtqdyihCXU/MBfJQjVcDPBbYEE/gN2Rgmix4t9dfzu3HWVUOzyRxDWV5Lw8rG6aaBumEYO5rAfq1qo6/XePEefF+ceTKi3ICYwRD0ZZgD1lfu9tR2y4=
+	t=1783013336; cv=none; b=MXl8/mzOg6J7xAiBSesmHncNBk8H6LxyT8E0XEgN/WDs0rpk1dRFZiY87skMG0WEQXSHytCuC/NDpDfffpOIe3pv+0XAXOSkux861OWgAUM6N8wtTByOdzoSdYFBYxsTaHFdMP038A0eRWajlesVD/46T6u8/F5qf5ScfUiESxw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783013222; c=relaxed/simple;
-	bh=xM7wXElkc6p1/hPEbmGQXB5nkWB4YMUZAj6IYjm3GXE=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=eQtD+kBOdyR2/gduiQmQ3wXlY+cEdfUu0djcZvjdkV/x+UdxKROOeMTsaVrV8RpiW2QKsFhgX+35xpCihMszJtx8p/qXgMSrpxdNk7e0l8bddk/1aSqcqTsDitUTP6NOklZNir4LDNETAzffvQoP/NZjpW7JFkMKg6Jj8bS6M4o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=FreGYn+F; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1783013336; c=relaxed/simple;
+	bh=A/Rb0F3dAsnyFM6/202Jan7ZE8Yqnp57+CwKiuYyrT0=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=RxuzGkf+6QPNByVYkKHaygxvbqD3ZBJJNDlk6noObXG47YOnoG8XhJsb5zYk0IIgqQn3Bl5cTDMcYV3rYrAknH9QJYqq25CIpZHl0wFg8mn+xHDpKam5dbAARMfcJg9egeP0jY5be1bzChYCXexohxLjWkFDUdTZ1hFV1T3pxKU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=HvVEHO5m; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="FreGYn+F"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 515D81F000E9;
-	Thu,  2 Jul 2026 17:26:59 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="HvVEHO5m"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E50F1F000E9;
+	Thu,  2 Jul 2026 17:28:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1783013221;
-	bh=zuQzJwKx7wlris4Q0CuBgvwdsj6DgeV+ONMXBSoLdOQ=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References;
-	b=FreGYn+FNEjGhjEhW4eRENB7MLD2+igN7AM4iMN1zvHJDP3txcK1CSEaseEq2cz/T
-	 NWXKD8+3jWdueRDMjdjBnnRe3TufPru0dSmjxbCsuUJYGGn+3c4l8vTOk7L814OEj9
-	 1SI2AVVnoURDCaug+l21Ea0OMAF38Jv3VANU1ftSwA6nO/26AATxJQyvaNp0RqhQNK
-	 NAlpUlnjKuy45uHjb2o0H+22UH/WgxxU2OcEJnonG+rCAjonmrNImdpUKMN5jGY6lu
-	 XL3W5OUNSnoGnRqqmWTBtKGM/l3dWXY3jZ5E8sKaZ7GEoFxZuafC1K7dVyK20lvO6X
-	 1SiuQAFAHgV/A==
-Date: Thu, 2 Jul 2026 18:26:56 +0100
-From: Jonathan Cameron <jic23@kernel.org>
-To: Sanjay Chitroda via B4 Relay
- <devnull+sanjayembeddedse.gmail.com@kernel.org>
-Cc: sanjayembeddedse@gmail.com, David Lechner <dlechner@baylibre.com>, Nuno
- =?UTF-8?B?U8Oh?= <nuno.sa@analog.com>, Andy Shevchenko <andy@kernel.org>,
- Jiri Kosina <jikos@kernel.org>, Srinivas Pandruvada
- <srinivas.pandruvada@linux.intel.com>, linux-iio@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
-Subject: Re: [PATCH v2 5/6] iio: position: hid-sensor-custom-intel-hinge:
- use common device for devres
-Message-ID: <20260702182656.1a145d1f@jic23-huawei>
-In-Reply-To: <20260702-15-jun-hid-iio-alignment-v2-5-b87f01f5efbc@gmail.com>
+	s=k20260515; t=1783013335;
+	bh=VQk/QAyJJFRewyJ5ETHaVD58Y3wfZ7T6p3yxYPFljfY=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=HvVEHO5m3FgOQnuoZeo13/eBiuqzal59NQXCcAwtGpGvkjkQWpkKId5pZTaGFPf4Z
+	 7KUWCKg2S+Qa3mzQ8SUOD0hIKglZ65YgYphZptVgpm8DRE3vjv6uK+f05PSwN8+kxv
+	 ZFXftOwcXix01lQ/OgNwAUkoCl8ESixzRr+BPwqzGTT59vwdNomUcdc07knz8T4swm
+	 savzGxoi1CpqB7jOZmTk3IjSzEdyxOUJkOC+vg6y7Crud+gmjYeu+Nu/14uyhYeJTe
+	 Bvh3SRRwLyAJhwKv8Ti0Zjtb39eP7Lwew/xy67PhotozoFG9tHgP4wOAiR6c79yzKq
+	 BJgv+1r1YfqiQ==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v2 6/6] iio: temperature: hid-sensor-temperature: use
+ common device for devres
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Sanjay Chitroda" <sanjayembeddedse@gmail.com>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20260702-15-jun-hid-iio-alignment-v2-6-b87f01f5efbc@gmail.com>
 References: <20260702-15-jun-hid-iio-alignment-v2-0-b87f01f5efbc@gmail.com>
-	<20260702-15-jun-hid-iio-alignment-v2-5-b87f01f5efbc@gmail.com>
-X-Mailer: Claws Mail 4.4.0 (GTK 3.24.52; x86_64-pc-linux-gnu)
+ <20260702-15-jun-hid-iio-alignment-v2-6-b87f01f5efbc@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Thu, 02 Jul 2026 17:28:54 +0000
+Message-Id: <20260702172855.5E50F1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
 
-On Thu, 02 Jul 2026 21:48:02 +0530
-Sanjay Chitroda via B4 Relay <devnull+sanjayembeddedse.gmail.com@kernel.org=
-> wrote:
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
+- [High] Changing the devm_kmemdup() parent from `&indio_dev->dev` to `&pde=
+v->dev` introduces a Use-After-Free vulnerability by violating the IIO devi=
+ce lifetime model.
+--
 
-> From: Sanjay Chitroda <sanjayembeddedse@gmail.com>
->=20
-> kmemdup() is used for memory that is logically tied to the HID
-> platform device, even though the driver binds into the IIO framework.
->=20
-> Using &indio_dev->dev for devres allocations works functionally, but it
-> results in two separate devres ownership trees=E2=80=94one for the HID
-> platform device (pdev) and another for the IIO device (indio_dev).
->=20
-> The devres framework is intended to have a single, well-defined parent
-> device. Since the memory originates from HID sensor probing and is not
-> IIO-specific, &pdev->dev is the correct and logical owner.
->=20
-> Switch to using the platform device for devm_kmemdup() so that all
-> resources are released deterministically and consistently.
->=20
-> Signed-off-by: Sanjay Chitroda <sanjayembeddedse@gmail.com>
-Applied this one.
+commit f64b0b02100e325f644f897f84be1fbd188c0d40
+Author: Sanjay Chitroda <sanjayembeddedse@gmail.com>
 
-> ---
->  drivers/iio/position/hid-sensor-custom-intel-hinge.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->=20
-> diff --git a/drivers/iio/position/hid-sensor-custom-intel-hinge.c b/drive=
-rs/iio/position/hid-sensor-custom-intel-hinge.c
-> index 1f4a40716c3f..eb6c59f81c3f 100644
-> --- a/drivers/iio/position/hid-sensor-custom-intel-hinge.c
-> +++ b/drivers/iio/position/hid-sensor-custom-intel-hinge.c
-> @@ -293,7 +293,7 @@ static int hid_hinge_probe(struct platform_device *pd=
-ev)
->  	}
+iio: temperature: hid-sensor-temperature: use common device for devres
+
+This commit changes the device used for devm_kmemdup() from the IIO device
+to the platform device. This aims to consolidate devres ownership under a
+single parent device.
+
+> diff --git a/drivers/iio/temperature/hid-sensor-temperature.c b/drivers/i=
+io/temperature/hid-sensor-temperature.c
+> index 18da85e6c60ed..6dfb606a53af3 100644
+> --- a/drivers/iio/temperature/hid-sensor-temperature.c
+> +++ b/drivers/iio/temperature/hid-sensor-temperature.c
+> @@ -213,8 +213,8 @@ static int hid_temperature_probe(struct platform_devi=
+ce *pdev)
+>  	if (ret)
+>  		return ret;
 > =20
->  	indio_dev->num_channels =3D ARRAY_SIZE(hinge_channels);
-> -	indio_dev->channels =3D devm_kmemdup(&indio_dev->dev, hinge_channels,
-> +	indio_dev->channels =3D devm_kmemdup(&pdev->dev, hinge_channels,
->  					   sizeof(hinge_channels), GFP_KERNEL);
->  	if (!indio_dev->channels)
->  		return -ENOMEM;
->=20
+> -	temp_chans =3D devm_kmemdup(&indio_dev->dev, temperature_channels,
+> -				sizeof(temperature_channels), GFP_KERNEL);
+> +	temp_chans =3D devm_kmemdup(&pdev->dev, temperature_channels,
+> +				  sizeof(temperature_channels), GFP_KERNEL);
 
+[Severity: High]
+Could tying the channel array allocated here in hid_temperature_probe() to
+the platform device's devres introduce a use-after-free regression if an
+in-kernel consumer holds a reference to the IIO device?
+
+If an in-kernel IIO consumer, such as iio_hwmon, acquires a reference to a
+channel of this device via iio_channel_get(), the reference count of the
+logical IIO device (indio_dev) is incremented.
+
+When the platform device (pdev) is unbound, the devres cleanup for pdev will
+run and free the temp_chans array because its parent is now pdev->dev. The
+devres cleanup then calls iio_device_unregister(), which drops the driver's
+reference to indio_dev, but indio_dev itself remains alive due to the
+consumer's reference.
+
+If the consumer subsequently calls an IIO API like iio_read_channel_label()
+or iio_get_channel_ext_info_count(), can these APIs directly dereference the
+channel pointers into the freed temp_chans array without checking if the
+device is unregistered?
+
+Should the temp_chans array remain tied to &indio_dev->dev to ensure its
+lifetime safely extends until the IIO device itself is fully released?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260702-15-jun-hid=
+-iio-alignment-v2-0-b87f01f5efbc@gmail.com?part=3D6

@@ -1,77 +1,116 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6BEC432B981;
-	Thu,  2 Jul 2026 15:14:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 73DD430C165;
+	Thu,  2 Jul 2026 16:18:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783005285; cv=none; b=aeZgPsMEr9LBPF48peGUuShJg8jJcWNXIxQoFXnf8xIMP6zW32GkRVXLUj0e+ytexoj0LYykk+D64t8aN7NvJcIu+GcN9qwdnUGVrvi0Nl5FJOboaoWomARHNR0ozy4wrf0j3KRR3L8qAeTejG1v2IWCCL8BxkeOmkofg0ZchpM=
+	t=1783009084; cv=none; b=k+adGjP85BtQftFWPFhaDnHhNVzX0Uxg2TtpkMUyP2WYBRiBjOU1pwIaLsuzN1kiGUHwhSHQ1/fs/P7EsQ0kEFvy6HFZScYfAg95xXzYmYmLpFx6k5jXiezvd/hVi3vDwL0GsD0XObp0SYGXIGm6Z79jXrDDzh72kj7/LJZPMCg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783005285; c=relaxed/simple;
-	bh=d2YVhtbaFzSgYBANw71BSYMMHHk4SZ1Y76sHIatqV1I=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=NCMZAInsOHZcFmsgTcvCEfXU5RBXYinMbD6aEoUJkDTEFyb3NPLLjYJWBiiaqE9KUdZuMyn+SFIiI7TeSSzn9MfVaJD0bkitECgpnmpoZT0kU6KCJZwf+rmIUAwOVIG5f2B1OVSIwH+rsjt16AR0+GusVlwZn+4pdMG3skRZvcA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=HUo7JOYa; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1783009084; c=relaxed/simple;
+	bh=iLigWsZBTZ5l9z1lCiNSuBcspMeyU3wy6XPZctVcaQo=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=tFom7+zXY5VIEFjFrGWcDggVDiEa16VZ0b5J+cBmHkbcYne/jMpUnperygWVMyW6FP4nBz2tUKdDRV45MuIDrf0maSamHyoyuS57ibdipPo+n+NLYo55HRhmG6hQxqmf20atAYWZoaP2YlRvOVUAI0mYEMFX4JV3/Dd+bfUL6Zw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Ons6BeGX; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="HUo7JOYa"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10A251F000E9;
-	Thu,  2 Jul 2026 15:14:38 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1783005284;
-	bh=c3jiJOSpZWo7w985LQh4Y0OVG7Wd0IptXa6TBfu7SkU=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=HUo7JOYaEFRyzC9WdCBlCVlgDUpNNKf60fUSfKcmOEFfPx6Gx/TIWQAqNaTgJ6l95
-	 s5d7UbA2rhO7yf1OJWfXmqRbEwUHh1HnVQAz2Y6AReUm2EsqWMUDsXogc1B/cSOmZT
-	 b0ZygJ6FBQJf0LlZ+3TSRNuxTcyx0QQj47zR8yUANchvZx5BArgFp3liFOTvhrSvBu
-	 mHLHeDFfxw2YKCn16UpvqX4MFOYxEGGYjCoJiYXpUXNT86DCanxssuXq+Ei+I/0B0b
-	 Vuo9qq1SewwmZlNtoNtYxp6f91VkU0YZdAqrkBZ32Q7yEYqjzZM7VrbUzHh4AD2Vv6
-	 yH01KvWQjWDFg==
-Date: Thu, 2 Jul 2026 16:14:36 +0100
-From: Lee Jones <lee@kernel.org>
-To: Luca Leonardo Scorcia <l.scorcia@gmail.com>
-Cc: linux-mediatek@lists.infradead.org,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>, Sen Chu <sen.chu@mediatek.com>,
-	Sean Wang <sean.wang@mediatek.com>,
-	Macpaul Lin <macpaul.lin@mediatek.com>,
-	Matthias Brugger <matthias.bgg@gmail.com>,
-	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
-	Liam Girdwood <lgirdwood@gmail.com>,
-	Mark Brown <broonie@kernel.org>, Linus Walleij <linusw@kernel.org>,
-	Louis-Alexis Eyraud <louisalexis.eyraud@collabora.com>,
-	Val Packett <val@packett.cool>,
-	Julien Massot <julien.massot@collabora.com>,
-	Fabien Parent <parent.f@gmail.com>,
-	Akari Tsuyukusa <akkun11.open@gmail.com>,
-	Chen Zhong <chen.zhong@mediatek.com>, linux-input@vger.kernel.org,
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-pm@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	linux-gpio@vger.kernel.org
-Subject: Re: [PATCH v9 0/9] Add support for MT6392 PMIC
-Message-ID: <20260702151436.GS2108533@google.com>
-References: <20260621081634.467858-1-l.scorcia@gmail.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Ons6BeGX"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 2B008C2BCC7;
+	Thu,  2 Jul 2026 16:18:04 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1783009084;
+	bh=iLigWsZBTZ5l9z1lCiNSuBcspMeyU3wy6XPZctVcaQo=;
+	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
+	b=Ons6BeGXbkfGQHnsUkKw+va6uHhyzdFF9Kpz7W1We3ZdWLjXUfKL+GLe04Rj+XNYq
+	 6wHHrRdQztTtZ77i5PbvHPI9zjVyV4JLpl7KN9GewqgCLVCcAT5K7Uin5HpnMFMz4A
+	 4bkhhbBDAMAbEUcEgjncx4T5U/Q+DIPYbHsBU89LYLBHFRzXnWdsHmcQRiex9nNe0O
+	 5+ohx0maPTy8ymjddhBYqsBhvh1knMBFGZ8D2Nm0oFwZsUyKR7kBsmNRMwxMO9+LgE
+	 jnOEhmMEVCfSCiqu5/SEpG7aeMriccLXqzyOduZUxBerQ03prdNMzyFFKFyWB/YxZt
+	 7rT4GitmjS7sw==
+Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0CD28C43602;
+	Thu,  2 Jul 2026 16:18:04 +0000 (UTC)
+From: Sanjay Chitroda via B4 Relay <devnull+sanjayembeddedse.gmail.com@kernel.org>
+Date: Thu, 02 Jul 2026 21:47:58 +0530
+Subject: [PATCH v2 1/6] iio: hid-sensors: add/remove blank line
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260621081634.467858-1-l.scorcia@gmail.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20260702-15-jun-hid-iio-alignment-v2-1-b87f01f5efbc@gmail.com>
+References: <20260702-15-jun-hid-iio-alignment-v2-0-b87f01f5efbc@gmail.com>
+In-Reply-To: <20260702-15-jun-hid-iio-alignment-v2-0-b87f01f5efbc@gmail.com>
+To: Jonathan Cameron <jic23@kernel.org>, 
+ David Lechner <dlechner@baylibre.com>, 
+ =?utf-8?q?Nuno_S=C3=A1?= <nuno.sa@analog.com>, 
+ Andy Shevchenko <andy@kernel.org>, Jiri Kosina <jikos@kernel.org>, 
+ Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Cc: linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ linux-input@vger.kernel.org, Sanjay Chitroda <sanjayembeddedse@gmail.com>
+X-Mailer: b4 0.15.2
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1783009082; l=1830;
+ i=sanjayembeddedse@gmail.com; s=20260702; h=from:subject:message-id;
+ bh=3Enoj9jEiclPFYijQYLqZvd7azUOyB0jQ+jDFbEH2EE=;
+ b=Yz2HWwNYxByOhXaoJjz9V2uZhFhGVkWjzeJTtpzrefC7F1mltkkr4ibGxtIVfMGm+OT/2BsMg
+ ceMjoQr6SUGB5AqSL/TdackM2YSAaat30xu+r7/Dt1hESYMZxr6+TMi
+X-Developer-Key: i=sanjayembeddedse@gmail.com; a=ed25519;
+ pk=PcneEFtkmY+Ldl+KmOTpB/Q/HDsqko6Fb0/Z/5cuycI=
+X-Endpoint-Received: by B4 Relay for sanjayembeddedse@gmail.com/20260702
+ with auth_id=848
+X-Original-From: Sanjay Chitroda <sanjayembeddedse@gmail.com>
+Reply-To: sanjayembeddedse@gmail.com
 
-On Sun, 21 Jun 2026, Luca Leonardo Scorcia wrote:
+From: Sanjay Chitroda <sanjayembeddedse@gmail.com>
 
-> The MediaTek MT6392 PMIC is usually found on devices powered by
-> the MT8516/MT8167 SoC and is yet another MT6323/MT6397 variant.
+Add a blank line after variable declarations and remove multiple blank
+line across HID sensor IIO drivers to improve readability and align
+with kernel coding style.
 
-The MFD pieces look fine to me.
+Signed-off-by: Sanjay Chitroda <sanjayembeddedse@gmail.com>
+---
+ drivers/iio/common/hid-sensors/hid-sensor-attributes.c | 1 -
+ drivers/iio/common/hid-sensors/hid-sensor-trigger.c    | 3 +++
+ 2 files changed, 3 insertions(+), 1 deletion(-)
 
-I'm assuming this will go in via MFD.
-
-Just let me know when you have all of the remaining Acks.
+diff --git a/drivers/iio/common/hid-sensors/hid-sensor-attributes.c b/drivers/iio/common/hid-sensors/hid-sensor-attributes.c
+index c115a72832b2..2f0a1ea42f48 100644
+--- a/drivers/iio/common/hid-sensors/hid-sensor-attributes.c
++++ b/drivers/iio/common/hid-sensors/hid-sensor-attributes.c
+@@ -282,7 +282,6 @@ int hid_sensor_read_raw_hyst_rel_value(struct hid_sensor_common *st, int *val1,
+ }
+ EXPORT_SYMBOL_NS(hid_sensor_read_raw_hyst_rel_value, "IIO_HID");
+ 
+-
+ int hid_sensor_write_raw_hyst_value(struct hid_sensor_common *st,
+ 					int val1, int val2)
+ {
+diff --git a/drivers/iio/common/hid-sensors/hid-sensor-trigger.c b/drivers/iio/common/hid-sensors/hid-sensor-trigger.c
+index 417c4ab8c1b2..c8ccf96f3d03 100644
+--- a/drivers/iio/common/hid-sensors/hid-sensor-trigger.c
++++ b/drivers/iio/common/hid-sensors/hid-sensor-trigger.c
+@@ -314,7 +314,9 @@ static int __maybe_unused hid_sensor_resume(struct device *dev)
+ {
+ 	struct iio_dev *indio_dev = dev_get_drvdata(dev);
+ 	struct hid_sensor_common *attrb = iio_device_get_drvdata(indio_dev);
++
+ 	schedule_work(&attrb->work);
++
+ 	return 0;
+ }
+ 
+@@ -322,6 +324,7 @@ static int __maybe_unused hid_sensor_runtime_resume(struct device *dev)
+ {
+ 	struct iio_dev *indio_dev = dev_get_drvdata(dev);
+ 	struct hid_sensor_common *attrb = iio_device_get_drvdata(indio_dev);
++
+ 	return _hid_sensor_power_state(attrb, true);
+ }
+ 
 
 -- 
-Lee Jones
+2.34.1
+
+

@@ -1,175 +1,159 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 677AE3C583A;
-	Fri,  3 Jul 2026 12:06:00 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D91AC3CEB8D;
+	Fri,  3 Jul 2026 12:06:01 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783080361; cv=none; b=niwy6sFE/ARvV8VyGEkggnR+KPDSUN/nwShQsS6r4BBpNwPgOKR6dB+G4UMQQOprtwGLC0GQ/MV9Rdhggx3IaZyFoNGbbUTZv+d0Kcg4Phw4DAHKL+JsvwJ0L9NhgNEPxaIRtTPVvLJogMfvNDeMJYoHIh3mGm49tUy7yHkjb+A=
+	t=1783080363; cv=none; b=ToV8x5kSzqPMsOqF8pkRnDd1VzxFusqiXfTQo1rOazeCETXLzVcr0jicLPCP5qufAWKbx1/BIQ9r8ydNfRHstcrD5JePhGt/L3MIm3mchQPzR6b0wBA0x+w8ITdtzTjy8U6mNPEqu2lMnOFq4p8An6ODcpcDo1zZUEUEmIXQ1Jk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783080361; c=relaxed/simple;
-	bh=ecNoGTuJaMoBwHCZuQrn/eASuzubJTQ3SLfND8FALec=;
+	s=arc-20240116; t=1783080363; c=relaxed/simple;
+	bh=UEN+bNVH8HjV90Pp60Sni6Q5LYfR6NEViRrAVKmrLHo=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=YdEYxrEVD4X+3jO9ZK5Uz7hN59q7aaJjVMV4qoTCM1BTMooXqf1/0jtdmqHLjnOYfucyMGc4KbAjlClutAu2P161DqcZQ1uiivXQ5ClL5KnDcOd8+4VUiD/XaBkTEt4Xb06Z1bNLTK6z6LQJiMqjgZdO2IqbhsaxYX2invMXSe8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=fQ338EAh; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=RcimU6PVF6wKALh8FC562GpKWFSO/xAHFfl+e4xnbf+WEerjVVL4041gVbpYpZky4RGUpuKa9ZDCL/YTCWXymD38b+gnYeX4/BSEouepctzym9GvWumSL9rxPff/juZ4a0YVbw9KGFYvohIbyuDkduA2r+Xe1BsNyPI17+YoGE4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=klGuHQ/X; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="fQ338EAh"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ACA4A1F000E9;
-	Fri,  3 Jul 2026 12:05:59 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="klGuHQ/X"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 612AC1F00A3A;
+	Fri,  3 Jul 2026 12:06:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1783080360;
-	bh=0KW2mMJdAopuesa3elPlR6E5tKntoEp/VP/IQiB3N8Y=;
+	s=k20260515; t=1783080361;
+	bh=0ihDMl5rkRnaQ/eNQbOPrjkzoIDWOCyXu8QqfhBMOiY=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=fQ338EAhtFmsGCnnbaXaN54cC12N189/qDJ6WtkOxEBKmNw3BspXjpeZ6W/+b/4Xl
-	 GOuQzGIkW0kt571nelW3Sada2ZCSxOZEW+/XGwHHDlGWpi96nXlRczVuve7DP4ZMn9
-	 kbOSshuqlbZSFKkWCFAL5kFPoduqeBokRZJ8Iz4NB0xtco95wQ5BniC6JoTqMybRof
-	 O4118nzrJ7wCrZzXoHBl/aOQzME01za91XOonX/gVWxcOkWT4Xb9eWcvYSOmUklk6F
-	 oyq46UBVyYwS8avp2RkQdX9cW2rKjnq7CYUPHecynnu6cvwrKVnQmnpIfjVYU6djRd
-	 n/BtADjxaHX7w==
+	b=klGuHQ/X17VAjptm0aVbtsyS2g7JAb1Poht1Msgf99YX6N6S6ghfbf3ly8BW7GxHO
+	 RMPffJGe8o+sxrSAkSnWGfkjd4UtWr83VBIPebC+EutR/MHuGltRUXGlVGVEIhlsIN
+	 NTWG5YEiZrbNOjIS06HsmNvdL5lolk0J/y+ec09NfrP8gGEFcTORjeT2a04MfsW/IU
+	 Wavj/mOy1S57CsJyoruGtAycNq65aJS9wNP8HsvYFVSi+mQxQGA47a8nRfQINGxtSF
+	 brCufgaD/HdN9AE0L6idLZRghu2wAXZCbUoIuZh0zdAnDx670i21VXzWc4ISvDQIec
+	 XReO5fC6cbUxQ==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 3/7] i2c: of-prober: skip post-power-on delay if
- already powered on
+Subject: Re: [PATCH v2 1/7] Input: elan_i2c - Wait for initialization after
+ enabling regulator supply
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Chen-Yu Tsai" <wenst@chromium.org>
-Cc: conor+dt@kernel.org, dmitry.torokhov@gmail.com, robh@kernel.org, linux-input@vger.kernel.org, devicetree@vger.kernel.org
-In-Reply-To: <20260703115601.1323491-4-wenst@chromium.org>
+Cc: conor+dt@kernel.org, devicetree@vger.kernel.org, linux-input@vger.kernel.org, robh@kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20260703115601.1323491-2-wenst@chromium.org>
 References: <20260703115601.1323491-1-wenst@chromium.org>
- <20260703115601.1323491-4-wenst@chromium.org>
+ <20260703115601.1323491-2-wenst@chromium.org>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 03 Jul 2026 12:05:57 +0000
-Message-Id: <20260703120559.ACA4A1F000E9@smtp.kernel.org>
+Date: Fri, 03 Jul 2026 12:06:00 +0000
+Message-Id: <20260703120601.612AC1F00A3A@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
 s) to consider:
-
-New issues:
-- [High] The integer return value of `regulator_is_enabled()` (which can be=
- a negative error code) is implicitly cast to or bitwise-ANDed with `bool` =
-variables, leading to incorrect evaluations that inadvertently skip require=
-d hardware power-on delays.
-- [Medium] Shared regulator logic flaw and TOCTOU race allow skipping requi=
-red power-on delays.
-
-Pre-existing issues:
-- [High] Optional regulator supplies missing from the device tree incorrect=
-ly cause the prober to fail, contradicting the intended optional behavior.
+- [High] The return value of `regulator_is_enabled()` is implicitly cast to=
+ `bool`, causing negative error codes to evaluate as true and incorrectly b=
+ypassing the required power-on delay.
+- [High] Skipping the power-on delay for shared regulators is susceptible t=
+o unsafe power domain assumptions and TOCTOU races, leading to bypassed har=
+dware initialization.
 --
 
-commit 7072efff03a9502c14f9b2eb5a3863213e3992ef
+commit 62ef124436c7ca613cd0f8d922094f42cdd2a0b8
 Author: Chen-Yu Tsai <wenst@chromium.org>
 
-i2c: of-prober: skip post-power-on delay if already powered on
+Input: elan_i2c - Wait for initialization after enabling regulator supply
 
-This commit modifies the I2C OF prober to check if regulator supplies are
-already enabled before applying a post-power-on delay. If the supply is
-already active, it skips the delay to avoid unnecessary boot time penalties.
+This commit adds proper delays after enabling the regulator supply for Elan
+trackpad controllers, which require time for hardware and firmware to
+initialize. It attempts to avoid boot time impact by skipping the delay if
+the regulator was already enabled.
 
-> diff --git a/drivers/i2c/i2c-core-of-prober.c b/drivers/i2c/i2c-core-of-p=
-rober.c
-> index 6a82b03809d4f..f274e260353cd 100644
-> --- a/drivers/i2c/i2c-core-of-prober.c
-> +++ b/drivers/i2c/i2c-core-of-prober.c
+> diff --git a/drivers/input/mouse/elan_i2c_core.c b/drivers/input/mouse/el=
+an_i2c_core.c
+> index fee1796da3d08..110c662cef96f 100644
+> --- a/drivers/input/mouse/elan_i2c_core.c
+> +++ b/drivers/input/mouse/elan_i2c_core.c
 
 [ ... ]
 
-> @@ -219,19 +220,25 @@ static void i2c_of_probe_simple_put_supply(struct i=
-2c_of_probe_simple_ctx *ctx)
+> @@ -1187,6 +1189,7 @@ static int elan_probe(struct i2c_client *client)
+>  	struct device *dev =3D &client->dev;
+>  	struct elan_tp_data *data;
+>  	unsigned long irqflags;
+> +	bool supply_was_enabled;
+>  	int error;
 > =20
->  static int i2c_of_probe_simple_enable_regulator(struct device *dev, stru=
-ct i2c_of_probe_simple_ctx *ctx)
->  {
-> +	bool supply_was_on;
->  	int ret;
+>  	if (IS_ENABLED(CONFIG_MOUSE_ELAN_I2C_I2C) &&
+> @@ -1218,6 +1221,8 @@ static int elan_probe(struct i2c_client *client)
+>  	if (IS_ERR(data->vcc))
+>  		return dev_err_probe(dev, PTR_ERR(data->vcc), "Failed to get 'vcc' reg=
+ulator\n");
 > =20
->  	if (!ctx->supply)
->  		return 0;
-> =20
-> -	dev_dbg(dev, "Enabling regulator supply \"%s\"\n", ctx->opts->supply_na=
-me);
-> +	supply_was_on =3D regulator_is_enabled(ctx->supply);
+> +	supply_was_enabled =3D regulator_is_enabled(data->vcc);
 
 [Severity: High]
-Could this introduce a regression by skipping required hardware power-on
-delays if regulator_is_enabled() fails?
+In elan_probe(), regulator_is_enabled() returns an int, which can include
+negative error codes like -EPROBE_DEFER or -EREMOTEIO. Will assigning this =
+to
+the bool supply_was_enabled cause negative error codes to evaluate as true?
 
-The integer return value of regulator_is_enabled() can be a negative error
-code, but it is implicitly cast to the bool variable supply_was_on without
-error checking. Any non-zero integer, including negative values, becomes tr=
-ue.
-
-If regulator_is_enabled() returns an error, the code will consider the supp=
-ly
-as already on, causing the device to skip the mandatory post-power-on delay
-and fail to probe because it has not finished initializing.
-
-I noticed similar patterns in other drivers:
-- drivers/hid/i2c-hid/i2c-hid-of.c:i2c_hid_of_power_up()
-- drivers/input/mouse/elan_i2c_core.c:elan_probe()
-- drivers/input/mouse/elan_i2c_core.c:elan_resume()
-
-[Severity: Medium]
-Is there a potential regression here regarding a shared regulator TOCTOU ra=
-ce
-condition?
-
-If two devices share a regulator and probe concurrently, Driver A might ena=
-ble
-the regulator. When Driver B checks regulator_is_enabled(), it returns true.
-Driver B will then skip its required power-on delay and attempt to communic=
-ate
-with the device.
-
-If Driver A enabled the regulator less than the required delay time ago,
-Driver B will access its device before the hardware has initialized, leading
-to probe failure or I2C communication errors.
+If this happens, it looks like it would incorrectly bypass the power-on del=
+ay
+and lead to a permanent -ENXIO probe failure later rather than allowing a
+proper deferral.
 
 > +
-> +	dev_dbg(dev, "Enabling regulator supply \"%s\" (was %s)\n", ctx->opts->=
-supply_name,
-> +		str_on_off(supply_was_on));
+>  	error =3D regulator_enable(data->vcc);
+>  	if (error) {
+>  		dev_err(dev, "Failed to enable regulator: %d\n", error);
+> @@ -1231,6 +1236,9 @@ static int elan_probe(struct i2c_client *client)
+>  		return error;
+>  	}
 > =20
->  	ret =3D regulator_enable(ctx->supply);
->  	if (ret)
->  		return ret;
-> =20
-> -	if (ctx->opts->post_power_on_delay_ms)
-> +	if (!supply_was_on && ctx->opts->post_power_on_delay_ms) {
-> +		dev_dbg(dev, "Waiting after enabling regulator\n");
->  		msleep(ctx->opts->post_power_on_delay_ms);
-> +	}
-> =20
->  	return 0;
->  }
+> +	if (!supply_was_enabled)
+> +		msleep(ETP_POWER_ON_DELAY);
 
 [Severity: High]
-This is a pre-existing issue, but I noticed optional regulator supplies mis=
-sing
-from the device tree incorrectly cause the prober to fail, contradicting the
-intended optional behavior.
+Is it safe to assume that a regulator that is already enabled has been powe=
+red
+on for a sufficient amount of time?
 
-drivers/i2c/i2c-core-of-prober.c:i2c_of_probe_simple_get_supply() {
-    ...
-	supply =3D of_regulator_get_optional(dev, node, supply_name);
-	if (IS_ERR(supply)) {
-		return dev_err_probe(dev, PTR_ERR(supply),
-				     "Failed to get regulator supply \"%s\" from %pOF\n",
-				     supply_name, node);
-	}
-    ...
-}
+If the trackpad shares a regulator with another device (like a touchscreen)
+that just finished its own probe milliseconds earlier, the regulator would
+already be enabled, but the trackpad hardware wouldn't be fully initialized.
 
-of_regulator_get_optional() returns -ENODEV when the supply is not in the
-device tree. The function checks IS_ERR(supply) and propagates the error,
-failing the probe unconditionally on hardware platforms where the device tr=
-ee
-omits the optional regulator.
+Could this cause elan_probe() to skip the required hardware initialization
+delay and fail the subsequent i2c_smbus_read_byte() check?
+
+[ ... ]
+
+> @@ -1374,11 +1382,16 @@ static int elan_resume(struct device *dev)
+>  	int error;
+> =20
+>  	if (!device_may_wakeup(dev)) {
+> +		bool supply_was_enabled =3D regulator_is_enabled(data->vcc);
+
+[Severity: High]
+In elan_resume(), could the same boolean cast issue happen if
+regulator_is_enabled() encounters a transient failure during system resume,
+causing the resume delay to be skipped?
+
+> +
+>  		error =3D regulator_enable(data->vcc);
+>  		if (error) {
+>  			dev_err(dev, "error %d enabling regulator\n", error);
+>  			goto err;
+>  		}
+> +
+> +		if (!supply_was_enabled)
+> +			msleep(ETP_POWER_ON_DELAY);
+
+[Severity: High]
+Could the same shared-regulator timing race occur during the system resume
+path, skipping the initialization delay if another device on the same shared
+power domain resumed just before the trackpad?
+
+>  	}
+> =20
+>  	error =3D elan_set_power(data, true);
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260703115601.1323=
-491-1-wenst@chromium.org?part=3D3
+491-1-wenst@chromium.org?part=3D1

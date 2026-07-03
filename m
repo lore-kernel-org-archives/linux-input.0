@@ -1,43 +1,43 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6C4D5433E84
-	for <linux-input@vger.kernel.org>; Fri,  3 Jul 2026 15:58:08 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F28AF2DCBE3
+	for <linux-input@vger.kernel.org>; Fri,  3 Jul 2026 16:02:18 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783094289; cv=none; b=rigQiWu0xu097HJMG+jCCqsXxvBFAUlRRptAsItXNthl6i5xHRkM3qivym8NY08lLUOzBNe9RKQMwutDrPHwMVXsMEPGXoxqSTsu5/Ai671k+V2g3lwkIagvkgR4EF/UjjimAJ60CPIW6OYus70DkaTkuYngLWNKuQxlMdjyMCM=
+	t=1783094540; cv=none; b=nNfc38iep9U+8mGLmkdkkq3UBYmCrx47KaPjWR+NEhxPGUt/c9N/DLL6MXmOuySGSxMDjvhxYEeKzWRcdg4OqXlcgd5hXMnfEKdkge5md3vKkjP6du1p+E+v+Lf1MGXqubOGcGcecE5HnXvLo/VIrpNxA2TvBcWuYlldkchTiJY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783094289; c=relaxed/simple;
-	bh=JNAzNt3QmBcxA+ujdjwJOwpS12F9PWSml/EWZbbSP9A=;
+	s=arc-20240116; t=1783094540; c=relaxed/simple;
+	bh=53fG8RWkSbejkdRs/lHUYYfNIcaX6ciivYyVWTIcsyA=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=iE9aNHGRxh7f4rX3t44lIchsptbG37V1u2276UffKW8zKhAIbc6twehiKT7rqFsItuVr7rjGaxbGOWs+HeGPQeGgTWpxV2jtwIVJo4Ytn6latVslUZ2qflZOiS/WK2wfdN4dJIQb8o5NqNJ58UwKJo0hZAUPtdBR8bJ4iLh4KBY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=hsFOYiK3; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=MOulSpqMDj+n0enpPwgIq943VKk3vaIgNYR2bYcRojPL/SkVvI06yp3v8gKCjAw5Skp6fEsCyNHyW4TAMrZAuS7p934t3XebtcCY7MyHLH7PCQdPE64BGdvhZJTp97U91Ef/fg+OVZeomghVUmWU9zDbAMysABQAA/Mzk0idxpQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=TCD6jQNl; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="hsFOYiK3"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B526D1F000E9;
-	Fri,  3 Jul 2026 15:58:07 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="TCD6jQNl"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17EFE1F000E9;
+	Fri,  3 Jul 2026 16:02:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1783094288;
-	bh=dCTaCOsndZV6MiDi9iFS7L2rCALGQUPHMHuxAFjCcSM=;
+	s=k20260515; t=1783094538;
+	bh=78DeKYNKFlK3lpGQEy7gOqv1L26gf02NltzsKQo0K94=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=hsFOYiK3njnZjK9y/0q6o5fdcsDCdYopSNi45kDEZD5+QaLyQVqpbD0eTOwqyUWUY
-	 jGt/Cfs7xhD0CxmuhiNO/K1KWBeJQonOsvcqHNlTDf90kIFm8ZBhtn3uE7MbPbJxfJ
-	 dar4eRlYVq58vFvi4/aJxGEs5zrqbltpfEBHQoYTtGQFO/pvUl81Uh3SWaS+1avDvk
-	 ityZ/0kWFkxarsV92RAfI71DFEwUh4kERsB9Ey3jZkG6sygvMqtM+d9zz/N3gIIEYD
-	 pIcfgDPlZaW9C59P2Jhg5Uybt+IbENz9GoJaN/BR53SXhyLs4+uT7enyYF1SU6zYCv
-	 yYadgauUjvJTA==
+	b=TCD6jQNlvWXkQspjf5P1Yashcq3unSyCTR13PQVWx564vCAbCQD0Siy9DqUFNcGth
+	 uqTLKC3GzvI4SkCE/L33WaoIKgPA+SSq8lgmz1/f94YlWpUclze+8PCK7+zkJctygg
+	 riIScN80k72sIkGK1QxBrwpk4NYzcpGi69AW+IxFYMbLqFRu29U1FwI3MczKwtUNaM
+	 7sznmf4p1Yo8Ksyc+sv+hFVQoF/SZqsqdHmuHKv4PR5LLCoZmv+kR5qfp9V1lqOA9z
+	 13aIzeiO5X7meDT98Gda0LGzCKrgeFX0ekrhTerKwiAy76aeVNgyJuxz66zyjFdyXj
+	 WRBp8GSB2wamQ==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 1/3] HID: asus: fix missing hid_is_usb() check
+Subject: Re: [PATCH v2 3/3] HID: rapoo: fix missing hid_is_usb() check
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Jann Horn" <jannh@google.com>
 Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260703-hid-usbcheck-v2-1-c5ed7bc94772@google.com>
+In-Reply-To: <20260703-hid-usbcheck-v2-3-c5ed7bc94772@google.com>
 References: <20260703-hid-usbcheck-v2-0-c5ed7bc94772@google.com>
- <20260703-hid-usbcheck-v2-1-c5ed7bc94772@google.com>
+ <20260703-hid-usbcheck-v2-3-c5ed7bc94772@google.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 03 Jul 2026 15:58:07 +0000
-Message-Id: <20260703155807.B526D1F000E9@smtp.kernel.org>
+Date: Fri, 03 Jul 2026 16:02:17 +0000
+Message-Id: <20260703160218.17EFE1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -48,71 +48,73 @@ Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
 
 Pre-existing issues:
-- [High] Dangling pointer in `drvdata->kbd_backlight` leading to Use-After-=
-Free when WMI listener registration fails.
+- [High] Missing hid_hw_stop() cleanup on error paths in rapoo_probe() caus=
+es hardware resource leaks and a Use-After-Free.
 --
 
-commit 0bcf68d0cd670d6cc4fac38b7be14d0855140731
+commit ed7992bab1a88e74142aa29aa65b4061257a86cb
 Author: Jann Horn <jannh@google.com>
 
-HID: asus: fix missing hid_is_usb() check
+HID: rapoo: fix missing hid_is_usb() check
 
-This commit fixes a kernel splat caused by uhid devices that identify as
-being on BUS_USB without actually having a USB parent. It adds a missing
-hid_is_usb() check before calling to_usb_interface().
+This commit adds a hid_is_usb() check before calling to_usb_interface() to
+handle uhid devices reporting BUS_USB without an actual USB parent. It also
+adds a USB_HID dependency for hid_is_usb().
 
-Cc: stable@vger.kernel.org
+[ ... ]
 
-> diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
-> index 3f5e96900b67a..befa990b3210e 100644
-> --- a/drivers/hid/hid-asus.c
-> +++ b/drivers/hid/hid-asus.c
-> @@ -753,7 +753,7 @@ static int asus_kbd_register_leds(struct hid_device *=
-hdev)
->  			return ret;
+> diff --git a/drivers/hid/hid-rapoo.c b/drivers/hid/hid-rapoo.c
+> index 4c81f3086de43..5c9c396fabf77 100644
+> --- a/drivers/hid/hid-rapoo.c
+> +++ b/drivers/hid/hid-rapoo.c
+> @@ -36,7 +36,7 @@ static int rapoo_probe(struct hid_device *hdev, const s=
+truct hid_device_id *id)
+>  		return ret;
 >  	}
 > =20
-> -	if (drvdata->quirks & QUIRK_ROG_ALLY_XPAD) {
-> +	if ((drvdata->quirks & QUIRK_ROG_ALLY_XPAD) && hid_is_usb(hdev)) {
->  		intf =3D to_usb_interface(hdev->dev.parent);
->  		udev =3D interface_to_usbdev(intf);
->  		validate_mcu_fw_version(hdev,
+> -	if (hdev->bus =3D=3D BUS_USB) {
+> +	if (hid_is_usb(hdev)) {
+>  		struct usb_interface *intf =3D to_usb_interface(hdev->dev.parent);
+> =20
+>  		if (intf->cur_altsetting->desc.bInterfaceNumber !=3D 1)
 
 [Severity: High]
-This isn't a bug introduced by this patch, but I noticed a potential
-use-after-free later in this same function.
+This is a pre-existing issue, but are we missing hid_hw_stop() calls on the
+error paths later in rapoo_probe()?
 
-When asus_hid_register_listener() fails, the code frees the backlight=20
-structure but leaves the pointer dangling:
+If devm_input_allocate_device() fails, the code returns -ENOMEM directly:
 
-drivers/hid/hid-asus.c:asus_kbd_register_leds() {
-    ...
-    ret =3D asus_hid_register_listener(&drvdata->kbd_backlight->listener);
-    if (ret < 0) {
-        /* No need to have this still around */
-        devm_kfree(&hdev->dev, drvdata->kbd_backlight);
-    }
-    return ret;
-}
+	input =3D devm_input_allocate_device(&hdev->dev);
+	if (!input)
+		return -ENOMEM;
 
-Since asus_probe() logs a warning but continues successfully when this
-fails, could this cause a use-after-free during device removal or
-suspend?
+Similarly, if input_register_device() fails, it returns the error:
 
-It looks like asus_remove() checks if the pointer is non-null before
-dereferencing it:
+	ret =3D input_register_device(input);
+	if (ret)
+		return ret;
 
-drivers/hid/hid-asus.c:asus_remove() {
-    ...
-    if (drvdata->kbd_backlight) {
-        asus_hid_unregister_listener(&drvdata->kbd_backlight->listener);
-        spin_lock_irqsave(&drvdata->kbd_backlight->lock, flags);
-    ...
-}
+When returning these errors after hid_hw_start() has succeeded, the HID core
+probe fails and sets hdev->driver to NULL, but hid_hw_stop() is never called
+to stop the hardware and kill active URBs.
 
-Should drvdata->kbd_backlight be set to NULL after being freed to prevent
-this?
+When the device is later unplugged, usbhid_disconnect() frees the usbhid
+structure, but skips hid_hw_stop() because hdev->driver is NULL.
+
+Because active USB URBs are not killed, when the USB core later flushes the
+endpoints and cancels the URBs, the completion handler hid_irq_in() attempts
+to clear state bits in the already-freed usbhid structure, like calling
+clear_bit(HID_IN_RUNNING, &usbhid->iofl).
+
+This results in a use-after-free write memory corruption. While this requir=
+es
+local physical access to the USB port and specific conditions like memory
+pressure to induce a probe failure, it guarantees memory corruption when
+triggered.
+
+Would it be better to add an error label that calls hid_hw_stop() when the
+input device allocation or registration fails?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260703-hid-usbche=
-ck-v2-0-c5ed7bc94772@google.com?part=3D1
+ck-v2-0-c5ed7bc94772@google.com?part=3D3

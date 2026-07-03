@@ -1,141 +1,114 @@
-Received: from mail-wm1-f46.google.com (mail-wm1-f46.google.com [209.85.128.46])
+Received: from mail-pj2-f2.google.com (mail-pj2-f2.google.com [74.125.227.130])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 94C913E0C4C
-	for <linux-input@vger.kernel.org>; Fri,  3 Jul 2026 14:25:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F08A53D45F8
+	for <linux-input@vger.kernel.org>; Fri,  3 Jul 2026 14:47:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.227.130
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783088729; cv=none; b=aRMq2JPzmW8xr1asX2DrhwK5i/DKVxTnM7K8wPnkkfnr82HQ3nSQCWycvcP0fnXzqVhuu3KuZ24XFZ7na4uKT+EcaWfINu8phrTlsUXeSFlgyEspCBVCfLixu299HYKN2aI6LKCLU6i0E7fZKNsoyxxDM7eGTqQA9lCVW5KclUM=
+	t=1783090069; cv=none; b=Zn634T5JIcd9n74kC55Py3WH+s7BHZwwWdnJ8gNbWPtH91jrbqqljBnZSrrAk7IMR166deidzlpjlJTvXUuoPIkRLklV9CL3gEVIe/rmPxOT+l60rnCLZRHTjp23JvxuEzOyY2cjHDOgwQSO9WYVV5pfK30YvH9oTCktHsmFmM0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783088729; c=relaxed/simple;
-	bh=zZxZbH6595Xq322X5wWbuLYwtAjMqlVtcthEp/oj7us=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=WvqChU+5EHxEXLNn6fT/LSOj9hfzohNtje25u0L72lDrN8M3jIjuRkGRLfQqUUQAPJwu1j7kIwgo+rrIBl5U0AoiMC1YXtkgnfAGKJoSJtGG5QWhJSd/3+CIHlVFhQsflzUeBH6932cy1mubWIwkUG9c/AZZkYDuqUqnFBr2SGM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=nxlshdFc; arc=none smtp.client-ip=209.85.128.46
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	s=arc-20240116; t=1783090069; c=relaxed/simple;
+	bh=Pr/t5CKKqjZ2u7bSEGWUEE5BqBi2ctCZoxC/EVseXfY=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=mncyPhUrVbQWeNcYRyLW2d7rQIYieE0VH7cojRavjffQk80VD37QwYkEZRSA0QUmr4OicBSm1rfSbjTkB4nIih1mzJErM9LxoYu//P0L63l1Gb+Z7o4/wyliX76NNm37ar7nacp8AFR4qzQD+oIZOoSxZzR5eqdV6rHRG5+TQVY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=cirque.corp-partner.google.com; spf=pass smtp.mailfrom=cirque.corp-partner.google.com; dkim=pass (2048-bit key) header.d=cirque-corp-partner-google-com.20251104.gappssmtp.com header.i=@cirque-corp-partner-google-com.20251104.gappssmtp.com header.b=xY2LmFzD; arc=none smtp.client-ip=74.125.227.130
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=cirque.corp-partner.google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=cirque.corp-partner.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="nxlshdFc"
-Received: by mail-wm1-f46.google.com with SMTP id 5b1f17b1804b1-493b779003fso2993315e9.3
-        for <linux-input@vger.kernel.org>; Fri, 03 Jul 2026 07:25:26 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=cirque-corp-partner-google-com.20251104.gappssmtp.com header.i=@cirque-corp-partner-google-com.20251104.gappssmtp.com header.b="xY2LmFzD"
+Received: by mail-pj2-f2.google.com with SMTP id d9443c01a7336-2c9e8da469fso3261085ad.1
+        for <linux-input@vger.kernel.org>; Fri, 03 Jul 2026 07:47:46 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1783088725; x=1783693525; darn=vger.kernel.org;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=JUk3WyCzjRTJDLUduYl8EcNRLI38i6zEbMJ49FtDSSw=;
-        b=nxlshdFcqsWDXhGlicbEVQY0100PbOBUyOAnyX4Jc7UFgjTIr1BBhkI3YXGgX3XoaM
-         OhkgkEZZuMJrrGcPqXF7VtbClvrJP1hqKNvErCAdDepJ0AHufk/lTIuYZ3yEmL2tgKMV
-         bcfqym3DBPC3NXwNsTVF6Sg7WcLFIXzpV5ODkb5Cyp0yB2nSVEbRhWG/oqOWP2S8kOjQ
-         1Y4bYCaoSSAT1v/fc5dGJpn8BSHQe36+B0vnyqP4nGvfGZb1xHotZSbwkoTXlWSbNmJR
-         QCYwJ80vkGL9UZo9NIY5zT4VHb9XYzGOBvepQ/M5yDNs19e7tHR13uZ5JkdlCt67kzZ3
-         zVeA==
+        d=cirque-corp-partner-google-com.20251104.gappssmtp.com; s=20251104; t=1783090066; x=1783694866; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:reply-to:message-id:date
+         :subject:cc:to:from:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=4zewTOSj27HCMVvbGtl/CSvKs//H0h0bxW8ITTMyrog=;
+        b=xY2LmFzDHJ2t182ud4ZT0B8SIMPv+yTs81YpO8ei6q3JKLgoRMdHqbVarGtM0pB+OB
+         BXezjHj4F77bT30m8K/FWMRw2rPHjuHwHyuDGB7AMx6LcIQQD6v51i103AUZNroIoSxz
+         ErgIS0ljVWhSNVs5ClhQxeRYuZouJDK453M5VCwV/1B22qZ7dwA1FnTRdF+YeVrLJkBd
+         dF2qSiECNodnrHLiFQuQjXjsGYjqEl3NuXlNT93OMJTwLOLEdIFecuVZRMmzK4KHPOjO
+         RDWEnVY6ngIf1OorLaDAjYHNFs/d5ixerXkc994gZciIdfi+NhiNpCFkhsXdNI4JH6gn
+         VpVg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1783088725; x=1783693525;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=JUk3WyCzjRTJDLUduYl8EcNRLI38i6zEbMJ49FtDSSw=;
-        b=CcvVNmDLOwJCdiv1Sxg3wG+Fzr1bPJ3q+IAxjC9Cq9b7d2KVasDBl9r+KqQ4mn/x0C
-         oXtPQkTO/QJ2ziNbNBZBI/Sm7xu3GHcwU1h0yNFYOqv2Zc82eNoPQZvHw1iPC+dehCCk
-         UsEZxauDpwPCHVWKPG1SBohpPweaMcvQV1doPttBCwEJ2K4RexzxbjI+yUhze/ug/OVL
-         Z+jDIL1yoxzjfDMBErlXNNci1yIxR+C+VwBYP6ZJiOaQKpI5aW9U+/ppDgMwUYpOuA6t
-         aDQHLt7UL1RzfFPBOBFLc1F7w1tWBbdoA+/8fXeIJrjW5K+BokBtyyWjEo9PbWapMSvG
-         ydOw==
-X-Forwarded-Encrypted: i=1; AFNElJ89XoYh7gme21a3ItY2/QRywwPCyGoaeDaRZBCHaG//mYxSNo0kGeL228c4IVr3WD2oTYwtijgNGe066A==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yw+wT9vrWdGy42bpFnAw/R3ACov+SSmoOLhY5BXSpB5bX8N2P4o
-	aEN0DqK+bFABJ3P7Ai0FTu1DV5mYkoq1zv0zNBsDxrT/hCiTqQR1pinlcJSKDw5pCw==
-X-Gm-Gg: AfdE7cmmMpMH4bpEDyNCdR6s9NX2gjpKtxjpagtMc1DfiK4UX74C0lAalUrbf1RdskX
-	LiVQKaZ7hqLpBZspD2OAQG7ZJTRVX23xfEAINxb19sagh3b9O0h2LA5oL+bvNPEPuU1AwbF7BvY
-	Va7sPxfjCvPgUucPrQ+nL6FJAfAIN48yVh0chBptMbgZoNxurHQBR/yzHH+ggtf2GLInbuCJSyj
-	Pdm6TVs6M/7+9oQTkmUuSVz8qhs37PtB5Zs9juZ9EBTApSdpPfHZWLlaL4IPHyYVVK/LbJ1tawM
-	3NvKiLKA1WwKScoeg03qjjPQ/uZ72VBq7an6fWnzGuEVJsA17H0U8SRQS+wkDAvsTFn2eT0g1az
-	O2qNC28YFMCEb2+Yb1nPVbdSAMrR2IWI63WMYzS5AYebAnRyyN8rNDIrE3NFGg5qSFoSVwt7RWg
-	oQfq29Mp+l7oSTit1IWrzS8CyrYrlMqBPNmw54q4eb6B0s2E/u4bMAHA==
-X-Received: by 2002:a05:600c:154f:b0:493:c453:600f with SMTP id 5b1f17b1804b1-493d0f096a3mr1332665e9.6.1783088724566;
-        Fri, 03 Jul 2026 07:25:24 -0700 (PDT)
-Received: from google.com ([2a00:79e0:288a:8:26a3:e133:527c:310f])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-493ccd9d607sm72829725e9.2.2026.07.03.07.25.23
+        d=1e100.net; s=20251104; t=1783090066; x=1783694866;
+        h=content-transfer-encoding:mime-version:reply-to:message-id:date
+         :subject:cc:to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=4zewTOSj27HCMVvbGtl/CSvKs//H0h0bxW8ITTMyrog=;
+        b=X4isfXMc0MNJuA1BIqwb0kN44LE5dBEjZ0hZJ3Y1Hu0wiZaezsTFAQmtvzMhqwvPLZ
+         aHyImn75vDQntpybledBgh4hkQ6q9hLeApBpFIGC0JLhOs/dQlISb2/+1xzyIv79x7cw
+         dvsHic4GjpwfD87BIkuQth4kjLHTtT84HiO/5eODCwcVQVW/Mncr/x6iMQyv/TL01WN2
+         wN6zPStOIzFtdeQgjPo6JiFziTpwRfpAt6+pfPPDmEEB3jBGjhSeCwxwmYRMDqDR4Gz6
+         c7JK3IDCEWmKPd92gRR/6BVz7Ye4bsLFi7SesIOArWRMJYrNE69TXXEnFbEDFo7f97nr
+         65Ww==
+X-Gm-Message-State: AOJu0YxNDvojOe4kyei2JDy/5XmPWXerPv/5j6s975dr70Pk0YPkJa/I
+	ytInvTcSXIco6CxiUx88Xxcmb/WKl8RzObjbTAgCJXaWowqdwKE5KOEcpauYDPsm3Uw=
+X-Gm-Gg: AfdE7ck2os0QUNUxkGivlBtdYupYaJvueG3gOIkm8E+6OQPreGK+Rb07YyjASlKGu7W
+	QrIQ05tr9yhjehz/6U66lSgVdROr2SuYYScOSDSx6um/Sm9JEhok9cUgWpnqFx0Pq8KAIVsdT4D
+	/rn1t3ZhknCS7yY+uklr6BVFrMgPgLU8pZ5EDaQ4/qYq4WMpO6xIAS40HmW/7kRDbQwXKUQvjei
+	T31eh6DPibdsFaHIEy2v/zk4149MqP9PsCKO1tPLDtl1Vj5kHfpaSlcZhIE4dIrQAL16JhLw7/E
+	MrYz9JXowBPqT3OMdA5ro1miAp1S1RXr1JfYPGmdKAexN99BTUKkVnV0saa8XsNvPfk3k53KrQq
+	kneOng2yGsDESUjVtyutZNZagoYrpAWo1jaIL2amW0vBl5r2tz9m5Wu8F0gB2KM8rSBTzf+/uf9
+	HG0YZ9nuJ7lA==
+X-Received: by 2002:a17:902:ef48:b0:2c2:62ee:5a0d with SMTP id d9443c01a7336-2ca9114e600mr104007235ad.14.1783090066112;
+        Fri, 03 Jul 2026 07:47:46 -0700 (PDT)
+Received: from Armorhide.. ([2601:680:ce01:1ab0:8a12:eaca:af3b:aa7d])
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-13b3c7fa65asm21610833c88.6.2026.07.03.07.47.45
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 03 Jul 2026 07:25:23 -0700 (PDT)
-Date: Fri, 3 Jul 2026 16:25:18 +0200
-From: =?utf-8?Q?G=C3=BCnther?= Noack <gnoack@google.com>
-To: "Derek J. Clark" <derekjohn.clark@gmail.com>
-Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>,
-	"Pierre-Loup A . Griffais" <pgriffais@valvesoftware.com>,
-	Lee Jones <joneslee@google.com>,
-	Lambert Fan <fanzhaoming@anopc.com>,
-	Zhouwang Huang <honjow311@gmail.com>, linux-input@vger.kernel.org,
-	linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v4 0/5] Add OneXPlayer Configuration HID Driver
-Message-ID: <akfGTjId84EjV141@google.com>
-References: <20260419042624.625746-1-derekjohn.clark@gmail.com>
+        Fri, 03 Jul 2026 07:47:45 -0700 (PDT)
+From: Vadim Klishko <vadim@cirque.corp-partner.google.com>
+X-Google-Original-From: Vadim Klishko <vadim@cirque.com>
+To: jikos@kernel.org
+Cc: linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Vadim Klishko <vadim@cirque.com>
+Subject: [PATCH] Add a quirk for a Cirque I2C device.
+Date: Fri,  3 Jul 2026 08:47:26 -0600
+Message-Id: <20260703144726.14808-1-vadim@cirque.com>
+X-Mailer: git-send-email 2.34.1
+Reply-To: vadim@cirque.com
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20260419042624.625746-1-derekjohn.clark@gmail.com>
 
-Hello Derek!
+Cirque touchpads with PID D0C1 generate an error when probed
+by the I2C HID driver, resulting in no hidraw device created.
 
-On Sat, Apr 18, 2026 at 09:26:19PM -0700, Derek J. Clark wrote:
-> Adds an HID driver for OneXPlayer HID configuration devices. There are
-> currently 2 generations of OneXPlayer HID protocol. The first (OneXPlayer
-> F1 series) only provides an RGB control interface over HID. The Second
-> (X1 mini series, G1 series, AOKZOE A1X) also includes a hardware level
-> button mapping interface, vibration intensity settings, and the ability
-> to switch output between xinput and a debug mode that can be used to debug
-> the button mapping. Some devices (G1 Series, APEX) use a hybrid of Gen1
-> RGB control and Gen 2 controller settings. To ensure there is no conflicts
-> when the driver is loaded, we skip creating the RGB interface for Gen 2
-> devices if there is a DMI match.
-> 
-> I'll also add a note that Gen 1 devices also have an interface for
-> setting the key map and debug mode, but that is done entirely over a
-> serial TTY device so it is not able to be added to this driver. There
-> are also some "Gen 0" devices (OneXPlayer 2 Series) also use it, but
-> the TTY interface also handles the RGB control so no support is
-> provided by this driver for those interfaces.
-> 
-> Signed-off-by: Derel J. Clark <derekjohn.clark@gmail.com>
+Signed-off-by: Vadim Klishko <vadim@cirque.com>
+---
+ drivers/hid/hid-ids.h              | 1 +
+ drivers/hid/i2c-hid/i2c-hid-core.c | 2 ++
+ 2 files changed, 3 insertions(+)
 
-Sorry I am late to this review, but here are two issues I discovered
-when looking at the code:
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 1059922baaac..496589277bd5 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -334,6 +334,7 @@
+ 
+ #define I2C_VENDOR_ID_CIRQUE           0x0488
+ #define I2C_PRODUCT_ID_CIRQUE_1063     0x1063
++#define I2C_PRODUCT_ID_CIRQUE_D0C1     0xD0C1
+ 
+ #define USB_VENDOR_ID_CJTOUCH		0x24b8
+ #define USB_DEVICE_ID_CJTOUCH_MULTI_TOUCH_0020	0x0020
+diff --git a/drivers/hid/i2c-hid/i2c-hid-core.c b/drivers/hid/i2c-hid/i2c-hid-core.c
+index 3adb16366e93..63004bcbfa71 100644
+--- a/drivers/hid/i2c-hid/i2c-hid-core.c
++++ b/drivers/hid/i2c-hid/i2c-hid-core.c
+@@ -136,6 +136,8 @@ static const struct i2c_hid_quirks {
+ 		I2C_HID_QUIRK_BAD_INPUT_SIZE },
+ 	{ I2C_VENDOR_ID_CIRQUE, I2C_PRODUCT_ID_CIRQUE_1063,
+ 		I2C_HID_QUIRK_NO_SLEEP_ON_SUSPEND },
++	{ I2C_VENDOR_ID_CIRQUE, I2C_PRODUCT_ID_CIRQUE_D0C1,
++		I2C_HID_QUIRK_NO_IRQ_AFTER_RESET },
+ 	/*
+ 	 * Without additional power on command, at least some QTEC devices send garbage
+ 	 */
+-- 
+2.34.1
 
-(1) The functions oxp_hid_raw_event_gen_1() and
-    oxp_hid_raw_event_gen_2() are both forgetting to do bounds checks
-    against the "size" argument.
-
-    For real devices, which send a real report descriptor, these buffers
-    will be large enough, but a device that sends a faked report
-    descriptor can provoke an out-of-bounds-read here by underspecifying
-    the size for these reports.
-
-(2) oxp_hid_probe() and other functions are populating drvdata, and
-    drvdata is a static variable.  If you plug in two of these devices
-    at the same time, they will step on each other's toes, and this
-    leads to all kinds of memory corruption problems when they do.
-
-    I believe the right way to go about this is to allocate a separate
-    piece of memory for each device that you are plugging in.  Other
-    device drivers do this uing devm_kzalloc().
-
-Disclaimer:
-
-I found these through code inspection and curiosity but have not tried
-to reproduce the crashes.
-
-Per Linux's official threat model[1], these are not considered security
-vulnerabilities.  An attacker who impersonates a USB device and gains
-illegitimate access to the USB port might be able to provoke these bugs
-though, and I wouldn't be surprised if (2) also just leads to system
-crashes when using two of these devices at the same time.
-
-—Günther
-
-[1] https://docs.kernel.org/process/threat-model.html

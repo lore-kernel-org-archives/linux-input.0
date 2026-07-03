@@ -1,163 +1,160 @@
-Received: from mail-yw1-f175.google.com (mail-yw1-f175.google.com [209.85.128.175])
+Received: from mail-pg1-f180.google.com (mail-pg1-f180.google.com [209.85.215.180])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E576D3B2FD6
-	for <linux-input@vger.kernel.org>; Fri,  3 Jul 2026 11:26:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.128.175
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783078001; cv=pass; b=NJsIPxTuW958Fdi+8hWNzw/EzcmLOxDT5MzDSvA3tjKC9wfbBJIVXLvVbKjJCSKKtqyAuVJOnOvx3ura5QjiMoAvCbCSxmkraho9WnHyc9dQi+ZekPfF97RI7pADcWLvqsdyler8E4QrhJDgw1Z71p6DfyvUVVfKDY//D3NRf+4=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783078001; c=relaxed/simple;
-	bh=/CAFK4yhODh1yEw20nMKqBWtMNKPIlPR6Gy/WquBXTA=;
-	h=In-Reply-To:References:MIME-Version:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=h4+ipky+WCOE56LpWGZPASHmc+Uw/AM0MG64fy1tCCyGF00SqafC09xV/wNYjQSSmeNiV79NZ4hKFz4sluuPthV2KJO8BrUJ0j74ou2cBGTmlBid3MDV72c0StnhyUt863A8kxNP8VVhcXkzzMckseHUQECARZ70ebIdAkmqeUI=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=BkHjPHDK; arc=pass smtp.client-ip=209.85.128.175
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F39323CB8FF
+	for <linux-input@vger.kernel.org>; Fri,  3 Jul 2026 11:56:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.180
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1783079774; cv=none; b=pzdbolThWR3Swe/NVDNvi9lL28Ayl/3gwMuel35ylL+qF5MVtQIQRgjZthf2saBm3RUIWkKV2DzbVpgSYsZGH2olf5mhlQV3uYXmO0zovJmuiiUuEYvU8ElUnoF8UnZH/Qx5dWH+rav+buiH/vErAoI8e++JE/JOeC5eCGDVcvY=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1783079774; c=relaxed/simple;
+	bh=rrXrFfcpgUSDXcQY8qvwp2yElhHCMUlGClGvoeo/dXg=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=B7m9pp3gBmQjnp3oQELcKmQBD7x1QIveGNYpjjQ5NhfSS3ShsDWSENIErPKzPnnXBrPd64oj6uq83pYI8nxs+ZOV46OMuwLT6pBF7gD33RO8QAk9Cyk4ncNtioZfDWcl+jLaIg8nwJUzXIlIlOdehowNUEFGHDQLWPCXNBuaxyE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=Qsg8MNgx; arc=none smtp.client-ip=209.85.215.180
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="BkHjPHDK"
-Received: by mail-yw1-f175.google.com with SMTP id 00721157ae682-8114a4542b2so5956127b3.1
-        for <linux-input@vger.kernel.org>; Fri, 03 Jul 2026 04:26:35 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1783077993; cv=none;
-        d=google.com; s=arc-20260327;
-        b=abUNCHNfJt+0958DABPQ8GJENv66I7T4DHU0nIrlrQGjNU0lwbDWW+iJAWxPD3fDdm
-         9aytWdJq0N+dkBHNlaRi5zdwb9lbZqGr1M21F1tVAVNDcuvg/S/Pc2yNhyM1wA4cmVOD
-         ykJNOQNPhCMtP9GS6vRFc5OJToyXehEHE0faF2Ah3YoHb86stGfPUybfBli07mdS9ykW
-         /9J/AntKQQ10oFA2z4fQQ+l0IYoNJwVJwBLoP0AQcVEwVLC9LJd+MQCgS7xpoKCXb+uC
-         8z9hvrUb16K2jnhFNX7aQqntFXZ3/j6d5xRBLrZX1xU+/Ts+RpyjWYbmTtzIuQX1ZERG
-         7yaQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=cc:to:subject:message-id:date:from:mime-version:references
-         :in-reply-to:dkim-signature;
-        bh=IUWcySxxjMkS00aSrMa0juLU5GaJEWe+OlyppKldV1w=;
-        fh=SaguKdilmUCqjaGJ1RXqjfUGwx8Fiw6hHSY2z25+ydU=;
-        b=WS3tYNBxr8hDDBHNtVXFu+X+i8POpVHa6dcZKqVgcK6SuWe89dgitva3bvV7WjPvyC
-         hFK9usCJzuNfPpBEOTLueGumk2f/guQMCQhCKAXpo1W0Xw0rSLKjAHjTwoQQBt+hFK9y
-         pdp9qOQc+nf8gK8yFrgJkn/RV8uvGc/IVgJrV4uBdXB9K1h7bc11BH6HtWx2aHuLb7sn
-         BWt0dwBo3ks7DIrcti5EpNjyVOE2Ni3TCFd5mXxeH3w7lEACZjHiikKqIioCsoT3J0dI
-         G6lYh0WEvM6Jr87xYjpbtebvTxfX+qiqC23hR/hNkrB5qn17cuz0/Lih9aQLj3ntH7yV
-         HZXA==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="Qsg8MNgx"
+Received: by mail-pg1-f180.google.com with SMTP id 41be03b00d2f7-c88cc025f54so322642a12.1
+        for <linux-input@vger.kernel.org>; Fri, 03 Jul 2026 04:56:11 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1783077993; x=1783682793; darn=vger.kernel.org;
-        h=content-type:cc:to:subject:message-id:date:from:mime-version
-         :references:in-reply-to:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=IUWcySxxjMkS00aSrMa0juLU5GaJEWe+OlyppKldV1w=;
-        b=BkHjPHDKsE5ocjVF4YkGNj1ZTVIldSh3EgS9+NMnat+X+251hCf3v4CiTEfhhkx1nq
-         NUgxfiHmk5XyKneNNPqi6mXA4Pez9nNT48WGMOOFXIPWjAW5Q4JLXdZejeP9nnNdTCsB
-         n+Bt6n+2sPdyomOeG76vOk+3B7/ovejhG0kYNQb3MMH55C9dNntHYL7XWuR7mgNMs/Go
-         kJqQbKL+MXSkL0JhrD6isB/AIfRqSquYf9x9pkiYVKR37jbttK1IHDTiO12XpIhQjcjJ
-         CpMUJ48tS22kMQs6Fti/d6tSGM8gxApM+woc7GNJg0whjf+rWF860NE+K4jnYHCWtfcf
-         d/dA==
+        d=chromium.org; s=google; t=1783079771; x=1783684571; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=0B1463+Qr0zm+lZPP190miffZziNrhNxavOC7rjqnck=;
+        b=Qsg8MNgxHOiDVYwLJvnUZbkm5bpwUET7r1xC2E02Uvf5aGplsCvOlGYWuXogoR+5p3
+         1lautF1sisCpvXQcsbnA+tYiPy8P4+czKTXs7qajFt4w4dXawchCjijqliBWFCGX2Gte
+         fYPWTiLOCqET9QChst021pmTav38m+aHFp9pM=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1783077993; x=1783682793;
-        h=content-type:cc:to:subject:message-id:date:from:mime-version
-         :references:in-reply-to:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=IUWcySxxjMkS00aSrMa0juLU5GaJEWe+OlyppKldV1w=;
-        b=Wyonj46jJBA6EJLv+BV/9XQnCjLtwEqwMglsyGyx4kBT6A5E5vvxwXjx5BduKk+wAu
-         63+1RDCcys0FRUiXUjyFm5yJ/9ZExpxMB3aJ9j6Buam1XmB+DGc/e8cqB8VL7j8mGpkt
-         m1Tpm7ZseniJqsERjjuyIN1cu9dWwbVMd/L950rw4j6b9talq4RldHDCIsgtNK3aduUP
-         aOnNZ569JCG7x3xuSablzrlj8r/kJub+SS1E70sS2IXScaTs+lsWmIJLVk6/Vg0pUg40
-         HwPqlrbFWXuc2XALV3Nf0ZbFPvgT6lE/eObREKEksy6rRU1wyjoKo89cFRx0DmUG7IVX
-         kmkw==
-X-Forwarded-Encrypted: i=1; AHgh+Rpl1Bv7n8H4eULZDKcdbzA5R3W8bWKEM7yXYfCpp32avkOltigfpSHQswwpJOpIDsW21nnNR2LOKJHu4A==@vger.kernel.org
-X-Gm-Message-State: AOJu0YzQj/zJu3iygR2umVMg2yZ5t0+xytNI5bzy7YjG2VWmJM6GOdEn
-	xYaovYgxCI2WP58jJjhI02kBkW5WtcXR6lZpgBNnqJBDfZwTeWIcm6Q5iJ1sN+PhNaMqpp3J1zu
-	ISpV0r9ci8xSKXZiDyz3ivIln9KDRpst1jZyK
-X-Gm-Gg: AfdE7cn1tf1v/k54AstCtG+qlp5lKIYjU/d5LefMCOq8QEAHm9U/FO7WhydxlizJcxR
-	1VSzBaOvVXsPdaFFulzFIU7Vp9vlTJfdRo66yxC/L8K4WqhheOdxfaIEWw7HWpCQT4SX/q/07Wp
-	dEnllJSiW8aNEJ4+7FJFJV0/nf5t0+J9EiPD3u+BhHMHWxZLHA0PTNJDjMsvH9S6tG2NsdD8BE3
-	cbu4qKgzP2ORm/WbCUFCKXfyghJJEd2e3R70j2Ija4jNRSMfq7YLQOuTAcA41xRx8V1ec3ndA==
-X-Received: by 2002:a05:690c:c6c2:b0:814:3d8f:7ae3 with SMTP id
- 00721157ae682-8143d8fd391mr67070857b3.39.1783077993494; Fri, 03 Jul 2026
- 04:26:33 -0700 (PDT)
-Received: from 77377267392 named unknown by gmailapi.google.com with HTTPREST;
- Fri, 3 Jul 2026 04:26:31 -0700
-Received: from 77377267392 named unknown by gmailapi.google.com with HTTPREST;
- Fri, 3 Jul 2026 04:26:31 -0700
-In-Reply-To: <20260702222145.1863104-9-vi@endrift.com>
-References: <20260702222145.1863104-1-vi@endrift.com> <20260702222145.1863104-9-vi@endrift.com>
+        d=1e100.net; s=20251104; t=1783079771; x=1783684571;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=0B1463+Qr0zm+lZPP190miffZziNrhNxavOC7rjqnck=;
+        b=ip+o05ezZG316RKquv0YUfegqp+s//QlGHLtS/EBFje1kADBpH6Ax771G6KIK/Cl3D
+         QHTJsoXUcMM1USBmgSJRxpdbI5qT8S60SQZSWs+tShOR1vUlMvjr85iUflE1dGxLc117
+         4A6YEQaGvpIU1aOdwklWvikDU9NdST853g64c9d3pDREXrEFK5hXR6oLcQuMIKcSEluc
+         +3NfX4po9PoA/xYusfLIbWOZ9po2Q9tnHuu/qPRMr7QqZ/V9EP2pL3VKIgRmrk8TykOJ
+         iX+NcP4glK+h5MVqSS8xAr12lo127dAiIj7SDjBa6fIQX0vaJyseoCFCsekIJGckRf15
+         FcNg==
+X-Forwarded-Encrypted: i=1; AFNElJ9wC/bkb23klA3sab0YVcepzIWzor5tMaSRCM0LH2liJzTVdELtJnShFXOC7KW+ffIYFTix2Z+bbJZqBQ==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yxevc1eb/uwY7GZZ8VQyNGoB3DOgqz5XOS37dZu9C74IijvZOE+
+	h8ELhIsQQg3XM+qLAHckHPJ1XvW8LIncF4qpht/iLEstJpu3bWUgFLmLQRBlSXgXZg==
+X-Gm-Gg: AfdE7claAeLf8ebCt0A89e/mquXHhqDXIinURhAnVozJGvFxe0O/jxhraPtcA1+hGuH
+	LtdPVV4GlF7Kj+6AJC0auVBLw3Kkg1guPckYUTLPYI+wNqoR2HlLNzoXhLuYm/XF+0t5H6sv6h+
+	OIJZA0tzvnTu6h97FxAocYz8pUvo50/NZOZPgXixU0XZZqgjk/0majWBnLZN8OAQQdFMo3VhpY3
+	b45cUcDlBXmwI4VJ0lmW/N6ZoxjePiQJVnSgIIUQBbm0F0JXPyT07IEcWJEg6zDtdjZy6yEGCIU
+	ubuSyF3G2Ppvg59ROdyosLr0TFVKA3byUDmHO0oSOY3ssBAgFVcaeTYxRz4sCLY3XizQILIeOM0
+	EthtzFfkEq6gsrbEMzwrX1SNybxp2xQaxXpISlSEsVcoREGWF2RwTHMCvCp8bUN/f9R1GR0wiqv
+	LGSPyMG6gcrRHezOsHM7p83d1nJgYNSr0Mlu6eUb9gmXDbnnoVI4qxlZK+knRYHz+SX4lHtw==
+X-Received: by 2002:a05:6a20:1602:b0:3bf:6f30:1ccd with SMTP id adf61e73a8af0-3bfed505340mr13580575637.42.1783079771207;
+        Fri, 03 Jul 2026 04:56:11 -0700 (PDT)
+Received: from wenstp920.tpe.corp.google.com ([2a00:79e0:201d:8:7bc5:6c83:76cd:cbd6])
+        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-c9e8bd30ca5sm2569540a12.0.2026.07.03.04.56.08
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 03 Jul 2026 04:56:10 -0700 (PDT)
+From: Chen-Yu Tsai <wenst@chromium.org>
+To: Matthias Brugger <matthias.bgg@gmail.com>,
+	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
+	Benson Leung <bleung@chromium.org>,
+	Tzung-Bi Shih <tzungbi@kernel.org>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Jiri Kosina <jikos@kernel.org>,
+	Andi Shyti <andi.shyti@kernel.org>
+Cc: Chen-Yu Tsai <wenst@chromium.org>,
+	linux-mediatek@lists.infradead.org,
+	devicetree@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	chrome-platform@lists.linux.dev,
+	linux-input@vger.kernel.org,
+	linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH v2 0/7] arm64: mediatek: Chromebook trackpad supply fixes
+Date: Fri,  3 Jul 2026 19:55:53 +0800
+Message-ID: <20260703115601.1323491-1-wenst@chromium.org>
+X-Mailer: git-send-email 2.55.0.rc0.799.gd6f94ed593-goog
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-From: Yousef Alhouseen <alhouseenyousef@gmail.com>
-Date: Fri, 3 Jul 2026 04:26:31 -0700
-X-Gm-Features: AVVi8Cc3cljdn3PT8-lHy-9Ib0ceJ3WskpQPZkP9pJp2g64DvzlwUrTqDF3zoD0
-Message-ID: <CAMuQ4bVSA-Ca8RKaCeRASO=HJV=hkPDNOPyfdg6TZm7BQURnSA@mail.gmail.com>
-Subject: Re: [PATCH 09/10] HID: steam: Reject short reads
-To: vi@endrift.com
-Cc: jikos@kernel.org, bentiss@kernel.org, linux-input@vger.kernel.org, 
-	syzbot+75f3f9bff8c510602d36@syzkaller.appspotmail.com
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 
-Hi Vicki,
+Hi everyone,
 
-I think the length comparison is reversed here.
+This series fixes the trackpad descriptions on some MediaTek-based
+Chromebooks: either the trackpad's supply was set as always-on to
+workaround missing delays in the driver, or the delay and supply
+are missing from the trackpad's device node.
 
-hid_hw_raw_request() includes the report-ID byte in ret, while
-steam_recv_report() strips that byte before copying, so only ret - 1
-bytes are present in data. The encoded report body is data[1] + 2
-bytes (command, length, and payload). A short report therefore
-satisfies:
+v1 was just the first patch [1]. It has since grown to cover multiple
+drivers and devices.
 
-	ret - 1 < data[1] + 2
 
-or equivalently:
+Patch 1 adds the correct enable delay after enabling the supply regulator
+for the Elan trackpad to initialize. Compared to v1, the delay is now
+skipped if the regulator was already enabled to avoid impacting boot
+time or time before the trackpad is operational.
 
-	ret < data[1] + 3
+Patch 2 applies the same logic of skipping the power on delay to the
+i2c-hid-of driver.
 
-The current data[1] > ret + 2 test will miss the usual short-read
-cases. Also, when ret == 2, only data[0] was copied, so reading
-data[1] is itself uninitialized despite the ret >= 2 guard.
+Patch 3 applies the same logic of skipping the power on delay to the
+i2c OF component prober library.
 
-Perhaps the check could be structured as:
+Patch 4 adds a delay between when the device node found is enabled and
+when regulator_disable() is called. This gives an asynchronously probing
+driver some time to increment the enable count of their regulator
+reference, thus keeping the device operational and allowing the driver
+to skip the initialization delay.
 
-	if (ret > 0 && (ret < 3 || ret < data[1] + 3))
-		return -EPROTO;
+Patch 5 adds the correct delay for probing trackpads for Hana devices
+to the ChromeOS OF component prober.
 
-with the diagnostic adjusted depending on whether the two-byte header
-was present.
+Patch 6 removes the "always-on" setting from the trackpad supply for
+Elm / Hana and adds the correct delay to the second source trackpad.
+This corrects the hardware description.
 
-Thanks,
-Yousef
+Patch 7 adds the supply and power on delay properties to the Synaptics
+trackpad on the Spherion device. Combined with previous driver changes
+this should cause no actual functional changes or delays.
 
-On Thu,  2 Jul 2026 15:21:42 -0700, Vicki Pfau <vi@endrift.com> wrote:
-> Steam Controller FEATURE reports encode the size of the message in the
-> message itself. Previously we were trusting that the size reported matched
-> the size we actually read, leading to a potential issue with short reads.
-> Instead, we should actually verify the length of the read.
->
-> Fixes: c164d6abf384 ("HID: add driver for Valve Steam Controller")
-> Reported-by: syzbot+75f3f9bff8c510602d36@syzkaller.appspotmail.com
-> Closes: https://syzkaller.appspot.com/bug?extid=75f3f9bff8c510602d36
->
-> Signed-off-by: Vicki Pfau <vi@endrift.com>
-> ---
-> drivers/hid/hid-steam.c | 6 ++++++
-> 1 file changed, 6 insertions(+)
->
-> diff --git a/drivers/hid/hid-steam.c b/drivers/hid/hid-steam.c
-> index 593151709cf1..e97431bc2828 100644
-> --- a/drivers/hid/hid-steam.c
-> +++ b/drivers/hid/hid-steam.c
-> @@ -389,6 +389,12 @@ static int steam_recv_report(struct steam_device *steam,
-> hid_err(steam->hdev, "%s: error %d\n", __func__, ret);
-> else
-> hid_dbg(steam->hdev, "Received report %*ph\n", ret, data);
-> +
-> + if (ret >= 2 && data[1] > ret + 2) {
-> + hid_err(steam->hdev, "%s: expected %u bytes, read %i\n",
-> + __func__, data[1] + 2, ret);
-> + return -EPROTO;
-> + }
-> return ret;
-> }
->
-> --
-> 2.54.0
+
+Please take a look. There are no build time dependencies between any
+of the patches, but the DT changes must go in after all the driver
+changes land, especially the first one adding delays to the Elan
+trackpad driver. Otherwise one could potentially end up with a
+non-functional trackpad on the device.
+
+
+Thanks
+ChenYu
+
+[1] https://lore.kernel.org/all/20241001093815.2481899-1-wenst@chromium.org/
+
+Chen-Yu Tsai (7):
+  Input: elan_i2c - Wait for initialization after enabling regulator
+    supply
+  HID: i2c-hid-of: skip post-power-on delay if already powered on
+  i2c: of-prober: skip post-power-on delay if already powered on
+  i2c: of-prober: Defer regulator_disable() on successful probe in
+    simple helper
+  platform/chrome: of_hw_prober: Add delay for hana trackpads
+  arm64: dts: mediatek: mt8173-elm-hana: Unmark trackpad supply as
+    always-on
+  arm64: dts: mediatek: mt8192-asurada-spherion: Add Synaptics
+    trackpad's supply
+
+ .../boot/dts/mediatek/mt8173-elm-hana.dtsi    |  8 +----
+ arch/arm64/boot/dts/mediatek/mt8173-elm.dtsi  |  1 -
+ .../mediatek/mt8192-asurada-spherion-r0.dts   |  2 ++
+ drivers/hid/i2c-hid/i2c-hid-of.c              |  8 ++++-
+ drivers/i2c/i2c-core-of-prober.c              | 29 +++++++++++++++----
+ drivers/input/mouse/elan_i2c_core.c           | 13 +++++++++
+ .../platform/chrome/chromeos_of_hw_prober.c   |  4 +--
+ 7 files changed, 48 insertions(+), 17 deletions(-)
+
+-- 
+2.55.0.rc0.799.gd6f94ed593-goog
+

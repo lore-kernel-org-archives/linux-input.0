@@ -1,120 +1,154 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f53.google.com (mail-wm1-f53.google.com [209.85.128.53])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F28AF2DCBE3
-	for <linux-input@vger.kernel.org>; Fri,  3 Jul 2026 16:02:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 758EA3195FA
+	for <linux-input@vger.kernel.org>; Fri,  3 Jul 2026 18:30:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.53
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783094540; cv=none; b=nNfc38iep9U+8mGLmkdkkq3UBYmCrx47KaPjWR+NEhxPGUt/c9N/DLL6MXmOuySGSxMDjvhxYEeKzWRcdg4OqXlcgd5hXMnfEKdkge5md3vKkjP6du1p+E+v+Lf1MGXqubOGcGcecE5HnXvLo/VIrpNxA2TvBcWuYlldkchTiJY=
+	t=1783103412; cv=none; b=QfkeBqV4tC2B1SIEGWJorGo4OBgFVTPhaYXIBRb/x5RC5Qd9N1+gr44y11y85vum90nfL18bXciXlDMsdBl4MNiZTogPFfkaJDI1Gb+tMnBonocXKS7WCuP8zwVuoqApn5PhhCJzIPcEwV6z4+yxnKApeZTG5XJGXqwCJx1Jc84=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783094540; c=relaxed/simple;
-	bh=53fG8RWkSbejkdRs/lHUYYfNIcaX6ciivYyVWTIcsyA=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=MOulSpqMDj+n0enpPwgIq943VKk3vaIgNYR2bYcRojPL/SkVvI06yp3v8gKCjAw5Skp6fEsCyNHyW4TAMrZAuS7p934t3XebtcCY7MyHLH7PCQdPE64BGdvhZJTp97U91Ef/fg+OVZeomghVUmWU9zDbAMysABQAA/Mzk0idxpQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=TCD6jQNl; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1783103412; c=relaxed/simple;
+	bh=jdF+XTMEqrXEdG2ItJUioWzkUtmEMcM84xIGPhaTnHw=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=iZwYwXkMZcVuPXqh5VNCfy2dIcJkCgMAijdvryyHYHaFCih2iHuRyy1kUjlvzZlo1+gOGK7VKXOjTjVTeDOvszO/4Dgp7t6PnMyDXFM1XI40UeeewhfJ8yjOQoK2AZlof1UCX518vWUaZIy/k6EIH/WJo9gO1DcKbKtWrzYIXzA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=l2O5BDUg; arc=none smtp.client-ip=209.85.128.53
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="TCD6jQNl"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17EFE1F000E9;
-	Fri,  3 Jul 2026 16:02:18 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1783094538;
-	bh=78DeKYNKFlK3lpGQEy7gOqv1L26gf02NltzsKQo0K94=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=TCD6jQNlvWXkQspjf5P1Yashcq3unSyCTR13PQVWx564vCAbCQD0Siy9DqUFNcGth
-	 uqTLKC3GzvI4SkCE/L33WaoIKgPA+SSq8lgmz1/f94YlWpUclze+8PCK7+zkJctygg
-	 riIScN80k72sIkGK1QxBrwpk4NYzcpGi69AW+IxFYMbLqFRu29U1FwI3MczKwtUNaM
-	 7sznmf4p1Yo8Ksyc+sv+hFVQoF/SZqsqdHmuHKv4PR5LLCoZmv+kR5qfp9V1lqOA9z
-	 13aIzeiO5X7meDT98Gda0LGzCKrgeFX0ekrhTerKwiAy76aeVNgyJuxz66zyjFdyXj
-	 WRBp8GSB2wamQ==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 3/3] HID: rapoo: fix missing hid_is_usb() check
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Jann Horn" <jannh@google.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260703-hid-usbcheck-v2-3-c5ed7bc94772@google.com>
-References: <20260703-hid-usbcheck-v2-0-c5ed7bc94772@google.com>
- <20260703-hid-usbcheck-v2-3-c5ed7bc94772@google.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Fri, 03 Jul 2026 16:02:17 +0000
-Message-Id: <20260703160218.17EFE1F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="l2O5BDUg"
+Received: by mail-wm1-f53.google.com with SMTP id 5b1f17b1804b1-493b8d99342so192535e9.1
+        for <linux-input@vger.kernel.org>; Fri, 03 Jul 2026 11:30:10 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20251104; t=1783103409; x=1783708209; darn=vger.kernel.org;
+        h=cc:to:message-id:content-transfer-encoding:content-type
+         :mime-version:subject:date:from:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=i/rUzSk53/USCRHP1Jq261zOjDhZqaIDYMeO3RcojEY=;
+        b=l2O5BDUgKcXmUcgtq2UMjI/ZusdQPRf6jOlN4tma+Pj3/vYsCF9utR4vOlEytL8FF1
+         IKSIRPKqT+Xs2uV5TQuURtwjRoyqidemjxI91xaJt8l9H9x7D9SMOeBRmKGoS9yRIIWj
+         dbsl5g36tpywNmMW8oSZKRkzV+X1iKiBLY462+0b2ZUpFHwB928J1aE2yulXnJc0+EXJ
+         B9QA/Wf47ZL1T5gJFE9L9opKKVFGGTMXan/XU1BAn7S3XrrNTB/sPlRVjfG2QgHHq20G
+         alAcl588gdDIbCTjqbm9ZxHw/IvsQ143UFWPcTmon5Iag8Xx8SPIrJCuL4Z0ZzZHhEVc
+         ZS/Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1783103409; x=1783708209;
+        h=cc:to:message-id:content-transfer-encoding:content-type
+         :mime-version:subject:date:from:x-gm-gg:x-gm-message-state:from:to
+         :cc:subject:date:message-id:reply-to:content-type;
+        bh=i/rUzSk53/USCRHP1Jq261zOjDhZqaIDYMeO3RcojEY=;
+        b=Yrh8ZGN8WQRgrQp03q+x9gKtRrM1AcioKtRmGF5SWrtO872+2/Qd/a1BdVHJUcd+40
+         NEFOBAkW3ULoPitpr40zXAsuYlknZMsy/Au1nwtRY1lsFpgMfgFKv/9oc1MI8LIWQzUM
+         7jXhDxcSSiIP72ZKw7cK+BtZSPEqLhG3AiQ2Ltq36BVP5VI1wSd49Ysu9FJ+4aUjMfH0
+         HPJRDzhEqc072B7UHc+TAcdPNRo7TLBExMpPIN9GC4rLUDnINwyFA7P6o/jehxfoTnPG
+         CT5bGOyg1kHJlke+pIu28O4EcSXS4VhL6fVILDq7qM1IzbYh8k4Q1L1+WoScAPRUZ2HU
+         3Mew==
+X-Forwarded-Encrypted: i=1; AFNElJ8Yzhvx2fRJP+R2cvzTfXjlW66LPhbW7G/yupqqTqCi2aiGrfre3dzFMrMhIJ7s9olezHxziwUKSQgyuw==@vger.kernel.org
+X-Gm-Message-State: AOJu0YzoKjwc8zD7iG7COz1SRFxE3NPWgg32EM+GIox+tYREZ0r/PlTb
+	8vfG/WYcxQgssm/diF+4tUnskwp4iLXu86mSQHR3R2m42VJtL89l5fKkT2dvWNni8Q==
+X-Gm-Gg: AfdE7cnuj5FvUttApfdEdirYhahXbIOFLYqUz31ZJw8A6hDJhnNfT9BBM1GdRucYLAc
+	XJEsMLRb4rNvjjdG7UuNZfsXf1bG2dou0fMJo4Xzs1QLA1W4asuem8cqQj57sTS4kpjKZGN8WKZ
+	u12XUsomESF/HOBif6GzHffq5sihnidCzX88inmZvCwiEkDVCWYRMlbW8NOWWQJr12xrA0cjrPj
+	HU7Y4nOxtEOJK+WbamnukgROIRFWASDoZbOzMwTWagvDm71dLG26EZBUCIJBD6V54HqKCx0VBND
+	LI4U8w4IgBSaYtE52x7EumS7tt5dH5BENa0Ed+Rn+jLFL0DjD19xXfCvcaZ1xWrUZx5+wvllipn
+	O4I/ELnmF7+Nk5egIvL5b7TO0QOfDm73At4ajt3Vf1G2gb6MfGJrjs0bwrKb5R7AOzEHLGnX6hl
+	asSxh/HST3CxpPqQkiT0IHkqkeb3Q85/uR1nBRLpN53mvN6DV8ZLjIkMsKOWP6Oewc3JjXAJE=
+X-Received: by 2002:a05:600d:8499:10b0:493:b24e:5c48 with SMTP id 5b1f17b1804b1-493d1057702mr190545e9.11.1783103408374;
+        Fri, 03 Jul 2026 11:30:08 -0700 (PDT)
+Received: from localhost ([2a00:79e0:288a:8:c0d:89b8:4c51:d7de])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-493ccd9d620sm72590245e9.1.2026.07.03.11.30.07
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 03 Jul 2026 11:30:07 -0700 (PDT)
+From: Jann Horn <jannh@google.com>
+Date: Fri, 03 Jul 2026 20:30:02 +0200
+Subject: [PATCH] HID: core: fix number/pointer type confusion on long items
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20260703-hid-core-data-typeconfusion-v1-1-3c63c0d77ab1@google.com>
+X-B4-Tracking: v=1; b=H4sIAKn/R2oC/yXMwQ7CIBCE4Vdp9uwm2EaMvorxgMtg1wM0QI2m6
+ buX6ty+w/wLFWRFoWu3UMZbi6bYcDx0JKOLT7D6ZupNb83ZDDyqZ0kZ7F11XL8TJMUw7z++nMR
+ a40IbqBWmjKCfX/12/7vMjxek7kla1w31Aei1fwAAAA==
+X-Change-ID: 20260703-hid-core-data-typeconfusion-95c660affffe
+To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>
+Cc: Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, stable@vger.kernel.org, 
+ Jann Horn <jannh@google.com>
+X-Mailer: b4 0.15.2
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1783103404; l=2252;
+ i=jannh@google.com; s=20240730; h=from:subject:message-id;
+ bh=jdF+XTMEqrXEdG2ItJUioWzkUtmEMcM84xIGPhaTnHw=;
+ b=OXUC3Gp3ZPVD4A6+OXcCEMLUJm9RKFPXkHp2MXgSFOAi+65mC6JjgEDX/ROS8HIo2KCAoCOgN
+ PD0DTsVikCYDQkJq4i5Gabfj9kxZF9Q5p1WjSUVNl7eQfiFxxMcLakv
+X-Developer-Key: i=jannh@google.com; a=ed25519;
+ pk=AljNtGOzXeF6khBXDJVVvwSEkVDGnnZZYqfWhP1V+C8=
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
+When fetch_item() is called by hid_scan_report() on an item with
+HID_ITEM_TAG_LONG, it stores a pointer to the item data in
+item->data.longdata instead of storing a value directly in
+item->data.{u8/u16/u32}.
 
-Pre-existing issues:
-- [High] Missing hid_hw_stop() cleanup on error paths in rapoo_probe() caus=
-es hardware resource leaks and a Use-After-Free.
---
+When item_udata() or item_sdata() encounters such an item, it incorrectly
+assumes that the item is in short format, and therefore returns the lower
+part of a kernel pointer reinterpreted as a number.
 
-commit ed7992bab1a88e74142aa29aa65b4061257a86cb
-Author: Jann Horn <jannh@google.com>
+When a HID device is connected whose descriptor contains a
+HID_GLOBAL_ITEM_TAG_REPORT_SIZE encoded in long format with size=4, this
+causes the lower half of a kernel pointer to be printed into dmesg as a
+number, like this:
 
-HID: rapoo: fix missing hid_is_usb() check
+    hid (null): invalid report_size 107953555
 
-This commit adds a hid_is_usb() check before calling to_usb_interface() to
-handle uhid devices reporting BUS_USB without an actual USB parent. It also
-adds a USB_HID dependency for hid_is_usb().
+To fix it, let item_udata() and item_sdata() verify that the item is in
+short format.
 
-[ ... ]
+Note that this bug only affects hid_scan_report(), while the main parsing
+pass hid_parse_collections() will always bail out when encountering a long
+item.
 
-> diff --git a/drivers/hid/hid-rapoo.c b/drivers/hid/hid-rapoo.c
-> index 4c81f3086de43..5c9c396fabf77 100644
-> --- a/drivers/hid/hid-rapoo.c
-> +++ b/drivers/hid/hid-rapoo.c
-> @@ -36,7 +36,7 @@ static int rapoo_probe(struct hid_device *hdev, const s=
-truct hid_device_id *id)
->  		return ret;
->  	}
-> =20
-> -	if (hdev->bus =3D=3D BUS_USB) {
-> +	if (hid_is_usb(hdev)) {
->  		struct usb_interface *intf =3D to_usb_interface(hdev->dev.parent);
-> =20
->  		if (intf->cur_altsetting->desc.bInterfaceNumber !=3D 1)
+Sidenote: There are currently no users of data.longdata; maybe we should
+just remove any parsing of long-format descriptors as a follow-up.
 
-[Severity: High]
-This is a pre-existing issue, but are we missing hid_hw_stop() calls on the
-error paths later in rapoo_probe()?
+Fixes: 3dc8fc083dbf ("HID: Use hid_parser for pre-scanning the report descriptors")
+Cc: stable@vger.kernel.org
+Signed-off-by: Jann Horn <jannh@google.com>
+---
+ drivers/hid/hid-core.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-If devm_input_allocate_device() fails, the code returns -ENOMEM directly:
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 41a79e43c82b..d6676505e122 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -379,6 +379,9 @@ static int hid_add_field(struct hid_parser *parser, unsigned report_type, unsign
+ 
+ static u32 item_udata(struct hid_item *item)
+ {
++	if (item->format != HID_ITEM_FORMAT_SHORT)
++		return 0;
++
+ 	switch (item->size) {
+ 	case 1: return item->data.u8;
+ 	case 2: return item->data.u16;
+@@ -389,6 +392,9 @@ static u32 item_udata(struct hid_item *item)
+ 
+ static s32 item_sdata(struct hid_item *item)
+ {
++	if (item->format != HID_ITEM_FORMAT_SHORT)
++		return 0;
++
+ 	switch (item->size) {
+ 	case 1: return item->data.s8;
+ 	case 2: return item->data.s16;
 
-	input =3D devm_input_allocate_device(&hdev->dev);
-	if (!input)
-		return -ENOMEM;
+---
+base-commit: 51512e22efe813d8223de27f6fd02a8a48ea2323
+change-id: 20260703-hid-core-data-typeconfusion-95c660affffe
 
-Similarly, if input_register_device() fails, it returns the error:
+Best regards,
+--  
+Jann Horn <jannh@google.com>
 
-	ret =3D input_register_device(input);
-	if (ret)
-		return ret;
-
-When returning these errors after hid_hw_start() has succeeded, the HID core
-probe fails and sets hdev->driver to NULL, but hid_hw_stop() is never called
-to stop the hardware and kill active URBs.
-
-When the device is later unplugged, usbhid_disconnect() frees the usbhid
-structure, but skips hid_hw_stop() because hdev->driver is NULL.
-
-Because active USB URBs are not killed, when the USB core later flushes the
-endpoints and cancels the URBs, the completion handler hid_irq_in() attempts
-to clear state bits in the already-freed usbhid structure, like calling
-clear_bit(HID_IN_RUNNING, &usbhid->iofl).
-
-This results in a use-after-free write memory corruption. While this requir=
-es
-local physical access to the USB port and specific conditions like memory
-pressure to induce a probe failure, it guarantees memory corruption when
-triggered.
-
-Would it be better to add an error label that calls hid_hw_stop() when the
-input device allocation or registration fails?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260703-hid-usbche=
-ck-v2-0-c5ed7bc94772@google.com?part=3D3

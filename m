@@ -1,124 +1,112 @@
-Received: from mail-wm1-f50.google.com (mail-wm1-f50.google.com [209.85.128.50])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 58E2341735F
-	for <linux-input@vger.kernel.org>; Fri,  3 Jul 2026 15:27:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.50
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1F64B4189A0
+	for <linux-input@vger.kernel.org>; Fri,  3 Jul 2026 15:29:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783092436; cv=none; b=LgplrxiPnXzrpCbmw6tzjtKqwnOvM/mBYCBuZaDc4E5E6w/FhuKE2S8Nhbd56rIwxjpXaPvFVVAb+WwnYx8achfBfe21l11mhwgi2kjIwG7RiAYJN//C9wKrB8JEhkUCEZ3fE8Ij+rgneLHMmzAdgCsdgyYUvUE38YZsvmOeHn8=
+	t=1783092587; cv=none; b=VQe+wVJeCzjgYdkqMnLTqHjmyoC61ct628h14qYCqOdqwYmJ1yZySlGk5AfBlGYITkhwHBeKJDAuklSf/mGkZ109x9R3u8HUHtT67HEUOi+CxvOLePAyyFr23aPds7JW6aJRAMmwSGEKPIJ71tuyqvPPxpxSNzOtL2HpruqHZdI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783092436; c=relaxed/simple;
-	bh=TukiYcyaL6HvstWzY9oV1D0LPs+P1LWTmZhuuNPqXrI=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=taVEe5fl1BepVDy+73f7tkf/UrvJOieRGFr+X1V2iI7mOLw6/hUMHCylQihAKiSN5sU36++stSO0tRwzqdvIE5lrjYQb03ougO99N1SjI+xlulWXihEJtoaSHI7Bvmef+Po0rpNZcEeLhXB/HhtoEobBmPvv71uII2za2v3NCi8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=Kxwh/pP1; arc=none smtp.client-ip=209.85.128.50
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	s=arc-20240116; t=1783092587; c=relaxed/simple;
+	bh=v/48TgxIU5C4YaGEkVowV7w8OE7prCzXNYDX803/WEA=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=n0rH8F7romPQfe5UdtbTMaf8OObsCFhhPoxrfr1aLsCx7y/+Kp7Mo5NF762oJTVj91UwYTiB0Er48cvOOLVa6K1AJWu4Z1LSMMPVyaQYnTQTYhlqHz0Rs6O9GCsWNqJjKosb5eYNC33TecNQ4bxLZ5zr2swqqcYdVv3VctBSXGU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ONNXCATs; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="Kxwh/pP1"
-Received: by mail-wm1-f50.google.com with SMTP id 5b1f17b1804b1-493be0fbcc5so184625e9.0
-        for <linux-input@vger.kernel.org>; Fri, 03 Jul 2026 08:27:15 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1783092434; x=1783697234; darn=vger.kernel.org;
-        h=cc:to:message-id:content-transfer-encoding:content-type
-         :mime-version:subject:date:from:from:to:cc:subject:date:message-id
-         :reply-to:content-type;
-        bh=7jpWuBmgCfnac9kWe4AodWLj+AdSLC8VyDipYsDjci0=;
-        b=Kxwh/pP1e3GlSdUkvwxexCLYyk2B6pOPZfxTrOplLomg/qHxRy4ReW5Vn2GdNG+55O
-         vrMeVpt1Vt6OFKofBjJU6wS194EG1PjS5cd7F75gV8cLOUCuy3g25/E/jMLfFtrjdl4n
-         VIdTO41eWQ+T7FvuBWUY3LqaJMpsJSrHgawSlc+o6hHm02/xr9r3L5fhfMforWPGK+sQ
-         ioJZvq0kQK2JNOVCTbTsrGDP6GDkQTz/eW6Uev/5qWkX/47Y1YsmpJpXFnLRFgzCMNiG
-         Kj8ManE6UThUlEaW/BKnpuXiP0CA8BuliYFA4IzsaOwfuYXK66Nkgo3eLX1jaB1JqkD8
-         yMIA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1783092434; x=1783697234;
-        h=cc:to:message-id:content-transfer-encoding:content-type
-         :mime-version:subject:date:from:x-gm-gg:x-gm-message-state:from:to
-         :cc:subject:date:message-id:reply-to:content-type;
-        bh=7jpWuBmgCfnac9kWe4AodWLj+AdSLC8VyDipYsDjci0=;
-        b=fE8zx1hGpXjveuQq/eLBqv5s0R5eKXA8TWqYX5w1KGO7oXuTis8A9FMwlJr1PjaBmv
-         zHne9gMZPjj6SWctinzSMgGol0OlcpSM7NorbqociBK0JDB6BFm5LL1xDoFYeK57BQHH
-         L4xjivsSRJNOvRGMOQz98C9vkwpliBh0Jas1wj81YAicnLffFfse6AtX55VUOTCeIFMl
-         lBkp9wo71p2kbSMEKeBk37VwMatpx+nOGUz5Kof96axyEuOQ1BFTh9W7Ihqx7SDKm+9u
-         PQOkoirQUnV9WORk/XUaOHOpEnibjFO0p4YWimRO2GdZzpDiqy7EDVfQh1Qp7ap/rGip
-         GshA==
-X-Forwarded-Encrypted: i=1; AFNElJ+LIKqumtatBRJ5t18b7StefKVYmS3KETRa1RaVri18Joo74rDX4YZSKtADp+fAPNNnzQ7Fvp3HpCE8tg==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yz+w59bFZ+qUnLE4KXcBbYLpYRrn+HYjeJ1nfE22dgkis+XrPPI
-	jWiy4R2sjV8dfAnj9ZiIAIxpzLTEP6WTOh101NdBHE9v5xCoqkH+AUu36v1KFKxCfw==
-X-Gm-Gg: AfdE7cnTjMLUyx/KiMfF1bCBtoP0trgcJL5MBXNPKkg0CzFkGpAqijsTQWhF4WszNH1
-	GhGy6ECYFXbeEYKF1sQv8iiQxd6SNRbv51VAcsXhjgIcBwzLNe9CztJe9S7G2Vpo4APIjTU4Y5H
-	/IkXq2u+HpEPZcB/OHCe9OZFWh8chsWThOW8yuL6Pr7ew9mTL2PZGCg2uf7JmsUdHOyLL6/KTnA
-	3nT3f7bDRKKTOP8f9HtMAO7j8VF06XCrt50Ft8fzJINZGayloMorSt+e0nAJiZ3gGw63yl/6Wnc
-	G/5yzZBdXvqL4hQgUY7RPsTUv0mjrHOaOZxqRYYKlbhsza4s3nYTQh9VJj3XmVSulKKzsmv4t6c
-	K7awjp/cwMqLC65XYJycYCYPOLG4xR/t9L/VYG0VjiMfw76DKmTVvOCkevtlrNMwKzfInrKnEu3
-	XaGSbCkwlTaEus6VlDaoFZt3z4cJx7OgeNc8duyaoBATviGVF8Q9oVLZdvlUqghusd474mPj4=
-X-Received: by 2002:a05:600c:b4e:b0:493:c1a0:7fdc with SMTP id 5b1f17b1804b1-493d0fe58a3mr39155e9.0.1783092433298;
-        Fri, 03 Jul 2026 08:27:13 -0700 (PDT)
-Received: from localhost ([2a00:79e0:288a:8:c0d:89b8:4c51:d7de])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-47a9e4d6e4csm128009f8f.10.2026.07.03.08.27.12
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 03 Jul 2026 08:27:12 -0700 (PDT)
-From: Jann Horn <jannh@google.com>
-Date: Fri, 03 Jul 2026 17:27:06 +0200
-Subject: [PATCH] HID: asus: fix UAF of ->kbd_backlight on !CONFIG_ASUS_WMI
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ONNXCATs"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E4681F000E9;
+	Fri,  3 Jul 2026 15:29:45 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1783092585;
+	bh=YQzB3vs7+EDwC1ihPcYw37KNoZm1BHWgkFRFZ3yj9mI=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=ONNXCATsE2MfXE+o6YPULlU1yEXzi042oq21ifKKmoKCuOk+U+Ur1ZDH6VwYWUbhl
+	 eqczT+ah2paWSDFRxfP8tybT6kNsGVOo8Vdkxuwg2Gttltomu/3bMLm5zFEtBcv/0V
+	 g4lf/EwcmJlfXoiQSwBZCvbnh29RKtDS4bfodFWw+Fyu6ucCvo8obEEHfPS0ddzQeU
+	 6X4miAuAWq/cT33Tiy6EP3BGujvX74CVGpDi/sU6fwVVlzgY1b1MMT46J5zphsTUP1
+	 srp/WElU/j5XKZPPz6So96cAgsnrwVcFOtSic9WBTzjzUPw501MWgq7n74TyoHg+a+
+	 yaYpUpjthommw==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH 3/3] HID: rapoo: fix missing hid_is_usb() check
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Jann Horn" <jannh@google.com>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <20260703-hid-usbcheck-v1-3-e80259ff625d@google.com>
+References: <20260703-hid-usbcheck-v1-0-e80259ff625d@google.com>
+ <20260703-hid-usbcheck-v1-3-e80259ff625d@google.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Fri, 03 Jul 2026 15:29:45 +0000
+Message-Id: <20260703152945.8E4681F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20260703-hid-asus-uaf-v1-1-1a2af2534eb0@google.com>
-X-B4-Tracking: v=1; b=H4sIAMnUR2oC/yXMTQqEMAxA4atI1hOIFX/wKjKLWlONC5VmKoJ4d
- +u4/BbvnaAchBXa7ITAu6isS0L+ycBNdhkZZUgGQ6aimgqcZECrUTFaj9Q3nBem9I4IUrIF9nL
- 8d933tcZ+Zvd7HnBdN+42d09wAAAA
-X-Change-ID: 20260703-hid-asus-uaf-0b8e1325fc00
-To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>
-Cc: Carlo Caione <carlo@endlessm.com>, linux-input@vger.kernel.org, 
- linux-kernel@vger.kernel.org, stable@vger.kernel.org, 
- Jann Horn <jannh@google.com>
-X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1783092432; l=1129;
- i=jannh@google.com; s=20240730; h=from:subject:message-id;
- bh=TukiYcyaL6HvstWzY9oV1D0LPs+P1LWTmZhuuNPqXrI=;
- b=XC0Y/aLHtVUdK7FUQMa2p9np9WV2IGgb8xx+nXYLcWs2l9I+0i+dkh4YaSSE+qi0S3EGr9E0+
- eEOGREV+LiQAxNk8xsse4T12xmiEnjNbM7o2w3o/NhX7dJYqDHzWTEU
-X-Developer-Key: i=jannh@google.com; a=ed25519;
- pk=AljNtGOzXeF6khBXDJVVvwSEkVDGnnZZYqfWhP1V+C8=
 
-On kernels without !CONFIG_ASUS_WMI, asus_hid_register_listener() will
-fail. asus_kbd_register_leds() reacts to this by freeing
-drvdata->kbd_backlight, but doesn't NULL out the pointer, causing UAF when
-asus_remove() follows this pointer.
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+s) to consider:
+- [Low] Missing Kconfig dependency `depends on USB_HID` for `CONFIG_HID_RAP=
+OO` causes a linker error.
+- [Low] Malformed `Fixes:` tags in the commit message.
+--
 
-I have tested that this bug causes an ASAN splat, and that this change
-fixes the issue.
+commit ac5c5d7fc93db76e1ff4b587da9d47600a05ff83
+Author: Jann Horn <jannh@google.com>
+HID: rapoo: fix missing hid_is_usb() check
 
-Cc: stable@vger.kernel.org
-Fixes: af22a610bc38 ("HID: asus: support backlight on USB keyboards")
-Signed-off-by: Jann Horn <jannh@google.com>
----
- drivers/hid/hid-asus.c | 1 +
- 1 file changed, 1 insertion(+)
+This commit fixes a potential splat by verifying a HID device is actually on
+a USB bus before casting its parent to a usb_interface.
 
-diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
-index 3f5e96900b67..c2a5edebbd7a 100644
---- a/drivers/hid/hid-asus.c
-+++ b/drivers/hid/hid-asus.c
-@@ -777,6 +777,7 @@ static int asus_kbd_register_leds(struct hid_device *hdev)
- 	if (ret < 0) {
- 		/* No need to have this still around */
- 		devm_kfree(&hdev->dev, drvdata->kbd_backlight);
-+		drvdata->kbd_backlight = NULL;
- 	}
- 
- 	return ret;
+>     I have verified that it is currently possible to trigger a kernel spl=
+at due
+>     to this bug in an ASAN build, and that this commit fixes the issue.
+>    =20
+>     Fixes: 00e005c952f7 ("hid-asus: check ROG Ally MCU version and warn")=
+Fixes: b3b1c68fb726 ("HID: rapoo: Add support for side buttons on RAPOO 0x2=
+015 mouse")
 
----
-base-commit: 51512e22efe813d8223de27f6fd02a8a48ea2323
-change-id: 20260703-hid-asus-uaf-0b8e1325fc00
+[Severity: Low]
+This isn't a bug, but there are two Fixes tags concatenated on the same lin=
+e.
 
-Best regards,
---  
-Jann Horn <jannh@google.com>
+Could this break automated patch parsing tools and stable backporting scrip=
+ts
+that expect each tag to be on a separate line?
 
+>     Cc: stable@vger.kernel.org
+>     Signed-off-by: Jann Horn <jannh@google.com>
+>=20
+> diff --git a/drivers/hid/hid-rapoo.c b/drivers/hid/hid-rapoo.c
+> index 4c81f3086de43..5c9c396fabf77 100644
+> --- a/drivers/hid/hid-rapoo.c
+> +++ b/drivers/hid/hid-rapoo.c
+[ ... ]
+> @@ -36,7 +36,7 @@ static int rapoo_probe(struct hid_device *hdev, const s=
+truct hid_device_id *id)
+>  		return ret;
+>  	}
+> =20
+> -	if (hdev->bus =3D=3D BUS_USB) {
+> +	if (hid_is_usb(hdev)) {
+
+[Severity: Low]
+Does the introduction of hid_is_usb() in rapoo_probe() require an update to
+the CONFIG_HID_RAPOO entry in drivers/hid/Kconfig?
+
+Because hid_is_usb() is defined and exported exclusively by the usbhid modu=
+le,
+if a user configures the kernel with CONFIG_HID_RAPOO=3Dy and CONFIG_USB_HI=
+D=3Dn
+(or m), will this cause a build failure during the linking stage due to an
+undefined reference?
+
+Should CONFIG_HID_RAPOO now explicitly depend on USB_HID?
+
+>  		struct usb_interface *intf =3D to_usb_interface(hdev->dev.parent);
+> =20
+>  		if (intf->cur_altsetting->desc.bInterfaceNumber !=3D 1)
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260703-hid-usbche=
+ck-v1-0-e80259ff625d@google.com?part=3D3

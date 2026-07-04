@@ -1,69 +1,76 @@
-Received: from mail-pj1-f54.google.com (mail-pj1-f54.google.com [209.85.216.54])
+Received: from mail-pl1-f177.google.com (mail-pl1-f177.google.com [209.85.214.177])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5DCFB2F39AB
-	for <linux-input@vger.kernel.org>; Sat,  4 Jul 2026 23:35:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.54
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E2B2D3A7D9E
+	for <linux-input@vger.kernel.org>; Sat,  4 Jul 2026 23:44:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783208141; cv=none; b=qt93891eQg1OmvjuHheO2yiE5OOmZ1BmSVyjwiebotEVBW/9A1w7N0qEde8eo3rh1C5ifbxTbAiYJ091b+djOfp4zZePHqAH6PqDPbEA6IfXeed82MD+jUI8e3yGBl/ZWrKkl7y1XgimiuLkyRKkHqZExPaKWywIdUkRwT0s9KE=
+	t=1783208664; cv=none; b=f3Ck+9mD8a5TxlMRgwDivFw8bvSOlX9pGn74DEs0ZH8GTV/AHSn5Lm9kIjfEcfN2mLWShnzKUfYp/OSYCo2Kst6N0BJV6/bLsrAXAb/sQaXn/RSDeCKDoai6mly1mtLMUy7x/kHcYSr7yXDRaNylpd78yQrx+PbPqa7MJon0xPQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783208141; c=relaxed/simple;
-	bh=R4iYCCtDh/N9PUQT4zIlhD+NyxjSMHOpjNNiya639So=;
+	s=arc-20240116; t=1783208664; c=relaxed/simple;
+	bh=XIsNZqam6KN+ptafPrdhyS2Xv8HOzf1ASRI1tweH4UI=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=cQcUst3FTUVh82eCW3cBO0mq+aoRmRYkVQJoWuUmRscH2kjIskltY8QqnyPMmsSpmeUNAdo3GtGjS2WRqxs6sOgtScQgkZDYTB7nu94O+wxl9aM2UtZmVQVySU85FFEsTtDRBxF0k1yucLrpFyHhSqFT2zvwnSkinUwQ2B0zFgo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=RilbJj0y; arc=none smtp.client-ip=209.85.216.54
+	 Content-Type:Content-Disposition:In-Reply-To; b=kdStBj20Q1G/aHwBf7H8NkwWNSsxcUdAOYYlZxJBgqNIY7sH/Unwh9fRjPvZDfueX4j9LxoKK+tZ1xi0bquYi4ijhAKmkF1pexXcUYMm/AwN89uEeOiUp0CJlpGQH1eSjpraUH6sY9nQrZCeLMX7S7FuWBR1aCzZV5sQQ72r4H8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=A6uCffPV; arc=none smtp.client-ip=209.85.214.177
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="RilbJj0y"
-Received: by mail-pj1-f54.google.com with SMTP id 98e67ed59e1d1-380cda7f00cso1431261a91.0
-        for <linux-input@vger.kernel.org>; Sat, 04 Jul 2026 16:35:40 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="A6uCffPV"
+Received: by mail-pl1-f177.google.com with SMTP id d9443c01a7336-2cac59f8b64so19800105ad.0
+        for <linux-input@vger.kernel.org>; Sat, 04 Jul 2026 16:44:22 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1783208140; x=1783812940; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1783208662; x=1783813462; darn=vger.kernel.org;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=wRx5zPwOOd2INJTzzY1Zg0ZOlJO5/PjlM0sjjwbLZDU=;
-        b=RilbJj0y+vCq4GQkixYpE0nPwSiErv7nW0EK6+mIUBpoUP5SJxehW2QGXVArLj4/tR
-         GSmnK+R9tmLXl+k9URSstkfvTQFiucKnaA1hVUrW3+OezLo7qxD5rXI8SOWSjKpIMPL1
-         ZTS0lTNpa7g1F2qFAdLAIHyjp+20VkpzPlmhJXEF+yWiZkoXugq4Mk4S8EVWWD0e63G4
-         DZ69GomueSd2g4yavM3nSk98kh27qZ9HKJRYSuvLH0+Wq511ckRWPSSgZtDAaCkOthPJ
-         ap79Csy42h4PJ/7wlufBhEhy94uF7XLfZ7ETt7aLFd7gq4KASOv7sSt86UNnACeaqBNy
-         OQdQ==
+        bh=ijJ32Xash5Jt49SnX7A5/BLB4XwCy86Iuli9undALZU=;
+        b=A6uCffPV5VnJ4tFYEtayNLe3TcmhtfKdU2A3PIMSu4gSnTPgb/yvm3bPOcf7R7iXPh
+         MWU668MhZcnjcOs65OYQ/QY8uesmkGPsUqTPvlAsb4dohAWIl9aNZQUterpxYXGU6J13
+         o+5/GvU2jBQQEXpiK5k4Yy4ef/Ymkl4TBZKrFYC4UoRdTZlCOOluZujWO+iCTgdQGFlp
+         qul/gf/3F31+Z7umsgEOUy8jIUd+/KplFB7E+AKH107TMAmhjvCXZerzCSXMb8UIiHxM
+         yr0ehU0kGAr0CwndP6krnKRiC08O7J7B5TW+KO6dZyaUDXwg9RIH7K+oBqAe3Es7COs2
+         GPUw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1783208140; x=1783812940;
+        d=1e100.net; s=20251104; t=1783208662; x=1783813462;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=wRx5zPwOOd2INJTzzY1Zg0ZOlJO5/PjlM0sjjwbLZDU=;
-        b=qKwACEzs9KZn+Pn0yIfdcWsFmBmdJQFX4Jn+KS7eQvIspczm+etnmtSnpcVT1himBM
-         Cmm7W+k9yT7dLIHre4XhAyAbHLL2A+4VE/goM091lHLgu25QQKrZXRq4Hnb6KhWiHnZR
-         l0MJGbnDBGDpV4dxd+8eW2uft5ZIjJkNzctTl8JKsVhO+UFy+2iIol25r7aQdI0QGa5c
-         zwzD0oaMyBLUMTX5kisybBWJ64nITMZ2dIptcllg+Si6pJZDJpGgZocxItti+xoSnlIL
-         OQWPqggeMO/VlhKKnblETF/Uf+EkBUu2E72WiSWhz9/JNSnFYLHXiYpxPr0/3Hbb+VhC
-         cimg==
-X-Gm-Message-State: AOJu0YyqaxDom+JlFxub2t/Y8BrKo9bXChBFFReJg0qObLAXzdrQb1Ix
-	pjG14BhPZ1hEtOmirDKen5Fdeg0CLcXnYjPMNB0IDYIaiUvL0jba/kDe
-X-Gm-Gg: AfdE7cmls8s5Un8duCh685e8plLdPCM4F7/h54w2Q6YtdKoGQ96RJPaCVPByTz51zC+
-	cqlAyQF5KFRzpQUlqgiJT2k9n0xA4VCdMGKlzGUf1BAYwKATtaDx/D4YaiqBbvxULZgGecTc3+r
-	SCmov8Z8Y2FpGHRNmGeEbp1fGkB92EpPVItZL07bf2ZLMV3RG/xLc890okH+jInw1JnsD5Xpskj
-	wHvikoLE86IS7LYDNfJLu1u5GbmycjObrt97/ncq+5NxSc8JkVPWoyk9cZzRPYHQr75PNcAKYIU
-	iK5CRbQ2fx4bYZ9obJaPMcf7b5gomM8RPhNVslZH2nfaPMb7SfWwBwJOcNE0xaUjb8uVf5sPYYf
-	G/dnw69IlXbN/2Gz8uwhgPg1sAkC3EakWnej6nJdC5AWTRbkVOTQcnl3ah+geKYGtZxm+A1XGA2
-	a5cz5LVVV+MIuHnt7/nl7civB2d+t+yauAgxeG00jfbSUnGmSnLYtvmw==
-X-Received: by 2002:a17:90b:3c91:b0:375:2a38:1d40 with SMTP id 98e67ed59e1d1-382934ec0c9mr4526023a91.20.1783208139715;
-        Sat, 04 Jul 2026 16:35:39 -0700 (PDT)
+        bh=ijJ32Xash5Jt49SnX7A5/BLB4XwCy86Iuli9undALZU=;
+        b=AR2TpUwQu7qasMM7WlTnWTxVLrK1g17expm92uXcO+oGyXGoTMGMXUbzTTQmoTwxcr
+         IAgD4Yj8eZIw6VoClulBe+6rTKhOLiO48S59oJwHLgDVa9K39uwnm7uy8iM5RUjMyBlt
+         lkuvLwYZf0ZVCZ0s/8R/qODtXhpSFLm//P6fsf63i4+yGvN2WIROE6u+Z7tn5gsMhJzT
+         dyZavejxVCoU7EaPKp679onivnmtraA0auT39i04dE9RXB9Ym5cu+etra7aQP9cizLgt
+         MKwEzDjsf3u1xO8MNSzisxxXZRppJDLZU8HrQcT1oVb9YCVc3+y2hhCFByeCjAEmQhf+
+         qeOA==
+X-Forwarded-Encrypted: i=1; AHgh+Ro9AtAbaA8cO8T3x4z+MK+0wOpiYPzW9Q/334tE/YYYX4NiYmophz7F+F4IOryeogG70xpc5bfI6RbXDw==@vger.kernel.org
+X-Gm-Message-State: AOJu0YwTKobt13tceOZ1BSI8xHW8xHbGIGuERnz17updDzhoHls/zc+e
+	2EkIoVBfyO+PeqO4Ur8BzfU2aCDv/6kYBMw3DUUJV7YdEzNOevbJk3cg
+X-Gm-Gg: AfdE7cmCBlVE6Q8tptPX/SdAPiGQtwqeMV5UucoT/bjAC7JJzhgaY87fJyt0rrdLDdV
+	fZQiUY+OcYxMnAHEYmvO94a+ylLEOUX/3F/7yMBTvyHI5G4g3fX5Ao8uMRGUtsePqS3i5GHJdiE
+	Dk+D3oPxu4cNfg8ujLt96x/urYYdPjLveHNKIy3GgbE8JETcXAL/CunfQk2YrC3Y6X/xX+MucQg
+	pqxF2/n8JmjMPgAqOc8M6PDDbASBiBpGxRbXuMLlASZTPP4y/3gt/azUB1qe+geqxRcED/OJPEn
+	eZ+iO3XQ9LB87rWeF+EqfAGK8oDu9mJWsiB/Gvr5qhBImzUbDtK0lEV8K54nvWO5bSR9jtNTAac
+	t9/UI9XRFV1OkiOKcAqblD6UAYAlbJoQ/5lQshaHf1QYgp6GY3i3cc2quxK6q0Q2DXPXzLHxk0F
+	DLNV6Eq0wg6WzLkclMonGKpFknjKWztfMX+9qYj9XVZgAivgbohvF2yQz2DduURsXM
+X-Received: by 2002:a17:902:db05:b0:2ca:6c8:abd8 with SMTP id d9443c01a7336-2cbb74ff24dmr43520125ad.12.1783208662110;
+        Sat, 04 Jul 2026 16:44:22 -0700 (PDT)
 Received: from google.com ([2a00:79e0:2ebe:8:3f90:534a:314e:e11d])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-30f0bbd221bsm37173682eec.22.2026.07.04.16.35.38
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-13b3c7ef188sm34410696c88.2.2026.07.04.16.44.20
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 04 Jul 2026 16:35:39 -0700 (PDT)
-Date: Sat, 4 Jul 2026 16:35:36 -0700
+        Sat, 04 Jul 2026 16:44:21 -0700 (PDT)
+Date: Sat, 4 Jul 2026 16:44:18 -0700
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Pengpeng Hou <pengpeng@iscas.ac.cn>
-Cc: "open list:INPUT (KEYBOARD, MOUSE, JOYSTICK, TOUCHSCREEN)..." <linux-input@vger.kernel.org>, 
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Input: ims-pcu - add missing MODULE_DEVICE_TABLE()
-Message-ID: <akmYw5-S5DY8CGky@google.com>
-References: <20260704151730.42772-1-pengpeng@iscas.ac.cn>
+To: Chen-Yu Tsai <wenst@chromium.org>
+Cc: Matthias Brugger <matthias.bgg@gmail.com>, 
+	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, Benson Leung <bleung@chromium.org>, 
+	Tzung-Bi Shih <tzungbi@kernel.org>, Jiri Kosina <jikos@kernel.org>, 
+	Andi Shyti <andi.shyti@kernel.org>, linux-mediatek@lists.infradead.org, devicetree@vger.kernel.org, 
+	linux-arm-kernel@lists.infradead.org, chrome-platform@lists.linux.dev, linux-input@vger.kernel.org, 
+	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2 1/7] Input: elan_i2c - Wait for initialization after
+ enabling regulator supply
+Message-ID: <akmZOC_J2ZTl4zLX@google.com>
+References: <20260703115601.1323491-1-wenst@chromium.org>
+ <20260703115601.1323491-2-wenst@chromium.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -72,23 +79,38 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260704151730.42772-1-pengpeng@iscas.ac.cn>
+In-Reply-To: <20260703115601.1323491-2-wenst@chromium.org>
 
-On Sat, Jul 04, 2026 at 11:17:30PM +0800, Pengpeng Hou wrote:
-> The driver has a match table for the usb bus wired into its driver
-> structure, but the table is not exported with MODULE_DEVICE_TABLE().
-> 
-> Add the missing MODULE_DEVICE_TABLE() entry so module alias information
-> is generated for automatic module loading.
-> 
-> This is a source-level fix.  It does not claim dynamic hardware
-> reproduction; the evidence is the driver-owned match table, its use by
-> the driver registration structure, and the missing module alias
-> publication.
-> 
-> Signed-off-by: Pengpeng Hou <pengpeng@iscas.ac.cn>
+Hi Chen-Yu,
 
-Applied, thank you.
+On Fri, Jul 03, 2026 at 07:55:54PM +0800, Chen-Yu Tsai wrote:
+> Elan trackpad controllers require some delay after enabling power to
+> the controller for the hardware and firmware to initialize:
+> 
+>   - 2ms for hardware initialization
+>   - 100ms for firmware initialization
+> 
+> Until then, the hardware will not respond to I2C transfers. This was
+> observed on the MT8173 Chromebooks after the regulator supply for the
+> trackpad was changed to "not always on".
+> 
+> Add proper delays after regulator_enable() calls. To avoid impacting
+> the boot time of existing devices that have the power rails always on,
+> skip the delay if the regulator supply was already enabled. In this
+> case the regulator is either always on, was on by default at power up,
+> or was left on by some other driver, such as the I2C OF component
+> prober. Either way the controller has had ample time to initialize.
+
+Unfortunately we do not know that [it had ample time]. For this code be
+reliable we need to record the time at which given regulator was turned
+on and then execute/adjust the delay as needed. Until we have it we need
+to assume the regulator was enabled at the time of regulator_enable()
+call.
+
+I am not concerned with increased boot time too much given the driver is
+set up for asynchronous probing.
+
+Thanks.
 
 -- 
 Dmitry

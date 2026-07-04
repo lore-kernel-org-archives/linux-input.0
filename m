@@ -1,117 +1,124 @@
-Received: from mail-pf1-f175.google.com (mail-pf1-f175.google.com [209.85.210.175])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B880D345722
-	for <linux-input@vger.kernel.org>; Sat,  4 Jul 2026 16:12:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.175
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 89253246788;
+	Sat,  4 Jul 2026 16:41:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783181579; cv=none; b=LtD8y/QJiTwtQI5crBVzgnA/qOwqRLhfi/kJxH9QWL59/VIMLwnRbdg1CNYFrSzqr08hfkOYbaaJ8KLvO9TAPLKWF0An6pF/hDJQExMtBeKKg1vjbxM+C/kMQRl48XpWUokVpcC8B167WXUBD79XqBGJ8zNd62sRcc4pyUGU8eQ=
+	t=1783183293; cv=none; b=A/GJN1MkDLsT0TSgDt9GL2iGzShbQFhOm9J1ofNdMvLhiHfnSjwJxSaPVX99EEyUpC/8dSsf4homHmVF7dOCKgHz4mNNZmOK+aifIVviI3wNTvwcja98Y77jePnQChlKjpjJkkrG0L22T0wspnwopvpUYatlMqQ4ZGXUJ5mSf/A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783181579; c=relaxed/simple;
-	bh=15YSkLAkQCti5IzcfCpgR1ie8/bhUE9zxOgts1ol0qQ=;
-	h=From:To:Subject:Date:Message-ID:MIME-Version; b=h/2cJcIEGwrI7dbx6CzearHuasaXC6PtIyp4+lHkYhafMInUjw5b9ZbKdpmUhK4Cvsty/+P2+lcCrwquucCSrC6Wgd3JAe7W23XoZmBmaL33Hs7UukoFTkuQVHITG4hOZ4o+ccsfF/QqH0PtReRppSL+YvG3O0mQGud7lmTtkjk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=jDO1FfoQ; arc=none smtp.client-ip=209.85.210.175
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1783183293; c=relaxed/simple;
+	bh=JAnqXpiymMagepe418gUewTa+aRsMqZ+n3v1Mu9hvWo=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=Bzphh89gyliMKJ0v/xma01E0wj7rgD81oilyHj43M/zJ/f+NEBRquhlHgd0jf6dLCt7exclvT4/unEe1lLINBUBpuV81OXwRvMnHrCaOBFNi9UmTmUvepMmXm+T4Ov15s+E+zKIRH+Ky+0lO5sf/SsIKMD+yG/4LMrirtn4UvHc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=IGX9v9pZ; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jDO1FfoQ"
-Received: by mail-pf1-f175.google.com with SMTP id d2e1a72fcca58-847a5528b33so797857b3a.3
-        for <linux-input@vger.kernel.org>; Sat, 04 Jul 2026 09:12:58 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1783181578; x=1783786378; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:to
-         :from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=kVfJZz8SjrFuy7zkpM4CK8nsRN5F1mP1tDE3AslmNig=;
-        b=jDO1FfoQoWl63oe7sQHDR9oAmG9ONvd0B/WM+i8SLvmyEc8wdBoIceTZbVwCXrRegL
-         7at93vxFF7c36HD/Hze9aWa5qX5cjrdsJdPtxEsy0JJb8gj5MW/K3xtiY0XQnfSUASmi
-         mx/y1PAbGWAWX5+b5elURf7b7fVzD6JgDJbWsEBebe10/62PdUY3fxXFQcfy+fo7q/Ql
-         nkAHarHdeq1+FfG613E7rmXg4SmF8VueVbVasmbqCSfcaG7zrTMGCYkaJCibSuvLZ8eq
-         SD2d/KILw6ukW/IfNZmgHqA/Ds6Ek0kbUGfCSjF+jS3qm0eONDr08VJ1saIEmvHoe4xO
-         G4/A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1783181578; x=1783786378;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:to
-         :from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to:content-type;
-        bh=kVfJZz8SjrFuy7zkpM4CK8nsRN5F1mP1tDE3AslmNig=;
-        b=kK7bUxyx0KVlMf3V2lnycaecmYTA3Gqkezc9QHbUHeRtg8xUL+XXjOfbiSrG9UbopS
-         ZyP6YtDvNtp+nRgifIMHMjWLyzbP2dyVCmXt79huel8ka0fYPfd8gd6nftXVAEK/v9mU
-         wL+WNe0jw7I82XQwwzz7fwMleSDnkEPCKncXB7Ommzkjkk908CZW0SvpJ/Pi+edy9drn
-         4c3aZl1iVKXMsuja9t3WBgM2vFjiu1AmONAvKI3KQNZxo/9mqjC1JjYNlk6o/uLjuxij
-         N63VGsU/CnPSKhFMLvkB3pZvKb2N6n5cD+m99A1t6sKE0HwoimA2+v2nt6gTYOtgkBEz
-         1DyQ==
-X-Forwarded-Encrypted: i=1; AHgh+RrN8ina4XDwbMJzxYGMC/vFGOu4kUEuHHM0uV2aH8tZoKdI2WscyP2bDgzQFNQC74JcudeDgBzIlFGCdQ==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yxv/Qx5vMeZcU4p0p9ARC1nhKlaCEUa0lxLqAnXHGwX/el8Pmy3
-	+0zGst4Bd7zSYFEZMJD4gqq2nxFN3BrEFKZxbplOl8TshjK8A4j0puTcXYeQTw6/XaM=
-X-Gm-Gg: AfdE7ckiaxhmeLBPgniKI1GAeF5Exxc2A/ByFKJPmohOSAgqvbL2xv0m9VMBLJpGvP/
-	Myp4cMkc1EhL7l/tsjQGgemIEmF7hY/g8LxigLXjDI1/rx4H3VHnmVwzGpNM1tVh5zkve7F4bh5
-	2+zpBafKxNbB1MNT4FNBKYVCfmJPQaU5qI+IqKPr0zIGlrrUWHopGMAIVmVVjQ9m+CRhyVWeVEj
-	aTOLLWUFvqw1LuJ83mO47DXtJZd56/ciARTe1qZ0tG1Mzcqvy6RecduaF3rYqoFD/u/Mx+QRrx+
-	N9Fk3GQ2c1q5dVZamhtk08pw9l/lN5N6Qg3ACZg24d95YM4PtjZIH+3qJHbmfonm9gDqyJkcRIj
-	UHsIkcIb/LDtcMl28OgSJ4+wg4EngcfoAwxJMLEljrv+aw2eutkLZ3cBOdW4Fdk/2bwwQKFGBp8
-	DZf01zuQ==
-X-Received: by 2002:a05:6a00:2789:b0:845:e703:e with SMTP id d2e1a72fcca58-847f6dd4a7fmr3713537b3a.19.1783181577928;
-        Sat, 04 Jul 2026 09:12:57 -0700 (PDT)
-Received: from lgs.. ([2001:250:5800:1000::f280])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-847f6b6162esm1391522b3a.11.2026.07.04.09.12.52
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 04 Jul 2026 09:12:56 -0700 (PDT)
-From: Guangshuo Li <lgs201920130244@gmail.com>
-To: Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>,
-	Kees Cook <kees@kernel.org>,
-	Puranjay Mohan <puranjay@kernel.org>,
-	Johan Hovold <johan@kernel.org>,
-	Guangshuo Li <lgs201920130244@gmail.com>,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	bpf@vger.kernel.org
-Subject: [PATCH] HID: bpf: Fix signedness bug in hid_bpf_hw_request
-Date: Sun,  5 Jul 2026 00:07:02 +0800
-Message-ID: <20260704160703.156298-1-lgs201920130244@gmail.com>
-X-Mailer: git-send-email 2.43.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="IGX9v9pZ"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E664B1F00A3E;
+	Sat,  4 Jul 2026 16:41:29 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1783183290;
+	bh=d8Y9RZWt39sd9f3P87GWbZJYkP+XpRH6IPq9RUBbeUY=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=IGX9v9pZbx3fJEwOJMoeFkxrg+bLQnz0rrolUFaaW6e6u/9UQ955S3XkgZ1nIpBd+
+	 FRbdUBwuM+3q+umhkIJxGnu/F0sO71Q3BmQWYeDfIAY2hb8Rt3zSFUzhXWZkWz9uyt
+	 3QisvZL3KWBsi+F/dbGYzgALKESl15DpzPTrOyHskIiz/L35V1VbohwdV82AO5/zQ0
+	 buZgmLG3EkNrHFHPFiUV4H0uTdw1VXA8CVFwUDv+F9OzJotfj1E+ig+/OBnNPzNAVA
+	 WhAoiIjuJTklIPKK0ADZNm2D6ge/pzqLjEE488Zi4DeuwvoGRNld/ItchpsfhDrkWr
+	 07XjKzNMKqCNQ==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH] HID: bpf: Fix signedness bug in hid_bpf_hw_request
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Guangshuo Li" <lgs201920130244@gmail.com>
+Cc: dmitry.torokhov@gmail.com, bpf@vger.kernel.org, linux-input@vger.kernel.org
+In-Reply-To: <20260704160703.156298-1-lgs201920130244@gmail.com>
+References: <20260704160703.156298-1-lgs201920130244@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Sat, 04 Jul 2026 16:41:29 +0000
+Message-Id: <20260704164129.E664B1F00A3E@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-hid_bpf_hw_request() clamps the return value of hid_hw_raw_request() to
-the size of the caller supplied buffer before copying data back to the
-BPF buffer.
+Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+s) to consider:
 
-However, ret is signed while size is unsigned. If hid_hw_raw_request()
-returns a negative error code, the comparison promotes ret to size_t.
-This makes the negative value look like a very large positive value, so
-the error is clamped to size. The following memcpy() then treats the
-failed request as a successful transfer and copies stale data back to
-the caller.
+Pre-existing issues:
+- [Critical] Integer overflow in hid_bpf_get_data on 32-bit platforms leads=
+ to out-of-bounds pointer return.
+- [Critical] Missing bounds check on `size` in `dispatch_hid_bpf_device_eve=
+nt` leads to a kernel heap buffer overflow.
+- [High] Dereference of ZERO_SIZE_PTR when processing a 0-length HID report=
+ in hid_bpf_hw_request.
+--
 
-Only clamp positive return values. This preserves negative error codes
-while still preventing oversized successful returns from overflowing the
-caller supplied buffer.
+commit 8a657f92f1d0d08c3cf3bdf8cdaf0b05c7deec72
+Author: Guangshuo Li <lgs201920130244@gmail.com>
+Subject: HID: bpf: Fix signedness bug in hid_bpf_hw_request
 
-Fixes: 2b658c1c442e ("HID: bpf: prevent buffer overflow in hid_hw_request")
-Signed-off-by: Guangshuo Li <lgs201920130244@gmail.com>
----
- drivers/hid/bpf/hid_bpf_dispatch.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+This patch clamps positive return values from hid_hw_raw_request() to the
+size of the caller-supplied buffer. It preserves negative error codes while
+preventing oversized successful returns from overflowing the buffer.
 
-diff --git a/drivers/hid/bpf/hid_bpf_dispatch.c b/drivers/hid/bpf/hid_bpf_dispatch.c
-index d0130658091b..b13f911e5944 100644
---- a/drivers/hid/bpf/hid_bpf_dispatch.c
-+++ b/drivers/hid/bpf/hid_bpf_dispatch.c
-@@ -446,7 +446,7 @@ hid_bpf_hw_request(struct hid_bpf_ctx *ctx, __u8 *buf, size_t buf__sz,
- 					      (u64)(long)ctx,
- 					      true); /* prevent infinite recursions */
- 
--	if (ret > size)
-+	if (ret > 0 && ret > size)
- 		ret = size;
- 	if (ret > 0)
- 		memcpy(buf, dma_data, ret);
--- 
-2.43.0
+> diff --git a/drivers/hid/bpf/hid_bpf_dispatch.c b/drivers/hid/bpf/hid_bpf=
+_dispatch.c
+> index d0130658091b0..b13f911e5944a 100644
+> --- a/drivers/hid/bpf/hid_bpf_dispatch.c
+> +++ b/drivers/hid/bpf/hid_bpf_dispatch.c
+> @@ -446,7 +446,7 @@ hid_bpf_hw_request(struct hid_bpf_ctx *ctx, __u8 *buf=
+, size_t buf__sz,
+>  					      (u64)(long)ctx,
+>  					      true); /* prevent infinite recursions */
+> =20
 
+[Severity: High]
+This is a pre-existing issue, but does this code safely handle 0-length HID
+reports?
+
+In __hid_bpf_hw_check_params(), the size can be capped to 0. This causes the
+subsequent kmemdup() to return ZERO_SIZE_PTR. The dma_data pointer is then
+unconditionally dereferenced in hid_hw_raw_request() when accessing
+dma_data[0], which could cause a crash.
+
+> -	if (ret > size)
+> +	if (ret > 0 && ret > size)
+>  		ret =3D size;
+>  	if (ret > 0)
+>  		memcpy(buf, dma_data, ret);
+
+[Severity: Critical]
+This is a pre-existing issue, but can the bounds check in hid_bpf_get_data()
+overflow on 32-bit platforms?
+
+drivers/hid/bpf/hid_bpf_dispatch.c:hid_bpf_get_data() {
+    [ ... ]
+    if (rdwr_buf_size + offset > ctx->allocated_size)
+        return NULL;
+
+    return ctx_kern->data + offset;
+}
+
+The addition of rdwr_buf_size and offset could wrap around, bypassing the
+bounds check and potentially returning an out-of-bounds pointer.
+
+[Severity: Critical]
+This is a pre-existing issue, but is there a missing bounds check on size in
+dispatch_hid_bpf_device_event()?
+
+drivers/hid/bpf/hid_bpf_dispatch.c:dispatch_hid_bpf_device_event() {
+    [ ... ]
+    memset(ctx_kern.data, 0, hdev->bpf.allocated_data);
+    memcpy(ctx_kern.data, data, *size);
+    [ ... ]
+}
+
+The memcpy() uses the provided size without validating it against
+hdev->bpf.allocated_data. This could lead to a heap buffer overflow if a
+larger size is provided, such as through a UHID_INPUT event.
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260704160703.1562=
+98-1-lgs201920130244@gmail.com?part=3D1

@@ -1,67 +1,68 @@
-Received: from mail-pj1-f45.google.com (mail-pj1-f45.google.com [209.85.216.45])
+Received: from mail-pj1-f51.google.com (mail-pj1-f51.google.com [209.85.216.51])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5102D3921E6
-	for <linux-input@vger.kernel.org>; Sat,  4 Jul 2026 05:58:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F1A5C38F251
+	for <linux-input@vger.kernel.org>; Sat,  4 Jul 2026 05:58:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783144688; cv=none; b=iwlXeLctJjRa9KKN5DjDuEzlKFevtIYSRrEUNvs12sNXFcAfjBUPWF+++Q3/qmRVAVLxqt7YEBr4dvmtQ6B6jSMxrjbRi/MVu1GXspu8Tkhp48lvllSUeobCEHWLKhVrRwt0K54njQaHUvlKoEwk8VL4CkMnZ+8INFzhcfjXWHA=
+	t=1783144691; cv=none; b=L0kEHtQyw1szWx3KSi80aJNm0Johjn7Hvs6yiOp/KeDNSRIu0xCV1QdNGEpqcM38vor919sbyyFvL2yEwvAyE13aZM0XSBLoDfivFu189a5Uy+zwaKaEhtRHJF1GNT0RV+tg69v7j27shZfQ4zi1E++YXvXzpYTz22/0cwdHkco=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783144688; c=relaxed/simple;
-	bh=apjEFUKjRBYrK4iX2Kg45dCDEie0ZHB8HqcgRhupms0=;
+	s=arc-20240116; t=1783144691; c=relaxed/simple;
+	bh=x+qjLATprHWVETyBtguIFSzJzAIa57zeTCo+KlBh1GU=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=cnpAqveuNgXbtyz2gH0i8puyvOwIyMQTKa5k0NE1gC/GxPq8Yg+oNyOF9PXh1BNdtIiuj0zX+yBOr8QRc90jOjR+ckP5YvBz06FU76rC0/+1vSYolj6UnuvQB/gKhmMpJRh445LfTCKz3dA1KMKxJSq9xG1w4MDClbHFB6l3MYs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=YKlPgZ6c; arc=none smtp.client-ip=209.85.216.45
+	 In-Reply-To:To:Cc; b=Rk9T7a+Ssbv/13fJp290ZI4+Amtw4nnOpz9Qt48ISgrkA3U9FnzjsvlXJNUJ8xy368pAoFyV2eBWrNupIfl8oXoc47oYbLMR1T2iyGulf6/mif83esh7EMYBBDKUo5BxL0VMcw+eM3HtgKS/kwUc6gJZfpDrBwy06FdB7YBEbeE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=hqUKsabw; arc=none smtp.client-ip=209.85.216.51
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="YKlPgZ6c"
-Received: by mail-pj1-f45.google.com with SMTP id 98e67ed59e1d1-37fc02e660bso942175a91.0
-        for <linux-input@vger.kernel.org>; Fri, 03 Jul 2026 22:58:07 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hqUKsabw"
+Received: by mail-pj1-f51.google.com with SMTP id 98e67ed59e1d1-36b9d265355so910686a91.2
+        for <linux-input@vger.kernel.org>; Fri, 03 Jul 2026 22:58:08 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1783144686; x=1783749486; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1783144688; x=1783749488; darn=vger.kernel.org;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :mime-version:subject:date:from:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=EtRA/Iz7xW+gdF1+FPWoWbYlNNq+Ml51Iu6T+Ii+D0A=;
-        b=YKlPgZ6cqpF8rzc1ezjm8eCWjHv7dbCEE300+iGaKGf2bbUCAgMWGgLoZOuLC611St
-         ySAvyK1Xp3d2uMntCSaTvP0YtTf3E68gvnMoy7542rBk/33z1iod0yQFGp25YPhwZVZQ
-         a/lYFH+ZwSCkF3+3idAr/bQ99wEK0/XL4pCyl875uqy6bSQ19ZoCOKzcTMmGcroz+QV6
-         dAyNqZfvi8DSCx6mkcso29iMt/U1fPr1t2QQqMo/k1rQEUS3peguPLDTkra13H45Mskv
-         g6cf/UMmXw1Qe9ZcrODcZA/o3srioIJrV200a1ZQBPt5+bVf77CQ8EDC0UyDlV3wXmaR
-         69Ag==
+         :content-type:mime-version:subject:date:from:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=LjRXENzhFdJSLRiM6d5V3++2rjRXfCmisZIqwmSzJyg=;
+        b=hqUKsabwulssajAcE2+cEgHwYIE9nSin9/+Mx+zD85wAbYUVWWRN3V0unhVqiK3Lds
+         QNSulPD8BsFnXyk86M8gYLWW8udBnWTTvLbCLAgZHuoksGqQR0op0/PRuiUB4A11Q5MV
+         FywMe/8EHZmlpS57EtE7s013BfqjCnZBggCu8nB54mdza/D0eqbjf4DCRiBlNW4B1mpo
+         GcejxH3HnLzGmqEd5LC18flJDrm13TPl0mTzi5WjOGjXvvx9jUMsmt6y9VRWDaCJwhfW
+         IKiPtiglm4W/uTnVXRVrirOlROQ0Fy8zRZ8krNSSMLdG+rWEVxLpXuM5+m3kM2+OtQr5
+         87hg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1783144686; x=1783749486;
+        d=1e100.net; s=20251104; t=1783144688; x=1783749488;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :mime-version:subject:date:from:x-gm-gg:x-gm-message-state:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=EtRA/Iz7xW+gdF1+FPWoWbYlNNq+Ml51Iu6T+Ii+D0A=;
-        b=L4HUOc61r6nt4koXJywH0jJs9HlcOH07ejEa23exv37Aj/C7eIikUhLJ9p5DVhHzOa
-         OS0vV7kKXqslxHIyuniZQI9hXXQhUMMAs7pwhroxoKWi9+K5m1fum+nJGITxMDYYxdFZ
-         8Hltgfrhlsxn8DKmyC2JP0m/VY3350lddO0Q5E+kL4CMnVExhCyN+FZbq+MTiwO7PnXj
-         eXPbZJm9Ed7LAi0//Xs1LC4Yb8hDTe5u6VV0KeKJyWpgKussnCmfg5mFZC/aaW7hhZ+S
-         HRYgWlcpqfPudzuE6ioE568dEPGnAlOup2lQFQ6j8M7wcd9uLUlzpCCi5WW+KMBfrIxR
-         58Fw==
-X-Forwarded-Encrypted: i=1; AHgh+RomSWf6adVQLQPfvwMKeLcbdOwa2n/ef2yTHd4w4zXqQCgKg7uXpavtuSAVIGLw2OQaMmm8KvtT2eFTMg==@vger.kernel.org
-X-Gm-Message-State: AOJu0YwE2JshYeagnaCCYB0F8K02Rlu49S5HPIrpyuqKNQ2BTn/s3Whh
-	qBLlONY7rCCVs2OrySNtqOti2FSKej/4RUVDu8Fka4QYsL5dkPu7X6Id
-X-Gm-Gg: AfdE7cmQ6cw87ryym0y+fH/QtFNN4biUdqPazOGiMT/7sOzP8oIG6zT9Q3+RPCggw2t
-	b0s5dwYvKKN4IiOQat8iuwjgo3v0DA4NED9MzdRFQtT12RuQr26G7BJ+kbpb5vdW7hhcJajkB9o
-	EC19F84CW3wzAWd1GJrhMcwDTsDgiNsvOIzQZantE/yvPQvzzn5USsXddoHvSM0CifunrUhfmp9
-	TXEcrzSXkzWy601AUHL5j8Uw77msVoAG2rMOyzh8PZf731v9R5OVsFf7EcqQLqSrqAyKAMlUccp
-	XQjtsVmc/5y+PQwKacmWW2zjVyJejVNiWj46CcJ2aCqzlDlFZSmaJsBO7bSXUxMfP18FnWDAcOX
-	EXNGuizwDAfwrZ0rqiXG4Gq+gvgzmJm0FkATChQQY4Oc/hPDra/z142VKH4R6LgLj/1p1p4K405
-	dO1TokeSXbLOTqA07bKHcj4IufoXEegH4jgqB09TIFksD4vF6tZLrgezGA5OxqXsuLnaFx3E7Pm
-	KQ=
-X-Received: by 2002:a17:90b:3f8b:b0:37f:ed7e:7e42 with SMTP id 98e67ed59e1d1-38281185463mr2376208a91.14.1783144686491;
-        Fri, 03 Jul 2026 22:58:06 -0700 (PDT)
+         :content-type:mime-version:subject:date:from:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=LjRXENzhFdJSLRiM6d5V3++2rjRXfCmisZIqwmSzJyg=;
+        b=tIzzJIFyB8oa7exjKhvW+KBN7WuU9boZhWy+kjXrAALgixpqNptsXpfTWv9q4JIw2U
+         eJesRjB5agve/MieD0rK2ZhfSaYbIEYmCo9PPriUIzaTCLr4PMDbkzhZgwwfnmoLRRxN
+         5Hsc8sW7Xn0VAZkVtLSmurhyL3rqkibCh7TbpmiaJVKrRzTca/Sx8E8LT7d+DRDoV14Q
+         maG5LKZvS40Qcvcz9hBRYvtDF50pB8YVwIK/b+l4onYG4F2TrEn28TmUKQSU2fnA+N90
+         D1TK+jnKUpaumQVw6Ip/AxYH3lXwK4rDwLttwPLKyIqN/Qg5h/NchsEkO02d3EkDP2VF
+         5RRg==
+X-Forwarded-Encrypted: i=1; AHgh+RpbpIPksk4gpJpH/A5fqvPhiSlHjhur8t+TNtxw9x+An6S7mqRWi2euiUmUCXllgm7AllG/LPFlvFA4Uw==@vger.kernel.org
+X-Gm-Message-State: AOJu0YzDXGMNKH9hgzba7D72kVa48MERRFcm+tNG3dBug6X82wUuzXwA
+	sY2Ts566y5knOrkKf0ExmmwcIm/Q5sfWOa7aP6d39XfG3nGmwfLAdr0e
+X-Gm-Gg: AfdE7ckv5FM/cT8/fZ/55RQol26Q6V+MAk5n+H8/JhGI/Vih8oRLeX5Oa8DKkt/QbWx
+	m9MRIGDTrFBn2PRWS8Q4iMAdEmI8IrFemKGhbBT3Hdbob39/PfbET0skWbzzyd+7fY+qQEv+e1R
+	BYw8m+vswyKQdjWxcn5hJIg34ahmrp4KGmGIj16gcFT/mckNlfq8GwmdU47f7pGKmXjDlToW/w8
+	gPRICWFG2xsXQkEZ66gqRjlEFLNKz1pfcHIdHU0UX9DwiUlTiuyy4itkdJhUt/s/eZjFfKB/QI6
+	IM7Ew8zJ/LqvVgHLJJe5eo0t39A8V/CAnyM0sG+55rYjvut2ezR55x5w1TcjSMlezkyTGKqbgPc
+	R3BM2v0aqu2VZErcLMRLEEnCrj/cLkN2fc4/w85bEphr2yTuyokFDMSpDi++Ne0Y8hPUJylH9xh
+	GfkYKzzvKIHegyrWW4x0ySyGPXSsV5hvVliUx0P6VnC/olib4jHcQ9zaYKrVA9XbqMwtoGFePdr
+	jQ=
+X-Received: by 2002:a17:90b:2c8e:b0:37f:464d:ea38 with SMTP id 98e67ed59e1d1-3825c50c2ccmr2400537a91.0.1783144688130;
+        Fri, 03 Jul 2026 22:58:08 -0700 (PDT)
 Received: from dtor-ws.sjc.corp.google.com ([2a00:79e0:2ebe:8:880:86f9:3b00:6746])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-30f0b813cd9sm26262412eec.8.2026.07.03.22.58.04
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-30f0b813cd9sm26262412eec.8.2026.07.03.22.58.06
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 03 Jul 2026 22:58:05 -0700 (PDT)
+        Fri, 03 Jul 2026 22:58:07 -0700 (PDT)
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Date: Fri, 03 Jul 2026 22:57:43 -0700
-Subject: [PATCH 20/26] Input: maple_keyb - convert to devm
+Date: Fri, 03 Jul 2026 22:57:44 -0700
+Subject: [PATCH 21/26] Input: maplemouse - convert to devm
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -70,7 +71,7 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260703-b4-maple-cleanup-v1-20-41e424964da5@gmail.com>
+Message-Id: <20260703-b4-maple-cleanup-v1-21-41e424964da5@gmail.com>
 References: <20260703-b4-maple-cleanup-v1-0-41e424964da5@gmail.com>
 In-Reply-To: <20260703-b4-maple-cleanup-v1-0-41e424964da5@gmail.com>
 To: Miquel Raynal <miquel.raynal@bootlin.com>, 
@@ -86,70 +87,76 @@ X-Mailer: b4 0.16-dev-6911d
 Convert the driver to use managed resources to simplify resource
 lifecycle management.
 
-This eliminates manual error handling in probe() and removes manual
-input device unregistration and memory freeing from remove().
+This eliminates manual error handling in probe() and allows removing
+the remove() callback entirely, as all cleanup is handled automatically.
 
 Assisted-by: Antigravity:gemini-3.5-flash
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 ---
- drivers/input/keyboard/maple_keyb.c | 29 +++++++++--------------------
- 1 file changed, 9 insertions(+), 20 deletions(-)
+ drivers/input/mouse/maplemouse.c | 37 +++++++++----------------------------
+ 1 file changed, 9 insertions(+), 28 deletions(-)
 
-diff --git a/drivers/input/keyboard/maple_keyb.c b/drivers/input/keyboard/maple_keyb.c
-index aa9a4a80e26f..bd4ce803a13e 100644
---- a/drivers/input/keyboard/maple_keyb.c
-+++ b/drivers/input/keyboard/maple_keyb.c
-@@ -155,17 +155,13 @@ static int probe_maple_kbd(struct maple_device *mdev)
- 	struct dc_kbd *kbd;
- 	struct input_dev *idev;
+diff --git a/drivers/input/mouse/maplemouse.c b/drivers/input/mouse/maplemouse.c
+index 03cb666d278d..7842bd46c9a1 100644
+--- a/drivers/input/mouse/maplemouse.c
++++ b/drivers/input/mouse/maplemouse.c
+@@ -70,17 +70,13 @@ static int probe_maple_mouse(struct maple_device *mdev)
+ 	struct input_dev *input_dev;
+ 	struct dc_mouse *mse;
  
--	kbd = kzalloc_obj(*kbd);
--	if (!kbd) {
+-	mse = kzalloc_obj(*mse);
+-	if (!mse) {
 -		error = -ENOMEM;
 -		goto fail;
 -	}
-+	kbd = devm_kzalloc(&mdev->dev, sizeof(*kbd), GFP_KERNEL);
-+	if (!kbd)
-+		return -ENOMEM;
- 
--	idev = input_allocate_device();
--	if (!idev) {
+-
+-	input_dev = input_allocate_device();
+-	if (!input_dev) {
 -		error = -ENOMEM;
--		goto fail_idev_alloc;
+-		goto fail_nomem;
 -	}
-+	idev = devm_input_allocate_device(&mdev->dev);
-+	if (!idev)
++	mse = devm_kzalloc(&mdev->dev, sizeof(*mse), GFP_KERNEL);
++	if (!mse)
++		return -ENOMEM;
++
++	input_dev = devm_input_allocate_device(&mdev->dev);
++	if (!input_dev)
 +		return -ENOMEM;
  
- 	kbd->dev = idev;
- 	memcpy(kbd->keycode, dc_kbd_keycode, sizeof(kbd->keycode));
-@@ -179,7 +175,6 @@ static int probe_maple_kbd(struct maple_device *mdev)
- 	idev->keycodesize = sizeof(unsigned short);
- 	idev->keycodemax = ARRAY_SIZE(kbd->keycode);
- 	idev->id.bustype = BUS_HOST;
--	idev->dev.parent = &mdev->dev;
- 	idev->open = dc_kbd_open;
- 	idev->close = dc_kbd_close;
- 
-@@ -191,15 +186,9 @@ static int probe_maple_kbd(struct maple_device *mdev)
- 
- 	error = input_register_device(idev);
+ 	mse->dev = input_dev;
+ 	mse->mdev = mdev;
+@@ -99,29 +95,14 @@ static int probe_maple_mouse(struct maple_device *mdev)
+ 	input_dev->id.bustype = BUS_HOST;
+ 	error =	input_register_device(input_dev);
  	if (error)
 -		goto fail_register;
 -	return error;
 -
 -fail_register:
--	input_free_device(idev);
--fail_idev_alloc:
--	kfree(kbd);
+-	input_free_device(input_dev);
+-fail_nomem:
+-	kfree(mse);
 -fail:
 -	return error;
+-}
 +		return error;
-+
+ 
+-static void remove_maple_mouse(struct maple_device *mdev)
+-{
+-	struct dc_mouse *mse = maple_get_drvdata(mdev);
+-
+-	input_unregister_device(mse->dev);
+-	kfree(mse);
 +	return 0;
  }
  
- 
+ static struct maple_driver dc_mouse_driver = {
+ 	.function =	MAPLE_FUNC_MOUSE,
+ 	.probe =	probe_maple_mouse,
+-	.remove =	remove_maple_mouse,
+ 	.drv = {
+ 		.name = "Dreamcast_mouse",
+ 	},
 
 -- 
 2.55.0.rc0.799.gd6f94ed593-goog

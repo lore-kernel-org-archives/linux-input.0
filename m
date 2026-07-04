@@ -1,44 +1,44 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DDE6FDDC5
-	for <linux-input@vger.kernel.org>; Sat,  4 Jul 2026 06:07:00 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6D1D3224AF1
+	for <linux-input@vger.kernel.org>; Sat,  4 Jul 2026 06:07:01 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783145221; cv=none; b=ACR9BdkaYtUOErs+fkGaaRedXUCmiFGFjB5bA6P/U+EuQSreSzEoUzPBFDWHdfMwOzFMvwwTwXk9TniLHV2C1PCT48WdC63I0lYOUj3TbeVyNmhlKMicYwVnNlNum/D6sTFmno+rG3UjB3CfFi1huPB5j/ZytNW8+R7WYmXWHgs=
+	t=1783145222; cv=none; b=BVWxYYkSsIJrJ6dheHY9BlVQlroypcziOcJEyatWOhbq77EDNWz5vksZAtUVaTnKvbXxOfOtH8j3Y9lsEWmI19nAeHBDhJTLFtmk7k6YJXuwYR+gxLS3wdOpo8VX5uzzkbMeM9Xdi4BpBRvTRLmsTWG3e0+l4EvRVWRLW0E8qH0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783145221; c=relaxed/simple;
-	bh=kWB1XUy9r2myVBJ25DLYhpNuMWrh5Cg6AIeoQM7ujVs=;
+	s=arc-20240116; t=1783145222; c=relaxed/simple;
+	bh=+0R3ImQsS4sxuIqBhKJpt5a7M4ZWnqiK65c2cQZIh1Y=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=S8XBJ5dOtwBUh3hiU9nJjoSnrBM0bvxxBns8uEGgqZyKmUGh8/Ucmp+4dDy4YLl/xQPUMLawNVMwp31UCwmXoQIe8OhWew2MC16sNVuJ9hwCGKdXP9S5YJ5ZdIk1boPl6zvTAJtproFtqebraQ8r0Vq/x4KvvNZX5yKJibNq8VI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=C6UYFWDM; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=pVj9LnGK3/AqMmypUpyvFsYtpasZ0YhpIXWqBBKBWQBHuRWn84Z6ssZjG+jK8FeJY04hQNc2rGsQKqXw2Yk6SJH5DU6qrrDHQUtdvNrY3Is7UlNwnhSD397W6s0msRWKtnJvNCW63qsQ6vEkdTXOs0Qpu0l34R6+y8PtHEjbzzE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=jSmpONJZ; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="C6UYFWDM"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 444861F000E9;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="jSmpONJZ"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0AB901F00A3A;
 	Sat,  4 Jul 2026 06:07:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1783145220;
-	bh=MDDPc/wB1j2CspTt9eUCEV0gjEwATh1nEiebG4Er2SI=;
+	s=k20260515; t=1783145221;
+	bh=aCTJsILqBLfpUE6xp0sGr5aA77V/7zXFWpJDrtRccNI=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=C6UYFWDMgsabAHMghbsAkpCGo9VUHR/VWL3noAy2hgkkRmZQsR4B17Zj59SR4RuWk
-	 PSjzaydF8ukY7G8IAaU0dYEpPATKlICDUnS7Aau8iydQJWXMxsWdsyWl98RcoNOx9e
-	 lnOWiozZGBTYl3DbE0yDuUUrBv6r28ckxepLX+UNX94ga0B+2MScCS02IxorlrQb/2
-	 UnqgU4n743cOXbEykpXHx4/PGLvphk5TEr9iGGLe0UA6yp5rdKNxS0rQUnZqN1KLGA
-	 Bp95+YKdXXWde5RZEiNnz/PkA4yJVe3YkLBqS4tndmRcGYi/X0RxIcemLgiLGDhp/R
-	 HkSIrjXn50XHA==
+	b=jSmpONJZB9TeDj+NHh5XUU22FyNDpCsPks8mK9xpx2o+aVk5jKDHNx9hw94dxaA8y
+	 owHtAUdUQdTN7f99ECXQ4+uIZ9nq8F41r5K9c/Usz7cMa0y5kXorzR29234R5uVH7m
+	 EcmevuiaQGYeVpE/RXvyT+Ye8WnC0scjx41krILdw6ANI9TCTkQmlENnuChKQfdcFa
+	 jnL1f82vpIdAWapPN4cMjcwLy9YZlahNLMnhrVJtn8TETCEX90Tf2aNAgglqXtJoxt
+	 cyBpyM7enmvhQI7KVZh+jvyF08s8H6vk3lBAfBOPTTVJcqR9Yy1n4NucB3SlFMNAhA
+	 RfznQT0BRvi4w==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 12/26] Input: maplecontrol - remove unused mdev->driver
- assignment
+Subject: Re: [PATCH 05/26] Input: maplecontrol - stop polling and clear
+ callback on close
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260703-b4-maple-cleanup-v1-12-41e424964da5@gmail.com>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20260703-b4-maple-cleanup-v1-5-41e424964da5@gmail.com>
 References: <20260703-b4-maple-cleanup-v1-0-41e424964da5@gmail.com>
- <20260703-b4-maple-cleanup-v1-12-41e424964da5@gmail.com>
+ <20260703-b4-maple-cleanup-v1-5-41e424964da5@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Sat, 04 Jul 2026 06:06:59 +0000
-Message-Id: <20260704060700.444861F000E9@smtp.kernel.org>
+Date: Sat, 04 Jul 2026 06:07:00 +0000
+Message-Id: <20260704060701.0AB901F00A3A@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -49,64 +49,59 @@ Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
 
 Pre-existing issues:
-- [High] Missing `input_sync()` after reporting events in the maple control=
-ler callback.
+- [High] The event reporting loop in `dc_pad_callback()` does not call `inp=
+ut_sync()` after reporting a group of input events.
 --
 
-commit 0fbd521bb62afe1470ddde2cd989f82804cfb127
+commit 5b43e607496d623e78583ef58f7527944fe7a924
 Author: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Input: maplecontrol - remove unused mdev->driver assignment
+Input: maplecontrol - stop polling and clear callback on close
 
-The driver field in struct maple_device is no longer used since commit
-1795cf48b322 ("sh/maple: clean maple bus code") which removed the reading
-of this field. Remove the unused assignment to mdev->driver and the now
-unused mdrv variable in probe_maple_controller.
+In dc_pad_close(), pass NULL instead of dc_pad_callback to
+maple_getcond_callback() to both stop polling and clear the callback
+pointer when the input device is closed.
 
 > diff --git a/drivers/input/joystick/maplecontrol.c b/drivers/input/joysti=
 ck/maplecontrol.c
-> index 79cec89ad52a9..955e01bcfa0c1 100644
+> index a498fc322c4d5..c66b2614e2982 100644
 > --- a/drivers/input/joystick/maplecontrol.c
 > +++ b/drivers/input/joystick/maplecontrol.c
-> @@ -95,7 +95,6 @@ static int probe_maple_controller(struct device *dev)
->  	};
+> @@ -74,8 +74,7 @@ static void dc_pad_close(struct input_dev *dev)
+>  {
+>  	struct dc_pad *pad =3D dev_get_platdata(&dev->dev);
 > =20
->  	struct maple_device *mdev =3D to_maple_dev(dev);
-> -	struct maple_driver *mdrv =3D to_maple_driver(dev->driver);
->  	int i, error;
->  	struct dc_pad *pad;
->  	struct input_dev *idev;
-> @@ -138,9 +137,6 @@ static int probe_maple_controller(struct device *dev)
->  	error =3D input_register_device(idev);
->  	if (error)
->  		goto fail;
-> -
-> -	mdev->driver =3D mdrv;
-> -
->  	return 0;
-> =20
->  fail:
+> -	maple_getcond_callback(pad->mdev, dc_pad_callback, 0,
+> -		MAPLE_FUNC_CONTROLLER);
+> +	maple_getcond_callback(pad->mdev, NULL, 0, MAPLE_FUNC_CONTROLLER);
+>  }
 
 [Severity: High]
-This isn't a bug introduced by this patch, but I noticed an issue in this
-file while reviewing the driver.
+This isn't a bug introduced by this patch, but since dc_pad_callback() is
+involved here, is there a missing call to input_sync()?
 
-Does the hardware callback need to emit a synchronization event after
-reporting the controller state?
+Looking at dc_pad_callback(), it reports several events without ever flushi=
+ng
+them:
 
-Looking at drivers/input/joystick/maplecontrol.c:dc_pad_callback():
-
-	...
-	input_report_abs(dev, ABS_X,      res[12]);
-	input_report_abs(dev, ABS_Y,      res[13]);
+drivers/input/joystick/maplecontrol.c:dc_pad_callback() {
+        ...
 	input_report_abs(dev, ABS_RX,     res[14]);
 	input_report_abs(dev, ABS_RY,     res[15]);
 }
 
-Without calling input_sync() at the end of this logical group of events,
-userspace clients will not receive SYN_REPORT. Won't this cause them to
-buffer events indefinitely and prevent the gamepad from functioning?
+Without input_sync(), EV_SYN/SYN_REPORT events are never generated.
+
+Will this prevent the input core from waking up userspace readers (like
+evdev), causing reported events to be indefinitely buffered until the buffer
+overflows?
+
+Since maple_dma_handler calls dc_pad_callback() on every data transfer to
+report new joystick states, does this omission break event propagation and
+make the joystick unresponsive for applications relying on poll() or blocki=
+ng
+read()?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260703-b4-maple-c=
-leanup-v1-0-41e424964da5@gmail.com?part=3D12
+leanup-v1-0-41e424964da5@gmail.com?part=3D5

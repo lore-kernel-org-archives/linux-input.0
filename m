@@ -1,186 +1,136 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 17C762EA154
-	for <linux-input@vger.kernel.org>; Sat,  4 Jul 2026 06:11:36 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BBE1E2F7EEF
+	for <linux-input@vger.kernel.org>; Sat,  4 Jul 2026 06:12:02 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783145498; cv=none; b=ki9FxvtI+m0e06gPnUTRkiOeSfNS19+RIYZ/8a8NwqIVTUTfQgCrQpqsv5OU1Ynv/vXSxepEomWJulGt+njcnVXBLQU5x7MGGTF9t9c0g9V6loG0euHcyGfynrsjs875ZoB4litzkuuYdmBmoGE1+oZ/5ZMWdpaoj+Ubwi/GYcg=
+	t=1783145523; cv=none; b=YCgKfBxMStpLnm1SVg+YFwP9/Lgc8u2846iNsmSn4GuXAiTC1xSukCkES2lfRrBr4AIhxCzvEdFqqzG/VH7PDxtfsFFrLaNzkBsdBx6nI7gjRhOVfxpLiMXawrnuM7BHS3V/s379ak2CqQ3J9TImqCyRC51UmTttZR9NTgaeBPY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783145498; c=relaxed/simple;
-	bh=3Fjiopu3LIn0oTqFFKPdkLeph/hBOGHvjHiH9VguY+k=;
+	s=arc-20240116; t=1783145523; c=relaxed/simple;
+	bh=ke69U3GJZvOvRj/zWztezNysAgCGfCcDN0vF3kVE5ss=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=rH494A4cT10N3EWSGsz9pgD0pY9PMQD/MM4uByb8XSCp6ClFQt8cJ9mkPAjLiLBNIVktZTzeCF89eTguISTwS81A+CXDU9McPCDnOWEClF9cLkPJ/VlwaWNh2VXA2dNkDP7IcbfUIohJ5DQyqOrpLLvxmp91RdMHs9VR2oiVDrI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=PBlQ8a3l; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=eQT4mZSolZhc7UHKOCr9i6ZCeVsCLckecguspX27SGVlS6aEaoWxuDyBTcxcCRO1UjynFQjZn2h5Yy+rpnlZAhMhlAf+8AHHYRcgDJeKVEeDwA6bWzsxK0tpaqUYmU+aAsYM5dA6ZbbmtyjIrQBm/Px3fVvH5Eh5YBX1w7cgPPc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=gXfWEm/W; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="PBlQ8a3l"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8899C1F000E9;
-	Sat,  4 Jul 2026 06:11:36 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="gXfWEm/W"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 400D81F000E9;
+	Sat,  4 Jul 2026 06:12:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1783145496;
-	bh=49yrueSkApsKPEEQnpDep04yaUL6Nj5y2MXD16RSgHc=;
+	s=k20260515; t=1783145522;
+	bh=TIWclublxodxKGHy32t8AedmAvdrjE/uuwTUXVX7TPE=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=PBlQ8a3lFlYHi/WRqCZAEllnuOcTFex8E62OeiiBe0o/uXNa3vbdUAg+yFsHz04D5
-	 IjgYBcweyqRphMMk3c+6MNh0f9fTfwnPi9fMgo60Ye6nPxHCypTi4rCPxyP9Qlmkes
-	 ug1MLL7CkdWWNrijm98EgYduUdeMJkmhRCCrd/dxhN3+sfCN7xGnLpk2yzZcuQCccq
-	 NwmS9ypIJLKsG1YcMogukPu9vGiNoCtkM8C6QgqGNE73A53pxkPhjo0KeTCESr69TD
-	 HDTRQY0eW2Vx9Fn6pffrxn/zHrvxiutNr+2lqhc1/4w2wL9eJny7As8GTs7YilxGIK
-	 WOSTI3JAWwf/Q==
+	b=gXfWEm/WuBwT3mSbrPhXf1dYkAPR8if10qropmz8P+hbomUarRuxfy7kuKM3sgSlp
+	 sSfGQxGTmOV/JHHm7VBrXSX1M7ZmLUjRg7dDj15RVsvkRCwsoMWS3tct2kqHOhE8Jt
+	 j221qoBXAD28X0qyAeeNzC6kbaqDhXTbyqm0nJe8DzdorMWbCNmsrd2gAMZlcP0rBu
+	 fN/4Oz1mBhdxNiW4d+NQzxnjogu0K4HsnbXejopJB9LILUIE2iw6nQzXH9PLi9VQ3c
+	 Y2K7nhud38+/Nz/GP3fpFZM9dZq2fuQvbg2E3mC2/KWpSYcKOA08ksp7dY/wS/1DJm
+	 bQWBWrN1DQc3g==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 15/26] sh: maple: remove not needed
- maple_unsupported_device driver
+Subject: Re: [PATCH 2/3] Input: mms114 - fix endianness portability in I2C
+ packet layout
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260703-b4-maple-cleanup-v1-15-41e424964da5@gmail.com>
-References: <20260703-b4-maple-cleanup-v1-0-41e424964da5@gmail.com>
- <20260703-b4-maple-cleanup-v1-15-41e424964da5@gmail.com>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20260704060115.353049-2-dmitry.torokhov@gmail.com>
+References: <20260704060115.353049-1-dmitry.torokhov@gmail.com>
+ <20260704060115.353049-2-dmitry.torokhov@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Sat, 04 Jul 2026 06:11:36 +0000
-Message-Id: <20260704061136.8899C1F000E9@smtp.kernel.org>
+Date: Sat, 04 Jul 2026 06:12:01 +0000
+Message-Id: <20260704061202.400D81F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 4 potential issue(=
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
 s) to consider:
 
 Pre-existing issues:
-- [High] Asynchronous work items are not canceled on the `maple_bus_init` e=
-rror path.
-- [High] Error path in `maple_bus_init` frees devices that are still linked=
- on the global `maple_waitq`.
-- [High] Directly calling `kfree` via `maple_free_dev` on `device_register`=
- failure in `maple_attach_driver` leaks kobject state.
-- [High] Re-queuing a maple packet without setting the busy flag causes lis=
-t corruption.
+- [High] Race condition in suspend causes stuck touches.
+- [High] Unsafe DMA buffer allocation (stack-allocated memory passed to I2C=
+ transfers).
 --
 
-commit 8ed68bea570556010f84062b91e5bd48da1f0c8d
+commit 2e96699ad380d6d47c8e998bc41268e9b77bac90
 Author: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-sh: maple: remove not needed maple_unsupported_device driver
+Input: mms114 - fix endianness portability in I2C packet layout
 
-This commit removes the maple_unsupported_device fallback driver since
-the driver core handles devices without drivers. It also updates the
-shared interrupt registrations to use &maple_bus instead of the removed
-driver.
+The driver defines the I2C packet layout using C bitfields in struct
+mms114_touch. This is not portable as the layout of bitfields within a
+byte is compiler-dependent and varies with endianness. On Big Endian
+systems, the fields will be parsed incorrectly.
 
-> diff --git a/drivers/sh/maple/maple.c b/drivers/sh/maple/maple.c
-> --- a/drivers/sh/maple/maple.c
-> +++ b/drivers/sh/maple/maple.c
-
-[ ... ]
-
-> @@ -378,7 +376,6 @@ static void maple_attach_driver(struct maple_device *=
-mdev)
->  		if (matched =3D=3D 0) {
->  			/* Driver does not exist yet */
->  			dev_info(&mdev->dev, "no driver found\n");
-> -			mdev->driver =3D &maple_unsupported_device;
->  		}
->  		dev_set_name(&mdev->dev, "%d:0%d.%lX", mdev->port,
->  			     mdev->unit, function);
-
-[Severity: High]
-This isn't a regression introduced by this patch, but does the error path in
-maple_attach_driver() leak kobject state?
-
-If device_register(&mdev->dev) fails:
-
-	error =3D device_register(&mdev->dev);
-	if (error) {
-		dev_warn(&mdev->dev, "could not register device at"
-			" (%d, %d), with error 0x%X\n", mdev->unit,
-			mdev->port, error);
-		maple_free_dev(mdev);
-		mdev =3D NULL;
-		return;
-	}
-
-maple_free_dev() directly calls kfree(). Since device_register() was
-called, shouldn't failures be handled by calling put_device() to safely
-invoke the release callback instead of bypassing it?
+> diff --git a/drivers/input/touchscreen/mms114.c b/drivers/input/touchscre=
+en/mms114.c
+> index 23e0283bc6b8b..84afdadb3bccc 100644
+> --- a/drivers/input/touchscreen/mms114.c
+> +++ b/drivers/input/touchscreen/mms114.c
 
 [ ... ]
 
-> @@ -863,17 +851,14 @@ static int __init maple_bus_init(void)
->  	kmem_cache_destroy(maple_queue_cache);
+> @@ -325,8 +338,9 @@ static irqreturn_t mms114_interrupt(int irq, void *de=
+v_id)
 > =20
->  cleanup_bothirqs:
-> -	free_irq(HW_EVENT_VSYNC, 0);
-> +	free_irq(HW_EVENT_VSYNC, &maple_bus);
-> =20
->  cleanup_irq:
-> -	free_irq(HW_EVENT_MAPLE_DMA, 0);
-> +	free_irq(HW_EVENT_MAPLE_DMA, &maple_bus);
-> =20
->  cleanup_dma:
->  	free_pages((unsigned long) maple_sendbuf, MAPLE_DMA_PAGES);
+>  	for (index =3D 0; index < touch_size; index++) {
+>  		t =3D (struct mms114_touch *)((u8 *)touch + index * event_size);
 
 [Severity: High]
-This is a pre-existing issue, but can this error path lead to a
-use-after-free crash?
+This isn't a bug introduced by this patch, but does passing stack-allocated
+buffers to I2C transfer functions risk memory corruption if the I2C adapter
+uses DMA?
 
-In maple_bus_init(), if initialization fails after setting the DMA
-interrupt handler (for example, if KMEM_CACHE allocation fails), the error
-path calls free_irq() and frees the maple_sendbuf memory.
+Since kernel stacks are often allocated in vmalloc space (when
+CONFIG_VMAP_STACK is enabled), they cannot be safely mapped for DMA.
 
-However, it does not appear to call cancel_work_sync() for
-maple_dma_process and maple_vblank_process. If an interrupt fired before
-free_irq(), could the scheduled work items execute asynchronously after the
-buffers are freed, dereferencing the freed memory?
+In mms114_interrupt(), the touch array is stack-allocated and used as a
+receive buffer:
 
-[Severity: High]
-This is another pre-existing issue in maple_bus_init(), but does the port
-initialization loop leave dangling pointers on the global maple_waitq?
+	struct mms114_touch touch[MMS114_MAX_TOUCH];
+	// ...
+	error =3D __mms114_read_reg(data, MMS114_INFORMATION, packet_size, touch);
 
-During the loop, each allocated device is immediately queued onto the
-global maple_waitq via maple_add_packet():
+Similarly, __mms114_read_reg() and mms114_write_reg() pass local stack
+variables (u8 buf and u8 buf[2]) to I2C transfers.
 
-	for (i =3D 0; i < MAPLE_PORTS; i++) {
-		checked[i] =3D false;
-		empty[i] =3D false;
-		mdev[i] =3D maple_alloc_dev(i, 0);
-		if (!mdev[i]) {
-			while (i-- > 0)
-				maple_free_dev(mdev[i]);
+> +		unsigned int type =3D FIELD_GET(MMS114_FLAGS_TYPE_MASK, t->flags);
+> =20
+> -		switch (t->type) {
+> +		switch (type) {
+>  		case MMS114_TYPE_TOUCHSCREEN:
+>  			mms114_process_mt(data, t);
+>  			break;
 
-If a subsequent allocation fails, the error handler loops backwards and
-calls maple_free_dev(). However, maple_free_dev() frees mdev and mdev->mq
-directly via kfree() without executing list_del() to remove them from
-maple_waitq. Could this corrupt the linked list?
+[ ... ]
 
 [Severity: High]
-This is a pre-existing issue not touched by this patch, but can re-queuing
-a maple packet without setting the busy flag cause list corruption?
+This is a pre-existing issue, but could the sequence in mms114_suspend()
+have a race condition that results in stuck touches?
 
-Looking at setup_maple_commands() in drivers/sh/maple/maple.c, a
-MAPLE_COMMAND_GETCOND packet is queued if mdev->busy is 0:
+In mms114_suspend(), the driver injects artificial release events before
+disabling the IRQ:
 
-	if (mdev->interval > 0 && atomic_read(&mdev->busy) =3D=3D 0 &&
-		time_after(jiffies, mdev->when)) {
-		/* bounce if we cannot add */
-		add =3D maple_add_packet(mdev,
-			be32_to_cpu(mdev->devinfo.function),
-			MAPLE_COMMAND_GETCOND, 1, NULL);
-		if (!add)
-			mdev->when =3D jiffies + mdev->interval;
+	/* Release all touch */
+	for (id =3D 0; id < MMS114_MAX_TOUCH; id++) {
+		input_mt_slot(input_dev, id);
+		input_mt_report_slot_inactive(input_dev);
 	}
+	// ...
+	input_sync(input_dev);
 
-It successfully calls maple_add_packet(), which links mdev->mq->list into
-maple_waitq. However, unlike other packet types, it fails to set
-mdev->busy =3D 1.
+	guard(mutex)(&input_dev->mutex);
 
-If a concurrent userspace action (such as a read via /dev/mtdX in vmu-flash
-leading to maple_vmu_read_block()) executes, would it read mdev->busy as 0,
-assume the queue is free, and call maple_add_packet() again? This would
-reuse the exact same mdev->mq object, executing list_add_tail() on an
-already-linked node, which corrupts the list.
+	if (input_device_enabled(input_dev))
+		mms114_stop(data);
+
+If a touch interrupt fires and its threaded handler (mms114_interrupt)
+executes after these release events are injected but before mms114_stop()
+disables the IRQ, might it report the touch as active again and leave it
+stuck indefinitely after suspend?
 
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260703-b4-maple-c=
-leanup-v1-0-41e424964da5@gmail.com?part=3D15
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260704060115.3530=
+49-1-dmitry.torokhov@gmail.com?part=3D2

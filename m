@@ -1,127 +1,109 @@
-Received: from fout-b4-smtp.messagingengine.com (fout-b4-smtp.messagingengine.com [202.12.124.147])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 21857175A5;
-	Sat,  4 Jul 2026 00:29:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.147
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 386A0208D0;
+	Sat,  4 Jul 2026 01:09:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783124967; cv=none; b=ZxVy1uMGsYS64L6Nd0dIsx5xyNGHeDs9YrwYoIIzZkNSVP9jZwowhcIXBv/rUnwmzsUzDfH1iqgenFgYp1y2XU0D7PIbSitfX3G1CTNrznQp+SxMTmita+IBXNe2L0mSCgHPpGXNTkMDNDm/KT13urApMJye+iPMw8JYKavzA0c=
+	t=1783127383; cv=none; b=lFJRWnHRlqOxrrCVQa+EBRwT6lEMa1VejAB3VIWbwLeFyMiPhRxg/DCjjKhFajoAqLEnuxgGJahvt5Nx4eW0y9mS4edrMi4ZCKCAOsPTAeURM6I67CIN9oiZUKvqdogB6Ewb2Rlf4BIrVRH4EsxldosHiqj67C+d8/MTgrmWcEA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783124967; c=relaxed/simple;
-	bh=akYVF7cIlhPdefmdA6rR4JM6WMQs9ObeL2SpXcE0eWk=;
-	h=MIME-Version:Date:From:To:Cc:Message-Id:Subject:Content-Type; b=jKUcyPzPqS99Aq60mygWGOO+wcugaeJZ6HJOKn8JVOCuyuNJRemePS/I+TFgwDBHaekh4WMAjzcU5lAZ+ksj1GmGvdqTozIlsXtCOxXZ/nLC6RE6JOBU5rWS3bCFno3fVnTeUAD28k/bveIwMFvhDqIHO6fNAY2rX3HK4wTSyvw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=1101b.com; spf=pass smtp.mailfrom=1101b.com; dkim=pass (2048-bit key) header.d=1101b.com header.i=@1101b.com header.b=PEyyLy7t; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=fQJkAf8F; arc=none smtp.client-ip=202.12.124.147
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=1101b.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=1101b.com
+	s=arc-20240116; t=1783127383; c=relaxed/simple;
+	bh=6/s/SwMlmyhRBB42jG173yqgXRvHwLIoepyCkpyNLY4=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=P3DxI/qs1WiqH+aBZTpMkn+M8P9MymYPWm5rB7+wWh3DDe/i5kaDKvAw4mRrIr3zPmCOUQBySIibwVlBkjXDi5whLbL39EU6l7Cgzk5Hukc359loEG+d063c1ui30JpKTEeA9HaKc3w/pEWv08t9hgVD8DvUYAsq5ArFxFvMNnU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=T2Z+ZeCM; arc=none smtp.client-ip=192.198.163.18
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=1101b.com header.i=@1101b.com header.b="PEyyLy7t";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="fQJkAf8F"
-Received: from phl-compute-05.internal (phl-compute-05.internal [10.202.2.45])
-	by mailfout.stl.internal (Postfix) with ESMTP id 519311D0005B;
-	Fri,  3 Jul 2026 20:29:24 -0400 (EDT)
-Received: from phl-imap-17 ([10.202.2.105])
-  by phl-compute-05.internal (MEProxy); Fri, 03 Jul 2026 20:29:24 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=1101b.com; h=cc
-	:cc:content-transfer-encoding:content-type:content-type:date
-	:date:from:from:in-reply-to:message-id:mime-version:reply-to
-	:subject:subject:to:to; s=fm1; t=1783124964; x=1783211364; bh=Br
-	T1Z710MarRkhLzd96jV4eov64LfG1Cx2Fjj7mXI6I=; b=PEyyLy7t3r4Ow0I0zJ
-	1j+kGIJEZPIRvom7/qgGZ6pSoJGxqcMt8dah2EN0iTrMvq/sHyK6K8z4hqKytNt7
-	Nf9OSsxatcrOfRQDiWAG4XsFJaTkUejXz9kgyQfrHMx0WMqLCUx5+jxyWK2zZSIf
-	zJvF/AJ515W77dQZgs7BJMQoCngh/l29wjbdHTu5rINEykClA/1sXg9a4RGIhZ2E
-	6KC2fXI+ymzC8WSm1kaZehohSlRYVVyQyzE+Y/o3VXBSIpNNU9dvosRDO6kf5jAj
-	gJ9Q9hK0dRBjmFUydb3UWz4dts3b96WJsY+kRFH8i3VT8kG4lbobX1qTAtUi0VUq
-	1zvg==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-transfer-encoding
-	:content-type:content-type:date:date:feedback-id:feedback-id
-	:from:from:in-reply-to:message-id:mime-version:reply-to:subject
-	:subject:to:to:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
-	fm2; t=1783124964; x=1783211364; bh=BrT1Z710MarRkhLzd96jV4eov64L
-	fG1Cx2Fjj7mXI6I=; b=fQJkAf8F64pJ11Sa4GOl7TzkY2pStsYx1eU5exr0h5xR
-	CQbXJqQ7/znZwxwJMycvn9UHKT1zjp4QUx+suVfRhMNHyQvsNhlUcLB/F0rufbZb
-	wLFHQ5SRl2x9KenVIaBgmJKye29bgFBzYVyhdFSoNupIG7JA00XDUoUB/a1Ae4vQ
-	vy6owBLraALJlYQA2pwxYn7QyA8tJR1AcFRT8rLJxPvBm8pm8NO8aruy7T64XR6P
-	EVutVH/UWDDBOn0P0SEXXhzkFKu9wdSpaZb+jrNfN6COykA2E3npadb7AbT3qbPz
-	fGK3dxblvD6W7esKssOCC3Xbxns7gAlOrGGdhCKc0Q==
-X-ME-Sender: <xms:41NIak1noaBJ_J9mpd9LYUx75osV5LKADyJG2ji1BLQvYnU_r4iOrA>
-    <xme:41NIap79EkQYqo4rUtR8jbi_DbwEzVdwUaYeOyi82CTrU9iuA3xBbROUTRZ5tLRIK
-    ymLdWjyo1m3lbleklwAuGdMVOmbld7TkgZZOK_yg4UltgmOtCGozFCe>
-X-ME-Proxy-Cause: dmFkZTGIYMguNtv8M5gP4fcpSk2CW8y/FnOZ2WteRBhYT7z2r6d02jZnPfgL71N2fsO7UX
-    mAQc7c1p+aNay2AvmZVRv6FfWa4XFxry93pi4xfrOZELFoA2tz1N+r2v8GgieRlKPvfLvd
-    Ve/NGP/KUO6ydzQtBScB9RH3ZZdMnec4Jxv6RWD//2v21Tl7Gs6jqOKHgVLlZn607/mbGL
-    vY6KzD+qmKGWFX4CqzNdSEUqllZzY97j/4PR96oHQDE6mcFZ9//ciCdeeu4PMKS1xc5AOA
-    Xz4Ff33JP823v/HbB+FkfkYlPryrGrOjI7+RlVfJ/IDD03ckXHLq6uo4Vdolhaj6hL+DWq
-    S2wprYh735nmXm3I7MgpNufCf2MYgGS9J9RsAp0HZqOHPy+eZKIEFs4iSYz9XWH2+KxDuA
-    VJJW3qalOSSY0koqPaD4SUtNQ0UIicjfnFJmN4NkH6ZNBUv02Kr70ff5Q/v0NmvhmI8PTB
-    hegTV2Glf88uGyhRgiRtyMldufrXNGMyNs77c50KfitoyGnJHbnAezlDN78lEOseRwq4SM
-    VhfeaRtVoW5xGMGWirpg9L7e29nsy9RmGClmU2mUcTyYPJr7SbCnhMF7Y/OrLYYjNrqxOJ
-    sjJrDo4pJOBnEf3sY44DosAyL2PW4oEYqLSTNSo7O2oo4LfLq8NlhqoLHkbg
-X-ME-Proxy: <xmx:41NIahCjAPTG7LyhpKY7VT18LdR19U78dw8UAXmTqUC2tbfgXP7aCA>
-    <xmx:5FNIaocngq2lyWJvJSEeoWg27SLGBKw7Ud_zlZoQxTL8T26s_bX22g>
-    <xmx:5FNIaoJmm6g4gpHSGMJHjtzSmC6UgC0ga71bPDfPx1mPsr3Pn3UiGw>
-    <xmx:5FNIar2yjJvJXSaotHXwgtQ7SLDFJVLdeXdDIcxm5iDVpEcspW4Z5w>
-    <xmx:5FNIasyaOTkG3t_ICE71gkqsUVgBG8a6ktnj86KEPYE6pLS-OqoaAT1W>
-Feedback-ID: ie2d94605:Fastmail
-Received: by mailuser.phl.internal (Postfix, from userid 501)
-	id DEFA1C40071; Fri,  3 Jul 2026 20:29:23 -0400 (EDT)
-X-Mailer: MessagingEngine.com Webmail Interface
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="T2Z+ZeCM"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1783127381; x=1814663381;
+  h=message-id:subject:from:to:cc:date:in-reply-to:
+   references:content-transfer-encoding:mime-version;
+  bh=6/s/SwMlmyhRBB42jG173yqgXRvHwLIoepyCkpyNLY4=;
+  b=T2Z+ZeCMT2R1td91Oiw/hUmnI3aWKAJHb0eCU/DA6+Y3BKZN3sB7TjmO
+   MKEsklRtjr3X9Cn8RgQI1x7+8nvPjw9PuM3Iu3k7EtYpJ/UHSbMF556EW
+   iLjMYA97ZQHZfZCr9svK5HsIt8c2KhK9iLi5h/7/zO66A5VUeeSjGEUo4
+   8Le4/KizbRvhKhLKAP7QyjgqTS05uDvqpymp78djsSaF3CBWn4zEGz4XF
+   endY8hhExZPXBHNGlDfblrpDYah1ECCDEYSxsMbC/Kj6ByNxIIJ8TmZGh
+   pf4j+gr3FKhaniWvoReahDNRg/YR30cbGShk3w9rOImQJxc+yyprj8guG
+   Q==;
+X-CSE-ConnectionGUID: RuSXj6eiQuu3bsz/bR/wlw==
+X-CSE-MsgGUID: q1BgYuThSqSM/1AMp5uNnw==
+X-IronPort-AV: E=McAfee;i="6800,10657,11836"; a="82972934"
+X-IronPort-AV: E=Sophos;i="6.25,145,1779174000"; 
+   d="scan'208";a="82972934"
+Received: from orviesa008.jf.intel.com ([10.64.159.148])
+  by fmvoesa112.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Jul 2026 18:09:40 -0700
+X-CSE-ConnectionGUID: TePZ+2OaSuWMMLLKSf0FAg==
+X-CSE-MsgGUID: /Z9TwGBcT8iealIOTbWNHg==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.25,145,1779174000"; 
+   d="scan'208";a="252751275"
+Received: from smithj1-mobl2.amr.corp.intel.com (HELO [10.125.110.148]) ([10.125.110.148])
+  by orviesa008-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Jul 2026 18:09:40 -0700
+Message-ID: <e753606a89dbed26389d8c5ee8b2e4f0dafcd2f3.camel@linux.intel.com>
+Subject: Re: [PATCH v2 2/6] iio: hid-sensors: align function parenthesis for
+ readability
+From: srinivas pandruvada <srinivas.pandruvada@linux.intel.com>
+To: Andy Shevchenko <andriy.shevchenko@intel.com>, Jonathan Cameron
+	 <jic23@kernel.org>
+Cc: Sanjay Chitroda via B4 Relay	
+ <devnull+sanjayembeddedse.gmail.com@kernel.org>,
+ sanjayembeddedse@gmail.com,  David Lechner <dlechner@baylibre.com>, Nuno
+ =?ISO-8859-1?Q?S=E1?= <nuno.sa@analog.com>, Andy Shevchenko	
+ <andy@kernel.org>, Jiri Kosina <jikos@kernel.org>,
+ linux-iio@vger.kernel.org, 	linux-kernel@vger.kernel.org,
+ linux-input@vger.kernel.org
+Date: Fri, 03 Jul 2026 18:09:39 -0700
+In-Reply-To: <akewhE9wEpU6UW0u@ashevche-desk.local>
+References: <20260702-15-jun-hid-iio-alignment-v2-0-b87f01f5efbc@gmail.com>
+	 <20260702-15-jun-hid-iio-alignment-v2-2-b87f01f5efbc@gmail.com>
+	 <20260702182015.303db93c@jic23-huawei>
+	 <akewhE9wEpU6UW0u@ashevche-desk.local>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.58.3 (3.58.3-1.fc43) 
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Date: Fri, 03 Jul 2026 17:28:06 -0700
-From: "Colin Blower" <colin@1101b.com>
-To: "Jiri Kosina" <jikos@kernel.org>,
- "Benjamin Tissoires" <bentiss@kernel.org>
-Cc: =?UTF-8?Q?Filipe_La=C3=ADns?= <lains@riseup.net>,
- linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Message-Id: <eb945a79-d9ef-4194-be41-2ec81d6d8f3c@app.fastmail.com>
-Subject: [PATCH] HID: logitech-dj: Add support for G915 TKL receiver 0xc545
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
 
-The Logitech G915 TKL has a lightspeed receiver with a product id of
-0xc545. This receiver seems to behave like 0xc547 receiver.
+On Fri, 2026-07-03 at 15:52 +0300, Andy Shevchenko wrote:
+> On Thu, Jul 02, 2026 at 06:20:15PM +0100, Jonathan Cameron wrote:
+> > On Thu, 02 Jul 2026 21:47:59 +0530
+> > Sanjay Chitroda via B4 Relay
+> > <devnull+sanjayembeddedse.gmail.com@kernel.org> wrote:
+> >=20
+> > > Adjust alignment of parentheses across HID sensor IIO drivers to
+> > > improve readability and maintain consistency with kernel coding
+> > > style.
+> > >=20
+> > > While updating the formatting, group related arguments
+> > > consistently in
+> > > multi-line function signatures where appropriate.
+> > >=20
+> > > No functional change intended.
+> >=20
+> > Whilst I appreciate this code isn't quite in line with standards
+> > and usually like that stuff to be fixed up, in this particular case
+> > this is a massive amount of churn.=C2=A0 That churn will make
+> > backporting
+> > fixes etc messier, so I'd like input on whether others consider
+> > this
+> > one worthwhile.=C2=A0 Jiri, Srinivas, Andy etc. What do you think?
+>=20
+> I am fine as long as Srinivas is. I understand pros and cons of this,
+> but from
+> time to time we have patches =C3=A0 la this one that messes up with
+> backporting but
+> were accepted as a good part of some bigger series.
 
-Add a definition for this new receiver id and a mapping for the
-recvr_type_gaming_hidpp_ls_1_3 type, the receiver now reports battery
-status of the connected keyboard.
+I am fine. I guess we will deal with backporting issues as they appear.
 
-Signed-off-by: Colin Blower <colin@1101b.com>
----
- drivers/hid/hid-ids.h         | 1 +
- drivers/hid/hid-logitech-dj.c | 4 ++++
- 2 files changed, 5 insertions(+)
+Thanks,
+Srinivas=20
 
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 1059922baaac..0089a5e88ec9 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -967,6 +967,7 @@
- #define USB_DEVICE_ID_LOGITECH_NANO_RECEIVER_LIGHTSPEED_1_2    0xc543
- #define USB_DEVICE_ID_LOGITECH_NANO_RECEIVER_LIGHTSPEED_1_3    0xc547
- #define USB_DEVICE_ID_LOGITECH_NANO_RECEIVER_LIGHTSPEED_1_4    0xc54d
-+#define USB_DEVICE_ID_LOGITECH_NANO_RECEIVER_LIGHTSPEED_1_5    0xc545
- #define USB_DEVICE_ID_LOGITECH_NANO_RECEIVER_POWERPLAY 0xc53a
- #define USB_DEVICE_ID_LOGITECH_BOLT_RECEIVER   0xc548
- #define USB_DEVICE_ID_SPACETRAVELLER   0xc623
-diff --git a/drivers/hid/hid-logitech-dj.c b/drivers/hid/hid-logitech-dj.c
-index 381e4dc5aba7..49b96ff2bc36 100644
---- a/drivers/hid/hid-logitech-dj.c
-+++ b/drivers/hid/hid-logitech-dj.c
-@@ -2102,6 +2102,10 @@ static const struct hid_device_id logi_dj_receivers[] = {
-          HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH,
-                USB_DEVICE_ID_LOGITECH_NANO_RECEIVER_LIGHTSPEED_1_4),
-         .driver_data = recvr_type_gaming_hidpp_ls_1_3},
-+       { /* Logitech lightspeed receiver (0xc545) */
-+         HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH,
-+               USB_DEVICE_ID_LOGITECH_NANO_RECEIVER_LIGHTSPEED_1_5),
-+        .driver_data = recvr_type_gaming_hidpp_ls_1_3},
-
-        { /* Logitech 27 MHz HID++ 1.0 receiver (0xc513) */
-          HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_MX3000_RECEIVER),
---
-2.55.0

@@ -1,146 +1,94 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f54.google.com (mail-pj1-f54.google.com [209.85.216.54])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BC70425A2B5
-	for <linux-input@vger.kernel.org>; Sat,  4 Jul 2026 23:23:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5DCFB2F39AB
+	for <linux-input@vger.kernel.org>; Sat,  4 Jul 2026 23:35:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.54
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783207411; cv=none; b=KcqRv1LzqlTQw76+XPwsJ/vlR4mscvi05jkN7s8GAX1jgIEMeIGv6G7ImMlyB48DYUXTpQpdeudae6LTuN+Hg/4/XEefP+xA+WuVqV5EX7Bwt4tDfSlv/qqX+ZmVcUE7Zm9xhqCpj9gkRBxcz0kh4fYG8PTXl261Kpdmtbcj04U=
+	t=1783208141; cv=none; b=qt93891eQg1OmvjuHheO2yiE5OOmZ1BmSVyjwiebotEVBW/9A1w7N0qEde8eo3rh1C5ifbxTbAiYJ091b+djOfp4zZePHqAH6PqDPbEA6IfXeed82MD+jUI8e3yGBl/ZWrKkl7y1XgimiuLkyRKkHqZExPaKWywIdUkRwT0s9KE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783207411; c=relaxed/simple;
-	bh=x7+UqvpgX/B25gV1Bc0jgEMWv9waI/gp3n/S8/APv2M=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=Ez/RdIQh4RAY6Csy8PSkkwo580F89yq9F4VZbIiRDXLlzDUIW2im/HwmYIbnSXLhR8CcJdAqEQ48B7/lD/rZY5b7bMDf1jW/RNOR2Z9wpeBM526MydFSaK45KvmwOeJhmq1f2MYyDQNgs65x6mnBfQM8CsJugonc4d5/zRhGXuc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=PqTgLH2W; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1783208141; c=relaxed/simple;
+	bh=R4iYCCtDh/N9PUQT4zIlhD+NyxjSMHOpjNNiya639So=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=cQcUst3FTUVh82eCW3cBO0mq+aoRmRYkVQJoWuUmRscH2kjIskltY8QqnyPMmsSpmeUNAdo3GtGjS2WRqxs6sOgtScQgkZDYTB7nu94O+wxl9aM2UtZmVQVySU85FFEsTtDRBxF0k1yucLrpFyHhSqFT2zvwnSkinUwQ2B0zFgo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=RilbJj0y; arc=none smtp.client-ip=209.85.216.54
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="PqTgLH2W"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 388C01F000E9;
-	Sat,  4 Jul 2026 23:23:30 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1783207410;
-	bh=9XBTDCcoik0PwmcwslEckZ9RVpjG39RvDNJf7kx7O1M=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=PqTgLH2Wu0f3yhRqis0Q8uTrgnZbZ8pNKH2qrSUO9LvFBqnde6sg81Lg28IdgkL3M
-	 JmOvKNiMVBBDpF7qVSg5YaxPtZN54W/XP2RqTnZ1cUI+SEtV2DTTiniB2HlgxReusG
-	 /mP81JHryaorzaDGHHN0KGcetXZzWoJiX3BMVRWZdTUFo8JSdmqtZahkJ3lubw1PTt
-	 RUmuQgWCuDp0cG91YGNnrBoMDje4mw+I6tpEa6P7Uu1+pTJePonmODCmIVdzIGCs+n
-	 FohrnXF4L6utfTM59mju5NsiWGpg97XSauj3bKjbuzWPe1v3LpMLPsbKkZRLRrO6DP
-	 XyMEWZM9USbKw==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 1/2] HID: logitech-hidpp: add HID++ 2.0
- reprogrammable button support
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Elliot Douglas" <edouglas7358@gmail.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <d4c48a9d36c738abd02a0430a6ca8a5a792fb3ea.1783094954.git.edouglas7358@gmail.com>
-References: <cover.1783094954.git.edouglas7358@gmail.com>
- <d4c48a9d36c738abd02a0430a6ca8a5a792fb3ea.1783094954.git.edouglas7358@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Sat, 04 Jul 2026 23:23:29 +0000
-Message-Id: <20260704232330.388C01F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="RilbJj0y"
+Received: by mail-pj1-f54.google.com with SMTP id 98e67ed59e1d1-380cda7f00cso1431261a91.0
+        for <linux-input@vger.kernel.org>; Sat, 04 Jul 2026 16:35:40 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1783208140; x=1783812940; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=wRx5zPwOOd2INJTzzY1Zg0ZOlJO5/PjlM0sjjwbLZDU=;
+        b=RilbJj0y+vCq4GQkixYpE0nPwSiErv7nW0EK6+mIUBpoUP5SJxehW2QGXVArLj4/tR
+         GSmnK+R9tmLXl+k9URSstkfvTQFiucKnaA1hVUrW3+OezLo7qxD5rXI8SOWSjKpIMPL1
+         ZTS0lTNpa7g1F2qFAdLAIHyjp+20VkpzPlmhJXEF+yWiZkoXugq4Mk4S8EVWWD0e63G4
+         DZ69GomueSd2g4yavM3nSk98kh27qZ9HKJRYSuvLH0+Wq511ckRWPSSgZtDAaCkOthPJ
+         ap79Csy42h4PJ/7wlufBhEhy94uF7XLfZ7ETt7aLFd7gq4KASOv7sSt86UNnACeaqBNy
+         OQdQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1783208140; x=1783812940;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=wRx5zPwOOd2INJTzzY1Zg0ZOlJO5/PjlM0sjjwbLZDU=;
+        b=qKwACEzs9KZn+Pn0yIfdcWsFmBmdJQFX4Jn+KS7eQvIspczm+etnmtSnpcVT1himBM
+         Cmm7W+k9yT7dLIHre4XhAyAbHLL2A+4VE/goM091lHLgu25QQKrZXRq4Hnb6KhWiHnZR
+         l0MJGbnDBGDpV4dxd+8eW2uft5ZIjJkNzctTl8JKsVhO+UFy+2iIol25r7aQdI0QGa5c
+         zwzD0oaMyBLUMTX5kisybBWJ64nITMZ2dIptcllg+Si6pJZDJpGgZocxItti+xoSnlIL
+         OQWPqggeMO/VlhKKnblETF/Uf+EkBUu2E72WiSWhz9/JNSnFYLHXiYpxPr0/3Hbb+VhC
+         cimg==
+X-Gm-Message-State: AOJu0YyqaxDom+JlFxub2t/Y8BrKo9bXChBFFReJg0qObLAXzdrQb1Ix
+	pjG14BhPZ1hEtOmirDKen5Fdeg0CLcXnYjPMNB0IDYIaiUvL0jba/kDe
+X-Gm-Gg: AfdE7cmls8s5Un8duCh685e8plLdPCM4F7/h54w2Q6YtdKoGQ96RJPaCVPByTz51zC+
+	cqlAyQF5KFRzpQUlqgiJT2k9n0xA4VCdMGKlzGUf1BAYwKATtaDx/D4YaiqBbvxULZgGecTc3+r
+	SCmov8Z8Y2FpGHRNmGeEbp1fGkB92EpPVItZL07bf2ZLMV3RG/xLc890okH+jInw1JnsD5Xpskj
+	wHvikoLE86IS7LYDNfJLu1u5GbmycjObrt97/ncq+5NxSc8JkVPWoyk9cZzRPYHQr75PNcAKYIU
+	iK5CRbQ2fx4bYZ9obJaPMcf7b5gomM8RPhNVslZH2nfaPMb7SfWwBwJOcNE0xaUjb8uVf5sPYYf
+	G/dnw69IlXbN/2Gz8uwhgPg1sAkC3EakWnej6nJdC5AWTRbkVOTQcnl3ah+geKYGtZxm+A1XGA2
+	a5cz5LVVV+MIuHnt7/nl7civB2d+t+yauAgxeG00jfbSUnGmSnLYtvmw==
+X-Received: by 2002:a17:90b:3c91:b0:375:2a38:1d40 with SMTP id 98e67ed59e1d1-382934ec0c9mr4526023a91.20.1783208139715;
+        Sat, 04 Jul 2026 16:35:39 -0700 (PDT)
+Received: from google.com ([2a00:79e0:2ebe:8:3f90:534a:314e:e11d])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-30f0bbd221bsm37173682eec.22.2026.07.04.16.35.38
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 04 Jul 2026 16:35:39 -0700 (PDT)
+Date: Sat, 4 Jul 2026 16:35:36 -0700
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Pengpeng Hou <pengpeng@iscas.ac.cn>
+Cc: "open list:INPUT (KEYBOARD, MOUSE, JOYSTICK, TOUCHSCREEN)..." <linux-input@vger.kernel.org>, 
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Input: ims-pcu - add missing MODULE_DEVICE_TABLE()
+Message-ID: <akmYw5-S5DY8CGky@google.com>
+References: <20260704151730.42772-1-pengpeng@iscas.ac.cn>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260704151730.42772-1-pengpeng@iscas.ac.cn>
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
+On Sat, Jul 04, 2026 at 11:17:30PM +0800, Pengpeng Hou wrote:
+> The driver has a match table for the usb bus wired into its driver
+> structure, but the table is not exported with MODULE_DEVICE_TABLE().
+> 
+> Add the missing MODULE_DEVICE_TABLE() entry so module alias information
+> is generated for automatic module loading.
+> 
+> This is a source-level fix.  It does not claim dynamic hardware
+> reproduction; the evidence is the driver-owned match table, its use by
+> the driver registration structure, and the missing module alias
+> publication.
+> 
+> Signed-off-by: Pengpeng Hou <pengpeng@iscas.ac.cn>
 
-Pre-existing issues:
-- [High] Dangling pointer `hidpp->input` leads to Use-After-Free if `input_=
-register_device()` fails.
-- [High] Unbounded 64-byte structure copy in `hidpp_raw_hidpp_event` causes=
- a Kernel Heap Out-of-Bounds Read.
---
+Applied, thank you.
 
-commit 13dc21807e8eb6f76d9029e89353e4bd2e6aa1c3
-Author: Elliot Douglas <edouglas7358@gmail.com>
-Subject: HID: logitech-hidpp: add HID++ 2.0 reprogrammable button support
-
-Some Logitech HID++ 2.0 mice can report diverted reprogrammable controls
-through HID++ feature 0x1b04, SpecialKeysMseButtons / REPROG_CONTROLS_V4,
-instead of the normal HID mouse report.
-
-Link: https://lekensteyn.nl/files/logitech/x1b04_specialkeysmsebuttons.html
-
-> diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-=
-hidpp.c
-> index 70ba1a5e40d8e..f9189e14fb780 100644
-> --- a/drivers/hid/hid-logitech-hidpp.c
-> +++ b/drivers/hid/hid-logitech-hidpp.c
-[ ... ]
-> @@ -3601,6 +3606,195 @@ static int hidpp10_extra_mouse_buttons_raw_event(=
-struct hidpp_device *hidpp,
-[ ... ]
-> +static int hidpp20_reprog_controls_raw_event(struct hidpp_device *hidpp,
-> +					     u8 *data, int size)
-> +{
-> +	const struct hidpp_reprog_control_mapping *mapping;
-> +	struct hidpp_report *report =3D (struct hidpp_report *)data;
-> +	u16 controls[4];
-> +	bool pressed;
-> +	unsigned int i, j;
-> +
-> +	if (!(hidpp->quirks & HIDPP_QUIRK_HIDPP_REPROG_CONTROLS_BTNS) ||
-> +	    !hidpp->input ||
-
-[Severity: High]
-This is a pre-existing issue, but could this lead to a use-after-free?
-
-Looking at hidpp_connect_event(), if input_register_device() fails, it
-cleans up by calling input_free_device() but leaves the hidpp->input=20
-pointer dangling:
-
-    ret =3D input_register_device(input);
-    if (ret) {
-            input_free_device(input);
-            return;
-    }
-
-Because hid_device_io_start() has already enabled incoming packets before
-this point, could a newly arriving event trigger this new
-hidpp20_reprog_controls_raw_event() handler, pass the !hidpp->input check,
-and dereference the freed pointer?
-
-> +	    !hidpp->reprog_controls ||
-> +	    hidpp->reprog_controls_feature_index =3D=3D 0xff)
-> +		return 0;
-[ ... ]
-> @@ -3971,6 +4168,10 @@ static int hidpp_raw_hidpp_event(struct hidpp_devi=
-ce *hidpp, u8 *data,
->  			return ret;
->  	}
-> =20
-> +	ret =3D hidpp20_reprog_controls_raw_event(hidpp, data, size);
-> +	if (ret !=3D 0)
-> +		return ret;
-> +
-
-[Severity: High]
-This is a pre-existing issue, but does hidpp_raw_hidpp_event() perform an
-out-of-bounds read on the incoming data buffer?
-
-Earlier in this function, if the packet matches a pending question, it does
-a direct structure assignment:
-
-    if (hidpp_match_answer(question, report) ||
-            hidpp_match_error(question, report)) {
-        *answer =3D *report;
-
-Since struct hidpp_report is a 64-byte packed structure, won't this pointer
-assignment perform a fixed 64-byte copy regardless of the actual size of the
-received buffer (which could be as small as 7 bytes for a=20
-REPORT_ID_HIDPP_SHORT packet)?=20
-
-Could this copy adjacent heap memory into the answer buffer, potentially=20
-leaking it when the data is parsed later?
-
->  	if (hidpp->quirks & HIDPP_QUIRK_HIDPP_CONSUMER_VENDOR_KEYS) {
->  		ret =3D hidpp10_consumer_keys_raw_event(hidpp, data, size);
->  		if (ret !=3D 0)
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/cover.1783094954.gi=
-t.edouglas7358@gmail.com?part=3D1
+-- 
+Dmitry

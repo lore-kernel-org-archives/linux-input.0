@@ -1,169 +1,110 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pg1-f173.google.com (mail-pg1-f173.google.com [209.85.215.173])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B36F433A005
-	for <linux-input@vger.kernel.org>; Sat,  4 Jul 2026 06:14:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EED2E34EEF7
+	for <linux-input@vger.kernel.org>; Sat,  4 Jul 2026 12:17:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783145700; cv=none; b=kCS5mgdO3Wm29vI2ZJIi9X6a6PIC9MUOzaCNAWUenmTIZJ8OvA8d0BoEf5Ip3eLKOCdBzcfRxsHGR9peBKc7f9ihkPJmXvX6anzqcu63CYoeVAlh2uc0nq4ovdEbHJ2u/uEnQag1dvXThmIK+uwMJjEpCO+C7N0Yc/RVr74avnc=
+	t=1783167466; cv=none; b=mUQEWuKGM74zsej6+p0pw60VDxTJdf6ccR76TZ/fqtOM1NBru+DXsOfZAScTOiDNGwUXtHRLZoxxlHSo8dqymz8IY1K6552gJicfu87CF4hygaTSMF+pd7x1SiqLhdjt3xWoQgHZa6BNs1/iu68lAPjhWsvA2WPZka4PRqzB9ls=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783145700; c=relaxed/simple;
-	bh=8uT9L0YWvE47utPUeAPzGkPepw2V6364tyXHLbLsqKs=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=TZ+Zj/Adf8SMH3aihM1b3ftoA+mlszRekFi0jzfDhLl6ksBRa8vnGDaWZoYsljTIixsDq3lqtufjqaprev1uoQ/q4LW3Vw6I4/ClEqHnu2wGwQt2LsPgC1B4jgdgz5JwNbr4kBp0qzI/lvlgdXesIiVIyK+LSWODDGeboz9OKWs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=oTlwZ7Fv; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1783167466; c=relaxed/simple;
+	bh=nLqGp3I6iyqF8SyHzWbaClXTgEW5Obat6jczuJPhFRQ=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=SdB6SpCnpd9gAVSNOrHzbeG+NXDHFvkZm7XJtLewSRw9LvtdKVZWJziByUzDEoqhb4B1TwpAEEwL1hqEC3xvClKsHXYUgwMGYIb/xH/hMgl0N/SszpuYOxpNYDYAzaW/wjZvwJcwUfitwiQ+csODBHnq+GXKwCJ+TyBqvjnxAI0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=qMCoaiEM; arc=none smtp.client-ip=209.85.215.173
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="oTlwZ7Fv"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68F6C1F000E9;
-	Sat,  4 Jul 2026 06:14:59 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1783145699;
-	bh=vF40/wYDQ6eJAUo/uNQNhm0JRBMEzoQ3QiUHAsrUK0k=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=oTlwZ7FvIxqeoeYPC9XgN3mzmFfrXbCQSOvI9KW1tN3RHac+5HuSgURZ49TQNDOz9
-	 6U6tN0TmzZ3tbnm0LfhvFaPvmw3YgRe1mwOp55VHsjWWw3CXyW/YiAF0KRYuRMqB/L
-	 px2oyeoBmfziHqKNOyKrmzSEs2mukDiySYjV+qKjihS3QWgIw1pFqNu6kdkd/red0d
-	 GIqhYGBBs7fEUOHCWvLrPao48QtoHu+EcPUkTuOTlvNZ/vbFX0A0jNYhG/k26ey7F+
-	 +lOECV+60YoBJDVReYZFuE2SL0xTqgp6NxS6cZ+a+PfabeWGOukpZTTR9sCML+wiUm
-	 qXaLlxHL1osNA==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 18/26] sh: maple: introduce callback_mutex in
- maple_device
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260703-b4-maple-cleanup-v1-18-41e424964da5@gmail.com>
-References: <20260703-b4-maple-cleanup-v1-0-41e424964da5@gmail.com>
- <20260703-b4-maple-cleanup-v1-18-41e424964da5@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Sat, 04 Jul 2026 06:14:58 +0000
-Message-Id: <20260704061459.68F6C1F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="qMCoaiEM"
+Received: by mail-pg1-f173.google.com with SMTP id 41be03b00d2f7-c9a20f70263so900352a12.1
+        for <linux-input@vger.kernel.org>; Sat, 04 Jul 2026 05:17:44 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1783167464; x=1783772264; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=Ap+8ZZFSRrlymucC2FxpZWiwNa+74f6yAjx0IzSc+u0=;
+        b=qMCoaiEMjpEbwvph9Z5lCYepQNZndZpmpRJS/D8Ix7Wuwvt+evsdIpSKKVc2Zxxl/D
+         lej2vpCWFDeOCCsWN9vfDIZ6SR8s9JNXLtLHjJRh0eQrMNKU8ZB9UFp9D7jYn8c0mGGz
+         A/+243fvBeBqc0GjgdLlPAqkmV4bkS+9ntSUqyQQFs2Dvz1vFUmh8b26J1cPF/9pW3Oe
+         1zv97BMaqxQ3Okulx+ICH7bTXLWZgATYEvl+/RQIUHzcFm9I5BFjkGLcOx9ulv5kjcxW
+         L0qlylieOpFXoF0XofZmFr/6gh3G2jpTtBO9BbrmZorFCm99COpcWu95vkDURHZjrEjs
+         Hdsg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1783167464; x=1783772264;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=Ap+8ZZFSRrlymucC2FxpZWiwNa+74f6yAjx0IzSc+u0=;
+        b=hpxVe/BOJ/T0NJ9Sba7uaitbiVeQ+hETM/CrR9Mp7zU0NGNL+JJgOcA3SrNLn5CXAd
+         huP+jJbATzldpZJ6BQCjg4nKgioahSqRI4De0j/0odtrOqICvBt1fOxzdZwfbIMjFwfz
+         I3f4OxIPoCIxNCYfiZOrPBVyrhWKKxZ5y+664mAdadizyJEb8ezSS9yqvFZfRlYC08hm
+         bdpLtYMVQ+zxXvr4pdz7cpvQ9ec+Q5g/+zB8XX5AJ8oBnKaCv68mSJ0f0bAzgL6xVTEG
+         feH9gZIGQuGgzJmeckTsbRj1v7/Z8ByAPPTKT0BTbTa+QLDbe5Y4cRqBuSdAF2//Hjpf
+         pizw==
+X-Gm-Message-State: AOJu0YwMy8lko7C8jj+O2N7WH/d9UvzT7kPzO7C/ISkKtIJwaB7WOC3w
+	EsH9ur68TrJ2Hoqr6njQXfQo9Oaa49Ql0q13f1JMakOWJ+MNUvjNBBuZrNeuB3JW6X0=
+X-Gm-Gg: AfdE7cmxdT1K7Ze7FKjoas7wTQY3FH8J3z/SccCgbgorCw5uEMo4Uky2LU5iktV5D7C
+	zZiFLvpSC54Aj5szDRCAmJwvWLHxu112yih4cz7KyaUOIPhv1p22vbpbohbr6ATLIAKZIT53T11
+	KPavb7ueOaDNUWYeZ2Q9Yj6A5JeRsoRXVhPe5UH8xa3cI35gNw4NYWEthsPvLHZB2zUwJOwLRf/
+	Wo0JA9FeUSYOyjM35h9zZ5aE80luILlSUQQVJi8cKSHta3SMTqmrkheCrwlfcN3ZkZX3z+j/rCG
+	/Ljw+Ml/dUsG/NwqLckEGqUO0qirGSkl504xRaqWqVhEkhWpNiIiba2DEvTHSIzCiJErg/rENrm
+	k0pfJre6ibBAt05fMg6JPPmXG/bz1RnfLfZIIWx48Wlk7CJaEX4wUEyqZLXWA6OEHp7tMnJgSwR
+	5GCPQELcN05Wb4WeYMdxFsSbFs1iPVPSMbjGnjzGgVFZaBePZVCYQgFgUW3YbalA==
+X-Received: by 2002:a05:6a20:4324:b0:3b3:ccd0:cf62 with SMTP id adf61e73a8af0-3c01cbdc95amr7827862637.36.1783167463959;
+        Sat, 04 Jul 2026 05:17:43 -0700 (PDT)
+Received: from localhost.localdomain ([2405:acc0:1306:1a77:4d22:a645:ecb4:40eb])
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-13b3c85bde6sm49901144c88.9.2026.07.04.05.17.41
+        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
+        Sat, 04 Jul 2026 05:17:43 -0700 (PDT)
+From: Laxman Acharya Padhya <acharyalaxman8848@gmail.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH] Input: elants_i2c - prevent divide-by-zero on invalid EKTH data
+Date: Sat,  4 Jul 2026 18:02:38 +0545
+Message-ID: <20260704121738.48071-1-acharyalaxman8848@gmail.com>
+X-Mailer: git-send-email 2.51.2
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
-s) to consider:
+elants_i2c_query_ts_info_ekth() checks the reported row, column and
+oversampling values before calculating the touchscreen resolution, but
+does not check the physical dimensions. If either physical dimension
+is zero, DIV_ROUND_CLOSEST() divides by zero during probe.
 
-New issues:
-- [Critical] The newly introduced callback_mutex causes a guaranteed self-d=
-eadlock when enumerating vmu-flash devices.
-- [Medium] The newly introduced callback_mutex is initialized dynamically b=
-ut is not destroyed during the standard device release lifecycle.
+Treat zero physical dimensions as invalid data and skip the resolution
+calculation, as is already done for the other invalid information.
 
-Pre-existing issues:
-- [High] The patch fails to prevent the Use-After-Free race condition in th=
-e vmu-flash driver because vmu_disconnect bypasses the new callback_mutex.
---
+Fixes: 66aee90088da ("Input: add support for Elan eKTH I2C touchscreens")
+Assisted-by: Codex:gpt-5
+Signed-off-by: Laxman Acharya Padhya <acharyalaxman8848@gmail.com>
+---
+ drivers/input/touchscreen/elants_i2c.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-commit 29c05632bf3bdcdb9087fb8230fb421ba8176ce5
-Author: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+diff --git a/drivers/input/touchscreen/elants_i2c.c b/drivers/input/touchscreen/elants_i2c.c
+index 17175ad..68c5ee3 100644
+--- a/drivers/input/touchscreen/elants_i2c.c
++++ b/drivers/input/touchscreen/elants_i2c.c
+@@ -566,10 +566,11 @@ static int elants_i2c_query_ts_info_ekth(struct elants_data *ts)
+ 
+ 	dev_dbg(&client->dev, "phy_x=%d, phy_y=%d\n", phy_x, phy_y);
+ 
+-	if (rows == 0 || cols == 0 || osr == 0) {
++	if (rows == 0 || cols == 0 || osr == 0 ||
++	    phy_x == 0 || phy_y == 0) {
+ 		dev_warn(&client->dev,
+-			 "invalid trace number data: %d, %d, %d\n",
+-			 rows, cols, osr);
++			 "invalid data: rows=%u cols=%u osr=%u phy_x=%u phy_y=%u\n",
++			 rows, cols, osr, phy_x, phy_y);
+ 	} else {
+ 		/* translate trace number to TS resolution */
+ 		ts->x_max = ELAN_TS_RESOLUTION(rows, osr);
+-- 
+2.51.2
 
-sh: maple: introduce callback_mutex in maple_device
-
-This commit introduces callback_mutex in struct maple_device to synchronize
-callback registration and invocation. It is intended to prevent=20
-use-after-free bugs if a device is removed while a callback is in flight.
-
-> diff --git a/drivers/sh/maple/maple.c b/drivers/sh/maple/maple.c
-> index c0715e3ace6f1..7c82b7a8a2809 100644
-> --- a/drivers/sh/maple/maple.c
-> +++ b/drivers/sh/maple/maple.c
-> @@ -121,6 +121,7 @@ void maple_getcond_callback(struct maple_device *dev,
->  			void (*callback) (struct mapleq *mq),
->  			unsigned long interval, unsigned long function)
->  {
-> +	guard(mutex)(&dev->callback_mutex);
-
-[Severity: Critical]
-Does this introduce a self-deadlock when a callback registers a new callbac=
-k?
-
-When enumerating a vmu-flash device, maple_dma_handler() acquires=20
-mdev->callback_mutex and executes the callback vmu_queryblocks().=20
-Inside vmu_queryblocks(), the driver calls maple_getcond_callback() to
-configure the next phase.=20
-
-Since maple_getcond_callback() unconditionally attempts to acquire the
-same non-recursive mdev->callback_mutex here, won't this immediately
-deadlock the maple bus workqueue?
-
->  	dev->callback =3D callback;
->  	dev->interval =3D interval;
->  	dev->function =3D cpu_to_be32(function);
-
-[ ... ]
-
-> @@ -230,11 +231,13 @@ static struct maple_device *maple_alloc_dev(int por=
-t, int unit)
->  	mdev->dev.bus =3D &maple_bus_type;
->  	mdev->dev.parent =3D &maple_bus;
->  	init_waitqueue_head(&mdev->maple_wait);
-> +	mutex_init(&mdev->callback_mutex);
->  	return mdev;
->  }
-> =20
->  static void maple_free_dev(struct maple_device *mdev)
->  {
-> +	mutex_destroy(&mdev->callback_mutex);
-
-[Severity: Medium]
-Is a corresponding mutex_destroy() needed in the standard device release=20
-path?
-
-While mutex_destroy() is added to maple_free_dev() here, if a maple device'=
-s=20
-reference count drops to zero after device_unregister(), the release=20
-path maple_release_device() is executed.=20
-
-Will this leave stale lockdep/RT-mutex structures behind if debugging=20
-configs are enabled, since maple_release_device() does not destroy the=20
-mutex before calling kfree(mdev)?
-
->  	kmem_cache_free(maple_queue_cache, mdev->mq->recvbuf);
->  	kfree(mdev->mq);
->  	kfree(mdev);
-
-[ ... ]
-
-> @@ -655,8 +658,10 @@ static void maple_dma_handler(struct work_struct *wo=
-rk)
->  				break;
-> =20
->  			case MAPLE_RESPONSE_DATATRF:
-> -				if (mdev->callback)
-> -					mdev->callback(mq);
-> +				scoped_guard(mutex, &mdev->callback_mutex) {
-> +					if (mdev->callback)
-> +						mdev->callback(mq);
-> +				}
-
-[Severity: High]
-This is a pre-existing issue, but does this actually prevent the=20
-use-after-free race condition for all drivers?
-
-If a user unbinds a vmu-flash device while a maple data transfer is=20
-in-flight, vmu_disconnect() bypasses this new mutex entirely:
-
-drivers/mtd/maps/vmu-flash.c:vmu_disconnect() {
-    ...
-    mdev->callback =3D NULL;
-    card =3D maple_get_drvdata(mdev);
-    ...
-    kfree(card);
-}
-
-Since vmu_disconnect() modifies the callback and frees the private data=20
-without acquiring callback_mutex, can maple_dma_handler() still=20
-concurrently dereference the freed card data here?
-
->  				atomic_set(&mdev->busy, 0);
->  				wake_up(&mdev->maple_wait);
->  				break;
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260703-b4-maple-c=
-leanup-v1-0-41e424964da5@gmail.com?part=3D18

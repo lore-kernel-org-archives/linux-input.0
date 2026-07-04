@@ -1,68 +1,67 @@
-Received: from mail-pj1-f51.google.com (mail-pj1-f51.google.com [209.85.216.51])
+Received: from mail-pj1-f52.google.com (mail-pj1-f52.google.com [209.85.216.52])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F1A5C38F251
-	for <linux-input@vger.kernel.org>; Sat,  4 Jul 2026 05:58:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A9EC938F252
+	for <linux-input@vger.kernel.org>; Sat,  4 Jul 2026 05:58:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.52
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783144691; cv=none; b=L0kEHtQyw1szWx3KSi80aJNm0Johjn7Hvs6yiOp/KeDNSRIu0xCV1QdNGEpqcM38vor919sbyyFvL2yEwvAyE13aZM0XSBLoDfivFu189a5Uy+zwaKaEhtRHJF1GNT0RV+tg69v7j27shZfQ4zi1E++YXvXzpYTz22/0cwdHkco=
+	t=1783144691; cv=none; b=P8/HmkjriX34cXYXk1urpjUp49+r5OP/8Urh/eRBe3UdUTQbiiES5n/7F87SAIstLLCbbgzvjTit3WzLZaqlUpwKZ1hMiPJ3sNNa+hxcQnvH0020JoW0D0dwY13CS7SGoXHzkXOSrefa5BmtXRvkDvCgtQLri2yVp/VQ9gg+4gU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1783144691; c=relaxed/simple;
-	bh=x+qjLATprHWVETyBtguIFSzJzAIa57zeTCo+KlBh1GU=;
+	bh=6EzURDVZSteYdlzW0VQHcWCyhb9aa+OxMVVJplZpIQ8=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=Rk9T7a+Ssbv/13fJp290ZI4+Amtw4nnOpz9Qt48ISgrkA3U9FnzjsvlXJNUJ8xy368pAoFyV2eBWrNupIfl8oXoc47oYbLMR1T2iyGulf6/mif83esh7EMYBBDKUo5BxL0VMcw+eM3HtgKS/kwUc6gJZfpDrBwy06FdB7YBEbeE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=hqUKsabw; arc=none smtp.client-ip=209.85.216.51
+	 In-Reply-To:To:Cc; b=uJ897wswI8Cj5BaWWCdPdG4xqMfPye6t8eqM7W/RD+WUlhg1kTEVoA/11MrsQ1Vv2D1MB1O1KhOZXM7xuJ8pl6OAm5l8N8GWx1moKDhF7fst3vtmSpcIQYMAyOae0685YobtuInroIk6E2lWPXR7r3zBmg6vsxpz1HbG6Ko7Tl4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=IP46HLvL; arc=none smtp.client-ip=209.85.216.52
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hqUKsabw"
-Received: by mail-pj1-f51.google.com with SMTP id 98e67ed59e1d1-36b9d265355so910686a91.2
-        for <linux-input@vger.kernel.org>; Fri, 03 Jul 2026 22:58:08 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="IP46HLvL"
+Received: by mail-pj1-f52.google.com with SMTP id 98e67ed59e1d1-3817f800c8bso708630a91.1
+        for <linux-input@vger.kernel.org>; Fri, 03 Jul 2026 22:58:10 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1783144688; x=1783749488; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1783144690; x=1783749490; darn=vger.kernel.org;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :content-type:mime-version:subject:date:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=LjRXENzhFdJSLRiM6d5V3++2rjRXfCmisZIqwmSzJyg=;
-        b=hqUKsabwulssajAcE2+cEgHwYIE9nSin9/+Mx+zD85wAbYUVWWRN3V0unhVqiK3Lds
-         QNSulPD8BsFnXyk86M8gYLWW8udBnWTTvLbCLAgZHuoksGqQR0op0/PRuiUB4A11Q5MV
-         FywMe/8EHZmlpS57EtE7s013BfqjCnZBggCu8nB54mdza/D0eqbjf4DCRiBlNW4B1mpo
-         GcejxH3HnLzGmqEd5LC18flJDrm13TPl0mTzi5WjOGjXvvx9jUMsmt6y9VRWDaCJwhfW
-         IKiPtiglm4W/uTnVXRVrirOlROQ0Fy8zRZ8krNSSMLdG+rWEVxLpXuM5+m3kM2+OtQr5
-         87hg==
+         :mime-version:subject:date:from:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=odQ5XDRk/imIwJvcMYJydfLsPk2M2zgv/XPdgoTp5mQ=;
+        b=IP46HLvL7nILQMse1iD53aqLSbSXJIea+uEgLok0G335qURq4K0CyyzIBdgpNzvAZV
+         wEb2xz989aAMx1AignNq9YUdZ7+2FeykboP9cF3Qe4V3kQW3iIszlJHf0wbIK9u3iCyF
+         e23ABRxGPvzaCnJXFiVVER5tR5KEVKOghb6Tj2w3NA9Yjr7HOAqx5V6FH8cYYU2TFSpb
+         VpIsME1ZqdiC5eaeJK7M28DNtTlrpbwUzMFzmN9yB75ZGx9yD/V5wJ0Cf0q2muZlOzRI
+         mIZ5zxeZqiD0M8GI+ggF2WTYii0Vpd+yL8mpbjiLw0uIHyJuy7SRdetCcvFw0HHSxnxr
+         0/sg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1783144688; x=1783749488;
+        d=1e100.net; s=20251104; t=1783144690; x=1783749490;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :content-type:mime-version:subject:date:from:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=LjRXENzhFdJSLRiM6d5V3++2rjRXfCmisZIqwmSzJyg=;
-        b=tIzzJIFyB8oa7exjKhvW+KBN7WuU9boZhWy+kjXrAALgixpqNptsXpfTWv9q4JIw2U
-         eJesRjB5agve/MieD0rK2ZhfSaYbIEYmCo9PPriUIzaTCLr4PMDbkzhZgwwfnmoLRRxN
-         5Hsc8sW7Xn0VAZkVtLSmurhyL3rqkibCh7TbpmiaJVKrRzTca/Sx8E8LT7d+DRDoV14Q
-         maG5LKZvS40Qcvcz9hBRYvtDF50pB8YVwIK/b+l4onYG4F2TrEn28TmUKQSU2fnA+N90
-         D1TK+jnKUpaumQVw6Ip/AxYH3lXwK4rDwLttwPLKyIqN/Qg5h/NchsEkO02d3EkDP2VF
-         5RRg==
-X-Forwarded-Encrypted: i=1; AHgh+RpbpIPksk4gpJpH/A5fqvPhiSlHjhur8t+TNtxw9x+An6S7mqRWi2euiUmUCXllgm7AllG/LPFlvFA4Uw==@vger.kernel.org
-X-Gm-Message-State: AOJu0YzDXGMNKH9hgzba7D72kVa48MERRFcm+tNG3dBug6X82wUuzXwA
-	sY2Ts566y5knOrkKf0ExmmwcIm/Q5sfWOa7aP6d39XfG3nGmwfLAdr0e
-X-Gm-Gg: AfdE7ckv5FM/cT8/fZ/55RQol26Q6V+MAk5n+H8/JhGI/Vih8oRLeX5Oa8DKkt/QbWx
-	m9MRIGDTrFBn2PRWS8Q4iMAdEmI8IrFemKGhbBT3Hdbob39/PfbET0skWbzzyd+7fY+qQEv+e1R
-	BYw8m+vswyKQdjWxcn5hJIg34ahmrp4KGmGIj16gcFT/mckNlfq8GwmdU47f7pGKmXjDlToW/w8
-	gPRICWFG2xsXQkEZ66gqRjlEFLNKz1pfcHIdHU0UX9DwiUlTiuyy4itkdJhUt/s/eZjFfKB/QI6
-	IM7Ew8zJ/LqvVgHLJJe5eo0t39A8V/CAnyM0sG+55rYjvut2ezR55x5w1TcjSMlezkyTGKqbgPc
-	R3BM2v0aqu2VZErcLMRLEEnCrj/cLkN2fc4/w85bEphr2yTuyokFDMSpDi++Ne0Y8hPUJylH9xh
-	GfkYKzzvKIHegyrWW4x0ySyGPXSsV5hvVliUx0P6VnC/olib4jHcQ9zaYKrVA9XbqMwtoGFePdr
-	jQ=
-X-Received: by 2002:a17:90b:2c8e:b0:37f:464d:ea38 with SMTP id 98e67ed59e1d1-3825c50c2ccmr2400537a91.0.1783144688130;
-        Fri, 03 Jul 2026 22:58:08 -0700 (PDT)
+         :mime-version:subject:date:from:x-gm-gg:x-gm-message-state:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=odQ5XDRk/imIwJvcMYJydfLsPk2M2zgv/XPdgoTp5mQ=;
+        b=qopKoEWXIQN4pRGKX13ZEwPMDwUrFdMavVpSb/NMwgTu9hL5Cb6CslfICItXefYniK
+         5Z0f3rcNyQhDs3qlsaLQlVdsbg6HmoqROka5niSfgIJ/3quXk8zhT+2vwqz554TsfIhD
+         JsXwg5tJ5mv8M9nT2vfH6p4mT3JXDMEBlpaaaTYMNKWgzjNDPribRmg6UXKV7z4WZdSe
+         hEImpV+9RtH/gzp8152zWE5F6NzolRPDT2M0HGbeH8Xvuu3syO3XqisMVe0nV2JP0VIa
+         tTUxCLtgfdzjGPlrGDJ08IJAisuSEKXpdz8ZHvWFT+g5hbjKU5k+IRpwxO2zh4K87xw2
+         OGiw==
+X-Forwarded-Encrypted: i=1; AHgh+RpkFIwfmXnFnB7mYTNK9xpfnKibpQNFlCvX4IuflMjYjQdKPN9HMiSzuVmRunsu0EbjI/ncovTXTM+9Qg==@vger.kernel.org
+X-Gm-Message-State: AOJu0YwlBso3JntGCmxoKzp2yXZzevSct7Q7ztOZjXkXj84SSo8zbFZI
+	RHnZCFQ2/+EQZEBorWejCE7wABjXpn3Mv7T4tVCiouSXl08K7xzcic3R
+X-Gm-Gg: AfdE7cl8AzN7uoi6+4VoGsCy1iL1zxFEt/AllaGzACT2xMrJArpKsx2zr55h4SNAuRP
+	Pkks3ICKezs98mrKLmMMc6VCpLpxowyQW89Bd+gnmDhYmPnGGtSbS7Sa116+MvyA/eAFoKMeMw2
+	sOcAWEOle+AGbWX0sbSnK2yqvo5mycOKcK8OrD76Eqah7IRBH9wQfgvwJItfWlghLWr68zBbue1
+	CnF0RrnsquCdVRGjwfv1cpIJmnHbRojbhhYHGfwgfSUZlL2vqAgBU7q8nBA9lAb7fIMk1Tbnxig
+	QJCBG4zKuqP5yokQO+6mWeGnZutTF+FnXu/hZ2SWiLfpRyhOAtCRUbkpsTA+aSLQpqPvQwiAKe0
+	VEZ3FPk1aZPK7OSUHtv3fxv8rIG9XwpIp19u0Smi8EXVNhISwVbeUdB/S7FQuuFTNjj840KFvFz
+	WvT/YZ21or7kohLTPS9GfH44kLhSqUJZjh8ZR+S+e0mpF3eIqPqiYfrpeTpIXFnPGUNBhAebR74
+	wt40YXbbMS/yw==
+X-Received: by 2002:a17:90b:3b8a:b0:380:9d0d:7ade with SMTP id 98e67ed59e1d1-3825c50c9cbmr2507478a91.0.1783144689694;
+        Fri, 03 Jul 2026 22:58:09 -0700 (PDT)
 Received: from dtor-ws.sjc.corp.google.com ([2a00:79e0:2ebe:8:880:86f9:3b00:6746])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-30f0b813cd9sm26262412eec.8.2026.07.03.22.58.06
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-30f0b813cd9sm26262412eec.8.2026.07.03.22.58.08
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 03 Jul 2026 22:58:07 -0700 (PDT)
+        Fri, 03 Jul 2026 22:58:09 -0700 (PDT)
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Date: Fri, 03 Jul 2026 22:57:44 -0700
-Subject: [PATCH 21/26] Input: maplemouse - convert to devm
+Date: Fri, 03 Jul 2026 22:57:45 -0700
+Subject: [PATCH 22/26] Input: maplecontrol - convert to devm
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -71,7 +70,7 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260703-b4-maple-cleanup-v1-21-41e424964da5@gmail.com>
+Message-Id: <20260703-b4-maple-cleanup-v1-22-41e424964da5@gmail.com>
 References: <20260703-b4-maple-cleanup-v1-0-41e424964da5@gmail.com>
 In-Reply-To: <20260703-b4-maple-cleanup-v1-0-41e424964da5@gmail.com>
 To: Miquel Raynal <miquel.raynal@bootlin.com>, 
@@ -93,69 +92,68 @@ the remove() callback entirely, as all cleanup is handled automatically.
 Assisted-by: Antigravity:gemini-3.5-flash
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 ---
- drivers/input/mouse/maplemouse.c | 37 +++++++++----------------------------
- 1 file changed, 9 insertions(+), 28 deletions(-)
+ drivers/input/joystick/maplecontrol.c | 30 +++++++++---------------------
+ 1 file changed, 9 insertions(+), 21 deletions(-)
 
-diff --git a/drivers/input/mouse/maplemouse.c b/drivers/input/mouse/maplemouse.c
-index 03cb666d278d..7842bd46c9a1 100644
---- a/drivers/input/mouse/maplemouse.c
-+++ b/drivers/input/mouse/maplemouse.c
-@@ -70,17 +70,13 @@ static int probe_maple_mouse(struct maple_device *mdev)
- 	struct input_dev *input_dev;
- 	struct dc_mouse *mse;
+diff --git a/drivers/input/joystick/maplecontrol.c b/drivers/input/joystick/maplecontrol.c
+index 6864243b0b4a..3ef6652d40cb 100644
+--- a/drivers/input/joystick/maplecontrol.c
++++ b/drivers/input/joystick/maplecontrol.c
+@@ -99,12 +99,13 @@ static int probe_maple_controller(struct maple_device *mdev)
+ 	struct input_dev *idev;
+ 	unsigned long data = be32_to_cpu(mdev->devinfo.function_data[0]);
  
--	mse = kzalloc_obj(*mse);
--	if (!mse) {
+-	pad = kzalloc_obj(*pad);
+-	idev = input_allocate_device();
+-	if (!pad || !idev) {
 -		error = -ENOMEM;
 -		goto fail;
 -	}
--
--	input_dev = input_allocate_device();
--	if (!input_dev) {
--		error = -ENOMEM;
--		goto fail_nomem;
--	}
-+	mse = devm_kzalloc(&mdev->dev, sizeof(*mse), GFP_KERNEL);
-+	if (!mse)
++	pad = devm_kzalloc(&mdev->dev, sizeof(*pad), GFP_KERNEL);
++	if (!pad)
 +		return -ENOMEM;
 +
-+	input_dev = devm_input_allocate_device(&mdev->dev);
-+	if (!input_dev)
++	idev = devm_input_allocate_device(&mdev->dev);
++	if (!idev)
 +		return -ENOMEM;
  
- 	mse->dev = input_dev;
- 	mse->mdev = mdev;
-@@ -99,29 +95,14 @@ static int probe_maple_mouse(struct maple_device *mdev)
- 	input_dev->id.bustype = BUS_HOST;
- 	error =	input_register_device(input_dev);
+ 	pad->dev = idev;
+ 	pad->mdev = mdev;
+@@ -129,33 +130,20 @@ static int probe_maple_controller(struct maple_device *mdev)
+ 	if (idev->keybit[BIT_WORD(BTN_JOYSTICK)])
+ 		idev->evbit[0] |= BIT_MASK(EV_KEY);
+ 
+-	idev->dev.parent = &mdev->dev;
+ 	idev->name = mdev->product_name;
+ 	idev->id.bustype = BUS_HOST;
+ 
+ 	error = input_register_device(idev);
  	if (error)
--		goto fail_register;
--	return error;
--
--fail_register:
--	input_free_device(input_dev);
--fail_nomem:
--	kfree(mse);
--fail:
--	return error;
--}
+-		goto fail;
+-	return 0;
 +		return error;
  
--static void remove_maple_mouse(struct maple_device *mdev)
--{
--	struct dc_mouse *mse = maple_get_drvdata(mdev);
+-fail:
+-	input_free_device(idev);
+-	kfree(pad);
+-	return error;
+-}
 -
--	input_unregister_device(mse->dev);
--	kfree(mse);
+-static void remove_maple_controller(struct maple_device *mdev)
+-{
+-	struct dc_pad *pad = maple_get_drvdata(mdev);
 +	return 0;
+ 
+-	input_unregister_device(pad->dev);
+-	kfree(pad);
  }
  
- static struct maple_driver dc_mouse_driver = {
- 	.function =	MAPLE_FUNC_MOUSE,
- 	.probe =	probe_maple_mouse,
--	.remove =	remove_maple_mouse,
+ static struct maple_driver dc_pad_driver = {
+ 	.function =	MAPLE_FUNC_CONTROLLER,
+ 	.probe =	probe_maple_controller,
+-	.remove =	remove_maple_controller,
  	.drv = {
- 		.name = "Dreamcast_mouse",
+ 		.name	= "Dreamcast_controller",
  	},
 
 -- 

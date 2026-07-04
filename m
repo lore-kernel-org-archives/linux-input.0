@@ -1,68 +1,67 @@
-Received: from mail-pj1-f43.google.com (mail-pj1-f43.google.com [209.85.216.43])
+Received: from mail-pg1-f174.google.com (mail-pg1-f174.google.com [209.85.215.174])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5577438B7BB
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C0BE738C2C6
 	for <linux-input@vger.kernel.org>; Sat,  4 Jul 2026 05:57:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.43
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783144669; cv=none; b=XaRhlXn3O7wB6K9Ycdf++rXTN7iFDUbIRNSCXMGzdWqEKIkYL9oeFpH5GdUXO50DBd0HFDmcOpT6wbhFpGOdPcRGiXWRovTtTF3Ir8k4EGTAU8uZj2FhcJ6uk7BoFhql8CioWDlNLzxKrSvOwl+b3RYr9weOhCK7EhOADp84vRY=
+	t=1783144672; cv=none; b=rGUDzhA6mXmIVn0skeTZkEh4eMxYQcd6lco0kDtOSJ3qbOFRM7Mm+pb5q1pf97qKtAev6rNgcKxcrghVnYCpq2nbRqssWWY0Nvz7ZPQgnYC/Ylt90bKxCpRs/J+pEORhI5rF8ImoCRMzpjykWqIyxFuLO6tVpeGr8mZiiuyesOk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783144669; c=relaxed/simple;
-	bh=Iui5gWYSUynRCagIZf1r+I5yOOQ4yuu5YgE0mJR5/24=;
+	s=arc-20240116; t=1783144672; c=relaxed/simple;
+	bh=U89bmDnB42n015VBS+JIrR6P2wqCp+hfkJZAF2Zhsw0=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=VC2g2lAW7G/KqD9KP1B9nEkbitYo/xU2EiSVbgp/X8HIqMvgdprGM9GWFuBqnuL/ejUUM7REmds/PpaXEv4C03DVAK+o8RxFHUHabs8KivxNVkNJl705MtgT1q+VHFff+FX4nDAJ83rKP8H8aePtaSuI+0z3Azyo8w2l3KO+PzA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=cET15dzt; arc=none smtp.client-ip=209.85.216.43
+	 In-Reply-To:To:Cc; b=Qxbz1cYHkPd6zVqgm7eODvx0fCEqhK7XxDg9zoImc1NWozGiy5P0EQVqQo+4xd03xyfBKXcDZbhugZ/ri3tz8T3VNYZLt7vJnzWI2IXeajh8bzGacFXYZSbfzzlUuV2lG+uZTbuTaGDC5gD6kjY41AYn8bqZrnN5vYCNcf5mp3s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=juBRAZN4; arc=none smtp.client-ip=209.85.215.174
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="cET15dzt"
-Received: by mail-pj1-f43.google.com with SMTP id 98e67ed59e1d1-37d70036426so808822a91.3
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="juBRAZN4"
+Received: by mail-pg1-f174.google.com with SMTP id 41be03b00d2f7-c9e0b89e228so591102a12.1
         for <linux-input@vger.kernel.org>; Fri, 03 Jul 2026 22:57:48 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1783144668; x=1783749468; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1783144666; x=1783749466; darn=vger.kernel.org;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :content-type:mime-version:subject:date:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=/P2FegzAbUFBaPcGw6l/wNkWF21hDcB/lwqrEd+3RkY=;
-        b=cET15dzt8Edk9DYPrWDJRrFyyPQooFwN7rnoBYHNgF3LUkrRXajWM+4Dg7kuRKY1av
-         vV2DmeMXQ6T1J2Eha/rRvWLSZ9WCPbTrVitcUmRA/umxjzZ+CCqnhUho2ufOTyjbrvWS
-         VsUcwIlzEMQRUNcV9Yp1HOkzSY+jkEIiTJbudl6Rs0LHD4NJbLO268QFGZWdLDjtDB8l
-         Gd3WUgDORNMqib0CqTfR1Ivku5nyAyyW3+C4jFsK7Vx3I2rU3PGPLB7HSltkbPd/OavD
-         NO3KeIMpTFo+FyjH+liAKeGQMTmaf1T8L/YEEI8fI/TjzcAOGJz6XePzdc/7PvWfh52b
-         sGjA==
+         :mime-version:subject:date:from:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=4dp1mXo5SNq9TpBKhHNYZae1AakBfR6uJunKVLp5bf8=;
+        b=juBRAZN4wWECQgbFAan8foBltK1+P2IZKh8sPbEa7j6j1tMBWEFu4cC6O4YnpQlQoQ
+         vASZG9ld6IFf9H0MObdseQcm5+wjjglcG9Zbz/Ay8LgDAQgZmm+uWV1ehemCP/HvE4Q5
+         ido8+c5HzsIh70we+DVHG5VIC/170oE38+03OkieZSLl9IkFpPEYcq1wRn7jBsBw+4o5
+         KbIQJPWMjUvmjB0CZaSYo3tnm0WZO/yoWThRciZa0o3Mw3jvTCRr4oPdhNqpIcgKmjy0
+         90YOHYkyzgCWSgDY4Gfenm+wTLUanaFfbpjgPagN9qYqgvEvoynoMzIlh9CP5qB+OlzS
+         zK/Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1783144668; x=1783749468;
+        d=1e100.net; s=20251104; t=1783144666; x=1783749466;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :content-type:mime-version:subject:date:from:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=/P2FegzAbUFBaPcGw6l/wNkWF21hDcB/lwqrEd+3RkY=;
-        b=YDf1i5Hrs+5ek5cCeAkR1a9q3NaxK7YdghBRvXtw9ZCVDfBw1Ikl4DOelkoPDLvVmI
-         E+Z7mF6fc2d2YOjsuPJ1bLk8UinkuhcqBneyrSspFmdsA5QM/taH3rB6Nz31ZBGOGddH
-         Psr+8VR7BzR1TeDwGi8lb77CJtOb180oBW5ekThBesz5MzDJlw9AV5FzwftrJiflErBt
-         Oq2Tispxlx3D5QdETAHVXD40ZHYv/5F3Rb3TIgFaN34DYxAxppU97pO+6iUMHpLmORkL
-         +j2GeGtSsnxDaSSeJJiuLygD5BU2S7hQws5AEWUoBriqvErLYj42veGM8OygwxUNzCVs
-         aT7g==
-X-Forwarded-Encrypted: i=1; AHgh+RrKo4qgD/9EVrdPgTlk/7XrCxNN5VChpKtvxsTs5UyQltB2bSpudha5d6RuX8BkHJtkp7fddpiQB84Jwg==@vger.kernel.org
-X-Gm-Message-State: AOJu0YwVjbUHK/hpGvdMYyRJ8FxckNqWaSxiRBAG+eTb524gjsLNMjOr
-	UA/FJwps/SlnU5NMvSzFo4P9wZo1PUNodt32jh5v7mFpo/G6ZSF48/36
-X-Gm-Gg: AfdE7cmgVNVhopTG1nYMj1E2ieZ12YEMSW8G2rN6Iw9GrgW+sLYp9BQJ1ANHmpgYlFl
-	aJLxFtn2+5phciAi31xofeQOtOA9ckXfl2yyGhO2tSpFcnA06Dei4uUGRdm4HdLFBaugwwoJzXE
-	wC0zPiacY/tFnoAtohDRQE0Vyf+P3eBjHvjRbeMD2PrMF2RbHKROKmUtGY1BZp59iKR6Ry7ygWB
-	GMExIZMq7P1W/ktbZLnO3oQDXWPkykAEDWhLv6REEm0XeyFb5rQiW8x4MoNToZbPXaNMwydi9lb
-	Yf0t2C2nD1c/kfHNdTXZEBB0x3yo19TF6DeDofrCEDiZ7HjbTlw2ytiwR6q9zw1eVvbs7t4piJ5
-	k9eFzxPwgYMBUcEHhE6fd8FrLn6V3+d4NVfVngUREzFyL4fi2xNa671e+oTfVn6Hm/zprAq5Q5s
-	RsHnMrRjn4kp86Ddg/Vv4d+xtU6yoiF1KkNGFwIcSb62dn+iCHL4MExPVIdlTXASzuYpv8f7tbg
-	i8=
-X-Received: by 2002:a17:90b:4ec5:b0:380:f389:447b with SMTP id 98e67ed59e1d1-38280a9fefemr2264979a91.11.1783144667531;
-        Fri, 03 Jul 2026 22:57:47 -0700 (PDT)
+         :mime-version:subject:date:from:x-gm-gg:x-gm-message-state:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=4dp1mXo5SNq9TpBKhHNYZae1AakBfR6uJunKVLp5bf8=;
+        b=J8FRjJ+C/95qgtGfx4jmC7FsLfOr7dUWPrmUBerTG2eiU6fbXHIBfavnKWgS7qIU1h
+         wUu1t7dJAaP6RyLM0mdyEC6Fr6gBd/NXpb3s+SJSHZTHCLcqcd7clxDwKK6RYw/dAWHz
+         YB3aEtnP0sOCYYkuXowy3DnQkHgNZgDWJ0pZbxdZY9HIsjMgDDKqQOIgB+ipkk7NrNWu
+         HJQ9FHEMov3pKB9bUzwxFeYwi5Z8NkcFnm4ggMuyCszhFsWOhlw1evsV1oP1XR0b1vyZ
+         EKhp41XRPV0R58rcOkUVxAbZ1KyWJC5+Mc2ESl7x3ttOaucETWqZnX7q737zRaHiAqyL
+         UFcA==
+X-Forwarded-Encrypted: i=1; AFNElJ/YUK167UXgtntM+QBXIvXq++ETRtAsgHsZ1IUgGexXQVO6hjxgHnLYeeTSkLPbnKLNqKeSqt5X4pSi6A==@vger.kernel.org
+X-Gm-Message-State: AOJu0YyBHgw1y0vuVQymyg+83NF7vfJ6fa9D5TvO1f/MGM4S7F1JPpkR
+	QGXoGExhN6nEbL00NGVPiv8qkfTsrL0qi7KynZJjuJFr31P/WwSbTU/2
+X-Gm-Gg: AfdE7cmsbYrIt7Rj+9jopMW/LxNCYiLm2MipHLtW6ZHJHqrDI7B/s5tsh2yExzkAHDs
+	EI9CBD1ojUiAs8JUh4z0pFlluXuEXuoYWq5IRPIpttlTcYG3HE883/WURLU+lSHorDJ1whwmczb
+	jikuKwNyvb5cfmdTyrXLATK0whlGekAjyvmrJZj070+c9D1pFBseKCWXivL3FfYEKnNfOQ6dJfN
+	UqZC9ffZWc3hSG/hT6K46FVNI5Cpyyle8mvwrBVQ42w5REBDGtH0VQXzZWOqen07tF6VImz75k4
+	UPaNIfCb4PQJMQa7kajlYpypvqMBll0RoPxTRYdueK7JynHpWt1x5vLX/OvK+T0GpjeYl06cMqn
+	XkKwDSKYPVrWNtQ2CenYlJWYycSdtghZ6RJb3xAP2r+P+O3Ojdw89J/N1cKRvyHDBC99wHElCV0
+	LW+GtgRpgwg1u++ReW34bp1XLtblt6PBMPtStbyR/Tg73dIll+uf3Fi2IAZUOB66Am+cWV/te7e
+	2M=
+X-Received: by 2002:a05:6a20:d43:b0:3bf:e66f:266a with SMTP id adf61e73a8af0-3c03e5b8218mr2447512637.59.1783144665865;
+        Fri, 03 Jul 2026 22:57:45 -0700 (PDT)
 Received: from dtor-ws.sjc.corp.google.com ([2a00:79e0:2ebe:8:880:86f9:3b00:6746])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-30f0b813cd9sm26262412eec.8.2026.07.03.22.57.46
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-30f0b813cd9sm26262412eec.8.2026.07.03.22.57.44
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 03 Jul 2026 22:57:46 -0700 (PDT)
+        Fri, 03 Jul 2026 22:57:45 -0700 (PDT)
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Date: Fri, 03 Jul 2026 22:57:32 -0700
-Subject: [PATCH 09/26] Input: maple_keyb - remove redundant drvdata
+Date: Fri, 03 Jul 2026 22:57:31 -0700
+Subject: [PATCH 08/26] Input: maplemouse - remove redundant drvdata
  resetting
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
@@ -72,7 +71,7 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260703-b4-maple-cleanup-v1-9-41e424964da5@gmail.com>
+Message-Id: <20260703-b4-maple-cleanup-v1-8-41e424964da5@gmail.com>
 References: <20260703-b4-maple-cleanup-v1-0-41e424964da5@gmail.com>
 In-Reply-To: <20260703-b4-maple-cleanup-v1-0-41e424964da5@gmail.com>
 To: Miquel Raynal <miquel.raynal@bootlin.com>, 
@@ -91,29 +90,29 @@ failures and device removal, so we can remove it from the driver.
 Assisted-by: Antigravity:gemini-3.5-flash
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 ---
- drivers/input/keyboard/maple_keyb.c | 2 --
+ drivers/input/mouse/maplemouse.c | 2 --
  1 file changed, 2 deletions(-)
 
-diff --git a/drivers/input/keyboard/maple_keyb.c b/drivers/input/keyboard/maple_keyb.c
-index a245774acc55..0c92138bcc77 100644
---- a/drivers/input/keyboard/maple_keyb.c
-+++ b/drivers/input/keyboard/maple_keyb.c
-@@ -212,7 +212,6 @@ static int probe_maple_kbd(struct device *dev)
- 	return error;
+diff --git a/drivers/input/mouse/maplemouse.c b/drivers/input/mouse/maplemouse.c
+index 97d520e7d66d..37f60bbd0ba4 100644
+--- a/drivers/input/mouse/maplemouse.c
++++ b/drivers/input/mouse/maplemouse.c
+@@ -109,7 +109,6 @@ static int probe_maple_mouse(struct device *dev)
  
  fail_register:
+ 	input_free_device(input_dev);
 -	maple_set_drvdata(mdev, NULL);
- 	input_free_device(idev);
- fail_idev_alloc:
- 	kfree(kbd);
-@@ -230,7 +229,6 @@ static int remove_maple_kbd(struct device *dev)
- 	input_unregister_device(kbd->dev);
- 	kfree(kbd);
+ fail_nomem:
+ 	kfree(mse);
+ fail:
+@@ -122,7 +121,6 @@ static int remove_maple_mouse(struct device *dev)
+ 	struct dc_mouse *mse = maple_get_drvdata(mdev);
  
+ 	input_unregister_device(mse->dev);
 -	maple_set_drvdata(mdev, NULL);
+ 	kfree(mse);
+ 
  	return 0;
- }
- 
 
 -- 
 2.55.0.rc0.799.gd6f94ed593-goog

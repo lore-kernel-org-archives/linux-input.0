@@ -1,177 +1,112 @@
-Received: from mail-pj1-f45.google.com (mail-pj1-f45.google.com [209.85.216.45])
+Received: from mail-pj1-f47.google.com (mail-pj1-f47.google.com [209.85.216.47])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 06BCA3955E4
-	for <linux-input@vger.kernel.org>; Sat,  4 Jul 2026 05:58:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A27A538D3EF
+	for <linux-input@vger.kernel.org>; Sat,  4 Jul 2026 06:01:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.47
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783144698; cv=none; b=GvIGKamy95HxjduUZ7pQHphwz+FvFVg+UOEsOey9iuzV653junUw/bT9dSrehvMJsqdRgUgkSR5YUyhM1H1fuQQCA8PKpqqomPh5dI51wdXb/UnfzXfdu2Wz/dWzoEjQr+h+3eIpY6jEpPB1Dw6zCv/Eenhz8gZd29KUJ2UR0Mo=
+	t=1783144883; cv=none; b=bey8Mm4ab8NM0zNvkb9z4C/GElJEOErFwmX2sYWj44aD8OKE2qFq42Dg28PEvw7UOPEIJS2ffNyVbeqsaF+svngOBtYl6ICt0jhUhJpqZx55JJiCKOLql6RziBRuj4ZdkAFVFxb8AQ0bXeWi9IT0ZRy0n65oJ0MIZP6VZxiLetE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783144698; c=relaxed/simple;
-	bh=AxruopFb6RxNA8Yw2YyzbRC+TmLqrBdAl3Kg3xWhS44=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=Z94kl+QYD1tRNSS6En8njkREB7R0zf4Jxga62MMUxODL1/eiMKj/oymCxa52P+HbKl69n4CogW9BONJ/ycpUOfhVkMjjJWIi+kLxrh2Qa2fd8PHAQe0HbO2UkurLwx0zn/WCWOZ86hSGdjJToJaSIcFT/SOL8LwErRuoA2tiQWo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=TlQr5+Rs; arc=none smtp.client-ip=209.85.216.45
+	s=arc-20240116; t=1783144883; c=relaxed/simple;
+	bh=U7meGQ/yqO5nue3fmIDavhUgJX4jlw+ACCtfxt6efyU=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=K6OezK3XOx0pr8kui8Q04eFmh5ntTw2Idctdb5+Gozf02QOKj2s9/mU2oAFbwoGbUE8ZRCHgw+0ioYVYZPjrHQUqQW1pM0wiMpUL9j+DKHNKEKFTNlKpO9I8DB4ovoasPTq7FdPrS1FWEggu2Z41cNrMjezj7USePuCP2D/pHVE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=dBoBvSia; arc=none smtp.client-ip=209.85.216.47
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="TlQr5+Rs"
-Received: by mail-pj1-f45.google.com with SMTP id 98e67ed59e1d1-380cda7f00cso1032570a91.0
-        for <linux-input@vger.kernel.org>; Fri, 03 Jul 2026 22:58:16 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="dBoBvSia"
+Received: by mail-pj1-f47.google.com with SMTP id 98e67ed59e1d1-38426d04bb4so55108a91.1
+        for <linux-input@vger.kernel.org>; Fri, 03 Jul 2026 23:01:21 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1783144696; x=1783749496; darn=vger.kernel.org;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :content-type:mime-version:subject:date:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=tEG7tX5+i0yM5fGvf5APIP8u2V/3BZ/C2R2J5nBR/YM=;
-        b=TlQr5+RssuuxnFg12iAtYTl1uvy1KaLgaNl8J34Lst3zifyTgI/1W+yvAAb73hEitM
-         YXFMyjw7Hdsq6ONpuBc2hzth0M0RLWHmbD9hzHwVkcwBF3uIhyUTXPeFT3w1UB1DJ0Cg
-         gX4DB2oMJUJ0k9wspJ90OClPg+T2PuTzKi9EUHBO5BN6vLz7MVthEL9GEMF7sJpvvO1r
-         +leUG00eaVo5FDT/bFMO4x7Kf8Rb152vUXxnaaNhm5xYwxh+Q6ZfuP2iMSowU9FoxL+3
-         LRSb3nwY0TTBSeLxaKsC1UlCWQmRQtqUvxVymSiM+aC+rl8tdw2IlZ2knnoAjkioDV4s
-         MNKQ==
+        d=gmail.com; s=20251104; t=1783144881; x=1783749681; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=qgeg1hy/5eCNX45AyPB+pHlq+bl3Mkeu4yKxcFxgJUE=;
+        b=dBoBvSiazvtcI9BjWQD2C4QFZOyw4pnWYoCX4Ba28rN/pBcIospsB7FZCGKb6SjppR
+         Hr2tWvF7L1JVElFYmWIfEkIx+V4l5Wm0IrYAsTO70wRa0GrK3Spdd1l1FT5udno2pv2p
+         H9fNPtkEitDnFedAAUnVXzS3hR5mxImmMR7AITNW+fnZdfscVWkPha7OWz8wSLFBXzfG
+         x81uhEvEm8K2k3VLltddq4s/2n2tKmIJVukrsSRl7BGzUaOAbT6baUkJziwwU9K9PsFT
+         LIZAVtq8TBD4hL5LhqHPM80c52eHeEdvirtCd692moqsQkUwLLQLQL1Vb6SjIEQ4K9GK
+         ChTg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1783144696; x=1783749496;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :content-type:mime-version:subject:date:from:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=tEG7tX5+i0yM5fGvf5APIP8u2V/3BZ/C2R2J5nBR/YM=;
-        b=nD9mkSu5N3sRdSqe6a+1jktXJkRsaWRqxBFfJRc5G9qWp+tp1bQmcZ4n3ieqbF9o9r
-         ppH9AweYd8Ss2gQ2S73pbl8c8z10skE4GUnS1YSkFc0e8ZLWfymsMVqIK83dT/8QODjC
-         7fJJcTl9AjAxC/3Q9s5HZESmTvbjDe5v4O2wxcYrWgx6z5rh3s+UK2ywQxrYJCKfRHFU
-         btzpGWqJ30f4nPgYh4R61Fb3kLTPtZPM7AY1CYutDhoAbV5McCoMf7LsIIVR2UGlLjyV
-         FqX6X4oUHSGgqLlkUNykKXagbzdjvcmOn5RMipNf/75JZ7KQa+S42JXQcykG5xKkkqYT
-         SMFA==
-X-Forwarded-Encrypted: i=1; AHgh+RoNX36pwUER7Wjg4rxBxn8ESGXOPJPoLRfYlzcOto8KEqavnicl9NFqjIl8TnZWfYjKiAHFaH765/NThg==@vger.kernel.org
-X-Gm-Message-State: AOJu0YzRoq19SaV0rA2AEcfO6GcSz9Jg/Uhqnw0sPN2ysrfIhu/kdU2c
-	zd0wBC+ptrT0Urwx2evSN3vs6JnO2xbJDa8LW2eicdD0XTfm0stB7u7Q
-X-Gm-Gg: AfdE7cmg8pOet6EaONvgvTriCVTjGXnnknLlsgM3vjbI1X1cu0U5w9i25oGon3yICcL
-	iCtEPLPNxE25WOePqbupN6uvj+eVHEiSXPYtuSr/EFK6aODZ3MebvPOGluS5lUyBUEWUT4lCu0l
-	FGomxx3Nanjx4iHwEAeearDaMz3N5LX5RDzzf/ItnTlb9ZofgFcY0nmgPe5G2CVRhIGizYmEZuN
-	wHzvempQuzqG/XJX+Kh6D0747HUSUbTsKWZz5pfUPFHWWDEfxaJZETWfZ8c4G7OgJwHyVFHMNPZ
-	orjyEm0il751ZlR2ykARkeyLez8DMQoKEpUGqf7VfXI0kuZVdQnHDgaS1s63kLKBiNDRdRtu0D0
-	gSyL3jRdd9yYsSOAriuCMztVnNMUyVbrrOUtQ/a3xXK4CXBmOO+eUd9eNAj9KmlsKPHM/4bk8JD
-	OZ5nkJMjdl84Vnlluv+rwh/AAxkbYZoqQ56Hhr+xZPyMlKqD3fpGw+unrcYkkCHSEUBYI/edbYN
-	XA=
-X-Received: by 2002:a17:90a:d44f:b0:37c:8628:f79e with SMTP id 98e67ed59e1d1-382934ec0bemr2222411a91.16.1783144696090;
-        Fri, 03 Jul 2026 22:58:16 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1783144881; x=1783749681;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=qgeg1hy/5eCNX45AyPB+pHlq+bl3Mkeu4yKxcFxgJUE=;
+        b=CacXWjQaBaminvsa6SRNGX2JrQqHm1gb/TOrFRfZBGQsuXh1+v1MSqlnE2wMqjdZsK
+         BMzyRRjcMyXirLxMi5S33SLBA1jAFWjlteVHaKHdm2yWNpopoVd5yrjPsellwyWh8U9W
+         lDEBPvoPXEcqU/3rS2DpwN6nzK02XPo2p2o6wg7zvuOyCb/SkqG6gpoPXuwoMCmS3cxI
+         vM+W8QHsYjEioYnQNP5IVCpRlqkjMaGnI4g/G7w9iGhVGbXzpK8PrAKW5+KdAvKqwxtf
+         PPXaST+Op5KUPkEBGctReW70uyqKJNMSYA6MJxhRV6KeXDsV+Bayk5NjbCi7uLvZAXIj
+         FAEQ==
+X-Gm-Message-State: AOJu0YzvegkRJpd420IWYS9hwJAvSkh/mgss9WOlOsoUmgIY6ArT5WtQ
+	MQbm6HNrXCu4r7lFxqS7quQmd4rB3mlGzm/MCnwUaa8GNdtGFzzSs2jKZ2L7Uw==
+X-Gm-Gg: AfdE7cnyshdN92OstRB0TrYbutE9kpLCIF62ExMipKamjoGY0Le2zsIy+FORPL0hai+
+	5FH01VJlMwE7XkgEjBu9xpfGEUXvKV5w+vPIhJz52nEPlwxUKJAG1oJyQVnktGTbJRjHRvp0XG+
+	R0M3UaUGzJDDlQCpfLMNDTN79pw9ZUPYYcoJgrEyBvYv1drBNisQa1ojVsES9O+mxx0XXCI539i
+	YCInSA3sp5/n4jY1FaOVJ+dl2wApGcoltn59fUNycusGV1oeP6qznxdId4sAsqlA1d/BUW9I6bN
+	Dr7TXmKLWQ+3Lt8s9B1HBvfNx4DAmS4g62yv9CbVvx4f1k/DtMFRQ5qDdPNnxSQg5VtqTAzrtKx
+	7g82YH9TFLNgZnikGhXczJaP5HRo80Pyc/b7jbMaq0H2nqqf79rWiDOUqBRik3HkxAWS685YjyC
+	uyRrCBq4oU3KNTzsTbhP3HvzFsKJh4Xk9ymwxRizGNbO4gPDE7kg+wENGY8JLD3lH8sS1lzPJhP
+	eg=
+X-Received: by 2002:a17:90b:5251:b0:380:8bb9:aba9 with SMTP id 98e67ed59e1d1-38112063c22mr7862238a91.3.1783144880763;
+        Fri, 03 Jul 2026 23:01:20 -0700 (PDT)
 Received: from dtor-ws.sjc.corp.google.com ([2a00:79e0:2ebe:8:880:86f9:3b00:6746])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-30f0b813cd9sm26262412eec.8.2026.07.03.22.58.14
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-30f116065c5sm25081378eec.11.2026.07.03.23.01.18
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 03 Jul 2026 22:58:15 -0700 (PDT)
+        Fri, 03 Jul 2026 23:01:19 -0700 (PDT)
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Date: Fri, 03 Jul 2026 22:57:49 -0700
-Subject: [PATCH 26/26] Input: maple_keyb - remove redundant 'new' buffer
- from struct dc_kbd
+To: linux-input@vger.kernel.org
+Cc: Bryam Vargas <hexlabsecurity@proton.me>,
+	Linus Walleij <linusw@kernel.org>,
+	linux-kernel@vger.kernel.org,
+	stable@vger.kernel.org,
+	sashiko-bot@kernel.org
+Subject: [PATCH 1/3] Input: mms114 - fix multi-touch slot corruption
+Date: Fri,  3 Jul 2026 23:01:12 -0700
+Message-ID: <20260704060115.353049-1-dmitry.torokhov@gmail.com>
+X-Mailer: git-send-email 2.55.0.rc0.799.gd6f94ed593-goog
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20260703-b4-maple-cleanup-v1-26-41e424964da5@gmail.com>
-References: <20260703-b4-maple-cleanup-v1-0-41e424964da5@gmail.com>
-In-Reply-To: <20260703-b4-maple-cleanup-v1-0-41e424964da5@gmail.com>
-To: Miquel Raynal <miquel.raynal@bootlin.com>, 
- Richard Weinberger <richard@nod.at>, Vignesh Raghavendra <vigneshr@ti.com>, 
- Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, 
- John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
-Cc: Florian Fuchs <fuchsfl@gmail.com>, 
- Adrian McMenamin <adrianmcmenamin@gmail.com>, linux-kernel@vger.kernel.org, 
- Dmitry Torokhov <dtor@mail.ru>, linux-input@vger.kernel.org, 
- linux-mtd@lists.infradead.org, linux-sh@vger.kernel.org
-X-Mailer: b4 0.16-dev-6911d
+Content-Transfer-Encoding: 8bit
 
-The 'new' buffer in struct dc_kbd is only ever used as a temporary
-staging area during dc_kbd_callback() to pass the received hardware
-packet to dc_scan_kbd().
+If the touchscreen controller reports a touch ID of 0, the driver
+calculates the slot ID as touch->id - 1, which underflows to UINT_MAX.
+This is passed to input_mt_slot() as -1.
 
-Remove 'new' from struct dc_kbd entirely and pass the received buffer
-pointer directly to dc_scan_kbd(). This saves 8 bytes in struct dc_kbd
-and avoids an unnecessary 8-byte memcpy on every keyboard poll cycle.
+Since the input core ignores negative slot values, the active slot remains
+unchanged. The driver then reports the touch coordinates for the previously
+active slot, corrupting its state.
 
+Fix this by rejecting touch reports with ID 0.
+
+Fixes: 07b8481d4aff ("Input: add MELFAS mms114 touchscreen driver")
+Cc: stable@vger.kernel.org
+Reported-by: sashiko-bot@kernel.org
 Assisted-by: Antigravity:gemini-3.5-flash
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 ---
- drivers/input/keyboard/maple_keyb.c | 23 ++++++++++-------------
- 1 file changed, 10 insertions(+), 13 deletions(-)
+ drivers/input/touchscreen/mms114.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/input/keyboard/maple_keyb.c b/drivers/input/keyboard/maple_keyb.c
-index 1d99ed5bad1e..5b10c6ba7bd5 100644
---- a/drivers/input/keyboard/maple_keyb.c
-+++ b/drivers/input/keyboard/maple_keyb.c
-@@ -23,8 +23,7 @@ MODULE_LICENSE("GPL");
- struct dc_kbd {
- 	struct input_dev *dev;
- 	unsigned short keycode[NR_SCANCODES];
--	unsigned char new[8];
--	unsigned char old[8];
-+	u8 old[8];
- };
+diff --git a/drivers/input/touchscreen/mms114.c b/drivers/input/touchscreen/mms114.c
+index 006dded17eb8..23e0283bc6b8 100644
+--- a/drivers/input/touchscreen/mms114.c
++++ b/drivers/input/touchscreen/mms114.c
+@@ -248,7 +248,7 @@ static void mms114_process_mt(struct mms114_data *data, struct mms114_touch *tou
+ 	unsigned int x;
+ 	unsigned int y;
  
- static const unsigned short dc_kbd_keycode[NR_SCANCODES] = {
-@@ -75,7 +74,7 @@ static const unsigned short dc_kbd_keycode[NR_SCANCODES] = {
- 	KEY_CALC, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED
- };
- 
--static void dc_scan_kbd(struct dc_kbd *kbd)
-+static void dc_scan_kbd(struct dc_kbd *kbd, const u8 *new)
- {
- 	struct input_dev *dev = kbd->dev;
- 	void *ptr;
-@@ -86,11 +85,11 @@ static void dc_scan_kbd(struct dc_kbd *kbd)
- 		code = i + 224;
- 		keycode = kbd->keycode[code];
- 		input_event(dev, EV_MSC, MSC_SCAN, code);
--		input_report_key(dev, keycode, (kbd->new[0] >> i) & 1);
-+		input_report_key(dev, keycode, (new[0] >> i) & 1);
+-	if (touch->id > MMS114_MAX_TOUCH) {
++	if (touch->id == 0 || touch->id > MMS114_MAX_TOUCH) {
+ 		dev_err(&client->dev, "Wrong touch id (%d)\n", touch->id);
+ 		return;
  	}
- 
- 	for (i = 2; i < 8; i++) {
--		ptr = memchr(kbd->new + 2, kbd->old[i], 6);
-+		ptr = memchr(new + 2, kbd->old[i], 6);
- 		code = kbd->old[i];
- 		if (code > 3 && !ptr) {
- 			keycode = kbd->keycode[code];
-@@ -103,8 +102,8 @@ static void dc_scan_kbd(struct dc_kbd *kbd)
- 					code);
- 			}
- 		}
--		ptr = memchr(kbd->old + 2, kbd->new[i], 6);
--		code = kbd->new[i];
-+		ptr = memchr(kbd->old + 2, new[i], 6);
-+		code = new[i];
- 		if (code > 3 && !ptr) {
- 			keycode = kbd->keycode[code];
- 			if (keycode) {
-@@ -118,19 +117,17 @@ static void dc_scan_kbd(struct dc_kbd *kbd)
- 		}
- 	}
- 	input_sync(dev);
--	memcpy(kbd->old, kbd->new, 8);
-+	memcpy(kbd->old, new, 8);
- }
- 
- static void dc_kbd_callback(struct mapleq *mq)
- {
- 	struct maple_device *mapledev = mq->dev;
- 	struct dc_kbd *kbd = maple_get_drvdata(mapledev);
--	unsigned long *buf = (unsigned long *)(mq->recvbuf->buf);
-+	unsigned long *buf = mq->recvbuf->buf;
- 
--	if (buf[1] == mapledev->function) {
--		memcpy(kbd->new, buf + 2, 8);
--		dc_scan_kbd(kbd);
--	}
-+	if (buf[1] == mapledev->function)
-+		dc_scan_kbd(kbd, mq->recvbuf->buf + 8);
- }
- 
- static int dc_kbd_open(struct input_dev *dev)
-
 -- 
 2.55.0.rc0.799.gd6f94ed593-goog
 

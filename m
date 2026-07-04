@@ -1,161 +1,151 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from ixit.cz (ixit.cz [185.100.197.86])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9DDB73AFCFD
-	for <linux-input@vger.kernel.org>; Sat,  4 Jul 2026 12:28:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5526318CBE1;
+	Sat,  4 Jul 2026 15:06:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.100.197.86
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783168123; cv=none; b=H06uBlwcik0UG6aO/zhNUpscYS6eeLH1nSgUbe01yNmOJXHh+B1Ruad/6jIzszYYLh2fnBKLxdWP7is1PTnGTFuvamJ4HDn2rtDzTrrLrtWtTreROMmJ5hWTFb/fGuUH8HmbyNSWRyjk7ymzS7D2WdAlZI0H+ny7iuusLZaJ4m4=
+	t=1783177619; cv=none; b=VaQGdPyeNIPn3Bz3CTuuEPikKtKowdthm3hr2iIdASxa/hVZdQkmIjvyIEeJkxQSniOjYwaSrcyAyYRtoa3Ao9Y3htn2K9evpHrZtpY1bwBmvtptzMkW/VUJy++WJvXkwr7Ehl3xKuDQ34UYdxNR6Sj3ku4dvJf1FSJOT33TRFI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783168123; c=relaxed/simple;
-	bh=wAyQlWCc5mnNbITewje4Mr9WgXCU2oYVmVpj46sx4JU=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=UgKVs+Fn5QFjEeDfZfPySbv2IoKTbwCFKPyJcLQ6LHh2xB38gYztb/N6/yQBQ1hr7fYThgY8CVT+p2uLzQFvotchc0cgw0bW2unxGxVGDmUXIKaiwYVGQUwxrfwIfL0COvIeoOempz3oucbO2sqwQ0Zgkyr0lFs8IkDGn+YIVn8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ekUzuIHD; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1783177619; c=relaxed/simple;
+	bh=Z9l9EfRDenyYxHcM+BCBaqaiRrKlyyyYDV58SrskrA8=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=tMTHGzc8IUWz8adZRS7UilNgEcv0MV0H4jCHN86VOm4DXMJE/OfIYIWh9e45Mh7Q81bPjLfBvxa2vZtbn+TPVD3XxCt9evz5CeNubEUUyjPa3NMrERiE5nVm8coIocoxBiibgrQIsgROP4uWOEk0u9NxepB9sRDGtBAiqxdf+Q0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=ixit.cz; spf=pass smtp.mailfrom=ixit.cz; dkim=pass (1024-bit key) header.d=ixit.cz header.i=@ixit.cz header.b=GNXDJf9w; arc=none smtp.client-ip=185.100.197.86
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=ixit.cz
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ixit.cz
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ekUzuIHD"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9CEFE1F000E9;
-	Sat,  4 Jul 2026 12:28:33 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1783168113;
-	bh=7BaudhEyNyj2Ntjn06Jl/DfjzovXO/ynC2ZS1UTpz1g=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=ekUzuIHD0XK7BoViTm6vmwxtVAjojI1++okC3ZCnRTZzrfmYVtGOwETwAqB7EDBBf
-	 +0L35NVJj8/dQ/Dj1HTZ+8TlnYjSXn8eAv84XllDBjXzAAW9HcsOZcd914rfFP05qO
-	 mqcyYMf68WNUX3CwU0/0Uhcy8AyOTZW+8dedCyLlYxg7paaD1n6uhA2tJpGvnoR6Kn
-	 H0+SxQuBG/dMj7sfflw96B+05H7V7jtlzR8yicrOQr0BXR1B8hcR/35U7wa12UmGm+
-	 hZYrpVnKR0UEMkSB9JJsbt1jnTfGmk1Q901GScnfM+eRVYEuRFGSN9R8wfDxjir0iw
-	 9ErmfXxCL/duQ==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] Input: elants_i2c - prevent divide-by-zero on invalid
- EKTH data
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Laxman Acharya Padhya" <acharyalaxman8848@gmail.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260704121738.48071-1-acharyalaxman8848@gmail.com>
-References: <20260704121738.48071-1-acharyalaxman8848@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Sat, 04 Jul 2026 12:28:33 +0000
-Message-Id: <20260704122833.9CEFE1F000E9@smtp.kernel.org>
+	dkim=pass (1024-bit key) header.d=ixit.cz header.i=@ixit.cz header.b="GNXDJf9w"
+Received: from [172.20.10.2] (78-80-20-180.customers.tmcz.cz [78.80.20.180])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by ixit.cz (Postfix) with ESMTPSA id 533325341B78;
+	Sat, 04 Jul 2026 17:06:49 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ixit.cz; s=dkim;
+	t=1783177610;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=YchiOn0aIhurw2DMYPSvRHYrkDyW/1Rfmj7bTE1YKUI=;
+	b=GNXDJf9wNS36qP5xkPoszwq3xtJthZbo5JN99nfrNmSxY7Szp0o9AGE0qNE0Ms33V6qnY0
+	eQuNgPWK2cc4scdH1Y09GHVJe9aE+b40gwMmzIAtMC3VpGhjsA7hEqb/klMXFNUK3nN8dR
+	fdwzPvt+ezt/6Ce8cRYkc/yyC2LT5g4=
+Message-ID: <d63230b5-2665-4d32-9587-e47846821555@ixit.cz>
+Date: Sat, 4 Jul 2026 17:06:48 +0200
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 2/2] arm64: dts: qcom: sdm845-oneplus: Update
+ compatible to include model
+To: Bjorn Andersson <andersson@kernel.org>
+Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org,
+ phone-devel@vger.kernel.org, Vincent Huang <vincent.huang@tw.synaptics.com>,
+ "Jason A. Donenfeld" <Jason@zx2c4.com>,
+ Krzysztof Kozlowski <krzk+dt@kernel.org>,
+ Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+ Konrad Dybcio <konradybcio@kernel.org>, Rob Herring <robh@kernel.org>,
+ Krzysztof Kozlowski <krzk@kernel.org>,
+ Matthias Schiffer <matthias.schiffer@ew.tq-group.com>,
+ Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>,
+ Conor Dooley <conor+dt@kernel.org>
+References: <20260523-synaptics-rmi4-dt-v2-0-0645122babdc@ixit.cz>
+ <20260523-synaptics-rmi4-dt-v2-2-0645122babdc@ixit.cz>
+Content-Language: en-US
+From: David Heidelberg <david@ixit.cz>
+Autocrypt: addr=david@ixit.cz; keydata=
+ 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
+In-Reply-To: <20260523-synaptics-rmi4-dt-v2-2-0645122babdc@ixit.cz>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
+On 23/05/2026 11:45, David Heidelberg via B4 Relay wrote:
+> From: David Heidelberg <david@ixit.cz>
+> 
+> We know the driver is reporting s3706b, introduce the compatible so we
+> can more easily introduce quirks for weird touchscreen replacements in
+> followup series.
+> 
+> Reviewed-by: Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>
+> Signed-off-by: David Heidelberg <david@ixit.cz>
 
-Pre-existing issues:
-- [High] A 0-byte firmware file causes out-of-bounds reads when verifying t=
-he remark ID and when sending firmware pages to the device.
-- [High] Stack-allocated arrays are passed to i2c_transfer(), which is unsa=
-fe if the underlying I2C controller uses DMA.
---
+Bjorn,
 
-commit 4ca9e1ffa7cb9eddbc7a0070d2fc1df01f66c3cd
-Author: Laxman Acharya Padhya <acharyalaxman8848@gmail.com>
+please pick me $subj, counterpart got in (or if u want I can resend).
 
-Input: elants_i2c - prevent divide-by-zero on invalid EKTH data
-
-This commit adds checks for physical dimensions in the eKTH query function.
-It treats zero values as invalid data and skips resolution calculations
-to prevent a divide-by-zero error during probe.
-
-Fixes: 66aee90088da ("Input: add support for Elan eKTH I2C touchscreens")
-Assisted-by: Codex:gpt-5
-
-> diff --git a/drivers/input/touchscreen/elants_i2c.c b/drivers/input/touch=
-screen/elants_i2c.c
-> index 17175adcaebbd..68c5ee3aa1904 100644
-> --- a/drivers/input/touchscreen/elants_i2c.c
-> +++ b/drivers/input/touchscreen/elants_i2c.c
-> @@ -566,10 +566,11 @@ static int elants_i2c_query_ts_info_ekth(struct ela=
-nts_data *ts)
-> =20
->  	dev_dbg(&client->dev, "phy_x=3D%d, phy_y=3D%d\n", phy_x, phy_y);
-> =20
-> -	if (rows =3D=3D 0 || cols =3D=3D 0 || osr =3D=3D 0) {
-> +	if (rows =3D=3D 0 || cols =3D=3D 0 || osr =3D=3D 0 ||
-> +	    phy_x =3D=3D 0 || phy_y =3D=3D 0) {
->  		dev_warn(&client->dev,
-> -			 "invalid trace number data: %d, %d, %d\n",
-> -			 rows, cols, osr);
-> +			 "invalid data: rows=3D%u cols=3D%u osr=3D%u phy_x=3D%u phy_y=3D%u\n",
-> +			 rows, cols, osr, phy_x, phy_y);
->  	} else {
->  		/* translate trace number to TS resolution */
->  		ts->x_max =3D ELAN_TS_RESOLUTION(rows, osr);
-
-[Severity: High]
-This isn't a bug introduced by this patch, but while looking at
-elants_i2c_query_ts_info_ekth(), could there be an issue with how the comma=
-nd
-buffers are passed to the I2C subsystem?
-
-drivers/input/touchscreen/elants_i2c.c:elants_i2c_query_ts_info_ekth() {
-...
-	u8 resp[17];
-	const u8 get_resolution_cmd[] =3D {
-		CMD_HEADER_6B_READ, 0x00, 0x00, 0x00, 0x00, 0x00
-...
-	error =3D elants_i2c_execute_command(client,
-					   get_resolution_cmd,
-					   sizeof(get_resolution_cmd),
-					   resp, sizeof(resp), 1,
-					   "get resolution");
-}
-
-When elants_i2c_execute_command() assigns these buffers directly to the I2C
-message:
-
-drivers/input/touchscreen/elants_i2c.c:elants_i2c_execute_command() {
-...
-		msgs[0].buf =3D (u8 *)cmd;
-...
-		msgs[1].buf =3D resp;
-
-		ret =3D i2c_transfer(client->adapter, msgs, ARRAY_SIZE(msgs));
-}
-
-If the I2C controller uses DMA, doesn't passing stack-allocated buffers like
-get_resolution_cmd and resp cause a DMA mapping failure since stack memory
-is virtually mapped?
-
-[Severity: High]
-This is a pre-existing issue, but does the firmware update routine properly
-validate an empty firmware file?
-
-If a 0-byte firmware file is loaded, the modulo check in
-elants_i2c_fw_update() evaluates to 0:
-
-drivers/input/touchscreen/elants_i2c.c:elants_i2c_fw_update() {
-...
-	if (fw->size % ELAN_FW_PAGESIZE) {
-		dev_err(&client->dev, "Invalid firmware format: %zu\n",
-			fw->size);
-...
-}
-
-This would allow the empty firmware to proceed. Later, when validating the
-remark ID, wouldn't the size calculation underflow and read out of bounds?
-
-drivers/input/touchscreen/elants_i2c.c:elants_i2c_validate_remark_id() {
-...
-	fw_remark_id =3D get_unaligned_le16(&fw->data[fw->size - 4]);
-...
-}
-
-Even if validation is skipped, could the actual update routine read out of
-bounds when it unconditionally sends the first page?
-
-drivers/input/touchscreen/elants_i2c.c:elants_i2c_do_update_firmware() {
-...
-	error =3D elants_i2c_send(client, fw->data, ELAN_FW_PAGESIZE);
-...
-}
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260704121738.4807=
-1-1-acharyalaxman8848@gmail.com?part=3D1
+David
+> ---
+>   arch/arm64/boot/dts/qcom/sdm845-oneplus-common.dtsi | 2 +-
+>   1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/arch/arm64/boot/dts/qcom/sdm845-oneplus-common.dtsi b/arch/arm64/boot/dts/qcom/sdm845-oneplus-common.dtsi
+> index 6b7378cf4d493..148164d456a5a 100644
+> --- a/arch/arm64/boot/dts/qcom/sdm845-oneplus-common.dtsi
+> +++ b/arch/arm64/boot/dts/qcom/sdm845-oneplus-common.dtsi
+> @@ -475,17 +475,17 @@ bq27441_fg: bq27441-battery@55 {
+>   	};
+>   };
+>   
+>   &i2c12 {
+>   	status = "okay";
+>   	clock-frequency = <400000>;
+>   
+>   	synaptics-rmi4-i2c@20 {
+> -		compatible = "syna,rmi4-i2c";
+> +		compatible = "syna,rmi4-s3706b", "syna,rmi4-i2c";
+>   		reg = <0x20>;
+>   		#address-cells = <1>;
+>   		#size-cells = <0>;
+>   		interrupts-extended = <&tlmm 125 IRQ_TYPE_EDGE_FALLING>;
+>   
+>   		pinctrl-names = "default";
+>   		pinctrl-0 = <&ts_default_pins>;
+>   
+> 

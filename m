@@ -1,144 +1,116 @@
-Received: from mail-wr1-f46.google.com (mail-wr1-f46.google.com [209.85.221.46])
+Received: from mail-pj1-f50.google.com (mail-pj1-f50.google.com [209.85.216.50])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3A34227CCE0
-	for <linux-input@vger.kernel.org>; Sun,  5 Jul 2026 19:32:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.221.46
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783279930; cv=pass; b=pQ5jCpfGCZbui/U22ISUskSaZGzQqEwQSoBSMDPhygcI5NSCsok0nT5HKcEvxjKuvagEjIY3pWHNGKnLeVF8FD3ciaHXBiBum8honnN1UDcAjuMCTc4ZiS+FNQUss1gPe0rIV6lIrV3fErpHduuhs0iC2u6iNRxY7UZFNsUvx28=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783279930; c=relaxed/simple;
-	bh=LYZXiJ+Rs83JAuhPNbbWnteX8T0Ox9HzXuJDtiB0HKU=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Kj8rlc8d9ThCgLBsqxNrRX+Y5UY4quf+jqucC3gGe866jIyGU0kIRrlkMaXsa1+gJyWiRxbMqa79tX4IJd5syKJJqwOKpqal7b+LFRLlsC2kQtENtvcoi5+S/MRMP5M1pdVhtX7JtnqG9TJ3UbCdHKT92DpE1nswxtVLwWalpHU=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ayYxeEHK; arc=pass smtp.client-ip=209.85.221.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 278DF35E940
+	for <linux-input@vger.kernel.org>; Sun,  5 Jul 2026 20:26:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.50
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1783283202; cv=none; b=kjZnICBh8pEefxpX09KEZgyaUGAf9sqY9m2scnSVzifNgJB+Nw2dqLq456Y4d28tLAFtTUaTO5TLKHO0Vs/4L9kCsH0WVev2eczksA0Yj8qg0x0+N3E+dPsgi6dTfj6PMUS6WG/awgKwFr1w5TxYKsgsf3VBoFwPSah/JJ9URdE=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1783283202; c=relaxed/simple;
+	bh=cOeJsDEtRMNDJCLsBLMsRmiTuNsQyfI3SUCZYl6u/WI=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=M+AZvCIZLLaDZZOG3T6A3XXQ3cgDJf67EMKfsaWOhedIdb8fAvBivRPBoLnSB7TeQ72oQ+SyefeZCDN+DhnIblJF32bSkvqrzuhaashFURb8PlvOLWxQ5y7klhFc01teE+i8itNA9K/leQLom9nAirF6rrVx9SgJJSL460d8kfU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=PLrDSVOL; arc=none smtp.client-ip=209.85.216.50
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ayYxeEHK"
-Received: by mail-wr1-f46.google.com with SMTP id ffacd0b85a97d-476a130c138so2358821f8f.0
-        for <linux-input@vger.kernel.org>; Sun, 05 Jul 2026 12:32:09 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1783279928; cv=none;
-        d=google.com; s=arc-20260327;
-        b=PgG88cxpbNVRyluRJ4NLc+uZXUPi3UWIFQwSso4xcPdeklmf0sWExsRUc9LFQHMJmW
-         2CUzVX9R/H4iq9tTjBZuL4wsw8bEjyDNkvzN9MCoqKqMOPzMBKAWWrKKvNh+ejHI6RJO
-         7k1q5E+ky1TRjAAa6uPAwpcbEgd4MQQ2LjIbT+O0Yz0zAcfQkkbSEA9CAkwk6WRVQ8f6
-         W/T1BrFlW52KuwIk+9xjljwQ3nPOIBOEmnTdmOFwdmMRmsxeOpAvipEjafvPuoof3eUv
-         0dK4iql1NaUnNVtDjGrfMLNQxOHpfQCkomk1bFatX0vJtG1fyygZKEJzAeW2ZFH4vxaY
-         xHyw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=GwT9n22fG/yr71+Qou8NPs/HxovuWX/nw54buxwMf10=;
-        fh=9FIB76i8jY9s3xT1VoZ291AoAhw4jGjacVHKHednSUw=;
-        b=Lf1lUpTUAJ82JZMir+d2xa5r7OiU5U4IIZ6nVzyD/CblNYD/nlcx49rTX2G2PIa9Xh
-         mihfb9gAye1VuNcmta654JiOLRpkKGYI9uTKA/y1U9HRKg37COiVTt+T/vDEuniMlBxj
-         hY4HvrRWZL4Z6kZwprJcDc8sD3EvXwOf8NYE6S1qkr7zTih2fg3vwNokryU1QLL++pUW
-         xYGfcyU4i5MKyIhTGm68UHQTAznJXzPEN7VeQHQj1xT6fRz/gIQZGWgvo474S5OiCnOQ
-         PqsKeFmgN2nSzZ2+ReClASXtuZ95xL6xDSd067wSPSFp0HCnxmGVis4HoE8Yde/bmEXe
-         O2IA==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="PLrDSVOL"
+Received: by mail-pj1-f50.google.com with SMTP id 98e67ed59e1d1-383adaa461fso845634a91.3
+        for <linux-input@vger.kernel.org>; Sun, 05 Jul 2026 13:26:40 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1783279928; x=1783884728; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=GwT9n22fG/yr71+Qou8NPs/HxovuWX/nw54buxwMf10=;
-        b=ayYxeEHKsNrxkTr08URUn+ovzwCpFOMs0wh79SR+YejBEguKktxXmmnsq3lG6xr3a/
-         FesEHH+JV0KGAM5GSu3m/H4GmN2WEnAatai9cP88H2splr2qlWKT2Vn+RWW+mOqkX/53
-         +3yRMR5aKYFkxfYIsp3fkZh1bWBZMNp3iIqm7ZYJMv66FtMbS3I29D/1nRcq3kbm46xA
-         VO6sYkc3XJHoUKLX5SD+xffn2QqXXGhZnJbKQyAFuRRjrjVetXeSCfnqTd3WOJ1+f6Bp
-         Zu9X5/+T0P3jRHNYyUCSBN3GkFZvTYqPzLYYPvkhFc+Pz/MBnXZPy9YL/bJdezdim7ll
-         q6og==
+        d=gmail.com; s=20251104; t=1783283200; x=1783888000; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=GsgfJZ0NjzP8ZPKGtPWCLANSMMngsdofAxBSh+8zVRQ=;
+        b=PLrDSVOL+4Xc66iOiaOn5TYFsx78Abc5ssdEQ6yvuYzzUNpldHMK+Le+AJuPYhTHMK
+         vvxC3arm1OaRVZi3iobzr7gL4DrKGBy4kmC0tNsgokfOz7nOj4xHhwYz0y8wrQLq2AFL
+         wmHEcVm4tlst+mIKGPMoWyR6xmAKC1VGx0Uulm4QtlZMCFESsGoYeWxaJm9pHnq3Cfm+
+         PYqls55968ljKZDpUHrcI26/rDhYu5VO2SxaJZpinLH+tpsidaPhBGXbcdXQlqKkZTT2
+         NcrZglNcjq67Xame///L/rlENNXnbrpq9cl5jp5PqnLoRL8nd5ZZAC4Gt1fhzM6viqS+
+         b2lw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1783279928; x=1783884728;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=GwT9n22fG/yr71+Qou8NPs/HxovuWX/nw54buxwMf10=;
-        b=GG3aY2pc5fGUqiYHe20+oSCJwiFVJbovJfIopCk3SfCDx1GGK1UMrC4PTCiFn/GaFj
-         w/R5j8L4xjS+HB2qgyjpBvaaZX5zKea4TKOMBlqeptFgwAftgLong13mpbiRRQ3VHp6d
-         TMMylU4RLU3aFZmafJUCRLEs8HhTNHrYrH09vzfSNdNKXqBWKAJ2Mi5q0fsdBPv3HKGC
-         aB1RurchAeSfB5hUlZZSErx22BTsLTLbogGXK8e7pJ6ZvUS633ErGH/a6ieTgdUPUnhj
-         cacNsGz4J4KWWKZqf9QT5wHfY390DU/PQwzfqK76busKYu9AbEH57inE7WT4mWEaIWEv
-         1IkA==
-X-Forwarded-Encrypted: i=1; AHgh+RoC67mU8iJ97ZKPJ8sjSaubHGOW6Ob2PzdpGmUCLjnlQR+AO6s454Nn8gpdogUHD2/yxDrxNXMKm1PGMg==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yycov7jr0zjWe1d8g3KaA5c6kMeO5XxLT5lsZV9RCfV1PAVRATo
-	P2Zlxi5OeXGAQvl3RFHX6+EXz3kPsc4H20pvSP1/Ao5JXArmj4GN8pgAKvPtPVMqejGZ+IqueiJ
-	6mukHPgis1UcBHNHVi9tkE0tUN9nrzc8=
-X-Gm-Gg: AfdE7clBPxZtn4fzE1wY2UqZ3XIY+E1awhzC1hh9AAuU80lltMBV9ZDfcQG7hFEl7tw
-	mI0L0wbwCujnY9v4hLdQ7L1QG3Zj1BtI4njsll2e3sPCZichQHxFMIeO3CQgarzmJP3n1dndRqa
-	fMEfAfTPHeHsISLvDdSxGOcI8FSWYHaFS6FjJ/BmmFg1ugD9/KL8gUsEeDSjeR4XKQkQp6rOLx/
-	WU1qzBBxxnWTK3V2ZTYWfG6k59HlayKcidttvxZS1bybzQi1I9mY8vGn5JmeQvYvARZVKWoFV2p
-	YEHcmUPNTnJ2NSsM+1grU164rXXSDk8NAab2cNh1WQQNl52QK7A8GmySHKmxMYAeLi+bmSC1dYk
-	a0F3SKjsQryPslL3ZAhnfk5uWz1abyIeq14a+fgwskitcCqTnxSFGcgmkptPiDSfi+HgOcplXXQ
-	5Z7H/+BewhMNNHqJpuQF/BxRm3VT75trtr0m2hEPpSJJthNTJecmoPLDkH4BxWZn4=
-X-Received: by 2002:a05:6000:4203:b0:477:80fa:f447 with SMTP id
- ffacd0b85a97d-47aadb13c78mr8524276f8f.43.1783279927535; Sun, 05 Jul 2026
- 12:32:07 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1783283200; x=1783888000;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=GsgfJZ0NjzP8ZPKGtPWCLANSMMngsdofAxBSh+8zVRQ=;
+        b=QSd+7AOnlzkHYNzlSHWSWop5aQbhW/uhp2bzLBk6ELBste6CWpBvWiaypsg9J2XQhs
+         8yC2TeopYqY/9jsqLm/1THiOpfKNS9a7lOqFGT7jkZ1YtMLkDypxh+yFLxXh1pTyvgcy
+         HY+MBtAQSKbb7oF9l7XwSz6lz4pQn8tlaIfrI9vQxpONOQacO7lzyanoXbAAlgbK9DtX
+         2jEwRhxtzD40VhqZnjGRJU6DBrUWR28B7gjQoT21w5xiucQ9/o8wiG+Wxh7GBV/HHymh
+         pU/UmTzb68RRpqdtXvE/qgSByOyQ/BCrC80Aln11B4b8i5aNpspNHlIhCBe0MfyqL5fi
+         E7tQ==
+X-Forwarded-Encrypted: i=1; AHgh+Rr3ICe8vfhHuyDZqzO+s+0rPXgB7bL1fCXs80R3iCnLlJppIJfuKapJwDYd6Vrmc1fbD0KRYW+qQCFzJw==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yx7x6foLdt4eq7JkHSHZB6YicsfPIXO3LMiUy2lGqRLS22XzYwq
+	ieKdjDqNKVYQWXtwO8EJd5wvXSe+U2nhgFHfzImCXoxKXyJN8Vya8Te4
+X-Gm-Gg: AfdE7cm2P/ZA4QfvBaS+cuy14IESPkSY24L40ylN4Fl4DcJr3zBhUXWs3GHoPr0q07z
+	1qK4OufwN+rn3izsf3ZnyXEylmKR8NZC/ZXeQu1NLV7/R0g9Vy/ITC3l5Q5SvCnuBTKX+M9WMCf
+	h/4ZpPAHU1Ty62tbO8muuEnS5vQHidhekIP73HOZeXNHaMW1yA2nc29JQQCExJVCo+gSxIev6AD
+	qq7lpVTQ86UZfm8Ahmfn/ObZRDRdfyvwHjMtSmwZV9x5KKaDpFCpnlI6zVNjfCML0cBQaKituCx
+	z+sRUKX+mfxD0sadUbEHvARjtjpLSuR8o2Hk+owGYOO+L6VmM5gaP8FFFXA4jdE5kh9aQe6cbP+
+	SM4tx9oNwND1ZaK+G7Ij3ULz86PMxOBkeSG81mpwvG4vjFp+onjJNuV40YAMyvfqR8TNyY/XVvB
+	7vIH/0U2IV7ierZBeO04lugu1Y2pcGRWKngjmcQhE2sP6RhTyvJ6x3Fg==
+X-Received: by 2002:a17:90b:1c81:b0:37f:9cdf:f03a with SMTP id 98e67ed59e1d1-3829f4e8836mr6779812a91.29.1783283200446;
+        Sun, 05 Jul 2026 13:26:40 -0700 (PDT)
+Received: from google.com ([2a00:79e0:2ebe:8:480e:1643:32ae:124b])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-30f38ee1333sm29592829eec.24.2026.07.05.13.26.38
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 05 Jul 2026 13:26:39 -0700 (PDT)
+Date: Sun, 5 Jul 2026 13:26:36 -0700
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Adrian McMenamin <adrianmcmenamin@gmail.com>
+Cc: Miquel Raynal <miquel.raynal@bootlin.com>, 
+	Richard Weinberger <richard@nod.at>, Vignesh Raghavendra <vigneshr@ti.com>, 
+	Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, 
+	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>, Florian Fuchs <fuchsfl@gmail.com>, linux-kernel@vger.kernel.org, 
+	linux-input@vger.kernel.org, linux-mtd@lists.infradead.org, linux-sh@vger.kernel.org
+Subject: Re: [PATCH 25/26] Input: maplecontrol - fix style issues
+Message-ID: <akq9m7oDV0y_sWzx@google.com>
+References: <20260703-b4-maple-cleanup-v1-0-41e424964da5@gmail.com>
+ <20260703-b4-maple-cleanup-v1-25-41e424964da5@gmail.com>
+ <CACwZE5RfhwhOoVSPqibM9+XaPJCf-TdnJxi_UT7Dgv71OJPsFQ@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260702-15-jun-hid-iio-alignment-v2-0-b87f01f5efbc@gmail.com>
- <20260702-15-jun-hid-iio-alignment-v2-3-b87f01f5efbc@gmail.com>
- <20260702182205.388efe24@jic23-huawei> <BF19024B-D73A-4185-A963-516D0574E416@gmail.com>
-In-Reply-To: <BF19024B-D73A-4185-A963-516D0574E416@gmail.com>
-From: Joshua Crofts <joshua.crofts1@gmail.com>
-Date: Sun, 5 Jul 2026 21:31:54 +0200
-X-Gm-Features: AVVi8Cf75_SzN2fEHjfHXicsKvv5otrzKJC7UoPu5AQnM92pGFcWxZlA6a58s_g
-Message-ID: <CALoEA-wkbbvPA02JFCTuCEQrpGKZfu3NeBScTErTT07U7zJZ_g@mail.gmail.com>
-Subject: Re: [PATCH v2 3/6] iio: hid-sensors: Use implicit NULL pointer checks
-To: Sanjay Chitroda <sanjayembeddedse@gmail.com>
-Cc: Jonathan Cameron <jic23@kernel.org>, 
-	Sanjay Chitroda via B4 Relay <devnull+sanjayembeddedse.gmail.com@kernel.org>, 
-	David Lechner <dlechner@baylibre.com>, =?UTF-8?B?TnVubyBTw6E=?= <nuno.sa@analog.com>, 
-	Andy Shevchenko <andy@kernel.org>, Jiri Kosina <jikos@kernel.org>, 
-	Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, linux-iio@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, 
-	Maxwell Doose <m32285159@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CACwZE5RfhwhOoVSPqibM9+XaPJCf-TdnJxi_UT7Dgv71OJPsFQ@mail.gmail.com>
 
-On Sun, 5 Jul 2026 at 20:17, Sanjay Chitroda <sanjayembeddedse@gmail.com> w=
-rote:
->
->
->
-> On 2 July 2026 10:52:05=E2=80=AFpm IST, Jonathan Cameron <jic23@kernel.or=
-g> wrote:
-> >On Thu, 02 Jul 2026 21:48:00 +0530
-> >Sanjay Chitroda via B4 Relay <devnull+sanjayembeddedse.gmail.com@kernel.=
-org> wrote:
+On Sun, Jul 05, 2026 at 08:28:39PM +0100, Adrian McMenamin wrote:
+> On Sat, 4 Jul 2026 at 06:58, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
 > >
-> >> From: Sanjay Chitroda <sanjayembeddedse@gmail.com>
-> >>
-> >> Replace explicit NULL pointer comparisons with implicit checks across
-> >> HID sensor IIO drivers to follow the preferred kernel coding style.
-> >Is there anything in the kernel wide style guides about this?
+> > Fix coding style and formatting issues reported by checkpatch.pl and
+> > switch to using BIT(). When reporting D-PAD events avoid conditionals.
 > >
-> >I do prefer this style in IIO but perhaps we should document it
-> >as local IIO style rather than implying general guidance (unless
-> >there is some!)
+> > Assisted-by: Antigravity:gemini-3.5-flash
+> > Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> > ---
+> >  drivers/input/joystick/maplecontrol.c | 25 ++++++++++++-------------
+> >  1 file changed, 12 insertions(+), 13 deletions(-)
 > >
-> Hi Jonathan,
->
-> I took reference of existing IIO commit message and followed the same.
->
-> There is no kernel coding guideline for NULL pointer. If you think it wou=
-ld be useful, I would be happy to work on documenting the preferred convent=
-ions under "Documentation/driver-api/iio/", for example as a new "coding-st=
-yle.rst" or similar document.
+> > diff --git a/drivers/input/joystick/maplecontrol.c b/drivers/input/joystick/maplecontrol.c
+> > index 3ef6652d40cb..457a73d91239 100644
+> > --- a/drivers/input/joystick/maplecontrol.c
+> > +++ b/drivers/input/joystick/maplecontrol.c
+> > @@ -35,22 +35,22 @@ static void dc_pad_callback(struct mapleq *mq)
+> >         buttons = ~le16_to_cpup((__le16 *)(res + 8));
+> >
+> >         input_report_abs(dev, ABS_HAT0Y,
+> > -               (buttons & 0x0010 ? -1 : 0) + (buttons & 0x0020 ? 1 : 0));
+> > +                        !!(buttons & BIT(5)) - !!(buttons & BIT(4)));
+> >         input_report_abs(dev, ABS_HAT0X,
+> > -               (buttons & 0x0040 ? -1 : 0) + (buttons & 0x0080 ? 1 : 0));
+> > +                        !!(buttons & BIT(7)) - !!(buttons & BIT(6)));
+> 
+> 
+> Maybe I have missed something but what is this !! operator?
 
-Not sure whether any coding style kerneldoc mentions this style,
-nevertheless checkpatch prefers (!foo) over (foo =3D=3D NULL),  see the
-COMPARISON_TO_NULL section in the checkpatch kerneldoc.
+Double negation to coerce the value to [0, 1] range avoiding
+conditional/branching?
 
---=20
-Kind regards
-
-CJD
+-- 
+Dmitry

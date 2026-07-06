@@ -1,144 +1,142 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 34B773C1F45
-	for <linux-input@vger.kernel.org>; Mon,  6 Jul 2026 18:16:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 078F33911B8;
+	Mon,  6 Jul 2026 19:00:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783361794; cv=none; b=DqOTmjcqwNMo+xcwVaPh67sVLv0az+mr7npqnSBrUxmeMtpNsC+zFE9Mk4toqXzYNa8ituWAlD/5bCwSULXt6sPSsKKgzmRbfiCmHruPUV9Cqf/LaMQT1HfvbZXbUi7Tduf8DlFfa1U0yGK1FlnVz+N0zG9s3SeJ2IktSKY2pNI=
+	t=1783364407; cv=none; b=YFBgWGXgdDS2yXyPgdT48U9okuObS1gu3+g6T+HPC320DEyZO7yUTwKFoRPSZquqtsZOwVfeVHRK0MDnWzgKK9q0qJY9P7nrq5Wln+rStAbMMPCKnsriZxb+3JrEyHlAcFfMBns6HAUrkxgP1Xf5t6nn1j2IM/GJdsR04QhrRdA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783361794; c=relaxed/simple;
-	bh=jLSSb6tr6GFG3EHkMf94nVDc8V+DTdOiL+Tcudb4VLc=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=I6DTFPgeb808EbhIpACGj6a8Sb1rWkOMbSjcsMbRueR6OUbH08CFrXg/h3Xa+6Gy9D57R8pjmpIjV1kXqFrLRWuRbdJH4NfwiN0fV9n8pJ/0RNYUv4MrWHr6e0Nh6GGfsc5GIZpXYFVWHR0Y9+LtaGhTlKvU3qNPudGlqTc8QcQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=fj8rZ9z1; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1783364407; c=relaxed/simple;
+	bh=ettpJxnb6azjELpGMnVt8XxE9lKyWlE5LuIQyE/jaDM=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=axCwi1M3DToiO9iMycmX52AfKcFO+7pgp/b4Jx0BB0gpEjTzv8jWZRg2s4PKwN4wLF0WrdjrkBzouTdiVTGdDNVYCLvcJinfrhLCwcMQC1tqC8vNeUmRSq5IAhexUUqatlYrCqLFDSm1u1hbtF3flYoV6RLEJZwyq2yeTGH1qfs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=N19adXgx; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="fj8rZ9z1"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 967471F000E9;
-	Mon,  6 Jul 2026 18:16:32 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1783361792;
-	bh=q2a3JVUCgqraa9m7GeHS9LpdqF6QP/C1epch/zy7alk=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=fj8rZ9z1dV/yesQCTjAVhiVTFAHPkmw+BhSXBxdlfyrh3sD+mzRuZT1vNYreN3x2L
-	 M6RV8F+oy6Ssjach0VsTOuurkuj20MUSHtfAD9YSLrp8k8RhDjE6BFvQO3AeD17XXK
-	 IglM9sLgXnzqVzGWacFc+RRnCrogDtQtzX8n31ikF9uFWodDAtWx53ynV4iQcfMeVC
-	 /pnH75zw+cUlE6huRsjb0mJy64pjh2YkmAbr436gGnvtqOtbjelOXRK2wbcrPJA0PW
-	 W9mUmKV3nIf1diXnO5+tAXPDr5xBUQICBkmdl3vBKoGYIaBqoNx19m05Z3TF3q92K3
-	 leTGPo5blF0+A==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] Input: zinitix - support the 6-byte/count touch report
- used by bt532
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Kavan Smith" <kavansmith82@gmail.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260706180826.408989-1-kavansmith82@gmail.com>
-References: <20260706180826.408989-1-kavansmith82@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Mon, 06 Jul 2026 18:16:32 +0000
-Message-Id: <20260706181632.967471F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="N19adXgx"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 8987BC2BCB8;
+	Mon,  6 Jul 2026 19:00:06 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1783364406;
+	bh=ettpJxnb6azjELpGMnVt8XxE9lKyWlE5LuIQyE/jaDM=;
+	h=From:Subject:Date:To:Cc:Reply-To:From;
+	b=N19adXgxStSETkPCUiw306p9SLv8/KzudEuliw48xHdCLpFuxfPr28nePmfkIzXzn
+	 +xNBST/f2Bm0ieTU0ioKAqpRdHq1kgUwqHfiwJ9acqPehvhGP1NAp1+XATY4vvbIpN
+	 moNXb6xDwWqorWdQ2UC5FRyrOBu2vkuAH0gOWJWtHmWtPqwHACiyVO6n7pawFNY9qe
+	 4LbcrEmyq5eialdsFzosqnswsTzf+MJGoSXxydpNUmlqGdxR6jK7SOFAf/qym6YRHM
+	 LlLgm/ivx0JPTFYckV8DssBr616/+7z8kF7fMgCPssfSeWAEYKg9ylOcleQ4g7Zq4/
+	 OahjBKROgG44Q==
+Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 728E9C43458;
+	Mon,  6 Jul 2026 19:00:06 +0000 (UTC)
+From: Sanjay Chitroda via B4 Relay <devnull+sanjayembeddedse.gmail.com@kernel.org>
+Subject: [PATCH v3 0/2] HID: iio: warning clean up and prefer kernel coding
+ style
+Date: Tue, 07 Jul 2026 00:29:42 +0530
+Message-Id: <20260707-15-jun-hid-iio-alignment-v3-0-8791574ad0fe@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+X-B4-Tracking: v=1; b=H4sIAB/7S2oC/3WNQQ6CMBREr0K69ptahKor72FYtOUXPoHWtEA0h
+ LtbYG0ym5fMzFtYxEAY2SNbWMCZInmXID9lzLTKNQhUJ2aCi5KXlwJSuslBSzUQeVA9NW5AN8K
+ 11FpJIe8ac5bm74CWPvv1qzo4TrpDM25/W6OlOPrw3d2z2HqHRnLxXzML4KBv0vKLLdBq82wGR
+ f3Z+IFV67r+AO3GJ2jSAAAA
+X-Change-ID: 20260615-15-jun-hid-iio-alignment-46bba7279be3
+To: Jiri Kosina <jikos@kernel.org>, Jonathan Cameron <jic23@kernel.org>, 
+ Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, 
+ David Lechner <dlechner@baylibre.com>, 
+ =?utf-8?q?Nuno_S=C3=A1?= <nuno.sa@analog.com>, 
+ Andy Shevchenko <andy@kernel.org>
+Cc: linux-input@vger.kernel.org, linux-iio@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, Sanjay Chitroda <sanjayembeddedse@gmail.com>, 
+ Maxwell Doose <m32285159@gmail.com>
+X-Mailer: b4 0.15.2
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1783364398; l=3058;
+ i=sanjayembeddedse@gmail.com; s=20260702; h=from:subject:message-id;
+ bh=ettpJxnb6azjELpGMnVt8XxE9lKyWlE5LuIQyE/jaDM=;
+ b=HHBJPGszaPcPmceyqV0+SHMXDbnNHpQzCJ3mycV++zp+2uZSt/98u0ivvDRpBNOTRZdRnMzsK
+ mtH+cA49LLBBlm/H6SQyy7KKg7rZOSYR5jiZ1rKUz71FnQpg0DDPSGD
+X-Developer-Key: i=sanjayembeddedse@gmail.com; a=ed25519;
+ pk=PcneEFtkmY+Ldl+KmOTpB/Q/HDsqko6Fb0/Z/5cuycI=
+X-Endpoint-Received: by B4 Relay for sanjayembeddedse@gmail.com/20260702
+ with auth_id=848
+X-Original-From: Sanjay Chitroda <sanjayembeddedse@gmail.com>
+Reply-To: sanjayembeddedse@gmail.com
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
+Hi all,
 
-Pre-existing issues:
-- [High] The `zinitix,mode` property is read and validated after `input_reg=
-ister_device()` is called. This creates a race condition where userspace ca=
-n open and use the input device before its private state is fully configure=
-d, violating input subsystem initialization rules.
-- [High] I2C transactions use stack-allocated buffers, which are unsafe for=
- DMA.
---
+This series updates HID sensor IIO drivers to address checkpatch
+warnings, improves readability and compliance with kernel coding style.
 
-commit 25626131785e9a530425fa65d2a03db62641f88e
-Author: Kavan Smith <kavansmith82@gmail.com>
+The changes are:
+  - replacing explicit NULL comparisons with implicit pointer checks;
+  - adjusting indentation and alignment;
+  - reformatting multi-line function declarations for improved
+    readability and consistency.
 
-Input: zinitix - support the 6-byte/count touch report used by bt532
+While updating alignment and line wrapping, function parameters are
+grouped more logically and common callback signatures are formatted
+consistently across HID sensor IIO drivers.
 
-This commit adds a per-compatible struct zinitix_chip_data to select
-the report stride and how byte[2] is interpreted. It provides support
-for firmware packing contacts at a 6-byte stride and reporting a finger
-count, fixing multitouch behavior on devices like the Samsung Galaxy Tab
-A 8.0.
+Testing:
+  - Compiled with W=1 for each patch in the series
 
-> diff --git a/drivers/input/touchscreen/zinitix.c b/drivers/input/touchscr=
-een/zinitix.c
-> index 0c36765bd79f8..04ee4d804b511 100644
-> --- a/drivers/input/touchscreen/zinitix.c
-> +++ b/drivers/input/touchscreen/zinitix.c
+---
+Changes in v3:
+- Rebase series on top of iio/testing where parital v2 series is added.
+- Rectify commit message and resolve inconsistency highlighted by
+  Jonathan.
+- Link to v2: https://patch.msgid.link/20260702-15-jun-hid-iio-alignment-v2-0-b87f01f5efbc@gmail.com
 
-[ ... ]
+Changes in v2:
+- Following input from Joshua and Maxwell squash all related changes
+  in single change as this is code churn.
+- Following input from Andy (re-)split function argument/parameter
+  logically.
+- Added review tag of Maxwell to implicit NULL check change while
+  drop for parenthesis alignemnt to have a fresh review.
+- Link to v1: https://lore.kernel.org/20260616-15-jun-hid-iio-alignment-v1-0-0cd544286575@gmail.com
 
-> @@ -452,8 +475,11 @@ static irqreturn_t zinitix_ts_irq_handler(int irq, v=
-oid *bt541_handler)
-> =20
->  	memset(&touch_event, 0, sizeof(struct touch_event));
-> =20
-> +	/* header (status, finger_mask, time_stamp) + one stride per contact */
->  	error =3D zinitix_read_data(bt541->client, ZINITIX_POINT_STATUS_REG,
-> -				  &touch_event, sizeof(struct touch_event));
-> +				  &touch_event,
-> +				  offsetof(struct touch_event, coords) +
-> +					  MAX_SUPPORTED_FINGER_NUM * stride);
+To: Jiri Kosina <jikos@kernel.org>
+To: Jonathan Cameron <jic23@kernel.org>
+To: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+To: David Lechner <dlechner@baylibre.com>
+To: Nuno Sá <nuno.sa@analog.com>
+To: Andy Shevchenko <andy@kernel.org>
+Cc: linux-input@vger.kernel.org
+Cc: linux-iio@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
 
-[Severity: High]
-This is a pre-existing issue, but does zinitix_read_data() perform safe I2C
-transactions here?
+---
+Sanjay Chitroda (2):
+      iio: hid-sensors: align function parenthesis for readability
+      iio: hid-sensors: Use implicit NULL pointer checks
 
-The &touch_event pointer points to stack memory and is passed to
-i2c_master_recv() inside zinitix_read_data(). Passing stack-allocated buffe=
-rs
-to I2C transfer functions can violate DMA safety rules. If the I2C host
-controller driver maps these buffers for DMA, it can corrupt adjacent stack
-variables on non-cache-coherent architectures.
+ drivers/iio/accel/hid-sensor-accel-3d.c            | 48 ++++++-------
+ .../iio/common/hid-sensors/hid-sensor-attributes.c | 80 +++++++++++-----------
+ .../iio/common/hid-sensors/hid-sensor-trigger.c    |  4 +-
+ .../iio/common/hid-sensors/hid-sensor-trigger.h    |  2 +-
+ drivers/iio/gyro/hid-sensor-gyro-3d.c              | 35 ++++------
+ drivers/iio/humidity/hid-sensor-humidity.c         | 33 ++++-----
+ drivers/iio/light/hid-sensor-als.c                 | 32 ++++-----
+ drivers/iio/light/hid-sensor-prox.c                | 29 ++++----
+ drivers/iio/magnetometer/hid-sensor-magn-3d.c      | 53 +++++++-------
+ drivers/iio/orientation/hid-sensor-incl-3d.c       | 33 ++++-----
+ drivers/iio/orientation/hid-sensor-rotation.c      | 26 +++----
+ .../iio/position/hid-sensor-custom-intel-hinge.c   | 13 ++--
+ drivers/iio/pressure/hid-sensor-press.c            | 35 ++++------
+ drivers/iio/temperature/hid-sensor-temperature.c   | 30 ++++----
+ 14 files changed, 208 insertions(+), 245 deletions(-)
+---
+base-commit: 4c0ecdbdc0d87570f74e656e21d56bae1ab6a8f1
+change-id: 20260615-15-jun-hid-iio-alignment-46bba7279be3
 
-This same issue seems to exist with &reg_le in zinitix_read_data() and the
-packet array in zinitix_write_u16(). Would it be possible to allocate these
-buffers dynamically to avoid potential DMA stack corruption?
+Best regards,
+--  
+Sanjay Chitroda <sanjayembeddedse@gmail.com>
 
-[ ... ]
 
-> @@ -627,6 +671,7 @@ static int zinitix_ts_probe(struct i2c_client *client)
->  		return -ENOMEM;
-> =20
->  	bt541->client =3D client;
-> +	bt541->chip =3D device_get_match_data(&client->dev);
->  	i2c_set_clientdata(client, bt541);
-> =20
->  	error =3D zinitix_init_regulators(bt541);
-
-[Severity: High]
-This isn't a bug introduced by this patch, but looking further down in
-zinitix_ts_probe(), zinitix_init_input_dev() is called to register the input
-device before reading the zinitix,mode property:
-
-	error =3D zinitix_init_input_dev(bt541);
-	if (error) {
-		dev_err(&client->dev,
-			"Failed to initialize input device: %d\n", error);
-		return error;
-	}
-
-	error =3D device_property_read_u32(&client->dev, "zinitix,mode",
-					 &bt541->zinitix_mode);
-
-Does this create a race condition where userspace could open and use the
-input device before its private state is fully configured?
-
-If userspace opens the device in this window, zinitix_input_open() might use
-bt541->zinitix_mode while it is still 0 (from kzalloc). This could configure
-the hardware in an invalid state instead of the device-tree specified mode.
-Should the property be read and validated before calling
-input_register_device()?
-
-[ ... ]
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260706180826.4089=
-89-1-kavansmith82@gmail.com?part=3D1

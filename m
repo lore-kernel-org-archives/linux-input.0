@@ -1,95 +1,165 @@
-Received: from cstnet.cn (smtp21.cstnet.cn [159.226.251.21])
-	(using TLSv1.2 with cipher DHE-RSA-AES256-SHA (256/256 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2288D42CAFE;
-	Mon,  6 Jul 2026 09:11:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=159.226.251.21
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2350241F7D8
+	for <linux-input@vger.kernel.org>; Mon,  6 Jul 2026 09:19:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783329119; cv=none; b=MAOAo6ayUms2+PapAP/yjrVS4gWJSafxJ2EC1Jl5OGpaNN7khST+kA/RHzDjpm8TJUOWChgaLLVMeTRfMC+U7GSrCtKufP+tzhH1m3gF4ctKKvoGkYCkMqNEGeQiFuNFfz08HifytywCkiySXY/HnVWc+fulflZPnKPVCQdiVqQ=
+	t=1783329578; cv=none; b=I4BD/udAldMYlTWN6Er5tkwNXlnqHPWoEFrF9i/RVGc8wdLlUC7dxKy9BloWK9WI+R7Qf7y5Q/GiJ9lcKR2v95X59AmPuaulmSkRvdCtNFGdSMKcHLRiqw3wEzLcsSLn7ZZ/jcDUqeV/r47tljlzCPCLolmIcllehip209KIhes=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783329119; c=relaxed/simple;
-	bh=f1NkGXPSBDLT894xS2sI1MNT10rtGw5G/Re9IRgyHTQ=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=riI20O/xbI43og2LfIdWlfclmltzXa25ib/VrgnJFbvXSuIKWeJTZqzcIg0zsiW1kXCDTTlVy1m/1RD9fRBEgPnN3Kn6LDPMdgTqIfhoVhoA01b/7rRc4mZLmVYKtthOpTy5FMM7vf7vNJmmwIPtkIKQt64JSHqxtOn2O4DNCg0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=iscas.ac.cn; spf=pass smtp.mailfrom=iscas.ac.cn; arc=none smtp.client-ip=159.226.251.21
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=iscas.ac.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=iscas.ac.cn
-Received: from localhost.localdomain (unknown [111.196.245.140])
-	by APP-01 (Coremail) with SMTP id qwCowAAHqtJScUtqffDwBA--.35378S2;
-	Mon, 06 Jul 2026 17:11:46 +0800 (CST)
-From: Pengpeng Hou <pengpeng@iscas.ac.cn>
-To: Nick Dyer <nick@shmanahar.org>
-Cc: Pengpeng <pengpeng@iscas.ac.cn>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH] Input: atmel_mxt_ts - validate firmware frame bounds
-Date: Mon,  6 Jul 2026 17:11:44 +0800
-Message-ID: <20260706091144.76132-1-pengpeng@iscas.ac.cn>
-X-Mailer: git-send-email 2.50.1
+	s=arc-20240116; t=1783329578; c=relaxed/simple;
+	bh=OR0jDkq0K9pevq1rAwCftolpwA5OctbmYgIFyZ7HlJM=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=TsBe4UGxWEidlYboMSI2SROOYFMvBb5MpYCBaRSsvRcIE0XVN0oJLdIh7tb4s2JtcLdxONab+sgGxo3veQoGpWKE4lvrhl+bvhv+7Nnxg48oqMwD7JcWHoUFQ7XE5UlJJnDFMwzAra8gH3adWHDw4fwH05owY1pw5XloRkMIgFg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=b4cMlUsI; arc=none smtp.client-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="b4cMlUsI"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1C591F000E9;
+	Mon,  6 Jul 2026 09:19:33 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1783329573;
+	bh=6g7qSeV4UWpUgtBfZvv9BWZAAyrVr+RtmGOABIH1alE=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=b4cMlUsIriLSEDONH5XNgZ0tiQhDIuFAIS7NgxRLw34z8xjY1mB8DWbW4J4/i8l81
+	 dk1flQQuk0BSU8qd0RBbcA5ugD9Ba8dqsGN/gK8s5eua3oJE5kjNhzblNqVMqhKDBJ
+	 DB4eixamUOn1WE9sg/LTq9tZeFBnDX3Eo8yYmfGr0N08STUPvo+NBYWl8pfCEu7g5h
+	 RAvvjx5PcsVBd4JW6nhNPM40GM5Vb2gaB09awuTAvczFIvOwkea+S0tsZVK+QvLLqL
+	 JvIxuPjdKOjwTAvI0gWeAhvCk3OOB4UTEWgC5au1T63NzmtNff3Y071HanTg+BcBCA
+	 upybBiXPEz1Pw==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH] HID: mcp2200: validate input report length
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Pengpeng Hou" <pengpeng@iscas.ac.cn>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <20260706090932.75673-1-pengpeng@iscas.ac.cn>
+References: <20260706090932.75673-1-pengpeng@iscas.ac.cn>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Mon, 06 Jul 2026 09:19:33 +0000
+Message-Id: <20260706091933.A1C591F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:qwCowAAHqtJScUtqffDwBA--.35378S2
-X-Coremail-Antispam: 1UD129KBjvJXoW7tr17XFyfKFykurWUKw4fuFg_yoW8GF1rpF
-	WYqasFkr4UXr4Iyw1IyFW7ZFyrZFZ5tFWakayjq3Wxur15AryrKFy3tr92gayFyan3tw43
-	GF1DZFyxua4DuFJanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDU0xBIdaVrnRJUUUkG14x267AKxVWUJVW8JwAFc2x0x2IEx4CE42xK8VAvwI8IcIk0
-	rVWrJVCq3wAFIxvE14AKwVWUJVWUGwA2ocxC64kIII0Yj41l84x0c7CEw4AK67xGY2AK02
-	1l84ACjcxK6xIIjxv20xvE14v26ryj6F1UM28EF7xvwVC0I7IYx2IY6xkF7I0E14v26F4j
-	6r4UJwA2z4x0Y4vEx4A2jsIE14v26rxl6s0DM28EF7xvwVC2z280aVCY1x0267AKxVW0oV
-	Cq3wAS0I0E0xvYzxvE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0
-	I7IYx2IY67AKxVWUXVWUAwAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFVCjc4AY6r1j6r
-	4UM4x0Y48IcxkI7VAKI48JM4x0x7Aq67IIx4CEVc8vx2IErcIFxwCY1x0262kKe7AKxVWU
-	AVWUtwCF04k20xvY0x0EwIxGrwCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E14
-	v26r1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_JF0_Jw1lIxkG
-	c2Ij64vIr41lIxAIcVC0I7IYx2IY67AKxVWUJVWUCwCI42IY6xIIjxv20xvEc7CjxVAFwI
-	0_Gr0_Cr1lIxAIcVCF04k26cxKx2IYs7xG6r1j6r1xMIIF0xvEx4A2jsIE14v26r1j6r4U
-	MIIF0xvEx4A2jsIEc7CjxVAFwI0_Gr0_Gr1UYxBIdaVFxhVjvjDU0xZFpf9x0JUDpnQUUU
-	UU=
-X-CM-SenderInfo: pshqw1xhqjqxpvfd2hldfou0/
 
-From: Pengpeng <pengpeng@iscas.ac.cn>
+Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+s) to consider:
 
-mxt_flash_fw() walks a length-prefixed firmware image. The loop only
-checks that the cursor is below fw->size before reading the two-byte
-frame length and passing the declared frame to the bootloader write path.
+Pre-existing issues:
+- [High] A raw event arriving immediately after `hid_hw_open` will cause a =
+NULL pointer dereference because driver data and synchronization primitives=
+ are not yet initialized.
+- [High] Concurrent calls to `mcp_cmd_read_all` can lead to corrupted state=
+, lost wakeups, and data races because `wait_in_report` and shared response=
+ fields are not protected by locks during command execution.
+- [High] The GPIO chip is managed via devres and unregistered after the HID=
+ hardware is stopped, leading to potential use-after-free or invalid hardwa=
+re accesses.
+--
 
-Check that the length field and the complete frame, including CRC bytes,
-fit in the remaining firmware image before reading or writing the frame.
+commit d11b6ebfc1ea2a8baf37113e30af821787d261be
+Author: Pengpeng <pengpeng@iscas.ac.cn>
+Subject: HID: mcp2200: validate input report length
 
-Signed-off-by: Pengpeng <pengpeng@iscas.ac.cn>
----
- drivers/input/touchscreen/atmel_mxt_ts.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+This commit updates mcp2200_raw_event() to validate that the command byte
+and response fields are present in the HID input report before accessing
+them. It rejects truncated reports instead of reading past the end of the
+payload.
 
-diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index 2c0e5a67135b..2aa52b4e5ff5 100644
---- a/drivers/input/touchscreen/atmel_mxt_ts.c
-+++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -2927,10 +2927,19 @@ static int mxt_flash_fw(struct mxt_data *data, const struct firmware *fw)
- 		if (error)
- 			return error;
- 
-+		if (fw->size - pos < 2) {
-+			dev_err(dev, "Truncated frame size in firmware\n");
-+			return -EINVAL;
-+		}
-+
- 		frame_size = ((*(fw->data + pos) << 8) | *(fw->data + pos + 1));
- 
- 		/* Take account of CRC bytes */
- 		frame_size += 2;
-+		if (frame_size > fw->size - pos) {
-+			dev_err(dev, "Truncated frame in firmware\n");
-+			return -EINVAL;
-+		}
- 
- 		/* Write one frame to device */
- 		error = mxt_bootloader_write(data, fw->data + pos, frame_size);
--- 
-2.43.0
+> diff --git a/drivers/hid/hid-mcp2200.c b/drivers/hid/hid-mcp2200.c
+> index dafdd5b4a0797..d2f45892dc22a 100644
+> --- a/drivers/hid/hid-mcp2200.c
+> +++ b/drivers/hid/hid-mcp2200.c
+> @@ -299,8 +299,19 @@ static int mcp2200_raw_event(struct hid_device *hdev=
+, struct hid_report *report,
+>  	struct mcp2200 *mcp =3D hid_get_drvdata(hdev);
+>  	struct mcp_read_all_resp *all_resp;
+> =20
+> +	if (size < 1) {
+> +		mcp->status =3D -EINVAL;
 
+[Severity: High]
+This is a pre-existing issue, but is it possible for an interrupt to fire
+immediately after hid_hw_open() in mcp2200_probe() and trigger a NULL
+pointer dereference here?
+
+If mcp2200_raw_event() is called before hid_set_drvdata() and lock
+initialization complete:
+
+drivers/hid/hid-mcp2200.c:mcp2200_probe() {
+        ...
+        ret =3D hid_hw_open(hdev);
+        ...
+        mutex_init(&mcp->lock);
+        init_completion(&mcp->wait_in_report);
+        hid_set_drvdata(hdev, mcp);
+        ...
+}
+
+Could mcp be NULL here, leading to a crash when accessing mcp->status?
+
+> +		complete(&mcp->wait_in_report);
+> +		return 0;
+> +	}
+> +
+>  	switch (data[0]) {
+>  	case READ_ALL:
+> +		if (size < sizeof(*all_resp)) {
+> +			mcp->status =3D -EINVAL;
+> +			break;
+> +		}
+> +
+>  		all_resp =3D (struct mcp_read_all_resp *) data;
+>  		mcp->status =3D 0;
+>  		mcp->gpio_inval =3D all_resp->io_port_val_bmap;
+
+[Severity: High]
+This isn't a bug introduced by this patch, but can concurrent calls to
+mcp_cmd_read_all() lead to corrupted state or lost wakeups?
+
+In mcp_cmd_read_all(), the mutex is released before waiting for the
+response:
+
+drivers/hid/hid-mcp2200.c:mcp_cmd_read_all() {
+        ...
+        mutex_unlock(&mcp->lock);
+        t =3D wait_for_completion_timeout(&mcp->wait_in_report, ...);
+        ...
+}
+
+Does modifying mcp->status and mcp->gpio_inval locklessly here in
+mcp2200_raw_event() create a data race if multiple threads are reading or
+writing GPIO state concurrently?
+
+[ ... ]
+
+[Severity: High]
+This is a pre-existing issue, but does using devres for the GPIO chip
+create a use-after-free risk during device removal?
+
+In mcp2200_probe(), the chip is registered with devres:
+
+drivers/hid/hid-mcp2200.c:mcp2200_probe() {
+        ...
+        ret =3D devm_gpiochip_add_data(&hdev->dev, &mcp->gc, mcp);
+        ...
+}
+
+Then in mcp2200_remove(), the hardware is stopped before the chip is
+unregistered:
+
+drivers/hid/hid-mcp2200.c:mcp2200_remove() {
+        ...
+        hid_hw_close(hdev);
+        hid_hw_stop(hdev);
+        ...
+}
+
+Could a user-space process continue interacting with the GPIO device while
+the USB device is physically removed, causing invalid hardware accesses
+before devres cleans up the GPIO chip?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260706090932.7567=
+3-1-pengpeng@iscas.ac.cn?part=3D1

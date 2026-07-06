@@ -1,123 +1,185 @@
-Received: from mail-wr1-f52.google.com (mail-wr1-f52.google.com [209.85.221.52])
+Received: from mail-ej1-f49.google.com (mail-ej1-f49.google.com [209.85.218.49])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 343B52F5313
-	for <linux-input@vger.kernel.org>; Mon,  6 Jul 2026 17:19:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 06C08437846
+	for <linux-input@vger.kernel.org>; Mon,  6 Jul 2026 17:55:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.49
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783358376; cv=none; b=XHr9/3Uk8xO76hza7KLFDxn6whdYUlHU9sn9zB++95I//KGIdbtBsAphLRC1ABRf2srSKXlmCvvkVZH3RWk4j+ZxrX02iELaZuyfisyNGX3zUV1jH1wQ1aU9SrWNnagLuRRHGfb9jaiXrtVFDXoGMHFxvxVRTQ00E8U6DrOtC+I=
+	t=1783360528; cv=none; b=HMAoItd6OQK0H6cDk2MtQ1Pfgyd8Qt3vGO6qQC2B0TUJYL66GrxxKjHBRPwuLpHhlN33e4Bcw1ctPsrYx0+UuYOPGnhAaL8l0e2bh5P5tE9Tg4TG2t+Y9+Z0L1FBzfi1eAp64/GY8o/72vbKD+jXYRPVYC3rz/gqHkzSObNc9Xs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783358376; c=relaxed/simple;
-	bh=dHBwqhTYfbY9fJIHTmYEjxPraka/sj1Dbn/aCnQQgls=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=HA9JqAMvjpdxmhLlKFwQG1e0nbmw5mO3ag99TYN/wUhhomHtsUAfsQlbRZnRX6dlgH7d3Nwdsjn5DoP32icbneuRvnzbZCSmVxxo/NVE9bbdrIw8jsdY8H1p68Qm8+YHNs5M5MbF68+4WAO0wmaltHZOSfl3d3jLQ+N5brSlRJo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com; spf=pass smtp.mailfrom=baylibre.com; dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b=kEDcriMY; arc=none smtp.client-ip=209.85.221.52
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=baylibre.com
+	s=arc-20240116; t=1783360528; c=relaxed/simple;
+	bh=SA+7qoByX2i3ZbXhf/xYf8HfYh5roodIPFQZpxNv6tQ=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=YZ8jmNaN5QRRZTH1BuERkJo5XvQJ8OI3EA3dk/76nnjawdsxgN6M32cvH+Dt81X/iXfSHaBS7hwQN1xFDAsAcVwek/f5LzSp6ph5XjdUUlNTECA0o/62+VPo3YQcvxh0PgDB/7gvlHNa6hIM/uBrat26LG7wkoa5WJocsgpC/Mw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=DUhS0T0l; arc=none smtp.client-ip=209.85.218.49
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b="kEDcriMY"
-Received: by mail-wr1-f52.google.com with SMTP id ffacd0b85a97d-4703bc0a99aso1813266f8f.3
-        for <linux-input@vger.kernel.org>; Mon, 06 Jul 2026 10:19:34 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="DUhS0T0l"
+Received: by mail-ej1-f49.google.com with SMTP id a640c23a62f3a-c1254b73d63so363808266b.1
+        for <linux-input@vger.kernel.org>; Mon, 06 Jul 2026 10:55:26 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=baylibre.com; s=google; t=1783358373; x=1783963173; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=dHBwqhTYfbY9fJIHTmYEjxPraka/sj1Dbn/aCnQQgls=;
-        b=kEDcriMYD2qbvjO5qDz42WB9jgpc/wXissBLYzuLKVsDh37RLvM+1Wpwqe/L/wEgEn
-         Bzsimd3HEfJTDr2JQ1aoEARPmt86aUvKAJPMr4216YOUf6zz2G7VNmJhatFVULtcqrHk
-         m1fpgsSVtiP7kP2daY4SrEZ50S+wwgF7Go/D1c8lt9Rgokyf3tgg/AdebvEAWI1p0Jwf
-         b4yEcNcmJKzOc36PhLqkk0B93aBUJd6DPSi6gz1PY6cz7S3uq4SN/6ub1csvN5hKdiYg
-         9rAAk3no0/OW/5KI/vtXPUBKPgFHofH2GAt6YDj2Zdia4rhvZqdSc+f278HR19pm74WW
-         FVqw==
+        d=gmail.com; s=20251104; t=1783360525; x=1783965325; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=kmSKkj5hOXJj95w1wKmp14gv5ekFNxv0d27UUCnYNkE=;
+        b=DUhS0T0lNrQdzH9petmXNDkMaBL7JqScU7qqRO9ia3XP0NMCvD4irhnIvVzNFcmewk
+         OGq3cxjIBlmDSbareFj7mvonX8sbFx0/hxcl3lZWcghbIp+0kizWtDthl3MVkChfG1AZ
+         gZGGsRasgkJBNxtwNFSpmpQ2vy9cC0QVo9JwTPUWxgK40ZZOGfBVvfOokNV712BsR0hm
+         m8nffXiEP+4FVw74GVz7h/I4JvyB0Fw2mIVOhoPvlKHuLFNZXy9arld5jc+XJvpCnEIp
+         opWI4iiF471cDyTfLIvyAze/1zwyq3ItbYNaYG9sIYaVy+5TyCIClI7knMJIurOMDet9
+         yJgQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1783358373; x=1783963173;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=dHBwqhTYfbY9fJIHTmYEjxPraka/sj1Dbn/aCnQQgls=;
-        b=Rywd4tSdPv6rRNbKUX0rKQvVfP3emZCNPPF4LG6tm/3g8n7vUapextCRq6HNy3pTew
-         j6yb/dVVrsoiWC3QK1xeh8EjzKFWtMtJUmNivnj+QtrAZBsZKiH3qGR3FXQU+++makK2
-         w0fX6y5WCcSiFNIsDfx21jD2M+bBAJRA4NS+oat+TAZX12N6I/9I21nj0ttqS56o8NHg
-         jci26aysVOsfWt+XOqUIVFgglAKj/R2PpLe2b0PR4mVlVZhAMIXQRp/2VkTMmzU5Yr/P
-         s+gJ1XZZLFBtR0yBFEqWB8gCPVH32lBHW4sJPqyyZZddXNG4UhtsiVh4wceeAj4IBKeu
-         tqWw==
-X-Forwarded-Encrypted: i=1; AHgh+Rrjhs683hqlmypgeMA/6gmgxepkJ3sKWKTYjrj/vhHpmGe/V0Eyw2OmEXSAuGohi1SPx1i60tTL0PLdoA==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yx11lCR+yN92zgWfDsj85vkM3Rbr9XgG1j3Gcm51tmlezQlAuC0
-	TuDvooTdrF91XHd3YrdSiwwRrpp5ovq/DRZn/q00+D1G7QmN7mG48hfeBY0jWpyyagc=
-X-Gm-Gg: AfdE7cm1g9/QF86MQJN4KOwNC5qzG7HYY/GBvI4Gn8qqqMjjpozA/T208f1d2XldK/h
-	mzlLPsWmL3A67AGdVoOfF3nPunQ6hlIK6Z1Xa9LbJh6gXWOYcrZlpdJwuvpNe60eOTf5/6IL1bt
-	4Tu96vgScZD+IWGleii0GM1ceRdm7sApg6aS8fxZOvtDiUS47RLruuv5JvVunmiguI+rbzqd2VW
-	ZKBVLs0DDYa3+8gIe19TpUH3Ab1Z+2xpmSBVh6R+x+zsCb0+TaN8adxPfsujXVZslrBQZhN1mRu
-	yoxD4WRw5gaz3L7DaUWtDSxWaZQRUhyOhymZomAzcPFedHb+dG2jaZ8yjyYRhVgaymu+q6PyNCp
-	4cuUmrFYtbJYKfTE5pf9gRYRvJo4zWgbKQJQkjiTFH5Y6EyePEb3VYPyzY1j7sfmrEvm9dSSj20
-	ENzX2XIo87kD3bQBdrx9OUdbEfQxdr4ghq9qg6vl1vlEsSH5/ueIRWF0ld7RHRobiDDAeUlT2s0
-	7UDwTZgD4FOlQ==
-X-Received: by 2002:adf:fc86:0:b0:46e:c978:7ddc with SMTP id ffacd0b85a97d-47de668ad94mr1104856f8f.24.1783358373402;
-        Mon, 06 Jul 2026 10:19:33 -0700 (PDT)
-Received: from localhost (p200300f65f47db0404eb41111570ffdc.dip0.t-ipconnect.de. [2003:f6:5f47:db04:4eb:4111:1570:ffdc])
-        by smtp.gmail.com with UTF8SMTPSA id ffacd0b85a97d-47aa0f21328sm26811879f8f.32.2026.07.06.10.19.32
+        d=1e100.net; s=20251104; t=1783360525; x=1783965325;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=kmSKkj5hOXJj95w1wKmp14gv5ekFNxv0d27UUCnYNkE=;
+        b=pe9SKjSj6Fn6DtLzkr0CjykTM1m9/TQmdL20mj+Ybs+umniIpOXcJcV4DPFxNzvVzL
+         rtyl+1OoHJdU4pPQDK34ygH76fBvBWFbiC40XhaGtNGWtrlB1HTrKt6TSCqqa9ZHxrSo
+         qK2YimEsm1VBrs2vhvLMU98N+HGoPmUrQ0G4iBYzaUS6IsTk0sR0mC9e0Ym5mL0jYPdj
+         nspAmCHhK/fpCxTL+ZoaOgXVlARjrVE/OcRLUovhQP8eVkhnzHegaFlgruh52QIaBbmA
+         hwexaoUGzRCzdvZCnulyJRPDvwXvxQSbywHZRYzBTlkQCbCLkGUerjsyMNstlarfJLF1
+         IHog==
+X-Forwarded-Encrypted: i=1; AHgh+Rp81gziOykqv1CDLYD8zjhAAMR9H+RcGeH0myuuPVlO37eULR64q/VSVVN7lcjKxVS5NYIAOaaXBJP4iQ==@vger.kernel.org
+X-Gm-Message-State: AOJu0YyZlxEFcgfj8uBWW+mo5sR1qBlHPwsOCkqjn80LpVjf59RlZw2H
+	PpsQesZwaWF61zHVhMSs8z5q1KIT+b7kfgdml3+/vahQVizpN8VJvWUU
+X-Gm-Gg: AfdE7ckRfxGbOE370dcC99KA0gN85GIB+drdJP7H+7pexM+DfRQlQI+enuigntmXxkm
+	kRGH404FDd7xRNEqkoZbAQ4JkCK2LbpoyEwCvlWjNY93nU0hXtVXisYB1k9IOBLk07Xq5D5e9j0
+	A2eD7DOGD9HTu15YMk7tMuR2AD961CsLB5vXed8u2Z9JbMI2F8vyFGbBqzgldHzZ1d5kxRsET8Z
+	BnTZwXvJWEoSZkC4GbfLt4LHPHUB2aF/pdNhqKmlqCfVbU+U1sn5xQFczvOImPTXPMD9TFesWyq
+	yKHjtqt/GWmjKk/Ry7SfQdoOzpFWwv5+6u8w4N9HAX/BHl0cJJ3EC5qIzlK+96jRQQSaJXsO7dS
+	J0iddhOgOPD9HTiMGB/8wMQfW7xigayhBKcpptiNRRWJn6p2uOMxpfKwXUOzHqAAXTSRkIMTDX0
+	k1/XzNY+zSGykC2k7ZhDtDcyGMyn1q4WviRcg5KmnXL1k=
+X-Received: by 2002:a17:906:b352:b0:c12:9927:4378 with SMTP id a640c23a62f3a-c15a66b53e7mr69153066b.8.1783360525254;
+        Mon, 06 Jul 2026 10:55:25 -0700 (PDT)
+Received: from andfed.netbird.selfhosted ([188.146.162.78])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c12b6093794sm793698566b.21.2026.07.06.10.55.24
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 06 Jul 2026 10:19:32 -0700 (PDT)
-Date: Mon, 6 Jul 2026 19:19:31 +0200
-From: Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@baylibre.com>
-To: Marco Felsch <m.felsch@pengutronix.de>
-Cc: andrew.thomas@touchnetix.com, Luis Chamberlain <mcgrof@kernel.org>, 
-	Russ Weight <russ.weight@linux.dev>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
-	"Rafael J. Wysocki" <rafael@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, 
-	Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
-	Conor Dooley <conor+dt@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
-	Kamel Bouhara <kamel.bouhara@bootlin.com>, Marco Felsch <kernel@pengutronix.de>, 
-	Henrik Rydberg <rydberg@bitmath.org>, Danilo Krummrich <dakr@kernel.org>, linux-kernel@vger.kernel.org, 
-	devicetree@vger.kernel.org, linux-input@vger.kernel.org, 
-	Mamta Shukla <mamta.shukla@leica-geosystems.com>
-Subject: Re: [PATCH v7 4/4] Input: Add TouchNetix aXiom I2C Touchscreen
- support
-Message-ID: <akvjh3luyvQC6p2w@monoceros>
-References: <20260703-v6-10-topic-touchscreen-axiom-v7-0-0d2a550a7ee8@pengutronix.de>
- <20260703-v6-10-topic-touchscreen-axiom-v7-4-0d2a550a7ee8@pengutronix.de>
+        Mon, 06 Jul 2026 10:55:24 -0700 (PDT)
+From: Andrei Fed <andfed.net@gmail.com>
+To: Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>,
+	linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org,
+	Andrei Fed <andfed.net@gmail.com>,
+	stable@vger.kernel.org
+Subject: [PATCH] HID: magicmouse: fix battery reporting for Bluetooth Magic Trackpad USB-C
+Date: Mon,  6 Jul 2026 19:55:07 +0200
+Message-ID: <20260706175507.47288-1-andfed.net@gmail.com>
+X-Mailer: git-send-email 2.54.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="xu5avqsjxngvurz6"
-Content-Disposition: inline
-In-Reply-To: <20260703-v6-10-topic-touchscreen-axiom-v7-4-0d2a550a7ee8@pengutronix.de>
+Content-Transfer-Encoding: 8bit
 
+The Apple Magic Trackpad 2 (USB-C) reports a wildly wrong battery
+capacity over Bluetooth, for example a constant 4% for a pack that is
+actually at 74%.
 
---xu5avqsjxngvurz6
-Content-Type: text/plain; protected-headers=v1; charset=us-ascii
-Content-Disposition: inline
-Subject: Re: [PATCH v7 4/4] Input: Add TouchNetix aXiom I2C Touchscreen
- support
-MIME-Version: 1.0
+The device's battery input report (0x90) is laid out as
+[report-id][status][charge]. hid-input's synchronous capacity query,
+hidinput_query_battery_capacity(), assumes the common
+[report-id][capacity] layout and returns buf[1], which for this device
+is the status byte rather than the charge (buf[2]).
 
-Hallo Marco,
+magicmouse_fetch_battery(), which requests the battery report through
+hid_hw_request() so the reply is decoded via the report descriptor at
+the correct field offset, is gated to the USB models and never runs
+over Bluetooth. The device does not push battery reports on its own
+either, except a single one at connect time, which is delivered while
+probe holds driver_input_lock and is silently dropped. All userspace
+reads therefore go through the misparsing query, and the device is
+stuck reporting its status byte as the capacity.
 
-On Fri, Jul 03, 2026 at 12:32:25AM +0200, Marco Felsch wrote:
-> +#include <linux/mod_devicetable.h>
+Enabling the fetch for Bluetooth is not sufficient on its own: user
+space reacts to the power_supply registration immediately, so a query
+is typically already in flight when the fetch reply is parsed.
+hidinput_get_battery_property() stores the query result and marks the
+battery as queried without rechecking whether a report arrived while
+it was waiting, clobbering the just-reported correct value with the
+misparsed one.
 
-Please don't add new users for this header file. Only use those
-<linux/device-id/*.h> that you actually need.
+Fix this by adding HID_BATTERY_QUIRK_AVOID_QUERY for the Bluetooth
+Magic Trackpad USB-C so the misparsing query path is never used, and
+by fetching the battery at the end of probe for this device. hidp has
+no asynchronous request() callback, so the fetch is serviced
+synchronously via __hid_request() while probe still holds
+driver_input_lock; call hid_device_io_start() first so the reply is
+processed instead of being discarded.
 
-Thanks
-Uwe
+Tested with a Magic Trackpad USB-C (004c:0324) over Bluetooth on
+6.18.37: the reported capacity now matches the device (verified against
+a raw GET_REPORT of report 0x90) and updates on reconnect.
 
---xu5avqsjxngvurz6
-Content-Type: application/pgp-signature; name="signature.asc"
+Fixes: 87a2f10395c8 ("HID: magicmouse: Apple Magic Trackpad 2 USB-C driver support")
+Cc: stable@vger.kernel.org
+Signed-off-by: Andrei Fed <andfed.net@gmail.com>
+---
+ drivers/hid/hid-input.c      |  3 +++
+ drivers/hid/hid-magicmouse.c | 19 ++++++++++++++++++-
+ 2 files changed, 21 insertions(+), 1 deletion(-)
 
------BEGIN PGP SIGNATURE-----
+diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+index 3487600..f78166f 100644
+--- a/drivers/hid/hid-input.c
++++ b/drivers/hid/hid-input.c
+@@ -375,6 +375,9 @@ static const struct hid_device_id hid_battery_quirks[] = {
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE,
+ 		USB_DEVICE_ID_APPLE_MAGICTRACKPAD),
+ 	  HID_BATTERY_QUIRK_IGNORE },
++	{ HID_BLUETOOTH_DEVICE(BT_VENDOR_ID_APPLE,
++		USB_DEVICE_ID_APPLE_MAGICTRACKPAD2_USBC),
++	  HID_BATTERY_QUIRK_AVOID_QUERY },
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_ELECOM,
+ 		USB_DEVICE_ID_ELECOM_BM084),
+ 	  HID_BATTERY_QUIRK_IGNORE },
+diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
+index 802a347..0c4e959 100644
+--- a/drivers/hid/hid-magicmouse.c
++++ b/drivers/hid/hid-magicmouse.c
+@@ -828,6 +828,12 @@ static bool is_usb_magictrackpad2(__u32 vendor, __u32 product)
+ 	       product == USB_DEVICE_ID_APPLE_MAGICTRACKPAD2_USBC;
+ }
+ 
++static bool is_bt_magictrackpad2(__u32 vendor, __u32 product)
++{
++	return vendor == BT_VENDOR_ID_APPLE &&
++	       product == USB_DEVICE_ID_APPLE_MAGICTRACKPAD2_USBC;
++}
++
+ static int magicmouse_fetch_battery(struct hid_device *hdev)
+ {
+ #ifdef CONFIG_HID_BATTERY_STRENGTH
+@@ -838,7 +844,8 @@ static int magicmouse_fetch_battery(struct hid_device *hdev)
+ 	bat = hid_get_battery(hdev);
+ 	if (!bat ||
+ 	    (!is_usb_magicmouse2(hdev->vendor, hdev->product) &&
+-	     !is_usb_magictrackpad2(hdev->vendor, hdev->product)))
++	     !is_usb_magictrackpad2(hdev->vendor, hdev->product) &&
++	     !is_bt_magictrackpad2(hdev->vendor, hdev->product)))
+ 		return -1;
+ 
+ 	report_enum = &hdev->report_enum[bat->report_type];
+@@ -971,6 +978,16 @@ static int magicmouse_probe(struct hid_device *hdev,
+ 		schedule_delayed_work(&msc->work, msecs_to_jiffies(500));
+ 	}
+ 
++	/*
++	 * Query the Bluetooth Magic Trackpad USB-C battery as done for USB.
++	 * Start io first: probe holds driver_input_lock and the synchronous
++	 * GET_REPORT reply would otherwise be dropped.
++	 */
++	if (is_bt_magictrackpad2(id->vendor, id->product)) {
++		hid_device_io_start(hdev);
++		magicmouse_fetch_battery(hdev);
++	}
++
+ 	return 0;
+ err_stop_hw:
+ 	if (is_usb_magicmouse2(id->vendor, id->product) ||
+-- 
+2.54.0
 
-iQEzBAABCgAdFiEEP4GsaTp6HlmJrf7Tj4D7WH0S/k4FAmpL46AACgkQj4D7WH0S
-/k7IzQgAuSytq6eodi1gpj8Lnqny84O1wKdC5ws5BbWBuQOxm3s3uS09akU0uyy7
-uRPzfliKfsoSiM5ZhS8QmBeB68z2OfPvzSmYA0wATJWYxOMFLub2dpTEfHtJqf0i
-C9/oSgSY3vmO9x9yP1C/Sa94x5UIGdxq9O4C5KkClNaSlED478Y5o70Sk6ZHr05q
-5jyaYk6Xtyhrf4uYqliu5ewXlywlG34FQC231sEMwslfWgx7k/ifmngUUjrSUAmq
-uXweNMRNsDS7DLG0MJHHSm0pOUgcaj6hEVkatXHvidT6c0d9zUtIDOL+Bvf0EIcI
-EJRrPkRmRlM7GUO8KqNaOEmvl3BTIw==
-=SMi+
------END PGP SIGNATURE-----
-
---xu5avqsjxngvurz6--

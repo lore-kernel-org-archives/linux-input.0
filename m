@@ -1,95 +1,88 @@
-Received: from mailgw.kylinos.cn (mailgw.kylinos.cn [124.126.103.232])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 49C693F0751;
-	Mon,  6 Jul 2026 12:29:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=124.126.103.232
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1DF9E40A921;
+	Mon,  6 Jul 2026 13:15:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783340964; cv=none; b=WXQr31Han8E6n6/wHd2v2lltJ3fV4bxImZadb0L3UvMcyr7ofn761EhHNxvOI6O6weelQ1kLI/Z4PNu4NhR2I197Q4N/1cjlolNDqj/DUkASYCIwmgCOe8hjv1op59KteDpWpdWjr3jb/ds1EdYi/HotIUEwTzKP/PovVbbMkiw=
+	t=1783343715; cv=none; b=F5o0clVRkPNOIOrKaXTgjNsfUrRxVBeVrqyzWbiGgmm+J/Woy5vf2dTvyBt29do6S0iSyDR8+MVf7q0HNoHwQrl2N2YizGz2JVmh7xTKkkzSbwkqYoMfcgBJQyMp1A5aIeqMwi6Eqlx8F4Jz48MglYL1eJbDGMjpUUglyr0rKbc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783340964; c=relaxed/simple;
-	bh=/bBNEM4zbiFsI3XQBZY6imVMn8v55ti5ZnrSJIx9APk=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=ecTj8ox1gYWJkIdykHTk2mjPYzQcySr+FZw1/ng9Q82RUotQuAcHtaOXYGK3edtl6UuT9m70A1C56Cy/GwLx39NrEFAGFBP1OA07Ugz0jDNV8SdmITot4G8E3WoxVtxFmQlVIQIW7515k6N7vzZXXCI+8NzrBdItnaNEAdjSL3w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn; spf=pass smtp.mailfrom=kylinos.cn; arc=none smtp.client-ip=124.126.103.232
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kylinos.cn
-X-UUID: 4cc43be8793611f1aa26b74ffac11d73-20260706
-X-CID-P-RULE: Release_Ham
-X-CID-O-INFO: VERSION:1.3.12,REQID:170da06d-eb61-4b77-92f9-81e28e66140a,IP:0,U
-	RL:0,TC:0,Content:0,EDM:0,RT:0,SF:0,FILE:0,BULK:0,RULE:Release_Ham,ACTION:
-	release,TS:0
-X-CID-META: VersionHash:e7bac3a,CLOUDID:151ec2e623d159031e6f8aad212412e8,BulkI
-	D:nil,BulkQuantity:0,Recheck:0,SF:102|136|865|898,TC:nil,Content:0|15|50,E
-	DM:-3,IP:nil,URL:0,File:nil,RT:nil,Bulk:nil,QS:nil,BEC:nil,COL:0,OSI:0,OSA
-	:0,AV:0,LES:1,SPR:NO,DKR:0,DKP:0,BRR:0,BRE:0,ARC:0
-X-CID-BVR: 2,SSN|SDN
-X-CID-BAS: 2,SSN|SDN,0,_
-X-CID-FACTOR: TF_CID_SPAM_SNR
-X-CID-RHF: D41D8CD98F00B204E9800998ECF8427E
-X-UUID: 4cc43be8793611f1aa26b74ffac11d73-20260706
-X-User: aichao@kylinos.cn
-Received: from thinksys.. [(10.44.16.150)] by mailgw.kylinos.cn
-	(envelope-from <aichao@kylinos.cn>)
-	(Generic MTA with TLSv1.3 TLS_AES_256_GCM_SHA384 256/256)
-	with ESMTP id 747179614; Mon, 06 Jul 2026 20:29:14 +0800
-From: Ai Chao <aichao@kylinos.cn>
-To: jikos@kernel.org,
-	bentiss@kernel.org,
-	dianders@chromium.org,
-	treapking@chromium.org,
-	kenkinming2002@gmail.com,
-	raoxu@uniontech.com,
-	superm1@kernel.org
-Cc: linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Ai Chao <aichao@kylinos.cn>
-Subject: [PATCH] HID: i2c-hid: Fix "(null)" device name error logs in i2c_hid_parse
-Date: Mon,  6 Jul 2026 20:29:10 +0800
-Message-Id: <20260706122910.3943372-1-aichao@kylinos.cn>
-X-Mailer: git-send-email 2.34.1
+	s=arc-20240116; t=1783343715; c=relaxed/simple;
+	bh=x1w3I/q6YB2PAZQ3+vqNNYuAquzjC+Fpzy3jPahTZM0=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=K5VIQfEDZ0C6uWfIgspxc/yT+ToXSb5ZV+AAzPW18yMXvUYzrw4Fep/ik4WL/2hcc6g6LyKH8UVm9FR9LGTg9j9HUwHi3xGH/enBxPFQamZGyajbK+y0kqFdz6jgT8+gEg+AuzZXYvYWcYZL3JIBSki7qV+aYMEB1jm14mqvDKo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Av/sC3f1; arc=none smtp.client-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Av/sC3f1"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 41CC31F000E9;
+	Mon,  6 Jul 2026 13:15:13 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1783343713;
+	bh=+CW5VXs7qixejPLnfylkALm0A28ZAhRQ18edXH+D6l0=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To;
+	b=Av/sC3f1aVT6IuEXXdalz+MbyZxl4TMdaw37AFNjtDhFHEBzsF6GeE1YaoDBDrYDw
+	 4dUdnYDYSp5mNQYW1jf8XXP4ZqU9++IuSzukvFPxX1c4r0Kbn/OCLYG7mcIy3jGmHN
+	 1GGFIn54byGWcqMvo5foKd6iXO9YgAffmm47kdW1rY3VPKysEpsRW1jbFsL/yYZ6cM
+	 kVtxmP2xsD993BFbZSbCOS/w1uL0rIq/6mfnFZGCFT7K0ZaTkRqOtn1ArQU6bdzW9C
+	 l88LKfk7L1miKyqwQLO1GtGIrFzFrM8cA3G+BQYneRzbr5nHSebcQ0xBTNY2zo0h++
+	 EelEcJzDKse9A==
+Message-ID: <73e40a61-c842-4982-9e6f-d6a13bdf742f@kernel.org>
+Date: Mon, 6 Jul 2026 08:15:10 -0500
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] HID: i2c-hid: Fix "(null)" device name error logs in
+ i2c_hid_parse
+Content-Language: en-US
+To: Ai Chao <aichao@kylinos.cn>, jikos@kernel.org, bentiss@kernel.org,
+ dianders@chromium.org, treapking@chromium.org, kenkinming2002@gmail.com,
+ raoxu@uniontech.com
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20260706122910.3943372-1-aichao@kylinos.cn>
+From: Mario Limonciello <superm1@kernel.org>
+In-Reply-To: <20260706122910.3943372-1-aichao@kylinos.cn>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-When i2c-hid fails to read the HID report descriptor during device
-initialization, the error message prints as:
-
-  hid (null): reading report descriptor failed
-
-The HID device name is set in hid_add_device() after calling
-hdev->ll_driver->parse(), so when i2c_hid_parse() fails and calls
-hid_err(), the device name has not been set yet, resulting in "(null)"
-output.
-
-Use dev_err(&client->dev, ...) instead of hid_err(hid, ...) because
-the I2C client device is fully initialized with a proper name, providing
-meaningful error messages for debugging.
-
-Before: hid (null): reading report descriptor failed
-After:  i2c_hid i2c-TPD0001:00: reading report descriptor failed
-
-Signed-off-by: Ai Chao <aichao@kylinos.cn>
----
- drivers/hid/i2c-hid/i2c-hid-core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/hid/i2c-hid/i2c-hid-core.c b/drivers/hid/i2c-hid/i2c-hid-core.c
-index 3adb16366e93..0e725a0f0abe 100644
---- a/drivers/hid/i2c-hid/i2c-hid-core.c
-+++ b/drivers/hid/i2c-hid/i2c-hid-core.c
-@@ -792,7 +792,7 @@ static int i2c_hid_parse(struct hid_device *hid)
- 					    ihid->hdesc.wReportDescRegister,
- 					    rdesc, rsize);
- 		if (ret) {
--			hid_err(hid, "reading report descriptor failed\n");
-+			dev_err(&client->dev, "reading report descriptor failed\n");
- 			goto out;
- 		}
- 	}
--- 
-2.34.1
+On 7/6/26 07:29, Ai Chao wrote:
+> When i2c-hid fails to read the HID report descriptor during device
+> initialization, the error message prints as:
+> 
+>    hid (null): reading report descriptor failed
+> 
+> The HID device name is set in hid_add_device() after calling
+> hdev->ll_driver->parse(), so when i2c_hid_parse() fails and calls
+> hid_err(), the device name has not been set yet, resulting in "(null)"
+> output.
+> 
+> Use dev_err(&client->dev, ...) instead of hid_err(hid, ...) because
+> the I2C client device is fully initialized with a proper name, providing
+> meaningful error messages for debugging.
+> 
+> Before: hid (null): reading report descriptor failed
+> After:  i2c_hid i2c-TPD0001:00: reading report descriptor failed
+> 
+> Signed-off-by: Ai Chao <aichao@kylinos.cn>
+I think it would be good to track down the Fixes tag that this goes with.
+> ---
+>   drivers/hid/i2c-hid/i2c-hid-core.c | 2 +-
+>   1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/hid/i2c-hid/i2c-hid-core.c b/drivers/hid/i2c-hid/i2c-hid-core.c
+> index 3adb16366e93..0e725a0f0abe 100644
+> --- a/drivers/hid/i2c-hid/i2c-hid-core.c
+> +++ b/drivers/hid/i2c-hid/i2c-hid-core.c
+> @@ -792,7 +792,7 @@ static int i2c_hid_parse(struct hid_device *hid)
+>   					    ihid->hdesc.wReportDescRegister,
+>   					    rdesc, rsize);
+>   		if (ret) {
+> -			hid_err(hid, "reading report descriptor failed\n");
+> +			dev_err(&client->dev, "reading report descriptor failed\n");
+>   			goto out;
+>   		}
+>   	}
 

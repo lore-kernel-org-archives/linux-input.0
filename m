@@ -1,148 +1,142 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-yw1-f173.google.com (mail-yw1-f173.google.com [209.85.128.173])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3F90537F010
-	for <linux-input@vger.kernel.org>; Mon,  6 Jul 2026 09:34:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783330462; cv=none; b=syUwHDh55sEREPi12PUHjbkYArpLddbMTfViJh0TGS9fHgksVhZsVgqcEALavz3HethHtbFEr82SF4LuLhCaD27waRGLpUwbQAL87+/C5C4HQGH3jfrzKcNPYB3NSGtyyafM9+n0gRkfl3vAO/0VhtYl72MqMSm/Z2v2y3Bl8/M=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783330462; c=relaxed/simple;
-	bh=6lVbsmsqcR4eRLonNA+oPzmnlO4GO+VAS0II3dH82vo=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=eETa4J6lmE6qK6Cgx0PJmHrrc9DWpwl6k2jGFE3VIgV46VEh2Cv9lPSWLCvcDiemoZqF+JBPMTj8jGtWifxGQ71USA+sAjipZGk+naGdE14aycnDSKe5y8SpYvJalDez2w65EPFYS2dEr2bbTmP5mZBVqc7XmId53cWlIXzJijU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ewQlOVET; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 632502046BA
+	for <linux-input@vger.kernel.org>; Mon,  6 Jul 2026 10:16:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.128.173
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1783333007; cv=pass; b=Wd/zNc37tB9HZ+XQO+w46g0OsGiHk5s/BVxASkuI/u8mFoYLEpC9EEsECorKmW8pFYtg+AXbMBwH05EA17a9EVZpWOmgjGmkLXKwo+RkVuBNDU7kTsBcPZAtFnCldvRhzgmD4K7mlrswYZXeQgwF3EoMHiibGwFPkRKDrI/IKls=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1783333007; c=relaxed/simple;
+	bh=IFML3rF9djtar7SwsjcOXZQUh4NL6BJakKNcU6x9ydY=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=VKWik3MeA2RYzlrzPK2GvFCbmwkbM/zU5il4NTIZvyU008iikE4Uje5DetvSsUCVUie+Y2r5908EbIAQURv16SgQqFNolh0a1YdlipXaZ0/H/tt1H62z4kBcrmB8bsPSesW1F+cJ4vgu7k1UfenZjNXs9dGevNyTBCJlgQVk9Lg=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=XZm+bugB; arc=pass smtp.client-ip=209.85.128.173
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ewQlOVET"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47E071F000E9;
-	Mon,  6 Jul 2026 09:34:16 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1783330456;
-	bh=BdXBV5BNgLh7AOA4wa/MVGF62KqnX1vBNlE9P6D9Mf4=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=ewQlOVETvrm32tnT8eEpFurSBrl70ujNI7fdfU3mtBjDeKrg+fXvcxMRjTR/d2TnQ
-	 H8utfpn9YDp5TrW2XoX9GWyWbFoC1iRTmLPHpDCUxZ0H5sssIgliYBum42XaxS3vha
-	 SQhhB369FS4MPh5+VeYILGlKToFvFzNGw/e9B/AM0N0463emuZmDHbeTRGT0A8qGAI
-	 v3XVOEFVKf0VISW2AcEmZwQoin8v3e89W7Pgi+pqsKj9UpZPcXJByonN4+SnmN/JZe
-	 cijxFKtWD20WUvaAuUaNb64RZ24g7bvzgLnzh9yXYcL734HGoGO6zDIjKE9Zs8DZBs
-	 44kmklcDhJhVw==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] Input: iforce - validate packet lengths
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Pengpeng Hou" <pengpeng@iscas.ac.cn>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260706092016.78176-1-pengpeng@iscas.ac.cn>
-References: <20260706092016.78176-1-pengpeng@iscas.ac.cn>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Mon, 06 Jul 2026 09:34:15 +0000
-Message-Id: <20260706093416.47E071F000E9@smtp.kernel.org>
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="XZm+bugB"
+Received: by mail-yw1-f173.google.com with SMTP id 00721157ae682-8111c0c7561so28557687b3.3
+        for <linux-input@vger.kernel.org>; Mon, 06 Jul 2026 03:16:45 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1783333004; cv=none;
+        d=google.com; s=arc-20260327;
+        b=aH8b04fn2Wy4hnwd+0CYo620IAKAg877EucdwgsU9mmuE+s2bO56fVBzw/ybmutdDm
+         fq/nCxvdAfkneFhxsffBlKvazaokOpY6kTwFnRb7DAg7Mz1kOhIB5TSIqRUc0aI8YDaZ
+         /U00LiacZnC/DXXteVv1S8rQ70jsuLiZAbJgd+2v+/ZPVJLrXb9PGyIcPOlruazgsyte
+         WwH0CwZfvKGiaIISv1ONhZk5syyHtHV4MsHXIDwZsABPFm9qU7ET87rw3+qYXyR2OqCM
+         Qi77JBn3A0o/pXXvBSZyXFEucFprRgTp2/ltm1LnQYjfNuG8OcXbdFgXJxH5cbaQV113
+         BTwA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=1ZFMxJ4WY9L/AhejN1XNCOeUtwifJmbyAtlJAOc91pM=;
+        fh=UJRXYo+eZpXYPMSEw5ofmiWF7Hb8hxDEFWUZa351GwE=;
+        b=rM8ZkxhkC9tiiP2d8JPCX7QPjGnYGcYHBKfdYZaGs5rm/jpjHZ7rAkkzIrR4s/NxAT
+         yD0ju1cGjwnFHxb30n4fBM2oFgKE3QAT+0Q1/p/Xit7rxLjj1IiMoUlWCvJOPLiJHJnO
+         QdvFCfgL5sphf4o/L+6tZ462jyK42fRO5OzBK2/Ou0srL/Iff5mJyMCSLzy1q4uk5G6N
+         Q7kp7mydDVqyOCuyVzwKNu/lp7s7uiE801AY10TAYdpRBAc6QWBlY+bOdnsXrZIqIeuY
+         AKywWVqYgV/7actNjfl6hktlpGe7zf8ZHk12HzPCI7ZgKaoBlfTclfziaPfJKuGj4v4Q
+         3s/A==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google; t=1783333004; x=1783937804; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=1ZFMxJ4WY9L/AhejN1XNCOeUtwifJmbyAtlJAOc91pM=;
+        b=XZm+bugBNlaiFspxkELP8pTjwS2xLTLuJ6yW8hWfWkEs+NJyx9j+jDupw2dCS5lj3o
+         rY8v6Rc9886wfchIMH6ut0KiCc/tvaPxRAah6duWryKnMdgGZbyDYDyZTsLhCq51e6jF
+         6a9TekRA6qvM82Y473syY1mIzsduC/DgiW8zg=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1783333004; x=1783937804;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=1ZFMxJ4WY9L/AhejN1XNCOeUtwifJmbyAtlJAOc91pM=;
+        b=jiWwX+NzcsUbn5sz3jtC08qPw59gQaMzPworfruzPoATji5nQiCL4cyck1m5BFrMmn
+         2NBORxkww+1PEohD/qNdj0KRKU5arYbiWjxUwo0uxfQUlJAjA4Vjpr8TTBBoP5PScEOq
+         fo4feihlovAxc58UGj82DdKaaKg1ilAEgwkBKe9xtjc1lLVrLc4Qkp7UHZCJbkO5K97l
+         NMvCGEMjvt69uyX1K0uB+NQESn3U6bPfjfdY4HrVwSIqlvAEQsyYcbK0pixDHXiR8iNC
+         Ewm1TeeZ5eHn2up8KTNEml0AlhrDMVCWIDxZQ03inr2dLzdX1xA14B62C+BtePYQSo6V
+         QJPg==
+X-Forwarded-Encrypted: i=1; AHgh+Rrt6694XOJ6qb/qzSnndB8i7ARyWMOkhRyWTazMperMLdDb6jNXrC+FO8QcqMrJngLYiCPpvdZ22017JA==@vger.kernel.org
+X-Gm-Message-State: AOJu0YzMVt+tvqNJJu3wcm/WQHp15PI/UZVzgcO6o7xkaFQOt1cGnJfT
+	gem0Clvbf6zjnyG/d8AQ0ASO6t0SIex9M2u/lWMHFDlq+2V9PGmI79YmrlxU8IBVVgy6INPkSwh
+	4szS/UUuwDZAq7YOVKrj4WoLguHu2fqcoYN8OXQ3OwvKakzVmXo8=
+X-Gm-Gg: AfdE7cmF1AJPtDq20UMQ1E8jnL2AtgTHaT1QQBuuP+Xjv9FTkvYsdmekRZY9mm4fqxE
+	4arZajZnIy7Q5vONLdD+EZIjxuy/fZ8TPH5nzDeSgPYUmTrAE+verk0ZwCWXYz7O+WuddhG/C1g
+	X8+W7ihQUAEvoF0hopKzEwApJ9arDeQftwnZICWggK1VgAESX+3HeTlJr4Ot72caU3WDY7qgH5k
+	sG2kDJgZ/n+yS6lzT1zMeNg34r2GaNBHtBxpAUolfiUDmEAS8ul8YXBFbvQk0Mg1ZkFo7G/gMbO
+	DBOg7fd9Xx2LL97ZyDs8EBxmDTg=
+X-Received: by 2002:a05:690e:120c:b0:652:5567:b3ec with SMTP id
+ 956f58d0204a3-66652e2416cmr8660052d50.37.1783332545405; Mon, 06 Jul 2026
+ 03:09:05 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+References: <20260703115601.1323491-1-wenst@chromium.org> <20260703115601.1323491-2-wenst@chromium.org>
+ <akmZOC_J2ZTl4zLX@google.com>
+In-Reply-To: <akmZOC_J2ZTl4zLX@google.com>
+From: Chen-Yu Tsai <wenst@chromium.org>
+Date: Mon, 6 Jul 2026 18:08:54 +0800
+X-Gm-Features: AVVi8CdednA09-ELXrMS4uc6xSUtulA0xKkThvjfCvkhmpOamhA7IkBdQY8wb_E
+Message-ID: <CAGXv+5H_SXO0DtN9wjrXyAvuzG+CkYh2-4eMg=biOSsFV=E1=Q@mail.gmail.com>
+Subject: Re: [PATCH v2 1/7] Input: elan_i2c - Wait for initialization after
+ enabling regulator supply
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Matthias Brugger <matthias.bgg@gmail.com>, 
+	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, 
+	Benson Leung <bleung@chromium.org>, Tzung-Bi Shih <tzungbi@kernel.org>, Jiri Kosina <jikos@kernel.org>, 
+	Andi Shyti <andi.shyti@kernel.org>, linux-mediatek@lists.infradead.org, 
+	devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
+	chrome-platform@lists.linux.dev, linux-input@vger.kernel.org, 
+	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
-s) to consider:
+On Sun, Jul 5, 2026 at 7:44=E2=80=AFAM Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+>
+> Hi Chen-Yu,
+>
+> On Fri, Jul 03, 2026 at 07:55:54PM +0800, Chen-Yu Tsai wrote:
+> > Elan trackpad controllers require some delay after enabling power to
+> > the controller for the hardware and firmware to initialize:
+> >
+> >   - 2ms for hardware initialization
+> >   - 100ms for firmware initialization
+> >
+> > Until then, the hardware will not respond to I2C transfers. This was
+> > observed on the MT8173 Chromebooks after the regulator supply for the
+> > trackpad was changed to "not always on".
+> >
+> > Add proper delays after regulator_enable() calls. To avoid impacting
+> > the boot time of existing devices that have the power rails always on,
+> > skip the delay if the regulator supply was already enabled. In this
+> > case the regulator is either always on, was on by default at power up,
+> > or was left on by some other driver, such as the I2C OF component
+> > prober. Either way the controller has had ample time to initialize.
+>
+> Unfortunately we do not know that [it had ample time]. For this code be
+> reliable we need to record the time at which given regulator was turned
+> on and then execute/adjust the delay as needed. Until we have it we need
+> to assume the regulator was enabled at the time of regulator_enable()
+> call.
+>
+> I am not concerned with increased boot time too much given the driver is
+> set up for asynchronous probing.
 
-Pre-existing issues:
-- [Critical] Zero-length USB packets cause an integer underflow that bypass=
-es length checks, triggering a massive out-of-bounds kernel memory read and=
- panic.
-- [High] Incomplete bounds checks for joystick and wheel packets allow logi=
-cal out-of-bounds reads.
-- [High] Out-of-bounds read in status report packet processing loop.
---
+I'm a bit confused since you raised the issue for ACPI platforms that don't
+go through the regulator API. Now you're saying it's not a big issue?
 
-commit ebc2b4788d350db685692da195ae9d9cd27098a0
-Author: Pengpeng Hou <pengpeng@iscas.ac.cn>
+Either way I will add some new regulator consumer APIs to handle this.
+This needs to be in the regulator core to prevent race conditions, such
+as when one thread deems the delay is enough just when another disables
+the regulator.
 
-Input: iforce - validate packet lengths
 
-iforce_process_packet() decodes several packet formats from a
-variable-length input buffer. Add minimum length checks for joystick,
-wheel and status packets before reading their fixed fields.
-
-> diff --git a/drivers/input/joystick/iforce/iforce-packets.c b/drivers/inp=
-ut/joystick/iforce/iforce-packets.c
-> index effa76bfd8f9a..54697b252b84d 100644
-> --- a/drivers/input/joystick/iforce/iforce-packets.c
-> +++ b/drivers/input/joystick/iforce/iforce-packets.c
-> @@ -155,6 +155,9 @@ void iforce_process_packet(struct iforce *iforce,
->  	switch (packet_id) {
-> =20
->  	case 0x01:	/* joystick position data */
-> +		if (len < 5)
-> +			break;
-> +
-
-[Severity: Critical]
-This isn't a bug introduced by this patch, but does len underflow when a
-zero-length USB packet is received?
-
-Looking at iforce_usb_irq() in drivers/input/joystick/iforce/iforce-usb.c, =
-it
-calls iforce_process_packet() with urb->actual_length - 1:
-
-    iforce_process_packet(iforce, iforce_usb->data_in[0],
-                          iforce_usb->data_in + 1, urb->actual_length - 1);
-
-If urb->actual_length is 0, this underflows to SIZE_MAX. The new bounds che=
-ck
-here will be bypassed, and subsequent loops can read linearly out of bounds
-into unmapped memory, potentially causing a panic.
-
-[Severity: High]
-This is a pre-existing issue, but is the len < 5 check sufficient to prevent
-out-of-bounds reads when processing hats and buttons?
-
-When iforce_process_packet() calls iforce_report_hats_buttons(), it
-unconditionally accesses data[6]:
-
-    input_report_abs(dev, ABS_HAT0X, iforce_hat_to_axis[data[6] >> 4].x);
-
-If a short packet arrives (e.g., actual length 6, leading to len =3D 5), the
-check passes, but we still read stale memory when accessing data[6],
-potentially reporting phantom hat movements or button presses.
-
-[ ... ]
-
->  	case 0x03:	/* wheel position data */
-> +		if (len < 4)
-> +			break;
-> +
-
-[Severity: High]
-This is also a pre-existing issue, but this check is similarly insufficient
-because iforce_report_hats_buttons() requires at least 7 bytes of data to
-safely access data[6].
-
-[ ... ]
-
->  	case 0x02:	/* status report */
-> +		if (len < 2)
-> +			break;
-> +
-
-[Severity: High]
-This isn't a bug introduced by this patch, but could the status report
-processing loop read out of bounds?
-
-Downstream in this case block, there is a loop:
-
-    for (j =3D 3; j < len; j +=3D 2)
-        mark_core_as_ready(iforce, get_unaligned_le16(data + j));
-
-If a packet arrives with an even length (e.g., len =3D 4), the loop conditi=
-on
-j < len allows get_unaligned_le16() to read two bytes starting at offset 3.
-This extends beyond the valid payload length of 4, inadvertently reading st=
-ale
-data that could match and corrupt force-feedback state tracking for unrelat=
-ed
-effects.
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260706092016.7817=
-6-1-pengpeng@iscas.ac.cn?part=3D1
+ChenYu

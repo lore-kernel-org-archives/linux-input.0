@@ -1,72 +1,71 @@
-Received: from mail-ej1-f49.google.com (mail-ej1-f49.google.com [209.85.218.49])
+Received: from mail-pj1-f44.google.com (mail-pj1-f44.google.com [209.85.216.44])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 06C08437846
-	for <linux-input@vger.kernel.org>; Mon,  6 Jul 2026 17:55:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D127442EEAC
+	for <linux-input@vger.kernel.org>; Mon,  6 Jul 2026 18:06:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.44
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783360528; cv=none; b=HMAoItd6OQK0H6cDk2MtQ1Pfgyd8Qt3vGO6qQC2B0TUJYL66GrxxKjHBRPwuLpHhlN33e4Bcw1ctPsrYx0+UuYOPGnhAaL8l0e2bh5P5tE9Tg4TG2t+Y9+Z0L1FBzfi1eAp64/GY8o/72vbKD+jXYRPVYC3rz/gqHkzSObNc9Xs=
+	t=1783361186; cv=none; b=gP/r5KIvRCU/jwPt6B2Ub1lQDZ2NaejsbwYHrVY1wSRJEb/O8uxp5N9brLwysBlE67N3VnfvZ3wzPOmONnXNZ2gE+vCTTmWYsduIperc3XP2rD6TG2mDmFfubI/lfMJBAtWI+D+S5Alt17I22+S24GhElJL2cjw6+D97n1OwLds=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783360528; c=relaxed/simple;
-	bh=SA+7qoByX2i3ZbXhf/xYf8HfYh5roodIPFQZpxNv6tQ=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=YZ8jmNaN5QRRZTH1BuERkJo5XvQJ8OI3EA3dk/76nnjawdsxgN6M32cvH+Dt81X/iXfSHaBS7hwQN1xFDAsAcVwek/f5LzSp6ph5XjdUUlNTECA0o/62+VPo3YQcvxh0PgDB/7gvlHNa6hIM/uBrat26LG7wkoa5WJocsgpC/Mw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=DUhS0T0l; arc=none smtp.client-ip=209.85.218.49
+	s=arc-20240116; t=1783361186; c=relaxed/simple;
+	bh=p9+cYVQ2u08MvGcOXF5V4GFGi2FvwBGT9zDzZdXMqQk=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=bB2NOc+W2QaB5mIThZVxZwO+o/au4Dj0ttLDQcpAQ9KOxwDyhvhUZSrZbwWeXw7+qBtQCV00v++SoSOx6SAAqsbkJAlo5HcxWYImoDeOnYSU7XxyYJvZDYLhblCmocvrqQeQhtSdoOWB8PYzAOknvJc/9SMkeQoHJHOpXFmRINk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Vf1f+seT; arc=none smtp.client-ip=209.85.216.44
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="DUhS0T0l"
-Received: by mail-ej1-f49.google.com with SMTP id a640c23a62f3a-c1254b73d63so363808266b.1
-        for <linux-input@vger.kernel.org>; Mon, 06 Jul 2026 10:55:26 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Vf1f+seT"
+Received: by mail-pj1-f44.google.com with SMTP id 98e67ed59e1d1-3800f0907d5so547198a91.0
+        for <linux-input@vger.kernel.org>; Mon, 06 Jul 2026 11:06:23 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1783360525; x=1783965325; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1783361182; x=1783965982; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=kmSKkj5hOXJj95w1wKmp14gv5ekFNxv0d27UUCnYNkE=;
-        b=DUhS0T0lNrQdzH9petmXNDkMaBL7JqScU7qqRO9ia3XP0NMCvD4irhnIvVzNFcmewk
-         OGq3cxjIBlmDSbareFj7mvonX8sbFx0/hxcl3lZWcghbIp+0kizWtDthl3MVkChfG1AZ
-         gZGGsRasgkJBNxtwNFSpmpQ2vy9cC0QVo9JwTPUWxgK40ZZOGfBVvfOokNV712BsR0hm
-         m8nffXiEP+4FVw74GVz7h/I4JvyB0Fw2mIVOhoPvlKHuLFNZXy9arld5jc+XJvpCnEIp
-         opWI4iiF471cDyTfLIvyAze/1zwyq3ItbYNaYG9sIYaVy+5TyCIClI7knMJIurOMDet9
-         yJgQ==
+        bh=Pub5fUhpk4oayvErkUKKCWSZSgtjI8UMcjChlJ+Q7qE=;
+        b=Vf1f+seTiuK2YTeiHuW42W/zbFJQ1/PZiUPNNEgoG1rQS9R2O2cNtt69dE522nRfP6
+         mBO81v6MVUTkB/C5v1GTy6LSa3zrdmht1Nb78qkgTJeybExAPVOwZO71zUZtLZkKrMA3
+         jQer9nfp9Ltm3rmhC0zm0at5L1IuFij80SRLKpkzyAXfJzhWPhhGUsNvw6h4VnYfHgrI
+         VA6iGyugrUBuQxGACuq67SI9MycBTwTEPXpvdR+MJZXQ4swDjL1prQIjw8jU12fIc+C6
+         5tDHSCPvC8HEf2JoIxffAtMjQQUVZN8HGsjbx1ZGIbNVo+xR9c2rN2/s/EqD+lnkCI9/
+         DL5Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1783360525; x=1783965325;
+        d=1e100.net; s=20251104; t=1783361182; x=1783965982;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=kmSKkj5hOXJj95w1wKmp14gv5ekFNxv0d27UUCnYNkE=;
-        b=pe9SKjSj6Fn6DtLzkr0CjykTM1m9/TQmdL20mj+Ybs+umniIpOXcJcV4DPFxNzvVzL
-         rtyl+1OoHJdU4pPQDK34ygH76fBvBWFbiC40XhaGtNGWtrlB1HTrKt6TSCqqa9ZHxrSo
-         qK2YimEsm1VBrs2vhvLMU98N+HGoPmUrQ0G4iBYzaUS6IsTk0sR0mC9e0Ym5mL0jYPdj
-         nspAmCHhK/fpCxTL+ZoaOgXVlARjrVE/OcRLUovhQP8eVkhnzHegaFlgruh52QIaBbmA
-         hwexaoUGzRCzdvZCnulyJRPDvwXvxQSbywHZRYzBTlkQCbCLkGUerjsyMNstlarfJLF1
-         IHog==
-X-Forwarded-Encrypted: i=1; AHgh+Rp81gziOykqv1CDLYD8zjhAAMR9H+RcGeH0myuuPVlO37eULR64q/VSVVN7lcjKxVS5NYIAOaaXBJP4iQ==@vger.kernel.org
-X-Gm-Message-State: AOJu0YyZlxEFcgfj8uBWW+mo5sR1qBlHPwsOCkqjn80LpVjf59RlZw2H
-	PpsQesZwaWF61zHVhMSs8z5q1KIT+b7kfgdml3+/vahQVizpN8VJvWUU
-X-Gm-Gg: AfdE7ckRfxGbOE370dcC99KA0gN85GIB+drdJP7H+7pexM+DfRQlQI+enuigntmXxkm
-	kRGH404FDd7xRNEqkoZbAQ4JkCK2LbpoyEwCvlWjNY93nU0hXtVXisYB1k9IOBLk07Xq5D5e9j0
-	A2eD7DOGD9HTu15YMk7tMuR2AD961CsLB5vXed8u2Z9JbMI2F8vyFGbBqzgldHzZ1d5kxRsET8Z
-	BnTZwXvJWEoSZkC4GbfLt4LHPHUB2aF/pdNhqKmlqCfVbU+U1sn5xQFczvOImPTXPMD9TFesWyq
-	yKHjtqt/GWmjKk/Ry7SfQdoOzpFWwv5+6u8w4N9HAX/BHl0cJJ3EC5qIzlK+96jRQQSaJXsO7dS
-	J0iddhOgOPD9HTiMGB/8wMQfW7xigayhBKcpptiNRRWJn6p2uOMxpfKwXUOzHqAAXTSRkIMTDX0
-	k1/XzNY+zSGykC2k7ZhDtDcyGMyn1q4WviRcg5KmnXL1k=
-X-Received: by 2002:a17:906:b352:b0:c12:9927:4378 with SMTP id a640c23a62f3a-c15a66b53e7mr69153066b.8.1783360525254;
-        Mon, 06 Jul 2026 10:55:25 -0700 (PDT)
-Received: from andfed.netbird.selfhosted ([188.146.162.78])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c12b6093794sm793698566b.21.2026.07.06.10.55.24
+        bh=Pub5fUhpk4oayvErkUKKCWSZSgtjI8UMcjChlJ+Q7qE=;
+        b=Xju17n0D3Erw98Xsd4t0JchY7pp+Vw1uH8mkM4fq1qdm5qj5ebGTpxtxbEaE+fte3+
+         WmdTRNXGsuGXwxztAHYNtMkUxEGBSfYXrSnnUXOtQ0HQz6k7K+cA3OvAyIYrGlZNs/UP
+         cPMs4ZWuuoNyENs4RzheB6JdEUU3awyvGxG/Tvr5PYEsGwXKyqzzA8guD9NGDCvJG0x5
+         zl0rE/MelcWBCLA8Dmlh20/Mr+qrjCyrFRpDjU97DZuo/EUo74dZAy6iMZpIGlNF3Bqb
+         Yub7UMulftTb8AQpbxZI5ZN48URqlU7N/ve3/Du8ll4ZiY+kG7lCsRbS+pTDBY8B2ceq
+         9fCw==
+X-Forwarded-Encrypted: i=1; AHgh+Rp7T/MboAqwLzLK7sCk1AxNuSr9+og4HxEQ2ieLnwRjQOaVkK52QbPSy9hS/H4Z5HR3QLFdALEnwN8bEQ==@vger.kernel.org
+X-Gm-Message-State: AOJu0YwWvaAyUMshuMGRo8Wh9HXbqbw5BAjdXEV+XZycz7xl8kXtkuak
+	I6Tim+H/1ZUkUkQr1otVpQ9D+sUSkcrk5D7SXieaqJANkpyqCccGFrDz5EhOT/lS
+X-Gm-Gg: AfdE7cmlh71nXHDlrAWhsMtBo5w0SuUSHAaFJXgJlFFrIy8HJPzUi+QqEEh4B4kl0zF
+	ULc1/KIDy3P6oG4kR+du+WSgjGsyMKUGMwcDFEaVY/f6cwInPyzIcjw4GDNVtRkF7A6sgSD7sTf
+	93dWVTXiQaEdCt1u7dG+TtXYGRzFgj6qDKbChlxmcL0ZtQBfO7nqfMk4YPKWWzs7QQT6EB8TWEG
+	YtbmjNXBQL3Mj3MGwKDA1Vdm40PCYWWqJYVXUNGhzvQPIePc1Sspnxwuwp0Urlnf7VpqrjJxupt
+	OQnHLAUuIsXnxS9s4x5oNzBtmtJJSVeCoXv//TRvVIdTwgXhuKYduGBV6LlIFh8dPWUem88XOXY
+	r1yySuyWJtHO09IN87I51PV8iI1vcvoy/HcKIc/CEm09Fp1ToTxbl4vX/xBBdNnEzu4D66fUo8f
+	mgst/xJTzNRzuyR0e03mQdsPsHgcOw+nGsUhU2qC7s
+X-Received: by 2002:a17:90b:1dc1:b0:37f:e8f6:8d4a with SMTP id 98e67ed59e1d1-3825c4070acmr6776065a91.0.1783361181798;
+        Mon, 06 Jul 2026 11:06:21 -0700 (PDT)
+Received: from kavandesktop.local.lan ([50.46.174.241])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-38127ae18f7sm5541585a91.3.2026.07.06.11.06.20
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 06 Jul 2026 10:55:24 -0700 (PDT)
-From: Andrei Fed <andfed.net@gmail.com>
-To: Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>,
-	linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org,
-	Andrei Fed <andfed.net@gmail.com>,
-	stable@vger.kernel.org
-Subject: [PATCH] HID: magicmouse: fix battery reporting for Bluetooth Magic Trackpad USB-C
-Date: Mon,  6 Jul 2026 19:55:07 +0200
-Message-ID: <20260706175507.47288-1-andfed.net@gmail.com>
-X-Mailer: git-send-email 2.54.0
+        Mon, 06 Jul 2026 11:06:21 -0700 (PDT)
+From: Kavan Smith <kavansmith82@gmail.com>
+To: dmitry.torokhov@gmail.com
+Cc: michael.srba@seznam.cz,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Kavan Smith <kavansmith82@gmail.com>
+Subject: [PATCH] Input: zinitix - support the 6-byte/count touch report used by bt532
+Date: Mon,  6 Jul 2026 11:08:25 -0700
+Message-ID: <20260706180826.408989-1-kavansmith82@gmail.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -75,111 +74,156 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The Apple Magic Trackpad 2 (USB-C) reports a wildly wrong battery
-capacity over Bluetooth, for example a constant 4% for a pack that is
-actually at 74%.
+The driver assumes an 8-byte per-contact report stride with a per-finger
+bitmask in report byte[2]. bt532 firmware (Samsung Galaxy Tab A 8.0,
+msm8916-samsung-gt58) instead packs contacts at a 6-byte stride and reports
+a finger COUNT in byte[2]. Under the 8-byte/bitmask assumption fingers 1+
+are read misaligned, and a two-finger report (count 0x02) makes
+for_each_set_bit() visit only slot 1, collapsing multitouch to a single
+contact.
 
-The device's battery input report (0x90) is laid out as
-[report-id][status][charge]. hid-input's synchronous capacity query,
-hidinput_query_battery_capacity(), assumes the common
-[report-id][capacity] layout and returns buf[1], which for this device
-is the status byte rather than the charge (buf[2]).
+Add a per-compatible struct zinitix_chip_data that selects the report stride
+and how byte[2] is interpreted, and attach it to the bt532 compatible (the
+only in-tree user of it). All other compatibles keep the existing 8-byte,
+bitmask behaviour unchanged. Contacts are parsed at the chip's stride, and
+for count-style firmware every slot the chip marks with SUB_BIT_EXIST is
+reported.
 
-magicmouse_fetch_battery(), which requests the battery report through
-hid_hw_request() so the reply is decoded via the report descriptor at
-the correct field offset, is gated to the USB models and never runs
-over Bluetooth. The device does not push battery reports on its own
-either, except a single one at connect time, which is delivered while
-probe holds driver_input_lock and is silently dropped. All userspace
-reads therefore go through the misparsing query, and the device is
-stuck reporting its status byte as the capacity.
-
-Enabling the fetch for Bluetooth is not sufficient on its own: user
-space reacts to the power_supply registration immediately, so a query
-is typically already in flight when the fetch reply is parsed.
-hidinput_get_battery_property() stores the query result and marks the
-battery as queried without rechecking whether a report arrived while
-it was waiting, clobbering the just-reported correct value with the
-misparsed one.
-
-Fix this by adding HID_BATTERY_QUIRK_AVOID_QUERY for the Bluetooth
-Magic Trackpad USB-C so the misparsing query path is never used, and
-by fetching the battery at the end of probe for this device. hidp has
-no asynchronous request() callback, so the fetch is serviced
-synchronously via __hid_request() while probe still holds
-driver_input_lock; call hid_device_io_start() first so the reply is
-processed instead of being discarded.
-
-Tested with a Magic Trackpad USB-C (004c:0324) over Bluetooth on
-6.18.37: the reported capacity now matches the device (verified against
-a raw GET_REPORT of report 0x90) and updates on reconnect.
-
-Fixes: 87a2f10395c8 ("HID: magicmouse: Apple Magic Trackpad 2 USB-C driver support")
-Cc: stable@vger.kernel.org
-Signed-off-by: Andrei Fed <andfed.net@gmail.com>
+Signed-off-by: Kavan Smith <kavansmith82@gmail.com>
 ---
- drivers/hid/hid-input.c      |  3 +++
- drivers/hid/hid-magicmouse.c | 19 ++++++++++++++++++-
- 2 files changed, 21 insertions(+), 1 deletion(-)
+ drivers/input/touchscreen/zinitix.c | 71 +++++++++++++++++++++++++++--
+ 1 file changed, 58 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-index 3487600..f78166f 100644
---- a/drivers/hid/hid-input.c
-+++ b/drivers/hid/hid-input.c
-@@ -375,6 +375,9 @@ static const struct hid_device_id hid_battery_quirks[] = {
- 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE,
- 		USB_DEVICE_ID_APPLE_MAGICTRACKPAD),
- 	  HID_BATTERY_QUIRK_IGNORE },
-+	{ HID_BLUETOOTH_DEVICE(BT_VENDOR_ID_APPLE,
-+		USB_DEVICE_ID_APPLE_MAGICTRACKPAD2_USBC),
-+	  HID_BATTERY_QUIRK_AVOID_QUERY },
- 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_ELECOM,
- 		USB_DEVICE_ID_ELECOM_BM084),
- 	  HID_BATTERY_QUIRK_IGNORE },
-diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
-index 802a347..0c4e959 100644
---- a/drivers/hid/hid-magicmouse.c
-+++ b/drivers/hid/hid-magicmouse.c
-@@ -828,6 +828,12 @@ static bool is_usb_magictrackpad2(__u32 vendor, __u32 product)
- 	       product == USB_DEVICE_ID_APPLE_MAGICTRACKPAD2_USBC;
- }
+diff --git a/drivers/input/touchscreen/zinitix.c b/drivers/input/touchscreen/zinitix.c
+--- a/drivers/input/touchscreen/zinitix.c
++++ b/drivers/input/touchscreen/zinitix.c
+@@ -135,26 +135,47 @@
+ #define CHIP_ON_DELAY				15 // ms
+ #define FIRMWARE_ON_DELAY			40 // ms
  
-+static bool is_bt_magictrackpad2(__u32 vendor, __u32 product)
-+{
-+	return vendor == BT_VENDOR_ID_APPLE &&
-+	       product == USB_DEVICE_ID_APPLE_MAGICTRACKPAD2_USBC;
-+}
++/*
++ * Two Zinitix touch-report layouts exist in the wild. The default is an 8-byte
++ * per-contact stride with a per-finger bitmask in report byte[2]. Some firmware
++ * (e.g. bt532 on the Samsung Galaxy Tab A 8.0) packs contacts at a 6-byte stride
++ * and reports a finger COUNT in byte[2] instead of a bitmask. Selected per
++ * compatible via the of_device_id .data below.
++ */
++struct zinitix_chip_data {
++	unsigned int coord_stride;	/* per-contact byte stride in the report */
++	bool finger_count;		/* byte[2] is a finger count, not a bitmask */
++};
 +
- static int magicmouse_fetch_battery(struct hid_device *hdev)
- {
- #ifdef CONFIG_HID_BATTERY_STRENGTH
-@@ -838,7 +844,8 @@ static int magicmouse_fetch_battery(struct hid_device *hdev)
- 	bat = hid_get_battery(hdev);
- 	if (!bat ||
- 	    (!is_usb_magicmouse2(hdev->vendor, hdev->product) &&
--	     !is_usb_magictrackpad2(hdev->vendor, hdev->product)))
-+	     !is_usb_magictrackpad2(hdev->vendor, hdev->product) &&
-+	     !is_bt_magictrackpad2(hdev->vendor, hdev->product)))
- 		return -1;
++static const struct zinitix_chip_data zinitix_bt532_data = {
++	.coord_stride = 6,
++	.finger_count = true,
++};
++
+ struct point_coord {
+ 	__le16	x;
+ 	__le16	y;
+ 	u8	width;
+ 	u8	sub_status;
+-	// currently unused, but needed as padding:
+-	u8	minor_width;
+-	u8	angle;
++	/*
++	 * 8-byte-stride firmware appends two unused bytes here (minor_width,
++	 * angle); the report is parsed at the chip's coord_stride, so on that
++	 * firmware they are simply skipped rather than being part of this struct.
++	 */
+ };
  
- 	report_enum = &hdev->report_enum[bat->report_type];
-@@ -971,6 +978,16 @@ static int magicmouse_probe(struct hid_device *hdev,
- 		schedule_delayed_work(&msc->work, msecs_to_jiffies(500));
+ struct touch_event {
+ 	__le16	status;
+ 	u8	finger_mask;
+ 	u8	time_stamp;
+-	struct point_coord point_coord[MAX_SUPPORTED_FINGER_NUM];
++	/* raw per-contact bytes, parsed at the chip's coord_stride (max 8) */
++	u8	coords[MAX_SUPPORTED_FINGER_NUM * 8];
+ };
+ 
+ struct bt541_ts_data {
+ 	struct i2c_client *client;
+ 	struct input_dev *input_dev;
++	const struct zinitix_chip_data *chip;
+ 	struct touchscreen_properties prop;
+ 	struct regulator_bulk_data supplies[2];
+ 	u32 zinitix_mode;
+@@ -444,6 +465,8 @@
+ {
+ 	struct bt541_ts_data *bt541 = bt541_handler;
+ 	struct i2c_client *client = bt541->client;
++	unsigned int stride = bt541->chip ? bt541->chip->coord_stride : 8;
++	bool finger_count = bt541->chip ? bt541->chip->finger_count : false;
+ 	struct touch_event touch_event;
+ 	unsigned long finger_mask;
+ 	__le16 icon_events;
+@@ -452,8 +475,11 @@
+ 
+ 	memset(&touch_event, 0, sizeof(struct touch_event));
+ 
++	/* header (status, finger_mask, time_stamp) + one stride per contact */
+ 	error = zinitix_read_data(bt541->client, ZINITIX_POINT_STATUS_REG,
+-				  &touch_event, sizeof(struct touch_event));
++				  &touch_event,
++				  offsetof(struct touch_event, coords) +
++					  MAX_SUPPORTED_FINGER_NUM * stride);
+ 	if (error) {
+ 		dev_err(&client->dev, "Failed to read in touchpoint struct\n");
+ 		goto out;
+@@ -470,13 +496,31 @@
+ 		zinitix_report_keys(bt541, le16_to_cpu(icon_events));
  	}
  
-+	/*
-+	 * Query the Bluetooth Magic Trackpad USB-C battery as done for USB.
-+	 * Start io first: probe holds driver_input_lock and the synchronous
-+	 * GET_REPORT reply would otherwise be dropped.
-+	 */
-+	if (is_bt_magictrackpad2(id->vendor, id->product)) {
-+		hid_device_io_start(hdev);
-+		magicmouse_fetch_battery(hdev);
-+	}
+-	finger_mask = touch_event.finger_mask;
+-	for_each_set_bit(i, &finger_mask, MAX_SUPPORTED_FINGER_NUM) {
+-		const struct point_coord *p = &touch_event.point_coord[i];
+-
+-		/* Only process contacts that are actually reported */
+-		if (p->sub_status & SUB_BIT_EXIST)
+-			zinitix_report_finger(bt541, i, p);
++	if (finger_count) {
++		/*
++		 * On this firmware byte[2] is a finger COUNT, not a bitmask: a
++		 * 2-finger report carries 0x02, so for_each_set_bit() would look
++		 * only at slot 1 and silently drop slot 0. The chip marks every
++		 * populated contact with SUB_BIT_EXIST, so iterate all slots and
++		 * report the present ones.
++		 */
++		for (i = 0; i < MAX_SUPPORTED_FINGER_NUM; i++) {
++			const struct point_coord *p =
++				(const struct point_coord *)&touch_event.coords[i * stride];
 +
- 	return 0;
- err_stop_hw:
- 	if (is_usb_magicmouse2(id->vendor, id->product) ||
--- 
-2.54.0
-
++			if (p->sub_status & SUB_BIT_EXIST)
++				zinitix_report_finger(bt541, i, p);
++		}
++	} else {
++		/* default: byte[2] is a per-finger bitmask */
++		finger_mask = touch_event.finger_mask;
++		for_each_set_bit(i, &finger_mask, MAX_SUPPORTED_FINGER_NUM) {
++			const struct point_coord *p =
++				(const struct point_coord *)&touch_event.coords[i * stride];
++
++			if (p->sub_status & SUB_BIT_EXIST)
++				zinitix_report_finger(bt541, i, p);
++		}
+ 	}
+ 
+ 	input_mt_sync_frame(bt541->input_dev);
+@@ -627,6 +671,7 @@
+ 		return -ENOMEM;
+ 
+ 	bt541->client = client;
++	bt541->chip = device_get_match_data(&client->dev);
+ 	i2c_set_clientdata(client, bt541);
+ 
+ 	error = zinitix_init_regulators(bt541);
+@@ -741,7 +786,7 @@
+ 	{ .compatible = "zinitix,bt431" },
+ 	{ .compatible = "zinitix,bt432" },
+ 	{ .compatible = "zinitix,bt531" },
+-	{ .compatible = "zinitix,bt532" },
++	{ .compatible = "zinitix,bt532", .data = &zinitix_bt532_data },
+ 	{ .compatible = "zinitix,bt538" },
+ 	{ .compatible = "zinitix,bt541" },
+ 	{ .compatible = "zinitix,bt548" },

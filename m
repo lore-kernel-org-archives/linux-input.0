@@ -1,107 +1,95 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mailgw.kylinos.cn (mailgw.kylinos.cn [124.126.103.232])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8C42F3BBA09;
-	Mon,  6 Jul 2026 11:22:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 49C693F0751;
+	Mon,  6 Jul 2026 12:29:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=124.126.103.232
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783336969; cv=none; b=Vc2l93cdI2s4IrXf5yVrPPzI/OLurFdu4rDA+lXmejTDX3OYRne7qcupJ9K8bEpIyAfOm+iOaWq24DXOxluQHztt3cOxx9Fg3NU4UPWusXb0cvWTVS8HPreICS30JnV92dS2QzAonKz7mRDB6c+Sou2vnsbGn5f4pc1TS/C20ZA=
+	t=1783340964; cv=none; b=WXQr31Han8E6n6/wHd2v2lltJ3fV4bxImZadb0L3UvMcyr7ofn761EhHNxvOI6O6weelQ1kLI/Z4PNu4NhR2I197Q4N/1cjlolNDqj/DUkASYCIwmgCOe8hjv1op59KteDpWpdWjr3jb/ds1EdYi/HotIUEwTzKP/PovVbbMkiw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783336969; c=relaxed/simple;
-	bh=3tTscb60GKkcPzjo6FgKQtHk7WdLrkm1CZCNBHbu3Y0=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=NU3NeDFRcLIJYUTLoFtOoU8cClWT+7W1WsiDv0Jz2rKObVkwB9mbb7ym6rxKvRfULNAkeSZAPlCO/F72Gl5ZttpMEGhFGYSyLPyYuckpA9G6FQOpQ4YkZiwF+K/QNL3IHJJ6k5ppjRpDY9krsuBB99aqlzfUXD+Rztxp8HQJguc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9140E1F000E9;
-	Mon,  6 Jul 2026 11:22:40 +0000 (UTC)
-Message-ID: <95b20f95-37c4-49a6-8952-e023597d9fd3@linux-m68k.org>
-Date: Mon, 6 Jul 2026 21:22:35 +1000
+	s=arc-20240116; t=1783340964; c=relaxed/simple;
+	bh=/bBNEM4zbiFsI3XQBZY6imVMn8v55ti5ZnrSJIx9APk=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=ecTj8ox1gYWJkIdykHTk2mjPYzQcySr+FZw1/ng9Q82RUotQuAcHtaOXYGK3edtl6UuT9m70A1C56Cy/GwLx39NrEFAGFBP1OA07Ugz0jDNV8SdmITot4G8E3WoxVtxFmQlVIQIW7515k6N7vzZXXCI+8NzrBdItnaNEAdjSL3w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn; spf=pass smtp.mailfrom=kylinos.cn; arc=none smtp.client-ip=124.126.103.232
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kylinos.cn
+X-UUID: 4cc43be8793611f1aa26b74ffac11d73-20260706
+X-CID-P-RULE: Release_Ham
+X-CID-O-INFO: VERSION:1.3.12,REQID:170da06d-eb61-4b77-92f9-81e28e66140a,IP:0,U
+	RL:0,TC:0,Content:0,EDM:0,RT:0,SF:0,FILE:0,BULK:0,RULE:Release_Ham,ACTION:
+	release,TS:0
+X-CID-META: VersionHash:e7bac3a,CLOUDID:151ec2e623d159031e6f8aad212412e8,BulkI
+	D:nil,BulkQuantity:0,Recheck:0,SF:102|136|865|898,TC:nil,Content:0|15|50,E
+	DM:-3,IP:nil,URL:0,File:nil,RT:nil,Bulk:nil,QS:nil,BEC:nil,COL:0,OSI:0,OSA
+	:0,AV:0,LES:1,SPR:NO,DKR:0,DKP:0,BRR:0,BRE:0,ARC:0
+X-CID-BVR: 2,SSN|SDN
+X-CID-BAS: 2,SSN|SDN,0,_
+X-CID-FACTOR: TF_CID_SPAM_SNR
+X-CID-RHF: D41D8CD98F00B204E9800998ECF8427E
+X-UUID: 4cc43be8793611f1aa26b74ffac11d73-20260706
+X-User: aichao@kylinos.cn
+Received: from thinksys.. [(10.44.16.150)] by mailgw.kylinos.cn
+	(envelope-from <aichao@kylinos.cn>)
+	(Generic MTA with TLSv1.3 TLS_AES_256_GCM_SHA384 256/256)
+	with ESMTP id 747179614; Mon, 06 Jul 2026 20:29:14 +0800
+From: Ai Chao <aichao@kylinos.cn>
+To: jikos@kernel.org,
+	bentiss@kernel.org,
+	dianders@chromium.org,
+	treapking@chromium.org,
+	kenkinming2002@gmail.com,
+	raoxu@uniontech.com,
+	superm1@kernel.org
+Cc: linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Ai Chao <aichao@kylinos.cn>
+Subject: [PATCH] HID: i2c-hid: Fix "(null)" device name error logs in i2c_hid_parse
+Date: Mon,  6 Jul 2026 20:29:10 +0800
+Message-Id: <20260706122910.3943372-1-aichao@kylinos.cn>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 02/13] m68k/coldfire: replace linux/gpio.h inclusions
-To: Arnd Bergmann <arnd@kernel.org>, linux-gpio@vger.kernel.org
-Cc: Arnd Bergmann <arnd@arndb.de>, Bartosz Golaszewski <brgl@kernel.org>,
- Andrew Lunn <andrew@lunn.ch>,
- Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
- Gregory Clement <gregory.clement@bootlin.com>, Frank Li <Frank.Li@nxp.com>,
- Robert Jarzmik <robert.jarzmik@free.fr>,
- Krzysztof Kozlowski <krzk@kernel.org>,
- Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
- Hauke Mehrtens <hauke@hauke-m.de>, =?UTF-8?B?UmFmYcWCIE1pxYJlY2tp?=
- <zajec5@gmail.com>, Yoshinori Sato <ysato@users.sourceforge.jp>,
- John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
- Linus Walleij <linusw@kernel.org>,
- Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jakub Kicinski
- <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
- Dominik Brodowski <linux@dominikbrodowski.net>,
- linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
- linux-samsung-soc@vger.kernel.org, patches@opensource.cirrus.com,
- linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
- linux-sh@vger.kernel.org, linux-input@vger.kernel.org,
- linux-media@vger.kernel.org, netdev@vger.kernel.org,
- linux-sunxi@lists.linux.dev, linux-phy@lists.infradead.org,
- linux-rockchip@lists.infradead.org, linux-sound@vger.kernel.org
-References: <20260629132633.1300009-1-arnd@kernel.org>
- <20260629132633.1300009-3-arnd@kernel.org>
-Content-Language: en-US
-From: Greg Ungerer <gerg@linux-m68k.org>
-In-Reply-To: <20260629132633.1300009-3-arnd@kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-Hi Arnd,
+When i2c-hid fails to read the HID report descriptor during device
+initialization, the error message prints as:
 
-On 29/6/26 23:26, Arnd Bergmann wrote:
-> From: Arnd Bergmann <arnd@arndb.de>
-> 
-> linux/gpio.h should no longer be used, convert these instead to
-> linux/gpio/legacy.h for coldfire.
-> 
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+  hid (null): reading report descriptor failed
 
-For the ColdFire changes, LGTM:
+The HID device name is set in hid_add_device() after calling
+hdev->ll_driver->parse(), so when i2c_hid_parse() fails and calls
+hid_err(), the device name has not been set yet, resulting in "(null)"
+output.
 
-Reviewed-by: Greg Ungerer <gerg@linux-m68k.com>
+Use dev_err(&client->dev, ...) instead of hid_err(hid, ...) because
+the I2C client device is fully initialized with a proper name, providing
+meaningful error messages for debugging.
 
-Regards
-Greg
+Before: hid (null): reading report descriptor failed
+After:  i2c_hid i2c-TPD0001:00: reading report descriptor failed
 
+Signed-off-by: Ai Chao <aichao@kylinos.cn>
+---
+ drivers/hid/i2c-hid/i2c-hid-core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-
-> ---
->   arch/m68k/coldfire/device.c     | 2 +-
->   arch/m68k/include/asm/mcfgpio.h | 2 +-
->   2 files changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/arch/m68k/coldfire/device.c b/arch/m68k/coldfire/device.c
-> index 1420bae0964f..9a0258acd998 100644
-> --- a/arch/m68k/coldfire/device.c
-> +++ b/arch/m68k/coldfire/device.c
-> @@ -12,7 +12,7 @@
->   #include <linux/init.h>
->   #include <linux/io.h>
->   #include <linux/spi/spi.h>
-> -#include <linux/gpio.h>
-> +#include <linux/gpio/legacy.h>
->   #include <linux/fec.h>
->   #include <linux/dmaengine.h>
->   #include <asm/traps.h>
-> diff --git a/arch/m68k/include/asm/mcfgpio.h b/arch/m68k/include/asm/mcfgpio.h
-> index 7103cfa4edb6..29726aa40eb6 100644
-> --- a/arch/m68k/include/asm/mcfgpio.h
-> +++ b/arch/m68k/include/asm/mcfgpio.h
-> @@ -16,7 +16,7 @@ int __mcfgpio_request(unsigned gpio);
->   void __mcfgpio_free(unsigned gpio);
->   
->   #ifdef CONFIG_GPIOLIB
-> -#include <linux/gpio.h>
-> +#include <linux/gpio/legacy.h>
->   #else
->   
->   /* our alternate 'gpiolib' functions */
+diff --git a/drivers/hid/i2c-hid/i2c-hid-core.c b/drivers/hid/i2c-hid/i2c-hid-core.c
+index 3adb16366e93..0e725a0f0abe 100644
+--- a/drivers/hid/i2c-hid/i2c-hid-core.c
++++ b/drivers/hid/i2c-hid/i2c-hid-core.c
+@@ -792,7 +792,7 @@ static int i2c_hid_parse(struct hid_device *hid)
+ 					    ihid->hdesc.wReportDescRegister,
+ 					    rdesc, rsize);
+ 		if (ret) {
+-			hid_err(hid, "reading report descriptor failed\n");
++			dev_err(&client->dev, "reading report descriptor failed\n");
+ 			goto out;
+ 		}
+ 	}
+-- 
+2.34.1
 

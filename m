@@ -1,122 +1,153 @@
-Received: from fout-a3-smtp.messagingengine.com (fout-a3-smtp.messagingengine.com [103.168.172.146])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3D6A03161A1;
-	Tue,  7 Jul 2026 14:56:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.146
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 24F07379C47
+	for <linux-input@vger.kernel.org>; Tue,  7 Jul 2026 15:04:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783436170; cv=none; b=J9ii+r8/G0fGBgzcvWQI/CDpgJDtrBYiJjvm3OfBmNEyg5l4W3nJZSF3XcHN7NP2i7OBkyr+380DTtuWRjt+m1BKZpYC0iqABp5Y7StT/Y6h0COGlthSAdB5Ler9kl67P/tguSV287HmX0TJiRxuvkHsxVhDz2rI8wJEl/eXkzI=
+	t=1783436651; cv=none; b=q2umYB2WiSkxtlS+Yjg1EHKOTst4V6tzSk1pIEuBPvqRuP939MXo1Ov0jPfXjs1D3Uk7FyJ9caUuxp9F/xKO3oMfZL7s+/qkgE6BM9F3bO/y6qEfxF5hlg+yYVjmkK0pKUW6Jx7TGmUDd6FWhVGd8VPVwqXb1eeEJaYM3U61xLw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783436170; c=relaxed/simple;
-	bh=ZOXYlp0jM4yRQtB0bkcG1hg7jnlZbj+tfWaD/aCHUlo=;
-	h=MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
-	 Subject:Content-Type; b=Ry9SyIiXscPnAwrIGjDIOz38gVHxCDREX4JZwDQsMKvvS6Vbky9FVzEJzMckRUjkvWHns3QFo1XncwRGVYW8VefSaT87vIAffcBBoUBQZkET/BxqzlLIn1g83yykaR+V1tSUhelT5uJ9IJ9baSKLioT2e4Vpg9jzWv5DTRERreY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de; spf=pass smtp.mailfrom=arndb.de; dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b=Gq9ljCrB; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=VnOMufr6; arc=none smtp.client-ip=103.168.172.146
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arndb.de
+	s=arc-20240116; t=1783436651; c=relaxed/simple;
+	bh=JugFnUrI+/GLfrwJb4m1A8yEfTd6FFGwNG0qYhaXSmE=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=eXs7l61vbNLU5+3vgu9YXtL5Q7QehAzbuHMdvjI8u/dFI8T6EnCR13l/jmiPl/1lUxSYiPRSWzlhdjqP4TJqXp0Pd5cCe+VlWlxAZpIi4Q/HA0n3D4YX+0qPBik85YW2R1sKmZlFoqz4J1/sLEX4mr9oPnMzSahNhueFs0HBRbk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=JP+jVgT3; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b="Gq9ljCrB";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="VnOMufr6"
-Received: from phl-compute-04.internal (phl-compute-04.internal [10.202.2.44])
-	by mailfout.phl.internal (Postfix) with ESMTP id 89ADFEC021E;
-	Tue,  7 Jul 2026 10:56:08 -0400 (EDT)
-Received: from phl-imap-05 ([10.202.2.95])
-  by phl-compute-04.internal (MEProxy); Tue, 07 Jul 2026 10:56:08 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
-	:cc:content-transfer-encoding:content-type:content-type:date
-	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to; s=fm1; t=1783436168;
-	 x=1783522568; bh=VRSzkiO75jHk1CVYNukpjqr9eHc0JnAAWEpWm+VODRg=; b=
-	Gq9ljCrBpBKGz1vzhzn8yD/AEd4gEcbANHDqCwCQt0a122rulFDUR/gkTO6sAY8T
-	TtaatWq+OnmrKa59IrgOjGgaoFjNEm1sk8nnbuOn5B2Vz+tfmkL4KbA1bTk0Kg9T
-	5yYOXho8j89IyrFu8SkGnVkibOXakS5QW9Brs33Qt657oxC9PqB+LVYOSVkOFUcm
-	q3cMr8Ta+35401RvPzO9E8hjE/iqhv69//cmVdJkEyQ6Srf7T7IYd1wAux+07iga
-	lUfum2zxk65t3kJFnL83uh7u+n4u7YxAAP9pW4ksYnkKbEgkEfXXWX8ejXrhEiY/
-	PUzbjBQ4QixpXIXaq1AflA==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-transfer-encoding
-	:content-type:content-type:date:date:feedback-id:feedback-id
-	:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to:x-me-proxy
-	:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; t=1783436168; x=
-	1783522568; bh=VRSzkiO75jHk1CVYNukpjqr9eHc0JnAAWEpWm+VODRg=; b=V
-	nOMufr6TFJRtLUsMHArzIvJHvh38Acd/lCBYABn/rxUJlvnvcwr6kC73iRIIDKuC
-	eFMNwtCraSuQycSbVoZVM4LfR0024rA64Onh0EGNTvCPbSNHPdlCPwYI9ybNtfpZ
-	O7sEQumDIB/7nk9AS4Qg9bE5txY1XF2YcVhZNbTC86Y91grfL4rnovSmFDSbJzMB
-	XMzoWM6iQhejKuXRld/bK5bxLHTrWijfonyLaSlvEef2Z37rEZryMNXr0Mhmr8ri
-	ZBsCBdbV8HPQwEPyHuU5g1qYrT8EBpGUkJiomb+lIVq42gthCU/sjqJdkBHDRjPA
-	a8qnWnEqM4l6IjEYxG2fQ==
-X-ME-Sender: <xms:hxNNaqUibPlQj5adz_qbtt7clM4Z1cU7v_jrAVJ1fw7jCyV-zrjv3g>
-    <xme:hxNNahbS1TvwT8PX3HlkdQgSwRaeal2wo1kAoABqDXfhbHGKUk5ydUJeRGpu1FdUe
-    ebUAOHXK8xxumZ62EEBO8Bnl032fm2I28Vg2-wb52kBw3TDyMTOJ3kY>
-X-ME-Proxy-Cause: dmFkZTGzJDFyzooW5HxT05/lmH0C2SnjFp3hXK73hgm4N4JAp8ZYGIoTCbbZKv6mSVLC6G
-    H/nVzJlUCXzZfy3XIcIF3zGaEQJSCNU2j0ZIeQ+l8uRrmPScvW87lZ8+5ZkJ8WrUGhebcE
-    +cflaaMiWJ4bzpWxO8W6ia8sRfJcvpamwCjK2X4i9ahdIPbl6wsVkXdz6uI7lhUtbLjejF
-    az3pxue182Ql22u3qr/axy6yyLAUQ4d84yyPnvr25jF8RS8qvIJ2Bj5IYL5XJOk17mmpgU
-    qutJTwdrxwLOo6bcyYK8xrROG5A3wEbUG/BFPO3r5rOkHMaaz595cXHyr195zXmrv5qKNg
-    oDc6fnKp1pEcXCnf4ANiUlTaZhGdEMBe3atX0fGk+ttZlMDm79PBB7l0n0FRQ+1jjVFfcH
-    Yyezh2MTIuX4yT0GVdGprLq1sPQtPrmK521ps06ZaZ9DHnnmKwyxRIBR5Rp9nFJ6YLkaa3
-    jRRrv+rti/rHpXnL4jdJ38PUEsJzWaeSoIPKuPr3UpvAO8p+Gey7P+RgXzPilcRltRv6E3
-    ZcXYRQLay8YLdPOBN1KwlbjzqcqK+UXqCeyJKzgK+7n2kwgSPWc7I/bawUZoS5fp97wuKb
-    bfqA5cZvz8A8bDO15kOc9zqejqBWR31OoQRj/43pFihfkDl4ksqSEOoF/5Tg
-X-ME-Proxy: <xmx:hxNNas071d8d51LzdckyilQ3fY5-DygAey2GGbCSti1xc_IgLR0H0Q>
-    <xmx:hxNNasOY3-I6Nb5BA0DszkEsV7QXy8C-XplmUBVNWR-v9r04_-mdSw>
-    <xmx:hxNNan0UCecf-2X6lg4ZS7Eo7FnMtcyGA5rdu-rCewmdnlnpCphqTg>
-    <xmx:hxNNar1PzgMQ-maUB3D_EeRtFWYtinDdLLd9FEeS8cE0vbGmiF-F0A>
-    <xmx:iBNNarnYVpU_-wsqBXc7O3HJJ5b487skRjyjf6UNI8gnNg-5QCkdIEba>
-Feedback-ID: i56a14606:Fastmail
-Received: by mailuser.phl.internal (Postfix, from userid 501)
-	id CBD8F182007E; Tue,  7 Jul 2026 10:56:07 -0400 (EDT)
-X-Mailer: MessagingEngine.com Webmail Interface
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="JP+jVgT3"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2FAC1F000E9;
+	Tue,  7 Jul 2026 15:04:09 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1783436649;
+	bh=sbJ5BwUC0pLfLKraJUDZkqMzoIwSMvNkWAM3zpxUSsI=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=JP+jVgT3R5qpNgcCw6PwBjmik0xNzEl4rVvVeMaSYM6KRyuaxpvYZbslnT8WTDkPP
+	 TTanpNticXH0W96zT4eEYaxjy09+qfS4L7xIKZucTf2XPKUF/l8P/ZxdRr0S+2iD06
+	 4ILk6VfhWewBIyzcIUrlyv90dLFt2LpCUx0ya13+YWnpQ0tXs5nckF9g6IJF2oyhbd
+	 fL6EIfqtXcwPBPVvHCSx/KvqB8bgJ/mb8Ke809sVrj5W6A/cWVMMo0v61ACF1+8hWb
+	 N8vLWGMLwT9rgoeiDQz/865OCa8qOz3LnLpkmU4Q5pEoyqdOjg6RCvvvlvTdT/oQhs
+	 huDxZT/XKL4DQ==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH RFC 2/2] HID: appletb-kdb: Replace system_wq with
+ system_dfl_wq
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Marco Crivellari" <marco.crivellari@suse.com>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <20260707145327.313292-3-marco.crivellari@suse.com>
+References: <20260707145327.313292-1-marco.crivellari@suse.com>
+ <20260707145327.313292-3-marco.crivellari@suse.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Tue, 07 Jul 2026 15:04:09 +0000
+Message-Id: <20260707150409.A2FAC1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-X-ThreadId: AUKPAdC25nmJ
-Date: Tue, 07 Jul 2026 16:55:37 +0200
-From: "Arnd Bergmann" <arnd@arndb.de>
-To: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>,
- "Arnd Bergmann" <arnd@kernel.org>
-Cc: "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
- "John Paul Adrian Glaubitz" <glaubitz@physik.fu-berlin.de>,
- "Thomas Gleixner" <tglx@kernel.org>, "Ingo Molnar" <mingo@redhat.com>,
- "Borislav Petkov" <bp@alien8.de>,
- "Dave Hansen" <dave.hansen@linux.intel.com>, x86@kernel.org,
- "H. Peter Anvin" <hpa@zytor.com>, "Linus Walleij" <linusw@kernel.org>,
- "Bartosz Golaszewski" <brgl@kernel.org>, "Lee Jones" <lee@kernel.org>,
- "Pavel Machek" <pavel@kernel.org>, linux-sh@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
- linux-leds@vger.kernel.org
-Message-Id: <6dd3e87f-44a4-4740-a81a-c4e459e3921e@app.fastmail.com>
-In-Reply-To: <akxjQtCTcx2TOQMk@google.com>
-References: <20260629130329.1291953-1-arnd@kernel.org>
- <akxjQtCTcx2TOQMk@google.com>
-Subject: Re: [PATCH v5 0/6] gpiolib: fence off legacy interfaces
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
 
-On Tue, Jul 7, 2026, at 04:25, Dmitry Torokhov wrote:
-> On Mon, Jun 29, 2026 at 03:03:23PM +0200, Arnd Bergmann wrote:
->> 
->> I hope that all that remains now can just get merged through the
->> gpio tree. The gpio-keys patch needs a bit coordination with
->> another patch addressing the same issue that is already in
->> flight, so I expect that I'll rebase my series once more when
->> that is in a stable branch, but the state I have here should
->> just work as-is on top of v7.2-rc1.
->
-> Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com> # for input
+Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+s) to consider:
 
-Thanks
+New issues:
+- [Low] Incomplete migration to the unbound workqueue: `schedule_work()` st=
+ill targets the per-CPU workqueue.
 
-> Could this be done as an immutable branch?
+Pre-existing issues:
+- [High] Race condition during device probe causes a NULL pointer dereferen=
+ce if a HID event arrives before `hid_set_drvdata()` is called.
+- [High] Sleeping in atomic context when calling `hid_hw_power` from the in=
+put event handler.
+--
 
-Probably, yes. How about I send v6 now, with the two input
-patches moved to the front of the series? Then all six of my
-patches can go into the gpio tree, while Lee merges the bottom
-two into the mfd tree as an immutable branch to resolve the
-conflict with your rohm patches.
+--- Patch [2]: [PATCH RFC 2/2] HID: appletb-kdb: Replace system_wq with sys=
+tem_dfl_wq ---
+commit b55f729cf441f481f051cec559ad520a64ea4188
+Author: Marco Crivellari <marco.crivellari@suse.com>
 
-      Arnd
+HID: appletb-kdb: Replace system_wq with system_dfl_wq
+
+This commit changes the driver to use the unbound system_dfl_wq workqueue
+instead of the per-CPU system_wq, to optimize task placement and power
+consumption.
+
+> diff --git a/drivers/hid/hid-appletb-kbd.c b/drivers/hid/hid-appletb-kbd.c
+> index 462010a758993..5cc27066f6026 100644
+> --- a/drivers/hid/hid-appletb-kbd.c
+> +++ b/drivers/hid/hid-appletb-kbd.c
+
+[ ... ]
+
+> @@ -201,7 +201,7 @@ static void reset_inactivity_timer(struct appletb_kbd=
+ *kbd)
+>  			kbd->has_turned_off =3D false;
+>  			schedule_work(&kbd->restore_brightness_work);
+>  		}
+
+[Severity: Low]
+Since the goal is to move entirely to the unbound system_dfl_wq, did we miss
+updating this schedule_work() call?=20
+
+The schedule_work() function implicitly targets the per-CPU system_wq, so
+restore_brightness_work won't benefit from the scheduler optimizations
+intended by this patch.
+
+Could we use queue_work() with system_dfl_wq here instead?
+
+> -		mod_delayed_work(system_wq, &kbd->inactivity_work,
+> +		mod_delayed_work(system_dfl_wq, &kbd->inactivity_work,
+>  				 secs_to_jiffies(appletb_tb_dim_timeout));
+>  	}
+>  }
+
+[ ... ]
+
+> @@ -423,7 +423,7 @@ static int appletb_kbd_probe(struct hid_device *hdev,=
+ const struct hid_device_id
+>  		INIT_DELAYED_WORK(&kbd->inactivity_work, appletb_inactivity_work);
+>  		INIT_WORK(&kbd->restore_brightness_work,
+>  			  appletb_restore_brightness_work);
+> -		mod_delayed_work(system_wq, &kbd->inactivity_work,
+> +		mod_delayed_work(system_dfl_wq, &kbd->inactivity_work,
+>  				 secs_to_jiffies(appletb_tb_dim_timeout));
+>  	}
+
+[Severity: High]
+This isn't a bug introduced by this patch, but looking at the surrounding
+appletb_kbd_probe() setup, is there a race condition between hid_hw_open()
+and driver data initialization?
+
+Earlier in appletb_kbd_probe(), hid_hw_open() is called before
+hid_set_drvdata() executes. If a hardware event arrives immediately after
+hid_hw_open() starts polling, the hid core calls the event handler:
+
+appletb_kbd_hid_event()
+   struct appletb_kbd *kbd =3D hid_get_drvdata(hdev);
+
+Because hid_set_drvdata() hasn't been called yet, hid_get_drvdata() returns
+NULL. When reset_inactivity_timer() later dereferences kbd->backlight_dev,
+could this cause a kernel panic?
+
+[Severity: High]
+This is another pre-existing issue, but does appletb_kbd_inp_event() sleep
+in an atomic context?
+
+When the input subsystem invokes the .event callback, it holds the device's
+event_lock spinlock with local interrupts disabled. If the fn key is toggle=
+d,
+the callback path goes:
+
+appletb_kbd_inp_event()
+  appletb_kbd_set_mode()
+    hid_hw_power(hdev, PM_HINT_FULLON);
+
+For usb devices, hid_hw_power() resolves to usbhid_power(), which calls
+usb_autopm_get_interface(). This uses pm_runtime_get_sync(), which acquires=
+ a
+mutex and can sleep.=20
+
+Could this trigger a scheduling while atomic panic when the user presses
+the fn key?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260707145327.3132=
+92-1-marco.crivellari@suse.com?part=3D2

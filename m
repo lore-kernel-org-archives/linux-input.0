@@ -1,121 +1,128 @@
-Received: from mail-yx1-f47.google.com (mail-yx1-f47.google.com [74.125.224.47])
+Received: from mail-wm1-f49.google.com (mail-wm1-f49.google.com [209.85.128.49])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 15BFA41DECA
-	for <linux-input@vger.kernel.org>; Tue,  7 Jul 2026 13:42:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.224.47
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783431758; cv=pass; b=khKgAGIuFGf83Qjgd6CpSjF16VzG2Fo9H8Q5oh9ownPFsxx3jOsFUEupVBLPMatLisSf3hc9THBK0IQ4mBqKxZ0SSkAq/PxbVWqYgdWq7G7fdUOA7cz1C8mEgndA8Lmnl7uofaA78ucKjHa9bk+aYv2cc9QiPhQAWHFfbLpMuXE=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783431758; c=relaxed/simple;
-	bh=E1zAPP9belnBMx2I7CyLtNbspD4kzIfqj0U5PW0gNQ8=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=gglAtPG9mL+X+0CXeP92NUlUZFg6JvXWfdNLt2vWoDd4kxeszANslTQKLi5rdTXAA9ztG6vDl8BgaKF+ee70sF8203MruSW3mfeRP1SH1EQYa3mMZYC6BqWZdNlAubEZiP91bRI8kfsHN4wzZt7q60/jhagIVVtKV40w4r2L9tA=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=AyqZgWzt; arc=pass smtp.client-ip=74.125.224.47
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0925C36A360
+	for <linux-input@vger.kernel.org>; Tue,  7 Jul 2026 14:53:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.49
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1783436032; cv=none; b=YbBSSUPY2rYGWM5xGBnaaT9cYTCFkhDse7hcoiWphE2L7J/5Z+nrvWspkttzsesEhJIptzeSLK1CLgvzOS0okVbToaQILz7b4STdRal3qhS2SUE1EzJGpGyqcXIrUUFLj9mwxqZBtFRYK3e6E4E0kIbw65ThwjulYp/DCP2iNGQ=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1783436032; c=relaxed/simple;
+	bh=CzrIdF1nbeHBSS89V19tgL383kJPDeuI6sNseLUC2N8=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=vEwmtjjOsV77GI61JNCfImGVSKcEQ1hMw9GvMsmjSawc+oLmq1sDrDYsziV7W/lgjku2ds/NuEyfS67URX5yZ8eZ2LKEqaf131qQG/Hka01M7RsyHcPcaZJMSDCfONg7WU5JQvecUvFOH6CviFhzt6yXbefzxl+W97i9lXkdsvM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b=cIx926Db; arc=none smtp.client-ip=209.85.128.49
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="AyqZgWzt"
-Received: by mail-yx1-f47.google.com with SMTP id 956f58d0204a3-6649ffb1d01so6807565d50.1
-        for <linux-input@vger.kernel.org>; Tue, 07 Jul 2026 06:42:36 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1783431756; cv=none;
-        d=google.com; s=arc-20260327;
-        b=Sb8OOXGH3oKc5a3iR2NwvQpFatH6qMByMvnbHUNvaWo0RGRUUdopB9lmaJXKY2HrqZ
-         o8eiotyDZ7Fe8XmHiBpY/gNjYsh4q/7lO9b2TkUfvbSsrGmtNtRBAL0D44fZMelXhq6r
-         D4bm8Wm7WsXuqJkyJulkrgjpbzdXnzOivegwZx/3/Mr2JDoQ01iS4iMR/2G1zJQE+0Yd
-         NI3RQfoxRUTtsqvFItTj4wcnUwA0CuRoGVyruALVED9ZRiiE5KQMt4urXzHqyQi3YBU0
-         CAIkRxjwpvZ08eWFirbX0czaOUpc8EiSCQxReUjiZGLv8NdjoRe9w176N0oNTb8sJSFy
-         7nqQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=1TwL3+aqF7dc4/lpQ2JLA2uoetuIwHkPHzHxzge8914=;
-        fh=aG77gF6XAXX2NedIorYFi7Sm58s9I/hH4uDXr6niqo0=;
-        b=QiIgUsiKJiDjQmp0eA8gIsRE0WMDxF+b77vC6LmRgcxF9+zd9htDR5oO2svZVqfbGb
-         gvlZVTGt61y63kjYsNqB+jMTCiSHAN1On0yNceH9Hb4J3KVei5tVCHaqePQADmR7azd8
-         gcX39DEY9Teu3QRYaVKCHBFhqiWLtSzjxFJP/tnB91M1nZiKOznywoFXNBsnyeXIHqy/
-         h3pCiPdObPYv3LXSylqQHNtc5pt0EeVreKDEqjcApDJ15fyCM92i6E0OAsV49i91xQwH
-         Bea61bSaBwti9UCPLOWZApMKTFVWPwlqvjCSSwqxFA7R+n2Vf63a5hMlwKAEqwH6eOza
-         KrbQ==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="cIx926Db"
+Received: by mail-wm1-f49.google.com with SMTP id 5b1f17b1804b1-493b77b150aso39164345e9.2
+        for <linux-input@vger.kernel.org>; Tue, 07 Jul 2026 07:53:49 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1783431756; x=1784036556; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=1TwL3+aqF7dc4/lpQ2JLA2uoetuIwHkPHzHxzge8914=;
-        b=AyqZgWztWnKRxEq8u0UE3xKIskNjUBNPGRKFEwrz+dYsU7qhRiQKbPqgiUOnVrZQgd
-         G3Z9LL17CAUSThGwKUNGKZAKe4j+8mhBxCI61qxW1zDXAPYSNKX8Tf7XYUBNxvd8sCGw
-         dQTomwvYanCFTIhTcrVyA4ES3pos5fp+fAsO9evshM70suc81EQ/+JZKd7k5wtsRizVH
-         RfWMki1Wi4qQQpnOxO72PA+7LbZ7FbJJPto5EmeSqpYgTzLVu05a8cMgEQZnF8WXdxpD
-         0eImHj0rFnQlz6a1M5bTp51TK54zS/MJQKGNU9GYmGJN/eRD9iqBsEgXBZb2EkHZVIAZ
-         SC5w==
+        d=suse.com; s=google; t=1783436027; x=1784040827; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=bWmMpMhPBO/EOzHg9dXhWeBCCLH108Nq2eDZhsT4OEA=;
+        b=cIx926DbMQfPB8QozBNnvtf/FDPD38tDWLwcezIWzwKT/7RrlsORWY1JHzpmrzwTDj
+         QMUQfXZmmHbGN7wDfNSXooG3P2vdwpZ6HKUTTl9FKNEHs/255JoPISRvDr/JEaJna8GB
+         aj7RDtZ0DgOOEl5BUaSlRMZVgl/edFSirPpMxnX23JwwPXfkPXlKbbe23f6vGjOW4oyP
+         ueEAWzpFW+d+vPcZRR9XqQWPVP84bOVBUdIGEoasC46/EagtjT+BfwGbWH9AidLs0LMH
+         05Pe1VwJqqM4IWHC3ZSzxx5cx/ZIGtZIri7R/76UlZwD/60/gAbLLP9TwXJgY/UMtupp
+         PkYQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1783431756; x=1784036556;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=1TwL3+aqF7dc4/lpQ2JLA2uoetuIwHkPHzHxzge8914=;
-        b=o4gIaxVqp3fVahbhA80wFtDyryLT9jiDT3uwmIlOA3EVb06QqWKZmVbkYDWyAlrFNJ
-         m0onwh7ggJmwq2cIPDWgbn0o4jz259ej3FS+VLujh5M0NRv03AiOyLD71P5TEj8ltQu4
-         /znRP/UntrTG+kga2GOsxCj5o2naLCYDHY5jg8+FQ7EAyMTw4zDv+CxnyDSfX86mW85P
-         FV8HbuquVOLGs+yAem4+8wOHgdx5vgcTPi+/QpRb/fMqVe7oLQvwJCDZ2hmFlzvW//QP
-         d7HqnNUimrND2xzmuF9KRNJfbiLgD2gsNzIAzzS7jjiUFzS9UVM4L8uBdUgyGSH+wLCF
-         Gzcw==
-X-Forwarded-Encrypted: i=1; AHgh+RqB66HhK19hIm4oz4lJaN6JMVKBH6PafKmaDxWGNiShH8WgK3AEo65HPAylRh+697qlc0Cl1dzBrPa4AQ==@vger.kernel.org
-X-Gm-Message-State: AOJu0YxgfF1D/hwEObKSN+0OscVbldLbIBq6rxqbVq5cRigvMuUydHH2
-	y+R4W3PmPjMRFmR8v7ufsCCwsmJP4UrCO2+GJolzNqQD1MAi69uxMxeln+VPVGuJYlNoa8sYaeV
-	tcvhwSS2NSLmgs3qaTtw1BDXlaxJFTw4=
-X-Gm-Gg: AfdE7cnNLqliBvPGECKKncnFgLPvS17D7/s3pH3qyqjaJr91t/QjnIttmVdgpdU8MOq
-	kpdBP/m4mFh0XU5uirplUqDEtBpppDD9jP8/3F7NEGhnY2W3oIwsUB20FMHL7P05e+TYUnKec3H
-	p93vnGQWUxiMSwEXMaMoxl5RgdL/E5EgBVCsq8cg4QoxTso24bhSY/KomIxQkVNv/JAGbsHEATB
-	T662fzFiVrAbTuq0uRA/DS+JjO7SbvL8IJPYTYlSj3Q1LmOwsuf1uENhUK/yaKPqcdYTht/lhkY
-	Jwb+s+jkal3IwYC7oQY2EcLYTtb95lmvPcoRuxidLESTn5l/aASWZydBvaSoV28YWj3zYyOw
-X-Received: by 2002:a05:690e:488c:20b0:664:d231:2f73 with SMTP id
- 956f58d0204a3-6677fbd4331mr2922458d50.50.1783431755730; Tue, 07 Jul 2026
- 06:42:35 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1783436027; x=1784040827;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=bWmMpMhPBO/EOzHg9dXhWeBCCLH108Nq2eDZhsT4OEA=;
+        b=CZQMFVgmBHDAfoPkj3DCsoTVpB8wHh3pZQHF4vDLZIA6Wrz16zaT4OaII64qj3EA+S
+         E4zg10i87RE7hYWaZSuF0UJtwzVJUueBMtCEVsAFztEdYk2Sol6vnmlN05BPEMgACn6G
+         4KdRaVc5e9Augrr5mnZdgyuf5wnIfDrQoGOMZzHHNxYaPSnsqO9Ocjf5PE2pJpMqZBHJ
+         OauJ8AF5ItTi86wCweO8PYNWEqu/t1OOJlJSyoXEJ5b1Nlp/zBGbmYRh+glZ46Tr+S5U
+         vx1OIG4zbVRjFfayi9oO4S8isNPall0HOO5TkaF5Pp0eweDsvnY3+djFFgQomtGcrLva
+         Fo2g==
+X-Forwarded-Encrypted: i=1; AHgh+RrlizRNY2pClMjmGsR7h56m37Bmy8trwYX4iJPMWPhkmlvevHawfVIul6l4mepEHo/G1P2aNvL4WiP8zg==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yy6owY6yKd5vy5s75hUR3qWdgD5KyjJSuizS6e1TLDYtPCFt3vN
+	C2u5k9xUCiNVM0iyZ2g2tx4ugCD4jvge7C8F1DcFDE2hnjbE0TY/JTxkGodlwEB89Lo=
+X-Gm-Gg: AfdE7cnZcTlosi+Vw4jtK0wQOE/Dq81TDIZ2y1xpL/t0fSX8T5yxOUwM/dvyhnCkrDJ
+	3Ls+FEvyISrefjZwHu73VZZY+nZkyGdx/W/goAz1gxlOjrUliyZiH16FhUrHG1pibJGvywD8912
+	yJgdILt+ZCm/GHg0hQ3LoZXe7DeCexATlJHyrxUJFM+z/Wr+fMVfKktzcfogG6I7i+neu2plxDy
+	c2SDUZKrIwKb1dxorUuuTBsRG535K/lzhlMaFNeoPu+du54lXaJxsutNl57U7Sd/x7excWw8aup
+	9rsytetPcoAnmoghtsFS9tcJ/xZ5SRN3Oy7QPM/zvxpWf2HDZeGqCr3zHLezO3TqVvA5O7ZxbMP
+	/ryxrtogTi11kV77tYZmtEyNzXa/vclOhQ/qnohSLVS+5d1oHDuk0ztTYes4SZf5DvP3ENLH8sh
+	70zyi7YcBiZyD7ox6/ZTswGcW4bkmxPSw/s9c=
+X-Received: by 2002:a05:600c:b85:b0:492:4723:166b with SMTP id 5b1f17b1804b1-493df05f8e3mr59452385e9.13.1783436027489;
+        Tue, 07 Jul 2026 07:53:47 -0700 (PDT)
+Received: from localhost.localdomain ([2a00:6d43:105:c401:e307:1a37:2e76:ce91])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-493e10af550sm60425025e9.1.2026.07.07.07.53.46
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 07 Jul 2026 07:53:47 -0700 (PDT)
+From: Marco Crivellari <marco.crivellari@suse.com>
+To: linux-kernel@vger.kernel.org,
+	linux-input@vger.kernel.org
+Cc: Tejun Heo <tj@kernel.org>,
+	Lai Jiangshan <jiangshanlai@gmail.com>,
+	Frederic Weisbecker <frederic@kernel.org>,
+	Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+	Marco Crivellari <marco.crivellari@suse.com>,
+	Michal Hocko <mhocko@suse.com>,
+	Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>,
+	"Derek J. Clark" <derekjohn.clark@gmail.com>
+Subject: [PATCH RFC 0/2] HID: Replace system_wq with system_dfl_wq
+Date: Tue,  7 Jul 2026 16:53:01 +0200
+Message-ID: <20260707145327.313292-1-marco.crivellari@suse.com>
+X-Mailer: git-send-email 2.54.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260630-apple-mtp-keyboard-final-v1-0-506d936a1707@gmail.com>
- <20260630-apple-mtp-keyboard-final-v1-5-506d936a1707@gmail.com> <e23e4581-7eee-4f4e-aa82-6b6bb6177678@cyberchaos.dev>
-In-Reply-To: <e23e4581-7eee-4f4e-aa82-6b6bb6177678@cyberchaos.dev>
-From: Michael Reeves <michael.reeves077@gmail.com>
-Date: Tue, 7 Jul 2026 23:42:24 +1000
-X-Gm-Features: AVVi8Cepx_g_efgo_16NLDYw5eSOtcfEnI_otyB3OoPCUn9_yzRFa4EgaystrR0
-Message-ID: <CANpmGNtnZo20nPyM4qB7Jcty=bRFsxsDWnAOk9Md6Y+Rd9n7ZA@mail.gmail.com>
-Subject: Re: [PATCH 05/10] mailbox: apple: Add DockChannel FIFO controller
-To: Yureka Lilian <yureka@cyberchaos.dev>
-Cc: Sven Peter <sven@kernel.org>, Janne Grunau <j@jannau.net>, Neal Gompa <neal@gompa.dev>, 
-	Jassi Brar <jassisinghbrar@gmail.com>, Rob Herring <robh@kernel.org>, 
-	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
-	Hector Martin <marcan@marcan.st>, "Joerg Roedel (AMD)" <joro@8bytes.org>, Will Deacon <will@kernel.org>, 
-	Robin Murphy <robin.murphy@arm.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
-	Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>, asahi@lists.linux.dev, 
-	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, 
-	devicetree@vger.kernel.org, iommu@lists.linux.dev, 
-	linux-input@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Sun, Jul 5, 2026 at 6:14=E2=80=AFAM Yureka Lilian <yureka@cyberchaos.dev=
-> wrote:
-[...]
-> > +             while (block) {
-> > +                     writeb_relaxed(*p++, dc->data_base + DATA_TX8);
->
-> This must be writel_relaxed, as writeb_relaxed in this mmio region will
-> cause an SError. This is why we have separate addresses putting 8-bits
-> and 32-bits into the FIFO I guess.
-Ah, thanks for the pickup. Sorry for the silly typo from me, must have miss=
-ed
-it because all the HID writes are 4-byte aligned. Will correct in v2
-which I should
-be able to send out by the weekend unless I get busy.
+Hi,
 
-Thanks again,
-Michael
+Currently the code uses the per-cpu workqueue system_wq to schedule
+delayed works.
+
+Unbound works could benefit from scheduler task placement, to optimize
+performance and power consumption. Another good reason to have this unbound,
+is the "queue_delayed_work()" function, used to enqueue the work item.
+
+~~~ Details about queue_delayed_work ~~~
+
+system_wq is a per-cpu workqueue and it is used as a parameter of
+mod_delayed_work(). This function schedule an item that it will later
+be enqueued (once the timer will fire). __queue_delayed_work() does the job
+receiving as "cpu" WORK_CPU_UNBOUND:
+
+    if (housekeeping_enabled(HK_TYPE_TIMER)) {
+    //      [....]
+    } else {
+            if (likely(cpu == WORK_CPU_UNBOUND))
+                    add_timer_global(timer);
+            else
+                    add_timer_on(timer, cpu);
+    }
+
+The timer is global, so can fire everywhere, and the work item will be
+enqueued where the timer fired.
+
+Since the workqueue work doesn't rely on per-cpu variables, there is no
+obvious reason that justify the use of a per-cpu workqueue. So change the
+workqueue with system_dfl_wq, so that the used workqueue is now unbound
+and can benefit from scheduler task placement.
+
+Thanks!
+
+Marco Crivellari (2):
+  HID: hid-oxp: Replace system_wq with system_dfl_wq
+  HID: appletb-kdb: Replace system_wq with system_dfl_wq
+
+ drivers/hid/hid-appletb-kbd.c | 6 +++---
+ drivers/hid/hid-oxp.c         | 8 ++++----
+ 2 files changed, 7 insertions(+), 7 deletions(-)
+
+-- 
+2.54.0
+

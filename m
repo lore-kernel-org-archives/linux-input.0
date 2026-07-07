@@ -1,29 +1,30 @@
-Received: from m16.mail.163.com (m16.mail.163.com [117.135.210.5])
+Received: from m16.mail.163.com (m16.mail.163.com [220.197.31.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 799833976B8;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A32FE37C109;
 	Tue,  7 Jul 2026 07:16:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=117.135.210.5
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=220.197.31.2
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783408581; cv=none; b=Vnk6IUzQuaIx/ZyheZPjkIHeZIqm/ZIDL7Qaxoud604n6tUQH91cSZg7fwUcyTvOU7JCNxPA8W+8nSgAckAW9Tiej5eb9Yz6xRFK37YFGKvkstNbUzzGup4VTaOA5IoUV6BxOrqWMj+QQtrR34/jLOERKc9JPhFbUWFgsV+LpsU=
+	t=1783408582; cv=none; b=vF7TyTAZOAad9rXxG2SDIXGmY+ee7OqjgUzWBx/8OeD2HkV8Spb1tSvGN4sh8uPICwHNdP2iCIhdrXQkPPaJ9QonaS9QeSyhrKEWd6wM6DHBqWDONZNl8zs2ib1K6a76ocbh5J+s1U1BW7ZpC/aM9XOY4PNJbXMErqK4xbuOENo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783408581; c=relaxed/simple;
-	bh=xjI1iVkkveTyZ7hEsKdG3O68jk7SBRuM9GmVV+Icae0=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=RbvP4vDDAv8Fpk4E2HbFQc+gktjjB9RFQN0r52V/0WwlmsuxIKY+4hRfdKhflfcWbnf1kLinOCzVMvexmvhsDRaBRJo9JFQMnYOy7EGecKyN8dYWpZv4KzylQibFcnzlm6OnR5f7dCB/2OskNwtZuR4pC/v/fInIlWDevm+Mn24=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=IjJfVh5M; arc=none smtp.client-ip=117.135.210.5
+	s=arc-20240116; t=1783408582; c=relaxed/simple;
+	bh=tS8xW4ACW7vQCCwps22aNMeLPdTivzNwbzURsLhXz9M=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=RugOMkpEYc+JeX2Sfv9wrB6oUZsU6Gcz9aWKLuxpzlSWt4iHS2D+dr9VKPsVpzPJGT0CZzUuySL71jk/hStRWBMcuWa1z+cSUGX2LxFC95dRp6fOOfTV/lPuRo67c0YrEMyd/D26qtjRvnk4G6yPqIYKqu9fStmt5WjrBYkh8pE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=U2iP0/WD; arc=none smtp.client-ip=220.197.31.2
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="IjJfVh5M"
+	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="U2iP0/WD"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
-	s=s110527; h=From:To:Subject:Date:Message-Id:MIME-Version; bh=Tg
-	lNO5fBuKy0mHgk1cSA7ImpXm9ObpMn8awOSx2Urt4=; b=IjJfVh5MBrLBw2FArI
-	tbu0f1oNT3CYvu7oIcHnt+8vJ7zCNjTNsMR+SovwXrzTsNdnEfL/pxOihr6EaFCh
-	gjRaHCGsSUH+1K8hMB8/J1Xbefny3bMNzUibg5wG1sNOfbchka2JPKaQK3sbue7K
-	p2Nc/UgQ+90MJL18C58F7xXoA=
+	s=s110527; h=From:To:Subject:Date:Message-Id:MIME-Version; bh=Z2
+	0YYvDoeUgCrjGuuLr/pDFpGrufeVTIJSYak3iZmRc=; b=U2iP0/WDcxpUXdCn/G
+	nl8vYQHIyIbyfDOzepGC7ewqIQVsw/19RjgTM7DIKIk5/RzSmiI6XiSkTmv+DJDH
+	JGGWOWbhMMTmFH1rk/qaxmvJyMOAL1G5/ugoxxPK5smc3rqB9MJyty6jHkwQJCIO
+	p0G/er4lSH9nBDkDSDpOvDRgU=
 Received: from localhost.localdomain (unknown [])
-	by gzga-smtp-mtada-g0-2 (Coremail) with SMTP id _____wD3n5Cqp0xq6RclIA--.54200S2;
-	Tue, 07 Jul 2026 15:15:55 +0800 (CST)
+	by gzga-smtp-mtada-g0-2 (Coremail) with SMTP id _____wD3n5Cqp0xq6RclIA--.54200S3;
+	Tue, 07 Jul 2026 15:15:56 +0800 (CST)
 From: Haoxiang Li <haoxiang_li2024@163.com>
 To: jikos@kernel.org,
 	jic23@kernel.org,
@@ -32,11 +33,15 @@ To: jikos@kernel.org,
 Cc: linux-input@vger.kernel.org,
 	linux-iio@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
-	Haoxiang Li <haoxiang_li2024@163.com>
-Subject: [PATCH v3 0/2] HID: sensor: custom: Fix fields lifetime issues
-Date: Tue,  7 Jul 2026 15:15:43 +0800
-Message-Id: <20260707071545.3087073-1-haoxiang_li2024@163.com>
+	Haoxiang Li <haoxiang_li2024@163.com>,
+	Sashiko AI Review <sashiko-bot@kernel.org>,
+	stable@vger.kernel.org
+Subject: [PATCH v3 1/2] HID: sensor: custom: Fix use-after-free in enable_sensor
+Date: Tue,  7 Jul 2026 15:15:44 +0800
+Message-Id: <20260707071545.3087073-2-haoxiang_li2024@163.com>
 X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20260707071545.3087073-1-haoxiang_li2024@163.com>
+References: <20260707071545.3087073-1-haoxiang_li2024@163.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -44,46 +49,84 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:_____wD3n5Cqp0xq6RclIA--.54200S2
-X-Coremail-Antispam: 1Uf129KBjvJXoW7ZFW3JrWkWr43WF48Wr4kJFb_yoW8JFWrpF
-	Z5Jw15Kw4ktrZFgFsxAa12gF9Ykr4rJFyqvry0gwn3Ww15Cryktr4rKw1jv3yqqFZ7Kw1U
-	G3yFq3ZxCFyDCFDanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x0pEJ5rnUUUUU=
-X-CM-SenderInfo: xkdr5xpdqjszblsqjki6rwjhhfrp/xtbCxgvBMGpMp6tCkwAA3H
+X-CM-TRANSID:_____wD3n5Cqp0xq6RclIA--.54200S3
+X-Coremail-Antispam: 1Uf129KBjvJXoWxGrW8WFWUtFykZFyDCF47XFb_yoW5Wr1rpF
+	90yFWSgr1UGa47J347AFsrX3W0gr4rWF18WrnrW3s3ZF15Ar97try8Ja40vayYyFWDK3WU
+	Ja1DXas8uFyqgw7anT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x0pR0Ap5UUUUU=
+X-CM-SenderInfo: xkdr5xpdqjszblsqjki6rwjhhfrp/xtbC7QzCMWpMp6w9sQAA3z
 
-Hi,
+enable_sensor_store() can call set_power_report_state(), which
+dereferences sensor_inst->power_state and sensor_inst->report_state.
+These pointers refer to entries in sensor_inst->fields.
 
-This series fixes lifetime issues around sensor_inst->fields and the
-sysfs attributes that can access it.
+Create the field attributes before exposing the enable_sensor sysfs
+attribute, so enable_sensor cannot be accessed before the state it
+depends on has been initialized.
 
-The first patch creates the field attributes before exposing enable_sensor
-and removes enable_sensor before freeing the field attributes. This keeps
-enable_sensor from accessing power_state and report_state pointers after
-the fields array has been freed.
+On remove, delete enable_sensor before freeing the field attributes,
+so a concurrent sysfs write cannot dereference freed memory through
+power_state or report_state.
 
-The second patch fixes the original field sysfs group leak on probe
-failure by unwinding any field groups that were created before a later
-sysfs_create_group() failure.
+Reported-by: Sashiko AI Review <sashiko-bot@kernel.org>
+Link: https://sashiko.dev/#/patchset/20260623021950.1736413-1-haoxiang_li2024@163.com?part=1
+Fixes: 4a7de0519df5 ("HID: sensor: Custom and Generic sensor support")
+Cc: stable@vger.kernel.org
+Signed-off-by: Haoxiang Li <haoxiang_li2024@163.com>
+---
+ drivers/hid/hid-sensor-custom.c | 17 +++++++++--------
+ 1 file changed, 9 insertions(+), 8 deletions(-)
 
-Changes in v3:
- - Move the enable_sensor registration reorder from patch 2 to patch 1.
- - Add a comment explaining why enable_sensor is removed before fields.
- - Add Reported-by and Link tags for the Sashiko review.
- - Keep patch 2 focused on the field sysfs group cleanup. Tanks, Jonathan!
-
-Changes in v2:
- - Split the fix into two patches.
- - Unwind already-created field sysfs groups on failure. Thanks, Jiri!
-
-Haoxiang Li (2):
-  HID: sensor: custom: Fix use-after-free in enable_sensor
-  HID: sensor: custom: Fix field sysfs group cleanup on failure
-
- drivers/hid/hid-sensor-custom.c | 26 +++++++++++++++++---------
- 1 file changed, 17 insertions(+), 9 deletions(-)
-
-
-base-commit: ef0c9f75a19532d7675384708fc8621e10850104
+diff --git a/drivers/hid/hid-sensor-custom.c b/drivers/hid/hid-sensor-custom.c
+index afffea894021..6b0da2e0e1c9 100644
+--- a/drivers/hid/hid-sensor-custom.c
++++ b/drivers/hid/hid-sensor-custom.c
+@@ -1005,26 +1005,26 @@ static int hid_sensor_custom_probe(struct platform_device *pdev)
+ 		return ret;
+ 	}
+ 
+-	ret = sysfs_create_group(&sensor_inst->pdev->dev.kobj,
+-				 &enable_sensor_attr_group);
++	ret = hid_sensor_custom_add_attributes(sensor_inst);
+ 	if (ret)
+ 		goto err_remove_callback;
+ 
+-	ret = hid_sensor_custom_add_attributes(sensor_inst);
++	ret = sysfs_create_group(&sensor_inst->pdev->dev.kobj,
++				 &enable_sensor_attr_group);
+ 	if (ret)
+-		goto err_remove_group;
++		goto err_remove_attributes;
+ 
+ 	ret = hid_sensor_custom_dev_if_add(sensor_inst);
+ 	if (ret)
+-		goto err_remove_attributes;
++		goto err_remove_group;
+ 
+ 	return 0;
+ 
+-err_remove_attributes:
+-	hid_sensor_custom_remove_attributes(sensor_inst);
+ err_remove_group:
+ 	sysfs_remove_group(&sensor_inst->pdev->dev.kobj,
+ 			   &enable_sensor_attr_group);
++err_remove_attributes:
++	hid_sensor_custom_remove_attributes(sensor_inst);
+ err_remove_callback:
+ 	sensor_hub_remove_callback(hsdev, hsdev->usage);
+ 
+@@ -1042,9 +1042,10 @@ static void hid_sensor_custom_remove(struct platform_device *pdev)
+ 	}
+ 
+ 	hid_sensor_custom_dev_if_remove(sensor_inst);
+-	hid_sensor_custom_remove_attributes(sensor_inst);
++	/* Remove enable_sensor first as it uses fields via power_state/report_state. */
+ 	sysfs_remove_group(&sensor_inst->pdev->dev.kobj,
+ 			   &enable_sensor_attr_group);
++	hid_sensor_custom_remove_attributes(sensor_inst);
+ 	sensor_hub_remove_callback(hsdev, hsdev->usage);
+ }
+ 
 -- 
 2.25.1
 

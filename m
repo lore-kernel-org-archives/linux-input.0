@@ -1,146 +1,144 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f44.google.com (mail-wm1-f44.google.com [209.85.128.44])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C0D9D2C0296
-	for <linux-input@vger.kernel.org>; Tue,  7 Jul 2026 08:04:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8ACA7330668
+	for <linux-input@vger.kernel.org>; Tue,  7 Jul 2026 09:06:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.44
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783411476; cv=none; b=sO8iofd7xACUVlnm7Gfb5RMSHAfsu6zFAk41/PIdbROG++I8k0+fLlFIPK0VVwtrHOqenSFnTk1PAzHBQAt6V/qWD+dPVS/K8/fUnI9yURfiEYAefBMyAaVRUi9ZIriGom6tl1qQz2B/9PBtSup9jqCPGIwnn+LLIVDxuzM88Q4=
+	t=1783415182; cv=none; b=dtZL/TAL63bs7lgTNLEZPiU5BYR4TX4j5mOwVXM8WuP1iqNN3sU7kCGQeV/Cvt5S+Kzg0ASN8MeT2SLUcap3hb1Y+G57BbJm65F/Em8q4ZOOtw1w2/+jqo5fSmBSgUIvKt3X2f/P5Aof1EXrB3Av+efSmQFgzPUY0pydd6QFZyI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783411476; c=relaxed/simple;
-	bh=tlm1iqHkYW0+5WoWmli7ppsJccbg0eL6nKoyYa53jNM=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=MJMEQ9Mj5HEYCy9R+BgbsU6SXOIXUHEDA3AtBHWx5lwRvuZvS8R/JhgLR7Fy86p5SMQMYx9QjQ5GWtchf0CmViX1gzoXH0v7vCPGcUiKG3Qnb7ximHePQP/iBUN4Xnb4ac3nOi1eaEfN1KQTp3jmEDe6ZSlTyOY6Fos84fya3/w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=DjGCw+Xs; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1783415182; c=relaxed/simple;
+	bh=68KtwaVgG7YT5uaY6FkpMTgksL0UJpvFapAzT8vuUYE=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=jC2Umc1E8jgrWb5WIPJ5PFgJhZKpIKWi/6FrUEogDML4R3uxN5GwyX3qrh2VxhxOBYYX+HOqfYt8VaSDaDZEirdESItW1L3ADfNXd364BcJwLlNB0lAUkJ8dkpL180sBaJfikOk7h2+MzOM0zP8fnnr/heoKWR6d7TWkOHPdZLc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=Ys0PtHh9; arc=none smtp.client-ip=209.85.128.44
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="DjGCw+Xs"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50D5B1F000E9;
-	Tue,  7 Jul 2026 08:04:34 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1783411474;
-	bh=/HeldCAQyVFaR/ec//dGYB7MmTAt0NKlZ/QOKRaNa9o=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=DjGCw+XsUxk45+L8WJC4JEVHcEtsn4Vps4Xtls2m22SNcUf4UXTCUJkGP/l2ttHZc
-	 g3LwI3g0NbGfwu+1z8n5KkSX0Zft8HL7x86XTiYpIjrkdgn/PIMZI0bVkJ4KOUyCkW
-	 Ld9wCAGGwEJuVAxegxzoQkZF6pNM/iBnF7R7p1B04euCgOmSMGF7mumMADDjhrCEk7
-	 W34qazXIisg56qNzMBEqpHGCKiwCuzzA2fALDbywKvu/t+YuitbB8SnS62kKLFyvWq
-	 HjVcnQ8L2EOj06jrPX7ey3MrPpk7lhG9u9te+eH5qXMuJwvf3qPZTWqJLpVzAA3wUm
-	 i81w1Nj4txVFQ==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v3 2/2] HID: sensor: custom: Fix field sysfs group
- cleanup on failure
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Haoxiang Li" <haoxiang_li2024@163.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260707071545.3087073-3-haoxiang_li2024@163.com>
-References: <20260707071545.3087073-1-haoxiang_li2024@163.com>
- <20260707071545.3087073-3-haoxiang_li2024@163.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Tue, 07 Jul 2026 08:04:33 +0000
-Message-Id: <20260707080434.50D5B1F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="Ys0PtHh9"
+Received: by mail-wm1-f44.google.com with SMTP id 5b1f17b1804b1-493c19bad03so36545355e9.2
+        for <linux-input@vger.kernel.org>; Tue, 07 Jul 2026 02:06:20 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20251104; t=1783415179; x=1784019979; darn=vger.kernel.org;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=b5SemckqR+RbELmdvJiNqgdbo6JbgxB0VBziPWlK0PM=;
+        b=Ys0PtHh9TT6ZLN/Pce/yyKZOo2Kr+jTTkV0BVkg6YozBv4GJOWqpumr2e/SdAU4zCV
+         lOGFOYC6rxKI7JnUSHYbl6VL3OYkriqCQyk3CLLDBRjGh5cL5BHsPuguj/Ky44RB7QjM
+         taMZiq1rbmgicivTmnLSjn48eQqzxuQpsbGZbZHai6l3C+ziDeN0CDSnXPi+gEb9tIyQ
+         CcFxuovHsd0kUdolyXk5977zBGgV0FqFPvsDPwmht42NhATZvn3uBeKeixkQeFcuqWSM
+         VIjqBDgkjbVrTlhyAASe37n+MvRVHvVqi6gbsKoxMWPisdKG10ws4pK1VaashmPTwcjR
+         7ojw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1783415179; x=1784019979;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=b5SemckqR+RbELmdvJiNqgdbo6JbgxB0VBziPWlK0PM=;
+        b=QR4d83FXVLPm5HgS6czOIXhleMCMTT+xsRCo2/yVUo6RVcY+s6ACn8N/Bju/Rs4mH1
+         znihulAGBI29/HNRac0noOylZduhOCPnVgIdJZo5QBpyxyJqc8+WP9QhDMLkNOlPHfzy
+         G6H1koFTRmVglxijpfwYOrmuRXr0yb1L8pih1sz8cYjFu8YpmE1Lpetd8HGGVky+MxPP
+         ZgB+6V+0liyGY2EJq9KASYvO0tk2h9E7s1kVlxNzyrw6s6Ivr5b1jt3oIrintSgvC2nM
+         KA/qIMHSmpfI68sZe7WZrkIvCozmQRzivkdU/MjUUUGStygL47GdC4/vUMgjmD8ZtOh0
+         6f1g==
+X-Forwarded-Encrypted: i=1; AHgh+Rq979C/7Kxz75Fvy3gor4wRx3xklqp98i6oXPSM9xNTc70ZRwAZEfjY/27MuHYteCpWjZxDYtWqGvJ2dw==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yy8RIwTZHxnKSQIoUNInRNhfTZeKRhDCB+E4EwQA2+e4s/i5dnk
+	22PHPnc8dWiOuKduW+bwb3ZB2D9CNpEZKXSDGk840ojIwuxj/qQ7YC8I/88YDf/9Wg==
+X-Gm-Gg: AfdE7cm7Ryt4I1B+kfhQBzPoi0qNhK5+nFg91JwUEXsOtnbm5fSxCD6Ul88Ln+smD1O
+	l6Jtes7RuPDg4Qbb379sEMe2Ghz/kyd7T59TnaZRYJVAG4RyhJUpAE7LgP6mnroM2Dj5lFQgw2C
+	NqHIdhzqDMQRbOhHklWmwVrU49lPJSsAXkiG7nva+ecyotjqRYqIH/j4w1WisFEAWjxlrIMDH5X
+	uktDnK1XnbQ+Wk+TxzsZIB2F4P3Ta3R011Q8NHIqId4zJYS8hLqjYPB8ZFkXSBHdx9GHqoeYGHW
+	su4dNYT4UZ1ZvQ/Un4bE6UKmlYNK7SORzfnOdSmWSptAc2QsPtrSEw5FxTW1s0xoRnj2XFA45BY
+	P8uhne4hrspDAcxwbnAzOXu2u/a5t9zuGBUWNryE/i+b/1hEiyWiXrOylf6eWjFXdWhGhmCnGfx
+	eTlIhUQ9ZWcY8ci0raeYI00VbBjRgCEGfWxrmQ4DM85GNMEZL1NceMIQ==
+X-Received: by 2002:a05:600c:5611:b0:493:de89:61b with SMTP id 5b1f17b1804b1-493df077f31mr35685135e9.26.1783415178361;
+        Tue, 07 Jul 2026 02:06:18 -0700 (PDT)
+Received: from google.com ([2a00:79e0:288a:8:c86d:9b87:b8af:84e9])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-493e0f5b811sm62148475e9.13.2026.07.07.02.06.17
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 07 Jul 2026 02:06:17 -0700 (PDT)
+Date: Tue, 7 Jul 2026 11:06:12 +0200
+From: =?utf-8?Q?G=C3=BCnther?= Noack <gnoack@google.com>
+To: "Derek J. Clark" <derekjohn.clark@gmail.com>
+Cc: Manish Khadka <maskmemanish@gmail.com>, dmitry.torokhov@gmail.com,
+	linux-input@vger.kernel.org, sashiko-reviews@lists.linux.dev,
+	Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>,
+	Lee Jones <joneslee@google.com>,
+	Mark Pearson <mpearson-lenovo@squebb.ca>
+Subject: Re: [PATCH v2] HID: hid-lenovo-go: cancel cfg_setup work in
+ hid_go_cfg_remove()
+Message-ID: <akzBhKTOVpaTb4nT@google.com>
+References: <20260515174511.78486-1-maskmemanish@gmail.com>
+ <20260515182347.6C82FC2BCB0@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20260515182347.6C82FC2BCB0@smtp.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
+Hello Derek and Mark!
 
-Pre-existing issues:
-- [High] Lifetime mismatch between `devm_kzalloc` allocated `sensor_inst` a=
-nd `miscdevice` file operations leads to a Use-After-Free.
-- [High] Race condition in `hid_sensor_custom_remove()` between event callb=
-ack removal and kfifo destruction allows Use-After-Free.
---
+May I please draw your attention to this issue in the hid-lenovo drivers,
+which was pointed out by Sashiko:
 
---- Patch [2]: [PATCH v3 2/2] HID: sensor: custom: Fix field sysfs group cl=
-eanup on failure ---
-commit aa8aaa0518fc58fa29db9643742276c6a56cafe6
-Author: Haoxiang Li <haoxiang_li2024@163.com>
 
-HID: sensor: custom: Fix field sysfs group cleanup on failure
-   =20
-hid_sensor_custom_add_attributes() creates one sysfs group for each
-custom sensor field. If sysfs_create_group() fails after some groups
-have already been created, the function returns the error without
-removing the previously created groups.
-   =20
-Add a local unwind path to remove the groups that were already created.
-With enable_sensor exposed only after the field attributes are ready,
-this path can free sensor_inst->fields without leaving enable_sensor
-able to access pointers into that array.
+On Fri, May 15, 2026 at 06:23:46PM +0000, sashiko-bot@kernel.org wrote:
+> Thank you for your contribution! Sashiko AI review found 7 potential issue(s) to consider:
+> - [Critical] Hardware state corruption and crashes due to use of a static global struct for device data.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Fixes: 4a7de0519df5 ("HID: sensor: Custom and Generic sensor support")
-Cc: stable@vger.kernel.org
 
-> diff --git a/drivers/hid/hid-sensor-custom.c b/drivers/hid/hid-sensor-cus=
-tom.c
-> index 6b0da2e0e1c93..c2b425afd951b 100644
-> --- a/drivers/hid/hid-sensor-custom.c
-> +++ b/drivers/hid/hid-sensor-custom.c
-> @@ -609,7 +609,7 @@ static int hid_sensor_custom_add_attributes(struct hi=
-d_sensor_custom
-[ ... ]
->  	return ret;
-> +
-> +err_remove_groups:
-> +	while (--i >=3D 0)
-> +		sysfs_remove_group(&sensor_inst->pdev->dev.kobj,
-> +				   &sensor_inst->fields[i].hid_custom_attribute_group);
-> +	kfree(sensor_inst->fields);
-> +	return ret;
->  }
-> =20
->  static void hid_sensor_custom_remove_attributes(struct hid_sensor_custom=
- *
+> > diff --git a/drivers/hid/hid-lenovo-go.c b/drivers/hid/hid-lenovo-go.c
+> > index d4d26c7833563..b9d8cde531365 100644
+> > --- a/drivers/hid/hid-lenovo-go.c
+> > +++ b/drivers/hid/hid-lenovo-go.c
+> > @@ -2408,6 +2408,15 @@ static int hid_go_cfg_probe(struct hid_device *hdev,
+> >  
+> >  static void hid_go_cfg_remove(struct hid_device *hdev)
+> >  {
+> > +	/*
+> > +	 * cfg_setup is scheduled from hid_go_cfg_probe() with a 2 ms delay
+> > +	 * and dereferences drvdata.hdev.  Drain it here before tearing
+> > +	 * down so the workqueue cannot run after hid_destroy_device()'s
+> > +	 * put_device() has released the underlying hdev and dereference
+> > +	 * a stale drvdata.hdev pointer.
+> > +	 */
+> > +	cancel_delayed_work_sync(&drvdata.go_cfg_setup);
+> 
+> This isn't a bug introduced by this patch, but does the driver use a global
+> static variable (static struct hid_go_cfg drvdata) to store device state?
+> 
+> A second device probe would unconditionally overwrite drvdata.hdev and
+> re-initialize both drvdata.cfg_mutex and drvdata.go_cfg_setup.
+> 
+> Re-initializing an active mutex destroys its wait lists, and re-initializing
+> an active delayed work overwrites its linked list pointers, leading to
+> immediate memory corruption and kernel panics.
+> 
+> Should the device state be dynamically allocated per-instance instead?
 
-[Severity: High]
-This is a pre-existing issue, but is there a lifetime mismatch between the
-devm_kzalloc() allocated sensor_inst and the miscdevice file operations?
 
-In hid_sensor_custom_probe(), sensor_inst is allocated with device-managed
-memory:
+This is the same issue which was also introduced in hid-oxp, which I
+pointed out in [1].  As the review-bot points out above, while the data in
+your static drvdata variable is maybe only necessary once (but that
+also seems questionable?), I think the mutex and workqueue shouldn't
+just get re-initialized in the middle of being used, when a second device is
+plugged in and the probe() hook runs again.
 
-    sensor_inst =3D devm_kzalloc(&pdev->dev, sizeof(*sensor_inst),
-                               GFP_KERNEL);
+This pattern is used in both the drivers hid-lenovo-go.c, hid-lenovo-go-s.c,
+as well as in the newer hid-oxp discussed in [1].
 
-When the device is unbound, devres will automatically free sensor_inst.
-However, misc_deregister() does not revoke existing open file descriptors.
+Shouldn't the drvdata just be allocated with one of the devm_*alloc() variants
+as in the other drivers?
 
-If a user has the character device open, unbinds the device, and then
-interacts with the file descriptor, could this lead to a use-after-free?
+—Günther
 
-For example, hid_sensor_custom_read() accesses the freed pointer:
 
-    sensor_inst =3D container_of(file->private_data,
-                               struct hid_sensor_custom, custom_dev);
-
-Similarly, closing the file calls hid_sensor_custom_release() which modifies
-the freed memory:
-
-    clear_bit(0, &sensor_inst->misc_opened);
-
-[Severity: High]
-This is a pre-existing issue, but is there a race condition in
-hid_sensor_custom_remove() during device teardown?
-
-The function first frees the data buffer:
-
-    hid_sensor_custom_dev_if_remove(sensor_inst); // calls kfifo_free()
-
-It removes the callback later in the function:
-
-    sensor_hub_remove_callback(hsdev, hsdev->usage);
-
-If the sensor hub receives an asynchronous hardware event between these two
-calls, wouldn't the still-active callback invoke hid_sensor_capture_sample()
-and write incoming hardware data to the freed data_fifo?
-
-    kfifo_in(&sensor_inst->data_fifo, (unsigned char *)raw_data,
-             raw_len);
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260707071545.3087=
-073-1-haoxiang_li2024@163.com?part=3D2
+[1] https://lore.kernel.org/all/akfGTjId84EjV141@google.com/

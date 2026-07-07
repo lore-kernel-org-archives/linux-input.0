@@ -1,32 +1,32 @@
 Received: from endrift.com (endrift.com [173.255.198.10])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EAE4C373BE6
-	for <linux-input@vger.kernel.org>; Tue,  7 Jul 2026 23:33:53 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 588C337269F
+	for <linux-input@vger.kernel.org>; Tue,  7 Jul 2026 23:33:54 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=173.255.198.10
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783467235; cv=none; b=IayHdZEZCD+PHwdkKVwbvDvEbHgkKRX8zPyET53eSVcf3+rzTPp2Lg2DWY3N6iB5M7UBMSI2/JptdfwtFKb++vWbDxv63Ggp7hCMNW7TxIj2gzhIVBZW+vXFTLWpHU6N5E9BOYros2LYQPAAQlSB9a4SQEhGlHYUIpJ7+KmCqi8=
+	t=1783467235; cv=none; b=ZFq74JaPUJXx00bpyWthJjiThdgJYUB7xziVcFOHUpt82ZzQDjDK6oCDdGaxS0MBE0J40O9t2cvVGUiWW5B3SC+/oaL4sa3eEfMKd9kL6YjNzb+4j6sykdWiDLTQ/ExS441ocHjjgjoQPVL1yESGxnNCm3BACBgIEmfwBByS0yQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1783467235; c=relaxed/simple;
-	bh=YwJECNepvqjYfLzHK1VzgCrGYfZt19I9VczlhpKNuwc=;
+	bh=A85AvGrRICeeU2dYUXaGLMw4YLMpdmsQKld6KxvH4wo=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=ejBGz7sVMFLXvr5ggbXtI8GTSIarPk7nSnIxiuGAvYQVeLTMmLzjMsdVX6K5vHA8BoOUKrL9omvOgfEtTenKBHxMk7B7F3lgJ8XrbKKhkIItjwXaWP+W9dSalrwxdPB3rtRYmD2UpCSVg+d+0fXO52ZPB5NpJmrif9QR1ofFJNw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com; spf=pass smtp.mailfrom=endrift.com; dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b=mT/rVCUf; arc=none smtp.client-ip=173.255.198.10
+	 MIME-Version; b=QXpWgsQk6j6VcXshTHNrAWpJfhP1Zl3XETDsBRCo2qs237TL6gHH6lvgYDieDDuY2pJzyCa5N2snIlC3YY4rMESfa/32cESQKiLVfsK0DTlTnhjeBoaXurZUxZgHM0N4EajTVExW+CBohixuTrQD+dEHDtUXxJAJVcDKJcZ1Hco=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com; spf=pass smtp.mailfrom=endrift.com; dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b=ihCidnEi; arc=none smtp.client-ip=173.255.198.10
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=endrift.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b="mT/rVCUf"
+	dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b="ihCidnEi"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=endrift.com; s=2020;
-	t=1783467233; bh=YwJECNepvqjYfLzHK1VzgCrGYfZt19I9VczlhpKNuwc=;
+	t=1783467233; bh=A85AvGrRICeeU2dYUXaGLMw4YLMpdmsQKld6KxvH4wo=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=mT/rVCUf984M4H36lXCswWd9Ij9FjzZIA+kaMbNGVOz/9VJjjYCQ7jeqpg4TflHuj
-	 lrutFpOa/leIpSJhWtdl8vs2r3eWyRYSrxZPcqYuRTHP2yUAzX+rf8Qy1BsQSbdqyv
-	 fiRtL6xzs4Z2UMaNnUgrF5tf7gDsXBCSeiSXUms3OsjFKw4s54FEZZOblvuBuvZH6i
-	 gayhnAYYR1TY98EqfQPMFwaZmTnBYA1SB0Cy5gijB4AuhI1PlDZvANePEmZCYSlcaf
-	 D3sKEjQ6qpJIG5NzgvkrZG0Ro4WJxrSt704BH0m+shJkTwhHGbGJD5Y2mkZc399DKD
-	 Ccomp4FgTp0AA==
+	b=ihCidnEiDbZ1DudjvxO5myYgEpHLNsk9PJgjHHB0svHY7YS3+7p6PFPL27o4QUYD0
+	 H5AmD+d8eZB1EeIKdF2CENMpaPAhML/BQAWN+DjOxoG55xpZIi1iv27K0G6rXCP8Ae
+	 G9Z9M4SDQKlowWr1gwV/ROwsQ0bJLb6WoKETff9wTZkUnqCgiiWq9iiKEwr9FsaARS
+	 qhtl5UGPAIReKE+8P/Eu+aHbrgwwrZT7o3JFhdnnvlVdI3qtOSdCByP7MxDhlFVflI
+	 0HSqmaq99eDridaQs3xQ/2Gld3l2w9cV77ncvIZxJff/fXH/eIJyv6Mxv33/yEsktE
+	 7c/6fJeYP17Hg==
 Received: from microtis.vulpes.eutheria.net (71-212-73-87.tukw.qwest.net [71.212.73.87])
-	by endrift.com (Postfix) with ESMTPSA id 35680A05C;
+	by endrift.com (Postfix) with ESMTPSA id 97E7FA141;
 	Tue, 07 Jul 2026 16:33:53 -0700 (PDT)
 From: Vicki Pfau <vi@endrift.com>
 To: Jiri Kosina <jikos@kernel.org>,
@@ -34,9 +34,9 @@ To: Jiri Kosina <jikos@kernel.org>,
 	linux-input@vger.kernel.org
 Cc: Vicki Pfau <vi@endrift.com>,
 	Yousef Alhouseen <alhouseenyousef@gmail.com>
-Subject: [PATCH v2 07/10] HID: steam: Rearrange deinitialization sequence
-Date: Tue,  7 Jul 2026 16:32:27 -0700
-Message-ID: <20260707233241.2644971-8-vi@endrift.com>
+Subject: [PATCH v2 08/10] HID: steam: Improve logging and other cleanup
+Date: Tue,  7 Jul 2026 16:32:28 -0700
+Message-ID: <20260707233241.2644971-9-vi@endrift.com>
 X-Mailer: git-send-email 2.54.0
 In-Reply-To: <20260707233241.2644971-1-vi@endrift.com>
 References: <20260707233241.2644971-1-vi@endrift.com>
@@ -48,81 +48,142 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-This fixes a narrow window during the deinitialization where callbacks
-could still be scheduled during cleanup that would then have a dangling
-pointer to the now-freed steam struct.
+Adds more logging as appropriate, reindents an enum to match surrounding
+style, as well as cleaning up some places where we can use guard() instead
+of doing locking and unlocking manually.
 
 Signed-off-by: Vicki Pfau <vi@endrift.com>
 ---
- drivers/hid/hid-steam.c | 21 ++++++++++++++-------
- 1 file changed, 14 insertions(+), 7 deletions(-)
+ drivers/hid/hid-steam.c | 56 ++++++++++++++++++++++++-----------------
+ 1 file changed, 33 insertions(+), 23 deletions(-)
 
 diff --git a/drivers/hid/hid-steam.c b/drivers/hid/hid-steam.c
-index 3f1dbdcad23c..296ced2989a4 100644
+index 296ced2989a4..1f2cf15d4083 100644
 --- a/drivers/hid/hid-steam.c
 +++ b/drivers/hid/hid-steam.c
-@@ -1327,6 +1327,7 @@ static int steam_probe(struct hid_device *hdev,
+@@ -246,14 +246,14 @@ enum {
+ /* Input report identifiers */
+ enum
  {
- 	struct steam_device *steam;
- 	int ret;
-+	unsigned long flags;
+-	ID_CONTROLLER_STATE = 1,
+-	ID_CONTROLLER_DEBUG = 2,
+-	ID_CONTROLLER_WIRELESS = 3,
+-	ID_CONTROLLER_STATUS = 4,
+-	ID_CONTROLLER_DEBUG2 = 5,
+-	ID_CONTROLLER_SECONDARY_STATE = 6,
+-	ID_CONTROLLER_BLE_STATE = 7,
+-	ID_CONTROLLER_DECK_STATE = 9
++	ID_CONTROLLER_STATE		= 1,
++	ID_CONTROLLER_DEBUG		= 2,
++	ID_CONTROLLER_WIRELESS		= 3,
++	ID_CONTROLLER_STATUS		= 4,
++	ID_CONTROLLER_DEBUG2		= 5,
++	ID_CONTROLLER_SECONDARY_STATE	= 6,
++	ID_CONTROLLER_BLE_STATE		= 7,
++	ID_CONTROLLER_DECK_STATE	= 9,
+ };
  
- 	ret = hid_parse(hdev);
- 	if (ret) {
-@@ -1417,6 +1418,10 @@ static int steam_probe(struct hid_device *hdev,
- err_destroy:
- 	hid_destroy_device(steam->client_hdev);
- err_steam_unregister:
-+	spin_lock_irqsave(&steam->lock, flags);
-+	steam->client_opened = 0;
-+	spin_unlock_irqrestore(&steam->lock, flags);
-+	cancel_work_sync(&steam->work_connect);
- 	if (steam->connected)
- 		steam_unregister(steam);
- err_hw_close:
-@@ -1424,7 +1429,6 @@ static int steam_probe(struct hid_device *hdev,
- err_hw_stop:
- 	hid_hw_stop(hdev);
- err_cancel_work:
--	cancel_work_sync(&steam->work_connect);
- 	cancel_delayed_work_sync(&steam->mode_switch);
- 	cancel_work_sync(&steam->rumble_work);
- 	cancel_delayed_work_sync(&steam->coalesce_rumble_work);
-@@ -1435,6 +1439,7 @@ static int steam_probe(struct hid_device *hdev,
- static void steam_remove(struct hid_device *hdev)
- {
- 	struct steam_device *steam = hid_get_drvdata(hdev);
-+	unsigned long flags;
- 
- 	if (!steam || hdev->group == HID_GROUP_STEAM) {
- 		hid_hw_stop(hdev);
-@@ -1442,18 +1447,20 @@ static void steam_remove(struct hid_device *hdev)
- 	}
- 
- 	hid_destroy_device(steam->client_hdev);
--	cancel_delayed_work_sync(&steam->mode_switch);
--	cancel_work_sync(&steam->work_connect);
--	cancel_work_sync(&steam->rumble_work);
--	cancel_delayed_work_sync(&steam->coalesce_rumble_work);
- 	steam->client_hdev = NULL;
-+	hid_hw_close(hdev);
-+	spin_lock_irqsave(&steam->lock, flags);
- 	steam->client_opened = 0;
-+	spin_unlock_irqrestore(&steam->lock, flags);
-+	cancel_work_sync(&steam->work_connect);
- 	if (steam->quirks & STEAM_QUIRK_WIRELESS) {
- 		hid_info(hdev, "Steam wireless receiver disconnected");
- 	}
--	hid_hw_close(hdev);
--	hid_hw_stop(hdev);
- 	steam_unregister(steam);
-+	cancel_work_sync(&steam->rumble_work);
-+	cancel_delayed_work_sync(&steam->mode_switch);
-+	cancel_delayed_work_sync(&steam->coalesce_rumble_work);
-+	hid_hw_stop(hdev);
+ /* Read-only attributes */
+@@ -379,9 +379,16 @@ static int steam_recv_report(struct steam_device *steam,
+ 	ret = hid_hw_raw_request(steam->hdev, 0x00,
+ 			buf, hid_report_len(r) + 1,
+ 			HID_FEATURE_REPORT, HID_REQ_GET_REPORT);
+-	if (ret > 0)
+-		memcpy(data, buf + 1, min(size, ret - 1));
++	if (ret > 0) {
++		ret = min(size, ret - 1);
++		memcpy(data, buf + 1, ret);
++	}
+ 	kfree(buf);
++
++	if (ret < 0)
++		hid_err(steam->hdev, "%s: error %d\n", __func__, ret);
++	else
++		hid_dbg(steam->hdev, "Received report %*ph\n", ret, data);
+ 	return ret;
  }
  
- static void steam_do_connect_event(struct steam_device *steam, bool connected)
+@@ -409,6 +416,8 @@ static int steam_send_report(struct steam_device *steam,
+ 	/* The report ID is always 0 */
+ 	memcpy(buf + 1, cmd, size);
+ 
++	hid_dbg(steam->hdev, "Sending report %*ph\n", size, cmd);
++
+ 	/*
+ 	 * Sometimes the wireless controller fails with EPIPE
+ 	 * when sending a feature report.
+@@ -481,22 +490,21 @@ static int steam_get_serial(struct steam_device *steam)
+ 	u8 cmd[] = {ID_GET_STRING_ATTRIBUTE, sizeof(steam->serial_no), ATTRIB_STR_UNIT_SERIAL};
+ 	u8 reply[3 + STEAM_SERIAL_LEN + 1];
+ 
+-	mutex_lock(&steam->report_mutex);
++	guard(mutex)(&steam->report_mutex);
+ 	ret = steam_send_report(steam, cmd, sizeof(cmd));
+ 	if (ret < 0)
+-		goto out;
++		return ret;
+ 	ret = steam_recv_report(steam, reply, sizeof(reply));
+ 	if (ret < 0)
+-		goto out;
++		return ret;
+ 	if (reply[0] != ID_GET_STRING_ATTRIBUTE || reply[1] < 1 ||
+ 	    reply[1] > sizeof(steam->serial_no) || reply[2] != ATTRIB_STR_UNIT_SERIAL) {
+-		ret = -EIO;
+-		goto out;
++		hid_err(steam->hdev, "%s: invalid reply (%*ph)\n", __func__,
++				(int)sizeof(reply), reply);
++		return -EIO;
+ 	}
+ 	reply[3 + STEAM_SERIAL_LEN] = 0;
+ 	strscpy(steam->serial_no, reply + 3, reply[1]);
+-out:
+-	mutex_unlock(&steam->report_mutex);
+ 	return ret;
+ }
+ 
+@@ -516,8 +524,11 @@ static int steam_get_attributes(struct steam_device *steam)
+ 	ret = steam_recv_report(steam, reply, sizeof(reply));
+ 	if (ret < 0)
+ 		return ret;
+-	if (reply[0] != ID_GET_ATTRIBUTES_VALUES || reply[1] < 2)
++	if (reply[0] != ID_GET_ATTRIBUTES_VALUES || reply[1] < 2) {
++		hid_err(steam->hdev, "%s: invalid reply (%*ph)\n", __func__,
++				(int)sizeof(reply), reply);
+ 		return -EIO;
++	}
+ 
+ 	size = min(reply[1], sizeof(reply) - 2);
+ 	for (i = 0; i + sizeof(*attr) <= size; i += sizeof(*attr)) {
+@@ -539,11 +550,8 @@ static int steam_get_attributes(struct steam_device *steam)
+  */
+ static inline int steam_request_conn_status(struct steam_device *steam)
+ {
+-	int ret;
+-	mutex_lock(&steam->report_mutex);
+-	ret = steam_send_report_byte(steam, ID_DONGLE_GET_WIRELESS_STATE);
+-	mutex_unlock(&steam->report_mutex);
+-	return ret;
++	guard(mutex)(&steam->report_mutex);
++	return steam_send_report_byte(steam, ID_DONGLE_GET_WIRELESS_STATE);
+ }
+ 
+ /*
+@@ -1192,6 +1200,7 @@ static void steam_mode_switch_cb(struct work_struct *work)
+ 		return;
+ 
+ 	steam->gamepad_mode = !steam->gamepad_mode;
++	hid_dbg(steam->hdev, "%s: switching gamepad mode to %i\n", __func__, steam->gamepad_mode);
+ 	if (steam->gamepad_mode)
+ 		steam_set_lizard_mode(steam, false);
+ 	else {
+@@ -1840,6 +1849,7 @@ static void steam_do_deck_input_event(struct steam_device *steam,
+ 		steam->did_mode_switch = false;
+ 		cancel_delayed_work(&steam->mode_switch);
+ 	} else if (!steam->client_opened && start_pressed && !steam->did_mode_switch) {
++		hid_dbg(steam->hdev, "%s: doing mode switch\n", __func__);
+ 		steam->did_mode_switch = true;
+ 		schedule_delayed_work(&steam->mode_switch, 45 * HZ / 100);
+ 	}
 -- 
 2.54.0
 

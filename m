@@ -1,96 +1,77 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.21])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 835CD3EFD0E;
-	Mon,  6 Jul 2026 21:16:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.21
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B5E5B2FFDE3;
+	Tue,  7 Jul 2026 01:27:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783372613; cv=none; b=C0FkPD9ebGqelWFviYry8y6lZ9RGnMKrys4JEhdUSD5nq4oNZgwQEr1WOzy0C8ATIQEfGiz/sUoyWwta7SbgjLa6H7TbxyspbtqxJ03EtOXq6ln/VX8/KVcL4gyq55M+9IoevD4FzwDc1JD5Alb5R90c/MZWwALXAM0p7qs8t28=
+	t=1783387657; cv=none; b=fSq1IMimmvctK/TXUrMzXfn3XtdsXTiJhTZnBCMa8TTAFDhSb1lruEmssWIifdTtOAM4/aDozAd5DIgG0lQFwztZcSx4dSMgjT2WFX2iCIUjw1bSzsebMFV6UCv+wWYv/7SeMH/BEzaeczZ72n98zi0eJlz72GYfvkJ0nfYHyp8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783372613; c=relaxed/simple;
-	bh=Nyq9T7NfxUKyzwtRKo8UekX4IIX2LM0TykSJJnG1SxE=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=qRwaIEAHvLpuUbta1Fe3mjsoKOCUNpvKW9Wl47aL9Z2VhpahLqrMuUJxuVEt6RflghYtHPYv0Ay5VBOntfN2SrXQChF21A9xbjXjCFpPi9L+pMl1BrWonfwhvYyKIwwwJ/qlF5PuG3pjdTexObEVRNgjeCjdnkaNTcN9KLYqKjM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=aH3qqwAM; arc=none smtp.client-ip=198.175.65.21
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1783387657; c=relaxed/simple;
+	bh=kni8+lO6N5E+laA2Hc7bOfG/j+KSwOIEn96kfYxITo0=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=AkQYPDClgLYnlBXH2ZfVOn2pmpdRfU8mirBl45gdlMspbNNc3QOtIxPpskF2LrUiFTrvuoRG59fVA8Fiq9vivbCjNrXJjw1almzRScX9Qou8qehXEyZbx3o8r+dIaOMfveEX9PoG8aFjcMkbH4HZk22yTdRhObNH2LNFEo50Fng=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=I2qgSrNx; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="aH3qqwAM"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1783372609; x=1814908609;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=Nyq9T7NfxUKyzwtRKo8UekX4IIX2LM0TykSJJnG1SxE=;
-  b=aH3qqwAMr4Qcu6pKs5YkPZY0UN7fP2RpKwg/D+FxW4mcQ7HFHaN315pJ
-   hKS/HWQjYvXQJrA+G0pOqnbs/ZGu41s5mibaXMja/G+GN5Dtcpk8AFzkf
-   9mH+y+0WyFl+vCrRuh16U89ruCGD+DwYIY6U4aTntqGc8tmTzl4Qz8tqb
-   iESvp8QVwnODAYstYa8E9SKZvjmBeEjhsFHznFhbknWTw0UyvqgYaQI5G
-   lwhajc86wwH/Ef8bJWlvkB0fu9+qsEaH/pRDWB8lqfzP47uat5tz54+sK
-   29Xn83CM/96z/6mVFVCv3VKCnYUZJ6H9UVkPMmAfSBCZqCAGGeFL2GEL7
-   w==;
-X-CSE-ConnectionGUID: NWr+CoOfSiymkk5ecKU43w==
-X-CSE-MsgGUID: mY/H7eGgTHKVwfiq3p9DtA==
-X-IronPort-AV: E=McAfee;i="6800,10657,11839"; a="83877658"
-X-IronPort-AV: E=Sophos;i="6.25,151,1779174000"; 
-   d="scan'208";a="83877658"
-Received: from orviesa009.jf.intel.com ([10.64.159.149])
-  by orvoesa113.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 Jul 2026 14:16:47 -0700
-X-CSE-ConnectionGUID: Gedxb4BLRYaq9/RiGOA/Jw==
-X-CSE-MsgGUID: D9oUdjdNRO2MzPcdTyZsDA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.25,151,1779174000"; 
-   d="scan'208";a="254465291"
-Received: from abityuts-desk.ger.corp.intel.com (HELO localhost) ([10.245.244.178])
-  by orviesa009-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 Jul 2026 14:16:45 -0700
-Date: Tue, 7 Jul 2026 00:16:42 +0300
-From: Andy Shevchenko <andriy.shevchenko@intel.com>
-To: sanjayembeddedse@gmail.com
-Cc: Jiri Kosina <jikos@kernel.org>, Jonathan Cameron <jic23@kernel.org>,
-	Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
-	David Lechner <dlechner@baylibre.com>,
-	Nuno =?iso-8859-1?Q?S=E1?= <nuno.sa@analog.com>,
-	Andy Shevchenko <andy@kernel.org>, linux-input@vger.kernel.org,
-	linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org,
-	Maxwell Doose <m32285159@gmail.com>
-Subject: Re: [PATCH v3 0/2] HID: iio: warning clean up and prefer kernel
- coding style
-Message-ID: <akwbOnnEuQ4wA-OE@ashevche-desk.local>
-References: <20260707-15-jun-hid-iio-alignment-v3-0-8791574ad0fe@gmail.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="I2qgSrNx"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 61D501F00A3E;
+	Tue,  7 Jul 2026 01:27:35 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1783387656;
+	bh=HCkOFf4noYW2Oi5lHGy48ez1wOQdlsBhJaJd+daqKMk=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References;
+	b=I2qgSrNxmAmxs5jjRrLocOuSldR/GJR5DwPDZzKF2RF/lpjp7VJcXAElLHi82IYfj
+	 ruzruuIIHCo38VusAgn1MmnhL97FnlwHdMJfiX2wL1atyARDBAFllFCgP2+dVo6lAx
+	 9pxSaFrCOU4pxljyVge1fxBfKFVlS8kM+7yR7+FnGJ71dXfRKwJWU+oCa4UINRwZlU
+	 4E9Mu11XRQVUnyF1he9iMk9TWdVQ+f6gYrcT/P5V9Or4roPf7D6UqRdxOGQgK43xb2
+	 ahuDto+QOPDQctFR57UWQxVaa96lfQ48RhGcsNXyXXWLJbMwcZPReSIvWJ7UiMpWTb
+	 7i4+A4BuF1cxg==
+From: Bjorn Andersson <andersson@kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	"Jason A. Donenfeld" <Jason@zx2c4.com>,
+	Matthias Schiffer <matthias.schiffer@ew.tq-group.com>,
+	Vincent Huang <vincent.huang@tw.synaptics.com>,
+	Konrad Dybcio <konradybcio@kernel.org>,
+	David Heidelberg <david@ixit.cz>
+Cc: linux-input@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	linux-arm-msm@vger.kernel.org,
+	phone-devel@vger.kernel.org,
+	Krzysztof Kozlowski <krzk@kernel.org>,
+	Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>
+Subject: Re: (subset) [PATCH v2 0/2] Introduce OnePlus 6/6T touchscreen compatible
+Date: Mon,  6 Jul 2026 20:27:18 -0500
+Message-ID: <178338764545.1558388.7968899731538373474.b4-ty@kernel.org>
+X-Mailer: git-send-email 2.53.0
+In-Reply-To: <20260523-synaptics-rmi4-dt-v2-0-0645122babdc@ixit.cz>
+References: <20260523-synaptics-rmi4-dt-v2-0-0645122babdc@ixit.cz>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260707-15-jun-hid-iio-alignment-v3-0-8791574ad0fe@gmail.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
- krs, Bertel Jungin Aukio 5, 02600 Espoo
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 
-On Tue, Jul 07, 2026 at 12:29:42AM +0530, Sanjay Chitroda via B4 Relay wrote:
 
-> This series updates HID sensor IIO drivers to address checkpatch
-> warnings, improves readability and compliance with kernel coding style.
+On Sat, 23 May 2026 11:45:33 +0200, David Heidelberg wrote:
+> Mostly related to the
+>   https://codeberg.org/sdm845/linux/commits/branch/b4/synaptics-rmi4
+> series, but independent on other changes which I trying to upstream for
+> more than one year.
 > 
-> The changes are:
->   - replacing explicit NULL comparisons with implicit pointer checks;
->   - adjusting indentation and alignment;
->   - reformatting multi-line function declarations for improved
->     readability and consistency.
 > 
-> While updating alignment and line wrapping, function parameters are
-> grouped more logically and common callback signatures are formatted
-> consistently across HID sensor IIO drivers.
-> 
-> Testing:
->   - Compiled with W=1 for each patch in the series
 
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@intel.com>
+Applied, thanks!
 
+[2/2] arm64: dts: qcom: sdm845-oneplus: Update compatible to include model
+      commit: cc8748ed4da16233d5b3f27e86a412a991645aed
+
+Best regards,
 -- 
-With Best Regards,
-Andy Shevchenko
-
-
+Bjorn Andersson <andersson@kernel.org>

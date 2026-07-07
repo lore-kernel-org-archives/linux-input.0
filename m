@@ -1,174 +1,128 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 48092314A65
-	for <linux-input@vger.kernel.org>; Tue,  7 Jul 2026 23:48:40 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5D077227BB9
+	for <linux-input@vger.kernel.org>; Tue,  7 Jul 2026 23:50:58 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783468121; cv=none; b=qkwp3ZzB9ynB7/LWEiHiPyEYsWjOpV8g3OEYekdyJK4/PoIhkvz2GBXfAV3IoCwBbVQNMw3QzvxGqbdLawSYXQgWJb3MM40804Vb8PdlVpb8iGgo6zNamagDFeShvC3PAPYtJ6x8KpQVJpIVrhgjCOtaLLouoSbkMqhqoQYhz2Q=
+	t=1783468259; cv=none; b=K5dyljW1jELbUHV89UrSnnG5RgzVp61hZE/pDSi7w9Wa7Ui+TWtpEthgAAUl5QSlmkUAzfBWitIWMp1P+4ZLUhe/PTISsQ+507lgmelFiYrtvOMHiJUTdVyfm/b3mvUFqmaVGox0Ljs3E+0hAiWZs7y4+QzKQjVm0EsdyNMtKu8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783468121; c=relaxed/simple;
-	bh=GfUwT4QBuhMF4cmJAET6++3qIFYm/vLq6+2IFQMwh88=;
+	s=arc-20240116; t=1783468259; c=relaxed/simple;
+	bh=sf2UnXAHmJFMc4ZPyvDHE0i5phwvXqNJCnnJWWu/rQk=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=dVpRh5W9oAsLrC3O+4fK9vSivu6CDzspMTHNYEUuUgdniyxsKE+78xQpatkMM7ebxk0BX3x7egHWtX1ksEVRn7btxme/fBBpqXcfN2USyPvnHCpHW/L28WoyyIDrmNchXWJGOwPLDqUeOnX+PNSxUO3F2thGt9wxKzwkvpDNHm4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=miTCo64z; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=R5gsK8wZBQDiVt+us5+j6daJoszI7JyaDkJGGkxOBzG+5c2tCwq+C/eG3TdxozS6R383rUg9OP/3OKnxsmjlDw458l/W9maaMcp+tI/vnOjwgPssEV/OtEdB5menrvjV4cVVDHy12CP7MzFOLO5OFFeqIzOOE1rYqmjlk4qCHSQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=MoZcbUJD; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="miTCo64z"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A32831F000E9;
-	Tue,  7 Jul 2026 23:48:39 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="MoZcbUJD"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ECFF11F000E9;
+	Tue,  7 Jul 2026 23:50:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1783468120;
-	bh=2tC9eW6zSEBJefsa1PP1c8IMSVf0k86BNo3EJWZMQ/I=;
+	s=k20260515; t=1783468257;
+	bh=kp5pAvS3/2CBVdp1azU3s4SuJbNksyvF0O0igvO6/Ew=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=miTCo64zcXaddBLhegHR307CfzU8OzQv+35bht4y5VZjvoH8bwRc8PCiQO9EpImzw
-	 Szgpg+X61s1LTtj/8lDYS1bX6/0Md5GmGxwGoK07E8ZYgwqXNiM+sMKThI97XEHolx
-	 UpPZYiGj8FMVWI0mBDK9TMrutIUDOFxoZOXMJBH7qc/0ra4GLrIsUjcu27HRoKvlIq
-	 bz/6AHSftrDu2LqdIcAQtXiKEZjeEajMtRdZatM4iTSVSqxp4j0sNTTmTZjaGX3p76
-	 8cirjhhzKVv07WOd5K+rpVsF+MQT+DkVcyy9oLgA10E/NnTjgPiTiY6T+q8UsCGuu7
-	 sqXZ16gZKlOCQ==
+	b=MoZcbUJDAXMuF3SMEAx3+Jnx4z+QpLeqU9sPzcmVsi/XL0+mNTRCMXqnFgTi6Tj9u
+	 q5MiYpi4VLEytgAK3TRXaJ8ns03AltnaWXVFXKpuQ9E2feG/egFNMmgVhDZn26ljxd
+	 wDkHkFiCEtO68EYUAWFo9GIe2vixYo6VMMqCMgvgmjZYjFDtQfPrSiisE8Y704h47j
+	 aVUvdmuSYMxRivsbGa/2430k3Pwh35TrHd5pygJgkB3rkh72kGzBqgBBnUE1fkEZq4
+	 RAIp1YqaTMCS7uPAPIqx6tCEhkxT72UK1b8CxuWpLHJx+7x0jcfz1RA7hgYLFGF4ub
+	 p/5juMRHbPtrQ==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 10/10] HID: steam: Retry send/recv reports if stale
+Subject: Re: [PATCH v2 04/10] HID: steam: Add support for sensor events on
+ the Steam Controller (2015)
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Vicki Pfau" <vi@endrift.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260707233241.2644971-11-vi@endrift.com>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <20260707233241.2644971-5-vi@endrift.com>
 References: <20260707233241.2644971-1-vi@endrift.com>
- <20260707233241.2644971-11-vi@endrift.com>
+ <20260707233241.2644971-5-vi@endrift.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 07 Jul 2026 23:48:39 +0000
-Message-Id: <20260707234839.A32831F000E9@smtp.kernel.org>
+Date: Tue, 07 Jul 2026 23:50:56 +0000
+Message-Id: <20260707235056.ECFF11F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [Medium] Log spam in expected retry path due to unconditional `hid_err` i=
-n `steam_recv_report`.
-- [Medium] Out-of-bounds stack read in `hid_dbg` when the device report exc=
-eeds the caller's buffer.
-- [Medium] `steam_recv_report` reads uninitialized stack memory on short ha=
-rdware reads.
+
+Pre-existing issues:
+- [High] If `steam_register()` fails during probe for a wired device, the `=
+steam` struct is left on the global `steam_devices` list but its memory is =
+freed, leading to a Use-After-Free.
 --
 
---- Patch [10]: [PATCH v2 10/10] HID: steam: Retry send/recv reports if sta=
-le ---
-commit 181ac85173536f44d1a324b3bc0042d43fa8238e
+--- Patch [4]: [PATCH v2 04/10] HID: steam: Add support for sensor events o=
+n the Steam Controller (2015) ---
+commit d6e009f462fb9aec26d7157d6389455fb438d8e1
 Author: Vicki Pfau <vi@endrift.com>
 
-HID: steam: Retry send/recv reports if stale
+HID: steam: Add support for sensor events on the Steam Controller (2015)
 
-Sometimes recv report will reply with a stale result from a previous send
-report. Instead of failing out, we should retry them, as they generally
-reply correctly after three tries, give or take.
+Sensor support was added for the Steam Deck previously, but Steam Controller
+sensor events were never added. This adds that missing support, bringing St=
+eam
+Controller support much closer to feature parity with things like SDL and S=
+team
+itself.
 
 > diff --git a/drivers/hid/hid-steam.c b/drivers/hid/hid-steam.c
-> index 49f6733d89359..ba2dd40a79763 100644
+> index add9f4f27fff9..6029c055a6cf3 100644
 > --- a/drivers/hid/hid-steam.c
 > +++ b/drivers/hid/hid-steam.c
-> @@ -497,6 +497,43 @@ static int steam_write_settings(struct steam_device =
-*steam,
->  	return steam_recv_report(steam, cmd, 2 + cmd[1]);
->  }
+
+[ ... ]
+
+> @@ -968,6 +1077,12 @@ static int steam_register(struct steam_device *stea=
+m)
+>  			strscpy(steam->serial_no, "XXXXXXXXXX",
+>  					sizeof(steam->serial_no));
 > =20
-> +static int steam_exchange_report(struct steam_device *steam, u8 *cmd, in=
-t csize,
-> +		u8 *reply, int rsize)
-> +{
-> +	unsigned int retries =3D 5;
-> +	int ret;
-> +
-> +	guard(mutex)(&steam->report_mutex);
-> +	do {
-> +		ret =3D steam_send_report(steam, cmd, csize);
+> +		ret =3D steam_get_attributes(steam);
 > +		if (ret < 0)
-> +			return ret;
-> +		ret =3D steam_recv_report(steam, reply, rsize);
-
-[Severity: Medium]
-Does this call cause an out-of-bounds stack read in steam_recv_report()?
-
-When a device sends a padded report that is larger than the caller's buffer
-(like the 36-byte reply buffer in steam_get_serial()), steam_recv_report()
-copies the correct size but logs using the unbounded ret length:
-
-steam_recv_report() {
-    ...
-    size =3D min(size, ret);
-    memcpy(data, buf + 1, size);
-    ...
-    hid_dbg(steam->hdev, "Received report %*ph\n", ret, data);
-    ...
-}
-
-Since ret can be larger than size, won't hid_dbg() read past the end of the
-reply buffer on the stack?
-
-[Severity: Medium]
-Can this also result in reading uninitialized stack memory on short reads?
-
-If the hardware sends a short report where hid_hw_raw_request() returns
-0 or 1, memcpy() copies 0 bytes, leaving the caller's reply buffer
-uninitialized.
-
-steam_recv_report() {
-    ...
-    if (ret < 2 || ret < data[1] + 2) {
-        hid_err(steam->hdev, "%s: expected %u bytes, read %i\n",
-                __func__, data[1] + 2, ret);
-        return -EPROTO;
-    }
-}
-
-When ret < 2, data[1] has not been populated. Won't this read and log an
-uninitialized byte from the stack?
-
-> +		/*
-> +		 * Sometimes this can fail on the first few tries on the Steam
-> +		 * Controller (2015). It appears to be a firmware bug, and Steam
-> +		 * itself just retries, so we should also retry a few times to
-> +		 * see if we get it.
-> +		 */
-> +		if (ret =3D=3D -EPROTO)
-
-[Severity: Medium]
-Will this retry logic cause log spam during normal operation?
-
-Because steam_recv_report() unconditionally calls hid_err() before returning
--EPROTO:
-
-steam_recv_report() {
-    ...
-    if (ret < 2 || ret < data[1] + 2) {
-        hid_err(steam->hdev, "%s: expected %u bytes, read %i\n",
-                __func__, data[1] + 2, ret);
-        return -EPROTO;
-    }
-}
-
-Won't every expected retry here flood the kernel log with error messages?
-
-> +			continue;
-> +		if (ret < 0) {
-> +			hid_err(steam->hdev, "%s: error reading reply (%*ph)\n",
-> +					__func__, csize, cmd);
-> +			return ret;
-> +		}
-> +		if (reply[0] =3D=3D cmd[0] && reply[1] >=3D 1)
-> +			break;
-> +		if (retries > 0)
-> +			continue;
-> +		hid_err(steam->hdev, "%s: invalid reply (%*ph)\n", __func__,
-> +				rsize, reply);
-> +		return -EPROTO;
-> +	} while (retries--);
+> +			hid_err(steam->hdev,
+> +				"%s:steam_get_attributes failed with error %d\n",
+> +				__func__, ret);
 > +
-> +	return ret;
-> +}
+>  		hid_info(steam->hdev, "Steam Controller '%s' connected",
+>  				steam->serial_no);
+> =20
+
+[Severity: High]
+This is a pre-existing issue, but can the error path in steam_probe() lead =
+to
+a use-after-free if steam_register() fails?
+
+In steam_register(), the device is added to the global steam_devices list:
+
+		mutex_lock(&steam_devices_lock);
+		if (list_empty(&steam->list))
+			list_add(&steam->list, &steam_devices);
+		mutex_unlock(&steam_devices_lock);
+
+If a subsequent registration step (like steam_input_register() or
+steam_sensors_register()) fails, steam_register() returns an error without
+removing the device from the list.
+
+Then, back in steam_probe(), if steam_register() fails, it jumps to
+err_hw_close, bypassing the unregister cleanup:
+
+err_steam_unregister:
+	if (steam->connected)
+		steam_unregister(steam);
+err_hw_close:
+	hid_hw_close(hdev);
+
+Because the steam device was allocated with devm_kzalloc(), devres will
+automatically free the structure upon probe failure. Does this leave a dang=
+ling
+pointer in the global steam_devices list, which could cause memory corrupti=
+on
+when the list is later iterated (e.g., when setting the lizard_mode module
+parameter)?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260707233241.2644=
-971-1-vi@endrift.com?part=3D10
+971-1-vi@endrift.com?part=3D4

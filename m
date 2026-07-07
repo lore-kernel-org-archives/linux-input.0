@@ -1,42 +1,43 @@
 Received: from endrift.com (endrift.com [173.255.198.10])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 588C337269F
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B86E136DA0D
 	for <linux-input@vger.kernel.org>; Tue,  7 Jul 2026 23:33:54 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=173.255.198.10
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783467235; cv=none; b=ZFq74JaPUJXx00bpyWthJjiThdgJYUB7xziVcFOHUpt82ZzQDjDK6oCDdGaxS0MBE0J40O9t2cvVGUiWW5B3SC+/oaL4sa3eEfMKd9kL6YjNzb+4j6sykdWiDLTQ/ExS441ocHjjgjoQPVL1yESGxnNCm3BACBgIEmfwBByS0yQ=
+	t=1783467236; cv=none; b=Aec7sDemi6rxwXGFhrfDltT2oDi7qJ8xR/Yh0EkG1WL2ua/KWj1Vpkk0Zv0bw3m336C5uBZNEK4wqeFBG+ZPYCgt/tBDLelIpGttd3inTKTaQwEupURdVMtb/OHKCuoKCmHUJs6WefdDTAyCo8AfapOVKSBP2Dvr51UkuPEuQ1Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783467235; c=relaxed/simple;
-	bh=A85AvGrRICeeU2dYUXaGLMw4YLMpdmsQKld6KxvH4wo=;
+	s=arc-20240116; t=1783467236; c=relaxed/simple;
+	bh=0Ihd8G1LhGna94oilrP9oD4Tyy7EEl+WVsIX4JyAAz0=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=QXpWgsQk6j6VcXshTHNrAWpJfhP1Zl3XETDsBRCo2qs237TL6gHH6lvgYDieDDuY2pJzyCa5N2snIlC3YY4rMESfa/32cESQKiLVfsK0DTlTnhjeBoaXurZUxZgHM0N4EajTVExW+CBohixuTrQD+dEHDtUXxJAJVcDKJcZ1Hco=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com; spf=pass smtp.mailfrom=endrift.com; dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b=ihCidnEi; arc=none smtp.client-ip=173.255.198.10
+	 MIME-Version; b=l+FdszQImA2Fd2/JFh7fQo9ijq0SZWAIWan8tgTaLrfcPmG5R9IodQWsNk3wiexpiKQra/9tygYplSI9d2WbfOFc5G2LFcFlqLOnzYmmqdNt53kL/VkH+YrJV70BT95Aqzv7l+6ybq2lI232fyjLS3WJPvv3jfODDxzZYJEzDCk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com; spf=pass smtp.mailfrom=endrift.com; dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b=0Ucsgrup; arc=none smtp.client-ip=173.255.198.10
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=endrift.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b="ihCidnEi"
+	dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b="0Ucsgrup"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=endrift.com; s=2020;
-	t=1783467233; bh=A85AvGrRICeeU2dYUXaGLMw4YLMpdmsQKld6KxvH4wo=;
+	t=1783467234; bh=0Ihd8G1LhGna94oilrP9oD4Tyy7EEl+WVsIX4JyAAz0=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=ihCidnEiDbZ1DudjvxO5myYgEpHLNsk9PJgjHHB0svHY7YS3+7p6PFPL27o4QUYD0
-	 H5AmD+d8eZB1EeIKdF2CENMpaPAhML/BQAWN+DjOxoG55xpZIi1iv27K0G6rXCP8Ae
-	 G9Z9M4SDQKlowWr1gwV/ROwsQ0bJLb6WoKETff9wTZkUnqCgiiWq9iiKEwr9FsaARS
-	 qhtl5UGPAIReKE+8P/Eu+aHbrgwwrZT7o3JFhdnnvlVdI3qtOSdCByP7MxDhlFVflI
-	 0HSqmaq99eDridaQs3xQ/2Gld3l2w9cV77ncvIZxJff/fXH/eIJyv6Mxv33/yEsktE
-	 7c/6fJeYP17Hg==
+	b=0Ucsgrup3RhsDq2UKFOEu5h2mHib5kJqu+ypiVFVZWaTWKwglyODiHZpe7u6Qbdhd
+	 NAU20lgDI8/BDbyr4niImPPxrYTRMQbbFpNsOdCdD5AF1MPJxw5I2bOhpgSc7Jq154
+	 RdY+4hstJNPkMqSR5XoMyxxj4tglhtA5bSqHUlNszDgjT8Zaj/d5/4bDOmR0H1o8Tj
+	 3JGVjKWmGDPZu+KRiprEcTkuq0IKP1+diNjeRPif19xoZG0xIlYeMkDKxWjsDeAeLy
+	 WuDeF1K4ZFBQ4s2Nv2+cScwEyRNEbpNj16447A7f27Caz2WfIonTuqJRwiGzwXNeMv
+	 GYxzKdvm/Hmpw==
 Received: from microtis.vulpes.eutheria.net (71-212-73-87.tukw.qwest.net [71.212.73.87])
-	by endrift.com (Postfix) with ESMTPSA id 97E7FA141;
+	by endrift.com (Postfix) with ESMTPSA id 084C3A0D2;
 	Tue, 07 Jul 2026 16:33:53 -0700 (PDT)
 From: Vicki Pfau <vi@endrift.com>
 To: Jiri Kosina <jikos@kernel.org>,
 	Benjamin Tissoires <bentiss@kernel.org>,
 	linux-input@vger.kernel.org
 Cc: Vicki Pfau <vi@endrift.com>,
-	Yousef Alhouseen <alhouseenyousef@gmail.com>
-Subject: [PATCH v2 08/10] HID: steam: Improve logging and other cleanup
-Date: Tue,  7 Jul 2026 16:32:28 -0700
-Message-ID: <20260707233241.2644971-9-vi@endrift.com>
+	Yousef Alhouseen <alhouseenyousef@gmail.com>,
+	syzbot+75f3f9bff8c510602d36@syzkaller.appspotmail.com
+Subject: [PATCH v2 09/10] HID: steam: Reject short reads
+Date: Tue,  7 Jul 2026 16:32:29 -0700
+Message-ID: <20260707233241.2644971-10-vi@endrift.com>
 X-Mailer: git-send-email 2.54.0
 In-Reply-To: <20260707233241.2644971-1-vi@endrift.com>
 References: <20260707233241.2644971-1-vi@endrift.com>
@@ -48,142 +49,68 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Adds more logging as appropriate, reindents an enum to match surrounding
-style, as well as cleaning up some places where we can use guard() instead
-of doing locking and unlocking manually.
+Steam Controller FEATURE reports encode the size of the message in the
+message itself. Previously we were trusting that the size reported matched
+the size we actually read, leading to a potential issue with short reads.
+Instead, we should actually verify the length of the read.
+
+Fixes: c164d6abf384 ("HID: add driver for Valve Steam Controller")
+Reported-by: syzbot+75f3f9bff8c510602d36@syzkaller.appspotmail.com
+Closes: https://syzkaller.appspot.com/bug?extid=75f3f9bff8c510602d36
 
 Signed-off-by: Vicki Pfau <vi@endrift.com>
 ---
- drivers/hid/hid-steam.c | 56 ++++++++++++++++++++++++-----------------
- 1 file changed, 33 insertions(+), 23 deletions(-)
+ drivers/hid/hid-steam.c | 23 ++++++++++++++++++++---
+ 1 file changed, 20 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/hid/hid-steam.c b/drivers/hid/hid-steam.c
-index 296ced2989a4..1f2cf15d4083 100644
+index 1f2cf15d4083..49f6733d8935 100644
 --- a/drivers/hid/hid-steam.c
 +++ b/drivers/hid/hid-steam.c
-@@ -246,14 +246,14 @@ enum {
- /* Input report identifiers */
- enum
- {
--	ID_CONTROLLER_STATE = 1,
--	ID_CONTROLLER_DEBUG = 2,
--	ID_CONTROLLER_WIRELESS = 3,
--	ID_CONTROLLER_STATUS = 4,
--	ID_CONTROLLER_DEBUG2 = 5,
--	ID_CONTROLLER_SECONDARY_STATE = 6,
--	ID_CONTROLLER_BLE_STATE = 7,
--	ID_CONTROLLER_DECK_STATE = 9
-+	ID_CONTROLLER_STATE		= 1,
-+	ID_CONTROLLER_DEBUG		= 2,
-+	ID_CONTROLLER_WIRELESS		= 3,
-+	ID_CONTROLLER_STATUS		= 4,
-+	ID_CONTROLLER_DEBUG2		= 5,
-+	ID_CONTROLLER_SECONDARY_STATE	= 6,
-+	ID_CONTROLLER_BLE_STATE		= 7,
-+	ID_CONTROLLER_DECK_STATE	= 9,
- };
+@@ -357,6 +357,13 @@ static int steam_recv_report(struct steam_device *steam,
+ 	u8 *buf;
+ 	int ret;
  
- /* Read-only attributes */
-@@ -379,9 +379,16 @@ static int steam_recv_report(struct steam_device *steam,
- 	ret = hid_hw_raw_request(steam->hdev, 0x00,
++	/*
++	 * All reports start with a two byte header.
++	 * We must read at least two bytes to get a sensible output.
++	 */
++	if (size < 2)
++		return -EINVAL;
++
+ 	r = steam->hdev->report_enum[HID_FEATURE_REPORT].report_id_hash[0];
+ 	if (!r) {
+ 		hid_err(steam->hdev, "No HID_FEATURE_REPORT submitted -  nothing to read\n");
+@@ -380,8 +387,10 @@ static int steam_recv_report(struct steam_device *steam,
  			buf, hid_report_len(r) + 1,
  			HID_FEATURE_REPORT, HID_REQ_GET_REPORT);
--	if (ret > 0)
--		memcpy(data, buf + 1, min(size, ret - 1));
-+	if (ret > 0) {
-+		ret = min(size, ret - 1);
-+		memcpy(data, buf + 1, ret);
-+	}
+ 	if (ret > 0) {
+-		ret = min(size, ret - 1);
+-		memcpy(data, buf + 1, ret);
++		/* Remove the report ID from the return buffer */
++		ret--;
++		size = min(size, ret);
++		memcpy(data, buf + 1, size);
+ 	}
  	kfree(buf);
-+
-+	if (ret < 0)
-+		hid_err(steam->hdev, "%s: error %d\n", __func__, ret);
-+	else
-+		hid_dbg(steam->hdev, "Received report %*ph\n", ret, data);
- 	return ret;
- }
  
-@@ -409,6 +416,8 @@ static int steam_send_report(struct steam_device *steam,
- 	/* The report ID is always 0 */
- 	memcpy(buf + 1, cmd, size);
- 
-+	hid_dbg(steam->hdev, "Sending report %*ph\n", size, cmd);
-+
- 	/*
- 	 * Sometimes the wireless controller fails with EPIPE
- 	 * when sending a feature report.
-@@ -481,22 +490,21 @@ static int steam_get_serial(struct steam_device *steam)
- 	u8 cmd[] = {ID_GET_STRING_ATTRIBUTE, sizeof(steam->serial_no), ATTRIB_STR_UNIT_SERIAL};
- 	u8 reply[3 + STEAM_SERIAL_LEN + 1];
- 
--	mutex_lock(&steam->report_mutex);
-+	guard(mutex)(&steam->report_mutex);
- 	ret = steam_send_report(steam, cmd, sizeof(cmd));
- 	if (ret < 0)
--		goto out;
-+		return ret;
- 	ret = steam_recv_report(steam, reply, sizeof(reply));
- 	if (ret < 0)
--		goto out;
-+		return ret;
- 	if (reply[0] != ID_GET_STRING_ATTRIBUTE || reply[1] < 1 ||
- 	    reply[1] > sizeof(steam->serial_no) || reply[2] != ATTRIB_STR_UNIT_SERIAL) {
--		ret = -EIO;
--		goto out;
-+		hid_err(steam->hdev, "%s: invalid reply (%*ph)\n", __func__,
-+				(int)sizeof(reply), reply);
-+		return -EIO;
- 	}
- 	reply[3 + STEAM_SERIAL_LEN] = 0;
- 	strscpy(steam->serial_no, reply + 3, reply[1]);
--out:
--	mutex_unlock(&steam->report_mutex);
- 	return ret;
- }
- 
-@@ -516,8 +524,11 @@ static int steam_get_attributes(struct steam_device *steam)
- 	ret = steam_recv_report(steam, reply, sizeof(reply));
- 	if (ret < 0)
- 		return ret;
--	if (reply[0] != ID_GET_ATTRIBUTES_VALUES || reply[1] < 2)
-+	if (reply[0] != ID_GET_ATTRIBUTES_VALUES || reply[1] < 2) {
-+		hid_err(steam->hdev, "%s: invalid reply (%*ph)\n", __func__,
-+				(int)sizeof(reply), reply);
- 		return -EIO;
-+	}
- 
- 	size = min(reply[1], sizeof(reply) - 2);
- 	for (i = 0; i + sizeof(*attr) <= size; i += sizeof(*attr)) {
-@@ -539,11 +550,8 @@ static int steam_get_attributes(struct steam_device *steam)
-  */
- static inline int steam_request_conn_status(struct steam_device *steam)
- {
--	int ret;
--	mutex_lock(&steam->report_mutex);
--	ret = steam_send_report_byte(steam, ID_DONGLE_GET_WIRELESS_STATE);
--	mutex_unlock(&steam->report_mutex);
+@@ -389,7 +398,15 @@ static int steam_recv_report(struct steam_device *steam,
+ 		hid_err(steam->hdev, "%s: error %d\n", __func__, ret);
+ 	else
+ 		hid_dbg(steam->hdev, "Received report %*ph\n", ret, data);
 -	return ret;
-+	guard(mutex)(&steam->report_mutex);
-+	return steam_send_report_byte(steam, ID_DONGLE_GET_WIRELESS_STATE);
++	if (ret < 0)
++		return ret;
++
++	if (ret < 2 || ret < data[1] + 2) {
++		hid_err(steam->hdev, "%s: expected %u bytes, read %i\n",
++				__func__, data[1] + 2, ret);
++		return -EPROTO;
++	}
++	return size;
  }
  
- /*
-@@ -1192,6 +1200,7 @@ static void steam_mode_switch_cb(struct work_struct *work)
- 		return;
- 
- 	steam->gamepad_mode = !steam->gamepad_mode;
-+	hid_dbg(steam->hdev, "%s: switching gamepad mode to %i\n", __func__, steam->gamepad_mode);
- 	if (steam->gamepad_mode)
- 		steam_set_lizard_mode(steam, false);
- 	else {
-@@ -1840,6 +1849,7 @@ static void steam_do_deck_input_event(struct steam_device *steam,
- 		steam->did_mode_switch = false;
- 		cancel_delayed_work(&steam->mode_switch);
- 	} else if (!steam->client_opened && start_pressed && !steam->did_mode_switch) {
-+		hid_dbg(steam->hdev, "%s: doing mode switch\n", __func__);
- 		steam->did_mode_switch = true;
- 		schedule_delayed_work(&steam->mode_switch, 45 * HZ / 100);
- 	}
+ static int steam_send_report(struct steam_device *steam,
 -- 
 2.54.0
 

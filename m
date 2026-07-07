@@ -1,42 +1,42 @@
 Received: from endrift.com (endrift.com [173.255.198.10])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B5EEA3093DF
-	for <linux-input@vger.kernel.org>; Tue,  7 Jul 2026 23:33:52 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 777AC36F912
+	for <linux-input@vger.kernel.org>; Tue,  7 Jul 2026 23:33:53 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=173.255.198.10
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783467234; cv=none; b=jFcKGQO/ZuuKQQL3zEI3eItl8nYR/ZT4OjcHEFdrRfb9SEtgyHKX0LgxvJeiOkNnOSlzCy9Pmj09e31KOuwICFtPdTYbWolxrijKLhIBGwBgHul6BtbUSwm4KYepC30hNwOa3Blnl8a0P2AMLeuEctJgzO5KMKuBR8nX/JGg4V4=
+	t=1783467235; cv=none; b=TaF9dxhuhdyPZBCb/vU/1alPRZ3HIFVgLklOLvyDmlzGZd3wyvbYl3DhXQ3uWg8VLwxtulPAAM/0K8Zh0Qby7aBlRvOXvO5T6ICRtljrkD+pKEETBfowX6uyOS/xcxSE6YHxGwBmO4HKcQZUHhVXBenWsNClQ9UGBo70YoJ4G2Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783467234; c=relaxed/simple;
-	bh=B9vYWtcZc9lHl8pYb09qUXwJB5QZhSjEO7H3TFSlNnQ=;
+	s=arc-20240116; t=1783467235; c=relaxed/simple;
+	bh=Zj24FLtKgD0kFbR3Zi0nvuD1dGagIdJnjGNamuAyFxc=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=YIs9A5UCT3F9sf/httWT318hl1jZgohbt9suLFs/dXZIFUOVGy1SBV2e7nMJUJAIhtmJFBoY+F0NaDRb9GNQtaMry3V10qMbB/+/Za/HeLGXTJvO9SmOhUYm1+IaGhpJssKr0Na4lOE1L1NCt3Tc+zo4s3vskl4TGonQVYw1TIo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com; spf=pass smtp.mailfrom=endrift.com; dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b=ayMuMlmx; arc=none smtp.client-ip=173.255.198.10
+	 MIME-Version; b=ZFtMB6erQh9DAcIU2xOqF3ixocQeCitd8Ey5nbnfhSvUNipTyMx10fmYDm1Q6NesGd9xUp/XOBD11iTuYfiVYLSj3W0LcwEj+WhkdcUxc7nko39TL3MME3ZL6GGAog0ZAjtKvVnLWEhg9e1lKk7417Z46H9lbw/Bvrm0Re8E1AY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com; spf=pass smtp.mailfrom=endrift.com; dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b=wg/2HoF6; arc=none smtp.client-ip=173.255.198.10
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=endrift.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b="ayMuMlmx"
+	dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b="wg/2HoF6"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=endrift.com; s=2020;
-	t=1783467232; bh=B9vYWtcZc9lHl8pYb09qUXwJB5QZhSjEO7H3TFSlNnQ=;
+	t=1783467232; bh=Zj24FLtKgD0kFbR3Zi0nvuD1dGagIdJnjGNamuAyFxc=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=ayMuMlmxxb+B8BLp09tcdeFN0BHmdL8M04af78/kjSbtcUEf5kBEnjHwGkSfqBH0W
-	 hOl2MMkwkTnDgE6w2WuAFnah2IYT7GUlfs3XCBWBJPvCxXnHk99vw+6eliyc4+aHhd
-	 llyFEFSJZq29TGOVA8KFWiifhy0p1WQgqN2Lja+d9YKL2+bAFPt33eE23jE8G0Mogq
-	 3egSWVEAohTfsAdjTCbiuGhuQwkX1NwQaqWEu+Qe7cD0InElEygZ6BCCKiErd5vemi
-	 z9tSTRpurWkNVqVeKxOMjzmL65T2zCpgdixwnMiMEL1i28oXwHkxoYLjAJ/LYYMZhf
-	 D7xsLNoknLZpA==
+	b=wg/2HoF6Mas7yYy7z0tiRikxNRYweFT6JDqD7MFKZaGe4RcmImSVF84z/NElG2PtE
+	 Lk/YPPQrjkgjPjaY+eLYGo2W+Q2LfzKzSC2S/xcSMKqhfo8zVH0RrbxU0nn5VV7Y6u
+	 DesVc3UwjLTM3sUeQySSXuZSfCSIGnTrbcU8C3u3xIycZ4bmpJg9m1spYL4Uoy7cEk
+	 joJP/FEe2OiXkVRc7A/9SYFDpkQ5SqIWI4x104LU/6xzEcf8IJ7tEzw7W4S66u/twP
+	 DyfwTEpCtFR1bffvef6nsbfdqCKos+L3fX/k2UUoHnnbSp0B/9W2QxEWMThLqel71F
+	 12sL8W8s7Ql0w==
 Received: from microtis.vulpes.eutheria.net (71-212-73-87.tukw.qwest.net [71.212.73.87])
-	by endrift.com (Postfix) with ESMTPSA id 01A65A0D3;
-	Tue, 07 Jul 2026 16:33:51 -0700 (PDT)
+	by endrift.com (Postfix) with ESMTPSA id 64D81A0D4;
+	Tue, 07 Jul 2026 16:33:52 -0700 (PDT)
 From: Vicki Pfau <vi@endrift.com>
 To: Jiri Kosina <jikos@kernel.org>,
 	Benjamin Tissoires <bentiss@kernel.org>,
 	linux-input@vger.kernel.org
 Cc: Vicki Pfau <vi@endrift.com>,
 	Yousef Alhouseen <alhouseenyousef@gmail.com>
-Subject: [PATCH v2 04/10] HID: steam: Add support for sensor events on the Steam Controller (2015)
-Date: Tue,  7 Jul 2026 16:32:24 -0700
-Message-ID: <20260707233241.2644971-5-vi@endrift.com>
+Subject: [PATCH v2 05/10] HID: steam: Coalesce rumble packets
+Date: Tue,  7 Jul 2026 16:32:25 -0700
+Message-ID: <20260707233241.2644971-6-vi@endrift.com>
 X-Mailer: git-send-email 2.54.0
 In-Reply-To: <20260707233241.2644971-1-vi@endrift.com>
 References: <20260707233241.2644971-1-vi@endrift.com>
@@ -48,349 +48,92 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Sensor support was added for the Steam Deck previously, but Steam
-Controller sensor events were never added. This adds that missing support,
-bringing Steam Controller support much closer to feature parity with things
-like SDL and Steam itself.
+The Steam Deck resets the haptic pattern every time it receives a rumble
+packet, leading to weird discontinuities or sometimes cutting out entirely.
+Instead of overloading the interface, Steam interally rate-limits sending
+these packets, so we should too.
 
 Signed-off-by: Vicki Pfau <vi@endrift.com>
 ---
- drivers/hid/hid-steam.c | 214 ++++++++++++++++++++++++++++++++--------
- 1 file changed, 175 insertions(+), 39 deletions(-)
+ drivers/hid/hid-steam.c | 26 ++++++++++++++++++++++++++
+ 1 file changed, 26 insertions(+)
 
 diff --git a/drivers/hid/hid-steam.c b/drivers/hid/hid-steam.c
-index add9f4f27fff..6029c055a6cf 100644
+index 6029c055a6cf..553748813901 100644
 --- a/drivers/hid/hid-steam.c
 +++ b/drivers/hid/hid-steam.c
-@@ -70,13 +70,14 @@ static LIST_HEAD(steam_devices);
- /* Joystick runs are about 5 mm and 32768 units */
- #define STEAM_DECK_JOYSTICK_RESOLUTION 6553
- /* Accelerometer has 16 bit resolution and a range of +/- 2g */
--#define STEAM_DECK_ACCEL_RES_PER_G 16384
--#define STEAM_DECK_ACCEL_RANGE 32768
-+#define STEAM_ACCEL_RES_PER_G 16384
-+#define STEAM_ACCEL_RANGE 32768
-+#define STEAM_ACCEL_FUZZ 128
- #define STEAM_DECK_ACCEL_FUZZ 32
- /* Gyroscope has 16 bit resolution and a range of +/- 2000 dps */
--#define STEAM_DECK_GYRO_RES_PER_DPS 16
--#define STEAM_DECK_GYRO_RANGE 32768
--#define STEAM_DECK_GYRO_FUZZ 1
-+#define STEAM_GYRO_RES_PER_DPS 16
-+#define STEAM_GYRO_RANGE 32768
-+#define STEAM_GYRO_FUZZ 0
- 
- #define STEAM_PAD_FUZZ 256
- 
-@@ -255,6 +256,31 @@ enum
- 	ID_CONTROLLER_DECK_STATE = 9
- };
- 
-+/* Read-only attributes */
-+enum {
-+	ATTRIB_UNIQUE_ID, // deprecated
-+	ATTRIB_PRODUCT_ID,
-+	ATTRIB_PRODUCT_REVISON, // deprecated
-+	ATTRIB_CAPABILITIES = ATTRIB_PRODUCT_REVISON, // intentional aliasing
-+	ATTRIB_FIRMWARE_VERSION, // deprecated
-+	ATTRIB_FIRMWARE_BUILD_TIME,
-+	ATTRIB_RADIO_FIRMWARE_BUILD_TIME,
-+	ATTRIB_RADIO_DEVICE_ID0,
-+	ATTRIB_RADIO_DEVICE_ID1,
-+	ATTRIB_DONGLE_FIRMWARE_BUILD_TIME,
-+	ATTRIB_HW_ID, // AKA BOARD_REVISION,
-+	ATTRIB_BOOTLOADER_BUILD_TIME,
-+	ATTRIB_CONNECTION_INTERVAL_IN_US,
-+	ATTRIB_SECONDARY_FIRMWARE_BUILD_TIME,
-+	ATTRIB_SECONDARY_BOOTLOADER_BUILD_TIME,
-+	ATTRIB_SECONDARY_HW_ID, // AKA BOARD_REVISION,
-+	ATTRIB_STREAMING,
-+	ATTRIB_TRACKPAD_ID,
-+	ATTRIB_SECONDARY_TRACKPAD_ID,
-+
-+	ATTRIB_COUNT
-+};
-+
- /* String attribute identifiers */
- enum {
- 	ATTRIB_STR_BOARD_SERIAL,
-@@ -284,6 +310,11 @@ enum {
- 	TRACKPAD_GESTURE_KEYBOARD,
- };
- 
-+struct steam_controller_attribute {
-+	unsigned char tag;
-+	__le32 value;
-+} __packed;
-+
- /* Pad identifiers for the deck */
- #define STEAM_PAD_LEFT 0
- #define STEAM_PAD_RIGHT 1
-@@ -315,6 +346,7 @@ struct steam_device {
+@@ -343,6 +343,7 @@ struct steam_device {
+ 	bool did_mode_switch;
+ 	bool gamepad_mode;
+ 	struct work_struct rumble_work;
++	struct delayed_work coalesce_rumble_work;
  	u16 rumble_left;
  	u16 rumble_right;
  	unsigned int sensor_timestamp_us;
-+	unsigned int sensor_update_rate_us;
- 	struct work_struct unregister_work;
- };
- 
-@@ -468,6 +500,38 @@ static int steam_get_serial(struct steam_device *steam)
- 	return ret;
+@@ -603,10 +604,24 @@ static void steam_haptic_rumble_cb(struct work_struct *work)
+ {
+ 	struct steam_device *steam = container_of(work, struct steam_device,
+ 							rumble_work);
++
+ 	steam_haptic_rumble(steam, 0, steam->rumble_left,
+ 		steam->rumble_right, 2, 0);
  }
  
-+static int steam_get_attributes(struct steam_device *steam)
++static void steam_coalesce_rumble_cb(struct work_struct *work)
 +{
-+	int ret = 0;
-+	u8 cmd[] = {ID_GET_ATTRIBUTES_VALUES, 0};
-+	u8 reply[64] = {};
-+	u8 size;
-+	int i;
-+	struct steam_controller_attribute *attr;
++	struct steam_device *steam = container_of(to_delayed_work(work),
++							struct steam_device,
++							coalesce_rumble_work);
 +
-+	guard(mutex)(&steam->report_mutex);
-+	ret = steam_send_report(steam, cmd, sizeof(cmd));
-+	if (ret < 0)
-+		return ret;
-+	ret = steam_recv_report(steam, reply, sizeof(reply));
-+	if (ret < 0)
-+		return ret;
-+	if (reply[0] != ID_GET_ATTRIBUTES_VALUES || reply[1] < 2)
-+		return -EIO;
++	steam_haptic_rumble(steam, 0, steam->rumble_left,
++		steam->rumble_right, 2, 0);
 +
-+	size = min(reply[1], sizeof(reply) - 2);
-+	for (i = 0; i + sizeof(*attr) <= size; i += sizeof(*attr)) {
-+		attr = (struct steam_controller_attribute *)&reply[i + 2];
-+		if (attr->tag == ATTRIB_CONNECTION_INTERVAL_IN_US) {
-+			steam->sensor_update_rate_us = get_unaligned_le32(&attr->value);
-+			hid_dbg(steam->hdev, "Sensor update rate: %uus\n",
-+				steam->sensor_update_rate_us);
-+		}
-+	}
-+
-+	return 0;
++	if (steam->rumble_left || steam->rumble_right)
++		schedule_delayed_work(&steam->coalesce_rumble_work, HZ / 20);
 +}
 +
- /*
-  * This command requests the wireless adaptor to post an event
-  * with the connection status. Useful if this driver is loaded when
-@@ -626,6 +690,42 @@ static void steam_input_close(struct input_dev *dev)
- 	}
- }
+ #ifdef CONFIG_STEAM_FF
+ static int steam_play_effect(struct input_dev *dev, void *data,
+ 				struct ff_effect *effect)
+@@ -616,6 +631,14 @@ static int steam_play_effect(struct input_dev *dev, void *data,
+ 	steam->rumble_left = effect->u.rumble.strong_magnitude;
+ 	steam->rumble_right = effect->u.rumble.weak_magnitude;
  
-+static int steam_sensor_open(struct input_dev *dev)
-+{
-+	struct steam_device *steam = input_get_drvdata(dev);
-+	unsigned long flags;
-+	bool client_opened;
-+
-+	spin_lock_irqsave(&steam->lock, flags);
-+	client_opened = steam->client_opened;
-+	spin_unlock_irqrestore(&steam->lock, flags);
-+	if (client_opened)
++	/*
++	 * The interface gets somewhat overloaded when too many rumble
++	 * packets are sent in a row, so Steam throttles it to 20 Hz
++	 */
++	if (delayed_work_pending(&steam->coalesce_rumble_work))
 +		return 0;
 +
-+	guard(mutex)(&steam->report_mutex);
-+	steam_write_settings(steam, SETTING_IMU_MODE,
-+			SETTING_IMU_MODE_SEND_RAW_ACCEL | SETTING_IMU_MODE_SEND_RAW_GYRO,
-+			0);
-+
-+	return 0;
-+}
-+
-+static void steam_sensor_close(struct input_dev *dev)
-+{
-+	struct steam_device *steam = input_get_drvdata(dev);
-+	unsigned long flags;
-+	bool client_opened;
-+
-+	spin_lock_irqsave(&steam->lock, flags);
-+	client_opened = steam->client_opened;
-+	spin_unlock_irqrestore(&steam->lock, flags);
-+	if (client_opened)
-+		return;
-+
-+	guard(mutex)(&steam->report_mutex);
-+	steam_write_settings(steam, SETTING_IMU_MODE, 0, 0);
-+}
-+
- static enum power_supply_property steam_battery_props[] = {
- 	POWER_SUPPLY_PROP_PRESENT,
- 	POWER_SUPPLY_PROP_SCOPE,
-@@ -839,9 +939,6 @@ static int steam_sensors_register(struct steam_device *steam)
- 	struct input_dev *sensors;
- 	int ret;
- 
--	if (!(steam->quirks & STEAM_QUIRK_DECK))
--		return 0;
--
- 	rcu_read_lock();
- 	sensors = rcu_dereference(steam->sensors);
- 	rcu_read_unlock();
-@@ -856,8 +953,14 @@ static int steam_sensors_register(struct steam_device *steam)
- 
- 	input_set_drvdata(sensors, steam);
- 	sensors->dev.parent = &hdev->dev;
-+	if (!(steam->quirks & STEAM_QUIRK_DECK)) {
-+		sensors->open = steam_sensor_open;
-+		sensors->close = steam_sensor_close;
-+	}
- 
--	sensors->name = "Steam Deck Motion Sensors";
-+	sensors->name = steam->quirks & STEAM_QUIRK_DECK ?
-+		"Steam Deck Motion Sensors" :
-+		"Steam Controller Motion Sensors";
- 	sensors->phys = hdev->phys;
- 	sensors->uniq = steam->serial_no;
- 	sensors->id.bustype = hdev->bus;
-@@ -869,25 +972,34 @@ static int steam_sensors_register(struct steam_device *steam)
- 	__set_bit(EV_MSC, sensors->evbit);
- 	__set_bit(MSC_TIMESTAMP, sensors->mscbit);
- 
--	input_set_abs_params(sensors, ABS_X, -STEAM_DECK_ACCEL_RANGE,
--			STEAM_DECK_ACCEL_RANGE, STEAM_DECK_ACCEL_FUZZ, 0);
--	input_set_abs_params(sensors, ABS_Y, -STEAM_DECK_ACCEL_RANGE,
--			STEAM_DECK_ACCEL_RANGE, STEAM_DECK_ACCEL_FUZZ, 0);
--	input_set_abs_params(sensors, ABS_Z, -STEAM_DECK_ACCEL_RANGE,
--			STEAM_DECK_ACCEL_RANGE, STEAM_DECK_ACCEL_FUZZ, 0);
--	input_abs_set_res(sensors, ABS_X, STEAM_DECK_ACCEL_RES_PER_G);
--	input_abs_set_res(sensors, ABS_Y, STEAM_DECK_ACCEL_RES_PER_G);
--	input_abs_set_res(sensors, ABS_Z, STEAM_DECK_ACCEL_RES_PER_G);
--
--	input_set_abs_params(sensors, ABS_RX, -STEAM_DECK_GYRO_RANGE,
--			STEAM_DECK_GYRO_RANGE, STEAM_DECK_GYRO_FUZZ, 0);
--	input_set_abs_params(sensors, ABS_RY, -STEAM_DECK_GYRO_RANGE,
--			STEAM_DECK_GYRO_RANGE, STEAM_DECK_GYRO_FUZZ, 0);
--	input_set_abs_params(sensors, ABS_RZ, -STEAM_DECK_GYRO_RANGE,
--			STEAM_DECK_GYRO_RANGE, STEAM_DECK_GYRO_FUZZ, 0);
--	input_abs_set_res(sensors, ABS_RX, STEAM_DECK_GYRO_RES_PER_DPS);
--	input_abs_set_res(sensors, ABS_RY, STEAM_DECK_GYRO_RES_PER_DPS);
--	input_abs_set_res(sensors, ABS_RZ, STEAM_DECK_GYRO_RES_PER_DPS);
-+	if (steam->quirks & STEAM_QUIRK_DECK) {
-+		input_set_abs_params(sensors, ABS_X, -STEAM_ACCEL_RANGE,
-+				STEAM_ACCEL_RANGE, STEAM_DECK_ACCEL_FUZZ, 0);
-+		input_set_abs_params(sensors, ABS_Y, -STEAM_ACCEL_RANGE,
-+				STEAM_ACCEL_RANGE, STEAM_DECK_ACCEL_FUZZ, 0);
-+		input_set_abs_params(sensors, ABS_Z, -STEAM_ACCEL_RANGE,
-+				STEAM_ACCEL_RANGE, STEAM_DECK_ACCEL_FUZZ, 0);
-+	} else {
-+		input_set_abs_params(sensors, ABS_X, -STEAM_ACCEL_RANGE,
-+				STEAM_ACCEL_RANGE, STEAM_ACCEL_FUZZ, 0);
-+		input_set_abs_params(sensors, ABS_Y, -STEAM_ACCEL_RANGE,
-+				STEAM_ACCEL_RANGE, STEAM_ACCEL_FUZZ, 0);
-+		input_set_abs_params(sensors, ABS_Z, -STEAM_ACCEL_RANGE,
-+				STEAM_ACCEL_RANGE, STEAM_ACCEL_FUZZ, 0);
-+	}
-+	input_abs_set_res(sensors, ABS_X, STEAM_ACCEL_RES_PER_G);
-+	input_abs_set_res(sensors, ABS_Y, STEAM_ACCEL_RES_PER_G);
-+	input_abs_set_res(sensors, ABS_Z, STEAM_ACCEL_RES_PER_G);
-+
-+	input_set_abs_params(sensors, ABS_RX, -STEAM_GYRO_RANGE,
-+			STEAM_GYRO_RANGE, STEAM_GYRO_FUZZ, 0);
-+	input_set_abs_params(sensors, ABS_RY, -STEAM_GYRO_RANGE,
-+			STEAM_GYRO_RANGE, STEAM_GYRO_FUZZ, 0);
-+	input_set_abs_params(sensors, ABS_RZ, -STEAM_GYRO_RANGE,
-+			STEAM_GYRO_RANGE, STEAM_GYRO_FUZZ, 0);
-+	input_abs_set_res(sensors, ABS_RX, STEAM_GYRO_RES_PER_DPS);
-+	input_abs_set_res(sensors, ABS_RY, STEAM_GYRO_RES_PER_DPS);
-+	input_abs_set_res(sensors, ABS_RZ, STEAM_GYRO_RES_PER_DPS);
- 
- 	ret = input_register_device(sensors);
- 	if (ret)
-@@ -918,9 +1030,6 @@ static void steam_sensors_unregister(struct steam_device *steam)
- {
- 	struct input_dev *sensors;
- 
--	if (!(steam->quirks & STEAM_QUIRK_DECK))
--		return;
--
- 	rcu_read_lock();
- 	sensors = rcu_dereference(steam->sensors);
- 	rcu_read_unlock();
-@@ -968,6 +1077,12 @@ static int steam_register(struct steam_device *steam)
- 			strscpy(steam->serial_no, "XXXXXXXXXX",
- 					sizeof(steam->serial_no));
- 
-+		ret = steam_get_attributes(steam);
-+		if (ret < 0)
-+			hid_err(steam->hdev,
-+				"%s:steam_get_attributes failed with error %d\n",
-+				__func__, ret);
-+
- 		hid_info(steam->hdev, "Steam Controller '%s' connected",
- 				steam->serial_no);
- 
-@@ -1246,6 +1361,10 @@ static int steam_probe(struct hid_device *hdev,
++	schedule_delayed_work(&steam->coalesce_rumble_work, HZ / 20);
+ 	return schedule_work(&steam->rumble_work);
+ }
+ #endif
+@@ -1360,6 +1383,7 @@ static int steam_probe(struct hid_device *hdev,
+ 	INIT_DELAYED_WORK(&steam->mode_switch, steam_mode_switch_cb);
  	INIT_LIST_HEAD(&steam->list);
  	INIT_WORK(&steam->rumble_work, steam_haptic_rumble_cb);
++	INIT_DELAYED_WORK(&steam->coalesce_rumble_work, steam_coalesce_rumble_cb);
  	steam->sensor_timestamp_us = 0;
-+	if (steam->quirks & STEAM_QUIRK_DECK)
-+		steam->sensor_update_rate_us = 4000;
-+	else
-+		steam->sensor_update_rate_us = 9000;
- 	INIT_WORK(&steam->unregister_work, steam_work_unregister_cb);
+ 	if (steam->quirks & STEAM_QUIRK_DECK)
+ 		steam->sensor_update_rate_us = 4000;
+@@ -1426,6 +1450,7 @@ static int steam_probe(struct hid_device *hdev,
+ 	cancel_work_sync(&steam->work_connect);
+ 	cancel_delayed_work_sync(&steam->mode_switch);
+ 	cancel_work_sync(&steam->rumble_work);
++	cancel_delayed_work_sync(&steam->coalesce_rumble_work);
+ 	cancel_work_sync(&steam->unregister_work);
  
- 	/*
-@@ -1491,6 +1610,16 @@ static const struct steam_axis_mapping steam_controller_axis_mappings[] = {
- 	{ /* sentinel */ },
- };
- 
-+static const struct steam_axis_mapping steam_controller_imu_mappings[] = {
-+	{ ABS_X,   1, 28 },
-+	{ ABS_Z,  -1, 30 },
-+	{ ABS_Y,   1, 32 },
-+	{ ABS_RX,  1, 34 },
-+	{ ABS_RZ,  1, 36 },
-+	{ ABS_RY,  1, 38 },
-+	{ /* sentinel */ },
-+};
-+
- static void steam_do_input_event(struct steam_device *steam,
- 		struct input_dev *input, u8 *data)
- {
-@@ -1533,6 +1662,17 @@ static void steam_do_input_event(struct steam_device *steam,
- 	input_sync(input);
- }
- 
-+static void steam_do_sensors_event(struct steam_device *steam,
-+		struct input_dev *sensors, u8 *data)
-+{
-+	steam->sensor_timestamp_us += steam->sensor_update_rate_us;
-+
-+	input_event(sensors, EV_MSC, MSC_TIMESTAMP, steam->sensor_timestamp_us);
-+	steam_map_axes(sensors, steam_controller_imu_mappings, data);
-+
-+	input_sync(sensors);
-+}
-+
- /*
-  * The size for this message payload is 56.
-  * The known values are:
-@@ -1727,14 +1867,7 @@ static void steam_do_deck_input_event(struct steam_device *steam,
- static void steam_do_deck_sensors_event(struct steam_device *steam,
- 		struct input_dev *sensors, u8 *data)
- {
--	/*
--	 * The deck input report is received every 4 ms on average,
--	 * with a jitter of +/- 4 ms even though the USB descriptor claims
--	 * that it uses 1 kHz.
--	 * Since the HID report does not include a sensor timestamp,
--	 * use a fixed increment here.
--	 */
--	steam->sensor_timestamp_us += 4000;
-+	steam->sensor_timestamp_us += steam->sensor_update_rate_us;
- 
- 	if (!steam->gamepad_mode && lizard_mode)
- 		return;
-@@ -1819,6 +1952,9 @@ static int steam_raw_event(struct hid_device *hdev,
- 		input = rcu_dereference(steam->input);
- 		if (likely(input))
- 			steam_do_input_event(steam, input, data);
-+		sensors = rcu_dereference(steam->sensors);
-+		if (likely(sensors))
-+			steam_do_sensors_event(steam, sensors, data);
- 		rcu_read_unlock();
- 		break;
- 	case ID_CONTROLLER_DECK_STATE:
+ 	return ret;
+@@ -1444,6 +1469,7 @@ static void steam_remove(struct hid_device *hdev)
+ 	cancel_delayed_work_sync(&steam->mode_switch);
+ 	cancel_work_sync(&steam->work_connect);
+ 	cancel_work_sync(&steam->rumble_work);
++	cancel_delayed_work_sync(&steam->coalesce_rumble_work);
+ 	cancel_work_sync(&steam->unregister_work);
+ 	steam->client_hdev = NULL;
+ 	steam->client_opened = 0;
 -- 
 2.54.0
 

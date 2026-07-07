@@ -1,116 +1,151 @@
-Received: from mail-vs1-f48.google.com (mail-vs1-f48.google.com [209.85.217.48])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from endrift.com (endrift.com [173.255.198.10])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C2FBC372662
-	for <linux-input@vger.kernel.org>; Tue,  7 Jul 2026 02:32:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.217.48
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 18DC92F8E95
+	for <linux-input@vger.kernel.org>; Tue,  7 Jul 2026 02:48:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=173.255.198.10
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783391570; cv=none; b=tfte2v3/TzmcO71lkQOx+ZgamxTsy5RGoNifoBEX/PuVLnwjP1LmJanS9XacVD3PqEpMYGrXw3WVhFT1zdErzWtda8YflVtq/uZb9+vr/Y4z/6nJr4xFI7vMay4UxHKBzywGzkakNm/nrdllpLlxG68hqXztMdxNXTK3zsBTxPc=
+	t=1783392518; cv=none; b=krD2RO85iMYl4EBAhKBxaIdUCHNta/OmFJy9V44tUx9YsiNYwAG3hRLYlWnraj0vViZTO/wHBrTApKDvvSswpLe5tcw2b84zcGL3hyS+LaUfoDwjIGnEXuHIQV27y62QfyOIiH6PYkpyF5kBHIOgxz5tx8h8SU8yCQzTDTgTknk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783391570; c=relaxed/simple;
-	bh=oTxuq1uYybzzZuUbaw4M4gHWkxvV26chWpzR5irnVsI=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=lhGnD1WGtfHfXMLOShXBGo3qaaFQH97XdLjFZmG3Rk+QnQxzUsCd4/s+wCZ2b+7H/Z3VgL0bd24xrf+bD4nnK/OaC8n8lf5Oy/V4pdKeaGSnT+vGohU5ducOOzjjhqebhyupAm0NI65YgVfozWlleWsRlCWFcCJNiUNfoGF8kBQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=oe9aJEAt; arc=none smtp.client-ip=209.85.217.48
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
+	s=arc-20240116; t=1783392518; c=relaxed/simple;
+	bh=NQzHE3fUJ6IHoob+p1h8G0amJc0TiSba5Hwg8F42GsI=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=i0KuGLdpRa0GXTkEzGDsvKZ3C23a96TNZNPaDwAZuFuRnyNb74iTjg1i5uprlWgVLtwIB6Er4JuBOfD5ArYpMcz7JySVu86CVLaX3AibDG5yWLrFR0W1Wzp/EZPbH4QrgCV4z823QCj6gcM8UKy9yLm41Xjbyb3d5A1B1rSePok=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com; spf=pass smtp.mailfrom=endrift.com; dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b=eHMqrx4k; arc=none smtp.client-ip=173.255.198.10
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=endrift.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="oe9aJEAt"
-Received: by mail-vs1-f48.google.com with SMTP id ada2fe7eead31-73f6a641f6eso813298137.1
-        for <linux-input@vger.kernel.org>; Mon, 06 Jul 2026 19:32:48 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1783391567; x=1783996367; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=3dXcACB8KGLqG8puEGgdsyUK8P+IbVAgeAicazzLLPY=;
-        b=oe9aJEAtXuAkTXnakQ/glgVtwLuoG1fWAHPwFzJinvAe0o+s4nUs/kOnbBfnTmRjQB
-         BDcEIjM3Px6hqcRnbkSNMj0wWCJyX9lY5g7it+9gjoet9eR1Nm/QHFOHNGmWDikQDp5q
-         UIyuHqr8o4AJHe60YYNJ3Hvj8rQFK1HsrfC9c=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1783391567; x=1783996367;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=3dXcACB8KGLqG8puEGgdsyUK8P+IbVAgeAicazzLLPY=;
-        b=N4O2Yq60f1jhoAja8/PPIol5zfLn6kjQiK+KbmuyoTm4S2qpF+p3HwHRMe+jlvUrkE
-         hLwhdcj135X7gh6VvbfxKJzb2V0KLKmuZmgI7Pwh72y3Es+cDWlIImmBJFTryD5oyr9H
-         wetDvRDy5/lTv1o5HZzcTa2mvK7T6zShe18yaZ7aZRCBNpqH0iLc7CcViTscEkBOEtMd
-         QieirtH9kJa53UGKgpjKT0Wd+WyGt3LUwJwSVavbDoWhvbtuKKK/6MCVuNFfY+hOh+uu
-         +SUhNdFEeZh4vWvcKw6qRsUEQFxZTVjx9vWughiOh9MgSsWTsTIkQhHAYVjIwQBpXLEb
-         iq5g==
-X-Forwarded-Encrypted: i=1; AHgh+Rqk3fx1hhTBTohj1x6/1vPowkNWw6R/Qc9gxeBYNQomzVHAj37Ady1HZnYq20DqmP+6TpMM1RX7/a/RHQ==@vger.kernel.org
-X-Gm-Message-State: AOJu0Ywr/nABefhA0Jah6O4XMuIwjE9ACLct8CluNcEGTdvgen4j4Kpi
-	Au0/kI9o2BA31uSu/Xa+7UwzJJ1+dBphRxtKPo6uranR0ZMCQsnX5MUGc2PLKUodjPEdU60mLB6
-	+r0g=
-X-Gm-Gg: AfdE7cmxagQH9h6x0NLUR144m440LElaadg0/shNPgjq7rfxtl1tvF6pSBz8uNEDUt0
-	i+1MvuoLVN79pq6GLjhAyvkHcUoQ6phqARGy+y7zCyItgaO2s3NDNxT/dRtH7q3EBta2XEdiPAi
-	UhFmKWza30YHJIyvSTFbZO+8s5yNkWm5Rm/ZOsZLZdtmN/5hq7BOQBWUyQ2F8CMKoBDLkcQ+iyr
-	fraw0nzr71evDakLPQ7ZGie562mCYg7peM0caZDuq9bDGwIQdcZzC3MjLkqmuKc3Kkoxw29jx0l
-	U61wKDvsaGFw0O//rSDX6krLU44VcZpjV1ohN8KOpfHDRC1c7kUOIVNCFQcRpmvm7D51/79WfBb
-	76nhOFPlQgfeh45rA9ywrZmA4r7cAdRIM9aY6ipJz6D/bCZbUBm3lp76UvI8S2ZSg+mme8oNUn4
-	9SeT5++c7QGKwkUeS/LpW3ieITZUYQXlZZ9aZA/pk2Yzmhx/1QfHw=
-X-Received: by 2002:a05:6102:390c:b0:634:92df:4dc3 with SMTP id ada2fe7eead31-744b7bb68ffmr1726270137.16.1783391566837;
-        Mon, 06 Jul 2026 19:32:46 -0700 (PDT)
-Received: from mail-vs1-f44.google.com (mail-vs1-f44.google.com. [209.85.217.44])
-        by smtp.gmail.com with ESMTPSA id ada2fe7eead31-7401e006f2asm4159346137.11.2026.07.06.19.32.45
-        for <linux-input@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 06 Jul 2026 19:32:45 -0700 (PDT)
-Received: by mail-vs1-f44.google.com with SMTP id ada2fe7eead31-728f9ecd56aso857481137.3
-        for <linux-input@vger.kernel.org>; Mon, 06 Jul 2026 19:32:45 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AHgh+Rr6iIkqr3UFRtH3PvCoPEkC0UTV9FX0j3s8zKKycN30XZhKpWEAqiJBKkISjw7BCIRjwsA3jL/H/1Rt+Q==@vger.kernel.org
-X-Received: by 2002:a05:6102:3e0b:b0:73e:8694:c6de with SMTP id
- ada2fe7eead31-744b7c5e3fbmr1832689137.23.1783391564990; Mon, 06 Jul 2026
- 19:32:44 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b="eHMqrx4k"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=endrift.com; s=2020;
+	t=1783392510; bh=NQzHE3fUJ6IHoob+p1h8G0amJc0TiSba5Hwg8F42GsI=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=eHMqrx4kS47tzLey1RTaGJkHZryAj7pzKcRVYZCuTO0P/UYZsPCP5O/DzQAAHRaLW
+	 QGvaunQlkFgIAF/SPRjS1irUCh3DyEPNshYtrKiCvAHikxzFugpWW+JDOBS2+0UG7Q
+	 zi0Y+OxZ7ouMKLbjgiGuovol3DiJ+oeYXhr5ru5NAtzISyU+SE/VCVy42QNu+EafvF
+	 NNEkNRAsv5zbjsuXqpbcNGx+Ot5zarN1VtpaHX7Y2fNwW1aBOWscJ9EjINFWdt0N/O
+	 lyBpIIoieMfzArz8DLB7ZBNDxHvQwp/IKUPEYRZvtFQA3f5PPLLZPNknS3gca8vasm
+	 pcbpAzkL5mTqQ==
+Received: from [192.168.0.27] (71-212-73-87.tukw.qwest.net [71.212.73.87])
+	by endrift.com (Postfix) with ESMTPSA id 709BAA062;
+	Mon, 06 Jul 2026 19:48:30 -0700 (PDT)
+Message-ID: <6f9d2330-8d60-4725-83dc-f72f52a974a1@endrift.com>
+Date: Mon, 6 Jul 2026 19:48:28 -0700
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260707015423.3944655-1-aichao@kylinos.cn>
-In-Reply-To: <20260707015423.3944655-1-aichao@kylinos.cn>
-From: Doug Anderson <dianders@chromium.org>
-Date: Mon, 6 Jul 2026 19:32:33 -0700
-X-Gmail-Original-Message-ID: <CAD=FV=X0CwVHEg3C8dNTpOmq3E53GSCC2QL2gXF8TNOKvd-Lsw@mail.gmail.com>
-X-Gm-Features: AVVi8Cf44S4wV5gWVOPUwV9oTM3AcYPGRRh5QfdtVkVXWN7TKeu4VkN3OHl_8po
-Message-ID: <CAD=FV=X0CwVHEg3C8dNTpOmq3E53GSCC2QL2gXF8TNOKvd-Lsw@mail.gmail.com>
-Subject: Re: [PATCH v2] HID: i2c-hid: Fixes "(null)" device name error logs in i2c_hid_parse
-To: Ai Chao <aichao@kylinos.cn>
-Cc: jikos@kernel.org, bentiss@kernel.org, treapking@chromium.org, 
-	kenkinming2002@gmail.com, raoxu@uniontech.com, superm1@kernel.org, 
-	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 09/10] HID: steam: Reject short reads
+To: Yousef Alhouseen <alhouseenyousef@gmail.com>
+Cc: jikos@kernel.org, bentiss@kernel.org, linux-input@vger.kernel.org,
+ syzbot+75f3f9bff8c510602d36@syzkaller.appspotmail.com
+References: <20260702222145.1863104-1-vi@endrift.com>
+ <20260702222145.1863104-9-vi@endrift.com>
+ <CAMuQ4bVSA-Ca8RKaCeRASO=HJV=hkPDNOPyfdg6TZm7BQURnSA@mail.gmail.com>
+Content-Language: en-US
+From: Vicki Pfau <vi@endrift.com>
+Autocrypt: addr=vi@endrift.com; keydata=
+ xsBNBFtJAmYBCADmRIN9O/aBbYc93lUMvG2hPip++otLit+65EwNHB1y9BmbVr0Q8Tz7rbAM
+ K2mB0EiA4Z3DesoLIOzlJq0E4fgDsAi8ok/i7aTx35d0Qeab95GEdkCMcL98xNJE0agq+KYk
+ pnvFlhdyC23K32KdOijsUqqbd86GgxRZmuf/Yf932KxKAj+n0aFBw5y6i0ep7WQBF6ytpqah
+ Uzy04D//smiTr6rrXg+C09MX0XZ2Fvcv3gmimnoV6C/ZCO1Zecqyhrs0YFfdIhFEBp2ItYim
+ MoeU4g6y726gyRO/+wwzZkryJMU8hHootzW1gUylZeELSwx8uIJSHFiLE7AK+M5soPtDABEB
+ AAHNG1ZpY2tpIFBmYXUgPHZpQGVuZHJpZnQuY29tPsLAjgQTAQoAOBYhBNj+0QMp9OPSosB4
+ 6X72E7X7Nb0rBQJbSQJmAhsDBQsJCAcCBhUKCQgLAgQWAgMBAh4BAheAAAoJEH72E7X7Nb0r
+ WIcH/0GnIOkmAyy2UlgS/VKi193ZRWYJjBfUncIBf57gLt1KYY0PvUoR9MVvkLqcx8vaCxWh
+ bVSqzxT6WU1ECp/URdQV2W4IGB6W4B8rT3VGw0QzbVVQRmt6vReEMFVL+vBfgHKTRBItiy7x
+ Bd+JZDusiyrrGok9TqqkBYlZPWE29ajiOAe05N1UhuRq7y8w/bOkzFD36ohMtfqV4hByWV+q
+ d0LujqgZm1AkM1FqpJ4j8h1Gox5rpmWfaHJmBQ8HcKqQfwACQCvDNHS2vlTXJYfxlh+mVerL
+ YKZgWnyvqx4pLKqJOXQKssIaDjnDfTu6bQgXvhaKb1+piBUYuoe9/+3E15TOwE0EW0kCZgEI
+ AL/KzT+NR1/LbJ7Kuv3gAHFp+S7cfyyPSamN6i6/X135vNSawG7g81iWUweAW6YahFA2haqw
+ t+8/Bm9Dzc8rF6RHCElK1GoHiF4SIYQxjqPo2wwqvTad9FblWTfaYRKfVDvNz2Rz4i681JrR
+ 8gizvzJPX+gocH7FMzPwb1DAwL2kKA5wilgAGSv8nZqeG55hNt2t/XiT6Yd97DJv86D24UUP
+ BetLTq2jUWtX+omt+JhF3QzMjnyGQYKHNXUB/ipBxNSkwnDrWg/f1EjDtNzuOHManJDC9Bqi
+ qhi1abiTNlmmewI5iLEnnxzfSKS5HO9nCC1szl229DHwIMH7jA+G+z0AEQEAAcLAdgQYAQoA
+ IBYhBNj+0QMp9OPSosB46X72E7X7Nb0rBQJbSQJmAhsMAAoJEH72E7X7Nb0roioIAM0oDKEU
+ QH7Og4+AXm35uklIiCX6cFQPgDVlQn7M/QFLnEhhCfPTt8PkIIN4dLgs4lIJxExpgQWgOLUX
+ h+ZLLupzZXoysAXfdwNLf/RqRed/zTZbUjssy4D7yeNIJThzU32kDy0Hx3pMNM/Hd9yaXmHL
+ LDkfwcyQuqA9+eeOogkDC8inLNLfYQ8JtVQZuWppNcbOZkBxfMVAmPHg6C9fe2biQFojoLPe
+ 4nQheprKfBp5QsY2cIjP8kaWPpfJEJ5i2aNgtrfebEzjYoWWLkK78Lo8qABdxkVhH6rhAlw2
+ rVf41cHNCfHF7ddvOb9IItWacXxYn7ql+dI/Se3+ISWDboQ=
+In-Reply-To: <CAMuQ4bVSA-Ca8RKaCeRASO=HJV=hkPDNOPyfdg6TZm7BQURnSA@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-Hi,
+Hi Yousef,
 
-On Mon, Jul 6, 2026 at 6:54=E2=80=AFPM Ai Chao <aichao@kylinos.cn> wrote:
->
-> When i2c-hid fails to read the HID report descriptor during device
-> initialization, the error message prints as:
->
->   hid (null): reading report descriptor failed
->
-> The HID device name is set in hid_add_device() after calling
-> hdev->ll_driver->parse(), so when i2c_hid_parse() fails and calls
-> hid_err(), the device name has not been set yet, resulting in "(null)"
-> output.
->
-> Use dev_err(&client->dev, ...) instead of hid_err(hid, ...) because
-> the I2C client device is fully initialized with a proper name, providing
-> meaningful error messages for debugging.
->
-> Before: hid (null): reading report descriptor failed
-> After:  i2c_hid i2c-TPD0001:00: reading report descriptor failed
->
-> Signed-off-by: Ai Chao <aichao@kylinos.cn>
-> ---
-> change for v2
-> - Used Fixes tag.
+On 7/3/26 4:26 AM, Yousef Alhouseen wrote:
+> Hi Vicki,
+> 
+> I think the length comparison is reversed here.
 
-Could have fooled me. ;-)
+You appear to be correct. Not sure how I messed htat up.
 
--Doug
+> 
+> hid_hw_raw_request() includes the report-ID byte in ret, while
+> steam_recv_report() strips that byte before copying, so only ret - 1
+> bytes are present in data. The encoded report body is data[1] + 2
+> bytes (command, length, and payload). A short report therefore
+> satisfies:
+> 
+> 	ret - 1 < data[1] + 2
+> 
+> or equivalently:
+> 
+> 	ret < data[1] + 3> 
+> The current data[1] > ret + 2 test will miss the usual short-read
+> cases. Also, when ret == 2, only data[0] was copied, so reading
+> data[1] is itself uninitialized despite the ret >= 2 guard.
+
+
+In theory you'd be correct, but in practice I've already cropped that byte off when doing the copy from buf into data, decreasing ret by 1 (if positive). Thus, both of those bounds are correct as 2 instead of 3. However, that decrement is based on a min(size, ret - 1), which means that if size is e.g. 3 but the reply is e.g. 5, overwriting ret will still appear as a short read. That is another bug in this code, but distinct. I'll fix that in v2.
+> 
+> Perhaps the check could be structured as:
+> 
+> 	if (ret > 0 && (ret < 3 || ret < data[1] + 3))
+> 		return -EPROTO;
+> 
+> with the diagnostic adjusted depending on whether the two-byte header
+> was present.
+> 
+> Thanks,
+> Yousef
+> 
+> On Thu,  2 Jul 2026 15:21:42 -0700, Vicki Pfau <vi@endrift.com> wrote:
+>> Steam Controller FEATURE reports encode the size of the message in the
+>> message itself. Previously we were trusting that the size reported matched
+>> the size we actually read, leading to a potential issue with short reads.
+>> Instead, we should actually verify the length of the read.
+>>
+>> Fixes: c164d6abf384 ("HID: add driver for Valve Steam Controller")
+>> Reported-by: syzbot+75f3f9bff8c510602d36@syzkaller.appspotmail.com
+>> Closes: https://syzkaller.appspot.com/bug?extid=75f3f9bff8c510602d36
+>>
+>> Signed-off-by: Vicki Pfau <vi@endrift.com>
+>> ---
+>> drivers/hid/hid-steam.c | 6 ++++++
+>> 1 file changed, 6 insertions(+)
+>>
+>> diff --git a/drivers/hid/hid-steam.c b/drivers/hid/hid-steam.c
+>> index 593151709cf1..e97431bc2828 100644
+>> --- a/drivers/hid/hid-steam.c
+>> +++ b/drivers/hid/hid-steam.c
+>> @@ -389,6 +389,12 @@ static int steam_recv_report(struct steam_device *steam,
+>> hid_err(steam->hdev, "%s: error %d\n", __func__, ret);
+>> else
+>> hid_dbg(steam->hdev, "Received report %*ph\n", ret, data);
+>> +
+>> + if (ret >= 2 && data[1] > ret + 2) {
+>> + hid_err(steam->hdev, "%s: expected %u bytes, read %i\n",
+>> + __func__, data[1] + 2, ret);
+>> + return -EPROTO;
+>> + }
+>> return ret;
+>> }
+>>
+>> --
+>> 2.54.0
+
+Vicki

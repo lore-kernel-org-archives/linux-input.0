@@ -1,124 +1,118 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-yx1-f53.google.com (mail-yx1-f53.google.com [74.125.224.53])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 557C03FE362
-	for <linux-input@vger.kernel.org>; Tue,  7 Jul 2026 12:28:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783427288; cv=none; b=JRR8sZxPXYihquZNUJj5cYDjM9DH3+cNk34ic3nvGMQbLFTNi+NOpK7aPtRqHcxq2gOBAg8XFWm0UuEAtNk1f6ORhOvbZZ5PoBUniH/S7I1G+X7KSO8TOR7elrVqdhw1MYs4ZF9PsRxU/jSi+OvPcWJiOC65+tJxnmur3Ic3jcY=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783427288; c=relaxed/simple;
-	bh=fywrpQXlnYOOhLu0x+/WD5dcuhGuG428ILhzPkigOlk=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=c9JG/h8vEcF6v7xNFJZTkKZX4bS7Z74j4EYsS5iJ8AB0DCx8fmsE98lx4LhsIlv5EKsadER8+AtShCRuhZ19hs1bg1MhMZjo0SgTUAhDAfmYfm/muPv9ot6ASinPKC8gDyxJ69djNvzZIm6wl6MFD1CgS9WAQ63YzDFmDKzFaqo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=VwKn8OGn; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F11E041DEC5
+	for <linux-input@vger.kernel.org>; Tue,  7 Jul 2026 13:37:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.224.53
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1783431458; cv=pass; b=Cvg9BSJVq33YPdCxTnLx514M9qlVwgsFu39tvqCO2vh3xEpuAzKc6KIS1WK+P7YeHI9nswrRcywgqXWHS1ts58xIhITPqkmt6k4fCB6CiyCBkzQCXM+4dC/DfR39IdDXAn+X0B5jW0xjtC5ZwhfSyVLxqGYyzUWV8i6p/wk8RK0=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1783431458; c=relaxed/simple;
+	bh=YxxW/DgyJ8n8X4s2Jk8Sgjq3BzhWt1t3dn+FQ+NVOBM=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=EIAW867UF/nR2FcqhIpN0YFjpL9ZaSqDvVUNS8E/O3xliRCAfI6i1nlfXaw6HL0NHTdcUSyEXaAlIpyu+fsD+x1S3xBdDKasamccDQJqyGZll0gYHRjEMAW+SREcZz4D/hT3mjhYPiLz7YAeotZxW5QhzO3EsXlhlBBPzLlwovo=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=UAaPlxUA; arc=pass smtp.client-ip=74.125.224.53
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="VwKn8OGn"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AAFE11F000E9;
-	Tue,  7 Jul 2026 12:28:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1783427286;
-	bh=PeSc+1w+J7ueeXCzhukn8wjwqi7M7qOJkP09DpHg/f0=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=VwKn8OGneJa0WdkOUkBYApf/M3KnlB75gR+tGeDx7Ym54u2FjWhEQvdXJl+sGjU4u
-	 3eEfd6o41nJAGPzmaDPE5uQc9kmu7XxVnvz5VYDBRUzgx/XprWXGbX2O2QRcB0E+Oj
-	 3dWkRQJHWC2PHN5F3CZpi1U2Gr7x1wcCwstuABnx8VYoUT46NkljUNR+anHYgKFOJa
-	 Bp0spuxfkNMa4VOPlDfz2MgnDrNQeyI2BZkQdLKEpNitIw8V4Dt3T+hfA1paQkOdhZ
-	 0OAvV9OTBKdMVqgV5OvmkDkf6M2xm70lyLcGoKngYg0v4QYIfmjrhmHtI+XW4q939I
-	 5um7QItLd2Ofw==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 1/4] HID: wacom: Advertise SW_MUTE_DEVICE capability
- prior to registration
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Lee Jones" <lee@kernel.org>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260707121051.1683937-1-lee@kernel.org>
-References: <20260707121051.1683937-1-lee@kernel.org>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Tue, 07 Jul 2026 12:28:06 +0000
-Message-Id: <20260707122806.AAFE11F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="UAaPlxUA"
+Received: by mail-yx1-f53.google.com with SMTP id 956f58d0204a3-6675db463b9so1967024d50.3
+        for <linux-input@vger.kernel.org>; Tue, 07 Jul 2026 06:37:36 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1783431456; cv=none;
+        d=google.com; s=arc-20260327;
+        b=d2+BOt14MF4HH/8YEBcln69fbo15b9Ih2xQ6ggmIVkaIjz7G7iUM+bL348IT3kUxex
+         PnYpoWltkN1yRp+Ug3WD/rJAw4WKUB1PBbnnKSZzE5JbZuFAv1TE/Nc0oX2P/MqmBn4n
+         dmudIYWhmjWhas0xH/tREXUBCrWSpR6d6kGfK9yBPYivtQ1DNUNprDMKiGYfiVEkmbEI
+         Inx4XY1DW74Cg/xfG7N1jqouHq0kZ4VEeELlNpBqtx0PgC1agnv8KgW5xJq2b2rVoZgx
+         4KLi25vB/XHHGKDxJXBYM1dJwsoRHLlt5/ybvDwORTL9YoM6e1QhBx2sISE1JOpOD1fS
+         f9rA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:dkim-signature;
+        bh=YxxW/DgyJ8n8X4s2Jk8Sgjq3BzhWt1t3dn+FQ+NVOBM=;
+        fh=TpR+qdK146Ae6avsz5dZnqHqFJofsg0kAh7eFQnSPYc=;
+        b=IJbn2k5WyckbFQhe4N6w1DhMfCvTfg9FMxv70rUkyuPldpza6gNJbWwyjANi9zaF1/
+         GJ4UQKfMfCSFslyQ5hLcOQIMKh5o0Rim6KMk4f4qz4FS1zVAULm8xC3Ue38HrLEedPhT
+         TuaS93M8D+dVn/UVnB96E2LogYtNCFRgcglcPf7+7GG7eOYnWcbqC/N9O5153yAxcEFy
+         W74SHtcoHnYYUveEKcDANCWy+s3Zjj3JrhK4KnnhOY/JQq9D8PccEw8MqEum1C9mZawk
+         g6RvsUqxHllLqHkmzp95enrNq4T+kthdrX4/Vgo7thSBud3tnp3b5MRm2Yk4L/rFjh/z
+         B7+g==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1783431456; x=1784036256; darn=vger.kernel.org;
+        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
+         :references:mime-version:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=YxxW/DgyJ8n8X4s2Jk8Sgjq3BzhWt1t3dn+FQ+NVOBM=;
+        b=UAaPlxUAFFrxu0oHiKSjwLu1QY/PnDxAteQHIRK52RKfSroz8xttLIJ6JCID45rFHh
+         KkoQg5COgA6IDztr3LxajFXnsqLA0ppsmMWW114ap9+5ysuIayD5ljctIy8EdeVShzWB
+         SXNO8+/4YGK5YF25AdMRKtq7qDEWpT2diI3ViSCKK1AiOHx0Oejmihhecc5AUeNaIgvd
+         16CWcAVqttHrrim+ADoD4lBhps4B0boFAMRqFNUT6B89/gc9Ui+FoxJW/jWzPAdfzBXp
+         yszAb0bLCmRpBT6UNvfK7PuJ7HowvVJX/GLPV4mZtY75bDlQy4OtQvjt3kXekKRs/zQP
+         AhyA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1783431456; x=1784036256;
+        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
+         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=YxxW/DgyJ8n8X4s2Jk8Sgjq3BzhWt1t3dn+FQ+NVOBM=;
+        b=iT0CApPl2iSiEgBoapJcaaur60Nl+NTnb2xi+jgXABOlfPyQ7ryDnKRhqS6nfc3pWR
+         7iHm1QDBfL/nw7g/UTXam3mZ5FJEpOCfCye9k0OjEmy8Gq3lcw2l3r3b9Je267cEwnkR
+         DKACEW55gvLY04WF0evi3W+ORqACbrJ2LwL/GakP+TirSIDpW/E+bt5yMRis8PHZmTo/
+         4zmPUhGZaB2v4myuGqrrw1f9/v4kJgvq9Ft+qjQhKeDUNpIaT9T9MQ5Oyh45G96SQ2ec
+         u9+q6L+EJCg1y3hUFJYXxPqEm4RG1MKjZsb8AOzOX/43iA1YgwJ82ZSO19AXRB6D7CEx
+         zGqQ==
+X-Forwarded-Encrypted: i=1; AHgh+RpMzVQPcipa5IcskpVKO2/LzH9wbrxSVUXnY6nmiypxYE+7a0H3tamqG7xytPkL9cIFs+zogZxoKKSVTA==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yx0YUxtYtQJW6o/u2S87NOfp0TPItKwjwSqXt0CmKwp65/ARSCU
+	GjdGiiSnU3XBoEiDJ1tnoaic2+BCbS5iBAyuagPQNbNeNb0P9kDaorwTXIdiiMTdRoFIFsZZet+
+	kKYlHyi1qL0CU0OO6q80HBSWAQUjsWBw=
+X-Gm-Gg: AfdE7cnd3G3lSYUB7fV0oa3PXPA3X9mqBjNLSsQGMRVQn2FCxSjvaZilxkox5IA5fHL
+	n0O/Yexuwxhg6iKqkUs83mQkfMnD3yQIJNVlxym2rNewrsgwulazM39qP75NMxzZmdizX8EYG9E
+	1opPfFXFFwapeR07CsxNE/bUkrJxGOyaskrymER6/NeSTQkIdLV+WiwquhAg4KjRY/QyRU2NNtl
+	kLDu2T+HA8tD6WiVl/QiHcBLhMQ+Qiq2jkKxj0ZzcnpGVB3dZvuWC4Lqm4/kQBDuBGSEsqCAgQx
+	4XN+KQI10B1xLZJWdYU4KFexBK3+5S9YRLSVFUQ/rjlgcB3VPSuno+b72yBfcg==
+X-Received: by 2002:a05:690e:440f:b0:664:ae6a:ef6 with SMTP id
+ 956f58d0204a3-6677fe09239mr3207984d50.84.1783431455985; Tue, 07 Jul 2026
+ 06:37:35 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+References: <20260630-apple-mtp-keyboard-final-v1-0-506d936a1707@gmail.com>
+ <20260630-apple-mtp-keyboard-final-v1-8-506d936a1707@gmail.com> <a0cee001-7bca-438a-943b-da28528e7df7@gmail.com>
+In-Reply-To: <a0cee001-7bca-438a-943b-da28528e7df7@gmail.com>
+From: Michael Reeves <michael.reeves077@gmail.com>
+Date: Tue, 7 Jul 2026 23:37:24 +1000
+X-Gm-Features: AVVi8Cc2ZFlYzV97xsPmmL_XYaVoOo2UdWECw6a41ntBKVYGFTDcsFEpeCIlldE
+Message-ID: <CANpmGNusmx8NQEu2x07rX-yd33XA9TJR_ZogFVXexAmw+7qq9A@mail.gmail.com>
+Subject: Re: [PATCH 08/10] HID: apple: Add DockChannel HID transport driver
+To: Julian Braha <julianbraha@gmail.com>
+Cc: Sven Peter <sven@kernel.org>, Janne Grunau <j@jannau.net>, Neal Gompa <neal@gompa.dev>, 
+	Jassi Brar <jassisinghbrar@gmail.com>, Rob Herring <robh@kernel.org>, 
+	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
+	Hector Martin <marcan@marcan.st>, "Joerg Roedel (AMD)" <joro@8bytes.org>, Will Deacon <will@kernel.org>, 
+	Robin Murphy <robin.murphy@arm.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
+	Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>, asahi@lists.linux.dev, 
+	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, 
+	devicetree@vger.kernel.org, iommu@lists.linux.dev, 
+	linux-input@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
-- [High] Moving the `SW_MUTE_DEVICE` capability assignment into `wacom_setu=
-p_touch_input_capabilities()` silently breaks the mute switch feature for g=
-eneric Wacom devices due to interface probe ordering.
---
+Hi Julian,
 
---- Patch [1]: [PATCH 1/4] HID: wacom: Advertise SW_MUTE_DEVICE capability =
-prior to registration ---
-commit 36a40be02315e2e469201d6490c033d8bc04fa73
-Author: Lee Jones <lee@kernel.org>
+[...]
+> APPLE_DOCKCHANNEL_HID has a duplicate dependency on HID,
+> since you put the import for this file inside of 'if HID..endif',
+> and then also gave it a 'depends on HID'.
+>
 
-HID: wacom: Advertise SW_MUTE_DEVICE capability prior to registration
+Thank you for picking it up and letting me know!
 
-This commit moves the SW_MUTE_DEVICE capability advertisement into
-wacom_setup_touch_input_capabilities() to ensure it is set prior to input
-device registration, conforming to input subsystem guidelines. It also
-removes the post-registration assignment in wacom_set_shared_values() and
-simplifies some product ID checks.
+I will correct it in v2, which I am planning on sending later this week, or
+potentially on the weekend if I get busy.
 
-> diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
-> index 0eafa483b7f75..6c2a3ddfe366a 100644
-> --- a/drivers/hid/wacom_sys.c
-> +++ b/drivers/hid/wacom_sys.c
-> @@ -2359,12 +2359,6 @@ static void wacom_set_shared_values(struct wacom_w=
-ac *wacom_wac)
->  			wacom_wac->shared->is_touch_on =3D true;
->  	}
-> =20
-> -	if (wacom_wac->shared->has_mute_touch_switch &&
-> -	    wacom_wac->shared->touch_input) {
-> -		set_bit(EV_SW, wacom_wac->shared->touch_input->evbit);
-> -		input_set_capability(wacom_wac->shared->touch_input, EV_SW,
-> -				     SW_MUTE_DEVICE);
-> -	}
->  }
-
-[ ... ]
-
-> diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-> index da1f0ea85625d..a31325be50f8c 100644
-> --- a/drivers/hid/wacom_wac.c
-> +++ b/drivers/hid/wacom_wac.c
-> @@ -3951,6 +3951,8 @@ int wacom_setup_pen_input_capabilities(struct input=
-_dev *input_dev,
->  int wacom_setup_touch_input_capabilities(struct input_dev *input_dev,
->  					 struct wacom_wac *wacom_wac)
->  {
-[ ... ]
-> -	if (features->type =3D=3D HID_GENERIC)
-> +	if (features->type =3D=3D HID_GENERIC) {
-> +		if (wacom_wac->shared && wacom_wac->shared->has_mute_touch_switch) {
-> +			input_dev->evbit[0] |=3D BIT_MASK(EV_SW);
-> +			__set_bit(SW_MUTE_DEVICE, input_dev->swbit);
-> +		}
->  		/* setup has already been done */
->  		return 0;
-> +	}
-
-[Severity: High]
-Does moving this assignment inadvertently break the mute switch on composite
-USB devices?
-
-For multi-interface generic Wacom devices, the touch interface typically
-probes before the pad interface. During the touch interface's initializatio=
-n,
-this checks wacom_wac->shared->has_mute_touch_switch.
-
-Since the pad interface (which contains the mute switch usage) hasn't been
-parsed yet, has_mute_touch_switch will still be false.
-
-Because the fallback assignment in wacom_set_shared_values() was removed
-above, will this result in the SW_MUTE_DEVICE capability never being
-advertised to the touch device?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260707121051.1683=
-937-1-lee@kernel.org?part=3D1
+Thanks again,
+Michael

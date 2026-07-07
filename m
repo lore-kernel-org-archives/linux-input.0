@@ -1,61 +1,63 @@
-Received: from mail-wm1-f49.google.com (mail-wm1-f49.google.com [209.85.128.49])
+Received: from mail-wm1-f53.google.com (mail-wm1-f53.google.com [209.85.128.53])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0925C36A360
-	for <linux-input@vger.kernel.org>; Tue,  7 Jul 2026 14:53:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EEB9E370AD6
+	for <linux-input@vger.kernel.org>; Tue,  7 Jul 2026 14:53:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.53
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783436032; cv=none; b=YbBSSUPY2rYGWM5xGBnaaT9cYTCFkhDse7hcoiWphE2L7J/5Z+nrvWspkttzsesEhJIptzeSLK1CLgvzOS0okVbToaQILz7b4STdRal3qhS2SUE1EzJGpGyqcXIrUUFLj9mwxqZBtFRYK3e6E4E0kIbw65ThwjulYp/DCP2iNGQ=
+	t=1783436034; cv=none; b=pTYE+NzC+LWmzYceokVz4e9ZSu8M9DCpjKsluFICwEcxHIKGHVJGDggKbdxoY18PEjkl3ZLDlmrpRSExZBK3Igq5MZQdtZOtHVA32yzxz5Ve3opBr1of8Ge0bZu8hdJm5anENh6hBl5DiNzJ6jrDuWVRN8eYGOBJs0DO+kdJcxA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783436032; c=relaxed/simple;
-	bh=CzrIdF1nbeHBSS89V19tgL383kJPDeuI6sNseLUC2N8=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=vEwmtjjOsV77GI61JNCfImGVSKcEQ1hMw9GvMsmjSawc+oLmq1sDrDYsziV7W/lgjku2ds/NuEyfS67URX5yZ8eZ2LKEqaf131qQG/Hka01M7RsyHcPcaZJMSDCfONg7WU5JQvecUvFOH6CviFhzt6yXbefzxl+W97i9lXkdsvM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b=cIx926Db; arc=none smtp.client-ip=209.85.128.49
+	s=arc-20240116; t=1783436034; c=relaxed/simple;
+	bh=lld4jGgxU4Hlbg9rvCRAmSf1xq4K+TvfNOTHD6OlPNA=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=gTOyxldPv2a05gsg+joJmWsumwHw3EO8eCB+ToxuZKZkLD0pQWsi7Wdt/rE7kXBRwbTC9Tp+hiXTp/YY75WxMXQG0Raj0g9KrsHkcSnMPQzKum8e0VdUDMxIeVAe/RKWTSIc4/0U7YfKXzBIvfjeHEEIVc60O5DX7LoxeiKRd1c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b=CKMUVPBj; arc=none smtp.client-ip=209.85.128.53
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="cIx926Db"
-Received: by mail-wm1-f49.google.com with SMTP id 5b1f17b1804b1-493b77b150aso39164345e9.2
-        for <linux-input@vger.kernel.org>; Tue, 07 Jul 2026 07:53:49 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="CKMUVPBj"
+Received: by mail-wm1-f53.google.com with SMTP id 5b1f17b1804b1-4921eed3fa2so30006455e9.0
+        for <linux-input@vger.kernel.org>; Tue, 07 Jul 2026 07:53:50 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=suse.com; s=google; t=1783436027; x=1784040827; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=bWmMpMhPBO/EOzHg9dXhWeBCCLH108Nq2eDZhsT4OEA=;
-        b=cIx926DbMQfPB8QozBNnvtf/FDPD38tDWLwcezIWzwKT/7RrlsORWY1JHzpmrzwTDj
-         QMUQfXZmmHbGN7wDfNSXooG3P2vdwpZ6HKUTTl9FKNEHs/255JoPISRvDr/JEaJna8GB
-         aj7RDtZ0DgOOEl5BUaSlRMZVgl/edFSirPpMxnX23JwwPXfkPXlKbbe23f6vGjOW4oyP
-         ueEAWzpFW+d+vPcZRR9XqQWPVP84bOVBUdIGEoasC46/EagtjT+BfwGbWH9AidLs0LMH
-         05Pe1VwJqqM4IWHC3ZSzxx5cx/ZIGtZIri7R/76UlZwD/60/gAbLLP9TwXJgY/UMtupp
-         PkYQ==
+        d=suse.com; s=google; t=1783436029; x=1784040829; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=RiCOHMt+5LAxuaUpE48p7KSrrHt8xlEb8cavqElM1eA=;
+        b=CKMUVPBj07i/NxhSQQgg2eeYEj8iWjIXqCI4JQfLlTlFmu1FUjgoyiurI/DEN7wGK5
+         YqvxpjwxPquH+0BqRipb5JC/9l78fTAmd4fOoaaH+ZTUa0MWk4ycLAOLfF5QbOC+zLDz
+         4AUHp2hWHt81Q2gHIJqh1ikXPMiLU2hb6c1M3qstFbsG4hHXNpvjgOJw4jiWtIi2Q2Jy
+         HvQYxCUG6kc2cE0Uk8xMVeis8hTrbxtI2qNflfnNOQiGpAI9YQqZTcdgJ/+7H9jcOqsQ
+         N/EyQY2ANBadKhsiB5tesRl2kUTIfjBut3zpcG8mJQEiKiFd41HNQPCbhm8zDpImOGpD
+         qTcw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1783436027; x=1784040827;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=bWmMpMhPBO/EOzHg9dXhWeBCCLH108Nq2eDZhsT4OEA=;
-        b=CZQMFVgmBHDAfoPkj3DCsoTVpB8wHh3pZQHF4vDLZIA6Wrz16zaT4OaII64qj3EA+S
-         E4zg10i87RE7hYWaZSuF0UJtwzVJUueBMtCEVsAFztEdYk2Sol6vnmlN05BPEMgACn6G
-         4KdRaVc5e9Augrr5mnZdgyuf5wnIfDrQoGOMZzHHNxYaPSnsqO9Ocjf5PE2pJpMqZBHJ
-         OauJ8AF5ItTi86wCweO8PYNWEqu/t1OOJlJSyoXEJ5b1Nlp/zBGbmYRh+glZ46Tr+S5U
-         vx1OIG4zbVRjFfayi9oO4S8isNPall0HOO5TkaF5Pp0eweDsvnY3+djFFgQomtGcrLva
-         Fo2g==
-X-Forwarded-Encrypted: i=1; AHgh+RrlizRNY2pClMjmGsR7h56m37Bmy8trwYX4iJPMWPhkmlvevHawfVIul6l4mepEHo/G1P2aNvL4WiP8zg==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yy6owY6yKd5vy5s75hUR3qWdgD5KyjJSuizS6e1TLDYtPCFt3vN
-	C2u5k9xUCiNVM0iyZ2g2tx4ugCD4jvge7C8F1DcFDE2hnjbE0TY/JTxkGodlwEB89Lo=
-X-Gm-Gg: AfdE7cnZcTlosi+Vw4jtK0wQOE/Dq81TDIZ2y1xpL/t0fSX8T5yxOUwM/dvyhnCkrDJ
-	3Ls+FEvyISrefjZwHu73VZZY+nZkyGdx/W/goAz1gxlOjrUliyZiH16FhUrHG1pibJGvywD8912
-	yJgdILt+ZCm/GHg0hQ3LoZXe7DeCexATlJHyrxUJFM+z/Wr+fMVfKktzcfogG6I7i+neu2plxDy
-	c2SDUZKrIwKb1dxorUuuTBsRG535K/lzhlMaFNeoPu+du54lXaJxsutNl57U7Sd/x7excWw8aup
-	9rsytetPcoAnmoghtsFS9tcJ/xZ5SRN3Oy7QPM/zvxpWf2HDZeGqCr3zHLezO3TqVvA5O7ZxbMP
-	/ryxrtogTi11kV77tYZmtEyNzXa/vclOhQ/qnohSLVS+5d1oHDuk0ztTYes4SZf5DvP3ENLH8sh
-	70zyi7YcBiZyD7ox6/ZTswGcW4bkmxPSw/s9c=
-X-Received: by 2002:a05:600c:b85:b0:492:4723:166b with SMTP id 5b1f17b1804b1-493df05f8e3mr59452385e9.13.1783436027489;
-        Tue, 07 Jul 2026 07:53:47 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1783436029; x=1784040829;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=RiCOHMt+5LAxuaUpE48p7KSrrHt8xlEb8cavqElM1eA=;
+        b=RdVFLaBro5cRGeN+UAy62sqC0ifivvMpyyQzZ7Jdoi9NLXzlSDSbR9DYZLCDKDP3vc
+         fAdhRHWlmU4o6tbMIoGEXF80iismb8n3cpFs/VoHQsfl8NCJ86WUndYMnEYoG9wmltrU
+         MhCvbRUGqqXtxYdFn3aa2DdPnMtTbIIkVltBGZmIZzZPzCl4LF0gz/G9/5T5lKLRm4AQ
+         +P9g/k7dlRY+5rXuqh7lxYhDAffGFrNIG8gDWsSMCc7VIbpbOICLv6cDc4bPAtAYUaeJ
+         gv8MoKTgqnLM6H+S5BqYtIPFOoCH4/runx7TK4v1/lllzbymbCCIGjR88xy3WWsSPo5E
+         OU2A==
+X-Forwarded-Encrypted: i=1; AHgh+RqPf5BJGNgYsrCvzyxoku60Q6vxxBXw/i0H23pwlDiRoyNMPIdbkDQ1UyfD6XlqC0mwN+wwzGYO4c1lzQ==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yxv7CaF/hMnq0afmBu4lbDBKOjiVTXJ4vmjdgdhaXGbGNw123Lf
+	xHOW6OHB+iI6ccCs91QOJ6JFvtrbNbtV2QCyK5+TmLN4gOw63LlKGslUXqYg4ICMsNo=
+X-Gm-Gg: AfdE7cnBehvUkwylyi9ubMCMH+Cbaq4R6LPehIXvXcrn/zwUcOI8CivOZcRJV001Ib4
+	hiKchGD1K9gyoCzyiUsJPiloriOnNdJTNr4PLdF4xa/p5hKBBAwX02jZagq1MBhv3+BeWA64NmB
+	qSJp+qk11rGUuOZNwoPqQNsxEggLyAtPLbkF/isiLGpyGogeDV+9ekHo2W3p93bQX8tE5SbRLQK
+	7x+6JnwRZydT+VDorrDWSfrtiSAqAjWDiRN0UZfS1J7ILR52O+Hesqae0Jta9RBq/MrnC9tPh19
+	vFFzLueB0snAXYZ3vSHehB8GfWjEhOCLZkdTgcQx7e3dGv4dRt2s/K8ziePo8H6/4W6TUoBsLjU
+	8/BIDd1jVK654Tx1USa5vR628tsUNVI2GVbT6nhFvp8mIOT96GSsXKgvnSTfjykfPGfUqhBLaNE
+	pEK5ffF/HzWDi6wBRvr3z0UHNvRUbRamJPVH0=
+X-Received: by 2002:a05:600c:4e8e:b0:493:c194:4e7a with SMTP id 5b1f17b1804b1-493df0377e0mr57163165e9.3.1783436028465;
+        Tue, 07 Jul 2026 07:53:48 -0700 (PDT)
 Received: from localhost.localdomain ([2a00:6d43:105:c401:e307:1a37:2e76:ce91])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-493e10af550sm60425025e9.1.2026.07.07.07.53.46
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-493e10af550sm60425025e9.1.2026.07.07.07.53.47
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 07 Jul 2026 07:53:47 -0700 (PDT)
+        Tue, 07 Jul 2026 07:53:48 -0700 (PDT)
 From: Marco Crivellari <marco.crivellari@suse.com>
 To: linux-kernel@vger.kernel.org,
 	linux-input@vger.kernel.org
@@ -68,10 +70,12 @@ Cc: Tejun Heo <tj@kernel.org>,
 	Jiri Kosina <jikos@kernel.org>,
 	Benjamin Tissoires <bentiss@kernel.org>,
 	"Derek J. Clark" <derekjohn.clark@gmail.com>
-Subject: [PATCH RFC 0/2] HID: Replace system_wq with system_dfl_wq
-Date: Tue,  7 Jul 2026 16:53:01 +0200
-Message-ID: <20260707145327.313292-1-marco.crivellari@suse.com>
+Subject: [PATCH RFC 1/2] HID: hid-oxp: Replace system_wq with system_dfl_wq
+Date: Tue,  7 Jul 2026 16:53:02 +0200
+Message-ID: <20260707145327.313292-2-marco.crivellari@suse.com>
 X-Mailer: git-send-email 2.54.0
+In-Reply-To: <20260707145327.313292-1-marco.crivellari@suse.com>
+References: <20260707145327.313292-1-marco.crivellari@suse.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -80,49 +84,62 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Hi,
-
-Currently the code uses the per-cpu workqueue system_wq to schedule
-delayed works.
+The function end up calling __queue_delayed_work(), which set a global
+timer that could fire anywhere, enqueuing the work where the timer fired.
 
 Unbound works could benefit from scheduler task placement, to optimize
-performance and power consumption. Another good reason to have this unbound,
-is the "queue_delayed_work()" function, used to enqueue the work item.
-
-~~~ Details about queue_delayed_work ~~~
-
-system_wq is a per-cpu workqueue and it is used as a parameter of
-mod_delayed_work(). This function schedule an item that it will later
-be enqueued (once the timer will fire). __queue_delayed_work() does the job
-receiving as "cpu" WORK_CPU_UNBOUND:
-
-    if (housekeeping_enabled(HK_TYPE_TIMER)) {
-    //      [....]
-    } else {
-            if (likely(cpu == WORK_CPU_UNBOUND))
-                    add_timer_global(timer);
-            else
-                    add_timer_on(timer, cpu);
-    }
-
-The timer is global, so can fire everywhere, and the work item will be
-enqueued where the timer fired.
+performance and power consumption.
 
 Since the workqueue work doesn't rely on per-cpu variables, there is no
 obvious reason that justify the use of a per-cpu workqueue. So change the
-workqueue with system_dfl_wq, so that the used workqueue is now unbound
-and can benefit from scheduler task placement.
+workqueue with the new unbound version, system_dfl_wq.
 
-Thanks!
+Cc: Derek J. Clark <derekjohn.clark@gmail.com>
+Signed-off-by: Marco Crivellari <marco.crivellari@suse.com>
+---
+ drivers/hid/hid-oxp.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-Marco Crivellari (2):
-  HID: hid-oxp: Replace system_wq with system_dfl_wq
-  HID: appletb-kdb: Replace system_wq with system_dfl_wq
-
- drivers/hid/hid-appletb-kbd.c | 6 +++---
- drivers/hid/hid-oxp.c         | 8 ++++----
- 2 files changed, 7 insertions(+), 7 deletions(-)
-
+diff --git a/drivers/hid/hid-oxp.c b/drivers/hid/hid-oxp.c
+index 20a54f337220..d2ded6b08ce9 100644
+--- a/drivers/hid/hid-oxp.c
++++ b/drivers/hid/hid-oxp.c
+@@ -398,7 +398,7 @@ static int oxp_hid_raw_event_gen_2(struct hid_device *hdev,
+ 	 * Re-apply our settings after this has been received.
+ 	 */
+ 	if (data[3] == OXP_EFFECT_MONO_TRUE) {
+-		mod_delayed_work(system_wq, &drvdata.oxp_mcu_init, msecs_to_jiffies(50));
++		mod_delayed_work(system_dfl_wq, &drvdata.oxp_mcu_init, msecs_to_jiffies(50));
+ 		return 0;
+ 	}
+ 
+@@ -788,7 +788,7 @@ static ssize_t map_button_store(struct device *dev,
+ 	default:
+ 		return -EINVAL;
+ 	}
+-	mod_delayed_work(system_wq, &drvdata.oxp_btn_queue, msecs_to_jiffies(50));
++	mod_delayed_work(system_dfl_wq, &drvdata.oxp_btn_queue, msecs_to_jiffies(50));
+ 	return count;
+ }
+ 
+@@ -1349,7 +1349,7 @@ static void oxp_rgb_brightness_set(struct led_classdev *led_cdev,
+ 				   enum led_brightness brightness)
+ {
+ 	led_cdev->brightness = brightness;
+-	mod_delayed_work(system_wq, &drvdata.oxp_rgb_queue, msecs_to_jiffies(50));
++	mod_delayed_work(system_dfl_wq, &drvdata.oxp_rgb_queue, msecs_to_jiffies(50));
+ }
+ 
+ static struct attribute *oxp_rgb_attrs[] = {
+@@ -1502,7 +1502,7 @@ static int oxp_cfg_probe(struct hid_device *hdev, u16 up)
+ 	drvdata.rumble_intensity = 5;
+ 
+ 	INIT_DELAYED_WORK(&drvdata.oxp_mcu_init, oxp_mcu_init_fn);
+-	mod_delayed_work(system_wq, &drvdata.oxp_mcu_init, msecs_to_jiffies(50));
++	mod_delayed_work(system_dfl_wq, &drvdata.oxp_mcu_init, msecs_to_jiffies(50));
+ 
+ 	ret = devm_device_add_group(&hdev->dev, &oxp_cfg_attrs_group);
+ 	if (ret)
 -- 
 2.54.0
 

@@ -1,173 +1,150 @@
-Received: from mail-ed1-f50.google.com (mail-ed1-f50.google.com [209.85.208.50])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.15])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A3C1B375ACB
-	for <linux-input@vger.kernel.org>; Wed,  8 Jul 2026 16:00:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.50
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783526413; cv=pass; b=amwLOj9fE9LO6sJyu1xt19POiqvutq9HhTlvntaDAbp9jqLeJxoUdWfmqViEvDzlE2dQ6DGCe/MkGCZl3wODgwElWKEVqkmJjXOOPQjGmLFvj6jIInj9/xI3gQryWb6hF0i4JNs1hg5RWyUIGj51AOsRGKkcL1E6kyehKsTJfdI=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783526413; c=relaxed/simple;
-	bh=8wJqUMybu+9Rze5o8DcYSQ5RnrX9XW9g4G6x4CzTMJs=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=goPGXONaFxskKXNXy21557nXDOS5KbSEYQPmKE7e/oKJMdNoj13ynzptLSLeTmNakK+MeyOK0h74thLLkGo0Is8lEg+COy71IBh2b76+C6nXhrwLy3BR4YA6rHTT/FIKgK4P9TrA7pkyW6tvL9mC0UuYxCdgg9iPxcdhw2hON7o=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=KV2YTeMN; arc=pass smtp.client-ip=209.85.208.50
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AC1A82459EA;
+	Wed,  8 Jul 2026 17:58:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.15
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1783533491; cv=none; b=d8CqI5ALLhFUqHtaIlKd+q14Ap4Ww5A0y6++ogDxADEwaMN3kD9J2nrvn8AWH7nGtwOuiM8QkFfwUNLxBgGjHY3KkZzVS4pK1OFT4BLY3Y6M46zwcTIAcPWFVu47M/TbwkgzsH2Um1EOfavYOt8iXUCDQJQHlgMqGrfBVOWVSy8=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1783533491; c=relaxed/simple;
+	bh=c3uFcMRjJwERNWtlFP49t0Wal7m+JJxOTcx+RGrtDLE=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=Wtl+KQeVNDtY+sBeddp9X9NkKoqWj32d+dR9FEKPBs/tDorm6FGP5XyQOX0/k3NvFSu4/P4L8lqmOAsAbQB1bkVtEyWxOHyTL7e3+yhxhKQTl+BzvyV0sZgTm8R3H2NUq2v7WhJTzElT8ms+Thi6iTtJe8KxzS0r0vnYcovlNvg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=IyWZ1gTF; arc=none smtp.client-ip=192.198.163.15
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="KV2YTeMN"
-Received: by mail-ed1-f50.google.com with SMTP id 4fb4d7f45d1cf-691c5776f35so1401963a12.3
-        for <linux-input@vger.kernel.org>; Wed, 08 Jul 2026 09:00:11 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1783526410; cv=none;
-        d=google.com; s=arc-20260327;
-        b=Car1bW3SaM+HVCUyYib/5OmWo0duey9IZw7srKCXfnoh2ShQas12pIhvdBgDjgYgSv
-         txuw7BZkthGs+cBDq0taD/L471WZsa62/pZ5S177uQTp1VBCUCmomwcY9FbOGLJVwItG
-         vG0xvlFzk/LaRmXxaOU0CfX0dVogX0RX/PGCjAJBaPQJNji4TY7tsbSuqrUREmE1wy1D
-         fNxZJpx27HFP/6aNzA2VloQ1eizOAqKxek7URfpJxlf4irNZ6kx7gHzfzlLcBevB8txC
-         472MwexMtvA+qxheGL6MTYZqnD3tIfiqJDApYxGI+hYz99LRgqTjD8LaIP2Cd5oLi9fr
-         f+pw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=8wJqUMybu+9Rze5o8DcYSQ5RnrX9XW9g4G6x4CzTMJs=;
-        fh=dERT6KAvRsIGWDpDCkQb0+SNNu3F1zTMpXFlNnn4NVg=;
-        b=NLWgpq+BQXcDJMvtVkWnQMIUQQySaw3fmwJ8xQiyOf8NUsiTC5L8emSILXVHV7wwXy
-         DsGigFXNA/qbdJXfetK+g0I61HtaD00Q8NxU01N9mPm0vMq6KVQyRjVl6zx42a0ji5FU
-         YEhIYZR6DZxjFrmK3FVlI94D2eXgd2GUv0nCwEwOUJPun8dl3AYRBMItBlYeSYrD4NjP
-         03IQe9DnH+zrAQbQSG9w/Tzzye4KJCb/ecnuCfVwVtsIk5DGwKUJm0+Y1E6kP1MPFWaz
-         6CuaQpNffhdXdK5NvrQ7hmPOkodFVa5Kvqdh9biJj0HnnSLCnDjpIPsCsAhbxCaOdAke
-         1WOw==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1783526410; x=1784131210; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=8wJqUMybu+9Rze5o8DcYSQ5RnrX9XW9g4G6x4CzTMJs=;
-        b=KV2YTeMN0Ykx+N4S/p1PtoH8nYMy5i/v1uT/udy8YmMGJ90WafSQaaqtVnsBEZXTsE
-         F/kodxn0QQXEKFwCHdjs3Zm8A9YH3kcVtMoMoxN7xDDt5z6SpKVx3pI/GIUnD+spZ48d
-         msQnQFMmwKw6LhPirCCzJE6P7RzOFQwUvO5nWQR10XL/dP34o33I/yXMOZH5rJaGHnwL
-         BdBS00DU4ndqK5ouJ1sN2u9HdVouWGLllhXNLfPO1XFmlbWwciyAOcrhynCt39S/cMme
-         lwcIXWpmiwxqJLFjTZ2Pp1GP22XzZuTPU7udSNR+mQ9PqAT9sAlHHxiX/N3EVmLiDLeS
-         Bszw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1783526410; x=1784131210;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=8wJqUMybu+9Rze5o8DcYSQ5RnrX9XW9g4G6x4CzTMJs=;
-        b=PM4rkpyORFBQFKsQqp/sx+3Vmpy7PLrdAEQ0iju5PS4XFcvujErkDspyel7Kz87h1g
-         j9FG205U2M6MwuFCHmET6mt3kTe7ElhFLcC4Q1oFUFT6KJGQiVqKQLY2cr5pw1XwMRGc
-         yeokWjOivKII1MgZPmmOC9A1Qauo2nfitcK3gfkDBtoBbdA3axp8dQoJbkBEypM2X7Lc
-         HlyAOFY4KXPJQT2cwJ5A65DBGaDCSlqYcGET15k5hFCgWza106ejyX2iUPy0ix20SMpP
-         XXf2Ui+Fqo6FkJknEKB/ooNuzU6ruu3kMGFUC/CyGo/wQMFduLsYOfb/XHi8MsB14k7/
-         ZZBQ==
-X-Gm-Message-State: AOJu0YzC1JOatm1D+OtvU1h3dBtkKh/rQhclvN18mY5joZ9JT47B6BNt
-	540NxdEXtCCdHlIRx6TM85Q1QmS3sLJm5Tm0r0kFdsg2L+Tcab9VCwzHUfKIubT3ibTN0xfctOz
-	Wi3+UIiECkXJ0Un5uFgYxhALMPurTYHI=
-X-Gm-Gg: AfdE7clWuB3UJniP4/qhd6l6DDGNzfXqpiJFHjiTrJ6QDTYQ9o9VXDw37IhCXAX2MmQ
-	eyVbd7hZbMPH0hq6texdgq+SRTu0VM5rBdjSYyNmHl8bGO2gzdSaY41XFIEML54NfivtWAtLNEa
-	3ZMoAqXYYAKaLN5uEDNCCLa3M3QifbuF25XnMLoIvVXZBhHHvx8voLuB/kpQ6QVJgKncHCn0KgL
-	ka3FR2hJFBOHN6elyIZiiUlmn6lTBRWl4pBytK8XuH3w9Hp42Q1Wtggg1mUtZoplJ8qNuI=
-X-Received: by 2002:a05:6402:4510:b0:698:3b7c:7e2c with SMTP id
- 4fb4d7f45d1cf-69ab44aead7mr1482649a12.36.1783526409566; Wed, 08 Jul 2026
- 09:00:09 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="IyWZ1gTF"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1783533489; x=1815069489;
+  h=message-id:subject:from:to:cc:date:in-reply-to:
+   references:content-transfer-encoding:mime-version;
+  bh=c3uFcMRjJwERNWtlFP49t0Wal7m+JJxOTcx+RGrtDLE=;
+  b=IyWZ1gTFfnxpv3aoypsuw7x5Xe1jNSvn4HAEiOGry88CsdIc1GNocYkC
+   KSZ+W23Q35jytUuCxrj6kuz6lLoKwgQkBGCLkAt0z+GANkMcX7WlypqTv
+   oyA51TSYYIXD7+bDbEffIFToXjdF1fzr1rl7Gfgd5k3U92qW6bfTADnBO
+   16wcDTZ4rsZJuTwZyrQ985v8XzHGvgLG7ubpyEkDGb6tiQ1TbmnvFjyZB
+   EcZwYgAQwZSkh2HFaVuFweHwZdZiDXibDzvvFTEbmA7kNkSzFjEmq8xjv
+   UoDyFzNAX5GIhWk+FW16diKqGEgi7q8+r3cSec8XLL+7W4onYLNS677Kj
+   A==;
+X-CSE-ConnectionGUID: WMcU1LYoQQCxdsKnDWhRGg==
+X-CSE-MsgGUID: GTA5zSJ3SqW3qDWr0rUHNQ==
+X-IronPort-AV: E=McAfee;i="6800,10657,11841"; a="84322770"
+X-IronPort-AV: E=Sophos;i="6.25,153,1779174000"; 
+   d="scan'208";a="84322770"
+Received: from orviesa004.jf.intel.com ([10.64.159.144])
+  by fmvoesa109.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Jul 2026 10:58:08 -0700
+X-CSE-ConnectionGUID: zNo/mCUWQh+yx9UBcP7gBw==
+X-CSE-MsgGUID: T69FPF+qTdGXWCyuKxKDvA==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.25,153,1779174000"; 
+   d="scan'208";a="258223335"
+Received: from gabaabhi-mobl2.amr.corp.intel.com (HELO [10.125.111.97]) ([10.125.111.97])
+  by orviesa004-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Jul 2026 10:58:07 -0700
+Message-ID: <d7f8d8f45d4fc849f5ad13472803df898e080caf.camel@linux.intel.com>
+Subject: Re: [PATCH v3 1/2] HID: sensor: custom: Fix use-after-free in
+ enable_sensor
+From: srinivas pandruvada <srinivas.pandruvada@linux.intel.com>
+To: Haoxiang Li <haoxiang_li2024@163.com>, jikos@kernel.org,
+ jic23@kernel.org, 	bentiss@kernel.org
+Cc: linux-input@vger.kernel.org, linux-iio@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, Sashiko AI Review <sashiko-bot@kernel.org>, 
+	stable@vger.kernel.org
+Date: Wed, 08 Jul 2026 10:58:06 -0700
+In-Reply-To: <20260707071545.3087073-2-haoxiang_li2024@163.com>
+References: <20260707071545.3087073-1-haoxiang_li2024@163.com>
+	 <20260707071545.3087073-2-haoxiang_li2024@163.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.58.3 (3.58.3-1.fc43) 
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <4130C026-2A83-408B-836A-ECA044491C47@gmail.com>
-In-Reply-To: <4130C026-2A83-408B-836A-ECA044491C47@gmail.com>
-From: Siarhei Volkau <lis8215@gmail.com>
-Date: Wed, 8 Jul 2026 18:59:57 +0300
-X-Gm-Features: AVVi8Cd9ZOoKd0Qt_3UNK6_c-e907tH6GnmpgXYDV7_ypOSttuGKpzxKmkvrHmA
-Message-ID: <CAKNVLfZSjWgiT7cwy4kf3QLq49yzU6PPZQBiRpmU-fARA3iqFg@mail.gmail.com>
-Subject: Re: [RFC] Input: matrix_keypad: fix interrupt regression introduced
- by commit 01c84b03d80a
-To: Alexander Kochetkov <al.kochet@gmail.com>
-Cc: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
-	linux-kernel@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 
-Regarding JZ4755, I agree that the [1] patch can be reverted.
-No device requiring this workaround has landed in the mainline.
-qi,lb60 (Ben Nanonote) seems unaffected as it was there before
-the patch was proposed.
+On Tue, 2026-07-07 at 15:15 +0800, Haoxiang Li wrote:
+> enable_sensor_store() can call set_power_report_state(), which
+> dereferences sensor_inst->power_state and sensor_inst->report_state.
+> These pointers refer to entries in sensor_inst->fields.
+>=20
+> Create the field attributes before exposing the enable_sensor sysfs
+> attribute, so enable_sensor cannot be accessed before the state it
+> depends on has been initialized.
+>=20
+> On remove, delete enable_sensor before freeing the field attributes,
+> so a concurrent sysfs write cannot dereference freed memory through
+> power_state or report_state.
+>=20
+> Reported-by: Sashiko AI Review <sashiko-bot@kernel.org>
+> Link:
+> https://sashiko.dev/#/patchset/20260623021950.1736413-1-haoxiang_li2024@1=
+63.com?part=3D1
+> Fixes: 4a7de0519df5 ("HID: sensor: Custom and Generic sensor
+> support")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Haoxiang Li <haoxiang_li2024@163.com>
 
-However, if there are genuinely two hardware operating modes:
-- "GPIO input mode" while scanning
-- "GPIO interrupt input mode" while idle
-then the keypad driver should be aware of this distinction.
+Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 
-I'd like to propose pinctrl state transitions as the mechanism for switchin=
-g
-these modes, wherever it makes sense (Allwinner et al).
-
-CC Paul as the maintainer of Ingenic pinctrl driver.
-
-BR,
-Siarhei
-
-
-=D1=81=D1=80, 8 =D0=B8=D1=8E=D0=BB. 2026=E2=80=AF=D0=B3. =D0=B2 16:30, Alex=
-ander Kochetkov <al.kochet@gmail.com>:
->
-> Hi everyone,
->
-> I found a commit [1] that breaks the matrix_keypad behavior on the Allwin=
-ner A64.
->
-> I have a PINE A64-LTS board with a connected keypad polled by matrix_keyp=
-ad.
-> This commit caused interrupts to stop arriving at the matrix_keypad drive=
-r entirely.
->
-> An explicit call to gpiod_direction_input() disables interrupt reception =
-on all chips
-> where the GPIO input mode and GPIO interrupt input mode are configured vi=
-a
-> the pinmux register. Interrupt reception is guaranteed to break on Allwin=
-ner
-> (A64, H3, H6, etc.), Broadcom (BCM2835/2711), and some Rockchip SoCs. It
-> does not break on NXP i.MX (i.MX6, i.MX8), STMicroelectronics (STM32MP1),
-> TI Sitara (AM335x), or Intel/AMD.
->
-> Furthermore, the assumption that enable_row_irqs() restores the interrupt=
- mode is
-> also specific to the Ingenic pinctrl. In the vast majority of drivers, en=
-able_row_irqs() is
-> supposed to simply set the interrupt enable mask without changing the pin=
-mux.
->
-> Commit [1] was introduced to work around a hardware limitation in Ingenic=
-'s JZ4755.
-> This specific behavior is unique to Ingenic and a small number of special=
-ized chips.
-> The majority of SoCs (around 90%) allow reading a GPIO input that is curr=
-ently configured
-> as an interrupt source.
->
-> In my opinion, the correct approach would be to revert this commit and fi=
-x the behavior of
-> ingenic_gpio_get_value() inside pinctrl-ingenic.c instead. However, I do =
-not own an Ingenic
-> board, so I won't be able to test such a patch.
->
-> Alternatively, I could introduce a DTS property like read-gpio-quirk in m=
-atrix_keypad to restore
-> the original driver behavior by default, and add this property to qi_lb60=
-.dts so as not to break
-> the Ingenic platform.
->
-> What do you think? What is the best way to proceed here?
->
-> Best regards,
-> Alexander Kochetkov
->
-> [1] commit 01c84b03d80aab9f04c4e3e1f9085f4202ff7c29 ("Input: matrix_keypa=
-d - force switch rows to input mode")
+> ---
+> =C2=A0drivers/hid/hid-sensor-custom.c | 17 +++++++++--------
+> =C2=A01 file changed, 9 insertions(+), 8 deletions(-)
+>=20
+> diff --git a/drivers/hid/hid-sensor-custom.c b/drivers/hid/hid-
+> sensor-custom.c
+> index afffea894021..6b0da2e0e1c9 100644
+> --- a/drivers/hid/hid-sensor-custom.c
+> +++ b/drivers/hid/hid-sensor-custom.c
+> @@ -1005,26 +1005,26 @@ static int hid_sensor_custom_probe(struct
+> platform_device *pdev)
+> =C2=A0		return ret;
+> =C2=A0	}
+> =C2=A0
+> -	ret =3D sysfs_create_group(&sensor_inst->pdev->dev.kobj,
+> -				 &enable_sensor_attr_group);
+> +	ret =3D hid_sensor_custom_add_attributes(sensor_inst);
+> =C2=A0	if (ret)
+> =C2=A0		goto err_remove_callback;
+> =C2=A0
+> -	ret =3D hid_sensor_custom_add_attributes(sensor_inst);
+> +	ret =3D sysfs_create_group(&sensor_inst->pdev->dev.kobj,
+> +				 &enable_sensor_attr_group);
+> =C2=A0	if (ret)
+> -		goto err_remove_group;
+> +		goto err_remove_attributes;
+> =C2=A0
+> =C2=A0	ret =3D hid_sensor_custom_dev_if_add(sensor_inst);
+> =C2=A0	if (ret)
+> -		goto err_remove_attributes;
+> +		goto err_remove_group;
+> =C2=A0
+> =C2=A0	return 0;
+> =C2=A0
+> -err_remove_attributes:
+> -	hid_sensor_custom_remove_attributes(sensor_inst);
+> =C2=A0err_remove_group:
+> =C2=A0	sysfs_remove_group(&sensor_inst->pdev->dev.kobj,
+> =C2=A0			=C2=A0=C2=A0 &enable_sensor_attr_group);
+> +err_remove_attributes:
+> +	hid_sensor_custom_remove_attributes(sensor_inst);
+> =C2=A0err_remove_callback:
+> =C2=A0	sensor_hub_remove_callback(hsdev, hsdev->usage);
+> =C2=A0
+> @@ -1042,9 +1042,10 @@ static void hid_sensor_custom_remove(struct
+> platform_device *pdev)
+> =C2=A0	}
+> =C2=A0
+> =C2=A0	hid_sensor_custom_dev_if_remove(sensor_inst);
+> -	hid_sensor_custom_remove_attributes(sensor_inst);
+> +	/* Remove enable_sensor first as it uses fields via
+> power_state/report_state. */
+> =C2=A0	sysfs_remove_group(&sensor_inst->pdev->dev.kobj,
+> =C2=A0			=C2=A0=C2=A0 &enable_sensor_attr_group);
+> +	hid_sensor_custom_remove_attributes(sensor_inst);
+> =C2=A0	sensor_hub_remove_callback(hsdev, hsdev->usage);
+> =C2=A0}
+> =C2=A0

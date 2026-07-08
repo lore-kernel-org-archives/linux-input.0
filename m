@@ -1,139 +1,142 @@
-Received: from mail-oa2-f1.google.com (mail-oa2-f1.google.com [74.125.231.65])
+Received: from mail-pj1-f47.google.com (mail-pj1-f47.google.com [209.85.216.47])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BB69E1684BE
-	for <linux-input@vger.kernel.org>; Wed,  8 Jul 2026 00:32:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.231.65
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BAC723A63FB
+	for <linux-input@vger.kernel.org>; Wed,  8 Jul 2026 00:50:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.47
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783470777; cv=none; b=NT7yuCSgBWpepS1LRPw4vz5D5/lWRIexiMKvrmgq9MQKe18dGn2sXIN8PMQiq6pTekH/n30gd4kdtfeQIAPT0O5+NzZTzdmKGRvpr5fzvEH0+yUy0fYGwwm9USEEx6fyIbmtFMfhZ6F3aD88qsG+P4+Sm8noQkKd+NoCXl6nYqo=
+	t=1783471834; cv=none; b=BHkOHv5DIXtwVUIZrdmU/KahuubsvJHR+7ny361K0zYlBYT7IlnHPIQZB7KZx2mojkPJ+V4+qGk03rFKa78XttfnGonc5xYcP4QDMJTXRTFHs6qVTf+83EcY2m64kDDD6Ajc57NrTNTK1ZPyFTGaByjIXytUdF4dQ8EQVVx1USg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783470777; c=relaxed/simple;
-	bh=71Pco1NKvzYOgDQFPKWlV/QQfZzmcsD9+Kah4+wKs4k=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=gfEhRSwGwT0hcNZScRwDfokV0DOyF77vwuBk0XNPuGLcDTEyMwoZG9NOGi+s15hqx+FE8zaP4S0G7mVub+WJLLEb67y8xDkE34Y5kWgG3QS6g7L40m13kTzwY0rI3HqFpeN+OerTKG47IZmUZJyCd/04xAuN4y6zLJFPkoxUd30=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=cirque.corp-partner.google.com; spf=pass smtp.mailfrom=cirque.corp-partner.google.com; dkim=pass (2048-bit key) header.d=cirque-corp-partner-google-com.20251104.gappssmtp.com header.i=@cirque-corp-partner-google-com.20251104.gappssmtp.com header.b=KGui10Ja; arc=none smtp.client-ip=74.125.231.65
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=cirque.corp-partner.google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=cirque.corp-partner.google.com
+	s=arc-20240116; t=1783471834; c=relaxed/simple;
+	bh=vIVMwL29UTtjJWpGEzB36DlL34Lh4GkOZd+aNhnq7Z4=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=ZPbM4B+8X8EvQoMTjeD6xDUzBUbXoMzNCnvL2o0GwuB/YLUMfZKb2+koMSmSkLeop3xSjgPXTPgtDXp5+e3KU7b8ifsVaCt/NQQMZdfvNXz0Q4wHEv2mXFmw34w8/zLr8sTjHte63+OpAY/Myj6dHR1t10Qaz1K4e4yuBPqgyq4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Zw+BNmEH; arc=none smtp.client-ip=209.85.216.47
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=cirque-corp-partner-google-com.20251104.gappssmtp.com header.i=@cirque-corp-partner-google-com.20251104.gappssmtp.com header.b="KGui10Ja"
-Received: by mail-oa2-f1.google.com with SMTP id 586e51a60fabf-447207fb885so51457fac.0
-        for <linux-input@vger.kernel.org>; Tue, 07 Jul 2026 17:32:55 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Zw+BNmEH"
+Received: by mail-pj1-f47.google.com with SMTP id 98e67ed59e1d1-38426d04bb4so97995a91.1
+        for <linux-input@vger.kernel.org>; Tue, 07 Jul 2026 17:50:32 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=cirque-corp-partner-google-com.20251104.gappssmtp.com; s=20251104; t=1783470774; x=1784075574; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:reply-to:references
-         :in-reply-to:message-id:date:subject:cc:to:from:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=S+0b9PO2VuXYQdQayE86fJIhTlqbTK6Zlb8iw7pO6Ts=;
-        b=KGui10Ja7xO+EGZvWt6YPIPgyTR5ByO9z/HAV7ZlFGdNY3YF+4h2VnnTrT2EsnKBTf
-         tmvN8q52Q7H4mZkJ9/SlozPOtr+BQjbH/n+QSWYXqqYdcwdzFCoOKhtWPeC86a0c/x0n
-         GmlNYy8EX+/78NsbAYcbCGSS5h5a6/HCvtUMRwAM7tPTRmwPhvaoyNsXsxx6rQ771dL+
-         /BfKq6jOi/f9cGCNcOe8PmjeuanewLQ+T1169xlMx7oeJzdUqBiwYn89xhmjJe6yDqMn
-         Y7INDcrE4VTzX5ujfM1JDj3Hbvf/K2dKwS7iXbx9XPbgrB3gcLftBqpOCepfzvTtlQg9
-         bNiA==
+        d=gmail.com; s=20251104; t=1783471832; x=1784076632; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:sender:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=dW4won5xrg7JVxpPSnTAkNZ/C4zW78C/w6G3Jylbcw4=;
+        b=Zw+BNmEHnRhGMiz+NlYhTTqncY9YRltTqJPOz1ffh7LRli5CP2PbcUP7ewVtt7HM61
+         rwAf/8ZYrK/XynGgoEnnGzIo4G/w0OCCuZ89KeLK0tR+kbSF2B16O7YxDEjzU3rv76Yv
+         rVCAJVGVTUEJgJB4c8bVUDHqRYkbS5hWeXyFKZ3PCPqDugsLB79WLie0E3DYgQIV0/UA
+         4LUNgVASIh3QNoCf6FQT6GcYkSeIEpdR7VvjVjyL5a4aPHnHIGE68t+xjTi0TOLzSNJ1
+         0wltikxTPwphOVIUr83vizZ/fmhA1PyAuxKCgcYH6qPBZEikahmDTXb8/UjOoWjWh1/d
+         VPYw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1783470774; x=1784075574;
-        h=content-transfer-encoding:mime-version:reply-to:references
-         :in-reply-to:message-id:date:subject:cc:to:from:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=S+0b9PO2VuXYQdQayE86fJIhTlqbTK6Zlb8iw7pO6Ts=;
-        b=YG5Qx/AxvqavnP8ugQ83z4g94g2QIhqyCXt0CngT51NkGe7h9Z1boIMyXW9kfZCXD3
-         iCm2jquu3B4fb2NBRsdJrz/9OdRqpxtof+dSV7yPXBT5wXxeFWsPUD7/iXu7nZQXXamK
-         PRD7wNB5jFcufIhLgOy4XVPpNZkrnQH10RuCT51OHF/SBLtoy7B+839NDxova4WLvjxg
-         wK1u0Os4yM1IIwtwhzTpY2JH9MTsEQeqVHSxxS9h9gemvSilQS9wMPoIdmloTl96eUp4
-         WqoKgz0on8UhF0IZDAbYlXXxb79Q5aEqW62/jPesMce7d7bfYmAcShXSMwcR3AEo6MJU
-         KcNw==
-X-Forwarded-Encrypted: i=1; AFNElJ+Am4lvsnN6gHzcnujrMJUcnwIsUEEW+yfsFdXMTO5x7STnPEgjBmQgjz3fbzKfeAb+N+TUHYS2dEkd0Q==@vger.kernel.org
-X-Gm-Message-State: AOJu0YzWN3wcKKi9xdJvqfWlqasWE70tdfDvufc51olGp8AFfENRyUCp
-	v9T31Hlhw4YgAQfaKOJ8DNydElJhfTdBPNcAr/NdbQ+fwu2pHcmaFdWeZMGvB2mx3qI=
-X-Gm-Gg: AfdE7clOI27GmNpjNTJoDjVuD/k/tKhRyrtG7d/tvX3/ZfCsW38AAkaTiiCu+daslia
-	z91IWCfD+jWiiwMnb9MhY0JsUFddMme+uqNdjyLjcRNqm6Tmd6n9WE3qVIq8bhYUApvPbe5ipLA
-	2UdkJ6jPGONWB3O5PQ4c5xMOceaJAuwQiT+ljtYOZY3FNuIcGvK7OYYyTKkPIP9weO8kQUEXtRm
-	aPeh3UQfuMcRBgQaF3q1THRCt1xZzgBrGqb31FYg+erCdPK2Bo3zZRVbjgfnzjuOL0/ZELZ2d3R
-	ruHPRlJWDNr5U+pgj9bFNi/yVI5UfyDGtzI9KcpTKVCS6ElC5r+WGHYqsuBWqwGl5xLBioEM3hT
-	q3DouRfRqLVaKeXfYItNxEAMUXte29FHWa5LCOOyEmzYA8/0oO7e/Kz1Whh/iTM/xGwmVOmSe8w
-	c8uVh0NX1dbQ==
-X-Received: by 2002:a05:6820:2114:b0:6a1:5756:10d3 with SMTP id 006d021491bc7-6a36da8098bmr227013eaf.22.1783470774670;
-        Tue, 07 Jul 2026 17:32:54 -0700 (PDT)
-Received: from Armorhide.. ([2601:680:ce01:1ab0:829f:8735:5765:ed5d])
-        by smtp.gmail.com with ESMTPSA id 006d021491bc7-6a36a5b559dsm801148eaf.1.2026.07.07.17.32.53
+        d=1e100.net; s=20251104; t=1783471832; x=1784076632;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:sender:x-gm-gg:x-gm-message-state:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=dW4won5xrg7JVxpPSnTAkNZ/C4zW78C/w6G3Jylbcw4=;
+        b=RYag5kjaguJ8B8QANfzrQ81qLfcR0zTZ2oOIQibbufOoN1DfzFgXB80fRj17tC/RpT
+         XoP9qlBlwtOdkhIj+2l7JJ4VActl7Z1X3ejvs4kO1P9ESpGnopfY23GS/dXz7cSq0DCC
+         G2kXYd4H9GIen+NzDLdGqHLHJWOZFN8t6xMInCz4HSWwnAVaDN6ppTg66wNvjGe4PCCj
+         TT90UGqWnYwBApu9OMClEqKp3QbzTnTtW+df/B5XotuKH3l4Sm6PoNBmbc0Btk1tr2O6
+         SMdgBWZ/NyQuehtnqEkDprKVBsTfYGzTwGYIyAu6ypPxfUW4vV9ITKwr+w7Og6VQEJ1a
+         kjbA==
+X-Forwarded-Encrypted: i=1; AHgh+RpsdSkTRCWCzN5MB5W9KtiKfWawc8aF/C5fgz6rBtXzvu1p68uSGM0CvBT1DXKw42K3zJ9bnugzyE1WZQ==@vger.kernel.org
+X-Gm-Message-State: AOJu0Ywg+XMZuZgxabaJzI2IaLhJCZcTBlExjm4p2seI1wV7TsXy7V+W
+	TwwqFRYp2nzCq0Jti1IUWDPluqqNVAG/HhuAq2bBHsGQ/SlhkeP5QLim
+X-Gm-Gg: AfdE7ck6h++KvnMzU5ctV2a0NouEzUFkSjk7bwAQZO58ZDQANylKNiB75BpwwTjpQGZ
+	XqkTrdtFsmoT3o3W/aSfoMKvpOfFuQHOhhCzmxucfYXRiR9XOFTq0gSXFEsnYhK0LqE71rnb5t0
+	zzF9re69Z1N6/H4/nT5sa4KOeSVUPMqcpqg6AQUZp636pJoAFHJjXKkVw2HlWG6HV0x84biKJox
+	MzG+4nJFGAu/TkiqouXhvTcMBWWMPidsYcU3YB4p9Hu0GjMkKy57b5pWZL1vErU+28vyzN0cC6O
+	1hzD4fcXIVLES5DmKCn1pgnzFlXvEIZBLTuH1IaUyqKpPoteqdq5Kvk+MwaqGyamelPWiJkZvT7
+	wKUg0qiz3FxsqyN3N3ylGwCcqvwPwrtHnvSc7qulhdn+r0tTo2Y0d7JrS1sNOcRK+0k36a3q6Vf
+	uc9gy0qj6N/IueDY1rVAILnlt80w==
+X-Received: by 2002:a17:90b:3a48:b0:37f:ee3a:12a with SMTP id 98e67ed59e1d1-387d6b978a7mr5302610a91.2.1783471831915;
+        Tue, 07 Jul 2026 17:50:31 -0700 (PDT)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:da43:aeff:fecc:bfd5])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-31174a92eccsm12471259eec.23.2026.07.07.17.50.31
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 07 Jul 2026 17:32:54 -0700 (PDT)
-From: Vadim Klishko <vadim@cirque.corp-partner.google.com>
-X-Google-Original-From: Vadim Klishko <vadim@cirque.com>
-To: jikos@kernel.org
-Cc: bentiss@kernel.org,
-	dianders@chromium.org,
-	treapking@chromium.org,
-	raoxu@uniontech.com,
-	superm1@kernel.org,
-	kenkinming2002@gmail.com,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	AJ_Cheng@compal.com,
-	kevinchou@google.com,
-	andy.hung@cirque.com,
-	andy.hung@cirque.corp-partner.google.com,
-	CindyXT_Wang@compal.com,
-	frank.chen@cirque.com,
-	Vadim Klishko <vadim@cirque.com>
-Subject: [PATCH v2] HID: i2c-hid: Add a quirk for a Cirque I2C device.
-Date: Tue,  7 Jul 2026 18:31:08 -0600
-Message-Id: <20260708003108.20288-1-vadim@cirque.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20260703144726.14808-1-vadim@cirque.com>
-References: <20260703144726.14808-1-vadim@cirque.com>
-Reply-To: vadim@cirque.com
+        Tue, 07 Jul 2026 17:50:31 -0700 (PDT)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Date: Tue, 7 Jul 2026 17:50:30 -0700
+From: Guenter Roeck <linux@roeck-us.net>
+To: Edward Adam Davis <eadavis@qq.com>
+Cc: syzbot+9eebf5f6544c5e873858@syzkaller.appspotmail.com,
+	bentiss@kernel.org, jikos@kernel.org, linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org,
+	syzkaller-bugs@googlegroups.com
+Subject: Re: [PATCH] hwmon: prevent packets from going to driver for probe
+Message-ID: <563e9ee4-b2f2-4b3d-90a4-3a11e9f43f97@roeck-us.net>
+References: <69eed7e0.a00a0220.7773.0026.GAE@google.com>
+ <tencent_BB7C33EB9EA41B7B4B5F1B8B25C0BA13BB08@qq.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <tencent_BB7C33EB9EA41B7B4B5F1B8B25C0BA13BB08@qq.com>
 
-Cirque touchpads with PID D0C1 generate an error when probed
-by the I2C HID driver, resulting in no hidraw device created.
-Adding I2C_HID_QUIRK_NO_IRQ_AFTER_RESET fixes the issue.
+On Tue, Apr 28, 2026 at 12:12:26PM +0800, Edward Adam Davis wrote:
+> A race condition exists between hid_input_report() and the point
+> immediately following the execution of hid_device_io_start() within
+> corsairpsu_probe(). If the probe operation fails after "io start" has
+> been initiated, this race condition will result in a uaf vulnerability
+> [1].
+> 
+> CPU0				CPU1
+> ====				====
+> corsairpsu_probe()
+>  hid_device_io_start()
+>   ... unlock driver_input_lock 
+>  hid_hw_stop()
+>   kfree(hidraw)			__hid_input_report()
+> 				 ... acquire driver_input_lock
+> 				 hid_report_raw_event()
+> 				  hidraw_report_event()
+> 				   ... access hidraw's list_lock // trigger uaf
+> 
+> Consequently, when corsairpsu_probe() fails and hid_hw_stop() needs to
+> be executed, the io_started flag is first cleared while holding the
+> driver_input_lock to prevent potential race conditions involving input
+> reports.
+> 
+> [1]
+> BUG: KASAN: slab-use-after-free in rt_spin_lock+0x83/0x400 kernel/locking/spinlock_rt.c:56
+> Call Trace:
+>  hidraw_report_event+0x5d/0x3a0 drivers/hid/hidraw.c:577
+>  hid_report_raw_event+0x311/0x1730 drivers/hid/hid-core.c:2076
+>  __hid_input_report drivers/hid/hid-core.c:2152 [inline]
+>  hid_input_report+0x44e/0x580 drivers/hid/hid-core.c:2174
+>  hid_irq_in+0x47e/0x6d0 drivers/hid/usbhid/hid-core.c:286
+>  __usb_hcd_giveback_urb+0x3b3/0x5e0 drivers/usb/core/hcd.c:1657
+>  dummy_timer+0x8a9/0x47d0 drivers/usb/gadget/udc/dummy_hcd.c:2005
+> 
+> Allocated by task 10:
+>  hidraw_connect+0x57/0x430 drivers/hid/hidraw.c:606
+>  hid_connect+0x5bf/0x19d0 drivers/hid/hid-core.c:2277
+>  hid_hw_start+0xa8/0x120 drivers/hid/hid-core.c:2387
+>  corsairpsu_probe+0xd9/0x3c0 drivers/hwmon/corsair-psu.c:782
+> 
+> Freed by task 10:
+>  hidraw_disconnect+0x4f/0x60 drivers/hid/hidraw.c:662
+>  hid_disconnect drivers/hid/hid-core.c:2362 [inline]
+>  hid_hw_stop+0x101/0x1e0 drivers/hid/hid-core.c:2407
+>  corsairpsu_probe+0x327/0x3c0 drivers/hwmon/corsair-psu.c:826
+>  
+> Fixes: d115b51e0e56 ("hwmon: add Corsair PSU HID controller driver")
+> Reported-by: syzbot+9eebf5f6544c5e873858@syzkaller.appspotmail.com
+> Closes: https://syzkaller.appspot.com/bug?extid=9eebf5f6544c5e873858
+> Tested-by: syzbot+9eebf5f6544c5e873858@syzkaller.appspotmail.com
+> Signed-off-by: Edward Adam Davis <eadavis@qq.com>
 
-Signed-off-by: Vadim Klishko <vadim@cirque.com>
----
+Applied.
 
-Changes in v2:
-- No code changes.
-- Added subsystem to the subject line.
-- Revised the explanation.
-- Link to v1: https://lore.kernel.org/all/20260703144726.14808-1-vadim@cirque.com/
+Note that it would help to copy subsystem mailing lists and maintainers
+on patches like this.
 
- drivers/hid/hid-ids.h              | 1 +
- drivers/hid/i2c-hid/i2c-hid-core.c | 2 ++
- 2 files changed, 3 insertions(+)
-
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 1059922baaac..496589277bd5 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -334,6 +334,7 @@
- 
- #define I2C_VENDOR_ID_CIRQUE           0x0488
- #define I2C_PRODUCT_ID_CIRQUE_1063     0x1063
-+#define I2C_PRODUCT_ID_CIRQUE_D0C1     0xD0C1
- 
- #define USB_VENDOR_ID_CJTOUCH		0x24b8
- #define USB_DEVICE_ID_CJTOUCH_MULTI_TOUCH_0020	0x0020
-diff --git a/drivers/hid/i2c-hid/i2c-hid-core.c b/drivers/hid/i2c-hid/i2c-hid-core.c
-index 3adb16366e93..63004bcbfa71 100644
---- a/drivers/hid/i2c-hid/i2c-hid-core.c
-+++ b/drivers/hid/i2c-hid/i2c-hid-core.c
-@@ -136,6 +136,8 @@ static const struct i2c_hid_quirks {
- 		I2C_HID_QUIRK_BAD_INPUT_SIZE },
- 	{ I2C_VENDOR_ID_CIRQUE, I2C_PRODUCT_ID_CIRQUE_1063,
- 		I2C_HID_QUIRK_NO_SLEEP_ON_SUSPEND },
-+	{ I2C_VENDOR_ID_CIRQUE, I2C_PRODUCT_ID_CIRQUE_D0C1,
-+		I2C_HID_QUIRK_NO_IRQ_AFTER_RESET },
- 	/*
- 	 * Without additional power on command, at least some QTEC devices send garbage
- 	 */
--- 
-2.34.1
-
+Thanks,
+Guenter

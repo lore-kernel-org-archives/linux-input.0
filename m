@@ -1,44 +1,44 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 881B633F5BD
-	for <linux-input@vger.kernel.org>; Thu,  9 Jul 2026 03:33:41 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AC63438D3E4
+	for <linux-input@vger.kernel.org>; Thu,  9 Jul 2026 03:34:37 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783568022; cv=none; b=cbkFt8OPF4yYeCnYpRK8Uc2395IoLw6yt94QYxAVKb0Qw12vKAa4kA7KdXVivZbROXs8YG5aOW9P4mAmyLqm5oQ0G9RRZ5Qz8LEcCY6qul4nzmhpnFjjdOR5yK420q75vuXTPloiGD506glrsIPIw6O27CIZvtkMU3wdKZL9M2M=
+	t=1783568078; cv=none; b=DN3/epzbi+IP6+10wOKGzX6gCplsOh2DtIxBu5ZI/zSjafNflY7fjxi233JWXHFxbjR49ATpoDaigLc98FNuAy0UQkffW+Jda2+oKm1A4VXAmWgUcCgJ8kSLw57Uspg5tNyJifRBEcWJKMtlxgxJcm3syiKo6M04pPhJNJbmnk4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783568022; c=relaxed/simple;
-	bh=nha3HDPEU63w4T4sW4JWpQnCBL9K80VrREfoizXMgLg=;
+	s=arc-20240116; t=1783568078; c=relaxed/simple;
+	bh=R6Z1dRgRcdjk3Or0raNgtH7S8m+ptF+j8J6gBG81NPo=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=DbvCjkSK/QReHUp6qfJyahhvvOrPsVpcUpSm37/WCtxmy6J27ftm2cTF77hWCc/C5L6GDZVFl4c0AJZBeakiPx51qeWYwghc5K0+H1TrpzMtAJEtWFr3e9ar87CLDQ+lGVngh5hKBCzVvmDprqy5md5qPo8o/CSp2kA3SXX7tRE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=gW/6fYTl; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=IQrhu8ZGidMl2ZRifIdDCOulcYSJs7z4W6n7dTxXVb41zufI/NkAsM2/5k35JMuvsEGAicEkf8+1E4g1BFXrTKT+1zkWTbvRHAvpSf7kQtUOaZQ+wVlReMTiA1WjfSsvkougMN1LG6kOZ8jpmNZrPNccIrmOLisT0q1Mf+FqG6g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Er7uZ4gY; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="gW/6fYTl"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DAD891F000E9;
-	Thu,  9 Jul 2026 03:33:40 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Er7uZ4gY"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 216F41F000E9;
+	Thu,  9 Jul 2026 03:34:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1783568021;
-	bh=S2S4X/QXZKKHtOib48NiLaN0T/hj4FLq0TGPIdq13gs=;
+	s=k20260515; t=1783568077;
+	bh=9I66sQHzy18/NqFEHanzpctBKLXa71QuFSBptuwHzx0=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=gW/6fYTlziZnPDfWM7vEBgU3DTY2I33/MxOj2eH8lWwQ0WgrljgoB9tiEsxWVH9A/
-	 iFBAUhXtvstF8gljpKAVWWqkqE1o/Gwde0viK73XY7+EtOq20HHOLvoD/QPoJ+yGIT
-	 Qk4hr9Ocblf/bKYUePArCRDPicQiFThy8e1kuBFhlIvOvE2luBx+9VLYkyKRhMWs0b
-	 e5E05kocRrUScaPV+Y5K9JCUEwCnJGv4q9p+/xkkslAOmeWZCxrUQ+z3UO+5sSdyXz
-	 bfJnN9qub8FFOxJaWrL8XOKSUGEj5lvNs7aDWPTL3HTOdE9LaaBjEeeqHeZKOJV8Ov
-	 2YVsrwxbkNsZg==
+	b=Er7uZ4gY1G77IG/Igup1QCQnVSlHOWeCpv2591U6kA7QxhO33/gZdmOrHbQEeDZEd
+	 yRNBKPZOYliXXCeEWClzGdmcVEiSGFAB59BwF4Qn79L8vA1cMge9/3bo6ufSCvlDHe
+	 E+Wd+9s0OdWRFFKprzUDan6xdBzP5UuhqozCB0y72vWRfpQ7l21WmhBPCQM3b83xfM
+	 mMJ1H4XrwPbTZ/U8+cVj3LuWgx9r3mf5UXZAN+19abZ6yk0OisThXi8+ihUispIrGz
+	 bQMdxaslgOhBV2wRHtAdaiHEJZPWgcGdwElXBfBea3WqmmPnGJs+GuafRi1EykquYq
+	 1+zEwhvVNFHhw==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v6 4/9] HID: steelseries: Refactor Arctis driver to use
- device_info framework
+Subject: Re: [PATCH v6 2/9] HID: steelseries: Split Arctis headset driver
+ into separate module
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Sriman Achanta" <srimanachanta@gmail.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260709032316.1908460-5-68172138+srimanachanta@users.noreply.github.com>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <20260709032316.1908460-3-68172138+srimanachanta@users.noreply.github.com>
 References: <20260709032316.1908460-1-68172138+srimanachanta@users.noreply.github.com>
- <20260709032316.1908460-5-68172138+srimanachanta@users.noreply.github.com>
+ <20260709032316.1908460-3-68172138+srimanachanta@users.noreply.github.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 09 Jul 2026 03:33:40 +0000
-Message-Id: <20260709033340.DAD891F000E9@smtp.kernel.org>
+Date: Thu, 09 Jul 2026 03:34:36 +0000
+Message-Id: <20260709033437.216F41F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -48,147 +48,119 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 Thank you for your contribution! Sashiko AI review found 3 potential issue(=
 s) to consider:
 
-New issues:
-- [Medium] Wireless status updates are incorrectly gated by battery registr=
-ation success, causing a feature regression.
-- [Medium] Relaxing the Arctis 9 battery report size check may cause spurio=
-us headset disconnects.
-
 Pre-existing issues:
-- [High] A race condition exists during initialization where `sd->battery` =
-can temporarily hold an `ERR_PTR`, leading to a potential kernel panic if `=
-raw_event` triggers concurrently.
+- [High] If `steelseries_headset_battery_register()` fails, the probe funct=
+ion ignores the error and continues. This leaves `sd->battery` as an `ERR_P=
+TR` and `sd->battery_work` uninitialized. Later, incoming events in `steels=
+eries_arctis_raw_event()` call `power_supply_changed(sd->battery)` and `sch=
+edule_delayed_work(&sd->battery_work, ...)`, which will dereference the err=
+or pointer and operate on an uninitialized work structure, causing a kernel=
+ panic. Similarly, `steelseries_arctis_remove()` calls `cancel_delayed_work=
+_sync(&sd->battery_work)` which will also crash.
+- [High] The driver calls `hid_hw_start()` and `hid_hw_open()` before calli=
+ng `steelseries_headset_battery_register()`. `hid_hw_open()` starts the URB=
+ polling, enabling asynchronous hardware events to trigger `steelseries_arc=
+tis_raw_event()` immediately. At this point, `sd->battery` is still `NULL` =
+and `sd->battery_work` is uninitialized. If a report is received during thi=
+s race window, the event handler will pass a `NULL` pointer to `power_suppl=
+y_changed()` and call `schedule_delayed_work()` on uninitialized work, resu=
+lting in an immediate kernel panic.
+- [High] Missing length check on the report descriptor before accessing pay=
+load offsets in `steelseries_is_vendor_usage_page()`. The function uncondit=
+ionally accesses `hdev->rdesc[0]`, `hdev->rdesc[1]`, and `hdev->rdesc[2]`. =
+Although `usbhid_parse()` guarantees `rsize > 0`, it does not guarantee `rs=
+ize >=3D 3`. If a malformed USB device presents a 1- or 2-byte descriptor, =
+this reads out of bounds of the kmalloc'd `rdesc` buffer.
 --
 
---- Patch [4]: [PATCH v6 4/9] HID: steelseries: Refactor Arctis driver to u=
-se device_info framework ---
-commit 83accfc4c1be2885884d77d1f5dcd98d620ce34b
+--- Patch [2]: [PATCH v6 2/9] HID: steelseries: Split Arctis headset driver=
+ into separate module ---
+commit 5114a40b6cbe9d3f2ea95a54f76bb50da5fb5d42
 Author: Sriman Achanta <srimanachanta@gmail.com>
 
-HID: steelseries: Refactor Arctis driver to use device_info framework
-   =20
-Replace the per-product if/else quirk bitmap with a
-steelseries_device_info struct. Each model provides its capabilities,
-sync_interface, and request_status/parse_status callbacks. Report
-sending is folded into steelseries_send_report() and the feature and
-output wrappers, and the battery identifiers lose their per-model names.
+HID: steelseries: Split Arctis headset driver into separate module
+
+This patch moves the Arctis headset code from hid-steelseries.c into a
+new hid-steelseries-arctis.c module. It separates the headset handling
+from the SRWS1 racing wheel code.
 
 > diff --git a/drivers/hid/hid-steelseries-arctis.c b/drivers/hid/hid-steel=
 series-arctis.c
-> index 079504e6932a1..c54c56db9ddd7 100644
-> --- a/drivers/hid/hid-steelseries-arctis.c
+> new file mode 100644
+> index 0000000000000..079504e6932a1
+> --- /dev/null
 > +++ b/drivers/hid/hid-steelseries-arctis.c
 
 [ ... ]
 
-> @@ -88,30 +108,101 @@ static int battery_capacity_to_level(int capacity)
-> +static void steelseries_arctis_9_parse_status(struct steelseries_device =
-*sd,
-> +					      u8 *data, int size)
+> +static bool steelseries_is_vendor_usage_page(struct hid_device *hdev, ui=
+nt8_t usage_page)
 > +{
-> +	if (size < 5)
-> +		return;
-> +
-> +	if (data[0] =3D=3D 0xaa && data[1] =3D=3D 0x01) {
-> +		sd->headset_connected =3D true;
-> +		sd->battery_charging =3D (data[4] =3D=3D 0x01);
-> +		sd->battery_capacity =3D steelseries_map_capacity(data[3], 0x68, 0x9d);
-> +	} else {
-> +		/* Device off: 0x55 (no status) or 0x03 (stale status). */
-> +		sd->headset_connected =3D false;
-> +		sd->battery_charging =3D false;
-> +	}
+> +	return hdev->rdesc[0] =3D=3D 0x06 &&
+> +		hdev->rdesc[1] =3D=3D usage_page &&
+> +		hdev->rdesc[2] =3D=3D 0xff;
 > +}
 
-[Severity: Medium]
-Could this relaxed size check cause spurious disconnects?
+[Severity: High]
+This is a pre-existing issue, but does this function properly validate
+the size of the report descriptor before accessing it?
 
-The original code checked for ARCTIS_9_BATTERY_RESPONSE_LEN (64 bytes). By
-relaxing the check to 5 bytes, if the headset sends any other non-battery
-report between 5 and 63 bytes, it will bypass the filter, fail the signature
-check, and fall into the else block.
-
-Would that incorrectly mark the headset as disconnected?
-
-[ ... ]
-
-> @@ -168,7 +244,26 @@ static enum power_supply_property steelseries_headse=
-t_battery_props[] =3D {
+The function unconditionally accesses the first 3 bytes of hdev->rdesc.
+Although hid_parse() guarantees rsize > 0, if a malformed USB device
+presents a 1- or 2-byte descriptor, wouldn't this read out of bounds
+of the allocated rdesc buffer?
 
 [ ... ]
 
-> +static int steelseries_battery_register(struct steelseries_device *sd)
->  {
->  	static atomic_t battery_no =3D ATOMIC_INIT(0);
->  	struct power_supply_config battery_cfg =3D { .drv_data =3D sd, };
-> @@ -176,25 +271,27 @@ static int steelseries_headset_battery_register(str=
-uct steelseries_device *sd)
->  	int ret;
+> +static int steelseries_arctis_probe(struct hid_device *hdev, const struc=
+t hid_device_id *id)
+> +{
 
 [ ... ]
 
->  	sd->battery =3D devm_power_supply_register(&sd->hdev->dev,
->  			&sd->battery_desc, &battery_cfg);
->  	if (IS_ERR(sd->battery)) {
->  		ret =3D PTR_ERR(sd->battery);
-> +		sd->battery =3D NULL;
->  		hid_err(sd->hdev,
->  				"%s:power_supply_register failed with error %d\n",
->  				__func__, ret);
+> +	ret =3D hid_hw_start(hdev, HID_CONNECT_DEFAULT);
+> +	if (ret)
+> +		return ret;
+> +
+> +	ret =3D hid_hw_open(hdev);
+> +	if (ret)
+> +		return ret;
 
 [Severity: High]
-This is a pre-existing issue, but can this cause a kernel panic if a report
-arrives concurrently?
+This isn't a bug introduced by this patch, but does calling hid_hw_open()
+before steelseries_headset_battery_register() introduce a race condition?
 
-Since hid_hw_start() is called earlier during probe, could raw_event()
-trigger while sd->battery temporarily holds an ERR_PTR?
+Calling hid_hw_open() starts the hardware polling, which enables
+asynchronous events to immediately trigger steelseries_arctis_raw_event().
+At this point, sd->battery is still NULL and sd->battery_work is
+uninitialized.
 
-If raw_event() fires before sd->battery is set to NULL, it sees a non-NULL
-pointer and passes it to power_supply_changed(), which might dereference the
-error pointer and crash.
+If a report is received during this race window, would the event handler
+pass a NULL pointer to power_supply_changed() and schedule uninitialized
+work, resulting in a crash?
 
-[ ... ]
-
-> @@ -262,130 +365,92 @@ static void steelseries_arctis_remove(struct hid_d=
-evice *hdev)
-
-[ ... ]
-
->  static int steelseries_arctis_raw_event(struct hid_device *hdev,
-> -					struct hid_report *report, u8 *read_buf,
-> -					int size)
-> +				 struct hid_report *report, u8 *data, int size)
->  {
-
-[ ... ]
-
-> -	if (connected !=3D sd->headset_connected) {
-> -		hid_dbg(sd->hdev,
-> +	if (sd->headset_connected !=3D old_connected) {
-> +		hid_dbg(hdev,
->  			"Connected status changed from %sconnected to %sconnected\n",
-> -			sd->headset_connected ? "" : "not ",
-> -			connected ? "" : "not ");
-> -		sd->headset_connected =3D connected;
-> -		steelseries_headset_set_wireless_status(hdev, connected);
-> +			old_connected ? "" : "not ",
-> +			sd->headset_connected ? "" : "not ");
 > +
-> +		if (sd->battery) {
-> +			steelseries_headset_set_wireless_status(sd->hdev,
-> +							       sd->headset_connected);
-> +			power_supply_changed(sd->battery);
-> +		}
->  	}
+> +	if (steelseries_headset_battery_register(sd) < 0)
+> +		hid_err(sd->hdev,
+> +			"Failed to register battery for headset\n");
+> +
+> +	return ret;
+> +}
 
-[Severity: Medium]
-Does this check unintentionally gate the wireless status update behind the
-battery registration?
+[Severity: High]
+This is a pre-existing issue, but is it safe to ignore the return value
+of steelseries_headset_battery_register() here?
 
-If battery registration fails (and sd->battery is NULL), it looks like the
-USB device's wireless status will no longer be reported to userspace. Is
-this expected behavior?
+If registration fails (for example, due to a duplicate name), the probe
+function prints an error but still succeeds. This leaves sd->battery as
+an ERR_PTR and sd->battery_work uninitialized.
+
+If a subsequent event is processed by steelseries_arctis_raw_event(),
+it will call power_supply_changed() and dereference the error pointer.
+Furthermore, steelseries_arctis_remove() will call
+cancel_delayed_work_sync() on an uninitialized structure, which can
+crash the workqueue.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260709032316.1908=
-460-1-68172138+srimanachanta@users.noreply.github.com?part=3D4
+460-1-68172138+srimanachanta@users.noreply.github.com?part=3D2

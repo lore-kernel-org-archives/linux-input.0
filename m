@@ -1,121 +1,128 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f52.google.com (mail-pj1-f52.google.com [209.85.216.52])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 61A8039903A
-	for <linux-input@vger.kernel.org>; Thu,  9 Jul 2026 03:38:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B108E2F0C79
+	for <linux-input@vger.kernel.org>; Thu,  9 Jul 2026 04:18:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.52
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783568324; cv=none; b=ocWz5PVMz6YJad3BWrhW4T4Q5KUROE4uJS/pFDTUe75+aIA+Ai1lpcXJDywE0tLb9ru9TM2s2d0/xTCqyTvvqzAI8FlWDVGkFkH/vW/4YS/Ksvvg2tp5i83hsnQkHRhPMGPrhQGMR9i9uKaKvufVZQhlPh6/CyELGEUsDwznSKo=
+	t=1783570735; cv=none; b=peTfxROLSMRmRQUKky0RwVuLAg3+czcSAAh9agM7QTXL7usx3x27dzqIhkCkuPIPOZtBLbLWdOjftWfp1ZlEjtEAuNX2iFd7Lz+5C82CaujcE1nm58V3mqIu5SstNrIy4uK+HhknMad5uva61miM6JvPz7bCUZNy2vAUMESU9Kk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783568324; c=relaxed/simple;
-	bh=N3sI+OoQHlzQ3iSPzLYoNouRMzKJevTIdZQeWSTSWMM=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=JNyM/xTBO/ZPgt+4N3FCm1tx5t7tp4Lg9LnhQtoya/LS3/gMs/WvI/SnJb2ZFfCExmMUEQ6RjM084Bz+DlNKFbSSmgRu34XmJ9Av+nrveCPC+iBwnd/KyphICecli2G7Yjce/R7HD1i8dv/04vERwlZe5w+UFSIaD5YREhX7xF8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=A+MfPeXz; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1783570735; c=relaxed/simple;
+	bh=IILXyeTLIo8lfw6LFeeHdENWRoNcmpOE4JfBK/1Xe4s=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition; b=GwolOy1hfC/ysCHkGkbdF/sT3egsORCf+nu59enq3T6nzi93ZYE3Lx9RZsSLcsOjS6g8rHumG0TiJUyG3qls/9fn1wKO4s7kh3v6REZpqvWE6QVO/NHij1sOqVVF8TLBxVgLzvcI3A24RYi/ByUN6+dwUfQf234WmRukozyq6B0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=oAHEPvPZ; arc=none smtp.client-ip=209.85.216.52
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="A+MfPeXz"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BDE801F000E9;
-	Thu,  9 Jul 2026 03:38:42 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1783568323;
-	bh=K22I1M89T8yzTOHOd5XifrZDHlD5hAJPVCFfgyAm4uo=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=A+MfPeXzGLkFL8tcYaMBeAwt28i17lCWA9iXf0mhFEEThEDWyhAMwl18MR/OlR+yu
-	 mRx2QW4lpRlaJdl4z/y6nqJXkB15VvD/EpFRdQj0PUAN68XHSwuN5gcZy1paorylRV
-	 D7vhAXENZNSCd3WFwRMS/0IIg5ANMzVGRGRha52+XB95jYtT0TWFcQOHljWd5sc6le
-	 7I4wSolfSu9kjZjmdnLFjFP1NZwo4UhqYzt0THQIbPpgmhFoQn98AGDAZ+k7R1bJHN
-	 LTKTHf6spAdmYi+UeOeapG0n4vMEGMQLuq8JhDYVkJ7uliDFMjRMsr7HkMyDc9+c+c
-	 +0XFbQhlOOqFA==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v6 7/9] HID: steelseries: Manage battery lifetime with
- refcounting
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Sriman Achanta" <srimanachanta@gmail.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260709032316.1908460-8-68172138+srimanachanta@users.noreply.github.com>
-References: <20260709032316.1908460-1-68172138+srimanachanta@users.noreply.github.com>
- <20260709032316.1908460-8-68172138+srimanachanta@users.noreply.github.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Thu, 09 Jul 2026 03:38:42 +0000
-Message-Id: <20260709033842.BDE801F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="oAHEPvPZ"
+Received: by mail-pj1-f52.google.com with SMTP id 98e67ed59e1d1-3817f800c8bso1194810a91.1
+        for <linux-input@vger.kernel.org>; Wed, 08 Jul 2026 21:18:54 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1783570734; x=1784175534; darn=vger.kernel.org;
+        h=content-disposition:content-type:mime-version:mail-followup-to
+         :message-id:subject:cc:to:from:date:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=WYQ0kIRnKWVNRjOvudMESd414CivUKbHtSnEwlfkZXk=;
+        b=oAHEPvPZLJZq5VkBlNCa6nnJx4ihiD15tET/AXFAnlQ6SjEGdMysfA0bkA2oDge+n2
+         sYVu5PghLRRRLZJGfdR+Ckz8kw0O9bNbwh6DA+VApzJjGsMMy9GxFZCKGNPtxLHJkQVJ
+         /q7aZeX60+BVdqdav2QnazorjPdL3G87x/Vtzx6P/eAbjrmWP1qq5bWyf3RWDeizMLQD
+         RirGwZpMdsJr1oV3lUS+aVSPrpIgY+kDqRWtqUDoelm3MQJasNMlFZdCsP7lf+Lp1A3u
+         878tLlzq/x1qfaup5AZen4j6vXoYoD5FuCjVVtEw4yTTJf20g3nM4WGFUZubxLCQp+1R
+         9WXA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1783570734; x=1784175534;
+        h=content-disposition:content-type:mime-version:mail-followup-to
+         :message-id:subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=WYQ0kIRnKWVNRjOvudMESd414CivUKbHtSnEwlfkZXk=;
+        b=Cz5elM2pBwZPvjwg2ZYtv0pmDoAqlnWnvwK3/3bpsZypGy5v1oPm5xkTUSMhhnHObv
+         iIOviJpLRDy3GkGvF5HjVkdzkBWv5RSQrt4wBDYckHsimtykzGnJESWbyGZQoZMO5r3F
+         G695xBhtK5odZ6aEIVkdViIGE+6Rd3UNXjGVIqrgOMEY7+dJc6Jq+7sbUI0vHpjoVeoO
+         KzZ4Vj9smkAVOEJztHcahmyH+wpxcPg6Eu2Iamyzy6a9qXVt10beS8Q6z3Mf+fLxS8nc
+         GRejoxo2vPdqfo0S0yZwZdvYSkuq6Vec70N2xRn9ABj3JQAgXMwn7QEgX135mSmzfcK4
+         a1vA==
+X-Gm-Message-State: AOJu0YxAlq8yx1IEzGG5IpXIyOwXq4AIvyCc//6tnGCrvRzABA8K/Zeu
+	b/hnzTnmPfrR1yfUUD7fb/VDAxDduHo508HOk3JyRynajONuW8hyDEBe
+X-Gm-Gg: AfdE7cmIk1wjWoqGO/olknKuH8Lzm4LFJMjVQbS3qYD7Y9oUsZ4j6OJI0n0/CrAemdF
+	1i2GF34O2nezJJo7+m/3lJauwfZPdJpseYxtJli4ov0ytOAtk0VzdOFKHEP2xNhXWHyRa38Ptcc
+	tqvBEGsqeG24pArl+vmcCqDHA5V3Tj8AOlpCzw5e495/2zuElAo4gtalp9p3hnNATsS54E9NGS9
+	qTlR1bGIG7gPhwID1DGuJ02hWkJnDauyIE56ohPX6PvWpm2TeFC9B8hTed+JHx3ZiimpqExDULV
+	Np7wa2Wd5Cc7Y7xPo3V3ffK4yhnY6meXPzZywX6mQxa5BVir2/Tfty6n6on8Vs9J86usuPJ5fFr
+	0rBg4DRsnCPyK6FMe4UA5ToE0RJ0sQ3GCkLoIGscSOetLWSvcPuXitxw73znm79OCrDrLLYptnD
+	TdmA+JOScrlp/4lKthL+HvE+ibemZxqPmYRVmB2i4JyqAP1Jn3+9K2Pzehzu1+DMlT
+X-Received: by 2002:a17:90a:e705:b0:387:e0cb:7f0 with SMTP id 98e67ed59e1d1-3894249b65bmr5736730a91.36.1783570734088;
+        Wed, 08 Jul 2026 21:18:54 -0700 (PDT)
+Received: from thesun (222-154-149-34-fibre.sparkbb.co.nz. [222.154.149.34])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-31198cb2b99sm8062849eec.26.2026.07.08.21.18.51
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 08 Jul 2026 21:18:53 -0700 (PDT)
+Date: Thu, 9 Jul 2026 16:18:49 +1200
+From: Ashton Warner <drflamemontgomery@gmail.com>
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] Input: joydev - replace ev_match boolean with goto for early
+ exit
+Message-ID: <ak8hKSa9HNYPoOZZ@thesun>
+Mail-Followup-To: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
-- [High] Lockless access to `sd->battery` in `steelseries_arctis_raw_event(=
-)` creates a TOCTOU race with `remove()`, potentially causing a Use-After-F=
-ree.
---
+The joydev_dev_is_absolute_mouse runs unnecessary Event type checks to
+determine whether a joydev device is an absolute mouse. Change ev_match
+to a goto statement to exit early.
 
---- Patch [7]: [PATCH v6 7/9] HID: steelseries: Manage battery lifetime wit=
-h refcounting ---
-commit acac88b3e3a741b01e199d1d54e37c2b85ec3b35
-Author: Sriman Achanta <srimanachanta@gmail.com>
+Signed-off-by: Ashton Warner <drflamemontgomery@gmail.com>
+---
+ drivers/input/joydev.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-HID: steelseries: Manage battery lifetime with refcounting
+diff --git a/drivers/input/joydev.c b/drivers/input/joydev.c
+index 32459fd8a7c1..a726ba0be05b 100644
+--- a/drivers/input/joydev.c
++++ b/drivers/input/joydev.c
+@@ -819,7 +819,6 @@ static bool joydev_dev_is_blacklisted(struct input_dev *dev)
+ static bool joydev_dev_is_absolute_mouse(struct input_dev *dev)
+ {
+ 	DECLARE_BITMAP(jd_scratch, KEY_CNT);
+-	bool ev_match = false;
+ 
+ 	BUILD_BUG_ON(ABS_CNT > KEY_CNT || EV_CNT > KEY_CNT);
+ 
+@@ -855,20 +854,21 @@ static bool joydev_dev_is_absolute_mouse(struct input_dev *dev)
+ 	__set_bit(EV_KEY, jd_scratch);
+ 	__set_bit(EV_SYN, jd_scratch);
+ 	if (bitmap_equal(jd_scratch, dev->evbit, EV_CNT))
+-		ev_match = true;
++		goto ev_match_pass;
+ 
+ 	/* HP ILO2, AMI BMC firmware */
+ 	__set_bit(EV_MSC, jd_scratch);
+ 	if (bitmap_equal(jd_scratch, dev->evbit, EV_CNT))
+-		ev_match = true;
++		goto ev_match_pass;
+ 
+ 	/* VMware Virtual USB Mouse, QEMU USB Tablet, ATEN BMC firmware */
+ 	__set_bit(EV_REL, jd_scratch);
+ 	if (bitmap_equal(jd_scratch, dev->evbit, EV_CNT))
+-		ev_match = true;
++		goto ev_match_pass;
+ 
+-	if (!ev_match)
+-		return false;
++	return false;
++
++ev_match_pass:
+ 
+ 	bitmap_zero(jd_scratch, ABS_CNT);
+ 	__set_bit(ABS_X, jd_scratch);
+-- 
+2.55.0
 
-This patch converts the steelseries_device structure to use a kref so its s=
-tate
-can outlive a single HID interface. It also registers and unregisters the p=
-ower
-supply explicitly instead of using devm, and clears sd->battery under a
-spinlock in the remove function.
-
-> diff --git a/drivers/hid/hid-steelseries-arctis.c b/drivers/hid/hid-steel=
-series-arctis.c
-> --- a/drivers/hid/hid-steelseries-arctis.c
-> +++ b/drivers/hid/hid-steelseries-arctis.c
-
-[ ... ]
-
-> @@ -387,13 +405,20 @@ static void steelseries_arctis_remove(struct hid_de=
-vice *hdev)
->  	if (interface_num =3D=3D sd->info->sync_interface) {
->  		spin_lock_irqsave(&sd->lock, flags);
->  		sd->removed =3D true;
-> +		battery =3D sd->battery;
-> +		sd->battery =3D NULL;
->  		spin_unlock_irqrestore(&sd->lock, flags);
-> =20
->  		cancel_delayed_work_sync(&sd->status_work);
-> +
-> +		if (battery)
-> +			power_supply_unregister(battery);
->  	}
-> =20
->  	hid_hw_close(hdev);
->  	hid_hw_stop(hdev);
-
-[Severity: High]
-Can this lead to a use-after-free if a battery status report arrives just as
-the device is being removed?
-
-In steelseries_arctis_raw_event(), sd->battery is accessed locklessly:
-
-    if (sd->battery) {
-        steelseries_headset_set_wireless_status(sd->hdev,
-                               sd->headset_connected);
-        power_supply_changed(sd->battery);
-    }
-
-If a raw event checks sd->battery and then gets preempted, this remove() pa=
-th
-can clear sd->battery and unregister the power supply because hid_hw_stop()
-hasn't been called yet to halt the delivery of USB URBs.
-
-When raw_event() resumes, wouldn't it call power_supply_changed() on the ne=
-wly
-freed battery pointer?
-
-> +
-> +	kref_put(&sd->refcnt, steelseries_device_release);
->  }
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260709032316.1908=
-460-1-68172138+srimanachanta@users.noreply.github.com?part=3D7

@@ -1,140 +1,134 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.16])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qk1-f171.google.com (mail-qk1-f171.google.com [209.85.222.171])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5D29714A60F;
-	Wed,  8 Jul 2026 23:25:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.16
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 139E22D77E5
+	for <linux-input@vger.kernel.org>; Thu,  9 Jul 2026 03:23:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.171
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783553144; cv=none; b=Phtl64v9e1RnuqdtSgOuax+zly1ZgTl9IRjR8dK43V/pjSyByE3MoQs5P86+5ZD7K3OTZCXrEEGs1gw3XIUUY7hbKlaesBltJGh+p2vfYRued6ABZPpbZClWihILciQrgvHmyCFUwTHI1QOXDiD4EzAQKgWJaegLpcsZqtqiKCo=
+	t=1783567422; cv=none; b=iGbGk+jeYeNO6KnwxHr+lgDK2C3HH9/TBVLwVmD4hDMLXoYAFMSD3OmmIyoHG+JLPmyl8e4hZ3ZGiGfWvJOiYzbJpDQ1gENIXkumG9mRniWLYebJ1dZ56LaALoDyqbV/Y67RcE8a1jJ4CXytWQ8Rw2tHiBl4F0EkKO5PJsBPWy8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783553144; c=relaxed/simple;
-	bh=GD4XzaO0EtPsctQZhaFZiQT0iaQUe3sQpV2krMpa+70=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=Ts5B+r+mkC1jv2CJ5As7escpCF+ANCau0vt6tIeQhD90PI6DuEy5eMgrvNEdhdk56lLnLdG+slw26uW2Zl8HaOG44+wR+TlGO0Ad0q1Wc4IfNY8MrTTbsuqyvKKS8rS1gM+qPPAJ+a26qW+KYwwp+h9TaFfgL8dXG/T63GylmsQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=PV0F+fXu; arc=none smtp.client-ip=198.175.65.16
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
+	s=arc-20240116; t=1783567422; c=relaxed/simple;
+	bh=wDvJY4AIdZ4qHjzjrMZqmgb+k6atKSB3v8/7tRUZvRo=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=r1u6rreF2uwznvd14l6bGl3G00qWBLBnAFgA+i446KVpfQx3tJmkJCbTPNVrAkVxrzMe4Sg6Ln3SrwqAFr2fqyXGvAwB4gOUQyQ8tEfa//WYyFNyEaVs3pJAIMQiFm+dPHQ7pmTtjOa1CPTbg/2ogHyvbYjANtYynndzVDCR84U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=EnoBLHEz; arc=none smtp.client-ip=209.85.222.171
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="PV0F+fXu"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1783553143; x=1815089143;
-  h=message-id:subject:from:to:cc:date:in-reply-to:
-   references:content-transfer-encoding:mime-version;
-  bh=GD4XzaO0EtPsctQZhaFZiQT0iaQUe3sQpV2krMpa+70=;
-  b=PV0F+fXuMo6jOqUzxjKJG1fX0cb2/t1wuM7Pqo1kDJ7nEsjIL84BO8zo
-   q+OoutCU9xsBtPgJ7Uv1vYrPIPToub104iZAfklEpyhgWyzE+l4m7uC7H
-   Sn0KES0dpC0/rZmdRPzP4yoPTQdjIgPJwMPTn0DmLA/uP/jfpQ9y57rmv
-   oY02jbzX45EJ9TDkb2rImEL9qEZ6SxzHyVvGmDYIL0uDaHWpp9NbzAr63
-   WxFND22OKJVo34U4apwi3bdwFNbTrWdiFHJmTfMfgrrldBqq1DBDa4j69
-   vtif0rirvDhhutsSq5bzTZn0Jxe3ivWa9kIi42niYp4EXaolTS/wtg7KP
-   A==;
-X-CSE-ConnectionGUID: 3w56OtmHR9ePbO0g0iK7Gg==
-X-CSE-MsgGUID: xoNmEpHbTzuExboIwnCJug==
-X-IronPort-AV: E=McAfee;i="6800,10657,11841"; a="84422038"
-X-IronPort-AV: E=Sophos;i="6.25,154,1779174000"; 
-   d="scan'208";a="84422038"
-Received: from orviesa006.jf.intel.com ([10.64.159.146])
-  by orvoesa108.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Jul 2026 16:25:42 -0700
-X-CSE-ConnectionGUID: QH+lu+feSG6rrt9v2JXGeg==
-X-CSE-MsgGUID: bvxscGJHQx+IIE3bGELbXw==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.25,154,1779174000"; 
-   d="scan'208";a="252672142"
-Received: from dwoodwor-mobl2.amr.corp.intel.com (HELO [10.125.111.110]) ([10.125.111.110])
-  by orviesa006-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Jul 2026 16:25:41 -0700
-Message-ID: <086180fe0da41a5e8ce1b130483996a366f588ea.camel@linux.intel.com>
-Subject: Re: [PATCH v2] iio: temperature: hid-sensor-temperature: switch to
- non-devm iio_device_register()
-From: srinivas pandruvada <srinivas.pandruvada@linux.intel.com>
-To: Sanjay Chitroda <sanjayembeddedse@gmail.com>, jikos@kernel.org, 
-	jic23@kernel.org
-Cc: dlechner@baylibre.com, nuno.sa@analog.com, andy@kernel.org, 
-	hongyan.song@intel.com, linux-input@vger.kernel.org,
- linux-iio@vger.kernel.org, 	linux-kernel@vger.kernel.org
-Date: Wed, 08 Jul 2026 16:25:41 -0700
-In-Reply-To: <20260625121611.2003780-1-sanjayembedded@gmail.com>
-References: <20260625121611.2003780-1-sanjayembedded@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.58.3 (3.58.3-1.fc43) 
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="EnoBLHEz"
+Received: by mail-qk1-f171.google.com with SMTP id af79cd13be357-92e7c6ec9dbso22648785a.0
+        for <linux-input@vger.kernel.org>; Wed, 08 Jul 2026 20:23:40 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1783567420; x=1784172220; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=qHLeQHtxlKhAviEfRfghZBlKG133emkXTKZapKypMR8=;
+        b=EnoBLHEzvwuP94UKvebkptVGFvl2JqXVQ5mt6BxF2HcsH6ckcKsGw3wL7ON8gp9pRS
+         K9ZZp9wPA0epDM3N1o5q6/4JAruQ4fzFKOCpwxPqE//LiScgSoHPu/4oMKiBSdEA0H2c
+         Z1HVqat5mDsTgtDjOwuIiFiuFmJNoxm04rk9LK+ZyLkIxzMGoePASbUQqc5I64TIB94I
+         7BixFDzceeCFQc/vW2yoDm/ux+fMI7vYQfnejeZD2DZYc3yZVYPSvTNvJ6bdERCVhbL6
+         L/y0WiKoVH8e6808ZJiOngoi2iZXw34NO5C0iBjUIYCZtyW/GVOvdn9m+ZhTrgQU6NGp
+         VtKQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1783567420; x=1784172220;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=qHLeQHtxlKhAviEfRfghZBlKG133emkXTKZapKypMR8=;
+        b=L91GCWSt4ShnJlzskyTefLPpXcxbcFa0fp+KZp2p04Q+0b42x9BkYlOsafrE7D6xeI
+         JOJnGpxl/buiLewx28WBcHgOGz8Hy0gznUWWNSK0f0JLNoGrw6hKu3Ji/9BfRgG4u19W
+         P+bsFPoEtNvWIsWC99GSlyyBonbwPCK4qyu0rvlElirEX4iq6Wp6ML300u9pfNVQ3PV1
+         qs7i3hP5+41Y5qPisXxDS1R3YbPC3kOTyG3OPAcXDXQ1ZzXF+sttjBILrATNwRnfdVU5
+         3nEeqAThSw0Ez0VXzs5ZprgoCI+w9aINRgpAagvVax/Qz1vqtk400L67Ga7kDyo2guo8
+         WOfA==
+X-Gm-Message-State: AOJu0YyUGIAKGK1h/Ap27uAFt4gTnhsajwNfMxgR9wms1HzRg0mGY9LL
+	UKpXR1Jo5+QLckcIPKMVswtUwgEqt6JUyHXt6P9763AnLeQgxTjEWPIb
+X-Gm-Gg: AfdE7ckhwFD9axw3MjDWvKDcDmlqtgOBHRzt+qI4QyB5ZEewfGAK9o0gsRsFHso+rLB
+	zNJQ8n98ykuxalBnt0jTFbPCLpFyyTM4H9TR7TriJQBcWNhICEVI5+qNYUmFsb6YevhNx+fYmGS
+	WltQidvryfVdru315JWRWilRYnu3J3R7ri/o1B515PPrdtt9JmIuYGbxModHfVb9KDNTf6TaDok
+	avvh4z+qo0HBDMzu48Qs39jv6fzDGOJ3FOROKte5HkBY13lI1E64R+vzbR7vTzoS5Kf7zY/yT2S
+	JDR0bIcsEHfaVgjMfVIv2AClXAdxLE0YX7O9/SyghrK/21fYCS4B8fGyBSskRMGnBhZSu3s7Qj3
+	WZXSh0blj353B4ay6FcMAurXnvu3JYM3Sq8/cEBQ62bBQLclk63u5DEQ5hvIbIJwjzd4lppshpJ
+	AXly08w0tXza1r7R7DkT5xteEYw0d+CdpEEb+NOYGRXriVckF4F1/yhdsCOp0N+yKRilXERMZ6M
+	Z9nrhiU
+X-Received: by 2002:a05:620a:6cca:b0:92e:8405:7ae8 with SMTP id af79cd13be357-92ecf58cc0fmr562372785a.4.1783567419759;
+        Wed, 08 Jul 2026 20:23:39 -0700 (PDT)
+Received: from achantapc.mynetworksettings.com ([2600:4040:122a:dd00:da6a:a6e4:2464:e6a1])
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-92e9c0f7de9sm1336872185a.26.2026.07.08.20.23.38
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 08 Jul 2026 20:23:39 -0700 (PDT)
+From: Sriman Achanta <srimanachanta@gmail.com>
+X-Google-Original-From: Sriman Achanta <68172138+srimanachanta@users.noreply.github.com>
+To: Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>
+Cc: linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Bastien Nocera <hadess@hadess.net>,
+	Simon Wood <simon@mungewell.org>,
+	Christian Mayer <git@mayer-bgk.de>,
+	Sriman Achanta <srimanachanta@gmail.com>
+Subject: [PATCH v6 0/9] HID: steelseries: split out Arctis driver and add Nova 5X/Nova 7 support
+Date: Wed,  8 Jul 2026 23:23:07 -0400
+Message-ID: <20260709032316.1908460-1-68172138+srimanachanta@users.noreply.github.com>
+X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-On Thu, 2026-06-25 at 17:46 +0530, Sanjay Chitroda wrote:
-> From: Sanjay Chitroda <sanjayembeddedse@gmail.com>
->=20
-> Avoid using devm_iio_device_register(), as this driver requires
-> explicit
-> error handling and teardown ordering.
->=20
-> With devm_iio_device_register(), IIO device remains registered until
-> the
-> devres cleanup phase. However, driver's remove() callback removes the
-> sensor hub callback and trigger support. This can create a race
-> window
-> where IIO device is still visible and read_raw() requests are issued.
-> These requests might call sensor_hub_input_attr_get_raw_value(),
-> which
-> waits up to 5 seconds for a response from the sensor hub callback
-> that
-> has already been removed.
->=20
-> Add an explicit iio_device_unregister() call in the teardown path to
-> ensure deterministic cleanup, so that userspace can no longer access
-> the
-> device once backend resources begin to be dismantled.
->=20
-> Fixes: 59d0f2da3569 ("iio: hid: Add temperature sensor support")
-> Cc: stable@vger.kernel.org
-> Reviewed-by: Maxwell Doose <m32285159@gmail.com>
-> Reviewed-by: Andy Shevchenko <andriy.shevchenko@intel.com>
-> Signed-off-by: Sanjay Chitroda <sanjayembeddedse@gmail.com>
->=20
+From: Sriman Achanta <srimanachanta@gmail.com>
 
-Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+This series moves the SteelSeries Arctis headset support out of
+hid-steelseries.c into its own module, reworks it around a per-model
+device_info table, hardens the battery power-supply lifetime, adds an
+asynchronous status interface, and finally adds support for the Arctis
+Nova 5X and Nova 7 families. After the split, hid-steelseries.c is left
+handling only the SRW-S1 racing wheel.
 
-> ---
-> Changes in v2:
-> - Added review tags of Maxwell and Andy along with stable Cc
-> - Based on input from Srinivas and investigation use-after-free
-> =C2=A0 explanation was not sufficiently justified so updated the commit
-> =C2=A0 message with appropriate information and kept Fixes tag
-> - Link to v1:
-> https://lore.kernel.org/all/20260622052135.1804135-1-sanjayembedded@gmail=
-.com
-> ---
-> =C2=A0drivers/iio/temperature/hid-sensor-temperature.c | 3 ++-
-> =C2=A01 file changed, 2 insertions(+), 1 deletion(-)
->=20
-> diff --git a/drivers/iio/temperature/hid-sensor-temperature.c
-> b/drivers/iio/temperature/hid-sensor-temperature.c
-> index a8d3a15f9c53..ab6ec8f659b8 100644
-> --- a/drivers/iio/temperature/hid-sensor-temperature.c
-> +++ b/drivers/iio/temperature/hid-sensor-temperature.c
-> @@ -244,7 +244,7 @@ static int hid_temperature_probe(struct
-> platform_device *pdev)
-> =C2=A0	if (ret)
-> =C2=A0		goto error_remove_trigger;
-> =C2=A0
-> -	ret =3D devm_iio_device_register(indio_dev->dev.parent,
-> indio_dev);
-> +	ret =3D iio_device_register(indio_dev);
-> =C2=A0	if (ret)
-> =C2=A0		goto error_remove_callback;
-> =C2=A0
-> @@ -264,6 +264,7 @@ static void hid_temperature_remove(struct
-> platform_device *pdev)
-> =C2=A0	struct iio_dev *indio_dev =3D platform_get_drvdata(pdev);
-> =C2=A0	struct temperature_state *temp_st =3D iio_priv(indio_dev);
-> =C2=A0
-> +	iio_device_unregister(indio_dev);
-> =C2=A0	sensor_hub_remove_callback(hsdev,
-> HID_USAGE_SENSOR_TEMPERATURE);
-> =C2=A0	hid_sensor_remove_trigger(indio_dev, &temp_st-
-> >common_attributes);
-> =C2=A0}
+Changes since v5:
+ - Nova: rename the Gen2-only parse function and device_info to
+   steelseries_arctis_nova_{parse_status,info} now that they are also
+   used by the Nova 5X and the 2026 refresh, not just Gen2.
+ - Nova: add device IDs and a device_info for the original (pre-Gen2)
+   Arctis Nova 7 family. It answers the same 0xb0/0xb7/0xb9/0xbb status
+   opcodes on the same interfaces as Gen2, but reports battery capacity
+   as a discrete 0-4 level rather than a raw percentage, so it gets its
+   own parse function that maps the level through
+   steelseries_map_capacity() instead of using it directly.
+ - Nova: add the Arctis Nova 5X, which shares the Gen2/2026 protocol.
+ - hid-ids.h: fix a whitespace-only bug where the new Nova 5X macro was
+   space-aligned instead of tab-aligned.
+ - Rebased on current master.
+
+The Nova 5X protocol was verified against hardware by
+sp4m.an.joker@gmail.com, and the original Nova 7 protocol was verified
+against hardware by colin@1101b.com. Thanks to both for testing. I
+previously ommited other devices in the v4 patch series due to being
+unable to verify.
+
+Sriman Achanta (9):
+  HID: steelseries: Fix ARCTIS_1_X device mislabeling
+  HID: steelseries: Split Arctis headset driver into separate module
+  HID: steelseries: Inline and simplify SRWS1 wheel driver
+  HID: steelseries: Refactor Arctis driver to use device_info framework
+  HID: steelseries: Report POWER_SUPPLY_STATUS_FULL when full
+  HID: steelseries: Correct Arctis 9 battery calibration range
+  HID: steelseries: Manage battery lifetime with refcounting
+  HID: steelseries: Add async status interface support
+  HID: steelseries: Add support for Arctis Nova 5X and Nova 7 families
+
+ drivers/hid/Makefile                 |   2 +-
+ drivers/hid/hid-ids.h                |  18 +-
+ drivers/hid/hid-quirks.c             |  16 +-
+ drivers/hid/hid-steelseries-arctis.c | 718 +++++++++++++++++++++++++++
+ drivers/hid/hid-steelseries.c        | 406 +--------------
+ 5 files changed, 759 insertions(+), 401 deletions(-)
+ create mode 100644 drivers/hid/hid-steelseries-arctis.c
+
+
+base-commit: 7404ce51637231382873d0b55edabc2f3b841a9d
+-- 
+2.55.0
+

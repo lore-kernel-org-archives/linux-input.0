@@ -1,68 +1,69 @@
-Received: from mail-pj1-f42.google.com (mail-pj1-f42.google.com [209.85.216.42])
+Received: from mail-pl1-f177.google.com (mail-pl1-f177.google.com [209.85.214.177])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 70E9D3A5E98
-	for <linux-input@vger.kernel.org>; Thu,  9 Jul 2026 04:53:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.42
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6AFB43A7D78
+	for <linux-input@vger.kernel.org>; Thu,  9 Jul 2026 04:53:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783572790; cv=none; b=e/yeQDtwuGfyrdTTdD67vzzI0ow66iomqpiBvKt+eRHBo+ki+ac1+dXBEojWSQ82WRxxITgvTxxWTu8c319az2OV9/Csaos0tkgAZ5uL2s+S/3FXxRRhoMeJY5bit4Xu4bVsEsDE0ia6K+hIM7qMkMgKHFfklQlkw8eeIe4ryks=
+	t=1783572793; cv=none; b=IwAUu+DDmNZq+nb0fGhIiMNUTO2RuQThjooN+uhEES/yC3+JHNOyndsVvx72Ht6B8NEKGsrK2Imh8muyENCdoEB7bdkFk+Jx81vWz7hTVYuWlxjS5MdkKZ/Upk85pvAv//of4acJoUH70E4+oghFpJ4+ohl+sD0pwsSK+xQM+Jg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783572790; c=relaxed/simple;
-	bh=fHPwrtX4op12Jr8tj5bxl18gZgVoc8iLeh7ri3WZ/uU=;
+	s=arc-20240116; t=1783572793; c=relaxed/simple;
+	bh=Aa8/tCM1ApLXKZkJcKryWFnh2SHR/kivNvljiBKqaVE=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=IZ27aQH9ByHhmD8Xu4jisYV0jDjCmbIy6G/6IR9kdh+//VWtUPxfaYIclthWC+Ofu10KDz2/PwzpymjxKxmFONbYj/Q8mKu41jyhnyOd/zuU48y310LQ1OBD3Vl9fvLlZ6jdhXVlq7hIWxPMN7MYsS1xulKupDLg15wYTQ5B7bE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=p09bvlLQ; arc=none smtp.client-ip=209.85.216.42
+	 In-Reply-To:To:Cc; b=bfsPD4b0sAROjvrfIT7ZBY0/4j2PTDNI21CtqiO0TDOPAmHr0Cmt1Vrs0skB9s79OblCJCvVKbXo1yPmfuc/beHcW8+w/tY7b6h3RF37KNkhn6AOu3n/dee3DQcVz2/F3KsYQO/ou27UppARo90KB/d+XgRi7IC22vg3MwmzAJ8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=aYzlboLp; arc=none smtp.client-ip=209.85.214.177
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="p09bvlLQ"
-Received: by mail-pj1-f42.google.com with SMTP id 98e67ed59e1d1-381018b9375so1569778a91.0
-        for <linux-input@vger.kernel.org>; Wed, 08 Jul 2026 21:53:09 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="aYzlboLp"
+Received: by mail-pl1-f177.google.com with SMTP id d9443c01a7336-2cc6ae3e7f1so9132465ad.0
+        for <linux-input@vger.kernel.org>; Wed, 08 Jul 2026 21:53:11 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1783572789; x=1784177589; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1783572791; x=1784177591; darn=vger.kernel.org;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :content-type:mime-version:subject:date:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=K26mBfWTEhCgyKuaP+D1jacUWyTXVy3FDjUtVm+Ftzw=;
-        b=p09bvlLQbACxhaAoa7ryXaxmkJPEVZF/qCVQZYmQNt1FRM1n+iHOrUw+zpxKbNq1ah
-         q1Ub5ztgJnBkzk8dN43ZbdvVy2Mzz6eBfQnuSS6XIM9E2L8iIPRAsWTnuSu98drABlKH
-         Kx3kruT5+iSHDRbcK30eyjXTHREkTi/yuYakrI0ENtzIgKOgNQwrvXav0g+iyInKpOrg
-         oED1oaBeztPc+sZZTeA4thqbPrCjMoD0vrMQ2iIaonYW06ruLQo76tvygMT57dCd9NyP
-         AefdyFFA03TQrW8pukbk3G63QdwVnWVRznc8vCqS5yOYTWdGfmcVgZa/DVoXUrDUQ4p+
-         lA/g==
+        bh=Y8VrzxACgA2dOPOHl6AhU6CQRJ0KF6yC3uD65WRmQ9s=;
+        b=aYzlboLpg0OHTX+M06h7O6C1EeEfHvOW1mwgKK7m05rC5kxZ15YRjohT2MrLxETARy
+         mPIXjkxmU5Tu08f8dI/faol9b/Jd1i3KWfEOHRyVQHN/6PsoQ7unJD11FJCOG1Dih+tu
+         /iYuhaQQj8TWUBM0zo0VDDtOoLr5t2JxTJyDswWDZhWGGYmM1Xl5qsrwCUKNO5TVygAt
+         Vp4Rk3gt/i9thd/9c/5CH2/D6awG04pRDFHfMtJG+CPwj6VmwCnt3SDS4ypO+OHWVnPi
+         tN4JpbpFHbAl/+BHw3f0GxQo2vClGhfYvZGCDxrjxUxS3xP6HxIGZn33ocRLYX5mo2zD
+         NO4w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1783572789; x=1784177589;
+        d=1e100.net; s=20251104; t=1783572791; x=1784177591;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :content-type:mime-version:subject:date:from:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=K26mBfWTEhCgyKuaP+D1jacUWyTXVy3FDjUtVm+Ftzw=;
-        b=UMHUf0W7UuNebYO/MFSYSLyxM7osQTO5PcuRwm+9K4aMf8HZnzO7OJa2+v9xuOO2t0
-         dN65U5FZCXB50vdw7MZqRaB82OPStQpAQxH75FPY2PqLtPktRGOmgfhMSRRr5gW4TaKm
-         u6oGlo5mtcfQ3CMPmTfEhbauFkdUSk6f1pdy9L/lghL4HaKXeTNOWaz0jcdHo8MsAct5
-         j73tIkeQi/utXAlMr5NqISWkeLvg/DzvYXZ6I0vf385fMztr3RNXl76Gh328kZvUYOeH
-         i54MWGRDFwj+wiDzwwNNeQASggTuM6KetsPd5yMVLHrC/esbnJV3E7zY7aPytj9/ulnM
-         EeLw==
-X-Forwarded-Encrypted: i=1; AHgh+RqqTD2Q5PdAS2+K44++jfFx9jrz1YF6vBYj/hO6lWU9nX4F0msQ/zoFgLNoVxGh3AXmCKxDG7qsEz/73Q==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yyp6fJWtEDE8UNEXgc6YQgtV2hMtU//k58LY1I1+s0VI28eUwdI
-	WKCjE64qF6frostn+oG90Uztb7rcVq9r2Usp4sJCMa9/LOBuLPGCQC+i
-X-Gm-Gg: AfdE7cmVMiHYkFVTQizMTxL1QVj/+YRZMYWcDtQf7/KcCoATrL6gX9thPcfjcN1ZNUa
-	AIBC/t2uvadIXpD9ICrd0znJvfqCnANZiNuizarEOKJ1fh2r90LV7FqlggCZqwscsNT4g70XhtR
-	jk2IEaxkywkwyA3iBtvShDGytyE78ATOCD+xY1S+AVGI1Hbmbq2CbgbwZ6zhftJChICTO5YeVmy
-	re97fZpf6jRlkfdG7vB/SB617nQq7igGHZRtLu98mmQ+tcYWV/awBD2JPndb2jSIsWskJ8EeHey
-	0tplDERggKSV1UOiGAVwrkG50cNg+mTQYIYrwc9OHfJm9OR0DrosuW+7Tm7Z2YYl+BLUFOqAQfg
-	eGy61G2hD1Ig1C1U/UrtJASs8GYusIJ6CMRBXSTMsH8nfgnPD2lNMt9Z1TFQsUDDqnhvX9VUYye
-	L7uLL6M0g/u0Yb61otplNqTu/jbRFyOSVfljMCrsJiErHQfa+gt5bA2hjale3kU0ehsLn+asVv8
-	2mj
-X-Received: by 2002:a05:6a21:670b:b0:3c0:9c19:65b5 with SMTP id adf61e73a8af0-3c0bcc3ae41mr7443493637.61.1783572788693;
-        Wed, 08 Jul 2026 21:53:08 -0700 (PDT)
+        bh=Y8VrzxACgA2dOPOHl6AhU6CQRJ0KF6yC3uD65WRmQ9s=;
+        b=NRht7pVX5TIQ5DrLCEfUzGDOTTY15WEoaVbGOfIrvHCfF1HiXrVT1b3FfxmVphkZDN
+         e2ZAOpQC02GxHNJ+Lp4h0kKR/XMG3kJFEXaw763LgdEyJ5/3zFqHJHq1uK6sb6hPFZ5N
+         ifawwTV3wt6KbXM0YJ8UoWDghL3p2bKoecvbHoEV5zCStFzoGIG3C7zVs21qEKXK7Chy
+         pmp8iQwncsHqpBGq1ApRddE3t2VqQPWevGy8qA9hgnT5NJzIDlZVK7jwGH45qOphz2iR
+         BQ0vYC1SLL+9snkhHczzI5wHt2rn+8GmqitpuyrTHxKNpFBuvWf36t3N3I02MF4c+YZu
+         7pXw==
+X-Forwarded-Encrypted: i=1; AHgh+RrAjxiofFZZ/apkvyIWKAZKmLdFs8bse9HZ4XdsWvmPPzsjPOHajdLoy+n11HGXJly5Je1ZcuXy8guTLg==@vger.kernel.org
+X-Gm-Message-State: AOJu0YzhCBpXZjp2TacIAiSZX53htngocXt03XkehQLMumdT4M/VmpmK
+	a1BTSDVhBeVDoRYW3rgTh/o8ye294WCmqDFcT6z+EdiC8m8Gmuh2jl7v
+X-Gm-Gg: AfdE7clHAoqI504r07mEyId8kXFAmmxrfyfPiE04JWqZt1/2DrSc/+b0puEQL3jPxhc
+	SYXrXVnqlUewy3BMOLPXUi8WJgSRzXK5NA1QvJ1D9tSp6PUELeziriuTtlEeE78HAfjks2pSscr
+	AQtIjRiOToHbd0O3W7lAo3BSyIAqNqc0MIZq0anx4GOU+ssDy8yGVFa2EPPVTM5W/JcnBR5xSuX
+	90xND6DD8/dem8ODKjIv6NEc0I0CfBo1E4zYEfwv4vqq8tdy1e3SXYYr/Pdh2nDUbT3C9Ke2wEY
+	5SSb6/MQgGDYNgL4RgWv+MsHqANMm3gleXTO2Mf1bD+KMOQXljC5PBa013M2Co+OzWlk1Hy8TO2
+	FxuoIbGZRLm7Eblj+CP5Wu0/OMoQZDhWvTN/d9EePbTQQJ2urkucsl8s07nvNNesTo1BaLjcSpi
+	MQX1AGcsUQRCD/cgsSXDYDtPHHI5wkAt+5OcwFKL2gTauoYFEJ6nG9U1zbEVVNKYMQRHvwTehI6
+	JfM
+X-Received: by 2002:a05:6a21:d82:b0:3bf:bde7:d66f with SMTP id adf61e73a8af0-3c0bc8aa661mr6031384637.2.1783572790764;
+        Wed, 08 Jul 2026 21:53:10 -0700 (PDT)
 Received: from dtor-ws.sjc.corp.google.com ([2a00:79e0:2ebe:8:e229:88c8:fd09:9a39])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-13b658a99afsm26559252c88.0.2026.07.08.21.53.07
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-13b658a99afsm26559252c88.0.2026.07.08.21.53.08
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 08 Jul 2026 21:53:07 -0700 (PDT)
+        Wed, 08 Jul 2026 21:53:09 -0700 (PDT)
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Date: Wed, 08 Jul 2026 21:53:00 -0700
-Subject: [PATCH v2 02/11] Input: samsung-keypad - handle compact binding
+Date: Wed, 08 Jul 2026 21:53:01 -0700
+Subject: [PATCH v2 03/11] ARM: s3c: register and attach software nodes for
+ Samsung gpio_chips
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -71,7 +72,7 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260708-samsung-kp-v2-2-3c6ed4c9b3b6@gmail.com>
+Message-Id: <20260708-samsung-kp-v2-3-3c6ed4c9b3b6@gmail.com>
 References: <20260708-samsung-kp-v2-0-3c6ed4c9b3b6@gmail.com>
 In-Reply-To: <20260708-samsung-kp-v2-0-3c6ed4c9b3b6@gmail.com>
 To: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
@@ -88,209 +89,291 @@ Cc: Krzysztof Kozlowski <krzk@kernel.org>, linux-input@vger.kernel.org,
  patches@opensource.cirrus.com
 X-Mailer: b4 0.16-dev-b242f
 
-Add support for standard matrix keymap binding (in addition to the
-existing verbose binding with a sub-node for each key). This will
-allow easier conversions from platform data to device properties when
-using static device properties.
+Define and register software nodes for the Samsung GPIO chips on legacy
+(non-DT) platforms.
 
+Attach the matching software node to each gpio_chip's fwnode during
+registration, using the bank label to calculate the index.
+
+This provides the infrastructure for converting board files and drivers
+to use software nodes/properties instead of legacy platform data or GPIO
+lookup tables.
+
+Assisted-by: Antigravity:gemini-3.5-flash
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 ---
- drivers/input/keyboard/samsung-keypad.c | 130 ++++++++++++++++----------------
- 1 file changed, 66 insertions(+), 64 deletions(-)
+ arch/arm/mach-s3c/gpio-core.h            |  3 ++
+ arch/arm/mach-s3c/gpio-samsung-s3c64xx.h |  5 +++
+ arch/arm/mach-s3c/gpio-samsung.c         | 72 ++++++++++++++++++++++++--------
+ 3 files changed, 63 insertions(+), 17 deletions(-)
 
-diff --git a/drivers/input/keyboard/samsung-keypad.c b/drivers/input/keyboard/samsung-keypad.c
-index 17127269e3f0..b9d4ea5f202a 100644
---- a/drivers/input/keyboard/samsung-keypad.c
-+++ b/drivers/input/keyboard/samsung-keypad.c
-@@ -231,83 +231,83 @@ static void samsung_keypad_close(struct input_dev *input_dev)
- 	samsung_keypad_stop(keypad);
- }
+diff --git a/arch/arm/mach-s3c/gpio-core.h b/arch/arm/mach-s3c/gpio-core.h
+index 6801c85fb9da..464b0d02f102 100644
+--- a/arch/arm/mach-s3c/gpio-core.h
++++ b/arch/arm/mach-s3c/gpio-core.h
+@@ -14,6 +14,8 @@
+ #include "gpio-samsung.h"
+ #include <linux/gpio/driver.h>
  
--#ifdef CONFIG_OF
--static struct samsung_keypad_platdata *
--samsung_keypad_parse_dt(struct device *dev)
-+static const struct matrix_keymap_data *
-+samsung_parse_verbose_keymap(struct device *dev)
++struct software_node;
++
+ #define GPIOCON_OFF	(0x00)
+ #define GPIODAT_OFF	(0x04)
+ 
+@@ -66,6 +68,7 @@ struct samsung_gpio_cfg;
+  */
+ struct samsung_gpio_chip {
+ 	struct gpio_chip	chip;
++	const struct software_node *swnode;
+ 	struct samsung_gpio_cfg	*config;
+ 	struct samsung_gpio_pm	*pm;
+ 	void __iomem		*base;
+diff --git a/arch/arm/mach-s3c/gpio-samsung-s3c64xx.h b/arch/arm/mach-s3c/gpio-samsung-s3c64xx.h
+index 8ed144a0d474..fc21d3f50ce9 100644
+--- a/arch/arm/mach-s3c/gpio-samsung-s3c64xx.h
++++ b/arch/arm/mach-s3c/gpio-samsung-s3c64xx.h
+@@ -13,6 +13,8 @@
+ 
+ #ifdef CONFIG_GPIO_SAMSUNG
+ 
++#include <linux/property.h>
++
+ /* GPIO bank sizes */
+ #define S3C64XX_GPIO_A_NR	(8)
+ #define S3C64XX_GPIO_B_NR	(7)
+@@ -89,6 +91,9 @@ enum s3c_gpio_number {
+ /* define the number of gpios we need to the one after the GPQ() range */
+ #define GPIO_BOARD_START (S3C64XX_GPQ(S3C64XX_GPIO_Q_NR) + 1)
+ 
++extern const struct software_node samsung_gpiochip_nodes[];
++#define SAMSUNG_GPIO_NODE(node)	(&samsung_gpiochip_nodes[(node) - 'A'])
++
+ #endif /* GPIO_SAMSUNG */
+ #endif /* GPIO_SAMSUNG_S3C64XX_H */
+ 
+diff --git a/arch/arm/mach-s3c/gpio-samsung.c b/arch/arm/mach-s3c/gpio-samsung.c
+index 81e198e5a6d3..b35cf62a9157 100644
+--- a/arch/arm/mach-s3c/gpio-samsung.c
++++ b/arch/arm/mach-s3c/gpio-samsung.c
+@@ -37,6 +37,28 @@
+ #include "gpio-cfg-helpers.h"
+ #include "pm.h"
+ 
++const struct software_node samsung_gpiochip_nodes[] = {
++	SOFTWARE_NODE("GPA", NULL, NULL),
++	SOFTWARE_NODE("GPB", NULL, NULL),
++	SOFTWARE_NODE("GPC", NULL, NULL),
++	SOFTWARE_NODE("GPD", NULL, NULL),
++	SOFTWARE_NODE("GPE", NULL, NULL),
++	SOFTWARE_NODE("GPF", NULL, NULL),
++	SOFTWARE_NODE("GPG", NULL, NULL),
++	SOFTWARE_NODE("GPH", NULL, NULL),
++	SOFTWARE_NODE("GPI", NULL, NULL),
++	SOFTWARE_NODE("GPJ", NULL, NULL),
++	SOFTWARE_NODE("GPK", NULL, NULL),
++	SOFTWARE_NODE("GPL", NULL, NULL),
++	SOFTWARE_NODE("GPM", NULL, NULL),
++	SOFTWARE_NODE("GPN", NULL, NULL),
++	SOFTWARE_NODE("GPO", NULL, NULL),
++	SOFTWARE_NODE("GPP", NULL, NULL),
++	SOFTWARE_NODE("GPQ", NULL, NULL),
++};
++
++#define NUM_SAMSUNG_GPIOCHIPS ARRAY_SIZE(samsung_gpiochip_nodes)
++
+ static int samsung_gpio_setpull_updown(struct samsung_gpio_chip *chip,
+ 				unsigned int off, samsung_gpio_pull_t pull)
  {
--	struct samsung_keypad_platdata *pdata;
- 	struct matrix_keymap_data *keymap_data;
--	uint32_t *keymap, num_rows = 0, num_cols = 0;
--	struct device_node *np = dev->of_node, *key_np;
-+	struct fwnode_handle *child;
-+	u32 *keymap;
- 	unsigned int key_count;
+@@ -491,6 +513,16 @@ static __init void s3c_gpiolib_track(struct samsung_gpio_chip *chip)
+ }
+ #endif /* CONFIG_S3C_GPIO_TRACK */
  
--	if (!np) {
--		dev_err(dev, "missing device tree data\n");
--		return ERR_PTR(-EINVAL);
-+	keymap_data = devm_kzalloc(dev, sizeof(*keymap_data), GFP_KERNEL);
-+	if (!keymap_data)
-+		return ERR_PTR(-ENOMEM);
++static void __init samsung_setup_gpiochip_nodes(void)
++{
++	const struct software_node *group[NUM_SAMSUNG_GPIOCHIPS + 1] = { 0 };
 +
-+	key_count = device_get_child_node_count(dev);
-+	keymap = devm_kcalloc(dev, key_count, sizeof(*keymap), GFP_KERNEL);
-+	if (!keymap)
-+		return ERR_PTR(-ENOMEM);
++	for (unsigned int i = 0; i < NUM_SAMSUNG_GPIOCHIPS; i++)
++		group[i] = &samsung_gpiochip_nodes[i];
 +
-+	keymap_data->keymap_size = key_count;
-+	keymap_data->keymap = keymap;
-+
-+	device_for_each_child_node(dev, child) {
-+		u32 row, col, key_code;
-+
-+		fwnode_property_read_u32(child, "keypad,row", &row);
-+		fwnode_property_read_u32(child, "keypad,column", &col);
-+		fwnode_property_read_u32(child, "linux,code", &key_code);
-+
-+		*keymap++ = KEY(row, col, key_code);
- 	}
- 
-+	return keymap_data;
++	software_node_register_node_group(group);
 +}
 +
-+static const struct samsung_keypad_platdata *
-+samsung_keypad_parse_properties(struct device *dev)
-+{
-+	const struct matrix_keymap_data *keymap_data;
-+	struct samsung_keypad_platdata *pdata;
-+	u32 num_rows = 0, num_cols = 0;
-+	int error;
+ /*
+  * samsung_gpiolib_add() - add the Samsung gpio_chip.
+  * @chip: The chip to register
+@@ -506,12 +538,16 @@ static void __init samsung_gpiolib_add(struct samsung_gpio_chip *chip)
+ 	struct gpio_chip *gc = &chip->chip;
+ 	int ret;
+ 
++	gc->label = chip->swnode->name;
 +
- 	pdata = devm_kzalloc(dev, sizeof(*pdata), GFP_KERNEL);
--	if (!pdata) {
--		dev_err(dev, "could not allocate memory for platform data\n");
-+	if (!pdata)
- 		return ERR_PTR(-ENOMEM);
--	}
+ 	BUG_ON(!chip->base);
+ 	BUG_ON(!gc->label);
+ 	BUG_ON(!gc->ngpio);
  
--	of_property_read_u32(np, "samsung,keypad-num-rows", &num_rows);
--	of_property_read_u32(np, "samsung,keypad-num-columns", &num_cols);
--	if (!num_rows || !num_cols) {
--		dev_err(dev, "number of keypad rows/columns not specified\n");
--		return ERR_PTR(-EINVAL);
--	}
-+	device_property_read_u32(dev, "samsung,keypad-num-rows", &num_rows);
-+	device_property_read_u32(dev, "samsung,keypad-num-columns", &num_cols);
+ 	spin_lock_init(&chip->lock);
+ 
++	gc->fwnode = software_node_fwnode(chip->swnode);
 +
-+	error = matrix_keypad_parse_properties(dev, &num_rows, &num_cols);
-+	if (error)
-+		return ERR_PTR(error);
+ 	if (!gc->direction_input)
+ 		gc->direction_input = samsung_gpiolib_2bit_input;
+ 	if (!gc->direction_output)
+@@ -659,49 +695,49 @@ static struct samsung_gpio_chip s3c64xx_gpios_4bit[] = {
+ 		.chip	= {
+ 			.base	= S3C64XX_GPA(0),
+ 			.ngpio	= S3C64XX_GPIO_A_NR,
+-			.label	= "GPA",
+ 		},
++		.swnode	= SAMSUNG_GPIO_NODE('A'),
+ 	}, {
+ 		.chip	= {
+ 			.base	= S3C64XX_GPB(0),
+ 			.ngpio	= S3C64XX_GPIO_B_NR,
+-			.label	= "GPB",
+ 		},
++		.swnode	= SAMSUNG_GPIO_NODE('B'),
+ 	}, {
+ 		.chip	= {
+ 			.base	= S3C64XX_GPC(0),
+ 			.ngpio	= S3C64XX_GPIO_C_NR,
+-			.label	= "GPC",
+ 		},
++		.swnode	= SAMSUNG_GPIO_NODE('C'),
+ 	}, {
+ 		.chip	= {
+ 			.base	= S3C64XX_GPD(0),
+ 			.ngpio	= S3C64XX_GPIO_D_NR,
+-			.label	= "GPD",
+ 		},
++		.swnode	= SAMSUNG_GPIO_NODE('D'),
+ 	}, {
+ 		.config	= &samsung_gpio_cfgs[0],
+ 		.chip	= {
+ 			.base	= S3C64XX_GPE(0),
+ 			.ngpio	= S3C64XX_GPIO_E_NR,
+-			.label	= "GPE",
+ 		},
++		.swnode	= SAMSUNG_GPIO_NODE('E'),
+ 	}, {
+ 		.base	= S3C64XX_GPG_BASE,
+ 		.chip	= {
+ 			.base	= S3C64XX_GPG(0),
+ 			.ngpio	= S3C64XX_GPIO_G_NR,
+-			.label	= "GPG",
+ 		},
++		.swnode	= SAMSUNG_GPIO_NODE('G'),
+ 	}, {
+ 		.base	= S3C64XX_GPM_BASE,
+ 		.config	= &samsung_gpio_cfgs[1],
+ 		.chip	= {
+ 			.base	= S3C64XX_GPM(0),
+ 			.ngpio	= S3C64XX_GPIO_M_NR,
+-			.label	= "GPM",
+ 			.to_irq = s3c64xx_gpiolib_mbank_to_irq,
+ 		},
++		.swnode	= SAMSUNG_GPIO_NODE('M'),
+ 	},
+ };
+ 
+@@ -711,25 +747,25 @@ static struct samsung_gpio_chip s3c64xx_gpios_4bit2[] = {
+ 		.chip	= {
+ 			.base	= S3C64XX_GPH(0),
+ 			.ngpio	= S3C64XX_GPIO_H_NR,
+-			.label	= "GPH",
+ 		},
++		.swnode	= SAMSUNG_GPIO_NODE('H'),
+ 	}, {
+ 		.base	= S3C64XX_GPK_BASE + 0x4,
+ 		.config	= &samsung_gpio_cfgs[0],
+ 		.chip	= {
+ 			.base	= S3C64XX_GPK(0),
+ 			.ngpio	= S3C64XX_GPIO_K_NR,
+-			.label	= "GPK",
+ 		},
++		.swnode	= SAMSUNG_GPIO_NODE('K'),
+ 	}, {
+ 		.base	= S3C64XX_GPL_BASE + 0x4,
+ 		.config	= &samsung_gpio_cfgs[1],
+ 		.chip	= {
+ 			.base	= S3C64XX_GPL(0),
+ 			.ngpio	= S3C64XX_GPIO_L_NR,
+-			.label	= "GPL",
+ 			.to_irq = s3c64xx_gpiolib_lbank_to_irq,
+ 		},
++		.swnode	= SAMSUNG_GPIO_NODE('L'),
+ 	},
+ };
+ 
+@@ -740,43 +776,43 @@ static struct samsung_gpio_chip s3c64xx_gpios_2bit[] = {
+ 		.chip	= {
+ 			.base	= S3C64XX_GPF(0),
+ 			.ngpio	= S3C64XX_GPIO_F_NR,
+-			.label	= "GPF",
+ 		},
++		.swnode	= SAMSUNG_GPIO_NODE('F'),
+ 	}, {
+ 		.config	= &samsung_gpio_cfgs[7],
+ 		.chip	= {
+ 			.base	= S3C64XX_GPI(0),
+ 			.ngpio	= S3C64XX_GPIO_I_NR,
+-			.label	= "GPI",
+ 		},
++		.swnode	= SAMSUNG_GPIO_NODE('I'),
+ 	}, {
+ 		.config	= &samsung_gpio_cfgs[7],
+ 		.chip	= {
+ 			.base	= S3C64XX_GPJ(0),
+ 			.ngpio	= S3C64XX_GPIO_J_NR,
+-			.label	= "GPJ",
+ 		},
++		.swnode	= SAMSUNG_GPIO_NODE('J'),
+ 	}, {
+ 		.config	= &samsung_gpio_cfgs[6],
+ 		.chip	= {
+ 			.base	= S3C64XX_GPO(0),
+ 			.ngpio	= S3C64XX_GPIO_O_NR,
+-			.label	= "GPO",
+ 		},
++		.swnode	= SAMSUNG_GPIO_NODE('O'),
+ 	}, {
+ 		.config	= &samsung_gpio_cfgs[6],
+ 		.chip	= {
+ 			.base	= S3C64XX_GPP(0),
+ 			.ngpio	= S3C64XX_GPIO_P_NR,
+-			.label	= "GPP",
+ 		},
++		.swnode	= SAMSUNG_GPIO_NODE('P'),
+ 	}, {
+ 		.config	= &samsung_gpio_cfgs[6],
+ 		.chip	= {
+ 			.base	= S3C64XX_GPQ(0),
+ 			.ngpio	= S3C64XX_GPIO_Q_NR,
+-			.label	= "GPQ",
+ 		},
++		.swnode	= SAMSUNG_GPIO_NODE('Q'),
+ 	}, {
+ 		.base	= S3C64XX_GPN_BASE,
+ 		.irq_base = IRQ_EINT(0),
+@@ -784,9 +820,9 @@ static struct samsung_gpio_chip s3c64xx_gpios_2bit[] = {
+ 		.chip	= {
+ 			.base	= S3C64XX_GPN(0),
+ 			.ngpio	= S3C64XX_GPIO_N_NR,
+-			.label	= "GPN",
+ 			.to_irq = samsung_gpiolib_to_irq,
+ 		},
++		.swnode	= SAMSUNG_GPIO_NODE('N'),
+ 	},
+ };
+ 
+@@ -803,6 +839,8 @@ static __init int samsung_gpiolib_init(void)
+ 		return 0;
+ 
+ 	if (soc_is_s3c64xx()) {
++		samsung_setup_gpiochip_nodes();
 +
- 	pdata->rows = num_rows;
- 	pdata->cols = num_cols;
- 
--	keymap_data = devm_kzalloc(dev, sizeof(*keymap_data), GFP_KERNEL);
--	if (!keymap_data) {
--		dev_err(dev, "could not allocate memory for keymap data\n");
--		return ERR_PTR(-ENOMEM);
--	}
--	pdata->keymap_data = keymap_data;
-+	if (!device_property_present(dev, "linux,keymap")) {
-+		keymap_data = samsung_parse_verbose_keymap(dev);
-+		if (IS_ERR(keymap_data))
-+			return ERR_CAST(keymap_data);
- 
--	key_count = of_get_child_count(np);
--	keymap_data->keymap_size = key_count;
--	keymap = devm_kcalloc(dev, key_count, sizeof(uint32_t), GFP_KERNEL);
--	if (!keymap) {
--		dev_err(dev, "could not allocate memory for keymap\n");
--		return ERR_PTR(-ENOMEM);
-+		pdata->keymap_data = keymap_data;
- 	}
--	keymap_data->keymap = keymap;
- 
--	for_each_child_of_node(np, key_np) {
--		u32 row, col, key_code;
--		of_property_read_u32(key_np, "keypad,row", &row);
--		of_property_read_u32(key_np, "keypad,column", &col);
--		of_property_read_u32(key_np, "linux,code", &key_code);
--		*keymap++ = KEY(row, col, key_code);
--	}
- 
--	pdata->no_autorepeat = of_property_read_bool(np, "linux,input-no-autorepeat");
-+	pdata->no_autorepeat =
-+		device_property_read_bool(dev, "linux,input-no-autorepeat");
- 
--	pdata->wakeup = of_property_read_bool(np, "wakeup-source") ||
-+	pdata->wakeup = device_property_read_bool(dev, "wakeup-source") ||
- 			/* legacy name */
--			of_property_read_bool(np, "linux,input-wakeup");
--
-+			device_property_read_bool(dev, "linux,input-wakeup");
- 
- 	return pdata;
- }
--#else
--static struct samsung_keypad_platdata *
--samsung_keypad_parse_dt(struct device *dev)
--{
--	dev_err(dev, "no platform data defined\n");
--
--	return ERR_PTR(-EINVAL);
--}
--#endif
- 
- static int samsung_keypad_probe(struct platform_device *pdev)
- {
- 	const struct samsung_keypad_platdata *pdata;
--	const struct matrix_keymap_data *keymap_data;
- 	const struct platform_device_id *id;
- 	struct samsung_keypad *keypad;
- 	struct resource *res;
-@@ -316,18 +316,17 @@ static int samsung_keypad_probe(struct platform_device *pdev)
- 	int error;
- 
- 	pdata = dev_get_platdata(&pdev->dev);
--	if (!pdata) {
--		pdata = samsung_keypad_parse_dt(&pdev->dev);
-+	if (pdata) {
-+		if (!pdata->keymap_data) {
-+			dev_err(&pdev->dev, "no keymap data defined\n");
-+			return -EINVAL;
-+		}
-+	} else {
-+		pdata = samsung_keypad_parse_properties(&pdev->dev);
- 		if (IS_ERR(pdata))
- 			return PTR_ERR(pdata);
- 	}
- 
--	keymap_data = pdata->keymap_data;
--	if (!keymap_data) {
--		dev_err(&pdev->dev, "no keymap data defined\n");
--		return -EINVAL;
--	}
--
- 	if (!pdata->rows || pdata->rows > SAMSUNG_MAX_ROWS)
- 		return -EINVAL;
- 
-@@ -391,7 +390,7 @@ static int samsung_keypad_probe(struct platform_device *pdev)
- 	input_dev->open = samsung_keypad_open;
- 	input_dev->close = samsung_keypad_close;
- 
--	error = matrix_keypad_build_keymap(keymap_data, NULL,
-+	error = matrix_keypad_build_keymap(pdata->keymap_data, NULL,
- 					   pdata->rows, pdata->cols,
- 					   keypad->keycodes, input_dev);
- 	if (error) {
-@@ -430,11 +429,14 @@ static int samsung_keypad_probe(struct platform_device *pdev)
- 	if (error)
- 		return error;
- 
--	if (pdev->dev.of_node) {
--		devm_kfree(&pdev->dev, (void *)pdata->keymap_data->keymap);
--		devm_kfree(&pdev->dev, (void *)pdata->keymap_data);
-+	if (!dev_get_platdata(&pdev->dev)) {
-+		if (pdata->keymap_data) {
-+			devm_kfree(&pdev->dev, (void *)pdata->keymap_data->keymap);
-+			devm_kfree(&pdev->dev, (void *)pdata->keymap_data);
-+		}
- 		devm_kfree(&pdev->dev, (void *)pdata);
- 	}
-+
- 	return 0;
- }
- 
+ 		samsung_gpiolib_set_cfg(samsung_gpio_cfgs,
+ 				ARRAY_SIZE(samsung_gpio_cfgs));
+ 		samsung_gpiolib_add_2bit_chips(s3c64xx_gpios_2bit,
 
 -- 
 2.55.0.795.g602f6c329a-goog

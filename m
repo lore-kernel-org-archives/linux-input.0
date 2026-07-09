@@ -1,112 +1,164 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DB181386423
-	for <linux-input@vger.kernel.org>; Thu,  9 Jul 2026 18:36:01 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E90574DC54B
+	for <linux-input@vger.kernel.org>; Thu,  9 Jul 2026 18:37:34 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783622162; cv=none; b=YYStFrr0fewo2bWS4hUACGqxOZo0ssoewdxdcjCzG9K1/BdcP4l2CIyu5h7WfRN5uL/YzDUKp/wMAuEb900nPbShwkdaJMDMby64YDT1S6x9WilFcd1g+OW12/5FIpcP/ndh5ZpBvsKQeNC2JLi/O+bUmFdR0kDwtKMQbL1Crzg=
+	t=1783622257; cv=none; b=iqhQ3kzDVC0ZTIORjyw/eVxudPkhniK16WxzrImj7gFrtaL6AWRB3vONSjOSo/e63szYmpLrscHeDHo6X+173yLOnXdiUe+XWlG57GOpK/TC9YVK5Pl50wSAocGkj7tKNThnxnBVH1XKGEiyqvgyRsx58QquM3xuDlEnFZ4RUM0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783622162; c=relaxed/simple;
-	bh=sec+DDLvtINY8D0Ujt2U1DHVN5nh/3+/UrM1G1TiNGU=;
+	s=arc-20240116; t=1783622257; c=relaxed/simple;
+	bh=vtB0SE7N6Lu+f19iMQQjgyWDZwg7/FkmOZsIoMbF7d0=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=X7ARYe4rD29FJYgxlxn0Xl5G8yrSwxfNzAJI0Hvd8JG6JjAonCIY1AYVxvBUokbwlsKmEuC6QC2k/fWGv+ng4l+Bqvk2eEafKBNOrPIIQnqVtcelZRoA2MBxu6yPkRsWJ0lqk58HhZKAS89iaAaTRw2DtLMa+qHGhGv4/3EQ4zI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=bsfOPD2x; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=rhepVPi/xObhq6ZK4oq8+LXavH4meboh0jEHFHI8Z98ourMKVmKL8z8EalhkTCZnJWjEVm+lmuCtz4/mmhYwwKlC5/o+rLAUqUxgprkPiSy3a/xtpJ2WaXAysRC2VFXOvvqd79XEDahX9XmdwbTbxLxBkUD+AfBq+579ehES6jY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ieySe2Xb; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="bsfOPD2x"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 48C9E1F000E9;
-	Thu,  9 Jul 2026 18:36:01 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ieySe2Xb"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 084DA1F000E9;
+	Thu,  9 Jul 2026 18:37:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1783622161;
-	bh=bjnIvNufa50YvxnC/z/t3vJpUClqU8M2FuF5kJiTK0U=;
+	s=k20260515; t=1783622254;
+	bh=Je0wjKnyBqDaJhnxBXjcXVm1F4+S1QU8D9Y3LOpf3u0=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=bsfOPD2xyfL0OJ177njgrxv3QVybI9VOvgLMvu2cTOk8UPH6BubjRVv7Ni9q/25aD
-	 MFUVIBnliOTZweeNozS7no048enInEOqNtSkskb6rzR+La0oe/AejyEN9UUKGAWm4v
-	 zXfQpSWs8vCzohfXvuC3vtClKOBcUWP0D6h8h6uF0CiPBus2LkeCv02FdYmCFC2/k5
-	 JrRPiN4ZPJAhWt79cluDVgIxj8roRKEuTPTTOhvd7GAfEB4RFhFeamOW0HJ73C7Svu
-	 QC5WAaX1RN2jw81oEkyp/oH+Zx0YbMX992Sso/zx2KE+ACn3D9QTUmp76yaX72OYbv
-	 wUMyw7Ue9nk0g==
+	b=ieySe2XbW2jfBlsnY4t0kh5+aUh8l7OWWMRwF14aRU+wbeWfL5tayhgAy43nZlTBY
+	 iuFX9Ll0NbGxP31rWdE69CGQirj9Ss4JYUjMbvGt/OwMc1aKT+xhm1D1TNf1THJdqM
+	 G7Jf7zO+o8vwSaIs7s5eNyqn75aC38kyHrnPF+iRZJghcB/Fdjg5UsoG0KaRWJu712
+	 onPDbpOnMXT+AAZIIsGH/AHh/T0sHyxA++0Zg+tHe+R1An62nOIrMYNRP55HWNnlli
+	 hzgh57RVq9B3m4em8wZ8LmMg49dtCrvajJYQp62K2ZGAK2PXPFbOpbuxf9RaqTwlXS
+	 CXtEezQ0KqdlA==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 1/3] Input: ilitek_ts: add stylus input support
+Subject: Re: [PATCH v2 2/3] Input: ilitek_ts: handle short I2C transfers
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Kristian Mide" <kristian@mide.dk>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260709182602.7308-2-kristian@mide.dk>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <20260709182602.7308-3-kristian@mide.dk>
 References: <20260626214248.5563-1-kristian@mide.dk>
  <20260709182602.7308-1-kristian@mide.dk>
- <20260709182602.7308-2-kristian@mide.dk>
+ <20260709182602.7308-3-kristian@mide.dk>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 09 Jul 2026 18:36:00 +0000
-Message-Id: <20260709183601.48C9E1F000E9@smtp.kernel.org>
+Date: Thu, 09 Jul 2026 18:37:33 +0000
+Message-Id: <20260709183734.084DA1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
 s) to consider:
 
 Pre-existing issues:
-- [High] If `api_protocol_set_cmd` fails during `ilitek_suspend`, the funct=
-ion returns an error without re-enabling the IRQ.
+- [High] Missing `enable_irq()` on error paths in suspend and resume functi=
+ons.
+- [High] Incorrect touch packet parsing offset across 64-byte chunks for po=
+ints > 10.
 --
 
---- Patch [1]: [PATCH v2 1/3] Input: ilitek_ts: add stylus input support ---
-commit 93b3664194ad6413b8e1020fb08120b8f1d2a174
+--- Patch [2]: [PATCH v2 2/3] Input: ilitek_ts: handle short I2C transfers =
+---
+commit fea6e8240af99ced183b54d3a3d2c69a63ac6791
 Author: Kristian Mide <kristian@mide.dk>
 
-Input: ilitek_ts: add stylus input support
-   =20
-Add a separate stylus input device for report ID 0x0c packets,
-with pressure, hover, and side-button support.
+Input: ilitek_ts: handle short I2C transfers
+
+Check that i2c_transfer() returns the expected number of
+messages in ilitek_i2c_write_and_read().
 
 > diff --git a/drivers/input/touchscreen/ilitek_ts_i2c.c b/drivers/input/to=
 uchscreen/ilitek_ts_i2c.c
-> index 3de0fbf8da386..54e39721f2473 100644
+> index 54e39721f2473..6146baa2b6062 100644
 > --- a/drivers/input/touchscreen/ilitek_ts_i2c.c
 > +++ b/drivers/input/touchscreen/ilitek_ts_i2c.c
-
-[ ... ]
-
-> @@ -600,6 +720,18 @@ static int ilitek_ts_i2c_probe(struct i2c_client *cl=
-ient)
->  	return 0;
->  }
-> =20
-> +static void ilitek_ts_i2c_remove(struct i2c_client *client)
-> +{
-[ ... ]
-> +}
-> +
->  static int ilitek_suspend(struct device *dev)
->  {
->  	struct i2c_client *client =3D to_i2c_client(dev);
-
-[Severity: High]
-This isn't a bug introduced by this patch, but looking at ilitek_suspend():
+> @@ -131,11 +131,15 @@ static int ilitek_i2c_write_and_read(struct ilitek_=
+ts_data *ts,
+>  		error =3D i2c_transfer(client->adapter, msgs, ARRAY_SIZE(msgs));
+>  		if (error < 0)
+>  			return error;
+> +		if (error !=3D ARRAY_SIZE(msgs))
+> +			return -EIO;
+>  	} else {
+>  		if (write_len > 0) {
+>  			error =3D i2c_transfer(client->adapter, msgs, 1);
+>  			if (error < 0)
+>  				return error;
+> +			if (error !=3D 1)
+> +				return -EIO;
+>  		}
+>  		if (delay > 0)
+>  			fsleep(delay * 1000);
+> @@ -144,6 +148,8 @@ static int ilitek_i2c_write_and_read(struct ilitek_ts=
+_data *ts,
+>  			error =3D i2c_transfer(client->adapter, msgs + 1, 1);
+>  			if (error < 0)
+>  				return error;
+> +			if (error !=3D 1)
+> +				return -EIO;
+>  		}
+>  	}
 
 drivers/input/touchscreen/ilitek_ts_i2c.c:ilitek_suspend() {
-	...
-	disable_irq(client->irq);
-
-	if (!device_may_wakeup(dev)) {
-		error =3D api_protocol_set_cmd(ts, SET_IC_SLEEP, NULL, NULL);
-		if (error)
-			return error;
-	...
+    ...
+    error =3D api_protocol_set_cmd(ts, SET_IC_SLEEP, NULL, NULL);
+    if (error)
+        return error;
+    ...
 }
 
-If api_protocol_set_cmd() fails, does returning the error directly leave
-the IRQ permanently disabled?
+[Severity: High]
+This isn't a bug introduced by this patch, but does this error path return
+early without re-enabling the IRQ that was disabled at the start of the
+function?
 
-If an error is returned during suspend, the PM core aborts the system suspe=
-nd
-and will not invoke the resume callback for this device. As a result,
-enable_irq() would never be called, which could leave the touchscreen
-unresponsive. Should this error path re-enable the IRQ before returning?
+If api_protocol_set_cmd() fails during system suspend or resume, the PM core
+will abort the suspend process. Because enable_irq() is skipped, won't
+ilitek_resume() not be called for this device, leaving the IRQ permanently
+disabled and the device unresponsive?
+
+drivers/input/touchscreen/ilitek_ts_i2c.c:ilitek_resume() {
+    ...
+    error =3D api_protocol_set_cmd(ts, SET_IC_WAKE, NULL, NULL);
+    if (error)
+        return error;
+    ...
+}
+
+[Severity: High]
+This is a pre-existing issue, but does this error path also return early
+before the enable_irq() call is reached?
+
+drivers/input/touchscreen/ilitek_ts_i2c.c:ilitek_process_and_report_v6() {
+    ...
+    status =3D buf[i * packet_len + 1] & 0x40;
+    if (!status)
+        continue;
+       =20
+    id =3D buf[i * packet_len + 1] & 0x3F;
+   =20
+    x =3D get_unaligned_le16(buf + i * packet_len + 2);
+    y =3D get_unaligned_le16(buf + i * packet_len + 4);
+    ...
+}
+
+[Severity: High]
+This isn't a bug introduced by this patch, but does this purely linear
+index calculation i * packet_len cause out-of-bounds offsets into padding
+areas and conflict with metadata offsets for indices >=3D 10?
+
+The driver reads touch points into buf in 64-byte chunks, each holding up
+to 10 touch points, and advances the buffer pointer by 64 bytes for each
+chunk.
+
+Because each chunk only uses 50 bytes of data (leaving 14 bytes of padding),
+won't the linear formula fail to account for the 64-byte chunk boundaries
+instead of correctly tracking them?
+
+For example, for the 11th point (i =3D 10), the driver should read from
+buf[64], but it incorrectly reads from buf[50] (which is inside the first
+chunk's padding). For i =3D 12, the offset buf[12 * 5 + 1] resolves to 61,
+colliding exactly with REPORT_COUNT_ADDRESS, resulting in corrupted
+coordinates and statuses for points > 10.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260709182602.7308=
--1-kristian@mide.dk?part=3D1
+-1-kristian@mide.dk?part=3D2

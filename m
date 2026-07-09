@@ -1,122 +1,193 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 81BA01E633C;
-	Thu,  9 Jul 2026 05:06:30 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 31E34335BA;
+	Thu,  9 Jul 2026 05:09:21 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783573591; cv=none; b=QSF3Poxj+Zsj5lTl09KvkCSpKOUfZru9PY+iFEK/S7sFVeiwQMxNID6beo3mmecxnFMmJmP6zOwYpvIOnxOm8a7LX49kdJYfuvsinHOYP9sGLIwslEyy5BEM50bpxifl0XhvMvg93fGrwWlYiMe8v95wBHwsdUi0TaZ/ajY2Wcs=
+	t=1783573763; cv=none; b=Ua7T5tdE8NOqTdn8TtB6onJkDOLKMHv87PQDLGxkFc2dQdVZAIaN+R/C4yRGJx/GQWzSAEKOYopavcVvg0p718UDIvUefYbk7tU8sGcJROrcmgmVzueNs3tc81Y8OruFFuqr0pU4PA48aQsZuXK2V5V6DWeZLxABd26bnOBAUpE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783573591; c=relaxed/simple;
-	bh=/2C8aJgDuJioyp59wKJcXUItJqNTYb2/kvM5Khca6iA=;
+	s=arc-20240116; t=1783573763; c=relaxed/simple;
+	bh=EphSH5hmz7qWsddBBmPqf8NGUOLm9jycu0bGOmBKy50=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=EZayLXM3TqF7lD3AV8jVrUG+9aJrkI7gTWzzmjGToxgfGtyVE2Kdg6htTPaq/pTwOK5upPLdhC/cVjiw1f/1LoH29D/T+l172Lo6U8b0dcYjbXz1Q6fg4E1HATiVMR08P0ccndyOWLTzNitNnbbxwdEuqqeStdVqbErANO3o5+4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=UDLiveJO; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=tp83QoPJwB6B1WtIsevv6qDj3X0LuX0wIAoJa+iMz5Qw/eVHxBv4CXz8EsPckIjS/k846yN4IlU4ZoHPy9ZhBv7idgOmWog+pk8Arl4e7JKSdU04ryqj2Nj6CNCqHyOhG0cWqXe7D5ObIQcQPfy238il8gk7efjDsD/gXfiPb4w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=TXNY6uhY; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="UDLiveJO"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BEBD81F000E9;
-	Thu,  9 Jul 2026 05:06:29 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="TXNY6uhY"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 64F131F00A3E;
+	Thu,  9 Jul 2026 05:09:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1783573590;
-	bh=lBd/AEOwFIJjqmiEGoQ77PFU1QqpGxax73B9Pm5ZnXM=;
+	s=k20260515; t=1783573761;
+	bh=D15yqdrjbGfAiPWT5pjDmetR4bNM6aneHpkvYGA5KzE=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=UDLiveJOF0N2h0ShNUdlLPLBQJCmEbCiCg0VE1kIc3Qxd+DxyODE+JKCu01atza2q
-	 Is45AJjabwffBczFe5pxfG5P9NtPUEgp3MAt+ykpR37pwQnPmd+Hfqb3dLyJw+kV6l
-	 pATyOQ8KF/DKdJkCH2op74VKj+yryKR0KJo4M1KzSR6MthPf8UKrw+dJNZF+hWQqnK
-	 66ieNvy/fDf0nH1H0cmzYNqr3irfhRwFPrxCKZiB8XRa3C4AsEW0Df/S3WJ8He7gzv
-	 LbcYgtoghgLZfms5yWYHn6eti+5pgy/ORF8OHwclnInIlT5/UdepfkGu4Lv3LNtK5Z
-	 z3mSt4gJoRgog==
+	b=TXNY6uhYybwPO7ZETVj/pdkrfg4tO43T3D8ruioLzROnjQNDSifORGJdB96BH+wfd
+	 0Xh85O5jc1VOffB0xlFafOLbr+UvrYIRvTVkjYkkr3V7rdDTfu19fFocCA43NZp0X4
+	 EV5LApFP0oAMn3glVUEfVuPZevMOq2CeFyhBNoiagQzUZZwgbfTbLXeuYxU+XcGE4A
+	 9gaV12jF6W7fl5mJsXWOWNM1fdTPexoz4nNoR2glpnAYN6sns0/Y9SRq26aeZvvxcx
+	 f3DMvHxP1v7M3s2G3XfXU0DppdmWme9gTdO/wZ16K5G5/BvRF5cHBsa5Gp6brYWGZt
+	 UfBn/NtqM39TQ==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 02/11] Input: samsung-keypad - handle compact binding
+Subject: Re: [PATCH v2 04/11] ARM: s3c: crag6410: switch keypad device to
+ software properties
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, conor+dt@kernel.org, robh@kernel.org, devicetree@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260708-samsung-kp-v2-2-3c6ed4c9b3b6@gmail.com>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, robh@kernel.org, conor+dt@kernel.org, devicetree@vger.kernel.org
+In-Reply-To: <20260708-samsung-kp-v2-4-3c6ed4c9b3b6@gmail.com>
 References: <20260708-samsung-kp-v2-0-3c6ed4c9b3b6@gmail.com>
- <20260708-samsung-kp-v2-2-3c6ed4c9b3b6@gmail.com>
+ <20260708-samsung-kp-v2-4-3c6ed4c9b3b6@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 09 Jul 2026 05:06:29 +0000
-Message-Id: <20260709050629.BEBD81F000E9@smtp.kernel.org>
+Date: Thu, 09 Jul 2026 05:09:20 +0000
+Message-Id: <20260709050921.64F131F00A3E@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+Thank you for your contribution! Sashiko AI review found 5 potential issue(=
 s) to consider:
-- [High] Legacy device tree bindings for keypad row/column count are ignore=
-d and overwritten, breaking existing platforms.
+
+New issues:
+- [High] Legacy device tree parsing fails because matrix_keypad_parse_prope=
+rties() overwrites legacy values.
+- [Low] pr_err() message lacks trailing newline.
+- [Low] S3C64XX_SETUP_KEYPAD Kconfig symbol is dead code but remains select=
+ed.
+
+Pre-existing issues:
+- [High] Uninitialized variables in samsung_parse_verbose_keymap() generate=
+ random keycodes and leak kernel memory.
+- [High] Asynchronous data abort occurs due to IRQ registration before PM r=
+untime enablement.
 --
 
---- Patch [2]: [PATCH v2 02/11] Input: samsung-keypad - handle compact bind=
-ing ---
-commit 43d179d444ff3e714e66f7ac32f10fcc817c6f15
+--- Patch [4]: [PATCH v2 04/11] ARM: s3c: crag6410: switch keypad device to=
+ software properties ---
+commit acad872c671c37651ef2ad547b4a44b17438b49e
 Author: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: ARM: s3c: crag6410: switch keypad device to software properties
 
-Input: samsung-keypad - handle compact binding
+This commit switches the keypad device to use software properties. This cha=
+nge
+allows dropping support for platform data from the samsung-keypad driver. T=
+he
+platform data and related setup code are removed from the machine
+initialization.
 
-Adds support for standard matrix keymap bindings to the Samsung keypad
-driver, allowing easier conversions from platform data to static device
-properties.
+> diff --git a/arch/arm/mach-s3c/Makefile.s3c64xx b/arch/arm/mach-s3c/Makef=
+ile.s3c64xx
+> --- a/arch/arm/mach-s3c/Makefile.s3c64xx
+> +++ b/arch/arm/mach-s3c/Makefile.s3c64xx
+> @@ -32,7 +32,6 @@ obj-y				+=3D dev-audio-s3c64xx.o
+>  obj-$(CONFIG_S3C64XX_SETUP_FB_24BPP)	+=3D setup-fb-24bpp-s3c64xx.o
+>  obj-$(CONFIG_S3C64XX_SETUP_I2C0)	+=3D setup-i2c0-s3c64xx.o
+>  obj-$(CONFIG_S3C64XX_SETUP_I2C1)	+=3D setup-i2c1-s3c64xx.o
+> -obj-$(CONFIG_S3C64XX_SETUP_KEYPAD)	+=3D setup-keypad-s3c64xx.o
 
-> diff --git a/drivers/input/keyboard/samsung-keypad.c b/drivers/input/keyb=
-oard/samsung-keypad.c
-> index 17127269e3f05..b9d4ea5f202ae 100644
-> --- a/drivers/input/keyboard/samsung-keypad.c
-> +++ b/drivers/input/keyboard/samsung-keypad.c
+[Severity: Low]
+Is the S3C64XX_SETUP_KEYPAD Kconfig symbol dead code now?
+
+Since the file is removed from the Makefile, the config symbol doesn't seem
+to compile any code anymore, but it is still selected by MACH_WLF_CRAGG_6410
+in Kconfig.s3c64xx.
 
 [ ... ]
 
-> +static const struct samsung_keypad_platdata *
-> +samsung_keypad_parse_properties(struct device *dev)
+> diff --git a/arch/arm/mach-s3c/mach-crag6410.c b/arch/arm/mach-s3c/mach-c=
+rag6410.c
+> --- a/arch/arm/mach-s3c/mach-crag6410.c
+> +++ b/arch/arm/mach-s3c/mach-crag6410.c
+[ ... ]
+> @@ -192,17 +193,41 @@ static uint32_t crag6410_keymap[] =3D {
+[ ... ]
+> +static void __init crag6410_setup_keypad(void)
 > +{
-> +	const struct matrix_keymap_data *keymap_data;
-> +	struct samsung_keypad_platdata *pdata;
-> +	u32 num_rows =3D 0, num_cols =3D 0;
-> +	int error;
+> +	struct platform_device *pd;
 > +
->  	pdata =3D devm_kzalloc(dev, sizeof(*pdata), GFP_KERNEL);
-> -	if (!pdata) {
-> -		dev_err(dev, "could not allocate memory for platform data\n");
-> +	if (!pdata)
->  		return ERR_PTR(-ENOMEM);
-> -	}
-> =20
-> -	of_property_read_u32(np, "samsung,keypad-num-rows", &num_rows);
-> -	of_property_read_u32(np, "samsung,keypad-num-columns", &num_cols);
-> -	if (!num_rows || !num_cols) {
-> -		dev_err(dev, "number of keypad rows/columns not specified\n");
-> -		return ERR_PTR(-EINVAL);
-> -	}
-> +	device_property_read_u32(dev, "samsung,keypad-num-rows", &num_rows);
-> +	device_property_read_u32(dev, "samsung,keypad-num-columns", &num_cols);
+> +	/* Set all the necessary GPK pins to special-function 3: KP_ROW[x] */
+> +	s3c_gpio_cfgrange_nopull(S3C64XX_GPK(8), 2, S3C_GPIO_SFN(3));
 > +
-> +	error =3D matrix_keypad_parse_properties(dev, &num_rows, &num_cols);
-> +	if (error)
-> +		return ERR_PTR(error);
+> +	/* Set all the necessary GPL pins to special-function 3: KP_COL[x] */
+> +	s3c_gpio_cfgrange_nopull(S3C64XX_GPL(0), 6, S3C_GPIO_SFN(3));
+> +
+> +	pd =3D platform_device_register_full(&crag6410_keypad_info);
+> +	if (IS_ERR(pd))
+> +		pr_err("failed to instantiate keypad device");
+
+[Severity: Low]
+Would it be better to add a trailing newline to this pr_err() message?
+
+It looks like the kernel log output might become garbled if the registration
+fails.
+
+> +}
 
 [Severity: High]
-Will this break probing on existing platforms that use the legacy bindings?
+Could this sequence cause a regression where legacy device trees fail to pr=
+obe?
 
-Looking at matrix_keypad_parse_properties() in drivers/input/matrix-keymap.=
-c,
-it unconditionally resets the row and column pointers to 0 before attempting
-to read the modern properties:
+When reading properties:
 
-int matrix_keypad_parse_properties(struct device *dev,
-				   unsigned int *rows, unsigned int *cols)
-{
-	*rows =3D *cols =3D 0;
+drivers/input/keyboard/samsung-keypad.c:samsung_keypad_parse_properties() {
+    ...
+    error =3D matrix_keypad_parse_properties(dev, &num_rows, &num_cols);
+    ...
+}
 
-	device_property_read_u32(dev, "keypad,num-rows", rows);
-	...
+The matrix_keypad_parse_properties() function unconditionally zeroes the
+variables at entry, so if modern properties are absent, the legacy
+samsung,keypad-num-rows properties are overwritten and the function returns
+-EINVAL.
 
-If the modern "keypad,num-rows" properties are absent, it seems this will
-wipe out the successfully parsed legacy "samsung,keypad-num-rows" values
-and return an error, causing the probe to abort.
+[Severity: High]
+This is a pre-existing issue, but might samsung_parse_verbose_keymap() leak
+uninitialized stack memory to userspace?
+
+drivers/input/keyboard/samsung-keypad.c:samsung_parse_verbose_keymap() {
+    ...
+    u32 row, col, key_code;
+
+    fwnode_property_read_u32(child, "keypad,row", &row);
+    ...
+    *keymap++ =3D KEY(row, col, key_code);
+    ...
+}
+
+If a child node is missing the keypad,row, keypad,column, or linux,code
+properties, fwnode_property_read_u32() leaves row, col, and key_code
+uninitialized. These stack values are used in the KEY() macro and stored in
+the keymap, where userspace can read them via the EVIOCGKEYCODE ioctl.
+
+[Severity: High]
+This is a pre-existing issue, but is it possible for an asynchronous data a=
+bort
+to occur if an IRQ is pending before PM runtime is enabled?
+
+In probe, the IRQ is requested before the device is powered on:
+
+drivers/input/keyboard/samsung-keypad.c:samsung_keypad_probe() {
+    ...
+    error =3D devm_request_threaded_irq(&pdev->dev, keypad->irq, NULL,
+                                      samsung_keypad_irq, IRQF_ONESHOT,
+                                      dev_name(&pdev->dev), keypad);
+    ...
+}
+
+If an IRQ is pending from the bootloader, the handler runs immediately:
+
+drivers/input/keyboard/samsung-keypad.c:samsung_keypad_irq() {
+    ...
+    pm_runtime_get_sync(&keypad->pdev->dev);
+
+    do {
+        readl(keypad->base + SAMSUNG_KEYIFSTSCLR);
+    ...
+}
+
+Since the device is unclocked and pm_runtime_get_sync() fails, readl()
+accesses unclocked registers and triggers a data abort.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260708-samsung-kp=
--v2-0-3c6ed4c9b3b6@gmail.com?part=3D2
+-v2-0-3c6ed4c9b3b6@gmail.com?part=3D4

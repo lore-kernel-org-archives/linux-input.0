@@ -1,63 +1,63 @@
-Received: from mail-qk1-f178.google.com (mail-qk1-f178.google.com [209.85.222.178])
+Received: from mail-qk1-f173.google.com (mail-qk1-f173.google.com [209.85.222.173])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 35B62331ED2
-	for <linux-input@vger.kernel.org>; Thu,  9 Jul 2026 03:23:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.178
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 656BB38D401
+	for <linux-input@vger.kernel.org>; Thu,  9 Jul 2026 03:23:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783567423; cv=none; b=SUFDZsF3xl9prn0Gr3NGtp4GdEIgSbUborR4i20v4ow6nLuJawSmt6aGJqeAIbuUIPSksX4D01ZP0968hVxq0z1H67XQqdfpih7gdv8fDLrAEK8TzjE2QX9FWW0ONm9vpdwTovG2lhbdfn6KdrrWZoJVEEzKOtsXrIVkiX2lanI=
+	t=1783567425; cv=none; b=t3duzfdQTnmfff9QImxqtrO8ye8dqIHUCM5NiCb4hy6wGE49atxeUuk6Jywk7gTugxAt0Q2yyy6yalKByyWZ18lwUGit+Ek9Fbc/sWXQJ+GbPncOHU+cEDdsOtdtyQ7CJuKi4L2uew2ZVoQiqR30S7b3RaX+Qt0rB8Gw5sQkOQk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783567423; c=relaxed/simple;
-	bh=WQNwgjQgqLh614zgEQd5dYud9CIecwJNHMP14YesoSo=;
+	s=arc-20240116; t=1783567425; c=relaxed/simple;
+	bh=1Idv6r52TMexAWXsncu126aoNDOYFX6KXozJ7wjqsn4=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=nshu433qTO0MnoPKUm4lZ9V6ZcUbVBL2VdLo253DFzUDYTTqat3Dqm45WudUjW62HgNxr0ozj7q949+NsPSb0CHKZMpv9JURWd/AJYS7N7hQJ8rjHQ/IK5uUDfJXXeETYUQLmCbEiK6ucg9WX5TYK7qzwlcBCWMgfPkZntShc8Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=OXkVuC+C; arc=none smtp.client-ip=209.85.222.178
+	 MIME-Version; b=o6ODgkVEmc1TGEKpEoXm3Nrz6vxT9Qrbxk3kKuv+Nalj4f4z4mty5McsBObhW8XlFctCgUQW2GxSL3L0bg3yiotbrVq72ibjeLN3LPvA7BdYQtZDNOUNCs3U9yfUoHOjRezqhj0x4v3JvQ644ci0TCIZx6i/fkb6ttybzZJPeWM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=NLdzYJ+M; arc=none smtp.client-ip=209.85.222.173
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="OXkVuC+C"
-Received: by mail-qk1-f178.google.com with SMTP id af79cd13be357-92e99ef0902so21663685a.2
-        for <linux-input@vger.kernel.org>; Wed, 08 Jul 2026 20:23:42 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="NLdzYJ+M"
+Received: by mail-qk1-f173.google.com with SMTP id af79cd13be357-9217d13c276so65486785a.1
+        for <linux-input@vger.kernel.org>; Wed, 08 Jul 2026 20:23:44 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1783567421; x=1784172221; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1783567423; x=1784172223; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=IESag8wrXP/IknbrY2Nqri6wopkQJC3RSm7mIQIUGUE=;
-        b=OXkVuC+CIqeqm/QHyUA5yVLRBbVoDHmz4E+gMQ74P3xIXUKSN+d+WBx8U1fh4NsnCt
-         253WyK3cfic16B4lhZR9+gnHKajK/Szuzq4L2A/v0JF3j2rAYOTxHzC5Cwme8nOPhwit
-         0HoD49V3yJKTbgSiUk14UnGGIbzeoLgUVXaeeUSNfZ1P/9jU5BXY1F+2olNtoFBl5wKQ
-         /j77KsPBvrfHMIfI3WPsGq8X32gm6Bketbq3SjMfl/DxFqyNcj3OxO4M9OVTBsMUmcRN
-         V661KJ9NR2+T2qUCqTKXStl/YXtHhtt6BOc4TXCGR80VrsBl6kvmp8r125A/P1mY51YZ
-         8LFw==
+        bh=ElCKMIVIiZQvhDDSSsTjAAdUe/M6872UYL8d6hRY1bM=;
+        b=NLdzYJ+Mf8dTif8u0SsOC5CX3RJgI7+oV18wU6WhlPcbj2uSiyk4Mbsamlk30zwCiW
+         Yje/nDVk9ZKNCkBYA5/vpexNw1Emca2kd58av2dGPQNRyMxnizOtt8kNInA4R5Zea4Ze
+         abIiSeePFnb3+10n/KAz+ZNA9fizGXu8hfekHgsp0N8zvFxVFmkAUXYo2LWFXmfusGnu
+         +8ugxHgQ9rEvxLBPsidzUqWreX8Z0vF/eQNZhZNPLRPFTxmziHEl6KFh8zsJlabmSzgI
+         kP04A6c4ir/cr3Gsks0L6ZMfO6GzysQrbzsWIOjeL6m6bNAdQ4Gk7TuxE36vT22AB7Hs
+         tfhw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1783567421; x=1784172221;
+        d=1e100.net; s=20251104; t=1783567423; x=1784172223;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=IESag8wrXP/IknbrY2Nqri6wopkQJC3RSm7mIQIUGUE=;
-        b=Vx3S4P+iF+0zh2RO36QQa95Uv3d2LFkZ925aHz3RHgCE2VT7BmYqZyBkYhSbX5eX3g
-         Pu0w43S5X0Aq55y3zl6PznxOdUKsWzHOONJZRzkcjPxEPiv8pSD/j8rgIAtFAPGP94Q8
-         IEejfGnOChVAxYzghHc1c+QqKtxCtMhvHqwzeKDqhabYZh8xvy2mDR8RM5UCMr9ux+Za
-         QUE0/wrfKQpdnVnemDkf5bwPOBCvkgiYq4GheBYInrIOFsSBIcvwntxMWr9XVA6sMsag
-         EWYJrjNjtLkRPD8p52hVd0E0OFALeBgfbUEdULUO9dLuqvcgCLWxjjAKKIL+y6VG8Npc
-         58yw==
-X-Gm-Message-State: AOJu0Yw7d447pkxv0Yc2P0I0tvUqU5EcXtEagQBeE+1xmDFCWyjyEAmm
-	Nq5kAKe+iFpucNm+J11IheYg0ggQ3qX2iASKtx4m9ao//nasDzoDHrRH
-X-Gm-Gg: AfdE7cnFKWo6Blws2ADHtv5BMavKtIpjuK+txNMfFx5P50PfloGVP3klLyRspImDW/k
-	fd695fq4ERD/NC0DGcKtoQr8dhu08B4KtYa+IrSj0dvNoDWQgoHATUjib8ox2T4i9xbwM6fEoEm
-	ocdQdbeLAYRc03nLPP36OSMndsvDoe8CcH+ovN9MKvBzBDmo1hLVmPfjKpv5R3M3SW7cIAZwynj
-	1iloEB8D/FFy8GwosVsnI/a3RiHEqoMiaiFlqUveJLrVfZyZI14CDq8gXOhhIrVTlwxmjMpApYW
-	WjdkHDJAH85yRorx0l7LQ3RQLbwp7l8/v38zB9WCUP2JDiMo/Xmwy0zRPjtTeoCLMRhqIF8Xe2/
-	Rqt3N9Si4Oivxv9S+GptkQjA4LRsQYEKmO1lvg0fAIOziO1yaW0JoWTDgjmnm+g/vlOcpntv1Oz
-	yGnUq3f9uFKPkMX49wGzye02HAm3b3fPmOlNmI+dqfCdwNk31pHhhZv1lpX1ONTn/wFEWQMAclO
-	9fg2fKy
-X-Received: by 2002:a05:620a:29c2:b0:92e:45e0:2588 with SMTP id af79cd13be357-92ecf5dc66emr563233785a.55.1783567421167;
-        Wed, 08 Jul 2026 20:23:41 -0700 (PDT)
+        bh=ElCKMIVIiZQvhDDSSsTjAAdUe/M6872UYL8d6hRY1bM=;
+        b=nav9e0oV/jOG1KheRuSi+Ts84XM4zbCppC6KznpEbtrfOwFIBGazyS7nkRKak2TMwI
+         bdSuPbouczOoltOUbguyrmWo32uarsj2pribpkHHSnCWEpg5TGvUcN1PECUHulyAX5B+
+         cBvUL+NZD1D9248zT5EYoeAgfUitb8Z5DInB9VYecLdZUlSpuVL3ZUHURMWgROBHfVgT
+         S6WvQnLJg1Jzzq17HJrQmFCWm0/v4/Ye03U/TtRm38sj5jQ3KccWA2C4YAwU3Oemgw8S
+         CO+TkQETz98hQ6biR0Hw/T8ryXtrMM96JXuSdPH9qzl3KVPqQ8HuvIGyXBa04ypQtFAH
+         dY2Q==
+X-Gm-Message-State: AOJu0YyNG/VN3RBP49bUCEIPaa7So9EONxbk+LgWEM87S0nEm2ZngUJw
+	vKxaN2wMmH0DZxhfKeuyw2sAcuN8NPJAf5HVicW3d0VwWdGgTnd81i0f
+X-Gm-Gg: AfdE7cklyDCOxZvM2bvfZOeguMEQ5JnFral1c1sxwQgbSXN+hqQQa6vSVvxlLvNvEP7
+	S3FeYVb7i3hCRyRlRblRB44HdebpTet2O0IvFv0w3Q9FZHiyBGlqyEJszaSRdRJcxyW2YUebas0
+	MXQsnpSmTAZvYGbLSpZebMNcRFuj0ISwT3chQIQaXNf+mPR5Hza1PTbgTqyesPujwP0aLMlQtUp
+	SYnc/jnXDByD0YXcGNcM0TzbPyCUJiWh9rZhmqtPPdi6YLqNLPTiVByOEJ5QflzR8ocbWMzJ/Gm
+	R81axCT9LzRwxYML8l8GBlApqobOgIfrNWyaYcPnRUCKNbVm2xOkRsiTXOP4ax90Hf+WwGCuSbQ
+	nDVTcVx85u154xXpIWKwPlfEJFxoCb2CAWKd4nonPcPelLg4TytnXEy1EOMcjWHx1riVjotKfgT
+	+TfONVUU7XabVA5kDjlYko6vNmx0715vUygKWzloqnQAO1d0dGOU5hKUswRk6wetGvnDsYWt2Jh
+	GCZL01c
+X-Received: by 2002:a05:620a:4415:b0:92b:6805:91a5 with SMTP id af79cd13be357-92ecf68d183mr571156985a.61.1783567423279;
+        Wed, 08 Jul 2026 20:23:43 -0700 (PDT)
 Received: from achantapc.mynetworksettings.com ([2600:4040:122a:dd00:da6a:a6e4:2464:e6a1])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-92e9c0f7de9sm1336872185a.26.2026.07.08.20.23.40
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-92e9c0f7de9sm1336872185a.26.2026.07.08.20.23.42
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 08 Jul 2026 20:23:40 -0700 (PDT)
+        Wed, 08 Jul 2026 20:23:42 -0700 (PDT)
 From: Sriman Achanta <srimanachanta@gmail.com>
 X-Google-Original-From: Sriman Achanta <68172138+srimanachanta@users.noreply.github.com>
 To: Jiri Kosina <jikos@kernel.org>,
@@ -68,9 +68,9 @@ Cc: linux-input@vger.kernel.org,
 	Simon Wood <simon@mungewell.org>,
 	Christian Mayer <git@mayer-bgk.de>,
 	Sriman Achanta <srimanachanta@gmail.com>
-Subject: [PATCH v6 1/9] HID: steelseries: Fix ARCTIS_1_X device mislabeling
-Date: Wed,  8 Jul 2026 23:23:08 -0400
-Message-ID: <20260709032316.1908460-2-68172138+srimanachanta@users.noreply.github.com>
+Subject: [PATCH v6 3/9] HID: steelseries: Inline and simplify SRWS1 wheel driver
+Date: Wed,  8 Jul 2026 23:23:10 -0400
+Message-ID: <20260709032316.1908460-4-68172138+srimanachanta@users.noreply.github.com>
 X-Mailer: git-send-email 2.55.0
 In-Reply-To: <20260709032316.1908460-1-68172138+srimanachanta@users.noreply.github.com>
 References: <20260709032316.1908460-1-68172138+srimanachanta@users.noreply.github.com>
@@ -84,88 +84,93 @@ Content-Transfer-Encoding: 8bit
 
 From: Sriman Achanta <srimanachanta@gmail.com>
 
-The SteelSeries Arctis 1 Wireless for Xbox (0x12b6) was labelled as the
-plain Arctis 1 Wireless. Rename USB_DEVICE_ID_STEELSERIES_ARCTIS_1 to
-USB_DEVICE_ID_STEELSERIES_ARCTIS_1_X, along with the matching quirk flag
-and device table entry. The device ID value is unchanged.
+Arctis headsets have their own driver now, so hid-steelseries.c only
+handles the SRWS1 racing wheel. Remove the dispatch layer:
+
+- Inline steelseries_srws1_probe() as steelseries_probe()
+- Add a steelseries_remove() that calls hid_hw_stop()
+- Drop the STEELSERIES_SRWS1 quirk bit, no longer needed
+- Remove the vendor/product check in steelseries_srws1_report_fixup(),
+  since this driver only binds the SRWS1
 
 Signed-off-by: Sriman Achanta <srimanachanta@gmail.com>
 ---
- drivers/hid/hid-ids.h         |  4 ++--
- drivers/hid/hid-quirks.c      |  2 +-
- drivers/hid/hid-steelseries.c | 10 +++++-----
- 3 files changed, 8 insertions(+), 8 deletions(-)
+ drivers/hid/hid-steelseries.c | 30 +++++++++---------------------
+ 1 file changed, 9 insertions(+), 21 deletions(-)
 
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 1059922baaac..915e936cbf8b 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -1377,8 +1377,8 @@
- 
- #define USB_VENDOR_ID_STEELSERIES	0x1038
- #define USB_DEVICE_ID_STEELSERIES_SRWS1	0x1410
--#define USB_DEVICE_ID_STEELSERIES_ARCTIS_1  0x12b6
--#define USB_DEVICE_ID_STEELSERIES_ARCTIS_9  0x12c2
-+#define USB_DEVICE_ID_STEELSERIES_ARCTIS_1_X	0x12b6
-+#define USB_DEVICE_ID_STEELSERIES_ARCTIS_9	0x12c2
- 
- #define USB_VENDOR_ID_SUN		0x0430
- #define USB_DEVICE_ID_RARITAN_KVM_DONGLE	0xcdab
-diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
-index 57d8efdd9b89..f546179858c2 100644
---- a/drivers/hid/hid-quirks.c
-+++ b/drivers/hid/hid-quirks.c
-@@ -747,7 +747,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
- #endif
- #if IS_ENABLED(CONFIG_HID_STEELSERIES)
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_STEELSERIES, USB_DEVICE_ID_STEELSERIES_SRWS1) },
--	{ HID_USB_DEVICE(USB_VENDOR_ID_STEELSERIES, USB_DEVICE_ID_STEELSERIES_ARCTIS_1) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_STEELSERIES, USB_DEVICE_ID_STEELSERIES_ARCTIS_1_X) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_STEELSERIES, USB_DEVICE_ID_STEELSERIES_ARCTIS_9) },
- #endif
- #if IS_ENABLED(CONFIG_HID_SUNPLUS)
 diff --git a/drivers/hid/hid-steelseries.c b/drivers/hid/hid-steelseries.c
-index f98435631aa1..fd38ee3ea6fc 100644
+index 5fca0d84d1e6..5b3896643901 100644
 --- a/drivers/hid/hid-steelseries.c
 +++ b/drivers/hid/hid-steelseries.c
-@@ -18,7 +18,7 @@
+@@ -15,8 +15,6 @@
+ 
  #include "hid-ids.h"
  
- #define STEELSERIES_SRWS1		BIT(0)
--#define STEELSERIES_ARCTIS_1		BIT(1)
-+#define STEELSERIES_ARCTIS_1_X		BIT(1)
- #define STEELSERIES_ARCTIS_9		BIT(2)
+-#define STEELSERIES_SRWS1		BIT(0)
+-
+ #if IS_BUILTIN(CONFIG_LEDS_CLASS) || \
+     (IS_MODULE(CONFIG_LEDS_CLASS) && IS_MODULE(CONFIG_HID_STEELSERIES))
+ #define SRWS1_NUMBER_LEDS 15
+@@ -225,7 +223,7 @@ static enum led_brightness steelseries_srws1_led_get_brightness(struct led_class
+ 	return value ? LED_FULL : LED_OFF;
+ }
  
- struct steelseries_device {
-@@ -374,7 +374,7 @@ static void steelseries_headset_fetch_battery(struct hid_device *hdev)
+-static int steelseries_srws1_probe(struct hid_device *hdev,
++static int steelseries_probe(struct hid_device *hdev,
+ 		const struct hid_device_id *id)
  {
- 	int ret = 0;
+ 	int ret, i;
+@@ -319,33 +317,24 @@ static int steelseries_srws1_probe(struct hid_device *hdev,
+ err:
+ 	return ret;
+ }
+-#endif
  
--	if (hdev->product == USB_DEVICE_ID_STEELSERIES_ARCTIS_1)
-+	if (hdev->product == USB_DEVICE_ID_STEELSERIES_ARCTIS_1_X)
- 		ret = steelseries_headset_request_battery(hdev,
- 			arctis_1_battery_request, sizeof(arctis_1_battery_request));
- 	else if (hdev->product == USB_DEVICE_ID_STEELSERIES_ARCTIS_9)
-@@ -638,7 +638,7 @@ static int steelseries_headset_raw_event(struct hid_device *hdev,
- 	if (hdev->product == USB_DEVICE_ID_STEELSERIES_SRWS1)
- 		return 0;
+-static int steelseries_probe(struct hid_device *hdev, const struct hid_device_id *id)
++static void steelseries_remove(struct hid_device *hdev)
+ {
+-#if IS_BUILTIN(CONFIG_LEDS_CLASS) || \
+-    (IS_MODULE(CONFIG_LEDS_CLASS) && IS_MODULE(CONFIG_HID_STEELSERIES))
+-	return steelseries_srws1_probe(hdev, id);
++	hid_hw_stop(hdev);
++}
+ #else
++static int steelseries_probe(struct hid_device *hdev,
++		const struct hid_device_id *id)
++{
+ 	return -ENODEV;
+-#endif
+ }
  
--	if (hdev->product == USB_DEVICE_ID_STEELSERIES_ARCTIS_1) {
-+	if (hdev->product == USB_DEVICE_ID_STEELSERIES_ARCTIS_1_X) {
- 		hid_dbg(sd->hdev,
- 			"Parsing raw event for Arctis 1 headset (%*ph)\n", size, read_buf);
- 		if (size < ARCTIS_1_BATTERY_RESPONSE_LEN ||
-@@ -725,8 +725,8 @@ static const struct hid_device_id steelseries_devices[] = {
- 	  .driver_data = STEELSERIES_SRWS1 },
+-static void steelseries_remove(struct hid_device *hdev)
+-{
+-#if IS_BUILTIN(CONFIG_LEDS_CLASS) || \
+-    (IS_MODULE(CONFIG_LEDS_CLASS) && IS_MODULE(CONFIG_HID_STEELSERIES))
+-	hid_hw_stop(hdev);
++static void steelseries_remove(struct hid_device *hdev) {}
+ #endif
+-}
  
- 	{ /* SteelSeries Arctis 1 Wireless for XBox */
--	  HID_USB_DEVICE(USB_VENDOR_ID_STEELSERIES, USB_DEVICE_ID_STEELSERIES_ARCTIS_1),
--	  .driver_data = STEELSERIES_ARCTIS_1 },
-+	  HID_USB_DEVICE(USB_VENDOR_ID_STEELSERIES, USB_DEVICE_ID_STEELSERIES_ARCTIS_1_X),
-+	  .driver_data = STEELSERIES_ARCTIS_1_X },
+ static const __u8 *steelseries_srws1_report_fixup(struct hid_device *hdev,
+ 		__u8 *rdesc, unsigned int *rsize)
+ {
+-	if (hdev->vendor != USB_VENDOR_ID_STEELSERIES ||
+-	    hdev->product != USB_DEVICE_ID_STEELSERIES_SRWS1)
+-		return rdesc;
+-
+ 	if (*rsize >= 115 && rdesc[11] == 0x02 && rdesc[13] == 0xc8
+ 			&& rdesc[29] == 0xbb && rdesc[40] == 0xc5) {
+ 		hid_info(hdev, "Fixing up Steelseries SRW-S1 report descriptor\n");
+@@ -356,8 +345,7 @@ static const __u8 *steelseries_srws1_report_fixup(struct hid_device *hdev,
+ }
  
- 	{ /* SteelSeries Arctis 9 Wireless for XBox */
- 	  HID_USB_DEVICE(USB_VENDOR_ID_STEELSERIES, USB_DEVICE_ID_STEELSERIES_ARCTIS_9),
+ static const struct hid_device_id steelseries_devices[] = {
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_STEELSERIES, USB_DEVICE_ID_STEELSERIES_SRWS1),
+-	  .driver_data = STEELSERIES_SRWS1 },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_STEELSERIES, USB_DEVICE_ID_STEELSERIES_SRWS1) },
+ 
+ 	{ }
+ };
 -- 
 2.55.0
 

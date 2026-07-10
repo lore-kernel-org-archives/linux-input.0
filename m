@@ -1,42 +1,42 @@
 Received: from endrift.com (endrift.com [173.255.198.10])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 230251DCB24
-	for <linux-input@vger.kernel.org>; Fri, 10 Jul 2026 02:02:08 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E3AAE280329
+	for <linux-input@vger.kernel.org>; Fri, 10 Jul 2026 02:02:09 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=173.255.198.10
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783648929; cv=none; b=RpIwbtKJwa2KXDh4GdBNciKb71hXdG+NKXJuX+RjHP59c82R6ErxsBxIiyM0868eMFB1xzmsWpx1ivkVnkLmNS2/5FBRBJxy58UlISZF6h215FZqb/knnNKd6nUVbii+BTARNRYcmdGImvvEuGBqe/SuH8E87eL0uXUF9AQpshc=
+	t=1783648931; cv=none; b=aBtU+UJHz1K+V7x/Mq1SEhj6DqjuS/1v8OoyUserSQU3Fy1yDqBUc7JIToO2Ph9jN5f8UOHzHnM/lGS4xJYzXgW7CY143qTytOZPfPZzqzcrNYI2BFrBWYL/yEDGcDgGoe923yUZWi2xjly1UWXYRuLZFhQW3XZNYWUBAu65apE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783648929; c=relaxed/simple;
-	bh=8NYKUEEjoO5/3uOxfYK7qIuagvVchxTGd4SKyKRDQ5M=;
+	s=arc-20240116; t=1783648931; c=relaxed/simple;
+	bh=xgZDhFWLxQ0l/WVfWkTMqnxp2nS4i0QAOvO9dS+19Zo=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=gZqekPDZXFIRiDEBzx5P+DMaqrY9PemmHccOvFeJHVjP4gtmpPAH3cxlej5Bf6E6Dg08maBnUfPPHE+M//WtnEQqre8ep5GfG7ofMUZ/YHh5/5SG2AF2vStU4w9ljxf4iIqHsYLWrcrVN+wQuJS2+mCtxBjtZn2COvSG9zcfQ54=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com; spf=pass smtp.mailfrom=endrift.com; dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b=NUxDlych; arc=none smtp.client-ip=173.255.198.10
+	 MIME-Version; b=ihdZ9+n4McAb9Re0e6pdAeAJ7Po54NBrg0DqJej32F43q5F+VE12ScF9l6ziejWE953zUnloELIzFSrHGm437qFpkJMKtScjGqw1ZGtMgMy4clhOqJUAbrD9XyZcTTmgCMCvwwfQwoy2mNLD0efMOI57babDmKiRE8+gVkP2yWE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com; spf=pass smtp.mailfrom=endrift.com; dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b=VB7MQqdX; arc=none smtp.client-ip=173.255.198.10
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=endrift.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b="NUxDlych"
+	dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b="VB7MQqdX"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=endrift.com; s=2020;
-	t=1783648917; bh=8NYKUEEjoO5/3uOxfYK7qIuagvVchxTGd4SKyKRDQ5M=;
+	t=1783648919; bh=xgZDhFWLxQ0l/WVfWkTMqnxp2nS4i0QAOvO9dS+19Zo=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=NUxDlychdYScDM2K2L7DOevZ8OISH5dbSz62bgiER19oLOWCzVWcbLwkrePwBQrXi
-	 qP14I8Of4E4jMAWOCFIJlybNVrvUOQ400Y5Ms7Xxw6/QbJbdS+iou3B2/LTmvip3By
-	 4IOnivfv/G+4eOYyaYboHy7Gm8OvY/HjikHxaIQK8O6UCtD0c4E7t33wJyJ29bnhdT
-	 Qk6jwJQzVlKiM5tGic+8Rl0B0QU6Ad7aFoFuHIVXWr+E5oqcyK9lFIvQuuzTmaXB5a
-	 pKO7DZ91J+rhrBveKT2IAdHBlal6h9QDJbhA4/sd/Hou0zbkzNv72cRGPt3oovNtGX
-	 pwfPRQ1r1AJoQ==
+	b=VB7MQqdXdD6ve9bQ7iXu1zw0S+RrH0/SpditEalLcrGeC85YhD7x2fBXpVjdiw038
+	 eQRIAZYfxvdfqLk0NcnS//ueKUuhwrZcWDsI+p4mVbwKkST+zZnSpaJHghwJXDi7W9
+	 jtv5dnmTEIbfYd+STU0IrMXJWoFdfn5k8k6qPls1Bxq7hEC5OnofvMfwcnjUfhwOOG
+	 gzRabGaQ9b/8iC6nAZ30KrkDZLAjIUfn1cGYsT0m3BoftKO70LfCE/seezjfH/scDV
+	 hHwOaek/UVmndq7Z24xEZEUObYfbk38lRbhtGmrK/SweX+I1PD8Lx4XHFrTRasAOSx
+	 NI3y5E4/mPOng==
 Received: from microtis.vulpes.eutheria.net (71-212-73-87.tukw.qwest.net [71.212.73.87])
-	by endrift.com (Postfix) with ESMTPSA id D1D0613202C;
-	Thu, 09 Jul 2026 19:01:56 -0700 (PDT)
+	by endrift.com (Postfix) with ESMTPSA id D5675132038;
+	Thu, 09 Jul 2026 19:01:58 -0700 (PDT)
 From: Vicki Pfau <vi@endrift.com>
 To: Jiri Kosina <jikos@kernel.org>,
 	Benjamin Tissoires <bentiss@kernel.org>,
 	linux-input@vger.kernel.org
 Cc: Vicki Pfau <vi@endrift.com>,
 	Yousef Alhouseen <alhouseenyousef@gmail.com>
-Subject: [PATCH v3 03/10] HID: steam: Rename some constants that got renamed upstream
-Date: Thu,  9 Jul 2026 19:00:38 -0700
-Message-ID: <20260710020048.2337655-4-vi@endrift.com>
+Subject: [PATCH v3 08/10] HID: steam: Improve logging and other cleanup
+Date: Thu,  9 Jul 2026 19:00:43 -0700
+Message-ID: <20260710020048.2337655-9-vi@endrift.com>
 X-Mailer: git-send-email 2.54.0
 In-Reply-To: <20260710020048.2337655-1-vi@endrift.com>
 References: <20260710020048.2337655-1-vi@endrift.com>
@@ -48,50 +48,142 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-SETTING_MOUSE_POINTER_ENABLED was renamed to SETTING_LIZARD_MODE upstream.
-SETTING_GYRO_MODE was renamed to SETTING_IMU_MODE in an older commit, but
-the associated enum was overlooked.
+Adds more logging as appropriate, reindents an enum to match surrounding
+style, as well as cleaning up some places where we can use guard() instead
+of doing locking and unlocking manually.
 
 Signed-off-by: Vicki Pfau <vi@endrift.com>
 ---
- drivers/hid/hid-steam.c | 16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ drivers/hid/hid-steam.c | 56 ++++++++++++++++++++++++-----------------
+ 1 file changed, 33 insertions(+), 23 deletions(-)
 
 diff --git a/drivers/hid/hid-steam.c b/drivers/hid/hid-steam.c
-index 1b0367c98eac..add9f4f27fff 100644
+index 9dc77cd76edb..298a2c17e112 100644
 --- a/drivers/hid/hid-steam.c
 +++ b/drivers/hid/hid-steam.c
-@@ -151,7 +151,7 @@ enum {
- 	SETTING_USB_DEBUG_MODE,
- 	SETTING_LEFT_TRACKPAD_MODE,
- 	SETTING_RIGHT_TRACKPAD_MODE,
--	SETTING_MOUSE_POINTER_ENABLED,
-+	SETTING_LIZARD_MODE,
- 
- 	/* 10 */
- 	SETTING_DPAD_DEADZONE,
-@@ -261,14 +261,14 @@ enum {
- 	ATTRIB_STR_UNIT_SERIAL,
+@@ -246,14 +246,14 @@ enum {
+ /* Input report identifiers */
+ enum
+ {
+-	ID_CONTROLLER_STATE = 1,
+-	ID_CONTROLLER_DEBUG = 2,
+-	ID_CONTROLLER_WIRELESS = 3,
+-	ID_CONTROLLER_STATUS = 4,
+-	ID_CONTROLLER_DEBUG2 = 5,
+-	ID_CONTROLLER_SECONDARY_STATE = 6,
+-	ID_CONTROLLER_BLE_STATE = 7,
+-	ID_CONTROLLER_DECK_STATE = 9
++	ID_CONTROLLER_STATE		= 1,
++	ID_CONTROLLER_DEBUG		= 2,
++	ID_CONTROLLER_WIRELESS		= 3,
++	ID_CONTROLLER_STATUS		= 4,
++	ID_CONTROLLER_DEBUG2		= 5,
++	ID_CONTROLLER_SECONDARY_STATE	= 6,
++	ID_CONTROLLER_BLE_STATE		= 7,
++	ID_CONTROLLER_DECK_STATE	= 9,
  };
  
--/* Values for GYRO_MODE (bitmask) */
-+/* Values for IMU_MODE (bitmask) */
- enum {
--	SETTING_GYRO_MODE_OFF			= 0,
--	SETTING_GYRO_MODE_STEERING		= BIT(0),
--	SETTING_GYRO_MODE_TILT			= BIT(1),
--	SETTING_GYRO_MODE_SEND_ORIENTATION	= BIT(2),
--	SETTING_GYRO_MODE_SEND_RAW_ACCEL	= BIT(3),
--	SETTING_GYRO_MODE_SEND_RAW_GYRO		= BIT(4),
-+	SETTING_IMU_MODE_OFF			= 0,
-+	SETTING_IMU_MODE_STEERING		= BIT(0),
-+	SETTING_IMU_MODE_TILT			= BIT(1),
-+	SETTING_IMU_MODE_SEND_ORIENTATION	= BIT(2),
-+	SETTING_IMU_MODE_SEND_RAW_ACCEL		= BIT(3),
-+	SETTING_IMU_MODE_SEND_RAW_GYRO		= BIT(4),
- };
+ /* Read-only attributes */
+@@ -379,9 +379,16 @@ static int steam_recv_report(struct steam_device *steam,
+ 	ret = hid_hw_raw_request(steam->hdev, 0x00,
+ 			buf, hid_report_len(r) + 1,
+ 			HID_FEATURE_REPORT, HID_REQ_GET_REPORT);
+-	if (ret > 0)
+-		memcpy(data, buf + 1, min(size, ret - 1));
++	if (ret > 0) {
++		ret = min(size, ret - 1);
++		memcpy(data, buf + 1, ret);
++	}
+ 	kfree(buf);
++
++	if (ret < 0)
++		hid_err(steam->hdev, "%s: error %d\n", __func__, ret);
++	else
++		hid_dbg(steam->hdev, "Received report %*ph\n", ret, data);
+ 	return ret;
+ }
  
- /* Trackpad modes */
+@@ -409,6 +416,8 @@ static int steam_send_report(struct steam_device *steam,
+ 	/* The report ID is always 0 */
+ 	memcpy(buf + 1, cmd, size);
+ 
++	hid_dbg(steam->hdev, "Sending report %*ph\n", size, cmd);
++
+ 	/*
+ 	 * Sometimes the wireless controller fails with EPIPE
+ 	 * when sending a feature report.
+@@ -481,22 +490,21 @@ static int steam_get_serial(struct steam_device *steam)
+ 	u8 cmd[] = {ID_GET_STRING_ATTRIBUTE, sizeof(steam->serial_no), ATTRIB_STR_UNIT_SERIAL};
+ 	u8 reply[3 + STEAM_SERIAL_LEN + 1];
+ 
+-	mutex_lock(&steam->report_mutex);
++	guard(mutex)(&steam->report_mutex);
+ 	ret = steam_send_report(steam, cmd, sizeof(cmd));
+ 	if (ret < 0)
+-		goto out;
++		return ret;
+ 	ret = steam_recv_report(steam, reply, sizeof(reply));
+ 	if (ret < 0)
+-		goto out;
++		return ret;
+ 	if (reply[0] != ID_GET_STRING_ATTRIBUTE || reply[1] < 1 ||
+ 	    reply[1] > sizeof(steam->serial_no) || reply[2] != ATTRIB_STR_UNIT_SERIAL) {
+-		ret = -EIO;
+-		goto out;
++		hid_err(steam->hdev, "%s: invalid reply (%*ph)\n", __func__,
++				(int)sizeof(reply), reply);
++		return -EIO;
+ 	}
+ 	reply[3 + STEAM_SERIAL_LEN] = 0;
+ 	strscpy(steam->serial_no, reply + 3, reply[1]);
+-out:
+-	mutex_unlock(&steam->report_mutex);
+ 	return ret;
+ }
+ 
+@@ -516,8 +524,11 @@ static int steam_get_attributes(struct steam_device *steam)
+ 	ret = steam_recv_report(steam, reply, sizeof(reply));
+ 	if (ret < 0)
+ 		return ret;
+-	if (reply[0] != ID_GET_ATTRIBUTES_VALUES || reply[1] < 2)
++	if (reply[0] != ID_GET_ATTRIBUTES_VALUES || reply[1] < 2) {
++		hid_err(steam->hdev, "%s: invalid reply (%*ph)\n", __func__,
++				(int)sizeof(reply), reply);
+ 		return -EIO;
++	}
+ 
+ 	size = min(reply[1], sizeof(reply) - 2);
+ 	for (i = 0; i + sizeof(*attr) <= size; i += sizeof(*attr)) {
+@@ -539,11 +550,8 @@ static int steam_get_attributes(struct steam_device *steam)
+  */
+ static inline int steam_request_conn_status(struct steam_device *steam)
+ {
+-	int ret;
+-	mutex_lock(&steam->report_mutex);
+-	ret = steam_send_report_byte(steam, ID_DONGLE_GET_WIRELESS_STATE);
+-	mutex_unlock(&steam->report_mutex);
+-	return ret;
++	guard(mutex)(&steam->report_mutex);
++	return steam_send_report_byte(steam, ID_DONGLE_GET_WIRELESS_STATE);
+ }
+ 
+ /*
+@@ -1193,6 +1201,7 @@ static void steam_mode_switch_cb(struct work_struct *work)
+ 		return;
+ 
+ 	steam->gamepad_mode = !steam->gamepad_mode;
++	hid_dbg(steam->hdev, "%s: switching gamepad mode to %i\n", __func__, steam->gamepad_mode);
+ 	if (steam->gamepad_mode)
+ 		steam_set_lizard_mode(steam, false);
+ 	else {
+@@ -1839,6 +1848,7 @@ static void steam_do_deck_input_event(struct steam_device *steam,
+ 		steam->did_mode_switch = false;
+ 		cancel_delayed_work(&steam->mode_switch);
+ 	} else if (!steam->client_opened && start_pressed && !steam->did_mode_switch) {
++		hid_dbg(steam->hdev, "%s: doing mode switch\n", __func__);
+ 		steam->did_mode_switch = true;
+ 		schedule_delayed_work(&steam->mode_switch, 45 * HZ / 100);
+ 	}
 -- 
 2.54.0
 

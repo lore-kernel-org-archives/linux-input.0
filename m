@@ -1,113 +1,82 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from out-180.mta1.migadu.com (out-180.mta1.migadu.com [95.215.58.180])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 17F2A3BFAD1;
-	Fri, 10 Jul 2026 21:35:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4BC2642EEB6
+	for <linux-input@vger.kernel.org>; Fri, 10 Jul 2026 22:27:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.180
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783719340; cv=none; b=Luh58pfBee+uY925gxfcat/p1X/nMzT1fgfiPijqddL5iQ8FV8K7HHGznHPJivqQQbBChBXtsxJycqLjqGSqvNLj5qHW73aXtDVYDpuOSFPmh1vi1RE0LK92XSbrb+wOsdGgeBwIVNVjOfbHMcj4TWQGNRxMEhxl7q1I8NvjKFE=
+	t=1783722438; cv=none; b=kPyHl5HG1O/BzPF0eB1AmsMC+gPLPk3IMkjrGs9u4VR/gkbpbgoYvv2FUOWkA4lNXH+97nhJ19agMlhD85L6a/LROfiNMjzeL+IW7E0tfNWbQSO0KKfBI5MlBYwb4bV7pFIQOlUX1Z6YxFwzpvUPU7AK9tFPqxq0oV+ukYEpEcE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783719340; c=relaxed/simple;
-	bh=V4kgPQSc8K4Zo3Pq5H4OO4x4rBHh5iFPReI/ayyS/30=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=ftShsM+vIqxAl+yo+tb8kIy4t7B64FR/oP9BIvfKu4I8eTRlpGumxExFAiF4kGLiP45lpnsXO6L8j+mYv7iE6WhLXqxS7o74kj/eRdhnFFM/oRUpogbMZt4TfMmIYYOy/05/YmybD1cEX40jQoQO/JpAdKEDVPh1+6x5GHKSGDY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Sf1LPH/3; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1783722438; c=relaxed/simple;
+	bh=50o2yjuO4OF0mR1P0i5dOCRPXhatoWPfABjio9Ai5FQ=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=dYEzhz7e+9w/W7aNilG0IMSPk/5xFCMl3ZM/Qy/M1itf7hCWk4d0EBJlvbpQTDnL8hbaf5ExgXG703EFTCVxa6AgaRGomkhIPnr7Ui85KcOnh1510NeBLCKNoAB/3TJOg3CeSueTYagipwD7TUWNbruNSFkKjRnq+ey/fYux7Jc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=RJewYTvN; arc=none smtp.client-ip=95.215.58.180
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Sf1LPH/3"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 872CD1F000E9;
-	Fri, 10 Jul 2026 21:35:38 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1783719338;
-	bh=gUcdAN00xf/L23XBL4KYjYS87AgViYvbm6bXPWTc55Q=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=Sf1LPH/3JDkHvvdSgKyWqmGqKmVNRnD6lIpz9lJZ0QUT27yis4Na/6VDAvvwVxV6A
-	 RDGD68HVMoRTAnGBxy2YwMq4Yrff2VXxYn3l7XAjWKu3qaCUtB/4NTsoIqD0hycaXW
-	 2BpsfDiLEE5OD7OhjbHFeH9LCxnZZ1HXs/rsTI0JPKBmcbhac44XMwMR3d4/Ugaze5
-	 B2ujdQWY2HG7Y5z/Wq2ADQWxHHwpQW1iaNwBdteI9l8tWWG7PW+rwGma5kl0Bs7kky
-	 /Oou6/NbubTPLNYrTNj6ZUZhubkR4HKTqPQRQMz7vYifBu9rbwaZlizZ/+XFSNoPrJ
-	 CttN7PDI8thew==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 6/6] [v6] gpiolib: turn off legacy interface by default
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Arnd Bergmann" <arnd@kernel.org>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-leds@vger.kernel.org, lee@kernel.org
-In-Reply-To: <20260710211854.1371746-7-arnd@kernel.org>
-References: <20260710211854.1371746-1-arnd@kernel.org>
- <20260710211854.1371746-7-arnd@kernel.org>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Fri, 10 Jul 2026 21:35:38 +0000
-Message-Id: <20260710213538.872CD1F000E9@smtp.kernel.org>
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="RJewYTvN"
+Message-ID: <a0aeb1e7-5c12-4211-be17-6ae94ef0e04e@linux.dev>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+	t=1783722435;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=CYbg+i2jEDJxPT2fD1x1Mf6BkJQt5eeeBZvu650kDrg=;
+	b=RJewYTvN+UXAqw39WA1kdWCMYDWuRs8NVcPv/0xNen6hLjti4B+X4HFsdpKBVdY6A+VtC4
+	fNGTFN7QkPp1ypbf7FcGzcq8iTpAUjFg5aCb3InQf67krpuAW9MqT439l5cInxNDRYf3VS
+	s1LC5izOzrvCwI9juUT/GzFNbZlL4DY=
+Date: Fri, 10 Jul 2026 15:26:51 -0700
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Subject: Re: [PATCH v2 5/6] tools/build: selftests: Allow versioning LLVM lld
+To: James Clark <james.clark@linaro.org>
+Cc: sashiko-reviews@lists.linux.dev, dmitry.torokhov@gmail.com,
+ linux-perf-users@vger.kernel.org, bpf@vger.kernel.org,
+ linux-input@vger.kernel.org, Arnaldo Carvalho de Melo <acme@kernel.org>
+References: <20260518-james-perf-llvm-version-v2-5-f12cc4f031d8@linaro.org>
+ <20260518093237.90640C2BCC6@smtp.kernel.org>
+ <ef5688a7-3e1d-47be-aca7-cc6e564e059c@linaro.org> <ag4QkPOCQ5LWy-U3@x1>
+ <e060c4cf-59fe-42f0-bb05-adb520a6c80a@linaro.org>
+Content-Language: en-US
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+From: Ihor Solodrai <ihor.solodrai@linux.dev>
+In-Reply-To: <e060c4cf-59fe-42f0-bb05-adb520a6c80a@linaro.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Migadu-Flow: FLOW_OUT
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
-- [High] Drivers MFD_AAT2870_CORE, MFD_SI476X_CORE, and SND_SOC_TLV320DAC33=
- become silently unselectable on standard kernels because they still use `d=
-epends on GPIOLIB_LEGACY`.
---
+On 5/21/26 6:16 AM, James Clark wrote:
+> 
+> 
+> On 20/05/2026 8:50 pm, Arnaldo Carvalho de Melo wrote:
+>> On Mon, May 18, 2026 at 10:47:53AM +0100, James Clark wrote:
+>>>
+>>> [...]
+>>
+>> Hey, this touches several tools and libs, did you get acks besides the
+>> one from Ian?
+>>
+>> - Arnaldo
+> 
+> Only the build bpf failure report from Ihor on V1 but nothing from anyone on V2. Ihor did you get a chance to look at this version?
 
---- Patch [6]: [PATCH 6/6] [v6] gpiolib: turn off legacy interface by defau=
-lt ---
-commit c81360523a83f6de8b9f91867c27fb9f36e0da52
-Author: Arnd Bergmann <arnd@arndb.de>
+Hi James. I'm terribly sorry for long delay, I missed your ping.
 
-gpiolib: turn off legacy interface by default
+The first thing to note is that the series doesn't apply anymore to
+either bpf-next or 7.2-rc2, so please respin when you get a chance.
 
-This commit turns off the legacy GPIO interface by default, allowing it to
-be enabled manually only for compile testing. It relies on the assumption
-that all legacy users now select CONFIG_GPIOLIB_LEGACY.
+Other than that I have two comments.
+Will reply to the patches shortly.
 
-> diff --git a/drivers/gpio/Kconfig b/drivers/gpio/Kconfig
-> index 020e51e30317a..543de15a12f63 100644
-> --- a/drivers/gpio/Kconfig
-> +++ b/drivers/gpio/Kconfig
-> @@ -4,7 +4,14 @@
->  #
-> =20
->  config GPIOLIB_LEGACY
-> -	def_bool y
-> +	bool "Legacy GPIO interfaces" if COMPILE_TEST
 
-[Severity: High]
-Does this change silently disable MFD_AAT2870_CORE, MFD_SI476X_CORE, and
-SND_SOC_TLV320DAC33 in production builds?
+> 
+> Thanks
+> James
+> 
 
-The commit message states that all users of the legacy interface now select
-CONFIG_GPIOLIB_LEGACY, but it appears these drivers still depend on it
-instead:
-
-drivers/mfd/Kconfig:
-config MFD_AAT2870_CORE
-    ...
-    depends on GPIOLIB_LEGACY
-
-drivers/mfd/Kconfig:
-config MFD_SI476X_CORE
-    ...
-    depends on GPIOLIB_LEGACY
-
-sound/soc/codecs/Kconfig:
-config SND_SOC_TLV320DAC33
-    ...
-    depends on GPIOLIB_LEGACY
-
-Since GPIOLIB_LEGACY now defaults to n and its prompt is hidden without
-COMPILE_TEST, won't these dependencies prevent the drivers from being
-selected on standard kernels, causing their hardware to stop functioning?
-
-> +	help
-> +	  There are a few legacy platforms that use the traditional GPIO
-> +	  number based interfaces instead of GPIO descriptors.
-> +	  Say Y here to enable build testing drivers that are specific
-> +	  to those platforms.
-> +
-> +	  If unsure, say N.
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260710211854.1371=
-746-1-arnd@kernel.org?part=3D6

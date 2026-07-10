@@ -1,194 +1,70 @@
-Received: from mail-07.mail-europe.com (mail-07.mail-europe.com [188.165.51.139])
+Received: from sendmail.purelymail.com (sendmail.purelymail.com [34.202.193.197])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7959043B497
-	for <linux-input@vger.kernel.org>; Fri, 10 Jul 2026 16:40:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=188.165.51.139
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C30E237B409
+	for <linux-input@vger.kernel.org>; Fri, 10 Jul 2026 19:36:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=34.202.193.197
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783701661; cv=none; b=V3345ambhAEDwuraLqnB2CpRoyM0sq7tNNievCDnIstIVSwSNIzj/5ZCRpGnEeLtoXtZfzFWamcrQamuU1SiFwz4AiO01Jm44wMKAd8f2gKck7AY1fAvFA6lPQhIfRYwzHuPsZ+rVnY0UnBVP06/aseUaHNXUerSXqH4/Kiai1s=
+	t=1783712204; cv=none; b=RSZMKuqIPaFcKJOysaPAEB/3SfYxL8FjNH9rs8KcSg7iW3UjVWTECV9YbHMHUqH8g7iUHi4lxv1i14TRBAu1HSNdFLM1+XZazYL/W3lKsIb0lDGDVNcV7/cPHPt4Uq2mHSe1UACobbD+qPCM/VG4mxBMPB3qaKn1XKJvldTxL5w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783701661; c=relaxed/simple;
-	bh=e5O2b6C71wcPiCY6rEP1Hn4YORiBBbskyWQJ77IquFs=;
-	h=Date:To:From:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=IXV9blYSoZpe2q0MZYemTR9omSLM3+t7MuebI6wKhae3qTLsQei4EF2Baox4/o+YaOFCC4WpiO8S7GHg5pNGlsA+M45QhOeF0Op/KjTr4NTwyKdzwLIpjv8/wVYI9xuj13nRvNodIJD/RklktEJcXHM2YMLZeGH8hJhXhBRsjTI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=proton.me; spf=pass smtp.mailfrom=proton.me; dkim=pass (2048-bit key) header.d=proton.me header.i=@proton.me header.b=aXRyqqNM; arc=none smtp.client-ip=188.165.51.139
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=proton.me
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=proton.me
+	s=arc-20240116; t=1783712204; c=relaxed/simple;
+	bh=8ikMJg8bvcWDMfWXN7cUWZlI2PFYV3XHhHWQI6jeqx4=;
+	h=Mime-Version:Content-Type:Date:Message-Id:Cc:From:To:Subject:
+	 References:In-Reply-To; b=lhvC5SUqC0XsWANNZK4M43C9Dw7YVVShIGVhv8zB7SLqvG2VXWM5hCK+f8XiwNss+rjNwMDzmevKFhG/28IQAIuA1bXhqfHaxh309ToTGDUcIzw6oTntPF93eLEI/aqFDwInzeqQpCet2dWbZe9bIgA3XB+y88bAVP9yVYeAk7k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=rcpassos.me; spf=pass smtp.mailfrom=rcpassos.me; dkim=pass (2048-bit key) header.d=rcpassos.me header.i=@rcpassos.me header.b=XRDwnDm1; dkim=pass (2048-bit key) header.d=purelymail.com header.i=@purelymail.com header.b=ceRBz5Bf; arc=none smtp.client-ip=34.202.193.197
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=rcpassos.me
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rcpassos.me
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=proton.me header.i=@proton.me header.b="aXRyqqNM"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=proton.me;
-	s=dn6eigg6gjagdof6gmtc6cy4ba.protonmail; t=1783701643; x=1783960843;
-	bh=hhhh8DjR/zv424fGl849UJsyOWnmGvcISGF7g+NM4WU=;
-	h=Date:To:From:Cc:Subject:Message-ID:In-Reply-To:References:
-	 Feedback-ID:From:To:Cc:Date:Subject:Reply-To:Feedback-ID:
-	 Message-ID:BIMI-Selector;
-	b=aXRyqqNMYZPExutX10pO6OIBM6uIuCEZLCCJCt2LCD2cy55f1LdKGMrQl9wFJJniC
-	 tprfUJv+H+7/oJHI6gynFdXcsrfy0puyiNf25GkM/QhP3F5+O0U81ZRQK/g0EFxsyg
-	 KuCmRcT2gdjCCSqsU7aQ9WbVlczrV+vQZ1LaLXcaEP13+vRFegZk2n0JMjR7b3AGgH
-	 AE8mxF/b0OiJRjW16sQITYAOhnpBfN/YS1su+cCWta9FN3fFDitwNVJ52AB3ybOkAj
-	 y4WX0TnFAjYfRWE3Cx7WBoXWoxmgGIV95ZVzxbXqcIfumwbmkI77e6vH2WnfQ/NRrc
-	 eA4y2DyQvHB0g==
-Date: Fri, 10 Jul 2026 16:40:41 +0000
-To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>
-From: Aditya Garg <gargaditya08@proton.me>
-Cc: Linux Input Mailing List <linux-input@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH v2 RESEND] HID: appletb-kbd: add option to switch default layer on double pressing fn key
-Message-ID: <n48DZhno8kzGymS5ySlQqP5oFf5STmmRMZC8wlY_nEERARZDk5DMe9spbXLyrCbCqBjQ95hb3qr8NeFNH4LZoWwoGwfUiSmG9ifWXmSnzD4=@proton.me>
-In-Reply-To: <20260620112635.17246-1-gargaditya08@proton.me>
-References: <20260620112635.17246-1-gargaditya08@proton.me>
-Feedback-ID: 145777226:user:proton
-X-Pm-Message-ID: 86a6e7cee0bd197a88bc20da61cb0c91ab5cad9d
+	dkim=pass (2048-bit key) header.d=rcpassos.me header.i=@rcpassos.me header.b="XRDwnDm1";
+	dkim=pass (2048-bit key) header.d=purelymail.com header.i=@purelymail.com header.b="ceRBz5Bf"
+Authentication-Results: purelymail.com; auth=pass
+DKIM-Signature: a=rsa-sha256; b=XRDwnDm1VEWBoiDCOBUrDQ7f+LGEcNX0nBgGMCZrD0JtNAFFzvMR9Ys+H+dI/aiwBOzboFCQZJ2rshPTpYreUyNotwxWkJki1mUPFthUy6WNk25cqqH0OZKGVewL6syaQ/PVLj0S4AanfepF76JdDAhSIm/sK23danAA/F/GpT0oNoNShUmpZZXjAIvxoN9p6hWBUw+KYGipLhn3uIdNAUJ5V1uHo9F5gXqiDjeSTDmToAQMQo5JRiWnaKcyfW5nUZZRkBwLm1elmgncuSAEVpODe8N8moZxxNtoU5FmJay5iFzJxdc1KJ9xl7cCLjUkGQakW8yL5XpCu8KwAz7wMg==; s=purelymail1; d=rcpassos.me; v=1; bh=8ikMJg8bvcWDMfWXN7cUWZlI2PFYV3XHhHWQI6jeqx4=; h=Received:Date:From:To:Subject;
+DKIM-Signature: a=rsa-sha256; b=ceRBz5BfIvPWc30ko2wj9cWuSyx9pCzriRm42AXZYxOb68x0r5JsPms1BFLGiXwnwF9rsKekBMN78YnB9jzQfTH72HdAjxM89j8ZqU/NTjBRV9NgNS7KdmggJcBWX9In9HYYxWfnQ5rXOoo3dVFmva2lVzSQPE6qrfOZjrqi4E3PKcI8Kmd/y63FBdEdgKpI3oMvPEmnZbjQuks/aM83bu+nZq5DbaU+OJKM0O2Z86C/YGo8GjBgnd5TVOdt7PpYSinqW+eWvPD6LYXEp4sgsnmzXmzeYIf+RGSnLoyIO4s4w03KKEjqqWWNakg/TFemLo8xvLudWMqikf/Hab2puw==; s=purelymail1; d=purelymail.com; v=1; bh=8ikMJg8bvcWDMfWXN7cUWZlI2PFYV3XHhHWQI6jeqx4=; h=Feedback-ID:Received:Date:From:To:Subject;
+Feedback-ID: 45355:7809:null:purelymail
+X-Pm-Original-To: linux-input@vger.kernel.org
+Received: by smtp.purelymail.com (Purelymail SMTP) with ESMTPSA id 360692543;
+          (version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384);
+          Fri, 10 Jul 2026 19:35:58 +0000 (UTC)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Mime-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Date: Fri, 10 Jul 2026 16:35:52 -0300
+Message-Id: <DJV56QRLBO6S.3H33MNASQ866@rcpassos.me>
+Cc: "Shuah Khan" <skhan@linuxfoundation.org>, "Brigham Campbell"
+ <me@brighamcampbell.com>, "Jori Koolstra" <jkoolstra@xs4all.nl>,
+ <linux-input@vger.kernel.org>
+From: "Rafael Passos" <rafael@rcpassos.me>
+To: "Rafael Passos" <rafael@rcpassos.me>, <bentiss@kernel.org>,
+ <david@readahead.eu>, <jikos@kernel.org>
+Subject: Re: [PATCH 0/3] HID: wiimote: new LED behavior on connect, and
+ scoped guards
+X-Mailer: aerc 0.21.0
+References: <20260710153456.2093889-1-rafael@rcpassos.me>
+In-Reply-To: <20260710153456.2093889-1-rafael@rcpassos.me>
 
-Hi Jiri
+I checked sashiko reviews, and there are a few needed fixes.
+I will delay sending the v2 by a few days, in case there are any other revi=
+ews.
 
-Can I have an update on this?
+Specially regarding these two questions:
 
-On Saturday, 20 June 2026 at 4:56 PM, Aditya Garg <gargaditya08@proton.me> =
-wrote:
+On Fri Jul 10, 2026 at 12:32 PM -03, Rafael Passos wrote:
+> [...]
+> The hid_info log message prints out the controller id.
+> I was considering adding this number to the controller name too,
+> but was unsure if this could impact applications using it.
+- device naming
 
-> From: Aditya Garg <gargaditya08@proton.me>
->=20
-> This patch enables a user to switch the default layer from media to fn
-> keys and vice-versa upon double pressing the fn key. This behaviour can
-> be configured using the double_press_switch_time module parameter whose
-> value depicts the time in milliseconds within which the fn key must be
-> pressed again to switch the default layer. If set to 0, it simply
-> disables this behaviour.
->=20
-> Signed-off-by: Aditya Garg <gargaditya08@proton.me>
-> ---
->=20
-> v2: added a check to ensure negative fn switch times are ignored.
->=20
->  drivers/hid/hid-appletb-kbd.c | 60 +++++++++++++++++++++++++++++++----
->  1 file changed, 53 insertions(+), 7 deletions(-)
->=20
-> diff --git a/drivers/hid/hid-appletb-kbd.c b/drivers/hid/hid-appletb-kbd.=
-c
-> index 462010a75899..34bfc595949d 100644
-> --- a/drivers/hid/hid-appletb-kbd.c
-> +++ b/drivers/hid/hid-appletb-kbd.c
-> @@ -56,6 +56,12 @@ static int appletb_tb_idle_timeout =3D 15;
->  module_param_named(idle_timeout, appletb_tb_idle_timeout, int, 0644);
->  MODULE_PARM_DESC(idle_timeout, "Idle timeout in sec");
-> =20
-> +static int appletb_tb_double_press_switch_layers;
-> +module_param_named(double_press_switch_time,
-> +=09=09   appletb_tb_double_press_switch_layers, int, 0644);
-> +MODULE_PARM_DESC(double_press_switch_time, "Time in ms within which if f=
-n key is double "
-> +=09=09=09=09=09   "pressed will switch layers");
-> +
->  struct appletb_kbd {
->  =09struct hid_field *mode_field;
->  =09struct input_handler inp_handler;
-> @@ -68,6 +74,7 @@ struct appletb_kbd {
->  =09bool has_turned_off;
->  =09u8 saved_mode;
->  =09u8 current_mode;
-> +=09unsigned long last_fn_press;
->  };
-> =20
->  static const struct key_entry appletb_kbd_keymap[] =3D {
-> @@ -243,6 +250,18 @@ static int appletb_kbd_hid_event(struct hid_device *=
-hdev, struct hid_field *fiel
->  =09return kbd->current_mode =3D=3D APPLETB_KBD_MODE_OFF;
->  }
-> =20
-> +static u8 appletb_switch_mode(u8 mode)
-> +{
-> +=09switch (mode) {
-> +=09case APPLETB_KBD_MODE_SPCL:
-> +=09=09return APPLETB_KBD_MODE_FN;
-> +=09case APPLETB_KBD_MODE_FN:
-> +=09=09return APPLETB_KBD_MODE_SPCL;
-> +=09default:
-> +=09=09return mode;
-> +=09}
-> +}
-> +
->  static void appletb_kbd_inp_event(struct input_handle *handle, unsigned =
-int type,
->  =09=09=09      unsigned int code, int value)
->  {
-> @@ -250,15 +269,42 @@ static void appletb_kbd_inp_event(struct input_hand=
-le *handle, unsigned int type
-> =20
->  =09reset_inactivity_timer(kbd);
-> =20
-> -=09if (type =3D=3D EV_KEY && code =3D=3D KEY_FN && appletb_tb_fn_toggle =
-&&
-> -=09=09(kbd->current_mode =3D=3D APPLETB_KBD_MODE_SPCL ||
-> -=09=09 kbd->current_mode =3D=3D APPLETB_KBD_MODE_FN)) {
-> +=09if (type =3D=3D EV_KEY && code =3D=3D KEY_FN &&
-> +=09    (kbd->current_mode =3D=3D APPLETB_KBD_MODE_SPCL ||
-> +=09     kbd->current_mode =3D=3D APPLETB_KBD_MODE_FN)) {
-> +
->  =09=09if (value =3D=3D 1) {
-> -=09=09=09kbd->saved_mode =3D kbd->current_mode;
-> -=09=09=09appletb_kbd_set_mode(kbd, kbd->current_mode =3D=3D APPLETB_KBD_=
-MODE_SPCL
-> -=09=09=09=09=09=09? APPLETB_KBD_MODE_FN : APPLETB_KBD_MODE_SPCL);
-> +=09=09=09if (appletb_tb_double_press_switch_layers > 0) {
-> +=09=09=09=09unsigned long now =3D jiffies;
-> +
-> +=09=09=09=09if (time_before(now, kbd->last_fn_press +
-> +=09=09=09=09=09msecs_to_jiffies(appletb_tb_double_press_switch_layers)))=
- {
-> +
-> +=09=09=09=09=09appletb_tb_def_mode =3D
-> +=09=09=09=09=09=09appletb_switch_mode(
-> +=09=09=09=09=09=09=09appletb_tb_def_mode);
-> +
-> +=09=09=09=09=09appletb_kbd_set_mode(kbd,
-> +=09=09=09=09=09=09appletb_tb_def_mode);
-> +
-> +=09=09=09=09=09kbd->saved_mode =3D appletb_tb_def_mode;
-> +=09=09=09=09=09kbd->last_fn_press =3D 0;
-> +
-> +=09=09=09=09=09return;
-> +=09=09=09=09}
-> +
-> +=09=09=09=09kbd->last_fn_press =3D now;
-> +=09=09=09}
-> +=09=09=09if (appletb_tb_fn_toggle) {
-> +=09=09=09=09kbd->saved_mode =3D kbd->current_mode;
-> +
-> +=09=09=09=09appletb_kbd_set_mode(kbd,
-> +=09=09=09=09=09appletb_switch_mode(kbd->current_mode));
-> +=09=09=09}
-> +
->  =09=09} else if (value =3D=3D 0) {
-> -=09=09=09if (kbd->saved_mode !=3D kbd->current_mode)
-> +=09=09=09if (appletb_tb_fn_toggle &&
-> +=09=09=09    kbd->saved_mode !=3D kbd->current_mode)
->  =09=09=09=09appletb_kbd_set_mode(kbd, kbd->saved_mode);
->  =09=09}
->  =09}
->=20
-> Range-diff against v1:
-> 1:  5c9d8c8ba8c0 ! 1:  4f6a818b98b9 HID: appletb-kbd: add option to switc=
-h default layer on double pressing fn key
->     @@ drivers/hid/hid-appletb-kbd.c: static void appletb_kbd_inp_event(s=
-truct input_ha
->      -=09=09=09kbd->saved_mode =3D kbd->current_mode;
->      -=09=09=09appletb_kbd_set_mode(kbd, kbd->current_mode =3D=3D APPLETB=
-_KBD_MODE_SPCL
->      -=09=09=09=09=09=09? APPLETB_KBD_MODE_FN : APPLETB_KBD_MODE_SPCL);
->     -+=09=09=09if (appletb_tb_double_press_switch_layers) {
->     ++=09=09=09if (appletb_tb_double_press_switch_layers > 0) {
->      +=09=09=09=09unsigned long now =3D jiffies;
->      +
->      +=09=09=09=09if (time_before(now, kbd->last_fn_press +
-> --=20
-> 2.53.0
->=20
-> 
+> The wiimote_hid_probe call can also be changed in this way, but I
+> left it because it uses the wiimote_destroy in one of the err cases (w/ k=
+free inside).
+> But I can apply the change there too, to make this more complete.
+- wiimote_hid_probe scope cleanup
+
+Thanks,
+Rafael

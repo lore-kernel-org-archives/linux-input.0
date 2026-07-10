@@ -1,266 +1,196 @@
-Received: from mail-qk1-f175.google.com (mail-qk1-f175.google.com [209.85.222.175])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4CC072DEA75
-	for <linux-input@vger.kernel.org>; Fri, 10 Jul 2026 02:29:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.175
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E3668136358
+	for <linux-input@vger.kernel.org>; Fri, 10 Jul 2026 02:31:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783650546; cv=none; b=UBRo4pPORVwGd0Zv7M6TKTdGLdgt3YkAjjIvEUVndGUWziR4/EWgkQj5lvuO8y7ZV2mlTC5uRUKYr/WspYGIqbJVbFMEokR7V1AhyjLVf71OPkL+IybCI4pdjflpLd0FzR4GdHIJODFNviit2nGBU66lPQrDFHzLsBixGHiICI8=
+	t=1783650706; cv=none; b=AY1HqOtxxAzqmdv0Y4LPSb41NPTxFeU+U1Lo3hDCJFPN332c/qnm12qdYR1ZyEDgXqhVICd2nvgltBB94FyIbkrwOuUMX02W5FLuPDrMVF61Hr2RTCsdj/q8/2kcdr626BaGmoyyXFccPDfz5QKaVenj2UIw/NteK1jqfzcfrG8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783650546; c=relaxed/simple;
-	bh=GoEUjL9uCDds3bFd5UbAdn2JckJTHLD8D7KtLu1awmU=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=BQiyUq/m8xgb+Zuyk5CxzWCQk7Il9ZgczV4BdI55xUa1WBxxg8z3NLq5oJI0ieRlVvMIDmu26fzxKK/knKSsl2vNIjHVbMnPzDz9YKxK22I+SjVH/4i09MhmF0mRYqDEIv9+S4l8ib9eXe4hGP1+sZohUtas1r3jLpFkzrl0ask=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=q/S7o5G9; arc=none smtp.client-ip=209.85.222.175
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1783650706; c=relaxed/simple;
+	bh=KFEHUi+7oqRjvg7/t88GYQbq3SgXMbo68WWElOLmNGg=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=u95548k4yJoF2DAjoyfUWzP47m/qlrbPrIk8u29jcSrjXKbG9Csy3C7MnSCv8aXLqVOYYxIX0l4viczFdTTGs8E22tte9SY3yZZ6JQIOt4w08sdwnKtI9CRJFOVgKoDZVZXY9s5RNe12BdLRZN8bJ8vdiaH7pD7XJYONpoIfiIE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=CIijbYEI; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="q/S7o5G9"
-Received: by mail-qk1-f175.google.com with SMTP id af79cd13be357-92e622cc874so22013185a.0
-        for <linux-input@vger.kernel.org>; Thu, 09 Jul 2026 19:29:04 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1783650543; x=1784255343; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=w88OZllgC2a2Srw7/0oeygAu1BDvnNAAlvecR7ZdXpM=;
-        b=q/S7o5G9Ldx/fWD1O1SZpD0y/RvsyA4p8oGQNIgof+yglSY6yOtSQHxXqMDRkGk/Ik
-         2ym3MRSeQr0aUhymqI+eymVIsdV3lg88b27L9cfG4tLg+HpOANsSUkzZPg6T2FGdb8MX
-         43S/ZD4jg9kRwu5ugxp8OhfIU3sQfr6ybjjeWvFVloq6B6hIpqoGxZEDHtavwUabRzrw
-         4VvVQdfdEB9Ye/U5gsx1GmysdNYzEbr3ipFb1JRozbRYPqchher6WKsUNhjkNfXk4OfW
-         991rdWBpxbc1czKq1onohjKPk+KxeAytsZ+FUOmhsJzwv3LMAqsBp7p9oJwwpIGKUutp
-         u4Rw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1783650543; x=1784255343;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=w88OZllgC2a2Srw7/0oeygAu1BDvnNAAlvecR7ZdXpM=;
-        b=T1A3Boofeb5ICRQLlWMG8OBpqO4v2w4sOqazceCrIwSH0hCWcZ3h50v//JgKIZJ4Ff
-         N/42AMlql5fvB5c4oRx5fNbvt842luMkHzwN5+IvVVk0IsM9wSHPQDh7CgaiMtO2t2ib
-         YG1UJgivC5zOFG7jBNmt/WjYgUkaGWIniCNgBvgJpCWlte7JrkLftgmBZXqAHJC+jiGY
-         uNMAv+Zkqp4+Z+kjq5bMRwj0+DtaaUXmDfGxb3Amtb9sm2hOyZS0LaoDA6hx+Jm572Q8
-         Uj2W4ClJeSC4zVh2pOBaORi+3lgwoNgirFviFQbGC70aRVn5E0U7dP+akKEU4dhDbChu
-         +wdA==
-X-Forwarded-Encrypted: i=1; AHgh+RrUHfa+Uev73KA6WtY7CAVfsXGi8J4zarfDufzKkgVhKsUx9bSUQuW9LnZCJ3/feVBWSvkF8wiM7GbxOA==@vger.kernel.org
-X-Gm-Message-State: AOJu0YzecJgwLlEmUl7mfmcjsxHLQJ/a5Esr65+pQtEycCXTN1T/dKtx
-	z++mumio0YpejwhOr9VJBdMgrdHoOsBypWHd7y1tFDYJaulJsYUwJZJr
-X-Gm-Gg: AfdE7clOSp2srINDM6PQbrX0/1u2N+DFm82hEaeTetcp3QoACKeP3pyGqHkmNhdMU7g
-	/Js0tXWlpQHU+9I4vmukJnj687rq5CRYAPAAT1ddUctMqajccF4S7ML3G3soSo+76jIQ+vTSbvd
-	SG5n45Fb6BMb/UcpRasqeYJMYPamvx8rKDpFQGGPk1fDWVqS8kpcFDTSpZDbWdtT+1F5Jk5c9cV
-	5JYhRr31BD82CXgQ07ULPrNkVx49llCeAyglEJ61TQmQSBwEW+G+agRysqGZNh5es4wWsn3Xrs8
-	Hawv9QCR++LFuA6Szh4Ga4U33Eqcbg89/wcGgToxkwJ5MLZ/B/BsjIXP/78nJUISkOzOxiGcSo1
-	UC9PeYOXg4LUQwu6ivy9NfO4M6v+KWdn6gGeFvX5GyK9zjigGekud8ORpLvMweNXZZqnLH6Gl1D
-	BV3bzsXRV20jw7d0MKjO1HzWGlrAQxM5f7j+rl06gFi84oMMXVhrh1xaEwHzTbvUg2Nmd629gGD
-	UnhpoXQsChQ9NDTa30r4ZxVJMzHKjZs
-X-Received: by 2002:a05:620a:2953:b0:92e:7a3c:add7 with SMTP id af79cd13be357-92ecf5f3e9amr1050972485a.27.1783650543205;
-        Thu, 09 Jul 2026 19:29:03 -0700 (PDT)
-Received: from server0.tail6e7dd.ts.net (c-68-48-65-54.hsd1.mi.comcast.net. [68.48.65.54])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-92ee5b86276sm90507885a.11.2026.07.09.19.29.01
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 09 Jul 2026 19:29:02 -0700 (PDT)
-From: Michael Bommarito <michael.bommarito@gmail.com>
-To: Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>,
-	kys@microsoft.com,
-	Haiyang Zhang <haiyangz@microsoft.com>,
-	Wei Liu <wei.liu@kernel.org>
-Cc: Dexuan Cui <decui@microsoft.com>,
-	Long Li <longli@microsoft.com>,
-	linux-input@vger.kernel.org,
-	linux-hyperv@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	stable@vger.kernel.org
-Subject: [PATCH 2/2] HID: hyperv: add KUnit coverage for device info bounds
-Date: Thu,  9 Jul 2026 22:28:54 -0400
-Message-ID: <20260710022854.3739558-3-michael.bommarito@gmail.com>
-X-Mailer: git-send-email 2.53.0
-In-Reply-To: <20260710022854.3739558-1-michael.bommarito@gmail.com>
-References: <20260710022854.3739558-1-michael.bommarito@gmail.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="CIijbYEI"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5955E1F000E9;
+	Fri, 10 Jul 2026 02:31:44 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1783650704;
+	bh=j6BQIqg5TYkn9b+ou+84rjxbZebWZivs+JFtjWKVMc0=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=CIijbYEISzQDUgVAt1G8oZ+ZpA49euzylld/w/n7KH582FMFJeGcjFYprWeZJwkdU
+	 TPfcc8HyE/offxZvu/93i7Sq6KMKID7Frqnr2UaFIJu4H+fZ0ZNsdUR4WGjFP8Zwaz
+	 eoLbnpr3DssF0XXZY3s8f4PUiylAY7ORB8yMgTVGg8sfcq53YoZ5fvqnEEZmIwvEBz
+	 2OVVOIoyYY5j1kIDUs7MSKDjPp47VEXxKY4nUA2EGE32y7DRW6BSE350xPcrXlM8qP
+	 uvkoosfd7pZjH7x8dPurToa5gqjTTGQ6gCf8yFxCyBSf4wcVqCQ6j1HjpQdW0E69U5
+	 7uMzdoH9C/4jA==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v3 10/10] HID: steam: Retry send/recv reports if stale
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Vicki Pfau" <vi@endrift.com>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20260710020048.2337655-11-vi@endrift.com>
+References: <20260710020048.2337655-1-vi@endrift.com>
+ <20260710020048.2337655-11-vi@endrift.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Fri, 10 Jul 2026 02:31:43 +0000
+Message-Id: <20260710023144.5955E1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
 
-Add KUnit coverage for Hyper-V synthetic HID initial device-info parsing.
-The tests cover zero bLength, a valid descriptor plus report descriptor,
-and a malformed report descriptor length that exceeds the received
-message.
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+s) to consider:
+- [High] Uninitialized kernel stack memory leaked to dmesg on invalid USB r=
+eplies or short reads.
+- [High] Missing cancellation of workqueues in the `steam_probe` error path=
+ leads to a Use-After-Free if probe fails.
+--
 
-The same-translation-unit test uses a KUnit-only ACK bypass so parser
-coverage does not require a live VMBus channel.
+--- Patch [10]: [PATCH v3 10/10] HID: steam: Retry send/recv reports if sta=
+le ---
+commit 2a2fc2d99039c81756476abdde17aa7642c354be
+Author: Vicki Pfau <vi@endrift.com>
 
-Assisted-by: Codex:gpt-5-5-xhigh
-Signed-off-by: Michael Bommarito <michael.bommarito@gmail.com>
----
- drivers/hid/Kconfig      |  10 ++++
- drivers/hid/hid-hyperv.c | 117 ++++++++++++++++++++++++++++++++++++---
- 2 files changed, 120 insertions(+), 7 deletions(-)
+HID: steam: Retry send/recv reports if stale
 
-diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index c1d9f7c6a5f23..41ca48d9adc9e 100644
---- a/drivers/hid/Kconfig
-+++ b/drivers/hid/Kconfig
-@@ -1183,6 +1183,16 @@ config HID_HYPERV_MOUSE
- 	help
- 	Select this option to enable the Hyper-V mouse driver.
- 
-+config HID_HYPERV_MOUSE_KUNIT_TEST
-+	bool "KUnit tests for Hyper-V mouse driver" if !KUNIT_ALL_TESTS
-+	depends on KUNIT && HID_HYPERV_MOUSE
-+	default KUNIT_ALL_TESTS
-+	help
-+	  Builds unit tests for the Hyper-V synthetic HID driver.
-+	  These tests exercise the initial device-info parser with
-+	  malformed host-provided HID descriptors and are only useful
-+	  for kernel developers running KUnit.
-+
- config HID_SMARTJOYPLUS
- 	tristate "SmartJoy PLUS PS2/USB adapter support"
- 	help
-diff --git a/drivers/hid/hid-hyperv.c b/drivers/hid/hid-hyperv.c
-index fd90196430e29..6579bd19da13a 100644
---- a/drivers/hid/hid-hyperv.c
-+++ b/drivers/hid/hid-hyperv.c
-@@ -13,6 +13,9 @@
- #include <linux/hiddev.h>
- #include <linux/hyperv.h>
- 
-+#if IS_ENABLED(CONFIG_HID_HYPERV_MOUSE_KUNIT_TEST)
-+#include <kunit/test.h>
-+#endif
- 
- struct hv_input_dev_info {
- 	unsigned int size;
-@@ -240,13 +243,18 @@ static void mousevsc_on_receive_device_info(struct mousevsc_dev *input_device,
- 	ack.ack.header.size = 1;
- 	ack.ack.reserved = 0;
- 
--	ret = vmbus_sendpacket(input_device->device->channel,
--			&ack,
--			sizeof(struct pipe_prt_msg) +
--			sizeof(struct synthhid_device_info_ack),
--			(unsigned long)&ack,
--			VM_PKT_DATA_INBAND,
--			VMBUS_DATA_PACKET_FLAG_COMPLETION_REQUESTED);
-+	if (IS_ENABLED(CONFIG_HID_HYPERV_MOUSE_KUNIT_TEST) &&
-+	    !input_device->device) {
-+		ret = 0;
-+	} else {
-+		ret = vmbus_sendpacket(input_device->device->channel,
-+				       &ack,
-+				       sizeof(struct pipe_prt_msg) +
-+				       sizeof(struct synthhid_device_info_ack),
-+				       (unsigned long)&ack,
-+				       VM_PKT_DATA_INBAND,
-+				       VMBUS_DATA_PACKET_FLAG_COMPLETION_REQUESTED);
-+	}
- 
- 	if (!ret)
- 		input_device->dev_info_status = 0;
-@@ -635,5 +643,100 @@ static void __exit mousevsc_exit(void)
- MODULE_LICENSE("GPL");
- MODULE_DESCRIPTION("Microsoft Hyper-V Synthetic HID Driver");
- 
-+#if IS_ENABLED(CONFIG_HID_HYPERV_MOUSE_KUNIT_TEST)
-+static struct mousevsc_dev *mousevsc_kunit_alloc_dev(struct kunit *test)
-+{
-+	struct mousevsc_dev *input_dev;
-+
-+	input_dev = kunit_kzalloc(test, sizeof(*input_dev), GFP_KERNEL);
-+	if (!input_dev)
-+		return NULL;
-+
-+	init_completion(&input_dev->wait_event);
-+
-+	return input_dev;
-+}
-+
-+static void mousevsc_device_info_zero_blength(struct kunit *test)
-+{
-+	struct synthhid_device_info *info;
-+	struct mousevsc_dev *input_dev;
-+
-+	input_dev = mousevsc_kunit_alloc_dev(test);
-+	KUNIT_ASSERT_NOT_NULL(test, input_dev);
-+	info = kunit_kzalloc(test, sizeof(*info), GFP_KERNEL);
-+	KUNIT_ASSERT_NOT_NULL(test, info);
-+
-+	info->hid_descriptor.bLength = 0;
-+
-+	mousevsc_on_receive_device_info(input_dev, info, sizeof(*info));
-+
-+	KUNIT_EXPECT_EQ(test, input_dev->dev_info_status, -ENOMEM);
-+}
-+
-+static void mousevsc_device_info_valid_descriptor(struct kunit *test)
-+{
-+	struct synthhid_device_info *info;
-+	struct mousevsc_dev *input_dev;
-+	u8 *report;
-+
-+	input_dev = mousevsc_kunit_alloc_dev(test);
-+	KUNIT_ASSERT_NOT_NULL(test, input_dev);
-+	info = kunit_kzalloc(test, sizeof(*info) + 4, GFP_KERNEL);
-+	KUNIT_ASSERT_NOT_NULL(test, info);
-+
-+	info->hid_descriptor.bLength = sizeof(struct hid_descriptor);
-+	info->hid_descriptor.rpt_desc.wDescriptorLength = cpu_to_le16(4);
-+	report = ((u8 *)&info->hid_descriptor) + info->hid_descriptor.bLength;
-+	memset(report, 0x42, 4);
-+
-+	mousevsc_on_receive_device_info(input_dev, info, sizeof(*info) + 4);
-+
-+	KUNIT_EXPECT_EQ(test, input_dev->dev_info_status, 0);
-+	KUNIT_EXPECT_EQ(test, input_dev->report_desc_size, 4);
-+	KUNIT_EXPECT_MEMEQ(test, input_dev->report_desc, report, 4);
-+
-+	kfree(input_dev->hid_desc);
-+	kfree(input_dev->report_desc);
-+}
-+
-+static void mousevsc_device_info_report_desc_oob(struct kunit *test)
-+{
-+	struct synthhid_device_info *info;
-+	struct mousevsc_dev *input_dev;
-+	u8 *report;
-+
-+	input_dev = mousevsc_kunit_alloc_dev(test);
-+	KUNIT_ASSERT_NOT_NULL(test, input_dev);
-+	info = kunit_kzalloc(test, sizeof(*info) + 8, GFP_KERNEL);
-+	KUNIT_ASSERT_NOT_NULL(test, info);
-+
-+	info->hid_descriptor.bLength = sizeof(struct hid_descriptor);
-+	info->hid_descriptor.rpt_desc.wDescriptorLength = cpu_to_le16(64);
-+	report = ((u8 *)&info->hid_descriptor) + info->hid_descriptor.bLength;
-+	memset(report, 0x42, 8);
-+
-+	mousevsc_on_receive_device_info(input_dev, info, sizeof(*info) + 8);
-+
-+	KUNIT_EXPECT_EQ(test, input_dev->dev_info_status, -EINVAL);
-+
-+	kfree(input_dev->hid_desc);
-+}
-+
-+static struct kunit_case mousevsc_test_cases[] = {
-+	KUNIT_CASE(mousevsc_device_info_zero_blength),
-+	KUNIT_CASE(mousevsc_device_info_valid_descriptor),
-+	KUNIT_CASE(mousevsc_device_info_report_desc_oob),
-+	{}
-+};
-+
-+static struct kunit_suite mousevsc_test_suite = {
-+	.name = "hid_hyperv_mouse",
-+	.test_cases = mousevsc_test_cases,
-+};
-+
-+kunit_test_suite(mousevsc_test_suite);
-+#endif
-+
- module_init(mousevsc_init);
- module_exit(mousevsc_exit);
--- 
-2.53.0
+Sometimes recv report will reply with a stale result from a previous send
+report. Instead of failing out, we should retry them, as they generally
+reply correctly after three tries, give or take.
+
+> diff --git a/drivers/hid/hid-steam.c b/drivers/hid/hid-steam.c
+> index a80d54ed9784b..3f5d4a88b8649 100644
+> --- a/drivers/hid/hid-steam.c
+> +++ b/drivers/hid/hid-steam.c
+[ ... ]
+> +static int steam_exchange_report(struct steam_device *steam, u8 *cmd, in=
+t csize,
+> +		u8 *reply, int rsize)
+> +{
+> +	unsigned int retries =3D 5;
+> +	int ret;
+> +
+> +	guard(mutex)(&steam->report_mutex);
+> +	do {
+> +		ret =3D steam_send_report(steam, cmd, csize);
+> +		if (ret < 0)
+> +			return ret;
+> +		ret =3D steam_recv_report(steam, reply, rsize);
+[ ... ]
+> +		if (reply[0] =3D=3D cmd[0] && reply[1] >=3D 1)
+> +			break;
+> +		if (retries > 0)
+> +			continue;
+> +		hid_err(steam->hdev, "%s: invalid reply (%*ph)\n", __func__,
+> +				rsize, reply);
+
+[Severity: High]
+Does this code leak uninitialized kernel stack memory to dmesg?
+
+If the USB device returns a short reply, steam_recv_report() will only
+copy the received bytes into the reply buffer. The remaining bytes in
+the buffer remain uninitialized.
+
+Since reply is allocated on the stack in callers like steam_get_serial(),
+this hid_err() call will log the full rsize bytes, potentially leaking
+sensitive kernel stack memory to dmesg on an invalid or short reply.
+
+> +		return -EPROTO;
+> +	} while (retries--);
+> +
+> +	return ret;
+> +}
+> +
+>  static int steam_get_serial(struct steam_device *steam)
+>  {
+>  	/*
+> @@ -511,15 +548,10 @@ static int steam_get_serial(struct steam_device *st=
+eam)
+>  	u8 cmd[] =3D {ID_GET_STRING_ATTRIBUTE, sizeof(steam->serial_no), ATTRIB=
+_STR_UNIT_SERIAL};
+>  	u8 reply[3 + STEAM_SERIAL_LEN + 1];
+> =20
+> -	guard(mutex)(&steam->report_mutex);
+> -	ret =3D steam_send_report(steam, cmd, sizeof(cmd));
+> +	ret =3D steam_exchange_report(steam, cmd, sizeof(cmd), reply, sizeof(re=
+ply));
+>  	if (ret < 0)
+>  		return ret;
+> -	ret =3D steam_recv_report(steam, reply, sizeof(reply));
+> -	if (ret < 0)
+> -		return ret;
+> -	if (reply[0] !=3D ID_GET_STRING_ATTRIBUTE || reply[1] < 1 ||
+> -	    reply[1] > sizeof(steam->serial_no) || reply[2] !=3D ATTRIB_STR_UNI=
+T_SERIAL) {
+> +	if (reply[1] > sizeof(steam->serial_no) || reply[2] !=3D ATTRIB_STR_UNI=
+T_SERIAL) {
+>  		hid_err(steam->hdev, "%s: invalid reply (%*ph)\n", __func__,
+>  				(int)sizeof(reply), reply);
+
+[Severity: High]
+Similarly, can this leak uninitialized stack memory to dmesg?
+
+If steam_exchange_report() successfully returns but the reply is invalid or
+too short, this error path will log the full sizeof(reply), dumping any
+uninitialized stack bytes from the reply buffer into dmesg.
+
+>  		return -EIO;
+>  	}
+
+[Severity: High]
+Does the probe error path cause a Use-After-Free?
+
+Looking at steam_probe() in the same file, if steam_register() fails, the=20
+probe error path jumps to err_hw_stop:
+
+drivers/hid/hid-steam.c:steam_probe() {
+    ...
+		ret =3D steam_register(steam);
+		if (ret) {
+			hid_err(hdev,
+				"%s:steam_register failed with error %d\n",
+				__func__, ret);
+			goto err_hw_stop;
+		}
+    ...
+}
+
+However, this bypasses the cancellation of steam->mode_switch which occurs
+under err_steam_unregister:
+
+drivers/hid/hid-steam.c:steam_probe() {
+    ...
+err_steam_unregister:
+	spin_lock_irqsave(&steam->lock, flags);
+	steam->client_opened =3D 0;
+	spin_unlock_irqrestore(&steam->lock, flags);
+	cancel_work_sync(&steam->work_connect);
+	if (steam->connected)
+		steam_unregister(steam);
+	cancel_delayed_work_sync(&steam->mode_switch);
+err_hw_stop:
+	cancel_work_sync(&steam->rumble_work);
+	cancel_delayed_work_sync(&steam->coalesce_rumble_work);
+	hid_hw_stop(hdev);
+    ...
+}
+
+If a malicious USB device sends an input report that triggers=20
+steam_do_deck_input_event() before steam_register() fails, the mode_switch=
+=20
+work is scheduled. When steam_probe() returns the error, the steam struct=20
+will be freed, but the un-canceled mode_switch delayed work could still=20
+execute, causing a UAF on the freed struct.
+
+This teardown issue appears to have been introduced by earlier patches in
+this series rearranging the teardown paths without properly covering all
+workqueues on the error path.
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260710020048.2337=
+655-1-vi@endrift.com?part=3D10

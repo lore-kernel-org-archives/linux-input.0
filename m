@@ -1,193 +1,87 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 480AB21CC5C;
-	Fri, 10 Jul 2026 02:41:28 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E13603672BA;
+	Fri, 10 Jul 2026 04:19:25 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783651289; cv=none; b=Dc+A/fnm/QWidbLoL9cw+uPlNfl6ptKeoYFarCXNphzhyhmdHKxHWDSx0yzmOHl1AvgMTqCt+QDFP1Rm3CLsuusomO4cs379AeFxeKwVZ27iAcMRGjQhrLjn3jCVwYGkumkU8a+C8VWHW/aELH18IhEUmJhAVsGBvN7tzEWdl1Q=
+	t=1783657166; cv=none; b=fAj3RZ0+U6wTS5vVPGqu7Xrk56SEaRpfFFd0Id3nkppKJTR7SB1TezbgfuM76iA7Lmr0yoyXAuyF2jWX4BalUuAnaqoZtZZ6zVSia4TiCtcoFId9PI63nZNHu1RVeWyaBUsSEBwpVzlL99vszP4nAptfNiYDmR+u8mUuDi6zffk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783651289; c=relaxed/simple;
-	bh=5JbM+mx1w8VCEcf8CXuq8tzx7FVolRCNKM6zdfNObFw=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=g+KGIr4Pj47M4K01IhDRTDOTjVtJKaCYxqkdiHC6wHul1nTM10NibPMTYcM0FHe2zE/isMTnsqAn2SfQPuzJrCotgoSLoozXrJgQGuc4HGnK3mPir4jkMCuXH02TN60XxoTXHXvkbeELujukTWKFO6cxoe4dlloCbscIfQuJzek=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=dzQZaKSH; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1783657166; c=relaxed/simple;
+	bh=KsSMxz6mJpzugjWkY6KCCcddcj30vcSLC8Isde+h6OE=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=JDai8iHHjojy/WSUBbWbu4oP0vFIkdf895DY8k0RS0ds+ezZkCopGPowzlM5cYBsqrQCIferiI0WKVJNTjL/d2m3hgR/iH6g0Nizy44vHRD06EeDL5yjJfgTEX9eioZv0QprQjqIR1moRv5uSLj5MGT+ShdMHAx/b3XZU37I4xQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Kta2W2N4; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="dzQZaKSH"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A85081F000E9;
-	Fri, 10 Jul 2026 02:41:27 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Kta2W2N4"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC1B91F000E9;
+	Fri, 10 Jul 2026 04:19:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1783651287;
-	bh=SzCKMHZZc7Y7tnEXNZDnowDD+y6vHfPQketk1EHW+uY=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=dzQZaKSH7upkvcKO+nwYklMsrUJ7QNj9fQurZyjOQtCIb049YYgDrZ2fUHZHiyGgq
-	 TzA00tRL3yXMCMiT+jfT0ELW/18DUfmKqxZIv8fkIYi/CdSiReyRqtsEs4j/CQJRAl
-	 irk2CSX3+7HNM3JQfKjZR3si79srNyrNRiGAQGh4u94+8K/IYlYoufe+1ghzth2unv
-	 rpN9w/wqatSuEelK+jwSqBYarqVvoqUjVqnohQImFMLin+zv3kn1M01XBYLPFqDBms
-	 RLgazLFSUUq/gnx6haJbkvxz1YBc8TteADkUOf1B26upLl6eYaiKh2XgKZt3Ysh4Ed
-	 NMQkBeFgxqQhQ==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 2/2] HID: hyperv: add KUnit coverage for device info
- bounds
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Michael Bommarito" <michael.bommarito@gmail.com>
-Cc: linux-hyperv@vger.kernel.org, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260710022854.3739558-3-michael.bommarito@gmail.com>
-References: <20260710022854.3739558-1-michael.bommarito@gmail.com>
- <20260710022854.3739558-3-michael.bommarito@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Fri, 10 Jul 2026 02:41:27 +0000
-Message-Id: <20260710024127.A85081F000E9@smtp.kernel.org>
+	s=k20260515; t=1783657165;
+	bh=2jiP/Wep9xLdIKdBfxKUFknIm84Z9ZDs4/n2Kp96ezw=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To;
+	b=Kta2W2N40ci6Mx/cfWhxcpyRvLA4S9j15PV9HqHeauJRONDxAd/ZRMT/cUS1BP5P4
+	 s24kZviB6qMl6DmjD98SoAEAsHGeBtsZ9E9sXZ92e1SEz5ieUoSVmmFCaII+TY6ovM
+	 demnBRSbAFYJdXDEcgzuHYAQoIo564CqAny7yf6r8vWUZlQUpQJAEJlV9Z6XPApCSv
+	 XAiNzi9hkH3VUOcJcUkI/m35c1ub5Jxlz3CxmeV2RAo9kZhzNkS+A+6cVU0JXp8eXl
+	 5ESzh5nV09wtfCh5kis9BeNoq+tv5vNJO5yqGiDkTL70Ojc6x9N9PSPulks8/LuuMt
+	 9IZq0ifHqVTwQ==
+Message-ID: <7c76209b-858e-4e20-a867-86bcc8efc198@kernel.org>
+Date: Thu, 9 Jul 2026 23:19:23 -0500
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2] HID: i2c-hid: Fixes "(null)" device name error logs in
+ i2c_hid_parse
+Content-Language: en-US
+To: Ai Chao <aichao@kylinos.cn>, jikos@kernel.org, bentiss@kernel.org,
+ dianders@chromium.org, treapking@chromium.org, kenkinming2002@gmail.com,
+ raoxu@uniontech.com
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20260710023936.3960010-1-aichao@kylinos.cn>
+From: Mario Limonciello <superm1@kernel.org>
+In-Reply-To: <20260710023936.3960010-1-aichao@kylinos.cn>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Thank you for your contribution! Sashiko AI review found 4 potential issue(=
-s) to consider:
+On 7/9/26 21:39, Ai Chao wrote:
+> Hello Doug
+> 
+> "Ai" is my surname, and "Chao" is my given name. My name is Ai Chao, which translates to "Super AI".
+> 
+>>> Before: hid (null): reading report descriptor failed
+>>> After:  i2c_hid i2c-TPD0001:00: reading report descriptor failed
+>>>
+>>> Signed-off-by: Ai Chao <aichao@kylinos.cn>
+>>> ---
+>>> change for v2
+>>> - Used Fixes tag.
+> 
+>> Could have fooled me. ;-)
+> 
+> syslog:
+> kernel: [    3.815131][ 1] [  T319] i2c_designware HYGO0010:00: timeout in disabling adapter
+> kernel: [   15.790171][ 1] [  T319] i2c_designware HYGO0010:00: timeout waiting for bus ready
+> kernel: [   15.998769][ 1] [  T319] i2c reading report descriptor failed retry:49
+> kernel: [   16.038176][ 1] [  T319] i2c_designware HYGO0010:00: timeout waiting for bus ready
+> kernel: [   16.246771][ 1] [  T319] i2c reading report descriptor failed retry:50
+> kernel: [   16.246775][ 1] [  T319] hid (null): reading report descriptor failed
+> kernel: [   16.246778][ 1] [  T319] i2c_hid i2c-TPD0001:00: can't add hid device: -5
+> kernel: [   16.246954][ 1] [  T319] i2c_hid: probe of i2c-TPD0001:00 failed with error -5
+> 
+> 
+> Thanks,
+> Ai Chao
+> 
+> 
 
-New issues:
-- [Low] The embedded KUnit test will be silently disabled and cannot be com=
-piled when both KUnit and the Hyper-V mouse driver are configured as module=
-s.
-- [Low] Test-specific mock logic is injected directly into the production V=
-MBus I/O path.
+The point was that there is no "Fixes" tag added above your SoB, but you 
+mentioned that there was one in your changelist.  Identify the commit 
+that you're fixing (use git blame for example) and then add it to the 
+commit text above your SoB in the correct format.
 
-Pre-existing issues:
-- [High] The driver and the newly added bounds checking rely on unvalidated=
- inner payload sizes (`pipe_msg->size`, `input_report->header.size`) instea=
-d of validating against the actual physical VMBus transport packet size, ex=
-posing the guest to OOB reads.
-- [High] Missing bounds check before accessing `report_desc[14]` allows out=
--of-bounds heap memory corruption.
---
-
---- Patch [2]: [PATCH 2/2] HID: hyperv: add KUnit coverage for device info =
-bounds ---
-commit d676a1b2eb911b6f9e0db4e282e431e24c17d123
-Author: Michael Bommarito <michael.bommarito@gmail.com>
-Subject: HID: hyperv: add KUnit coverage for device info bounds
-
-This commit adds KUnit tests for the Hyper-V synthetic HID initial
-device-info parser. The tests exercise malformed host-provided HID
-descriptors using a KUnit-only ACK bypass.
-
-> diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-> --- a/drivers/hid/Kconfig
-> +++ b/drivers/hid/Kconfig
-> @@ -1215,6 +1215,16 @@ config HID_HYPERV_MOUSE
-[ ... ]
-> +config HID_HYPERV_MOUSE_KUNIT_TEST
-> +	bool "KUnit tests for Hyper-V mouse driver" if !KUNIT_ALL_TESTS
-> +	depends on KUNIT && HID_HYPERV_MOUSE
-[Severity: Low]
-When both KUNIT and HID_HYPERV_MOUSE are configured as modules, will this
-regression cause the dependency expression to evaluate to "m", forcing the
-boolean config to "n" and silently preventing the test from being enabled f=
-or
-module builds?
-
-The standard kernel idiom for this is "depends on KUNIT=3Dy || KUNIT=3DHID_=
-HYPERV_MOUSE".
-
-> +	default KUNIT_ALL_TESTS
-[ ... ]
-> diff --git a/drivers/hid/hid-hyperv.c b/drivers/hid/hid-hyperv.c
-> --- a/drivers/hid/hid-hyperv.c
-> +++ b/drivers/hid/hid-hyperv.c
-[ ... ]
-> @@ -240,13 +243,18 @@ static void mousevsc_on_receive_device_info(struct =
-mousevsc_dev *input_device,
-[ ... ]
-> -	ret =3D vmbus_sendpacket(input_device->device->channel,
-> -			&ack,
-> -			sizeof(struct pipe_prt_msg) +
-> -			sizeof(struct synthhid_device_info_ack),
-> -			(unsigned long)&ack,
-> -			VM_PKT_DATA_INBAND,
-> -			VMBUS_DATA_PACKET_FLAG_COMPLETION_REQUESTED);
-> +	if (IS_ENABLED(CONFIG_HID_HYPERV_MOUSE_KUNIT_TEST) &&
-> +	    !input_device->device) {
-[Severity: Low]
-Is this regression injecting test-specific mock logic directly into the
-production VMBus I/O path?
-
-Could we instead extract the device-info validation into a pure helper
-function that the KUnit tests can call directly, avoiding the need to
-conditionally bypass network sends in the core logic?
-
-> +		ret =3D 0;
-> +	} else {
-> +		ret =3D vmbus_sendpacket(input_device->device->channel,
-[ ... ]
-> @@ -635,5 +643,100 @@ static void __exit mousevsc_exit(void)
-[ ... ]
-> +static void mousevsc_device_info_valid_descriptor(struct kunit *test)
-> +{
-[ ... ]
-> +	info->hid_descriptor.bLength =3D sizeof(struct hid_descriptor);
-> +	info->hid_descriptor.rpt_desc.wDescriptorLength =3D cpu_to_le16(4);
-[Severity: High]
-This is a pre-existing issue, but does this test highlight an incomplete
-bounds check in the driver?
-
-The test sets the report descriptor length to 4 bytes. However, looking at
-mousevsc_probe(), the driver contains a workaround that accesses index 14:
-
-mousevsc_probe() {
-    ...
-    /* workaround SA-167 */
-    if (input_dev->report_desc[14] =3D=3D 0x25)
-        input_dev->report_desc[14] =3D 0x29;
-    ...
-}
-
-If a compromised host provides a valid descriptor with a length between 1 a=
-nd
-14, as tested here, could this result in an out-of-bounds heap memory read
-and write since the bounds check in mousevsc_on_receive_device_info() only
-ensures the size is greater than zero?
-
-> +	report =3D ((u8 *)&info->hid_descriptor) + info->hid_descriptor.bLength;
-[ ... ]
-> +static void mousevsc_device_info_report_desc_oob(struct kunit *test)
-> +{
-[ ... ]
-> +	info->hid_descriptor.bLength =3D sizeof(struct hid_descriptor);
-> +	info->hid_descriptor.rpt_desc.wDescriptorLength =3D cpu_to_le16(64);
-> +	report =3D ((u8 *)&info->hid_descriptor) + info->hid_descriptor.bLength;
-> +	memset(report, 0x42, 8);
-> +
-> +	mousevsc_on_receive_device_info(input_dev, info, sizeof(*info) + 8);
-[Severity: High]
-This is a pre-existing issue, but does the bounds validation tested here
-rely on an unvalidated inner payload size rather than the physical VMBus
-transport packet size?
-
-If a compromised or malicious Hyper-V host sends a VMBus packet with a
-massive pipe_msg->size but a small physical payload:
-
-mousevsc_on_receive() {
-    ...
-    mousevsc_on_receive_device_info(input_dev,
-                                    (struct synthhid_device_info *)pipe_msg=
-->data,
-                                    pipe_msg->size);
-    ...
-}
-
-Could mousevsc_on_receive() pass this spoofable size to
-mousevsc_on_receive_device_info(), leading to out-of-bounds reads during
-memcpy() or kmemdup() because the bounds checking trusts this inner size?
-
-> +
-> +	KUNIT_EXPECT_EQ(test, input_dev->dev_info_status, -EINVAL);
-> +
-> +	kfree(input_dev->hid_desc);
-> +}
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260710022854.3739=
-558-1-michael.bommarito@gmail.com?part=3D2
+# git log -1 --format='Fixes: %h ("%s")' $commit

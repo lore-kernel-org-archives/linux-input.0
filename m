@@ -1,42 +1,42 @@
 Received: from endrift.com (endrift.com [173.255.198.10])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 17DAE286D60
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E39C31DA60D
 	for <linux-input@vger.kernel.org>; Fri, 10 Jul 2026 02:02:09 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=173.255.198.10
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783648931; cv=none; b=W4qHDT5jiVFOWY6yZdEDm447X/Z6XNILcp+RONncboMa6DIFbgXyn5OD8RlxzQ7rGmYbBTNvi2dzQXXET6waKFIKBO9FJCZU5d021kdVuOTqBHJ7EUVPD9KTVCndeQPtnv81u8/bybvks3O2IGL3+mwYjwd3usyr0oQIz/NoeB0=
+	t=1783648931; cv=none; b=Rjh3vJgWDa4W/q6gaxdwGGyuAg9zAKG0np5PT2+mkbxLnZZ0JZydJaBo3x2ZDRZSbb4aETtKs/LJ4bfSBRTotv+cBnpH6lS0ENkTL9GEYqFoWjSo4K+00oR0VtES6+XLtMVpvzYNZe6VbRyLzGak+O80DEzpKfkx2jyUTy3gzAw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1783648931; c=relaxed/simple;
-	bh=Zj24FLtKgD0kFbR3Zi0nvuD1dGagIdJnjGNamuAyFxc=;
+	bh=WJPdS9gsKF4SNv18epRYdmu3VAurQ2u8pHH337iyQtA=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=ghYQ0BpEVD7JLUWJISweW53SqZOoGY/c6sADARBwTAlyUcrGuvMXrWuzfzT8GOXXDEQxTbjyjv6kxQbwuZ0ecVQeF9jamo6aIDMhXo9muxZ4BfpEx1ud4lOygDgw2g7R0TfAfWNYIIGZxrJ8zoHAp9RCI3Ibp4rD2FPRTomg0MA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com; spf=pass smtp.mailfrom=endrift.com; dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b=HZeA058F; arc=none smtp.client-ip=173.255.198.10
+	 MIME-Version; b=DDm3J7Iu6ZjN1FwZLW1BukJQN2+S7ZbkawGAM4eIssr8ziza/bMOjuB+40chrIb3eR1kpU2msX2BXeWVhRD3cOjiebkIrUGMSA7xgqGSUHpd6S6jbl6jF25F5KENwYAqKbaumzJxRk+VVn+g32n24tIBXXKB7s+prpYJoYx+Evk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com; spf=pass smtp.mailfrom=endrift.com; dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b=Pm6bQcYm; arc=none smtp.client-ip=173.255.198.10
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=endrift.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b="HZeA058F"
+	dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b="Pm6bQcYm"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=endrift.com; s=2020;
-	t=1783648917; bh=Zj24FLtKgD0kFbR3Zi0nvuD1dGagIdJnjGNamuAyFxc=;
+	t=1783648918; bh=WJPdS9gsKF4SNv18epRYdmu3VAurQ2u8pHH337iyQtA=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=HZeA058F2SDoyJIKzfDdBejWydcpOf/lPBHIbU0IJIsFrhiP+J1uE1hj+mu2+XqPQ
-	 rp7DJ9FSjYVbIIRiN/VO5rCRkdUOKBkRJ7v+rr1P1EY1TQFORzS+7b8hML4yHHc3Of
-	 ulB6mqwvbYYpNnmERxycnshjIJgbQhzeehziFhj0mP2/95/YWRkrPVLHC+f4u9HLnL
-	 w2aOkvqSKGEA9KCyW6oBXzWiHnnuPiZCQqN3W4nxnqVFgp2/OuxyYJJSBGY9W2dAFJ
-	 0i13ZdHArltrcCW0QykaCyECPiVxM7+cobuJ2+YWm5SKQUXGZ+0nt1ie8fAjEmRmNy
-	 +KdmSCkWoF3Jw==
+	b=Pm6bQcYmxUanaVgp5caz+P9CUQ4PSTtwvwRxtfsGlbehgzkmmk4SRaJ7OmY96HdlL
+	 swKD+e+qBaUA7W3VD4seN24lmhp3ynmJeDRLT8WvCNC4JfKJfeOuunHSRMN9vgRl/T
+	 Jn3/IEKx9mK/3HyICxU/ruf7X8e2K9BH8rC/H7caT24R7RFD9aDUnr+ASI3N3q/1DB
+	 bX14gK05nD+3HOdBK8atuUzelASDuGycM5ebaZ/7WZu+h0wrAWudqkpdX6OPpV0A+n
+	 GlXEdiSI0HreBhrBZKJs7mRho66DXmwSLGKjTHFkEU1RBCfwEG0fSS+MW5qQCZUoCd
+	 9Mw0YMaLyNMxA==
 Received: from microtis.vulpes.eutheria.net (71-212-73-87.tukw.qwest.net [71.212.73.87])
-	by endrift.com (Postfix) with ESMTPSA id A486CA140;
-	Thu, 09 Jul 2026 19:01:57 -0700 (PDT)
+	by endrift.com (Postfix) with ESMTPSA id 740CC132030;
+	Thu, 09 Jul 2026 19:01:58 -0700 (PDT)
 From: Vicki Pfau <vi@endrift.com>
 To: Jiri Kosina <jikos@kernel.org>,
 	Benjamin Tissoires <bentiss@kernel.org>,
 	linux-input@vger.kernel.org
 Cc: Vicki Pfau <vi@endrift.com>,
 	Yousef Alhouseen <alhouseenyousef@gmail.com>
-Subject: [PATCH v3 05/10] HID: steam: Coalesce rumble packets
-Date: Thu,  9 Jul 2026 19:00:40 -0700
-Message-ID: <20260710020048.2337655-6-vi@endrift.com>
+Subject: [PATCH v3 07/10] HID: steam: Rearrange teardown sequences
+Date: Thu,  9 Jul 2026 19:00:42 -0700
+Message-ID: <20260710020048.2337655-8-vi@endrift.com>
 X-Mailer: git-send-email 2.54.0
 In-Reply-To: <20260710020048.2337655-1-vi@endrift.com>
 References: <20260710020048.2337655-1-vi@endrift.com>
@@ -48,92 +48,154 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The Steam Deck resets the haptic pattern every time it receives a rumble
-packet, leading to weird discontinuities or sometimes cutting out entirely.
-Instead of overloading the interface, Steam interally rate-limits sending
-these packets, so we should too.
+This fixes a narrow window during the teardown sequences in probe and
+remove where callbacks could still be scheduled during cleanup that would then
+have a dangling pointer to the now-freed steam struct.
 
 Signed-off-by: Vicki Pfau <vi@endrift.com>
+
+HID: steam: Reorder probe
 ---
- drivers/hid/hid-steam.c | 26 ++++++++++++++++++++++++++
- 1 file changed, 26 insertions(+)
+ drivers/hid/hid-steam.c | 67 ++++++++++++++++++++++-------------------
+ 1 file changed, 36 insertions(+), 31 deletions(-)
 
 diff --git a/drivers/hid/hid-steam.c b/drivers/hid/hid-steam.c
-index 6029c055a6cf..553748813901 100644
+index 0771ad4f5f2c..9dc77cd76edb 100644
 --- a/drivers/hid/hid-steam.c
 +++ b/drivers/hid/hid-steam.c
-@@ -343,6 +343,7 @@ struct steam_device {
- 	bool did_mode_switch;
- 	bool gamepad_mode;
- 	struct work_struct rumble_work;
-+	struct delayed_work coalesce_rumble_work;
- 	u16 rumble_left;
- 	u16 rumble_right;
- 	unsigned int sensor_timestamp_us;
-@@ -603,10 +604,24 @@ static void steam_haptic_rumble_cb(struct work_struct *work)
+@@ -1328,6 +1328,7 @@ static int steam_probe(struct hid_device *hdev,
  {
- 	struct steam_device *steam = container_of(work, struct steam_device,
- 							rumble_work);
-+
- 	steam_haptic_rumble(steam, 0, steam->rumble_left,
- 		steam->rumble_right, 2, 0);
- }
+ 	struct steam_device *steam;
+ 	int ret;
++	unsigned long flags;
  
-+static void steam_coalesce_rumble_cb(struct work_struct *work)
-+{
-+	struct steam_device *steam = container_of(to_delayed_work(work),
-+							struct steam_device,
-+							coalesce_rumble_work);
-+
-+	steam_haptic_rumble(steam, 0, steam->rumble_left,
-+		steam->rumble_right, 2, 0);
-+
-+	if (steam->rumble_left || steam->rumble_right)
-+		schedule_delayed_work(&steam->coalesce_rumble_work, HZ / 20);
-+}
-+
- #ifdef CONFIG_STEAM_FF
- static int steam_play_effect(struct input_dev *dev, void *data,
- 				struct ff_effect *effect)
-@@ -616,6 +631,14 @@ static int steam_play_effect(struct input_dev *dev, void *data,
- 	steam->rumble_left = effect->u.rumble.strong_magnitude;
- 	steam->rumble_right = effect->u.rumble.weak_magnitude;
+ 	ret = hid_parse(hdev);
+ 	if (ret) {
+@@ -1353,6 +1354,14 @@ static int steam_probe(struct hid_device *hdev,
+ 	if (!steam)
+ 		return -ENOMEM;
  
 +	/*
-+	 * The interface gets somewhat overloaded when too many rumble
-+	 * packets are sent in a row, so Steam throttles it to 20 Hz
++	 * With the real steam controller interface, do not connect hidraw.
++	 * Instead, create the client_hid and connect that.
 +	 */
-+	if (delayed_work_pending(&steam->coalesce_rumble_work))
-+		return 0;
++	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT & ~HID_CONNECT_HIDRAW);
++	if (ret)
++		return ret;
 +
-+	schedule_delayed_work(&steam->coalesce_rumble_work, HZ / 20);
- 	return schedule_work(&steam->rumble_work);
- }
- #endif
-@@ -1360,6 +1383,7 @@ static int steam_probe(struct hid_device *hdev,
- 	INIT_DELAYED_WORK(&steam->mode_switch, steam_mode_switch_cb);
- 	INIT_LIST_HEAD(&steam->list);
- 	INIT_WORK(&steam->rumble_work, steam_haptic_rumble_cb);
-+	INIT_DELAYED_WORK(&steam->coalesce_rumble_work, steam_coalesce_rumble_cb);
- 	steam->sensor_timestamp_us = 0;
- 	if (steam->quirks & STEAM_QUIRK_DECK)
- 		steam->sensor_update_rate_us = 4000;
-@@ -1426,6 +1450,7 @@ static int steam_probe(struct hid_device *hdev,
+ 	steam->hdev = hdev;
+ 	hid_set_drvdata(hdev, steam);
+ 	spin_lock_init(&steam->lock);
+@@ -1369,22 +1378,6 @@ static int steam_probe(struct hid_device *hdev,
+ 	else
+ 		steam->sensor_update_rate_us = 9000;
+ 
+-	/*
+-	 * With the real steam controller interface, do not connect hidraw.
+-	 * Instead, create the client_hid and connect that.
+-	 */
+-	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT & ~HID_CONNECT_HIDRAW);
+-	if (ret)
+-		goto err_cancel_work;
+-
+-	ret = hid_hw_open(hdev);
+-	if (ret) {
+-		hid_err(hdev,
+-			"%s:hid_hw_open\n",
+-			__func__);
+-		goto err_hw_stop;
+-	}
+-
+ 	if (steam->quirks & STEAM_QUIRK_WIRELESS) {
+ 		hid_info(hdev, "Steam wireless receiver connected");
+ 		/* If using a wireless adaptor ask for connection status */
+@@ -1398,14 +1391,22 @@ static int steam_probe(struct hid_device *hdev,
+ 			hid_err(hdev,
+ 				"%s:steam_register failed with error %d\n",
+ 				__func__, ret);
+-			goto err_hw_close;
++			goto err_hw_stop;
+ 		}
+ 	}
+ 
++	ret = hid_hw_open(hdev);
++	if (ret) {
++		hid_err(hdev,
++			"%s:hid_hw_open\n",
++			__func__);
++		goto err_steam_unregister;
++	}
++
+ 	steam->client_hdev = steam_create_client_hid(hdev);
+ 	if (IS_ERR(steam->client_hdev)) {
+ 		ret = PTR_ERR(steam->client_hdev);
+-		goto err_steam_unregister;
++		goto err_hw_close;
+ 	}
+ 	steam->client_hdev->driver_data = steam;
+ 
+@@ -1417,18 +1418,20 @@ static int steam_probe(struct hid_device *hdev,
+ 
+ err_destroy:
+ 	hid_destroy_device(steam->client_hdev);
+-err_steam_unregister:
+-	if (steam->connected)
+-		steam_unregister(steam);
+ err_hw_close:
+ 	hid_hw_close(hdev);
+-err_hw_stop:
+-	hid_hw_stop(hdev);
+-err_cancel_work:
++err_steam_unregister:
++	spin_lock_irqsave(&steam->lock, flags);
++	steam->client_opened = 0;
++	spin_unlock_irqrestore(&steam->lock, flags);
  	cancel_work_sync(&steam->work_connect);
++	if (steam->connected)
++		steam_unregister(steam);
  	cancel_delayed_work_sync(&steam->mode_switch);
++err_hw_stop:
  	cancel_work_sync(&steam->rumble_work);
-+	cancel_delayed_work_sync(&steam->coalesce_rumble_work);
- 	cancel_work_sync(&steam->unregister_work);
+ 	cancel_delayed_work_sync(&steam->coalesce_rumble_work);
++	hid_hw_stop(hdev);
  
  	return ret;
-@@ -1444,6 +1469,7 @@ static void steam_remove(struct hid_device *hdev)
- 	cancel_delayed_work_sync(&steam->mode_switch);
- 	cancel_work_sync(&steam->work_connect);
- 	cancel_work_sync(&steam->rumble_work);
-+	cancel_delayed_work_sync(&steam->coalesce_rumble_work);
- 	cancel_work_sync(&steam->unregister_work);
- 	steam->client_hdev = NULL;
+ }
+@@ -1436,25 +1439,27 @@ static int steam_probe(struct hid_device *hdev,
+ static void steam_remove(struct hid_device *hdev)
+ {
+ 	struct steam_device *steam = hid_get_drvdata(hdev);
++	unsigned long flags;
+ 
+ 	if (!steam || hdev->group == HID_GROUP_STEAM) {
+ 		hid_hw_stop(hdev);
+ 		return;
+ 	}
+ 
++	hid_hw_close(hdev);
+ 	hid_destroy_device(steam->client_hdev);
+-	cancel_delayed_work_sync(&steam->mode_switch);
+-	cancel_work_sync(&steam->work_connect);
+-	cancel_work_sync(&steam->rumble_work);
+-	cancel_delayed_work_sync(&steam->coalesce_rumble_work);
+-	steam->client_hdev = NULL;
++	spin_lock_irqsave(&steam->lock, flags);
  	steam->client_opened = 0;
++	spin_unlock_irqrestore(&steam->lock, flags);
++	cancel_work_sync(&steam->work_connect);
+ 	if (steam->quirks & STEAM_QUIRK_WIRELESS) {
+ 		hid_info(hdev, "Steam wireless receiver disconnected");
+ 	}
+-	hid_hw_close(hdev);
+-	hid_hw_stop(hdev);
+ 	steam_unregister(steam);
++	cancel_work_sync(&steam->rumble_work);
++	cancel_delayed_work_sync(&steam->mode_switch);
++	cancel_delayed_work_sync(&steam->coalesce_rumble_work);
++	hid_hw_stop(hdev);
+ }
+ 
+ static void steam_do_connect_event(struct steam_device *steam, bool connected)
 -- 
 2.54.0
 

@@ -1,85 +1,230 @@
-Received: from mailgw.kylinos.cn (mailgw.kylinos.cn [124.126.103.232])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 55F131E515;
-	Fri, 10 Jul 2026 02:39:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=124.126.103.232
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 20E07316192;
+	Fri, 10 Jul 2026 02:40:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783651186; cv=none; b=NFW6iyCtOfLlq+dpyXoVQYRGU/DxJGNrSjLNCVJXn+a+GrqTdruDNEAqe6rP0GjuuxvZR+Rc/C9odIvyCKAFch4zOX7LnU4kg/pr6l8IQrRh4np9oBQvLyItvXYAVIcYGOB+fCRuFelkjyLDsQ2VUOkSuvGqySyXjJe5nQI1/MA=
+	t=1783651253; cv=none; b=EoIwkMydTZYgvJNjKEhO2DrxUtUC4XiP5q2KWfRyz9tn/a24lVvuU6lfY4Wxzs1ronyj2H64alWhdesw9dYSvfJBDx9rJ1FxXHIBh7V3afCB9jdh5sbTc9UZWTrYtXsK+jKcSlU06xh1j2D77nTlQw/Ixo/NRd55lFtIclxmqdE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783651186; c=relaxed/simple;
-	bh=fL+uuz17xkV6Q1lvpO/afliiEk2DN7WS60Cbkuwf4PI=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=e5oDNSbi1OqfHSr7sju9M35aEngs2MSj/o91qVcDTdO+tMruT+HFCS0gTwiR15qTmYsRukd3Hq71JdLkwodv5sUQtIHwoB4EKAIZYLpNJSaknn44z8apb35r/trK2+rsSrf6MAKoshGiFjF4JIfAl5vDULOxdEHjmLim+IyolYQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn; spf=pass smtp.mailfrom=kylinos.cn; arc=none smtp.client-ip=124.126.103.232
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kylinos.cn
-X-UUID: 990c53d07c0811f1aa26b74ffac11d73-20260710
-X-CID-P-RULE: Release_Ham
-X-CID-O-INFO: VERSION:1.3.12,REQID:8f767a4c-4f78-4775-9a20-a98b5b99e39a,IP:0,U
-	RL:0,TC:0,Content:4,EDM:0,RT:0,SF:0,FILE:0,BULK:0,RULE:Release_Ham,ACTION:
-	release,TS:4
-X-CID-META: VersionHash:e7bac3a,CLOUDID:32e818542654732f380e29eede3a6d9f,BulkI
-	D:nil,BulkQuantity:0,Recheck:0,SF:80|83|102|136|865|898,TC:nil,Content:4|1
-	5|50,EDM:-3,IP:nil,URL:0,File:nil,RT:nil,Bulk:nil,QS:nil,BEC:nil,COL:0,OSI
-	:0,OSA:0,AV:0,LES:1,SPR:NO,DKR:0,DKP:0,BRR:0,BRE:0,ARC:0
-X-CID-BVR: 2,SSN|SDN
-X-CID-BAS: 2,SSN|SDN,0,_
-X-CID-FACTOR: TF_CID_SPAM_SNR
-X-CID-RHF: D41D8CD98F00B204E9800998ECF8427E
-X-UUID: 990c53d07c0811f1aa26b74ffac11d73-20260710
-X-User: aichao@kylinos.cn
-Received: from thinksys.. [(10.44.16.150)] by mailgw.kylinos.cn
-	(envelope-from <aichao@kylinos.cn>)
-	(Generic MTA with TLSv1.3 TLS_AES_256_GCM_SHA384 256/256)
-	with ESMTP id 146119765; Fri, 10 Jul 2026 10:39:39 +0800
-From: Ai Chao <aichao@kylinos.cn>
-To: jikos@kernel.org,
-	bentiss@kernel.org,
-	dianders@chromium.org,
-	treapking@chromium.org,
-	kenkinming2002@gmail.com,
-	raoxu@uniontech.com,
-	superm1@kernel.org
-Cc: linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: Re: [PATCH v2] HID: i2c-hid: Fixes "(null)" device name error logs in i2c_hid_parse
-Date: Fri, 10 Jul 2026 10:39:36 +0800
-Message-Id: <20260710023936.3960010-1-aichao@kylinos.cn>
-X-Mailer: git-send-email 2.34.1
+	s=arc-20240116; t=1783651253; c=relaxed/simple;
+	bh=1bIxFpJjMhgLNd2foOhcK8n5deXhCENLQH5RggC23K8=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=NRfXfAbRvo1wAwqRiVtlZ/bJvyfkOLffBoP9jcrOIGDwq3juynE4DFicq/lfF3rlFgt9q+scY3tDlX7gF66n26M+o+kw1r08uoVsiiHDT6lt0v6yuig/8HuJo0uScDHxgaPMY66rXxG3UXaTCa2GxBQK0ihZMp1/s82E+bGrIc8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=hHanijik; arc=none smtp.client-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="hHanijik"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6EEDD1F000E9;
+	Fri, 10 Jul 2026 02:40:51 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1783651251;
+	bh=WP3bpq574zQaEv8RdFi9UV8IRn9KjMreVHIfRAJyvoA=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=hHanijikLiLIlvW4L2bLITg9JyCVKD7tlidcNurpJxDOog+1ZezKX9zU5Ree3Mr4M
+	 Mp1WPgEhXgeLxkz/MnP5KNISpW6hIxHkJpeZqj6ktBXpEqt1EJZ2gC05eFpYPiENJ+
+	 qXziEmZM90g7E1B8jND4iaO4Qdeg+iCKL5H3mr8r/Rel76UoZIZN0rjmoS4oh316Bv
+	 XvPIiJMQM6nSLdAC0MAWrpLH6z9Lu629tK9EtpBpnoEET6NRxGIJ4c2wC7LR+T8Pys
+	 wPRce8OJhz6pjTxJQ3zb8spS/L91g5e2/PjokW/cOtXwcD5+8GzjcYYsIXoT7BI9Jw
+	 Dhd3e+zRncSfg==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH 1/2] HID: hyperv: validate initial device info bounds
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Michael Bommarito" <michael.bommarito@gmail.com>
+Cc: linux-hyperv@vger.kernel.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <20260710022854.3739558-2-michael.bommarito@gmail.com>
+References: <20260710022854.3739558-1-michael.bommarito@gmail.com>
+ <20260710022854.3739558-2-michael.bommarito@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Fri, 10 Jul 2026 02:40:50 +0000
+Message-Id: <20260710024051.6EEDD1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-Hello Doug
+Thank you for your contribution! Sashiko AI review found 6 potential issue(=
+s) to consider:
 
-"Ai" is my surname, and "Chao" is my given name. My name is Ai Chao, which translates to "Super AI".
+New issues:
+- [High] Incomplete Vulnerability Fix / Out-of-Bounds Read
+- [Medium] Missing Completion / Timeout Hang
+- [Low] Dead Code / Redundant Check
 
-> > Before: hid (null): reading report descriptor failed
-> > After:  i2c_hid i2c-TPD0001:00: reading report descriptor failed
-> >
-> > Signed-off-by: Ai Chao <aichao@kylinos.cn>
-> > ---
-> > change for v2
-> > - Used Fixes tag.
+Pre-existing issues:
+- [High] Race Condition / Use-After-Free
+- [High] Out-of-Bounds Access (Read/Write) in Probe Workaround
+- [High] Out-of-Bounds Read (Information Leak) in Input Report
+--
 
-> Could have fooled me. ;-)
+--- Patch [1]: [PATCH 1/2] HID: hyperv: validate initial device info bounds=
+ ---
+commit a1876077d0b8322cccf9c09f43d240367749b037
+Author: Michael Bommarito <michael.bommarito@gmail.com>
+Subject: HID: hyperv: validate initial device info bounds
 
-syslog:
-kernel: [    3.815131][ 1] [  T319] i2c_designware HYGO0010:00: timeout in disabling adapter
-kernel: [   15.790171][ 1] [  T319] i2c_designware HYGO0010:00: timeout waiting for bus ready
-kernel: [   15.998769][ 1] [  T319] i2c reading report descriptor failed retry:49
-kernel: [   16.038176][ 1] [  T319] i2c_designware HYGO0010:00: timeout waiting for bus ready
-kernel: [   16.246771][ 1] [  T319] i2c reading report descriptor failed retry:50
-kernel: [   16.246775][ 1] [  T319] hid (null): reading report descriptor failed
-kernel: [   16.246778][ 1] [  T319] i2c_hid i2c-TPD0001:00: can't add hid device: -5
-kernel: [   16.246954][ 1] [  T319] i2c_hid: probe of i2c-TPD0001:00 failed with error -5
+This commit attempts to fix an out-of-bounds read by passing the received
+initial-device-info size into the parser and rejecting descriptor lengths
+that exceed the packet.
+
+> diff --git a/drivers/hid/hid-hyperv.c b/drivers/hid/hid-hyperv.c
+> --- a/drivers/hid/hid-hyperv.c
+> +++ b/drivers/hid/hid-hyperv.c
+> @@ -171,18 +171,32 @@ static void mousevsc_on_receive_device_info(struct =
+mousevsc_dev *input_device,
+> -				struct synthhid_device_info *device_info)
+> +					    struct synthhid_device_info *device_info,
+> +					    u32 device_info_size)
+>  {
+>  	int ret =3D 0;
+>  	struct hid_descriptor *desc;
+>  	struct mousevsc_prt_msg ack;
+> +	size_t desc_offset;
+> +	size_t desc_size;
+> =20
+>  	input_device->dev_info_status =3D -ENOMEM;
+> =20
+> +	if (device_info_size < sizeof(*device_info)) {
+> +		input_device->dev_info_status =3D -EINVAL;
+> +		goto cleanup;
+> +	}
+
+[Severity: Low]
+Is this check necessary? In mousevsc_on_receive(), before calling this
+function, the code explicitly verifies pipe_msg->size >=3D
+sizeof(struct synthhid_device_info). Since device_info_size is passed
+directly from pipe_msg->size, this inner check appears to be unreachable.
+
+> +
+>  	input_device->hid_dev_info =3D device_info->hid_dev_info;
+>  	desc =3D &device_info->hid_descriptor;
+> +	desc_offset =3D offsetof(struct synthhid_device_info, hid_descriptor);
+> +	desc_size =3D device_info_size - desc_offset;
+>  	if (desc->bLength =3D=3D 0)
+>  		goto cleanup;
+> +	if (desc->bLength < sizeof(*desc) || desc->bLength > desc_size) {
+> +		input_device->dev_info_status =3D -EINVAL;
+> +		goto cleanup;
+> +	}
+> =20
+>  	/* The pointer is not NULL when we resume from hibernation */
+>  	kfree(input_device->hid_desc);
+> @@ -197,6 +211,10 @@ static void mousevsc_on_receive_device_info(struct m=
+ousevsc_dev *input_device,
+>  		input_device->dev_info_status =3D -EINVAL;
+>  		goto cleanup;
+>  	}
+> +	if (input_device->report_desc_size > desc_size - desc->bLength) {
+> +		input_device->dev_info_status =3D -EINVAL;
+> +		goto cleanup;
+> +	}
+> =20
+>  	/* The pointer is not NULL when we resume from hibernation */
+>  	kfree(input_device->report_desc);
+
+[Severity: High]
+This is a pre-existing issue, but can this lead to a use-after-free?
+
+During mousevsc_probe(), the driver waits for the first
+SYNTH_HID_INITIAL_DEVICE_INFO and proceeds to hid_add_device(), which parses
+input_dev->report_desc.
+
+If the host concurrently sends a second SYNTH_HID_INITIAL_DEVICE_INFO packe=
+t,
+the channel callback processes it asynchronously and calls
+mousevsc_on_receive_device_info(). This executes
+kfree(input_device->report_desc) without any locking while the HID core is
+actively reading it.
+
+[ ... ]
+> @@ -273,14 +291,17 @@ static void mousevsc_on_receive(struct hv_device *d=
+evice,
+>  		break;
+> =20
+>  	case SYNTH_HID_INITIAL_DEVICE_INFO:
+> -		WARN_ON(pipe_msg->size < sizeof(struct hv_input_dev_info));
+> +		if (WARN_ON_ONCE(pipe_msg->size <
+> +				 sizeof(struct synthhid_device_info)))
+> +			break;
+
+[Severity: Medium]
+If this break is taken, are we skipping the completion event?
+
+By breaking out of the switch statement early, we skip the call to
+mousevsc_on_receive_device_info(). As a result, the
+complete(&input_device->wait_event) inside its cleanup path is never
+executed. This might cause the waiting thread in mousevsc_connect_to_vsp()
+to stall until the 5-second timeout expires.
+
+> =20
+>  		/*
+>  		 * Parse out the device info into device attr,
+>  		 * hid desc and report desc
+>  		 */
+>  		mousevsc_on_receive_device_info(input_dev,
+> -			(struct synthhid_device_info *)pipe_msg->data);
+> +						(struct synthhid_device_info *)pipe_msg->data,
+> +						pipe_msg->size);
+
+[Severity: High]
+Does this fully prevent out-of-bounds reads if the host sends a malicious
+payload?
+
+The pipe_msg->size field comes from the untrusted payload. If a malicious
+host sends a short physical VMBus packet but sets pipe_msg->size to an
+artificially large value, the bounds checks in
+mousevsc_on_receive_device_info() will pass because they are evaluated
+against this large device_info_size.
+
+Could we restrict the size to the actual VMBus packet boundary, perhaps usi=
+ng
+something like (packet->len8 - packet->offset8) << 3, to ensure we don't
+read past the received packet?
+
+>  		break;
+>  	case SYNTH_HID_INPUT_REPORT:
+>  		input_report =3D
+> 			(struct synthhid_input_report *)pipe_msg->data;
+> 		if (!input_dev->init_complete)
+> 			break;
+>=20
+> 		len =3D min(input_report->header.size,
+> 			  (u32)sizeof(input_dev->input_buf));
+> 		memcpy(input_dev->input_buf, input_report->buffer, len);
+
+[Severity: High]
+This is a pre-existing issue, but does this blind trust of
+input_report->header.size enable an out-of-bounds read?
+
+When handling SYNTH_HID_INPUT_REPORT, a malicious host could send a
+physically short packet but set input_report->header.size to 4096.
+
+The memcpy length is bounded using:
+
+len =3D min(input_report->header.size, (u32)sizeof(input_dev->input_buf));
+
+However, it isn't validated against the actual VMBus packet envelope. This
+could result in copying beyond the packet boundary, potentially causing an
+access violation or exposing memory adjacent to the packet.
 
 
-Thanks,
-Ai Chao
+[Severity: High]
+This is a pre-existing issue, but I noticed another potential out-of-bounds
+access during the probe workaround in mousevsc_probe():
 
+drivers/hid/hid-hyperv.c:mousevsc_probe() {
+    ...
+    if (input_dev->report_desc[14] =3D=3D 0x25)
+        input_dev->report_desc[14] =3D 0x29;
+    ...
+}
 
+If a malicious host provides a wDescriptorLength of less than 15 bytes
+(for instance, 8 bytes), this accesses and potentially writes to memory past
+the dynamically allocated report_desc buffer. Should we ensure the buffer is
+at least 15 bytes long before accessing index 14?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260710022854.3739=
+558-1-michael.bommarito@gmail.com?part=3D1

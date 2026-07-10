@@ -1,126 +1,208 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 872C5422545
-	for <linux-input@vger.kernel.org>; Fri, 10 Jul 2026 15:44:44 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4971F4071E5
+	for <linux-input@vger.kernel.org>; Fri, 10 Jul 2026 15:46:54 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783698286; cv=none; b=T5X0uV9tFJ5AMR078kVKA3HSngll7utTmztflDoZLtR6h6dRfgCqpHiY+YJXvqIDhIs4+JusAi186JqsZNnQVOgz1hiSYip5cLJk9tp+Tfj5jxH2akYSIQDndXJrdPDyKYf74CSamWunyi1lx2gLVdeZhOAswLAY9OG5GUEHbBI=
+	t=1783698415; cv=none; b=kq8y1Vb6G87+AK4xYhoG5Wa2bHRcwm71grg4KGK46Yd3c/KaMvJLRkirO1cmmHnMWTWDX5Cd2l1YToGHIKmyRdQnL3D1nl8mKmEdv8rtFzBwn3gyRdsmzm4y5tdK5Jv1X6Uy2NXtrFGCMtLmo92WY+1vqsMwoxryw8zQvgdAM6Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783698286; c=relaxed/simple;
-	bh=N0KOqeOrDdM7at41csq9G78I4JeWYUPnbA8quqYjgR0=;
+	s=arc-20240116; t=1783698415; c=relaxed/simple;
+	bh=4GzteFK2+dKMWr7WuuA8PhPVYb9KPF9/ercVJzN8500=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=eNye7OGtkN99yrceWlbMYK1ZsATmb39rS8kLwOKnDHtb/uX3TmdteIyfdUUTYKCK8MVhil/6AKvG5w0wo8rt+KwyN1JEU152mn19Zh9Yywq+VYhaV+UyrylD9yxRa4Qt8Z21jnrWYNDJVY5tYW0fzGP/33X5NePnO8pOn1QncA8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Cp84rwnz; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=fEC1J5ToR2G+YJGM65Fxv+kBbRw+LRFfKXdTJku2eD9LrjoqAUCuyaQ5464ek/DRWS2UyWQwqRkqLVX06I2ID5zIbIEkPY7a7cYz+Xx3S83t2eYQ5dwWf9+PHT4virZzQZPvGUrVycgGAbytXh5oY5MYSplLhRjxJZvyF2xB0ww=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=JiOtRmE3; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Cp84rwnz"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8DA581F000E9;
-	Fri, 10 Jul 2026 15:44:43 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="JiOtRmE3"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E92A91F000E9;
+	Fri, 10 Jul 2026 15:46:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1783698284;
-	bh=isqZFVmsjZRFJ9ox4nc3WOcEj1+grAoy4c/H4BYgxWg=;
+	s=k20260515; t=1783698413;
+	bh=QS3KH88l2940XAZi7Am/jLcQrZEonc6sCnHPxZotCDM=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=Cp84rwnz9kZR4bBSdU7RP5YZ3yVK4oZAjXZol3/WM1kRkD2Z15K7aRwZXYMOniBkU
-	 a84ZbqO0S3Znx1weR8kn4oI5IsG93bw1bG6RCrg50WcWxTFJKbQT535Vlq8Dhzx5vC
-	 /l/mJtry7ihgJDLN9UtwXsexgN3wwYJrAy87KlIV6eSKRHtpWl8ODVp2GJAyNlx+e3
-	 6kkIoqrGQtuL00ptsvWaAcdWB5A6oV9xk6Vz7iaZGanEJzKIAHNkHj5QKR25SVt2W/
-	 wkeasiMuLuskt+UouqstURbAt5gnCEs/N1GM3YdLT8qeB2tVwicTgRI+ew2fN+7QGS
-	 zZ+vEbPU6Ociw==
+	b=JiOtRmE3UKX/cxpbhDHqmtXRRgMG71BwhTjYbABOmVRmTDNoJCDHHWlSFH/RFbsOO
+	 /TnQcQUV0PWBLKC/2AoVenF5037LJ3l261bxd554W7ql/vNsU5UGPXRjAC4njuMddq
+	 bEHEvHf9YsM8RXFJ7QR/wh6+/qZNsXmTeKu/Rssq56qkckPKGzQV9xL8np/dhdRTpv
+	 US4IW3hwVIjg1oVrP0Wk5d89Zg/vsmEAXGDa/fKQQCrpAirRUMCzyLGeVEmSwKBVMY
+	 pPFpUVnsyPU+vJJCkYJ7UkCxyCOfKYEyannTo/QZP8Dk2T8CA0pFpa0Ij/jWO2dgXv
+	 HMcw/fA1+CSng==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 3/3] HID: wiimote: use scoped cleanup in led creation
+Subject: Re: [PATCH 1/3] HID: wiimote: turn on the LEDs indicating the
+ controller id
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Rafael Passos" <rafael@rcpassos.me>
 Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260710153456.2093889-4-rafael@rcpassos.me>
+In-Reply-To: <20260710153456.2093889-2-rafael@rcpassos.me>
 References: <20260710153456.2093889-1-rafael@rcpassos.me>
- <20260710153456.2093889-4-rafael@rcpassos.me>
+ <20260710153456.2093889-2-rafael@rcpassos.me>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 10 Jul 2026 15:44:43 +0000
-Message-Id: <20260710154443.8DA581F000E9@smtp.kernel.org>
+Date: Fri, 10 Jul 2026 15:46:52 +0000
+Message-Id: <20260710154652.E92A91F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+Thank you for your contribution! Sashiko AI review found 5 potential issue(=
 s) to consider:
-- [High] The check `if (!instance_id)` after `ida_alloc_min()` incorrectly =
-assumes 0 on failure, missing negative error codes and leading to an out-of=
--bounds array access and kernel BUG.
+
+New issues:
+- [High] Incorrect error check for `ida_alloc_min()` fails to catch negativ=
+e error codes, leading to an out-of-bounds array read on `player_leds`.
+- [Medium] The fallback logic for IDA allocation failure incorrectly claims=
+ ID 1, leading to ID collisions and corruption of the IDA state upon remova=
+l.
+- [Medium] Mixing of `goto`-based error handling and scope-based cleanup he=
+lpers (`scoped_guard`) in the same function.
+- [Low] Defining a static array in a header file duplicates it across multi=
+ple translation units.
+
+Pre-existing issues:
+- [High] Missing `state.lock` when calling `wiimote_cmd_abort` in `wiimote_=
+queue`.
 --
 
---- Patch [3]: [PATCH 3/3] HID: wiimote: use scoped cleanup in led creation=
- ---
-commit 2a6971d40f61933b6a7890df0931f14066de90e7
+--- Patch [1]: [PATCH 1/3] HID: wiimote: turn on the LEDs indicating the co=
+ntroller id ---
+commit 48125f73deb74f22332d54c849af1f5b48042ab2
 Author: Rafael Passos <rafael@rcpassos.me>
 
-HID: wiimote: use scoped cleanup in led creation
+HID: wiimote: turn on the LEDs indicating the controller id
 
-This commit updates the wiimod_led_probe function to use modern scoped
-cleanup for led allocation. It ensures the led structure is safely freed
-on error paths while transferring ownership appropriately on success.
+This commit introduces a new feature to assign an ID to each connected
+Wiimote using an IDA struct. It also updates the module loading sequence
+to cycle the LEDs from 1 to 4 to visually indicate the assigned player ID.
 
-> diff --git a/drivers/hid/hid-wiimote-modules.c b/drivers/hid/hid-wiimote-=
-modules.c
-> index f42f9aa7b2d49..7c305099c82d6 100644
-> --- a/drivers/hid/hid-wiimote-modules.c
-> +++ b/drivers/hid/hid-wiimote-modules.c
-> @@ -340,11 +340,11 @@ static int wiimod_led_probe(const struct wiimod_ops=
- *ops,
->  {
->  	struct device *dev =3D &wdata->hdev->dev;
->  	size_t namesz =3D strlen(dev_name(dev)) + 9;
+> diff --git a/drivers/hid/hid-wiimote-core.c b/drivers/hid/hid-wiimote-cor=
+e.c
+> index 63c4fa8fbb9b6..0d36a38bdcdad 100644
+> --- a/drivers/hid/hid-wiimote-core.c
+> +++ b/drivers/hid/hid-wiimote-core.c
+
+[Severity: High]
+This isn't a bug introduced by this patch, but does wiimote_queue() call
+wiimote_cmd_abort() while holding queue.lock instead of state.lock?
+
+drivers/hid/hid-wiimote-core.c:wiimote_queue() {
+...
+out_error:
+	wiimote_cmd_abort(wdata);
+out_unlock:
+	spin_unlock_irqrestore(&wdata->queue.lock, flags);
+}
+
+The documentation for wiimote_cmd_abort() specifies that it requires
+state.lock:
+
+drivers/hid/hid-wiimote.h:
+/* requires the state.lock spinlock to be held */
+static inline void wiimote_cmd_abort(struct wiimote_data *wdata)
+
+Could this cause a data race with other command state accesses?
 
 [ ... ]
 
+> @@ -671,6 +671,12 @@ static void wiimote_modules_load(struct wiimote_data=
+ *wdata,
+>  	spin_lock_irq(&wdata->state.lock);
+>  	wdata->state.devtype =3D devtype;
+>  	spin_unlock_irq(&wdata->state.lock);
+> +
+> +	/* after loading all modules, set the LED for the player ID cycling fro=
+m 1 to 4*/
+> +	scoped_guard(spinlock_irqsave, &wdata->state.lock) {
+> +		wiiproto_req_leds(wdata, player_leds[(wdata->instance_id - 1) % 4]);
+> +	}
+> +
+>  	return;
+> =20
+>  error:
+
+[Severity: Medium]
+Is it acceptable to mix scope-based cleanup helpers like scoped_guard()
+with goto-based error handling in the same function?
+
+The cleanup documentation states that goto-based cleanup and scope-based
+cleanup should not be mixed within the same routine.
+
+[ ... ]
+
+> @@ -1834,7 +1844,15 @@ static int wiimote_hid_probe(struct hid_device *hd=
+ev,
+>  	if (ret)
+>  		goto err_free;
+> =20
+> -	hid_info(hdev, "New device registered\n");
+> +	instance_id =3D ida_alloc_min(&wiimote_ida, 1, GFP_KERNEL);
+> +	if (!instance_id) {
+> +		hid_err(hdev, "cannot allocate controller id, defaulting to 1\n");
+> +		instance_id =3D 1;
+> +	}
+
 [Severity: High]
-Does this driver handle negative error codes from ida_alloc_min() correctly?
+Since ida_alloc_min() returns a negative error code on failure rather than =
+0,
+does this check fail to catch allocation errors?
 
-Looking at wiimote_hid_probe(), the return value is checked with a boolean
-negation:
+If ida_alloc_min() fails and returns a negative error code, the later
+calculation in wiimote_modules_load():
 
-drivers/hid/hid-wiimote-core.c:wiimote_hid_probe() {
-    ...
-	instance_id =3D ida_alloc_min(&wiimote_ida, 1, GFP_KERNEL);
-	if (!instance_id) {
-		hid_err(hdev, "cannot allocate controller id, defaulting to 1\n");
-		instance_id =3D 1;
-	}
-    ...
-}
+    player_leds[(wdata->instance_id - 1) % 4]
 
-If ida_alloc_min() fails due to memory pressure or IDA exhaustion, it
-returns a negative error code like -ENOMEM. The check if (!instance_id)
-evaluates to false, bypassing the fallback logic and allowing the
-negative error code to be stored in wdata->instance_id.
+would result in a negative modulo and an out-of-bounds array read.
 
-This negative value is later used in an array index calculation:
+[Severity: Medium]
+Additionally, if the IDA allocation fails and this fallback logic is reache=
+d,
+does assigning instance_id =3D 1 without actually reserving it in the IDA
+risk corrupting the state?
 
-drivers/hid/hid-wiimote-core.c:wiimote_modules_load() {
-    ...
-	scoped_guard(spinlock_irqsave, &wdata->state.lock) {
-		wiiproto_req_leds(wdata, player_leds[(wdata->instance_id - 1) % 4]);
-	}
-    ...
-}
+[ ... ]
 
-Can this cause an out-of-bounds array read, since the modulo operator
-in C retains the sign of the dividend?
+> @@ -1862,6 +1880,8 @@ static void wiimote_hid_remove(struct hid_device *h=
+dev)
+>  {
+>  	struct wiimote_data *wdata =3D hid_get_drvdata(hdev);
+> =20
+> +	ida_free(&wiimote_ida, wdata->instance_id);
+> +
+>  	hid_info(hdev, "Device removed\n");
+>  	wiimote_destroy(wdata);
+>  }
 
-Additionally, when the device is removed or rolled back, this negative ID
-is freed:
+[Severity: Medium]
+If the fallback logic in wiimote_hid_probe() set instance_id to 1 without
+reserving it, will this unconditional free corrupt the IDA state if another
+device had legitimately claimed ID 1?
 
-drivers/hid/hid-wiimote-core.c:wiimote_hid_remove() {
-    ...
-	ida_free(&wiimote_ida, wdata->instance_id);
-    ...
-}
+[ ... ]
 
-Could passing the negative ID to ida_free() explicitly trigger a BUG_ON
-and crash the kernel during teardown?
+> diff --git a/drivers/hid/hid-wiimote.h b/drivers/hid/hid-wiimote.h
+> index 9c12f63f6dd2d..639f67c24f15f 100644
+> --- a/drivers/hid/hid-wiimote.h
+> +++ b/drivers/hid/hid-wiimote.h
+> @@ -50,6 +50,13 @@
+>  #define WIIPROTO_FLAGS_IR (WIIPROTO_FLAG_IR_BASIC | WIIPROTO_FLAG_IR_EXT=
+ | \
+>  							WIIPROTO_FLAG_IR_FULL)
+> =20
+> +static const __u8 player_leds[] =3D {
+> +        WIIPROTO_FLAG_LED1,
+> +        WIIPROTO_FLAG_LED2,
+> +        WIIPROTO_FLAG_LED3,
+> +        WIIPROTO_FLAG_LED4
+> +};
+> +
+
+[Severity: Low]
+Does defining a static array in a header file cause it to be unnecessarily
+duplicated in the .rodata section for every translation unit that includes
+hid-wiimote.h?
+
+[ ... ]
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260710153456.2093=
-889-1-rafael@rcpassos.me?part=3D3
+889-1-rafael@rcpassos.me?part=3D1

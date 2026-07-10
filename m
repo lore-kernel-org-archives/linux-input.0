@@ -1,114 +1,126 @@
-Received: from sendmail.purelymail.com (sendmail.purelymail.com [34.202.193.197])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0FD1A43079B
-	for <linux-input@vger.kernel.org>; Fri, 10 Jul 2026 15:35:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=34.202.193.197
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 872C5422545
+	for <linux-input@vger.kernel.org>; Fri, 10 Jul 2026 15:44:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783697760; cv=none; b=bwzfXo1+1+TB1TF6pgX1uu+OKqJJOxkRJ7GPP38+G0rCxImgzI5ZSbOEA999qo5MGvxpQDiMG+Ysbox8h75hwSo+lIUvj68aqG1bwoN9DHm6adXvdN0msrHM0AvVxqKa4d9ULjIeg/Ody/whrPp62VmnbLrjqmu7N+ED6+OmTi8=
+	t=1783698286; cv=none; b=T5X0uV9tFJ5AMR078kVKA3HSngll7utTmztflDoZLtR6h6dRfgCqpHiY+YJXvqIDhIs4+JusAi186JqsZNnQVOgz1hiSYip5cLJk9tp+Tfj5jxH2akYSIQDndXJrdPDyKYf74CSamWunyi1lx2gLVdeZhOAswLAY9OG5GUEHbBI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783697760; c=relaxed/simple;
-	bh=+pm/JGSiIHBnFzCzg5ySacPKGL7dhKuPbKl2NKB5PMo=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=HzYAh9hProOAnnz3UjM8Gezxrgt12mryjyVlbrEy0+GkA9Nkz3rpBQLxU4kre6gBSuyX5/tmsH6T5XtCPwLlsMeqKNrJd76ER2E8CExmpWkXKNsu2SujLClR2gcyO8HPLX9hWT+QU8ovu5xeA9RAbCGEgF24id0ArheQyqvgKos=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=rcpassos.me; spf=pass smtp.mailfrom=rcpassos.me; dkim=pass (2048-bit key) header.d=rcpassos.me header.i=@rcpassos.me header.b=TXDy2sMA; dkim=pass (2048-bit key) header.d=purelymail.com header.i=@purelymail.com header.b=cq4VlX1t; arc=none smtp.client-ip=34.202.193.197
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=rcpassos.me
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rcpassos.me
+	s=arc-20240116; t=1783698286; c=relaxed/simple;
+	bh=N0KOqeOrDdM7at41csq9G78I4JeWYUPnbA8quqYjgR0=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=eNye7OGtkN99yrceWlbMYK1ZsATmb39rS8kLwOKnDHtb/uX3TmdteIyfdUUTYKCK8MVhil/6AKvG5w0wo8rt+KwyN1JEU152mn19Zh9Yywq+VYhaV+UyrylD9yxRa4Qt8Z21jnrWYNDJVY5tYW0fzGP/33X5NePnO8pOn1QncA8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Cp84rwnz; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=rcpassos.me header.i=@rcpassos.me header.b="TXDy2sMA";
-	dkim=pass (2048-bit key) header.d=purelymail.com header.i=@purelymail.com header.b="cq4VlX1t"
-Authentication-Results: purelymail.com; auth=pass
-DKIM-Signature: a=rsa-sha256; b=TXDy2sMAwq4lt+ylXcJQrDd8q6UzMrnzTo1tJN3BhJ05SCz8hBY3bMdDK4HDiV5V1Zuk/K/trmKdESt1JnPmRB/W7PAdWRT6XuwBazFwroHL1o9i8PLwVuoClTkHbqcn85Dn8dBpUyhijUD95uTEXswJjQtqe9xOAo477kTR9sbhYl7xBnM115Q1wHfZeS1eWEi2Q3SAJ4I3e2PEqOhM6idltAyq9pEgwQOgE2QzJJwLSNScbnLjQVKKf9d7PlkgMBiTzttMBNMQVstqBIk7vTKLRsThvKQVwXIW2QDxMLUFhoXqWGXakrkUIlKc2ICtuLbxhxYxJ98kiSaMS+lcdw==; s=purelymail1; d=rcpassos.me; v=1; bh=+pm/JGSiIHBnFzCzg5ySacPKGL7dhKuPbKl2NKB5PMo=; h=Received:From:To:Subject:Date;
-DKIM-Signature: a=rsa-sha256; b=cq4VlX1tnaB13okis3QQr84bTO1oIdJAGf+5U0ezX3yK/M9X4zTuAKj9dSzgFcWpQmS64Qiuwl3NqX6SeMMuRNJ+ewe/0MDUOgbygtK0mYudkHYP9Ac7kGjCJ0uzFRHkh+t05xnzgosoHCI+1tfKahZXCouNgIJa3OTV6C0ZnvXkZQ3Yi+7sZZPhjZuunrAJM/mSeWjP9dX0BVu8wb29C+ECD7xBy8A7XWzvqrFivEYVjz+RilX6yPwAQ42EMhkH8OTYCmB1nbFvXiieqedHO4woTzTOHsTcLdC3tEU+lIBv6qoYe4a72c4yDItfkLGcuScmVyBSjA0LsLE0eDG44A==; s=purelymail1; d=purelymail.com; v=1; bh=+pm/JGSiIHBnFzCzg5ySacPKGL7dhKuPbKl2NKB5PMo=; h=Feedback-ID:Received:From:To:Subject:Date;
-Feedback-ID: 45355:7809:null:purelymail
-X-Pm-Original-To: linux-input@vger.kernel.org
-Received: by smtp.purelymail.com (Purelymail SMTP) with ESMTPSA id 445827024;
-          (version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384);
-          Fri, 10 Jul 2026 15:35:43 +0000 (UTC)
-From: Rafael Passos <rafael@rcpassos.me>
-To: david@readahead.eu,
-	jikos@kernel.org,
-	bentiss@kernel.org
-Cc: Shuah Khan <skhan@linuxfoundation.org>,
-	Brigham Campbell <me@brighamcampbell.com>,
-	Jori Koolstra <jkoolstra@xs4all.nl>,
-	Rafael Passos <rafael@rcpassos.me>,
-	linux-input@vger.kernel.org
-Subject: [PATCH 3/3] HID: wiimote: use scoped cleanup in led creation
-Date: Fri, 10 Jul 2026 12:32:11 -0300
-Message-ID: <20260710153456.2093889-4-rafael@rcpassos.me>
-X-Mailer: git-send-email 2.53.0
-In-Reply-To: <20260710153456.2093889-1-rafael@rcpassos.me>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Cp84rwnz"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8DA581F000E9;
+	Fri, 10 Jul 2026 15:44:43 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1783698284;
+	bh=isqZFVmsjZRFJ9ox4nc3WOcEj1+grAoy4c/H4BYgxWg=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=Cp84rwnz9kZR4bBSdU7RP5YZ3yVK4oZAjXZol3/WM1kRkD2Z15K7aRwZXYMOniBkU
+	 a84ZbqO0S3Znx1weR8kn4oI5IsG93bw1bG6RCrg50WcWxTFJKbQT535Vlq8Dhzx5vC
+	 /l/mJtry7ihgJDLN9UtwXsexgN3wwYJrAy87KlIV6eSKRHtpWl8ODVp2GJAyNlx+e3
+	 6kkIoqrGQtuL00ptsvWaAcdWB5A6oV9xk6Vz7iaZGanEJzKIAHNkHj5QKR25SVt2W/
+	 wkeasiMuLuskt+UouqstURbAt5gnCEs/N1GM3YdLT8qeB2tVwicTgRI+ew2fN+7QGS
+	 zZ+vEbPU6Ociw==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH 3/3] HID: wiimote: use scoped cleanup in led creation
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Rafael Passos" <rafael@rcpassos.me>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <20260710153456.2093889-4-rafael@rcpassos.me>
 References: <20260710153456.2093889-1-rafael@rcpassos.me>
+ <20260710153456.2093889-4-rafael@rcpassos.me>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Fri, 10 Jul 2026 15:44:43 +0000
+Message-Id: <20260710154443.8DA581F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-X-MIME-Autoconverted: from 8bit to quoted-printable by Purelymail
 
-Cleanup code in led probe function, using the modern scoped cleanup.
-This prevents mistakes in future changes to this function.
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
+- [High] The check `if (!instance_id)` after `ida_alloc_min()` incorrectly =
+assumes 0 on failure, missing negative error codes and leading to an out-of=
+-bounds array access and kernel BUG.
+--
 
-Signed-off-by: Rafael Passos <rafael@rcpassos.me>
----
- drivers/hid/hid-wiimote-modules.c | 18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+--- Patch [3]: [PATCH 3/3] HID: wiimote: use scoped cleanup in led creation=
+ ---
+commit 2a6971d40f61933b6a7890df0931f14066de90e7
+Author: Rafael Passos <rafael@rcpassos.me>
 
-diff --git a/drivers/hid/hid-wiimote-modules.c b/drivers/hid/hid-wiimote-mo=
-dules.c
-index f42f9aa7b2d4..7c305099c82d 100644
---- a/drivers/hid/hid-wiimote-modules.c
-+++ b/drivers/hid/hid-wiimote-modules.c
-@@ -340,11 +340,11 @@ static int wiimod_led_probe(const struct wiimod_ops *=
-ops,
- {
- =09struct device *dev =3D &wdata->hdev->dev;
- =09size_t namesz =3D strlen(dev_name(dev)) + 9;
--=09struct led_classdev *led;
- =09char *name;
- =09int ret;
-=20
--=09led =3D kzalloc(sizeof(struct led_classdev) + namesz, GFP_KERNEL);
-+=09struct led_classdev *led __free(kfree) =3D
-+=09=09kzalloc(sizeof(struct led_classdev) + namesz, GFP_KERNEL);
- =09if (!led)
- =09=09return -ENOMEM;
-=20
-@@ -358,8 +358,13 @@ static int wiimod_led_probe(const struct wiimod_ops *o=
-ps,
-=20
- =09wdata->leds[ops->arg] =3D led;
- =09ret =3D led_classdev_register(dev, led);
--=09if (ret)
--=09=09goto err_free;
-+=09if (ret) {
-+=09=09wdata->leds[ops->arg] =3D NULL;
-+=09=09return ret;
-+=09}
-+
-+=09/* Ownership transferred to wdata =E2=80=93 prevent cleanup from freein=
-g */
-+=09led =3D NULL;
-=20
- =09/* enable LED1 to stop initial LED-blinking */
- =09if (ops->arg =3D=3D 0) {
-@@ -368,11 +373,6 @@ static int wiimod_led_probe(const struct wiimod_ops *o=
-ps,
- =09}
-=20
- =09return 0;
--
--err_free:
--=09wdata->leds[ops->arg] =3D NULL;
--=09kfree(led);
--=09return ret;
- }
-=20
- static void wiimod_led_remove(const struct wiimod_ops *ops,
+HID: wiimote: use scoped cleanup in led creation
+
+This commit updates the wiimod_led_probe function to use modern scoped
+cleanup for led allocation. It ensures the led structure is safely freed
+on error paths while transferring ownership appropriately on success.
+
+> diff --git a/drivers/hid/hid-wiimote-modules.c b/drivers/hid/hid-wiimote-=
+modules.c
+> index f42f9aa7b2d49..7c305099c82d6 100644
+> --- a/drivers/hid/hid-wiimote-modules.c
+> +++ b/drivers/hid/hid-wiimote-modules.c
+> @@ -340,11 +340,11 @@ static int wiimod_led_probe(const struct wiimod_ops=
+ *ops,
+>  {
+>  	struct device *dev =3D &wdata->hdev->dev;
+>  	size_t namesz =3D strlen(dev_name(dev)) + 9;
+
+[ ... ]
+
+[Severity: High]
+Does this driver handle negative error codes from ida_alloc_min() correctly?
+
+Looking at wiimote_hid_probe(), the return value is checked with a boolean
+negation:
+
+drivers/hid/hid-wiimote-core.c:wiimote_hid_probe() {
+    ...
+	instance_id =3D ida_alloc_min(&wiimote_ida, 1, GFP_KERNEL);
+	if (!instance_id) {
+		hid_err(hdev, "cannot allocate controller id, defaulting to 1\n");
+		instance_id =3D 1;
+	}
+    ...
+}
+
+If ida_alloc_min() fails due to memory pressure or IDA exhaustion, it
+returns a negative error code like -ENOMEM. The check if (!instance_id)
+evaluates to false, bypassing the fallback logic and allowing the
+negative error code to be stored in wdata->instance_id.
+
+This negative value is later used in an array index calculation:
+
+drivers/hid/hid-wiimote-core.c:wiimote_modules_load() {
+    ...
+	scoped_guard(spinlock_irqsave, &wdata->state.lock) {
+		wiiproto_req_leds(wdata, player_leds[(wdata->instance_id - 1) % 4]);
+	}
+    ...
+}
+
+Can this cause an out-of-bounds array read, since the modulo operator
+in C retains the sign of the dividend?
+
+Additionally, when the device is removed or rolled back, this negative ID
+is freed:
+
+drivers/hid/hid-wiimote-core.c:wiimote_hid_remove() {
+    ...
+	ida_free(&wiimote_ida, wdata->instance_id);
+    ...
+}
+
+Could passing the negative ID to ida_free() explicitly trigger a BUG_ON
+and crash the kernel during teardown?
+
 --=20
-2.53.0
-
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260710153456.2093=
+889-1-rafael@rcpassos.me?part=3D3

@@ -1,198 +1,265 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ej1-f54.google.com (mail-ej1-f54.google.com [209.85.218.54])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 57E84374198
-	for <linux-input@vger.kernel.org>; Sat, 11 Jul 2026 09:39:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783762770; cv=none; b=qqvfdWDHyv7nqkdz+PmjgkYgNVsBuSaXTpNCbLk6hhZzbp+K+lnEXXnySAa51E6H0xRs9Ibi2E+wrcLJ/xoFZik1m0yKXnwDxYC3/QWRsJbiIKXYY9J3B33T3TCr6LzeTv+8LTr//dlDyPXz1sSFGCRiYn8eGt3kKFrzkKHMxxo=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783762770; c=relaxed/simple;
-	bh=1DiijfKJXANP7+8dgTDXObjY5I6QWlQ++sUz+o1o/y0=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=RjAo/exGbMnHqANFFU2hQKkSb9m5zxA4QceI8w8fO1Re6lb4Iof1xoX30n8nzYE+NXbSPoc2fcD0ogkdZp8v6TnhEQgHYEMCuZOBf1TidAwL1eDMgW885ZvNknJmm/Lv/F63OXPh8lJhEAVMH2L+p4kKpvynkl68zZgSXvz/a00=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=TJszOAvJ; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0C9A3372EEF
+	for <linux-input@vger.kernel.org>; Sat, 11 Jul 2026 10:59:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.218.54
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1783767569; cv=pass; b=kI6+Fhge9fv5bdobtt1JD6TJolvw0sFR3+6JBny+ceJjHutQp7OctIdsItUtZeO4kGwEpLIMZ8bG3FV/pYo6UevgirJVpC26K8Z4TtyYNpVNw6CtxSZ9mQHMZznx57Fh3Av4iYIJXbBj4sLqiqUds+VOoq3pjjhdeOHfxdRyKho=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1783767569; c=relaxed/simple;
+	bh=8U7Zbw5wkNzV8H2qbxwZdoYclSWhOBQ0taPpBSOtX/o=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=WKPGCp6NTvjLZ/zv3t49pjy/yuWuUdNBplfQmGBqji8BC6f8YJp2sLEOIxRAqYXrHVVs8/+sLW7UtHY6oexoQ4OHrJSIrxGe0zBl/zfIrQg92xat9pvVOJMIOiEdeGTGa2APtG+EeLer9rWXD1KfukKoiFtHubWK+6JyqIQC3ok=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=DEgb71t3; arc=pass smtp.client-ip=209.85.218.54
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="TJszOAvJ"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF4691F000E9;
-	Sat, 11 Jul 2026 09:39:28 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1783762769;
-	bh=ZMHt0UnvBBGZ6tahiXTjR/EQMLHJ1glTYt8J+u7QpPQ=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=TJszOAvJBrOeviC/PI6povxtHrLLmreul+UCKzoba+i4GX55u0Ll4s4QE5rMkZW4c
-	 vsONCriX0pQrtNqUKE7Dw8Lb+kBzyMiArSEQAq43oe7oipAZ0w56fv/7UDolexAoik
-	 jX6CLMoUKegWFdv4vShzCKn/f0CLE9k4PjBnOhAcs9sMnnU1R5XUTi/IG36tRsHuxG
-	 JvD3LUSF4C4prylwCowCnvqD+KPFtLpRUFt3biGtBkkrSFUwzEnLUEAwh1SyilTRD7
-	 dYiAgXsR7CaL3gMFfWxiJtUZ8LYbyaW/P78FwTBkEbu2SUC/K9C8/57YZBt5xHNmUD
-	 voMvQJMpg9vOQ==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v3 3/3] Input: applespi - fix NULL pointer dereference
- in tp_dim open
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Shih-Yuan Lee" <fourdollars@debian.org>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260711092054.13818-4-fourdollars@debian.org>
-References: <20260711092054.13818-1-fourdollars@debian.org>
- <20260711092054.13818-4-fourdollars@debian.org>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Sat, 11 Jul 2026 09:39:28 +0000
-Message-Id: <20260711093928.BF4691F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="DEgb71t3"
+Received: by mail-ej1-f54.google.com with SMTP id a640c23a62f3a-c15c7d22070so235073966b.2
+        for <linux-input@vger.kernel.org>; Sat, 11 Jul 2026 03:59:27 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1783767566; cv=none;
+        d=google.com; s=arc-20260327;
+        b=Om2f9f0wZqBVOqvFrdjRK+GEruxPd/E7vFlnpOfCD++FhMIYZ4UYxLugTxzjYvvKMM
+         pUFlgZnLFjmaBEvE6wkCrG1DeVqbtIj6t96yFu35OJTUqJnJWRUIWo9cdkxJ1l36owUR
+         lIxRv2hddSx58qovJJW0JEz/rFBj3vng5AY1S78oaEP9aEEVvM32Fi/W297cqMFx74b4
+         qjcebIQkoHFgewso3aN05b+lLS9FFrIU1nASFU4uvIkxy5yBVZ+50VxJiziORG6fZZPI
+         PWSWDege1ShMPbUFAz8khu6l7TVdZ/wgsdnCatDoO1jHQXTsfRbw3oBpfAummrGksqqE
+         notQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=8U7Zbw5wkNzV8H2qbxwZdoYclSWhOBQ0taPpBSOtX/o=;
+        fh=XzrJXVMqEgYNsZ+ocD7TO91Ur9B6R7souog47LsArtY=;
+        b=SovXjL8qD+f5CKKvXkhvGAdETUi4N/9zPqJHl+VsDkdfDEOv+5D61mkOpL3MKBJWXx
+         ay8FIngiYwBPM+b0o5BoOmQVprzc7Ym28swYPqzcxdZfbyS5aiyuLC29WBmycZCcpf/U
+         8d/PzOt3RSsPaK8Uua9oxt/UK1YHxtNEfwFcQDB8iZ50zW5n2We47G36vn9JUXrd2Cyf
+         Ptuj+dRoy6lLgD+HboIoqh1SlVHxQiG5SkY3tVdw3/qITVWf66uOaXCwTMw7E1t3thE9
+         dUeJo4TexNdOAHrYmur9i27lAORVjFOkbnIchvbO2987DfvWSEu6nJ/xhynGRsUEAckz
+         4y0Q==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1783767566; x=1784372366; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=8U7Zbw5wkNzV8H2qbxwZdoYclSWhOBQ0taPpBSOtX/o=;
+        b=DEgb71t3If89iV8pB2evNgky0n63ijV3CIsgscrdCFFjmxeMOiH4QCLFlpl517OWfD
+         SXilzM1Q5reIcrrjh4sQagW8AA81VsPu/NUfyURMUxgbdXYE4hvpGh0lLjHhOe4zSED5
+         Alp5Q1LJvvbYkvPtflm7+Pc7IPosksbN/Z8n9IzrTmSqWMBOoGzWwS620MgAsVZbtVMe
+         sGWdspULwonADZUubce8ucog4B7AGs9MhsXlRHw7q9/kRMs7c2qiScc37g5Cz2nA2eHu
+         O0oABaQjWtUa5C1vGuAKw+sSONPPAqzCWh2q4UaJEs3XiJdZCQpWGrAyKpg4cD+Ckswh
+         PUkA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1783767566; x=1784372366;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=8U7Zbw5wkNzV8H2qbxwZdoYclSWhOBQ0taPpBSOtX/o=;
+        b=S9tsPIX29/Lso2GBnjHR3M2GrNXusFeD9h0Vc+0yBDvTsQoL3qiHubwF1GuRwTg0mR
+         EYzrwJT7b4FNBuyCFnalwdQcI/DHJq+wbPdgE/5pa24vC1pkWtmvlN37fjZotIQvhV5l
+         cAJXrCqM1Ln9Mp6IgLlGHNTvGykOW1695JPuJJTLX+bIITygB29lj/iUz0jd7PJXYjSL
+         md3HuTBNnsuJ/RwxwWXSHi8nqd1UprWoDwz6rcaGqpTpw8NexeDy6dttT3r+efDngb7M
+         ii9V/dEDpdUeykHq2E28wY9u2Vc+b3THxnJ7BuX3EWvkZei+7nlxZ/k9ph2CvvOwLVX1
+         45UQ==
+X-Forwarded-Encrypted: i=1; AHgh+RqE4LskRMK6X/fV3Kr8z+Sb4WNdSIXTBndGJlXTWIklyR3cEWjzWZcMb6zkmwM2v07R5w7ifAovXnl9sw==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yy6L321Egr039MzIY3whOnOBSwv4XoZpvsMdjZqe2XZpEk9hGYB
+	VnXTXbMnE8VTBR2+JYR6VO3cLWudDCD4LRGiQZhvA47d2v6POdTlMKl486Omi2LyxPnrFbEeeyh
+	0qq12FpDDj/hqHJWgTYinZWKoby+AXPs=
+X-Gm-Gg: AfdE7clhyHP8YLerWoogjv5p9els3txuwevL4PUPE/gp0kVjBwDooQTSbMSr01/1ywm
+	P/op7QUOivcAa0FIIDaZ4pwTVby3qDY/ztF5X5t6UFc7dplIh4oX+LKQS6GBY+zEOtKs1uSWEV+
+	QNyVovZx4Vc0RMh8NmSXYkzS6Xl7FhXh+PYXXQVnTNzR9PXhtmXud7tbuKsAf/X/YPF9JQuQLG4
+	u/gOgzUJjF7b/PkSSD0j53NogmtZnrmXR3fY1D6P75ZJIUamnj3fxHdL7QhWcQFmuWx8uU=
+X-Received: by 2002:a17:907:3e02:b0:c10:256:3d6a with SMTP id
+ a640c23a62f3a-c161ea79a5amr108215866b.31.1783767566245; Sat, 11 Jul 2026
+ 03:59:26 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+References: <4130C026-2A83-408B-836A-ECA044491C47@gmail.com>
+ <CAKNVLfZSjWgiT7cwy4kf3QLq49yzU6PPZQBiRpmU-fARA3iqFg@mail.gmail.com>
+ <f8a6f9e3f5a7582c708669f22733add1a6b9ea8e.camel@crapouillou.net> <CAKNVLfbK5TEFSRuJSv-3Bvx+JjLuPTn1LjKj7nBEEdGxsqiQjg@mail.gmail.com>
+In-Reply-To: <CAKNVLfbK5TEFSRuJSv-3Bvx+JjLuPTn1LjKj7nBEEdGxsqiQjg@mail.gmail.com>
+From: Siarhei Volkau <lis8215@gmail.com>
+Date: Sat, 11 Jul 2026 13:59:15 +0300
+X-Gm-Features: AVVi8CfX52Hrjp_6sHEUFAGBN08XqybmaTfD_GRjXW0qdIfUd7wLJc1zla3GOqI
+Message-ID: <CAKNVLfas9vmOFRhaozsBgBf8tb_HR6mCMOyw=gHSTm2HxBHSXQ@mail.gmail.com>
+Subject: Re: [RFC] Input: matrix_keypad: fix interrupt regression introduced
+ by commit 01c84b03d80a
+To: Paul Cercueil <paul@crapouillou.net>
+Cc: Alexander Kochetkov <al.kochet@gmail.com>, linux-input@vger.kernel.org, 
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
-s) to consider:
+> For testing, you could temporarily modify the driver
 
-Pre-existing issues:
-- [High] Repeated processing of expected or malicious hardware `PACKET_DEV_=
-INFO` responses causes unbounded allocation and registration of `devm`-mana=
-ged input devices.
-- [High] Use-After-Free of `applespi` private data in the asynchronous SPI =
-read callback during driver unbind.
-- [High] Missing bounds check on keyboard release events causes an out-of-b=
-ounds read of kernel memory, leading to an information leak.
---
+I've done the test on all JZ47xx I have and it turns out that
+my assumption was wrong. All of them report live state of
+the pin.
 
---- Patch [3]: [PATCH v3 3/3] Input: applespi - fix NULL pointer dereferenc=
-e in tp_dim open ---
-commit 44778c849d055105696c2f1ad69bc1cf09ff47d0
-Author: Shih-Yuan Lee <fourdollars@debian.org>
+So, guys, the patch can be reverted with no doubts.
 
-Input: applespi - fix NULL pointer dereference in tp_dim open
+BR,
+Siarhei
 
-This commit fixes a NULL pointer dereference in applespi_tp_dim_open()
-when userspace accesses the debugfs file before asynchronous initialization
-completes. It uses smp_load_acquire() to safely load the touchpad input
-device and returns -ENODEV if not initialized.
-
-> diff --git a/drivers/input/keyboard/applespi.c b/drivers/input/keyboard/a=
-pplespi.c
-> index fd785dba1174e..e3e239f430bd9 100644
-> --- a/drivers/input/keyboard/applespi.c
-> +++ b/drivers/input/keyboard/applespi.c
-> @@ -972,12 +972,18 @@ static void applespi_debug_update_dimensions(struct=
- applespi_data *applespi,
->  static int applespi_tp_dim_open(struct inode *inode, struct file *file)
->  {
->  	struct applespi_data *applespi =3D inode->i_private;
-> +	struct input_dev *touchpad;
-> =20
->  	file->private_data =3D applespi;
-> =20
-> +	/* Pairs with smp_store_release in applespi_register_touchpad_device() =
-*/
-> +	touchpad =3D smp_load_acquire(&applespi->touchpad_input_dev);
-> +	if (!touchpad)
-> +		return -ENODEV;
-> +
-
-[Severity: High]
-This isn't a bug introduced by this patch, but does the driver leak resourc=
-es
-if it repeatedly processes hardware device info responses?
-
-If applespi_handle_cmd_response() receives this packet, it schedules the
-worker:
-
-applespi_handle_cmd_response() {
-    ...
-    schedule_work(&applespi->work);
-}
-
-The worker unconditionally calls applespi_register_touchpad_device(), which
-allocates a new devm-managed device:
-
-applespi_register_touchpad_device() {
-    ...
-    touchpad_input_dev =3D devm_input_allocate_device(&applespi->spi->dev);
-    ...
-}
-
-Could this lead to unbounded allocation and registration of devm-managed in=
-put
-devices, losing the reference to the old ones and eventually exhausting mem=
-ory?
-
-[Severity: High]
-This is a pre-existing issue, but is there a potential use-after-free in the
-asynchronous SPI read callback during driver unbind?
-
-During driver removal, applespi_remove() calls applespi_drain_reads(), which
-waits for read_active to become false:
-
-applespi_remove() {
-    ...
-    applespi_drain_reads(applespi);
-    ...
-}
-
-In applespi_async_read_complete(), applespi_msg_complete() sets read_active
-to false and wakes the waitqueue, then proceeds to use applespi->gpe:
-
-applespi_async_read_complete() {
-    ...
-    applespi_msg_complete(applespi, false, false);
-    ...
-    acpi_finish_gpe(NULL, applespi->gpe);
-}
-
-If devres cleanup frees the applespi struct immediately after
-applespi_drain_reads() returns, could accessing applespi->gpe cause a
-use-after-free?
-
-[Severity: High]
-This isn't a bug introduced by this patch, but is there an out-of-bounds re=
-ad
-when processing keyboard release events?
-
-In applespi_handle_keyboard_event(), the unvalidated keys_pressed array is
-copied directly into last_keys_pressed:
-
-applespi_handle_keyboard_event() {
-    ...
-    memcpy(&applespi->last_keys_pressed, keyboard_protocol->keys_pressed,
-           sizeof(applespi->last_keys_pressed));
-    ...
-}
-
-On a subsequent keyboard event, if a previously stored invalid keycode is
-processed as released, it is passed to applespi_code_to_key():
-
-applespi_handle_keyboard_event() {
-    ...
-    key =3D applespi_code_to_key(applespi->last_keys_pressed[i],
-                               applespi->last_keys_fn_pressed[i]);
-    ...
-}
-
-applespi_code_to_key() uses this unvalidated keycode to index the
-applespi_scancodes array:
-
-applespi_code_to_key() {
-    ...
-    unsigned int key =3D applespi_scancodes[code];
-    ...
-}
-
-Could a maliciously crafted SPI packet cause an out-of-bounds read of
-applespi_scancodes leading to an information leak?
-
->  	snprintf(applespi->tp_dim_val, sizeof(applespi->tp_dim_val),
->  		 "0x%.4x %dx%d+%u+%u\n",
-> -		 applespi->touchpad_input_dev->id.product,
-> +		 touchpad->id.product,
->  		 applespi->tp_dim_min_x, applespi->tp_dim_min_y,
->  		 applespi->tp_dim_max_x - applespi->tp_dim_min_x,
->  		 applespi->tp_dim_max_y - applespi->tp_dim_min_y);
->=20
->  	return nonseekable_open(inode, file);
->  }
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260711092054.1381=
-8-1-fourdollars@debian.org?part=3D3
+=D1=87=D1=82, 9 =D0=B8=D1=8E=D0=BB. 2026=E2=80=AF=D0=B3. =D0=B2 18:51, Siar=
+hei Volkau <lis8215@gmail.com>:
+>
+> > Siarhei, do you remember the context of that patch?
+>
+> Yes. My understanding is that at least some Ingenic GPIO controllers
+> don't report the current input level while the pin is configured for IRQs=
+,
+> but instead expose the level latched at the moment the interrupt occurred=
+.
+> That's what I was trying to work around.
+>
+> > That was definitely working on the SoC I tested ...
+>
+> You wouldn't notice this with the gpio-keys driver because its usage
+> pattern matches this behavior. For example, if the IRQ is configured
+> for the falling edge, then when the interrupt fires the level register wi=
+ll
+> read 0, which is exactly what gpio-keys expects.
+>
+> I'm not sure whether this affects all Ingenic GPIO controllers,
+> but it should be easy to verify. For testing, you could temporarily
+> modify the driver as follows:
+>
+> In the IRQ handler, before reconfiguring the IRQ for the opposite edge:
+> - read and print the GPIO level register/bit;
+> - wait for an arbitrary amount of time (long enough to release the
+> button between the two reads);
+> - read and print the GPIO level register/bit again.
+>
+> If both reads return 0, even though the button has been released,
+> then the controller behaves like the JZ4755 and latches the GPIO
+> level at the time of the interrupt.
+> If the first read returns 0 and the second returns 1, then the controller
+> reports the live GPIO input level, as typical GPIO controllers do.
+>
+> > I wonder if you were just experiencing bouncing?
+>
+> I'm sure no, I remember that without that patch, I got the same readings
+> for all buttons in a row, no matter which column was active and as far as=
+ I
+> remember I tested it with arbitrary long col-scan-delay-us in range of
+> 10-100 ms.
+>
+> BR,
+> Siarhei
+>
+> =D1=87=D1=82, 9 =D0=B8=D1=8E=D0=BB. 2026=E2=80=AF=D0=B3. =D0=B2 13:25, Pa=
+ul Cercueil <paul@crapouillou.net>:
+> >
+> > Hi,
+> >
+> > Siarhei, do you remember the context of that patch?
+> >
+> > The driver will read the pin level to emulate pins configured in "both
+> > edges" IRQ mode, and switch to "rising edge" if low, and "falling edge"
+> > if high. That was definitely working on the SoC I tested it with
+> > (probably JZ4770). I would be surprised if it did not work on the
+> > JZ4755.
+> >
+> > You mention in that commit message that you would get the pin level
+> > before the interrupt happened, I wonder if you were just experiencing
+> > bouncing?
+> >
+> > Anyway, I agree that this commit can be reverted.
+> >
+> > Le mercredi 08 juillet 2026 =C3=A0 18:59 +0300, Siarhei Volkau a =C3=A9=
+crit :
+> > > Regarding JZ4755, I agree that the [1] patch can be reverted.
+> > > No device requiring this workaround has landed in the mainline.
+> > > qi,lb60 (Ben Nanonote) seems unaffected as it was there before
+> > > the patch was proposed.
+> > >
+> > > However, if there are genuinely two hardware operating modes:
+> > > - "GPIO input mode" while scanning
+> > > - "GPIO interrupt input mode" while idle
+> > > then the keypad driver should be aware of this distinction.
+> > >
+> > > I'd like to propose pinctrl state transitions as the mechanism for
+> > > switching
+> > > these modes, wherever it makes sense (Allwinner et al).
+> >
+> > I agree.
+> >
+> > >
+> > > CC Paul as the maintainer of Ingenic pinctrl driver.
+> > >
+> > > BR,
+> > > Siarhei
+> >
+> > Cheers,
+> > -Paul
+> >
+> > >
+> > >
+> > > =D1=81=D1=80, 8 =D0=B8=D1=8E=D0=BB. 2026=E2=80=AF=D0=B3. =D0=B2 16:30=
+, Alexander Kochetkov
+> > > <al.kochet@gmail.com>:
+> > > >
+> > > > Hi everyone,
+> > > >
+> > > > I found a commit [1] that breaks the matrix_keypad behavior on the
+> > > > Allwinner A64.
+> > > >
+> > > > I have a PINE A64-LTS board with a connected keypad polled by
+> > > > matrix_keypad.
+> > > > This commit caused interrupts to stop arriving at the matrix_keypad
+> > > > driver entirely.
+> > > >
+> > > > An explicit call to gpiod_direction_input() disables interrupt
+> > > > reception on all chips
+> > > > where the GPIO input mode and GPIO interrupt input mode are
+> > > > configured via
+> > > > the pinmux register. Interrupt reception is guaranteed to break on
+> > > > Allwinner
+> > > > (A64, H3, H6, etc.), Broadcom (BCM2835/2711), and some Rockchip
+> > > > SoCs. It
+> > > > does not break on NXP i.MX (i.MX6, i.MX8), STMicroelectronics
+> > > > (STM32MP1),
+> > > > TI Sitara (AM335x), or Intel/AMD.
+> > > >
+> > > > Furthermore, the assumption that enable_row_irqs() restores the
+> > > > interrupt mode is
+> > > > also specific to the Ingenic pinctrl. In the vast majority of
+> > > > drivers, enable_row_irqs() is
+> > > > supposed to simply set the interrupt enable mask without changing
+> > > > the pinmux.
+> > > >
+> > > > Commit [1] was introduced to work around a hardware limitation in
+> > > > Ingenic's JZ4755.
+> > > > This specific behavior is unique to Ingenic and a small number of
+> > > > specialized chips.
+> > > > The majority of SoCs (around 90%) allow reading a GPIO input that
+> > > > is currently configured
+> > > > as an interrupt source.
+> > > >
+> > > > In my opinion, the correct approach would be to revert this commit
+> > > > and fix the behavior of
+> > > > ingenic_gpio_get_value() inside pinctrl-ingenic.c instead. However,
+> > > > I do not own an Ingenic
+> > > > board, so I won't be able to test such a patch.
+> > > >
+> > > > Alternatively, I could introduce a DTS property like read-gpio-
+> > > > quirk in matrix_keypad to restore
+> > > > the original driver behavior by default, and add this property to
+> > > > qi_lb60.dts so as not to break
+> > > > the Ingenic platform.
+> > > >
+> > > > What do you think? What is the best way to proceed here?
+> > > >
+> > > > Best regards,
+> > > > Alexander Kochetkov
+> > > >
+> > > > [1] commit 01c84b03d80aab9f04c4e3e1f9085f4202ff7c29 ("Input:
+> > > > matrix_keypad - force switch rows to input mode")

@@ -1,161 +1,231 @@
-Received: from mail-pj1-f45.google.com (mail-pj1-f45.google.com [209.85.216.45])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0F8E13C9EF6
-	for <linux-input@vger.kernel.org>; Sat, 11 Jul 2026 13:11:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9E8EE3C872B
+	for <linux-input@vger.kernel.org>; Sat, 11 Jul 2026 13:26:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783775518; cv=none; b=R4QL4FUMm3SwWzlraarOeqoHOSdkG/veBgq4W/fMQL+bFuduMDmJ7WN1x6c5Ei78YSY/yTMQtnUMR9rwkOWLnBhNHgcz2IztzSxmGBmHQ0nlpq1S2zI7ouaDM928t6bgVh/L9vbADJa9ZTbArsZ6eeyB931zAc3EY+x00wHFx6o=
+	t=1783776400; cv=none; b=YdXWPQ3ufkhyIRB2/BWNNWS197tpLbnYCMaJoMi87Bs72WbLwSglL84mT7IAcSoQy34/a5qU1RxK5te0j2Cep6Rs4yky4zeAtXsUhXtR8O3HkM7ygT59VpAsBsySRgZ8nn2Rq3L2SYnYvw77DdBATj9t7nVJZiSLLHbhyk8NP98=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783775518; c=relaxed/simple;
-	bh=YRU9k1lERNTxkTc+5YgTqgr3AgfJ0f+mJ5crHfuI4jE=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=UUjMOiSI/opF2t18tcEYI5Y1r/xj+U9iawUO6N9h//gK0Ka4ValHstV1F9yoRdCrni2dL39GgVYLhX75c/qT4gOm15whBQR/5Xs+PRBkg9eoJxSLGquwy8/sQcmwsasRe4yKYWevaDtW5QKI5+50gz7/m8T9rC+KgHp3XIQ5bp0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=debian.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.216.45
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=debian.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Received: by mail-pj1-f45.google.com with SMTP id 98e67ed59e1d1-38dc4553f62so715935a91.0
-        for <linux-input@vger.kernel.org>; Sat, 11 Jul 2026 06:11:52 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1783775512; x=1784380312;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=kc4/WVQy8fssVht4RAYrhTn5gJQpHPueTRIgj0gLJ/A=;
-        b=bwEXy+GDFas3SdGJmIDEnUocKj/MBGnvTUpNQ83IrIht8E6ziAIaqtcwVP/6FXmJrz
-         3I5+y5YKqUpC0KnTUaUpOLwVmHb+CqabhP16l3fzXyF4+IGRYB8gNQpWuPHZqLzMhE31
-         7FLihGhkX8DftkYxc42W2LFFSNJoGrea0fdvdeoV8B9O9cvT8qtCU2ZubD5QhukhcGlM
-         TXZcbkvyukvyBj5bZfTQER1rhk2cI1gZXz5nnkpreV2T4bwdRlddL92c3foAD7Nv2wyP
-         fSFx1oEgoH8K6wMXORQZiWYvYq1z0syeVJF8T/uWaO5QCxpKvgJ+fxugb+rK5baQvcCM
-         OaEw==
-X-Gm-Message-State: AOJu0YwQGKMItpAujqmMx0Hp9r2hrYKrysnpmUiI5vcKOvDFt0a2bp0j
-	pPWB1DFrV+enZKTQGu9p8oYhyID1Y6fJPdl+B8UNNStWqmoK4PcxErw=
-X-Gm-Gg: AfdE7clpPM4t6kMAA0liS1GqsgXLgW8XWdu5ChN7Y0yK1FRgbvzAqgzirUCEqOuqayS
-	OiIU4zQLvsCRU4vXrk72hUkR7GzAjPf1QFYHcG46FpHakoAzuLLwXrfBBy1taIKAw6sssqZdFf2
-	3E42o6cxOIV0kHVisEEzxUy5ND6Vib37gxtUM67HumzG8krsDYdTEi7+FdvZ5K6nLEKSuiDEgze
-	w+xt+ck53m1Rto6xLqSUxO7U13U6D6xxfSVpmlPgODzT65fPpp9zkSOQ1R0/kpsKnQij1MnaIuR
-	jUIUm1CZxk0Awj/LF38xT1KJ+59jHG5gNrygzKeBiVgQVoFO9oT31ZhFVBIw9aageVhYhWpy3rg
-	Td3h02vl3+AtJrF+rwMgOWSGtVOuUgL67hnfKF1YZOnCJlRvtwdCjah0RfDRhuW2v2Vyv/8LVZG
-	vaFOpYSbs47HDJ+87g/24UiMoVrilSbVKTm0gMgOhVO0NS9qKvlZYwhsw04NzyGu7L8nEZsI4N4
-	cCiyTqoamTM1bhrPsVRgHAGnQ==
-X-Received: by 2002:a17:90b:4a81:b0:35f:b6a1:8d27 with SMTP id 98e67ed59e1d1-38dc75e184dmr2909302a91.18.1783775512460;
-        Sat, 11 Jul 2026 06:11:52 -0700 (PDT)
-Received: from penguin.tail0a1999.ts.net (61-228-52-13.dynamic-ip.hinet.net. [61.228.52.13])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-38a55557f25sm4136221a91.5.2026.07.11.06.11.50
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 11 Jul 2026 06:11:51 -0700 (PDT)
-From: Shih-Yuan Lee <fourdollars@debian.org>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Mark Brown <broonie@kernel.org>
-Cc: linux-input@vger.kernel.org,
-	linux-spi@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Shih-Yuan Lee <fourdollars@debian.org>
-Subject: [PATCH v5 3/3] spi: pxa2xx: disable DMA for Apple MacBook8,1
-Date: Sat, 11 Jul 2026 21:11:40 +0800
-Message-Id: <20260711131140.18777-4-fourdollars@debian.org>
-X-Mailer: git-send-email 2.39.5
-In-Reply-To: <20260711131140.18777-1-fourdollars@debian.org>
+	s=arc-20240116; t=1783776400; c=relaxed/simple;
+	bh=dQV2fY4fIpzA6mzMe+3o+099SHm6Q9yh+EIXTxI94F8=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=H0ixBng+JHOuCobT12xNGf+u1UG6TDt8l2NLBmvZ7FT7V07MXdr0MN4atG0QTCbDcRPEjxCveh4Ub7MNLOyCf9gXZtXrE3P6C0w8gXDQQU3AEN5CfuBzGQMPHjKEx4vfE7CI34lScNtbLeNBfMHB8+xedNhyh+WTDkNwgWVA/Us=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=GHSZ8nFj; arc=none smtp.client-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="GHSZ8nFj"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09EBE1F000E9;
+	Sat, 11 Jul 2026 13:26:37 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1783776398;
+	bh=XTLZtOVRVfGxSdfj7dtFH7eEmTCrsImiQITxbjBvDQ0=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=GHSZ8nFj3HsY1jBpJKSLwmT5vP2sOXGyPJajVdySPHcnJ69S47IarmcvUShL2IRb8
+	 lSh5547lxj6OOpHh5A8UXl3Lm/Hd63mLmz0EYj5JqmIFTg+y1UN1m7PFtzKpqsYGur
+	 +ux0SewQlaFSanF0+ZHGMTwujgjF6qpQWIWcCDvxsQK8O+pJ/fQ4CZsT8m1BJfqxHr
+	 M4isYcYi6/Y2iChaf+INqmsKckasGYoRVvNxiBr+Y800IPKscXGS8QeACx0/xcA7pp
+	 n/13YxGpi9hCSSGodOQg0by9idSdgEO1qeFPNIP7bG3Nu/KVAK8dEp34alBsU/n+r5
+	 u88AR2mzGBXcg==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v5 1/3] Input: applespi - cancel pending work on driver
+ remove
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Shih-Yuan Lee" <fourdollars@debian.org>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <20260711131140.18777-2-fourdollars@debian.org>
 References: <20260711055247.5412-1-fourdollars@debian.org>
  <20260711131140.18777-1-fourdollars@debian.org>
+ <20260711131140.18777-2-fourdollars@debian.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Sat, 11 Jul 2026 13:26:37 +0000
+Message-Id: <20260711132638.09EBE1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-On MacBook8,1 (early 2015 12" MacBook), the LPSS SPI controller's DMA
-handshake and interrupt routing frequently fail or time out on boot,
-causing the keyboard and trackpad to become unresponsive.
+Thank you for your contribution! Sashiko AI review found 6 potential issue(=
+s) to consider:
 
-Avoid this architectural bug by disabling DMA and forcing the SPI
-controller to use PIO mode. Move this platform/motherboard-level quirk
-to the SPI host controller driver (spi-pxa2xx-pci.c) where LPSS setup
-occurs, preventing layering violations, TOCTOU races, or execute-after-free
-bugs in the client driver.
+Pre-existing issues:
+- [High] Repeated PACKET_DEV_INFO packets lead to unbounded devm memory lea=
+ks and duplicate input device registrations.
+- [High] Unchecked access of asynchronously allocated applespi->touchpad_in=
+put_dev in the debugfs tp_dim open handler.
+- [High] Unbound wait in applespi_drain_writes() can block driver unbind an=
+d suspend forever if hardware is unresponsive.
+- [High] Missing async teardown in applespi_probe error path if GPE enablem=
+ent fails.
+- [High] Mismatched finger data reported to input subsystem due to flawed i=
+teration logic.
+- [Low] Redundant manual assignment of dev.parent on input devices allocate=
+d with devm_input_allocate_device().
+--
 
-Additionally, introduce a `force_pio` module parameter in the PCI
-host controller driver to allow other users to force PIO mode for
-debugging.
+--- Patch [1]: [PATCH v5 1/3] Input: applespi - cancel pending work on driv=
+er remove ---
+commit 541134ed7dfbfee9d31126ce14257c1f72d8e7a7
+Author: Shih-Yuan Lee <fourdollars@debian.org>
 
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=108331
-Signed-off-by: Shih-Yuan Lee <fourdollars@debian.org>
----
- drivers/spi/spi-pxa2xx-pci.c | 35 +++++++++++++++++++++++++++++++++--
- 1 file changed, 33 insertions(+), 2 deletions(-)
+Input: applespi - cancel pending work on driver remove
 
-diff --git a/drivers/spi/spi-pxa2xx-pci.c b/drivers/spi/spi-pxa2xx-pci.c
-index cae77ac18520..31bdaa096d9e 100644
---- a/drivers/spi/spi-pxa2xx-pci.c
-+++ b/drivers/spi/spi-pxa2xx-pci.c
-@@ -18,9 +18,14 @@
- 
- #include <linux/dmaengine.h>
- #include <linux/platform_data/dma-dw.h>
-+#include <linux/dmi.h>
- 
- #include "spi-pxa2xx.h"
- 
-+static bool spi_pxa2xx_force_pio;
-+module_param_named(force_pio, spi_pxa2xx_force_pio, bool, 0444);
-+MODULE_PARM_DESC(force_pio, "Force PIO mode (disables DMA) for SPI transfers. ([0] = disabled, 1 = enabled)");
-+
- #define PCI_DEVICE_ID_INTEL_QUARK_X1000		0x0935
- #define PCI_DEVICE_ID_INTEL_BYT			0x0f0e
- #define PCI_DEVICE_ID_INTEL_MRFLD		0x1194
-@@ -93,6 +98,32 @@ static void lpss_dma_put_device(void *dma_dev)
- 	pci_dev_put(dma_dev);
- }
- 
-+static const struct dmi_system_id pxa2xx_spi_pci_dmi_table[] = {
-+	{
-+		.ident = "Apple MacBook8,1",
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "Apple Inc."),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "MacBook8,1"),
-+		},
-+	},
-+	{ }
-+};
-+
-+static bool pxa2xx_spi_pci_can_dma(struct pci_dev *dev)
-+{
-+	if (spi_pxa2xx_force_pio) {
-+		pci_info(dev, "Forcing PIO mode (disabling DMA)\n");
-+		return false;
-+	}
-+
-+	if (dmi_check_system(pxa2xx_spi_pci_dmi_table)) {
-+		pci_info(dev, "MacBook8,1 detected: disabling DMA to force PIO mode\n");
-+		return false;
-+	}
-+
-+	return true;
-+}
-+
- static int lpss_spi_setup(struct pci_dev *dev, struct pxa2xx_spi_controller *c)
- {
- 	struct ssp_device *ssp = &c->ssp;
-@@ -166,7 +197,7 @@ static int lpss_spi_setup(struct pci_dev *dev, struct pxa2xx_spi_controller *c)
- 
- 	c->dma_filter = lpss_dma_filter;
- 	c->dma_burst_size = 1;
--	c->enable_dma = 1;
-+	c->enable_dma = pxa2xx_spi_pci_can_dma(dev);
- 	return 0;
- }
- 
-@@ -238,7 +269,7 @@ static int mrfld_spi_setup(struct pci_dev *dev, struct pxa2xx_spi_controller *c)
- 
- 	c->dma_filter = lpss_dma_filter;
- 	c->dma_burst_size = 8;
--	c->enable_dma = 1;
-+	c->enable_dma = pxa2xx_spi_pci_can_dma(dev);
- 	return 0;
- }
- 
--- 
-2.39.5
+During driver removal in applespi_remove(), the managed private data
+structure is freed by devres. However, the driver does not cancel the
+asynchronous work applespi->work, which registers the touchpad input
+device.
 
+> diff --git a/drivers/input/keyboard/applespi.c b/drivers/input/keyboard/a=
+pplespi.c
+> --- a/drivers/input/keyboard/applespi.c
+> +++ b/drivers/input/keyboard/applespi.c
+> @@ -1820,8 +1820,10 @@ static void applespi_remove(struct spi_device *spi)
+>  {
+>  	struct applespi_data *applespi =3D spi_get_drvdata(spi);
+> =20
+>  	applespi_drain_writes(applespi);
+
+[Severity: High]
+This isn't a bug introduced by this patch, but can this wait indefinitely
+and block driver unbind or system suspend?
+
+applespi_drain_writes() waits for the hardware without a timeout:
+
+drivers/input/keyboard/applespi.c:applespi_drain_writes() {
+    ...
+    wait_event_lock_irq(applespi->drain_complete, !applespi->write_active,
+                        applespi->cmd_msg_lock);
+    ...
+}
+
+If the external hardware hangs and write_active remains true, would this
+task become blocked forever?
+
+> =20
+>  	acpi_disable_gpe(NULL, applespi->gpe);
+>  	acpi_remove_gpe_handler(NULL, applespi->gpe, applespi_notify);
+>  	device_wakeup_disable(&spi->dev);
+> =20
+>  	applespi_drain_reads(applespi);
+> =20
+> +	cancel_work_sync(&applespi->work);
+> +
+>  	debugfs_remove_recursive(applespi->debugfs_root);
+>  }
+
+[Severity: Low]
+This isn't a bug introduced by this patch, but does this code redundantly
+assign the parent device?
+
+drivers/input/keyboard/applespi.c:applespi_register_touchpad_device() {
+    ...
+    touchpad_input_dev =3D devm_input_allocate_device(&applespi->spi->dev);
+    ...
+    touchpad_input_dev->dev.parent =3D &applespi->spi->dev;
+    ...
+}
+
+And similarly in applespi_probe():
+
+drivers/input/keyboard/applespi.c:applespi_probe() {
+    ...
+    applespi->keyboard_input_dev->dev.parent =3D &spi->dev;
+    ...
+}
+
+The input subsystem guidelines state that devm_input_allocate_device()
+automatically sets the parent, making manual assignment redundant.
+
+[Severity: High]
+This isn't a bug introduced by this patch, but can a repeated
+PACKET_DEV_INFO from the hardware cause an unbounded memory leak and
+duplicate device registrations?
+
+drivers/input/keyboard/applespi.c:applespi_handle_cmd_response() {
+    ...
+    if (packet->type =3D=3D PACKET_DEV_INFO) {
+        ...
+        schedule_work(&applespi->work);
+    }
+    ...
+}
+
+When the work runs, it executes applespi_register_touchpad_device(),
+which unconditionally allocates a new managed device:
+
+drivers/input/keyboard/applespi.c:applespi_register_touchpad_device() {
+    ...
+    touchpad_input_dev =3D devm_input_allocate_device(&applespi->spi->dev);
+    ...
+    error =3D input_register_device(touchpad_input_dev);
+    ...
+}
+
+If the peripheral sends multiple PACKET_DEV_INFO packets, would this
+blindly allocate and register multiple touchpad devices without checking
+if one already exists?
+
+[Severity: High]
+This isn't a bug introduced by this patch, but could this dereference a
+NULL pointer if the async worker hasn't completed initializing the
+touchpad?
+
+drivers/input/keyboard/applespi.c:applespi_probe() {
+    ...
+    debugfs_create_file("tp_dim", 0400, applespi->debugfs_root, applespi,
+                        &applespi_tp_dim_fops);
+    ...
+}
+
+If userspace opens this file before applespi_register_touchpad_device()
+is finished by the workqueue, applespi_tp_dim_open() is called:
+
+drivers/input/keyboard/applespi.c:applespi_tp_dim_open() {
+    ...
+    applespi->touchpad_input_dev->id.product,
+    ...
+}
+
+Since touchpad_input_dev might still be NULL, will this crash the kernel?
+
+[Severity: High]
+This isn't a bug introduced by this patch, but does the probe error path
+miss cleaning up async tasks and SPI reads?
+
+drivers/input/keyboard/applespi.c:applespi_probe() {
+    ...
+    acpi_sts =3D acpi_enable_gpe(NULL, applespi->gpe);
+    if (ACPI_FAILURE(acpi_sts)) {
+        dev_err(&spi->dev, "failed to enable GPE\n");
+        return -ENODEV;
+    }
+    ...
+}
+
+If acpi_install_gpe_handler() (called earlier) receives an interrupt
+before acpi_enable_gpe() fails, it could queue an async SPI transfer or
+work item. Returning -ENODEV immediately frees the applespi structure
+without calling applespi_drain_reads() or cancel_work_sync(), which
+could result in a use-after-free.
+
+[Severity: High]
+This isn't a bug introduced by this patch, but does this iteration logic
+mismatch the finger data reported to the input subsystem?
+
+drivers/input/keyboard/applespi.c:report_tp_state() {
+    ...
+    report_finger_data(input, applespi->slots[i], &applespi->pos[i],
+                       &t->fingers[i]);
+    ...
+}
+
+If earlier loops filter out fingers (e.g., touch_major =3D=3D 0) and store
+their coordinates densely in applespi->pos, reusing the same sequential
+index i for t->fingers[i] could pair the packed positions with the
+wrong original finger data from the hardware. Could this corrupt
+multitouch reporting?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260711131140.1877=
+7-1-fourdollars@debian.org?part=3D1

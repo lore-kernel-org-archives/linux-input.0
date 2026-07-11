@@ -1,114 +1,137 @@
-Received: from mail-lf1-f44.google.com (mail-lf1-f44.google.com [209.85.167.44])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E81B13314C2
-	for <linux-input@vger.kernel.org>; Sat, 11 Jul 2026 07:34:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8C0962F39C7
+	for <linux-input@vger.kernel.org>; Sat, 11 Jul 2026 07:41:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783755270; cv=none; b=IRsg/nVgyI3FVf2MgxP3c+L4GaGq2jS7Cf7IrduWvYvEp2lOnrlnihZ5xc+S78kA66ESO1KeThYgwveCtJw0HasOwPbgFl+i+Zx2LmUibZ/+jQXJDo0BHx/WL0FSmo5M6jUSziodoEEylHKyGNbGToNvzOynW8y0vFU2TScFoQk=
+	t=1783755675; cv=none; b=m8cLNpZSDHu46IVHgD4vWRhzlotwYjlYDMeUcXEvxb/ThbJgihDcaKo8a8oGRzQsccAD2E6o6SWn1uK06r47n1yUhYBpLYDcpQXCOQQU4pP0xm4rhvND2izA4zwwlzNrlsogT/3rfX80mIkqzM2vupSfRlcJoVmiZXsrYgwAv2g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783755270; c=relaxed/simple;
-	bh=gUnPJvqa+6hCH/9HCtTO8STc6X6BWHZ70c5H6AKWsOg=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=GalytsIwOyOy5xR/1nmyeTV74il1oe6TCS/FilFvegCRjlBLt8tPxVXsHdDnQko7mew8mgqGJG6dyMvGZM96SmPVW6MSglfaRrhmBxWihNbm3UzIWU2aF7kV/X2gHkzsIae2LtrPaEhoOGsFCtA5EfH0Du9Kk7PKNPBqz7uywcE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=AVUYdWB3; arc=none smtp.client-ip=209.85.167.44
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1783755675; c=relaxed/simple;
+	bh=DlEMRGq1cTQTHgR2xcjieIp660mOTJyRSRx41syk8lI=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=JgZdpBfey7xOf2cixHHNVn3+9jplKjMh9hAse04QhfhUHOaPPxEoqeb6CmskG6gn2q3wTbIEF1wCtoAlbx5/MMFvtNvRjWZYkBpz86p2OKglpGhbzQAfT9GSnZL9Y7JUg2jq8uTu464tAGMYyz001UNyd+OK4RCC+zeFDBWBfAo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ZzH/lkWg; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="AVUYdWB3"
-Received: by mail-lf1-f44.google.com with SMTP id 2adb3069b0e04-5aeb6d00883so1567783e87.1
-        for <linux-input@vger.kernel.org>; Sat, 11 Jul 2026 00:34:26 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1783755265; x=1784360065; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:in-reply-to:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=aBafLctpeA1AoyzErbEa9EGgxzwRbfKFWoPKc6c7bv4=;
-        b=AVUYdWB3WfvWD9/jCidP0U7zRkAI7QnX4kmNcHjB6Nosq4CWaZlW0hNhy2LM6kgpWe
-         TWeOEWd21tnxJAl6DPVycHqgm9166I3BafNhzXVO9hS6LEulcv+AlPncKAl7GvVrR03Q
-         iCvt2f7qMPGyswDv6RE6LdZAC8T7nBCACNeECjWvasy2/IQ6mcUH99GfG+odlxT5vxDc
-         faI4NAbgRuPvGxueHmF2X4sAqU7TBPz2sj2hy41Y3HsZaAYU2w0jJYHYvY8gACqUio0A
-         PKN2hjadzNTtEb4X+/A4fXYRXB4crD0SpHGqL5UMuZ2Is9WMaTouNVWbOrjTDz6nyty1
-         dqQQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1783755265; x=1784360065;
-        h=content-transfer-encoding:content-type:in-reply-to:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=aBafLctpeA1AoyzErbEa9EGgxzwRbfKFWoPKc6c7bv4=;
-        b=pp142E/83EAgwbLb4Skn7vnjptYLjUZ1CZ4HFVoFHWtJ5pzM3mfD67d6oUlTNWfeaa
-         IPO/XPaH7neikoLoGEFdpHyYY10wccxXqu5l2DY6Syt3fX0vEHOi2t9xzUh7UOXXomQc
-         bNL6OO04Nm1w8KU2jwOBtqAAjSk2aU2uViFWczdduKpc7n2Np0VEduiKFWVBUJPeWrS+
-         qRgS2iaND5q8phvJODDYDKR9zkSd2QyhaWgRGhNb62S25B36+zefoSv4ZLZu/keWibKd
-         zRFpNturX6895wTtuffAngiB1Hs5azT4OFlgR7CbVKfl9/TocdbSi201/vEOTe91QXL3
-         3NMg==
-X-Forwarded-Encrypted: i=1; AHgh+RodOmFsBXQh6qjdcFZaSTtQd46yiuJtBKBd8CvQp18zX6odG0wRA0PJ7370WRhMDWix8yVQk4es2KnPwg==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yw6Zo+V3Yz9W+hKbK6MzTN17xNC2JSScMiveFuDvmxdMCW7x6BP
-	4ixMq4IekTDj7tRCuS8yGdCFS/9aKGgt3AI8c5Fn6elyTncM8CNM1bn5
-X-Gm-Gg: AfdE7ck6BTbeh7BwLyz6FCck56vzr6+ityBfsbq47Rwvraesh6SiqYd498B2ozqc92X
-	SZdd1/aeUxu1RTuje/PYF19MxCcVJgP3/Y4yiYpmJLhcqDXVc8IMmcJT+QKT9bAWhcxB6Jl+3J2
-	egGjheckT2lDe1cTCxHl2qjYNL57oTusWd+WOPN3xMXMQ0hX165QEAneSFCAHZ3WYYi349mpiNg
-	Sme1Jp57WpVRLibe1AqAThNjo82iIAPTAy4+gAnX4uyMSfR7LrJNDxylEuXDF81dcoVvx1SLSG+
-	OW5jXZ+uPqpXMmu21NPbqk5NRMyxNZzLw5lxr+Itm9tpGVvrklUhPBubHSJJseTNab42zHXlnac
-	6j1KBKYR5wnIO9TxJHo4z85+6pHSF7lxepjE2OHFOnBprN7DqwpCGqZWW+tjFHuCD8FysZdfrGj
-	UPMxe5MIs594gCDQFFxwR/3BojocBTPS4uNDGV6QI0eQ2QqH26kvYtQMJojYyVUeFgSndKsQ==
-X-Received: by 2002:a05:6512:3f8:b0:5ae:bf45:e3be with SMTP id 2adb3069b0e04-5b0236689cdmr321070e87.21.1783755264967;
-        Sat, 11 Jul 2026 00:34:24 -0700 (PDT)
-Received: from ?IPV6:2a00:1fa0:4322:18e2:4e2b:60a6:4ce2:33fb? ([2a00:1fa0:4322:18e2:4e2b:60a6:4ce2:33fb])
-        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-5b01ca9dd41sm1117527e87.48.2026.07.11.00.34.20
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sat, 11 Jul 2026 00:34:23 -0700 (PDT)
-Message-ID: <de1d491e-159e-41c2-b145-4d09db091031@gmail.com>
-Date: Sat, 11 Jul 2026 10:34:19 +0300
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ZzH/lkWg"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 32B8A1F000E9;
+	Sat, 11 Jul 2026 07:41:14 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1783755674;
+	bh=t//ZvP+LlcjuQEQCRapTDwh90mvIbolw26qcf1QR/9E=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=ZzH/lkWgNML8TzrWk6RioRYlNHDsnSv5xi/PVqkJIAjOOkOrX1qiyQZ3cVLFwhVdZ
+	 V60+vOyALjd6Rh6wZ5SlekP9xfSKfwr3KmJ86XBdzF0A/d40STUdEcnMvHDnw9hEHf
+	 Uk6KuFfoJfgPxsRvn9l3tdAxAzbCsCpGkf3TjVdPJwt38f0w+rzJmcjUHVFfRNwqfv
+	 jnEBN6EradA0TfDTIF440OapGfA/+/8Zjg0RUkGRlhrujVZ2Y2euxmn+RHS7TYhLMo
+	 WfZR4oAE6m1sOzOXLnzXZRJvTqDpNwolCw9le4dVFiqD9G70D6jzotJWjzkLBCAgL4
+	 4k+op7+/oCa/Q==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH] HID: uclogic: fix UAF on inrange_timer at driver unbind
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Doruk Tan Ozturk" <doruk@0sec.ai>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <20260711073003.71012-1-doruk@0sec.ai>
+References: <20260711073003.71012-1-doruk@0sec.ai>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Sat, 11 Jul 2026 07:41:13 +0000
+Message-Id: <20260711074114.32B8A1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 06/10] ASoC: replace linux/gpio.h inclusions
-To: Arnd Bergmann <arnd@kernel.org>, linux-gpio@vger.kernel.org,
- Linus Walleij <linusw@kernel.org>, Bartosz Golaszewski <brgl@kernel.org>
-Cc: Arnd Bergmann <arnd@arndb.de>, Andrew Lunn <andrew@lunn.ch>,
- Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
- Gregory Clement <gregory.clement@bootlin.com>, Frank Li <Frank.Li@nxp.com>,
- Robert Jarzmik <robert.jarzmik@free.fr>,
- Krzysztof Kozlowski <krzk@kernel.org>, Greg Ungerer <gerg@linux-m68k.org>,
- Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
- Hauke Mehrtens <hauke@hauke-m.de>, =?UTF-8?B?UmFmYcWCIE1pxYJlY2tp?=
- <zajec5@gmail.com>, Yoshinori Sato <ysato@users.sourceforge.jp>,
- John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
- Dmitry Torokhov <dmitry.torokhov@gmail.com>,
- Dominik Brodowski <linux@dominikbrodowski.net>,
- linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
- linux-samsung-soc@vger.kernel.org, patches@opensource.cirrus.com,
- linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
- linux-sh@vger.kernel.org, linux-input@vger.kernel.org,
- linux-sunxi@lists.linux.dev, linux-phy@lists.infradead.org,
- linux-rockchip@lists.infradead.org, linux-sound@vger.kernel.org,
- Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>
-References: <20260710211954.1373336-1-arnd@kernel.org>
- <20260710211954.1373336-7-arnd@kernel.org>
-Content-Language: en-US
-From: Sergey Shtylyov <sergei.shtylyov@gmail.com>
-In-Reply-To: <20260710211954.1373336-7-arnd@kernel.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
 
-On 7/11/26 12:19 AM, Arnd Bergmann wrote:
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+s) to consider:
 
-> From: Arnd Bergmann <arnd@arndb.de>
-> 
-> linux/gpio.h is going away,s o use linux/gpio/consumer.h instead.
+New issues:
+- [Critical] Moving timer_shutdown_sync() after hid_hw_stop() introduces a =
+Use-After-Free of drvdata->pen_input during driver unbind.
 
-   s/s o/ so/?
+Pre-existing issues:
+- [Critical] Missing timer cancellation in the uclogic_probe() error path l=
+eads to a Use-After-Free if initialization fails after I/O has started.
+--
 
-> 
-> Acked-by: Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>[...]
+--- Patch [1]: [PATCH] HID: uclogic: fix UAF on inrange_timer at driver unb=
+ind ---
+commit 0de50e5b91e3a9978c96d85e0aab45d43b0d98d6
+Author: Doruk Tan Ozturk <doruk@0sec.ai>
 
-MBR, Sergey
+HID: uclogic: fix UAF on inrange_timer at driver unbind
 
+uclogic_remove() drained the in-range emulation timer before calling
+hid_hw_stop(), leaving a window where a completing pen report could
+re-arm the timer. This commit reorders the operations to call
+hid_hw_stop() first, preventing re-arming before shutting down the timer.
+
+> diff --git a/drivers/hid/hid-uclogic-core.c b/drivers/hid/hid-uclogic-cor=
+e.c
+> index b73f09d26688a..c440013a609fd 100644
+> --- a/drivers/hid/hid-uclogic-core.c
+> +++ b/drivers/hid/hid-uclogic-core.c
+> @@ -548,8 +548,8 @@ static void uclogic_remove(struct hid_device *hdev)
+>  {
+>  	struct uclogic_drvdata *drvdata =3D hid_get_drvdata(hdev);
+> =20
+> -	timer_delete_sync(&drvdata->inrange_timer);
+>  	hid_hw_stop(hdev);
+> +	timer_shutdown_sync(&drvdata->inrange_timer);
+
+[Severity: Critical]
+Can moving timer_shutdown_sync() after hid_hw_stop() introduce a
+use-after-free on drvdata->pen_input?
+
+hid_hw_stop() synchronously unregisters and frees the standard input
+devices, which frees the memory pointed to by drvdata->pen_input.
+
+If an incoming report arms the timer just before hid_hw_stop() is called,
+the timer will remain active.
+
+When it fires, the callback will unconditionally dereference the freed
+pointer:
+
+drivers/hid/hid-uclogic-core.c:uclogic_inrange_timeout()
+	struct input_dev *input =3D drvdata->pen_input;
+
+	if (input =3D=3D NULL)
+		return;
+	input_report_abs(input, ABS_PRESSURE, 0);
+
+
+[Severity: Critical]
+This is a pre-existing issue, but can the uclogic_probe() error path
+also lead to a use-after-free if initialization fails?
+
+If hid_hw_start() briefly starts hardware I/O but subsequently fails
+internally, an incoming report could trigger uclogic_raw_event_pen() and
+arm the timer before the error path is taken:
+
+drivers/hid/hid-uclogic-core.c:uclogic_probe()
+	rc =3D hid_hw_start(hdev, HID_CONNECT_DEFAULT);
+	if (rc) {
+		hid_err(hdev, "hw start failed\n");
+		goto failure;
+	}
+
+	return 0;
+failure:
+	/* Assume "remove" might not be called if "probe" failed */
+	if (params_initialized)
+		uclogic_params_cleanup(&drvdata->params);
+	return rc;
+
+Because this cleanup block does not cancel the inrange_timer, the devm
+framework will free the drvdata structure upon probe return.
+
+This leaves the timer armed to execute on freed memory.
+
+>  	kfree(drvdata->desc_ptr);
+>  	uclogic_params_cleanup(&drvdata->params);
+>  }
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260711073003.7101=
+2-1-doruk@0sec.ai?part=3D1

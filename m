@@ -1,137 +1,112 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from out162-62-57-137.mail.qq.com (out162-62-57-137.mail.qq.com [162.62.57.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 73B7B391836
-	for <linux-input@vger.kernel.org>; Sat, 11 Jul 2026 13:26:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 618FD2D1913
+	for <linux-input@vger.kernel.org>; Sat, 11 Jul 2026 14:23:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=162.62.57.137
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783776415; cv=none; b=gvsOeodKlW+kgTz41JcvFjOovASFlmK0wLv49o72H0UyJwcj0/oeFu9K3BDj0cf4jG/tecN3t3N5RXNBH/7ZNLcKgQHiH0naigxsgRSCG6hlsDkrI/S8jNz2mN1KqSxtV15YKJjIOmf+EAZn2WMg5FMGFFvt506loxkVQtA6CXk=
+	t=1783779800; cv=none; b=hMsKgGTebhN9TcVb//5ccfPNWO2Da1nWcMYonXLc8bKqTaAOQXunvIIChmTBGtxyE4ni3s329BL0Y/300NNv4jluAO15z0L5FSJeHMlNraUePDAOpKF+PYe05TnrtnUAw39uPqZNUbRpt1L7T6ff94wdKVAoqwDmHGBZ69nCIvI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783776415; c=relaxed/simple;
-	bh=U9sNMOoDbCwKYyLrvu4UVtFmwJlobNpfau4cmNJOODE=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=hgJCX22vTN0w/SiWU6INtk05+bMnl6wmd3ReLyseC+0SCxd2AoITBXTMbKhFH4et9sRAtM/ZaOqnvtRFrolM87smS+pON4dweTuo1CDDi8NX7l5F8DPPT8yyMcFUVAXI7rwnJGdlmOW8RY2zuAldWHGX/jxRZIrPAjgOmo25Ej4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=AY6xosDk; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1783779800; c=relaxed/simple;
+	bh=Z3ysDAcu64wjIDQodnhoYELVCW9ak1YdOLc0SwLlWpQ=;
+	h=Message-ID:From:To:Cc:Subject:Date:MIME-Version; b=Nxym6WUQkhPwKtw+iZATrR7F2m99iIaBmf69I7cqQ8dTsu9+oQlHZ+xGNv5wCEVUEAioSMmzr8X9kOUD7KxyWvedcoRakXiMURhw8l1yI8SuTGYL2uX8Hi6/Hnu+i6QMdhV08pxOmHC2JL/9kG3S7MeVaJqFS9aI16gJhwe1j4w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=qq.com; spf=pass smtp.mailfrom=qq.com; dkim=pass (1024-bit key) header.d=qq.com header.i=@qq.com header.b=BfzVkcsG; arc=none smtp.client-ip=162.62.57.137
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=qq.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=qq.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="AY6xosDk"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DAEFE1F000E9;
-	Sat, 11 Jul 2026 13:26:53 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1783776414;
-	bh=+Zj26UOQtmioRcFFK5Ln8c1d9zjxuGwZYisO6NeuYTg=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=AY6xosDkVRIBjXoo/8RkE+6HOcKkwPjt8EUTZc4O2BpwZzgkvYhjzlm1QAAWLVXnA
-	 80X3QuLXadizjgsNnLz8l3e78pCUIFIqLcEsME2OatqzsyPA+tFCbfleHr6GCcGteW
-	 oSaFKmSxrmYY7JrKYwnVf3AfKi/p/P6iYLY8qE86Pq/23vOFDhxE2ta3iWUS622Qov
-	 46x49VR3e3hHoHEP2pKL7O7aG1M/hm5gQNXWJunPl86r0aayGSG1/ftPNZrE+XuRxM
-	 6WQJyzR7q31RUR6yfkUB41Dp+H8o8LaqQtpiTHXwtfjq35IQIDUBVYePx9fZe0z/kC
-	 0FEeBVKH1dARA==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v5 2/3] Input: applespi - fix NULL pointer dereference
- in tp_dim open
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Shih-Yuan Lee" <fourdollars@debian.org>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260711131140.18777-3-fourdollars@debian.org>
-References: <20260711055247.5412-1-fourdollars@debian.org>
- <20260711131140.18777-1-fourdollars@debian.org>
- <20260711131140.18777-3-fourdollars@debian.org>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Sat, 11 Jul 2026 13:26:53 +0000
-Message-Id: <20260711132653.DAEFE1F000E9@smtp.kernel.org>
+	dkim=pass (1024-bit key) header.d=qq.com header.i=@qq.com header.b="BfzVkcsG"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qq.com; s=s201512;
+	t=1783779786; bh=GOXnMCmSmoM1nGz3VQIj7fW9ZNHNn5zrPA5YeWIsyTk=;
+	h=From:To:Cc:Subject:Date;
+	b=BfzVkcsGAn3iwo6Mrj1RW8PZ6pLDNJ9p7st5uF3828ModoLUeUgT5ydj29sLZsqav
+	 eZY5iZ6L5UbGy9ddrEvyUHDmKXdI+aISSRBmMAAu/L1GlT9CIvXcHQxvewpfiwdUa0
+	 Y73akS0VYtPkwf14C3+sD66ZiaTCRGdjcLdv2/UY=
+Received: from xein-revoarch ([2409:8970:110a:3b78:e88b:a1f9:882c:88d6])
+	by newxmesmtplogicsvrszb51-1.qq.com (NewEsmtp) with SMTP
+	id 5B92CE30; Sat, 11 Jul 2026 22:22:57 +0800
+X-QQ-mid: xmsmtpt1783779777t0qojfy43
+Message-ID: <tencent_AC29AFBFF3AF614C95F0E2E59A721D595C0A@qq.com>
+X-QQ-XMAILINFO: Mzcurg9uYAemhnUk//fn6lsAY+ANQCdz7KiBBWuvULNcV5gov9ArU7HogQsNfe
+	 kYAg2Tcy8c2DRASriv0ysrC5GAjSngHgQsW9W6QUs6lDL+jC2LGoiUa5Wi7NcPIMxLjJXY1abHcz
+	 E2aRqWnsgG33TtnCqR+0LQy3CTBrlRKTWVw8xwqbDh1QAsTf+47bkSU/5Zo1+KjUEdr+8ZU/iPhY
+	 hs3cTk/gK7PTvCJKXCN8MsCR7jSCmmGwl8BJwY40M9mRpMR0MZicBJEkmlCeK7wTsBqx1tM6hDMR
+	 iMUw4EYAPzt+FaGa3+M8BHQzXS6cQbmejhNGvKCfjPPBcxIl7X5fH8UieOr+S5NzxPyPgSMZcugV
+	 nveA7UhoSmMIpS+6Bw2QUQfapuVpQHHKzfScWrZPubYf9tFD48+ArsbRYDpD4Uyt7wC7cmBYMF8a
+	 7TclLTFcVIeLmrRzX0eolqXlRuxSZCy57vEYuSJrG8Mwk7ruuoFzQTcabJGET++7kD+WxKZjC70U
+	 PPGzurvSWxLwfrTgLtWmSM9Suw7OVVlpXc0NluFY7Xdmz6TIWGoV7c3DR5Df87JSCjgFJaSHILX4
+	 adEyIpXesfAlwxRwIUHDl29MO8yzU1MkNC5R02iZT+bYa7fobwVqq/JamyX7vd0FNOItNNDyie2G
+	 jY4aqMEEhYajAzHyxrPKYRLnMa+KYu1Yq9dhl5FG+OGuJffe11U3UreAOJIlUy3y34Ihw4WSkNAs
+	 RWEpjitSXwiubxBHKCOErBUkg0ZXA5pmPSlKdSwtc877ftm/WpWSe4IcdK1sM0/RT5T1/Pm3CsoV
+	 aIexW/Fvy2zMKgUHz2KVpxu2LBJES5HHeEmQcbx40tC7ZV7c7ncwVzlgoeTGOBgltK8Tc/BNlOZB
+	 GU9p8SxJzxDBiNoWVuzg83W+lJW8kmoP0jjb0h4JcJ7tvyH0g9nWRJUOaA/dJGnJDhbYdDlihoG8
+	 mXpUC4b0DLSEHRWGu1uU/tiqI0MPeoATAajj7bqg6MgG+Io+WsXty7h1q42BjGkdmzMiMJZksV3d
+	 caz/eaHLv2VpSRyw1eBfaU+au1cCs0muWACk6jRcn/ZLGAn8qs
+X-QQ-XMRINFO: OD9hHCdaPRBwH5bRRRw8tsiH4UAatJqXfg==
+From: Xianglin Lin <1021538027@qq.com>
+To: Jiri Kosina <jkosina@suse.com>
+Cc: Benjamin Tissoires <bentiss@kernel.org>,
+	linux-input@vger.kernel.org,
+	Xianglin Lin <1021538027@qq.com>
+Subject: [PATCH] HID: multitouch: reclassify HTIX5288 to WIN_8_FORCE_MULTI_INPUT_NSMU
+Date: Sat, 11 Jul 2026 22:22:55 +0800
+X-OQ-MSGID: <20260711142255.10193-1-1021538027@qq.com>
+X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
+Commit b5e65ae557da ("HID: multitouch: Add quirk for Hantick 5288
+touchpad") assigned MT_CLS_NSMU to the HTIX5288 (0911:5288).  This was
+necessary because the device sometimes fails to send touch release
+signals when transitioning from >=2 fingers to <2 fingers, and
+MT_QUIRK_NOT_SEEN_MEANS_UP fixes stuck touches by treating missing
+contacts as released.
 
-Pre-existing issues:
-- [High] Unsolicited or repeated PACKET_DEV_INFO messages cause multiple to=
-uchpad input devices to be allocated and registered, leaking previously reg=
-istered ones.
---
+However, MT_CLS_NSMU only carries MT_QUIRK_NOT_SEEN_MEANS_UP.  It
+lacks MT_QUIRK_CONTACT_CNT_ACCURATE and MT_QUIRK_IGNORE_DUPLICATES.
+As a result, after a two-finger scroll finger lift, the device still
+reports stale coordinates from the released contact in subsequent
+frames, and the driver overwrites the remaining active slot with
+those frozen coordinates.  The remaining finger appears stuck at the
+lift position until all fingers are lifted.
 
---- Patch [2]: [PATCH v5 2/3] Input: applespi - fix NULL pointer dereferenc=
-e in tp_dim open ---
-commit 083469b928bf6d69e48361fe4f8c93f87f2a7820
-Author: Shih-Yuan Lee <fourdollars@debian.org>
+This was confirmed via evtest on Arch Linux 7.1.3: after
+TRACKING_ID=-1 for the released slot, every subsequent frame contained
+duplicate position pairs -- the real moving finger's coordinates
+followed by the lifted finger's frozen position, both attributed to
+the active slot.
 
-Input: applespi - fix NULL pointer dereference in tp_dim open
+Reclassify the device to MT_CLS_WIN_8_FORCE_MULTI_INPUT_NSMU
+(0x0018), which preserves the original MT_QUIRK_NOT_SEEN_MEANS_UP
+fix while adding the necessary Win8 quirks (CONTACT_CNT_ACCURATE,
+IGNORE_DUPLICATES), preventing stale coordinate contamination.
 
-The tp_dim debugfs file is registered synchronously during driver probe
-in applespi_probe(). However, the applespi->touchpad_input_dev is
-initialized and registered asynchronously in the driver's worker thread.
+The additional FORCE_MULTI_INPUT flag is harmless here: it separates
+the mouse and touchpad collections into distinct input devices,
+which is the standard behavior libinput already expects.
 
-> diff --git a/drivers/input/keyboard/applespi.c b/drivers/input/keyboard/a=
-pplespi.c
-> index 3bdb9e7cfb8b2..4d339445e9c71 100644
-> --- a/drivers/input/keyboard/applespi.c
-> +++ b/drivers/input/keyboard/applespi.c
-> @@ -963,12 +963,18 @@ static void applespi_debug_update_dimensions(struct=
- applespi_data *applespi,
->  static int applespi_tp_dim_open(struct inode *inode, struct file *file)
->  {
->  	struct applespi_data *applespi =3D inode->i_private;
-> +	struct input_dev *touchpad;
-> =20
->  	file->private_data =3D applespi;
-> =20
-> +	/* Pairs with smp_store_release in applespi_register_touchpad_device() =
-*/
-> +	touchpad =3D smp_load_acquire(&applespi->touchpad_input_dev);
+Fixes: b5e65ae557da ("HID: multitouch: Add quirk for Hantick 5288 touchpad")
+Signed-off-by: Xianglin Lin <1021538027@qq.com>
+---
+ drivers/hid/hid-multitouch.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-[Severity: High]
-This isn't a bug introduced by this patch, but looking at the worker
-thread that sets applespi->touchpad_input_dev, is there a resource leak
-if the hardware sends repeated PACKET_DEV_INFO messages?
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -2722,7 +2722,7 @@ static const struct hid_device_id mt_devices[] = {
+ 			HID_ANY_ID) },
+ 
+ 	/* Hantick */
+-	{ .driver_data = MT_CLS_NSMU,
++	{ .driver_data = MT_CLS_WIN_8_FORCE_MULTI_INPUT_NSMU,
+ 		HID_DEVICE(BUS_I2C, HID_GROUP_MULTITOUCH_WIN_8,
+ 			   I2C_VENDOR_ID_HANTICK, I2C_PRODUCT_ID_HANTICK_5288) },
+ 
+-- 
+2.55.0
 
-In applespi_handle_cmd_response(), work is unconditionally scheduled
-whenever a PACKET_DEV_INFO packet is received:
-
-drivers/input/keyboard/applespi.c:applespi_handle_cmd_response() {
-    ...
-    if (packet->device =3D=3D PACKET_DEV_INFO &&
-        le16_to_cpu(message->type) =3D=3D 0x1020) {
-        /*
-         * We're not allowed to sleep here, but registering an input
-         * device can sleep.
-         */
-        applespi->rcvd_tp_info =3D message->tp_info;
-        schedule_work(&applespi->work);
-        return;
-    }
-    ...
-}
-
-When the worker runs applespi_register_touchpad_device(), it unconditionally
-allocates and registers a new input device via devm_input_allocate_device()
-and input_register_device(), overwriting the applespi->touchpad_input_dev
-pointer.
-
-Because the allocated device is devm managed, the old device and its associ=
-ated
-character device minor numbers are never unregistered or freed until the SPI
-driver unbinds. Does this code need to check if the touchpad device is alre=
-ady
-initialized before allocating and registering a new one to prevent exhausti=
-ng
-system memory?
-
-> +	if (!touchpad)
-> +		return -ENODEV;
-> +
->  	snprintf(applespi->tp_dim_val, sizeof(applespi->tp_dim_val),
->  		 "0x%.4x %dx%d+%u+%u\n",
-> -		 applespi->touchpad_input_dev->id.product,
-> +		 touchpad->id.product,
->  		 applespi->tp_dim_min_x, applespi->tp_dim_min_y,
->  		 applespi->tp_dim_max_x - applespi->tp_dim_min_x,
->  		 applespi->tp_dim_max_y - applespi->tp_dim_min_y);
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260711131140.1877=
-7-1-fourdollars@debian.org?part=3D2

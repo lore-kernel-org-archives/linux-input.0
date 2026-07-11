@@ -1,231 +1,137 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9E8EE3C872B
-	for <linux-input@vger.kernel.org>; Sat, 11 Jul 2026 13:26:38 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 73B7B391836
+	for <linux-input@vger.kernel.org>; Sat, 11 Jul 2026 13:26:54 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783776400; cv=none; b=YdXWPQ3ufkhyIRB2/BWNNWS197tpLbnYCMaJoMi87Bs72WbLwSglL84mT7IAcSoQy34/a5qU1RxK5te0j2Cep6Rs4yky4zeAtXsUhXtR8O3HkM7ygT59VpAsBsySRgZ8nn2Rq3L2SYnYvw77DdBATj9t7nVJZiSLLHbhyk8NP98=
+	t=1783776415; cv=none; b=gvsOeodKlW+kgTz41JcvFjOovASFlmK0wLv49o72H0UyJwcj0/oeFu9K3BDj0cf4jG/tecN3t3N5RXNBH/7ZNLcKgQHiH0naigxsgRSCG6hlsDkrI/S8jNz2mN1KqSxtV15YKJjIOmf+EAZn2WMg5FMGFFvt506loxkVQtA6CXk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783776400; c=relaxed/simple;
-	bh=dQV2fY4fIpzA6mzMe+3o+099SHm6Q9yh+EIXTxI94F8=;
+	s=arc-20240116; t=1783776415; c=relaxed/simple;
+	bh=U9sNMOoDbCwKYyLrvu4UVtFmwJlobNpfau4cmNJOODE=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=H0ixBng+JHOuCobT12xNGf+u1UG6TDt8l2NLBmvZ7FT7V07MXdr0MN4atG0QTCbDcRPEjxCveh4Ub7MNLOyCf9gXZtXrE3P6C0w8gXDQQU3AEN5CfuBzGQMPHjKEx4vfE7CI34lScNtbLeNBfMHB8+xedNhyh+WTDkNwgWVA/Us=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=GHSZ8nFj; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=hgJCX22vTN0w/SiWU6INtk05+bMnl6wmd3ReLyseC+0SCxd2AoITBXTMbKhFH4et9sRAtM/ZaOqnvtRFrolM87smS+pON4dweTuo1CDDi8NX7l5F8DPPT8yyMcFUVAXI7rwnJGdlmOW8RY2zuAldWHGX/jxRZIrPAjgOmo25Ej4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=AY6xosDk; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="GHSZ8nFj"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09EBE1F000E9;
-	Sat, 11 Jul 2026 13:26:37 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="AY6xosDk"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DAEFE1F000E9;
+	Sat, 11 Jul 2026 13:26:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1783776398;
-	bh=XTLZtOVRVfGxSdfj7dtFH7eEmTCrsImiQITxbjBvDQ0=;
+	s=k20260515; t=1783776414;
+	bh=+Zj26UOQtmioRcFFK5Ln8c1d9zjxuGwZYisO6NeuYTg=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=GHSZ8nFj3HsY1jBpJKSLwmT5vP2sOXGyPJajVdySPHcnJ69S47IarmcvUShL2IRb8
-	 lSh5547lxj6OOpHh5A8UXl3Lm/Hd63mLmz0EYj5JqmIFTg+y1UN1m7PFtzKpqsYGur
-	 +ux0SewQlaFSanF0+ZHGMTwujgjF6qpQWIWcCDvxsQK8O+pJ/fQ4CZsT8m1BJfqxHr
-	 M4isYcYi6/Y2iChaf+INqmsKckasGYoRVvNxiBr+Y800IPKscXGS8QeACx0/xcA7pp
-	 n/13YxGpi9hCSSGodOQg0by9idSdgEO1qeFPNIP7bG3Nu/KVAK8dEp34alBsU/n+r5
-	 u88AR2mzGBXcg==
+	b=AY6xosDkVRIBjXoo/8RkE+6HOcKkwPjt8EUTZc4O2BpwZzgkvYhjzlm1QAAWLVXnA
+	 80X3QuLXadizjgsNnLz8l3e78pCUIFIqLcEsME2OatqzsyPA+tFCbfleHr6GCcGteW
+	 oSaFKmSxrmYY7JrKYwnVf3AfKi/p/P6iYLY8qE86Pq/23vOFDhxE2ta3iWUS622Qov
+	 46x49VR3e3hHoHEP2pKL7O7aG1M/hm5gQNXWJunPl86r0aayGSG1/ftPNZrE+XuRxM
+	 6WQJyzR7q31RUR6yfkUB41Dp+H8o8LaqQtpiTHXwtfjq35IQIDUBVYePx9fZe0z/kC
+	 0FEeBVKH1dARA==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v5 1/3] Input: applespi - cancel pending work on driver
- remove
+Subject: Re: [PATCH v5 2/3] Input: applespi - fix NULL pointer dereference
+ in tp_dim open
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Shih-Yuan Lee" <fourdollars@debian.org>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260711131140.18777-2-fourdollars@debian.org>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20260711131140.18777-3-fourdollars@debian.org>
 References: <20260711055247.5412-1-fourdollars@debian.org>
  <20260711131140.18777-1-fourdollars@debian.org>
- <20260711131140.18777-2-fourdollars@debian.org>
+ <20260711131140.18777-3-fourdollars@debian.org>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Sat, 11 Jul 2026 13:26:37 +0000
-Message-Id: <20260711132638.09EBE1F000E9@smtp.kernel.org>
+Date: Sat, 11 Jul 2026 13:26:53 +0000
+Message-Id: <20260711132653.DAEFE1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 6 potential issue(=
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
 
 Pre-existing issues:
-- [High] Repeated PACKET_DEV_INFO packets lead to unbounded devm memory lea=
-ks and duplicate input device registrations.
-- [High] Unchecked access of asynchronously allocated applespi->touchpad_in=
-put_dev in the debugfs tp_dim open handler.
-- [High] Unbound wait in applespi_drain_writes() can block driver unbind an=
-d suspend forever if hardware is unresponsive.
-- [High] Missing async teardown in applespi_probe error path if GPE enablem=
-ent fails.
-- [High] Mismatched finger data reported to input subsystem due to flawed i=
-teration logic.
-- [Low] Redundant manual assignment of dev.parent on input devices allocate=
-d with devm_input_allocate_device().
+- [High] Unsolicited or repeated PACKET_DEV_INFO messages cause multiple to=
+uchpad input devices to be allocated and registered, leaking previously reg=
+istered ones.
 --
 
---- Patch [1]: [PATCH v5 1/3] Input: applespi - cancel pending work on driv=
-er remove ---
-commit 541134ed7dfbfee9d31126ce14257c1f72d8e7a7
+--- Patch [2]: [PATCH v5 2/3] Input: applespi - fix NULL pointer dereferenc=
+e in tp_dim open ---
+commit 083469b928bf6d69e48361fe4f8c93f87f2a7820
 Author: Shih-Yuan Lee <fourdollars@debian.org>
 
-Input: applespi - cancel pending work on driver remove
+Input: applespi - fix NULL pointer dereference in tp_dim open
 
-During driver removal in applespi_remove(), the managed private data
-structure is freed by devres. However, the driver does not cancel the
-asynchronous work applespi->work, which registers the touchpad input
-device.
+The tp_dim debugfs file is registered synchronously during driver probe
+in applespi_probe(). However, the applespi->touchpad_input_dev is
+initialized and registered asynchronously in the driver's worker thread.
 
 > diff --git a/drivers/input/keyboard/applespi.c b/drivers/input/keyboard/a=
 pplespi.c
+> index 3bdb9e7cfb8b2..4d339445e9c71 100644
 > --- a/drivers/input/keyboard/applespi.c
 > +++ b/drivers/input/keyboard/applespi.c
-> @@ -1820,8 +1820,10 @@ static void applespi_remove(struct spi_device *spi)
+> @@ -963,12 +963,18 @@ static void applespi_debug_update_dimensions(struct=
+ applespi_data *applespi,
+>  static int applespi_tp_dim_open(struct inode *inode, struct file *file)
 >  {
->  	struct applespi_data *applespi =3D spi_get_drvdata(spi);
+>  	struct applespi_data *applespi =3D inode->i_private;
+> +	struct input_dev *touchpad;
 > =20
->  	applespi_drain_writes(applespi);
+>  	file->private_data =3D applespi;
+> =20
+> +	/* Pairs with smp_store_release in applespi_register_touchpad_device() =
+*/
+> +	touchpad =3D smp_load_acquire(&applespi->touchpad_input_dev);
 
 [Severity: High]
-This isn't a bug introduced by this patch, but can this wait indefinitely
-and block driver unbind or system suspend?
+This isn't a bug introduced by this patch, but looking at the worker
+thread that sets applespi->touchpad_input_dev, is there a resource leak
+if the hardware sends repeated PACKET_DEV_INFO messages?
 
-applespi_drain_writes() waits for the hardware without a timeout:
-
-drivers/input/keyboard/applespi.c:applespi_drain_writes() {
-    ...
-    wait_event_lock_irq(applespi->drain_complete, !applespi->write_active,
-                        applespi->cmd_msg_lock);
-    ...
-}
-
-If the external hardware hangs and write_active remains true, would this
-task become blocked forever?
-
-> =20
->  	acpi_disable_gpe(NULL, applespi->gpe);
->  	acpi_remove_gpe_handler(NULL, applespi->gpe, applespi_notify);
->  	device_wakeup_disable(&spi->dev);
-> =20
->  	applespi_drain_reads(applespi);
-> =20
-> +	cancel_work_sync(&applespi->work);
-> +
->  	debugfs_remove_recursive(applespi->debugfs_root);
->  }
-
-[Severity: Low]
-This isn't a bug introduced by this patch, but does this code redundantly
-assign the parent device?
-
-drivers/input/keyboard/applespi.c:applespi_register_touchpad_device() {
-    ...
-    touchpad_input_dev =3D devm_input_allocate_device(&applespi->spi->dev);
-    ...
-    touchpad_input_dev->dev.parent =3D &applespi->spi->dev;
-    ...
-}
-
-And similarly in applespi_probe():
-
-drivers/input/keyboard/applespi.c:applespi_probe() {
-    ...
-    applespi->keyboard_input_dev->dev.parent =3D &spi->dev;
-    ...
-}
-
-The input subsystem guidelines state that devm_input_allocate_device()
-automatically sets the parent, making manual assignment redundant.
-
-[Severity: High]
-This isn't a bug introduced by this patch, but can a repeated
-PACKET_DEV_INFO from the hardware cause an unbounded memory leak and
-duplicate device registrations?
+In applespi_handle_cmd_response(), work is unconditionally scheduled
+whenever a PACKET_DEV_INFO packet is received:
 
 drivers/input/keyboard/applespi.c:applespi_handle_cmd_response() {
     ...
-    if (packet->type =3D=3D PACKET_DEV_INFO) {
-        ...
+    if (packet->device =3D=3D PACKET_DEV_INFO &&
+        le16_to_cpu(message->type) =3D=3D 0x1020) {
+        /*
+         * We're not allowed to sleep here, but registering an input
+         * device can sleep.
+         */
+        applespi->rcvd_tp_info =3D message->tp_info;
         schedule_work(&applespi->work);
+        return;
     }
     ...
 }
 
-When the work runs, it executes applespi_register_touchpad_device(),
-which unconditionally allocates a new managed device:
+When the worker runs applespi_register_touchpad_device(), it unconditionally
+allocates and registers a new input device via devm_input_allocate_device()
+and input_register_device(), overwriting the applespi->touchpad_input_dev
+pointer.
 
-drivers/input/keyboard/applespi.c:applespi_register_touchpad_device() {
-    ...
-    touchpad_input_dev =3D devm_input_allocate_device(&applespi->spi->dev);
-    ...
-    error =3D input_register_device(touchpad_input_dev);
-    ...
-}
+Because the allocated device is devm managed, the old device and its associ=
+ated
+character device minor numbers are never unregistered or freed until the SPI
+driver unbinds. Does this code need to check if the touchpad device is alre=
+ady
+initialized before allocating and registering a new one to prevent exhausti=
+ng
+system memory?
 
-If the peripheral sends multiple PACKET_DEV_INFO packets, would this
-blindly allocate and register multiple touchpad devices without checking
-if one already exists?
-
-[Severity: High]
-This isn't a bug introduced by this patch, but could this dereference a
-NULL pointer if the async worker hasn't completed initializing the
-touchpad?
-
-drivers/input/keyboard/applespi.c:applespi_probe() {
-    ...
-    debugfs_create_file("tp_dim", 0400, applespi->debugfs_root, applespi,
-                        &applespi_tp_dim_fops);
-    ...
-}
-
-If userspace opens this file before applespi_register_touchpad_device()
-is finished by the workqueue, applespi_tp_dim_open() is called:
-
-drivers/input/keyboard/applespi.c:applespi_tp_dim_open() {
-    ...
-    applespi->touchpad_input_dev->id.product,
-    ...
-}
-
-Since touchpad_input_dev might still be NULL, will this crash the kernel?
-
-[Severity: High]
-This isn't a bug introduced by this patch, but does the probe error path
-miss cleaning up async tasks and SPI reads?
-
-drivers/input/keyboard/applespi.c:applespi_probe() {
-    ...
-    acpi_sts =3D acpi_enable_gpe(NULL, applespi->gpe);
-    if (ACPI_FAILURE(acpi_sts)) {
-        dev_err(&spi->dev, "failed to enable GPE\n");
-        return -ENODEV;
-    }
-    ...
-}
-
-If acpi_install_gpe_handler() (called earlier) receives an interrupt
-before acpi_enable_gpe() fails, it could queue an async SPI transfer or
-work item. Returning -ENODEV immediately frees the applespi structure
-without calling applespi_drain_reads() or cancel_work_sync(), which
-could result in a use-after-free.
-
-[Severity: High]
-This isn't a bug introduced by this patch, but does this iteration logic
-mismatch the finger data reported to the input subsystem?
-
-drivers/input/keyboard/applespi.c:report_tp_state() {
-    ...
-    report_finger_data(input, applespi->slots[i], &applespi->pos[i],
-                       &t->fingers[i]);
-    ...
-}
-
-If earlier loops filter out fingers (e.g., touch_major =3D=3D 0) and store
-their coordinates densely in applespi->pos, reusing the same sequential
-index i for t->fingers[i] could pair the packed positions with the
-wrong original finger data from the hardware. Could this corrupt
-multitouch reporting?
+> +	if (!touchpad)
+> +		return -ENODEV;
+> +
+>  	snprintf(applespi->tp_dim_val, sizeof(applespi->tp_dim_val),
+>  		 "0x%.4x %dx%d+%u+%u\n",
+> -		 applespi->touchpad_input_dev->id.product,
+> +		 touchpad->id.product,
+>  		 applespi->tp_dim_min_x, applespi->tp_dim_min_y,
+>  		 applespi->tp_dim_max_x - applespi->tp_dim_min_x,
+>  		 applespi->tp_dim_max_y - applespi->tp_dim_min_y);
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260711131140.1877=
-7-1-fourdollars@debian.org?part=3D1
+7-1-fourdollars@debian.org?part=3D2

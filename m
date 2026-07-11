@@ -1,109 +1,137 @@
-Received: from mail-pl1-f171.google.com (mail-pl1-f171.google.com [209.85.214.171])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 706E633FE05
-	for <linux-input@vger.kernel.org>; Sat, 11 Jul 2026 06:54:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.171
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2D96024336D
+	for <linux-input@vger.kernel.org>; Sat, 11 Jul 2026 07:04:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783752890; cv=none; b=dxQB2B0yVjRewuXTkewJ+LgsAf4Chde04lPErYxcD517e/XpKTOLWlatDM68bv6U8wpXrfhn+7I89AP0M0en5xN6PMiovA7QWWDFdbttfNO2CXW5nb8+5gkCM2b/b80667Yyc5fhOnhCjIAgL1lz1COVvtp3SwVCtPlMN8/givw=
+	t=1783753446; cv=none; b=IQsBFaDLIxzIMOoOAVrSbiFcut0GEXvjfJ0CiJZ3xcRvLaG4E1tJWPcDLVCHJ4WqO6KXr349GFZSDc01Wj2f8aO0dK/XulujpG5Gs8ai/5cb6sn3bAKSY/ALLlNhaxMnc5JrZkfWG7gghbIl0+PsX0LvjJGQVabSwNlFk1MUyU8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783752890; c=relaxed/simple;
-	bh=8fT0Gg/8Igu9jt6gZKh1bW7ODGFpVtDQrf69dpWU9zE=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=V25Z4rToZmkBM+z141DxT+2ocAKjqFsOqfNAJDQ1muyXUH29FVV4ueLepoEIhNAeWQdGf/yFSAKLNFmvFkvggywQRAPD2rc9ALN0c/v5PxO8iERPd5jBOeSAQysQukn3JiQ39js77obD3YNNEDO3+Z2YEMivdPbSl3Bp1ufy21U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=debian.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.214.171
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=debian.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Received: by mail-pl1-f171.google.com with SMTP id d9443c01a7336-2cc97653887so18091175ad.1
-        for <linux-input@vger.kernel.org>; Fri, 10 Jul 2026 23:54:46 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1783752886; x=1784357686;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=DNuv1LlOXCQ1HK6vbtUi5c2rok5gLYfCN2rAKCK3bnw=;
-        b=H8jAbmgrZoJlqci9R6ergTydWhBLnTvucE6ppWHrCWc0vxRlyKfTW8/Uz+wwzRjrxF
-         grofab+OT+tCzT05/Bo6iL8PnQgzIAvABs9y8ISsDJZ1wsEeNsgBeqEHIu0PCV3gn19i
-         c8BbppAjKIdYDiqLdYX29YOu4f3gO+lIKf1aR3Agg8z7Oh0sxqZow//vEMRNJADxUGpW
-         NP6Gd8ZW5JW8rtzpzcAfF7+0se+TkD1tckW1Wu0jF0Bry+PWsGKywCDaQbBwgUgoXKvd
-         FAOkH8mOAziBomeKfCorxTjfmJ6GLnK/fMiTgQpsYIIFi5pQFJ7pBJdM4h7MnvkZUfW7
-         FwOA==
-X-Gm-Message-State: AOJu0YzUI+eZ9TwSUxH6yGZzsT9jbguYWayY2Bl+lZVc7G11RQpRoCrw
-	+of6cvHyj1S2EXiEHY/45u5B6vrXTlhFITxgUzp1D9AQzOOQeXbY0nKeDRqwnwbLhtSh
-X-Gm-Gg: AfdE7clDspTkkXCu6J1mNk0LOuynRibp/XFMbj5mgPOXGLNWUsuhWkatovC7Sg8cVXs
-	sy2YES6L+ZrzxmSRRIfRFcHXAOxQwZZwyhXLaAjlRrA3f98hR++mzWlSn1dFuMiG99xyYIOP9TS
-	VP1NC8kLZ/K9BEFCwhmbCm8mKQnkUmHXPTlN77TKFYkaOXGZYxiH27XXofhTz3LQ9RR14zoeX8Z
-	BTcyFJ1iPeLc2rbhlZ3Gq2EsVp2oLCQFz3HqOn3AMOPJzVbyMPwJlw0cozAN+w+a3D5BoyQsDDE
-	wMTiIJ7s8FvFoy3mQehH768lHvI+C/WPH1c6Xr6v4y4hEwAHDsix9cIm8El1bvOzSpTCPWJ0xOj
-	bZct3GiXf5NeGLsax+ba7gwbm+ufYYHxQrii9Q1F553p8sYH4/z6r0pzfZPzcFW864Xx2UmxBiw
-	wEl6k0JKlCDFw/LKLPvnPULE/e97LnYZkh+AuTohCJxDIQvfC23uOeMYPazooinXQztyAt0/+G1
-	W5mPuNN0j+/PVTaw4S7z6M0MHpe2KS+15Br
-X-Received: by 2002:a17:902:d987:b0:2c9:df1b:e948 with SMTP id d9443c01a7336-2ce9e9a7128mr24297395ad.4.1783752885868;
-        Fri, 10 Jul 2026 23:54:45 -0700 (PDT)
-Received: from penguin.tail0a1999.ts.net (61-228-52-13.dynamic-ip.hinet.net. [61.228.52.13])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2ce8f5183b9sm18272535ad.5.2026.07.10.23.54.44
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 10 Jul 2026 23:54:45 -0700 (PDT)
-From: Shih-Yuan Lee <fourdollars@debian.org>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Shih-Yuan Lee <fourdollars@debian.org>
-Subject: [PATCH v2 3/3] Input: applespi - fix NULL pointer dereference in tp_dim open
-Date: Sat, 11 Jul 2026 14:54:15 +0800
-Message-Id: <20260711065415.7396-4-fourdollars@debian.org>
-X-Mailer: git-send-email 2.39.5
-In-Reply-To: <20260711065415.7396-1-fourdollars@debian.org>
+	s=arc-20240116; t=1783753446; c=relaxed/simple;
+	bh=y893uE1Ab2E/U0eDfUeDEf5PBLjIAOVmuzNMWgNnEwg=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=TQu69lm6ZsrZGWBGbdsmer/64X4lgmNVW8egeyyai7c9V6ba+zCbfyHlXQSWpolSKZt8muqOW4M6yCVCyU39TIfM+s19qfs3xb5vT1DuX+7LYJ22r5DQTzH3/N0SkNXT1boGwbnZn0xjMehfGoURjLubbU3Jrasxm4CfjeqOgsU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=d+sSfM5U; arc=none smtp.client-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="d+sSfM5U"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F4F91F000E9;
+	Sat, 11 Jul 2026 07:04:04 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1783753444;
+	bh=uArqFjPiK8WEAyxUxzm39umt0cleK61b3lL44Hrqy5A=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=d+sSfM5U5BJbxP3632FqqgWrQLenayS07EmLne7DrQ7ODXOmctuWfusJL9aDOGSnk
+	 uuH6TJvB/NgIc2Z4ZPmn6/bQhxTJLFY1K8Yb5gfsrU60Em1DXhjDXuSCxEwFGeJRjR
+	 0sXtdZAv6ZQzQ9oK/+h5C7ST7gRVVuuyyi0ddvwlK71zEv6G2Ab+qYjJQwIRqo9APo
+	 bT277Rs2DL7fQt2cEDvdqZgHKha9r4ZfPPyNjGQsTtBjE0/sK/XPwKnD8FU37cKh4E
+	 vk92K3dEwD4Y+Dogw3p1RxQygUq/z+H+IbiTtBezC6Hb1YkOJII9jou58NucZVA7cC
+	 9Bt/v3GX5E6vQ==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v2 1/3] Input: applespi - force PIO mode on MacBook8,1
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Shih-Yuan Lee" <fourdollars@debian.org>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <20260711065415.7396-2-fourdollars@debian.org>
 References: <20260711055247.5412-1-fourdollars@debian.org>
  <20260711065415.7396-1-fourdollars@debian.org>
+ <20260711065415.7396-2-fourdollars@debian.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Sat, 11 Jul 2026 07:04:04 +0000
+Message-Id: <20260711070404.7F4F91F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-The tp_dim debugfs file is registered synchronously during driver probe
-in applespi_probe(). However, the applespi->touchpad_input_dev is
-initialized and registered asynchronously in the driver's worker thread.
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+s) to consider:
+- [High] Incomplete restoration of `spi->controller->can_dma` leads to an e=
+xecute-after-free on module unload if the original callback was NULL.
+- [High] Architectural violation and data race due to mutating shared SPI h=
+ost controller, which is applied too late to prevent DMA timeouts.
+--
 
-If a userspace process opens the debugfs file before the worker thread
-has completed initialization, applespi_tp_dim_open() will dereference
-the NULL applespi->touchpad_input_dev pointer, causing a kernel panic.
+--- Patch [1]: [PATCH v2 1/3] Input: applespi - force PIO mode on MacBook8,=
+1 ---
+commit c3d66aabf4cd47b8a9f7af8039fad4fc085aef5f
+Author: Shih-Yuan Lee <fourdollars@debian.org>
 
-Fix this by using smp_load_acquire() to safely load touchpad_input_dev
-and return -ENODEV if it is not yet initialized.
+Input: applespi - force PIO mode on MacBook8,1
 
-Signed-off-by: Shih-Yuan Lee <fourdollars@debian.org>
----
- drivers/input/keyboard/applespi.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+This patch introduces a DMI quirk to force PIO mode on MacBook8,1 laptops.
+It overrides the shared SPI controller's can_dma callback to avoid timeout
+errors during DMA handshakes, and attempts to restore the original callback
+when the driver is removed.
 
-diff --git a/drivers/input/keyboard/applespi.c b/drivers/input/keyboard/applespi.c
-index b6b4d258d0dd..1f8e4ae90285 100644
---- a/drivers/input/keyboard/applespi.c
-+++ b/drivers/input/keyboard/applespi.c
-@@ -968,12 +968,18 @@ static void applespi_debug_update_dimensions(struct applespi_data *applespi,
- static int applespi_tp_dim_open(struct inode *inode, struct file *file)
- {
- 	struct applespi_data *applespi = inode->i_private;
-+	struct input_dev *touchpad;
- 
- 	file->private_data = applespi;
- 
-+	/* Pairs with smp_store_release in applespi_register_touchpad_device() */
-+	touchpad = smp_load_acquire(&applespi->touchpad_input_dev);
-+	if (!touchpad)
-+		return -ENODEV;
-+
- 	snprintf(applespi->tp_dim_val, sizeof(applespi->tp_dim_val),
- 		 "0x%.4x %dx%d+%u+%u\n",
--		 applespi->touchpad_input_dev->id.product,
-+		 touchpad->id.product,
- 		 applespi->tp_dim_min_x, applespi->tp_dim_min_y,
- 		 applespi->tp_dim_max_x - applespi->tp_dim_min_x,
- 		 applespi->tp_dim_max_y - applespi->tp_dim_min_y);
--- 
-2.39.5
+[ ... ]
+> --- a/drivers/input/keyboard/applespi.c
+> +++ b/drivers/input/keyboard/applespi.c
+[ ... ]
+> @@ -1788,6 +1800,19 @@ static int applespi_probe(struct spi_device *spi)
+>  	debugfs_create_file("tp_dim", 0400, applespi->debugfs_root, applespi,
+>  			    &applespi_tp_dim_fops);
+> =20
+> +	/*
+> +	 * MacBook8,1's SPI host controller DMA is broken (timeout errors).
+> +	 * Force PIO mode by overriding the controller's can_dma callback.
+> +	 *
+> +	 * Since we modify the shared controller's callback, we save the
+> +	 * original pointer and restore it in applespi_remove().
+> +	 */
+> +	applespi->original_can_dma =3D spi->controller->can_dma;
+> +	if (dmi_match(DMI_PRODUCT_NAME, "MacBook8,1")) {
+> +		dev_info(&spi->dev, "Disabling DMA for MacBook8,1 SPI to force PIO mod=
+e\n");
+> +		spi->controller->can_dma =3D applespi_can_not_dma;
+> +	}
+> +
+>  	return 0;
+>  }
 
+[Severity: High]
+Is this too late to prevent the DMA timeouts?
+
+The override occurs at the very end of applespi_probe(). However, early SPI
+transfers triggered earlier in the function via applespi_setup_spi() and
+applespi_init(), as well as any reads triggered by ACPI GPE interrupts that
+were already enabled, will still attempt to use DMA and fail.
+
+Furthermore, does mutating the shared SPI host controller's method table fr=
+om
+a peripheral client driver cause data races with concurrent SPI core
+operations? Typically, controller-level hardware quirks need to be implemen=
+ted
+in the SPI host controller driver itself rather than the client driver to
+maintain encapsulation and prevent races.
+
+[ ... ]
+> @@ -1822,6 +1847,9 @@ static void applespi_remove(struct spi_device *spi)
+> =20
+>  	applespi_drain_reads(applespi);
+> =20
+> +	if (applespi->original_can_dma)
+> +		spi->controller->can_dma =3D applespi->original_can_dma;
+> +
+>  	debugfs_remove_recursive(applespi->debugfs_root);
+>  }
+
+[Severity: High]
+Will this leave a dangling pointer in the host controller if the original
+callback was NULL?
+
+If the host controller does not natively provide a can_dma callback,
+applespi->original_can_dma will be NULL. In that scenario, this conditional
+check evaluates to false and skips the restoration entirely.=20
+
+Once the applespi module is unloaded and unmapped from memory, the shared
+host controller will be left pointing to the freed applespi_can_not_dma
+function. Any subsequent SPI transfers on the host controller would then
+dereference this freed pointer, resulting in an execute-after-free and kern=
+el
+panic.
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260711065415.7396=
+-1-fourdollars@debian.org?part=3D1

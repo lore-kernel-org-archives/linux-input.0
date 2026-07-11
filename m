@@ -1,119 +1,104 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4CC75EED8;
-	Sat, 11 Jul 2026 01:09:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9E251625
+	for <linux-input@vger.kernel.org>; Sat, 11 Jul 2026 01:19:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783732148; cv=none; b=vGoWbONH78t6Hq25zNvFb8efOLBWnWkEz9ixVMlxxgThNnQTgP1WY8jk45UAZ8A9FSJGbj/kdoWQSmRIhz23dlPRffkHBvnM8+rKHABwxJylcpxCg0N7t/O/KFyW0dDFqd2z7cD3oSnC70YitY3mCK1nKKC90ij5eDiiqXyRPD8=
+	t=1783732744; cv=none; b=kjZkROoTNYXV/YEkd6jQGwyVIXDKyXNMqi+RfS5uJhfkoJVZVRGVgkdKmNp/YpHesXjJ/1nnhR7AkC1Kiy7ae8Xh9zXNrEvRcYD1khS2XFanR/iYSE7CK1GfEAhMKsjmeJVUW7j8DiinXRWmFt18ROpVCk2B/q9nYXhDmVh3Q+s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783732148; c=relaxed/simple;
-	bh=BnECkKJ9/c3FjQOTakLYaNAGEaZabCU6kNQZqFNTFSo=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=e8r0B5sKljHULYG1SCjlI1yOjBNVuts2ZbPMnOs+ZI3kJtodjk8kRTZPXkTElmL/baZP0G1/HKUlasba0uWUvF9rc0pB4bTVnpIcUPLxkyOKnBg195Tp+mxa9rM/ZmA0Gz2fq6fLOSsqLSpsB4h0MfMOPpeguGh2rlWIPemqt2Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=R5DEATb3; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1783732744; c=relaxed/simple;
+	bh=02IW/XQQafVGBBvNyYjoCk4KZGEZ4C076mJszsRdP74=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=gWGx23K2NPrPIb45NsNNwgA3TYGvCQhP+ZZ4RId7Q3+cxzdek8LmaDmAOknB68BMvHcIsG7mVKb1Fs5tkwHbuzxx+Yl/qZkLcH/3KyFAMleqoiXmoe7NZnsNh5D9XKKC1ET+lG40OuetTg2f/iXG51XUQDLzr4jHn4MnfiJV968=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=UV49P/bd; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="R5DEATb3"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id DE8F0C2BCB8;
-	Sat, 11 Jul 2026 01:09:07 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1783732147;
-	bh=BnECkKJ9/c3FjQOTakLYaNAGEaZabCU6kNQZqFNTFSo=;
-	h=From:Date:Subject:To:Cc:Reply-To:From;
-	b=R5DEATb3QrFBBXg05ri0l9C8hZuRhhf8K7iAI9h+otmA1Bw7kK7cqdRrjK78vKF0a
-	 YxCzA18fplACKUEnth6rykmfI/Ter1sx9xXUe5olKfVn2sP9B1vLXbGxm/2HtFRTPI
-	 cuHXRBMpYeKrIoL77okO1XlZiD6BYfHssMSS+AqTKY+XLjNYCBIabxeVuHSlbZ6Opx
-	 cj8EUjdXC7hosdvn5AYsikCBaVeeRuNNW8vAzk8ijybMSm13QlOJApeHnwoSABxAM7
-	 EdAUgrTGT30ukuSHNX2vBLsFyOWHAZmaHxB64D9gQZR4yba64V3NNrw6vsGVMp14G8
-	 MCdboHzxzCNiQ==
-Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CC5B5C43458;
-	Sat, 11 Jul 2026 01:09:07 +0000 (UTC)
-From: Miles Krause via B4 Relay <devnull+mileskrause5200.gmail.com@kernel.org>
-Date: Fri, 10 Jul 2026 21:09:02 -0400
-Subject: [PATCH] Input: qt1050 - name calibration status bit
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="UV49P/bd"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0605C1F000E9;
+	Sat, 11 Jul 2026 01:19:02 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1783732743;
+	bh=JCwzx8Iy3lq2nVDVjiP51nJ/eBzHZ4kgvy5ii2ugYtY=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=UV49P/bdLQucSlzZvcKqjvVyG7dnV3NK+vd1OE6L7y37vxTO8nFHlqwEjIdaAzQKh
+	 LYMMF7r4bODXJMmNUPySGSObzzmrOBj5h2a7KEhYXqpN0qfT7mvLj+tkgTXtKx3E6m
+	 09dFB7vPE3mc+tTg9lG40TN3oTs3GML7ego8j0/Md24HpuIn4faP9P9nVR0RMOSXF7
+	 RIzK8B0S8Ooal8D0gNEW9FCl254klNpaQ5phpsOloCyDgAcv15ZhX5yimaLC/o+bi8
+	 7DMfC0Ac0YLYy5UHYpB7CDkGVw+TudG0Wsy60UjcbNC/sZ4nT7qyMwT3F+uqbI1IBJ
+	 0msiDtadxYTlQ==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH] Input: qt1050 - name calibration status bit
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Miles Krause" <mileskrause5200@gmail.com>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20260710-qt1050-calibration-status-bit-v1-1-e4f7d1d797b6@gmail.com>
+References: <20260710-qt1050-calibration-status-bit-v1-1-e4f7d1d797b6@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Sat, 11 Jul 2026 01:19:02 +0000
+Message-Id: <20260711011903.0605C1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20260710-qt1050-calibration-status-bit-v1-1-e4f7d1d797b6@gmail.com>
-X-B4-Tracking: v=1; b=H4sIAK2XUWoC/yXM0QrCMAxA0V8ZeTaQlunQXxEfmi7ViExtMhHG/
- t2qjwcudwGTqmJw6Bao8lLT+9QQNh3kS5rOgjo2Q6S4oyEQPj3QljCnm3JN3nI0Tz4bsjoSR+m
- HfSljz9AejypF37//8fS3zXyV7N8prOsH7Mwwz4EAAAA=
-X-Change-ID: 20260710-qt1050-calibration-status-bit-0b2e479ffd4b
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
- Miles Krause <mileskrause5200@gmail.com>
-X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1783732147; l=1610;
- i=mileskrause5200@gmail.com; s=20260710; h=from:subject:message-id;
- bh=RY4tjQcuZkpaCZPC5GXl5Z5TifqEyJldGFwLCDOhcWQ=;
- b=9osnnSmQILluaI7QKd2YiKmSqP18ai2gyI5pQmalCuXIgu8j1JCIAgj+BT68eMyBOG8O0fTaL
- PporRb9p7oFBANNAeQXzWOLZVUjVp5yRIvaESU7R32vRvPT/qB3qU1B
-X-Developer-Key: i=mileskrause5200@gmail.com; a=ed25519;
- pk=QNhNjcQarqig3ColJBIEr3DYfWM1PHpP7z+6thxWXaU=
-X-Endpoint-Received: by B4 Relay for mileskrause5200@gmail.com/20260710
- with auth_id=861
-X-Original-From: Miles Krause <mileskrause5200@gmail.com>
-Reply-To: mileskrause5200@gmail.com
 
-From: Miles Krause <mileskrause5200@gmail.com>
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
 
-Detection status bit 7 indicates that a calibration cycle is in
-progress. Define a name for the bit and use it in the polling
-condition instead of an open-coded shift and comparison.
+Pre-existing issues:
+- [High] The polling loop for calibration completion exits immediately beca=
+use the break condition is inverted, potentially causing probe failure or a=
+borted calibration.
+--
 
-No functional change.
+--- Patch [1]: [PATCH] Input: qt1050 - name calibration status bit ---
+commit 8a227bbb51956d6b0303c06859d65e498d26eb5f
+Author: Miles Krause <mileskrause5200@gmail.com>
 
-Signed-off-by: Miles Krause <mileskrause5200@gmail.com>
----
-Compile-tested on x86_64 with:
+Input: qt1050 - name calibration status bit
 
-  make O=out allmodconfig
-  make O=out W=1 drivers/input/keyboard/qt1050.o
+This commit introduces a named constant for the calibration status bit 7
+in the QT1050_DET_STATUS register. It replaces an open-coded shift and
+comparison with this new constant in the calibration polling loop to
+improve readability.
 
-Sparse-tested with:
+> diff --git a/drivers/input/keyboard/qt1050.c b/drivers/input/keyboard/qt1=
+050.c
+> index f9f480c910325..2371ac027aabd 100644
+> --- a/drivers/input/keyboard/qt1050.c
+> +++ b/drivers/input/keyboard/qt1050.c
+[ ... ]
+> @@ -498,7 +499,8 @@ static int qt1050_probe(struct i2c_client *client)
+>  		return err;
+>  	}
+>  	err =3D regmap_read_poll_timeout(ts->regmap, QT1050_DET_STATUS, status,
+> -				 status >> 7 =3D=3D 1, 10000, 200000);
+> +				 status & QT1050_DET_STATUS_CALIBRATE,
+> +				 10000, 200000);
 
-  make O=out-sparse allmodconfig
-  make O=out-sparse C=1 CHECK=sparse drivers/input/keyboard/qt1050.o
----
- drivers/input/keyboard/qt1050.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+[Severity: High]
+This is a pre-existing issue, but does this polling condition in qt1050_pro=
+be()
+wait for the calibration to complete or for it to start?
 
-diff --git a/drivers/input/keyboard/qt1050.c b/drivers/input/keyboard/qt1050.c
-index f9f480c91032..2371ac027aab 100644
---- a/drivers/input/keyboard/qt1050.c
-+++ b/drivers/input/keyboard/qt1050.c
-@@ -27,7 +27,8 @@
- #define QT1050_FW_VERSION	0x01
- 
- /* Detection status */
--#define QT1050_DET_STATUS	0x02
-+#define QT1050_DET_STATUS		0x02
-+#define QT1050_DET_STATUS_CALIBRATE	BIT(7)
- 
- /* Key status */
- #define QT1050_KEY_STATUS	0x03
-@@ -498,7 +499,8 @@ static int qt1050_probe(struct i2c_client *client)
- 		return err;
- 	}
- 	err = regmap_read_poll_timeout(ts->regmap, QT1050_DET_STATUS, status,
--				 status >> 7 == 1, 10000, 200000);
-+				 status & QT1050_DET_STATUS_CALIBRATE,
-+				 10000, 200000);
- 	if (err) {
- 		dev_err(dev, "Calibration failed: %d\n", err);
- 		return err;
+The regmap_read_poll_timeout() macro exits when the condition evaluates
+to true. Since QT1050_DET_STATUS_CALIBRATE (bit 7) indicates calibration is
+in progress, this condition is true while running and false when complete.
 
----
-base-commit: c8f174900926d3b58cd048ac33b4cbb3de419bfe
-change-id: 20260710-qt1050-calibration-status-bit-0b2e479ffd4b
+If calibration completes before the first read, won't this poll for the full
+200ms timeout and return -ETIMEDOUT, causing the probe to fail? Alternative=
+ly,
+if calibration is still running, won't this exit immediately and allow the
+subsequent soft-reset to abort the calibration process?
 
-Best regards,
---  
-Miles Krause <mileskrause5200@gmail.com>
+Should this condition be inverted to check that the calibrate bit is cleare=
+d?
 
+>  	if (err) {
+>  		dev_err(dev, "Calibration failed: %d\n", err);
+>  		return err;
 
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260710-qt1050-cal=
+ibration-status-bit-v1-1-e4f7d1d797b6@gmail.com?part=3D1

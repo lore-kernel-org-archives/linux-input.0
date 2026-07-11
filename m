@@ -1,166 +1,179 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mx0b-001ae601.pphosted.com (mx0b-001ae601.pphosted.com [67.231.152.168])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 24DA3284690
-	for <linux-input@vger.kernel.org>; Sat, 11 Jul 2026 12:05:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783771508; cv=none; b=aXHHik76Q7IAQtHUVWYFXgpkhYYgOzkGML4HU3ga0CP2ahjaq0NBEHK6wfFKDaJ1BUAXlbWm6FjFG9y7NJ7SUygn7wuT7MNCDPAa6N1Gd34Z9lPgaS3P9uwD4S1BjnfuGuAjHt0gV7k0/A1u5A5JMepDtFvaKRKaRGKaXdi/5B0=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783771508; c=relaxed/simple;
-	bh=LgMAc9I/u7EaLnwP3oOIlDUwoTVTjoZ7m0wBa/U3nIA=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=Td8fLl1+iYJ2qiECe5gJ/mJZT00fo63Hi/O1l1rJhWBNU0dm9h40GGE6wlmUtPxHseCvIMuztokVAIGgHdBnUej4FgtlOrNXp8zDXyFm4BDL16wtzNTJ/EQtXo5iUxUiP/wJ+aLaJexJ81Mpxx8KwXV/0zfaqIFQaYq5Z0wGzXQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=BF3czAsT; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AE1803612F4;
+	Sat, 11 Jul 2026 12:58:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=67.231.152.168
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1783774683; cv=fail; b=O+aOUnZpPexbMta9BuawAZjcCyYixX7lLQ2ITwmpPbPV1Rx1hHGkeEYzM71yD/xh7mQKN9WvaOgbaCOIBn7WQhnmUIZiAGarHfXelwVQItsucexp73NfqzJCWMX13pBRnWH4n/C2xAKikDIFOTJM2UGVELMig+7aI9S9LBW87L8=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1783774683; c=relaxed/simple;
+	bh=EaU/4WdJTrU0V4zfX53KbNl7PmF7qitymL/Q/1kUk8Q=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=i2kOJgNp1P0vXAsTtJicXjjyFO5ttrh/3HeEtZ5jLSvW30NNHMmHqYyCz4VpKolB/ZjhYfdsqJJIo5tPCX8o2CAC6Ghky4J1jk4mcZzhFwpRGgMVB/d6sO3wtX/2yr40ETQML9bD9cTPJqEf/ZY2tWz/LytADLlEwkD+HafzdSU=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=opensource.cirrus.com; spf=pass smtp.mailfrom=opensource.cirrus.com; dkim=pass (2048-bit key) header.d=cirrus.com header.i=@cirrus.com header.b=pioVt5ZH; dkim=pass (1024-bit key) header.d=cirrus4.onmicrosoft.com header.i=@cirrus4.onmicrosoft.com header.b=Q2yJK+Wc; arc=fail smtp.client-ip=67.231.152.168
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=opensource.cirrus.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=opensource.cirrus.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="BF3czAsT"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B9651F000E9;
-	Sat, 11 Jul 2026 12:05:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1783771506;
-	bh=IXs2ml2rP0vUf0yKMCryomwjO0fQ4nv/jgUb207Zhz8=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=BF3czAsTDeQZhGWTMm0PLjRv/6bCjZtW9rx2Jc0l+7w8QvPh+IGRWmlY6mcB6/2c4
-	 GG0zF3bISnOHQJgDSYuQOGMudGARVBb6z216eaTxVQLOwYqJ+kdOkQgpQ1iKnK50y8
-	 rMhJ0rAy0DSZNN1SJRg+HKsvlL4roThkmhiB9t1PI/BMM9xgMmATIiQ8KhBw638jwq
-	 eKOQ6cIu1/DbnLWFAb5u65MKp5Q06E5SICBON8SQLsp5HXb+/0SfMf63lQ0KL+WkJl
-	 7RCquAAf2MhiPj7rh9+YxN4a5JnexzgkNZXn0cEgvP+41+V21EEvfVtdNCHFxgt+7B
-	 s7FFnKWgJ1bBQ==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v4 1/3] Input: applespi - cancel pending work on driver
- remove
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Shih-Yuan Lee" <fourdollars@debian.org>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260711114937.16670-2-fourdollars@debian.org>
-References: <20260711055247.5412-1-fourdollars@debian.org>
- <20260711114937.16670-1-fourdollars@debian.org>
- <20260711114937.16670-2-fourdollars@debian.org>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Sat, 11 Jul 2026 12:05:06 +0000
-Message-Id: <20260711120506.7B9651F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=cirrus.com header.i=@cirrus.com header.b="pioVt5ZH";
+	dkim=pass (1024-bit key) header.d=cirrus4.onmicrosoft.com header.i=@cirrus4.onmicrosoft.com header.b="Q2yJK+Wc"
+Received: from pps.filterd (m0077474.ppops.net [127.0.0.1])
+	by mx0b-001ae601.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66BCuMkd1377900;
+	Sat, 11 Jul 2026 07:57:01 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=cirrus.com; h=cc
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=PODMain02222019; bh=49D6XNPAUi5Tqarvm9
+	boPEWG3tQSYsy6F9sPaoWHaBc=; b=pioVt5ZHtahlf0HDUsmmZrCWXIC1KbCPog
+	hipCE7n+us41lPDTZNTm3x0U7kJw+KPf81pzEyz53aJHMuYAWje7BJQ/bgqhMeNH
+	TTzyhNXvZzUX4JllKStPBYvwhkDb76aqeTNQ/qJ1fTeBEv2qmICT+GdyZ64Jt3JC
+	NKHx8UrUa6IwsNu3S6idSshOUXkvfjBh9tuV7wskuD+0YA20fJukTPUQ9XXHsTb4
+	O3FPvPKKR1BEF3Y6tj/iDdQ5RpewEDpzEo0Y+5uMzBesHdOIwpA6GEPUlyjgD1W3
+	c4YXX0oyIxfd2kwmj3sdrkWXelJoRMbHnrga8pyRHSHkNlDWCktA==
+Received: from sn4pr2101cu001.outbound.protection.outlook.com (mail-southcentralusazon11022097.outbound.protection.outlook.com [40.93.195.97])
+	by mx0b-001ae601.pphosted.com (PPS) with ESMTPS id 4fbj8fg5fk-1
+	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
+	Sat, 11 Jul 2026 07:57:01 -0500 (CDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=BqwYqGSlbirdz8kxCwjLWp132TLQmcnzHXSC1UyufX4uxjuwWHOIaK7V1zw18bMZD0DL1ulLY4bmeeWBU7FsOUyVNEuYpEfGjHHaFRwwLYvjUQk+FD+fWlDPBFhL76Jsj3LsatR7b1hbOsQBn0f+XKfimWtgET/ACnkbyLub0xiQwN84/K/VWHbKLE/xXyTs2XgAfXuzvqBncRCH3EK0yzwKMcOnUgMBILp/diIF1cja4T7AyrnM9Ph7M8vy3TLa3q/leS7uU1REdRXxu8uOw1XOsRUjRS9sSfMxZllnArLDRLSjVuofbsKkWZEMClEge/GWfpEuhdLG9jSsW4mdIg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=49D6XNPAUi5Tqarvm9boPEWG3tQSYsy6F9sPaoWHaBc=;
+ b=eUQAffbi9yzJZonjB83XJoZQ0fIcKub/M0bV4qWocpYW5K0A+vFAb2HADy0ujqXz3N6BKdZRAbQrI0i4OBR+JCHs1mOnTAVuUpI6/j/JYWirvQj3dd/fmvG7DFGkXYmwX87c1bHf/Q46Fg19KNKQNksBzWHF3RUfPIbcIOqivJwhl1+qq2HtoIfNnkigrTouJ2ns7qSFZ0wxs7ZJuDx9bwa92tYgmbysiGPKXGur+x06UcZ/AJz98fJ3wZ70KuzUzi1zUy0ThDd1sPUzbPV00ITBHEI5Tnj0cUEPvY6rYjMdMAh/TnDgW/6JkP6eOKRNdFAlwhjdlkt+FpzUiIZjYg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=softfail (sender ip
+ is 84.19.233.75) smtp.rcpttodomain=alpha.franken.de
+ smtp.mailfrom=opensource.cirrus.com; dmarc=fail (p=reject sp=reject pct=100)
+ action=oreject header.from=opensource.cirrus.com; dkim=none (message not
+ signed); arc=none (0)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=cirrus4.onmicrosoft.com; s=selector2-cirrus4-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=49D6XNPAUi5Tqarvm9boPEWG3tQSYsy6F9sPaoWHaBc=;
+ b=Q2yJK+WcRtHDN2eppQY215qsuadF31tTkmM4/C7pDbJGljDnDHNHAqXamJmxB62Cl+UzBG5zOULWUzrrsQKfSc+n/0ilBeLetpCU1epZxVMg8UNdtnQS3xZqmd+l3BGDbeivHLRmDn/eQqrSP7gqyHpBC0P3K6QBgr/z7sHihVk=
+Received: from PH8PR22CA0014.namprd22.prod.outlook.com (2603:10b6:510:2d1::29)
+ by IA1PR19MB6276.namprd19.prod.outlook.com (2603:10b6:208:3e8::20) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.181.17; Sat, 11 Jul
+ 2026 12:56:57 +0000
+Received: from SA2PEPF000015CA.namprd03.prod.outlook.com
+ (2603:10b6:510:2d1:cafe::a5) by PH8PR22CA0014.outlook.office365.com
+ (2603:10b6:510:2d1::29) with Microsoft SMTP Server (version=TLS1_3,
+ cipher=TLS_AES_256_GCM_SHA384) id 15.21.202.16 via Frontend Transport; Sat,
+ 11 Jul 2026 12:56:56 +0000
+X-MS-Exchange-Authentication-Results: spf=softfail (sender IP is 84.19.233.75)
+ smtp.mailfrom=opensource.cirrus.com; dkim=none (message not signed)
+ header.d=none;dmarc=fail action=oreject header.from=opensource.cirrus.com;
+Received-SPF: SoftFail (protection.outlook.com: domain of transitioning
+ opensource.cirrus.com discourages use of 84.19.233.75 as permitted sender)
+Received: from edirelay1.ad.cirrus.com (84.19.233.75) by
+ SA2PEPF000015CA.mail.protection.outlook.com (10.167.241.200) with Microsoft
+ SMTP Server (version=TLS1_3, cipher=TLS_AES_256_GCM_SHA384) id 15.21.181.6
+ via Frontend Transport; Sat, 11 Jul 2026 12:56:55 +0000
+Received: from ediswmail9.ad.cirrus.com (ediswmail9.ad.cirrus.com [198.61.86.93])
+	by edirelay1.ad.cirrus.com (Postfix) with ESMTPS id E74C3406541;
+	Sat, 11 Jul 2026 12:56:53 +0000 (UTC)
+Received: from opensource.cirrus.com (ediswmail9.ad.cirrus.com [198.61.86.93])
+	by ediswmail9.ad.cirrus.com (Postfix) with ESMTPSA id C9EC582025A;
+	Sat, 11 Jul 2026 12:56:53 +0000 (UTC)
+Date: Sat, 11 Jul 2026 13:56:52 +0100
+From: Charles Keepax <ckeepax@opensource.cirrus.com>
+To: Arnd Bergmann <arnd@kernel.org>
+Cc: linux-gpio@vger.kernel.org, Linus Walleij <linusw@kernel.org>,
+        Bartosz Golaszewski <brgl@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
+        Andrew Lunn <andrew@lunn.ch>,
+        Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
+        Gregory Clement <gregory.clement@bootlin.com>,
+        Frank Li <Frank.Li@nxp.com>, Robert Jarzmik <robert.jarzmik@free.fr>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        Greg Ungerer <gerg@linux-m68k.org>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Hauke Mehrtens <hauke@hauke-m.de>,
+        =?utf-8?B?UmFmYcWCIE1pxYJlY2tp?= <zajec5@gmail.com>,
+        Yoshinori Sato <ysato@users.sourceforge.jp>,
+        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Dominik Brodowski <linux@dominikbrodowski.net>,
+        linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-samsung-soc@vger.kernel.org, patches@opensource.cirrus.com,
+        linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
+        linux-sh@vger.kernel.org, linux-input@vger.kernel.org,
+        linux-sunxi@lists.linux.dev, linux-phy@lists.infradead.org,
+        linux-rockchip@lists.infradead.org, linux-sound@vger.kernel.org,
+        Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>
+Subject: Re: [PATCH v2 05/10] mfd: replace linux/gpio.h inclusions
+Message-ID: <alI9lIsY8CBU7NDa@opensource.cirrus.com>
+References: <20260710211954.1373336-1-arnd@kernel.org>
+ <20260710211954.1373336-6-arnd@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260710211954.1373336-6-arnd@kernel.org>
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: SA2PEPF000015CA:EE_|IA1PR19MB6276:EE_
+X-MS-Office365-Filtering-Correlation-Id: afc0fa70-b544-400f-fef6-08dedf4be304
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|23010399003|36860700016|61400799027|376014|7416014|82310400026|4143699003|11063799006|56012099006|18002099003|22082099003|16102099003|41080700001;
+X-Microsoft-Antispam-Message-Info:
+	YX75cL18NrsLvwRysUJa/j2jwIwyq3twu0i4shtiUsTNo6sczvY7EVgvXV3zwTh30gMLUYKHS2D/OLJ0CDDhmkZWL6AnsJ/pYPKHKRFJ5Byr7LETJSI5tLKVJiklTc0CWEEiAkV3hM11QNStZV4HLcGpdXu4mobcTlbisCyfxkOhKLuo0m3Jcgj94ISC/8LU3dRkXqrUlfWKfeEmQ05cUFm1tO/pMncnSmssRMn2baLr5774IpBUPAWR9zx0P3zS+PvMKLJ3M2GbdhaFhrWVcdbJ5tPS0YW4xFO8JL1eGsATmTeHScS9+3lfDyj9skwTDMQZ/y5Ir6j0rgWo7KCc5Gr/uj53M1g3r5QzW2q0hHWzwCwapwnzpb9+42iuWSu1x5u8ejwd6bzxdpY52A7f+n8d0lWg2dLm00T26DONFGQxZi2kPu1OqRqmYL1nq0RUvd/EmHFI19HeZy9zxPzDDbRmJ6s2Nt8/XTaFCZBOgSdV4AdGIZSgfX6mRULBHjNpxyHKQbpF6RfoisipCCIJWdrlYwXQRfehLY5hiby8tLolqQ1RiS0ww13n75qpHrkyYgi3KLdXp2oP7hFQT/YGoVzrF0uXwJiG++Fwn1yEQSrAR4pWVdz0KkBf2W1RYlyoqQ0bM4XMy7bG+28z0PVI76fup+3o/PYvgc02sWnarGC56kPG0exzdfMRDWRyFIrSox+qewLxTqHikN/rT8VbKJ3X3ckb99flQIABAjIyp/yS7q5AFHRsb32eUtyQafmHFv824ZHKnGJ1TlShEPCLFg==
+X-Forefront-Antispam-Report:
+	CIP:84.19.233.75;CTRY:GB;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:edirelay1.ad.cirrus.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230040)(23010399003)(36860700016)(61400799027)(376014)(7416014)(82310400026)(4143699003)(11063799006)(56012099006)(18002099003)(22082099003)(16102099003)(41080700001);DIR:OUT;SFP:1102;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	GSbhbhBgGQTip0uehdE+T/m7anyrXDxtnSGV7Ug270AXzhHeI77xB7Ht0LIBAz8j+quI90gZQOlH4/Og4XQfUONkHuphFhgTg139V6DwD1kCHNq/h8UPLJrtu6OlxN//hAkEdmMVHVWYflp67fF1WmagMMsg46Xn2xJGdremfAsg9NQTzJHrvtlTqT6VylRqwSbyZQw5mNVtivXk1EQW82l+sDiVRaGCt5aNH0j/vFR3aE6yTJVX08xYPvUwERmx32SDMYyj/j3JyK9hS/5nC7vjKfYsV2ZsTu3r9CUI9JKQnwDBacQSRzNLL14zhNKV1+hr2GSYjH0/Zb/9aGeXgfs3G/1B5SRWgO3LbR79knlMvslDQE3mgpOLJBvcFCfyLvZPeBEUH9pHsgczYP+POpnMDtk/J/Tkvh/xIsj6L8GOThYI5ev0h8gMw+44GGJz
+X-Exchange-RoutingPolicyChecked:
+	c3tA3MYaevRrWSk9oNR77dmI2yM4FrTtx3Mz2dtLQXGmv+H0KhZh/pyiggTW8MiXF212eAJ08kJzPqZHek+Y+CmyS1NMW+/8yLxkv/kgW4yWrDt9EJ5CATJPrb7Ta4JWgcKPYDzY+Xr69dGqpBXak7rEjAKbJq/N2mpZjAiNdeRF71Vk4hj6GCix2ZY2jK13N7YZ1PbwLRMyKzl3otqZ61flMCNCaEV9O7uu36HwyJga9+6XGJAOBtuIod2Zg7ycSLk8xKY6dsxwJWBOHDlQYyxLKvk7RniSdxNZ985GENb1dhq+lbI5huXnnS9sWyLAvRAosdjcXx1MtVhi1S5++Q==
+X-OriginatorOrg: opensource.cirrus.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 11 Jul 2026 12:56:55.4997
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: afc0fa70-b544-400f-fef6-08dedf4be304
+X-MS-Exchange-CrossTenant-Id: bec09025-e5bc-40d1-a355-8e955c307de8
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=bec09025-e5bc-40d1-a355-8e955c307de8;Ip=[84.19.233.75];Helo=[edirelay1.ad.cirrus.com]
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: TreatMessagesAsInternal-SA2PEPF000015CA.namprd03.prod.outlook.com
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: IA1PR19MB6276
+X-Proofpoint-GUID: XiA6Qj1-ykwgcYYEFBK4Evn5KxVSWDGG
+X-Proofpoint-ORIG-GUID: XiA6Qj1-ykwgcYYEFBK4Evn5KxVSWDGG
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzExMDEyNyBTYWx0ZWRfX/8QGLWmSTrEt
+ IRMoV8JKEm0fL43FlWs16fzctSSEkmgG2uyH2aIGWyvZNHCXFFuNupIy5oh5l1JnvXHB+84pUFX
+ Ye3xr7/sorygpaKu9TdIaUb6xbdWMBI=
+X-Authority-Analysis: v=2.4 cv=M7597Sws c=1 sm=1 tr=0 ts=6a523d9d cx=c_pps
+ a=YnstAiVElcvMFu1aLrgWsw==:117 a=h1hSm8JtM9GN1ddwPAif2w==:17
+ a=6eWqkTHjU83fiwn7nKZWdM+Sl24=:19 a=z/mQ4Ysz8XfWz/Q5cLBRGdckG28=:19
+ a=kj9zAlcOel0A:10 a=RAioF0-LDSMA:10 a=s63m1ICgrNkA:10 a=RWc_ulEos4gA:10
+ a=VkNPw1HP01LnGYTKEx00:22 a=iX4cTi3TZMoOKdANLEfx:22 a=KfkQE9S9VqCBgivYGm0O:22
+ a=EUspDBNiAAAA:8 a=w1d2syhTAAAA:8 a=HfRVZU4pgTnqLkcF7okA:9 a=CjuIK1q_8ugA:10
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzExMDEyNyBTYWx0ZWRfX4CGKaNCIdNl0
+ R7vdRWpV3066RQ7oS/n+DCAAaEIeQp/TukCxSefDsKft4rs7fSsqrACiWCnQdYO1HLBMDZq3gBY
+ bTATJAZLeX3uyKtQMp2bA8FEFiVdo/c96CrvzTbGEckPa1lauWsBPDZZiSZUStQ4lf0JdB/04Zr
+ GEl7B9SaeMQDFooA5HslBDweS3CjS2a+uyL7011s5ZoXrNwGlQKRHaz0sCn5SU2MTp2RDzVTCPQ
+ vv5gpvvYWqlPoFp9qptmqIcqZbACZ175eNxsql53HqMUWKOf5SK6cCDFToG7H2KGfHFx89jss0u
+ VoJpjIoXbSW87eBVlgGyWTH9eeaR3vmrZvvlW/TKsI5RYonIC7QwsNCRdfTGMaoeTUbDxmjcRWd
+ NJWSL8Qnm855evd5MiKGzwVfq7ME5puqQlNag/nvEVWr6X0BQoIOf9I09T+FdCY9tFlWpy7+kks
+ 2Io6Ia0fuAh3PG/gyRQ==
+X-Proofpoint-Spam-Reason: safe
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
-s) to consider:
+On Fri, Jul 10, 2026 at 11:19:50PM +0200, Arnd Bergmann wrote:
+> From: Arnd Bergmann <arnd@arndb.de>
+> 
+> linux/gpio.h should no longer be used, convert these instead to
+> either linux/gpio/consumer.h or linux/gpio/legacy.h as needed.
+> 
+> Acked-by: Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+> ---
+>  drivers/mfd/arizona-irq.c         | 2 +-
+>  drivers/mfd/wm8994-irq.c          | 2 +-
 
-Pre-existing issues:
-- [High] Multiple processing of `PACKET_DEV_INFO` causes the driver to unco=
-nditionally allocate and register multiple touchpad devices, leaking previo=
-usly allocated devm resources.
-- [High] Potential use-after-free of `applespi->gpe` in `applespi_async_rea=
-d_complete()` due to premature driver unbind.
-- [High] Dereferencing `applespi->touchpad_input_dev` before it is initiali=
-zed in `applespi_tp_dim_open`.
---
+Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
 
---- Patch [1]: [PATCH v4 1/3] Input: applespi - cancel pending work on driv=
-er remove ---
-commit 89c8a3961b949e3c0049b442d0905f82cd245fbd
-Author: Shih-Yuan Lee <fourdollars@debian.org>
-
-Input: applespi - cancel pending work on driver remove
-   =20
-This commit fixes a use-after-free vulnerability during driver removal.
-It explicitly cancels the pending worker thread that registers the touchpad
-device before devres frees the private data structure.
-
-> diff --git a/drivers/input/keyboard/applespi.c b/drivers/input/keyboard/a=
-pplespi.c
-> index b5ff71cd5a701..3bdb9e7cfb8b2 100644
-> --- a/drivers/input/keyboard/applespi.c
-> +++ b/drivers/input/keyboard/applespi.c
-> @@ -1822,6 +1822,8 @@ static void applespi_remove(struct spi_device *spi)
-> =20
->  	applespi_drain_reads(applespi);
-
-[Severity: High]
-This is a pre-existing issue, but can applespi_drain_reads() lead to a
-use-after-free of applespi->gpe?
-
-In applespi_remove(), applespi_drain_reads() waits for the read to complete:
-
-static void applespi_drain_reads(struct applespi_data *applespi)
-{
-	...
-	wait_event_lock_irq(applespi->drain_complete, !applespi->read_active,
-			    applespi->cmd_msg_lock);
-	...
-}
-
-The async read callback signals completion and wakes the waitqueue:
-
-static void applespi_async_read_complete(void *context)
-{
-	...
-	applespi_msg_complete(applespi, true, true);
-	...
-	acpi_finish_gpe(NULL, applespi->gpe);
-}
-
-If applespi_remove() unblocks, completes, and triggers devres cleanup
-before the read callback finishes, could the callback dereference the freed
-applespi->gpe when calling acpi_finish_gpe()?
-
-> +	cancel_work_sync(&applespi->work);
-> +
->  	debugfs_remove_recursive(applespi->debugfs_root);
->  }
-
-[Severity: High]
-This is a pre-existing issue, but does the driver leak devm resources if
-multiple info packets are received?
-
-When the driver receives a PACKET_DEV_INFO packet:
-
-applespi_handle_cmd_response()
-    applespi->rcvd_tp_info =3D message->tp_info;
-    schedule_work(&applespi->work);
-
-The worker unconditionally allocates and registers the touchpad device:
-
-applespi_register_touchpad_device()
-    touchpad_input_dev =3D devm_input_allocate_device(&applespi->spi->dev);
-    ...
-    sts =3D input_register_device(touchpad_input_dev);
-    ...
-    smp_store_release(&applespi->touchpad_input_dev, touchpad_input_dev);
-
-If a malfunctioning or malicious device sends multiple PACKET_DEV_INFO
-messages, does this overwrite applespi->touchpad_input_dev and leak the
-previously allocated devm resources and registered input devices?
-
-[Severity: High]
-This is a pre-existing issue, but can the debugfs tp_dim file dereference a
-NULL pointer?
-
-The touchpad_input_dev is allocated asynchronously by the worker:
-
-applespi_worker()
-    applespi_register_touchpad_device()
-
-However, the debugfs entry is created synchronously during probe:
-
-applespi_probe()
-    debugfs_create_file("tp_dim", ...);
-
-If userspace opens the tp_dim file before the worker completes initializati=
-on,
-applespi_tp_dim_open() will unconditionally dereference the pointer:
-
-applespi_tp_dim_open()
-    snprintf(applespi->tp_dim_val, sizeof(applespi->tp_dim_val),
-             "0x%.4x %dx%d+%u+%u\n",
-             applespi->touchpad_input_dev->id.product,
-
-Could this lead to a kernel panic since applespi->touchpad_input_dev might
-still be NULL?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260711114937.1667=
-0-1-fourdollars@debian.org?part=3D1
+Thanks,
+Charles

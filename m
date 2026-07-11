@@ -1,117 +1,153 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 39FFF284690
-	for <linux-input@vger.kernel.org>; Sat, 11 Jul 2026 11:58:51 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9E1D815687D
+	for <linux-input@vger.kernel.org>; Sat, 11 Jul 2026 12:02:17 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783771132; cv=none; b=UrsOzMD9w02WkcePEOiN5XuxY+oMcmzBD+/OHb//rhvyBHI5wxhZPhWk4AcVT8CsyfzyZESWS2rbWrUmS8ok4NHoMG5zo1TdFagh4VFepitB2XDnos2a0tYj75ZkmrqKqV1DNiAdZbqMzNc2W0E/kBaKO0yMZwgBi6VL8xbb9+s=
+	t=1783771338; cv=none; b=PCasz5xTWB77OxqJMEyYVkLW9i2UFVizIHobLzEPT4WBL7LHy0APKarjBFVgNJLKeOCaa7RiSLBL98XgmNf7yTNWKvHfICf3i3qsNz5y5Txop81iwQV2aL5AkPBUReJuS+fowTIJMrcLbIUt6Mxw8Uo9RbbIQnMTQ4i17589Trc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783771132; c=relaxed/simple;
-	bh=wqVsBaiVQBaGIlev+489g2UjG4pYuoHTvoupTig0kcI=;
+	s=arc-20240116; t=1783771338; c=relaxed/simple;
+	bh=861q7Dh/5q4N7ML75eyEL2T50h9SeSU4zMgX1gJiDvE=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=jyjid6vtopelmwY5/rAkZlXdpb+3imT+mq3P01uDWvmemFuaEB3fISTSOIcrgQ+jwUn7/AmIdBunsKQmxSsmqrzMg0Gm+dojEii9rhuXc+ewGofN62EC4UJvTDbPutH12ubdGkLmborS7ofMRIGVcdbcveJuxen9+bupDgJ3oAQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ciPOkHU3; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=ifumBDb5ykV4o6WSwNPq5wQCqC5yDNJN7e0G8DB4Z8Hyh0PbzYIdRyq3VO82ooNNqfBnXLZfqwsNQ/TsO5kNctwblB+X3hMxvsVSDtr7uwoIc8zcONmIU+kQUTCqSb3OUUy9lwwXBTCl+lGvCGbecMgeK1/lgkW9NfobdbDeBJ0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=l1viY66y; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ciPOkHU3"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BBF941F000E9;
-	Sat, 11 Jul 2026 11:58:50 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="l1viY66y"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0523B1F000E9;
+	Sat, 11 Jul 2026 12:02:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1783771130;
-	bh=2fBFfsbCgYBvXrARUc75D0JavfXAZ5kyJ1GW/KzjMN0=;
+	s=k20260515; t=1783771337;
+	bh=esnf8OUAn/H0q6XoO/HGfetn66mihQEMyBLbEnYuQuo=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=ciPOkHU3sH5Ko0TI9UZI9Pu/cKlJnHfaaR+68twmLtWZ4VRXVJdl7wBovpo8NopUV
-	 NrUrmoMA14gmw7tjgwDlSgvsVWD8xlQJJZcEBpQu415JkaZOQEVh0pagiZDNFtLj/k
-	 UwTHym8Hl2BoypdZuzmrT5ngdbTA5XerYsMe8lhRbkJd/l0l8ROxUSZ7VqCfE2q9k6
-	 y5Tl/YD8lg359krRMwXMT+iINCL13yGwCnZmUycQk5QSJzotpzX/eq1Dg+X1IvXCGg
-	 vy6PTjzcoL1cJGV27q+I5NIHeFgHaULdDZGLdusBeVH9B2g2yjNSGNluMZi2U+vNB6
-	 yhfeHilJ6yzUQ==
+	b=l1viY66yjJdUEaqbT2i8fIWFReP2uemHFWB9TBcK3c+en2ffmEHOtrey7LEnYaRGW
+	 G/asyZoFF1TwEIMYlBsRbc/h5Lv45LtNzL3xzHpnGcOAbvNe8dFB7G0nZbwZiMUWtE
+	 6hFTrhD7NN6HxXcTUg7C36On1/m2X9jcPGZArIukdbZlds+Jr/IUrCYVphC8wLYaxd
+	 Z6k1fVJno6F2zkEwcUQOdjmknvbWYLz4WWtHlQWaF010QqpSSCQBPcoR7U9WnJBLC5
+	 qNs1SEwRyW/xhQIJZKEWEESJ/AcDTiDo38M2SYFqIv0VDIXhF2OPq9aJblhEWHITD3
+	 3rOXfPIKPb5jg==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v4 3/3] spi: pxa2xx: disable DMA for Apple MacBook8,1
+Subject: Re: [PATCH v4 2/3] Input: applespi - fix NULL pointer dereference
+ in tp_dim open
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Shih-Yuan Lee" <fourdollars@debian.org>
 Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260711114937.16670-4-fourdollars@debian.org>
+In-Reply-To: <20260711114937.16670-3-fourdollars@debian.org>
 References: <20260711055247.5412-1-fourdollars@debian.org>
  <20260711114937.16670-1-fourdollars@debian.org>
- <20260711114937.16670-4-fourdollars@debian.org>
+ <20260711114937.16670-3-fourdollars@debian.org>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Sat, 11 Jul 2026 11:58:50 +0000
-Message-Id: <20260711115850.BBF941F000E9@smtp.kernel.org>
+Date: Sat, 11 Jul 2026 12:02:16 +0000
+Message-Id: <20260711120217.0523B1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
 s) to consider:
-- [Medium] The newly introduced `force_pio` module parameter is ignored on =
-Merrifield (MRFLD) SPI controllers.
+
+Pre-existing issues:
+- [High] Missing state clearance in early return paths of `applespi_got_dat=
+a` causes deadlocks on device suspend or removal.
+- [High] Re-submitting an active `spi_message` on timeout causes SPI core q=
+ueue list corruption.
 --
 
---- Patch [3]: [PATCH v4 3/3] spi: pxa2xx: disable DMA for Apple MacBook8,1=
- ---
-commit 0c8e6fc35fa52622b2ece57fb64858693816478b
+--- Patch [2]: [PATCH v4 2/3] Input: applespi - fix NULL pointer dereferenc=
+e in tp_dim open ---
+commit 6c0dbd1a82c175c3c7ce52b489ebc6b640544832
 Author: Shih-Yuan Lee <fourdollars@debian.org>
 
-spi: pxa2xx: disable DMA for Apple MacBook8,1
+Input: applespi - fix NULL pointer dereference in tp_dim open
 
-On MacBook8,1 (early 2015 12" MacBook), the LPSS SPI controller's DMA
-handshake and interrupt routing frequently fail or time out on boot,
-causing the keyboard and trackpad to become unresponsive.
+This commit fixes a NULL pointer dereference in applespi_tp_dim_open().
+It uses smp_load_acquire() to safely load the asynchronously initialized
+touchpad_input_dev and returns -ENODEV if it is not yet available.
 
-Avoid this architectural bug by disabling DMA and forcing the SPI
-controller to use PIO mode. Move this platform/motherboard-level quirk
-to the SPI host controller driver (spi-pxa2xx-pci.c) where LPSS setup
-occurs, preventing layering violations, TOCTOU races, or execute-after-free
-bugs in the client driver.
-
-Additionally, introduce a force_pio module parameter in the PCI
-host controller driver to allow other users to force PIO mode for
-debugging.
-
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=3D108331
-
-> diff --git a/drivers/spi/spi-pxa2xx-pci.c b/drivers/spi/spi-pxa2xx-pci.c
-> index cae77ac185206..96bbc7a7c3817 100644
-> --- a/drivers/spi/spi-pxa2xx-pci.c
-> +++ b/drivers/spi/spi-pxa2xx-pci.c
-
-[ ... ]
-
-> @@ -166,7 +197,7 @@ static int lpss_spi_setup(struct pci_dev *dev, struct=
- pxa2xx_spi_controller *c)
+> diff --git a/drivers/input/keyboard/applespi.c b/drivers/input/keyboard/a=
+pplespi.c
+> index 3bdb9e7cfb8b2..4d339445e9c71 100644
+> --- a/drivers/input/keyboard/applespi.c
+> +++ b/drivers/input/keyboard/applespi.c
+> @@ -963,12 +963,18 @@ static void applespi_debug_update_dimensions(struct=
+ applespi_data *applespi,
+>  static int applespi_tp_dim_open(struct inode *inode, struct file *file)
+>  {
+>  	struct applespi_data *applespi =3D inode->i_private;
+> +	struct input_dev *touchpad;
 > =20
->  	c->dma_filter =3D lpss_dma_filter;
->  	c->dma_burst_size =3D 1;
-> -	c->enable_dma =3D 1;
-> +	c->enable_dma =3D pxa2xx_spi_pci_can_dma(dev);
->  	return 0;
->  }
+>  	file->private_data =3D applespi;
 > =20
+> +	/* Pairs with smp_store_release in applespi_register_touchpad_device() =
+*/
+> +	touchpad =3D smp_load_acquire(&applespi->touchpad_input_dev);
+> +	if (!touchpad)
+> +		return -ENODEV;
+> +
+>  	snprintf(applespi->tp_dim_val, sizeof(applespi->tp_dim_val),
+>  		 "0x%.4x %dx%d+%u+%u\n",
+> -		 applespi->touchpad_input_dev->id.product,
+> +		 touchpad->id.product,
+>  		 applespi->tp_dim_min_x, applespi->tp_dim_min_y,
+>  		 applespi->tp_dim_max_x - applespi->tp_dim_min_x,
+>  		 applespi->tp_dim_max_y - applespi->tp_dim_min_y);
 
-[Severity: Medium]
-What about mrfld_spi_setup()? It looks like the force_pio module parameter
-introduced in this patch is only respected for LPSS devices.
+[Severity: High]
+This isn't a bug introduced by this patch, but can the early return paths in
+applespi_got_data() cause a deadlock on device suspend or removal?
 
-If a user boots a Merrifield (MRFLD) system and passes
-spi_pxa2xx_pci.force_pio=3D1, the parameter will be ignored since the driver
-still hardcodes DMA enablement in mrfld_spi_setup():
+In drivers/input/keyboard/applespi.c:applespi_got_data(), if a packet arriv=
+es
+with a CRC error or as a partial multi-packet receipt, the function returns
+early without clearing applespi->read_active:
 
-drivers/spi/spi-pxa2xx-pci.c:mrfld_spi_setup() {
-    ...
-	c->dma_filter =3D lpss_dma_filter;
-	c->dma_burst_size =3D 8;
-	c->enable_dma =3D 1;
-	return 0;
-}
+    if (applespi->drain) {
+        applespi->read_active =3D false;
+        applespi->write_active =3D false;
+        wake_up_all(&applespi->drain_complete);
+    }
+    return;
 
-Could mrfld_spi_setup() also use pxa2xx_spi_pci_can_dma(dev) to ensure
-the parameter works consistently across all devices supported by this drive=
-r?
+If the device is then suspended, applespi_drain_reads() is called, which wa=
+its
+indefinitely:
+
+    wait_event_lock_irq(applespi->drain_complete, !applespi->read_active,
+                        applespi->cmd_msg_lock);
+
+Since GPE interrupts are disabled during suspend and no new reads are queue=
+d,
+does read_active remain true forever, deadlocking the system?
+
+
+[Severity: High]
+This is a pre-existing issue, but does the timeout logic in
+applespi_send_cmd_msg() cancel the active SPI message before resubmitting i=
+t?
+
+When a timeout occurs, the internal state is cleared:
+
+    if (ktime_ms_delta(ktime_get(), applespi->cmd_msg_queued) < 1000)
+        return 0;
+
+    dev_warn(&applespi->spi->dev, "Command %d timed out\n",
+             applespi->cmd_evt_type);
+
+    applespi->cmd_msg_queued =3D 0;
+    applespi->write_active =3D false;
+
+But then the exact same spi_message (&applespi->wr_m) is resubmitted:
+
+    sts =3D applespi_async(applespi, &applespi->wr_m,
+                         applespi_async_write_complete);
+
+If the original message is still actively linked in the SPI core's queue,
+will passing the same spi_message to spi_async() again cause list corruption
+and a kernel panic?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260711114937.1667=
-0-1-fourdollars@debian.org?part=3D3
+0-1-fourdollars@debian.org?part=3D2

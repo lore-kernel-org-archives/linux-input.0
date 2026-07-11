@@ -1,112 +1,85 @@
-Received: from out162-62-57-137.mail.qq.com (out162-62-57-137.mail.qq.com [162.62.57.137])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 618FD2D1913
-	for <linux-input@vger.kernel.org>; Sat, 11 Jul 2026 14:23:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=162.62.57.137
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 28AED3A8FE8
+	for <linux-input@vger.kernel.org>; Sat, 11 Jul 2026 15:56:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783779800; cv=none; b=hMsKgGTebhN9TcVb//5ccfPNWO2Da1nWcMYonXLc8bKqTaAOQXunvIIChmTBGtxyE4ni3s329BL0Y/300NNv4jluAO15z0L5FSJeHMlNraUePDAOpKF+PYe05TnrtnUAw39uPqZNUbRpt1L7T6ff94wdKVAoqwDmHGBZ69nCIvI=
+	t=1783785416; cv=none; b=fO9DSFBhTa3/URkobBs38ZPLzmjoSs6sbkmsEyPicv6ewY1A1gjY0CCgzqSLccDHX9bEOFcsU0bVY4Xxi3c6UK9D/4+von60YM0SyZ9cB5Jtnqv+VFxJ+7cDpiibpp+zRidCpYsqeRsLob+N7KR/OtE8R0LBQH0GcjcilZpaqQc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783779800; c=relaxed/simple;
-	bh=Z3ysDAcu64wjIDQodnhoYELVCW9ak1YdOLc0SwLlWpQ=;
-	h=Message-ID:From:To:Cc:Subject:Date:MIME-Version; b=Nxym6WUQkhPwKtw+iZATrR7F2m99iIaBmf69I7cqQ8dTsu9+oQlHZ+xGNv5wCEVUEAioSMmzr8X9kOUD7KxyWvedcoRakXiMURhw8l1yI8SuTGYL2uX8Hi6/Hnu+i6QMdhV08pxOmHC2JL/9kG3S7MeVaJqFS9aI16gJhwe1j4w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=qq.com; spf=pass smtp.mailfrom=qq.com; dkim=pass (1024-bit key) header.d=qq.com header.i=@qq.com header.b=BfzVkcsG; arc=none smtp.client-ip=162.62.57.137
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=qq.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=qq.com
+	s=arc-20240116; t=1783785416; c=relaxed/simple;
+	bh=SFRI5BFcprMUa3JpdsIZ3TCZEdjqCBcEU7UivobKvZw=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=OsbEH24tdIyVkPLjZ4AOJRRShcMihGlKoG0Q+1NrX5cLaUi+QEvBbPQ4Lm1BTradmN2I0HlB32Jm95nPT7SmyNqbHaCnIrUL8IpB3Dd6d9qIjLq1Y5qeBiXteabqqXCxgMHZB/3mZYLsJ9+PcTbEwFsSRGGYNVsLTqv6HU2C5Q4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=PT7ZXANL; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=qq.com header.i=@qq.com header.b="BfzVkcsG"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qq.com; s=s201512;
-	t=1783779786; bh=GOXnMCmSmoM1nGz3VQIj7fW9ZNHNn5zrPA5YeWIsyTk=;
-	h=From:To:Cc:Subject:Date;
-	b=BfzVkcsGAn3iwo6Mrj1RW8PZ6pLDNJ9p7st5uF3828ModoLUeUgT5ydj29sLZsqav
-	 eZY5iZ6L5UbGy9ddrEvyUHDmKXdI+aISSRBmMAAu/L1GlT9CIvXcHQxvewpfiwdUa0
-	 Y73akS0VYtPkwf14C3+sD66ZiaTCRGdjcLdv2/UY=
-Received: from xein-revoarch ([2409:8970:110a:3b78:e88b:a1f9:882c:88d6])
-	by newxmesmtplogicsvrszb51-1.qq.com (NewEsmtp) with SMTP
-	id 5B92CE30; Sat, 11 Jul 2026 22:22:57 +0800
-X-QQ-mid: xmsmtpt1783779777t0qojfy43
-Message-ID: <tencent_AC29AFBFF3AF614C95F0E2E59A721D595C0A@qq.com>
-X-QQ-XMAILINFO: Mzcurg9uYAemhnUk//fn6lsAY+ANQCdz7KiBBWuvULNcV5gov9ArU7HogQsNfe
-	 kYAg2Tcy8c2DRASriv0ysrC5GAjSngHgQsW9W6QUs6lDL+jC2LGoiUa5Wi7NcPIMxLjJXY1abHcz
-	 E2aRqWnsgG33TtnCqR+0LQy3CTBrlRKTWVw8xwqbDh1QAsTf+47bkSU/5Zo1+KjUEdr+8ZU/iPhY
-	 hs3cTk/gK7PTvCJKXCN8MsCR7jSCmmGwl8BJwY40M9mRpMR0MZicBJEkmlCeK7wTsBqx1tM6hDMR
-	 iMUw4EYAPzt+FaGa3+M8BHQzXS6cQbmejhNGvKCfjPPBcxIl7X5fH8UieOr+S5NzxPyPgSMZcugV
-	 nveA7UhoSmMIpS+6Bw2QUQfapuVpQHHKzfScWrZPubYf9tFD48+ArsbRYDpD4Uyt7wC7cmBYMF8a
-	 7TclLTFcVIeLmrRzX0eolqXlRuxSZCy57vEYuSJrG8Mwk7ruuoFzQTcabJGET++7kD+WxKZjC70U
-	 PPGzurvSWxLwfrTgLtWmSM9Suw7OVVlpXc0NluFY7Xdmz6TIWGoV7c3DR5Df87JSCjgFJaSHILX4
-	 adEyIpXesfAlwxRwIUHDl29MO8yzU1MkNC5R02iZT+bYa7fobwVqq/JamyX7vd0FNOItNNDyie2G
-	 jY4aqMEEhYajAzHyxrPKYRLnMa+KYu1Yq9dhl5FG+OGuJffe11U3UreAOJIlUy3y34Ihw4WSkNAs
-	 RWEpjitSXwiubxBHKCOErBUkg0ZXA5pmPSlKdSwtc877ftm/WpWSe4IcdK1sM0/RT5T1/Pm3CsoV
-	 aIexW/Fvy2zMKgUHz2KVpxu2LBJES5HHeEmQcbx40tC7ZV7c7ncwVzlgoeTGOBgltK8Tc/BNlOZB
-	 GU9p8SxJzxDBiNoWVuzg83W+lJW8kmoP0jjb0h4JcJ7tvyH0g9nWRJUOaA/dJGnJDhbYdDlihoG8
-	 mXpUC4b0DLSEHRWGu1uU/tiqI0MPeoATAajj7bqg6MgG+Io+WsXty7h1q42BjGkdmzMiMJZksV3d
-	 caz/eaHLv2VpSRyw1eBfaU+au1cCs0muWACk6jRcn/ZLGAn8qs
-X-QQ-XMRINFO: OD9hHCdaPRBwH5bRRRw8tsiH4UAatJqXfg==
-From: Xianglin Lin <1021538027@qq.com>
-To: Jiri Kosina <jkosina@suse.com>
-Cc: Benjamin Tissoires <bentiss@kernel.org>,
-	linux-input@vger.kernel.org,
-	Xianglin Lin <1021538027@qq.com>
-Subject: [PATCH] HID: multitouch: reclassify HTIX5288 to WIN_8_FORCE_MULTI_INPUT_NSMU
-Date: Sat, 11 Jul 2026 22:22:55 +0800
-X-OQ-MSGID: <20260711142255.10193-1-1021538027@qq.com>
-X-Mailer: git-send-email 2.55.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="PT7ZXANL"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10C801F00A3A
+	for <linux-input@vger.kernel.org>; Sat, 11 Jul 2026 15:56:55 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1783785415;
+	bh=SFRI5BFcprMUa3JpdsIZ3TCZEdjqCBcEU7UivobKvZw=;
+	h=References:In-Reply-To:From:Date:Subject:To:Cc;
+	b=PT7ZXANLZgjpKXKIg+w6s4U3biKinVXPnA65xlugCzroQ2zl+gfQYZcwLCF/RJEr0
+	 86v6i5vLCPgVwxHaRK0/UuNkt5p5Y65PJYBIDk9rdbt+McM5FKnbYfbRV3vrUka/kt
+	 3RB9dhgeviXzC6jE6vfIYvrgUM3muozuVlzV2AyJZvr0iQVXUcluIflM8RkExzjNiz
+	 WHiTz66PjYEADHf4nNSmKM8HNBgke0Wr3aVe/IrWzaq8nMsKtq6Aqe8kFePHXmCVya
+	 i6gQBINklRllNkFOiJXCih45/B//ZWKcW7eiJwr3f6KBVqSqoJLlT2pUYREMdCnQ5Y
+	 W3VCzVMFlhNTQ==
+Received: by mail-lf1-f51.google.com with SMTP id 2adb3069b0e04-5b015b2d792so2051957e87.3
+        for <linux-input@vger.kernel.org>; Sat, 11 Jul 2026 08:56:54 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AHgh+RpZKXuoWKVMyEmeCkfdTpkqlOEMGLCh1X89t0iyUYLUEyFauxbRDX9OBHvGFCfQXDsH1E9EAj7CH4OHoQ==@vger.kernel.org
+X-Gm-Message-State: AOJu0YwJB1kjAXu9cCnaAouQo3KE6W7qaDZwKhXisa9VTmJhs81BfoFT
+	pne1wdTWbskUq14tMasb49JjLg8yNtBE9GOeB1MamuHUkuJf1aYGCvRPqLeKjHQveH0AxGRxJGj
+	6FrZDfXMKFRgtmQPLZ3b9p6eHD+TqClg=
+X-Received: by 2002:a05:6512:118d:b0:5ae:b36c:81c7 with SMTP id
+ 2adb3069b0e04-5b02369b29bmr708700e87.35.1783785413596; Sat, 11 Jul 2026
+ 08:56:53 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20260710211954.1373336-1-arnd@kernel.org>
+In-Reply-To: <20260710211954.1373336-1-arnd@kernel.org>
+From: Linus Walleij <linusw@kernel.org>
+Date: Sat, 11 Jul 2026 17:56:40 +0200
+X-Gmail-Original-Message-ID: <CAD++jLk7MWRccwuzXBLtdUk+k=Ykt_fJp-C6Sj0_2EMMEr3xxA@mail.gmail.com>
+X-Gm-Features: AUfX_mwg6yb6TVVJdXhaZOS6qdtgZlShwnqqpOMB7tnZklRdo8JRbXGnpCKCf4s
+Message-ID: <CAD++jLk7MWRccwuzXBLtdUk+k=Ykt_fJp-C6Sj0_2EMMEr3xxA@mail.gmail.com>
+Subject: Re: [PATCH v2 00/10] treewide: replace linux/gpio.h
+To: Arnd Bergmann <arnd@kernel.org>
+Cc: linux-gpio@vger.kernel.org, Bartosz Golaszewski <brgl@kernel.org>, 
+	Arnd Bergmann <arnd@arndb.de>, Andrew Lunn <andrew@lunn.ch>, 
+	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>, 
+	Gregory Clement <gregory.clement@bootlin.com>, Frank Li <Frank.Li@nxp.com>, 
+	Robert Jarzmik <robert.jarzmik@free.fr>, Krzysztof Kozlowski <krzk@kernel.org>, 
+	Greg Ungerer <gerg@linux-m68k.org>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, 
+	Hauke Mehrtens <hauke@hauke-m.de>, =?UTF-8?B?UmFmYcWCIE1pxYJlY2tp?= <zajec5@gmail.com>, 
+	Yoshinori Sato <ysato@users.sourceforge.jp>, 
+	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
+	Dominik Brodowski <linux@dominikbrodowski.net>, linux-kernel@vger.kernel.org, 
+	linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, 
+	patches@opensource.cirrus.com, linux-m68k@lists.linux-m68k.org, 
+	linux-mips@vger.kernel.org, linux-sh@vger.kernel.org, 
+	linux-input@vger.kernel.org, linux-sunxi@lists.linux.dev, 
+	linux-phy@lists.infradead.org, linux-rockchip@lists.infradead.org, 
+	linux-sound@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Commit b5e65ae557da ("HID: multitouch: Add quirk for Hantick 5288
-touchpad") assigned MT_CLS_NSMU to the HTIX5288 (0911:5288).  This was
-necessary because the device sometimes fails to send touch release
-signals when transitioning from >=2 fingers to <2 fingers, and
-MT_QUIRK_NOT_SEEN_MEANS_UP fixes stuck touches by treating missing
-contacts as released.
+On Fri, Jul 10, 2026 at 11:20=E2=80=AFPM Arnd Bergmann <arnd@kernel.org> wr=
+ote:
 
-However, MT_CLS_NSMU only carries MT_QUIRK_NOT_SEEN_MEANS_UP.  It
-lacks MT_QUIRK_CONTACT_CNT_ACCURATE and MT_QUIRK_IGNORE_DUPLICATES.
-As a result, after a two-finger scroll finger lift, the device still
-reports stale coordinates from the released contact in subsequent
-frames, and the driver overwrites the remaining active slot with
-those frozen coordinates.  The remaining finger appears stuck at the
-lift position until all fingers are lifted.
+> From: Arnd Bergmann <arnd@arndb.de>
+>
+> The linux/gpio.h header used to be the global definition for the gpio
+> interfaces, with 1100 users back in linux-3.17. In linux-7.2, only about
+> 130 of those remain, so this series cleans out the rest.
 
-This was confirmed via evtest on Arch Linux 7.1.3: after
-TRACKING_ID=-1 for the released slot, every subsequent frame contained
-duplicate position pairs -- the real moving finger's coordinates
-followed by the lifted finger's frozen position, both attributed to
-the active slot.
+The series:
+Reviewed-by: Linus Walleij <linusw@kernel.org>
 
-Reclassify the device to MT_CLS_WIN_8_FORCE_MULTI_INPUT_NSMU
-(0x0018), which preserves the original MT_QUIRK_NOT_SEEN_MEANS_UP
-fix while adding the necessary Win8 quirks (CONTACT_CNT_ACCURATE,
-IGNORE_DUPLICATES), preventing stale coordinate contamination.
-
-The additional FORCE_MULTI_INPUT flag is harmless here: it separates
-the mouse and touchpad collections into distinct input devices,
-which is the standard behavior libinput already expects.
-
-Fixes: b5e65ae557da ("HID: multitouch: Add quirk for Hantick 5288 touchpad")
-Signed-off-by: Xianglin Lin <1021538027@qq.com>
----
- drivers/hid/hid-multitouch.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -2722,7 +2722,7 @@ static const struct hid_device_id mt_devices[] = {
- 			HID_ANY_ID) },
- 
- 	/* Hantick */
--	{ .driver_data = MT_CLS_NSMU,
-+	{ .driver_data = MT_CLS_WIN_8_FORCE_MULTI_INPUT_NSMU,
- 		HID_DEVICE(BUS_I2C, HID_GROUP_MULTITOUCH_WIN_8,
- 			   I2C_VENDOR_ID_HANTICK, I2C_PRODUCT_ID_HANTICK_5288) },
- 
--- 
-2.55.0
-
+Yours,
+Linus Walleij

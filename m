@@ -1,68 +1,70 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 97CAB1C3F31;
-	Sat, 11 Jul 2026 02:52:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 54359175A79
+	for <linux-input@vger.kernel.org>; Sat, 11 Jul 2026 03:05:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783738358; cv=none; b=O7y9jU4PJtCZrCyeP5+S+L6uTu7ckEIOuGd2KOKMZcq2MP0T63eMGwIT60ijyqYZtalQDZgV3ucQlhzrTDhia+tsn6vARW0bS2/x8qd6eBzF8hSe0q4sK8EeuWSgUAGktkjCr7sh2T1cdoy+qnlSLkJKo3fJtR7v+KT961zAwTk=
+	t=1783739102; cv=none; b=k9y9kWtZwVN7TulqJSSAByUowf87XDfHHTEhH4TOOpgGd0fEiHTsOPwXgrxkIa3C9L+/nGC9TrDkHMoJpaQuf1GgSOzB56jtEjSz65XwNwo0iN8L5Yp6lYjybrcCWmSll2PQ+Qib/TkrrOXfL+nE503eqCOZUtB64fwkjaKs8vg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783738358; c=relaxed/simple;
-	bh=C4JjzYlTHOb/IQ0FThHKuzBfVRnQfUR3rI5B+rk4RMA=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=MK+YgceNiFIO31B3xxAy5eC4EJ4s71bw/Ww70YbxXXxzRVmswtc+ox+/6M/K8SUCZTUb76CYG2nkWKKGXchO0rmAfVSX2YfHk+ecPppHuXtVlutUkTg0VP5eMvepjfHi0quBFlPvOzAtMiE1uqeP+jqI5+StvMQtzY6xWwuG6CE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=rANtJ8Qn; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1783739102; c=relaxed/simple;
+	bh=kQdHKqKAOn2AeCrUcIhADXRpt1C3ufIQ84hbtdI3uR0=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=FVv8tF8lWUC8sEg/dyYlH5VgLN2r5tvkpz+QH/5yUQHC5UQbCg1n9WPBOC8nDh47/ResZ3Wg1RIvjLQIUvma/2G+SVuydVHkHG8NVpO3rSRRxI34dI+arZUgQmaQSNM65pT9/96VUzDsPRVr+wiKeuepYtfY6HWzZdi8KZzM2BQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=L3Lm5JoW; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="rANtJ8Qn"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 57AB8C2BCB8;
-	Sat, 11 Jul 2026 02:52:38 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1783738358;
-	bh=C4JjzYlTHOb/IQ0FThHKuzBfVRnQfUR3rI5B+rk4RMA=;
-	h=From:Date:Subject:To:Cc:Reply-To:From;
-	b=rANtJ8Qn8IHvOYr+foD5mmUNKjBNfnbC6hrgac5IB9ir+YRSYvJupofBgrUGOSyol
-	 qW5/DBVo84dwPenmOvXUNj1OqYusEE23JZWfXokx/srb9Vgrs6GtoOrb2Sw2niF18o
-	 RD7tOweooR6z/NakXZUWYe2K+YvZY4wYa4DPrX44XNqbEUJgjyWUBLPTiRzT8rL2tW
-	 eClqqgDWrJE1/YpUXVhTNKSOBcEp03u9osxLG5QXFOOG2wwaQWx04Jtsd9eZpLE84R
-	 TYdYEVwa5W5vyBtd8hedQABaTt2n5axMd+fj4m0GGP0zpXzLTxQYWzAMrewqOUz2K9
-	 VYz+fDSWhXj1g==
-Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 35385C43458;
-	Sat, 11 Jul 2026 02:52:38 +0000 (UTC)
-From: Miles Krause via B4 Relay <devnull+mileskrause5200.gmail.com@kernel.org>
-Date: Fri, 10 Jul 2026 22:52:36 -0400
-Subject: [PATCH v3] Input: qt1050 - wait for calibration to complete
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="L3Lm5JoW"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA9D01F00A3A;
+	Sat, 11 Jul 2026 03:05:00 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1783739101;
+	bh=qMbjJG8+lE7s9MnMz+RA/BjQ3id1q/gUTWixhddCHok=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=L3Lm5JoWavt3akS0k1kTwLMIZNXIGGRXCRS2cUy67zIpRv/MpCzhXLdwn65XEjY1b
+	 0/wBrTOXXeh89ll5YUeL4bF2KfqDeV6k32VDpb20bSJRTHw+w14CMlFYVy6bzX+meK
+	 1rsckILv6liCUURDpaZqXSStWos1KQ5bA+t71peYxoqI2SeTyxBtp6ccbzwCDjk5JT
+	 5DBxtt4lk/xthzp1r6NUUQ7UXXSnqpNZIs0yVngH5Rh4EdVwDkRMT0VP9gU4XhxjxE
+	 V4aWV3+5ImsASIAKL8U5Ww0A7O6r2iSV3Z+gLCI1bTvWnRsQ2HxqyRmno5cwc+n7Yq
+	 FQcjcTrMzmuJQ==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v3] Input: qt1050 - wait for calibration to complete
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Miles Krause" <mileskrause5200@gmail.com>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20260710-qt1050-calibration-status-bit-v3-1-cc9ae3f0b2ec@gmail.com>
+References: <20260710-qt1050-calibration-status-bit-v3-1-cc9ae3f0b2ec@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Sat, 11 Jul 2026 03:05:00 +0000
+Message-Id: <20260711030500.CA9D01F00A3A@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20260710-qt1050-calibration-status-bit-v3-1-cc9ae3f0b2ec@gmail.com>
-X-B4-Tracking: v=1; b=H4sIAPOvUWoC/5WOyw7CIBQFf6VhLQawLdaV/2FcQLm01/ShQImm6
- b9L68alLieZzDkz8eAQPDllM3EQ0eM4JDjsMlK3amiAoklMBBMlk5zRR+CsYLRWHWqnQtKpDyp
- MnmoMlGkBuaysNbkmqXF3YPG59S/XD/tJ36AOa3Q1WvRhdK/tQOSr9+tW5JRTyK003MhK6vLc9
- Aq7fT32ZN2K4q+aSDVVHI0qc22shO/asixvRRD8PyoBAAA=
-X-Change-ID: 20260710-qt1050-calibration-status-bit-0b2e479ffd4b
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
- Rob Herring <robh@kernel.org>, Marco Felsch <m.felsch@pengutronix.de>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
- Sashiko <sashiko-bot@kernel.org>, Miles Krause <mileskrause5200@gmail.com>
-X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1783738357; l=3064;
- i=mileskrause5200@gmail.com; s=20260710; h=from:subject:message-id;
- bh=WQHr5mEu/gw6iREz/hzfxramkMr/pz+yHhcl6LNQ9tE=;
- b=K6EsXMlYrn+kamEyd/CqMT8QkfXsV3PiWGoPUJh1ixXGUfWohGNvasWl06MXRsjZrCd8mE/Hv
- O8fmABjf8WjCHhQ0shBC1smmieN5HNpXsOtyKCa3mfsiA+ppMVWX/cX
-X-Developer-Key: i=mileskrause5200@gmail.com; a=ed25519;
- pk=QNhNjcQarqig3ColJBIEr3DYfWM1PHpP7z+6thxWXaU=
-X-Endpoint-Received: by B4 Relay for mileskrause5200@gmail.com/20260710
- with auth_id=861
-X-Original-From: Miles Krause <mileskrause5200@gmail.com>
-Reply-To: mileskrause5200@gmail.com
 
-From: Miles Krause <mileskrause5200@gmail.com>
+Thank you for your contribution! Sashiko AI review found 4 potential issue(=
+s) to consider:
+
+Pre-existing issues:
+- [High] Polling for a transient 'calibration started' state makes the prob=
+e highly susceptible to random timeouts due to thread preemption or schedul=
+ing delays.
+- [High] The calibration is triggered and awaited before the soft reset and=
+ firmware data application, rendering the calibration useless and leaving t=
+he device uncalibrated.
+- [High] Command register `QT1050_RES_CAL` is not volatile, leading to cach=
+ed commands being erroneously re-written.
+- [High] If `regmap_write()` fails during suspend, the IRQ remains disabled=
+ indefinitely.
+--
+
+--- Patch [1]: [PATCH v3] Input: qt1050 - wait for calibration to complete =
+---
+commit ae3cb773621fc88acc85ed8d8f19253b64a18472
+Author: Miles Krause <mileskrause5200@gmail.com>
+
+Input: qt1050 - wait for calibration to complete
 
 The CALIBRATE flag is set when calibration begins and clears when it
 finishes. regmap_read_poll_timeout() stops when its condition becomes
@@ -73,82 +75,90 @@ First wait for the flag to become set, then wait for it to clear before
 continuing with the soft reset. Use a 500 ms completion timeout to leave
 margin beyond the usual calibration time.
 
-Fixes: cbebf5addec1 ("Input: qt1050 - add Microchip AT42QT1050 support")
-Reported-by: Sashiko <sashiko-bot@kernel.org>
-Closes: https://lore.kernel.org/r/20260711024428.ED7FF1F000E9@smtp.kernel.org
-Signed-off-by: Miles Krause <mileskrause5200@gmail.com>
----
-Compile-tested on x86_64 with:
+Link: https://lore.kernel.org/r/20260711024428.ED7FF1F000E9@smtp.kernel.org
 
-  make O=out allmodconfig
-  make O=out W=1 drivers/input/keyboard/qt1050.o
+> --- a/drivers/input/keyboard/qt1050.c
+> +++ b/drivers/input/keyboard/qt1050.c
+[ ... ]
+> @@ -498,9 +499,18 @@ static int qt1050_probe(struct i2c_client *client)
+>  		return err;
+>  	}
+>  	err =3D regmap_read_poll_timeout(ts->regmap, QT1050_DET_STATUS, status,
+> -				 status >> 7 =3D=3D 1, 10000, 200000);
+> +				 status & QT1050_DET_STATUS_CALIBRATE,
+> +				 10000, 200000);
 
-Sparse-tested with:
+[Severity: High]
+This is a pre-existing issue, but does polling for a transient state here
+make the probe susceptible to random timeouts?
 
-  make O=out-sparse allmodconfig
-  make O=out-sparse C=1 CHECK=sparse drivers/input/keyboard/qt1050.o
----
-Changes in v3:
-- Wait for calibration to start before waiting for completion.
-- Increase the calibration completion timeout to 500 ms.
-- Link to v2: https://patch.msgid.link/20260710-qt1050-calibration-status-bit-v2-1-a58da64bdf7e@gmail.com
+If calibration completes very quickly before the first read, or if the
+kernel thread is delayed or preempted, could we miss the 1 state entirely
+and time out after 200ms? Since this causes probe to fail with -ETIMEDOUT,
+could this randomly leave the device unusable on faster buses?
 
-Changes in v2:
-- Invert the polling condition to wait for calibration to finish.
-- Reframe the change as a bug fix based on Sashiko's review.
-- Link to v1: https://patch.msgid.link/20260710-qt1050-calibration-status-bit-v1-1-e4f7d1d797b6@gmail.com
+> +	if (err) {
+> +		dev_err(dev, "Calibration did not start: %d\n", err);
+> +		return err;
+> +	}
+> +
+> +	err =3D regmap_read_poll_timeout(ts->regmap, QT1050_DET_STATUS, status,
+> +				       !(status & QT1050_DET_STATUS_CALIBRATE),
+> +				 10000, 500000);
+> +	if (err) {
+> +		dev_err(dev, "Calibration did not complete: %d\n", err);
+>  		return err;
+>  	}
 
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Rob Herring <robh@kernel.org>
-To: Marco Felsch <m.felsch@pengutronix.de>
-Cc: linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
----
- drivers/input/keyboard/qt1050.c | 16 +++++++++++++---
- 1 file changed, 13 insertions(+), 3 deletions(-)
+[Severity: High]
+This isn't a bug introduced by this patch, but looking at the sequence in
+qt1050_probe(), calibration is triggered before the soft reset and custom
+firmware data application:
 
-diff --git a/drivers/input/keyboard/qt1050.c b/drivers/input/keyboard/qt1050.c
-index f9f480c91032..8cd061587302 100644
---- a/drivers/input/keyboard/qt1050.c
-+++ b/drivers/input/keyboard/qt1050.c
-@@ -27,7 +27,8 @@
- #define QT1050_FW_VERSION	0x01
- 
- /* Detection status */
--#define QT1050_DET_STATUS	0x02
-+#define QT1050_DET_STATUS		0x02
-+#define QT1050_DET_STATUS_CALIBRATE	BIT(7)
- 
- /* Key status */
- #define QT1050_KEY_STATUS	0x03
-@@ -498,9 +499,18 @@ static int qt1050_probe(struct i2c_client *client)
- 		return err;
- 	}
- 	err = regmap_read_poll_timeout(ts->regmap, QT1050_DET_STATUS, status,
--				 status >> 7 == 1, 10000, 200000);
-+				 status & QT1050_DET_STATUS_CALIBRATE,
-+				 10000, 200000);
- 	if (err) {
--		dev_err(dev, "Calibration failed: %d\n", err);
-+		dev_err(dev, "Calibration did not start: %d\n", err);
-+		return err;
-+	}
-+
-+	err = regmap_read_poll_timeout(ts->regmap, QT1050_DET_STATUS, status,
-+				       !(status & QT1050_DET_STATUS_CALIBRATE),
-+				 10000, 500000);
-+	if (err) {
-+		dev_err(dev, "Calibration did not complete: %d\n", err);
- 		return err;
- 	}
- 
+qt1050_probe() {
+    ...
+    err =3D regmap_update_bits(ts->regmap, QT1050_RES_CAL, 0x7f,
+                             QT1050_RES_CAL_CALIBRATE);
+    ...
+    err =3D regmap_update_bits(ts->regmap, QT1050_RES_CAL,
+                             QT1050_RES_CAL_RESET, QT1050_RES_CAL_RESET);
+    ...
+    err =3D qt1050_apply_fw_data(ts);
+}
 
----
-base-commit: c8f174900926d3b58cd048ac33b4cbb3de419bfe
-change-id: 20260710-qt1050-calibration-status-bit-0b2e479ffd4b
+Does this logic render the calibration ineffective? Modifying the physical
+capacitive tuning parameters usually requires recalibration after they are
+set to establish accurate baselines, rather than before.
 
-Best regards,
---  
-Miles Krause <mileskrause5200@gmail.com>
+[Severity: High]
+Also pre-existing, but do these read-modify-write operations modify a cached
+command register and accidentally accumulate bits?
 
+QT1050_RES_CAL is omitted from the volatile registers list in
+qt1050_volatile_reg(). Triggering calibration caches BIT(1). Later,
+triggering the soft reset causes regmap_update_bits() to read BIT(1) from
+the cache, set BIT(7), and write BIT(7) | BIT(1) to the hardware.
 
+Could this trigger both a calibration and a soft reset simultaneously and
+cause unpredictable firmware behavior?
+
+[Severity: High]
+This is a pre-existing issue unrelated to the patch above, but looking at
+qt1050_suspend(), if regmap_write() fails, does the IRQ remain permanently
+disabled?
+
+qt1050_suspend() {
+    disable_irq(client->irq);
+    ...
+    return regmap_write(ts->regmap, QT1050_LPMODE,
+                        device_may_wakeup(dev) ? 125 : 0);
+}
+
+If the I2C write fails, the function returns the error directly.
+Since the PM core will not call resume for a device that failed to suspend,
+enable_irq() is never called. Could this leave the touch panel permanently
+dead until the module is reloaded?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260710-qt1050-cal=
+ibration-status-bit-v3-1-cc9ae3f0b2ec@gmail.com?part=3D1

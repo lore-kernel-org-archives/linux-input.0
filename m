@@ -1,50 +1,50 @@
-Received: from mail-pj1-f51.google.com (mail-pj1-f51.google.com [209.85.216.51])
+Received: from mail-pl1-f182.google.com (mail-pl1-f182.google.com [209.85.214.182])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 859F13769F5
-	for <linux-input@vger.kernel.org>; Sat, 11 Jul 2026 11:50:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E1C773C13F8
+	for <linux-input@vger.kernel.org>; Sat, 11 Jul 2026 11:50:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783770607; cv=none; b=gcxgBhakiP6BK34tbNKED1PdbpOlIBy0NZApkUffbCgp24CTaSmyoP0jvUvT+onIn9AIxfTIgJ/wtwxxMVFeXpgmVlBLtyBSaTeiNpVmqvksqH72CoLul3a209X2rGOIt3+gECOKIIsmeezChBohkx/V0E+pCxqbUZp1TsUVdyw=
+	t=1783770608; cv=none; b=nuVpmKOYxR3Oaj0ScwnUUPjJbgp+C7JttNoVgfJqk/XeaJrk+BApUX8aaiUOjmiobpyOeJgUHrXNTjPfJrRRpeLkyW0sClk0+YSLJ8Q6lGilQ7x3ixOqQrtJlEaTcoOZGjJMvOfLlIZ0BOPfjVuntfyHj5qpjbRzedfks9bSnRw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783770607; c=relaxed/simple;
-	bh=16ZCF42qfyfecp4FE6xDMCEwifOTFXd6LvfmvaYgqJU=;
+	s=arc-20240116; t=1783770608; c=relaxed/simple;
+	bh=FImt+bsSj++vXBt8dl06uq7wyPYDWF8eV3nAHecKHCA=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=NwNaZ9FVvRBAEVFygdH1Bsu4QnyWXOPnbbCIbUFxZ7Q/6tvnE+Tp2ufBuF01z0i38fAhddCGyUbcw5RbJWEHrdZ5ApKw6wPJHor9ywxB66KGLMxRmtllvKRADzn2mh4hURTg2upnoRCt8EaarWak5gF+/CwyRM99VZ4/KP7CQ1o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=debian.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.216.51
+	 MIME-Version; b=Riqmlesfq7J0TiJFmslTrmXJcYbwrYFyLnthogOirGX7DTm7KYl2QC9vId+m7MdEuUI/TEzDOkX6F3N7ZcWpkj6tMBIriycmpcy5D09inc4k59DihuqB4/o03UAjMPPR1p9h7i51bnGx3H6Id7zJtLZPLhV4O0g1y+DXeK+pOX0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=debian.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.214.182
 Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=debian.org
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Received: by mail-pj1-f51.google.com with SMTP id 98e67ed59e1d1-384c94c9414so1732507a91.3
-        for <linux-input@vger.kernel.org>; Sat, 11 Jul 2026 04:50:04 -0700 (PDT)
+Received: by mail-pl1-f182.google.com with SMTP id d9443c01a7336-2ceab75934dso2296325ad.2
+        for <linux-input@vger.kernel.org>; Sat, 11 Jul 2026 04:50:06 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1783770604; x=1784375404;
+        d=1e100.net; s=20251104; t=1783770606; x=1784375406;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=Hk5V5J+DbPG/Ee/w/hWVnY1n/ftwZsWJmMFAPAEy6a0=;
-        b=DqYmgjnaJ5LzhfW8Lti1s4mwFOIhSGD2Itg/VMAzxp3AZU1pokQ9NBdE9MaA7o3fa/
-         NoIFLqWY3FUeAKC6ZdkIWDLoCGdx0SWPoSsRORnqUeWzLwg+6Gvbgruy4XukYbBHxEUv
-         SCnENqZY6trV+j6uw5Fni5blC3XPqJ2t/Ev0r3irAsJZ1AVsDJmDPqt1TfUUKe/XYnAc
-         JZLS9jcXoHR3sr7iXxoIGNUQRQsz4f2HQqIDU2JfKLVObozXHfE/gryt5uG+w1GFfrjI
-         su4uvJWfMfpZM586cfSVB8xwcoM6XjMVV7hhDzycFA98Hap9CLKXm7qBpe4tvT8Yrq/O
-         dJwg==
-X-Forwarded-Encrypted: i=1; AHgh+Rp0rbo7wr5nR1SFSIuHBcI1RAkmibgtveIEEREHDUahl/4OrLBy1xDIWWjWIySbx+LXToXb3Nv8Q0aIkQ==@vger.kernel.org
-X-Gm-Message-State: AOJu0YzUZqZpeOor2fvrdWdMhB9Sz92CvvoyjWBjACzu8yXFgjcMt9Ut
-	qtlvB+QJxuqbpPubabV65a3aaGQbAiysKGlX9BLWglPN/0NRE8dYdDmuJendJglcjIyZ
-X-Gm-Gg: AfdE7cmd3NnBZdp+b7EwDwOLnbei9RgVyCRHQ8ATogWUHEJQOuRjupnvxAchN8FsbYP
-	pnOoqyFo67iSmT7xd6J8TEeRCyryAu6eTsZOyieS8c2HTnqBPSSnNtWbqmRTJtq13eYiuiweSjt
-	Y050tYmsdORg6nFC74YHYgdUsRTBu4/Q7B/cGpqaRQ82EM7/4E+VBsHu2wy00yMs74MIJbyGMI2
-	NJk4PPwPpyEePJgLoZjPMlxaVux19EqUHkkFjW1bJcJY8C8A0he1PtbsMHFtf6awtzsB7uBJ9Ra
-	HdJkingA3K1ExllUXQUu0+F58T1g+wg00TD+PG9P+W8P1lf3SsMpssm4zOq+8KuKfDWe31sy5EJ
-	vOcoXgSHi1MIpg204FI8ONDvbOROF7vQSXpOL4otqq4cVpIev19NwUwq9zrqjGjySD2GqkSRn+C
-	7nENeRTy39rrdfA1eaDGIFGn4LrRcyE+0DXQT0SnMecDtqAmxEoKgEiIC+ufy7FOucx7S9pIOqx
-	VrXmqUuV9g3y+OaiuvNZb8zXw==
-X-Received: by 2002:a17:90b:58f0:b0:387:e0db:bc23 with SMTP id 98e67ed59e1d1-38dc77b82bemr2604555a91.35.1783770603661;
-        Sat, 11 Jul 2026 04:50:03 -0700 (PDT)
+        bh=HRFub8kSA/fS8InEMuVJNmE6mYQvQVfDODAvVSAOiMA=;
+        b=EJ6ojWn8PU4zazqu60QdTIbpOTsHMIkHqDIJ5UkSO6AanIfgDwWbJsK8VYR15U6E4n
+         PfyuYWU/jc1qwtnmsfLtccCvsye3dNYDUXFmErVy6QQh2/izCEqELvLFIBsMaF4k/Xar
+         TRYt5syUQ7ws88fdg24guiCFE2uyvcfHXpcNWeN8UuQwiWqrbOQusDoJ2YDqGUCCgzCL
+         e6VZoMFu1U+B9CbcptTNij24ZArR/tVHw1qOhu78+1o0UOor3RYAFnjLHmevslzShfoL
+         0aJBadPYQXGv/6pE4i7/DsMZA911TiCcgPcIPSVRTOWOfNRgilWwv0wOMGV6FSywvyl5
+         OzQQ==
+X-Forwarded-Encrypted: i=1; AHgh+RraDcZGk7XZGlgdioHnLPrl7JZNVeFMV2OOg4H8DP4UhstTkxjWtiHzJ/qjQI2VTssjHvbC4RYOa/7LWQ==@vger.kernel.org
+X-Gm-Message-State: AOJu0YzKVn0sZNPh2o058XINurJBswk7jnN/B+iuL8urBaq5H98XmpzK
+	Yh4kl8pmHd+6w/g6TLa0bT9tg75a+2wjzNEFCNQkSWiW4EybY2o46aE=
+X-Gm-Gg: AfdE7cm4vIOHhApTWEwzBMvjupZOXuy/kXDJTD7qD1xngCh1yNLWoYbX/znXjw+fsKO
+	MCAb2k1Y/+Ww2rp9DcEugr/kmuhJGpL9slOTo1FTnwy962FkxL5XQStSxBnWrVDX3VWC3tuhJQB
+	tNHTsAeNJsnTS5rZ+MJS7nS2f4AInCytILxg4GtmAeq1Vspzw3MoxGbre3eABz6OBSGNK7Wc5qU
+	AjrBu+HmHSHKO6C76idb18QoSWK7BtCrOPeB4ebHFj6AuDq06sGMoIDQKouVZxQ9or3x8WImKzL
+	QMLvat7XO3BHDZWg3CDyV9v6kDrxIrAHlTBY8GQIeVRnZU7YRwPAr70paLHpxvya8RLRbOowp+o
+	jmd1KeyWoFC3/ycD0Eu6zN3pCiPnBBSUnwfozN29STQ+Bw/2DjDJFBV4nbFgqnysKU7qsAKt/xi
+	KgXsDD97uj0CnhPBRTsOS02b1mZDaZuKbzdihy67gpubCzqzGz9z8NZUQ8nqtckuCUfGLjdLD2m
+	gXNhm5uukXW7YeWR5cehQdzbQ==
+X-Received: by 2002:a17:90b:3806:b0:384:5dbc:cba5 with SMTP id 98e67ed59e1d1-38dc777c6d4mr2735418a91.26.1783770606205;
+        Sat, 11 Jul 2026 04:50:06 -0700 (PDT)
 Received: from penguin.tail0a1999.ts.net (61-228-52-13.dynamic-ip.hinet.net. [61.228.52.13])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-38a5506b48bsm3957570a91.1.2026.07.11.04.50.01
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-38a5506b48bsm3957570a91.1.2026.07.11.04.50.03
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 11 Jul 2026 04:50:03 -0700 (PDT)
+        Sat, 11 Jul 2026 04:50:05 -0700 (PDT)
 From: Shih-Yuan Lee <fourdollars@debian.org>
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
 	Mark Brown <broonie@kernel.org>
@@ -56,9 +56,9 @@ Cc: Daniel Mack <daniel@zonque.org>,
 	linux-spi@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	linux-arm-kernel@lists.infradead.org
-Subject: [PATCH v4 2/3] Input: applespi - fix NULL pointer dereference in tp_dim open
-Date: Sat, 11 Jul 2026 19:49:36 +0800
-Message-Id: <20260711114937.16670-3-fourdollars@debian.org>
+Subject: [PATCH v4 3/3] spi: pxa2xx: disable DMA for Apple MacBook8,1
+Date: Sat, 11 Jul 2026 19:49:37 +0800
+Message-Id: <20260711114937.16670-4-fourdollars@debian.org>
 X-Mailer: git-send-email 2.39.5
 In-Reply-To: <20260711114937.16670-1-fourdollars@debian.org>
 References: <20260711055247.5412-1-fourdollars@debian.org>
@@ -71,46 +71,87 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The tp_dim debugfs file is registered synchronously during driver probe
-in applespi_probe(). However, the applespi->touchpad_input_dev is
-initialized and registered asynchronously in the driver's worker thread.
+On MacBook8,1 (early 2015 12" MacBook), the LPSS SPI controller's DMA
+handshake and interrupt routing frequently fail or time out on boot,
+causing the keyboard and trackpad to become unresponsive.
 
-If a userspace process opens the debugfs file before the worker thread
-has completed initialization, applespi_tp_dim_open() will dereference
-the NULL applespi->touchpad_input_dev pointer, causing a kernel panic.
+Avoid this architectural bug by disabling DMA and forcing the SPI
+controller to use PIO mode. Move this platform/motherboard-level quirk
+to the SPI host controller driver (spi-pxa2xx-pci.c) where LPSS setup
+occurs, preventing layering violations, TOCTOU races, or execute-after-free
+bugs in the client driver.
 
-Fix this by using smp_load_acquire() to safely load touchpad_input_dev
-and return -ENODEV if it is not yet initialized.
+Additionally, introduce a `force_pio` module parameter in the PCI
+host controller driver to allow other users to force PIO mode for
+debugging.
 
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=108331
 Signed-off-by: Shih-Yuan Lee <fourdollars@debian.org>
 ---
- drivers/input/keyboard/applespi.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/spi/spi-pxa2xx-pci.c | 33 ++++++++++++++++++++++++++++++++-
+ 1 file changed, 32 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/input/keyboard/applespi.c b/drivers/input/keyboard/applespi.c
-index 3bdb9e7cfb8b..4d339445e9c7 100644
---- a/drivers/input/keyboard/applespi.c
-+++ b/drivers/input/keyboard/applespi.c
-@@ -963,12 +963,18 @@ static void applespi_debug_update_dimensions(struct applespi_data *applespi,
- static int applespi_tp_dim_open(struct inode *inode, struct file *file)
- {
- 	struct applespi_data *applespi = inode->i_private;
-+	struct input_dev *touchpad;
+diff --git a/drivers/spi/spi-pxa2xx-pci.c b/drivers/spi/spi-pxa2xx-pci.c
+index cae77ac18520..96bbc7a7c381 100644
+--- a/drivers/spi/spi-pxa2xx-pci.c
++++ b/drivers/spi/spi-pxa2xx-pci.c
+@@ -18,9 +18,14 @@
  
- 	file->private_data = applespi;
+ #include <linux/dmaengine.h>
+ #include <linux/platform_data/dma-dw.h>
++#include <linux/dmi.h>
  
-+	/* Pairs with smp_store_release in applespi_register_touchpad_device() */
-+	touchpad = smp_load_acquire(&applespi->touchpad_input_dev);
-+	if (!touchpad)
-+		return -ENODEV;
+ #include "spi-pxa2xx.h"
+ 
++static bool spi_pxa2xx_force_pio;
++module_param_named(force_pio, spi_pxa2xx_force_pio, bool, 0444);
++MODULE_PARM_DESC(force_pio, "Force PIO mode (disables DMA) for SPI transfers. ([0] = disabled, 1 = enabled)");
 +
- 	snprintf(applespi->tp_dim_val, sizeof(applespi->tp_dim_val),
- 		 "0x%.4x %dx%d+%u+%u\n",
--		 applespi->touchpad_input_dev->id.product,
-+		 touchpad->id.product,
- 		 applespi->tp_dim_min_x, applespi->tp_dim_min_y,
- 		 applespi->tp_dim_max_x - applespi->tp_dim_min_x,
- 		 applespi->tp_dim_max_y - applespi->tp_dim_min_y);
+ #define PCI_DEVICE_ID_INTEL_QUARK_X1000		0x0935
+ #define PCI_DEVICE_ID_INTEL_BYT			0x0f0e
+ #define PCI_DEVICE_ID_INTEL_MRFLD		0x1194
+@@ -93,6 +98,32 @@ static void lpss_dma_put_device(void *dma_dev)
+ 	pci_dev_put(dma_dev);
+ }
+ 
++static const struct dmi_system_id pxa2xx_spi_pci_dmi_table[] = {
++	{
++		.ident = "Apple MacBook8,1",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Apple Inc."),
++			DMI_MATCH(DMI_PRODUCT_NAME, "MacBook8,1"),
++		},
++	},
++	{ }
++};
++
++static bool pxa2xx_spi_pci_can_dma(struct pci_dev *dev)
++{
++	if (spi_pxa2xx_force_pio) {
++		pci_info(dev, "Forcing PIO mode (disabling DMA)\n");
++		return false;
++	}
++
++	if (dmi_check_system(pxa2xx_spi_pci_dmi_table)) {
++		pci_info(dev, "MacBook8,1 detected: disabling DMA to force PIO mode\n");
++		return false;
++	}
++
++	return true;
++}
++
+ static int lpss_spi_setup(struct pci_dev *dev, struct pxa2xx_spi_controller *c)
+ {
+ 	struct ssp_device *ssp = &c->ssp;
+@@ -166,7 +197,7 @@ static int lpss_spi_setup(struct pci_dev *dev, struct pxa2xx_spi_controller *c)
+ 
+ 	c->dma_filter = lpss_dma_filter;
+ 	c->dma_burst_size = 1;
+-	c->enable_dma = 1;
++	c->enable_dma = pxa2xx_spi_pci_can_dma(dev);
+ 	return 0;
+ }
+ 
 -- 
 2.39.5
 

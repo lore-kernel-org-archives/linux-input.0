@@ -1,132 +1,141 @@
-Received: from mail-pj1-f47.google.com (mail-pj1-f47.google.com [209.85.216.47])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2BA351D54FA
-	for <linux-input@vger.kernel.org>; Sat, 11 Jul 2026 21:55:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CC2C5209F43;
+	Sat, 11 Jul 2026 22:30:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783806919; cv=none; b=msP49pG8hC0lKDnww3x7Fgt0BI3QR1qGOYAI7mIGQSq8XgqDEYqGf7IlTKmaS7fzjUmOdzOh914YbVa7gbFAaiWSz1H8jiEFoT0Kc527PXy68A++jyCJ6wxVTfgnIaEsr9bjDMMdDZCZAm4fm2+Kr1D7CCtoVBaBwEECg06HOrA=
+	t=1783809033; cv=none; b=qG5CHSSWC4uuXac/VNt8u1p6dPXGehQBXPq3y2vsvqLCwBUHjfoNlmXUKGNwwG6Rc0Tq7YZIgnDbfHH7kl87OLuUu7giUhg1qLk/b7efAQIzWx+wDKxjAxFdhiVFLRBJbK3UZh3Z6dzSB6B47svWViV1Pmr9Ohuxw+ES0psvsvk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783806919; c=relaxed/simple;
-	bh=+g/zQMRr25BR6fKjHXZoDZ0Xm5YR7ayk9SrrK7joU9Q=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=NaHdYw/8DfW5/lWR2G9lUg2VjUrnYvLsICd3jtcKFc3GY8ZtWoMEsjy+PtlYu701sK491WdKhUjdCBaPV5lis7GEVHvb0gxTeQoNWPobWdfVE5bEpGu0o7L9jCXSnCQmzVonUnVitPw7756kW3zspuvgp34yri/jccYMX4FtWcs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=nEhPteiL; arc=none smtp.client-ip=209.85.216.47
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1783809033; c=relaxed/simple;
+	bh=supmCUVaXd1obGV0yvr+xSJ3mQ5JGRtH8m6Moq53ekM=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=HTmeEXvhzdtfewNhzSd3d26skteMNEXPTJjD6AKHY9rno8opEhhAN3HIpvdBL1eu1wuxMxNpClYr6VSxR4OK/QAZg28aKjkr0nX8y46/Wn5izEWntJCBNDX17ZORuz2E1+1spyleUcdElMU7ORKRSrFimX7jOQ6AKEpbDOQLOak=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=FGKF5HRp; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="nEhPteiL"
-Received: by mail-pj1-f47.google.com with SMTP id 98e67ed59e1d1-383b4a3755fso1933378a91.3
-        for <linux-input@vger.kernel.org>; Sat, 11 Jul 2026 14:55:18 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1783806917; x=1784411717; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=8FLFQgdcqhO0RIIwKxkkuCrdHtU1MdsA2yWXjq6XIr8=;
-        b=nEhPteiLMBfXyrY1gyPWawvaA4bFkYKDj2gVvJl1xE5oif40oGc71MPzcGjpeRhoXN
-         +D+xBsOtGgt+B3jIWiY4vzUdPZ2oJEJCUX1KV/815B2VG+guVKsKdQpyi9B+oUQQDD1m
-         7UiEtmOYAVV6QOMNzembBs26CTYJ5zJ0CVw3QmJPMnLtYmaMgVy7GwEWBzpPKGz+fqeN
-         t5GPTZusvM7qtyfwICHiVkRNa4UysdhQD3fc1OaTx3jU91lRY3JEIBdq2X/TE58ee/YC
-         dsP2uklaonChIKEGc8CXrjC6j1ZwwAJLkcJ3/PvzvhjoP+i8645rF/lT9rveU0jN2vU6
-         +QOw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1783806917; x=1784411717;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=8FLFQgdcqhO0RIIwKxkkuCrdHtU1MdsA2yWXjq6XIr8=;
-        b=pwJXSYkosyCKCSPbnLdoX+nLXY5Q39lO5VLyy+kk9ihzB8//WqCAp7Z42/dv2Nvefm
-         zThl7fpf5Bn9MuaYq7TJV6KGu5Nfh2WBwxBwfPfbB6Wph7k+FH9EADyUBNtCL5ZV+WmE
-         +E1oihGP9vZHXU+b7sGy3ABzqQeLC9mBPc2Gb2w4IMOowdqzb+42WSsPlLz+0y1qJu47
-         3Cb8BfydHgS3Wf9/nxmKc6dmZp2SYVlgVscqUxPzuEiTEdlkbJeBX/oKro3b54g7pXPl
-         uG8PSkOEv03pRqGdEHztRMK7l/mBa2lkF3mIU0HilhvEfE8jL3dXhjhTXi99WJA6ozi4
-         kD2g==
-X-Forwarded-Encrypted: i=1; AHgh+Rr0v8PuckIXTcgCs8y04VeTgZYI8UTLy030774H/Vj81yFrhtUAC7fKsiGPYif7qcS3u8h64bgRIKfENg==@vger.kernel.org
-X-Gm-Message-State: AOJu0YykfxtVrZssO1n7ggR42Tc5llbZvw157vc/bBljbZ1HRi0+CrxG
-	meea2kGMyYdNag9bTjqF6ar7SKQ/3qp3Lk9emcS7IUCYyae+duscEPVB
-X-Gm-Gg: AfdE7ckoYqHLZnNTCJs6y0YAsz2mIujwIQZgsh4fWKG0rck56IBUoGN4AFf+6T75sG7
-	nuSRbUICjbEUIBLIY6P2stst/1G6FfQd11iadk7G91/vu3sRTh7K67+QSB5aseXLWxxCYPkkx2z
-	McPe3fHw2qttW0EuVBCG5W3Wz8gYErNP6fakDj7GFBgwaMQUa7ix8w9PhPuEv6yvG7QY8ksvTP6
-	Wn/wPnrPvQTzMM/yOrSuiYklAl1rD1feksRzOBjcSl4DjQ1IE8xsJIGakJE8MUkqG3nLaIJZVOg
-	zW5inyvR6Z0AB+00DuHHmo6k0KfheUWcv+d2IYtMmy+dtfDycKUwR3+DNw/3WUMkL3f06NXbEzs
-	2MHfuZI/iK6FzekjKLKSAnBvwmV8jt6MbuP2PLQ/vYR0W5T7acVvLJIAw/odMzAQsHa3Y4yE7Cr
-	gL7MNQl+GpxR0PqzeERidOc3hVpSLiIUcpjBl9auo9Ew2KTnPbQxC86HvLO0aqEKUf0uKoQ9u/T
-	w==
-X-Received: by 2002:a17:90b:540d:b0:37f:9ce1:cda8 with SMTP id 98e67ed59e1d1-38dc7752969mr3988834a91.30.1783806917501;
-        Sat, 11 Jul 2026 14:55:17 -0700 (PDT)
-Received: from google.com ([2a00:79e0:2ebe:8:c63e:9756:a95c:c75])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-311935fd091sm35851752eec.24.2026.07.11.14.55.16
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 11 Jul 2026 14:55:16 -0700 (PDT)
-Date: Sat, 11 Jul 2026 14:55:13 -0700
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Shih-Yuan Lee <fourdollars@debian.org>, 
-	Ronald =?utf-8?B?VHNjaGFsw6Ry?= <ronald@innovation.ch>
-Cc: Mark Brown <broonie@kernel.org>, linux-input@vger.kernel.org, 
-	linux-spi@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v5 1/3] Input: applespi - cancel pending work on driver
- remove
-Message-ID: <alK4jVB5dTp1nvuG@google.com>
-References: <20260711055247.5412-1-fourdollars@debian.org>
- <20260711131140.18777-1-fourdollars@debian.org>
- <20260711131140.18777-2-fourdollars@debian.org>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="FGKF5HRp"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1FED1F000E9;
+	Sat, 11 Jul 2026 22:30:30 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1783809032;
+	bh=8g5HW2uwhShdm/MWyNcydXrPVZ7yuPXO7mNgxYu2iXA=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References;
+	b=FGKF5HRpmS9MGtk6688vi9M2HdBjhsHhgPZjjgjHz7OFB0tgF2E89s03npU2KCPa2
+	 vvD/AwKwaVfiYSPaI/y8C9YKGExqZ6lkCe6R8JE9qqb+WgqetWlzsm5GTz9fAURJvM
+	 FSopUJEZ3DSm5M63TZMBxt2xdOuNhkb+C6G+dq9+lPwJ0uTZe4eXoCu9vTRguYhQPm
+	 D290NFzYZiArI5NTZtoTGHmnKeg3TKfrWBFWRM6XiMYnS1HTtkf58YCBhjOFFSo/x+
+	 uuTwMfkut7o7Pdayc9wsMIeaaRuM93Wpy71+e3OPd6yOq3KD5q0zlw3ctZG/I6ChRZ
+	 Vb2i3Fg+HHgvw==
+Date: Sat, 11 Jul 2026 23:30:24 +0100
+From: Jonathan Cameron <jic23@kernel.org>
+To: srinivas pandruvada <srinivas.pandruvada@linux.intel.com>
+Cc: Sanjay Chitroda <sanjayembeddedse@gmail.com>, jikos@kernel.org,
+ dlechner@baylibre.com, nuno.sa@analog.com, andy@kernel.org,
+ hongyan.song@intel.com, linux-input@vger.kernel.org,
+ linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2] iio: temperature: hid-sensor-temperature: switch to
+ non-devm iio_device_register()
+Message-ID: <20260711233024.495e3e55@jic23-huawei>
+In-Reply-To: <086180fe0da41a5e8ce1b130483996a366f588ea.camel@linux.intel.com>
+References: <20260625121611.2003780-1-sanjayembedded@gmail.com>
+	<086180fe0da41a5e8ce1b130483996a366f588ea.camel@linux.intel.com>
+X-Mailer: Claws Mail 4.4.0 (GTK 3.24.52; x86_64-pc-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260711131140.18777-2-fourdollars@debian.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-Hi Shih-Yuan,
+On Wed, 08 Jul 2026 16:25:41 -0700
+srinivas pandruvada <srinivas.pandruvada@linux.intel.com> wrote:
 
-On Sat, Jul 11, 2026 at 09:11:38PM +0800, Shih-Yuan Lee wrote:
-> During driver removal in applespi_remove(), the managed private data
-> structure is freed by devres. However, the driver does not cancel the
-> asynchronous work applespi->work, which registers the touchpad input
-> device.
-> 
-> This creates a use-after-free (UAF) vulnerability if a pending or
-> running worker thread attempts to access the private data after the
-> remove function returns.
-> 
-> Fix this by explicitly calling cancel_work_sync(&applespi->work) in
-> applespi_remove() before cleanups.
-> 
-> Signed-off-by: Shih-Yuan Lee <fourdollars@debian.org>
-> ---
->  drivers/input/keyboard/applespi.c | 2 ++
->  1 file changed, 2 insertions(+)
-> 
-> diff --git a/drivers/input/keyboard/applespi.c b/drivers/input/keyboard/applespi.c
-> index b5ff71cd5a70..3bdb9e7cfb8b 100644
-> --- a/drivers/input/keyboard/applespi.c
-> +++ b/drivers/input/keyboard/applespi.c
-> @@ -1822,6 +1822,8 @@ static void applespi_remove(struct spi_device *spi)
->  
->  	applespi_drain_reads(applespi);
->  
-> +	cancel_work_sync(&applespi->work);
-> +
->  	debugfs_remove_recursive(applespi->debugfs_root);
->  }
+> On Thu, 2026-06-25 at 17:46 +0530, Sanjay Chitroda wrote:
+> > From: Sanjay Chitroda <sanjayembeddedse@gmail.com>
+> >=20
+> > Avoid using devm_iio_device_register(), as this driver requires
+> > explicit
+> > error handling and teardown ordering.
+> >=20
+> > With devm_iio_device_register(), IIO device remains registered until
+> > the
+> > devres cleanup phase. However, driver's remove() callback removes the
+> > sensor hub callback and trigger support. This can create a race
+> > window
+> > where IIO device is still visible and read_raw() requests are issued.
+> > These requests might call sensor_hub_input_attr_get_raw_value(),
+> > which
+> > waits up to 5 seconds for a response from the sensor hub callback
+> > that
+> > has already been removed.
+> >=20
+> > Add an explicit iio_device_unregister() call in the teardown path to
+> > ensure deterministic cleanup, so that userspace can no longer access
+> > the
+> > device once backend resources begin to be dismantled.
+> >=20
+> > Fixes: 59d0f2da3569 ("iio: hid: Add temperature sensor support")
+> > Cc: stable@vger.kernel.org
+> > Reviewed-by: Maxwell Doose <m32285159@gmail.com>
+> > Reviewed-by: Andy Shevchenko <andriy.shevchenko@intel.com>
+> > Signed-off-by: Sanjay Chitroda <sanjayembeddedse@gmail.com>
+> >  =20
+>=20
+> Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 
-For this, and the next one, the issue is that the touchpad discovery is
-asynchronous. I wonder if making touchpad detection synchronous and
-making the entire driver as PROBE_PREFER_ASYNCHRONOUS would not make it
-simpler and more robust.
+Applied to the fixes-togreg branch of iio.git.
 
-It looks like Ronald tried to do that in [1] but unfortunately it was
-dropped on the floor (my fault :( ). Maybe you can try it out and
-freshen it?
+Note that to take anything non fix related on top of this will require
+me waiting until this is upstream.  I'm not sure how many fixes
+I'll have outstanding (and so if I will soon reach critical mass)
+but most likely that will be at least a few weeks at least.
 
-Thanks.
+Thanks
 
--- 
-Dmitry
+Jonathan
 
-[1] https://lore.kernel.org/all/20190721070523.24695-1-ronald@innovation.ch/
+
+>=20
+> > ---
+> > Changes in v2:
+> > - Added review tags of Maxwell and Andy along with stable Cc
+> > - Based on input from Srinivas and investigation use-after-free
+> > =C2=A0 explanation was not sufficiently justified so updated the commit
+> > =C2=A0 message with appropriate information and kept Fixes tag
+> > - Link to v1:
+> > https://lore.kernel.org/all/20260622052135.1804135-1-sanjayembedded@gma=
+il.com
+> > ---
+> > =C2=A0drivers/iio/temperature/hid-sensor-temperature.c | 3 ++-
+> > =C2=A01 file changed, 2 insertions(+), 1 deletion(-)
+> >=20
+> > diff --git a/drivers/iio/temperature/hid-sensor-temperature.c
+> > b/drivers/iio/temperature/hid-sensor-temperature.c
+> > index a8d3a15f9c53..ab6ec8f659b8 100644
+> > --- a/drivers/iio/temperature/hid-sensor-temperature.c
+> > +++ b/drivers/iio/temperature/hid-sensor-temperature.c
+> > @@ -244,7 +244,7 @@ static int hid_temperature_probe(struct
+> > platform_device *pdev)
+> > =C2=A0	if (ret)
+> > =C2=A0		goto error_remove_trigger;
+> > =C2=A0
+> > -	ret =3D devm_iio_device_register(indio_dev->dev.parent,
+> > indio_dev);
+> > +	ret =3D iio_device_register(indio_dev);
+> > =C2=A0	if (ret)
+> > =C2=A0		goto error_remove_callback;
+> > =C2=A0
+> > @@ -264,6 +264,7 @@ static void hid_temperature_remove(struct
+> > platform_device *pdev)
+> > =C2=A0	struct iio_dev *indio_dev =3D platform_get_drvdata(pdev);
+> > =C2=A0	struct temperature_state *temp_st =3D iio_priv(indio_dev);
+> > =C2=A0
+> > +	iio_device_unregister(indio_dev);
+> > =C2=A0	sensor_hub_remove_callback(hsdev,
+> > HID_USAGE_SENSOR_TEMPERATURE);
+> > =C2=A0	hid_sensor_remove_trigger(indio_dev, &temp_st- =20
+> > >common_attributes); =20
+> > =C2=A0} =20
+

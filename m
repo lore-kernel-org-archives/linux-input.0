@@ -1,137 +1,139 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1D96A41C72;
-	Sat, 11 Jul 2026 02:35:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9E0B713C9C4
+	for <linux-input@vger.kernel.org>; Sat, 11 Jul 2026 02:44:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783737325; cv=none; b=suxMT8YuDhinbLRUs3ST0oTpD3Q75Ih0YG4bG59gzHLg/JgNf5BmaQpa3IufkbPt+fGJb7+uAzBSPrGb/gB502QiPe4MA8xC+RB/vqbViiS2WKC3O9aJuY/E2lwHJ5ZJ9xwl0esac83DDmn0vsr//13xjaQVUT7mPpqXQGrtBYU=
+	t=1783737870; cv=none; b=ZGuSCDCDfWkFWLNM+842SYpLXbx0A/cduuR9195Xd3OFjDF8PPKyeJPZElmeMK6CZ0m3XOVEy4KsmiNOwoJoFPzz9JVEPZvc3mBa/MBQXSYdJE3V6LleDbYnLgh+5SoxaQTupVQOXWA/6PXJFyIavoP0nblpUTeym5i20+kPTCY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783737325; c=relaxed/simple;
-	bh=a9QLZ8/YTGbQ8E5OfeeCLHuA1ohbUPo7wTQ9m81Qrwo=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=uX11klaMcwD/M/AyIz5Oh8zcAMe0ab3ip/G2VqTAKM1zghMGMlsAb1Xqda68PFGzE+mRalNPnMH7+5d2JToJa5OapSzCHFgJlxZg346aWFS/b8KPDowHWGai1tznZ9kXWvOAZvw3JtFtT1WLBfAk4B9kl1T/Qq+eRhA0r0YFEWc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=UTRj2HJh; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1783737870; c=relaxed/simple;
+	bh=972otF5tI6sibOtvj9PQN6lYyL7UYbwZp1pE6u7ZboI=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=tZKDRj6czjwVAw5V/Q/HZyp2mriK0qxp8fJXIS/G8yCDSSjXnWiZOtg5w1SuUsfDi8OOAqAPN8e/gMnz6jl9PWW2MTybhBeXMZ/Fk3SdtH+GkEFAHmlOy04+6apqhZi6vhJDmLoKwEomWsoea3bxkVGCHj675z2LcMwlKmhNhmk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=TnwxrEmV; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="UTRj2HJh"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 923FEC2BCB8;
-	Sat, 11 Jul 2026 02:35:24 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1783737324;
-	bh=a9QLZ8/YTGbQ8E5OfeeCLHuA1ohbUPo7wTQ9m81Qrwo=;
-	h=From:Date:Subject:To:Cc:Reply-To:From;
-	b=UTRj2HJheP0hHAJLJfTQTmHzA/KSy+/V603IoxZRjZo5e5RafYmsjioLc+yKfz1g7
-	 D66mJ8p1/ME4aa7Tsp41KxgjsNSHWc0M09QeQrf2LrgFrk0yYcv61CH6aFGLyEAW5a
-	 LKl2NTSrL4UhiIdTE/fb6yYDscYzcfvHHwlTYJ0kAIUkxQMlL61ol4CTfzNTH+dH8N
-	 fVkdxDzt9UodFTMqrhXXa1Yx/8LZh6CxCwxwqAuaJHhg1G4Y0x/jN3OdAX01bvZ/7K
-	 FZmHXEv/UFqlqGi7CkCMuu4Ba+B1iBVKzUnAIym2oiPr53KnY9kbcMdXlrf2w+BR2v
-	 Ckz1FLDQkhMsg==
-Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6B914C43458;
-	Sat, 11 Jul 2026 02:35:24 +0000 (UTC)
-From: Miles Krause via B4 Relay <devnull+mileskrause5200.gmail.com@kernel.org>
-Date: Fri, 10 Jul 2026 22:35:18 -0400
-Subject: [PATCH v2] Input: qt1050 - wait for calibration to complete
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="TnwxrEmV"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ED7FF1F000E9;
+	Sat, 11 Jul 2026 02:44:28 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1783737869;
+	bh=H2+S4FO0kW/zE7mVtqGuEVNFyZPV72OHN0E1dVVKz14=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=TnwxrEmVfHNpl+oM6Y7ltHOr2MxGpOqjJA4qh57Exx3eeXXBUUdD6PL9qtr6wsTGY
+	 QGOfCnAWKNoM83VPpmtAxkkPh86WF7IiftAmUwHNJhVnb1mJHEnyBcEB7dO29dn2uS
+	 dNV/JVCLmrAUPNVICY0TqESaJAZClLKwVJKIuN0PaFSkI+vk5YKH3vlEQXGWCjs01Z
+	 mQlGnroQJpDI6RyvQiELzvsyS19kuLP0/CAc+3TqNmz69ApWd9DFiMqlFJQAdgGcxb
+	 vh2Sel2WlTcW+L6Nev7C7cSl9wbtBGvgSCrCAsU0PtBYIw+xlxgp3awiI0ZJhqSaz7
+	 dlx1qrH0Nvl4A==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v2] Input: qt1050 - wait for calibration to complete
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Miles Krause" <mileskrause5200@gmail.com>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20260710-qt1050-calibration-status-bit-v2-1-a58da64bdf7e@gmail.com>
+References: <20260710-qt1050-calibration-status-bit-v2-1-a58da64bdf7e@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Sat, 11 Jul 2026 02:44:28 +0000
+Message-Id: <20260711024428.ED7FF1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20260710-qt1050-calibration-status-bit-v2-1-a58da64bdf7e@gmail.com>
-X-B4-Tracking: v=1; b=H4sIAOWrUWoC/42OSw6CMBRFt0I69pm2QRocuQ/DoJ9XeIaPtoVoC
- Hu34AYcnuTk3LuyiIEwsmuxsoALRZrGDPJUMNvpsUUgl5lJLiuuBIdXEvzCweqeTNAp6xCTTnM
- EQwm4kViq2ntXGpYbz4Ce3kf/3vw4zuaBNu3R3egopil8jgOL2L1/txYBArD0ygmnamWqWzto6
- s92GlizbdsXAjmhztwAAAA=
-X-Change-ID: 20260710-qt1050-calibration-status-bit-0b2e479ffd4b
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
- Sashiko <sashiko-bot@kernel.org>, Miles Krause <mileskrause5200@gmail.com>, 
- Rob Herring <robh@kernel.org>, Marco Felsch <m.felsch@pengutronix.de>
-X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1783737324; l=2442;
- i=mileskrause5200@gmail.com; s=20260710; h=from:subject:message-id;
- bh=yOyfXbtdozLVe5JzVAxDjGUfBsAtmdRN/Rae3W6CsXE=;
- b=zLMTxk7rHnFaSHpwDwXofzKVrRC9LxjgCYlEzWIeNnjXyukDFhjDtuULt3ZRv3jejx5TbEa59
- PYSko5+pQ5gCgGsEN6yYiGqYSl6KXsxXum7iELnYOhcvDcn1b3OqsHi
-X-Developer-Key: i=mileskrause5200@gmail.com; a=ed25519;
- pk=QNhNjcQarqig3ColJBIEr3DYfWM1PHpP7z+6thxWXaU=
-X-Endpoint-Received: by B4 Relay for mileskrause5200@gmail.com/20260710
- with auth_id=861
-X-Original-From: Miles Krause <mileskrause5200@gmail.com>
-Reply-To: mileskrause5200@gmail.com
 
-From: Miles Krause <mileskrause5200@gmail.com>
+Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+s) to consider:
 
-The CALIBRATE flag is set when calibration begins and clears when it
-finishes. regmap_read_poll_timeout() stops when its condition becomes
-true, so the existing condition returns when calibration starts instead
-of waiting for it to finish.
+New issues:
+- [High] Race condition in calibration polling loop causes immediate premat=
+ure exit.
+- [Medium] The 200ms timeout is dangerously tight to wait for the entire ca=
+libration process to finish.
 
-Name the calibration status bit and invert the polling condition so the
-subsequent soft reset does not potentially interrupt calibration.
+Pre-existing issues:
+- [High] The interrupt handler reports static firmware keycodes instead of =
+the dynamic `keycodes` array, breaking userspace key remapping (`EVIOCSKEYC=
+ODE`).
+--
 
-Fixes: cbebf5addec1 ("Input: qt1050 - add Microchip AT42QT1050 support")
-Reported-by: Sashiko <sashiko-bot@kernel.org>
-Closes: https://lore.kernel.org/r/20260711011903.0605C1F000E9@smtp.kernel.org
-Signed-off-by: Miles Krause <mileskrause5200@gmail.com>
+--- Patch [1]: [PATCH v2] Input: qt1050 - wait for calibration to complete =
 ---
-Compile-tested on x86_64 with:
+commit 4b6f3ed53ac1e4647765d5813d7b91b2a1e6100d
+Author: Miles Krause <mileskrause5200@gmail.com>
 
-  make O=out allmodconfig
-  make O=out W=1 drivers/input/keyboard/qt1050.o
+Input: qt1050 - wait for calibration to complete
 
-Sparse-tested with:
+The commit fixes a polling condition where regmap_read_poll_timeout() stopp=
+ed
+when calibration started rather than when it finished. It names the
+calibration status bit and inverts the polling condition.
 
-  make O=out-sparse allmodconfig
-  make O=out-sparse C=1 CHECK=sparse drivers/input/keyboard/qt1050.o
----
-Changes in v2:
-- Invert the polling condition to wait for calibration to finish.
-- Reframe the change as a bug fix based on Sashiko's review.
-- Link to v1: https://patch.msgid.link/20260710-qt1050-calibration-status-bit-v1-1-e4f7d1d797b6@gmail.com
+Closes: https://lore.kernel.org/r/20260711011903.0605C1F000E9@smtp.kernel.o=
+rg
 
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Rob Herring <robh@kernel.org>
-To: Marco Felsch <m.felsch@pengutronix.de>
-Cc: linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
----
- drivers/input/keyboard/qt1050.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+> diff --git a/drivers/input/keyboard/qt1050.c b/drivers/input/keyboard/qt1=
+050.c
+> index f9f480c910325..457acae0986aa 100644
+> --- a/drivers/input/keyboard/qt1050.c
+> +++ b/drivers/input/keyboard/qt1050.c
+[ ... ]
+> @@ -498,7 +499,8 @@ static int qt1050_probe(struct i2c_client *client)
+>  		return err;
+>  	}
+>  	err =3D regmap_read_poll_timeout(ts->regmap, QT1050_DET_STATUS, status,
+> -				 status >> 7 =3D=3D 1, 10000, 200000);
+> +				 !(status & QT1050_DET_STATUS_CALIBRATE),
 
-diff --git a/drivers/input/keyboard/qt1050.c b/drivers/input/keyboard/qt1050.c
-index f9f480c91032..457acae0986a 100644
---- a/drivers/input/keyboard/qt1050.c
-+++ b/drivers/input/keyboard/qt1050.c
-@@ -27,7 +27,8 @@
- #define QT1050_FW_VERSION	0x01
- 
- /* Detection status */
--#define QT1050_DET_STATUS	0x02
-+#define QT1050_DET_STATUS		0x02
-+#define QT1050_DET_STATUS_CALIBRATE	BIT(7)
- 
- /* Key status */
- #define QT1050_KEY_STATUS	0x03
-@@ -498,7 +499,8 @@ static int qt1050_probe(struct i2c_client *client)
- 		return err;
- 	}
- 	err = regmap_read_poll_timeout(ts->regmap, QT1050_DET_STATUS, status,
--				 status >> 7 == 1, 10000, 200000);
-+				 !(status & QT1050_DET_STATUS_CALIBRATE),
-+				 10000, 200000);
- 	if (err) {
- 		dev_err(dev, "Calibration failed: %d\n", err);
- 		return err;
+[Severity: High]
+Will this polling condition evaluate to true on the very first read?
 
----
-base-commit: c8f174900926d3b58cd048ac33b4cbb3de419bfe
-change-id: 20260710-qt1050-calibration-status-bit-0b2e479ffd4b
+Because I2C transactions and hardware state changes take time, the first re=
+ad
+in qt1050_probe() will likely return a status where the calibration bit is
+still 0. This would instantly satisfy the wait condition and bypass the loop
+before calibration even begins, leaving the device in an uncalibrated state
+when the subsequent soft reset occurs.
 
-Best regards,
---  
-Miles Krause <mileskrause5200@gmail.com>
+> +				 10000, 200000);
 
+[Severity: Medium]
+Is this 200ms maximum timeout dangerously tight for an operation that takes
+approximately 200ms to complete?
 
+The original 200ms timeout was used to wait for calibration to start, but
+using it to wait for the entire calibration process leaves virtually no mar=
+gin
+for hardware or timing variances, potentially causing the probe to
+sporadically fail with -ETIMEDOUT.
+
+>  	if (err) {
+>  		dev_err(dev, "Calibration failed: %d\n", err);
+>  		return err;
+
+[Severity: High]
+This is a pre-existing issue, but does the interrupt handler report the sta=
+tic
+firmware keycode instead of the dynamically mapped one?
+
+During probe, the driver properly sets input->keycode =3D ts->keycodes to
+support dynamic remapping, but in qt1050_irq_threaded() it hardcodes the
+static array:
+
+drivers/input/keyboard/qt1050.c:qt1050_irq_threaded() {
+    ...
+    input_report_key(input, ts->keys[i].keycode,
+                     test_bit(i, &new_keys));
+    ...
+}
+
+When userspace remaps a key via EVIOCSKEYCODE, the input core updates
+ts->keycodes and clears the old keycode's bit. Because the ISR still reports
+the old, unmapped keycode, the input core safely filters it out and drops t=
+he
+event, breaking userspace key remapping entirely.
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260710-qt1050-cal=
+ibration-status-bit-v2-1-a58da64bdf7e@gmail.com?part=3D1

@@ -1,85 +1,104 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f178.google.com (mail-pf1-f178.google.com [209.85.210.178])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5D9FE358D00;
-	Sun, 12 Jul 2026 12:30:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2C94533F58D
+	for <linux-input@vger.kernel.org>; Sun, 12 Jul 2026 16:05:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783859455; cv=none; b=orjeJa1bYqwxwDAXtYGGeWmueRtRWuLiHV3CzaAcDKRudGGKf9SUSzMtu9qIYpE5nMuh9psIDtdKxVtV1ccYyQOQnUfbObY01G6nt/3OY79hHft3/jqBOnja+FCPaXqn58aTcZtxiug/Uzn1xWVL+uE2eWVttUgV1hBd9/J9Tkw=
+	t=1783872326; cv=none; b=VsqqqdyMg1lUw+dbkIS5voLLmqnzvkS/XBE99FA5Hdb6r66o1LPiyU8P3Bf334J5muqiKPVE8iz5ZXk7RUjtPb3SAEuMIzv3wzldykr/r6LRX7YszNjBhM5+J+wSTBzIA/pbnu63Gf3EtcPHLjbvbQXdMI4AvE2INfjzh+dok/Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783859455; c=relaxed/simple;
-	bh=pk87CeSrNpXX9jN0MdaORKmwE9wXpc2PDw5VJNW96Hk=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=BACzP1FSMcB2mzKmjLzktfW26k9SEeAd/pnpe8Wgdtf/eLhuCvoVgxaOSo0oyQLIGBpz4g3kFK/IcswZacFVzcaCxHVbdJD2M8CI2Mr9TNCwrnJHwDRY7aSTiYDOy93TfUcMY/jEtNV0wifdNv3Le8NYut+KUEwBDnK0NhWKQew=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=H7qwpalI; arc=none smtp.client-ip=100.103.45.18
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="H7qwpalI"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A9BD1F000E9;
-	Sun, 12 Jul 2026 12:30:52 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1783859454;
-	bh=Gy9MJ063WpQuTdSQRRK8YP6m6riIIdrXysJgOkGPzeE=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=H7qwpalIOgjV9fonMoUa6xGWNGLUj7bPBCVer5pjNyKeehxUgyS8Y2rRLtsESuYBa
-	 Nuc12plGqFOKkNVMjYB3VpTnqhVh0Qgj8d6tZ1e3RfAAwl8mUtrdk3aRRQhAQfOUK7
-	 q2VZbud6iihamDK5/B0NKAwaNIKyfTkk2m1ZpvY8dQ4xFBbA64t4rJLG/jdaXHrxKL
-	 4GACJqUuQtINVqxS/iY7OKwFLKeLAydfSwNB8zKhG1AxCFg972iCF2Ub16Y7A2yCu8
-	 kuh6nYb3sQb6lcGwRiuOee9DWLXRPXhaQCdPwGqdhid/gr7RGPwkTYTnkCgQdjSjiF
-	 I4UaP1WpTHekQ==
-Date: Sun, 12 Jul 2026 14:30:50 +0200
-From: Krzysztof Kozlowski <krzk@kernel.org>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Rob Herring <robh@kernel.org>, 
-	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
-	Peter Griffin <peter.griffin@linaro.org>, Alim Akhtar <alim.akhtar@samsung.com>, 
-	Russell King <linux@armlinux.org.uk>, Mark Brown <broonie@kernel.org>, 
-	Linus Walleij <linusw@kernel.org>, Charles Keepax <ckeepax@opensource.cirrus.com>, 
-	Sam Protsenko <semen.protsenko@linaro.org>, Arnd Bergmann <arnd@arndb.de>, 
-	Bartosz Golaszewski <brgl@bgdev.pl>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
-	linux-samsung-soc@vger.kernel.org, patches@opensource.cirrus.com, 
-	Conor Dooley <conor.dooley@microchip.com>, Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>
-Subject: Re: [PATCH v3 00/10] Remove support for platform data from samsung
- keypad
-Message-ID: <20260712-musical-shrimp-of-fruition-b921df@quoll>
-References: <20260711-samsung-kp-v3-0-b2fcaba77aff@gmail.com>
+	s=arc-20240116; t=1783872326; c=relaxed/simple;
+	bh=HYdCz1xlLgU2B4rg61F8c5q4VwIZtY9jojDIygIHVSA=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=g4DjaY5CC2EdRl9f6V/h91hkftXYb8Mnoj6NwfesMiK3UJFwCuxony7WcwmnVSNKrOvDmyoYCPCPB9NrwhDjLDF151FcGjHJlAAw83H7v9MEzWEB0IOhBOComgd+eAMgrYLn/sQ8nCeLWCaUpgoeu/P/zjCOSZGL1mbxFWbV98Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=debian.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.210.178
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=debian.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Received: by mail-pf1-f178.google.com with SMTP id d2e1a72fcca58-845c92bc464so1860703b3a.2
+        for <linux-input@vger.kernel.org>; Sun, 12 Jul 2026 09:05:25 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1783872324; x=1784477124;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=qGY7taiLnmCSVR1KjiFJzcvjfx5XvByeFDnx9S/k8nE=;
+        b=c8DC258NdpMq/75GByW0i2Id8JO7HFW8E5UOqnSXvlGJ207aHj2knuZygwvebxNRRE
+         po3P7sDqrTYMejk7w81t9YPpVneAVsEp46rLwGidKM1N3PgDV5e12SjAjQsPay8c8hS9
+         9Fx9WgX09Vibq6QZb3JQQ6M/17Xdqq8VxT5wzQg4uclfP4FkJxVtaeF4bBkL1LfyDB5y
+         XIElbhLRjF9MSj8BqAyh8ZS4i+ygdzQHgyev0QmpTSvBIAkmo06baZdIFJ9qvcRrTd97
+         yIIi5kt7VokwbSOmsKPG8TJwxo2txtTQ4pPqUGuTxUvfZ1lBiZeX8HkU9mILGi0nIIxK
+         k/CQ==
+X-Gm-Message-State: AOJu0YzhY34ayf/r2CroK2eq6cZymvTHLcpnqBSZqSojlStwnSNRzycX
+	96bsOBb5VT1kAlVzrtTS0CFAVIeCr9GbqFyZ8haeTCch13BMoZsMmMg=
+X-Gm-Gg: AfdE7clrlPEX6a9nXrtdLp0Oq9+eQefwtvjEw7pBAOSKHoTzib0wY/UJWA1DgqCkIcg
+	fCa3cue3pn6gNRDP32QpwlU4dv1+1pA03lq+YIXUHCZ7XYtOrp3HxqIcwArq0Yagp2rEe05imc4
+	69HpOpsY0sgtKOejiwhxndKwH7eAMZqzh/R+1vQ3jaXb67E2KXCv8+PT7aEMztxDBA6lhUe2xaO
+	yhxkq8n1NGL8SJA6OJjHlO8+iqeLR9xI1rctVJDtjcKfkxnsMIgtA3mn2CMXZ5wkTEKgC8MI6BB
+	UHMHyehMAnnIsRmsJZdMXjLmil4Y8GWkHcSFNIF+KLnog21vNk5rIQG7TYYcmBTM9GrQPSIQ3rQ
+	OKgTc7kjFZuZDdFHzkt2xA5hLkN1xZrCp8WQNfXSbSpRf3rYMpta94ZIeWsfZQPDoxrQ827Bf6S
+	tIhlSIDJ2ryOG3ucy/zm+sjWJGbpxuV2xsCpC8lic9ZgKpH9PKkf0Rr1rHRb6MLmtWgpfkJe8r2
+	oHAOxzBKjgRbVm9naI5AWY/7EDrjewINNU8Lt7HzAMDMLbsrg==
+X-Received: by 2002:a05:6a21:4cca:b0:3b4:8a40:85ed with SMTP id adf61e73a8af0-3c11077686bmr6203955637.7.1783872324462;
+        Sun, 12 Jul 2026 09:05:24 -0700 (PDT)
+Received: from penguin.tail0a1999.ts.net (61-228-44-142.dynamic-ip.hinet.net. [61.228.44.142])
+        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-ca5b3162a49sm7156667a12.15.2026.07.12.09.05.21
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 12 Jul 2026 09:05:23 -0700 (PDT)
+From: Shih-Yuan Lee <fourdollars@debian.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Mark Brown <broonie@kernel.org>
+Cc: linux-input@vger.kernel.org,
+	linux-spi@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Shih-Yuan Lee <fourdollars@debian.org>
+Subject: Re: [PATCH v5 0/3] Input/SPI: fixes for MacBook8,1 DMA timeout, UAF, and NULL pointer dereference
+Date: Mon, 13 Jul 2026 00:05:16 +0800
+Message-Id: <20260712160516.7265-1-fourdollars@debian.org>
+X-Mailer: git-send-email 2.39.5
+In-Reply-To: <20260711055247.5412-1-fourdollars@debian.org>
+References: <20260711055247.5412-1-fourdollars@debian.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20260711-samsung-kp-v3-0-b2fcaba77aff@gmail.com>
+Content-Transfer-Encoding: 8bit
 
-On Sat, Jul 11, 2026 at 07:12:41PM -0700, Dmitry Torokhov wrote:
-> Hi,
-> 
-> This series converts the Samsung keypad driver and the Cragganmore 6410
-> board to generic device properties, allowing the removal of legacy platform
-> data and GPIO lookup tables.
-> 
-> We rework the Samsung keypad driver to stop using platform data, utilizing
-> a new compact matrix keypad binding. To support this on the Cragganmore
-> board, we add infrastructure to associate software nodes with Samsung
-> gpio_chips, and add software node propagation support to the wm831x MFD
-> core to route DVS GPIO to the PMIC regulator.
-> 
-> Finally, we convert all peripherals on the Cragganmore board (including
-> keypad, GPIO keys, PMIC, WM1250, SPI0, basic-mmio-gpio, and LEDs) to
-> software properties. This allows us to eliminate all legacy GPIO lookup
-> tables and fixes incorrect GPIO chip names from previous conversions.
-> 
-> Mark, it would be great if you could give this a spin on Cragganmore.
-> 
-> The majority of changes are in arch/board code, with a couple of input
-> matches and one for MFD. If everyone agrees maybe we can merge it all
-> through the soc tree?
+Hi Dmitry, Mark, and the linux-input/linux-spi community,
 
-Yes, I could take it via samsung-soc. I assume I have your acks for
-unput parts.
+Thank you for all the feedback across v1 through v5 of this series.
 
-Best regards,
-Krzysztof
+During further testing on the MacBook8,1 hardware, I discovered two
+additional issues that change the scope of the fix:
+
+1. The LPSS SPI controller (00:15.4) loses all private register state
+   across S3 suspend/resume.  Restoring only the SSP clock on resume,
+   without de-asserting LPSS_PRIV_RESETS (0x204) first, causes a PCIe
+   Completion Timeout and a watchdog-triggered system reset.  Additionally,
+   the IDMA block (which shares the SPI interrupt line) needs its registers
+   restored to prevent spurious interrupts from masking real SPI transfers.
+   This is a generic LPSS fix in spi-pxa2xx.c, not specific to MacBook8,1.
+
+2. The applespi_remove() teardown has a use-after-free race between the
+   drain_writes/drain_reads calls and the GPE handler removal.
+
+Given these changes, the patch series has grown and now spans two
+subsystems more cleanly than before:
+
+  [input] Input: applespi - register touchpad device synchronously in probe
+  [input] Input: applespi - fix use-after-free in applespi_remove()
+  [spi]   spi: pxa2xx: disable DMA and fix runtime PM for Apple MacBook8,1
+  [spi]   spi: pxa2xx: restore LPSS private and IDMA registers on S3 resume
+
+I will submit these as two separate series to linux-input and linux-spi
+respectively rather than continuing this thread, to keep subsystem
+boundaries clean.
+
+Thanks again for your patience and review.
+
+Shih-Yuan Lee
+
+-- 
+2.39.5
 

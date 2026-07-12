@@ -1,125 +1,123 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BECF73A1DB;
-	Sun, 12 Jul 2026 02:20:22 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DC6F63A1DB;
+	Sun, 12 Jul 2026 02:21:49 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783822823; cv=none; b=vCclq3A+FMQ9AG6ET+D0Yhy3Fa4eRdL914Dt0My8nKyYjcDfbY7cLB/4nyoY1g4Bk6NbPnLZ0Rfy1dFSyNFx7ueG4PPW+z9wcgtbTjPBELKNLD1gnHUqPG9vtxPlCGbIanRfWxCHhgKtS3blUjcJyiAIBh12vzt5bfBgQJCCkHQ=
+	t=1783822911; cv=none; b=XseoEVEA2wjfjrqHDuLUzBQrY2MG1V/3VrG7QHwfmxQLtGurmPi65PKuEB3jfhsUSSuRYhT/rsfMEvziqP2qzW7lk3h6Y69FOjGr+IAU6DHOc8v17iCeGs4zCU7NsQn++u/eKYv1Gcss/OFlZ3ac+lGDfLRGPa/jprb6y06o0NY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783822823; c=relaxed/simple;
-	bh=UEwSnQrc0GNNxPQ2OPlcG3g+wLgSUjmNF9m4rA1RmSI=;
+	s=arc-20240116; t=1783822911; c=relaxed/simple;
+	bh=mGOWJfWB8wjRg+NrzkP/8QMGFcuBhPzeKMTfb3WKJmE=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=OEKdpm08ruoY0GsCH14gvrTkgK9+3xKWXU+TwivtUgb5kFIMZchbGHCf4ELgjI6ItVRgtchWUg5eGIFhxwkbnjlTpP4oPdUaBRjGADj7W3xfLzaN0NsS2d9J79Iu86AlPUPN3B84JCFx6Jmy0YNZTVbBTg5se6awBudM3M1Hzyk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=JtcvAv9q; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=of28gwYaqB49INp9IhL6uVEflgkCcsmyzALpxApFi8w6x3JUPNvSgMfjroi9mOxtr50piWJX+W+miSgoVb3ZONgRNEYAItJ/Y3L3ZaQjVP0SBTvtwW7eBnJUPbqsXKaGeYL7otI3qm6FrVjLXkjbIMUV45cWmsoWNPvzk9is31A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=DhWcg4qB; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="JtcvAv9q"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E022D1F000E9;
-	Sun, 12 Jul 2026 02:20:21 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="DhWcg4qB"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67ACE1F000E9;
+	Sun, 12 Jul 2026 02:21:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1783822822;
-	bh=V9vudyrkc+/SJFAx6PZQZqWLDoFIx7qC14Tm8rZKvf4=;
+	s=k20260515; t=1783822909;
+	bh=z/wBy1Dpzce8FYCWwNUYOyzAUxJrJJupQQfugGUHubk=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=JtcvAv9quCN34jXr+kD8nk0p33z/XFu4+EnTYZfROTJsIEvZ4KD5NxHXTJrQ1/FUf
-	 yovMAEE5AIDzk87jMQVtEQDDcS2tYtSv+YjATBwrImfDw1xoa0Wyr1YMTmEX5OnisA
-	 5+AvUFAaPdAlY3k/PL9SAO416O0XkMeQ/pNA6IEiHBj74aJiWHSNKuys4WeXXEO4NS
-	 3MEgW1tOKAgWy7/tWhwElE3m36YDIUCk8lqIUp5TsGfYD1DpJMQ55dLBBbfhSaseUQ
-	 XjpdsH9AtjbNaIsnKpfKmDytnuctT1dFF1VMXy7FcBXAIBiL3gdtV6hKcowbldhJvN
-	 k6wyfizjgPkyQ==
+	b=DhWcg4qBs72ANzygq3fExdxHwNf/4AwEDeDvg5P5v6RExd8C1ox76UG/QciO95SZz
+	 YOkRVKSrGvqOfS1W1Dbvbw+6MYOCsGD4IXU8AMazUStU0ch0/oTDiCMohv17t5LFDq
+	 8CnFCk+7rumGETOK/uammfHsGR2sKi2ldJ0ExRPAK5PLHF4X7sbzykZYS9tRQzJUug
+	 JBInr+4QoQxUftqi2BvYQAx3TY9ehrHrAsFOnMGKhzMfgcnVYtK8lgdYhz+8LsIE1U
+	 LIh5f7Y7Jq0jzbwq4YihPStvSdPn4yC/MDnPKg0Hrtuu35S8D8gDw+42lJ0evQcrqM
+	 3nlgvMFaTzoyQ==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v3 07/10] mfd: wm831x: support software nodes for DCDC
- regulators
+Subject: Re: [PATCH v3 06/10] ARM: s3c: crag6410: use software
+ nodes/properties to set up GPIO keys
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-Cc: conor+dt@kernel.org, robh@kernel.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, devicetree@vger.kernel.org
-In-Reply-To: <20260711-samsung-kp-v3-7-b2fcaba77aff@gmail.com>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, devicetree@vger.kernel.org, conor+dt@kernel.org, robh@kernel.org
+In-Reply-To: <20260711-samsung-kp-v3-6-b2fcaba77aff@gmail.com>
 References: <20260711-samsung-kp-v3-0-b2fcaba77aff@gmail.com>
- <20260711-samsung-kp-v3-7-b2fcaba77aff@gmail.com>
+ <20260711-samsung-kp-v3-6-b2fcaba77aff@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Sun, 12 Jul 2026 02:20:21 +0000
-Message-Id: <20260712022021.E022D1F000E9@smtp.kernel.org>
+Date: Sun, 12 Jul 2026 02:21:48 +0000
+Message-Id: <20260712022149.67ACE1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [Medium] The patch dynamically duplicates and modifies an `mfd_cell` arra=
-y to inject software nodes, directly violating MFD subsystem guidelines.
-- [Low] The commit message description starts with a lowercase letter, viol=
-ating MFD subsystem formatting rules.
+- [Low] The conversion to software nodes implicitly changes the default deb=
+ounce interval for the keys from 0ms to 5ms.
 --
 
---- Patch [7]: [PATCH v3 07/10] mfd: wm831x: support software nodes for DCD=
-C regulators ---
-commit 3d69bbb3a9fcf1555157438b7a85ed2a2744e94b
+--- Patch [6]: [PATCH v3 06/10] ARM: s3c: crag6410: use software nodes/prop=
+erties to set up GPIO keys ---
+commit 69f758b0d4bf8ffd63c5e52869f8e01a5ad69545
 Author: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-mfd: wm831x: support software nodes for DCDC regulators
+ARM: s3c: crag6410: use software nodes/properties to set up GPIO keys
 
-This commit allows passing software nodes to wm831x DCDC regulators via PMIC
-platform data. It adds dcdc_swnodes to the PMIC platform data and dynamical=
-ly
-assigns these software nodes to the buckv cells during device addition.
+This commit switches the gpio-keys device on crag6410 to use software
+nodes and properties instead of platform data. This prepares the gpio-keys
+driver for the removal of legacy platform data support.
 
-> mfd: wm831x: support software nodes for DCDC regulators
+> diff --git a/arch/arm/mach-s3c/mach-crag6410.c b/arch/arm/mach-s3c/mach-c=
+rag6410.c
+> --- a/arch/arm/mach-s3c/mach-crag6410.c
+> +++ b/arch/arm/mach-s3c/mach-crag6410.c
+[ ... ]
+> -static struct gpio_keys_button crag6410_gpio_keys[] =3D {
+> -	[0] =3D {
+> -		.code	=3D KEY_SUSPEND,
+> -		.gpio	=3D S3C64XX_GPL(10),	/* EINT 18 */
+> -		.type	=3D EV_KEY,
+> -		.wakeup	=3D 1,
+> -		.active_low =3D 1,
+> -	},
+> -	[1] =3D {
+> -		.code	=3D SW_FRONT_PROXIMITY,
+> -		.gpio	=3D S3C64XX_GPN(11),	/* EINT 11 */
+> -		.type	=3D EV_SW,
+> -	},
+> -};
+[ ... ]
+> +static const struct property_entry crag6410_suspend_key_props[] =3D {
+> +	PROPERTY_ENTRY_U32("linux,code", KEY_SUSPEND),
+> +	PROPERTY_ENTRY_GPIO("gpios",
+> +			    SAMSUNG_GPIO_NODE('L'), 10,	/* EINT 18 */
+> +			    GPIO_ACTIVE_LOW),
+> +	PROPERTY_ENTRY_BOOL("wakeup-source"),
+> +	{ }
+> +};
 
 [Severity: Low]
-This isn't a bug, but should the description after the subsystem prefix be
-capitalized? The MFD subsystem conventions generally expect:
-"mfd: wm831x: Support software nodes for DCDC regulators".
+Does this conversion implicitly change the debounce interval?
 
-> diff --git a/drivers/mfd/wm831x-core.c b/drivers/mfd/wm831x-core.c
-> --- a/drivers/mfd/wm831x-core.c
-> +++ b/drivers/mfd/wm831x-core.c
+In the old platform data, the debounce interval defaulted to 0 since the
+struct field was zero-initialized. By not specifying a "debounce-interval"
+property here, won't the gpio-keys fwnode parser apply a 5ms default to this
+key?
 
-[ ... ]
-
-> @@ -1449,6 +1450,32 @@ const struct of_device_id wm831x_of_match[] =3D {
->  };
->  EXPORT_SYMBOL_GPL(wm831x_of_match);
-> =20
-> +static int wm831x_add_devices(struct wm831x *wm831x, int wm831x_num,
-> +			      const struct mfd_cell *cells, int num_cells)
-> +{
-> +	struct wm831x_pdata *pdata =3D &wm831x->pdata;
-> +	int i;
 > +
-> +	struct mfd_cell *local_cells __free(kfree) =3D
-> +		kmemdup_array(cells, num_cells, sizeof(*cells), GFP_KERNEL);
+> +static const struct software_node crag6410_suspend_key_node =3D {
+> +	.parent =3D &crag6410_gpio_keys_node,
+> +	.properties =3D crag6410_suspend_key_props,
+> +};
+> +
+> +static const struct property_entry crag6410_prox_sw_props[] =3D {
+> +	PROPERTY_ENTRY_U32("linux,input-type", EV_SW),
+> +	PROPERTY_ENTRY_U32("linux,code", SW_FRONT_PROXIMITY),
+> +	PROPERTY_ENTRY_GPIO("gpios",
+> +			    SAMSUNG_GPIO_NODE('N'), 11,	/* EINT 11 */
+> +			    GPIO_ACTIVE_HIGH),
+> +	{ }
+> +};
 
-[Severity: Medium]
-Does this code dynamically duplicate the mfd_cell array to amend it?
-
-The MFD subsystem guidelines advise that mfd_cell arrays should remain stat=
-ic
-references, and we should avoid creating local copies for dynamic amendment=
-s.
-Is there an alternative way to pass the software nodes without allocating a=
-nd
-modifying a duplicated cell array?
-
-> +	if (!local_cells)
-> +		return -ENOMEM;
-> +
-> +	for (i =3D 0; i < num_cells; i++) {
-> +		struct mfd_cell *cell =3D &local_cells[i];
-> +
-> +		if (strcmp(cell->name, "wm831x-buckv") =3D=3D 0) {
-> +			int id =3D cell->id - 1;
-> +
-> +			if (id >=3D 0 && id < WM831X_MAX_DCDC)
-> +				cell->swnode =3D pdata->dcdc_swnodes[id];
-> +		}
-> +	}
-> +
-> +	return mfd_add_devices(wm831x->dev, wm831x_num, local_cells, num_cells,
-> +			       NULL, 0, NULL);
-> +}
+[Severity: Low]
+Similarly, does the proximity switch also unintentionally receive a 5ms
+debounce interval because the property is omitted here?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260711-samsung-kp=
--v3-0-b2fcaba77aff@gmail.com?part=3D7
+-v3-0-b2fcaba77aff@gmail.com?part=3D6

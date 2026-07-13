@@ -1,204 +1,151 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.13])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1F0D43659EE;
-	Mon, 13 Jul 2026 03:04:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.13
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 682792F693B
+	for <linux-input@vger.kernel.org>; Mon, 13 Jul 2026 03:16:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783911844; cv=none; b=m0FT4YqOeAerJrhDumrlfAaBwrvd8OokDWDCqd2beiOQUhvWCn7+hVLCWWBEXZ+TUenDH1aDXd2czdPHPBX9C++nUPLG1EcTE9spvbTxEfwvIEnaQUJ8ycFNucTDvlIowij9B/ocBIrLsik2bIfrgDnZkslKPlbnRZNVty6JdLQ=
+	t=1783912611; cv=none; b=MFQ6kElUW8jLv5opGlYFRAnKncAx5xztz3zsKBm12xsBrpvJiNLwqXmi4yQI8rsDtj8Bg06vxWi1VI80lniCKSAA4aDRxmMRKl4u/++ldgGGaHZDcrcDcBOUc/WZ+Qm5hjzkW1yAyoqGnCWFJDKeha2M7h//+kyM/aSgzQv7vrA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783911844; c=relaxed/simple;
-	bh=+MZfPOhHbiQAz1xTm7BEysp1GdJDTeoVZHJ8pRZDYDc=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=F3VNGn3q4rEvM8phxiSaWqIolSeV200kiN/Ki8YUmSqGe2gYQUCa+D2QhtwcTVC5VcJcag5zLPJCjjCegxXUIRxbuHaGE1B6WvKk+r7bSKwGQ15GvQvzOe2V58vGjO4EOG736u47ZMu2bvibK8EKnrDbONA79O08IHgGz6ukiNM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=Znm0Oir3; arc=none smtp.client-ip=192.198.163.13
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1783912611; c=relaxed/simple;
+	bh=dlpVZpkGhHtym5ASn6jkccX0vIIIg1fmo48B8GC4LmY=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=N/JeDMLQ2pcO+bX/5Yliq/0xRQNUUOVab005+YORTXbBAGZzhrI0HzRKO9FkCHz9mmCw7kPy/aS7cIsKRZxaKWbG+HN3adxISPrbuuQFmmxJP0+usWkBylwqgdXJ+4ay07BXWR4kZeMLtALOr+70bP3MOfGQt7oczppENAT9l10=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=V8WQd0ea; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="Znm0Oir3"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1783911843; x=1815447843;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=+MZfPOhHbiQAz1xTm7BEysp1GdJDTeoVZHJ8pRZDYDc=;
-  b=Znm0Oir3D0PLzlEGKEp2BLVQB4+liNYQp0Cn1KZnDAcvYGMo7QOEQaCv
-   ZkF2U0tb/EVcEFlEDvbpokY/SkjwhmAYI7wm3ESLfw/gfrD/HNuI4Zvqq
-   rl9maLfdxBxnTY9JFWtBcsbwyzMXV+30CVee+M9yitnJeIqtIMpwlS8Z+
-   MtlkzlMV0SMp7csm/opk2g8Io92b6svwB+cAYLXmLt7+AiWf5umZ8GrQF
-   TAwp/N0d3zvkQwkfDdQjxz2AdRK2i1lsjhVdzigGDSTa/DabtomloncoT
-   gP5GwPNJnbWIA66TqnWWEFS9KPzjI2FapP9nqAnlE3M+ZCRKyR0G9g3xp
-   w==;
-X-CSE-ConnectionGUID: /g/rcHWPSImSuaSnzMJBEA==
-X-CSE-MsgGUID: 99omtO9QTq6ek+ubjI0/Zw==
-X-IronPort-AV: E=McAfee;i="6800,10657,11841"; a="87060329"
-X-IronPort-AV: E=Sophos;i="6.25,154,1779174000"; 
-   d="scan'208";a="87060329"
-Received: from orviesa007.jf.intel.com ([10.64.159.147])
-  by fmvoesa107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 Jul 2026 20:04:02 -0700
-X-CSE-ConnectionGUID: eoTbaNC0SMe0k96+xP7KIQ==
-X-CSE-MsgGUID: /2giQ0HZTECMuQTiWD505Q==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.25,154,1779174000"; 
-   d="scan'208";a="255499366"
-Received: from shsensorbuild.sh.intel.com ([10.239.132.250])
-  by orviesa007.jf.intel.com with ESMTP; 12 Jul 2026 20:03:56 -0700
-From: Even Xu <even.xu@intel.com>
-To: bentiss@kernel.org,
-	jikos@kernel.org
-Cc: srinivas.pandruvada@linux.intel.com,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Even Xu <even.xu@intel.com>
-Subject: [PATCH v3 3/3] HID: Intel-thc-hid: Intel-quickspi: Refine recover callback
-Date: Mon, 13 Jul 2026 11:04:12 +0800
-Message-ID: <20260713030412.2531933-4-even.xu@intel.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20260713030412.2531933-1-even.xu@intel.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="V8WQd0ea"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D16F91F000E9;
+	Mon, 13 Jul 2026 03:16:46 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1783912607;
+	bh=J+X2ZPqOlSzD982MG7IUBh05qBvaFNlbCvWk1GgE+LI=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=V8WQd0eaXf+XrmHotjZB8hlMKJ9ug5zsf5+huySPCS567RKK7tyIbY+WHkwC4IOoz
+	 3HD0solGukjEVZSrI3AGOxdCz4UDJzapj3idRtYQfxbb0Fgn3M+y5/gnuVc0KkGshe
+	 +PubUjjv6D2hXJDdhZ2DHIEW542rQAqjRu4oQxcEyNS7DiujtlqAHlQk2chFzy7imH
+	 Ws0tvRSrDDLYtW9GRxphxvJPmgnHQow7ttLx9jKyI+Cu9AWfWapyThKDwaCfi48/Na
+	 ofStwhTEixK/thzWAKf011DcnPbIMSLuEb7T8rFD53K7uo+8Hb2i2ei997orc3u7TH
+	 75JndA1FzXfSw==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v3 2/3] HID: Intel-thc-hid: Intel-quicki2c: Refine
+ recover callback
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Even Xu" <even.xu@intel.com>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <20260713030412.2531933-3-even.xu@intel.com>
 References: <20260713030412.2531933-1-even.xu@intel.com>
+ <20260713030412.2531933-3-even.xu@intel.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Mon, 13 Jul 2026 03:16:46 +0000
+Message-Id: <20260713031646.D16F91F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-Refine recover flow:
-1. Use workqueue to handle recover flow instead of processing in irq
-   handler.
-2. Call thc_rxdma_reset() API to simplify the recover operation.
-3. Disable interrupt during whole recover flow.
-4. If recover fails, disable interrupt to avoid interrupt storm.
+Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+s) to consider:
+- [High] The recovery workqueue can be scheduled by the threaded IRQ handle=
+r after `cancel_work_sync()` returns, leading to a Use-After-Free during de=
+vice removal or shutdown.
+- [High] Missing cancellation of `recover_work` in the probe error path lea=
+ds to a Use-After-Free if initialization fails.
+- [High] Missing cancellation of `recover_work` during system suspend leave=
+s the hardware in a corrupted state.
+--
 
-Signed-off-by: Even Xu <even.xu@intel.com>
----
- .../intel-quickspi/pci-quickspi.c             | 53 ++++++++++---------
- .../intel-quickspi/quickspi-dev.h             |  3 ++
- 2 files changed, 32 insertions(+), 24 deletions(-)
+--- Patch [2]: [PATCH v3 2/3] HID: Intel-thc-hid: Intel-quicki2c: Refine re=
+cover callback ---
+commit 81b9a7d4f94249cad95844adc988f68429457956
+Author: Even Xu <even.xu@intel.com>
 
-diff --git a/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c b/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c
-index f669235f1883..3690ddd061e1 100644
---- a/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c
-+++ b/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c
-@@ -252,34 +252,28 @@ static irqreturn_t quickspi_irq_quick_handler(int irq, void *dev_id)
- }
- 
- /**
-- * try_recover - Try to recovery THC and Device
-- * @qsdev: pointer to quickspi device
-+ * try_recover - Recover callback to recover THC
-+ * @work: pointer to work_struct
-  *
-- * This function is a error handler, called when fatal error happens.
-- * It try to reset Touch Device and re-configure THC to recovery
-+ * This function is an error handler, called when fatal error happens.
-+ * It try to reset Touch Device and re-configure THC to recover
-  * transferring between Device and THC.
-- *
-- * Return: 0 if successful or error code on failed.
-  */
--static int try_recover(struct quickspi_device *qsdev)
-+static void try_recover(struct work_struct *work)
- {
--	int ret;
-+	struct quickspi_device *qsdev = container_of(work, struct quickspi_device, recover_work);
- 
--	ret = reset_tic(qsdev);
--	if (ret) {
--		dev_err(qsdev->dev, "Reset touch device failed, ret = %d\n", ret);
--		return ret;
--	}
-+	if (pm_runtime_resume_and_get(qsdev->dev))
-+		return;
- 
--	thc_dma_unconfigure(qsdev->thc_hw);
-+	thc_interrupt_enable(qsdev->thc_hw, false);
- 
--	ret = thc_dma_configure(qsdev->thc_hw);
--	if (ret) {
--		dev_err(qsdev->dev, "Re-configure THC DMA failed, ret = %d\n", ret);
--		return ret;
--	}
-+	if (thc_rxdma_reset(qsdev->thc_hw))
-+		qsdev->state = QUICKSPI_DISABLED;
-+	else
-+		thc_interrupt_enable(qsdev->thc_hw, true);
- 
--	return 0;
-+	pm_runtime_put_autosuspend(qsdev->dev);
- }
- 
- /**
-@@ -337,11 +331,10 @@ static irqreturn_t quickspi_irq_thread_handler(int irq, void *dev_id)
- 	}
- 
- end:
--	thc_interrupt_enable(qsdev->thc_hw, true);
--
- 	if (err_recover)
--		if (try_recover(qsdev))
--			qsdev->state = QUICKSPI_DISABLED;
-+		schedule_work(&qsdev->recover_work);
-+	else
-+		thc_interrupt_enable(qsdev->thc_hw, true);
- 
- 	pm_runtime_put_autosuspend(qsdev->dev);
- 
-@@ -385,6 +378,7 @@ static struct quickspi_device *quickspi_dev_init(struct pci_dev *pdev, void __io
- 	init_waitqueue_head(&qsdev->report_desc_got_wq);
- 	init_waitqueue_head(&qsdev->get_report_cmpl_wq);
- 	init_waitqueue_head(&qsdev->set_report_cmpl_wq);
-+	INIT_WORK(&qsdev->recover_work, try_recover);
- 
- 	/* thc hw init */
- 	qsdev->thc_hw = thc_dev_init(qsdev->dev, qsdev->mem_addr);
-@@ -711,6 +705,12 @@ static void quickspi_remove(struct pci_dev *pdev)
- 		return;
- 
- 	quickspi_hid_remove(qsdev);
-+
-+	thc_interrupt_quiesce(qsdev->thc_hw, true);
-+	thc_interrupt_enable(qsdev->thc_hw, false);
-+
-+	cancel_work_sync(&qsdev->recover_work);
-+
- 	quickspi_dma_deinit(qsdev);
- 
- 	pm_runtime_get_noresume(qsdev->dev);
-@@ -737,6 +737,11 @@ static void quickspi_shutdown(struct pci_dev *pdev)
- 	if (!qsdev)
- 		return;
- 
-+	thc_interrupt_quiesce(qsdev->thc_hw, true);
-+	thc_interrupt_enable(qsdev->thc_hw, false);
-+
-+	cancel_work_sync(&qsdev->recover_work);
-+
- 	/* Must stop DMA before reboot to avoid DMA entering into unknown state */
- 	quickspi_dma_deinit(qsdev);
- 
-diff --git a/drivers/hid/intel-thc-hid/intel-quickspi/quickspi-dev.h b/drivers/hid/intel-thc-hid/intel-quickspi/quickspi-dev.h
-index bf5e18f5a5f4..363e589b0bde 100644
---- a/drivers/hid/intel-thc-hid/intel-quickspi/quickspi-dev.h
-+++ b/drivers/hid/intel-thc-hid/intel-quickspi/quickspi-dev.h
-@@ -8,6 +8,7 @@
- #include <linux/hid-over-spi.h>
- #include <linux/sizes.h>
- #include <linux/wait.h>
-+#include <linux/workqueue.h>
- 
- #include "quickspi-protocol.h"
- 
-@@ -173,6 +174,8 @@ struct quickspi_device {
- 
- 	wait_queue_head_t set_report_cmpl_wq;
- 	bool set_report_cmpl;
-+
-+	struct work_struct recover_work;
- };
- 
- #endif /* _QUICKSPI_DEV_H_ */
--- 
-2.43.0
+HID: Intel-thc-hid: Intel-quicki2c: Refine recover callback
 
+This commit modifies the recovery flow for Intel-quicki2c by using a
+workqueue to process device resets instead of handling them directly
+within the IRQ handler. It introduces the recover_work work_struct and
+manages hardware interrupt states during the recovery process.
+
+> diff --git a/drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c b/dr=
+ivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c
+> --- a/drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c
+> +++ b/drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c
+[ ... ]
+> @@ -386,6 +385,7 @@ static struct quicki2c_device *quicki2c_dev_init(stru=
+ct pci_dev *pdev, void __io
+>  	qcdev->ddata =3D ddata;
+> =20
+>  	init_waitqueue_head(&qcdev->reset_ack_wq);
+> +	INIT_WORK(&qcdev->recover_work, try_recover);
+> =20
+>  	/* THC hardware init */
+
+[Severity: High]
+Does this work need to be cancelled during the probe error paths and
+system suspend transitions?
+
+If a failure occurs during quicki2c_probe() after the hardware interrupts a=
+re
+enabled, the devres framework will free qcdev. If an interrupt fires and
+schedules this work before the error handler returns, could the background
+workqueue dereference the freed qcdev?
+
+Similarly, quicki2c_suspend() and quicki2c_freeze() do not appear to cancel
+this work. If an interrupt schedules recover_work just before the system
+suspends, could try_recover() run concurrently and re-enable hardware
+interrupts, overriding the suspended hardware state?
+
+[ ... ]
+> @@ -772,6 +772,12 @@ static void quicki2c_remove(struct pci_dev *pdev)
+>  		return;
+> =20
+>  	quicki2c_hid_remove(qcdev);
+> +
+> +	thc_interrupt_quiesce(qcdev->thc_hw, true);
+> +	thc_interrupt_enable(qcdev->thc_hw, false);
+> +
+> +	cancel_work_sync(&qcdev->recover_work);
+> +
+>  	quicki2c_dma_deinit(qcdev);
+
+[Severity: High]
+Can the threaded IRQ handler race with this removal and re-queue the work?
+
+The IRQ handler is managed by devm_request_threaded_irq() and remains active
+until devres cleanup occurs after quicki2c_remove() returns.
+
+If an interrupt fires right as cancel_work_sync() completes, couldn't the
+IRQ thread call schedule_work() again?
+
+If try_recover() then executes concurrently, it overrides the hardware
+teardown by calling thc_interrupt_enable(..., true). When devres subsequent=
+ly
+frees the IRQ and qcdev, will this result in a use-after-free when the
+re-queued work executes?
+
+[ ... ]
+> @@ -796,6 +802,11 @@ static void quicki2c_shutdown(struct pci_dev *pdev)
+>  	if (!qcdev)
+>  		return;
+> =20
+> +	thc_interrupt_quiesce(qcdev->thc_hw, true);
+> +	thc_interrupt_enable(qcdev->thc_hw, false);
+> +
+> +	cancel_work_sync(&qcdev->recover_work);
+> +
+>  	/* Must stop DMA before reboot to avoid DMA entering into unknown state=
+ */
+
+[Severity: High]
+Does this cancellation share the same race condition with the threaded IRQ
+handler as quicki2c_remove()?
+
+Without disabling the Linux IRQ line before cancelling the work, could a
+concurrent hardware interrupt allow quicki2c_irq_thread_handler() to
+re-queue recover_work during system shutdown?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260713030412.2531=
+933-1-even.xu@intel.com?part=3D2

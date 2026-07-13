@@ -1,234 +1,266 @@
-Received: from box.trvn.ru (box.trvn.ru [45.141.101.25])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.21])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B04C9360EE1;
-	Mon, 13 Jul 2026 05:52:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.141.101.25
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7CABC317162
+	for <linux-input@vger.kernel.org>; Mon, 13 Jul 2026 06:50:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.21
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783921979; cv=none; b=Lpx0OkfSfe7mThAH3td6nEzSBahreiPKRqnKDocTYJRGm6q4yhYStXRWnThQbJZbwuwW8hY0xRhbJ1FRH2mHiDoLITXWnuiJI9BEdqkYkMCiEmNZ9TX5f+HKra3qI1Tk+B8O+GsXJOW5rdfYSFJv2BWYDAoL8ROol4LZHuaOHGY=
+	t=1783925456; cv=none; b=Uxcmkd2c4ZW3n/Q6gCZob6KYr6WIbYmgUkfBL+fs7yJ8+cVQ58bAlXf2Be4VziZpBgWxSz2aFSAuHFyOvaPmb2yDPnTVJJ0qu3Vo7ZZsN8Oqn4iEveCXiNIP54pdlwWD8GxhRAH9jaRFoa3FkkuuCBdObxexaA9rvu5e8JIGF7Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783921979; c=relaxed/simple;
-	bh=lbL4FAbqkEaxJWIfg4gID+qDhnCvuvIhqc1F1Lh1GUk=;
-	h=MIME-Version:Date:From:To:Cc:Subject:In-Reply-To:References:
-	 Message-ID:Content-Type; b=mpnpZjRKCkl8VCJAoHjnDw7rDfri4/rKN1kLTFFVPP+iMZztzE0LF/6KwkNxyhHw2pVnR3483cxpj2EhTUQniTvMKYJurL9jWXD5yY905XCcsU+2jsb0Z5KalasW4nk8+r+Lh1UQV5sNuzDbfTHRc0zeMPnWgzEQ9I0liW6E08A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=trvn.ru; spf=pass smtp.mailfrom=trvn.ru; dkim=pass (2048-bit key) header.d=trvn.ru header.i=@trvn.ru header.b=DxGUzeiF; arc=none smtp.client-ip=45.141.101.25
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=trvn.ru
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=trvn.ru
+	s=arc-20240116; t=1783925456; c=relaxed/simple;
+	bh=08nU/WzdmQfLh5twBBN/uBQqltBiduJkwvBz6wuekqE=;
+	h=Date:From:To:Cc:Subject:Message-ID; b=MbCOEz+YR/ITukT/WUKPrUcfX6cpgEkLHEKckaEXZjfcdYXVZqS/qg1RwPJdyuxIHD710S0efUMh/v9iNWhwD8B3PTjUydwzK1k94IdNbeI/SZuLmY0vxD8BKUqk44JdOqC62ZfOY9pA/i7G+xvu/zrLXwr9xVJFCUIAe8kdc8I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=eysmbjh8; arc=none smtp.client-ip=198.175.65.21
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=trvn.ru header.i=@trvn.ru header.b="DxGUzeiF"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=trvn.ru; s=mail;
-	t=1783921662; bh=lbL4FAbqkEaxJWIfg4gID+qDhnCvuvIhqc1F1Lh1GUk=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=DxGUzeiFlsISAOE8GgyM59P+383gBRnQOi9oU+W4C+xeJLMXUxAXT4+zYWjw2/Qo0
-	 jzpo8XGk3vb5jInfr2I0upfB6wwlMkdcUaqvQcjzmEpXATyjsC48YbuWboT6Wfvp3O
-	 VEAvDZWCAIfLlcQ9H0eimQ4U6FB8+jHrVwIbw66VYl/dt27ZG75+69lSxIeRZsu8Nu
-	 97r8+B2nLd4NGL7ET4BdZYtghAT4W5/nOU9YQK4AvSgo5SW2syKtkbs0xx5FKCHHqx
-	 Pijqp69nQSYzJjb7pcb1T3/vHP4K9LNGGR9yWNfqQ3GeEedie9Vv6tndS+Kc7ltlEm
-	 XSah8dC4sgogw==
-Received: from authenticated-user (box.trvn.ru [45.141.101.25])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by box.trvn.ru (Postfix) with ESMTPSA id 824A56E81C;
-	Mon, 13 Jul 2026 10:47:42 +0500 (+05)
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="eysmbjh8"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1783925455; x=1815461455;
+  h=date:from:to:cc:subject:message-id;
+  bh=08nU/WzdmQfLh5twBBN/uBQqltBiduJkwvBz6wuekqE=;
+  b=eysmbjh84Iq+Ew9wzGWVU+K5HnL42qYIfBlk5VvpTiY1X0q7fux2NI1Y
+   lLirB0oo3kvPal6jQCWZ2G+pm4OcZKGhAFFcLS50nwY5GJUtA7hOx+FUj
+   2s8OILC0+V3z87dl2VW8/HWVr2Iui12SI2kdI8tqTshizusBJMS+q91Em
+   tqnAyvych877P5C8JNHlNCbDgEhuQ2d4vVAgaIpW+mUypZWly8ZxMWLaf
+   VOWTTK3dHPXRYskMgyIAwQtcnTp3hU/uoelj0deMkhWBPNGB4wQZ8i2Yb
+   cW0RaEFWvxMNBRmjRe0w5d1WvxTw2RSd+kGX1yIqwTry6TUBB+PP9DoQE
+   A==;
+X-CSE-ConnectionGUID: KkSKmAGtTX2k/cL9iXF2ZA==
+X-CSE-MsgGUID: cjXlD7fERkmF2FEq3lohqQ==
+X-IronPort-AV: E=McAfee;i="6800,10657,11841"; a="84383340"
+X-IronPort-AV: E=Sophos;i="6.25,154,1779174000"; 
+   d="scan'208";a="84383340"
+Received: from fmviesa009.fm.intel.com ([10.60.135.149])
+  by orvoesa113.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 Jul 2026 23:50:54 -0700
+X-CSE-ConnectionGUID: XUcBVXXNSbevMOq/B0i0yg==
+X-CSE-MsgGUID: kfq51GTQSG6WU3xXTN74HA==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.25,154,1779174000"; 
+   d="scan'208";a="249098876"
+Received: from lkp-server02.sh.intel.com (HELO ea128546eb3d) ([10.239.97.151])
+  by fmviesa009.fm.intel.com with ESMTP; 12 Jul 2026 23:50:52 -0700
+Received: from kbuild by ea128546eb3d with local (Exim 4.98.2)
+	(envelope-from <lkp@intel.com>)
+	id 1wjAUt-00000000LSa-1WXc;
+	Mon, 13 Jul 2026 06:50:46 +0000
+Date: Mon, 13 Jul 2026 14:49:39 +0800
+From: kernel test robot <lkp@intel.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
+Subject: [dtor-input:for-linus] BUILD SUCCESS
+ adea84ee6cdea611146c4251d3c1616f5a09feca
+Message-ID: <202607131428.BPPpK4Qa-lkp@intel.com>
+User-Agent: s-nail v14.9.25
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Date: Mon, 13 Jul 2026 10:47:42 +0500
-From: Nikita Travkin <nikita@trvn.ru>
-To: Kavan Smith <kavansmith82@gmail.com>
-Cc: dmitry.torokhov@gmail.com, michael.srba@seznam.cz,
- linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Input: zinitix - support the 6-byte/count touch report
- used by bt532
-In-Reply-To: <20260706180826.408989-1-kavansmith82@gmail.com>
-References: <20260706180826.408989-1-kavansmith82@gmail.com>
-Message-ID: <be60e6278a67cfed38c4e0874ec3431d@trvn.ru>
-X-Sender: nikita@trvn.ru
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
 
-Kavan Smith писал(а) 06.07.2026 23:08:
-> The driver assumes an 8-byte per-contact report stride with a per-finger
-> bitmask in report byte[2]. bt532 firmware (Samsung Galaxy Tab A 8.0,
-> msm8916-samsung-gt58) instead packs contacts at a 6-byte stride and reports
-> a finger COUNT in byte[2]. Under the 8-byte/bitmask assumption fingers 1+
-> are read misaligned, and a two-finger report (count 0x02) makes
-> for_each_set_bit() visit only slot 1, collapsing multitouch to a single
-> contact.
-> 
-> Add a per-compatible struct zinitix_chip_data that selects the report stride
-> and how byte[2] is interpreted, and attach it to the bt532 compatible (the
-> only in-tree user of it). All other compatibles keep the existing 8-byte,
-> bitmask behaviour unchanged. Contacts are parsed at the chip's stride, and
-> for count-style firmware every slot the chip marks with SUB_BIT_EXIST is
-> reported.
-> 
+tree/branch: https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+branch HEAD: adea84ee6cdea611146c4251d3c1616f5a09feca  Input: mms114 - fix multi-touch slot corruption
 
-Hi!
+elapsed time: 722m
 
-I don't think this approach is correct here. Since the layout is most
-likely fw defined, I don't think it should be attached to the chip
-compatible but rather to each specific device - oem driver has a
-dedicated fw update just for gt58 for example.
+configs tested: 189
+configs skipped: 2
 
-Notably, the driver already has facilities to define which touch mode a
-device uses, just that only one mode was implemented so far.
+The following configs have been built successfully.
+More configs may be tested in the coming days.
 
-Please refer to the OEM driver [1], perhaps you will be able to notice
-something simpler there that'd make this firmware accept mode=2...
+tested configs:
+alpha                             allnoconfig    gcc-16.1.0
+alpha                            allyesconfig    gcc-16.1.0
+alpha                               defconfig    gcc-16.1.0
+arc                              allmodconfig    clang-23
+arc                               allnoconfig    gcc-16.1.0
+arc                              allyesconfig    clang-23
+arc                                 defconfig    gcc-16.1.0
+arc                   randconfig-001-20260713    gcc-8.5.0
+arc                   randconfig-002-20260713    gcc-8.5.0
+arm                               allnoconfig    gcc-16.1.0
+arm                              allyesconfig    clang-23
+arm                                 defconfig    gcc-16.1.0
+arm                   randconfig-001-20260713    gcc-8.5.0
+arm                   randconfig-002-20260713    gcc-8.5.0
+arm                   randconfig-003-20260713    gcc-8.5.0
+arm                   randconfig-004-20260713    gcc-8.5.0
+arm64                            allmodconfig    clang-23
+arm64                             allnoconfig    gcc-16.1.0
+arm64                               defconfig    gcc-16.1.0
+arm64                          randconfig-001    clang-23
+arm64                 randconfig-001-20260713    clang-23
+arm64                 randconfig-001-20260713    gcc-13.4.0
+arm64                          randconfig-002    clang-23
+arm64                 randconfig-002-20260713    clang-23
+arm64                 randconfig-002-20260713    gcc-13.4.0
+arm64                          randconfig-003    clang-23
+arm64                 randconfig-003-20260713    clang-23
+arm64                 randconfig-003-20260713    gcc-13.4.0
+arm64                          randconfig-004    clang-23
+arm64                 randconfig-004-20260713    clang-23
+arm64                 randconfig-004-20260713    gcc-13.4.0
+csky                             allmodconfig    gcc-16.1.0
+csky                              allnoconfig    gcc-16.1.0
+csky                                defconfig    gcc-16.1.0
+csky                           randconfig-001    clang-23
+csky                  randconfig-001-20260713    clang-23
+csky                  randconfig-001-20260713    gcc-13.4.0
+csky                           randconfig-002    clang-23
+csky                  randconfig-002-20260713    clang-23
+csky                  randconfig-002-20260713    gcc-13.4.0
+hexagon                          allmodconfig    gcc-16.1.0
+hexagon                           allnoconfig    gcc-16.1.0
+hexagon                             defconfig    gcc-16.1.0
+hexagon               randconfig-001-20260713    clang-23
+hexagon               randconfig-002-20260713    clang-23
+i386                             allmodconfig    clang-22
+i386                              allnoconfig    gcc-16.1.0
+i386                             allyesconfig    clang-22
+i386        buildonly-randconfig-001-20260713    gcc-14
+i386        buildonly-randconfig-002-20260713    gcc-14
+i386        buildonly-randconfig-003-20260713    gcc-14
+i386        buildonly-randconfig-004-20260713    gcc-14
+i386        buildonly-randconfig-005-20260713    gcc-14
+i386        buildonly-randconfig-006-20260713    gcc-14
+i386                                defconfig    gcc-16.1.0
+i386                  randconfig-001-20260713    clang-22
+i386                  randconfig-002-20260713    clang-22
+i386                  randconfig-003-20260713    clang-22
+i386                  randconfig-004-20260713    clang-22
+i386                  randconfig-005-20260713    clang-22
+i386                  randconfig-006-20260713    clang-22
+i386                  randconfig-007-20260713    clang-22
+i386                  randconfig-011-20260713    clang-22
+i386                  randconfig-012-20260713    clang-22
+i386                  randconfig-013-20260713    clang-22
+i386                  randconfig-014-20260713    clang-22
+i386                  randconfig-015-20260713    clang-22
+i386                  randconfig-016-20260713    clang-22
+i386                  randconfig-017-20260713    clang-22
+loongarch                        allmodconfig    clang-23
+loongarch                         allnoconfig    gcc-16.1.0
+loongarch                           defconfig    clang-23
+loongarch             randconfig-001-20260713    clang-23
+loongarch             randconfig-002-20260713    clang-23
+m68k                             allmodconfig    gcc-16.1.0
+m68k                              allnoconfig    gcc-16.1.0
+m68k                             allyesconfig    clang-23
+m68k                                defconfig    clang-23
+microblaze                        allnoconfig    gcc-16.1.0
+microblaze                       allyesconfig    gcc-16.1.0
+microblaze                          defconfig    clang-23
+mips                             allmodconfig    gcc-16.1.0
+mips                              allnoconfig    gcc-16.1.0
+mips                             allyesconfig    gcc-16.1.0
+mips                  maltasmvp_eva_defconfig    gcc-16.1.0
+mips                        omega2p_defconfig    clang-17
+mips                          rm200_defconfig    gcc-16.1.0
+nios2                            allmodconfig    clang-20
+nios2                             allnoconfig    clang-23
+nios2                               defconfig    clang-23
+nios2                 randconfig-001-20260713    clang-23
+nios2                 randconfig-002-20260713    clang-23
+openrisc                         allmodconfig    clang-20
+openrisc                          allnoconfig    clang-23
+openrisc                            defconfig    gcc-16.1.0
+parisc                           allmodconfig    gcc-16.1.0
+parisc                            allnoconfig    clang-23
+parisc                           allyesconfig    clang-17
+parisc                              defconfig    gcc-16.1.0
+parisc                randconfig-001-20260713    clang-23
+parisc                randconfig-002-20260713    clang-23
+parisc64                            defconfig    clang-23
+powerpc                          allmodconfig    gcc-16.1.0
+powerpc                           allnoconfig    clang-23
+powerpc               randconfig-001-20260713    clang-23
+powerpc               randconfig-002-20260713    clang-23
+powerpc64             randconfig-001-20260713    clang-23
+powerpc64             randconfig-002-20260713    clang-23
+riscv                            allmodconfig    clang-23
+riscv                             allnoconfig    clang-23
+riscv                            allyesconfig    clang-23
+riscv                               defconfig    gcc-16.1.0
+riscv                          randconfig-001    clang-19
+riscv                 randconfig-001-20260713    clang-19
+riscv                          randconfig-002    clang-19
+riscv                 randconfig-002-20260713    clang-19
+s390                             allmodconfig    clang-17
+s390                              allnoconfig    clang-23
+s390                             allyesconfig    gcc-16.1.0
+s390                                defconfig    clang-18
+s390                                defconfig    gcc-16.1.0
+s390                           randconfig-001    clang-19
+s390                  randconfig-001-20260713    clang-19
+s390                           randconfig-002    clang-19
+s390                  randconfig-002-20260713    clang-19
+sh                               allmodconfig    gcc-16.1.0
+sh                                allnoconfig    clang-23
+sh                               allyesconfig    clang-17
+sh                                  defconfig    gcc-14
+sh                             randconfig-001    clang-19
+sh                    randconfig-001-20260713    clang-19
+sh                             randconfig-002    clang-19
+sh                    randconfig-002-20260713    clang-19
+sparc                             allnoconfig    clang-23
+sparc                               defconfig    gcc-16.1.0
+sparc                 randconfig-001-20260713    gcc-12.5.0
+sparc                 randconfig-002-20260713    gcc-12.5.0
+sparc64                          allmodconfig    clang-20
+sparc64                             defconfig    gcc-14
+sparc64               randconfig-001-20260713    gcc-12.5.0
+sparc64               randconfig-002-20260713    gcc-12.5.0
+um                               allmodconfig    clang-17
+um                                allnoconfig    clang-23
+um                               allyesconfig    gcc-16.1.0
+um                                  defconfig    gcc-14
+um                             i386_defconfig    gcc-14
+um                    randconfig-001-20260713    gcc-12.5.0
+um                    randconfig-002-20260713    gcc-12.5.0
+um                           x86_64_defconfig    gcc-14
+x86_64                           allmodconfig    clang-22
+x86_64                            allnoconfig    clang-23
+x86_64                           allyesconfig    clang-22
+x86_64      buildonly-randconfig-001-20260713    clang-22
+x86_64      buildonly-randconfig-002-20260713    clang-22
+x86_64      buildonly-randconfig-003-20260713    clang-22
+x86_64      buildonly-randconfig-004-20260713    clang-22
+x86_64      buildonly-randconfig-005-20260713    clang-22
+x86_64      buildonly-randconfig-006-20260713    clang-22
+x86_64                              defconfig    gcc-14
+x86_64                                  kexec    clang-22
+x86_64                randconfig-001-20260713    gcc-13
+x86_64                randconfig-002-20260713    gcc-13
+x86_64                randconfig-003-20260713    gcc-13
+x86_64                randconfig-004-20260713    gcc-13
+x86_64                randconfig-005-20260713    gcc-13
+x86_64                randconfig-006-20260713    gcc-13
+x86_64                randconfig-011-20260713    gcc-14
+x86_64                randconfig-012-20260713    gcc-14
+x86_64                randconfig-013-20260713    gcc-14
+x86_64                randconfig-014-20260713    gcc-14
+x86_64                randconfig-015-20260713    gcc-14
+x86_64                randconfig-016-20260713    gcc-14
+x86_64                randconfig-071-20260713    gcc-14
+x86_64                randconfig-072-20260713    gcc-14
+x86_64                randconfig-073-20260713    gcc-14
+x86_64                randconfig-074-20260713    gcc-14
+x86_64                randconfig-075-20260713    gcc-14
+x86_64                randconfig-076-20260713    gcc-14
+x86_64                               rhel-9.4    clang-22
+x86_64                           rhel-9.4-bpf    gcc-14
+x86_64                          rhel-9.4-func    clang-22
+x86_64                    rhel-9.4-kselftests    clang-22
+x86_64                         rhel-9.4-kunit    gcc-14
+x86_64                           rhel-9.4-ltp    gcc-14
+x86_64                          rhel-9.4-rust    clang-22
+xtensa                            allnoconfig    clang-23
+xtensa                           allyesconfig    clang-20
+xtensa                randconfig-001-20260713    gcc-12.5.0
+xtensa                randconfig-002-20260713    gcc-12.5.0
 
-See few more minor comments below
-
-Nikita
-
-[1] https://github.com/msm8916-mainline/linux-downstream/blob/SM-T355Y/drivers/input/touchscreen/zinitix_bt532/zinitix_bt532_ts.c
-
-> Signed-off-by: Kavan Smith <kavansmith82@gmail.com>
-> ---
->  drivers/input/touchscreen/zinitix.c | 71 +++++++++++++++++++++++++++--
->  1 file changed, 58 insertions(+), 13 deletions(-)
-> 
-> diff --git a/drivers/input/touchscreen/zinitix.c b/drivers/input/touchscreen/zinitix.c
-> --- a/drivers/input/touchscreen/zinitix.c
-> +++ b/drivers/input/touchscreen/zinitix.c
-> @@ -135,26 +135,47 @@
->  #define CHIP_ON_DELAY				15 // ms
->  #define FIRMWARE_ON_DELAY			40 // ms
->  
-> +/*
-> + * Two Zinitix touch-report layouts exist in the wild. The default is an 8-byte
-> + * per-contact stride with a per-finger bitmask in report byte[2]. Some firmware
-> + * (e.g. bt532 on the Samsung Galaxy Tab A 8.0) packs contacts at a 6-byte stride
-> + * and reports a finger COUNT in byte[2] instead of a bitmask. Selected per
-> + * compatible via the of_device_id .data below.
-> + */
-> +struct zinitix_chip_data {
-> +	unsigned int coord_stride;	/* per-contact byte stride in the report */
-> +	bool finger_count;		/* byte[2] is a finger count, not a bitmask */
-> +};
-> +
-> +static const struct zinitix_chip_data zinitix_bt532_data = {
-> +	.coord_stride = 6,
-> +	.finger_count = true,
-> +};
-> +
->  struct point_coord {
->  	__le16	x;
->  	__le16	y;
->  	u8	width;
->  	u8	sub_status;
-> -	// currently unused, but needed as padding:
-> -	u8	minor_width;
-> -	u8	angle;
-> +	/*
-> +	 * 8-byte-stride firmware appends two unused bytes here (minor_width,
-> +	 * angle); the report is parsed at the chip's coord_stride, so on that
-> +	 * firmware they are simply skipped rather than being part of this struct.
-> +	 */
->  };
->  
->  struct touch_event {
->  	__le16	status;
->  	u8	finger_mask;
->  	u8	time_stamp;
-> -	struct point_coord point_coord[MAX_SUPPORTED_FINGER_NUM];
-> +	/* raw per-contact bytes, parsed at the chip's coord_stride (max 8) */
-> +	u8	coords[MAX_SUPPORTED_FINGER_NUM * 8];
->  };
->  
->  struct bt541_ts_data {
->  	struct i2c_client *client;
->  	struct input_dev *input_dev;
-> +	const struct zinitix_chip_data *chip;
->  	struct touchscreen_properties prop;
->  	struct regulator_bulk_data supplies[2];
->  	u32 zinitix_mode;
-> @@ -444,6 +465,8 @@
->  {
->  	struct bt541_ts_data *bt541 = bt541_handler;
->  	struct i2c_client *client = bt541->client;
-> +	unsigned int stride = bt541->chip ? bt541->chip->coord_stride : 8;
-> +	bool finger_count = bt541->chip ? bt541->chip->finger_count : false;
->  	struct touch_event touch_event;
->  	unsigned long finger_mask;
->  	__le16 icon_events;
-> @@ -452,8 +475,11 @@
->  
->  	memset(&touch_event, 0, sizeof(struct touch_event));
->  
-> +	/* header (status, finger_mask, time_stamp) + one stride per contact */
->  	error = zinitix_read_data(bt541->client, ZINITIX_POINT_STATUS_REG,
-> -				  &touch_event, sizeof(struct touch_event));
-> +				  &touch_event,
-> +				  offsetof(struct touch_event, coords) +
-> +					  MAX_SUPPORTED_FINGER_NUM * stride);
->  	if (error) {
->  		dev_err(&client->dev, "Failed to read in touchpoint struct\n");
->  		goto out;
-> @@ -470,13 +496,31 @@
->  		zinitix_report_keys(bt541, le16_to_cpu(icon_events));
->  	}
->  
-> -	finger_mask = touch_event.finger_mask;
-> -	for_each_set_bit(i, &finger_mask, MAX_SUPPORTED_FINGER_NUM) {
-> -		const struct point_coord *p = &touch_event.point_coord[i];
-> -
-> -		/* Only process contacts that are actually reported */
-> -		if (p->sub_status & SUB_BIT_EXIST)
-> -			zinitix_report_finger(bt541, i, p);
-> +	if (finger_count) {
-> +		/*
-> +		 * On this firmware byte[2] is a finger COUNT, not a bitmask: a
-
-Which firmware?
-
-> +		 * 2-finger report carries 0x02, so for_each_set_bit() would look
-> +		 * only at slot 1 and silently drop slot 0. The chip marks every
-> +		 * populated contact with SUB_BIT_EXIST, so iterate all slots and
-> +		 * report the present ones.
-> +		 */
-
-Maybe worth checking how OEM driver works for different devices
-that use zinitix chips.
-
-> +		for (i = 0; i < MAX_SUPPORTED_FINGER_NUM; i++) {
-> +			const struct point_coord *p =
-> +				(const struct point_coord *)&touch_event.coords[i * stride];
-> +
-> +			if (p->sub_status & SUB_BIT_EXIST)
-> +				zinitix_report_finger(bt541, i, p);
-> +		}
-> +	} else {
-> +		/* default: byte[2] is a per-finger bitmask */
-> +		finger_mask = touch_event.finger_mask;
-> +		for_each_set_bit(i, &finger_mask, MAX_SUPPORTED_FINGER_NUM) {
-> +			const struct point_coord *p =
-> +				(const struct point_coord *)&touch_event.coords[i * stride];
-> +
-> +			if (p->sub_status & SUB_BIT_EXIST)
-> +				zinitix_report_finger(bt541, i, p);
-> +		}
->  	}
->  
->  	input_mt_sync_frame(bt541->input_dev);
-> @@ -627,6 +671,7 @@
->  		return -ENOMEM;
->  
->  	bt541->client = client;
-> +	bt541->chip = device_get_match_data(&client->dev);
->  	i2c_set_clientdata(client, bt541);
->  
->  	error = zinitix_init_regulators(bt541);
-> @@ -741,7 +786,7 @@
->  	{ .compatible = "zinitix,bt431" },
->  	{ .compatible = "zinitix,bt432" },
->  	{ .compatible = "zinitix,bt531" },
-> -	{ .compatible = "zinitix,bt532" },
-> +	{ .compatible = "zinitix,bt532", .data = &zinitix_bt532_data },
->  	{ .compatible = "zinitix,bt538" },
->  	{ .compatible = "zinitix,bt541" },
->  	{ .compatible = "zinitix,bt548" },
+--
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki

@@ -1,122 +1,156 @@
-Received: from fout-b6-smtp.messagingengine.com (fout-b6-smtp.messagingengine.com [202.12.124.149])
+Received: from sender-op-o17.zoho.eu (sender-op-o17.zoho.eu [136.143.169.17])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 092363E171E
-	for <linux-input@vger.kernel.org>; Mon, 13 Jul 2026 09:29:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.149
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783934963; cv=none; b=cJN1UxdOiMpAZxc+nUNzU1P3BIoTdUfxRZ9uigqXclRnnZQeCx9Og6J2VgVXXDJHfdIYNjD3mHpBOEONdeioX6HPHqAZvsz1cPizGDIqAIUsCmn5YjPsRXJpMgjHxSRYb4xv9FkupUg+7F1bqQLHvOsIndmf0HCEvy1VNCCsyJw=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783934963; c=relaxed/simple;
-	bh=IZYCNMPejRkhuKLcAOsd2Qmpr51bJHVcYw/mlM0i9As=;
-	h=MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
-	 Subject:Content-Type; b=G0hdb2sj69EvLmlyJDkM6iWTby5XDzYBXCoQE54GFfrNeqt+8q23zJPtRUpppDTnRi57DIM/m1jarlISNHUuLJgNBU0mwh5KOeMqy//GT8hjv39uqkGoMEWKsjPR4wmzeRTgTDv1zcWQRsBdXA5PoY01kqVn1T5UtcOSf5haJK0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=readahead.eu; spf=pass smtp.mailfrom=readahead.eu; dkim=pass (2048-bit key) header.d=readahead.eu header.i=@readahead.eu header.b=LMq68qAH; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=Oz1f4w6R; arc=none smtp.client-ip=202.12.124.149
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=readahead.eu
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=readahead.eu
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0AC61366049;
+	Mon, 13 Jul 2026 09:34:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.169.17
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1783935275; cv=pass; b=NPMo7gt1ac0e6gnwUfPRmg3YZeTDAMxo6nsSWzOhnVWGQq99+E6V7cwko73AOgcfpMaJua/o1PiEEUPBWcPCIyefetbZA45+hshMICozNodqKDXErzmN+3g1m+G5H01/SOzUz45Nqt1q8zetc0QdmzKzCBTRCFJS8wG8vUQfoZ8=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1783935275; c=relaxed/simple;
+	bh=aI2snIxBkk9bC3if3m1q/t4LctgZvdI6D3B4XIq2fws=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=kpbu//AiYYE1V68aRoiHIq1Grbcl58bUajaYDRhg7efUl2gacYvic4EXAWENvn/oYjCcAXB4UDxvxis72Zj6ak4M58afce26CUFznNcifTvrK1LhHGWX49Ck90j03jP4i3JG3SOrLE2yvCLJ3j7gNDElyYGdml50bRVuocVUfXw=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=auditcode.ai; spf=pass smtp.mailfrom=auditcode.ai; dkim=pass (1024-bit key) header.d=auditcode.ai header.i=security@auditcode.ai header.b=PrVluWd4; arc=pass smtp.client-ip=136.143.169.17
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=auditcode.ai
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=auditcode.ai
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=readahead.eu header.i=@readahead.eu header.b="LMq68qAH";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="Oz1f4w6R"
-Received: from phl-compute-12.internal (phl-compute-12.internal [10.202.2.52])
-	by mailfout.stl.internal (Postfix) with ESMTP id DFC0E1D000C0;
-	Mon, 13 Jul 2026 05:29:18 -0400 (EDT)
-Received: from phl-imap-07 ([10.202.2.97])
-  by phl-compute-12.internal (MEProxy); Mon, 13 Jul 2026 05:29:19 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=readahead.eu; h=
-	cc:cc:content-transfer-encoding:content-type:content-type:date
-	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to; s=fm1; t=1783934958;
-	 x=1784021358; bh=IZYCNMPejRkhuKLcAOsd2Qmpr51bJHVcYw/mlM0i9As=; b=
-	LMq68qAH85hCdBg1kTp5wUydTjFrbbyw6dSIawp1oNplDMqphxAY3+OBewqgmKVX
-	xhpR+u1WuvrnWTCjzDG29MilzN4XTB8TX3hA03x41FXHhwAH5g2i67/ulcIz3aFI
-	GeC6vstqkbuANI3XZFFqZAi4oSEcOPstlQqil5LDOTJIRwLoTrZfFlPnZ2pTaWcs
-	HNtPoc68Cf78Mo0P4/D+/LeC0cRQdQTTH+VPeorrS21arSKxrGTuGpmeatRbC1eE
-	X4t6sYFVc+ttLuAPBzg6v2v6j6ItfhTAv0bIK1tmOmPTpC1a97JluRCFH/4zpTip
-	8rmMS2tQT6wbehOTnQVUwQ==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-transfer-encoding
-	:content-type:content-type:date:date:feedback-id:feedback-id
-	:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to:x-me-proxy
-	:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; t=1783934958; x=
-	1784021358; bh=IZYCNMPejRkhuKLcAOsd2Qmpr51bJHVcYw/mlM0i9As=; b=O
-	z1f4w6Rw3sq7rvI1di6CxVbunOcLkvlhzoU/G/iOtj6PEF6ZT+BunOwFdaLS4Frm
-	6WrseK2faOHiqmYggDe5sLHsbgNOtPNvTR9utvHkIYGbjQxJxu7Iz8yj4Fj3l8FO
-	GPITx3/bdDNGSHII2baUa2SX+wLOTjzKAtWz8PFNZHSJ5QYlN67a0VMpHeMc0ZAg
-	K+emNFR1XlP+8iCIcLGs3FbdMwxWeONSrZMwy62aKdLqoON+KT52xXgYbyOPUMr9
-	pD03i4IHmqmX58XwjXDnmUm3hkavcCTtv3wphcPj9StUjaUSe1AlPOwa9B51WE+g
-	YiRssD+S+SMMTKc9z4vvA==
-X-ME-Sender: <xms:7q9UakAcxtEatkY-jUAZlhMXxQsnMZbpDiXSH8lz6tdO-1Tg_OF1sA>
-    <xme:7q9UahVbSrUW26r3axHMscuAr-kjyXF7EQNMnnwEQpTQi32cao3ejfJkK-eWopHkq
-    3a4B3dVcOXUMqxB0O-26_fQ3aFLfzUIOhhuekhG-aKIDCrTdp6F4oA>
-X-ME-Proxy-Cause: dmFkZTGhO3Q0qwwK94Vt7JMxXr0mtpG2y391gs5flwJ3MaiFwWdeyDY9ZDsTTxlLqC8MNQ
-    ELKvJgXx1f4qolMlO4ph220Jc38eocSuc07CWGSl9qzt2OKVUVTLx3qqm+4SZlp0ivCwZ/
-    exkN6dKBzFRvHbIfhqTMBZ4UzAXAA/O6TOy4vCdMwq0PhrzFNvHhQRo4ge9F0cCyLM+GQD
-    ZW+hxdIXajXvXGprH3Q5usqs3/W0Yd9WmN8BjhAtseoyMOhIlUtzTXpQXLQQvVY6HCvG3z
-    nIqBqV5eYqvvBimNkDwCu21IMZ9HDlDo/CFBMyM+0JT96dADbN7vEl5qIeZKQ8EaXObeNY
-    wy8RQAO4R5xKHnASW1O7xry+tVk9n0dnyxnOwFoJLlizCpAma8CrROUsTW8CDpKdRfYR1z
-    W78IqlygVt2hXxCIGLEnSMiI9glBsGhIyxsm2Dm9VKXYlSYOgvLreU6bHVnL6Uc/TYs2GG
-    yPE52KsJ6IS/Eq8goZ4HSsXbVcc4S4UufysvdwD4npZ6D8FbFUVaOJ0TGPAP/O4bShmaCm
-    X7bo/CnKE30p/uB0kEaaSurgzq/5jgutyuVyx/NHfRuZZqc0olGSrWX4qf15Z98inxJu4J
-    yAjqbey3+g8tDM0rpdmwHUY0qz/CAWUsMdOcqGRZoS/HpRvX9O3I14pN0Dow
-X-ME-Proxy: <xmx:7q9UaullHbOyfNXGv_aw83Z1fUQCnYBG7pdwvI4wMc93UPOFcQLIXg>
-    <xmx:7q9UapqOlPXfH4MpZvY1dINl53H-OZ6ce-NXpBhNZ3IwJNi2e0gT5g>
-    <xmx:7q9UaltzpFyhvXMdeYQMtV93p5KszNbuh8CSFdbxlv78o0ndAnngmA>
-    <xmx:7q9UamE7Z-ckTJHQcrnQJutsBRr9NfvawVgm90Ar8QZ5ysIOJUqDlQ>
-    <xmx:7q9Uao83IWszDLub0xlaIf57Zt9BYF0SBbkBzoY39tCv8ynSUxEOKMvy>
-Feedback-ID: id2994666:Fastmail
-Received: by mailuser.phl.internal (Postfix, from userid 501)
-	id 305721EA006B; Mon, 13 Jul 2026 05:29:17 -0400 (EDT)
-X-Mailer: MessagingEngine.com Webmail Interface
+	dkim=pass (1024-bit key) header.d=auditcode.ai header.i=security@auditcode.ai header.b="PrVluWd4"
+ARC-Seal: i=1; a=rsa-sha256; t=1783935261; cv=none; 
+	d=zohomail.eu; s=zohoarc; 
+	b=Y2tWkfr2Jz/iI2UFhB37I8CynRf2UD7OipcHxLlmI/3+iFRm85D7xPnQDBt940vqLlBA3HfRAY2qkxURzyv0zmEyU+BnyAFuHacb0gZDCF5C52EHV70zG23PTpQY4cZ6E147nBTwuiBM0N8pRqQmXgMSWAIUIIOAi755/qg0UDQ=
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.eu; s=zohoarc; 
+	t=1783935261; h=Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:Subject:To:To:Message-Id:Reply-To; 
+	bh=rbJgdoFUqriWY4hwVjte34Y9bPdfOX/gwrXpevsZhCM=; 
+	b=eCw3aSMANGACznC4QIcClTgVdbdIq3XgO94gEobBRLn8SL6ua/j//XcnroCQLjn7vOkf8sgzOTzMN5y/a64AKaKsBh1LoXAntf0PzQT/JVjcKsPwLw6ipHOiEUzfGAZtfZB/k9CiKJxpbAUfn0It4JR2LyQ2cK9xhDnNblpHo6k=
+ARC-Authentication-Results: i=1; mx.zohomail.eu;
+	dkim=pass  header.i=auditcode.ai;
+	spf=pass  smtp.mailfrom=security@auditcode.ai;
+	dmarc=pass header.from=<security@auditcode.ai>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1783935261;
+	s=zmail; d=auditcode.ai; i=security@auditcode.ai;
+	h=From:From:To:To:Cc:Cc:Subject:Subject:Date:Date:Message-ID:In-Reply-To:References:MIME-Version:Content-Transfer-Encoding:Message-Id:Reply-To;
+	bh=rbJgdoFUqriWY4hwVjte34Y9bPdfOX/gwrXpevsZhCM=;
+	b=PrVluWd4Td2ALIFQA0depgNwgoDzMi9aUOQEIRQPXGGPnEEaVR/B1f8ugvaXkMaV
+	VYGzUWCVCYn/fSeW+U7GGS96qRDguZcR/9gJxcduhSgbamRB5+hNXmAkoHbO3Blbbpl
+	vdm1hMPuJ40aXEZRr449HLa2++JrYa2xcpRwJXqM=
+Received: by mx.zoho.eu with SMTPS id 178393525824914.186354409364526;
+	Mon, 13 Jul 2026 11:34:18 +0200 (CEST)
+From: Ibrahim Hashimov <security@auditcode.ai>
+To: ping.cheng@wacom.com,
+	jason.gerecke@wacom.com,
+	jikos@kernel.org,
+	bentiss@kernel.org
+Cc: dmitry.torokhov@gmail.com,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	stable@vger.kernel.org
+Subject: [PATCH v2] HID: wacom: validate report length in wacom_intuos_pro2_bt_irq
+Date: Mon, 13 Jul 2026 11:34:14 +0200
+Message-ID: <20260713093414.94337-1-security@auditcode.ai>
+X-Mailer: git-send-email 2.50.1
+In-Reply-To: <20260713075110.92469-1-security@auditcode.ai>
+References: <20260713075110.92469-1-security@auditcode.ai>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-ThreadId: AeQlmnlEDZAk
-Date: Mon, 13 Jul 2026 11:28:56 +0200
-From: "David Rheinsberg" <david@readahead.eu>
-To: "Rafael Passos" <rafael@rcpassos.me>,
- "Benjamin Tissoires" <bentiss@kernel.org>, "Jiri Kosina" <jikos@kernel.org>
-Cc: "Shuah Khan" <skhan@linuxfoundation.org>,
- "Brigham Campbell" <me@brighamcampbell.com>,
- "Jori Koolstra" <jkoolstra@xs4all.nl>, linux-input@vger.kernel.org
-Message-Id: <850e8696-311e-45e4-874a-8089afe35907@app.fastmail.com>
-In-Reply-To: <DJV56QRLBO6S.3H33MNASQ866@rcpassos.me>
-References: <20260710153456.2093889-1-rafael@rcpassos.me>
- <DJV56QRLBO6S.3H33MNASQ866@rcpassos.me>
-Subject: Re: [PATCH 0/3] HID: wiimote: new LED behavior on connect, and scoped guards
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-ZohoMailClient: External
 
-Hi
+wacom_intuos_pro2_bt_irq() receives the wire report length in `len`
+but never consults it before parsing. After the report-id gate it
+unconditionally calls wacom_intuos_pro2_bt_pen() and then, selected by
+features.type, a fixed chain of sub-parsers, none of which receive
+`len`:
 
-On Fri, Jul 10, 2026, at 9:35 PM, Rafael Passos wrote:
-> I checked sashiko reviews, and there are a few needed fixes.
-> I will delay sending the v2 by a few days, in case there are any other reviews.
->
-> Specially regarding these two questions:
->
-> On Fri Jul 10, 2026 at 12:32 PM -03, Rafael Passos wrote:
->> [...]
->> The hid_info log message prints out the controller id.
->> I was considering adding this number to the controller name too,
->> but was unsure if this could impact applications using it.
-> - device naming
+	wacom_intuos_pro2_bt_pen(wacom);
+	if (type == INTUOSP2_BT || type == INTUOSP2S_BT) {
+		wacom_intuos_pro2_bt_touch(wacom);
+		wacom_intuos_pro2_bt_pad(wacom);
+		wacom_intuos_pro2_bt_battery(wacom);
+	} else {
+		wacom_intuos_gen3_bt_pad(wacom);
+		wacom_intuos_gen3_bt_battery(wacom);
+	}
 
-What device name are you referring to exactly?
+Each sub-parser dereferences wacom->data at fixed offsets. The furthest
+byte touched on each branch is:
 
->> The wiimote_hid_probe call can also be changed in this way, but I
->> left it because it uses the wiimote_destroy in one of the err cases (w/ kfree inside).
->> But I can apply the change there too, to make this more complete.
-> - wiimote_hid_probe scope cleanup
+  INTUOSP2_BT / INTUOSP2S_BT: wacom_intuos_pro2_bt_pad() reads data[285]
+	(the touchring byte), so the report must be at least 286 bytes;
+  INTUOSHT3_BT ("gen3"): wacom_intuos_gen3_bt_battery() reads data[45],
+	so the report must be at least 46 bytes.
 
-Ideally, you'd be able to call wiimote_destroy() on partially initialized devices. Not sure this is doable, but I would love to see it. I don't think using __free is worth it, if you retain the other goto labels in that function.
+features.type is selected from the VID/PID id_table entry and
+wacom_setup_device_quirks() force-registers the pen/pad/touch inputs
+for that type independent of the report descriptor, so a malicious or
+malfunctioning paired/spoofed Bluetooth peripheral can advertise that
+VID/PID and send an undersized report that still satisfies the
+data[0] == 0x80/0x81 gate. The driver then reads past the received
+report and forwards the bytes to userspace via evdev (MSC_SERIAL /
+ABS_MISC / ABS_WHEEL on the pen and pad input nodes), an out-of-bounds
+read with a concrete userspace read-back channel, and a true
+out-of-bounds read on transports whose backing buffer is sized to the
+(small) report descriptor rather than a fixed-size staging buffer.
 
-I mean, this is an old driver, lots of the cleanup-handlers were not around back then. But if I were to chose, I would either keep it as it is, or ensure that the destructors work with any partially initialized device just fine, and correctly checks that it only touches stuff that was initialized (or ensures the functions it calls do so).
+This is the same class of bug commit 2f1763f62909 ("HID: wacom: fix
+out-of-bounds read in wacom_intuos_bt_irq") already hardened in the
+sibling wacom_intuos_bt_irq(), which guards each report id against its
+minimum length before parsing.
 
-Anyway, I like the series. I will review your v2 properly, so please go ahead!
+Guard wacom_intuos_pro2_bt_irq() the same way: before parsing, reject
+reports shorter than the furthest offset the selected branch actually
+dereferences, warn, and bail out. Because the whole pen/touch/pad/
+battery chain runs unconditionally per branch, a single up-front check
+against the maximum offset (286 bytes for INTUOSP2_BT/INTUOSP2S_BT,
+46 bytes for the gen3 branch) bounds every sub-parser. Returning 0 on
+a short report also skips those calls for the same malformed report,
+which is the safe, conservative behavior.
 
-Thanks
-David
+Fixes: 4922cd26f03c ("HID: wacom: Support 2nd-gen Intuos Pro's Bluetooth classic interface")
+Cc: stable@vger.kernel.org
+Signed-off-by: Ibrahim Hashimov <security@auditcode.ai>
+Assisted-by: AuditCode-AI:2026.07
+---
+v2: the v1 check (len < 109 / len < 43) only bounded
+    wacom_intuos_pro2_bt_pen(). As sashiko-bot pointed out, the
+    unconditional touch/pad/battery calls read much further --
+    wacom_intuos_pro2_bt_pad() up to data[285] and
+    wacom_intuos_gen3_bt_battery() up to data[45] -- so a report in the
+    gap (109..285 / 43..45) passed the guard yet still over-read. Raise
+    the minimums to the furthest offset each branch dereferences
+    (286 / 46) so the guard actually bounds the whole call chain.
+
+ drivers/hid/wacom_wac.c | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
+
+diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+index da1f0ea85625..89a191cf1924 100644
+--- a/drivers/hid/wacom_wac.c
++++ b/drivers/hid/wacom_wac.c
+@@ -1548,6 +1548,19 @@ static int wacom_intuos_pro2_bt_irq(struct wacom_wac *wacom, size_t len)
+ 		return 0;
+ 	}
+ 
++	if (wacom->features.type == INTUOSP2_BT ||
++	    wacom->features.type == INTUOSP2S_BT) {
++		if (len < 286) {
++			dev_warn(wacom->pen_input->dev.parent,
++				 "Pro2 BT report too short: %zu bytes\n", len);
++			return 0;
++		}
++	} else if (len < 46) {
++		dev_warn(wacom->pen_input->dev.parent,
++			 "Pro2 BT report too short: %zu bytes\n", len);
++		return 0;
++	}
++
+ 	wacom_intuos_pro2_bt_pen(wacom);
+ 	if (wacom->features.type == INTUOSP2_BT ||
+ 	    wacom->features.type == INTUOSP2S_BT) {
+-- 
+2.50.1 (Apple Git-155)
+

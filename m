@@ -1,270 +1,169 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.8])
+Received: from sender-op-o17.zoho.eu (sender-op-o17.zoho.eu [136.143.169.17])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7C09C353A7A
-	for <linux-input@vger.kernel.org>; Mon, 13 Jul 2026 07:01:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.8
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783926110; cv=none; b=alCv/oTP49ldU+tDSG42xiQEvp21HCxA684+buWsgNAOcfo7FhEHDKUeQ2UzGTEh/pt+DtT3arEzh2LiYkHVRb8cEwYN8TmDRbfuoimw8KEEl4zvf3umbWityXsrHBkgk6gJl75SiPx9F8r7FXu/+sqGm15M8aJ0m+TatSzitnM=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783926110; c=relaxed/simple;
-	bh=slL/B5j1eXmGkobRjAzfw/1VYKztlOirU2HOAojTVVM=;
-	h=Date:From:To:Cc:Subject:Message-ID; b=hfrHULKulReT3MptrhPMQpWHMw9tjz9iVZmWb/Q86pyaq98p04SFE3r8sIn1J4J0EH1ArII0vfyNY+m138UXX8w97ovnFPoxbMfeHA2o5UXb2p8LQQtLtpEgWFG7Hbnz61kAswGO7lgsyM1R1NwCEb3jM+9HoINLSwVDUsZU/wQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=DXwzGgdc; arc=none smtp.client-ip=192.198.163.8
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9C7AC3911A8;
+	Mon, 13 Jul 2026 07:51:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.169.17
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1783929086; cv=pass; b=t99N6KtUntvxVvgyglICqby19BU4kFnVMBes/GCdCmaFbJWTqvBL8It+zNDhpLLpNgteAm2UXcUtI4HB9228aNeZuZjHm5OLskiwVgfwlt3S68mfavPLxH9PonnXeYTOUmCccDAXdY5MNGU9sW6NKmYuZ7ZQiDQDxHT+5je+Txs=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1783929086; c=relaxed/simple;
+	bh=Zn9yp04dkxcptICWzcylSB2YzRs1BmVv0mxKAOMhbIo=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=UFgkmJh+IGHs/9Haffe3jpDQVrUGsYQYW/T/nkIxddAX8J88kg+1aBH2T2QBFYwT32VGCwPYydIKIlXc5xOhvgzfqLA9qSdoT3tXGfnqF9ksPXxbE4dRWIG1EvNhaNZg68wL1miVhuZzyo7Ih03CD0k8wsKJ3oYLuveWgmO0/38=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=auditcode.ai; spf=pass smtp.mailfrom=auditcode.ai; dkim=pass (1024-bit key) header.d=auditcode.ai header.i=security@auditcode.ai header.b=SZH76zsB; arc=pass smtp.client-ip=136.143.169.17
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=auditcode.ai
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=auditcode.ai
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="DXwzGgdc"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1783926108; x=1815462108;
-  h=date:from:to:cc:subject:message-id;
-  bh=slL/B5j1eXmGkobRjAzfw/1VYKztlOirU2HOAojTVVM=;
-  b=DXwzGgdcmTyoW3Co/fn9XkNmhWTlZL7XEazdxPYSVVhEBwBpet/gAq07
-   m/fQkA0FainsQsPEVL0u8Pcd2BksTRLz0GGqb5nl1as+JLva63Mdcw5+T
-   6VDvoAYgCSnUTMfihtNqTD47Cs+fyRwGpj1Iz6H6NVeQgOyYH0nz16SBT
-   1juLxY0Tp0g3z7DLJCvMdTd3colADqFHs3CGFmuEibmHFvT04/RKbdKAz
-   7UMeZjf+0BOAiYlJ056K81vxpov+W0yk/+N081H5HRNIoScOIQtO0dr/O
-   64I91BJfOKyS9LyrMbXQZfdLcOXHPxCWBTxhBZVQn8+loTbGoxBQjpTZZ
-   w==;
-X-CSE-ConnectionGUID: s3nebSRPT+W8eXMoowU94w==
-X-CSE-MsgGUID: xoDZzl5ZTkmr342yHr/Cpg==
-X-IronPort-AV: E=McAfee;i="6800,10657,11841"; a="102077711"
-X-IronPort-AV: E=Sophos;i="6.25,154,1779174000"; 
-   d="scan'208";a="102077711"
-Received: from fmviesa005.fm.intel.com ([10.60.135.145])
-  by fmvoesa102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Jul 2026 00:01:47 -0700
-X-CSE-ConnectionGUID: SGZRf5BsTdafsJWG85OTbQ==
-X-CSE-MsgGUID: L+O0uRyOR7u/1QiB9Osf+g==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.25,154,1779174000"; 
-   d="scan'208";a="260352074"
-Received: from lkp-server02.sh.intel.com (HELO ea128546eb3d) ([10.239.97.151])
-  by fmviesa005.fm.intel.com with ESMTP; 13 Jul 2026 00:01:45 -0700
-Received: from kbuild by ea128546eb3d with local (Exim 4.98.2)
-	(envelope-from <lkp@intel.com>)
-	id 1wjAfY-00000000LTg-1kCf;
-	Mon, 13 Jul 2026 07:01:39 +0000
-Date: Mon, 13 Jul 2026 15:01:21 +0800
-From: kernel test robot <lkp@intel.com>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
-Subject: [dtor-input:next] BUILD SUCCESS
- 79d7a453c79e818b8059b1aa6d6a7ad53d9d4f72
-Message-ID: <202607131510.4uY7pljE-lkp@intel.com>
-User-Agent: s-nail v14.9.25
+	dkim=pass (1024-bit key) header.d=auditcode.ai header.i=security@auditcode.ai header.b="SZH76zsB"
+ARC-Seal: i=1; a=rsa-sha256; t=1783929076; cv=none; 
+	d=zohomail.eu; s=zohoarc; 
+	b=a+OIq9XkmEcFpuvC/8whmc1brhOc+kdLqw4DE/oQy4BXQETsxoibMhYSPWKk1xudwxV3WNyjbz3NmhtPUaacBLAfsFHkt4EZbNZSqg1NuLjXdVI8AAz0ey6RBLYD0IpY2krXhGXLB9JqnV0MBDuWI6C8MiRZ3oficNz8CR9eh64=
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.eu; s=zohoarc; 
+	t=1783929076; h=Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:MIME-Version:Message-ID:Subject:Subject:To:To:Message-Id:Reply-To; 
+	bh=puQfJUbqWOxh3XTCnl2QiqtxHk9PU07MjOqSaUFegmU=; 
+	b=jtTcm8m3SriHxdUOGc0wUbBI8t2wAbhb27+UKWP5hC7YfYoETegTS0ox8pHjeJ6tJyWPoPsCI7AgZNZFEwsLx2AugE+sZp9PgB5Zb0/82YbLtbKwiNdZ5YGRe23AFITFFTCEEoLxaG+FuakFjljq1c8IeyBg+ID2FK+FU5de93c=
+ARC-Authentication-Results: i=1; mx.zohomail.eu;
+	dkim=pass  header.i=auditcode.ai;
+	spf=pass  smtp.mailfrom=security@auditcode.ai;
+	dmarc=pass header.from=<security@auditcode.ai>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1783929076;
+	s=zmail; d=auditcode.ai; i=security@auditcode.ai;
+	h=From:From:To:To:Cc:Cc:Subject:Subject:Date:Date:Message-ID:MIME-Version:Content-Transfer-Encoding:Message-Id:Reply-To;
+	bh=puQfJUbqWOxh3XTCnl2QiqtxHk9PU07MjOqSaUFegmU=;
+	b=SZH76zsBo5oqoJvb5C8mFhcMTFkWsQ4SOf9aBCA2C3vdnaybAoqp5+at476dP+dE
+	wGFHQLmEzYd5/c6/NXKspAAY5QSf4/O8dBbKIYgvLY6LqB/mR/ju4Ro1dOCXvv5UwRZ
+	CQZBgOxKZJiAqwANQAboAbYH4ChRJesbsCaYvyJU=
+Received: by mx.zoho.eu with SMTPS id 1783929073212890.3778375842252;
+	Mon, 13 Jul 2026 09:51:13 +0200 (CEST)
+From: Ibrahim Hashimov <security@auditcode.ai>
+To: Ping Cheng <ping.cheng@wacom.com>,
+	Jason Gerecke <jason.gerecke@wacom.com>,
+	Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>
+Cc: linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	stable@vger.kernel.org
+Subject: [PATCH] HID: wacom: validate report length before Intuos Pro2 BT pen parse
+Date: Mon, 13 Jul 2026 09:51:10 +0200
+Message-ID: <20260713075110.92469-1-security@auditcode.ai>
+X-Mailer: git-send-email 2.50.1
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-ZohoMailClient: External
 
-tree/branch: https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git next
-branch HEAD: 79d7a453c79e818b8059b1aa6d6a7ad53d9d4f72  Input: i8042 - replace strlcat() with seq_buf and scnprintf()
+wacom_intuos_pro2_bt_irq() receives the wire report length in `len`
+but never consults it before calling wacom_intuos_pro2_bt_pen(). The
+only admission check on this path is the report-id byte:
 
-elapsed time: 729m
+	if (data[0] != 0x80 && data[0] != 0x81) {
+		...
+		return 0;
+	}
+	wacom_intuos_pro2_bt_pen(wacom);
 
-configs tested: 193
-configs skipped: 2
+wacom_intuos_pro2_bt_pen() itself does not even receive `len` (it
+takes only `struct wacom_wac *wacom`), so it cannot bound its own
+reads. For INTUOSP2_BT / INTUOSP2S_BT devices it unconditionally does:
 
-The following configs have been built successfully.
-More configs may be tested in the coming days.
+	wacom->serial[0] = get_unaligned_le64(&data[99]);
+	wacom->id[0]     = get_unaligned_le16(&data[107]);
 
-tested configs:
-alpha                             allnoconfig    gcc-16.1.0
-alpha                            allyesconfig    gcc-16.1.0
-alpha                               defconfig    gcc-16.1.0
-arc                              allmodconfig    clang-23
-arc                               allnoconfig    gcc-16.1.0
-arc                              allyesconfig    clang-23
-arc                                 defconfig    gcc-16.1.0
-arc                   randconfig-001-20260713    gcc-8.5.0
-arc                   randconfig-002-20260713    gcc-8.5.0
-arm                               allnoconfig    gcc-16.1.0
-arm                              allyesconfig    clang-23
-arm                                 defconfig    gcc-16.1.0
-arm                   randconfig-001-20260713    gcc-8.5.0
-arm                   randconfig-002-20260713    gcc-8.5.0
-arm                   randconfig-003-20260713    gcc-8.5.0
-arm                   randconfig-004-20260713    gcc-8.5.0
-arm64                            allmodconfig    clang-23
-arm64                             allnoconfig    gcc-16.1.0
-arm64                               defconfig    gcc-16.1.0
-arm64                          randconfig-001    clang-23
-arm64                 randconfig-001-20260713    clang-23
-arm64                 randconfig-001-20260713    gcc-13.4.0
-arm64                          randconfig-002    clang-23
-arm64                 randconfig-002-20260713    clang-23
-arm64                 randconfig-002-20260713    gcc-13.4.0
-arm64                          randconfig-003    clang-23
-arm64                 randconfig-003-20260713    clang-23
-arm64                 randconfig-003-20260713    gcc-13.4.0
-arm64                          randconfig-004    clang-23
-arm64                 randconfig-004-20260713    clang-23
-arm64                 randconfig-004-20260713    gcc-13.4.0
-csky                             allmodconfig    gcc-16.1.0
-csky                              allnoconfig    gcc-16.1.0
-csky                                defconfig    gcc-16.1.0
-csky                           randconfig-001    clang-23
-csky                  randconfig-001-20260713    clang-23
-csky                  randconfig-001-20260713    gcc-13.4.0
-csky                           randconfig-002    clang-23
-csky                  randconfig-002-20260713    clang-23
-csky                  randconfig-002-20260713    gcc-13.4.0
-hexagon                          allmodconfig    gcc-16.1.0
-hexagon                           allnoconfig    gcc-16.1.0
-hexagon                             defconfig    gcc-16.1.0
-hexagon               randconfig-001-20260713    clang-23
-hexagon               randconfig-002-20260713    clang-23
-i386                             allmodconfig    clang-22
-i386                              allnoconfig    gcc-16.1.0
-i386                             allyesconfig    clang-22
-i386        buildonly-randconfig-001-20260713    gcc-14
-i386        buildonly-randconfig-002-20260713    gcc-14
-i386        buildonly-randconfig-003-20260713    gcc-14
-i386        buildonly-randconfig-004-20260713    gcc-14
-i386        buildonly-randconfig-005-20260713    gcc-14
-i386        buildonly-randconfig-006-20260713    gcc-14
-i386                                defconfig    gcc-16.1.0
-i386                  randconfig-001-20260713    clang-22
-i386                  randconfig-002-20260713    clang-22
-i386                  randconfig-003-20260713    clang-22
-i386                  randconfig-004-20260713    clang-22
-i386                  randconfig-005-20260713    clang-22
-i386                  randconfig-006-20260713    clang-22
-i386                  randconfig-007-20260713    clang-22
-i386                  randconfig-011-20260713    clang-22
-i386                  randconfig-012-20260713    clang-22
-i386                  randconfig-013-20260713    clang-22
-i386                  randconfig-014-20260713    clang-22
-i386                  randconfig-015-20260713    clang-22
-i386                  randconfig-016-20260713    clang-22
-i386                  randconfig-017-20260713    clang-22
-loongarch                        allmodconfig    clang-23
-loongarch                         allnoconfig    gcc-16.1.0
-loongarch                           defconfig    clang-23
-loongarch             randconfig-001-20260713    clang-23
-loongarch             randconfig-002-20260713    clang-23
-m68k                             allmodconfig    gcc-16.1.0
-m68k                              allnoconfig    gcc-16.1.0
-m68k                             allyesconfig    clang-23
-m68k                                defconfig    clang-23
-microblaze                        allnoconfig    gcc-16.1.0
-microblaze                       allyesconfig    gcc-16.1.0
-microblaze                          defconfig    clang-23
-mips                             allmodconfig    gcc-16.1.0
-mips                              allnoconfig    gcc-16.1.0
-mips                             allyesconfig    gcc-16.1.0
-mips                  maltasmvp_eva_defconfig    gcc-16.1.0
-mips                        omega2p_defconfig    clang-17
-mips                          rm200_defconfig    gcc-16.1.0
-nios2                            allmodconfig    clang-20
-nios2                             allnoconfig    clang-23
-nios2                               defconfig    clang-23
-nios2                 randconfig-001-20260713    clang-23
-nios2                 randconfig-002-20260713    clang-23
-openrisc                         allmodconfig    clang-20
-openrisc                          allnoconfig    clang-23
-openrisc                            defconfig    gcc-16.1.0
-parisc                           allmodconfig    gcc-16.1.0
-parisc                            allnoconfig    clang-23
-parisc                           allyesconfig    clang-17
-parisc                           allyesconfig    gcc-16.1.0
-parisc                              defconfig    gcc-16.1.0
-parisc                randconfig-001-20260713    clang-23
-parisc                randconfig-002-20260713    clang-23
-parisc64                            defconfig    clang-23
-powerpc                          allmodconfig    gcc-16.1.0
-powerpc                           allnoconfig    clang-23
-powerpc               randconfig-001-20260713    clang-23
-powerpc               randconfig-002-20260713    clang-23
-powerpc64             randconfig-001-20260713    clang-23
-powerpc64             randconfig-002-20260713    clang-23
-riscv                            allmodconfig    clang-23
-riscv                             allnoconfig    clang-23
-riscv                            allyesconfig    clang-23
-riscv                               defconfig    gcc-16.1.0
-riscv                          randconfig-001    clang-19
-riscv                 randconfig-001-20260713    clang-19
-riscv                          randconfig-002    clang-19
-riscv                 randconfig-002-20260713    clang-19
-s390                             allmodconfig    clang-17
-s390                             allmodconfig    clang-23
-s390                              allnoconfig    clang-23
-s390                             allyesconfig    gcc-16.1.0
-s390                                defconfig    clang-18
-s390                                defconfig    gcc-16.1.0
-s390                           randconfig-001    clang-19
-s390                  randconfig-001-20260713    clang-19
-s390                           randconfig-002    clang-19
-s390                  randconfig-002-20260713    clang-19
-sh                               allmodconfig    gcc-16.1.0
-sh                                allnoconfig    clang-23
-sh                               allyesconfig    clang-17
-sh                               allyesconfig    gcc-16.1.0
-sh                                  defconfig    gcc-14
-sh                             randconfig-001    clang-19
-sh                    randconfig-001-20260713    clang-19
-sh                             randconfig-002    clang-19
-sh                    randconfig-002-20260713    clang-19
-sparc                             allnoconfig    clang-23
-sparc                               defconfig    gcc-16.1.0
-sparc                 randconfig-001-20260713    gcc-12.5.0
-sparc                 randconfig-002-20260713    gcc-12.5.0
-sparc64                          allmodconfig    clang-20
-sparc64                             defconfig    gcc-14
-sparc64               randconfig-001-20260713    gcc-12.5.0
-sparc64               randconfig-002-20260713    gcc-12.5.0
-um                               allmodconfig    clang-17
-um                               allmodconfig    clang-23
-um                                allnoconfig    clang-23
-um                               allyesconfig    gcc-16.1.0
-um                                  defconfig    gcc-14
-um                             i386_defconfig    gcc-14
-um                    randconfig-001-20260713    gcc-12.5.0
-um                    randconfig-002-20260713    gcc-12.5.0
-um                           x86_64_defconfig    gcc-14
-x86_64                           allmodconfig    clang-22
-x86_64                            allnoconfig    clang-23
-x86_64                           allyesconfig    clang-22
-x86_64      buildonly-randconfig-001-20260713    clang-22
-x86_64      buildonly-randconfig-002-20260713    clang-22
-x86_64      buildonly-randconfig-003-20260713    clang-22
-x86_64      buildonly-randconfig-004-20260713    clang-22
-x86_64      buildonly-randconfig-005-20260713    clang-22
-x86_64      buildonly-randconfig-006-20260713    clang-22
-x86_64                              defconfig    gcc-14
-x86_64                                  kexec    clang-22
-x86_64                randconfig-001-20260713    gcc-13
-x86_64                randconfig-002-20260713    gcc-13
-x86_64                randconfig-003-20260713    gcc-13
-x86_64                randconfig-004-20260713    gcc-13
-x86_64                randconfig-005-20260713    gcc-13
-x86_64                randconfig-006-20260713    gcc-13
-x86_64                randconfig-011-20260713    gcc-14
-x86_64                randconfig-012-20260713    gcc-14
-x86_64                randconfig-013-20260713    gcc-14
-x86_64                randconfig-014-20260713    gcc-14
-x86_64                randconfig-015-20260713    gcc-14
-x86_64                randconfig-016-20260713    gcc-14
-x86_64                randconfig-071-20260713    gcc-14
-x86_64                randconfig-072-20260713    gcc-14
-x86_64                randconfig-073-20260713    gcc-14
-x86_64                randconfig-074-20260713    gcc-14
-x86_64                randconfig-075-20260713    gcc-14
-x86_64                randconfig-076-20260713    gcc-14
-x86_64                               rhel-9.4    clang-22
-x86_64                           rhel-9.4-bpf    gcc-14
-x86_64                          rhel-9.4-func    clang-22
-x86_64                    rhel-9.4-kselftests    clang-22
-x86_64                         rhel-9.4-kunit    gcc-14
-x86_64                           rhel-9.4-ltp    gcc-14
-x86_64                          rhel-9.4-rust    clang-22
-xtensa                            allnoconfig    clang-23
-xtensa                           allyesconfig    clang-20
-xtensa                randconfig-001-20260713    gcc-12.5.0
-xtensa                randconfig-002-20260713    gcc-12.5.0
+i.e. it reads up to offset 108 regardless of how many bytes the
+peripheral actually sent. features.type is selected from the VID/PID
+id_table entry (BT_DEVICE_WACOM(0x361) -> INTUOSP2_BT) and
+wacom_setup_device_quirks() force-registers the pen/pad/touch inputs
+for that type independent of the report descriptor, so a malicious or
+malfunctioning paired/spoofed Bluetooth peripheral can advertise that
+VID/PID and send an undersized report (e.g. 10 bytes) that still
+satisfies the data[0] == 0x80/0x81 gate. The driver then reads past
+the received report and forwards the bytes to userspace via evdev
+(MSC_SERIAL / ABS_MISC on the pen input node), an out-of-bounds read
+with a concrete userspace read-back channel, and a true
+out-of-bounds read on transports where the backing buffer is sized to
+the (small) report descriptor rather than a fixed-size staging
+buffer.
 
---
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+The non-Pro2 branch of the same function (INTUOSHT3_BT, reading
+&data[33]/&data[41]) has the identical defect at a smaller offset.
+
+This is the same class of bug commit 2f1763f62909 ("HID: wacom: fix
+out-of-bounds read in wacom_intuos_bt_irq") already hardened in the
+sibling function wacom_intuos_bt_irq(), which added explicit
+short-report guards before parsing:
+
+	case 0x04:
+		if (len < 32) {
+			dev_warn(..., "Report 0x04 too short: %zu bytes\n", len);
+			break;
+		}
+		wacom_intuos_bt_process_data(wacom, data + i);
+		...
+	case 0x03:
+		if (i == 1 && len < 22) {
+			dev_warn(..., "Report 0x03 too short: %zu bytes\n", len);
+			break;
+		}
+
+wacom_intuos_pro2_bt_irq() never received the analogous guard.
+
+Fix it the same way: before calling wacom_intuos_pro2_bt_pen(), check
+`len` against the minimum size each branch of that function actually
+dereferences (109 bytes for INTUOSP2_BT/INTUOSP2S_BT, whose furthest
+read is &data[107] as a le16 -> byte index 108; 43 bytes for the
+INTUOSHT3_BT ("gen3") branch, whose furthest read is &data[41] as a
+le16 -> byte index 42). On a short report, warn and bail out before
+touching wacom->data past what was actually received, exactly as
+wacom_intuos_bt_irq() now does for its own report ids. Returning 0
+here also skips the subsequent pro2 touch/pad/battery calls for the
+same malformed report, which is the safe, conservative behavior.
+
+Runtime-verified on a v6.19 stand: injecting the truncated report
+via a spoofed 056a:0361 BT peripheral leaks bytes past the declared
+report length to the pen evdev node (MSC_SERIAL / ABS_MISC) before
+this fix, and the same input is rejected by the new length check
+with no leaked event afterward. KASAN itself stays quiet on the
+fixed-size uhid staging buffer used to inject the report (the
+over-read there lands in-object); on a descriptor-sized USB/BT
+buffer the identical read crosses the slab boundary and is a
+genuine KASAN-visible out-of-bounds read.
+
+Fixes: 4922cd26f03c ("HID: wacom: Support 2nd-gen Intuos Pro's Bluetooth classic interface")
+Cc: stable@vger.kernel.org
+Signed-off-by: Ibrahim Hashimov <security@auditcode.ai>
+Assisted-by: AuditCode-AI:2026.07
+---
+ drivers/hid/wacom_wac.c | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
+
+diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+index da1f0ea85625..89a191cf1924 100644
+--- a/drivers/hid/wacom_wac.c
++++ b/drivers/hid/wacom_wac.c
+@@ -1548,6 +1548,19 @@ static int wacom_intuos_pro2_bt_irq(struct wacom_wac *wacom, size_t len)
+ 		return 0;
+ 	}
+ 
++	if (wacom->features.type == INTUOSP2_BT ||
++	    wacom->features.type == INTUOSP2S_BT) {
++		if (len < 109) {
++			dev_warn(wacom->pen_input->dev.parent,
++				 "Pro2 BT report too short: %zu bytes\n", len);
++			return 0;
++		}
++	} else if (len < 43) {
++		dev_warn(wacom->pen_input->dev.parent,
++			 "Pro2 BT report too short: %zu bytes\n", len);
++		return 0;
++	}
++
+ 	wacom_intuos_pro2_bt_pen(wacom);
+ 	if (wacom->features.type == INTUOSP2_BT ||
+ 	    wacom->features.type == INTUOSP2S_BT) {
+-- 
+2.50.1 (Apple Git-155)
+

@@ -1,156 +1,107 @@
-Received: from sender-op-o17.zoho.eu (sender-op-o17.zoho.eu [136.143.169.17])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0AC61366049;
-	Mon, 13 Jul 2026 09:34:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.169.17
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783935275; cv=pass; b=NPMo7gt1ac0e6gnwUfPRmg3YZeTDAMxo6nsSWzOhnVWGQq99+E6V7cwko73AOgcfpMaJua/o1PiEEUPBWcPCIyefetbZA45+hshMICozNodqKDXErzmN+3g1m+G5H01/SOzUz45Nqt1q8zetc0QdmzKzCBTRCFJS8wG8vUQfoZ8=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783935275; c=relaxed/simple;
-	bh=aI2snIxBkk9bC3if3m1q/t4LctgZvdI6D3B4XIq2fws=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=kpbu//AiYYE1V68aRoiHIq1Grbcl58bUajaYDRhg7efUl2gacYvic4EXAWENvn/oYjCcAXB4UDxvxis72Zj6ak4M58afce26CUFznNcifTvrK1LhHGWX49Ck90j03jP4i3JG3SOrLE2yvCLJ3j7gNDElyYGdml50bRVuocVUfXw=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=auditcode.ai; spf=pass smtp.mailfrom=auditcode.ai; dkim=pass (1024-bit key) header.d=auditcode.ai header.i=security@auditcode.ai header.b=PrVluWd4; arc=pass smtp.client-ip=136.143.169.17
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=auditcode.ai
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=auditcode.ai
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 669673D565C
+	for <linux-input@vger.kernel.org>; Mon, 13 Jul 2026 10:11:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1783937511; cv=none; b=rFtQWwjFOV809w0UXYHWbw5uJJS9CYv8n2hco1mJWwNm6KyFjpOFoY53htxjIWVDJqRFVmJ6jxZ0Ilc2IXCdiKi/sBYfKL+m55Mlkv2XfcjMiu1Zkh027HIeqUfVg1KrLFByrMjSuJ4tRy7zgxXJVp7cAGQNdnH5+iMIgYYFZ8k=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1783937511; c=relaxed/simple;
+	bh=hNPlwXuIuyCFPpyJpHE1L4+DbxPYGvvgROaTUNxVQUM=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=oygVlvupwGVX3XVI5PTzevATEpB09UKn66UGMrCK98dFLAZDSEXfN5RaXagT3iVqsZVwqxT+SbIM08/qmfcWnm0oHBPgf+4shnwX8JE6U+pl2mKyRQyHkNiMHjKdwl5/cnCZjMMOZ1qpeUIGShNiQIjt7MbNY7M8xjPmZoLcWJ0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=CXRy5YQA; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=auditcode.ai header.i=security@auditcode.ai header.b="PrVluWd4"
-ARC-Seal: i=1; a=rsa-sha256; t=1783935261; cv=none; 
-	d=zohomail.eu; s=zohoarc; 
-	b=Y2tWkfr2Jz/iI2UFhB37I8CynRf2UD7OipcHxLlmI/3+iFRm85D7xPnQDBt940vqLlBA3HfRAY2qkxURzyv0zmEyU+BnyAFuHacb0gZDCF5C52EHV70zG23PTpQY4cZ6E147nBTwuiBM0N8pRqQmXgMSWAIUIIOAi755/qg0UDQ=
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.eu; s=zohoarc; 
-	t=1783935261; h=Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:Subject:To:To:Message-Id:Reply-To; 
-	bh=rbJgdoFUqriWY4hwVjte34Y9bPdfOX/gwrXpevsZhCM=; 
-	b=eCw3aSMANGACznC4QIcClTgVdbdIq3XgO94gEobBRLn8SL6ua/j//XcnroCQLjn7vOkf8sgzOTzMN5y/a64AKaKsBh1LoXAntf0PzQT/JVjcKsPwLw6ipHOiEUzfGAZtfZB/k9CiKJxpbAUfn0It4JR2LyQ2cK9xhDnNblpHo6k=
-ARC-Authentication-Results: i=1; mx.zohomail.eu;
-	dkim=pass  header.i=auditcode.ai;
-	spf=pass  smtp.mailfrom=security@auditcode.ai;
-	dmarc=pass header.from=<security@auditcode.ai>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1783935261;
-	s=zmail; d=auditcode.ai; i=security@auditcode.ai;
-	h=From:From:To:To:Cc:Cc:Subject:Subject:Date:Date:Message-ID:In-Reply-To:References:MIME-Version:Content-Transfer-Encoding:Message-Id:Reply-To;
-	bh=rbJgdoFUqriWY4hwVjte34Y9bPdfOX/gwrXpevsZhCM=;
-	b=PrVluWd4Td2ALIFQA0depgNwgoDzMi9aUOQEIRQPXGGPnEEaVR/B1f8ugvaXkMaV
-	VYGzUWCVCYn/fSeW+U7GGS96qRDguZcR/9gJxcduhSgbamRB5+hNXmAkoHbO3Blbbpl
-	vdm1hMPuJ40aXEZRr449HLa2++JrYa2xcpRwJXqM=
-Received: by mx.zoho.eu with SMTPS id 178393525824914.186354409364526;
-	Mon, 13 Jul 2026 11:34:18 +0200 (CEST)
-From: Ibrahim Hashimov <security@auditcode.ai>
-To: ping.cheng@wacom.com,
-	jason.gerecke@wacom.com,
-	jikos@kernel.org,
-	bentiss@kernel.org
-Cc: dmitry.torokhov@gmail.com,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	stable@vger.kernel.org
-Subject: [PATCH v2] HID: wacom: validate report length in wacom_intuos_pro2_bt_irq
-Date: Mon, 13 Jul 2026 11:34:14 +0200
-Message-ID: <20260713093414.94337-1-security@auditcode.ai>
-X-Mailer: git-send-email 2.50.1
-In-Reply-To: <20260713075110.92469-1-security@auditcode.ai>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="CXRy5YQA"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E01E81F000E9;
+	Mon, 13 Jul 2026 10:11:49 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1783937510;
+	bh=VqZubkGsD17HSEDfvGPGkbT5b+V0lv/KmyBlHkRwYvI=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=CXRy5YQAsO+TmOQfRhxFRJ4hU4YvKQUlh63su0izah9BmNqhpmSsOXO52q9hEKoYo
+	 MyruoPDBhfHziitY8WrLHT3VUTz9PTtiRSBH4EbrznO4AjcnVyp07bC+l2o8yxCeaT
+	 hbO6R8m1JUuiRvGPNGDIvV6tmfGXAACK0CscfpLDnQxSWGOaxdL1vqvInlSrNP9x+6
+	 I0MiyBw3KBQ8wRfmGDtg5xrcFAZsXlpLVG47eOzoXIjJNL1Ljdp1SgPbo+S7IJr3Gn
+	 vUhMkwFW2aRAXjOOWxfDTvagipWCX0HMCDYFYNF4g2HX4bfPPfQqM9dvM6nwpE0+Og
+	 PN+gZr6rEJNtQ==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v2] HID: wacom: validate report length in
+ wacom_intuos_pro2_bt_irq
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Ibrahim Hashimov" <security@auditcode.ai>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <20260713093414.94337-1-security@auditcode.ai>
 References: <20260713075110.92469-1-security@auditcode.ai>
+ <20260713093414.94337-1-security@auditcode.ai>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Mon, 13 Jul 2026 10:11:49 +0000
+Message-Id: <20260713101149.E01E81F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-ZohoMailClient: External
 
-wacom_intuos_pro2_bt_irq() receives the wire report length in `len`
-but never consults it before parsing. After the report-id gate it
-unconditionally calls wacom_intuos_pro2_bt_pen() and then, selected by
-features.type, a fixed chain of sub-parsers, none of which receive
-`len`:
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
+- [Medium] The newly added length validation uses `dev_warn()` without rate=
+limiting, allowing a malicious device to spam the kernel log.
+--
 
-	wacom_intuos_pro2_bt_pen(wacom);
-	if (type == INTUOSP2_BT || type == INTUOSP2S_BT) {
-		wacom_intuos_pro2_bt_touch(wacom);
-		wacom_intuos_pro2_bt_pad(wacom);
-		wacom_intuos_pro2_bt_battery(wacom);
-	} else {
-		wacom_intuos_gen3_bt_pad(wacom);
-		wacom_intuos_gen3_bt_battery(wacom);
-	}
+--- Patch [1]: [PATCH v2] HID: wacom: validate report length in wacom_intuo=
+s_pro2_bt_irq ---
+commit d2626ddb2110b90160eb60887108918a58cb9412
+Author: Ibrahim Hashimov <security@auditcode.ai>
 
-Each sub-parser dereferences wacom->data at fixed offsets. The furthest
-byte touched on each branch is:
+HID: wacom: validate report length in wacom_intuos_pro2_bt_irq
 
-  INTUOSP2_BT / INTUOSP2S_BT: wacom_intuos_pro2_bt_pad() reads data[285]
-	(the touchring byte), so the report must be at least 286 bytes;
-  INTUOSHT3_BT ("gen3"): wacom_intuos_gen3_bt_battery() reads data[45],
-	so the report must be at least 46 bytes.
+This commit adds length validation to wacom_intuos_pro2_bt_irq to prevent
+out-of-bounds reads when parsing Bluetooth reports. It drops undersized
+reports and logs a warning before returning.
 
-features.type is selected from the VID/PID id_table entry and
-wacom_setup_device_quirks() force-registers the pen/pad/touch inputs
-for that type independent of the report descriptor, so a malicious or
-malfunctioning paired/spoofed Bluetooth peripheral can advertise that
-VID/PID and send an undersized report that still satisfies the
-data[0] == 0x80/0x81 gate. The driver then reads past the received
-report and forwards the bytes to userspace via evdev (MSC_SERIAL /
-ABS_MISC / ABS_WHEEL on the pen and pad input nodes), an out-of-bounds
-read with a concrete userspace read-back channel, and a true
-out-of-bounds read on transports whose backing buffer is sized to the
-(small) report descriptor rather than a fixed-size staging buffer.
+> diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+> index da1f0ea85625d..af76e49fd0f25 100644
+> --- a/drivers/hid/wacom_wac.c
+> +++ b/drivers/hid/wacom_wac.c
+> @@ -1548,6 +1548,19 @@ static int wacom_intuos_pro2_bt_irq(struct wacom_w=
+ac *wacom, size_t len)
+>  		return 0;
+>  	}
+> =20
+> +	if (wacom->features.type =3D=3D INTUOSP2_BT ||
+> +	    wacom->features.type =3D=3D INTUOSP2S_BT) {
+> +		if (len < 286) {
+> +			dev_warn(wacom->pen_input->dev.parent,
+> +				 "Pro2 BT report too short: %zu bytes\n", len);
 
-This is the same class of bug commit 2f1763f62909 ("HID: wacom: fix
-out-of-bounds read in wacom_intuos_bt_irq") already hardened in the
-sibling wacom_intuos_bt_irq(), which guards each report id against its
-minimum length before parsing.
+[Severity: Medium]
+Since this error path is triggered by external Bluetooth input, can a
+malicious or malfunctioning device flood the kernel logs by sending many
+undersized reports in rapid succession?
 
-Guard wacom_intuos_pro2_bt_irq() the same way: before parsing, reject
-reports shorter than the furthest offset the selected branch actually
-dereferences, warn, and bail out. Because the whole pen/touch/pad/
-battery chain runs unconditionally per branch, a single up-front check
-against the maximum offset (286 bytes for INTUOSP2_BT/INTUOSP2S_BT,
-46 bytes for the gen3 branch) bounds every sub-parser. Returning 0 on
-a short report also skips those calls for the same malformed report,
-which is the safe, conservative behavior.
+Would it be better to use dev_warn_ratelimited() here to prevent potential
+log spam and CPU/IO overhead?
 
-Fixes: 4922cd26f03c ("HID: wacom: Support 2nd-gen Intuos Pro's Bluetooth classic interface")
-Cc: stable@vger.kernel.org
-Signed-off-by: Ibrahim Hashimov <security@auditcode.ai>
-Assisted-by: AuditCode-AI:2026.07
----
-v2: the v1 check (len < 109 / len < 43) only bounded
-    wacom_intuos_pro2_bt_pen(). As sashiko-bot pointed out, the
-    unconditional touch/pad/battery calls read much further --
-    wacom_intuos_pro2_bt_pad() up to data[285] and
-    wacom_intuos_gen3_bt_battery() up to data[45] -- so a report in the
-    gap (109..285 / 43..45) passed the guard yet still over-read. Raise
-    the minimums to the furthest offset each branch dereferences
-    (286 / 46) so the guard actually bounds the whole call chain.
+> +			return 0;
+> +		}
+> +	} else if (len < 46) {
+> +		dev_warn(wacom->pen_input->dev.parent,
+> +			 "Pro2 BT report too short: %zu bytes\n", len);
 
- drivers/hid/wacom_wac.c | 13 +++++++++++++
- 1 file changed, 13 insertions(+)
+[Severity: Medium]
+Similarly, could this branch also benefit from dev_warn_ratelimited() to
+protect against log flooding from undersized reports?
 
-diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-index da1f0ea85625..89a191cf1924 100644
---- a/drivers/hid/wacom_wac.c
-+++ b/drivers/hid/wacom_wac.c
-@@ -1548,6 +1548,19 @@ static int wacom_intuos_pro2_bt_irq(struct wacom_wac *wacom, size_t len)
- 		return 0;
- 	}
- 
-+	if (wacom->features.type == INTUOSP2_BT ||
-+	    wacom->features.type == INTUOSP2S_BT) {
-+		if (len < 286) {
-+			dev_warn(wacom->pen_input->dev.parent,
-+				 "Pro2 BT report too short: %zu bytes\n", len);
-+			return 0;
-+		}
-+	} else if (len < 46) {
-+		dev_warn(wacom->pen_input->dev.parent,
-+			 "Pro2 BT report too short: %zu bytes\n", len);
-+		return 0;
-+	}
-+
- 	wacom_intuos_pro2_bt_pen(wacom);
- 	if (wacom->features.type == INTUOSP2_BT ||
- 	    wacom->features.type == INTUOSP2S_BT) {
--- 
-2.50.1 (Apple Git-155)
+> +		return 0;
+> +	}
+> +
+>  	wacom_intuos_pro2_bt_pen(wacom);
+>  	if (wacom->features.type =3D=3D INTUOSP2_BT ||
+>  	    wacom->features.type =3D=3D INTUOSP2S_BT) {
 
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260713093414.9433=
+7-1-security@auditcode.ai?part=3D1

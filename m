@@ -1,42 +1,43 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A15B642E8FE;
-	Mon, 13 Jul 2026 13:38:09 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 332D32DEA89
+	for <linux-input@vger.kernel.org>; Mon, 13 Jul 2026 13:43:27 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783949890; cv=none; b=AXWSrjntrpogusUqvMH5HhZnaCFT7LOAYFVeH4Ebeh5KUsU3zczNRNbbEthKN0qkCfAcSYwaEJlnGAh1gvpKZVXbaOd/7+MpJCsIMHwpDPWgOe8eueH+EbStrAXGK4xn8kZ5+9abgkQC6v/JrYiLMUQuLB6/ImQlHN8YHDge2FI=
+	t=1783950209; cv=none; b=SoMehXXmx27XAqDFQKrZXVhre0nYqITSR8WFMtlRtyKaljYXGTvTVTpqaat1+Rlgeh71u3NjfWIlxx555IJNJQpro3iJCBY/eSGRBOX/I9ZMKqCBaj8KtcHFBw+GhUm+SwNnfNM7zy2e91W839dyFhYii+vx/kR8heGAWur7A4w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783949890; c=relaxed/simple;
-	bh=EtyGZtHz3NM7uG/cLWjok1yRzsiR/w6RcYUhXA7b4Fo=;
+	s=arc-20240116; t=1783950209; c=relaxed/simple;
+	bh=S8pSBv5mkVzpCWJLhf3LGyfg92wb05/exHSieFOFMDM=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=ogJTk1bHRUMx8p8AGQlulhQzbxCTjoWH1UxXiGFDdmOpbX33+gjq88i5xacy9VMKK76jJywgd5xYjASbpdaJA3vTpNVIFpttZrGwcm44pvFlrO06oljREoPhMStW264swgvDvyzYNdhVmuDqILjJNQ/j1p/dUG0hZhjn5/tOXCU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=aFRrO646; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=AQP9p0wOBB/vJr/HmCfGlLYqphLP+tig+0NEFsr/lej6jaWeBrbAgDIu+fsfW86XGmkAmcwo0usxG79hjvyUYJhy4JuvTDP7gMnexltciXnBvNudcibtngT7b6K5SLkIjljI8XQaY9uhNo2tzwlrpT+eigpMFEjC+xgNSf3HZW8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=c+aSxYjw; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="aFRrO646"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0D7B1F00A3D;
-	Mon, 13 Jul 2026 13:38:08 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="c+aSxYjw"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A51F81F000E9;
+	Mon, 13 Jul 2026 13:43:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1783949889;
-	bh=km3DIPPUOU6emqytYWVwHP6iS0ehJn6mupgsnwIR514=;
+	s=k20260515; t=1783950207;
+	bh=o3GdAxi5PQVkb6X6DjunuNOi1bar1MIF3kG/NtGTls8=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=aFRrO646yipSOYlK63QAN5VLzM4ETQc7GtF9Z7aBeYjnG84vVF8OaO5Oua7bD7cj+
-	 fhMylHDUl9ahiOD26ToH3D8MNP2Kd2fdahZstYkfnAShM+dpvi/9u/gSi3QGVuWKB7
-	 WicurzgLoqKVWo82AlT4UdFiZeHVJMm6yvhk9fN1P2gHtcNeVPwY+Ejq5yeGgDhKBk
-	 HJcrrmPgyb5rZl6DY/BkOVabwhbOCHzH9lryDTTP/PGKpmIvtrd95pdQa0dlwIWpoL
-	 1mG31PD3lzpnTap3X56weVbcma21dmUbVY/64djUSh1V+wYFdShoxD9TlDMQO/YK63
-	 g/mQW+Xqt6MBw==
+	b=c+aSxYjwbB6Qbt6AKZaW/d6kIwrNqIqytSBmgmclt10NMGq1EKvWB8RO0vKcOg8kZ
+	 QaolE+4nY4zBrhWQL2SPwUggnWCa18d/QcMrMD4wU2ojLZbsLSlVXT6yQ1ZgA/24fa
+	 aReTyjWAk45rjOZmOSC51jjLYIU2OFXKpXQxBUcubIaXS3Tv35s6xh6JvHYCBiuCSn
+	 OBH4aAS9qF0ePg2g0Qbd6N89ro2HAo6NzwkvZ0vWuf/7xCZGtI1gb6fZ745xa2lkum
+	 XJqNvbSy/ZqU1YXv4laH1FxH9rRen+c0UMR0M5oKD9u+dRgWphLFVqS1EiZ7RP03zy
+	 y9fOcyZNaJ9gQ==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2] HID: bpf: Fix signedness bug in hid_bpf_hw_request
+Subject: Re: [PATCH 3/4] HID: intel-ish-hid: ipc: Remove redundant dev_err()
 Reply-To: sashiko-reviews@lists.linux.dev
-To: "Guangshuo Li" <lgs201920130244@gmail.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, bpf@vger.kernel.org
-In-Reply-To: <20260713132608.1265541-1-lgs201920130244@gmail.com>
-References: <20260713132608.1265541-1-lgs201920130244@gmail.com>
+To: "Pan Chuang" <panchuang@vivo.com>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20260713132439.380121-4-panchuang@vivo.com>
+References: <20260713132439.380121-1-panchuang@vivo.com>
+ <20260713132439.380121-4-panchuang@vivo.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Mon, 13 Jul 2026 13:38:08 +0000
-Message-Id: <20260713133808.F0D7B1F00A3D@smtp.kernel.org>
+Date: Mon, 13 Jul 2026 13:43:27 +0000
+Message-Id: <20260713134327.A51F81F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -47,68 +48,75 @@ Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
 
 Pre-existing issues:
-- [High] Dereferencing ZERO_SIZE_PTR in hid_bpf_hw_request() when report le=
-ngth is 0, causing a kernel panic.
+- [High] The `bh_hbm_work_fn` background task lacks a loop to process all p=
+ending messages, which can result in bus messages getting permanently stuck=
+ in the ring buffer (`rd_msg_fifo`).
 --
 
---- Patch [1]: [PATCH v2] HID: bpf: Fix signedness bug in hid_bpf_hw_reques=
-t ---
-commit 87da4183dd7e20066daec7a3b7c00194ac025c96
-Author: Guangshuo Li <lgs201920130244@gmail.com>
+--- Patch [3]: [PATCH 3/4] HID: intel-ish-hid: ipc: Remove redundant dev_er=
+r() ---
+commit caab51c18c54958eb317830d35603876995d77e0
+Author: Pan Chuang <panchuang@vivo.com>
 
-HID: bpf: Fix signedness bug in hid_bpf_hw_request
+HID: intel-ish-hid: ipc: Remove redundant dev_err()
 
-This commit fixes a bug in hid_bpf_hw_request() where a negative return
-value from hid_hw_raw_request() was improperly compared to an unsigned size,
-causing the function to treat the failure as a successful transfer and
-copy stale data back to the caller.
+The commit removes a redundant dev_err() call from ish_probe() after
+devm_request_irq(). The devm_request_irq() function handles its own
+logging on failure, making the driver-specific error message unnecessary.
 
-> diff --git a/drivers/hid/bpf/hid_bpf_dispatch.c b/drivers/hid/bpf/hid_bpf=
-_dispatch.c
-> index d0130658091b0..520b8f56a5146 100644
-> --- a/drivers/hid/bpf/hid_bpf_dispatch.c
-> +++ b/drivers/hid/bpf/hid_bpf_dispatch.c
-> @@ -445,12 +445,14 @@ hid_bpf_hw_request(struct hid_bpf_ctx *ctx, __u8 *b=
-uf, size_t buf__sz,
->  					      reqtype,
->  					      (u64)(long)ctx,
->  					      true); /* prevent infinite recursions */
+> diff --git a/drivers/hid/intel-ish-hid/ipc/pci-ish.c b/drivers/hid/intel-=
+ish-hid/ipc/pci-ish.c
+> index ed3405c05e73c..cef1030643f15 100644
+> --- a/drivers/hid/intel-ish-hid/ipc/pci-ish.c
+> +++ b/drivers/hid/intel-ish-hid/ipc/pci-ish.c
+[ ... ]
+> @@ -232,10 +232,8 @@ static int ish_probe(struct pci_dev *pdev, const str=
+uct pci_device_id *ent)
+> =20
+>  	ret =3D devm_request_irq(dev, pdev->irq, ish_irq_handler,
+>  			       irq_flag, KBUILD_MODNAME, ishtp);
+> -	if (ret) {
+> -		dev_err(dev, "ISH: request IRQ %d failed\n", pdev->irq);
+> +	if (ret)
+>  		return ret;
+> -	}
+> =20
+>  	dev_set_drvdata(ishtp->devc, ishtp);
+
+While looking at this subsystem, I noticed a pre-existing issue in the
+related HBM processing path.
+
+drivers/hid/intel-ish-hid/ishtp/hbm.c:
+> void	bh_hbm_work_fn(struct work_struct *work)
+> {
+[ ... ]
+> 	spin_lock_irqsave(&dev->rd_msg_spinlock, flags);
+> 	if (dev->rd_msg_fifo_head !=3D dev->rd_msg_fifo_tail) {
+> 		memcpy(hbm, dev->rd_msg_fifo + dev->rd_msg_fifo_head,
+> 			IPC_PAYLOAD_SIZE);
+> 		dev->rd_msg_fifo_head =3D
+> 			(dev->rd_msg_fifo_head + IPC_PAYLOAD_SIZE) %
+> 			(RD_INT_FIFO_SIZE * IPC_PAYLOAD_SIZE);
+> 		spin_unlock_irqrestore(&dev->rd_msg_spinlock, flags);
+> 		ishtp_hbm_dispatch(dev, (struct ishtp_bus_message *)hbm);
+> 	} else {
+> 		spin_unlock_irqrestore(&dev->rd_msg_spinlock, flags);
+> 	}
+> }
 
 [Severity: High]
-This is a pre-existing issue, but can this dereference ZERO_SIZE_PTR and ca=
-use
-a kernel panic?
+This is a pre-existing issue, but does bh_hbm_work_fn() need a loop to
+process all pending messages?
 
-If hid_bpf_hw_request() is called with a buffer of size >=3D 1 for a HID de=
-vice
-report that has a report_len of 0, __hid_bpf_hw_check_params() will clamp
-the size to 0:
+Currently, it pops and processes exactly one message from rd_msg_fifo
+before returning. If recv_hbm() adds a second message and calls
+queue_work() before this worker thread begins execution, the second
+queue_work() is a no-op because the work is already pending.
 
-drivers/hid/bpf/hid_bpf_dispatch.c:__hid_bpf_hw_check_params() {
-    ...
-	if (*buf__sz > report_len)
-		*buf__sz =3D report_len;
-    ...
-}
-
-When size is clamped to 0, kmemdup(buf, 0, GFP_KERNEL) allocates 0 bytes and
-returns ZERO_SIZE_PTR (0x10). The check for !dma_data passes because
-ZERO_SIZE_PTR is not NULL.
-
-The code then evaluates dma_data[0] to pass the report ID to
-hid_hw_raw_request(), which will dereference ZERO_SIZE_PTR at memory address
-0x10 and crash the kernel. Should we add a check for size =3D=3D 0 before c=
-alling
-kmemdup()?
-
-> -
-> +	if (ret < 0)
-> +		goto done;
->  	if (ret > size)
->  		ret =3D size;
-
-[ ... ]
+Could this leave crucial IPC bus messages from the firmware stuck in the
+rd_msg_fifo ring buffer indefinitely until another arbitrary interrupt
+arrives?
 
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260713132608.1265=
-541-1-lgs201920130244@gmail.com?part=3D1
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260713132439.3801=
+21-1-panchuang@vivo.com?part=3D3

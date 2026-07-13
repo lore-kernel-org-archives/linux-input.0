@@ -1,84 +1,105 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.7])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-lf1-f53.google.com (mail-lf1-f53.google.com [209.85.167.53])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D7DC1332ED6;
-	Mon, 13 Jul 2026 16:08:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.7
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 229F13546CF
+	for <linux-input@vger.kernel.org>; Mon, 13 Jul 2026 20:10:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.53
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783958903; cv=none; b=K5CdAhVVPm7+jzAuTP0b1dJuE2puUI+wZVwirQkRpBFQSbpl0oNRMAFZqcyNOT97RIPwuoLO9npt8xQqfCXyG6t/VSjsHs72Og+09YpBHvbodoZbQW1BnWIAuzWt1uk2Mcjh1mJazhAc4/62TkWjyKPectUAn9EsIt8c3c0mdfA=
+	t=1783973433; cv=none; b=CKH0r77QpMkma5ktSqvhfBfwfn3b1f64gkvBOrecNY5B3cOG7H8YiwGdKzVSdXwY/n9kk6moZUSg1yO/4A1QUqKCWXNarHNAly2zbR9zdgI2ovQgdoKZ/EcmgEbMqKiuDsdP8DGa4OwAptaaKoyBzTaOtpg3iNbEn4/C4rsGiro=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783958903; c=relaxed/simple;
-	bh=g6zgsnmRfzssg/IhUUfra83Ig1hsskFvIjM8FAZy/lk=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=fDZDXJVfYjB0g8pS0jkcWUxx+43P6JcIxepGW8xRCVYQTImBx5w9lkbcsB5LyGj/QLLj5SPH0GTIOtgbLci0mlKQZsnbPZavCK8z87m1L1A4JXa1ys9SAkBmK2Y82cW6ezDFsMEIQLVGuseO9E+X4gjljse4TC+4JVR4zrUDNT4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=XNaFh+aP; arc=none smtp.client-ip=192.198.163.7
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1783973433; c=relaxed/simple;
+	bh=EC+oJmzx7AWEzOVzq5vrNpoltngufOweP/qW9556Ibs=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=Eopa+0hT1k4pw+xuZnB+vVfLJu70h45k9Mq/+TaKZPRgWqpkcIle0MQ/AoO3u124d8YCo1Sj7vMaMynF9dhoTm7hVanTuGEqUeaACxy3PqlsrHuIwN5ogqhAM29VRtIr/tL+PsGhGB6QActbQu9j/IGSgsakyXKX96L+br0Ji0c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=S62U50n2; arc=none smtp.client-ip=209.85.167.53
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="XNaFh+aP"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1783958902; x=1815494902;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=g6zgsnmRfzssg/IhUUfra83Ig1hsskFvIjM8FAZy/lk=;
-  b=XNaFh+aPAZazb+7j67vilRArNHFTVi6scS9q/ia9kJrgU/9i5rzQImew
-   rK7IJ6opg0nrNmqJ5zNXCH6lSaP8hgsXnZR8k7yaR1SubGyhQgS5VW6ca
-   ElWEzaUWSP0AiTEv03m9QIKVv3OiWfpyFee4fEZV2tQIBsfJzFK3xOwiI
-   ywE5TFICRpQnQWXf2qmdNSrqwFA4itygO3n4HVIAZGXCeQw6V/01TorNf
-   HbJ1Y+ayok6WoPdcRjREsvAGSCOf+JYjC38kqC8twXRLA79Cu27DuqD6b
-   qycM8EXarC0y120aN/V8pm1195RPz710FmUwowd07tSLQ39Tqosiy773W
-   w==;
-X-CSE-ConnectionGUID: dRRYTKBYTVa6BBUgGvSEFQ==
-X-CSE-MsgGUID: rRY0yOMPRTOMv00yAkKawQ==
-X-IronPort-AV: E=McAfee;i="6800,10657,11841"; a="110116589"
-X-IronPort-AV: E=Sophos;i="6.25,154,1779174000"; 
-   d="scan'208";a="110116589"
-Received: from orviesa009.jf.intel.com ([10.64.159.149])
-  by fmvoesa101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Jul 2026 09:08:21 -0700
-X-CSE-ConnectionGUID: riXMN8DoSUOMGCrbE1eY0g==
-X-CSE-MsgGUID: c9K7f/7TS+mhcOf44sPCeg==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.25,154,1779174000"; 
-   d="scan'208";a="256233662"
-Received: from ijarvine-mobl1.ger.corp.intel.com (HELO localhost) ([10.245.245.88])
-  by orviesa009-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Jul 2026 09:08:19 -0700
-Date: Mon, 13 Jul 2026 19:08:16 +0300
-From: Andy Shevchenko <andriy.shevchenko@intel.com>
-To: Pan Chuang <panchuang@vivo.com>
-Cc: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
-	Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>,
-	Zhang Lixu <lixu.zhang@intel.com>,
-	Vineeth Pillai <vineeth@bitbyteword.org>,
-	"open list:INTEL INTEGRATED SENSOR HUB DRIVER" <linux-input@vger.kernel.org>,
-	open list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 3/4] HID: intel-ish-hid: ipc: Remove redundant dev_err()
-Message-ID: <alUNcCTsTCctMNi2@ashevche-desk.local>
-References: <20260713132439.380121-1-panchuang@vivo.com>
- <20260713132439.380121-4-panchuang@vivo.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="S62U50n2"
+Received: by mail-lf1-f53.google.com with SMTP id 2adb3069b0e04-5aebd52488cso3824847e87.2
+        for <linux-input@vger.kernel.org>; Mon, 13 Jul 2026 13:10:31 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1783973430; x=1784578230; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=EC+oJmzx7AWEzOVzq5vrNpoltngufOweP/qW9556Ibs=;
+        b=S62U50n2lIBVyYnd1ekWrvrauQgsfUu1c7whrjaFQWyPbjoJFcewHqqoJ6wbPbgmjZ
+         js4EnIbORLiefMbGUMrD2eldMzAL4XYSe6CiYo/dbsHU/hg7g5eKekyrX+oOfw9Hdp1m
+         Z2mSOAGhp4T5zJaT0i4/6vFXSWtFGPd4XA84TAhVesFlwCMjKzbVAW2FZG2wfLngYbJm
+         qJgDLOwUiehmstm/JR40C6/qKu+sV8mzvWBEwKzOt8vbWKSagQhooMn+PZkdd1zgGi5F
+         1fsVsN0iIna3g4NRWOTdOXbRpDFGpEig1r8A4CHJFwtwwOV0Jx9JZKooTXTPjxb4x0qP
+         5QKA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1783973430; x=1784578230;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=EC+oJmzx7AWEzOVzq5vrNpoltngufOweP/qW9556Ibs=;
+        b=OrRZA31Q/yIWv1pUxVUwW+z4LpdEHu0+dLztCzxaVzOrm2PwMz7q9wNJwOeZ4K8F2e
+         HNgmuBreynbFvhUvCF3emj3E2sjDPY9upqMW6rBybEhjn4QZB4Voff3GMlWlMliuVkGy
+         iY4Y4+x/pwSppvH9Wp30mY9m47ckx5Z1tv0jAKLOu7RttrQpxqo68ascmXXP+1fewnW8
+         BWImtRhzdMlvYBPA93UkroA2gfUx/UqEwaJSVcU3wu1gRNnaHtEaf08T0MD8vWSM4QkF
+         ruqW4+HbZpILsBG4N3pIGtwlDJNa0f7YTI84m4fx2miv1CQp4VUFISihgxkPs8tv9FAm
+         jCcA==
+X-Forwarded-Encrypted: i=1; AHgh+RoecYzS0B/9B3vcWbahfGxYosnReD4Rr6Dafqk+U96bkrqYgYNhlxgbZjf1QugeRIQONCYXGO5ZIl6LPQ==@vger.kernel.org
+X-Gm-Message-State: AOJu0YyHv9n67gn7PgNRcLBXA8w/Sd1lnetUPdl5N1McxJlBR1sFnjjN
+	5VQaamMp1tZDHovr2p9+Ze0EVK5y6nQrAX+a+U2Qf9IwEruv7FG3ExC5
+X-Gm-Gg: AfdE7clWDl47bEPJCuUziHWKrBUKoPxsPEl2ZZ69nqs+J38TL4QVLqPB/D8rDzFIF3T
+	vGjp0a4+xxNoWHEr3SX5iSwicnfm877vjtWn8jNukvaeRSNI+m6DfOw/RZMv9SwIEWBfoxGXoBz
+	7DiQycWgY2Erfqdle7sHxXGRmJFOOEmNDjtedBdrQD1uLChnG56s2y66wGKPyXK+fXyO5rH7/z6
+	7By76MKn0YIS3wcurBLCINNm70Tl0Yno7xjQ7iRF5Q/jAr3qexYI0AX1/7dHTTS1dr2f4YdSCEC
+	s7n5F0sM9mqVTCX5MFpfxfgVMHJyeaVoOQmczSenn2wWBey1kcJTA5m8zsWukcs+POlEWBmb8qX
+	39YU69BxRc1yQOUCCs4fGUcPgv1a1zq0RsrnBKlZzgBkl0FkUkIa0VMFXvN7SAven+bXEkCPygj
+	nfvc2gRfLg/cxtJ+Ph7Ihk6c5H+QX1QRpANdkKr2SDV0v1r9cMLYzX7Ss=
+X-Received: by 2002:a05:6512:ace:b0:5ae:b584:561c with SMTP id 2adb3069b0e04-5b0236c689dmr2364180e87.62.1783973430091;
+        Mon, 13 Jul 2026 13:10:30 -0700 (PDT)
+Received: from fedora (81-224-151-184-no600.tbcn.telia.com. [81.224.151.184])
+        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-5b01caa6350sm3076448e87.59.2026.07.13.13.10.27
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 13 Jul 2026 13:10:28 -0700 (PDT)
+From: =?UTF-8?q?Erik=20H=C3=A5kansson?= <erikhakan@gmail.com>
+To: k8ie@mcld.eu
+Cc: jikos@kernel.org,
+	bentiss@kernel.org,
+	lains@riseup.net,
+	hadess@hadess.net,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/1] HID: logitech: add Bolt receiver support for Logitech HID++ devices
+Date: Mon, 13 Jul 2026 22:10:26 +0200
+Message-ID: <20260713201026.391186-1-erikhakan@gmail.com>
+X-Mailer: git-send-email 2.55.0
+In-Reply-To: <345f7347-30a8-4568-a7a6-c70f54a52a8d@mcld.eu>
+References: <345f7347-30a8-4568-a7a6-c70f54a52a8d@mcld.eu>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260713132439.380121-4-panchuang@vivo.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
- krs, Bertel Jungin Aukio 5, 02600 Espoo
+Content-Transfer-Encoding: 8bit
 
-On Mon, Jul 13, 2026 at 09:24:32PM +0800, Pan Chuang wrote:
-> Since commit 55b48e23f5c4 ("genirq/devres: Add error handling in
-> devm_request_*_irq()"), devm_request_irq() automatically logs
-> detailed error messages on failure. Remove the now-redundant
-> driver-specific dev_err() calls.
+Hi,
 
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@intel.com>
+Thank you for testing this.
 
--- 
-With Best Regards,
-Andy Shevchenko
+I could not reproduce issue 1 locally with my MX Keys for Business, but
+I applied your fix since it also works on my hardware. Either the
+different keyboard models behave differently, or something differs
+between our setups. I folded it into the existing interface handling to
+keep the code smaller.
 
+I also noticed that my older Lightspeed receiver exposes interfaces 0
+and 1 as boot keyboard and mouse interfaces too, while only interfaces
+>= 3 are treated as generic HID. So Bolt appears to need different
+interface handling from the existing Lightspeed receiver path.
 
+Issue 2 was easy to reproduce, and I applied your fix more or less
+verbatim.
+
+I will send a v2 patch shortly. I would be very grateful if you could
+test it again.
+
+Regards,
+Erik

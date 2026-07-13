@@ -1,151 +1,152 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 682792F693B
-	for <linux-input@vger.kernel.org>; Mon, 13 Jul 2026 03:16:48 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C953B30648A
+	for <linux-input@vger.kernel.org>; Mon, 13 Jul 2026 03:17:50 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783912611; cv=none; b=MFQ6kElUW8jLv5opGlYFRAnKncAx5xztz3zsKBm12xsBrpvJiNLwqXmi4yQI8rsDtj8Bg06vxWi1VI80lniCKSAA4aDRxmMRKl4u/++ldgGGaHZDcrcDcBOUc/WZ+Qm5hjzkW1yAyoqGnCWFJDKeha2M7h//+kyM/aSgzQv7vrA=
+	t=1783912673; cv=none; b=Juctcrw/EV4DXp57x0MM071m630RBUzkF+hQC5gNnsaSjRDRCg2/8OSHLEMpVFDJ1Q2AeV0B8oumoZBzHAiSso5EBk/GVlAUVM4O61qG1tVUJWOV0+eIQLWV55VquXMjYc7OnPmTBCjWMNZhVIoNuG/GW1bDWRowPN5xI1RA14U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783912611; c=relaxed/simple;
-	bh=dlpVZpkGhHtym5ASn6jkccX0vIIIg1fmo48B8GC4LmY=;
+	s=arc-20240116; t=1783912673; c=relaxed/simple;
+	bh=JVlTLXyPrPwzh/396fb/mMR956OzLayBv1LJBgdLr9g=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=N/JeDMLQ2pcO+bX/5Yliq/0xRQNUUOVab005+YORTXbBAGZzhrI0HzRKO9FkCHz9mmCw7kPy/aS7cIsKRZxaKWbG+HN3adxISPrbuuQFmmxJP0+usWkBylwqgdXJ+4ay07BXWR4kZeMLtALOr+70bP3MOfGQt7oczppENAT9l10=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=V8WQd0ea; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=VThvAfv/4xrzezd5iC6vcVXx0LUD7o8z310lDYKrB5qCfxLotgPRKZ+yxsr41uevJpVwbv4XqM5V5nTToPRH8Vzh4lDt9FtLEIrdLrNZ+zpwf00vrif/Q2nlH8k7hgZF1GUTVEIjjOIICY1dBJevHmyq5eSOwL+RthXiT4lGo98=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=SR/BhsCi; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="V8WQd0ea"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D16F91F000E9;
-	Mon, 13 Jul 2026 03:16:46 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="SR/BhsCi"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2DC211F000E9;
+	Mon, 13 Jul 2026 03:17:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1783912607;
-	bh=J+X2ZPqOlSzD982MG7IUBh05qBvaFNlbCvWk1GgE+LI=;
+	s=k20260515; t=1783912669;
+	bh=Kif7u4yYi3yjPEDQWlWFVP49THzDOxrRzKbxJV8Lf9o=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=V8WQd0eaXf+XrmHotjZB8hlMKJ9ug5zsf5+huySPCS567RKK7tyIbY+WHkwC4IOoz
-	 3HD0solGukjEVZSrI3AGOxdCz4UDJzapj3idRtYQfxbb0Fgn3M+y5/gnuVc0KkGshe
-	 +PubUjjv6D2hXJDdhZ2DHIEW542rQAqjRu4oQxcEyNS7DiujtlqAHlQk2chFzy7imH
-	 Ws0tvRSrDDLYtW9GRxphxvJPmgnHQow7ttLx9jKyI+Cu9AWfWapyThKDwaCfi48/Na
-	 ofStwhTEixK/thzWAKf011DcnPbIMSLuEb7T8rFD53K7uo+8Hb2i2ei997orc3u7TH
-	 75JndA1FzXfSw==
+	b=SR/BhsCifNvjUHJSpohGKTron5YryZUlgljLfgTGHtjCXSMfuJz5x87hg0p0wzmPk
+	 COSlK/GIGbKym6U67dFZHQ8jW06b3bI3WoazwmX6lPKUDsXPSMJtMBApynq146mf8+
+	 U2qqL0aNQ4NpTPVBKBfoC2+etz2PQmPwDWtqL0WONRlqVtlLxaSnP5JZqZ4rMUYQAj
+	 EYrkfHhgXeWmybdg9xCvCoLIRwx1jfq92rDNupfubr85zAiRloTpbQ77jrHmu+djC0
+	 hzrBVbQbSaXihY16Zr7EmaJonyKh5nkASu64HOwCTNkfIoaHdpCFRTSirHEoIHkDEK
+	 H9T2cW5SaWWiQ==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v3 2/3] HID: Intel-thc-hid: Intel-quicki2c: Refine
- recover callback
+Subject: Re: [PATCH v3 1/3] HID: Intel-thc-hid: Intel-thc: Add API to reset
+ read DMA
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Even Xu" <even.xu@intel.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260713030412.2531933-3-even.xu@intel.com>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20260713030412.2531933-2-even.xu@intel.com>
 References: <20260713030412.2531933-1-even.xu@intel.com>
- <20260713030412.2531933-3-even.xu@intel.com>
+ <20260713030412.2531933-2-even.xu@intel.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Mon, 13 Jul 2026 03:16:46 +0000
-Message-Id: <20260713031646.D16F91F000E9@smtp.kernel.org>
+Date: Mon, 13 Jul 2026 03:17:48 +0000
+Message-Id: <20260713031749.2DC211F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
 s) to consider:
-- [High] The recovery workqueue can be scheduled by the threaded IRQ handle=
-r after `cancel_work_sync()` returns, leading to a Use-After-Free during de=
-vice removal or shutdown.
-- [High] Missing cancellation of `recover_work` in the probe error path lea=
-ds to a Use-After-Free if initialization fails.
-- [High] Missing cancellation of `recover_work` during system suspend leave=
-s the hardware in a corrupted state.
+- [Critical] `thc_rxdma_reset` improperly clears descriptor addresses for a=
+ll DMA channels without pausing them first, potentially causing active TX/S=
+W DMA to access physical address 0.
+- [High] Error paths in `thc_rxdma_reset` fail to restore the interrupt qui=
+esce state, permanently disabling device interrupts.
 --
 
---- Patch [2]: [PATCH v3 2/3] HID: Intel-thc-hid: Intel-quicki2c: Refine re=
-cover callback ---
-commit 81b9a7d4f94249cad95844adc988f68429457956
+--- Patch [1]: [PATCH v3 1/3] HID: Intel-thc-hid: Intel-thc: Add API to res=
+et read DMA ---
+commit 64b22c0d882751a67b709351d2c2e3daf211bb52
 Author: Even Xu <even.xu@intel.com>
 
-HID: Intel-thc-hid: Intel-quicki2c: Refine recover callback
+HID: Intel-thc-hid: Intel-thc: Add API to reset read DMA
 
-This commit modifies the recovery flow for Intel-quicki2c by using a
-workqueue to process device resets instead of handling them directly
-within the IRQ handler. It introduces the recover_work work_struct and
-manages hardware interrupt states during the recovery process.
+This commit adds a new helper function thc_rxdma_reset() to perform a read =
+DMA
+reset. It is intended to be called for RxDMA recovery when fatal DMA errors
+occur.
 
-> diff --git a/drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c b/dr=
-ivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c
-> --- a/drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c
-> +++ b/drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c
+> diff --git a/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dma.c b/driver=
+s/hid/intel-thc-hid/intel-thc/intel-thc-dma.c
+> index 6ee675e0a7384..7ceb8aeeccd37 100644
+> --- a/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dma.c
+> +++ b/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dma.c
 [ ... ]
-> @@ -386,6 +385,7 @@ static struct quicki2c_device *quicki2c_dev_init(stru=
-ct pci_dev *pdev, void __io
->  	qcdev->ddata =3D ddata;
-> =20
->  	init_waitqueue_head(&qcdev->reset_ack_wq);
-> +	INIT_WORK(&qcdev->recover_work, try_recover);
-> =20
->  	/* THC hardware init */
+> +int thc_rxdma_reset(struct thc_device *dev)
+> +{
+> +	int ret;
+> +
+> +	if (mutex_lock_interruptible(&dev->thc_bus_lock))
+> +		return -EINTR;
+> +
+> +	ret =3D thc_interrupt_quiesce(dev, true);
+> +	if (ret) {
+> +		dev_err(dev->dev, "Quiesce interrupt failed during RxDMA reset\n");
+> +		goto end;
+> +	}
+> +
+> +	ret =3D thc_wait_for_dma_pause(dev, THC_RXDMA1);
+> +	if (ret) {
+> +		dev_err(dev->dev, "Wait for RxDMA1 pause failed during RxDMA reset\n");
+> +		goto end;
 
 [Severity: High]
-Does this work need to be cancelled during the probe error paths and
-system suspend transitions?
+Does this skip unquiescing the interrupts?  If thc_wait_for_dma_pause() fai=
+ls,
+we jump to the end label and return without calling=20
+thc_interrupt_quiesce(dev, false).  Will this leave device interrupts=20
+permanently disabled?
 
-If a failure occurs during quicki2c_probe() after the hardware interrupts a=
-re
-enabled, the devres framework will free qcdev. If an interrupt fires and
-schedules this work before the error handler returns, could the background
-workqueue dereference the freed qcdev?
-
-Similarly, quicki2c_suspend() and quicki2c_freeze() do not appear to cancel
-this work. If an interrupt schedules recover_work just before the system
-suspends, could try_recover() run concurrently and re-enable hardware
-interrupts, overriding the suspended hardware state?
-
-[ ... ]
-> @@ -772,6 +772,12 @@ static void quicki2c_remove(struct pci_dev *pdev)
->  		return;
-> =20
->  	quicki2c_hid_remove(qcdev);
+> +	}
 > +
-> +	thc_interrupt_quiesce(qcdev->thc_hw, true);
-> +	thc_interrupt_enable(qcdev->thc_hw, false);
+> +	ret =3D thc_wait_for_dma_pause(dev, THC_RXDMA2);
+> +	if (ret) {
+> +		dev_err(dev->dev, "Wait for RxDMA2 pause failed during RxDMA reset\n");
+> +		goto end;
+> +	}
 > +
-> +	cancel_work_sync(&qcdev->recover_work);
+> +	thc_dma_unconfigure(dev);
+
+[Severity: Critical]
+Can this cause active TX or SW DMA engines to access physical address 0?
+
+thc_rxdma_reset() pauses THC_RXDMA1 and THC_RXDMA2, but thc_dma_unconfigure=
+()=20
+unconditionally iterates over MAX_THC_DMA_CHANNEL and sets the PRD base
+address to 0 for all channels, including THC_TXDMA and THC_SWDMA:
+
+void thc_dma_unconfigure(struct thc_device *dev)
+{
+	int chan;
+
+	for (chan =3D 0; chan < MAX_THC_DMA_CHANNEL; chan++) {
+		dma_set_prd_base_addr(dev, 0, &dev->dma_ctx->dma_config[chan]);
+		dma_clear_prd_control(dev, &dev->dma_ctx->dma_config[chan]);
+	}
+        ...
+}
+
+If a previous thc_dma_write() or thc_swdma_read() timed out, it unlocks=20
+thc_bus_lock but leaves the TX/SW DMA engine running in hardware. Overwriti=
+ng=20
+the PRD base address to 0 while the engine is active could result in memory=
+=20
+corruption or an IOMMU fault.
+
 > +
->  	quicki2c_dma_deinit(qcdev);
-
-[Severity: High]
-Can the threaded IRQ handler race with this removal and re-queue the work?
-
-The IRQ handler is managed by devm_request_threaded_irq() and remains active
-until devres cleanup occurs after quicki2c_remove() returns.
-
-If an interrupt fires right as cancel_work_sync() completes, couldn't the
-IRQ thread call schedule_work() again?
-
-If try_recover() then executes concurrently, it overrides the hardware
-teardown by calling thc_interrupt_enable(..., true). When devres subsequent=
-ly
-frees the IRQ and qcdev, will this result in a use-after-free when the
-re-queued work executes?
-
-[ ... ]
-> @@ -796,6 +802,11 @@ static void quicki2c_shutdown(struct pci_dev *pdev)
->  	if (!qcdev)
->  		return;
-> =20
-> +	thc_interrupt_quiesce(qcdev->thc_hw, true);
-> +	thc_interrupt_enable(qcdev->thc_hw, false);
+> +	ret =3D thc_dma_configure(dev);
+> +	if (ret) {
+> +		dev_err(dev->dev, "Re-config DMA failed during RxDMA reset\n");
+> +		goto end;
+> +	}
 > +
-> +	cancel_work_sync(&qcdev->recover_work);
+> +	thc_interrupt_quiesce(dev, false);
 > +
->  	/* Must stop DMA before reboot to avoid DMA entering into unknown state=
- */
-
-[Severity: High]
-Does this cancellation share the same race condition with the threaded IRQ
-handler as quicki2c_remove()?
-
-Without disabling the Linux IRQ line before cancelling the work, could a
-concurrent hardware interrupt allow quicki2c_irq_thread_handler() to
-re-queue recover_work during system shutdown?
+> +end:
+> +	mutex_unlock(&dev->thc_bus_lock);
+> +	return ret;
+> +}
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260713030412.2531=
-933-1-even.xu@intel.com?part=3D2
+933-1-even.xu@intel.com?part=3D1

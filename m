@@ -1,156 +1,132 @@
-Received: from SEYPR02CU001.outbound.protection.outlook.com (mail-koreacentralazon11013055.outbound.protection.outlook.com [40.107.44.55])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f169.google.com (mail-pf1-f169.google.com [209.85.210.169])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EA07F428475;
-	Mon, 13 Jul 2026 13:25:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.44.55
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783949114; cv=fail; b=tOVRlhpqSbIi1EW4L5hI8air3C9SdUlTVLHQfafVQ85UJKa64WFI0y/fP1RJkHIlgQ/fGPk1lZZkJa91cHLd++llya410T9kbWOmi0y4kXW77J6VTd25qSAFgEB0fiAOcMKN5b+z0ABGTL7J7ylDRmASUxg6L2mXTDxpnLb2mr4=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783949114; c=relaxed/simple;
-	bh=pGpq67zANS6IoDeNWczn3vPFy983TEhjbiKeM/WBxFw=;
-	h=From:To:Subject:Date:Message-Id:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=E4VdcpRWuoyV/XYY3j11gD3f14eK6zmnEDyudCifpGDRBlo0+4FTkSsKWw1GtfiVHExI4JZkb10FSUj/7fTv4+lgk+BPjHZriLDbEMeOE0ltlFoNIOgE57AUsVlbQN2kQjHkvX/vgXlTF0uBw3gb/FntQ1QX6TDscT6KjoQ5tC4=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=vivo.com; spf=pass smtp.mailfrom=vivo.com; dkim=pass (2048-bit key) header.d=vivo.com header.i=@vivo.com header.b=kwgMXCVU; arc=fail smtp.client-ip=40.107.44.55
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=vivo.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=vivo.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6FDC442EEA7
+	for <linux-input@vger.kernel.org>; Mon, 13 Jul 2026 13:26:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.169
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1783949188; cv=none; b=scP98FNK3NqnbURbx+AeB2H2y1n+QaRKHLsech3IT9VWI4R68wsS7KiT6m6kMdojH2sXoivyhkUECNZmfYm0zqT4RFfryByvg+HODlPKwK0O6GNJVq+kK8nwXveinSsD4KTmU3LLfHtKSix8Em7bbr++0t6QcuwyId50FSYEDzE=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1783949188; c=relaxed/simple;
+	bh=PRXrMhHHmPDmSfezdWtwj6oy53snFDFPa7g4fqzcLx0=;
+	h=From:To:Subject:Date:Message-ID:MIME-Version; b=th7TuNBs7+GGcu3l81+kjaMnMwzEil1EC47ALKTg4pREwW4W6x0WRL4cilye80XukcDuwjsd2XiWrD9nL7/90UmTWc2Xhl2yfCfx2yjsQHm+N36PqEkEgjumh5c7AqR8hlj1Ey1fjtSGpxU++ifdiW8i/hnWioNhpDS5NVxQCgU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=SR2Kk1YX; arc=none smtp.client-ip=209.85.210.169
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=vivo.com header.i=@vivo.com header.b="kwgMXCVU"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=dIfCl5o8ax+WDGjOHzWOMnBTuRovg+v2Mo8ss9d5Vr4/vJU8RaTMQ53nIAdzeLl71CJooXvOLKJjjFRnogfiinVbvCh9UcVUwA9TSzRaMhUpoo7ClrY+GTLNttOt2Sa9fA/svlV1phJgzidP+z2TgEZWw/73hlESE06gvvXrWTs30Ct54aTzhvb2aRLGDDUEkflncgVhE5u/Vut1Hr4BCYBuFwFXMDQqRfIrfG1mmbcEbeD36E3qWHhapPxm7kgpvLKxb1xyvQO6cqfvazvTXcQ8jp2zBIVE8F+nxvh+lOdIcFmiKlmO8YWuoUDNPYZDgMdDyoDqpWc89uexaZBv1w==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=ffZkQFSQ0UmJ2QdL9Sq1IflMpsuDj/WyfnZeI//0sYQ=;
- b=zDqj4r+PBQeUHf5kuBtKWfqofbcwEST3/kHWZW3inZCSk/pxDU0lNcWNCmifgl3dg/kuz7BDSlYdzvRiInpkVyqo5RO8lJbtPdsbNH0hiREZd0syWUZDlNJhRnGhlrcSqey+dr3gsoy1BtNGM1O1uWIerHH7LY/0QuVb8tTi/wugXy87ngTfE3QVroxeHUXrJW13aQ+ildhzK9jIj48N4FecwHjBAV7Mr/QmzfwNyKS/Z36VN7+n7QdBTR4A02iOzOyesfDOHP2ffc9AaCMp6YAxqKjn+NMdOKgm5UfmiwcZncQGXAO4Z9OxTXuFpNAmJik2E1IWzcU3FW4eBj4Zmg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=vivo.com; dmarc=pass action=none header.from=vivo.com;
- dkim=pass header.d=vivo.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=vivo.com; s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=ffZkQFSQ0UmJ2QdL9Sq1IflMpsuDj/WyfnZeI//0sYQ=;
- b=kwgMXCVUv3O/xtGvs30M57mTamJdFPOZJmWR0L8bFD7QNyobKD6CZnacL5kS7czCfrDoTeiWImmnTPQpyOFYAlgde2Axc7s77ZNJUDM6o79uqvxeiTdd3SLiWXACIwzPuxIKNrOynrydAiZkcyXQhREc7nqXCRkRgZ8csO0Sbge4AFU6KW/h6OVGeNpeFdN7ZAx6CRV3K518eH0bYK7Gky9Dl5gpaCu6YnMM9qR/mdTMdNkW8CQ3MuSG5KTmzylY5mMI9bDeEiXA4VbEvJ6Fm/1jmU1hewTs6C/V/Jyg9tf9KV07/d85YzEWJ2p+iemB/hzfBIxUgUbSGhEgYIHqlA==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=vivo.com;
-Received: from SEZPR06MB5832.apcprd06.prod.outlook.com (2603:1096:101:c8::12)
- by OSNPR06MB8956.apcprd06.prod.outlook.com (2603:1096:604:49b::6) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.181.23; Mon, 13 Jul
- 2026 13:25:08 +0000
-Received: from SEZPR06MB5832.apcprd06.prod.outlook.com
- ([fe80::f98:5e32:4ccb:d07b]) by SEZPR06MB5832.apcprd06.prod.outlook.com
- ([fe80::f98:5e32:4ccb:d07b%6]) with mapi id 15.21.0202.014; Mon, 13 Jul 2026
- 13:25:08 +0000
-From: Pan Chuang <panchuang@vivo.com>
-To: Even Xu <even.xu@intel.com>,
-	Xinpeng Sun <xinpeng.sun@intel.com>,
-	Jiri Kosina <jikos@kernel.org>,
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="SR2Kk1YX"
+Received: by mail-pf1-f169.google.com with SMTP id d2e1a72fcca58-848761b5897so1392712b3a.3
+        for <linux-input@vger.kernel.org>; Mon, 13 Jul 2026 06:26:26 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1783949186; x=1784553986; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:to
+         :from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=PZo/QGvD29siNmPQnaA3AO4F48nI154SXJ006XgsWpM=;
+        b=SR2Kk1YXNBm1tGnrfvyMJj89tVKe1cFJa4mAAPFj/dHT2BGIrnYKG4BD0nyDyDXvGu
+         mfs3claoYKjHTfdHWW7sfFIU3h6eYftAG//2Ps4g3upiX6gxkyr05+hLH5hnJP5PtmuV
+         /sBN03wPlEkB6hbe2JFNJMpitYtFO1Ylr0pI7VIxJFWb4vn261ZQjD5+U8nbVAqgDIiL
+         BskYlcgep0NA3CtjHh61mF+KHyNVwhevLnbRK3y8cTqNeg3PTk0nN4dISzbMibsxfbDS
+         9Yu9iNQ2GiP5JmmhKLyLcCqvV348jxiF9lgfKEy6b1EZkXszr7H7NjktYBmJISchC6iG
+         32/Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1783949186; x=1784553986;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:to
+         :from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=PZo/QGvD29siNmPQnaA3AO4F48nI154SXJ006XgsWpM=;
+        b=stPZCutGx0Rv+uKjz9DVhEWxazKnM30cy4MMLHP5S+GcUz9Pj4RCicZcPItnlyC+oZ
+         ALPIU7vti5z118ZCs4eGF/nxt0KyNztIDm/wK093Cu1w2c2qaY21j5I1jnwT9NkPRqxt
+         8QXeWANzQZMMNK8C3s2GPHq1Sr2beTxnhxgEe4VcJcuZ4IdlIhgUU7uLzKA29OHBobPF
+         aRq71xcVQ+exkNXFeoBokhmL0WqaLPeQqYbH2owyKnW1+uLzNsCU7eALwSEGkdDyL578
+         OXUr3B/ywg6dS/zoEnA2mb2k1hnsHSpa98CyE2jZ4ZzbZi59l+WGZ25oNhxLLpCzBKzK
+         jK4Q==
+X-Forwarded-Encrypted: i=1; AHgh+RrwMCw8soVYx8P13ZK69L4Po99QunZBxPdTYGFGqF1RJ5ii6Ymo9NtQsMfhndqmRrkG+OBRGyoa8XFZnQ==@vger.kernel.org
+X-Gm-Message-State: AOJu0YxZGzvSWq06AcbVt8l2Hbin9HCyWrrQGmXZHUJqdafnjflwUerq
+	9CUDl8yVvSFhLljgKu9o+A1p3OTszPVfRO/AByhAtPd58bzWT9Ao7198
+X-Gm-Gg: AfdE7clTWY+lJxOesOnMNJa6ARvWSjlRTquwE79/WTDw9u0Ny/OcH5Ifee75eRDPkE4
+	V0NjPISaHiwDP1umsPlurEGx5BQpyQbnfgiadN7PXl6PP06yZSKmoM209CIvjeG7OiFBKy4YaZo
+	MzHqqmuZedac2oE1uQlk42oKrV8oTOK3Hqab8SPYDupzuCY/RTtN46icUMsDFkKhAeTPzU2F5Xd
+	w6X+JeH5pFOFkWI7DHotoQYEoUU5B1tZo9uFoZY/fPI4psDR/s3jNY8vWoo875NUaGnq4LMhTFC
+	J2jrWnl/JRT7nuA+ec9m3SpaiyCDjKaZAQ6wHcTQ9rDbhO1EUuXmB6JjwVRDtHK2IRLWLMunnlR
+	CKsSZZ/YskgLRnDfyMNHHEHfx/9CiCbq0GQQDrlwSPXjZ3IrhYmq+C0A3f8348+QwWX7vNpT6NY
+	KMPaD8zd+sXg==
+X-Received: by 2002:a05:6a00:9094:b0:845:d274:bf8a with SMTP id d2e1a72fcca58-8488977e8eamr8992840b3a.51.1783949185747;
+        Mon, 13 Jul 2026 06:26:25 -0700 (PDT)
+Received: from lgs.. ([101.76.249.46])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-847f6d4d000sm14194934b3a.34.2026.07.13.06.26.22
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 13 Jul 2026 06:26:25 -0700 (PDT)
+From: Guangshuo Li <lgs201920130244@gmail.com>
+To: Jiri Kosina <jikos@kernel.org>,
 	Benjamin Tissoires <bentiss@kernel.org>,
-	Pan Chuang <panchuang@vivo.com>,
-	Sakari Ailus <sakari.ailus@linux.intel.com>,
-	Abhishek Tamboli <abhishektamboli9@gmail.com>,
-	"Danny D." <d3z.the.dev@gmail.com>,
-	linux-input@vger.kernel.org (open list:HID CORE LAYER),
-	linux-kernel@vger.kernel.org (open list)
-Subject: [PATCH 4/4] HID: Intel-thc-hid: Intel-quickspi: Remove redundant dev_err()
-Date: Mon, 13 Jul 2026 21:24:33 +0800
-Message-Id: <20260713132439.380121-5-panchuang@vivo.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20260713132439.380121-1-panchuang@vivo.com>
-References: <20260713132439.380121-1-panchuang@vivo.com>
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: TP0P295CA0055.TWNP295.PROD.OUTLOOK.COM
- (2603:1096:910:3::11) To SEZPR06MB5832.apcprd06.prod.outlook.com
- (2603:1096:101:c8::12)
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Alexei Starovoitov <ast@kernel.org>,
+	Johan Hovold <johan@kernel.org>,
+	Guangshuo Li <lgs201920130244@gmail.com>,
+	Puranjay Mohan <puranjay@kernel.org>,
+	Kees Cook <kees@kernel.org>,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	bpf@vger.kernel.org
+Subject: [PATCH v2] HID: bpf: Fix signedness bug in hid_bpf_hw_request
+Date: Mon, 13 Jul 2026 21:26:08 +0800
+Message-ID: <20260713132608.1265541-1-lgs201920130244@gmail.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: SEZPR06MB5832:EE_|OSNPR06MB8956:EE_
-X-MS-Office365-Filtering-Correlation-Id: 7537121c-b093-45c9-ce3e-08dee0e22862
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|1800799024|52116014|376014|23010399003|366016|921020|38350700014|18002099003|22082099003|56012099006|11063799006|6133799003;
-X-Microsoft-Antispam-Message-Info:
-	aonnNAtdFF04h6ydf6Ss6hrhHx+mYSruGjS7iwNLT28YcvDkzj1u/ztX9QNMAYFPiFhVDph2LRAqMmYgY7HYGWsKaAzUQss9Rsz0a1uqYXS/7d5+/QDCsqkQKZ6F/jYwFmyQbk7hDhnrqYYxvLqtPdiHsanRuOWtG8NRhThSSp69gJFDpdGIn9e8phWAtlpVdPnf9xgLPAzHSQp/wrtWfBeKijGngFSgc8zQafr4kmRiki3ObekL55fRoaWXaL8pDPRen9lyjy0h2XM4mtx+l6ofgBtz+OdoHgaBPzIZR8dZlOUAZPM86p/cWsfzAR+cy9m9D9B+Ys27n9p9l6LUbWEQxsLVSay2P31mTynXvyWuO7i8yH4sCmk6jin2Unze5+teUT7v2XBvj4EliIjGJcBv0Xuz7AaSqVpDC30smSUyqYPSjp2Z2uLXSN0SHwgAEC3ZIFZdpjpuxX1FLnD2lXGxk9QHN1divcDYWJUCQcPpyQ+8+1ounhSh3gm7jr79yl6x2jmFMzerYNlvZpq2w2lP2fKH8w77P4CsUAPSKMJvgQXJpCCJXAne0egXgFcHqSBjCPNi226GUOH20Oc7pvERR4ktlMNTZkd32IvgZnx9ila7yQLPb4n/kWB04zz8j1BqK6SXmsDI5lbG7vh/NLWCfahSLFCxq5jAqSZUHcxbq3fuJqiViDE/ALK1GYW+YvvG6oZuTuJMxhchncBjGnPAiQXu7Jiq5HCcW+3NfDLkucM46O5GSNnwBODf3JnO
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SEZPR06MB5832.apcprd06.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(52116014)(376014)(23010399003)(366016)(921020)(38350700014)(18002099003)(22082099003)(56012099006)(11063799006)(6133799003);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?us-ascii?Q?sOkWzTZTYbAmpVKN5Zm4yufuJKysW6xOo97vOKrPf5hebUXWN8CrjgLp0MUN?=
- =?us-ascii?Q?+MxKSL2+v47PHCttRYueGA12JhliCyCHAUQj6xTdmZHNdrGIx8U6XnPm8uvc?=
- =?us-ascii?Q?/tNLim4JeJ3rlHg3H8Jc3khoFWnut+tRB+3yyklsf4vt0FP7d2bZyW00Xdbs?=
- =?us-ascii?Q?JoZwISu6594Y642PorYV4EwsMqvgUFtUeklwTJDre/Rm3CXtRjwJH5gAEd+s?=
- =?us-ascii?Q?/hAJRBbJLPcQq/f/b7vpijkwNR/FN+IRk8a5lztI4a8Z0eZzfPfTouUj2nIb?=
- =?us-ascii?Q?seKKPo1k/9Eykmi2svKb7yopKSA61OXVC1JzPasFun8quOJE5MY9BcNTS8NG?=
- =?us-ascii?Q?oT5jjvfrDlvyCv3xlgZVjno4ISVEZ7ak4Llde9BeZgxDrIsOUwGKR5S7nadF?=
- =?us-ascii?Q?K9TalFXtaG6JiVPESK/6VbPgecG28N7Xb19sJbFU+GcmS1og13A2P+pxjZQW?=
- =?us-ascii?Q?+0NkeOoAesYv8wGUsYZ2lcwX7TJIwL8TbNsgpGHLPsxJpBGH1oDC7jpd66/K?=
- =?us-ascii?Q?C5FPU+Od5JjTHlSZ/tP5LfRbGlRSyAZcpYKCYzi4WpmKwuFrXecmG8bMcGYm?=
- =?us-ascii?Q?JZRaKWBKetR0L+ZW8Sufy5qdIZiZLt1P5sBet0TaPXaGcwvqLFoAmbhG6qRJ?=
- =?us-ascii?Q?DkW6EP1DKfvhFYoHrBzb/ZnyKOPeaMVT0AKsnuwVj4LcMw4x7PzBFPSKajg+?=
- =?us-ascii?Q?RnwL0n8syycUerqfCBTKzSQj02cyCCRuO3zILBwYr2oIjMYJdytTelrWydnW?=
- =?us-ascii?Q?nWbsFs+PM9cMNWyqp1ptLzP7gywCXpkw5KzRcsdOfpHrl1wNNmk/uJehMtRC?=
- =?us-ascii?Q?cmseHO6MYy7vZO0NSxELBLKxpzmysbOmyqQnawaEzOlDlzF30/8a8svArUzC?=
- =?us-ascii?Q?Ib4M/0AHIniSLXkmwZzOLLOwsc6uIGXWG1SZA/S/S+71rgaweEcrEAZQqIaA?=
- =?us-ascii?Q?MVPRQJuuE8dzXjcyTWNTpEVPlAZCpyYuvseVikDZF2G9sgZLB/hlVdu+spfB?=
- =?us-ascii?Q?HtyB6xpoCjSI1iqR1sivzLslDdN9Gb2IyJhNT7L/nwzg+2a+974FFF4c93wp?=
- =?us-ascii?Q?O6pWz6j430Fk69Hq+8viQHvgzLXYg4BQ2/D2jIy3qHW4GU6TtNqm4DZDMSiu?=
- =?us-ascii?Q?PZs69iBGx+hBHmnY2wliRV8WTGrQWb3hFdk3Lcv5zRMiPDNYEBmqwYcNCadK?=
- =?us-ascii?Q?PeQNkAgxKM4IV2oKGrH9PXKh7Uq7u7GAxoTXbI1DGv1HCC4xTpMOR/c6uwWT?=
- =?us-ascii?Q?5rYy5Vdb/LycZuOFH2IGRhsQ/9Sp6hOWyoIM2jlaOspX9+erAxQun2Fqv2Df?=
- =?us-ascii?Q?A+zFILi2Ka0NE85i1mDi6/CQZYgmKWvsxSFiBuN1nSB33gCbEJX387T7ynyb?=
- =?us-ascii?Q?WAiBdnvuoV7Ja8n2ijb8GlU7hQ8YMbwgPmvcpkMSBrR2SCoFkhyqPM82dpfI?=
- =?us-ascii?Q?D93UWsjZ4UBGafJ9zqGkd7U3545VlBM/tHm/KoEmg0jgn2dYL3Il0F1kd1k2?=
- =?us-ascii?Q?IN7cTG1a82pNxKz6PJ8SLfMMo6TxphkKBpA09oRJD0LlYpTjXEGn5o4zneTN?=
- =?us-ascii?Q?nHVqmvIZAeMmdHAOsAF0UsaaSm5zLdrVr4VZ8uvXVo3UyYOaXnH/ITvUw2kw?=
- =?us-ascii?Q?d9KqARkAfzgwtN9q7jo9AqXQvHSwnxPH+deL0HkKXyz13mA4/1DU5ADFOjt6?=
- =?us-ascii?Q?q6b1zAtUfm5YBsHT4qzFCxEpHo81Ys2fg/+SAvBKszPejwjAs8yz1O4tnQWw?=
- =?us-ascii?Q?6RL6lkAhdA=3D=3D?=
-X-OriginatorOrg: vivo.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 7537121c-b093-45c9-ce3e-08dee0e22862
-X-MS-Exchange-CrossTenant-AuthSource: SEZPR06MB5832.apcprd06.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 13 Jul 2026 13:25:07.9972
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 923e42dc-48d5-4cbe-b582-1a797a6412ed
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: 5i0xaowO9TxCQgNrPAor5iL+4jt8jy1jbk2jP4OsuZxtR2ZNMNGLt2GOOSyi4EiStwWv8jZmJl+WQPxw/Xu93A==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: OSNPR06MB8956
+Content-Transfer-Encoding: 8bit
 
-Since commit 55b48e23f5c4 ("genirq/devres: Add error handling in
-devm_request_*_irq()"), devm_request_threaded_irq() automatically logs
-detailed error messages on failure. Remove the now-redundant
-driver-specific dev_err() calls.
+hid_bpf_hw_request() clamps the return value of hid_hw_raw_request() to
+the size of the caller-supplied buffer before copying data back to the
+BPF buffer.
 
-Signed-off-by: Pan Chuang <panchuang@vivo.com>
+However, ret is signed while size is unsigned. If hid_hw_raw_request()
+returns a negative error code, the comparison promotes ret to size_t.
+This makes the negative value look like a very large positive value, so
+the error is clamped to size. The following memcpy() then treats the
+failed request as a successful transfer and copies stale data back to
+the caller.
+
+Handle negative return values before comparing ret with size and jump to
+the common cleanup path on error. This preserves negative error codes
+while still preventing oversized successful returns from overflowing
+the caller-supplied buffer.
+
+Fixes: 2b658c1c442e ("HID: bpf: prevent buffer overflow in hid_hw_request")
+Signed-off-by: Guangshuo Li <lgs201920130244@gmail.com>
 ---
- drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c | 5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+v2:
+  - Handle negative return values before comparing the return length
+    with the unsigned buffer size, as suggested by Emil Tsalapatis.
+  - Use the common cleanup path for negative return values.
 
-diff --git a/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c b/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c
-index 4ae2e1718b30..504ef3c842ab 100644
---- a/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c
-+++ b/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c
-@@ -636,11 +636,8 @@ static int quickspi_probe(struct pci_dev *pdev,
- 					quickspi_irq_thread_handler,
- 					IRQF_ONESHOT, KBUILD_MODNAME,
- 					qsdev);
--	if (ret) {
--		dev_err(&pdev->dev,
--			"Failed to request threaded IRQ, irq = %d.\n", pdev->irq);
-+	if (ret)
- 		goto dev_deinit;
--	}
+ drivers/hid/bpf/hid_bpf_dispatch.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/hid/bpf/hid_bpf_dispatch.c b/drivers/hid/bpf/hid_bpf_dispatch.c
+index d0130658091b..520b8f56a514 100644
+--- a/drivers/hid/bpf/hid_bpf_dispatch.c
++++ b/drivers/hid/bpf/hid_bpf_dispatch.c
+@@ -445,12 +445,14 @@ hid_bpf_hw_request(struct hid_bpf_ctx *ctx, __u8 *buf, size_t buf__sz,
+ 					      reqtype,
+ 					      (u64)(long)ctx,
+ 					      true); /* prevent infinite recursions */
+-
++	if (ret < 0)
++		goto done;
+ 	if (ret > size)
+ 		ret = size;
+ 	if (ret > 0)
+ 		memcpy(buf, dma_data, ret);
  
- 	ret = reset_tic(qsdev);
- 	if (ret) {
++done:
+ 	kfree(dma_data);
+ 	return ret;
+ }
 -- 
-2.34.1
+2.43.0
 

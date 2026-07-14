@@ -1,228 +1,136 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f46.google.com (mail-wm1-f46.google.com [209.85.128.46])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9B46C47CC85
-	for <linux-input@vger.kernel.org>; Tue, 14 Jul 2026 14:04:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BDFA343F8A2
+	for <linux-input@vger.kernel.org>; Tue, 14 Jul 2026 14:25:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.46
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784037873; cv=none; b=FW/yEC/Jh/fgwFYAC5N128KQiDdX9MdK+bzK3KoCP0EkEI+peVCf9qj3HGoPow4WeznkJKUh+DkaXhJ9Pp8HnwBRnqKqQEr6E6LbnEnW7tT+INWQdJriQJZAeJjJXlhsBF+E/6py//bKeOyt39A/ov0PMZDTuIsb+00oxfHb5M8=
+	t=1784039111; cv=none; b=NEMD72odpf+n1Dj09m74sStxaza0VpjxA7afnXieteYk/J12ePqAVUURoejN9XKgqP5KnpDMOihn7wt2tT0u7yNsJVeC/IAdXn4Fsisx08/PYmw7UPH+I/5FiUdzQKNbVCR2k2CxSHj+2EcgSP/xhqzrVZUPEvaNSujoGiGKtto=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784037873; c=relaxed/simple;
-	bh=Ad0VW4gm3LIVU3AFKrEBthZrF+k+tZURYJIRKYX2gSQ=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=MHlbDHryY1wtSsO4mpS8D7LkML2hWf5zvtFhQwPB2q9A0YEFgPD6QyLYRig/lqncwcwtaB1tci1pGNzQMD79DtrV9ovsgu0ONG0UcjVT2aAgeDqtHMja6eSIeiE7Qb079AhNMu2Xc/FKr30GPBMyzrpTNaJW80jDRToAje0bsFw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=BAHSBG7N; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1784039111; c=relaxed/simple;
+	bh=IK3LCy68nNia2gEMkKnq6We11pVBGa+uglDzb2BQn0A=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=TGzFaJzzk5gpIFePD8p20O9e6t5o9E5gJfNPwKZVZsXfNRknu29isjMIrTTyYgoEo37LnPYH29J8X1XdbT1eg9qFVYryVZ0csduVllyuKlYlSKl8EcfrlBVW0oIlESiHXbUvyQ8y3VLu1PVrWzQ6rPM4+Moi7JoAGBBi6SxWkkk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=0sec.ai; spf=pass smtp.mailfrom=0sec.ai; dkim=temperror (0-bit key) header.d=0sec.ai header.i=@0sec.ai header.b=TZIvveBF; arc=none smtp.client-ip=209.85.128.46
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=0sec.ai
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=0sec.ai
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="BAHSBG7N"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9720B1F000E9;
-	Tue, 14 Jul 2026 14:04:30 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784037871;
-	bh=GxoN1l652xkBuv6dZJOkUphiqyazLS2Gk3cHz/VVL6c=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=BAHSBG7NLCvBTyA7ViShKAuUHWTgS2ak51kGeJ15FqulslwmsADfH4jQGrnboQQ47
-	 YTjKGsPLkWafC4j9F19Pb/AQn1YFTKy5sY/D+wBqI+2nIELeJabcKnYChF36zwvPY2
-	 m+pszKB5OUMB4OeO+sLXJ7tdAlmZDwXCKCqhJHOU7L6Z6i77SkDf/4vhnEitK8hUp0
-	 7UDyyHCACOQJf/AgxIxn/lpIhDCHw3GpoBAH0+OCTB7jtKkCt76D84TllQ/Ft4Vr2Z
-	 r9Fl33sG0s3B42Bbydtop31dVuQDR5x9174cdxZ7sUnD109y1LGt3HcVGtxOeaWAJB
-	 G5zaYLINMud1Q==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 4/4] HID: cp2112: fix out-of-bounds read in
- cp2112_raw_event
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Jiale Yao" <yaojiale02@163.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260714131611.269929-4-yaojiale02@163.com>
-References: <20260714131611.269929-1-yaojiale02@163.com>
- <20260714131611.269929-4-yaojiale02@163.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Tue, 14 Jul 2026 14:04:30 +0000
-Message-Id: <20260714140430.9720B1F000E9@smtp.kernel.org>
+	dkim=temperror (0-bit key) header.d=0sec.ai header.i=@0sec.ai header.b="TZIvveBF"
+Received: by mail-wm1-f46.google.com with SMTP id 5b1f17b1804b1-490cf322ed0so31980955e9.1
+        for <linux-input@vger.kernel.org>; Tue, 14 Jul 2026 07:25:09 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=0sec.ai; s=google; t=1784039108; x=1784643908; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=jcfrg6EgnjJunuXszKnS5dRMOUov45ln2QkWfO7ihtI=;
+        b=TZIvveBFvGvE8FBiW5rVXisexkGUyXphLa1Wmmw1YpygomAI61AYJA0mrDvbOij1Vh
+         sVp+iyJdxLyxXQvvRXrqCMLTeofV79eGv0wUuiBpGMVvWIzsWOVor9+i5P7DzbRHYw4v
+         87PUatCIn1vGZhDKG/gPJ6ZCNb7n+rO8ugRjoGKhJe24SgoR4xrPBnXbPPQcjtLGiKYp
+         UrfPP/vOIj/H8jpF8O+hS6+HFCl4rBOAMLZZoMWaKGG9NGcqewhBVQu1cqPhifyehLvk
+         8RztKZ1kQC4oAjlmtmdbsiW3xjvVY+fGl89ft3RlDKdgj+B3bAgVYkA9cTdcqGoIiNdj
+         kJNA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1784039108; x=1784643908;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=jcfrg6EgnjJunuXszKnS5dRMOUov45ln2QkWfO7ihtI=;
+        b=tDHZuLlZ7UdgO/7m+aEEz0FKrf6ii6mfKOMYoG8cwpn30SUUJN/oVWNQJODzK8QEAx
+         domCzJdMA2BV2YF0IOXNw3SegT5xME66lAKOw4eH2sDjV6G62a4dB0iCG9G8wdi0xdvN
+         ZBiL4kinkOfoVW8OIMMKEIFVGPsB3M0cA02KZSa4A0ixk2kmwsRXiRnPcFIJ6wjKxJcT
+         J32eo7CCJCK3BTu46UPiFCbHhf3BrPPp3fwFNuC4Uqp01tQJh6V1q1Dmy5hIVnX+u9UR
+         XjMZzsDL3tHWURIxZ2q8DObhIsDYm/fZTbEDiS3VCUOi3ZFtynwKqF2aSutJk2O679Wl
+         MuOA==
+X-Gm-Message-State: AOJu0YxGiDAp+/0VTczsF/XuLqT7OsHQ5acYAT7sBmbU+iQvF02FL762
+	D3k11RAPzji8JpRX6Oc7UaRJoUuKTwVaauU4XhiBjgwnR23EpqGjeDZ5rgi6KaDg7PPk
+X-Gm-Gg: AfdE7clQn7p34LctCiqSc1Uat9TQqv334ThJNhZXaHNPAMNPiSKaSt62fZUTDw04ia2
+	fp/MRzksGCql86XDd9dfPgBQQ313mEljI0V6oLBzASZc1GlXgnQzL9KipTDhmy68g4Qb2HyJ0wj
+	Iq/vsfP18PHe3FRC97CBqG2iSy9qX1xjYx7bCn4ZsXlPDrVteNHMWliWORrvy5WgcZ7s+Tbchhy
+	4ex60KtUFXaIuZpcqYheFImxek9s8Ywo1PF4RNJQmy0LTRj1YemwgupFlwV3pyP4lia1ncfXBLb
+	UPViytF87sUYYxaTLe2OLmQB3Xmz3l8YCJM7PU5a1fcEp+oOP37YWS0Hw63T0PRY6qdSzL9sYPU
+	dQJYxguNrzBnNeYtWThtWh1x9iaE+c3SLTRnST4FNJS84tGI6aTbe9BgAI2NmtEBKO47gHz6+KB
+	Jl8g/ag8s4fn3lUIjeckVDTCvXqoImQbjYnJEHAlaNvZflYE1cu/BLRobjMjLTCnIMWO9FjzEof
+	CbPLE02khb6xVVUIpFxi0CSJ09op7ItCfzZQVauQHsgMA==
+X-Received: by 2002:a05:600c:4fc6:b0:493:e52f:6ee1 with SMTP id 5b1f17b1804b1-493f8784bb5mr151350735e9.0.1784039107888;
+        Tue, 14 Jul 2026 07:25:07 -0700 (PDT)
+Received: from PeakBook-Mini.tail8e484.ts.net ([178.197.218.188])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4950a2ed840sm74518925e9.10.2026.07.14.07.25.06
+        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
+        Tue, 14 Jul 2026 07:25:07 -0700 (PDT)
+From: Doruk Tan Ozturk <doruk@0sec.ai>
+To: Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>
+Cc: linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	stable@vger.kernel.org
+Subject: [PATCH] HID: uclogic: Clear stale pen_input pointer on partial input registration
+Date: Tue, 14 Jul 2026 16:25:05 +0200
+Message-ID: <20260714142505.95630-1-doruk@0sec.ai>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 5 potential issue(=
-s) to consider:
+uclogic_input_configured() caches the pen input_dev in
+drvdata->pen_input before input_register_device() is called for it.
+The in-range timeout handler uclogic_inrange_timeout() later
+dereferences this pointer, guarded only by a NULL check.
 
-Pre-existing issues:
-- [High] Missing cancel_delayed_work_sync() on the probe error path can lea=
-d to Use-After-Free of devm-allocated dev structure.
-- [High] Race condition in cp2112_remove() due to premature and conditional=
- cancellation of the delayed work.
-- [High] Lockless updates to dev->read_data and dev->read_length lack requi=
-red memory barriers when signaled via atomic flags.
-- [High] A TOCTOU race condition on dev->read_length in cp2112_read() can b=
-ypass length checks and return uninitialized kernel memory.
-- [High] Using an interruptible wait in cp2112_wait() allows signals to per=
-manently desynchronize the hardware response state.
---
+If hidinput_connect() fails while bringing up the HID inputs (e.g. an
+input_register_device() failure, or an input left unpopulated), it
+unwinds via hidinput_disconnect() and frees the input_dev, but the
+driver's cached drvdata->pen_input is not cleared and is left dangling.
 
---- Patch [4]: [PATCH 4/4] HID: cp2112: fix out-of-bounds read in cp2112_ra=
-w_event ---
-commit 1ea70eb400858ee9a4d1aa2528079b6370e4b0a8
-Author: Jiale Yao <yaojiale02@163.com>
+Because this driver installs a ->raw_event callback and the hidraw
+interface is claimed, hid_connect() still returns success even though
+HID input was not claimed, so hid_hw_start() and probe() succeed. The
+device stays live, and a subsequent in-range pen report re-arms
+inrange_timer via uclogic_raw_event_pen(). When the timer fires,
+uclogic_inrange_timeout() dereferences the freed input_dev: the NULL
+check does not help because the pointer is dangling, not NULL. This is
+a use-after-free distinct from the timer-teardown case.
 
-HID: cp2112: fix out-of-bounds read in cp2112_raw_event
+Clear drvdata->pen_input after hid_hw_start() when HID input was not
+claimed, so the cached pointer never outlives the input_dev and the
+existing NULL check in the timeout handler becomes effective.
 
-The TRANSFER_STATUS_RESPONSE path dereferences xfer->length at
-offset 6, requiring sizeof(*xfer) bytes.  The DATA_READ_RESPONSE
-path uses the device-supplied read_length to drive memcpy()
-without clamping it to the remaining report size.  Add both
-checks, and clamp read_length to size - 3.
+Found by 0sec (https://0sec.ai).
 
-> diff --git a/drivers/hid/hid-cp2112.c b/drivers/hid/hid-cp2112.c
-> index 04379db93571b..99e31724a4211 100644
-> --- a/drivers/hid/hid-cp2112.c
-> +++ b/drivers/hid/hid-cp2112.c
+Fixes: 01309e29eb95 ("HID: uclogic: Support in-range reporting emulation")
+Cc: stable@vger.kernel.org
+Assisted-by: 0sec
+Signed-off-by: Doruk Tan Ozturk <doruk@0sec.ai>
+---
+ drivers/hid/hid-uclogic-core.c | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
-[ ... ]
+diff --git a/drivers/hid/hid-uclogic-core.c b/drivers/hid/hid-uclogic-core.c
+index b73f09d26688..396d46b0b88e 100644
+--- a/drivers/hid/hid-uclogic-core.c
++++ b/drivers/hid/hid-uclogic-core.c
+@@ -262,6 +262,19 @@ static int uclogic_probe(struct hid_device *hdev,
+ 		goto failure;
+ 	}
+ 
++	/*
++	 * hid_hw_start() -> hid_connect() returns success even when
++	 * hidinput_connect() failed, because this driver provides a
++	 * ->raw_event callback and the hidraw interface was claimed.  In that
++	 * case the input_dev that ->input_configured() cached in
++	 * drvdata->pen_input has already been freed by hidinput_connect()'s
++	 * error unwinding, leaving a dangling pointer that the in-range timer
++	 * would dereference.  Drop it so uclogic_inrange_timeout()'s NULL
++	 * check takes effect.
++	 */
++	if (!(hdev->claimed & HID_CLAIMED_INPUT))
++		drvdata->pen_input = NULL;
++
+ 	return 0;
+ failure:
+ 	/* Assume "remove" might not be called if "probe" failed */
+-- 
+2.43.0
 
-> @@ -1463,12 +1468,18 @@ static int cp2112_raw_event(struct hid_device *hd=
-ev, struct hid_report *report,
->  		atomic_set(&dev->xfer_avail, 1);
->  		break;
->  	case CP2112_DATA_READ_RESPONSE:
-> +		if (size < 4) {
-> +			hid_err(hdev, "short data read response(%d < 4)\n", size);
-> +			return 0;
-> +		}
->  		hid_dbg(hdev, "read response: %02x %02x\n", data[1], data[2]);
-> =20
->  		dev->read_length =3D data[2];
->  		if (dev->read_length > sizeof(dev->read_data))
->  			dev->read_length =3D sizeof(dev->read_data);
-> =20
-> +		if (dev->read_length > size - 3)
-> +			dev->read_length =3D size - 3;
->  		memcpy(dev->read_data, &data[3], dev->read_length);
->  		atomic_set(&dev->read_avail, 1);
-
-[Severity: High]
-This is a pre-existing issue, but does this lockless update to dev->read_da=
-ta
-and dev->read_length lack required memory barriers?
-
-In cp2112_raw_event(), dev->read_data is updated and then read_avail is
-signaled locklessly:
-
-    memcpy(dev->read_data, &data[3], dev->read_length);
-    atomic_set(&dev->read_avail, 1);
-
-However, the consumer in cp2112_wait() evaluates atomic_read() locklessly,
-and cp2112_read() reads the payload without an acquire barrier:
-
-cp2112_wait():
-    ret =3D wait_event_interruptible_timeout(dev->wait,
-        atomic_read(avail), msecs_to_jiffies(RESPONSE_TIMEOUT));
-
-cp2112_read():
-    memcpy(data, dev->read_data, size);
-
-On weakly ordered architectures, could the CPU reorder the producer's data
-write after the flag set, or the consumer's data read before the flag check,
-leading to stale memory reads and I2C data corruption?
-
-
-[Severity: High]
-This is a pre-existing issue, but does the error path in cp2112_probe()
-leave the delayed work running?
-
-drivers/hid/hid-cp2112.c:cp2112_probe() {
-...
-err_gpiochip_remove:
-    gpiochip_remove(&dev->gc);
-err_free_i2c:
-...
-}
-
-If gpiochip_add_data() succeeds, the GPIO chip is exposed and its IRQ can be
-immediately requested, scheduling the gpio_poll_worker.
-
-If a subsequent initialization step fails, the probe function jumps to
-err_gpiochip_remove and removes the gpiochip, but fails to cancel the
-delayed work before the dev structure is freed.
-
-Could this lead to a Use-After-Free of the dev structure?
-
-
-[Severity: High]
-This is a pre-existing issue, but is there a race condition in
-cp2112_remove() due to premature cancellation of the delayed work?
-
-drivers/hid/hid-cp2112.c:cp2112_remove() {
-...
-    if (dev->gpio_poll) {
-        dev->gpio_poll =3D false;
-        cancel_delayed_work_sync(&dev->gpio_poll_worker);
-    }
-
-    gpiochip_remove(&dev->gc);
-...
-}
-
-Because the GPIO chip is still registered when the cancellation is evaluate=
-d,
-a concurrent IRQ request can execute cp2112_gpio_irq_startup(), setting
-dev->gpio_poll =3D true and scheduling the work just after the cancellation
-check but before the chip is removed.
-
-Once remove() completes and dev is freed, will the scheduled work cause a
-Use-After-Free?
-
-
-[Severity: High]
-This is a pre-existing issue, but is there a TOCTOU race on
-dev->read_length in cp2112_read()?
-
-drivers/hid/hid-cp2112.c:cp2112_read() {
-...
-    if (size > dev->read_length)
-        size =3D dev->read_length;
-
-    memcpy(data, dev->read_data, size);
-    return dev->read_length;
-}
-
-If a spurious or delayed USB CP2112_DATA_READ_RESPONSE packet is processed
-concurrently by cp2112_raw_event(), dev->read_length can increase between
-the bounds check and the return value.
-
-Since cp2112_read() reads dev->read_length locklessly twice, could it copy
-fewer bytes than it returns? This would cause the caller cp2112_i2c_xfer()
-to advance its buffer by the larger returned value and leak uninitialized
-heap memory to the userspace I2C client.
-
-
-[Severity: High]
-This is a pre-existing issue, but does using an interruptible wait in
-cp2112_wait() allow signals to permanently desynchronize the hardware
-response state?
-
-drivers/hid/hid-cp2112.c:cp2112_wait() {
-...
-    ret =3D wait_event_interruptible_timeout(dev->wait,
-        atomic_read(avail), msecs_to_jiffies(RESPONSE_TIMEOUT));
-    if (-ERESTARTSYS =3D=3D ret)
-        return ret;
-...
-}
-
-If a user process executing an I2C transaction receives a signal,
-wait_event_interruptible_timeout() aborts with -ERESTARTSYS. The driver
-exits, but the hardware will eventually deliver the response for the
-aborted transaction.
-
-Because the hardware lacks transaction IDs, will this late response falsely
-satisfy the cp2112_wait() of the next I2C transaction, returning garbage
-data or false success?
-
-Should the driver use wait_event_timeout() for short hardware
-synchronization instead?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260714131611.2699=
-29-1-yaojiale02@163.com?part=3D4

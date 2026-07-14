@@ -1,72 +1,53 @@
-Received: from mail-qk1-f170.google.com (mail-qk1-f170.google.com [209.85.222.170])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from sender-op-o14.zoho.eu (sender-op-o14.zoho.eu [136.143.169.14])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2300B2848BE
-	for <linux-input@vger.kernel.org>; Tue, 14 Jul 2026 17:17:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.170
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784049460; cv=none; b=k4rcPYyX87D2XWsjTEJ6EUXEwl6ERLrZhy3QAVKonC58YIxprjD75M0iq9PXHUgpVpkg6fOpNzdv1eQ9VjdL4lxcrh5KozHYfJ00ArSIxr4N/XF+6r7Ij2P7UyrOZzeFzFEHbJvvqqk3RR8+nSkhZ+LWGqpD4qSfSwsuztGyF8w=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784049460; c=relaxed/simple;
-	bh=jMUtk5clwiAw4sDgcRhF6FAj5+TI4SNb8MFpEDMoI88=;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 688543A7F4B;
+	Tue, 14 Jul 2026 17:39:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.169.14
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1784050802; cv=pass; b=BLm3XZQcfWW33gws9S3dfnJEEXy6g4XuQ8jwNsQIADeX0vL2cTwA23RURVDSDDrrFA3UeThWGMF8V0RbhThv3EEDXReYHz5IeUNt0NfA+58ot5M6nSG0/dT4EyE7gA4I6mLHFt1fHIV9bqj1b7ECllfbcrih1ZVOq/uO/MPOEgc=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1784050802; c=relaxed/simple;
+	bh=psdTSGF3AKaU67y+gQSLLEMXasE1wXT987xSlmhpyrU=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=qcKpTmPw4ZJTrugmtr0V0hwthcyCK0yyZgN70HLa9RN9bAfs0qsWA/L8FMI1lwI0kKZ8uadZ7AAacIKpN5mpQYYcQaV/0D29TPsRnHVpk8hqTb02FQoKq6vzJb4wAL8dyYAOgKYejGLjRR/qjOfuV1lQW1jFlqWEJJuoEVIh/W8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=o+zeWs0C; arc=none smtp.client-ip=209.85.222.170
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	 MIME-Version; b=pyB+1pYqorEi8t520NxtFEHUkOQ3cDayEoYjFhmG+VBU7dbwuSEPQLulkHm9eEIdGbKAzHIUhlW1pFwEQ+Tksy5+FQ57pOVQkHl3PQBtwTiqD5s09nDk7vfkKwSHfhuulawYUuG4bHUsiaxmkwPHIXlfC8n9VhJMubXKQCsZFdY=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=auditcode.ai; spf=pass smtp.mailfrom=auditcode.ai; dkim=pass (1024-bit key) header.d=auditcode.ai header.i=security@auditcode.ai header.b=iD7OvwSq; arc=pass smtp.client-ip=136.143.169.14
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=auditcode.ai
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=auditcode.ai
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="o+zeWs0C"
-Received: by mail-qk1-f170.google.com with SMTP id af79cd13be357-92e55b62640so274701985a.0
-        for <linux-input@vger.kernel.org>; Tue, 14 Jul 2026 10:17:38 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784049458; x=1784654258; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=KRUkamzsdgUYVeTV99JWTA2+xD3soq3oTaz2B1+gwYg=;
-        b=o+zeWs0CWvNm4rjIMXFp991Bg/i5aWfPa6e+VGm570PCDjfL4+JCOgjNFvDlHrVD8A
-         zjTrNs6s7Ra93KRgkI5yHSMaNPUZx4oyRDQyhsSNqMoJJYYl09gPfcuwT5ZAp+8zlHJK
-         s4bZE9lmCP8D0f81JnFAjDaIjwtkV/1DNxEL6NIijWoJtK9WsOa1aPzY/UhhW+vzgd7R
-         IjfAGc1q1vzsPSTTHEFOJOX72l+aMk1CEqlfMnXMXi2+/xYz0Q4XfLiFgbJDcLc2vAFl
-         JHKfuNSw0BlpIuumdFgi72x4wRlDhFBrfzhiog77a3Na2eJHkVtQnQO3+8Pg7fQp7hL5
-         5/6A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784049458; x=1784654258;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=KRUkamzsdgUYVeTV99JWTA2+xD3soq3oTaz2B1+gwYg=;
-        b=qMmmM9mo38lO974s3r1FBxm0GwpvefcVN3Kz2XRxBqfWF1+J+KZtceeHL6GibNedj1
-         2/bE1ptvou22jWZkg+3eV78+1FrFBYIX0fA6lfECQrsJ2AFRtbO36v61i1tLShLjEs46
-         pHy/GRIdmV4wHDidt3KV65XUDtF2yLviyfjydSmxPp3saNtvLnSvNCG33zdBGJmi0RBD
-         hfmOAwVSUou1wLe2BhRauMsaPVEdqmNjF7JCe8bNB1+rifsdLJBurYCRPerDpIfLCeGe
-         AyWA3KQkaMHdxeZdb8WGH4gRqInaq5WARTuljgSZCntsXFmVWE9reHY1mdeVs1btvtpg
-         sJIg==
-X-Gm-Message-State: AOJu0Yya8nuCslTgluZGxtafLNwwKKzY2XXDeWAmwidF5Hk6zZ3HYS0g
-	Uqw14CPWJh7bI7UNWaogAI/GLY2GHwbgc3dHUF/jVXl9kYoX45C048cOSkndQhhqduZZAQ==
-X-Gm-Gg: AfdE7clO9xonmjvpVagGfnUSWj+jJbruwunmUXsAxQVQ7ZoKUvHj9NUgQYAhCeROpol
-	33HtZ/4uMsFBEPiOSsWpVReQ+Ij5HuCyKflhTPwIk+h+eTAEUY0jYwgIku62YAB3Zpb2mztvY4S
-	vF/ovsEJqiRX5idvwO9xxGdI8CEaA7HxXLimHd64LVpfhM9vim0qFlDhCZfftQzfv5g6/zWRxIF
-	WHxRpAoAapj5TQfKnn/4ocldC4SX/mLVMUvbk+MKRU6HByo1oPvHvzBEz0Hl3qyVV+JBworiyiG
-	LjvTEQUFfvPVlb+vclOrAQQKb6tJ+0nqyBBaGSQ2bPoDv9omtlXxq9oJbtRDJbE3X4/Ep2k5+lS
-	5S6AasnZZ7J1e6PDr2ZFXhAwP9nhX238g9PdWRDlzc0AGpoXF+c8OOGie261VUgRfUKu/j/vqV0
-	c4uOWeK4nXGT68ET1HmaWlfRYUODh1zTgw/g==
-X-Received: by 2002:a05:620a:25cc:b0:915:a953:4b9c with SMTP id af79cd13be357-92ef2b11c6emr1354758385a.3.1784049457771;
-        Tue, 14 Jul 2026 10:17:37 -0700 (PDT)
-Received: from FairplayBox ([2601:5cf:837e:d920::f9a2])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-92ee5d34f76sm1547107285a.35.2026.07.14.10.17.37
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 14 Jul 2026 10:17:37 -0700 (PDT)
-From: Alec Hall <signshop.alec@gmail.com>
-To: linux-input@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Alec Hall <signshop.alec@gmail.com>
-Subject: Re: [PATCH 3/3] HID: magicmouse: report charge status over Bluetooth
-Date: Tue, 14 Jul 2026 13:17:33 -0400
-Message-ID: <20260714171733.413339-1-signshop.alec@gmail.com>
-X-Mailer: git-send-email 2.55.0
-In-Reply-To: <20260714102540.3EB2E1F000E9@smtp.kernel.org>
-References: <20260714102540.3EB2E1F000E9@smtp.kernel.org>
+	dkim=pass (1024-bit key) header.d=auditcode.ai header.i=security@auditcode.ai header.b="iD7OvwSq"
+ARC-Seal: i=1; a=rsa-sha256; t=1784050791; cv=none; 
+	d=zohomail.eu; s=zohoarc; 
+	b=L8WeP8q9Ox7GjzwsAMHqW0IK2uYhn49P3F4Lr9J8x61MQK1RA6ag3f8MKhxntoZT91DDsTdqTUDtOn6wQGCQZcBPeuwr7Nzh8FJTp1mVkLwkNhWqQ2cuFKQqCfgpwLZRC4rNieWZ7oM3dVxIUT0TynrhdTNIHFRFpVUDlsO4Sjk=
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.eu; s=zohoarc; 
+	t=1784050791; h=Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:Subject:To:To:Message-Id:Reply-To; 
+	bh=zFqWeZ3Jt02eSvrNeae5L96Sq+f9ZDi+/NYNKF2lYa4=; 
+	b=BUyeVuTVtczmiS8z0zVBTC4vRjGvSD56sto0srgQcTNvL0vVFdIrAlpbb3GY0KMztEHovboPOBtYvxwWg5bCniKGsHgHhasTBdNsCYpoQEDBapNY9xZ98P1lC2fwG/MrSJVlPkmTGxvfycUqeqJsE9LGTjp//zlY+LwZ9CpwSjs=
+ARC-Authentication-Results: i=1; mx.zohomail.eu;
+	dkim=pass  header.i=auditcode.ai;
+	spf=pass  smtp.mailfrom=security@auditcode.ai;
+	dmarc=pass header.from=<security@auditcode.ai>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1784050791;
+	s=zmail; d=auditcode.ai; i=security@auditcode.ai;
+	h=From:From:To:To:Cc:Cc:Subject:Subject:Date:Date:Message-ID:In-Reply-To:References:MIME-Version:Content-Transfer-Encoding:Message-Id:Reply-To;
+	bh=zFqWeZ3Jt02eSvrNeae5L96Sq+f9ZDi+/NYNKF2lYa4=;
+	b=iD7OvwSqQInDfUCjRUglxFZpGtnweUONh70GNz8sHTb7YpUb78xmzWfbwpsIIYd5
+	l2L6GjQvvBT2yHWzvnIxzfmHACKJc6aNUMfqhrH4QBpTFB14MPFmfwRfZspCveC8a7b
+	hh2/7JA0bYhqBGZUDIcod/hdvLMFHYjGIXSD3/1w=
+Received: by mx.zoho.eu with SMTPS id 1784050788969306.9952263238945;
+	Tue, 14 Jul 2026 19:39:48 +0200 (CEST)
+From: Ibrahim Hashimov <security@auditcode.ai>
+To: jikos@kernel.org,
+	bentiss@kernel.org
+Cc: linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	stable@vger.kernel.org
+Subject: [PATCH v2] HID: uclogic: fix use-after-free of inrange_timer on remove
+Date: Tue, 14 Jul 2026 19:39:46 +0200
+Message-ID: <20260714173946.73773-1-security@auditcode.ai>
+X-Mailer: git-send-email 2.50.1
+In-Reply-To: <20260713121042.2321-1-security@auditcode.ai>
+References: <20260713121042.2321-1-security@auditcode.ai>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -74,40 +55,77 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+X-ZohoMailClient: External
 
-> Sashiko AI review found 2 potential issue(s) to consider:
-> - [High] NULL dereference of `msc->input` in magicmouse_raw_event /
->   magicmouse_emit_touch
-> - [High] Unbounded recursion via nested DOUBLE_REPORT_ID (0xf7) reports
+uclogic_remove() cancels the pen in-range timer and then stops the
+device:
 
-Thanks for the review. Both are pre-existing and are neither introduced nor
-worsened by this series, but they're real and I'm happy to fix them.
+	timer_delete_sync(&drvdata->inrange_timer);
+	hid_hw_stop(hdev);
 
-> can this function trigger a kernel panic due to a NULL pointer dereference
-> on msc->input?
+timer_delete_sync() only guarantees the timer is idle at that instant.
+uclogic_raw_event_pen() keeps delivering pen reports until hid_hw_stop()
+stops the transport several lines later, and every report with
+pen->inrange == UCLOGIC_PARAMS_PEN_INRANGE_NONE re-arms the timer:
 
-This series does not add any new use of msc->input. The battery report path
-added in patch 3 returns through the switch "default" case (report 0x90 is
-not a touch report), i.e. before the input->id.product access at the end of
-magicmouse_raw_event(), and magicmouse_report_charge_status() only calls
-hid_get_battery() -- it never touches msc->input.
+	mod_timer(&drvdata->inrange_timer, jiffies + msecs_to_jiffies(100));
 
-That said, the pre-existing exposure you describe (a device that takes the
-early return in magicmouse_probe() and then sends a touch-shaped report) is
-real, and an early "if (!msc->input) return 0;" at the top of
-magicmouse_raw_event() is a sensible guard.
+A report landing between the timer_delete_sync() call and the transport
+teardown in hid_hw_stop() re-arms inrange_timer after it was cancelled.
+uclogic_remove() then returns and the devm drvdata is freed, while
+hid_hw_stop() has already freed the input device drvdata->pen_input
+points at, so when the timer fires ~100 ms later
+uclogic_inrange_timeout() dereferences freed memory -- a use-after-free
+in timer-softirq context.
 
-> does this function have a potential stack overflow via unbounded recursion?
+Swapping the two calls is not a fix: stopping the device first frees
+drvdata->pen_input via hidinput_disconnect() while the timer may still
+be pending, so a timer already armed before removal fires on the freed
+input device in the window before timer_delete_sync() runs.
 
-Also untouched by this series, but yes, the self-recursion on DOUBLE_REPORT_ID
-is unbounded on malicious input and worth bounding (reworking it into a loop,
-or capping the nesting depth).
+Use timer_shutdown_sync() before hid_hw_stop() instead. It cancels the
+timer, waits for a running callback while pen_input is still valid, and
+prevents any further re-arming -- a later mod_timer() from an in-flight
+report is silently ignored -- so the timer is provably dead before
+hid_hw_stop() frees the inputs. This is the ordering the timer core
+documents for this "timer re-armed from another path" teardown case.
 
-Since both are independent of the battery feature, I'd prefer to send them as
-a separate hardening series rather than fold them into this one. Dmitry, would
-you like me to post that now, or do you consider these out of scope here? I'm
-also happy to add just the msc->input guard to this series if you'd rather see
-it alongside patch 3, since that patch touches magicmouse_raw_event().
+Fixes: 01309e29eb95 ("HID: uclogic: Support in-range reporting emulation")
+Cc: stable@vger.kernel.org
+Signed-off-by: Ibrahim Hashimov <security@auditcode.ai>
+Assisted-by: AuditCode-AI:2026.07
+---
+v2: v1 reordered hid_hw_stop() before timer_delete_sync(), which traded
+    the re-arm use-after-free for one on the freed input device (thanks
+    to sashiko-bot for spotting it). Keep the original order and use
+    timer_shutdown_sync() to disarm the timer, which closes the re-arm
+    race without ever touching pen_input after it is freed.
 
-Thanks,
-Alec Hall
+ drivers/hid/hid-uclogic-core.c | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/hid/hid-uclogic-core.c b/drivers/hid/hid-uclogic-core.c
+index b73f09d26688..0b8a83fa6c5b 100644
+--- a/drivers/hid/hid-uclogic-core.c
++++ b/drivers/hid/hid-uclogic-core.c
+@@ -548,7 +548,17 @@ static void uclogic_remove(struct hid_device *hdev)
+ {
+ 	struct uclogic_drvdata *drvdata = hid_get_drvdata(hdev);
+ 
+-	timer_delete_sync(&drvdata->inrange_timer);
++	/*
++	 * Shut the in-range timer down before stopping the device.
++	 * uclogic_raw_event_pen() re-arms inrange_timer on every pen report
++	 * and keeps running until hid_hw_stop() stops the transport, so a
++	 * plain timer_delete_sync() here can be undone by a report landing in
++	 * the window before hid_hw_stop().  timer_shutdown_sync() cancels the
++	 * timer and makes any later re-arm a no-op, so it is provably dead
++	 * before hid_hw_stop() frees the input device drvdata->pen_input
++	 * points at.
++	 */
++	timer_shutdown_sync(&drvdata->inrange_timer);
+ 	hid_hw_stop(hdev);
+ 	kfree(drvdata->desc_ptr);
+ 	uclogic_params_cleanup(&drvdata->params);
+-- 
+2.50.1 (Apple Git-155)

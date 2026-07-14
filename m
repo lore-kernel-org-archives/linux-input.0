@@ -1,78 +1,182 @@
-Received: from m16.mail.163.com (m16.mail.163.com [117.135.210.3])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 75020222590;
-	Tue, 14 Jul 2026 13:16:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=117.135.210.3
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 07D2B3FADFD
+	for <linux-input@vger.kernel.org>; Tue, 14 Jul 2026 13:32:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784034997; cv=none; b=eOtaL/KEFpAlqALhzxcMRAXk+o8sQGynLOuCW6l3joqVZOV89B0T2H8BHnH8Z3MNF0TovdK6PMziepETrvZRnbiauglQQ4UnGe286VvpdBHSgRQIw/5FWKk4bIN49YVmAqWkjlnDxyriiZxDEYU4sNlgGW3AIWNCqavhm/mR6g8=
+	t=1784035939; cv=none; b=cOJUg14EclSzipusD+L5I3HEMjZt7izHqsXsuslhJIbKUU1PHCLjMxiKdlwmqWiVrgpZ49gamnpQCzWVVHFQHshm/GD2W4FZtMxZV4mntNbS9lAmgpyqEvkQFc4ZMeA5oNHel9u1xbO/+RBMnALAUxlH9TpEOt7qC/CEjVdWoWU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784034997; c=relaxed/simple;
-	bh=c3WwKUMHC9ycRPZJ0pmTTs1Bs0LRbgfAYBGiLAH7z0E=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=nf7y9YPajTmyRykHlzvmx9zfOWWUcMTwsBW9tknDLICQAyER7L7eWhnDjczwAVmAo/PKrpEt+WFBt7a0/YucG7MkOonN2a6teai5NJX4wOFoCS1S4ACLjXiKdQ2Mf+A2U9YWu3TP2NaMJWL/aZM4IvfiAdKXQFi86raVCnO0EBU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=OwFo0qPi; arc=none smtp.client-ip=117.135.210.3
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
+	s=arc-20240116; t=1784035939; c=relaxed/simple;
+	bh=XN/wlBv+e27eSWQ13qXPs0b9SDmKB+zJjIFmGyrFoWE=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=mOLKMv6ivV0HlLC/qo/c39Pz5kooGlgekhO8Coe9zeT4X/TyAV09aria45iA+d8EZaA+bXO6pDgqwxajn0wQPMp5Lfe+Jyy/hWdcFeqTANpnB6bx4CKK0tac85hB44TMTF9vsnCvDmpuQLlZVLi3YDOpCx6coT75rjwdtGAI/JA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=HqjcetBW; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="OwFo0qPi"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
-	s=s110527; h=From:To:Subject:Date:Message-Id:MIME-Version; bh=JA
-	DpnXF70rh0Jigvj3HlU4HFNjBDDwY+BcJq/fY4IcA=; b=OwFo0qPivue/6Qq5SQ
-	soVmgxAOmkfVvdHWS3/+fCeRuBSk+Z5i9zxIsNe4E4Z9WDXYpXl+lAtI3WEXbgZr
-	+eYKSe10IBga6yblf7V58lyz+XHopiDzA1WZBdjqT19kO4KGJtXbs6AuBOqkp3yK
-	8eYXYxfyL6TFxVe4UkUg8QGgw=
-Received: from pc.localdomain (unknown [])
-	by gzga-smtp-mtada-g0-3 (Coremail) with SMTP id _____wDHhdSdNlZqMIoQJg--.20750S3;
-	Tue, 14 Jul 2026 21:16:16 +0800 (CST)
-From: Jiale Yao <yaojiale02@163.com>
-To: Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Cc: Jiale Yao <yaojiale02@163.com>
-Subject: [PATCH 2/4] HID: corsair-void: fix out-of-bounds read in corsair_void_raw_event
-Date: Tue, 14 Jul 2026 21:16:09 +0800
-Message-Id: <20260714131611.269929-2-yaojiale02@163.com>
-X-Mailer: git-send-email 2.34.1
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="HqjcetBW"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69FA21F000E9;
+	Tue, 14 Jul 2026 13:32:17 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1784035937;
+	bh=ZrWWWVVERHN1UdAx8IheKDMzLXKExJE6OteYuzyScCA=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=HqjcetBWFOH0QEnL91Kome30HdOsQ/dA8PkSg/G3MCPeb5I83/+0KUmXDYNRD5Wfj
+	 +PpABmSztZKJXot3vaPCcoiDMZTFr69P47I+tMMrnZz0hFF7SV4doVikPXjjOYAlG8
+	 ZuPW2FXwXd27pDllniD+M2GiP3f6gjkZ7vqqSjW30EuHUd3J18SYfobduMi7K5jUIF
+	 b7Jjbmh4psHBErunyQgeXp3mxNygs6HnNcg6RwApA2JwXCIw9jSP1c+tvTJLhME8vN
+	 BuH3ejxEQZh2K9aH4uRa79mQWbBVru1EosDFFPIsRBWYwwoKSP36XCUqq474THNi87
+	 9KYQvejsIxIpw==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH 1/4] HID: cougar: fix out-of-bounds read in
+ cougar_raw_event
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Jiale Yao" <yaojiale02@163.com>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
 In-Reply-To: <20260714131611.269929-1-yaojiale02@163.com>
 References: <20260714131611.269929-1-yaojiale02@163.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Tue, 14 Jul 2026 13:32:17 +0000
+Message-Id: <20260714133217.69FA21F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:_____wDHhdSdNlZqMIoQJg--.20750S3
-X-Coremail-Antispam: 1Uf129KBjvdXoWrKr17ZryfJw47KrWrGrWfKrg_yoWfuFgE9w
-	18Ja1DJrsrJa4Svr1kJw45Zry5Aa18ZF1fXF13t3sIqrZrZ3W5XFWqqr43GFZxurn3Jas7
-	Ar98XFn2v397KjkaLaAFLSUrUUUUjb8apTn2vfkv8UJUUUU8Yxn0WfASr-VFAUDa7-sFnT
-	9fnUUvcSsGvfC2KfnxnUUI43ZEXa7xR-YFwDUUUUU==
-X-CM-SenderInfo: x1dryxhdohiji6rwjhhfrp/xtbCzQDlIGpWNqDbuQAA3A
 
-Both the STATUS_REPORT and FIRMWARE_REPORT paths access data[4].
-Add a size < 5 guard before the report dispatch.
+Thank you for your contribution! Sashiko AI review found 6 potential issue(=
+s) to consider:
 
-Assisted-by: Claude:deepseek-v4-pro
-Signed-off-by: Jiale Yao <yaojiale02@163.com>
----
- drivers/hid/hid-corsair-void.c | 2 ++
- 1 file changed, 2 insertions(+)
+New issues:
+- [Medium] Unbounded error logging in interrupt context can lead to log flo=
+oding and Denial of Service.
+- [Low] The newly added `hid_err` log message is missing a terminating newl=
+ine character.
 
-diff --git a/drivers/hid/hid-corsair-void.c b/drivers/hid/hid-corsair-void.c
-index 5e9a5b8f7f16..7c5435de6aae 100644
---- a/drivers/hid/hid-corsair-void.c
-+++ b/drivers/hid/hid-corsair-void.c
-@@ -740,6 +740,8 @@ static int corsair_void_raw_event(struct hid_device *hid_dev,
- 	struct corsair_void_drvdata *drvdata = hid_get_drvdata(hid_dev);
- 	bool was_connected = drvdata->connected;
- 
-+	if (size < 5)
-+		return 0;
- 	/* Description of packets are documented at the top of this file */
- 	if (hid_report->id == CORSAIR_VOID_STATUS_REPORT_ID) {
- 		drvdata->mic_up = FIELD_GET(CORSAIR_VOID_MIC_MASK, data[2]);
--- 
-2.34.1
+Pre-existing issues:
+- [High] TOCTOU race condition during device unbinding leads to a Use-After=
+-Free of the keyboard's input_dev (`shared->input`).
+- [High] Self-deadlock on `cougar_udev_list_lock` during error handling in =
+`cougar_bind_shared_data()`.
+- [High] Race condition between `kref_put()` and list lookup causing Use-Af=
+ter-Free of the `cougar_shared` structure.
+- [High] The probe function dereferences `hdev->collection` without verifyi=
+ng that any collections were actually parsed.
+--
 
+--- Patch [1]: [PATCH 1/4] HID: cougar: fix out-of-bounds read in cougar_ra=
+w_event ---
+commit bb404070c5edd2b402b1e549ba66068e04c7d429
+Author: Jiale Yao <yaojiale02@163.com>
+
+HID: cougar: fix out-of-bounds read in cougar_raw_event
+
+This patch adds a bounds check to cougar_raw_event() to prevent out-of-boun=
+ds
+reads when handling malformed HID reports shorter than 3 bytes.
+
+> --- a/drivers/hid/hid-cougar.c
+> +++ b/drivers/hid/hid-cougar.c
+> @@ -270,6 +270,12 @@ static int cougar_raw_event(struct hid_device *hdev,=
+ struct hid_report *report,
+>  	if (!shared->enabled || !shared->input)
+>  		return -EPERM;
+
+[Severity: High]
+This is a pre-existing issue, but is there a TOCTOU race condition here
+during device unbinding?
+
+If a device disconnect is triggered while a USB event is being processed,
+cougar_raw_event() checks shared->enabled locklessly on one CPU.
+Concurrently, cougar_remove() on another CPU could clear shared->enabled
+and call hid_hw_stop(), destroying the input_dev.
+
+Could the interrupt handler then resume and dereference the freed
+shared->input in input_event()?
+
+> +	if (size < 3) {
+> +		hid_err(hdev, "Received HID report of bad size (%d)",
+> +			size);
+
+[Severity: Medium]
+Could this un-ratelimited error logging lead to a log flood if a
+malfunctioning or malicious device continuously sends reports shorter than
+3 bytes?
+
+Since cougar_raw_event() runs in interrupt context, this might cause high
+CPU usage and flood the kernel ring buffer.
+
+[Severity: Low]
+Also, does this log message need a terminating newline character?
+Without the \n, subsequent kernel messages might be incorrectly appended
+to the same line.
+
+> +		return -EPERM;
+> +	}
+> +
+>  	code =3D data[COUGAR_FIELD_CODE];
+
+[ ... ]
+
+[Severity: High]
+This is a pre-existing issue, but does cougar_bind_shared_data() have a
+self-deadlock on cougar_udev_list_lock during error handling?
+
+If devm_add_action_or_reset() fails, it invokes cougar_remove_shared_data()
+which drops the kref to zero, triggering cougar_release_shared_data():
+
+drivers/hid/hid-cougar.c:cougar_release_shared_data() {
+    ...
+    mutex_lock(&cougar_udev_list_lock);
+    ...
+}
+
+Since cougar_bind_shared_data() already holds cougar_udev_list_lock when
+calling devm_add_action_or_reset(), will this attempt to re-acquire the
+already held mutex block all further probes?
+
+[Severity: High]
+This is a pre-existing issue, but is there a race condition between
+kref_put() and list lookup that could cause a use-after-free of the
+cougar_shared structure?
+
+During device unbind, cougar_remove_shared_data() calls
+kref_put(&shared->kref) without holding cougar_udev_list_lock. If the
+refcount drops to 0, cougar_release_shared_data() blocks on the lock.
+
+Concurrently, a new device probe calling cougar_bind_shared_data() holds
+the lock and traverses the list:
+
+drivers/hid/hid-cougar.c:cougar_bind_shared_data() {
+    ...
+    mutex_lock(&cougar_udev_list_lock);
+    list_for_each_entry(shared, &cougar_udev_list, list) {
+        ...
+        kref_get(&shared->kref);
+        ...
+    }
+}
+
+Could it find the zero-refcount object, increment it, and then after the lo=
+ck
+is dropped, the blocked release function frees it, leaving the newly
+probed device with a dangling pointer?
+
+[Severity: High]
+This is a pre-existing issue, but does the probe function dereference
+hdev->collection without verifying that any collections were actually
+parsed?
+
+drivers/hid/hid-cougar.c:cougar_probe() {
+    ...
+    if (hdev->collection->usage =3D=3D COUGAR_VENDOR_USAGE) {
+    ...
+}
+
+If a USB device supplies a HID report descriptor containing no collections,
+hid_parse() succeeds but hdev->collection remains NULL. Will this
+unconditional access cause a panic on probe?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260714131611.2699=
+29-1-yaojiale02@163.com?part=3D1

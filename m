@@ -1,203 +1,150 @@
-Received: from mail.mcld.eu (mail.mcld.eu [84.242.69.186])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D8EA33C1087;
-	Tue, 14 Jul 2026 18:04:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=84.242.69.186
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8D23F3CAA53
+	for <linux-input@vger.kernel.org>; Tue, 14 Jul 2026 18:10:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784052284; cv=none; b=J95lLfDTEyjER69xlrgU6NOKme6kR1rWS2Um4zQ24mvuMgh/qztJCyum88Mm2TWOk/exb8d+d5pJBt+LcH5BBdixeu541kA6a/uyHyxE8q/0bSmT+4xVGZ/LyQ90z6JHbdz/yBM+m3+oG+dE38TuKcmoF6n5FAFLqV1ePDyfoBw=
+	t=1784052629; cv=none; b=Yw2/hnQAhMBgejEJDMLIfEfy6PtPS/0+PU/hgkK0rHnUtPI7yIWLvo1efUeSQy3Vo9rlXfyT4jmYX0oowvI+CnT7KcK5osIIqUvwYZQGrGTg86Rfy6ffeaFpOVd+YDOnSLQsNU8EWNJN76Ny2lgsjMXw2g6bBkRNw3bJsFS+DV4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784052284; c=relaxed/simple;
-	bh=JeB7hZ5wsNk4Pc1WDbNXKRPkUWweCWFHX7b+kUAM+bw=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=jdUhKlrgnsQS5mxpr21fuAngDibNh4+ENMHC1smVg4QFrdJTIWGdWz2rmLOKHyy0dt055uHuNz/B8Ri8AWJYD6Uq+hODmdNYpbpeTRHKBZF1UyG0idgu4qzCfYgd/cS/DeL9L11pMChMc8F2e8VUoVvWNourQ4IV9wqt1dMfRVs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=mcld.eu; spf=pass smtp.mailfrom=mcld.eu; dkim=permerror (0-bit key) header.d=mcld.eu header.i=@mcld.eu header.b=Dz/Tcm/E; dkim=pass (2048-bit key) header.d=mcld.eu header.i=@mcld.eu header.b=U6kzD3AF; arc=none smtp.client-ip=84.242.69.186
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=mcld.eu
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mcld.eu
+	s=arc-20240116; t=1784052629; c=relaxed/simple;
+	bh=HaKfpSXEqyGWvFL3QGomiTfqVC54N2/13cbGLF7MpCI=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=c8HqziMeXxibg/FcJ8geaX8VQbHOQ9FZCp5aTeDlTAvljrGFjedNWjKhGPRfWU9K+jTeq+2MlUe+dC+lZ4x3+4l13oggNy2kxdiBj23E5zT8ePXQUxGwbP+73yqVj8kJkFKgoo4G+g51h83IBP4jdjeOio2cjD7+oUBitAHBijI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=iIYuFav+; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=permerror (0-bit key) header.d=mcld.eu header.i=@mcld.eu header.b="Dz/Tcm/E";
-	dkim=pass (2048-bit key) header.d=mcld.eu header.i=@mcld.eu header.b="U6kzD3AF"
-DKIM-Signature: v=1; a=ed25519-sha256; s=202501e; d=mcld.eu; c=relaxed/relaxed; r=y;
-	h=Message-ID:Date:Subject:To:From; t=1784052270; bh=wbR9tzxT2unaUzA8ZIS03fH
-	EwQ75mYxjEEbi+5Cqxzk=; b=Dz/Tcm/EnbKsMQdJCD/suL4UKGE3W1InNBbx0hPhX+DndLMDnb
-	vhg6crQzzcra1qqNPj2VuJU6CDyXL3L9NqDA==;
-DKIM-Signature: v=1; a=rsa-sha256; s=202501r; d=mcld.eu; c=relaxed/relaxed; r=y;
-	h=Message-ID:Date:Subject:To:From; t=1784052270; bh=wbR9tzxT2unaUzA8ZIS03fH
-	EwQ75mYxjEEbi+5Cqxzk=; b=U6kzD3AFO9l71EXqq10fGNIhRLWWzakv08HKlyfC0esUxaUGeE
-	GuK5XQZ5jXdjh3ygodph1XfSyCoEnORvwQ6hj1uA5AwYD84eG/q3WHl6Exmc2sTjqu65sOiuVUG
-	iLE4nTvKBxFyQi0mEo51LDzNXzGpE/FGSSdwPH2yntMraGB0aJs8GG6z/9iPIHOP4Wobl6DmDdO
-	aspyilz3WCEnLeMON7IJc0UwhhkEDtn6oCpJv0L/QLy1AAwFgNCft0haNlLuPr0bqkWcDTal1W2
-	mWi0gqekeWgcUB4fVNHFPnVNpj1kq+20maJWUq/2TGMmULWyc8BYUeibR/lhoUASTrw==;
-From: =?UTF-8?q?Kate=C5=99ina=20Medv=C4=9Bdov=C3=A1?= <k8ie@mcld.eu>
-To: Roderick Colenbrander <roderick.colenbrander@sony.com>
-Cc: =?UTF-8?q?Kate=C5=99ina=20Medv=C4=9Bdov=C3=A1?= <k8ie@mcld.eu>,
-	Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH] HID: playstation: Support DualSense player LED brightness control
-Date: Tue, 14 Jul 2026 20:04:23 +0200
-Message-ID: <20260714180424.70662-1-k8ie@mcld.eu>
-X-Mailer: git-send-email 2.55.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="iIYuFav+"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 064C61F000E9;
+	Tue, 14 Jul 2026 18:10:27 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1784052628;
+	bh=1L+fScMGtUn1S8EhTfBNO9FQSY+ShLYxe54LN8Kyj4M=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=iIYuFav+VuJr1W5G8S+hdVNGTgey4Hgo54XUFKidz67Chxi1t0Memv4CZ56erMc4+
+	 FiJuk3AQmc/he2Pe9xVz1TrdCfxiNXcfLJYN4S0zOOSAJkESjhSf717M23534bSvyv
+	 o5DeRyUDurU+6c7q/vVgiVf2xDdo927viShewzsjVQT2tgPb7Wvxj+XeY40XhPOdgm
+	 eo4/YqfPiGuoRaTHfVPHMxQGD1WHeSss5njsnfHWA6E3SMsjQv44didn/9AzNhAgXj
+	 P3mKpfZja8zOHXhtza/cYzjKi4jF/cFqNp+8i6uL1/b5+Z76pGN+8PpP6yqRxQnCHm
+	 H4un22UnUQjRw==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v2] HID: uclogic: fix use-after-free of inrange_timer on
+ remove
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Ibrahim Hashimov" <security@auditcode.ai>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <20260714173946.73773-1-security@auditcode.ai>
+References: <20260713121042.2321-1-security@auditcode.ai>
+ <20260714173946.73773-1-security@auditcode.ai>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Tue, 14 Jul 2026 18:10:27 +0000
+Message-Id: <20260714181028.064C61F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
 
-The DualSense's 5 player indicator LEDs are currently only exposed as
-plain on/off LED classdevs (max_brightness = 1). The controller
-firmware also supports a global brightness level (high/medium/low)
-for whichever player LEDs are currently lit. The driver already
-defines the brightness byte but never uses it
-(dualsense_output_report_common::led_brightness).
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+s) to consider:
 
-This patch wires up the controls for the brightness byte, allowing
-the player indicator brightness to be adjusted.
+Pre-existing issues:
+- [High] Multiple HID drivers suffer from race conditions during device rem=
+oval due to incorrect or missing timer teardown.
+- [High] In `hid-sony.c`, `sony_remove()` fails to synchronously kill the `=
+ghl_urb` before freeing it, leading to a Use-After-Free in the URB callback.
+--
 
-Increase max_brightness of each player's LED classdev from 1 to 3.
+--- Patch [1]: [PATCH v2] HID: uclogic: fix use-after-free of inrange_timer=
+ on remove ---
+commit b8f98aaaf048d9d412a83d45b98e8c080f6ef05c
+Author: Ibrahim Hashimov <security@auditcode.ai>
 
-brightness = 0 still turns an LED off, writing brightness = 1..3
-turns the LED on and applies the brightness to all lit player LEDs.
-This is a hardware limitation and the driver reflects that by
-keeping the sysfs brightness of player LEDs in sync. The last
-brightness write wins.
+HID: uclogic: fix use-after-free of inrange_timer on remove
 
-The firmware encoding is inverted (lower is brighter), so map LED
-core brightness values to the device-specific encoding before
-sending reports.
+uclogic_remove() cancels the pen in-range timer and then stops the
+device. A report landing between the timer_delete_sync() call and the trans=
+port
+teardown in hid_hw_stop() re-arms inrange_timer after it was cancelled.
 
-Also set DS_OUTPUT_VALID_FLAG2_LED_BRIGHTNESS_CONTROL_ENABLE
-whenever player LED state is updated so firmware applies the
-brightness byte.
+> diff --git a/drivers/hid/hid-uclogic-core.c b/drivers/hid/hid-uclogic-cor=
+e.c
+> index b73f09d26688a..0b8a83fa6c5be 100644
+> --- a/drivers/hid/hid-uclogic-core.c
+> +++ b/drivers/hid/hid-uclogic-core.c
+> @@ -548,7 +548,17 @@ static void uclogic_remove(struct hid_device *hdev)
+>  {
+>  	struct uclogic_drvdata *drvdata =3D hid_get_drvdata(hdev);
+> =20
+> -	timer_delete_sync(&drvdata->inrange_timer);
+> +	/*
+> +	 * Shut the in-range timer down before stopping the device.
+> +	 * uclogic_raw_event_pen() re-arms inrange_timer on every pen report
+> +	 * and keeps running until hid_hw_stop() stops the transport, so a
+> +	 * plain timer_delete_sync() here can be undone by a report landing in
+> +	 * the window before hid_hw_stop().  timer_shutdown_sync() cancels the
+> +	 * timer and makes any later re-arm a no-op, so it is provably dead
+> +	 * before hid_hw_stop() frees the input device drvdata->pen_input
+> +	 * points at.
+> +	 */
+> +	timer_shutdown_sync(&drvdata->inrange_timer);
+>  	hid_hw_stop(hdev);
 
-Existing userspace that writes brightness=1 as a simple "on" value
-continues to work, but LEDs will now be lit at the lowest brightness
-instead of the highest brightness.
+[Severity: High]
+This isn't a bug introduced by this patch, but while reviewing this
+fix for the teardown race in uclogic, I noticed multiple other HID drivers
+suffer from similar pre-existing race conditions during device removal.
 
-Tested on a DualSense controller (product ID 0x0ce6) using Bluetooth
-and USB.
+For instance, drivers/hid/hid-letsketch.c lacks a .remove callback entirely
+in letsketch_driver:
 
-Assisted-by: OpenCode:claude-sonnet-5
-Signed-off-by: Kateřina Medvědová <k8ie@mcld.eu>
----
-First-time contributing a patch.
----
- drivers/hid/hid-playstation.c | 48 +++++++++++++++++++++++++++++------
- 1 file changed, 40 insertions(+), 8 deletions(-)
+static struct hid_driver letsketch_driver =3D {
+	.name =3D "letsketch",
+	.id_table =3D letsketch_devices,
+	.probe =3D letsketch_probe,
+	.raw_event =3D letsketch_raw_event,
+};
 
-diff --git a/drivers/hid/hid-playstation.c b/drivers/hid/hid-playstation.c
-index f9dc9378cf77..78e43a176248 100644
---- a/drivers/hid/hid-playstation.c
-+++ b/drivers/hid/hid-playstation.c
-@@ -164,11 +164,20 @@ struct ps_led_info {
- #define DS_OUTPUT_VALID_FLAG1_AUDIO_CONTROL2_ENABLE		BIT(7)
- #define DS_OUTPUT_VALID_FLAG2_LIGHTBAR_SETUP_CONTROL_ENABLE	BIT(1)
- #define DS_OUTPUT_VALID_FLAG2_COMPATIBLE_VIBRATION2		BIT(2)
-+#define DS_OUTPUT_VALID_FLAG2_LED_BRIGHTNESS_CONTROL_ENABLE	BIT(0)
- #define DS_OUTPUT_AUDIO_FLAGS_OUTPUT_PATH_SEL			GENMASK(5, 4)
- #define DS_OUTPUT_AUDIO_FLAGS2_SP_PREAMP_GAIN			GENMASK(2, 0)
- #define DS_OUTPUT_POWER_SAVE_CONTROL_MIC_MUTE			BIT(4)
- #define DS_OUTPUT_LIGHTBAR_SETUP_LIGHT_OUT			BIT(1)
- 
-+/*
-+ * Player LED brightness levels. Lower values are brighter; this is inverted
-+ * from the LED subsystem's convention where higher values mean brighter.
-+ */
-+#define DS_OUTPUT_PLAYER_LED_BRIGHTNESS_HIGH			0
-+#define DS_OUTPUT_PLAYER_LED_BRIGHTNESS_MEDIUM			1
-+#define DS_OUTPUT_PLAYER_LED_BRIGHTNESS_LOW			2
-+
- /* DualSense hardware limits */
- #define DS_ACC_RES_PER_G	8192
- #define DS_ACC_RANGE		(4 * DS_ACC_RES_PER_G)
-@@ -225,6 +234,7 @@ struct dualsense {
- 	/* Player leds */
- 	bool update_player_leds;
- 	u8 player_leds_state;
-+	u8 player_leds_brightness;
- 	struct led_classdev player_leds[5];
- 
- 	struct work_struct output_worker;
-@@ -1219,12 +1229,22 @@ static int dualsense_lightbar_set_brightness(struct led_classdev *cdev,
- 	return 0;
- }
- 
-+/*
-+ * The DualSense's player LEDs only support a single, shared brightness level
-+ * for all lit LEDs -- there is no per-LED brightness control. We still expose
-+ * per-LED on/off state plus 3 brightness levels through each LED classdev's
-+ * max_brightness of 3; the last value written by any player LED classdev sets
-+ * the shared level for all of them.
-+ */
- static enum led_brightness dualsense_player_led_get_brightness(struct led_classdev *led)
- {
- 	struct hid_device *hdev = to_hid_device(led->dev->parent);
- 	struct dualsense *ds = hid_get_drvdata(hdev);
- 
--	return !!(ds->player_leds_state & BIT(led - ds->player_leds));
-+	if (!(ds->player_leds_state & BIT(led - ds->player_leds)))
-+		return LED_OFF;
-+
-+	return DS_OUTPUT_PLAYER_LED_BRIGHTNESS_LOW + 1 - ds->player_leds_brightness;
- }
- 
- static int dualsense_player_led_set_brightness(struct led_classdev *led, enum led_brightness value)
-@@ -1235,10 +1255,18 @@ static int dualsense_player_led_set_brightness(struct led_classdev *led, enum le
- 
- 	scoped_guard(spinlock_irqsave, &ds->base.lock) {
- 		led_index = led - ds->player_leds;
--		if (value == LED_OFF)
-+		if (value == LED_OFF) {
- 			ds->player_leds_state &= ~BIT(led_index);
--		else
-+		} else {
- 			ds->player_leds_state |= BIT(led_index);
-+			/* Convert Linux brightness (1=dimmest) to firmware
-+			 * scale (0=brightest), clamping to the valid range.
-+			 */
-+			value = clamp_t(enum led_brightness, value, 1,
-+					 DS_OUTPUT_PLAYER_LED_BRIGHTNESS_LOW + 1);
-+			ds->player_leds_brightness =
-+				DS_OUTPUT_PLAYER_LED_BRIGHTNESS_LOW + 1 - value;
-+		}
- 
- 		ds->update_player_leds = true;
- 	}
-@@ -1355,6 +1383,10 @@ static void dualsense_output_worker(struct work_struct *work)
- 				DS_OUTPUT_VALID_FLAG1_PLAYER_INDICATOR_CONTROL_ENABLE;
- 			common->player_leds = ds->player_leds_state;
- 
-+			common->valid_flag2 |=
-+				DS_OUTPUT_VALID_FLAG2_LED_BRIGHTNESS_CONTROL_ENABLE;
-+			common->led_brightness = ds->player_leds_brightness;
-+
- 			ds->update_player_leds = false;
- 		}
- 
-@@ -1742,15 +1774,15 @@ static struct ps_device *dualsense_create(struct hid_device *hdev)
- 	int i, ret;
- 
- 	static const struct ps_led_info player_leds_info[] = {
--		{ LED_FUNCTION_PLAYER1, "white", 1, dualsense_player_led_get_brightness,
-+		{ LED_FUNCTION_PLAYER1, "white", 3, dualsense_player_led_get_brightness,
- 				dualsense_player_led_set_brightness },
--		{ LED_FUNCTION_PLAYER2, "white", 1, dualsense_player_led_get_brightness,
-+		{ LED_FUNCTION_PLAYER2, "white", 3, dualsense_player_led_get_brightness,
- 				dualsense_player_led_set_brightness },
--		{ LED_FUNCTION_PLAYER3, "white", 1, dualsense_player_led_get_brightness,
-+		{ LED_FUNCTION_PLAYER3, "white", 3, dualsense_player_led_get_brightness,
- 				dualsense_player_led_set_brightness },
--		{ LED_FUNCTION_PLAYER4, "white", 1, dualsense_player_led_get_brightness,
-+		{ LED_FUNCTION_PLAYER4, "white", 3, dualsense_player_led_get_brightness,
- 				dualsense_player_led_set_brightness },
--		{ LED_FUNCTION_PLAYER5, "white", 1, dualsense_player_led_get_brightness,
-+		{ LED_FUNCTION_PLAYER5, "white", 3, dualsense_player_led_get_brightness,
- 				dualsense_player_led_set_brightness }
- 	};
- 
--- 
-2.55.0
+This means the inrange_timer is never explicitly canceled and can outlive
+the driver's devres cleanup.
 
+In drivers/hid/hid-multitouch.c mt_remove() and drivers/hid/hid-prodikeys.c
+pk_remove(), the code calls timer_delete_sync() before hid_hw_stop(), leavi=
+ng
+the exact same window where incoming reports can re-arm the timer.
+
+Additionally, in drivers/hid/hid-appleir.c appleir_remove() calls
+hid_hw_stop() before timer_delete_sync(). Because hid_hw_stop() frees the
+hid-input device, this can cause a use-after-free if the timer fires in this
+window.
+
+Would it make sense to apply this same timer_shutdown_sync() pattern and
+add the missing remove callbacks to these other HID drivers as well?
+
+[Severity: High]
+This is also a pre-existing issue, but while looking at these removal paths,
+I spotted another teardown race in drivers/hid/hid-sony.c during sony_remov=
+e().
+
+The cleanup sequence is:
+
+    timer_delete_sync(&sc->ghl_poke_timer);
+    usb_free_urb(sc->ghl_urb);
+
+If ghl_poke_timer fires right before it is canceled, it submits ghl_urb.
+The usb_free_urb() call only decrements the reference count; it does not
+cancel an in-flight transfer.
+
+When the URB later completes, ghl_magic_poke_cb() will dereference the
+freed sc pointer to re-arm the timer, leading to a use-after-free.
+
+Should this code be using usb_kill_urb() prior to freeing the URB to
+ensure any in-flight transfers are synchronously terminated?
+
+>  	kfree(drvdata->desc_ptr);
+>  	uclogic_params_cleanup(&drvdata->params);
+>  }
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260714173946.7377=
+3-1-security@auditcode.ai?part=3D1

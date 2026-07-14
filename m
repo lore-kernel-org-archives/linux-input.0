@@ -1,44 +1,43 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8D23F3CAA53
-	for <linux-input@vger.kernel.org>; Tue, 14 Jul 2026 18:10:28 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BAE124156C1
+	for <linux-input@vger.kernel.org>; Tue, 14 Jul 2026 18:25:20 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784052629; cv=none; b=Yw2/hnQAhMBgejEJDMLIfEfy6PtPS/0+PU/hgkK0rHnUtPI7yIWLvo1efUeSQy3Vo9rlXfyT4jmYX0oowvI+CnT7KcK5osIIqUvwYZQGrGTg86Rfy6ffeaFpOVd+YDOnSLQsNU8EWNJN76Ny2lgsjMXw2g6bBkRNw3bJsFS+DV4=
+	t=1784053523; cv=none; b=GAte68+ddVRRspuqpqLH9GuxTD/cz0q7tspXI+JT+TrkDfGsdfVNRk+wtjWGMVD5cRX5ATho/glC+orquGiXC0h3jLrb8ffE5CB1YJPkXrCxY9JotWyphjhJF+TOFL2rs6MsF3Lj4ecvf/Taj8QWUIuAff/jEjovzU2g0PRDyOg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784052629; c=relaxed/simple;
-	bh=HaKfpSXEqyGWvFL3QGomiTfqVC54N2/13cbGLF7MpCI=;
+	s=arc-20240116; t=1784053523; c=relaxed/simple;
+	bh=WgCH+opq6Xq25nY+URV4io6g+UFhdXQCEponUt9Ywio=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=c8HqziMeXxibg/FcJ8geaX8VQbHOQ9FZCp5aTeDlTAvljrGFjedNWjKhGPRfWU9K+jTeq+2MlUe+dC+lZ4x3+4l13oggNy2kxdiBj23E5zT8ePXQUxGwbP+73yqVj8kJkFKgoo4G+g51h83IBP4jdjeOio2cjD7+oUBitAHBijI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=iIYuFav+; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=R8g57tzT9rAdH8/bHfZ1+ER8XVbxORRq9TDHiO9TqVwLMDZ4IsNWx9S6p52Te5BuADLA9DcxJU7WMhoLYyLaQHiGbVsM5CVgF2cZC7J5Hp5A0DQ+QxjgN/RTosj1uMjOWXrkuIMW7cdu5HmMah4PRWSbLdgZ7Qg5KLxKu4Z1zeE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=NMgXfWvV; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="iIYuFav+"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 064C61F000E9;
-	Tue, 14 Jul 2026 18:10:27 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="NMgXfWvV"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4CD8F1F000E9;
+	Tue, 14 Jul 2026 18:25:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784052628;
-	bh=1L+fScMGtUn1S8EhTfBNO9FQSY+ShLYxe54LN8Kyj4M=;
+	s=k20260515; t=1784053519;
+	bh=U5CsPLZpoxZG1okmID2k977BS5J1IAmVUx2vASeT9AM=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=iIYuFav+VuJr1W5G8S+hdVNGTgey4Hgo54XUFKidz67Chxi1t0Memv4CZ56erMc4+
-	 FiJuk3AQmc/he2Pe9xVz1TrdCfxiNXcfLJYN4S0zOOSAJkESjhSf717M23534bSvyv
-	 o5DeRyUDurU+6c7q/vVgiVf2xDdo927viShewzsjVQT2tgPb7Wvxj+XeY40XhPOdgm
-	 eo4/YqfPiGuoRaTHfVPHMxQGD1WHeSss5njsnfHWA6E3SMsjQv44didn/9AzNhAgXj
-	 P3mKpfZja8zOHXhtza/cYzjKi4jF/cFqNp+8i6uL1/b5+Z76pGN+8PpP6yqRxQnCHm
-	 H4un22UnUQjRw==
+	b=NMgXfWvV4VTY1mnvTDJ08hWQlq2qgRqCReEZsTL5uJ5mDAWFkmM/X2xqXqGWg/HAS
+	 fXfNuBaorbw9cMicnPiRkuwoMVdUgUyLXbn60G2191g08T8rbjkB/BHm+D7YP+6djF
+	 HGf3vf/nfwhNUsexReqhsd4EaC3+REHsOZGflbs0R9RBDcghXN/oNWpzEx/Hp4+yyG
+	 DybTDnk247f60OzP63RgBcEh94MNS/cdT/V1xoIvnpSSWxlbvxzAUA2Pu5l85uhpUM
+	 tPtZ483LbcoX4b6XAHHJETyUNbyZFImCZ0GlhFmTpZEp2Smgl4Swt12LvKNfm6VxxJ
+	 mD0DM7Vy/ft2A==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2] HID: uclogic: fix use-after-free of inrange_timer on
- remove
+Subject: Re: [PATCH] HID: playstation: Support DualSense player LED
+ brightness control
 Reply-To: sashiko-reviews@lists.linux.dev
-To: "Ibrahim Hashimov" <security@auditcode.ai>
+To: =?utf-8?b?S2F0ZcWZaW5hIE1lZHbEm2RvdsOh?= <k8ie@mcld.eu>
 Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260714173946.73773-1-security@auditcode.ai>
-References: <20260713121042.2321-1-security@auditcode.ai>
- <20260714173946.73773-1-security@auditcode.ai>
+In-Reply-To: <20260714180424.70662-1-k8ie@mcld.eu>
+References: <20260714180424.70662-1-k8ie@mcld.eu>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 14 Jul 2026 18:10:27 +0000
-Message-Id: <20260714181028.064C61F000E9@smtp.kernel.org>
+Date: Tue, 14 Jul 2026 18:25:18 +0000
+Message-Id: <20260714182519.4CD8F1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -48,103 +47,131 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 Thank you for your contribution! Sashiko AI review found 2 potential issue(=
 s) to consider:
 
+New issues:
+- [Medium] Multi-variable data race on `ds->player_leds_state` and `ds->pla=
+yer_leds_brightness` in `dualsense_player_led_get_brightness()`.
+
 Pre-existing issues:
-- [High] Multiple HID drivers suffer from race conditions during device rem=
-oval due to incorrect or missing timer teardown.
-- [High] In `hid-sony.c`, `sony_remove()` fails to synchronously kill the `=
-ghl_urb` before freeing it, leading to a Use-After-Free in the URB callback.
+- [High] Missing workqueue cancellation in the `dualsense_create()` and `du=
+alshock4_create()` error paths causes a use-after-free if probe fails.
 --
 
---- Patch [1]: [PATCH v2] HID: uclogic: fix use-after-free of inrange_timer=
- on remove ---
-commit b8f98aaaf048d9d412a83d45b98e8c080f6ef05c
-Author: Ibrahim Hashimov <security@auditcode.ai>
+--- Patch [1]: [PATCH] HID: playstation: Support DualSense player LED brigh=
+tness control ---
+commit 9dd8a497081a6ac6ae8e211e738b3ef23a0669be
+Author: Kate=C5=99ina Medv=C4=9Bdov=C3=A1 <k8ie@mcld.eu>
 
-HID: uclogic: fix use-after-free of inrange_timer on remove
+    HID: playstation: Support DualSense player LED brightness control
 
-uclogic_remove() cancels the pen in-range timer and then stops the
-device. A report landing between the timer_delete_sync() call and the trans=
-port
-teardown in hid_hw_stop() re-arms inrange_timer after it was cancelled.
+This patch wires up the controls for the brightness byte, allowing
+the player indicator brightness to be adjusted. It increases the
+max_brightness of each player's LED classdev from 1 to 3, and correctly
+updates the firmware encoding.
 
-> diff --git a/drivers/hid/hid-uclogic-core.c b/drivers/hid/hid-uclogic-cor=
-e.c
-> index b73f09d26688a..0b8a83fa6c5be 100644
-> --- a/drivers/hid/hid-uclogic-core.c
-> +++ b/drivers/hid/hid-uclogic-core.c
-> @@ -548,7 +548,17 @@ static void uclogic_remove(struct hid_device *hdev)
->  {
->  	struct uclogic_drvdata *drvdata =3D hid_get_drvdata(hdev);
-> =20
-> -	timer_delete_sync(&drvdata->inrange_timer);
-> +	/*
-> +	 * Shut the in-range timer down before stopping the device.
-> +	 * uclogic_raw_event_pen() re-arms inrange_timer on every pen report
-> +	 * and keeps running until hid_hw_stop() stops the transport, so a
-> +	 * plain timer_delete_sync() here can be undone by a report landing in
-> +	 * the window before hid_hw_stop().  timer_shutdown_sync() cancels the
-> +	 * timer and makes any later re-arm a no-op, so it is provably dead
-> +	 * before hid_hw_stop() frees the input device drvdata->pen_input
-> +	 * points at.
-> +	 */
-> +	timer_shutdown_sync(&drvdata->inrange_timer);
->  	hid_hw_stop(hdev);
-
-[Severity: High]
-This isn't a bug introduced by this patch, but while reviewing this
-fix for the teardown race in uclogic, I noticed multiple other HID drivers
-suffer from similar pre-existing race conditions during device removal.
-
-For instance, drivers/hid/hid-letsketch.c lacks a .remove callback entirely
-in letsketch_driver:
-
-static struct hid_driver letsketch_driver =3D {
-	.name =3D "letsketch",
-	.id_table =3D letsketch_devices,
-	.probe =3D letsketch_probe,
-	.raw_event =3D letsketch_raw_event,
-};
-
-This means the inrange_timer is never explicitly canceled and can outlive
-the driver's devres cleanup.
-
-In drivers/hid/hid-multitouch.c mt_remove() and drivers/hid/hid-prodikeys.c
-pk_remove(), the code calls timer_delete_sync() before hid_hw_stop(), leavi=
-ng
-the exact same window where incoming reports can re-arm the timer.
-
-Additionally, in drivers/hid/hid-appleir.c appleir_remove() calls
-hid_hw_stop() before timer_delete_sync(). Because hid_hw_stop() frees the
-hid-input device, this can cause a use-after-free if the timer fires in this
-window.
-
-Would it make sense to apply this same timer_shutdown_sync() pattern and
-add the missing remove callbacks to these other HID drivers as well?
-
-[Severity: High]
-This is also a pre-existing issue, but while looking at these removal paths,
-I spotted another teardown race in drivers/hid/hid-sony.c during sony_remov=
-e().
-
-The cleanup sequence is:
-
-    timer_delete_sync(&sc->ghl_poke_timer);
-    usb_free_urb(sc->ghl_urb);
-
-If ghl_poke_timer fires right before it is canceled, it submits ghl_urb.
-The usb_free_urb() call only decrements the reference count; it does not
-cancel an in-flight transfer.
-
-When the URB later completes, ghl_magic_poke_cb() will dereference the
-freed sc pointer to re-arm the timer, leading to a use-after-free.
-
-Should this code be using usb_kill_urb() prior to freeing the URB to
-ensure any in-flight transfers are synchronously terminated?
-
->  	kfree(drvdata->desc_ptr);
->  	uclogic_params_cleanup(&drvdata->params);
+> diff --git a/drivers/hid/hid-playstation.c b/drivers/hid/hid-playstation.c
+> index f9dc9378cf777..78e43a176248a 100644
+> --- a/drivers/hid/hid-playstation.c
+> +++ b/drivers/hid/hid-playstation.c
+[ ... ]
+> @@ -1219,12 +1229,22 @@ static int dualsense_lightbar_set_brightness(stru=
+ct led_classdev *cdev,
+>  	return 0;
 >  }
+> =20
+> +/*
+> + * The DualSense's player LEDs only support a single, shared brightness =
+level
+> + * for all lit LEDs -- there is no per-LED brightness control. We still =
+expose
+> + * per-LED on/off state plus 3 brightness levels through each LED classd=
+ev's
+> + * max_brightness of 3; the last value written by any player LED classde=
+v sets
+> + * the shared level for all of them.
+> + */
+>  static enum led_brightness dualsense_player_led_get_brightness(struct le=
+d_classdev *led)
+>  {
+>  	struct hid_device *hdev =3D to_hid_device(led->dev->parent);
+>  	struct dualsense *ds =3D hid_get_drvdata(hdev);
+> =20
+> -	return !!(ds->player_leds_state & BIT(led - ds->player_leds));
+> +	if (!(ds->player_leds_state & BIT(led - ds->player_leds)))
+> +		return LED_OFF;
+> +
+> +	return DS_OUTPUT_PLAYER_LED_BRIGHTNESS_LOW + 1 - ds->player_leds_bright=
+ness;
+
+[Severity: Medium]
+Could this lockless read result in a multi-variable data race?
+
+In dualsense_player_led_set_brightness(), ds->player_leds_state and
+ds->player_leds_brightness are updated together under ds->base.lock.
+If dualsense_player_led_get_brightness() reads them without the lock,
+a concurrent read could observe the updated state but the old
+brightness (or vice-versa due to compiler or CPU reordering), returning
+an inconsistent value to userspace.
+
+>  }
+> =20
+>  static int dualsense_player_led_set_brightness(struct led_classdev *led,=
+ enum led_brightness value)
+[ ... ]
+> @@ -1742,15 +1774,15 @@ static struct ps_device *dualsense_create(struct =
+hid_device *hdev)
+>  	int i, ret;
+> =20
+>  	static const struct ps_led_info player_leds_info[] =3D {
+> -		{ LED_FUNCTION_PLAYER1, "white", 1, dualsense_player_led_get_brightnes=
+s,
+> +		{ LED_FUNCTION_PLAYER1, "white", 3, dualsense_player_led_get_brightnes=
+s,
+>  				dualsense_player_led_set_brightness },
+[ ... ]
+> -		{ LED_FUNCTION_PLAYER5, "white", 1, dualsense_player_led_get_brightnes=
+s,
+> +		{ LED_FUNCTION_PLAYER5, "white", 3, dualsense_player_led_get_brightnes=
+s,
+>  				dualsense_player_led_set_brightness }
+>  	};
+> =20
+
+[Severity: High]
+This is a pre-existing issue, but missing workqueue cancellation in the
+dualsense_create() and dualshock4_create() error paths could cause a
+use-after-free if probe fails.
+
+During probe, dualsense_set_lightbar() is called to set the initial lightbar
+color, which implicitly schedules ds->output_worker:
+
+drivers/hid/hid-playstation.c:dualsense_create() {
+    ...
+	dualsense_set_lightbar(ds, 0, 0, 128); /* blue */
+
+	for (i =3D 0; i < ARRAY_SIZE(player_leds_info); i++) {
+		const struct ps_led_info *led_info =3D &player_leds_info[i];
+
+		ret =3D ps_led_register(ps_dev, &ds->player_leds[i], led_info);
+		if (ret < 0)
+			goto err;
+	}
+    ...
+}
+
+If a subsequent initialization step fails, the error path returns and allows
+devres to free the allocated ds struct:
+
+err:
+	ps_devices_list_remove(ps_dev);
+	return ERR_PTR(ret);
+}
+
+Because the worker is not cancelled, it remains in the system workqueue and
+will dereference the freed ds pointer when it executes. Does the error path
+need an explicit cancel_work_sync(&ds->output_worker) to prevent this? The
+exact same vulnerability exists in dualshock4_create() due to
+dualshock4_set_bt_poll_interval().
 
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260714173946.7377=
-3-1-security@auditcode.ai?part=3D1
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260714180424.7066=
+2-1-k8ie@mcld.eu?part=3D1

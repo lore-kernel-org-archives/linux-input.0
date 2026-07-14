@@ -1,221 +1,204 @@
-Received: from mail.mcld.eu (mail.mcld.eu [84.242.69.186])
+Received: from out-176.mta1.migadu.com (out-176.mta1.migadu.com [95.215.58.176])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 35C4B41A91B;
-	Tue, 14 Jul 2026 18:42:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=84.242.69.186
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CE986377AAD
+	for <linux-input@vger.kernel.org>; Tue, 14 Jul 2026 18:50:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.176
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784054565; cv=none; b=AvRK3G6msrO7+h/sMkADNRqZB0MDlsvpUtvxXrLxjSqW9Am4K1BM0yGwNOQciQ2bOub/3AyHKng+QK0fqxewSKRRRfQS4TuLFLEKtA/3UZjaKvQG6PbpoMgzTDibwsGemO0OFCFamLWnWxIfwVGw2l0nj4P61jrDN8M/Z6y4sLA=
+	t=1784055032; cv=none; b=bWV54kNZimK7/yK1OfwRiq7mH2DM7ebupIZ/3ncdktMlMlMOHjBG/GgkJv4RTyFfxMFBMI2AxQLD+J5Ubv7jovt/qfbWEqIz60xCaPFQdVN/SbLEO+ZSwWrty4Np7myTVt5KmFCDNgjxolj06jM5Rx48NrXqPQQH2bzgcKs56BI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784054565; c=relaxed/simple;
-	bh=BS+0VuagQgLQCmYYIxERCD3t6OSr5hWH6nYxg7O8J90=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=tDSR23ufqfFL3P7b/wxyuNR4DEBme3DyOFSU0wOElvH0vK3uf30OW0vTBcd5M8VpNkhZGOnWmXIgBFSAlHaXjbs/9qi29Yq/lj/UB5fB1TN1zTYWXC+RNAhZ3GnEu9WeCVnYk6XJKfARBtkiXtybWYPjIc6Z91RkioKX3P9n3VQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=mcld.eu; spf=pass smtp.mailfrom=mcld.eu; dkim=permerror (0-bit key) header.d=mcld.eu header.i=@mcld.eu header.b=qMyIauA3; dkim=pass (2048-bit key) header.d=mcld.eu header.i=@mcld.eu header.b=BSnyV9hp; arc=none smtp.client-ip=84.242.69.186
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=mcld.eu
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mcld.eu
+	s=arc-20240116; t=1784055032; c=relaxed/simple;
+	bh=8gV82+0UyXLzRqJEc8152IuhQOWP9zRMXTH7Xpqcnl4=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=e05kdsHZKFmp61mK+sF7/EKNx7AuIs1np+GvHlw04XEmed4Ersi5gdimgra8eLHA18bxZgIwJ5M4BwK8HAprIcHuOtEkxx0481YAvq7yta4MYCSYDf8K5GE4IZiSXuSkTOg+kOOys7H2nTRO4tnfaJxNTQRJHp9DWLM/2bmfX6g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=JQoc7Hng; arc=none smtp.client-ip=95.215.58.176
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=permerror (0-bit key) header.d=mcld.eu header.i=@mcld.eu header.b="qMyIauA3";
-	dkim=pass (2048-bit key) header.d=mcld.eu header.i=@mcld.eu header.b="BSnyV9hp"
-DKIM-Signature: v=1; a=ed25519-sha256; s=202501e; d=mcld.eu; c=relaxed/relaxed; r=y;
-	h=Message-ID:Date:Subject:To:From; t=1784054556; bh=tJTEtvcSkXmtP+QvUi1AyeR
-	lDignp3OXCcxbvUq4h9I=; b=qMyIauA3YmDnTaNuuPViynNmxf6mM5smFSxZwh6ieAxgUTIiTf
-	YMXD6V9MwVw8rTYbDKKDFqzhUogZRWIq+NCg==;
-DKIM-Signature: v=1; a=rsa-sha256; s=202501r; d=mcld.eu; c=relaxed/relaxed; r=y;
-	h=Message-ID:Date:Subject:To:From; t=1784054556; bh=tJTEtvcSkXmtP+QvUi1AyeR
-	lDignp3OXCcxbvUq4h9I=; b=BSnyV9hpmE3cB7aPTCVrD6hIT2GO/ldiCDR+0NvtUILYdrmwA7
-	a+y1oJq73gJISJ2IX06dDTJqO+JJyCNaJ9ZF2OmVjPGLcOcydrXJ9mw9SvLTdT3MSsLgsz0Aq7S
-	GWXgX+tN1qh5vKgTXyg8d6g1DJ5qzlS41y/wEmEjBFOFRgUflUCULQdI6mmSS7LF4wtfj7/x6HY
-	1tOhFYFzaRI4OQHOrF5g10kdpn9gFEwYObmLH7jg9OnTofx9lnDvjS2FlgMig9vjrWfKOLigWE4
-	DM7094fVCrBxcX4BaWH5rlbnd2bO+UbefDgK4BGbtUHWA3sqUbJCxTvjzSFm9am30cQ==;
-From: k8ie <k8ie@mcld.eu>
-To: Roderick Colenbrander <roderick.colenbrander@sony.com>
-Cc: =?UTF-8?q?Kate=C5=99ina=20Medv=C4=9Bdov=C3=A1?= <k8ie@mcld.eu>,
-	Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH v2] HID: playstation: Support DualSense player LED brightness control
-Date: Tue, 14 Jul 2026 20:42:20 +0200
-Message-ID: <20260714184225.84646-1-k8ie@mcld.eu>
-X-Mailer: git-send-email 2.55.0
-In-Reply-To: <20260714180424.70662-1-k8ie@mcld.eu>
-References: <20260714180424.70662-1-k8ie@mcld.eu>
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="JQoc7Hng"
+Message-ID: <13496da8-5a8b-41ef-8467-21fe8fc1b6d4@linux.dev>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+	t=1784055015;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=u8TXEVwUzCPMp5B4snUA8uisSOClNLly7wLIZE9Dkd4=;
+	b=JQoc7HngQg+B0RPYr1LfAM5p+YrsVIxkBvb52nFoP6iHi2Jx/YN0yqn7AFG6wfIySaC59L
+	5SBK8WEm06C8TZBsxyBsXJ3BFU7D/GyT4VmmuEArl9UrFjBQYDAGYx8oo+3kYjK4qngDU+
+	iPTb0C4Y5hql0GKxMTt2MN9P6lu6OLE=
+Date: Tue, 14 Jul 2026 11:49:51 -0700
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Subject: Re: [PATCH v2 4/6] tools/build: Allow versioning LLVM readelf
+To: James Clark <james.clark@linaro.org>
+Cc: linux-kernel@vger.kernel.org, llvm@lists.linux.dev,
+ linux-input@vger.kernel.org, linux-kselftest@vger.kernel.org,
+ bpf@vger.kernel.org, linux-perf-users@vger.kernel.org,
+ Nathan Chancellor <nathan@kernel.org>,
+ Nick Desaulniers <nick.desaulniers+lkml@gmail.com>,
+ Bill Wendling <morbo@google.com>, Justin Stitt <justinstitt@google.com>,
+ Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>,
+ Shuah Khan <shuah@kernel.org>, Peter Zijlstra <peterz@infradead.org>,
+ Ingo Molnar <mingo@redhat.com>, Arnaldo Carvalho de Melo <acme@kernel.org>,
+ Namhyung Kim <namhyung@kernel.org>, Mark Rutland <mark.rutland@arm.com>,
+ Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+ Jiri Olsa <jolsa@kernel.org>, Ian Rogers <irogers@google.com>,
+ Adrian Hunter <adrian.hunter@intel.com>, Andrii Nakryiko
+ <andrii@kernel.org>, Eduard Zingerman <eddyz87@gmail.com>,
+ Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>,
+ Martin KaFai Lau <martin.lau@linux.dev>,
+ Kumar Kartikeya Dwivedi <memxor@gmail.com>, Song Liu <song@kernel.org>,
+ Yonghong Song <yonghong.song@linux.dev>
+References: <20260518-james-perf-llvm-version-v2-0-f12cc4f031d8@linaro.org>
+ <20260518-james-perf-llvm-version-v2-4-f12cc4f031d8@linaro.org>
+ <c366293c-7bcd-4e28-b3c4-575203403489@linux.dev>
+ <a8d4ab9b-b2e3-407c-9898-1b9f7339f448@linaro.org>
+Content-Language: en-US
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+From: Ihor Solodrai <ihor.solodrai@linux.dev>
+In-Reply-To: <a8d4ab9b-b2e3-407c-9898-1b9f7339f448@linaro.org>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
+X-Migadu-Flow: FLOW_OUT
 
-From: Kateřina Medvědová <k8ie@mcld.eu>
+On 7/14/26 9:41 AM, James Clark wrote:
+> 
+> 
+> On 10/07/2026 23:29, Ihor Solodrai wrote:
+>> On 5/18/26 2:03 AM, James Clark wrote:
+>>> Documentation/kbuild/llvm.rst mentions that readelf is included in the
+>>> LLVM toolchain, but it's not currently included in this block.
+>>>
+>>> Add it so that LLVM=... options also apply to readelf. Users in tools/
+>>> were Perf which was hardcoding it, and another was the BPF makefile.
+>>> Both already include Makefile.include so convert them to use the new
+>>> variable.
+>>>
+>>> It also didn't have the cross compile prefix, so either readelf didn't
+>>> mind opening cross binaries, or it wasn't working for cross builds.
+>>
+>> I'm pretty sure it's the former. readelf/llvm-readelf are only used
+>> libbpf makefile to read ELF symbol tables, which should be arch-independent.
+>>
+>> We've been cross-compiling the kernel (and libbpf) on BPF CI for a
+>> long time. So the unprefixed readelf is already working, and adding
+> 
+> I think "working" isn't technically correct when you take into account the documented behavior of the versioned LLVM= option [1]. You would get one version of the toolchain used for some of the build and a different version used here. That's what caused the build failure in Perf that resulted in the tidyup, because they're not always compatible.
+> 
+> [1]: Documentation/kbuild/llvm.rst
+> 
+>> the $(CROSS_COMPILE) prefix only adds a new requirement.
+>>
+>> I don't think this change in tools/lib/bpf/Makefile is a good idea,
+>> we could potentially break some environments. Even though hardcoded
+>> readelf doesn't look nice.
+>>
+>>
+> 
+> IMO it's worth the risk for the cleanup, it also helps to stop propagating it with future copy pastes.
+> 
+> Do you think it's likely that someone has CROSS_COMPILE set but doesn't have that readelf installed? Installing gcc-aarch64-linux-gnu on Debian/Ubuntu gives you aarch64-linux-gnu-readelf, so it would have to be a unique setup to not have it.
 
-The DualSense's 5 player indicator LEDs are currently only exposed as
-plain on/off LED classdevs (max_brightness = 1). The controller
-firmware also supports a global brightness level (high/medium/low)
-for whichever player LEDs are currently lit. The driver already
-defines the brightness byte but never uses it
-(dualsense_output_report_common::led_brightness).
+Fair points.
 
-This patch wires up the controls for the brightness byte, allowing
-the player indicator brightness to be adjusted.
+Still, here readelf only enumerates symbol names from already-built
+objects to count them, so a version or arch mismatch shouldn't matter,
+and didn't so far.
 
-Increase max_brightness of each player's LED classdev from 1 to 3.
+> 
+> It sounds like maybe you want this bpf makefile to explicitly use 'HOSTREADELF', if you're really sure it never requires arch specific stuff? If we added that it would fit better with the rest of the cleanup. But I think 'READELF' is less confusing and take the risk of some build breakages.
 
-brightness = 0 still turns an LED off, writing brightness = 1..3
-turns the LED on and applies the brightness to all lit player LEDs.
-This is a hardware limitation and the driver reflects that by
-keeping the sysfs brightness of player LEDs in sync. The last
-brightness write wins.
+Yes, that's a good idea.
 
-The firmware encoding is inverted (lower is brighter), so map LED
-core brightness values to the device-specific encoding before
-sending reports.
+So maybe something like this in Makefile.include:
 
-Also set DS_OUTPUT_VALID_FLAG2_LED_BRIGHTNESS_CONTROL_ENABLE
-whenever player LED state is updated so firmware applies the
-brightness byte.
+  # if LLVM
+  $(call allow-override,HOSTREADELF,$(LLVM_PREFIX)llvm-readelf$(LLVM_SUFFIX))
+  # else
+  $(call allow-override,HOSTREADELF,readelf)
 
-Existing userspace that writes brightness=1 as a simple "on" value
-continues to work, but LEDs will now be lit at the lowest brightness
-instead of the highest brightness.
+and use $(HOSTREADELF) in tools/lib/bpf/Makefile.
 
-Tested on a DualSense controller (product ID 0x0ce6) using Bluetooth
-and USB.
+Thanks.
 
-Assisted-by: OpenCode:claude-sonnet-5
-Signed-off-by: Kateřina Medvědová <k8ie@mcld.eu>
----
-First-time contributing a patch.
-
-v1 -> v2: Fixed a data race flagged by the list's automated review bot:
-dualsense_player_led_get_brightness() read player_leds_state and
-player_leds_brightness without holding ds->base.lock, while the setter
-updates both fields together under that lock. Now takes the same lock
-in the getter.
-
-The bot also flagged a pre-existing missing cancel_work_sync() in the
-dualsense_create()/dualshock4_create() error paths. That is unrelated
-to this change (present before this patch) and is intentionally left
-unfixed.
----
- drivers/hid/hid-playstation.c | 50 +++++++++++++++++++++++++++++------
- 1 file changed, 42 insertions(+), 8 deletions(-)
-
-diff --git a/drivers/hid/hid-playstation.c b/drivers/hid/hid-playstation.c
-index f9dc9378cf77..58786117ec01 100644
---- a/drivers/hid/hid-playstation.c
-+++ b/drivers/hid/hid-playstation.c
-@@ -164,11 +164,20 @@ struct ps_led_info {
- #define DS_OUTPUT_VALID_FLAG1_AUDIO_CONTROL2_ENABLE		BIT(7)
- #define DS_OUTPUT_VALID_FLAG2_LIGHTBAR_SETUP_CONTROL_ENABLE	BIT(1)
- #define DS_OUTPUT_VALID_FLAG2_COMPATIBLE_VIBRATION2		BIT(2)
-+#define DS_OUTPUT_VALID_FLAG2_LED_BRIGHTNESS_CONTROL_ENABLE	BIT(0)
- #define DS_OUTPUT_AUDIO_FLAGS_OUTPUT_PATH_SEL			GENMASK(5, 4)
- #define DS_OUTPUT_AUDIO_FLAGS2_SP_PREAMP_GAIN			GENMASK(2, 0)
- #define DS_OUTPUT_POWER_SAVE_CONTROL_MIC_MUTE			BIT(4)
- #define DS_OUTPUT_LIGHTBAR_SETUP_LIGHT_OUT			BIT(1)
- 
-+/*
-+ * Player LED brightness levels. Lower values are brighter; this is inverted
-+ * from the LED subsystem's convention where higher values mean brighter.
-+ */
-+#define DS_OUTPUT_PLAYER_LED_BRIGHTNESS_HIGH			0
-+#define DS_OUTPUT_PLAYER_LED_BRIGHTNESS_MEDIUM			1
-+#define DS_OUTPUT_PLAYER_LED_BRIGHTNESS_LOW			2
-+
- /* DualSense hardware limits */
- #define DS_ACC_RES_PER_G	8192
- #define DS_ACC_RANGE		(4 * DS_ACC_RES_PER_G)
-@@ -225,6 +234,7 @@ struct dualsense {
- 	/* Player leds */
- 	bool update_player_leds;
- 	u8 player_leds_state;
-+	u8 player_leds_brightness;
- 	struct led_classdev player_leds[5];
- 
- 	struct work_struct output_worker;
-@@ -1219,12 +1229,24 @@ static int dualsense_lightbar_set_brightness(struct led_classdev *cdev,
- 	return 0;
- }
- 
-+/*
-+ * The DualSense's player LEDs only support a single, shared brightness level
-+ * for all lit LEDs -- there is no per-LED brightness control. We still expose
-+ * per-LED on/off state plus 3 brightness levels through each LED classdev's
-+ * max_brightness of 3; the last value written by any player LED classdev sets
-+ * the shared level for all of them.
-+ */
- static enum led_brightness dualsense_player_led_get_brightness(struct led_classdev *led)
- {
- 	struct hid_device *hdev = to_hid_device(led->dev->parent);
- 	struct dualsense *ds = hid_get_drvdata(hdev);
- 
--	return !!(ds->player_leds_state & BIT(led - ds->player_leds));
-+	guard(spinlock_irqsave)(&ds->base.lock);
-+
-+	if (!(ds->player_leds_state & BIT(led - ds->player_leds)))
-+		return LED_OFF;
-+
-+	return DS_OUTPUT_PLAYER_LED_BRIGHTNESS_LOW + 1 - ds->player_leds_brightness;
- }
- 
- static int dualsense_player_led_set_brightness(struct led_classdev *led, enum led_brightness value)
-@@ -1235,10 +1257,18 @@ static int dualsense_player_led_set_brightness(struct led_classdev *led, enum le
- 
- 	scoped_guard(spinlock_irqsave, &ds->base.lock) {
- 		led_index = led - ds->player_leds;
--		if (value == LED_OFF)
-+		if (value == LED_OFF) {
- 			ds->player_leds_state &= ~BIT(led_index);
--		else
-+		} else {
- 			ds->player_leds_state |= BIT(led_index);
-+			/* Convert Linux brightness (1=dimmest) to firmware
-+			 * scale (0=brightest), clamping to the valid range.
-+			 */
-+			value = clamp_t(enum led_brightness, value, 1,
-+					 DS_OUTPUT_PLAYER_LED_BRIGHTNESS_LOW + 1);
-+			ds->player_leds_brightness =
-+				DS_OUTPUT_PLAYER_LED_BRIGHTNESS_LOW + 1 - value;
-+		}
- 
- 		ds->update_player_leds = true;
- 	}
-@@ -1355,6 +1385,10 @@ static void dualsense_output_worker(struct work_struct *work)
- 				DS_OUTPUT_VALID_FLAG1_PLAYER_INDICATOR_CONTROL_ENABLE;
- 			common->player_leds = ds->player_leds_state;
- 
-+			common->valid_flag2 |=
-+				DS_OUTPUT_VALID_FLAG2_LED_BRIGHTNESS_CONTROL_ENABLE;
-+			common->led_brightness = ds->player_leds_brightness;
-+
- 			ds->update_player_leds = false;
- 		}
- 
-@@ -1742,15 +1776,15 @@ static struct ps_device *dualsense_create(struct hid_device *hdev)
- 	int i, ret;
- 
- 	static const struct ps_led_info player_leds_info[] = {
--		{ LED_FUNCTION_PLAYER1, "white", 1, dualsense_player_led_get_brightness,
-+		{ LED_FUNCTION_PLAYER1, "white", 3, dualsense_player_led_get_brightness,
- 				dualsense_player_led_set_brightness },
--		{ LED_FUNCTION_PLAYER2, "white", 1, dualsense_player_led_get_brightness,
-+		{ LED_FUNCTION_PLAYER2, "white", 3, dualsense_player_led_get_brightness,
- 				dualsense_player_led_set_brightness },
--		{ LED_FUNCTION_PLAYER3, "white", 1, dualsense_player_led_get_brightness,
-+		{ LED_FUNCTION_PLAYER3, "white", 3, dualsense_player_led_get_brightness,
- 				dualsense_player_led_set_brightness },
--		{ LED_FUNCTION_PLAYER4, "white", 1, dualsense_player_led_get_brightness,
-+		{ LED_FUNCTION_PLAYER4, "white", 3, dualsense_player_led_get_brightness,
- 				dualsense_player_led_set_brightness },
--		{ LED_FUNCTION_PLAYER5, "white", 1, dualsense_player_led_get_brightness,
-+		{ LED_FUNCTION_PLAYER5, "white", 3, dualsense_player_led_get_brightness,
- 				dualsense_player_led_set_brightness }
- 	};
- 
--- 
-2.55.0
+> 
+>>>
+>>> Signed-off-by: James Clark <james.clark@linaro.org>
+>>> ---
+>>>   tools/lib/bpf/Makefile         | 8 ++++----
+>>>   tools/perf/Makefile.perf       | 1 -
+>>>   tools/scripts/Makefile.include | 2 ++
+>>>   3 files changed, 6 insertions(+), 5 deletions(-)
+>>>
+>>> diff --git a/tools/lib/bpf/Makefile b/tools/lib/bpf/Makefile
+>>> index 168140f8e646..180dca9c57c8 100644
+>>> --- a/tools/lib/bpf/Makefile
+>>> +++ b/tools/lib/bpf/Makefile
+>>> @@ -114,12 +114,12 @@ PC_FILE        := $(addprefix $(OUTPUT),$(PC_FILE))
+>>>     TAGS_PROG := $(if $(shell which etags 2>/dev/null),etags,ctags)
+>>>   -GLOBAL_SYM_COUNT = $(shell readelf -s --wide $(BPF_IN_SHARED) | \
+>>> +GLOBAL_SYM_COUNT = $(shell $(READELF) -s --wide $(BPF_IN_SHARED) | \
+>>>                  cut -d "@" -f1 | sed 's/_v[0-9]_[0-9]_[0-9].*//' | \
+>>>                  sed 's/\[.*\]//' | \
+>>>                  awk '/GLOBAL/ && /DEFAULT/ && !/UND|ABS/ {print $$NF}' | \
+>>>                  sort -u | wc -l)
+>>> -VERSIONED_SYM_COUNT = $(shell readelf --dyn-syms --wide $(OUTPUT)libbpf.so | \
+>>> +VERSIONED_SYM_COUNT = $(shell $(READELF) --dyn-syms --wide $(OUTPUT)libbpf.so | \
+>>>                     sed 's/\[.*\]//' | \
+>>>                     awk '/GLOBAL/ && /DEFAULT/ && !/UND|ABS/ {print $$NF}' | \
+>>>                     grep -Eo '[^ ]+@LIBBPF_' | cut -d@ -f1 | sort -u | wc -l)
+>>> @@ -182,12 +182,12 @@ check_abi: $(OUTPUT)libbpf.so $(VERSION_SCRIPT)
+>>>                "versioned symbols in $^ ($(VERSIONED_SYM_COUNT))." \
+>>>                "Please make sure all LIBBPF_API symbols are"     \
+>>>                "versioned in $(VERSION_SCRIPT)." >&2;         \
+>>> -        readelf -s --wide $(BPF_IN_SHARED) |             \
+>>> +        $(READELF) -s --wide $(BPF_IN_SHARED) |             \
+>>>               cut -d "@" -f1 | sed 's/_v[0-9]_[0-9]_[0-9].*//' |     \
+>>>               sed 's/\[.*\]//' |                     \
+>>>               awk '/GLOBAL/ && /DEFAULT/ && !/UND/ {print $$NF}'|  \
+>>>               sort -u > $(OUTPUT)libbpf_global_syms.tmp;         \
+>>> -        readelf --dyn-syms --wide $(OUTPUT)libbpf.so |         \
+>>> +        $(READELF) --dyn-syms --wide $(OUTPUT)libbpf.so |         \
+>>
+>>>               sed 's/\[.*\]//' |                     \
+>>>               awk '/GLOBAL/ && /DEFAULT/ && !/UND|ABS/ {print $$NF}'|  \
+>>>               grep -Eo '[^ ]+@LIBBPF_' | cut -d@ -f1 |         \
+>>> diff --git a/tools/perf/Makefile.perf b/tools/perf/Makefile.perf
+>>> index 0aba14f22a06..63276bf55856 100644
+>>> --- a/tools/perf/Makefile.perf
+>>> +++ b/tools/perf/Makefile.perf
+>>> @@ -215,7 +215,6 @@ FLEX    ?= flex
+>>>   BISON   ?= bison
+>>>   STRIP   = strip
+>>>   AWK     = awk
+>>> -READELF ?= readelf
+>>>     # include Makefile.config by default and rule out
+>>>   # non-config cases
+>>> diff --git a/tools/scripts/Makefile.include b/tools/scripts/Makefile.include
+>>> index e81e5b479c56..380ad84ac51e 100644
+>>> --- a/tools/scripts/Makefile.include
+>>> +++ b/tools/scripts/Makefile.include
+>>> @@ -73,6 +73,7 @@ ifneq ($(LLVM),)
+>>>     $(call allow-override,LLC,$(LLVM_PREFIX)llc$(LLVM_SUFFIX))
+>>>     $(call allow-override,LLVM_CONFIG,$(LLVM_PREFIX)llvm-config$(LLVM_SUFFIX))
+>>>     $(call allow-override,LLVM_OBJCOPY,$(LLVM_PREFIX)llvm-objcopy$(LLVM_SUFFIX))
+>>> +  $(call allow-override,READELF,$(LLVM_PREFIX)llvm-readelf$(LLVM_SUFFIX))
+>>>   else
+>>>     # Allow setting various cross-compile vars or setting CROSS_COMPILE as a prefix.
+>>>     $(call allow-override,CC,$(CROSS_COMPILE)gcc)
+>>> @@ -80,6 +81,7 @@ else
+>>>     $(call allow-override,LD,$(CROSS_COMPILE)ld)
+>>>     $(call allow-override,CXX,$(CROSS_COMPILE)g++)
+>>>     $(call allow-override,STRIP,$(CROSS_COMPILE)strip)
+>>> +  $(call allow-override,READELF,$(CROSS_COMPILE)readelf)
+>>>       # Host versions aren't prefixed
+>>>     $(call allow-override,HOSTAR,ar)
+>>>
+>>
+> 
 

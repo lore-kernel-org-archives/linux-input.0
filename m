@@ -1,72 +1,72 @@
-Received: from mail-qk1-f180.google.com (mail-qk1-f180.google.com [209.85.222.180])
+Received: from mail-qt1-f173.google.com (mail-qt1-f173.google.com [209.85.160.173])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 65C14350285
-	for <linux-input@vger.kernel.org>; Tue, 14 Jul 2026 10:12:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.180
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 382C136402A
+	for <linux-input@vger.kernel.org>; Tue, 14 Jul 2026 10:12:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784023966; cv=none; b=GfIxr5Ecltbq7kA1Ypdyrv43VmfCFi/tGyiyfs0t4m18VEBBw+PNN7HcS5CHA1RUKF8ZHwytxPlMsfr5P4RzogqP7x+8CkKZr0m1zlVofPBgQpiIm7CzHNjMBbtmW9Yzpkl458opwVjEWUtexOWiG7C1sqThI9PRjfwfsRM2G1g=
+	t=1784023967; cv=none; b=TjOYXpND58XFD4LSTchU/PQTVRu6kDoeJFq25hxBMOJt7rjhjyulmaxc/zSqXRdAmumUv5m4ak1zun10fJZ11fI01+9QCen21avHLivbj+KH1YbyLTkoZOPImqaVgtZ0WcSF/uuIgzFisy8vMqwsGWMJqsr0UAddLOxAoB1ga4k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784023966; c=relaxed/simple;
-	bh=J0UlSkJ/Kgu/J9BJDifAWIGP6dDakAVWK8bjDCL9MFk=;
+	s=arc-20240116; t=1784023967; c=relaxed/simple;
+	bh=M3qI+r7hpBN01uwCIPljXnWSlB+ogpkoHJOtqNLrAHI=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=sw3Db4kUbhwV+5QwMBuGrwSb2ecmjnrjTYjBr83r8UzTysp6Mz3JyVdy7LILRnteU3EE5R5D7ya0X6raifnWgjMg0bchXU+KNXVCrpIuLOS4Kc4hQ0S3W+cYbl6RDEl3LWLykV1yh2ABFx1Pbh6AWli5Dd/jxsLiY4ZbKwYbBEw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=IcOe5LWU; arc=none smtp.client-ip=209.85.222.180
+	 MIME-Version; b=KygxwnfGuHFn5ER3yNnhbliGXFgxJFjfojbL77NCzRAbVX8P4/fzUtLrOmEvbrqnRtqoZ6uXHANQ/o5aE+k6QcHNR+ZT5zQS+oV5uSLdJSwMfzCdiM6Ty9bGlG+8VZOMnhlMmuqfJYHecvlZZiZ0yQl0AWwXFr1JH73modXAoKk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Asd9JoAL; arc=none smtp.client-ip=209.85.160.173
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="IcOe5LWU"
-Received: by mail-qk1-f180.google.com with SMTP id af79cd13be357-92f0b5ed131so127796085a.3
-        for <linux-input@vger.kernel.org>; Tue, 14 Jul 2026 03:12:45 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Asd9JoAL"
+Received: by mail-qt1-f173.google.com with SMTP id d75a77b69052e-51c4436d02cso4292151cf.1
+        for <linux-input@vger.kernel.org>; Tue, 14 Jul 2026 03:12:46 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784023964; x=1784628764; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1784023965; x=1784628765; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=fboD69W58/lw8bBMlFoHEiwTIiYQTbtsU798kq+SBeI=;
-        b=IcOe5LWUapRxVKKpJfudAmM/2Df97Ie6W8nmqdILq54R2RoMOLLXUPoUQLkBv1Vw8Q
-         BZJ+IeC33ZW/E5Uksnsm5qo0ME7iSvtoNe++PZ7NZgk3HHzfEgvuM377mFa08Bn76S6i
-         73jrdUTpU4pPcZPWrF8Hc6LaW+FbKkILOPVcumF+4VK51lyvK1NA0AeCdj2AI84ri7z9
-         Fg6734Xe8fG3dOdFXQYORN1ZpL6tyIn9UiWe2tekrOUZLVKOqes9aV/4lnndkSYjNHVa
-         cXYm/sgKeF7qkPk4xl24PMk8rbbXtZfXW3LFbvEz1/kwBFNniSg25/l0m0+p2q5XyQ0s
-         RG4Q==
+        bh=qqn3xnPudw35budYpsjbVJww8rbA3LMj5DFGAAy5AaQ=;
+        b=Asd9JoALSlBVK6uKuRm7eLe7nkh+GDPhgn5E04lMIpDhWcQP7qhbzKdxs3A+US1Osr
+         SspFeZm8RuefzigBvzVse1VDlUiKtn0aviNzFOS+N9DeenAgoA7YDZhnu3Qu9vn8ZGCV
+         3xcMseOUnnpugF0cYNOjTjR7TIv5Ty50MvcMcOIzkbsl+4TNQG1T3iq117zyhjDmPZ1P
+         pxCMxAFA2O1EFG5l1vyxuFUeb0IOL0ZWEyUFP11LCy7iqV58g0I/JT5UuF5l0iJHonxz
+         tb5CWmPtxqP+5m+3adR08rMmNRd5eA1ziuIZCS/iPqOxIpPJPMPE/HY23clG5zrLIKeS
+         OcgQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784023964; x=1784628764;
+        d=1e100.net; s=20251104; t=1784023965; x=1784628765;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=fboD69W58/lw8bBMlFoHEiwTIiYQTbtsU798kq+SBeI=;
-        b=pZzTQttHGsq60ApvDHln7fSB/IRauC76b1PckeNDafxTKDE3SWoTbdh63lu019WOXV
-         kwkuIOQqMFDgoLTNVOrLcIMa91kNgOHQrJcpMdDl4twfpsovDW56HgxecrikDJGXFdwo
-         21maYPUzM1VydTeQzz5PjzdeIt8D5qbR7N7QqUTTsdCi2654KQZsH+4G1BPjx4EI6dVt
-         m+jfnM2doDQl+7ItTLezLAkjvvTMN1Lb6ygyLg2r7iNxcUTJ64Guzl57vVDyfl+dGJTA
-         7w/T7LyUYtxIKIPcXC9LFirfI8/oEq/Wsf0Bk/ct4rMnUMW1oceMmeRWZ4ob9Mn0QdL6
-         7kYQ==
-X-Forwarded-Encrypted: i=1; AHgh+RqrogWEsR1wMa1UKLuhq7Vm+jkkMOI54o1er18U6QQ4LDRbhoUJqpIUXw/gZWo2Ii+LTp6stZyEEjxS2Q==@vger.kernel.org
-X-Gm-Message-State: AOJu0YxkHtCVn5yrUDgI3eNeTkw+PpT8FSH3Oi8Owuv3+F2tUdr1gLIb
-	8nb/ecv+9LGUHOvQH/IBnppP7t46ZOuG30n2j4WvB6jr3TDeHyB0PL0bcYZA7uJyg82pzw==
-X-Gm-Gg: AfdE7cmsKjoN0Iv9ZrloQwr6p2zzalTuYNNmB2elhQEpf/MO3WoiGi9wtQh+vqu3UiK
-	af8upfikbd3fDxeQVMVQVRPpQCNUXK74uJQC3yFPNro/JE+dmU/SqUlGEuKNWKfZL4iUe5QTe+W
-	cV6l1aCKkXK5QWM8hSaEhgQ/BHxbANt09mY/d+zkw0koopDhvOepXHGVxyXXgvlx9t/ouezd5Rb
-	3mMwsc9Lyejf0VKCLc1ikl9HKcRNimPSCeQaZFA1B1eKCnl5k7J2/V/V/ubEG2Zg65+ZFiWxCxI
-	MeRTAEsCRwASUDpJNCE1FUfZqht1b8zfCKY0k72pVwWHC0V1PT1EvzFD+8fWip6KyIwm78kFcr1
-	6gm65RkB2BDDV7v4vtsd0WOY92woFfkUbStndgAaq+3ZCXbdXs8u64zQKDrEBU+sqfXor6SUO05
-	bUIoKndnaRp1B5fPxNo91WCClD+ZmD5M6E6+Nh5mKqUF6v
-X-Received: by 2002:a05:620a:4056:b0:92e:cc01:a67e with SMTP id af79cd13be357-92ef2ccac2emr1323685285a.76.1784023964155;
+        bh=qqn3xnPudw35budYpsjbVJww8rbA3LMj5DFGAAy5AaQ=;
+        b=ElrGQkCMnXsT3dYh64LWhMA6o8aS24px5XGUx3S8AEDQHVCyayo+UmQYQHF7KNEEn+
+         aCTTDUglgBCO4GX1hajF/N5I4r6B7CtMrz0/K9OGvB7oIOJSF1NwZF3AbEsmyyEdCvcI
+         ZFdRe+3m3t+YlEYIbaYhFz7vuQjdTOs0ovoBzIPIzxjEdsq4spQJXcjBWjv3xTomjwvE
+         LPz8NoKazjlxCaba821pjTg2ltddqkzsjYy1tqsjCZ8vIPKkPPjHxPGUSWERnQVmnEAU
+         e5afGSESLfqwi9j0pwYxtS7ImGxFXUdA3VA4Kzt6/Osbm50vBjJh3TNQ2/nash4Wax0o
+         RloA==
+X-Forwarded-Encrypted: i=1; AHgh+RqgokFWB/PRuUod85jsPdjFvFwpDmz4aiBVsac3mRd98ISJLokSG0LmrpuY+qCnC6gLKa86Er32nhfpVA==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yyu0CNaDtWxzbNenqnQF7ylkKzpA8SyUK4FDicQh18z6OjOLbt4
+	1rkwwiWQVUUYmwfi0f2WfYdDrneIBNwtPm+w/cSPHrzCKaaHe2Iv8u76
+X-Gm-Gg: AfdE7cmkNalsQ4Fl/k/z5qauuwwfIvyKaoDxXIJ61iDRAVb+R/uaXJNCszziycKLNNx
+	XhDboforXawJDxSL64mec5JjLftKnqZAnAK3ilblIip2kNzHVTE8x9DpoolEcXvwYHRD6u95E7C
+	ttEYVgaxICYfkeefvIAQxI5vO8CmFoSr/f0TBlMLWvVY+NXGwRJQ+wIW5nTcL6Ut5b9cCE2rp8P
+	VFh4OhwU7rpETpIhqQ1S9fwmDwn9AorqYa/pusNeMDdFAGBvZ2htBbFteAOO/kmevLJYlM02hE2
+	lo1GdjiGehfZ2c7M4tlJ3Xlb54NH54yC7cbt3tyRcpAQ/eUIdmcNI1ljfxIdfZlv3Ne7XFvuwVv
+	dgA7lkQOF891ykM93n+TJ8A9lm/3ob4aBsQ7P19zeqxdaGFZ6c3EOF2bO4rk56mc8XgEJsip2qf
+	uP0pouF5N27kX6tabxzPkNF+MkxWh06XtSNZ/M6vI6rQgb
+X-Received: by 2002:a05:620a:2951:b0:92e:c116:bef3 with SMTP id af79cd13be357-92ef2e69862mr1306029485a.80.1784023964879;
         Tue, 14 Jul 2026 03:12:44 -0700 (PDT)
 Received: from FairplayBox ([2601:5cf:837e:d920::f9a2])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-92ee5cfcb0dsm1463056185a.25.2026.07.14.03.12.43
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-92ee5cfcb0dsm1463056185a.25.2026.07.14.03.12.44
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 14 Jul 2026 03:12:43 -0700 (PDT)
+        Tue, 14 Jul 2026 03:12:44 -0700 (PDT)
 From: Alec Hall <signshop.alec@gmail.com>
 To: Jiri Kosina <jikos@kernel.org>,
 	Benjamin Tissoires <bentiss@kernel.org>,
 	linux-input@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org,
 	Alec Hall <signshop.alec@gmail.com>
-Subject: [PATCH 1/3] HID: apple: report Magic Keyboard battery over Bluetooth
-Date: Tue, 14 Jul 2026 06:12:33 -0400
-Message-ID: <20260714101235.99447-2-signshop.alec@gmail.com>
+Subject: [PATCH 2/3] HID: magicmouse: report battery over Bluetooth
+Date: Tue, 14 Jul 2026 06:12:34 -0400
+Message-ID: <20260714101235.99447-3-signshop.alec@gmail.com>
 X-Mailer: git-send-email 2.55.0
 In-Reply-To: <20260714101235.99447-1-signshop.alec@gmail.com>
 References: <20260714101235.99447-1-signshop.alec@gmail.com>
@@ -78,67 +78,81 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The Magic Keyboard answers a GET_REPORT for battery input report 0x90
-over Bluetooth exactly as it does over USB, but battery reporting was
-only ever enabled for USB: the Bluetooth device-table entry lacks the
-APPLE_RDESC_BATTERY quirk, so apple_fetch_battery() returns early and
-the kernel's power_supply is stuck at 0%.
+magicmouse_fetch_battery() only runs for USB Magic Mouse 2 / Magic
+Trackpad 2. Over Bluetooth the kernel never queries the battery and the
+power_supply reports 0%, even though the device answers a GET_REPORT for
+battery input report 0x90. (A Magic Trackpad 2 appears to work while
+charging only because it then pushes battery reports unsolicited; off
+the charger the reading goes stale.)
 
-The USB-only restriction is not cosmetic. apple_fetch_battery() issues
-its GET_REPORT through hid_hw_request(), and over Bluetooth that goes
-through the uhid transport, whose raw_request sleeps waiting on user
-space. The fetch was driven from a timer callback
-(apple_battery_timer_tick), which runs in atomic softirq context where
-sleeping is forbidden, so requesting the battery there deadlocks the
-machine:
-
-    run_timer_softirq
-     __run_timer_base
-      apple_battery_timer_tick
-       __hid_request
-        uhid_hid_raw_request   /* sleeps in atomic context */
-
-Move the periodic battery fetch to a delayed work item, which runs in
-process context and may sleep, and set APPLE_RDESC_BATTERY on the
-Bluetooth Magic Keyboard 2021 entry. The descriptor fixup guarded by
-the quirk only fires for the 83-byte USB report descriptor, so enabling
-the quirk over Bluetooth does not disturb the (different) Bluetooth
-descriptor. Also stop returning early once capacity reaches max: over
-Bluetooth the device sends no unsolicited updates, so the driver must
-keep polling to notice the level fall after a full charge.
-
-Only the plain Magic Keyboard 2021 is enabled and tested here; the
-fingerprint, numpad and 2024 Bluetooth variants likely need the same
-change but were not available to test.
+As with hid-apple, the fetch cannot run from the battery timer over
+Bluetooth: hid_hw_request() sleeps on the uhid transport, but
+magicmouse_battery_timer_tick() runs in atomic softirq context. Move
+the periodic fetch to a delayed work item, add magicmouse_has_battery()
+and use it to arm the fetch for Magic Mouse 2 / Magic Trackpad 2
+regardless of transport, and keep polling once full so the reading
+stays current over Bluetooth.
 
 Assisted-by: Claude:claude-opus-4-8
 Signed-off-by: Alec Hall <signshop.alec@gmail.com>
 ---
- drivers/hid/hid-apple.c | 36 +++++++++++++++++++-----------------
- 1 file changed, 19 insertions(+), 17 deletions(-)
+ drivers/hid/hid-magicmouse.c | 62 +++++++++++++++++++++---------------
+ 1 file changed, 36 insertions(+), 26 deletions(-)
 
-diff --git a/drivers/hid/hid-apple.c b/drivers/hid/hid-apple.c
-index bf7dd0fbf249..e46a59844a30 100644
---- a/drivers/hid/hid-apple.c
-+++ b/drivers/hid/hid-apple.c
-@@ -23,6 +23,7 @@
- #include <linux/module.h>
- #include <linux/slab.h>
- #include <linux/timer.h>
-+#include <linux/workqueue.h>
- #include <linux/string.h>
- #include <linux/leds.h>
- #include <dt-bindings/leds/common.h>
-@@ -116,7 +117,7 @@ struct apple_sc {
- 	unsigned int fn_on;
- 	unsigned int fn_found;
- 	DECLARE_BITMAP(pressed_numlock, KEY_CNT);
+diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
+index 802a3479e24b..6d0e76314b10 100644
+--- a/drivers/hid/hid-magicmouse.c
++++ b/drivers/hid/hid-magicmouse.c
+@@ -123,7 +123,7 @@ MODULE_PARM_DESC(report_undeciphered, "Report undeciphered multi-touch state fie
+  * @tracking_ids: Mapping of current touch input data to @touches.
+  * @hdev: Pointer to the underlying HID device.
+  * @work: Workqueue to handle initialization retry for quirky devices.
+- * @battery_timer: Timer for obtaining battery level information.
++ * @battery_work: Delayed work for obtaining battery level information.
+  */
+ struct magicmouse_sc {
+ 	struct input_dev *input;
+@@ -148,7 +148,7 @@ struct magicmouse_sc {
+ 
+ 	struct hid_device *hdev;
+ 	struct delayed_work work;
 -	struct timer_list battery_timer;
 +	struct delayed_work battery_work;
- 	struct apple_sc_backlight *backlight;
  };
  
-@@ -635,9 +636,6 @@ static int apple_fetch_battery(struct hid_device *hdev)
+ static int magicmouse_firm_touch(struct magicmouse_sc *msc)
+@@ -828,6 +828,19 @@ static bool is_usb_magictrackpad2(__u32 vendor, __u32 product)
+ 	       product == USB_DEVICE_ID_APPLE_MAGICTRACKPAD2_USBC;
+ }
+ 
++/*
++ * Magic Mouse 2 and Magic Trackpad 2 expose a battery over both USB and
++ * Bluetooth (the pre-2 Magic Mouse/Trackpad do not). Transport-agnostic:
++ * over Bluetooth the vendor is BT_VENDOR_ID_APPLE but the product id matches.
++ */
++static bool magicmouse_has_battery(struct hid_device *hdev)
++{
++	return hdev->product == USB_DEVICE_ID_APPLE_MAGICMOUSE2 ||
++	       hdev->product == USB_DEVICE_ID_APPLE_MAGICMOUSE2_USBC ||
++	       hdev->product == USB_DEVICE_ID_APPLE_MAGICTRACKPAD2 ||
++	       hdev->product == USB_DEVICE_ID_APPLE_MAGICTRACKPAD2_USBC;
++}
++
+ static int magicmouse_fetch_battery(struct hid_device *hdev)
+ {
+ #ifdef CONFIG_HID_BATTERY_STRENGTH
+@@ -836,9 +849,7 @@ static int magicmouse_fetch_battery(struct hid_device *hdev)
+ 	struct hid_battery *bat;
+ 
+ 	bat = hid_get_battery(hdev);
+-	if (!bat ||
+-	    (!is_usb_magicmouse2(hdev->vendor, hdev->product) &&
+-	     !is_usb_magictrackpad2(hdev->vendor, hdev->product)))
++	if (!bat || !magicmouse_has_battery(hdev))
+ 		return -1;
+ 
+ 	report_enum = &hdev->report_enum[bat->report_type];
+@@ -847,9 +858,6 @@ static int magicmouse_fetch_battery(struct hid_device *hdev)
  	if (!report || report->maxfield < 1)
  		return -1;
  
@@ -148,74 +162,75 @@ index bf7dd0fbf249..e46a59844a30 100644
  	hid_hw_request(hdev, report, HID_REQ_GET_REPORT);
  	return 0;
  #else
-@@ -645,15 +643,20 @@ static int apple_fetch_battery(struct hid_device *hdev)
+@@ -857,15 +865,21 @@ static int magicmouse_fetch_battery(struct hid_device *hdev)
  #endif
  }
  
--static void apple_battery_timer_tick(struct timer_list *t)
-+static void apple_battery_work(struct work_struct *work)
+-static void magicmouse_battery_timer_tick(struct timer_list *t)
++static void magicmouse_battery_work(struct work_struct *work)
  {
--	struct apple_sc *asc = timer_container_of(asc, t, battery_timer);
-+	struct apple_sc *asc = container_of(work, struct apple_sc, battery_work.work);
- 	struct hid_device *hdev = asc->hdev;
+-	struct magicmouse_sc *msc = timer_container_of(msc, t, battery_timer);
++	struct magicmouse_sc *msc = container_of(work, struct magicmouse_sc,
++						 battery_work.work);
+ 	struct hid_device *hdev = msc->hdev;
  
--	if (apple_fetch_battery(hdev) == 0) {
--		mod_timer(&asc->battery_timer,
--			  jiffies + secs_to_jiffies(APPLE_BATTERY_TIMEOUT_SEC));
+-	if (magicmouse_fetch_battery(hdev) == 0) {
+-		mod_timer(&msc->battery_timer,
+-			  jiffies + secs_to_jiffies(USB_BATTERY_TIMEOUT_SEC));
 -	}
 +	/*
-+	 * Runs in process context (workqueue), so the battery GET_REPORT is
-+	 * allowed to sleep. This is required for the uhid/Bluetooth transport,
-+	 * whose raw_request blocks waiting on userspace -- unlike a timer_list
-+	 * callback, which runs in atomic softirq context and would deadlock.
++	 * Runs in process context (workqueue), so the battery GET_REPORT may
++	 * sleep. This is required for the uhid/Bluetooth transport, whose
++	 * raw_request blocks on userspace -- unlike a timer_list callback,
++	 * which runs in atomic softirq context and would deadlock.
 +	 */
-+	if (apple_fetch_battery(hdev) == 0)
-+		schedule_delayed_work(&asc->battery_work,
-+				      secs_to_jiffies(APPLE_BATTERY_TIMEOUT_SEC));
++	if (magicmouse_fetch_battery(hdev) == 0)
++		schedule_delayed_work(&msc->battery_work,
++				      secs_to_jiffies(USB_BATTERY_TIMEOUT_SEC));
  }
  
- /*
-@@ -968,10 +971,9 @@ static int apple_probe(struct hid_device *hdev,
+ static int magicmouse_probe(struct hid_device *hdev,
+@@ -900,12 +914,10 @@ static int magicmouse_probe(struct hid_device *hdev,
+ 		return ret;
  	}
  
- 	if (quirks & APPLE_RDESC_BATTERY) {
--		timer_setup(&asc->battery_timer, apple_battery_timer_tick, 0);
--		mod_timer(&asc->battery_timer,
--			  jiffies + secs_to_jiffies(APPLE_BATTERY_TIMEOUT_SEC));
--		apple_fetch_battery(hdev);
-+		INIT_DELAYED_WORK(&asc->battery_work, apple_battery_work);
-+		/* Kick an initial fetch; the work re-arms itself every timeout. */
-+		schedule_delayed_work(&asc->battery_work, 0);
+-	if (is_usb_magicmouse2(id->vendor, id->product) ||
+-	    is_usb_magictrackpad2(id->vendor, id->product)) {
+-		timer_setup(&msc->battery_timer, magicmouse_battery_timer_tick, 0);
+-		mod_timer(&msc->battery_timer,
+-			  jiffies + secs_to_jiffies(USB_BATTERY_TIMEOUT_SEC));
+-		magicmouse_fetch_battery(hdev);
++	if (magicmouse_has_battery(hdev)) {
++		INIT_DELAYED_WORK(&msc->battery_work, magicmouse_battery_work);
++		/* Kick an initial fetch; the work re-arms itself each timeout. */
++		schedule_delayed_work(&msc->battery_work, 0);
  	}
  
- 	if (quirks & APPLE_BACKLIGHT_CTL)
-@@ -987,7 +989,7 @@ static int apple_probe(struct hid_device *hdev,
+ 	if (is_usb_magicmouse2(id->vendor, id->product) ||
+@@ -973,9 +985,8 @@ static int magicmouse_probe(struct hid_device *hdev,
  
- out_err:
- 	if (quirks & APPLE_RDESC_BATTERY)
--		timer_delete_sync(&asc->battery_timer);
-+		cancel_delayed_work_sync(&asc->battery_work);
+ 	return 0;
+ err_stop_hw:
+-	if (is_usb_magicmouse2(id->vendor, id->product) ||
+-	    is_usb_magictrackpad2(id->vendor, id->product))
+-		timer_delete_sync(&msc->battery_timer);
++	if (magicmouse_has_battery(hdev))
++		cancel_delayed_work_sync(&msc->battery_work);
  
  	hid_hw_stop(hdev);
  	return ret;
-@@ -998,7 +1000,7 @@ static void apple_remove(struct hid_device *hdev)
- 	struct apple_sc *asc = hid_get_drvdata(hdev);
+@@ -987,9 +998,8 @@ static void magicmouse_remove(struct hid_device *hdev)
  
- 	if (asc->quirks & APPLE_RDESC_BATTERY)
--		timer_delete_sync(&asc->battery_timer);
-+		cancel_delayed_work_sync(&asc->battery_work);
+ 	if (msc) {
+ 		cancel_delayed_work_sync(&msc->work);
+-		if (is_usb_magicmouse2(hdev->vendor, hdev->product) ||
+-		    is_usb_magictrackpad2(hdev->vendor, hdev->product))
+-			timer_delete_sync(&msc->battery_timer);
++		if (magicmouse_has_battery(hdev))
++			cancel_delayed_work_sync(&msc->battery_work);
+ 	}
  
  	hid_hw_stop(hdev);
- }
-@@ -1201,7 +1203,7 @@ static const struct hid_device_id apple_devices[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MAGIC_KEYBOARD_2021),
- 		.driver_data = APPLE_HAS_FN | APPLE_ISO_TILDE_QUIRK | APPLE_RDESC_BATTERY },
- 	{ HID_BLUETOOTH_DEVICE(BT_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MAGIC_KEYBOARD_2021),
--		.driver_data = APPLE_HAS_FN | APPLE_ISO_TILDE_QUIRK },
-+		.driver_data = APPLE_HAS_FN | APPLE_ISO_TILDE_QUIRK | APPLE_RDESC_BATTERY },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MAGIC_KEYBOARD_FINGERPRINT_2021),
- 		.driver_data = APPLE_HAS_FN | APPLE_ISO_TILDE_QUIRK | APPLE_RDESC_BATTERY },
- 	{ HID_BLUETOOTH_DEVICE(BT_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MAGIC_KEYBOARD_FINGERPRINT_2021),
 -- 
 2.55.0
 

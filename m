@@ -1,276 +1,130 @@
-Received: from mail-pj1-f53.google.com (mail-pj1-f53.google.com [209.85.216.53])
+Received: from mail-pl1-f182.google.com (mail-pl1-f182.google.com [209.85.214.182])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 889FF37D123
-	for <linux-input@vger.kernel.org>; Tue, 14 Jul 2026 11:43:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D769C15E5DC
+	for <linux-input@vger.kernel.org>; Tue, 14 Jul 2026 12:01:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784029436; cv=none; b=ioRjR9BvpNuzdQyUzUxSjoFXXC31ePb0uX3xQaiHBsLgiIdFymk38M+SWSWqtYsVgh6Eivhdthy/REsEq/PqCag545+iNQUM0Skt0w3SK5ggHQpird8S8YiqFh1FPrjhky7DCCJtVoxnvJ1vQu2bg54XV84vBu/io2sqGFdOqlQ=
+	t=1784030474; cv=none; b=BTT3RAo0+EfIbi+e0qZll2oG4F57OuP3z0bG2ZobNuqXzokdiq4l/IVuLFzK2gyWiK/PjTB1nyHevnD48+n18i1VjJDmCb3SzFcgOe2u4SXL2L/pylr7sWy84xRACSAefcGFkqNLZx+02uI4fC/9a9tZhrlerB08fZeWYKW3PkQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784029436; c=relaxed/simple;
-	bh=2IYCOIzTkQg+oj6Gwep5n75zwPuFlAtD6sGfwrQsaKA=;
-	h=Date:From:To:CC:Subject:In-Reply-To:References:Message-ID:
-	 MIME-Version:Content-Type; b=ac7PYNYky37Fko/EfEy8vkMjIJZeC+405FymPylOGWccQ+YU88n0sbtZ6DjmJegfeJrH5Y19B4lxUdMECbjmop2+171Z5NYjHHj7LtT+ZQ842ETMnh3E5Gv2fN0HMekYjyY+d6z3vzLUxdPkiNdbq6bocFr+5SdhsyuXDjpR0B4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=cuwN66QM; arc=none smtp.client-ip=209.85.216.53
+	s=arc-20240116; t=1784030474; c=relaxed/simple;
+	bh=tfzgwTa7BiktryzGWIkcyRE8N9h1/Jk912Ti1RcchOw=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=KHSTinfIqwZLksDNZNzAyPi1EKsxjt+Snm8IWVADMLT4dcpELJBTzo4tG7Juy0q0hqxuC2hacsZy94q0Qo2Qm1ZOmLibGNKadGgtM9QchgwwHuDVGAaJgrWPaYWZTmElfeG25uwPS3jFUNVPZO5ACw73ysYh4mz1XCJWjPZpJwI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=knNTRTKK; arc=none smtp.client-ip=209.85.214.182
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="cuwN66QM"
-Received: by mail-pj1-f53.google.com with SMTP id 98e67ed59e1d1-38511175ad3so3346672a91.2
-        for <linux-input@vger.kernel.org>; Tue, 14 Jul 2026 04:43:54 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="knNTRTKK"
+Received: by mail-pl1-f182.google.com with SMTP id d9443c01a7336-2ceed7018c8so4346035ad.1
+        for <linux-input@vger.kernel.org>; Tue, 14 Jul 2026 05:01:12 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784029434; x=1784634234; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:mime-version:message-id
-         :references:in-reply-to:user-agent:subject:cc:to:from:date:from:to
-         :cc:subject:date:message-id:reply-to:content-type;
-        bh=LnzwO3yduLUZGDsc0EAbiDA4QgOYTgL4184fJUl1C6U=;
-        b=cuwN66QMwB1sDcnAJ501Q3S5WwfS6YUDBMw1CV/rKoUG+DzFvrZXC1jcx7rBosOb7z
-         z/jtqfG475cTq/8kkP0J7bPEWpbP34+Bi6m5iW40//PXSESzBFfte8uZYa1lLgDaii08
-         Or2puvPSRNzgsXoK6tTNJTz9W9ikggA5AGu1YTmeGK0h8VXym6rCXxEqizIg9kwL+QmU
-         iOCs2Fz5tGhFsf7RW9IDXz5b2lLTSYbL1p3NTx2rJX7erOT/2E5R1OFC5RFpCuYMHulW
-         XbaDAOxUlcG7EJS/wfJpShF3e4MeCOTwceoKElmPbqor0mqsgIg4dr+IgZrAyBEyQ36R
-         ELIg==
+        d=gmail.com; s=20251104; t=1784030472; x=1784635272; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=un1/HNmxd017xfWTCfNi2/7YdurFwymQXIdYAIjBxB8=;
+        b=knNTRTKKBpS5xNKvJ1oeWh97QAwv7gEO9ddLKItmGWlNDus1Vtzrkpp+oG9LDyPybe
+         WhVCTd6qdbBqnnXqbNtw71UVyZRMt28vCXbaCDUxjXut2lf1HX6QncpuU0/Z4Un3Oqms
+         O30cechpnGV7XuXzvTSngQHxufesthpDJbToARb0lgVLx9tsOF5dqsam+SGWTHtM7jFl
+         SpF/S5rIeBqGMw3EgmpcV/aF7zFICLwFOs7N7ichZudwnXRbg2ZOiAwxh+6Sz5DW5wHp
+         06svUt2Ot5bCOv71wt5o4IYNL1nWyqrhl8N7xTsE8zvR54FNTI9oF95BxO9l9GBMm2ii
+         kytQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784029434; x=1784634234;
-        h=content-transfer-encoding:content-type:mime-version:message-id
-         :references:in-reply-to:user-agent:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=LnzwO3yduLUZGDsc0EAbiDA4QgOYTgL4184fJUl1C6U=;
-        b=ftT9iTDpX96mC6eWJ8TdAupwgcPcurBiGfWFRGh3CQ1GjUl1WSmO+5775vMFizl3Qq
-         2eUPhRtyKcssDhb6Thi0/tXxTv4Dq0zpiEFzuVw20iKRM40qKe0qRTFIrhlXujhdIVa6
-         HoVZitVktMSlyT6K4Zn9vo4XSh4SecvepgdSA1zC0zWnRzh0T6/RIvx4yaZDXqXgJfGW
-         A5yPM+hC9Y19dTKhufpt62UwE5zLVqP589mowg/j/7wDCtkaTSC0Gq1mGZivAMjYknRJ
-         7dfSNJFSzDFaMKTNC1yMfPl4YOcOyLyyw5+DJpPvbk/C37O/NkdU6fGNmyfcAdu6+MOq
-         a1ag==
-X-Gm-Message-State: AOJu0YwijILyu6Jxm7K3ZmnqXhk1NEluIVlPZsiEfPS0Xb4DfMpBM+h1
-	sPtf8a1TJjtPcliMsnB8N2/6poaIU7G+6rXj8h5Qm3gxn17+ny2SFawj
-X-Gm-Gg: AfdE7cnQmk2K48aqk9ODgXlnDGt53K0bOo2AR8i3zxydyuBuaFL+9eJqFKt1jeu3N3T
-	fyIGb5zfsrRkcdhuRbgwCIMEwiygufY+Of4Hufi2kh6rciYWnobsPXbKwh39AAyj7Q4NexsMeUs
-	QyYjBqZuIfOSzrt48Ahx/ytWvm8KhqtxqoqTAVN79Mta4Yj4QIBVGU0tk0xAZUCxWLNFXz5boh1
-	EXEZyuJSayCAZbPu6hH/fE+7ToFn/xqvNhKE6eC5zdjw0EZI1ovhkDWtC+mEzojwHqvoThr2Z3G
-	KRMfkWP+EScyS1oDMK9eyxE527+oWcEuW2hrn+75OovmzfrqVGXrp9GgmWNGtGkmVXtCBjLstoo
-	hf8oG5ESkatAEnFV7YfK7t7P1zuuMKzbxgADySIrq+U+NWRS+Q9KON3Gnx+y/VOq5Z/No6TJE8v
-	/frD9uPoQu42Pqb7XzLdw5mVodgWVL0uN5WV+9DJmhks/7letSXpt505Rcdg+1eTwU5Sk+Qmmf7
-	plrJIMH28M=
-X-Received: by 2002:a17:90b:164e:b0:38e:1fba:fd79 with SMTP id 98e67ed59e1d1-38e1fbafdcfmr1210641a91.36.1784029433653;
-        Tue, 14 Jul 2026 04:43:53 -0700 (PDT)
-Received: from ehlo.thunderbird.net (221x252x203x146.ap221.ftth.ucom.ne.jp. [221.252.203.146])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-38e173194e9sm1398648a91.17.2026.07.14.04.43.52
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 14 Jul 2026 04:43:53 -0700 (PDT)
-Date: Tue, 14 Jul 2026 20:43:51 +0900
-From: "Derek J. Clark" <derekjohn.clark@gmail.com>
-To: sashiko-reviews@lists.linux.dev, sashiko-bot@kernel.org
-CC: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-Subject: Re: [PATCH v12 3/4] HID: hid-msi: Add RGB control interface
-User-Agent: Thunderbird for Android
-In-Reply-To: <20260714104219.AEAE31F000E9@smtp.kernel.org>
-References: <20260714102640.18075-1-derekjohn.clark@gmail.com> <20260714102640.18075-4-derekjohn.clark@gmail.com> <20260714104219.AEAE31F000E9@smtp.kernel.org>
-Message-ID: <426987CB-DA21-403D-903E-153D7BC81F3B@gmail.com>
+        d=1e100.net; s=20251104; t=1784030472; x=1784635272;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=un1/HNmxd017xfWTCfNi2/7YdurFwymQXIdYAIjBxB8=;
+        b=tSfwZs2z3q43mLjwPSqQyNqjWER3kvDLUGimcdyw6shDR5L/rABmuHlGBU3BQQs8w2
+         E0/TRJT0QVgbr2Twzr4N3pJ4qQbwvsqzGAlNpp6SC//twrdGk+zE5KoUBohurCCLALu2
+         Cgiqy5/z4h91XP28mMNo+xhanP5juvejiEqfUKzkg0i063lN1RDLgWAG2Nu2ic+X5LmL
+         YPEuD3Y4Qq3i2d/QoduZpKdHHqB1vSXiAnTVhjAvJgiMxWRFrg5qrQ/l7TR2vRlGSA3q
+         wEu2ctTCLrPFNP70jFU5Uiz5A3pg+yIq0VM0wtu0KPIi7nIwtfVXhncgTzRlt+M6/X9T
+         nJxA==
+X-Gm-Message-State: AOJu0YzXwpZ/DfXDs/mPkD1JVxsuOvQ/6M+omEfGxBVne5S3tTDMvvbD
+	iAsh/XTVbh6xWCZjCsoCMBC/b+JcrPWI332R/NfvGq5Zc+1xmhTCDP75
+X-Gm-Gg: AfdE7cn0fNRv+iytn3ujS3aJ6/SblUX0V0WyVCvDtKq7oryc4AQi+J6R3i5oJ5o408j
+	lXNjZYxPqSi7BQRp04oZiJKduXIizciJYVUKtUR2f6p5MZR91REkb2BzXUXSupzUqq+dRe1hhNs
+	Ljq09oi8b0GMKqCTqnFIF+buEjE9EoZza2LrszSUUsuetzDHjlQMwgT6mWFtEbe0tJ54fzbQdm8
+	OlLUGK4koi0woSvpHnK6jbFaF4134rzIzo7aEnhT2qnk8YR6LBrXvYQ4y/QZHpJunM2y9DHez/t
+	esT4ZVlVON4kObY7hy9SA/AdudWgTrmoD/JHSrjdRIfLH6XMK0AaZZU8S4kGtBCrJ9uMitoO5+j
+	XPv7OwRbWw/t4Km5oF7RmWMMv8ImbUXThA9gUE+fACd4K5P/9bd8yLnaEqtXXaGZ1bPKURSbSmz
+	JIiH3DURF7Wx/a6sdm1eUnkvp7GO6i0etxKaTHag==
+X-Received: by 2002:a17:902:e5c2:b0:2c9:97a7:f544 with SMTP id d9443c01a7336-2ce9f179c19mr123766045ad.42.1784030472044;
+        Tue, 14 Jul 2026 05:01:12 -0700 (PDT)
+Received: from DESKTOP-EQETL3O.localdomain ([182.225.143.210])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2ccc9bdb76asm118605335ad.12.2026.07.14.05.01.09
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 14 Jul 2026 05:01:11 -0700 (PDT)
+From: Hyeonsu Choi <chlgustn3171@gmail.com>
+To: Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>
+Cc: linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Hyeonsu Choi <chlgustn3171@gmail.com>,
+	syzbot+aec1962419768c5caf88@syzkaller.appspotmail.com
+Subject: [PATCH] HID: input: allocate input_dev name/phys/uniq using hid device devres
+Date: Tue, 14 Jul 2026 21:00:52 +0900
+Message-ID: <20260714120052.255085-1-chlgustn3171@gmail.com>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
- charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On July 14, 2026 7:42:19 PM GMT+09:00, sashiko-bot@kernel=2Eorg wrote:
->Thank you for your contribution! Sashiko AI review found 3 potential issu=
-e(s) to consider:
->- [High] The `rgb_queue` delayed work accesses a freed device pointer `le=
-d_cdev=2Edev` on its error path due to incorrect teardown order in `claw_re=
-move`=2E
->- [High] Missing cancellation of `cfg_setup` and `cfg_resume` delayed wor=
-ks in `claw_remove()`=2E
->- [Medium] RGB configuration states and LED class properties are modified=
- and read concurrently without proper synchronization=2E
->--
->
->--- Patch [3]: [PATCH v12 3/4] HID: hid-msi: Add RGB control interface --=
--
->commit 2d837d4907cf2b48e7866a46da8d35b754a9f9a6
->Author: Derek J=2E Clark <derekjohn=2Eclark@gmail=2Ecom>
->
->HID: hid-msi: Add RGB control interface
->
->Adds RGB control interface for MSI Claw devices=2E The MSI Claw uses a
->fairly unique RGB interface=2E It has 9 total zones (4 per joystick ring
->and 1 for the ABXY buttons), and supports up to 8 sequential frames of
->RGB zone data=2E
->
->Link: https://patch=2Emsgid=2Elink/20260529072111=2E7565-4-derekjohn=2Ecl=
-ark@gmail=2Ecom
->
->> diff --git a/drivers/hid/hid-msi=2Ec b/drivers/hid/hid-msi=2Ec
->> index 9d3249fa50291=2E=2Eddb64adb08b9c 100644
->> --- a/drivers/hid/hid-msi=2Ec
->> +++ b/drivers/hid/hid-msi=2Ec
->> @@ -406,6 +406,38 @@ static int claw_profile_event(struct claw_drvdata =
-*drvdata, struct claw_command_
->>  		for (i =3D 0; i < CLAW_KEYS_MAX; i++)
->>  			codes[i] =3D (mkeys->codes[i]);
->>  		break;
->> +	case CLAW_RGB_PENDING:
->> +		frame =3D (struct claw_rgb_report *)cmd_rep->data;
->> +		rgb_addr =3D drvdata->rgb_addr;
->> +		read_addr =3D be16_to_cpu(frame->read_addr);
->> +
->> +		if (read_addr < drvdata->rgb_addr)
->> +			return -EAGAIN;
->> +
->> +		frame_calc =3D (read_addr - rgb_addr) / CLAW_RGB_FRAME_OFFSET;
->> +		if (frame_calc >=3D CLAW_RGB_MAX_FRAMES) {
->> +			dev_err(&drvdata->hdev->dev, "Got unsupported frame index: %x\n",
->> +				frame_calc);
->> +			return -EAGAIN;
->> +		}
->> +		f_idx =3D frame_calc;
->> +
->> +		scoped_guard(spinlock_irqsave, &drvdata->frame_lock) {
->> +			memcpy(&drvdata->rgb_frames[f_idx], &frame->zone_data,
->> +			       sizeof(struct rgb_frame));
->> +
->> +			/* Only use frame 0 for remaining variable assignment */
->> +			if (f_idx !=3D 0)
->> +				break;
->> +
->> +			drvdata->rgb_speed =3D frame->speed;
->> +			drvdata->led_mc=2Eled_cdev=2Ebrightness =3D frame->brightness;
->
->[Severity: Medium]
->Are there missing locks around rgb_speed and led_cdev=2Ebrightness?
+input_dev->name, phys, and uniq are directly assigned from hid_device.
+It causes a slab-use-after-free bug if the input device outlives the parent HID device during teardown.
+Fix this by using devm_kstrdup() tied to &hid->dev for name, phys, and uniq strings.
+The string lifetime is tied to the parent HID device, preventing a potential slab-use-after-free bug.
+Also add OOM error handling for these allocations.
 
-Humans reading this dumb bot's reply,
-No, they are under scoped_guard 9 lines above this=2E=2E=2E
+Reported-by: syzbot+aec1962419768c5caf88@syzkaller.appspotmail.com
+Closes: https://syzkaller.appspot.com/bug?extid=aec1962419768c5caf88
+Signed-off-by: Hyeonsu Choi <chlgustn3171@gmail.com>
+---
+ drivers/hid/hid-input.c | 19 ++++++++++++++++---
+ 1 file changed, 16 insertions(+), 3 deletions(-)
 
->Here in claw_profile_event(), drvdata->rgb_speed and
->drvdata->led_mc=2Eled_cdev=2Ebrightness are written to under the frame_lo=
-ck=2E
->However, they appear to be read locklessly in claw_write_rgb_state() outs=
-ide
->of frame_lock=2E Similarly, speed_store() modifies drvdata->rgb_speed loc=
-klessly
->from userspace=2E
->
->Could this inconsistent locking lead to torn reads or data races between
->sysfs operations, hardware events, and the workqueue?
->
->[ =2E=2E=2E ]
->
->> +static void claw_rgb_queue_fn(struct work_struct *work)
->> +{
->> +	struct delayed_work *dwork =3D container_of(work, struct delayed_work=
-, work);
->> +	struct claw_drvdata *drvdata =3D container_of(dwork, struct claw_drvd=
-ata, rgb_queue);
->> +	int ret;
->> +
->> +	if (!drvdata)
->> +		return;
->> +
->> +	scoped_guard(spinlock_irqsave, &drvdata->registration_lock) {
->> +		/* Pairs with smp_store_release from cfg_setup_fn in system_wq conte=
-xt */
->> +		if (!smp_load_acquire(&drvdata->rgb_registered))
->> +			return;
->> +	}
->> +
->> +	ret =3D claw_apply_rgb_state(drvdata);
->> +	if (ret)
->> +		dev_err(drvdata->led_mc=2Eled_cdev=2Edev,
->> +			"Failed to apply RGB state: %d\n", ret);
->
->[Severity: High]
->Could this dev_err() access a freed device pointer?
->
->If claw_rgb_queue_fn() starts executing and passes the rgb_registered che=
-ck,
->but the device is concurrently removed, claw_remove() will set rgb_regist=
-ered
->to false and call led_classdev_multicolor_unregister()=2E This drops the =
-final
->reference and frees led_cdev=2Edev=2E
->If claw_apply_rgb_state() subsequently fails, this error path will log us=
-ing
->drvdata->led_mc=2Eled_cdev=2Edev, which might trigger a use-after-free si=
-nce the
->work was not canceled prior to unregistration=2E
-
-Addressed below=2E
-
->
->[ =2E=2E=2E ]
->
->> @@ -1084,6 +1721,7 @@ static void claw_remove(struct hid_device *hdev)
->>  {
->>  	struct claw_drvdata *drvdata =3D hid_get_drvdata(hdev);
->>  	bool gp_registered;
->> +	bool rgb_registered;
->> =20
->>  	if (!drvdata)
->>  		return;
->> @@ -1096,11 +1734,21 @@ static void claw_remove(struct hid_device *hdev=
-)
->>  		gp_registered =3D smp_load_acquire(&drvdata->gp_registered);
->>  		/* Pairs with smp_load_acquire in attribute show/store functions */
->>  		smp_store_release(&drvdata->gp_registered, false);
->> +		/* Pairs with smp_store_release from cfg_setup_fn in system_wq conte=
-xt */
->> +		rgb_registered =3D smp_load_acquire(&drvdata->rgb_registered);
->> +		/* Pairs with smp_load_acquire in attribute show/store functions */
->> +		smp_store_release(&drvdata->rgb_registered, false);
->>  	}
->> =20
->>  	if (gp_registered)
->>  		device_remove_group(&hdev->dev, &claw_gamepad_attr_group);
->> =20
->> +	if (rgb_registered) {
->> +		device_remove_group(drvdata->led_mc=2Eled_cdev=2Edev, &claw_rgb_attr=
-_group);
->> +		led_classdev_multicolor_unregister(&drvdata->led_mc);
->> +	}
->> +	cancel_delayed_work_sync(&drvdata->rgb_queue);
->
->[Severity: High]
->Should cancel_delayed_work_sync() for rgb_queue happen before
->led_classdev_multicolor_unregister()?
->
-
-This suggestion will just reintroduce the bug the reorder was meant to fix=
-=2E device_remove_group is blocking as far as I'm aware=2E By canceling the=
- work after that it removes the possibility of re-arming the worker after i=
-t is freed=2E The smp_load_acquire ensures any currently queued thread will=
- abort before the call to the led_classdev in the error message=2E If it is=
- really a problem I'll swap the device over to hdev=2Edev, but the probabil=
-ity is nearly zero of this ever happening=2E
-
->Canceling the work after unregistering the LED device creates a window
->where the executing work can access freed led_cdev=2Edev memory (as noted
->in claw_rgb_queue_fn)=2E
->
->>  	hid_hw_close(hdev);
->>  }
->
->[Severity: High]
->Are we missing the cancellation of the cfg_setup and cfg_resume delayed w=
-orks?
->
->The driver schedules cfg_setup and cfg_resume, but does not seem to expli=
-citly
->cancel them here in claw_remove()=2E If the device is disconnected while =
-either
->work is pending, could they execute after drvdata has been freed by devre=
-s,
->resulting in a use-after-free?
->
-
-
-cfg_setup & cfg_removed are cancelled in this function above the portion m=
-arker cutoff=2E This is introduced in patch 1/4=2E Bot is wrong here=2E
-
-- Derek
+diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+index 3487600cadb4..da6b338f18ba 100644
+--- a/drivers/hid/hid-input.c
++++ b/drivers/hid/hid-input.c
+@@ -2125,10 +2125,21 @@ static struct hid_input *hidinput_allocate(struct hid_device *hid,
+ 	input_dev->close = hidinput_close;
+ 	input_dev->setkeycode = hidinput_setkeycode;
+ 	input_dev->getkeycode = hidinput_getkeycode;
++        
++	const char *name = hidinput->name ? hidinput->name : hid->name;
++
++	input_dev->name = devm_kstrdup(&hid->dev, name, GFP_KERNEL);
++	if (!input_dev->name)
++		goto fail;
++
++	input_dev->phys = devm_kstrdup(&hid->dev, hid->phys, GFP_KERNEL);
++	if (!input_dev->phys)
++		goto fail;
++
++	input_dev->uniq = devm_kstrdup(&hid->dev, hid->uniq, GFP_KERNEL);
++	if (!input_dev->uniq)
++		goto fail;
+ 
+-	input_dev->name = hidinput->name ? hidinput->name : hid->name;
+-	input_dev->phys = hid->phys;
+-	input_dev->uniq = hid->uniq;
+ 	input_dev->id.bustype = hid->bus;
+ 	input_dev->id.vendor  = hid->vendor;
+ 	input_dev->id.product = hid->product;
+@@ -2144,6 +2155,8 @@ static struct hid_input *hidinput_allocate(struct hid_device *hid,
+ 	return hidinput;
+ 
+ fail:
++	if (hidinput)
++                kfree(hidinput->name);
+ 	kfree(hidinput);
+ 	input_free_device(input_dev);
+ 	hid_err(hid, "Out of memory during hid input probe\n");
+-- 
+2.53.0
 

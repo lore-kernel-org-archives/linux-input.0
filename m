@@ -1,93 +1,109 @@
-Received: from mail.thomae-home.info (v220260156322427693.bestsrv.de [159.195.70.226])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 2EDE33D45EA
-	for <linux-input@vger.kernel.org>; Tue, 14 Jul 2026 05:54:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=159.195.70.226
+Received: from mail-qk1-f169.google.com (mail-qk1-f169.google.com [209.85.222.169])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A753234B1B0
+	for <linux-input@vger.kernel.org>; Tue, 14 Jul 2026 10:12:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.169
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784008475; cv=none; b=qvUuz9kKPt7YSKA25CYX5gH1nrHnVJpqopdJcqywtCRW+dw9zDa9DusJwCxyn5d7yn/3tZ80Y7iCnjHofK4aHtsNUU0Y/LIxo/paB9vnFp/s+bluN5ZA7UuQxIeSDMNCJlPSGDaPiEXJ0/y95EMqfQMmkldBzziNjPpvIeJOFaw=
+	t=1784023966; cv=none; b=U21y2pkkxQoAUkNsZP6Hynrm7zBqlYU/0HkV8T8ie42woVpYzowAEQU/3EkRQb/Dvj4NXD1iceMKCG0ERGcGceu6w26qRmnFrP6Wul/0l/AwfRVR7AvzAKkaJ6o2W9DQq61/E2dx44RDyhCeQniHFIbTWdQwgFBDWdytu4p5Ku4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784008475; c=relaxed/simple;
-	bh=j0xLVR2JBewY/RwTXtqHJNEa/U6Jrnx6wA96QhiP0Oc=;
-	h=Message-ID:Date:MIME-Version:To:From:Subject:Content-Type; b=RIGe4xsEgg+xEOj3giPPjv/WYuQ/9CJ7NiY0EXDshk8MgNiB5WuSM6nCShUvt3BAho0lrsZ4uJwQ0RbCxKEbRM7smgAsgLfG0uX1gyH2so2ISlV0ctHeZwmfHcbj2pDo4hI2CocF+2hRyRuoDTtOBme/dKhSVCu1GMoLHgT90Xw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=thomae-home.info; spf=none smtp.mailfrom=thomae-home.info; arc=none smtp.client-ip=159.195.70.226
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=thomae-home.info
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=thomae-home.info
-Received: by mail.thomae-home.info (Postfix, from userid 105)
-	id 5C77689E; Tue, 14 Jul 2026 07:47:02 +0200 (CEST)
-X-Spam-Level: 
-Received: from [10.42.0.100] (185.39.67.211.cgn.tpponline.de [185.39.67.211])
-	by mail.thomae-home.info (Postfix) with ESMTPSA id 5FF422CD
-	for <linux-input@vger.kernel.org>; Tue, 14 Jul 2026 07:46:58 +0200 (CEST)
-Message-ID: <504f3ea7-fd23-428b-873b-12ed8bbce3ca@thomae-home.info>
-Date: Tue, 14 Jul 2026 07:46:57 +0200
+	s=arc-20240116; t=1784023966; c=relaxed/simple;
+	bh=u/T9HwF475h8G5NygkEKCoQSP1f90u86IK13PlHmt0w=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=lYgbkPZQqhveLza4rtJo/m5sza3BCgHiIwr8pgowMr2k8j0nrzpJVct/Vx5QZp7qleSRFycLXa5lcJTF2oezqs3gdxHiMQ2/vk3uTGshQT9U6qghmoPsw2sWqm0q1SNyovLIqQ7R1aixVKmrr4povpQiANJunGiG7O1Q/7X+JKU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Uoi0Qzxx; arc=none smtp.client-ip=209.85.222.169
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Uoi0Qzxx"
+Received: by mail-qk1-f169.google.com with SMTP id af79cd13be357-92eafc94c9cso297488785a.0
+        for <linux-input@vger.kernel.org>; Tue, 14 Jul 2026 03:12:44 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1784023963; x=1784628763; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=6X1/WLn79/CUgV4H/rMT3E22JluSKjkUFHRz/amWYjQ=;
+        b=Uoi0Qzxx7+pzfw4ji7YmqO0zY7u7DhWcwGdhTfLlVeVGKKcwU+5x7tFVKIVRp88nq/
+         /tOMyYj1X1eozuaBBf1tw1wSRB7q4Y29YHKrY/FCzUNZzFvAu5CEHAzoT6MJKvVJE/Id
+         B9bOr20IuSFysb3dsAAxcfwAMQeACOi2hGJ34VJpugZfzvGZoIvRKXELrSckobGHpGwY
+         koGoEyP+4/Ql2iQ4Q6njrZftVA8sUDPbMYsPqxfrJ4PR7ukA2OXVEV1CUmWBGF8k0F/V
+         +Jn2n4BCaKWRJvTQ1uzXnYYm3jvWy1vSxOWxuAHAFSj6lqJECC72NyKrEMpLutOCluMt
+         sB9w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1784023963; x=1784628763;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=6X1/WLn79/CUgV4H/rMT3E22JluSKjkUFHRz/amWYjQ=;
+        b=MKOFh7EobScFtCNZreAtidWCYBsWfx8y6TxOnadTjD+Z3SV0IQlXwZxKwhIMFAK05s
+         j9OJb5bHgBz5q0ocdrNMR1RETUsmOShGp+6BcxtO0RXcCaBL+MvR78FUuOHwvDs3pVid
+         pC9MqNJ58PEjGvuTV/TAvjzQouMiV8VGe+hT33/sQVitxl4UNOvAcyTJ3qhJxvvJaC0c
+         1SE9dL20OctF8Z8xuFPgWY9uITPL9DOfRRzp2VfTfN2QgrNqea7GZQk2204jx1KyYB6p
+         ye+iefmaHj0LLqImracLzfJd/YGauPpQYFFVsj4DjoFBcCdMOBdDXqrObggpNuDSjwJZ
+         6KJA==
+X-Forwarded-Encrypted: i=1; AHgh+RooKjjOH+aSOUElFJaaSUAfSqxDTGUa77GnMiKp6i7YZgPPwOTLB7laOQIRwNYKwo9bAxKrqM2LyzITzw==@vger.kernel.org
+X-Gm-Message-State: AOJu0YyBR5u5Uae9nADVVFVPPzt2IbNbEY7UeuNBYJmb6IQAZWWrJgmN
+	maZdzdrxC8xXBEy+CiUqQ8yYG9NcHt3fbOzTS6UEdJOM9O3GmCYZfL4F
+X-Gm-Gg: AfdE7clgfNEeqjzCLH5CvY2LmnKXq1Z//dJ5rQfpVymih6Fh0HUWMDCYf9xWzeiPG3g
+	+ppdCW7ietXJSYsCkTbA2poxgztLdIb389/Mg5zEA4HJg0zBpv6lN3pVBCIeHnRjKts/FTG7oQv
+	w7cBu7aBKelEqNSrgLBvia3AfUGaJq48Wxdu+9aJIqGF3wM+w3btpO6LwHOuCXtscL4z9VfJkFW
+	27OaLpVgn8MIi7VAkSmATjUcoo9tI3Z8lOJaH6kCqCMCxZS6jKU5Dkux7GeywlNRGqLPlQ4WjpL
+	VMWMDrnpv1+UDKhtsj1XBxuzbgKakCNLa/o9eSDedV8Rv+IPI+EqmYyWrZ1H3ugEZt/W64F+Fhl
+	a91k2IOAGUDfqse4F39Q5AjS2XbLaI8UCIHJ+K7ejgEJ6xgFatttHAg/P43wtGZqu1qW7aA+N3l
+	umR0l1H3391j51DbsSrxd1ORIpCPhx5XDIkg==
+X-Received: by 2002:a05:620a:1a15:b0:92e:62e3:3b55 with SMTP id af79cd13be357-93086c2251fmr143532485a.64.1784023963391;
+        Tue, 14 Jul 2026 03:12:43 -0700 (PDT)
+Received: from FairplayBox ([2601:5cf:837e:d920::f9a2])
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-92ee5cfcb0dsm1463056185a.25.2026.07.14.03.12.42
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 14 Jul 2026 03:12:43 -0700 (PDT)
+From: Alec Hall <signshop.alec@gmail.com>
+To: Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>,
+	linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org,
+	Alec Hall <signshop.alec@gmail.com>
+Subject: [PATCH 0/3] HID: Apple Magic Keyboard/Trackpad battery over Bluetooth
+Date: Tue, 14 Jul 2026 06:12:32 -0400
+Message-ID: <20260714101235.99447-1-signshop.alec@gmail.com>
+X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Content-Language: en-US
-To: linux-input@vger.kernel.org
-From: Sebastian Thomae <basti@thomae-home.info>
-Subject: =?UTF-8?Q?Logitech_G502_X_=28046d=3Ac099=29=3A_REL=5FWHEEL=5FHI=5FR?=
- =?UTF-8?Q?ES_always_reports_=C2=B1120?=
-Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 
-Hi,
+Apple's Magic Keyboard and Magic Trackpad 2 / Magic Mouse 2 report their
+battery to the host, but the kernel only surfaces it over USB; over
+Bluetooth the power_supply is stuck at 0%, even though these devices are
+used over Bluetooth nearly all the time.
 
-This is my first bug report to the list, and i used a LLM to help 
-translate and collect all information, i hope this is fine.
+Both drivers already fetch the battery (a GET_REPORT for input report
+0x90) but only over USB. Enabling it over Bluetooth naively hard-locks the
+machine: the fetch runs from a timer callback (atomic context) and the
+uhid transport sleeps inside hid_hw_request(). Each driver's patch
+therefore moves the fetch to a workqueue before enabling it over
+Bluetooth. The last patch teaches hid-magicmouse to report charge status
+from the device's status byte.
 
-Kernel: 7.1.3-arch1-1
-libinput: 1.31.3
-DE: KDE Plasma 6 (Wayland)
-Device: Logitech G502 X (wired)
-USB ID: |046d:c099|
-The device is bound to |hid-generic| and is not handled by 
-|hid-logitech-hidpp|.
-|$ grep C099 /lib/modules/$(uname -r)/modules.alias (no output) $ lsmod 
-| grep hid_logitech (no output)|
-*
-**Problem*
-The device advertises and emits |REL_WHEEL_HI_RES|, but every wheel 
-event reports exactly:
-|REL_WHEEL ±1 REL_WHEEL_HI_RES ±120|
-No intermediate high-resolution values are ever generated, regardless of 
-wheel speed.
-As a result, scrolling behaves identically to a traditional detented 
-mouse wheel, even when the mouse is configured for high-resolution 
-scrolling.
+Patch 3 interprets a vendor status byte whose bit meanings were determined
+empirically; I can rework it as a report-descriptor fixup exposing
+HID_BAT_CHARGING instead if reviewers prefer.
 
-Using Solaar:
-|hires-smooth-resolution = True
-hires-scroll-mode = False|
-does not change the event stream.
-|
-hires-scroll-mode = True
-|disables the sending of wheel events (at least libinput and evdev see none)
-*
-libinput debug-events*
-Example output:
-|POINTER_SCROLL_WHEEL vert 15.00/120.0*|
-The output is always based on 120-unit wheel events.
-*
-libinput record*
-Each wheel notch produces:
-|EV_REL REL_WHEEL 1 EV_REL REL_WHEEL_HI_RES 120|
-No events with values smaller than 120 are ever observed.
-*
-HID descriptor*
-The mouse exposes:
-|REL_WHEEL REL_WHEEL_HI_RES|
-However, the HID report descriptor does not appear to expose a 
-Resolution Multiplier feature for the wheel.
-*
-Expected behaviour*
-If the device supports high-resolution scrolling, I would expect 
-|REL_WHEEL_HI_RES| to provide intermediate values (or multiple smaller 
-events) rather than always reporting ±120.
-If this device is expected to behave differently, could you clarify 
-whether support for USB device |046d:c099| is currently incomplete, or 
-whether additional HID initialization is required?
+Tested on a Magic Keyboard 2021 and a Magic Trackpad 2 over BlueZ (uhid).
+
+Alec Hall (3):
+  HID: apple: report Magic Keyboard battery over Bluetooth
+  HID: magicmouse: report battery over Bluetooth
+  HID: magicmouse: report charge status over Bluetooth
+
+ drivers/hid/hid-apple.c      | 36 ++++++-------
+ drivers/hid/hid-magicmouse.c | 99 ++++++++++++++++++++++++++----------
+ 2 files changed, 92 insertions(+), 43 deletions(-)
+
+
+base-commit: b7556c8e713c88596046a906c7c4385218d44736
+-- 
+2.55.0
 

@@ -1,180 +1,227 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f49.google.com (mail-pj1-f49.google.com [209.85.216.49])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E0203478E4A
-	for <linux-input@vger.kernel.org>; Tue, 14 Jul 2026 13:52:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784037127; cv=none; b=dACJ9MYSnKWiv/f9suc98/vyO6DaCm6eGXtATcDSxpG0Jp4g2XZDpTdyril91vmKQS7n0hT5AYzXm0u6sI9pcv9iseM1lde4ONqo5WtkTAKXhBQE6TC81YwlC5uvTXfj7dAIDe0p2l2qCieWscntPsudxvyw4zvxw6JaDa5CZbg=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784037127; c=relaxed/simple;
-	bh=ZJSvVDoOxYQLVlIxCGhS4xOY+TPLAuyEd5Dv9iXJr/w=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=HSXjXZBIKXcDrfyZFJ7KuM9HnzvuWhk2Ro0v3NFcaJV5yK6hLLJJrcwEsg8hyWOcV8ZDJVvfIjf5867pqmVEnHcBEX0Y4O3kfOrtL55sNiGaStl4tEMkcXLu+8Snq4wUqrYt06/0Lfv515gDbVIpAZfbGmEroH6AG0fx7TeW/eA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=SLBruBYt; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3DE0747CC7A
+	for <linux-input@vger.kernel.org>; Tue, 14 Jul 2026 14:03:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.216.49
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1784037799; cv=pass; b=ZJRRKkw+7GtavPIl0JaApTIrI5tdAIN1I2duLGbfFS8iQdE2gQwUkNIsBuU6DyVgC+2lQk/DDpup0UtrS21KLEAnUDbM1tek8wG+Na5cOlvXv1qTgZ/t30/2MABC0LM1sWDqzYTtsmqsCf+QUQagGNtuHMLC4pGEcKjMsL2zdpA=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1784037799; c=relaxed/simple;
+	bh=jcfCE/0TEkTsIVfXnYBhBH66bO22mTW43lzd2mIpj78=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=tg2hKmDKv5xk/mEIsFnkD7jNNGfAHoVgNy4/mIhQse3BK74G2YcPeK+vOAH2A049dzN9P2VX8iS1QpnzJUIbWxREhdRjMJ16ej7Smk91TFY3K+WDAaFpDlVTknszVTt0mmQFjM4irp7r/ocIr7HqZ9uxuZxUt0/i7P8i4VbWZbQ=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=lAK2SoBn; arc=pass smtp.client-ip=209.85.216.49
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="SLBruBYt"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 433161F00A3D;
-	Tue, 14 Jul 2026 13:52:05 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784037125;
-	bh=dloDVjoPhbEeACoZK8dOgu+vSJbPHzF3dp8mVEmQH14=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=SLBruBYtK2MrdXlcrzeoWs9pNQigc45BaiWb9rUzxzusTeWEd26fz0lJoawQL9+70
-	 YhCqTDCgAwy8tk9To+j0hg9WSb7EV4s1dBoyrr3z/hsY/8iB/5Owv9+2KzUoW7O948
-	 DAanUEZ+m4Pv6GIrk9i+zmkiSygBrb9inBJEoKP8eff4LGO0izJ3fW+VU/ZgB18wAu
-	 AveocTTazEDNOPdfgrTt2W56x5LuYL2qDkXXZyySVlVkyH/auzXuQylsVIS9riYz8q
-	 tJkrbzjyc2rtNFiw8liEAQeQGzvPGJa8DWOtz04LtYiDj2yrEpj3yDvmoY4SEd9EIx
-	 S/F/mGs1UfppA==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 3/4] HID: mcp2221: fix out-of-bounds read in
- mcp2221_raw_event
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Jiale Yao" <yaojiale02@163.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260714131611.269929-3-yaojiale02@163.com>
-References: <20260714131611.269929-1-yaojiale02@163.com>
- <20260714131611.269929-3-yaojiale02@163.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Tue, 14 Jul 2026 13:52:04 +0000
-Message-Id: <20260714135205.433161F00A3D@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="lAK2SoBn"
+Received: by mail-pj1-f49.google.com with SMTP id 98e67ed59e1d1-383b4a3755fso955309a91.3
+        for <linux-input@vger.kernel.org>; Tue, 14 Jul 2026 07:03:15 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1784037795; cv=none;
+        d=google.com; s=arc-20260327;
+        b=PFSqVyx74H+sLcS6kQH5p3XjDY3Hp5kBqA3C22deMnWwvv/XwTkeEBXBStkxZdcytK
+         FdVE/Wbpca2IMbrqI4pX0WG9EXswJPrhNw2bNEHy2sIriJa10cQ1ONdKjW0edgSX43Ay
+         7BPtf6AOg10Du7ZXLOgKlYjsHc4bUlXM3Do/Vi7j5U2uhb+zYUoC/CK0+m/f+o58gDkS
+         dMGqPrLbjLdPxTe/B5ex5zR/tB081dVN4MNTLp+3NqXwMe1rrmXaXdfH0Ddpksf35vHW
+         2SdzuBZRRsKj7mfpNdsOo+VswjWvbQrueB4Z8AU6cuyb/lEnF8oDYM4vZITq7yQbbl+A
+         kp1A==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=myF6T21RyLYT6/CfTBKwlhYNyiiPbXPGvaRTBJcI6ZU=;
+        fh=I4hKDtd00YTKLoD9sa0aSlUtOSjvYuuCfiXJ3e8ATXE=;
+        b=QIJiZKufFXoGtnDj9IpAQpJIjhOjVjtA7If/LH+3AdsmIyqYt8b4F8ciffZRgZ2hul
+         HsZ3BWksCVBUtet4az10RHA3rwUWrSIEii2kL7vlKg71VR7xb2u9iJegj06cnVAvxYnM
+         TlwmOosdaeieDspx6xVdiSF9BEOwlb7Lb7CpTF30fgymplg2ynUyxgo4X2RxTs1Ajf8N
+         z7g69DQErUYGLIY+R0RpdLkv+v0ayx96B2GQ3S/NKlc+GzI27eUtx84QAvgLOjZLgYwt
+         ccAB1JnBrkQpFXhjUCsNzuX53N20eKedkSLInJk4TLe79yrT88kTo7pEhVU6+peANG4c
+         /Z7g==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1784037795; x=1784642595; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=myF6T21RyLYT6/CfTBKwlhYNyiiPbXPGvaRTBJcI6ZU=;
+        b=lAK2SoBneg8a79IZxLlhDsoAc5s20dBKXYEmWxNqZbpTv1QYHuXFFTg+NoFNbGZt2D
+         UEVjkRmdqrTUvXv7NUo+KyP47BDLcu4h6ndNAWy8SpgCyMfHyAHNG4l4y3KQQsVM+NfO
+         y3AuDDKNqrG2ji6rSNU4GXaj318V6nIpTK5NE9HzDHEqubMliMFQ/6DYBUTv7cRfhVko
+         3hLr+lBtOX3eNCTXc2oxsUbuLs3l5I4wzeDq7R6fv1ZZeVGJqY1ZEmMy5Km53CIK2+gt
+         sR/h7Ue36rW6UZW3hnySs1O74EAPlLqb2jBd8DkABTJgXXntJDpmIPLfyks3ke+Fgy3h
+         W7wg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1784037795; x=1784642595;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=myF6T21RyLYT6/CfTBKwlhYNyiiPbXPGvaRTBJcI6ZU=;
+        b=GP1CFPBnrhIc8guUJHce04I37VGFeZirlL0syEd7oRWKeWtOIgeaLtyqL0SmpQuVmB
+         a6t8HvTQs0JbHdhvvpjqt7f6odBKXJMvb1Fu5VwipI6QyPaYM+etW3v+q8qvjpINS1B5
+         DrSdXRUol5SOyY1UmF11GCUxQUIE3MY4ezI58PXA32iTvdqDCdrVaWU8Iyu2WhC2HJNw
+         UJqfLcp/25XAbVC3hiy7kbVZ8+30elMnrtJ9egzwJJivY8oZP9hOuZGDE1TsgZnVYAMa
+         3LqWrLM71e+TuEMoqtdq0I/GxfmOSbETWUzRmIW7noUTW0+rz8GjtD3P0UMyAURDUNQ0
+         riVQ==
+X-Forwarded-Encrypted: i=1; AHgh+Ro7OqItcduSN7nBYBOEmKufCWVXrYb9+E3DjRSoF3tALdjQMM8wCLZEm/OEmIKW8oLtj5etzqusBD7g7w==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yxpn9QDeqyBg4D027q2cALzFNCfOUXv0SvcqnSScxbK+3dy4pua
+	4pJn1c/kZxw8u+9XVkrk7tXsQdVnvh4Vnl1uNfXaz0aTwy6DMYc1eS+kSBZ+VfKQUG6bmIX57zk
+	/bv2Q/aoMIPmXXv8XT/6ZO9Wr93sMvhA=
+X-Gm-Gg: AfdE7cl1j8X32cHsoU7KREF32NXq0SyVNBiTHoaF6YMn31mBezUujK40R6xYSybj5f4
+	nGoCUWnagO7sRi+K+hlDoBWJLrLDyDaYvzVQ6CXr5WS8mLJEvCkQot8R7mAQVsYcFxCODcDd1tx
+	tW3N1hzkXKLPSVJCwahnrwdc/21bx8l+ODQuHsJkGmNn7QKFYKO8TjV0GyQ1+1RamCK1s4a1+tH
+	vnc8m5GDSJ71mJAUjiNln5C3TNsJXEmdgb90jVuABRlF+S4wvaLKpGiFKmNC35PZ5u4+TgVgRx5
+	L5xwALprCjQRaH5BlpAbTSctmkkhAA==
+X-Received: by 2002:a17:90b:5863:b0:36d:b424:4f17 with SMTP id
+ 98e67ed59e1d1-38dc73bcfdfmr12462942a91.1.1784037794156; Tue, 14 Jul 2026
+ 07:03:14 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+References: <20260625081529.22447-1-clamor95@gmail.com> <20260625081529.22447-5-clamor95@gmail.com>
+ <CAPVz0n1o+2NRQrLfbCMT0JdeFhhD4PS4UzSt3L6-QQ2ywHL+mA@mail.gmail.com>
+In-Reply-To: <CAPVz0n1o+2NRQrLfbCMT0JdeFhhD4PS4UzSt3L6-QQ2ywHL+mA@mail.gmail.com>
+From: Svyatoslav Ryhel <clamor95@gmail.com>
+Date: Tue, 14 Jul 2026 17:03:02 +0300
+X-Gm-Features: AUfX_myvMCwvq1yA3I4zoSr0hddrF32oflvRuyg70zCnHs7uf8DcWagE6S5UHa4
+Message-ID: <CAPVz0n3FkzoXJBffsOJzd4Rq9HmA0n1oFCU-9Xt=URmpXhY2UA@mail.gmail.com>
+Subject: Re: [PATCH v9 4/7] input: keyboard: Add driver for ASUS Transformer
+ dock multimedia keys
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Rob Herring <robh@kernel.org>, =?UTF-8?B?TWljaGHFgiBNaXJvc8WCYXc=?= <mirq-linux@rere.qmqm.pl>, 
+	Ion Agorria <ion@agorria.com>, Sebastian Reichel <sre@kernel.org>, Pavel Machek <pavel@kernel.org>, 
+	Lee Jones <lee@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
+	Krzysztof Kozlowski <krzk+dt@kernel.org>, devicetree@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, 
+	linux-leds@vger.kernel.org, linux-pm@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Thank you for your contribution! Sashiko AI review found 4 potential issue(=
-s) to consider:
+=D0=BF=D1=82, 3 =D0=BB=D0=B8=D0=BF. 2026=E2=80=AF=D1=80. =D0=BE 11:53 Svyat=
+oslav Ryhel <clamor95@gmail.com> =D0=BF=D0=B8=D1=88=D0=B5:
+>
+> =D1=87=D1=82, 25 =D1=87=D0=B5=D1=80=D0=B2. 2026=E2=80=AF=D1=80. =D0=BE 11=
+:16 Svyatoslav Ryhel <clamor95@gmail.com> =D0=BF=D0=B8=D1=88=D0=B5:
+> >
+> > From: Micha=C5=82 Miros=C5=82aw <mirq-linux@rere.qmqm.pl>
+> >
+> > Add support for multimedia top button row of ASUS Transformer's Mobile
+> > Dock keyboard. Driver is made that function keys (F1-F12) are used by
+> > default which suits average Linux use better and with pressing
+> > ScreenLock + AltGr function keys layout is switched to multimedia keys.
+> > Only Dock keyboard input events are tracked for AltGr pressing.
+> >
+> > Co-developed-by: Ion Agorria <ion@agorria.com>
+> > Signed-off-by: Ion Agorria <ion@agorria.com>
+> > Signed-off-by: Micha=C5=82 Miros=C5=82aw <mirq-linux@rere.qmqm.pl>
+> > Signed-off-by: Svyatoslav Ryhel <clamor95@gmail.com>
+> > ---
+> >  drivers/input/keyboard/Kconfig                |  10 +
+> >  drivers/input/keyboard/Makefile               |   1 +
+> >  .../input/keyboard/asus-transformer-ec-keys.c | 314 ++++++++++++++++++
+> >  3 files changed, 325 insertions(+)
+> >  create mode 100644 drivers/input/keyboard/asus-transformer-ec-keys.c
+> >
+> > diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kc=
+onfig
+> > index 9d1019ba0245..913cb4900565 100644
+> > --- a/drivers/input/keyboard/Kconfig
+> > +++ b/drivers/input/keyboard/Kconfig
+> > @@ -89,6 +89,16 @@ config KEYBOARD_APPLESPI
+> >           To compile this driver as a module, choose M here: the
+> >           module will be called applespi.
+> >
+> > +config KEYBOARD_ASUS_TRANSFORMER_EC
+> > +       tristate "Asus Transformer's Mobile Dock multimedia keys"
+> > +       depends on MFD_ASUS_TRANSFORMER_EC
+> > +       help
+> > +         Say Y here if you want to use multimedia keys present on Asus
+> > +         Transformer's Mobile Dock.
+> > +
+> > +         To compile this driver as a module, choose M here: the
+> > +         module will be called asus-transformer-ec-keys.
+> > +
+> >  config KEYBOARD_ATARI
+> >         tristate "Atari keyboard"
+> >         depends on ATARI
+> > diff --git a/drivers/input/keyboard/Makefile b/drivers/input/keyboard/M=
+akefile
+> > index 60bb7baf802f..0d81096887ad 100644
+> > --- a/drivers/input/keyboard/Makefile
+> > +++ b/drivers/input/keyboard/Makefile
+> > @@ -11,6 +11,7 @@ obj-$(CONFIG_KEYBOARD_ADP5585)                +=3D ad=
+p5585-keys.o
+> >  obj-$(CONFIG_KEYBOARD_ADP5588)         +=3D adp5588-keys.o
+> >  obj-$(CONFIG_KEYBOARD_AMIGA)           +=3D amikbd.o
+> >  obj-$(CONFIG_KEYBOARD_APPLESPI)                +=3D applespi.o
+> > +obj-$(CONFIG_KEYBOARD_ASUS_TRANSFORMER_EC)     +=3D asus-transformer-e=
+c-keys.o
+> >  obj-$(CONFIG_KEYBOARD_ATARI)           +=3D atakbd.o
+> >  obj-$(CONFIG_KEYBOARD_ATKBD)           +=3D atkbd.o
+> >  obj-$(CONFIG_KEYBOARD_BCM)             +=3D bcm-keypad.o
+> > diff --git a/drivers/input/keyboard/asus-transformer-ec-keys.c b/driver=
+s/input/keyboard/asus-transformer-ec-keys.c
+> > new file mode 100644
+> > index 000000000000..53aff3ce7146
+> > --- /dev/null
+> > +++ b/drivers/input/keyboard/asus-transformer-ec-keys.c
+> > @@ -0,0 +1,314 @@
+> > +// SPDX-License-Identifier: GPL-2.0-or-later
+> > +
+> > +#include <linux/array_size.h>
+> > +#include <linux/err.h>
+> > +#include <linux/i2c.h>
+> > +#include <linux/input.h>
+> > +#include <linux/mfd/asus-transformer-ec.h>
+> > +#include <linux/module.h>
+> > +#include <linux/platform_device.h>
+> > +#include <linux/slab.h>
+> > +
+> > +#define ASUSEC_EXT_KEY_CODES           0x20
+> > +
+> > +struct asus_ec_keys_data {
+> > +       struct notifier_block nb;
+> > +       struct asusec_core *ec;
+> > +       struct input_dev *xidev;
+> > +       struct input_handler input_handler;
+> > +       unsigned short keymap[ASUSEC_EXT_KEY_CODES * 2];
+> > +       const char *kbc_phys;
+> > +       bool special_key_pressed;
+> > +       bool special_key_mode;
+> > +};
+> > +
+> > +static void asus_ec_input_event(struct input_handle *handle,
+> > +                               unsigned int event_type,
+> > +                               unsigned int event_code, int value)
+> > +{
+> > +       struct asus_ec_keys_data *priv =3D handle->handler->private;
+> > +
+> > +       /* Store special key state */
+> > +       if (event_type =3D=3D EV_KEY && event_code =3D=3D KEY_RIGHTALT)
+> > +               priv->special_key_pressed =3D !!value;
+> > +}
+> > +
+> > +static int asus_ec_input_connect(struct input_handler *handler,
+> > +                                struct input_dev *dev,
+> > +                                const struct input_device_id *id)
+> > +{
+> > +       struct asus_ec_keys_data *priv =3D handler->private;
+> > +       struct input_handle *handle;
+> > +       int error;
+> > +
+> > +       if (!dev->phys || !strstr(dev->phys, priv->kbc_phys))
+> > +               return -ENODEV;
+> > +
+>
+> Hello Dmitry!
+>
+> Would this approach be acceptable? Handler links strictly to asus-ec keyb=
+oard.
+>
 
-Pre-existing issues:
-- [Critical] Stale mcp->rxbuf pointer leads to Use-After-Free or Stack Buff=
-er Overflow when receiving delayed MCP2221_I2C_GET_DATA input reports.
-- [High] An out-of-bounds read occurs in mcp2221_raw_event due to uninitial=
-ized or shared mcp->gp_idx state.
-- [High] Shared transfer state variables such as mcp->rxbuf_idx are modifie=
-d concurrently by process context and the HID raw event handler without loc=
-king.
-- [High] The `retries` counter in `mcp_init_work` is declared as a `static =
-int`, leading to data races and logic bugs when multiple mcp2221 devices ar=
-e probed or a single device is replugged.
---
-
---- Patch [3]: [PATCH 3/4] HID: mcp2221: fix out-of-bounds read in mcp2221_=
-raw_event ---
-commit 8bc8521d47c1c74b70fcc5afb281169b37669d79
-Author: Jiale Yao <yaojiale02@163.com>
-
-HID: mcp2221: fix out-of-bounds read in mcp2221_raw_event
-
-This commit adds bounds checking to the mcp2221_raw_event handler to
-prevent out-of-bounds reads when processing HID reports. It introduces a
-top-level size check and specific size constraints for different I2C and
-GPIO operations.
-
-> diff --git a/drivers/hid/hid-mcp2221.c b/drivers/hid/hid-mcp2221.c
-> index e4ddd8e9293b6..0423b5affe8f6 100644
-> --- a/drivers/hid/hid-mcp2221.c
-> +++ b/drivers/hid/hid-mcp2221.c
-[ ... ]
-> @@ -918,7 +931,8 @@ static int mcp2221_raw_event(struct hid_device *hdev,
->  			}
->  			if (data[2] =3D=3D MCP2221_I2C_READ_COMPL ||
->  			    data[2] =3D=3D MCP2221_I2C_READ_PARTIAL) {
-> -				if (!mcp->rxbuf || mcp->rxbuf_idx < 0 || data[3] > 60) {
-> +				if (!mcp->rxbuf || mcp->rxbuf_idx < 0 ||
-> +				    data[3] > 60 || size < 4 + data[3]) {
->  					mcp->status =3D -EINVAL;
->  					break;
->  				}
-
-[Severity: Critical]
-This is a pre-existing issue, but does this code write to a dangling
-stack pointer if a delayed input report arrives?
-
-Looking at mcp_i2c_smbus_read(), mcp->rxbuf is pointed to a local stack
-buffer. If the I2C request times out after 5 retries, mcp_i2c_smbus_read()
-returns without clearing mcp->rxbuf:
-
-mcp_i2c_smbus_read() {
-    ...
-    retries++;
-    if (retries =3D=3D 5)
-        return -ETIMEDOUT;
-    ...
-}
-
-Could a malicious USB device send a delayed MCP2221_I2C_GET_DATA report
-after the timeout, causing mcp2221_raw_event() to locklessly copy up to
-60 bytes into the now-freed stack frame?
-
-[Severity: High]
-This is also a pre-existing issue, but is it safe to modify mcp->rxbuf_idx
-here without a lock?
-
-The I2C process thread holds mcp->lock while initializing mcp->rxbuf_idx
-in mcp_i2c_smbus_read():
-
-mcp_i2c_smbus_read() {
-    ...
-    mcp->rxbuf_idx =3D 0;
-    ...
-}
-
-However, mcp2221_raw_event() runs asynchronously in softirq context. Can a
-spurious input report race with the process-context operations, corrupting
-the buffer bounds or indices?
-
-[ ... ]
-> @@ -958,6 +974,8 @@ static int mcp2221_raw_event(struct hid_device *hdev,
->  		break;
-> =20
->  	case MCP2221_GPIO_SET:
-> +		if (size < sizeof(struct mcp_set_gpio))
-> +			return 1;
->  		switch (data[1]) {
->  		case MCP2221_SUCCESS:
->  			if ((data[mcp->gp_idx] =3D=3D MCP2221_ALT_F_NOT_GPIOV) ||
-
-[Severity: High]
-This is a pre-existing issue, but does this code perform an out-of-bounds
-access if a device sends an unsolicited report before any GPIO operations
-occur?
-
-If mcp->gp_idx is still 0, evaluating data[mcp->gp_idx - 1] in the
-MCP2221_GPIO_SET handler will read from data[-1].
-
-Similarly, if mcp->gp_idx is legitimately set to a high value like 17,
-could an unsolicited MCP2221_GPIO_GET report with a valid size of 10
-access data[18], reading past the bounds of the short packet? The newly
-added check for the overall packet size does not prevent this since it
-doesn't validate the independently modified mcp->gp_idx.
-
-[ ... ]
-
-[Severity: High]
-This is a pre-existing issue outside the modified hunks, but is the
-retries counter in mcp_init_work() susceptible to data races across
-multiple devices?
-
-mcp_init_work() defines retries as a static variable:
-
-mcp_init_work() {
-    static int retries =3D 5;
-    ...
-    if (!retries--)
-        return;
-    ...
-    schedule_delayed_work(&mcp->init_work, msecs_to_jiffies(100));
-}
-
-If a device fails IIO initialization multiple times, the static counter
-drops to -1. Once negative, !retries-- evaluates to false, causing an
-infinite rescheduling loop for any subsequent devices or replugs that
-fail. Should this retry state be tracked per-device in the mcp2221
-struct instead?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260714131611.2699=
-29-1-yaojiale02@163.com?part=3D3
+Hello Dmitry! May you please take a look? ATM only ACK on input patches lef=
+t.

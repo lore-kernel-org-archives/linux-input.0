@@ -1,163 +1,229 @@
-Received: from PA4PR04CU001.outbound.protection.outlook.com (mail-francecentralazon11013015.outbound.protection.outlook.com [40.107.162.15])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wr1-f49.google.com (mail-wr1-f49.google.com [209.85.221.49])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 30F3626AF4;
-	Tue, 14 Jul 2026 15:47:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.162.15
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784044039; cv=fail; b=Ciel0IIsECOzb0zk5hSam4gRrowLIM0QUxoi1GILfJ3p8lw+eXM1BY6G+AURIOa+SINkKSM3WX7Gzun/Wi0ez2QViIGNijUIg0Bh0cSK+bbvg2P1jHab4SfPIPH1Kawa3j41wWUl3/Ypl9CXTIJC319xH3LirQgJpeWcJQ0IB6E=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784044039; c=relaxed/simple;
-	bh=2jqmYSc5CXllpn13w0cVmcMTf2wzTl2kIFasX3bBqFo=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=jibGligxpfehONiE1mV7LcsTxCXTdePauVSEDXejUTtP3npFgDPIm0r45aoUCYEDsirMXGLamb8iu8+Gq2xVfREfZsq6JI0yMnok23jJhCAj5s7T2WFKZuc7t/dEb0IQEiAhGP7BHp1y8kdzviLOBEdryHrt0EKB6Ly8H6nZk4U=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=oss.nxp.com; spf=pass smtp.mailfrom=oss.nxp.com; dkim=pass (2048-bit key) header.d=NXP1.onmicrosoft.com header.i=@NXP1.onmicrosoft.com header.b=MyyXMd5f; arc=fail smtp.client-ip=40.107.162.15
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=oss.nxp.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.nxp.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 564DD4D8DAF
+	for <linux-input@vger.kernel.org>; Tue, 14 Jul 2026 16:41:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.49
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1784047309; cv=none; b=Fe+3/n6hsFPX/yjgUcUQM3pw/P43U5WpbBZlFIB6nIwqRWmNusnfHqblgpYKukK4CJ2notCTo/QCGAJKDCVIs2amBl8raq+AWN9MC+o1HPBf1QwGr4bex3FGS7q2F+Q3qX4UGUCo8P6I1BHGXqRozuJiRCifSVSwqIwETpDy2BA=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1784047309; c=relaxed/simple;
+	bh=+UZ2C/SIqj6Dtle1yIQ62BUp8tDwxi+DEhc0LgCFf7E=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=HJ+1alNnddpU61J3n/LL8b8gSmN7IDsIoqNXHmwaI0S9vi28tPAYltX69lNWMRaJZTLSIdD4CoD09pOxFR9H08RBDV29BLs1TFCUcbAKxH8M0nAh8DvLTDX/sJuhzuVuxn9uRI/aDwrWe3oMCOoKAl7/byLXPjqO6I4szLygw9k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=jfk2OvY6; arc=none smtp.client-ip=209.85.221.49
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=NXP1.onmicrosoft.com header.i=@NXP1.onmicrosoft.com header.b="MyyXMd5f"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=BlSc1JUMXvYX2T2aDD1g64TRdJTqCekVQaebWKlebcZ7CkrjUXEn/Af2yHizc4TfNazIrLOPT2+qu+IVib01HgN0CNPxTeG1xP1cqGMRMDoiH9hHoJ7e6Ve0pXI5hkR0LYXSPtyB+2rm4YHvmjFKyZElV6E3LwvQiT5R/7uG4+A55pwe/BYKzfrMIRlTah7rYLr9UNNv8hg6b+jr97Zdt7cthj1l3aveEwvAJDjbEvNMUi2jtkMpJUFaI67Skkej5ZpMr2X6RAC5ktBUcPfAUYpIuEqmMLppUnqNcof24ahkvmCOL6+FIC2qMwlACb6bthizPzv02TI+yPYIur2SAQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=vOXwnV73GcfyNmNpITUfjDdj5FIPSkGlKyzmvDJmRZM=;
- b=Ms7Dr22bWsnzkBMf4KyE9AuN2p1kYiygsQkh0A/loOfQl/I10jLaqSJGTGEM5JO/KzFRGWNWcM5wDd9bc64ATzyj4b9V20Q4CBXE5zXDAiQL9yIUbFf2/G0uuPF6vNyCmf/u4rFh9Pz25b3V4CKced73zZ9GLd+VZSf0GKHRDM2WIoi/2ksTxEtFFewhb6722XLEwIM1R/vaYIi1Xv7zsPONuVELU/6iLUmqHWQ9M15S8K1S6cZHPb7RkB4ra1v/JuGbIbFO+OPI2q/3ybvrfDvunIuiGe4MqFdkyDU6yrwCHx5KiY2aIMUOQ+tkp5tP/W/tKXBHQXwod7Q0FDcQ4A==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=oss.nxp.com; dmarc=pass action=none header.from=oss.nxp.com;
- dkim=pass header.d=oss.nxp.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=NXP1.onmicrosoft.com;
- s=selector1-NXP1-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=vOXwnV73GcfyNmNpITUfjDdj5FIPSkGlKyzmvDJmRZM=;
- b=MyyXMd5fvPHQEbPZRCwkefE+1xfxsEnUqGWVqKjQPOh/oRb0Cznj9fYDg38qzYxLdKMiMFQh/VIaVkMoe0u/D+Ui5iCJV5B2a2FIwUsqvi/snTeNuaYNevePoVCQ+MmZUFnUBnDsycD9acVoOIpq+OZbJQtz5VUoTsNBXgSLB9A3VyQfxF9A+ZF0Z0Fewzzdp2oNO/FesATJYWqB4+6wfeWM8Z17QWsIRQ/O1+eyaemCABdHoUjsPNxYWNsQYuIlXuKOP5tc0JOwcC1P5An85GRWxOi4Dti4PL7KOV0G1NCJ/74eUJZg6ZJH46Q4HqQ/uqaBsKTOuBmXXvpDRVZmyw==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=oss.nxp.com;
-Received: from GV2PR04MB11799.eurprd04.prod.outlook.com (2603:10a6:150:2cf::9)
- by VI0PR04MB11548.eurprd04.prod.outlook.com (2603:10a6:800:2fb::20) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.181.23; Tue, 14 Jul
- 2026 15:47:13 +0000
-Received: from GV2PR04MB11799.eurprd04.prod.outlook.com
- ([fe80::2146:83a2:5329:b7c]) by GV2PR04MB11799.eurprd04.prod.outlook.com
- ([fe80::2146:83a2:5329:b7c%6]) with mapi id 15.21.0202.018; Tue, 14 Jul 2026
- 15:47:13 +0000
-From: Frank.Li@oss.nxp.com
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Dong Aisheng <aisheng.dong@nxp.com>,
-	Shawn Guo <shawnguo@kernel.org>,
-	Sascha Hauer <s.hauer@pengutronix.de>,
-	Pengutronix Kernel Team <kernel@pengutronix.de>,
-	Fabio Estevam <festevam@gmail.com>,
-	Frank Li <Frank.Li@nxp.com>
-Cc: linux-input@vger.kernel.org,
-	devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	imx@lists.linux.dev,
-	linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH 0/2] input: fsl,scu-key: Add compatible string fsl,imx8qm-sc-key
-Date: Tue, 14 Jul 2026 11:47:06 -0400
-Message-ID: <178404388197.1628554.1376903172807695440.b4-ty@b4>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20251028-b4_qm_scu_key-v1-0-9732e92a5e83@nxp.com>
-References: <20251028-b4_qm_scu_key-v1-0-9732e92a5e83@nxp.com>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: PH7P220CA0086.NAMP220.PROD.OUTLOOK.COM
- (2603:10b6:510:32c::15) To GV2PR04MB11799.eurprd04.prod.outlook.com
- (2603:10a6:150:2cf::9)
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="jfk2OvY6"
+Received: by mail-wr1-f49.google.com with SMTP id ffacd0b85a97d-4758bd3731bso931371f8f.0
+        for <linux-input@vger.kernel.org>; Tue, 14 Jul 2026 09:41:47 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1784047305; x=1784652105; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:in-reply-to:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=dAGdTmKiRz8gSXgEL0AxMvGfkn4LlPlutVrGbCWXhWI=;
+        b=jfk2OvY6itIAXcb2MHEYmlCw1DRTYcd5IMg8HjTKyj7b8d+cf2jF9cRdMzUdo+X+FL
+         HIBxDTQVyHNx3nq5zHhphZpi+9/XqYmFMqA/vrLSPT+np3UW1VUlyDMGEsEsSfBHeLxK
+         yCzm6VHhSpnlcBW/HW+3Z+k1QiDBEodhkGDKEFFjg/dcZItkzuuFiHL7JOQ1tCioUc+p
+         7qyaw9HlV6+a9mXXh9WmW81Hwtg0BGvQ94ZMN9+DhVHoqd1JL+VvPZhp+3ROPp1w+H8W
+         nCXTM4614VmuS8QGXBWzdCcnETsfH1Uk305vkm0WclSp522qa8SkDT8LtIqJhGS0Pl2S
+         IuHw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1784047305; x=1784652105;
+        h=content-transfer-encoding:content-type:in-reply-to:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=dAGdTmKiRz8gSXgEL0AxMvGfkn4LlPlutVrGbCWXhWI=;
+        b=SMFZP8SFHcma6X73NlVj5jmr2qu8Na6wcmgBP//aNj+m55S9wLOX5nNSH6O8wnNJi4
+         3MuijQEzYBI5W+CA+rg4ZUS/G6FYXTfNYT/WwpmgPgCTviRVGuJzMoJOnHhyzFKAJs5X
+         KxjLtSpor/ccSvEh4YyWwWh+hxKrRc4tRjWqwK99Rxb0+8o00vW4YXZCMQalIuu6rkaB
+         euz9sB4kDRHVwNt24NdYniNT/sGuXOuL1WuHta/hVKBXGbOiAVRQ/yfvkT9VbTqxo87V
+         L4/5S0kGqz6bJy2KmEPe4bIgoeDU9EjcFb5/Idh6fBCOhKbs3pgluSUTRsQZIFDdQXHy
+         4FUQ==
+X-Forwarded-Encrypted: i=1; AHgh+RqW5MaRLu3ZSUlG3rkkw2zkP+TpE2Dl/02r7FcOQPF86U6/scwihF8yIzfrRDrDVINr4DUUTPzmh4b99A==@vger.kernel.org
+X-Gm-Message-State: AOJu0YzHsRb1XobtowE3MtHYt1UsbROpMNNqC1rmqVrD5DmOpwj75ADN
+	qbXi3bq46RYH5f1Ku/pXy+7SQEVn/G3jgnRYVVMEUlUOQ6SOLttDUnyqg6jB198Nox4=
+X-Gm-Gg: AfdE7cmdgU1g7Vw1x3b9BoXmC+OvwhDSqUk/mlHFkQ6aK6QbJ1w9FDRcYCqbbY/7fxG
+	Nx7GtkLhJh55eq4sQSJoRRCH36sYCM5E4UbT3Vx1a+hT32+WO4qRahEONCd6wohOJoGzNd4muxd
+	cBGayHgIjPrI9isBWFVyuxEKeER+s+1g68H2oSwjyLZWA6qgaWzWn27u8AHHz1aKBqm1Amh7Foo
+	MOZimlKEY4z4YqtjP2ja+oGFXU7NMn28WItbjlLfyr9TY8mE+5JfQQPZDpfxDa4BW9FyyG3tKq/
+	mWWTSJ3YgqgUamnr4UvC1Ruob7t1KOAGOrhYWZ9KdAIDg6HOToOlAO7PU4b2JGwCx1/3iR5/6sH
+	6QDrFpZQ1kGIcS1JaOiKTcgV60PhEWC6NiaIsBpBc5LE8vKq4KH6M6S9eVzE3uuGVTx2UcT5oUU
+	T00zwU/kWnYUvlGwD0pV71sg==
+X-Received: by 2002:a05:6000:184d:b0:474:3708:c8 with SMTP id ffacd0b85a97d-47f2dcc0d79mr17004061f8f.15.1784047305565;
+        Tue, 14 Jul 2026 09:41:45 -0700 (PDT)
+Received: from [172.27.236.80] ([212.187.182.161])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-47f4635aa34sm8766325f8f.15.2026.07.14.09.41.44
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 14 Jul 2026 09:41:45 -0700 (PDT)
+Message-ID: <a8d4ab9b-b2e3-407c-9898-1b9f7339f448@linaro.org>
+Date: Tue, 14 Jul 2026 17:41:43 +0100
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: GV2PR04MB11799:EE_|VI0PR04MB11548:EE_
-X-MS-Office365-Filtering-Correlation-Id: 44e57efd-f96a-4b8b-a928-08dee1bf2c7c
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|1800799024|366016|23010399003|376014|7416014|19092799006|56012099006|11063799006|18002099003|22082099003|921020;
-X-Microsoft-Antispam-Message-Info:
-	FLzrOIg58YDfS9dJhOlCztfKSf0juwRZwVuFV0YjCgzUXDSRW7y0WqU2UZfl+vlRJdM2D5wayF56ptektFoQHFiqA0pxIQXzLhgvzGe+j2k33NywJG5+DSw7tOG+KXYhGh98UIVYzYLuLaQ/ON7LTGJ3dFne9Ro1egEUI7x2x827kPhfK5O5fFDJpV/xL7Dban0/9nc8pjWltlYeyVAlvZaR692zbyZsSIS5rOh7n+aHCLNrHKahiMgN9koLSbnUr7LLqFZD3AussQpsUPw8gIp9OGo9a53D/5Na+YTfSOeRovQXvfhblhdhtxY/2zLRm7VGujB+3ev57EP++U//z8/M4iGK/IJKXuo2DCTwbS+8jAT59Ej81e8nWLpknWodBaJnxZ8zo0+lEYueVJZ2EHXI74htcspBNqtFv5/0MtVb/GLm3uyMSZMsoadtAMNqx+p7IfBJIi/iQ1DmVNRcEjpOVZehqpNUbuK1n5s6n+27fYIiPa0P6cCiwUb2ZtrSRovjtQahfI6vMPYIKwx6ytvs8TMz1HKjcvQP9+px5UhzkzL50l3L7j3/HdDH2nUgUphbTkdPKk60X8qh8mmpZw7w3VRs1sacK7uJRn0/cTzWxMvjjM9mb3SkR+NcKShsgi4xwqmPFI/WFmInS6Zkb6QCCMV1+2jzclohKglGj1demysU+YmOfg7sso6bN2NSuH/9L1tOrEVT81aII8Fhrg==
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:GV2PR04MB11799.eurprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(366016)(23010399003)(376014)(7416014)(19092799006)(56012099006)(11063799006)(18002099003)(22082099003)(921020);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?cDdBelUwQW01V2NkUEJCakxqS2UyT1B5ODJka0dZRVlibi80Z1RQaW5HeTNp?=
- =?utf-8?B?TzZESnc5RHA1WUN6WHhTVGZtM0xucUo2SUxKVWdpdTlFWE1qV25NbzNnNTg1?=
- =?utf-8?B?Mk1qbUszYld5b0V4bDFRZG1oSmdjeEllRzZrVklRcjh3RUZhUjJPckZLNGt2?=
- =?utf-8?B?RlNWaGpYaWdQQmgwNzVaS2lQL0pvZVZjby9KNy80eExHUEdqb2F2YXhjUkxy?=
- =?utf-8?B?M3NuMURwcE1hcmlNaysvMmxIUklpSSs0OEFLbm5oUGZVbHRidEtvbUFvSTB3?=
- =?utf-8?B?cHFqdWJidk9IUkdEYnByUjFSOHI1djNqeFJDTmR1aDZtL2JSelBsKzVpTW1l?=
- =?utf-8?B?d1ZKSWRQR3p2SE9yZ3Z4YXNKQ3p3UE11Qk15VnhQOW54UDkwVThSc3lkOEN3?=
- =?utf-8?B?MmdwZzJQbkFWQ0NvQXdNeVFNNXphNi9yc3RLSmd1U0ZiWXZhaGNYaUZmWW1m?=
- =?utf-8?B?WkZ1dkVyR1p2bEI3RURNTmxhKzZ1MG85RU9Wem9XS3k3MzdUY0Z4TDBESUhT?=
- =?utf-8?B?SENhTlZRL2FTdXh6c2txSWZWNTk2QVk4UWQzRFczQmNmRnZQVjNVeG50elZN?=
- =?utf-8?B?NWpUT0ZoVkdvaVc3b2owVHhIaml4VlpuNVh5R3BqUjNKK2J6WDdPaVd3a2V0?=
- =?utf-8?B?dHdldndWVmxkcHVPQlNjOVRSLzllUExPeUhXMHU1UUJaOWFxMGtidGpSTnZm?=
- =?utf-8?B?cjVGZXNYVWpyeTc4REpoTy9PUTI5aVJjZEFJbVBtVlV3c0NJYSsvdWE0bTJD?=
- =?utf-8?B?SGF2OVJlZjg2WlExZzNWV212NWJQQXFwdjhTR0l1NUN6aUJlV0Y2VHRncVpu?=
- =?utf-8?B?UzB5dUdpVzJKUzlXQkJ4eFBxYVdSNWdiTXpRUWppSVVlcTZ0K1FkQVprYTV0?=
- =?utf-8?B?NC9oS21vMklUckk5YmJQS0hDREc5Z0VZRjhmSmFXUFV5bFVINXNTNFVvVU1n?=
- =?utf-8?B?WVJYK2tib1RGTmN4TXYvK3JBckwySVh5cUFXSkdkeGVPLysvMXYxY01ncFJO?=
- =?utf-8?B?VERnRzcxOW0vNkRuNGQ0a0RmTjIzZm8zZjB5bXd4VXJ5eGQwTnhqSG4yMW02?=
- =?utf-8?B?U25yVFJ6ZVA1YUQ3bU8xc1RkL3NzVU9yVE1UekhIa1FodXl1eGNjY2Zac1hJ?=
- =?utf-8?B?UzFkd0RHRDErN1d3b1NxMVphRXorK01obUNRb2ZMU0IvdGg1aTlOeXpCNXE5?=
- =?utf-8?B?a05oVjNHZEZLZmtXVk1Kb21IMFFXK1NCaUMzRnFOSU5jVkp2ZElhZVROdzNI?=
- =?utf-8?B?RGQvRzBVUGpmQWsvNXA2MVJrclFtdmY4UGZXK0owbG5JMHI0U0xuM21YZk92?=
- =?utf-8?B?MmkrT1NObVA2SlFCMkNBck1lQ0s0dlpDV2tIcnNnN0RmNXl1d08vbG9BN1U4?=
- =?utf-8?B?QnJKQjNEQzV1MkwxSDM2RUtrZ3VnM08yNVRmd1c0UHJ6WnNhcmlMaTdRSFBR?=
- =?utf-8?B?QXZNMW02Y3VaTEhGNFNKcHBYYnoweHRPQWlwSWZmbTdWR3RYUVN4U2EyNHlj?=
- =?utf-8?B?UmdNb3c4blR5d0pKeUpKcXJaVkZ3V0xZZWFlSW0wdXFJNmxxVTZkWmZ1TWpr?=
- =?utf-8?B?OUdTZUlyZWYzK1gvY21oZGhDNCtMNktCaHZQNEhxZi9vN2dOS2ZkZFFjb2Fn?=
- =?utf-8?B?Z1hSS1Y0aXAxM01kNHdRZkM5K2FBWUYxWkp1cGQ3MzJqLzNtYnV4MGJEdldl?=
- =?utf-8?B?ODExd212Z3ZFdDVzREx5S0lpMDdFVXhncElGK2lldWM1L1pxTFhLVEJJZE9J?=
- =?utf-8?B?ZnJueHgvU3ZFSVQ3VkhiZFppK3hBSXFJay9nZUpDSnRXV2hkMHQzcVo1RUFQ?=
- =?utf-8?B?aFo2ZTM1ek9NMHFRdzJYTTY0RUxQUTJ1dE5USjl1VE1rMkdISlR3SlllWlVi?=
- =?utf-8?B?bFZFNjJvdGZjV0o2eW0rSHhGSWs3R0w1ZkNpSEZVbGtYYnlualg4VktWM2hr?=
- =?utf-8?B?STUxclMvaG5UclZ3c1M2c01YTDIxT1IvMGtDYlpkQ1QxWTVIVk5hWEcwaUtJ?=
- =?utf-8?B?WTBuQytJWi9sL3lhQ3lleENqUXZhRjljRlJjb21YWUlOTU9IWXJwVHhRR2JD?=
- =?utf-8?B?KytDZHo1RDZ3L1FGZE9mdUFuZnE4MmtGTENuQytJdWJRMTg2YWQ4a3ZaWmFu?=
- =?utf-8?B?bWZMN3NzYkxXL2Z6L2t2K1IwWnZRZnhGdVU2cWE2N0JoakRWUmlZVUQyaDFU?=
- =?utf-8?B?SUdRQTZWRExEQ283VFlPUTlrNXN0KzlkSmpUd1Z2NXZYQXJnN0xHTUJ6WFI4?=
- =?utf-8?B?Y1JuK0ZmZTdVb1kraURHQmhCeTlBb0NML1NSdlV2QUtoSDA4QS9aR0lFeW5z?=
- =?utf-8?B?dlJQN1JVR05DTHZSM1daRE8zbU9IMlFWZFJRN0tKTXNKMWdLT1Q5Qi8wSmc3?=
- =?utf-8?Q?VSMKm3mzJgxIKO68VSZ8HqV8p/rLCvu8iah2f?=
-X-OriginatorOrg: oss.nxp.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 44e57efd-f96a-4b8b-a928-08dee1bf2c7c
-X-MS-Exchange-CrossTenant-AuthSource: GV2PR04MB11799.eurprd04.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 14 Jul 2026 15:47:13.6661
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: nfGxngeQSzjj/5U/MRwzIvVY2Aq1z1GVxpZ+iF+YkiSTWwa2NYpBLFlz7y54cK2IerGerQ5JRU6U+sfDo9v75FYMO5mKvBgbIkbDIbDcACV5/Du5bErolWTZZrQuH4nz
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: VI0PR04MB11548
-
-From: Frank Li <Frank.Li@nxp.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 4/6] tools/build: Allow versioning LLVM readelf
+To: Ihor Solodrai <ihor.solodrai@linux.dev>
+Cc: linux-kernel@vger.kernel.org, llvm@lists.linux.dev,
+ linux-input@vger.kernel.org, linux-kselftest@vger.kernel.org,
+ bpf@vger.kernel.org, linux-perf-users@vger.kernel.org,
+ Nathan Chancellor <nathan@kernel.org>,
+ Nick Desaulniers <nick.desaulniers+lkml@gmail.com>,
+ Bill Wendling <morbo@google.com>, Justin Stitt <justinstitt@google.com>,
+ Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>,
+ Shuah Khan <shuah@kernel.org>, Peter Zijlstra <peterz@infradead.org>,
+ Ingo Molnar <mingo@redhat.com>, Arnaldo Carvalho de Melo <acme@kernel.org>,
+ Namhyung Kim <namhyung@kernel.org>, Mark Rutland <mark.rutland@arm.com>,
+ Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+ Jiri Olsa <jolsa@kernel.org>, Ian Rogers <irogers@google.com>,
+ Adrian Hunter <adrian.hunter@intel.com>, Andrii Nakryiko
+ <andrii@kernel.org>, Eduard Zingerman <eddyz87@gmail.com>,
+ Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>,
+ Martin KaFai Lau <martin.lau@linux.dev>,
+ Kumar Kartikeya Dwivedi <memxor@gmail.com>, Song Liu <song@kernel.org>,
+ Yonghong Song <yonghong.song@linux.dev>
+References: <20260518-james-perf-llvm-version-v2-0-f12cc4f031d8@linaro.org>
+ <20260518-james-perf-llvm-version-v2-4-f12cc4f031d8@linaro.org>
+ <c366293c-7bcd-4e28-b3c4-575203403489@linux.dev>
+Content-Language: en-US
+From: James Clark <james.clark@linaro.org>
+In-Reply-To: <c366293c-7bcd-4e28-b3c4-575203403489@linux.dev>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
 
-On Tue, 28 Oct 2025 16:01:27 -0400, Frank Li wrote:
-> bindings: add fsl,imx8qm-sc-key.
-> dts: add fsl,imx8qm-sc-key support.
 
-Applied, thanks!
+On 10/07/2026 23:29, Ihor Solodrai wrote:
+> On 5/18/26 2:03 AM, James Clark wrote:
+>> Documentation/kbuild/llvm.rst mentions that readelf is included in the
+>> LLVM toolchain, but it's not currently included in this block.
+>>
+>> Add it so that LLVM=... options also apply to readelf. Users in tools/
+>> were Perf which was hardcoding it, and another was the BPF makefile.
+>> Both already include Makefile.include so convert them to use the new
+>> variable.
+>>
+>> It also didn't have the cross compile prefix, so either readelf didn't
+>> mind opening cross binaries, or it wasn't working for cross builds.
+> 
+> I'm pretty sure it's the former. readelf/llvm-readelf are only used
+> libbpf makefile to read ELF symbol tables, which should be arch-independent.
+> 
+> We've been cross-compiling the kernel (and libbpf) on BPF CI for a
+> long time. So the unprefixed readelf is already working, and adding
 
-[1/2] dt-bindings: input: fsl,scu-key: Add compatible string fsl,imx8qm-sc-key
-      commit: df9b9d59586f3d8bdeba5b3c7b7ea68cb0302fb7
+I think "working" isn't technically correct when you take into account 
+the documented behavior of the versioned LLVM= option [1]. You would get 
+one version of the toolchain used for some of the build and a different 
+version used here. That's what caused the build failure in Perf that 
+resulted in the tidyup, because they're not always compatible.
 
-I picked it because it was missed since 2025 OCT and ping 2026 Jan and
-fsl,scu-key.yaml was only used by imx/
+[1]: Documentation/kbuild/llvm.rst
 
-[2/2] arm64: dts: imx8qm: add scu power key support
-      commit: f9c8aaffc782cae682d3606037f2d02fb4e0035a
+> the $(CROSS_COMPILE) prefix only adds a new requirement.
+> 
+> I don't think this change in tools/lib/bpf/Makefile is a good idea,
+> we could potentially break some environments. Even though hardcoded
+> readelf doesn't look nice.
+> 
+> 
 
-Best regards,
---
-Frank Li <Frank.Li@nxp.com>
+IMO it's worth the risk for the cleanup, it also helps to stop 
+propagating it with future copy pastes.
+
+Do you think it's likely that someone has CROSS_COMPILE set but doesn't 
+have that readelf installed? Installing gcc-aarch64-linux-gnu on 
+Debian/Ubuntu gives you aarch64-linux-gnu-readelf, so it would have to 
+be a unique setup to not have it.
+
+It sounds like maybe you want this bpf makefile to explicitly use 
+'HOSTREADELF', if you're really sure it never requires arch specific 
+stuff? If we added that it would fit better with the rest of the 
+cleanup. But I think 'READELF' is less confusing and take the risk of 
+some build breakages.
+
+>>
+>> Signed-off-by: James Clark <james.clark@linaro.org>
+>> ---
+>>   tools/lib/bpf/Makefile         | 8 ++++----
+>>   tools/perf/Makefile.perf       | 1 -
+>>   tools/scripts/Makefile.include | 2 ++
+>>   3 files changed, 6 insertions(+), 5 deletions(-)
+>>
+>> diff --git a/tools/lib/bpf/Makefile b/tools/lib/bpf/Makefile
+>> index 168140f8e646..180dca9c57c8 100644
+>> --- a/tools/lib/bpf/Makefile
+>> +++ b/tools/lib/bpf/Makefile
+>> @@ -114,12 +114,12 @@ PC_FILE		:= $(addprefix $(OUTPUT),$(PC_FILE))
+>>   
+>>   TAGS_PROG := $(if $(shell which etags 2>/dev/null),etags,ctags)
+>>   
+>> -GLOBAL_SYM_COUNT = $(shell readelf -s --wide $(BPF_IN_SHARED) | \
+>> +GLOBAL_SYM_COUNT = $(shell $(READELF) -s --wide $(BPF_IN_SHARED) | \
+>>   			   cut -d "@" -f1 | sed 's/_v[0-9]_[0-9]_[0-9].*//' | \
+>>   			   sed 's/\[.*\]//' | \
+>>   			   awk '/GLOBAL/ && /DEFAULT/ && !/UND|ABS/ {print $$NF}' | \
+>>   			   sort -u | wc -l)
+>> -VERSIONED_SYM_COUNT = $(shell readelf --dyn-syms --wide $(OUTPUT)libbpf.so | \
+>> +VERSIONED_SYM_COUNT = $(shell $(READELF) --dyn-syms --wide $(OUTPUT)libbpf.so | \
+>>   			      sed 's/\[.*\]//' | \
+>>   			      awk '/GLOBAL/ && /DEFAULT/ && !/UND|ABS/ {print $$NF}' | \
+>>   			      grep -Eo '[^ ]+@LIBBPF_' | cut -d@ -f1 | sort -u | wc -l)
+>> @@ -182,12 +182,12 @@ check_abi: $(OUTPUT)libbpf.so $(VERSION_SCRIPT)
+>>   		     "versioned symbols in $^ ($(VERSIONED_SYM_COUNT))." \
+>>   		     "Please make sure all LIBBPF_API symbols are"	 \
+>>   		     "versioned in $(VERSION_SCRIPT)." >&2;		 \
+>> -		readelf -s --wide $(BPF_IN_SHARED) |			 \
+>> +		$(READELF) -s --wide $(BPF_IN_SHARED) |			 \
+>>   		    cut -d "@" -f1 | sed 's/_v[0-9]_[0-9]_[0-9].*//' |	 \
+>>   		    sed 's/\[.*\]//' |					 \
+>>   		    awk '/GLOBAL/ && /DEFAULT/ && !/UND/ {print $$NF}'|  \
+>>   		    sort -u > $(OUTPUT)libbpf_global_syms.tmp;		 \
+>> -		readelf --dyn-syms --wide $(OUTPUT)libbpf.so |		 \
+>> +		$(READELF) --dyn-syms --wide $(OUTPUT)libbpf.so |		 \
+> 
+>>   		    sed 's/\[.*\]//' |					 \
+>>   		    awk '/GLOBAL/ && /DEFAULT/ && !/UND|ABS/ {print $$NF}'|  \
+>>   		    grep -Eo '[^ ]+@LIBBPF_' | cut -d@ -f1 |		 \
+>> diff --git a/tools/perf/Makefile.perf b/tools/perf/Makefile.perf
+>> index 0aba14f22a06..63276bf55856 100644
+>> --- a/tools/perf/Makefile.perf
+>> +++ b/tools/perf/Makefile.perf
+>> @@ -215,7 +215,6 @@ FLEX    ?= flex
+>>   BISON   ?= bison
+>>   STRIP   = strip
+>>   AWK     = awk
+>> -READELF ?= readelf
+>>   
+>>   # include Makefile.config by default and rule out
+>>   # non-config cases
+>> diff --git a/tools/scripts/Makefile.include b/tools/scripts/Makefile.include
+>> index e81e5b479c56..380ad84ac51e 100644
+>> --- a/tools/scripts/Makefile.include
+>> +++ b/tools/scripts/Makefile.include
+>> @@ -73,6 +73,7 @@ ifneq ($(LLVM),)
+>>     $(call allow-override,LLC,$(LLVM_PREFIX)llc$(LLVM_SUFFIX))
+>>     $(call allow-override,LLVM_CONFIG,$(LLVM_PREFIX)llvm-config$(LLVM_SUFFIX))
+>>     $(call allow-override,LLVM_OBJCOPY,$(LLVM_PREFIX)llvm-objcopy$(LLVM_SUFFIX))
+>> +  $(call allow-override,READELF,$(LLVM_PREFIX)llvm-readelf$(LLVM_SUFFIX))
+>>   else
+>>     # Allow setting various cross-compile vars or setting CROSS_COMPILE as a prefix.
+>>     $(call allow-override,CC,$(CROSS_COMPILE)gcc)
+>> @@ -80,6 +81,7 @@ else
+>>     $(call allow-override,LD,$(CROSS_COMPILE)ld)
+>>     $(call allow-override,CXX,$(CROSS_COMPILE)g++)
+>>     $(call allow-override,STRIP,$(CROSS_COMPILE)strip)
+>> +  $(call allow-override,READELF,$(CROSS_COMPILE)readelf)
+>>   
+>>     # Host versions aren't prefixed
+>>     $(call allow-override,HOSTAR,ar)
+>>
+> 
+

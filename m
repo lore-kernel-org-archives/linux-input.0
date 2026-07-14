@@ -1,41 +1,39 @@
-Received: from m16.mail.163.com (m16.mail.163.com [220.197.31.5])
+Received: from m16.mail.163.com (m16.mail.163.com [220.197.31.3])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 277B41F09AD;
-	Tue, 14 Jul 2026 13:16:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=220.197.31.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D0388225403;
+	Tue, 14 Jul 2026 13:16:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=220.197.31.3
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784034995; cv=none; b=T3kHsIypk1IwUQqrvhtMOKkXoyf0tDv5XoCGjcPMkVq2uZMVdI4a2byprD4OdpLqqXfZGaxkj6Yrzkhr5rhlGpzHVcedIBU8qMVjuBWrPm1/M5Gvn2kSbpNRr8LXxv68WQiWJnjAMMJpD9f+6+M6WlLIaDNkHGtWUbMYEKXfMrw=
+	t=1784034996; cv=none; b=NxwNVxxuNLJO/vBCzh4ZdMAAQOmpFzovIIvtfIqKUTKqxud8+WvGoF2kBGXWpnca234HgDzra7EhWKtp920uiKHZ1CHeMtD2m1vCG4t2wZOKfLy6Dq5Xl+L9VW98EltlnoCK0aA9l52fTdF8N/2iTfemvCMIL8EXROmjTXAfIOU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784034995; c=relaxed/simple;
-	bh=PO2aqXVHRnJwpcf6ZUi1sPXCitHKZGPiqVHwOpqzWDs=;
+	s=arc-20240116; t=1784034996; c=relaxed/simple;
+	bh=ObfqSUBbAaL26yL/BfoSKv+gieDDIinenIMk7EN146Q=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=trN/fb3thJZ2MxEd2KsHR6mm8LT35cqdFeTKtQB+d91O9AFd6M9Ox6yqtMSawVkIG3YwEXloCR9HbsdHPubJdPrvCpY8I1uqUORJijvFDcrITX+RPx5l7LTjEdMPxp+snXNKAuGQ33vCPIBMm2lPMDDEG1oSxBBOqNSxygBh178=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=TPafXyfk; arc=none smtp.client-ip=220.197.31.5
+	 MIME-Version; b=jUU6jIRm78ySRwx+S8Kp1Z/Qr7lOfj5i8wPLAivEyIawOwcHLgXfmtIryh7ocAwsqWlU2uVL5Z+Zp8zMVep6Kjq6k/7W+vbwcGZZWFK1GDmjpY9Dy54jQCcRZgO5oFdIodIQygBksQYzNqhoVsCN6yB7s9YNQrKH1wVvNvV1ovU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=JZuqluXL; arc=none smtp.client-ip=220.197.31.3
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="TPafXyfk"
+	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="JZuqluXL"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
-	s=s110527; h=From:To:Subject:Date:Message-Id:MIME-Version; bh=oF
-	rm7cAm5xgvpg1dCCfceT3xmdX/Suz6ym/HjL2f368=; b=TPafXyfkjhKUnUJMnq
-	y/EmQlGgfQdOkanupQKyoleEEEcYHTcc37JRWmu1kUzl+UAsiZ+mz10RnhgtuLfA
-	R/lYiyDX5Ghg4IQBZHfG7J0pcFu5cthcUCqbKtp6VhX1LRkNipTq3tL63+2Raovk
-	ypwnMKfmIYb8octhgw9PeF59Y=
+	s=s110527; h=From:To:Subject:Date:Message-Id:MIME-Version; bh=i0
+	ifEE4lOlAq1Yz2w2x6ySuALZI5cg7phVGwgSM8Htk=; b=JZuqluXLObJdv5e+rQ
+	JzP6AvC1I38zmrtwqzbHnXfJOt0CnYPTCZXdyai2octSeeA1euIQ5n8YYhbzgKif
+	soC1LO6MXcQ9ZpDJvqGIAh1ehzkTeuMo9uXvj8DAKYXHIKkNQ+ANL/7gr/ztj8Da
+	ViTjEcITWlQPS2gYlLDpYhNM4=
 Received: from pc.localdomain (unknown [])
-	by gzga-smtp-mtada-g0-3 (Coremail) with SMTP id _____wDHhdSdNlZqMIoQJg--.20750S4;
-	Tue, 14 Jul 2026 21:16:17 +0800 (CST)
+	by gzga-smtp-mtada-g0-3 (Coremail) with SMTP id _____wDHhdSdNlZqMIoQJg--.20750S5;
+	Tue, 14 Jul 2026 21:16:18 +0800 (CST)
 From: Jiale Yao <yaojiale02@163.com>
-To: Rishi Gupta <gupt21@gmail.com>,
-	Jiri Kosina <jikos@kernel.org>,
+To: Jiri Kosina <jikos@kernel.org>,
 	Benjamin Tissoires <bentiss@kernel.org>,
-	linux-i2c@vger.kernel.org,
 	linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org
 Cc: Jiale Yao <yaojiale02@163.com>
-Subject: [PATCH 3/4] HID: mcp2221: fix out-of-bounds read in mcp2221_raw_event
-Date: Tue, 14 Jul 2026 21:16:10 +0800
-Message-Id: <20260714131611.269929-3-yaojiale02@163.com>
+Subject: [PATCH 4/4] HID: cp2112: fix out-of-bounds read in cp2112_raw_event
+Date: Tue, 14 Jul 2026 21:16:11 +0800
+Message-Id: <20260714131611.269929-4-yaojiale02@163.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20260714131611.269929-1-yaojiale02@163.com>
 References: <20260714131611.269929-1-yaojiale02@163.com>
@@ -46,125 +44,60 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:_____wDHhdSdNlZqMIoQJg--.20750S4
-X-Coremail-Antispam: 1Uf129KBjvJXoWxAr13Zw45tF4rKr1xGFWfZrb_yoW5ZFW5pr
-	Z8tFs0krWUJF13KF9xCr1DAr15Xrn2yFsrXFW2qa4UX3W8KFZ8JryvgFyFqr1fKFyDZr1S
-	gFs5GrW8Ga4qyaDanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x0zRF4E_UUUUU=
-X-CM-SenderInfo: x1dryxhdohiji6rwjhhfrp/xtbC8ALlIGpWNqL2qwAA3C
+X-CM-TRANSID:_____wDHhdSdNlZqMIoQJg--.20750S5
+X-Coremail-Antispam: 1Uf129KBjvJXoW7Ww47Zw1kWrWxJr1fXr43ZFb_yoW8AFW7pa
+	98tFsxGrs8tr1Ikr1fXF98Aw15JF1fJFyUury0k3WUWw1Fk345uFyagFyIq398WFWIgr9F
+	krWjqrs8CF1qgaUanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x0zRuVb9UUUUU=
+X-CM-SenderInfo: x1dryxhdohiji6rwjhhfrp/xtbC7wPlIGpWNqP-igAA31
 
-The handler dispatches on data[0] without checking size >= 1.
-Add a top-level guard and per-case minimum-size checks:
-data[2] for the I2C_WR_DATA group, data[20] and
-data[50+sizeof(adc_values)] for I2C_PARAM_OR_STATUS,
-sizeof(struct mcp_get/set_gpio) for GPIO paths,
-and 4+data[3] for the I2C_GET_DATA partial-read memcpy.
+The TRANSFER_STATUS_RESPONSE path dereferences xfer->length at
+offset 6, requiring sizeof(*xfer) bytes.  The DATA_READ_RESPONSE
+path uses the device-supplied read_length to drive memcpy()
+without clamping it to the remaining report size.  Add both
+checks, and clamp read_length to size - 3.
 
 Assisted-by: Claude:deepseek-v4-pro
 Signed-off-by: Jiale Yao <yaojiale02@163.com>
 ---
- drivers/hid/hid-mcp2221.c | 26 +++++++++++++++++++++++++-
- 1 file changed, 25 insertions(+), 1 deletion(-)
+ drivers/hid/hid-cp2112.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/drivers/hid/hid-mcp2221.c b/drivers/hid/hid-mcp2221.c
-index e4ddd8e9293b..0423b5affe8f 100644
---- a/drivers/hid/hid-mcp2221.c
-+++ b/drivers/hid/hid-mcp2221.c
-@@ -861,12 +861,17 @@ static int mcp2221_raw_event(struct hid_device *hdev,
- 	u8 *buf;
- 	struct mcp2221 *mcp = hid_get_drvdata(hdev);
+diff --git a/drivers/hid/hid-cp2112.c b/drivers/hid/hid-cp2112.c
+index 04379db93571..99e31724a421 100644
+--- a/drivers/hid/hid-cp2112.c
++++ b/drivers/hid/hid-cp2112.c
+@@ -1430,6 +1430,11 @@ static int cp2112_raw_event(struct hid_device *hdev, struct hid_report *report,
  
-+	if (size < 1)
-+		return 1;
-+
  	switch (data[0]) {
- 
- 	case MCP2221_I2C_WR_DATA:
- 	case MCP2221_I2C_WR_NO_STOP:
- 	case MCP2221_I2C_RD_DATA:
- 	case MCP2221_I2C_RD_RPT_START:
-+		if (size < 3)
-+			return 1;
- 		switch (data[1]) {
- 		case MCP2221_SUCCESS:
- 			mcp->status = 0;
-@@ -878,6 +883,12 @@ static int mcp2221_raw_event(struct hid_device *hdev,
+ 	case CP2112_TRANSFER_STATUS_RESPONSE:
++		if (size < sizeof(*xfer)) {
++			hid_err(hdev, "short transfer status report(%d < %zu)\n", size,
++				sizeof(*xfer));
++			return 0;
++		}
+ 		hid_dbg(hdev, "xfer status: %02x %02x %04x %04x\n",
+ 			xfer->status0, xfer->status1,
+ 			be16_to_cpu(xfer->retries), be16_to_cpu(xfer->length));
+@@ -1463,12 +1468,18 @@ static int cp2112_raw_event(struct hid_device *hdev, struct hid_report *report,
+ 		atomic_set(&dev->xfer_avail, 1);
  		break;
+ 	case CP2112_DATA_READ_RESPONSE:
++		if (size < 4) {
++			hid_err(hdev, "short data read response(%d < 4)\n", size);
++			return 0;
++		}
+ 		hid_dbg(hdev, "read response: %02x %02x\n", data[1], data[2]);
  
- 	case MCP2221_I2C_PARAM_OR_STATUS:
-+		if (size < 21)
-+			return 1;
-+#if IS_REACHABLE(CONFIG_IIO)
-+		if (size < 50 + sizeof(mcp->adc_values))
-+			return 1;
-+#endif
- 		switch (data[1]) {
- 		case MCP2221_SUCCESS:
- 			if ((mcp->txbuf[3] == MCP2221_I2C_SET_SPEED) &&
-@@ -901,6 +912,8 @@ static int mcp2221_raw_event(struct hid_device *hdev,
+ 		dev->read_length = data[2];
+ 		if (dev->read_length > sizeof(dev->read_data))
+ 			dev->read_length = sizeof(dev->read_data);
+ 
++		if (dev->read_length > size - 3)
++			dev->read_length = size - 3;
+ 		memcpy(dev->read_data, &data[3], dev->read_length);
+ 		atomic_set(&dev->read_avail, 1);
  		break;
- 
- 	case MCP2221_I2C_GET_DATA:
-+		if (size < 4)
-+			return 1;
- 		switch (data[1]) {
- 		case MCP2221_SUCCESS:
- 			if (data[2] == MCP2221_I2C_ADDR_NACK) {
-@@ -918,7 +931,8 @@ static int mcp2221_raw_event(struct hid_device *hdev,
- 			}
- 			if (data[2] == MCP2221_I2C_READ_COMPL ||
- 			    data[2] == MCP2221_I2C_READ_PARTIAL) {
--				if (!mcp->rxbuf || mcp->rxbuf_idx < 0 || data[3] > 60) {
-+				if (!mcp->rxbuf || mcp->rxbuf_idx < 0 ||
-+				    data[3] > 60 || size < 4 + data[3]) {
- 					mcp->status = -EINVAL;
- 					break;
- 				}
-@@ -941,6 +955,8 @@ static int mcp2221_raw_event(struct hid_device *hdev,
- 		break;
- 
- 	case MCP2221_GPIO_GET:
-+		if (size < sizeof(struct mcp_get_gpio))
-+			return 1;
- 		switch (data[1]) {
- 		case MCP2221_SUCCESS:
- 			if ((data[mcp->gp_idx] == MCP2221_ALT_F_NOT_GPIOV) ||
-@@ -958,6 +974,8 @@ static int mcp2221_raw_event(struct hid_device *hdev,
- 		break;
- 
- 	case MCP2221_GPIO_SET:
-+		if (size < sizeof(struct mcp_set_gpio))
-+			return 1;
- 		switch (data[1]) {
- 		case MCP2221_SUCCESS:
- 			if ((data[mcp->gp_idx] == MCP2221_ALT_F_NOT_GPIOV) ||
-@@ -974,6 +992,8 @@ static int mcp2221_raw_event(struct hid_device *hdev,
- 		break;
- 
- 	case MCP2221_SET_SRAM_SETTINGS:
-+		if (size < 2)
-+			return 1;
- 		switch (data[1]) {
- 		case MCP2221_SUCCESS:
- 			mcp->status = 0;
-@@ -985,6 +1005,8 @@ static int mcp2221_raw_event(struct hid_device *hdev,
- 		break;
- 
- 	case MCP2221_GET_SRAM_SETTINGS:
-+		if (size < 26)
-+			return 1;
- 		switch (data[1]) {
- 		case MCP2221_SUCCESS:
- 			memcpy(&mcp->mode, &data[22], 4);
-@@ -1000,6 +1022,8 @@ static int mcp2221_raw_event(struct hid_device *hdev,
- 		break;
- 
- 	case MCP2221_READ_FLASH_DATA:
-+		if (size < 8)
-+			return 1;
- 		switch (data[1]) {
- 		case MCP2221_SUCCESS:
- 			mcp->status = 0;
 -- 
 2.34.1
 

@@ -1,110 +1,73 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from sendmail.purelymail.com (sendmail.purelymail.com [34.202.193.197])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1DFD62931DA
-	for <linux-input@vger.kernel.org>; Tue, 14 Jul 2026 19:18:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3FB0237E5D1
+	for <linux-input@vger.kernel.org>; Tue, 14 Jul 2026 20:30:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=34.202.193.197
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784056724; cv=none; b=Ol7/EaQ0IVrACxVLGH9uvnWYdLq2xOgxxKuPGXh3IvEov8hF65LWKwz5mgsCgrWPmx9vsDhAeyCM710VipwtKLA0NRLkyc+sP5yrFTB30oCkLaxBtZ5Q7Kw+wqlcqIhgMRgJ9A8Nq9M5w/+1UqKj+uLEbRyj+eaIbxBeiQXoy5I=
+	t=1784061052; cv=none; b=Tm8qlJY8CGTdmYbtDUAmVQEHCrAPWgLId8TFNmQcRjctvHSe/l91gBWl2BIvh259/JqzDBP6krUTLY66T1dliOhqXxcvAE0GGVGWsJOafUczvEqWx+/xM69HIhU0hVlDxcEXxJRG7f22nWaar3RfZ7aRxxHnsgJyYGsHi/tcXmc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784056724; c=relaxed/simple;
-	bh=vAC7NmEz6Ix+jgxJFCvTOMUwPM2VSrZKgMwj7oKvoUw=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=RifBckb6gnMruFV8BHmbf4go7VCPH6NCZMCujzaoEopmol/PWGldzMWUqrqTnOyZruPhOyv91LGKXrwrcSPlTWVMRwPSfYZL62kp/AJta55lfG2Qn8D/MqAX34igzMB9OumsEVCJApJQsJqGLYO9tDbWfgiL5VJwXwcZWDsSowo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=UbqsSmw0; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1784061052; c=relaxed/simple;
+	bh=x5Iilz/lxehhrk8Fng5Cjg+xaEw8uIKDfQysJO3xwT8=;
+	h=Mime-Version:Content-Type:Date:Message-Id:Subject:Cc:From:To:
+	 References:In-Reply-To; b=BTxGBf+QhVjbuWxLX8WOuuNjOoWaUXksU4IS1jZ3nRh4b9URjndqQC0Io25mhPFD/qq3OKrSSXkxQSOBSAp9sCdgbr+RMAMN2KXoIUwxk90lE4f1TH7fjeGZ10L8PcuKhZBv78RPcAfeAaz+VJ/R0pf9Vd9/eCfCbATLJ1v+O+4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=rcpassos.me; spf=pass smtp.mailfrom=rcpassos.me; dkim=pass (2048-bit key) header.d=rcpassos.me header.i=@rcpassos.me header.b=GripJtA5; dkim=pass (2048-bit key) header.d=purelymail.com header.i=@purelymail.com header.b=SljonBVz; arc=none smtp.client-ip=34.202.193.197
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=rcpassos.me
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rcpassos.me
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="UbqsSmw0"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 870431F000E9;
-	Tue, 14 Jul 2026 19:18:42 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784056722;
-	bh=9f96M8yADrnTLnDjIts4wrWtfhCgaRcS9hrlfQCTm/w=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=UbqsSmw0BWKOno80X787EkTZMBwMVGTXumIpUtHInkzs3lfLeipzfz3ge/M8wyLZM
-	 ovdAirBovjIXLT3a0/nJhuHlb115y0hU3Z7HC57rfUZ5+dF/tnJN5V1YNdqj2dFxc9
-	 oT8cUZ/hLKj+8CPVA+ptgy6T7ohRlkLIv0sTKqapUuo9OJg7Tn/TOnultpfnp7W0E6
-	 SQKfocbU5W97FzRO9fX/DE1nWuR7gASe81IaSLtzrXkzPcJ0EjmUSEX4quWBJzOtES
-	 OVedhOc2LBN8U0bYiSfCXQd3u0DguQrajDcGn6PmcAdjG749Mrk63iS/R57wPx4JZO
-	 W+0YGn9Vm1tbg==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2] HID: playstation: Support DualSense player LED
- brightness control
-Reply-To: sashiko-reviews@lists.linux.dev
-To: k8ie <k8ie@mcld.eu>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260714184225.84646-1-k8ie@mcld.eu>
-References: <20260714180424.70662-1-k8ie@mcld.eu>
- <20260714184225.84646-1-k8ie@mcld.eu>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Tue, 14 Jul 2026 19:18:42 +0000
-Message-Id: <20260714191842.870431F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=rcpassos.me header.i=@rcpassos.me header.b="GripJtA5";
+	dkim=pass (2048-bit key) header.d=purelymail.com header.i=@purelymail.com header.b="SljonBVz"
+Authentication-Results: purelymail.com; auth=pass
+DKIM-Signature: a=rsa-sha256; b=GripJtA5WTeupzUfgtGM52DAxOyu15VHAk+BixpMYaUIl8WjPEEkOJhuW0V9wjZPMqnsAMNFvPRCk63bRKSjAoHl5OO1BNLtL4hGfkhopxBDZ/p+CRbF2/n5ah7uYxxWCT9ozZ20eIopFAGpXr1lv5h8t9CzdKbDdbjmt6SVqvzNzV2ImFVRaXMIELyS2V/3LybnZjSrTYPTTO1/mChkpWJSE0i9N4veTCbeOtSMeOOrOdQwr/756OT5/+tQ23qMTNeDLCSpmhwucl7CDdIQ1YGmDZBNQLjYuX7KaCGaHTXlk+8Pgwv2gq0/7jkXKlUNc0/+rdtUXq5MUfNHBbkJXQ==; s=purelymail1; d=rcpassos.me; v=1; bh=x5Iilz/lxehhrk8Fng5Cjg+xaEw8uIKDfQysJO3xwT8=; h=Received:Date:Subject:From:To;
+DKIM-Signature: a=rsa-sha256; b=SljonBVzDHPet0NmiqtqB9XTW6RsYlrGf5CFX1E8SSBD49m7lIpZWhnGgLdJJD5PVGkNaDYHL3ZOsHMRvUaKDuBJud7v1Z9ur3ns5oFUXmkUV1xSfFlv1ZeAwwDNUf9NAkm2SLF0IfH4P9M2X0AsnJ7dmKkl4kt7KlMFkSbYRu8CZyKrxkz6kBUGOhkuiBfgj/clKhBLyOKUlncxVYximmH1HBUu+Mze+4Nj59G1/jhdJcURkf1qzsaqPfkyzKE/yukt3RwHDeN/7QFWuN1jKDiOgTrKhlYv2o0xT29vjIw/3FIBtYWer/uDNXy4hb6eoxUhEOsGzKXKY6ODq/DHMw==; s=purelymail1; d=purelymail.com; v=1; bh=x5Iilz/lxehhrk8Fng5Cjg+xaEw8uIKDfQysJO3xwT8=; h=Feedback-ID:Received:Date:Subject:From:To;
+Feedback-ID: 45355:7809:null:purelymail
+X-Pm-Original-To: linux-input@vger.kernel.org
+Received: by smtp.purelymail.com (Purelymail SMTP) with ESMTPSA id 951244302;
+          (version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384);
+          Tue, 14 Jul 2026 20:30:29 +0000 (UTC)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+Mime-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Date: Tue, 14 Jul 2026 17:31:50 -0300
+Message-Id: <DJYKVRU31TCD.1M8E9KUMBZL1I@rcpassos.me>
+Subject: Re: [PATCH 0/3] HID: wiimote: new LED behavior on connect, and
+ scoped guards
+Cc: "Shuah Khan" <skhan@linuxfoundation.org>, "Brigham Campbell"
+ <me@brighamcampbell.com>, "Jori Koolstra" <jkoolstra@xs4all.nl>,
+ <linux-input@vger.kernel.org>
+From: "Rafael Passos" <rafael@rcpassos.me>
+To: "David Rheinsberg" <david@readahead.eu>, "Rafael Passos"
+ <rafael@rcpassos.me>, "Benjamin Tissoires" <bentiss@kernel.org>, "Jiri
+ Kosina" <jikos@kernel.org>
+X-Mailer: aerc 0.21.0
+References: <20260710153456.2093889-1-rafael@rcpassos.me>
+ <DJV56QRLBO6S.3H33MNASQ866@rcpassos.me>
+ <850e8696-311e-45e4-874a-8089afe35907@app.fastmail.com>
+In-Reply-To: <850e8696-311e-45e4-874a-8089afe35907@app.fastmail.com>
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
+On Mon Jul 13, 2026 at 6:28 AM -03, David Rheinsberg wrote:
+> What device name are you referring to exactly?
+I was looking at the `wiimote_devtype_names` table,
+but I figured out its only used for logging.
 
-Pre-existing issues:
-- [Critical] Missing cancel_work_sync() in the probe error paths of dualsen=
-se_create() and dualshock4_create() causes a use-after-free vulnerability.
---
+What I actually wanted, was a way to return a propper name to the user,
+with a controller/player ID.
+When listing bluetooth devices, I have 4 entries like the following:
+    `Device <UNIQUE MAC> Nintendo RVL-CNT-01-TR` (x4)
+I wanted to display a friendly name to the user, like the one on dmesg:
+    `Nintendo Wii Remote Plus (Gen 2) (1)` (where 1 is the player id).
 
---- Patch [1]: [PATCH v2] HID: playstation: Support DualSense player LED br=
-ightness control ---
-commit c4af8f1ee7d50867512c691be4fbde7636ea1510
-Author: Kate=C5=99ina Medv=C4=9Bdov=C3=A1 <k8ie@mcld.eu>
+If you think it makes sense, and its possible, I would love to make
+this change in this or a future set :)
 
-HID: playstation: Support DualSense player LED brightness control
+> Anyway, I like the series. I will review your v2 properly, so please go a=
+head!
 
-This patch wires up the controls for the brightness byte on the DualSense
-player indicator LEDs. It increases the max_brightness of each player's LED
-classdev from 1 to 3, and updates the brightness values before sending
-the output reports.
+Thanks, will do!
 
-> diff --git a/drivers/hid/hid-playstation.c b/drivers/hid/hid-playstation.c
-> index f9dc9378cf777..58786117ec016 100644
-> --- a/drivers/hid/hid-playstation.c
-> +++ b/drivers/hid/hid-playstation.c
-[ ... ]
-> @@ -1742,15 +1776,15 @@ static struct ps_device *dualsense_create(struct =
-hid_device *hdev)
->  	int i, ret;
-> =20
->  	static const struct ps_led_info player_leds_info[] =3D {
-> -		{ LED_FUNCTION_PLAYER1, "white", 1, dualsense_player_led_get_brightnes=
-s,
-> +		{ LED_FUNCTION_PLAYER1, "white", 3, dualsense_player_led_get_brightnes=
-s,
->  				dualsense_player_led_set_brightness },
-> -		{ LED_FUNCTION_PLAYER2, "white", 1, dualsense_player_led_get_brightnes=
-s,
-> +		{ LED_FUNCTION_PLAYER2, "white", 3, dualsense_player_led_get_brightnes=
-s,
->  				dualsense_player_led_set_brightness },
-
-[Severity: Critical]
-This is a pre-existing issue, but the error paths for dualsense_create() and
-dualshock4_create() appear to be missing a cancel_work_sync() call.
-
-If initialization fails after the work is scheduled (for example, if
-ps_led_register() fails in dualsense_create()), the code jumps to the err
-path:
-
-drivers/hid/hid-playstation.c:dualsense_create() {
-    ...
-err:
-	ps_devices_list_remove(ps_dev);
-	return ERR_PTR(ret);
-}
-
-Since ds->output_worker is not canceled before the devm routines free the
-ds/ds4 structure, could this result in a use-after-free when the global
-workqueue eventually executes the worker function?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260714184225.8464=
-6-1-k8ie@mcld.eu?part=3D1
+Rafael Passos

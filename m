@@ -1,182 +1,126 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-vs1-f53.google.com (mail-vs1-f53.google.com [209.85.217.53])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 07D2B3FADFD
-	for <linux-input@vger.kernel.org>; Tue, 14 Jul 2026 13:32:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784035939; cv=none; b=cOJUg14EclSzipusD+L5I3HEMjZt7izHqsXsuslhJIbKUU1PHCLjMxiKdlwmqWiVrgpZ49gamnpQCzWVVHFQHshm/GD2W4FZtMxZV4mntNbS9lAmgpyqEvkQFc4ZMeA5oNHel9u1xbO/+RBMnALAUxlH9TpEOt7qC/CEjVdWoWU=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784035939; c=relaxed/simple;
-	bh=XN/wlBv+e27eSWQ13qXPs0b9SDmKB+zJjIFmGyrFoWE=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=mOLKMv6ivV0HlLC/qo/c39Pz5kooGlgekhO8Coe9zeT4X/TyAV09aria45iA+d8EZaA+bXO6pDgqwxajn0wQPMp5Lfe+Jyy/hWdcFeqTANpnB6bx4CKK0tac85hB44TMTF9vsnCvDmpuQLlZVLi3YDOpCx6coT75rjwdtGAI/JA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=HqjcetBW; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 63D8546AED1
+	for <linux-input@vger.kernel.org>; Tue, 14 Jul 2026 13:33:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.217.53
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1784036000; cv=pass; b=V7n9sYO9oug5bN78HmIiWHjkGxal7kuJ8DkOsJl/4m2f2Qx4YjqZ7MqusUcC05V0pIE+7VwPny+QB9yjXQyySGLu2xTLzKX2TafwI4J2LkYCgi5v+Mf+w6W74oHzw/3wl5ze/oY6XQi09EHK+xbOcOfvD307OKKziHue8Lzx1n0=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1784036000; c=relaxed/simple;
+	bh=tFXARX4SHAk3PI59oKiV3+pkOUhhlBx2uKmJFHAo6l8=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=p1JHWSr1bXkj7ZeDOIpDJo+f6x3r110gF9iOCBi1P2TQFfDz9eRgegxA43tsj5GGTzitCSr9ZL4fu6yNzFfPla6YULDSqo+FTd272WRwzAXVJB+ngD7BPxG0ryG2VyHIXhwEZb+1Tq+HGVqrjwx4OeY7Ja/D56BkKrYTeqWL2zo=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=qo9Rgy2T; arc=pass smtp.client-ip=209.85.217.53
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="HqjcetBW"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69FA21F000E9;
-	Tue, 14 Jul 2026 13:32:17 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784035937;
-	bh=ZrWWWVVERHN1UdAx8IheKDMzLXKExJE6OteYuzyScCA=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=HqjcetBWFOH0QEnL91Kome30HdOsQ/dA8PkSg/G3MCPeb5I83/+0KUmXDYNRD5Wfj
-	 +PpABmSztZKJXot3vaPCcoiDMZTFr69P47I+tMMrnZz0hFF7SV4doVikPXjjOYAlG8
-	 ZuPW2FXwXd27pDllniD+M2GiP3f6gjkZ7vqqSjW30EuHUd3J18SYfobduMi7K5jUIF
-	 b7Jjbmh4psHBErunyQgeXp3mxNygs6HnNcg6RwApA2JwXCIw9jSP1c+tvTJLhME8vN
-	 BuH3ejxEQZh2K9aH4uRa79mQWbBVru1EosDFFPIsRBWYwwoKSP36XCUqq474THNi87
-	 9KYQvejsIxIpw==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 1/4] HID: cougar: fix out-of-bounds read in
- cougar_raw_event
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Jiale Yao" <yaojiale02@163.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260714131611.269929-1-yaojiale02@163.com>
-References: <20260714131611.269929-1-yaojiale02@163.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Tue, 14 Jul 2026 13:32:17 +0000
-Message-Id: <20260714133217.69FA21F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="qo9Rgy2T"
+Received: by mail-vs1-f53.google.com with SMTP id ada2fe7eead31-736eec08c43so959353137.1
+        for <linux-input@vger.kernel.org>; Tue, 14 Jul 2026 06:33:19 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1784035998; cv=none;
+        d=google.com; s=arc-20260327;
+        b=KyED7pCbhyRjDsbFWf5Zp+ioe7UT8XbqFTs3Ki7B8gdqOVPT2CAkidMgvA0RMH1/Ta
+         myRFOF8hK3qw6SouZ/Xg7Q+Y/EE9+e02we2yuy84x8OpJHYliHACmLJ1Jy7Bm/JUZPbS
+         FKjLZaHyOMntC6G8bOfol4mOIUfF0/gzm5pxFYP/NHA8Q2y5zahpJ3COdEmKAAevkSCP
+         mucYVaMTePxABLW6kZCI33LfpElMEjFOGKlIDc9z8EGI0LeWYVWPV20aqRzC83lDDGBh
+         LANjXc48XSMeEZF7FTdd1Y87lvzcArkYOumgg/S4HD9UwrSg8obOmUxyoAGCjez/93ip
+         SW/A==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=tFXARX4SHAk3PI59oKiV3+pkOUhhlBx2uKmJFHAo6l8=;
+        fh=dfvPRi+t5KvUF1qpgNVmacxvd83mvku6fE8K+/2kbH8=;
+        b=kjSNzkpgbx1vauZQ1RT4FtXkKUdN9qGr/1fwi6SvicrZ9IjNe+qHw8kxq4Y1ovDN+q
+         bSKzUgWC9Hkr7sq1E3UN00BP/NLCEfj1JVAZhc9+37Bzp8Hrl6ajfOgzFzM1/6SI5897
+         VD41ilNM8qalwjgo2yKXvdvcEWE3OTBuzAnrqS/WhYc/AvO+6Kjnxppaa+iaUngnY3Hm
+         HEXWJzPCZcmZSqcl4HnVNxcooIflfEEZqxiTQDL3X+UyllaNY8H/9hXZ8cNsWni/lmdL
+         V4XQ3ZleOr5VMazM5jHF23SbFzlYQBVXVllU8UNsIfj4ldkrfYvfXkaSQhOXhdMoQR9L
+         kqVQ==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1784035998; x=1784640798; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=tFXARX4SHAk3PI59oKiV3+pkOUhhlBx2uKmJFHAo6l8=;
+        b=qo9Rgy2TgLYAxz2TnZecUhr2sKTwvgLWcgnvcWMgmPXabMT0p7nYdFWGoNL3k39Nzv
+         rbORQhzrOdgcbBJm6rflVQWGEXkkwHr6tXMOtatxBkS9SMxGcOWeUira3LaLNFUq1Ge6
+         arxbE3zExvif3LHibiBua/kiVIMI0U9f1+t37VQQM0Kyf0IdxmK97gb23KFNz1xtE/ZE
+         VlUvv3Vlq7Z81++EhVU+nrmjNPoGAEXi8iCXyocmSVh3sTagTVlaLTAR4lFwb1bnPiBf
+         20EI5zk3XQyl4yhA+inMFB1NnAC+qGgd268+jupu6MVzUFcH53L3zUY5uc/xxraPkQoo
+         0K6w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1784035998; x=1784640798;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=tFXARX4SHAk3PI59oKiV3+pkOUhhlBx2uKmJFHAo6l8=;
+        b=SJv7Lnr5MHjOkBZoxflTP/DHVBKvILQxFmXz29NduPY+mlkPehOUM6V9rhmLIoGaN4
+         vkw+8J9nMRzmwEr0KEH9JqChFSf46lApLSGLn90E5rd+KbpKjFD2X52sMcoUBvE3w2rK
+         0TFZNPlIPs6QaiQcV34fDb44xdMMwOipF71L6cIsyViSz4tN8IKjvSN/b0zVSpmKC6V0
+         6/NDsuuA2kHjtg6unNJVncoy/NWfbptW+j/buuloULusXJaRZeyOsHGOlO0DiaoM9tqy
+         g5CAIHD9nIfT/pbBOhDKpMx2Tbq+IgRavtYZXmY14AYemk6uHB24O+1UzuO6hSwh0JK/
+         z6+g==
+X-Gm-Message-State: AOJu0Yy6RcvpNzpOi9qtQXhg1JGosnmQzGR/KrGMns4qgxqrROirzUe8
+	Ty/86/aZtPqDPFul1PZn68/SrIttPq9X50EYfEe1pDt8yb95vjtgPVLGsfivCuOhMcAU7Iv2IAn
+	HTIIn3Yg+X2EpnxrlX+qkes/SiJhQAV0=
+X-Gm-Gg: AfdE7ckQu6L6T+VIGQcaaMbV3ynDATrJZRGJIk23ckUYC5B47xrKRy30q5uL7mgTF2X
+	WOwWSS4JMGeB/vImkU4s/PE8vP69tHTo6ZnT53Ur7AlVN7G8+PvnuLNeTMBoYE8i99HKINXgdc5
+	mcW9K/3/pZ/St43leU75+aczIlEClwaz2tpekI4uwyYJpBGxVFhWmk/EacCGWnYDzjR+4QjPIEP
+	YR/jtQg/tJ+c1VzCTFqG4na2hZSXSntNYJCSeGfmVEoYA59/AZwVWJUh2FuykR4r8DqDhhIi1Q=
+X-Received: by 2002:a05:6102:620e:10b0:734:54fa:971d with SMTP id
+ ada2fe7eead31-7450c7309f2mr7136897137.7.1784035998246; Tue, 14 Jul 2026
+ 06:33:18 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+References: <20260714120052.255085-1-chlgustn3171@gmail.com> <20260714121819.5FCC91F00A3A@smtp.kernel.org>
+In-Reply-To: <20260714121819.5FCC91F00A3A@smtp.kernel.org>
+From: chlgustn3171 <chlgustn3171@gmail.com>
+Date: Tue, 14 Jul 2026 22:33:06 +0900
+X-Gm-Features: AUfX_mziL_YIWK1mOLB4Cx8A5jwVQaeVlfikn-kbN8oMPqwTpHlQFBBl6-mR7M0
+Message-ID: <CAO2ma08Pap6PZKUV7iEpvu11zaKrzMK-cgBLBYKJEEfGH+0=1g@mail.gmail.com>
+Subject: Re: [PATCH] HID: input: allocate input_dev name/phys/uniq using hid
+ device devres
+To: sashiko-reviews@lists.linux.dev
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Thank you for your contribution! Sashiko AI review found 6 potential issue(=
-s) to consider:
+On Tue, Jul 14, 2026 at 9:18=E2=80=AFPM sashiko-bot wrote:
+> [Severity: High]
+> If a userspace process holds an open file descriptor for the evdev node
+> (/dev/input/eventX), the input_dev will outlive the parent hid->dev.
+> When the HID device is unbound, devres will free these strings.
+>
+> Can this cause a use-after-free when userspace later queries the
+> name, phys, or uniq strings via ioctl (e.g., EVIOCGNAME)?
 
-New issues:
-- [Medium] Unbounded error logging in interrupt context can lead to log flo=
-oding and Denial of Service.
-- [Low] The newly added `hid_err` log message is missing a terminating newl=
-ine character.
+Thanks for the review.
 
-Pre-existing issues:
-- [High] TOCTOU race condition during device unbinding leads to a Use-After=
--Free of the keyboard's input_dev (`shared->input`).
-- [High] Self-deadlock on `cougar_udev_list_lock` during error handling in =
-`cougar_bind_shared_data()`.
-- [High] Race condition between `kref_put()` and list lookup causing Use-Af=
-ter-Free of the `cougar_shared` structure.
-- [High] The probe function dereferences `hdev->collection` without verifyi=
-ng that any collections were actually parsed.
---
+Using &hid->dev here is intentional.
+Using the input device for devm-managed input_dev strings is
+problematic; see CVE-2023-53454, where the allocation was moved to the
+HID device because the input device unregister path may still use the
+name for uevents.
 
---- Patch [1]: [PATCH 1/4] HID: cougar: fix out-of-bounds read in cougar_ra=
-w_event ---
-commit bb404070c5edd2b402b1e549ba66068e04c7d429
-Author: Jiale Yao <yaojiale02@163.com>
+> [Severity: Low]
+> If devm_kstrdup() fails for phys or uniq, the code jumps here to the
+> error path. The earlier successful devm_kstrdup() allocations remain
+> tied to &hid->dev.
+>
+> If the caller continues the device probe successfully after this failure,
+> will these strings be leaked for the lifetime of the HID device?
 
-HID: cougar: fix out-of-bounds read in cougar_raw_event
+The name/phys/uniq copies are attached to &hid->dev, so the clean-up
+is handled by HID device devres.
+However, if it is better to explicitly unwind, I can add that in v2.
 
-This patch adds a bounds check to cougar_raw_event() to prevent out-of-boun=
-ds
-reads when handling malformed HID reports shorter than 3 bytes.
-
-> --- a/drivers/hid/hid-cougar.c
-> +++ b/drivers/hid/hid-cougar.c
-> @@ -270,6 +270,12 @@ static int cougar_raw_event(struct hid_device *hdev,=
- struct hid_report *report,
->  	if (!shared->enabled || !shared->input)
->  		return -EPERM;
-
-[Severity: High]
-This is a pre-existing issue, but is there a TOCTOU race condition here
-during device unbinding?
-
-If a device disconnect is triggered while a USB event is being processed,
-cougar_raw_event() checks shared->enabled locklessly on one CPU.
-Concurrently, cougar_remove() on another CPU could clear shared->enabled
-and call hid_hw_stop(), destroying the input_dev.
-
-Could the interrupt handler then resume and dereference the freed
-shared->input in input_event()?
-
-> +	if (size < 3) {
-> +		hid_err(hdev, "Received HID report of bad size (%d)",
-> +			size);
-
-[Severity: Medium]
-Could this un-ratelimited error logging lead to a log flood if a
-malfunctioning or malicious device continuously sends reports shorter than
-3 bytes?
-
-Since cougar_raw_event() runs in interrupt context, this might cause high
-CPU usage and flood the kernel ring buffer.
-
-[Severity: Low]
-Also, does this log message need a terminating newline character?
-Without the \n, subsequent kernel messages might be incorrectly appended
-to the same line.
-
-> +		return -EPERM;
-> +	}
-> +
->  	code =3D data[COUGAR_FIELD_CODE];
-
-[ ... ]
-
-[Severity: High]
-This is a pre-existing issue, but does cougar_bind_shared_data() have a
-self-deadlock on cougar_udev_list_lock during error handling?
-
-If devm_add_action_or_reset() fails, it invokes cougar_remove_shared_data()
-which drops the kref to zero, triggering cougar_release_shared_data():
-
-drivers/hid/hid-cougar.c:cougar_release_shared_data() {
-    ...
-    mutex_lock(&cougar_udev_list_lock);
-    ...
-}
-
-Since cougar_bind_shared_data() already holds cougar_udev_list_lock when
-calling devm_add_action_or_reset(), will this attempt to re-acquire the
-already held mutex block all further probes?
-
-[Severity: High]
-This is a pre-existing issue, but is there a race condition between
-kref_put() and list lookup that could cause a use-after-free of the
-cougar_shared structure?
-
-During device unbind, cougar_remove_shared_data() calls
-kref_put(&shared->kref) without holding cougar_udev_list_lock. If the
-refcount drops to 0, cougar_release_shared_data() blocks on the lock.
-
-Concurrently, a new device probe calling cougar_bind_shared_data() holds
-the lock and traverses the list:
-
-drivers/hid/hid-cougar.c:cougar_bind_shared_data() {
-    ...
-    mutex_lock(&cougar_udev_list_lock);
-    list_for_each_entry(shared, &cougar_udev_list, list) {
-        ...
-        kref_get(&shared->kref);
-        ...
-    }
-}
-
-Could it find the zero-refcount object, increment it, and then after the lo=
-ck
-is dropped, the blocked release function frees it, leaving the newly
-probed device with a dangling pointer?
-
-[Severity: High]
-This is a pre-existing issue, but does the probe function dereference
-hdev->collection without verifying that any collections were actually
-parsed?
-
-drivers/hid/hid-cougar.c:cougar_probe() {
-    ...
-    if (hdev->collection->usage =3D=3D COUGAR_VENDOR_USAGE) {
-    ...
-}
-
-If a USB device supplies a HID report descriptor containing no collections,
-hid_parse() succeeds but hdev->collection remains NULL. Will this
-unconditional access cause a panic on probe?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260714131611.2699=
-29-1-yaojiale02@163.com?part=3D1
+Thanks,
+Hyeonsu

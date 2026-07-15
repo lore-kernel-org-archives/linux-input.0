@@ -1,182 +1,166 @@
-Received: from TYPPR03CU001.outbound.protection.outlook.com (mail-japaneastazon11012020.outbound.protection.outlook.com [52.101.126.20])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-vk1-f181.google.com (mail-vk1-f181.google.com [209.85.221.181])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D1B5828DC4;
-	Wed, 15 Jul 2026 06:34:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.126.20
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2312B3126C0
+	for <linux-input@vger.kernel.org>; Wed, 15 Jul 2026 06:37:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.221.181
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784097262; cv=fail; b=KeBXc1V9JV01nOieXJnVzC3PnehOAkA/jzrqQfj8dmmMUfUJKBD4IoVuPVMOqAGYqUQ/ZzUVok+sDiPMu415pVrol6vxYMtJU2aQYJZ/eWixtwAHPhzE+1F5LrF39HVmfky68sf5wBMJ8H8B6hTT31BdhdEdUoegjhp5YFmw3+I=
+	t=1784097443; cv=pass; b=CSQbd0BeLbzWtFU1/HTjNcPx7ynh2dAJ0i2QsoNdiHuXa5kKPt6loxmT9vrJsO71dux6RITPbh20UZlKgzKLndNDHDzp2LGfxkxi7AHXSGIoMFgAaSIokoC0rl8KEIZVdk6iXr7kYGzq8VPuzcyDbcCh5B0bVJbumtWMNuiJCw8=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784097262; c=relaxed/simple;
-	bh=Q+36J0rIDfY87N7Y6F+82T3eaGpEb4Ytp5lwKGP3J5E=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=e8kWYL5OHLxnOF66GlWF5tCOWIJsM5kuhwCAlMqkcVBHd52REqXUYZcZmcifClHQtxvMAAA/E6dwURXJFP6dpp0xEmtxD6cVBLSmXkFMciekVZzYZAD4dl26SMbc86FGuZETzfHNp3OFcHN8U9+8hH2pEuql0/7e+pvUzYgCOuo=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=vivo.com; spf=pass smtp.mailfrom=vivo.com; dkim=pass (2048-bit key) header.d=vivo.com header.i=@vivo.com header.b=bWzEFXYR; arc=fail smtp.client-ip=52.101.126.20
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=vivo.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=vivo.com
+	s=arc-20240116; t=1784097443; c=relaxed/simple;
+	bh=A8eE6gYBEyawqXzPiLbSmLaGyQiPySXEY+8GIYReE+E=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=WRPKBRpPK8OzNi1gzTzxIzh/2Kb9kWXp5S88sxj1LIyZ0EBlFj3823LIiyZgq1RY9YjkWcG04AAkgv9JepDXkifSipLS09TBITSMSNOL+9Y0clUHYoz4OiVbouV27teCH8H/qWciu8ZTN6EXC1oh4hH9h0ZNddhDVHvrV2B5kOQ=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=oprTH0Zb; arc=pass smtp.client-ip=209.85.221.181
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=vivo.com header.i=@vivo.com header.b="bWzEFXYR"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=S13x5TrEO62NC2llLdk0ufNbBOIWDbJ9wzQNofvYaIzZZtKrutByzh5uqhKCpsl0JYEwz4sZWrPc3FJO6PwXZAhj3YpwdDz8XC95Yi06l5gssce407SnqygdQe4ORwTY7vUY4TNl5HKbASruvbn+RgLVpUg3/7v4kzdObEcFWU0+hlg31hM2DmVPZA3Wi8H+CU4vbr34U96qg9F8Wasiid5asULpl/OFiJJmnDDWDh0kCyX8qjvsbp1HkDIEalsEF3gKd+It2wc4g6ODMiu0sK0YSeWK4zPttgdPDKRJJG89X82NBcToiPCcfWPyAE16eZdLXfCOkWpEAovmqI3DAA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=b/AZvyyuuXnqUKPLLhwKvLDVwLbuiT0oLYiHg230AtI=;
- b=BrnmaCDFw7H/2UnP71QbBeZDEOJ0pL5L7NZgFS33WYNDAkU56TMtkDZCnKc5bw5yZFRtN1DtsV6jB452duyiGyuwc/qKSp/7yLzLHCPWGMwmnYz6+EmjxDziVzRXgDNuHIUbFiFXTz3DqX3VPSyXTzjVTxoPFJOsRPDI66agIsQwv/EPsCfp9IW0IydY4uOtZbexVymXpMDMNvQ63q34ouEnXB3oXS+NWXzy7W4xw10LWnJITm3ZSH1I66s6DB0WlntrhpcdCXvvI63ilrb7hnClecKDJCYOy1w3vjub17Ya2w2ulwO3eKdKshAYqcdEW+hMncYtB3nENLhvUgAXjw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=vivo.com; dmarc=pass action=none header.from=vivo.com;
- dkim=pass header.d=vivo.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=vivo.com; s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=b/AZvyyuuXnqUKPLLhwKvLDVwLbuiT0oLYiHg230AtI=;
- b=bWzEFXYRO8+typamhrA8Oktb6BSAoKSf5PGizAWCpIBsnIeYJLDbdHyZioAmM/uF7iSdmasxzJ9SWNf4diAZV6e3hW9ga9stw6xmx8CUzTJBGrqcw8R9a5SBAMTNMY7yPNeMS9jav3Huk/FDB9AAYSt5AdkbOTUiR60DXedxO2Hl1P6Qo99cY4P5iwmtU2gWnPf2LC39yyv9fI/nnGFSbB7w+UBFyO0HM/1RTJGhjd/ubxajqVCEn/MY8hfztXUJZieEjfdmjYHEWieGRqxFLeOD7UV4mcnbMRLOz1y75dWX0sjPgxcXUvfNFG8rEZiw4q6600YiC6i91p7SOFpeqQ==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=vivo.com;
-Received: from SEZPR06MB5832.apcprd06.prod.outlook.com (2603:1096:101:c8::12)
- by TY0PR06MB5610.apcprd06.prod.outlook.com (2603:1096:400:328::7) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.223.10; Wed, 15 Jul
- 2026 06:34:17 +0000
-Received: from SEZPR06MB5832.apcprd06.prod.outlook.com
- ([fe80::f98:5e32:4ccb:d07b]) by SEZPR06MB5832.apcprd06.prod.outlook.com
- ([fe80::f98:5e32:4ccb:d07b%6]) with mapi id 15.21.0223.008; Wed, 15 Jul 2026
- 06:34:16 +0000
-From: Pan Chuang <panchuang@vivo.com>
-To: even.xu@intel.com
-Cc: abhishektamboli9@gmail.com,
-	bentiss@kernel.org,
-	d3z.the.dev@gmail.com,
-	jikos@kernel.org,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	panchuang@vivo.com,
-	sakari.ailus@linux.intel.com,
-	xinpeng.sun@intel.com
-Subject: Re: [PATCH 4/4] HID: Intel-thc-hid: Intel-quickspi: Remove redundant dev_err()
-Date: Wed, 15 Jul 2026 14:34:06 +0800
-Message-Id: <20260715063406.476663-1-panchuang@vivo.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <IA1PR11MB60987170F254F4152C1F7C95F4F92@IA1PR11MB6098.namprd11.prod.outlook.com>
-References: <IA1PR11MB60987170F254F4152C1F7C95F4F92@IA1PR11MB6098.namprd11.prod.outlook.com>
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: TP0P295CA0034.TWNP295.PROD.OUTLOOK.COM
- (2603:1096:910:4::19) To SEZPR06MB5832.apcprd06.prod.outlook.com
- (2603:1096:101:c8::12)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="oprTH0Zb"
+Received: by mail-vk1-f181.google.com with SMTP id 71dfb90a1353d-5bf8a2932a3so2582065e0c.1
+        for <linux-input@vger.kernel.org>; Tue, 14 Jul 2026 23:37:21 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1784097441; cv=none;
+        d=google.com; s=arc-20260327;
+        b=RrV8kkvz9lt8VS1iAPw+9hwCzOIn0lC1SYtXK4h+WIEeTmQ4s0meGRE0EppIiHEPQt
+         ctHt7WCsp6uZGDyhBqyDZJ2tLarPNgSrZZdgvQdK/KMqTFGYEjY/spLOSkqgqnucp2Xz
+         tJZuRF3g+t0VJpcg9gMKlYXqfKRZi1QG4z8bfzdpmNcwE4c2TiPV/X5OwjcvKM1k4RaX
+         QjULi4Jc9hHuow5t/YcmT3ZqTc2vQOB/UXb7VKMoc/JZbMOChNM4LNIlVU8vwquopUoY
+         hPSPcXl8mGhuBho3Av7aLIugdYUW+1r3PVvIGX6Ty/rTC14xyuwEQrlioCwD28NZ5NSV
+         RkHw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=A8eE6gYBEyawqXzPiLbSmLaGyQiPySXEY+8GIYReE+E=;
+        fh=di5SO93/93Kdf1ycTXuw75HZxqhysolCaiTsbYpV7sY=;
+        b=TAcgGuH8Y5ZZlV26aG/bKWryy74/m1xuV71Pp7Frrx/UAcnsov8zPkwjv/acnHQKt8
+         T2eEs/fFTwmVERxVgJRz1tWstBSPdwaRUvDnICTK+7bcDQpdQS7WU3JzpxExnVHPDHRq
+         ZuQyOdEWA3eBF/2uGumPMH1or5kiaA52KUm0/ckKn/Fx+cVKM1gnQWqaJSzbo9NhKFlR
+         KMUBIqc+ZEdNtdkm7OHVW2u+5VKzMHc8eFZCH03phlm41xX5nPWyR7uqY1QzWOTN0FRK
+         MqHwy6uqixnDENAw6raqpzBuWm0as+TF5S1/om4yLWBPXyu3TpXPNxTmr2S1YscflvuP
+         d17A==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1784097441; x=1784702241; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=A8eE6gYBEyawqXzPiLbSmLaGyQiPySXEY+8GIYReE+E=;
+        b=oprTH0ZbBpIFV3O+1pzsZibuSvtM0ulzvfLMAa8UmVavmBaejT66kx0iWTT39mH/Fw
+         WY5DsnbiYGYdtGtSrbMwKK244d/ao4ckH//UZjbhvcjpAF64GiKWk/+04d5qzFl5nUeJ
+         S/Yyl1cb7/QO7rQzqweg43ovByxTIcQw8e1nPuZ+gB1+/wYyjWs/ZLPW+bkuzrsntMZc
+         yjiBxAZitk9DCJMO4cBh7lqTYRQmhFrMixQIfZA3d0vFMriB8cVLNszA/SavxlD3Q21w
+         v2TBSw8QGIOiAUrPfpIHKhUJatu4fz3fjoe+L4siIrmkSzgehBrnVrEEeGRC+f5aZK28
+         Hc7A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1784097441; x=1784702241;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=A8eE6gYBEyawqXzPiLbSmLaGyQiPySXEY+8GIYReE+E=;
+        b=DR5SL9clWe80NBLYaq+k9l39W58FLhgmrGtQ2Rxa+m4VF32jWuTdu23e2krypRXVyI
+         MOtINToaPRaJxzbg1x0DVtCbLezxxcFwGrpAC35oMEU3d/gGy6fFBBTHlsc2he2Z7+dF
+         tMMr531jgbFgcgFiJc3f7a9MFJtFKArpAxi9NdhjpcYYULNhvvVXJBPSQFvngviOy0SW
+         YlJ6PpBSMgybq7nuAnf3HG+YiwuUndmPCgMj18k65jcFA3kTxyUYk9I5w5uBe3VPzY3W
+         Ui2avC/I2MldKUXuI0AKCeFDPx9t05I9i5MuXPpkRZJCcB4zFARugntO7i3+JIVdsYwK
+         Hidw==
+X-Forwarded-Encrypted: i=1; AHgh+RoQSDfbAntZ7XohPW6HItwp7nXMBZiknzXU9xF03VWuiDXje1kISTg4+Ux+1qhyaLjGF5zAX4D5yKcMJg==@vger.kernel.org
+X-Gm-Message-State: AOJu0YzufVElzWzq5mgdr9GZXoSuw4O55vDW64N+hXHGC1k3ZJhILXmC
+	l61G2dQC2ginvzX4sqNW187d8uRNXm+VFHGlFlncKpWJMdr0NMiDhBlPp+bamML2bDOIvuemDw+
+	bwedyR9Dp8oA7kUbC9mf27K6f4NosPPyTCnnN
+X-Gm-Gg: AfdE7cnV0FusGFHW/VAdmMbzqe9zmsu79LNf3cLSBLVis/9jl0iXRn2mzQguKHMWn+r
+	zPKfXXF+78rpxkKePF8H65BNc2alhyL0PXQcZODHB7Sg0pQKiE9Ax5lzeAphGaE2btiFwptQD2Z
+	kEHSENZRObCOirq39KZkxtTfmYDVsvrdtu4GBAkl7muAn4YotuhyT8B7T1MxoCCNYw5y+uBC9G0
+	gouc+6tj34GIXAmNVAwE5DVF3lqtH30IOijRgAnIvrOvEgTSOBIJYKwFJFsNC8Trl92sHnb
+X-Received: by 2002:a05:6102:3e0a:b0:631:2624:e5e7 with SMTP id
+ ada2fe7eead31-745874d565emr3118969137.14.1784097441003; Tue, 14 Jul 2026
+ 23:37:21 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: SEZPR06MB5832:EE_|TY0PR06MB5610:EE_
-X-MS-Office365-Filtering-Correlation-Id: 2a359197-129a-48c0-59d2-08dee23b17cb
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|1800799024|376014|52116014|366016|23010399003|6133799003|22082099003|56012099006|11063799006|18002099003|38350700014;
-X-Microsoft-Antispam-Message-Info:
-	Yh91m60XkvzsAapateJ45ZBSFtvkwfH6vnaGmy++fZ0hof3kr+I1BKz/sXDM+o0wIZahjpHmgQd+diTegYHj7I/KDszhqyr0R0Nx5wAbDb52R1Y/LQ9oRBBqGgy5SyTGxpKjzbzkKKrp5aTnsV9YFbBfUa/reO/JILIv/UTqQVjN28Se4BsgIxU7S0aGCXEDDXc2jzoNWPdSX5epoZ+q7LrDjNvI9wGcOp8wmC4EoRTqiqNXCq5b411OdzdCI62oUD7zTIt3GeGZlsc2ltqYeSJQduN3SSrB3jP/RM8rs1QeA+b4ZLv5TfF4kB5WjiozPmqqkUOYRRwuq1e2kzUzVwjxtJY39wegGNrNxBJLvaD6vYsGmtiiBJ79uekcgztTAc+Hyrq8nRA7RTbcNWuTPHiRnynzu67ClSs68zk1BABHgCaHzj/u9Cdlx0SwufsTdC33Un2ePz9eGki+jQB5pgSRuJ6YTAN9Do6skJvpvEOFUe2REhaPlEQSdWUZkepUvUf/uvgG1gU/ZUhUC24HTyGcTDlyUc0Y4h/rtaiwgFth84u7hhLl8s9aLEctLxjPlZ37jmsTYbSxx3ZR80tLlsdDm3S6vW285k5qeVrE6x8uOcMOgPS9VneTY2VFOUpzcClc6bIgaO//HIKQVAGY6IXjmmjG+newOoArdqH2lEoBEaNTmGrGc9eUrBulvmXK/ivjjcSvqS76mIOpIQKF8VsTCqcjzeEr1hzy7ZH7HC4=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SEZPR06MB5832.apcprd06.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(376014)(52116014)(366016)(23010399003)(6133799003)(22082099003)(56012099006)(11063799006)(18002099003)(38350700014);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?us-ascii?Q?l02vgaLtA74C8xy3zqXi/q29yce0hmMJHr+uhQexIPAN5muqx9ns3un3jxaN?=
- =?us-ascii?Q?/7L7JOaaJWDuhIQm5g/Hf0w0cDF2VA82LntPsg3UgBacOAKww6vuBAXpYj3q?=
- =?us-ascii?Q?mZ6Hetgj0A7ziyg0LgLMxFrW93WhoqzyUXMRFFxzSS2i7bL6pI/2W7Knrsj3?=
- =?us-ascii?Q?gA5tCetCXNGVpHdxiiBNTL4Oq2t81eqPf5YXrmnm7lplhG1J+nXtuP9UWFXM?=
- =?us-ascii?Q?z7JZU+U/lErCUgJt55qrFj0bBCu5qkvgBPT3AsVMRsPTnMrg8Grcxz8bWaG2?=
- =?us-ascii?Q?Fhj5N9Oiq/PaVNmVI6GU77AAKCkQ/h77DykZ7LZEXy+sWFEQaDUKa0FKIj1b?=
- =?us-ascii?Q?DlPj0D635S/SGHJBlzXS2wljy3sIkZ9P5h2Y09bRkAIgtye+twNpRRP5ITwY?=
- =?us-ascii?Q?YWoma3bXORf1VNWJXrOlzrkWxga0uyIgnENaiabfTDh4rhdWndta9BP0R7po?=
- =?us-ascii?Q?4vB5xyoFLMiGtL+bZnJKkyzeOyMZcowrAqMcZ3bbIHbbRMzWdoJM8EIRiODj?=
- =?us-ascii?Q?d21YBEEalhQMbFoONFh8QE7FVtdqcmcGvk+l5kx8tGUsiUpc5C/6PtNefXyo?=
- =?us-ascii?Q?MUDhu2PN4V02JMZCFCHgZODQZFqx7zwNgepE00TZC3B9BWkxHvtlvihryorm?=
- =?us-ascii?Q?a0QFRXLZri4pCzxT4ocWs+Clvq7R9nTNDJxZIecb5YNmD/73h7bOlpvNx1le?=
- =?us-ascii?Q?lsxgS0vYHTadml6AYMcGnH5daBiJBv3Dm6VYGjJav30rEIJxiHMXyeo3gvWQ?=
- =?us-ascii?Q?rA8CKTc3z2hEUsU3W9gr/EdjBczxmimKyWpSsunXBrkMOMNcz8988VjqNXF4?=
- =?us-ascii?Q?nmtPsJKUuw3g6vgJoEI6DZN4gHvWMgPPDgi2CG1pPlLAkpFSk8vRsNbMogRQ?=
- =?us-ascii?Q?Gi8k/H5gA0dlBo8dDYISAJUd+c6b0a02szfhjJi0hFfv8E+D4sEf4SiphrKM?=
- =?us-ascii?Q?Zqw35PRMvpB1FtHjhwSpWDI/kKISYHOOcsgMSWcbJGmCai0a46IQOFquTFOQ?=
- =?us-ascii?Q?t741UEEmJ5qXogSI/Co8uFBlvAnMHQ3LYhwZErBdLa31jPJNvbrhn60fipML?=
- =?us-ascii?Q?fOYNMUzWbjSmQnzAsgXmn3GdOSKF5hdag+xEV1n98EI8Kk4bWji17WyZpANC?=
- =?us-ascii?Q?NFnuI9uobi/nW38B70Tg40L5OwR+X9sIcMebsSG0DEMMvhG2zkHSH6eIrCQf?=
- =?us-ascii?Q?dftafwJc069rTnbQTDv5nSYxT2JOXq01owa/zHHQBCdp4v06u4wgwAtxgvuR?=
- =?us-ascii?Q?AenaTOftSATfTYuBF0xyaabIIhYeKoXglVtPYbq8bEQ/qEY+7SHhzB+aN6P5?=
- =?us-ascii?Q?NWp9CY5cveIijB1FYO/HW4mTK3Xmj3a2TxGBNc9ULDfLy36seo9SBvedsHil?=
- =?us-ascii?Q?Wi0W4qFHQvQ7cws8f2Eb1x8FbzyYrpoHgzGNUrhzWQfBBOLuta/n/2K2Hlio?=
- =?us-ascii?Q?QzJDhKqKqSETsEy+VQIK8EUeO1BFEj/VDgUWoYlVT/PxsLoI1q3alF6vg1kC?=
- =?us-ascii?Q?2zpDOZt0mTGtvsBK2feT0Ca/RO3QPLCA4Rtrj5ixCcODGHpe4K5XC7GiNlkl?=
- =?us-ascii?Q?gpQa2DubUD4HEISjqVkKroqswBzOvLShewTibZFziB0hlDV1cBx5TdtEYOx7?=
- =?us-ascii?Q?Rh2VOyu6M+0Y9mWKEUk4HQeHTj8P44pnlJX29w/FlVMU2ORmwS+pnN7LWsLz?=
- =?us-ascii?Q?bT1hv25kvMGPuoh1mSGHVM+9dfOIxIqofGZKaxvcb2QU0FbdynBzqIt9J5x3?=
- =?us-ascii?Q?Oun22QAAKA=3D=3D?=
-X-OriginatorOrg: vivo.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 2a359197-129a-48c0-59d2-08dee23b17cb
-X-MS-Exchange-CrossTenant-AuthSource: SEZPR06MB5832.apcprd06.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 15 Jul 2026 06:34:16.5510
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 923e42dc-48d5-4cbe-b582-1a797a6412ed
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: 1w46R1EPWFds4GkKTRkERH4J4w42C9uLboQBNmuatKK6ERyzzV6S3VcJJOai2b9L0pftCIFyRLMJejRq+P++DA==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: TY0PR06MB5610
+References: <20260714120052.255085-1-chlgustn3171@gmail.com>
+ <20260714121819.5FCC91F00A3A@smtp.kernel.org> <CAO2ma08Pap6PZKUV7iEpvu11zaKrzMK-cgBLBYKJEEfGH+0=1g@mail.gmail.com>
+ <CAO2ma095Hu1kOTMds9yHqTvwde8Gu+GWOLUst5U2eCnSffkm=g@mail.gmail.com> <alcCgHzV730RKPmR@google.com>
+In-Reply-To: <alcCgHzV730RKPmR@google.com>
+From: chlgustn3171 <chlgustn3171@gmail.com>
+Date: Wed, 15 Jul 2026 15:37:09 +0900
+X-Gm-Features: AUfX_mwjZd2YMIMMrbzMJbJRc0izxkbpQ8dAx4mNcU239rK5k2q8oyfHjEkK-zQ
+Message-ID: <CAO2ma09gV+kR5xY_MqVo5NhEEyD2vkZO7VnuE_bAQRYN1DiP7A@mail.gmail.com>
+Subject: Re: [PATCH] HID: input: allocate input_dev name/phys/uniq using hid
+ device devres
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: sashiko-reviews@lists.linux.dev, linux-input@vger.kernel.org, 
+	Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On 2026/7/14 8:50, Xu, Even wrote:
-> Thanks for the patch!
->
-> If this is the case, can you also do the same change for intel-quicki2c driver?
->
-> Best Regards,
-> Even Xu
->
->> -----Original Message-----
->> From: Pan Chuang <panchuang@vivo.com>
->> Sent: Monday, July 13, 2026 9:25 PM
->> To: Xu, Even <even.xu@intel.com>; Sun, Xinpeng <xinpeng.sun@intel.com>; Jiri
->> Kosina <jikos@kernel.org>; Benjamin Tissoires <bentiss@kernel.org>; Pan
->> Chuang <panchuang@vivo.com>; Sakari Ailus <sakari.ailus@linux.intel.com>;
->> Abhishek Tamboli <abhishektamboli9@gmail.com>; Danny D.
->> <d3z.the.dev@gmail.com>; open list:HID CORE LAYER <linux-
->> input@vger.kernel.org>; open list <linux-kernel@vger.kernel.org>
->> Subject: [PATCH 4/4] HID: Intel-thc-hid: Intel-quickspi: Remove redundant
->> dev_err()
->>
->> Since commit 55b48e23f5c4 ("genirq/devres: Add error handling in
->> devm_request_*_irq()"), devm_request_threaded_irq() automatically logs
->> detailed error messages on failure. Remove the now-redundant driver-specific
->> dev_err() calls.
->>
->> Signed-off-by: Pan Chuang <panchuang@vivo.com>
->> ---
->>  drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c | 5 +----
->>  1 file changed, 1 insertion(+), 4 deletions(-)
->>
->> diff --git a/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c
->> b/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c
->> index 4ae2e1718b30..504ef3c842ab 100644
->> --- a/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c
->> +++ b/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c
->> @@ -636,11 +636,8 @@ static int quickspi_probe(struct pci_dev *pdev,
->>  					quickspi_irq_thread_handler,
->>  					IRQF_ONESHOT, KBUILD_MODNAME,
->>  					qsdev);
->> -	if (ret) {
->> -		dev_err(&pdev->dev,
->> -			"Failed to request threaded IRQ, irq = %d.\n", pdev-
->>> irq);
->> +	if (ret)
->>  		goto dev_deinit;
->> -	}
->>
->>  	ret = reset_tic(qsdev);
->>  	if (ret) {
->> --
->> 2.34.1
->
-Sure, I will apply the same change to the intel-quicki2c driver as well.
+Hi Dmitry,
 
-Best Regards,
-PanChuang
+Thanks for the detailed explanation on devres lifecycle and device refcount=
+ing.
+
+I agree the patch is unnecessary, and that the syzbot trace is likely
+a false positive or external memory corruption. I will drop this
+patch.
+
+Thanks again for the review.
+
+Regards, Hyeonsu
+
+
+On Wed, Jul 15, 2026 at 2:57=E2=80=AFPM Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+>
+> Hi,
+>
+> On Tue, Jul 14, 2026 at 10:39:09PM +0900, chlgustn3171 wrote:
+> > Adding maintainers and mailing list to CC. Sorry for the omission.
+> >
+> > On Tue, Jul 14, 2026 at 10:33=E2=80=AFPM chlgustn3171 <chlgustn3171@gma=
+il.com> wrote:
+> > >
+> > > On Tue, Jul 14, 2026 at 9:18=E2=80=AFPM sashiko-bot wrote:
+> > > > [Severity: High]
+> > > > If a userspace process holds an open file descriptor for the evdev =
+node
+> > > > (/dev/input/eventX), the input_dev will outlive the parent hid->dev=
+.
+> > > > When the HID device is unbound, devres will free these strings.
+> > > >
+> > > > Can this cause a use-after-free when userspace later queries the
+> > > > name, phys, or uniq strings via ioctl (e.g., EVIOCGNAME)?
+> > >
+> > > Thanks for the review.
+> > >
+> > > Using &hid->dev here is intentional.
+> > > Using the input device for devm-managed input_dev strings is
+> > > problematic; see CVE-2023-53454, where the allocation was moved to th=
+e
+> > > HID device because the input device unregister path may still use the
+> > > name for uevents.
+>
+> Thank you for the patch. However, I do not believe it fixes anything, as
+> moving to devres will not extend (and may even shorten) life time of
+> name, phys and uniq. Normally they are character array members of HID
+> device, and HID device continues existing past drivers disconnecting
+> from it. OTOH devres-controlled resources will get freed when driver
+> unbinds from a device.
+>
+> Additionally, HID devices are parents of input devices, and should stick
+> around because input devices hold references to their parents until
+> device_del() is called in input_unregister_device(). However before that
+> it will disconnect this input device from all the handlers, including
+> evdev, evdev will mark the device as !exist and evdev ioctl will not
+> attempt to process ioctls for such device.
+>
+> I however am not sure why we see this syzkaller report. Maybe there is
+> memory corruption somewhere or maybe syzkaller itself gets confused when
+> tracing numerous allocations.
+>
+> Thanks.
+>
+> --
+> Dmitry

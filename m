@@ -1,115 +1,116 @@
-Received: from fout-b4-smtp.messagingengine.com (fout-b4-smtp.messagingengine.com [202.12.124.147])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A422A3CC7EC
-	for <linux-input@vger.kernel.org>; Wed, 15 Jul 2026 08:43:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.147
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 364563D0932
+	for <linux-input@vger.kernel.org>; Wed, 15 Jul 2026 08:44:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784105026; cv=none; b=RaNtDgiqlyZsIqB0oREVnQwRTkOWq5I+PGx7qt5RDR48gs5MJv1BnHRvvssfHa3FaGwdaIhFXsCQL/aDFNRc9VzvB4ezuh+3fVnL0QYYJV6MjhAHS5TiGNEUPl05n36YhKnUaCLZdbT/5ATliz/Qgzo4s71i+cC5t5gvrw26VpA=
+	t=1784105086; cv=none; b=VuA6oonwa4+YYK8148eNbqlQ9lRM1h2vrViHEbnMfGPqCXJO32cobQ8UMQSIL2kXh9hMqaEQx/Ffn+Pab/VrcMLO7SS/YQFzKCtJ2zUWKQEL4SsOxq5JekTnRUMMPpEdAUJCEI2qKT9mbWOnDm8aJEU36SULTo3b8tWP1jW/aA8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784105026; c=relaxed/simple;
-	bh=9lMaQMmNuMEN8dVLgNG9dU9W84YYOfeLkYvobdPqucU=;
-	h=MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
-	 Subject:Content-Type; b=rcg4FtI0uOnOKfaTR1M09e0bgOVJbzGBSc5ax4p+/J20uIeEF83NC4bQ+Y0J3Fv76XyyfUuUlr6R3hZZdBbMWHfRaGRMwX5JlS4mjaZ4nnZJVhPr/M1zV0Bv90O+W3P3rS+9U/r9bx1TBUUEbkljFuiQTvGCOiOFYFz8uWFw2eE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=readahead.eu; spf=pass smtp.mailfrom=readahead.eu; dkim=pass (2048-bit key) header.d=readahead.eu header.i=@readahead.eu header.b=OkMq63kL; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=re5SspwY; arc=none smtp.client-ip=202.12.124.147
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=readahead.eu
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=readahead.eu
+	s=arc-20240116; t=1784105086; c=relaxed/simple;
+	bh=3/z7M+8Jo4kxFLo7KHkeo/DhhrG5RdWhKkdf0F4Sk5c=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=gwyiNnviGZdQnAO+17B2aZY17G3+puUoqsxTGPicKTFemmH2kfsMOT8T1JJsONGs3j98PriCqZqhMR5Sic4Lnf52LvyRP5TEenbZtMgJNO5ALo4BUOssHb/3r6q/40O5LHyK0pr1lSt1IW75WJsWaNozWspm5wnT5ytCWMBvPY0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=h8nbNkWc; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=readahead.eu header.i=@readahead.eu header.b="OkMq63kL";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="re5SspwY"
-Received: from phl-compute-12.internal (phl-compute-12.internal [10.202.2.52])
-	by mailfout.stl.internal (Postfix) with ESMTP id 6ACE51D000E7;
-	Wed, 15 Jul 2026 04:43:41 -0400 (EDT)
-Received: from phl-imap-07 ([10.202.2.97])
-  by phl-compute-12.internal (MEProxy); Wed, 15 Jul 2026 04:43:41 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=readahead.eu; h=
-	cc:cc:content-transfer-encoding:content-type:content-type:date
-	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to; s=fm1; t=1784105021;
-	 x=1784191421; bh=iKUothbm+a7l0maCZFc8zfDpM+rikBdHRVxisVrwd1A=; b=
-	OkMq63kLTZlWKiDIMiFmurK8sBBPfx0rK1opLihNqC0kgyJ0fBkbY+CSUcMstTi2
-	smLoYXZTsHg8aQ/LAWzTkydYTm8+/2wgwtOvJo2jOpyNljp+YvrJ5ZnlS0nY7xpy
-	sWAg33xhcl5V9bpIp4S9JFW+0CLS+0krWsih4LxbcF3MdWIM6QeixFLzd28wkuts
-	v9alPPrjWvbbpvf2atJ+tdrUEQD2Rghmn9ea9Fjchg52mA7c2XV+ZXITjh0ZB7QA
-	jBfnt63cGt6OwAzyQpLEyslJ1X+YlOSA8XhU9jpR5iHb9nWf6ZhdFncl6qqtCskC
-	BNzKfqcvX/gE3VbcMKZQCg==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-transfer-encoding
-	:content-type:content-type:date:date:feedback-id:feedback-id
-	:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to:x-me-proxy
-	:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; t=1784105021; x=
-	1784191421; bh=iKUothbm+a7l0maCZFc8zfDpM+rikBdHRVxisVrwd1A=; b=r
-	e5SspwYXwmShj8mhQFKsiexEdEBmKAZJSnP/Gdh5F/pSgs0qc4ZMrjSaPU+m2Vjd
-	bSDR9nth2XU/CsolHx5+dA5ubz9EIgZJf94GjqWOz9fpoCDgZmW+2H7IY/XTSW58
-	lF62NlWEDlfgs3rs9+MasCAmZeaQ9F1Ucv+JB8zWK4aeq9HsLgK/3iqz++en5+v5
-	wMzCV9skMV5hkiVSr0CcQC3KxvXLmG85NhA5t2OJ+i1uaa18tFUd3MKnUshVqBFf
-	NTQd+PmJlJ3jCSnv0dGzY2MpIQ5yECD408hapB79tC6HvSuAkVOUIAwrriH8e689
-	l96eQNsvuEXZnlLyL8dPg==
-X-ME-Sender: <xms:PEhXaj2Qnljo24N7qAwXQKsCH0xn22hye21CLhhM8Q6_Hm8JbiyIuw>
-    <xme:PEhXas4L5eodUMPOTKBDh7wSPtsVYHEiAdpDtF9Q07Geqd33IPXmansXFYTEm-Ua8
-    X2ytH6PTo7O60Jl_TQ0CTwhfGd5MK1SU7dpv5lRLngu0Ke-O9C_ourx>
-X-ME-Proxy-Cause: dmFkZTFLCuIHkT1XitX+z0iRNs9GoJtEuY9COt3zJnsHu2TZTTY3uHTGLQZQxowf+8e/69
-    JhsY0nPtIfPrD5GEy5KN5V8F8VcabIdpPbBCJ73h4XHHzzvkTzD/JhC8O0HRAoaQosy/Y+
-    43ugQUSR2nX/nkuunM8jYQbzXM0CWTIWcuLDovdm67h0P8mCk6H3vp8AhV6+fnJ6RknXtq
-    LZczi2ujwb6VRfTwIaEkBBK5oYq2re/dKov2/H1fe7Wtbjm/IHZMkhLkh+WxKwQvP5Veh9
-    EHHDJavE8ko1uFkfQlTLG8QvWy9DlX27hACClXy+iYzXPPN3r6NcFDOHm3iYuoiq2A6HYu
-    z6DZy3ijVVHuSmyQh4GFU5AGw2+M/FqvWTeAHeOY9vPliuezIpzz3yMRkrwqS24oaDDXip
-    qw+HO8RJK1ivAKx3NLtgL69IaCrtWPOLxCc/3V3LTxSEi0xHGQEcQb05EmMsBxKKicAR2M
-    26d46bLLGf2Kjbl/w5DgAETWXLOheXsCnvB7taOXuIyPgmwyeRuDtgmShxKb3TbhJzaMAj
-    0Jt4/W1xRhnYKhI1LGDHHu1RJxhXiiWpVHrlJy3+hSo044gqVcUL9DLChJLEtYhkBvtJL8
-    XWBAF+/Z6NZ/KEILtnsC5biRIj0qn+9l0uyhuB2VVFczs12CZLF2NMoBveuA
-X-ME-Proxy: <xmx:PEhXagOlrGpOYuJAKWhO2G8cRxtWArhRTpIzp2zAeQfKt0K7kPyfeA>
-    <xmx:PEhXanpiNs9lD_TGZIg2GoXBt3_I_zwUxBeCSYXC-qRZpFyAROIuXA>
-    <xmx:PEhXaldezvI9KJ7z8aCf-dfRaY8Adf7TyPlW4Tu5ph2YA90kIGf4CQ>
-    <xmx:PEhXatS0IYfc57saj6yUybVdVGjiEc-G6TabO8wK0b-gH9MvoJsjRQ>
-    <xmx:PUhXajhqq53ILiVxFl1YjTJnkMDkTtDdmQOjN9QzCaQHrorNNxZnjWdd>
-Feedback-ID: id2994666:Fastmail
-Received: by mailuser.phl.internal (Postfix, from userid 501)
-	id 74CBB1EA006B; Wed, 15 Jul 2026 04:43:40 -0400 (EDT)
-X-Mailer: MessagingEngine.com Webmail Interface
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="h8nbNkWc"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 58E131F000E9;
+	Wed, 15 Jul 2026 08:44:42 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1784105082;
+	bh=k4ZVp5UMx1sUPQXLCgOMLZKSpsqYSIjiDZLV0jDgpLQ=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=h8nbNkWcfmYA1S9huL7evggX5/joQklKwJecp/b/i4qkDdp+2Cs9EA2SUq0ahqqt0
+	 alHOBFKypw0lBGs13zlwkfF3KQq49Z9Ki9FrCJM7avTXikJOjHUeF66w+YXDoCQ0yi
+	 iozp1h+FE7ujcygeFI0cF200h2dU1RYV4OhqPyFIb4/VrgW8uwqpoZ8Waf3P7szsbV
+	 MROGgATub/68AEF35iI5sfHhXqRccEkCz11VNE4dT8t+exIdvFNPJ9fOOy81GFQd9q
+	 TsMCH6foYHU+NJH5eBuP0lt6MDooEjkVzYXl1b6mMebJr+UeTGBubKaTLbjiFkv0qx
+	 pkW7EOI31A4aw==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH] Input: xpad: validate Xbox One report lengths
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Pengpeng Hou" <pengpeng@iscas.ac.cn>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20260715083424.25944-1-pengpeng@iscas.ac.cn>
+References: <20260715083424.25944-1-pengpeng@iscas.ac.cn>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Wed, 15 Jul 2026 08:44:41 +0000
+Message-Id: <20260715084442.58E131F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-X-ThreadId: AeQlmnlEDZAk
-Date: Wed, 15 Jul 2026 10:43:19 +0200
-From: "David Rheinsberg" <david@readahead.eu>
-To: "Rafael Passos" <rafael@rcpassos.me>,
- "Benjamin Tissoires" <bentiss@kernel.org>, "Jiri Kosina" <jikos@kernel.org>
-Cc: "Shuah Khan" <skhan@linuxfoundation.org>,
- "Brigham Campbell" <me@brighamcampbell.com>,
- "Jori Koolstra" <jkoolstra@xs4all.nl>, linux-input@vger.kernel.org
-Message-Id: <48dc930b-2a70-4404-b8b5-5784c45538ae@app.fastmail.com>
-In-Reply-To: <DJYKVRU31TCD.1M8E9KUMBZL1I@rcpassos.me>
-References: <20260710153456.2093889-1-rafael@rcpassos.me>
- <DJV56QRLBO6S.3H33MNASQ866@rcpassos.me>
- <850e8696-311e-45e4-874a-8089afe35907@app.fastmail.com>
- <DJYKVRU31TCD.1M8E9KUMBZL1I@rcpassos.me>
-Subject: Re: [PATCH 0/3] HID: wiimote: new LED behavior on connect, and scoped guards
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
 
-Hi
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
 
-On Tue, Jul 14, 2026, at 10:31 PM, Rafael Passos wrote:
-> On Mon Jul 13, 2026 at 6:28 AM -03, David Rheinsberg wrote:
->> What device name are you referring to exactly?
-> I was looking at the `wiimote_devtype_names` table,
-> but I figured out its only used for logging.
->
-> What I actually wanted, was a way to return a propper name to the user,
-> with a controller/player ID.
-> When listing bluetooth devices, I have 4 entries like the following:
->     `Device <UNIQUE MAC> Nintendo RVL-CNT-01-TR` (x4)
-> I wanted to display a friendly name to the user, like the one on dmesg:
->     `Nintendo Wii Remote Plus (Gen 2) (1)` (where 1 is the player id).
->
-> If you think it makes sense, and its possible, I would love to make
-> this change in this or a future set :)
+Pre-existing issues:
+- [High] Handling GIP_CMD_ANNOUNCE in xpadone_process_packet calls xpad_sta=
+rt_input(), leading to sleeping functions being called in atomic context an=
+d a potential deadlock.
+--
 
-This name is taken from the Bluetooth and HID protocols. It is up to the application to decide what to display. I don't think you can control this in any way.
+--- Patch [1]: [PATCH] Input: xpad: validate Xbox One report lengths ---
+commit b48d8bd27dd206f904c7c21ce961f7a9225d4190
+Author: Pengpeng Hou <pengpeng@iscas.ac.cn>
+Subject: Input: xpad: validate Xbox One report lengths
 
-David
+This commit adds bounds checking to xpadone_process_packet() to prevent
+out-of-bounds reads on short USB reports. It validates that mandatory and
+optional fields fall within urb->actual_length before processing them.
+
+> diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
+> index feb8f368f834e..9a32e7eb464d5 100644
+> --- a/drivers/input/joystick/xpad.c
+> +++ b/drivers/input/joystick/xpad.c
+
+[ ... ]
+
+> @@ -1079,6 +1093,9 @@ static void xpadone_process_packet(struct usb_xpad =
+*xpad, u16 cmd, unsigned char
+>  					 error);
+>  		}
+
+[Severity: High]
+This isn't a bug introduced by this patch, but does the GIP_CMD_ANNOUNCE
+handling in the code right above this snippet sleep in atomic context?
+
+xpadone_process_packet() executes in the atomic context of the xpad_irq_in
+URB completion handler. When handling a GIP_CMD_ANNOUNCE packet, it calls
+xpad_start_input().
+
+This leads to a sleep-in-atomic violation due to a sleeping allocation:
+
+xpadone_process_packet()
+  -> xpad_start_input()
+       -> usb_submit_urb(xpad->irq_in, GFP_KERNEL)
+
+It also takes a mutex during USB control messages, which can sleep:
+
+xpadone_process_packet()
+  -> xpad_start_input()
+       -> xpad_start_xbox_one()
+            -> usb_set_interface(xpad->udev, GIP_WIRED_INTF_AUDIO, 0)
+
+Finally, if xpad_start_input() fails, does the error path deadlock?=20
+It appears to wait indefinitely for the completion handler it is=20
+currently executing inside of:
+
+xpadone_process_packet()
+  -> xpad_start_input()
+       -> usb_kill_urb(xpad->irq_in)
+
+>  	} else if (data[0] =3D=3D GIP_CMD_INPUT) { /* The main valid packet typ=
+e for inputs */
+> +		if (len < 18)
+> +			return;
+> +
+>  		/* menu/view buttons */
+>  		input_report_key(dev, BTN_START,  data[4] & BIT(2));
+>  		input_report_key(dev, BTN_SELECT, data[4] & BIT(3));
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260715083424.2594=
+4-1-pengpeng@iscas.ac.cn?part=3D1

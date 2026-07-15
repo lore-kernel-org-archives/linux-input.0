@@ -1,105 +1,182 @@
-Received: from mail-ot1-f42.google.com (mail-ot1-f42.google.com [209.85.210.42])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from TYPPR03CU001.outbound.protection.outlook.com (mail-japaneastazon11012020.outbound.protection.outlook.com [52.101.126.20])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 411011A9F87
-	for <linux-input@vger.kernel.org>; Wed, 15 Jul 2026 06:21:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.42
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784096481; cv=none; b=M/GIKN96RY2g4dS/sgDTgyvw3LFKiQlleZv4m94HzHN1zIBu1+FzsSl1zyyH5s5P65eRwbOHNw6rq0mcBCITuFfKaSILg0dmrgHZzVOV+NmbUL5yiSmmUnG9HTEsUBt2aaRi7HXhcJULhQVt1l8VapdkU6L7+wPtc089IolgzFA=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784096481; c=relaxed/simple;
-	bh=8oneNuTPvrj8s0MKldXDp2LqzuJfuNLreLAOuRzjQtM=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=gQYJSF9KpCzbJw35oFxAIQ2IFWZwrSQRAx5oppOeQnnNlOuINgruptNmNwygruKhaPBiL0LGLRXmAWUz2QLbP4YIkVl2GPPM8QeGrzJz+zCl7ShMOZY2AdFYF1vcmmv9fAgvRv7cZoOksRRae9EIseFIY0QK6Undm85Xwx6GECA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=OH9Kv9r2; arc=none smtp.client-ip=209.85.210.42
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D1B5828DC4;
+	Wed, 15 Jul 2026 06:34:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.126.20
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1784097262; cv=fail; b=KeBXc1V9JV01nOieXJnVzC3PnehOAkA/jzrqQfj8dmmMUfUJKBD4IoVuPVMOqAGYqUQ/ZzUVok+sDiPMu415pVrol6vxYMtJU2aQYJZ/eWixtwAHPhzE+1F5LrF39HVmfky68sf5wBMJ8H8B6hTT31BdhdEdUoegjhp5YFmw3+I=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1784097262; c=relaxed/simple;
+	bh=Q+36J0rIDfY87N7Y6F+82T3eaGpEb4Ytp5lwKGP3J5E=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=e8kWYL5OHLxnOF66GlWF5tCOWIJsM5kuhwCAlMqkcVBHd52REqXUYZcZmcifClHQtxvMAAA/E6dwURXJFP6dpp0xEmtxD6cVBLSmXkFMciekVZzYZAD4dl26SMbc86FGuZETzfHNp3OFcHN8U9+8hH2pEuql0/7e+pvUzYgCOuo=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=vivo.com; spf=pass smtp.mailfrom=vivo.com; dkim=pass (2048-bit key) header.d=vivo.com header.i=@vivo.com header.b=bWzEFXYR; arc=fail smtp.client-ip=52.101.126.20
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=vivo.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=vivo.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="OH9Kv9r2"
-Received: by mail-ot1-f42.google.com with SMTP id 46e09a7af769-7e9eaf04bfaso1854732a34.1
-        for <linux-input@vger.kernel.org>; Tue, 14 Jul 2026 23:21:20 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784096479; x=1784701279; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=LxB5892Gv+ZQSWhWKdOfUMiixSzBac5s7jzifFXhxdg=;
-        b=OH9Kv9r2G0FnlTDE/jYDmXBI9CdGEtxUIi5/Il5DA+87NXICx+5dyXM87H4ozGXQWp
-         VWXBCRG34ze/0dGlRa3s4ircnaelJhe2xhp8UA6ihAtit5ile0EibVra7LRouuCL93cM
-         jDOa7jbANsRp13/Al3yWecrAhaZ8c0OnMkApQ1qVvA9tA+96mRbEMHHOTeGc74fPJZzZ
-         EJf0C4w+CydDL+2qmszyxZlibCX16w7TSOeOdOYU/FoldFWeXnmRWJpCnJNBe/CZdP9s
-         yvdHoIiShwmydDwRt2pJ/rdtDIzdDnaPWvXqUj8kcs9/FQYhStAxNIneQ+IkcMndfuHV
-         dyLw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784096479; x=1784701279;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=LxB5892Gv+ZQSWhWKdOfUMiixSzBac5s7jzifFXhxdg=;
-        b=tTr1g3iaDnOU+jJdFxtRMesWkeSbMAFz9/BCdDVK2I6OBMDhUTyIu9gouTo+7lS5SS
-         zVUlLLRAifBW4tK2ym5hrT/pyIucPNuXebiv3KQZs2TMuKI4Ng9nvGTZSkoDZZoJLF9C
-         rz/7DTV1j8/KgiRQWz7SmDJDL541+hm2rU0+gfmmn//a2NTQruL4iOXAmrLngVszTt8z
-         o/nb3b3sDE36bUPpzQtD8fUWwTkS0aVg/BaMccwA0RbjPyoKt6FLuTQQfILzKCaVu4Mc
-         DQ/fT+2AQLgCxt1vmPzHOFrSJwZsPa2pxK3a1xdNDLyaGM+hqtcTgkcFQMv+4k9e/18D
-         lHlg==
-X-Forwarded-Encrypted: i=1; AHgh+Rpv6RE63gh4eLiBEDcFPCdYwOHZR4vhITDx54ta6WRJ0jl7KADwi7GlTQZNDY3/5DiZvJIf7L21+OOCuw==@vger.kernel.org
-X-Gm-Message-State: AOJu0YyaoTVfVQNC1CfmqasvNwcUlhA7wNO+0BBN4ex6cWnXMbsBWPn+
-	3+Zd7W1eVdyxhdjAOPkNSlk4hWMKt6fCQHK81uhiDTd0bqF0Awmyt44U
-X-Gm-Gg: AfdE7cnfu5dwZUz/v7fuXvMMwlayHCHhIGHhkYzWG+4zGzFOn1RC0d4Xf1jeeMkiH0r
-	Kc4b+f2ySfXcIy6OyIcm3kYU0aB0wSo0bRt9bXDX1UB7q78BTWF6Pu1ypwjQXSwmLTIO7AE83bl
-	rj1sqfLByMWw8VFcB1AyxFYLrErT4RjQ8qTcou87zJocgoNbXTj+Dbo7Ki5COUjEyDPEJQuQRcF
-	NaXIFJ7IPm+pc1QCPXdpzzHDo5BENBtZ0oa9GTsBlYDlXTrkLLKVi7WXzjJn+lxNYykRGRKBjhX
-	6GpEWhe08yHLvbt4lWZma2h44FrpZCNFQhEabv3X4YMdAkXckg40hugW8Hbod3yA2yyAdKL35bk
-	uF/dHuxWBv3oZRwYYWAMEevge2ytG3b/rtkKEm3Fdnt0FQR8ck72We95eeY9SgRwveb7IjL+KX9
-	nsHT1dVSUYn4xl
-X-Received: by 2002:a05:6830:25cc:b0:7e9:8867:cb23 with SMTP id 46e09a7af769-7ec59d20770mr874309a34.16.1784096478979;
-        Tue, 14 Jul 2026 23:21:18 -0700 (PDT)
-Received: from desktop ([2806:2f0:9260:f072:92d3:78b1:9863:130a])
-        by smtp.gmail.com with ESMTPSA id 46e09a7af769-7ebcb2b79c9sm16655936a34.22.2026.07.14.23.21.16
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 14 Jul 2026 23:21:17 -0700 (PDT)
-From: =?UTF-8?q?Jose=20Villase=C3=B1or=20Montfort?= <pepemontfort@gmail.com>
-To: Alec Hall <signshop.alec@gmail.com>
-Cc: Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>,
+	dkim=pass (2048-bit key) header.d=vivo.com header.i=@vivo.com header.b="bWzEFXYR"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=S13x5TrEO62NC2llLdk0ufNbBOIWDbJ9wzQNofvYaIzZZtKrutByzh5uqhKCpsl0JYEwz4sZWrPc3FJO6PwXZAhj3YpwdDz8XC95Yi06l5gssce407SnqygdQe4ORwTY7vUY4TNl5HKbASruvbn+RgLVpUg3/7v4kzdObEcFWU0+hlg31hM2DmVPZA3Wi8H+CU4vbr34U96qg9F8Wasiid5asULpl/OFiJJmnDDWDh0kCyX8qjvsbp1HkDIEalsEF3gKd+It2wc4g6ODMiu0sK0YSeWK4zPttgdPDKRJJG89X82NBcToiPCcfWPyAE16eZdLXfCOkWpEAovmqI3DAA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=b/AZvyyuuXnqUKPLLhwKvLDVwLbuiT0oLYiHg230AtI=;
+ b=BrnmaCDFw7H/2UnP71QbBeZDEOJ0pL5L7NZgFS33WYNDAkU56TMtkDZCnKc5bw5yZFRtN1DtsV6jB452duyiGyuwc/qKSp/7yLzLHCPWGMwmnYz6+EmjxDziVzRXgDNuHIUbFiFXTz3DqX3VPSyXTzjVTxoPFJOsRPDI66agIsQwv/EPsCfp9IW0IydY4uOtZbexVymXpMDMNvQ63q34ouEnXB3oXS+NWXzy7W4xw10LWnJITm3ZSH1I66s6DB0WlntrhpcdCXvvI63ilrb7hnClecKDJCYOy1w3vjub17Ya2w2ulwO3eKdKshAYqcdEW+hMncYtB3nENLhvUgAXjw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=vivo.com; dmarc=pass action=none header.from=vivo.com;
+ dkim=pass header.d=vivo.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=vivo.com; s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=b/AZvyyuuXnqUKPLLhwKvLDVwLbuiT0oLYiHg230AtI=;
+ b=bWzEFXYRO8+typamhrA8Oktb6BSAoKSf5PGizAWCpIBsnIeYJLDbdHyZioAmM/uF7iSdmasxzJ9SWNf4diAZV6e3hW9ga9stw6xmx8CUzTJBGrqcw8R9a5SBAMTNMY7yPNeMS9jav3Huk/FDB9AAYSt5AdkbOTUiR60DXedxO2Hl1P6Qo99cY4P5iwmtU2gWnPf2LC39yyv9fI/nnGFSbB7w+UBFyO0HM/1RTJGhjd/ubxajqVCEn/MY8hfztXUJZieEjfdmjYHEWieGRqxFLeOD7UV4mcnbMRLOz1y75dWX0sjPgxcXUvfNFG8rEZiw4q6600YiC6i91p7SOFpeqQ==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=vivo.com;
+Received: from SEZPR06MB5832.apcprd06.prod.outlook.com (2603:1096:101:c8::12)
+ by TY0PR06MB5610.apcprd06.prod.outlook.com (2603:1096:400:328::7) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.223.10; Wed, 15 Jul
+ 2026 06:34:17 +0000
+Received: from SEZPR06MB5832.apcprd06.prod.outlook.com
+ ([fe80::f98:5e32:4ccb:d07b]) by SEZPR06MB5832.apcprd06.prod.outlook.com
+ ([fe80::f98:5e32:4ccb:d07b%6]) with mapi id 15.21.0223.008; Wed, 15 Jul 2026
+ 06:34:16 +0000
+From: Pan Chuang <panchuang@vivo.com>
+To: even.xu@intel.com
+Cc: abhishektamboli9@gmail.com,
+	bentiss@kernel.org,
+	d3z.the.dev@gmail.com,
+	jikos@kernel.org,
 	linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
-	=?UTF-8?q?Jose=20Villase=C3=B1or=20Montfort?= <pepemontfort@gmail.com>
-Subject: Re: [PATCH 3/3] HID: magicmouse: report charge status over Bluetooth
-Date: Wed, 15 Jul 2026 00:20:56 -0600
-Message-ID: <20260715062056.616625-1-pepemontfort@gmail.com>
-X-Mailer: git-send-email 2.55.0
-In-Reply-To: <20260714101235.99447-4-signshop.alec@gmail.com>
-References: <20260714101235.99447-4-signshop.alec@gmail.com>
+	panchuang@vivo.com,
+	sakari.ailus@linux.intel.com,
+	xinpeng.sun@intel.com
+Subject: Re: [PATCH 4/4] HID: Intel-thc-hid: Intel-quickspi: Remove redundant dev_err()
+Date: Wed, 15 Jul 2026 14:34:06 +0800
+Message-Id: <20260715063406.476663-1-panchuang@vivo.com>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <IA1PR11MB60987170F254F4152C1F7C95F4F92@IA1PR11MB6098.namprd11.prod.outlook.com>
+References: <IA1PR11MB60987170F254F4152C1F7C95F4F92@IA1PR11MB6098.namprd11.prod.outlook.com>
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: TP0P295CA0034.TWNP295.PROD.OUTLOOK.COM
+ (2603:1096:910:4::19) To SEZPR06MB5832.apcprd06.prod.outlook.com
+ (2603:1096:101:c8::12)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: SEZPR06MB5832:EE_|TY0PR06MB5610:EE_
+X-MS-Office365-Filtering-Correlation-Id: 2a359197-129a-48c0-59d2-08dee23b17cb
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|1800799024|376014|52116014|366016|23010399003|6133799003|22082099003|56012099006|11063799006|18002099003|38350700014;
+X-Microsoft-Antispam-Message-Info:
+	Yh91m60XkvzsAapateJ45ZBSFtvkwfH6vnaGmy++fZ0hof3kr+I1BKz/sXDM+o0wIZahjpHmgQd+diTegYHj7I/KDszhqyr0R0Nx5wAbDb52R1Y/LQ9oRBBqGgy5SyTGxpKjzbzkKKrp5aTnsV9YFbBfUa/reO/JILIv/UTqQVjN28Se4BsgIxU7S0aGCXEDDXc2jzoNWPdSX5epoZ+q7LrDjNvI9wGcOp8wmC4EoRTqiqNXCq5b411OdzdCI62oUD7zTIt3GeGZlsc2ltqYeSJQduN3SSrB3jP/RM8rs1QeA+b4ZLv5TfF4kB5WjiozPmqqkUOYRRwuq1e2kzUzVwjxtJY39wegGNrNxBJLvaD6vYsGmtiiBJ79uekcgztTAc+Hyrq8nRA7RTbcNWuTPHiRnynzu67ClSs68zk1BABHgCaHzj/u9Cdlx0SwufsTdC33Un2ePz9eGki+jQB5pgSRuJ6YTAN9Do6skJvpvEOFUe2REhaPlEQSdWUZkepUvUf/uvgG1gU/ZUhUC24HTyGcTDlyUc0Y4h/rtaiwgFth84u7hhLl8s9aLEctLxjPlZ37jmsTYbSxx3ZR80tLlsdDm3S6vW285k5qeVrE6x8uOcMOgPS9VneTY2VFOUpzcClc6bIgaO//HIKQVAGY6IXjmmjG+newOoArdqH2lEoBEaNTmGrGc9eUrBulvmXK/ivjjcSvqS76mIOpIQKF8VsTCqcjzeEr1hzy7ZH7HC4=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SEZPR06MB5832.apcprd06.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(376014)(52116014)(366016)(23010399003)(6133799003)(22082099003)(56012099006)(11063799006)(18002099003)(38350700014);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?us-ascii?Q?l02vgaLtA74C8xy3zqXi/q29yce0hmMJHr+uhQexIPAN5muqx9ns3un3jxaN?=
+ =?us-ascii?Q?/7L7JOaaJWDuhIQm5g/Hf0w0cDF2VA82LntPsg3UgBacOAKww6vuBAXpYj3q?=
+ =?us-ascii?Q?mZ6Hetgj0A7ziyg0LgLMxFrW93WhoqzyUXMRFFxzSS2i7bL6pI/2W7Knrsj3?=
+ =?us-ascii?Q?gA5tCetCXNGVpHdxiiBNTL4Oq2t81eqPf5YXrmnm7lplhG1J+nXtuP9UWFXM?=
+ =?us-ascii?Q?z7JZU+U/lErCUgJt55qrFj0bBCu5qkvgBPT3AsVMRsPTnMrg8Grcxz8bWaG2?=
+ =?us-ascii?Q?Fhj5N9Oiq/PaVNmVI6GU77AAKCkQ/h77DykZ7LZEXy+sWFEQaDUKa0FKIj1b?=
+ =?us-ascii?Q?DlPj0D635S/SGHJBlzXS2wljy3sIkZ9P5h2Y09bRkAIgtye+twNpRRP5ITwY?=
+ =?us-ascii?Q?YWoma3bXORf1VNWJXrOlzrkWxga0uyIgnENaiabfTDh4rhdWndta9BP0R7po?=
+ =?us-ascii?Q?4vB5xyoFLMiGtL+bZnJKkyzeOyMZcowrAqMcZ3bbIHbbRMzWdoJM8EIRiODj?=
+ =?us-ascii?Q?d21YBEEalhQMbFoONFh8QE7FVtdqcmcGvk+l5kx8tGUsiUpc5C/6PtNefXyo?=
+ =?us-ascii?Q?MUDhu2PN4V02JMZCFCHgZODQZFqx7zwNgepE00TZC3B9BWkxHvtlvihryorm?=
+ =?us-ascii?Q?a0QFRXLZri4pCzxT4ocWs+Clvq7R9nTNDJxZIecb5YNmD/73h7bOlpvNx1le?=
+ =?us-ascii?Q?lsxgS0vYHTadml6AYMcGnH5daBiJBv3Dm6VYGjJav30rEIJxiHMXyeo3gvWQ?=
+ =?us-ascii?Q?rA8CKTc3z2hEUsU3W9gr/EdjBczxmimKyWpSsunXBrkMOMNcz8988VjqNXF4?=
+ =?us-ascii?Q?nmtPsJKUuw3g6vgJoEI6DZN4gHvWMgPPDgi2CG1pPlLAkpFSk8vRsNbMogRQ?=
+ =?us-ascii?Q?Gi8k/H5gA0dlBo8dDYISAJUd+c6b0a02szfhjJi0hFfv8E+D4sEf4SiphrKM?=
+ =?us-ascii?Q?Zqw35PRMvpB1FtHjhwSpWDI/kKISYHOOcsgMSWcbJGmCai0a46IQOFquTFOQ?=
+ =?us-ascii?Q?t741UEEmJ5qXogSI/Co8uFBlvAnMHQ3LYhwZErBdLa31jPJNvbrhn60fipML?=
+ =?us-ascii?Q?fOYNMUzWbjSmQnzAsgXmn3GdOSKF5hdag+xEV1n98EI8Kk4bWji17WyZpANC?=
+ =?us-ascii?Q?NFnuI9uobi/nW38B70Tg40L5OwR+X9sIcMebsSG0DEMMvhG2zkHSH6eIrCQf?=
+ =?us-ascii?Q?dftafwJc069rTnbQTDv5nSYxT2JOXq01owa/zHHQBCdp4v06u4wgwAtxgvuR?=
+ =?us-ascii?Q?AenaTOftSATfTYuBF0xyaabIIhYeKoXglVtPYbq8bEQ/qEY+7SHhzB+aN6P5?=
+ =?us-ascii?Q?NWp9CY5cveIijB1FYO/HW4mTK3Xmj3a2TxGBNc9ULDfLy36seo9SBvedsHil?=
+ =?us-ascii?Q?Wi0W4qFHQvQ7cws8f2Eb1x8FbzyYrpoHgzGNUrhzWQfBBOLuta/n/2K2Hlio?=
+ =?us-ascii?Q?QzJDhKqKqSETsEy+VQIK8EUeO1BFEj/VDgUWoYlVT/PxsLoI1q3alF6vg1kC?=
+ =?us-ascii?Q?2zpDOZt0mTGtvsBK2feT0Ca/RO3QPLCA4Rtrj5ixCcODGHpe4K5XC7GiNlkl?=
+ =?us-ascii?Q?gpQa2DubUD4HEISjqVkKroqswBzOvLShewTibZFziB0hlDV1cBx5TdtEYOx7?=
+ =?us-ascii?Q?Rh2VOyu6M+0Y9mWKEUk4HQeHTj8P44pnlJX29w/FlVMU2ORmwS+pnN7LWsLz?=
+ =?us-ascii?Q?bT1hv25kvMGPuoh1mSGHVM+9dfOIxIqofGZKaxvcb2QU0FbdynBzqIt9J5x3?=
+ =?us-ascii?Q?Oun22QAAKA=3D=3D?=
+X-OriginatorOrg: vivo.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 2a359197-129a-48c0-59d2-08dee23b17cb
+X-MS-Exchange-CrossTenant-AuthSource: SEZPR06MB5832.apcprd06.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 15 Jul 2026 06:34:16.5510
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 923e42dc-48d5-4cbe-b582-1a797a6412ed
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: 1w46R1EPWFds4GkKTRkERH4J4w42C9uLboQBNmuatKK6ERyzzV6S3VcJJOai2b9L0pftCIFyRLMJejRq+P++DA==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: TY0PR06MB5610
 
-Hi Alec,
+On 2026/7/14 8:50, Xu, Even wrote:
+> Thanks for the patch!
+>
+> If this is the case, can you also do the same change for intel-quicki2c driver?
+>
+> Best Regards,
+> Even Xu
+>
+>> -----Original Message-----
+>> From: Pan Chuang <panchuang@vivo.com>
+>> Sent: Monday, July 13, 2026 9:25 PM
+>> To: Xu, Even <even.xu@intel.com>; Sun, Xinpeng <xinpeng.sun@intel.com>; Jiri
+>> Kosina <jikos@kernel.org>; Benjamin Tissoires <bentiss@kernel.org>; Pan
+>> Chuang <panchuang@vivo.com>; Sakari Ailus <sakari.ailus@linux.intel.com>;
+>> Abhishek Tamboli <abhishektamboli9@gmail.com>; Danny D.
+>> <d3z.the.dev@gmail.com>; open list:HID CORE LAYER <linux-
+>> input@vger.kernel.org>; open list <linux-kernel@vger.kernel.org>
+>> Subject: [PATCH 4/4] HID: Intel-thc-hid: Intel-quickspi: Remove redundant
+>> dev_err()
+>>
+>> Since commit 55b48e23f5c4 ("genirq/devres: Add error handling in
+>> devm_request_*_irq()"), devm_request_threaded_irq() automatically logs
+>> detailed error messages on failure. Remove the now-redundant driver-specific
+>> dev_err() calls.
+>>
+>> Signed-off-by: Pan Chuang <panchuang@vivo.com>
+>> ---
+>>  drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c | 5 +----
+>>  1 file changed, 1 insertion(+), 4 deletions(-)
+>>
+>> diff --git a/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c
+>> b/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c
+>> index 4ae2e1718b30..504ef3c842ab 100644
+>> --- a/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c
+>> +++ b/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c
+>> @@ -636,11 +636,8 @@ static int quickspi_probe(struct pci_dev *pdev,
+>>  					quickspi_irq_thread_handler,
+>>  					IRQF_ONESHOT, KBUILD_MODNAME,
+>>  					qsdev);
+>> -	if (ret) {
+>> -		dev_err(&pdev->dev,
+>> -			"Failed to request threaded IRQ, irq = %d.\n", pdev-
+>>> irq);
+>> +	if (ret)
+>>  		goto dev_deinit;
+>> -	}
+>>
+>>  	ret = reset_tic(qsdev);
+>>  	if (ret) {
+>> --
+>> 2.34.1
+>
+Sure, I will apply the same change to the intel-quicki2c driver as well.
 
-Heads-up on a textual overlap: I posted an independent fix earlier today
-that also touches magicmouse_raw_event(), so it will conflict with this
-patch:
-
-  HID: magicmouse: prevent unbounded recursion in magicmouse_raw_event()
-  https://lore.kernel.org/linux-input/20260715053526.574725-1-pepemontfort@gmail.com/
-
-It bounds the DOUBLE_REPORT_ID recursion -- a malicious device can chain
-0xf7 packets and drive magicmouse_raw_event() deep enough to overflow the
-kernel stack. Mechanically it renames the body to
-__magicmouse_raw_event(..., bool nested) and adds a small wrapper, which
-lands in the same region where your 3/3 inserts
-magicmouse_report_charge_status() and its call site. We share the same
-base-commit, so whichever goes in first the other needs a trivial rebase.
-
-No action needed on your side; I just wanted it on the radar so it is not
-a surprise at apply time. I'm happy to rebase mine on top of your series,
-or the maintainers can take them in either order -- the two changes are
-independent and straightforward to combine.
-
-Thanks,
-Jose
+Best Regards,
+PanChuang

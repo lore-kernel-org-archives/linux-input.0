@@ -1,166 +1,163 @@
-Received: from mail-vk1-f181.google.com (mail-vk1-f181.google.com [209.85.221.181])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from cstnet.cn (smtp25.cstnet.cn [159.226.251.25])
+	(using TLSv1.2 with cipher DHE-RSA-AES256-SHA (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2312B3126C0
-	for <linux-input@vger.kernel.org>; Wed, 15 Jul 2026 06:37:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.221.181
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784097443; cv=pass; b=CSQbd0BeLbzWtFU1/HTjNcPx7ynh2dAJ0i2QsoNdiHuXa5kKPt6loxmT9vrJsO71dux6RITPbh20UZlKgzKLndNDHDzp2LGfxkxi7AHXSGIoMFgAaSIokoC0rl8KEIZVdk6iXr7kYGzq8VPuzcyDbcCh5B0bVJbumtWMNuiJCw8=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784097443; c=relaxed/simple;
-	bh=A8eE6gYBEyawqXzPiLbSmLaGyQiPySXEY+8GIYReE+E=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=WRPKBRpPK8OzNi1gzTzxIzh/2Kb9kWXp5S88sxj1LIyZ0EBlFj3823LIiyZgq1RY9YjkWcG04AAkgv9JepDXkifSipLS09TBITSMSNOL+9Y0clUHYoz4OiVbouV27teCH8H/qWciu8ZTN6EXC1oh4hH9h0ZNddhDVHvrV2B5kOQ=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=oprTH0Zb; arc=pass smtp.client-ip=209.85.221.181
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="oprTH0Zb"
-Received: by mail-vk1-f181.google.com with SMTP id 71dfb90a1353d-5bf8a2932a3so2582065e0c.1
-        for <linux-input@vger.kernel.org>; Tue, 14 Jul 2026 23:37:21 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1784097441; cv=none;
-        d=google.com; s=arc-20260327;
-        b=RrV8kkvz9lt8VS1iAPw+9hwCzOIn0lC1SYtXK4h+WIEeTmQ4s0meGRE0EppIiHEPQt
-         ctHt7WCsp6uZGDyhBqyDZJ2tLarPNgSrZZdgvQdK/KMqTFGYEjY/spLOSkqgqnucp2Xz
-         tJZuRF3g+t0VJpcg9gMKlYXqfKRZi1QG4z8bfzdpmNcwE4c2TiPV/X5OwjcvKM1k4RaX
-         QjULi4Jc9hHuow5t/YcmT3ZqTc2vQOB/UXb7VKMoc/JZbMOChNM4LNIlVU8vwquopUoY
-         hPSPcXl8mGhuBho3Av7aLIugdYUW+1r3PVvIGX6Ty/rTC14xyuwEQrlioCwD28NZ5NSV
-         RkHw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=A8eE6gYBEyawqXzPiLbSmLaGyQiPySXEY+8GIYReE+E=;
-        fh=di5SO93/93Kdf1ycTXuw75HZxqhysolCaiTsbYpV7sY=;
-        b=TAcgGuH8Y5ZZlV26aG/bKWryy74/m1xuV71Pp7Frrx/UAcnsov8zPkwjv/acnHQKt8
-         T2eEs/fFTwmVERxVgJRz1tWstBSPdwaRUvDnICTK+7bcDQpdQS7WU3JzpxExnVHPDHRq
-         ZuQyOdEWA3eBF/2uGumPMH1or5kiaA52KUm0/ckKn/Fx+cVKM1gnQWqaJSzbo9NhKFlR
-         KMUBIqc+ZEdNtdkm7OHVW2u+5VKzMHc8eFZCH03phlm41xX5nPWyR7uqY1QzWOTN0FRK
-         MqHwy6uqixnDENAw6raqpzBuWm0as+TF5S1/om4yLWBPXyu3TpXPNxTmr2S1YscflvuP
-         d17A==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784097441; x=1784702241; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=A8eE6gYBEyawqXzPiLbSmLaGyQiPySXEY+8GIYReE+E=;
-        b=oprTH0ZbBpIFV3O+1pzsZibuSvtM0ulzvfLMAa8UmVavmBaejT66kx0iWTT39mH/Fw
-         WY5DsnbiYGYdtGtSrbMwKK244d/ao4ckH//UZjbhvcjpAF64GiKWk/+04d5qzFl5nUeJ
-         S/Yyl1cb7/QO7rQzqweg43ovByxTIcQw8e1nPuZ+gB1+/wYyjWs/ZLPW+bkuzrsntMZc
-         yjiBxAZitk9DCJMO4cBh7lqTYRQmhFrMixQIfZA3d0vFMriB8cVLNszA/SavxlD3Q21w
-         v2TBSw8QGIOiAUrPfpIHKhUJatu4fz3fjoe+L4siIrmkSzgehBrnVrEEeGRC+f5aZK28
-         Hc7A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784097441; x=1784702241;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=A8eE6gYBEyawqXzPiLbSmLaGyQiPySXEY+8GIYReE+E=;
-        b=DR5SL9clWe80NBLYaq+k9l39W58FLhgmrGtQ2Rxa+m4VF32jWuTdu23e2krypRXVyI
-         MOtINToaPRaJxzbg1x0DVtCbLezxxcFwGrpAC35oMEU3d/gGy6fFBBTHlsc2he2Z7+dF
-         tMMr531jgbFgcgFiJc3f7a9MFJtFKArpAxi9NdhjpcYYULNhvvVXJBPSQFvngviOy0SW
-         YlJ6PpBSMgybq7nuAnf3HG+YiwuUndmPCgMj18k65jcFA3kTxyUYk9I5w5uBe3VPzY3W
-         Ui2avC/I2MldKUXuI0AKCeFDPx9t05I9i5MuXPpkRZJCcB4zFARugntO7i3+JIVdsYwK
-         Hidw==
-X-Forwarded-Encrypted: i=1; AHgh+RoQSDfbAntZ7XohPW6HItwp7nXMBZiknzXU9xF03VWuiDXje1kISTg4+Ux+1qhyaLjGF5zAX4D5yKcMJg==@vger.kernel.org
-X-Gm-Message-State: AOJu0YzufVElzWzq5mgdr9GZXoSuw4O55vDW64N+hXHGC1k3ZJhILXmC
-	l61G2dQC2ginvzX4sqNW187d8uRNXm+VFHGlFlncKpWJMdr0NMiDhBlPp+bamML2bDOIvuemDw+
-	bwedyR9Dp8oA7kUbC9mf27K6f4NosPPyTCnnN
-X-Gm-Gg: AfdE7cnV0FusGFHW/VAdmMbzqe9zmsu79LNf3cLSBLVis/9jl0iXRn2mzQguKHMWn+r
-	zPKfXXF+78rpxkKePF8H65BNc2alhyL0PXQcZODHB7Sg0pQKiE9Ax5lzeAphGaE2btiFwptQD2Z
-	kEHSENZRObCOirq39KZkxtTfmYDVsvrdtu4GBAkl7muAn4YotuhyT8B7T1MxoCCNYw5y+uBC9G0
-	gouc+6tj34GIXAmNVAwE5DVF3lqtH30IOijRgAnIvrOvEgTSOBIJYKwFJFsNC8Trl92sHnb
-X-Received: by 2002:a05:6102:3e0a:b0:631:2624:e5e7 with SMTP id
- ada2fe7eead31-745874d565emr3118969137.14.1784097441003; Tue, 14 Jul 2026
- 23:37:21 -0700 (PDT)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7CDEE3CAE80;
+	Wed, 15 Jul 2026 08:34:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=159.226.251.25
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1784104470; cv=none; b=mHPz42lKfOkN0zOZD9FG22JbJb1OZWLdPN7doV5pGY+7A195C+fV2ETMUuWgsnXP+vD1cxx0q/bgTIuMOY9HOTnVwWMi0qo71GSMH0CBuZKxZfheO3VEJTAOoR+Y3npUv+/f4xHx/fnWvY3ld53PNdyDIrE04xDXsS9809pTM3I=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1784104470; c=relaxed/simple;
+	bh=GaF3bveAV+1/XBZaAXQDhVW2GCqtiEQ8N9B3VML6F9E=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=kSNLgo0ufgpdXqwNkqfh51UsEvV3Y6JDILRqDIKUPBoCqRFpoI195O/wCezZgO+4iiHq9yzi9h1BVmGnklT8ITAkyuEe1wyTPOhLKSQJdE98xm/Ou6SFDtKVshDX0KeBIEHyhTjrUsJam0VI3oQtSuPVBM3TgFxxMcvvRebVlAE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=iscas.ac.cn; spf=pass smtp.mailfrom=iscas.ac.cn; arc=none smtp.client-ip=159.226.251.25
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=iscas.ac.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=iscas.ac.cn
+Received: from localhost.localdomain (unknown [111.196.245.140])
+	by APP-05 (Coremail) with SMTP id zQCowAAXnP8QRldqM0JHGA--.25383S2;
+	Wed, 15 Jul 2026 16:34:24 +0800 (CST)
+From: Pengpeng Hou <pengpeng@iscas.ac.cn>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Pengpeng Hou <pengpeng@iscas.ac.cn>,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Ted Mielczarek <ted@mielczarek.org>
+Subject: [PATCH] Input: xpad: validate Xbox One report lengths
+Date: Wed, 15 Jul 2026 16:34:24 +0800
+Message-ID: <20260715083424.25944-1-pengpeng@iscas.ac.cn>
+X-Mailer: git-send-email 2.50.1
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260714120052.255085-1-chlgustn3171@gmail.com>
- <20260714121819.5FCC91F00A3A@smtp.kernel.org> <CAO2ma08Pap6PZKUV7iEpvu11zaKrzMK-cgBLBYKJEEfGH+0=1g@mail.gmail.com>
- <CAO2ma095Hu1kOTMds9yHqTvwde8Gu+GWOLUst5U2eCnSffkm=g@mail.gmail.com> <alcCgHzV730RKPmR@google.com>
-In-Reply-To: <alcCgHzV730RKPmR@google.com>
-From: chlgustn3171 <chlgustn3171@gmail.com>
-Date: Wed, 15 Jul 2026 15:37:09 +0900
-X-Gm-Features: AUfX_mwjZd2YMIMMrbzMJbJRc0izxkbpQ8dAx4mNcU239rK5k2q8oyfHjEkK-zQ
-Message-ID: <CAO2ma09gV+kR5xY_MqVo5NhEEyD2vkZO7VnuE_bAQRYN1DiP7A@mail.gmail.com>
-Subject: Re: [PATCH] HID: input: allocate input_dev name/phys/uniq using hid
- device devres
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: sashiko-reviews@lists.linux.dev, linux-input@vger.kernel.org, 
-	Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>, linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:zQCowAAXnP8QRldqM0JHGA--.25383S2
+X-Coremail-Antispam: 1UD129KBjvJXoWxAr1rCrW8Zr45tw1kXw1UJrb_yoWrAw1xpF
+	Z0ga4j9rWktF13KF4ftr4ruFW5tF97J343KF93u340vasIvryYqrZFy3WvqFy5JFs5XayU
+	trsIy3yDGFnrXa7anT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDU0xBIdaVrnRJUUUkG14x267AKxVWUJVW8JwAFc2x0x2IEx4CE42xK8VAvwI8IcIk0
+	rVWrJVCq3wAFIxvE14AKwVWUJVWUGwA2ocxC64kIII0Yj41l84x0c7CEw4AK67xGY2AK02
+	1l84ACjcxK6xIIjxv20xvE14v26ryj6F1UM28EF7xvwVC0I7IYx2IY6xkF7I0E14v26r4j
+	6F4UM28EF7xvwVC2z280aVAFwI0_Cr1j6rxdM28EF7xvwVC2z280aVCY1x0267AKxVW0oV
+	Cq3wAS0I0E0xvYzxvE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0
+	I7IYx2IY67AKxVWUXVWUAwAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFVCjc4AY6r1j6r
+	4UM4x0Y48IcxkI7VAKI48JM4x0x7Aq67IIx4CEVc8vx2IErcIFxwCY1x0262kKe7AKxVWU
+	AVWUtwCF04k20xvY0x0EwIxGrwCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E14
+	v26r1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_JF0_Jw1lIxkG
+	c2Ij64vIr41lIxAIcVC0I7IYx2IY67AKxVWUJVWUCwCI42IY6xIIjxv20xvEc7CjxVAFwI
+	0_Gr0_Cr1lIxAIcVCF04k26cxKx2IYs7xG6r1j6r1xMIIF0xvEx4A2jsIE14v26r1j6r4U
+	MIIF0xvEx4A2jsIEc7CjxVAFwI0_Gr0_Gr1UYxBIdaVFxhVjvjDU0xZFpf9x0JUDpnQUUU
+	UU=
+X-CM-SenderInfo: pshqw1xhqjqxpvfd2hldfou0/
 
-Hi Dmitry,
+xpadone_process_packet() receives a 64-byte USB buffer, but only
+urb->actual_length belongs to the current report. The function still reads
+fixed offsets for virtual-key, firmware, input, profile, and paddle layouts
+without proving that the report reaches those offsets.
 
-Thanks for the detailed explanation on devres lifecycle and device refcount=
-ing.
+Ignore malformed short reports before consuming mandatory fields, and skip
+optional profile or paddle fields when their layout-specific minimum length
+is absent. This preserves processing of the validated common input prefix
+while avoiding reads of bytes outside the current USB item.
 
-I agree the patch is unnecessary, and that the syzbot trace is likely
-a false positive or external memory corruption. I will drop this
-patch.
+Fixes: 1a48ff81b391 ("Input: xpad - add support for Xbox One controllers")
+Signed-off-by: Pengpeng Hou <pengpeng@iscas.ac.cn>
+---
+ drivers/input/joystick/xpad.c | 29 ++++++++++++++++++++++++++++-
+ 1 file changed, 28 insertions(+), 1 deletion(-)
 
-Thanks again for the review.
+diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
+index feb8f368f834..9a32e7eb464d 100644
+--- a/drivers/input/joystick/xpad.c
++++ b/drivers/input/joystick/xpad.c
+@@ -1035,8 +1035,19 @@ static void xpadone_process_packet(struct usb_xpad *xpad, u16 cmd, unsigned char
+ 	struct input_dev *dev = xpad->dev;
+ 	bool do_sync = false;
+ 
++	/*
++	 * The interrupt buffer has room for XPAD_PKT_LEN bytes, but only
++	 * urb->actual_length belongs to this report. Do not interpret bytes
++	 * left over from an earlier, longer report as fields of this one.
++	 */
++	if (!len)
++		return;
++
+ 	/* the xbox button has its own special report */
+ 	if (data[0] == GIP_CMD_VIRTUAL_KEY) {
++		if (len < 5)
++			return;
++
+ 		/*
+ 		 * The Xbox One S controller requires these reports to be
+ 		 * acked otherwise it continues sending them forever and
+@@ -1052,6 +1063,9 @@ static void xpadone_process_packet(struct usb_xpad *xpad, u16 cmd, unsigned char
+ 	} else if (data[0] == GIP_CMD_FIRMWARE) {
+ 		/* Some packet formats force us to use this separate to poll paddle inputs */
+ 		if (xpad->packet_type == PKT_XBE2_FW_5_11) {
++			if (len < 20)
++				return;
++
+ 			/* Mute paddles if controller is in a custom profile slot
+ 			 * Checked by looking at the active profile slot to
+ 			 * verify it's the default slot
+@@ -1079,6 +1093,9 @@ static void xpadone_process_packet(struct usb_xpad *xpad, u16 cmd, unsigned char
+ 					 error);
+ 		}
+ 	} else if (data[0] == GIP_CMD_INPUT) { /* The main valid packet type for inputs */
++		if (len < 18)
++			return;
++
+ 		/* menu/view buttons */
+ 		input_report_key(dev, BTN_START,  data[4] & BIT(2));
+ 		input_report_key(dev, BTN_SELECT, data[4] & BIT(3));
+@@ -1145,13 +1162,16 @@ static void xpadone_process_packet(struct usb_xpad *xpad, u16 cmd, unsigned char
+ 		}
+ 
+ 		/* Profile button has a value of 0-3, so it is reported as an axis */
+-		if (xpad->mapping & MAP_PROFILE_BUTTON)
++		if ((xpad->mapping & MAP_PROFILE_BUTTON) && len >= 35)
+ 			input_report_abs(dev, ABS_PROFILE, data[34]);
+ 
+ 		/* paddle handling */
+ 		/* based on SDL's SDL_hidapi_xboxone.c */
+ 		if (xpad->mapping & MAP_PADDLES) {
+ 			if (xpad->packet_type == PKT_XBE1) {
++				if (len < 33)
++					goto input_done;
++
+ 				/* Mute paddles if controller has a custom mapping applied.
+ 				 * Checked by comparing the current mapping
+ 				 * config against the factory mapping config
+@@ -1165,6 +1185,9 @@ static void xpadone_process_packet(struct usb_xpad *xpad, u16 cmd, unsigned char
+ 				input_report_key(dev, BTN_GRIPL, data[32] & BIT(0));
+ 				input_report_key(dev, BTN_GRIPL2, data[32] & BIT(2));
+ 			} else if (xpad->packet_type == PKT_XBE2_FW_OLD) {
++				if (len < 20)
++					goto input_done;
++
+ 				/* Mute paddles if controller has a custom mapping applied.
+ 				 * Checked by comparing the current mapping
+ 				 * config against the factory mapping config
+@@ -1178,6 +1201,9 @@ static void xpadone_process_packet(struct usb_xpad *xpad, u16 cmd, unsigned char
+ 				input_report_key(dev, BTN_GRIPL, data[18] & BIT(2));
+ 				input_report_key(dev, BTN_GRIPL2, data[18] & BIT(3));
+ 			} else if (xpad->packet_type == PKT_XBE2_FW_5_EARLY) {
++				if (len < 24)
++					goto input_done;
++
+ 				/* Mute paddles if controller has a custom mapping applied.
+ 				 * Checked by comparing the current mapping
+ 				 * config against the factory mapping config
+@@ -1195,6 +1221,7 @@ static void xpadone_process_packet(struct usb_xpad *xpad, u16 cmd, unsigned char
+ 			}
+ 		}
+ 
++input_done:
+ 		do_sync = true;
+ 	}
+ 
+-- 
+2.43.0
 
-Regards, Hyeonsu
-
-
-On Wed, Jul 15, 2026 at 2:57=E2=80=AFPM Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
->
-> Hi,
->
-> On Tue, Jul 14, 2026 at 10:39:09PM +0900, chlgustn3171 wrote:
-> > Adding maintainers and mailing list to CC. Sorry for the omission.
-> >
-> > On Tue, Jul 14, 2026 at 10:33=E2=80=AFPM chlgustn3171 <chlgustn3171@gma=
-il.com> wrote:
-> > >
-> > > On Tue, Jul 14, 2026 at 9:18=E2=80=AFPM sashiko-bot wrote:
-> > > > [Severity: High]
-> > > > If a userspace process holds an open file descriptor for the evdev =
-node
-> > > > (/dev/input/eventX), the input_dev will outlive the parent hid->dev=
-.
-> > > > When the HID device is unbound, devres will free these strings.
-> > > >
-> > > > Can this cause a use-after-free when userspace later queries the
-> > > > name, phys, or uniq strings via ioctl (e.g., EVIOCGNAME)?
-> > >
-> > > Thanks for the review.
-> > >
-> > > Using &hid->dev here is intentional.
-> > > Using the input device for devm-managed input_dev strings is
-> > > problematic; see CVE-2023-53454, where the allocation was moved to th=
-e
-> > > HID device because the input device unregister path may still use the
-> > > name for uevents.
->
-> Thank you for the patch. However, I do not believe it fixes anything, as
-> moving to devres will not extend (and may even shorten) life time of
-> name, phys and uniq. Normally they are character array members of HID
-> device, and HID device continues existing past drivers disconnecting
-> from it. OTOH devres-controlled resources will get freed when driver
-> unbinds from a device.
->
-> Additionally, HID devices are parents of input devices, and should stick
-> around because input devices hold references to their parents until
-> device_del() is called in input_unregister_device(). However before that
-> it will disconnect this input device from all the handlers, including
-> evdev, evdev will mark the device as !exist and evdev ioctl will not
-> attempt to process ioctls for such device.
->
-> I however am not sure why we see this syzkaller report. Maybe there is
-> memory corruption somewhere or maybe syzkaller itself gets confused when
-> tracing numerous allocations.
->
-> Thanks.
->
-> --
-> Dmitry

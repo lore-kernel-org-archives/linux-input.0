@@ -1,94 +1,174 @@
-Received: from mail-ot1-f53.google.com (mail-ot1-f53.google.com [209.85.210.53])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0D745385530
-	for <linux-input@vger.kernel.org>; Wed, 15 Jul 2026 14:33:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0B74418DB01
+	for <linux-input@vger.kernel.org>; Wed, 15 Jul 2026 14:34:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784126002; cv=none; b=GvpbZRmGbBJZH7HT9w5StI9rJwV3L9/GMFEkVloEl8Nytv1cfZg+sTAM5rnsiYGFe4E+ggyk7Qngm9++a1i5y29t5L2mtO7bQAOUG0yVbqEOUFqREdKpdhB48DOubU9SgwpV5dSH7VRyX6YIXbgYgoBS9PbU6pIv5E4ICMadLL8=
+	t=1784126057; cv=none; b=qU+2LwycBoP27eCUUbDt3EJ5UKASSMAdXquZMdR4X/iXrHBCq0PcCzA9mZXzfqD5UGQHpT46xpTsW2tnWD75rskS+hvKgbAwE45KvvhWZun5gP0YRNlGq+m6XwXQcG2fYQn9ScWicu9atVITi2Vs1nVqUurY8M+Xwp/ZK4zY4hs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784126002; c=relaxed/simple;
-	bh=bao+9wfVc4AaxkH2SVBMf+BEqpRCBmpTjgPp3EEiuso=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=TmqBPmRSoNQbxJhv+0bd734Km++32GIWS6GCPKGY6UY9PLOlXrnoLn+tw+d55intIOxZiaDk7Btbp7mH163bq/A+OPqJAx5088UfYUwTSqEj32tNuMOpPQdWKji46XoO+U9S3F73CS4PNLN711RHZzFcQu4faNIckYH34lpRj3w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=EAAyv5RZ; arc=none smtp.client-ip=209.85.210.53
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1784126057; c=relaxed/simple;
+	bh=+w03OCVJJ5lEdUvLjUtTWIFbCYkXxpgNSOfRk81Uymw=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=jE81u9NxfhPuQ7H0ASga+kYvD0zQUnLFCy4TBlQadPSV6eOVzcgjCnB9H9FKT88W5vqcR83P5dfyKLj35OuYdxbb/pI3ZOyOOSrzaqMetAiLUlmq5gsyJNriOaL5k4JCCnXWDVFvaO+HLqXugUkbbomakSKtRZUhTQwcZUtuzhU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=hiwT6Myp; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="EAAyv5RZ"
-Received: by mail-ot1-f53.google.com with SMTP id 46e09a7af769-7e9fc3de7ceso2029665a34.1
-        for <linux-input@vger.kernel.org>; Wed, 15 Jul 2026 07:33:20 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784126000; x=1784730800; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=N6Unhl6R6oMV8GrpjwS1Licw7UsYPqJhVRljHMZNY+0=;
-        b=EAAyv5RZd7L1FqHylDOKL5yeZA/CMdaDuMGuaKXZBClE3tNMqwcPpBcUuoVUZbzweh
-         jlS4YUQf+wnyi58DHpZ9QA/4DncC4ZWfkgELDVdfCWmMG0CBR2ok7G2ZVhJi99oEiABz
-         X4q3kkwIVzVEHvPluolAQJGOKPo2BSR8nIiPWAmotGbkiGs9N5abqYoDKmJ2bV3vWGDs
-         0m+38N5qRJDLZ99EI8kx0jgaCOpQsiyLY8jKg+v1Ro2BFuZ10LBBsPfxN7xZfbSK9F4W
-         CywAPN5OtKTCWfD469O3ipLbaJ0p7GqrbpPshIlRsqGGHCdmQarFKD7lmZ+FNPTl/TQb
-         adgg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784126000; x=1784730800;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=N6Unhl6R6oMV8GrpjwS1Licw7UsYPqJhVRljHMZNY+0=;
-        b=CYNwQ0nVWJi6+qlFtE4240d5fukD+Sk2cX+sg9UnL6m8SWxMUl7w98tnxn4m0xRv+n
-         oCp59YIEPfRvaiC/W5E3CsvzCRV4FSuYEhpmct0zxx+DN6rBgxoNNTI9JGr1tmccM6WI
-         ocvRHj8YlQtgztONvcrJpjnt4bjUAx2fbjighqaCBZFYfC9GHWoM6uU04uibm4TqmstY
-         z/tcYsJL457YCI2Cddl1fAj+1t0l+67kxPA81ROOSol0LiOYeAaAOVymfyIQtRfXuY6u
-         Vql/dGcdSkqN/eexZquDgdcn6eq2DjORQG5IpIVKMVgp0db43rC2LzEIG0WPFsYipLtx
-         NzFQ==
-X-Forwarded-Encrypted: i=1; AHgh+RrA1UzwggcWxQjYqmtDArpIHfFCfxpGTs2C1CN4JB/b5E7+f+Tbagm2SBeqNlPw2BD7pqiJZJP57uoBrQ==@vger.kernel.org
-X-Gm-Message-State: AOJu0YzqYMkmWqGf7KAX3kZCh4Y+1vpJd5fi/+yhQmA31MA6HP0remlZ
-	S35JtD7ZYUklekqERkxI6mj9QFig7uEAll+ZZ+aXKD3ncU61q1V69MKp
-X-Gm-Gg: AfdE7ckaoM/fl5hDFkBRR1kzqcymflehph9ZQDmpFE40kZ+blh+O1G6KbBp008X465E
-	UhShC8gVIrg5qLsHen5pnkOxpJYyzDMfV5vThMv5PELxwvTSdC7Ez73Hw/rWrsWh9XCZsxGMObC
-	I/9OgrPzysYv5+wRqQ8zptqQT4UY/7ENcsH+lsWLzB+zwJL390kSz3iyapoUeO6gDHFZCZBF9vD
-	UoPtonRk7D0W2CIv/8KOhLOMpX/b5RpVPnNE4GSr0yHiuImITZBGPKm6maw6B9mtFdvFO9ZhU9J
-	gieccZ/4J5sw6sKM7u6tcATRZC4d4fJMbyodEZjifC+IY3/EDUsJqUZHwtk8U29e3Hc75lCR62g
-	K90LH6QLnFgLOjPITMJJl/wy7r8ZEzrur00arppRnSZlW75gxU11Fcpc7a6/7DCR93XFfzHetSi
-	G0QoiAW2RmGw==
-X-Received: by 2002:a05:6830:6d4c:b0:7e9:db7b:6d5e with SMTP id 46e09a7af769-7ec59aae78emr1616121a34.5.1784125999743;
-        Wed, 15 Jul 2026 07:33:19 -0700 (PDT)
-Received: from fedora ([2600:381:ca0e:289c:9a0c:2711:542f:e3c])
-        by smtp.gmail.com with ESMTPSA id 46e09a7af769-7ebcaf742e1sm17584114a34.8.2026.07.15.07.33.18
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 15 Jul 2026 07:33:19 -0700 (PDT)
-From: Dave Carey <carvsdriver@gmail.com>
-To: Jiri Kosina <jikos@kernel.org>
-Cc: Dave Carey <carvsdriver@gmail.com>,
-	Benjamin Tissoires <bentiss@kernel.org>,
-	linux-input@vger.kernel.org
-Subject: Re: [PATCH 2/5] HID: multitouch: Fix stale MT slots when contact count drops to zero
-Date: Wed, 15 Jul 2026 10:33:12 -0400
-Message-ID: <20260715143312.32408-1-carvsdriver@gmail.com>
-X-Mailer: git-send-email 2.55.0
-In-Reply-To: <20260522111527.69428-1-carvsdriver@gmail.com>
-References: <20260522111527.69428-1-carvsdriver@gmail.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="hiwT6Myp"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 916A21F00A3A;
+	Wed, 15 Jul 2026 14:34:15 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1784126055;
+	bh=Mc+TzmvAfQgDIIPWcjqNeuLMB7sr7e5yjqJPpckH58Y=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=hiwT6MypnBrlUISU9ogM8u+deK2oJ8mplMk9rKbre64vf+pbo8ZBAQQw+sbgJpCSK
+	 ZtuW/TUbQ7UAkOjLtTf87KeQbdm4+o5TcaMH4E2tinaHWDlL5d7WzmEB/yafhFIvv3
+	 k/H+GezvkY+84AxFXsiOIce7IvzNtbEgeh/iDEEYy9f3q+1qExyRLjVsTCFHJ0HvJe
+	 tpmeiddsoRylAWNP8OnJkh96vA0tkjqMOL0o0d6qzZ6fxzQ75YrLw5NNyDNpiwRV/m
+	 cgSwoZVp2Eqhr3NxYW2arr2q74HWqNBRl4sPG68BELBDrVcWi6WbtrCiMNxgjbto6U
+	 MH2z8DRmxgeZw==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v2] HID: mcp2221: validate raw report length
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Pengpeng Hou" <pengpeng@iscas.ac.cn>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <20260715135916.24417-5-pengpeng@iscas.ac.cn>
+References: <20260715135916.24417-5-pengpeng@iscas.ac.cn>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Wed, 15 Jul 2026 14:34:15 +0000
+Message-Id: <20260715143415.916A21F00A3A@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-Hi Jiri,
+Thank you for your contribution! Sashiko AI review found 4 potential issue(=
+s) to consider:
 
-Gentle second ping on this patch, now about eight weeks since submission
-with no feedback.
+Pre-existing issues:
+- [Critical] Use-After-Free and Out-Of-Bounds Write due to a dangling `mcp-=
+>rxbuf` pointer after an I2C transaction times out.
+- [Critical] Time-of-Check to Time-of-Use (TOCTOU) Buffer Overflow in `mcp2=
+221_raw_event` due to non-atomic buffer state updates.
+- [High] Concurrent GPIO and I2C operations modify the shared hardware buff=
+er (`mcp->txbuf`) outside of the `mcp->lock` mutex, leading to data corrupt=
+ion.
+- [High] Teardown asymmetry and Use-After-Free caused by runtime modificati=
+on of the `gpio_mode_enforce` module parameter.
+--
 
-For context, the other hid-multitouch patches for the same device are
-already in tree: the INPUT_PROP_BUTTONPAD misclassification fix merged
-to mainline 2026-05-28, and the ghost contacts fix (MT_QUIRK_CONTACT_CNT_ACCURATE)
-was applied to hid/for-next by Benjamin on 2026-06-10.  This stale-slots
-fix is the last remaining hid-multitouch patch for the Yoga Book 9 14IAH10.
+--- Patch [1]: [PATCH v2] HID: mcp2221: validate raw report length ---
+commit 7349c59966a5598d3165aa4ca24a32b27b7b131a
+Author: Pengpeng Hou <pengpeng@iscas.ac.cn>
+Subject: HID: mcp2221: validate raw report length
 
-Happy to rebase, respin, or address any concerns.
+The MCP2221A data sheet specifies 64-byte HID command and response
+reports. mcp2221_raw_event() reads fixed response fields up to byte 55
+and can copy a 60-byte I2C payload from byte 4 through byte 63 without
+first checking the received size. Reject reports shorter than the fixed
+protocol size before reading any response fields.
 
-Thanks,
-Dave
+Link: https://lore.kernel.org/all/20260715083754.31210-1-pengpeng@iscas.ac.=
+cn/
+
+> diff --git a/drivers/hid/hid-mcp2221.c b/drivers/hid/hid-mcp2221.c
+> index e4ddd8e9293b6..c910f6636ac95 100644
+> --- a/drivers/hid/hid-mcp2221.c
+> +++ b/drivers/hid/hid-mcp2221.c
+
+[ ... ]
+
+> @@ -639,11 +640,11 @@ static int mcp_gpio_read_sram(struct mcp2221 *mcp)
+>  {
+>  	int ret;
+> =20
+> -	memset(mcp->txbuf, 0, 64);
+> +	memset(mcp->txbuf, 0, sizeof(mcp->txbuf));
+
+[Severity: High]
+This is a pre-existing issue, but I noticed mcp->txbuf is being zeroed and
+populated here in mcp_gpio_read_sram() (and similarly in mcp_gpio_set() and
+mcp_gpio_get()) before acquiring mcp->lock.
+
+Because mcp->txbuf is shared with I2C operations, could this lead to data
+corruption if mcp_i2c_xfer() is concurrently preparing an I2C transaction
+under the lock? It looks like sysfs GPIO nodes and I2C device interfaces
+can race here.
+
+>  	mcp->txbuf[0] =3D MCP2221_GET_SRAM_SETTINGS;
+> =20
+>  	mutex_lock(&mcp->lock);
+> -	ret =3D mcp_send_data_req_status(mcp, mcp->txbuf, 64);
+> +	ret =3D mcp_send_data_req_status(mcp, mcp->txbuf, sizeof(mcp->txbuf));
+>  	mutex_unlock(&mcp->lock);
+> =20
+>  	return ret;
+
+[ ... ]
+
+> @@ -861,6 +862,12 @@ static int mcp2221_raw_event(struct hid_device *hdev,
+>  	u8 *buf;
+>  	struct mcp2221 *mcp =3D hid_get_drvdata(hdev);
+> =20
+> +	if (size < MCP2221_REPORT_SIZE) {
+> +		mcp->status =3D -EINVAL;
+> +		complete(&mcp->wait_in_report);
+> +		return 1;
+> +	}
+> +
+
+[Severity: Critical]
+This is a pre-existing issue, but does mcp2221_raw_event() have a
+use-after-free or out-of-bounds write risk when handling delayed responses?
+
+If mcp_send_data_req_status() times out inside mcp_i2c_smbus_read(), it
+returns early without setting mcp->rxbuf to NULL. When a delayed I2C
+response arrives later, wouldn't mcp2221_raw_event() copy up to 60 bytes
+into this dangling mcp->rxbuf pointer?
+
+[Severity: Critical]
+This is also a pre-existing issue, but is there a TOCTOU race here with how
+mcp->rxbuf and mcp->rxbuf_size are updated in mcp_i2c_smbus_read()?
+
+If mcp_i2c_smbus_read() is updating these non-atomically:
+
+mcp_i2c_smbus_read() {
+    ...
+    mcp->rxbuf =3D msg->buf;
+    mcp->rxbuf_size =3D msg->len;
+    ...
+}
+
+and an interrupt fires exactly between assigning a new 1-byte buffer to
+mcp->rxbuf and updating mcp->rxbuf_size, could mcp2221_raw_event() bypass
+the bounds check by reading the old, larger size?
+
+>  	switch (data[0]) {
+> =20
+>  	case MCP2221_I2C_WR_DATA:
+
+[ ... ]
+
+[Severity: High]
+This isn't a bug introduced by this patch, but could runtime modifications
+to the module parameter gpio_mode_enforce lead to a use-after-free during
+device removal?
+
+In mcp2221_remove(), the delayed work is conditionally canceled:
+
+mcp2221_remove() {
+    ...
+    if (!gpio_mode_enforce)
+        cancel_delayed_work_sync(&mcp->init_work);
+    ...
+}
+
+Since gpio_mode_enforce has 0644 permissions, if it is changed to true
+after the device is plugged in, won't mcp2221_remove() skip canceling
+mcp->init_work? This would leave the work running after the mcp structure
+is freed.
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260715135916.2441=
+7-5-pengpeng@iscas.ac.cn?part=3D1

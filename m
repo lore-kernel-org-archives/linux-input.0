@@ -1,85 +1,115 @@
-Received: from cstnet.cn (smtp25.cstnet.cn [159.226.251.25])
-	(using TLSv1.2 with cipher DHE-RSA-AES256-SHA (256/256 bits))
+Received: from fout-b4-smtp.messagingengine.com (fout-b4-smtp.messagingengine.com [202.12.124.147])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F38E31FFC59;
-	Wed, 15 Jul 2026 08:38:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=159.226.251.25
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A422A3CC7EC
+	for <linux-input@vger.kernel.org>; Wed, 15 Jul 2026 08:43:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.147
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784104736; cv=none; b=UKnPTnHP+yoG5RIa82grQFbmt/x9jabLvQ977aDmXSuyHeXrER77h7XpACBaodZfn+TFwwZugdvU/OaHxqxWMwbAjkML0NMokT8crA6n58zLwjbCyMzmr6/h1eEQYCHI+Aw7snPuLSwqFIS5VI9EJsnSSAGplSEoLd0PPa+XR9Q=
+	t=1784105026; cv=none; b=RaNtDgiqlyZsIqB0oREVnQwRTkOWq5I+PGx7qt5RDR48gs5MJv1BnHRvvssfHa3FaGwdaIhFXsCQL/aDFNRc9VzvB4ezuh+3fVnL0QYYJV6MjhAHS5TiGNEUPl05n36YhKnUaCLZdbT/5ATliz/Qgzo4s71i+cC5t5gvrw26VpA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784104736; c=relaxed/simple;
-	bh=G0OdTudThONEVq4z2Mu/i0wD2nslQVAfSPYjc8TUYfU=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=ZpAgCvhn72Jx82kp5V7FeZ+XQnaUTTI8khVIdehkVAgwW9S+x9/z644q4ABw5ChdPuePLlDchbjDKFreuDgVYCEw+P39oZk4TYFgNOz/rmi0A+IBD3XZfJxCVs7gsW3PoQwxAdrpodwZcwQrXmpV6IjeLGQ3Y6UxzoLd2J/Jvbs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=iscas.ac.cn; spf=pass smtp.mailfrom=iscas.ac.cn; arc=none smtp.client-ip=159.226.251.25
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=iscas.ac.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=iscas.ac.cn
-Received: from localhost.localdomain (unknown [111.196.245.140])
-	by APP-05 (Coremail) with SMTP id zQCowABHmcwaR1dqrVpHGA--.7399S2;
-	Wed, 15 Jul 2026 16:38:51 +0800 (CST)
-From: Pengpeng Hou <pengpeng@iscas.ac.cn>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Pengpeng Hou <pengpeng@iscas.ac.cn>,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Jeff LaBundy <jeff@labundy.com>
-Subject: [PATCH] Input: iqs5xx: validate firmware record destination span
-Date: Wed, 15 Jul 2026 16:38:50 +0800
-Message-ID: <20260715083850.32155-1-pengpeng@iscas.ac.cn>
-X-Mailer: git-send-email 2.50.1
+	s=arc-20240116; t=1784105026; c=relaxed/simple;
+	bh=9lMaQMmNuMEN8dVLgNG9dU9W84YYOfeLkYvobdPqucU=;
+	h=MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
+	 Subject:Content-Type; b=rcg4FtI0uOnOKfaTR1M09e0bgOVJbzGBSc5ax4p+/J20uIeEF83NC4bQ+Y0J3Fv76XyyfUuUlr6R3hZZdBbMWHfRaGRMwX5JlS4mjaZ4nnZJVhPr/M1zV0Bv90O+W3P3rS+9U/r9bx1TBUUEbkljFuiQTvGCOiOFYFz8uWFw2eE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=readahead.eu; spf=pass smtp.mailfrom=readahead.eu; dkim=pass (2048-bit key) header.d=readahead.eu header.i=@readahead.eu header.b=OkMq63kL; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=re5SspwY; arc=none smtp.client-ip=202.12.124.147
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=readahead.eu
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=readahead.eu
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=readahead.eu header.i=@readahead.eu header.b="OkMq63kL";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="re5SspwY"
+Received: from phl-compute-12.internal (phl-compute-12.internal [10.202.2.52])
+	by mailfout.stl.internal (Postfix) with ESMTP id 6ACE51D000E7;
+	Wed, 15 Jul 2026 04:43:41 -0400 (EDT)
+Received: from phl-imap-07 ([10.202.2.97])
+  by phl-compute-12.internal (MEProxy); Wed, 15 Jul 2026 04:43:41 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=readahead.eu; h=
+	cc:cc:content-transfer-encoding:content-type:content-type:date
+	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to; s=fm1; t=1784105021;
+	 x=1784191421; bh=iKUothbm+a7l0maCZFc8zfDpM+rikBdHRVxisVrwd1A=; b=
+	OkMq63kLTZlWKiDIMiFmurK8sBBPfx0rK1opLihNqC0kgyJ0fBkbY+CSUcMstTi2
+	smLoYXZTsHg8aQ/LAWzTkydYTm8+/2wgwtOvJo2jOpyNljp+YvrJ5ZnlS0nY7xpy
+	sWAg33xhcl5V9bpIp4S9JFW+0CLS+0krWsih4LxbcF3MdWIM6QeixFLzd28wkuts
+	v9alPPrjWvbbpvf2atJ+tdrUEQD2Rghmn9ea9Fjchg52mA7c2XV+ZXITjh0ZB7QA
+	jBfnt63cGt6OwAzyQpLEyslJ1X+YlOSA8XhU9jpR5iHb9nWf6ZhdFncl6qqtCskC
+	BNzKfqcvX/gE3VbcMKZQCg==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-transfer-encoding
+	:content-type:content-type:date:date:feedback-id:feedback-id
+	:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to:x-me-proxy
+	:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; t=1784105021; x=
+	1784191421; bh=iKUothbm+a7l0maCZFc8zfDpM+rikBdHRVxisVrwd1A=; b=r
+	e5SspwYXwmShj8mhQFKsiexEdEBmKAZJSnP/Gdh5F/pSgs0qc4ZMrjSaPU+m2Vjd
+	bSDR9nth2XU/CsolHx5+dA5ubz9EIgZJf94GjqWOz9fpoCDgZmW+2H7IY/XTSW58
+	lF62NlWEDlfgs3rs9+MasCAmZeaQ9F1Ucv+JB8zWK4aeq9HsLgK/3iqz++en5+v5
+	wMzCV9skMV5hkiVSr0CcQC3KxvXLmG85NhA5t2OJ+i1uaa18tFUd3MKnUshVqBFf
+	NTQd+PmJlJ3jCSnv0dGzY2MpIQ5yECD408hapB79tC6HvSuAkVOUIAwrriH8e689
+	l96eQNsvuEXZnlLyL8dPg==
+X-ME-Sender: <xms:PEhXaj2Qnljo24N7qAwXQKsCH0xn22hye21CLhhM8Q6_Hm8JbiyIuw>
+    <xme:PEhXas4L5eodUMPOTKBDh7wSPtsVYHEiAdpDtF9Q07Geqd33IPXmansXFYTEm-Ua8
+    X2ytH6PTo7O60Jl_TQ0CTwhfGd5MK1SU7dpv5lRLngu0Ke-O9C_ourx>
+X-ME-Proxy-Cause: dmFkZTFLCuIHkT1XitX+z0iRNs9GoJtEuY9COt3zJnsHu2TZTTY3uHTGLQZQxowf+8e/69
+    JhsY0nPtIfPrD5GEy5KN5V8F8VcabIdpPbBCJ73h4XHHzzvkTzD/JhC8O0HRAoaQosy/Y+
+    43ugQUSR2nX/nkuunM8jYQbzXM0CWTIWcuLDovdm67h0P8mCk6H3vp8AhV6+fnJ6RknXtq
+    LZczi2ujwb6VRfTwIaEkBBK5oYq2re/dKov2/H1fe7Wtbjm/IHZMkhLkh+WxKwQvP5Veh9
+    EHHDJavE8ko1uFkfQlTLG8QvWy9DlX27hACClXy+iYzXPPN3r6NcFDOHm3iYuoiq2A6HYu
+    z6DZy3ijVVHuSmyQh4GFU5AGw2+M/FqvWTeAHeOY9vPliuezIpzz3yMRkrwqS24oaDDXip
+    qw+HO8RJK1ivAKx3NLtgL69IaCrtWPOLxCc/3V3LTxSEi0xHGQEcQb05EmMsBxKKicAR2M
+    26d46bLLGf2Kjbl/w5DgAETWXLOheXsCnvB7taOXuIyPgmwyeRuDtgmShxKb3TbhJzaMAj
+    0Jt4/W1xRhnYKhI1LGDHHu1RJxhXiiWpVHrlJy3+hSo044gqVcUL9DLChJLEtYhkBvtJL8
+    XWBAF+/Z6NZ/KEILtnsC5biRIj0qn+9l0uyhuB2VVFczs12CZLF2NMoBveuA
+X-ME-Proxy: <xmx:PEhXagOlrGpOYuJAKWhO2G8cRxtWArhRTpIzp2zAeQfKt0K7kPyfeA>
+    <xmx:PEhXanpiNs9lD_TGZIg2GoXBt3_I_zwUxBeCSYXC-qRZpFyAROIuXA>
+    <xmx:PEhXaldezvI9KJ7z8aCf-dfRaY8Adf7TyPlW4Tu5ph2YA90kIGf4CQ>
+    <xmx:PEhXatS0IYfc57saj6yUybVdVGjiEc-G6TabO8wK0b-gH9MvoJsjRQ>
+    <xmx:PUhXajhqq53ILiVxFl1YjTJnkMDkTtDdmQOjN9QzCaQHrorNNxZnjWdd>
+Feedback-ID: id2994666:Fastmail
+Received: by mailuser.phl.internal (Postfix, from userid 501)
+	id 74CBB1EA006B; Wed, 15 Jul 2026 04:43:40 -0400 (EDT)
+X-Mailer: MessagingEngine.com Webmail Interface
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:zQCowABHmcwaR1dqrVpHGA--.7399S2
-X-Coremail-Antispam: 1UD129KBjvdXoWrKF1fKr43CFyrWFWfGw1UGFg_yoWktrcEkF
-	W8uF97G34YkFZF9w1Dtr13Zr929r10vr97Za4qy393Aw15JrsxZ39rAF15ArWUGrWDWr17
-	JrsxWFy09ay29jkaLaAFLSUrUUUUjb8apTn2vfkv8UJUUUU8Yxn0WfASr-VFAUDa7-sFnT
-	9fnUUIcSsGvfJTRUUUb4kFF20E14v26r1j6r4UM7CY07I20VC2zVCF04k26cxKx2IYs7xG
-	6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8w
-	A2z4x0Y4vE2Ix0cI8IcVAFwI0_Xr0_Ar1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Cr0_
-	Gr1UM28EF7xvwVC2z280aVAFwI0_Cr1j6rxdM28EF7xvwVC2z280aVCY1x0267AKxVW0oV
-	Cq3wAS0I0E0xvYzxvE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0
-	I7IYx2IY67AKxVWUtVWrXwAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFVCjc4AY6r1j6r
-	4UM4x0Y48IcxkI7VAKI48JM4x0x7Aq67IIx4CEVc8vx2IErcIFxwCY1x0262kKe7AKxVWU
-	AVWUtwCF04k20xvY0x0EwIxGrwCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E14
-	v26r1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_JF0_Jw1lIxkG
-	c2Ij64vIr41lIxAIcVC0I7IYx2IY67AKxVWUCVW8JwCI42IY6xIIjxv20xvEc7CjxVAFwI
-	0_Cr0_Gr1UMIIF0xvE42xK8VAvwI8IcIk0rVWUJVWUCwCI42IY6I8E87Iv67AKxVWUJVW8
-	JwCI42IY6I8E87Iv6xkF7I0E14v26r4j6r4UJbIYCTnIWIevJa73UjIFyTuYvjfUezVbDU
-	UUU
-X-CM-SenderInfo: pshqw1xhqjqxpvfd2hldfou0/
+X-ThreadId: AeQlmnlEDZAk
+Date: Wed, 15 Jul 2026 10:43:19 +0200
+From: "David Rheinsberg" <david@readahead.eu>
+To: "Rafael Passos" <rafael@rcpassos.me>,
+ "Benjamin Tissoires" <bentiss@kernel.org>, "Jiri Kosina" <jikos@kernel.org>
+Cc: "Shuah Khan" <skhan@linuxfoundation.org>,
+ "Brigham Campbell" <me@brighamcampbell.com>,
+ "Jori Koolstra" <jkoolstra@xs4all.nl>, linux-input@vger.kernel.org
+Message-Id: <48dc930b-2a70-4404-b8b5-5784c45538ae@app.fastmail.com>
+In-Reply-To: <DJYKVRU31TCD.1M8E9KUMBZL1I@rcpassos.me>
+References: <20260710153456.2093889-1-rafael@rcpassos.me>
+ <DJV56QRLBO6S.3H33MNASQ866@rcpassos.me>
+ <850e8696-311e-45e4-874a-8089afe35907@app.fastmail.com>
+ <DJYKVRU31TCD.1M8E9KUMBZL1I@rcpassos.me>
+Subject: Re: [PATCH 0/3] HID: wiimote: new LED behavior on connect, and scoped guards
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-The firmware record parser checks that the record address starts within
-the programmable map, but does not check that the complete record data
-fits in that map. A record near the end of the map can therefore make
-the copy to pmap exceed its destination span.
+Hi
 
-Check the record length against the remaining programmable map range
-before copying the record data.
+On Tue, Jul 14, 2026, at 10:31 PM, Rafael Passos wrote:
+> On Mon Jul 13, 2026 at 6:28 AM -03, David Rheinsberg wrote:
+>> What device name are you referring to exactly?
+> I was looking at the `wiimote_devtype_names` table,
+> but I figured out its only used for logging.
+>
+> What I actually wanted, was a way to return a propper name to the user,
+> with a controller/player ID.
+> When listing bluetooth devices, I have 4 entries like the following:
+>     `Device <UNIQUE MAC> Nintendo RVL-CNT-01-TR` (x4)
+> I wanted to display a friendly name to the user, like the one on dmesg:
+>     `Nintendo Wii Remote Plus (Gen 2) (1)` (where 1 is the player id).
+>
+> If you think it makes sense, and its possible, I would love to make
+> this change in this or a future set :)
 
-Fixes: 7b5bb55d0dad ("Input: add support for Azoteq IQS550/572/525")
-Signed-off-by: Pengpeng Hou <pengpeng@iscas.ac.cn>
----
- drivers/input/touchscreen/iqs5xx.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+This name is taken from the Bluetooth and HID protocols. It is up to the application to decide what to display. I don't think you can control this in any way.
 
-diff --git a/drivers/input/touchscreen/iqs5xx.c b/drivers/input/touchscreen/iqs5xx.c
-index c3cc37274335..88dcf72618df 100644
---- a/drivers/input/touchscreen/iqs5xx.c
-+++ b/drivers/input/touchscreen/iqs5xx.c
-@@ -785,7 +785,8 @@ static int iqs5xx_fw_file_parse(struct i2c_client *client,
- 		switch (rec_type) {
- 		case IQS5XX_REC_TYPE_DATA:
- 			if (rec_addr < IQS5XX_CHKSM ||
--			    rec_addr > IQS5XX_PMAP_END) {
-+			    rec_addr > IQS5XX_PMAP_END ||
-+			    rec_len > IQS5XX_PMAP_END + 1 - rec_addr) {
- 				dev_err(&client->dev,
- 					"Invalid address at record %u\n",
- 					rec_num);
--- 
-2.43.0
-
+David

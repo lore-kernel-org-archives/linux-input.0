@@ -1,179 +1,194 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B0D713368AA
-	for <linux-input@vger.kernel.org>; Wed, 15 Jul 2026 08:51:44 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1AE0E351C2D
+	for <linux-input@vger.kernel.org>; Wed, 15 Jul 2026 08:57:24 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784105505; cv=none; b=FYnrXZaQBsrb6rPMg76c/xu/BEAQg/qiI23n6sn6EtZmI7empAE8/KdOX/IojyA/UuifbHJKymcI1hPqdTilGthyBKQEYkXhSrHm+iwSUh8/IfVjPe1SSTkH7cJodlYdq1rl6LCRMoM2gLFFdESb7CObYl0wh4swaSxvn1K/Cko=
+	t=1784105847; cv=none; b=o8fEcw3VW7rW0f2Aypi1OLhEM0FfeFFHT+VuuzfaaokzOvRnd10cg9ipa8+k/ymUXLxmj+LjgdPUXccLfjefHXMnnJpZvZHzuAAwYmro2B8XgBrI58hEjEyWmmJyo5vrM9f13PZXMQM5ogFJMfN7lJoBF0w9eGhM4M5LDrbpUEw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784105505; c=relaxed/simple;
-	bh=FHGIF2SHeAvuDJjqGpqrMm/EAlvoG487ZVTTjTFZ8Ts=;
+	s=arc-20240116; t=1784105847; c=relaxed/simple;
+	bh=OuyU8XVDlK0ZKYHCOn0NycGTPnb2PlUcs8wZEDnl6ok=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=H7b9FA2Dulm3xxwV9J2krxhmv/ifKSmqmBbOsGCmA8xBPhcL1riJOxPRz9hzojbYOLaPnQ/jD6XaUCBmgs3PV+KPQE5LBgxJzJ5j6o9oWwuem1+J9V06Y7jMAv3WwXJEAkx07S1XpcOIZ81DMS0PbwomA2sU9mobN38nVs1uoOs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=QaL4BbVN; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=tT2Io4UkLW5oF2oVumu9VJ7QS7VWk41cslqhNO1ayANXuGfNzBRblGzkdzgQD/LTzKjoFRZdQKvMjAq3R8BDakBoz+6x8zL+IKt5D6TGE1DIIcsVal0AdV/9g/GQbiZNArPm1rkbC1ngIVswLbdSw8T5WQaqtxYWBntMl4XhlW4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=hBtSfAiQ; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="QaL4BbVN"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1585C1F000E9;
-	Wed, 15 Jul 2026 08:51:44 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="hBtSfAiQ"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F1511F000E9;
+	Wed, 15 Jul 2026 08:57:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784105504;
-	bh=wF5l8dJtEsnJqJ6YZn0yi/4qS6MVnLbtjuqM8g4qZ+4=;
+	s=k20260515; t=1784105844;
+	bh=BN43AeFrV+ire8OOOu0n/HpM0WHjQlFg1Nl4X7dWWJQ=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=QaL4BbVNu3A9whFeM7YG8+G1h3c0L370C5guDz3wm/DTz8EE87h77QqeQkeSYK57V
-	 /2BdoI5nSNa+AvSL9KbiMclz2cYbd+2oN04MCBaGzjameEy788/GPF9rQLWhTQzwWf
-	 70JeDunY6of1kZWzOp4jMhEeQX8C7AbcqktfvkO3P29LIGUiI0MTCZAdtwXhR/+MCR
-	 jMlzL2wrHS2z7w6rFTRHKEHdf64YIoUhnYZLZkQ3h6qxJjN4+KsJDfdPXAsU+J3huz
-	 ADH3xtXHjSAiQMtXP48O633ef4KI/rX8JbF+RLE7+pb3Y2kO30WXIEyKHK2jjbeVpa
-	 iiDlEJhaR4Eaw==
+	b=hBtSfAiQ6rGEfGJlGxqE3LLgQysAew0bv6448Sq2L4+wlECVlTBBZ9pAlTMqTAkUE
+	 IMOIu5HAMTuEEXNTUCI5kXZ3/BgEC0eCcQQsAVu770NL6b18YZgs+Zhnm5Dif5o32s
+	 npFTDUvIh55CbR9nU8mVyW3VOvDbDkqXXy6csjN63GVhheDVPgdo7aX1wyEJJ6J3lj
+	 iHDMUsWge2jZSF4phKF1cQCedAiFVP7wIh9BGYQM87jH/rTi2tPPM3Kda2XlvL1wQW
+	 Szr3yboiM8hUN6BjeLvmqcj04jgqsje96DjFUe0An31889pHhkzMTpDdf3mOiqOcAq
+	 YUhwwZJc52UQQ==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] Input: iqs5xx: validate firmware record destination
- span
+Subject: Re: [PATCH] HID: mcp2221: validate raw report length
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Pengpeng Hou" <pengpeng@iscas.ac.cn>
 Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260715083850.32155-1-pengpeng@iscas.ac.cn>
-References: <20260715083850.32155-1-pengpeng@iscas.ac.cn>
+In-Reply-To: <20260715083754.31210-1-pengpeng@iscas.ac.cn>
+References: <20260715083754.31210-1-pengpeng@iscas.ac.cn>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 15 Jul 2026 08:51:43 +0000
-Message-Id: <20260715085144.1585C1F000E9@smtp.kernel.org>
+Date: Wed, 15 Jul 2026 08:57:24 +0000
+Message-Id: <20260715085724.7F1511F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+Thank you for your contribution! Sashiko AI review found 5 potential issue(=
 s) to consider:
 
 Pre-existing issues:
-- [High] Concurrent writes to the `fw_file` sysfs attribute can lead to a d=
-ouble-registration of the input device, causing a kernel crash.
-- [High] A checksum validation error in the firmware file is silently dropp=
-ed, leading to incomplete firmware flashing.
-- [Medium] The touchscreen input device may never be registered if a firmwa=
-re update retry succeeds following an initial initialization failure.
+- [Critical] Stack Use-After-Free via stale `mcp->rxbuf` pointer
+- [High] Resource leak / infinite loop due to static `retries` variable
+- [High] Race condition during device probe leading to NULL pointer derefer=
+ence
+- [Medium] Incomplete Fix / Vulnerability Bypass in report length validation
+- [Medium] Data race on shared state in GPIO callbacks
 --
 
---- Patch [1]: [PATCH] Input: iqs5xx: validate firmware record destination =
-span ---
-commit 897f4810526cdc25897398dbb6d1023c54aafc6a
+--- Patch [1]: [PATCH] HID: mcp2221: validate raw report length ---
+commit fe663280b0cd79c441444742c0ab076f8dbfec5d
 Author: Pengpeng Hou <pengpeng@iscas.ac.cn>
 
-Input: iqs5xx: validate firmware record destination span
+HID: mcp2221: validate raw report length
 
-This commit adds a length check in iqs5xx_fw_file_parse() to ensure that the
-firmware record data fits within the remaining programmable map span. It
-prevents out-of-bounds copies when a record is near the end of the map.
+This commit adds validation of the report length at the beginning of the
+mcp2221_raw_event callback. This prevents the driver from reading beyond the
+current report length and returns an error for truncated reports to avoid
+unrelated timeouts.
 
-> diff --git a/drivers/input/touchscreen/iqs5xx.c b/drivers/input/touchscre=
-en/iqs5xx.c
-> index b9bbe8b3eab81..8559be7ed9a95 100644
-> --- a/drivers/input/touchscreen/iqs5xx.c
-> +++ b/drivers/input/touchscreen/iqs5xx.c
-> @@ -786,7 +786,8 @@ static int iqs5xx_fw_file_parse(struct i2c_client *cl=
-ient,
->  		switch (rec_type) {
->  		case IQS5XX_REC_TYPE_DATA:
->  			if (rec_addr < IQS5XX_CHKSM ||
-> -			    rec_addr > IQS5XX_PMAP_END) {
-> +			    rec_addr > IQS5XX_PMAP_END ||
-> +			    rec_len > IQS5XX_PMAP_END + 1 - rec_addr) {
->  				dev_err(&client->dev,
->  					"Invalid address at record %u\n",
->  					rec_num);
+> diff --git a/drivers/hid/hid-mcp2221.c b/drivers/hid/hid-mcp2221.c
+> index e4ddd8e9293b6..67afef1a275f9 100644
+> --- a/drivers/hid/hid-mcp2221.c
+> +++ b/drivers/hid/hid-mcp2221.c
+> @@ -861,6 +861,17 @@ static int mcp2221_raw_event(struct hid_device *hdev,
+>  	u8 *buf;
+>  	struct mcp2221 *mcp =3D hid_get_drvdata(hdev);
 
 [Severity: High]
-This isn't a bug introduced by this patch, but I noticed that later in this
-same function, if a checksum validation failure occurs, the error code seems
-to be swallowed:
+This is a pre-existing issue, but could this lead to a NULL pointer derefer=
+ence
+of the mcp pointer during device probe?
 
-drivers/input/touchscreen/iqs5xx.c:iqs5xx_fw_file_parse() {
-...
-		if (chksm !=3D rec_chksm && rec_addr < IQS5XX_CSTM) {
-			dev_err(&client->dev,
-				"Incorrect checksum at record %u\n",
-				rec_num);
-			error =3D -EINVAL;
-			break;
-		}
-...
-	} while (rec_type !=3D IQS5XX_REC_TYPE_EOF);
+In mcp2221_probe(), hid_hw_open() is called to start the hardware and submit
+the interrupt IN URB before hid_set_drvdata() is called. If the device sends
+an early interrupt IN report, mcp2221_raw_event() could be triggered while
+hid_get_drvdata() still returns NULL, causing a panic when accessing
+mcp->status.
 
-	return 0;
-}
-
-Since the break statement exits the do...while loop and the function
-unconditionally returns 0 at the end, doesn't this result in the checksum
-error being silently ignored?
-
-Could this lead to an incomplete or corrupted memory map being flashed if
-the firmware file is invalid?
-
-[Severity: High]
-This is a pre-existing issue, but I found a potential problem in
-fw_file_store() where concurrent writes could lead to a double-registration
-of the input device:
-
-drivers/input/touchscreen/iqs5xx.c:fw_file_store() {
-...
-	bool input_reg =3D !iqs5xx->input;
-...
-	error =3D iqs5xx_fw_file_write(client, fw_file);
-	if (error)
-		return error;
-
-	/*
-	 * If the input device was not allocated already, it is guaranteed to
-	 * be allocated by this point and can finally be registered.
-	 */
-	if (input_reg) {
-		error =3D input_register_device(iqs5xx->input);
-...
-}
-
-The input_reg flag is evaluated locklessly before calling
-iqs5xx_fw_file_write(). If two threads concurrently write to fw_file
-when the device is in bootloader mode (iqs5xx->input is NULL), both threads
-would evaluate input_reg as true.
-
-They would then serialize through iqs5xx_fw_file_write(), where the first
-thread allocates the input device. When both threads return, wouldn't they
-independently check their local input_reg variables and concurrently call
-input_register_device(iqs5xx->input) on the exact same pointer?
+> =20
+> +	/*
+> +	 * HID invokes .raw_event() before its generic report-length check.
+> +	 * The response handlers below read fixed offsets from @data, so reject
+> +	 * a truncated current report before interpreting any of its fields.
+> +	 */
+> +	if (size < hid_report_len(report)) {
 
 [Severity: Medium]
-This is another pre-existing issue, but there appears to be a separate
-registration problem involving iqs5xx_axis_init() and fw_file_store():
+This isn't a bug introduced by this patch, but does this bounds check use t=
+he
+untrustworthy descriptor length instead of the required minimum length for =
+the
+fixed-offset reads performed subsequently?
 
-drivers/input/touchscreen/iqs5xx.c:iqs5xx_axis_init() {
-...
-	if (!input) {
-		input =3D devm_input_allocate_device(&client->dev);
-		if (!input)
-			return -ENOMEM;
-...
-		input_set_drvdata(input, iqs5xx);
-		iqs5xx->input =3D input;
-	}
+If a malicious USB device presents a spoofed HID report descriptor with a v=
+ery
+small report length (e.g., 1 byte), hid_report_len(report) will evaluate to=
+ 1.
+When a 1-byte packet arrives, this check evaluates to false and is bypassed.
+The driver then performs fixed-offset reads, potentially copying uninitiali=
+zed
+or stale data from the buffer to userspace. Should the validation check
+against the hardcoded structural length instead?
 
-	error =3D iqs5xx_read_word(client, IQS5XX_X_RES, &max_x);
-	if (error)
-		return error;
-...
+> +		mcp->status =3D -EINVAL;
+> +		complete(&mcp->wait_in_report);
+> +		return 1;
+> +	}
+> +
+>  	switch (data[0]) {
+> =20
+>  	case MCP2221_I2C_WR_DATA:
+
+[ ... ]
+
+
+[Severity: High]
+This is a pre-existing issue, but does the static retries variable cause
+infinite delayed work scheduling?
+
+drivers/hid/hid-mcp2221.c:mcp_init_work() {
+    ...
+    static int retries =3D 5;
+    ...
 }
 
-If a firmware update via fw_file_store() triggers iqs5xx_axis_init() and
-allocates the input device, but a subsequent I2C read like iqs5xx_read_word=
-()
-fails, fw_file_store() will return an error without calling
-input_register_device().
+Because retries is declared as static, it is shared across all device
+instances. If initialization fails multiple times and retries decrements be=
+low
+zero, the check can evaluate to false on subsequent runs. This causes the w=
+ork
+to infinitely reschedule itself, leaking CPU resources and preventing system
+suspend. Should this variable be an instance member in struct mcp2221 inste=
+ad?
 
-The iqs5xx->input pointer remains non-NULL. If user-space retries the
-firmware update and it succeeds, won't fw_file_store() evaluate input_reg
-as false and skip calling input_register_device() entirely?
+
+[Severity: Critical]
+This is a pre-existing issue, but does this code use the stale mcp->rxbuf
+pointer after the stack frame is freed?
+
+drivers/hid/hid-mcp2221.c:mcp_i2c_smbus_read() {
+    ...
+    mcp->rxbuf =3D msg->buf;
+    ...
+}
+
+In mcp_i2c_smbus_read(), mcp->rxbuf is assigned a buffer that may be stack
+allocated, and the function returns without resetting mcp->rxbuf to NULL.
+
+If the device subsequently sends an unsolicited input report,
+mcp2221_raw_event() will execute:
+
+drivers/hid/hid-mcp2221.c:mcp2221_raw_event() {
+    ...
+    memcpy(&buf[mcp->rxbuf_idx], &data[4], data[3]);
+    ...
+}
+
+Could this overwrite up to 60 bytes of kernel stack memory with
+attacker-controlled data?
+
+
+[Severity: Medium]
+This is a pre-existing issue, but does this code create a data race on the
+shared mcp->txbuf and mcp->gp_idx variables?
+
+drivers/hid/hid-mcp2221.c:mcp_gpio_set() {
+    ...
+    memset(mcp->txbuf, 0, 18);
+    mcp->txbuf[0] =3D MCP2221_GPIO_SET;
+    mcp->gp_idx =3D offsetof(struct mcp_set_gpio, gpio[offset].value);
+   =20
+    mutex_lock(&mcp->lock);
+    ...
+}
+
+The shared txbuf and gp_idx fields are modified here before the mutex lock =
+is
+acquired. If multiple threads access GPIOs concurrently, their unlocked
+modifications to the shared mcp->txbuf and mcp->gp_idx variables will
+interleave. Can this cause the device to receive a corrupted command or
+mcp2221_raw_event() to use the wrong index when interpreting the response?
 
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260715083850.3215=
-5-1-pengpeng@iscas.ac.cn?part=3D1
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260715083754.3121=
+0-1-pengpeng@iscas.ac.cn?part=3D1

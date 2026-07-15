@@ -1,64 +1,64 @@
-Received: from mail-ej1-f52.google.com (mail-ej1-f52.google.com [209.85.218.52])
+Received: from mail-ed1-f45.google.com (mail-ed1-f45.google.com [209.85.208.45])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E10D02F3621
-	for <linux-input@vger.kernel.org>; Wed, 15 Jul 2026 14:23:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C473D367288
+	for <linux-input@vger.kernel.org>; Wed, 15 Jul 2026 14:23:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.45
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784125437; cv=none; b=LXhEzFFwHsceP5lBYxWsZkVYAstBHZBeGVw7aZUe3udc0kWWuBXv+JvZJzyYT+tPWBdeT5p0a+oa1jgR1BIpzpDy8Q2cbveM/BEcf0GGrQTBrdKLXTtzufgTn+NyhT9CNVGqAVHkCei2dNHUEFHXPNB7ERu9z5t/95lxe/1Vqoc=
+	t=1784125438; cv=none; b=t12usFEz38Q7zkphnnLTx05arjBSorHtmplRwxh73DAMGTZztalm4jyRJnwFIAcisUj+301BiZYbO/y/hSvt9wLM87mdduAQ2Aynxot/pu/5DjA26Wb8lOuyD/eN0bWGiIcQ8EW/2025VWQVT19NJp/YrJ5mDQ6MgzhbaiugDmY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784125437; c=relaxed/simple;
-	bh=p/A+hyd8Czmzv+d6bee7JEW5kyJdrX0FwFb3c+j1AQE=;
+	s=arc-20240116; t=1784125438; c=relaxed/simple;
+	bh=tWfme+tzQ9G7mAqvSYSvjdoyZ1LogMZJCZU9ph6QRJY=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=Tan8f/+Qc1EKHB463M3veCw9sHU+jDsx3NwEb8LSz/GkPUpdGv9jpacP49l4NS2CyQqP2RPDNCcH+cqE/VTJF3phMk3VSVzhIm++LbzEt/G40jSc9DdhN4x4cXl9Y10WGP8pSm0Q7iOiombgojeZAoF58XKjLeZFWDG+QwNfQ/4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=SwqwjfgC; arc=none smtp.client-ip=209.85.218.52
+	 MIME-Version; b=nkQ35oxxouXIGoFNWls9GeK3t2Lu5SnQuvtURUL+FJJM4Xr/l9mwTPpwTKoSpDJAi4pvE8nbZ2sf+cXExxCtwtJCmtRZIAJotcwxL6cAPjcrBQDUhDz0txd/jt+gsMI88HlcV9G2jRKLK5xrqieEKxbZzQCTFcpR4SSugEB/G0Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=kAws+HHz; arc=none smtp.client-ip=209.85.208.45
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="SwqwjfgC"
-Received: by mail-ej1-f52.google.com with SMTP id a640c23a62f3a-c12614b81c9so1022576966b.3
-        for <linux-input@vger.kernel.org>; Wed, 15 Jul 2026 07:23:51 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="kAws+HHz"
+Received: by mail-ed1-f45.google.com with SMTP id 4fb4d7f45d1cf-69e2266b07fso1030078a12.2
+        for <linux-input@vger.kernel.org>; Wed, 15 Jul 2026 07:23:54 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784125430; x=1784730230; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1784125432; x=1784730232; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=b3M40eRQW8Z0pMjSw8FZJIlwcW2HMM9RvErrQLP04DY=;
-        b=SwqwjfgCEslbuijNYESdaBK7NoufURfPYcTjbE4T/OjQyYATATQZTStoennxlnpu/9
-         NEhpZuxqun84aEpeYVohYv2wjELeIsSFDG4Lyi2ROipBHnh2EH10zUx+sIUjlicx373R
-         jF1pgN855yRVW9FSh49u+SfaoWgaK62n/OqKKjxshCdV1DtYk/nWWzdVSXtQ90PAObYn
-         Mstc5Hx8fhI9BQ4aF37Hj55jNYW5Zouz9ru/EVPJElEMqsZbONui8qQB4Wm9Dp1PymRM
-         iS61BQP8tV5COrkfwbiCMvGoFMvcmYVFg2Li7R0KIQVX2LOiowwAi9YcfgU3WqlRXukI
-         jrMA==
+        bh=gSGPZtrn7btUtmz6wHgzIANbziCZWoxzvDyAbH1+WOo=;
+        b=kAws+HHztRTcyg2oihmMwcDNX7VnDiwdViERgV75b1VZOpIZj3InOlN/wkwkN6vK6v
+         u+UaOcC6BE3OloQeixXBxz9Stl5JsIkgmAUssJgv/Nbn5rB8y/tU7/pUzh2URcH66co9
+         I4Qz5cJ6mv+8mqgz+gIykIjxtR/ksJCmpErZ6OKnaBl6fpElPv1JqOaYxkfR9KUWVP0y
+         lEVwpP3fb347Dga6lSXoGwm8xss2MmkiiPhajTvbwDQ2qEFoyuNPm3SyE/SLgARYVmVJ
+         znXlgdUz+M0k05HBvrIf3mFSP039xsaM51d8ZCMzHRCfhoCiL9vOW9NLI9h/9Flvd5oN
+         LwTQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784125430; x=1784730230;
+        d=1e100.net; s=20251104; t=1784125432; x=1784730232;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=b3M40eRQW8Z0pMjSw8FZJIlwcW2HMM9RvErrQLP04DY=;
-        b=KRuGqEIRC6pTDl7c8PFTrYAxNsc6bAXCMPrXJBxR56gy4vooD24Jx/WG3+NgydnFcY
-         62l0rzmj5XTf6JhWOMZlW/4KGud0j2mFgm51Q/+tx6V5men+qLpFIo7Bw74DodIUKJaf
-         5U4g4L4vsztWd+LExCX0hBswu6GkwC1dGUKup2aJxL8rKM3bJnp83xc9ETGfytGyW4iZ
-         vwYyZ7FhsAA1coF+tQaavWcBWlgVNxFeAPor4t313JLwU0BI9Fo/A1h1+0mqYV04iKlU
-         OPBYf+67R85lgPTL3hX3txfrqr+AYIjglbXToSNd/MAN3foLgf6SVnaojygvEEOv5ABI
-         HpCg==
-X-Forwarded-Encrypted: i=1; AHgh+Rq1+kg0K3vq5ThKikCIMivrHxYknvk8USkRVYszvCkTfBcEohB2xuY3B5rCGRaMEaoIeXdJAvl0Zw8V1A==@vger.kernel.org
-X-Gm-Message-State: AOJu0YwXE0eEwomZtbrJKnoAX+UayEnPZjJU9m0vL9a4EB7lJyr9HDIY
-	q2oHRbPvMGcraXiwTdo6iUCmurMYvQbIGXNYClT1L8pGmMgGGJ4+1N1t
-X-Gm-Gg: AfdE7clTij3lxyTr5V+9IGGVVgFU47dH3APM/wnA/zocxa1A4xbRycyDSPwxNMaOBD5
-	svBFAIprpHCdcU4DFPmN25q25Is0P8ecJQzHbnfJlIvZRshO54B8YWgU6YyHdKDPPQmygNHRTN0
-	Rb5Q2xf05T/4dw9tqP28v6TDD6vQedx/rWh3GD7Y8r+78Hp+Mik3KHVM3XMHn53nD9firZkWx7w
-	d3cOVLk5nMYc9+YbOA8FWaDyCrJwNxjkqbRaeQ3DHLtTuRYukYFzZgBykSqHHN3d5lsEUCcFJ+i
-	ihJZ65xcw15gbxuuDeGH/a9s8Q5EecBEysBdteJD2M8pbrMw+yu+DM8ngMWmtBpf15DsTAbyhTY
-	Io88HJr1BX/5UU6zkuY+6uTe1NhkEMttHH7ehWWIhizJpgjX9rsOs8izt7kd8kRQSOkkam1dZEK
-	130k86fN1E9l7EK55qt3KJGnI3BqI4mfEefgjnssjaJHlYA2wNVD1cVZPTh64su5gSpjKuyo8jJ
-	Gl9
-X-Received: by 2002:a17:907:d16:b0:c15:bc2d:e938 with SMTP id a640c23a62f3a-c16792a5887mr227159666b.32.1784125429946;
-        Wed, 15 Jul 2026 07:23:49 -0700 (PDT)
+        bh=gSGPZtrn7btUtmz6wHgzIANbziCZWoxzvDyAbH1+WOo=;
+        b=rvhen06YpMFu1PDOtKuI8S/ATAJ2zrfrk6c75fYm26HDIL8XRXSMFTWkojkZvuwli+
+         sa6qqKl0CtZzd7Iu3Lag5SXqhRnwVm0bdKgcPDWOhGlOgr6osRjCjI24qEiD2sSMk30x
+         lfnZ9ck18R1YjDMcDokaQAKWtODsogJWPhcANhbWWrgxG3/xamp2xXjnctFEf3k1r6Z0
+         0o/PnE+w79cgXi4+JSDo98YfJK1j5VUmRGWZmmfPk4Z4WGPK8sDGl0Ayh8V4IkxgVkxL
+         FFGRvCHfypVAuXqRwRnjTNDecdpwu76JDrJL05sytpcqhvn00Y7FuUmYIRby1LAfJ7d+
+         /KNg==
+X-Forwarded-Encrypted: i=1; AHgh+Rqd6vn0NSfR/sUdsU1d4tFQqbFG/DsmqK+Quyrm+qZHyUed+YzfahNqVaF3NkaWP/Kkhm751HvvplDe1g==@vger.kernel.org
+X-Gm-Message-State: AOJu0YwZSj4vIsuv9lKmkxkvrT/4+8UAHKtFIlhyrP3SMaiLDIfe9iz1
+	sICYz5tJqXRflOK1yBbijs/Wg1az9eqITGh7ts0yeZ5I91PD89jjFXFI
+X-Gm-Gg: AfdE7cnbaDi8YwR6amiIKE2DmFdwU7gmJAkaS/wgJkeGLg+WZk56omljnWvI1vi6SwU
+	74EHcbPI/AXet9QvKQMFsS2scETu22uvk7NcLzeyhEcDpVeuG25CznheSohlk/Bubyxa0zFPBn6
+	kwiGLoMo9CNPrsSobotm49FqwhcNEtz9hAVxp+GgZWHKe1ANVxpf6T8vR18VBxNilzKPMsrXJwZ
+	QzhGDf5rpy+xz58MMowUa53SafdlDYEi2yf3cxVlKl+xVhz90YaR0CdDQ5DfehwAyNuHel2Id6d
+	cuBlhhFhFFbe/qElafmiJigkDJVROf/pUIsObLhAIBQAtNYyEl/33b2uAw3Co0Mw1zx8EjcNDAl
+	r7Vu071y29dFaItjQ+YjneIY1zoDgmR0XdlEYx9gv4IMY2OnQCvyhGKJeco/IrooXHxQsR11wm6
+	0E+oJdz5Gu/5M2OEXwZabyjfJpMYEaP1rk/LaCCTQf+DoC92S9oywJ7Ho8pHEVG8Oat7O8+YFXo
+	OSQ
+X-Received: by 2002:a17:907:3f96:b0:c15:f26a:3438 with SMTP id a640c23a62f3a-c161ea32e98mr929035366b.24.1784125432269;
+        Wed, 15 Jul 2026 07:23:52 -0700 (PDT)
 Received: from misharu.home (2a02-a463-a071-0-8f3f-3afb-28f6-19c0.fixed6.kpn.net. [2a02:a463:a071:0:8f3f:3afb:28f6:19c0])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c168744bd40sm38743766b.43.2026.07.15.07.23.49
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c168744bd40sm38743766b.43.2026.07.15.07.23.51
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 15 Jul 2026 07:23:49 -0700 (PDT)
+        Wed, 15 Jul 2026 07:23:51 -0700 (PDT)
 From: Hari Mishal <harimishal1@gmail.com>
 To: Amit Shah <amit@kernel.org>,
 	Arnd Bergmann <arnd@arndb.de>,
@@ -74,9 +74,9 @@ Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
 	linux-kernel@vger.kernel.org,
 	linux-input@vger.kernel.org,
 	Hari Mishal <harimishal1@gmail.com>
-Subject: [PATCH 2/4] virtio_input: validate device-reported multitouch slot count
-Date: Wed, 15 Jul 2026 16:22:41 +0200
-Message-ID: <20260715142337.22811-3-harimishal1@gmail.com>
+Subject: [PATCH 4/4] virtio_console: take a kref in find_port_by_vq() to fix port UAF
+Date: Wed, 15 Jul 2026 16:22:43 +0200
+Message-ID: <20260715142337.22811-5-harimishal1@gmail.com>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20260715142337.22811-1-harimishal1@gmail.com>
 References: <20260715142337.22811-1-harimishal1@gmail.com>
@@ -88,35 +88,96 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-nslots is derived from the ABS_MT_SLOT maximum reported by the
-virtio device. A device could report a bogus maximum (e.g. -1)
-making nslots = 0, which input_mt_init_slots() does not reject;
-it returns success without allocating any slot storage, silently
-leaving the device registered as multitouch capable with no
-backing state. Reject non-positive slot counts before calling
-input_mt_init_slots().
+find_port_by_vq() returns a raw struct port pointer without taking a
+reference on it, unlike find_port_by_devt_in_portdev() which does.
+find_port_by_vq()'s only two callers, in_intr() and out_intr(), run
+as virtqueue interrupt callbacks, entirely independent of and
+possibly concurrently with unplug_port(), which itself runs from a
+workqueue when the host sends a VIRTIO_CONSOLE_PORT_REMOVE control
+message.
 
-Assisted-by: gkh_clanker:t1000
+unplug_port() removes the port from portdev->ports under ports_lock,
+then later drops its last reference with kref_put(), freeing it via
+remove_port(). find_port_by_vq() also walks portdev->ports under
+ports_lock, so if it finds the port still on the list, the list
+removal, and therefore the eventual kref_put(), has not happened yet,
+and taking a reference at that point is always safe. Without doing
+so, in_intr()/out_intr() can be left holding a pointer to a port that
+unplug_port() frees on another core before they are done using it.
+
+Both triggers are host-controlled as the host decides when to send the
+PORT_REMOVE control message and when to kick the port's data vq. So a
+malicious backend could race the two on purpose, without any guest side
+cooperation. The freed object is a generic kmalloc allocation containing
+a wait_queue_head_t, which in_intr()/out_intr() pass to
+wake_up_interruptible() after touching the stale pointer.
+wake_up_interruptible() invokes a function pointer read out of the
+wait queue's entries. If the freed slab slot is reclaimed with
+attacker influenced content before that call, then this is an arbitrary
+function call primitive rather than just undefined behaviour.
+
+Take a reference in find_port_by_vq() while still holding ports_lock,
+matching find_port_by_devt_in_portdev(), and release it in in_intr()
+and out_intr() once they are done with the port.
+
 Signed-off-by: Hari Mishal <harimishal1@gmail.com>
 ---
- drivers/virtio/virtio_input.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/char/virtio_console.c | 13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/virtio/virtio_input.c b/drivers/virtio/virtio_input.c
-index deec24e8e682..2cc19782cdd3 100644
---- a/drivers/virtio/virtio_input.c
-+++ b/drivers/virtio/virtio_input.c
-@@ -312,6 +312,10 @@ static int virtinput_probe(struct virtio_device *vdev)
+diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
+index faef362dae85..1b7593684ed9 100644
+--- a/drivers/char/virtio_console.c
++++ b/drivers/char/virtio_console.c
+@@ -304,6 +304,11 @@ static struct port *find_port_by_id(struct ports_device *portdev, u32 id)
+ 	return port;
+ }
  
- 		if (test_bit(ABS_MT_SLOT, vi->idev->absbit)) {
- 			nslots = input_abs_get_max(vi->idev, ABS_MT_SLOT) + 1;
-+			if (nslots <= 0) {
-+				err = -EINVAL;
-+				goto err_mt_init_slots;
-+			}
- 			err = input_mt_init_slots(vi->idev, nslots, 0);
- 			if (err)
- 				goto err_mt_init_slots;
++/*
++ * The port object's reference is incremented now and
++ * it is the caller's responsibility to decrement it
++ */
++
+ static struct port *find_port_by_vq(struct ports_device *portdev,
+ 				    struct virtqueue *vq)
+ {
+@@ -312,8 +317,10 @@ static struct port *find_port_by_vq(struct ports_device *portdev,
+ 
+ 	spin_lock_irqsave(&portdev->ports_lock, flags);
+ 	list_for_each_entry(port, &portdev->ports, list)
+-		if (port->in_vq == vq || port->out_vq == vq)
++		if (port->in_vq == vq || port->out_vq == vq) {
++			kref_get(&port->kref);
+ 			goto out;
++		}
+ 	port = NULL;
+ out:
+ 	spin_unlock_irqrestore(&portdev->ports_lock, flags);
+@@ -1706,6 +1713,7 @@ static void out_intr(struct virtqueue *vq)
+ 	}
+ 
+ 	wake_up_interruptible(&port->waitqueue);
++	kref_put(&port->kref, remove_port);
+ }
+ 
+ static void in_intr(struct virtqueue *vq)
+@@ -1723,6 +1731,7 @@ static void in_intr(struct virtqueue *vq)
+ 	if (!port->portdev) {
+ 		/* Port is being unplugged, ignore further data. */
+ 		spin_unlock_irqrestore(&port->inbuf_lock, flags);
++		kref_put(&port->kref, remove_port);
+ 		return;
+ 	}
+ 	port->inbuf = get_inbuf(port);
+@@ -1756,6 +1765,8 @@ static void in_intr(struct virtqueue *vq)
+ 
+ 	if (is_console_port(port) && hvc_poll(port->cons.hvc))
+ 		hvc_kick();
++
++	kref_put(&port->kref, remove_port);
+ }
+ 
+ static void control_intr(struct virtqueue *vq)
 -- 
 2.43.0
 

@@ -1,198 +1,162 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 15D363D1CB0
-	for <linux-input@vger.kernel.org>; Wed, 15 Jul 2026 21:39:19 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DB3D13A0E8D
+	for <linux-input@vger.kernel.org>; Wed, 15 Jul 2026 21:42:09 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784151562; cv=none; b=nTJ1xdDSjaUvw80AEn5vZmufSkRR8g6w3lB5CJlyFuGwbl/Rh5YvzUO/cXngLW4TH9gkzReitr4XPNSct2I2DCUiAiJBwpy+NNogtDSuAcPozaGBRQMuntPtp8xEHVxG8fIRv3vyi77GUgwJXUE5anXx6FxHAVVo1Q3T1Ncr/sk=
+	t=1784151731; cv=none; b=Kf1RfT/4NT626014OonvETmQJ7Nh47wfDu1DhkZFzc4e21VHUHTEVE5XRGcAV+TkEdjNmz8CwD8KMAk+Drna6lxMepcAutmIfGiQlNxKg6/f1YG7drMUw/krZmPoqezS/tN84dgTh+IqLKLYMBhbVcu68d4rtjGfFfOAFUKqh+I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784151562; c=relaxed/simple;
-	bh=RkSSJVgfWrT8Sg8WFmkegiVsVj6yY1FFREU9T+NDLUo=;
+	s=arc-20240116; t=1784151731; c=relaxed/simple;
+	bh=e7DJJx7rLQYzwx0TG+4SSRgdACHFeIU57/q2oHtdonM=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=IUxkNV9LgbOixU105LgAuR520sajzXBe4Yo5l52Ru6YrSfegogbjX+ZB4Rp2vz3EK6fjv1Ey+oiUIqiiWU6LYdALdL2JusR80OCbumxgngLqBBID2O6bNCEEXXk3w3EWEapHwyrqMpRdEZDdDmL8IcGVzK/XYWVTyEW2AAnwPWc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=JvfzP+JS; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=CC8tRsdDIhNld2VJzcTdTATljLtOEzX53tz9KZSi22H2MfmA3uEqtqzHyE1f7tPk3LhQLqBaE6yYslQFjvOqpYEqacHsz1i9HIKlgd33pyxqs0eesgL+WqmkbgCJ3OvhC6FAb+fyZU0PKj2Q8CwtLgKJGvHkqwrP7LQc9h/8d88=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=mZLH/IOG; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="JvfzP+JS"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 091FE1F00A3A;
-	Wed, 15 Jul 2026 21:39:18 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="mZLH/IOG"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F6051F000E9;
+	Wed, 15 Jul 2026 21:42:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784151559;
-	bh=I6zJ5jINVd5UQeiiPdntnf4gENcqNTkztgR91Afqkz0=;
+	s=k20260515; t=1784151729;
+	bh=hCUX0C4a5frC3Q8gi0hpwxRBfZxCTMs3S47fcFhkY64=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=JvfzP+JSSlOsKVFCZZc5fX6FChxaUznX6QaEgCGTWc57zdEikGSGM8yg6Gy62SQ46
-	 ri0y95YYvFuzlxnWyxplViZQlP+SMglYk0cloG4evzs2P6YgZ0or2JDcDqH5PASz95
-	 xqZYVuYRTOx3fCSMAMF69E31mW0XGRteu4aSOFY5Edr8MluZprhkgKrBxZO3Pu2h4h
-	 OXmW5odKQ5pD9ceRav5EV4carnZJgrcba0alYTHlMMwIz8cpD0RCJWEe1r6hleKGBt
-	 IvB5p0iJ/CYH9dWxR3PlBvEs6W7tqYlcz5sjTAJciXgQCQHOOy2PKwUDdZErI+nJbi
-	 vOOtfSamVWaSQ==
+	b=mZLH/IOGtWfv3y2bi5yFtFm666dPTe9B+epio/w+A+B3H2241uD69I+WPN/VRsSK/
+	 vQu7s/4+K63U1VYGFiNm8/h8KDPdvnnWoNWZMLbbuFxapYh8QR0pYThjRhj3npUwAw
+	 35S9rZOiZSj7xIVkZSBFuQV5EY2iEtMmlV0kLQNzGZuLsPaoTO16S3npsQHtPM31AD
+	 zNUkmNCniZPAuRhPYveReIv+I5K3yzpfLq2PbZ9FHxlRjiwmS02cD2dvtiLPz09xMT
+	 W+A6Fuf61PA5WcD2MRh79+8/Jk8WISdmMYppNQ3PIiyPODzkYtY+JDz0CPsgOEXZu+
+	 3TbTVrlSRv+Ig==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 2/4] HID: wiimote: replace spinlock pairs with
- scoped_guard
+Subject: Re: [PATCH v2 3/4] HID: wiimote: use scoped cleanup in wiimote and
+ led probes
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Rafael Passos" <rafael@rcpassos.me>
 Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260715212501.3920033-3-rafael@rcpassos.me>
+In-Reply-To: <20260715212501.3920033-4-rafael@rcpassos.me>
 References: <20260715212501.3920033-1-rafael@rcpassos.me>
- <20260715212501.3920033-3-rafael@rcpassos.me>
+ <20260715212501.3920033-4-rafael@rcpassos.me>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 15 Jul 2026 21:39:18 +0000
-Message-Id: <20260715213919.091FE1F00A3A@smtp.kernel.org>
+Date: Wed, 15 Jul 2026 21:42:08 +0000
+Message-Id: <20260715214209.3F6051F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
 s) to consider:
-
-New issues:
-- [Medium] Functions mix `goto`-based error handling cleanup labels with sc=
-ope-based cleanup (`scoped_guard()`), violating the cleanup subsystem archi=
-tectural rule.
-- [Low] Incorrect 4-space indentation within `scoped_guard` blocks instead =
-of standard kernel tabs.
-
-Pre-existing issues:
-- [High] Use-after-free of `wdata` because `queue.worker` can be reschedule=
-d after it is cancelled in `wiimote_destroy()`.
+- [High] The new scoped cleanup function `__wiimote_probe_cleanup()` fails =
+to cancel async workers, timers, and loaded modules on error, leading to a =
+Use-After-Free and dangling registered devices.
+- [Medium] Truncation of `player_id` from `int` to `__u8` causes IDA double=
+ frees, leaked IDs, and an out-of-bounds array access.
 --
 
---- Patch [2]: [PATCH v2 2/4] HID: wiimote: replace spinlock pairs with sco=
-ped_guard ---
-commit 343c163a7f9f1368f62e298a4bac0953c054d9f3
+--- Patch [3]: [PATCH v2 3/4] HID: wiimote: use scoped cleanup in wiimote a=
+nd led probes ---
+commit 29027bf7f674068d4630217f5005fa7c42f22f18
 Author: Rafael Passos <rafael@rcpassos.me>
+Subject: HID: wiimote: use scoped cleanup in wiimote and led probes
 
-HID: wiimote: replace spinlock pairs with scoped_guard
-   =20
-Cleanup code replacing manual lock/unlock with scoped guards.
-This does not change any behavior, but makes it safer to modify.
+This patch refactors the cleanup paths in the wiimote and led probe functio=
+ns
+to use scoped cleanup macros. It also introduces a state mask to track the
+hardware probing progress.
 
 > diff --git a/drivers/hid/hid-wiimote-core.c b/drivers/hid/hid-wiimote-cor=
 e.c
-> index 91c2cec35f6eb..d37d740a7162f 100644
+> index d37d740a7162f..b549a7d58d512 100644
 > --- a/drivers/hid/hid-wiimote-core.c
 > +++ b/drivers/hid/hid-wiimote-core.c
-> @@ -362,13 +363,12 @@ void wiiproto_req_rmem(struct wiimote_data *wdata, =
-bool eeprom, __u32 offset,
->  int wiimote_cmd_write(struct wiimote_data *wdata, __u32 offset,
->  						const __u8 *wmem, __u8 size)
->  {
-[ ... ]
-> -	spin_lock_irqsave(&wdata->state.lock, flags);
-> -	wiimote_cmd_set(wdata, WIIPROTO_REQ_WMEM, 0);
-> -	wiiproto_req_wreg(wdata, offset, wmem, size);
-> -	spin_unlock_irqrestore(&wdata->state.lock, flags);
-> +	scoped_guard(spinlock_irqsave, &wdata->state.lock) {
-> +	    wiimote_cmd_set(wdata, WIIPROTO_REQ_WMEM, 0);
-> +	    wiiproto_req_wreg(wdata, offset, wmem, size);
-> +	}
-
-[Severity: Low]
-this isn't a bug, but did the indentation get changed to 4 spaces here inst=
-ead
-of standard kernel tabs?
-
-[ ... ]
-> @@ -885,19 +874,19 @@ static void wiimote_init_detect(struct wiimote_data=
- *wdata)
+> @@ -1774,16 +1774,40 @@ static void wiimote_destroy(struct wiimote_data *=
+wdata)
+>  /* Global id allocator for wii remotes */
+>  static DEFINE_IDA(wiimote_ida);
 > =20
->  	wiimote_cmd_acquire_noint(wdata);
-> =20
-> -	spin_lock_irq(&wdata->state.lock);
-> -	wdata->state.devtype =3D WIIMOTE_DEV_UNKNOWN;
-> -	wiimote_cmd_set(wdata, WIIPROTO_REQ_SREQ, 0);
-> -	wiiproto_req_status(wdata);
-> -	spin_unlock_irq(&wdata->state.lock);
-> +	scoped_guard(spinlock_irq, &wdata->state.lock) {
-> +		wdata->state.devtype =3D WIIMOTE_DEV_UNKNOWN;
-> +		wiimote_cmd_set(wdata, WIIPROTO_REQ_SREQ, 0);
-> +		wiiproto_req_status(wdata);
-> +	}
+> +#define WIIMOTE_PROBE_HW_STARTED  BIT(0)  // hid_hw_start succeeded
+> +#define WIIMOTE_PROBE_HW_OPENED   BIT(1)  // hid_hw_open succeeded
 > +
-> =20
->  	ret =3D wiimote_cmd_wait_noint(wdata);
->  	if (ret)
->  		goto out_release;
-
-[Severity: Medium]
-Does this mix goto-based cleanup labels with scope-based cleanup?
-
-The cleanup guidelines state that for a given routine, all resources requir=
-ing
-cleanup should be converted to scope-based cleanup, or none of them should =
-be.
-
-This function (as well as wiimote_init_check() and wiimote_modules_load())
-still uses goto-based cleanup like goto out_release; and goto error;
-combined with the new scoped_guard() declarations.
-
-[ ... ]
-> @@ -1120,16 +1108,15 @@ static void wiimote_init_hotplug(struct wiimote_d=
-ata *wdata)
-> =20
->  	wiimote_cmd_acquire_noint(wdata);
-> =20
-> -	spin_lock_irq(&wdata->state.lock);
-> -
-> -	/* get state snapshot that we will then work on */
-> -	flags =3D wdata->state.flags;
-> +	scoped_guard(spinlock_irq, &wdata->state.lock) {
-> =20
-> -	/* disable event forwarding temporarily */
-> -	wdata->state.flags &=3D ~WIIPROTO_FLAG_EXT_ACTIVE;
-> -	wdata->state.flags &=3D ~WIIPROTO_FLAG_MP_ACTIVE;
-> +	    /* get state snapshot that we will then work on */
-> +	    flags =3D wdata->state.flags;
-
-[Severity: Low]
-this isn't a bug, but it looks like the contents of this scoped_guard block=
-=20
-are also indented with 4 spaces instead of a tab.
-
-[ ... ]
-> @@ -1774,14 +1749,11 @@ static struct wiimote_data *wiimote_create(struct=
- hid_device *hdev)
-> =20
->  static void wiimote_destroy(struct wiimote_data *wdata)
->  {
-> -	unsigned long flags;
-> -
->  	wiidebug_deinit(wdata);
-> =20
->  	/* prevent init_worker from being scheduled again */
-> -	spin_lock_irqsave(&wdata->state.lock, flags);
-> -	wdata->state.flags |=3D WIIPROTO_FLAG_EXITING;
-> -	spin_unlock_irqrestore(&wdata->state.lock, flags);
-> +	scoped_guard(spinlock_irqsave, &wdata->state.lock)
-> +		wdata->state.flags |=3D WIIPROTO_FLAG_EXITING;
-> =20
->  	cancel_work_sync(&wdata->init_worker);
->  	timer_shutdown_sync(&wdata->timer);
+> +static void __wiimote_probe_cleanup(struct wiimote_data *wdata)
+> +{
+> +	if (!wdata)
+> +		return;
+> +
+> +	if (wdata->player_id)
+> +		ida_free(&wiimote_ida, wdata->player_id);
+> +
+> +	// safe, debugfs checks IS_ERR_OR_NULL
+> +	wiidebug_deinit(wdata);
+> +	// safe, checks dev for NULL
+> +	device_remove_file(&wdata->hdev->dev, &dev_attr_devtype);
+> +	device_remove_file(&wdata->hdev->dev, &dev_attr_extension);
+> +	if (wdata->probe_state & WIIMOTE_PROBE_HW_OPENED)
+> +		hid_hw_close(wdata->hdev);
+> +	if (wdata->probe_state & WIIMOTE_PROBE_HW_STARTED)
+> +		hid_hw_stop(wdata->hdev);
+> +	kfree(wdata);
+> +}
 
 [Severity: High]
-This isn't a bug introduced by this patch, but does the teardown sequence
-in wiimote_destroy() have a use-after-free race condition?
+Does this new cleanup function safely handle asynchronous teardown?
 
-Looking at the rest of wiimote_destroy(), cancel_work_sync(&wdata->queue.wo=
-rker)
-is called before hid_hw_stop(wdata->hdev). If a HID interrupt arrives
-immediately after the worker is cancelled:
+In the original code, failures later in the probe function would route to
+the err_free label which called wiimote_destroy(). That function cleanly
+cancelled wdata->init_worker and unloaded any registered modules.
 
-HID core calls wiimote_hid_event() ->
-    handler_status_K() ->
-    wiiproto_req_drm() ->
-    wiimote_queue()
+If a hardware event occurs during probe:
 
-wiimote_queue() then calls schedule_work(&wdata->queue.worker) without
-checking if the device is exiting.
+wiimote_hid_event()
+   queues wdata->init_worker
 
-Since hid_hw_stop() hasn't been called yet, the new worker is queued. After
-hid_hw_stop() and kfree(wdata) complete, the queued worker can execute and
-dereference the freed wdata.
+And then an allocation fails (e.g. in wiidebug_init or ida_alloc_min):
+
+__wiimote_probe_cleanup()
+   hid_hw_stop(wdata->hdev)
+   kfree(wdata)
+
+Will the queued worker execute after wdata has been freed?
+
+[ ... ]
+
+> @@ -1792,68 +1816,54 @@ static int wiimote_hid_probe(struct hid_device *h=
+dev,
+>  	ret =3D wiidebug_init(wdata);
+>  	if (ret)
+> -		goto err_free;
+> +		return ret;
+> =20
+> -	player_id =3D ida_alloc_min(&wiimote_ida, 1, GFP_KERNEL);
+> +	int player_id =3D ida_alloc_min(&wiimote_ida, 1, GFP_KERNEL);
+>  	if (player_id < 1) {
+>  		hid_err(hdev, "cannot allocate controller id\n");
+>  		ret =3D player_id;
+> -		goto err_free;
+> +		return ret;
+>  	}
+> -
+>  	wdata->player_id =3D player_id;
+
+[Severity: Medium]
+Could this assignment result in truncation if the allocated ID is larger
+than 255?
+
+ida_alloc_min() returns an int, but wdata->player_id is defined as a __u8.
+If an ID exceeds 255, the truncation could result in 0.
+
+If player_id becomes 0, could it cause an out-of-bounds read later?
+Looking at wiimote_modules_load():
+
+wiiproto_req_leds(wdata, player_leds[(wdata->player_id - 1) % 4]);
+
+This might evaluate to player_leds[-1].
+
+Additionally, truncation could lead to multiple devices sharing the same
+truncated ID, which might cause IDA double frees when devices are removed.
+
+[ ... ]
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260715212501.3920=
-033-1-rafael@rcpassos.me?part=3D2
+033-1-rafael@rcpassos.me?part=3D3

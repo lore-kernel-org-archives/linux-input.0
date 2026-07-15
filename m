@@ -1,181 +1,137 @@
-Received: from fhigh-b7-smtp.messagingengine.com (fhigh-b7-smtp.messagingengine.com [202.12.124.158])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4567C379EE2;
-	Wed, 15 Jul 2026 01:22:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.158
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 308061714AA
+	for <linux-input@vger.kernel.org>; Wed, 15 Jul 2026 01:32:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784078567; cv=none; b=lxTj/ijgLxk4p8C9JkiZFiDo95JfBFE3+b5ljKUaeDa5Dynq2IHMkTxsFgnu9mUU6BlXvpOS+BnYWiMU8g0iKzY1DWQ/Q2cdON64NJEt7nKpxOburONqIScpLhl8vqHP6LEfA+Cui3jPGi+wm5vyi9NfUhduMfDSKALWClI6V3o=
+	t=1784079148; cv=none; b=dQ57rPuGrJO+d0c/mAIirnj0381vRlvHQijIZBSAEet8F3z+LxdCE+imhTkxp1soKQh+CcxBfAz1sc40/1oB8ytsiC8kkNk1YjPB51WFvY5Ke/HX0jwi2/xaP6lUUVD011EGOl96y1K/pRaNpPFBx9ngUMVyFAJ4EM5ZhQCjlOI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784078567; c=relaxed/simple;
-	bh=UkjDLG4XGjeBZA6yNdI13VlXhjqfFVoKD3WwStCIwwE=;
-	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition; b=i6W5ELVngfelxIbNcECemSeun6XgMUyaj4lOy5riNhAhcf+Rq9cKCzUfYvjhR2qExvlZxxdhpOKDnSCc/p6VcraSNgWL3MIdBybI5bmSlsIBD5LEUs+HAVKJ3GxHFCEejVyouYSIohJhP1DAqbeQhEIDk9gJx3P/BLxIl8+ujf4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=fastmail.org; spf=pass smtp.mailfrom=fastmail.org; dkim=pass (2048-bit key) header.d=fastmail.org header.i=@fastmail.org header.b=pUTkNY3a; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=OOGxqJGo; arc=none smtp.client-ip=202.12.124.158
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=fastmail.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=fastmail.org
+	s=arc-20240116; t=1784079148; c=relaxed/simple;
+	bh=kNUJA9yU24C6BICRxkMGUN0cOn7VIVY4OodFppLhL8w=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=c7OkPAQlQtj9j/89pB8AzZ22PDTqbtteYZenVTMu4OMVRjaAqVotl+vgMsqiULj3mWUfCdeUlZ+WslRf/rU9stubm3+sh2Dl/h/wz1MI7hTqHTO/+tOdBd5XIzffZhn9/rlgc3iks1jmDAyujmQhy96wtZJWn7VTk6aYQMyWbto=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=jHyRJRPq; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=fastmail.org header.i=@fastmail.org header.b="pUTkNY3a";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="OOGxqJGo"
-Received: from phl-compute-05.internal (phl-compute-05.internal [10.202.2.45])
-	by mailfhigh.stl.internal (Postfix) with ESMTP id 786C27A01AB;
-	Tue, 14 Jul 2026 21:22:44 -0400 (EDT)
-Received: from phl-frontend-04 ([10.202.2.163])
-  by phl-compute-05.internal (MEProxy); Tue, 14 Jul 2026 21:22:44 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=fastmail.org; h=
-	cc:cc:content-type:content-type:date:date:from:from:in-reply-to
-	:message-id:mime-version:reply-to:subject:subject:to:to; s=fm2;
-	 t=1784078564; x=1784164964; bh=qCwUqP5E/Tizzg6FQrFskv3X65mohBjV
-	Tw6dw1aOwZY=; b=pUTkNY3ajKGQyJpihivMDZhqUfHQCbLmeZcITCFKcbiL3jZ9
-	leAyaCr7HY39TJB481kA+fxMmotOb/WNmOwbXiyCWCJ7Bb06PvGPbx7sl1LGWRB1
-	ezyCp287yuGRGq1O25Fa6WDP1yL98O5Rm3eV45efpTO+K5KZApz7ESR0/e9bpuYo
-	F7Il2RELlXAuLBBJVEdbymLwDLtAJBrJ/Krfyd8URXKbjNEkk2rBreMnYX8mGZVY
-	oJsBezshaLZiYKfAdsAVP9F6PzSSEsrowhw3vivsoCx5IuoX3r64sScBUIEenvOA
-	v5pvep22dX9F91zxIRVewiMWZnLhqZJYUHSNug==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-type:content-type:date:date
-	:feedback-id:feedback-id:from:from:in-reply-to:message-id
-	:mime-version:reply-to:subject:subject:to:to:x-me-proxy
-	:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; t=1784078564; x=
-	1784164964; bh=qCwUqP5E/Tizzg6FQrFskv3X65mohBjVTw6dw1aOwZY=; b=O
-	OGxqJGoU5+GfOHXn7wg6pJF/gapxFLFAbqWA5z99E+RTqrPa3hRjSOgsH8x/7wVt
-	39nLDf4a8b6NorMgTcrLA8rw6eU2q0nkzC8NWZ837qnm9Jl6MRVvrW0p1vWAZuGN
-	5orXGPumG9qM3jWmQbyurXgF0Vrp61EiMrLaa3FsrKkiJwdAahhcjqTkIYHrduuX
-	IffZN3kPJhM9U71Hzlg7jYI7JZDCtcgOhSBwRazjKg2Pal9w5HE9zMC5FKXZUDsF
-	TNcqea4Y1UojPz0ypTqX6N6l42RhDB8tjlJEEb8ppaikWW7qn08sv77nU7liqzVN
-	Mj3KmmeiPK8xuiIC3zMsw==
-X-ME-Sender: <xms:5OBWarhBVuzqT5pxhw1gAErmAhhe1QaN24t0n58pWFAydvtxBKG9MA>
-    <xme:5OBWajeZ-5M6DFKHYyh_FBOAuWez50vOEuKiWWKy9iiwA4Op8Am62p7i73RSOxkE8
-    cuA-hH1uhmEtIOK6D5o9GGgYqhv_aVAnIqE4vEyGyv6hsoJCYHeTw8>
-X-ME-Received: <xmr:5OBWaum5ZobflZIh8p3QKiBFUKpYHPFALEqNNmfFtY2pomQGJgPhNY3UvDY>
-X-ME-Proxy-Cause: dmFkZTFI/LtI7W6f1lF3OsQjfGRe8wa4mOKzgAHolKjPZkt7o4Av2dlAxiIpLI9nmoQecn
-    0yLqQjeyLynHQ3vJHBmucmp4kn4WBfm+YfvkJLpc+c1ToRFq615QBAfbwCjH7Rnkfk2Hdr
-    RkyMxDiEt75HUg+mZMEcvVmm8ktvzBtNjqdP6UhTer0AogpEmahMLXV7qbjGtmOKesBAtp
-    ww6BrrM2wQ+I2tGn+ClIV3dfLLqQPKPF4LdrvS25XekfNCiZNo1P9pDzHZkPbjBZrgAxUq
-    iRJ6trIA/m2yM570qkIFDRoMHaXprbIZBI+L1pEpiylYRqxClwyrS8ws2lUzr7uEW+Wtez
-    gl38TXKad3hE+5TkirLFG5jkfMO6BwBH8KcrMiyOYO9MKjCAbChueBP3ocyjCzHqYAvNel
-    vtTT3/r9wGZ2ZU+gYQ1a264RKTTOsplGhER/Ytb3zj4UOINycGaPoYUCN1th8A0p261jo7
-    TfXGotlcw3VGkIqIN+F9k6sa2O9HPxYlVnGb7LdPUpHyVx6rdHUFmm5jpszbLGrccMC+Fg
-    92c42hynXLo2ayZP6Wch23iM7Qg1uonl2GTFp4Z6n7ULwDbG+6SX23okO3S5c8XpXjydsD
-    +f/cPNXbj9HVQBtHWxvRVJLcLvB2NoKwD3oaqAJzmwrcEMM4Oa/BY9sjEUug
-X-ME-Proxy: <xmx:5OBWastkvRBgD8-anL1oL6EqxPM6XhM8P6v8n_hXPE2lOcPohMLXmA>
-    <xmx:5OBWak_faOF8-kUY3k_eVrRouhR80FXlcjzEYAsX-O8hQI-0MMly1A>
-    <xmx:5OBWauM4vRbOtsClrCVeV0AmIQrmfjJxNWush-us48QMADTj4-U63g>
-    <xmx:5OBWaqHnBjBF4jm56dRUn85_xEgps4gh2IhDttoPkpfsBP8tPAhuvQ>
-    <xmx:5OBWamyDNjhmYdQNMjFNWVOUj2zTQUtskMLGZbXAMHbKJgbjhqAeUQY_>
-Feedback-ID: ib53e4b78:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Tue,
- 14 Jul 2026 21:22:43 -0400 (EDT)
-Date: Tue, 14 Jul 2026 20:22:41 -0500
-From: Ian Bridges <icb@fastmail.org>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-hardening@vger.kernel.org
-Subject: [PATCH] Input: wacom_w8001 - replace strlcat() with a strscpy()
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="jHyRJRPq"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 88B981F000E9;
+	Wed, 15 Jul 2026 01:32:26 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1784079146;
+	bh=IefNoxcIkD7QQetksk2w9DWwP1VMwNlw0mk3pDpbMTE=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=jHyRJRPqHBInR4vMnLPA53O5be9jsvN5+zK7yzsS1sq+yUe2sLcPiqdhX1QS8D7j5
+	 ujexNPbM480LnC0NRZ5KZowKHEos0ao4zLFXEyOd56rrtiYxEzTnMedXAJsfWEeZJS
+	 AiW/wRLwvQVhkxNqpBz3WZx6ZIbt0rm9LLo/IrE28pvCowzt+z63hpP/2DdskfnqhM
+	 USg77eKemGWCQGk44g0u5whEIGOxssq+VMHoyglNWHshhdim6Eg0PeGVP70rTEdGYB
+	 EIblC6fTYnPtb/Ku2DcydsS65HM5sqU2iPr0wysU4WA8RE5H6jlBY7OrTQzQ8l5QlZ
+	 dxzjUVdvx+SHQ==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH] Input: wacom_w8001 - replace strlcat() with a strscpy()
  helper
-Message-ID: <albg4Rv7QxvLJD05@dev>
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Ian Bridges" <icb@fastmail.org>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <albg4Rv7QxvLJD05@dev>
+References: <albg4Rv7QxvLJD05@dev>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Wed, 15 Jul 2026 01:32:26 +0000
+Message-Id: <20260715013226.88B981F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 
-In preparation for removing the strlcat() API[1], replace its five
-uses with a small append helper built on strnlen() and strscpy().
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
 
-The five calls append device name fragments to a basename buffer
-that grows in place across the setup functions. The helper takes
-the same arguments as strlcat() and writes the same bytes, including
-when a fragment is truncated.
+Pre-existing issues:
+- [High] Calling `input_free_device()` on a successfully registered device =
+after `input_unregister_device()` in the error path leads to a Use-After-Fr=
+ee / Double Free vulnerability.
+--
+
+--- Patch [1]: [PATCH] Input: wacom_w8001 - replace strlcat() with a strscp=
+y() helper ---
+commit e4f21712f81562322908d563a501b6a8bead0360
+Author: Ian Bridges <icb@fastmail.org>
+
+Input: wacom_w8001 - replace strlcat() with a strscpy() helper
+
+This commit replaces five uses of strlcat() with a custom strscpy()-based
+helper, w8001_append_suffix(). This prepares for the eventual removal of
+the strlcat() API.
 
 Link: https://github.com/KSPP/linux/issues/370 [1]
-Signed-off-by: Ian Bridges <icb@fastmail.org>
----
-The produced device names are unchanged.
 
-A seq_buf conversion was considered instead of the helper and set
-aside for two reasons. seq_buf_puts() drops a whole fragment when it
-does not fit, while strlcat() writes the partial fragment, so the
-produced bytes would change at the truncation boundary. The setup
-functions would also change signature to take a struct seq_buf
-pointer. A v2 can adopt seq_buf if that tradeoff is preferred.
+> diff --git a/drivers/input/touchscreen/wacom_w8001.c b/drivers/input/touc=
+hscreen/wacom_w8001.c
+> index 45930d7318733..d8d1cdc3f09e3 100644
+> --- a/drivers/input/touchscreen/wacom_w8001.c
+> +++ b/drivers/input/touchscreen/wacom_w8001.c
 
-The patch was tested as follows.
+[ ... ]
 
-- W=1 build of drivers/input/touchscreen/, zero warnings.
-- A userspace differential harness compiled the old and the new
-  functions side by side. The name buffers were byte identical over
-  their full length, and the return values and id assignments matched
-  in every case.
+> @@ -534,7 +541,7 @@ static int w8001_setup_touch(struct w8001 *w8001, cha=
+r *basename,
+>  		input_abs_set_res(dev, ABS_MT_POSITION_X, touch.panel_res);
+>  		input_abs_set_res(dev, ABS_MT_POSITION_Y, touch.panel_res);
+> =20
+> -		strlcat(basename, " 2FG", basename_sz);
+> +		w8001_append_suffix(basename, " 2FG", basename_sz);
+>  		if (w8001->max_pen_x && w8001->max_pen_y)
+>  			w8001->id =3D 0xE3;
+>  		else
+> @@ -542,7 +549,7 @@ static int w8001_setup_touch(struct w8001 *w8001, cha=
+r *basename,
+>  		break;
+>  	}
+> =20
+> -	strlcat(basename, " Touchscreen", basename_sz);
+> +	w8001_append_suffix(basename, " Touchscreen", basename_sz);
+> =20
+>  	return 0;
+>  }
 
- drivers/input/touchscreen/wacom_w8001.c | 17 ++++++++++++-----
- 1 file changed, 12 insertions(+), 5 deletions(-)
+[Severity: High]
+This isn't a bug introduced by this patch, but calling input_free_device()
+on a successfully registered device after input_unregister_device() in the
+error path of w8001_connect() leads to a double free.
 
-diff --git a/drivers/input/touchscreen/wacom_w8001.c b/drivers/input/touchscreen/wacom_w8001.c
-index 45930d731873..d8d1cdc3f09e 100644
---- a/drivers/input/touchscreen/wacom_w8001.c
-+++ b/drivers/input/touchscreen/wacom_w8001.c
-@@ -417,6 +417,13 @@ static int w8001_detect(struct w8001 *w8001)
- 	return 0;
- }
- 
-+static void w8001_append_suffix(char *dest, const char *suffix, size_t dest_sz)
-+{
-+	size_t used = strnlen(dest, dest_sz);
-+
-+	strscpy(dest + used, suffix, dest_sz - used);
-+}
-+
- static int w8001_setup_pen(struct w8001 *w8001, char *basename,
- 			   size_t basename_sz)
- {
-@@ -453,7 +460,7 @@ static int w8001_setup_pen(struct w8001 *w8001, char *basename,
- 	}
- 
- 	w8001->id = 0x90;
--	strlcat(basename, " Penabled", basename_sz);
-+	w8001_append_suffix(basename, " Penabled", basename_sz);
- 
- 	return 0;
- }
-@@ -503,14 +510,14 @@ static int w8001_setup_touch(struct w8001 *w8001, char *basename,
- 	case 2:
- 		w8001->pktlen = W8001_PKTLEN_TOUCH93;
- 		w8001->id = 0x93;
--		strlcat(basename, " 1FG", basename_sz);
-+		w8001_append_suffix(basename, " 1FG", basename_sz);
- 		break;
- 
- 	case 1:
- 	case 3:
- 	case 4:
- 		w8001->pktlen = W8001_PKTLEN_TOUCH9A;
--		strlcat(basename, " 1FG", basename_sz);
-+		w8001_append_suffix(basename, " 1FG", basename_sz);
- 		w8001->id = 0x9a;
- 		break;
- 
-@@ -534,7 +541,7 @@ static int w8001_setup_touch(struct w8001 *w8001, char *basename,
- 		input_abs_set_res(dev, ABS_MT_POSITION_X, touch.panel_res);
- 		input_abs_set_res(dev, ABS_MT_POSITION_Y, touch.panel_res);
- 
--		strlcat(basename, " 2FG", basename_sz);
-+		w8001_append_suffix(basename, " 2FG", basename_sz);
- 		if (w8001->max_pen_x && w8001->max_pen_y)
- 			w8001->id = 0xE3;
- 		else
-@@ -542,7 +549,7 @@ static int w8001_setup_touch(struct w8001 *w8001, char *basename,
- 		break;
- 	}
- 
--	strlcat(basename, " Touchscreen", basename_sz);
-+	w8001_append_suffix(basename, " Touchscreen", basename_sz);
- 
- 	return 0;
- }
--- 
-2.47.3
+If w8001_connect() successfully registers the pen device but subsequently
+fails to register the touch device, execution jumps to the fail4 label:
 
+drivers/input/touchscreen/wacom_w8001.c:w8001_connect() {
+...
+	if (!err_touch) {
+		...
+		err =3D input_register_device(w8001->touch_dev);
+		if (err)
+			goto fail4;
+...
+fail4:
+	if (w8001->pen_dev)
+		input_unregister_device(w8001->pen_dev);
+fail3:
+	serio_close(serio);
+fail2:
+	serio_set_drvdata(serio, NULL);
+fail1:
+	input_free_device(input_dev_pen);
+	input_free_device(input_dev_touch);
+...
+}
+
+The fail4 block calls input_unregister_device(w8001->pen_dev), which drops
+the device reference. Execution then falls through to the fail1 label, where
+input_free_device(input_dev_pen) is unconditionally called. Because
+input_dev_pen and w8001->pen_dev point to the same device, this results in a
+second free.
+
+Could this error path be updated to avoid the double free?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/albg4Rv7QxvLJD05@de=
+v?part=3D1

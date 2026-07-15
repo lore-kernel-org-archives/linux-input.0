@@ -1,147 +1,105 @@
-Received: from cstnet.cn (smtp81.cstnet.cn [159.226.251.81])
-	(using TLSv1.2 with cipher DHE-RSA-AES256-SHA (256/256 bits))
+Received: from mail-ed1-f45.google.com (mail-ed1-f45.google.com [209.85.208.45])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 85121258EF9;
-	Wed, 15 Jul 2026 14:15:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=159.226.251.81
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E22A335E1A6
+	for <linux-input@vger.kernel.org>; Wed, 15 Jul 2026 14:23:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.45
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784124947; cv=none; b=thRvd0od/dHhYH1Q0q5yzD+2YWvrmwOo+6QqeTEwsU+Qk0mf9+nuAsaDiTvkQkhwH7HJWmq7+92P9iWIcALyv/ppYHV9AAJUREN1UUd/THen0Vxe7i+tqLOqQBIa65q/ajlggyBd32K6Z096K82qSVBdiwH+/BG+rPYdi8qXEIk=
+	t=1784125432; cv=none; b=Fp6aPjTYv4SMDal1cseF6A/h+bGSD0msji2azcEvrIc7uS8CdZ5M3DeOS3TbtrQs9xEE0fXT2xrBVxQwyPhzhRALbFF1EMyxDDMd4YF9CJFo5u5Thpf1HxMIvrnz0IcSB2+9iRTd/sIrtWZf2bCyolTOm/xGG/LVPbhTTBEWido=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784124947; c=relaxed/simple;
-	bh=PENOZ6FphCYgMbjpsrelueN4Zv2luKiJc8peJ0gADA0=;
-	h=From:To:Cc:Subject:Date:Message-ID:Content-Type:MIME-Version; b=S+42N5IC0otw3hrBChplP+6NT2EVrcMS9LSEHsYLxMLXlvRvbpzxNFfIk4WUkHdtUSyQThIx7eVNq0wNHNd9U6x1P9F9lnqeYgBjL5DmITNaH53K/64sFirvIkE/g8PpqDyRqdUzOYECERnFKlv6+WZ5BiXgLyyucZYqbow5Qno=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=iscas.ac.cn; spf=pass smtp.mailfrom=iscas.ac.cn; arc=none smtp.client-ip=159.226.251.81
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=iscas.ac.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=iscas.ac.cn
-Received: from 0005-mcp2221-v2.eml (unknown [111.196.245.140])
-	by APP-03 (Coremail) with SMTP id rQCowABXYkAOlldqSUICAA--.2564S2;
-	Wed, 15 Jul 2026 22:15:42 +0800 (CST)
-From: Pengpeng Hou <pengpeng@iscas.ac.cn>
-To: Rishi Gupta <gupt21@gmail.com>
-Cc: Pengpeng Hou <pengpeng@iscas.ac.cn>, Jiri Kosina <jikos@kernel.org>,
- Benjamin Tissoires <bentiss@kernel.org>, linux-i2c@vger.kernel.org,
- linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH v2] HID: mcp2221: validate raw report length
-Date: Wed, 15 Jul 2026 21:57:50 +0800
-Message-ID: <20260715135916.24417-5-pengpeng@iscas.ac.cn>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+	s=arc-20240116; t=1784125432; c=relaxed/simple;
+	bh=OXRFGV3ZEKm5uHkzNSyrA0yPgKg3XtU9cJdegrnuOko=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=LU97vgDhz+gQgYPHNWAf8/78nWM2zf7X53WivZIcVRThZEXBWHArx2gV1tkbvvezt21Jv51KdtDcMRrLE6EQB0Yp9ooQy9uG0Y9+Btjpg25LFRNpQTz7dwJwwyf1OnQPWyBVbVTv82ViuyOBVvCHz2zsUzRJT38mL41PK2bcwAk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=K7h7iLFx; arc=none smtp.client-ip=209.85.208.45
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="K7h7iLFx"
+Received: by mail-ed1-f45.google.com with SMTP id 4fb4d7f45d1cf-69a50b818c8so9202939a12.2
+        for <linux-input@vger.kernel.org>; Wed, 15 Jul 2026 07:23:49 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1784125428; x=1784730228; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=vcxZytprafatkbtEcF/4Rnu8N7mYkaazUCNyoFvFkKA=;
+        b=K7h7iLFxWL23NgpQRhElT22pkI/EKeeqbM/9+vlJvPqorXegAtsxwzA9nSnjlDAtWH
+         3+aJ0zHG2I38Aj4RX8Jz/HUf0JOyEEgVFLhQgE+akMSeLexN+60QH05TGxTLQr7L+xAP
+         WwxslroKZxYDL+7ygpRihrjXrSsG61dXK2enr7RNUZDee9mlSGN4NRcyBid6R71qGHRN
+         P8gNhJ4JCxcc1NQCdkLj0pW/lrPCJGYpBbCCS+5MQAkYhqfbnNE3wP1F/QgspoMgnvdw
+         il71wr7mDZytyy8qfs/c2sFdthvjn39e5k7hA3EBFIqfJmxzxDnJGqN8dJnfIgkbp8jj
+         seVQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1784125428; x=1784730228;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=vcxZytprafatkbtEcF/4Rnu8N7mYkaazUCNyoFvFkKA=;
+        b=hQhqQGINGbcfFdPDg0A4/0PWDhc0uEDq4AR55k/BR/0jaFr0ELt+tUAJHnD2ciCd7n
+         fCK1gzDEy4M6rE9HVG6OtNACZex0XPwUaFRSZ89VJIs0lC3qgJtJz3E5c+asIjUPVdsQ
+         0N2Qh5eXlVnKPqWFQogLlfjtVu1rf74me45wLJyV18qbI7F3v7QhOZ+1iYe3+3k7i8MI
+         wTUgjz+EXYyrHKX1zdK5zVluIAB6wosC4geC5IQcDCVsXXD9alnGkKN0ZVjxpKrKvByV
+         YC2DyT+9G8zRJFxOvog4E+dq69BWBOjCsILjo1eVqd16N6duILH2/F4fxZxbt12zNIxN
+         LVpg==
+X-Forwarded-Encrypted: i=1; AHgh+RqzyqvN8tu/Ga1PU/NMN/OL/1XdvAJVtE61ykLKnhw7MkpVzDQpQWuf2nSfFIVwos0s1y0E7CVyzFVRJQ==@vger.kernel.org
+X-Gm-Message-State: AOJu0YwV6hs1asP2+MtiFtPxvN9OFFyD1xR+tGwyNx+HgARW9rV8oSLD
+	9kvRfODtbl/nBgYL7xT29dIPQVw5L/5uFRkd0WYjyiCWvx2XfrEVXC4a
+X-Gm-Gg: AfdE7cmuPJzk9FXHGhiNxHsK2rqyaFwKHjsxJVzoF1S4bkZTeTAiLpR427wSdH3XqPh
+	6akL0pP9Vxgw1fBsLm3SOl4Wmu4whQhoVDxseq+/lQ6Y8Fq+MgITo008FMiMwz9PVT+uCRqIpgR
+	SSZAOyXyWSXL6JO+VWw7b13t95jllRsAWHjEmVNMmkEbUotOElZJyM1V3HrpT5oVqWN50NvC2HP
+	Ta6ZAwG6oBHbc15nglVWeNpfdNXcRMLElpyF1RsObWl+vR30gMoi73pGoM04SiQZuq42Z2lhQVv
+	e2Kep5XiYhOWgtzhfbvVjYo8wWYCxre5OZK440g+KW3fKOVG9Ogj75b6gJ0lAVh5IAtvy+V12IA
+	3cRt3SisPEa5i83i+I0sB6A//gay+Ga+Az0UuTggGxPRo2O+dXPhycZ+dzDRcanQopVn2ed848+
+	mwPAs3AYOEu6r9hXOb8Pzv8OyITjYdz66eV5xmRYypOk5KNbg1QXXCgTiyPP4MweX8wB0ITyqXe
+	uls
+X-Received: by 2002:a17:907:f815:b0:c12:2946:ffc4 with SMTP id a640c23a62f3a-c167940e68emr197974766b.40.1784125427700;
+        Wed, 15 Jul 2026 07:23:47 -0700 (PDT)
+Received: from misharu.home (2a02-a463-a071-0-8f3f-3afb-28f6-19c0.fixed6.kpn.net. [2a02:a463:a071:0:8f3f:3afb:28f6:19c0])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c168744bd40sm38743766b.43.2026.07.15.07.23.46
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 15 Jul 2026 07:23:47 -0700 (PDT)
+From: Hari Mishal <harimishal1@gmail.com>
+To: Amit Shah <amit@kernel.org>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Gerd Hoffmann <kraxel@redhat.com>,
+	"Michael S . Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowangio@gmail.com>,
+	David Hildenbrand <david@kernel.org>,
+	Henrik Rydberg <rydberg@bitmath.org>
+Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org,
+	linux-input@vger.kernel.org,
+	Hari Mishal <harimishal1@gmail.com>
+Subject: [PATCH 0/4] virtio: validate device-reported values across drivers
+Date: Wed, 15 Jul 2026 16:22:39 +0200
+Message-ID: <20260715142337.22811-1-harimishal1@gmail.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-CM-TRANSID:rQCowABXYkAOlldqSUICAA--.2564S2
-X-Coremail-Antispam: 1UD129KBjvJXoWxZF4kZrWUArW5WF15Cw4fGrg_yoW5CrWxpF
-	ZFg3909ryUtw1FgryDCa1DC3WYqF1IyasrGFWxGa4UW3Z8JF1YyFyFgFyvqr48WFykAr1x
-	Xan5Krs8uFyqk3DanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDU0xBIdaVrnRJUUUkv14x267AKxVW8JVW5JwAFc2x0x2IEx4CE42xK8VAvwI8IcIk0
-	rVWrJVCq3wAFIxvE14AKwVWUJVWUGwA2ocxC64kIII0Yj41l84x0c7CEw4AK67xGY2AK02
-	1l84ACjcxK6xIIjxv20xvE14v26r4j6ryUM28EF7xvwVC0I7IYx2IY6xkF7I0E14v26r4j
-	6F4UM28EF7xvwVC2z280aVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv6xkF7I0E14v26rxl6s
-	0DM2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xII
-	jxv20xvE14v26r126r1DMcIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x0Yz7v_Jr0_Gr
-	1lF7xvr2IY64vIr41lF7I21c0EjII2zVCS5cI20VAGYxC7MxkF7I0En4kS14v26r126r1D
-	MxAIw28IcxkI7VAKI48JMxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8CrVAFwI0_Jr
-	0_Jr4lx2IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVWUAVWUtwCIc40Y0x0E
-	wIxGrwCI42IY6xIIjxv20xvE14v26r1j6r1xMIIF0xvE2Ix0cI8IcVCY1x0267AKxVW8JV
-	WxJwCI42IY6xAIw20EY4v20xvaj40_Jr0_JF4lIxAIcVC2z280aVAFwI0_Gr0_Cr1lIxAI
-	cVC2z280aVCY1x0267AKxVW8Jr0_Cr1UYxBIdaVFxhVjvjDU0xZFpf9x0JUmjgxUUUUU=
-X-CM-SenderInfo: pshqw1xhqjqxpvfd2hldfou0/
+Content-Transfer-Encoding: 8bit
 
-The MCP2221A data sheet specifies 64-byte HID command and response
-reports. mcp2221_raw_event() reads fixed response fields up to byte 55
-and can copy a 60-byte I2C payload from byte 4 through byte 63 without
-first checking the received size.
+These four patches harden virtio-mem, virtio_input, and virtio_console 
+against untrusted values coming from the device/backend side of the virtio
+interface. The fourth fixes a use-after-free in virtio_console caused by a
+missing refcount.
 
-HID invokes raw_event() before generic report validation. A short report
-can therefore be interpreted beyond its received length. Reject reports
-shorter than the fixed protocol size before reading any response fields.
+Hari Mishal (4):
+  virtio-mem: validate device-reported block size
+  virtio_input: validate device-reported multitouch slot count
+  virtio_console: avoid NULL portdev dereference in in_intr()
+  virtio_console: take a kref in find_port_by_vq() to fix port UAF
 
-Complete the pending command with -EINVAL for a truncated report so that
-a malformed response does not turn into an unrelated timeout.
+ drivers/char/virtio_console.c | 18 +++++++++++++++++-
+ drivers/virtio/virtio_input.c |  4 ++++
+ drivers/virtio/virtio_mem.c   |  7 +++++++
+ 3 files changed, 28 insertions(+), 1 deletion(-)
 
-Fixes: 67a95c21463d ("HID: mcp2221: add usb to i2c-smbus host bridge")
-Signed-off-by: Pengpeng Hou <pengpeng@iscas.ac.cn>
----
-Changes since v1: https://lore.kernel.org/all/20260715083754.31210-1-pengpeng@iscas.ac.cn/
-- validate the fixed 64-byte protocol size instead of the
-  descriptor-derived report length
-- use a named report-size constant and remove matching magic lengths
----
- drivers/hid/hid-mcp2221.c | 19 +++++++++++++------
- 1 file changed, 13 insertions(+), 6 deletions(-)
-
-diff --git a/drivers/hid/hid-mcp2221.c b/drivers/hid/hid-mcp2221.c
-index e4ddd8e..c910f66 100644
---- a/drivers/hid/hid-mcp2221.c
-+++ b/drivers/hid/hid-mcp2221.c
-@@ -90,7 +90,8 @@ enum {
- 	MCP2221_DIR_IN = 0x01,
- };
- 
--#define MCP_NGPIO	4
-+#define MCP2221_REPORT_SIZE	64
-+#define MCP_NGPIO		4
- 
- /* MCP GPIO set command layout */
- struct mcp_set_gpio {
-@@ -126,7 +127,7 @@ struct mcp2221 {
- 	struct completion wait_in_report;
- 	struct delayed_work init_work;
- 	u8 *rxbuf;
--	u8 txbuf[64];
-+	u8 txbuf[MCP2221_REPORT_SIZE];
- 	int rxbuf_idx;
- 	int rxbuf_size;
- 	int status;
-@@ -639,11 +640,11 @@ static int mcp_gpio_read_sram(struct mcp2221 *mcp)
- {
- 	int ret;
- 
--	memset(mcp->txbuf, 0, 64);
-+	memset(mcp->txbuf, 0, sizeof(mcp->txbuf));
- 	mcp->txbuf[0] = MCP2221_GET_SRAM_SETTINGS;
- 
- 	mutex_lock(&mcp->lock);
--	ret = mcp_send_data_req_status(mcp, mcp->txbuf, 64);
-+	ret = mcp_send_data_req_status(mcp, mcp->txbuf, sizeof(mcp->txbuf));
- 	mutex_unlock(&mcp->lock);
- 
- 	return ret;
-@@ -682,7 +683,7 @@ static int mcp2221_check_gpio_pinfunc(struct mcp2221 *mcp)
- 	 * Set all bytes to 0, so Bit 7 is not set. The chip
- 	 * only changes content of a register when bit 7 is set.
- 	 */
--	memset(mcp->txbuf, 0, 64);
-+	memset(mcp->txbuf, 0, sizeof(mcp->txbuf));
- 	mcp->txbuf[0] = MCP2221_SET_SRAM_SETTINGS;
- 
- 	/*
-@@ -703,7 +704,7 @@ static int mcp2221_check_gpio_pinfunc(struct mcp2221 *mcp)
- 	}
- 
- 	mutex_lock(&mcp->lock);
--	ret = mcp_send_data_req_status(mcp, mcp->txbuf, 64);
-+	ret = mcp_send_data_req_status(mcp, mcp->txbuf, sizeof(mcp->txbuf));
- 	mutex_unlock(&mcp->lock);
- 
- 	return ret;
-@@ -861,6 +862,12 @@ static int mcp2221_raw_event(struct hid_device *hdev,
- 	u8 *buf;
- 	struct mcp2221 *mcp = hid_get_drvdata(hdev);
- 
-+	if (size < MCP2221_REPORT_SIZE) {
-+		mcp->status = -EINVAL;
-+		complete(&mcp->wait_in_report);
-+		return 1;
-+	}
-+
- 	switch (data[0]) {
- 
- 	case MCP2221_I2C_WR_DATA:
 -- 
-2.50.1 (Apple Git-155)
-
+2.43.0
 

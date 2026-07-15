@@ -1,114 +1,144 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9C0B9386425
-	for <linux-input@vger.kernel.org>; Wed, 15 Jul 2026 14:43:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 76A88392811
+	for <linux-input@vger.kernel.org>; Wed, 15 Jul 2026 15:50:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784126605; cv=none; b=nxAt+PlOUUjQAJzluit1QnNkbQrXMmz/t8aTlq8vyJ9iRpZI0j9MJD58FWhOWNv81kqgxlHIW39sYFae7OE8WePJWno3bdmj5isShrfXoJAqIorBazsbOPnuhX8wgnb289nQL7/4F5TOulRhlGU6DetOGjs3Nn97IQ/eJHQki78=
+	t=1784130649; cv=none; b=GRfwtEoaXLft0r5Zxz3WAd0wLBIRLbxBfK+3PHXUykZy4TNYnn3aw+c43KT3wD/ZanYHrhfZIJ/B8YcJSXY5hEe1CFLoj0timKW6WGaP9RMBGYydfux8xS/EHaVNVVTJp/nBUEE/GSLVUiRfBIAeDNwvvhk4zoEVcnFw7m/ftNU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784126605; c=relaxed/simple;
-	bh=UvGGIk/UGr4pN7/Kv2iQ2hZy6SI9WF7VLpq1PBO05H0=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=lRr8P4NxyFJkeTiId3+ohZylM+jG/tNOImxfHg+iH+Pq4wK0Pa67EyuA8jydri0jIY/YMk03AtNNWjU3Vw1LXFtQOKqmqfEujtAo1yZZsfKeF+2i4cx4/R/LTZxHCD++FlFmmhYmRvuJjzeyZvf10+goANwqGXRDGzSXA2Eq0pE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=RO+1CODi; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1784130649; c=relaxed/simple;
+	bh=LHK/h0jlYYgt64s5qvS++l4vkfvf6EbWr3VKP/sRdxA=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=BIp41JozlzNUt8I6QSzueesV0e77n0ohf3Jxq33MVyao9d95x/XzJWDPmuPMEjDx8bq+x/vys+lVg4Nrhw447Be8VOqfhWIovA5NslTqwcvg8ga/Dtxry3ybzaMxqI8nKrPLMHVznmyRpZstLwv2sTifjcllmSyUAJUKUij1Oi8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=JX3D3Zxi; dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b=c3l6OYNG; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="RO+1CODi"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 579151F000E9;
-	Wed, 15 Jul 2026 14:43:24 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784126604;
-	bh=QEeLooKSi3ulZvoqhj/J40JlA/Qx+MKutPJzMRc8BB8=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=RO+1CODi6OA7sB+U25K4KJPTFjZxsC37sQ7vI/EUUjI3JhFXXJCJQa9VZMGkxlnwi
-	 ie+XPGtnxWpxEWI0yu8uudneScoBhpCImxZIeSJ43bsvwQpXHwUTmkNXHAEtlc/2eX
-	 BzrEWIuyn1GBAZ5JbERQNWUH49kMdhsjo60vPD+zkMk11ZAY8nApnzRgFLsMFi/1Vg
-	 FS8pWqVI/2KBDB/fbRuz99+11WeBNKuY8LClg9BeItmXxNgcsD936ghWCqpRXTDwdV
-	 WMtwYqc2ELFEIFK5kHkawqgle650pECmw6oJDj5ZCiUPCmFT6TirR1feAi1cW4IYPT
-	 7zbGYCWxETysw==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 1/4] virtio-mem: validate device-reported block size
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Hari Mishal" <harimishal1@gmail.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260715142337.22811-2-harimishal1@gmail.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="JX3D3Zxi";
+	dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b="c3l6OYNG"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1784130647;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=mni4VjY2tUXuoqxcvmSaYl6Cq9LKNjDkA1J/Ott64Og=;
+	b=JX3D3Zxier56aR/NKlZRE989MhizMfVvvRSCCin16hPbdN8Ejoa0I4o96VCMT+MMPYc/hV
+	J/AT5f1rCavISg9RoHOv2eDB0EYSP1KnSp3YxvzueATapVe/48Rg2pkn9a3aCDfj9Okrtp
+	RAalXuknDKby9jwkgc098+/vr0hEmCw=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-58-pchUxeKkNMqdYqij0V2RBA-1; Wed, 15 Jul 2026 11:50:46 -0400
+X-MC-Unique: pchUxeKkNMqdYqij0V2RBA-1
+X-Mimecast-MFC-AGG-ID: pchUxeKkNMqdYqij0V2RBA_1784130645
+Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-46fb9079a04so2885157f8f.3
+        for <linux-input@vger.kernel.org>; Wed, 15 Jul 2026 08:50:46 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=redhat.com; s=google; t=1784130645; x=1784735445; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=mni4VjY2tUXuoqxcvmSaYl6Cq9LKNjDkA1J/Ott64Og=;
+        b=c3l6OYNG4qRXIs8Uc1MSLVkJDFLQGgl7h2QUnWLmrtHRIhrXdK0lf6k6GGmeoK8WRj
+         pMHyZCwbZvWR42DJGqi+Di3L+M22JWLf0ZcgZO7wCwFyOkXzjQmsvvBEdibv5uNkyHBA
+         GUtGzuBrwl3D83/vTVzhB1cYmdLmTwT9B0jjk8s+90OQpT5W58xl8pZoteVlIH4LbtIu
+         vR6dCYnMP9fJKXRcIJ/zMR+6Ms6/TBtwXlj4nySq/7PIjf4SmgMszbtGb3KX8+ts/Eav
+         qZPbV97WEOlBIzvNsIEogrtX0h/67Fn4NTQW8Kafyps+i3CsXaKldqgarXHBA4Ht6S7K
+         3xpg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1784130645; x=1784735445;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=mni4VjY2tUXuoqxcvmSaYl6Cq9LKNjDkA1J/Ott64Og=;
+        b=rktpI5Do3Cv6eUas6CIRVo+R0E9VB/qwvEns57CcM2jlrsWVMVzfP+GsIn/Ge5GKos
+         L48pQC9NWJ8GyOj542Btw/T8Y6vW0j0lvi8XNE3WX7qfMZEinuBZ9F0tBgH0025PeWXy
+         e3VUtCHyLyGC3/wtm0lS8AQ0yrFjaGdhpd4zBvG59zgiwUwLAaKy8LygBvm4iFmnHU4Z
+         SBrPbn8pnKKKX8xENaKKYdt+8A5Y9Uai+YZRyIDQ4MRpiuWRRjF6YZW0EGdU/UDx2po3
+         3QUA7btigSyRyXRk9fihHxnfGLwdyRwHyvGnqYur8eBkkovqym7fI7kT9NfNB9QkhJYY
+         rOvA==
+X-Forwarded-Encrypted: i=1; AHgh+RriSjj+vdP0LsKd1bnYmu6yWg/z30yjMUc1ni6h/Hzrv0gCU6qXPeM59G9lDaetc3izv/GTlzpB7lxn8Q==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yx2pEwaSAJirU/ahMs6M5mecJC7PA/Iszl0n4cQM70qeB3IXjRb
+	tJxAv1HIvkD8wQNBJsTjfoDW7KoubF6kM++uNl5saH93dZW4chHjZhHPz8A6IRyN7iHaKN34zRf
+	2M7qHkU3mAjBtcauB/gM4aysJ3zRAzM8XsliE6TGDXbtcMJv/OV0e8myNSmzeOoSX
+X-Gm-Gg: AfdE7clkRmvQUBkD6R88nZCkhcLCZAwVsogDb4jjQRridSoLI5WkDyuivyaVH3ddKUA
+	W7mW7HTKVacgOa36CJ1wg819cuBr1bZk6fhOLmKbULLilr/Co+XgL9sxFgWUjgUgvz31o3b94xU
+	HFh1DfFnlBpm9tsopD7bHUBf3+uyFjjpp+oArYoIhm1VsS/v7QgjOOVAXvECDenfntMYGnjZo74
+	gd94M8V7GHHE/90Romg6rtHYsYsaE+PiAIuhA42AQ494GEISsOZ5QphqCbNxMU5iSdc8xcEyOMR
+	FMJxvg4ICIElPg3uPDMFf8PtcPPULlFydvn5qUVKLgmCAnV5vKZH/MJGaAGb2gPt1tlnOalDlCS
+	P+ZnJiB+kBq9jRW6QBksYGLfso2W6FQe5QSY=
+X-Received: by 2002:a05:600c:46ce:b0:493:b811:e549 with SMTP id 5b1f17b1804b1-4951830a532mr99082285e9.29.1784130644836;
+        Wed, 15 Jul 2026 08:50:44 -0700 (PDT)
+X-Received: by 2002:a05:600c:46ce:b0:493:b811:e549 with SMTP id 5b1f17b1804b1-4951830a532mr99081795e9.29.1784130644279;
+        Wed, 15 Jul 2026 08:50:44 -0700 (PDT)
+Received: from redhat.com (IGLD-80-230-24-117.inter.net.il. [80.230.24.117])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4950a33a926sm147346705e9.15.2026.07.15.08.50.42
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 15 Jul 2026 08:50:43 -0700 (PDT)
+Date: Wed, 15 Jul 2026 11:50:40 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Hari Mishal <harimishal1@gmail.com>
+Cc: Amit Shah <amit@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Gerd Hoffmann <kraxel@redhat.com>,
+	Jason Wang <jasowangio@gmail.com>,
+	David Hildenbrand <david@kernel.org>,
+	Henrik Rydberg <rydberg@bitmath.org>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
+	linux-input@vger.kernel.org
+Subject: Re: [PATCH 2/4] virtio_input: validate device-reported multitouch
+ slot count
+Message-ID: <20260715115018-mutt-send-email-mst@kernel.org>
 References: <20260715142337.22811-1-harimishal1@gmail.com>
- <20260715142337.22811-2-harimishal1@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Wed, 15 Jul 2026 14:43:23 +0000
-Message-Id: <20260715144324.579151F000E9@smtp.kernel.org>
+ <20260715142337.22811-3-harimishal1@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260715142337.22811-3-harimishal1@gmail.com>
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
+On Wed, Jul 15, 2026 at 04:22:41PM +0200, Hari Mishal wrote:
+> nslots is derived from the ABS_MT_SLOT maximum reported by the
+> virtio device. A device could report a bogus maximum (e.g. -1)
+> making nslots = 0, which input_mt_init_slots() does not reject;
+> it returns success without allocating any slot storage, silently
+> leaving the device registered as multitouch capable with no
+> backing state.
 
-Pre-existing issues:
-- [High] Missing minimum threshold check for `device_block_size` leads to s=
-ilent truncation of `nb_vm_blocks` to 16 bits, causing guest memory corrupt=
-ion.
---
+So let's disable multitouch instead?
 
---- Patch [1]: [PATCH 1/4] virtio-mem: validate device-reported block size =
----
-commit 1886b5144897e316d9afb5456f7874735bcb4c19
-Author: Hari Mishal <harimishal1@gmail.com>
+> Reject non-positive slot counts before calling
+> input_mt_init_slots().
+> 
+> Assisted-by: gkh_clanker:t1000
+> Signed-off-by: Hari Mishal <harimishal1@gmail.com>
+> ---
+>  drivers/virtio/virtio_input.c | 4 ++++
+>  1 file changed, 4 insertions(+)
+> 
+> diff --git a/drivers/virtio/virtio_input.c b/drivers/virtio/virtio_input.c
+> index deec24e8e682..2cc19782cdd3 100644
+> --- a/drivers/virtio/virtio_input.c
+> +++ b/drivers/virtio/virtio_input.c
+> @@ -312,6 +312,10 @@ static int virtinput_probe(struct virtio_device *vdev)
+>  
+>  		if (test_bit(ABS_MT_SLOT, vi->idev->absbit)) {
+>  			nslots = input_abs_get_max(vi->idev, ABS_MT_SLOT) + 1;
+> +			if (nslots <= 0) {
+> +				err = -EINVAL;
+> +				goto err_mt_init_slots;
+> +			}
+>  			err = input_mt_init_slots(vi->idev, nslots, 0);
+>  			if (err)
+>  				goto err_mt_init_slots;
+> -- 
+> 2.43.0
 
-virtio-mem: validate device-reported block size
-
-This commit adds validation to ensure the device-reported block size is
-non-zero and a power of two, preventing division by zero and miscalculated
-alignments.
-
-> diff --git a/drivers/virtio/virtio_mem.c b/drivers/virtio/virtio_mem.c
-> index 11c4415015829..43d12ec7c3230 100644
-> --- a/drivers/virtio/virtio_mem.c
-> +++ b/drivers/virtio/virtio_mem.c
-> @@ -2847,6 +2847,13 @@ static int virtio_mem_init(struct virtio_mem *vm)
->  			&vm->plugged_size);
->  	virtio_cread_le(vm->vdev, struct virtio_mem_config, block_size,
->  			&vm->device_block_size);
-> +	if (!vm->device_block_size ||
-> +	    !is_power_of_2(vm->device_block_size)) {
-> +		dev_err(&vm->vdev->dev,
-> +			"invalid device block size: 0x%llx\n",
-> +			(unsigned long long)vm->device_block_size);
-> +		return -EINVAL;
-> +	}
-
-[Severity: High]
-This is a pre-existing issue, but does this validation also need to enforce
-a minimum threshold for device_block_size?
-
-If a small power-of-two value like 16 or 32 is provided by the device, the
-calculated block count can easily exceed 65535.
-
-For example, a minimum sub-block size of 2MB divided by 16 yields 131,072
-blocks. When this is passed to virtio_mem_send_plug_request(), the value is
-silently truncated to 16 bits:
-
-drivers/virtio/virtio_mem.c:virtio_mem_send_plug_request() {
-    ...
-    .u.plug.nb_blocks =3D cpu_to_virtio16(vm->vdev, nb_vm_blocks),
-    ...
-}
-
-This truncation also happens in virtio_mem_send_unplug_request() and
-virtio_mem_send_state_request() via the .u.unplug.nb_blocks and
-.u.state.nb_blocks assignments.
-
-Could this lead to the host processing a truncated request (e.g., plugging 0
-blocks) while the guest kernel proceeds to add the full memory region,
-causing a crash when the unbacked memory is accessed?
-
->  	virtio_cread_le(vm->vdev, struct virtio_mem_config, node_id,
->  			&node_id);
->  	vm->nid =3D virtio_mem_translate_node_id(vm, node_id);
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260715142337.2281=
-1-1-harimishal1@gmail.com?part=3D1

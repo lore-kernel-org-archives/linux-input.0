@@ -1,211 +1,107 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-oi1-f170.google.com (mail-oi1-f170.google.com [209.85.167.170])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5437C376BF1
-	for <linux-input@vger.kernel.org>; Wed, 15 Jul 2026 03:49:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 893A342BC31
+	for <linux-input@vger.kernel.org>; Wed, 15 Jul 2026 03:56:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.170
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784087360; cv=none; b=sEShI8lQgc5qEVrAbOSkec2PhaGD1p+I/Thg7k+Ji50Qw2f5S1jLMYCYxrL3Vzax3E1lz7seiujdZspkodI92ZE3Wm1ixSysqYaCISbQe1tfU6XaLALORtMyECAWbcv5bD66a9XYfZRVuzjMEdS8BxR8Z1oT5I+P+8L7N5Ib8kw=
+	t=1784087818; cv=none; b=E49vw9KYIgPeDolOvM0NmwFJEaoU+6dq79JwXYQISSO635DOPX9zOVPNLWiv0WZdHJEMCxz+w7CVWvSObz49VZg8Z/qr6RZVHaEWQeYRW0xC46EuZlOYixUwTdlrDrMap/q9uaoaSWr8eyhPRMJqB6faBfs5bNm9aOAz6mgfC3k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784087360; c=relaxed/simple;
-	bh=epTchY540akWnBvVL78bJ9wHWuaQpH0N/9Iu1W5jSos=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=Tu8MHHHqUs5loEUMKSmOZGoUr+Z0Kmfl/7tbO0EEHSSWQ/rcMbv2gtwiTCQAl2xPi/xh99bH+RibO9KGGEyBcCnR17PmnJFgmYdZDjkXNvmG3X+f8UHaBTsKVU/tKfBnaRouCpPx/dy2ANwPMz/KDocsc57Gq8CCZ2wDT+kx/8U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=BF7GC3H2; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1784087818; c=relaxed/simple;
+	bh=esZFnJeecnxv7hYjWEDn+YanZ7oAIfRsbQ+u0ljI4Jg=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=nGEjQT4A+vBz7jHvZRa9CILfbJp+nwzuzCVGePHd9a8D4Lu2Qt6vcJARhhh7o5PLlHDcVco8lChhWXAlVkqB2YzrP3xKaRTWPLhQ0VYUFxvLZ1kt9qR8x8dOVUA9LmK/3jnGDEgLsEYChjgwmW44uqHqkAFG4bzgJotZ3lY3afg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=D3FNQ3Tj; arc=none smtp.client-ip=209.85.167.170
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="BF7GC3H2"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A944F1F000E9;
-	Wed, 15 Jul 2026 03:49:18 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784087358;
-	bh=bFHpfzn6bubwvxsiLF7b2+Fkm1IXr8LYSGno6cnBY3U=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=BF7GC3H2j3FI53Shu8r2BHBHg0sbYCZAdKu2kZWIXXzwoaH/AsqpW7orPYoguRVl8
-	 7s/kI4SGw9lI8yAPsLIUttgn27axeD3eQxV4+NGJR3RKT+496pYLNGzBihO6NrJWcH
-	 0/qAXAVFX0fhp5zuuwgOhEC/MfUQVHz+pQwjWKmF9mYHn+G/bZvrZvMih6lFJGN4uK
-	 EYT7DJjqVoENatyYKvIXuTSbB9ihnHutwTRqPzzs+NBUnR60BLPEbmy6rYLSZNn+dh
-	 F1VWiiiLykpRu+BaChNCG1grZYOome6oPH4dtgGuiTyuhV+jlUIFwFfcOTnQFDLN8J
-	 st6CpssUr1zTw==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v12 1/3] HID: nintendo: Add preliminary Switch 2
- controller driver
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Vicki Pfau" <vi@endrift.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260715033409.3599913-2-vi@endrift.com>
-References: <20260715033409.3599913-1-vi@endrift.com>
- <20260715033409.3599913-2-vi@endrift.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Wed, 15 Jul 2026 03:49:18 +0000
-Message-Id: <20260715034918.A944F1F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="D3FNQ3Tj"
+Received: by mail-oi1-f170.google.com with SMTP id 5614622812f47-4a46a53abc9so1186372b6e.3
+        for <linux-input@vger.kernel.org>; Tue, 14 Jul 2026 20:56:57 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1784087816; x=1784692616; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=f1bZeyniywTft0W36ipmfSXzH7qwrjZcLgWgGMdqV6U=;
+        b=D3FNQ3TjYHy5g8TwMFOoV84tf1ZPM0jrGiO8dLJMQMP7KW/DOAGuK+roPsGCJve2v2
+         aXYurNYO1lBpnEPEL05j2duK1RLE5i6Z/ATU1Kxi0F3k0dNxVJixurAC8DqMC0LNwqe7
+         x94l5GVqTZoNs9D9IatrJ7d60zLPVFMgWyb4R1CYFx13j2HyjqmNVNyGxGFg54OdjjRT
+         3k/bOyQAmj31R0EDMMPahJA31695ryfSripGKuxR4yTuKHhEULBitDBkqU7jMF4AvEG5
+         xWZdonGaRrJjKEPMDAEI12lz57kHU8x0DwJsuf0vptLQAWprqj5y3IU3qWBrAWDfoRAe
+         fYiA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1784087816; x=1784692616;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=f1bZeyniywTft0W36ipmfSXzH7qwrjZcLgWgGMdqV6U=;
+        b=Flqt2a62PfVnitD0niBOO4dkDXanw2u9fBsKS8X18OCrEe6N6UKmyfvu/LAIl2JdTK
+         VFhYk3sNqxyBiV2T9NaXtzO15jPLjq1X3ebp8pi+J3ZE5nnWMysQWxgdlnwUHXMOREI9
+         GukiEYYWN+7j+KmshJNiINZ+B0KQ/LvIV9u4Qdq9UYH5wlbjJheQsUIZIhGFEiqtc9q9
+         3AgWwryXX+GswH7ogJ0Mz+MKm8oy04VxAc/KAaMBarYacVpTe/V/B9BCoNBgpk4Aa4gQ
+         Dav6XTYF9R2+J4qsIny/0Toj1Fh6yXr7zOg+pQnVk2NDZGlrfxkEAsKt8OuFxDrzFF2o
+         +iWg==
+X-Forwarded-Encrypted: i=1; AHgh+RqFy0PpkBlwiSi+WbgSwkMIslxoDz5dJHN4eJ9o/xPZa8u0LtrrN5hxe69s00DlYcwqswOdZM3ytnbq6A==@vger.kernel.org
+X-Gm-Message-State: AOJu0YwUyFaM8Te0hrUljpKgbJU8JJsoHswYbEgIarL/MPJORoGC4Ig9
+	HMqOn8wSYK9Vo6I38zw8GKkrM3paApjSn5PJw/krjTVJeyQsEtvyRHMp
+X-Gm-Gg: AfdE7cmSiXWgrUPKdOX231MyjCu5Oup0UNr8WWG8ltKmpH6KtvsLdxjfdoBrC5DW7U1
+	9mcwxsxNokb+n+ERYqUit+cx5rC7sNzSpPFUmwLrXjCY27/VOCthX4DX5UEan/VP5FS7I81Wbiz
+	ireUUkaXryEfS5NsKtmzTK7Ah1PdtuxYjArQvyg92NI5UgdRM1YJD2PSBOh1UDxpdFAHsrZUAKL
+	en4DwTA3+9S2vk7o37BoprXoIF97bXdLBOlEdJuzGlwkGTl7fdp9KnIftvoGm0Ig6n0fS2veOCu
+	ELvieAUvmNTFMkh3Hkok/HiyeVc+UVAe4IVeJWAM7vtnRcJAVQNxEisaQj6+gZ7ieOOBty/ILb4
+	XS9L169WesnM1crM4N6gk1pMFmeZShOeoZhl+axThWKkdM4JzIRFHyHG+WpQqotnHMaCvg2xVkF
+	3uzr30drQ3sgdD
+X-Received: by 2002:a05:6808:1b8c:b0:49b:dcb8:e2b5 with SMTP id 5614622812f47-4a42ae7f868mr10341782b6e.19.1784087816349;
+        Tue, 14 Jul 2026 20:56:56 -0700 (PDT)
+Received: from desktop ([2806:2f0:9260:f072:92d3:78b1:9863:130a])
+        by smtp.gmail.com with ESMTPSA id 5614622812f47-4a1adca6bedsm15669386b6e.8.2026.07.14.20.56.53
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 14 Jul 2026 20:56:54 -0700 (PDT)
+From: =?UTF-8?q?Jose=20Villase=C3=B1or=20Montfort?= <pepemontfort@gmail.com>
+To: andfed.net@gmail.com
+Cc: dmitry.torokhov@gmail.com,
+	linux-input@vger.kernel.org,
+	=?UTF-8?q?Jose=20Villase=C3=B1or=20Montfort?= <pepemontfort@gmail.com>
+Subject: Re: [PATCH] HID: magicmouse: fix battery reporting for Bluetooth Magic Trackpad USB-C
+Date: Tue, 14 Jul 2026 21:56:01 -0600
+Message-ID: <20260715035601.489009-1-pepemontfort@gmail.com>
+X-Mailer: git-send-email 2.55.0
+In-Reply-To: <20260706175507.47288-1-andfed.net@gmail.com>
+References: <20260706175507.47288-1-andfed.net@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 5 potential issue(=
-s) to consider:
-- [High] Registering managed LED class devices on `&input->dev` creates a c=
-ircular reference that leaks the input device and causes a Use-After-Free o=
-f the controller struct (`ns2`) via sysfs attributes.
-- [High] Sequentially plugging different controllers into the same USB port=
- causes a new controller to erroneously adopt the state structure of the ol=
-d, logically disconnected controller.
-- [High] In `switch2_remove()`, the controller structure `ns2` can be freed=
- before the HID hardware is stopped, leading to a Use-After-Free if a HID e=
-vent arrives during the teardown process.
-- [High] Unconditional call to `ida_free()` with an unallocated ID (`U32_MA=
-X`) when `ida_alloc()` fails, triggering a kernel BUG_ON.
-- [High] A scheduled USB work can access `ns2` after it has been freed duri=
-ng a probe failure.
---
+Hi Andrei,
 
---- Patch [1]: [PATCH v12 1/3] HID: nintendo: Add preliminary Switch 2 cont=
-roller driver ---
-commit 4bbec8b8ea15115506e7b7ed2c3578458f9f8016
-Author: Vicki Pfau <vi@endrift.com>
-Subject: HID: nintendo: Add preliminary Switch 2 controller driver
+Thanks for tackling this -- I hit the same bug on the Magic Trackpad 2
+(USB-C, 004c:0324) over Bluetooth and posted a fix a few days earlier:
 
-This commit introduces preliminary driver support for the Nintendo Switch 2
-controllers. It uses a split driver model, handling HID features in
-hid-nintendo and USB configuration in a new nintendo-switch2-usb driver.
+  [PATCH] HID: input: read battery capacity from its actual report offset
+  https://lore.kernel.org/linux-input/20260702192139.114809-1-pepemontfort@gmail.com/
 
-> diff --git a/drivers/hid/hid-nintendo.c b/drivers/hid/hid-nintendo.c
-> --- a/drivers/hid/hid-nintendo.c
-> +++ b/drivers/hid/hid-nintendo.c
+The two approaches fix the problem in different places:
 
-[ ... ]
+  - Mine fixes the root cause in the generic query path.
+    hidinput_query_battery_capacity() hard-codes buf[1] and ignores the
+    battery field's offset within the report. I store the field offset at
+    setup and read from it, so any device whose state-of-charge byte is
+    not the first field -- like this trackpad, which prefixes it with a
+    status byte -- is parsed correctly, with no per-device quirk.
 
-> +static int switch2_player_led_brightness_set(struct led_classdev *led,
-> +					    enum led_brightness brightness)
-> +{
-> +	struct device *dev =3D led->dev->parent;
-> +	struct input_dev *input =3D to_input_dev(dev);
-> +	struct switch2_controller *ns2 =3D input_get_drvdata(input);
-> +
-> +	if (!ns2)
-> +		return -ENODEV;
-> +
-> +	guard(mutex)(&ns2->lock);
+  - Yours keeps the generic path as-is and routes this specific device
+    around it via HID_BATTERY_QUIRK_AVOID_QUERY plus a probe-time fetch.
 
-[Severity: High]
-Does registering the LED class devices using the input device as the devres
-parent create a circular reference?
+If the generic query is fixed, the AVOID_QUERY quirk shouldn't be needed
+for this device. I'm happy to go with whichever the maintainers prefer;
+if the generic fix is acceptable I'll respin it with a Fixes: tag and a
+stable Cc, as you did. Your note about the connect-time report being
+dropped under driver_input_lock is a good catch either way.
 
-Since devm_led_classdev_register takes a kobject reference to the parent
-device, the devres cleanup for input->dev might never run while the LED
-device exists.
-
-If the device is unplugged, ns2 is freed, but the sysfs nodes remain active.
-Could a subsequent sysfs write to the brightness attribute trigger a
-use-after-free here when fetching and locking ns2?
-
-> +	return switch2_set_leds(ns2);
-> +}
-
-[ ... ]
-
-> +static struct switch2_controller *switch2_get_controller(const char *phy=
-s)
-> +{
-> +	struct switch2_controller *ns2;
-> +
-> +	guard(mutex)(&switch2_controllers_lock);
-> +	list_for_each_entry(ns2, &switch2_controllers, entry) {
-> +		if (strncmp(ns2->phys, phys, sizeof(ns2->phys)) =3D=3D 0) {
-> +			if (kref_get_unless_zero(&ns2->refcount))
-> +				return ns2;
-> +		}
-> +	}
-
-[Severity: High]
-Could matching controllers solely by their physical USB path cause issues if
-an old device is unplugged but kept alive by an open evdev file descriptor?
-
-If a new controller is plugged into the same USB port, it will have the same
-phys string and might erroneously attach to the old controller's state
-structure, polluting the open userspace handles and corrupting state.
-
-[ ... ]
-
-> +static int switch2_probe(struct hid_device *hdev, const struct hid_devic=
-e_id *id)
-> +{
-[ ... ]
-> +	ns2->player_id =3D U32_MAX;
-> +	ret =3D ida_alloc(&nintendo_player_id_allocator, GFP_KERNEL);
-> +	if (ret < 0)
-> +		hid_warn(hdev, "Failed to allocate player ID, skipping; ret=3D%d\n", r=
-et);
-> +	else
-> +		ns2->player_id =3D ret;
-> +
-
-[ ... ]
-
-> +static void switch2_remove(struct hid_device *hdev)
-> +{
-> +	struct switch2_controller *ns2 =3D hid_get_drvdata(hdev);
-> +
-> +	switch2_controller_put(ns2);
-> +	mutex_lock(&ns2->lock);
-> +	ns2->hdev =3D NULL;
-> +	ida_free(&nintendo_player_id_allocator, ns2->player_id);
-
-[Severity: High]
-If ida_alloc fails during switch2_probe, player_id remains U32_MAX.
-
-Since switch2_remove unconditionally calls ida_free with this value, could
-this trigger the BUG_ON inside the IDA subsystem, since U32_MAX casts to a
-negative integer?
-
-> +	mutex_unlock(&ns2->lock);
-> +	kref_put(&ns2->refcount, switch2_kref_put);
-> +	hid_hw_close(hdev);
-> +	hid_hw_stop(hdev);
-> +}
-
-[Severity: High]
-Is it safe to drop the kref on ns2 before stopping the hardware?
-
-If the last reference is dropped and ns2 is freed here, an asynchronous inp=
-ut
-report could still arrive before hid_hw_stop finishes. Would this cause a
-use-after-free in switch2_event when it retrieves ns2 via hid_get_drvdata?
-
-> diff --git a/drivers/input/joystick/nintendo-switch2-usb.c b/drivers/inpu=
-t/joystick/nintendo-switch2-usb.c
-> --- /dev/null
-> +++ b/drivers/input/joystick/nintendo-switch2-usb.c
-> @@ -0,0 +1,475 @@
-
-[ ... ]
-
-> +static int switch2_usb_probe(struct usb_interface *intf, const struct us=
-b_device_id *id)
-> +{
-[ ... ]
-> +	spin_lock_irqsave(&ns2_usb->bulk_in_lock, flags);
-> +	ns2_usb->bulk_in[0].state =3D NS2_URB_OUT;
-> +	usb_anchor_urb(ns2_usb->bulk_in[0].urb, &ns2_usb->bulk_in_anchor);
-> +	ret =3D usb_submit_urb(ns2_usb->bulk_in[0].urb, GFP_ATOMIC);
-> +	spin_unlock_irqrestore(&ns2_usb->bulk_in_lock, flags);
-> +
-> +	if (ret < 0)
-> +		goto err_free_out;
-> +
-> +	ret =3D switch2_controller_attach_cfg(phys, &ns2_usb->cfg);
-
-[Severity: High]
-Is there a race condition here if the URB completes immediately?
-
-The bulk IN URB is submitted before switch2_controller_attach_cfg finishes
-attaching the controller. If the attach sequence fails and frees ns2, could
-the scheduled message_in_work worker thread access a partially attached and
-subsequently freed ns2 structure?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260715033409.3599=
-913-1-vi@endrift.com?part=3D1
+Thanks,
+Jose

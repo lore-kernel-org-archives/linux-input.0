@@ -1,116 +1,179 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 364563D0932
-	for <linux-input@vger.kernel.org>; Wed, 15 Jul 2026 08:44:43 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B0D713368AA
+	for <linux-input@vger.kernel.org>; Wed, 15 Jul 2026 08:51:44 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784105086; cv=none; b=VuA6oonwa4+YYK8148eNbqlQ9lRM1h2vrViHEbnMfGPqCXJO32cobQ8UMQSIL2kXh9hMqaEQx/Ffn+Pab/VrcMLO7SS/YQFzKCtJ2zUWKQEL4SsOxq5JekTnRUMMPpEdAUJCEI2qKT9mbWOnDm8aJEU36SULTo3b8tWP1jW/aA8=
+	t=1784105505; cv=none; b=FYnrXZaQBsrb6rPMg76c/xu/BEAQg/qiI23n6sn6EtZmI7empAE8/KdOX/IojyA/UuifbHJKymcI1hPqdTilGthyBKQEYkXhSrHm+iwSUh8/IfVjPe1SSTkH7cJodlYdq1rl6LCRMoM2gLFFdESb7CObYl0wh4swaSxvn1K/Cko=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784105086; c=relaxed/simple;
-	bh=3/z7M+8Jo4kxFLo7KHkeo/DhhrG5RdWhKkdf0F4Sk5c=;
+	s=arc-20240116; t=1784105505; c=relaxed/simple;
+	bh=FHGIF2SHeAvuDJjqGpqrMm/EAlvoG487ZVTTjTFZ8Ts=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=gwyiNnviGZdQnAO+17B2aZY17G3+puUoqsxTGPicKTFemmH2kfsMOT8T1JJsONGs3j98PriCqZqhMR5Sic4Lnf52LvyRP5TEenbZtMgJNO5ALo4BUOssHb/3r6q/40O5LHyK0pr1lSt1IW75WJsWaNozWspm5wnT5ytCWMBvPY0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=h8nbNkWc; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=H7b9FA2Dulm3xxwV9J2krxhmv/ifKSmqmBbOsGCmA8xBPhcL1riJOxPRz9hzojbYOLaPnQ/jD6XaUCBmgs3PV+KPQE5LBgxJzJ5j6o9oWwuem1+J9V06Y7jMAv3WwXJEAkx07S1XpcOIZ81DMS0PbwomA2sU9mobN38nVs1uoOs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=QaL4BbVN; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="h8nbNkWc"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 58E131F000E9;
-	Wed, 15 Jul 2026 08:44:42 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="QaL4BbVN"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1585C1F000E9;
+	Wed, 15 Jul 2026 08:51:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784105082;
-	bh=k4ZVp5UMx1sUPQXLCgOMLZKSpsqYSIjiDZLV0jDgpLQ=;
+	s=k20260515; t=1784105504;
+	bh=wF5l8dJtEsnJqJ6YZn0yi/4qS6MVnLbtjuqM8g4qZ+4=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=h8nbNkWcfmYA1S9huL7evggX5/joQklKwJecp/b/i4qkDdp+2Cs9EA2SUq0ahqqt0
-	 alHOBFKypw0lBGs13zlwkfF3KQq49Z9Ki9FrCJM7avTXikJOjHUeF66w+YXDoCQ0yi
-	 iozp1h+FE7ujcygeFI0cF200h2dU1RYV4OhqPyFIb4/VrgW8uwqpoZ8Waf3P7szsbV
-	 MROGgATub/68AEF35iI5sfHhXqRccEkCz11VNE4dT8t+exIdvFNPJ9fOOy81GFQd9q
-	 TsMCH6foYHU+NJH5eBuP0lt6MDooEjkVzYXl1b6mMebJr+UeTGBubKaTLbjiFkv0qx
-	 pkW7EOI31A4aw==
+	b=QaL4BbVNu3A9whFeM7YG8+G1h3c0L370C5guDz3wm/DTz8EE87h77QqeQkeSYK57V
+	 /2BdoI5nSNa+AvSL9KbiMclz2cYbd+2oN04MCBaGzjameEy788/GPF9rQLWhTQzwWf
+	 70JeDunY6of1kZWzOp4jMhEeQX8C7AbcqktfvkO3P29LIGUiI0MTCZAdtwXhR/+MCR
+	 jMlzL2wrHS2z7w6rFTRHKEHdf64YIoUhnYZLZkQ3h6qxJjN4+KsJDfdPXAsU+J3huz
+	 ADH3xtXHjSAiQMtXP48O633ef4KI/rX8JbF+RLE7+pb3Y2kO30WXIEyKHK2jjbeVpa
+	 iiDlEJhaR4Eaw==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] Input: xpad: validate Xbox One report lengths
+Subject: Re: [PATCH] Input: iqs5xx: validate firmware record destination
+ span
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Pengpeng Hou" <pengpeng@iscas.ac.cn>
 Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260715083424.25944-1-pengpeng@iscas.ac.cn>
-References: <20260715083424.25944-1-pengpeng@iscas.ac.cn>
+In-Reply-To: <20260715083850.32155-1-pengpeng@iscas.ac.cn>
+References: <20260715083850.32155-1-pengpeng@iscas.ac.cn>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 15 Jul 2026 08:44:41 +0000
-Message-Id: <20260715084442.58E131F000E9@smtp.kernel.org>
+Date: Wed, 15 Jul 2026 08:51:43 +0000
+Message-Id: <20260715085144.1585C1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+Thank you for your contribution! Sashiko AI review found 3 potential issue(=
 s) to consider:
 
 Pre-existing issues:
-- [High] Handling GIP_CMD_ANNOUNCE in xpadone_process_packet calls xpad_sta=
-rt_input(), leading to sleeping functions being called in atomic context an=
-d a potential deadlock.
+- [High] Concurrent writes to the `fw_file` sysfs attribute can lead to a d=
+ouble-registration of the input device, causing a kernel crash.
+- [High] A checksum validation error in the firmware file is silently dropp=
+ed, leading to incomplete firmware flashing.
+- [Medium] The touchscreen input device may never be registered if a firmwa=
+re update retry succeeds following an initial initialization failure.
 --
 
---- Patch [1]: [PATCH] Input: xpad: validate Xbox One report lengths ---
-commit b48d8bd27dd206f904c7c21ce961f7a9225d4190
+--- Patch [1]: [PATCH] Input: iqs5xx: validate firmware record destination =
+span ---
+commit 897f4810526cdc25897398dbb6d1023c54aafc6a
 Author: Pengpeng Hou <pengpeng@iscas.ac.cn>
-Subject: Input: xpad: validate Xbox One report lengths
 
-This commit adds bounds checking to xpadone_process_packet() to prevent
-out-of-bounds reads on short USB reports. It validates that mandatory and
-optional fields fall within urb->actual_length before processing them.
+Input: iqs5xx: validate firmware record destination span
 
-> diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
-> index feb8f368f834e..9a32e7eb464d5 100644
-> --- a/drivers/input/joystick/xpad.c
-> +++ b/drivers/input/joystick/xpad.c
+This commit adds a length check in iqs5xx_fw_file_parse() to ensure that the
+firmware record data fits within the remaining programmable map span. It
+prevents out-of-bounds copies when a record is near the end of the map.
 
-[ ... ]
-
-> @@ -1079,6 +1093,9 @@ static void xpadone_process_packet(struct usb_xpad =
-*xpad, u16 cmd, unsigned char
->  					 error);
->  		}
+> diff --git a/drivers/input/touchscreen/iqs5xx.c b/drivers/input/touchscre=
+en/iqs5xx.c
+> index b9bbe8b3eab81..8559be7ed9a95 100644
+> --- a/drivers/input/touchscreen/iqs5xx.c
+> +++ b/drivers/input/touchscreen/iqs5xx.c
+> @@ -786,7 +786,8 @@ static int iqs5xx_fw_file_parse(struct i2c_client *cl=
+ient,
+>  		switch (rec_type) {
+>  		case IQS5XX_REC_TYPE_DATA:
+>  			if (rec_addr < IQS5XX_CHKSM ||
+> -			    rec_addr > IQS5XX_PMAP_END) {
+> +			    rec_addr > IQS5XX_PMAP_END ||
+> +			    rec_len > IQS5XX_PMAP_END + 1 - rec_addr) {
+>  				dev_err(&client->dev,
+>  					"Invalid address at record %u\n",
+>  					rec_num);
 
 [Severity: High]
-This isn't a bug introduced by this patch, but does the GIP_CMD_ANNOUNCE
-handling in the code right above this snippet sleep in atomic context?
+This isn't a bug introduced by this patch, but I noticed that later in this
+same function, if a checksum validation failure occurs, the error code seems
+to be swallowed:
 
-xpadone_process_packet() executes in the atomic context of the xpad_irq_in
-URB completion handler. When handling a GIP_CMD_ANNOUNCE packet, it calls
-xpad_start_input().
+drivers/input/touchscreen/iqs5xx.c:iqs5xx_fw_file_parse() {
+...
+		if (chksm !=3D rec_chksm && rec_addr < IQS5XX_CSTM) {
+			dev_err(&client->dev,
+				"Incorrect checksum at record %u\n",
+				rec_num);
+			error =3D -EINVAL;
+			break;
+		}
+...
+	} while (rec_type !=3D IQS5XX_REC_TYPE_EOF);
 
-This leads to a sleep-in-atomic violation due to a sleeping allocation:
+	return 0;
+}
 
-xpadone_process_packet()
-  -> xpad_start_input()
-       -> usb_submit_urb(xpad->irq_in, GFP_KERNEL)
+Since the break statement exits the do...while loop and the function
+unconditionally returns 0 at the end, doesn't this result in the checksum
+error being silently ignored?
 
-It also takes a mutex during USB control messages, which can sleep:
+Could this lead to an incomplete or corrupted memory map being flashed if
+the firmware file is invalid?
 
-xpadone_process_packet()
-  -> xpad_start_input()
-       -> xpad_start_xbox_one()
-            -> usb_set_interface(xpad->udev, GIP_WIRED_INTF_AUDIO, 0)
+[Severity: High]
+This is a pre-existing issue, but I found a potential problem in
+fw_file_store() where concurrent writes could lead to a double-registration
+of the input device:
 
-Finally, if xpad_start_input() fails, does the error path deadlock?=20
-It appears to wait indefinitely for the completion handler it is=20
-currently executing inside of:
+drivers/input/touchscreen/iqs5xx.c:fw_file_store() {
+...
+	bool input_reg =3D !iqs5xx->input;
+...
+	error =3D iqs5xx_fw_file_write(client, fw_file);
+	if (error)
+		return error;
 
-xpadone_process_packet()
-  -> xpad_start_input()
-       -> usb_kill_urb(xpad->irq_in)
+	/*
+	 * If the input device was not allocated already, it is guaranteed to
+	 * be allocated by this point and can finally be registered.
+	 */
+	if (input_reg) {
+		error =3D input_register_device(iqs5xx->input);
+...
+}
 
->  	} else if (data[0] =3D=3D GIP_CMD_INPUT) { /* The main valid packet typ=
-e for inputs */
-> +		if (len < 18)
-> +			return;
-> +
->  		/* menu/view buttons */
->  		input_report_key(dev, BTN_START,  data[4] & BIT(2));
->  		input_report_key(dev, BTN_SELECT, data[4] & BIT(3));
+The input_reg flag is evaluated locklessly before calling
+iqs5xx_fw_file_write(). If two threads concurrently write to fw_file
+when the device is in bootloader mode (iqs5xx->input is NULL), both threads
+would evaluate input_reg as true.
+
+They would then serialize through iqs5xx_fw_file_write(), where the first
+thread allocates the input device. When both threads return, wouldn't they
+independently check their local input_reg variables and concurrently call
+input_register_device(iqs5xx->input) on the exact same pointer?
+
+[Severity: Medium]
+This is another pre-existing issue, but there appears to be a separate
+registration problem involving iqs5xx_axis_init() and fw_file_store():
+
+drivers/input/touchscreen/iqs5xx.c:iqs5xx_axis_init() {
+...
+	if (!input) {
+		input =3D devm_input_allocate_device(&client->dev);
+		if (!input)
+			return -ENOMEM;
+...
+		input_set_drvdata(input, iqs5xx);
+		iqs5xx->input =3D input;
+	}
+
+	error =3D iqs5xx_read_word(client, IQS5XX_X_RES, &max_x);
+	if (error)
+		return error;
+...
+}
+
+If a firmware update via fw_file_store() triggers iqs5xx_axis_init() and
+allocates the input device, but a subsequent I2C read like iqs5xx_read_word=
+()
+fails, fw_file_store() will return an error without calling
+input_register_device().
+
+The iqs5xx->input pointer remains non-NULL. If user-space retries the
+firmware update and it succeeds, won't fw_file_store() evaluate input_reg
+as false and skip calling input_register_device() entirely?
 
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260715083424.2594=
-4-1-pengpeng@iscas.ac.cn?part=3D1
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260715083850.3215=
+5-1-pengpeng@iscas.ac.cn?part=3D1

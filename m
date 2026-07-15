@@ -1,32 +1,33 @@
 Received: from endrift.com (endrift.com [173.255.198.10])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DDB443ACEF7
-	for <linux-input@vger.kernel.org>; Wed, 15 Jul 2026 03:35:29 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A178D3B2D39
+	for <linux-input@vger.kernel.org>; Wed, 15 Jul 2026 03:35:31 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=173.255.198.10
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784086549; cv=none; b=Y1EuFty3jxfZy/fCRshEHzqasjkt87dmP1eb9/tKwo5GaQFx6RQ9m3mHlT09qikxxzHSA5rwlDwCcbATlm2SLX+nP4y319sWI+wwPBTYPIwWFLkZvBIkiRef/4lHaBPJYaPsnse4url1CXqsyy/UvbacVrUd/4bgnqAoaFC7TLg=
+	t=1784086550; cv=none; b=Bh1nanxHJ4OC1nM/IfuXFFvr+Sk6Sjlr+pUCwx6/b8OLSiEpK6fHIjoQxIRIihSZe6SEdtJh0J1IW9jT8RTIFtFvHy0JuymtJOomk2OadSpO+zUd7HDRojGJ1VYfj31+Hlxhj4NgnAlE/XHLA0a6rmb7PDqr2X4mQhEp3bSsXg0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784086549; c=relaxed/simple;
-	bh=AvrmOFuuC64gag4WWzywTgiA/iG+ttk39Nq6JaJh5b4=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=LGqYozpMgjjLCTVaERSWMW/deOZ92y3aoLmlkdhEclCpsgY9IQ+3D2i5RAnt8tQCx5bxUyylWA9gMnIlVdvDIinqLzNTKK8qDx568hVjSLGh7ER6XFunMpXP743wEleO3pkpBwMvdvU0ehizYugatz8xQye1jTLeiUW5fbhQvYo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com; spf=pass smtp.mailfrom=endrift.com; dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b=BLAox8BP; arc=none smtp.client-ip=173.255.198.10
+	s=arc-20240116; t=1784086550; c=relaxed/simple;
+	bh=MI12XF1kKWU1oLs1cFfGV3tpWn4vtZisafNp/kMFZeQ=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=p5OQUSfCL1NDO91FZ5q0Tme1dvVx3iwvJDmXYZUsingHZoZ+Twh63B6nb4vfL9nTEWOVOaI45Xhs5LMEpSCbBKbQf645+7hD1Iv3ZyJMOl2u5elGz5M8wjg1D3pODyUTfIWwavPJ3C2VKoXkgoOqX4lizsu/rAM4sBcDKWCS56k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com; spf=pass smtp.mailfrom=endrift.com; dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b=dZ3YjGtQ; arc=none smtp.client-ip=173.255.198.10
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=endrift.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b="BLAox8BP"
+	dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b="dZ3YjGtQ"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=endrift.com; s=2020;
-	t=1784086522; bh=AvrmOFuuC64gag4WWzywTgiA/iG+ttk39Nq6JaJh5b4=;
-	h=From:To:Cc:Subject:Date:From;
-	b=BLAox8BPqDYvj9VO9HyH2CwLBVNcv2+mR6iSyzLm/S/OqAAlBMbUCNRsED0qR+Qjc
-	 cxVZe+Y9MHID6elMQdIfz6YDXIK5oop0dClspjbYg3TMyXB6KQyeLzou2aABNlqMQA
-	 dpNgJ5lov96v2LUHnWG0i9Kn7u0yGpP9vsh1exHoAKqTC5Ui4sKMnm9IKWxC+SKdfK
-	 i63lCo4shVhvAkBn5m91fnANkA+JjpMQAYG6cPCFIgJDmpyismMVEjRLuQViQgY5jc
-	 mcr8u/kkxVc0B8+/yyVxqtzmi/ep+EyxBWcL3qdvEoSIPTa8Smc/j38oiuq7Dbp3Gq
-	 QtV2S2lYRnIIw==
+	t=1784086524; bh=MI12XF1kKWU1oLs1cFfGV3tpWn4vtZisafNp/kMFZeQ=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+	b=dZ3YjGtQXhIahk361lsJ8zSgerlW4ctpf9Jxo++RBSL4xEpUS5Yub+TphjU/hJxyp
+	 VjN/SDZeRejLqTpJiySjDdHn1lwEuHy8AacCOEdNpxPudXU5iT3LC1zMTNbVeSHp9v
+	 sNW9RDqBVjum6WD3BC5cR9b5FtAWzkw0jwE1TLZPfjeNg8dkU3Fnrxwt1ZgDVG4dWt
+	 BRc5F4+06lBfX7yfr1bcvVPTVeXu/rmW/wngCS3AYcMzPQ5+te5K/TubeCzFH5+5Mt
+	 QfsrbaGXo8sS4frxeVQpEyzK6BrZIIAsvbF9pA8KjMwMxc/0iapwZV31bCLQ6ADH8E
+	 CBVM2nW8TTtOA==
 Received: from microtis.vulpes.eutheria.net (71-212-73-87.tukw.qwest.net [71.212.73.87])
-	by endrift.com (Postfix) with ESMTPSA id 25309A028;
-	Tue, 14 Jul 2026 20:35:22 -0700 (PDT)
+	by endrift.com (Postfix) with ESMTPSA id 9CBE9A099;
+	Tue, 14 Jul 2026 20:35:23 -0700 (PDT)
 From: Vicki Pfau <vi@endrift.com>
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
 	Jiri Kosina <jikos@kernel.org>,
@@ -34,10 +35,12 @@ To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
 	linux-input@vger.kernel.org
 Cc: Vicki Pfau <vi@endrift.com>,
 	Silvan Jegen <s.jegen@gmail.com>
-Subject: [PATCH v12 0/3] HID: nintendo: Add preliminary Switch 2 controller
-Date: Tue, 14 Jul 2026 20:34:03 -0700
-Message-ID: <20260715033409.3599913-1-vi@endrift.com>
+Subject: [PATCH v12 3/3] HID: nintendo: Add unified report format support
+Date: Tue, 14 Jul 2026 20:34:06 -0700
+Message-ID: <20260715033409.3599913-4-vi@endrift.com>
 X-Mailer: git-send-email 2.54.0
+In-Reply-To: <20260715033409.3599913-1-vi@endrift.com>
+References: <20260715033409.3599913-1-vi@endrift.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -46,28 +49,212 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-This series adds preliminary support for Switch 2 controllers using the
-same split-driver model as previous versions. This is a minor iteration on
-v11, fixing some nitpicks. It should be fully ready now, pending review
-from Dmitry and a HID tree maintainer.
+This adds support for the "unified" report format that all controllers also
+support, which has overlapping fields for like buttons and axes between
+them.
 
-Vicki Pfau (3):
-  HID: nintendo: Add preliminary Switch 2 controller driver
-  HID: nintendo: Add rumble support for Switch 2 controllers
-  HID: nintendo: Add unified report format support
+Signed-off-by: Vicki Pfau <vi@endrift.com>
+---
+ drivers/hid/hid-nintendo.c | 151 +++++++++++++++++++++++++++++++++++--
+ 1 file changed, 146 insertions(+), 5 deletions(-)
 
- MAINTAINERS                                   |    1 +
- drivers/hid/Kconfig                           |   19 +-
- drivers/hid/hid-ids.h                         |    4 +
- drivers/hid/hid-nintendo.c                    | 1682 ++++++++++++++++-
- drivers/hid/hid-nintendo.h                    |   72 +
- drivers/input/joystick/Kconfig                |   11 +
- drivers/input/joystick/Makefile               |    1 +
- drivers/input/joystick/nintendo-switch2-usb.c |  475 +++++
- 8 files changed, 2224 insertions(+), 41 deletions(-)
- create mode 100644 drivers/hid/hid-nintendo.h
- create mode 100644 drivers/input/joystick/nintendo-switch2-usb.c
-
+diff --git a/drivers/hid/hid-nintendo.c b/drivers/hid/hid-nintendo.c
+index 76eb4861ab23..32808e4d9c2f 100644
+--- a/drivers/hid/hid-nintendo.c
++++ b/drivers/hid/hid-nintendo.c
+@@ -2873,6 +2873,36 @@ static int joycon_suspend(struct hid_device *hdev, pm_message_t message)
+ #define NS2_BTN3_SR	BIT(6)
+ #define NS2_BTN3_SL	BIT(7)
+ 
++#define NS2_BTN_U1_Y	BIT(0)
++#define NS2_BTN_U1_X	BIT(1)
++#define NS2_BTN_U1_B	BIT(2)
++#define NS2_BTN_U1_A	BIT(3)
++#define NS2_BTN_U1_SR	BIT(4)
++#define NS2_BTN_U1_SL	BIT(5)
++#define NS2_BTN_U1_R	BIT(6)
++#define NS2_BTN_U1_ZR	BIT(7)
++
++#define NS2_BTN_U2_MINUS	BIT(0)
++#define NS2_BTN_U2_PLUS		BIT(1)
++#define NS2_BTN_U2_RS		BIT(2)
++#define NS2_BTN_U2_LS		BIT(3)
++#define NS2_BTN_U2_HOME		BIT(4)
++#define NS2_BTN_U2_CAPTURE	BIT(5)
++#define NS2_BTN_U2_C		BIT(6)
++
++#define NS2_BTN_U3_DOWN		BIT(0)
++#define NS2_BTN_U3_UP		BIT(1)
++#define NS2_BTN_U3_RIGHT	BIT(2)
++#define NS2_BTN_U3_LEFT		BIT(3)
++#define NS2_BTN_U3_SR		BIT(4)
++#define NS2_BTN_U3_SL		BIT(5)
++#define NS2_BTN_U3_L		BIT(6)
++#define NS2_BTN_U3_ZL		BIT(7)
++
++#define NS2_BTN_U4_GR		BIT(0)
++#define NS2_BTN_U4_GL		BIT(1)
++#define NS2_BTN_U4_HEADSET	BIT(5)
++
+ #define NS2_BTN_JCR_HOME	BIT(0)
+ #define NS2_BTN_JCR_GR		BIT(2)
+ #define NS2_BTN_JCR_C		NS2_BTN3_C
+@@ -3121,6 +3151,22 @@ static const struct switch2_ctlr_button_mapping ns2_left_joycon_button_mappings[
+ 	{ /* sentinel */ },
+ };
+ 
++static const struct switch2_ctlr_button_mapping ns2_left_joycon_button_unified_mappings[] = {
++	{ BTN_DPAD_LEFT,	2, NS2_BTN_U3_LEFT,	},
++	{ BTN_DPAD_UP,		2, NS2_BTN_U3_UP,	},
++	{ BTN_DPAD_DOWN,	2, NS2_BTN_U3_DOWN,	},
++	{ BTN_DPAD_RIGHT,	2, NS2_BTN_U3_RIGHT,	},
++	{ BTN_TL,		2, NS2_BTN_U3_L,	},
++	{ BTN_TL2,		2, NS2_BTN_U3_ZL,	},
++	{ BTN_SELECT,		1, NS2_BTN_U2_MINUS,	},
++	{ BTN_THUMBL,		1, NS2_BTN_U2_LS,	},
++	{ KEY_RECORD,		1, NS2_BTN_U2_CAPTURE,	},
++	{ BTN_GRIPR,		2, NS2_BTN_U3_SL,	},
++	{ BTN_GRIPR2,		2, NS2_BTN_U3_SR,	},
++	{ BTN_GRIPL,		3, NS2_BTN_U4_GL,	},
++	{ /* sentinel */ },
++};
++
+ static const struct switch2_ctlr_button_mapping ns2_right_joycon_button_mappings[] = {
+ 	{ BTN_SOUTH,	0, NS2_BTNR_A,		},
+ 	{ BTN_EAST,	0, NS2_BTNR_B,		},
+@@ -3138,6 +3184,23 @@ static const struct switch2_ctlr_button_mapping ns2_right_joycon_button_mappings
+ 	{ /* sentinel */ },
+ };
+ 
++static const struct switch2_ctlr_button_mapping ns2_right_joycon_button_unified_mappings[] = {
++	{ BTN_SOUTH,	0, NS2_BTN_U1_A,	},
++	{ BTN_EAST,	0, NS2_BTN_U1_B,	},
++	{ BTN_NORTH,	0, NS2_BTN_U1_X,	},
++	{ BTN_WEST,	0, NS2_BTN_U1_Y,	},
++	{ BTN_TR,	0, NS2_BTN_U1_R,	},
++	{ BTN_TR2,	0, NS2_BTN_U1_ZR	},
++	{ BTN_START,	1, NS2_BTN_U2_PLUS,	},
++	{ BTN_THUMBR,	1, NS2_BTN_U2_RS,	},
++	{ BTN_C,	1, NS2_BTN_U2_C,	},
++	{ BTN_MODE,	1, NS2_BTN_U2_HOME,	},
++	{ BTN_GRIPL2,	0, NS2_BTN_U1_SL,	},
++	{ BTN_GRIPL,	0, NS2_BTN_U1_SR,	},
++	{ BTN_GRIPR,	3, NS2_BTN_U4_GR,	},
++	{ /* sentinel */ },
++};
++
+ static const struct switch2_ctlr_button_mapping ns2_procon_mappings[] = {
+ 	{ BTN_SOUTH,	0, NS2_BTNR_A,		},
+ 	{ BTN_EAST,	0, NS2_BTNR_B,		},
+@@ -3159,6 +3222,27 @@ static const struct switch2_ctlr_button_mapping ns2_procon_mappings[] = {
+ 	{ /* sentinel */ },
+ };
+ 
++static const struct switch2_ctlr_button_mapping ns2_procon_unified_mappings[] = {
++	{ BTN_SOUTH,	0, NS2_BTN_U1_A,	},
++	{ BTN_EAST,	0, NS2_BTN_U1_B,	},
++	{ BTN_NORTH,	0, NS2_BTN_U1_X,	},
++	{ BTN_WEST,	0, NS2_BTN_U1_Y,	},
++	{ BTN_TL,	2, NS2_BTN_U3_L,	},
++	{ BTN_TR,	0, NS2_BTN_U1_R,	},
++	{ BTN_TL2,	2, NS2_BTN_U3_ZL,	},
++	{ BTN_TR2,	0, NS2_BTN_U1_ZR,	},
++	{ BTN_SELECT,	1, NS2_BTN_U2_MINUS,	},
++	{ BTN_START,	1, NS2_BTN_U2_PLUS,	},
++	{ BTN_THUMBL,	1, NS2_BTN_U2_LS,	},
++	{ BTN_THUMBR,	1, NS2_BTN_U2_RS,	},
++	{ BTN_MODE,	1, NS2_BTN_U2_HOME	},
++	{ KEY_RECORD,	1, NS2_BTN_U2_CAPTURE	},
++	{ BTN_GRIPR,	3, NS2_BTN_U4_GR	},
++	{ BTN_GRIPL,	3, NS2_BTN_U4_GL	},
++	{ BTN_C,	1, NS2_BTN_U2_C		},
++	{ /* sentinel */ },
++};
++
+ static const struct switch2_ctlr_button_mapping ns2_gccon_mappings[] = {
+ 	{ BTN_SOUTH,	0, NS2_BTNR_A,		},
+ 	{ BTN_EAST,	0, NS2_BTNR_B,		},
+@@ -3176,6 +3260,23 @@ static const struct switch2_ctlr_button_mapping ns2_gccon_mappings[] = {
+ 	{ /* sentinel */ },
+ };
+ 
++static const struct switch2_ctlr_button_mapping ns2_gccon_unified_mappings[] = {
++	{ BTN_SOUTH,	0, NS2_BTN_U1_A,	},
++	{ BTN_EAST,	0, NS2_BTN_U1_B,	},
++	{ BTN_NORTH,	0, NS2_BTN_U1_X,	},
++	{ BTN_WEST,	0, NS2_BTN_U1_Y,	},
++	{ BTN_TL2,	2, NS2_BTN_U3_L,	},
++	{ BTN_TR2,	0, NS2_BTN_U1_R,	},
++	{ BTN_TL,	2, NS2_BTN_U3_ZL	},
++	{ BTN_TR,	0, NS2_BTN_U1_ZR	},
++	{ BTN_SELECT,	1, NS2_BTN_U2_MINUS,	},
++	{ BTN_START,	1, NS2_BTN_U2_PLUS,	},
++	{ BTN_MODE,	1, NS2_BTN_U2_HOME	},
++	{ KEY_RECORD,	1, NS2_BTN_U2_CAPTURE	},
++	{ BTN_C,	1, NS2_BTN_U2_C		},
++	{ /* sentinel */ },
++};
++
+ static const uint8_t switch2_init_cmd_data[] = {
+ 	/*
+ 	 * The last 6 bytes of this packet are the MAC address of
+@@ -3805,11 +3906,51 @@ static int switch2_event(struct hid_device *hdev, struct hid_report *report, uin
+ 
+ 	switch (report->id) {
+ 	case NS2_REPORT_UNIFIED:
+-		/*
+-		 * TODO
+-		 * This won't be sent unless the report type gets changed via command
+-		 * 03-0A, but we should support it at some point regardless.
+-		 */
++		if (size < 0x3f)
++			return -EINVAL;
++
++		switch (ns2->ctlr_type) {
++		case NS2_CTLR_TYPE_JCL:
++			switch2_report_stick(input, &ns2->stick_calib[0],
++				ABS_X, false, ABS_Y, true, &raw_data[11]);
++			switch2_report_buttons(input, &raw_data[5],
++				ns2_left_joycon_button_unified_mappings);
++			break;
++		case NS2_CTLR_TYPE_JCR:
++			switch2_report_stick(input, &ns2->stick_calib[0],
++				ABS_X, false, ABS_Y, true, &raw_data[14]);
++			switch2_report_buttons(input, &raw_data[5],
++				ns2_right_joycon_button_unified_mappings);
++			break;
++		case NS2_CTLR_TYPE_GC:
++			input_report_abs(input, ABS_HAT0X,
++				!!(raw_data[7] & NS2_BTN_U3_RIGHT) -
++				!!(raw_data[7] & NS2_BTN_U3_LEFT));
++			input_report_abs(input, ABS_HAT0Y,
++				!!(raw_data[7] & NS2_BTN_U3_DOWN) -
++				!!(raw_data[7] & NS2_BTN_U3_UP));
++			switch2_report_buttons(input, &raw_data[5], ns2_gccon_unified_mappings);
++			switch2_report_stick(input, &ns2->stick_calib[0],
++				ABS_X, false, ABS_Y, true, &raw_data[11]);
++			switch2_report_stick(input, &ns2->stick_calib[1],
++				ABS_RX, false, ABS_RY, true, &raw_data[14]);
++			switch2_report_trigger(input, ns2->lt_zero, ABS_Z, raw_data[0x3d]);
++			switch2_report_trigger(input, ns2->rt_zero, ABS_RZ, raw_data[0x3e]);
++			break;
++		case NS2_CTLR_TYPE_PRO:
++			input_report_abs(input, ABS_HAT0X,
++				!!(raw_data[7] & NS2_BTN_U3_RIGHT) -
++				!!(raw_data[7] & NS2_BTN_U3_LEFT));
++			input_report_abs(input, ABS_HAT0Y,
++				!!(raw_data[7] & NS2_BTN_U3_DOWN) -
++				!!(raw_data[7] & NS2_BTN_U3_UP));
++			switch2_report_buttons(input, &raw_data[5], ns2_procon_unified_mappings);
++			switch2_report_stick(input, &ns2->stick_calib[0],
++				ABS_X, false, ABS_Y, true, &raw_data[11]);
++			switch2_report_stick(input, &ns2->stick_calib[1],
++				ABS_RX, false, ABS_RY, true, &raw_data[14]);
++			break;
++		}
+ 		break;
+ 	case NS2_REPORT_JCL:
+ 		switch2_report_stick(input, &ns2->stick_calib[0], ABS_X, false,
 -- 
 2.54.0
 

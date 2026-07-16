@@ -1,93 +1,104 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.17])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E49DC42589A;
-	Thu, 16 Jul 2026 13:50:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8F4813B27D7;
+	Thu, 16 Jul 2026 14:40:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.17
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784209828; cv=none; b=LrEj93cxsjItGgriOo/ht8l1Vq1nlzj1fFY7awu9VU5eF7pveXNLWXK8xkvRs24JEA6NZU9MQ/ozRJJIq0OUYBOG4OmLDDji0TZgL/fvK560xJqACCX9fV7JJktHENSpWX2+pcJmojYFMbMbADC1bMk/dWrpzNBG4f/9FBOX9ZY=
+	t=1784212831; cv=none; b=btM0aKI/ogJ2dFb1x4eucRHlSw0sGZoUwlRADpsufPyGRxgaXDJW5icvEa8YkMaOsCAqiquAa+mmaY4p6SfKaq3/l3rRX+Jgzh4Q6yW1vCVojRnKD/suj2ufQD1YTKhXfncud9//lSmW3OeM4HF58TINmG7aWMS0La4zQTEfDuI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784209828; c=relaxed/simple;
-	bh=T3n5Bae1hVntgjx1zp1AjZmd11FIjtYfJ4CKwWoha5s=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=nYLfiEY/25aU3ATSQjtiQFfw8/e14xU5mcLFGLFjVvrdDr06tMnCo0881OQitSXeUmmZXjXCyYfo8eLS8RUD43r7gD98/K2ChW6VJ3ZT4oRAYts6MZfgV8RXzG3oMuhaWfi1gC7z5MRBDj5BTAhslRkJlTUmdNN7c5EZFn4Ynps=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=lmNGjM7I; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1784212831; c=relaxed/simple;
+	bh=mw95JkaGyUbYTllBtNQBKf7/9nrFEE72vUNdlnGvGUg=;
+	h=Message-ID:Subject:From:To:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=JN5E7RBMMXsudPjfSv+9YsrYwOVSAo5cJrUyMaBy8M+leDb7qPXpeWycsEi5z4JwpqWEFBXr23ySY2RE8nvekQCxH6hlTid0CS5nZY6xJgGgRx2ibzbhFfnXlGqaT3ovUgKp8iBAdUKp1Fbd0zNPjcXWl8ajLa2RX7uwXG30jaQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=WauP/0A9; arc=none smtp.client-ip=192.198.163.17
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="lmNGjM7I"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D4F041F00A3A;
-	Thu, 16 Jul 2026 13:50:25 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784209826;
-	bh=glRJo35PxLXmQvbajphsfvpUppiKWB4U4dH0Vt0SOCA=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=lmNGjM7I/mdftjguWgnfWH27847GkLdnv1jG4YJhSJRDdQ9Z2XvYJkuomA9Uqn3yx
-	 CEmaq4ph7a0hSwickdWnLbJI8+Se/9qxAIB2OLQcqZEEJu+/VE5OxJ7clLm1QOk08M
-	 5Y8QYCnd4Y7AoTYFwEimjBx1GknF0KlUqRRia59fbk6EekYLhBo18AV7RFGICmKIOp
-	 KZ5ngQzmp2RLxZqlYF0+lRPSwih7iBY2twYEKDrmKpSDKF1+sWxI4lKlxySfXqiC14
-	 Nq4lh/5Y6dJ2wMh/AdsCL+U/bOnLI7ksTt0UFBBjOcECAsoZnenX4rA+F/rgnVZCtA
-	 kOJ0vs4XR9sSA==
-Message-ID: <2d193a9f-dd0c-409e-982d-d60d4d64128d@kernel.org>
-Date: Thu, 16 Jul 2026 08:50:24 -0500
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="WauP/0A9"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1784212829; x=1815748829;
+  h=message-id:subject:from:to:date:in-reply-to:references:
+   content-transfer-encoding:mime-version;
+  bh=mw95JkaGyUbYTllBtNQBKf7/9nrFEE72vUNdlnGvGUg=;
+  b=WauP/0A9j/VBUzncBiSNAwHMIpX3fskbGXA8OfUkH03nQD2Rj7rxsJIz
+   zmmJLSIkPnpjlfgJLuZE46HtpxZUj8xMQTLfFTYMQFVubSg8a1OT59atz
+   /376T/IotVCnTfF+QoS9efkeW2g8fnHD/WdNts7QOOZ6G9ospO1MQmqBq
+   4U4L3K510AtpHxVAUrgG65jhFLmbRlafN5pNsb/iDedDmbo+HVp5UgkkX
+   qSXKsLKngTJt+E87OlPtA79DdprJxD5zlPqZmrjgIbb8km4fNo8vTEO/o
+   VQuQmZP6oSdkakDL9ZmKlJiCh4RM1AjEgn7DIDfng2MCdXUFQUC0u3kdg
+   g==;
+X-CSE-ConnectionGUID: 1Qe0o5AdTwKXzkpiEvhHLA==
+X-CSE-MsgGUID: FjtlxB9iQTS3+ZP6i1pm+w==
+X-IronPort-AV: E=McAfee;i="6800,10657,11847"; a="84754410"
+X-IronPort-AV: E=Sophos;i="6.25,167,1779174000"; 
+   d="scan'208";a="84754410"
+Received: from fmviesa010.fm.intel.com ([10.60.135.150])
+  by fmvoesa111.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Jul 2026 07:40:28 -0700
+X-CSE-ConnectionGUID: pQ3OXG8CRxKsGVZISLru0Q==
+X-CSE-MsgGUID: KFRe8Z4+TUeG5/nw5ypWuQ==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.25,167,1779174000"; 
+   d="scan'208";a="252535263"
+Received: from spandruv-desk2.jf.intel.com ([10.88.27.176])
+  by fmviesa010-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Jul 2026 07:40:28 -0700
+Message-ID: <5b9914e89920e8b047cb16ecf552b2ea005aa26d.camel@linux.intel.com>
+Subject: Re: [PATCH v2 3/4] HID: intel-ish-hid: ipc: Remove redundant
+ dev_err()
+From: srinivas pandruvada <srinivas.pandruvada@linux.intel.com>
+To: Pan Chuang <panchuang@vivo.com>, Jiri Kosina <jikos@kernel.org>, 
+ Benjamin Tissoires
+	 <bentiss@kernel.org>, Zhang Lixu <lixu.zhang@intel.com>, Andy Shevchenko
+	 <andriy.shevchenko@intel.com>, Vineeth Pillai <vineeth@bitbyteword.org>, 
+ "open list:INTEL INTEGRATED SENSOR HUB DRIVER"
+	 <linux-input@vger.kernel.org>, open list <linux-kernel@vger.kernel.org>
+Date: Thu, 16 Jul 2026 07:40:27 -0700
+In-Reply-To: <20260716075203.593012-4-panchuang@vivo.com>
+References: <20260716075203.593012-1-panchuang@vivo.com>
+	 <20260716075203.593012-4-panchuang@vivo.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.60.2 (3.60.2-1.fc44) 
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v4] HID: i2c-hid: Fix "(null)" output when reading report
- descriptor fails
-Content-Language: en-US
-To: Ai Chao <aichao@kylinos.cn>, jikos@kernel.org, bentiss@kernel.org,
- dianders@chromium.org, treapking@chromium.org, kenkinming2002@gmail.com,
- raoxu@uniontech.com
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20260716112932.4038146-1-aichao@kylinos.cn>
-From: Mario Limonciello <superm1@kernel.org>
-In-Reply-To: <20260716112932.4038146-1-aichao@kylinos.cn>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
 
-On 7/16/26 06:29, Ai Chao wrote:
-> When i2c-hid fails to read the HID report descriptor during device
-> initialization, the error message prints as:
-> 
->    hid (null): reading report descriptor failed
-> 
-> The HID device name is set in hid_add_device() after calling
-> hdev->ll_driver->parse(), so when i2c_hid_parse() fails and calls
-> hid_err(), the device name has not been set yet, resulting in "(null)"
-> output.
-> 
-> Use dev_err(&client->dev, ...) instead of hid_err(hid, ...) because
-> the I2C client device is fully initialized with a proper name, providing
-> meaningful error messages for debugging.
-> 
-> Before: hid (null): reading report descriptor failed
-> After:  i2c_hid i2c-TPD0001:00: reading report descriptor failed
-> 
-> Fixes: 4a200c3b9a40 ("HID: i2c-hid: introduce HID over i2c specification implementation")
-> 
-> Signed-off-by: Ai Chao <aichao@kylinos.cn>
-Reviewed-by: Mario Limonciello (AMD) <superm1@kernel.org>
-> ---
-> change for v4
-> - Add Fixes tag.
-> ---
->   drivers/hid/i2c-hid/i2c-hid-core.c | 2 +-
->   1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/hid/i2c-hid/i2c-hid-core.c b/drivers/hid/i2c-hid/i2c-hid-core.c
-> index 3adb16366e93..0e725a0f0abe 100644
-> --- a/drivers/hid/i2c-hid/i2c-hid-core.c
-> +++ b/drivers/hid/i2c-hid/i2c-hid-core.c
-> @@ -792,7 +792,7 @@ static int i2c_hid_parse(struct hid_device *hid)
->   					    ihid->hdesc.wReportDescRegister,
->   					    rdesc, rsize);
->   		if (ret) {
-> -			hid_err(hid, "reading report descriptor failed\n");
-> +			dev_err(&client->dev, "reading report descriptor failed\n");
->   			goto out;
->   		}
->   	}
+On Thu, 2026-07-16 at 15:51 +0800, Pan Chuang wrote:
+> Since commit 55b48e23f5c4 ("genirq/devres: Add error handling in
+> devm_request_*_irq()"), devm_request_irq() automatically logs
+> detailed error messages on failure. Remove the now-redundant
+> driver-specific dev_err() calls.
+>=20
+> Signed-off-by: Pan Chuang <panchuang@vivo.com>
+> Reviewed-by: Andy Shevchenko <andriy.shevchenko@intel.com>
 
+Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+
+> ---
+> =C2=A0drivers/hid/intel-ish-hid/ipc/pci-ish.c | 4 +---
+> =C2=A01 file changed, 1 insertion(+), 3 deletions(-)
+>=20
+> diff --git a/drivers/hid/intel-ish-hid/ipc/pci-ish.c
+> b/drivers/hid/intel-ish-hid/ipc/pci-ish.c
+> index 8d36ae96a3ee..e7196e429c8b 100644
+> --- a/drivers/hid/intel-ish-hid/ipc/pci-ish.c
+> +++ b/drivers/hid/intel-ish-hid/ipc/pci-ish.c
+> @@ -232,10 +232,8 @@ static int ish_probe(struct pci_dev *pdev, const
+> struct pci_device_id *ent)
+> =C2=A0
+> =C2=A0	ret =3D devm_request_irq(dev, pdev->irq, ish_irq_handler,
+> =C2=A0			=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 irq_flag, KBUILD_MODNAME, i=
+shtp);
+> -	if (ret) {
+> -		dev_err(dev, "ISH: request IRQ %d failed\n", pdev-
+> >irq);
+> +	if (ret)
+> =C2=A0		return ret;
+> -	}
+> =C2=A0
+> =C2=A0	dev_set_drvdata(ishtp->devc, ishtp);
+> =C2=A0

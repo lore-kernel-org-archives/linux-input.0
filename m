@@ -1,84 +1,42 @@
-Received: from mail-pf1-f170.google.com (mail-pf1-f170.google.com [209.85.210.170])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2B8D8381AE4
-	for <linux-input@vger.kernel.org>; Thu, 16 Jul 2026 17:33:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 88AFC3D16FC;
+	Thu, 16 Jul 2026 22:12:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784223193; cv=none; b=I2jjHJBjDT0jPivh8w7ruwYBXmTPXuF/fwy0+DdRmbEV3VEZNv0UOHJnjx6zjPfEMom5mYfYLV99mnHi1Ho5nyQCLdTTmWsuQjQTPgC/sC0tGsm8wNO+SHHHmGlWsR8ox0mN97E/bCQ3sDOwIxS/jxGpzFfF5RCowrQ1wSdy/sA=
+	t=1784239960; cv=none; b=G0NwgEnyWxsbkrx4SM1FJNryQZpAvccF4x4zw4kuFtTXi+RnBik7XSv+TDA9xN7VpKXNFeeH5XhGU6pUog1RPm9+16wb3Uzqz3fFnD9vmOtA9Ls3eF34kGDCbxoEkj6J76SbhFWADeBK9so4P5cH3knFjrbzfcT9rS6HSUlzLHc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784223193; c=relaxed/simple;
-	bh=14Cq1umL0Y6RBF2SkI1K9PaiHWJyUXEl/l/NTRstlkQ=;
+	s=arc-20240116; t=1784239960; c=relaxed/simple;
+	bh=eJzzq0+eI4rwVsvSmcEtmwZJhnaVhKwdMpipS+zcvSY=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=MNA0LJRahmekR8RGuhBsh3vFq07nr8MOWNMHDfuRQYHITuL4akMlYaYBlmFY2oLIqs5jB1rHJsjZKE1X1e6Vdnj3v2K1S4ESnvyPr8rQEvF77jeiWPSAlvVMUISpwhHHTzAJ7gVovYSVSBPvaxt+fVkbO5PK2dAfgwPgd01XKCk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=hiz2TXaI; arc=none smtp.client-ip=209.85.210.170
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=nqNSXXwpBxlB0FzkfQCNEaQn6VlV6GnplOsgSx6mFKOviuSTvYJAGH8kPmwwhazDuO9MMseW3dBxYT7Yb0bcWiZ1gzGIXIYWnFhqJSdjizqXP1qYQb855Q6kW9QF6v3etsChPm1B88j+bWbYqqFNZp1LkbBiUlZMXjvcw3GiP8U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ohIkqRSa; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hiz2TXaI"
-Received: by mail-pf1-f170.google.com with SMTP id d2e1a72fcca58-84a2dcede83so4967741b3a.3
-        for <linux-input@vger.kernel.org>; Thu, 16 Jul 2026 10:33:09 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784223188; x=1784827988; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:content-description:content-type
-         :mime-version:references:message-id:subject:cc:to:from:date:from:to
-         :cc:subject:date:message-id:reply-to:content-type;
-        bh=xrxnv9tUHFGYCrkcPFQu3jVeHPBv/ZazS8X/HiiUaCM=;
-        b=hiz2TXaIpXBXcgGSa3SksrvE1HkTf7NNmBkDfyY9m64q008ZMt84dDI0QRqzFx9lm0
-         B4fizowr6GfTvY4SIgtV40fUJG0QO0YuMS2+efsthg3EBZCG5YnBYBGKMhc5QX1fdwhj
-         KUgUU2z0hsjceLKl9TyenmyPrK+/7T2rNfOV27/d/4UZ/0+jf8z+1vhiAu82Qpjj9wjn
-         G5cTyRoNDzTcIfDpvmJipKCfW2xJ6L8d1e5v7ywLBITJ12YuacPtFhYMFY/Eet3mMAVO
-         baX/YeiWrG4epEXBIEGjeKQCc06TxXaor7oZQQx8MLaR+ntKqGlqHNRLfUHl/dCy9IHw
-         SU1Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784223188; x=1784827988;
-        h=in-reply-to:content-disposition:content-description:content-type
-         :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=xrxnv9tUHFGYCrkcPFQu3jVeHPBv/ZazS8X/HiiUaCM=;
-        b=ouzNLimNJUWGeJyBwOfhik5shETXEKH8pfjHyrQkqvrD9th/eVNn0fwpBv9BBQNrbF
-         kZ1tbbRgu6EklD2yRBXA712g4fWSCvGJzH4Of4ZyDjToyTudkO65f0+SSglRagx2B7bw
-         ztnksu45rVaSNCe5c9K4UBg1d+aNj+s7t4lomQcv0Pl59KIJsX9rm3MXKXvlVL94jwyN
-         CHjlLeHeLO5jJMA0liY9xMdfMlqROnH1Oot0orzgRpoip+YNR1/dFwdZvd8WfXfF3mCI
-         +nPya5eWMHt0UEN5G7JaQzxtBVeuNAiWsFbvZCMBOc/cq/ZSrzge7tQalHkvIMPyaAsu
-         nLHw==
-X-Forwarded-Encrypted: i=1; AHgh+Rq34PlGTI/yys5FwQxJi5/Qpqm/YC7EpIhkbZBj8EtSpZabYlCdXZyOqC8Z1+QXhx6jVRxd1Hsj9zYvkA==@vger.kernel.org
-X-Gm-Message-State: AOJu0Ywty1XHLuGfiVTx2yli8CNrlhOaF7L6aHeaqZy9al3h15WY6uuI
-	T2NTecBFJpKDMglWYuZDqQVYRqtihpffaePd9ZCJOZKaEIV28zXwHlfX
-X-Gm-Gg: AfdE7cmOkbKDbU2JvpyWmTwZ1SpA7pjzLcX9TDLu/ASsffD7FrIsUAXdoAQS34ns3i5
-	ILLNGcUxXR0UGwPkK4K4xx0EHEkwUVFqffoYTIUdqtyxjnffLcplknzwaui2d4QfSm6KtSel0ka
-	JW3wg6lJuGC3mW3m+LNRDY05S8kilfRst3tBTOhEfhQCNwyqScGaRB74bU//lxEPUVDKZ5aYRLp
-	fweLHI8qdYzdLCWArx7j61BEVZNXyXgFkhFpK3OoR3XEcYX49E2Ict+jgWjFC9Mgr15cBO5Et+c
-	U0aKNH5oxmgd11snc6mxoHmikfZd0qoA5uAgswrW9LDWf4ZmPGCsZO4D7fyOHnV1EXK0a8yot5c
-	n1KlJQqGBTMedLPR3vyZR4QnlLcYiYD/XsPeYe/7rqIJgFOiPGT8zyY4QcgyjL+8ShTlCTcGPHl
-	PwQZVxn++huu9ohZfVWDMwN9sXmfa0xuEOFeIjS4hH7RE=
-X-Received: by 2002:a05:6a20:244f:b0:3c3:9557:3b56 with SMTP id adf61e73a8af0-3c3a5e12181mr84522637.72.1784223188091;
-        Thu, 16 Jul 2026 10:33:08 -0700 (PDT)
-Received: from google.com ([2a00:79e0:2ebe:8:38ea:b937:53f6:928c])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-13cd4284a92sm10258037c88.4.2026.07.16.10.33.06
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 16 Jul 2026 10:33:07 -0700 (PDT)
-Date: Thu, 16 Jul 2026 10:33:04 -0700
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Hari Mishal <harimishal1@gmail.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Amit Shah <amit@kernel.org>, 
-	Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
-	Gerd Hoffmann <kraxel@redhat.com>, Jason Wang <jasowangio@gmail.com>, 
-	David Hildenbrand <david@kernel.org>, Henrik Rydberg <rydberg@bitmath.org>, 
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, 
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
-Subject: Re: [PATCH 2/4] virtio_input: validate device-reported multitouch
- slot count
-Message-ID: <alkU66ViqO8pnjQQ@google.com>
-References: <20260715142337.22811-1-harimishal1@gmail.com>
- <20260715142337.22811-3-harimishal1@gmail.com>
- <20260715115018-mutt-send-email-mst@kernel.org>
- <CAMmC+=AnE-p7B=DbBPYeNzJdcdiBf7q=5bfcuV0VQrPRK+pmug@mail.gmail.com>
- <20260715120911-mutt-send-email-mst@kernel.org>
- <alfPcWKMGL-S9BRl@google.com>
- <CAMmC+=DXS=xs0CZyf+N-71NT8D51xQYatBv=dfVQC1aBohDdmA@mail.gmail.com>
- <alkTnRb9qhgcMGGi@google.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ohIkqRSa"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F11031F000E9;
+	Thu, 16 Jul 2026 22:12:38 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1784239959;
+	bh=wqHcuPVvvxXWxaysAf9SzeGo2yhyLZDJBTeRKU8ATfc=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=ohIkqRSaZ1F+eaXNAQmZkOjwuLDD8rkHwHrJ0rJj+tzNRibmdoaXMrPWqfwS0LKrQ
+	 +QSML5WqXq6l1m4Z5sVZcy7iDeGzrtBCHIpPu5H3E7EsyekTazlLCl+SviOEVEGtBK
+	 1zvzerPAKXFTvHqWjI3eRPc2E5OPPzRgrMuxVfMHwHBfkgKf9+xYGX9CUuZ7IK3DMg
+	 hLYcyGG2SEjpdC+qt30X4g5vU9H9S12UwaYTl/begEvFeS2ygWX1y7eU6Ahv97pfM1
+	 kB5Dvi92clrMZZAs7b5RiE+3O4MeeV8As0ngac03dxd0LSsXhkse5R4/mdxoq6MgBL
+	 VFv2UVcNHFhZA==
+Date: Thu, 16 Jul 2026 17:12:38 -0500
+From: Rob Herring <robh@kernel.org>
+To: sashiko-reviews@lists.linux.dev
+Cc: Eduard Bostina <egbostina@gmail.com>, dmitry.torokhov@gmail.com,
+	conor+dt@kernel.org, linux-input@vger.kernel.org,
+	devicetree@vger.kernel.org
+Subject: Re: [PATCH] dt-bindings: input: Convert TI Keypad Controller to DT
+ schema
+Message-ID: <20260716221238.GA1523257-robh@kernel.org>
+References: <20260708123252.1768355-1-egbostina@gmail.com>
+ <20260708124112.1DC541F00A3A@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -86,43 +44,49 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Description: avid@kernel.org>, Henrik Rydberg =?utf-8?Q?=3Crydberg?=
-	=?utf-8?Q?=40bitmath=2Eorg=3E=2C__Xuan_Zhuo_=3Cxuanzhuo=40linux=2Ealibaba?=
-	=?utf-8?B?LmNvbT4sIEV1Z2VuaW8gUMOpcmV6?= <eperezma@redhat.com>,   
 Content-Disposition: inline
-In-Reply-To: <alkTnRb9qhgcMGGi@google.com>
+In-Reply-To: <20260708124112.1DC541F00A3A@smtp.kernel.org>
 
-[ Just realized that CC was dropped in the email I was replying to, so
-  restoring and resending... ]
+On Wed, Jul 08, 2026 at 12:41:11PM +0000, sashiko-bot@kernel.org wrote:
+> Thank you for your contribution! Sashiko AI review found 1 potential issue(s) to consider:
+> - [Medium] Properties strictly required by the hardware and driver ('keypad,num-rows', 'keypad,num-columns', 'interrupts', and 'linux,keymap') are omitted from the 'required:' list, allowing non-functional device trees to silently pass validation.
+> --
+> 
+> --- Patch [1]: [PATCH] dt-bindings: input: Convert TI Keypad Controller to DT schema ---
+> commit 31e1662350e854e7b96beb7e7de83fc2b0d265e2
+> Author: Eduard Bostina <egbostina@gmail.com>
+> 
+> dt-bindings: input: Convert TI Keypad Controller to DT schema
+> 
+> This commit converts the Texas Instruments Keypad Controller bindings to DT
+> schema format. It updates the autorepeat property name, adds the reg-names
+> property, and omits the keypad row and column properties from the required
+> list to prevent validation failures.
+> 
+> > diff --git a/Documentation/devicetree/bindings/input/ti,omap4-keypad.yaml b/Documentation/devicetree/bindings/input/ti,omap4-keypad.yaml
+> > new file mode 100644
+> > --- /dev/null
+> > +++ b/Documentation/devicetree/bindings/input/ti,omap4-keypad.yaml
+> [ ... ]
+> > +required:
+> > +  - compatible
+> > +  - reg
+> 
+> [Severity: Medium]
+> The commit message mentions that keypad,num-rows and keypad,num-columns were
+> omitted from this required list because enforcing them causes validation
+> failures. Should these properties, along with interrupts and linux,keymap,
+> be included here to accurately reflect the driver's probing requirements?
+> 
+> Omitting them allows non-functional device tree nodes to silently pass
+> schema validation. At runtime, the omap4-keypad driver will unconditionally
+> fail to probe via platform_get_irq(), matrix_keypad_parse_properties(), and
+> matrix_keypad_build_keymap() when these properties are missing.
+> 
+> Would it be better to enforce the strict hardware and driver requirements in
+> the schema, and instead fix the incomplete device tree nodes that are
+> failing validation?
 
-On Thu, Jul 16, 2026 at 10:28:36AM -0700, Dmitry Torokhov wrote:
-> On Thu, Jul 16, 2026 at 12:34:57PM +0200, Hari Mishal wrote:
-> > > What is the failure mode if we keep the ABS_MT_SLOT capability? Does the
-> > > kernel crash? And if this can cause crash then we should fix
-> > > input_mt_init_slots() to reject requests for 0 slots with -EINVAL.
-> > >
-> > 
-> > No, it doesn't crash. I think every place in the input core that touches
-> > dev->mt guards against it being NULL: input_handle_abs_event() and
-> > the mt_slots check in input.c, and evdev's EVIOCGMTSLOTS ioctl
-> > handler all explicitly check for NULL and degrade cleanly instead of
-> > dereferencing. From my understanding, the worst case is what the
-> > original commit message already covers: the device advertises
-> > multitouch support it can't back.
-> 
-> So what? I still do not see the problem. Let's say I have a device that
-> properly supports multitouch and has slots, but then never sends any
-> events because firmware is buggy. How would that affect anything?
-> 
-> If there is no crash that I would leave the driver alone.
-> 
-> And we need to remember that we are dealing with a hypervisor here that
-> normally had higher level of trust than the VM. If it messes up we do
-> not have to clean up after it. This scenario is different from user
-> attaching a malicious USB device to their system and getting owned.
-> 
-> Thanks.
-> 
+Yes. sashiko is right.
 
--- 
-Dmitry
+Rob

@@ -1,197 +1,1371 @@
-Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f44.google.com (mail-pj1-f44.google.com [209.85.216.44])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 240993E0C7E
-	for <linux-input@vger.kernel.org>; Fri, 17 Jul 2026 11:59:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D763E373BE9
+	for <linux-input@vger.kernel.org>; Fri, 17 Jul 2026 16:51:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.44
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784289563; cv=none; b=VDZDA9RbdjUYvSZOWoR7bmr15BBg8bDbe76eGO9gMwpo8tYjCH0RCPJb7QJwNIohZUIc2zfdYYBPHh53d/kfmqAbVn8ptbQ8k+T9YIIhygnqZV+PbJIWZRluRbplcjoxLL7EssU7o/87wVfPIw9llvfW7ruHIxiJO0JPWuA/GJ4=
+	t=1784307118; cv=none; b=M5euhQjV3FDqjWnUyh10KyXPmsI8YmLu6nrmCELjDsdoDDILWzhwJ0xbCfW6EKB0y016JEliikQExuLzc9gv/NA+57fSmr7qlGbTV6xCBITw+IwOo7hUJFhos3PVt5lEvNSOV9iZJ1dyITJ/5+yIOwN4bD4uBa+Wc7hKW5C/VME=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784289563; c=relaxed/simple;
-	bh=wLgTkMikiSbd9EETCL4OC2V4sC6VMcKKXxFpY7T/3u0=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=SN9IO47hjYmMpUIq2rkzdBck59l7N5B6s4ycP097OSedlXEGuDGv49aYUYG8ly+SjGL/LMiPD7WpViUnNZ7ZnWOj2sHGHfVqMDgDB2SYKWzKorpyZJFYrMpFO3h8Vd5gNhMAlOPRHhjzJuehC57dMRZanhzh5brZGQeUC7LVbJQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=aGfzZI38; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=ERB1UhMD; arc=none smtp.client-ip=205.220.168.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
+	s=arc-20240116; t=1784307118; c=relaxed/simple;
+	bh=O7oAtmDOxVCGBn/eOikhknjiga9uNbc/ASirSmRCeGU=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=l5QJQZh8II8wlvW1Wt2hJbmwkU5sroH8qAlkhjdpJCs3aH03zmLGEiNkJuleU0Mfq9l5eKp3Gilmd1jeIZOd+/Y3YB850Cxp6111gMWaeonfkzfvTw6D4TELsy7Giv9kB+8Do2o1ek6jGLwq6+hbDgrmt/+cN/RopOcUXUzzrVQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=n4VFCEYe; arc=none smtp.client-ip=209.85.216.44
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="aGfzZI38";
-	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="ERB1UhMD"
-Received: from pps.filterd (m0279866.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66HASjkZ1323622
-	for <linux-input@vger.kernel.org>; Fri, 17 Jul 2026 11:59:20 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
-	cc:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
-	l2WW88pkuY5/0eUYbgKQy/IhR7+DvJy1Dhr2ugfIMRc=; b=aGfzZI38RPJvc55y
-	5yHy1U1ERavWLoCu6/g07n9nokwXN6GWE66C7awPfVr9uWCcnzDidkpaHXgJdQzv
-	4FqJnPjVORbnUO0thsZBMZ8H9QpIDs0usJ86PHb0Mcf+ACzhbFWe8C9XYQ9Fh5sh
-	k/q8gGiJ2SDnT8cqBf+Nev3Sa2E0jdwC6njGHWZT8wVnmbU+bB/vvX14mzUOYFlD
-	gW9LEZQS3s0gXoT2m4GUaKhvNM7AA9BzV6N8cBA6d+syuHIgxpRhh3kCv/jS3gsH
-	8/X6GZyGD2JIUAkh5x49XnghRi1cITA0myCjogjrJ2GRC9bFSRjuAsC8uWmCdS8N
-	MD2MQA==
-Received: from mail-pl1-f199.google.com (mail-pl1-f199.google.com [209.85.214.199])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4ff3u8kjx0-1
-	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
-	for <linux-input@vger.kernel.org>; Fri, 17 Jul 2026 11:59:20 +0000 (GMT)
-Received: by mail-pl1-f199.google.com with SMTP id d9443c01a7336-2cc8bde6318so138870445ad.3
-        for <linux-input@vger.kernel.org>; Fri, 17 Jul 2026 04:59:20 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="n4VFCEYe"
+Received: by mail-pj1-f44.google.com with SMTP id 98e67ed59e1d1-383b4a3755fso4540327a91.3
+        for <linux-input@vger.kernel.org>; Fri, 17 Jul 2026 09:51:55 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=oss.qualcomm.com; s=google; t=1784289560; x=1784894360; darn=vger.kernel.org;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :content-type:mime-version:subject:date:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=l2WW88pkuY5/0eUYbgKQy/IhR7+DvJy1Dhr2ugfIMRc=;
-        b=ERB1UhMDAAq4wBswh/AWwDZFJFjY0ZAZhOOMO7a2xkKimcYntmDlNhveh8f3JqvCPZ
-         /xhHFy8WanRgh93vH++fWiFoUPhnLgV1KE/ndaoQQd4+x1rwDa/H9Ux11VxlJOvDMVca
-         BVT0bOxA3wlHnOcDhymnHyCAQ8WwAXIesKRn3vc99UoVwe3tnByNNJzDi/ADP9WN64+V
-         LqmjC4v5rblFX3yXVjq3wyHeWU65orSQtppDu66CwoEwbwebPGNENKF4ZcGrWDG29JX/
-         gaHUQF6V1DvB3eudOrykFO0U1sG36K8415klr4Zw//Ew2z7fZvfLWZAt0SI09YKdIYJy
-         d/Jw==
+        d=gmail.com; s=20251104; t=1784307115; x=1784911915; darn=vger.kernel.org;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :content-type:mime-version:references:message-id:subject:cc:to:from
+         :date:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=Xj1Ow7bybHJBKuB+qTMrEr0ADzjtjjXE9S94aBd3W4I=;
+        b=n4VFCEYeTyrMfNHFMd5Q27F8NW+XWYBnWN4sRrWKu+IIdEw31/zJLRRKHQJclshSIZ
+         Llz0e8OgtAKn+e5wepZwAWW1uhBbP9WUH4B6+AEj9kNn3TQRfzw+0B4W3//F943+pWgt
+         Oz4WORcIQgBJDk7FP5x1ipQpqsWZ9i3yWLWWwdPK+H/MJrztgxBEb4ga/CqrZtyVotxu
+         0fHQ4O7wUe6j678zyMwJr6/GkdlitfLGnGt+4vqhX3wTDEhOr245DFy3JFJgY0iNG0+7
+         MabekHvwjvvYFC6k3WhIKGq0YQb0Nu9cJUqiPMoRIRmneTdcplHjAJ5NYyRBOxILFlAw
+         +0LA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784289560; x=1784894360;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :content-type:mime-version:subject:date:from:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=l2WW88pkuY5/0eUYbgKQy/IhR7+DvJy1Dhr2ugfIMRc=;
-        b=htrWzcMWIn/Bzs1gYpVs4M9hojNW8y46LVuUnRnhoY21yYXA2rp3x9Xxz6NbKGMbsC
-         XpcGUzu/W16vEYHXokwOZFrqpJmPlDDSaYDbndcxE8ZUgTJNt3/jEOBm2qoHCnvg6gd9
-         QyGeF9IAwOnx2id0ltw50J2YQ/MLEag4D920UZzgLnPNCdTdYZqK466cVKc/Opzpv9y4
-         CRfh0qdLJfDwGwY1lsVQp5MNDSQTCj/O780rL11pvcEZeR5xB6bL2n/YkKKwKfT86fNA
-         2cVMrphLsuDTK5WTa5tTgsGOPwX9cx0p0A79DNg+3utSE6Llsg3QxodNJNl7Opb/tNUo
-         rpEw==
-X-Forwarded-Encrypted: i=1; AHgh+Rq19PV573BoVyVkTSwQRHzg+dqdKTcQbJgs6xK+fJIDEJr+HN0rZ4spraJLRGSRkBeIiUzehS1TrF0h8w==@vger.kernel.org
-X-Gm-Message-State: AOJu0YxENWaymv8NXQae6JwXv+DqKrAMDCSPykr72O9mWlvDponSBXOj
-	tvhPSrwUWbOnQ8ZvKkxr9qlQHODLBo2EINI3TO49clKibYBs7TjRB2IsAfcoaGK/fJ3qAZ4cb9O
-	FzB/h7o4xOK1CcsriBd/ivrTkgEd5xtgnfFpI5A7o7TRVJv+vyMKWjFvIllWdF5QQdPUCiAU75A
-	==
-X-Gm-Gg: AfdE7cnPO1n+8XrkGYWNxsmds4iKr250aNN0EEEOB8hrBWUfO3Xo+r6QJTdK7B0N7yn
-	5zvAFe3zQ2ucSAboKJcCIEbf5NoOgWnKC+ICgtQa6sEyIE80XaQEUzhv+ApKmH02fThXJ0RcIvr
-	fYU/cVrl99uR49csE7FJvZDjD80Xi3Z6d48MleBux4u9vWo3kNJar3p7WNq0brFCobGCmWVpW05
-	PaU6BlXfkxNSeuZ67itw6wopq8Ddf//+bJ7vG+O5VoTqQzxx9Io3xvGH2Y1nZD1mWDNx6/GGvlm
-	g8SqHtF/6Hy9Z4h8vhXtqrbF8l3z7xBXfSoCMWBbwWs98TKI1GdoDY2hedOJtKGckiIzKj1+Cu1
-	u8MPebQXlIL1/qmyc
-X-Received: by 2002:a17:903:3843:b0:2ca:53e1:b915 with SMTP id d9443c01a7336-2cf348c3522mr24759625ad.14.1784289559583;
-        Fri, 17 Jul 2026 04:59:19 -0700 (PDT)
-X-Received: by 2002:a17:903:3843:b0:2ca:53e1:b915 with SMTP id d9443c01a7336-2cf348c3522mr24759225ad.14.1784289559169;
-        Fri, 17 Jul 2026 04:59:19 -0700 (PDT)
-Received: from [10.213.96.151] ([202.46.23.25])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2cf346da07csm9444305ad.52.2026.07.17.04.59.14
+        d=1e100.net; s=20251104; t=1784307115; x=1784911915;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :content-type:mime-version:references:message-id:subject:cc:to:from
+         :date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=Xj1Ow7bybHJBKuB+qTMrEr0ADzjtjjXE9S94aBd3W4I=;
+        b=QUCYcuNQS5ztcMgzZCYlK+dZEYAbmd7ItBqLhffJ0+fyrl21pxuSALTZ61gm1z40tH
+         kmv0f8rKkfjBBDg9BKRLIbEbqjHI0jbl9VYa3VQWPZDVi/A+S7mztJIkVojh6FCOzRne
+         B9y7FGnFdsSGTJ7yG5tzoG1qdTY8LCrw2toEblENKf81gCKed9/q5gbEOXgWeSsVS0CL
+         E4H6HeqtAl6i2xSovaoR7hToIPz/O7ODMhZ4eiOaAzhoKUAieHNB+eKj++rICgYnqhhf
+         2DqIGtPsjWjkNkmIsVyOsdXwzF1wYWveBI8fQrNQgyC7cQnfty6CEPYgclORMMBVIR0q
+         kKow==
+X-Forwarded-Encrypted: i=1; AHgh+Ropi20LuYU2ZofOAhacqnpP46gziPdAJOhVaGlc919nhcQd6QrAyiTG4WiPlbaVpR7d7W6kSvSKdtkn4A==@vger.kernel.org
+X-Gm-Message-State: AOJu0YzjmNvXtd4sb9hfbF2bUFzSH43/wyoDVpfenVLW9iVGNA/uMqZ+
+	DHLKFUSLvOuQFhWfQFMHgBtt02/n2QQBBl9HDPqJRMcCOjRgWo85xXN0
+X-Gm-Gg: AfdE7cnHEhC61VeNNixWeppWnfqfuVpsXB9i+MSn3dgXHByiWELehp/Nplc8acJcQjL
+	YMrF9c83HZNF754rLZZBfhR5JIAcnHv7VyO0W5ubPJVIwXDzrqHvNV6xr/nb7G2l4QRlQDxZOV2
+	uvbDQ2bLNk1a4QsZZ0oUFW+ByDr3LQFpkBGwVqwktFkR6msjXQgVagjvE3bgr+vyvhGUoLQmlAF
+	PTOba5mQx7+uR7/oOPCEQ95Agxk+5zxT6EHgStRZfyabbcd+aTJVELFDAZIDbnt8BrPb+U9dT6R
+	y3MEOWw4vR2iX1a60PJ4Duq+330JMVxx5Byh0dpcmjVYNyLTvjME3TDM62viR/InC6wSqfiOiUO
+	dceG8S5Zazdb7to0PNeAjqoDTpoRBYVnhVT15fmf2PunxAzdI9jChtfgN5pmZrkY+INQ4D5Iovj
+	pxDjHN7P3QIfa0fpGikv9wLSJfBIIFzZjxRbm0+UTRLVk=
+X-Received: by 2002:a17:90a:e7d1:b0:37f:9ce1:cdab with SMTP id 98e67ed59e1d1-38e4b59b908mr3917325a91.33.1784307114797;
+        Fri, 17 Jul 2026 09:51:54 -0700 (PDT)
+Received: from google.com ([2a00:79e0:2ebe:8:7638:3cbc:f1c5:2eeb])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3142a1de21asm8631478eec.23.2026.07.17.09.51.52
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 17 Jul 2026 04:59:18 -0700 (PDT)
-From: Pradyot Kumar Nayak <pradyot.nayak@oss.qualcomm.com>
-Date: Fri, 17 Jul 2026 17:28:35 +0530
-Subject: [PATCH v4 2/2] arm64: dts: qcom: glymur-crd: Add FocalTech ft3d81
- touchscreen support
+        Fri, 17 Jul 2026 09:51:53 -0700 (PDT)
+Date: Fri, 17 Jul 2026 09:51:50 -0700
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Fenglin Wu <fenglin.wu@oss.qualcomm.com>
+Cc: linux-arm-msm@vger.kernel.org, Rob Herring <robh@kernel.org>, 
+	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, Lee Jones <lee@kernel.org>, 
+	Stephen Boyd <sboyd@kernel.org>, Bjorn Andersson <andersson@kernel.org>, 
+	Konrad Dybcio <konradybcio@kernel.org>, David Collins <david.collins@oss.qualcomm.com>, 
+	Subbaraman Narayanamurthy <subbaraman.narayanamurthy@oss.qualcomm.com>, Kamal Wadhwa <kamal.wadhwa@oss.qualcomm.com>, 
+	kernel@oss.qualcomm.com, linux-input@vger.kernel.org, devicetree@vger.kernel.org, 
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v4 3/3] input: misc: Add Qualcomm SPMI PMIC haptics driver
+Message-ID: <alpWEL1hJgQ18I7d@google.com>
+References: <20260717-qcom-spmi-haptics-v4-0-b0fe0ed30849@oss.qualcomm.com>
+ <20260717-qcom-spmi-haptics-v4-3-b0fe0ed30849@oss.qualcomm.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20260717-add_focaltech_ft3d81_touchscreen_support-v4-2-5dd091e25801@oss.qualcomm.com>
-References: <20260717-add_focaltech_ft3d81_touchscreen_support-v4-0-5dd091e25801@oss.qualcomm.com>
-In-Reply-To: <20260717-add_focaltech_ft3d81_touchscreen_support-v4-0-5dd091e25801@oss.qualcomm.com>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh@kernel.org>,
-        Krzysztof Kozlowski <krzk+dt@kernel.org>,
-        Conor Dooley <conor+dt@kernel.org>,
-        Daniel Peng <Daniel_Peng@pegatron.corp-partner.google.com>,
-        Bjorn Andersson <andersson@kernel.org>,
-        Konrad Dybcio <konradybcio@kernel.org>,
-        Abel Vesa <abel.vesa@oss.qualcomm.com>,
-        Dmitry Baryshkov <dmitry.baryshkov@oss.qualcomm.com>
-Cc: linux-arm-msm@vger.kernel.org, linux-input@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>,
-        Pradyot Kumar Nayak <pradyot.nayak@oss.qualcomm.com>
-X-Mailer: b4 0.13.0
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1784289544; l=1886;
- i=pradyot.nayak@oss.qualcomm.com; s=20251128; h=from:subject:message-id;
- bh=wLgTkMikiSbd9EETCL4OC2V4sC6VMcKKXxFpY7T/3u0=;
- b=LkXPR0JAsONPKjP6TPIhRKFadH1YnUJfwbqURe46NcFv2KfPXnV6kgFTzI1CEGuuaftT3iXL7
- XJb9E8QYGnpDoYVQOaHYpu0xjKrzO31rVP6CQEvBwak/VqP2cuRhOJr
-X-Developer-Key: i=pradyot.nayak@oss.qualcomm.com; a=ed25519;
- pk=ZAwwH8thDSb6bq4dCgFHWr80BqB7MmUAKogkd9BsiXM=
-X-Proofpoint-GUID: p92nTg0jWnTjILeYLAI8x3hxdvpWZvYm
-X-Proofpoint-ORIG-GUID: p92nTg0jWnTjILeYLAI8x3hxdvpWZvYm
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNzE3MDEyMSBTYWx0ZWRfX9t0S44cq7oR9
- jqHl4wnmKIi7SQ8TSKV+gGmNHHXVEE6ymRfOeLUKhpypyIQ83XBWpAEA24430Thzah4xvIEaVy3
- f8iwlIwjtFj0BzejyBoenrIX+rUdPq8=
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzE3MDEyMSBTYWx0ZWRfXwGkOblYBb89h
- VVYnaGglGPaKJuOAc5RWmLab0t/ilZ+KEuac9+1jF03XvFUP296N6h4xCRJlGLVAm8fc1+nMdFd
- DBFP3m74ObCAjFNbV4NHXrl50pwKm+mRpXHTc1gjH1SobUqfAe0bJbkhSnoJHo9zBiEjcinsKcA
- Ha/xgPWRpSO582l0OKG7J8QhGO1W3bqj1GwZabklXRIAJX4Rht0Laa9goJ54JHtv//8D8N79hLu
- qdhu1oaIYRRUkQQJOdGJnbUaSW3RDGLR+ph6GIiIaCh42cUDjauCAps7L4cRdO7738nSa3CKB4l
- c9RH5oB5JTfLmtwDcUQcCUkxRSBFWxARPzV/TWuuEKXD2Gjj1jcgslaioVJeYmipy74DHxnXEO7
- 54MwpBqOO6kmrR4AYJvxGlGOA/B6hnz5EEKUlqVQGmlIDMq43IsNks3CwRP5gvLYkV/VK0TEbDt
- 9WZX+Cujhm/IOEJjpaA==
-X-Authority-Analysis: v=2.4 cv=TL11jVla c=1 sm=1 tr=0 ts=6a5a1918 cx=c_pps
- a=JL+w9abYAAE89/QcEU+0QA==:117 a=ZePRamnt/+rB5gQjfz0u9A==:17
- a=IkcTkHD0fZMA:10 a=RAioF0-LDSMA:10 a=s4-Qcg_JpJYA:10
- a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22 a=YMgV9FUhrdKAYTUUvYB2:22
- a=EUspDBNiAAAA:8 a=0495JNKQyQk9beBy_SoA:9 a=QEXdDO2ut3YA:10
- a=324X-CrmTo6CU4MGRt3R:22
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-07-17_03,2026-07-15_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- impostorscore=0 priorityscore=1501 clxscore=1015 lowpriorityscore=0
- spamscore=0 bulkscore=0 malwarescore=0 suspectscore=0 adultscore=0
- phishscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
- definitions=main-2607170121
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20260717-qcom-spmi-haptics-v4-3-b0fe0ed30849@oss.qualcomm.com>
 
-The touchscreen module on Glymur/Mahua CRDs is different from
-the one used on Hamoa CRDs and requires the reset-gpios to be wired to
-the device. Without this in place the reset line will remain
-permanently asserted during resume leaving the device offline and causing
-all I2C transactions to fail with -ENXIO.
+Hi Fenglin,
 
-i2c_hid_of 3-0038: failed to change power setting.
-i2c_hid_of 3-0038: PM: dpm_run_callback():
-i2c_hid_core_pm_resume [i2c_hid] returns -6
-i2c_hid_of 3-0038: PM: failed to resume async: error -6
+On Fri, Jul 17, 2026 at 12:29:01AM -0700, Fenglin Wu wrote:
+> Add an initial driver for the Qualcomm PMIH0108 PMIC haptics module,
+> named as HAP530_HV. This module supports several play modes, including
+> DIRECT_PLAY, FIFO, PAT_MEM, and SWR, each with distinct data sourcing
+> and hardware data handling logic. Currently, the driver provides support
+> for two play modes using the input force-feedback framework: FF_CONSTANT
+> effect for DIRECT_PLAY mode and FF_PERIODIC effect with FF_CUSTOM
+> waveform for FIFO mode.
+> 
+> Assisted-by: Claude:claude-4-8-opus
+> Signed-off-by: Fenglin Wu <fenglin.wu@oss.qualcomm.com>
+> ---
+>  drivers/input/misc/Kconfig             |   11 +
+>  drivers/input/misc/Makefile            |    1 +
+>  drivers/input/misc/qcom-spmi-haptics.c | 1178 ++++++++++++++++++++++++++++++++
+>  3 files changed, 1190 insertions(+)
+> 
+> diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
+> index 1f6c57dba030..4f40940973e4 100644
+> --- a/drivers/input/misc/Kconfig
+> +++ b/drivers/input/misc/Kconfig
+> @@ -236,6 +236,17 @@ config INPUT_PMIC8XXX_PWRKEY
+>  	  To compile this driver as a module, choose M here: the
+>  	  module will be called pmic8xxx-pwrkey.
+>  
+> +config INPUT_QCOM_SPMI_HAPTICS
+> +	tristate "Qualcomm SPMI PMIC haptics support"
+> +	depends on MFD_SPMI_PMIC
+> +	help
+> +	  Say Y to enable support for the Qualcomm PMIH0108 SPMI PMIC haptics
+> +	  module. Supports DIRECT_PLAY, FIFO streaming play modes via the
+> +	  Linux input force-feedback framework.
+> +
+> +	  To compile this driver as a module, choose M here: the module will
+> +	  be called qcom-spmi-haptics.
+> +
+>  config INPUT_SPARCSPKR
+>  	tristate "SPARC Speaker support"
+>  	depends on PCI && SPARC64
+> diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
+> index 2281d6803fce..c5c9aa139a11 100644
+> --- a/drivers/input/misc/Makefile
+> +++ b/drivers/input/misc/Makefile
+> @@ -69,6 +69,7 @@ obj-$(CONFIG_INPUT_PMIC8XXX_PWRKEY)	+= pmic8xxx-pwrkey.o
+>  obj-$(CONFIG_INPUT_POWERMATE)		+= powermate.o
+>  obj-$(CONFIG_INPUT_PWM_BEEPER)		+= pwm-beeper.o
+>  obj-$(CONFIG_INPUT_PWM_VIBRA)		+= pwm-vibra.o
+> +obj-$(CONFIG_INPUT_QCOM_SPMI_HAPTICS)	+= qcom-spmi-haptics.o
+>  obj-$(CONFIG_INPUT_QNAP_MCU)		+= qnap-mcu-input.o
+>  obj-$(CONFIG_INPUT_RAVE_SP_PWRBUTTON)	+= rave-sp-pwrbutton.o
+>  obj-$(CONFIG_INPUT_RB532_BUTTON)	+= rb532_button.o
+> diff --git a/drivers/input/misc/qcom-spmi-haptics.c b/drivers/input/misc/qcom-spmi-haptics.c
+> new file mode 100644
+> index 000000000000..235f77e0229c
+> --- /dev/null
+> +++ b/drivers/input/misc/qcom-spmi-haptics.c
+> @@ -0,0 +1,1178 @@
+> +// SPDX-License-Identifier: GPL-2.0-only
+> +/*
+> + * Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
+> + */
+> +
+> +#include <linux/bitfield.h>
+> +#include <linux/bits.h>
+> +#include <linux/device.h>
+> +#include <linux/input.h>
+> +#include <linux/interrupt.h>
+> +#include <linux/list.h>
+> +#include <linux/math64.h>
+> +#include <linux/module.h>
+> +#include <linux/mutex.h>
+> +#include <linux/of.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/regmap.h>
+> +#include <linux/pm_runtime.h>
+> +#include <linux/slab.h>
+> +#include <linux/spinlock.h>
+> +#include <linux/uaccess.h>
+> +#include <linux/workqueue.h>
+> +
+> +/* HAP_CFG register offsets, bit fields, value constants */
+> +#define HAP_CFG_INT_RT_STS_REG		0x10
+> +#define  FIFO_EMPTY_BIT			BIT(1)
+> +#define HAP_CFG_EN_CTL_REG		0x46
+> +#define  HAPTICS_EN_BIT			BIT(7)
+> +#define HAP_CFG_VMAX_REG		0x48
+> +#define   VMAX_STEP_MV			50
+> +#define   VMAX_MV_MAX			10000
+> +#define HAP_CFG_SPMI_PLAY_REG		0x4C
+> +#define  PLAY_EN_BIT			BIT(7)
+> +#define  PAT_SRC_MASK			GENMASK(2, 0)
+> +#define   PAT_SRC_FIFO			0
+> +#define   PAT_SRC_DIRECT_PLAY		1
+> +#define HAP_CFG_TLRA_OL_HIGH_REG	0x5C
+> +#define  TLRA_OL_MSB_MASK		GENMASK(3, 0)
+> +#define   TLRA_STEP_US			5
+> +#define   TLRA_US_MAX			20475
+> +#define HAP_CFG_TLRA_OL_LOW_REG		0x5D
+> +#define HAP_CFG_DRV_DUTY_CFG_REG	0x60
+> +#define  ADT_DRV_DUTY_EN_BIT		BIT(7)
+> +#define  ADT_BRK_DUTY_EN_BIT		BIT(6)
+> +#define  DRV_DUTY_MASK			GENMASK(5, 3)
+> +#define   AUTORES_DRV_DUTY_62P5		2
+> +#define  BRK_DUTY_MASK			GENMASK(2, 0)
+> +#define   AUTORES_BRK_DUTY_62P5		5
+> +#define HAP_CFG_ZX_WIND_CFG_REG		0x62
+> +#define  ZX_DEBOUNCE_MASK		GENMASK(6, 4)
+> +#define   AUTORES_ZX_DEBOUNCE		3
+> +#define  ZX_WIN_HEIGHT_MASK		GENMASK(2, 0)
+> +#define   AUTORES_ZX_WIN_HEIGHT		2
+> +#define HAP_CFG_AUTORES_CFG_REG		0x63
+> +#define  AUTORES_EN_BIT			BIT(7)
+> +#define  AUTORES_EN_DLY_MASK		GENMASK(6, 2)
+> +#define   AUTORES_EN_DLY_CYCLES		10
+> +#define  AUTORES_ERR_WIN_MASK		GENMASK(1, 0)
+> +#define   AUTORES_ERR_WIN_25PCT		1
+> +#define HAP_CFG_FAULT_CLR_REG		0x66
+> +#define  ZX_TO_FAULT_CLR_BIT		BIT(4)
+> +#define  SC_CLR_BIT			BIT(2)
+> +#define  AUTO_RES_ERR_CLR_BIT		BIT(1)
+> +#define  HPWR_RDY_FAULT_CLR_BIT		BIT(0)
+> +#define  FAULT_CLR_ALL	(ZX_TO_FAULT_CLR_BIT | SC_CLR_BIT | \
+> +			 AUTO_RES_ERR_CLR_BIT | HPWR_RDY_FAULT_CLR_BIT)
+> +#define HAP_CFG_RAMP_DN_CFG2_REG	0x86
+> +#define  AUTORES_PRE_HIZ_DLY_10US	1
+> +
+> +/* HAP_PTN register offsets, bit fields, value constants */
+> +#define HAP_PTN_REVISION2_REG		0x01
+> +#define HAP_PTN_FIFO_DIN_0_REG		0x20
+> +#define HAP_PTN_FIFO_PLAY_RATE_REG	0x24
+> +#define  FIFO_PLAY_RATE_MASK		GENMASK(3, 0)
+> +#define HAP_PTN_DIRECT_PLAY_REG		0x26
+> +#define HAP_PTN_FIFO_EMPTY_CFG_REG	0x2A
+> +#define  FIFO_THRESH_LSB		64
+> +#define HAP_PTN_FIFO_DIN_1B_REG		0x2C
+> +#define HAP_PTN_MEM_OP_ACCESS_REG	0x2D
+> +#define  MEM_FLUSH_RELOAD_BIT		BIT(0)
+> +#define HAP_PTN_MMAP_FIFO_REG		0xA0
+> +#define  MMAP_FIFO_EXIST_BIT		BIT(7)
+> +#define  MMAP_FIFO_LEN_MASK		GENMASK(6, 0)
+> +#define HAP_PTN_PATX_PLAY_CFG_REG	0xA2
+> +
+> +#define HAP530_MEM_TOTAL_BYTES		8192
+> +#define FIFO_EMPTY_THRESH		280
+> +#define FIFO_INIT_FILL			320
+> +
+> +#define HAPTICS_AUTOSUSPEND_MS		1000
+> +
+> +/*
+> + * FF_CUSTOM data layout (custom_data[] of type s16):
+> + *   [0] = play rate (PLAY_RATE_*)
+> + *   [1] = vmax in mV (0 = use device default from qcom,vmax-microvolt)
+> + *   [2..N-1] = signed 8-bit PCM samples packed one per s16 (lower byte used)
+> + */
+> +#define CUSTOM_DATA_RATE_IDX		0
+> +#define CUSTOM_DATA_VMAX_IDX		1
+> +#define CUSTOM_DATA_SAMPLE_START	2
+> +#define CUSTOM_DATA_MAX_LEN		(48 * 1024)
+> +
+> +#define HAPTICS_MAX_EFFECTS		8
+> +
+> +enum qcom_haptics_mode {
+> +	HAPTICS_MODE_NONE,
+> +	HAPTICS_DIRECT_PLAY,
+> +	HAPTICS_FIFO,
+> +};
+> +
+> +enum qcom_haptics_play_rate {
+> +	PLAY_RATE_T_LRA       = 0,
+> +	PLAY_RATE_T_LRA_DIV_2 = 1,
+> +	PLAY_RATE_T_LRA_DIV_4 = 2,
+> +	PLAY_RATE_T_LRA_DIV_8 = 3,
+> +	PLAY_RATE_T_LRA_X_2   = 4,
+> +	PLAY_RATE_T_LRA_X_4   = 5,
+> +	PLAY_RATE_T_LRA_X_8   = 6,
+> +	PLAY_RATE_RESERVED    = 7,
+> +	PLAY_RATE_F_8KHZ      = 8,
+> +	PLAY_RATE_F_16KHZ     = 9,
+> +	PLAY_RATE_F_24KHZ     = 10,
+> +	PLAY_RATE_F_32KHZ     = 11,
+> +	PLAY_RATE_F_44P1KHZ   = 12,
+> +	PLAY_RATE_F_48KHZ     = 13,
+> +	PLAY_RATE_MAX	      = PLAY_RATE_F_48KHZ,
+> +};
+> +
+> +/**
+> + * struct qcom_haptics_effect: A haptics effect
+> + * @mode:	haptics HW play mode
+> + * @vmax_mv:	peak voltage of the haptics output waveform
+> + * @length_us:	vibration play duration
+> + * @amplitude:	DIRECT_PLAY mode output waveform amplitude
+> + * @play_rate:	FIFO mode play rate
+> + * @fifo_data:	8-bit data samples consumed in FIFO mode
+> + * @data_len:	length of the FIFO data samples
+> + */
+> +struct qcom_haptics_effect {
+> +	enum qcom_haptics_mode mode;
+> +	u32 vmax_mv;
+> +	u32 length_us;
+> +
+> +	u8 amplitude;
+> +
+> +	enum qcom_haptics_play_rate play_rate;
+> +	s8 *fifo_data;
+> +	u32 data_len;
+> +};
+> +
+> +/**
+> + * struct haptics_play_req: A haptics play request
+> + * @node:	list node of the request
+> + * @effect_id:	effect index of the request
+> + * @play:	flag of starting or stopping the play
+> + */
+> +struct haptics_play_req {
+> +	struct list_head node;
+> +	int effect_id;
+> +	bool play;
+> +};
+> +
+> +/**
+> + * struct qcom_haptics
+> + * @dev:          underlying SPMI device
+> + * @regmap:       regmap for SPMI register access
+> + * @input:        input device exposing the FF interface
+> + * @cfg_base:     base address of the CFG peripheral
+> + * @ptn_base:     base address of the PTN peripheral
+> + * @t_lra_us:     LRA resonance period in microseconds
+> + * @vmax_mv:      maximum actuator drive voltage in millivolts
+> + * @fifo_len:     programmed HW FIFO depth in bytes
+> + * @gain:         playback gain scaler
+> + * @play_work:    delayed work that plays the queued requests
+> + * @play_lock:    mutex lock to serialize playbacks
+> + * @play_queue_lock: spinlock protecting @play_queue
+> + * @play_queue:   The list of pending start/stop requests
+> + * @active_effect_id: index into @effects[] currently under play
+> + * @active_mode:  mode of the effect currently armed in hardware
+> + * @fifo_empty_irq: IRQ number for the FIFO-empty interrupt
+> + * @pm_ref_held:  true while a pm_runtime_get is held
+> + * @irq_enabled:  true if fifo_empty_irq is enabled
+> + * @fifo_lock:    mutex protecting the FIFO streaming data
+> + * @fifo_data:    pointer of the data buffer for FIFO streaming
+> + * @data_len:     length of the data buffer for current effect
+> + * @data_written: number of samples written to the hardware FIFO
+> + * @effects:      table of the effects
+> + */
+> +struct qcom_haptics {
+> +	struct device *dev;
+> +	struct regmap *regmap;
+> +	struct input_dev *input;
+> +
+> +	u32 cfg_base;
+> +	u32 ptn_base;
+> +	u32 t_lra_us;
+> +	u32 vmax_mv;
+> +	u32 fifo_len;
+> +	atomic_t gain;
+> +
+> +	struct delayed_work play_work;
+> +	struct mutex play_lock; /* mutex used to serialize playbacks */
+> +
+> +	spinlock_t play_queue_lock; /* protects play_queue */
+> +	struct list_head play_queue;
+> +
+> +	int active_effect_id;
+> +	enum qcom_haptics_mode active_mode;
+> +
+> +	int fifo_empty_irq;
+> +	bool pm_ref_held;
+> +	bool irq_enabled;
+> +
+> +	struct mutex fifo_lock; /* protect the FIFO data during play */
+> +	const s8 *fifo_data;
+> +	u32 data_len;
+> +	u32 data_written;
+> +
+> +	struct qcom_haptics_effect effects[HAPTICS_MAX_EFFECTS];
+> +};
+> +
+> +static int cfg_write(struct qcom_haptics *h, u32 off, u32 val)
+> +{
+> +	return regmap_write(h->regmap, h->cfg_base + off, val);
+> +}
+> +
+> +static int cfg_update_bits(struct qcom_haptics *h, u32 off, u32 mask, u32 val)
+> +{
+> +	return regmap_update_bits(h->regmap, h->cfg_base + off, mask, val);
+> +}
+> +
+> +static int ptn_write(struct qcom_haptics *h, u32 off, u32 val)
+> +{
+> +	return regmap_write(h->regmap, h->ptn_base + off, val);
+> +}
+> +
+> +static int ptn_update_bits(struct qcom_haptics *h, u32 off, u32 mask, u32 val)
+> +{
+> +	return regmap_update_bits(h->regmap, h->ptn_base + off, mask, val);
+> +}
+> +
+> +static int ptn_bulk_write(struct qcom_haptics *h, u32 off,
+> +			  const void *buf, size_t count)
+> +{
+> +	return regmap_bulk_write(h->regmap, h->ptn_base + off, buf, count);
+> +}
+> +
+> +static int haptics_clear_faults(struct qcom_haptics *h)
+> +{
+> +	return cfg_write(h, HAP_CFG_FAULT_CLR_REG, FAULT_CLR_ALL);
+> +}
+> +
+> +static int haptics_set_vmax(struct qcom_haptics *h, u32 vmax_mv)
+> +{
+> +	return cfg_write(h, HAP_CFG_VMAX_REG, vmax_mv / VMAX_STEP_MV);
+> +}
+> +
+> +static int haptics_config_lra_period(struct qcom_haptics *h)
+> +{
+> +	u32 tmp = h->t_lra_us / TLRA_STEP_US;
+> +	int ret;
 
-The touchscreen on Glymur/Mahua-CRD is a focaltech ft3d81,
-which is hardware-compatible with the ft8112.
-we have added the required change in DT.
+Please use "error" or "err" for such variables that hold error codes.
 
-Fixes: e6bf559f7eb9 ("arm64: dts: qcom: glymur-crd: Enable keyboard, trackpad and touchscreen")
-Fixes: f64ef325f1d9 ("arm64: dts: glymur-crd: Add reset GPIO to touchscreen node")
+> +
+> +	ret = cfg_write(h, HAP_CFG_TLRA_OL_HIGH_REG, (tmp >> 8) & TLRA_OL_MSB_MASK);
+> +	if (ret)
+> +		return ret;
+> +
+> +	return cfg_write(h, HAP_CFG_TLRA_OL_LOW_REG, tmp & 0xFF);
 
-Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@oss.qualcomm.com>
-Reviewed-by: Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>
-Signed-off-by: Pradyot Kumar Nayak <pradyot.nayak@oss.qualcomm.com>
----
- arch/arm64/boot/dts/qcom/glymur-crd.dtsi | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+Explicit error handling and "return 0;" in cases where there are
+multiple failure points.
 
-diff --git a/arch/arm64/boot/dts/qcom/glymur-crd.dtsi b/arch/arm64/boot/dts/qcom/glymur-crd.dtsi
-index b314c6dd423c..4ae8834b4110 100644
---- a/arch/arm64/boot/dts/qcom/glymur-crd.dtsi
-+++ b/arch/arm64/boot/dts/qcom/glymur-crd.dtsi
-@@ -679,14 +679,13 @@ &i2c8 {
- 	status = "okay";
- 
- 	touchscreen@38 {
--		compatible = "hid-over-i2c";
-+		compatible = "focaltech,ft3d81", "focaltech,ft8112";
- 		reg = <0x38>;
- 
--		hid-descr-addr = <0x1>;
- 		interrupts-extended = <&tlmm 51 IRQ_TYPE_LEVEL_LOW>;
- 
--		vdd-supply = <&vreg_misc_3p3>;
--		vddl-supply = <&vreg_l15b_e0_1p8>;
-+		vcc33-supply = <&vreg_misc_3p3>;
-+		vccio-supply = <&vreg_l15b_e0_1p8>;
- 
- 		reset-gpios = <&tlmm 48 GPIO_ACTIVE_LOW>;
- 
+> +}
+> +
+> +static int haptics_enable_module(struct qcom_haptics *h, bool enable)
+> +{
+> +	return cfg_update_bits(h, HAP_CFG_EN_CTL_REG, HAPTICS_EN_BIT,
+> +			       enable ? HAPTICS_EN_BIT : 0);
+> +}
+> +
+> +static int haptics_configure_autores(struct qcom_haptics *h)
+> +{
+> +	int ret;
+> +
+> +	/* AUTORES_CFG: enable, 10-cycle delay, 25% error window */
+> +	ret = cfg_write(h, HAP_CFG_AUTORES_CFG_REG,
+> +			AUTORES_EN_BIT |
+> +			FIELD_PREP(AUTORES_EN_DLY_MASK, AUTORES_EN_DLY_CYCLES) |
+> +			FIELD_PREP(AUTORES_ERR_WIN_MASK, AUTORES_ERR_WIN_25PCT));
+> +	if (ret)
+> +		return ret;
+> +
+> +	/* DRV_DUTY: adaptive drive/brake duty cycles at 62.5% */
+> +	ret = cfg_write(h, HAP_CFG_DRV_DUTY_CFG_REG,
+> +			ADT_DRV_DUTY_EN_BIT | ADT_BRK_DUTY_EN_BIT |
+> +			FIELD_PREP(DRV_DUTY_MASK, AUTORES_DRV_DUTY_62P5) |
+> +			FIELD_PREP(BRK_DUTY_MASK, AUTORES_BRK_DUTY_62P5));
+> +	if (ret)
+> +		return ret;
+> +
+> +	/* Pre-HIZ delay: 10 µs */
+> +	ret = cfg_write(h, HAP_CFG_RAMP_DN_CFG2_REG, AUTORES_PRE_HIZ_DLY_10US);
+> +	if (ret)
+> +		return ret;
+> +
+> +	/* Zero-cross window: debounce 3, no hysteresis, height 2 */
+> +	return cfg_write(h, HAP_CFG_ZX_WIND_CFG_REG,
+> +			 FIELD_PREP(ZX_DEBOUNCE_MASK, AUTORES_ZX_DEBOUNCE) |
+> +			 FIELD_PREP(ZX_WIN_HEIGHT_MASK, AUTORES_ZX_WIN_HEIGHT));
+> +}
+> +
+> +static int haptics_write_fifo_chunk(struct qcom_haptics *h,
+> +				    const s8 *data, u32 len)
+> +{
+> +	u32 bulk_len = ALIGN_DOWN(len, 4);
+> +	int i, ret;
+> +
+> +	/*
+> +	 * FIFO data writing supports both 4-byte bulk writes using registers
+> +	 * [HAP_PTN_FIFO_DIN_0_REG ... HAP_PTN_FIFO_DIN_3_REG], and 1-byte writes
+> +	 * using the HAP_PTN_FIFO_DIN_1B_REG register. The 4-byte bulk write is more
+> +	 * efficient, so use 4-byte writes for the initial 4-byte aligned data,
+> +	 * and 1-byte writes for any trailing remainder.
+> +	 */
+> +	for (i = 0; i < bulk_len; i += 4) {
+> +		ret = ptn_bulk_write(h, HAP_PTN_FIFO_DIN_0_REG, &data[i], 4);
+> +		if (ret)
+> +			return ret;
+> +	}
+> +
+> +	for (; i < len; i++) {
+> +		ret = ptn_write(h, HAP_PTN_FIFO_DIN_1B_REG, (u8)data[i]);
+> +		if (ret)
+> +			return ret;
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+> +static int haptics_configure_fifo_mmap(struct qcom_haptics *h)
+> +{
+> +	u32 fifo_len, fifo_units;
+> +
+> +	/* Config all memory space for FIFO usage for now */
+> +	fifo_len = HAP530_MEM_TOTAL_BYTES;
+> +	fifo_len = ALIGN_DOWN(fifo_len, 64);
+> +	fifo_units = fifo_len / 64;
+> +	h->fifo_len = fifo_len;
+> +
+> +	return ptn_write(h, HAP_PTN_MMAP_FIFO_REG,
+> +			 MMAP_FIFO_EXIST_BIT |
+> +			 FIELD_PREP(MMAP_FIFO_LEN_MASK, fifo_units - 1));
+> +}
+> +
+> +static u32 haptics_gain_scaled_vmax(struct qcom_haptics *h, u32 vmax_mv)
+> +{
+> +	u16 gain = atomic_read(&h->gain);
+> +	u32 v = mult_frac(vmax_mv, gain, 0xFFFF);
+> +
+> +	return max_t(u32, v, VMAX_STEP_MV);
+> +}
+> +
+> +static void haptics_fifo_irq_enable(struct qcom_haptics *h, bool enable)
+> +{
+> +	if (h->irq_enabled == enable)
+> +		return;
+
+Should t you know if given code runs with interrupts disabled or
+enabled? I believe this tracking and the wrapper should be removed.
+
+> +
+> +	if (enable)
+> +		enable_irq(h->fifo_empty_irq);
+> +	else
+> +		disable_irq(h->fifo_empty_irq);
+> +
+> +	h->irq_enabled = enable;
+> +}
+> +
+> +static int haptics_enqueue_play_req(struct qcom_haptics *h, int effect_id, bool play)
+> +{
+> +	struct haptics_play_req *req;
+> +
+> +	guard(spinlock_irqsave)(&h->play_queue_lock);
+> +
+> +	/*
+> +	 * Coalesce with an already queued request for
+> +	 * the same effect instead of appending.
+> +	 */
+> +	list_for_each_entry(req, &h->play_queue, node) {
+> +		if (req->effect_id == effect_id) {
+> +			req->play = play;
+> +			return 0;
+> +		}
+> +	}
+> +
+> +	req = kmalloc_obj(*req, GFP_ATOMIC);
+> +	if (!req)
+> +		return -ENOMEM;
+> +
+> +	req->effect_id = effect_id;
+> +	req->play = play;
+> +
+> +	list_add_tail(&req->node, &h->play_queue);
+> +
+> +	return 0;
+> +}
+> +
+> +static struct haptics_play_req *haptics_dequeue_play_req(struct qcom_haptics *h)
+> +{
+> +	struct haptics_play_req *req = NULL;
+> +
+> +	guard(spinlock_irqsave)(&h->play_queue_lock);
+> +
+> +	if (!list_empty(&h->play_queue)) {
+> +		req = list_first_entry(&h->play_queue, struct haptics_play_req, node);
+> +		list_del(&req->node);
+> +	}
+> +
+> +	return req;
+> +}
+> +
+> +static bool haptics_queue_pending(struct qcom_haptics *h)
+> +{
+> +	guard(spinlock_irqsave)(&h->play_queue_lock);
+> +
+> +	return !list_empty(&h->play_queue);
+
+I strongly dislike this kind of functions since their result is
+obsolete the moment they return. Sometimes it is OK, but usually it
+isn't. In this driver I think it is fine, but I would much rather inline
+this into the caller and added comment. We can also schedule work
+holding this spinlock I think...
+
+> +}
+> +
+> +static void haptics_queue_remove_effect(struct qcom_haptics *h, int effect_id)
+> +{
+> +	struct haptics_play_req *req, *tmp;
+> +
+> +	guard(spinlock_irqsave)(&h->play_queue_lock);
+> +
+> +	list_for_each_entry_safe(req, tmp, &h->play_queue, node) {
+> +		if (req->effect_id == effect_id) {
+> +			list_del(&req->node);
+> +			kfree(req);
+> +		}
+> +	}
+> +}
+> +
+> +static void haptics_queue_flush(struct qcom_haptics *h)
+> +{
+> +	struct haptics_play_req *req, *tmp;
+> +
+> +	guard(spinlock_irqsave)(&h->play_queue_lock);
+> +
+> +	list_for_each_entry_safe(req, tmp, &h->play_queue, node) {
+> +		list_del(&req->node);
+> +		kfree(req);
+> +	}
+> +}
+> +
+> +static int haptics_start_direct_play(struct qcom_haptics *h, int effect_id)
+> +{
+> +	struct qcom_haptics_effect *eff = &h->effects[effect_id];
+> +	int ret;
+> +
+> +	ret = haptics_clear_faults(h);
+> +	if (ret)
+> +		return ret;
+> +
+> +	/* Enable auto-resonance for DIRECT_PLAY mode */
+> +	ret = cfg_update_bits(h, HAP_CFG_AUTORES_CFG_REG,
+> +			      AUTORES_EN_BIT, AUTORES_EN_BIT);
+> +	if (ret)
+> +		return ret;
+> +
+> +	ret = haptics_set_vmax(h, haptics_gain_scaled_vmax(h, h->vmax_mv));
+> +	if (ret)
+> +		return ret;
+> +
+> +	ret = ptn_write(h, HAP_PTN_DIRECT_PLAY_REG, eff->amplitude);
+> +	if (ret)
+> +		return ret;
+> +
+> +	return cfg_write(h, HAP_CFG_SPMI_PLAY_REG,
+> +			 PLAY_EN_BIT | FIELD_PREP(PAT_SRC_MASK, PAT_SRC_DIRECT_PLAY));
+> +}
+> +
+> +static int haptics_start_fifo(struct qcom_haptics *h, int effect_id)
+> +{
+> +	struct qcom_haptics_effect *eff = &h->effects[effect_id];
+> +	u32 vmax = eff->vmax_mv ? eff->vmax_mv : h->vmax_mv;
+> +	u32 init_len;
+> +	bool data_done;
+> +	int ret;
+> +
+> +	if (!eff->fifo_data || !eff->data_len)
+> +		return -EINVAL;
+> +
+> +	ret = haptics_clear_faults(h);
+> +	if (ret)
+> +		return ret;
+> +
+> +	/* Disable auto-resonance for FIFO mode */
+> +	ret = cfg_update_bits(h, HAP_CFG_AUTORES_CFG_REG, AUTORES_EN_BIT, 0);
+> +	if (ret)
+> +		return ret;
+> +
+> +	ret = haptics_set_vmax(h, haptics_gain_scaled_vmax(h, vmax));
+> +	if (ret)
+> +		return ret;
+> +
+> +	ret = ptn_update_bits(h, HAP_PTN_FIFO_PLAY_RATE_REG,
+> +			      FIFO_PLAY_RATE_MASK,
+> +			      FIELD_PREP(FIFO_PLAY_RATE_MASK, eff->play_rate));
+> +	if (ret)
+> +		return ret;
+> +
+> +	/* Flush FIFO before loading new data */
+> +	ret = ptn_write(h, HAP_PTN_MEM_OP_ACCESS_REG, MEM_FLUSH_RELOAD_BIT);
+> +	if (ret)
+> +		return ret;
+> +	ret = ptn_write(h, HAP_PTN_MEM_OP_ACCESS_REG, 0);
+> +	if (ret)
+> +		return ret;
+> +
+> +	guard(mutex)(&h->fifo_lock);
+> +
+> +	/* Write the initial chunk and initialise streaming state */
+> +	init_len = min_t(u32, eff->data_len, FIFO_INIT_FILL);
+> +	ret = haptics_write_fifo_chunk(h, eff->fifo_data, init_len);
+> +	if (ret)
+> +		return ret;
+> +
+> +	h->fifo_data    = eff->fifo_data;
+> +	h->data_len     = eff->data_len;
+> +	h->data_written = init_len;
+> +
+> +	/*
+> +	 * Set empty threshold.  When threshold > 0 the hardware fires the
+> +	 * FIFO-empty interrupt when occupancy drops below the threshold,
+> +	 * allowing the driver to refill.
+> +	 */
+> +	data_done = (h->data_written >= h->data_len);
+> +	if (!data_done) {
+> +		ret = ptn_write(h, HAP_PTN_FIFO_EMPTY_CFG_REG,
+> +				FIFO_EMPTY_THRESH / FIFO_THRESH_LSB);
+> +		if (ret) {
+> +			dev_err(h->dev, "set FIFO empty threshold failed, ret=%d\n", ret);
+> +			h->fifo_data = NULL;
+> +			return ret;
+> +		}
+> +
+> +		haptics_fifo_irq_enable(h, true);
+> +	}
+> +
+> +	ret = cfg_write(h, HAP_CFG_SPMI_PLAY_REG,
+> +			 PLAY_EN_BIT | FIELD_PREP(PAT_SRC_MASK, PAT_SRC_FIFO));
+> +	if (ret) {
+> +		dev_err(h->dev, "trigger FIFO play failed, ret=%d\n", ret);
+> +		ptn_write(h, HAP_PTN_FIFO_EMPTY_CFG_REG, 0);
+> +		/*
+> +		 * HW play never started since this SPMI write itself failed,
+> +		 * and the FIFO empty IRQ has never fired, so disabling the
+> +		 * IRQ synchronously here can't deadlock against 'fifo_lock'.
+> +		 */
+> +		haptics_fifo_irq_enable(h, false);
+> +		h->fifo_data = NULL;
+> +		return ret;
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+> +/*
+> + * haptics_fifo_empty_irq: Threaded IRQ handler for the FIFO-empty interrupt.
+> + *
+> + * While a FIFO play is in progress the hardware fires this interrupt when
+> + * the number of samples in the FIFO drops below the programmed threshold.
+> + * The handler refills the FIFO from the effect's data buffer.  When all
+> + * samples have been written the threshold is set to zero. The HW would
+> + * stop the play automatically after all of the samples in FIFO memory are
+> + * played out.
+> + */
+> +static irqreturn_t haptics_fifo_empty_irq(int irq, void *dev_id)
+> +{
+> +	struct qcom_haptics *h = dev_id;
+> +	u32 sts, to_write;
+> +	int ret;
+> +
+> +	ret = regmap_read(h->regmap,
+> +			  h->cfg_base + HAP_CFG_INT_RT_STS_REG, &sts);
+> +	if (ret || !(sts & FIFO_EMPTY_BIT))
+> +		return IRQ_HANDLED;
+> +
+> +	guard(mutex)(&h->fifo_lock);
+> +
+> +	if (!h->fifo_data)
+> +		return IRQ_HANDLED;
+> +
+> +	/* Refill: write the next chunk */
+> +	to_write = min_t(u32, h->data_len - h->data_written,
+> +			 h->fifo_len - FIFO_EMPTY_THRESH);
+> +	ret = haptics_write_fifo_chunk(h, &h->fifo_data[h->data_written], to_write);
+> +	if (ret) {
+> +		dev_err(h->dev, "refill FIFO samples failed, ret=%d\n", ret);
+> +		/*
+> +		 * If data refilling is failed,stop the HW play and disable the
+> +		 * IRQ to prevent the FIFO empty IRQ being fired continuously.
+> +		 */
+
+Is recovery possible after this?
+
+> +		cfg_write(h, HAP_CFG_SPMI_PLAY_REG, 0);
+> +		disable_irq_nosync(h->fifo_empty_irq);
+> +		h->irq_enabled = false;
+> +		return IRQ_HANDLED;
+> +	}
+> +
+> +	h->data_written += to_write;
+> +
+> +	/* Disable the interrupt after all the data is queued */
+> +	if (h->data_written >= h->data_len)
+> +		ptn_write(h, HAP_PTN_FIFO_EMPTY_CFG_REG, 0);
+> +
+> +	return IRQ_HANDLED;
+> +}
+> +
+> +/*
+> + * haptics_stop_locked: stop play in HW and put runtime PM
+> + * @h:	haptics device
+> + * @put_noidle:	a flag to put noidle
+> + *
+> + * Stop HW play, clear the FIFO data if the active effect was FIFO-mode, and
+> + * put runtime PM into either noidle or autosuspend based on put_noidle flag.
+> + *
+> + * Must be called with play_lock held.
+
+Maybe add lockdep_assert_held() instead of comments/naming?
+
+> + */
+> +static void haptics_stop_locked(struct qcom_haptics *h, bool put_noidle)
+> +{
+> +	cfg_write(h, HAP_CFG_SPMI_PLAY_REG, 0);
+> +
+> +	if (h->active_mode == HAPTICS_FIFO) {
+> +		ptn_write(h, HAP_PTN_FIFO_EMPTY_CFG_REG, 0);
+> +		haptics_fifo_irq_enable(h, false);
+> +		scoped_guard(mutex, &h->fifo_lock) {
+> +			h->fifo_data = NULL;
+> +		}
+> +	}
+> +
+> +	h->active_effect_id = -1;
+> +	h->active_mode = HAPTICS_MODE_NONE;
+> +
+> +	if (h->pm_ref_held) {
+> +		if (put_noidle)
+> +			pm_runtime_put_noidle(h->dev);
+> +		else
+> +			pm_runtime_put_autosuspend(h->dev);
+> +
+> +		h->pm_ref_held = false;
+> +	}
+> +}
+> +
+> +/*
+> + * haptics_start_locked: start to play an effect
+> + * @h:	haptics device
+> + * @effect_id:	the index of the effect
+> + *
+> + * If an effect is currently active, stop it 1st. Acquires a PM ref
+> + * if not already held, and then trigger the play based on the
+> + * play mode. Update active_effect_id/active_mode on success.
+> + *
+> + * Must be called with play_lock held.
+> + */
+> +static int haptics_start_locked(struct qcom_haptics *h, int effect_id)
+> +{
+> +	int ret;
+> +
+> +	if (h->active_effect_id != -1)
+> +		haptics_stop_locked(h, false);
+> +
+> +	if (!h->pm_ref_held) {
+> +		ret = pm_runtime_resume_and_get(h->dev);
+> +		if (ret < 0) {
+> +			dev_err(h->dev, "failed to resume device: %d\n", ret);
+> +			return ret;
+> +		}
+> +
+> +		h->pm_ref_held = true;
+> +	}
+> +
+> +	switch (h->effects[effect_id].mode) {
+> +	case HAPTICS_DIRECT_PLAY:
+> +		ret = haptics_start_direct_play(h, effect_id);
+> +		break;
+> +	case HAPTICS_FIFO:
+> +		ret = haptics_start_fifo(h, effect_id);
+> +		break;
+> +	default:
+> +		ret = -EINVAL;
+> +	}
+> +
+> +	if (ret) {
+> +		dev_err(h->dev, "failed to start effect %d: %d\n", effect_id, ret);
+> +		if (h->pm_ref_held) {
+> +			pm_runtime_put_autosuspend(h->dev);
+> +			h->pm_ref_held = false;
+> +		}
+> +
+> +		return ret;
+> +	}
+> +
+> +	h->active_effect_id = effect_id;
+> +	h->active_mode = h->effects[effect_id].mode;
+> +
+> +	return 0;
+> +}
+> +
+> +static void haptics_play_work(struct work_struct *work)
+> +{
+> +	struct qcom_haptics *h = container_of(to_delayed_work(work),
+> +					      struct qcom_haptics, play_work);
+> +	struct haptics_play_req *req = haptics_dequeue_play_req(h);
+> +	bool rearmed = false;
+> +	u32 length_us;
+> +	int ret;
+> +
+> +	guard(mutex)(&h->play_lock);
+> +
+> +	/* No valid request available */
+> +	if (req == NULL)
+
+	if (!req)
+
+> +		return;
+> +
+> +	if (req->play) {
+> +		ret = haptics_start_locked(h, req->effect_id);
+> +		if (ret) {
+> +			dev_err(h->dev, "play haptics failed, ret=%d\n", ret);
+> +		} else {
+> +			/*
+> +			 * Re-arm the work to stop the play or advance
+> +			 * to next play after the play duration
+> +			 */
+> +			length_us = h->effects[req->effect_id].length_us;
+> +			if (length_us) {
+> +				schedule_delayed_work(&h->play_work,
+> +						      usecs_to_jiffies(length_us));
+> +				rearmed = true;
+> +			}
+> +		}
+> +	} else {
+> +		if (req->effect_id != h->active_effect_id)
+> +			dev_warn(h->dev, "effect %d is not under playing\n", req->effect_id);
+> +		else
+> +			haptics_stop_locked(h, false);
+> +	}
+> +
+> +	kfree(req);
+> +
+> +	/*
+> +	 * Handle the remaining requests if doesn't need to wait
+> +	 */
+> +	if (!rearmed && haptics_queue_pending(h))
+> +		schedule_delayed_work(&h->play_work, 0);
+> +}
+> +
+> +static void haptics_clear_effect(struct qcom_haptics *h,
+> +				 struct qcom_haptics_effect *effect)
+> +{
+> +	guard(mutex)(&h->fifo_lock);
+> +
+> +	if (h->fifo_data == effect->fifo_data)
+> +		h->fifo_data = NULL;
+> +
+> +	kvfree(effect->fifo_data);
+> +	effect->fifo_data = NULL;
+> +	effect->data_len  = 0;
+> +}
+> +
+> +/*
+> + * haptics_fifo_length_us: Calculate the play duration of a FIFO effect.
+> + * @h:	haptics device pointer
+> + * @rate: FIFO data play rate
+> + * @data_len: FFO data length
+> + *
+> + * Each FIFO sample is played out over one play-rate period, so the total
+> + * duration is the number of samples times that period:
+> + *
+> + *   length_us = (clk_base * data_len * multiplier) / divider
+> + *
+> + * For T_LRA-based rates the period derives from the LRA resonance period
+> + * (h->t_lra_us): DIV_2/4/8 shorten it, X_2/4/8 lengthen it.  For the
+> + * kHz-based rates the period is 1000 us / freq_khz.
+> + */
+> +static u32 haptics_fifo_length_us(struct qcom_haptics *h,
+> +				  enum qcom_haptics_play_rate rate,
+> +				  u32 data_len)
+> +{
+> +	u32 clk_base = 1000, multiplier = 1, divider = 1;
+> +
+> +	switch (rate) {
+> +	case PLAY_RATE_T_LRA:
+> +		clk_base = h->t_lra_us;
+> +		break;
+> +	case PLAY_RATE_T_LRA_DIV_2:
+> +		clk_base = h->t_lra_us;
+> +		divider = 2;
+> +		break;
+> +	case PLAY_RATE_T_LRA_DIV_4:
+> +		clk_base = h->t_lra_us;
+> +		divider = 4;
+> +		break;
+> +	case PLAY_RATE_T_LRA_DIV_8:
+> +		clk_base = h->t_lra_us;
+> +		divider = 8;
+> +		break;
+> +	case PLAY_RATE_T_LRA_X_2:
+> +		clk_base = h->t_lra_us;
+> +		multiplier = 2;
+> +		break;
+> +	case PLAY_RATE_T_LRA_X_4:
+> +		clk_base = h->t_lra_us;
+> +		multiplier = 4;
+> +		break;
+> +	case PLAY_RATE_T_LRA_X_8:
+> +		clk_base = h->t_lra_us;
+> +		multiplier = 8;
+> +		break;
+> +	case PLAY_RATE_F_8KHZ:
+> +		divider = 8;
+> +		break;
+> +	case PLAY_RATE_F_16KHZ:
+> +		divider = 16;
+> +		break;
+> +	case PLAY_RATE_F_24KHZ:
+> +		divider = 24;
+> +		break;
+> +	case PLAY_RATE_F_32KHZ:
+> +		divider = 32;
+> +		break;
+> +	case PLAY_RATE_F_44P1KHZ:
+> +		clk_base *= 10;
+> +		divider = 441;
+> +		break;
+> +	case PLAY_RATE_F_48KHZ:
+> +		divider = 48;
+> +		break;
+> +	default:
+> +		/* Unexpected rate: fall back to the resonance period. */
+> +		clk_base = h->t_lra_us;
+> +		break;
+> +	}
+> +
+> +	return div_u64((u64)clk_base * data_len * multiplier, divider);
+> +}
+> +
+> +static int haptics_upload_effect(struct input_dev *dev,
+> +				 struct ff_effect *effect,
+> +				 struct ff_effect *old)
+> +{
+> +	struct qcom_haptics *h = input_get_drvdata(dev);
+> +	struct qcom_haptics_effect *priv;
+> +	int id = effect->id;
+> +	u32 data_len, level;
+> +	s8 *fifo;
+> +
+> +	s16 *buf __free(kvfree) = NULL;
+> +
+> +	guard(mutex)(&h->play_lock);
+> +
+> +	if (id < 0 || id >= HAPTICS_MAX_EFFECTS)
+> +		return -EINVAL;
+> +
+> +	if (id == h->active_effect_id) {
+> +		dev_err(h->dev, "effect %d is under playing\n", id);
+> +		return -EBUSY;
+> +	}
+> +
+> +	priv = &h->effects[id];
+> +
+> +	switch (effect->type) {
+> +	case FF_CONSTANT:
+> +		haptics_clear_effect(h, priv);
+> +		level = effect->u.constant.level <= 0 ? 0 : effect->u.constant.level;
+> +		priv->amplitude = (u8)mult_frac(level, 255, 0x7FFF);
+> +		priv->length_us = effect->replay.length * USEC_PER_MSEC;
+> +		priv->mode = HAPTICS_DIRECT_PLAY;
+> +		return 0;
+> +
+> +	case FF_PERIODIC:
+> +		if (effect->u.periodic.waveform != FF_CUSTOM)
+> +			return -EINVAL;
+> +		/*
+> +		 * Minimum 3 elements: play-rate code + vmax + at least one sample.
+> +		 * Limit the maximum data length to ~48K so that it can at least
+> +		 * handle ~1s vibration at the fast (48K) play rate.
+> +		 */
+> +		if (effect->u.periodic.custom_len < 3 ||
+> +		    effect->u.periodic.custom_len > CUSTOM_DATA_MAX_LEN + 2)
+> +			return -EINVAL;
+> +
+> +		buf = vmemdup_array_user(effect->u.periodic.custom_data,
+> +					effect->u.periodic.custom_len,
+> +					sizeof(s16));
+> +		if (IS_ERR(buf))
+> +			return PTR_ERR(no_free_ptr(buf));
+> +
+> +		if (buf[CUSTOM_DATA_RATE_IDX] < 0 ||
+> +		    buf[CUSTOM_DATA_RATE_IDX] > PLAY_RATE_MAX ||
+> +		    buf[CUSTOM_DATA_RATE_IDX] == PLAY_RATE_RESERVED)
+> +			return -EINVAL;
+> +
+> +		data_len = effect->u.periodic.custom_len - CUSTOM_DATA_SAMPLE_START;
+> +
+> +		fifo = kvmalloc(data_len, GFP_KERNEL);
+> +		if (!fifo)
+> +			return -ENOMEM;
+> +
+> +		/* Pack: one s8 sample per s16 slot (lower byte) */
+> +		for (int i = 0; i < data_len; i++)
+> +			fifo[i] = (s8)buf[CUSTOM_DATA_SAMPLE_START + i];
+> +
+> +		haptics_clear_effect(h, priv);
+> +
+> +		scoped_guard(mutex, &h->fifo_lock) {
+> +			priv->fifo_data = fifo;
+> +			priv->data_len = data_len;
+> +		}
+> +
+> +		priv->play_rate = (u8)buf[CUSTOM_DATA_RATE_IDX];
+> +		priv->vmax_mv   = (u32)clamp_val(buf[CUSTOM_DATA_VMAX_IDX], 0, VMAX_MV_MAX);
+> +		priv->length_us = haptics_fifo_length_us(h, priv->play_rate, data_len);
+> +		priv->mode = HAPTICS_FIFO;
+> +
+> +		return 0;
+> +
+> +	default:
+> +		return -EINVAL;
+> +	}
+> +}
+> +
+> +static int haptics_playback(struct input_dev *dev, int effect_id, int val)
+> +{
+> +	struct qcom_haptics *h = input_get_drvdata(dev);
+> +	int ret;
+> +
+> +	ret = haptics_enqueue_play_req(h, effect_id, val > 0);
+> +	if (ret)
+> +		return ret;
+> +
+> +	if (val > 0)
+> +		/*
+> +		 * Queue the play.  If a duration re-arm is already pending this
+> +		 * is a no-op, so the new play waits for the current effect to
+> +		 * finish before the worker dequeues it.
+> +		 */
+> +		schedule_delayed_work(&h->play_work, 0);
+> +	else
+> +		/*
+> +		 * Run the worker now, cancelling any pending duration re-arm,
+> +		 * so an explicit stop takes effect immediately.
+> +		 */
+> +		mod_delayed_work(system_percpu_wq, &h->play_work, 0);
+> +
+> +	return 0;
+> +}
+> +
+> +static int haptics_erase(struct input_dev *dev, int effect_id)
+> +{
+> +	struct qcom_haptics *h = input_get_drvdata(dev);
+> +	struct qcom_haptics_effect *priv = &h->effects[effect_id];
+> +
+> +	guard(mutex)(&h->play_lock);
+> +
+> +	haptics_queue_remove_effect(h, effect_id);
+> +
+> +	if (h->active_effect_id == effect_id)
+> +		haptics_stop_locked(h, false);
+> +
+> +	haptics_clear_effect(h, priv);
+> +	priv->mode = HAPTICS_MODE_NONE;
+> +
+> +	return 0;
+> +}
+> +
+> +static void haptics_set_gain(struct input_dev *dev, u16 gain)
+> +{
+> +	struct qcom_haptics *h = input_get_drvdata(dev);
+> +
+> +	atomic_set(&h->gain, gain);
+
+You need to adjust currently played effects here: new gain should take
+effect immediately.
+
+> +}
+> +
+> +static int qcom_haptics_probe(struct platform_device *pdev)
+> +{
+> +	struct qcom_haptics *h;
+> +	struct input_dev *input;
+> +	struct ff_device *ff;
+> +	u32 regs[2], vmax_uv;
+> +	int ret, irq;
+> +
+> +	h = devm_kzalloc(&pdev->dev, sizeof(*h), GFP_KERNEL);
+> +	if (!h)
+> +		return -ENOMEM;
+> +
+> +	h->dev = &pdev->dev;
+> +
+> +	h->regmap = dev_get_regmap(pdev->dev.parent, NULL);
+> +	if (!h->regmap)
+> +		return dev_err_probe(h->dev, -ENODEV, "no regmap from parent\n");
+> +
+> +	ret = device_property_read_u32_array(h->dev, "reg", regs, ARRAY_SIZE(regs));
+> +	if (ret)
+> +		return dev_err_probe(h->dev, ret, "failed to read 'reg' property\n");
+> +
+> +	h->cfg_base = regs[0];
+> +	h->ptn_base = regs[1];
+> +
+> +	ret = device_property_read_u32(h->dev, "qcom,lra-period-us", &h->t_lra_us);
+> +	if (ret)
+> +		return dev_err_probe(h->dev, ret, "missing qcom,lra-period-us\n");
+> +
+> +	h->t_lra_us = clamp(h->t_lra_us, (u32)TLRA_STEP_US, (u32)TLRA_US_MAX);
+> +
+> +	ret = device_property_read_u32(h->dev, "qcom,vmax-microvolt", &vmax_uv);
+> +	if (ret)
+> +		return dev_err_probe(h->dev, ret, "missing qcom,vmax-microvolt\n");
+> +
+> +	h->vmax_mv = clamp(vmax_uv / 1000, (u32)VMAX_STEP_MV, (u32)VMAX_MV_MAX);
+> +
+> +	ret = haptics_config_lra_period(h);
+> +	if (ret)
+> +		return ret;
+> +
+> +	ret = haptics_configure_autores(h);
+> +	if (ret)
+> +		return ret;
+> +
+> +	ret = haptics_set_vmax(h, h->vmax_mv);
+> +	if (ret)
+> +		return ret;
+> +
+> +	ret = haptics_configure_fifo_mmap(h);
+> +	if (ret)
+> +		return ret;
+> +
+> +	mutex_init(&h->play_lock);
+> +	mutex_init(&h->fifo_lock);
+> +	spin_lock_init(&h->play_queue_lock);
+> +	INIT_LIST_HEAD(&h->play_queue);
+> +	INIT_DELAYED_WORK(&h->play_work, haptics_play_work);
+> +	atomic_set(&h->gain, 0xFFFF);
+> +	h->active_effect_id = -1;
+> +
+> +	irq = platform_get_irq_byname(pdev, "fifo-empty");
+> +	if (irq < 0)
+> +		return dev_err_probe(h->dev, irq, "failed to get fifo-empty IRQ\n");
+> +
+> +	ret = devm_request_threaded_irq(h->dev, irq, NULL,
+> +					haptics_fifo_empty_irq,
+> +					IRQF_ONESHOT | IRQF_NO_AUTOEN,
+> +					"qcom-haptics-fifo-empty", h);
+> +	if (ret)
+> +		return dev_err_probe(h->dev, ret, "failed to request fifo-empty IRQ\n");
+> +
+> +	h->fifo_empty_irq = irq;
+> +	platform_set_drvdata(pdev, h);
+> +
+> +	pm_runtime_use_autosuspend(h->dev);
+> +	pm_runtime_set_autosuspend_delay(h->dev, HAPTICS_AUTOSUSPEND_MS);
+> +	ret = devm_pm_runtime_enable(h->dev);
+> +	if (ret)
+> +		return dev_err_probe(h->dev, ret, "enable runtime PM failed\n");
+> +
+> +	input = devm_input_allocate_device(h->dev);
+> +	if (!input)
+> +		return -ENOMEM;
+> +
+> +	input->name = "qcom-spmi-haptics";
+
+Set bus type? BUS_HOST?
+
+> +	input_set_drvdata(input, h);
+> +	h->input = input;
+> +
+> +	input_set_capability(input, EV_FF, FF_CONSTANT);
+> +	input_set_capability(input, EV_FF, FF_PERIODIC);
+> +	input_set_capability(input, EV_FF, FF_CUSTOM);
+> +	input_set_capability(input, EV_FF, FF_GAIN);
+> +
+> +	ret = input_ff_create(input, HAPTICS_MAX_EFFECTS);
+> +	if (ret)
+> +		return ret;
+> +
+> +	ff = input->ff;
+> +	ff->upload   = haptics_upload_effect;
+> +	ff->playback = haptics_playback;
+> +	ff->erase    = haptics_erase;
+> +	ff->set_gain = haptics_set_gain;
+> +
+> +	ret = input_register_device(input);
+> +	if (ret) {
+> +		input_ff_destroy(input);
+
+This is harmless but not needed: FF portion will be freed automatically.
+
+> +		return dev_err_probe(h->dev, ret, "failed to register input device\n");
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+> +static void qcom_haptics_remove(struct platform_device *pdev)
+> +{
+> +	struct qcom_haptics *h = platform_get_drvdata(pdev);
+> +
+> +	/*
+> +	 * Unregister the input device explicitly at the beginning
+> +	 * to avoid the input device being used after the resources
+> +	 * are freed.
+> +	 */
+> +	input_unregister_device(h->input);
+> +	disable_delayed_work_sync(&h->play_work);
+> +	scoped_guard(mutex, &h->play_lock) {
+> +		haptics_queue_flush(h);
+> +		haptics_stop_locked(h, true);
+> +	}
+> +
+> +	haptics_enable_module(h, false);
+> +
+> +	scoped_guard(mutex, &h->fifo_lock) {
+> +		for (int i = 0; i < HAPTICS_MAX_EFFECTS; i++) {
+> +			kvfree(h->effects[i].fifo_data);
+> +			h->effects[i].fifo_data = NULL;
+> +		}
+> +	}
+
+Most of this is better suited to close() method of input device.
+
+> +}
+> +
+> +static int qcom_haptics_runtime_suspend(struct device *dev)
+> +{
+> +	struct qcom_haptics *h = dev_get_drvdata(dev);
+> +
+> +	return haptics_enable_module(h, false);
+> +}
+> +
+> +static int qcom_haptics_runtime_resume(struct device *dev)
+> +{
+> +	struct qcom_haptics *h = dev_get_drvdata(dev);
+> +
+> +	return haptics_enable_module(h, true);
+> +}
+> +
+> +static int qcom_haptics_suspend(struct device *dev)
+> +{
+> +	struct qcom_haptics *h = dev_get_drvdata(dev);
+> +	int ret;
+> +
+> +	disable_delayed_work_sync(&h->play_work);
+> +	scoped_guard(mutex, &h->play_lock) {
+> +		haptics_queue_flush(h);
+> +		haptics_stop_locked(h, true);
+> +	}
+> +
+> +	ret = pm_runtime_force_suspend(dev);
+> +	if (ret)
+> +		enable_delayed_work(&h->play_work);
+> +
+> +	return ret;
+> +}
+> +
+> +static int qcom_haptics_resume(struct device *dev)
+> +{
+> +	struct qcom_haptics *h = dev_get_drvdata(dev);
+> +
+> +	enable_delayed_work(&h->play_work);
+> +
+> +	return pm_runtime_force_resume(dev);
+> +}
+> +
+> +static const struct dev_pm_ops qcom_haptics_pm_ops = {
+> +	SYSTEM_SLEEP_PM_OPS(qcom_haptics_suspend, qcom_haptics_resume)
+> +	RUNTIME_PM_OPS(qcom_haptics_runtime_suspend, qcom_haptics_runtime_resume,
+> +		       NULL)
+> +};
+> +
+> +static const struct of_device_id qcom_haptics_of_match[] = {
+> +	{ .compatible = "qcom,spmi-haptics" },
+> +	{}
+
+	{ }
+> +};
+> +MODULE_DEVICE_TABLE(of, qcom_haptics_of_match);
+> +
+> +static struct platform_driver qcom_haptics_driver = {
+> +	.probe  = qcom_haptics_probe,
+> +	.remove = qcom_haptics_remove,
+> +	.driver = {
+> +		.name		= "qcom-spmi-haptics",
+> +		.of_match_table	= qcom_haptics_of_match,
+> +		.pm		= pm_ptr(&qcom_haptics_pm_ops),
+> +	},
+> +};
+> +module_platform_driver(qcom_haptics_driver);
+> +
+> +MODULE_DESCRIPTION("Qualcomm SPMI PMIC Haptics driver");
+> +MODULE_LICENSE("GPL");
+> 
+
+Thanks.
 
 -- 
-2.43.0
-
+Dmitry

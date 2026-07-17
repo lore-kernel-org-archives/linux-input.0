@@ -1,165 +1,195 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.10])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 993B232A3C9
-	for <linux-input@vger.kernel.org>; Fri, 17 Jul 2026 04:08:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 90918175A5
+	for <linux-input@vger.kernel.org>; Fri, 17 Jul 2026 04:14:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.10
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784261323; cv=none; b=kmGE5BHgwmi/LHQUUJM6cY5IIe3VTGtt04Kx3Ax3gkJ4HC9o07kfT9LzymyG7BjsJi8cd8g74ay7Cb41UWb4Ty5WfWhSdCenoaOr6GxmMUf2r1VXh/XUBzEhMruIMRUQgf6eRES+8hc0p+CoUgOU3ntsjefb0y5aoXRvsJ9/cH8=
+	t=1784261674; cv=none; b=O80EDvnh5sQvrPKEFI3wvUMbAdAE64CVpPhO4pXl/ZzhAxL4WTLlZ87Yt+xxrmRDrb5Wu6JAtFGjb8Y8g0oS4e7E8VpMjiBawsiNtnp3n80/mJjz37GQgyR6RBs85iBtwbrLXWxKEs91czDC8MntwWxoCet3O10khzJQMS7xWOQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784261323; c=relaxed/simple;
-	bh=iSE9og50eDHs8ynfI2qbi6GCrQ+3Am6KZeMQh/IVSk4=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=WpIBNfiurw3MOZDtcf747Rq6apRtBRTQuoxj27HcwI5LVGUsWf7NQejIVP+T6G26Pmzm1NNYYOeajHO/U0MtahGr/1QyDUHrMA9ZX/72MHTm7aIln8v+4ZyCkVK5gbUfemTAXcC+2U9FUmEvcUJ5dskTYeQridfu2Q3izhByjyk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=BIS/txAC; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1784261674; c=relaxed/simple;
+	bh=tiMEi8rUOY7GpyNwIgKjUwbTASy6RkpqTd0CDQUHYOA=;
+	h=Date:From:To:Cc:Subject:Message-ID; b=D9fIu1o47JB46nVf4TkM4p3yQWSeh+jSFGeEq2MwdNenI09iT0GCXVME0MFUZbSTVfocdfqCRPyJUvvvCf3noPaCTVaSF2Bpn4y90rlvaw0rpAld7iD7bnLi/tiH2DkhQx8DBO6b48QUHbT/0cSXr9EFwN9SkBG3KKvaBp+y/vs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=IKbYgggJ; arc=none smtp.client-ip=198.175.65.10
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="BIS/txAC"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EAAFA1F000E9;
-	Fri, 17 Jul 2026 04:08:41 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784261322;
-	bh=bq/uLgJvXmkir/lrwaHmKhuC32h+DpjH1snlLf7Ny/E=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=BIS/txACwLvsJvsssL7CnNe67+h02OqZvJER5PRhJZJ+OI2PsWzbtIToM5cWOk2Xv
-	 jXhlEDkPMd/xMunwRdhL2Ht24KxxdYi1hx/7GAQSHqcuTqYFgBAwZJnX3+i3a6lj3r
-	 qt5Zj+ec10qAf+G1QT+B3575hQT0Qypbt6HN00xbqDIP7PFL3jQtDj+tTvYPEA8EaL
-	 W2kspNONx4P0kX+9uI9z/HaePZnLTpBMADaqUK8J8yS8MIySq0jQ93PZ1IBIXLQ6t7
-	 rfxIH/5McoG57jhnbAZTsQhY41xKPIWWoGMc1uifnY+7+vjA2ti4MXX1199UHow43A
-	 vL4UslmwsozqQ==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v4 1/3] HID: Intel-thc-hid: Intel-thc: Add API to reset
- read DMA
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Even Xu" <even.xu@intel.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260717035609.3874015-2-even.xu@intel.com>
-References: <20260717035609.3874015-1-even.xu@intel.com>
- <20260717035609.3874015-2-even.xu@intel.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Fri, 17 Jul 2026 04:08:41 +0000
-Message-Id: <20260717040841.EAAFA1F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="IKbYgggJ"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1784261672; x=1815797672;
+  h=date:from:to:cc:subject:message-id;
+  bh=tiMEi8rUOY7GpyNwIgKjUwbTASy6RkpqTd0CDQUHYOA=;
+  b=IKbYgggJiOyUSsMkY4MqLTXT6qlk+KVHGlEpaORdzOUd0DHBdeIuyBtu
+   BNZMXldyk65xUCT8mSC6W4nIh8K36+d5RHXB9MqWX2fXCNZ8++NiWEGKO
+   1t6n+ZVgasnuQtJXjObSHwEuKYjEx8GR0xfzWTEil/bwJd2WPJi0JXtw0
+   7cN2/trlMXGws8wqh7oV4OlL4XrIRa6jOUoBEMWxzYUb30kxsUZGUGbqY
+   5GU9nfKJXKegqSyYBdb6ZeuJZXx9GsTX1rFJu9V2bFeL7B4X1+qw9Gt6b
+   7EOtG4VqYAZzYfqj0ZutVbHgc5wZ5yzMIDVyqsrnHsSs/HiooHtZNJ+uc
+   Q==;
+X-CSE-ConnectionGUID: y8gd13wsR6upJEwwKJjydg==
+X-CSE-MsgGUID: BVA4W1lVRjqBdT1zV/SfPw==
+X-IronPort-AV: E=McAfee;i="6800,10657,11848"; a="102354822"
+X-IronPort-AV: E=Sophos;i="6.25,168,1779174000"; 
+   d="scan'208";a="102354822"
+Received: from fmviesa006.fm.intel.com ([10.60.135.146])
+  by orvoesa102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Jul 2026 21:14:32 -0700
+X-CSE-ConnectionGUID: AN3o7S5xSU2u+IUxTgY+bw==
+X-CSE-MsgGUID: 6Uj9NWM7TzaCD8pY09kv+g==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.25,168,1779174000"; 
+   d="scan'208";a="252273966"
+Received: from lkp-server02.sh.intel.com (HELO ea128546eb3d) ([10.239.97.151])
+  by fmviesa006.fm.intel.com with ESMTP; 16 Jul 2026 21:14:30 -0700
+Received: from kbuild by ea128546eb3d with local (Exim 4.98.2)
+	(envelope-from <lkp@intel.com>)
+	id 1wkZxi-00000000SQ8-0ef6;
+	Fri, 17 Jul 2026 04:14:14 +0000
+Date: Fri, 17 Jul 2026 12:13:35 +0800
+From: kernel test robot <lkp@intel.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
+Subject: [dtor-input:next] BUILD SUCCESS
+ 3ed4ba919eb35860ee1867e2851ee3e6f9fe37f5
+Message-ID: <202607171223.VrRfGwbX-lkp@intel.com>
+User-Agent: s-nail v14.9.25
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
+tree/branch: https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git next
+branch HEAD: 3ed4ba919eb35860ee1867e2851ee3e6f9fe37f5  Input: wacom_w8001 - replace strlcat() with a strscpy() helper
 
-New issues:
-- [Medium] `thc_rxdma_reset()` aborts the reset sequence if pausing THC_RXD=
-MA1 fails, leaving THC_RXDMA2 running.
+elapsed time: 1703m
 
-Pre-existing issues:
-- [High] thc_dma_unconfigure() zeroes PRD base addresses before DMA engines=
- are stopped, risking IOMMU faults.
+configs tested: 118
+configs skipped: 5
+
+The following configs have been built successfully.
+More configs may be tested in the coming days.
+
+tested configs:
+alpha                             allnoconfig    gcc-16.1.0
+alpha                            allyesconfig    gcc-16.1.0
+alpha                               defconfig    gcc-16.1.0
+arc                              allmodconfig    gcc-16.1.0
+arc                               allnoconfig    gcc-16.1.0
+arc                              allyesconfig    gcc-16.1.0
+arc                   randconfig-001-20260717    gcc-11.5.0
+arc                   randconfig-002-20260717    gcc-11.5.0
+arm                               allnoconfig    clang-17
+arm                              allyesconfig    gcc-16.1.0
+arm                          exynos_defconfig    clang-17
+arm                   randconfig-001-20260717    gcc-11.5.0
+arm                   randconfig-002-20260717    gcc-11.5.0
+arm                   randconfig-003-20260717    gcc-11.5.0
+arm                   randconfig-004-20260717    gcc-11.5.0
+arm64                            allmodconfig    clang-24
+arm64                             allnoconfig    gcc-16.1.0
+arm64                 randconfig-001-20260717    gcc-13.4.0
+arm64                 randconfig-002-20260717    gcc-13.4.0
+arm64                 randconfig-003-20260717    gcc-13.4.0
+arm64                 randconfig-004-20260717    gcc-13.4.0
+csky                             allmodconfig    gcc-16.1.0
+csky                              allnoconfig    gcc-16.1.0
+csky                  randconfig-001-20260717    gcc-13.4.0
+csky                  randconfig-002-20260717    gcc-13.4.0
+hexagon                           allnoconfig    clang-24
+i386                             allmodconfig    gcc-14
+i386                              allnoconfig    gcc-14
+i386        buildonly-randconfig-001-20260717    gcc-14
+i386        buildonly-randconfig-002-20260717    gcc-14
+i386        buildonly-randconfig-003-20260717    gcc-14
+i386        buildonly-randconfig-004-20260717    gcc-14
+i386        buildonly-randconfig-005-20260717    gcc-14
+i386        buildonly-randconfig-006-20260717    gcc-14
+loongarch                        allmodconfig    clang-19
+loongarch                         allnoconfig    clang-20
+loongarch                           defconfig    clang-24
+m68k                             allmodconfig    gcc-16.1.0
+m68k                              allnoconfig    gcc-16.1.0
+m68k                             allyesconfig    gcc-16.1.0
+m68k                        mvme147_defconfig    gcc-16.1.0
+microblaze                        allnoconfig    gcc-16.1.0
+microblaze                       allyesconfig    gcc-16.1.0
+mips                             allmodconfig    gcc-16.1.0
+mips                              allnoconfig    gcc-16.1.0
+mips                             allyesconfig    gcc-16.1.0
+nios2                            allmodconfig    gcc-11.5.0
+nios2                             allnoconfig    gcc-11.5.0
+openrisc                         allmodconfig    gcc-16.1.0
+openrisc                          allnoconfig    gcc-16.1.0
+parisc                           allmodconfig    gcc-16.1.0
+parisc                            allnoconfig    gcc-16.1.0
+parisc                           allyesconfig    gcc-16.1.0
+parisc                              defconfig    gcc-16.1.0
+parisc                randconfig-001-20260717    gcc-11.5.0
+parisc                randconfig-002-20260717    gcc-11.5.0
+powerpc                           allnoconfig    gcc-16.1.0
+powerpc               randconfig-001-20260717    gcc-11.5.0
+powerpc               randconfig-002-20260717    gcc-11.5.0
+powerpc64             randconfig-001-20260717    gcc-11.5.0
+powerpc64             randconfig-002-20260717    gcc-11.5.0
+riscv                             allnoconfig    gcc-16.1.0
+riscv                            allyesconfig    clang-24
+riscv                 randconfig-001-20260717    clang-24
+riscv                 randconfig-002-20260717    clang-24
+s390                             allmodconfig    clang-24
+s390                              allnoconfig    clang-24
+s390                             allyesconfig    gcc-16.1.0
+s390                  randconfig-001-20260717    clang-24
+s390                  randconfig-002-20260717    clang-24
+sh                               allmodconfig    gcc-16.1.0
+sh                                allnoconfig    gcc-16.1.0
+sh                               allyesconfig    gcc-16.1.0
+sh                                  defconfig    gcc-16.1.0
+sh                    randconfig-001-20260717    clang-24
+sh                    randconfig-002-20260717    clang-24
+sparc                             allnoconfig    gcc-16.1.0
+sparc                 randconfig-001-20260717    gcc-8.5.0
+sparc                 randconfig-002-20260717    gcc-8.5.0
+sparc64                          allmodconfig    clang-20
+sparc64               randconfig-001-20260717    gcc-8.5.0
+sparc64               randconfig-002-20260717    gcc-8.5.0
+um                               allmodconfig    clang-17
+um                                allnoconfig    clang-17
+um                               allyesconfig    gcc-14
+um                    randconfig-001-20260717    gcc-8.5.0
+um                    randconfig-002-20260717    gcc-8.5.0
+x86_64                            allnoconfig    clang-22
+x86_64      buildonly-randconfig-001-20260717    gcc-14
+x86_64      buildonly-randconfig-002-20260717    gcc-14
+x86_64      buildonly-randconfig-003-20260717    gcc-14
+x86_64      buildonly-randconfig-004-20260717    gcc-14
+x86_64      buildonly-randconfig-005-20260717    gcc-14
+x86_64      buildonly-randconfig-006-20260717    gcc-14
+x86_64                                  kexec    clang-22
+x86_64                randconfig-001-20260717    gcc-14
+x86_64                randconfig-002-20260717    gcc-14
+x86_64                randconfig-003-20260717    gcc-14
+x86_64                randconfig-004-20260717    gcc-14
+x86_64                randconfig-005-20260717    gcc-14
+x86_64                randconfig-006-20260717    gcc-14
+x86_64                randconfig-011-20260717    gcc-12
+x86_64                randconfig-012-20260717    gcc-12
+x86_64                randconfig-013-20260717    gcc-12
+x86_64                randconfig-014-20260717    gcc-12
+x86_64                randconfig-015-20260717    gcc-12
+x86_64                randconfig-016-20260717    gcc-12
+x86_64                randconfig-071-20260717    clang-22
+x86_64                randconfig-072-20260717    clang-22
+x86_64                randconfig-073-20260717    clang-22
+x86_64                randconfig-074-20260717    clang-22
+x86_64                randconfig-075-20260717    clang-22
+x86_64                randconfig-076-20260717    clang-22
+x86_64                           rhel-9.4-bpf    gcc-14
+xtensa                            allnoconfig    gcc-16.1.0
+xtensa                           allyesconfig    gcc-16.1.0
+xtensa                randconfig-001-20260717    gcc-8.5.0
+xtensa                randconfig-002-20260717    gcc-8.5.0
+
 --
-
---- Patch [1]: [PATCH v4 1/3] HID: Intel-thc-hid: Intel-thc: Add API to res=
-et read DMA ---
-commit b0b099ba1dc08199ebeeb23013c7c472a6f2c1bb
-Author: Even Xu <even.xu@intel.com>
-
-HID: Intel-thc-hid: Intel-thc: Add API to reset read DMA
-
-This commit adds a helper function thc_rxdma_reset() to perform a read DMA
-reset. It is intended to be called for recovery when a fatal DMA error
-happens.
-
-> diff --git a/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dma.c b/driver=
-s/hid/intel-thc-hid/intel-thc/intel-thc-dma.c
-> index 6ee675e0a7384..7ceb8aeeccd37 100644
-> --- a/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dma.c
-> +++ b/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dma.c
-
-[ ... ]
-
-> @@ -561,6 +561,57 @@ static int thc_wait_for_dma_pause(struct thc_device =
-*dev, enum thc_dma_channel c
->  	return 0;
->  }
-> =20
-> +/**
-> + * thc_rxdma_reset - Reset all read DMA engines
-
-[ ... ]
-
-> +int thc_rxdma_reset(struct thc_device *dev)
-> +{
-> +	int ret;
-> +
-> +	if (mutex_lock_interruptible(&dev->thc_bus_lock))
-> +		return -EINTR;
-> +
-> +	ret =3D thc_interrupt_quiesce(dev, true);
-> +	if (ret) {
-> +		dev_err(dev->dev, "Quiesce interrupt failed during RxDMA reset\n");
-> +		goto end;
-> +	}
-> +
-> +	ret =3D thc_wait_for_dma_pause(dev, THC_RXDMA1);
-> +	if (ret) {
-> +		dev_err(dev->dev, "Wait for RxDMA1 pause failed during RxDMA reset\n");
-> +		goto end;
-> +	}
-> +
-
-[Severity: Medium]
-If pausing THC_RXDMA1 fails and times out, does jumping to the end label
-leave THC_RXDMA2 running?=20
-
-Bailing out here without attempting to stop the second RX DMA engine might
-leave the hardware in an inconsistent state during a fatal error recovery.
-
-> +	ret =3D thc_wait_for_dma_pause(dev, THC_RXDMA2);
-> +	if (ret) {
-> +		dev_err(dev->dev, "Wait for RxDMA2 pause failed during RxDMA reset\n");
-> +		goto end;
-> +	}
-> +
-> +	thc_dma_unconfigure(dev);
-> +
-
-[Severity: High]
-This isn't a bug introduced by this patch, but does calling
-thc_dma_unconfigure() here without first pausing TXDMA or SWDMA risk IOMMU
-faults?
-
-Looking at thc_dma_unconfigure(), it zeroes the PRD base addresses for all
-channels before clearing the START bits:
-
-void thc_dma_unconfigure(struct thc_device *dev)
-{
-	int chan;
-
-	for (chan =3D 0; chan < MAX_THC_DMA_CHANNEL; chan++) {
-		dma_set_prd_base_addr(dev, 0, &dev->dma_ctx->dma_config[chan]);
-...
-
-If a previous thc_dma_write() timed out, its TXDMA engine might still be
-active since the timeout handler does not pause it.
-
-Zeroing the PRD base address of an active DMA engine could force the
-hardware to fetch descriptors at physical address 0, which would cause an
-immediate memory corruption or IOMMU panic.
-
-> +	ret =3D thc_dma_configure(dev);
-> +	if (ret) {
-> +		dev_err(dev->dev, "Re-config DMA failed during RxDMA reset\n");
-> +		goto end;
-> +	}
-> +
-> +	thc_interrupt_quiesce(dev, false);
-> +
-> +end:
-> +	mutex_unlock(&dev->thc_bus_lock);
-> +	return ret;
-> +}
-
-[ ... ]
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260717035609.3874=
-015-1-even.xu@intel.com?part=3D1
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki

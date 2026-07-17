@@ -1,221 +1,168 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f178.google.com (mail-pl1-f178.google.com [209.85.214.178])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9B1FB3D669C;
-	Fri, 17 Jul 2026 07:42:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 337443A7F5E
+	for <linux-input@vger.kernel.org>; Fri, 17 Jul 2026 09:16:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784274145; cv=none; b=QKOMkMPYYPBnW09hzHUmRgp6Fz/hzCNxJEjEKUxxfDNJno2smRtK3yI+vsHPjC+/zpLCfGgxUMh8tH2ECPm99sNEGtQDGW3mGt9j7gE3BW4Zb9GwwImYsn2CqNLChTPa8zX02sHnFws54yqvcHeqvux9mCB+kp/STj1p8q+tVmc=
+	t=1784279792; cv=none; b=qPhm3I2ucIW/GxcYEbAmU0PBAMxct5h3VVtP5s9l/XOEsoWA1t/8zfI8zojZvINvOS0yqGUiyVt31Pm6ECFZIl3TekTPK8ziJrj4vUw+0DdKgzvqDgCyGsznhK/13zcWxH8BI4bscrVl0UhrDHOxsQNStbQiCwErzL9QzIiXwug=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784274145; c=relaxed/simple;
-	bh=SeGa6h3elsa2u/ae1KM0J4qwZhjss9PEPUa9CtRTt4Y=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=SbGk0K07dyFoyvAzcmPFZD0NjbmfE2cyxNPVCrNfmzqiJCCKh55az3DrhhzTfZqQwdko5sKhVDFh/z3XuDbhjFVcdDbEiw2RjcPqK7zLDfj8YXB506Y6uS6W9WnmN2VbrJgUry4/g79wEB/l+15isBFFOJiFAAdwFuhuNUMt2ac=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=j50c4n0p; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1784279792; c=relaxed/simple;
+	bh=HDcBmvwtIazuzQyAN/7w+ZhNN3Jy4GpM7mlse59y/K0=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=JUGh8JZYe7f/z/gwi7Lr3flb7dd8wP+SW1gaIPuH6A3hzy3VbiTfB3YPE6Emt/ofMPUCDXht2T5oc39sLtpEQbZBDXPLoTD4poe56bukM8u5aepXQT1CeCEZVVX+PIqCoOrfwlknhvM+XuoITGrZAKpqovYWdFXnOGl1wmS/FVE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=A5Th67Lf; arc=none smtp.client-ip=209.85.214.178
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="j50c4n0p"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 698821F000E9;
-	Fri, 17 Jul 2026 07:42:12 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784274132;
-	bh=WpqKZ4yodzh1XCqXtDL11sldJN/E+dMTk/MCscuwknE=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=j50c4n0pcGF1aYUcW9fopK3RviiObjDRfgVyP6VvD9j8mGwzEi9LIrLR+hEj+waQp
-	 +tLEgSAlYOlXI6H5+iT+NiKgvhxqDijx3Lkcpeoyfel2X9r8HVmCSdSckW8LNyWzd2
-	 H6uaJPRaZpn80/6cykSPkKe3xA8+J2jsaxf0KrRw6hJSTD3xYclyQvQ6dX85YUZ3Xw
-	 Y81hsSHdMiB6WsPYd90cZMlRjC9s8uBFyWWkRMczSo3pBKBvcU9ygHRW5sxb3aP5r0
-	 MCf+4ZsMgTnb/aOLcLQcsAVZrcoopNleznyXY3ZldYsFFz72uzLDNQq33nBWNUqztz
-	 KzT9lxoCYMVvg==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v4 3/3] input: misc: Add Qualcomm SPMI PMIC haptics
- driver
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Fenglin Wu" <fenglin.wu@oss.qualcomm.com>
-Cc: conor+dt@kernel.org, devicetree@vger.kernel.org, robh@kernel.org, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260717-qcom-spmi-haptics-v4-3-b0fe0ed30849@oss.qualcomm.com>
-References: <20260717-qcom-spmi-haptics-v4-0-b0fe0ed30849@oss.qualcomm.com>
- <20260717-qcom-spmi-haptics-v4-3-b0fe0ed30849@oss.qualcomm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Fri, 17 Jul 2026 07:42:11 +0000
-Message-Id: <20260717074212.698821F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="A5Th67Lf"
+Received: by mail-pl1-f178.google.com with SMTP id d9443c01a7336-2caed617615so86024095ad.3
+        for <linux-input@vger.kernel.org>; Fri, 17 Jul 2026 02:16:31 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1784279790; x=1784884590; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=pCpmT4pbrNtqEfg5rTMCgVzYOvryZpyfEkqoROTNER4=;
+        b=A5Th67Lfzs7sBwv+vvXDwqYbhObRwxH0S0LBdqt9W1/7HonNwuWrKvJFth05Y6EDu2
+         Nec2IDJNrt+7+7VMNLSfQciz3tuhlIY+15G84WamUJVhOSDG7QDhlKD2AOC6pJ15dzYm
+         FStVX0fTltg4PLA0i+Ld4wlm0peZp9QD4cWYCYVF7A+WCAjszvrSW59WB6GnlGc9tH25
+         URUfkZHyc2zLa9pwrjHc0JfZeV9Curv9S/lAwxvAdixvySV3AA203SWszItB7sz/s+SG
+         RZiAU6PgGVmBeHh7ixsvytqVv19SBWXvo1xRdbu5U2qr7B9KTIExarPdO13obSLy6MDx
+         8J2g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1784279790; x=1784884590;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=pCpmT4pbrNtqEfg5rTMCgVzYOvryZpyfEkqoROTNER4=;
+        b=sWkAXeagdr2cgQxMqrfHM5g+XnekSIbTZMcJ063+CAHtoe23zUcM4TGTf0na0JN+oP
+         8eaPAxz380FnFNM5/O8sXEnYZUHRMO9q6PvwEi7a75W4FQ+1DMIQsqTaSe63knWSbA1a
+         zb+SmyM4woZ0cho3q5rm0vM9Q+VfXl2ALqTXxA21LrbIZJtRSWlH5iktSTs2EHa+LrOr
+         xCVFOiZMvsmJ2MnLVGTcsknvssBjd2mHra6NgmL8OBllaRLNBCnHzFONlT2h+OgwIZkX
+         PdjConqYqbTIcQYpBbik9Le9yZNRh9sRx2zkYp8jX6BdMq947kupZFt9rNyen52ueiWk
+         K4lw==
+X-Gm-Message-State: AOJu0Yw449nOYDB5VPo9v6GzdCpXoR8AQepXu9ef8Ro3QCQzgII1UUU3
+	B08U19xnyXUt1R42Zpfaakcp+RZKOgnvAP8SySKCcrIjYbxblNr9j6eT
+X-Gm-Gg: AfdE7cmpZtbYLrM9W6Jb3pk872vVmcodAVRF5sFMbNr6z96h4UgDn7dyzid9new1t74
+	CIE39UKht+RSEr2siecqQBfxXZucBvEZ5f0BEWsOO1LbmHPk3EB2lRV7fg3HC+6JlHlRgMfutOh
+	6LlJrWjVAzsHADrOetkknA0MB4k7Znk6d8GmgLaqinc1f0ZYz4DlOOZSDQrv59neNYWqYLkwxqr
+	lXd4TEmz0AmIEycaLW/khoJPS2/eoPbsmZMqB3l86fo08yjZAvBHcFXne2uvjz+VF4PUNFdPSDe
+	4qs1806dyUadM6gY12xsGIjZhN4FnZ6lF+2yXE6YpipovSwJHE17gHA27VuVRPpXt7dPaKal09q
+	LQyBJ8T7HnVhXfIzBVJtXAti5WxM4yTk+vwI51Rq2mbBR59ssOY5DOON351MODLFCBmLeNZfP3o
+	iXSv5Im2S9Ml04VLI9qIVYFFzwjzEycJ5EJhXM3jlqZmBDydZn9LHxgYWsPOrQd3MKt9Q=
+X-Received: by 2002:a17:902:f70d:b0:2c6:9f6a:9f6f with SMTP id d9443c01a7336-2cf349b8d41mr18806065ad.28.1784279790317;
+        Fri, 17 Jul 2026 02:16:30 -0700 (PDT)
+Received: from nugod-NUC15CRHU5.tail9f095a.ts.net ([218.237.104.87])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2cf34490361sm7407205ad.17.2026.07.17.02.16.27
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 17 Jul 2026 02:16:29 -0700 (PDT)
+From: HyeongJun An <sammiee5311@gmail.com>
+To: Even Xu <even.xu@intel.com>,
+	Xinpeng Sun <xinpeng.sun@intel.com>,
+	Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>
+Cc: linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	stable@vger.kernel.org,
+	HyeongJun An <sammiee5311@gmail.com>
+Subject: [PATCH v2] HID: intel-thc-hid: intel-quickspi: validate report size before copy
+Date: Fri, 17 Jul 2026 18:16:22 +0900
+Message-ID: <20260717091622.1744196-1-sammiee5311@gmail.com>
+X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20260628133717.941389-1-sammiee5311@gmail.com>
+References: <20260628133717.941389-1-sammiee5311@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 4 potential issue(=
-s) to consider:
-- [High] Missing stop logic in the haptics worker causes indefinite playbac=
-k and PM reference leak when effect duration expires.
-- [Medium] Explicit input_unregister_device() on a devm-managed device viol=
-ates input subsystem rules.
-- [Medium] Data race on `irq_enabled` causes permanently unbalanced IRQ dis=
-able depth on bus errors.
-- [Low] Use of undefined macro `kmalloc_obj` causes compilation failure.
---
+write_cmd_to_txdma() builds an output report in qsdev->report_buf, a heap
+buffer allocated in quickspi_alloc_report_buf() to the device-descriptor
+derived max_report_len (a few hundred bytes for a touch controller).  It
+copies the caller-supplied report into that buffer:
 
---- Patch [3]: [PATCH v4 3/3] input: misc: Add Qualcomm SPMI PMIC haptics d=
-river ---
-commit e63f14da39f2a372d48e418f9fac8b20cd9d0698
-Author: Fenglin Wu <fenglin.wu@oss.qualcomm.com>
+    memcpy(write_buf->content, report_buf, report_buf_len);
 
-input: misc: Add Qualcomm SPMI PMIC haptics driver
+The HID core caps a report at HID_MAX_BUFFER_SIZE (16384) by default, and
+quickspi_hid_ll_driver does not set max_buffer_size, so the length reaches
+the driver unbounded.  A hidraw SET_REPORT/SET_FEATURE ioctl carrying a
+report larger than max_report_len therefore overflows report_buf with
+attacker-controlled length and content.
 
-Adds an initial driver for the Qualcomm PMIH0108 PMIC haptics module.
-Supports DIRECT_PLAY and FIFO modes via the input force-feedback framework.
+Record the report_buf allocation size and reject reports that do not fit
+before copying, matching the equivalent guard in the intel-quicki2c
+sibling (quicki2c_init_write_buf()) and the hid-goodix-spi fix.
 
-> diff --git a/drivers/input/misc/qcom-spmi-haptics.c b/drivers/input/misc/=
-qcom-spmi-haptics.c
-> new file mode 100644
-> index 0000000000000..235f77e0229c5
-> --- /dev/null
-> +++ b/drivers/input/misc/qcom-spmi-haptics.c
+write_cmd_to_txdma() writes the output report header ahead of the content
+in the same buffer, so size the allocation to cover the header as well.
+That keeps the added bound from rejecting a maximum-sized report.
 
-[ ... ]
+Fixes: 9d8d51735a3a ("HID: intel-thc-hid: intel-quickspi: Add HIDSPI protocol implementation")
+Cc: stable@vger.kernel.org
+Assisted-by: Claude:claude-opus-4-8
+Signed-off-by: HyeongJun An <sammiee5311@gmail.com>
+---
+v2: Size report_buf to cover the output report header as well, so the added
+    bound cannot reject a valid maximum-sized report (raised by the Sashiko
+    AI review of v1).  No other change.
 
-> +static int haptics_enqueue_play_req(struct qcom_haptics *h, int effect_i=
-d, bool play)
-> +{
-> +	struct haptics_play_req *req;
-> +
-> +	guard(spinlock_irqsave)(&h->play_queue_lock);
-> +
-> +	/*
-> +	 * Coalesce with an already queued request for
-> +	 * the same effect instead of appending.
-> +	 */
-> +	list_for_each_entry(req, &h->play_queue, node) {
-> +		if (req->effect_id =3D=3D effect_id) {
-> +			req->play =3D play;
-> +			return 0;
-> +		}
-> +	}
-> +
-> +	req =3D kmalloc_obj(*req, GFP_ATOMIC);
-> +	if (!req)
-> +		return -ENOMEM;
+v1: https://lore.kernel.org/all/20260628133717.941389-1-sammiee5311@gmail.com/
 
-[Severity: Low]
-Does this code compile successfully? I couldn't find kmalloc_obj() defined =
-in
-the standard kernel headers. Should this use kmalloc() or kzalloc() instead?
+ drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c  | 9 ++++++++-
+ drivers/hid/intel-thc-hid/intel-quickspi/quickspi-dev.h  | 1 +
+ .../hid/intel-thc-hid/intel-quickspi/quickspi-protocol.c | 3 +++
+ 3 files changed, 12 insertions(+), 1 deletion(-)
 
-> +
-> +	req->effect_id =3D effect_id;
-> +	req->play =3D play;
+diff --git a/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c b/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c
+index 4ae2e1718b30..da5ecfcd0fbf 100644
+--- a/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c
++++ b/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c
+@@ -555,7 +555,14 @@ static int quickspi_alloc_report_buf(struct quickspi_device *qsdev)
+ 	max_report_len = max(le16_to_cpu(qsdev->dev_desc.max_output_len),
+ 			     le16_to_cpu(qsdev->dev_desc.max_input_len));
+ 
+-	qsdev->report_buf = devm_kzalloc(qsdev->dev, max_report_len, GFP_KERNEL);
++	/*
++	 * write_cmd_to_txdma() writes the output report header ahead of the
++	 * content in this buffer, so it has to hold both.
++	 */
++	qsdev->report_buf_size = HIDSPI_OUTPUT_REPORT_SIZE(max_report_len);
++
++	qsdev->report_buf = devm_kzalloc(qsdev->dev, qsdev->report_buf_size,
++					 GFP_KERNEL);
+ 	if (!qsdev->report_buf)
+ 		return -ENOMEM;
+ 
+diff --git a/drivers/hid/intel-thc-hid/intel-quickspi/quickspi-dev.h b/drivers/hid/intel-thc-hid/intel-quickspi/quickspi-dev.h
+index bf5e18f5a5f4..0ed964bfe3dd 100644
+--- a/drivers/hid/intel-thc-hid/intel-quickspi/quickspi-dev.h
++++ b/drivers/hid/intel-thc-hid/intel-quickspi/quickspi-dev.h
+@@ -157,6 +157,7 @@ struct quickspi_device {
+ 	u8 *report_descriptor;
+ 	u8 *input_buf;
+ 	u8 *report_buf;
++	u32 report_buf_size;
+ 	u32 report_len;
+ 
+ 	wait_queue_head_t reset_ack_wq;
+diff --git a/drivers/hid/intel-thc-hid/intel-quickspi/quickspi-protocol.c b/drivers/hid/intel-thc-hid/intel-quickspi/quickspi-protocol.c
+index cb19057f1191..db6054843e77 100644
+--- a/drivers/hid/intel-thc-hid/intel-quickspi/quickspi-protocol.c
++++ b/drivers/hid/intel-thc-hid/intel-quickspi/quickspi-protocol.c
+@@ -30,6 +30,9 @@ static int write_cmd_to_txdma(struct quickspi_device *qsdev,
+ 
+ 	write_buf = (struct output_report *)qsdev->report_buf;
+ 
++	if (HIDSPI_OUTPUT_REPORT_SIZE(report_buf_len) > qsdev->report_buf_size)
++		return -EINVAL;
++
+ 	write_buf->output_hdr.report_type = report_type;
+ 	write_buf->output_hdr.content_len = cpu_to_le16(report_buf_len);
+ 	write_buf->output_hdr.content_id = report_id;
+-- 
+2.43.0
 
-[ ... ]
-
-> +static irqreturn_t haptics_fifo_empty_irq(int irq, void *dev_id)
-> +{
-
-[ ... ]
-
-> +	/* Refill: write the next chunk */
-> +	to_write =3D min_t(u32, h->data_len - h->data_written,
-> +			 h->fifo_len - FIFO_EMPTY_THRESH);
-> +	ret =3D haptics_write_fifo_chunk(h, &h->fifo_data[h->data_written], to_=
-write);
-> +	if (ret) {
-> +		dev_err(h->dev, "refill FIFO samples failed, ret=3D%d\n", ret);
-> +		/*
-> +		 * If data refilling is failed,stop the HW play and disable the
-> +		 * IRQ to prevent the FIFO empty IRQ being fired continuously.
-> +		 */
-> +		cfg_write(h, HAP_CFG_SPMI_PLAY_REG, 0);
-> +		disable_irq_nosync(h->fifo_empty_irq);
-> +		h->irq_enabled =3D false;
-
-[Severity: Medium]
-Can a data race occur on h->irq_enabled here?=20
-
-If userspace stops playback concurrently with a bus write failure in
-haptics_fifo_empty_irq(), both paths could check and modify h->irq_enabled
-without mutual exclusion.
-
-For example, this path:
-
-haptics_fifo_empty_irq()
-    disable_irq_nosync(h->fifo_empty_irq);
-    h->irq_enabled =3D false;
-
-Could race with:
-
-haptics_stop_locked()
-    haptics_fifo_irq_enable(h, false);
-
-This might result in disable_irq() being called twice while enable_irq() is
-only called once, leaving the IRQ permanently disabled and breaking future
-FIFO playback.
-
-> +		return IRQ_HANDLED;
-> +	}
-> +
-> +	h->data_written +=3D to_write;
-
-[ ... ]
-
-> +static void haptics_play_work(struct work_struct *work)
-> +{
-> +	struct qcom_haptics *h =3D container_of(to_delayed_work(work),
-> +					      struct qcom_haptics, play_work);
-> +	struct haptics_play_req *req =3D haptics_dequeue_play_req(h);
-> +	bool rearmed =3D false;
-> +	u32 length_us;
-> +	int ret;
-> +
-> +	guard(mutex)(&h->play_lock);
-> +
-> +	/* No valid request available */
-> +	if (req =3D=3D NULL)
-> +		return;
-
-[Severity: High]
-When a finite-length effect expires, schedule_delayed_work() wakes up this
-worker, but haptics_dequeue_play_req() returns NULL since the queue is
-empty.=20
-
-Since we return early here when req is NULL, how does the driver stop the
-active effect and release the runtime PM reference? This appears to leave
-the device vibrating indefinitely.
-
-> +
-> +	if (req->play) {
-> +		ret =3D haptics_start_locked(h, req->effect_id);
-
-[ ... ]
-
-> +static void qcom_haptics_remove(struct platform_device *pdev)
-> +{
-> +	struct qcom_haptics *h =3D platform_get_drvdata(pdev);
-> +
-> +	/*
-> +	 * Unregister the input device explicitly at the beginning
-> +	 * to avoid the input device being used after the resources
-> +	 * are freed.
-> +	 */
-> +	input_unregister_device(h->input);
-
-[Severity: Medium]
-Is it safe to explicitly unregister this input device here?
-
-The input device is allocated with devm_input_allocate_device() during
-probe, which means the input core will automatically handle unregistration
-when the provider device is unbound.
-
-Manually calling input_unregister_device() on a devm-managed device can
-lead to double-unregistration.
-
-> +	disable_delayed_work_sync(&h->play_work);
-> +	scoped_guard(mutex, &h->play_lock) {
-> +		haptics_queue_flush(h);
-> +		haptics_stop_locked(h, true);
-> +	}
-> +
-> +	haptics_enable_module(h, false);
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260717-qcom-spmi-=
-haptics-v4-0-b0fe0ed30849@oss.qualcomm.com?part=3D3

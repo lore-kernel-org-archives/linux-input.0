@@ -1,151 +1,214 @@
-Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6BFDE3B6379
-	for <linux-input@vger.kernel.org>; Fri, 17 Jul 2026 09:25:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.180.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 455183DA5D9
+	for <linux-input@vger.kernel.org>; Fri, 17 Jul 2026 09:37:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784280361; cv=none; b=XcM6/NAbJnItatq0sQWudFURJb+LE7t9y14u/pWWGzzKlyP+DZVJWmSw8E3RHboio4HSvUfRFXrXHmdxUQWxRkob6Y+wW0d0ZDPd2Dg41hsvwK7X34QiAKFInjQKAokJmL/Q8C87p0S5FIJq2nAFsWGgMdVoD+nxG1nIJVZpFWk=
+	t=1784281057; cv=none; b=tgvLBBfnGmOCvkZwVnlzCb0A0vtrf18rUBnzyGtCmLV5FVcKtzPdPnC98INVfiGw4Kk4hNYYEgyQkBCne1OiPXAf/V8tYJlRaOb+ft1WkK2WA/kM2X68owrxCfe1iRPQsBrGyMf4v7C5dTt4msOZ61Z47CsVfJq7mMQK7/yBdbI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784280361; c=relaxed/simple;
-	bh=UUu0yhwA6E69V9YantX0L2H5+v2Hw2KIgH6t8T3r2jM=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=hrjt3EdkDCmzXVg9v9BL/CVEp2b5DCdJV4souIjTzQrdlLTMiUIpgzyoFVfFM9S9OIYmMgHhEVnxyatpj6cARE1bSM+Bt0IxJKHXNg63uuC/jt9dqHlpcDrUEfzJqKkWCLdag3l71wfuHx3/IJhaMf3fNB9gVfdKgB894Q+/G0E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=TQmtDInR; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=aeWLYXIH; arc=none smtp.client-ip=205.220.180.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
+	s=arc-20240116; t=1784281057; c=relaxed/simple;
+	bh=o/YH+Oaaj9coeIThdaHKR6l56rhPkWlW/uu8j7jE2UY=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=L0NNAbYo5BLvvdcazm2LogjrMckcEhi1ReUnmNVsGqKIMotakEKRxL+iAccMKcP8Is0NYufeH7E9vL3+T26pYvyIWxlJ7IMPVUc6EuLKv+QmlZ3tUXjfiHT5jNDpI6CtHC/IhMGnCnzJAktb5FSnIVyauq5T1CPNvN/sr0PSsKI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=O3srKPVs; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="TQmtDInR";
-	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="aeWLYXIH"
-Received: from pps.filterd (m0279869.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66H6cnJi1093309
-	for <linux-input@vger.kernel.org>; Fri, 17 Jul 2026 09:25:58 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
-	cc:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
-	ZtH+sYSpZT+y6pPmChaU9tOu+tanPYeojGGHeDm89p8=; b=TQmtDInRRYSNWJut
-	JqnBphO45X22XNBtCJjHCdoHFq+iG+LsjqbCy12tnaIZL89hlHNVJK1AiV4Aj77a
-	7qVVI3BWfSQ4YK/p1l0dtZFz2kzf2efnyE8uPxffnNZ2ZQiVeveGMeAMXYhSt/ZV
-	WNQvhqr7muz7sG1CFP79qnlnr1XJ13aE8y7Nqhcuc9iXq/2NsmRTP9MmOEXL3T5M
-	OofL6zPZVveu5EBRMMiWL2l/SEyrcfRgTLe2FNqdRtrsuOF5+a9myLiZhGuroksj
-	Fj4+pQjT8c7n3NLiLEhVqgdKsF/jKjaX1e/hUp2rx9r1A88l6DdijzXr0bamH1L6
-	S+WYLw==
-Received: from mail-qt1-f200.google.com (mail-qt1-f200.google.com [209.85.160.200])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4ffe0ury7j-1
-	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
-	for <linux-input@vger.kernel.org>; Fri, 17 Jul 2026 09:25:58 +0000 (GMT)
-Received: by mail-qt1-f200.google.com with SMTP id d75a77b69052e-51c20762d21so63110341cf.0
-        for <linux-input@vger.kernel.org>; Fri, 17 Jul 2026 02:25:58 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=oss.qualcomm.com; s=google; t=1784280357; x=1784885157; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:in-reply-to:content-language
-         :from:references:cc:to:subject:user-agent:mime-version:date
-         :message-id:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=ZtH+sYSpZT+y6pPmChaU9tOu+tanPYeojGGHeDm89p8=;
-        b=aeWLYXIH+kscYkXDI6jgJSt7MyLJI6KNu6rsEIj6vG2VKX045MDX5B/XqBCEsn/+DS
-         7XMaW0ciivAISoOCKgmVs0r6iJwpABxt0pdYaoCK7sdmf9JOL7YB0XZl+bn+4AJDmtK3
-         8JuJiwHfve00wYm36//m1DIO1yLoYUfQsauz1n6YH3SF89iEv9dVRRaYEmnoHjQ8RtTX
-         JIo+/UaZ9ddByru6eG0jOHyRuO6MCXu9CyKUX1gaZUI+adpn2Ou1ez/P9h5oIEJeHSeW
-         5+vhSI8GFGEsNpvf/c21ZGQbt9abZ4e1w/dkcYpXqodB22y0uMtkTZ7u8z8NrU9tFExc
-         PioA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784280357; x=1784885157;
-        h=content-transfer-encoding:content-type:in-reply-to:content-language
-         :from:references:cc:to:subject:user-agent:mime-version:date
-         :message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=ZtH+sYSpZT+y6pPmChaU9tOu+tanPYeojGGHeDm89p8=;
-        b=N969bAPhg4o4jj2hunbZjeYJn7HVTwYS60F08ceuSw139PZKZKyM9fu5c+9TN4zcvM
-         q7glZDgRFyfeSIS4ymwU+ahPUQ2elrHXaO4pKQPSxceqwtbwAu7yzQg7wGrKW794MBkm
-         QGGiCg0Iemg7N8iyqnNpM1sjBe1byigbMRIv5GrWsFmMUfjBkgQVBUT+8L3bv1UTQeG2
-         rti2zC9EOuqGX+okoghWoBtKtcX9i2JrDtXg017z1dLvIgl0NunCbUjzsWLHp/YYb+wu
-         URodTHZOA7Lw8uSvnQd80REK4fPVud2UQKMMDl5gxgtOfssQ1BsZ3b6WvcFjRAMSI+Od
-         n3UA==
-X-Forwarded-Encrypted: i=1; AHgh+RqrotGzcJ95zwexdsp+15S6jc35ik7YGoEExNdIZ1tUIodF+VWYxFIIJMVxn2S5/bQ2iu7R0zweKKYPKw==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yz2CZnwuZs3uGQlXbPFNviPbjazSHscJiL2UDqbKncBqqHCk3Rp
-	7e49P8+0qKrn5y6VZUSWLv9s/N5Lt8+08nZJvqH03yyYYQuzfLOgrg3xpVFzLBnDMTmMvkJrPst
-	RDGcvDcOYUZuxBwU7QolpSg0tNuB3FJxhCIiSTbi4E4b2jjptv3Y0LPUgcniCR4lgMg==
-X-Gm-Gg: AfdE7cnS2LoMC+yme4s6fh+zvY0SZ/FhjypplC5mUbCTgzQrWZC2oOQ2jd3N2KXIgiW
-	t9OxTJ4fzwOPC56N1NiRNgpcAwZx7/sjnB6TAJeL64MCcn+HPAfb+va7QJ5Bi2/oYcfCwLRikHJ
-	PNHzhm92DmvMi6A8MXLvjxdoR6b4E/0An1PxoUKCQboO+fEEboYSe4/91/G3Z8xUvZccCwSDPfp
-	7HEYAQ0Q6d0EJ4bNGZJVdrFJbgxrTqwHr8DdPTRslk9xDXBXkdjHHbCxH2TELJll6K7FFY2Q45J
-	ivHZNqTgj0U3x+6+vncy7zRazFXuBFQ2aMtX+DPhX6Tc2DqyGwoTdPpTHOqWpAl+am+qEbvBuGI
-	xGf1GrEHWlnIXvxdC6anyJeNlpNjtgA==
-X-Received: by 2002:a05:622a:2992:b0:51a:8945:3136 with SMTP id d75a77b69052e-5213e48ad0emr12623541cf.56.1784280357530;
-        Fri, 17 Jul 2026 02:25:57 -0700 (PDT)
-X-Received: by 2002:a05:622a:2992:b0:51a:8945:3136 with SMTP id d75a77b69052e-5213e48ad0emr12623301cf.56.1784280357135;
-        Fri, 17 Jul 2026 02:25:57 -0700 (PDT)
-Received: from [192.168.1.110] ([178.197.223.174])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4954a2b074csm34097465e9.6.2026.07.17.02.25.54
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 17 Jul 2026 02:25:56 -0700 (PDT)
-Message-ID: <0da6b426-a9eb-42c5-9476-9227a61f0794@oss.qualcomm.com>
-Date: Fri, 17 Jul 2026 11:25:53 +0200
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="O3srKPVs"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA6751F000E9;
+	Fri, 17 Jul 2026 09:37:35 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1784281056;
+	bh=O6UZSAUmicP0y3EcGeAFCzglQqIg1Sup4tEwza9w2cY=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=O3srKPVsbsv7nP4nIfoFZBmbRLCjxubWHc+zPQYr6QF5qhjIa5FywCnx8MZpXAYWS
+	 +XIA1LMeb4qruMWbWtK/F9Ih4wpcT7ZDLkVywRVjdZ+fkfOpCfIzJrGLa54C5kke8q
+	 /UkHeQtdvh4GbcyA6hr7tVTSylsMzTBNBJ2Bwp6I1EPX56wWelzkNf81YkDRvLMVhR
+	 UqYfaoh8Vug+tPmUkYP4TIHtKZffB9UaqYmlTsUwxbbed3Xs+hBGhNVbfUzzreQUSq
+	 N0pH6ulZFjahy05pKUYz8VxJF1pUX+PceTEMS5UjVU0LGPact3i/S1d3mIT1QNyTrs
+	 T9klNkQfVwl+A==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v2] HID: intel-thc-hid: intel-quickspi: validate report
+ size before copy
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "HyeongJun An" <sammiee5311@gmail.com>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <20260717091622.1744196-1-sammiee5311@gmail.com>
+References: <20260628133717.941389-1-sammiee5311@gmail.com>
+ <20260717091622.1744196-1-sammiee5311@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Fri, 17 Jul 2026 09:37:35 +0000
+Message-Id: <20260717093735.EA6751F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v4 0/3] input: misc: Add an initial driver for haptics
- inside Qcom PMIH010x PMIC
-To: Fenglin Wu <fenglin.wu@oss.qualcomm.com>, linux-arm-msm@vger.kernel.org,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Rob Herring <robh@kernel.org>,
-        Krzysztof Kozlowski <krzk+dt@kernel.org>,
-        Conor Dooley
- <conor+dt@kernel.org>, Lee Jones <lee@kernel.org>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Bjorn Andersson <andersson@kernel.org>,
-        Konrad Dybcio <konradybcio@kernel.org>
-Cc: David Collins <david.collins@oss.qualcomm.com>,
-        Subbaraman Narayanamurthy <subbaraman.narayanamurthy@oss.qualcomm.com>,
-        Kamal Wadhwa <kamal.wadhwa@oss.qualcomm.com>, kernel@oss.qualcomm.com,
-        linux-input@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-References: <20260717-qcom-spmi-haptics-v4-0-b0fe0ed30849@oss.qualcomm.com>
-From: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
-Content-Language: en-US
-In-Reply-To: <20260717-qcom-spmi-haptics-v4-0-b0fe0ed30849@oss.qualcomm.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Authority-Analysis: v=2.4 cv=deWwG3Xe c=1 sm=1 tr=0 ts=6a59f526 cx=c_pps
- a=JbAStetqSzwMeJznSMzCyw==:117 a=N6niishs+lR9UBL1FN3Qrw==:17
- a=IkcTkHD0fZMA:10 a=RAioF0-LDSMA:10 a=s4-Qcg_JpJYA:10
- a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22 a=_glEPmIy2e8OvE2BGh3C:22
- a=EUspDBNiAAAA:8 a=CtGaIe7eZSrXIIjUQnIA:9 a=QEXdDO2ut3YA:10
- a=uxP6HrT_eTzRwkO_Te1X:22
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzE3MDA5MyBTYWx0ZWRfX9Pxv9ouL3wRs
- B8L40vmJEgIMvEwygb8tNX5ym+y8tZauBYtepEudoMKFeZoTxZrxeN4vhGy9w7+zhAp7KNuYSYw
- YH21S23qOLqak1S7daSndoRDBfF7i8D28+XxiiV0K8FBHfYxvlHinM4/Fclnv2VUphe1NX5DQsA
- At7c7Uuo+Nfcm2LV1C52qxOXfRhcZcyHMXeX9/OwUEUWp0+vJyBnXmycrLMXA5jFP3rkCURlg2L
- ip+mHmvXzRDbOf/QJDedICTPpTXhDhPNA6UM+6HHIUNtCkkkhTvk6JvD5AQ3UqdX1jcfeob1wNn
- J/llEzY4uZiWU4x38wm7SVvvQ1enh1PLmXuizmzvGkAX32haVhajg93EwfyvTfYYnzrqh+V10b4
- lAAEUl9p581iAYMdV80doe3XOzhFAO4r34k3Wp4W8uM+aA0cxgzF207egatLZ9AI0MZgltDciN+
- YjLiddSsu0pleG/At+g==
-X-Proofpoint-ORIG-GUID: -GRjqL2557NPiV7Wvl0mVDcGmkUd7oAB
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNzE3MDA5MyBTYWx0ZWRfX4hYxICbQileY
- ErVEZvVOMyutI4SW3FOuFwPWhBjDb4O4I4G0HsG3fxl3w6tZAF0AciERM2fCeedUkeHdjf/vuCN
- EN6rtzes0wHQr5snmDyOMNopa/64Zxc=
-X-Proofpoint-GUID: -GRjqL2557NPiV7Wvl0mVDcGmkUd7oAB
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-07-17_02,2026-07-15_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1011 spamscore=0 bulkscore=0 priorityscore=1501 malwarescore=0
- lowpriorityscore=0 adultscore=0 phishscore=0 impostorscore=0 suspectscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607170093
 
-On 17/07/2026 09:28, Fenglin Wu wrote:
-> Dependencies:
->  - [patch 2/3] depends on [patch 1/3] and they should be applied together
-> 
+Thank you for your contribution! Sashiko AI review found 4 potential issue(=
+s) to consider:
 
-Why are you cc-ing internal kernel@oss.qualcomm.com?
+Pre-existing issues:
+- [Critical] Unbounded memcpy in `quickspi_get_report()` causes a heap buff=
+er overflow if the device responds with a report larger than the caller-all=
+ocated buffer.
+- [High] The receive buffer `qsdev->input_buf` can be overflowed during an =
+RXDMA interrupt because the message size is bounds-checked against a 4K-ali=
+gned limit instead of the actual buffer capacity.
+- [High] Unbounded memcpy in `quickspi_handle_input_data()` causes a heap b=
+uffer overflow of `qsdev->report_buf` on the receive path.
+- [High] Concurrent ioctl requests lead to data corruption in the shared DM=
+A buffer `qsdev->report_buf`.
+--
 
-I already asked you TWICE. Both times you ignored that, so that's it.
+--- Patch [1]: [PATCH v2] HID: intel-thc-hid: intel-quickspi: validate repo=
+rt size before copy ---
+commit 13f5051992cd9276077cab1966153d3866079f49
+Author: HyeongJun An <sammiee5311@gmail.com>
 
-Best regards,
-Krzysztof
+    HID: intel-thc-hid: intel-quickspi: validate report size before copy
+   =20
+    write_cmd_to_txdma() builds an output report in qsdev->report_buf, a he=
+ap
+    buffer allocated in quickspi_alloc_report_buf() to the device-descriptor
+    derived max_report_len (a few hundred bytes for a touch controller).  It
+    copies the caller-supplied report into that buffer:
+   =20
+[ ... ]
+
+> diff --git a/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c b/dr=
+ivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c
+> index 4ae2e1718b30c..da5ecfcd0fbf8 100644
+> --- a/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c
+> +++ b/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c
+> @@ -555,7 +555,14 @@ static int quickspi_alloc_report_buf(struct quickspi=
+_device *qsdev)
+>  	max_report_len =3D max(le16_to_cpu(qsdev->dev_desc.max_output_len),
+>  			     le16_to_cpu(qsdev->dev_desc.max_input_len));
+> =20
+> -	qsdev->report_buf =3D devm_kzalloc(qsdev->dev, max_report_len, GFP_KERN=
+EL);
+> +	/*
+> +	 * write_cmd_to_txdma() writes the output report header ahead of the
+> +	 * content in this buffer, so it has to hold both.
+> +	 */
+> +	qsdev->report_buf_size =3D HIDSPI_OUTPUT_REPORT_SIZE(max_report_len);
+> +
+> +	qsdev->report_buf =3D devm_kzalloc(qsdev->dev, qsdev->report_buf_size,
+> +					 GFP_KERNEL);
+
+[Severity: High]
+This is a pre-existing issue, but does the allocation for qsdev->input_buf
+earlier in quickspi_alloc_report_buf() need to be 4K-aligned to prevent a h=
+eap
+overflow during an RX DMA interrupt?
+
+In thc_rxdma_read(), read_dma_buffer() bounds-checks the message length
+against read_config->max_packet_size, which is 4K-aligned via
+thc_dma_set_max_packet_sizes().
+
+If a hardware device sends a DMA packet larger than max_input_len but
+smaller than or equal to ALIGN(max_input_len, SZ_4K), it would pass the
+bounds check in read_dma_buffer():
+
+intel-thc/intel-thc-dma.c:read_dma_buffer() {
+    ...
+    if (mes_len > read_config->max_packet_size) {
+    ...
+}
+
+and copy up to 4096 bytes into qsdev->input_buf, which was allocated strict=
+ly
+to the unaligned max_input_len.
+
+>  	if (!qsdev->report_buf)
+>  		return -ENOMEM;
+> =20
+
+[ ... ]
+
+> diff --git a/drivers/hid/intel-thc-hid/intel-quickspi/quickspi-protocol.c=
+ b/drivers/hid/intel-thc-hid/intel-quickspi/quickspi-protocol.c
+> index cb19057f1191b..db6054843e777 100644
+> --- a/drivers/hid/intel-thc-hid/intel-quickspi/quickspi-protocol.c
+> +++ b/drivers/hid/intel-thc-hid/intel-quickspi/quickspi-protocol.c
+> @@ -30,6 +30,9 @@ static int write_cmd_to_txdma(struct quickspi_device *q=
+sdev,
+> =20
+>  	write_buf =3D (struct output_report *)qsdev->report_buf;
+> =20
+> +	if (HIDSPI_OUTPUT_REPORT_SIZE(report_buf_len) > qsdev->report_buf_size)
+> +		return -EINVAL;
+> +
+>  	write_buf->output_hdr.report_type =3D report_type;
+>  	write_buf->output_hdr.content_len =3D cpu_to_le16(report_buf_len);
+>  	write_buf->output_hdr.content_id =3D report_id;
+> =20
+>  	if (report_buf && report_buf_len > 0)
+>  		memcpy(write_buf->content, report_buf, report_buf_len);
+
+[Severity: High]
+This is a pre-existing issue, but can concurrent ioctl requests cause data
+corruption in the shared DMA buffer qsdev->report_buf?
+
+Multiple userspace processes can concurrently call HIDIOCSFEATURE or
+HIDIOCGFEATURE. The HID core routines hold a read-lock, allowing parallel
+execution in the driver callbacks.
+
+Does write_cmd_to_txdma() modify qsdev->report_buf and trigger DMA writes
+without mutual exclusion against concurrent TX or RX requests like
+quickspi_handle_input_data()?
+
+quickspi-protocol.c:quickspi_handle_input_data() {
+    ...
+    memcpy(qsdev->report_buf, input_report, qsdev->report_len);
+    ...
+}
+
+
+[Severity: High]
+This is a pre-existing issue, but can the receive path also overflow
+qsdev->report_buf?
+
+While this patch secures the output path, quickspi_handle_input_data()
+parses input_len from the payload and executes an unbounded memcpy:
+
+quickspi-protocol.c:quickspi_handle_input_data() {
+    ...
+    memcpy(qsdev->report_buf, input_report, qsdev->report_len);
+    ...
+}
+
+If a compromised device sends a GET_FEATURE_RESPONSE with a length exceeding
+qsdev->report_buf_size, will this cause a heap buffer overflow?
+
+
+[Severity: Critical]
+This isn't a bug introduced by this patch, but is there an unbounded memcpy
+in quickspi_get_report() that could cause a heap buffer overflow?
+
+When a userspace process calls ioctl(HIDIOCGFEATURE) with a length parameter
+smaller than the actual hardware report size, quickspi_hid_raw_request()
+discards the bounds-checking len parameter:
+
+quickspi-hid.c:quickspi_hid_raw_request() {
+    ...
+    ret =3D quickspi_get_report(qsdev, rtype, reportnum, buf);
+    ...
+}
+
+Then quickspi_get_report() copies qsdev->report_len bytes into the
+caller's buffer without validating against the buffer's true capacity:
+
+quickspi-protocol.c:quickspi_get_report() {
+    ...
+    memcpy(buf, qsdev->report_buf, qsdev->report_len);
+    ...
+}
+
+Could this lead to memory corruption if the device responds with a report
+larger than the caller-allocated buffer?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260717091622.1744=
+196-1-sammiee5311@gmail.com?part=3D1

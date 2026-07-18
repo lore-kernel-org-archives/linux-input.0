@@ -1,44 +1,68 @@
-Received: from mx5.mail-out.lima-city.de (mx5.mail-out.lima-city.de [91.216.248.207])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pg1-f175.google.com (mail-pg1-f175.google.com [209.85.215.175])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 94A7C34889F
-	for <linux-input@vger.kernel.org>; Sat, 18 Jul 2026 15:12:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.216.248.207
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 723C232FA30
+	for <linux-input@vger.kernel.org>; Sat, 18 Jul 2026 19:01:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.175
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784387573; cv=none; b=uF4ks3zJgCtZftjXDwGvjsJwZ3yXfolm9obWKGi12xmWA/44nJ5ubyNv1u5X2jJcGvIHbd6NnBxgArQRDbYviWMnELZyDKKcpRgkUk/tl3UJ0dVKeyHLHBrhcus17mxFYRpbQtPeHkZz2odlrnU5dIoQzLfY/6vmUJ0AdqIi+oU=
+	t=1784401293; cv=none; b=f4f6VQ9JyK9A+1pk/bPetRFkiGaS0gG52PWfg6tWnx5V7c6MQp95CQwHK7NvVmSi21Og+59OqQAAPUlZpZgjDYb8S0pTVwpszks8s3GWKe2yPmFIavmV7mpKVlMpAkzmGzZNZ8sAFSRnOiKQGspheOwEptZXLf0fBwZKAILVWTY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784387573; c=relaxed/simple;
-	bh=koFL55gn6B93OOiTluw00ero3cvpXqFbFJkOcyhlQYA=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=ik6MqUt5KBKA5MfjTrwUQcMexTgQbthUHIGsZT/JAYdkB/nxyze7z8naSX+vS9L0/2WwVLrmK3dpniPbqtVPqxeP1ZRRzFQrGalFtuMs1xObZsFoJoctXpC0/qtxbG4Oz8p6eKEO3ZayNtWTWpAy8WTxoBfuEXMTfbesx/QQCbM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=deq.rocks; spf=none smtp.mailfrom=deq.rocks; dkim=pass (2048-bit key) header.d=deq.rocks header.i=@deq.rocks header.b=Pv55K5wU; arc=none smtp.client-ip=91.216.248.207
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=deq.rocks
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=deq.rocks
+	s=arc-20240116; t=1784401293; c=relaxed/simple;
+	bh=1O/nO5nDn1eCPTImqeOYZsAwBJiQGVLCGmgejk1P8rI=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=WJOrGKzSKD5q7gCBOM1+BPJ+w0kLbxSabt0PDOJJnhYDYcdUCjOl4Ddy5BT4fyXslV6UgIxzxp9F7t01V3dmUGMq1/stFshv2aXRS5rGD5XvUYu2AngKzeKyOngqzk4Hpn0CBX/3VLTdEz7JbWDcCqY7ONd23i1WxnQsHpY+Pio=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=p2ujbCzY; arc=none smtp.client-ip=209.85.215.175
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=deq.rocks header.i=@deq.rocks header.b="Pv55K5wU"
-From: Andre Eikmeyer <dev@deq.rocks>
-X-Lima-ML-UUID: a0f2919e-9359-416f-9d6c-92581e26999d
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=deq.rocks;
-	s=securedbylima-20251205; t=1784387570;
-	bh=koFL55gn6B93OOiTluw00ero3cvpXqFbFJkOcyhlQYA=;
-	h=From:To:Cc:Subject:Date:From;
-	b=Pv55K5wU27K+Equ8TgCjZL88duulymLdREPrnDfsCWpBB1vXfAkbrZOntyFP57EP4
-	 6CuUYkt98TOfjQL+ixrCEdaQvLggeb2ZXpS5Oqp3MeO/Z5OmRoraoWSDjQWIFzZk0E
-	 wjVMdn8L37dLhNgvdGB/kwAOCVZglqU7ae5jAed8Ntu+pecNhOm2qq9CYZBqCnOVsX
-	 h73jRIfBBhjNErnXQiUjvTLQjp+osVCqBkA9b91mRQJRfWHtlv6NAO6BF05EuOzdXP
-	 EWyru6UNt20G8TaM1UfW+K+8jBUIWp6JdKGg8trI/bZhX16RIZDrozmQmBUlVX2SoY
-	 M8pysPuqHfzdw==
-To: Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>
-Cc: linux-input@vger.kernel.org,
-	Paul Pawlowski <paul@mrarm.io>,
-	Aun-Ali Zaidi <admin@kodeit.net>,
-	Aditya Garg <gargaditya08@live.com>,
-	Andre Eikmeyer <dev@deq.rocks>,
-	Sashiko AI review <sashiko-bot@kernel.org>
-Subject: [PATCH] HID: apple: fix endianness of keyboard backlight reports
-Date: Sat, 18 Jul 2026 17:12:41 +0200
-Message-ID: <20260718151241.7496-1-dev@deq.rocks>
-X-Mailer: git-send-email 2.55.0
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="p2ujbCzY"
+Received: by mail-pg1-f175.google.com with SMTP id 41be03b00d2f7-c96bfabc8d4so3279414a12.3
+        for <linux-input@vger.kernel.org>; Sat, 18 Jul 2026 12:01:32 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1784401292; x=1785006092; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=yBTXZ/oF5RrKnMHUw1UdjpAZc/QLgvk0CAMv9ZG/8QI=;
+        b=p2ujbCzYWRTMiD3qwpg8C5d20buO5t/jcpVxqUczrMfG94N0Nk6N1WoechEGrPMUZi
+         548MvKb+/P6JQ9rSmLyr5LRm/JLoveqhMhSqE4i07Uvj6vwfh4vzNZem/C5KvDaXUvKi
+         RoapnXkJ9S2lVL+Nj1+0rKJzerj7QXlDJ7Hq+6Muufjd2m9X9I6SD2bbywI5jnyZ8NGO
+         ots0p5i6b1OPoth1e6+jTToeqM5CLBMPpWRgM+yfOGkRzeyK+qcIj9x3m1HmnEJ+FHml
+         2RtXlGcHdQ8aUD01fdpopfXIyjz0k2k/SHBN+2bmISop2Lp8j+xZ6Gp7gWrhjPVza98P
+         QkAA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1784401292; x=1785006092;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=yBTXZ/oF5RrKnMHUw1UdjpAZc/QLgvk0CAMv9ZG/8QI=;
+        b=bn6pmoy7yKJfJNvuogBuvabWc99Nd9XDIUcMlXlyc4W8XrbhnvNUFNoSG11d2HiSjI
+         hISlX9Wndke4846GksqrBMdZwlWVdJ/9NelWICEgawyFKnBHurOpvx7s4+uDrw7BUUCX
+         h1QwfynB7y/09/G9weo+oOlMjkZvjFZ6TdaMWK82VH+wCnjWDPZBGtVsVc656GUDoYz7
+         /Vd8uyU/i3D5u/3dfnob8fr3neiB0ZrFHs+aB60nWhR3d8e2F++mALVfGy17IocHYO7M
+         gQPHW/YJ05yvogiHKGDFgyCGdHF7an7KxKMJbbZt+EcRr9eN6Yu8VS6GA/npUckFOM4m
+         aMrg==
+X-Gm-Message-State: AOJu0Yyv0BBgx8aCLrTz4BsObGRKuajukd/fuIK5y6252IlSiwZehHWm
+	4zNeNlvVDlyXIpQyV3Tboyhaf0/jYVuWsMJC2yLsO+q+5kVLMtr3W5sJPiRk0Rtl
+X-Gm-Gg: AfdE7ck5O8ILKu09QBLnlkoU5SQsvL9DPEMPi3m+gnl3kuIssB+m8Z1R1otDv/j8hfq
+	EQW4OKslACt2HMhVLU/udW2VwxTFi2c0Q27vfCp/bNVMTc5W5SXixKVVPve3Yk11cFzK6AqEK0D
+	D/Gquo6PfLY4LkqpEE2DAFdkWG5MeDo9CuW2MfSbn+OpBXe1xHDwlmEddtXttUtm1kffO1NuJsE
+	6kA1XSyxZkV/O/nyWbpVDdVaDR+W3+EhTuJDUQ3B1Oa6mAiCVri1MfsnaIvEkykX4Lwrf5r+fWX
+	mQmGCiF7rIl2rt3n1rrCJNz3vk/SzQIy6xfikiRX8hKv1Tf9Cu6yw7OMRhB3KXEIG0RRnUD6JQa
+	cpnx8AWuaL+ypJGowUtVUBHdQNdVv9cEeFLmsrR9DRtTVdYB+76dWRfUAaXuIfOxiclcp728beP
+	YkYkwH+eT7o/kE9gAhyfyXnRieH0M=
+X-Received: by 2002:a17:90b:2f4b:b0:37f:9cdf:f03e with SMTP id 98e67ed59e1d1-38e4b540acbmr8552698a91.33.1784401291676;
+        Sat, 18 Jul 2026 12:01:31 -0700 (PDT)
+Received: from ubuntu.localdomain ([49.43.243.159])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-31429fdbd45sm19806998eec.12.2026.07.18.12.01.29
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 18 Jul 2026 12:01:30 -0700 (PDT)
+From: Bivash Kumar Singh <bivashraj750@gmail.com>
+To: linux-input@vger.kernel.org
+Cc: dmitry.torokhov@gmail.com,
+	Bivash Kumar Singh <bivashraj750@gmail.com>
+Subject: [PATCH] Input: gunze: replace deprecated APIs and fix warning style
+Date: Sun, 19 Jul 2026 00:30:40 +0530
+Message-ID: <20260718190040.10613-1-bivashraj750@gmail.com>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -47,76 +71,46 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The raw reports used by the T2 butterfly keyboard backlight contain
-little-endian 16-bit fields. They are currently read and written as native
-u16 values, leaving the wire format dependent on host endianness.
+Replace two uses of simple_strtoul() with kstrtoul() as the former
+is deprecated. kstrtoul() also properly handles parse errors, so
+add an early return if parsing fails.
 
-We should describe these fields as __le16 and convert them explicitly when
-reading the backlight limits and writing the brightness and transition
-rate.
+Replace printk(KERN_WARNING) with dev_warn() using the serio device,
+which is the correct logging style for driver code and removes the
+redundant 'gunze.c:' filename prefix.
 
-Reported-by: Sashiko AI review <sashiko-bot@kernel.org>
-Link: https://lore.kernel.org/r/20260718123641.DA2FF1F000E9@smtp.kernel.org
-Signed-off-by: Andre Eikmeyer <dev@deq.rocks>
+Signed-off-by: Bivash Kumar Singh <bivashraj750@gmail.com>
 ---
- drivers/hid/hid-apple.c | 18 +++++++++++-------
- 1 file changed, 11 insertions(+), 7 deletions(-)
+ drivers/input/touchscreen/gunze.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/hid/hid-apple.c b/drivers/hid/hid-apple.c
-index bf7dd0fbf249..473b6722938e 100644
---- a/drivers/hid/hid-apple.c
-+++ b/drivers/hid/hid-apple.c
-@@ -94,14 +94,16 @@ struct apple_sc_backlight {
- struct apple_backlight_config_report {
- 	u8 report_id;
- 	u8 version;
--	u16 backlight_off, backlight_on_min, backlight_on_max;
-+	__le16 backlight_off;
-+	__le16 backlight_on_min;
-+	__le16 backlight_on_max;
- };
+diff --git a/drivers/input/touchscreen/gunze.c b/drivers/input/touchscreen/gunze.c
+index 2baeb4f3b941..38450cabdd11 100644
+--- a/drivers/input/touchscreen/gunze.c
++++ b/drivers/input/touchscreen/gunze.c
+@@ -41,15 +41,19 @@ struct gunze {
+ static void gunze_process_packet(struct gunze *gunze)
+ {
+ 	struct input_dev *dev = gunze->dev;
++	unsigned long x, y;
  
- struct apple_backlight_set_report {
- 	u8 report_id;
- 	u8 version;
--	u16 backlight;
--	u16 rate;
-+	__le16 backlight;
-+	__le16 rate;
- };
- 
- struct apple_magic_backlight {
-@@ -803,8 +805,8 @@ static int apple_backlight_set(struct hid_device *hdev, u16 value, u16 rate)
- 
- 	rep->report_id = 0xB0;
- 	rep->version = 1;
--	rep->backlight = value;
--	rep->rate = rate;
-+	rep->backlight = cpu_to_le16(value);
-+	rep->rate = cpu_to_le16(rate);
- 
- 	ret = hid_hw_raw_request(hdev, 0xB0u, (u8 *) rep, sizeof(*rep),
- 				 HID_OUTPUT_REPORT, HID_REQ_SET_REPORT);
-@@ -848,7 +850,9 @@ static int apple_backlight_init(struct hid_device *hdev)
+ 	if (gunze->idx != GUNZE_MAX_LENGTH || gunze->data[5] != ',' ||
+ 		(gunze->data[0] != 'T' && gunze->data[0] != 'R')) {
+-		printk(KERN_WARNING "gunze.c: bad packet: >%.*s<\n", GUNZE_MAX_LENGTH, gunze->data);
++		dev_warn(&gunze->serio->dev, "bad packet: >%.*s<\n", GUNZE_MAX_LENGTH, gunze->data);
+ 		return;
  	}
  
- 	hid_dbg(hdev, "backlight config: off=%u, on_min=%u, on_max=%u\n",
--		rep->backlight_off, rep->backlight_on_min, rep->backlight_on_max);
-+		le16_to_cpu(rep->backlight_off),
-+		le16_to_cpu(rep->backlight_on_min),
-+		le16_to_cpu(rep->backlight_on_max));
- 
- 	asc->backlight = devm_kzalloc(&hdev->dev, sizeof(*asc->backlight), GFP_KERNEL);
- 	if (!asc->backlight) {
-@@ -858,7 +862,7 @@ static int apple_backlight_init(struct hid_device *hdev)
- 
- 	asc->backlight->hdev = hdev;
- 	asc->backlight->cdev.name = "apple::kbd_backlight";
--	asc->backlight->cdev.max_brightness = rep->backlight_on_max;
-+	asc->backlight->cdev.max_brightness = le16_to_cpu(rep->backlight_on_max);
- 	asc->backlight->cdev.brightness_set_blocking = apple_backlight_led_set;
- 	asc->backlight->cdev.flags = LED_CORE_SUSPENDRESUME;
- 
+-	input_report_abs(dev, ABS_X, simple_strtoul(gunze->data + 1, NULL, 10));
+-	input_report_abs(dev, ABS_Y, 1024 - simple_strtoul(gunze->data + 6, NULL, 10));
++	if (kstrtoul(gunze->data + 1, 10, &x) || kstrtoul(gunze->data + 6, 10, &y))
++		return;
++
++	input_report_abs(dev, ABS_X, x);
++	input_report_abs(dev, ABS_Y, 1024 - y);
+ 	input_report_key(dev, BTN_TOUCH, gunze->data[0] == 'T');
+ 	input_sync(dev);
+ }
 -- 
-2.55.0
+2.53.0
 

@@ -1,42 +1,69 @@
-Received: from mx5.mail-out.lima-city.de (mx5.mail-out.lima-city.de [91.216.248.207])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f169.google.com (mail-pl1-f169.google.com [209.85.214.169])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E9611374A0E;
-	Sat, 18 Jul 2026 12:22:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.216.248.207
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C4E4E36F909
+	for <linux-input@vger.kernel.org>; Sat, 18 Jul 2026 12:25:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.169
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784377348; cv=none; b=g//6PsveIxUQWnKoUjZrrm/BvH0w83bfbLzpROyeHAYHggcfEBoweNAr0pSL68+/EjWWNIuiB1YbYkltneIkBVY8iVqqPiQdWpjjrQLqL8j1kwiRC6Vbc6ltdt8BGbpWPiXJb5te31p+hghZ3/C3vNwWFpiAmPDaKHm6AfMbXPw=
+	t=1784377507; cv=none; b=GXq8JKumBN7RiPFeH+NVyFiWrMpwANWXpPBQ1/lB9cmLvTYWMDHXFH9lRuOC96lBittYJQ3B/Sk+DDBLgbyPfqF2WvXKb0HtRwPkj9ncc+lhWZGJyiHesdPE201AyUff3SbHUBRINwQfWLkVHuPumxC8t8ZjC5PZVfHou11j28I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784377348; c=relaxed/simple;
-	bh=s4WP1WzsZU26sY99HAth2G8R98jfdSkHxiyV38po4/E=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=VatpiFFu6zmJ71eNCoelNOyXABpJK5z1R/ia70jbl47jYvIsvsLeXNUiylCa0MHzfRi0V5iWR2HV7vsJ2zzPzKwNamdQy7HPR4rjCqEUI3r6jhlS15gKlVXngqF7YY7Chi/xIVULma7cndbKDWEQNA3pD3DoqRw8yArAyghh47Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=deq.rocks; spf=none smtp.mailfrom=deq.rocks; dkim=pass (2048-bit key) header.d=deq.rocks header.i=@deq.rocks header.b=gy5ynHeO; arc=none smtp.client-ip=91.216.248.207
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=deq.rocks
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=deq.rocks
+	s=arc-20240116; t=1784377507; c=relaxed/simple;
+	bh=dCqc/Gpt+qabsfg4ePm0xR6+Vd07oJfgE8KWaErQ2LQ=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=tYA7wxV1us5DhigZ8PQFt/qQoi+S2VZivM96wMlF7tMtcFLblt8FQZ2756hZfBIGekVYmvE/lrVWAHsT+3j4fLQ5iEKJaYE8SsLJ458wWG4UHHjSpFBRDPsd5MfvhGY/EE29CS3AZqbjIad7grkiqghjUwm8erFkhFs7Xy4OO8w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=bsKe3pr4; arc=none smtp.client-ip=209.85.214.169
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=deq.rocks header.i=@deq.rocks header.b="gy5ynHeO"
-From: Andre Eikmeyer <dev@deq.rocks>
-X-Lima-ML-UUID: 2512b6ff-dae7-41ca-b2c8-abc7fa4f48a8
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=deq.rocks;
-	s=securedbylima-20251205; t=1784376940;
-	bh=s4WP1WzsZU26sY99HAth2G8R98jfdSkHxiyV38po4/E=;
-	h=From:To:Cc:Subject:Date:From;
-	b=gy5ynHeOzYQNVWbxVNFb+P1aPXVhAvgNbrID0nGG62lZB6+0DkopA2RQhF3R4sHZe
-	 9HXp9ut582daM65Lfml5qBoRLdLt3wbAy5MS8mKjcUvxnST4/UBzoDLazDXPywhqqe
-	 4BqnK1lC7J9YGXXBukPb+X8WDS0RDz20dW0p1nV9sjyuckJG4r2UI1LO3NwPuQx4CA
-	 Q6qxMNviLQaMBFhHhs5y1JE4Y2F5B3MUUO4dAXB8lkUp1oocFmfH4RfErRv2cZJNL/
-	 vhOMKftFvxPDVcMnOm6/zK8cmPECTEn5KkJtvUSdca7SMGaEAHiM1NKZRzWFHjkqqc
-	 iQxmcauVo845Q==
-To: Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>
-Cc: linux-input@vger.kernel.org,
-	Aditya Garg <gargaditya08@live.com>,
-	Andre Eikmeyer <dev@deq.rocks>,
-	stable@vger.kernel.org
-Subject: [PATCH 1/2] HID: apple: preserve keyboard backlight across T2 resume
-Date: Sat, 18 Jul 2026 14:15:26 +0200
-Message-ID: <20260718121527.15924-1-dev@deq.rocks>
-X-Mailer: git-send-email 2.55.0
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="bsKe3pr4"
+Received: by mail-pl1-f169.google.com with SMTP id d9443c01a7336-2cacb8416a1so52894805ad.1
+        for <linux-input@vger.kernel.org>; Sat, 18 Jul 2026 05:25:05 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1784377505; x=1784982305; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=iqcJM3A5wcf1kOSiEdh2r5s0uC3gHTtk06Wi4etClSY=;
+        b=bsKe3pr4Ei6jlgu2v27JT2MzeCk+aw9q9oFfr0fStZPf2lhmjqPwYU3D9UU6hBDz6/
+         mFITZhgUshi7jp/dHzZyanSQyc8qMyynJL9z1PalyZKKMwJeEJWtjWo9du0MQjFNq54A
+         U9yY6vjshxGW+8ym+wO/PyHXVrTJLxEEaBNWAuX4cp3tbQiVHpM+DxBz/XS16pE1uj9z
+         OWstGowmvPGZn8qo/H8X5okZuGMhOztCbGDZ/0btKKQSwTMOX6zHlTdlhDv+FPhZql1M
+         cBiPuVG7j6e/5ERQR1H9hDhMR0lG8i0xyBeob3HMqJJI23th1xd5WvpNAEcdzG6rM1G7
+         Yx8A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1784377505; x=1784982305;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=iqcJM3A5wcf1kOSiEdh2r5s0uC3gHTtk06Wi4etClSY=;
+        b=rEATLRlOuMczxBpTONKL2QpZhc7cEp76jOPqeSNo06UOOQgMFr8iZzmPM8Abjb76xu
+         UCd7L1QVYlsCZzlia8YhIfJDeoalaQx9Qg5vJz2JZ1TdIMCITNW6RmYUxUVhEStn4/VH
+         qbSNjIQgAf5CsaHLab+R5JTnO3jhL7fuKmnnaxXWSpxw+cHMA69wda1Rf6fCFuQdvkvF
+         /mob3xwBzVeXsle/ZaQjjt5huaCPcnVbeMnmdHbrae5ruyCmAN0q9spgUMNCDEWDzmwh
+         yuUSeHLa+fi7WB/YrICwg+TFNZVWQhAymT+rYRbVfrD7mXAv/24odyVtR2VcyYz11NCN
+         HGKQ==
+X-Gm-Message-State: AOJu0YyljP10x/bvXE2l9Ve/j/SgbaLpsV+HFHLKoxFYmh/vfQ06G+Wh
+	tXU9ZOBLDgNg18Rpc1eYVgX9L/0obME1B5zRGPgkKg0qW/stKGyMYlvrlZ7hiT2/gSQkPA==
+X-Gm-Gg: AfdE7cm758omFAmfVOdWgNXUznvnbph+z+sBKWrmbMbVMlfzA2etmnevlPFmVFqNfjv
+	ptnRvxc3pDbnFHvSC4daFOnmTwTjcO2iDRcUfKJeOdiM09c+k7G0EamaEF9Wux2hVRgk2ulcgtT
+	+X+teD62ik2pinWlsGo09+i2Kps3W0MXadvxj6DFYmrzAdOl7JRckRictDwrFgL2Vuk0+5nktho
+	4oye5sKdxRH741n+jjZEZ37fCBuU8HBdf0HyIL+ddyAtgPerXcUe6eAYIU66eQRreTVNv23jxdS
+	q5aIyfkaJm4ObgUEVWniKO0KpIYLqbxzI0ckL1jpQI7LZPsT2IZbt7JTlJ6GEtuZqil2E9n0YRy
+	O1LrfkpYHonHsUyeyJalyiirNY8wLov8s2SLtjVBR7rF3ZTSdLv/ccaAHozzvC5o/4O3EDTcXNq
+	6MDcah
+X-Received: by 2002:a17:90b:17cf:b0:38e:5c6:4db9 with SMTP id 98e67ed59e1d1-38e4b4113d6mr6677460a91.11.1784377504923;
+        Sat, 18 Jul 2026 05:25:04 -0700 (PDT)
+Received: from XiaomiLaptop ([123.166.62.137])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-38e4aff247asm2665629a91.7.2026.07.18.05.25.02
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 18 Jul 2026 05:25:04 -0700 (PDT)
+From: Andrew Zhou <zhoulol888@gmail.com>
+To: linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org,
+	dmitry.torokhov@gmail.com,
+	Andrew Zhou <zhoulol888@gmail.com>
+Subject: [PATCH] Input: i8042 - add Xiaomi Book Pro 14 to dumbkbd quirk list
+Date: Sat, 18 Jul 2026 20:24:37 +0800
+Message-ID: <20260718122437.11112-1-zhoulol888@gmail.com>
+X-Mailer: git-send-email 2.54.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -45,79 +72,41 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The T2 virtual USB host controller re-enumerates the internal keyboard
-after system resume. The butterfly keyboard backlight currently uses
-LED_CORE_SUSPENDRESUME, so the LED core sends a blocking request to the
-old HID device while it is disappearing. That request fails with -ENODEV
-and the newly probed device starts with its backlight off.
+The Xiaomi Book Pro 14's built-in keyboard doesn't work by default.
 
-To fix this, we cache the requested brightness when the old HID device is
-removed and restore it when the replacement is probed. We let
-re-enumeration handle restoration instead of issuing a request through the
-stale device.
+Add the device to the quirk table with SERIO_QUIRK_DUMBKBD so the keyboard
+works out of the box without needing i8042.dumbkbd on the kernel command line.
 
-Fixes: 1f95a6cd5ad7 ("HID: apple: ensure the keyboard backlight is off if suspending")
-Cc: stable@vger.kernel.org
-Signed-off-by: Andre Eikmeyer <dev@deq.rocks>
+Tested on a Xiaomi Book Pro 14.
+
+Signed-off-by: Andrew Zhou <zhoulol888@gmail.com>
 ---
- drivers/hid/hid-apple.c | 18 ++++++++++++++++--
- 1 file changed, 16 insertions(+), 2 deletions(-)
+ drivers/input/serio/i8042-acpipnpio.h | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-diff --git a/drivers/hid/hid-apple.c b/drivers/hid/hid-apple.c
-index bf7dd0fbf249..a5f232cc2b66 100644
---- a/drivers/hid/hid-apple.c
-+++ b/drivers/hid/hid-apple.c
-@@ -91,6 +91,9 @@ struct apple_sc_backlight {
- 	struct hid_device *hdev;
+diff --git a/drivers/input/serio/i8042-acpipnpio.h b/drivers/input/serio/i8042-acpipnpio.h
+index 412f82d7a..6b18014e2 100644
+--- a/drivers/input/serio/i8042-acpipnpio.h
++++ b/drivers/input/serio/i8042-acpipnpio.h
+@@ -1430,6 +1430,18 @@ static const struct dmi_system_id i8042_dmi_quirk_table[] __initconst = {
+ 		},
+ 		.driver_data = (void *)(SERIO_QUIRK_DIRECT)
+ 	},
++	/*
++	 * Some laptops have a broken keyboard controller that reports
++	 * incorrect data. SERIO_QUIRK_DUMBKBD bypasses the intelligent
++	 * probing and forces a basic PS/2 keyboard assumption.
++	 */
++	{
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "XIAOMI"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "Xiaomi Book Pro 14"),
++		},
++		.driver_data = (void *)(SERIO_QUIRK_DUMBKBD)
++	},
+ 	{ }
  };
  
-+/* T2 VHCI re-enumerates the internal keyboard across system resume. */
-+static int apple_backlight_resume_brightness = -1;
-+
- struct apple_backlight_config_report {
- 	u8 report_id;
- 	u8 version;
-@@ -825,6 +828,7 @@ static int apple_backlight_led_set(struct led_classdev *led_cdev,
- static int apple_backlight_init(struct hid_device *hdev)
- {
- 	int ret;
-+	int brightness;
- 	struct apple_sc *asc = hid_get_drvdata(hdev);
- 	struct apple_backlight_config_report *rep;
- 
-@@ -860,13 +864,20 @@ static int apple_backlight_init(struct hid_device *hdev)
- 	asc->backlight->cdev.name = "apple::kbd_backlight";
- 	asc->backlight->cdev.max_brightness = rep->backlight_on_max;
- 	asc->backlight->cdev.brightness_set_blocking = apple_backlight_led_set;
--	asc->backlight->cdev.flags = LED_CORE_SUSPENDRESUME;
-+	/* VHCI re-enumeration restores the cached brightness in the next probe. */
-+
-+	brightness = READ_ONCE(apple_backlight_resume_brightness);
-+	if (brightness < 0)
-+		brightness = LED_OFF;
-+	else
-+		brightness = min_t(int, brightness, rep->backlight_on_max);
- 
--	ret = apple_backlight_set(hdev, 0, 0);
-+	ret = apple_backlight_set(hdev, brightness, 0);
- 	if (ret < 0) {
- 		hid_err(hdev, "backlight set request failed: %d\n", ret);
- 		goto cleanup_and_exit;
- 	}
-+	asc->backlight->cdev.brightness = brightness;
- 
- 	ret = devm_led_classdev_register(&hdev->dev, &asc->backlight->cdev);
- 
-@@ -999,6 +1010,9 @@ static void apple_remove(struct hid_device *hdev)
- 
- 	if (asc->quirks & APPLE_RDESC_BATTERY)
- 		timer_delete_sync(&asc->battery_timer);
-+	if (asc->backlight)
-+		WRITE_ONCE(apple_backlight_resume_brightness,
-+			   asc->backlight->cdev.brightness);
- 
- 	hid_hw_stop(hdev);
- }
 -- 
-2.55.0
+2.54.0
 

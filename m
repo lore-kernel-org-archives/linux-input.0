@@ -1,104 +1,157 @@
-Received: from mail-wm1-f48.google.com (mail-wm1-f48.google.com [209.85.128.48])
+Received: from mail-pj1-f42.google.com (mail-pj1-f42.google.com [209.85.216.42])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BDE183C10A3
-	for <linux-input@vger.kernel.org>; Fri, 17 Jul 2026 22:55:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.48
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D446137AA7A
+	for <linux-input@vger.kernel.org>; Sat, 18 Jul 2026 07:40:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.42
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784328912; cv=none; b=hQR/wGHKxvQB3D7hrXXPfH+s8vvAxI59dXVW0qpF64aX8p4hwNcAVVmIVRzYQx35fckR9droxdp3oHkQQnAyiz6RjW5atrEZzGUD1ICbDrqCpBwWuHK5jpwUr8NPPlbtQmg7W6bt0KXHuPN1bIPWsZihaQs2ujzEzG3ljv8TnU0=
+	t=1784360442; cv=none; b=gW6jYM2GPswSlbnLGPdtFp6IJmzndQLqqT0yQFfAvAC3c6Vobo4zpwXf07UKXSk2vhQBhZdNSaVvYYqlXWs0B849rnvm2Cms13Jk8F/8h+DfaxU5biiuqJZh8F4j0dLa2//lrXRGoSJOgQuhBgqT/YXO2ywTxh2WcFKGsL1+sHo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784328912; c=relaxed/simple;
-	bh=/H5NR1XjuB5PBtIh0P2j5Pkh/z/QnUQXzoBrrBBcjLQ=;
-	h=Message-ID:Date:MIME-Version:Subject:To:References:From:
-	 In-Reply-To:Content-Type; b=kadqL4bZv7LO/RkRxjaCLdQvSZ7CijycWnkYKjgLVqg75/Nn9oUPVNjbWsYtCTBAWt7pvmdoKAv/c7CCLigYIf9O3uPKCjzR9lXMQtxxuk4S3xvyvyKp2/uHOBRVcQyuXFOEskylDoC0SDDdNTrmgXsSDKNw4xY/kEEqRcWuFpc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Bb62yGSJ; arc=none smtp.client-ip=209.85.128.48
+	s=arc-20240116; t=1784360442; c=relaxed/simple;
+	bh=CHqctaXOh1YRZ6r+fEuQSQe/xUi6dXaEscZOn0peo18=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=ZbHbVlSaBiZkYqujs5WGUrvbQOHxE7cFXIb7ySXyw/ycNznf/kpWiJtBRess7mNEtp5XG395X/wllZB4HlOBc5+osVAHvQcAnlML7HeSjCSKGhjt4T379LrxYRnOsFUYW84Wtzhsvbro2/R2Ib4FdXAOb68e9VEMdHMLnxvKN2U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=oIYg6s5H; arc=none smtp.client-ip=209.85.216.42
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Bb62yGSJ"
-Received: by mail-wm1-f48.google.com with SMTP id 5b1f17b1804b1-493f75f7172so63402775e9.1
-        for <linux-input@vger.kernel.org>; Fri, 17 Jul 2026 15:55:05 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="oIYg6s5H"
+Received: by mail-pj1-f42.google.com with SMTP id 98e67ed59e1d1-383b4a3755fso5023976a91.3
+        for <linux-input@vger.kernel.org>; Sat, 18 Jul 2026 00:40:40 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784328902; x=1784933702; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:in-reply-to:from
-         :content-language:references:to:subject:user-agent:mime-version:date
-         :message-id:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=ToPSRvPgjkr/VzS5dlOPGe6gHdaxzFfNfDhw4kgPyTc=;
-        b=Bb62yGSJrIcePJvnsbDqlhY/dTOu/lR1Ir44ey9olRDzQrbaiadTNdehGbrqObAysV
-         PglTJbpaQ/LN0OEXSQjhlfMQY3n3VKGgA/GjrSnmdvQDPuidRxcBcCjcXDkT8BM/pDZU
-         gcrk7+qUv0JEun8H+SgFP3gqSGQ9BXDZs4GSR00FQCr6kOUYSTj8GoOc628Xfp9nXkWv
-         WB8xkKW+dw4Ykc+t8maUG+WCXVeNh5bXJA/fJr7hygR/CvdpjEDDN3Vd+e9uwU8LwA12
-         eD1yFbkcSsPLSl0ZWD2JwTzDJbUJqaYfSHdec8sqtRNBeXOo2kenoH/zdAAqPt+hTdZ7
-         GhZA==
+        d=gmail.com; s=20251104; t=1784360440; x=1784965240; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=4sz+zAG3Op3BP7KFhD4nzcWAAX6/+g0R994WeqVfx14=;
+        b=oIYg6s5HLIDMc3ITOkP51RXdF3lw4smzJ9e+oK5O0nflXZhRV3DlsO5YOshePUv+D9
+         59j6KdYJuJIpAtsR/eBlHbzKTb69pvtPVKmVEgg/1N9+687+B+Q0rkzqVADcXq4w0CVc
+         iiNkDsDfF0YxPr3oAotrzIatxGavtbYv8wRH6XCYDLKpt/tFoRvl+Fzp4CyYUdvuUZlz
+         kNFKVg7YMG/bXksEmc4r7fTVrMKOKhrFzXgMlbt+mruRrzTEdrUkX/ym75P9oQq7T6oe
+         EItB4mP4FF6kK5EwfdXjqCVkOz2rpwL1zCK5lZv5BQCZ32JA4aojqz1XK29zy5l6gPr8
+         OXug==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784328902; x=1784933702;
-        h=content-transfer-encoding:content-type:in-reply-to:from
-         :content-language:references:to:subject:user-agent:mime-version:date
-         :message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=1e100.net; s=20251104; t=1784360440; x=1784965240;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=ToPSRvPgjkr/VzS5dlOPGe6gHdaxzFfNfDhw4kgPyTc=;
-        b=G+74GPYFxfZ2sx/HT5lJ43eq94cDGGqYN+exsKjRV8kJOFeRpEI0qVxk+3lGEhrZyM
-         GKhBqiSv7f7rAqNr44LaEX+jNMDDTXJQMZMuK6y4wPnWKHT4gHcqkCwjh2cyEpC1udDw
-         EtcpTdl/tonY+zA7qdYbgPNZd6XJWYDLoqluE0EWIY6+rAHdptJLIbK8Cvma8L4J74PA
-         RMKgzpRizG3+zSmCuShmn9KSPJI7+62BO0FNZ2gD7P59eVGbpKRXWoNN7LgMSI48HbTe
-         IeNnPqw3EC3U7cTzilLcPb/3YbUyuSvWmkllwAg+zp/9rLrBcXXH6H06zzyn/LRxX5FU
-         dd+w==
-X-Forwarded-Encrypted: i=1; AHgh+Rpbu7yF4Z17NHjbODdmWoAdOyA8+lISh3yPyiKlIHQMQR2qgrOxO9DZ8bf3SXt0FP1LOtw9C43oPKoahA==@vger.kernel.org
-X-Gm-Message-State: AOJu0YwDi9Eyvc+oh7OX6Ylm3qUD2x0hIOaJe7RI6OkS0GIntFJDxApM
-	RvbeuOVW7hYOyh7WOB4JooDSr9Px4MHy+MTUvDx7dcunD5n94S1oed86
-X-Gm-Gg: AfdE7ckWOoxDLFcDeig+VO8iri74QvHdh4lWdhjkXFPQ7jjxq34lWyIDDoymXXYPCiY
-	mS06/8Vgg0R/44SRTQZqRc75LK5T8SxJJVB+6jGiHQJ2XZGBOfn1JSetdp0+tzcxHC28aSeoW2a
-	9asXp1O0mOznaQlDbRD6sy7GIj4460RYEJwA4AqUcXrNBJwF2AyiY76BAD9XDp7LmlN79tX03VC
-	7QbmddI2GXv17WHVR7n1PwRDQpgRN27JtA1wippBBHEewRdWTL7/T+mi8rdVYeQyhrNO9R9QgQi
-	NM1xEu+5QwHfRGDwWqOfFLCLitQ/7npfxM3BrkNyyJAE43gA58DBytwH4j5hZ8wPgpZatyHSIRP
-	qkra2DNddVmLQ69SZDYrsgpUPNq7U2SBqTTSj19wwZMHD/i3wNcyP4E0e0yB08FjzOogHJRUsNU
-	EUZsPtImTJOGLKfiHD6yl2WGJIIHr4EQKMt9Jznm9YQb/tw0SQqEfWykuV/QgVhg7WLEFo9m0Eb
-	k1w4RfWHdVJiBSU2Tj/5wrM44w9kQHsrp8iKvd0eoajNhYUmTBh
-X-Received: by 2002:a05:600c:3b20:b0:495:4f62:c9f5 with SMTP id 5b1f17b1804b1-4954f62ca61mr18323005e9.24.1784328901759;
-        Fri, 17 Jul 2026 15:55:01 -0700 (PDT)
-Received: from ?IPV6:2a05:87c3:2001:7400:47cc:69bf:39fc:49b7? ([2a05:87c3:2001:7400:47cc:69bf:39fc:49b7])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4954a2692a3sm73164955e9.0.2026.07.17.15.55.01
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 17 Jul 2026 15:55:01 -0700 (PDT)
-Message-ID: <41f36ffa-0f07-4237-ac30-990d7a5c1ca6@gmail.com>
-Date: Fri, 17 Jul 2026 23:55:01 +0100
+        bh=4sz+zAG3Op3BP7KFhD4nzcWAAX6/+g0R994WeqVfx14=;
+        b=QJSxoqfuK+9ETLHjwN/WsOtfnvP+SoCljndL/3RAiSIcFjj5G0/v2t6W+93Pfbod6c
+         wbcT3yuUDfjuLQ1TGkd5XOK2g+Skh4C/kPPnSh2ide/+aFkETkQJ1jLGfQoyu1R1QAjg
+         Dp7faa1jmMQh4ydtxFEXEYG6UWR4t1XBK+OgKoaIzyrktfKcM/kUFn8yaVNYST+lp5gg
+         w0siYqJ7hsm0ZykYADnnwhhkgp8V5Bm2gkNZBYYIGSJdzPTzJQ1qOsnB20ezkplE3kJ4
+         pFZTn22bZlNe6BPRxIMzYsEgFxdV7xYFain/rQ0RKznpwpns4AiVPMttoLB2bK3Cy6Xi
+         l74Q==
+X-Forwarded-Encrypted: i=1; AHgh+RpynefkyIMtOb+sLnBUAyX8DE6ifv7+jPiwwyENNFt3BjVm7Oyazn/nrZoKSNyQLH6rXjlraS1GmLYw1g==@vger.kernel.org
+X-Gm-Message-State: AOJu0YxzxJFmgZ38dxXs8YN78ncdUnV2sX76ojyCIz+rGjex5/hOPGCH
+	MvGSvo+VvIKgpT0M8cA+qUPtaDXVzIYsIB3VAbQY6mig+Vi8zY7PX7rY
+X-Gm-Gg: AfdE7ckp8Hun3J3sBabnPR4LF/GvaP/ARrB4r3ji+G979vpLX4KC8n/cXaHRXSNYqZC
+	Iyux6Xp99Nl70P0bCVL5ZWk8BinGSVpthLgkvcVYfDOCv7koaZA4+l1C2lee3TbjqsXQRsM9s76
+	JH98fSit/3+VCGKDuCJ5wh9xP3e1GIAfK6QvqMn0dfS/qdRJ3OAdnoH5bUFbXQdkCU7Si/jaT71
+	vjQvU51p9GJsBqt+1Ra8PVlAnOUiFQtWP/PWezfqd+bZTaWGubq7OS8YRgSRgtClqGUUuL/SRmO
+	ejGjPnJTeE1Qucu4pg8ciF1o99Kd+uBPGxw0yatrcGufI7snLcQ5WXq5bQFB0g+vX5gMxUYnzhJ
+	NCRQS7cK8X83haKC543xxm+XrrPcBlAETkOs2hHaUhSyqib6XaNNVtdLwD0IaslWIbu9lcZ/fM1
+	3/Dv0Cc8BwChRJ0DUB9shL9gmws3yrjEmZ1EraLh/Xw4km9Nx0DpPJaj3DrLMGwnHjtOM=
+X-Received: by 2002:a17:90b:1dca:b0:38d:ef48:b04 with SMTP id 98e67ed59e1d1-38e4b454d1cmr6489775a91.10.1784360440044;
+        Sat, 18 Jul 2026 00:40:40 -0700 (PDT)
+Received: from nugod-NUC15CRHU5.tail9f095a.ts.net ([218.237.104.87])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-38e3a0d7a5bsm4311651a91.9.2026.07.18.00.40.37
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 18 Jul 2026 00:40:39 -0700 (PDT)
+From: HyeongJun An <sammiee5311@gmail.com>
+To: James Ogletree <jogletre@opensource.cirrus.com>,
+	Fred Treven <fred.treven@cirrus.com>,
+	Ben Bright <ben.bright@cirrus.com>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: patches@opensource.cirrus.com,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	stable@vger.kernel.org,
+	HyeongJun An <sammiee5311@gmail.com>
+Subject: [PATCH] Input: cs40l50-vibra - validate custom data from user space
+Date: Sat, 18 Jul 2026 16:40:32 +0900
+Message-ID: <20260718074032.1864861-1-sammiee5311@gmail.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 2/4] HID: corsair-void: fix out-of-bounds read in
- corsair_void_raw_event
-To: Jiale Yao <yaojiale02@163.com>, Jiri Kosina <jikos@kernel.org>,
- Benjamin Tissoires <bentiss@kernel.org>, linux-input@vger.kernel.org,
- linux-kernel@vger.kernel.org, stuart.a.hayhurst@gmail.com
-References: <20260714131611.269929-1-yaojiale02@163.com>
- <20260714131611.269929-2-yaojiale02@163.com>
-Content-Language: en-GB
-From: Stuart Hayhurst <stuart.a.hayhurst@gmail.com>
-In-Reply-To: <20260714131611.269929-2-yaojiale02@163.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 
-Hi,
+cs40l50_add() copies the custom data of an FF_PERIODIC/FF_CUSTOM effect
+straight from the ff_effect the user passed to EVIOCSFF, without
+requiring it to hold anything:
 
-Looking through this, I had a couple thoughts:
+    work_data.custom_data = memdup_array_user(periodic->custom_data,
+                                              periodic->custom_len,
+                                              sizeof(s16));
+    work_data.custom_len = periodic->custom_len;
 
-  - It should send a warning for unexpected sizes, since most likely 
-it's a format we haven't seen yet
+The driver then reads two words out of that buffer: custom_data[0] as the
+waveform bank in cs40l50_effect_bank_set(), and custom_data[1] as the
+index within the bank in cs40l50_effect_index_set().  Neither read is
+covered by a length check, and custom_len is fully user controlled:
 
-  - 5 is a bit of a magic number, especially as some packets of other 
-sizes pass through, but we don't do anything with them (yet?)
+  - custom_len == 0 makes memdup_array_user() call memdup_user() with a
+    length of zero, which returns ZERO_SIZE_PTR rather than an error, so
+    custom_data[0] dereferences it.
 
-  - AFAIK returning 0 indicates everything was OK, when actually we 
-bailed out. By convention, shouldn't this return 1 on failure?
+  - custom_len == 1 allocates two bytes.  A bank of ROM or RAM keeps
+    effect->type out of the OWT case, and custom_data[1] is then read one
+    word past the allocation.
 
+The bank value itself is also mishandled.  It is masked with
+CS40L50_CUSTOM_DATA_MASK (0xffff) but stored in an s16, so a
+custom_data[0] of 0x8000 or above wraps to a negative value that passes
+the "bank_type >= CS40L50_WVFRM_BANK_NUM" test.
+cs40l50_effect_index_set() indexes vib->dsp.banks[] with it before the
+switch statement's default case gets a chance to reject it:
 
-The patch I submitted a few weeks ago handled these: 
-https://lore.kernel.org/all/20260630010656.626157-3-stuart.a.hayhurst@gmail.com/
+    base_index = vib->dsp.banks[effect->type].base_index;
+    max_index = vib->dsp.banks[effect->type].max_index;
 
+Require the two words the driver reads to be present, and hold the masked
+bank in a u32 so the existing upper-bound test covers the whole range.
+The da7280 haptic driver already range checks custom_len this way.
 
-Stuart
+Fixes: c38fe1bb5d21 ("Input: cs40l50 - Add support for the CS40L50 haptic driver")
+Cc: stable@vger.kernel.org
+Assisted-by: Claude:claude-opus-4-8
+Signed-off-by: HyeongJun An <sammiee5311@gmail.com>
+---
+ drivers/input/misc/cs40l50-vibra.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/input/misc/cs40l50-vibra.c b/drivers/input/misc/cs40l50-vibra.c
+index 996d6c38cca4..7ef4534fea2f 100644
+--- a/drivers/input/misc/cs40l50-vibra.c
++++ b/drivers/input/misc/cs40l50-vibra.c
+@@ -139,10 +139,10 @@ static struct cs40l50_effect *cs40l50_find_effect(int id, struct list_head *effe
+ static int cs40l50_effect_bank_set(struct cs40l50_work *work_data,
+ 				   struct cs40l50_effect *effect)
+ {
+-	s16 bank_type = work_data->custom_data[0] & CS40L50_CUSTOM_DATA_MASK;
++	u32 bank_type = work_data->custom_data[0] & CS40L50_CUSTOM_DATA_MASK;
+ 
+ 	if (bank_type >= CS40L50_WVFRM_BANK_NUM) {
+-		dev_err(work_data->vib->dev, "Invalid bank (%d)\n", bank_type);
++		dev_err(work_data->vib->dev, "Invalid bank (%u)\n", bank_type);
+ 		return -EINVAL;
+ 	}
+ 
+@@ -326,6 +326,12 @@ static int cs40l50_add(struct input_dev *dev, struct ff_effect *effect,
+ 		return -EINVAL;
+ 	}
+ 
++	if (periodic->custom_len < CS40L50_OWT_CUSTOM_DATA_SIZE) {
++		dev_err(vib->dev, "Invalid custom data length (%u)\n",
++			periodic->custom_len);
++		return -EINVAL;
++	}
++
+ 	work_data.custom_data = memdup_array_user(effect->u.periodic.custom_data,
+ 						  effect->u.periodic.custom_len,
+ 						  sizeof(s16));
+-- 
+2.43.0
 

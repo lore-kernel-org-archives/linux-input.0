@@ -1,157 +1,261 @@
-Received: from mail-pj1-f42.google.com (mail-pj1-f42.google.com [209.85.216.42])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D446137AA7A
-	for <linux-input@vger.kernel.org>; Sat, 18 Jul 2026 07:40:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.42
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B7C533033E8
+	for <linux-input@vger.kernel.org>; Sat, 18 Jul 2026 07:54:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784360442; cv=none; b=gW6jYM2GPswSlbnLGPdtFp6IJmzndQLqqT0yQFfAvAC3c6Vobo4zpwXf07UKXSk2vhQBhZdNSaVvYYqlXWs0B849rnvm2Cms13Jk8F/8h+DfaxU5biiuqJZh8F4j0dLa2//lrXRGoSJOgQuhBgqT/YXO2ywTxh2WcFKGsL1+sHo=
+	t=1784361257; cv=none; b=tN/1cQ8I0f3SsSmIZ9qZPjRN3249LZe6WXB3ksIa1kHtJY90v1Bjtuymp8luM/LntnwFdLIC49K8/UVs6eQQl/vHUOML8iAsI5Hy8PqjRdeX8/bD2PhIvPIvKtgu8MiM98Zj76x3yVIM7PGrtTQ1n0PXwniKIb8oG6FyX/7sFVg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784360442; c=relaxed/simple;
-	bh=CHqctaXOh1YRZ6r+fEuQSQe/xUi6dXaEscZOn0peo18=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=ZbHbVlSaBiZkYqujs5WGUrvbQOHxE7cFXIb7ySXyw/ycNznf/kpWiJtBRess7mNEtp5XG395X/wllZB4HlOBc5+osVAHvQcAnlML7HeSjCSKGhjt4T379LrxYRnOsFUYW84Wtzhsvbro2/R2Ib4FdXAOb68e9VEMdHMLnxvKN2U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=oIYg6s5H; arc=none smtp.client-ip=209.85.216.42
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1784361257; c=relaxed/simple;
+	bh=FVsfcd6HCCP7nrC2kuY1LUxaMKDYstqPHjwK1K+Hjks=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=PDPdchhG7wyZ9Wi9NVbVAk2ElBg19FQaCgGjsMXDFO6AXDUwNrfWgnWOq42iXkBiZ1GiVMgTP1nZvDM0pC6mL2eC4ngy6o8cKEv7KhcIInMmrwTUj8ft404sKkoVEoRJqUMq3ixsbSnG5QIA661IGiDV5STRpA3a3n1ob7xxa2U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Qrplixsg; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="oIYg6s5H"
-Received: by mail-pj1-f42.google.com with SMTP id 98e67ed59e1d1-383b4a3755fso5023976a91.3
-        for <linux-input@vger.kernel.org>; Sat, 18 Jul 2026 00:40:40 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784360440; x=1784965240; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=4sz+zAG3Op3BP7KFhD4nzcWAAX6/+g0R994WeqVfx14=;
-        b=oIYg6s5HLIDMc3ITOkP51RXdF3lw4smzJ9e+oK5O0nflXZhRV3DlsO5YOshePUv+D9
-         59j6KdYJuJIpAtsR/eBlHbzKTb69pvtPVKmVEgg/1N9+687+B+Q0rkzqVADcXq4w0CVc
-         iiNkDsDfF0YxPr3oAotrzIatxGavtbYv8wRH6XCYDLKpt/tFoRvl+Fzp4CyYUdvuUZlz
-         kNFKVg7YMG/bXksEmc4r7fTVrMKOKhrFzXgMlbt+mruRrzTEdrUkX/ym75P9oQq7T6oe
-         EItB4mP4FF6kK5EwfdXjqCVkOz2rpwL1zCK5lZv5BQCZ32JA4aojqz1XK29zy5l6gPr8
-         OXug==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784360440; x=1784965240;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=4sz+zAG3Op3BP7KFhD4nzcWAAX6/+g0R994WeqVfx14=;
-        b=QJSxoqfuK+9ETLHjwN/WsOtfnvP+SoCljndL/3RAiSIcFjj5G0/v2t6W+93Pfbod6c
-         wbcT3yuUDfjuLQ1TGkd5XOK2g+Skh4C/kPPnSh2ide/+aFkETkQJ1jLGfQoyu1R1QAjg
-         Dp7faa1jmMQh4ydtxFEXEYG6UWR4t1XBK+OgKoaIzyrktfKcM/kUFn8yaVNYST+lp5gg
-         w0siYqJ7hsm0ZykYADnnwhhkgp8V5Bm2gkNZBYYIGSJdzPTzJQ1qOsnB20ezkplE3kJ4
-         pFZTn22bZlNe6BPRxIMzYsEgFxdV7xYFain/rQ0RKznpwpns4AiVPMttoLB2bK3Cy6Xi
-         l74Q==
-X-Forwarded-Encrypted: i=1; AHgh+RpynefkyIMtOb+sLnBUAyX8DE6ifv7+jPiwwyENNFt3BjVm7Oyazn/nrZoKSNyQLH6rXjlraS1GmLYw1g==@vger.kernel.org
-X-Gm-Message-State: AOJu0YxzxJFmgZ38dxXs8YN78ncdUnV2sX76ojyCIz+rGjex5/hOPGCH
-	MvGSvo+VvIKgpT0M8cA+qUPtaDXVzIYsIB3VAbQY6mig+Vi8zY7PX7rY
-X-Gm-Gg: AfdE7ckp8Hun3J3sBabnPR4LF/GvaP/ARrB4r3ji+G979vpLX4KC8n/cXaHRXSNYqZC
-	Iyux6Xp99Nl70P0bCVL5ZWk8BinGSVpthLgkvcVYfDOCv7koaZA4+l1C2lee3TbjqsXQRsM9s76
-	JH98fSit/3+VCGKDuCJ5wh9xP3e1GIAfK6QvqMn0dfS/qdRJ3OAdnoH5bUFbXQdkCU7Si/jaT71
-	vjQvU51p9GJsBqt+1Ra8PVlAnOUiFQtWP/PWezfqd+bZTaWGubq7OS8YRgSRgtClqGUUuL/SRmO
-	ejGjPnJTeE1Qucu4pg8ciF1o99Kd+uBPGxw0yatrcGufI7snLcQ5WXq5bQFB0g+vX5gMxUYnzhJ
-	NCRQS7cK8X83haKC543xxm+XrrPcBlAETkOs2hHaUhSyqib6XaNNVtdLwD0IaslWIbu9lcZ/fM1
-	3/Dv0Cc8BwChRJ0DUB9shL9gmws3yrjEmZ1EraLh/Xw4km9Nx0DpPJaj3DrLMGwnHjtOM=
-X-Received: by 2002:a17:90b:1dca:b0:38d:ef48:b04 with SMTP id 98e67ed59e1d1-38e4b454d1cmr6489775a91.10.1784360440044;
-        Sat, 18 Jul 2026 00:40:40 -0700 (PDT)
-Received: from nugod-NUC15CRHU5.tail9f095a.ts.net ([218.237.104.87])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-38e3a0d7a5bsm4311651a91.9.2026.07.18.00.40.37
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 18 Jul 2026 00:40:39 -0700 (PDT)
-From: HyeongJun An <sammiee5311@gmail.com>
-To: James Ogletree <jogletre@opensource.cirrus.com>,
-	Fred Treven <fred.treven@cirrus.com>,
-	Ben Bright <ben.bright@cirrus.com>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: patches@opensource.cirrus.com,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	stable@vger.kernel.org,
-	HyeongJun An <sammiee5311@gmail.com>
-Subject: [PATCH] Input: cs40l50-vibra - validate custom data from user space
-Date: Sat, 18 Jul 2026 16:40:32 +0900
-Message-ID: <20260718074032.1864861-1-sammiee5311@gmail.com>
-X-Mailer: git-send-email 2.43.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Qrplixsg"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2ACAA1F000E9;
+	Sat, 18 Jul 2026 07:54:16 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1784361256;
+	bh=gaexjysXs7eAt3mAIXgIdksNaXHbn8GADV/MGpD51ns=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=QrplixsgwI96ZOOFrU6KuwegJuiD4umzdli+joDCtLJyoxRBOKSHwok+PeQV9rL4b
+	 MBwzhBFnVOLFIcrAZvaDQ/5fzHC0AaqWyp1kl9z9PKo0j2EA4t3I4geacglCY3E9wf
+	 3zOUOjoTyRx4WYJmukuoGiJiNBipSNo/E5R7eKm8cYZ8MBcLDoaK7/WhpOAY3XNpgw
+	 Dcw4rV6hD91xL6YW/eI99gcsfG46gp5YnAguClNwEhS3s+8GaiiQivT7wp9rr7AXQO
+	 dFN2RK1my3Czoc9lIlrJdNlWjw1fwuX/rmjLiXDvZULOMMAy9uBLay1AaBacACkTXt
+	 iT52RShrvKaVA==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH] Input: cs40l50-vibra - validate custom data from user
+ space
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "HyeongJun An" <sammiee5311@gmail.com>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <20260718074032.1864861-1-sammiee5311@gmail.com>
+References: <20260718074032.1864861-1-sammiee5311@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Sat, 18 Jul 2026 07:54:15 +0000
+Message-Id: <20260718075416.2ACAA1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-cs40l50_add() copies the custom data of an FF_PERIODIC/FF_CUSTOM effect
-straight from the ff_effect the user passed to EVIOCSFF, without
-requiring it to hold anything:
+Thank you for your contribution! Sashiko AI review found 6 potential issue(=
+s) to consider:
 
-    work_data.custom_data = memdup_array_user(periodic->custom_data,
-                                              periodic->custom_len,
-                                              sizeof(s16));
-    work_data.custom_len = periodic->custom_len;
+Pre-existing issues:
+- [High] Updating an existing OWT effect leaks DSP memory and desynchronize=
+s indices.
+- [High] Out-of-bounds slab read in cs40l50_upload_owt due to passing byte =
+count instead of element count to regmap_bulk_write.
+- [High] The driver allocates devm resources against the parent device rath=
+er than its own child device, leaking resources across unbind cycles.
+- [High] Local DoS via unbounded synchronous sleeping in ordered workqueue =
+during playback.
+- [Medium] Unhandled odd custom_len values lead to truncated OWT data lengt=
+hs.
+- [Medium] Memory structures are permanently leaked if hardware cannot be r=
+esumed during worker execution.
+--
 
-The driver then reads two words out of that buffer: custom_data[0] as the
-waveform bank in cs40l50_effect_bank_set(), and custom_data[1] as the
-index within the bank in cs40l50_effect_index_set().  Neither read is
-covered by a length check, and custom_len is fully user controlled:
+--- Patch [1]: [PATCH] Input: cs40l50-vibra - validate custom data from use=
+r space ---
+commit a72a6893fcb7d7f39ce7369bea556bb585afa8b7
+Author: HyeongJun An <sammiee5311@gmail.com>
 
-  - custom_len == 0 makes memdup_array_user() call memdup_user() with a
-    length of zero, which returns ZERO_SIZE_PTR rather than an error, so
-    custom_data[0] dereferences it.
+Input: cs40l50-vibra - validate custom data from user space
 
-  - custom_len == 1 allocates two bytes.  A bank of ROM or RAM keeps
-    effect->type out of the OWT case, and custom_data[1] is then read one
-    word past the allocation.
+This commit adds validation for custom data lengths to prevent zero or one-=
+byte
+allocations. It also updates the bank value to a 32-bit unsigned integer to
+avoid bypassing upper bounds checks with negative values.
 
-The bank value itself is also mishandled.  It is masked with
-CS40L50_CUSTOM_DATA_MASK (0xffff) but stored in an s16, so a
-custom_data[0] of 0x8000 or above wraps to a negative value that passes
-the "bank_type >= CS40L50_WVFRM_BANK_NUM" test.
-cs40l50_effect_index_set() indexes vib->dsp.banks[] with it before the
-switch statement's default case gets a chance to reject it:
+> diff --git a/drivers/input/misc/cs40l50-vibra.c b/drivers/input/misc/cs40=
+l50-vibra.c
+> index 996d6c38cca43..7ef4534fea2fb 100644
+> --- a/drivers/input/misc/cs40l50-vibra.c
+> +++ b/drivers/input/misc/cs40l50-vibra.c
+[ ... ]
+> @@ -326,6 +326,12 @@ static int cs40l50_add(struct input_dev *dev, struct=
+ ff_effect *effect,
+>  		return -EINVAL;
+>  	}
+> =20
+> +	if (periodic->custom_len < CS40L50_OWT_CUSTOM_DATA_SIZE) {
 
-    base_index = vib->dsp.banks[effect->type].base_index;
-    max_index = vib->dsp.banks[effect->type].max_index;
+[Severity: Medium]
+This is a pre-existing issue, but would this check ensure `custom_len` is e=
+ven?
 
-Require the two words the driver reads to be present, and hold the masked
-bank in a u32 so the existing upper-bound test covers the whole range.
-The da7280 haptic driver already range checks custom_len this way.
+Since `custom_len` represents the number of 16-bit words, an odd value resu=
+lts
+in a byte length that is not a multiple of 4. Later in `cs40l50_upload_owt(=
+)`:
 
-Fixes: c38fe1bb5d21 ("Input: cs40l50 - Add support for the CS40L50 haptic driver")
-Cc: stable@vger.kernel.org
-Assisted-by: Claude:claude-opus-4-8
-Signed-off-by: HyeongJun An <sammiee5311@gmail.com>
----
- drivers/input/misc/cs40l50-vibra.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+cs40l50_upload_owt() {
+    ...
+    header.data_words =3D len / sizeof(u32);
+    ...
+}
 
-diff --git a/drivers/input/misc/cs40l50-vibra.c b/drivers/input/misc/cs40l50-vibra.c
-index 996d6c38cca4..7ef4534fea2f 100644
---- a/drivers/input/misc/cs40l50-vibra.c
-+++ b/drivers/input/misc/cs40l50-vibra.c
-@@ -139,10 +139,10 @@ static struct cs40l50_effect *cs40l50_find_effect(int id, struct list_head *effe
- static int cs40l50_effect_bank_set(struct cs40l50_work *work_data,
- 				   struct cs40l50_effect *effect)
- {
--	s16 bank_type = work_data->custom_data[0] & CS40L50_CUSTOM_DATA_MASK;
-+	u32 bank_type = work_data->custom_data[0] & CS40L50_CUSTOM_DATA_MASK;
- 
- 	if (bank_type >= CS40L50_WVFRM_BANK_NUM) {
--		dev_err(work_data->vib->dev, "Invalid bank (%d)\n", bank_type);
-+		dev_err(work_data->vib->dev, "Invalid bank (%u)\n", bank_type);
- 		return -EINVAL;
- 	}
- 
-@@ -326,6 +326,12 @@ static int cs40l50_add(struct input_dev *dev, struct ff_effect *effect,
- 		return -EINVAL;
- 	}
- 
-+	if (periodic->custom_len < CS40L50_OWT_CUSTOM_DATA_SIZE) {
-+		dev_err(vib->dev, "Invalid custom data length (%u)\n",
-+			periodic->custom_len);
-+		return -EINVAL;
-+	}
-+
- 	work_data.custom_data = memdup_array_user(effect->u.periodic.custom_data,
- 						  effect->u.periodic.custom_len,
- 						  sizeof(s16));
--- 
-2.43.0
+Could this integer division truncate the unaligned payload length before it=
+ is
+sent to the DSP?
 
+> +		dev_err(vib->dev, "Invalid custom data length (%u)\n",
+> +			periodic->custom_len);
+> +		return -EINVAL;
+> +	}
+> +
+>  	work_data.custom_data =3D memdup_array_user(effect->u.periodic.custom_d=
+ata,
+
+[Severity: High]
+This is a pre-existing issue, but is it possible that updating an existing =
+OWT
+effect leaks DSP memory and desynchronizes indices?
+
+When an existing OWT effect is updated, it seems `cs40l50_add_worker()` pus=
+hes
+a new waveform to the DSP without deleting the old one:
+
+cs40l50_add_worker() {
+    ...
+    effect =3D cs40l50_find_effect(work_data->effect->id, &vib->effect_head=
+);
+    ...
+}
+
+Might this leak DSP memory until it permanently errors with `-ENOSPC`?
+
+Additionally, `cs40l50_effect_index_set()` computes the new index by counti=
+ng
+OWT elements in `vib->effect_head`:
+
+cs40l50_effect_index_set() {
+    ...
+    list_for_each_entry(owt_effect, &vib->effect_head, list)
+        if (owt_effect->type =3D=3D CS40L50_WVFRM_BANK_OWT)
+            effect->index++;
+    ...
+}
+
+Since `CS40L50_EFFECTS_MAX` is 1, this count is always 1 during an update.
+However, the DSP increments its internal index for each push. Will this cau=
+se
+the software index to permanently desynchronize from the DSP after multiple
+updates, resulting in the wrong effect being played?
+
+[Severity: High]
+This is a pre-existing issue, but could there be an out-of-bounds read in
+`cs40l50_upload_owt()`?
+
+cs40l50_upload_owt() {
+    ...
+    error =3D regmap_bulk_write(vib->regmap, vib->dsp.owt_base_reg +
+                              (offset * sizeof(u32)), new_owt_effect_data,
+                              sizeof(header) + len);
+    ...
+}
+
+It appears `sizeof(header) + len` is passed as the `val_count` argument to
+`regmap_bulk_write()`. Since the device's regmap configuration sets
+`val_bits =3D 32`, `regmap_bulk_write()` interprets `val_count` as the numb=
+er of
+elements, not bytes.
+
+Would this multiply the count by 4, reading 4x the allocated bytes from
+`new_owt_effect_data` and sending arbitrary kernel memory to the DSP?
+
+[Severity: Medium]
+This is a pre-existing issue, but are memory structures leaked if the hardw=
+are
+cannot be resumed?
+
+In `cs40l50_stop_worker()`:
+
+cs40l50_stop_worker() {
+    ...
+    if (pm_runtime_resume_and_get(vib->dev) < 0)
+        return;
+    ...
+}
+
+Would this early return bypass the `kfree(work_data)` call, leaking the
+dynamically allocated work structure?
+
+Similarly, in `cs40l50_erase_worker()`:
+
+cs40l50_erase_worker() {
+    ...
+    error =3D pm_runtime_resume_and_get(vib->dev);
+    if (error)
+        goto err_exit;
+    ...
+}
+
+Can this failure path skip removing the effect from `vib->effect_head` and
+`kfree(erase_effect)`, leaving the effect state permanently stranded?
+
+[Severity: High]
+This is a pre-existing issue, but are devm resources allocated against the =
+wrong
+device?
+
+cs40l50_vibra_probe() {
+    ...
+    vib =3D devm_kzalloc(pdev->dev.parent, sizeof(*vib), GFP_KERNEL);
+    ...
+}
+
+Because `devm_kzalloc()`, `devm_input_allocate_device()`, and
+`devm_add_action_or_reset()` are bound to `pdev->dev.parent` (the parent MFD
+device), will these resources be leaked across unbind cycles when the child
+driver is unbound via sysfs?
+
+[Severity: High]
+This is a pre-existing issue, but could there be an unbounded synchronous s=
+leep
+in the workqueue during playback?
+
+When a playback event is triggered, `work_data->count` comes from the
+user-controlled event `value`:
+
+cs40l50_start_worker() {
+    ...
+    while (--work_data->count >=3D 0) {
+        vib->dsp.write(vib->dev, vib->regmap, start_effect->index);
+        usleep_range(work_data->effect->replay.length,
+                     work_data->effect->replay.length + 100);
+    }
+    ...
+}
+
+Could a user pass `count =3D 0x7FFFFFFF`, causing the worker to sleep for u=
+p to
+4.4 years?
+
+Since `vib->vib_wq` is an ordered workqueue, would this completely block all
+other work items?
+
+If another process attempts to add, erase, or close the device descriptor, =
+it
+will call `flush_work()`:
+
+cs40l50_add() {
+    ...
+    flush_work(&work_data.work);
+    ...
+}
+
+Will this cause the process to hang in `TASK_UNINTERRUPTIBLE` indefinitely =
+if
+the workqueue is blocked?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260718074032.1864=
+861-1-sammiee5311@gmail.com?part=3D1

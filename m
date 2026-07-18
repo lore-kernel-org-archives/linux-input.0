@@ -1,43 +1,44 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A19F51A5B9E
-	for <linux-input@vger.kernel.org>; Sat, 18 Jul 2026 12:35:58 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 500DA43F0B5
+	for <linux-input@vger.kernel.org>; Sat, 18 Jul 2026 12:36:42 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784378160; cv=none; b=RORpWIWeFSwgicCFfbgQ/VtT7NLCZSBQ5zlpu/QiBMydZh20auAMiwKWc1PObIDVM0ryToa7+/Beu+iJPvM1fpsnBPX+mlxANomjpqbSPJYAsVI7AqSONJ7eIk3bjnJW/9NEZuLsV1cY++7GJROCk1i5Pp5M9R62T9NUml8PIyM=
+	t=1784378203; cv=none; b=V6t0x72/zMvHegDzLWwt+TB4oKByNVA5DLYHoIKRbvKu+aVev8hHZKgP2wU4k/o17WrbXiLcj8LSfpPQzj02lZzEhtqZWT13F1PzFR1Wk78oIcxOnJ6Lv+AJK1FYhRixYoqqWs4g2K36yaUmDoPj2kaMaGZrxLcYoF3CAzVEuHg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784378160; c=relaxed/simple;
-	bh=gdXPdgx9NqiEXZpa9x0rgFnatmlpqbBcIXsGJ5Phy84=;
+	s=arc-20240116; t=1784378203; c=relaxed/simple;
+	bh=uQrUkcbPBDyAfw307ZX3Rdd5PkgtVZKmSBZKW175ENM=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=j6QyXjaL9jy16F3EPwBSX20HNECzDgYBMD6QNIqZCOmAlzsMy299f23OmtPbzj0sc6JkHuFt/AdD6zmM2wjPIDN2/choyE/WQhc0euCwHQeaByjcwE85S3KIjw/BtESuQu/S7DLSlJJX6SvH5cir6+bNjJ0zwKBePb7BIvB8BGI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=J8R63fQh; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=i2N0b808uVdkEJJ5/6eUWij03iVf0NTfULTOzUHKH9Dd7SXMCi/x1r51P4n38xsaHx0TxsJSHGnOLsfSjISRBO85OOLbvmgAMmsRWCMvlyryTbZ7GuKdCbWfIqcdRCUo19nQYYzrszJvTU84MXIAkca4urUl2vf32QnrgLlP3SI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=fJJXzOYv; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="J8R63fQh"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0ABF41F000E9;
-	Sat, 18 Jul 2026 12:35:57 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="fJJXzOYv"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA2FF1F000E9;
+	Sat, 18 Jul 2026 12:36:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784378158;
-	bh=SCeKYbfxSYl5cxnQOZoNxXtaYN9qBSmZ7mFQ/qCKoiA=;
+	s=k20260515; t=1784378202;
+	bh=jTIwi1osc5LW+fdtYKRakK4+ZRSBFgIXpk4WLOOsx5Q=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=J8R63fQhGZlNOsSrF17vkQEyX39sWPYpaGSxHMk7rKwl8esDorK1acNa+Hu3OllkA
-	 B+OZD76s0MLz2M1LWEKK3vFCEp+Np1IX8ywbIuBhUBnBhhV2zgRqPfApWMpkW41nLf
-	 Vx1Vh6QUEjd/b4AtdMa2xvy7J3wPvWvjgdA0qBLaO6bDK9msAxTSDhuiSJLnuaOwtm
-	 U4zqcfvrzffw4KLSVG5F7/D7b+iVtwLpHVyNkS9bXRRyeGndmHDEim3MjmWW8COhxS
-	 YrEKC9r8w5Rc2FNCwG0Gy4eX61NZddon2sz3RmWWWmSHM7m6ospyoQ8YGnKatuyzBn
-	 sZxRUlDidWYbg==
+	b=fJJXzOYvZkj3tOp/nSxjkiuRmRd0dnxajTFIGK+Q6Dw3596+1oE60KiJC5PEQkx5s
+	 nZCfcrpSpmNRFz/W/8w95ctXJhsc45nJ0J0AfUtVCVulZusFkt8XjO77JyTQhHxC+y
+	 F+T2wVL/uTlm0rnQDjzr7AvIiq83YlskTh0WOHQ/P3pXco7LW/Pn08TrfJMnLdfQ71
+	 LlEecxrGf1DM+Om2w/HttkcxIa1bJyJa1wMFKX6XaU2Sp/KS8wj9uBLr1pBXtsD4IS
+	 gVI6x7OhhKfM96dlMGHzrFkdkEXSRRGongxoHr6JvzvjrmsUeENQ4rPrIh7pQQTrUL
+	 k838VsC0D/TgA==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 1/2] HID: apple: preserve keyboard backlight across T2
- resume
+Subject: Re: [PATCH 2/2] HID: apple: use the standard keyboard backlight LED
+ name
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Andre Eikmeyer" <dev@deq.rocks>
 Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260718121527.15924-1-dev@deq.rocks>
+In-Reply-To: <20260718121527.15924-2-dev@deq.rocks>
 References: <20260718121527.15924-1-dev@deq.rocks>
+ <20260718121527.15924-2-dev@deq.rocks>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Sat, 18 Jul 2026 12:35:57 +0000
-Message-Id: <20260718123558.0ABF41F000E9@smtp.kernel.org>
+Date: Sat, 18 Jul 2026 12:36:41 +0000
+Message-Id: <20260718123641.DA2FF1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -46,63 +47,49 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
 Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [High] Removing the `LED_CORE_SUSPENDRESUME` flag reverts a previous powe=
-r-management fix, causing the keyboard backlight to remain powered on durin=
-g system suspend.
+
+Pre-existing issues:
+- [High] Missing endianness conversion for USB HID report u16 fields.
 --
 
---- Patch [1]: [PATCH 1/2] HID: apple: preserve keyboard backlight across T=
-2 resume ---
-commit 2758811c67b214fbd3316fec3f21127f8166f490
+--- Patch [2]: [PATCH 2/2] HID: apple: use the standard keyboard backlight =
+LED name ---
+commit fe5b7459cd5f35bce672b51255250e2d12f88cf4
 Author: Andre Eikmeyer <dev@deq.rocks>
 
-HID: apple: preserve keyboard backlight across T2 resume
+HID: apple: use the standard keyboard backlight LED name
 
-This commit fixes an issue where the T2 virtual USB host controller
-re-enumerates the internal keyboard on resume, resulting in the backlight
-starting off. It caches the brightness during removal and restores it
-during the subsequent probe.
-
-Fixes: 1f95a6cd5ad7 ("HID: apple: ensure the keyboard backlight is off if s=
-uspending")
-Cc: stable@vger.kernel.org
+This commit changes the exposed LED name for the T2-attached butterfly
+keyboard backlight from apple::kbd_backlight to the standard
+:white:kbd_backlight naming convention. This allows userspace to discover
+and handle both the butterfly models and the Magic Keyboards using the same
+name without special casing.
 
 > diff --git a/drivers/hid/hid-apple.c b/drivers/hid/hid-apple.c
 > --- a/drivers/hid/hid-apple.c
 > +++ b/drivers/hid/hid-apple.c
-
-[ ... ]
-
-> @@ -860,13 +864,20 @@ static int apple_backlight_init(struct hid_device *=
-hdev)
->  	asc->backlight->cdev.name =3D "apple::kbd_backlight";
+> @@ -860,8 +860,8 @@ static int apple_backlight_init(struct hid_device *hd=
+ev)
+>  	}
+> =20
+>  	asc->backlight->hdev =3D hdev;
+> -	asc->backlight->cdev.name =3D "apple::kbd_backlight";
+> +	asc->backlight->cdev.name =3D ":white:" LED_FUNCTION_KBD_BACKLIGHT;
 >  	asc->backlight->cdev.max_brightness =3D rep->backlight_on_max;
->  	asc->backlight->cdev.brightness_set_blocking =3D apple_backlight_led_se=
-t;
-> -	asc->backlight->cdev.flags =3D LED_CORE_SUSPENDRESUME;
-> +	/* VHCI re-enumeration restores the cached brightness in the next probe=
-. */
 
 [Severity: High]
-Does removing the LED_CORE_SUSPENDRESUME flag cause the backlight to remain
-on during system suspend?
+This is a pre-existing issue and was not introduced by this patch, but does
+this code lack endianness conversion for the USB HID report fields?
 
-The T2 butterfly keyboard hardware does not automatically power off its
-backlight when suspending. When this flag is removed, the LED subsystem
-bypasses led_classdev_suspend(), leaving the hardware illuminated and
-draining the battery.
+According to the USB HID standard, multi-byte fields are little-endian.
+Since rep->backlight_on_max is a u16 read directly from the raw device
+report in apple_backlight_init(), could this result in byte-swapped values
+on big-endian architectures and cause an out-of-bounds max_brightness?
 
-The new caching mechanism in apple_remove() successfully tracks the user
-brightness preference, as led_classdev_suspend() only alters the physical
-hardware state without modifying the logical led_cdev->brightness.
-
-Could the device initialization issue have been caused by the hardcoded
-apple_backlight_set(hdev, 0, 0) during probe, rather than the presence of
-this suspend flag?
-
-> =20
-> -	ret =3D apple_backlight_set(hdev, 0, 0);
+A similar issue seems to be present in apple_backlight_set() where native
+u16 values for rep->backlight and rep->rate are written into the report
+struct without CPU to little-endian conversion before transmission.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260718121527.1592=
-4-1-dev@deq.rocks?part=3D1
+4-1-dev@deq.rocks?part=3D2

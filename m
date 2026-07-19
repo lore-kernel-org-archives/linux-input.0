@@ -1,121 +1,126 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f47.google.com (mail-wm1-f47.google.com [209.85.128.47])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E2D8BE573
-	for <linux-input@vger.kernel.org>; Sun, 19 Jul 2026 06:13:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8056E245008
+	for <linux-input@vger.kernel.org>; Sun, 19 Jul 2026 13:38:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.47
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784441586; cv=none; b=G0cXnyGYahI3IY/xJizsbYy0Xi42xI3p/nRTNLZZj/Bn/raVIlyoeEUaBdZ5zq2aMfTqHCjEvCwRjFwP97BDiIZL+jBAO5OIoilSspSiDOs4eun/43H0Q6UWW2cPjaXd/Ok1JTU+iE8teuzq8HAf5vt/dRKa+8iTpONJ60yfFJQ=
+	t=1784468282; cv=none; b=t/vTRRwOuw4n6t3ewEnDqwwVa070AQA4LeG31QHbJH+an4B/Qh+gz6OguFbQUKXIh6vbaqQPtRc5k63Niy0a5BX5I9VieoyzchttEUFxlIOYGXrw7G6xsFLjDmieRyo3V0gi8kZ+xdtAo4NV48zogFHApIU1ZL0PV+Gb/ucGnHs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784441586; c=relaxed/simple;
-	bh=GbGuCmr9/WypURJQW3dCh1RydtIZgPxamwN3KBU2PhA=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=ILdBzkM9LH32f1dpNkd149UrDzCYakgXrn3ISxWeOD6yr/KQJEwiYPPB9cgDEvRTNV8HmxrV+ZUhANu4whxZLXOuJZMI0T2tyEQSqj5dFRRUeIqHIGMfrdqTDTRFziLKrLFcZOEZ6KcBo25uLyV0XEuIsQPOsAh5YhQD6GFHpJQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=PpI8MQEx; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1784468282; c=relaxed/simple;
+	bh=V7cQtYXT1oLCrxYl9d+RloU5vz4sOIsuAqfNBNM2KV0=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=cYFPa3T9qRUO2+qwGLCCioj930i1k1o2iCTbFm0xH/VG/wQoSwrgIeA6YTosrKk2jX9XWNCXKtWGRsqcasvcLKkuj4OjL4ZXkHOhYbIFLaNfQoXK39PKpEFYTRzEE6y0TMG024Le19ortAswBoGr4V+YXwUCL3O5QnJXxZkHwW0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=eTMzCwCt; arc=none smtp.client-ip=209.85.128.47
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="PpI8MQEx"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 475761F000E9;
-	Sun, 19 Jul 2026 06:13:04 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784441584;
-	bh=AUPHHgcadXA+lSOiNzpeVGZj7PVfPE5Sz/0CEqpxlfw=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=PpI8MQExrgg2T/P2flsCsbHoJC909H0R/Y/g6+mhWYwcep98pvZtPL1EliezkPqN7
-	 SQymN8yUwmqW0JfARp06JTVChFpTyVlBpG4G2nkABnzjmH7TwgkVDKP/20k7bO/CWm
-	 Xw5kpQdgt00gQVLISFAZm7eQYSV/wV9WJ2YXusemH/cleG+S5gLzLNGfaKzrs6etSv
-	 BBZ0vk1Gpylh4vZ1IBEz1uwUzPINBbjbFHNYnvSXLfl/ntB4o0+/2P4XQRg1ndKRjd
-	 Uk4WozI/o//ws1fGWmUpww+Xi/bmLWN4KG/vsi+JrMsCivdWeJFj4EyTf+snv1eQN0
-	 fDd+9VTB/3dog==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v3] Input: gunze: replace deprecated APIs and fix
- warning style
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Bivash Kumar Singh" <bivashraj750@gmail.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260719060238.6440-1-bivashraj750@gmail.com>
-References: <20260718190040.10613-1-bivashraj750@gmail.com>
- <20260719060238.6440-1-bivashraj750@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Sun, 19 Jul 2026 06:13:03 +0000
-Message-Id: <20260719061304.475761F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="eTMzCwCt"
+Received: by mail-wm1-f47.google.com with SMTP id 5b1f17b1804b1-49558ce01afso3795655e9.1
+        for <linux-input@vger.kernel.org>; Sun, 19 Jul 2026 06:38:00 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1784468279; x=1785073079; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=T8M2tiw5eOuKti96JSxIGvzIRa/bxVJzwY8EbOmcsNo=;
+        b=eTMzCwCtgF9/h2/FlyExr5UYUbp5NnPMkR485TxUTkdS7FdGYY4A8O/bTQ31EKJWF+
+         JziCB/7Jk2JDYa5Ya1E01kL8l3FHaydlPuguW8VO4oikLGmr9omdhJWqUyo7+xol7rpJ
+         9Bu9KjNmkNAw7l7duQinyIA/hXrnUQ1r4imwYMVCnnpOojMlPTqioh2YFZMAFAjio0Ga
+         f4SjWMQ3g8Y4dB77P2Sfmxw+50xqTee/OfGcdrxPEKGvqpaAdoFv+ZbDxsf0yxtnG6EE
+         PSTM/Gq3w2bVsWNLVfugksnNVlgBtzTbp3TX5NkZY+eTRJOZyC3EdxoIShxGThTJCJuB
+         zgBg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1784468279; x=1785073079;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=T8M2tiw5eOuKti96JSxIGvzIRa/bxVJzwY8EbOmcsNo=;
+        b=rW0FkYgTy+G6fxqZ2XBPPDhabwddlWR0awE7enlSqR4/mF90MhnE5TI/RUeXi/Gek6
+         coOkE9c/m+FHCIHs467yZNMVdSzmwA1IfT30AjZEgltex/RkrZH+EXLgS7yNT/QO1Z0E
+         aj+9CAFjyrRUjbxtVsGFqkQW+sI8AiJ1NkZj7wWg5iNaUJCbDe3H6hpVlo65oJtZ2z0D
+         d1/w6CttDt53qs7RSmJ1KLcc+cfRFAiQOxISY+EunXRu412TyAaDsgwfJHXZZ7jTrkJr
+         3mjszygoptqs090/pEY0kKmxEU59YMGWMMXKr5qe1xF4cWBjkXtp5Yikh+kXjQrtsTQD
+         aTiw==
+X-Forwarded-Encrypted: i=1; AHgh+Roj6OKrc6hezuwYxrnnErluUdT5usCR6BTQqJT9I5vcHV3kI7tBRcpa2bqk585QkrKk7pV9JBvkWxQW5Q==@vger.kernel.org
+X-Gm-Message-State: AOJu0YyJlg/+9FXyObGuCUjl+Bijlw88d0JtsrMxwehvGzzp2n5NX+mN
+	HNsfcpeRJ6KrCFw7+VfF+lnKSsckYElHfIemzTnBRRz71bE1bI8A8R3+
+X-Gm-Gg: AfdE7clfB4it1+0IOl/nl8eSuZVuJaR5VI/v3vqlwe+4R9qRa+IEfBa7JkkpG/H/xsD
+	70px82DM1l+AMf8o/yVZAgq/+Ebu4a0xMt+IDnsbFy1tP/qC4B3Q5XXTD5GcivVNZoLC8Jcf4H8
+	Gx7Pig3PkwWoI2Bc85TfEUL3SvS7hefgNc615IMGgOFO6EtzwIuFH9AhLYVbPPf7qz6sm4oS6hq
+	vvqWdngYMpW4Mp2HHVvAKRdDtEEFDMwCYf/dPDmSnwu5PSpn17EDh7EWgLuQvc7IP7IYSOkF9fh
+	3dxLnCbUDHgzpIObTIIwB/dpKz9Xpau5jKPxUzBhV1yGRIa5C0RwhsM91uZyvb+1kZPcJJYlp8Y
+	Dwa1zE3TdbMz65kwZWwYnlVsgAUavZ0Qdr1MUTLrcsJDKZZ1GyFeoUQbOuEpL1XTJ8Do0TXavRh
+	9LZ3WsdBmSNXiFe14hCG0+xm4p4dAaOdIadT72vyuD4yxL
+X-Received: by 2002:a05:600c:48aa:b0:492:6efc:7c60 with SMTP id 5b1f17b1804b1-4954a516183mr75623815e9.28.1784468278420;
+        Sun, 19 Jul 2026 06:37:58 -0700 (PDT)
+Received: from localhost.localdomain ([188.26.50.240])
+        by smtp.googlemail.com with ESMTPSA id ffacd0b85a97d-47f63edda9bsm21807179f8f.31.2026.07.19.06.37.56
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 19 Jul 2026 06:37:57 -0700 (PDT)
+From: Eduard Bostina <egbostina@gmail.com>
+To: Aaro Koskinen <aaro.koskinen@iki.fi>,
+	Andreas Kemnade <andreas@kemnade.info>,
+	Conor Dooley <conor+dt@kernel.org>,
+	devicetree@vger.kernel.org,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Eduard Bostina <egbostina@gmail.com>,
+	Kevin Hilman <khilman@baylibre.com>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	linux-omap@vger.kernel.org,
+	Rob Herring <robh@kernel.org>,
+	Roger Quadros <rogerq@kernel.org>,
+	Tony Lindgren <tony@atomide.com>
+Cc: daniel.baluta@nxp.com,
+	simona.toaca@nxp.com,
+	goledhruva@gmail.com,
+	m-chawdhry@ti.com
+Subject: [PATCH v2 0/2] dt-bindings: input: Convert TI Keypad Controller to DT schema
+Date: Sun, 19 Jul 2026 13:37:28 +0000
+Message-ID: <20260719133730.3551691-1-egbostina@gmail.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
-- [High] The newly added early return on coordinate parsing failure drops c=
-ritical touch state transitions (like touch releases), causing stuck touche=
-s.
---
+The first patch converts the TI Keypad Controller binding to DT schema.
+The second patch updates the OMAP4 and OMAP5 device trees, which is
+needed because the schema requires the matrix properties.
 
---- Patch [1]: [PATCH v3] Input: gunze: replace deprecated APIs and fix war=
-ning style ---
-commit 7585c5c9a9ed51c8709aeaa8875aeb5e7e1646b2
-Author: Bivash Kumar Singh <bivashraj750@gmail.com>
+Changes in v2:
+- Added 'interrupts', 'keypad,num-rows', 'keypad,num-columns' and
+  'linux,keymap' to the required list.
+- Dropped the '|' from the description.
+- Added the DTS patch, so the OMAP4 and OMAP5 boards still pass
+  dtbs_check with the required properties in place.
 
-Input: gunze: replace deprecated APIs and fix warning style
+v1:
+https://lore.kernel.org/all/20260708123252.1768355-1-egbostina@gmail.com/
 
-This commit replaces deprecated simple_strtoul calls with kstrtoul and adds=
- an
-early return for parsing failures. It also updates the logging from printk =
-to
-dev_warn using the serio device.
+Eduard Bostina (2):
+  dt-bindings: input: Convert TI Keypad Controller to DT schema
+  ARM: dts: ti: omap: Disable keypad and enable it on the boards that
+    use it
 
-> diff --git a/drivers/input/touchscreen/gunze.c b/drivers/input/touchscree=
-n/gunze.c
-> index 2baeb4f3b941c..0e8131cad647e 100644
-> --- a/drivers/input/touchscreen/gunze.c
-> +++ b/drivers/input/touchscreen/gunze.c
-> @@ -41,15 +41,24 @@ static void gunze_process_packet(struct gunze *gunze)
->  {
->  	struct input_dev *dev =3D gunze->dev;
-> +	char buf[GUNZE_MAX_LENGTH + 1];
-> +	unsigned long x, y;
-> =20
->  	if (gunze->idx !=3D GUNZE_MAX_LENGTH || gunze->data[5] !=3D ',' ||
->  		(gunze->data[0] !=3D 'T' && gunze->data[0] !=3D 'R')) {
-> -		printk(KERN_WARNING "gunze.c: bad packet: >%.*s<\n", GUNZE_MAX_LENGTH,=
- gunze->data);
-> +		dev_warn(&gunze->serio->dev, "bad packet: >%.*s<\n", GUNZE_MAX_LENGTH,=
- gunze->data);
->  		return;
->  	}
-> =20
-> -	input_report_abs(dev, ABS_X, simple_strtoul(gunze->data + 1, NULL, 10));
-> -	input_report_abs(dev, ABS_Y, 1024 - simple_strtoul(gunze->data + 6, NUL=
-L, 10));
-> +	memcpy(buf, gunze->data, GUNZE_MAX_LENGTH);
-> +	buf[5] =3D '\0';		/* NUL-terminate X portion: "1234\0" */
-> +	buf[GUNZE_MAX_LENGTH] =3D '\0';	/* NUL-terminate Y portion */
-> +
-> +	if (kstrtoul(buf + 1, 10, &x) || kstrtoul(buf + 6, 10, &y))
-> +		return;
+ .../devicetree/bindings/input/omap-keypad.txt | 28 ---------
+ .../bindings/input/ti,omap4-keypad.yaml       | 63 +++++++++++++++++++
+ .../omap/motorola-mapphone-mz607-mz617.dtsi   |  2 +
+ .../dts/ti/omap/omap4-droid-bionic-xt875.dts  |  2 +
+ .../boot/dts/ti/omap/omap4-droid4-xt894.dts   |  2 +
+ .../boot/dts/ti/omap/omap4-epson-embt2ws.dts  |  2 +
+ arch/arm/boot/dts/ti/omap/omap4-l4.dtsi       |  1 +
+ arch/arm/boot/dts/ti/omap/omap4-sdp.dts       |  2 +
+ arch/arm/boot/dts/ti/omap/omap5-l4.dtsi       |  1 +
+ 9 files changed, 75 insertions(+), 28 deletions(-)
+ delete mode 100644 Documentation/devicetree/bindings/input/omap-keypad.txt
+ create mode 100644 Documentation/devicetree/bindings/input/ti,omap4-keypad.yaml
 
-[Severity: High]
-Does this early return risk dropping critical touch state transitions, such=
- as
-touch releases, causing stuck touches?
 
-If a release packet ('R') contains unparseable coordinates (such as space
-padding or noise), parsing will fail and trigger this early return.
+base-commit: 0718283ab28bc3907e10b61a6b4be6fefa1cbb2f
+-- 
+2.43.0
 
-Because the return bypasses the input_report_key call for BTN_TOUCH and the
-subsequent input_sync call, the release event would be silently dropped.
-
-Could this leave the touchscreen desynchronized and permanently stuck in the
-pressed state?
-
-> +
-> +	input_report_abs(dev, ABS_X, x);
-> +	input_report_abs(dev, ABS_Y, 1024 - y);
->  	input_report_key(dev, BTN_TOUCH, gunze->data[0] =3D=3D 'T');
->  	input_sync(dev);
->  }
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260719060238.6440=
--1-bivashraj750@gmail.com?part=3D1

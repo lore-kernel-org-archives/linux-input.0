@@ -1,78 +1,72 @@
-Received: from mail-wr1-f49.google.com (mail-wr1-f49.google.com [209.85.221.49])
+Received: from mail-pj1-f43.google.com (mail-pj1-f43.google.com [209.85.216.43])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 213BA396B9D
-	for <linux-input@vger.kernel.org>; Sun, 19 Jul 2026 14:17:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7175B1C5F1B
+	for <linux-input@vger.kernel.org>; Sun, 19 Jul 2026 17:37:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784470630; cv=none; b=LxFo/T/JDoS0PUIvwkJHREMiTnQbfMBQmeNFakgXdL13lSY4yXekBP4MW2+IK4BqdsSDeaI/fwVT05fSZ8/0uCdOE2k3nvoulMlnSy45NPpE9sULQFB9g7CVn96V1taZDZ8BWLPfWRA4cKVWswM8AJNvCPJcQOlPqyCyerar1co=
+	t=1784482638; cv=none; b=URNtrTwIqTdwJfNIUh1geC+T1rTeQTs6uGtZEwrBjkCabm3nsKX3BJ4lt7afWCfYsf1ctABETRA6xhm86N6V9iodsC4RiuQlgN3OCOei8Zhgoh+mu5PhYKGlRlu/ve87PKZOkEJkL2kvCMJF5IApyGqqeEKuvL8ZzU/lks0u4uY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784470630; c=relaxed/simple;
-	bh=SpeAbWuMzIs16vYBg+PKkHGC0eKCjEEqBJcc41Jr0Go=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=gXEA5SoyfQqRNko0Uf/yjSpWbyt4PUw38A9eteoHbmwCF5f8TFB3HaLgZBd1rLK+wFMzv1afKcYeRNMS0gf46BeSJuOrvZr3vj5YePXQirA3dUd5sXqtYeenLLIN/Gl9U4Gi53gQaolFG+EvlWPo30K4Pi5mHIM9uEkyC4mhA6I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=NY93HeRZ; arc=none smtp.client-ip=209.85.221.49
+	s=arc-20240116; t=1784482638; c=relaxed/simple;
+	bh=9ddGG5qdL09Je5jDFZ2rwqpxs+LqcCukGnjUBxHAq3U=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=icGnCoLL4bScEWG+iV+2RNGyKG92C3zdxG4ATJF8cIi6JLkD3K7vC7ClNBa891fgyS8GIdfd5I0+VdjXa/O447I8eAXvqhBRZvYTjAilMNUwoGRAt7PHIxgRXx2CQWN+JcASSUO8GfBhesBBnGCYYD3UjOmJU3j7OhM4UpZ9ZpU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=W+nZwpGE; arc=none smtp.client-ip=209.85.216.43
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="NY93HeRZ"
-Received: by mail-wr1-f49.google.com with SMTP id ffacd0b85a97d-47f71156e1aso248644f8f.3
-        for <linux-input@vger.kernel.org>; Sun, 19 Jul 2026 07:17:08 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="W+nZwpGE"
+Received: by mail-pj1-f43.google.com with SMTP id 98e67ed59e1d1-38e3617ba36so3790040a91.3
+        for <linux-input@vger.kernel.org>; Sun, 19 Jul 2026 10:37:17 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784470627; x=1785075427; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=flMnLVuuStL9Ibbrxu4EV+KrfuDkbDXYXGCnZSZTM1I=;
-        b=NY93HeRZ8opmVeD5+KP0f3GTsTqjKHUonlk74abib+qMzi/Fq8okTI2uvaVF01TiH4
-         cczgv0itZqjLTYi6CXAw4MuG3OSdivZocCS/v/XtCNqHk0bdnmEKAkjYUYxk0HM0/YfI
-         /6fAVR/OoJj2rhsD24FzdwCNNCBJsD0d25hdwW9cGLEn9Y39VlydkhEt6xcI+KboYqby
-         hE6Mggf4l9VGP/fXBueqc45IYGjN0QNNXSLs/AxuK7W5vAaelduW1M/Rxie1p7Uzbcpv
-         EXv2jlMYv8dqI6SfrPCq7H6qTqXrnzEfL0MfFqfoyF9ZE9tHPj4U6dGWkyHPMK6rVsYw
-         00wg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784470627; x=1785075427;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=gmail.com; s=20251104; t=1784482637; x=1785087437; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=flMnLVuuStL9Ibbrxu4EV+KrfuDkbDXYXGCnZSZTM1I=;
-        b=CgAJo2hOzMoLYzbS7F1U82d/X3R9fgb1MulDK6/QLFVGalwWsQSHpfkR5V17sNB2fr
-         bI9xWBrclmkMIIMP87o38gNhXOoWmsJdhg/OS7pbtRUkTmPP0JuTMiz1c1a0KMKsyVF9
-         TYNvom9ye/kosxV8MXXsJjQAxEKgbg83O7kHyBvbtyEUYRhR5evZEWgaTMGlw6OpOvSF
-         XBx6hTwg7kmCjhSydjYVipDKLD40fAUQzTIfG7Qb9pMTKyscE3dXJVfXyOzdgyG6OriQ
-         1uo7I7308uDHiFFT54m48W/1mjatLd3BQGypPhhXNxMoXPEaqTsU8IWJH8TU0Y1QMbBT
-         UhIQ==
-X-Forwarded-Encrypted: i=1; AHgh+RqTzcpVPUIgvoVMKNb1xEJwIZQZEv5bRawJAA0t+OKC9czaPL4iGOgNX6BjvsfkrjA+LkPqqytlu8Tg2w==@vger.kernel.org
-X-Gm-Message-State: AOJu0YzJ8AKHBvr40TyEM+TOc44COzscOylQUs6+Ms2JFNyHz5NxWLX7
-	ff0omd48znZ7dEQwwv92veiQVoaQDjeE2Sk5d/aVPkPBfQTuPzHoAU17
-X-Gm-Gg: AfdE7ckomDg+iruxHgPpMgTlozKK4vE+9/8+dQv5kbz1pPGsH52D4FgL0zD8F/OAwof
-	e2KWaenvBfZ525CcJtwoq2gw1bJi5Bk11WyAJWKMo9NQxEctjtWPAun4V7cEvoloQfcevm6DFoB
-	SdmXkGCblFuc97H69rAfs/CjDpXbBbeWgO4nN0phMfzOcxYztAr6wIl1ju7h+4nejPx3uKYoFku
-	AnA3KlGhBFbzrcBg6KNK/XYCQcdriv+snpa/enqSMx8JogrWfuQOJQcJr0aL4SsiyWw+gHuBeN0
-	S9mNJg5wKkNwvpQYdFPlsFdGLlEF4vz4fyriOUEkHM7h5ZA8kVf7Oqi0UEYAs7jP9hfZ6Pe3rxA
-	A2aRs9jqf8oTizS7zcqblGEzYUklAzwPK97KAStkfVbFa38mNWqqHmUEDjFFMuOBuGFBdSESPzV
-	dLKREg8IgpbnGZbO+bGBMisdpWRlRbArrzM5VXBHENwGtk0ytQpdx98RU=
-X-Received: by 2002:a05:600c:6c98:b0:493:f6c1:2f09 with SMTP id 5b1f17b1804b1-4954a3d2fcdmr83284595e9.6.1784470627212;
-        Sun, 19 Jul 2026 07:17:07 -0700 (PDT)
-Received: from localhost.localdomain ([188.26.50.240])
-        by smtp.googlemail.com with ESMTPSA id 5b1f17b1804b1-4954a2edda2sm193403455e9.13.2026.07.19.07.17.05
+        bh=8LbfhifQ2UpHfOzJznP/gQRGa5Q8mUpYyd2eUg/4+8k=;
+        b=W+nZwpGEih8jSBhnmx9wm8xHTZ0cC7DHqve/GIimKKQeBb7Kf2mDtgdpEyv2c257vC
+         LAjM4cKwE0fjfhVlFTbS6hwaZjIgAYqkrlQ+axWbJ+kI3rgz20nfELyOfFX7aOFaN5B5
+         YJBXqRj/6OGHAcE/xDdcS3L23pWhrvRNX0eQgg3ij7BO+hEqbzByCZYPbUbnQ58WqqmO
+         lG+4Rxc7rY/W8/nAtYHcGjVztoEWoJb84cxV/6HWbNZneeWcpj3nTdeqQdK1tudP4Fk7
+         hBC5OlMIE19yxpGULUJlajDxPM+aO8Mbu+GWpXw22Z046Xg9LiRNsOBRKkDkX8sSsRjW
+         vDbQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1784482637; x=1785087437;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=8LbfhifQ2UpHfOzJznP/gQRGa5Q8mUpYyd2eUg/4+8k=;
+        b=F9laYawNkxlce6JbN79sX0GTLMBzObCXv9IuUDWtKevkwShNdQAMbnASxKMaMH4n6V
+         wBpkSdm+KzrkjVvfPr0xGs9yAhsyj5MQvLe1XBMMLSkGVMEhhq2w9kFDbpa0A5szyy4l
+         7U32qf7bTXPVPAajX1SNk+fDA9TvbJAe+vnELIPk/pbf8PIdAnjHxPkWFy8RTaFB9ZVy
+         v20n3gDh5riXhzd0hlCimtrgnCEUYLwh/9xzCPQj9AmwtEn9ObKiepDOCQbBFir26BHM
+         dncsiWuqZz66xxsOBXQvGCTFXM01XEqdn/DZpyY28RlcMqLW4m9hQXUrQmLhOUCtO9Gm
+         4lHA==
+X-Gm-Message-State: AOJu0Yxx9v6JetrpNkBf/LStae3xPHGRgZa/pYxiQDlfgTU8iN3AuNM7
+	+/8E0QeAWJhyG2hPa0ChupO0YDjRbcKr4JI0CrLh4B0pTB5yDrVhHt0SjifmORTN
+X-Gm-Gg: AfdE7cn1nl8xN654Xgdq2f3alt1sQbKlal/82DFs1enz6si6Ptcv06XQLVXNkPzycB6
+	LyXq5Ic5ghrTPzOgc82nhyb6AEvyLc8BtLgK+g95ZcAaTuGoo4M53WXzgKZAtzTbmnCp9l8Mx1e
+	cCJqL5717cCqlsRy0dJHYt2+ooW/N6B/00tahIwuHL237JqKWNFQsOLlK7GmwOO6aCjwwc2wNef
+	jeLBKcTvXuyUbEaE6Fz4GpZQK47NPwI/sglri8VxNXuv1dVyef98ozp3vtAUKZsZQ3vx8kWuwqU
+	SkY8i+bzsd0cE6K7FIbwEF49czMOqYlTxASoLwb3oJ5yAIEI5L7o+ckvrtKcydalFCCy6w9DSGn
+	IAUJLU4dw1NaMjBqzVaimR31ML5S81lDo9Y0e5RucSZ7tvlRP5mkD5Vui8wLuLE3XzX5SH6B2XP
+	iCGEZcbeMXFTNhqZoIZbAXBnYkOA==
+X-Received: by 2002:a17:90b:28d0:b0:37f:e326:6557 with SMTP id 98e67ed59e1d1-38e4b3e1334mr11111458a91.4.1784482636660;
+        Sun, 19 Jul 2026 10:37:16 -0700 (PDT)
+Received: from ubuntu.localdomain ([49.43.240.68])
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-13ce29e13a8sm23466489c88.4.2026.07.19.10.37.14
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 19 Jul 2026 07:17:06 -0700 (PDT)
-From: Eduard Bostina <egbostina@gmail.com>
-To: Conor Dooley <conor+dt@kernel.org>,
-	devicetree@vger.kernel.org,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Eduard Bostina <egbostina@gmail.com>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Rob Herring <robh@kernel.org>
-Cc: daniel.baluta@nxp.com,
-	simona.toaca@nxp.com,
-	goledhruva@gmail.com,
-	m-chawdhry@ti.com
-Subject: [PATCH] dt-bindings: input: Convert TI Palmas Power Button to DT schema
-Date: Sun, 19 Jul 2026 14:17:01 +0000
-Message-ID: <20260719141701.3565277-1-egbostina@gmail.com>
-X-Mailer: git-send-email 2.43.0
+        Sun, 19 Jul 2026 10:37:16 -0700 (PDT)
+From: Bivash Kumar Singh <bivashraj750@gmail.com>
+To: linux-input@vger.kernel.org
+Cc: dmitry.torokhov@gmail.com,
+	Bivash Kumar Singh <bivashraj750@gmail.com>
+Subject: [PATCH v4] Input: gunze: replace deprecated APIs and fix warning style
+Date: Sun, 19 Jul 2026 23:07:00 +0530
+Message-ID: <20260719173700.4942-1-bivashraj750@gmail.com>
+X-Mailer: git-send-email 2.53.0
+In-Reply-To: <20260718190040.10613-1-bivashraj750@gmail.com>
+References: <20260718190040.10613-1-bivashraj750@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -81,126 +75,73 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Convert the Texas Instruments Palmas power button bindings
-to DT schema.
+Replace two uses of simple_strtoul() with kstrtoul() as the former
+is deprecated. kstrtoul() requires a NUL-terminated string, so copy
+the packet data into a local buffer and NUL-terminate the X and Y
+fields before parsing. Initialize x and y to 0 so that if parsing
+fails the coordinates fall back to 0 rather than reporting garbage,
+and BTN_TOUCH is always updated regardless of parse result.
 
-During the conversion, 'wakeup-source' was added.
-It was missing from the original text binding but is actively
-used by in-tree boards.
+Replace printk(KERN_WARNING) with dev_warn() using the serio device,
+which is the correct logging style for driver code and removes the
+redundant 'gunze.c:' filename prefix.
 
-Signed-off-by: Eduard Bostina <egbostina@gmail.com>
+Signed-off-by: Bivash Kumar Singh <bivashraj750@gmail.com>
+
+Changes in v4:
+  - Remove early return on kstrtoul() failure to prevent touch state
+    getting permanently stuck if a release packet contains noisy data.
+    Initialize x and y to 0 as safe fallback values instead.
+  - Add dev_warn() on kstrtoul() parse failure so errors are logged
+    but BTN_TOUCH is always updated regardless of parse result.
+    (reported by Sashiko AI review)
+
+Changes in v3:
+  - Fix comment style: add space after /* and use NUL instead of NULL
+  - Add missing Changes section that was absent in v2
+
+Changes in v2:
+  - Copy packet data to a local NUL-terminated buffer before calling
+    kstrtoul(), so the comma separator does not cause parsing to fail
+    on every valid touch event. (reported by Sashiko AI review)
 ---
- .../bindings/input/ti,palmas-pwrbutton.txt    | 35 -----------
- .../bindings/input/ti,palmas-pwrbutton.yaml   | 58 +++++++++++++++++++
- 2 files changed, 58 insertions(+), 35 deletions(-)
- delete mode 100644 Documentation/devicetree/bindings/input/ti,palmas-pwrbutton.txt
- create mode 100644 Documentation/devicetree/bindings/input/ti,palmas-pwrbutton.yaml
+ drivers/input/touchscreen/gunze.c | 17 ++++++++++++++---
+ 1 file changed, 14 insertions(+), 3 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/input/ti,palmas-pwrbutton.txt b/Documentation/devicetree/bindings/input/ti,palmas-pwrbutton.txt
-deleted file mode 100644
-index c829e18e1a05..000000000000
---- a/Documentation/devicetree/bindings/input/ti,palmas-pwrbutton.txt
-+++ /dev/null
-@@ -1,35 +0,0 @@
--Texas Instruments Palmas family power button module
--
--This module is part of the Palmas family of PMICs. For more details
--about the whole chip see:
--Documentation/devicetree/bindings/mfd/palmas.txt.
--
--This module provides a simple power button event via an Interrupt.
--
--Required properties:
--- compatible: should be one of the following
--   - "ti,palmas-pwrbutton": For Palmas compatible power on button
--- interrupts: Interrupt number of power button submodule on device.
--
--Optional Properties:
--
--- ti,palmas-long-press-seconds: Duration in seconds which the power
--  button should be kept pressed for Palmas to power off automatically.
--  NOTE: This depends on OTP support and POWERHOLD signal configuration
--  on platform. Valid values are 6, 8, 10 and 12.
--- ti,palmas-pwron-debounce-milli-seconds: Duration in milliseconds
--  which the power button should be kept pressed for Palmas to register
--  a press for debouncing purposes. NOTE: This depends on specific
--  Palmas variation capability. Valid values are 15, 100, 500 and 1000.
--
--Example:
--
--&palmas {
--	palmas_pwr_button: pwrbutton {
--		compatible = "ti,palmas-pwrbutton";
--		interrupt-parent = <&tps659038>;
--		interrupts = <1 IRQ_TYPE_EDGE_FALLING>;
--		ti,palmas-long-press-seconds = <12>;
--		ti,palmas-pwron-debounce-milli-seconds = <15>;
--	};
--};
-diff --git a/Documentation/devicetree/bindings/input/ti,palmas-pwrbutton.yaml b/Documentation/devicetree/bindings/input/ti,palmas-pwrbutton.yaml
-new file mode 100644
-index 000000000000..9f64caaac00d
---- /dev/null
-+++ b/Documentation/devicetree/bindings/input/ti,palmas-pwrbutton.yaml
-@@ -0,0 +1,58 @@
-+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/input/ti,palmas-pwrbutton.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
+diff --git a/drivers/input/touchscreen/gunze.c b/drivers/input/touchscreen/gunze.c
+index 2baeb4f3b941..e787209dc965 100644
+--- a/drivers/input/touchscreen/gunze.c
++++ b/drivers/input/touchscreen/gunze.c
+@@ -41,15 +41,26 @@ struct gunze {
+ static void gunze_process_packet(struct gunze *gunze)
+ {
+ 	struct input_dev *dev = gunze->dev;
++	char buf[GUNZE_MAX_LENGTH + 1];
++	unsigned long x = 0, y = 0;
+ 
+ 	if (gunze->idx != GUNZE_MAX_LENGTH || gunze->data[5] != ',' ||
+ 		(gunze->data[0] != 'T' && gunze->data[0] != 'R')) {
+-		printk(KERN_WARNING "gunze.c: bad packet: >%.*s<\n", GUNZE_MAX_LENGTH, gunze->data);
++		dev_warn(&gunze->serio->dev, "bad packet: >%.*s<\n", GUNZE_MAX_LENGTH, gunze->data);
+ 		return;
+ 	}
+ 
+-	input_report_abs(dev, ABS_X, simple_strtoul(gunze->data + 1, NULL, 10));
+-	input_report_abs(dev, ABS_Y, 1024 - simple_strtoul(gunze->data + 6, NULL, 10));
++	memcpy(buf, gunze->data, GUNZE_MAX_LENGTH);
++	buf[5] = '\0';		/* NUL-terminate X portion: "1234\0" */
++	buf[GUNZE_MAX_LENGTH] = '\0';	/* NUL-terminate Y portion */
 +
-+title: Texas Instruments Palmas Power Button
++	if (kstrtoul(buf + 1, 10, &x))
++		dev_warn(&gunze->serio->dev, "failed to parse X coordinate\n");
++	if (kstrtoul(buf + 6, 10, &y))
++		dev_warn(&gunze->serio->dev, "failed to parse Y coordinate\n");
 +
-+maintainers:
-+  - Eduard Bostina <egbostina@gmail.com>
-+
-+description:
-+  This module is part of the Palmas PMIC. It provides a simple power button
-+  event via an interrupt.
-+
-+properties:
-+  compatible:
-+    const: ti,palmas-pwrbutton
-+
-+  interrupts:
-+    maxItems: 1
-+
-+  ti,palmas-long-press-seconds:
-+    $ref: /schemas/types.yaml#/definitions/uint32
-+    enum: [ 6, 8, 10, 12 ]
-+    description: |
-+      Duration in seconds which the power button should be kept pressed
-+      for Palmas to power off automatically. NOTE: This depends on OTP
-+      support and POWERHOLD signal configuration on platform.
-+
-+  ti,palmas-pwron-debounce-milli-seconds:
-+    $ref: /schemas/types.yaml#/definitions/uint32
-+    enum: [ 15, 100, 500, 1000 ]
-+    description: |
-+      Duration in milliseconds which the power button should be kept
-+      pressed for Palmas to register a press for debouncing purposes.
-+      NOTE: This depends on specific Palmas variation capability.
-+
-+  wakeup-source: true
-+
-+required:
-+  - compatible
-+  - interrupts
-+
-+additionalProperties: false
-+
-+examples:
-+  - |
-+    #include <dt-bindings/interrupt-controller/irq.h>
-+
-+    pmic {
-+        power-button {
-+            compatible = "ti,palmas-pwrbutton";
-+            interrupts = <1 IRQ_TYPE_EDGE_FALLING>;
-+            ti,palmas-long-press-seconds = <12>;
-+            ti,palmas-pwron-debounce-milli-seconds = <15>;
-+        };
-+    };
++	input_report_abs(dev, ABS_X, x);
++	input_report_abs(dev, ABS_Y, 1024 - y);
+ 	input_report_key(dev, BTN_TOUCH, gunze->data[0] == 'T');
+ 	input_sync(dev);
+ }
 -- 
-2.43.0
+2.53.0
 

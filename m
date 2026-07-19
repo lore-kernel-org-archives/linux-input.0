@@ -1,117 +1,125 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f170.google.com (mail-pf1-f170.google.com [209.85.210.170])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A7DDE1FC8;
-	Sat, 18 Jul 2026 22:04:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 46109DF6C
+	for <linux-input@vger.kernel.org>; Sun, 19 Jul 2026 05:41:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.170
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784412270; cv=none; b=PsKg2uzN+anYqaAdAxQNjkkG4oUxJPr3DCTeM1QojYxTS4PexMnXeMPkLjgiUTfGPkdwL9+z5ksBm4Otu/6N0X/XfH9JKdtWTK2yYatuLze6nQm0uWXbzA8elJa46Xkq2EQ3aSv1T4iOhk/VX+1W17BAe1cEABEse6uFHxfL3eQ=
+	t=1784439699; cv=none; b=cCRzIMDG4LLdDGGSGbnB7gq5VX23rydnQoVsu5i/yZuMFSV8M/w1O05PUgXueDVkD04nyGRQNVYl3PfGjZ47+JFWL/067MIkdBDzx6Od7f/7zJPTIQqYMrEE/0yPmihMNd2a0lpGUO9tZotqYKr7MR0YQqS/Da/0suPiCSV1MA8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784412270; c=relaxed/simple;
-	bh=bZhN8OOlRjUK8xhIIm2slfnXqQJdDxMB2i8u6hPZ0as=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=hDpuu51ye05r4dlMhwQpRfOEUqpIWNHuumPrJyjV66RkkqMsvonTV84vw+6OR8L0SjXTLwtU3+dz7RvfDRvnUcYX9WtytZsjAToODaMUT8Qj05+DLjhzRtHXksA3FFQUPPkCf6Mr1/3dvcjztDB0z2zcW2Gc84nSAVkMQcQpwSA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=SzSanViu; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1784439699; c=relaxed/simple;
+	bh=/lyz4bNvDYiehjq9IwxaCtkc101MYGswjnK9d28IIqQ=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=sJozZZ+mVZV7JQ63mOG4xUZRz0c+vjUTYQtgdlhWLji41rChbi7drymiJEEykRIlKKa4xtVkUOpYr5759Xgo7gOtlFOapVslbJWBGLjkrCsOoPyC5IqaI0pQMK9NDSnnULoqNegFxb9kDlEgsv6wa1N5ENH9kV2KEhwQmXd26jE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=X5beXsUf; arc=none smtp.client-ip=209.85.210.170
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="SzSanViu"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B91301F000E9;
-	Sat, 18 Jul 2026 22:04:28 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784412269;
-	bh=t9fJdyKtbTjoZvZ4Qaab9SXbJza23w5VJsqQLQ/nc8U=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=SzSanViuseiziUGZFLn3q3TofU500fXUMvp9n4U1XzcTh1yZzBpPHQvndhAwY11Dq
-	 2DS8rWvhNRuwzwIc5h92Agq6VrxCXNDzX3/c0GYxaUy0qHhuYj+zpwnvPicxagWNzr
-	 +n72LZ1fXCyO4Vn63M8bBOUPPlg+mYwWKS9AdtcE5O6OrNWtAjbe8AN19+7j8h0esE
-	 AuDWOGN/RKZoteYvdsOFooC+xz+ILQxjVpqBpsvV77A+PwgWcYB7IZwSJZyflADfKs
-	 s15oaGYHo6FuTPG4zha1AkhOZGh4a77O0pkw8VkHxfyJ45v6wCsL6+dhe/iTsupWMe
-	 faizFYsp7mQyA==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 3/3] dt-bindings: leds: backlight: Convert TPS65217
- to DT schema
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Eduard Bostina" <egbostina@gmail.com>
-Cc: devicetree@vger.kernel.org, dri-devel@lists.freedesktop.org, lee@kernel.org, linux-leds@vger.kernel.org, robh@kernel.org, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, conor+dt@kernel.org
-In-Reply-To: <20260718215632.3295049-4-egbostina@gmail.com>
-References: <20260718215632.3295049-1-egbostina@gmail.com>
- <20260718215632.3295049-4-egbostina@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Sat, 18 Jul 2026 22:04:28 +0000
-Message-Id: <20260718220428.B91301F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="X5beXsUf"
+Received: by mail-pf1-f170.google.com with SMTP id d2e1a72fcca58-8423f236418so4581151b3a.1
+        for <linux-input@vger.kernel.org>; Sat, 18 Jul 2026 22:41:38 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1784439697; x=1785044497; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=dwbFx0tij0m1EPEdHTcGHLdglrqXjXtpHL1LFxxMN4I=;
+        b=X5beXsUfv4UY0r+o3fFf3V7E2GV2jyS7Ce3tq/Lk6vYLNVoH/IhjxPo8/nitKUySAJ
+         UGawXW0Bppq7Xhuc2Rt4sPih3LxGiptPA2Zapv8TMWmg7TaBAR7ULon1GlmrtzOzt95p
+         LFW22ntOnOpXTFsQETr4UM5Cvn6Pp/B4lO+S0uZgxE9egCXC40CjzlK43DYENe6n7lia
+         QUJKSnxhSUpQveVFUOI+oB2JFNNTL0shySMwM2Ov1siFoRiFtZ/tvg9GytIqj+HWWMuW
+         Y4mFlbSVGlQtf6WfQ80Uk5ZkA8InqQkKIpwp0NDSoc/tzw9eoxYSf6TjsOBsDdmKdu0x
+         cl/Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1784439697; x=1785044497;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=dwbFx0tij0m1EPEdHTcGHLdglrqXjXtpHL1LFxxMN4I=;
+        b=euvPmFHpQ8BGuEz8a/HVwMI0t1Ww7H0xHM9VAy2s7G9akQ5uBPsFuTbZHlnmuKDHEr
+         qHXP24Z7OXOqwlI/FTT2NInUa6lUS0U5Qkdc+OFZ1dlqoscRP9+FWuNzjn1dbhTYTcFg
+         YlVpNU7/TW+Ty2c3UiNF6HL7iV8o4H2O0Cdfxnea4s7PtaLBrsoewO7W3l11bSbZU/sK
+         WahNil0StZCY2uD+yU8ULdxnhZNuJSPU3omfpx0F2N595E1/Tc0ktp7MGvluVsiEe/lU
+         Rm++dHpAO8QNyf6kPFaYjL8bd9WMi11UXuILT1TNDgUmd/kwbQeOE7ebVcNYxjND+cj6
+         8WGw==
+X-Gm-Message-State: AOJu0YzXtqbKB+FSOC+YCGpQ/CdMkEuXSqhDjEEi++2HApoXwiYzgHpf
+	ys6kcX03uKcZDBT5TQXu2jmOJrL7u2Cao8+bku1GgTvsAn9+HjCYHKwW0TZoyZ9Z
+X-Gm-Gg: AfdE7cnY7QhLKJq/fN8rhVM/37LUaHRoqaCIfXJ5tOg06VINy+pBgxMEj6ATWT2WrG0
+	TCSVABOZkVRWL5vzcVqdcS+RFwLfRnV3sk5A8N+UzZqlpQNmckv7TUg+Yyb0WIBBhxpuvRy/FNa
+	yJQ15vg4u9vn4E/TTYtilGhdpKtQEH7c59Zxyk+NErIznBqEyGJ2aOp+2FPLDaJ0ACEj3YcH777
+	v4s81TEHFxX6RG+qNghcIIUw/+yxw+NEnAz+Ns5DE7AxneSZoyTnnh4cYptnBJkC0KGXfRe045V
+	3tOWrK3wE82otuG37ZWHnRWUg7gP2LF7HY0VuG05QYmknlmstimZaX4QwF5s20MLfoucodb1qAO
+	N2QEieZ+0STqGkI1pMEGQgHebA7FDF6TsFoYRzg6SWENseUiOuRCywhZTqqVqB6z+XyFIC17nPH
+	Yb213zKBUAx0GPvOUZtoSZQ0lfLeM=
+X-Received: by 2002:a05:6a20:3946:b0:3c0:9c19:b27a with SMTP id adf61e73a8af0-3c3adb17968mr8707454637.72.1784439697415;
+        Sat, 18 Jul 2026 22:41:37 -0700 (PDT)
+Received: from ubuntu.localdomain ([49.43.243.159])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3142a1dd90fsm22801211eec.22.2026.07.18.22.41.33
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 18 Jul 2026 22:41:37 -0700 (PDT)
+From: Bivash Kumar Singh <bivashraj750@gmail.com>
+To: linux-input@vger.kernel.org
+Cc: dmitry.torokhov@gmail.com,
+	Bivash Kumar Singh <bivashraj750@gmail.com>
+Subject: [PATCH v2] Input: gunze: replace deprecated APIs and fix warning style
+Date: Sun, 19 Jul 2026 11:11:21 +0530
+Message-ID: <20260719054121.5917-1-bivashraj750@gmail.com>
+X-Mailer: git-send-email 2.53.0
+In-Reply-To: <20260718190040.10613-1-bivashraj750@gmail.com>
+References: <20260718190040.10613-1-bivashraj750@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
-- [Medium] Stale and conflicting regulator text binding not deleted during =
-schema conversion.
-- [Low] Missing `required` constraint for `reg` property in regulator child=
- nodes.
---
+Replace two uses of simple_strtoul() with kstrtoul() as the former
+is deprecated. kstrtoul() also properly handles parse errors, so
+add an early return if parsing fails.
 
---- Patch [3]: [PATCH v2 3/3] dt-bindings: leds: backlight: Convert TPS6521=
-7 to DT schema ---
-commit 0671f0f93114029deaa2c3fee6b27ad8abd2cb2d
-Author: Eduard Bostina <egbostina@gmail.com>
+Replace printk(KERN_WARNING) with dev_warn() using the serio device,
+which is the correct logging style for driver code and removes the
+redundant 'gunze.c:' filename prefix.
 
-dt-bindings: leds: backlight: Convert TPS65217 to DT schema
+Signed-off-by: Bivash Kumar Singh <bivashraj750@gmail.com>
+---
+ drivers/input/touchscreen/gunze.c | 15 ++++++++++++---
+ 1 file changed, 12 insertions(+), 3 deletions(-)
 
-This commit converts the Texas Instruments TPS65217 backlight binding to YA=
-ML
-schema. It also documents missing child nodes, interrupt properties, and
-updates regulator names to match what the boards use.
+diff --git a/drivers/input/touchscreen/gunze.c b/drivers/input/touchscreen/gunze.c
+index 2baeb4f3b941..e9c028430420 100644
+--- a/drivers/input/touchscreen/gunze.c
++++ b/drivers/input/touchscreen/gunze.c
+@@ -41,15 +41,24 @@ struct gunze {
+ static void gunze_process_packet(struct gunze *gunze)
+ {
+ 	struct input_dev *dev = gunze->dev;
++	char buf[GUNZE_MAX_LENGTH + 1];
++	unsigned long x, y;
+ 
+ 	if (gunze->idx != GUNZE_MAX_LENGTH || gunze->data[5] != ',' ||
+ 		(gunze->data[0] != 'T' && gunze->data[0] != 'R')) {
+-		printk(KERN_WARNING "gunze.c: bad packet: >%.*s<\n", GUNZE_MAX_LENGTH, gunze->data);
++		dev_warn(&gunze->serio->dev, "bad packet: >%.*s<\n", GUNZE_MAX_LENGTH, gunze->data);
+ 		return;
+ 	}
+ 
+-	input_report_abs(dev, ABS_X, simple_strtoul(gunze->data + 1, NULL, 10));
+-	input_report_abs(dev, ABS_Y, 1024 - simple_strtoul(gunze->data + 6, NULL, 10));
++	memcpy(buf, gunze->data, GUNZE_MAX_LENGTH);
++	buf[5] = '\0';		/*NULL-terminate X portion: "1234\0" */
++	buf[GUNZE_MAX_LENGTH] = '\0';	/*NULL-terminate Y portion */
++
++	if (kstrtoul(buf + 1, 10, &x) || kstrtoul(buf + 6, 10, &y))
++		return;
++
++	input_report_abs(dev, ABS_X, x);
++	input_report_abs(dev, ABS_Y, 1024 - y);
+ 	input_report_key(dev, BTN_TOUCH, gunze->data[0] == 'T');
+ 	input_sync(dev);
+ }
+-- 
+2.53.0
 
-> diff --git a/Documentation/devicetree/bindings/leds/backlight/ti,tps65217=
-.yaml b/Documentation/devicetree/bindings/leds/backlight/ti,tps65217.yaml
-> new file mode 100644
-> index 0000000000000..9586e08f1b1fc
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/leds/backlight/ti,tps65217.yaml
-> @@ -0,0 +1,123 @@
-> +# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-> +%YAML 1.2
-> +---
-> +$id: http://devicetree.org/schemas/leds/backlight/ti,tps65217.yaml#
-> +$schema: http://devicetree.org/meta-schemas/core.yaml#
-> +
-> +title: TPS65217 family of regulators
-
-[Severity: Medium]
-Should Documentation/devicetree/bindings/regulator/tps65217.txt also be
-deleted in this patch?
-
-The new YAML schema defines the full MFD device, but conflicts with the
-undeleted regulator text binding. The old regulator text binding expects
-regulator nodes to be named dcdc[1-3] and ldo[1-4], while the new schema
-expects regulator@[0-6], which could cause validation inconsistencies.
-
-[ ... ]
-
-> +    patternProperties:
-> +      "^regulator@[0-6]$":
-> +        type: object
-> +        $ref: /schemas/regulator/regulator.yaml#
-> +        unevaluatedProperties: false
-> +
-> +        properties:
-> +          reg:
-> +            maxItems: 1
-> +
-> +          regulator-compatible:
-> +            $ref: /schemas/types.yaml#/definitions/string
-
-[Severity: Low]
-Does this schema need to specify the reg property as required?
-
-Since these regulator child nodes have a unit address in the pattern
-(^regulator@[0-6]$), DT validation could incorrectly pass nodes that contai=
-n a
-unit address but lack the mandatory reg property without a required block.
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260718215632.3295=
-049-1-egbostina@gmail.com?part=3D3

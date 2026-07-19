@@ -1,125 +1,108 @@
-Received: from mail-pf1-f170.google.com (mail-pf1-f170.google.com [209.85.210.170])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 46109DF6C
-	for <linux-input@vger.kernel.org>; Sun, 19 Jul 2026 05:41:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EE8E724C06A
+	for <linux-input@vger.kernel.org>; Sun, 19 Jul 2026 05:53:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784439699; cv=none; b=cCRzIMDG4LLdDGGSGbnB7gq5VX23rydnQoVsu5i/yZuMFSV8M/w1O05PUgXueDVkD04nyGRQNVYl3PfGjZ47+JFWL/067MIkdBDzx6Od7f/7zJPTIQqYMrEE/0yPmihMNd2a0lpGUO9tZotqYKr7MR0YQqS/Da/0suPiCSV1MA8=
+	t=1784440439; cv=none; b=A+vRJnd0YBZ4uJTxAkSk2roQEgP6tnEDl1a4lLsz8Sdp3d1Yj71XW5It2OJDwEkaEBKabuWk5mAfdwbcvUJakzBFWpfG9ujIcb4s4AJB6vWBDoTdIwZa2ljZcVbLL87wWyLJKUc0VgPqkeO289Ibc/qKV2Edwg+0BEbCszPX/lE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784439699; c=relaxed/simple;
-	bh=/lyz4bNvDYiehjq9IwxaCtkc101MYGswjnK9d28IIqQ=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=sJozZZ+mVZV7JQ63mOG4xUZRz0c+vjUTYQtgdlhWLji41rChbi7drymiJEEykRIlKKa4xtVkUOpYr5759Xgo7gOtlFOapVslbJWBGLjkrCsOoPyC5IqaI0pQMK9NDSnnULoqNegFxb9kDlEgsv6wa1N5ENH9kV2KEhwQmXd26jE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=X5beXsUf; arc=none smtp.client-ip=209.85.210.170
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1784440439; c=relaxed/simple;
+	bh=fshbUsvweA9NhVtrpVmcl8GvZDAIGV/HqCEhCHNzM3M=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=ccea3TdQJk2cLqs59Xkb+BIGi+snrJE6q1fFvlK8msthC1X+yqCRf8QTR/IscEafQSI1yMK5AUVWIxC1nBcl4Pec96dOit76yvvajVjqVcEdkhOUtGraC3lK79oXXgqHyuRYth0pizPJPhDYhNPSEmA9HwEDO8krLGaZcYX+qzk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=E7JvHfOs; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="X5beXsUf"
-Received: by mail-pf1-f170.google.com with SMTP id d2e1a72fcca58-8423f236418so4581151b3a.1
-        for <linux-input@vger.kernel.org>; Sat, 18 Jul 2026 22:41:38 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784439697; x=1785044497; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=dwbFx0tij0m1EPEdHTcGHLdglrqXjXtpHL1LFxxMN4I=;
-        b=X5beXsUfv4UY0r+o3fFf3V7E2GV2jyS7Ce3tq/Lk6vYLNVoH/IhjxPo8/nitKUySAJ
-         UGawXW0Bppq7Xhuc2Rt4sPih3LxGiptPA2Zapv8TMWmg7TaBAR7ULon1GlmrtzOzt95p
-         LFW22ntOnOpXTFsQETr4UM5Cvn6Pp/B4lO+S0uZgxE9egCXC40CjzlK43DYENe6n7lia
-         QUJKSnxhSUpQveVFUOI+oB2JFNNTL0shySMwM2Ov1siFoRiFtZ/tvg9GytIqj+HWWMuW
-         Y4mFlbSVGlQtf6WfQ80Uk5ZkA8InqQkKIpwp0NDSoc/tzw9eoxYSf6TjsOBsDdmKdu0x
-         cl/Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784439697; x=1785044497;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=dwbFx0tij0m1EPEdHTcGHLdglrqXjXtpHL1LFxxMN4I=;
-        b=euvPmFHpQ8BGuEz8a/HVwMI0t1Ww7H0xHM9VAy2s7G9akQ5uBPsFuTbZHlnmuKDHEr
-         qHXP24Z7OXOqwlI/FTT2NInUa6lUS0U5Qkdc+OFZ1dlqoscRP9+FWuNzjn1dbhTYTcFg
-         YlVpNU7/TW+Ty2c3UiNF6HL7iV8o4H2O0Cdfxnea4s7PtaLBrsoewO7W3l11bSbZU/sK
-         WahNil0StZCY2uD+yU8ULdxnhZNuJSPU3omfpx0F2N595E1/Tc0ktp7MGvluVsiEe/lU
-         Rm++dHpAO8QNyf6kPFaYjL8bd9WMi11UXuILT1TNDgUmd/kwbQeOE7ebVcNYxjND+cj6
-         8WGw==
-X-Gm-Message-State: AOJu0YzXtqbKB+FSOC+YCGpQ/CdMkEuXSqhDjEEi++2HApoXwiYzgHpf
-	ys6kcX03uKcZDBT5TQXu2jmOJrL7u2Cao8+bku1GgTvsAn9+HjCYHKwW0TZoyZ9Z
-X-Gm-Gg: AfdE7cnY7QhLKJq/fN8rhVM/37LUaHRoqaCIfXJ5tOg06VINy+pBgxMEj6ATWT2WrG0
-	TCSVABOZkVRWL5vzcVqdcS+RFwLfRnV3sk5A8N+UzZqlpQNmckv7TUg+Yyb0WIBBhxpuvRy/FNa
-	yJQ15vg4u9vn4E/TTYtilGhdpKtQEH7c59Zxyk+NErIznBqEyGJ2aOp+2FPLDaJ0ACEj3YcH777
-	v4s81TEHFxX6RG+qNghcIIUw/+yxw+NEnAz+Ns5DE7AxneSZoyTnnh4cYptnBJkC0KGXfRe045V
-	3tOWrK3wE82otuG37ZWHnRWUg7gP2LF7HY0VuG05QYmknlmstimZaX4QwF5s20MLfoucodb1qAO
-	N2QEieZ+0STqGkI1pMEGQgHebA7FDF6TsFoYRzg6SWENseUiOuRCywhZTqqVqB6z+XyFIC17nPH
-	Yb213zKBUAx0GPvOUZtoSZQ0lfLeM=
-X-Received: by 2002:a05:6a20:3946:b0:3c0:9c19:b27a with SMTP id adf61e73a8af0-3c3adb17968mr8707454637.72.1784439697415;
-        Sat, 18 Jul 2026 22:41:37 -0700 (PDT)
-Received: from ubuntu.localdomain ([49.43.243.159])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3142a1dd90fsm22801211eec.22.2026.07.18.22.41.33
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 18 Jul 2026 22:41:37 -0700 (PDT)
-From: Bivash Kumar Singh <bivashraj750@gmail.com>
-To: linux-input@vger.kernel.org
-Cc: dmitry.torokhov@gmail.com,
-	Bivash Kumar Singh <bivashraj750@gmail.com>
-Subject: [PATCH v2] Input: gunze: replace deprecated APIs and fix warning style
-Date: Sun, 19 Jul 2026 11:11:21 +0530
-Message-ID: <20260719054121.5917-1-bivashraj750@gmail.com>
-X-Mailer: git-send-email 2.53.0
-In-Reply-To: <20260718190040.10613-1-bivashraj750@gmail.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="E7JvHfOs"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5DDAC1F000E9;
+	Sun, 19 Jul 2026 05:53:57 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1784440437;
+	bh=NJsXj0aPlWibDd4HM8abmlRMF/+bS1/OAm87ZM/qZ2M=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=E7JvHfOsZSfa9XR4l18rwokoCgles09ic8muObNkfuwPXRDkEtBfHHQdtaZwuni3k
+	 SkeK37kQMDtieRtTEKOg3slgKAGEybztIsBixfUWnFx7GJR3lYGEY0i5AynKcMfgRQ
+	 mL65t/Dxxg/CYQTf42c83jdej3Xfn91hcThpBjdm/DiDVNP+4PfI5BTl7p9Kjc7WZU
+	 /3NEKYykXEMhbZa1l1nfJUt6mGBXNVJVpPBYJ9z5KEcL04NZ59ZDtPXqw47OapoldN
+	 RF4aH9WAIG+14IpQ/LsJyGw3wBiQ+AHAUIQtEU3R3mZcjWRx1LZmXh417+ZL31bMzo
+	 MI93MG/EUXxEA==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v2] Input: gunze: replace deprecated APIs and fix
+ warning style
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Bivash Kumar Singh" <bivashraj750@gmail.com>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <20260719054121.5917-1-bivashraj750@gmail.com>
 References: <20260718190040.10613-1-bivashraj750@gmail.com>
+ <20260719054121.5917-1-bivashraj750@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Sun, 19 Jul 2026 05:53:56 +0000
+Message-Id: <20260719055357.5DDAC1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-Replace two uses of simple_strtoul() with kstrtoul() as the former
-is deprecated. kstrtoul() also properly handles parse errors, so
-add an early return if parsing fails.
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
+- [High] Strict parsing with kstrtoul() and an early return drops packets o=
+n non-digit coordinate data, potentially causing permanently stuck touch st=
+ates.
+--
 
-Replace printk(KERN_WARNING) with dev_warn() using the serio device,
-which is the correct logging style for driver code and removes the
-redundant 'gunze.c:' filename prefix.
+--- Patch [1]: [PATCH v2] Input: gunze: replace deprecated APIs and fix war=
+ning style ---
+commit 448e772e264a7d37aec51432b84a51cdf06f350f
+Author: Bivash Kumar Singh <bivashraj750@gmail.com>
 
-Signed-off-by: Bivash Kumar Singh <bivashraj750@gmail.com>
----
- drivers/input/touchscreen/gunze.c | 15 ++++++++++++---
- 1 file changed, 12 insertions(+), 3 deletions(-)
+Input: gunze: replace deprecated APIs and fix warning style
 
-diff --git a/drivers/input/touchscreen/gunze.c b/drivers/input/touchscreen/gunze.c
-index 2baeb4f3b941..e9c028430420 100644
---- a/drivers/input/touchscreen/gunze.c
-+++ b/drivers/input/touchscreen/gunze.c
-@@ -41,15 +41,24 @@ struct gunze {
- static void gunze_process_packet(struct gunze *gunze)
- {
- 	struct input_dev *dev = gunze->dev;
-+	char buf[GUNZE_MAX_LENGTH + 1];
-+	unsigned long x, y;
- 
- 	if (gunze->idx != GUNZE_MAX_LENGTH || gunze->data[5] != ',' ||
- 		(gunze->data[0] != 'T' && gunze->data[0] != 'R')) {
--		printk(KERN_WARNING "gunze.c: bad packet: >%.*s<\n", GUNZE_MAX_LENGTH, gunze->data);
-+		dev_warn(&gunze->serio->dev, "bad packet: >%.*s<\n", GUNZE_MAX_LENGTH, gunze->data);
- 		return;
- 	}
- 
--	input_report_abs(dev, ABS_X, simple_strtoul(gunze->data + 1, NULL, 10));
--	input_report_abs(dev, ABS_Y, 1024 - simple_strtoul(gunze->data + 6, NULL, 10));
-+	memcpy(buf, gunze->data, GUNZE_MAX_LENGTH);
-+	buf[5] = '\0';		/*NULL-terminate X portion: "1234\0" */
-+	buf[GUNZE_MAX_LENGTH] = '\0';	/*NULL-terminate Y portion */
-+
-+	if (kstrtoul(buf + 1, 10, &x) || kstrtoul(buf + 6, 10, &y))
-+		return;
-+
-+	input_report_abs(dev, ABS_X, x);
-+	input_report_abs(dev, ABS_Y, 1024 - y);
- 	input_report_key(dev, BTN_TOUCH, gunze->data[0] == 'T');
- 	input_sync(dev);
- }
--- 
-2.53.0
+This commit replaces the deprecated simple_strtoul() API with kstrtoul()
+and updates the logging style to use dev_warn(). It also adds an early
+return in the packet processing path if coordinate parsing fails.
 
+> diff --git a/drivers/input/touchscreen/gunze.c b/drivers/input/touchscree=
+n/gunze.c
+> index 2baeb4f3b941c..e9c028430420c 100644
+> --- a/drivers/input/touchscreen/gunze.c
+> +++ b/drivers/input/touchscreen/gunze.c
+[ ... ]
+> @@ -41,15 +41,24 @@ static void gunze_process_packet(struct gunze *gunze)
+[ ... ]
+> -	input_report_abs(dev, ABS_X, simple_strtoul(gunze->data + 1, NULL, 10));
+> -	input_report_abs(dev, ABS_Y, 1024 - simple_strtoul(gunze->data + 6, NUL=
+L, 10));
+> +	memcpy(buf, gunze->data, GUNZE_MAX_LENGTH);
+> +	buf[5] =3D '\0';		/*NULL-terminate X portion: "1234\0" */
+> +	buf[GUNZE_MAX_LENGTH] =3D '\0';	/*NULL-terminate Y portion */
+> +
+> +	if (kstrtoul(buf + 1, 10, &x) || kstrtoul(buf + 6, 10, &y))
+> +		return;
+
+[Severity: High]
+Could this strict parsing with kstrtoul() and early return drop valid events
+and cause the touch state to get permanently stuck?
+
+Unlike simple_strtoul(), which stops parsing at the first non-digit charact=
+er,
+kstrtoul() will return an error if the string contains trailing spaces or
+serial line noise.
+
+If a touch release packet (starting with 'R') contains non-digit padding,
+kstrtoul() will return an error and trigger this early return.
+
+> +
+> +	input_report_abs(dev, ABS_X, x);
+> +	input_report_abs(dev, ABS_Y, 1024 - y);
+>  	input_report_key(dev, BTN_TOUCH, gunze->data[0] =3D=3D 'T');
+>  	input_sync(dev);
+
+Bypassing the BTN_TOUCH state update and input_sync() would cause the
+touchscreen to remain stuck in a pressed state until a subsequent valid
+packet is received.
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260719054121.5917=
+-1-bivashraj750@gmail.com?part=3D1

@@ -1,154 +1,179 @@
-Received: from mail-pl1-f176.google.com (mail-pl1-f176.google.com [209.85.214.176])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 98D33218E91
-	for <linux-input@vger.kernel.org>; Mon, 20 Jul 2026 03:24:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.176
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 127973112C0
+	for <linux-input@vger.kernel.org>; Mon, 20 Jul 2026 03:27:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784517869; cv=none; b=I6BQHB2M1tc36r6BjBmeOrqsB4J/p4FnxPBMqrgOFQm3hCef4+f4aTg0++JJ1dKY9vHo6LdxMI0fcnpi2AkCyQLTU7Zv9WIxK7CWghYPstNdkkEtTQiSVxhdxRPHIdy7VhIooyUqcPM20caSkz8dNqiCpmCSJe6ApaKLnZFDe4s=
+	t=1784518054; cv=none; b=IQCll1brYjjknKKab8KSzNRWMWQ3qewaZEJbIcUYK5AIeiE9MX/YhqbgQIpbeUNuh2FuoMfggkdTy7HLvGii3gj6F3f4AMvKk4M/rUogSCR8tJN6gjYj1FF0nb9xPUdnL6CepCANR7QGc6ttt73F0sfRp0KmAAfmj2DKuQyTBYI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784517869; c=relaxed/simple;
-	bh=fXJaTY342P+XgEXJoBCmz19fLa3a/cowk/nshHOKq1I=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=NG7KCd1ZC5aftrqa37QYQKvFwXEl7udrXc2nVrzTdbRCkdnXkf0ilJFOmoJY8zUL0j6H6iHYlYzG1eewPdUoAMBxi965xeERLRQtecAUr896XGbQhFSi7bef1zst4U/vapPcVL8oq5Z+0Ur2pi6SF8Dj5RyxXs76hBylF6HmU1A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=WQm0+g54; arc=none smtp.client-ip=209.85.214.176
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1784518054; c=relaxed/simple;
+	bh=ntGFTx/61RwOoh3sl3o3icgPgbPPsltSPoRrsahwwtM=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=d1xk2VpvapplpDbk/8qtlTyPDBLMjnwmu0Q1VHQqlIdyQD1m+12s/jXLh3R5w+en6zR5ZNv4nbQw72it2meSrk+4+evgExdLQoWltP0yXmxbD53B2MIrfmCX7bXW+n/nfQ+4sEqdA6/4NkFqPfNpi80SCA+8Djelu6WSfmYXoI8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=m1Y8OCi/; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="WQm0+g54"
-Received: by mail-pl1-f176.google.com with SMTP id d9443c01a7336-2cc97653887so105868625ad.1
-        for <linux-input@vger.kernel.org>; Sun, 19 Jul 2026 20:24:26 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784517866; x=1785122666; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=VYfXfJSEmYiCJ+wWNEWlG54FSQalHemp2b+6QF0xc2w=;
-        b=WQm0+g54CtxJvHcMYIsWS4S8xhiYWfAlsLtghiq0awdVGzzDSD6mN98a3/pNS10OMB
-         /qNbSkWx7uj7djB5SDkNuyh9svqNSOgj/FOL9Rn7NsmVjmmODkSpOmSzZ9lU704CfYdC
-         uoYqkadA81jHh2grYMR5ZTbH6I+nCJMdsyu7FeItSTt8qIby8ssR7CritBH88enfAKgO
-         Urjf2Z2t1Bm0IPJzksUJynSEWXB3FZbvs4aVU3gANgPCotS/y/x568YZiBSR2bBqP9lZ
-         iZMAsGolFwzvb2Q6UBi0MZfGYBVmoJQAR9KgHMVKaWafgHOUREXhmNTkT2x/7BCLM5NM
-         6aLA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784517866; x=1785122666;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=VYfXfJSEmYiCJ+wWNEWlG54FSQalHemp2b+6QF0xc2w=;
-        b=jORpVPPmrsDAWmodGjdOyNOOTbyKQxWcDxtap4Mp3aDAHqPXPT+FENT8K3Se1kNjZJ
-         rs0c1an0tQSLudnbbYGXcD5POtfyXVwNdMz9T4KdzTUHRxkxCu12M7mRz6EEIRV1Yiu7
-         908yWfriYppon0xGGSHxCjm6McrafXSh89Wtcs0r/a3+nkgatOpHLCJYushgAs08XqdK
-         p20nVi9itCvsKtNYieswK8BqCsuo6t1FoXcMqyMGsYVBWUAFZneQ1a6F+VLAFAjni/dn
-         zc6vVxLYj2bnUkUWv8T1uELC9UnxrttZWINhJPIxYh2WX+Vg6225LcO9uajRJ7o7gDqf
-         t1uA==
-X-Gm-Message-State: AOJu0Yyzf8ZNOgXBYRXDOTSZLidQOn9V6N6fIxtw8I+h6NEYLTQmvpB2
-	SJsLemhMO7d+UfQclh0RkpV0NMR7jjqLESkAGUV9F05TKSbbQ3qsdWTwNi/8pREb
-X-Gm-Gg: AfdE7cnZxGlSjeOFpiGhksN8OxbUL8esxoTY3H9/MvtigIG5Qb9ZR4s2NohY5rOVw2s
-	0AMUiVlePw4jNiKpeWyM0BQnAkzqQSxGXneUp4L29owq/3oBuLXVXiBbHwQ/jjgLWokQksGPF5U
-	Wj+aWNNC9UFy8zsjhAfYTI8bHiwBdZWv9Kx50a4wU4+XdgNsMt17C7jorLmZ1ieTwEALjgyPH93
-	qHHJvZ7Jtmw1r9U27npGW55Dnfk/bUw++Mt2y2e9Zae/sj5ZjT7Ox5s6mn1WJaRqm3BTAtUxrUq
-	12CAVHf1DZA4yse032D0oSLy2TZb3FBOFzeLN4AC4DXD1dNPNS/pTB8ic97V/atVNZj1DCN/LOK
-	Ttze1snPpzf0Nqy6x5GDWeie8VCCeFAn/GDmUn0yjXtbB6FPmpQkidvDqBsHB9hXPOm9uuvgUeU
-	XXz0Q4m+nSdGjpLeopEZH8SL/wtw==
-X-Received: by 2002:a17:903:1248:b0:2c9:cf5d:d9bc with SMTP id d9443c01a7336-2cf349c979dmr132096095ad.35.1784517865544;
-        Sun, 19 Jul 2026 20:24:25 -0700 (PDT)
-Received: from ubuntu.localdomain ([49.43.240.68])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-31429f9bcd9sm31788505eec.3.2026.07.19.20.24.21
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 19 Jul 2026 20:24:25 -0700 (PDT)
-From: Bivash Kumar Singh <bivashraj750@gmail.com>
-To: linux-input@vger.kernel.org
-Cc: dmitry.torokhov@gmail.com,
-	Bivash Kumar Singh <bivashraj750@gmail.com>
-Subject: [PATCH v5] Input: gunze: replace deprecated APIs and fix warning style
-Date: Mon, 20 Jul 2026 08:54:06 +0530
-Message-ID: <20260720032407.4644-1-bivashraj750@gmail.com>
-X-Mailer: git-send-email 2.53.0
-In-Reply-To: <20260718190040.10613-1-bivashraj750@gmail.com>
-References: <20260718190040.10613-1-bivashraj750@gmail.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="m1Y8OCi/"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75E0A1F000E9;
+	Mon, 20 Jul 2026 03:27:32 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1784518052;
+	bh=buwA6G4gjarntRQ0HLJkwKf4Cj22NNhohN86XgbjIT0=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=m1Y8OCi/JnjN6UQdqBsIUMQTuHmhOkjgySyNLe9zImQmNfYpH3O5qMDGqc8FWwMUv
+	 5xW3IftvH2E6xknG4fO4CRaOQDB3rpJ1IHccChwf0I3+ixqf98EsCRoTXJkYaU3/dq
+	 l95T+mYPRYOL4rdgVzYDfhN+SZF1dw4GQsg8/L1NIoPzJoY0ge4ruqGWIm1qNqrnpc
+	 CVFfwpOk6COkqvSSCoVdIbZm6azvaQwf3XJ5IGOCrs1vpJ/rtgrL04eZQTwj2zPCTw
+	 ann4PDz87PnxyJJGBjMLSG/s6DWVlcmngRZCR8Pg/P00wWEa4fp4xhp34nbdJ2B2Zr
+	 4Hwm6MuXRzVbw==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v13 1/4] HID: hid-msi: Add MSI Claw configuration driver
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Derek J. Clark" <derekjohn.clark@gmail.com>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20260720031549.2272658-2-derekjohn.clark@gmail.com>
+References: <20260720031549.2272658-1-derekjohn.clark@gmail.com>
+ <20260720031549.2272658-2-derekjohn.clark@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Mon, 20 Jul 2026 03:27:32 +0000
+Message-Id: <20260720032732.75E0A1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-Replace printk(KERN_WARNING) with dev_warn_ratelimited() using the
-serio device, which is the correct logging style for driver code and
-prevents log spam on noisy serial lines.
+Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+s) to consider:
+- [Medium] Delayed generic ACKs from a previous timed-out command can false=
+ly complete a subsequent command expecting a specific ACK, leading to silen=
+t state corruption.
+- [Medium] Mixing `goto`-based error handling with scope-based `__free()` c=
+leanup in the same function.
+- [Medium] Sysfs attributes can spuriously return `-ENODEV` immediately aft=
+er creation because they are exposed before `gp_registered` is set to true.
+--
 
-Replace simple_strtoul() with sscanf() to parse the comma-separated
-coordinate data. NUL-terminate the receive buffer in gunze_interrupt()
-before calling gunze_process_packet() so sscanf() and the warning
-message can safely treat the data as a string.
+--- Patch [1]: [PATCH v13 1/4] HID: hid-msi: Add MSI Claw configuration dri=
+ver ---
+commit 12a4a941e97290e1a15080092de490d5782eef1c
+Author: Derek J. Clark <derekjohn.clark@gmail.com>
 
-Signed-off-by: Bivash Kumar Singh <bivashraj750@gmail.com>
----
-Changes in v5:
-  - Switch from kstrtoul() to sscanf() as suggested by Dmitry Torokhov.
-    sscanf() naturally handles comma-separated coordinate data without
-    needing a local buffer copy or manual NUL termination tricks.
-  - NUL-terminate receive buffer in gunze_interrupt() before processing.
-  - Use dev_warn_ratelimited() to prevent log spam on noisy serial lines.
+HID: hid-msi: Add MSI Claw configuration driver
 
-Changes in v4:
-  - Remove early return on kstrtoul() failure to prevent touch state
-    getting permanently stuck if a release packet contains noisy data.
-    Initialize x and y to 0 as safe fallback values instead.
-    (reported by Sashiko AI review)
+Adds configuration HID driver for the MSI Claw series of handheld PC's.
+In this initial patch add the initial driver outline and attributes for
+changing the gamepad mode, M-key behavior, and add a WO reset function.
 
-Changes in v3:
-  - Fix comment style: add space after /* and use NUL instead of NULL
-  - Add missing Changes section that was absent in v2
+> diff --git a/drivers/hid/hid-msi.c b/drivers/hid/hid-msi.c
+> new file mode 100644
+> --- /dev/null
+> +++ b/drivers/hid/hid-msi.c
+[ ... ]
+> +static int claw_raw_event(struct claw_drvdata *drvdata, struct hid_repor=
+t *report,
+> +			  u8 *data, int size)
+> +{
+[ ... ]
+> +	switch (cmd_rep->cmd) {
+> +	case CLAW_COMMAND_TYPE_GAMEPAD_MODE_ACK:
+> +		ret =3D claw_gamepad_mode_event(drvdata, cmd_rep);
+> +		if (drvdata->waiting_cmd =3D=3D CLAW_COMMAND_TYPE_READ_GAMEPAD_MODE) {
+> +			drvdata->cmd_status =3D ret;
+> +			complete(&drvdata->send_cmd_complete);
+> +		}
+> +
+> +		break;
+> +	case CLAW_COMMAND_TYPE_ACK:
+> +		if (drvdata->orphan_ack_pending) {
+> +			drvdata->orphan_ack_pending =3D false;
+> +			complete(&drvdata->orphan_ack_complete);
+> +			break;
+> +		}
+> +
+> +		if (drvdata->waiting_cmd =3D=3D CLAW_COMMAND_TYPE_NONE) {
+> +			dev_warn(&drvdata->hdev->dev, "Got unexpected ACK from MCU, ignoring\=
+n");
+> +			break;
+> +		}
+> +
+> +		drvdata->cmd_status =3D 0;
+> +		complete(&drvdata->send_cmd_complete);
 
-Changes in v2:
-  - Copy packet data to a local NUL-terminated buffer before calling
-    kstrtoul(), so the comma separator does not cause parsing to fail
-    on every valid touch event. (reported by Sashiko AI review)
----
- drivers/input/touchscreen/gunze.c | 16 +++++++++++-----
- 1 file changed, 11 insertions(+), 5 deletions(-)
+[Severity: Medium]
+When claw_raw_event() receives a generic ACK, it only verifies that
+waiting_cmd is not CLAW_COMMAND_TYPE_NONE before calling
+complete(&drvdata->send_cmd_complete).
 
-diff --git a/drivers/input/touchscreen/gunze.c b/drivers/input/touchscreen/gunze.c
-index 2baeb4f3b941..7a92052eba80 100644
---- a/drivers/input/touchscreen/gunze.c
-+++ b/drivers/input/touchscreen/gunze.c
-@@ -41,15 +41,20 @@ struct gunze {
- static void gunze_process_packet(struct gunze *gunze)
- {
- 	struct input_dev *dev = gunze->dev;
-+	unsigned int x, y;
- 
--	if (gunze->idx != GUNZE_MAX_LENGTH || gunze->data[5] != ',' ||
--		(gunze->data[0] != 'T' && gunze->data[0] != 'R')) {
--		printk(KERN_WARNING "gunze.c: bad packet: >%.*s<\n", GUNZE_MAX_LENGTH, gunze->data);
-+	if (gunze->data[0] != 'T' && gunze->data[0] != 'R') {
-+		dev_warn_ratelimited(&gunze->serio->dev, "bad packet: >%s<\n", gunze->data);
- 		return;
- 	}
- 
--	input_report_abs(dev, ABS_X, simple_strtoul(gunze->data + 1, NULL, 10));
--	input_report_abs(dev, ABS_Y, 1024 - simple_strtoul(gunze->data + 6, NULL, 10));
-+	if (sscanf(gunze->data + 1, "%4u,%4u", &x, &y) != 2) {
-+		dev_warn_ratelimited(&gunze->serio->dev, "bad packet: >%s<\n", gunze->data);
-+		return;
-+	}
-+
-+	input_report_abs(dev, ABS_X, x);
-+	input_report_abs(dev, ABS_Y, 1024 - y);
- 	input_report_key(dev, BTN_TOUCH, gunze->data[0] == 'T');
- 	input_sync(dev);
- }
-@@ -60,6 +65,7 @@ static irqreturn_t gunze_interrupt(struct serio *serio,
- 	struct gunze *gunze = serio_get_drvdata(serio);
- 
- 	if (data == '\r') {
-+		gunze->data[gunze->idx] = '\0';
- 		gunze_process_packet(gunze);
- 		gunze->idx = 0;
- 	} else {
--- 
-2.53.0
+If a previous command with timeout =3D=3D 0 timed out, __claw_hw_output_rep=
+ort()
+clears orphan_ack_pending.
 
+If the generic ACK for that command arrives later while a new command is
+waiting (e.g., waiting for GAMEPAD_MODE_ACK), this logic will accept the
+generic ACK and falsely complete the new command.
+
+Could this lead to silent state corruption where commands finish early with=
+out
+receiving their actual payloads?
+
+[ ... ]
+> +static int __claw_hw_output_report(struct hid_device *hdev, u8 index, u8=
+ *data,
+> +				   size_t len, unsigned int timeout)
+> +{
+> +	unsigned char *dmabuf __free(kfree) =3D NULL;
+[ ... ]
+> +	ret =3D hid_hw_output_report(hdev, dmabuf, CLAW_PACKET_SIZE);
+> +	if (ret < 0)
+> +		goto err;
+> +
+> +	ret =3D ret =3D=3D CLAW_PACKET_SIZE ? 0 : -EIO;
+> +	if (ret)
+> +		goto err;
+
+[Severity: Medium]
+This function uses the scope-based __free(kfree) cleanup for dmabuf, but al=
+so
+uses manual goto err labels for error handling.
+
+The cleanup subsystem guidelines specify that using goto and cleanup helpers
+like __free() in the same function creates confusing ownership semantics an=
+d is
+an anti-pattern.
+
+Could we use a scope-based guard for the state machine cleanup, or stick
+entirely to manual goto cleanup?
+
+[ ... ]
+> +static void cfg_setup_fn(struct work_struct *work)
+> +{
+[ ... ]
+> +	/* Add sysfs attributes after we get the device state */
+> +	ret =3D device_add_group(&drvdata->hdev->dev, &claw_gamepad_attr_group);
+> +	if (ret) {
+> +		dev_err(&drvdata->hdev->dev,
+> +			"Failed to setup device, can't create gamepad attrs: %d\n", ret);
+> +		return;
+> +	}
+> +	scoped_guard(spinlock_irqsave, &drvdata->registration_lock)
+> +		/* Pairs with smp_load_acquire in attribute show/store functions */
+> +		smp_store_release(&drvdata->gp_registered, true);
+
+[Severity: Medium]
+The sysfs attributes are exposed to userspace by device_add_group() before
+gp_registered is set to true.
+
+If an automated userspace tool reacts to the sysfs creation event and acces=
+ses
+the attributes in this small timing window, the attribute show/store functi=
+ons
+will observe gp_registered =3D=3D false and return -ENODEV.
+
+Would it be better to set gp_registered to true before calling
+device_add_group(), and revert it to false if the addition fails?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260720031549.2272=
+658-1-derekjohn.clark@gmail.com?part=3D1

@@ -1,235 +1,142 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AE81238AC80
-	for <linux-input@vger.kernel.org>; Mon, 20 Jul 2026 03:32:59 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 95F0F39479B
+	for <linux-input@vger.kernel.org>; Mon, 20 Jul 2026 03:48:55 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784518381; cv=none; b=SigByZGvVpNvAFPpTqpyglEHbmrT0S04A2XUatKerbvyWKmux81pduEQ3m5R0T7osw+mX/0/VNq2oyVnxEWkabrGLiygoqokOPEd8+qNpjZQdSJP7W3d5a/tqwFbIYC7CKGQeN+2qfrJEt0sFcDOmpUcvHolj0kGF0kw4N9Vpro=
+	t=1784519336; cv=none; b=bwvxWF6s7V5gHsLjjFVZg8sjjVDJ+1f5mkywPiP15UOqEAwcYGQ5Q5C4YSK4hN12Fqlyhmvl9Mrbj/BCsdLcCltCqhVUSvbADuJ9P4ZA0g7H16QGEjyZLX9ISx+DQBQengs+iod2Mo0Hr3hNOriK/Stz/DZYK3KrF+t70rQSCMU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784518381; c=relaxed/simple;
-	bh=6CgCkGFTuSLHHIGC/yHd8rcZ+6ZqCtdJMUkoISn/6mI=;
+	s=arc-20240116; t=1784519336; c=relaxed/simple;
+	bh=PNJwEi0jE4aByhJtGcacyRKZg6dIGw3MV95w7O39JAc=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=SE65x+nmi5a3NE7DIDohf/B+nThAjv/2PQE0LX1zNCbdlZ0LIenc26Wjkcus/+jAFX0JXAKXlGp01CnAySZgwIO/N+xlTDUxSgh5z7RdW6S0ZkGBfVtiQQJbe97O9lXsiy4k0pdJP2osQZK0saH5ctSOhnZ9JCicY2CQQ8gZS3o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Evi53KGL; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=jwJm/B6M7tms9AA6qco2ZtIh6ErddDAu0QDzqBPmw18AM4BsmuKLQypBiJen0d+9JMAoujWJTfDHBlOKElob/Ks6/53AA2T/tRHxzgaOXj4bRyRExLQnlcskeNU2XKi0Jfm/U1KhRqg/hF+VOAcSIqoa14ztjZcKb3x1ezonoLg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=KPEDO+jT; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Evi53KGL"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9DC0F1F000E9;
-	Mon, 20 Jul 2026 03:32:58 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="KPEDO+jT"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07D8C1F000E9;
+	Mon, 20 Jul 2026 03:48:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784518378;
-	bh=e/EGyu4i3uQ2CgnsT2F11rFr4ZB3+99/Hydx+Fsd2UM=;
+	s=k20260515; t=1784519335;
+	bh=fA/EGbNqJBdDcXCpdVWpv1Gu5N7kAM2sgLrdqbUrlsY=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=Evi53KGLKss/JTCgc4zTuN8oNiM73UC21VPzHOfLdjWZdzPOEo41bBTJh+XdOULkO
-	 BFo7IQkOMyPMHfCc1CRwZgurZlIbVdhB0ADuXlvPrpBcrhzXaS3+NHca3ihS7VnqPL
-	 P4y+UqJDKPgTB4Hrl/OVFgVSoqpr4Ektt7g2bGXZ5iaA29KXBdmYnT5FKxTIW08USu
-	 BtQrqQgkZMIR7kYupebUB3kyUCBVmDazVHMCVs2Lu7gwYZhbNyKz/CzAH2oVNKV7Un
-	 BRpBZXStRFTk9aAy0O9w9WhH4LFXoJ0GnBiR0/TsgngjTvmZex9ng6YAyt0TPVUCqm
-	 CI0EJQ3PmMYVA==
+	b=KPEDO+jT1QCP8xB7eibJxTf11pXk8nGp4AxV/aj3ey6658ufxqHKj7F66uVz/e0rL
+	 o5J8/dCjhDWE+IDiL4jL3SS3DTE6TE+ngGKOVCFte9vUUAOfepRbmGvxEX7AHUkiJE
+	 d/yMPHV3eJiP/XUYqtrjPCow3cZh4VIF+QKV9XxntEkOgFYPuiqy0qDnCoUI0wmXZQ
+	 sUdR+pZ9WOExPar9ZuH4I7odrqUo7nWeSO66cjfizGAh5iNIfbyNLCyIiHvO+Tj1A8
+	 lYHqdWP6tO/BcB+iPzEomZ3+0tO9fH5mZeCfbop+6lW5sihTH1K00f/hLYS75RwHhW
+	 NOpnK3SUHd0fA==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v13 2/4] HID: hid-msi: Add M-key mapping attributes
+Subject: Re: [PATCH] Input: byd - synchronize timer deletion before freeing
+ private data
 Reply-To: sashiko-reviews@lists.linux.dev
-To: "Derek J. Clark" <derekjohn.clark@gmail.com>
+To: "Linmao Li" <lilinmao@kylinos.cn>
 Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260720031549.2272658-3-derekjohn.clark@gmail.com>
-References: <20260720031549.2272658-1-derekjohn.clark@gmail.com>
- <20260720031549.2272658-3-derekjohn.clark@gmail.com>
+In-Reply-To: <20260720033030.1580891-1-lilinmao@kylinos.cn>
+References: <20260720033030.1580891-1-lilinmao@kylinos.cn>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Mon, 20 Jul 2026 03:32:58 +0000
-Message-Id: <20260720033258.9DC0F1F000E9@smtp.kernel.org>
+Date: Mon, 20 Jul 2026 03:48:54 +0000
+Message-Id: <20260720034855.07D8C1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 5 potential issue(=
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
 s) to consider:
 
-New issues:
-- [High] Race condition in `claw_profile_event` causes stale data to be ret=
-urned for profile reads.
-- [Low] Compilation error due to invalid C syntax for embedded tagged struc=
-t.
-- [Low] Subsystem guide violation: Mixing `goto`-based cleanup labels with =
-`__free()` automated cleanup.
-
 Pre-existing issues:
-- [High] Generic ACK responses improperly complete commands waiting for spe=
-cific data payloads.
-- [High] Gamepad sysfs attributes are permanently hidden and never created.
+- [High] Use-After-Free or NULL pointer dereference in byd_process_byte() d=
+ue to missing RX synchronization during disconnect.
+- [High] Improper timer teardown API allows the timer to be re-armed after =
+sync, causing a delayed Use-After-Free.
 --
 
---- Patch [2]: [PATCH v13 2/4] HID: hid-msi: Add M-key mapping attributes -=
---
-commit 4c48f895b57157a8a075f47f1218b8052e864f1b
-Author: Derek J. Clark <derekjohn.clark@gmail.com>
+--- Patch [1]: [PATCH] Input: byd - synchronize timer deletion before freei=
+ng private data ---
+commit eb1fe8255d54e5e900b504d5aed98e3fff1721fb
+Author: Linmao Li <lilinmao@kylinos.cn>
 
-HID: hid-msi: Add M-key mapping attributes
+Input: byd - synchronize timer deletion before freeing private data
    =20
-This patch adds attributes that allow for remapping the M-keys on MSI
-devices when in macro mode. It routes mapped buttons to appropriate event
-devices for gamepad, keyboard, or mouse events.
+byd_disconnect() uses timer_delete() before freeing the driver's private
+data.  This does not wait for a running byd_clear_touch() callback, which
+dereferences the private data and its psmouse pointer.  A callback racing
+with disconnect can therefore access the private data after it has been
+freed.
+   =20
+Use timer_delete_sync() to wait for any running callback before releasing
+the private data.
+   =20
+Fixes: 2d5f5611dd0d ("Input: byd - enable absolute mode")
+Cc: stable@vger.kernel.org
+Signed-off-by: Linmao Li <lilinmao@kylinos.cn>
 
-Link: https://patch.msgid.link/20260529072111.7565-3-derekjohn.clark@gmail.=
-com
-
-> diff --git a/drivers/hid/hid-msi.c b/drivers/hid/hid-msi.c
-> index 6687e4579faa1..023d63cee6b06 100644
-> --- a/drivers/hid/hid-msi.c
-> +++ b/drivers/hid/hid-msi.c
-> @@ -255,6 +255,15 @@ struct claw_command_report {
->  	u8 data[59];
->  } __packed;
+> diff --git a/drivers/input/mouse/byd.c b/drivers/input/mouse/byd.c
+> index f5770a3af2f12..7a69724c1ac6b 100644
+> --- a/drivers/input/mouse/byd.c
+> +++ b/drivers/input/mouse/byd.c
+> @@ -423,7 +423,7 @@ static void byd_disconnect(struct psmouse *psmouse)
+>  	struct byd_data *priv =3D psmouse->private;
 > =20
-> +struct claw_profile_report {
-> +	u8 profile;
-> +	__be16 read_addr;
-> +} __packed;
-> +
-> +struct claw_mkey_report {
-> +	struct claw_profile_report;
-> +	u8 padding_0;
-
-[Severity: Low]
-Will this compile successfully, or does this introduce a regression?
-Standard C11 only permits anonymous structs if they do not have a tag. Using
-a tagged struct (like struct claw_profile_report;) without a field name acts
-as a forward declaration.
-
-This makes padding_0 the first member, causing the initialization in
-claw_mkey_store() to fail, and attempts to access mkeys->read_addr in
-claw_profile_event() will fail with a missing member error.
-
-[ ... ]
-> +static int claw_profile_event(struct claw_drvdata *drvdata, struct claw_=
-command_report *cmd_rep)
-> +{
-> +	enum claw_profile_ack_pending profile;
-> +	struct claw_mkey_report *mkeys;
-> +	u8 *codes, key;
-> +	int i;
-> +
-> +	scoped_guard(spinlock_irqsave, &drvdata->profile_lock)
-> +		profile =3D drvdata->profile_pending;
-> +
-> +	switch (profile) {
-> +	case CLAW_M1_PENDING:
-[ ... ]
-> +	default:
-> +		dev_dbg(&drvdata->hdev->dev,
-> +			"Got profile event without changes pending from command: %x\n",
-> +			cmd_rep->cmd);
-> +		return -EINVAL;
-> +	}
-> +	scoped_guard(spinlock_irqsave, &drvdata->profile_lock)
-> +		drvdata->profile_pending =3D CLAW_NO_PENDING;
-> +
-> +	return 0;
-> +}
+>  	if (priv) {
+> -		timer_delete(&priv->timer);
+> +		timer_delete_sync(&priv->timer);
 
 [Severity: High]
-Is there a race condition here that introduces a regression where stale
-data is returned?
+This isn't a bug introduced by this patch, but does timer_delete_sync()
+prevent the timer from being re-armed concurrently?
 
-The lock is dropped after reading profile_pending, opening a race window
-where another thread could update it. When this thread resumes and
-unconditionally writes CLAW_NO_PENDING, it could destroy pending profile
-requests initiated during the race window.
+Because device interrupts are not disabled during byd_disconnect(),
+byd_process_byte() can execute immediately after timer_delete_sync()
+returns but before psmouse->private is freed.
 
-For example, if Thread 1 times out leaving CLAW_M1_PENDING, and Thread 2
-sets CLAW_M2_PENDING, a delayed hardware response for M1 could cause this
-function to overwrite Thread 2's state with CLAW_NO_PENDING. This would
-cause Thread 2 to return unmodified M2 data.
+If byd_process_byte() processes a touch event, it can call mod_timer()
+and successfully re-arm the timer on the priv structure:
 
-[ ... ]
->  static int claw_raw_event(struct claw_drvdata *drvdata, struct hid_repor=
-t *report,
->  			  u8 *data, int size)
->  {
-[ ... ]
->  	case CLAW_COMMAND_TYPE_ACK:
->  		if (drvdata->orphan_ack_pending) {
->  			drvdata->orphan_ack_pending =3D false;
->  			complete(&drvdata->orphan_ack_complete);
->  			break;
->  		}
-> =20
->  		if (drvdata->waiting_cmd =3D=3D CLAW_COMMAND_TYPE_NONE) {
->  			dev_warn(&drvdata->hdev->dev, "Got unexpected ACK from MCU, ignoring\=
-n");
->  			break;
->  		}
-> =20
->  		drvdata->cmd_status =3D 0;
->  		complete(&drvdata->send_cmd_complete);
+drivers/input/mouse/byd.c:byd_process_byte() {
+	...
+	mod_timer(&priv->timer, jiffies + BYD_TOUCH_TIMEOUT);
+	...
+}
+
+When byd_disconnect() subsequently frees priv, won't the timer callback
+execute on the freed memory?
+
+Should this use timer_shutdown_sync() instead to permanently prevent the ti=
+mer
+from being re-armed during teardown?
+
+>  		kfree(psmouse->private);
+>  		psmouse->private =3D NULL;
 
 [Severity: High]
-This is a pre-existing issue, but do generic ACKs improperly complete
-commands waiting for specific data payloads?
+This is a pre-existing issue, but is it possible for an interrupt to trigger
+byd_process_byte() concurrently with or immediately after freeing this memo=
+ry?
 
-If a previous command (like SYNC_TO_ROM with a timeout of 0) takes longer
-than the timeout to send its ACK, the orphan_ack_pending flag might clear
-before the generic ACK arrives.=20
+The core psmouse_disconnect() function invokes the driver's disconnect call=
+back
+without first stopping device interrupts (such as by using serio_pause_rx()=
+).
 
-When the delayed generic ACK finally arrives while waiting_cmd is set for
-a new command (like READ_PROFILE), this branch skips the orphan check and
-unconditionally triggers complete(&drvdata->send_cmd_complete). This
-prematurely completes the new command's wait, potentially returning stale
-or uninitialized data.
+If the hardware sends a byte during device teardown, ps2_interrupt() can
+route the data to the active protocol handler byd_process_byte(). This
+unconditionally dereferences the freed or NULL psmouse->private pointer:
 
-[ ... ]
-> static int __claw_hw_output_report(struct hid_device *hdev, u8 index, u8 =
-*data,
->                                    size_t len, unsigned int timeout)
-> {
->         unsigned char *dmabuf __free(kfree) =3D NULL;
-[ ... ]
-> err:
->         scoped_guard(spinlock_irqsave, &drvdata->cmd_lock) {
->                 drvdata->waiting_cmd =3D CLAW_COMMAND_TYPE_NONE;
->                 drvdata->orphan_ack_pending =3D false;
->         }
->         return ret;
-> }
+drivers/input/mouse/byd.c:byd_process_byte() {
+	struct byd_data *priv =3D psmouse->private;
+	...
+}
 
-[Severity: Low]
-This is a pre-existing issue, but does this function mix goto-based cleanup
-labels with __free() automated cleanup?
+Does the receive path need to be paused or synchronized before freeing the
+private data to prevent a use-after-free or NULL pointer dereference?
 
-The function declares unsigned char *dmabuf __free(kfree) =3D NULL; but also
-utilizes a goto err; label for state cleanup. The cleanup and guard
-subsystem guidelines state that functions should either convert all
-resources to scope-based cleanup or convert none of them.
-
-[ ... ]
->  static umode_t claw_gamepad_attr_is_visible(struct kobject *kobj, struct=
- attribute *attr,
->  					    int n)
->  {
->  	struct hid_device *hdev =3D to_hid_device(kobj_to_dev(kobj));
->  	struct claw_drvdata *drvdata =3D hid_get_drvdata(hdev);
->=20
->  	scoped_guard(spinlock_irqsave, &drvdata->registration_lock) {
->  		/* Pairs with smp_store_release from cfg_setup_fn in system_wq context=
- */
->  		if (!smp_load_acquire(&drvdata->gp_registered))
->  			return 0;
 >  	}
-
-[Severity: High]
-This is a pre-existing issue, but are the gamepad sysfs attributes ever
-created and made visible?
-
-In cfg_setup_fn(), device_add_group() is called before gp_registered is
-set to true. During sysfs group creation, this callback evaluates
-!smp_load_acquire(&drvdata->gp_registered) and returns 0.
-
-Because it returns 0 during creation, the files are never created. Even
-though gp_registered is set to true immediately afterward, the attributes
-will remain permanently hidden since sysfs_update_group is not called.
+>  }
 
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260720031549.2272=
-658-1-derekjohn.clark@gmail.com?part=3D2
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260720033030.1580=
+891-1-lilinmao@kylinos.cn?part=3D1

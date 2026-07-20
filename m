@@ -1,43 +1,43 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 259CF3ACA7A
-	for <linux-input@vger.kernel.org>; Mon, 20 Jul 2026 08:56:51 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 71AAD3ACA7A
+	for <linux-input@vger.kernel.org>; Mon, 20 Jul 2026 08:59:52 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784537813; cv=none; b=H9wnd5uNCM2rmPwGPXlHYuC4WP8PH5glnQ9JGsJSXuZHwcF3qWrd7movewGPD7An3fjBj73l8XF37Nuj3gFDYun8ECDP4MgZzehJ/GMPYpD/LtWPIWpFBulDCIGPJS43ILY/isG985rLMI3d8v04h69jHJJ3Iw51Nn733HY1FSo=
+	t=1784537993; cv=none; b=PEO3BcPSs5I29EReSwEH0/BM/8XFQ8nO/uMh8gH/l+mQqH/7ryzcJkst1DQLPvydipnJMP+k2/VLU51gAqn8nSF7owcnWXPmvXnscIW/fkrgVxDHul8m7fBv6vXM+x6mtITOCO17EUE4pr4Wz+1MuAyyDt+cL/997ABNHpdQxWo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784537813; c=relaxed/simple;
-	bh=h5/EtuiTok7Yo4le3fYh8rvHdf4Owc5QCjdTFBiV8AA=;
+	s=arc-20240116; t=1784537993; c=relaxed/simple;
+	bh=E5Gh8sP/092yabA5jk21moSTAUiH+IrBMcUdAUgyaGQ=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=jnXt6MvNPI++iNEDBDpIsooHQT4kRUJDiP6ksySjBlwF0Cl23qeChLaxZQA/df4IFn2aYJiqTquWhU/Of2j97OP6JHjbFpBbML8/Z0jqCuJupJdfpwoJrBkrmUQmZeaING76wYP4kiSSkMLoseD9zXLStCMeQJjbzNX3t2b+cOw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=g+IukMt7; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=iG4y+z5iQN0fqk3ndpe686Ppxy/CTqfDJk/TLVGpUsus/l1z9eRMXAYD2BNPrNN6EBdEBU0aFHp/5yhADiIrmzTbwXwOWKPuNGwCQUyDS7fKjXIUXtFTHQg3nRgHBEU42wBY/wrEpp/dcM1337q4Hq/zx6RD0MVzOgqgEt/wmhQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ElLkmxLh; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="g+IukMt7"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3812F1F00A3A;
-	Mon, 20 Jul 2026 08:56:51 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ElLkmxLh"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1DEF1F000E9;
+	Mon, 20 Jul 2026 08:59:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784537811;
-	bh=wZ0OQ4MY54qdmhVHYSuqYFcQEblYblElg4/YTJqbcJc=;
+	s=k20260515; t=1784537992;
+	bh=6LYEvl+/P43zSgzxSLO6AX2Oz+T2xeIIWFU9Cgc0d1A=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=g+IukMt7ekkN/dxFy12Ee39MlRKwMLiwLbxdMpv35uiAql9JB8RaXMwvRefrs421l
-	 3YOCIm1bIyqrZl9EeDzPAoKTDWPyqLBLIAkNOtNTQ1qpRF66KzBNaya6rV5ifJ+Kh6
-	 vOuRdd+9tEpbjvtrnDVw4LcIBd14m0f1AvX73XUkK3Ztvn+a494qkNzTzqDuv1W+yL
-	 axcVBjX89lbzJh5CWnAmzP831R2ErlV2+2DJJ+eJncjDrCgKkvP6f868YZa9EgG/3K
-	 gK9YQpSodlOVdgpsCnUKExDMu1ablofcICGHHElxxW/qvVZSn4Urnv/904RQK3ZT1W
-	 vUYozKLutgvQg==
+	b=ElLkmxLhzVNiycekccu7m75lbQV9Z//vQiEzxXHj535VnyA1tEiLre0/jIqPNvmOi
+	 pdO1xAhgyRI+5mTFMwmLYSRVySaUx+V1sILMn+bKmZP5h7InsRPx+fsLYdnBOWYQ2p
+	 MDQkyPGRmbuBHR6kFHNvHfJL9BkbRbZ7jcOfYMhfBnolrcB28uJqrKwrSJm1Ct65ns
+	 1DB6n6q+h5F+oos7/mvVbwc6c3OaVXLOkO3k+9tiv30hfRTObqzsgfzBLZ5aThZl1Z
+	 SwUubdFCVxdhYlqVAEE+IZy8PgQIqgwEWT4TDWIajo2j8DmiwGt//TjFKeityLr8bf
+	 4ZTS4t10YZNIg==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 2/2] Input: st-keyscan: Improve probe error handling
+Subject: Re: [PATCH v3 4/4] HID: Intel-thc-hid: Remove redundant dev_err()
 Reply-To: sashiko-reviews@lists.linux.dev
-To: phucduc.bui@gmail.com
+To: "Pan Chuang" <panchuang@vivo.com>
 Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260720085041.224896-2-phucduc.bui@gmail.com>
-References: <20260720085041.224896-1-phucduc.bui@gmail.com>
- <20260720085041.224896-2-phucduc.bui@gmail.com>
+In-Reply-To: <20260720084310.210976-5-panchuang@vivo.com>
+References: <20260720084310.210976-1-panchuang@vivo.com>
+ <20260720084310.210976-5-panchuang@vivo.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Mon, 20 Jul 2026 08:56:50 +0000
-Message-Id: <20260720085651.3812F1F00A3A@smtp.kernel.org>
+Date: Mon, 20 Jul 2026 08:59:51 +0000
+Message-Id: <20260720085951.E1DEF1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -48,89 +48,117 @@ Thank you for your contribution! Sashiko AI review found 2 potential issue(=
 s) to consider:
 
 Pre-existing issues:
-- [High] Deferred probe errors from `platform_get_irq()` are incorrectly ma=
-sked and converted to `-EINVAL`.
-- [High] The interrupt handler is registered and unmasked while the hardwar=
-e clock is disabled, which could lead to a crash on an unhandled or pending=
- interrupt.
+- [Critical] Requesting the IRQ before allocating report buffers and initia=
+lizing DMA causes an infinite interrupt storm that hangs the CPU.
+- [High] Bypassing `quicki2c_dma_deinit()` on the error path causes a memor=
+y leak of non-managed DMA buffers and mappings.
 --
 
---- Patch [2]: [PATCH 2/2] Input: st-keyscan: Improve probe error handling =
----
-commit c25a1a7eacb3523c173790ed6cd29726473a8fa7
-Author: bui duc phuc <phucduc.bui@gmail.com>
+--- Patch [4]: [PATCH v3 4/4] HID: Intel-thc-hid: Remove redundant dev_err(=
+) ---
+commit 7eb5c91c4d9eb3ab7af0dabaab924561ec278776
+Author: Pan Chuang <panchuang@vivo.com>
 
-Input: st-keyscan: Improve probe error handling
+HID: Intel-thc-hid: Remove redundant dev_err()
 
-Use dev_err_probe() for devm_clk_get() so deferred probe errors are
-handled correctly.
-Drop the redundant error message after devm_request_irq(), since the
-helper already reports request failures internally.
+This patch removes redundant driver-specific dev_err() calls after
+devm_request_threaded_irq(). The core genirq/devres code automatically
+logs detailed error messages on failure now.
 
-> diff --git a/drivers/input/keyboard/st-keyscan.c b/drivers/input/keyboard=
-/st-keyscan.c
-> index e53ef4c670e4b..d86f6f16ae1b2 100644
-> --- a/drivers/input/keyboard/st-keyscan.c
-> +++ b/drivers/input/keyboard/st-keyscan.c
+> diff --git a/drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c b/dr=
+ivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c
+> index 46d3e9a019995..59f500345acbf 100644
+> --- a/drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c
+> +++ b/drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c
+> @@ -682,11 +682,8 @@ static int quicki2c_probe(struct pci_dev *pdev, cons=
+t struct pci_device_id *id)
+>  					quicki2c_irq_thread_handler,
+>  					IRQF_ONESHOT, KBUILD_MODNAME,
+>  					qcdev);
+> -	if (ret) {
+> -		dev_err_once(&pdev->dev,
+> -			     "Failed to request threaded IRQ, irq =3D %d.\n", pdev->irq);
+> +	if (ret)
+>  		goto dev_deinit;
+> -	}
+
+[Severity: Critical]
+This is a pre-existing issue, but does requesting the IRQ here before alloc=
+ating
+report buffers and initializing DMA cause an interrupt loop?
+
+If a pending or spurious interrupt occurs right after devm_request_threaded=
+_irq()
+is called but before quicki2c_alloc_report_buf() and quicki2c_dma_init(), t=
+he
+RT-priority threaded handler could execute.
+
+The handler would find input_buf is NULL and fail to read the DMA buffer. A=
+ny
+attempt to recover would fail because dma_init() hasn't run. The handler wo=
+uld
+then unmask the interrupt. Because the hardware interrupt condition was nev=
+er
+cleared, it could immediately fire again, preempting the probe thread and
+hanging the CPU.
+
+> =20
+>  	ret =3D quicki2c_get_device_descriptor(qcdev);
+>  	if (ret) {
+
+[Severity: High]
+This isn't a bug introduced by this patch, but could the error handling fur=
+ther
+down in this function leak unmanaged DMA memory?
+
+After quicki2c_dma_init() successfully allocates DMA buffers, subsequent
+failures in thc_interrupt_quiesce(), quicki2c_set_power(), or
+quicki2c_reset() jump to the dev_deinit label:
+
+	ret =3D quicki2c_set_power(qcdev, HIDI2C_ON);
+	if (ret) {
+		dev_err(&pdev->dev, "Set Power On command failed, ret=3D %d\n", ret);
+		goto dev_deinit;
+	}
+
+Jumping to dev_deinit bypasses the dma_deinit label and quicki2c_dma_deinit=
+(),
+which leaves the DMA resources allocated.
 
 [ ... ]
 
-> @@ -192,10 +191,8 @@ static int keyscan_probe(struct platform_device *pde=
-v)
-> =20
->  	error =3D devm_request_irq(&pdev->dev, keypad_data->irq, keyscan_isr, 0,
->  				 pdev->name, keypad_data);
-
-[Severity: High]
-This is a pre-existing issue, but since you are improving error handling in=
-=20
-keyscan_probe(), could we also fix the error return for platform_get_irq()=
-=20
-just prior to this?
-
-Currently the code does this:
-
-	keypad_data->irq =3D platform_get_irq(pdev, 0);
-	if (keypad_data->irq < 0)
-		return -EINVAL;
-
-Does overwriting the real error code from platform_get_irq() with -EINVAL
-break deferred probe if the interrupt controller is not yet ready?
-
-[Severity: High]
-This isn't a bug introduced by this patch, but I also noticed a potential=20
-issue here related to the IRQ registration.
-
-Just before calling devm_request_irq(), keyscan_probe() calls=20
-keyscan_stop() which disables the clock.
-
-If the IRQ line is asserted (e.g. from a pending bootloader state or
-spurious event), keyscan_isr() will fire immediately once devm_request_irq()
-is called.
-
-The ISR then accesses peripheral registers:
-
-drivers/input/keyboard/st-keyscan.c:keyscan_isr() {
-	...
-	state =3D readl(keypad->base + KEYSCAN_MATRIX_STATE_OFF) & 0xffff;
-	...
-}
-
-Can accessing peripheral registers while the corresponding clock is disable=
-d=20
-cause a synchronous bus fault or kernel panic on these systems? Should the=
-=20
-devm_request_irq() call be moved after the clock is re-enabled?
-
-> -	if (error) {
-> -		dev_err(&pdev->dev, "failed to request IRQ\n");
-> +	if (error)
->  		return error;
+> diff --git a/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c b/dr=
+ivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c
+> index 4ae2e1718b30c..504ef3c842ab6 100644
+> --- a/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c
+> +++ b/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c
+> @@ -636,11 +636,8 @@ static int quickspi_probe(struct pci_dev *pdev,
+>  					quickspi_irq_thread_handler,
+>  					IRQF_ONESHOT, KBUILD_MODNAME,
+>  					qsdev);
+> -	if (ret) {
+> -		dev_err(&pdev->dev,
+> -			"Failed to request threaded IRQ, irq =3D %d.\n", pdev->irq);
+> +	if (ret)
+>  		goto dev_deinit;
 > -	}
+
+[Severity: Critical]
+This is a pre-existing issue, but might requesting the IRQ here before allo=
+cating
+report buffers and initializing DMA lead to a similar interrupt loop?
+
+Just like in quicki2c_probe(), if an interrupt fires right after
+devm_request_threaded_irq() is called but before quickspi_alloc_report_buf()
+and quickspi_dma_init(), the handler could fail to recover DMA state. It wo=
+uld
+then unmask the interrupt, which immediately fires again, hanging the CPU in
+an RT-priority interrupt loop.
+
 > =20
->  	error =3D input_register_device(input_dev);
->  	if (error) {
+>  	ret =3D reset_tic(qsdev);
+>  	if (ret) {
 
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260720085041.2248=
-96-1-phucduc.bui@gmail.com?part=3D2
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260720084310.2109=
+76-1-panchuang@vivo.com?part=3D4

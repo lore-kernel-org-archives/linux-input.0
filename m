@@ -1,155 +1,89 @@
-Received: from mail-pj1-f41.google.com (mail-pj1-f41.google.com [209.85.216.41])
+Received: from mail-pl1-f176.google.com (mail-pl1-f176.google.com [209.85.214.176])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4B0E7403EA5
-	for <linux-input@vger.kernel.org>; Mon, 20 Jul 2026 16:50:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.41
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 179F23090C1
+	for <linux-input@vger.kernel.org>; Mon, 20 Jul 2026 17:07:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.176
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784566235; cv=none; b=ZiIrnusV3yoSxZB/hDgig1MabDKl6a/GJfVl7h4DW8w9hH5Ioyomiy9X3vqP+4XbuN/O8zaZ88G0sQ0a1zgW/ZmxpaozwygUOkZ8BnKWsRdeFzbJBsR3/auTzq0JmZ9ShVBAdFs7lWR0CySb9hgLmYoKmTgt5dCT4pXdS6Hf/3s=
+	t=1784567243; cv=none; b=lY9UQTlYnaJBQOF47IsV+G810f+3G4COso8zSxYlP5dSje+p65eLY0kNIszM9ISr34KFDrXSgoCoj7ogdc6A/tQmd3TyPkEh35ku7y0dO94ofL8XnzWQGngpx4T1TvfpOalFj4xK0Gz/9WBEtpU1Akuet/vyiO7T/m4PJty5nwM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784566235; c=relaxed/simple;
-	bh=xLj8gVdARFZvL7dMaAwyCyeARyxXEU4B3zwUZPi/zlk=;
-	h=Date:From:To:CC:Subject:In-Reply-To:References:Message-ID:
-	 MIME-Version:Content-Type; b=P/JcIdC8AhL5I6mcrAbT5Uh9I+233C0TPrX32cGKYCmK3yAk04Kkj1mofbl3Ppt6DEmldz06LoXqimdfdmVHCJDG0mSpQ8tbX1s/v5+hTNI8PUZtWFj3tWk2BaSGqEYx2MtutmOIQbyQdTJcxVRgMiF1apZ/vIRdR2laDvvegGY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=CxgjVmxL; arc=none smtp.client-ip=209.85.216.41
+	s=arc-20240116; t=1784567243; c=relaxed/simple;
+	bh=Vw01Z+sL/1hbRFjNJ4D1VTaYqItepSIEaZJri4R0wC4=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=uhe78Yt5q5uzRPMNL80FPyxUJNvX7vnC9JVV6XKHIIhi0iEPd8zrB4V1oooLG6X6MPuBoyRCXsKLbXvFl3mIrmTBN2VRq4VBmZSqwKfgiZ+RjjBJF0yx2Ij9durU+78SDHnaeFSvnnRLtwW3eW+gFs0IoItimkargPQ3ckFC3dY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=DRs1E6mc; arc=none smtp.client-ip=209.85.214.176
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="CxgjVmxL"
-Received: by mail-pj1-f41.google.com with SMTP id 98e67ed59e1d1-384c94c9414so5908183a91.3
-        for <linux-input@vger.kernel.org>; Mon, 20 Jul 2026 09:50:34 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="DRs1E6mc"
+Received: by mail-pl1-f176.google.com with SMTP id d9443c01a7336-2cacf197759so115632245ad.2
+        for <linux-input@vger.kernel.org>; Mon, 20 Jul 2026 10:07:21 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784566234; x=1785171034; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:mime-version:message-id
-         :references:in-reply-to:user-agent:subject:cc:to:from:date:from:to
-         :cc:subject:date:message-id:reply-to:content-type;
-        bh=E9JE/eR+ETc25R/xPipwqaolcgylczRQleB6t8SczIQ=;
-        b=CxgjVmxLrj4zWpRiA52rv2BC1lJOLzgDZBogublJPBkKVnWy4wyTYesnTvFQVa0xb0
-         uuYiDISHcr8BSjVNF/1g73AFBWwL5Lyq16l7ks+X2bDJXlgzVI+HhtZv3sUq7KGQ/fq/
-         jLweqAUIfY5UElnkmBZgYItFD1+sANchyZfopO3Fc/eLqD7ODxvAU/R2rnvscbk4S8RS
-         VmjVPBVbTc5dytPkuSGtPt4kgOy68Xiy8wWTIVNgaemaYVId+rmU+JbK28P5zeEncNnm
-         42Uy2CiE0mcO7uzhp5ZT74pihjL2N7Fyxs0NllDvtkMd6Hky9bUbPVSS8ws7BM/EPlwJ
-         xeyw==
+        d=gmail.com; s=20251104; t=1784567241; x=1785172041; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=l3Y3qPQEpDGTBYNYDJOA+C9hBEdmmPNqXyT4D9qntj0=;
+        b=DRs1E6mccB+6qv3GsFZt2nxcDlclKSL70JvNkEbS9nQ9WltNdYY0EU/ctVk0dbTJU2
+         6gh2hixOpKogJfP74oVM7Brx18Ok6elqH0v5SQX+3Uan/kvLevVg+N0F5S4BYeAYnUYF
+         pNXoKhJs+n+SLw2vL9kaqKY36LSD8kXaEFfMkQtFPzEQm+o/gn+VO9oLAuUI2g3Tf1PM
+         Bvd+tqdgxQmBFkf9kip6LxHQVNiWTyKR1CtIh+hi9O3HFWdXxm4higFv7SUQQsTKT1fp
+         Q9Xm85k0iDPaeZw/mItSH4x53c4jY7QLnjGBOAkSSmvG8dHWyYJjRO6h/9G+vtumaY9f
+         he1w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784566234; x=1785171034;
-        h=content-transfer-encoding:content-type:mime-version:message-id
-         :references:in-reply-to:user-agent:subject:cc:to:from:date:x-gm-gg
+        d=1e100.net; s=20251104; t=1784567241; x=1785172041;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=E9JE/eR+ETc25R/xPipwqaolcgylczRQleB6t8SczIQ=;
-        b=K9BCQDo2ruqoKgMBkZBsy9f/7BhytAwgV/n/Gogl/rgPnjnAVB2rm2oht1oHA311b+
-         Eori3yrmRasy8oZ7zl4iUkhXx2ikem/WlP5OGtil4+EZJM6Yq3w2FnZr3PEqp7hLKNvP
-         DlBhvKvEvLgJ7b/hEy3kVZ4jvfIUsdcsmgn9DAsBPXe0IZX8XfpoQPxU9imoCqd4EdnA
-         4209ONJiA9E5U4B6AAHGkRIcms3Z+EXyWSi82cmf+7I1PjjW8b299L0ED+SeC65d4YUr
-         MhfEprPTKte/Bklauuu8S+5XyuF0o/71n0Ms83zJKmf0/dV1W/Ub/JQbiGoOh/EbqYgI
-         l2nQ==
-X-Forwarded-Encrypted: i=1; AHgh+Rr9UUAJa5SpdfdhPDl4oeMuGiS1DldnP85ZGDymIH6u+2WxoWO/IWiMUGObjSHObMHopSIMDdSX7kgsUA==@vger.kernel.org
-X-Gm-Message-State: AOJu0YzEUhJB+odoJaFUOjI0ECv7uXkHPgOiraQQi+3xoqYM4WKXBB3A
-	5pqKphQvtnEuXsaWCy1DOZJU7scxXIubdXk5r6WkFRi4hq3v6MKvLJHG
-X-Gm-Gg: AR+sD133Y5X1xNrNcehp4rNen0vTIzPuPjeb49gMraxSa+6kkJHm1ANmxWWghkyHIyc
-	SeflGstMUK4qlUhSfSa8cH4Rzk7wDPPwdOziKaYfYJ++DpTZadCfAU13HEaeFyy+HboetKt0Njr
-	FyNhLVx9/u6HwjuKsQDiMu3BLeCBV1k41IXt2gIGnub7L+/W3x2dmWWmVZT4JOHAsa9zDQ15U1a
-	FhdURY+kmyBSndVg0y21A6QKMPtgxVIxUMUPdvTV/IcdpzXlqgZv9RnKmVMZEfDL0I4JGkoInEw
-	9WJA36RWb2L7jgbLRPgpUFlrD+TuvWsAbRkJIufATurUj+XjKqEwSLr+I0C4Xt5+4OrXWidlBUg
-	2A+QNQsJEWDg64X0EX3M6lPq4RYLzk2S671NuUAtXXTSUrev6WNTA1CrHDCbXTF+ehX6QqFUxIm
-	mmXTVvnZuhR/W6Ml+FF5kAOro/Pw==
-X-Received: by 2002:a17:90a:d44e:b0:38d:ddc2:7ccb with SMTP id 98e67ed59e1d1-38e4b3d0fdamr14849441a91.1.1784566233232;
-        Mon, 20 Jul 2026 09:50:33 -0700 (PDT)
-Received: from ehlo.thunderbird.net ([2401:4900:1f3f:a2a5:2929:50ea:668d:9415])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-13ce2a129f3sm30207025c88.7.2026.07.20.09.50.31
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 20 Jul 2026 09:50:32 -0700 (PDT)
-Date: Mon, 20 Jul 2026 22:20:28 +0530
-From: Sanjay Chitroda <sanjayembeddedse@gmail.com>
-To: Andy Shevchenko <andriy.shevchenko@intel.com>
-CC: Jiri Kosina <jikos@kernel.org>, Jonathan Cameron <jic23@kernel.org>,
- Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
- David Lechner <dlechner@baylibre.com>,
- =?ISO-8859-1?Q?Nuno_S=E1?= <nuno.sa@analog.com>,
- Andy Shevchenko <andy@kernel.org>, linux-input@vger.kernel.org,
- linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: =?US-ASCII?Q?Re=3A_=5BPATCH_02/10=5D_iio=3A_gyro=3A_hid-sen?=
- =?US-ASCII?Q?sor-gyro-3d=3A_use_local_struct_device?=
-User-Agent: Thunderbird for Android
-In-Reply-To: <al4MeTgAWWkJsb1T@ashevche-desk.local>
-References: <20260720-hid-iio-local-struct-device-v1-0-74496fee6327@gmail.com> <20260720-hid-iio-local-struct-device-v1-2-74496fee6327@gmail.com> <al4MeTgAWWkJsb1T@ashevche-desk.local>
-Message-ID: <1E009860-0A0F-4F8D-8017-CE5739F22144@gmail.com>
+        bh=l3Y3qPQEpDGTBYNYDJOA+C9hBEdmmPNqXyT4D9qntj0=;
+        b=FvN6uCyLksc+69/xFnOou2bKL2dgvHGZuCzpYkDKNVHAmZNf7Jft3DmBqXmGG7lZjD
+         /NtrCONOCeabcT8KT/Rlyex1jF5Y7YDx7JRUs06P6cwMNp9cPIY/AJ9394YbcbD+Nn5X
+         gf4y5gvDMvqkocZJe1bkATEUZWpM9BFBx/guf00K2KkDvRFFZm/V/BeHBrmkSyo9ZfhR
+         W9vEMQA7KxSCiql/eICYvtl7JBteHi5K9Xbj5YNqJE/Gn1rTuAyeYZJbklCqYWgMlhQq
+         P3iY5dUcDJrKlMfu4820iHl113H2cS/ZC66f9xI974V86WnBBMnLzJQPJ4O6J6Dh5IYV
+         zafA==
+X-Gm-Message-State: AOJu0YzFudHlq+qzP2+QGh6U1ppP4f71D/vBOKREkshgI5JPvoKlqY8R
+	bdKK1TfSVorbF4tCHkXwqB8jGJnSfOkmSl3dM0uV6dyWYtPAgFB7w3pA
+X-Gm-Gg: AR+sD10gA+Zt6tL7rWcZ4CYlr+tIJPW6ha8vzquShqrPR9YKAoScqLtjtfgScOUDJ1o
+	hvQsWdpBOhCwzAo3Pa7RoL5V1CVAncSD8tkzHdsaD5MPja2aL46qUD5HbEWYUmKYg55wOW8t/UP
+	JzXwe05Kq1XWetwKKcGVa/E7YiSy9maN7UZ8VLwTMpNY8V9x9q+h/wGtDe7hcrPImvVEBT/KS3I
+	50/wN7tpBD/15kSNt224Ckkp98FqWSLqtA2v47kbw16pZM4Cc93zyaYFPHJU3IsUYrTSCeiuUKB
+	TFXnmxGJPx/KEY+VDQKjCn82JYwQMmAkp9KFUZKb2GWtF50RiWKhadYjEsaHRsCNE4A9XmalnV/
+	+PBgOiWLyE96SfLqKiWB/9Yx90g+AqA2aY0CkHd90IgzHafzn5gjIDwk6KPZH3QHfLIfGtI+OMV
+	wApYHVwIgBLHJGkLRmBFfDgsTbqbyDE6vpEP0bhyQxjw==
+X-Received: by 2002:a17:902:ebc5:b0:2ce:93a3:c168 with SMTP id d9443c01a7336-2cf3480655dmr165978295ad.7.1784567241424;
+        Mon, 20 Jul 2026 10:07:21 -0700 (PDT)
+Received: from google.com ([2a00:79e0:2ebe:8:a068:ecf:2296:fd47])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3142a1de301sm38186661eec.24.2026.07.20.10.07.17
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 20 Jul 2026 10:07:19 -0700 (PDT)
+Date: Mon, 20 Jul 2026 10:07:14 -0700
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: phucduc.bui@gmail.com
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2 1/2] Input: snvs_pwrkey: Improve probe error handling
+Message-ID: <al5VY95YC0Y40MJY@google.com>
+References: <20260720090851.230244-1-phucduc.bui@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
- charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260720090851.230244-1-phucduc.bui@gmail.com>
 
+On Mon, Jul 20, 2026 at 04:08:49PM +0700, phucduc.bui@gmail.com wrote:
+> From: bui duc phuc <phucduc.bui@gmail.com>
+> 
+> Use dev_err_probe() for devm_clk_get_optional_enabled() to handle
+> deferred probe correctly.
 
+In what way the does existing code handle deferred probe incorrectly?
 
-On 20 July 2026 5:24:33=E2=80=AFpm IST, Andy Shevchenko <andriy=2Eshevchen=
-ko@intel=2Ecom> wrote:
->On Mon, Jul 20, 2026 at 03:10:14PM +0530, Sanjay Chitroda via B4 Relay wr=
-ote:
->
->> Introduce a local struct device pointer derived from &pdev->dev=2E
->> This avoids repeated &pdev->dev usage and improves readability=2E
->
->=2E=2E=2E
->
->>  	if (ret) {
->> -		dev_err(&pdev->dev, "failed to setup common attributes\n");
->> +		dev_err(dev, "failed to setup common attributes\n");
->>  		return ret;
->
->Nope, First one (to eliminate a lot of churn) should be to convert this a=
-nd
->similar to use
->
->		return dev_err_probe(=2E=2E=2E);
->
+Thanks.
 
-Hi Andy,
-
-Thank you for your input=2E
-
-I'm planning to have a incremental series: first introduce a local "dev" p=
-ointer, then convert the resource management to "devm_*", and finally repla=
-ce the remaining error reporting with "dev_err_probe()"=2E
-
-This keeps each series focused and avoids introducing intermediate pattern=
-s such as:
-
-   ret =3D dev_err_probe(dev, ret, =2E=2E=2E);
-   goto error;
-
-Once the cleanup paths are removed, those sites naturally become:
-
-   return dev_err_probe(dev, ret, =2E=2E=2E);
-
-Does this approach sound reasonable?
-
->>  	}
->> =20
->> -	indio_dev->channels =3D devm_kmemdup(&pdev->dev, gyro_3d_channels,
->> +	indio_dev->channels =3D devm_kmemdup(dev, gyro_3d_channels,
->>  					   sizeof(gyro_3d_channels), GFP_KERNEL);
->>  	if (!indio_dev->channels) {
->> -		dev_err(&pdev->dev, "failed to duplicate channels\n");
->> +		dev_err(dev, "failed to duplicate channels\n");
->
->And this kind of messages are dead code and must be just removed complete=
-ly=2E
->
->>  		return -ENOMEM;
->>  	}
->
->=2E=2E=2E
->
->Please, revisit the whole series=2E
-
-Yep, understood=2E
-
-I'll revisit series, drop dead code and send v2=2E
-
-Thanks, Sanjay
->
+-- 
+Dmitry

@@ -1,177 +1,135 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from cstnet.cn (smtp25.cstnet.cn [159.226.251.25])
+	(using TLSv1.2 with cipher DHE-RSA-AES256-SHA (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7FD1C395AC5
-	for <linux-input@vger.kernel.org>; Mon, 20 Jul 2026 10:32:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 60AB43D813D;
+	Mon, 20 Jul 2026 11:50:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=159.226.251.25
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784543569; cv=none; b=rx7PHiqGH5np+0pglEX2lufPcIdjYxNH9jsggNy18UvTDN/MhFHKVXf8nGTg2ym+t0hZhwaue9yicLFNSNCd8HfkTPhkTV+AyV4Ro/kUJBNPySz5AJ+OXI0Thx3R8O1xJe0HU70Nrw/gMzWrWcuUp2n33aBE4nXc3NZx0lT5r10=
+	t=1784548223; cv=none; b=I4CHJwhojt1DIATULNPTTuSqYRlKMbOewej09Pg+zh875v9y1xlVPJ/W/DD+6xff5+CYeVJkXle9XYELo9JncP3XVcnooUgRHrLJy9p2+2tzBH552U4Q0iF2sYEsYVsWyKugPeaeca0Fsq4Wao1VHH+2RI+HyQ+yYnTXdBHewYM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784543569; c=relaxed/simple;
-	bh=54YWoozJ3mvu8h93704rFU+cxWQnCEd9BGH96UVQJR4=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=u3UyCzJhucGp3c92A4Y0IfSSGerVpy1rRGKo8487zng26fo4TmrzWkbfrTFR8XvVbpb82DH5TxwZZfhK8BsSBHta5hbgmxdN/+iE3HdyKSxSY7Vn6qubQkU0VJnEyFZHcv/dCGoFa52U+LKS2OHLNUNZPr+eGjPwLswad/49czw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=VXGLnZyI; arc=none smtp.client-ip=100.103.45.18
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="VXGLnZyI"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D209B1F00A3E;
-	Mon, 20 Jul 2026 10:32:45 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784543566;
-	bh=mVF7zUCR6C9AK9Z++iSzXoODHocspeWspPoMTkeDcOE=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=VXGLnZyImzO+9Y9vCNroG+G42TAi1/vE2xVudVszXP2j7EzAzRQ4jMcyTykp5/qYh
-	 EAfjvWnVqFh/uiOBxgvUmUaCeHWqtJBMnwT6z8p7lXrA04jqTAugJlqBhdmt2i4u8k
-	 87riXu/T75M5qb7sm98N7lSLbDkFMLJrOBsAqmnHkGQqgHO7Ikaexj46P9rnrkid7I
-	 V4SXYF2RISxXHSm2DTopMObCFURuWAUH+kIJ818wqOJiRLNmQrwVNOHyXCqLWTfp5F
-	 T2rs0h3o7IZwheYte2Y10pMzWVnzbNp7mdOcZmTxC4fKv7+7NJwf/wTR2UTO2cbLPJ
-	 I3dUfBbj1UXog==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 4/5] Input: applespi - prefer asynchronous driver
- probing
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Shih-Yuan Lee" <fourdollars@debian.org>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260720101435.13612-5-fourdollars@debian.org>
-References: <20260720101435.13612-1-fourdollars@debian.org>
- <20260720101435.13612-5-fourdollars@debian.org>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Mon, 20 Jul 2026 10:32:45 +0000
-Message-Id: <20260720103245.D209B1F00A3E@smtp.kernel.org>
+	s=arc-20240116; t=1784548223; c=relaxed/simple;
+	bh=ZPrhE9OKhbVqIC2QkIsyQQ/f7ortPnqTAyCbQohYMaE=;
+	h=From:To:Cc:Subject:Date:Message-ID:Content-Type:MIME-Version; b=rqb5HaeOleGhZaHo6KZRWwg28aWB2XmLsdduQScE+M8ye0N3bZxQ9IpozmqFtzVutl5nNsWZanYZbWGQKSBiynVWkZhvbab93Df5vhe4r4W/eY4kiZV1SHToD92doKXnzW5xINMtSjheABenIv5/y+CPSNxh50n3o8SSV7YT2b8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=iscas.ac.cn; spf=pass smtp.mailfrom=iscas.ac.cn; arc=none smtp.client-ip=159.226.251.25
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=iscas.ac.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=iscas.ac.cn
+Received: from localhost.localdomain (unknown [111.196.245.140])
+	by APP-05 (Coremail) with SMTP id zQCowACXBUB6C15q7b2IAA--.63418S2;
+	Mon, 20 Jul 2026 19:50:19 +0800 (CST)
+From: Pengpeng Hou <pengpeng@iscas.ac.cn>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Bryam Vargas <hexlabsecurity@proton.me>,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Pengpeng Hou <pengpeng@iscas.ac.cn>
+Subject: [PATCH v2] Input: iforce - validate input packet lengths
+Date: Mon, 20 Jul 2026 19:50:18 +0800
+Message-ID: <20260720115018.75045-1-pengpeng@iscas.ac.cn>
+X-Mailer: git-send-email 2.50.1
+Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:zQCowACXBUB6C15q7b2IAA--.63418S2
+X-Coremail-Antispam: 1UD129KBjvJXoWxArW5KrW5tw1DKw4UKF15urg_yoW5Ww1Upa
+	yYkFW29r1DKF4jqwnrt3Wfury5Ka97XFy5GFy5Aw10vws8Jry2yr9xtFy0qFyjyw1kJw4a
+	q3WqqF4DCF1kCaDanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDU0xBIdaVrnRJUUUkG14x267AKxVWUJVW8JwAFc2x0x2IEx4CE42xK8VAvwI8IcIk0
+	rVWrJVCq3wAFIxvE14AKwVWUJVWUGwA2ocxC64kIII0Yj41l84x0c7CEw4AK67xGY2AK02
+	1l84ACjcxK6xIIjxv20xvE14v26r4j6ryUM28EF7xvwVC0I7IYx2IY6xkF7I0E14v26F4j
+	6r4UJwA2z4x0Y4vEx4A2jsIE14v26rxl6s0DM28EF7xvwVC2z280aVCY1x0267AKxVW0oV
+	Cq3wAS0I0E0xvYzxvE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0
+	I7IYx2IY67AKxVWUAVWUtwAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFVCjc4AY6r1j6r
+	4UM4x0Y48IcxkI7VAKI48JM4x0x7Aq67IIx4CEVc8vx2IErcIFxwCY1x0262kKe7AKxVWU
+	AVWUtwCF04k20xvY0x0EwIxGrwCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E14
+	v26r1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_JF0_Jw1lIxkG
+	c2Ij64vIr41lIxAIcVC0I7IYx2IY67AKxVWUCVW8JwCI42IY6xIIjxv20xvEc7CjxVAFwI
+	0_Gr0_Cr1lIxAIcVCF04k26cxKx2IYs7xG6r1j6r1xMIIF0xvEx4A2jsIE14v26r1j6r4U
+	MIIF0xvEx4A2jsIEc7CjxVAFwI0_Gr0_Gr1UYxBIdaVFxhVjvjDU0xZFpf9x0JU6v38UUU
+	UU=
+X-CM-SenderInfo: pshqw1xhqjqxpvfd2hldfou0/
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
+iforce_process_packet() reads fixed fields from joystick, wheel and status
+packets without first checking their lengths. In particular, the shared
+hats-and-buttons helper unconditionally reads data[6]. The status tail is
+a sequence of 16-bit effect addresses, but an incomplete final address is
+also consumed. A successful zero-length USB URB additionally reads the
+packet ID before the common parser is called.
 
-New issues:
-- [High] Failure to cancel in-flight SPI async transfers upon unbind timeou=
-t results in use-after-free in completion callbacks.
+Reject the zero-length USB transfer, require the seven-byte joystick and
+wheel prefixes and the two-byte status prefix, and consume only complete
+status-tail addresses.
 
-Pre-existing issues:
-- [High] Kernel panic in `applespi_tp_dim_open` due to an unchecked NULL `t=
-ouchpad_input_dev` when touchpad initialization times out.
---
+Signed-off-by: Pengpeng Hou <pengpeng@iscas.ac.cn>
+---
+Changes since v1: https://lore.kernel.org/all/20260706092016.78176-1-pengpeng@iscas.ac.cn/
+- cover the data[6] access in the shared hats-and-buttons helper
+- cover zero-length USB completions and incomplete status-tail u16 values
+- rebase onto v7.2-rc4
 
---- Patch [4]: [PATCH v2 4/5] Input: applespi - prefer asynchronous driver =
-probing ---
-commit df316467951827e13575294cf4f7b16d6876f89a
-Author: Shih-Yuan Lee <fourdollars@debian.org>
+ drivers/input/joystick/iforce/iforce-packets.c | 11 ++++++++++-
+ drivers/input/joystick/iforce/iforce-usb.c     |  3 +++
+ 2 files changed, 13 insertions(+), 1 deletion(-)
 
-Input: applespi - prefer asynchronous driver probing
-   =20
-Set probe_type to PROBE_PREFER_ASYNCHRONOUS to allow the driver core
-to run applespi_probe() asynchronously. This improves system boot speeds by
-avoiding blocking the main kernel thread during the 3-second touchpad
-detection wait.
-   =20
-Additionally, clean up applespi_tp_dim_open() by simplifying product ID
-retrieval and avoiding dereferencing touchpad_input_dev without a helper
-variable.
+diff --git a/drivers/input/joystick/iforce/iforce-packets.c b/drivers/input/joystick/iforce/iforce-packets.c
+index effa76bfd8f9..e8a34d68a51f 100644
+--- a/drivers/input/joystick/iforce/iforce-packets.c
++++ b/drivers/input/joystick/iforce/iforce-packets.c
+@@ -155,6 +155,9 @@ void iforce_process_packet(struct iforce *iforce,
+ 	switch (packet_id) {
+ 
+ 	case 0x01:	/* joystick position data */
++		if (len < 7)
++			break;
++
+ 		input_report_abs(dev, ABS_X,
+ 				 (__s16) get_unaligned_le16(data));
+ 		input_report_abs(dev, ABS_Y,
+@@ -170,6 +173,9 @@ void iforce_process_packet(struct iforce *iforce,
+ 		break;
+ 
+ 	case 0x03:	/* wheel position data */
++		if (len < 7)
++			break;
++
+ 		input_report_abs(dev, ABS_WHEEL,
+ 				 (__s16) get_unaligned_le16(data));
+ 		input_report_abs(dev, ABS_GAS,   255 - data[2]);
+@@ -181,6 +187,9 @@ void iforce_process_packet(struct iforce *iforce,
+ 		break;
+ 
+ 	case 0x02:	/* status report */
++		if (len < 2)
++			break;
++
+ 		input_report_key(dev, BTN_DEAD, data[0] & 0x02);
+ 		input_sync(dev);
+ 
+@@ -200,7 +209,7 @@ void iforce_process_packet(struct iforce *iforce,
+ 			}
+ 		}
+ 
+-		for (j = 3; j < len; j += 2)
++		for (j = 3; j + sizeof(u16) <= len; j += 2)
+ 			mark_core_as_ready(iforce, get_unaligned_le16(data + j));
+ 
+ 		break;
+diff --git a/drivers/input/joystick/iforce/iforce-usb.c b/drivers/input/joystick/iforce/iforce-usb.c
+index 0482eaaecf39..f04370e4191e 100644
+--- a/drivers/input/joystick/iforce/iforce-usb.c
++++ b/drivers/input/joystick/iforce/iforce-usb.c
+@@ -158,6 +158,9 @@ static void iforce_usb_irq(struct urb *urb)
+ 		goto exit;
+ 	}
+ 
++	if (!urb->actual_length)
++		goto exit;
++
+ 	iforce_process_packet(iforce, iforce_usb->data_in[0],
+ 			      iforce_usb->data_in + 1, urb->actual_length - 1);
+ 
 
-> diff --git a/drivers/input/keyboard/applespi.c b/drivers/input/keyboard/a=
-pplespi.c
-> --- a/drivers/input/keyboard/applespi.c
-> +++ b/drivers/input/keyboard/applespi.c
-> @@ -1027,12 +1027,13 @@ static void applespi_debug_update_dimensions(stru=
-ct applespi_data *applespi,
->  static int applespi_tp_dim_open(struct inode *inode, struct file *file)
->  {
->  	struct applespi_data *applespi =3D inode->i_private;
-> +	struct input_dev *touchpad =3D applespi->touchpad_input_dev;
-> =20
->  	file->private_data =3D applespi;
-> =20
->  	snprintf(applespi->tp_dim_val, sizeof(applespi->tp_dim_val),
->  		 "0x%.4x %dx%d+%u+%u\n",
-> -		 applespi->touchpad_input_dev->id.product,
-> +		 touchpad->id.product,
-
-[Severity: High]
-This isn't a bug introduced by this patch, but can this dereference a NULL
-pointer if the touchpad fails to initialize?
-
-If the 3-second wait in applespi_probe() times out:
-
-applespi_probe() {
-    ...
-    sts =3D wait_event_timeout(applespi->wait_queue,
-                             READ_ONCE(applespi->have_tp_info),
-                             msecs_to_jiffies(3000));
-    ...
-}
-
-Then applespi->touchpad_input_dev is never allocated. However, the
-debugfs file is still created unconditionally later in applespi_probe():
-
-debugfs_create_file("tp_dim", 0400, applespi->debugfs_root, applespi,
-                    &applespi_tp_dim_fops);
-
-If a user subsequently reads this file, applespi_tp_dim_open() is called
-and will dereference the unconditionally NULL touchpad pointer when
-retrieving the product ID.
-
->  		 applespi->tp_dim_min_x, applespi->tp_dim_min_y,
->  		 applespi->tp_dim_max_x - applespi->tp_dim_min_x,
->  		 applespi->tp_dim_max_y - applespi->tp_dim_min_y);
-
-[ ... ]
-
-> @@ -2015,6 +2016,7 @@ static struct spi_driver applespi_driver =3D {
->  		.name			=3D "applespi",
->  		.acpi_match_table	=3D applespi_acpi_match,
->  		.pm			=3D pm_sleep_ptr(&applespi_pm_ops),
-> +		.probe_type		=3D PROBE_PREFER_ASYNCHRONOUS,
-
-[Severity: High]
-Does the timeout added in this series for unbinding lead to a use-after-free
-if SPI transfers are still active?
-
-In applespi_remove(), the driver attempts to drain in-flight operations:
-
-applespi_remove() {
-    applespi_drain_writes(applespi);
-    acpi_disable_gpe(NULL, applespi->gpe);
-    ...
-    applespi_drain_reads(applespi);
-    ...
-}
-
-These drain functions wait with a 3-second timeout:
-
-applespi_drain_writes() {
-    wait_event_lock_irq_timeout(applespi->wait_queue,
-                                !applespi->write_active,
-                                applespi->cmd_msg_lock,
-                                msecs_to_jiffies(3000));
-}
-
-If this timeout expires because the hardware is unresponsive, the function
-returns and applespi_remove() completes. The devres subsystem then frees
-the applespi structure and its DMA-mapped buffers.
-
-When the asynchronous SPI transfer eventually completes, the SPI core invok=
-es
-applespi_async_complete() with the freed context pointer:
-
-applespi_async_complete() {
-    struct applespi_complete_info *info =3D context;
-    struct applespi_data *applespi =3D info->applespi;
-    ...
-    spin_lock_irqsave(&applespi->cmd_msg_lock, flags);
-    ...
-}
-
-Will this dereference the freed applespi object and corrupt memory?
-
->  	},
->  	.probe		=3D applespi_probe,
->  	.remove		=3D applespi_remove,
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260720101435.1361=
-2-1-fourdollars@debian.org?part=3D4

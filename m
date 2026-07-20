@@ -1,133 +1,166 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9AA80407CF7
-	for <linux-input@vger.kernel.org>; Mon, 20 Jul 2026 12:12:06 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D6CFA414A00;
+	Mon, 20 Jul 2026 12:22:01 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784549527; cv=none; b=XUTvfLVikdqD24PdlTLOC8s7nOekpZ2cNfTvJ7Z1J/bC5w7bJMmvDmX6uErzLEzxax0MO4a0H4Qxi9XGvuCR5LjlpRDwvYR/Ncda1aUbeIBNGDAHqqJ0soLt7tRl742umUvokAD+75eEZRX/Wf6Cae2rlElJowvNPoQIWbMmKm4=
+	t=1784550123; cv=none; b=fK5MteM1hFYE08GN/W49Q3Hl4hnIl2WFSzVPocEM2izK5D6dDHGeERRHXGW9cYbrKM9i8qvWh/T6lZjkf9FHJJDClOT9p6vLTqx8lo2+PfHrL1k+nWlucOFIVIZ21ggr4rH1w9MShnCnRnETAEW6VlyGbYO7OL1+PF/fkFRX9tU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784549527; c=relaxed/simple;
-	bh=GyGiFVfZBlfFopyD8Q2zv341fr6VUUMw2fpjVVTLYLw=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=F5nuSoK40mgjXu5gdVy+Foi0ht7MRXLCZafA9X/dJBgdi2E6WiPitc9kxfou36OKte5NxfRnKdSG3ZrER/UnL8x9DE7B7OhEIIZTs4K6geq629z4FwD+UaIE8IIYOd7H6gZyA0ZD/iJ/fJfFNtBvNMsQGyfgeEzsxztVLhByY4c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Xg6a4aBE; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1784550123; c=relaxed/simple;
+	bh=9lOVOnumtAsfQSLOwUN2YsnNLG+2nmHgVr0PkvKkTPg=;
+	h=Date:From:To:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=fsfuTBWBo6dV1NOt7FpQPAoysHG4b/HDzxaI6RS2qB8GR/9/yaxWrDA90sj+G1XBGBDBY9RAdnlExYZoZyPcVs3YP9uU2BReUfxcMvEGRyr9Uh/iKXBpAEhtKlQRwjS8OvYnJVqxbc4/znyyDzgQcE/0u1CTcm0BaHYm/1FEMG8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=c5/2+3N0; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Xg6a4aBE"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52DEF1F000E9;
-	Mon, 20 Jul 2026 12:12:06 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="c5/2+3N0"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5D5A1F00A3A;
+	Mon, 20 Jul 2026 12:21:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784549526;
-	bh=0H4UAwsi6TKz046fqwOLJ9H8Jbna4tYo39Sm8byMdjo=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=Xg6a4aBE4TYZySAXiWUhUGj+a70qQgvrw9SIKcNTdU72Ei9a1zRavbOekf1CeAaVW
-	 nrwl8Lh886YyIJw8UkJeYjH5fMjCkmgU0okyI6kxCnC78FIJiWKasEuICGmG0wEEXy
-	 acf2Y9+tBW5Cf+B5gxWjRDH/nhvT6SZwywyctRP0GEX9tZrecOzm0n+LSI5f6FqFG5
-	 acNl3LnjG1RDMAa2RBmS3UDDMuBKqsSikFmWVnMpTAl0G40nW7XOvzti1um8U/hVGw
-	 bbot2IAV6i7iVaC0AhCv6emNcSDRgIGN+yByS9ods04cb5vXLX+EbYJH1O3MTUKAP2
-	 bwrmoq1ZNqDVw==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2] Input: iforce - validate input packet lengths
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Pengpeng Hou" <pengpeng@iscas.ac.cn>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260720115018.75045-1-pengpeng@iscas.ac.cn>
-References: <20260720115018.75045-1-pengpeng@iscas.ac.cn>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Mon, 20 Jul 2026 12:12:06 +0000
-Message-Id: <20260720121206.52DEF1F000E9@smtp.kernel.org>
+	s=k20260515; t=1784550121;
+	bh=qWAepaDYSO16i9UQ2qZXK18TNEHcxKr17Fun1bqjqRU=;
+	h=Date:From:To:Subject:References:In-Reply-To;
+	b=c5/2+3N0clE4dlSl21ej0uv0Ss9+sSQ2lyXgS5NvZZI7xNPdzA2WSuMwbP8W0sZ7e
+	 weF5lX6YDaofcax9FHtiPTmUZt2HFUH6JEIkV2GBTdwh4fBDg7H+EeJF+ZEQ7HRI/k
+	 KWqZ5ASS3jNd68VzEkO6yfKObHq63YuzDDkWBkJorneN7TqXDUgdXW5Hwyqn/Y+/nI
+	 CkzrHMyCH2Dd/U8xhSLO/11Yq0gL4SELwlJTBzIaI2gdQ9xfLoH7G2YTLntcTB3val
+	 2j1qBLmlhuhLVt4IpuQqTvZtwQaqN/2CNM911y1BPf4IFL2B9UzTLn2tI7ua1ATas7
+	 B/WX3qY8F0CPg==
+Date: Mon, 20 Jul 2026 13:21:56 +0100
+From: Lee Jones <lee@kernel.org>
+To: Ping Cheng <ping.cheng@wacom.com>,
+	Jason Gerecke <jason.gerecke@wacom.com>,
+	Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>,
+	Aaron Skomra <aaron.skomra@wacom.com>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Peter Hutterer <peter.hutterer@who-t.net>,
+	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v6 1/4] HID: wacom: Advertise SW_MUTE_DEVICE capability
+ prior to registration
+Message-ID: <20260720122156.GA11805@google.com>
+References: <20260716090726.2711293-1-lee@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260716090726.2711293-1-lee@kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
+Is Jason back in this week?
 
-Pre-existing issues:
-- [High] Data race on core_effect->flags due to non-atomic __test_and_set_b=
-it.
-- [Medium] Missing input_sync() after reporting force-feedback status (EV_F=
-F_STATUS) events.
---
+Note that all of the Sashiko review comments are pre-existing issues.
 
---- Patch [1]: [PATCH v2] Input: iforce - validate input packet lengths ---
-commit 32891702a73654a7ce9748db1e4baa8f0cbb9362
-Author: Pengpeng Hou <pengpeng@iscas.ac.cn>
+> Input subsystem guidelines require that device capabilities are advertised
+> before the input device is registered.  The Wacom driver was violating
+> this by advertising the SW_MUTE_DEVICE capability post-registration in
+> wacom_set_shared_values() (and duplicating it in device-specific setup
+> cases).
+> 
+> Resolve this by moving the SW_MUTE_DEVICE capability setup to
+> wacom_setup_touch_input_capabilities() for all touch devices that support
+> it, excluding TabletPC devices.
+> 
+> Additionally, replace the lookup-dependent
+> 'wacom_wac->shared->touch->product' references with 'hdev->product'
+> inside wacom_setup_touch_input_capabilities() as 'hdev' is already
+> available and represents the touch device itself.
+> 
+> Fixes: d2ec58aee8b1 ("HID: wacom: generic: support generic touch switch")
+> Signed-off-by: Lee Jones <lee@kernel.org>
+> ---
+> 
+> v4 -> v5: New patch used to split out SW_MUTE_DEVICE as per Jason's request
+> v5 -> v6: Unconditionally advertise SW_MUTE_DEVICE on generic touch devices
+> 
+>  drivers/hid/wacom_sys.c |  6 ------
+>  drivers/hid/wacom_wac.c | 19 +++++++++++--------
+>  2 files changed, 11 insertions(+), 14 deletions(-)
+> 
+> diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
+> index 0eafa483b7f7..6c2a3ddfe366 100644
+> --- a/drivers/hid/wacom_sys.c
+> +++ b/drivers/hid/wacom_sys.c
+> @@ -2359,12 +2359,6 @@ static void wacom_set_shared_values(struct wacom_wac *wacom_wac)
+>  			wacom_wac->shared->is_touch_on = true;
+>  	}
+>  
+> -	if (wacom_wac->shared->has_mute_touch_switch &&
+> -	    wacom_wac->shared->touch_input) {
+> -		set_bit(EV_SW, wacom_wac->shared->touch_input->evbit);
+> -		input_set_capability(wacom_wac->shared->touch_input, EV_SW,
+> -				     SW_MUTE_DEVICE);
+> -	}
+>  }
+>  
+>  static int wacom_parse_and_register(struct wacom *wacom, bool wireless)
+> diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+> index a29bf051ada7..32c4fd03479e 100644
+> --- a/drivers/hid/wacom_wac.c
+> +++ b/drivers/hid/wacom_wac.c
+> @@ -3953,6 +3953,8 @@ int wacom_setup_pen_input_capabilities(struct input_dev *input_dev,
+>  int wacom_setup_touch_input_capabilities(struct input_dev *input_dev,
+>  					 struct wacom_wac *wacom_wac)
+>  {
+> +	struct wacom *wacom = container_of(wacom_wac, struct wacom, wacom_wac);
+> +	struct hid_device *hdev = wacom->hdev;
+>  	struct wacom_features *features = &wacom_wac->features;
+>  
+>  	if (!(features->device_type & WACOM_DEVICETYPE_TOUCH))
+> @@ -3963,9 +3965,12 @@ int wacom_setup_touch_input_capabilities(struct input_dev *input_dev,
+>  	else
+>  		__set_bit(INPUT_PROP_POINTER, input_dev->propbit);
+>  
+> -	if (features->type == HID_GENERIC)
+> +	if (features->type == HID_GENERIC) {
+> +		input_dev->evbit[0] |= BIT_MASK(EV_SW);
+> +		__set_bit(SW_MUTE_DEVICE, input_dev->swbit);
+>  		/* setup has already been done */
+>  		return 0;
+> +	}
+>  
+>  	input_dev->evbit[0] |= BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
+>  	__set_bit(BTN_TOUCH, input_dev->keybit);
+> @@ -3997,19 +4002,17 @@ int wacom_setup_touch_input_capabilities(struct input_dev *input_dev,
+>  		input_dev->evbit[0] |= BIT_MASK(EV_SW);
+>  		__set_bit(SW_MUTE_DEVICE, input_dev->swbit);
+>  
+> -		if (wacom_wac->shared->touch->product == 0x361) {
+> +		if (hdev->product == 0x361) {
+>  			input_set_abs_params(input_dev, ABS_MT_POSITION_X,
+>  					     0, 12440, 4, 0);
+>  			input_set_abs_params(input_dev, ABS_MT_POSITION_Y,
+>  					     0, 8640, 4, 0);
+> -		}
+> -		else if (wacom_wac->shared->touch->product == 0x360) {
+> +		} else if (hdev->product == 0x360) {
+>  			input_set_abs_params(input_dev, ABS_MT_POSITION_X,
+>  					     0, 8960, 4, 0);
+>  			input_set_abs_params(input_dev, ABS_MT_POSITION_Y,
+>  					     0, 5920, 4, 0);
+> -		}
+> -		else if (wacom_wac->shared->touch->product == 0x393) {
+> +		} else if (hdev->product == 0x393) {
+>  			input_set_abs_params(input_dev, ABS_MT_POSITION_X,
+>  					     0, 6400, 4, 0);
+>  			input_set_abs_params(input_dev, ABS_MT_POSITION_Y,
+> @@ -4039,8 +4042,8 @@ int wacom_setup_touch_input_capabilities(struct input_dev *input_dev,
+>  		fallthrough;
+>  
+>  	case WACOM_27QHDT:
+> -		if (wacom_wac->shared->touch->product == 0x32C ||
+> -		    wacom_wac->shared->touch->product == 0xF6) {
+> +		if (hdev->product == 0x32C ||
+> +		    hdev->product == 0xF6) {
+>  			input_dev->evbit[0] |= BIT_MASK(EV_SW);
+>  			__set_bit(SW_MUTE_DEVICE, input_dev->swbit);
+>  			wacom_wac->has_mute_touch_switch = true;
+> -- 
+> 2.55.0.141.g00534a21ce-goog
+> 
 
-Input: iforce - validate input packet lengths
-
-iforce_process_packet() reads fixed fields from joystick, wheel and status
-packets without first checking their lengths. In particular, the shared
-hats-and-buttons helper unconditionally reads data[6]. The status tail is
-a sequence of 16-bit effect addresses, but an incomplete final address is
-also consumed. A successful zero-length USB URB additionally reads the
-packet ID before the common parser is called.
-
-Reject the zero-length USB transfer, require the seven-byte joystick and
-wheel prefixes and the two-byte status prefix, and consume only complete
-status-tail addresses.
-
-> diff --git a/drivers/input/joystick/iforce/iforce-packets.c b/drivers/inp=
-ut/joystick/iforce/iforce-packets.c
-> index effa76bfd8f9a..e8a34d68a51f2 100644
-> --- a/drivers/input/joystick/iforce/iforce-packets.c
-> +++ b/drivers/input/joystick/iforce/iforce-packets.c
-[ ... ]
-> @@ -200,7 +209,7 @@ void iforce_process_packet(struct iforce *iforce,
->  			}
->  		}
-
-[Severity: Medium]
-This is a pre-existing issue, but is there a missing input_sync() after the
-input_report_ff_status() calls just above this code?
-
-The input subsystem guidelines require that every logical group of events m=
-ust
-be followed by input_sync(), or the events stay in the buffer. While there =
-is
-an input_sync() earlier for BTN_DEAD, the EV_FF_STATUS events emitted here
-might remain buffered and not reach userspace until a subsequent event
-triggers another sync.
-
-> -		for (j =3D 3; j < len; j +=3D 2)
-> +		for (j =3D 3; j + sizeof(u16) <=3D len; j +=3D 2)
->  			mark_core_as_ready(iforce, get_unaligned_le16(data + j));
-
-[Severity: High]
-This isn't a bug introduced by this patch, but does the call to
-mark_core_as_ready() here expose a data race with iforce_upload_effect()?
-
-The interrupt completion handler calls mark_core_as_ready(), which uses ato=
-mic
-bit operations on core_effects[i].flags:
-
-drivers/input/joystick/iforce/iforce-packets.c:mark_core_as_ready() {
-    ...
-    clear_bit(FF_CORE_UPDATE, iforce->core_effects[i].flags);
-    ...
-}
-
-However, iforce_upload_effect() in iforce-main.c executes in process context
-with ff->mutex held (which does not disable interrupts) and uses a non-atom=
-ic
-read-modify-write:
-
-drivers/input/joystick/iforce/iforce-main.c:iforce_upload_effect() {
-    ...
-    if (__test_and_set_bit(FF_CORE_IS_USED, core_effect->flags)) {
-    ...
-}
-
-If the interrupt executes between the read and write phases of
-__test_and_set_bit(), the interrupt's modification could be overwritten.
-Could this potentially leave FF_CORE_UPDATE stuck at 1 and render the effect
-impossible to update again?
-
->  		break;
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260720115018.7504=
-5-1-pengpeng@iscas.ac.cn?part=3D1
+-- 
+Lee Jones

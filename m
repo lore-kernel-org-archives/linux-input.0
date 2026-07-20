@@ -1,119 +1,134 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.11])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.10])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2D6DF47DD40;
-	Mon, 20 Jul 2026 19:35:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.11
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4BFFC449B1D
+	for <linux-input@vger.kernel.org>; Mon, 20 Jul 2026 20:59:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.10
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784576122; cv=none; b=uPgRacMbo4rSu9D4RdYnfHHd9I9wnm824L89ErvI1HHGr+9A4RU1bJlHT2kjPTNigb5qsgLgbCW5SKiEn2QVPRrLdC13B8ZrTyp4yqBV3rsZUHgwyJYpAOFJCoZd05ubv/FNC+xYMbreYTT3nhIBrk4UW+AuAnRvJvnfXWd3Xr0=
+	t=1784581201; cv=none; b=OXoKc6VpA6ZMcRwDJigha+4cAXRNgH73LfPNsXRj0q1PHyFYFFytJDJSi3inZpkwLoG9pst3qpSI9uxzHn6kvgjDrJRY7CxzG+X6xUwyCja90k4DY8pAhK0DxtcbEKkQdtH3UPF+8w7VyZjNR86h7ihgDWHevx+nJjOE4q0sHjk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784576122; c=relaxed/simple;
-	bh=5NLVdoLJdU/hCpGfjZnuWbVoyyc0VwafE53K3sxQk4U=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=ehUjMCR6UeV9X44G4ArKVU5QK8aXjUXjKJ0uBchNHc6FPTpFmWYh0lbFRkkifcPsRg3/qU2dMRiUdKSSNnro0UaCfuW9iJUxRlhllZDuMbfDl5nBXfrnqS2J9ABudNX6lLEesozARVEJeotCCj7lscteAO+wYAnKRFTm/EZ/aS0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=ClPYcbAf; arc=none smtp.client-ip=198.175.65.11
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1784581201; c=relaxed/simple;
+	bh=X/0gb8oBsjiWKuoxn/UWaeUs1szQvzV3nzh5QK+4esE=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=kPcnlWD8UVF2sFyZT2VyyYLbGW+/fRSGOJHLGOTDsnohsNlvQnWqe9RsTIurWI0fr07j4ipqgPTOiF+aVmXZp+/OGjtGt2I/YYE/rezlGMuRpoTQBnx5Z9aaVaKxME0ENRsX3qS7KGZmzUJJGYf/stf9fU33burR5bvWZj83wuc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=mudvC29v; arc=none smtp.client-ip=198.175.65.10
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="ClPYcbAf"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="mudvC29v"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1784576119; x=1816112119;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:content-transfer-encoding:in-reply-to;
-  bh=5NLVdoLJdU/hCpGfjZnuWbVoyyc0VwafE53K3sxQk4U=;
-  b=ClPYcbAfgBwSmzIeCHd6xyJ0IEYTp5THito1i81OoZibLyZunbWTxIMC
-   GOJ+cLhBPhw8+QimhmFJNFqReyjcugN0PBf9YUNEb6XA6Ei9CnhkJ6zbs
-   Bl6v/70dyjOX2cY90N3yardXR10Hfh6zWt02zvPsRCHPOnjwRCxOv3ZaN
-   qULPMYiT9tUMricBfsIG+xzAp85Jg5VqrY4npIA0mvSftlb4Oq2JlDSZ6
-   cgYnmoUt9OJlihwHzM3XXGZJ12F+HhFL643QHtaFye+yzYkuia/iV3JKl
-   Y6BbsudxG6reaNC8hObS2eJKpEb5nZcGncaFvDevNLBi/gBPu/nFprHEY
-   w==;
-X-CSE-ConnectionGUID: Ms8hxswKRJeoZ86X6ZIYQA==
-X-CSE-MsgGUID: VpD5KgzXR2eyp8cV/Peq6Q==
-X-IronPort-AV: E=McAfee;i="6800,10657,11852"; a="95530549"
+  t=1784581200; x=1816117200;
+  h=message-id:subject:from:to:cc:date:in-reply-to:
+   references:content-transfer-encoding:mime-version;
+  bh=X/0gb8oBsjiWKuoxn/UWaeUs1szQvzV3nzh5QK+4esE=;
+  b=mudvC29vz7XhtHsw7eAVksz72mOV8yowvumWHW26Reu1aZc9l1Z75q7w
+   LPfRnf4EM5PLuXKpEAW0vaZDDeZpSnSJmVkngS/HkM7OeEhSPKAq5zcoW
+   AaHZFVR0xPdvTt52YQEji4npRW3QS3qXmgdlKFMBVXidvbDjwxYo2J8oy
+   XD068OdckvluHZzsERWjGmzDKiU4+zGBDXUgi67JXcr0dEvTyQJwDnqna
+   BVIIcft5pabyB+6D1LpuR2QkZ5SRBT5u2fkE/8LajGKRv4kZgG+vLdFvH
+   mHk4iC6CX660F2+d/aCA0pIcynRUE8YohjIrzmb52w/CrD7yoU4i8iAqY
+   A==;
+X-CSE-ConnectionGUID: +t9knZwBST2R81fGDM3vFg==
+X-CSE-MsgGUID: +NBRxLVHRZuuMCzdHZfxsQ==
+X-IronPort-AV: E=McAfee;i="6800,10657,11852"; a="102591770"
 X-IronPort-AV: E=Sophos;i="6.25,175,1779174000"; 
-   d="scan'208";a="95530549"
-Received: from orviesa009.jf.intel.com ([10.64.159.149])
-  by orvoesa103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Jul 2026 12:35:16 -0700
-X-CSE-ConnectionGUID: dzOYpiqZRoumUj/qJD8M9w==
-X-CSE-MsgGUID: cKRoHGRVQXCWGZW417LvjQ==
+   d="scan'208";a="102591770"
+Received: from orviesa008.jf.intel.com ([10.64.159.148])
+  by orvoesa102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Jul 2026 13:59:59 -0700
+X-CSE-ConnectionGUID: kOF91Ar1RGiuBidPTgZdhQ==
+X-CSE-MsgGUID: k34RyTzrTfmwG0yeSzVIpw==
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="6.25,175,1779174000"; 
-   d="scan'208";a="258183519"
-Received: from conormcd-mobl2.ger.corp.intel.com (HELO localhost) ([10.245.244.175])
-  by orviesa009-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Jul 2026 12:35:14 -0700
-Date: Mon, 20 Jul 2026 22:35:11 +0300
-From: Andy Shevchenko <andriy.shevchenko@intel.com>
-To: Sanjay Chitroda <sanjayembeddedse@gmail.com>
-Cc: Jiri Kosina <jikos@kernel.org>, Jonathan Cameron <jic23@kernel.org>,
-	Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
-	David Lechner <dlechner@baylibre.com>,
-	Nuno =?iso-8859-1?Q?S=E1?= <nuno.sa@analog.com>,
-	Andy Shevchenko <andy@kernel.org>, linux-input@vger.kernel.org,
-	linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 02/10] iio: gyro: hid-sensor-gyro-3d: use local struct
- device
-Message-ID: <al54b953O6JXcbU6@ashevche-desk.local>
-References: <20260720-hid-iio-local-struct-device-v1-0-74496fee6327@gmail.com>
- <20260720-hid-iio-local-struct-device-v1-2-74496fee6327@gmail.com>
- <al4MeTgAWWkJsb1T@ashevche-desk.local>
- <1E009860-0A0F-4F8D-8017-CE5739F22144@gmail.com>
+   d="scan'208";a="256998943"
+Received: from gabaabhi-mobl2.amr.corp.intel.com (HELO [10.125.109.170]) ([10.125.109.170])
+  by orviesa008-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Jul 2026 13:59:59 -0700
+Message-ID: <efbf11ebb2faa0a60857408d3b820dffb890666c.camel@linux.intel.com>
+Subject: Re: [PATCH v2] HID: intel-ish-hid: ignore post-init ENUM_DEVICES
+ from firmware
+From: srinivas pandruvada <srinivas.pandruvada@linux.intel.com>
+To: Wahid7852 <wahidzk0091@gmail.com>, linux-input@vger.kernel.org
+Cc: jikos@kernel.org, Lixu Zhang <lixu.zhang@intel.com>
+Date: Mon, 20 Jul 2026 13:59:58 -0700
+In-Reply-To: <20260720175656.559351-1-wahidzk0091@gmail.com>
+References: <20260627224753.35075-1-wahidzk0091@gmail.com>
+	 <20260720175656.559351-1-wahidzk0091@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.60.2 (3.60.2-1.fc44) 
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1E009860-0A0F-4F8D-8017-CE5739F22144@gmail.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
- krs, Bertel Jungin Aukio 5, 02600 Espoo
 
-On Mon, Jul 20, 2026 at 10:20:28PM +0530, Sanjay Chitroda wrote:
-> On 20 July 2026 5:24:33 pm IST, Andy Shevchenko <andriy.shevchenko@intel.com> wrote:
-> >On Mon, Jul 20, 2026 at 03:10:14PM +0530, Sanjay Chitroda via B4 Relay wrote:
+On Mon, 2026-07-20 at 23:26 +0530, Wahid7852 wrote:
+> From: Wahid Khan <wahidzk0091@gmail.com>
+>=20
+> Some ISH firmware versions (observed on Tiger Lake LP, 8086:a0fc,
+> GUID {33AECD58-B679-4E54-9BD9-A04D34F0C226}) periodically re-send an
+> unsolicited HOSTIF_DM_ENUM_DEVICES response roughly every 79 seconds.
+>=20
+> The current guard collapses two distinct cases into one condition:
+>=20
+> =C2=A0 if (!(response_flag) || init_done)=C2=A0 ->=C2=A0 bad packet + ish=
+_hw_reset
+>=20
+> This incorrectly treats a valid post-init firmware announcement as a
+> corrupted packet, triggering an ISH soft-reset and a full ISHTP
+> re-initialisation cycle on each occurrence (~1100 times per day on
+> affected hardware).
+>=20
+> Split the check: reject messages with no response flag as before, but
+> simply discard valid ENUM_DEVICES messages that arrive after init is
+> complete.
+>=20
+> Signed-off-by: Wahid Khan <wahidzk0091@gmail.com>
 
-...
-
-> >> -		dev_err(&pdev->dev, "failed to setup common attributes\n");
-> >> +		dev_err(dev, "failed to setup common attributes\n");
-> >>  		return ret;
-> >
-> >Nope, First one (to eliminate a lot of churn) should be to convert this and
-> >similar to use
-> >
-> >		return dev_err_probe(...);
-> 
-> Thank you for your input.
-> 
-> I'm planning to have a incremental series: first introduce a local "dev"
-> pointer, then convert the resource management to "devm_*", and finally
-> replace the remaining error reporting with "dev_err_probe()".
-> 
-> This keeps each series focused and avoids introducing intermediate patterns such as:
-> 
->    ret = dev_err_probe(dev, ret, ...);
->    goto error;
-> 
-> Once the cleanup paths are removed, those sites naturally become:
-> 
->    return dev_err_probe(dev, ret, ...);
-> 
-> Does this approach sound reasonable?
+    Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 
 
-No. First you should drop the dead code for sure (see above).
-Second, try to convert to dev_err_probe() as many drivers as you can without an
-intermediate change. If the driver requires an intermediate thing like the above
-it means it requires bigger refactoring. So, you should not have intermediate
-churn. With your current approach there are drivers that will have it, and for
-them you need to have different strategy (see my proposal in the above lines).
+Lixu, please add your tested by. I think you already tested this.
 
--- 
-With Best Regards,
-Andy Shevchenko
+Thanks,
+Srinivas
 
-
+> ---
+> v2: added proper sign off
+>=20
+> =C2=A0drivers/hid/intel-ish-hid/ishtp-hid-client.c | 5 +++--
+> =C2=A01 file changed, 3 insertions(+), 2 deletions(-)
+>=20
+> diff --git a/drivers/hid/intel-ish-hid/ishtp-hid-client.c
+> b/drivers/hid/intel-ish-hid/ishtp-hid-client.c
+> index 6d64008f2..ec5e8afe7 100644
+> --- a/drivers/hid/intel-ish-hid/ishtp-hid-client.c
+> +++ b/drivers/hid/intel-ish-hid/ishtp-hid-client.c
+> @@ -113,8 +113,7 @@ static void process_recv(struct ishtp_cl
+> *hid_ishtp_cl, void *recv_buf,
+>=20
+> =C2=A0		switch (recv_msg->hdr.command & CMD_MASK) {
+> =C2=A0		case HOSTIF_DM_ENUM_DEVICES:
+> -			if ((!(recv_msg->hdr.command & ~CMD_MASK) ||
+> -					client_data->init_done)) {
+> +			if (!(recv_msg->hdr.command & ~CMD_MASK)) {
+> =C2=A0				++client_data->bad_recv_cnt;
+> =C2=A0				report_bad_packet(hid_ishtp_cl,
+> recv_msg,
+> =C2=A0						=C2=A0 cur_pos,
+> @@ -122,6 +121,8 @@ static void process_recv(struct ishtp_cl
+> *hid_ishtp_cl, void *recv_buf,
+> =C2=A0				ish_hw_reset(ishtp_get_ishtp_device(
+> hid_ishtp_cl));
+> =C2=A0				break;
+> =C2=A0			}
+> +			if (client_data->init_done)
+> +				break;
+> =C2=A0			client_data->hid_dev_count =3D (unsigned
+> int)*payload;
+> =C2=A0			if (!client_data->hid_devices)
+> =C2=A0				client_data->hid_devices =3D
+> devm_kcalloc(
+> --
+> 2.54.0

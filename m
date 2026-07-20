@@ -1,111 +1,133 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.15])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 435C440680B;
-	Mon, 20 Jul 2026 11:54:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.15
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9AA80407CF7
+	for <linux-input@vger.kernel.org>; Mon, 20 Jul 2026 12:12:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784548481; cv=none; b=D22C6OrKBtwc89lLqlEUh95X6Vr4HH2xUK7YzpHjMPMqdMpLZ0xKEnYA8DlcGgJ+NftqeB4aIK+q8qdo695uixPiV3NM8edOV0bJnQXJzsmCYAP9gqNRHft4TJVTL1wcMTd/KrkcjbglQ5Zmo8xyCCClZBgGqQwXMwVSbA8lSGE=
+	t=1784549527; cv=none; b=XUTvfLVikdqD24PdlTLOC8s7nOekpZ2cNfTvJ7Z1J/bC5w7bJMmvDmX6uErzLEzxax0MO4a0H4Qxi9XGvuCR5LjlpRDwvYR/Ncda1aUbeIBNGDAHqqJ0soLt7tRl742umUvokAD+75eEZRX/Wf6Cae2rlElJowvNPoQIWbMmKm4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784548481; c=relaxed/simple;
-	bh=mUJ8q/ntU1A/QPFWy2QySDcXE7m7R4uI/TLBDDYrydE=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=OFxc1oveAxZlHEMUxMciflc8cJoirM8PQXj6EyFSmvcQm3+/hL3E1Nvr6qv5FMh/wKw2rN4Gx2fiq9phoUGpXax0jm9WB6lLgp69Xj7RLx9u9TX92h0CBmn7KdMc6tvTwWgny80y2ywJvdljHsd8NHRQgJjmVbhU9musflT2zYM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=QrBNaHke; arc=none smtp.client-ip=192.198.163.15
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1784549527; c=relaxed/simple;
+	bh=GyGiFVfZBlfFopyD8Q2zv341fr6VUUMw2fpjVVTLYLw=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=F5nuSoK40mgjXu5gdVy+Foi0ht7MRXLCZafA9X/dJBgdi2E6WiPitc9kxfou36OKte5NxfRnKdSG3ZrER/UnL8x9DE7B7OhEIIZTs4K6geq629z4FwD+UaIE8IIYOd7H6gZyA0ZD/iJ/fJfFNtBvNMsQGyfgeEzsxztVLhByY4c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Xg6a4aBE; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="QrBNaHke"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1784548479; x=1816084479;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=mUJ8q/ntU1A/QPFWy2QySDcXE7m7R4uI/TLBDDYrydE=;
-  b=QrBNaHkeZg0ubV1m2mFuMLKDwBlUQbTF1eb8ENXXBbkuLzwQCkq9bs62
-   pa0jmwIxMK9EDF9LJNYQ4beSjhPgSsYDA8HyoInWocNeJgMTsPrFOAx5V
-   zBqea3qqO5p5BLDrmI2v5Ql3VnQ1XJGN7qmExcpIevkzO/Un7QFc70OWv
-   ESQEXd8o6Uo9AcIjTUGlbtZH7opNlnFVyY6wiw73XWSuCV7xER4nyQWX5
-   49xAby6EaBW8fOoPaPsnFxP0nsrHW8THl3EtZxNS98DVYvRDqS/bbGRAK
-   sErsXG0SlpHi1w3giHwdAnxJ2iEQDlYToxGvlOtTD6G7d4zA0VL9UeM0p
-   w==;
-X-CSE-ConnectionGUID: yLtZSoNVRgyBgxacoe9weg==
-X-CSE-MsgGUID: pvFGsaUsRT2bJkbkXLNedQ==
-X-IronPort-AV: E=McAfee;i="6800,10657,11851"; a="85244620"
-X-IronPort-AV: E=Sophos;i="6.25,174,1779174000"; 
-   d="scan'208";a="85244620"
-Received: from orviesa003.jf.intel.com ([10.64.159.143])
-  by fmvoesa109.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Jul 2026 04:54:38 -0700
-X-CSE-ConnectionGUID: IN5Eo6dlTFiO4OeemJDiWQ==
-X-CSE-MsgGUID: 7zylmj/gTceiRPRWwKEopA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.25,174,1779174000"; 
-   d="scan'208";a="261000490"
-Received: from conormcd-mobl2.ger.corp.intel.com (HELO localhost) ([10.245.244.175])
-  by ORVIESA003-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Jul 2026 04:54:35 -0700
-Date: Mon, 20 Jul 2026 14:54:33 +0300
-From: Andy Shevchenko <andriy.shevchenko@intel.com>
-To: sanjayembeddedse@gmail.com
-Cc: Jiri Kosina <jikos@kernel.org>, Jonathan Cameron <jic23@kernel.org>,
-	Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
-	David Lechner <dlechner@baylibre.com>,
-	Nuno =?iso-8859-1?Q?S=E1?= <nuno.sa@analog.com>,
-	Andy Shevchenko <andy@kernel.org>, linux-input@vger.kernel.org,
-	linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 02/10] iio: gyro: hid-sensor-gyro-3d: use local struct
- device
-Message-ID: <al4MeTgAWWkJsb1T@ashevche-desk.local>
-References: <20260720-hid-iio-local-struct-device-v1-0-74496fee6327@gmail.com>
- <20260720-hid-iio-local-struct-device-v1-2-74496fee6327@gmail.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Xg6a4aBE"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52DEF1F000E9;
+	Mon, 20 Jul 2026 12:12:06 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1784549526;
+	bh=0H4UAwsi6TKz046fqwOLJ9H8Jbna4tYo39Sm8byMdjo=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=Xg6a4aBE4TYZySAXiWUhUGj+a70qQgvrw9SIKcNTdU72Ei9a1zRavbOekf1CeAaVW
+	 nrwl8Lh886YyIJw8UkJeYjH5fMjCkmgU0okyI6kxCnC78FIJiWKasEuICGmG0wEEXy
+	 acf2Y9+tBW5Cf+B5gxWjRDH/nhvT6SZwywyctRP0GEX9tZrecOzm0n+LSI5f6FqFG5
+	 acNl3LnjG1RDMAa2RBmS3UDDMuBKqsSikFmWVnMpTAl0G40nW7XOvzti1um8U/hVGw
+	 bbot2IAV6i7iVaC0AhCv6emNcSDRgIGN+yByS9ods04cb5vXLX+EbYJH1O3MTUKAP2
+	 bwrmoq1ZNqDVw==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v2] Input: iforce - validate input packet lengths
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Pengpeng Hou" <pengpeng@iscas.ac.cn>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <20260720115018.75045-1-pengpeng@iscas.ac.cn>
+References: <20260720115018.75045-1-pengpeng@iscas.ac.cn>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Mon, 20 Jul 2026 12:12:06 +0000
+Message-Id: <20260720121206.52DEF1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260720-hid-iio-local-struct-device-v1-2-74496fee6327@gmail.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
- krs, Bertel Jungin Aukio 5, 02600 Espoo
 
-On Mon, Jul 20, 2026 at 03:10:14PM +0530, Sanjay Chitroda via B4 Relay wrote:
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+s) to consider:
 
-> Introduce a local struct device pointer derived from &pdev->dev.
-> This avoids repeated &pdev->dev usage and improves readability.
+Pre-existing issues:
+- [High] Data race on core_effect->flags due to non-atomic __test_and_set_b=
+it.
+- [Medium] Missing input_sync() after reporting force-feedback status (EV_F=
+F_STATUS) events.
+--
 
-...
+--- Patch [1]: [PATCH v2] Input: iforce - validate input packet lengths ---
+commit 32891702a73654a7ce9748db1e4baa8f0cbb9362
+Author: Pengpeng Hou <pengpeng@iscas.ac.cn>
 
->  	if (ret) {
-> -		dev_err(&pdev->dev, "failed to setup common attributes\n");
-> +		dev_err(dev, "failed to setup common attributes\n");
->  		return ret;
+Input: iforce - validate input packet lengths
 
-Nope, First one (to eliminate a lot of churn) should be to convert this and
-similar to use
+iforce_process_packet() reads fixed fields from joystick, wheel and status
+packets without first checking their lengths. In particular, the shared
+hats-and-buttons helper unconditionally reads data[6]. The status tail is
+a sequence of 16-bit effect addresses, but an incomplete final address is
+also consumed. A successful zero-length USB URB additionally reads the
+packet ID before the common parser is called.
 
-		return dev_err_probe(...);
+Reject the zero-length USB transfer, require the seven-byte joystick and
+wheel prefixes and the two-byte status prefix, and consume only complete
+status-tail addresses.
 
->  	}
->  
-> -	indio_dev->channels = devm_kmemdup(&pdev->dev, gyro_3d_channels,
-> +	indio_dev->channels = devm_kmemdup(dev, gyro_3d_channels,
->  					   sizeof(gyro_3d_channels), GFP_KERNEL);
->  	if (!indio_dev->channels) {
-> -		dev_err(&pdev->dev, "failed to duplicate channels\n");
-> +		dev_err(dev, "failed to duplicate channels\n");
+> diff --git a/drivers/input/joystick/iforce/iforce-packets.c b/drivers/inp=
+ut/joystick/iforce/iforce-packets.c
+> index effa76bfd8f9a..e8a34d68a51f2 100644
+> --- a/drivers/input/joystick/iforce/iforce-packets.c
+> +++ b/drivers/input/joystick/iforce/iforce-packets.c
+[ ... ]
+> @@ -200,7 +209,7 @@ void iforce_process_packet(struct iforce *iforce,
+>  			}
+>  		}
 
-And this kind of messages are dead code and must be just removed completely.
+[Severity: Medium]
+This is a pre-existing issue, but is there a missing input_sync() after the
+input_report_ff_status() calls just above this code?
 
->  		return -ENOMEM;
->  	}
+The input subsystem guidelines require that every logical group of events m=
+ust
+be followed by input_sync(), or the events stay in the buffer. While there =
+is
+an input_sync() earlier for BTN_DEAD, the EV_FF_STATUS events emitted here
+might remain buffered and not reach userspace until a subsequent event
+triggers another sync.
 
-...
+> -		for (j =3D 3; j < len; j +=3D 2)
+> +		for (j =3D 3; j + sizeof(u16) <=3D len; j +=3D 2)
+>  			mark_core_as_ready(iforce, get_unaligned_le16(data + j));
 
-Please, revisit the whole series.
+[Severity: High]
+This isn't a bug introduced by this patch, but does the call to
+mark_core_as_ready() here expose a data race with iforce_upload_effect()?
 
--- 
-With Best Regards,
-Andy Shevchenko
+The interrupt completion handler calls mark_core_as_ready(), which uses ato=
+mic
+bit operations on core_effects[i].flags:
 
+drivers/input/joystick/iforce/iforce-packets.c:mark_core_as_ready() {
+    ...
+    clear_bit(FF_CORE_UPDATE, iforce->core_effects[i].flags);
+    ...
+}
 
+However, iforce_upload_effect() in iforce-main.c executes in process context
+with ff->mutex held (which does not disable interrupts) and uses a non-atom=
+ic
+read-modify-write:
+
+drivers/input/joystick/iforce/iforce-main.c:iforce_upload_effect() {
+    ...
+    if (__test_and_set_bit(FF_CORE_IS_USED, core_effect->flags)) {
+    ...
+}
+
+If the interrupt executes between the read and write phases of
+__test_and_set_bit(), the interrupt's modification could be overwritten.
+Could this potentially leave FF_CORE_UPDATE stuck at 1 and render the effect
+impossible to update again?
+
+>  		break;
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260720115018.7504=
+5-1-pengpeng@iscas.ac.cn?part=3D1

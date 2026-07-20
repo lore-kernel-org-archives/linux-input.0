@@ -1,282 +1,265 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.8])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pg1-f181.google.com (mail-pg1-f181.google.com [209.85.215.181])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1A94A4086A;
-	Mon, 20 Jul 2026 02:03:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=192.198.163.8
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784512992; cv=fail; b=Tp1GS9g3QS12LrypovbJGdMgaMS/PxVjASQT6zPexryTiNzg/vXNE9Brfm5aiBxqncMSkkG+sNufCXrbCIZI6or7sbpeXEi19KGlBtRl6kPBNJ2577pXb663LguC3AEckXa17yHXfSyxlmwaRrQCEmila5Jv01CfFqfbOeUxZLE=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784512992; c=relaxed/simple;
-	bh=gav7pF2QYAM4i9f3B3PICbQLWQoBraLZEXFGV2Bfp/s=;
-	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
-	 Content-Type:MIME-Version; b=hwpbgtwNEniP+ZU6QLxxR+ZM7NAT6yUl4yc6cc0aP/SXKnPD12nRaWi/InQcWkv3pKT7gprCRoTc9TrHiK4xm/n7GU1mSLlGE+cNZoIdDZhhDP7O59BAAFFlWswdSw2KyFhbgOjsErud27bpqYT5H6Tp2SjrZZiozJg291FJAZc=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=ahwKdfKS; arc=fail smtp.client-ip=192.198.163.8
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EC42F70836
+	for <linux-input@vger.kernel.org>; Mon, 20 Jul 2026 03:15:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.181
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1784517356; cv=none; b=lW+gwu+dR2t4RN/fCVebZScRsRdTzTb/BgV9Tr70JZPxIKSn6+SMUCg7lUc6CH6O5WoOGORtaj+TPrXPfVFpSzjPYNtJlrtCkFYyaxFRjzoQ9vRaMp881J0hnYDvQhBnboWUiHRi/Icx0ylUe6su/OP//jgzUelgeYkv3nfKov0=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1784517356; c=relaxed/simple;
+	bh=xJld+Kqr3E9aGmWW8fwZIGmVJLiOCEscp9QOcRU/Cuo=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=uKdNQdgzvZFYawQYM2pSBOeVQBWZVJKO0HybZruXl3rss1hK0wnBPsE2lYF5daIbQkrirUv9nq01C4gmgqyHHExPyg+SRsrzPM1iOA3VZ2MPyTco/Yu8toc+t09bIqxJiszA9smDB3a8bTqw1etw0pKmwksz8YmsBp5/peffqq0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=cyaOUQmJ; arc=none smtp.client-ip=209.85.215.181
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="ahwKdfKS"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1784512990; x=1816048990;
-  h=from:to:cc:subject:date:message-id:references:
-   in-reply-to:content-transfer-encoding:mime-version;
-  bh=gav7pF2QYAM4i9f3B3PICbQLWQoBraLZEXFGV2Bfp/s=;
-  b=ahwKdfKSC7ueifkrImo2T7/105PPvv/AlBwisXyx+G2kgYIDwIhcjGDI
-   h/6KjdF1ysPpWpszJotlXqJi87qvYTjE1437EPRS/2g82ywGgJflF+/Z1
-   PvC3bPKKK16yKn73WbPX49cK2EUIUcjYM+rQlYzDq2fwm9apm2Q3OXMOC
-   6whKfvdVCWqymylBTQMKYE8DzqoPws95abIUA9PYxTeVV8aDSY8sd7OWL
-   Dif74O+AOp+J078BKk03KbnppvbAJcjUjT8RkxY27RijeKFxpoureKXDa
-   thr8cYvg4iTZO3ewDixqtqboRvGkaLMs6Cuu4IGkLy8RP2ksshMxs/E8g
-   Q==;
-X-CSE-ConnectionGUID: kKItUNsuSkqPSvycJDNqDQ==
-X-CSE-MsgGUID: HKUSvAn4T4mr4Cpkm4EJNg==
-X-IronPort-AV: E=McAfee;i="6800,10657,11851"; a="102638408"
-X-IronPort-AV: E=Sophos;i="6.25,174,1779174000"; 
-   d="scan'208";a="102638408"
-Received: from orviesa005.jf.intel.com ([10.64.159.145])
-  by fmvoesa102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Jul 2026 19:03:09 -0700
-X-CSE-ConnectionGUID: C4ndfXfbTOmzTD1UcuPhWg==
-X-CSE-MsgGUID: PC682ctTQmKAF0N48RDcoA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.25,174,1779174000"; 
-   d="scan'208";a="261609167"
-Received: from fmsmsx901.amr.corp.intel.com ([10.18.126.90])
-  by orviesa005.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Jul 2026 19:03:10 -0700
-Received: from FMSMSX901.amr.corp.intel.com (10.18.126.90) by
- fmsmsx901.amr.corp.intel.com (10.18.126.90) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.2562.43; Sun, 19 Jul 2026 19:03:08 -0700
-Received: from fmsedg901.ED.cps.intel.com (10.1.192.143) by
- FMSMSX901.amr.corp.intel.com (10.18.126.90) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.2562.43 via Frontend Transport; Sun, 19 Jul 2026 19:03:08 -0700
-Received: from BN8PR05CU002.outbound.protection.outlook.com (52.101.57.51) by
- edgegateway.intel.com (192.55.55.81) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.2562.43; Sun, 19 Jul 2026 19:03:08 -0700
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=CWrL3lv/voKJU5fJLU3HYSearg4VcVn6WfHzQns2ece8tOdogIRoAOf8prHN1cV4reBwTw+qP2isf+AFjnhCylh24tEzrgh6rVD7Y4pdU65vmJsjdGkTeEMCwSU3tNr4CdfLdSTWiRJASFcJifCCe+A/jGhZ2eGK/3RhZW6RflWQ1eUb1NYkN1lfJU0USeNvcmjTJv051CSHdMkL4GIdVdT4QiEHV3GQHSOnTvyBNx/Md1dFwZY2wUYNnDqECEbWRIdDSy5lddFN2AAOpGDPuW/jh6dmApz7dmbVWg705eIjiuBNgtjxCSYEQ360nqaMOVeuG/d9nr7giFYRvkcM9Q==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=dbFs1zFkB0eOR/noNWV2gyaNXRV/UA9eWhWUh6sQpL4=;
- b=W65zHRSwPUnr9ddvEfmTXaH1mtnahauc4twZJhszMC8TDjgZ2MueUv6QZWUPxjQtmK1D6ZBdgfJi6N4OdehN7zcVGER1OnobQzVD9P1WLMqaP6OZEuTKcQgnRieksxm9aqdXTIFIDxmC2yo1SclVgXKG6fzkNVtGTEfWULoV4G8Z8rjUeTRk89KmrqtGZZjiM7OagrgT42Ye8drnJZ7HiCNcMQVsGR2xW7GlqQWFegHNcQmNYU1rHjp1+rQMX8m+YALaTXD4H8MVR/2GMoLIpDbXS71zuvhaAM/r6Ivpyx2mk0TmWajNludbrezO6SOu7sncZz1n/NrqmAxlGSgUrg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
- dkim=pass header.d=intel.com; arc=none
-Received: from IA1PR11MB6098.namprd11.prod.outlook.com (2603:10b6:208:3d6::20)
- by PH7PR11MB5863.namprd11.prod.outlook.com (2603:10b6:510:135::11) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.223.16; Mon, 20 Jul
- 2026 02:02:59 +0000
-Received: from IA1PR11MB6098.namprd11.prod.outlook.com
- ([fe80::b1d9:3282:7e31:3799]) by IA1PR11MB6098.namprd11.prod.outlook.com
- ([fe80::b1d9:3282:7e31:3799%4]) with mapi id 15.21.0223.015; Mon, 20 Jul 2026
- 02:02:59 +0000
-From: "Xu, Even" <even.xu@intel.com>
-To: HyeongJun An <sammiee5311@gmail.com>, "Sun, Xinpeng"
-	<xinpeng.sun@intel.com>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires
-	<bentiss@kernel.org>
-CC: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	"stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: RE: [PATCH v2] HID: intel-thc-hid: intel-quickspi: validate report
- size before copy
-Thread-Topic: [PATCH v2] HID: intel-thc-hid: intel-quickspi: validate report
- size before copy
-Thread-Index: AQHdFcz+17VPetJXIkydaUyLfa5bibZ1rAyA
-Date: Mon, 20 Jul 2026 02:02:59 +0000
-Message-ID: <IA1PR11MB6098C7AC805DDA79CC40A016F4C32@IA1PR11MB6098.namprd11.prod.outlook.com>
-References: <20260628133717.941389-1-sammiee5311@gmail.com>
- <20260717091622.1744196-1-sammiee5311@gmail.com>
-In-Reply-To: <20260717091622.1744196-1-sammiee5311@gmail.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach:
-X-MS-TNEF-Correlator:
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=intel.com;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: IA1PR11MB6098:EE_|PH7PR11MB5863:EE_
-x-ms-office365-filtering-correlation-id: 20a6352d-41f6-4ccd-818c-08dee6030613
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;ARA:13230040|1800799024|376014|23010399003|366016|18002099003|22082099003|38070700021|3023799007|56012099006|4143699003|11063799006|10067099003;
-x-microsoft-antispam-message-info: 4QujxnO0dhSRDLV9kncIXhwRUVbstzHDoIwaCotU9kiBq2jocqCIzu1Ygx53om9agfBZpp3TJ7DXiDrGF0fgFFrpAMtDBMwCAMkKOH37lP3jnwXFLkfZZvCd6g1UC393qL4ZF9KzmOu76BIDLmkugEDoWIWRSzZeoYg01Osd6ao0+VBuJbiGWUY1EVuY8j13tHnBPe6pscJ4j4f1UwTlxUSeYcY4vCh6UNxJKwJir0sluKMLPTSS7FexGHg5J2pROnPY5QtvwzXyD2zEw1IkcjubZu7ZXMIF2rCmnVb2vJNzk1L/yFelEhr1lRWGmR3Dggq3Jj2U4P5cXdB64dhq49coh2fpRVDT2yBdRm++yoeb2qqjsW/rio0N+A6xBiFKMFEUTphgN0+PpoHqN2wiaJPFJ9QsIDU1btMg+f4DAGe8inWc5rHUQtHRRr01ajdXqsfhitp0pj3ND+9iM6WidYZILrWYzBd7sB3FjMPpdZFX+mqKmni6sOGCXo0jFyKPvvcAAuz7oCHXJ/DKPUnw+XLKo0FJ1QvwcE4f63zmflzd3/g4METhLXrGzS13QwA2Spmkd7MmWczWdROyIuc5hF5EyMYQco/PScEjzCZfhLuCyZo4suq4ZD64wDsN+oNmLw6cBtxqBRCwyzSCIssucnf6WscgstVEbd07RjiBjXAzwCeuoGo/uUqekUr3R1R2oo+Xo1JNZrYQ47w/Mq1ddmw89iP2Pt/z2EricGoOKno=
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:IA1PR11MB6098.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(376014)(23010399003)(366016)(18002099003)(22082099003)(38070700021)(3023799007)(56012099006)(4143699003)(11063799006)(10067099003);DIR:OUT;SFP:1101;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?/ihwOC1qeX8qCweAXoPpjKufASaF7I7BiNcUZdYxQwrkTOCW//0WfxshBcC9?=
- =?us-ascii?Q?yVZKgAm4vwrb6/WgiT21XDIKQQVWcQkyMe8e1SdctEn4/2WVnlc7gIPfAWZF?=
- =?us-ascii?Q?w38BbDEHEPdNVXxUFg50R27BHfuIxz6QoKMLiQScs1LPiAjNg0gNk4ejNt22?=
- =?us-ascii?Q?Rk8QEX35QjO9PEwJ6JahDl27L+icGQ6uF4H+wVdVhKXRPd9XXalYZUjgF+mn?=
- =?us-ascii?Q?fNE3FY75oVhVRGcnO1s46JliIkg8fj00pObfxv0BBNk+fnRWdT2wqG5ffjhn?=
- =?us-ascii?Q?iF+et5leMie2/jroZva7UteWrG3EyWVZGVJXjvpybQKRh2+nDwuZbJhtenly?=
- =?us-ascii?Q?IDt8wkouT+yT/74XJAEJlHsQTgAexfnVvSWWecmWCACsqiAgIoa76pXjo0Rx?=
- =?us-ascii?Q?Hhkk+Ney6G//L0/ALW/SX5os/MdYDnTsr4tZVlH/pwLGzClXWSNOrUyPW8uY?=
- =?us-ascii?Q?4mcj25vxP0EoLoCa8xop1JC3Fmc557mjP4/07AC9xPvF/ankVSZKzhFZCIpH?=
- =?us-ascii?Q?Z6fp6xMt9K9QCMxFHbis/FzZeh9gNsTMeKCOBh6k8KCIrYkynTS98GjeRw8T?=
- =?us-ascii?Q?seWBy2/5j6rLOsLCVfGxLIhuryJYGTv97hK3h9mj5CPwp9kPZ9DYcamjWBgE?=
- =?us-ascii?Q?ynld3yvxJZW6snsEclsn2NIxAVmiwV5ybRGfcnjqNXeYR3EDwx3ZYbMBmmEo?=
- =?us-ascii?Q?DRhFqPEVHMkxRijquXOfqgHooA6qfBajK9kTmAVDWbmdsRzHCGD353LayLhi?=
- =?us-ascii?Q?OxqotZPDblbmlHWlKyUA4us8mhNoJ8yHx1yTPXKMCmz+h7H0UiXATGsyNmtd?=
- =?us-ascii?Q?rbAEIRQZJHaTMUh/jxRCrxKjWo7o5mRCwJ4hJIsTc8yjbRqMPbXP82cq1UZJ?=
- =?us-ascii?Q?uBrRItyKbOVCKCia9ZbgAoAjUzbX1Pw+GmZe37e44DSXMW6D9tSmqh3LcYP3?=
- =?us-ascii?Q?S7J+SlzOET6eOAEf4Y/0Ni8K5a55IHALeLXZyYy3zF3cBKIsubV/oJENoIJd?=
- =?us-ascii?Q?Do8LJyjoAgrjAb3XZFH3X3KW+EJn/NV/Ery7OZYCe2yJLummdmUoSjVaavEV?=
- =?us-ascii?Q?xRXZWMJ85iQuyJ625KySICpNfAwrp8l691jMIvQzuLtA8zLmSKdk0E3OGnUg?=
- =?us-ascii?Q?ABermskHP+fO3f+Uu/89f6/JnmuxObwdIlq88l9gPjEKV3x0/OAIsp7e8FVw?=
- =?us-ascii?Q?pVifFY9/zYFmmDqi+TqBMhDCGHjFDUZlUCuDZqtUr8Lm+Gxz7I1urULC3WtW?=
- =?us-ascii?Q?eWP70myFCzpf1DA/Z/iAB/3DJ/XioxjijcA1imYwuxNMJGUBcTe9u+F89JZt?=
- =?us-ascii?Q?nvOzT6wb2I6FGlY3BvqHbitDjI5KAXETl9WwehLAMXjor4/DR/f8fFx27EKO?=
- =?us-ascii?Q?KDI1BKAf3s83gnIA6O0W/xFqVV24F+ef9qn//O315n3KOVp0wPOBPEfmYOOz?=
- =?us-ascii?Q?KTPevxbnQt0yuUwnGTBLwwj1L0R3fNnlev7E0iUAXQiOam5GYhx2862ulsna?=
- =?us-ascii?Q?nFqEMtaZGWLBpR2UTeu+D2CCninpk+PWaI0l5bE86RnU8QS6tGuLzi+gD220?=
- =?us-ascii?Q?s3Ux9hPS9O6i04Th6g/jktzgpU7pgDi/TXy4qipIm2/tEjmuI7kpHTQvlRYS?=
- =?us-ascii?Q?P+gwX3RXvOQ9V+eYcleGCuN80Jz50Z9/PABYWG51HuoEUBG8BJFvAYDaNvi/?=
- =?us-ascii?Q?bckuOvehpaVIRuAjbCPp6XGz00BM34BYa59BNygV812u18DG?=
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="cyaOUQmJ"
+Received: by mail-pg1-f181.google.com with SMTP id 41be03b00d2f7-ca957432c7fso6589460a12.1
+        for <linux-input@vger.kernel.org>; Sun, 19 Jul 2026 20:15:54 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1784517354; x=1785122154; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=rAn+ZjzZCIWy9NwWys+0erxDJuyw8kVHNqaC7VdPjaI=;
+        b=cyaOUQmJHnHaA1dMclmbP4VYvNYZdU2I/OPx9s39F8jirMeATMbw2bJLuUdEQht8p6
+         Psi2xOWctW3FVhd2kqhH0OTie45YNTW7P4ftEYP3gpW5eSJKkxDGxweTxQVXF+lU85IU
+         OZNG6TQv7S2EVFb2ssh+nhPOr5olXXLSKqExmRa6kiMDwgc9txXQGZYZBgRL6XwoKkCt
+         qIjvfksGY5v78gQVcL2ZYSz8zO2KhPnwfIl2uSBDSHc4dPRU1CrNoYZPquCpl+eGD1S0
+         d9EWfMcU6nXjB2Pj5w2UpA0t9ik5ytVGgPe/fU4SY8YdwpvNK3y/djP+lCTRlwkF0n5o
+         Fl+A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1784517354; x=1785122154;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=rAn+ZjzZCIWy9NwWys+0erxDJuyw8kVHNqaC7VdPjaI=;
+        b=p4MxkJUOzu4go4S7yLfS8s84gszDG6/5RZ76R6lxgrAN8fyeHKpP3hQQMXl+WkwpPP
+         V8KKFZwEr4OsKpX3zmV5OHSK+IVplpLFXow1SJW96kVD0UixUuJ5duVQgL8HotoYXwmR
+         BxZvLO6co3/h3kMxaisg1V345WMRRvYY3+6OLUb7HHLyEKCMLdNnOywEBgrEucTM8Uql
+         0MZAwuxWdTwB7nyhV0HtsYY+170Ax6cFt3tAdgrEc7spfMMmrqvCEPX9Ui4MVIGN4v35
+         YlAkHBUNX8JcX5Hm0kgidxChb8d5WUAh3FAYvQo3hgFMvW79G3Jt3pBPPFrK5bNDf5Tg
+         KyTg==
+X-Forwarded-Encrypted: i=1; AHgh+Rpz+SagO7bzjodY1LTcPhzf+WIZEuBmCdQToeuWPHR+wo7035t8qhjTg02HUSZDA2LE4AVFdCXiRW8ayw==@vger.kernel.org
+X-Gm-Message-State: AOJu0YyAqcIdMtotjaIF4EW2/aTByAO6+STU34bZ6BFtIYu3J/PoioGr
+	gNGNhzjJov+Uxu6Z91IbgZSYHhw29UdEOIBfv853rm+fwK5+vTJ3hv0U
+X-Gm-Gg: AfdE7ckg8mtK/tblLQf30M7R1QuAVty3DXRB1UnkYgXl8QAgaVwwDgSBWg+eaGZnH1J
+	bio0q70esd++XWxNWgu5b53zJVAJbTFqoVDk/nPWUJwlPZchRqYidQ7rZqzo++dJ1sOPLUpt2Xj
+	QxVTwDjdu9yNI8wQ5UoQIT66dVp9VcT1OWnRsLNToI9Y3elQi2SGjQ5ze0I+FG6DgRS3CsOvJKW
+	BGBxema0874upEwrEQ2/PH+Go4zJyzA626eGuhfihAZWjQniCmuecJaqZVF/ugkAAuut9Y+bCe5
+	a78btcGPtxOr9ak+svB5T6JrUXzE/P5kvA0SglGZAXzSwjXDADmZvN6QZmLSFrLEvLZucEHuI0u
+	cvBSbhnpVCHSME4Oy1Rnr0pfmYnlOgtvxLNb5aQaHYCqV0LHQLRzrM0PpAAmU7J/Zj3SUegw95X
+	SLL+yJ7jUDBfp6cjEPcoWGnzGf6aqS15OSlkxM5QWO41RtukB8dJgsA1E=
+X-Received: by 2002:a05:6a21:7111:b0:3c0:9c19:6586 with SMTP id adf61e73a8af0-3c3ad9a2938mr13291174637.64.1784517354212;
+        Sun, 19 Jul 2026 20:15:54 -0700 (PDT)
+Received: from lappy (108-228-232-20.lightspeed.sndgca.sbcglobal.net. [108.228.232.20])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-31429fdbd45sm30822694eec.12.2026.07.19.20.15.52
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 19 Jul 2026 20:15:52 -0700 (PDT)
+From: "Derek J. Clark" <derekjohn.clark@gmail.com>
+To: Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>
+Cc: "Pierre-Loup A . Griffais" <pgriffais@valvesoftware.com>,
+	Denis Benato <denis.benato@linux.dev>,
+	Zhouwang Huang <honjow311@gmail.com>,
+	"Derek J . Clark" <derekjohn.clark@gmail.com>,
+	linux-input@vger.kernel.org,
+	linux-doc@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH v13 0/4] Add MSI Claw HID Configuration Driver
+Date: Mon, 20 Jul 2026 03:15:45 +0000
+Message-ID: <20260720031549.2272658-1-derekjohn.clark@gmail.com>
+X-Mailer: git-send-email 2.54.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Exchange-RoutingPolicyChecked: UdTtv/7dkFOOanlI7fRpHO9CqjLaFLmBj5oiqcMcVHRPOzN2eeWrxUWEegNCcJiiYANJ9PrB25GYDO+kScVx/zVWzSIzT4JcBV748CN2OxtKEibu4Y86/6G6vhubD/kmunBmMU4BkG+Rj8mYiqf5V9z+/p0XR0FiIDLIH6CMsgosbweAt6Dy7RQzoYSIS9Y31wRmFboj327nDJCjP65BdH59SCl0P4de4ge5zFMBpPEFHwFOndouLHYouH5v/Xz5u3rwLTuS5LBaHyC45RUwM2lvrXoiZRvIA1UahBnehVo+gsIAcM6CjM82CP7jQTC1p85cWS3NCvZv3/AouyMhYg==
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: IA1PR11MB6098.namprd11.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 20a6352d-41f6-4ccd-818c-08dee6030613
-X-MS-Exchange-CrossTenant-originalarrivaltime: 20 Jul 2026 02:02:59.4112
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 46c98d88-e344-4ed4-8496-4ed7712e255d
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: VlchTJouOvHz770ZFInYMy/aZfBuF2T5HkyiF8aKSo2fcTEG0RgQEeiuF8zpR1etocD+JA6/uURdG8Ml+PnBxQ==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH7PR11MB5863
-X-OriginatorOrg: intel.com
+Content-Transfer-Encoding: 8bit
 
+This series adds an HID Configuration driver for the MSI Claw line of
+Handheld Gaming PC's. The MSI Claw HID interface provides multiple
+features, such as the ability to switch between xinput, dinput, and a
+desktop mode, RGB control, rumble intensity, and mapping of the rear "M"
+keys. There are additional gamepad modes that are not included in this
+driver as they appear to be used in assembly line testing or are
+incomplete in the firmware. During my testing I found them to be unstable.
 
+The initial version of this driver was written by Denis Benato, which
+contained the initial reverse-engineering and implementation for the
+gamepad mode switching. This work was later expanded by Zhouwang Huang
+to include more gamepad modes and additional features. Finally, I
+refactored the entire driver, fixed multiple bugs, and refined the overall
+format to conform to kernel driver best practices and style guide.
 
-> -----Original Message-----
-> From: HyeongJun An <sammiee5311@gmail.com>
-> Sent: Friday, July 17, 2026 5:16 PM
-> To: Xu, Even <even.xu@intel.com>; Sun, Xinpeng <xinpeng.sun@intel.com>; J=
-iri
-> Kosina <jikos@kernel.org>; Benjamin Tissoires <bentiss@kernel.org>
-> Cc: linux-input@vger.kernel.org; linux-kernel@vger.kernel.org;
-> stable@vger.kernel.org; HyeongJun An <sammiee5311@gmail.com>
-> Subject: [PATCH v2] HID: intel-thc-hid: intel-quickspi: validate report s=
-ize before
-> copy
->=20
-> write_cmd_to_txdma() builds an output report in qsdev->report_buf, a heap
-> buffer allocated in quickspi_alloc_report_buf() to the device-descriptor =
-derived
-> max_report_len (a few hundred bytes for a touch controller).  It copies t=
-he caller-
-> supplied report into that buffer:
->=20
->     memcpy(write_buf->content, report_buf, report_buf_len);
->=20
-> The HID core caps a report at HID_MAX_BUFFER_SIZE (16384) by default, and
-> quickspi_hid_ll_driver does not set max_buffer_size, so the length reache=
-s the
-> driver unbounded.  A hidraw SET_REPORT/SET_FEATURE ioctl carrying a repor=
-t
-> larger than max_report_len therefore overflows report_buf with attacker-
-> controlled length and content.
->=20
-> Record the report_buf allocation size and reject reports that do not fit =
-before
-> copying, matching the equivalent guard in the intel-quicki2c sibling
-> (quicki2c_init_write_buf()) and the hid-goodix-spi fix.
->=20
-> write_cmd_to_txdma() writes the output report header ahead of the content=
- in
-> the same buffer, so size the allocation to cover the header as well.
-> That keeps the added bound from rejecting a maximum-sized report.
->=20
-> Fixes: 9d8d51735a3a ("HID: intel-thc-hid: intel-quickspi: Add HIDSPI prot=
-ocol
-> implementation")
-> Cc: stable@vger.kernel.org
-> Assisted-by: Claude:claude-opus-4-8
-> Signed-off-by: HyeongJun An <sammiee5311@gmail.com>
-> ---
-> v2: Size report_buf to cover the output report header as well, so the add=
-ed
->     bound cannot reject a valid maximum-sized report (raised by the Sashi=
-ko
->     AI review of v1).  No other change.
->=20
-> v1: https://lore.kernel.org/all/20260628133717.941389-1-
-> sammiee5311@gmail.com/
->=20
->  drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c  | 9 ++++++++-
-> drivers/hid/intel-thc-hid/intel-quickspi/quickspi-dev.h  | 1 +  .../hid/i=
-ntel-thc-
-> hid/intel-quickspi/quickspi-protocol.c | 3 +++
->  3 files changed, 12 insertions(+), 1 deletion(-)
->=20
-> diff --git a/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c
-> b/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c
-> index 4ae2e1718b30..da5ecfcd0fbf 100644
-> --- a/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c
-> +++ b/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c
-> @@ -555,7 +555,14 @@ static int quickspi_alloc_report_buf(struct
-> quickspi_device *qsdev)
->  	max_report_len =3D max(le16_to_cpu(qsdev->dev_desc.max_output_len),
->  			     le16_to_cpu(qsdev->dev_desc.max_input_len));
->=20
-> -	qsdev->report_buf =3D devm_kzalloc(qsdev->dev, max_report_len,
-> GFP_KERNEL);
-> +	/*
-> +	 * write_cmd_to_txdma() writes the output report header ahead of the
-> +	 * content in this buffer, so it has to hold both.
-> +	 */
-> +	qsdev->report_buf_size =3D
-> HIDSPI_OUTPUT_REPORT_SIZE(max_report_len);
-> +
-> +	qsdev->report_buf =3D devm_kzalloc(qsdev->dev, qsdev->report_buf_size,
-> +					 GFP_KERNEL);
->  	if (!qsdev->report_buf)
->  		return -ENOMEM;
->=20
-> diff --git a/drivers/hid/intel-thc-hid/intel-quickspi/quickspi-dev.h
-> b/drivers/hid/intel-thc-hid/intel-quickspi/quickspi-dev.h
-> index bf5e18f5a5f4..0ed964bfe3dd 100644
-> --- a/drivers/hid/intel-thc-hid/intel-quickspi/quickspi-dev.h
-> +++ b/drivers/hid/intel-thc-hid/intel-quickspi/quickspi-dev.h
-> @@ -157,6 +157,7 @@ struct quickspi_device {
->  	u8 *report_descriptor;
->  	u8 *input_buf;
->  	u8 *report_buf;
-> +	u32 report_buf_size;
->  	u32 report_len;
->=20
->  	wait_queue_head_t reset_ack_wq;
-> diff --git a/drivers/hid/intel-thc-hid/intel-quickspi/quickspi-protocol.c
-> b/drivers/hid/intel-thc-hid/intel-quickspi/quickspi-protocol.c
-> index cb19057f1191..db6054843e77 100644
-> --- a/drivers/hid/intel-thc-hid/intel-quickspi/quickspi-protocol.c
-> +++ b/drivers/hid/intel-thc-hid/intel-quickspi/quickspi-protocol.c
-> @@ -30,6 +30,9 @@ static int write_cmd_to_txdma(struct quickspi_device
-> *qsdev,
->=20
->  	write_buf =3D (struct output_report *)qsdev->report_buf;
->=20
-> +	if (HIDSPI_OUTPUT_REPORT_SIZE(report_buf_len) > qsdev-
-> >report_buf_size)
-> +		return -EINVAL;
-> +
+Claude was used initially by Zhouwang Huang to quickly parse HID captures
+during the reverse-engineering of some of the features. Since Claude had
+already been used, as a test of its capabilities I had it implement the
+rumble intensity attribute after I had already rewritten most of the
+driver, which I then manually edited to fix some mistakes. I also used
+Claude to review the driver and these patches for any mistakes and bugs.
 
-Thanks for the patch!
-Reviewed-by: Even Xu <even.xu@intel.com>
+Assisted-by: Claude:claude-sonnet-4-6
+Co-developed-by: Denis Benato <denis.benato@linux.dev>
+Signed-off-by: Denis Benato <denis.benato@linux.dev>
+Co-developed-by: Zhouwang Huang <honjow311@gmail.com>
+Signed-off-by: Zhouwang Huang <honjow311@gmail.com>
+Signed-off-by: Derek J. Clark <derekjohn.clark@gmail.com>
+---
+v13:
+ - Add pm_ptr() to driver resume pointer.
+ - Refactor handling of pending acks with no timeout, avoids collisions
+   by arming a completion to wait on the next command, allowing the URB
+   to be dropped (so the ACK will fire) while forcing serial events.
+v12: https://lore.kernel.org/linux-input/20260714102640.18075-1-derekjohn.clark@gmail.com/
+  - Fix race condition with mode events. Makes claw_hw_output_report() a
+    wrapper that holds cfg_mutex and adds __claw_hw_output_report(),
+    which has the old functionality but uses lockdep_assert_held(), and
+    claw_switch_mode(), which handles cfg_mutex holding and spinlock
+    holding for all mode functions, preventing the multiple callers issue.
+  - Remove goto based cleanup in __claw_hw_output_report(), adds some
+    duplicated code but avoids anti-pattern for cleanup.
+  - Use spinlock_irqsave for raw_event-reachable locks since completion
+    context isn't guaranteed softirq-only across all HCDs.
+  - Add bool to track if the driver is waiting on a sync ack with no
+    timeout to prevent those acks from clearing timeout acks.
+  - On address mismatch, assume stale message return and keep waiting for
+    correct message.
+  - On remove, cancel the rgb_queue last to avoid a re-arming, and in
+    rgb_queue_fn check rgb_registered to avoid running after the sysfs
+    group has been removed.
+  - Add note to led_cdev.name to (hopefully) silence sashiko-bot about
+    an impossible double device collision.
+  - Explicitly check if the current address is less than the rgb_address
+    to avoid invalid overflow math.
+v11: https://lore.kernel.org/linux-input/20260529072111.7565-1-derekjohn.clark@gmail.com/#r
+  - Restore dropped changes from v10.
+v10: https://lore.kernel.org/linux-input/20260527222122.10620-1-derekjohn.clark@gmail.com/
+  - Remove additional gamepad_registered variable left over after rename
+    to gp_registered.
+v9: https://lore.kernel.org/linux-input/20260525020543.519082-1-derekjohn.clark@gmail.com/
+  - Don't use devm_* functions in cfg_setup_fn, do manual adding
+    and cleanup to prevent possible use after free.
+  - Use scoped_guard instead of guard in claw_remove.
+  - Rename gamepad_registered to gp_registered for brevity.
+  - Check for drvdata in rgb_queue_fn to avoid use after free during
+    teardown.
+  - Ensure rgb_queue work is canceled during suspend.
+  - Limit guard usage in cfg_setup_fn to avoid holding a lock during
+    registration and add group events.
+v8: https://lore.kernel.org/linux-input/20260522015518.1111290-1-derekjohn.clark@gmail.com/
+  - Use spinlock when accessing gamepad_registered.
+  - Clear state machine on all errors in claw_hw_output_report.
+  - Wrap all branches under single cmd_lock guard in claw_raw_event.
+  - Reject generic ACK in claw_raw_event if waiting_cmd is for another
+    branch.
+  - Wrap all branches under single cmd_lock guard in claw_raw_event.
+  - Reject generic ACK in claw_raw_event if waiting_cmd is for another
+    branch.
+  - Don't close hid devices that couldn't have been opened.
+  - Ensure led_classdev is unregistered if adding attribute group fails.
+  - Reorder remove actions to ensure no use-after free or rearming cleared
+    flags.
+v7: https://lore.kernel.org/linux-input/20260520013158.3633277-1-derekjohn.clark@gmail.com/
+  - Use smp_[store_release|load_acquire] pattern for checking
+    gamepad_registered and rgb_registered to avoid possible races during
+    teardown.
+  - Reorder reinit_completion in claw_hw_output_report to avoid race
+    with possible incoming ACKs.
+  - Reorder cancel_delayed_work_sync to ensure setup can't be re-armed
+    after cancel.
+  - Reset command state machine if hw_output_report has an error.
+  - Add comments to (hopefully) silence sashinko-bot warnings about the
+    use of endpoint matching and the impossible scenario of switching to
+    the alternate endpoint from userspace while the driver is bound.
+  - Don't use spinlock_irqsave when already in irq context.
+  - Add profile_lock for read/write profile_pending.
+  - Use struct for mkey reports and rumble reports, following the
+    pattern established by rgb reports previously.
+  - Add gating to cfg_setup_fn, allowing either gamepad settings or rgb
+    settings to populate if the other fails for any reason.
+  - Match on write address for rumble and mkey reports to prevent late
+    ACK from causing synchronization errors.
 
->  	write_buf->output_hdr.report_type =3D report_type;
->  	write_buf->output_hdr.content_len =3D cpu_to_le16(report_buf_len);
->  	write_buf->output_hdr.content_id =3D report_id;
-> --
-> 2.43.0
+v6: https://lore.kernel.org/linux-input/20260518222935.1802071-1-derekjohn.clark@gmail.com/
+  - Add send/ack pattern to ensure synchronous acks.
+  - Use spinlock_irqsave instead of mutex for read/write MODE event
+    data.
+  - add select NEW_LEDS to kconfig.
+  - Make all timeouts 25ms to ensure at least 2 jiffies in a 100Hz
+    config.
+  - Gate all attribute show/store functions with gamepad_registered or
+    rgb_registered, enabling use of devm_device_add_group and ending
+    the need to hold a mutex during remove.
+  - Don't set gamepad_mode on resume, MCU preserves state.
+  - Ensure all count variables are checked for > 0 characters before
+    setting buf - 1 to \n.
+  - Re-arm cfg_setup in resume if it was canceled in an early suspend.
+  - Remove duplicated argv_free macro.
+  - Add spinlock_irqsave vice mutex for read/write access on attribute
+    variables.
+v5: https://lore.kernel.org/linux-input/20260517013925.3120314-1-derekjohn.clark@gmail.com/
+  - Swap disabled & combination mkeys_function enum values.
+  - Fix bug introduced in v5 where claw_buttons_store would return
+    -EINVAL on all valid key entries.
+  - Ensure mode_mutex is properly init.
+  - Ensure claw_remove is calling hid_hw_close and not hid_hw_stop for
+    all paths.
+  - Ensure adding "DISABLED" key to valid entries is done in the correct
+    patch.
+  - Re-enable sending an empty string to clear button mappings in
+    addition to setting DISABLED.
+  - Move adding the RGB device into cfg_setup to prevent led core
+    attributes from being written to prior to setup completing.
+  - Ensure frame_lock is properly init.
+  - Change variable names in RGB functions from frame and zone to f and
+    z respectively to fit all scoped_guard actions in 100 columns.
+v4: https://lore.kernel.org/linux-input/20260516042841.500299-1-derekjohn.clark@gmail.com/
+  - Add msi_suspend/claw_suspend.
+  - Reorder claw_remove to cancel all work before removing sysfs.
+  - Add mutex lock for removing sysfs attributes.
+  - Add mutex lock for MODE command data read/write.
+  - Change dev_warn to dev_dbg in claw_profile_event.
+  - use __free with DEFINE_FREE macro for argv instead of manually
+    running argv_free, cleaining up scoped_guard goto.
+  - Fix frame_calc validity check to use >=.
+  - Use spinlock instead of mutex in raw_event and related attribute
+    _store function.
+  - Ensure delayed work is canceled in suspend & canceled before sysfs
+    attribute removal.
+v3: https://lore.kernel.org/linux-input/20260515033622.2095277-1-derekjohn.clark@gmail.com/
+  - Add mutex for read/write if rgb frame data.
+  - Ensure claw_hw_output_report is properly guarded.
+  - Remove setting rgb_frame_count when reading rgb profiles as it always
+    returns garbage data.
+  - Ensure rgb_speed is getting drvdata from a valid lookup (not hdev).
+  - Use scoped_guard where necessary.
+  - Reoder claw_probe to ensure all mutex, completion, and variable
+    assignments are in place prior to setting drvdata.
+  - Ensure gamepad_mode is set to a valid enum value in claw_probe.
+v2: https://lore.kernel.org/linux-input/20260513231445.3213501-1-derekjohn.clark@gmail.com/
+  - Use mutexes to guard SYNC_TO_ROM calls and pending_profile calls.
+  - Rename driver to hid-msi and add generic entrypoints for
+    probe/resume/remove that call claw specific functions in order to
+    future proof the driver for other MSI HID interfaces.
+  - Fix various bugs and formatting issues.
+v1: https://lore.kernel.org/linux-input/20260510043510.442807-1-derekjohn.clark@gmail.com/
+
+Derek J. Clark (4):
+  HID: hid-msi: Add MSI Claw configuration driver
+  HID: hid-msi: Add M-key mapping attributes
+  HID: hid-msi: Add RGB control interface
+  HID: hid-msi: Add Rumble Intensity Attributes
+
+ MAINTAINERS           |    6 +
+ drivers/hid/Kconfig   |   13 +
+ drivers/hid/Makefile  |    1 +
+ drivers/hid/hid-ids.h |    5 +
+ drivers/hid/hid-msi.c | 2054 +++++++++++++++++++++++++++++++++++++++++
+ 5 files changed, 2079 insertions(+)
+ create mode 100644 drivers/hid/hid-msi.c
+
+-- 
+2.54.0
 

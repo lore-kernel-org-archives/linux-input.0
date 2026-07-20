@@ -1,179 +1,197 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 127973112C0
-	for <linux-input@vger.kernel.org>; Mon, 20 Jul 2026 03:27:32 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3F209389455
+	for <linux-input@vger.kernel.org>; Mon, 20 Jul 2026 03:30:33 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784518054; cv=none; b=IQCll1brYjjknKKab8KSzNRWMWQ3qewaZEJbIcUYK5AIeiE9MX/YhqbgQIpbeUNuh2FuoMfggkdTy7HLvGii3gj6F3f4AMvKk4M/rUogSCR8tJN6gjYj1FF0nb9xPUdnL6CepCANR7QGc6ttt73F0sfRp0KmAAfmj2DKuQyTBYI=
+	t=1784518234; cv=none; b=FYaNevgkPXhBQO1G01xMuyvRFKeOH1d5bUtie8ti5pkYlUb7ug0w/ySm3t+hFPFsgQc1qjbfixlaSUQ3Fn3BTO2yD7+Haazwpk1SKbknyCUqCtvV7UAuf6QnQJI812L31xNYN5OtDBWMczgsyCQqMWS2PTYXOA27zFz1Ne97ZtU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784518054; c=relaxed/simple;
-	bh=ntGFTx/61RwOoh3sl3o3icgPgbPPsltSPoRrsahwwtM=;
+	s=arc-20240116; t=1784518234; c=relaxed/simple;
+	bh=F0Zq1IFMOAzem8lG+zszMt/ey+RaseXQGO5Yj3En4h8=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=d1xk2VpvapplpDbk/8qtlTyPDBLMjnwmu0Q1VHQqlIdyQD1m+12s/jXLh3R5w+en6zR5ZNv4nbQw72it2meSrk+4+evgExdLQoWltP0yXmxbD53B2MIrfmCX7bXW+n/nfQ+4sEqdA6/4NkFqPfNpi80SCA+8Djelu6WSfmYXoI8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=m1Y8OCi/; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=PW8i4Kpgfg6jdErrDGw5gHflpJ+qos2U1riOjQ/RoszepgcAtEKSNRWNelZNyiFOaeRgJyvbPulmJbhDj3OyXNOrp5gaFQ5xk5OX3e13mgGr8VK6vEJIC9oSN2q0L2wG8OXiStqkbZv6PNjbqzq4UKE45YXZ5iGUlZO/XfvL3dQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=NvQhB5Eu; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="m1Y8OCi/"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75E0A1F000E9;
-	Mon, 20 Jul 2026 03:27:32 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="NvQhB5Eu"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB0771F000E9;
+	Mon, 20 Jul 2026 03:30:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784518052;
-	bh=buwA6G4gjarntRQ0HLJkwKf4Cj22NNhohN86XgbjIT0=;
+	s=k20260515; t=1784518232;
+	bh=KGq5JGVYOm/UTb5S4Vrf3K0j9TJIdhDtjHC5EAt7zYE=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=m1Y8OCi/JnjN6UQdqBsIUMQTuHmhOkjgySyNLe9zImQmNfYpH3O5qMDGqc8FWwMUv
-	 5xW3IftvH2E6xknG4fO4CRaOQDB3rpJ1IHccChwf0I3+ixqf98EsCRoTXJkYaU3/dq
-	 l95T+mYPRYOL4rdgVzYDfhN+SZF1dw4GQsg8/L1NIoPzJoY0ge4ruqGWIm1qNqrnpc
-	 CVFfwpOk6COkqvSSCoVdIbZm6azvaQwf3XJ5IGOCrs1vpJ/rtgrL04eZQTwj2zPCTw
-	 ann4PDz87PnxyJJGBjMLSG/s6DWVlcmngRZCR8Pg/P00wWEa4fp4xhp34nbdJ2B2Zr
-	 4Hwm6MuXRzVbw==
+	b=NvQhB5Eus5Z7upZ4OUhYR9VCGPaVB0uDMaPdPWOlfiZGoKctHA0xuYkym5e6wqdXz
+	 S1d8TJh7G+JNhs3vG7aPHOPA+07ouHqVkf5uf9FruOknw+EgHI7T/ezajcXM8P8D2A
+	 Xl/Vsk0ACP6GDiNzzNDs/xb7jZwPb3UIJp2vZ9rKvpNpY4gstJhZ0iim4fo3V5w1BQ
+	 Ax3FTzPYkcPARGrgbVFSrnbaIQ1iF0Vi0yQ4JaV0sh+w6B1MzKjJtGRrBHZuHGzIi3
+	 v6iP5mbVSYh6EBti5/6PTrpbRSR61kdEq6vMboXgJXBdsFbbMrajlzrjQ41uheRaF0
+	 ysIwvY4CLOgRw==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v13 1/4] HID: hid-msi: Add MSI Claw configuration driver
+Subject: Re: [PATCH v13 3/4] HID: hid-msi: Add RGB control interface
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Derek J. Clark" <derekjohn.clark@gmail.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260720031549.2272658-2-derekjohn.clark@gmail.com>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <20260720031549.2272658-4-derekjohn.clark@gmail.com>
 References: <20260720031549.2272658-1-derekjohn.clark@gmail.com>
- <20260720031549.2272658-2-derekjohn.clark@gmail.com>
+ <20260720031549.2272658-4-derekjohn.clark@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Mon, 20 Jul 2026 03:27:32 +0000
-Message-Id: <20260720032732.75E0A1F000E9@smtp.kernel.org>
+Date: Mon, 20 Jul 2026 03:30:32 +0000
+Message-Id: <20260720033032.BB0771F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
 s) to consider:
-- [Medium] Delayed generic ACKs from a previous timed-out command can false=
-ly complete a subsequent command expecting a specific ACK, leading to silen=
-t state corruption.
-- [Medium] Mixing `goto`-based error handling with scope-based `__free()` c=
-leanup in the same function.
-- [Medium] Sysfs attributes can spuriously return `-ENODEV` immediately aft=
-er creation because they are exposed before `gp_registered` is set to true.
+
+New issues:
+- [Medium] Data races and locking mismatches when accessing RGB configurati=
+on variables and LED core state.
+
+Pre-existing issues:
+- [High] Use-after-free on device teardown due to missing cancellation of d=
+elayed works.
 --
 
---- Patch [1]: [PATCH v13 1/4] HID: hid-msi: Add MSI Claw configuration dri=
-ver ---
-commit 12a4a941e97290e1a15080092de490d5782eef1c
+--- Patch [3]: [PATCH v13 3/4] HID: hid-msi: Add RGB control interface ---
+commit d67de53a026c42fe9260a66fca23392240a52c26
 Author: Derek J. Clark <derekjohn.clark@gmail.com>
 
-HID: hid-msi: Add MSI Claw configuration driver
+HID: hid-msi: Add RGB control interface
 
-Adds configuration HID driver for the MSI Claw series of handheld PC's.
-In this initial patch add the initial driver outline and attributes for
-changing the gamepad mode, M-key behavior, and add a WO reset function.
+This commit adds an RGB control interface for MSI Claw devices. It provides
+support for configuring up to 9 LED zones via an MCU memory interface and
+sets up the corresponding sysfs attributes and LED class device.
+
+Link: https://patch.msgid.link/20260529072111.7565-4-derekjohn.clark@gmail.=
+com
 
 > diff --git a/drivers/hid/hid-msi.c b/drivers/hid/hid-msi.c
-> new file mode 100644
-> --- /dev/null
+> index 023d63cee6b06..5cb85fc2f0534 100644
+> --- a/drivers/hid/hid-msi.c
 > +++ b/drivers/hid/hid-msi.c
+
 [ ... ]
-> +static int claw_raw_event(struct claw_drvdata *drvdata, struct hid_repor=
-t *report,
-> +			  u8 *data, int size)
-> +{
+
+> @@ -349,6 +410,38 @@ static int claw_profile_event(struct claw_drvdata *d=
+rvdata, struct claw_command_
+>  		for (i =3D 0; i < CLAW_KEYS_MAX; i++)
+>  			codes[i] =3D (mkeys->codes[i]);
+>  		break;
+> +	case CLAW_RGB_PENDING:
+> +		frame =3D (struct claw_rgb_report *)cmd_rep->data;
+
 [ ... ]
-> +	switch (cmd_rep->cmd) {
-> +	case CLAW_COMMAND_TYPE_GAMEPAD_MODE_ACK:
-> +		ret =3D claw_gamepad_mode_event(drvdata, cmd_rep);
-> +		if (drvdata->waiting_cmd =3D=3D CLAW_COMMAND_TYPE_READ_GAMEPAD_MODE) {
-> +			drvdata->cmd_status =3D ret;
-> +			complete(&drvdata->send_cmd_complete);
+
+> +		scoped_guard(spinlock_irqsave, &drvdata->frame_lock) {
+> +			memcpy(&drvdata->rgb_frames[f_idx], &frame->zone_data,
+> +			       sizeof(struct rgb_frame));
+> +
+> +			/* Only use frame 0 for remaining variable assignment */
+> +			if (f_idx !=3D 0)
+> +				break;
+> +
+> +			drvdata->rgb_speed =3D frame->speed;
+> +			drvdata->led_mc.led_cdev.brightness =3D frame->brightness;
+> +			drvdata->led_mc.subled_info[0].intensity =3D frame->zone_data.zone[0]=
+.red;
+> +			drvdata->led_mc.subled_info[1].intensity =3D frame->zone_data.zone[0]=
+.green;
+> +			drvdata->led_mc.subled_info[2].intensity =3D frame->zone_data.zone[0]=
+.blue;
 > +		}
 > +
 > +		break;
-> +	case CLAW_COMMAND_TYPE_ACK:
-> +		if (drvdata->orphan_ack_pending) {
-> +			drvdata->orphan_ack_pending =3D false;
-> +			complete(&drvdata->orphan_ack_complete);
-> +			break;
-> +		}
-> +
-> +		if (drvdata->waiting_cmd =3D=3D CLAW_COMMAND_TYPE_NONE) {
-> +			dev_warn(&drvdata->hdev->dev, "Got unexpected ACK from MCU, ignoring\=
-n");
-> +			break;
-> +		}
-> +
-> +		drvdata->cmd_status =3D 0;
-> +		complete(&drvdata->send_cmd_complete);
 
 [Severity: Medium]
-When claw_raw_event() receives a generic ACK, it only verifies that
-waiting_cmd is not CLAW_COMMAND_TYPE_NONE before calling
-complete(&drvdata->send_cmd_complete).
+Is there a locking mismatch for rgb_speed? Here in claw_profile_event(),
+rgb_speed is updated while holding frame_lock. However, in speed_store(),
+it is updated while holding profile_lock.
 
-If a previous command with timeout =3D=3D 0 timed out, __claw_hw_output_rep=
-ort()
-clears orphan_ack_pending.
-
-If the generic ACK for that command arrives later while a new command is
-waiting (e.g., waiting for GAMEPAD_MODE_ACK), this logic will accept the
-generic ACK and falsely complete the new command.
-
-Could this lead to silent state corruption where commands finish early with=
-out
-receiving their actual payloads?
+Also, does this direct modification of the LED class device internal state
+need synchronization? Updating brightness and subled_info[x].intensity here
+is done without holding the standard led_access lock used by the LED core,
+which could cause data races with concurrent sysfs accesses.
 
 [ ... ]
-> +static int __claw_hw_output_report(struct hid_device *hdev, u8 index, u8=
- *data,
-> +				   size_t len, unsigned int timeout)
+
+> +/* Send RGB configuration to device */
+> +static int claw_write_rgb_state(struct claw_drvdata *drvdata)
 > +{
-> +	unsigned char *dmabuf __free(kfree) =3D NULL;
-[ ... ]
-> +	ret =3D hid_hw_output_report(hdev, dmabuf, CLAW_PACKET_SIZE);
-> +	if (ret < 0)
-> +		goto err;
-> +
-> +	ret =3D ret =3D=3D CLAW_PACKET_SIZE ? 0 : -EIO;
-> +	if (ret)
-> +		goto err;
+> +	struct claw_rgb_report report =3D { {0x01, 0}, CLAW_RGB_FRAME_OFFSET, 0=
+x00,
+> +			drvdata->rgb_frame_count, 0x09, drvdata->rgb_speed,
+> +			drvdata->led_mc.led_cdev.brightness };
 
 [Severity: Medium]
-This function uses the scope-based __free(kfree) cleanup for dmabuf, but al=
-so
-uses manual goto err labels for error handling.
-
-The cleanup subsystem guidelines specify that using goto and cleanup helpers
-like __free() in the same function creates confusing ownership semantics an=
-d is
-an anti-pattern.
-
-Could we use a scope-based guard for the state machine cleanup, or stick
-entirely to manual goto cleanup?
+Does claw_write_rgb_state() need to hold a lock when reading rgb_speed?
+It appears to be read locklessly here, but is updated with a lock elsewhere.
+This also applies to other variables like rgb_effect and rgb_enabled read
+locklessly in claw_apply_rgb_state() and sysfs show functions.
 
 [ ... ]
-> +static void cfg_setup_fn(struct work_struct *work)
+
+> +static ssize_t speed_store(struct device *dev, struct device_attribute *=
+attr,
+> +			   const char *buf, size_t count)
 > +{
+
 [ ... ]
-> +	/* Add sysfs attributes after we get the device state */
-> +	ret =3D device_add_group(&drvdata->hdev->dev, &claw_gamepad_attr_group);
-> +	if (ret) {
-> +		dev_err(&drvdata->hdev->dev,
-> +			"Failed to setup device, can't create gamepad attrs: %d\n", ret);
-> +		return;
+
+> +	/* 0 is fastest, invert value for intuitive userspace speed */
+> +	speed =3D 20 - val;
+> +
+> +	scoped_guard(spinlock_irqsave, &drvdata->profile_lock)
+> +		drvdata->rgb_speed =3D speed;
+> +
+> +	mod_delayed_work(system_wq, &drvdata->rgb_queue, msecs_to_jiffies(50));
+> +
+> +	return count;
+> +}
+
+[Severity: Medium]
+This is where rgb_speed is written using profile_lock instead of the
+frame_lock used in claw_profile_event().
+
+[ ... ]
+
+> @@ -1088,6 +1727,7 @@ static void claw_remove(struct hid_device *hdev)
+>  {
+>  	struct claw_drvdata *drvdata =3D hid_get_drvdata(hdev);
+>  	bool gp_registered;
+> +	bool rgb_registered;
+> =20
+>  	if (!drvdata)
+>  		return;
+
+[ ... ]
+
+>  	if (gp_registered)
+>  		device_remove_group(&hdev->dev, &claw_gamepad_attr_group);
+> =20
+> +	if (rgb_registered) {
+> +		device_remove_group(drvdata->led_mc.led_cdev.dev, &claw_rgb_attr_group=
+);
+> +		led_classdev_multicolor_unregister(&drvdata->led_mc);
 > +	}
-> +	scoped_guard(spinlock_irqsave, &drvdata->registration_lock)
-> +		/* Pairs with smp_load_acquire in attribute show/store functions */
-> +		smp_store_release(&drvdata->gp_registered, true);
+> +	cancel_delayed_work_sync(&drvdata->rgb_queue);
+> +
+>  	hid_hw_close(hdev);
+>  }
 
-[Severity: Medium]
-The sysfs attributes are exposed to userspace by device_add_group() before
-gp_registered is set to true.
+[Severity: High]
+This is a pre-existing issue, but does this teardown path leak delayed work=
+s?
+The driver initializes the cfg_setup and cfg_resume delayed works during
+probe, but they don't appear to be cancelled here in claw_remove().
 
-If an automated userspace tool reacts to the sysfs creation event and acces=
-ses
-the attributes in this small timing window, the attribute show/store functi=
-ons
-will observe gp_registered =3D=3D false and return -ENODEV.
-
-Would it be better to set gp_registered to true before calling
-device_add_group(), and revert it to false if the addition fails?
+If the device is removed while either of those works is pending, could they
+execute after the devres-allocated drvdata is freed, causing a
+use-after-free crash?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260720031549.2272=
-658-1-derekjohn.clark@gmail.com?part=3D1
+658-1-derekjohn.clark@gmail.com?part=3D3

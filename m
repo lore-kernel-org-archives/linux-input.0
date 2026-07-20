@@ -1,38 +1,38 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E76163D45CB;
-	Mon, 20 Jul 2026 09:40:25 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 330B93D666A;
+	Mon, 20 Jul 2026 09:40:26 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784540426; cv=none; b=U3O2XnrMmRoFZw0GOHVGOOEVDGwkRfi7jthGzy17d8TeFXOmi62UgaLWEd2QQ0+UplIW+DriVSY/5xWqSwhBUYtd7iHhiKw/rw10BRsN2VWqSLVeeQOVqf5gOIQLRfFvXKtx7hVlXg/VRt563DFYgtq2DrQVN6zAOqmuZYesDbM=
+	t=1784540426; cv=none; b=duEr3kB2T0SMgrcTpUtJWmBE3LelImRkmJVSiCoXkeuKIGqVo5CPyKp2DiWPkuOzbG193+r/aIE6MOUW2zZfSAu/Wunu1mSJpMPKnlBTRyyvAdG+FLVqCX8KnES+l5uAI4i4znJVc4PtPDv+ELn/NHyXuuA7h7cglnaC5niUgmY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1784540426; c=relaxed/simple;
-	bh=f/RNp5qcwybkfeN/HanUf56pHEeRgjyLnoKetz64Vhc=;
+	bh=scSMD9yfVL5TOLx3EN/arGlReo9ABOVwOR2n8mT04ok=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=oCK8ZpvO9XuhbKjDOhhhy3NVWG1YApdMA6BHox9mJjK9SzFCFIDD1KrT1Mdr37I1HXFXNR1vEuSUq8dXReFw8YIqe2g+5kNb0ARkWNRr6xJmqn7S6BqvF8r/9Z5TZytc/0iQYm7joTFHwm+UaHkqwvB5hVUmFNZpr8Pl9P0DiyE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=fSQ3PxQN; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:To:Cc; b=SQg+VKrlDVjBcfuIl5tc4maP3/7dUjJ4/34FGoQMPv7UNa03DEYSNSUKy7DdMSDC+5rFH8iXLsAR4Hyl2xjKUacrtw6WP1PFQ0M4seKQYwnZYTCqED2df5igKtd/ZzFk1vOMjRan2j6hJv2Pp/8+77DoL6oJdjjlZDypnsnE+xg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=uOtvdwSO; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="fSQ3PxQN"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id A4E37C2BCFD;
-	Mon, 20 Jul 2026 09:40:25 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="uOtvdwSO"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 09E32C2BD05;
+	Mon, 20 Jul 2026 09:40:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1784540425;
-	bh=f/RNp5qcwybkfeN/HanUf56pHEeRgjyLnoKetz64Vhc=;
+	s=k20201202; t=1784540426;
+	bh=scSMD9yfVL5TOLx3EN/arGlReo9ABOVwOR2n8mT04ok=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
-	b=fSQ3PxQNOP4nP9kkYE+JgZVWKqa3j0x6XzqvTcXyalWZ1RFgbQRTgjGEFdV+JInea
-	 fI8toILJxnLuHBTaMzySOnbmF1XGcgfN/ol3YAmXwUcSvDO03ml4Y7/lzGBb5YwtU5
-	 zrVB7DVcCB3Do7G03F+THvWu20rbyBRxZrBjEIVLOcqCCdtK2wwAuPxXMl5JcSY6il
-	 LNXFGzCWmIKF7dgF+vQzLZanfo6VhtkU3JUgFtmaKcM0EsbDAvHLaZsvSOgOoj9Rvh
-	 xTECvThXaXR+OONbLHLTyWOMb26U/9h6/+9Dmwe4bmjXbosgrD90vIYdAdPDRzm11W
-	 ZnSFhvptY9t7g==
+	b=uOtvdwSOHm0kReQqJh8JHTlNzxoZm1t2RGC+HBgQIPrgYuROt1uf/v/daFrhDORD4
+	 NNhrc6wqbVIjTTmmeEcDdfjf6AXViyqs1RI1dxY31xB4dfK99PfhgHC16gUj0y/0aw
+	 0fBcEZ7c46/OfuUHBBzMGnWT7Ji/JnnS4HG7Yghs2Lhb/EP16Y5KJSx71z17hrJj3a
+	 DW9NcGN8QttS9q8Lg2V2qS5HVZRqmywqOeEuKmJL4dPy+t4lZkBs+NOK38Uwo5jl9h
+	 Pig0jag9xYRI8Ld8zhlw5CPASVBosQN9NRFPUClDWnQ7fUOq2I0fjpB2rPAKbRlg8k
+	 fVQTVpnEzC4zQ==
 Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8C328C44528;
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EFF10C44529;
 	Mon, 20 Jul 2026 09:40:25 +0000 (UTC)
 From: Sanjay Chitroda via B4 Relay <devnull+sanjayembeddedse.gmail.com@kernel.org>
-Date: Mon, 20 Jul 2026 15:10:15 +0530
-Subject: [PATCH 03/10] iio: accel: hid-sensor-accel-3d: use local struct
- device
+Date: Mon, 20 Jul 2026 15:10:20 +0530
+Subject: [PATCH 08/10] iio: orientation: hid-sensor-rotation: use local
+ struct device
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -41,7 +41,7 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260720-hid-iio-local-struct-device-v1-3-74496fee6327@gmail.com>
+Message-Id: <20260720-hid-iio-local-struct-device-v1-8-74496fee6327@gmail.com>
 References: <20260720-hid-iio-local-struct-device-v1-0-74496fee6327@gmail.com>
 In-Reply-To: <20260720-hid-iio-local-struct-device-v1-0-74496fee6327@gmail.com>
 To: Jiri Kosina <jikos@kernel.org>, Jonathan Cameron <jic23@kernel.org>, 
@@ -52,11 +52,11 @@ To: Jiri Kosina <jikos@kernel.org>, Jonathan Cameron <jic23@kernel.org>,
 Cc: linux-input@vger.kernel.org, linux-iio@vger.kernel.org, 
  linux-kernel@vger.kernel.org, Sanjay Chitroda <sanjayembeddedse@gmail.com>
 X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1784540423; l=3184;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1784540423; l=3414;
  i=sanjayembeddedse@gmail.com; s=20260702; h=from:subject:message-id;
- bh=CHrL5pLuWoANqRnTUQhBxvjRxrsqGaR+mjcFFDbcdqU=;
- b=jvPykdZK1FZL5BRq/q/lUtRSM7gO1wAB8CWI2GuTQYgmVnGABIc0qmpbT/Zod8t+3/eDeIOxv
- TstVMjJkp46C+vNCunsNzJt0K/Y7cHTZ8MprvLUPE48EpKBd4bmLbfZ
+ bh=5/qXdvEQ0B9F64BZkAHHH7V+NgRa7Impnj2qIRjxP4Q=;
+ b=cVVzT3tBshdolEVrxo3qxVbdqjBCh5wsAh1ITk3Yt7815M8Bv8dRw7uLu0FYRk3ZAMY3VWFSA
+ +oh0B+u0ixjAipgf5doQIEgPHdLDwkmG1/KU35ZkA5iBuHEVvesE9bJ
 X-Developer-Key: i=sanjayembeddedse@gmail.com; a=ed25519;
  pk=PcneEFtkmY+Ldl+KmOTpB/Q/HDsqko6Fb0/Z/5cuycI=
 X-Endpoint-Received: by B4 Relay for sanjayembeddedse@gmail.com/20260702
@@ -71,73 +71,82 @@ This avoids repeated &pdev->dev usage and improves readability.
 
 Signed-off-by: Sanjay Chitroda <sanjayembeddedse@gmail.com>
 ---
- drivers/iio/accel/hid-sensor-accel-3d.c | 22 +++++++++++-----------
- 1 file changed, 11 insertions(+), 11 deletions(-)
+ drivers/iio/orientation/hid-sensor-rotation.c | 24 +++++++++++-------------
+ 1 file changed, 11 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/iio/accel/hid-sensor-accel-3d.c b/drivers/iio/accel/hid-sensor-accel-3d.c
-index eb521125f4eb..5467ecc86b58 100644
---- a/drivers/iio/accel/hid-sensor-accel-3d.c
-+++ b/drivers/iio/accel/hid-sensor-accel-3d.c
-@@ -314,7 +314,8 @@ static int accel_3d_parse_report(struct platform_device *pdev,
+diff --git a/drivers/iio/orientation/hid-sensor-rotation.c b/drivers/iio/orientation/hid-sensor-rotation.c
+index 9e13a0ecd584..50a684efeb45 100644
+--- a/drivers/iio/orientation/hid-sensor-rotation.c
++++ b/drivers/iio/orientation/hid-sensor-rotation.c
+@@ -238,6 +238,7 @@ static int dev_rot_parse_report(struct platform_device *pdev,
+ 				u32 usage_id,
+ 				struct dev_rot_state *st)
+ {
++	struct device *dev = &pdev->dev;
+ 	int ret;
+ 
+ 	ret = sensor_hub_input_get_attribute_info(hsdev,
+@@ -248,11 +249,8 @@ static int dev_rot_parse_report(struct platform_device *pdev,
+ 	if (ret)
+ 		return ret;
+ 
+-	dev_dbg(&pdev->dev, "dev_rot %x:%x\n", st->quaternion.index,
+-		st->quaternion.report_id);
+-
+-	dev_dbg(&pdev->dev, "dev_rot: attrib size %d\n",
+-				st->quaternion.size);
++	dev_dbg(dev, "dev_rot %x:%x\n", st->quaternion.index, st->quaternion.report_id);
++	dev_dbg(dev, "dev_rot: attrib size %d\n", st->quaternion.size);
+ 
+ 	st->scale_precision = hid_sensor_format_scale(
+ 				hsdev->usage,
+@@ -265,14 +263,14 @@ static int dev_rot_parse_report(struct platform_device *pdev,
  /* Function to initialize the processing for usage id */
- static int hid_accel_3d_probe(struct platform_device *pdev)
+ static int hid_dev_rot_probe(struct platform_device *pdev)
  {
 -	struct hid_sensor_hub_device *hsdev = dev_get_platdata(&pdev->dev);
 +	struct device *dev = &pdev->dev;
 +	struct hid_sensor_hub_device *hsdev = dev_get_platdata(dev);
- 	int ret = 0;
- 	const char *name;
+ 	int ret;
+ 	char *name;
  	struct iio_dev *indio_dev;
-@@ -322,8 +323,7 @@ static int hid_accel_3d_probe(struct platform_device *pdev)
- 	const struct iio_chan_spec *channel_spec;
- 	int channel_size;
+ 	struct dev_rot_state *rot_state;
  
 -	indio_dev = devm_iio_device_alloc(&pdev->dev,
--					  sizeof(struct accel_3d_state));
-+	indio_dev = devm_iio_device_alloc(dev, sizeof(struct accel_3d_state));
+-					  sizeof(struct dev_rot_state));
++	indio_dev = devm_iio_device_alloc(dev, sizeof(struct dev_rot_state));
  	if (!indio_dev)
  		return -ENOMEM;
  
-@@ -350,21 +350,21 @@ static int hid_accel_3d_probe(struct platform_device *pdev)
- 						 accel_3d_sensitivity_addresses,
- 						 ARRAY_SIZE(accel_3d_sensitivity_addresses));
+@@ -302,13 +300,13 @@ static int hid_dev_rot_probe(struct platform_device *pdev)
+ 						 rotation_sensitivity_addresses,
+ 						 ARRAY_SIZE(rotation_sensitivity_addresses));
  	if (ret) {
 -		dev_err(&pdev->dev, "failed to setup common attributes\n");
 +		dev_err(dev, "failed to setup common attributes\n");
  		return ret;
  	}
--	indio_dev->channels = devm_kmemdup(&pdev->dev, channel_spec,
--					   channel_size, GFP_KERNEL);
  
-+	indio_dev->channels = devm_kmemdup(dev, channel_spec, channel_size, GFP_KERNEL);
- 	if (!indio_dev->channels) {
--		dev_err(&pdev->dev, "failed to duplicate channels\n");
-+		dev_err(dev, "failed to duplicate channels\n");
- 		return -ENOMEM;
- 	}
-+
- 	ret = accel_3d_parse_report(pdev, hsdev,
- 				    (struct iio_chan_spec *)indio_dev->channels,
- 				    hsdev->usage, accel_state);
+ 	ret = dev_rot_parse_report(pdev, hsdev, hsdev->usage, rot_state);
  	if (ret) {
 -		dev_err(&pdev->dev, "failed to setup attributes\n");
 +		dev_err(dev, "failed to setup attributes\n");
  		return ret;
  	}
  
-@@ -377,7 +377,7 @@ static int hid_accel_3d_probe(struct platform_device *pdev)
+@@ -323,7 +321,7 @@ static int hid_dev_rot_probe(struct platform_device *pdev)
  	ret = hid_sensor_setup_trigger(indio_dev, name,
- 				       &accel_state->common_attributes);
- 	if (ret < 0) {
+ 				       &rot_state->common_attributes);
+ 	if (ret) {
 -		dev_err(&pdev->dev, "trigger setup failed\n");
 +		dev_err(dev, "trigger setup failed\n");
  		return ret;
  	}
  
-@@ -387,13 +387,13 @@ static int hid_accel_3d_probe(struct platform_device *pdev)
+@@ -333,13 +331,13 @@ static int hid_dev_rot_probe(struct platform_device *pdev)
  	ret = sensor_hub_register_callback(hsdev, hsdev->usage,
- 					   &accel_state->callbacks);
- 	if (ret < 0) {
+ 					   &rot_state->callbacks);
+ 	if (ret) {
 -		dev_err(&pdev->dev, "callback reg failed\n");
 +		dev_err(dev, "callback reg failed\n");
  		goto error_remove_trigger;

@@ -1,126 +1,176 @@
-Received: from mail-pj1-f51.google.com (mail-pj1-f51.google.com [209.85.216.51])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 52B3D4398E0
-	for <linux-input@vger.kernel.org>; Mon, 20 Jul 2026 16:22:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1633540926E
+	for <linux-input@vger.kernel.org>; Mon, 20 Jul 2026 16:36:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784564561; cv=none; b=nOANQoIEIwN0HnrZirL/EuiaXA54O/UCzklc0NqPiG5Qg9N6LsKW9lijVuXoE9w+DtbpXdPG9Te/L23HFcbPsQ6BkzbwNxRgcISQh4iFUjwDmFOX8KRqUICW6MzJ7f33E5DyCBP68rtrKiRs//W+ulVi9HZvCV9AJuDMhuBZ+fo=
+	t=1784565367; cv=none; b=FuLQ43HIfkw83F0wkbe8la7RAAeiZKLA9PW79KsDI8SAUFhZd95Tnsh1JqQjt++EyUJnYsUwD87+peDYrhwylDT8re+NSnYalM2lMsHylhTQGtPR6CVi1CeqjQHXj/NdZlRmDNoiS97f/79Cewx3ndQXHS8oEqHCgfUvKz+5Xis=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784564561; c=relaxed/simple;
-	bh=V6U73O55j87WWMKBgA3iBdB1uBtOCakg5nSbkbbd0Zk=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=FKgNgQRFr9d9pa1elphK7mYG0N3Qhgb4jnkywO4ji9aVfRHjVSP79z52f74Hi+1neIAEOBHg4cowXm5zgwCWssIE4l/XtKTdUKo0HQYztTS5k4qiqxNvu9rJzTXWkPfIhMMlm3wcgRt4NwrofHkOMusKaO2ngpSwAsFfK6XlyTY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=debian.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.216.51
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=debian.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Received: by mail-pj1-f51.google.com with SMTP id 98e67ed59e1d1-382ef647e20so9789360a91.1
-        for <linux-input@vger.kernel.org>; Mon, 20 Jul 2026 09:22:35 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784564552; x=1785169352;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=bqJobqE4ILhTlySWbCodoBRjay5MfDN8IuFjxNUP+Sc=;
-        b=JVv4+cHHsxsKnFnhjy5tm7vkTpUavU0IsOOj7oNkSwqGdVad2x8ZzGsdv/teSYMlDy
-         dpdHvF9gYvTZgYtu7p6Ku1/XF9Dexvz8KOi0jqSDEnJbjb+a1OTZhwC4/GrMLuyXGmlH
-         nr3TZNGgRHQYoe1H/9wTa24ZWB8xWB30vgVVfABDzf/RLTmgsoY1q7BHTQPPwIxvrEMr
-         VyzwjiGLQCPwr0GsKrymYLUin6Uh4rMMrah/RrHfMxNVSSgQ5lZKDSwjKAwn8cZRCiNQ
-         fqx0RVFxIZqW7JdO9fF+e7tPHclNZWRqIV/faxW1WtBUws9cD9Q+4vzVtOhXLVcMNL5x
-         jfTw==
-X-Forwarded-Encrypted: i=1; AHgh+RoWWsgEEIP4YIKJ/6ntqQsg/WIdjZmbiTyDxjYieT398xjT0rA9ZWGJW3eoFnCWaZ1mto7aveAQ+2/zzA==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yxr/g2R4yDekcauR0CG78UI1kLXknmVFZKV/Ih4T1B7E81vNJ6/
-	MP9idof3vhXgE1BlSaBkEh3B4fG2cN2VcXX3JK9o0TYvWkzzoAzGXzI=
-X-Gm-Gg: AR+sD13M6ZaCMK+1vmKcQ6t3W6kpwTB+0Jx1j9fCTK+/Ng29dj7SrXzIFl54tGXbAYj
-	5gluqfY8RKyU2dMI0s3onwVLhVsaaZNNMFhdZheOBRMizUCznsgsXZXQmpqlh5sSNwbYNq2BvBp
-	3FD2SJeejkmNZPPR4vtrdkRGxiljoZQ9ur14dMw+txMJ4KTWZbaX7YhrCbYiCl1DR1hQeZRQxnw
-	FlyRIVKYRxP1NWtRvG+crURaFzsL1tCn4SOKAZxmYIWoxzQpqNgvU05DUUM7PzO1JP1qTlJGsER
-	r0bhXbRDRTLA4P3h88iY+OnlKa2kb8FzHZhw2/UN+KY8+tnI+SmmAgOQdWocYjeMetzs43INNkm
-	ZDR7jMTsH4Pa0J/7hl+YVRvUxlpWgiJws1dAxLCXqTIl6v4AD0yiI8+WgQEokrOp6V5xBI6gUZs
-	Z6Gqmleq8GahM/nZ2I1cY1WQx3v5HMhlG2ZjR/naCTsrZRnBVq0dYgpxeHx5bTZu4qaGhhGgveZ
-	XP8nr2ZCOY64H53XA==
-X-Received: by 2002:a17:90b:57c5:b0:38e:2860:253f with SMTP id 98e67ed59e1d1-38e4b447cd5mr15478935a91.12.1784564552370;
-        Mon, 20 Jul 2026 09:22:32 -0700 (PDT)
-Received: from penguin.tail0a1999.ts.net (61-228-16-100.dynamic-ip.hinet.net. [61.228.16.100])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-38e9205d358sm29366a91.3.2026.07.20.09.22.31
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 20 Jul 2026 09:22:32 -0700 (PDT)
-From: Shih-Yuan Lee <fourdollars@debian.org>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Mark Brown <broonie@kernel.org>,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Shih-Yuan Lee <fourdollars@debian.org>
-Subject: [PATCH v3 5/5] Input: applespi - fix use-after-free in applespi_remove()
-Date: Tue, 21 Jul 2026 00:22:19 +0800
-Message-Id: <20260720162219.32324-6-fourdollars@debian.org>
-X-Mailer: git-send-email 2.39.5
-In-Reply-To: <20260720162219.32324-1-fourdollars@debian.org>
+	s=arc-20240116; t=1784565367; c=relaxed/simple;
+	bh=MMPPB4zQA7fezNdwXWSU132cW41pij7CeUjFaeEZKfs=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=Rcro9bkZD3PqQawoY54yrgBvCsVJ96vSvIvgRGt9iCP2mNd6JCAXNSARkoTQe3Rk1hJVIScGPsUUzqZvgE/YoWkb1dqy3Xo0+83+sA7m+CcvObuP0IzVVGdU+6N+z+5kbS5nvAlknXdhOMPoEQb0ckzDhhzP1rX5PP1gYsPsHa8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=oDngkeAn; arc=none smtp.client-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="oDngkeAn"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F7E31F000E9;
+	Mon, 20 Jul 2026 16:36:04 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1784565364;
+	bh=LlloDetgarS1TDFV41qQBEhDXooe3BCTwDL9FZf5cn4=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=oDngkeAnCw3kyds3+iE0W0h3mBiAHW1TOYMwb4cjx0U63ygXGcxQXtwnUMjuPhgIv
+	 dilengPzhVLuTqizhrA2IkA6P/2k7hkwGOdJuGw0TgrWbCNcdRomGEPDKih68R0FQE
+	 A8KhxA+5jlQZjEC6IkB8rNw4jB8huBm/7jp17BR8rePhf1CsKz26r2nVwS51eSwGzp
+	 keKXeuSPNb84n3wvxQYtP2dwHw/qTt1NINLrMHSrDflFbo+erGcd/MQBJqj83U4xWp
+	 7zMGUUnv+FDsrhgq5nMT8Z21r3uu8HBiI6v6D8CSabtpRN2/RTbkdPuJfPW/D8i8ck
+	 ZgsEdqjO6tGwQ==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v3 2/5] Input: applespi - track asynchronous SPI
+ transfers in flight
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Shih-Yuan Lee" <fourdollars@debian.org>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20260720162219.32324-3-fourdollars@debian.org>
 References: <20260720162219.32324-1-fourdollars@debian.org>
+ <20260720162219.32324-3-fourdollars@debian.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Mon, 20 Jul 2026 16:36:03 +0000
+Message-Id: <20260720163604.1F7E31F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-Replace the separate read and write drain helpers with a single barrier using
-cancel_spi and wait_event_lock_irq_timeout(). Wait for outstanding asynchronous
-SPI operations to complete before tearing down the driver context.
+Thank you for your contribution! Sashiko AI review found 4 potential issue(=
+s) to consider:
 
-Disable GPE and remove the GPE handler prior to setting cancel_spi = true.
-This prevents level-triggered GPE interrupt storms where applespi_notify()
-repeatedly attempts applespi_async() and gets rejected with -ESHUTDOWN while
-the hardware interrupt line remains asserted.
+New issues:
+- [High] Teardown threads wake up prematurely and free `applespi` while `ap=
+plespi_async_complete` is still running, causing a Use-After-Free.
+- [High] Consecutive SPI transfers fail with -EBUSY due to occupied trackin=
+g slots, dropping commands and stalling the driver.
+- [High] The driver becomes completely broken after a suspend/resume cycle =
+because `cancel_spi` is never reset.
 
-If the 3-second wait times out while SPI transfers are still outstanding, issue
-a warning and fallback to waiting unconditionally until all transfers complete,
-guaranteeing that applespi_remove() never returns prematurely while transfers
-are active.
+Pre-existing issues:
+- [High] Missing cancellation of `applespi->work` in `applespi_remove()` le=
+ads to a Use-After-Free.
+--
 
-Signed-off-by: Shih-Yuan Lee <fourdollars@debian.org>
----
- drivers/input/keyboard/applespi.c | 21 ++++++++++++++++++---
- 1 file changed, 18 insertions(+), 3 deletions(-)
+--- Patch [2]: [PATCH v3 2/5] Input: applespi - track asynchronous SPI tran=
+sfers in flight ---
+commit 461be9b81e79a5a61b76018d2f876c28cc39167f
+Author: Shih-Yuan Lee <fourdollars@debian.org>
 
-diff --git a/drivers/input/keyboard/applespi.c b/drivers/input/keyboard/applespi.c
-index a21e89f30387..602780842124 100644
---- a/drivers/input/keyboard/applespi.c
-+++ b/drivers/input/keyboard/applespi.c
-@@ -1939,14 +1939,29 @@ static void applespi_drain_reads(struct applespi_data *applespi)
- static void applespi_remove(struct spi_device *spi)
- {
- 	struct applespi_data *applespi = spi_get_drvdata(spi);
-+	unsigned long flags;
-+	long ret;
- 
--	applespi_drain_writes(applespi);
--
-+	/* Disable GPE and remove handler first to prevent interrupt storm */
- 	acpi_disable_gpe(NULL, applespi->gpe);
- 	acpi_remove_gpe_handler(NULL, applespi->gpe, applespi_notify);
- 	device_wakeup_disable(&spi->dev);
- 
--	applespi_drain_reads(applespi);
-+	/* Prevent any new SPI transfers and wait for outstanding ones */
-+	spin_lock_irqsave(&applespi->cmd_msg_lock, flags);
-+	applespi->cancel_spi = true;
-+	ret = wait_event_lock_irq_timeout(applespi->wait_queue,
-+					  !applespi_async_outstanding(applespi),
-+					  applespi->cmd_msg_lock,
-+					  msecs_to_jiffies(3000));
-+	if (!ret && applespi_async_outstanding(applespi)) {
-+		dev_warn(&applespi->spi->dev,
-+			 "Timed out waiting for SPI transfers to drain, waiting unconditionally\n");
-+		wait_event_lock_irq(applespi->wait_queue,
-+				    !applespi_async_outstanding(applespi),
-+				    applespi->cmd_msg_lock);
-+	}
-+	spin_unlock_irqrestore(&applespi->cmd_msg_lock, flags);
- 
- 	debugfs_remove_recursive(applespi->debugfs_root);
- }
--- 
-2.39.5
+Input: applespi - track asynchronous SPI transfers in flight
 
+The driver queues read and write packets asynchronously. When shutting
+down, removing, or suspending, the driver must guarantee that no
+asynchronous transfers remain in flight to prevent memory corruption or
+use-after-free conditions. This commit introduces a tracking mechanism
+for these async transfers using a spi_complete slot array.
+
+> diff --git a/drivers/input/keyboard/applespi.c b/drivers/input/keyboard/a=
+pplespi.c
+> index c501bf7e517e4..c9bbceaf06718 100644
+> --- a/drivers/input/keyboard/applespi.c
+> +++ b/drivers/input/keyboard/applespi.c
+
+[ ... ]
+
+> @@ -607,13 +613,73 @@ static void applespi_setup_write_txfrs(struct apple=
+spi_data *applespi)
+>  	spi_message_add_tail(st_t, msg);
+>  }
+> =20
+> +static bool applespi_async_outstanding(struct applespi_data *applespi)
+> +{
+> +	return applespi->spi_complete[0].complete ||
+> +	       applespi->spi_complete[1].complete;
+> +}
+> +
+> +static void applespi_async_complete(void *context)
+> +{
+> +	struct applespi_complete_info *info =3D context;
+> +	struct applespi_data *applespi =3D info->applespi;
+> +	void (*complete)(void *context);
+> +	unsigned long flags;
+> +
+> +	spin_lock_irqsave(&applespi->cmd_msg_lock, flags);
+> +	complete =3D info->complete;
+> +	spin_unlock_irqrestore(&applespi->cmd_msg_lock, flags);
+> +
+> +	if (complete)
+> +		complete(applespi);
+
+[Severity: High]
+If the inner complete callback queues a new write command, will
+applespi_async() see the first slot as still occupied because info->complete
+has not been cleared yet?
+
+If a read transfer happens to be active in the other slot, could this cause
+applespi_async() to return -EBUSY and drop the new command, permanently
+stalling driver initialization?
+
+> +
+> +	spin_lock_irqsave(&applespi->cmd_msg_lock, flags);
+> +	info->complete =3D NULL;
+> +
+> +	if (applespi->cancel_spi && !applespi_async_outstanding(applespi))
+> +		wake_up_all(&applespi->wait_queue);
+> +
+> +	spin_unlock_irqrestore(&applespi->cmd_msg_lock, flags);
+> +}
+
+[Severity: High]
+Can this sequence cause a use-after-free regression?
+
+If applespi_drain_writes() is waiting for write_active to become false:
+
+CPU1 running applespi_async_complete():
+    complete(applespi);
+
+The inner callback sets write_active =3D false and wakes wait_queue.
+
+CPU2 running applespi_drain_writes():
+    wakes up, finishes applespi_remove(), and frees the applespi structure
+
+Could CPU1 then try to acquire the spinlock and clear info->complete on the
+freed applespi structure?
+
+[ ... ]
+
+> @@ -1799,6 +1865,7 @@ static void applespi_drain_writes(struct applespi_d=
+ata *applespi)
+>  	spin_lock_irqsave(&applespi->cmd_msg_lock, flags);
+> =20
+>  	applespi->drain =3D true;
+> +	applespi->cancel_spi =3D true;
+>  	ret =3D wait_event_lock_irq_timeout(applespi->wait_queue,
+>  					  !applespi->write_active,
+>  					  applespi->cmd_msg_lock,
+
+[Severity: High]
+If applespi_drain_writes() sets cancel_spi to true during applespi_suspend(=
+),
+is it ever reset to false in applespi_resume()?
+
+Could this cause applespi_async() to permanently reject new transfers with
+-ESHUTDOWN after the system resumes?
+
+[Severity: High]
+This isn't a bug introduced by this patch, but while looking at the driver
+teardown path, does applespi_remove() need to call
+cancel_work_sync(&applespi->work)?
+
+If applespi->work is queued to register the touchpad and the module is
+unbound, could devres free the applespi structure before applespi_worker()
+executes, resulting in a use-after-free regression?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260720162219.3232=
+4-1-fourdollars@debian.org?part=3D2

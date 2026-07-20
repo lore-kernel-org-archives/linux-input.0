@@ -1,37 +1,37 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E5B213D3D01;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E5A183C4546;
 	Mon, 20 Jul 2026 09:40:25 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784540426; cv=none; b=MKiKozQI3d2bNulaGoGXrhDp4g7uv0ltiHe4cMysbF8zOHvtEneOZRdOI0E+6/tyHU/HbAPTvNCAbn43gulVn1p2/vB9+RH8GZy016AGkqQWk9B1mH70KWuNlpwui+YprKCBK+rs9f6t1p2wWU65p1ns9PKvvZFjXCDO4rC97oY=
+	t=1784540426; cv=none; b=CYNVEcG+TY68AQOJnFgi06R/+x94mlp+IbYUI/LFpowI2hkRODcbTdihZhjOuMk0OTS2dGy4INvTczobiu/qGhWsZlFDuyABdFC02RToeu4qrgkxTyNiX/cT0SWmSrrkk8HolkxxAMUrWKy23aAV25Z1GRVNx/g/5ItJqUIXU9U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1784540426; c=relaxed/simple;
-	bh=m8yQ6Rt1BmfoSca8nbLNUGHQrRGO6KhHvj/M48iE0QA=;
+	bh=+9v4q9BYAVKlGMelfBqiS4gsgM3yxHv0naNXqba2YMg=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=qSgcdhi5n9LuPXREy0imumLXqFH0g2xu4loYpwP8U5a+3h92G+IU3Mlmeyddk5TFmu7U1naw7YA70LSd6tFxm1trchdIEsoyxqdKf08xFCixD3MoPXoPAcgiUnPHcbj3reAyPv8tR/TwvQQuwipFSJ8mgnQ5yJlRpruKPlRzhQQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=g6I8d+sQ; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:To:Cc; b=ulplu2GkCc199/3yT5kZ4YhVRFcv2drY+vPX8htm/I2BFbmOAl8CTF0rMSHETtt9Rg0XmYzbw74xvl/ray3b97aO865fnRsCvyzqAW9PBkZ1wrjOWrRHkCzPY+jINVWADdCRGhAAxyethIPfm38OoyrwiGkDe7xmT0yUeNUDLwk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=LGIDo39z; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="g6I8d+sQ"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 84CD8C2BCFA;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="LGIDo39z"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 9751BC2BCF6;
 	Mon, 20 Jul 2026 09:40:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
 	s=k20201202; t=1784540425;
-	bh=m8yQ6Rt1BmfoSca8nbLNUGHQrRGO6KhHvj/M48iE0QA=;
+	bh=+9v4q9BYAVKlGMelfBqiS4gsgM3yxHv0naNXqba2YMg=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
-	b=g6I8d+sQINcwD+N3vTTsJWxM7xbLUCD5gt9Fk3Wkog57zU9Ya34F1G7/7lzrYvwME
-	 eGrGcwZQPrNZFoIQ1pOsfKWpbsqeg3njfpXKJM41YSPj22Y+/OlYPN6khSaN/D5YWI
-	 4LdgIeaWkrCpL0VeD6rBs8NtWNfYKHtjleXc4IUAqBvMyvDxIJunFoReMUcWAIIx5K
-	 /tvBpS3s/ImwM8/tMWpwff2O33ltqMdJUFNxsL4gNOYOEwTCBQ+8vTxwKHZqzWRM7R
-	 CDRIZuhZgObuaiBmk2JRV2jQ2DBTq5DyeEo+dIqwxChT2drEbaAFww5Px00XONnalG
-	 t0G1sRQrxSWfw==
+	b=LGIDo39zN/OZEY41q/dckexL9JYV5PxvYuzNmambh4raTOHsmvQSmVax/XgaUv2bG
+	 bYzKFeRsn05tG8MxIO2foVj54PkdzOX41Wch3gb1hs033BktjBEDV7QJ0AtMka61Gz
+	 zZ8A80L8BSAonmT1G94xNl8u6nXiXW4m7P83AntqgcPe15gRyaDL8pQ2y89BoUFijk
+	 EAUZYzQnK0ixO7oxJVuBORPaSvsFysnlcsw71KC77Iv4XJ0LB8dcq9Yyl9rAk7OmOZ
+	 OSxSaGYGpFOe/H2tPkyub0EfnSPiq2Ckjp3Rx/P5Yv4aDsjINq2h1vTgyF4noBqnT/
+	 SRJRxm4gGERaw==
 Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 674CEC44515;
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7A08EC44527;
 	Mon, 20 Jul 2026 09:40:25 +0000 (UTC)
 From: Sanjay Chitroda via B4 Relay <devnull+sanjayembeddedse.gmail.com@kernel.org>
-Date: Mon, 20 Jul 2026 15:10:13 +0530
-Subject: [PATCH 01/10] iio: humidity: hid-sensor-humidity: use local struct
+Date: Mon, 20 Jul 2026 15:10:14 +0530
+Subject: [PATCH 02/10] iio: gyro: hid-sensor-gyro-3d: use local struct
  device
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
@@ -41,7 +41,7 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260720-hid-iio-local-struct-device-v1-1-74496fee6327@gmail.com>
+Message-Id: <20260720-hid-iio-local-struct-device-v1-2-74496fee6327@gmail.com>
 References: <20260720-hid-iio-local-struct-device-v1-0-74496fee6327@gmail.com>
 In-Reply-To: <20260720-hid-iio-local-struct-device-v1-0-74496fee6327@gmail.com>
 To: Jiri Kosina <jikos@kernel.org>, Jonathan Cameron <jic23@kernel.org>, 
@@ -52,11 +52,11 @@ To: Jiri Kosina <jikos@kernel.org>, Jonathan Cameron <jic23@kernel.org>,
 Cc: linux-input@vger.kernel.org, linux-iio@vger.kernel.org, 
  linux-kernel@vger.kernel.org, Sanjay Chitroda <sanjayembeddedse@gmail.com>
 X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1784540423; l=1433;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1784540423; l=3130;
  i=sanjayembeddedse@gmail.com; s=20260702; h=from:subject:message-id;
- bh=LsnrdNMs3dMUtTK3CAAIvAss81SC1EE8A5C3AYP1tnY=;
- b=A8l/C4PtdauXUHADBaRxAw3cHyKxhem+dupRUirYRB+89tMZOq09jwan1Lkb8dBEps0LngH+b
- ruzXFQxQ3A/C0CjUBYA4pdZzLK4bgtU8NOA61dFIQutOF83b2oMUMGD
+ bh=sbocTFLcC7tO6VvGktZQw3Yf/IDevdn1SGxGLRUlz/g=;
+ b=BJ+AWfejLnjSYVYfisGbfjSIB04eZhmotWpzs1BSZPGKg8MnCcQXd95YB0IZxLS1Hf0qpDyuq
+ bpPhFUuPWngDOyxofIcldqJsIeFsxnrBAK9yzixovyd3JVdjVviLIno
 X-Developer-Key: i=sanjayembeddedse@gmail.com; a=ed25519;
  pk=PcneEFtkmY+Ldl+KmOTpB/Q/HDsqko6Fb0/Z/5cuycI=
 X-Endpoint-Received: by B4 Relay for sanjayembeddedse@gmail.com/20260702
@@ -71,36 +71,82 @@ This avoids repeated &pdev->dev usage and improves readability.
 
 Signed-off-by: Sanjay Chitroda <sanjayembeddedse@gmail.com>
 ---
- drivers/iio/humidity/hid-sensor-humidity.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/iio/gyro/hid-sensor-gyro-3d.c | 19 ++++++++++---------
+ 1 file changed, 10 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/iio/humidity/hid-sensor-humidity.c b/drivers/iio/humidity/hid-sensor-humidity.c
-index 7cec81ff5685..1b254d3aeee9 100644
---- a/drivers/iio/humidity/hid-sensor-humidity.c
-+++ b/drivers/iio/humidity/hid-sensor-humidity.c
-@@ -196,10 +196,11 @@ static int hid_humidity_probe(struct platform_device *pdev)
- 	struct iio_dev *indio_dev;
- 	struct hid_humidity_state *humid_st;
- 	struct iio_chan_spec *humid_chans;
+diff --git a/drivers/iio/gyro/hid-sensor-gyro-3d.c b/drivers/iio/gyro/hid-sensor-gyro-3d.c
+index 58250a972567..8ff3ceda6dab 100644
+--- a/drivers/iio/gyro/hid-sensor-gyro-3d.c
++++ b/drivers/iio/gyro/hid-sensor-gyro-3d.c
+@@ -264,13 +264,14 @@ static int gyro_3d_parse_report(struct platform_device *pdev,
+ /* Function to initialize the processing for usage id */
+ static int hid_gyro_3d_probe(struct platform_device *pdev)
+ {
 -	struct hid_sensor_hub_device *hsdev = dev_get_platdata(&pdev->dev);
 +	struct device *dev = &pdev->dev;
 +	struct hid_sensor_hub_device *hsdev = dev_get_platdata(dev);
- 	int ret;
+ 	int ret = 0;
+ 	static const char *name = "gyro_3d";
+ 	struct iio_dev *indio_dev;
+ 	struct gyro_3d_state *gyro_state;
  
--	indio_dev = devm_iio_device_alloc(&pdev->dev, sizeof(*humid_st));
-+	indio_dev = devm_iio_device_alloc(dev, sizeof(*humid_st));
+-	indio_dev = devm_iio_device_alloc(&pdev->dev, sizeof(*gyro_state));
++	indio_dev = devm_iio_device_alloc(dev, sizeof(*gyro_state));
  	if (!indio_dev)
  		return -ENOMEM;
- 
-@@ -215,7 +216,7 @@ static int hid_humidity_probe(struct platform_device *pdev)
- 	if (ret)
+ 	platform_set_drvdata(pdev, indio_dev);
+@@ -285,14 +286,14 @@ static int hid_gyro_3d_probe(struct platform_device *pdev)
+ 						gyro_3d_sensitivity_addresses,
+ 						ARRAY_SIZE(gyro_3d_sensitivity_addresses));
+ 	if (ret) {
+-		dev_err(&pdev->dev, "failed to setup common attributes\n");
++		dev_err(dev, "failed to setup common attributes\n");
  		return ret;
+ 	}
  
--	humid_chans = devm_kmemdup(&pdev->dev, humidity_channels,
-+	humid_chans = devm_kmemdup(dev, humidity_channels,
- 				   sizeof(humidity_channels), GFP_KERNEL);
- 	if (!humid_chans)
+-	indio_dev->channels = devm_kmemdup(&pdev->dev, gyro_3d_channels,
++	indio_dev->channels = devm_kmemdup(dev, gyro_3d_channels,
+ 					   sizeof(gyro_3d_channels), GFP_KERNEL);
+ 	if (!indio_dev->channels) {
+-		dev_err(&pdev->dev, "failed to duplicate channels\n");
++		dev_err(dev, "failed to duplicate channels\n");
  		return -ENOMEM;
+ 	}
+ 
+@@ -300,7 +301,7 @@ static int hid_gyro_3d_probe(struct platform_device *pdev)
+ 				   (struct iio_chan_spec *)indio_dev->channels,
+ 				   HID_USAGE_SENSOR_GYRO_3D, gyro_state);
+ 	if (ret) {
+-		dev_err(&pdev->dev, "failed to setup attributes\n");
++		dev_err(dev, "failed to setup attributes\n");
+ 		return ret;
+ 	}
+ 
+@@ -314,7 +315,7 @@ static int hid_gyro_3d_probe(struct platform_device *pdev)
+ 	ret = hid_sensor_setup_trigger(indio_dev, name,
+ 				       &gyro_state->common_attributes);
+ 	if (ret < 0) {
+-		dev_err(&pdev->dev, "trigger setup failed\n");
++		dev_err(dev, "trigger setup failed\n");
+ 		return ret;
+ 	}
+ 
+@@ -324,13 +325,13 @@ static int hid_gyro_3d_probe(struct platform_device *pdev)
+ 	ret = sensor_hub_register_callback(hsdev, HID_USAGE_SENSOR_GYRO_3D,
+ 					   &gyro_state->callbacks);
+ 	if (ret < 0) {
+-		dev_err(&pdev->dev, "callback reg failed\n");
++		dev_err(dev, "callback reg failed\n");
+ 		goto error_remove_trigger;
+ 	}
+ 
+ 	ret = iio_device_register(indio_dev);
+ 	if (ret) {
+-		dev_err(&pdev->dev, "device register failed\n");
++		dev_err(dev, "device register failed\n");
+ 		goto error_remove_callback;
+ 	}
+ 
 
 -- 
 2.34.1

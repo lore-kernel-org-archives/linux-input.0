@@ -1,139 +1,235 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CD43C3955DC
-	for <linux-input@vger.kernel.org>; Mon, 20 Jul 2026 03:32:07 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AE81238AC80
+	for <linux-input@vger.kernel.org>; Mon, 20 Jul 2026 03:32:59 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784518329; cv=none; b=OvCH3omwKh/mlzTtZ1oKYgZxMv9lIYpyZ/fSuRXEbUDoVhqjT++G2QjyzrD8mkyaWrum5Rtul1UwkUxOsxAMAzjFBayezjCh6hqj4l3ubF6Rt5jglkWlZNDqNAxhx0soLa65yz8M+U2sHoQTzpVJL8RkY2aVOF+5DY3vkTyV1gA=
+	t=1784518381; cv=none; b=SigByZGvVpNvAFPpTqpyglEHbmrT0S04A2XUatKerbvyWKmux81pduEQ3m5R0T7osw+mX/0/VNq2oyVnxEWkabrGLiygoqokOPEd8+qNpjZQdSJP7W3d5a/tqwFbIYC7CKGQeN+2qfrJEt0sFcDOmpUcvHolj0kGF0kw4N9Vpro=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784518329; c=relaxed/simple;
-	bh=/V+bCUvrEfRCYTK+Qak28Fl/PamSbut8ONItQejOSww=;
+	s=arc-20240116; t=1784518381; c=relaxed/simple;
+	bh=6CgCkGFTuSLHHIGC/yHd8rcZ+6ZqCtdJMUkoISn/6mI=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=U0gmV6RIuNHwe3QUeKIYjqLBlolqo9V0q1+mV8Gj/ZlV7zzjbsjDPssAta/T6Tya6GOmiazPsjoXUJOO9aR7hPfIDQMDzqXMtw1CepuCkr/Lb/C+RJdC8H/cTb476aWqoJnAXHb2JXCoAw/ogv+SoPV0DrNEgkez37EBMdd+DNY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=oAiN6ZQV; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=SE65x+nmi5a3NE7DIDohf/B+nThAjv/2PQE0LX1zNCbdlZ0LIenc26Wjkcus/+jAFX0JXAKXlGp01CnAySZgwIO/N+xlTDUxSgh5z7RdW6S0ZkGBfVtiQQJbe97O9lXsiy4k0pdJP2osQZK0saH5ctSOhnZ9JCicY2CQQ8gZS3o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Evi53KGL; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="oAiN6ZQV"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A3681F000E9;
-	Mon, 20 Jul 2026 03:32:07 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Evi53KGL"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9DC0F1F000E9;
+	Mon, 20 Jul 2026 03:32:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784518327;
-	bh=C72liKSl6FwCBwqOS5IVg5gGW6zTjocgETWvemm9PWA=;
+	s=k20260515; t=1784518378;
+	bh=e/EGyu4i3uQ2CgnsT2F11rFr4ZB3+99/Hydx+Fsd2UM=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=oAiN6ZQVgEAdwygEC6x0j0HTcKsqdVlBZNEXefLjIEXnXi2MJk/Iul5pITD+Z8N/m
-	 aL82duyNmjR0n5NC9ZWy+ec3rv2aeJ1HXBFjgQm3s/NP8itwu3O6IzNQEVZvNwZKXE
-	 o5YlLadqAq81xByOzKOY+QlOfGxNKFu4dYprLE+0cPGg9si9m6tC1lUlSYspr2wIay
-	 3fNa4sHZIKId6YAzCFXts6cQ84xRjb7a/8FLidd/elA8QZO8ne26FuqWbMtTEX62Wb
-	 Eu4b1p+6Z/xL9VCFiwPYxYeqg1tcyZ7tI2Dl9xqppcRdUjDROGblS1bHoA1aEvZzVj
-	 FceLlpuI6Edpg==
+	b=Evi53KGLKss/JTCgc4zTuN8oNiM73UC21VPzHOfLdjWZdzPOEo41bBTJh+XdOULkO
+	 BFo7IQkOMyPMHfCc1CRwZgurZlIbVdhB0ADuXlvPrpBcrhzXaS3+NHca3ihS7VnqPL
+	 P4y+UqJDKPgTB4Hrl/OVFgVSoqpr4Ektt7g2bGXZ5iaA29KXBdmYnT5FKxTIW08USu
+	 BtQrqQgkZMIR7kYupebUB3kyUCBVmDazVHMCVs2Lu7gwYZhbNyKz/CzAH2oVNKV7Un
+	 BRpBZXStRFTk9aAy0O9w9WhH4LFXoJ0GnBiR0/TsgngjTvmZex9ng6YAyt0TPVUCqm
+	 CI0EJQ3PmMYVA==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v5] Input: gunze: replace deprecated APIs and fix
- warning style
+Subject: Re: [PATCH v13 2/4] HID: hid-msi: Add M-key mapping attributes
 Reply-To: sashiko-reviews@lists.linux.dev
-To: "Bivash Kumar Singh" <bivashraj750@gmail.com>
+To: "Derek J. Clark" <derekjohn.clark@gmail.com>
 Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260720032407.4644-1-bivashraj750@gmail.com>
-References: <20260718190040.10613-1-bivashraj750@gmail.com>
- <20260720032407.4644-1-bivashraj750@gmail.com>
+In-Reply-To: <20260720031549.2272658-3-derekjohn.clark@gmail.com>
+References: <20260720031549.2272658-1-derekjohn.clark@gmail.com>
+ <20260720031549.2272658-3-derekjohn.clark@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Mon, 20 Jul 2026 03:32:06 +0000
-Message-Id: <20260720033207.1A3681F000E9@smtp.kernel.org>
+Date: Mon, 20 Jul 2026 03:32:58 +0000
+Message-Id: <20260720033258.9DC0F1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+Thank you for your contribution! Sashiko AI review found 5 potential issue(=
 s) to consider:
-- [High] Off-by-one buffer overflow when NUL-terminating the receive buffer=
- corrupts the device physical path.
-- [High] Early return on coordinate parsing failure drops malformed release=
- packets, permanently sticking the touch state.
+
+New issues:
+- [High] Race condition in `claw_profile_event` causes stale data to be ret=
+urned for profile reads.
+- [Low] Compilation error due to invalid C syntax for embedded tagged struc=
+t.
+- [Low] Subsystem guide violation: Mixing `goto`-based cleanup labels with =
+`__free()` automated cleanup.
+
+Pre-existing issues:
+- [High] Generic ACK responses improperly complete commands waiting for spe=
+cific data payloads.
+- [High] Gamepad sysfs attributes are permanently hidden and never created.
 --
 
---- Patch [1]: [PATCH v5] Input: gunze: replace deprecated APIs and fix war=
-ning style ---
-commit e46d9a0baa3ae281ee5b9c02aad4e7f63a5cf33f
-Author: Bivash Kumar Singh <bivashraj750@gmail.com>
+--- Patch [2]: [PATCH v13 2/4] HID: hid-msi: Add M-key mapping attributes -=
+--
+commit 4c48f895b57157a8a075f47f1218b8052e864f1b
+Author: Derek J. Clark <derekjohn.clark@gmail.com>
 
-Input: gunze: replace deprecated APIs and fix warning style
+HID: hid-msi: Add M-key mapping attributes
+   =20
+This patch adds attributes that allow for remapping the M-keys on MSI
+devices when in macro mode. It routes mapped buttons to appropriate event
+devices for gamepad, keyboard, or mouse events.
 
-This commit updates the driver to use dev_warn_ratelimited() instead of
-printk() and replaces simple_strtoul() with sscanf() for parsing coordinate
-data. It also NUL-terminates the receive buffer to allow safe string parsin=
-g.
+Link: https://patch.msgid.link/20260529072111.7565-3-derekjohn.clark@gmail.=
+com
 
-> diff --git a/drivers/input/touchscreen/gunze.c b/drivers/input/touchscree=
-n/gunze.c
-> index 2baeb4f3b941c..7a92052eba805 100644
-> --- a/drivers/input/touchscreen/gunze.c
-> +++ b/drivers/input/touchscreen/gunze.c
-> @@ -41,15 +41,20 @@ struct gunze {
->  static void gunze_process_packet(struct gunze *gunze)
->  {
->  	struct input_dev *dev =3D gunze->dev;
-> +	unsigned int x, y;
+> diff --git a/drivers/hid/hid-msi.c b/drivers/hid/hid-msi.c
+> index 6687e4579faa1..023d63cee6b06 100644
+> --- a/drivers/hid/hid-msi.c
+> +++ b/drivers/hid/hid-msi.c
+> @@ -255,6 +255,15 @@ struct claw_command_report {
+>  	u8 data[59];
+>  } __packed;
 > =20
-> -	if (gunze->idx !=3D GUNZE_MAX_LENGTH || gunze->data[5] !=3D ',' ||
-> -		(gunze->data[0] !=3D 'T' && gunze->data[0] !=3D 'R')) {
-> -		printk(KERN_WARNING "gunze.c: bad packet: >%.*s<\n", GUNZE_MAX_LENGTH,=
- gunze->data);
-> +	if (gunze->data[0] !=3D 'T' && gunze->data[0] !=3D 'R') {
-> +		dev_warn_ratelimited(&gunze->serio->dev, "bad packet: >%s<\n", gunze->=
-data);
->  		return;
->  	}
-> =20
-> -	input_report_abs(dev, ABS_X, simple_strtoul(gunze->data + 1, NULL, 10));
-> -	input_report_abs(dev, ABS_Y, 1024 - simple_strtoul(gunze->data + 6, NUL=
-L, 10));
-> +	if (sscanf(gunze->data + 1, "%4u,%4u", &x, &y) !=3D 2) {
-> +		dev_warn_ratelimited(&gunze->serio->dev, "bad packet: >%s<\n", gunze->=
-data);
-> +		return;
-> +	}
-
-[Severity: High]
-Does this early return risk leaving the touch state permanently stuck?
-
-If a release packet (starting with 'R') is received but the coordinate data
-contains noise causing sscanf() to fail, this will return early and skip the
-input_report_key() call below, dropping the release event.
-
+> +struct claw_profile_report {
+> +	u8 profile;
+> +	__be16 read_addr;
+> +} __packed;
 > +
-> +	input_report_abs(dev, ABS_X, x);
-> +	input_report_abs(dev, ABS_Y, 1024 - y);
->  	input_report_key(dev, BTN_TOUCH, gunze->data[0] =3D=3D 'T');
->  	input_sync(dev);
->  }
-> @@ -60,6 +65,7 @@ static irqreturn_t gunze_interrupt(struct serio *serio,
->  	struct gunze *gunze =3D serio_get_drvdata(serio);
-> =20
->  	if (data =3D=3D '\r') {
-> +		gunze->data[gunze->idx] =3D '\0';
+> +struct claw_mkey_report {
+> +	struct claw_profile_report;
+> +	u8 padding_0;
+
+[Severity: Low]
+Will this compile successfully, or does this introduce a regression?
+Standard C11 only permits anonymous structs if they do not have a tag. Using
+a tagged struct (like struct claw_profile_report;) without a field name acts
+as a forward declaration.
+
+This makes padding_0 the first member, causing the initialization in
+claw_mkey_store() to fail, and attempts to access mkeys->read_addr in
+claw_profile_event() will fail with a missing member error.
+
+[ ... ]
+> +static int claw_profile_event(struct claw_drvdata *drvdata, struct claw_=
+command_report *cmd_rep)
+> +{
+> +	enum claw_profile_ack_pending profile;
+> +	struct claw_mkey_report *mkeys;
+> +	u8 *codes, key;
+> +	int i;
+> +
+> +	scoped_guard(spinlock_irqsave, &drvdata->profile_lock)
+> +		profile =3D drvdata->profile_pending;
+> +
+> +	switch (profile) {
+> +	case CLAW_M1_PENDING:
+[ ... ]
+> +	default:
+> +		dev_dbg(&drvdata->hdev->dev,
+> +			"Got profile event without changes pending from command: %x\n",
+> +			cmd_rep->cmd);
+> +		return -EINVAL;
+> +	}
+> +	scoped_guard(spinlock_irqsave, &drvdata->profile_lock)
+> +		drvdata->profile_pending =3D CLAW_NO_PENDING;
+> +
+> +	return 0;
+> +}
 
 [Severity: High]
-Can this write past the end of the data array and corrupt the physical path?
+Is there a race condition here that introduces a regression where stale
+data is returned?
 
-The data array in struct gunze is sized exactly to GUNZE_MAX_LENGTH (10):
+The lock is dropped after reading profile_pending, opening a race window
+where another thread could update it. When this thread resumes and
+unconditionally writes CLAW_NO_PENDING, it could destroy pending profile
+requests initiated during the race window.
 
-struct gunze {
-	...
-	unsigned char data[GUNZE_MAX_LENGTH];
-	char phys[32];
-};
+For example, if Thread 1 times out leaving CLAW_M1_PENDING, and Thread 2
+sets CLAW_M2_PENDING, a delayed hardware response for M1 could cause this
+function to overwrite Thread 2's state with CLAW_NO_PENDING. This would
+cause Thread 2 to return unmodified M2 data.
 
-When a full-length valid touch packet is received followed by a '\r',
-gunze->idx will be 10. Writing '\0' at this index will write out of bounds
-and overwrite the adjacent phys array. Could the array size be increased to
-accommodate the NUL terminator?
+[ ... ]
+>  static int claw_raw_event(struct claw_drvdata *drvdata, struct hid_repor=
+t *report,
+>  			  u8 *data, int size)
+>  {
+[ ... ]
+>  	case CLAW_COMMAND_TYPE_ACK:
+>  		if (drvdata->orphan_ack_pending) {
+>  			drvdata->orphan_ack_pending =3D false;
+>  			complete(&drvdata->orphan_ack_complete);
+>  			break;
+>  		}
+> =20
+>  		if (drvdata->waiting_cmd =3D=3D CLAW_COMMAND_TYPE_NONE) {
+>  			dev_warn(&drvdata->hdev->dev, "Got unexpected ACK from MCU, ignoring\=
+n");
+>  			break;
+>  		}
+> =20
+>  		drvdata->cmd_status =3D 0;
+>  		complete(&drvdata->send_cmd_complete);
 
->  		gunze_process_packet(gunze);
->  		gunze->idx =3D 0;
->  	} else {
+[Severity: High]
+This is a pre-existing issue, but do generic ACKs improperly complete
+commands waiting for specific data payloads?
+
+If a previous command (like SYNC_TO_ROM with a timeout of 0) takes longer
+than the timeout to send its ACK, the orphan_ack_pending flag might clear
+before the generic ACK arrives.=20
+
+When the delayed generic ACK finally arrives while waiting_cmd is set for
+a new command (like READ_PROFILE), this branch skips the orphan check and
+unconditionally triggers complete(&drvdata->send_cmd_complete). This
+prematurely completes the new command's wait, potentially returning stale
+or uninitialized data.
+
+[ ... ]
+> static int __claw_hw_output_report(struct hid_device *hdev, u8 index, u8 =
+*data,
+>                                    size_t len, unsigned int timeout)
+> {
+>         unsigned char *dmabuf __free(kfree) =3D NULL;
+[ ... ]
+> err:
+>         scoped_guard(spinlock_irqsave, &drvdata->cmd_lock) {
+>                 drvdata->waiting_cmd =3D CLAW_COMMAND_TYPE_NONE;
+>                 drvdata->orphan_ack_pending =3D false;
+>         }
+>         return ret;
+> }
+
+[Severity: Low]
+This is a pre-existing issue, but does this function mix goto-based cleanup
+labels with __free() automated cleanup?
+
+The function declares unsigned char *dmabuf __free(kfree) =3D NULL; but also
+utilizes a goto err; label for state cleanup. The cleanup and guard
+subsystem guidelines state that functions should either convert all
+resources to scope-based cleanup or convert none of them.
+
+[ ... ]
+>  static umode_t claw_gamepad_attr_is_visible(struct kobject *kobj, struct=
+ attribute *attr,
+>  					    int n)
+>  {
+>  	struct hid_device *hdev =3D to_hid_device(kobj_to_dev(kobj));
+>  	struct claw_drvdata *drvdata =3D hid_get_drvdata(hdev);
+>=20
+>  	scoped_guard(spinlock_irqsave, &drvdata->registration_lock) {
+>  		/* Pairs with smp_store_release from cfg_setup_fn in system_wq context=
+ */
+>  		if (!smp_load_acquire(&drvdata->gp_registered))
+>  			return 0;
+>  	}
+
+[Severity: High]
+This is a pre-existing issue, but are the gamepad sysfs attributes ever
+created and made visible?
+
+In cfg_setup_fn(), device_add_group() is called before gp_registered is
+set to true. During sysfs group creation, this callback evaluates
+!smp_load_acquire(&drvdata->gp_registered) and returns 0.
+
+Because it returns 0 during creation, the files are never created. Even
+though gp_registered is set to true immediately afterward, the attributes
+will remain permanently hidden since sysfs_update_group is not called.
 
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260720032407.4644=
--1-bivashraj750@gmail.com?part=3D1
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260720031549.2272=
+658-1-derekjohn.clark@gmail.com?part=3D2

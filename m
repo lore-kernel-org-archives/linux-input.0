@@ -1,155 +1,125 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 346CF3D667F;
-	Mon, 20 Jul 2026 09:40:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CBB5D3D524E
+	for <linux-input@vger.kernel.org>; Mon, 20 Jul 2026 09:49:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784540426; cv=none; b=RPvWbNDSR4mE4r5Gw4XTAb/d1I1mXZTqZoCSwHFjk6eXyLICPj/Z8V8+DkLIqksd5K4YLa3Fy9qSXAqdyt7JLiCEZoiPFIz3KdP4H/1cz5V+WYgOaJZQarB68Y2tuvg7rfOb49ja6zOIs/kH0CnZet1RmQ/M7B8DApBaOicOj8g=
+	t=1784540946; cv=none; b=uGoTE0BOO77tS/DlYlDaqSymz+FZaZQatGfkPdTb/EvWRv6OAoUSEu/KKEUa7LpTfu5vdczhrLGP0yRR2Sq1W8IQyFUIyI4JNM2Ey/ku0oQQppU7h8UPZnNuVBoF2b+YxbjSZdQzdNEQBX768pqB/Shrd4Zb96eANKi3shhZJU0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784540426; c=relaxed/simple;
-	bh=+ua+D9S3TnwwHxCnPvi2ZmOquKQt/HKi3Xg9VC0hues=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=tpLb9CxG4pr3Ido3By96jdEeIRjU00NzaqUGIFRE5Iq7lDZTOu13ZeUgSPIM3Mw4apEqKNWnoD33Lweo1kgWBosdMp3x5Ipo0CnMZveVQ+yrO9aeeCBhBGEfDS1B0SPUFENZcsW6etYLUTl7cnuWUeefw+Ks/HgMVgi/LY83D8I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=tm+W8kbz; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1784540946; c=relaxed/simple;
+	bh=RYxzO0wXG6bnifioaSfiSo/ppLL/ZspPteoM12r+5BQ=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=YpPJKktFFy2gob2OcNQ9h63FB0wmXM2f46N7kHoBPSdQ4RLmDDI3mhagsSDuiBUmZaqFU9oKYlL1Qt2zzASuzcJLoCJodWexqznhFK6xOUX/jqnbxp7Ilq/1WE202+oCD6I5kdokLrduCgX9109iRtOZ86f1iUbvRH7s5Z4Vkss=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=IfaxKhiD; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="tm+W8kbz"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id F0E3DC2BCFC;
-	Mon, 20 Jul 2026 09:40:25 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1784540426;
-	bh=+ua+D9S3TnwwHxCnPvi2ZmOquKQt/HKi3Xg9VC0hues=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
-	b=tm+W8kbzLeN2WZeN8orp5usxV/2FkBIJ/QuhK/1Mtp7j5NBJA7AV3CiAEzNIjOCgI
-	 VbRssdEbFmOWqAJPhK7X7WUTM24DinukwFo+wweCPV+j7rpCRDxtdWV70MaBUMwRqA
-	 JGkEx80t2/97nNc3itpMFPu+iDTg8ZiqsPnojiVyXmC462ScmQ70AlBCwHR+mq+eAO
-	 3ytPnzO28Du0oemOjLw3NrSjsB85PQWmW8YDvEXhz/NcRrmMYGeYUF+wFt+gDDiu0j
-	 N9Qa9S5M5I2L5zudAYde+kQ+snjKz6PphTp/tulcNFYgaMmI/qjM0Rl175N2iDS/AN
-	 YWiPZ9jMPZvRg==
-Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E0EB4C44525;
-	Mon, 20 Jul 2026 09:40:25 +0000 (UTC)
-From: Sanjay Chitroda via B4 Relay <devnull+sanjayembeddedse.gmail.com@kernel.org>
-Date: Mon, 20 Jul 2026 15:10:19 +0530
-Subject: [PATCH 07/10] iio: orientation: hid-sensor-incl-3d: use local
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="IfaxKhiD"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 333371F000E9;
+	Mon, 20 Jul 2026 09:49:04 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1784540944;
+	bh=WKVpHsz/6a/8xxTChJ01iiL87EP98iNYjjHoG3Y4l5Q=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=IfaxKhiDSpmtv89wNw3lYvPeKH3vIYbBUigGeBD4Rl+G4cdOT4BIx33c0K6TY6Jwi
+	 rAQtcWmxaYZubUYbzCYinEI8HkXwvJLLLG72qnUCwwhe5LtAMH5GIbQb3qIg6IroGU
+	 gCCKEnV3LFKMbo82p/GWzYd8qWAX5i/xUr1DANkim4Omjxyr8YN+OO94JiRWnPuExZ
+	 P16D8UaHQR5HXrYIxIam9F8J2UcGDAgSpToTF18eizNabDqln332xfx3C7SXXeJPiY
+	 xn575UbEZe4ybhzEzOyUdeO1I8zU1OGUYnOsdvC8Is/L8hiYZv1E7Pw98O0zkrc7WY
+	 RTKag7e5T7zNw==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH 01/10] iio: humidity: hid-sensor-humidity: use local
  struct device
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Sanjay Chitroda" <sanjayembeddedse@gmail.com>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20260720-hid-iio-local-struct-device-v1-1-74496fee6327@gmail.com>
+References: <20260720-hid-iio-local-struct-device-v1-0-74496fee6327@gmail.com>
+ <20260720-hid-iio-local-struct-device-v1-1-74496fee6327@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Mon, 20 Jul 2026 09:49:03 +0000
+Message-Id: <20260720094904.333371F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20260720-hid-iio-local-struct-device-v1-7-74496fee6327@gmail.com>
-References: <20260720-hid-iio-local-struct-device-v1-0-74496fee6327@gmail.com>
-In-Reply-To: <20260720-hid-iio-local-struct-device-v1-0-74496fee6327@gmail.com>
-To: Jiri Kosina <jikos@kernel.org>, Jonathan Cameron <jic23@kernel.org>, 
- Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, 
- David Lechner <dlechner@baylibre.com>, 
- =?utf-8?q?Nuno_S=C3=A1?= <nuno.sa@analog.com>, 
- Andy Shevchenko <andy@kernel.org>
-Cc: linux-input@vger.kernel.org, linux-iio@vger.kernel.org, 
- linux-kernel@vger.kernel.org, Sanjay Chitroda <sanjayembeddedse@gmail.com>
-X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1784540423; l=3070;
- i=sanjayembeddedse@gmail.com; s=20260702; h=from:subject:message-id;
- bh=V5UXFAlSPanQN9gs2HGz9qITKyYoV6OuXxqP/NGEa/Y=;
- b=D7vt8syI2oxwosTVoFt+oAH202h7xOa5P+L3z+qyd/qWd1kPjcSDWX98A4jTYSC1aoOppzc0h
- Ak0O9onSHo0A8mDA+5Iqu4f+lz0am+0QVkJ1RYVBCSYHvHbjdstQCn4
-X-Developer-Key: i=sanjayembeddedse@gmail.com; a=ed25519;
- pk=PcneEFtkmY+Ldl+KmOTpB/Q/HDsqko6Fb0/Z/5cuycI=
-X-Endpoint-Received: by B4 Relay for sanjayembeddedse@gmail.com/20260702
- with auth_id=848
-X-Original-From: Sanjay Chitroda <sanjayembeddedse@gmail.com>
-Reply-To: sanjayembeddedse@gmail.com
 
-From: Sanjay Chitroda <sanjayembeddedse@gmail.com>
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
 
-Introduce a local struct device pointer derived from &pdev->dev.
-This avoids repeated &pdev->dev usage and improves readability.
+Pre-existing issues:
+- [High] The driver shares a single, global static `struct hid_sensor_hub_c=
+allbacks humidity_callbacks` across all device instances, leading to cross-=
+device data corruption and potential Use-After-Free if multiple devices are=
+ probed.
+--
 
-Signed-off-by: Sanjay Chitroda <sanjayembeddedse@gmail.com>
----
- drivers/iio/orientation/hid-sensor-incl-3d.c | 20 ++++++++++----------
- 1 file changed, 10 insertions(+), 10 deletions(-)
+--- Patch [1]: [PATCH 01/10] iio: humidity: hid-sensor-humidity: use local =
+struct device ---
+commit e9be49bc2265ade3aeb3c548b989cbea2029fdd4
+Author: Sanjay Chitroda <sanjayembeddedse@gmail.com>
 
-diff --git a/drivers/iio/orientation/hid-sensor-incl-3d.c b/drivers/iio/orientation/hid-sensor-incl-3d.c
-index aea28321db95..ff28aed47c75 100644
---- a/drivers/iio/orientation/hid-sensor-incl-3d.c
-+++ b/drivers/iio/orientation/hid-sensor-incl-3d.c
-@@ -293,14 +293,14 @@ static int incl_3d_parse_report(struct platform_device *pdev,
- /* Function to initialize the processing for usage id */
- static int hid_incl_3d_probe(struct platform_device *pdev)
- {
--	struct hid_sensor_hub_device *hsdev = dev_get_platdata(&pdev->dev);
-+	struct device *dev = &pdev->dev;
-+	struct hid_sensor_hub_device *hsdev = dev_get_platdata(dev);
- 	int ret;
- 	static char *name = "incli_3d";
- 	struct iio_dev *indio_dev;
- 	struct incl_3d_state *incl_state;
- 
--	indio_dev = devm_iio_device_alloc(&pdev->dev,
--					  sizeof(struct incl_3d_state));
-+	indio_dev = devm_iio_device_alloc(dev, sizeof(struct incl_3d_state));
- 	if (!indio_dev)
- 		return -ENOMEM;
- 
-@@ -316,14 +316,14 @@ static int hid_incl_3d_probe(struct platform_device *pdev)
- 				incl_3d_sensitivity_addresses,
- 				ARRAY_SIZE(incl_3d_sensitivity_addresses));
- 	if (ret) {
--		dev_err(&pdev->dev, "failed to setup common attributes\n");
-+		dev_err(dev, "failed to setup common attributes\n");
- 		return ret;
- 	}
- 
--	indio_dev->channels = devm_kmemdup(&pdev->dev, incl_3d_channels,
-+	indio_dev->channels = devm_kmemdup(dev, incl_3d_channels,
- 					   sizeof(incl_3d_channels), GFP_KERNEL);
- 	if (!indio_dev->channels) {
--		dev_err(&pdev->dev, "failed to duplicate channels\n");
-+		dev_err(dev, "failed to duplicate channels\n");
- 		return -ENOMEM;
- 	}
- 
-@@ -332,7 +332,7 @@ static int hid_incl_3d_probe(struct platform_device *pdev)
- 				   HID_USAGE_SENSOR_INCLINOMETER_3D,
- 				   incl_state);
- 	if (ret) {
--		dev_err(&pdev->dev, "failed to setup attributes\n");
-+		dev_err(dev, "failed to setup attributes\n");
- 		return ret;
- 	}
- 
-@@ -346,7 +346,7 @@ static int hid_incl_3d_probe(struct platform_device *pdev)
- 	ret = hid_sensor_setup_trigger(indio_dev, name,
- 				       &incl_state->common_attributes);
- 	if (ret) {
--		dev_err(&pdev->dev, "trigger setup failed\n");
-+		dev_err(dev, "trigger setup failed\n");
- 		return ret;
- 	}
- 
-@@ -357,13 +357,13 @@ static int hid_incl_3d_probe(struct platform_device *pdev)
- 					   HID_USAGE_SENSOR_INCLINOMETER_3D,
- 					   &incl_state->callbacks);
- 	if (ret) {
--		dev_err(&pdev->dev, "callback reg failed\n");
-+		dev_err(dev, "callback reg failed\n");
- 		goto error_remove_trigger;
- 	}
- 
- 	ret = iio_device_register(indio_dev);
- 	if (ret) {
--		dev_err(&pdev->dev, "device register failed\n");
-+		dev_err(dev, "device register failed\n");
- 		goto error_remove_callback;
- 	}
- 
+iio: humidity: hid-sensor-humidity: use local struct device
 
--- 
-2.34.1
+This commit introduces a local struct device pointer derived from pdev->dev
+in hid_humidity_probe() to avoid repeated usage and improve readability.
 
+> diff --git a/drivers/iio/humidity/hid-sensor-humidity.c b/drivers/iio/hum=
+idity/hid-sensor-humidity.c
+> index 7cec81ff56856..1b254d3aeee90 100644
+> --- a/drivers/iio/humidity/hid-sensor-humidity.c
+> +++ b/drivers/iio/humidity/hid-sensor-humidity.c
+> @@ -196,10 +196,11 @@ static int hid_humidity_probe(struct platform_devic=
+e *pdev)
 
+[Severity: High]
+This is a pre-existing issue, but does sharing a single global static
+humidity_callbacks structure across all device instances lead to cross-devi=
+ce
+data corruption?
+
+Looking at hid_humidity_probe(), it unconditionally overwrites the shared
+static callback structure with the pdev of the most recently probed instanc=
+e:
+
+hid_humidity_probe(struct platform_device *pdev)
+{
+        ...
+        humidity_callbacks.pdev =3D pdev;
+        ret =3D sensor_hub_register_callback(hsdev, HID_USAGE_SENSOR_HUMIDI=
+TY,
+                                           &humidity_callbacks);
+        ...
+}
+
+If multiple HID humidity sensors are probed, the static humidity_callbacks
+struct is overwritten. If an earlier probed device generates an event, the
+callback functions will receive the wrong pdev.
+
+Additionally, if the most recently probed device is disconnected, its pdev =
+is
+freed. If the remaining connected device generates an event, could the driv=
+er
+dereference a dangling pointer?
+
+Should the callbacks struct be allocated per-device inside the dynamically
+allocated state structure instead of being defined globally as a static
+variable?
+
+>  	struct iio_dev *indio_dev;
+>  	struct hid_humidity_state *humid_st;
+>  	struct iio_chan_spec *humid_chans;
+> -	struct hid_sensor_hub_device *hsdev =3D dev_get_platdata(&pdev->dev);
+> +	struct device *dev =3D &pdev->dev;
+> +	struct hid_sensor_hub_device *hsdev =3D dev_get_platdata(dev);
+>  	int ret;
+> =20
+> -	indio_dev =3D devm_iio_device_alloc(&pdev->dev, sizeof(*humid_st));
+> +	indio_dev =3D devm_iio_device_alloc(dev, sizeof(*humid_st));
+>  	if (!indio_dev)
+>  		return -ENOMEM;
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260720-hid-iio-lo=
+cal-struct-device-v1-0-74496fee6327@gmail.com?part=3D1

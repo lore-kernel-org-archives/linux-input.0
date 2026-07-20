@@ -1,119 +1,88 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mailgw.kylinos.cn (mailgw.kylinos.cn [124.126.103.232])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 192347263B
-	for <linux-input@vger.kernel.org>; Mon, 20 Jul 2026 03:30:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1B7A13955D0;
+	Mon, 20 Jul 2026 03:30:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=124.126.103.232
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784518240; cv=none; b=QKkh1BKAvuH83DnW18VJ3+3r7BUsW1w0uaVT5wGxYcYhzXkzQhLxhJe9KdnUBHQ6hBCOPVmf9BNOZyJiMMwkmFwFZ3yUO22dgkvNb2/mc4zyIhjmcfEssTL5wqC4tAVhiWc0O6fobqhkPPI7/xtSQwv+vpovSEPLixx+jZFlaKQ=
+	t=1784518242; cv=none; b=BuAGdqNHFLUupvRQBwy3CmdtUqgGLFM3ojQjM9HuiNyQ0tVdHSkaG3GnFw0joexn95JM37Zhq6vSYaOamEHfVJDJnzVkSSCpRaoMrhyUpcPbkS94T8gCRkUN3N+pq5r/DKINWVrfzTQvnDOp3I9/nwxvr2BMu9M+tgg0PBf1b8c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784518240; c=relaxed/simple;
-	bh=nm0Y76Kf1UYPA3K4iYmIONDTgt4UvatvqyyDmlWMpIw=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=toXDYDQuBKqiULgM3cwZDt+V0hNPbaGF95NyqFCyLYzD8pnsUiUJs9I36bd+Z+R8+HoipdOrsLkPr8Ol/QuhkUkGaY5N70hbajTjlnDVUCzAFgOFpoRwI+q0ilNN8vdZ5xyemXtpUBaGjyoq3gwfK4q2DXg5WVkuTzRu77pW1eE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=dAfrwaK4; arc=none smtp.client-ip=100.103.45.18
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="dAfrwaK4"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76E001F000E9;
-	Mon, 20 Jul 2026 03:30:38 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784518238;
-	bh=/2kRev/9C2CrFX60FTwYXPyOe5T8MBk8gXmoSsSRCTk=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=dAfrwaK4LsGTz4g8oJVzbmHyHbIKLusQSKfRJoKIpgUQz073MCb4bfhOsR2E8ev18
-	 GATVP0hrmBR4b6Sbh8HGbFaXsyqiqoIf7qSZMygJ0X3cFDd2SkUoBzWeJ8F/JBWnRj
-	 6ltNYo26k31uM+U1EvRWSCloK31+8dLY2vGnGo0HFdbf1Gl2nA811AkO06bvP4Ue60
-	 bbct7cdkz1RrHEuRxo4TcpJmcLpT2RrZbTQl9Z4130r1YlCxMxcitU3r+iLptP6Lut
-	 gTC/YsGIIMxyxQGkvSGLb8Ny+WJkX63jwGb0j8kLhx8QiaQZeCFG5VN2SiQiSKgQvY
-	 ayAcquH5U9dkg==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v13 4/4] HID: hid-msi: Add Rumble Intensity Attributes
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Derek J. Clark" <derekjohn.clark@gmail.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260720031549.2272658-5-derekjohn.clark@gmail.com>
-References: <20260720031549.2272658-1-derekjohn.clark@gmail.com>
- <20260720031549.2272658-5-derekjohn.clark@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Mon, 20 Jul 2026 03:30:38 +0000
-Message-Id: <20260720033038.76E001F000E9@smtp.kernel.org>
+	s=arc-20240116; t=1784518242; c=relaxed/simple;
+	bh=cD4UIAZvGc5FxtJxaWlmL1baCCE4bH3tRAhMoxgot8c=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=SXeC3kebsw7XBPKeMt6Oe8tF488DsndcqniyJtLxNfsraWbd+zXVSOIh49KbrK+DwkfuNJQ4qltDoHUejhuz1nFv3QTBLhCmBRxYbn6RxlZ5PMHGcTuR+rf7xfOkIe5OUE2gtZ0ebdda+CiI7G1p/uTLb/+x7r6gAB/ytan/SzU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn; spf=pass smtp.mailfrom=kylinos.cn; arc=none smtp.client-ip=124.126.103.232
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kylinos.cn
+X-UUID: 5e4a384483eb11f1aa26b74ffac11d73-20260720
+X-CID-P-RULE: Release_Ham
+X-CID-O-INFO: VERSION:1.3.12,REQID:6d26cbb1-6dbb-4abd-aae8-d5dfe5a2f823,IP:0,U
+	RL:0,TC:0,Content:0,EDM:0,RT:0,SF:0,FILE:0,BULK:0,RULE:Release_Ham,ACTION:
+	release,TS:0
+X-CID-META: VersionHash:e7bac3a,CLOUDID:dbaf429601f380af8cd06f5fc4ec8631,BulkI
+	D:nil,BulkQuantity:0,Recheck:0,SF:102|850|865|898,TC:nil,Content:0|15|50,E
+	DM:-3,IP:nil,URL:0,File:nil,RT:nil,Bulk:nil,QS:nil,BEC:nil,COL:0,OSI:0,OSA
+	:0,AV:0,LES:1,SPR:NO,DKR:0,DKP:0,BRR:0,BRE:0,ARC:0
+X-CID-BVR: 2,SSN|SDN
+X-CID-BAS: 2,SSN|SDN,0,_
+X-CID-FACTOR: TF_CID_SPAM_SNR
+X-CID-RHF: D41D8CD98F00B204E9800998ECF8427E
+X-UUID: 5e4a384483eb11f1aa26b74ffac11d73-20260720
+X-User: lilinmao@kylinos.cn
+Received: from localhost.localdomain [(10.44.16.150)] by mailgw.kylinos.cn
+	(envelope-from <lilinmao@kylinos.cn>)
+	(Generic MTA with TLSv1.3 TLS_AES_256_GCM_SHA384 256/256)
+	with ESMTP id 273153055; Mon, 20 Jul 2026 11:30:34 +0800
+From: Linmao Li <lilinmao@kylinos.cn>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Kees Cook <kees@kernel.org>,
+	Vivek BalachandharTN <vivek.balachandhar@gmail.com>,
+	Richard Pospesel <pospeselr@gmail.com>,
+	Chris Diamand <chris@diamand.org>,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Linmao Li <lilinmao@kylinos.cn>,
+	stable@vger.kernel.org
+Subject: [PATCH] Input: byd - synchronize timer deletion before freeing private data
+Date: Mon, 20 Jul 2026 11:30:30 +0800
+Message-Id: <20260720033030.1580891-1-lilinmao@kylinos.cn>
+X-Mailer: git-send-email 2.25.1
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
-- [Low] The function `__claw_hw_output_report` violates the cleanup subsyst=
-em rules by mixing `goto`-based error handling with scope-based cleanup (`_=
-_free(kfree)`).
---
+byd_disconnect() uses timer_delete() before freeing the driver's private
+data.  This does not wait for a running byd_clear_touch() callback, which
+dereferences the private data and its psmouse pointer.  A callback racing
+with disconnect can therefore access the private data after it has been
+freed.
 
---- Patch [4]: [PATCH v13 4/4] HID: hid-msi: Add Rumble Intensity Attribute=
-s ---
-commit 9f513aab0b37d6357132f5ca7a76ad690510bbc7
-Author: Derek J. Clark <derekjohn.clark@gmail.com>
+Use timer_delete_sync() to wait for any running callback before releasing
+the private data.
 
-HID: hid-msi: Add Rumble Intensity Attributes
+Fixes: 2d5f5611dd0d ("Input: byd - enable absolute mode")
+Cc: stable@vger.kernel.org
+Signed-off-by: Linmao Li <lilinmao@kylinos.cn>
+---
+ drivers/input/mouse/byd.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-This commit adds intensity adjustment attributes for the left and right rum=
-ble
-motors on the MSI Claw device. It introduces sysfs store and show functions
-to read and write rumble profile data to the hardware.
+diff --git a/drivers/input/mouse/byd.c b/drivers/input/mouse/byd.c
+index f5770a3af2f1..7a69724c1ac6 100644
+--- a/drivers/input/mouse/byd.c
++++ b/drivers/input/mouse/byd.c
+@@ -423,7 +423,7 @@ static void byd_disconnect(struct psmouse *psmouse)
+ 	struct byd_data *priv = psmouse->private;
+ 
+ 	if (priv) {
+-		timer_delete(&priv->timer);
++		timer_delete_sync(&priv->timer);
+ 		kfree(psmouse->private);
+ 		psmouse->private = NULL;
+ 	}
+-- 
+2.25.1
 
-Link: https://patch.msgid.link/20260529072111.7565-5-derekjohn.clark@gmail.=
-com
-
-> diff --git a/drivers/hid/hid-msi.c b/drivers/hid/hid-msi.c
-> index 5cb85fc2f0534..3225d3bf61254 100644
-> --- a/drivers/hid/hid-msi.c
-> +++ b/drivers/hid/hid-msi.c
-[ ... ]
-> @@ -991,6 +1023,162 @@ static ssize_t button_mapping_options_show(struct =
-device *dev,
->  }
->  static DEVICE_ATTR_RO(button_mapping_options);
-> =20
-> +static ssize_t rumble_intensity_left_store(struct device *dev,
-> +					   struct device_attribute *attr,
-> +					   const char *buf, size_t count)
-> +{
-[ ... ]
-> +	ret =3D claw_hw_output_report(hdev, CLAW_COMMAND_TYPE_WRITE_PROFILE_DAT=
-A,
-> +				    (u8 *)&report, sizeof(report), 25);
-> +	if (ret)
-> +		return ret;
-
-[Severity: Low]
-Does __claw_hw_output_report() mix goto-based error handling with scope-bas=
-ed
-cleanup?
-
-Looking at __claw_hw_output_report(), which is called via
-claw_hw_output_report() here:
-
-	unsigned char *dmabuf __free(kfree) =3D NULL;
-...
-	ret =3D hid_hw_output_report(hdev, dmabuf, CLAW_PACKET_SIZE);
-	if (ret < 0)
-		goto err;
-...
-err:
-	scoped_guard(spinlock_irqsave, &drvdata->cmd_lock) {
-		drvdata->waiting_cmd =3D CLAW_COMMAND_TYPE_NONE;
-		drvdata->orphan_ack_pending =3D false;
-	}
-	return ret;
-
-The cleanup subsystem guidelines in include/linux/cleanup.h state that the
-expectation is to never mix "goto" and cleanup helpers in the same function.
-
-Is it possible to convert the error path to use scope-based cleanup entirel=
-y?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260720031549.2272=
-658-1-derekjohn.clark@gmail.com?part=3D4

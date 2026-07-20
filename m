@@ -1,130 +1,206 @@
-Received: from mail-pl1-f173.google.com (mail-pl1-f173.google.com [209.85.214.173])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 111A444998F
-	for <linux-input@vger.kernel.org>; Mon, 20 Jul 2026 17:57:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 508B543E069
+	for <linux-input@vger.kernel.org>; Mon, 20 Jul 2026 18:18:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784570260; cv=none; b=ar8VL6+KuZI4jvL1PloxKI3KEN5Ha4mvnbcvflnyIhOYaQKLKiI/+KkzP4FSE5w80aKFgG2E9CleOaQOGmpf/dEYa5A5/J0bwEaRL9X/cVWv7e0S3u+vVztQH0hHzMXLDW3Iaejl05hA32XiMnrXYEddt3TUyc2JpzBEB26Wq4w=
+	t=1784571494; cv=none; b=ik2+GU0oHgwmFWSqB19KhrMezJVTVgVntNzd3uZS/926xq3zFp3uTaQ42KenufFGTgNYHA3gPwndPXdFVGMeWAH+P+kjLBVDDcUc6mflAO4pTohvKh4Qm3DBvCNc9eeO7FruTrqjX9GH1x40c5jK/ZkDc8LIlIqpuxJeLjaJGh4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784570260; c=relaxed/simple;
-	bh=igEn42t4u12XoZyyxHoRRF8SirfiyUXGvMTBCAYh0i4=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=NAx+qNC2y+EyVw8a8qlwPpqPSQ8Kr3QrNwkpn1gl1DujVJQrJmSpv83/95ql4zW8GkffCv2WDW1xX0CF1GIKVxYsx1wMnyeT8GAQzDcJiwR/Mke/fpPLFvhsAe/pfhZ5ZAOdInkOKHbL1zo+m9FM/6Q6D4RHq2k3dL/Ph/aZGKo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=QjS3lZLH; arc=none smtp.client-ip=209.85.214.173
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1784571494; c=relaxed/simple;
+	bh=d+Ddooa+1HHOB0qNznbNcfeUV8FyVOtCCjl5IXxsBZU=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=G+1kI4zwElJG4akeRM7VzRm6cK8XxqcB4CQuBYBk143QTao8qMogJ20qyHXd4dMxWUkEUxmtcQS6fhNnyRxUjg2MhAUyTDSOyc4o2KtrrGRBUldvNQjsoGLvyOTeSqVyBMP65tVfrVEH4dC8x6HTSgvZGcIK2s8czaso+SaDX3Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=DkktX2Zk; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="QjS3lZLH"
-Received: by mail-pl1-f173.google.com with SMTP id d9443c01a7336-2cc61541f8cso48631905ad.0
-        for <linux-input@vger.kernel.org>; Mon, 20 Jul 2026 10:57:37 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784570257; x=1785175057; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=Sf4KgT9VFB2e+kDyHcLEWPDoBriHI7/J1wTDSaYbA6M=;
-        b=QjS3lZLHsBy3xohDRJlQpB/EKOqO4ftuHOlAMce2ANh51Ke0jxwEGyexI3c+NSxVR3
-         4RBr41SHK/5QHAd1S+NslIwgF8pQQ4tTggFysEbvOHLkYxNVASsLXB16/RAiMQfSDf66
-         57aH05tz7+evoRZmsZjyDsXSJm9FY+MFQp3yyplakrupCTGlRpPbOw9FemAnZhJCCnf8
-         c8lbSrSMDpKy5jtCraQ+byDPdCZbRLE7WGecZyqXJ1/7x8gFP1wxVMqqmuLQeT2EmDl8
-         oMQ/LQsDUyeNOlx+O3WSlIsLSGqSufUkvggJuggCYJZkwojCmqXTF6gcvIcbfgUbb4z1
-         hVWQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784570257; x=1785175057;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=Sf4KgT9VFB2e+kDyHcLEWPDoBriHI7/J1wTDSaYbA6M=;
-        b=ap/PtStl6oFl+NHTYwod4k0p50JNDaNsqEg8icyydx8mPPUo44BCIKtZpPvJf7I76j
-         UbFsh49OGMI2LfLakujlNy0PxDUwfXkTBmnkFzlXzuImMAD6iWPAp/1n72jYg8SZ4RBU
-         5SbKeuRe2iPrO3CgGa9fMZR5E7RQxi1l7XVpD3YoavoXbQcRLXRdvwwdN1qrtogM/AzB
-         Rs/NlKx6Cl0r114WlhVnY6DJ7CJfAjUNztPqQfFtAydY6QRT3YXkvv9ROU4JLS9D8BPC
-         c0WTtOxx9iFZQofDP3QPDYR2oDXbQSi809iPB4EJtkkgobwTlU6wmJ/rCqqQEMjZLVbw
-         S7qg==
-X-Gm-Message-State: AOJu0YwrM6CNZPgjV14xkmTGD4Z5c6VVDdZNuZsgozL57uj8uE2v6eMV
-	oBxo9tQDM9nSsPNZYQQyRiQBnpl5xDCLT7zsREOa50d2N4MXrUlwvdGQWTeoNwn+mJqRPLUf
-X-Gm-Gg: AR+sD10C4/RUt9rc4kYumHUlBIx0LdS++A+coKku/pYxQdOAlNotN5+e8PzH4gwLjMF
-	fMWisvpTqghAa+MSnzvbzKVnG9wC7dzd5FYxFI201kbIAwLqzt0LPW9urxxsMUfzVCQoVOrlcl2
-	wZ5KxGLPAXMWQOtEa+U5/zTXHRamdjtaoB5TINBKWPwSRWUDYJB6tAIAnbTZtff3eUQKNRuuPs4
-	bbbOEulH20TYllD4l/dHPsEXTtkmgLe77rZuB9z2Js/UxZt32QsQjQBPP71jOrXRZV64Su8vEvg
-	9N2JodTQNwb4V17nPGNyRCwnRmvftwjWt1ZFpXw46CqvoWTep9a0POxnSS09q9O+3aX2PD7Y04S
-	TQIVcq3+Vi0vkqkH1ivXWpzbYn+eARkkzn9mtHUmFN40Mfk8knXNHiNkqHnSj6Ql4m3GRcPlr5P
-	bbfyqI/mPT5WMBqJ3v706adP1PAYsZ/jpmSj5RqA==
-X-Received: by 2002:a17:903:2ac6:b0:2ce:a6a4:451b with SMTP id d9443c01a7336-2cf1f2e71eamr211624465ad.11.1784570256871;
-        Mon, 20 Jul 2026 10:57:36 -0700 (PDT)
-Received: from anon-laptop ([103.147.239.155])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3142a1bbaf6sm34943797eec.17.2026.07.20.10.57.34
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 20 Jul 2026 10:57:36 -0700 (PDT)
-From: Wahid7852 <wahidzk0091@gmail.com>
-To: linux-input@vger.kernel.org
-Cc: srinivas.pandruvada@linux.intel.com,
-	jikos@kernel.org,
-	Lixu Zhang <lixu.zhang@intel.com>,
-	Wahid Khan <wahidzk0091@gmail.com>
-Subject: [PATCH v2] HID: intel-ish-hid: ignore post-init ENUM_DEVICES from firmware
-Date: Mon, 20 Jul 2026 23:26:56 +0530
-Message-ID: <20260720175656.559351-1-wahidzk0091@gmail.com>
-X-Mailer: git-send-email 2.55.0
-In-Reply-To: <20260627224753.35075-1-wahidzk0091@gmail.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="DkktX2Zk"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC1CC1F000E9;
+	Mon, 20 Jul 2026 18:18:12 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1784571492;
+	bh=3b+zBLpI6YCckEtkTB8zD74CJG7c/I+PWQKAz12A8P4=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=DkktX2ZkdR7JB03pWIdZL496ksix3qAfwsDrJqx4P+Po9RDzwxPqFQWDH8LfeKx+c
+	 GXdhM7LOd2jwcYLwB2jcgLrI6op7+liRCUUsWZRGDXiJwfCLoBmLD5wB87/lbeGJQ4
+	 kGXDIITq3FU/rAf3s6p6EjseACf2F9EntQJsMWjKaNTvo9W8Jg/7lNTF/7DWE4y6FL
+	 SrcwRQDo3HR0O4QWMQfzIKILIu6KKx6TQ/zoWAvNLzvfebDkztx9e4Bz3aEkbyKqHC
+	 97fwKjjx3aYb3Ee88u9DgZfHOiIxMjqQQ2AgpWLRzQD5FCSm6RgeqTxBdnxz6+5BC2
+	 bTV8t0bzzE5DA==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v2] HID: intel-ish-hid: ignore post-init ENUM_DEVICES
+ from firmware
+Reply-To: sashiko-reviews@lists.linux.dev
+To: Wahid7852 <wahidzk0091@gmail.com>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <20260720175656.559351-1-wahidzk0091@gmail.com>
 References: <20260627224753.35075-1-wahidzk0091@gmail.com>
+ <20260720175656.559351-1-wahidzk0091@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Mon, 20 Jul 2026 18:18:12 +0000
+Message-Id: <20260720181812.AC1CC1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-From: Wahid Khan <wahidzk0091@gmail.com>
+Thank you for your contribution! Sashiko AI review found 5 potential issue(=
+s) to consider:
 
-Some ISH firmware versions (observed on Tiger Lake LP, 8086:a0fc,
-GUID {33AECD58-B679-4E54-9BD9-A04D34F0C226}) periodically re-send an
-unsolicited HOSTIF_DM_ENUM_DEVICES response roughly every 79 seconds.
-
-The current guard collapses two distinct cases into one condition:
-
-  if (!(response_flag) || init_done)  ->  bad packet + ish_hw_reset
-
-This incorrectly treats a valid post-init firmware announcement as a
-corrupted packet, triggering an ISH soft-reset and a full ISHTP
-re-initialisation cycle on each occurrence (~1100 times per day on
-affected hardware).
-
-Split the check: reject messages with no response flag as before, but
-simply discard valid ENUM_DEVICES messages that arrive after init is
-complete.
-
-Signed-off-by: Wahid Khan <wahidzk0091@gmail.com>
----
-v2: added proper sign off
-
- drivers/hid/intel-ish-hid/ishtp-hid-client.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/hid/intel-ish-hid/ishtp-hid-client.c b/drivers/hid/intel-ish-hid/ishtp-hid-client.c
-index 6d64008f2..ec5e8afe7 100644
---- a/drivers/hid/intel-ish-hid/ishtp-hid-client.c
-+++ b/drivers/hid/intel-ish-hid/ishtp-hid-client.c
-@@ -113,8 +113,7 @@ static void process_recv(struct ishtp_cl *hid_ishtp_cl, void *recv_buf,
-
- 		switch (recv_msg->hdr.command & CMD_MASK) {
- 		case HOSTIF_DM_ENUM_DEVICES:
--			if ((!(recv_msg->hdr.command & ~CMD_MASK) ||
--					client_data->init_done)) {
-+			if (!(recv_msg->hdr.command & ~CMD_MASK)) {
- 				++client_data->bad_recv_cnt;
- 				report_bad_packet(hid_ishtp_cl, recv_msg,
- 						  cur_pos,
-@@ -122,6 +121,8 @@ static void process_recv(struct ishtp_cl *hid_ishtp_cl, void *recv_buf,
- 				ish_hw_reset(ishtp_get_ishtp_device(hid_ishtp_cl));
- 				break;
- 			}
-+			if (client_data->init_done)
-+				break;
- 			client_data->hid_dev_count = (unsigned int)*payload;
- 			if (!client_data->hid_devices)
- 				client_data->hid_devices = devm_kcalloc(
+Pre-existing issues:
+- [Critical] Integer underflow and pointer arithmetic bugs in `HOSTIF_PUBLI=
+SH_INPUT_REPORT_LIST` allow massive out-of-bounds memory reads.
+- [Critical] Missing bounds check on `hid_dev_count` allows an out-of-bound=
+s write on fixed-size arrays.
+- [High] Missing state validation for duplicate initialization responses ca=
+uses a heap buffer overflow due to skipped reallocations.
+- [High] Inadequate bounds checking in `HOSTIF_DM_ENUM_DEVICES` allows out-=
+of-bounds memory reads from the receive buffer.
+- [High] The driver fails to cancel `client_data->work` and `client_data->r=
+esume_work` during device removal, leading to a potential use-after-free.
 --
-2.54.0
+
+--- Patch [1]: [PATCH v2] HID: intel-ish-hid: ignore post-init ENUM_DEVICES=
+ from firmware ---
+commit f5198129202a132955d59473ed96cfb8c860906b
+Author: Wahid Khan <wahidzk0091@gmail.com>
+
+    HID: intel-ish-hid: ignore post-init ENUM_DEVICES from firmware
+
+    This commit modifies the guard in process_recv() for the
+    HOSTIF_DM_ENUM_DEVICES command. It splits the check to reject messages
+    with no response flag, while silently discarding valid ENUM_DEVICES
+    messages that arrive after initialization is complete.
+
+> diff --git a/drivers/hid/intel-ish-hid/ishtp-hid-client.c b/drivers/hid/i=
+ntel-ish-hid/ishtp-hid-client.c
+> index 6d64008f2ce05..ec5e8afe77bd4 100644
+> --- a/drivers/hid/intel-ish-hid/ishtp-hid-client.c
+> +++ b/drivers/hid/intel-ish-hid/ishtp-hid-client.c
+> @@ -113,8 +113,7 @@ static void process_recv(struct ishtp_cl *hid_ishtp_c=
+l, void *recv_buf,
+> =20
+>  		switch (recv_msg->hdr.command & CMD_MASK) {
+>  		case HOSTIF_DM_ENUM_DEVICES:
+> -			if ((!(recv_msg->hdr.command & ~CMD_MASK) ||
+> -					client_data->init_done)) {
+> +			if (!(recv_msg->hdr.command & ~CMD_MASK)) {
+>  				++client_data->bad_recv_cnt;
+>  				report_bad_packet(hid_ishtp_cl, recv_msg,
+>  						  cur_pos,
+> @@ -122,6 +121,8 @@ static void process_recv(struct ishtp_cl *hid_ishtp_c=
+l, void *recv_buf,
+>  				ish_hw_reset(ishtp_get_ishtp_device(hid_ishtp_cl));
+>  				break;
+>  			}
+> +			if (client_data->init_done)
+> +				break;
+>  			client_data->hid_dev_count =3D (unsigned int)*payload;
+>  			if (!client_data->hid_devices)
+>  				client_data->hid_devices =3D devm_kcalloc(
+
+[Severity: High]
+This is a pre-existing issue, but could we experience a heap buffer overflow
+in process_recv() if we receive a duplicate HOSTIF_DM_ENUM_DEVICES response
+before initialization completes?
+
+The payload length or count is updated unconditionally, but reallocation
+is skipped if the buffer already exists:
+
+    client_data->hid_dev_count =3D (unsigned int)*payload;
+    if (!client_data->hid_devices)
+        client_data->hid_devices =3D devm_kcalloc(...)
+
+Would a subsequent response with a larger device count cause the memcpy loop
+to write beyond the initially allocated bounds of client_data->hid_devices?
+
+[Severity: Critical]
+This is a pre-existing issue, but is there a missing bounds check on the
+unvalidated device count provided by the firmware in process_recv()?
+
+The firmware provides an unvalidated hid_dev_count (up to 255) during
+HOSTIF_DM_ENUM_DEVICES, which the driver stores and uses as num_hid_devices.
+
+When processing responses for GET_HID_DESCRIPTOR or GET_REPORT_DESCRIPTOR,
+the driver uses curr_hid_dev to allocate and write into statically sized
+arrays like client_data->hid_descr:
+
+    client_data->hid_descr[curr_hid_dev] =3D devm_kmalloc(cl_data_to_dev(cl=
+ient_data), payload_len, GFP_KERNEL);
+
+Since these arrays are statically sized to MAX_HID_DEVICES (32), could a
+device count larger than 32 result in a critical out-of-bounds write on the
+client_data heap structure?
+
+[Severity: High]
+This is a pre-existing issue, but does inadequate bounds checking during
+the parsing of HOSTIF_DM_ENUM_DEVICES in process_recv() allow out-of-bounds
+memory reads from the receive buffer?
+
+When processing ENUM_DEVICES, the loop validates the bounds of incoming
+device_info structures using data_len instead of payload_len:
+
+    if (1 + sizeof(struct device_info) * i >=3D data_len)
+        break;
+
+Additionally, if the offset exceeds payload_len, the code logs an error
+but fails to break out of the loop:
+
+    if (1 + sizeof(struct device_info) * i >=3D payload_len) {
+        dev_err(cl_data_to_dev(client_data), ...);
+    }
+
+Can this cause the driver to read beyond the end of the current ISHTP packe=
+t,
+and potentially beyond the recv_buf allocation entirely when computing the
+pointer for memcpy?
+
+    dev_info =3D (struct device_info *)(payload + 1 + sizeof(struct device_=
+info) * i);
+
+[Severity: Critical]
+This is a pre-existing issue, but are there integer underflow and pointer
+arithmetic bugs in the HOSTIF_PUBLISH_INPUT_REPORT_LIST case of process_rec=
+v()
+that could allow massive out-of-bounds memory reads?
+
+If an incoming report->size is less than sizeof(struct hostif_msg_hdr),
+can payload_len underflow to a massive value?
+
+    payload_len =3D report_len - sizeof(struct hostif_msg_hdr);
+
+Furthermore, even without underflow, does advancing the pointer using C typ=
+ed
+pointer arithmetic implicitly multiply the increment by sizeof(struct repor=
+t)?
+
+    report +=3D sizeof(*report) + payload_len;
+
+Would this advance the pointer wildly out-of-bounds, feeding garbage lengths
+and pointers to hid_input_report(), potentially leading to kernel panics or
+data leakage?
+
+[Severity: High]
+This is a pre-existing issue, but does the driver fail to cancel pending wo=
+rk
+during device removal, leading to a potential use-after-free?
+
+The driver queues hardware reset and resume handlers on an ISHTP-wide shared
+workqueue. However, hid_ishtp_cl_remove() exits without calling
+cancel_work_sync() for client_data->work and client_data->resume_work:
+
+drivers/hid/intel-ish-hid/ishtp-hid-client.c:hid_ishtp_cl_remove() {
+    ...
+    ishtp_hid_remove(client_data);
+    hid_ishtp_cl_deinit(hid_ishtp_cl);
+    ...
+}
+
+When devres frees client_data, might any concurrently running or pending wo=
+rk
+on the shared workqueue access the freed structure?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260720175656.5593=
+51-1-wahidzk0091@gmail.com?part=3D1

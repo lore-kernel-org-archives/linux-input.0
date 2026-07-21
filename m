@@ -1,134 +1,115 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4119A3AD528;
-	Tue, 21 Jul 2026 10:04:23 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8120A44C645;
+	Tue, 21 Jul 2026 10:06:22 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784628265; cv=none; b=Di6BdGcni9wFOnV1FOYsWoLX75LUKvQaTXBU6CEK6uXQ8CdlJeYZP6AKbsE0T6QNFnlSeUF8c5AMP6Gu4Ol1yXMW3sYytATHDbf1TanmeqFpbSJuVCfqUKD51ZEVxgWZbaK9UZQlxNxoa7QQ1VTdHWt+WVcb+1lASytJ7Feg4xY=
+	t=1784628383; cv=none; b=iGyRymYXmsUlcApeMLjRmFI96eP7KZa852AKREPVci1vzFNg3/jnB/WiEnmYx13JlbJlXVMP5BPEYLVXJqeVDgueCrzp5b95edHywG4KDCCpL0OH7MSiZLNonrhnza0JSBJjU+SYNJBFzyJDbSkFJLl3+NWQ0j4y0OqurqhqJ3A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784628265; c=relaxed/simple;
-	bh=pAF/FRfBTCCPKT7aB+eBrOPsEqkoWzorWtV0h9d5Nms=;
+	s=arc-20240116; t=1784628383; c=relaxed/simple;
+	bh=e9emev741HJIAfX6L1IduIcEjovm3kd229dSSsYBV3A=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=tuTpLIcAJyQNY3CQE4E5CV2rVBV0vyfeH0FR5Hn/vbKB75trWLWM5CoAPPCVb3jIPrAf00LMGwsHXksr/leQ6pNj+9R9DHJWj+o/7SRKVB0S3IhcgcBVMlHCiR6fZKgO43hfEi0JcA6wim4/IYQLyQbgSE2Zv+GMdu2J40wIUME=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=haBPaJr+; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=YV6vvbWYaPchn7BlhP3H1PYNIBCY5N8xTSuuB2hainsAlgvlKFPa5kN1zuj1qJJtwZVZL25/Ik7SLm1oZXtffDom9nbmWZ5irbJiYBdxe3NcVi0pzTlr4MLOTRYuPcgcGPZutXsDRCGgwUl8gN3T2dhq5GiRiyWrlZN/6fOVgfw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=M6MGWuIA; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="haBPaJr+"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C9ED1F00A3A;
-	Tue, 21 Jul 2026 10:04:23 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="M6MGWuIA"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB5EB1F000E9;
+	Tue, 21 Jul 2026 10:06:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784628263;
-	bh=Sh3NUnR8GCa6mOJOZo4KF++S5ekyvsxPV1QCBY/Otuw=;
+	s=k20260515; t=1784628382;
+	bh=avpWQ8YTk8yIcRdLCTyrYBkMvLFsO+SMTcSwNcsIGxw=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=haBPaJr+zXIx3RYO1uZIzg/bGWnQ909/xBI1iCivSauE5ZNx7XBu//ihtMwz7Plim
-	 oW7Kr/Y4rLNfvqeCo3RWHYQR754YpFuTyBdLHW3LRksyURsENbGpFsgnrvPWTq0oSE
-	 dfIYfGlFE5skG0xjkEFNI9pG9tx2Lh0K4ZvRGds14RDFvM/LZC+QvXpZsBN3C3qHSQ
-	 K9tQk40gKb+nijvJOjcggGVb0yeDzm10l4aax21q95IyapwX1IiDU3dNbvtV5wiXKC
-	 JeKKhQtIU615f8tAs2pY3TeQh7Co/hF4h982gswdT8rwvWhKTJM9u7V6LNor/S2/Uu
-	 b7OI5tSSP/f2A==
+	b=M6MGWuIAxIVH9A7qt35+B5NDeCJg8dy8UwKTVMbw9fUe6rLBj4kwYWoZvo5DK5EBp
+	 Wbo4O8FDSHh4NZIrtqCfKdD3UFABYtQ96JwMgd/LedJ0PLqa8dLV9+P3PILJAo1e8T
+	 I+cwCPtOvdfetWRsNTw+7dOZ/olFWgX4iIPt+WgYJcMjRQC0mjDPgPom6GUOPTGxPU
+	 cn65r9+Q1sZ8g8yPMC9CyrBDo2tJms7QUm9AmetZe2IIQaggi8HnbmtCpuCP5BAX/2
+	 saSwj+OrsWhvVcLGIEWSJkS42hk+HT/JmlNZ/LLEl3Yg03eDpmd5LfsjObkSoVVz1i
+	 pIFxEmszEgNqw==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v10 6/7] power: supply: Add driver for ASUS Transformer
- battery
+Subject: Re: [PATCH v7 1/6] dt-bindings: leds: leds-cpcap: convert to DT
+ schema
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Svyatoslav Ryhel" <clamor95@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-leds@vger.kernel.org, lee@kernel.org, dmitry.torokhov@gmail.com, devicetree@vger.kernel.org, conor+dt@kernel.org, robh@kernel.org
-In-Reply-To: <20260721095233.420823-7-clamor95@gmail.com>
-References: <20260721095233.420823-1-clamor95@gmail.com>
- <20260721095233.420823-7-clamor95@gmail.com>
+Cc: lee@kernel.org, devicetree@vger.kernel.org, dmitry.torokhov@gmail.com, conor+dt@kernel.org, linux-leds@vger.kernel.org, linux-input@vger.kernel.org, robh@kernel.org
+In-Reply-To: <20260721095654.429346-2-clamor95@gmail.com>
+References: <20260721095654.429346-1-clamor95@gmail.com>
+ <20260721095654.429346-2-clamor95@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 21 Jul 2026 10:04:22 +0000
-Message-Id: <20260721100423.3C9ED1F00A3A@smtp.kernel.org>
+Date: Tue, 21 Jul 2026 10:06:21 +0000
+Message-Id: <20260721100621.EB5EB1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+Thank you for your contribution! Sashiko AI review found 3 potential issue(=
 s) to consider:
-- [Medium] The bounds check for battery property reading fails to account f=
-or the 2-byte read size, allowing the second byte to be read from logically=
- invalid padding data.
-- [Medium] Battery data cache is not invalidated on system resume, causing =
-user-space to receive potentially stale battery readings.
+- [Low] The commit message description following the subsystem prefix is no=
+t capitalized.
+- [Low] The newly added YAML binding points to a non-existent MFD schema, a=
+nd the parent MFD binding still points to the deleted text file.
+- [Low] The YAML binding conversion omitted the `examples` block.
 --
 
---- Patch [6]: [PATCH v10 6/7] power: supply: Add driver for ASUS Transform=
-er battery ---
-commit 576ecafdda8cdf8e2dbf1964e8a1e9097bcefa55
-Author: Micha=C5=82 Miros=C5=82aw <mirq-linux@rere.qmqm.pl>
+--- Patch [1]: [PATCH v7 1/6] dt-bindings: leds: leds-cpcap: convert to DT =
+schema ---
+commit 42a8d75469150373ffb675f9ae6fccd8e3d482d6
+Author: Svyatoslav Ryhel <clamor95@gmail.com>
 
-power: supply: Add driver for ASUS Transformer battery
+dt-bindings: leds: leds-cpcap: convert to DT schema
 
-This commit adds a new battery driver for Asus Transformer tablets and
-mobile docks. It implements one battery cell per EC controller and
-supports reading battery status via I2C.
+Convert LEDs devicetree bindings for the Motorola CPCAP MFD from TXT to
+YAML format. This patch does not change any functionality; the bindings
+remain the same.
 
-> diff --git a/drivers/power/supply/asus-transformer-ec-battery.c b/drivers=
-/power/supply/asus-transformer-ec-battery.c
+> dt-bindings: leds: leds-cpcap: convert to DT schema
+
+[Severity: Low]
+This isn't a bug, but should the description following the subsystem prefix
+be capitalized? The LED subsystem conventions typically expect a capitalized
+description, such as "Convert to DT schema".
+
+> diff --git a/Documentation/devicetree/bindings/leds/motorola,cpcap-leds.y=
+aml b/Documentation/devicetree/bindings/leds/motorola,cpcap-leds.yaml
 > new file mode 100644
-> index 0000000000000..4c0c6d4b09e2c
+> index 0000000000000..c8e7b88a05ccf
 > --- /dev/null
-> +++ b/drivers/power/supply/asus-transformer-ec-battery.c
+> +++ b/Documentation/devicetree/bindings/leds/motorola,cpcap-leds.yaml
 
 [ ... ]
 
-> +static int asus_ec_battery_get_value(struct asus_ec_battery_data *priv,
-> +				     enum power_supply_property psp)
-> +{
-> +	int ret, offs;
-> +
-> +	guard(mutex)(&priv->battery_lock);
-> +
-> +	if (psp >=3D ARRAY_SIZE(asus_ec_battery_prop_offs))
-> +		return -EINVAL;
-> +
-> +	offs =3D asus_ec_battery_prop_offs[psp];
-> +	if (!offs)
-> +		return -EINVAL;
-> +
-> +	ret =3D asus_ec_battery_refresh(priv);
-> +	if (ret < 0)
-> +		return ret;
-> +
-> +	if (offs >=3D priv->batt_data[0])
-> +		return -ENODATA;
-> +
-> +	return get_unaligned_le16(priv->batt_data + offs);
+> +description:
+> +  This module is part of the Motorola CPCAP MFD device. For more details
+> +  see Documentation/devicetree/bindings/mfd/motorola,cpcap.yaml. LEDs are
+> +  represented as sub-nodes of the PMIC node on the device tree.
 
-[Severity: Medium]
-Should the bounds check account for the 2-byte read size?
-
-If the EC returns a length where offs =3D=3D priv->batt_data[0] - 1, the bo=
-unds
-check offs >=3D priv->batt_data[0] will pass.=20
-
-Since get_unaligned_le16() reads two bytes, wouldn't it read a byte past the
-logical data length and return corrupted data instead of -ENODATA?
-
-> +}
+[Severity: Low]
+Does motorola,cpcap.yaml exist yet? It looks like this references a
+non-existent MFD schema. Additionally, the parent MFD binding in
+Documentation/devicetree/bindings/mfd/motorola-cpcap.txt wasn't updated
+to reflect the deletion of the old leds-cpcap.txt file.
 
 [ ... ]
 
-> +static int __maybe_unused asus_ec_battery_resume(struct device *dev)
-> +{
-> +	struct asus_ec_battery_data *priv =3D dev_get_drvdata(dev);
+> +required:
+> +  - compatible
+> +  - label
+> +  - vdd-supply
 > +
-> +	schedule_delayed_work(&priv->poll_work,
-> +			      msecs_to_jiffies(ASUSEC_BATTERY_DATA_FRESH_MSEC));
+> +unevaluatedProperties: false
 > +
-> +	return 0;
-> +}
+> +...
 
-[Severity: Medium]
-Should the data cache be explicitly invalidated here?
+[Severity: Low]
+Should this YAML file include an examples block? The YAML conversion
+drops the original usage example from the .txt file.=20
 
-If priv->batt_data_ts is not reset on resume, and jiffies has not
-sufficiently advanced past the expiration timestamp during suspend, could t=
-he
-driver serve stale battery data to user-space from before the sleep?
+Running dt_binding_check on standalone schemas that lack an examples section
+can result in warnings or incomplete schema validation.
 
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260721095233.4208=
-23-1-clamor95@gmail.com?part=3D6
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260721095654.4293=
+46-1-clamor95@gmail.com?part=3D1

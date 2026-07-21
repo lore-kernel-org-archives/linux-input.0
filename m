@@ -1,203 +1,115 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AE8833DB64B;
-	Tue, 21 Jul 2026 10:15:27 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CA7BC47DD6B;
+	Tue, 21 Jul 2026 10:16:08 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784628928; cv=none; b=oQP+R9NK7ANhdUMhiVC7GIT08VvuLrAKIfw/vwqUTOwpZtuaumbhsKzkujacrDd0l4nsKlY/ggDaI51B3LNA3LQ8MGeM4YXHViejVwX5lNMq5jTIpZT+ybgxQSxyZDW1oYgNjgpDUxxslWKJrxzDSVcVNM3kHBR41P9J+t4BPeA=
+	t=1784628972; cv=none; b=Z/1OwHUxo/KQahuWhISOxoctgK1I3CBco//HJqWOKvJqAzoNQrAxs9wxMmXTpQpT/AUnWuP6ldaB9ubSYoMIunb50DHnQcnWx5mmKcgPc8oIzZXZ7yTUw5eXit5v864q79C/1G88ZCxW2SjIS1zY8RhOaPrCCEBDal8eKa4E1og=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784628928; c=relaxed/simple;
-	bh=VcxtAUHxNdBbgZdA0jG6Cw4bzoGSA/cuxKBpvU0kt04=;
+	s=arc-20240116; t=1784628972; c=relaxed/simple;
+	bh=8sCEQHrPXe5hQPo9MToa2PG4jZF/1GldSEDg8o5rO6g=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=IYnRYY1XZMFvuKSkFFCAKHv7jGswkbUhR4xFiyc7eRqkr2w0eYflYI+YqtbZWy1o+HyA0gL170r5a70CJXTzdfiltqjc2FzsnuisuT6qLwuVgMx1f6GnF8WMqOd2GyA8u61QN6Wtel0HuLMcKgLDj4b1Rt6689j+107VsVB1Af0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=h9M4oW0C; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=S8r0EC7vhNRS+hK2GlZfG8Kyn7TymjKCq23ZCQfsPQXVqfMsPkCfr2EUG73i4v4aYi7yMCBch9GZogjHjBPtJoo0FL0JO9Rgrgj5Ohc3xSP5Re2p62lHLRnq8MXHIPqr/aOcCcFJjRJilWguiW5kHaeuQVfpEAbKuLIn41gS70A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=jY/M8mKz; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="h9M4oW0C"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2C5C1F000E9;
-	Tue, 21 Jul 2026 10:15:26 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="jY/M8mKz"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5BFA11F000E9;
+	Tue, 21 Jul 2026 10:16:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784628927;
-	bh=Ozlre7lFK+XdiHcz8ARIiALsGWVozgG1epJC3exQsmU=;
+	s=k20260515; t=1784628965;
+	bh=AcLp4dFPvCOoi0raae187qIUWOlRMREIetvj+OZGgrU=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=h9M4oW0CPK2da9f7MHEjkBY5BWelwPVKDJrecwb1hlpzDw8qfjjYRtYDS8tt62dKr
-	 l5U4P6GhrP+5mYhKCg/MtghAtH3PLZPuv6CWy9t90kw8wJ67eS8qT2f0aXRR4XY8Kx
-	 XaNZEQFlxkXpA02tG7UDIZhKOCKRktYF3KsjZPeAAISMyT8lo/XlcI0fdu5QJnFptG
-	 XaBbB0Lo/gowLbqLHGadF74cJbq+0BjxtdXz8s+DWbYnUBQ/JUFndCvEZo308E4dx2
-	 4xXROzU/SptCuiNuqufUMFChapd1BapMiULl3+azt6ySBFgMvaXjMAQOwHn8k+ojWV
-	 NoqnEfghCASEg==
+	b=jY/M8mKzenS+CiM/rElvjBp6r7bxkvdeqY36pgTTpoJ+kGDa1WzXS3pvRDOpVKozG
+	 71y6pFdxLmdwaoUy1cM3NbBzSND3faUUx4V+N6x5OykrIi/qOlTQS4yyslJr/ypK8/
+	 wINNyvZwDGmJHagUq+B+xPH6EQnCjPvBt+UajHB+8spzmZNiIK7T8i+ZoIEP9xvu23
+	 XgUdBjlqLX9W951AuilAjo8T3nLVaAkxvUZGXSeZtffvkJYjnIpUCrNJPhDCnUprYC
+	 +BiuA2fiX6qeYr0fUN/e8E+O952/jRjkU2ltGd4WBx9CQCHddEgc7Es/jguPLmEZQU
+	 IwRTNJFWM4MyA==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v7 3/6] dt-bindings: mfd: motorola-cpcap: convert to DT
- schema
+Subject: Re: [PATCH v7 4/6] dt-bindings: mfd: motorola-cpcap: document
+ Mapphone and Mot CPCAP
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Svyatoslav Ryhel" <clamor95@gmail.com>
-Cc: linux-input@vger.kernel.org, robh@kernel.org, conor+dt@kernel.org, devicetree@vger.kernel.org, linux-leds@vger.kernel.org, dmitry.torokhov@gmail.com, lee@kernel.org
-In-Reply-To: <20260721095654.429346-4-clamor95@gmail.com>
+Cc: linux-input@vger.kernel.org, conor+dt@kernel.org, devicetree@vger.kernel.org, linux-leds@vger.kernel.org, lee@kernel.org, robh@kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20260721095654.429346-5-clamor95@gmail.com>
 References: <20260721095654.429346-1-clamor95@gmail.com>
- <20260721095654.429346-4-clamor95@gmail.com>
+ <20260721095654.429346-5-clamor95@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 21 Jul 2026 10:15:26 +0000
-Message-Id: <20260721101526.D2C5C1F000E9@smtp.kernel.org>
+Date: Tue, 21 Jul 2026 10:16:04 +0000
+Message-Id: <20260721101605.5BFA11F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 5 potential issue(=
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
 s) to consider:
-- [Medium] YAML schema omits `#address-cells` and `#size-cells` properties =
-for the root node, causing validation failures for existing device trees.
-- [Medium] Schema strictly expects the power button node to be named `key-p=
-ower`, breaking validation for the legacy `button` node.
-- [Medium] The `audio-codec` schema expects a `ports` wrapper, breaking val=
-idation for legacy direct `port@0` definitions.
-- [Low] The `spi-cs-high` property was dropped from the schema's `required`=
- list.
-- [Low] Commit message description is not capitalized, violating MFD subsys=
-tem guidelines.
+- [Medium] The new compatible strings are defined as standalone enums witho=
+ut a generic fallback, causing drivers to fail to probe.
+- [Low] The commit message description starts with a lowercase letter, viol=
+ating MFD subsystem guidelines.
 --
 
---- Patch [3]: [PATCH v7 3/6] dt-bindings: mfd: motorola-cpcap: convert to =
-DT schema ---
-commit 4de37a9bd5e5179740a9f015e1900ab235da93ae
+--- Patch [4]: [PATCH v7 4/6] dt-bindings: mfd: motorola-cpcap: document Ma=
+pphone and Mot CPCAP ---
+commit d9f93935d00aa3510052461fef588d4ce3014eed
 Author: Svyatoslav Ryhel <clamor95@gmail.com>
 
-dt-bindings: mfd: motorola-cpcap: convert to DT schema
-   =20
-Convert devicetree bindings for the Motorola CPCAP MFD from TXT to YAML.
+dt-bindings: mfd: motorola-cpcap: document Mapphone and Mot CPCAP
 
-> dt-bindings: mfd: motorola-cpcap: convert to DT schema
+Add compatibles for Mapphone and Mot CPCAP subdevice compositions. Both
+variations cannot use st,6556002 fallback since they may be based on
+different controllers.
+
+> dt-bindings: mfd: motorola-cpcap: document Mapphone and Mot CPCAP
 
 [Severity: Low]
-This isn't a bug, but the MFD subsystem guidelines require the description
-after the subsystem prefix to be capitalized. Should "convert" be "Convert"?
+This isn't a bug, but should the description part of the commit message be
+capitalized? The MFD subsystem guidelines typically expect a capitalized
+description after the subsystem prefix.
 
 > diff --git a/Documentation/devicetree/bindings/mfd/motorola,cpcap.yaml b/=
 Documentation/devicetree/bindings/mfd/motorola,cpcap.yaml
-> new file mode 100644
-> index 0000000000000..76705ea56805a
-> --- /dev/null
+> index 76705ea56805a..da7abe2ec9126 100644
+> --- a/Documentation/devicetree/bindings/mfd/motorola,cpcap.yaml
 > +++ b/Documentation/devicetree/bindings/mfd/motorola,cpcap.yaml
-> @@ -0,0 +1,403 @@
-> +# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
-> +%YAML 1.2
-> +---
-> +$id: http://devicetree.org/schemas/mfd/motorola,cpcap.yaml#
-> +$schema: http://devicetree.org/meta-schemas/core.yaml#
-> +
-> +title: Motorola CPCAP PMIC MFD
-> +
-> +maintainers:
-> +  - Svyatoslav Ryhel <clamor95@gmail.com>
-> +
-> +allOf:
-> +  - $ref: /schemas/spi/spi-peripheral-props.yaml#
-> +
-> +properties:
-> +  compatible:
-> +    items:
-> +      - const: motorola,cpcap
-> +      - const: st,6556002
+> @@ -14,9 +14,14 @@ allOf:
+> =20
+>  properties:
+>    compatible:
+> -    items:
+> -      - const: motorola,cpcap
+> -      - const: st,6556002
+> +    oneOf:
+> +      - enum:
+> +          - motorola,mapphone-cpcap
+> +          - motorola,mot-cpcap
 
 [Severity: Medium]
-Does omitting #address-cells and #size-cells from the properties block
-break validation for existing device trees?
+Since these new compatible strings are defined as standalone enums without a
+generic fallback, will the core driver fail to probe these devices?=20
 
-Because this schema sets additionalProperties: false, running make dtbs_che=
-ck
-against existing in-tree device trees (like
-arch/arm/boot/dts/ti/omap/motorola-cpcap-mapphone.dtsi, which uses
-#address-cells =3D <1> and #size-cells =3D <0> on the pmic@0 node) will fal=
-sely
-report validation errors.
+Looking at drivers/mfd/motorola-cpcap.c, cpcap_of_match[] lacks a match for
+these specific strings:
 
-[ ... ]
+static const struct of_device_id cpcap_of_match[] =3D {
+	{ .compatible =3D "motorola,cpcap", },
+	{ .compatible =3D "st,6556002", },
+	{},
+};
 
-> +  audio-codec:
-> +    type: object
-> +    additionalProperties: false
+Are there plans to update the driver's match table to recognize these new
+standalone compatibles, or could a generic fallback like "motorola,cpcap" be
+added to the bindings?
+
 > +
-> +    properties:
-> +      interrupts:
-> +        items:
-> +          - description: headset detect interrupt
-> +          - description: microphone bias 2 detect interrupt
-> +
-> +      interrupt-names:
-> +        items:
-> +          - const: hs
-> +          - const: mb2
-> +
-> +      "#sound-dai-cells":
-> +        const: 1
-> +
-> +      VAUDIO-supply:
-> +        description:
-> +          Codec power supply, usually VAUDIO regulator of CPCAP.
-> +
-> +      ports:
-
-[Severity: Medium]
-Will this strict ports wrapper requirement cause validation failures for
-legacy device trees?
-
-Existing device trees place port@0 directly inside the audio-codec node:
-
-arch/arm/boot/dts/ti/omap/motorola-cpcap-mapphone.dtsi:
-    cpcap_audio: audio-codec {
-        ...
-        port@0 {
-            cpcap_audio_codec0: endpoint { ... };
-        };
-    };
-
-With additionalProperties: false set on the audio-codec node, dtbs_check
-will flag these direct ports as illegal properties.
-
-[ ... ]
-
-> +  charger:
-> +    $ref: /schemas/power/supply/cpcap-charger.yaml#
-> +
-> +  key-power:
-> +    $ref: /schemas/input/motorola,cpcap-pwrbutton.yaml#
-
-[Severity: Medium]
-Does hardcoding the node name as key-power break validation for the legacy
-button node?
-
-Existing device trees use the button node name:
-
-arch/arm/boot/dts/ti/omap/motorola-cpcap-mapphone.dtsi:
-    power_button: button {
-        compatible =3D "motorola,cpcap-pwrbutton";
-        ...
-    };
-
-Since this schema enforces the exact name key-power, make dtbs_check
-will flag the existing button node as an invalid property.
-
-[ ... ]
-
-> +required:
-> +  - compatible
-> +  - reg
-> +  - interrupts
-> +  - interrupt-controller
-> +  - "#interrupt-cells"
-> +  - spi-max-frequency
-
-[Severity: Low]
-Is it intentional to drop spi-cs-high from this list?
-
-The legacy text binding explicitly documented spi-cs-high as a required
-property, which reflects the hardware's active-high chip select requirement.
-Omitting it here relaxes the constraint and might allow inaccurate device t=
-rees
-to pass validation.
+> +      - items:
+> +          - const: motorola,cpcap
+> +          - const: st,6556002
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260721095654.4293=
-46-1-clamor95@gmail.com?part=3D3
+46-1-clamor95@gmail.com?part=3D4

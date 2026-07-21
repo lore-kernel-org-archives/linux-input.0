@@ -1,44 +1,44 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 532A8451060;
-	Tue, 21 Jul 2026 10:07:19 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 358FE45BD78;
+	Tue, 21 Jul 2026 10:08:35 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784628440; cv=none; b=s0yg5VYs35QlE+EJCGXFsdOvQ2TDMX9Pt2w9cqV0MBQoATys9t/HZEHcuRXaHmache1fYkkUafkakMjosGOUfoj849QkMx6AbRPk8IJ1/vUYrxJMtQj4L8jhBZ/zu1JKnKrwlqpLLSu5Bg9X58thvoGu6hI7p56hse1LlTKlxGA=
+	t=1784628516; cv=none; b=PfBVnt73K02TQoWVG33Mgtwf7kdnoK6VgGNQVuV0BG8PoDA28/31oDqh8pWAhm5ePsH7LtAd9gDIwQaEiWEsuSXWMkr9X9SfuKuU1yeW3mZWn6PoIK8VvZKujEwtDKU4+bfgk0ejmpfinX/Y9MbwdoM6cAJpa/mBosOai33VBhY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784628440; c=relaxed/simple;
-	bh=6YRp0CDMWaTeZesymBf7z4LvnP1XQJp17j5hZihlKl8=;
+	s=arc-20240116; t=1784628516; c=relaxed/simple;
+	bh=qrh+LLdRsZa/cbyHZi6FdZRYJ0HNhsWVeBAhAyuLzqE=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=sMCgNK7NV7aIJY8CdMV/hd1JIWQRX/XR6/mGwKoFHhFI+1qr+wKIjeJ2DvzElNrfW0ifs5Aa4kc5C5x54/ztMRxhc6l3lVmE2WCJTTe/EGNIYqFK7gZGggytp119CNmGQr6SSEEI50z1BXuTCYY/F4WCTh7vQk1r0q72qY3RNJA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=T3KaGA46; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=eZjakwcP/Cso9E2T8c9XtLuLz1S/JHk/gjYmTI0RYfy7OYhhMB/Ek0vIUAhXvaZDxrbASEE74mjPt/jf4JyAr78t7ZckL4r1cXasy7GYuFK5Zu4tLCndwx7ZFAYJi0lsOQgMPbMN4usC56t7FJfvpUNoCqMpaIYQ5ABTZMO5nNA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=bq21DZeK; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="T3KaGA46"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE1E11F00A3A;
-	Tue, 21 Jul 2026 10:07:18 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="bq21DZeK"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A0D2B1F00A3D;
+	Tue, 21 Jul 2026 10:08:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784628439;
-	bh=dTSZT1EEiL/KxPUmDn0M78Ut6VQdty6KMvO8ANiK+TE=;
+	s=k20260515; t=1784628515;
+	bh=4rN1XsclwEYobsUcGrpM2xP6PXs8J2naPTDAZ37k0EQ=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=T3KaGA46WyjReLYtnK8yk7Hs/rozD6kgcP71TjGmD6bqy9ffJz7NGJBzJRXYCGjug
-	 rBoENUUpg8LC4cCJnRjg+zRMcvNUg4ohtnjGITq11C66Y+BGQuuVLohg+nVAETm3e2
-	 RcLaU3UeEJr5SDgy7goAPSLk/DjT8qNOyVxfqCkxPYDwonwDppvxtCR2mJk2vu7ZxJ
-	 lsC+GNh4BE6HUA1jbCDqshKqb4KSfrLLgSv35KNXW5RaS6A7AmTv/X3ghSddusfpJ8
-	 HebCnTImPDNethgLDQ0hKHUpaGM82u07GcoKkGtWnKe6nCdg4bwdeHmyqAwWkLIQxL
-	 QMcDKf/Ptf0wA==
+	b=bq21DZeKz5/LN498t5AYGIS/XwpFj+aSTKn2Xk+YIJ4WTqcqJAaTs3lWvgneYaCwG
+	 vAz7rOvYrpo4m7warHwLvzXjyP0E1Ze2Yf6Q8wh4UaI018twbLvCxnQopOhtKadi+y
+	 OsDFD1GFQxv11+ACL1+bkiZn418nrKVkoypiUQC6y+Us1zk/+zRJ+I+hrXgKh5Dfs8
+	 BWEax3ENz65Qow5v2GTxUE6x7M8cXiBqFK2oGpwkFbZEAEI1cQk/sXc24utfB6IB0D
+	 0ERKO5nrUaNjh+KhyvSRhjpwGXCQNeovL5NV7Mei0GtgH8WHFK7zwKqLFj7sYDgqdb
+	 c0O/eTv/b+tUw==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v10 3/7] input: serio: Add driver for ASUS Transformer
- dock keyboard and touchpad
+Subject: Re: [PATCH v7 2/6] dt-bindings: input: cpcap-pwrbutton: convert to
+ DT schema
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Svyatoslav Ryhel" <clamor95@gmail.com>
-Cc: linux-input@vger.kernel.org, lee@kernel.org, conor+dt@kernel.org, devicetree@vger.kernel.org, linux-leds@vger.kernel.org, dmitry.torokhov@gmail.com, robh@kernel.org
-In-Reply-To: <20260721095233.420823-4-clamor95@gmail.com>
-References: <20260721095233.420823-1-clamor95@gmail.com>
- <20260721095233.420823-4-clamor95@gmail.com>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, devicetree@vger.kernel.org, lee@kernel.org, robh@kernel.org, conor+dt@kernel.org, linux-leds@vger.kernel.org
+In-Reply-To: <20260721095654.429346-3-clamor95@gmail.com>
+References: <20260721095654.429346-1-clamor95@gmail.com>
+ <20260721095654.429346-3-clamor95@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 21 Jul 2026 10:07:18 +0000
-Message-Id: <20260721100718.DE1E11F00A3A@smtp.kernel.org>
+Date: Tue, 21 Jul 2026 10:08:34 +0000
+Message-Id: <20260721100834.A0D2B1F00A3D@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -47,102 +47,54 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
 Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [High] Incorrect registration order of the notifier and serio ports leads=
- to NULL pointer dereferences during probe and use-after-free bugs during d=
-river removal.
+- [Low] The conversion to YAML format creates broken documentation cross-re=
+ferences between the child power button binding and the parent MFD binding.
 --
 
---- Patch [3]: [PATCH v10 3/7] input: serio: Add driver for ASUS Transforme=
-r dock keyboard and touchpad ---
-commit 4e9b70c95d0f43e6f5bf78aeff2f78f72b9b2f82
-Author: Micha=C5=82 Miros=C5=82aw <mirq-linux@rere.qmqm.pl>
+--- Patch [2]: [PATCH v7 2/6] dt-bindings: input: cpcap-pwrbutton: convert =
+to DT schema ---
+commit 04f32d0760614b206c7745dbb0c714f9b7720ee6
+Author: Svyatoslav Ryhel <clamor95@gmail.com>
 
-input: serio: Add driver for ASUS Transformer dock keyboard and touchpad
-   =20
-Add input driver for ASUS Transformer dock keyboard and touchpad.
+dt-bindings: input: cpcap-pwrbutton: convert to DT schema
 
-> diff --git a/drivers/input/serio/asus-transformer-ec-kbc.c b/drivers/inpu=
-t/serio/asus-transformer-ec-kbc.c
+This commit converts the device tree bindings for the Motorola CPCAP PMIC
+power button from plain text to YAML format.
+
+> diff --git a/Documentation/devicetree/bindings/input/motorola,cpcap-pwrbu=
+tton.yaml b/Documentation/devicetree/bindings/input/motorola,cpcap-pwrbutto=
+n.yaml
 > new file mode 100644
-> index 0000000000000..c6d12c44449d0
+> index 0000000000000..77a3e5a47d1ae
 > --- /dev/null
-> +++ b/drivers/input/serio/asus-transformer-ec-kbc.c
-
+> +++ b/Documentation/devicetree/bindings/input/motorola,cpcap-pwrbutton.ya=
+ml
+> @@ -0,0 +1,32 @@
 [ ... ]
-
-> +static int asus_ec_kbc_notify(struct notifier_block *nb,
-> +			      unsigned long action, void *data_)
-> +{
-
-[ ... ]
-
-> +	while (n--)
-> +		serio_interrupt(priv->sdev[port_idx], *data++, 0);
+> +maintainers:
+> +  - Svyatoslav Ryhel <clamor95@gmail.com>
 > +
-> +	return NOTIFY_OK;
-> +}
+> +description:
+> +  This module is part of the Motorola CPCAP MFD device. For more details
+> +  see Documentation/devicetree/bindings/mfd/motorola,cpcap.yaml. The
 
-[ ... ]
+[Severity: Low]
+Are we referencing a file that doesn't exist yet? Since the parent MFD
+binding hasn't been converted to YAML yet, the referenced file
+motorola,cpcap.yaml doesn't seem to be in the tree.
 
-> +static int asus_ec_kbc_probe(struct platform_device *pdev)
-> +{
-> +	struct asusec_core *ec =3D dev_get_drvdata(pdev->dev.parent);
-> +	struct asus_ec_kbc_data *priv;
-> +	int error;
-> +
-> +	priv =3D devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
-> +	if (!priv)
-> +		return -ENOMEM;
-> +
-> +	platform_set_drvdata(pdev, priv);
-> +
-> +	priv->ec =3D ec;
-> +	priv->parent =3D to_i2c_client(pdev->dev.parent);
-> +
-> +	priv->nb.notifier_call =3D asus_ec_kbc_notify;
-> +
-> +	error =3D blocking_notifier_chain_register(&ec->notify_list, &priv->nb);
-> +	if (error)
-> +		return dev_err_probe(&pdev->dev, error,
-> +				     "failed to register blocking notifier chain");
-> +
-> +	error =3D devm_add_action_or_reset(&pdev->dev,
-> +					 asus_ec_notifier_chain_unregister,
-> +					 priv);
-> +	if (error)
-> +		return error;
-> +
-> +	error =3D asus_ec_register_serio(pdev, 0, "Keyboard", 0);
-> +	if (error)
-> +		return error;
-> +
-> +	error =3D asus_ec_register_serio(pdev, 1, "Touchpad", I8042_CMD_AUX_SEN=
-D);
+Additionally, should the parent MFD binding
+(Documentation/devicetree/bindings/mfd/motorola-cpcap.txt) be updated in
+this patch? It appears it still explicitly lists cpcap-pwrbutton.txt in its
+"Optional subnodes:" section, which is being deleted here.
 
-[Severity: High]
-Does this registration order leave the driver vulnerable to race conditions?
-
-Since the parent MFD device might have already enabled its IRQ, an interrupt
-can fire immediately after blocking_notifier_chain_register() completes. If
-this occurs before the serio ports are registered, asus_ec_kbc_notify() will
-read priv->sdev[port_idx] which is still NULL, and pass it to
-serio_interrupt(), leading to a NULL pointer dereference.
-
-Additionally, because devm actions execute in LIFO order during driver
-removal or probe failure, the serio ports will be unregistered and freed
-before the notifier is unregistered. If an interrupt fires during this
-teardown window, could it pass a freed serio pointer to serio_interrupt()
-and cause a use-after-free?
-
-Should the notifier be registered only after the serio ports are fully
-allocated and registered to prevent these crashes?
-
-> +	if (error)
-> +		return error;
+> +  power key is represented as a sub-node of the PMIC node on the device
+> +  tree.
 > +
-> +	return 0;
-> +}
+> +properties:
+> +  compatible:
+> +    const: motorola,cpcap-pwrbutton
 
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260721095233.4208=
-23-1-clamor95@gmail.com?part=3D3
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260721095654.4293=
+46-1-clamor95@gmail.com?part=3D2

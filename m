@@ -1,134 +1,138 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.10])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f182.google.com (mail-pl1-f182.google.com [209.85.214.182])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4BFFC449B1D
-	for <linux-input@vger.kernel.org>; Mon, 20 Jul 2026 20:59:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.10
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BD4743A1B5
+	for <linux-input@vger.kernel.org>; Tue, 21 Jul 2026 00:12:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784581201; cv=none; b=OXoKc6VpA6ZMcRwDJigha+4cAXRNgH73LfPNsXRj0q1PHyFYFFytJDJSi3inZpkwLoG9pst3qpSI9uxzHn6kvgjDrJRY7CxzG+X6xUwyCja90k4DY8pAhK0DxtcbEKkQdtH3UPF+8w7VyZjNR86h7ihgDWHevx+nJjOE4q0sHjk=
+	t=1784592747; cv=none; b=Hi1uqw7Ug3i6HvPov+2F0+KMcabmyEYUgfQnhjx17IpT+HmlDIVsZvrDsbROgVUvRSAh5PG792Bef1hJdTe3o33QrdyxQLSIggV2IIzJghaDIHq5u4H0FpzcBi2iy69eSnECnYsE35cvuPRKSaW99ZSsKP5uFjnm2aAVOOmxaao=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784581201; c=relaxed/simple;
-	bh=X/0gb8oBsjiWKuoxn/UWaeUs1szQvzV3nzh5QK+4esE=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=kPcnlWD8UVF2sFyZT2VyyYLbGW+/fRSGOJHLGOTDsnohsNlvQnWqe9RsTIurWI0fr07j4ipqgPTOiF+aVmXZp+/OGjtGt2I/YYE/rezlGMuRpoTQBnx5Z9aaVaKxME0ENRsX3qS7KGZmzUJJGYf/stf9fU33burR5bvWZj83wuc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=mudvC29v; arc=none smtp.client-ip=198.175.65.10
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
+	s=arc-20240116; t=1784592747; c=relaxed/simple;
+	bh=RsxvZ2kjNpRuxeiC7PhLOyIc/slr6yzCYWGOMYLH9MA=;
+	h=Mime-Version:Content-Type:Date:Message-Id:Subject:From:To:
+	 References:In-Reply-To; b=BA0oZBXvEZz5ixBVxlp4pfEZRImCh+cuuvXHH7lvJSk3aFL6rhzFvM95a0+JRlwqhveztcsHA3V5asw5KfBdTiO6XlpR6n13qTKCIQ4UsMGGUhPCH2dA8Z44QOvJMlxFNjGRyVb1u3hei8C7WbveT7a47PSxrcj0mlS0MV1E0a4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=etsalapatis.com; spf=pass smtp.mailfrom=etsalapatis.com; dkim=pass (2048-bit key) header.d=etsalapatis-com.20251104.gappssmtp.com header.i=@etsalapatis-com.20251104.gappssmtp.com header.b=mR6hwAj+; arc=none smtp.client-ip=209.85.214.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=etsalapatis.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=etsalapatis.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="mudvC29v"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1784581200; x=1816117200;
-  h=message-id:subject:from:to:cc:date:in-reply-to:
-   references:content-transfer-encoding:mime-version;
-  bh=X/0gb8oBsjiWKuoxn/UWaeUs1szQvzV3nzh5QK+4esE=;
-  b=mudvC29vz7XhtHsw7eAVksz72mOV8yowvumWHW26Reu1aZc9l1Z75q7w
-   LPfRnf4EM5PLuXKpEAW0vaZDDeZpSnSJmVkngS/HkM7OeEhSPKAq5zcoW
-   AaHZFVR0xPdvTt52YQEji4npRW3QS3qXmgdlKFMBVXidvbDjwxYo2J8oy
-   XD068OdckvluHZzsERWjGmzDKiU4+zGBDXUgi67JXcr0dEvTyQJwDnqna
-   BVIIcft5pabyB+6D1LpuR2QkZ5SRBT5u2fkE/8LajGKRv4kZgG+vLdFvH
-   mHk4iC6CX660F2+d/aCA0pIcynRUE8YohjIrzmb52w/CrD7yoU4i8iAqY
-   A==;
-X-CSE-ConnectionGUID: +t9knZwBST2R81fGDM3vFg==
-X-CSE-MsgGUID: +NBRxLVHRZuuMCzdHZfxsQ==
-X-IronPort-AV: E=McAfee;i="6800,10657,11852"; a="102591770"
-X-IronPort-AV: E=Sophos;i="6.25,175,1779174000"; 
-   d="scan'208";a="102591770"
-Received: from orviesa008.jf.intel.com ([10.64.159.148])
-  by orvoesa102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Jul 2026 13:59:59 -0700
-X-CSE-ConnectionGUID: kOF91Ar1RGiuBidPTgZdhQ==
-X-CSE-MsgGUID: k34RyTzrTfmwG0yeSzVIpw==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.25,175,1779174000"; 
-   d="scan'208";a="256998943"
-Received: from gabaabhi-mobl2.amr.corp.intel.com (HELO [10.125.109.170]) ([10.125.109.170])
-  by orviesa008-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Jul 2026 13:59:59 -0700
-Message-ID: <efbf11ebb2faa0a60857408d3b820dffb890666c.camel@linux.intel.com>
-Subject: Re: [PATCH v2] HID: intel-ish-hid: ignore post-init ENUM_DEVICES
- from firmware
-From: srinivas pandruvada <srinivas.pandruvada@linux.intel.com>
-To: Wahid7852 <wahidzk0091@gmail.com>, linux-input@vger.kernel.org
-Cc: jikos@kernel.org, Lixu Zhang <lixu.zhang@intel.com>
-Date: Mon, 20 Jul 2026 13:59:58 -0700
-In-Reply-To: <20260720175656.559351-1-wahidzk0091@gmail.com>
-References: <20260627224753.35075-1-wahidzk0091@gmail.com>
-	 <20260720175656.559351-1-wahidzk0091@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.60.2 (3.60.2-1.fc44) 
+	dkim=pass (2048-bit key) header.d=etsalapatis-com.20251104.gappssmtp.com header.i=@etsalapatis-com.20251104.gappssmtp.com header.b="mR6hwAj+"
+Received: by mail-pl1-f182.google.com with SMTP id d9443c01a7336-2ce7d2adef4so105984895ad.3
+        for <linux-input@vger.kernel.org>; Mon, 20 Jul 2026 17:12:25 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=etsalapatis-com.20251104.gappssmtp.com; s=20251104; t=1784592745; x=1785197545; darn=vger.kernel.org;
+        h=in-reply-to:references:to:from:subject:message-id:date:content-type
+         :content-transfer-encoding:mime-version:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=onrnB+/aHr7Wf+QkbszHMvIqFKZqE++ytmEcsC/rl1w=;
+        b=mR6hwAj+ENbCuxA17/4Y77ns/cj3Ou8n9GaV25zHtC75bcAGipdPPwYQ5RATmeYRUv
+         78qHcseUDHBW2eFu7qaMa+7UNu/IkCfMBm3tn5tZjtH88X7QxNb7XrcfkbJHgwFdaSM6
+         Fy3n9bMVBhU6Mc1c4+7CWNYAn80hRyBU74uK3KHTSB+ahQDi8uAMmHzYSZifiVtamTsX
+         Coqedl0zFbhrcsvKlpGR5KF+++T7qdXj5X7cJyj4xAW5H3wlE8BOmUukGbmIlKJcEspb
+         SZ4CSPBK6lb6+Yp0IaJbFh3GCkDndtLgEmWGK9zG1h1E9VnVzokASww0kpE0Ft6DSjnJ
+         pykg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1784592745; x=1785197545;
+        h=in-reply-to:references:to:from:subject:message-id:date:content-type
+         :content-transfer-encoding:mime-version:x-gm-gg:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=onrnB+/aHr7Wf+QkbszHMvIqFKZqE++ytmEcsC/rl1w=;
+        b=nt/qwGNOmbrno2JoaquavxbrdrFYuNdu++Q2KRMhvkdNM1cl9WO46beL7pScbo6AlG
+         f050sws1FqUdMtS0VGdbjbbltcfeI74Yu4YgRkIqNcZytmMlcsuL9u037B5cheFfP7A/
+         1ZVnxmYr4OGxKscJhM5Y4saDOWuHjOaGJ68r7xLqjJbZjxYIjN4HPmaAwB44TVXIFnju
+         sun79SxmUSQeCN/0QRExcm55/XA5vqz31P7gr0FhbNdXU/MGGd157AnbuT1wU4laBSJa
+         ttUgvGmzn8szU0CapMpBAaVs2365hEVwPcQgH1jBFACSnPVKIv+ImEfeBCh1i2cI4FOK
+         2+oQ==
+X-Forwarded-Encrypted: i=1; AHgh+RqvCUhFoT4xw+gTAp0FUqtNF6MPTR0b1DTKJ37IELBvJevfYUcA6ShxqqfIut7eU4Jn2gppUbOtDaRThw==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yw438SzwLRYR0qk2qx7pTAUDGddJ2nCY0P6N94y/+VEG1zpOip3
+	bbi47HqNw49dpoogalPK5YgvwLODhYSACI6FK7f/jR5zMrMHPX7ShKGpklVzYll7uKA=
+X-Gm-Gg: AR+sD13f5uJs8J4iD37smcqU4UC0hnFJyrLmAubfFznujVdkARgrzu1HVymHsr71x23
+	1VaCKczEZa0jrqenzWowCB12Ohb9Jb9+SSND1h9610lh7ye5z9FWGfMoVBOX14nrVi8mBLAR7BI
+	i1yF2rfH6p4qmPdyCaDlCWFUkLNNX+lm5JITaxX3zLNidzjxtS8XZlr9tNdMQabzEcXKGBYRX5E
+	+QqzjdNMU642oQnvSluocmssvPrtpVjKeeazs7IEXvuRKzgGSQ8/CCYJMtUMnXddiX6hItWHK96
+	Euh/e/tfvzBlnHTaBpJHFCA7AsniMdrQJuQ9mpEtfKux/zwKb0W2u4ho7nBhsBNMA398QRNjqxA
+	7ljhu89vTHLVPrBLOnYwa4N2zN/fA8KbSfI6eXnCgY+mzqYSSaJdw26LyovTUMTajW8CUaNM8TQ
+	GUZlfNPA2ii59kRD/gRav1VVOc/RQhSc8=
+X-Received: by 2002:a17:902:d486:b0:2c9:ceb9:865b with SMTP id d9443c01a7336-2cf34878da9mr176347675ad.21.1784592745086;
+        Mon, 20 Jul 2026 17:12:25 -0700 (PDT)
+Received: from localhost (107-190-31-17.cpe.teksavvy.com. [107.190.31.17])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2cf74b60b29sm17937985ad.32.2026.07.20.17.12.24
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 20 Jul 2026 17:12:24 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
+Mime-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Date: Mon, 20 Jul 2026 20:12:24 -0400
+Message-Id: <DK3TBWQUQA87.1W5VP00KA1C7O@etsalapatis.com>
+Subject: Re: [PATCH v2] HID: bpf: Fix signedness bug in hid_bpf_hw_request
+From: "Emil Tsalapatis" <emil@etsalapatis.com>
+To: "Guangshuo Li" <lgs201920130244@gmail.com>, "Jiri Kosina"
+ <jikos@kernel.org>, "Benjamin Tissoires" <bentiss@kernel.org>, "Greg
+ Kroah-Hartman" <gregkh@linuxfoundation.org>, "Alexei Starovoitov"
+ <ast@kernel.org>, "Johan Hovold" <johan@kernel.org>, "Puranjay Mohan"
+ <puranjay@kernel.org>, "Kees Cook" <kees@kernel.org>,
+ <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+ <bpf@vger.kernel.org>
+X-Mailer: aerc 0.20.1
+References: <20260713132608.1265541-1-lgs201920130244@gmail.com>
+In-Reply-To: <20260713132608.1265541-1-lgs201920130244@gmail.com>
 
-On Mon, 2026-07-20 at 23:26 +0530, Wahid7852 wrote:
-> From: Wahid Khan <wahidzk0091@gmail.com>
->=20
-> Some ISH firmware versions (observed on Tiger Lake LP, 8086:a0fc,
-> GUID {33AECD58-B679-4E54-9BD9-A04D34F0C226}) periodically re-send an
-> unsolicited HOSTIF_DM_ENUM_DEVICES response roughly every 79 seconds.
->=20
-> The current guard collapses two distinct cases into one condition:
->=20
-> =C2=A0 if (!(response_flag) || init_done)=C2=A0 ->=C2=A0 bad packet + ish=
-_hw_reset
->=20
-> This incorrectly treats a valid post-init firmware announcement as a
-> corrupted packet, triggering an ISH soft-reset and a full ISHTP
-> re-initialisation cycle on each occurrence (~1100 times per day on
-> affected hardware).
->=20
-> Split the check: reject messages with no response flag as before, but
-> simply discard valid ENUM_DEVICES messages that arrive after init is
-> complete.
->=20
-> Signed-off-by: Wahid Khan <wahidzk0091@gmail.com>
+On Mon Jul 13, 2026 at 9:26 AM EDT, Guangshuo Li wrote:
+> hid_bpf_hw_request() clamps the return value of hid_hw_raw_request() to
+> the size of the caller-supplied buffer before copying data back to the
+> BPF buffer.
+>
+> However, ret is signed while size is unsigned. If hid_hw_raw_request()
+> returns a negative error code, the comparison promotes ret to size_t.
+> This makes the negative value look like a very large positive value, so
+> the error is clamped to size. The following memcpy() then treats the
+> failed request as a successful transfer and copies stale data back to
+> the caller.
+>
+> Handle negative return values before comparing ret with size and jump to
+> the common cleanup path on error. This preserves negative error codes
+> while still preventing oversized successful returns from overflowing
+> the caller-supplied buffer.
+>
+> Fixes: 2b658c1c442e ("HID: bpf: prevent buffer overflow in hid_hw_request=
+")
+> Signed-off-by: Guangshuo Li <lgs201920130244@gmail.com>
 
-    Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-
-
-Lixu, please add your tested by. I think you already tested this.
-
-Thanks,
-Srinivas
+Reviewed-by: Emil Tsalapatis <emil@etsalapatis.com>
 
 > ---
-> v2: added proper sign off
->=20
-> =C2=A0drivers/hid/intel-ish-hid/ishtp-hid-client.c | 5 +++--
-> =C2=A01 file changed, 3 insertions(+), 2 deletions(-)
->=20
-> diff --git a/drivers/hid/intel-ish-hid/ishtp-hid-client.c
-> b/drivers/hid/intel-ish-hid/ishtp-hid-client.c
-> index 6d64008f2..ec5e8afe7 100644
-> --- a/drivers/hid/intel-ish-hid/ishtp-hid-client.c
-> +++ b/drivers/hid/intel-ish-hid/ishtp-hid-client.c
-> @@ -113,8 +113,7 @@ static void process_recv(struct ishtp_cl
-> *hid_ishtp_cl, void *recv_buf,
->=20
-> =C2=A0		switch (recv_msg->hdr.command & CMD_MASK) {
-> =C2=A0		case HOSTIF_DM_ENUM_DEVICES:
-> -			if ((!(recv_msg->hdr.command & ~CMD_MASK) ||
-> -					client_data->init_done)) {
-> +			if (!(recv_msg->hdr.command & ~CMD_MASK)) {
-> =C2=A0				++client_data->bad_recv_cnt;
-> =C2=A0				report_bad_packet(hid_ishtp_cl,
-> recv_msg,
-> =C2=A0						=C2=A0 cur_pos,
-> @@ -122,6 +121,8 @@ static void process_recv(struct ishtp_cl
-> *hid_ishtp_cl, void *recv_buf,
-> =C2=A0				ish_hw_reset(ishtp_get_ishtp_device(
-> hid_ishtp_cl));
-> =C2=A0				break;
-> =C2=A0			}
-> +			if (client_data->init_done)
-> +				break;
-> =C2=A0			client_data->hid_dev_count =3D (unsigned
-> int)*payload;
-> =C2=A0			if (!client_data->hid_devices)
-> =C2=A0				client_data->hid_devices =3D
-> devm_kcalloc(
-> --
-> 2.54.0
+> v2:
+>   - Handle negative return values before comparing the return length
+>     with the unsigned buffer size, as suggested by Emil Tsalapatis.
+>   - Use the common cleanup path for negative return values.
+>
+>  drivers/hid/bpf/hid_bpf_dispatch.c | 4 +++-
+>  1 file changed, 3 insertions(+), 1 deletion(-)
+>
+> diff --git a/drivers/hid/bpf/hid_bpf_dispatch.c b/drivers/hid/bpf/hid_bpf=
+_dispatch.c
+> index d0130658091b..520b8f56a514 100644
+> --- a/drivers/hid/bpf/hid_bpf_dispatch.c
+> +++ b/drivers/hid/bpf/hid_bpf_dispatch.c
+> @@ -445,12 +445,14 @@ hid_bpf_hw_request(struct hid_bpf_ctx *ctx, __u8 *b=
+uf, size_t buf__sz,
+>  					      reqtype,
+>  					      (u64)(long)ctx,
+>  					      true); /* prevent infinite recursions */
+> -
+> +	if (ret < 0)
+> +		goto done;
+>  	if (ret > size)
+>  		ret =3D size;
+>  	if (ret > 0)
+>  		memcpy(buf, dma_data, ret);
+> =20
+> +done:
+>  	kfree(dma_data);
+>  	return ret;
+>  }
+

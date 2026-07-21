@@ -1,44 +1,44 @@
-Received: from SJ2PR03CU001.outbound.protection.outlook.com (mail-westusazon11012056.outbound.protection.outlook.com [52.101.43.56])
+Received: from BYAPR05CU005.outbound.protection.outlook.com (mail-westusazon11010039.outbound.protection.outlook.com [52.101.85.39])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 84EA93F12CE
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0541F404BE9
 	for <linux-input@vger.kernel.org>; Tue, 21 Jul 2026 17:44:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.43.56
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.85.39
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784655894; cv=fail; b=H2FV5s7lvso6+dX8GHDp+LckHhCEMkhLz+u60VGjZpIuBxAtj8aSLyP50FoV+9X32m1d79qekdoaJpVuQZlzr0Nw0Zqhtk3wG/i3hkFy8A9Q/gQ6ztsH0b/4MYQJsEM9+1+hNTtXUmfTDaO6B2X1j6tBncHwB8ffF1QSvsjjm6U=
+	t=1784655895; cv=fail; b=gnGw/xCTnEfyFvcXbGpvNambCOeNhOZtJJKikA8+DnXzRKcYjooXWKtDIYK+1Swj0fHbJEK1vrt9CJhA3ECOkTcBLhGceIg7EVty13v51j5OuIvlD3vfDmdjuK2uFp5zKbcgZgeh7tDbvz5PBUbkfqNGsIaa5IEbDVsAnXH51ss=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784655894; c=relaxed/simple;
-	bh=7ACGPH5I6cnG+cNhw+Rlq7gcOJg58ukZKHFGdUffXQg=;
+	s=arc-20240116; t=1784655895; c=relaxed/simple;
+	bh=IAAaRAULVltWxV6lZjMPCHMTyccTyo2ipB5f2DIn5Ic=;
 	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=Pgn/WRXfOJznZRJeIm3x1OigWxDOUi9thI+ODHUWZ836TReRTmVpyRnH7Lc/bqC1XPSAjShWL8TQ2H6N7NPwXT2lRq4dbhlephK33lR+iK6jzI7nRP9/hcR5U8Pjov1yTkt9GjQgboK5fFQs+4+el5snDfKlC8CZGRo4zBjMGkY=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com; spf=fail smtp.mailfrom=amd.com; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=KeqoYZ0o; arc=fail smtp.client-ip=52.101.43.56
+	 MIME-Version:Content-Type; b=pvfhwI/jT10Rttg9pIne5ofgGli1qyJZ1QDNjND/2BfJoTeUeTdYG9AaCarrb932zrmrDnCvqot8960lAHuK1JYGHutU1C2T03wowLdRgp0QouvXc5kB/Joxtosx49p8KtMk6a+iA2a4QBBaDudsbxPWgADKmFjTInaWYdnLjLE=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com; spf=fail smtp.mailfrom=amd.com; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=1gcMaat3; arc=fail smtp.client-ip=52.101.85.39
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
 Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=amd.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="KeqoYZ0o"
+	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="1gcMaat3"
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=vdNiCWvXfDFTMmQpyPwTcAkGF2nBKY6o93TpTiAc3E/EccpZXtFNZhxl6g8kxm9pjHGUJQGaMHh9HwK3Evxz0E0ds7DI7qF/SaCVGoB8cyALufsYK0Xsa30MP6MntJivw24qmXNg4xl23WL/ljSAV2nDBGPbWm/vBvsb9MJcFLDKeMVi/ic+wqwJkkK+PuVsd/Pna2bNgCI1rG2izMTcr1JGUYstUGrpC860fpTFX9GztzV6O04dzxEmVDZKHCQgUcAxFBBSriFdbMZ/TXcKHJ9WM08OzSkBXVMTjgvtZUNLiSz5eftsxhTOurX88h5hIFS9ICWNAMjVuLyTpqbuxg==
+ b=lhHqw4WLemA3XCWJpNaqSn/ycLL+2GP2r6YIAL+T63mI/xwwAG40QQFKe4LBHgCzojhftuNr2w51PJbMN+ky6LxmqLFELSs1vgCYZqeqi9G/0ZIBImHQBMQed7uoK9GImHeCblx1MMjqYxfAbCkB3z3BSAWNkGsMtgaW3B5aEcM7dmMiMgl3sEa1q5O5iNqaEszXpL4TsAPd/f1cjp6l74NBlomJ2B++SnkvAy5QbpopmDRXgePsi82711O9Go04Cr9KfMs7ZLtRiET1HRDLy+mMMTfCuz7pcYBmgAtkkGQqkzSQHcOLhchDdVDFAJFSbreQAn/ND8szqazv7iAa0w==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector10001;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=fCeobUDcbfskVtECydUrgmUuzfAwRPmJtYEcOGBpeaw=;
- b=CdQfKHh2kQ52RS04TnJpc/Z9GWrB0lcF83sCy8GgxKE+SK6EErVtZfmJbYi4+Ph71EyHnhqNZlmWpsO8Fr3rD92inKxUiLhUhK9Ru3Xl4Kws3sJPanqYvPHmXtfNp0MqSlg+yepsBE36a1YF9JdVgTt8AI75f/YmcRhl8ybTL7faDLRm6qmlOlSa14JNSOQ5b81dSaLYQabicp/rtxVHbqz0ulWSr8toNhzgroyXvoSlNU91Bi1YZVucH/IzDpZFa0LTS60/qLnAEGJzv21u8Z2sSoQsbmgYZpN0Fx5WVtvVtdp1LImHwBrPmPAFgVaior2dN45E40gvIAeQnuaTow==
+ bh=XoSNI3FCDR/l5rd/a7A1dhBCpGTGIT2bDM4KK0dBFck=;
+ b=XtVzt9sqCnQEvBUFxAePw2F2QrTCXEMpvO8kAmveYnnzGn2HTgE28bVFIy5RaxWIRmGHZuFvYYG7Gnqwvuwx2h9HxX0GaqCuemMbk6JCDS7X5bCAKwT6XQUbzwdIgfFRZhhgqHqN9QQh7oCfSdnSxIAwrlVsX5pZarp+PYrItgJQ0qXeuXjJE6dZcY0TprgRrn/jnBDSS41zpuDtUAJwmIFtSBR5Qg67ZGJods/SeVazMTCfK5N81UR8342275tJytlyLJ1/0gYonDVlSX0inCogPwonXY8F8Z/thpVKjerxgNmobPj4xAc0yZXTV2V5qiJRJNGmGQlcw+pRcf3rPw==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
  165.204.84.17) smtp.rcpttodomain=kernel.org smtp.mailfrom=amd.com; dmarc=pass
  (p=quarantine sp=quarantine pct=100) action=none header.from=amd.com;
  dkim=none (message not signed); arc=none (0)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=fCeobUDcbfskVtECydUrgmUuzfAwRPmJtYEcOGBpeaw=;
- b=KeqoYZ0osH6N9j1386BAMY6PlhtIl/c2aqmJ8ELbKVAFyHLcxPsR1I8SxyzM3ItD+qVbDTYMH7WXOpy9VO2gEUcTxp5ufmWqbLww8PN4pVXQEK6PxPlBG+XyeVMCMZeNbWmnUP+p8h9CpbC0ww4xAImNt4cIaOHMjxIs+k0stRg=
-Received: from DS7PR03CA0137.namprd03.prod.outlook.com (2603:10b6:5:3b4::22)
- by PHXPR12MB999256.namprd12.prod.outlook.com (2603:10b6:510:3ca::15) with
+ bh=XoSNI3FCDR/l5rd/a7A1dhBCpGTGIT2bDM4KK0dBFck=;
+ b=1gcMaat3yp5yGFgDnHbdbUwl8K6ibekE2278JDXRlqZSxg8NpU9Hvntey5ZOAO1Dhm+/fwC/jznXbbxQlP7j4H3d1W5ChFMbjGIGfMAIb3F/bHOq0ZlnRJhDVHDjhcS3nsOJzoDW593fs7hNmnxjQyzVvv9cBNfTSwka78pmAYo=
+Received: from DS7PR03CA0122.namprd03.prod.outlook.com (2603:10b6:5:3b4::7) by
+ IA1PR12MB6554.namprd12.prod.outlook.com (2603:10b6:208:3a2::15) with
  Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.223.18; Tue, 21 Jul
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.245.10; Tue, 21 Jul
  2026 17:44:50 +0000
 Received: from DS1PEPF00017097.namprd05.prod.outlook.com
- (2603:10b6:5:3b4:cafe::64) by DS7PR03CA0137.outlook.office365.com
- (2603:10b6:5:3b4::22) with Microsoft SMTP Server (version=TLS1_3,
+ (2603:10b6:5:3b4:cafe::30) by DS7PR03CA0122.outlook.office365.com
+ (2603:10b6:5:3b4::7) with Microsoft SMTP Server (version=TLS1_3,
  cipher=TLS_AES_256_GCM_SHA384) id 15.21.245.10 via Frontend Transport; Tue,
  21 Jul 2026 17:44:50 +0000
 X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
@@ -50,18 +50,18 @@ Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
 Received: from satlexmb07.amd.com (165.204.84.17) by
  DS1PEPF00017097.mail.protection.outlook.com (10.167.18.101) with Microsoft
  SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.21.245.5 via Frontend Transport; Tue, 21 Jul 2026 17:44:50 +0000
+ 15.21.245.5 via Frontend Transport; Tue, 21 Jul 2026 17:44:49 +0000
 Received: from airavat.amd.com (10.180.168.240) by satlexmb07.amd.com
  (10.181.42.216) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.41; Tue, 21 Jul
- 2026 12:44:48 -0500
+ 2026 12:44:46 -0500
 From: Basavaraj Natikar <Basavaraj.Natikar@amd.com>
 To: <jikos@kernel.org>, <bentiss@kernel.org>, <dmitry.torokhov@gmail.com>
 CC: <linux-input@vger.kernel.org>, Basavaraj Natikar
 	<Basavaraj.Natikar@amd.com>
-Subject: [PATCH 2/3] HID: amd_sfh: Register tablet-mode auxiliary device
-Date: Tue, 21 Jul 2026 23:14:21 +0530
-Message-ID: <20260721174422.3109166-3-Basavaraj.Natikar@amd.com>
+Subject: [PATCH 1/3] HID: amd_sfh: Add accessor to read the operating-mode sensor
+Date: Tue, 21 Jul 2026 23:14:20 +0530
+Message-ID: <20260721174422.3109166-2-Basavaraj.Natikar@amd.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20260721174422.3109166-1-Basavaraj.Natikar@amd.com>
 References: <20260721174422.3109166-1-Basavaraj.Natikar@amd.com>
@@ -77,144 +77,246 @@ X-ClientProxiedBy: satlexmb07.amd.com (10.181.42.216) To satlexmb07.amd.com
  (10.181.42.216)
 X-EOPAttributedMessage: 0
 X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: DS1PEPF00017097:EE_|PHXPR12MB999256:EE_
-X-MS-Office365-Filtering-Correlation-Id: 6f7dc395-0eb1-4b8d-a58d-08dee74fc3b7
+X-MS-TrafficTypeDiagnostic: DS1PEPF00017097:EE_|IA1PR12MB6554:EE_
+X-MS-Office365-Filtering-Correlation-Id: c71c067a-6fc2-40a5-fefe-08dee74fc371
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|1800799024|82310400026|23010399003|376014|36860700016|22082099003|18002099003|56012099006|11063799006|10067099003;
+	BCL:0;ARA:13230040|23010399003|36860700016|82310400026|376014|1800799024|56012099006|11063799006|10067099003|22082099003|18002099003;
 X-Microsoft-Antispam-Message-Info:
-	NF+yWvFs7OrlgRFiFL4IhYuaOhtk3Ga8pjeDQiXY3PK1fdB2xUV7BYsZdgjmftvhupfivYxkDlOwkPXQHfnGnacHF+Qs2Z1EYkwR3Q17m5zBGwvItAgoY0uTwBGCDTU03HJbW55xJqtC0022r3feWs6oTnycEO3+gmow2wQ8s3wVVo7bu3zNj34SbfUdneOLGKURg2QB2rhtLryF7JGGMW/mJQ1FXfaEo1LNtzLwaHgs/cL7/AD9ldcBGOvBRwHErBn4yjh1Yq24h1GX2JnJbmnWYtqsm1ZY9z5tzsGk6EHLsggQ0HrNLdWONsSpC3IXGVUEz2Yc+PuvmMyOIpeRk6p/UOdjVw6pDMc8R28Dq9I8SzUuvyVAwzvIGXY6a21snzJLd+EqdZg4Nb012189nihYK0SApi4j/Y2Ft8m55MfYKw/4DLBBa9WJTt65OsA4NNA+iarxIkWalM0jbi6ABba0nNopx808Fn6SKMJsh7bQXcsPuRoDVcFI/S8eh618JIOrSP3cNH2JkAJoitiT47l64r7MVEfsWyWFEVli4PKm+NrVYw8d8e2jUxHorYWV9PAQcbp5zAv6ccW2Yl8w3vKZNh9ydbwfymZFMjWZFxhqMI5CBP0eGHdOFMQYep6ytFzop1yGhfP79at8dk/4HjWpNnW0m3xdSrbBOQ/aUypur5Bk2AKqrvxxF8aVTLOK+jhft300dwhPKf3km6a+2Q==
+	s59K7iKJHSIpHnrzbtNrNZRkPJsqzlyaLDT8GxhcSB7B8kcgduEy/ihN4tzkQROMHXreM4FKuIVvSvXBkBwecxBlPcvMWnIDwHTN+ZZv0j/yBW8dLKp9hD6KH77waXe5if9qMUeaif6gR5XnU9WfFt61XaoPpNTMYzZOALT5res9BOcsX4eAXFL2fuyNF1D5h5/npyTeoDPnTMBiYCWfYq+55lCm83Y+iUgu495JPP/sMgnlEyKZquKpOhpDxVcjRaFthq6THGiKRwAS5SjEKKmCAJA6MLtTdRnYv8ONcETTe9hG34jeAy0jBHoIrToa4FTHmotMHPURuBoXFeD6Dtz3LFCGOQvk82whvBqZPYyRlx7ipR7EaFt8Y+3Okndza43z3sVrfoili3h6A/lit8S7TBNIRWuVRjxJEJgTiUmLb/hCDdAp1Cvv3620wBBPq0MVnzHpDPiomEiJiWqc5w2OYZkPGRqL/FjeITfOSE+6FTGvVAbwHw3r3SeetjAKW67rfrWKqTUT/YzN23ATYIMJo0+4jn0uaIXOYtp7zEG28SjrP83tH+LZAUYFQA4dGSW6sdN0+DQhmOH7sBUP8tvWVfMzDMeFBI4xX9bbkYyr1hSFSi/sFhbd0bt1x/d4gwgsdpEynMGRNL1+VVtuPXsevAipNv9G0fk1ApuYY3afrWwGJm7QAqaZ+CxipaIm
 X-Forefront-Antispam-Report:
-	CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:satlexmb07.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230040)(1800799024)(82310400026)(23010399003)(376014)(36860700016)(22082099003)(18002099003)(56012099006)(11063799006)(10067099003);DIR:OUT;SFP:1101;
+	CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:satlexmb07.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230040)(23010399003)(36860700016)(82310400026)(376014)(1800799024)(56012099006)(11063799006)(10067099003)(22082099003)(18002099003);DIR:OUT;SFP:1101;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
 X-MS-Exchange-AntiSpam-MessageData-0:
-	USd/ZIUTPcJ7bB8zvOOz7+r7RRHMHmbvSiqn12X5XAU5PMx94tHyFVmB5YnSBYxyiGa4ljRXJMjMd83unfhedZNEvEsKqDYxwPeFJVJYGcFLs9KjyMd5Uy2xh6jwevfFvRjj75LZfcf5djAmtaiLpqQ5/tUZdVFcfYa/Llo+qU9wRuCrvnmx/HCDTnmwlR5qSm/B9RVtLsERevIgSu/KPSmMr3VeQukeF8Jj5MpZ8WO4ottHgsNOWdy7pGvuqkPVLLi/YfS48qLSd9JAy7qAZFaN+BVxeqFQpBeArjmvdjBktG+/fQjICgf/JecnX1HPIa63X1nwBeyZapv6q0VbQ97UEpBzZAji9rvJCS4B/K2ma3zr1aHOvGg7HYxHhWcwoNH4WC69IjWOzZUrEza6ZmbUQEY+OO4iLikvNWkQ6irzB1SsLYMezZLvuh4gf75b
+	1zSf67g8Ihujo8G9VzChw84DSY9TzBc7QF7/a4GR9UTNXEJo5+6UpWLgpC5vldSpOvhUj+NmyK2uoV/jd98LhXJSFVtAox4d+KHrer2X8Kb6Oa8DG5SVKeUr2EXZbICJ9jdE9dqMdqqVWibZN06ulf8FqJz2IE2XVYzzQ6q8fprqrmnU7kQtIDYJmJkmXuaRV0GEL86McqVU6U4d4rnKXAs0j5kBzsIhsDUo2n76xx/R6IYOvGuFadEfEHeSXo/ab/GO4MH1c9lyEGeqMl3FVSEKnRGWxaczPwKwZ+jY5IgrS08fen+rKmgNrVpUBA9EhR5ly3Thz0yDPz0bhpkV9Vlli2xHJZb/fN0OZv0cLxc6gfvGyowO1rFV9StDG7NhDprNb3vPJO/TG6CS1GwFB/DAPwJLv3lZqI9jJhLeMlFY4QVjzbP13vw//N+8klyq
 X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 21 Jul 2026 17:44:50.4438
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 21 Jul 2026 17:44:49.9856
  (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 6f7dc395-0eb1-4b8d-a58d-08dee74fc3b7
+X-MS-Exchange-CrossTenant-Network-Message-Id: c71c067a-6fc2-40a5-fefe-08dee74fc371
 X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
 X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[satlexmb07.amd.com]
 X-MS-Exchange-CrossTenant-AuthSource:
 	DS1PEPF00017097.namprd05.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Anonymous
 X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PHXPR12MB999256
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: IA1PR12MB6554
 
-Register an auxiliary device when the operating-mode sensor is present,
-so a dedicated input driver can bind to it and report the device
-posture. This keeps the input handling out of the sensor transport
-driver.
+Allow other drivers to query the operating mode (laptop or tablet)
+reported by the Sensor Fusion Hub. This is the interface used by the
+tablet-mode switch driver to report the device posture to userspace.
 
 Signed-off-by: Basavaraj Natikar <Basavaraj.Natikar@amd.com>
 ---
- drivers/hid/amd-sfh-hid/Kconfig          |  1 +
- drivers/hid/amd-sfh-hid/amd_sfh_common.h |  2 ++
- drivers/hid/amd-sfh-hid/amd_sfh_pcie.c   | 30 ++++++++++++++++++++++++
- 3 files changed, 33 insertions(+)
+ drivers/hid/amd-sfh-hid/amd_sfh_client.c      | 16 +++++++++
+ drivers/hid/amd-sfh-hid/amd_sfh_common.h      |  5 +++
+ drivers/hid/amd-sfh-hid/amd_sfh_pcie.c        | 12 +++++++
+ .../amd-sfh-hid/sfh1_1/amd_sfh_interface.c    | 33 +++++++++++++++++++
+ .../amd-sfh-hid/sfh1_1/amd_sfh_interface.h    |  1 -
+ include/linux/amd-pmf-io.h                    | 14 ++++++++
+ 6 files changed, 80 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/hid/amd-sfh-hid/Kconfig b/drivers/hid/amd-sfh-hid/Kconfig
-index 3291786a5ee6..d86d83ffebd7 100644
---- a/drivers/hid/amd-sfh-hid/Kconfig
-+++ b/drivers/hid/amd-sfh-hid/Kconfig
-@@ -6,6 +6,7 @@ menu "AMD SFH HID Support"
- config AMD_SFH_HID
- 	tristate "AMD Sensor Fusion Hub"
- 	depends on X86
-+	select AUXILIARY_BUS
- 	help
- 	  If you say yes to this option, support will be included for the
- 	  AMD Sensor Fusion Hub.
+diff --git a/drivers/hid/amd-sfh-hid/amd_sfh_client.c b/drivers/hid/amd-sfh-hid/amd_sfh_client.c
+index 96ae792beeb6..0f5346d2174c 100644
+--- a/drivers/hid/amd-sfh-hid/amd_sfh_client.c
++++ b/drivers/hid/amd-sfh-hid/amd_sfh_client.c
+@@ -383,3 +383,19 @@ int amd_sfh_hid_client_deinit(struct amd_mp2_dev *privdata)
+ 
+ 	return 0;
+ }
++
++bool amd_sfh_op_idx_enabled(struct amd_mp2_dev *mp2)
++{
++	struct amdtp_cl_data *cl = mp2->cl_data;
++	int i;
++
++	if (!cl)
++		return false;
++
++	for (i = 0; i < cl->num_hid_devices; i++)
++		if (cl->sensor_idx[i] == op_idx &&
++		    cl->sensor_sts[i] == SENSOR_ENABLED)
++			return true;
++
++	return false;
++}
 diff --git a/drivers/hid/amd-sfh-hid/amd_sfh_common.h b/drivers/hid/amd-sfh-hid/amd_sfh_common.h
-index cad7d5f8fd4d..34270ad95cf0 100644
+index 78f830c133e5..cad7d5f8fd4d 100644
 --- a/drivers/hid/amd-sfh-hid/amd_sfh_common.h
 +++ b/drivers/hid/amd-sfh-hid/amd_sfh_common.h
-@@ -10,6 +10,7 @@
- #ifndef AMD_SFH_COMMON_H
- #define AMD_SFH_COMMON_H
- 
-+#include <linux/auxiliary_bus.h>
- #include <linux/mutex.h>
- #include <linux/pci.h>
- #include "amd_sfh_hid.h"
-@@ -64,6 +65,7 @@ struct amd_mp2_dev {
- 	struct mutex lock;
- 	u8 init_done;
- 	u8 rver;
-+	struct auxiliary_device *tm_auxdev;
- };
- 
- struct amd_mp2_ops {
+@@ -100,4 +100,9 @@ static inline u64 amd_get_p2c_val(struct amd_mp2_dev *mp2, u32 idx)
+ {
+ 	return mp2->rver == 1 ? AMD_P2C_MSG_V1(idx) :  AMD_P2C_MSG(idx);
+ }
++
++bool amd_sfh_op_idx_enabled(struct amd_mp2_dev *mp2);
++void sfh_set_emp2(struct amd_mp2_dev *mp2);
++void sfh_deinit_emp2(void);
++
+ #endif
 diff --git a/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c b/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c
-index a3672a9302c5..826fd762514f 100644
+index 4b81cebdc335..a3672a9302c5 100644
 --- a/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c
 +++ b/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c
-@@ -8,6 +8,7 @@
-  *	    Basavaraj Natikar <Basavaraj.Natikar@amd.com>
-  */
+@@ -248,6 +248,11 @@ int amd_mp2_get_sensor_num(struct amd_mp2_dev *privdata, u8 *sensor_id)
+ 	return num_of_sensors;
+ }
  
-+#include <linux/auxiliary_bus.h>
- #include <linux/bitops.h>
- #include <linux/delay.h>
- #include <linux/devm-helpers.h>
-@@ -391,6 +392,32 @@ static const struct attribute_group *amd_sfh_groups[] = {
- 	NULL,
- };
- 
-+static void amd_sfh_maybe_register_tm(struct amd_mp2_dev *mp2)
++static void amd_sfh_deinit_emp2_action(void *unused)
 +{
++	sfh_deinit_emp2();
++}
++
+ static void amd_mp2_pci_remove(void *privdata)
+ {
+ 	struct amd_mp2_dev *mp2 = privdata;
+@@ -447,6 +452,7 @@ static int amd_mp2_pci_probe(struct pci_dev *pdev, const struct pci_device_id *i
+ 
+ 	privdata->pdev = pdev;
+ 	dev_set_drvdata(&pdev->dev, privdata);
++
+ 	rc = pcim_enable_device(pdev);
+ 	if (rc)
+ 		return rc;
+@@ -471,6 +477,10 @@ static int amd_mp2_pci_probe(struct pci_dev *pdev, const struct pci_device_id *i
+ 	if (rc)
+ 		return rc;
+ 
++	rc = devm_add_action_or_reset(&pdev->dev, amd_sfh_deinit_emp2_action, NULL);
++	if (rc)
++		return rc;
++
+ 	privdata->sfh1_1_ops = (const struct amd_sfh1_1_ops *)id->driver_data;
+ 	if (privdata->sfh1_1_ops) {
+ 		if (boot_cpu_data.x86 >= 0x1A)
+@@ -480,6 +490,7 @@ static int amd_mp2_pci_probe(struct pci_dev *pdev, const struct pci_device_id *i
+ 		if (rc)
+ 			return rc;
+ 
++		sfh_set_emp2(privdata);
+ 		schedule_work(&privdata->work);
+ 		return 0;
+ 	}
+@@ -498,6 +509,7 @@ static int amd_mp2_pci_probe(struct pci_dev *pdev, const struct pci_device_id *i
+ 		return rc;
+ 	}
+ 
++	sfh_set_emp2(privdata);
+ 	schedule_work(&privdata->work);
+ 	return 0;
+ }
+diff --git a/drivers/hid/amd-sfh-hid/sfh1_1/amd_sfh_interface.c b/drivers/hid/amd-sfh-hid/sfh1_1/amd_sfh_interface.c
+index 837d59e7a661..74b3d3382a82 100644
+--- a/drivers/hid/amd-sfh-hid/sfh1_1/amd_sfh_interface.c
++++ b/drivers/hid/amd-sfh-hid/sfh1_1/amd_sfh_interface.c
+@@ -81,12 +81,43 @@ void sfh_deinit_emp2(void)
+ 	emp2 = NULL;
+ }
+ 
++void sfh_set_emp2(struct amd_mp2_dev *mp2)
++{
++	emp2 = mp2;
++}
++
+ void sfh_interface_init(struct amd_mp2_dev *mp2)
+ {
+ 	mp2->mp2_ops = &amd_sfh_ops;
+ 	emp2 = mp2;
+ }
+ 
++static int amd_sfh_op_mode_info(u32 *op_mode)
++{
++	struct sfh_op_mode mode;
 +	bool present;
 +
-+	if (mp2->tm_auxdev)
-+		return;
++	if (!op_mode)
++		return -EINVAL;
++	if (!emp2)
++		return -ENODEV;
 +
-+	present = mp2->sfh1_1_ops ? mp2->dev_en.is_sra_present
-+				  : amd_sfh_op_idx_enabled(mp2);
++	present = emp2->sfh1_1_ops ? emp2->dev_en.is_sra_present
++				   : amd_sfh_op_idx_enabled(emp2);
 +	if (!present)
-+		return;
++		return -ENODEV;
 +
-+	mp2->tm_auxdev = auxiliary_device_create(&mp2->pdev->dev, KBUILD_MODNAME,
-+						 "tabletmode", NULL, 0);
-+	if (!mp2->tm_auxdev)
-+		dev_warn(&mp2->pdev->dev, "tabletmode auxdev create failed\n");
++	mode.val = readl(emp2->mmio + amd_get_c2p_val(emp2, 3));
++	dev_dbg(&emp2->pdev->dev,
++		"op-mode: raw=0x%08x mode=%u lid=%u angle=%u ontable=%u devmode=%u\n",
++		mode.val, mode.op_mode.mode, mode.op_mode.lidstatus,
++		mode.op_mode.angle, mode.op_mode.ontablestate,
++		mode.op_mode.devicemode);
++	*op_mode = mode.op_mode.mode;
++
++	return 0;
 +}
 +
-+static void amd_sfh_unregister_tm(struct amd_mp2_dev *mp2)
-+{
-+	if (mp2->tm_auxdev) {
-+		auxiliary_device_destroy(mp2->tm_auxdev);
-+		mp2->tm_auxdev = NULL;
-+	}
-+}
-+
- static void sfh1_1_init_work(struct work_struct *work)
+ static int amd_sfh_mode_info(u32 *platform_type, u32 *laptop_placement)
  {
- 	struct amd_mp2_dev *mp2 = container_of(work, struct amd_mp2_dev, work);
-@@ -407,6 +434,7 @@ static void sfh1_1_init_work(struct work_struct *work)
- 	if (rc)
- 		dev_warn(&mp2->pdev->dev, "failed to update sysfs group\n");
+ 	struct sfh_op_mode mode;
+@@ -169,6 +200,8 @@ int amd_get_sfh_info(struct amd_sfh_info *sfh_info, enum sfh_message_type op)
+ 		case MT_SRA:
+ 			return amd_sfh_mode_info(&sfh_info->platform_type,
+ 						 &sfh_info->laptop_placement);
++		case MT_OP_MODE:
++			return amd_sfh_op_mode_info(&sfh_info->op_mode);
+ 		}
+ 	}
+ 	return -EINVAL;
+diff --git a/drivers/hid/amd-sfh-hid/sfh1_1/amd_sfh_interface.h b/drivers/hid/amd-sfh-hid/sfh1_1/amd_sfh_interface.h
+index 665c99ad779f..56258c4d1b3a 100644
+--- a/drivers/hid/amd-sfh-hid/sfh1_1/amd_sfh_interface.h
++++ b/drivers/hid/amd-sfh-hid/sfh1_1/amd_sfh_interface.h
+@@ -185,7 +185,6 @@ struct sfh_op_mode {
+ };
  
-+	amd_sfh_maybe_register_tm(mp2);
- }
+ void sfh_interface_init(struct amd_mp2_dev *mp2);
+-void sfh_deinit_emp2(void);
+ void amd_sfh1_1_set_desc_ops(struct amd_mp2_ops *mp2_ops);
+ int amd_sfh_float_to_int(u32 flt32_val);
+ #endif
+diff --git a/include/linux/amd-pmf-io.h b/include/linux/amd-pmf-io.h
+index 55198d2875cc..dc59c43bd8f2 100644
+--- a/include/linux/amd-pmf-io.h
++++ b/include/linux/amd-pmf-io.h
+@@ -19,11 +19,13 @@
+  * @MT_HPD: Message ID to know the Human presence info from MP2 FW
+  * @MT_ALS: Message ID to know the Ambient light info from MP2 FW
+  * @MT_SRA: Message ID to know the SRA data from MP2 FW
++ * @MT_OP_MODE: Message ID to know the operating-mode (tablet/laptop) info
+  */
+ enum sfh_message_type {
+ 	MT_HPD,
+ 	MT_ALS,
+ 	MT_SRA,
++	MT_OP_MODE,
+ };
  
- static void sfh_init_work(struct work_struct *work)
-@@ -425,6 +453,7 @@ static void sfh_init_work(struct work_struct *work)
+ /**
+@@ -44,12 +46,24 @@ enum sfh_hpd_info {
+  * @user_present: Populates the user presence information
+  * @platform_type: Operating modes (clamshell, flat, tent, etc.)
+  * @laptop_placement: Device states (ontable, onlap, outbag)
++ * @op_mode: Operating-mode field (see enum sfh_dev_mode); used for tablet detection
+  */
+ struct amd_sfh_info {
+ 	u32 ambient_light;
+ 	u8 user_present;
+ 	u32 platform_type;
+ 	u32 laptop_placement;
++	u32 op_mode;
++};
++
++/**
++ * enum sfh_dev_mode - SFH operating-mode field (sfh_op_mode.mode, bits 0-2)
++ * @SFH_MODE_LAPTOP: Device is in laptop/clamshell posture
++ * @SFH_MODE_TABLET: Device is in tablet posture
++ */
++enum sfh_dev_mode {
++	SFH_MODE_LAPTOP	= 1,
++	SFH_MODE_TABLET	= 3,
+ };
  
- 	amd_sfh_clear_intr(mp2);
- 	mp2->init_done = 1;
-+	amd_sfh_maybe_register_tm(mp2);
- }
- 
- static void amd_sfh_remove(struct pci_dev *pdev)
-@@ -432,6 +461,7 @@ static void amd_sfh_remove(struct pci_dev *pdev)
- 	struct amd_mp2_dev *mp2 = pci_get_drvdata(pdev);
- 
- 	flush_work(&mp2->work);
-+	amd_sfh_unregister_tm(mp2);
- 	if (mp2->init_done)
- 		mp2->mp2_ops->remove(mp2);
- }
+ enum laptop_placement {
 -- 
 2.34.1
 

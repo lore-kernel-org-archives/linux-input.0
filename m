@@ -1,348 +1,164 @@
-Received: from mail-pj2-f3.google.com (mail-pj2-f3.google.com [74.125.227.131])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from PH0PR06CU001.outbound.protection.outlook.com (mail-westus3azon11011013.outbound.protection.outlook.com [40.107.208.13])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 66326415F32
-	for <linux-input@vger.kernel.org>; Tue, 21 Jul 2026 17:48:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.227.131
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784656131; cv=none; b=rpBR3s4letWe5NZJOlbUNyjCtp9VDG+/PVBgDzJLsZXT8n059KPlj8/SNpOPI5QSou/Z6v9IGfAQNwOgWpIWU/35yAmwwXyAub3HXClHAI47dPpWUOPKmmXb7nuL3U6I7c3KbYJumEijAk5oY/t8gJTGv/GvmnbX59NAgluQIW4=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784656131; c=relaxed/simple;
-	bh=+fRWz032Ue1fMDnjt8nBJt0lr8qqkpM0+XI+1mNdwjA=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=LyS1ypUVLbX+Rc9tYFw+nOfVItkpj4aQ53/hhOeW6oNB8dWi1VlCwKXYoWPKW/tN5vKRUdekS4pYjeVdZdjPa6tCxB/DYxrWz/UHf6T16uFkzTL7ASM2dhuakeuoeKAFCYdVxZU4ZMzR50sIDaj/1NqUBUimtdIl7E6UrXXeEjc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=nJ2OqJln; arc=none smtp.client-ip=74.125.227.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 837A046DFE9
+	for <linux-input@vger.kernel.org>; Tue, 21 Jul 2026 17:52:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.208.13
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1784656372; cv=fail; b=kzx/9OMwJHbAnF5FijeTJluPXfneT+8ux15KnAsK4NPPuLbtYdizk5T2V6QlPaFYFhhQO+Re+IWp7btJWD8xYYkmvL3+yObRC0721c2v9BIT5ZSrbHYZkE3wxRZfkQOGqmeL9O3D7iy3xh6k0PfSGfEoZ4qleWbNeuto8EiWuMA=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1784656372; c=relaxed/simple;
+	bh=4Zglte7rta1emeTtW1IigR3P/8Rj9o5yuKqagTLu2T4=;
+	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
+	 Content-Type:MIME-Version; b=DgAJVM72b9cARLkprmRk9F3MJ2nQtnp3o3TP5tvTOEDJkTRvRPIxz9s4AFUlJCV8F+3gJ3Ov3h3JtkjRnJvNhtnQ2ERmbcsOdAU6+Cls5TNDpD/KmOtbs+5Y12o3NOSoq6ANo2kYu2ZbEjhovqtFkN5SnV1ipCIqqRtNyoweldk=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com; spf=fail smtp.mailfrom=amd.com; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=vjMTr0zM; arc=fail smtp.client-ip=40.107.208.13
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=amd.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="nJ2OqJln"
-Received: by mail-pj2-f3.google.com with SMTP id 98e67ed59e1d1-38dadcaf0f0so2528204a91.1
-        for <linux-input@vger.kernel.org>; Tue, 21 Jul 2026 10:48:46 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784656126; x=1785260926; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=V1HVbnWwjz/zPGwxKegdY4p1KeImHVO8vqQ7kQJ99fQ=;
-        b=nJ2OqJlnR05TlUwDW37eUv3kZb69nltnK2CXWUrV3Rhx+PzAqOQhiuBayNxjj56G2P
-         31FW+VRsJSTsvoxBhEO3mYDTZZcbNsq/reNj3OYaukN1hkCqIK2H3UIrsUhSM1mN0vGG
-         2uFeV7VmGNROOfqbV6HXLo0JCzS1bqPbnIiZXss3sgAgAsZNVCL9SGN2REZjlZjqXSHx
-         D89uz2F+OS3Sw5xEkkpMy8hSAcm2P//09sagAcoqNaeNW+7Nmmlkj/E9yq1xSe17LX/N
-         bN5C5fm7NcM19qEn1Zlb+WkJTv4jDrgUkPuab600Plsab+Crd/lq+9ou+0K7JOfE2nQA
-         8Fwg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784656126; x=1785260926;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=V1HVbnWwjz/zPGwxKegdY4p1KeImHVO8vqQ7kQJ99fQ=;
-        b=b6Y70TmyYOWe7S4RYACO71zj0XlCNtahJZGlts4KmRtRWxRM3O7GxxZyaExAiJw8Yv
-         p9tZEcD+ggH8FQJZHO+lcfDivuGZGRc9k/44R8RiRxiyxbq6QKheGm2Pch0Za5HCGIP2
-         /e+pa8h7L8Q9fis2I6zSXfMjDlx2+XlWS3B99LCOXAvqvBokKtuUKQVN6wY12cqsbWBF
-         QAoiOx0IvRdSkMfOKk4HjA7QS8tBpfQBMpttXsAoHtwRbvQdYo5QQUibtUC+pJ8GVs1Z
-         /KhihW5bCv7asLkD5HO9GhW392VKrkgB1H9UebAiemPIyEXiRawNN2uog5vBHsMcbUpm
-         aHGA==
-X-Forwarded-Encrypted: i=1; AHgh+RqPGxG8n+O8N2KKlOqVip2im/5BG2NVuucsZ/cOEHqcCiRvIK2/Q1HIQp0uSYdXMUIoNl4N1iIgg44Miw==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yx6tKLA7Ne0SfzWqe8OCqtw4F+VIREzkXNxAVaEjrrDIi7OkGRo
-	mucycKBY/4EhNNoRyyS47S8jb7LkSEPPmbwoFzODmj08pQVoGPTrDTZJ
-X-Gm-Gg: AR+sD127voEI2Fq7tLbLlIAlwTppWmbEOzO4V/5o365yzB9/tqtw3bHniseMoYe6eN2
-	4OxtyiNmb91ET7u1oW6b0D9sNQ4iiHXHaH4fFXQfzgUnZNd+NjXdwBstcjqK6SKZ3dWs99s4rVL
-	kPoNkkHVfyMzJcUYWxCxVlRPesYMtKm+vcSiXq3X3cTwuddNeqUqe6fEa/nco/ZMSCPTFg4t0fC
-	J5on/fntw5S1FOiqODOKC3HqgkPrtoAXGpffRrXDW7AD+Wu9il/b7SM8FpQmNU0JkGcNX4fgo5n
-	PkpBOL7QgS7gTzNN19OENzlzQBl4goiyiD5tGO3vEpV8MK18nGgju8GXy0EL6jGp24eCOa6qM2H
-	IMLsCYO/I/txwHelIJhShkAoYluHHU1DkFatcmOkkPRuITMx387bGc4rP7qwqcZk2eGgGryCk7o
-	WJNZjPIz4=
-X-Received: by 2002:a05:6a21:114c:b0:3bf:a489:1483 with SMTP id adf61e73a8af0-3c3ad80c23dmr20107991637.33.1784656125438;
-        Tue, 21 Jul 2026 10:48:45 -0700 (PDT)
-Received: from localhost ([2a03:2880:9ff:65::])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3147e1b6a45sm872370eec.28.2026.07.21.10.48.44
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 21 Jul 2026 10:48:44 -0700 (PDT)
-From: Ziyang Men <ziyang.meme@gmail.com>
-To: Shuah Khan <shuah@kernel.org>,
-	Tejun Heo <tj@kernel.org>,
-	Johannes Weiner <hannes@cmpxchg.org>,
-	=?UTF-8?q?Michal=20Koutn=C3=BD?= <mkoutny@suse.com>,
-	Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>,
-	David Vernet <void@manifault.com>,
-	Eduard Zingerman <eddyz87@gmail.com>
-Cc: Andrea Righi <arighi@nvidia.com>,
-	Changwoo Min <changwoo@igalia.com>,
-	Michal Hocko <mhocko@kernel.org>,
-	Roman Gushchin <roman.gushchin@linux.dev>,
-	Shakeel Butt <shakeel.butt@linux.dev>,
-	Muchun Song <muchun.song@linux.dev>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	JP Kobryn <inwardvessel@gmail.com>,
-	Mykola Lysenko <mykolal@meta.com>,
-	Nathan Chancellor <nathan@kernel.org>,
-	linux-kselftest@vger.kernel.org,
-	cgroups@vger.kernel.org,
-	linux-input@vger.kernel.org,
-	sched-ext@lists.linux.dev,
-	linux-mm@kvack.org,
-	kernel-team@meta.com,
-	bpf@vger.kernel.org,
-	llvm@lists.linux.dev,
-	linux-kernel@vger.kernel.org,
-	Ziyang Men <ziyang.meme@gmail.com>
-Subject: [PATCH v2 4/4] selftests/sched_ext: build BPF schedulers via the shared lib.bpf.mk
-Date: Tue, 21 Jul 2026 10:48:33 -0700
-Message-ID: <20260721174833.1232771-5-ziyang.meme@gmail.com>
-X-Mailer: git-send-email 2.53.0
-In-Reply-To: <20260721174833.1232771-1-ziyang.meme@gmail.com>
-References: <20260721174833.1232771-1-ziyang.meme@gmail.com>
+	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="vjMTr0zM"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=P3q+tWvpe0V9sb8z9wBUdswlgmrQ6uQMTU9/hSMhdwgT4Awp2G/eMOLfbBHilwnzkSNLH0XyYOlU0LUyLZfq26kZDt69AygO4oV1KGwNfspudUU1re+IVjGwUSZ8EY4DQCstVz6zsnORmKwGi3PDtA8EZVboha01Purzyl4n+fH4ttTwqLogcccInCNsH5jCAaIqis11ZQF0/C2QAvZCCMVOMYYFma50XxsJRFXMbQvjYrVtVHWT/03xLuoY27DfKEx+T0OUvs/0dfao/MMex5uJuNB81X4xd/0qXxYXPnfO1ekyvuBOSTdf0D9cUPx4XQmbIIzOfTOMB+Q9Uzyceg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=HvZJxn2lYnOrMnGf2t4wT39X0Cl9REu4/EIbuN4A9PI=;
+ b=Phw5PNxvZplOIpl6Cb4cSWGazLq+W0Of9OuHhmv4SdA8LGqKkOWc3rRzwDOF4gVsDRCdDclDkb5V/R+d8sScVO8LSpdllXu5w1EnxBqva38MmKZC2eWmFMAgGeeu7wQ0oAQynr7P9AHUpSAxN09S9wTpkL3t/VtQBzxZ9EkANOGdnIEBIBKzCwlQ34Sydrtrrhpnm8ziA70YAnVdboLtKPossQLSOXjU7gMDq29LlDGNqEiLcfvnsjfbvhKjOCfUT7um/jISrcRlTkUS/Y1GaVyYViEmmdgPubCBGbQT9Mep/8/xBze2aEooDqPPBNq66w9AE+YbX8vhHX0y7bR3Ig==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
+ header.d=amd.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=HvZJxn2lYnOrMnGf2t4wT39X0Cl9REu4/EIbuN4A9PI=;
+ b=vjMTr0zMMohq0ye72l1Zjy16b2ApxPW47G0n7WkwzaOHzjiUMJKrbk/Q33U1J4C0rOlw7VOvQ2Q08f8V6W47Q5JuMAsNFjh+oZ01RCH09pfdw8NFjwdBPvef5Tx4RgoDJEqB129yZnsU5o7cf69R/0yzwsQbPMxO4e8TtG57W5Y=
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=amd.com;
+Received: from DM4PR12MB5040.namprd12.prod.outlook.com (2603:10b6:5:38b::19)
+ by CH3PR12MB8727.namprd12.prod.outlook.com (2603:10b6:610:173::19) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.245.10; Tue, 21 Jul
+ 2026 17:52:46 +0000
+Received: from DM4PR12MB5040.namprd12.prod.outlook.com
+ ([fe80::94f:c77d:ded2:28be]) by DM4PR12MB5040.namprd12.prod.outlook.com
+ ([fe80::94f:c77d:ded2:28be%6]) with mapi id 15.21.0245.009; Tue, 21 Jul 2026
+ 17:52:44 +0000
+Message-ID: <b128d96e-5a05-4ea1-9356-2b4f7169911f@amd.com>
+Date: Tue, 21 Jul 2026 23:22:38 +0530
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 0/2] asus vivobook tablet mode
+To: Helge Bahmann <hcb@chaoticmind.net>, Jiri Kosina <jikos@kernel.org>,
+ linux-input@vger.kernel.org
+Cc: Basavaraj Natikar <Basavaraj.Natikar@amd.com>
+References: <6879487.lOV4Wx5bFT@lothlorien> <2632507.ElGaqSPkdT@lothlorien>
+ <ecadaac8-e222-420a-ac5b-4d529fb3317e@amd.com> <5234335.GXAFRqVoOG@zephyr>
+Content-Language: en-US
+From: Basavaraj Natikar <bnatikar@amd.com>
+In-Reply-To: <5234335.GXAFRqVoOG@zephyr>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: MA0PR01CA0080.INDPRD01.PROD.OUTLOOK.COM
+ (2603:1096:a01:ae::10) To DM4PR12MB5040.namprd12.prod.outlook.com
+ (2603:10b6:5:38b::19)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: DM4PR12MB5040:EE_|CH3PR12MB8727:EE_
+X-MS-Office365-Filtering-Correlation-Id: 89fd3e9f-3055-4bb1-f694-08dee750ddd7
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|23010399003|1800799024|366016|376014|11063799006|56012099006|4143699003|10067099003|18002099003|22082099003;
+X-Microsoft-Antispam-Message-Info:
+	Mq3k07+qdUS8GUEqVZE7m5QnpPJjnCgmsIcWmgEd/a4o2XMAHsXEHD21OLdiki1VBMT1pm7bLehQMMrkRvGY5LrwTSyriqhlf3UHtxjmJI7dQ/OeUQS96KN1/uEz6U8gkG0/hS9CWm3iwS5/ipy+AnPfj32/qcmWt/4xgzgb0xDdF5ozL/rpGJ4HtjO9mW7Gh9W6V7UtBh31dOyDnDB1kX468Dbq/XxffkuFncKSLjWqt60IwpYfPj8Mc1f8XHqxxaQkPI+KdiOEw2DdbpFWHU9xaJbJS+8XHinc/H9m4sN/WVpjdsTTp6LKoL/zh4dFnfWuRIUSO+q2xNMcp81ZqBk0pMxZmwaCZgNqIxPD/IUx/0h6v5hstksJxP1/RFSV8zZ+g/7i6RT7JRT/7rsHxL0Ohndnhk4aTOT24TUwM/p61gUbRzUWqjwBSH3hL03KntclWJ1B8Fk4SZgicoOH6dJdz7rW+t6mW5odfI65NC7LbD5T9/lSUAwLUjLkxMKJOa8a97l4BJBdM0r8jGwKi/8LP5XhYbm/FoYVXoFid5MYHHgFF/WZa9fXAD8+VMipl7gFlq1qRk6kkESNAUAAvK7Ys6zuxK3NZYhKYCTnOociw95l04sywc2UHp4mQ4/GWs2XqiYbOwi44i7WdiIXZZbSkCKfl6p3xenW6o8BiJE=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM4PR12MB5040.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(23010399003)(1800799024)(366016)(376014)(11063799006)(56012099006)(4143699003)(10067099003)(18002099003)(22082099003);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?utf-8?B?TmR6SUI5bkVoVjg5T1I4cDQ3OHlrWVU4Kyt5U25laXpRMUY5a0dDTzVtTFhm?=
+ =?utf-8?B?Q2I1WG9DRjlNRHNFQkpJZlZmVE9aOU50YUNlOWxieTFycUx1VnV4TjVHQmRw?=
+ =?utf-8?B?a3hLQys3am84cGJWOTF4NjFTWG1FZVYraEtIdXhSQnd1UVFxdWVGcnFQUU84?=
+ =?utf-8?B?OGJhNDMwN1UyZjlCNXF4UDg2bncvZ3ZUL3JJbFB3cVp2WDZXQll5MTJOQmUw?=
+ =?utf-8?B?MjZKTGVuTFNicjVTeUwvckVkRVBkV2QzTnlSSzZCMXJINHpBWWtyTTEvSVBv?=
+ =?utf-8?B?MmxwcERpTFI2N0RQN083V1B6c2ExbC80S0pmcDM3NlR4dk9jOHVDUWJXcm1v?=
+ =?utf-8?B?TUw5bHI3K1pyWTVSWTFKelRhQ01yS2NIZ082dkpqc3lUdFlscXAwclRPRWp3?=
+ =?utf-8?B?QTFtdk5SaEk2RGJ3QkNvWVE0bTA2Mk95dHhrdTdKSUVOeTE2Rys4VFFXRjZx?=
+ =?utf-8?B?ejZVQzB4THd1TVRBdGdlTzVsdW1QUitQMko4VXp0OFpHUXJOSHdrdVpmZ2NH?=
+ =?utf-8?B?dXlVQnVvazUrUEZ2aVJuZ3lSc2Y0eS9VNy9WY0V2ZzVndUIxMWUwQ09Ga1RS?=
+ =?utf-8?B?dXR0Um1jcEpGZ3ZSTGV6eDBZdjNQNFdSTFZHY3ZFZjBpR3lSc2cwZlRwWGpW?=
+ =?utf-8?B?eHorSDhCcE9TbjNmMHFmbHJmWlc3aFBkeE9QcDNud1pqZllQbWtLcU56Mjdq?=
+ =?utf-8?B?TzdNMnNnSU5GU1BuTWhIVnBScXRMUWVwWGd4NDNLY1RScEhWZEpBWURNS2Vr?=
+ =?utf-8?B?WWE4K0dZSXVVc2ZwcHpGOTFJSEM0R1JjN1ZvMU5tenEwdGpRd3lZSTVjb3ht?=
+ =?utf-8?B?ODkxYm5LRjBIK2k3Y0xrbGFnL0o2Q0VaKzY1SEt6UjRtWXdwYzFiaWVKdXZj?=
+ =?utf-8?B?ZjhyVmRoakF0T2tsMDVZSWdFWlViR2RENmdwR3RZSGtSSFJLWCtoYlVzeFZR?=
+ =?utf-8?B?TWlYbitGc1ZQRnptWWpCSStTQ3hweE9tc2VHVU1MKzFob2toRHJmVDBLenow?=
+ =?utf-8?B?anZhS1luWExhamgxeFdubEVjSVI2L3ZKbzd5NUlmU2V2WjFRMDg0RW9YZGxD?=
+ =?utf-8?B?c0RQVERGbVFOMGIycWw3VTkyM0tHRnlRdUdld1FNTW84SnZxcWV6NWZzL2JD?=
+ =?utf-8?B?bHM5M0p0bS8xenFDUkFnZENIa0lJbFJLL2N0RVB4Zm91R0hFQkRWTW03SjBU?=
+ =?utf-8?B?VmdsUGQxUE9tSFoxS3c5cmdNeGkyMHg2dDYzRUVMUTFOZzgxVnZPN2FScmJj?=
+ =?utf-8?B?VUhkcENqMUY5dEl5RHpqeXRocGxWWUhGNy9vTEc3YWh4aHY2blFacElrRTN0?=
+ =?utf-8?B?NHlMSHFNWkZTTVFXemtuV3k1b1ZqSmE4RTFoalMyVlVMMWwrM1ErVkcxL2lR?=
+ =?utf-8?B?c003RVBGUEtaY3FwOVhyNC9OSWU0d2NMbFZWc0JGRHNnMkpwWmVOdzhselhj?=
+ =?utf-8?B?d2ljbjBOZlVlSzVNN0wzVHlHK0o4UFlSVy9kSlBGOW5sR05xNHZEblp2MmFr?=
+ =?utf-8?B?bEF0aExCVVhlN3BNUFVCU3NtQVI3NWJRN0xLQklWWGpKZ2dyVDRFU2U3UUlU?=
+ =?utf-8?B?aXhiQjJpNEJyUm4rNnFEaWFocnRkZGpUREJtb0M2ZGxhVVFuZVdDSmxHWHo2?=
+ =?utf-8?B?UUJKOWlYREVna0pvN0ZaMXRsekxYdFdVQm9MQmpqaWZtMFNKODVZeVpiK09B?=
+ =?utf-8?B?U0Q1ZzVlTDdhN0ZwblNUT0MxU09SLzNMSzI1QUVXRkRnV0JRSWJDRDQySURN?=
+ =?utf-8?B?MzFsWlZqdDBaY0pwdUdWRUhEL0FiYWZBaEZyS2RmdHRQcW43a3B2WDN4MWcw?=
+ =?utf-8?B?MVdMQzVQQ0xrSU1IWnBwZUJLazNHMHQ5a1hRUnFrdjRac2srVG5MdnVoc3pL?=
+ =?utf-8?B?VXhKOTZKYnc1WUFtbWo2NVhzdTVYYVBpTXRCMFlhTktVTG80NkVGb0RHaUlK?=
+ =?utf-8?B?cWlaMzlMU1JndS9MUlVTcjhNeXRjSnpFMmM1bTQwTHdYQzQ5aUt0U2ZxM282?=
+ =?utf-8?B?bENUQ2dnL2M2YzI5bUFsU1F2TDUrdWVmWE5HQ0xBQldTaUlxbXZJUktURjA4?=
+ =?utf-8?B?cGYxcG5TZVF4a0o3TEsyQUU1d0gvV2M5bFIzSUQ5Ty8wcXJCQmp6RFBaOEE1?=
+ =?utf-8?B?aDlocThEUlZaS1dCS0FFaEp5c0NyYmNPMENYYy84dTFqUVErYkNQUGhIL2Ur?=
+ =?utf-8?B?N2diZC9laDFBWWlWaXBGeE9KbklWbzJBVzZRdXZiSWZLNjlQYTF1ZlZZckxR?=
+ =?utf-8?B?b05NcXdRK0tSdy83Wk9wZjZVendZOURPd0NLME1uZzZ2d2JIQ0hhZFpxeHZ4?=
+ =?utf-8?B?L2FJb05aVDdvN2VNMWVyT0FBSktPYVNLaW1VZFhqMS9mdkhBTlB3UT09?=
+X-OriginatorOrg: amd.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 89fd3e9f-3055-4bb1-f694-08dee750ddd7
+X-MS-Exchange-CrossTenant-AuthSource: DM4PR12MB5040.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 21 Jul 2026 17:52:44.2708
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: cZw0+1/llUJg45IgJDnDzfhOEIE8HjOrQlY0vDBmsI2ASwZL5FkscM17TV1zOYU6rwfJwfqYevd5mX5awxKHgg==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH3PR12MB8727
 
-sched_ext carried its own ~130 lines of libbpf + bpftool + vmlinux.h +
-BPF-object + skeleton build machinery.  Replace it with an include of the
-shared tools/testing/selftests/lib.bpf.mk, making sched_ext the third
-in-tree consumer of that fragment, after selftests/cgroup and
-selftests/hid.
 
-sched_ext emits a skeleton and a subskeleton per scheduler with a
-.bpf.skel.h suffix, so it sets BPF_SKEL_EXT := .bpf.skel.h and
-BPF_GEN_SUBSKEL := 1.  Its BPF programs need scheduler-specific include
-paths and are not -Werror clean, so it overrides BPF_CFLAGS wholesale
-after the include; the userspace runner/testcase rules are kept and
-repointed at the fragment's flat $(OUTPUT) skeletons.
+On 7/21/2026 7:58 PM, Helge Bahmann wrote:
+> Hi Basavaraj,
+>
+> Here the two patches implementing the split hid/input
+> gdriver for the tablet mode support. I mulled over what
+> exactly to use as report descriptor in the hid driver, and
+> there is no clean and easy solution -- I hope this is what
+> you had in mind? I could not figure a way how to do
+> a stand-alone input driver without doing any hid indirection,
 
-No functional change: all 28 skeletons and 28 subskeletons keep a
-byte-identical public API before and after, the runner builds and links
-the same way, and the folder builds cleanly under both plain make and
-LLVM=1.
+Hi Helge,
+Please find below the series adding SW_TABLET_MODE support via the AMD
+Sensor Fusion Hub, covering all currently supported AMD convertibles
 
-Suggested-by: Shakeel Butt <shakeel.butt@linux.dev>
-Suggested-by: Eduard Zingerman <eddyz87@gmail.com>
-Suggested-by: Mykola Lysenko <mykolal@meta.com>
-Assisted-by: Claude:claude-opus-4-8
-Signed-off-by: Ziyang Men <ziyang.meme@gmail.com>
----
- tools/testing/selftests/sched_ext/Makefile | 153 +++++----------------
- 1 file changed, 35 insertions(+), 118 deletions(-)
+   https://lore.kernel.org/all/20260721174422.3109166-1-Basavaraj.Natikar@amd.com/
+   
+Once this is merged, the ASUS VivoBook quirk can go on top of it.
 
-diff --git a/tools/testing/selftests/sched_ext/Makefile b/tools/testing/selftests/sched_ext/Makefile
-index 5d2dffca0e91..67ff96bf34e8 100644
---- a/tools/testing/selftests/sched_ext/Makefile
-+++ b/tools/testing/selftests/sched_ext/Makefile
-@@ -14,48 +14,36 @@ CURDIR := $(abspath .)
- REPOROOT := $(abspath ../../../..)
- TOOLSDIR := $(REPOROOT)/tools
- LIBDIR := $(TOOLSDIR)/lib
--BPFDIR := $(LIBDIR)/bpf
- TOOLSINCDIR := $(TOOLSDIR)/include
--BPFTOOLDIR := $(TOOLSDIR)/bpf/bpftool
- APIDIR := $(TOOLSINCDIR)/uapi
- GENDIR := $(REPOROOT)/include/generated
- GENHDR := $(GENDIR)/autoconf.h
--SCXTOOLSDIR := $(TOOLSDIR)/sched_ext
- SCXTOOLSINCDIR := $(TOOLSDIR)/sched_ext/include
- 
--OUTPUT_DIR := $(OUTPUT)/build
--OBJ_DIR := $(OUTPUT_DIR)/obj
--INCLUDE_DIR := $(OUTPUT_DIR)/include
--BPFOBJ_DIR := $(OBJ_DIR)/libbpf
--SCXOBJ_DIR := $(OBJ_DIR)/sched_ext
--BPFOBJ := $(BPFOBJ_DIR)/libbpf.a
--LIBBPF_OUTPUT := $(OBJ_DIR)/libbpf/libbpf.a
--
--DEFAULT_BPFTOOL := $(OUTPUT_DIR)/host/sbin/bpftool
--HOST_OBJ_DIR := $(OBJ_DIR)/host/bpftool
--HOST_LIBBPF_OUTPUT := $(OBJ_DIR)/host/libbpf/
--HOST_LIBBPF_DESTDIR := $(OUTPUT_DIR)/host/
--HOST_DESTDIR := $(OUTPUT_DIR)/host/
--
--VMLINUX_BTF_PATHS ?= $(if $(O),$(O)/vmlinux)					\
--		     $(if $(KBUILD_OUTPUT),$(KBUILD_OUTPUT)/vmlinux)		\
--		     ../../../../vmlinux					\
--		     /sys/kernel/btf/vmlinux					\
--		     /boot/vmlinux-$(shell uname -r)
--VMLINUX_BTF ?= $(abspath $(firstword $(wildcard $(VMLINUX_BTF_PATHS))))
--ifeq ($(VMLINUX_BTF),)
--$(error Cannot find a vmlinux for VMLINUX_BTF at any of "$(VMLINUX_BTF_PATHS)")
--endif
--
--BPFTOOL ?= $(DEFAULT_BPFTOOL)
-+# The BPF schedulers are compiled into skeletons + subskeletons by the shared
-+# lib.bpf.mk fragment.  They use the modern *.bpf.c layout with a .bpf.skel.h
-+# suffix and need subskeletons.
-+BPF_SRCS        := $(wildcard *.bpf.c)
-+BPF_SKEL_EXT    := .bpf.skel.h
-+BPF_GEN_SUBSKEL := 1
-+BPF_EXTRA_HDRS   = $(wildcard $(CURDIR)/include/scx/*.h) \
-+		   $(wildcard $(CURDIR)/include/*.h)
-+# Keep generated files under build/ as before (skeletons in build/include,
-+# objects in build/obj) rather than flat in the source dir.  lib.bpf.mk creates
-+# these dirs; SCXOBJ_DIR (userspace objects) reuses the BPF object dir.
-+BPF_OBJ_DIR  := $(OUTPUT)/build/obj/sched_ext
-+BPF_SKEL_DIR := $(OUTPUT)/build/include
-+SCXOBJ_DIR   := $(BPF_OBJ_DIR)
-+
-+include ../lib.bpf.mk
- 
- ifneq ($(wildcard $(GENHDR)),)
-   GENFLAGS := -DHAVE_GENHDR
- endif
- 
- CFLAGS += -g -O2 -rdynamic -pthread -Wall -Werror $(GENFLAGS)			\
--	  -I$(INCLUDE_DIR) -I$(GENDIR) -I$(LIBDIR)				\
--	  -I$(TOOLSINCDIR) -I$(APIDIR) -I$(CURDIR)/include -I$(SCXTOOLSINCDIR)
-+	  -I$(GENDIR) -I$(LIBDIR) -I$(TOOLSINCDIR) -I$(APIDIR)			\
-+	  -I$(CURDIR)/include -I$(SCXTOOLSINCDIR)
- 
- # Silence some warnings when compiled with clang
- ifneq ($(LLVM),)
-@@ -64,102 +52,29 @@ endif
- 
- LDFLAGS = -lelf -lz -lpthread -lzstd
- 
--IS_LITTLE_ENDIAN = $(shell $(CC) -dM -E - </dev/null |				\
--			grep 'define __BYTE_ORDER__ __ORDER_LITTLE_ENDIAN__')
--
--# Get Clang's default includes on this system, as opposed to those seen by
--# '-target bpf'. This fixes "missing" files on some architectures/distros,
--# such as asm/byteorder.h, asm/socket.h, asm/sockios.h, sys/cdefs.h etc.
--#
--# Use '-idirafter': Don't interfere with include mechanics except where the
--# build would have failed anyways.
--define get_sys_includes
--$(shell $(1) $(2) -v -E - </dev/null 2>&1 \
--	| sed -n '/<...> search starts here:/,/End of search list./{ s| \(/.*\)|-idirafter \1|p }') \
--$(shell $(1) $(2) -dM -E - </dev/null | grep '__riscv_xlen ' | awk '{printf("-D__riscv_xlen=%d -D__BITS_PER_LONG=%d", $$3, $$3)}')
--endef
--
--ifneq ($(CROSS_COMPILE),)
--CLANG_TARGET_ARCH = --target=$(notdir $(CROSS_COMPILE:%-=%))
--endif
--
--CLANG_SYS_INCLUDES = $(call get_sys_includes,$(CLANG),$(CLANG_TARGET_ARCH))
--
--BPF_CFLAGS = -g -D__TARGET_ARCH_$(SRCARCH)					\
--	     $(if $(IS_LITTLE_ENDIAN),-mlittle-endian,-mbig-endian)		\
-+# The BPF schedulers need scheduler-specific includes and are not -Werror
-+# clean, so override the shared BPF_CFLAGS wholesale (lib.bpf.mk expands it
-+# lazily in the object recipe; -O2/--target/-mcpu are added by the rule).
-+BPF_CFLAGS = -g -D__TARGET_ARCH_$(SRCARCH) $(MENDIAN)				\
- 	     -I$(CURDIR)/include -I$(CURDIR)/include/bpf-compat			\
- 	     -I$(INCLUDE_DIR) -I$(APIDIR) -I$(SCXTOOLSINCDIR)			\
- 	     -I$(REPOROOT)/include						\
--	     $(CLANG_SYS_INCLUDES) 						\
-+	     $(CLANG_SYS_INCLUDES)						\
- 	     -Wall -Wno-compare-distinct-pointer-types				\
- 	     -Wno-incompatible-function-pointer-types				\
- 	     -Wno-microsoft-anon-tag						\
--	     -fms-extensions							\
--	     -O2 -mcpu=v3
--
--# sort removes libbpf duplicates when not cross-building
--MAKE_DIRS := $(sort $(OBJ_DIR)/libbpf $(OBJ_DIR)/libbpf				\
--	       $(OBJ_DIR)/bpftool $(OBJ_DIR)/resolve_btfids			\
--	       $(HOST_OBJ_DIR) $(INCLUDE_DIR) $(SCXOBJ_DIR))
--
--$(MAKE_DIRS):
--	$(call msg,MKDIR,,$@)
--	$(Q)mkdir -p $@
--
--$(BPFOBJ): $(wildcard $(BPFDIR)/*.[ch] $(BPFDIR)/Makefile)			\
--	   $(APIDIR)/linux/bpf.h						\
--	   | $(OBJ_DIR)/libbpf
--	$(Q)$(MAKE) $(submake_extras) -C $(BPFDIR) OUTPUT=$(OBJ_DIR)/libbpf/	\
--		    ARCH=$(ARCH) CC="$(CC)" CROSS_COMPILE=$(CROSS_COMPILE)	\
--		    EXTRA_CFLAGS='-g -O0 -fPIC'					\
--		    DESTDIR=$(OUTPUT_DIR) prefix= all install_headers
--
--$(DEFAULT_BPFTOOL): $(wildcard $(BPFTOOLDIR)/*.[ch] $(BPFTOOLDIR)/Makefile)	\
--		    $(LIBBPF_OUTPUT) | $(HOST_OBJ_DIR)
--	$(Q)$(MAKE) $(submake_extras)  -C $(BPFTOOLDIR)				\
--		    ARCH= CROSS_COMPILE= CC=$(HOSTCC) LD=$(HOSTLD)		\
--		    EXTRA_CFLAGS='-g -O0'					\
--		    OUTPUT=$(HOST_OBJ_DIR)/					\
--		    LIBBPF_OUTPUT=$(HOST_LIBBPF_OUTPUT)				\
--		    LIBBPF_DESTDIR=$(HOST_LIBBPF_DESTDIR)			\
--		    prefix= DESTDIR=$(HOST_DESTDIR) install-bin
--
--$(INCLUDE_DIR)/vmlinux.h: $(VMLINUX_BTF) $(BPFTOOL) | $(INCLUDE_DIR)
--ifeq ($(VMLINUX_H),)
--	$(call msg,GEN,,$@)
--	$(Q)$(BPFTOOL) btf dump file $(VMLINUX_BTF) format c > $@
--else
--	$(call msg,CP,,$@)
--	$(Q)cp "$(VMLINUX_H)" $@
--endif
-+	     -fms-extensions
- 
--$(SCXOBJ_DIR)/%.bpf.o: %.bpf.c $(INCLUDE_DIR)/vmlinux.h	| $(BPFOBJ) $(SCXOBJ_DIR)
--	$(call msg,CLNG-BPF,,$(notdir $@))
--	$(Q)$(CLANG) $(BPF_CFLAGS) -target bpf -c $< -o $@
--
--$(INCLUDE_DIR)/%.bpf.skel.h: $(SCXOBJ_DIR)/%.bpf.o $(INCLUDE_DIR)/vmlinux.h $(BPFTOOL) | $(INCLUDE_DIR)
--	$(eval sched=$(notdir $@))
--	$(call msg,GEN-SKEL,,$(sched))
--	$(Q)$(BPFTOOL) gen object $(<:.o=.linked1.o) $<
--	$(Q)$(BPFTOOL) gen object $(<:.o=.linked2.o) $(<:.o=.linked1.o)
--	$(Q)$(BPFTOOL) gen object $(<:.o=.linked3.o) $(<:.o=.linked2.o)
--	$(Q)diff $(<:.o=.linked2.o) $(<:.o=.linked3.o)
--	$(Q)$(BPFTOOL) gen skeleton $(<:.o=.linked3.o) name $(subst .bpf.skel.h,,$(sched)) > $@
--	$(Q)$(BPFTOOL) gen subskeleton $(<:.o=.linked3.o) name $(subst .bpf.skel.h,,$(sched)) > $(@:.skel.h=.subskel.h)
-+EXTRA_CLEAN += $(OUTPUT)/build
- 
- ################
- # C schedulers #
- ################
- 
--override define CLEAN
--	rm -rf $(OUTPUT_DIR)
--	rm -f $(TEST_GEN_PROGS)
--endef
--
--# Every testcase takes all of the BPF progs are dependencies by default. This
-+# Every testcase takes all of the BPF progs as dependencies by default. This
- # allows testcases to load any BPF scheduler, which is useful for testcases
- # that don't need their own prog to run their test.
--all_test_bpfprogs := $(foreach prog,$(wildcard *.bpf.c),$(INCLUDE_DIR)/$(patsubst %.c,%.skel.h,$(prog)))
-+all_test_bpfprogs := $(BPF_SKELS)
- 
- auto-test-targets :=			\
- 	create_dsq			\
-@@ -195,7 +110,8 @@ auto-test-targets :=			\
- testcase-targets := $(addsuffix .o,$(addprefix $(SCXOBJ_DIR)/,$(auto-test-targets)))
- 
- $(SCXOBJ_DIR)/runner.o: runner.c | $(SCXOBJ_DIR) $(BPFOBJ)
--	$(CC) $(CFLAGS) -c $< -o $@
-+	$(call msg,CC,,$@)
-+	$(Q)$(CC) $(CFLAGS) -c $< -o $@
- 
- # Create all of the test targets object files, whose testcase objects will be
- # registered into the runner in ELF constructors.
-@@ -204,15 +120,16 @@ $(SCXOBJ_DIR)/runner.o: runner.c | $(SCXOBJ_DIR) $(BPFOBJ)
- # compiling BPF object files only if one is present, as the wildcard Make
- # function doesn't support using implicit rules otherwise.
- $(testcase-targets): $(SCXOBJ_DIR)/%.o: %.c $(SCXOBJ_DIR)/runner.o $(all_test_bpfprogs) | $(SCXOBJ_DIR)
--	$(eval test=$(patsubst %.o,%.c,$(notdir $@)))
--	$(CC) $(CFLAGS) -c $< -o $@
-+	$(call msg,CC,,$@)
-+	$(Q)$(CC) $(CFLAGS) -c $< -o $@
- 
- $(SCXOBJ_DIR)/util.o: util.c | $(SCXOBJ_DIR)
--	$(CC) $(CFLAGS) -c $< -o $@
-+	$(call msg,CC,,$@)
-+	$(Q)$(CC) $(CFLAGS) -c $< -o $@
- 
- $(OUTPUT)/runner: $(SCXOBJ_DIR)/runner.o $(SCXOBJ_DIR)/util.o $(BPFOBJ) $(testcase-targets)
--	@echo "$(testcase-targets)"
--	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
-+	$(call msg,BINARY,,$@)
-+	$(Q)$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
- 
- .DEFAULT_GOAL := all
- 
--- 
-2.53.0-Meta
+Thanks,
+--
+Basavaraj
+
+> as I simply could not find a way to bind to the physical
+> dev twice.
+>
+> Please let me know in comments to the patches how you
+> would like to proceed.
+>
+> Thanks!
+> Helge
+>
+>
 

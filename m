@@ -1,70 +1,93 @@
-Received: from SN4PR0501CU005.outbound.protection.outlook.com (mail-southcentralusazon11011066.outbound.protection.outlook.com [40.93.194.66])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj2-f1.google.com (mail-pj2-f1.google.com [74.125.227.129])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AAB54405845
-	for <linux-input@vger.kernel.org>; Tue, 21 Jul 2026 17:44:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.93.194.66
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784655900; cv=fail; b=McKpVGCoa6RuWAOhEhpALQXJMXBJvtI6aoMQYP5vaHCVjjQy+NGf4yHJPrlfYzvTYpjscqPGYxnHuNhBBLklVPRp9TnpMNEOpfxaY9Wf7ERJcoVjQmlKq2JcKLmHL1cRP8ImJH9uhDn8yQt9W8IiW8+326kTpDXkmCDQ8NfWM00=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784655900; c=relaxed/simple;
-	bh=WMrfJyK3Xfs+c5DYEXyhWw0A+mn0hU+CWmjL8hAdxO4=;
-	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=cPL2orywBATMPXLC7B8+QTmsVQYx0TzIkfjig8zcg9Ak0h2V5FJrxCGZ3rXeny1faUySro30sL6jnTOix4EVKtSv6f35/Vr+Ii9INpfut+5TLUjmOCM6QvQ4TeaMP60ptFmsrUHJh2zY+U9/Ar6W4d4JlClhfN8QKRkjOfYDQJc=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com; spf=fail smtp.mailfrom=amd.com; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=NSttngAc; arc=fail smtp.client-ip=40.93.194.66
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=amd.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5EE674D90BE
+	for <linux-input@vger.kernel.org>; Tue, 21 Jul 2026 17:48:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.227.129
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1784656119; cv=none; b=mn4ZvscsfqmpzZkMk46DFRLjKS8Ff3qfR0LZg+UKppr2HXKNLuzrPGP8/fFfUO7u8nQ5uh/tr+RWlaoFT56ieTM3iwtnbaI8mSyuUBcmPYQ4rH4hzbag4HxEqGJbZ7H88WYT6fboh8WfuoGHFFfMyPY94qS3/UkeiuRGd30fEuo=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1784656119; c=relaxed/simple;
+	bh=uxpBSxsdvw9bPVWAq3FN82g9IP6N274Ej/qPp1bMJpo=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=nusOs530RvdBdWdlD1gP2NJvzLVUm0/+PW/TRJbIABvi2MkiThp7rJTbrZtVLK8GsNLu6lEQj/3l1itnXTAQC9i+I7ttvNuzk018IrUEK8LWVzbTG1Qb2Xln4QefDhd3lh9T+0EEHjQyBpQVoUsoSsWs47pGP97aQd0abqDPuaE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=adc95vtt; arc=none smtp.client-ip=74.125.227.129
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="NSttngAc"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=rRcGABOCcsiWODAQ73FebWbzb+cBK6xlthlSlPKy80jqCBWBE757vRJ8cASyvXFeNuJ/n8GZupeP16yMP9wkLdO+HLdVplWjNE3LVkNbOx52zrc/zymMa2r2Pj1nRmXMHu1Sn6D7nsqOCAtZVz+QI9bFEpJbfHgrBk3wPg+xf+CDAL2j6ujU1Xh/8jXKZ003SeK7XR9E1qJQRwaaPk4301dFdz+HDnoriitA0tsg5PhnLUcJRu6QYRcOomkPRC2F44XrhVead2Hvgwo9QyJQDS6RD0FsYQTG3qFXWXNQx7B+9dneXeiL6XEEzDjVjsrY6cOtpOAGcIC2c767AvB8zg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=7lggIHE47Y00UCDtvWAmbSFthD5IaiW9x9C4ez3QVtA=;
- b=yVGcDvDiH/hIHwavewz6yXOsRFILMyMRILdtjE7bC0EvEIlnXupv6qz+wj7lRHYD3uuM+MFDCNoYN25iN1mgMEwI22jrmwDsvL5Chi0rmlgacedmLuBnfhFtX6IhsmJpb/vYqvsC3D+a5Sa52u7To5gxv5BL+20qRYJsrtv9txr4UNC7mbY0CV/VfBT7cAWNyGM0YOUYqxknAfI224thndpudekyC2wa0CUzD+BeGthWfCJU3iUM3v30wW9Zso+5JX/eqmPZ0NwrgWGlBf+wQkMBtUcunfjQHsMdrpkUIUG97e1ex8x75r9jq/NWr1ZCxC+IL3BBWl35cUqEwWT5zg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 165.204.84.17) smtp.rcpttodomain=kernel.org smtp.mailfrom=amd.com; dmarc=pass
- (p=quarantine sp=quarantine pct=100) action=none header.from=amd.com;
- dkim=none (message not signed); arc=none (0)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=7lggIHE47Y00UCDtvWAmbSFthD5IaiW9x9C4ez3QVtA=;
- b=NSttngAcpqPsqUS0VohLSS164lEJ1ocrVUBHJk2cDuW7i8aQD/VMySvrjCr2XOfin6ynQpz6q2SJbviTtdW3HegGUiEaqSPV/AfpDgoSviXppg93y0TjpssS7i/R0gH+2GrxsjZVqtVUWa2EDde8+z1M3fiX2/2Nx/mgCxziTI4=
-Received: from DM6PR05CA0043.namprd05.prod.outlook.com (2603:10b6:5:335::12)
- by BN7PPF521FFE181.namprd12.prod.outlook.com (2603:10b6:40f:fc02::6d0) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.223.18; Tue, 21 Jul
- 2026 17:44:53 +0000
-Received: from DS1PEPF00017098.namprd05.prod.outlook.com
- (2603:10b6:5:335:cafe::b) by DM6PR05CA0043.outlook.office365.com
- (2603:10b6:5:335::12) with Microsoft SMTP Server (version=TLS1_3,
- cipher=TLS_AES_256_GCM_SHA384) id 15.21.245.10 via Frontend Transport; Tue,
- 21 Jul 2026 17:44:52 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
- smtp.mailfrom=amd.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=amd.com;
-Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
- 165.204.84.17 as permitted sender) receiver=protection.outlook.com;
- client-ip=165.204.84.17; helo=satlexmb07.amd.com; pr=C
-Received: from satlexmb07.amd.com (165.204.84.17) by
- DS1PEPF00017098.mail.protection.outlook.com (10.167.18.102) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.21.245.5 via Frontend Transport; Tue, 21 Jul 2026 17:44:52 +0000
-Received: from airavat.amd.com (10.180.168.240) by satlexmb07.amd.com
- (10.181.42.216) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.41; Tue, 21 Jul
- 2026 12:44:50 -0500
-From: Basavaraj Natikar <Basavaraj.Natikar@amd.com>
-To: <jikos@kernel.org>, <bentiss@kernel.org>, <dmitry.torokhov@gmail.com>
-CC: <linux-input@vger.kernel.org>, Basavaraj Natikar
-	<Basavaraj.Natikar@amd.com>, Helge Bahmann <hcb@chaoticmind.net>
-Subject: [PATCH 3/3] Input: misc: Add AMD SFH tablet-mode switch driver
-Date: Tue, 21 Jul 2026 23:14:22 +0530
-Message-ID: <20260721174422.3109166-4-Basavaraj.Natikar@amd.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20260721174422.3109166-1-Basavaraj.Natikar@amd.com>
-References: <20260721174422.3109166-1-Basavaraj.Natikar@amd.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="adc95vtt"
+Received: by mail-pj2-f1.google.com with SMTP id 98e67ed59e1d1-3810f0aba07so6527313a91.1
+        for <linux-input@vger.kernel.org>; Tue, 21 Jul 2026 10:48:37 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1784656117; x=1785260917; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=ocH8UcOo4UY0LfArAy9N9P4eBtmhXMCHbqhRio/RB1c=;
+        b=adc95vttj0/YNjk4MoS4Zb8a3M5zg/8jr0y73daEoFbRMFM0P2ix2+VzbCCIAGtH8E
+         uGhl9n8BXZuJd/vHLZytXIPXkIIENYn0DdoYfE+VoVgkhA4ecMNlH8iBGhBXiLSRE1x2
+         PS5RvT8xm5X4i12zKUkZtoN5ef2lSTYWbEhDSD1yBn0rZ9LSUV6Zw1hx9GVuM3+rk3IW
+         2UrhzoicubpKG1QwVcAVRSYaJbs4R9DnCzDGHqcfC3zXptVZv9MRcxXXSl+4WzzNDhQU
+         tfNTkAfGJGrOlRhoFtuafM/IFvxdH6ZWfv468xGNALByVs61O5wg5DGeJGYFmkJpxHPQ
+         dKEQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1784656117; x=1785260917;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=ocH8UcOo4UY0LfArAy9N9P4eBtmhXMCHbqhRio/RB1c=;
+        b=SOxqdC/NDnLveYHdoeGz8xR8kkQ6EyTtDT9PNbe20igHMArFFtd3BKhuOu9wUc/ld9
+         1+GXhEaC1rX2rOYba42YhwbuKZnqRuOtKAoWJklnirDu/MAiAB0OmqY0TTPMzqJhl9ya
+         B0oR5gH9Ocf4evW/94t9ssAsO1gW8THfxJtzPivKe/5gOVjpVPRU3An7xi3pYLq/fSHD
+         r56mUF0n7OLbi0bja1lEbLwLChE7yYQ0/4mtnm7Jy4NXGZc6zZ+2CWvDPcxGyxNluQcN
+         0D+8deZWlTIGYVfraf7t3lFSdl7XZeOLvw6sjHVshKqj/2mx+j+31BPzYcGyG1m+12ss
+         8Tpw==
+X-Forwarded-Encrypted: i=1; AHgh+RrHWb8uVe4mVR0/2Zkuzsydn+sTgyDYJhbSSaFzSbfVIV3WoKDeo9VG9hGEjR1p567OmlFdf3C2QoIUaQ==@vger.kernel.org
+X-Gm-Message-State: AOJu0YxsSzdwOxcEd0ujWD0m48oiPS5coOR0DWN0yOf2xH001hMlNVts
+	1Zl7M+wU4Bb16D27Gye6MB1wIvrs7ukuvNT0IZxJwVJt1aHtZcfDbGyb
+X-Gm-Gg: AR+sD10QqCd/Beyopl4q05K5irJNRLLcj9DL7a29uElcZAfhei3R0zKyWy+8N1YOMB9
+	PP+05KwfRDED6lnZUI8lOTUi8vbWWtK+7BfguwkwJvuB5Mxv7YF4NudcF4JCLrySwbrBJSFUtZ3
+	PhiCOGdubzfbHxtDkdETiQ7CflL8K3QpfZR79q0Vh1XQGACsiPfzy1lqcdM8li4oxysR7eSt6TJ
+	Yfn7Y8NY1GvGIvYe2xjwNUEnayjDzDufSiehccTyeL9Fz9QNV0w6d7LIAZr5/kkGvT5HND77xQz
+	9j43WoS5cYurDXNxey5Axytt4fZFRI8l+pJBi7L/zKiF7/wSf0KGEuHVKEcCKHdSAY+Zo75xQsQ
+	EkfTsfro3dkXhVDrAd+8/MFcy1s+60kzYD6mx9v4W0VNCP0AKWaoVzwz5GqrA14glWOGRRGvt
+X-Received: by 2002:a17:90b:3ccd:b0:38e:11ba:992e with SMTP id 98e67ed59e1d1-38e4b57dd07mr19138219a91.35.1784656116703;
+        Tue, 21 Jul 2026 10:48:36 -0700 (PDT)
+Received: from localhost ([2a03:2880:9ff:68::])
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-13ce29c2c93sm47964768c88.3.2026.07.21.10.48.35
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 21 Jul 2026 10:48:36 -0700 (PDT)
+From: Ziyang Men <ziyang.meme@gmail.com>
+To: Shuah Khan <shuah@kernel.org>,
+	Tejun Heo <tj@kernel.org>,
+	Johannes Weiner <hannes@cmpxchg.org>,
+	=?UTF-8?q?Michal=20Koutn=C3=BD?= <mkoutny@suse.com>,
+	Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>,
+	David Vernet <void@manifault.com>,
+	Eduard Zingerman <eddyz87@gmail.com>
+Cc: Andrea Righi <arighi@nvidia.com>,
+	Changwoo Min <changwoo@igalia.com>,
+	Michal Hocko <mhocko@kernel.org>,
+	Roman Gushchin <roman.gushchin@linux.dev>,
+	Shakeel Butt <shakeel.butt@linux.dev>,
+	Muchun Song <muchun.song@linux.dev>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	JP Kobryn <inwardvessel@gmail.com>,
+	Mykola Lysenko <mykolal@meta.com>,
+	Nathan Chancellor <nathan@kernel.org>,
+	linux-kselftest@vger.kernel.org,
+	cgroups@vger.kernel.org,
+	linux-input@vger.kernel.org,
+	sched-ext@lists.linux.dev,
+	linux-mm@kvack.org,
+	kernel-team@meta.com,
+	bpf@vger.kernel.org,
+	llvm@lists.linux.dev,
+	linux-kernel@vger.kernel.org,
+	Ziyang Men <ziyang.meme@gmail.com>
+Subject: [PATCH v2 0/4] selftests: shared lib.bpf.mk for building BPF progs and skeletons
+Date: Tue, 21 Jul 2026 10:48:29 -0700
+Message-ID: <20260721174833.1232771-1-ziyang.meme@gmail.com>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -72,188 +95,65 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: satlexmb07.amd.com (10.181.42.216) To satlexmb07.amd.com
- (10.181.42.216)
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: DS1PEPF00017098:EE_|BN7PPF521FFE181:EE_
-X-MS-Office365-Filtering-Correlation-Id: 421ca4f8-21a7-4b08-0327-08dee74fc526
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|82310400026|1800799024|36860700016|23010399003|376014|22082099003|18002099003|10067099003|56012099006|11063799006|6133799003;
-X-Microsoft-Antispam-Message-Info:
-	Zy3kh0nF4f7e1keOUHXFx4pVdiz7n/rQ88cbowN3fTWVBOiGaTi04NuG0DT5AtiG+WDfMDxFsr3Ap94v8ISvfPw1O1AO6DBvHouip98r3TXDvC9DiZUJ9tbiaG+TkA/3HcUwfKHPILwPLyQL5xyzJwAqLl0tBGicwch8Mly4ctfjFIQ8sNm0vGkPWxb8PQUsh5CSx3SAZ+L8DRfim6BHWFlpurx2Kq0jpRvIr1oVFr1zsnp6jFWx512FJPqesvvdMioqjQAfSuwJAzA7MP1G65RyAaeCU1LZF0cHRpbqgeGobQ2Xx9H+TgI8vqcWbga4A7MeQL/LYiNN2FoSi6iRy43Up1JWeQVEMwkVVQvVeorVg1nNStVhMyBN0MyxFEsZ3+TILzI97P+lujLVcmoSWzeiN/eF9X+RguPd/QhfuCWyVwcilCyO7R7/n1nhFQSLS9SaFbyygpz7D4gjVNJaQIU+OgQ7QMo9NbNBI+fvGMeBSE6W+4WKzquINc2W9k1zx5aVSYkVbv9nMiZTRseNCnotcvbm49souJfj1AuqwzYz6lMPSGbU0OElPivXlSM/x+/0sz8Rs0XbBgkBmomigmriMwZVwEJ4ONC0R6ImdT+3izDfvxnKTjVRZOpxgIYi28hMhTt/OW+a+YNT5TySka8B/HRZdj/9VZQVX1k0QwE4rNJR6O3bh6u3PIhwtUZq618H+Qa7yjPaY3mXGniOaQ==
-X-Forefront-Antispam-Report:
-	CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:satlexmb07.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230040)(82310400026)(1800799024)(36860700016)(23010399003)(376014)(22082099003)(18002099003)(10067099003)(56012099006)(11063799006)(6133799003);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	sNcmupNCUI0PN/uaSSAzzhIcsPgDCdOFVT6fLXduFdyqj71In4AdoQJ0HXCzXIDGE2ULaYJUyb001FNbRRmQuF9fR89jEVr8fBcmqU40ZkPDyTRGwWqy/SrCZEsTM4VTL9izDhwUnaqQr3CHellbn4DXBbXy3PtTRsqH933GLzEeXih6eJVuhWS3DLEt6MW1fX06xN85z/u8AreZArrwLHbuibQxpWXO5Ax5lW+TrljYxAmwDi0rk58fgqBh5tn3JShPc2wSFudr7LT98Pkq7E+u+jDpvxy+FDsnTZLmaXdzuSfjAcfCtBenmtttvm1b8TWLFxvYTUwfl1C6B482MJ9F7wq6NuDxXiBbyVxo9W2Wd7OcepHDVhgQTTbK5SnwmQP/i3HJGRtVE3MZgP/9vH6HXlnA4e75cb8QS80jhsfQklW3EfD8rxWyagtdQnSL
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 21 Jul 2026 17:44:52.8438
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 421ca4f8-21a7-4b08-0327-08dee74fc526
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[satlexmb07.amd.com]
-X-MS-Exchange-CrossTenant-AuthSource:
-	DS1PEPF00017098.namprd05.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BN7PPF521FFE181
 
-Report whether an AMD convertible is in laptop or tablet mode using the
-operating-mode sensor provided by the Sensor Fusion Hub, and expose it
-to userspace as SW_TABLET_MODE, so userspace can react to the device
-being folded into tablet posture.
+This series re-factors the bpf-related toolchain for selftests, which
+currently duplicated across selftests/{bpf,sched_ext,hid}/. Unify them
+into a single includable fragment, tools/testing/selftests/lib.bpf.mk,
+and wires up three consumers. We believe this will simplify the work for
+configuraing selftests with the bpf, for both the existing and future ones.
 
-Cc: Helge Bahmann <hcb@chaoticmind.net>
-Signed-off-by: Basavaraj Natikar <Basavaraj.Natikar@amd.com>
----
- MAINTAINERS                             |  1 +
- drivers/input/misc/Kconfig              | 15 +++++
- drivers/input/misc/Makefile             |  1 +
- drivers/input/misc/amd_sfh_tabletmode.c | 81 +++++++++++++++++++++++++
- 4 files changed, 98 insertions(+)
- create mode 100644 drivers/input/misc/amd_sfh_tabletmode.c
+Patch 1 adds lib.bpf.mk: it builds the in-tree libbpf.a and a host
+bpftool, generates vmlinux.h from the kernel's BTF, compiles *.bpf.c into
+BPF objects and skeletons, and exports the include paths, a bpf_link
+helper, and BPF_LDLIBS.  Use can control the behavior by several knobs
+(source layout/suffix, extra headers/cflags, skeleton suffix,
+subskeletons, output dirs) that can be used commonly in general cases.
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 1ab8736850ea..30cd879e4a3e 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -1301,6 +1301,7 @@ L:	linux-input@vger.kernel.org
- S:	Maintained
- F:	Documentation/hid/amd-sfh*
- F:	drivers/hid/amd-sfh-hid/
-+F:	drivers/input/misc/amd_sfh_tabletmode.c
- 
- AMD SPI DRIVER
- M:	Raju Rangoju <Raju.Rangoju@amd.com>
-diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-index 1f6c57dba030..5b76be31f687 100644
---- a/drivers/input/misc/Kconfig
-+++ b/drivers/input/misc/Kconfig
-@@ -899,6 +899,21 @@ config INPUT_SOC_BUTTON_ARRAY
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called soc_button_array.
- 
-+config INPUT_AMD_SFH_TABLETMODE
-+	tristate "AMD SFH tablet-mode switch"
-+	depends on AMD_SFH_HID
-+	select AUXILIARY_BUS
-+	help
-+	  Expose SW_TABLET_MODE for AMD convertible laptops whose
-+	  operation-mode sensor is provided by the AMD Sensor Fusion Hub.
-+
-+	  Userspace components such as systemd-logind and modern desktop
-+	  environments react to SW_TABLET_MODE when the device is folded
-+	  into tablet posture.
-+
-+	  To compile this driver as a module, choose M here: the module
-+	  will be called amd_sfh_tabletmode.
-+
- config INPUT_DRV260X_HAPTICS
- 	tristate "TI DRV260X haptics support"
- 	depends on INPUT && I2C
-diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
-index 2281d6803fce..72aa0658ebb3 100644
---- a/drivers/input/misc/Makefile
-+++ b/drivers/input/misc/Makefile
-@@ -81,6 +81,7 @@ obj-$(CONFIG_INPUT_RK805_PWRKEY)	+= rk805-pwrkey.o
- obj-$(CONFIG_INPUT_SC27XX_VIBRA)	+= sc27xx-vibra.o
- obj-$(CONFIG_INPUT_SGI_BTNS)		+= sgi_btns.o
- obj-$(CONFIG_INPUT_SOC_BUTTON_ARRAY)	+= soc_button_array.o
-+obj-$(CONFIG_INPUT_AMD_SFH_TABLETMODE)	+= amd_sfh_tabletmode.o
- obj-$(CONFIG_INPUT_SPARCSPKR)		+= sparcspkr.o
- obj-$(CONFIG_INPUT_STPMIC1_ONKEY)  	+= stpmic1_onkey.o
- obj-$(CONFIG_INPUT_TPS65218_PWRBUTTON)	+= tps65218-pwrbutton.o
-diff --git a/drivers/input/misc/amd_sfh_tabletmode.c b/drivers/input/misc/amd_sfh_tabletmode.c
-new file mode 100644
-index 000000000000..f88edebbf35d
---- /dev/null
-+++ b/drivers/input/misc/amd_sfh_tabletmode.c
-@@ -0,0 +1,81 @@
-+// SPDX-License-Identifier: GPL-2.0-or-later
-+/*
-+ * AMD SFH tablet-mode switch driver
-+ *
-+ * Copyright (c) 2026, Advanced Micro Devices, Inc.
-+ * All Rights Reserved.
-+ *
-+ * Author: Basavaraj Natikar <Basavaraj.Natikar@amd.com>
-+ */
-+
-+#include <linux/amd-pmf-io.h>
-+#include <linux/auxiliary_bus.h>
-+#include <linux/input.h>
-+#include <linux/module.h>
-+#include <linux/pci_ids.h>
-+
-+#define POLL_INTERVAL_MS	200
-+
-+static void sfh_tm_poll(struct input_dev *input)
-+{
-+	struct amd_sfh_info info = {};
-+
-+	if (amd_get_sfh_info(&info, MT_OP_MODE))
-+		return;
-+
-+	input_report_switch(input, SW_TABLET_MODE,
-+			    info.op_mode == SFH_MODE_TABLET);
-+	input_sync(input);
-+}
-+
-+static int sfh_tm_probe(struct auxiliary_device *auxdev,
-+			const struct auxiliary_device_id *id)
-+{
-+	struct amd_sfh_info info = {};
-+	struct device *dev = &auxdev->dev;
-+	struct input_dev *input;
-+	int rc;
-+
-+	rc = amd_get_sfh_info(&info, MT_OP_MODE);
-+	if (rc)
-+		return rc == -EINVAL ? -ENODEV : rc;
-+
-+	input = devm_input_allocate_device(dev);
-+	if (!input)
-+		return -ENOMEM;
-+
-+	input->name		= "AMD SFH tablet mode switch";
-+	input->phys		= "amd-sfh/tabletmode";
-+	input->id.bustype	= BUS_HOST;
-+	input->id.vendor	= PCI_VENDOR_ID_AMD;
-+	input_set_capability(input, EV_SW, SW_TABLET_MODE);
-+
-+	rc = input_setup_polling(input, sfh_tm_poll);
-+	if (rc)
-+		return rc;
-+	input_set_poll_interval(input, POLL_INTERVAL_MS);
-+
-+	rc = input_register_device(input);
-+	if (rc)
-+		return rc;
-+
-+	sfh_tm_poll(input);
-+
-+	return 0;
-+}
-+
-+static const struct auxiliary_device_id sfh_tm_id_table[] = {
-+	{ .name = "amd_sfh.tabletmode" },
-+	{}
-+};
-+MODULE_DEVICE_TABLE(auxiliary, sfh_tm_id_table);
-+
-+static struct auxiliary_driver sfh_tm_driver = {
-+	.name		= "tabletmode",
-+	.id_table	= sfh_tm_id_table,
-+	.probe		= sfh_tm_probe,
-+};
-+module_auxiliary_driver(sfh_tm_driver);
-+
-+MODULE_DESCRIPTION("AMD SFH tablet mode switch");
-+MODULE_LICENSE("GPL");
+Patch 2 adds a new selftest, test_memcg_stat_cross_cpu, under
+selftests/cgroup. This test is a memory-cgroup statistics correctness
+test that compares the memcg BPF kfuncs against memory.stat over a whole
+cgroup subtree charged across many CPUs, and checks the cross-CPU rstat
+flush. It is the first in-tree consumer of lib.bpf.mk outside
+selftests/bpf.
+
+Patches 3 and 4 convert the duplicated parts in Makefile for two
+existing duplicating bpf consumers, the selftests/hid and
+selftests/sched_ext, to lib.bpf.mk.  The generated skeletons keep
+a byte-identical public API and land in the same locations as before.
+The folders build cleanly under both plain make and LLVM=1.
+
+Changes since v1:
+  - Generalized lib.bpf.mk (source layout/suffix, extra hdrs/cflags,
+    skeleton suffix, subskeletons, configurable output dirs) so it can
+    serve hid and sched_ext, not just cgroup.
+  - Added patch 3 (hid) and patch 4 (sched_ext), converting those folders
+    to the shared fragment.
+
+Ziyang Men (4):
+  selftests: add shared lib.bpf.mk to build BPF progs and skeletons
+  selftests/cgroup: add memcg_stat_cross_cpu correctness test for flush
+  selftests/hid: build the BPF program via the shared lib.bpf.mk
+  selftests/sched_ext: build BPF schedulers via the shared lib.bpf.mk
+
+ tools/testing/selftests/cgroup/.gitignore     |   6 +
+ tools/testing/selftests/cgroup/Makefile       |  21 +
+ tools/testing/selftests/cgroup/config         |   4 +
+ .../selftests/cgroup/lib/cgroup_util.c        |  48 ++
+ .../cgroup/lib/include/cgroup_util.h          |   1 +
+ .../cgroup/memcg_stat_cross_cpu.bpf.c         |  86 ++
+ .../selftests/cgroup/memcg_stat_cross_cpu.h   |  27 +
+ .../cgroup/test_memcg_stat_cross_cpu.c        | 780 ++++++++++++++++++
+ tools/testing/selftests/hid/Makefile          | 182 +---
+ tools/testing/selftests/lib.bpf.mk            | 247 ++++++
+ tools/testing/selftests/sched_ext/Makefile    | 153 +---
+ 11 files changed, 1275 insertions(+), 280 deletions(-)
+ create mode 100644 tools/testing/selftests/cgroup/memcg_stat_cross_cpu.bpf.c
+ create mode 100644 tools/testing/selftests/cgroup/memcg_stat_cross_cpu.h
+ create mode 100644 tools/testing/selftests/cgroup/test_memcg_stat_cross_cpu.c
+ create mode 100644 tools/testing/selftests/lib.bpf.mk
+
+
+base-commit: 6eb8711ece2ce27e52e327a5b7a628ed39b97f45
 -- 
-2.34.1
+2.53.0-Meta
 

@@ -1,146 +1,153 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.9])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f43.google.com (mail-wm1-f43.google.com [209.85.128.43])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A3FB247ECEB;
-	Tue, 21 Jul 2026 09:54:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.9
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2B9EA44C641
+	for <linux-input@vger.kernel.org>; Tue, 21 Jul 2026 09:57:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784627657; cv=none; b=J6Ge0FNKxsbw6SKUZOiJWCZwj4yLTogQSz03VFE0dL1j9l7X85pDmoTGwMJxpX3wllfgEmfXgEDFas+PKr+vm50TKdwQknc42agDqHgdQkD1Xo9dlg4/71jYQcyP7xx2GnCh2R+uB+EBWdLuP+KO/6WLOexOTAROzpmdwP6ZtZ4=
+	t=1784627829; cv=none; b=AOSLar4HgwVxoxJR6olGf+AJxiaMEiGVEIf4tW/mVwbLDFQsa1SIILYMkkmrjQx5Sj3rq76WxxcSN+0lo69cecplpZgX9vbNbaL3nk52vmAT+jfH5lYTd37J3mEi6M0+aVOYCnCeFQoE3YuaTnjdX7trsT65lvF8Q2EL4ATnaRA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784627657; c=relaxed/simple;
-	bh=kRHPnnFh2X+21LPOizKSZmusrUu78ngN/jBigWFpw5M=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=dv23YG3RTX1Un0u9U+j9HuM2VaYzNqQNhCycOkJfK63njS/zmA5MGuiC01f1UILHSEFj00AdBlTwQjapF4980xSWrgbOhrYQ88SYhmVwHkf40MBuSLplfhrS7r9mjWf8l3AAjwPRvdNJULYBX71PeUC7ccZmGhgEgIHaiG3cldk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=CVIo9YZN; arc=none smtp.client-ip=192.198.163.9
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
+	s=arc-20240116; t=1784627829; c=relaxed/simple;
+	bh=zZG0SwXpBaudvhL8T1nanzDcag2V5GkwhlyQJoKbJVc=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=iBNZBFtG8TvIv9I98uiqYva4T0jDrERi6vtbYo12JMf5vC3+VI481MtO8jcQ6gMDqcp6OBXSbDmWHIxUpuFp2a3uxb7xNcDpBKHxze0+yU7c1mhhjykrDyQSQqc2n9cBGjsqaJ5D+cH/W8GFh9G7LwRZQwf5baoJg0u8T/+Il9A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=JUj44CDh; arc=none smtp.client-ip=209.85.128.43
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="CVIo9YZN"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1784627656; x=1816163656;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=kRHPnnFh2X+21LPOizKSZmusrUu78ngN/jBigWFpw5M=;
-  b=CVIo9YZNKjYo8eblhx8aUjXkyfpNf0JJ3s3/a+T9uAmiezgjIb5Quu/P
-   42hY0NAdtXp+B7kGfGZQC+Y5bYeUv2yuCkhaoHEt5Hci47OX+TL78c3oA
-   OaurXC6jDPDlakCXQ7Ljp3soit60n05cnX0K7efihkUlK9kiH1t7x3R66
-   +bzmAfnASDY34hXMR382VadgPefYrbCnPLbdFjryKoTExaoDOAlu5aXeq
-   eGeev4F9bNCnTYA5R9Cl1+hSui2KzcOfnG7zm/7q7bxL9pV6M4fD+I5Ns
-   DVkxGivtAk6B5Ns0fePnu5hL6UrTE7CfWMUemZJUo5uBvKbgyQdjlCSMy
-   A==;
-X-CSE-ConnectionGUID: O4o8yiT1Q/ibyw36BrfeYQ==
-X-CSE-MsgGUID: EPon5moNSymht6R1ws76cw==
-X-IronPort-AV: E=McAfee;i="6800,10657,11852"; a="95873436"
-X-IronPort-AV: E=Sophos;i="6.25,176,1779174000"; 
-   d="scan'208";a="95873436"
-Received: from orviesa001.jf.intel.com ([10.64.159.141])
-  by fmvoesa103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 21 Jul 2026 02:54:14 -0700
-X-CSE-ConnectionGUID: r9OCG1FcRO6fqxsy8OJs+A==
-X-CSE-MsgGUID: H9avTQT6S+at69QN4ALNdg==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.25,176,1779174000"; 
-   d="scan'208";a="295924390"
-Received: from ncintean-mobl1.ger.corp.intel.com (HELO localhost) ([10.245.245.67])
-  by smtpauth.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 21 Jul 2026 02:54:10 -0700
-Date: Tue, 21 Jul 2026 12:54:08 +0300
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To: Chen-Yu Tsai <wenst@chromium.org>
-Cc: Matthias Brugger <matthias.bgg@gmail.com>,
-	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
-	Benson Leung <bleung@chromium.org>,
-	Tzung-Bi Shih <tzungbi@kernel.org>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Jiri Kosina <jikos@kernel.org>, Andi Shyti <andi.shyti@kernel.org>,
-	linux-mediatek@lists.infradead.org, devicetree@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	chrome-platform@lists.linux.dev, linux-input@vger.kernel.org,
-	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v3 1/9] regulator: core: Add "enable and wait" functions
-Message-ID: <al9BwHbG5IX0mIem@ashevche-desk.local>
-References: <20260721075226.2347933-1-wenst@chromium.org>
- <20260721075226.2347933-2-wenst@chromium.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="JUj44CDh"
+Received: by mail-wm1-f43.google.com with SMTP id 5b1f17b1804b1-495635a85d2so12389295e9.0
+        for <linux-input@vger.kernel.org>; Tue, 21 Jul 2026 02:57:07 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1784627826; x=1785232626; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=+cGDwZcLwL8KiYreb24CUFPP8K2PTwnHJJuWk44wG5c=;
+        b=JUj44CDhuKTiTTOJyxA8aHtxzT7D2WFNmg3NJbUoYfVWToRui8LJVoz0Nw6nMJ6fzN
+         BsAsmquaf9zbq8S82IEC+1xqCALMRnkVdqzeJ32gwa3jFZicjUY2UEKpWWbwL6TU8JDF
+         uLTnRjVTIf7YYP+QjRYjQf1prWwk7WpRrDmKTzSDxJA4yeROAfV9k4Vtu1q33tALDMXD
+         l4mTYHu0VhF4pW4EjFJ9Wk4rVKO46Gd74vknnl0S2SpQyDvkIfX7OYK2dp2jb874t4Sr
+         cSgP/Zl2YKLJpIS+UvZc00wABo5nf018NmcdAwvBnzehHjAlxkI/E/7s1rW3tCH7AyuC
+         evew==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1784627826; x=1785232626;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=+cGDwZcLwL8KiYreb24CUFPP8K2PTwnHJJuWk44wG5c=;
+        b=cWJw+3ZxOUJh+8TXB43KDbkWUy2Bq/GMM9BBzbOAsz4t8/lO2/UGKPEzqOze7fuisq
+         /3gxjHFPOryeEali8XcDroOoFsKs/HkZXIoX9brBIhTJBhB7t6Qcm49lhlB420yfF9PE
+         XllEn43C509sSSg6G1YRCF3rJHz/HaRR1zp3/sSk4UP58tmFJPPD2fL1vD/R2T1+IJgS
+         ZjAP4BZ+slAFpIyGMzET8jgvUbt87R76bg5G40LuAxM4pq6VWFq1xi7LJGP3eES9EvL5
+         IgJbA1goAZ23P0anYRkVH684ZKZdE4aLG/RSbamtIpCSaCapBmAVAQdRsZaTAQyH+qiN
+         E4Jg==
+X-Gm-Message-State: AOJu0YwaDxkjSnFJYLMWYKJwewTsptUPf5G8QLiXwwElhHhmuFhgLah1
+	FiHXHpCAxSmlcFBNJwoeEC9Bywkg/ahoeLN03zd7hHo29yBy2PjwyBbp
+X-Gm-Gg: AfdE7cno7jtB9y2mu7ys1KkicN14Nz1RagLBH8wSD3QrXTYiAe3n0tmxQEKuJuAeeHG
+	6BQzRHEP3m2DQNNt6u+vmiGC76RgsVJry/OucrNJD0Fz7kqAaCzHgDIv2gx5IfBPldwdvxuYRQW
+	kRkqTqRgcofHtmL3Rw3t/oM1+coTzgBC4XCUWKqflSjwFDxT8vUcDHMAzyJUeBE30pS1afozaDQ
+	8zKjod6OZXGskXO2KVy7nS8xKykzUjJuV4Srpk3NGmJZSdOH8Jm9zGg/6a5vvgziUpMz9kpDkRG
+	DmIkTbLA35XDZUtyYeN7eENMLIcn3UE5gg1p6QRcjWETp2ykU2mmOI3kLTHWCpcosz56fk9ZpTG
+	CmdxczDw7xv4EDENpoIbaiNTuTK4WJTeCKA/0mA4qDIS22eHnx7m41ouEIfSiOVYLXLLhuqoxRh
+	AqUEZN1hUnb/8lw1NkmYwEcuM=
+X-Received: by 2002:a05:600c:4fca:b0:495:4e1d:82df with SMTP id 5b1f17b1804b1-4954e1d843cmr165855415e9.10.1784627826040;
+        Tue, 21 Jul 2026 02:57:06 -0700 (PDT)
+Received: from xeon ([188.163.112.51])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4954995b78dsm227476185e9.0.2026.07.21.02.57.04
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 21 Jul 2026 02:57:05 -0700 (PDT)
+From: Svyatoslav Ryhel <clamor95@gmail.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Lee Jones <lee@kernel.org>,
+	Pavel Machek <pavel@kernel.org>,
+	Svyatoslav Ryhel <clamor95@gmail.com>
+Cc: linux-input@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	linux-leds@vger.kernel.org
+Subject: [PATCH v7 0/6] mfd: cpcap: convert documentation to schema and add Mot board support
+Date: Tue, 21 Jul 2026 12:56:47 +0300
+Message-ID: <20260721095654.429346-1-clamor95@gmail.com>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260721075226.2347933-2-wenst@chromium.org>
-Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
- krs, Bertel Jungin Aukio 5, 02600 Espoo
+Content-Transfer-Encoding: 8bit
 
-On Tue, Jul 21, 2026 at 03:52:15PM +0800, Chen-Yu Tsai wrote:
-> In device power sequencing and initialization use cases, it is common
-> for the driver to enable the regulator and then wait for a certain
-> period of time to pass before continuing.
-> 
-> In cases where the regulator supply is always on, or has been turned on
-> or left on by another consumer, the driver could shorten the delay or
-> skip it altogether, provided that enough time has already passed since
-> the regulator was _actually_ turned on.
-> 
-> Tracking this requires support from the regulator core. Introduce a
-> "last turned on" timestamp field to the regulator device, and "enable
-> and wait" functions to the single and bulk regulator consumer APIs.
-> The existing "enable without wait" functions are then converted to
-> macros that expand to the new functions.
-> 
-> One case in particular is not optimized yet: a regulator left on either
-> by hardware reset default or by the bootloader, but does not have the
-> "regulator-boot-on" property set. As the enable timestamp only gets
-> updated when enabled by a consumer or by the core, the first enablement
-> always needs to wait.
+The initial goal was only to add support for the CPCAP used in the Mot
+Tegra20 board; however, since the documentation was already partially
+converted, I decided to complete the conversion to schema too.
 
-...
+The CPCAP regulator, leds, rtc, pwrbutton and core files were converted
+from TXT to YAML while preserving the original structure. Mot board
+compatibility was added to the regulator and core schema. Since these
+were one-line patches, they were not separated into dedicated commits;
+however, the commit message notes this for both cases.
 
-> -/* locks held by regulator_enable() */
-> -static int _regulator_enable(struct regulator *regulator)
-> +/* locks held by regulator_enable_and_wait() */
-> +static int _regulator_enable_and_wait(struct regulator *regulator, unsigned int wait_us)
+Finally, the CPCAP MFD was slightly refactored to improve support for
+multiple subcell compositions.
 
-Hmm...
-This comment a bit confusing, perhaps adding some lockdep annotations help?
+---
+Changes in v2:
+- fixed code style
+- rtc conversion was picked, so patch dropped
+- added audio ports description into mfd schema
+- splitted schema conversion and compatible addition
+- minor style improvements and typo fixes
 
-...
+Changes in v3:
+- added regulator node names list into pattern
+- filled spi_device_id with driver data
+- ADC patches were picked, so changes dropped
 
-> +	if (wait_us) {
-> +		ktime_t end = ktime_add_us(rdev->last_on, wait_us);
-> +		s64 remaining = ktime_us_delta(end, ktime_get_boottime());
-> +
-> +		if (remaining > 0)
-> +			fsleep(remaining);
+Changes in v4:
+- dropped regulator patches (applied)
 
-This style is discouraged as it makes maintenance harder. Better
+Changes in v5:
+- switched to MFD_CELL_* macros
+- switched to use determinator of model
+- switched to spi_get_device_match_data
 
-		s64 remaining;
+Changes in v6:
+- removed address-cells and size-cells from main node
+- changed macros formatting and OF matches
+- factored out common devices and made device addition staged
+- dropped cpcap->variant check for 0
+- EINVAL > ENODEV in variant checking switch
 
-		remaining = ktime_us_delta(end, ktime_get_boottime());
-		if (remaining > 0)
-			fsleep(remaining);
+Changes in v7:
+- adjusted spi_device_id entries (name/driver_data)
+---
 
-> +	}
+Svyatoslav Ryhel (6):
+  dt-bindings: leds: leds-cpcap: convert to DT schema
+  dt-bindings: input: cpcap-pwrbutton: convert to DT schema
+  dt-bindings: mfd: motorola-cpcap: convert to DT schema
+  dt-bindings: mfd: motorola-cpcap: document Mapphone and Mot CPCAP
+  mfd: motorola-cpcap: diverge configuration per-board
+  mfd: motorola-cpcap: add support for Mot CPCAP composition
 
-...
-
->  	/* private: Internal use */
->  	int ret;
-> +	unsigned int wait_us;
-
-If you want to make it more private (the above is only for kernel-doc) add
-__private annotation that will affect how sparse will check this.
-
-...
-
-> -int __must_check regulator_enable(struct regulator *regulator);
-> +int __must_check regulator_enable_and_wait(struct regulator *regulator, unsigned int ms);
-
-ms or us? Please, double check all units.
+ .../bindings/input/cpcap-pwrbutton.txt        |  20 -
+ .../input/motorola,cpcap-pwrbutton.yaml       |  32 ++
+ .../devicetree/bindings/leds/leds-cpcap.txt   |  29 --
+ .../bindings/leds/motorola,cpcap-leds.yaml    |  42 ++
+ .../bindings/mfd/motorola,cpcap.yaml          | 408 ++++++++++++++++++
+ .../bindings/mfd/motorola-cpcap.txt           |  78 ----
+ drivers/mfd/motorola-cpcap.c                  | 143 +++---
+ include/linux/mfd/motorola-cpcap.h            |   7 +
+ 8 files changed, 571 insertions(+), 188 deletions(-)
+ delete mode 100644 Documentation/devicetree/bindings/input/cpcap-pwrbutton.txt
+ create mode 100644 Documentation/devicetree/bindings/input/motorola,cpcap-pwrbutton.yaml
+ delete mode 100644 Documentation/devicetree/bindings/leds/leds-cpcap.txt
+ create mode 100644 Documentation/devicetree/bindings/leds/motorola,cpcap-leds.yaml
+ create mode 100644 Documentation/devicetree/bindings/mfd/motorola,cpcap.yaml
+ delete mode 100644 Documentation/devicetree/bindings/mfd/motorola-cpcap.txt
 
 -- 
-With Best Regards,
-Andy Shevchenko
-
+2.53.0
 

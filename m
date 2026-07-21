@@ -1,147 +1,237 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8191B38C41B
-	for <linux-input@vger.kernel.org>; Tue, 21 Jul 2026 14:41:30 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7D1AA2EB0F
+	for <linux-input@vger.kernel.org>; Tue, 21 Jul 2026 14:47:10 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784644891; cv=none; b=iWhXHxMcHAC59zJjykx1uyUnx8NeAJe0Djtdd2Cd7R0sEJGo98Wr9SiFR5U6yvVZh8duMOSyk+kUk9pRUHUIAKGY1TxyCgPNBcnFKgSc2PsP/NT1C2KVNBSmokaBOMGJm5LYi8F2uvfb8n3xYrS+WGuoCPAUWPhZP8tYsbVhoS8=
+	t=1784645231; cv=none; b=fMnK2lYZAJr5m9OKecwl+Y79TaTd6w5ipSbFHR90Z+2Rj5Ap4PuyHbTGG1T7/HJl6m4G7Etn+4Sn16QbVzoNs9zEeao2FcJzQfKeOOZ0tRE+rD/7inr9mqPCx0BKClsMQt6Grj0JdD3OVP7FZniotcuiIYo9KcTEfW6s6TGZX/E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784644891; c=relaxed/simple;
-	bh=oWOkIYuOLFNGmwPHYADS6/t3M21nXgmRigvm6Ne4WfA=;
+	s=arc-20240116; t=1784645231; c=relaxed/simple;
+	bh=abQNiIbBA0dlzX07lSG/G2ESO9aqdFJFOVttAJbDKRA=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=L4jcoaOA6a/xW+SiBWx/bz5XL7xKkZPmawkwOEicHY5xifQOXF/FpLP/DlV/8gESRQoObNk2pgowM52V3kogHwUWzn8ERKNiJd3fAZEiU1hrj7bySzPJNT9OORWYWevGbiB6AyqmXu0gBd4HmnbBVTygq0o5Ob07Rh2rBc52sXA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=j5vrzeg4; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=aaOhCZbm26UAxvOdZ9r7yzEacfUd7zMznrPXEMb7s7AzbUAFYNZ8JMlFXq2LbGj+oQ8GuPqnKNHPGMPk72GB3ukg8R+j4HXaJ/QizM/JONhYHO1V0nRhGBgdJfkHdgkjjQA9B2I9WWGhH3PZjrRUWPJV3e5VQrDkSxmlFrVAmp8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=JEfdAwI+; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="j5vrzeg4"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1FA11F000E9;
-	Tue, 21 Jul 2026 14:41:29 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="JEfdAwI+"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D022C1F00A3D;
+	Tue, 21 Jul 2026 14:47:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784644890;
-	bh=958kUibTxZyPBx1ruz47hj6WbLMuq6FouIZOtipv/RQ=;
+	s=k20260515; t=1784645230;
+	bh=ejr+spST/unWeNZdj5amn15tN2Ogqq6e1fgnigbWXXU=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=j5vrzeg4RJ6vUVtHkRJ14TyEdOZ4Qp3gUjGrf08GkD3Rt//mTWlmCWBYfuHC4Be4r
-	 AgX9l3A6fvmbjP5mRnN5vqIounRXd86IGCTLx5WpCHItri44FcOJjS/wos2Qdiq+nA
-	 +tKPXCfoF5Ee9iBxEcs/6OCtAl1Zk71qoQC4PpA2KFkfXr4MKogoTfWnP/P25dZstT
-	 9LDvFIJ9VuFbWHOhNkjKrGEY8So3nkaxLx3yvcczVEnE3P4reVUlua7i/LCTKSxeCv
-	 CpZc6eK9ve2iL5sy2bojCYLbqyq0LFjoQrjmlYBJ2QEZJZqh4rmuKJLbEd172zr8RS
-	 QuRp/SsbgGxBw==
+	b=JEfdAwI+YmrQqI1T0QipBPontHp/ALxPdU5FwN5u+Q7DBswVlmRW/YOPcOlQWTYvz
+	 NmnUxl3klXHGaYqrTLCO//2mygV+PURi2b6CCcijn50bLupivujOZOaGWGjT2fAs+7
+	 +IU6XIJny6KieIcrVOrtfv8TZ+3LmPkf60geZL8iiySZqMGHLamu5nNrG/8impzXIF
+	 IUOcQyvGHhy3qk+hiJVutDeOtmF8dJvBtd4bxcginDJgy2F5YzphtiC3G0kjSy02OZ
+	 EAuh6D2MuRzzi54mM/C5K0OJMvkRg5GRNjNzs+XDhX9FoyT7uniM/23nkcbE1HB05D
+	 oMVQXFGtrr3Ig==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 2/2] amd-sfh-tabletmode: interpret sfh tablet mode hid
- report
+Subject: Re: [PATCH 1/2] amd-sfh-hid: tablet mode hid report and asus quirk
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Helge Bahmann" <hcb@chaoticmind.net>
 Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <14202195.uLZWGnKmhe@zephyr>
+In-Reply-To: <2108873.tdWV9SEqCh@zephyr>
 References: <6879487.lOV4Wx5bFT@lothlorien> <2632507.ElGaqSPkdT@lothlorien>
- <ecadaac8-e222-420a-ac5b-4d529fb3317e@amd.com> <14202195.uLZWGnKmhe@zephyr>
+ <ecadaac8-e222-420a-ac5b-4d529fb3317e@amd.com> <2108873.tdWV9SEqCh@zephyr>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 21 Jul 2026 14:41:29 +0000
-Message-Id: <20260721144129.F1FA11F000E9@smtp.kernel.org>
+Date: Tue, 21 Jul 2026 14:47:09 +0000
+Message-Id: <20260721144709.D022C1F00A3D@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+Thank you for your contribution! Sashiko AI review found 6 potential issue(=
 s) to consider:
-- [High] Unconditional `field->hidinput` dereference and tablet mode state =
-corruption due to unconstrained `.event` callback.
-- [High] The Kconfig symbol `INPUT_AMD_SFH_TABLETMODE` is missing a depende=
-ncy on `HID`.
+
+New issues:
+- [Medium] Missing HID Input Mapping for tablet mode switch
+- [Low] Incomplete Implementation / Dead Code for Feature Report
+- [Low] Unintentional Parameter Override via DMI Quirk
+- [Low] Unused Macros for Tablet State Evaluated by Magic Number
+- [Low] Introduction of Non-English Comments
+
+Pre-existing issues:
+- [High] Double Free / Use-After-Free in amdtp_hid_probe error path
 --
 
---- Patch [2]: [PATCH 2/2] amd-sfh-tabletmode: interpret sfh tablet mode hi=
-d report ---
-commit 981d61514e0f554ad31b2f14f7fb391c059df340
+--- Patch [1]: [PATCH 1/2] amd-sfh-hid: tablet mode hid report and asus qui=
+rk ---
+commit 8025fc07a2e48355e8daeee6c47f30c940eb5a30
 Author: Helge Bahmann <hcb@chaoticmind.net>
 
-amd-sfh-tabletmode: interpret sfh tablet mode hid report
-   =20
-Add a driver that hooks into the tablet mode hid reports
-generated by the amd-sfh-hid driver. This enables tablet
-mode switching on e.g. Asus Vivobook devices.
+amd-sfh-hid: tablet mode hid report and asus quirk
 
-> diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-> index 94a753fcb64fa..5a1dacd6f7b9c 100644
-> --- a/drivers/input/misc/Kconfig
-> +++ b/drivers/input/misc/Kconfig
-> @@ -1003,4 +1003,15 @@ config INPUT_STPMIC1_ONKEY
->  	  To compile this driver as a module, choose M here: the
->  	  module will be called stpmic1_onkey.
+Add an input driver that interprets the "operation mode" sensor offered
+by the amd sfh as a hid driver to generate a custom hid report (tablet
+mode switch).
+
+Add a quirk to restore compatibility of the driver with the Asus
+VivoBook (turn off the "disable interrupts flag). Expose the
+intr_disable flag as a module parameter in case it turns out to be
+needed on further laptop models.
+
+> diff --git a/drivers/hid/amd-sfh-hid/amd_sfh_client.c b/drivers/hid/amd-s=
+fh-hid/amd_sfh_client.c
+> index 96ae792beeb6c..8c03279646023 100644
+> --- a/drivers/hid/amd-sfh-hid/amd_sfh_client.c
+> +++ b/drivers/hid/amd-sfh-hid/amd_sfh_client.c
+[ ... ]
+> @@ -327,12 +314,6 @@ int amd_sfh_hid_client_init(struct amd_mp2_dev *priv=
+data)
 > =20
-> +config INPUT_AMD_SFH_TABLETMODE
-> +	tristate "AMD sensor fusion hub tablet mode driver"
+>  	for (i =3D 0; i < cl_data->num_hid_devices; i++) {
+>  		cl_data->cur_hid_dev =3D i;
+> -		if (cl_data->sensor_idx[i] =3D=3D op_idx) {
+> -			dev_dbg(dev, "sid 0x%x (%s) status 0x%x\n",
+> -				cl_data->sensor_idx[i], get_sensor_name(cl_data->sensor_idx[i]),
+> -				cl_data->sensor_sts[i]);
+> -			continue;
+> -		}
+> =20
+>  		if (cl_data->sensor_sts[i] =3D=3D SENSOR_ENABLED) {
+>  			rc =3D amdtp_hid_probe(i, cl_data);
 
 [Severity: High]
-Is it possible this Kconfig entry is missing a depends on HID?
+This isn't a bug introduced by this patch, but is a pre-existing issue in t=
+he
+driver's error-handling path.
 
-If the HID subsystem is disabled or configured as a module while this driver
-is built-in, could this result in linking errors for HID core functions like
-hid_register_driver() and hid_parse()?
+If amdtp_hid_probe() fails (e.g., in hid_add_device()), it destroys the hid
+device but does not clear the dangling pointer in
+cli_data->hid_sensor_hubs[cur_hid_dev].
 
-> +	help
-> +	  Say Y to enable support of the tablet mode switch driver for
+When this failure propagates up to amd_sfh_hid_client_init(), it jumps to t=
+he
+cleanup label and invokes amd_sfh_hid_client_deinit() -> amdtp_hid_remove().
 
+amdtp_hid_remove() will then iterate over the hid_sensor_hubs array and call
+hid_destroy_device() again on the dangling pointer, which can cause a double
+free.
+
+Should the pointer be set to NULL in amdtp_hid_probe() on error?
+
+> diff --git a/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c b/drivers/hid/amd-sfh=
+-hid/amd_sfh_pcie.c
+> index 4b81cebdc3359..924329bfef8fe 100644
+> --- a/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c
+> +++ b/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c
+> @@ -39,6 +39,8 @@ module_param_named(sensor_mask, sensor_mask_override, i=
+nt, 0444);
+>  MODULE_PARM_DESC(sensor_mask, "override the detected sensors mask");
+> =20
+>  static bool intr_disable =3D true;
+> +module_param_named(intr_disable, intr_disable, bool, 0444);
+> +MODULE_PARM_DESC(intr_disable, "override the interrupt disable sensor bi=
+t");
+
+[Severity: Low]
+Because intr_disable is implemented as a simple boolean, the DMI match quirk
+for Asus VivoBook unconditionally invokes mp2_disable_intr(), which
+overwrites intr_disable to false.
+
+Does this prevent the driver from differentiating between the default state
+and an explicit user override on the command line (e.g.,
+amd_sfh.intr_disable=3D1)?
+
+> diff --git a/drivers/hid/amd-sfh-hid/hid_descriptor/amd_sfh_hid_desc.c b/=
+drivers/hid/amd-sfh-hid/hid_descriptor/amd_sfh_hid_desc.c
+> index ef1f9be8b8938..7e807b92d2960 100644
+> --- a/drivers/hid/amd-sfh-hid/hid_descriptor/amd_sfh_hid_desc.c
+> +++ b/drivers/hid/amd-sfh-hid/hid_descriptor/amd_sfh_hid_desc.c
 [ ... ]
+> @@ -164,6 +180,11 @@ static u8 get_feature_report(int sensor_idx, int rep=
+ort_id, u8 *feature_report)
+>  		memcpy(feature_report, &gyro_feature, sizeof(gyro_feature));
+>  		report_size =3D sizeof(gyro_feature);
+>  		break;
+> +	case op_idx: /* op */
+> +		get_common_features(&tablet_mode_feature.common_property, report_id);
+> +		memcpy(feature_report, &tablet_mode_feature, sizeof(tablet_mode_featur=
+e));
+> +		report_size =3D sizeof(tablet_mode_feature);
+> +		break;
 
-> diff --git a/drivers/input/misc/amd_sfh_tabletmode.c b/drivers/input/misc=
-/amd_sfh_tabletmode.c
-> new file mode 100644
-> index 0000000000000..ee1207372207c
-> --- /dev/null
-> +++ b/drivers/input/misc/amd_sfh_tabletmode.c
+[Severity: Low]
+The driver allocates and populates a Feature report
+(tablet_mode_feature_report) here, but the corresponding
+tablet_mode_report_descriptor lacks any Feature items (0xB1).
 
-[ ... ]
+Since the HID core strictly relies on the parsed descriptor to create repor=
+ts,
+will a feature report with ID 0x11 ever be requested, or is this unused
+dead code?
 
-> +static int amd_sfh_tabletmode_event(struct hid_device *hid, struct hid_f=
-ield *field,
-> +				    struct hid_usage *usage, __s32 value)
-> +{
-> +	input_report_switch(field->hidinput->input, SW_TABLET_MODE, value);
+> @@ -238,6 +260,15 @@ static u8 get_input_report(u8 current_index, int sen=
+sor_idx, int report_id,
+>  		memcpy(input_report, &gyro_input, sizeof(gyro_input));
+>  		report_size =3D sizeof(gyro_input);
+>  		break;
+> +	case op_idx: /* op */
+> +		tablet_mode_input.report_id =3D 0x11;
+> +		if (sensor_virt_addr[0] =3D=3D 3)
+> +			tablet_mode_input.tablet_state =3D 1;
+> +		else
+> +			tablet_mode_input.tablet_state =3D 0;
 
-[Severity: High]
-Does this unconditionally dereference field->hidinput, which could be NULL
-for unmapped usages?
+[Severity: Low]
+This code relies on a hardcoded magic number 3. Should this evaluate the
+sensor payload using the newly defined AMD_SFH_OP_IDX_MODE_TABLET macro
+instead?
 
-Because the driver struct below lacks a .usage_table, hid_match_usage()
-will default to true for all usages, meaning this callback intercepts every
-incoming HID report field. This could lead to a NULL pointer dereference,
-and will also blindly emit a SW_TABLET_MODE event for any report, causing
-standard buttons or battery reports to randomly toggle tablet mode.
-
-Since .input_mapping already maps the usage to EV_SW, allowing the generic
-HID core to automatically report the event, could this callback be removed
-entirely?
-
+> diff --git a/drivers/hid/amd-sfh-hid/hid_descriptor/amd_sfh_hid_desc.h b/=
+drivers/hid/amd-sfh-hid/hid_descriptor/amd_sfh_hid_desc.h
+> index 882434b1501ff..ff82e47eb3ca4 100644
+> --- a/drivers/hid/amd-sfh-hid/hid_descriptor/amd_sfh_hid_desc.h
+> +++ b/drivers/hid/amd-sfh-hid/hid_descriptor/amd_sfh_hid_desc.h
+> @@ -114,4 +114,13 @@ struct hpd_input_report {
+>  	u8 human_presence;
+>  } __packed;
+> =20
+> +struct tablet_mode_feature_report {
+> +	struct common_feature_property common_property;
+> +} __packed;
 > +
-> +	return 0;
-> +}
+> +struct tablet_mode_input_report {
+> +	u8 report_id;    /* Muss 0x11 (17) sein */
+
+[Severity: Low]
+Is this German comment intentional? Kernel coding style typically requires =
+all
+comments to be written in English.
+
+> diff --git a/drivers/hid/amd-sfh-hid/hid_descriptor/amd_sfh_hid_report_de=
+sc.h b/drivers/hid/amd-sfh-hid/hid_descriptor/amd_sfh_hid_report_desc.h
+> index 67ec2d6a417de..f95368534fc60 100644
+> --- a/drivers/hid/amd-sfh-hid/hid_descriptor/amd_sfh_hid_report_desc.h
+> +++ b/drivers/hid/amd-sfh-hid/hid_descriptor/amd_sfh_hid_report_desc.h
+> @@ -776,4 +776,22 @@ static const u8 hpd_report_descriptor[] =3D {
+>  0X81, 0x02,		 /* HID Input (Data_Var_Abs) */
+>  0xC0			 /* HID end collection */
+>  };
 > +
-> +static const struct hid_device_id amd_sfh_tabletmode_devices[] =3D {
-> +	{ HID_DEVICE(BUS_AMD_SFH, HID_GROUP_GENERIC, AMD_SFH_HID_VENDOR, AMD_SF=
-H_HID_PRODUCT) },
-> +	{ }
-> +};
-> +MODULE_DEVICE_TABLE(hid, amd_sfh_tabletmode_devices);
-> +
-> +static struct hid_driver amd_sfh_tabletmode_driver =3D {
-> +	.name =3D "amd_sfh_tabletmode",
-> +	.id_table =3D amd_sfh_tabletmode_devices,
-> +	.probe =3D amd_sfh_tabletmode_probe,
-> +	.remove =3D amd_sfh_tabletmode_remove,
-> +	.input_mapping =3D amd_sfh_tabletmode_input_mapping,
-> +	.event =3D amd_sfh_tabletmode_event,
+> +/* tablet mode switch */
+> +static const u8 tablet_mode_report_descriptor[] =3D {
+> +0x05, 0x0C,		/* HID usage consumer electronics */
+> +0x09, 0x01,		/* HID usage */
+> +0xA1, 0x00,		/* HID collection (Physical) */
+> +0x85, 0x11,		/* HID report id */
+> +0x0A, 0xFF, 0x02,	/* HID usage (unallocated -- (ab)used for tablet mode)=
+ */
 
-[Severity: High]
-Should this struct include a .usage_table?
+[Severity: Medium]
+Because the driver does not provide a custom .input_mapping callback to
+intercept and map this unallocated Consumer usage to SW_TABLET_MODE, will t=
+he
+standard hid-input core ignore it or map it to KEY_UNKNOWN (240)?
 
-Without it, all device usages are routed to the .event callback above.
-
-> +};
+Could this result in physical changes in tablet mode emitting spurious unkn=
+own
+key events instead of a standard EV_SW switch event?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/ecadaac8-e222-420a-=
-ac5b-4d529fb3317e@amd.com?part=3D2
+ac5b-4d529fb3317e@amd.com?part=3D1

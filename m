@@ -1,73 +1,147 @@
-Received: from m65s28.vlinux.de (m65s28.vlinux.de [83.151.22.62])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2A2B532B11C
-	for <linux-input@vger.kernel.org>; Tue, 21 Jul 2026 14:39:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=83.151.22.62
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8191B38C41B
+	for <linux-input@vger.kernel.org>; Tue, 21 Jul 2026 14:41:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784644770; cv=none; b=eD+uuu3mHtypy9gOSrI6h/qatV40KfAKC4rKeWZwo5VvEKteXoicSw8QDKmVSfUQklaNa3WpIYpY2YE1H7nD1yAhg3Sd95ce+YkCmmH5L7gv3Mbad1EYAGsVO9tBXOHVF+nqQWFo3iwe3CZKDb3xTIdx/RuSTdzjIACKunL6ucs=
+	t=1784644891; cv=none; b=iWhXHxMcHAC59zJjykx1uyUnx8NeAJe0Djtdd2Cd7R0sEJGo98Wr9SiFR5U6yvVZh8duMOSyk+kUk9pRUHUIAKGY1TxyCgPNBcnFKgSc2PsP/NT1C2KVNBSmokaBOMGJm5LYi8F2uvfb8n3xYrS+WGuoCPAUWPhZP8tYsbVhoS8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784644770; c=relaxed/simple;
-	bh=iN6ie97Kk4S18SFQA9txiSObUVRPZwZxP0BVwNZ1ZlE=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=ApPdKwxLQv3mhYJBgVw4YC964sFGxqwtVVPx5Z4yVqj74DIPoT9RpF6UPHt0JF4qRGhPel8yg3JFNoAmkqgtvHp7O94t/X7TOsQs3VH4XOY6V7j1rhqoihjn89D/Ci7B1oXGQBuYFU+QYM7DAlqQoFB9ZMEUiNIwqeiEVFRBx2s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=chaoticmind.net; spf=pass smtp.mailfrom=chaoticmind.net; dkim=pass (2048-bit key) header.d=chaoticmind.net header.i=@chaoticmind.net header.b=XzH87pWE; arc=none smtp.client-ip=83.151.22.62
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=chaoticmind.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chaoticmind.net
+	s=arc-20240116; t=1784644891; c=relaxed/simple;
+	bh=oWOkIYuOLFNGmwPHYADS6/t3M21nXgmRigvm6Ne4WfA=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=L4jcoaOA6a/xW+SiBWx/bz5XL7xKkZPmawkwOEicHY5xifQOXF/FpLP/DlV/8gESRQoObNk2pgowM52V3kogHwUWzn8ERKNiJd3fAZEiU1hrj7bySzPJNT9OORWYWevGbiB6AyqmXu0gBd4HmnbBVTygq0o5Ob07Rh2rBc52sXA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=j5vrzeg4; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=chaoticmind.net header.i=@chaoticmind.net header.b="XzH87pWE"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=chaoticmind.net; s=default; h=Content-Type:Content-Transfer-Encoding:
-	MIME-Version:References:In-Reply-To:Message-ID:Date:Subject:Cc:To:From:Sender
-	:Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:
-	Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:
-	List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-	bh=/LF9PxrFlr4L/M1VW2+SXmoXVWkN/00PKuYCk7ztFE8=; b=XzH87pWEmKZarwxG/0y81wW9Sd
-	GV9m3ntUNHxsN3gLRafMp+1kz7L9Wi9X6LIaU9K7oyD1T/NWX05/kUncu77/5W0kD4H5fQpLw8mdl
-	pmWzW8LJsJx22AQPuxRaXBIVFsya737rSdaK/Oo6REjB51RAvTd/jnsd+IWnDb7KPvnYp409Bww3J
-	J9j5vnOs7jmBcXqhJ3+iD7uFy09lV2eR/DWv5GIyEdliAF+BbVlhMv8lDjLF6aD3I/413MRJ8IMqO
-	DdXtEuORpY3e6CjygA5csAgrcOf8vK7m4yM729IsYbtw5zwzB7pVowuPrRuyt2MCslqEJZHu+3d47
-	Le7Ap2CQ==;
-Received: from pa49-196-176-77.pa.vic.optusnet.com.au ([49.196.176.77] helo=zephyr.localnet)
-	by m65s28.vlinux.de with esmtpsa (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-	(Exim 4.92)
-	(envelope-from <hcb@chaoticmind.net>)
-	id 1wmBSa-0003GU-69; Tue, 21 Jul 2026 16:28:40 +0200
-From: Helge Bahmann <hcb@chaoticmind.net>
-To: Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org,
- Basavaraj Natikar <bnatikar@amd.com>
-Cc: Basavaraj Natikar <Basavaraj.Natikar@amd.com>
-Subject: [PATCH 0/2] asus vivobook tablet mode
-Date: Tue, 21 Jul 2026 16:28:30 +0200
-Message-ID: <5234335.GXAFRqVoOG@zephyr>
-In-Reply-To: <ecadaac8-e222-420a-ac5b-4d529fb3317e@amd.com>
-References:
- <6879487.lOV4Wx5bFT@lothlorien> <2632507.ElGaqSPkdT@lothlorien>
- <ecadaac8-e222-420a-ac5b-4d529fb3317e@amd.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="j5vrzeg4"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1FA11F000E9;
+	Tue, 21 Jul 2026 14:41:29 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1784644890;
+	bh=958kUibTxZyPBx1ruz47hj6WbLMuq6FouIZOtipv/RQ=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=j5vrzeg4RJ6vUVtHkRJ14TyEdOZ4Qp3gUjGrf08GkD3Rt//mTWlmCWBYfuHC4Be4r
+	 AgX9l3A6fvmbjP5mRnN5vqIounRXd86IGCTLx5WpCHItri44FcOJjS/wos2Qdiq+nA
+	 +tKPXCfoF5Ee9iBxEcs/6OCtAl1Zk71qoQC4PpA2KFkfXr4MKogoTfWnP/P25dZstT
+	 9LDvFIJ9VuFbWHOhNkjKrGEY8So3nkaxLx3yvcczVEnE3P4reVUlua7i/LCTKSxeCv
+	 CpZc6eK9ve2iL5sy2bojCYLbqyq0LFjoQrjmlYBJ2QEZJZqh4rmuKJLbEd172zr8RS
+	 QuRp/SsbgGxBw==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH 2/2] amd-sfh-tabletmode: interpret sfh tablet mode hid
+ report
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Helge Bahmann" <hcb@chaoticmind.net>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <14202195.uLZWGnKmhe@zephyr>
+References: <6879487.lOV4Wx5bFT@lothlorien> <2632507.ElGaqSPkdT@lothlorien>
+ <ecadaac8-e222-420a-ac5b-4d529fb3317e@amd.com> <14202195.uLZWGnKmhe@zephyr>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Tue, 21 Jul 2026 14:41:29 +0000
+Message-Id: <20260721144129.F1FA11F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7Bit
-Content-Type: text/plain; charset="utf-8"
 
-Hi Basavaraj,
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+s) to consider:
+- [High] Unconditional `field->hidinput` dereference and tablet mode state =
+corruption due to unconstrained `.event` callback.
+- [High] The Kconfig symbol `INPUT_AMD_SFH_TABLETMODE` is missing a depende=
+ncy on `HID`.
+--
 
-Here the two patches implementing the split hid/input
-driver for the tablet mode support. I mulled over what 
-exactly to use as report descriptor in the hid driver, and
-there is no clean and easy solution -- I hope this is what
-you had in mind? I could not figure a way how to do
-a stand-alone input driver without doing any hid indirection,
-as I simply could not find a way to bind to the physical
-dev twice.
+--- Patch [2]: [PATCH 2/2] amd-sfh-tabletmode: interpret sfh tablet mode hi=
+d report ---
+commit 981d61514e0f554ad31b2f14f7fb391c059df340
+Author: Helge Bahmann <hcb@chaoticmind.net>
 
-Please let me know in comments to the patches how you
-would like to proceed.
+amd-sfh-tabletmode: interpret sfh tablet mode hid report
+   =20
+Add a driver that hooks into the tablet mode hid reports
+generated by the amd-sfh-hid driver. This enables tablet
+mode switching on e.g. Asus Vivobook devices.
 
-Thanks!
-Helge
+> diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
+> index 94a753fcb64fa..5a1dacd6f7b9c 100644
+> --- a/drivers/input/misc/Kconfig
+> +++ b/drivers/input/misc/Kconfig
+> @@ -1003,4 +1003,15 @@ config INPUT_STPMIC1_ONKEY
+>  	  To compile this driver as a module, choose M here: the
+>  	  module will be called stpmic1_onkey.
+> =20
+> +config INPUT_AMD_SFH_TABLETMODE
+> +	tristate "AMD sensor fusion hub tablet mode driver"
 
+[Severity: High]
+Is it possible this Kconfig entry is missing a depends on HID?
 
+If the HID subsystem is disabled or configured as a module while this driver
+is built-in, could this result in linking errors for HID core functions like
+hid_register_driver() and hid_parse()?
+
+> +	help
+> +	  Say Y to enable support of the tablet mode switch driver for
+
+[ ... ]
+
+> diff --git a/drivers/input/misc/amd_sfh_tabletmode.c b/drivers/input/misc=
+/amd_sfh_tabletmode.c
+> new file mode 100644
+> index 0000000000000..ee1207372207c
+> --- /dev/null
+> +++ b/drivers/input/misc/amd_sfh_tabletmode.c
+
+[ ... ]
+
+> +static int amd_sfh_tabletmode_event(struct hid_device *hid, struct hid_f=
+ield *field,
+> +				    struct hid_usage *usage, __s32 value)
+> +{
+> +	input_report_switch(field->hidinput->input, SW_TABLET_MODE, value);
+
+[Severity: High]
+Does this unconditionally dereference field->hidinput, which could be NULL
+for unmapped usages?
+
+Because the driver struct below lacks a .usage_table, hid_match_usage()
+will default to true for all usages, meaning this callback intercepts every
+incoming HID report field. This could lead to a NULL pointer dereference,
+and will also blindly emit a SW_TABLET_MODE event for any report, causing
+standard buttons or battery reports to randomly toggle tablet mode.
+
+Since .input_mapping already maps the usage to EV_SW, allowing the generic
+HID core to automatically report the event, could this callback be removed
+entirely?
+
+> +
+> +	return 0;
+> +}
+> +
+> +static const struct hid_device_id amd_sfh_tabletmode_devices[] =3D {
+> +	{ HID_DEVICE(BUS_AMD_SFH, HID_GROUP_GENERIC, AMD_SFH_HID_VENDOR, AMD_SF=
+H_HID_PRODUCT) },
+> +	{ }
+> +};
+> +MODULE_DEVICE_TABLE(hid, amd_sfh_tabletmode_devices);
+> +
+> +static struct hid_driver amd_sfh_tabletmode_driver =3D {
+> +	.name =3D "amd_sfh_tabletmode",
+> +	.id_table =3D amd_sfh_tabletmode_devices,
+> +	.probe =3D amd_sfh_tabletmode_probe,
+> +	.remove =3D amd_sfh_tabletmode_remove,
+> +	.input_mapping =3D amd_sfh_tabletmode_input_mapping,
+> +	.event =3D amd_sfh_tabletmode_event,
+
+[Severity: High]
+Should this struct include a .usage_table?
+
+Without it, all device usages are routed to the .event callback above.
+
+> +};
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/ecadaac8-e222-420a-=
+ac5b-4d529fb3317e@amd.com?part=3D2

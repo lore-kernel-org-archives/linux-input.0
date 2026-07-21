@@ -1,52 +1,58 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 48C283C0A14;
-	Tue, 21 Jul 2026 11:25:00 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 02AD23B6BF3;
+	Tue, 21 Jul 2026 11:26:38 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784633105; cv=none; b=AS6kwlWjQQ7rfc0wbhIBC9oUSn1wEAJYU/UhMj6BUfj7hc3xi3QdFF6rlZ0zY9pUqV8Fvco1xQaXEh+Y+JJNZn3GDUJtACPotKcIxji+zp7OSQPwUSHEu3bLXx4wIvYl2KF9vb8j/QBdP3LWOT1e4qzMEbpJzEmFAxv5BD2uoyw=
+	t=1784633201; cv=none; b=Ar3+5yE5x0Uq8orfoUHuzowDSZypi8ZhBLYtcA8ZRbOHeSKuOGAlGXafnC5V4H7939Hy6LAE+U5xMc8dzmhKOwrH6pRp5VJEnJgh8QV23ihaCKTxLJ9azluC9glv6bOXpyhb1in1e600UqzHrlGToSGaes9dD9Cr3rFA7+gM2ew=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784633105; c=relaxed/simple;
-	bh=gXaREL3EkpKWuDwmnG5P1zsk8plAbmrbEAU7NWAipFQ=;
+	s=arc-20240116; t=1784633201; c=relaxed/simple;
+	bh=sVFotNKdXV9E8CP3Dd8WzTxJjtl67ELB/7oIgyMSQrE=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=uXXqGl3P0wWZLAM26lhadCaBu00Rk2FsptG+Q11WNV3TDetZE/eUkZwRJtSoWSm6dB9a76cWKan7VX+LrVGcwxoMmkqfDAC+X1Ux39+8Q0g6IHZ0aMAlXLelnsTWD6wpa/EpVb6FC5R+vJ8y9ozDBBEGZ1FYSY/JzxbmMGNS8Ps=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=TcKs0izP; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=bf0hIajT5U5rTeIkstHSryD2g6Ybz7JM9dXOxfwgn9FrY2RfCynEAokPzeyUc7Gn7p82PpamQzNZah9ZHIk4PMDW/vqr2FXF4SpnMzpKncWed5TAjSlLQurLB3XRmIV2JOlRifBrlQ3TtERTypG2aKuN+rt0Ru65T7IMB0FaIDE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=MEyWpv1r; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="TcKs0izP"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AFC8F1F00A3D;
-	Tue, 21 Jul 2026 11:24:57 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="MEyWpv1r"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 773E01F00A3A;
+	Tue, 21 Jul 2026 11:26:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784633098;
-	bh=gXaREL3EkpKWuDwmnG5P1zsk8plAbmrbEAU7NWAipFQ=;
+	s=k20260515; t=1784633197;
+	bh=sVFotNKdXV9E8CP3Dd8WzTxJjtl67ELB/7oIgyMSQrE=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=TcKs0izPI3yf97hq3tAGIIIX1q9uBp6hcsg/Wx0/VJ3rah1jZ2IDcEGIBpuOR8OxC
-	 WXbpOVOAfD0PxA6shaZltr9GaLzpkiTuB6ed9ovJDEpnbRYnhEHiT380F9yPYQdN3J
-	 BphgZr6MK3g7CHuQBBl+8Pm8D8IHsQzFWVi0A70sSyflF+J/z5DTvuqsjHyxrcNaWq
-	 aBkk0G9T6lN/gAtJTTDrPjyrj+UMSxGu9vEw9cnynhxJOtaAaPsW+ifyELf1QdFc08
-	 9BpX7IEgBozthj5hjxESGmQxHEvzQqb86C20XnVe21eCfw5upCcyC160cXsZwg5wUr
-	 QFa3IEtJBt+9w==
+	b=MEyWpv1rSP9JJJpmhNWSioHJRx0ySIYkjsI/p/0UHd0qWGGt2AlCgkpPrYvaAuBye
+	 VkRXgAIacSZIz6EcZw87oYURQ/aSNg+O2kgvuQai32AZlHz6Nkl5ZMM2D2eFwa3YM7
+	 lmkqjBVRAdPEgFS8maZtCKBavNnkzpHs9qsNePTIeBJoueC2bxM59+QAhd7K0jRqSd
+	 LYXKgpwg4nN2QQU6MegfCrw7LLV8q2JPQPlUNOz/Ky076XcyzohDAFOV/gAHoy9Vec
+	 KdYbCN8CjLz3U0UjwMl65comxHuoXDsnqd6xG3XdIKwMrpIoWEJNYcaA/OvRHet3G1
+	 WjuNBh1EzH9Vg==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v3 1/4] ARM: dts: ti: am335x-guardian: Drop unused
- isink-en property
+Subject: Re: [PATCH v3 2/4] ARM: dts: Rename the TPS65217 regulator nodes
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Eduard Bostina" <egbostina@gmail.com>
-Cc: conor+dt@kernel.org, devicetree@vger.kernel.org, dmitry.torokhov@gmail.com, dri-devel@lists.freedesktop.org, lee@kernel.org, linux-leds@vger.kernel.org, robh@kernel.org, linux-input@vger.kernel.org
-In-Reply-To: <20260721112133.70382-2-egbostina@gmail.com>
+Cc: devicetree@vger.kernel.org, dmitry.torokhov@gmail.com, dri-devel@lists.freedesktop.org, linux-leds@vger.kernel.org, robh@kernel.org, linux-input@vger.kernel.org, conor+dt@kernel.org, lee@kernel.org
+In-Reply-To: <20260721112133.70382-3-egbostina@gmail.com>
 References: <20260721112133.70382-1-egbostina@gmail.com>
- <20260721112133.70382-2-egbostina@gmail.com>
+ <20260721112133.70382-3-egbostina@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 21 Jul 2026 11:24:57 +0000
-Message-Id: <20260721112457.AFC8F1F00A3D@smtp.kernel.org>
+Date: Tue, 21 Jul 2026 11:26:36 +0000
+Message-Id: <20260721112636.773E01F00A3A@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-> The 'isink-en' property is not documented and not read by any driver,
-> so remove it from the TPS65217 backlight node.
+> The TPS65217 regulator nodes are named regulator@0 to regulator@6 and
+> rely on the deprecated 'regulator-compatible' property to be matched
+> against the driver, which looks for "dcdc1" to "ldo4".
+>=20
+> Documentation/devicetree/bindings/regulator/tps65217.txt states the
+> regulators must be named dcdc[1-3] and ldo[1-4].
+>=20
+> Rename the nodes accordingly and drop 'regulator-compatible' along with
+> the unit addresses it made necessary.
 >=20
 > Signed-off-by: Eduard Bostina <egbostina@gmail.com>
 
@@ -54,5 +60,5 @@ Sashiko has reviewed this patch and found no issues. It looks great!
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260721112133.7038=
-2-1-egbostina@gmail.com?part=3D1
+2-1-egbostina@gmail.com?part=3D2
 

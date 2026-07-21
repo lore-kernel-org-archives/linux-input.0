@@ -1,45 +1,45 @@
 Received: from m65s28.vlinux.de (m65s28.vlinux.de [83.151.22.62])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 677F539F19F
-	for <linux-input@vger.kernel.org>; Tue, 21 Jul 2026 14:30:06 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2A2B532B11C
+	for <linux-input@vger.kernel.org>; Tue, 21 Jul 2026 14:39:29 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=83.151.22.62
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784644208; cv=none; b=Oz6zMvwtrcq2G6pTtwct1uaq6MOAU/6wH1t57sjDKZB48TkXiDDn67aGlKG+B/BFb6irrJWEvjEiv/QyoGJ/9Z9drWnSvVT1DdZGiYh0kA+KwxCRkI5OQweb1Xu+8b231o3ZHY0wHwtyLbSXqpEzOyr9A/7EQY5ftgDP85PC4qw=
+	t=1784644770; cv=none; b=eD+uuu3mHtypy9gOSrI6h/qatV40KfAKC4rKeWZwo5VvEKteXoicSw8QDKmVSfUQklaNa3WpIYpY2YE1H7nD1yAhg3Sd95ce+YkCmmH5L7gv3Mbad1EYAGsVO9tBXOHVF+nqQWFo3iwe3CZKDb3xTIdx/RuSTdzjIACKunL6ucs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784644208; c=relaxed/simple;
-	bh=0LmyniXXreT7gUKTHiLl9ImI+pu2aGCJF3CsBt4D+po=;
+	s=arc-20240116; t=1784644770; c=relaxed/simple;
+	bh=iN6ie97Kk4S18SFQA9txiSObUVRPZwZxP0BVwNZ1ZlE=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=Kziq5Qh2/uHIYoJoEip/17CNpkUZl9X6LRGltQMZS98lbGfHIt5yB0PgDtX5TNpFgy2eDbjvZ+Q/mR2g8l3XA2H8BXEW32hwRTeK/zOQegCiGLL41HOTH9z/3Aw1a5S0bsjxmqTJiPudpzSXGI0NJx/s2qiXAZEq8W/n7vdbL8c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=chaoticmind.net; spf=pass smtp.mailfrom=chaoticmind.net; dkim=pass (2048-bit key) header.d=chaoticmind.net header.i=@chaoticmind.net header.b=Y3lkab03; arc=none smtp.client-ip=83.151.22.62
+	 MIME-Version:Content-Type; b=ApPdKwxLQv3mhYJBgVw4YC964sFGxqwtVVPx5Z4yVqj74DIPoT9RpF6UPHt0JF4qRGhPel8yg3JFNoAmkqgtvHp7O94t/X7TOsQs3VH4XOY6V7j1rhqoihjn89D/Ci7B1oXGQBuYFU+QYM7DAlqQoFB9ZMEUiNIwqeiEVFRBx2s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=chaoticmind.net; spf=pass smtp.mailfrom=chaoticmind.net; dkim=pass (2048-bit key) header.d=chaoticmind.net header.i=@chaoticmind.net header.b=XzH87pWE; arc=none smtp.client-ip=83.151.22.62
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=chaoticmind.net
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chaoticmind.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=chaoticmind.net header.i=@chaoticmind.net header.b="Y3lkab03"
+	dkim=pass (2048-bit key) header.d=chaoticmind.net header.i=@chaoticmind.net header.b="XzH87pWE"
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	d=chaoticmind.net; s=default; h=Content-Type:Content-Transfer-Encoding:
 	MIME-Version:References:In-Reply-To:Message-ID:Date:Subject:Cc:To:From:Sender
 	:Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:
 	Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:
 	List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-	bh=342cGwGb1prrqIWKgpD4mtb3PpZBLOm+MMDXiNRz0xE=; b=Y3lkab030BWZ3rlrWbk8/k43c/
-	GYqZnfKfPkzfLtZbZCH4vMkkPsDtPENspoGPYqJjL1w47YxrHUTkhINvOLEe6I1mwLGR7O1NDgpRZ
-	y/nGd6o+ZoOR7Qzl7dvuludyttCToL5TWzKern6oXvW4C6aUryKNDYmpDETh+/uNif4Vbb4QczulH
-	YtKM5JQTw0FmYMS3UJUjbIWPwVcS35dzLm0P5pWKRhlUzeh8AdLRJ4PvA0j60h9EhpWmwOg5FKQRQ
-	IzxVCdhTAIAXpklCJ02KS0K1YAQ9VNh8vyQ0Nz/t+yso1uE+KTY4+4tX980QLU8JHZ/d8doRCaMx6
-	mss8y15w==;
+	bh=/LF9PxrFlr4L/M1VW2+SXmoXVWkN/00PKuYCk7ztFE8=; b=XzH87pWEmKZarwxG/0y81wW9Sd
+	GV9m3ntUNHxsN3gLRafMp+1kz7L9Wi9X6LIaU9K7oyD1T/NWX05/kUncu77/5W0kD4H5fQpLw8mdl
+	pmWzW8LJsJx22AQPuxRaXBIVFsya737rSdaK/Oo6REjB51RAvTd/jnsd+IWnDb7KPvnYp409Bww3J
+	J9j5vnOs7jmBcXqhJ3+iD7uFy09lV2eR/DWv5GIyEdliAF+BbVlhMv8lDjLF6aD3I/413MRJ8IMqO
+	DdXtEuORpY3e6CjygA5csAgrcOf8vK7m4yM729IsYbtw5zwzB7pVowuPrRuyt2MCslqEJZHu+3d47
+	Le7Ap2CQ==;
 Received: from pa49-196-176-77.pa.vic.optusnet.com.au ([49.196.176.77] helo=zephyr.localnet)
 	by m65s28.vlinux.de with esmtpsa (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
 	(Exim 4.92)
 	(envelope-from <hcb@chaoticmind.net>)
-	id 1wmBTv-0003HD-OA; Tue, 21 Jul 2026 16:30:04 +0200
+	id 1wmBSa-0003GU-69; Tue, 21 Jul 2026 16:28:40 +0200
 From: Helge Bahmann <hcb@chaoticmind.net>
 To: Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org,
  Basavaraj Natikar <bnatikar@amd.com>
 Cc: Basavaraj Natikar <Basavaraj.Natikar@amd.com>
-Subject: [PATCH 2/2] amd-sfh-tabletmode: interpret sfh tablet mode hid report
-Date: Tue, 21 Jul 2026 16:29:56 +0200
-Message-ID: <14202195.uLZWGnKmhe@zephyr>
+Subject: [PATCH 0/2] asus vivobook tablet mode
+Date: Tue, 21 Jul 2026 16:28:30 +0200
+Message-ID: <5234335.GXAFRqVoOG@zephyr>
 In-Reply-To: <ecadaac8-e222-420a-ac5b-4d529fb3317e@amd.com>
 References:
  <6879487.lOV4Wx5bFT@lothlorien> <2632507.ElGaqSPkdT@lothlorien>
@@ -53,143 +53,21 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 7Bit
 Content-Type: text/plain; charset="utf-8"
 
-Add a driver that hooks into the tablet mode hid reports
-generated by the amd-sfh-hid driver. This enables tablet
-mode switching on e.g. Asus Vivobook devices.
+Hi Basavaraj,
 
-Signed-off-by: Helge Bahmann <hcb@chaoticmind.net>
----
- drivers/input/misc/Kconfig              | 11 ++++
- drivers/input/misc/Makefile             |  1 +
- drivers/input/misc/amd_sfh_tabletmode.c | 88 +++++++++++++++++++++++++
- 3 files changed, 100 insertions(+)
- create mode 100644 drivers/input/misc/amd_sfh_tabletmode.c
+Here the two patches implementing the split hid/input
+driver for the tablet mode support. I mulled over what 
+exactly to use as report descriptor in the hid driver, and
+there is no clean and easy solution -- I hope this is what
+you had in mind? I could not figure a way how to do
+a stand-alone input driver without doing any hid indirection,
+as I simply could not find a way to bind to the physical
+dev twice.
 
-diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-index 94a753fcb64f..5a1dacd6f7b9 100644
---- a/drivers/input/misc/Kconfig
-+++ b/drivers/input/misc/Kconfig
-@@ -1003,4 +1003,15 @@ config INPUT_STPMIC1_ONKEY
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called stpmic1_onkey.
- 
-+config INPUT_AMD_SFH_TABLETMODE
-+	tristate "AMD sensor fusion hub tablet mode driver"
-+	help
-+	  Say Y to enable support of the tablet mode switch driver for
-+	  convertible laptops based on the AMD sensor fusion hub. This
-+	  driver is known to work on Asus VivoBook but will likely
-+	  work on other laptops featuring the same chipset.
-+
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called amd_sfh_tabletmode.
-+
- endif
-diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
-index 415fc4e2918b..3f5abbe39f3a 100644
---- a/drivers/input/misc/Makefile
-+++ b/drivers/input/misc/Makefile
-@@ -96,3 +96,4 @@ obj-$(CONFIG_INPUT_WM831X_ON)		+= wm831x-on.o
- obj-$(CONFIG_INPUT_XEN_KBDDEV_FRONTEND)	+= xen-kbdfront.o
- obj-$(CONFIG_INPUT_YEALINK)		+= yealink.o
- obj-$(CONFIG_INPUT_IDEAPAD_SLIDEBAR)	+= ideapad_slidebar.o
-+obj-$(CONFIG_INPUT_AMD_SFH_TABLETMODE)	+= amd_sfh_tabletmode.o
-diff --git a/drivers/input/misc/amd_sfh_tabletmode.c b/drivers/input/misc/amd_sfh_tabletmode.c
-new file mode 100644
-index 000000000000..ee1207372207
---- /dev/null
-+++ b/drivers/input/misc/amd_sfh_tabletmode.c
-@@ -0,0 +1,88 @@
-+// SPDX-License-Identifier: GPL-2.0-or-later
-+/*
-+ * AMD MP2 PCIe tablet mode hid input driver
-+ * Copyright 2026 Helge Bahmann Advanced Micro Devices, Inc.
-+ * Authors: Helge Bahmann <hcb@chaoticmind.net>
-+ */
-+
-+#include <linux/hid.h>
-+#include <linux/module.h>
-+
-+#define AMD_SFH_HID_VENDOR        0x1022
-+#define AMD_SFH_HID_PRODUCT       0x0001
-+
-+static int amd_sfh_tabletmode_probe(struct hid_device *hdev,
-+				    const struct hid_device_id *id)
-+{
-+	int error = 0;
-+
-+	error = hid_parse(hdev);
-+	if (error)
-+		return error;
-+
-+	error = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
-+	if (error)
-+		return error;
-+
-+	return 0;
-+}
-+
-+static void amd_sfh_tabletmode_remove(struct hid_device *hdev)
-+{
-+	hid_hw_stop(hdev);
-+}
-+
-+static int amd_sfh_tabletmode_input_mapping(struct hid_device *hdev, struct hid_input *hi,
-+					    struct hid_field *field, struct hid_usage *usage,
-+					    unsigned long **bit, int *max)
-+{
-+	if ((usage->hid & HID_USAGE_PAGE) == HID_UP_CONSUMER && (usage->hid & HID_USAGE) == 0x02ff) {
-+		input_set_capability(hi->input, EV_SW, SW_TABLET_MODE);
-+		usage->type = EV_SW;
-+		usage->code = SW_TABLET_MODE;
-+		return 1;
-+	}
-+	return 0;
-+}
-+
-+static int amd_sfh_tabletmode_event(struct hid_device *hid, struct hid_field *field,
-+				    struct hid_usage *usage, __s32 value)
-+{
-+	input_report_switch(field->hidinput->input, SW_TABLET_MODE, value);
-+
-+	return 0;
-+}
-+
-+static const struct hid_device_id amd_sfh_tabletmode_devices[] = {
-+	{ HID_DEVICE(BUS_AMD_SFH, HID_GROUP_GENERIC, AMD_SFH_HID_VENDOR, AMD_SFH_HID_PRODUCT) },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(hid, amd_sfh_tabletmode_devices);
-+
-+static struct hid_driver amd_sfh_tabletmode_driver = {
-+	.name = "amd_sfh_tabletmode",
-+	.id_table = amd_sfh_tabletmode_devices,
-+	.probe = amd_sfh_tabletmode_probe,
-+	.remove = amd_sfh_tabletmode_remove,
-+	.input_mapping = amd_sfh_tabletmode_input_mapping,
-+	.event = amd_sfh_tabletmode_event,
-+};
-+
-+static int __init amd_sfh_tabletmode_init(void)
-+{
-+	int error;
-+
-+	error = hid_register_driver(&amd_sfh_tabletmode_driver);
-+
-+	return error;
-+}
-+module_init(amd_sfh_tabletmode_init);
-+
-+static void __exit amd_sfh_tabletmode_exit(void)
-+{
-+	hid_unregister_driver(&amd_sfh_tabletmode_driver);
-+}
-+module_exit(amd_sfh_tabletmode_exit);
-+
-+MODULE_DESCRIPTION("Input driver for tablet mode sensor on amd sfh.");
-+MODULE_LICENSE("GPL");
--- 
-2.47.3
+Please let me know in comments to the patches how you
+would like to proceed.
 
+Thanks!
+Helge
 
 

@@ -1,154 +1,156 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 385574DA52F;
-	Wed, 22 Jul 2026 17:19:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E7040411FBB
+	for <linux-input@vger.kernel.org>; Wed, 22 Jul 2026 17:35:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784740758; cv=none; b=oBe78UnVx/qELjzUtOJZKaqB1OKUw9/9KZguu5BWvP7g3XR9ytMp+AfH4ArHPloJnqRh0euaI9A57mft4doeuMkTRFifXevtOBCkLaYI6i0tflCHFTxWpSfHkAPuE4+De4Hjx0HtpiA3EzBtOzWSHKn6JnofsjRxOeaNYAeG76w=
+	t=1784741731; cv=none; b=n1719thWJ0ViRceh6QqdTzB3liX974ZZ0kvs7qdrAP/snuOyoBCEnEMwwJISfpd+SLh/yiP9CfzJt2OuDhXnMrxoSiiMfRBPsNtukbZMu7oFIXRgcnisNt/ntDf2kfdg33yNCiV/gtvBp0vPxvgh+QBAWscueBBJqTyJ4D1OkVI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784740758; c=relaxed/simple;
-	bh=qwJlCn9D8PGLNGgshW3nUPIpMVOkRUj0pGRSDgWuSc0=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=L0fFqSzu1R6JmdYlhPKAoEZUanl5Q09/OTJTyJwz3F/3vVmfGtsaYAS+EO0aYzaOJP/7MmLhHauS4XzX8uxKM6y6SxWkEdw3jLlNhn0gxbu+HWtDG0tgjidyG2FcW+U6SQ6SAatPgaei7jHuuD9YCNM4krKtqv9/pnPZR/+QVqE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=g5gOXOuO; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1784741731; c=relaxed/simple;
+	bh=b4v14StGYn06HIMvInDqOeDWGwVtfbliKtq+jOdiccU=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=GJKfW1HdjQEym/n0iD5O3XyvXv8kVucbSTvHzcPeRu/V+HpIddHDMycRtWbe2816/Iux1FOUiS6J1GiUjqfWE6l45wZJ+YQ7SYWxpA3kh7g+lvWoTDF15O5mTmX/+Qc2smRBblKJxMTDjiv2no6cmygPmCRfUTvNq9Hxwe1K+6A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=E52SEV69; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="g5gOXOuO"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id A2CF4C19425;
-	Wed, 22 Jul 2026 17:19:17 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1784740757;
-	bh=qwJlCn9D8PGLNGgshW3nUPIpMVOkRUj0pGRSDgWuSc0=;
-	h=From:Date:Subject:To:Cc:Reply-To:From;
-	b=g5gOXOuOdiluXXGXQZDVG4lCWCCixfrckoPBuQr2TWHNxELz/KnvNOYY1Eqo+vlrS
-	 /5R0nONic9SBa34qcSfBdROTzf/AtOUlQ18oxVTqLqfLLOKod8o9VaBHgC8eFHuqBX
-	 AK6PLf7nouQmFk3Vh77AlhtVTdoVev3XYqPhc3BZJPhC1+nWHhh/B6e6L4MZR+SmCI
-	 R3/LmjuhvAFuBD3ULVp/aN/jVmk0ryPUDa+MozwY55mboFBlZfhj3EqVWjEAHIv2Tg
-	 uWFuLrgDdjii1EcNZT87N2hzr8pj7WvFunHUY395zF2Ad3mPwvUo4rbNuzt1H+q/cn
-	 FTJB/vSVm0oew==
-Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7A7B8C44536;
-	Wed, 22 Jul 2026 17:19:17 +0000 (UTC)
-From: Daniel Schaefer via B4 Relay <devnull+dhs.frame.work@kernel.org>
-Date: Thu, 23 Jul 2026 01:18:58 +0800
-Subject: [PATCH] iio: hid-sensor: als: scale each channel individually
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="E52SEV69"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7BAA31F00ACA;
+	Wed, 22 Jul 2026 17:35:29 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1784741729;
+	bh=mnZYif2FRNXUkqZtrBTveOCeVzQmyFlpRxm7Hl1N+As=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=E52SEV693CvqFTcQR+12dfh7wdSLei6t/ZQFwnciPghP3lJkEmv1rXffufKXdQTP2
+	 qNlrzsKOb9jPccuxCUScpkDg/eg2Sb0nSWbir0WaUFpxhCOWWTU2Kd3pz7BLsW4UR/
+	 k/opZn6E5lngGdYe4v+1bVnNcVWaJFsnbB6DbFDK5q7Hv8iIcXQwMSEHNzUwGsjZd+
+	 I5eMmGUnJnhXSmYbAZC6Cgg4lIQwWBoLvSgFNRRVOLAQkHgraM8JnojUdrfPDYj9xy
+	 +Y0YmY72VcEAmD/BSuHcZboR5DabMbOPIa3l/deN3CwcfpZmYzh7U6kC7draKOdgSc
+	 4/5iMkRHVLMsA==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH] iio: hid-sensor: als: scale each channel individually
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Daniel Schaefer" <dhs@frame.work>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20260723-chromaticity-v1-1-5ef5746ace2a@frame.work>
+References: <20260723-chromaticity-v1-1-5ef5746ace2a@frame.work>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Wed, 22 Jul 2026 17:35:29 +0000
+Message-Id: <20260722173529.7BAA31F00ACA@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-Message-Id: <20260723-chromaticity-v1-1-5ef5746ace2a@frame.work>
-X-B4-Tracking: v=1; b=H4sIAAAAAAAC/6tWKk4tykwtVrJSqFYqSi3LLM7MzwNyDHUUlJIzE
- vPSU3UzU4B8JSMDIzMDcyNj3eSMovzcxJLM5MySSl0Li7TUZBND8zQDg2QloJaCotS0zAqwcdG
- xtbUAJL9cU14AAAA=
-X-Change-ID: 20260723-chromaticity-88fec417f00c
-To: Jiri Kosina <jikos@kernel.org>, Jonathan Cameron <jic23@kernel.org>, 
- Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, 
- David Lechner <dlechner@baylibre.com>, 
- =?utf-8?q?Nuno_S=C3=A1?= <nuno.sa@analog.com>, 
- Andy Shevchenko <andy@kernel.org>
-Cc: linux-input@vger.kernel.org, linux-iio@vger.kernel.org, 
- linux-kernel@vger.kernel.org, Daniel Schaefer <dhs@frame.work>, 
- =?utf-8?q?Sven_Vaink=C3=BCla?= <sven@xn--vainkla-r2a.ee>, linux@frame.work
-X-Mailer: b4 0.14.3
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1784740756; l=2857;
- i=dhs@frame.work; s=20260705; h=from:subject:message-id;
- bh=/XNacu+WH59c4GNRh+63P9svsVbz6GJ/iheaNgZoQTM=;
- b=JgydhQAJU0UdE5wRL5rLNQx39GksdInXROQsM6J4R5XfQGDUGZ4tGJYGLK2BXzt1zwaqQX0Wi
- HPbh0QVzf2nDLi5pGoYO8TZR5AdRWmKHAIWBnoKS7zQl1xmu8SZqtT2
-X-Developer-Key: i=dhs@frame.work; a=ed25519;
- pk=O1zF7VDnmz6EZNc7sEiawR+KK650uRg1XteQ8jHwScw=
-X-Endpoint-Received: by B4 Relay for dhs@frame.work/20260705 with
- auth_id=852
-X-Original-From: Daniel Schaefer <dhs@frame.work>
-Reply-To: dhs@frame.work
 
-From: Daniel Schaefer <dhs@frame.work>
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+s) to consider:
 
-Some sensors have multiple channels (not just brightness but color ALS
-sensors) with different scaling factors.
+New issues:
+- [Medium] The patch fails to expose the individual scale for the CHROMATIC=
+ITY_Y channel because it still uses `info_mask_shared_by_type`.
 
-Tested on Asus ProArt PX13 laptop by Sven.
+Pre-existing issues:
+- [High] The driver's IIO buffer layout uses a fixed structure, but `availa=
+ble_scan_masks` is dynamically populated, causing misaligned buffer reads a=
+nd data corruption.
+--
 
-Signed-off-by: Daniel Schaefer <dhs@frame.work>
-Link: https://gitlab.freedesktop.org/hadess/iio-sensor-proxy/-/merge_requests/413
-Cc: Sven Vainküla <sven@xn--vainkla-r2a.ee>
-Cc: Jiri Kosina <jikos@kernel.org>
-Cc: Jonathan Cameron <jic23@kernel.org>
-Cc: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Cc: David Lechner <dlechner@baylibre.com>
-Cc: Nuno Sá <nuno.sa@analog.com>
-Cc: Andy Shevchenko <andy@kernel.org>
-Cc: linux-input@vger.kernel.org
-Cc: linux-iio@vger.kernel.org
-Cc: linux@frame.work
----
- drivers/iio/light/hid-sensor-als.c | 22 ++++++++++++----------
- 1 file changed, 12 insertions(+), 10 deletions(-)
+--- Patch [1]: [PATCH] iio: hid-sensor: als: scale each channel individuall=
+y ---
+commit 6d49cfd4cf380845a584116e06dcf23fc8c25ad6
+Author: Daniel Schaefer <dhs@frame.work>
 
-diff --git a/drivers/iio/light/hid-sensor-als.c b/drivers/iio/light/hid-sensor-als.c
-index 384572844162..232cb58e0a9f 100644
---- a/drivers/iio/light/hid-sensor-als.c
-+++ b/drivers/iio/light/hid-sensor-als.c
-@@ -33,9 +33,9 @@ struct als_state {
- 		u32 illum[CHANNEL_SCAN_INDEX_MAX];
- 		aligned_s64 timestamp;
- 	} scan;
--	int scale_pre_decml;
--	int scale_post_decml;
--	int scale_precision;
-+	int scale_pre_decml[CHANNEL_SCAN_INDEX_MAX];
-+	int scale_post_decml[CHANNEL_SCAN_INDEX_MAX];
-+	int scale_precision[CHANNEL_SCAN_INDEX_MAX];
- 	int value_offset;
- 	int num_channels;
- 	s64 timestamp;
-@@ -186,9 +186,11 @@ static int als_read_raw(struct iio_dev *indio_dev,
- 		ret_type = IIO_VAL_INT;
- 		break;
- 	case IIO_CHAN_INFO_SCALE:
--		*val = als_state->scale_pre_decml;
--		*val2 = als_state->scale_post_decml;
--		ret_type = als_state->scale_precision;
-+		if (chan->scan_index >= CHANNEL_SCAN_INDEX_MAX)
-+			return -EINVAL;
-+		*val = als_state->scale_pre_decml[chan->scan_index];
-+		*val2 = als_state->scale_post_decml[chan->scan_index];
-+		ret_type = als_state->scale_precision[chan->scan_index];
- 		break;
- 	case IIO_CHAN_INFO_OFFSET:
- 		*val = als_state->value_offset;
-@@ -338,6 +340,10 @@ static int als_parse_report(struct platform_device *pdev,
- 		als_adjust_channel_bit_mask(channels, index, st->als[i].size);
- 		++index;
- 
-+		st->scale_precision[i] = hid_sensor_format_scale(usage_id,
-+					&st->als[i], &st->scale_pre_decml[i],
-+					&st->scale_post_decml[i]);
-+
- 		dev_dbg(&pdev->dev, "als %x:%x\n", st->als[i].index,
- 			st->als[i].report_id);
- 	}
-@@ -347,10 +353,6 @@ static int als_parse_report(struct platform_device *pdev,
- 	if (index)
- 		ret = 0;
- 
--	st->scale_precision = hid_sensor_format_scale(usage_id,
--				&st->als[CHANNEL_SCAN_INDEX_INTENSITY],
--				&st->scale_pre_decml, &st->scale_post_decml);
--
- 	return ret;
- }
- 
+iio: hid-sensor: als: scale each channel individually
 
----
-base-commit: 194a48576843858afcd9c00ed4f105ec2b398e6c
-change-id: 20260723-chromaticity-88fec417f00c
+This commit updates the hid-sensor-als driver to support individual scaling
+factors for each channel, instead of using a single global scale. It stores
+the scale attributes in arrays indexed by channel.
 
-Best regards,
--- 
-Daniel Schaefer <dhs@frame.work>
+Link: https://gitlab.freedesktop.org/hadess/iio-sensor-proxy/-/merge_reques=
+ts/413
 
+> diff --git a/drivers/iio/light/hid-sensor-als.c b/drivers/iio/light/hid-s=
+ensor-als.c
+> index 384572844162c..232cb58e0a9ff 100644
+> --- a/drivers/iio/light/hid-sensor-als.c
+> +++ b/drivers/iio/light/hid-sensor-als.c
+> @@ -33,9 +33,9 @@ struct als_state {
+>  		u32 illum[CHANNEL_SCAN_INDEX_MAX];
+>  		aligned_s64 timestamp;
+>  	} scan;
 
+[Severity: High]
+This is a pre-existing issue, but does this fixed struct buffer layout
+cause data corruption?
+
+The driver captures samples in als_capture_sample() into a static sparse
+array (als_state->scan.illum) based on fixed channel indices. However,
+indio_dev->available_scan_masks is dynamically constructed based on the
+attributes present on the sensor.
+
+The IIO core calculates scan_bytes and channel offsets assuming the buffer =
+is
+tightly packed.
+
+When iio_push_to_buffers_with_ts() is called in als_proc_event(), it writes
+the timestamp at the end of the tightly packed length, which overwrites val=
+id
+channel data in the sparse array.
+
+The IIO demuxer then reads from incorrect offsets, scrambling the data sent=
+ to
+userspace.
+
+Should the driver pack the samples sequentially instead of using fixed index
+offsets?
+
+> -	int scale_pre_decml;
+> -	int scale_post_decml;
+> -	int scale_precision;
+> +	int scale_pre_decml[CHANNEL_SCAN_INDEX_MAX];
+> +	int scale_post_decml[CHANNEL_SCAN_INDEX_MAX];
+> +	int scale_precision[CHANNEL_SCAN_INDEX_MAX];
+>  	int value_offset;
+>  	int num_channels;
+>  	s64 timestamp;
+
+[ ... ]
+
+> @@ -186,9 +186,11 @@ static int als_read_raw(struct iio_dev *indio_dev,
+>  		ret_type =3D IIO_VAL_INT;
+>  		break;
+>  	case IIO_CHAN_INFO_SCALE:
+> -		*val =3D als_state->scale_pre_decml;
+> -		*val2 =3D als_state->scale_post_decml;
+> -		ret_type =3D als_state->scale_precision;
+> +		if (chan->scan_index >=3D CHANNEL_SCAN_INDEX_MAX)
+> +			return -EINVAL;
+> +		*val =3D als_state->scale_pre_decml[chan->scan_index];
+> +		*val2 =3D als_state->scale_post_decml[chan->scan_index];
+> +		ret_type =3D als_state->scale_precision[chan->scan_index];
+>  		break;
+
+[Severity: Medium]
+Since the patch introduces per-channel scaling factors, can userspace actua=
+lly
+read the scale for the CHROMATICITY_Y channel?
+
+The als_channels array defines both CHANNEL_SCAN_INDEX_CHROMATICITY_X and Y
+with .info_mask_shared_by_type =3D BIT(IIO_CHAN_INFO_SCALE).
+
+Because of this, the IIO core will create a single in_chromaticity_scale sy=
+sfs
+attribute for both.
+
+When read, IIO queries the first registered channel of that type (X), leavi=
+ng
+the Y scale factor completely inaccessible.
+
+Does the info_mask_shared_by_type for these channels need to be changed to
+info_mask_separate so userspace can read the newly added scale for
+CHROMATICITY_Y?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260723-chromatici=
+ty-v1-1-5ef5746ace2a@frame.work?part=3D1

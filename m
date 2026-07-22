@@ -1,120 +1,75 @@
-Received: from mail-pf1-f177.google.com (mail-pf1-f177.google.com [209.85.210.177])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from out-180.mta0.migadu.com (out-180.mta0.migadu.com [91.218.175.180])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E8C23466AFA
-	for <linux-input@vger.kernel.org>; Wed, 22 Jul 2026 17:56:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.177
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E8A744457AE
+	for <linux-input@vger.kernel.org>; Wed, 22 Jul 2026 18:43:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.180
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784742993; cv=none; b=Peuy9I2E7ivsTjuUZb5yp9AFYQwwaX8Ptgr2GNelSHJVILdrTuQK2+J3kjFk6s5qBL4leqOOKuMTZd31sXKRCsgeZXJF8y32uQtSsMSdgRTlJUuDf8DJUaqcSQnpJ5J7rhYHl1zsKeWYEbTnC3HRrWfgpq2usD9Zr8zBtABKeAk=
+	t=1784745800; cv=none; b=SjSIbGbj5LGr67sxeM7Acdl4UyVdDsRYepldAFAye7/uHb/rfYCm6V+vZNgcnbn8hUgazoc5405EXjnUtwDo3N4uFNN954vCAkka4jVlZ5Wmfm5ffyqpL8f7StkIbPrrwTdTiQL/G4yUr4W1uN8TDVLgdpfHMlOGW6nOD0JBakw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784742993; c=relaxed/simple;
-	bh=h7pFsRMVp013elDLoFOD6NUPp2y2XXMofoysMChmQJQ=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=LFXfGsgJ0PTPaudrj4WNBg7z5g7vWO9FBZ5nQDyL3wJxKbydkTJyJF0EyVDsOcPXIk9Wcu9Cw0gSx6XWg2B8JkAd2Ot3zxzbBC9WqiphptIcVaHK575rqpWbnHaS6xAjM9d0wlbeWFOQwX6URaLxdgIlD9l3DgIhL7L/bMZggb0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ENMpTzAW; arc=none smtp.client-ip=209.85.210.177
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1784745800; c=relaxed/simple;
+	bh=I7OAPFVw1qwfP4L15Bcyym54Fr9eyVz6y1aErBbwV1g=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=N2m26BDewr0MykoOSSM6fPv3hlye/KWcv9TLhGjiNpcOuNfhGQ61mayebh+I5EAOtivDGNXm42LXvvezEkhawE8t0LQYagwDwUrlneGVdkyIxJZOAzQFW0b9beC7IAV1CKGRlsRG+TUGlqzHlka2F7Do+njO+1Y2uSwa0xCtRpE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=BsgpXMd+; arc=none smtp.client-ip=91.218.175.180
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ENMpTzAW"
-Received: by mail-pf1-f177.google.com with SMTP id d2e1a72fcca58-84830c774a0so7336511b3a.1
-        for <linux-input@vger.kernel.org>; Wed, 22 Jul 2026 10:56:31 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784742991; x=1785347791; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=j8k5kV6WSI+k1cBeImlsLuuBpzWmqeLT2rCBrhlFI80=;
-        b=ENMpTzAW5yGCnJwkbX/Aca8Z7HMZHdWXA5c/YWnbGzPJip2ZPSMDjjN0OD5ff5RInd
-         8lMzTcvJfAc+Zw8UfLJ/+drXxP2H4LAFa2mRbgmGG/yemJiHNSh92kN4BKxCk2kCh9cf
-         AKgUp7cH9Q7yjFqioSbX1v6Md+yZlw3Bx18n2PNd4RjeZmXVPHZYzzFMZOfQXxaKrvis
-         gdL+T9R7Te/4ydBGBEYQm+T6XHtBEmcvUZezZ30MN87IjGuI0HBJC9ZVZYB918T0B6ux
-         cRmbIKmcS9w0luX7JeLU4c0ggIZCXXlYBY7EMZebKGekIxArci92wJczH0oaB7pkTIPC
-         F+og==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784742991; x=1785347791;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=j8k5kV6WSI+k1cBeImlsLuuBpzWmqeLT2rCBrhlFI80=;
-        b=ez+sXMjUgeKPjw49t3RmKvYU0CINil2ee6CpCJPsaluvXaZVoZlWgSld7yjU5BgW4Z
-         xKD0yNxydMXaMbG8wNeTrmPRJhjdV4a/Q1jkXsbO6kfHYeVvHjpMwUmq7TnpG61c4bIt
-         sv4/5GLJJQIMRY3Irb9WIboZZheOt5hjNjfwjGHH2L+e7cgaRoF6Yp/l+EruZ4M0RYso
-         vYSXR9BJlenN7ZutKvNGc6mXDVIJrqHzECRsGTGtuwXH4sRukjCjYHwb92Dp8ebEl1xf
-         XjeiCu/Ddhzogtzjk5ihYLSXw4uyHyBdH+4uZujw9NmGsPRR/Kk3K0Naa1Ex4enjECtZ
-         b9cw==
-X-Forwarded-Encrypted: i=1; AHgh+Ro9OuWoRsk5Q3ducPEGsDXzGliq4vhYqoTPh4mmTG50YRa0UTCWIP2Y8HaxmiROX58N9lF7h1YcYmSi0Q==@vger.kernel.org
-X-Gm-Message-State: AOJu0YwobSXB+w75tGwCrkKGhYeVh2uHqk20z/qjYXGhiDRTcCYivMHo
-	okdvMxEFaVqMWIn2iiVeifRcWuYKILvkHP9co0BWJJxg/HWgt4+uaaQDVgPeETEF
-X-Gm-Gg: AR+sD101unhYhh0vRmi0eSsmQc5PF+d8QMpuBl2CZ+mDTuYt5do9X59tBkHPE9Ljx89
-	k57PTRALwqYiI2iccqVkiVRGc9hif7TolTIHNNbGfOS0hbmsnjLTXzKVEHN3GVtks90RT9xwp2U
-	wFKPkLY0QCggj/SJiq4xWU489Q5ftf2++wW/4FNyEItRfJ8MucLvIOEroL2udpf1Vb4j//WXTWW
-	hQ2OVi0qYGFLQ7muncoLJxaLwcZBi/bSchSsBJHpWs+1Jx1zMIeqgjrK6gwUR6KNkvshWWQPPpO
-	c8RZidrLn/K4Hi4Ws/cSJqkAYY5YM8FVNUcD/ypBNEG+t6Ouex3JLT81YY4ibnHX25YOL+/kECy
-	augdjSFVWF5+ZCRZAN3m8SOk4jzVKgqg4wtHncG2oF0AdyI7VSB/AdwjGZtJeZnrSPDOr/UIfmA
-	tOj2vA95a8BwEMsQ==
-X-Received: by 2002:a05:6a00:bd89:b0:847:86d8:5937 with SMTP id d2e1a72fcca58-84c2945cd8emr24282305b3a.50.1784742990533;
-        Wed, 22 Jul 2026 10:56:30 -0700 (PDT)
-Received: from Colorful-P15 ([2408:8249:8009:7350:c32e:1b72:66d:665d])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-84e175a3a83sm1687136b3a.43.2026.07.22.10.56.28
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 22 Jul 2026 10:56:30 -0700 (PDT)
-From: Yuxiang Lin <mclyxfdw@gmail.com>
-To: jikos@kernel.org
-Cc: Yuxiang Lin <mclyxfdw@gmail.com>,
-	Benjamin Tissoires <bentiss@kernel.org>,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH] HID: quirks: add ALWAYS_POLL quirk for AULA Mini 60 HE Pro Dongle
-Date: Thu, 23 Jul 2026 01:56:02 +0800
-Message-ID: <20260722175602.22773-1-mclyxfdw@gmail.com>
-X-Mailer: git-send-email 2.55.0
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="BsgpXMd+"
+Message-ID: <f83b6c93-b32e-434a-94b7-68628a2e8527@linux.dev>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+	t=1784745786;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=jU7TNupb0pdhQBzs77sfqtrZ1+d4xoAeYWx+j3QiA1A=;
+	b=BsgpXMd+bM/LhQJ2Rz7ftetxHEMGudfLcMl4EwXOOefgsqqUA+QfxR2ssFJp4BuLLOtnV8
+	wr0DW6Ha7NOne5YliUKnWr4ctzX7Wb4TOO9wzA1gl/rTqa474oUAM576CKQ0vhO6rpIyJr
+	lWH6SLT6mICi3YJyQVJ+jlD9UymTRoA=
+Date: Wed, 22 Jul 2026 11:42:58 -0700
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH v2 2/4] selftests/cgroup: add memcg_stat_cross_cpu
+ correctness test for flush
+To: Ziyang Men <ziyang.meme@gmail.com>, Shuah Khan <shuah@kernel.org>,
+ Tejun Heo <tj@kernel.org>, Johannes Weiner <hannes@cmpxchg.org>,
+ =?UTF-8?Q?Michal_Koutn=C3=BD?= <mkoutny@suse.com>,
+ Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>,
+ David Vernet <void@manifault.com>, Eduard Zingerman <eddyz87@gmail.com>
+Cc: Andrea Righi <arighi@nvidia.com>, Changwoo Min <changwoo@igalia.com>,
+ Michal Hocko <mhocko@kernel.org>, Roman Gushchin <roman.gushchin@linux.dev>,
+ Shakeel Butt <shakeel.butt@linux.dev>, Muchun Song <muchun.song@linux.dev>,
+ Andrew Morton <akpm@linux-foundation.org>, Mykola Lysenko
+ <mykolal@meta.com>, Nathan Chancellor <nathan@kernel.org>,
+ linux-kselftest@vger.kernel.org, cgroups@vger.kernel.org,
+ linux-input@vger.kernel.org, sched-ext@lists.linux.dev, linux-mm@kvack.org,
+ kernel-team@meta.com, bpf@vger.kernel.org, llvm@lists.linux.dev,
+ linux-kernel@vger.kernel.org
+References: <20260721174833.1232771-1-ziyang.meme@gmail.com>
+ <20260721174833.1232771-3-ziyang.meme@gmail.com>
+Content-Language: en-US
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+From: JP Kobryn <jp.kobryn@linux.dev>
+In-Reply-To: <20260721174833.1232771-3-ziyang.meme@gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Migadu-Flow: FLOW_OUT
 
-The AULA Mini 60 HE Pro wireless keyboard dongle (USB ID
-0c45:fefe) becomes unresponsive after roughly one minute of idle.
-No error appears in dmesg; the only recovery is physically
-replugging the dongle.
-
-This has been reproduced across kernels 6.8, 6.14 and 7.1.3.
-
-Testing shows HID_QUIRK_ALWAYS_POLL alone resolves the issue,
-verified via usbhid.quirks=0x0c45:0xfefe:0x400.
-
-Signed-off-by: Yuxiang Lin <mclyxfdw@gmail.com>
----
- drivers/hid/hid-ids.h    | 1 +
- drivers/hid/hid-quirks.c | 2 ++
- 2 files changed, 3 insertions(+)
-
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 1059922ba..489535002 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -775,6 +775,7 @@
- #define USB_DEVICE_ID_JESS_YUREX	0x1010
- #define USB_DEVICE_ID_ASUS_MD_5112	0x5112
- #define USB_DEVICE_ID_REDRAGON_ASURA	0x760b
-+#define USB_DEVICE_ID_AULA_MINI_60_HE_PRO 0xfefe
- 
- #define USB_VENDOR_ID_JESS2		0x0f30
- #define USB_DEVICE_ID_JESS2_COLOR_RUMBLE_PAD 0x0111
-diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
-index 57d8efdd9..b0ea8171f 100644
---- a/drivers/hid/hid-quirks.c
-+++ b/drivers/hid/hid-quirks.c
-@@ -112,6 +112,8 @@ static const struct hid_device_id hid_quirks[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_HP, USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE_1f4a), HID_QUIRK_ALWAYS_POLL },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_IDEACOM, USB_DEVICE_ID_IDEACOM_IDC6680), HID_QUIRK_MULTI_INPUT },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_INNOMEDIA, USB_DEVICE_ID_INNEX_GENESIS_ATARI), HID_QUIRK_MULTI_INPUT },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_JESS, USB_DEVICE_ID_AULA_MINI_60_HE_PRO),
-+		HID_QUIRK_ALWAYS_POLL },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_KYE, USB_DEVICE_ID_PIXART_USB_OPTICAL_MOUSE_ID2), HID_QUIRK_ALWAYS_POLL },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_KYE, USB_DEVICE_ID_KYE_EASYPEN_M406), HID_QUIRK_MULTI_INPUT },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_KYE, USB_DEVICE_ID_KYE_EASYPEN_M506), HID_QUIRK_MULTI_INPUT },
--- 
-2.55.0
-
+On 7/21/26 10:48 AM, Ziyang Men wrote:
+> Add a test_progs selftest that verifies the memory-cgroup BPF kfuncs
+> return values that agree with what userspace reads from cgroupfs, across
+> a whole cgroup subtree that has been charged on many CPUs.
+>
+> It complements the existing cgroup_iter_memcg test.  cgroup_iter_memcg
+> calls the memcg kfuncs on a single cgroup (BPF_CGROUP_ITER_SELF_ONLY) and
+> only asserts each value is greater than zero, so it never checks that a
+> value is actually correct.  This test compares the kfunc values against
+> what userspace reads from memory.stat, and checks every node in the
+> cgroup tree.
+>
+Can you extend the existing test instead of adding a new one?

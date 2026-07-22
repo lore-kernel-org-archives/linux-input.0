@@ -1,158 +1,133 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qt1-f173.google.com (mail-qt1-f173.google.com [209.85.160.173])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7EAF333A9DA
-	for <linux-input@vger.kernel.org>; Wed, 22 Jul 2026 14:23:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0EA0C35674D
+	for <linux-input@vger.kernel.org>; Wed, 22 Jul 2026 14:27:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784730189; cv=none; b=RsGtCYkjvyvHXrVRhpbLNkZcfk5nsoqZJ8HOA6+2CuzkmHNvq3TrJRcOhcGFen8tsF8ipYU54+dxW2TL55ezurvUWl/aT8u0FC+1MPo350d/xju0cObY08L5r1WTm+1cUIgILYaLKPg6zeLv9+GPs7umdIild8NsFTVravYcRBw=
+	t=1784730441; cv=none; b=sqo3nVJrjBj+rcXahH9dypbMM9USJ33J1dYqgZNX+ikkLEVyxkmKOrExUrCZsRsfnYe6gb36DgKJmdysY4Y2QscoduT3XFaKMb5qHxXgcOyR0yZlL9tiv8tetMTQZ8MZPNAc9AaYkEFitTxuACNegsKutuU8xATbl+gtrCIfx3k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784730189; c=relaxed/simple;
-	bh=QA1GpHiz9+gbtdPzdl6wSbbV2mTMyzUJEpK+Y+mYBAI=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=hmx4sjEH78hWZjJOxNUYdkkwJXhQu+MV336obn34NOkBLfL7hW+zhV9GhV7hSF7VcU0ussWUDA23FMdlYz5Meau6F7IGSg18PUKEL7o11msfqQf55UnowlOXYwhYz25nuFJvL2TFYu7NT5xEMWWOCzxwq47imcn5yFlNSIw8SKk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=NVnWlakO; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1784730441; c=relaxed/simple;
+	bh=uHv6Z8xOfCFeIc5aKMjsqa4BpxvESOYAG3MEgkL1tyY=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=ZY0Q2NRfL5onXVjqjeEnpvqcys7VofOQ3d4DcgnM2oF7ZwQtRgEWVPHQyKkuG1jTUQQP4uJtIXjllqrdeODc4hkuc5Yo4JIIhUQsy6fvaU2CoLb7Fu4TqS+Eo5WAFBj9p1tyser116k4wK80wzRsFIfpX2H1uv0qvcQHJ40mVzA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=HBG0Gxmb; arc=none smtp.client-ip=209.85.160.173
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="NVnWlakO"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1BB141F000E9;
-	Wed, 22 Jul 2026 14:23:08 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784730188;
-	bh=jMvJnMQc3V3kvxGpZkZdO/SXI8s7b6rG8bA81twp5dY=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=NVnWlakOb1cAsWXjUQs9Hchd+WtWSaems6t3OeFy5dLELkmdpwp8NLvKYkQmzNYYR
-	 GcmW29RMkBgPCh5CXQ4VFig8FjiQX0AKlnWBM2lDgZAhrjsmJSDCrFKvNpSvfl5ls7
-	 F0HrAJsKngbRIZA2tS4QG+XPtx5uYrhowU5o1puQMkvA/L4gqn2txupFXp5osxY5G+
-	 Of+m91RfojlctKRI/ojHLeN8iq89CZZxCn+0xC6btkmAr/igq9hfjMmZij8o9DuR/b
-	 ZLBhmpL10c/FOWqWcB87fX+uKGepbSszIiTNshGBSYfiXRaSFOGVrIrmgLnbmNzRf2
-	 NqrSfO6SY27Dg==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v3] HID: appletb-kbd: support layer switching on Fn
- double press
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Andre Eikmeyer" <dev@deq.rocks>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260722141221.13844-1-dev@deq.rocks>
-References: <20260722141221.13844-1-dev@deq.rocks>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Wed, 22 Jul 2026 14:23:06 +0000
-Message-Id: <20260722142308.1BB141F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="HBG0Gxmb"
+Received: by mail-qt1-f173.google.com with SMTP id d75a77b69052e-51c149c5722so77329461cf.0
+        for <linux-input@vger.kernel.org>; Wed, 22 Jul 2026 07:27:19 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1784730439; x=1785335239; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:mime-version:message-id:date
+         :subject:cc:to:from:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=Ib4XZylJ9w9egs25zIiG4greQjW32kkCzwW9LOhfZIw=;
+        b=HBG0GxmbX/GL9YsziAPfbPHH2CeVMcxVjoLv/mFNWVzz6FVXjuphtb4Lpecv8tazrO
+         hUx0JxeKKzKr/O92O9pQmyN2k6Ih8r272aWHq2/eRFxaJo6FeK0QVBx+Wso7bJnnvbx2
+         RPb69ir03sETbGaQWjyUtAGz+J5RSac8bKHek8sUcJyeP8jmZ3w9CYLuw6GveZEGOP5e
+         lPvmPUf9vJV7YjCln0bptJvlHSNR0LNvs4ww6DUj7OPPAmkQZNl6ksyp5Xp2tarqnZUV
+         w5iyrFKNh9icH5nE1RZLQ1fkeLPhODivcdM3QoZl5LNKRDvvPq+fczHVGB3PgM9Jrwwe
+         Egmw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1784730439; x=1785335239;
+        h=content-transfer-encoding:content-type:mime-version:message-id:date
+         :subject:cc:to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=Ib4XZylJ9w9egs25zIiG4greQjW32kkCzwW9LOhfZIw=;
+        b=kuMp3mKM4cu+hTnfBOCSO5OKyHpUy1+dcsxYkBtiy8JOruqgqJwckEmqXekKBVxKLh
+         RGWzx1g6VyuBEBKMM9G2Xb7xEQfuN68bmD/gLBVhhP3ngI2CniqkFjP00MTB9LK2xRFl
+         apDxPF6a4SPghOlekH4/AbFwbgBH9lsqyXgG0uaj9Q8Fez07gz/iYS5de+2ygo6r5kaE
+         XTup6aXA2hFyeXwlIcODtiUabXMI/Xw/Vvb9pyAg544GFl5ue7uk9BRkGl2TSOtPqJQP
+         jJORwNeZ5Msttp5XTqqT3xQ1s+hX0sFq1puTbSSYCiu4RxX8Nfk7vaqqIcWlN7nkgxBp
+         OVTg==
+X-Forwarded-Encrypted: i=1; AHgh+Rr9/btUaZTdup4YzKcRW/URh8NBY8P87DmQmdOG/sKbdmj0pNudXv9vzZz4U0pGitvBLYF6A7e8+9tW1w==@vger.kernel.org
+X-Gm-Message-State: AOJu0YzFvyani0ydgvr33TM0OlFBrkb7n1s/paKw2RHBscUOpPLN/dsd
+	fJhqUkkTRR6T1oFBrgu877DyPOdBapiOl4AxaclaB2Q1yDblD1Gj8axp
+X-Gm-Gg: AR+sD10p5a1w157rQq2Lgf9iU9Jm4QnhLBWWeJgsfoOJYJGHoisqAsc2M0/D6KxI9S1
+	WAz2tdg1vSkGQ0KuL7KrX6PoVvsvS15AXDwPiNxeuHz9uRuzcrqQyOMhn670C1huqJPSMvmQbDL
+	8G1phcUUmvXQskuCcGNnFXltDLY3Cr0GIPuAY6UL1hcz0s07Dptmm9DjlKdntf22zQfZwza7Fe2
+	qcgGSWHZ3YmwqMD0FVaFJoyRO0iC3i6Fon1EjSZ8GiESA/7Q8x1RupjkIjTkNRpSXB4nBL/fFgC
+	aHJ94hq8rqQSqBcJF3g+/NVIFkkM4tfNLMdRD7AmLfFEVhKFP6Bf7UFHvG8r5FOYx+0xU6cLsnE
+	xg40TXNoigTjSuJUq3E9flv5n0z74cp3lUd9/uPWCjMU0SbW6RojGaLnr12eFCxAfbv4USte+1E
+	Y=
+X-Received: by 2002:a05:622a:296:b0:51b:9873:e37b with SMTP id d75a77b69052e-527a5d0569bmr43874981cf.9.1784730438837;
+        Wed, 22 Jul 2026 07:27:18 -0700 (PDT)
+Received: from fedora ([2600:383:441:9b80:8f82:4b87:4a4b:5554])
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-527d0c4fe92sm16224981cf.11.2026.07.22.07.27.17
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 22 Jul 2026 07:27:18 -0700 (PDT)
+From: Dave Carey <carvsdriver@gmail.com>
+To: platform-driver-x86@vger.kernel.org
+Cc: hdegoede@redhat.com,
+	W_Armin@gmx.de,
+	ilpo.jarvinen@linux.intel.com,
+	jikos@kernel.org,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Dave Carey <carvsdriver@gmail.com>
+Subject: [PATCH v13 0/2] Lenovo Yoga Book 9 keyboard dock detection
+Date: Wed, 22 Jul 2026 10:27:09 -0400
+Message-ID: <20260722142712.814597-1-carvsdriver@gmail.com>
+X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
-s) to consider:
+Changes in v13:
 
-New issues:
-- [High] The double-press logic mutates a read-only global module parameter=
- dynamically from a per-device interrupt-driven event handler, causing a da=
-ta race and state corruption.
-- [Medium] Failure of `appletb_kbd_set_mode()` is ignored in the double-pre=
-ss path, causing software tracking state to desynchronize from actual hardw=
-are state.
+  - Resend of v12: v12 was corrupted in transit.  Root cause: the ABI
+    documentation uses RST table separator lines (==  ====...) which
+    contain '=' characters; git-send-email selected quoted-printable
+    transfer encoding due to non-ASCII in the changelog (UTF-8 author
+    name), encoding '=' as '=3D' and breaking git-am on the receiving
+    end.  Fixed by setting sendemail.transferEncoding=8bit.  No content
+    changes from v12.
 
-Pre-existing issues:
-- [High] Calling `appletb_kbd_set_mode()` from the atomic input event handl=
-er causes a sleep in atomic context (BUG: scheduling while atomic).
---
+Changes in v12 (addressing Ilpo Järvinen's v11 review of patch 2/2):
 
---- Patch [1]: [PATCH v3] HID: appletb-kbd: support layer switching on Fn d=
-ouble press ---
-commit 3f8289667f750dcd9fc87072f493735127cd7f85
-Author: Aditya Garg <gargaditya08@proton.me>
+  - Add #include <linux/sysfs.h> (for sysfs_emit)
+  - Add #include <linux/types.h> (for __le32 and __packed)
 
-HID: appletb-kbd: support layer switching on Fn double press
-   =20
-Holding Fn temporarily switches the Touch Bar between media controls and
-function keys. An optional double_press_switch_time module parameter makes
-a double press persistently switch the default layer.
+Changes in v11 (addressing Armin Wolf's v10 review of patch 2/2):
 
-> diff --git a/drivers/hid/hid-appletb-kbd.c b/drivers/hid/hid-appletb-kbd.c
-> index 462010a758993..b7bbb81a8d473 100644
-> --- a/drivers/hid/hid-appletb-kbd.c
-> +++ b/drivers/hid/hid-appletb-kbd.c
+  - ABI doc: correct Date to "June 2027" and KernelVersion to "7.3";
+    these fields should reflect when the ABI lands in the kernel, not
+    the submission date.
 
-[ ... ]
+Patch 1/2 (lenovo-ymc) is unchanged from v10.
 
-> @@ -250,15 +269,36 @@ static void appletb_kbd_inp_event(struct input_hand=
-le *handle, unsigned int type
-> =20
->  	reset_inactivity_timer(kbd);
-> =20
-> -	if (type =3D=3D EV_KEY && code =3D=3D KEY_FN && appletb_tb_fn_toggle &&
-> -		(kbd->current_mode =3D=3D APPLETB_KBD_MODE_SPCL ||
-> -		 kbd->current_mode =3D=3D APPLETB_KBD_MODE_FN)) {
-> +	if (type =3D=3D EV_KEY && code =3D=3D KEY_FN &&
-> +	    (kbd->current_mode =3D=3D APPLETB_KBD_MODE_SPCL ||
-> +	     kbd->current_mode =3D=3D APPLETB_KBD_MODE_FN)) {
->  		if (value =3D=3D 1) {
-> -			kbd->saved_mode =3D kbd->current_mode;
-> -			appletb_kbd_set_mode(kbd, kbd->current_mode =3D=3D APPLETB_KBD_MODE_S=
-PCL
-> -						? APPLETB_KBD_MODE_FN : APPLETB_KBD_MODE_SPCL);
-> +			if (appletb_tb_double_press_switch_time > 0) {
-> +				unsigned long now =3D jiffies;
-> +
-> +				if (time_before(now, kbd->last_fn_press +
-> +					msecs_to_jiffies(appletb_tb_double_press_switch_time))) {
-> +					appletb_tb_def_mode =3D
-> +						appletb_switch_mode(appletb_tb_def_mode);
+Changes in v10 (addressing Armin Wolf's v9 review of patch 2/2):
 
-[Severity: High]
-Does this double-press logic mutate a read-only global module parameter
-dynamically from a per-device interrupt-driven event handler? Modifying
-it changes the initialization default for any subsequently probed devices.
+  - Update ABI doc: Date: June 2026, KernelVersion: 6.16
+  - Add #include <linux/compiler_attributes.h> and <linux/types.h>
+  - yb9_kbdock_query(): change return to pointer-out u32 *bkbd to avoid
+    a 0xFFFFFFFF status value being misread as -EPERM
+  - struct yb9_kbdock_data: add spinlock_t lock
+  - yb9_kbdock_report(): hold lock across input_report_switch + input_sync
+  - yb9_kbdock_sync(): return int, propagate query error to callers
+  - yb9_kbdock_resume(), yb9_kbdock_block_probe(): propagate sync error
+  - struct wmi_buffer out: remove zero-initializer (not needed)
+  - yb9_kbdock_notify_new(): drop manual length check; use
+    .min_event_size = sizeof(__le32) in struct wmi_driver instead
 
-If a user changes the mode via sysfs, a subsequent double-press will blindly
-toggle the global variable and overwrite the user's per-device sysfs
-configuration.
+Patch 1/2 (lenovo-ymc) is unchanged from v9.
 
-> +
-> +					appletb_kbd_set_mode(kbd, appletb_tb_def_mode);
+Dave Carey (2):
+  platform/x86/lenovo: lenovo-ymc: Suppress probe on Yoga Book 9 14IAH10
+  platform/x86/lenovo: Add Yoga Book 9 keyboard dock detection driver
 
-[Severity: High]
-This is a pre-existing issue, but does calling appletb_kbd_set_mode() from
-the atomic input event handler cause a sleep in atomic context?
+ Documentation/ABI/testing/sysfs-driver-lenovo-yb9-kbdock |  19 ++
+ MAINTAINERS                                               |   7 +
+ drivers/platform/x86/lenovo/Kconfig                       |  14 +
+ drivers/platform/x86/lenovo/Makefile                      |   1 +
+ drivers/platform/x86/lenovo/yb9-kbdock.c                  | 312 ++++++++++++
+ drivers/platform/x86/lenovo/ymc.c                         |  19 ++
+ 6 files changed, 372 insertions(+)
 
-The input core invokes appletb_kbd_inp_event() from input_pass_values()
-which holds dev->event_lock (spinlock) and disables local interrupts.
-
-The callback then calls appletb_kbd_set_mode(), which calls
-hid_hw_power(hdev, PM_HINT_FULLON). For USB HID devices, this maps to
-usbhid_power(), which calls usb_autopm_get_interface(), subsequently
-calling pm_runtime_get_sync() which sleeps.
-
-[Severity: Medium]
-Is the return value of appletb_kbd_set_mode() ignored here? If the hardware
-mode switch fails, the software tracking variables are updated anyway,
-causing the software to assume the mode switched successfully.
-
-> +
-> +					kbd->saved_mode =3D appletb_tb_def_mode;
-> +					kbd->last_fn_press =3D 0;
-> +
-> +					return;
-> +				}
-> +
-> +				kbd->last_fn_press =3D now;
-> +			}
-> +			if (appletb_tb_fn_toggle) {
-> +				kbd->saved_mode =3D kbd->current_mode;
-> +
-> +				appletb_kbd_set_mode(kbd, appletb_switch_mode(kbd->current_mode));
-> +			}
->  		} else if (value =3D=3D 0) {
-> -			if (kbd->saved_mode !=3D kbd->current_mode)
-> +			if (appletb_tb_fn_toggle &&
-> +			    kbd->saved_mode !=3D kbd->current_mode)
->  				appletb_kbd_set_mode(kbd, kbd->saved_mode);
->  		}
->  	}
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260722141221.1384=
-4-1-dev@deq.rocks?part=3D1
+2.55.0

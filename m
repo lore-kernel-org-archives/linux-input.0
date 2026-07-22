@@ -1,156 +1,120 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f177.google.com (mail-pf1-f177.google.com [209.85.210.177])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E7040411FBB
-	for <linux-input@vger.kernel.org>; Wed, 22 Jul 2026 17:35:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E8C23466AFA
+	for <linux-input@vger.kernel.org>; Wed, 22 Jul 2026 17:56:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784741731; cv=none; b=n1719thWJ0ViRceh6QqdTzB3liX974ZZ0kvs7qdrAP/snuOyoBCEnEMwwJISfpd+SLh/yiP9CfzJt2OuDhXnMrxoSiiMfRBPsNtukbZMu7oFIXRgcnisNt/ntDf2kfdg33yNCiV/gtvBp0vPxvgh+QBAWscueBBJqTyJ4D1OkVI=
+	t=1784742993; cv=none; b=Peuy9I2E7ivsTjuUZb5yp9AFYQwwaX8Ptgr2GNelSHJVILdrTuQK2+J3kjFk6s5qBL4leqOOKuMTZd31sXKRCsgeZXJF8y32uQtSsMSdgRTlJUuDf8DJUaqcSQnpJ5J7rhYHl1zsKeWYEbTnC3HRrWfgpq2usD9Zr8zBtABKeAk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784741731; c=relaxed/simple;
-	bh=b4v14StGYn06HIMvInDqOeDWGwVtfbliKtq+jOdiccU=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=GJKfW1HdjQEym/n0iD5O3XyvXv8kVucbSTvHzcPeRu/V+HpIddHDMycRtWbe2816/Iux1FOUiS6J1GiUjqfWE6l45wZJ+YQ7SYWxpA3kh7g+lvWoTDF15O5mTmX/+Qc2smRBblKJxMTDjiv2no6cmygPmCRfUTvNq9Hxwe1K+6A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=E52SEV69; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1784742993; c=relaxed/simple;
+	bh=h7pFsRMVp013elDLoFOD6NUPp2y2XXMofoysMChmQJQ=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=LFXfGsgJ0PTPaudrj4WNBg7z5g7vWO9FBZ5nQDyL3wJxKbydkTJyJF0EyVDsOcPXIk9Wcu9Cw0gSx6XWg2B8JkAd2Ot3zxzbBC9WqiphptIcVaHK575rqpWbnHaS6xAjM9d0wlbeWFOQwX6URaLxdgIlD9l3DgIhL7L/bMZggb0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ENMpTzAW; arc=none smtp.client-ip=209.85.210.177
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="E52SEV69"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7BAA31F00ACA;
-	Wed, 22 Jul 2026 17:35:29 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784741729;
-	bh=mnZYif2FRNXUkqZtrBTveOCeVzQmyFlpRxm7Hl1N+As=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=E52SEV693CvqFTcQR+12dfh7wdSLei6t/ZQFwnciPghP3lJkEmv1rXffufKXdQTP2
-	 qNlrzsKOb9jPccuxCUScpkDg/eg2Sb0nSWbir0WaUFpxhCOWWTU2Kd3pz7BLsW4UR/
-	 k/opZn6E5lngGdYe4v+1bVnNcVWaJFsnbB6DbFDK5q7Hv8iIcXQwMSEHNzUwGsjZd+
-	 I5eMmGUnJnhXSmYbAZC6Cgg4lIQwWBoLvSgFNRRVOLAQkHgraM8JnojUdrfPDYj9xy
-	 +Y0YmY72VcEAmD/BSuHcZboR5DabMbOPIa3l/deN3CwcfpZmYzh7U6kC7draKOdgSc
-	 4/5iMkRHVLMsA==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] iio: hid-sensor: als: scale each channel individually
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Daniel Schaefer" <dhs@frame.work>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260723-chromaticity-v1-1-5ef5746ace2a@frame.work>
-References: <20260723-chromaticity-v1-1-5ef5746ace2a@frame.work>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Wed, 22 Jul 2026 17:35:29 +0000
-Message-Id: <20260722173529.7BAA31F00ACA@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ENMpTzAW"
+Received: by mail-pf1-f177.google.com with SMTP id d2e1a72fcca58-84830c774a0so7336511b3a.1
+        for <linux-input@vger.kernel.org>; Wed, 22 Jul 2026 10:56:31 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1784742991; x=1785347791; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=j8k5kV6WSI+k1cBeImlsLuuBpzWmqeLT2rCBrhlFI80=;
+        b=ENMpTzAW5yGCnJwkbX/Aca8Z7HMZHdWXA5c/YWnbGzPJip2ZPSMDjjN0OD5ff5RInd
+         8lMzTcvJfAc+Zw8UfLJ/+drXxP2H4LAFa2mRbgmGG/yemJiHNSh92kN4BKxCk2kCh9cf
+         AKgUp7cH9Q7yjFqioSbX1v6Md+yZlw3Bx18n2PNd4RjeZmXVPHZYzzFMZOfQXxaKrvis
+         gdL+T9R7Te/4ydBGBEYQm+T6XHtBEmcvUZezZ30MN87IjGuI0HBJC9ZVZYB918T0B6ux
+         cRmbIKmcS9w0luX7JeLU4c0ggIZCXXlYBY7EMZebKGekIxArci92wJczH0oaB7pkTIPC
+         F+og==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1784742991; x=1785347791;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=j8k5kV6WSI+k1cBeImlsLuuBpzWmqeLT2rCBrhlFI80=;
+        b=ez+sXMjUgeKPjw49t3RmKvYU0CINil2ee6CpCJPsaluvXaZVoZlWgSld7yjU5BgW4Z
+         xKD0yNxydMXaMbG8wNeTrmPRJhjdV4a/Q1jkXsbO6kfHYeVvHjpMwUmq7TnpG61c4bIt
+         sv4/5GLJJQIMRY3Irb9WIboZZheOt5hjNjfwjGHH2L+e7cgaRoF6Yp/l+EruZ4M0RYso
+         vYSXR9BJlenN7ZutKvNGc6mXDVIJrqHzECRsGTGtuwXH4sRukjCjYHwb92Dp8ebEl1xf
+         XjeiCu/Ddhzogtzjk5ihYLSXw4uyHyBdH+4uZujw9NmGsPRR/Kk3K0Naa1Ex4enjECtZ
+         b9cw==
+X-Forwarded-Encrypted: i=1; AHgh+Ro9OuWoRsk5Q3ducPEGsDXzGliq4vhYqoTPh4mmTG50YRa0UTCWIP2Y8HaxmiROX58N9lF7h1YcYmSi0Q==@vger.kernel.org
+X-Gm-Message-State: AOJu0YwobSXB+w75tGwCrkKGhYeVh2uHqk20z/qjYXGhiDRTcCYivMHo
+	okdvMxEFaVqMWIn2iiVeifRcWuYKILvkHP9co0BWJJxg/HWgt4+uaaQDVgPeETEF
+X-Gm-Gg: AR+sD101unhYhh0vRmi0eSsmQc5PF+d8QMpuBl2CZ+mDTuYt5do9X59tBkHPE9Ljx89
+	k57PTRALwqYiI2iccqVkiVRGc9hif7TolTIHNNbGfOS0hbmsnjLTXzKVEHN3GVtks90RT9xwp2U
+	wFKPkLY0QCggj/SJiq4xWU489Q5ftf2++wW/4FNyEItRfJ8MucLvIOEroL2udpf1Vb4j//WXTWW
+	hQ2OVi0qYGFLQ7muncoLJxaLwcZBi/bSchSsBJHpWs+1Jx1zMIeqgjrK6gwUR6KNkvshWWQPPpO
+	c8RZidrLn/K4Hi4Ws/cSJqkAYY5YM8FVNUcD/ypBNEG+t6Ouex3JLT81YY4ibnHX25YOL+/kECy
+	augdjSFVWF5+ZCRZAN3m8SOk4jzVKgqg4wtHncG2oF0AdyI7VSB/AdwjGZtJeZnrSPDOr/UIfmA
+	tOj2vA95a8BwEMsQ==
+X-Received: by 2002:a05:6a00:bd89:b0:847:86d8:5937 with SMTP id d2e1a72fcca58-84c2945cd8emr24282305b3a.50.1784742990533;
+        Wed, 22 Jul 2026 10:56:30 -0700 (PDT)
+Received: from Colorful-P15 ([2408:8249:8009:7350:c32e:1b72:66d:665d])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-84e175a3a83sm1687136b3a.43.2026.07.22.10.56.28
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 22 Jul 2026 10:56:30 -0700 (PDT)
+From: Yuxiang Lin <mclyxfdw@gmail.com>
+To: jikos@kernel.org
+Cc: Yuxiang Lin <mclyxfdw@gmail.com>,
+	Benjamin Tissoires <bentiss@kernel.org>,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH] HID: quirks: add ALWAYS_POLL quirk for AULA Mini 60 HE Pro Dongle
+Date: Thu, 23 Jul 2026 01:56:02 +0800
+Message-ID: <20260722175602.22773-1-mclyxfdw@gmail.com>
+X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
+The AULA Mini 60 HE Pro wireless keyboard dongle (USB ID
+0c45:fefe) becomes unresponsive after roughly one minute of idle.
+No error appears in dmesg; the only recovery is physically
+replugging the dongle.
 
-New issues:
-- [Medium] The patch fails to expose the individual scale for the CHROMATIC=
-ITY_Y channel because it still uses `info_mask_shared_by_type`.
+This has been reproduced across kernels 6.8, 6.14 and 7.1.3.
 
-Pre-existing issues:
-- [High] The driver's IIO buffer layout uses a fixed structure, but `availa=
-ble_scan_masks` is dynamically populated, causing misaligned buffer reads a=
-nd data corruption.
---
+Testing shows HID_QUIRK_ALWAYS_POLL alone resolves the issue,
+verified via usbhid.quirks=0x0c45:0xfefe:0x400.
 
---- Patch [1]: [PATCH] iio: hid-sensor: als: scale each channel individuall=
-y ---
-commit 6d49cfd4cf380845a584116e06dcf23fc8c25ad6
-Author: Daniel Schaefer <dhs@frame.work>
+Signed-off-by: Yuxiang Lin <mclyxfdw@gmail.com>
+---
+ drivers/hid/hid-ids.h    | 1 +
+ drivers/hid/hid-quirks.c | 2 ++
+ 2 files changed, 3 insertions(+)
 
-iio: hid-sensor: als: scale each channel individually
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 1059922ba..489535002 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -775,6 +775,7 @@
+ #define USB_DEVICE_ID_JESS_YUREX	0x1010
+ #define USB_DEVICE_ID_ASUS_MD_5112	0x5112
+ #define USB_DEVICE_ID_REDRAGON_ASURA	0x760b
++#define USB_DEVICE_ID_AULA_MINI_60_HE_PRO 0xfefe
+ 
+ #define USB_VENDOR_ID_JESS2		0x0f30
+ #define USB_DEVICE_ID_JESS2_COLOR_RUMBLE_PAD 0x0111
+diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
+index 57d8efdd9..b0ea8171f 100644
+--- a/drivers/hid/hid-quirks.c
++++ b/drivers/hid/hid-quirks.c
+@@ -112,6 +112,8 @@ static const struct hid_device_id hid_quirks[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_HP, USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE_1f4a), HID_QUIRK_ALWAYS_POLL },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_IDEACOM, USB_DEVICE_ID_IDEACOM_IDC6680), HID_QUIRK_MULTI_INPUT },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_INNOMEDIA, USB_DEVICE_ID_INNEX_GENESIS_ATARI), HID_QUIRK_MULTI_INPUT },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_JESS, USB_DEVICE_ID_AULA_MINI_60_HE_PRO),
++		HID_QUIRK_ALWAYS_POLL },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_KYE, USB_DEVICE_ID_PIXART_USB_OPTICAL_MOUSE_ID2), HID_QUIRK_ALWAYS_POLL },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_KYE, USB_DEVICE_ID_KYE_EASYPEN_M406), HID_QUIRK_MULTI_INPUT },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_KYE, USB_DEVICE_ID_KYE_EASYPEN_M506), HID_QUIRK_MULTI_INPUT },
+-- 
+2.55.0
 
-This commit updates the hid-sensor-als driver to support individual scaling
-factors for each channel, instead of using a single global scale. It stores
-the scale attributes in arrays indexed by channel.
-
-Link: https://gitlab.freedesktop.org/hadess/iio-sensor-proxy/-/merge_reques=
-ts/413
-
-> diff --git a/drivers/iio/light/hid-sensor-als.c b/drivers/iio/light/hid-s=
-ensor-als.c
-> index 384572844162c..232cb58e0a9ff 100644
-> --- a/drivers/iio/light/hid-sensor-als.c
-> +++ b/drivers/iio/light/hid-sensor-als.c
-> @@ -33,9 +33,9 @@ struct als_state {
->  		u32 illum[CHANNEL_SCAN_INDEX_MAX];
->  		aligned_s64 timestamp;
->  	} scan;
-
-[Severity: High]
-This is a pre-existing issue, but does this fixed struct buffer layout
-cause data corruption?
-
-The driver captures samples in als_capture_sample() into a static sparse
-array (als_state->scan.illum) based on fixed channel indices. However,
-indio_dev->available_scan_masks is dynamically constructed based on the
-attributes present on the sensor.
-
-The IIO core calculates scan_bytes and channel offsets assuming the buffer =
-is
-tightly packed.
-
-When iio_push_to_buffers_with_ts() is called in als_proc_event(), it writes
-the timestamp at the end of the tightly packed length, which overwrites val=
-id
-channel data in the sparse array.
-
-The IIO demuxer then reads from incorrect offsets, scrambling the data sent=
- to
-userspace.
-
-Should the driver pack the samples sequentially instead of using fixed index
-offsets?
-
-> -	int scale_pre_decml;
-> -	int scale_post_decml;
-> -	int scale_precision;
-> +	int scale_pre_decml[CHANNEL_SCAN_INDEX_MAX];
-> +	int scale_post_decml[CHANNEL_SCAN_INDEX_MAX];
-> +	int scale_precision[CHANNEL_SCAN_INDEX_MAX];
->  	int value_offset;
->  	int num_channels;
->  	s64 timestamp;
-
-[ ... ]
-
-> @@ -186,9 +186,11 @@ static int als_read_raw(struct iio_dev *indio_dev,
->  		ret_type =3D IIO_VAL_INT;
->  		break;
->  	case IIO_CHAN_INFO_SCALE:
-> -		*val =3D als_state->scale_pre_decml;
-> -		*val2 =3D als_state->scale_post_decml;
-> -		ret_type =3D als_state->scale_precision;
-> +		if (chan->scan_index >=3D CHANNEL_SCAN_INDEX_MAX)
-> +			return -EINVAL;
-> +		*val =3D als_state->scale_pre_decml[chan->scan_index];
-> +		*val2 =3D als_state->scale_post_decml[chan->scan_index];
-> +		ret_type =3D als_state->scale_precision[chan->scan_index];
->  		break;
-
-[Severity: Medium]
-Since the patch introduces per-channel scaling factors, can userspace actua=
-lly
-read the scale for the CHROMATICITY_Y channel?
-
-The als_channels array defines both CHANNEL_SCAN_INDEX_CHROMATICITY_X and Y
-with .info_mask_shared_by_type =3D BIT(IIO_CHAN_INFO_SCALE).
-
-Because of this, the IIO core will create a single in_chromaticity_scale sy=
-sfs
-attribute for both.
-
-When read, IIO queries the first registered channel of that type (X), leavi=
-ng
-the Y scale factor completely inaccessible.
-
-Does the info_mask_shared_by_type for these channels need to be changed to
-info_mask_separate so userspace can read the newly added scale for
-CHROMATICITY_Y?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260723-chromatici=
-ty-v1-1-5ef5746ace2a@frame.work?part=3D1

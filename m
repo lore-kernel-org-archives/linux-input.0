@@ -1,44 +1,44 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E88E2466AF6;
-	Wed, 22 Jul 2026 23:43:58 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C9D9D3D649F;
+	Wed, 22 Jul 2026 23:48:42 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784763840; cv=none; b=EBtCsDvPQNN+I9oM+nKBz6Euz99WdoJ6n31unhCB1rKSbvdtoPxZo0hd1/rXGozXCqMaQi8YDyU/TYYlrBTvjQlGGBxAu+KlDDVDCP1f4FntAOSYblDkNuAeK6G6NcSFdC0+3oJgxaJf08oCf9D9/SSom/KuE5vYvBFpgHKLpKM=
+	t=1784764123; cv=none; b=YsM8PR7l4W2py7P+AaES8WAVgnpvZhA7wbMKNHe9Df8HgdFwn/1a61k/MZ8WFvVpixUXfmU+tA7Xm/8dh8il1IMGrZyOKoHsn/cNrqkYqplFmUwbJs3zii5iFJcIZsnEUp8fTfHJg5u/dAqanq+zRTQIS/5TP6ut4bw8brvWm7k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784763840; c=relaxed/simple;
-	bh=D62IP+KLQlfmJkEusjxeB5k2yeFnAC73q8/4latkJNA=;
+	s=arc-20240116; t=1784764123; c=relaxed/simple;
+	bh=Zrb5LB/44WR8lAoSNkg7hcwTaeqbxJXE42E/7cseLy8=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=HLFuL1TCGFzpVfQZGFfwFnjNUml4I2Azw0SFkh5Q0j3X/yw7NawjoQ+02bn0qEYZloJDEP+foD9ZgTYJG/+Vq1/eE8OP4/49AQmnAmY5QfcRyyUvDm2Qhn0acY8sgarDnBJT7tl6puYcgXj1u6lhDt5GFDUI5bBlReR9KzBIN7A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=oyI8rj5+; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=SWogXqOTB+8kB4Lgzq9iHIpoO1F/In8Cx6vQo/aVlWpRflLuQj157lxdP3SefiVSrQE+Z5CINfcCeFSzrO8wOMBePB9MTdOdvByjTJJrrRUPIZMep99OIkHUYb+8hzHYv3BrkuYy8xrd3Krgnfku/nnoMqQWB5wiBRFekFiDavo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=czDOSXjL; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="oyI8rj5+"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4AA721F000E9;
-	Wed, 22 Jul 2026 23:43:58 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="czDOSXjL"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68B271F000E9;
+	Wed, 22 Jul 2026 23:48:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784763838;
-	bh=YDKYMXDbHU9Sh6MZvKhG0tVgg5rtVV6djkY6spSkmU4=;
+	s=k20260515; t=1784764122;
+	bh=lp1VC+wt8Fig+GTG216JohZMHVxG9ST3vseMYFCFMXE=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=oyI8rj5+3HE0YalCNi5FbSaCKSZ3a6fU+sbyxr44S8bbtOztiQuth+z1G7TlJVWis
-	 iGso6Z0YGQGCDl2vEB00XeEDQcsW9j1/1nwxs/5J8Z4Njf9fwDCTTeaNsg0LS4I28c
-	 HU7/IIFredbin+mMyct6Ey615LopoPHkUZCgGkbZ09dhqB4yNMjDELsrfQ/EomvPuL
-	 sQAvosmi5e2LZcC4df9gRZvrO4Ncv1i5v/dg821ul95/OJO2xgocO98fS6yy+/DrPW
-	 Ilud3cELufUiZE6BtfrAN2FnkX5fNEGcmTDpF3bQYHzQjE27sHQ/OhdqcD1Gmfkr2T
-	 1Y4xKvGbSxvBw==
+	b=czDOSXjL38XtKudtnDVwqCyMvNDSXW/wO5NmoSYr5L9zW3oZwIuvXJ4w+e4/tfp5B
+	 w6dePX44w0djrfo/3EIxeWRj3gSTVZwTc+cm5sIZxbLSaTaK2cQlzPigrQ6xq0G9rw
+	 ndi4PEouaKBm3hP1NShayK1zphooaaQjGv4IB3koirGK+s8VG7ykqbWWhlyWkXb74O
+	 J08RJ8zOVgb9jrMD4gQ0nV3ePuuCK+jOcFOkDSv6ZUYXHlaHfV+9/fdzF0PjaOSuo9
+	 cXzk7dr8K5IgMJBpuwYfC7yEfkJV+G/26bzB34Uww6DbWH2QY3J9lJyZK9HDwVx/Vo
+	 BYog3jEqrBLXQ==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH bpf-next v1 4/8] libbpf: Export
- btf__find_by_name_kind_own()
+Subject: Re: [PATCH bpf-next v1 1/8] resolve_btfids: Implement generic
+ ensure_mem() to grow arrays
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Ihor Solodrai" <ihor.solodrai@linux.dev>
 Cc: linux-input@vger.kernel.org, bpf@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260722233518.778854-5-ihor.solodrai@linux.dev>
+In-Reply-To: <20260722233518.778854-2-ihor.solodrai@linux.dev>
 References: <20260722233518.778854-1-ihor.solodrai@linux.dev>
- <20260722233518.778854-5-ihor.solodrai@linux.dev>
+ <20260722233518.778854-2-ihor.solodrai@linux.dev>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 22 Jul 2026 23:43:57 +0000
-Message-Id: <20260722234358.4AA721F000E9@smtp.kernel.org>
+Date: Wed, 22 Jul 2026 23:48:41 +0000
+Message-Id: <20260722234842.68B271F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -47,61 +47,107 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
 Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [Medium] The newly exposed public libbpf API `btf__find_by_name_kind_own(=
-)` lacks the `libbpf_err()` wrapper on its error return path.
+- [Medium] Strict aliasing violation via `void **` casting leading to poten=
+tial Use-After-Free.
 --
 
---- Patch [4]: [PATCH bpf-next v1 4/8] libbpf: Export btf__find_by_name_kin=
-d_own() ---
-commit 60b04eac1753190ac945126aaca0759082942bc0
+--- Patch [1]: [PATCH bpf-next v1 1/8] resolve_btfids: Implement generic en=
+sure_mem() to grow arrays ---
+commit b5970d9bf6b1262c4ad812706df67f4a14ee5411
 Author: Ihor Solodrai <ihor.solodrai@linux.dev>
 
-libbpf: Export btf__find_by_name_kind_own()
-   =20
-btf__find_by_name_kind() searches the base BTF before the split BTF,
-so in case of a name collision between base and split it always
-returns a base type. Tools that process split BTF may need to restrict
-a lookup to the split's own types.
-   =20
-The internal helper btf__find_by_name_kind_own() already does exactly
-that. Make it a public API.
+resolve_btfids: Implement generic ensure_mem() to grow arrays
 
-> diff --git a/tools/lib/bpf/btf.h b/tools/lib/bpf/btf.h
-> index 1a31f2da947f8..587172c0de089 100644
-> --- a/tools/lib/bpf/btf.h
-> +++ b/tools/lib/bpf/btf.h
-> @@ -172,6 +172,8 @@ LIBBPF_API __s32 btf__find_by_name(const struct btf *=
-btf,
->  				   const char *type_name);
->  LIBBPF_API __s32 btf__find_by_name_kind(const struct btf *btf,
->  					const char *type_name, __u32 kind);
-> +LIBBPF_API __s32 btf__find_by_name_kind_own(const struct btf *btf,
-> +					    const char *type_name, __u32 kind);
+This commit factors out array growth logic from push_*() helpers into a
+generic ensure_mem() macro and function. It uses a void ** cast to update
+the array pointer upon reallocation.
+
+> diff --git a/tools/bpf/resolve_btfids/main.c b/tools/bpf/resolve_btfids/m=
+ain.c
+> index f8a91fa7584f4..183466ddc5f97 100644
+> --- a/tools/bpf/resolve_btfids/main.c
+> +++ b/tools/bpf/resolve_btfids/main.c
+> @@ -201,6 +201,35 @@ static int eprintf(int level, int var, const char *f=
+mt, ...)
+>  #define pr_info(fmt, ...) \
+>  	eprintf(0, verbose, pr_fmt(fmt), ##__VA_ARGS__)
+> =20
+> +/*
+> + * Grow *data so it can hold at least cnt elements of elem_sz bytes each.
+> + * *cap is the capacity in elements and is updated on growth.
+> + */
+> +static int __ensure_mem(void **data, u32 *cap, u32 cnt, size_t elem_sz)
+> +{
+> +	u32 new_cap, old_cap =3D *cap;
+> +	void *arr;
+> +
+> +	if (cnt <=3D old_cap)
+> +		return 0;
+> +
+> +	new_cap =3D max(old_cap + 256, old_cap * 2);
+> +	if (new_cap < cnt)
+> +		new_cap =3D cnt;
+> +
+> +	arr =3D realloc(*data, elem_sz * new_cap);
+> +	if (!arr)
+> +		return -ENOMEM;
+> +
+> +	*data =3D arr;
 
 [Severity: Medium]
-Since btf__find_by_name_kind_own() is now a public API, shouldn't its return
-path in tools/lib/bpf/btf.c be updated to use libbpf_err()?
+Will this assignment violate strict aliasing rules? Because void * and u32 *
+are incompatible types, modifying the pointer through a void ** pointer
+violates C strict aliasing.
 
-Currently, it returns the value from the internal helper directly:
+While core kernel code is compiled with -fno-strict-aliasing, programs under
+tools/ are compiled with standard optimizations including -fstrict-aliasing.
+If __ensure_mem() is inlined, could the compiler assume that this assignment
+does not modify the original typed pointer?
 
-tools/lib/bpf/btf.c:btf__find_by_name_kind_own() {
-	return btf_find_by_name_kind(btf, btf->start_id, type_name, kind);
-}
+> +	*cap =3D new_cap;
+> +
+> +	return 0;
+> +}
+> +
+> +#define ensure_mem(arr_ptr, cap_ptr, cnt) \
+> +	__ensure_mem((void **)(arr_ptr), (cap_ptr), (cnt), sizeof(**(arr_ptr)))
 
-The libbpf public API error handling contract requires all public API funct=
-ions
-to set errno using libbpf_err() directly on their return statements. While =
-the
-internal helper btf_find_by_name_kind() currently sets errno indirectly, re=
-lying
-on it could cause issues if the internal helper is later fixed to return raw
-error codes.
+[Severity: Medium]
+Does casting a typed double pointer (like &ctx->decl_tags which is u32 **) =
+to
+void ** here set up the strict aliasing violation mentioned above?
 
-Should this be updated to return libbpf_err(btf_find_by_name_kind(...))?
+[ ... ]
 
->  LIBBPF_API __u32 btf__type_cnt(const struct btf *btf);
->  LIBBPF_API const struct btf *btf__base_btf(const struct btf *btf);
+> @@ -890,17 +919,8 @@ static const struct btf_type *btf_type_skip_qualifie=
+rs(const struct btf *btf, s3
+> =20
+>  static int push_decl_tag_id(struct btf2btf_context *ctx, u32 decl_tag_id)
+>  {
+> -	u32 *arr =3D ctx->decl_tags;
+> -	u32 cap =3D ctx->max_decl_tags;
+> -
+> -	if (ctx->nr_decl_tags + 1 > cap) {
+> -		cap =3D max(cap + 256, cap * 2);
+> -		arr =3D realloc(arr, sizeof(u32) * cap);
+> -		if (!arr)
+> -			return -ENOMEM;
+> -		ctx->max_decl_tags =3D cap;
+> -		ctx->decl_tags =3D arr;
+> -	}
+> +	if (ensure_mem(&ctx->decl_tags, &ctx->max_decl_tags, ctx->nr_decl_tags =
++ 1))
+> +		return -ENOMEM;
+> =20
+>  	ctx->decl_tags[ctx->nr_decl_tags++] =3D decl_tag_id;
+
+[Severity: Medium]
+Could this assignment result in a use-after-free? If the compiler's strict
+aliasing optimization assumes ctx->decl_tags was not modified by ensure_mem=
+(),
+it might use a cached pointer that was freed by realloc() during the array
+assignment.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260722233518.7788=
-54-1-ihor.solodrai@linux.dev?part=3D4
+54-1-ihor.solodrai@linux.dev?part=3D1

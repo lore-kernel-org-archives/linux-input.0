@@ -1,107 +1,120 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E0A043BB669
-	for <linux-input@vger.kernel.org>; Wed, 22 Jul 2026 09:47:47 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8DC234BC020;
+	Wed, 22 Jul 2026 09:56:40 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784713669; cv=none; b=OlFebCEMcYEXIltXIvVh26IX4gi0mExLnMVlgW2yTcf7hMj4cRnMlYLNajVdLS8ZMrkj96mihOIAzNYTHQPUcSzXZJ7j09jHwDKguyKqWrYn8r6iKKV7AkasHbG20QujHR5o9MKzPZPPA+GM5IB0D9XWtNAVZ+/qhKbZA+9zLjk=
+	t=1784714203; cv=none; b=PwFkzyZNJ0Te4yLhZsmd5KG1+glDG8tgJawca1Xo014SZxKJtyfVQP3iydjmiZLpCzg6cZMbMWTZ/ilQH6xaUo20eb5kp+WbXoQ0+Nvx/l+Jog5R1OOLE9ZQaAdFQeZTlK1vynem8psiNaavLrUyoMws17wncjZ0Tmwg/z1GDDc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784713669; c=relaxed/simple;
-	bh=8VKy50GOF/Quk+JI1jw3va+Ma7x+OYrlMLPchA2FYTE=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=avo3Ku9ekoYcJRYzJWEpNzn8T/CMIl46T58wPpgWplLE5X+d5jrMr44FC7McVSSbVTa4GCeuOPEbVeW+k4E5DETbbzH6hJpQshofc4fUFOfwqrNfNyPaU187oiP8me1z+OYCRfWvEi+WMiSAMrBLL6IrEFdHQDjVuXQ7riPd3/Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=T0tnHJRK; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1784714203; c=relaxed/simple;
+	bh=qCqgJPnb1PxUj3vAIUc97Jw/ZJZwfxIx8z1tmUOsYTE=;
+	h=Content-Type:MIME-Version:Message-Id:In-Reply-To:References:
+	 Subject:From:To:Cc:Date; b=f2qMXv2bnlSLrtf/Xpd+fic28YN3/TS2zCN/B2uBMKvVIV/XnYX0iwdYdgHw/o5aXxRQnn0h10zWmejjlQLnuLMg8+dXdi44WkQH0kKgm4yxRH5YNNikT4L+Vdg4zbNrmVRL+noIykYYWw9bIwUzkkviht/pe2/FZIxXpZ3bo4Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=iTTuEnUK; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="T0tnHJRK"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 662C21F000E9;
-	Wed, 22 Jul 2026 09:47:47 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="iTTuEnUK"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 842D71F00A3D;
+	Wed, 22 Jul 2026 09:56:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784713667;
-	bh=eZnChMN0cFp3C42Che7VUEMrlJIbB1tXxaaV2ZgaSf0=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=T0tnHJRKwUFstluc+8eXSyET7Z9tYFl6pFCYtuXbvoWjdTJJZkdPoeOjjiqxktkWA
-	 MecANUcHR5QgjLDTxHTy4hXCjNANMAlmGqflxI8jP+dg0ZxAqa3/wRgnV6o0Ofmh4n
-	 9Hf5WwtLcu2Db+uKH2PbVFBxIo29JrrflwqiUDC/wlcNyNWvz/lZV8WWLN9YLtYwMr
-	 EARoCThAIfnwOg5S89Efg7huo8G0x2weGtxK/Gug8KSmU3bgccoIKa53i8cBBuPz8Y
-	 2sLLTsZma/5vmYTCu2c2O42qT8S3S9+m4rpQ+fdt5bG5QPHsGab8tMyJs55JOBYyzC
-	 4nbt0NjCc/QgA==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] HID: i2c-hid: goodix: Disable VDD on VDDIO enable
- failure
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Chao Huang" <958028483@qq.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <tencent_FE1CA7ED99022E1734F8C9CAB538AB477405@qq.com>
-References: <tencent_FE1CA7ED99022E1734F8C9CAB538AB477405@qq.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Wed, 22 Jul 2026 09:47:46 +0000
-Message-Id: <20260722094747.662C21F000E9@smtp.kernel.org>
+	s=k20260515; t=1784714199;
+	bh=2UKinxtwpUhNzmCHSNfCxB0o/RysIEhOfeODCNlOPoo=;
+	h=In-Reply-To:References:Subject:From:To:Cc:Date;
+	b=iTTuEnUKQW7C4i55BdkYOSG2Awg+qdtvweW4/rglmXgra31Eu+PM6mPv/cht4UWFk
+	 fLrjFvUrnn1wqgTk6wnnrN93sXSi3+UffEfcG3KILa8CLmML82j0oCAM/KHWuDt1bl
+	 sYpXlT+DrNmidRHMyJDMpwaFQyr+DkigbsumgMPOAv+WQ26Fqe5qBmPMtzV7ihzoIJ
+	 uXznuCuGQxaKAbAmgZFgLhYEUIMK3a7sMSzPALT0Sm74HXS0RvxY6QmJ92ju59MN17
+	 unSXjen5rxZCe+xajZDk4GmGgueRR1Js5Wcer9bDa0Fl1luJCxMNLfTAa0O/2+yako
+	 LSAUkAc4Vlg6w==
+Content-Type: multipart/mixed; boundary="===============2757309040262801300=="
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Message-Id: <1358b841fb4669aa04fcb84247b91c74dfc8f4749f665f5c2a058d6c2bb17640@mail.kernel.org>
+In-Reply-To: <20260721174833.1232771-2-ziyang.meme@gmail.com>
+References: <20260721174833.1232771-2-ziyang.meme@gmail.com>
+Subject: Re: [PATCH v2 1/4] selftests: add shared lib.bpf.mk to build BPF progs and skeletons
+From: bot+bpf-ci@kernel.org
+To: ziyang.meme@gmail.com,shuah@kernel.org,tj@kernel.org,hannes@cmpxchg.org,mkoutny@suse.com,jikos@kernel.org,bentiss@kernel.org,void@manifault.com,eddyz87@gmail.com
+Cc: arighi@nvidia.com,changwoo@igalia.com,mhocko@kernel.org,roman.gushchin@linux.dev,shakeel.butt@linux.dev,muchun.song@linux.dev,akpm@linux-foundation.org,inwardvessel@gmail.com,mykolal@meta.com,nathan@kernel.org,linux-kselftest@vger.kernel.org,cgroups@vger.kernel.org,linux-input@vger.kernel.org,sched-ext@lists.linux.dev,linux-mm@kvack.org,kernel-team@meta.com,bpf@vger.kernel.org,llvm@lists.linux.dev,linux-kernel@vger.kernel.org,ziyang.meme@gmail.com,ast@kernel.org,andrii@kernel.org,daniel@iogearbox.net,martin.lau@kernel.org,eddyz87@gmail.com,yonghong.song@linux.dev,clm@meta.com,ihor.solodrai@linux.dev
+Date: Wed, 22 Jul 2026 09:56:37 +0000 (UTC)
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
+--===============2757309040262801300==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
 
-Pre-existing issues:
-- [High] Missing NULL check on device_get_match_data() return value leads t=
-o NULL pointer dereference if the driver is instantiated via sysfs.
---
+> diff --git a/tools/testing/selftests/lib.bpf.mk b/tools/testing/selftests/lib.bpf.mk
+> new file mode 100644
+> index 000000000000..6f175c6568e9
+> --- /dev/null
+> +++ b/tools/testing/selftests/lib.bpf.mk
 
---- Patch [1]: [PATCH] HID: i2c-hid: goodix: Disable VDD on VDDIO enable fa=
-ilure ---
-commit 2325dfd5a42520477bfee927eabe09ddf852ba83
-Author: Chao Huang <huangchao@kylinos.cn>
-Subject: HID: i2c-hid: goodix: Disable VDD on VDDIO enable failure
+[ ... ]
 
-This commit prevents a regulator enable count imbalance during device power=
- up.
-It disables the VDD regulator if enabling the VDDIO regulator fails.
+> +# ---- libbpf (target) ------------------------------------------------------
+> +# Pass ARCH/CROSS_COMPILE/CC through: lib.mk's CC is file-origin and is not
+> +# exported, so without this the libbpf sub-make would rebuild for the host under
+> +# a pure-LLVM cross build (make LLVM=1 ARCH=<arch>).  -fPIC keeps the static
+> +# libbpf linkable into position-independent (PIE) test binaries.
+> +$(BPFOBJ): $(wildcard $(BPFDIR)/*.[ch] $(BPFDIR)/Makefile) \
+> +	   $(APIDIR)/linux/bpf.h | $(BUILD_DIR)/libbpf
+> +	$(Q)$(MAKE) $(submake_extras) -C $(BPFDIR) OUTPUT=$(BUILD_DIR)/libbpf/ \
+> +		    ARCH=$(ARCH) CROSS_COMPILE=$(CROSS_COMPILE) CC="$(CC)"     \
+> +		    EXTRA_CFLAGS='-g -O0 -fPIC'				      \
+> +		    DESTDIR=$(SCRATCH_DIR) prefix= all install_headers
 
-> diff --git a/drivers/hid/i2c-hid/i2c-hid-of-goodix.c b/drivers/hid/i2c-hi=
-d/i2c-hid-of-goodix.c
-> index f1597ad67e7c8..f4dbcd1d1d472 100644
-> --- a/drivers/hid/i2c-hid/i2c-hid-of-goodix.c
-> +++ b/drivers/hid/i2c-hid/i2c-hid-of-goodix.c
-> @@ -51,8 +51,10 @@ static int goodix_i2c_hid_power_up(struct i2chid_ops *=
-ops)
->  		return ret;
-> =20
->  	ret =3D regulator_enable(ihid_goodix->vddio);
-> -	if (ret)
-> +	if (ret) {
-> +		regulator_disable(ihid_goodix->vdd);
->  		return ret;
-> +	}
-> =20
->  	if (ihid_goodix->timings->post_power_delay_ms)
+This rule hardcodes EXTRA_CFLAGS='-g -O0 -fPIC' for the libbpf sub-make.
+tools/testing/selftests/bpf/Makefile instead passes
+EXTRA_CFLAGS='-g $(OPT_FLAGS) $(SAN_CFLAGS) $(EXTRA_CFLAGS)'.
 
-[Severity: High]
-This is a pre-existing issue, but can this lead to a NULL pointer
-dereference if the driver is instantiated via the I2C sysfs new_device
-interface?
+With -O0 pinned here, is there a way for someone to build the selftests
+(including libbpf) with -O2, or with sanitizer flags?  Could this at least
+honor the EXTRA_CFLAGS or USERCFLAGS that lib.mk already defines?
 
-In i2c_hid_of_goodix_probe(), the driver unconditionally assigns the
-result of device_get_match_data() to ihid_goodix->timings:
+The same hardcoding shows up in the host libbpf and host bpftool rules
+below, so the same question applies to them:
 
-drivers/hid/i2c-hid/i2c-hid-of-goodix.c:i2c_hid_of_goodix_probe() {
-    ...
-    ihid_goodix->timings =3D device_get_match_data(&client->dev);
-    ...
-}
+> +# ---- libbpf (host) -- a distinct rule only when cross-compiling -----------
+> +ifneq ($(BPFOBJ),$(HOST_BPFOBJ))
+> +$(HOST_BPFOBJ): $(wildcard $(BPFDIR)/*.[ch] $(BPFDIR)/Makefile) \
+> +		| $(HOST_BUILD_DIR)/libbpf
+> +	$(Q)$(MAKE) $(submake_extras) -C $(BPFDIR) ARCH= CROSS_COMPILE=	      \
+> +		    OUTPUT=$(HOST_BUILD_DIR)/libbpf/ CC=$(HOSTCC) LD=$(HOSTLD) \
+> +		    EXTRA_CFLAGS='-g -O0'				      \
+> +		    DESTDIR=$(HOST_SCRATCH_DIR) prefix= all install_headers
+> +endif
+> +
+> +# ---- bpftool (host) -------------------------------------------------------
+> +$(DEFAULT_BPFTOOL): $(wildcard $(BPFTOOLDIR)/*.[ch] $(BPFTOOLDIR)/Makefile) \
+> +		    $(HOST_BPFOBJ) | $(HOST_BUILD_DIR)/bpftool
+> +	$(Q)$(MAKE) $(submake_extras) -C $(BPFTOOLDIR)		  \
+> +		    ARCH= CROSS_COMPILE= CC=$(HOSTCC) LD=$(HOSTLD) \
+> +		    EXTRA_CFLAGS='-g -O0'			  \
+> +		    OUTPUT=$(HOST_BUILD_DIR)/bpftool/		  \
+> +		    LIBBPF_OUTPUT=$(HOST_BUILD_DIR)/libbpf/	  \
+> +		    LIBBPF_DESTDIR=$(HOST_SCRATCH_DIR)/		  \
+> +		    prefix= DESTDIR=$(HOST_SCRATCH_DIR)/ install-bin
 
-When created via sysfs (e.g., echo gt7375p 0x12 > new_device), the device
-lacks an OF/fwnode, so device_get_match_data() returns NULL.
+[ ... ]
 
-Does this cause a crash when ihid_goodix->timings is subsequently
-dereferenced here in goodix_i2c_hid_power_up()?
+On the commit message:
 
->  		msleep(ihid_goodix->timings->post_power_delay_ms);
+>     This saves much work for configuring selftests in other folder, such the cgroup.
 
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/tencent_FE1CA7ED990=
-22E1734F8C9CAB538AB477405@qq.com?part=3D1
+This isn't a bug, but could this sentence be tightened?  "in other
+folder" and "such the cgroup" read a little awkwardly, and the preceding
+text already explains the deduplication rationale.  Perhaps something like
+"This eases adding BPF-based selftests in other directories, such as
+cgroup."
+
+
+---
+AI reviewed your patch. Please fix the bug or email reply why it's not a bug.
+See: https://github.com/kernel-patches/vmtest/blob/master/ci/claude/README.md
+
+CI run summary: https://github.com/kernel-patches/bpf/actions/runs/29908293077
+--===============2757309040262801300==--

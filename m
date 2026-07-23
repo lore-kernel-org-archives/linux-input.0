@@ -1,93 +1,141 @@
-Received: from mail-pg1-f178.google.com (mail-pg1-f178.google.com [209.85.215.178])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from pdx-out-001.esa.us-west-2.outbound.mail-perimeter.amazon.com (pdx-out-001.esa.us-west-2.outbound.mail-perimeter.amazon.com [44.245.243.92])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2521C395AD8
-	for <linux-input@vger.kernel.org>; Thu, 23 Jul 2026 17:53:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.178
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A844D14883F;
+	Thu, 23 Jul 2026 17:53:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=44.245.243.92
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784829198; cv=none; b=FlzH+dcgGD4Pn/zRDhg0e8o/vmQKna+Sd4Pg0Ir4gC7LGuLCAiwMVh3D5TuSdUdpfR45ZWVJGPGIX6oiXirCmInbL9kiLhcY7V2rV6nWq7yfa0DBOijAsJOt0dy0AsjWolQU3KIo96W+0h/SOTHTcxHNQCmK1nBfGZRfcllmmhc=
+	t=1784829220; cv=none; b=GipYwANZIMFcauOSoMWjn2WzQR6N81UBePsQfnu7Ef3+V/oVdlisSrlGpivrwnbWbJFM+tpJgiwNHs455oYOzjijRlBIrg66gri0cBDkxzHkyZZfHikF5StD7+nJmu8rG7hAcEwZ5bbFaXmt7ldul3ocHZozuonyKke4LxBEfkM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784829198; c=relaxed/simple;
-	bh=bXt8BWHoi6WjvH9J91ZlaE14yN7FYK0b5KP8qFrl3dw=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=JApYBtqAra09kDeN4dXjkTyyFc9YhcoImnOA/oSBLoPfmGSxJyfAIpr+khFtJZ8CqE2xhgdOUDHINOHP7mAK64IsYXIeU/B7sMhvWm7oiM+4pZA31gpQj5Df1YGGvmNswz43EI2Xe3dXctbwcikwHMx84wIHbSvc/vrpJlqreUE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=BomhkimH; arc=none smtp.client-ip=209.85.215.178
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1784829220; c=relaxed/simple;
+	bh=uoZoVwOPdmdlUK8IwvU+L50ZgJrmKaIJlodOtkreFrc=;
+	h=From:To:Subject:Date:Message-ID:MIME-Version:Content-Type; b=GfmOh/0xXWSierIBZyHSlANwFsoUjGOZSkGMP0qDAeS0/RRhMsggVIXfdOYvulM2TvQhpSsWZ3Hd32hzCoMHSfRSrf1A95+ZvKd2+5HeZAUFxUdkXnbn4mKlhVWzQ+TpAcqP1f0ESbHtzxDO6dEoGrT8MtPIcmEuMO4PgL93Dlg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com; spf=pass smtp.mailfrom=amazon.com; dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b=dC6kr7E0; arc=none smtp.client-ip=44.245.243.92
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=amazon.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="BomhkimH"
-Received: by mail-pg1-f178.google.com with SMTP id 41be03b00d2f7-ca957432c7fso727928a12.1
-        for <linux-input@vger.kernel.org>; Thu, 23 Jul 2026 10:53:17 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b="dC6kr7E0"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784829196; x=1785433996; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=PiY9z17CCWjVP+IRPI5g7TJ4J7BNOU9OnVtXhkrBfb4=;
-        b=BomhkimHo5G63zj0i+tvd3YeleNWFIgHUwbhV5oAYftbvMQCx6G37EYKeF7J2NxqsP
-         w9+/DwaFXW6m0peskpIM6Guj/Bn01zkRkhT7LyP7OMqb+K0c1msL9TlJleQbExvJuETU
-         +tAiwqw39efTUyHvlwJbAXN36ycVAACUpgZXpIvcmdJm6WZafY9HalTxNkNFAcxfiLgA
-         9XA4OiW6oY6fs7yqRLi8R/heBeAKHotxmZVvVd+OO/GRJOGllr0pkZ9ncNdkXUCJf3/J
-         avU9R1op6XDdqwOqI7t0uDWnaI5AEayFxe85x2XWQi7WSnylKM0pm0tkLZ2UNhq7w98p
-         xJWg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784829196; x=1785433996;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=PiY9z17CCWjVP+IRPI5g7TJ4J7BNOU9OnVtXhkrBfb4=;
-        b=k7NXTkvaJlByzHIEyBuSTTy+hEjKkI3tGMVi5KEWCOTtZidP2C8PI7WTuTSWgGmSTC
-         WB3mfNOKP3Rnnqi1LG9HRwNXCg2IELY5yca4wOVsohdMoqa8Z8J/a39FcWKmv8dnruWZ
-         c+AgmZO/8GeZz58FBRZ6lqQ5/GHsGNdC/FXB/ED3g1JVD5vP0yw7pyla/svuqj5uPCRr
-         dTUOBpx9s/ftuENEMuc2trsKntG6T3WbCXFuLa99SbvplROkk7Qp8MKK6Bot+LuSRb6g
-         fhgFOUSY/DOFphF7Rw3cJX7B3grR50v522DnEEYJPVzDPp8CZMBzraZMJJwIiqYrhGt3
-         +xdg==
-X-Gm-Message-State: AOJu0YwDGRn6tu0Cn6leLd/SSceojB5ZRC+JWycLpi0ExH+mPbRhANRw
-	1t5F1K18sUSJ8NY8/zbexq466gDgmtbbAVYAFy87N6EPXu6k20sjW76u
-X-Gm-Gg: AR+sD10LxlCBS4QiPh9JiLmWucs3DtEh/aHP+EJPAs3hEn8Xa7Xt1pKHUr4JyO+uDut
-	xGKRJhGBf9PV08kxAF8GjYUjxJE50xOdpM6gZ3OxPLszLkaRA0NskiTo0cGIaqiJwlcjPhps7h4
-	BUuO2NQnT/aZYoIvK1NjOj3u+iNtm0643z8vytIQx/27SEUafA72A4wq1cJg8tE2QLgFWdw7Wpo
-	zrr6NfMruHGm7fVLaH0BMnKyQr73S02P63wz0DgsB8DmsfO0Hv7KZ6vt6bVtPNZDRrfIRLtEqMR
-	OKJaMv6v8pv5ZZ7gVx+ENY/2ZzOttZKIrEEejNx3bRshMZxMzDde9YBpPb40pxO8lG+4c2cIrbW
-	v+gyqvjXRLLhkL+IP1D8O2K+zEZEsMqcm1rfgnNum8MSsxm8X5H0L/lP/mRpLpYKtUDegZYCMQl
-	U3O/pHGaJ7nlTfb+b+LTm/7qPpn9Ta/ANUjQY40m+kYg==
-X-Received: by 2002:a05:6a20:4323:b0:3c3:c07b:5322 with SMTP id adf61e73a8af0-3c44b0148b0mr4288981637.34.1784829196286;
-        Thu, 23 Jul 2026 10:53:16 -0700 (PDT)
-Received: from google.com ([2a00:79e0:2ebe:8:f5d:dfe5:9bb9:71ad])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3147e1c9289sm22178711eec.29.2026.07.23.10.53.15
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 23 Jul 2026 10:53:15 -0700 (PDT)
-Date: Thu, 23 Jul 2026 10:53:12 -0700
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Kyohei Kadota <lufia@lufia.org>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Input: xpad - add support for ZENAIM LEVERLESS
-Message-ID: <amJUufz21YuUCO4E@google.com>
-References: <CAFMepckDUuOHiDDVVhUYc-UqJMeCqrWSfCuxbJ2x2sGgdDD4nw@mail.gmail.com>
+  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazoncorp2;
+  t=1784829219; x=1816365219;
+  h=from:to:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=VRR830S5Crc5qLMak5M08xcwDHqS7wix0djaEazdHfc=;
+  b=dC6kr7E0n/VMEE6xMPkyZeNAmTvIE6MJVjUKR/5Xc0suOaR31qgAi4gl
+   pd+eQZ9SyQROOgZdrqjRmMPWOJco0C5cfupPlnT7JqYEddw+MERIQAsqC
+   2QnM7S9x3D4q3ZHtbr4aApWwWHlE9L65S3zzj0uk9AXgBQE1loKqQ05uZ
+   /A1VOz7vOLm2iZzwqObYTnHseppTxF1vD7W3b6H+DhLWJI7loyCBpnktg
+   1YHQjWxMJpUsatzVjW8bzMklVkuPJ8W0G9DBGSD8zGAjCBNA0UWIVHILl
+   GAT7V7W6e3rn7V6Ixhw+wLhT8sgbysst5SbRRup/kXxLqpSg+PSJM0JZn
+   w==;
+X-CSE-ConnectionGUID: hQH62+quTTKqUPCe8dab8g==
+X-CSE-MsgGUID: 5eTgeY77QKWhwQVb6PB5Nw==
+X-IronPort-AV: E=Sophos;i="6.25,181,1779148800"; 
+   d="scan'208";a="23748203"
+Received: from ip-10-5-0-115.us-west-2.compute.internal (HELO smtpout.naws.us-west-2.prod.farcaster.email.amazon.dev) ([10.5.0.115])
+  by internal-pdx-out-001.esa.us-west-2.outbound.mail-perimeter.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Jul 2026 17:53:36 +0000
+Received: from EX19MTAUWA002.ant.amazon.com [205.251.233.234:5323]
+ by smtpin.naws.us-west-2.prod.farcaster.email.amazon.dev [10.0.12.152:2525] with esmtp (Farcaster)
+ id 630eda6d-2947-4491-9f8d-3b91b305424a; Thu, 23 Jul 2026 17:53:36 +0000 (UTC)
+X-Farcaster-Flow-ID: 630eda6d-2947-4491-9f8d-3b91b305424a
+Received: from EX19D001UWA001.ant.amazon.com (10.13.138.214) by
+ EX19MTAUWA002.ant.amazon.com (10.250.64.202) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.2562.43;
+ Thu, 23 Jul 2026 17:53:36 +0000
+Received: from dev-dsk-farbere-1a-46ecabed.eu-west-1.amazon.com
+ (172.19.116.181) by EX19D001UWA001.ant.amazon.com (10.13.138.214) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.2562.43; Thu, 23 Jul 2026
+ 17:53:31 +0000
+From: Eliav Farber <farbere@amazon.com>
+To: <rafael@kernel.org>, <tony.luck@intel.com>, <bp@alien8.de>,
+	<guohanjun@huawei.com>, <mchehab@kernel.org>, <xueshuai@linux.alibaba.com>,
+	<lenb@kernel.org>, <laurent.pinchart@ideasonboard.com>, <linusw@kernel.org>,
+	<brgl@kernel.org>, <orsonzhai@gmail.com>, <baolin.wang@linux.alibaba.com>,
+	<zhang.lyra@gmail.com>, <jic23@kernel.org>, <dlechner@baylibre.com>,
+	<nuno.sa@analog.com>, <andy@kernel.org>, <dmitry.torokhov@gmail.com>,
+	<hansg@kernel.org>, <ilpo.jarvinen@linux.intel.com>, <W_Armin@gmx.de>,
+	<ukleinek@kernel.org>, <fabio.m.de.francesco@linux.intel.com>,
+	<kaihengf@nvidia.com>, <ankita@nvidia.com>, <leitao@debian.org>,
+	<farbere@amazon.com>, <jason@os.amperecomputing.com>, <pedro.pbg@usp.br>,
+	<paulmck@kernel.org>, <frederic@kernel.org>, <kees@kernel.org>,
+	<linux-acpi@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+	<linux-gpio@vger.kernel.org>, <linux-pwm@vger.kernel.org>,
+	<linux-iio@vger.kernel.org>, <linux-input@vger.kernel.org>,
+	<platform-driver-x86@vger.kernel.org>
+Subject: [PATCH 00/12] notifier: add device-managed registration APIs and convert drivers
+Date: Thu, 23 Jul 2026 17:53:13 +0000
+Message-ID: <20260723175325.37397-1-farbere@amazon.com>
+X-Mailer: git-send-email 2.47.3
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAFMepckDUuOHiDDVVhUYc-UqJMeCqrWSfCuxbJ2x2sGgdDD4nw@mail.gmail.com>
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: EX19D031UWC002.ant.amazon.com (10.13.139.212) To
+ EX19D001UWA001.ant.amazon.com (10.13.138.214)
 
-Hi Kyohei,
+Many drivers repeat the same boilerplate when registering notifiers with
+device lifetime:
 
-On Thu, Jul 23, 2026 at 07:55:57PM +0900, Kyohei Kadota wrote:
-> Add the VID/PID for the ZENAIM LEVERLESS controller to xpad_device and
-> the VID to xpad_table.
-> 
-> Signed-off-by: KADOTA, Kyohei <lufia@lufia.org>
+  1. Register the notifier with *_notifier_chain_register()
+  2. Check for error
+  3. Register a devm action to unregister on teardown
+  4. Implement a per-driver static unregister callback
 
-Your editor or mailer converted tabs to spaces. I fixed it up and
-applied, but just wanted to let you know in case you'd want to submit
-more patches in the future.
+This series adds devm_atomic_notifier_chain_register(),
+devm_blocking_notifier_chain_register(), and
+devm_raw_notifier_chain_register() that automatically unregister the
+notifier when the device is unbound, then converts 11 drivers to use
+them.
 
-Thanks.
+Each conversion eliminates a per-driver unregister callback and the
+associated devm_add_action_or_reset() call, reducing code by ~15 lines
+per driver.
+
+The implementation follows the established devres pattern used by other
+device-managed kernel APIs.
+
+Checkpatch reports 6 CHECKs (0 errors, 0 warnings) on patch 1:
+- "extern prototypes should be avoided in .h files"
+- "Alignment should match open parenthesis"
+
+Both are intentional to match the existing coding style in notifier.h,
+where all declarations use 'extern' and tab-indented continuation lines.
+
+Eliav Farber (12):
+  notifier: add device-managed registration APIs
+  pwm: iqs620a: use devm_blocking_notifier_chain_register()
+  iio: light: iqs621-als: use devm_blocking_notifier_chain_register()
+  iio: position: iqs624: use devm_blocking_notifier_chain_register()
+  gpio: adp5585: use devm_blocking_notifier_chain_register()
+  platform/x86: bitland-mifs-wmi: use
+    devm_blocking_notifier_chain_register()
+  Input: adp5585: use devm_blocking_notifier_chain_register()
+  ACPI: APEI: GHES: use devm_blocking_notifier_chain_register()
+  platform/x86: uniwill-wmi: use devm_blocking_notifier_chain_register()
+  gpio: eic-sprd: use devm_atomic_notifier_chain_register()
+  gpio: gpiolib-kunit: use devm_blocking_notifier_chain_register()
+  reboot: use devm_blocking_notifier_chain_register()
+
+ drivers/acpi/apei/ghes.c                   |  15 +-
+ drivers/gpio/gpio-adp5585.c                |  20 +--
+ drivers/gpio/gpio-eic-sprd.c               |  17 +--
+ drivers/gpio/gpiolib-kunit.c               |  14 +-
+ drivers/iio/light/iqs621-als.c             |  24 +---
+ drivers/iio/position/iqs624-pos.c          |  24 +---
+ drivers/input/keyboard/adp5585-keys.c      |  18 +--
+ drivers/platform/x86/bitland-mifs-wmi.c    |  17 +--
+ drivers/platform/x86/uniwill/uniwill-wmi.c |  17 +--
+ drivers/pwm/pwm-iqs620a.c                  |  21 +--
+ include/linux/notifier.h                   |  10 ++
+ kernel/notifier.c                          | 151 +++++++++++++++++++++
+ kernel/reboot.c                            |  24 +---
+ 13 files changed, 191 insertions(+), 181 deletions(-)
 
 -- 
-Dmitry
+2.47.3
+

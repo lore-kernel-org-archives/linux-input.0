@@ -1,119 +1,103 @@
-Received: from mail-lf1-f41.google.com (mail-lf1-f41.google.com [209.85.167.41])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4C94437D121
-	for <linux-input@vger.kernel.org>; Thu, 23 Jul 2026 10:56:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.167.41
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784804177; cv=pass; b=df71IoKSn2JufCYyYN703SewkKavnx11wLpopY2wrsQSWMGNy/yj7Oj/+6EVCslTqmVzPkBjYUWhB2IT0ROp0n1RQHtLQES0LU2GVWVnr1MDeU+lWjbaEZoXdretzA+2mYlRtcSijEadJUohVopyh/e6w/YtClBi2kFzMh5UtNQ=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784804177; c=relaxed/simple;
-	bh=7ESylAJMGnOGq8uN6t98ZTfVb6YRyZ5WSuZVidpLRhA=;
-	h=MIME-Version:From:Date:Message-ID:Subject:To:Cc:Content-Type; b=OgURYh+5L/bqqOAPnaubH3vwV+Srl+hyv7gmg8EqHcoCG7qeXGjkXkmO3jMTE4Ub51EY1XKz8H0NPfzyXN20/+gM6bwnwyQlgdYcaex0oY99coKxEeOjg47gFRfVpIbfvbxrPju+VAuZ05cmsV0kf3zqEvDi5fFD4Mb6QdfrPGk=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=lufia.org; spf=pass smtp.mailfrom=lufia.org; dkim=pass (2048-bit key) header.d=lufia-org.20251104.gappssmtp.com header.i=@lufia-org.20251104.gappssmtp.com header.b=Tzqj/D7P; arc=pass smtp.client-ip=209.85.167.41
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=lufia.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=lufia.org
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EFFAB43B49B;
+	Thu, 23 Jul 2026 11:27:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1784806030; cv=none; b=TyK6VzuDtH1OwKG2x/cZKsjFRaLH87OeinnjhFtd/CVXs3A9Ii3ew/ROoscZ3L1ilgt8NQJvXbEp/tIYN6cCJoKLYs9OHvy8Kkk8PMXQiljg/kCRSUl29DujA6mXBGkKLbgbcaVgxvuhLnNXaoTR2rlsrHLjlsSFXuQ4nw6OdOo=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1784806030; c=relaxed/simple;
+	bh=hzHKgZ4D+jeJoYuFb7yM5jGzuM70NqWd6XTX2mLqxlo=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=OJJovd6uwpH8TN3qWfD9G+xSsAcTFu3wEqGbVC3Ao9ntbUUvWCqSFREeVpmLeIB0YLxG5w0KGckvf8LZxtyvhXJja0F98X1xhWcIDpicESC4XwrvZXGosJiaKsKDbtfsZiK+gn5suTszjLJ0anVg9vcUwSpVG17b5agWUOemNyA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=QTljDhYS; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=lufia-org.20251104.gappssmtp.com header.i=@lufia-org.20251104.gappssmtp.com header.b="Tzqj/D7P"
-Received: by mail-lf1-f41.google.com with SMTP id 2adb3069b0e04-5b015b2d792so481512e87.3
-        for <linux-input@vger.kernel.org>; Thu, 23 Jul 2026 03:56:12 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1784804169; cv=none;
-        d=google.com; s=arc-20260327;
-        b=BocnIETexGeEOWxxNt292n7y1gMew5afHmGKykKIfgB5uKRtU0HUxx3zvWoxuRcv3j
-         7hHEFqYVPRt5j+QgiC7JgVGxUBGmNxu2LCha/9yTLJCi9zbwznHgLyHjJxNny5NNwche
-         VBVgnsqi4eCr0vWhPyJzx7AvL41iajEYUjK8CrYJNMQA+dF+B25tRwOMYwTY2CkYdYX+
-         nagjaC8RHUGPuTuZ/mVfoxf8ZShJmNxaX6EuT9WBCDV+d0ooSmdbUfk4r5seak0bSKZz
-         tjXnYsLrfbaWqLoJ1j5yirSMVhDTBFOXcgcx/nGsCDUromfBWFgrKosdtp+RA+xJxAUo
-         K+hg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=cc:to:subject:message-id:date:from:mime-version:dkim-signature;
-        bh=C59NPkqXUrbnCZ8VXt3TFXDT6EMSpEqk8jhlfw5gTv8=;
-        fh=aU9qPfDfLJEZlDqh1q6n6WY/02+PfIDt4/JLaGomBu8=;
-        b=kGRsnUwAMtkha0tYzZ9lNq5nnHuS0xZEbjgDyFrWKJPhKRoiJlfRIpGgNpUArizFJE
-         7W3Mj7x+xr1I8iamFShBcSvhNo7fawoLKJ0admEeqkFiJEwsLW5j14bLKRnVUBikPCNg
-         u1m2njLeLSUtd9/X1zg0eNPF3IUlZG2UM/xjWe/I92vEIDGjtLGgQ9lK3fTr1ZPKfM2j
-         WZQ7kB51rt5aJy2gGoxI6ykZ1yUHO6hXLUMOzke0hwYCtKMXgBWXjQh/t5iRwqus0BSG
-         WA5zMkuE6q4+V8HgtNhXDf+7XA138NY+6CDhePTPkHUqbif+q1iClx93YwWVuSUJoltj
-         aMQA==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=lufia-org.20251104.gappssmtp.com; s=20251104; t=1784804169; x=1785408969; darn=vger.kernel.org;
-        h=content-type:cc:to:subject:message-id:date:from:mime-version:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=C59NPkqXUrbnCZ8VXt3TFXDT6EMSpEqk8jhlfw5gTv8=;
-        b=Tzqj/D7P9ndF5qFOzkF5sDKpNkp6Ik3LuWBOEtj59ioi0bRVkPcKmlpCx9qmYQET6F
-         CagoFERZwarPzTZHRe4xLqGNXroXDwLszyA6+CY05DBqOzf/vZtavxkhWpRFj2JFWJU7
-         ZVs3vgFaEJoKynQQP5tJITt1LbrxBhJ6tqAU0Db4h2w2ogRVnzFyPN0YL0mqSTEHSUaw
-         4Cy2A1opgPSY7bQIfrFhVJYc2up2Eh/DMc7dVLg4aJrBjihs3wBIZDxkDWLjSuBavSN2
-         3si+myLpFh10jXsSILAZPJfchuXET9QRL0pky1xC+vweKZOJx5YMrdAQHhl1LmFpWsrU
-         2zpA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784804169; x=1785408969;
-        h=content-type:cc:to:subject:message-id:date:from:mime-version
-         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to:content-type;
-        bh=C59NPkqXUrbnCZ8VXt3TFXDT6EMSpEqk8jhlfw5gTv8=;
-        b=AYmaIVkzVxbcIoeket7aOZcMYDdBCsY06oFpYiaQrQzrdKjZFrsXMh2QLkw5ah8k/S
-         MezDf+A5Crs1yQJmeAwoCngzwSlYtE9wW0sLiSeZ1TYxEOAidWVlh/iK1f3r/NBMEH5l
-         nMqW7AXdXTH4Qfc05s6nkXRiUqF0Q++uUioNt1cRZFMurAw94MRxkpGSilrGC/Qv027Y
-         Lobw3nS3vR03nibqThYg/l0A2LiJ2dp/xkfWt4Icz+6zgS9ZzSPFQVKU7UtiCArbTw6J
-         x1u6bgOCOHCP+nm05cA8jS9M6sFJ58r3V015kTNDeTKN3fz+YaIma/sUnxI0Y2ZL/BCu
-         Y4Mw==
-X-Gm-Message-State: AOJu0YyeTm23C6W5s9sWTK0xNBMlEQ2bk7zl4Ea4+bz5dqHstcIyx5g2
-	CgsSa4Ey+7FiFACkeuqjBeSXM14mrB46HIejxdVrm382vEk5nbZ/tazH5HfgQLqMRT9JQg7d4bd
-	F1oN+XbK4E1l2aVWlQoigGjormIhjL9oiSi2SzOFX6A==
-X-Gm-Gg: AR+sD11/oDZLPzfyRPiIALJORquw4UhAwbcbADK3NBmChgbbdRElnV2TsSp9aD4PNLX
-	9ktrOPDog4+gQouTCc3kI2xGwf0hfkgUBiGnpHgippGqbvhIw2eOPFC2PIen7jVOdaK++6soEmF
-	m5a3hJDfPHx6VxUmlMg0bHh4FRt8ZtVpQif38Mf9EprmzY2r3XZJKclEWoZnMK+70FWUe1xXHqK
-	StRZxW0+cJ1iNE2vBnNAPUfZav2TPe1PuPpSiT9eprfoIi6Jb/axiLdxDsE
-X-Received: by 2002:a05:6512:61d5:10b0:5ae:b75e:454d with SMTP id
- 2adb3069b0e04-5b2b2f728e8mr409087e87.45.1784804168580; Thu, 23 Jul 2026
- 03:56:08 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="QTljDhYS"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id C6EB0C2BCC7;
+	Thu, 23 Jul 2026 11:27:09 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1784806029;
+	bh=hzHKgZ4D+jeJoYuFb7yM5jGzuM70NqWd6XTX2mLqxlo=;
+	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
+	b=QTljDhYSwgFzeA/1TwD7zB+WurAqS8b/Yd8JXWzxOFnTwfQG0ZRRrIOGkwNFl212I
+	 7+IsZBlw87YdFO/opC+HqtcAjPeIttipFNW36CrCKttNeDCOeuFPhAgjFxHneA/ssY
+	 nxnF1uSJJignVecafquspEqItcCEbvau+MWc9DwuyZb3RqQzi+YVQmvfh1ZCray+qI
+	 Rc9knNPDvQ7oYwHu8KHU4eeBaXey9InjiEOy+GVJOeMp5puIzDYGxs54enFFb9GRN8
+	 B6DyLbQWLY8U1YbMc5rKloS57diKNKEh9HxHYg8tqL2At3+pFUFKuyXcRi6QLNWs8S
+	 jPui0cv8WduFg==
+Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B2A6CC531CF;
+	Thu, 23 Jul 2026 11:27:09 +0000 (UTC)
+From: Alexandre Hamamdjian via B4 Relay <devnull+azkali.limited.gmail.com@kernel.org>
+Date: Thu, 23 Jul 2026 18:27:08 +0700
+Subject: [PATCH 1/4] Input: edt-ft5x06 - ignore contacts with an
+ out-of-range slot id
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-From: Kyohei Kadota <lufia@lufia.org>
-Date: Thu, 23 Jul 2026 19:55:57 +0900
-X-Gm-Features: AUfX_mxc1WBiuokUzNxPKmDxj0emBFUuBj_sgHyznt2-SoB6-lGFaLsw2Dviqwo
-Message-ID: <CAFMepckDUuOHiDDVVhUYc-UqJMeCqrWSfCuxbJ2x2sGgdDD4nw@mail.gmail.com>
-Subject: [PATCH] Input: xpad - add support for ZENAIM LEVERLESS
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20260723-b4-ft5426-v1-1-d4b4e32be042@gmail.com>
+References: <20260723-b4-ft5426-v1-0-d4b4e32be042@gmail.com>
+In-Reply-To: <20260723-b4-ft5426-v1-0-d4b4e32be042@gmail.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
+ Henrik Rydberg <rydberg@bitmath.org>, Rob Herring <robh@kernel.org>, 
+ Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+ Conor Dooley <conor+dt@kernel.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ devicetree@vger.kernel.org, Alexandre Hamamdjian <azkali.limited@gmail.com>
+X-Mailer: b4 0.15.2
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1784806028; l=1395;
+ i=azkali.limited@gmail.com; s=20260510; h=from:subject:message-id;
+ bh=D0XuFOboekFyulaNFU7MxXVtoV8b4Kp9OM9aoWYiFTo=;
+ b=oso77UFU2tWgwp7TRwwFdKsBZiu0lKjhhcLPJNm0fpO3hsaHh+HTKbV8LSrOdbE2Q3op2RQu1
+ 6OwLQ8qvABnD13r3CHrfXX2JWjVBjZF531nfbvGbgHss0RKGNsql16+
+X-Developer-Key: i=azkali.limited@gmail.com; a=ed25519;
+ pk=I0Z0IdCdQJqNGX+FQUnXhrHg950u3cM6Xzz3YT6JOyQ=
+X-Endpoint-Received: by B4 Relay for azkali.limited@gmail.com/20260510 with
+ auth_id=774
+X-Original-From: Alexandre Hamamdjian <azkali.limited@gmail.com>
+Reply-To: azkali.limited@gmail.com
 
-Add the VID/PID for the ZENAIM LEVERLESS controller to xpad_device and
-the VID to xpad_table.
+From: Alexandre Hamamdjian <azkali.limited@gmail.com>
 
-Signed-off-by: KADOTA, Kyohei <lufia@lufia.org>
+The per-contact slot id is taken from the top nibble of the third
+report byte, so it can be any value from 0 to 15. The driver only
+allocates max_support_points MT slots (2 to 10 depending on the
+variant), so a report that carries an id at or above that count - be it
+a genuinely higher-numbered contact or a corrupted byte - is outside the
+range the input core was told about.
+
+input_mt_slot() silently ignores an ABS_MT_SLOT beyond num_slots and
+leaves the current slot unchanged, so the following
+input_mt_report_slot_state()/touchscreen_report_pos() pair is applied to
+whichever slot happened to be selected last, reporting the contact at the
+wrong position. Skip such entries instead.
+
+Signed-off-by: Alexandre Hamamdjian <azkali.limited@gmail.com>
 ---
- drivers/input/joystick/xpad.c | 2 ++
+ drivers/input/touchscreen/edt-ft5x06.c | 2 ++
  1 file changed, 2 insertions(+)
 
-diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
-index feb8f368f834..2da0b7f1722a 100644
---- a/drivers/input/joystick/xpad.c
-+++ b/drivers/input/joystick/xpad.c
-@@ -394,6 +394,7 @@ static const struct xpad_device {
-     { 0x3285, 0x0646, "Nacon Pro Compact", 0, XTYPE_XBOXONE },
-     { 0x3285, 0x0662, "Nacon Revolution5 Pro", 0, XTYPE_XBOX360 },
-     { 0x3285, 0x0663, "Nacon Evol-X", 0, XTYPE_XBOXONE },
-+    { 0x3507, 0x000b, "ZENAIM LEVERLESS", 0, XTYPE_XBOX360 },
-     { 0x3537, 0x1004, "GameSir T4 Kaleid", 0, XTYPE_XBOX360 },
-     { 0x3537, 0x100f, "GameSir Nova 2 Lite", 0, XTYPE_XBOX360 },
-     { 0x3537, 0x1010, "GameSir G7 SE", 0, XTYPE_XBOXONE },
-@@ -557,6 +558,7 @@ static const struct usb_device_id xpad_table[] = {
-     XPAD_XBOX360_VENDOR(0x31e3),        /* Wooting Keyboards */
-     XPAD_XBOX360_VENDOR(0x3285),        /* Nacon GC-100 */
-     XPAD_XBOXONE_VENDOR(0x3285),        /* Nacon Evol-X */
-+    XPAD_XBOX360_VENDOR(0x3507),        /* ZENAIM Controllers */
-     XPAD_XBOX360_VENDOR(0x3537),        /* GameSir Controllers */
-     XPAD_XBOXONE_VENDOR(0x3537),        /* GameSir Controllers */
-     XPAD_XBOX360_VENDOR(0x3651),        /* CRKD Controllers */
+diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/touchscreen/edt-ft5x06.c
+index d3b1177185a3..d6c3d033b83d 100644
+--- a/drivers/input/touchscreen/edt-ft5x06.c
++++ b/drivers/input/touchscreen/edt-ft5x06.c
+@@ -331,6 +331,8 @@ static irqreturn_t edt_ft5x06_ts_isr(int irq, void *dev_id)
+ 			swap(x, y);
+ 
+ 		id = (buf[2] >> 4) & 0x0f;
++		if (id >= tsdata->max_support_points)
++			continue;
+ 
+ 		input_mt_slot(tsdata->input, id);
+ 		if (input_mt_report_slot_state(tsdata->input, MT_TOOL_FINGER,
 
-base-commit: 248951ddc14de84de3910f9b13f51491a8cd91df
 -- 
 2.55.0
+
+

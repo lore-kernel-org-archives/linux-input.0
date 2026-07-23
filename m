@@ -1,63 +1,64 @@
-Received: from mail-wm1-f49.google.com (mail-wm1-f49.google.com [209.85.128.49])
+Received: from mail-wr1-f45.google.com (mail-wr1-f45.google.com [209.85.221.45])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 01F1A43B4A3
-	for <linux-input@vger.kernel.org>; Thu, 23 Jul 2026 10:06:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6218743BDB7
+	for <linux-input@vger.kernel.org>; Thu, 23 Jul 2026 10:06:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.45
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784801181; cv=none; b=CvXHgMh6XU0uQSVlsbat+62FFWdJNEP+YUwNEe3bfekZLcmH6sZxOG5/Au467xqRVnQaX+bqcBC//8U124VEyA5ELsXmAG72hsW705SMazWEcua2VQmrEzQjmU6FHaZJtazSNkVcM52+0XBDYcjxxIwpzerfrVCiAlCV7VQJElU=
+	t=1784801185; cv=none; b=Hmol+HXZkJuomMMIm2UdSGS8LwY61bhsV/56DEAHvnH5Q3ojOSlFSy0OtyICadCxLIxsr/OqakoVUZ1ZBZvd+J5ZQdST5ndmujnZQ990/MNuQNK/RJvfJNCQlef11YMuGcrHlYov85dhD3cUH4gzvudcWnNIPMjB4Czg0pagOAQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784801181; c=relaxed/simple;
-	bh=kqwgEUYByWeKCt8A1G20ZW6yeKjOibdlAuv2gZFEVqg=;
+	s=arc-20240116; t=1784801185; c=relaxed/simple;
+	bh=663EE6043TD1T8mogiFdsiWLMBTKlwmyx3z0Ky5gDsE=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=cPQRjyRDAMVuqcApzQAxoiNLBk0Twp7itW6Ur0/+OQ/zxkmiDTMV1VuAKFbTNATbhbwah313J2XqY0mOAna99mjs+0pH4owjzD5mpm8xhG8Lc378whVJQDvQma+1L8fAvMiCmUDPe58NEJINrdobA05zAikDKsqcaVNXfoJOrzY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=LpFwFBQK; arc=none smtp.client-ip=209.85.128.49
+	 MIME-Version:Content-Type; b=UScEIvn+nqLnWh0zp/jTFVEj63VFsDEC+FPO6t7PbGe/jhRvpnycT6Sh/JWFhHbH37HqwKCxV7wDsO4ncK2tDCEL+b74tc5MIaOw+cgm6pU0LKvbp7k+Xn1y4w14GW0HffNaf47g7cz4ZmHrTzsWSzL/R0iPmBi9uJEXvURKU6Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=mh4AkeKG; arc=none smtp.client-ip=209.85.221.45
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="LpFwFBQK"
-Received: by mail-wm1-f49.google.com with SMTP id 5b1f17b1804b1-49554ebb87dso5135735e9.3
-        for <linux-input@vger.kernel.org>; Thu, 23 Jul 2026 03:06:19 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="mh4AkeKG"
+Received: by mail-wr1-f45.google.com with SMTP id ffacd0b85a97d-47de008b020so262952f8f.1
+        for <linux-input@vger.kernel.org>; Thu, 23 Jul 2026 03:06:22 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784801178; x=1785405978; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=6g+koxDLN1Chjep218/XBMsTlfwQifOiOfABmvTzX4A=;
-        b=LpFwFBQKShOgdfhRoBRsuw+SLLE1s+QvsSL5qFnSTAyeg+7Kr8dRPeMlG+shYJFDbG
-         KoUmDrOJ5y1Z2JA0thB/lOTDGL4BiLOLbmNnacxYxd3nYTyYCwgE6XN8m3v1MdDxMiCY
-         NoSbo3sDHvjheP2K/lvcyg3r8RhBmm3HHAE1MOD8n5vMLeiecV56kQZP1CH7Zwj9lXIz
-         QZWEnjdPiyuvBl2tHeQblL4FQn/HQfddIQewiFHrPIYy3kP7C9+sNi088szX/KRqMcFI
-         O6ltKyGKsadLyFnq+ZHKP9221BZ+iKKCUDJJ9CaSqtk4DnY/+pBO81i9c1RdScEVy+zI
-         oLGA==
+        d=gmail.com; s=20251104; t=1784801180; x=1785405980; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:mime-version:references
+         :in-reply-to:message-id:date:subject:cc:to:from:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=OkrjSwuUycBg+RRlfYmBdI9gqjZZ1EenX4uhPobHFtc=;
+        b=mh4AkeKG/2uf0Spgn9mDIv5eqSzB1+XWv3Mua17KXF4Had1z24GX0eKAEhQqBTBVxC
+         zmLi0bQWPArCNiAS2JkIrFI5H55LricfkhTFGM4mcIdNvDbMOGWGRQEiUf8lq2ZZ8Uvf
+         0lqemt7oCmMcSLrPst9W6ILyD++eCZ/r8SZAvKiHidsbk+46YWZi6EvISEDXZ88oPtfP
+         kjwKuKzoEEgiTiab3D+090gEbyVJCgP1Eov6JSfQT71FPZ+Gak86kvUTsK5V/xXwDKYB
+         d/dhyhpwfSXWhCtZ6I8GCGIpb4CJ1TSg6+dN+TFQkHD6yUuTzRqWMPDzdQzGPiiSVB4n
+         GGsw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784801178; x=1785405978;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=6g+koxDLN1Chjep218/XBMsTlfwQifOiOfABmvTzX4A=;
-        b=TjvhNaqRFkn8WWME73QLkrnDhUaDRQYfs3SdZ8nlUxPHb8VIVQvMtDtqfEfS5JtvtT
-         ynctKUxxGcBUQSwpzAe/WIdlYh1mSqWMUHjil4RuYLCelMq0kcofRCl2fJzRn+VfY+AG
-         diLDbzFnq/tovFtywoxZlsuoyLP8HFwqY7qMjsnKU5hh5alCG/z0ux6/2/VJ1VNivxxE
-         5aEOsEl4jNHXwxggvKHkzwYtdfgYiP8t3ECyBq47uiv+QhZhiA+9iQ1ATxJ0AT4oojGw
-         EQc7znz8OYrhYOS3A8qFJun/9Hx6MmYNIEJeQLcDEvfB/BNgGXF2WLhHKSoXpVjxvbCf
-         rlMw==
-X-Forwarded-Encrypted: i=1; AHgh+RpxVEvqjg8GZi1NpNxjD6mzyEeqF76GfGNqLuD9L4wHbCizhTNemTvY/kCxMmJTPsVy7u9krxWVbifmaw==@vger.kernel.org
-X-Gm-Message-State: AOJu0YzdZ7bpswYKyrk9rzrqHB0WKtHNQqtLvW6Ote7+hQhxd9e5PGyy
-	UDPF8wr9T4snrXGuFB0wtcoayvmlEk7bj4RxojSPb3gGTT7CR9YaCX11
-X-Gm-Gg: AR+sD13RbLy7aAwjI/FNmshQHxKAZiltJMmE87nQ3f8rFc98xMwkLU4oyi8iMSt0++0
-	MX92gRVycWxdNtOMeAs9WrPrj7iiHsAzVh07o22aHfd55tHkntyTPLUijTzdpa4LNpy/MfRgroY
-	1xeOC8v/8vkKv3cBdo086BPt8KGGTH9WHQSQVuynMVfu91KIWgK0/3+tZTZyAT0lwr+nqnmEGDw
-	L8WDZCG8g6+oc7nnWUqX3agylT/0gKpqK4Xz53jge21uh8hgKhiYbVN5J1b37GjdXyda07yy/Bb
-	QjfDOL4MgTliP2hRKTG0hEwTf1ulgWFKp2i46l7AbCvZ0U8AnjPdJr62tZYJO5Z7Y/JhbM99+vI
-	O5TyVTJbU1A4C6SW4fQc1K2OLluQY5RnlmOS4tBj1yfLGcU/2A7ctnUMQAKr76YqcG/2QzDtxq9
-	OR0kfW16scbgFgofeli66VNoTN4LsURCWcf5DE6xm7gmuK
-X-Received: by 2002:a05:600c:4689:b0:492:6f6f:fa42 with SMTP id 5b1f17b1804b1-49573d37f29mr28050145e9.37.1784801178079;
-        Thu, 23 Jul 2026 03:06:18 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1784801180; x=1785405980;
+        h=content-transfer-encoding:content-type:mime-version:references
+         :in-reply-to:message-id:date:subject:cc:to:from:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=OkrjSwuUycBg+RRlfYmBdI9gqjZZ1EenX4uhPobHFtc=;
+        b=V1rjsSlOiYUa602k/hiLh2csnqnUG55G/SXE2CIDi0zq8ilWV7dUFD9MpEvdZyZOxm
+         CSlawRCUjCjwSEkDmIcs4ib/Fn0NrUsoUMT/rJyixyXb68fPRiQbrfK9aIKJdQmnHSxZ
+         nUIrsdsURk8l26AU++BRadgGQOkUrJsqUnUGu5/5RBNJSQmJDib+LrUdqubziqAiOmsJ
+         3tYKpEGRpilyfMXswL0bihRlyXAMx5lMi46/Ea697E5v9uKpuk+nE1T1Oy/5D7grTsKX
+         ncPMjLcyJXqJlRZhFrOLfAaG5zZqU9W14IMbgFmm2xwfqCa934A10cQp5cMt1AEiRbRj
+         hYkg==
+X-Forwarded-Encrypted: i=1; AHgh+RrkFLNkc5l3OGt4VC6KNb7gpEydqdnYO8QCNmjssIzI0vqZ8lK6S5w+DryMHTn2WyJOfoRu84Tyh1EaYw==@vger.kernel.org
+X-Gm-Message-State: AOJu0YwZO7fJ9blyrjxo1uFf0JPCBSL2dZxq7621JwObv9Pn8ATMTJDP
+	2zs1v0CoGi7m8RF4nWtBDn+q4dZ3zWSqUHJNlhZKyJrYHfDXdRZ4eIZU
+X-Gm-Gg: AR+sD12PWmYtxLMs+2uA/JIncKDWskp2P7v8807uwj18mPXxtEbhipkFOeEGr1EXiUw
+	XlowJQLm9SUVnqtIGKNgu0OZtHvrVYCT5n0S7mn5ic7JhqFX5PLZ0Tcp1wCwBWZErR9EO5dmDSc
+	v3ja1lUJl993vX+x4/IXbEFJjww6u5Yj4PiZDLBdVA89lPFLYskyu+6f6mTepM3atzJOjLJ6zud
+	TZsAWWM/JHQ0t1fo3TN5dK6bwx5EKPC1O4NlmFN0U6eAClCnmldaz6kfD2nnsKYLm0MmMXPvkzU
+	9EYySrRF0ia9xtPULMBkIFxCLGvmraHN3Jg4ILwcSpz3d1v0j4x9Lmfut+eRTtBwcy0wcnk6P0Y
+	o0vgvU+FjyqkxqCocMSbHfw5pIRFEY5JbcYGMbub8SHEz4h4TtJml7k8WJab1nSX7tI0qhGCLV2
+	f1Bz/97yDz4y85YkB308hC0lgSsRolBElySdswu1WgIXMv
+X-Received: by 2002:a05:6000:2309:b0:47f:9208:9e4 with SMTP id ffacd0b85a97d-47f92080a4cmr1526100f8f.31.1784801180254;
+        Thu, 23 Jul 2026 03:06:20 -0700 (PDT)
 Received: from localhost.localdomain ([86.126.27.145])
-        by smtp.googlemail.com with ESMTPSA id ffacd0b85a97d-47f85b9a60asm14212163f8f.3.2026.07.23.03.06.16
+        by smtp.googlemail.com with ESMTPSA id ffacd0b85a97d-47f85b9a60asm14212163f8f.3.2026.07.23.03.06.18
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 23 Jul 2026 03:06:17 -0700 (PDT)
+        Thu, 23 Jul 2026 03:06:19 -0700 (PDT)
 From: Eduard Bostina <egbostina@gmail.com>
 To: Aaro Koskinen <aaro.koskinen@iki.fi>,
 	Andreas Kemnade <andreas@kemnade.info>,
@@ -85,11 +86,10 @@ To: Aaro Koskinen <aaro.koskinen@iki.fi>,
 Cc: daniel.baluta@nxp.com,
 	simona.toaca@nxp.com,
 	goledhruva@gmail.com,
-	m-chawdhry@ti.com,
-	Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
-Subject: [PATCH v4 1/4] ARM: dts: ti: am335x-guardian: Drop unused isink-en property
-Date: Thu, 23 Jul 2026 10:05:59 +0000
-Message-ID: <20260723100605.628882-2-egbostina@gmail.com>
+	m-chawdhry@ti.com
+Subject: [PATCH v4 2/4] ARM: dts: Rename the TPS65217 regulator nodes
+Date: Thu, 23 Jul 2026 10:06:00 +0000
+Message-ID: <20260723100605.628882-3-egbostina@gmail.com>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20260723100605.628882-1-egbostina@gmail.com>
 References: <20260723100605.628882-1-egbostina@gmail.com>
@@ -99,31 +99,593 @@ List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-The 'isink-en' property is not documented and not read by any driver,
-so remove it from the TPS65217 backlight node.
+The TPS65217 regulator nodes are named regulator@0 to regulator@6 and
+rely on the deprecated 'regulator-compatible' property to be matched
+against the driver, which looks for "dcdc1" to "ldo4".
+
+Documentation/devicetree/bindings/regulator/tps65217.txt states the
+regulators must be named after their hardware counterparts, dcdc[1-3]
+and ldo[1-4].
+
+Rename the nodes accordingly and drop 'regulator-compatible' along with
+the unit addresses it made necessary.
 
 Signed-off-by: Eduard Bostina <egbostina@gmail.com>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
 ---
- arch/arm/boot/dts/ti/omap/am335x-guardian.dts | 3 ---
- 1 file changed, 3 deletions(-)
+ .../boot/dts/ti/omap/am335x-bone-common.dtsi  | 14 ++++-----
+ .../arm/boot/dts/ti/omap/am335x-chilisom.dtsi | 14 ++++-----
+ arch/arm/boot/dts/ti/omap/am335x-guardian.dts | 14 ++++-----
+ arch/arm/boot/dts/ti/omap/am335x-nano.dts     | 14 ++++-----
+ .../dts/ti/omap/am335x-osd335x-common.dtsi    | 14 ++++-----
+ arch/arm/boot/dts/ti/omap/am335x-pepper.dts   | 14 ++++-----
+ arch/arm/boot/dts/ti/omap/am335x-shc.dts      | 31 +++++--------------
+ arch/arm/boot/dts/ti/omap/am335x-sl50.dts     | 14 ++++-----
+ arch/arm/boot/dts/tps65217.dtsi               | 31 +++++--------------
+ 9 files changed, 63 insertions(+), 97 deletions(-)
 
-diff --git a/arch/arm/boot/dts/ti/omap/am335x-guardian.dts b/arch/arm/boot/dts/ti/omap/am335x-guardian.dts
-index 6ce3a2d029ee..d595e79d6b05 100644
---- a/arch/arm/boot/dts/ti/omap/am335x-guardian.dts
-+++ b/arch/arm/boot/dts/ti/omap/am335x-guardian.dts
-@@ -320,9 +320,6 @@ backlight {
- 		isel = <1>;  /* 1 - ISET1, 2 ISET2 */
- 		fdim = <500>; /* TPS65217_BL_FDIM_500HZ */
- 		default-brightness = <50>;
--		/* 1(on) - enable current sink, while initialization */
--		/* 0(off) - disable current sink, while initialization */
--		isink-en = <1>;
+diff --git a/arch/arm/boot/dts/ti/omap/am335x-bone-common.dtsi b/arch/arm/boot/dts/ti/omap/am335x-bone-common.dtsi
+index 1d83fc116b66..e5ca2bd65736 100644
+--- a/arch/arm/boot/dts/ti/omap/am335x-bone-common.dtsi
++++ b/arch/arm/boot/dts/ti/omap/am335x-bone-common.dtsi
+@@ -337,12 +337,12 @@ pwrbutton {
  	};
  
  	regulators {
+-		dcdc1_reg: regulator@0 {
++		dcdc1_reg: dcdc1 {
+ 			regulator-name = "vdds_dpr";
+ 			regulator-always-on;
+ 		};
+ 
+-		dcdc2_reg: regulator@1 {
++		dcdc2_reg: dcdc2 {
+ 			/* VDD_MPU voltage limits 0.95V - 1.26V with +/-4% tolerance */
+ 			regulator-name = "vdd_mpu";
+ 			regulator-min-microvolt = <925000>;
+@@ -351,7 +351,7 @@ dcdc2_reg: regulator@1 {
+ 			regulator-always-on;
+ 		};
+ 
+-		dcdc3_reg: regulator@2 {
++		dcdc3_reg: dcdc3 {
+ 			/* VDD_CORE voltage limits 0.95V - 1.1V with +/-4% tolerance */
+ 			regulator-name = "vdd_core";
+ 			regulator-min-microvolt = <925000>;
+@@ -360,22 +360,22 @@ dcdc3_reg: regulator@2 {
+ 			regulator-always-on;
+ 		};
+ 
+-		ldo1_reg: regulator@3 {
++		ldo1_reg: ldo1 {
+ 			regulator-name = "vio,vrtc,vdds";
+ 			regulator-always-on;
+ 		};
+ 
+-		ldo2_reg: regulator@4 {
++		ldo2_reg: ldo2 {
+ 			regulator-name = "vdd_3v3aux";
+ 			regulator-always-on;
+ 		};
+ 
+-		ldo3_reg: regulator@5 {
++		ldo3_reg: ldo3 {
+ 			regulator-name = "vdd_1v8";
+ 			regulator-always-on;
+ 		};
+ 
+-		ldo4_reg: regulator@6 {
++		ldo4_reg: ldo4 {
+ 			regulator-name = "vdd_3v3a";
+ 			regulator-always-on;
+ 		};
+diff --git a/arch/arm/boot/dts/ti/omap/am335x-chilisom.dtsi b/arch/arm/boot/dts/ti/omap/am335x-chilisom.dtsi
+index bd43da6356b6..9ee6d6d4a9c1 100644
+--- a/arch/arm/boot/dts/ti/omap/am335x-chilisom.dtsi
++++ b/arch/arm/boot/dts/ti/omap/am335x-chilisom.dtsi
+@@ -70,12 +70,12 @@ tps: tps@24 {
+ 
+ &tps {
+ 	regulators {
+-		dcdc1_reg: regulator@0 {
++		dcdc1_reg: dcdc1 {
+ 			regulator-name = "vdds_dpr";
+ 			regulator-always-on;
+ 		};
+ 
+-		dcdc2_reg: regulator@1 {
++		dcdc2_reg: dcdc2 {
+ 			/* VDD_MPU voltage limits 0.95V - 1.26V with +/-4% tolerance */
+ 			regulator-name = "vdd_mpu";
+ 			regulator-min-microvolt = <925000>;
+@@ -84,7 +84,7 @@ dcdc2_reg: regulator@1 {
+ 			regulator-always-on;
+ 		};
+ 
+-		dcdc3_reg: regulator@2 {
++		dcdc3_reg: dcdc3 {
+ 			/* VDD_CORE voltage limits 0.95V - 1.1V with +/-4% tolerance */
+ 			regulator-name = "vdd_core";
+ 			regulator-min-microvolt = <925000>;
+@@ -93,25 +93,25 @@ dcdc3_reg: regulator@2 {
+ 			regulator-always-on;
+ 		};
+ 
+-		ldo1_reg: regulator@3 {
++		ldo1_reg: ldo1 {
+ 			regulator-name = "vio,vrtc,vdds";
+ 			regulator-boot-on;
+ 			regulator-always-on;
+ 		};
+ 
+-		ldo2_reg: regulator@4 {
++		ldo2_reg: ldo2 {
+ 			regulator-name = "vdd_3v3aux";
+ 			regulator-boot-on;
+ 			regulator-always-on;
+ 		};
+ 
+-		ldo3_reg: regulator@5 {
++		ldo3_reg: ldo3 {
+ 			regulator-name = "vdd_1v8";
+ 			regulator-boot-on;
+ 			regulator-always-on;
+ 		};
+ 
+-		ldo4_reg: regulator@6 {
++		ldo4_reg: ldo4 {
+ 			regulator-name = "vdd_3v3d";
+ 			regulator-boot-on;
+ 			regulator-always-on;
+diff --git a/arch/arm/boot/dts/ti/omap/am335x-guardian.dts b/arch/arm/boot/dts/ti/omap/am335x-guardian.dts
+index d595e79d6b05..fecfe12e1349 100644
+--- a/arch/arm/boot/dts/ti/omap/am335x-guardian.dts
++++ b/arch/arm/boot/dts/ti/omap/am335x-guardian.dts
+@@ -323,12 +323,12 @@ backlight {
+ 	};
+ 
+ 	regulators {
+-		dcdc1_reg: regulator@0 {
++		dcdc1_reg: dcdc1 {
+ 			regulator-name = "vdds_dpr";
+ 			regulator-always-on;
+ 		};
+ 
+-		dcdc2_reg: regulator@1 {
++		dcdc2_reg: dcdc2 {
+ 			/* VDD_MPU voltage limits 0.95V - 1.26V with +/-4% tolerance */
+ 			regulator-name = "vdd_mpu";
+ 			regulator-min-microvolt = <925000>;
+@@ -337,7 +337,7 @@ dcdc2_reg: regulator@1 {
+ 			regulator-always-on;
+ 		};
+ 
+-		dcdc3_reg: regulator@2 {
++		dcdc3_reg: dcdc3 {
+ 			/* VDD_CORE voltage limits 0.95V - 1.1V with +/-4% tolerance */
+ 			regulator-name = "vdd_core";
+ 			regulator-min-microvolt = <925000>;
+@@ -346,24 +346,24 @@ dcdc3_reg: regulator@2 {
+ 			regulator-always-on;
+ 		};
+ 
+-		ldo1_reg: regulator@3 {
++		ldo1_reg: ldo1 {
+ 			regulator-name = "vio,vrtc,vdds";
+ 			regulator-always-on;
+ 		};
+ 
+-		ldo2_reg: regulator@4 {
++		ldo2_reg: ldo2 {
+ 			regulator-name = "vdd_3v3aux";
+ 			regulator-always-on;
+ 		};
+ 
+-		ldo3_reg: regulator@5 {
++		ldo3_reg: ldo3 {
+ 			regulator-name = "vdd_1v8";
+ 			regulator-min-microvolt = <1800000>;
+ 			regulator-max-microvolt = <1800000>;
+ 			regulator-always-on;
+ 		};
+ 
+-		ldo4_reg: regulator@6 {
++		ldo4_reg: ldo4 {
+ 			regulator-name = "vdd_3v3a";
+ 			regulator-always-on;
+ 		};
+diff --git a/arch/arm/boot/dts/ti/omap/am335x-nano.dts b/arch/arm/boot/dts/ti/omap/am335x-nano.dts
+index d51cdd6e1ab4..c1143f0a3356 100644
+--- a/arch/arm/boot/dts/ti/omap/am335x-nano.dts
++++ b/arch/arm/boot/dts/ti/omap/am335x-nano.dts
+@@ -431,7 +431,7 @@ &usb0 {
+ 
+ &tps {
+ 	regulators {
+-		dcdc1_reg: regulator@0 {
++		dcdc1_reg: dcdc1 {
+ 			/* +1.5V voltage with ±4% tolerance */
+ 			regulator-min-microvolt = <1450000>;
+ 			regulator-max-microvolt = <1550000>;
+@@ -439,7 +439,7 @@ dcdc1_reg: regulator@0 {
+ 			regulator-always-on;
+ 		};
+ 
+-		dcdc2_reg: regulator@1 {
++		dcdc2_reg: dcdc2 {
+ 			/* VDD_MPU voltage limits 0.95V - 1.1V with ±4% tolerance */
+ 			regulator-name = "vdd_mpu";
+ 			regulator-min-microvolt = <915000>;
+@@ -448,7 +448,7 @@ dcdc2_reg: regulator@1 {
+ 			regulator-always-on;
+ 		};
+ 
+-		dcdc3_reg: regulator@2 {
++		dcdc3_reg: dcdc3 {
+ 			/* VDD_CORE voltage limits 0.95V - 1.1V with ±4% tolerance */
+ 			regulator-name = "vdd_core";
+ 			regulator-min-microvolt = <915000>;
+@@ -457,7 +457,7 @@ dcdc3_reg: regulator@2 {
+ 			regulator-always-on;
+ 		};
+ 
+-		ldo1_reg: regulator@3 {
++		ldo1_reg: ldo1 {
+ 			/* +1.8V voltage with ±4% tolerance */
+ 			regulator-min-microvolt = <1750000>;
+ 			regulator-max-microvolt = <1870000>;
+@@ -465,7 +465,7 @@ ldo1_reg: regulator@3 {
+ 			regulator-always-on;
+ 		};
+ 
+-		ldo2_reg: regulator@4 {
++		ldo2_reg: ldo2 {
+ 			/* +3.3V voltage with ±4% tolerance */
+ 			regulator-min-microvolt = <3175000>;
+ 			regulator-max-microvolt = <3430000>;
+@@ -473,7 +473,7 @@ ldo2_reg: regulator@4 {
+ 			regulator-always-on;
+ 		};
+ 
+-		ldo3_reg: regulator@5 {
++		ldo3_reg: ldo3 {
+ 			/* +1.8V voltage with ±4% tolerance */
+ 			regulator-min-microvolt = <1750000>;
+ 			regulator-max-microvolt = <1870000>;
+@@ -481,7 +481,7 @@ ldo3_reg: regulator@5 {
+ 			regulator-always-on;
+ 		};
+ 
+-		ldo4_reg: regulator@6 {
++		ldo4_reg: ldo4 {
+ 			/* +3.3V voltage with ±4% tolerance */
+ 			regulator-min-microvolt = <3175000>;
+ 			regulator-max-microvolt = <3430000>;
+diff --git a/arch/arm/boot/dts/ti/omap/am335x-osd335x-common.dtsi b/arch/arm/boot/dts/ti/omap/am335x-osd335x-common.dtsi
+index 93a3af83feac..021cf5cbbb96 100644
+--- a/arch/arm/boot/dts/ti/omap/am335x-osd335x-common.dtsi
++++ b/arch/arm/boot/dts/ti/omap/am335x-osd335x-common.dtsi
+@@ -69,12 +69,12 @@ pwrbutton {
+ 	};
+ 
+ 	regulators {
+-		dcdc1_reg: regulator@0 {
++		dcdc1_reg: dcdc1 {
+ 			regulator-name = "vdds_dpr";
+ 			regulator-always-on;
+ 		};
+ 
+-		dcdc2_reg: regulator@1 {
++		dcdc2_reg: dcdc2 {
+ 			/* VDD_MPU voltage limits 0.95V - 1.26V with +/-4% tolerance */
+ 			regulator-name = "vdd_mpu";
+ 			regulator-min-microvolt = <925000>;
+@@ -83,7 +83,7 @@ dcdc2_reg: regulator@1 {
+ 			regulator-always-on;
+ 		};
+ 
+-		dcdc3_reg: regulator@2 {
++		dcdc3_reg: dcdc3 {
+ 			/* VDD_CORE voltage limits 0.95V - 1.1V with +/-4% tolerance */
+ 			regulator-name = "vdd_core";
+ 			regulator-min-microvolt = <925000>;
+@@ -92,24 +92,24 @@ dcdc3_reg: regulator@2 {
+ 			regulator-always-on;
+ 		};
+ 
+-		ldo1_reg: regulator@3 {
++		ldo1_reg: ldo1 {
+ 			regulator-name = "vio,vrtc,vdds";
+ 			regulator-always-on;
+ 		};
+ 
+-		ldo2_reg: regulator@4 {
++		ldo2_reg: ldo2 {
+ 			regulator-name = "vdd_3v3aux";
+ 			regulator-always-on;
+ 		};
+ 
+-		ldo3_reg: regulator@5 {
++		ldo3_reg: ldo3 {
+ 			regulator-name = "vdd_1v8";
+ 			regulator-min-microvolt = <1800000>;
+ 			regulator-max-microvolt = <1800000>;
+ 			regulator-always-on;
+ 		};
+ 
+-		ldo4_reg: regulator@6 {
++		ldo4_reg: ldo4 {
+ 			regulator-name = "vdd_3v3a";
+ 			regulator-always-on;
+ 		};
+diff --git a/arch/arm/boot/dts/ti/omap/am335x-pepper.dts b/arch/arm/boot/dts/ti/omap/am335x-pepper.dts
+index 10d54e0ad15a..363638e74719 100644
+--- a/arch/arm/boot/dts/ti/omap/am335x-pepper.dts
++++ b/arch/arm/boot/dts/ti/omap/am335x-pepper.dts
+@@ -433,12 +433,12 @@ backlight {
+ 	};
+ 
+ 	regulators {
+-		dcdc1_reg: regulator@0 {
++		dcdc1_reg: dcdc1 {
+ 			/* VDD_1V8 system supply */
+ 			regulator-always-on;
+ 		};
+ 
+-		dcdc2_reg: regulator@1 {
++		dcdc2_reg: dcdc2 {
+ 			/* VDD_CORE voltage limits 0.95V - 1.26V with +/-4% tolerance */
+ 			regulator-name = "vdd_core";
+ 			regulator-min-microvolt = <925000>;
+@@ -447,7 +447,7 @@ dcdc2_reg: regulator@1 {
+ 			regulator-always-on;
+ 		};
+ 
+-		dcdc3_reg: regulator@2 {
++		dcdc3_reg: dcdc3 {
+ 			/* VDD_MPU voltage limits 0.95V - 1.1V with +/-4% tolerance */
+ 			regulator-name = "vdd_mpu";
+ 			regulator-min-microvolt = <925000>;
+@@ -456,26 +456,26 @@ dcdc3_reg: regulator@2 {
+ 			regulator-always-on;
+ 		};
+ 
+-		ldo1_reg: regulator@3 {
++		ldo1_reg: ldo1 {
+ 			/* VRTC 1.8V always-on supply */
+ 			regulator-name = "vrtc,vdds";
+ 			regulator-always-on;
+ 		};
+ 
+-		ldo2_reg: regulator@4 {
++		ldo2_reg: ldo2 {
+ 			/* 3.3V rail */
+ 			regulator-name = "vdd_3v3aux";
+ 			regulator-always-on;
+ 		};
+ 
+-		ldo3_reg: regulator@5 {
++		ldo3_reg: ldo3 {
+ 			/* VDD_3V3A 3.3V rail */
+ 			regulator-name = "vdd_3v3a";
+ 			regulator-min-microvolt = <3300000>;
+ 			regulator-max-microvolt = <3300000>;
+ 		};
+ 
+-		ldo4_reg: regulator@6 {
++		ldo4_reg: ldo4 {
+ 			/* VDD_3V3B 3.3V rail */
+ 			regulator-name = "vdd_3v3b";
+ 			regulator-always-on;
+diff --git a/arch/arm/boot/dts/ti/omap/am335x-shc.dts b/arch/arm/boot/dts/ti/omap/am335x-shc.dts
+index 597482822608..473058584691 100644
+--- a/arch/arm/boot/dts/ti/omap/am335x-shc.dts
++++ b/arch/arm/boot/dts/ti/omap/am335x-shc.dts
+@@ -254,26 +254,19 @@ &tps {
+ 	ti,pmic-shutdown-controller;
+ 
+ 	regulators {
+-		#address-cells = <1>;
+-		#size-cells = <0>;
+-
+-		dcdc1_reg: regulator@0 {
+-			reg = <0>;
++		dcdc1_reg: dcdc1 {
+ 			regulator-name = "vdds_dpr";
+-			regulator-compatible = "dcdc1";
+ 			regulator-min-microvolt = <1300000>;
+ 			regulator-max-microvolt = <1450000>;
+ 			regulator-boot-on;
+ 			regulator-always-on;
+ 		};
+ 
+-		dcdc2_reg: regulator@1 {
+-			reg = <1>;
++		dcdc2_reg: dcdc2 {
+ 			/*
+ 			 * VDD_MPU voltage limits 0.95V - 1.26V with
+ 			 * +/-4% tolerance
+ 			 */
+-			regulator-compatible = "dcdc2";
+ 			regulator-name = "vdd_mpu";
+ 			regulator-min-microvolt = <925000>;
+ 			regulator-max-microvolt = <1375000>;
+@@ -282,51 +275,41 @@ dcdc2_reg: regulator@1 {
+ 			regulator-ramp-delay = <70000>;
+ 		};
+ 
+-		dcdc3_reg: regulator@2 {
+-			reg = <2>;
++		dcdc3_reg: dcdc3 {
+ 			/*
+ 			 * VDD_CORE voltage limits 0.95V - 1.1V with
+ 			 * +/-4% tolerance
+ 			 */
+ 			regulator-name = "vdd_core";
+-			regulator-compatible = "dcdc3";
+ 			regulator-min-microvolt = <925000>;
+ 			regulator-max-microvolt = <1125000>;
+ 			regulator-boot-on;
+ 			regulator-always-on;
+ 		};
+ 
+-		ldo1_reg: regulator@3 {
+-			reg = <3>;
++		ldo1_reg: ldo1 {
+ 			regulator-name = "vio,vrtc,vdds";
+-			regulator-compatible = "ldo1";
+ 			regulator-min-microvolt = <1000000>;
+ 			regulator-max-microvolt = <1800000>;
+ 			regulator-always-on;
+ 		};
+ 
+-		ldo2_reg: regulator@4 {
+-			reg = <4>;
++		ldo2_reg: ldo2 {
+ 			regulator-name = "vdd_3v3aux";
+-			regulator-compatible = "ldo2";
+ 			regulator-min-microvolt = <900000>;
+ 			regulator-max-microvolt = <3300000>;
+ 			regulator-always-on;
+ 		};
+ 
+-		ldo3_reg: regulator@5 {
+-			reg = <5>;
++		ldo3_reg: ldo3 {
+ 			regulator-name = "vdd_1v8";
+-			regulator-compatible = "ldo3";
+ 			regulator-min-microvolt = <900000>;
+ 			regulator-max-microvolt = <1800000>;
+ 			regulator-always-on;
+ 		};
+ 
+-		ldo4_reg: regulator@6 {
+-			reg = <6>;
++		ldo4_reg: ldo4 {
+ 			regulator-name = "vdd_3v3a";
+-			regulator-compatible = "ldo4";
+ 			regulator-min-microvolt = <1800000>;
+ 			regulator-max-microvolt = <3300000>;
+ 			regulator-always-on;
+diff --git a/arch/arm/boot/dts/ti/omap/am335x-sl50.dts b/arch/arm/boot/dts/ti/omap/am335x-sl50.dts
+index c5259eb7d21c..0cc9289c752b 100644
+--- a/arch/arm/boot/dts/ti/omap/am335x-sl50.dts
++++ b/arch/arm/boot/dts/ti/omap/am335x-sl50.dts
+@@ -607,14 +607,14 @@ &tps {
+ 	interrupts = <7>;	/* NNMI */
+ 
+ 	regulators {
+-		dcdc1_reg: regulator@0 {
++		dcdc1_reg: dcdc1 {
+ 			/* VDDS_DDR */
+ 			regulator-min-microvolt = <1500000>;
+ 			regulator-max-microvolt = <1500000>;
+ 			regulator-always-on;
+ 		};
+ 
+-		dcdc2_reg: regulator@1 {
++		dcdc2_reg: dcdc2 {
+ 			/* VDD_MPU voltage limits 0.95V - 1.26V with +/-4% tolerance */
+ 			regulator-name = "vdd_mpu";
+ 			regulator-min-microvolt = <925000>;
+@@ -623,7 +623,7 @@ dcdc2_reg: regulator@1 {
+ 			regulator-always-on;
+ 		};
+ 
+-		dcdc3_reg: regulator@2 {
++		dcdc3_reg: dcdc3 {
+ 			/* VDD_CORE voltage limits 0.95V - 1.1V with +/-4% tolerance */
+ 			regulator-name = "vdd_core";
+ 			regulator-min-microvolt = <925000>;
+@@ -632,28 +632,28 @@ dcdc3_reg: regulator@2 {
+ 			regulator-always-on;
+ 		};
+ 
+-		ldo1_reg: regulator@3 {
++		ldo1_reg: ldo1 {
+ 			/* VRTC / VIO / VDDS*/
+ 			regulator-always-on;
+ 			regulator-min-microvolt = <1800000>;
+ 			regulator-max-microvolt = <1800000>;
+ 		};
+ 
+-		ldo2_reg: regulator@4 {
++		ldo2_reg: ldo2 {
+ 			/* VDD_3V3AUX */
+ 			regulator-always-on;
+ 			regulator-min-microvolt = <3300000>;
+ 			regulator-max-microvolt = <3300000>;
+ 		};
+ 
+-		ldo3_reg: regulator@5 {
++		ldo3_reg: ldo3 {
+ 			/* VDD_1V8 */
+ 			regulator-min-microvolt = <1800000>;
+ 			regulator-max-microvolt = <1800000>;
+ 			regulator-always-on;
+ 		};
+ 
+-		ldo4_reg: regulator@6 {
++		ldo4_reg: ldo4 {
+ 			/* VDD_3V3A */
+ 			regulator-min-microvolt = <3300000>;
+ 			regulator-max-microvolt = <3300000>;
+diff --git a/arch/arm/boot/dts/tps65217.dtsi b/arch/arm/boot/dts/tps65217.dtsi
+index 0d463de5650f..e7db105b3657 100644
+--- a/arch/arm/boot/dts/tps65217.dtsi
++++ b/arch/arm/boot/dts/tps65217.dtsi
+@@ -27,42 +27,25 @@ pwrbutton {
+ 	};
+ 
+ 	regulators {
+-		#address-cells = <1>;
+-		#size-cells = <0>;
+-
+-		dcdc1_reg: regulator@0 {
+-			reg = <0>;
+-			regulator-compatible = "dcdc1";
++		dcdc1_reg: dcdc1 {
+ 		};
+ 
+-		dcdc2_reg: regulator@1 {
+-			reg = <1>;
+-			regulator-compatible = "dcdc2";
++		dcdc2_reg: dcdc2 {
+ 		};
+ 
+-		dcdc3_reg: regulator@2 {
+-			reg = <2>;
+-			regulator-compatible = "dcdc3";
++		dcdc3_reg: dcdc3 {
+ 		};
+ 
+-		ldo1_reg: regulator@3 {
+-			reg = <3>;
+-			regulator-compatible = "ldo1";
++		ldo1_reg: ldo1 {
+ 		};
+ 
+-		ldo2_reg: regulator@4 {
+-			reg = <4>;
+-			regulator-compatible = "ldo2";
++		ldo2_reg: ldo2 {
+ 		};
+ 
+-		ldo3_reg: regulator@5 {
+-			reg = <5>;
+-			regulator-compatible = "ldo3";
++		ldo3_reg: ldo3 {
+ 		};
+ 
+-		ldo4_reg: regulator@6 {
+-			reg = <6>;
+-			regulator-compatible = "ldo4";
++		ldo4_reg: ldo4 {
+ 		};
+ 	};
+ };
 -- 
 2.43.0
 

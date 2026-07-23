@@ -1,123 +1,123 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ej1-f47.google.com (mail-ej1-f47.google.com [209.85.218.47])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 21AA135A952;
-	Thu, 23 Jul 2026 13:24:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 94C2F45D1AC
+	for <linux-input@vger.kernel.org>; Thu, 23 Jul 2026 15:23:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.47
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784813051; cv=none; b=R4mrGCmWnkwOloatLDo2d1eO/s0QQoasOxFlf1zOXGRbn1ckqHv54Ez5KhyFDW8qD3C/HAq7naCcZWh38abMFLEqQv5sYHbT8Wosh2D5UOWJsmhca1myNPPAr6tYs4d5NcZgh2VUbB5r1QppmZnBFLj9OFskL9K9k4MXQcXClWE=
+	t=1784820209; cv=none; b=SOAi+9AgzS1IroTvL6WUxg266/9xvtFXyY9Wyt+BlUFejESfzd/esduY/hxQJ4fYC1/1Iay4vMpAcMw97ua0Iqm2bT+LI6ghVL+mPQRzqeV1bbuLZ1wqEYQHUkxV7KBNUezaS6e7BUTOSuqE/L3ExnGC5Uq5Vsd8/xJNJJKaomk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784813051; c=relaxed/simple;
-	bh=nzTDJQgHB5j6mAyvnaC5rb89aNJoakyr/S0pRsKtOgc=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=qhE+3IxcgpYdNh8r1qPf3WgGGzTHx6UlKWvcc4ZrxjabDmI37dVm81F9c6v5OI2NC58couf9lJiphrStnDamN/btp2E+UGnDovq/CcgQTnvW8xtnXLZYDlOSQ6rVJ2vMYRyiqHHUXUAQ6qGQazZkhtE3U8qC7KswEzShqhjsXx8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=l5cagf51; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1784820209; c=relaxed/simple;
+	bh=Cj7/0hUPeXgZVqg8KWSZTNJ8vTFAgPSshjlYFrf0LIw=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=otdQlixwmKvriCWHD4lO3vCsXKm63TMg5wQkJcQRFw5vLTjOKzKM3qpHW8MuYvuNJxlMVmyeVsnHOmj4GyDJedlEgwIelXlPtkWoKHvpWOsvr7yNatZjWiXBVX9GdM+P+YzksRg4D2Rwd6XJnA1dl6oIRbo9uNwqhZ25lAqT7LY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=mide.dk; spf=none smtp.mailfrom=mide.dk; dkim=pass (2048-bit key) header.d=mide-dk.20251104.gappssmtp.com header.i=@mide-dk.20251104.gappssmtp.com header.b=SMexMpPl; arc=none smtp.client-ip=209.85.218.47
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=mide.dk
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=mide.dk
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="l5cagf51"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 19144C2BCC7;
-	Thu, 23 Jul 2026 13:24:10 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1784813050;
-	bh=nzTDJQgHB5j6mAyvnaC5rb89aNJoakyr/S0pRsKtOgc=;
-	h=From:Date:Subject:To:Cc:Reply-To:From;
-	b=l5cagf51SQiwgqU9PTNmGvsduRsdZpjensA4UmMq+hwc2M+uvU+KS3iKTMBUBrsdf
-	 Q4Bb1B7FtJRH7mUfwkG7t4fqSkTr+4Ji7iksI+c+BJUtuazfwImikJkc2vmIPByaaY
-	 nddXxh+fOyYL/nOwKY0iXoYbsRPlv8HuacnyMiFkqPyzHFfPVtPgEIv4DvpffgdsvE
-	 6FxjlfXYXnFzsfkYW7IvUZl5K+jcVbFAo4/pdfcxk2COYS/9PXG/s9dyFefgCdioHr
-	 aUPps7HpgE1DuxQqdV0LPnxel/vztQugYD0BRkr32o6+JleWOhLWsqvac05VGAT5ur
-	 cQQ/IP1Mfvdig==
-Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 05601C531CF;
-	Thu, 23 Jul 2026 13:24:09 +0000 (UTC)
-From: Alexandre Hamamdjian via B4 Relay <devnull+azkali.limited.gmail.com@kernel.org>
-Date: Thu, 23 Jul 2026 20:24:09 +0700
-Subject: [PATCH v2] Input: edt-ft5x06 - ignore contacts with an
- out-of-range slot id
+	dkim=pass (2048-bit key) header.d=mide-dk.20251104.gappssmtp.com header.i=@mide-dk.20251104.gappssmtp.com header.b="SMexMpPl"
+Received: by mail-ej1-f47.google.com with SMTP id a640c23a62f3a-c15d47266baso97816866b.3
+        for <linux-input@vger.kernel.org>; Thu, 23 Jul 2026 08:23:24 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=mide-dk.20251104.gappssmtp.com; s=20251104; t=1784820203; x=1785425003; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=CuP0OeJhTGW30HNXb6Y1WIZT6ga8TxkRxs5cbmmgrFo=;
+        b=SMexMpPlDeGtfU0hF7w5CSLGOHogSCgE/P+egylArJA7+WVcbNUn+ZaVRN8sv8RpKp
+         4FwQlyoGbnOcJG0MD9Vx95RNsQVisBw34ahA8dzYoKVdj4vMYTzOcZTNy3/tXruFmxCQ
+         xNvjFhUoY91LkxLObZM6ZiqG9oKSDsD0qr05I9I6qzykDnLDG4CI3IJYU66AMSTYvMtx
+         sbRA2YJXJrMTE8wKIX0VR1VlGeHm7e/Yu9IIRPMGcfg1gMo5MSiYvcVF7lY1ZJofPc9h
+         qjNnA64lVxBL3lrejJt4ziqvmmYiP0UPjxyEZ4g8gQsQ+CSOajIO1tJRcFylhH7Bcw06
+         WwpA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1784820203; x=1785425003;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=CuP0OeJhTGW30HNXb6Y1WIZT6ga8TxkRxs5cbmmgrFo=;
+        b=gKREcihVfO5HyXlNT+/YfV0fPFT6qgT83UDhAYCRdOr5Pu19KiFfSxAa7jPi+3QGgt
+         V3erVV25WMWcm/MbudgqA0Lc/SFeihUaSiJZA94Jxe6EWdi4sJuiV7xQTvouqhNgrSfp
+         HXe2hjiwCt47SAcRYDJFueozXrwcrSCu0GUUKBB857AS0e6Xl/vuTfSKXczMog4UlwGy
+         CA+aLAvFueJlAblMHyaTnFaYPBZLYNt+hX+JEVvEw9Rr2KEQarJMfCR2guxbuR+TTIuj
+         VnP8rVWwwjME6sqpHMaibBKpchaUmKPgTHwFdlOeJ+0YmD5HGxCJlcbUZKXRAq3WAZxR
+         FXfg==
+X-Gm-Message-State: AOJu0Yxw8t6eypeRfKgRKXYluaPrGgfziTdED3anQeZlTil6zzsQ7n1v
+	KpkfmYazlG6R3y6nGvVAd8h4u0DcAN3A+cFobg58fOSqSyToumkADtsv4UkzbcoV6g==
+X-Gm-Gg: AR+sD11u2Jz0LC4VVLHB0ug04p4o4Wqi5aGW3VyiNeN5mzEsRsg8cYINZv8RZxQ3KWJ
+	EIU5M4kVmxE76VCegNif8DFMuu/ui5P6pk5gP7WyG7sNVkdA3rd+ezGBKxUnn5U6M5G4GgLAbDK
+	b6eb8AoI4c1sWfFS3z15xheZFC+9Ri89f+ljwPezT/5LRovl0+WglXxLaU32yuKBWtOa2pm86uE
+	8qQsAyxN3nE93sgvncWbgIEElZEGS8EY2GDvePJf6EG2gJslrcUy9g6G5b52mXKA1FTHDQjtS7o
+	3yZ50Aq+VfxGtvEtydATumQMvmN7d0JUDNT/wvDQ4EE9QZNfMbk1gxlkLor6QdEDnfjgwa3HZDX
+	Ts1MZ6lEPMH6qyACXW4ybt9FK9nGTrbtnK90daKxSbp9D19HtcFx2X3RmgQ7HWY5ATuuWKgMVr6
+	doBLoh3scw63CtXg2gCmT30OLYqFs+VMS6YifjYrEbHcuQ/25OAKz4wyMs3awmPxLV9eofCtaYO
+	Sw9GdjWHYR5WBWpnsfWUU3/UpJSvM0yslEQQsWzKQ==
+X-Received: by 2002:a17:907:9451:b0:c16:2e4f:a372 with SMTP id a640c23a62f3a-c1c5074a65emr161638966b.13.1784820202713;
+        Thu, 23 Jul 2026 08:23:22 -0700 (PDT)
+Received: from localhost.localdomain (2a06.4004.215b.0000.2aa0.6bff.feb3.5b8c.static6.kviknet.net. [2a06:4004:215b:0:2aa0:6bff:feb3:5b8c])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c1c32ebb385sm250749666b.52.2026.07.23.08.23.21
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 23 Jul 2026 08:23:22 -0700 (PDT)
+From: Kristian Mide <kristian@mide.dk>
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Kristian Mide <kristian@mide.dk>
+Subject: [PATCH v3 0/3] Input: ilitek_ts: add stylus support for 0x0c reports
+Date: Thu, 23 Jul 2026 17:22:41 +0200
+Message-ID: <20260723152244.11252-1-kristian@mide.dk>
+X-Mailer: git-send-email 2.54.0
+In-Reply-To: <20260709182602.7308-1-kristian@mide.dk>
+References: <20260709182602.7308-1-kristian@mide.dk>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20260723-b4-ft5426-v2-1-cd2bed168051@gmail.com>
-X-B4-Tracking: v=1; b=H4sIAAAAAAAC/22NQQ6CMBAAv0L2bE3ZLqic/IfhQMsCawRMi0RD+
- LsFrx4nmcwsENgLByiSBTzPEmQcIuAhAddVQ8tK6siAGnN9QqMsqWbKCHNlLqY+Zykx2Qai//T
- cyHtv3cofh5e9s5u2wGZ0EqbRf/bZnG7ev+6cKq1qssQGLWvCa9tX8ji6sYdyXdcvn8NsEbQAA
- AA=
-X-Change-ID: 20260723-b4-ft5426-393d8514e4bf
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
- Henrik Rydberg <rydberg@bitmath.org>, Rob Herring <robh@kernel.org>, 
- Krzysztof Kozlowski <krzk+dt@kernel.org>, 
- Conor Dooley <conor+dt@kernel.org>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
- devicetree@vger.kernel.org, Alexandre Hamamdjian <azkali.limited@gmail.com>
-X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1784813048; l=2253;
- i=azkali.limited@gmail.com; s=20260510; h=from:subject:message-id;
- bh=6IHuIpjD8BG+tOqYEL/Wqs7fTLnyHV/DC62HqKtwf7Y=;
- b=zELHXbmUBupqxeC4/gqIng4pEA22m699PwwBoiw64dl6u5a0uRSJh+kME/8Ht0pXqKFBDIDUs
- M47Lx7jLRYjAcpbH/vp289DWcy3VTWSVsh+DZGRrNb4eQ34RbZU6gLm
-X-Developer-Key: i=azkali.limited@gmail.com; a=ed25519;
- pk=I0Z0IdCdQJqNGX+FQUnXhrHg950u3cM6Xzz3YT6JOyQ=
-X-Endpoint-Received: by B4 Relay for azkali.limited@gmail.com/20260510 with
- auth_id=774
-X-Original-From: Alexandre Hamamdjian <azkali.limited@gmail.com>
-Reply-To: azkali.limited@gmail.com
+Content-Transfer-Encoding: 8bit
 
-From: Alexandre Hamamdjian <azkali.limited@gmail.com>
+Hi,
 
-The per-contact slot id is taken from the top nibble of the third
-report byte, so it can be any value from 0 to 15. The driver only
-allocates max_support_points MT slots (2 to 10 depending on the
-variant), so a report that carries an id at or above that count - be it
-a genuinely higher-numbered contact or a corrupted byte - is outside the
-range the input core was told about.
+I bought a CHUWI Hi10 Max and was annoyed to find that the built-in
+stylus was not usable with the upstream ilitek_ts driver.
 
-input_mt_slot() silently ignores an ABS_MT_SLOT beyond num_slots and
-leaves the current slot unchanged, so the following
-input_mt_report_slot_state()/touchscreen_report_pos() pair is applied to
-whichever slot happened to be selected last, reporting the contact at the
-wrong position. Skip such entries instead.
+This series adds support for the pen report format emitted by the
+device, exposing the stylus as a separate input device with hover,
+pressure, and side-button support. The pen device is created lazily on
+first pen report so touchscreen-only hardware does not advertise stylus
+capabilities up front.
 
-Signed-off-by: Alexandre Hamamdjian <azkali.limited@gmail.com>
----
-A single generic correctness fix: a report whose contact id is at or
-above max_support_points selects an MT slot the input core was never
-told about, so input_mt_slot() ignores it and the contact is reported
-against the previously-selected slot.
+The packet format was reverse engineered on this device. In particular,
+report ID 0x0c appears to carry pen events, pressure comes from
+buf[6..7] shifted right by one, and the side buttons map to two bits in
+buf[1].
 
-The marginal-i2c-bus mitigations that accompanied this in v1 (the
-no-regmap-bulk-read property + driver fallback, and the poll-while-down
-recovery) are dropped: reviewers correctly noted the bulk-read quirk is
-a property of the i2c controller rather than the touch controller and
-does not belong in the touch node's binding, so that work is better
-placed in the i2c controller (or kept out of tree) and is not part of
-this series.
----
- drivers/input/touchscreen/edt-ft5x06.c | 2 ++
- 1 file changed, 2 insertions(+)
+Changes in v3:
+- return success after ratelimited unexpected-report logging so the IRQ
+  handler does not emit a second unratelimited error
+- use input_set_capability() for pen key capabilities
 
-diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/touchscreen/edt-ft5x06.c
-index d3b1177185a3..d6c3d033b83d 100644
---- a/drivers/input/touchscreen/edt-ft5x06.c
-+++ b/drivers/input/touchscreen/edt-ft5x06.c
-@@ -331,6 +331,8 @@ static irqreturn_t edt_ft5x06_ts_isr(int irq, void *dev_id)
- 			swap(x, y);
- 
- 		id = (buf[2] >> 4) & 0x0f;
-+		if (id >= tsdata->max_support_points)
-+			continue;
- 
- 		input_mt_slot(tsdata->input, id);
- 		if (input_mt_report_slot_state(tsdata->input, MT_TOOL_FINGER,
+Changes in v2:
+- manage the lazy pen device lifetime explicitly and tear down the IRQ
+  before unregistering the pen device
+- sync pen axis limits with the DT-adjusted touch axis limits
+- reject short I2C transfers in ilitek_i2c_write_and_read()
+- split the short-transfer fix from the ratelimited logging change
 
----
-base-commit: e98d21c170b01ddef366f023bbfcf6b31509fa83
-change-id: 20260723-b4-ft5426-393d8514e4bf
+On the tested CHUWI Hi10 Max this makes the pen usable in GNOME/Krita,
+including pressure and side buttons.
 
-Best regards,
---  
-Alexandre Hamamdjian <azkali.limited@gmail.com>
+Thanks,
+Kristian
 
+Kristian Mide (3):
+  Input: ilitek_ts: add stylus input support
+  Input: ilitek_ts: handle short I2C transfers
+  Input: ilitek_ts: ratelimit unexpected report logging
 
+ drivers/input/touchscreen/ilitek_ts_i2c.c | 149 +++++++++++++++++++++-
+ 1 file changed, 144 insertions(+), 5 deletions(-)
+
+-- 
+2.54.0

@@ -1,167 +1,111 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-yw1-f170.google.com (mail-yw1-f170.google.com [209.85.128.170])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 28E642D7DEA
-	for <linux-input@vger.kernel.org>; Thu, 23 Jul 2026 15:49:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784821792; cv=none; b=DIl8u1VYBGP9+Vem0sSdGMrLJNIPrS3NaKVuZXG0y1GbXbmdIot9mn8NMyJwwW/DEOKhfTwdCFC+LFph5lF6rk586AmOcRZQT1TkhpStuD6sksK1xIJEXEeYMLumdrz450PWZUITn5A3HBSjrn+CbjysgMfGg9/mQzhIkpE5zFs=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784821792; c=relaxed/simple;
-	bh=wVotfD/kQTNR6sxr46A2r1Jra03Di9E+GD295JrlDtA=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=tjvEdmtKZrIbck1lYKzeiGxxcMSI6Q6BmuddGdsAeHJFQYWD0cvojM2kluvcK+rfNJRjjUWxBih4aQzYMJqWTbVePPMbrEdkOFWpXdi9OuFg8MIYeVfNnogtFcLDperqknYLw2oljirvzX08Jn1NGhXEiN9uuRfPgA5j7bTuSPU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=OLQ0Hb5T; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C23E737F322
+	for <linux-input@vger.kernel.org>; Thu, 23 Jul 2026 15:55:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.128.170
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1784822156; cv=pass; b=EsCn+mGWX0shO9wPkCngIzPOgUwU0k0rOdtdKzJ6ZFJbCGuUv2s4ojImzA5EaUMCScKXfzyjFBLVbAJ9N4duXYGK0lo03lr+Wuwe5L5Z0U9o6g26d345wn/CefTudG1Kp7S4ELTbijeC5s0+bil4CUwe3b/2amYU3mxN6FngKtQ=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1784822156; c=relaxed/simple;
+	bh=TviD2TfpUyvALHM/EIRjWbCupkH+Sjjc0vKErzmfC5w=;
+	h=MIME-Version:From:Date:Message-ID:Subject:To:Cc:Content-Type; b=M5dd430hLQi3WiOFroR5mqhtOGqD5HVLwxIKXVZgbZ0UrbFUjQXahUZwoOoZv2M8Cei6y7ycEj8K0Yc/rR2v6mFgiy/Gftb4vz3FqValpDtBwDn6Gz/HdGKmKyLp0bLAoDB7ntVczn3qtvr8Qqz3sf9OJ3hL+HkG6/SFQx24Hsw=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Y5lHJXin; arc=pass smtp.client-ip=209.85.128.170
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="OLQ0Hb5T"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A73971F000E9;
-	Thu, 23 Jul 2026 15:49:41 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784821781;
-	bh=8zwRmSiDZuaAkQo7ct0IjL3QRFXsWg+U48e39mfZYoM=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=OLQ0Hb5T4OkPNYUS/uuWXwJ/dCm3DeSBnamSSRvyD/mhEpVoLKUmPbArPwVwpokPD
-	 cMJnzwZlu3NQZuwx3M82tGoSIJ9dRjr8fHqC366581Gc4iMhg7ck8vyxtIWIg0pT08
-	 XU9KTFJ6hXcVg+vJ0nNpVsGBkZl88r0VBCVzZXNZpDnPvRiiLW8JqWFOqQKTGwQCaO
-	 zHbZtE5uDEmuoUk5H6snHQaYmInZr4F08tnKYODeLME7o0M5m3w84/PmHXdo8tNwF7
-	 cfknEaBljU4KOidVyfo8GNZkNKr8eYqbKTr2MQxZKePdco2ZK5iyQCaP801crO27/f
-	 66Se323H2owiw==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v3 3/3] Input: ilitek_ts: ratelimit unexpected report
- logging
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Kristian Mide" <kristian@mide.dk>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260723152244.11252-4-kristian@mide.dk>
-References: <20260709182602.7308-1-kristian@mide.dk>
- <20260723152244.11252-1-kristian@mide.dk>
- <20260723152244.11252-4-kristian@mide.dk>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Thu, 23 Jul 2026 15:49:41 +0000
-Message-Id: <20260723154941.A73971F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Y5lHJXin"
+Received: by mail-yw1-f170.google.com with SMTP id 00721157ae682-81e6f2ee60bso4896887b3.1
+        for <linux-input@vger.kernel.org>; Thu, 23 Jul 2026 08:55:53 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1784822152; cv=none;
+        d=google.com; s=arc-20260327;
+        b=ZMpi2+426zPjuDpOILlQBBlhugC55djAXsejmDreXfH3Hfnwv4UfGYKAfEBAeogYye
+         qdV4bpxDdXfEf2/dpSCsW6LNgLn5396GdCUNGwWEd81ReETM8glyyi4RX+QD/tgGQt3i
+         SJ8owQtqOHiwUcd383Pmlo62BcxydVRYtlfqJHWDFKIgboGqbZbRIRJX7OjtlLVRQqwP
+         LTxCPY++nSWpIIalcF3kd6acgUVfTZ/9N075xA3sGdOK72NvZ1EbuOWBx/FKE4y6Dx2n
+         2JY++Y7Ix3XmwQvz4bhVSjKSKEp5O0Wk5B/TurVFlA+CK7owyLXN5Pvkmdqrf0/R/ser
+         kpBg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=cc:to:subject:message-id:date:from:mime-version:dkim-signature;
+        bh=TviD2TfpUyvALHM/EIRjWbCupkH+Sjjc0vKErzmfC5w=;
+        fh=Btgaa7P0WoXIOGDCwPYGmGrzDfRI0PLyoU+UYPBzpvQ=;
+        b=UlxOOvqLTdhwsdlN6dq0OBb7dwicWGNqAxdLiSyYdkla5MEceV3g5wRA7/fN/4G4xB
+         lfvPB1hfdVCIjtU7WgGD1MRn+42QMjK6apy0u9a6ViB/oF/oIaG6pnQgzzEiz8HkOPPc
+         CVYIiCjbjmf2KdFMabZFqa/5CrK6nMH2ogZglXZIoi7vr0hI+h0GZHaNtnuOJlvb1pS+
+         KSXnpx8SK6D4gphbw+AnWwUteEnBcWnP+TJuU29BWFSqBPpH4TK1BjbyVTTHgmlny8bo
+         maU9HCrx7H6e0P8vKkBlRbwnTbBasEcRcNDJVLxRKlgHQg+S6btF5Y+8LO5lnSI+S5Ww
+         nQyA==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1784822152; x=1785426952; darn=vger.kernel.org;
+        h=content-type:cc:to:subject:message-id:date:from:mime-version:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=TviD2TfpUyvALHM/EIRjWbCupkH+Sjjc0vKErzmfC5w=;
+        b=Y5lHJXin2EGQPz+h5dgA3pvL/9tBC+1wDi/YVS64qlutHNtI38OD2eu4+5lLSQq/4D
+         SZDk7WOQ9Zlg20lYXzgYfrNszua2SRWAXJ4P1iv+ezHAWlw1OQXxxHSDRY26gE9aKKv2
+         GHRxkrq2rrDbk0vxa33otFLug3Hzjy88R1ClLD56I+yUVTvCOKrhHTZXhgnqxM3SI3jG
+         zzwv4KjCly4Sj9vWXwWPZEvyPtL4GSR3hLuZlvKuirnWftc3E4uipOtUAFnBslXHT8x8
+         w93EonOLA/t+yl5RnInp/dQ/ogI5uq0erS97Z5j2EQz+dWmlWQ0HhsoFpG1eH65nCUx6
+         4Ugg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1784822152; x=1785426952;
+        h=content-type:cc:to:subject:message-id:date:from:mime-version
+         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=TviD2TfpUyvALHM/EIRjWbCupkH+Sjjc0vKErzmfC5w=;
+        b=BJ6SNJJSgAxzfUOlc7Q/ssW3OH+VGBZpr9F18FM8N/p+tzT6YnnotxGIqOiSavehgd
+         Ea9Z4Ky0ir6LwaQvQXU7xJ7vzRyAv93LNYDwWQTtC8Nm56I1CPbv0vSdO9yDehpPX1EU
+         OWWracXAyrjqf8xMeZe9o5CV2wikFLzOv4foWhetbdBubOdyIF8hE3fiW1LM0Qy/bL2+
+         uA39tMSeZv23v0SKIzCSOiQL8p5mEkvcn4d63aQTLm7F2bAnKiHhs2Y0I3WcKjvmklLI
+         SWoHKsy9wbsz1yJ8tKjvs9nc0mzob1Rlo36a/sBq+ff1kchZ0vS3hLdCSrFUy9JzVaXr
+         DrdQ==
+X-Forwarded-Encrypted: i=1; AHgh+RrTAEEdBoyjZXYN6xMwxa+AN78+QKQq04As2qLoeZR9+2dFyGly25VT9Fmj3cM309BIORwuSJNPoXnltg==@vger.kernel.org
+X-Gm-Message-State: AOJu0YxatDWcPoGfpwKdOQ5QBNGObV0LYn62v6SbBO/R+A5Zht50b1J5
+	Z7tBvJo+vo3qvzXvpji3pthVNCd+SZRHmn3ACkui4QfY9QvHo8n8MIVRAuP1VkQeEvurGoeeSnx
+	EU56fYaLkDcxwJtbzZ8lzzox6QmY5j04=
+X-Gm-Gg: AR+sD10zJN3Jq1PFVXeoPez+amMtnmrIAPyINYBO6Lv3JiYhs1KuUYbuJ5ios3x5E0y
+	RrsGWZAuyi0uCt74qqalgghiMk/kOnPvhBLrjxZqDdokYXss0vJ2/LTQZT72c5tVJIbltQPNhET
+	Px2l92fmMUAPZYbHNjaMzjONyWFwVSncX6I4eWf6qE6b+WPtEbgK+nhGH/yOJqob0w+MqpTBi6K
+	yyVAd5pbN39RBKAv8zJIN8pmpcpD/Bu7rG6gswK3ZLqanK9MMQK2zWNmqOvt0ZvuDYJk0kLj2wx
+	rIP9vfaRHPTpNfTVdPaC
+X-Received: by 2002:a05:690c:9988:b0:81e:a56f:844d with SMTP id
+ 00721157ae682-81f4d674777mr8493697b3.34.1784822152252; Thu, 23 Jul 2026
+ 08:55:52 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+From: Seungjin Bae <eeodqql09@gmail.com>
+Date: Thu, 23 Jul 2026 11:55:15 -0400
+X-Gm-Features: AUfX_myfn2FaMlmkA2LiuJzSjqX_ZEXsJgUtW-kCkzcBZ33Swfp-26sycjak0aI
+Message-ID: <CAAsoPpV1WtUsPRtuRHQb8VuCvMHYHG2K-NU-LKGhFL6rWBdZHA@mail.gmail.com>
+Subject: [PATCH] Input: ims-pcu - fix heap-buffer-overflow in ims_pcu_process_data()
+To: stable@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
+Hi,
 
-Pre-existing issues:
-- [High] Missing `enable_irq()` on error paths in PM suspend and resume cal=
-lbacks, leaving the touchscreen interrupt permanently disabled.
-- [High] The driver unconditionally disables the device IRQ during suspend,=
- breaking system wakeup.
---
+Could you please pick up the following mainline commit for all
+applicable stable trees?
 
---- Patch [3]: [PATCH v3 3/3] Input: ilitek_ts: ratelimit unexpected report=
- logging ---
-commit d857848ba27cfb246552c60fc75946ecead183d4
-Author: Kristian Mide <kristian@mide.dk>
+commit 875115b82c295277b81b6dfee7debc725f44e854
+Input: ims-pcu - fix heap-buffer-overflow in ims_pcu_process_data()
 
-Input: ilitek_ts: ratelimit unexpected report logging
+This fixes a heap-buffer-overflow in the ims-pcu driver that can be
+triggered by a malicious USB device. The missing bounds check on
+read_pos lets an attacker overwrite the index and corrupt heap memory,
+which can lead to a control-flow hijack.
 
-This commit replaces dev_err() with dev_err_ratelimited() when logging
-unexpected report IDs in the ilitek touchscreen driver. It adds the first
-16 bytes of the raw packet to the log for better debugging context. It also
-returns success after logging to prevent duplicate errors from being emitted
-by the IRQ handler.
+The commit was merged to mainline without a Cc: stable tag, so it was
+not picked up automatically. The bug has been present since the driver
+was first introduced, so all stable trees containing the ims-pcu driver
+are affected.
 
-> diff --git a/drivers/input/touchscreen/ilitek_ts_i2c.c b/drivers/input/to=
-uchscreen/ilitek_ts_i2c.c
-> index a184d024d6c4f..2f1741d77e6a9 100644
-> --- a/drivers/input/touchscreen/ilitek_ts_i2c.c
-> +++ b/drivers/input/touchscreen/ilitek_ts_i2c.c
-> @@ -238,8 +238,10 @@ static int ilitek_process_and_report_v6(struct ilite=
-k_ts_data *ts)
->  		return ilitek_process_pen_report(ts, buf);
-> =20
->  	if (buf[0] !=3D ILITEK_TP_I2C_REPORT_ID) {
-> -		dev_err(dev, "get touch info failed. Wrong id: 0x%02X\n", buf[0]);
-> -		return -EINVAL;
-> +		dev_err_ratelimited(dev,
-> +				    "get touch info failed. Wrong id: 0x%02X raw[0:16]=3D%*ph\n",
-> +				    buf[0], 16, buf);
-> +		return 0;
->  	}
-> =20
->  	report_max_point =3D buf[REPORT_COUNT_ADDRESS];
+Fixes: 628329d52474 ("Input: add IMS Passenger Control Unit driver")
 
-[ ... ]
-
-While looking at this driver, I noticed a few pre-existing issues in the
-power management callbacks:
-
-> static int ilitek_suspend(struct device *dev)
-> {
-> 	struct i2c_client *client =3D to_i2c_client(dev);
-> 	struct ilitek_ts_data *ts =3D i2c_get_clientdata(client);
-> 	int error;
->=20
-> 	disable_irq(client->irq);
->=20
-> 	if (!device_may_wakeup(dev)) {
-
-[Severity: High]
-This is a pre-existing issue, but does unconditionally masking the IRQ here
-break system wakeup?
-
-By calling disable_irq(), the interrupt controller is prevented from seeing
-the event and waking the CPU. Even though the sleep command is skipped when
-device_may_wakeup(dev) is true, the unconditionally disabled IRQ line ensur=
-es
-that any touch events generated by the hardware while suspended are dropped.
-
-> 		error =3D api_protocol_set_cmd(ts, SET_IC_SLEEP, NULL, NULL);
-> 		if (error)
-> 			return error;
-
-[Severity: High]
-This isn't a bug introduced by this patch, but if api_protocol_set_cmd()
-fails, does this error path leave the touchscreen interrupt permanently
-disabled?
-
-If this returns early without calling enable_irq(), the PM core aborts the
-suspend process. Since the suspend failed, the resume callback is never
-invoked for this device, leaving the IRQ depth unbalanced and the touchscre=
-en
-unresponsive until a reboot or module reload.
-
-> 	}
->=20
-> 	return 0;
-> }
->=20
-> static int ilitek_resume(struct device *dev)
-> {
-> 	struct i2c_client *client =3D to_i2c_client(dev);
-> 	struct ilitek_ts_data *ts =3D i2c_get_clientdata(client);
-> 	int error;
->=20
-> 	if (!device_may_wakeup(dev)) {
-> 		error =3D api_protocol_set_cmd(ts, SET_IC_WAKE, NULL, NULL);
-> 		if (error)
-> 			return error;
-
-[Severity: High]
-This is a pre-existing issue, but could this error path also leave the IRQ
-disabled?
-
-Similar to the suspend callback, if SET_IC_WAKE fails here, the function
-returns an error before reaching enable_irq(client->irq). This would also
-leave the interrupt permanently disabled.
-
->=20
-> 		ilitek_reset(ts, ts->reset_time);
-> 	}
->=20
-> 	enable_irq(client->irq);
->=20
-> 	return 0;
-> }
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260723152244.1125=
-2-1-kristian@mide.dk?part=3D3
+Thanks,
+Seungjin Bae

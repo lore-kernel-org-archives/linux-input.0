@@ -1,186 +1,150 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A276C29994B;
-	Thu, 23 Jul 2026 19:32:37 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E3678375ADC;
+	Thu, 23 Jul 2026 19:33:41 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784835160; cv=none; b=jUtfbyIU03ldxpcCRv2ck6mw/JvoErMIyg0zm41S4jMCS3hwpdJL2IWcAhftmNQVF6PqjKOmlWMsokFML3pmpsWY0xSr6XzUlSTR0qRCYDNgivB9LSCXQNeZhlY8ui4/x7FwqtrmAktbJp8Osomw4+ygaRw0fYwTmPUwRjzm83k=
+	t=1784835224; cv=none; b=dR3+53PBGN5Yx2Y2qu5LpHhcQx+mKOjzTd8aM447GJ1ReV2pLyJdEGpYFwlJIRx3TF4qWq97sEWogh/G/+ODdfbs1rFHnvdrO1PdT6lkH/VsN8gkadPs9Q24napwYq5cONzJx2RELXbh+JpqanSPd4AZZgxllkrZbexTklLLlZI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784835160; c=relaxed/simple;
-	bh=pw7hXCGOJgzJy9+oaO6bIye049xwPpWOj5eEECoqpZA=;
+	s=arc-20240116; t=1784835224; c=relaxed/simple;
+	bh=SaxkG8zv2Uva8saHNvS/nIJ+tcHK7z4L9XVKbWCq9uI=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=p6tWyuV3AuqJEUK8RTRqjuSdnwWcFSO0jd7FJw5Pv8q+xFFq5qpbBH40237WXpx8ylR3tU1Ra1o71bj9ro5FZO34hEE/F6cElXJAvEg1JKZCskbMcEB3mbR0lcI0mtIUeawHns4ZlqYKtXNt/R0gkQsU5970mtFB4lA3vLpbYZk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=GkN6Cbuf; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=RAYggiRZk4Rf0S6VIsLAUqnuo26aflQf9aw1kPAKBPivyqmTdvxXJwvMNJ+nOlUnaEqXwFlUhR6U9WlHli6sLQOhfi1pvcGY6gPJMY0KVD+wyhV+Yfc5Etm18W4srXFLgHs7zL3hH9wovmqF1aRF/p7ISB5vnR3Vd8q1wItI8ck=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=DbUrE9vd; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="GkN6Cbuf"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 351781F000E9;
-	Thu, 23 Jul 2026 19:32:35 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="DbUrE9vd"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D3171F000E9;
+	Thu, 23 Jul 2026 19:33:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784835155;
-	bh=9OkuSCyeDz7nXg9dn35OcN9fAqYdEXbUkChLHjMBYrU=;
+	s=k20260515; t=1784835221;
+	bh=bjmT4oIIaIsaoP2xWnwCppFgkL4eCmTKZTac6B5XzRo=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=GkN6Cbuf5v2sdfmdivxWznyX9T2agtGAn2qcePO/HybP4bLzBG0MxivuAnm+2xuYT
-	 cX9KO3SZN+mL+LPXwHg35iAQfVQYeYG5+Vb7kYZulmN7EwuVpR2W5DxF98rIXg6jD/
-	 JvY6dDZqetWiyL9lP2z1ZT1hCS51L7cf3olGKhuDnIjRlugu3i0qV4UX8ji9KdmIig
-	 Sb6iIGKdn0RFbkO/vOkNzdE/G/Wohx/muhORh6Q63JanM4I1iLZkWa1hZ0q3gYcA08
-	 6pBVVOMDMD7MwZcvcG4Fs1KtI1iN23aEuRHA0RGVJA4Q9RU10qV7VErOPr7TNu1Co6
-	 BOZHvxKOMpJFw==
+	b=DbUrE9vdXJuwQPk9nqLfmH2+Fx/ucfIgi6ccRm4eP2Oue43B8P7UfxtnRpwCX3mdU
+	 7RU4+5SeCbUIcyClKoREdCsCKjv1Zmz7XpXryr2uKtCIx0WZPUngQgrwmX579PEpA3
+	 P6TZ14Ns0qx4DfcpQMdGOZrg6DYsMvlfcvgGHJvL1Y4s9f57Scs//K9keGIsFjsSGs
+	 6ob8UWdjsAVR1CGAxIshU6VNKFlVtrsglSGXk0yxsgc5kcVRGRdJHR1hRFsp2tcB4Q
+	 6/JHFtbuyrFDbF0Ns/agn3ZAAj42QgORPRWK/eLP8fnQsM3ee2avZrYu2E8dP7tNHA
+	 kBx83bRzjn9yA==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 2/5] Input: zinitix - do not ignore non-moving fingers
+Subject: Re: [PATCH 3/5] Input: zinitix - add support for modes 0 and 1
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Kaustabh Chakraborty" <kauschluss@disroot.org>
-Cc: devicetree@vger.kernel.org, robh@kernel.org, dmitry.torokhov@gmail.com, conor+dt@kernel.org, linux-input@vger.kernel.org
-In-Reply-To: <20260724-zinitix-modes-v1-2-f6df7d86a878@disroot.org>
+Cc: devicetree@vger.kernel.org, robh@kernel.org, linux-input@vger.kernel.org, conor+dt@kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20260724-zinitix-modes-v1-3-f6df7d86a878@disroot.org>
 References: <20260724-zinitix-modes-v1-0-f6df7d86a878@disroot.org>
- <20260724-zinitix-modes-v1-2-f6df7d86a878@disroot.org>
+ <20260724-zinitix-modes-v1-3-f6df7d86a878@disroot.org>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 23 Jul 2026 19:32:34 +0000
-Message-Id: <20260723193235.351781F000E9@smtp.kernel.org>
+Date: Thu, 23 Jul 2026 19:33:40 +0000
+Message-Id: <20260723193341.1D3171F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 4 potential issue(=
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
 s) to consider:
 
-New issues:
-- [Low] The validation check in `zinitix_report_finger()` is mathematically=
- impossible to trigger, turning the validation block into dead code and byp=
-assing all event validation.
-
 Pre-existing issues:
-- [High] The input device is registered before all driver private data is f=
-ully initialized, exposing incomplete state to userspace and violating subs=
-ystem rules.
-- [High] Regulators enabled in `zinitix_start()` are not disabled on initia=
-lization failure paths, leading to a leaked reference count.
-- [High] I2C transfers are performed using stack-allocated buffers, which v=
-iolates kernel safety guidelines for DMA-mapped memory.
+- [High] The input device is registered and exposed to userspace before its=
+ driver private data (`zinitix_mode`) is fully parsed and initialized, crea=
+ting a race condition.
+- [High] Stack-allocated buffers are passed to I2C transfer functions, whic=
+h is unsafe and can lead to memory corruption or kernel panics if the I2C a=
+dapter relies on DMA.
 --
 
---- Patch [2]: [PATCH 2/5] Input: zinitix - do not ignore non-moving finger=
-s ---
-commit 014178afb268830e3c3cda63dc0ca293fa9a9335
+--- Patch [3]: [PATCH 3/5] Input: zinitix - add support for modes 0 and 1 -=
+--
+commit 0a0b84e68f36f7bf2e3b751801c1b10ca100ae2e
 Author: Kaustabh Chakraborty <kauschluss@disroot.org>
 
-Input: zinitix - do not ignore non-moving fingers
+Input: zinitix - add support for modes 0 and 1
 
-This commit addresses an issue with the ZT7548 touchscreen where non-moving
-fingers are ignored. It updates the validation mask in zinitix_report_finge=
-r()
-to include the SUB_BIT_EXIST flag. This ensures fingers that haven't moved
-since the last interrupt are properly recognized.
+This commit implements support for touchscreen modes 0 and 1 in the zinitix
+driver by introducing mode-specific event structures. It maintains a common
+canonical event structure and adds functions to convert mode-specific event
+data into this common format.
 
 > diff --git a/drivers/input/touchscreen/zinitix.c b/drivers/input/touchscr=
 een/zinitix.c
-> index 3421b8ffb19b2..fdcb80f52c917 100644
+> index fdcb80f52c917..42010f23445e3 100644
 > --- a/drivers/input/touchscreen/zinitix.c
 > +++ b/drivers/input/touchscreen/zinitix.c
-> @@ -406,7 +406,7 @@ static void zinitix_report_finger(struct bt541_ts_dat=
-a *bt541, int slot,
->  	u16 x, y;
+
+[ ... ]
+
+> @@ -440,6 +470,103 @@ static void zinitix_report_keys(struct bt541_ts_dat=
+a *bt541, u16 icon_events)
+>  				 bt541->keycodes[i], icon_events & BIT(i));
+>  }
 > =20
->  	if (unlikely(!(p->sub_status &
-> -		       (SUB_BIT_UP | SUB_BIT_DOWN | SUB_BIT_MOVE)))) {
-> +		       (SUB_BIT_EXIST | SUB_BIT_UP | SUB_BIT_DOWN | SUB_BIT_MOVE)))) {
-[Severity: Low]
-Is this validation check mathematically impossible to trigger now?
-
-The caller zinitix_ts_irq_handler() already verifies if SUB_BIT_EXIST is se=
-t:
-
-zinitix_ts_irq_handler() {
-    ...
-    if (p->sub_status & SUB_BIT_EXIST)
-        zinitix_report_finger(bt541, i, p);
-    ...
-}
-
-Since SUB_BIT_EXIST is strictly guaranteed to be present when this function
-is called, the bitwise AND always evaluates to a non-zero value.
-
-This means the negated condition will always evaluate to false, rendering
-the entire event validation block and its debug log dead code.
-
->  		dev_dbg(&bt541->client->dev, "unknown finger event %#02x\n",
->  			p->sub_status);
->  		return;
+> +static int zinitix_read_point_status_mode0(struct bt541_ts_data *bt541,
+> +					   struct touch_event *event)
+> +{
+> +	struct touch_event_mode0 event_mode0;
+> +	int ret;
+> +	int i;
+> +
+> +	ret =3D zinitix_read_data(bt541->client, ZINITIX_POINT_STATUS_REG,
+> +				&event_mode0, sizeof(struct touch_event_mode0));
 
 [Severity: High]
-This isn't a bug introduced by this patch, but does the input device
-registration happen before all driver private data is fully initialized?
+This isn't a bug introduced by this patch, but does passing stack-allocated
+buffers to I2C transfer functions risk memory corruption?
 
-In zinitix_ts_probe():
-    ...
-    error =3D zinitix_init_input_dev(bt541);
-    ...
-    error =3D device_property_read_u32(&client->dev, "zinitix,mode",
-                                     &bt541->zinitix_mode);
-    ...
+Looking at zinitix_read_point_status_mode0(), the stack-allocated
+event_mode0 structure is passed via zinitix_read_data() to i2c_master_recv(=
+).
+Because kernel stacks are typically virtually mapped with CONFIG_VMAP_STACK
+and are not physically contiguous, if the underlying I2C controller driver
+attempts to DMA-map this memory, it can lead to memory corruption or kernel
+panics.
 
-If a userspace process opens the input device immediately upon registration
-in zinitix_init_input_dev(), the driver could configure the hardware using
-an uninitialized bt541->zinitix_mode.
+This pattern is pre-existing in the driver, but the new mode implementations
+continue to use it.
 
-Could this place the touchscreen into an unsupported mode?
+> +	if (ret)
+> +		return ret;
 
-[Severity: High]
-This is a pre-existing issue, but are the regulators enabled in
-zinitix_start() correctly disabled on initialization failure paths?
+[ ... ]
 
-zinitix_start() {
-    ...
-    error =3D regulator_bulk_enable(ARRAY_SIZE(bt541->supplies),
-                                  bt541->supplies);
-    ...
-    error =3D zinitix_send_power_on_sequence(bt541);
-    if (error) {
-        dev_err(&bt541->client->dev,
-                "Error while sending power-on sequence: %d\n", error);
-        return error;
-    }
-    ...
-}
-
-If zinitix_send_power_on_sequence() or zinitix_init_touch() fail, the
-function returns without disabling the regulators.
-
-Since the input subsystem considers the device closed on open failure, it
-will not call zinitix_input_close().
-
-Could repeated open attempts leak the regulator references?
+> @@ -682,13 +808,9 @@ static int zinitix_ts_probe(struct i2c_client *clien=
+t)
+>  		bt541->zinitix_mode =3D DEFAULT_TOUCH_POINT_MODE;
+>  	}
+> =20
+> -	if (bt541->zinitix_mode !=3D 2) {
+> -		/*
+> -		 * If there are devices that don't support mode 2, support
+> -		 * for other modes (0, 1) will be needed.
+> -		 */
+> +	if (bt541->zinitix_mode > 2) {
+>  		dev_err(&client->dev,
+> -			"Malformed zinitix,mode property, must be 2 (supplied: %d)\n",
+> +			"Malformed zinitix,mode property, must be 0, 1, or 2 (supplied: %d)\n=
+",
+>  			bt541->zinitix_mode);
 
 [Severity: High]
-This is a pre-existing issue, but do the I2C transfers use stack-allocated
-buffers?
+This is a pre-existing issue, but could parsing and validating zinitix_mode
+after the input device is registered cause a race condition with userspace?
 
-zinitix_write_cmd() {
-    __le16 reg_le =3D cpu_to_le16(reg);
-    int ret;
+In zinitix_ts_probe(), zinitix_init_input_dev() is called earlier, which
+registers the input device and makes it available to userspace. If userspace
+opens the device immediately (e.g., via udev uevents), the hardware might
+be initialized with an uninitialized zinitix_mode (0 instead of the intended
+mode) before this device property parsing executes. This can lead to the
+interrupt handler processing garbage data.
 
-    ret =3D i2c_master_send(client, (u8 *)&reg_le, sizeof(reg_le));
-    ...
-}
+Would it be better to read and validate the "zinitix,mode" property before
+calling zinitix_init_input_dev()?
 
-zinitix_ts_irq_handler() {
-    struct touch_event touch_event;
-    ...
-    error =3D zinitix_read_data(bt541->client, ZINITIX_POINT_STATUS_REG,
-                              &touch_event, sizeof(struct touch_event));
-    ...
-}
-
-Passing stack-allocated buffers to I2C transfer functions can lead to
-memory corruption or DMA API warnings if the underlying I2C controller
-driver attempts to use DMA.
-
-Are these buffers safe given that stack memory is not guaranteed to be
-DMA-coherent?
+>  		return -EINVAL;
+>  	}
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260724-zinitix-mo=
-des-v1-0-f6df7d86a878@disroot.org?part=3D2
+des-v1-0-f6df7d86a878@disroot.org?part=3D3

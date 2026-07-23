@@ -1,112 +1,66 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6D953233D9E;
-	Wed, 22 Jul 2026 23:50:25 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A07671C860C;
+	Thu, 23 Jul 2026 00:32:52 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784764226; cv=none; b=sQoaobiy+I4wYZHGFKX8zG9hOty+KYYalNlpx5QQFkCTitQ9TkWYKTu8+xwenVY2empCOj7hCqqBtETUPs7X89K2FblIcbIWTtMKSA9nt10QNqf7dk1YJYArjZl0BfvahDvdAE+8W9vgLCB5EN9zTSh7tpLc9f5lZzt5HwJaAog=
+	t=1784766773; cv=none; b=CgBuLI1D+PngCH7LpvdPxs9i7o0vC4q1K/fhPodfcHkshizmqrZdIRu0ftEvYUacqZckjjTFYMwSzw76anYeO189ohtkVMQMX18e0YpWXHP4QEV9Dyi6MdApx6oLxl/Wox2Eb6WaMWSa3Gi8APOUbcM4m9LP004cqXTgSygvvJA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784764226; c=relaxed/simple;
-	bh=OakQWVhdF10RS3kh92NxpUZZff0+Sl09gvPYccKiZj8=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=P/EzD1yPrhv80muIhzUdJPZkE2F7e7j5gS7K+2FJWj7ZsnKgad0NqhdrBNuEB8JGkt5gjhbK2WoWpji/42oxtyKPez/g3hjNbX8cTAf5TpiXUL2xa9Pzl2O3PBFvqLV/Db2kr4yCBdnV/wxYP6tv0UeNAbKQKp/rL0Fc3Q2SiP8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ZhvvAEUt; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1784766773; c=relaxed/simple;
+	bh=YtxKFepp1AuhG2qF2KLFBdPOhUgcxXuCWjoDzdp7n+Q=;
+	h=Content-Type:MIME-Version:Message-Id:In-Reply-To:References:
+	 Subject:From:To:Cc:Date; b=S70XfBRV7Fw8N8Um6yoXs3ZHzksRz6JQWBCMo3O0qYRZx/ZFqZfP7gJwoYpvo+vMqmMELaZnUc2cOh+SsYHOhFgim1qhE7z1gZRT6yWQ0jdh4amUIEHFFT0RL8C1ELhpvnhTGdibDyIyTKOrU7hVK0J+aG59Dob922FlSAFJlfk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=azMiedIh; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ZhvvAEUt"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C478C1F000E9;
-	Wed, 22 Jul 2026 23:50:24 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="azMiedIh"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF3181F000E9;
+	Thu, 23 Jul 2026 00:32:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784764225;
-	bh=eX+dPuMrIFjKW72Pu/1PMw+e+pkWBgKsM1INZa44JW4=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=ZhvvAEUtidZNdpFdpoUtCxU+noyAuQ1K9BVwS4LVJMpWepBxRmA2r5Nbsg6JeW8kl
-	 rnxM3SbKbK9eB5/mwoStoYaDNdugWK/Yp00+0SiYnlWhU+rvyrKvEGvZHWtLT9aFr9
-	 i8L8PkqdJLijU6B8Kcr+6mICR6D3otHi2H5IiXtTZuUtmVhKcxfpQgOgwbTEfCm8JN
-	 Qi/1z7VKpQ4bV5HzXvQWPpvYTVMWyzhXSmm8343oRCXibBQJUHW0qK8jpnPfAyuFc3
-	 NJEMf+Pas8QnFAoN12ZKd5UKeLdKbud6qOScBjOlL8A4Io+Gauu/Ry+XEDhoVufQWZ
-	 zwucegS/yrsXQ==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH bpf-next v1 3/8] resolve_btfids: Keep collected kfuncs
- in a rbtree
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Ihor Solodrai" <ihor.solodrai@linux.dev>
-Cc: linux-input@vger.kernel.org, bpf@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260722233518.778854-4-ihor.solodrai@linux.dev>
-References: <20260722233518.778854-1-ihor.solodrai@linux.dev>
- <20260722233518.778854-4-ihor.solodrai@linux.dev>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Wed, 22 Jul 2026 23:50:24 +0000
-Message-Id: <20260722235024.C478C1F000E9@smtp.kernel.org>
+	s=k20260515; t=1784766772;
+	bh=YtxKFepp1AuhG2qF2KLFBdPOhUgcxXuCWjoDzdp7n+Q=;
+	h=In-Reply-To:References:Subject:From:To:Cc:Date;
+	b=azMiedIh52adZagrtMm6A7NGSgKWVQjbrXdz2KIrzJyK4ITSQrHB6g4xtzE8M3r0c
+	 +e8kf1+eQTBjXbliTXm+/yMrzWJakbWv5kMBJloA2Zki4ufYB1eKvUAoGDwin47/1b
+	 3TjdbDe+rV2nAcswgTB8WA6z6dugJlMffHWiOWbtKitfgJKXUArRWMDPeJ0E9EtXxb
+	 WEylkUmQQQp0aV1oYl3kuAzkGWZH+5kBz2w7E7hk9L6nHVf0vV5nYojr1L2axp+KPo
+	 D47jBpdfKH80CfCihBCd6+MCHKseDSzuiQqU4R3bbQP7FgQOVokXBkW9txDn3jp37x
+	 jAf/vg3sAs8eg==
+Content-Type: multipart/mixed; boundary="===============7819124672924686355=="
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Message-Id: <8a65f41ab57ca5cdf28da990706b570ade7fda87d191b7f4a5d1f42e8cbb697b@mail.kernel.org>
+In-Reply-To: <20260722233518.778854-9-ihor.solodrai@linux.dev>
+References: <20260722233518.778854-9-ihor.solodrai@linux.dev>
+Subject: Re: [PATCH bpf-next v1 8/8] resolve_btfids: Enforce consistent kfunc flags across BTF ID sets
+From: bot+bpf-ci@kernel.org
+To: ihor.solodrai@linux.dev,ast@kernel.org,andrii@kernel.org,daniel@iogearbox.net,eddyz87@gmail.com,memxor@gmail.com
+Cc: bentiss@kernel.org,jikos@kernel.org,emil@etsalapatis.com,jolsa@kernel.org,bpf@vger.kernel.org,linux-input@vger.kernel.org,kernel-team@meta.com,ast@kernel.org,andrii@kernel.org,daniel@iogearbox.net,martin.lau@kernel.org,eddyz87@gmail.com,yonghong.song@linux.dev,clm@meta.com,ihor.solodrai@linux.dev
+Date: Thu, 23 Jul 2026 00:32:50 +0000 (UTC)
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
-- [Medium] Silent dismissal of inconsistent kfunc flags during deduplicatio=
-n.
---
+--===============7819124672924686355==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
 
---- Patch [3]: [PATCH bpf-next v1 3/8] resolve_btfids: Keep collected kfunc=
-s in a rbtree ---
-commit d91e5d0dd32a660902e686ef89cb30a196dda160
-Author: Ihor Solodrai <ihor.solodrai@linux.dev>
+> Enforce the kfunc flag consistency in resolve_btifds by hard failing
+> on error and blocking kernel (or module) build.
 
-resolve_btfids: Keep collected kfuncs in a rbtree
+This isn't a bug, but should 'resolve_btifds' here be 'resolve_btfids'
+to match the tool name?
 
-This commit changes the storage of collected kfuncs from a dynamically grown
-array to an rbtree keyed by BTF ID. This allows for efficient deduplication
-when kfuncs are declared in multiple sets.
+> [1] https://lore.kernel.org/bpf/9b2196dd-443b-4632-ae11-030cdbdc59b4@linux.dev/
+>
+> Signed-off-by: Ihor Solodrai <ihor.solodrai@linux.dev>
 
-> diff --git a/tools/bpf/resolve_btfids/main.c b/tools/bpf/resolve_btfids/m=
-ain.c
-> index 3198198b03a78..de4986e1bc3d1 100644
-> --- a/tools/bpf/resolve_btfids/main.c
-> +++ b/tools/bpf/resolve_btfids/main.c
-[ ... ]
-> @@ -979,14 +978,48 @@ static int push_decl_tag_id(struct btf2btf_context =
-*ctx, u32 decl_tag_id)
-> =20
->  static int push_kfunc(struct btf2btf_context *ctx, struct kfunc *kfunc)
->  {
-> -	if (ensure_mem(&ctx->kfuncs, &ctx->max_kfuncs, ctx->nr_kfuncs + 1))
-> +	struct rb_node **p =3D &ctx->kfuncs.rb_node;
-> +	struct rb_node *parent =3D NULL;
-> +	struct kfunc *k;
-> +
-> +	/* Dedup by BTF ID: collecting the same kfunc twice is a no-op. */
-> +	while (*p) {
-> +		parent =3D *p;
-> +		k =3D rb_entry(parent, struct kfunc, rb_node);
-> +
-> +		if (kfunc->btf_id < k->btf_id)
-> +			p =3D &(*p)->rb_left;
-> +		else if (kfunc->btf_id > k->btf_id)
-> +			p =3D &(*p)->rb_right;
-> +		else
-> +			return 0;
 
-[Severity: Medium]
-Does this silent return effectively ignore conflicting flags from subsequent
-declarations?
+---
+AI reviewed your patch. Please fix the bug or email reply why it's not a bug.
+See: https://github.com/kernel-patches/vmtest/blob/master/ci/claude/README.md
 
-If the same kfunc is mistakenly declared in multiple BTF sets with different
-flags (such as KF_ACQUIRE vs none), returning 0 here without checking if
-k->flags =3D=3D kfunc->flags will silently discard the incoming flags.
-
-Could this cause critical security flags like KF_ACQUIRE or KF_TRUSTED_ARGS
-to be unexpectedly dropped depending on the processing order?
-
-> +	}
-> +
-> +	k =3D zalloc(sizeof(*k));
-> +	if (!k)
->  		return -ENOMEM;
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260722233518.7788=
-54-1-ihor.solodrai@linux.dev?part=3D3
+CI run summary: https://github.com/kernel-patches/bpf/actions/runs/29967476366
+--===============7819124672924686355==--

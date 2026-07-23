@@ -1,53 +1,52 @@
-Received: from pdx-out-010.esa.us-west-2.outbound.mail-perimeter.amazon.com (pdx-out-010.esa.us-west-2.outbound.mail-perimeter.amazon.com [52.12.53.23])
+Received: from pdx-out-005.esa.us-west-2.outbound.mail-perimeter.amazon.com (pdx-out-005.esa.us-west-2.outbound.mail-perimeter.amazon.com [52.13.214.179])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 16A0539A7EF;
-	Thu, 23 Jul 2026 17:54:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=52.12.53.23
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 74A582D12EE;
+	Thu, 23 Jul 2026 17:55:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=52.13.214.179
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784829242; cv=none; b=YKh5YVA6scIX3PScAB+ibkukfxJegc+hrFKDBrkd5iOn7jal61GgKjzDknK/T4Jiqegs+UtrY0qkfjA7lpoJsCQzi2Ve1dTt819yTiIZPtTs21S0QTs5qYlMCLk+GQcFXVd4nqhxeER2sOL0bEUYIaV+XYauXMg+Pdkx9WjzJCw=
+	t=1784829329; cv=none; b=lQGUiWltsjvs8mTglEsXs4kSnISs1joa2pM2iSpnMnJ4v5lpBHxhDxceAv6ukMSROui60zP1VRVcdWhlKikiW+mrQ8xGc6qhku3IU21pnuR8g+NymmsQv+AgDTVKXgvF0+dCO+CV74XqWmcYLFbN0yszXSJX/NBiPh7YT9jn0EU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784829242; c=relaxed/simple;
-	bh=RSr8FlkU84+VocbpgXROHP1N6eIKfBDgO16QrCdJHMI=;
-	h=From:To:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=WdsXvcyA/NC0ZI3DkbaFGTmeqLZ2URZJWQY4eHZvqS6Nkwhv0CKylmkVQ1BkKcljqpkPt1y0+oalnH6IXvR69bCsCyNJVTc6Bqz5BB5PJvYeXXsmEwKIa895dPRgxNW5w/BEAwW1JixiP209DfUTDvPD+Jg4CzRD2nRk6w85WlI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com; spf=pass smtp.mailfrom=amazon.com; dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b=W5/btFfU; arc=none smtp.client-ip=52.12.53.23
+	s=arc-20240116; t=1784829329; c=relaxed/simple;
+	bh=pCCUO6JOWdcQVbImUjQX6hlFOQvlNXyRHo3sfyYkviA=;
+	h=From:To:Subject:Date:Message-ID:MIME-Version:Content-Type; b=sHcOwrCh+jBZcWM6ASBGaeuStNjK2TjWV+/bT+eHRF4xAGxeTEWeOnnnif0zmtUFK1ZHdXNHXAMEUvoC1S3JlauZYJSsIAX3H3h1xxqCXolGL+1V6E05Q8BOzCiYWryr5yEmUmtcX63PU0yftezUeOs20xYWDgQwtwAM7t+p9F4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com; spf=pass smtp.mailfrom=amazon.com; dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b=fRU3zDO6; arc=none smtp.client-ip=52.13.214.179
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=amazon.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b="W5/btFfU"
+	dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b="fRU3zDO6"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
   d=amazon.com; i=@amazon.com; q=dns/txt; s=amazoncorp2;
-  t=1784829241; x=1816365241;
-  h=from:to:subject:date:message-id:in-reply-to:references:
-   mime-version:content-transfer-encoding;
-  bh=AppKvnUIIDaEqD6OfufIdgEnM7UnHhbTloqTejwyZ+s=;
-  b=W5/btFfUUZiW9zw+jw+mA0LgGrM76HXqofj4cs4I0cwBZ83p/Wt4B+Ca
-   Prm4PK/P/HYCzD6ygsp6z2WE7qxDaBXQ+10okZDUVvKZ6CNFOP5IBJyoK
-   FGL2En/nRZKDQmUMFDWVothbnr4ZsWBJOK1puvdm1GWZj+QAjwlVLwn8I
-   6AT1vs9Ixpoi9DT3kEzw+/dS8tz75D7ZJBh2yPNyjHoYoWmyb5Bcb6DRa
-   aI/DOjsmK1jYxPcOjdiqZYm01VTto7hXyb5jAm/yvcPw4xB9hDMfvDjmA
-   BOocbtnnQcn+1N2PBZrklNyU7D+XbU+KAY0ZU2E8fguf1b6rZKQjQz4mV
-   A==;
-X-CSE-ConnectionGUID: rHWCnnVhRhyGHsNf1arnsA==
-X-CSE-MsgGUID: u0pYaU6yQVeweabPrCx6pA==
+  t=1784829327; x=1816365327;
+  h=from:to:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=8Hp9f6tIRgT0suTvhMA27AYmbAsFpEPJVOMsmC/1oKA=;
+  b=fRU3zDO6P7b869mtU2f4yRKFmmespi4HA9JU/38LhG3P+JtdzHLd8ucu
+   sV8mldR445JOHqm0CQoWaQ6iClUCc0fbCikhqNUNRjJ8MfRJvH8mrX4sD
+   zQuHmj/ob7tFvpM/EX7c8lSNDr57DYPy6N/gkrHoo1drukflU4eoFonu6
+   muclyzKggAfVZ4BVUPdd0fDyvWQzm8IlJJ3tDeTpiGgEHqlQ517b+JDIH
+   nYb8Yh9/PLiPx4zlDVKA8b6FDNIZVipPRVjRxZw6zI1S+KWrWTqmn9HEA
+   qaIpGoa3JCR3piav2xnpKAq48l+/zNCE7kTAxpfDKpm5zw8ndJmZOO7Ao
+   w==;
+X-CSE-ConnectionGUID: UsTBgKs1SPSshebc6mNtYQ==
+X-CSE-MsgGUID: nsTf7wJXRluTb7dqCJXxrg==
 X-IronPort-AV: E=Sophos;i="6.25,181,1779148800"; 
-   d="scan'208";a="24120691"
-Received: from ip-10-5-12-219.us-west-2.compute.internal (HELO smtpout.naws.us-west-2.prod.farcaster.email.amazon.dev) ([10.5.12.219])
-  by internal-pdx-out-010.esa.us-west-2.outbound.mail-perimeter.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Jul 2026 17:53:58 +0000
-Received: from EX19MTAUWC001.ant.amazon.com [205.251.233.105:5544]
- by smtpin.naws.us-west-2.prod.farcaster.email.amazon.dev [10.0.25.115:2525] with esmtp (Farcaster)
- id c75d2ba4-7d36-4f3e-868f-701cfca9d68d; Thu, 23 Jul 2026 17:53:57 +0000 (UTC)
-X-Farcaster-Flow-ID: c75d2ba4-7d36-4f3e-868f-701cfca9d68d
+   d="scan'208";a="24227981"
+Received: from ip-10-5-9-48.us-west-2.compute.internal (HELO smtpout.naws.us-west-2.prod.farcaster.email.amazon.dev) ([10.5.9.48])
+  by internal-pdx-out-005.esa.us-west-2.outbound.mail-perimeter.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Jul 2026 17:55:23 +0000
+Received: from EX19MTAUWB002.ant.amazon.com [205.251.233.48:26670]
+ by smtpin.naws.us-west-2.prod.farcaster.email.amazon.dev [10.0.31.176:2525] with esmtp (Farcaster)
+ id 46212030-b61f-4fc0-97f3-53aa3f3132a7; Thu, 23 Jul 2026 17:55:23 +0000 (UTC)
+X-Farcaster-Flow-ID: 46212030-b61f-4fc0-97f3-53aa3f3132a7
 Received: from EX19D001UWA001.ant.amazon.com (10.13.138.214) by
- EX19MTAUWC001.ant.amazon.com (10.250.64.174) with Microsoft SMTP Server
+ EX19MTAUWB002.ant.amazon.com (10.250.64.231) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.2562.43;
- Thu, 23 Jul 2026 17:53:57 +0000
+ Thu, 23 Jul 2026 17:55:23 +0000
 Received: from dev-dsk-farbere-1a-46ecabed.eu-west-1.amazon.com
  (172.19.116.181) by EX19D001UWA001.ant.amazon.com (10.13.138.214) with
  Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.2562.43; Thu, 23 Jul 2026
- 17:53:52 +0000
+ 17:55:17 +0000
 From: Eliav Farber <farbere@amazon.com>
 To: <rafael@kernel.org>, <tony.luck@intel.com>, <bp@alien8.de>,
 	<guohanjun@huawei.com>, <mchehab@kernel.org>, <xueshuai@linux.alibaba.com>,
@@ -64,12 +63,10 @@ To: <rafael@kernel.org>, <tony.luck@intel.com>, <bp@alien8.de>,
 	<linux-gpio@vger.kernel.org>, <linux-pwm@vger.kernel.org>,
 	<linux-iio@vger.kernel.org>, <linux-input@vger.kernel.org>,
 	<platform-driver-x86@vger.kernel.org>
-Subject: [PATCH 04/12] iio: position: iqs624: use devm_blocking_notifier_chain_register()
-Date: Thu, 23 Jul 2026 17:53:17 +0000
-Message-ID: <20260723175325.37397-5-farbere@amazon.com>
+Subject: [PATCH 05/12] gpio: adp5585: use devm_blocking_notifier_chain_register()
+Date: Thu, 23 Jul 2026 17:55:06 +0000
+Message-ID: <20260723175513.39849-1-farbere@amazon.com>
 X-Mailer: git-send-email 2.47.3
-In-Reply-To: <20260723175325.37397-1-farbere@amazon.com>
-References: <20260723175325.37397-1-farbere@amazon.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -78,66 +75,57 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
-X-ClientProxiedBy: EX19D031UWC002.ant.amazon.com (10.13.139.212) To
+X-ClientProxiedBy: EX19D046UWA002.ant.amazon.com (10.13.139.39) To
  EX19D001UWA001.ant.amazon.com (10.13.138.214)
 
 Replace the blocking_notifier_chain_register() +
 devm_add_action_or_reset() pattern with a single call to
 devm_blocking_notifier_chain_register(), removing the
-iqs624_pos_notifier_unregister() callback.
+adp5585_gpio_unreg_notifier() callback.
 
 Signed-off-by: Eliav Farber <farbere@amazon.com>
 ---
- drivers/iio/position/iqs624-pos.c | 24 +++---------------------
- 1 file changed, 3 insertions(+), 21 deletions(-)
+ drivers/gpio/gpio-adp5585.c | 20 +++-----------------
+ 1 file changed, 3 insertions(+), 17 deletions(-)
 
-diff --git a/drivers/iio/position/iqs624-pos.c b/drivers/iio/position/iqs624-pos.c
-index 8239239c6ee2..d2aa2df71457 100644
---- a/drivers/iio/position/iqs624-pos.c
-+++ b/drivers/iio/position/iqs624-pos.c
-@@ -96,19 +96,6 @@ static int iqs624_pos_notifier(struct notifier_block *notifier,
- 	return ret;
- }
+diff --git a/drivers/gpio/gpio-adp5585.c b/drivers/gpio/gpio-adp5585.c
+index 6f10fc646008..7c04a7e86c8f 100644
+--- a/drivers/gpio/gpio-adp5585.c
++++ b/drivers/gpio/gpio-adp5585.c
+@@ -390,16 +390,6 @@ static const struct irq_chip adp5585_irq_chip = {
+ 	GPIOCHIP_IRQ_RESOURCE_HELPERS,
+ };
  
--static void iqs624_pos_notifier_unregister(void *context)
+-static void adp5585_gpio_unreg_notifier(void *data)
 -{
--	struct iqs624_pos_private *iqs624_pos = context;
--	struct iio_dev *indio_dev = iqs624_pos->indio_dev;
--	int ret;
+-	struct adp5585_gpio_dev *adp5585_gpio = data;
+-	struct device *dev = adp5585_gpio->gpio_chip.parent;
+-	struct adp5585_dev *adp5585 = dev_get_drvdata(dev->parent);
 -
--	ret = blocking_notifier_chain_unregister(&iqs624_pos->iqs62x->nh,
--						 &iqs624_pos->notifier);
--	if (ret)
--		dev_err(indio_dev->dev.parent,
--			"Failed to unregister notifier: %d\n", ret);
+-	blocking_notifier_chain_unregister(&adp5585->event_notifier,
+-					   &adp5585_gpio->nb);
 -}
 -
- static int iqs624_pos_angle_get(struct iqs62x_core *iqs62x, unsigned int *val)
+ static int adp5585_gpio_probe(struct platform_device *pdev)
  {
- 	int ret;
-@@ -255,19 +242,14 @@ static int iqs624_pos_probe(struct platform_device *pdev)
- 	mutex_init(&iqs624_pos->lock);
+ 	struct adp5585_dev *adp5585 = dev_get_drvdata(pdev->dev.parent);
+@@ -450,13 +440,9 @@ static int adp5585_gpio_probe(struct platform_device *pdev)
+ 		girq->threaded = true;
  
- 	iqs624_pos->notifier.notifier_call = iqs624_pos_notifier;
--	ret = blocking_notifier_chain_register(&iqs624_pos->iqs62x->nh,
--					       &iqs624_pos->notifier);
-+	ret = devm_blocking_notifier_chain_register(&pdev->dev,
-+						    &iqs624_pos->iqs62x->nh,
-+						    &iqs624_pos->notifier);
- 	if (ret) {
- 		dev_err(&pdev->dev, "Failed to register notifier: %d\n", ret);
- 		return ret;
- 	}
- 
--	ret = devm_add_action_or_reset(&pdev->dev,
--				       iqs624_pos_notifier_unregister,
--				       iqs624_pos);
--	if (ret)
--		return ret;
+ 		adp5585_gpio->nb.notifier_call = adp5585_gpio_key_event;
+-		ret = blocking_notifier_chain_register(&adp5585->event_notifier,
+-						       &adp5585_gpio->nb);
+-		if (ret)
+-			return ret;
 -
- 	return devm_iio_device_register(&pdev->dev, indio_dev);
- }
- 
+-		ret = devm_add_action_or_reset(dev, adp5585_gpio_unreg_notifier,
+-					       adp5585_gpio);
++		ret = devm_blocking_notifier_chain_register(dev,
++							    &adp5585->event_notifier,
++							    &adp5585_gpio->nb);
+ 		if (ret)
+ 			return ret;
+ 	}
 -- 
 2.47.3
 

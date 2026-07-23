@@ -1,117 +1,185 @@
-Received: from mail-ej1-f46.google.com (mail-ej1-f46.google.com [209.85.218.46])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EACF645D191
-	for <linux-input@vger.kernel.org>; Thu, 23 Jul 2026 15:23:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9E47145D1AA
+	for <linux-input@vger.kernel.org>; Thu, 23 Jul 2026 15:39:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784820218; cv=none; b=WsaMDcbB2heqTMbcIiMukkeJib7FnpywoGhcuvVRmwJ9mbG3Nb1uwIvu3I53HI7/mPy/q9K7SSuXqc1+7ZLSR0BTGgb1+3p/FQ3pW7gf5hyyKDHSPowD37qMrGYyPoysiU0ZTLQdz/KQfRTmDLs8o6Mn9Ua9v+EpX0w6CnAipwM=
+	t=1784821172; cv=none; b=d4kKEd2ExO7eeQE6rz5mDWHzrDhvZjNA+5pMJTsSoS3mW6jqlmJDlGJD082KhzXvw0Z8DXYvvR7X0v88ZiH80WUOeiAm32wXj6Zq1FYUOSmET8nIcR4iY3eEvAwp0V2PKE7zI9TcJNYR0rFAym8uOstFBaQSgDq0V71jYsb+OAE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784820218; c=relaxed/simple;
-	bh=3+mLGmb+xo+Y7FWnjPd6Bk5tOhqzEHPjo9ocA5cAeR8=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=mMQyd/HylAnyQe6VihIqsvuH333LyU5VDS8mLc7LMDvK6bEWmw7b2A1FiiOE0fEHuxI+pTXhNATaoAZwhQiLSEr/xhxdet0tclUcv9Ol46Ekz9iu3cBStd6J4XCv2H1KqkK++bEkpHEZexUDPgv+qWuyhLPSJFG5rA6n3I4G7zI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=mide.dk; spf=none smtp.mailfrom=mide.dk; dkim=pass (2048-bit key) header.d=mide-dk.20251104.gappssmtp.com header.i=@mide-dk.20251104.gappssmtp.com header.b=nWxR9koJ; arc=none smtp.client-ip=209.85.218.46
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=mide.dk
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=mide.dk
+	s=arc-20240116; t=1784821172; c=relaxed/simple;
+	bh=Hh0Uw2l0bpw3R+potB9CniXW5SjHBPAN2xYew6RM2Xs=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=OwN38eLHkGcNOTZ0mO0UUn29Wq7aJKpg76862p2LQOcRemim2Sma85OGlN6F6eeJ7Aj3OIynFDo/B5xo0bOQH5HjjLlzpZfza7mwnFftq/udJrWfL6jvM5FPPLNJC+kebNyebO+4PlVzzWfafKG7CBWUR1Ql+3F8+WVkVGrjNks=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ef8p+za/; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=mide-dk.20251104.gappssmtp.com header.i=@mide-dk.20251104.gappssmtp.com header.b="nWxR9koJ"
-Received: by mail-ej1-f46.google.com with SMTP id a640c23a62f3a-c15d3cd51b2so99102866b.3
-        for <linux-input@vger.kernel.org>; Thu, 23 Jul 2026 08:23:34 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=mide-dk.20251104.gappssmtp.com; s=20251104; t=1784820210; x=1785425010; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=OYlmrDRiIg93kPdC5KGJzikRrWWC1NJtz0hg41SezaM=;
-        b=nWxR9koJQabmO9NIM5I45hzDIzoPU6L962Wo6OO7UVVqTNIesvjlJAwiGIyMTvhNr9
-         lBUjDyrVZRerecOjeTDt413DTqsja3wjVHqHj1ngkR2rbmQXdAW6eyYB2EP9Gq/33g76
-         C71o0gAw0soY6ssTOHMRHp6OlzmCSsCnRJsV6IJE7KF0s5zA0v9R9xURMNm7QNgaVDpC
-         p32e6L11LLh6hKCHAxIaaNJ1h15STO69SgNI7J01R+RDRe4oDsSw6dZsRaA46cbXkMla
-         x7YQMVH7VQ+AoziEDLQNYXNhpiI3KYVKzTIOJ5rZWS3+RGEUpHfjgq4ay2vCmWhEC574
-         9HFg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784820210; x=1785425010;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=OYlmrDRiIg93kPdC5KGJzikRrWWC1NJtz0hg41SezaM=;
-        b=EQ1qb4eWGoNf9ik1i//bRuba8wNq9H4SZH4xTB27+eKOqyf58Ib4OFxSHf24EQhR9V
-         7THXDHp1vxmh06ADhcIRTbrMVg19+ydBc/7TCi5OSxeOVwJ5Zu4WywjA1AnZzdOlPHst
-         QTuTOQ0C/EyWod/LsLE5GjdVoex180wmi0y/cx8h+vX47xLCZ+ZerC9UyDivOCMzGpiB
-         eOzV3bc77Ali9wGW2B9PoiSVH5Q3UVj/hf/LMPl3Ut//Nx6TrlzRUPkEQGYTFNCRnFLt
-         SmRzCxWvCfeRzIQMJCZYINMp04Cv3X1B7azUPtC25ul215y6NdJWTfHY0vEXwGOeyzGV
-         mVaQ==
-X-Gm-Message-State: AOJu0Yy/LRNh+D4EISwpsYJgeO6XrEWfHoQVXJq7HI7tNIsRBvLaqltF
-	VUkLonM5Ug7sCgvJ8MY13BTjmBAMM1YZQKks2+fuNlcI0Ed7Bt+IlcGyk7UAnLSZvqJ9um6v4vC
-	RbbhEKw==
-X-Gm-Gg: AR+sD12y5Jun9yJswEa7s6QNTYCFoPOvic8q40QUDbTUOng/la4SKsY2VB+YUC/2s/0
-	GPa7kpbvSLR20Z6noa89NH3+ycwujvBUUuqBpzBipYvnciKzPMhST/NWV3hP6qogq95Dq1BMbTF
-	EOIS1/3EsmJXPrrbla8rFxm8+ILIOm3KqrJDj1bfhPIaTl5ORKxrJfVbPE/vW13XLqCu08TTs5h
-	0UxEIsc56V66HhqzUcp1pzoU4+LcnFyehzy3Ezbg1HxP5TkWd454a1W1phGJGzKvwdlgnT/iUla
-	PnV9dFcjHlpuHahgaEUr3+Q2t1kpvXJ3eU9a+/LgNFo6bpqlaX9QTT+BRkMPPHtbuZtTeMxwdlR
-	MMevHKdSMCHP31VM/9PWehtcRP93Yg9D8Ik9+EiiSgrRPd+Ayd42RNilTwg+9URH2tGBCEq6Z6M
-	4RGiHmCxSBlUn3bfXh6L4Y/eMlKO8KfUPdRczwSsGrR19b4Rrf7t4aXKFVJlGj+Ouz+KOdIYoBl
-	5FK3WrFQ0FQ0za/CqsYGKEWrdmdEC3gixEH3OFu0g==
-X-Received: by 2002:a17:907:3d46:b0:c15:b67b:523e with SMTP id a640c23a62f3a-c1c5092ecdfmr168445266b.19.1784820209846;
-        Thu, 23 Jul 2026 08:23:29 -0700 (PDT)
-Received: from localhost.localdomain (2a06.4004.215b.0000.2aa0.6bff.feb3.5b8c.static6.kviknet.net. [2a06:4004:215b:0:2aa0:6bff:feb3:5b8c])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c1c32ebb385sm250749666b.52.2026.07.23.08.23.29
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 23 Jul 2026 08:23:29 -0700 (PDT)
-From: Kristian Mide <kristian@mide.dk>
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Kristian Mide <kristian@mide.dk>
-Subject: [PATCH v3 3/3] Input: ilitek_ts: ratelimit unexpected report logging
-Date: Thu, 23 Jul 2026 17:22:44 +0200
-Message-ID: <20260723152244.11252-4-kristian@mide.dk>
-X-Mailer: git-send-email 2.54.0
-In-Reply-To: <20260723152244.11252-1-kristian@mide.dk>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ef8p+za/"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12F8E1F000E9;
+	Thu, 23 Jul 2026 15:39:30 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1784821170;
+	bh=jkhM/5Yqed/MCBRcRWCl2Tw/BshcWne0a9drmwQFJOE=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=ef8p+za/pWnWUA93k2LDSXhevXNH7GzrwCaYYZvKtu8fVki33e4d7j5g7ZRV7h1HQ
+	 OtwtoAKMDc4mruka1loX0psdh4JJ/krvHBhiFmsefieXzXOiDaYEaaysIpMxmEkLQY
+	 12hYXFA3xGzqRMpXHHWz4PsITlONvxcxCILdizAHUs7Bid9KmXddpTTZVeqSYHbQ7p
+	 NCWAwLF3NJyMgQsLzDzYc6hLLUZmvnAJEA7+QIWae6OoeXRwZhvKk25eTxavW/z9ID
+	 /MC0w8i5J01GFaQrNWuCNnWG+dPubmTHRibHHQ8ztS57pH3JG/VWkPtgrOHfI+gjCI
+	 wPF61RzE5pMZA==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v3 2/3] Input: ilitek_ts: handle short I2C transfers
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Kristian Mide" <kristian@mide.dk>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <20260723152244.11252-3-kristian@mide.dk>
 References: <20260709182602.7308-1-kristian@mide.dk>
  <20260723152244.11252-1-kristian@mide.dk>
+ <20260723152244.11252-3-kristian@mide.dk>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Thu, 23 Jul 2026 15:39:28 +0000
+Message-Id: <20260723153930.12F8E1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-Unexpected report IDs can repeat quickly when the controller
-emits unknown packets.
+Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+s) to consider:
 
-Use dev_err_ratelimited() and include the first 16 bytes of the
-raw packet to keep dmesg usable while preserving enough context
-for debugging.
+Pre-existing issues:
+- [High] Missing IRQ re-enable on error paths in suspend/resume handlers.
+- [High] Unsafe DMA Buffer Allocation for I2C transfers (stack variables pa=
+ssed to i2c_transfer).
+- [High] Data parsing error for multi-touch reporting when more than 10 con=
+tacts are present.
+--
 
-Return success after logging the unexpected report ID so the IRQ
-handler does not emit a second unratelimited error for the same
-condition.
-
-Signed-off-by: Kristian Mide <kristian@mide.dk>
+--- Patch [2]: [PATCH v3 2/3] Input: ilitek_ts: handle short I2C transfers =
 ---
- drivers/input/touchscreen/ilitek_ts_i2c.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+commit 642c55e3cb3ec68f3ba0fdc9a106d372a6e3c257
+Author: Kristian Mide <kristian@mide.dk>
 
-diff --git a/drivers/input/touchscreen/ilitek_ts_i2c.c b/drivers/input/touchscreen/ilitek_ts_i2c.c
-index a184d024d..2f1741d77 100644
---- a/drivers/input/touchscreen/ilitek_ts_i2c.c
-+++ b/drivers/input/touchscreen/ilitek_ts_i2c.c
-@@ -238,8 +238,10 @@ static int ilitek_process_and_report_v6(struct ilitek_ts_data *ts)
- 		return ilitek_process_pen_report(ts, buf);
- 
- 	if (buf[0] != ILITEK_TP_I2C_REPORT_ID) {
--		dev_err(dev, "get touch info failed. Wrong id: 0x%02X\n", buf[0]);
--		return -EINVAL;
-+		dev_err_ratelimited(dev,
-+				    "get touch info failed. Wrong id: 0x%02X raw[0:16]=%*ph\n",
-+				    buf[0], 16, buf);
-+		return 0;
- 	}
- 
- 	report_max_point = buf[REPORT_COUNT_ADDRESS];
--- 
-2.54.0
+Input: ilitek_ts: handle short I2C transfers
 
+Check that i2c_transfer() returns the expected number of messages in
+ilitek_i2c_write_and_read(). Short transfers were previously treated as
+success, allowing callers to continue with partially filled buffers.
+
+> diff --git a/drivers/input/touchscreen/ilitek_ts_i2c.c b/drivers/input/to=
+uchscreen/ilitek_ts_i2c.c
+> index 86975fa9a0940..a184d024d6c4f 100644
+> --- a/drivers/input/touchscreen/ilitek_ts_i2c.c
+> +++ b/drivers/input/touchscreen/ilitek_ts_i2c.c
+> @@ -131,11 +131,15 @@ static int ilitek_i2c_write_and_read(struct ilitek_=
+ts_data *ts,
+>  		error =3D i2c_transfer(client->adapter, msgs, ARRAY_SIZE(msgs));
+
+[Severity: High]
+This isn't a bug introduced by this patch, but will passing stack buffers to
+i2c_transfer() cause memory corruption or kernel panics if the I2C adapter
+driver uses DMA?
+
+For example, ilitek_process_and_report_v6() allocates a 512-byte buffer on =
+the
+stack and passes it down the call chain:
+
+ilitek_process_and_report_v6()
+  u8 buf[512];
+  ...
+  error =3D ilitek_i2c_write_and_read(ts, NULL, 0, 0, buf, 64);
+
+And api_protocol_get_mcu_ver() does something similar:
+
+api_protocol_get_mcu_ver()
+  u8 buf[64];
+  ...
+  error =3D ilitek_i2c_write_and_read(ts, buf, 1, 5, outbuf, 32);
+
+On systems with CONFIG_VMAP_STACK=3Dy, stack pages are not physically
+contiguous. Is there a risk of dma_map_single() silently failing or
+corrupting memory when mapping these buffers?
+
+>  		if (error < 0)
+>  			return error;
+> +		if (error !=3D ARRAY_SIZE(msgs))
+> +			return -EIO;
+
+[Severity: High]
+This is a pre-existing issue, but returning explicitly on short transfers
+makes error paths more likely to be triggered. Are we leaking IRQ states in
+the suspend and resume routines?
+
+If api_protocol_set_cmd() fails due to this new -EIO return during
+ilitek_suspend(), we return early:
+
+ilitek_suspend()
+  ...
+  if (error)
+      return error;
+
+The function returns without re-enabling the interrupt that was disabled at
+the start of the function. The PM core aborts the suspend transition and
+won't call the resume callback, leaving the device interrupt permanently
+disabled.
+
+A similar situation happens in ilitek_resume():
+
+ilitek_resume()
+  ...
+  if (error)
+      return error;
+
+This skips the enable_irq(client->irq) call at the end of the function.
+Could this leave the touchscreen permanently unresponsive?
+
+>  	} else {
+>  		if (write_len > 0) {
+>  			error =3D i2c_transfer(client->adapter, msgs, 1);
+>  			if (error < 0)
+>  				return error;
+> +			if (error !=3D 1)
+> +				return -EIO;
+>  		}
+
+[ ... ]
+
+> @@ -144,6 +148,8 @@ static int ilitek_i2c_write_and_read(struct ilitek_ts=
+_data *ts,
+>  			error =3D i2c_transfer(client->adapter, msgs + 1, 1);
+>  			if (error < 0)
+>  				return error;
+> +			if (error !=3D 1)
+> +				return -EIO;
+
+[Severity: High]
+This is also a pre-existing issue, but does the data parsing loop in
+ilitek_process_and_report_v6() calculate offsets correctly when there are
+more than 10 contacts?
+
+When report_max_point > 10, the driver fetches subsequent data in 64-byte
+chunks. However, the parsing loop calculates offsets linearly assuming a
+continuous array:
+
+ilitek_process_and_report_v6()
+  for (i =3D 0; i < report_max_point; i++) {
+      status =3D buf[i * packet_len + 1] & 0x40;
+  ...
+
+For the 11th point (where i =3D 10 and packet_len =3D 5), the offset is 51,=
+ which
+falls inside the 14-byte padding at the end of the first 64-byte chunk. The
+actual data for this point was written to the second chunk starting at
+index 64.
+
+Will this cause garbage touch events to be sent to userspace for the 11th
+and subsequent fingers?
+
+>  		}
+>  	}
+>
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260723152244.1125=
+2-1-kristian@mide.dk?part=3D2

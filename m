@@ -1,100 +1,182 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5C5074446ED;
-	Thu, 23 Jul 2026 11:40:53 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A35CB46EF8B;
+	Thu, 23 Jul 2026 11:41:01 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784806855; cv=none; b=QZMJDFBasNpt96by26ZY0APQkfQ9S8qhBeMIh+n4pT1gZhr+kDa+lEIc0zrMEhgigzjGmzd5ooEdxJuWZQRX0DIZyrtM8uupVKtsqtM31mKjrXH59PJv+53q+Z/z5sxGOSYDqn3c/Hd9io493RVygnnUjMXtp5olSAjFeNX20zM=
+	t=1784806863; cv=none; b=tDbPn3SBOM50WEpkplIw23ZVjpA1hqQqtIXg4WuB1KxT76mLkhjz34k/oEm0srcD1h1WRQNdYjlGB2ogyM5mgvnTXhnjwTElhNSCGiaNGBjVEL8XtTRia4iXmk8XrmmhdHuU3WyJG0Y9yXW+Ln/NumxqTZdvIUkL/mJ0/1g1rzo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784806855; c=relaxed/simple;
-	bh=p3GWWajFcuX3bvngkIzxc7oGbp+qDNV+kswQXzKfvIs=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=EYkUKNGL4/31pdhub9xEs8qpzTxw6RrayhUeK8UuRIofzqptVw7clrTILrJ5q0mrIiOFfuQqKvtgOGIqXPaXQWB8SpYYCVMAWlOI/z1VUgh9eEI3hKWLyH+ezPAnNeFCZb/Csxa9G51NX2i+xLxgOS5rYmhksvj9qGAWZdj1kvg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=kS5TGBFH; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1784806863; c=relaxed/simple;
+	bh=ycmcnDA9W9u3n1nLO3cbrVbrs+s56pP9IGoWgaetcPI=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=LmiS56/4S6I0WGnN/ngv9FfJYc4xN20b2fqK28jvIHuMAS1kvss9btPrC12R5zGe3GcnmKGKGz80JFJg1Epmw6r5INfBmEau1ymL+j3xs82WJB9CQVgTmPXervmQafZj6OLPvpowsN2BqdrHacMnltBhv6nNXCetTGqI7zzRQ48=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=BG5wCGK5; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="kS5TGBFH"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 666921F000E9;
-	Thu, 23 Jul 2026 11:40:48 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="BG5wCGK5"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6D641F000E9;
+	Thu, 23 Jul 2026 11:41:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784806852;
-	bh=yYwfUXVUZiK1Kk4sc//LAooyNI64snUO5+e++KmUDs4=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=kS5TGBFHBvVqmYzd5Y8AKCbYfgMdkx4ZD67Rmo3r9Xo6oy0SJZsF2izTJF99m3s1D
-	 gnsw2y5HVmxAlfa7x6Js111fjC9hS8NrxDrniwZNyTpiRjRXtnUwRoPXTUFnQJjB44
-	 GKxRDLnE2PE5ji90L6g8S21nSZ2VKpQ8g25F/f/dpDih9mSm1QN4PMxtAuTXH6ZwxR
-	 fXYtBi2EolTv3+MukxYIyfbHiuXLn3lViXFMBHt0lGRRsPt3mx33TrvQFUnzH0P+zr
-	 Jnn7R73TV7p7HIURwxsq4sBgpGTkpdKLqK8sumy/myysGZq8SLtK6rN6Jsxhuva6kb
-	 n1aA5M392Tq4w==
-Date: Thu, 23 Jul 2026 12:40:45 +0100
-From: Lee Jones <lee@kernel.org>
-To: Arnd Bergmann <arnd@kernel.org>
-Cc: linux-gpio@vger.kernel.org, Linus Walleij <linusw@kernel.org>,
-	Bartosz Golaszewski <brgl@kernel.org>,
-	Arnd Bergmann <arnd@arndb.de>,
-	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-	Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
-	Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-	"H. Peter Anvin" <hpa@zytor.com>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Pavel Machek <pavel@kernel.org>, linux-sh@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
-	linux-leds@vger.kernel.org,
-	Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>,
-	Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: [PATCH 3/6] [v6] leds: gpio: make legacy gpiolib interface
- optional
-Message-ID: <20260723114045.GE3363113@google.com>
-References: <20260710211854.1371746-1-arnd@kernel.org>
- <20260710211854.1371746-4-arnd@kernel.org>
+	s=k20260515; t=1784806861;
+	bh=yJZ2Lmj9oIHWTkKAy8s6Pxlio/eIYtSaDw/CPceSmZ0=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=BG5wCGK5OY1GPzgEyrDEUP3FWyvSv5WbmQV9lkDdovOK6Wio+eND+sR0+mWvLdUlf
+	 9+F3BSxav3lhN4V5oADqbCoVNf7Sh+zx1woLFewSBecsnlhHpzq8iQEi8Zhu2pLL1J
+	 wyyMBSTjHJ7FcsVg5siQZ9q99KCG1FWyitdzBg9En8TnHkFjbt6fxRobt7twUcRjsf
+	 GapkkP63gcio7PO8E/8DMssdmIAMR2fDojPKjLOlQycVrY6UDFQAzfkDgJK2nliNDg
+	 ehTY9LCSQZQ4twJQucmSrCOlaYBxM1SfhqZtfus1TARDGMI6VFl473ZW3/dorc00z3
+	 zEjLq9OMyhmUg==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH 1/4] Input: edt-ft5x06 - ignore contacts with an
+ out-of-range slot id
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Alexandre Hamamdjian" <azkali.limited@gmail.com>
+Cc: conor+dt@kernel.org, devicetree@vger.kernel.org, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, robh@kernel.org
+In-Reply-To: <20260723-b4-ft5426-v1-1-d4b4e32be042@gmail.com>
+References: <20260723-b4-ft5426-v1-0-d4b4e32be042@gmail.com>
+ <20260723-b4-ft5426-v1-1-d4b4e32be042@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Thu, 23 Jul 2026 11:40:59 +0000
+Message-Id: <20260723114100.D6D641F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260710211854.1371746-4-arnd@kernel.org>
 
-On Fri, 10 Jul 2026, Arnd Bergmann wrote:
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+s) to consider:
 
-> From: Arnd Bergmann <arnd@arndb.de>
-> 
-> There are still a handful of ancient mips/armv5/sh boards that use the
-> gpio_led:gpio member to pass an old-style gpio number, but all modern
-> users have been converted to gpio descriptors.
-> 
-> While the CONFIG_GPIOLIB_LEGACY option that guards devm_gpio_request_one()
-> and related helpers is currently turned on in all kernel builds,
-> the plan is to only enable it on the few platforms that actually
-> pass gpio numbers in any platform_data.
-> 
-> Split out the legacy portion of the platform_data handling into a custom
-> helper function that is guarded with in #ifdef block, to allow the
-> the leds-gpio driver to compile cleanly when CONFIG_GPIOLIB_LEGACY
-> gets turned off. Once the last user is converted, this function can
-> be removed.
-> 
-> Link: https://lore.kernel.org/all/e9252384-a55c-4a91-9c61-06e05a0b2ce4@app.fastmail.com/
-> Reviewed-by: Linus Walleij <linusw@kernel.org>
-> Reviewed-by: Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>
-> Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com> # for input
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-> ---
-> v5: no changes
-> v4: whitespace changes only
-> v3: simplify gpio_led_get_gpiod
-> v2: rework a little bit to keep the legacy code path more separate,
->     extend changelog description
-> ---
->  drivers/leds/leds-gpio.c | 52 +++++++++++++++++++++++++++-------------
->  include/linux/leds.h     |  2 ++
->  2 files changed, 37 insertions(+), 17 deletions(-)
+Pre-existing issues:
+- [High] Unbalanced `disable_irq()` calls when suspending and resuming in f=
+actory mode lead to a permanently disabled touchscreen.
+- [High] Stack-allocated buffers are passed to `regmap_bulk_read()` and `i2=
+c_transfer()`, which can cause memory corruption or panics if the underlyin=
+g I2C host controller driver uses DMA.
+--
 
-Any deps?
+--- Patch [1]: [PATCH 1/4] Input: edt-ft5x06 - ignore contacts with an out-=
+of-range slot id ---
+commit 9dab47af56724a9e66ce05f01c0e4d726933073c
+Author: Alexandre Hamamdjian <azkali.limited@gmail.com>
 
--- 
-Lee Jones
+Input: edt-ft5x06 - ignore contacts with an out-of-range slot id
+
+The per-contact slot id is taken from the top nibble of the third
+report byte, so it can be any value from 0 to 15. The driver only
+allocates max_support_points MT slots (2 to 10 depending on the
+variant), so a report that carries an id at or above that count - be it
+a genuinely higher-numbered contact or a corrupted byte - is outside the
+range the input core was told about.
+
+input_mt_slot() silently ignores an ABS_MT_SLOT beyond num_slots and
+leaves the current slot unchanged, so the following
+input_mt_report_slot_state()/touchscreen_report_pos() pair is applied to
+whichever slot happened to be selected last, reporting the contact at the
+wrong position. Skip such entries instead.
+
+> diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/touch=
+screen/edt-ft5x06.c
+> index d3b1177185a3b..d6c3d033b83df 100644
+> --- a/drivers/input/touchscreen/edt-ft5x06.c
+> +++ b/drivers/input/touchscreen/edt-ft5x06.c
+> @@ -331,6 +331,8 @@ static irqreturn_t edt_ft5x06_ts_isr(int irq, void *d=
+ev_id)
+>  			swap(x, y);
+> =20
+>  		id =3D (buf[2] >> 4) & 0x0f;
+> +		if (id >=3D tsdata->max_support_points)
+> +			continue;
+> =20
+>  		input_mt_slot(tsdata->input, id);
+>  		if (input_mt_report_slot_state(tsdata->input, MT_TOOL_FINGER,
+
+[Severity: High]
+This isn't a bug introduced by this patch, but I noticed that stack-allocat=
+ed
+buffers are being passed to regmap_bulk_read() in this same function:
+
+drivers/input/touchscreen/edt-ft5x06.c:edt_ft5x06_ts_isr() {
+    ...
+	u8 rdbuf[63];
+    ...
+	error =3D regmap_bulk_read(tsdata->regmap, tsdata->tdata_cmd, rdbuf,
+				 tsdata->tdata_len);
+    ...
+}
+
+Can this lead to memory corruption or kernel panics if the underlying I2C h=
+ost
+controller uses DMA without bounce buffering and CONFIG_VMAP_STACK is enabl=
+ed?
+
+I see similar stack allocations passed to i2c_transfer() elsewhere in the
+driver:
+
+drivers/input/touchscreen/edt-ft5x06.c:edt_M06_i2c_read() {
+    ...
+	u8 wbuf[4], rbuf[3];
+    ...
+	xfer[1].buf =3D reg_read ? rbuf : val_buf;
+	ret =3D i2c_transfer(i2c->adapter, xfer, 2);
+    ...
+}
+
+drivers/input/touchscreen/edt-ft5x06.c:edt_M06_i2c_write() {
+    ...
+	u8 wbuf[4];
+    ...
+	xfer.buf =3D wbuf;
+	ret =3D i2c_transfer(i2c->adapter, &xfer, 1);
+    ...
+}
+
+Should these buffers be heap-allocated to avoid violating the kernel DMA AP=
+I?
+
+[Severity: High]
+This is a pre-existing issue, but there appears to be a regression with
+unbalanced disable_irq() calls that could leave the touchscreen permanently
+disabled.
+
+When entering factory mode, disable_irq() increments the disable depth:
+
+drivers/input/touchscreen/edt-ft5x06.c:edt_ft5x06_factory_mode() {
+    ...
+	disable_irq(client->irq);
+    ...
+}
+
+If the system then suspends, edt_ft5x06_ts_suspend() unconditionally disabl=
+es
+the IRQ again, incrementing the depth a second time:
+
+drivers/input/touchscreen/edt-ft5x06.c:edt_ft5x06_ts_suspend() {
+    ...
+	disable_irq(tsdata->client->irq);
+    ...
+}
+
+During resume, edt_ft5x06_ts_resume() calls enable_irq() once, but then
+detects tsdata->factory_mode is true and calls edt_ft5x06_factory_mode()
+again, which disables the IRQ a second time:
+
+drivers/input/touchscreen/edt-ft5x06.c:edt_ft5x06_ts_resume() {
+    ...
+		enable_irq(tsdata->client->irq);
+
+		if (tsdata->factory_mode)
+			ret =3D edt_ft5x06_factory_mode(tsdata);
+    ...
+}
+
+When the user later switches back to work mode, edt_ft5x06_work_mode() only
+calls enable_irq() once. Does this leave the IRQ disable depth at 1, keeping
+the touchscreen completely dead until the module is reloaded or the system =
+is
+rebooted?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260723-b4-ft5426-=
+v1-0-d4b4e32be042@gmail.com?part=3D1

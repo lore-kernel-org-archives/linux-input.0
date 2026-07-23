@@ -1,106 +1,208 @@
-Received: from mail-pf1-f170.google.com (mail-pf1-f170.google.com [209.85.210.170])
+Received: from mail-ed1-f54.google.com (mail-ed1-f54.google.com [209.85.208.54])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A78B0403AE8
-	for <linux-input@vger.kernel.org>; Thu, 23 Jul 2026 21:58:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C8FD33F824D
+	for <linux-input@vger.kernel.org>; Thu, 23 Jul 2026 22:42:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.54
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784843916; cv=none; b=tLiC9xkMv7DOytvO3XP2jOSTHiTYUxyWto9a22Qu8YAWJ4KWssCBGxHx4RGF2rUAfN3r5/wD1KDakt4AJDiOeN4YMj1CXczr3SoGKfVSA7ZJW0p+awFoUidNKQII8U7tNaLljyIV4lSJMbIpIenoDp8tqGVOeJ7h7Jp4D2eSLr8=
+	t=1784846550; cv=none; b=U4qZOywUnb6x0rtLWV8etR2qI2ZIubOX5rcWSLYnqT4pnnIcLTvTbysF+TwLXz5bJp+EypRY5GVOQI2IMs5wI2YbIzUL1O8YOey4EcllNjORunX9fCWyFe8qLdGZLSTnnS7iqs9SNcdFFD2KF98X9OoMRC7yp3upBgnK7EqIGWw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784843916; c=relaxed/simple;
-	bh=6f79sbA5nfTpY98bqD9k4KCZXyJjapdhSkgU3+eBOmc=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=ohbOd/WhIl+hayogVYbQN/deqfW1WWbmGdswBhMJ0HXr1pjd3FvQaQgob4LyRoXT3pR62b6+ju/95TzUXOz1qUIySjraBTLYY2Zljvbr2yW+Mt4SzDn32sXgfuOq7mrxDdNtYD/7LJAkOXQNLk8snauwxrzbW6Ov6x1UNxUDNrY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=MpEftS63; arc=none smtp.client-ip=209.85.210.170
+	s=arc-20240116; t=1784846550; c=relaxed/simple;
+	bh=8NVtpDOwjU7udwxECy9jxjiPQv82i59N1FgCx5vcIrk=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=EWB84w3KJQ3u4PUwHsKTEoA4nt6sxJzmDGAW1UD1f85w+GGvHqwwAJRN5IJY2KOWvROfiaaTdCfhgAzVTPbZIA6t8AuqeAmMTVP8R8GfFGoJVIoqHWjJ/sRYWRXLB90kjOcvn/oWoAe2eW7f9y/5N4SI1+723jlk6PQ7h2ZtCzA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=OPT/k2FK; arc=none smtp.client-ip=209.85.208.54
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="MpEftS63"
-Received: by mail-pf1-f170.google.com with SMTP id d2e1a72fcca58-8485b358552so1200954b3a.2
-        for <linux-input@vger.kernel.org>; Thu, 23 Jul 2026 14:58:33 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="OPT/k2FK"
+Received: by mail-ed1-f54.google.com with SMTP id 4fb4d7f45d1cf-69ea0595598so1351964a12.0
+        for <linux-input@vger.kernel.org>; Thu, 23 Jul 2026 15:42:28 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784843912; x=1785448712; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=9+8eCFfIFOiymdCrrKAG5J0qjb2XOXmK+uwpPgsZyCM=;
-        b=MpEftS63fwY7dVgpixr5ULLFvC/VFZYr8JbuOTyIr2/7ER2qONK1QoGGXGD3EnOfHl
-         8Vds4llHKHXLmVNqGcAYrjlsNKCGGmM0/PJfwn1VG1Yq9HPiNMKI17kh+gJiBo2l5o6N
-         p3A1kwDtKudj8U3gx8Wz1+o4oi3MXeptK1TwqMeUOM+PF9l5lyGc/EW1SXZWSADbsXII
-         CRuSkHAuhLUL2OXNj1pgjBRwOdH9T4dr3HyP+eVMM2LZlv0hnMPNxZWa6L3D3Gl/izPp
-         AJ2Chq3uxCs6QBqp+HZYfcQeUGe0TMfG9xkqjMf45KcxTXgZ2mjNhHcSwbWiqVgl4jIo
-         SA7A==
+        d=gmail.com; s=20251104; t=1784846547; x=1785451347; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=vlojMWIujU/Cv7htl//acVMDx5/x7mtDVl69pcel8kw=;
+        b=OPT/k2FKVn0nbyUG2fsPVUqnlBLYu7DoEOglF7JSaxn66lcDPmmHMO/apsq0s2EKIA
+         tnw++RvuMOlK7mTEA7f9UCtsoNwwK/8Tdy4GyNBIYZa+mcW+hMTY1VkfcsAp5sT7S436
+         Jkn+tbXX1AncgxmcHo3T1VW2fFMqlTZDNzdjsHYX4B/4r/Om5H/zEePbpkhxyVH25KE0
+         MLQY+ELRbuoikCULx/8PUymliWxNHrl4ZJWfTscvMlKlPMiZIyNLNuZCgKmnxs2sU7+B
+         r6T8u9YqV/mpiOkMWgCBMIWg30x6kgt3QEbp52qC1WvdUwJfkFje0kcPINtrbQJVhf7u
+         KZPQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784843912; x=1785448712;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=9+8eCFfIFOiymdCrrKAG5J0qjb2XOXmK+uwpPgsZyCM=;
-        b=cJXVbbIRqQOWNWZBCzHZPoI5obOLbHwyeiffoQLljgR+houIzxlxxlS6BvPuM6AbPa
-         EUXWPqYDuMGoq/WfIedOUe3+YY8uMlV4ccIu7frRJ0ZwBTz0Nbq62lCu8PDCBLp9P+wq
-         0YahuZE3dJkwLbWfKYoImFPN5Qihak+U8HuY6omQkDKjeVtf/Y7OYaJWQOEaYLpytkPx
-         wzdmkrQddJ0Fsr8nz4FcXwLo9MQTMkhvl9GrPGcwfzSx8Ue8VSb8oVAisT7Jbh4+XREN
-         eJA2oMB+jO3IkyOGccSeDJxwqJiX46cZnUL4hJi4s2lLyPUmSn5ZekIf62V2dDRJ3NvN
-         9Wgg==
-X-Forwarded-Encrypted: i=1; AHgh+Rrprv2iXYuxO20qC2Lp5bnWtYpmqcpaqpNZBtm+VJcQVNlZrGQKfz4B5SgFDysl17PaxqzwJ1lhMwEgFg==@vger.kernel.org
-X-Gm-Message-State: AOJu0YzjZ15KLi7fTxhfoARRtEW9YDSwda+/MbH+RL/B1oF6Sq6CunZY
-	9BOQ36906BYab4lTQ1Xv9l9Nz7bwBBTQ1VUQO4tRWQK+xzJhc0LLoFPM
-X-Gm-Gg: AR+sD106pqPE7y9CyQ6HbNeoMmEDes0lBMrCgTd1jxGfJvz3bDMR8AeWvepO9qUaxK+
-	kp7SO+sktoq0G/bORHZ7CLxPNr8KUPjQTx/lMjSyrHxWQfkdFZxlB7jpA0iaKtNO8or0hf4fp6G
-	4oSkfhDPb4gs83T3DMTlTju/YbrFoR/vhj2cTTD02w673u8QnYiMN8Q34PAmm2WnCJ9AfZ4Fb5c
-	04y/91IFKmY75uNEnHz5vX6uAWOp+bFj0PCvhAYX4MQvi+5eutPn74kExChDDK2Uo06FDPejh+2
-	tJvptOVkLofhXYTMrG+8xF3XF8vm+IULgnPolQRBXyTytpu5wLg0O4917edO+s28BCNow2PyYmY
-	AAh/FR2dKvJdfucErISrUPcPCpBrzLTTFcG6cNEiSxrAOQz9sJpVErvOWIXWO8PpRCy7sEPXaFR
-	PBRA0DrYkQvFy0gD439K9LGJ2+hEFhP+wsIAcf4ebSnwqQDfWb4wJo
-X-Received: by 2002:a05:6a20:e291:b0:3bf:6acf:2940 with SMTP id adf61e73a8af0-3c44af77533mr5350478637.11.1784843911763;
-        Thu, 23 Jul 2026 14:58:31 -0700 (PDT)
-Received: from google.com ([2a00:79e0:2ebe:8:f5d:dfe5:9bb9:71ad])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3147e1cf8fasm24297371eec.31.2026.07.23.14.58.29
+        d=1e100.net; s=20251104; t=1784846547; x=1785451347;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=vlojMWIujU/Cv7htl//acVMDx5/x7mtDVl69pcel8kw=;
+        b=Bh5InoXAddvRhIkCgItNsqGmaGRmLVrBUDLbXjcY89xdyK/VapebrY+ch479uD7sVx
+         SDwPUwktoizpzRtt7NMt0EQNgmEUD6Hk7t210BwSuLyiu9lLBVat+fQ9gTNN6OiUy3iq
+         /vlnKkucwAdRd40hbwmvWxEnjmnbJz2ZQn7ATH5/OOA+csaWas/bFNRpp1BaWUl19T5J
+         6YMSuz/A4qAXc780YTRocZKReVqRkZifLnRi51sjJ4SFy0lA+CjF/mPnxW8NU2wV4+Id
+         MdZxPIIDmlVsXHT4YdvFFKE6zehSp2NehaVt7Pe0SZb3CX/RqS6GUTCpIIfiT/vNXwS5
+         rLlg==
+X-Gm-Message-State: AOJu0YyUNNUPU6hHYXdYeYpW+sK+xlY6FNbrWACGzCrAcJgQI4zTMqUd
+	biCE+r26124DU9Wf/nvxnD9q6PmXh2s/5uecqSYFYIaaXumSAhPDyFElNFfSHDfnpeg=
+X-Gm-Gg: AR+sD10RaMgWN3/FPZFds1J5NEDZvuVDvWj95/zwiBAiEljxIPGgIZFXkHOxn6FiLf7
+	s2jtNOQEVjLQCUOImnxJz3bov9Rh0AMHr5wd+qO8/bPrqXyaCz0thmNhWeYfqXOEZxo+bqBCcpT
+	91wAkOt5bi6lpyuzVAyvIrjzCD6ZWjCng+4HCy816hnotJRTvgZK/PCHq6Gy5LcAvaxzn/84qeC
+	kK0MnNfeXGk4WKmBCbWGiWwiDC8cSDFsnXM/8TZOrVF4xzcupzxZ+BqSIsD0F/wND+fSa6Q3/Ha
+	OT96TcPKURB9pQ4VgOQIpJJOI0bkMAZeR2w0jtm6m1rj4Yoo0gEQb4BR3fWXyVf/GpwOL/+yr0A
+	Ua5zjYM/UP9K4CasEtQcNo9ADjiChMJcEWzNP6e3ix8/uUq5mL0yKDM1+OYg7aTcfbC218g==
+X-Received: by 2002:a17:907:3f09:b0:c15:d068:9160 with SMTP id a640c23a62f3a-c1c50d1c8bfmr208935166b.31.1784846546715;
+        Thu, 23 Jul 2026 15:42:26 -0700 (PDT)
+Received: from beelink.. ([186.247.163.143])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c1c32f13123sm276428466b.59.2026.07.23.15.42.22
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 23 Jul 2026 14:58:30 -0700 (PDT)
-Date: Thu, 23 Jul 2026 14:58:25 -0700
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Eliav Farber <farbere@amazon.com>
-Cc: rafael@kernel.org, tony.luck@intel.com, bp@alien8.de, 
-	guohanjun@huawei.com, mchehab@kernel.org, xueshuai@linux.alibaba.com, lenb@kernel.org, 
-	laurent.pinchart@ideasonboard.com, linusw@kernel.org, brgl@kernel.org, orsonzhai@gmail.com, 
-	baolin.wang@linux.alibaba.com, zhang.lyra@gmail.com, jic23@kernel.org, dlechner@baylibre.com, 
-	nuno.sa@analog.com, andy@kernel.org, hansg@kernel.org, ilpo.jarvinen@linux.intel.com, 
-	W_Armin@gmx.de, ukleinek@kernel.org, fabio.m.de.francesco@linux.intel.com, 
-	kaihengf@nvidia.com, ankita@nvidia.com, leitao@debian.org, 
-	jason@os.amperecomputing.com, pedro.pbg@usp.br, paulmck@kernel.org, frederic@kernel.org, 
-	kees@kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-gpio@vger.kernel.org, linux-pwm@vger.kernel.org, linux-iio@vger.kernel.org, 
-	linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org
-Subject: Re: [PATCH 07/12] Input: adp5585: use
- devm_blocking_notifier_chain_register()
-Message-ID: <amKOW9ILpWd7w15Q@google.com>
-References: <20260723175513.39849-1-farbere@amazon.com>
- <20260723175513.39849-3-farbere@amazon.com>
+        Thu, 23 Jul 2026 15:42:25 -0700 (PDT)
+From: Your Name <qwe.aldo@gmail.com>
+X-Google-Original-From: Your Name <you@example.com>
+To: linux-input@vger.kernel.org
+Cc: jikos@kernel.org,
+	bentiss@kernel.org,
+	linux-kernel@vger.kernel.org,
+	Aldo Ariel Panzardo <qwe.aldo@gmail.com>,
+	stable@vger.kernel.org
+Subject: [PATCH] HID: multitouch: bound the slot index before touching mt_io_flags
+Date: Thu, 23 Jul 2026 19:42:11 -0300
+Message-ID: <20260723224211.613112-1-you@example.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260723175513.39849-3-farbere@amazon.com>
+Content-Transfer-Encoding: 8bit
 
-On Thu, Jul 23, 2026 at 05:55:08PM +0000, Eliav Farber wrote:
-> Replace the blocking_notifier_chain_register() +
-> devm_add_action_or_reset() pattern with a single call to
-> devm_blocking_notifier_chain_register(), removing the
-> adp5585_keys_unreg_notifier() callback.
-> 
-> Signed-off-by: Eliav Farber <farbere@amazon.com>
+From: Aldo Ariel Panzardo <qwe.aldo@gmail.com>
 
-Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+td->mt_io_flags is a single unsigned long.  Its first MT_IO_SLOTS_BITS
+bits track per-slot state, read back through MT_IO_SLOTS_MASK, while bit
+32 holds MT_IO_FLAGS_RUNNING, which the report path and the sticky-finger
+timer take and release with test_and_set_bit_lock() and
+clear_bit_unlock().
 
-Feel free to merge with the rest of the series.
+set_bit()/clear_bit() are called on that word with the slot number as the
+bit index:
 
-Thanks.
+	set_bit(slotnum, &td->mt_io_flags);
 
+slotnum is bounded only by td->maxcontacts, which is taken from the HID
+CONTACTMAX feature value and can reach MT_MAX_MAXCONTACT (250).  Two
+things go wrong once a device reports a slot number of 8 or more:
+
+ - a slot number of 32 sets MT_IO_FLAGS_RUNNING from the data path.
+   mt_expired_timeout() then finds the flag already set and returns
+   early, so sticky fingers are never released, and the
+   clear_bit_unlock() in the other path drops a lock it does not hold.
+   Several in-tree classes declare .maxcontacts of 40 and 60, so this is
+   reachable with ordinary hardware.
+
+ - a slot number of BITS_PER_LONG or more writes past the end of the word
+   altogether, corrupting the struct mt_device fields that follow it.
+
+The same unchecked index is used in mt_release_pending_palms(), where
+slotnum comes from a for_each_set_bit() bounded by td->maxcontacts, and
+in mt_release_contacts(), where it is bounded by mt->num_slots.
+
+Bound the index to the reserved slot range in one place and use that for
+every set_bit()/clear_bit() on mt_io_flags.  Dropping the out-of-range
+slots is not a functional change: both readers of the slot state mask
+with MT_IO_SLOTS_MASK, so bits at or above MT_IO_SLOTS_BITS were never
+observable to begin with.
+
+Also correct the comment on the field, which claimed that eight bits were
+sufficient because at most 250 slots are supported.
+
+Fixes: 46f781e0d151 ("HID: multitouch: fix sticky fingers")
+Cc: stable@vger.kernel.org
+Signed-off-by: Aldo Ariel Panzardo <qwe.aldo@gmail.com>
+---
+ drivers/hid/hid-multitouch.c | 35 ++++++++++++++++++++++++++++-------
+ 1 file changed, 28 insertions(+), 7 deletions(-)
+
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index 0495152091e3..463eab9f73cd 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -98,6 +98,7 @@ enum report_mode {
+ };
+ 
+ #define MT_IO_SLOTS_MASK		GENMASK(7, 0) /* reserve first 8 bits for slot tracking */
++#define MT_IO_SLOTS_BITS		8 /* bits covered by MT_IO_SLOTS_MASK */
+ #define MT_IO_FLAGS_RUNNING		32
+ 
+ static const bool mtrue = true;		/* default for true */
+@@ -175,9 +176,10 @@ struct mt_device {
+ 	struct hid_haptic_device *haptic;	/* haptic related configuration */
+ 	struct hid_device *hdev;	/* hid_device we're attached to */
+ 	unsigned long mt_io_flags;	/* mt flags (MT_IO_FLAGS_RUNNING)
+-					 * first 8 bits are reserved for keeping the slot
+-					 * states, this is fine because we only support up
+-					 * to 250 slots (MT_MAX_MAXCONTACT)
++					 * the first MT_IO_SLOTS_BITS bits are reserved
++					 * for keeping the slot states; higher slot
++					 * numbers are not tracked here, see
++					 * mt_io_slot_set()
+ 					 */
+ 	__u8 inputmode_value;	/* InputMode HID feature value */
+ 	__u8 maxcontacts;
+@@ -1027,6 +1029,25 @@ static int mt_compute_slot(struct mt_dev
+ 	return input_mt_get_slot_by_key(input, *slot->contactid);
+ }
+ 
++/*
++ * Only the first MT_IO_SLOTS_BITS bits of mt_io_flags track slot state; the
++ * rest of the word holds unrelated flags such as MT_IO_FLAGS_RUNNING.  Slot
++ * numbers are bounded by td->maxcontacts, which is taken from the HID
++ * CONTACTMAX feature and can be much larger, so the index has to be checked
++ * before touching the word.
++ */
++static void mt_io_slot_set(struct mt_device *td, int slotnum)
++{
++	if (slotnum < MT_IO_SLOTS_BITS)
++		set_bit(slotnum, &td->mt_io_flags);
++}
++
++static void mt_io_slot_clear(struct mt_device *td, int slotnum)
++{
++	if (slotnum < MT_IO_SLOTS_BITS)
++		clear_bit(slotnum, &td->mt_io_flags);
++}
++
+ static void mt_release_pending_palms(struct mt_device *td,
+ 				     struct mt_application *app,
+ 				     struct input_dev *input)
+@@ -1036,7 +1057,7 @@ static void mt_release_pending_palms(str
+ 
+ 	for_each_set_bit(slotnum, app->pending_palm_slots, td->maxcontacts) {
+ 		clear_bit(slotnum, app->pending_palm_slots);
+-		clear_bit(slotnum, &td->mt_io_flags);
++		mt_io_slot_clear(td, slotnum);
+ 
+ 		input_mt_slot(input, slotnum);
+ 		input_mt_report_slot_inactive(input);
+@@ -1247,9 +1268,9 @@ static int mt_process_slot(struct mt_dev
+ 		input_event(input, EV_ABS, ABS_MT_TOUCH_MAJOR, major);
+ 		input_event(input, EV_ABS, ABS_MT_TOUCH_MINOR, minor);
+ 
+-		set_bit(slotnum, &td->mt_io_flags);
++		mt_io_slot_set(td, slotnum);
+ 	} else {
+-		clear_bit(slotnum, &td->mt_io_flags);
++		mt_io_slot_clear(td, slotnum);
+ 	}
+ 
+ 	return 0;
+@@ -2062,7 +2083,7 @@ static void mt_release_contacts(struct h
+ 			for (i = 0; i < mt->num_slots; i++) {
+ 				input_mt_slot(input_dev, i);
+ 				input_mt_report_slot_inactive(input_dev);
+-				clear_bit(i, &td->mt_io_flags);
++				mt_io_slot_clear(td, i);
+ 			}
+ 			input_mt_sync_frame(input_dev);
+ 			input_sync(input_dev);
 -- 
-Dmitry
+2.43.0
+

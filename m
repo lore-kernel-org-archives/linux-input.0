@@ -1,38 +1,38 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EFFAB43B49B;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0C0C943F8CD;
 	Thu, 23 Jul 2026 11:27:09 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784806030; cv=none; b=TyK6VzuDtH1OwKG2x/cZKsjFRaLH87OeinnjhFtd/CVXs3A9Ii3ew/ROoscZ3L1ilgt8NQJvXbEp/tIYN6cCJoKLYs9OHvy8Kkk8PMXQiljg/kCRSUl29DujA6mXBGkKLbgbcaVgxvuhLnNXaoTR2rlsrHLjlsSFXuQ4nw6OdOo=
+	t=1784806030; cv=none; b=U+K97KWOSXHekwuu1kWG2VwhxcGpckGH7NJwxtpU4s3gtDrQi8wF5Re0dEb7g2vT5/IepnHnQ8LFwhOOFt61Ax5vLRwhqo+dZompcfZMplS1E0VaucWB6Y3htZbCEy6zSa4oekEmR+sfQU8JUkS+fNKNdH5YcBNfeXaEYsZICjU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1784806030; c=relaxed/simple;
-	bh=hzHKgZ4D+jeJoYuFb7yM5jGzuM70NqWd6XTX2mLqxlo=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=OJJovd6uwpH8TN3qWfD9G+xSsAcTFu3wEqGbVC3Ao9ntbUUvWCqSFREeVpmLeIB0YLxG5w0KGckvf8LZxtyvhXJja0F98X1xhWcIDpicESC4XwrvZXGosJiaKsKDbtfsZiK+gn5suTszjLJ0anVg9vcUwSpVG17b5agWUOemNyA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=QTljDhYS; arc=none smtp.client-ip=10.30.226.201
+	bh=uvjbPDPruxrWtK8MfZxl0y9jWziTEYOYYxVOMFT3c5Y=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=YAeEYBAsKjpfSCXrFkXqST3YfnJ4Uy8yO3TH2sZXdo9QQ8L+8dAP/mQ7jR719iBdtNVy8oBO6h+JQlXVm74g66IjP5KFf46/ARWjESAlZqtNtDr7OvgelSSEKpr1uVnsmw/A3xCt4Kw5TM3U7xfw3DAFt5mDzFpdLmnJPW6qDYM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=VC4GQWhE; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="QTljDhYS"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id C6EB0C2BCC7;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="VC4GQWhE"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id A9422C2BCB8;
 	Thu, 23 Jul 2026 11:27:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
 	s=k20201202; t=1784806029;
-	bh=hzHKgZ4D+jeJoYuFb7yM5jGzuM70NqWd6XTX2mLqxlo=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
-	b=QTljDhYSwgFzeA/1TwD7zB+WurAqS8b/Yd8JXWzxOFnTwfQG0ZRRrIOGkwNFl212I
-	 7+IsZBlw87YdFO/opC+HqtcAjPeIttipFNW36CrCKttNeDCOeuFPhAgjFxHneA/ssY
-	 nxnF1uSJJignVecafquspEqItcCEbvau+MWc9DwuyZb3RqQzi+YVQmvfh1ZCray+qI
-	 Rc9knNPDvQ7oYwHu8KHU4eeBaXey9InjiEOy+GVJOeMp5puIzDYGxs54enFFb9GRN8
-	 B6DyLbQWLY8U1YbMc5rKloS57diKNKEh9HxHYg8tqL2At3+pFUFKuyXcRi6QLNWs8S
-	 jPui0cv8WduFg==
+	bh=uvjbPDPruxrWtK8MfZxl0y9jWziTEYOYYxVOMFT3c5Y=;
+	h=From:Subject:Date:To:Cc:Reply-To:From;
+	b=VC4GQWhEGw1F59SlwuDA3+FWZyvE1Hwh4doA8ERr9M1lWix5HIF5JVrHpUHmCcJF6
+	 Yz0zC7gqw2sBTT+ADQzxvL+sf2LK9Lkebmbxb9PfaPhQdI+eQiQq+0Sz/J19aPb1Sf
+	 RMeiYez1LvnOmt+LnynG3qD+kojvUzjYI4N82YWOt/TLn/3qOq+6stbA1+gLqszgQx
+	 1Eln/IJv6risWVhtyBpvV/XbvC2PuYVEWqe1itV3W2qI9QXTGHWHKihG96GhX+UbaR
+	 50XZdcyFDuLfSlYHMC/7U4rTfZvnwdgJMI2bWTN9hVnhFyz5Yp+jzArfFGe5UpK7Es
+	 V3yfZSp0Wq50g==
 Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B2A6CC531CF;
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 95818C531CB;
 	Thu, 23 Jul 2026 11:27:09 +0000 (UTC)
 From: Alexandre Hamamdjian via B4 Relay <devnull+azkali.limited.gmail.com@kernel.org>
-Date: Thu, 23 Jul 2026 18:27:08 +0700
-Subject: [PATCH 1/4] Input: edt-ft5x06 - ignore contacts with an
- out-of-range slot id
+Subject: [PATCH 0/4] Input: edt-ft5x06: robustness fixes for a FocalTech
+ FT5426 on a marginal bus
+Date: Thu, 23 Jul 2026 18:27:07 +0700
+Message-Id: <20260723-b4-ft5426-v1-0-d4b4e32be042@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -41,21 +41,23 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260723-b4-ft5426-v1-1-d4b4e32be042@gmail.com>
-References: <20260723-b4-ft5426-v1-0-d4b4e32be042@gmail.com>
-In-Reply-To: <20260723-b4-ft5426-v1-0-d4b4e32be042@gmail.com>
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/yXMTQqAIBBA4avErBNM7fcq0SJtrGlRoRZBdPesl
+ h883gUeHaGHJrnA4UGe1iUiSxMwU7+MyGiIBsFFwUshmVbMhlyJgslaDlWeKVTaQuw3h5bO79V
+ 2v/2uZzThHcB9P2CgmFZtAAAA
+X-Change-ID: 20260723-b4-ft5426-393d8514e4bf
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
  Henrik Rydberg <rydberg@bitmath.org>, Rob Herring <robh@kernel.org>, 
  Krzysztof Kozlowski <krzk+dt@kernel.org>, 
  Conor Dooley <conor+dt@kernel.org>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
- devicetree@vger.kernel.org, Alexandre Hamamdjian <azkali.limited@gmail.com>
+ devicetree@vger.kernel.org, Alexandre Hamamdjian <azkali.limited@gmail.com>, 
+ Teguh Sobirin <teguh@sobir.in>
 X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1784806028; l=1395;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1784806028; l=1711;
  i=azkali.limited@gmail.com; s=20260510; h=from:subject:message-id;
- bh=D0XuFOboekFyulaNFU7MxXVtoV8b4Kp9OM9aoWYiFTo=;
- b=oso77UFU2tWgwp7TRwwFdKsBZiu0lKjhhcLPJNm0fpO3hsaHh+HTKbV8LSrOdbE2Q3op2RQu1
- 6OwLQ8qvABnD13r3CHrfXX2JWjVBjZF531nfbvGbgHss0RKGNsql16+
+ bh=uvjbPDPruxrWtK8MfZxl0y9jWziTEYOYYxVOMFT3c5Y=;
+ b=/HYVVo2ISake2MakeSgULvVpDrj82BqGO+ZAeI6j2bw5XKsip2vkp6mJLucoxMmTImBt+XdbE
+ 6u+E9b8whWLBkwopmUlsMjaGJlqmwKYnlvz9kT8g6D1gNpSx+2ENlWF
 X-Developer-Key: i=azkali.limited@gmail.com; a=ed25519;
  pk=I0Z0IdCdQJqNGX+FQUnXhrHg950u3cM6Xzz3YT6JOyQ=
 X-Endpoint-Received: by B4 Relay for azkali.limited@gmail.com/20260510 with
@@ -63,41 +65,44 @@ X-Endpoint-Received: by B4 Relay for azkali.limited@gmail.com/20260510 with
 X-Original-From: Alexandre Hamamdjian <azkali.limited@gmail.com>
 Reply-To: azkali.limited@gmail.com
 
-From: Alexandre Hamamdjian <azkali.limited@gmail.com>
+The AYANEO Pocket DS drives its FocalTech FT5426 touch controller on a
+Qualcomm GENI i2c controller that has no bus recovery and, on this
+board, clock-stretches close to the controller timeout. This series
+collects the robustness work that helps there, smallest and most
+generic first:
 
-The per-contact slot id is taken from the top nibble of the third
-report byte, so it can be any value from 0 to 15. The driver only
-allocates max_support_points MT slots (2 to 10 depending on the
-variant), so a report that carries an id at or above that count - be it
-a genuinely higher-numbered contact or a corrupted byte - is outside the
-range the input core was told about.
+  1. ignore contacts reported with an out-of-range slot id -- a generic
+     correctness fix, independent of the board;
+  2. document, and
+  3. implement an optional no-regmap-bulk-read mode that reads the touch
+     frame one register at a time, for controllers whose bus aborts long
+     transfers;
+  4. poll while a contact is down to recover a touch release dropped by
+     a missed edge interrupt.
 
-input_mt_slot() silently ignores an ABS_MT_SLOT beyond num_slots and
-leaves the current slot unchanged, so the following
-input_mt_report_slot_state()/touchscreen_report_pos() pair is applied to
-whichever slot happened to be selected last, reporting the contact at the
-wrong position. Skip such entries instead.
+Patch 1 stands on its own; the rest are opt-in (DT property / chip
+behaviour) and inert on healthy hardware. Feedback on whether the bus
+mitigations belong here vs. in the i2c controller is welcome.
 
 Signed-off-by: Alexandre Hamamdjian <azkali.limited@gmail.com>
 ---
- drivers/input/touchscreen/edt-ft5x06.c | 2 ++
- 1 file changed, 2 insertions(+)
+Alexandre Hamamdjian (3):
+      Input: edt-ft5x06 - ignore contacts with an out-of-range slot id
+      dt-bindings: input: edt-ft5x06 - add no-regmap-bulk-read property
+      Input: edt-ft5x06 - poll while a contact is down to recover dropped releases
 
-diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/touchscreen/edt-ft5x06.c
-index d3b1177185a3..d6c3d033b83d 100644
---- a/drivers/input/touchscreen/edt-ft5x06.c
-+++ b/drivers/input/touchscreen/edt-ft5x06.c
-@@ -331,6 +331,8 @@ static irqreturn_t edt_ft5x06_ts_isr(int irq, void *dev_id)
- 			swap(x, y);
- 
- 		id = (buf[2] >> 4) & 0x0f;
-+		if (id >= tsdata->max_support_points)
-+			continue;
- 
- 		input_mt_slot(tsdata->input, id);
- 		if (input_mt_report_slot_state(tsdata->input, MT_TOOL_FINGER,
+Teguh Sobirin (1):
+      Input: edt-ft5x06 - allow reading the touch frame one register at a time
 
--- 
-2.55.0
+ .../bindings/input/touchscreen/edt-ft5x06.yaml     |   8 +
+ drivers/input/touchscreen/edt-ft5x06.c             | 200 +++++++++++++++++++--
+ 2 files changed, 196 insertions(+), 12 deletions(-)
+---
+base-commit: e98d21c170b01ddef366f023bbfcf6b31509fa83
+change-id: 20260723-b4-ft5426-393d8514e4bf
+
+Best regards,
+--  
+Alexandre Hamamdjian <azkali.limited@gmail.com>
 
 

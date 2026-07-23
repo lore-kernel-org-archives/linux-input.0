@@ -1,58 +1,87 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8DFCA41D650;
-	Thu, 23 Jul 2026 10:22:44 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4AE8143B3E7;
+	Thu, 23 Jul 2026 10:34:27 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784802165; cv=none; b=nZMLphYjr9W4bpQiXj6YyQiHVBCHFqB/kuci2r3qraKCpPZM7pBlpVByIrvO86TYdtSQiQt6C/LNzMx4gfcv7OhjOlHdMEHTCEj9aAWok3d4ZAP+Ge8xCMMpnNnLuLFi6dn+y3ZZLvteNR7FbJhYrZ3ZhopKLcjTEV1WxI9rLhU=
+	t=1784802869; cv=none; b=VPzvByBKGV2vjwO4zHthg003mLU6l7TR5t2r6l9H5UgYN1xhrbULCEtwDeesLFp/iPpVz1ID42WLCAiBZIduyQwEmm2BL7GmBZMR0Oxzcw+3Q7FLeh7YArPTnVPqe2Li5r7qTQVwhnSkpFAtQQtXWvhkTjExRk7ze0cbI0wATRU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784802165; c=relaxed/simple;
-	bh=SVE0WBK1ETYot1oQG4Aeb/YUZ11+jFDmTVNkmlwJaRc=;
+	s=arc-20240116; t=1784802869; c=relaxed/simple;
+	bh=K7FsJb35z6jEDs1gKdsMSV+AYBwMwJHCmZGh7clmwVs=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=kdVbAsw2hQBfT/ghSn/GnkNEG4j1iNTTP43ZE72MWZQjFIBJ1s/BTJrRvkIZ1NOOoQ4FsHQKedUUIN3Yof0gYH9TsHJv2l/j8xq5PDwe05MC7V5rk04dRL9kWF+sU5N6dOPtPgP0PbeyeIF+hQjqQBhtcbqDnCRsQecSOVrgLqY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=JPGaGmLv; arc=none smtp.client-ip=100.103.45.18
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="JPGaGmLv"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC9091F000E9;
-	Thu, 23 Jul 2026 10:22:43 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784802164;
-	bh=SVE0WBK1ETYot1oQG4Aeb/YUZ11+jFDmTVNkmlwJaRc=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=JPGaGmLvtgpo8MI8V2qY9XdBriY5hKyR1v9aX6q5FRJpFukXxeTh/8iFwN6SHDxtv
-	 nToG6lJ+KcJvwAseD/0jMczKie7v7ohQgM0HbxBtOHLbdQSxpJbSmvSqf8mT3jYkqC
-	 WSTWqjqseuVLYxo+2S602wQMAQFExj4+xdLx42M0ImtSel2COkyq7rRt7IjglT8GdM
-	 qLtD1uw8EkkxtQmTMY2hAGd7f3KaByiA3kOpCbUOujtW5T8JBE8l/LiVzrecjxusoB
-	 CO/LgiOtNSZOdNG2Osz4EsiSrl3PjxHmz9EnLtZM84gSrFAjEVnpNtc0tDPKJ8j1vH
-	 Bgvy5oopDm2IQ==
+	 Message-Id; b=CdcWqE/vhjD+dAVYS965iLmlgPtLZYNoZ5bIh1i8NsIj3uGzYC0/gTANLNAtbAtDJkyvANsB33ZOmP0olMD0qIbv2aXkhmRdqttAdFw0hOr185GsLeAbXbn1XgsUVkrG5KQcM/EH2QGsviAq3AswojpgFrrm9TI8qtUczXu2cDQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 510A11F000E9;
+	Thu, 23 Jul 2026 10:34:27 +0000 (UTC)
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v4 3/4] dt-bindings: input: Convert TI TPS65217 power
- button to DT schema
+Subject: Re: [PATCH v4 4/4] dt-bindings: leds: backlight: Convert TPS65217
+ to DT schema
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Eduard Bostina" <egbostina@gmail.com>
-Cc: conor+dt@kernel.org, linux-input@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-leds@vger.kernel.org, dmitry.torokhov@gmail.com, lee@kernel.org, robh@kernel.org, devicetree@vger.kernel.org
-In-Reply-To: <20260723100605.628882-4-egbostina@gmail.com>
+Cc: dri-devel@lists.freedesktop.org, lee@kernel.org, dmitry.torokhov@gmail.com, linux-leds@vger.kernel.org, devicetree@vger.kernel.org, linux-input@vger.kernel.org, conor+dt@kernel.org, robh@kernel.org
+In-Reply-To: <20260723100605.628882-5-egbostina@gmail.com>
 References: <20260723100605.628882-1-egbostina@gmail.com>
- <20260723100605.628882-4-egbostina@gmail.com>
+ <20260723100605.628882-5-egbostina@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 23 Jul 2026 10:22:43 +0000
-Message-Id: <20260723102243.BC9091F000E9@smtp.kernel.org>
+Date: Thu, 23 Jul 2026 10:34:26 +0000
+Message-Id: <20260723103427.510A11F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-> Convert the Texas Instruments TPS65217 and TPS65218 Power Button
-> bindings to DT schema.
->=20
-> Signed-off-by: Eduard Bostina <egbostina@gmail.com>
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+s) to consider:
+- [Medium] The converted MFD (Multifunction Device) core binding is incorre=
+ctly placed in the `leds/backlight/` directory.
+- [Low] The commit message uses an incorrect subsystem prefix for a Multifu=
+nction Device (PMIC).
+--
 
-Sashiko has reviewed this patch and found no issues. It looks great!
+--- Patch [4]: [PATCH v4 4/4] dt-bindings: leds: backlight: Convert TPS6521=
+7 to DT schema ---
+commit 1f4c2bf543a28045151b5cf16c5be1f7c2cee8e1
+Author: Eduard Bostina <egbostina@gmail.com>
+
+dt-bindings: leds: backlight: Convert TPS65217 to DT schema
+
+This commit converts the Texas Instruments TPS65217 bindings to DT schema.
+It consolidates the old regulator and backlight bindings into a single
+schema file while documenting additional child nodes and properties.
+
+> dt-bindings: leds: backlight: Convert TPS65217 to DT schema
+
+[Severity: Low]
+Is the subsystem prefix correct for this device? The TPS65217 is a PMIC=20
+and its core driver resides in drivers/mfd/tps65217.c. Since this patch=20
+consolidates the bindings for a Multifunction Device into a single unified=
+=20
+schema, should the prefix reflect the MFD subsystem instead, such as
+dt-bindings: mfd: ti,tps65217:?
+
+> diff --git a/Documentation/devicetree/bindings/leds/backlight/ti,tps65217=
+.yaml b/Documentation/devicetree/bindings/leds/backlight/ti,tps65217.yaml
+> new file mode 100644
+> index 0000000000000..4d2f4dbd2d52e
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/leds/backlight/ti,tps65217.yaml
+> @@ -0,0 +1,170 @@
+> +# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+> +%YAML 1.2
+> +---
+> +$id: http://devicetree.org/schemas/leds/backlight/ti,tps65217.yaml#
+
+[Severity: Medium]
+Since this schema consolidates the regulator, backlight, and other PMIC
+functions into a single file, should this be placed in the mfd/ directory=20
+rather than leds/backlight/? Placing it in leds/backlight/ seems to=20
+categorize the device's primary role as a dedicated backlight rather than=20
+an MFD. If moved, the id and file path would become=20
+http://devicetree.org/schemas/mfd/ti,tps65217.yaml#.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260723100605.6288=
-82-1-egbostina@gmail.com?part=3D3
-
+82-1-egbostina@gmail.com?part=3D4

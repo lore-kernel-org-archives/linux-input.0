@@ -1,75 +1,70 @@
-Received: from mail-pg1-f177.google.com (mail-pg1-f177.google.com [209.85.215.177])
+Received: from mail-pg1-f178.google.com (mail-pg1-f178.google.com [209.85.215.178])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 61C3533F38E
-	for <linux-input@vger.kernel.org>; Thu, 23 Jul 2026 17:45:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.177
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2521C395AD8
+	for <linux-input@vger.kernel.org>; Thu, 23 Jul 2026 17:53:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784828751; cv=none; b=qqv0rEjfkubMsPYXpn5s8Ld6zp4PyjdfSWsYKlJjAdUpbMaBcSpqXuh4ZjKKL33C7qQkh/lG/ijpLtvJjGHi8IAb2C2lo+7CG6Tc0PbPyv2q2+ZEIBbkUOgIENfZKj+DHOO6GtspPGbd9NpwzlnSIBW7RVqgoazccokbIvx00Wk=
+	t=1784829198; cv=none; b=FlzH+dcgGD4Pn/zRDhg0e8o/vmQKna+Sd4Pg0Ir4gC7LGuLCAiwMVh3D5TuSdUdpfR45ZWVJGPGIX6oiXirCmInbL9kiLhcY7V2rV6nWq7yfa0DBOijAsJOt0dy0AsjWolQU3KIo96W+0h/SOTHTcxHNQCmK1nBfGZRfcllmmhc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784828751; c=relaxed/simple;
-	bh=KZY5Per6gqC//uqwYOs8Lx6+Xn/30uRA+CAzdNfsmCU=;
+	s=arc-20240116; t=1784829198; c=relaxed/simple;
+	bh=bXt8BWHoi6WjvH9J91ZlaE14yN7FYK0b5KP8qFrl3dw=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=JiYcDFO2X4Lbo1+iJoRC2oVq0q3Pt/f7TXDHvrV0XlsR6H3NtsvKkuEqfzvmtgS92/4gTibo6O37cpH+xYuVkBMJ0Y/TblBtcBvBbpGxpLXrei/smrrtGxd3i6FzVigCShBA1o5yWhR+aeZ/5neglWq4LtgwY4hFQh7vxE6gCC4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=pML5cErP; arc=none smtp.client-ip=209.85.215.177
+	 Content-Type:Content-Disposition:In-Reply-To; b=JApYBtqAra09kDeN4dXjkTyyFc9YhcoImnOA/oSBLoPfmGSxJyfAIpr+khFtJZ8CqE2xhgdOUDHINOHP7mAK64IsYXIeU/B7sMhvWm7oiM+4pZA31gpQj5Df1YGGvmNswz43EI2Xe3dXctbwcikwHMx84wIHbSvc/vrpJlqreUE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=BomhkimH; arc=none smtp.client-ip=209.85.215.178
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="pML5cErP"
-Received: by mail-pg1-f177.google.com with SMTP id 41be03b00d2f7-c96c92c0980so633801a12.3
-        for <linux-input@vger.kernel.org>; Thu, 23 Jul 2026 10:45:48 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="BomhkimH"
+Received: by mail-pg1-f178.google.com with SMTP id 41be03b00d2f7-ca957432c7fso727928a12.1
+        for <linux-input@vger.kernel.org>; Thu, 23 Jul 2026 10:53:17 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784828747; x=1785433547; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1784829196; x=1785433996; darn=vger.kernel.org;
         h=in-reply-to:content-disposition:content-type:mime-version
          :references:message-id:subject:cc:to:from:date:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=2O4xFuAHBp+wc0jU7apiTfSbaN5z+iCv3LYdHU3FUCI=;
-        b=pML5cErPOAAtVMKfuUfPf8PEO/flUn9Y51MYDcpFUFYnvZlsUVemqVvoVTPuJ0htZt
-         uoKAWgDbOry4V/7Y6iXSRRa6ASi0r7KH/yAYiK4pFMy5vUE26Pb2XnhDQzql/cxfm4b6
-         yn81KjB3h5Yyu2Tz9bjiE1vDeWxYb/tm270TNG3RYrMgQF/nBMPKlW6NSXsubmM00hUR
-         UhxxRxplljfmm7c9foraJEN9RH2Tg1khZGnxw8V7Wofv4Ws5N5q8rzoIl1BjddqA9Gan
-         inmwP8GVqRFiCFjW3xWHXrHKimVaodgYKhqiurqX6OfBg7QR8G2zNo2iiczTaluHGl+U
-         DrsA==
+        bh=PiY9z17CCWjVP+IRPI5g7TJ4J7BNOU9OnVtXhkrBfb4=;
+        b=BomhkimHo5G63zj0i+tvd3YeleNWFIgHUwbhV5oAYftbvMQCx6G37EYKeF7J2NxqsP
+         w9+/DwaFXW6m0peskpIM6Guj/Bn01zkRkhT7LyP7OMqb+K0c1msL9TlJleQbExvJuETU
+         +tAiwqw39efTUyHvlwJbAXN36ycVAACUpgZXpIvcmdJm6WZafY9HalTxNkNFAcxfiLgA
+         9XA4OiW6oY6fs7yqRLi8R/heBeAKHotxmZVvVd+OO/GRJOGllr0pkZ9ncNdkXUCJf3/J
+         avU9R1op6XDdqwOqI7t0uDWnaI5AEayFxe85x2XWQi7WSnylKM0pm0tkLZ2UNhq7w98p
+         xJWg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784828747; x=1785433547;
+        d=1e100.net; s=20251104; t=1784829196; x=1785433996;
         h=in-reply-to:content-disposition:content-type:mime-version
          :references:message-id:subject:cc:to:from:date:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=2O4xFuAHBp+wc0jU7apiTfSbaN5z+iCv3LYdHU3FUCI=;
-        b=ZBfwO1T6F5qlBpGvkFjR0HalleeBmewMeUKaMpIJvN6sQAZJpJW25sAGhxgxT4Go93
-         qRQgjAooFOiWlpnH1hk2DDxvprbOeBZtlsIzyt9lektzAVo7NgJP83mGoh39Zku2uFIV
-         dcULGnr6NqHFGTln7PwPWFUCoHB8w+QmmZ7sSR1cPtHbOIlJuNgPMiedoBHqFL7TlUPS
-         ZuQ2db+w+NHYFNplOqa+4c3wSmGz0ttyrkgKoGg8WvmTnVR35XwNPc3ERX0a+/4I1TwV
-         wGEQ3JfLhTX3QDraUjS5Hn6F+2cqbEdWrouRhgWjuKpSjfwXkvrSVG9ZBbmB7sySdAx7
-         tvsw==
-X-Forwarded-Encrypted: i=1; AHgh+RrFMNwWhP6psyqfLm9ukpQrcZraOq9VmU6vApA4LwY6tTCHWHXzax6zzjSLvk71TD0BzDSUjQQ7g8u8iQ==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yz+a77tYzlpkX7UsCsJ3x6qk9KpsZ9DBjILuOA0NxhZarbG9Ypd
-	eK+0vKIKdWA4DKvy1P6iwhLGgRjjjKFVmU5pOzf+7WnE/ic9/Vjj/jHW
-X-Gm-Gg: AR+sD11+mU/2ppD8+B278rrzIoU7/EVBD6D5R6I494zaK7vICWqbDyxlKWQKJqAwho9
-	ly86xUZ0oOCWdVDQADdRwm9i8vX5SdndvOjmpk8tiNsvlcjqgHTrlLqbk3/qKfBiR3TEJbQxArT
-	tb9PUcpQo7/bCl319q4jT6K+VCdgRwehkEeniDsDre8b2gJnHJs/Qzf2vvWYXky8OTrkcbE927e
-	3staOcNTA6NcpnamYyntDh7Di2tem+EEPjl9gVpEeu6+dO6JnRQC2px4QGR6AAoLHfr1X42N51Y
-	8tpG+AVjQ3O1O2aJO5KhW8v2rYVbggXKgfS7VImXbMKcg8DcGu9bftlRZI781Ro20Yy59lXKaKx
-	tqM2VG6MPe3JEU2VRNAxnlqLJE0EOV94L1/Els+AroN6WIlLGc5uaPCkpoBQXiH2QIEgBqAauO9
-	05sTza1ijggZA3/gUc0IPJ2YGVjKEvVOKPlCtP5zlPTA==
-X-Received: by 2002:a05:6a20:e292:b0:3c3:7fff:ba72 with SMTP id adf61e73a8af0-3c44b2b9706mr4676613637.70.1784828747494;
-        Thu, 23 Jul 2026 10:45:47 -0700 (PDT)
+        bh=PiY9z17CCWjVP+IRPI5g7TJ4J7BNOU9OnVtXhkrBfb4=;
+        b=k7NXTkvaJlByzHIEyBuSTTy+hEjKkI3tGMVi5KEWCOTtZidP2C8PI7WTuTSWgGmSTC
+         WB3mfNOKP3Rnnqi1LG9HRwNXCg2IELY5yca4wOVsohdMoqa8Z8J/a39FcWKmv8dnruWZ
+         c+AgmZO/8GeZz58FBRZ6lqQ5/GHsGNdC/FXB/ED3g1JVD5vP0yw7pyla/svuqj5uPCRr
+         dTUOBpx9s/ftuENEMuc2trsKntG6T3WbCXFuLa99SbvplROkk7Qp8MKK6Bot+LuSRb6g
+         fhgFOUSY/DOFphF7Rw3cJX7B3grR50v522DnEEYJPVzDPp8CZMBzraZMJJwIiqYrhGt3
+         +xdg==
+X-Gm-Message-State: AOJu0YwDGRn6tu0Cn6leLd/SSceojB5ZRC+JWycLpi0ExH+mPbRhANRw
+	1t5F1K18sUSJ8NY8/zbexq466gDgmtbbAVYAFy87N6EPXu6k20sjW76u
+X-Gm-Gg: AR+sD10LxlCBS4QiPh9JiLmWucs3DtEh/aHP+EJPAs3hEn8Xa7Xt1pKHUr4JyO+uDut
+	xGKRJhGBf9PV08kxAF8GjYUjxJE50xOdpM6gZ3OxPLszLkaRA0NskiTo0cGIaqiJwlcjPhps7h4
+	BUuO2NQnT/aZYoIvK1NjOj3u+iNtm0643z8vytIQx/27SEUafA72A4wq1cJg8tE2QLgFWdw7Wpo
+	zrr6NfMruHGm7fVLaH0BMnKyQr73S02P63wz0DgsB8DmsfO0Hv7KZ6vt6bVtPNZDRrfIRLtEqMR
+	OKJaMv6v8pv5ZZ7gVx+ENY/2ZzOttZKIrEEejNx3bRshMZxMzDde9YBpPb40pxO8lG+4c2cIrbW
+	v+gyqvjXRLLhkL+IP1D8O2K+zEZEsMqcm1rfgnNum8MSsxm8X5H0L/lP/mRpLpYKtUDegZYCMQl
+	U3O/pHGaJ7nlTfb+b+LTm/7qPpn9Ta/ANUjQY40m+kYg==
+X-Received: by 2002:a05:6a20:4323:b0:3c3:c07b:5322 with SMTP id adf61e73a8af0-3c44b0148b0mr4288981637.34.1784829196286;
+        Thu, 23 Jul 2026 10:53:16 -0700 (PDT)
 Received: from google.com ([2a00:79e0:2ebe:8:f5d:dfe5:9bb9:71ad])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3147e1c7ff4sm23572393eec.27.2026.07.23.10.45.45
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3147e1c9289sm22178711eec.29.2026.07.23.10.53.15
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 23 Jul 2026 10:45:46 -0700 (PDT)
-Date: Thu, 23 Jul 2026 10:45:43 -0700
+        Thu, 23 Jul 2026 10:53:15 -0700 (PDT)
+Date: Thu, 23 Jul 2026 10:53:12 -0700
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: sashiko-reviews@lists.linux.dev
-Cc: Alexandre Hamamdjian <azkali.limited@gmail.com>, conor+dt@kernel.org, 
-	devicetree@vger.kernel.org, linux-input@vger.kernel.org, robh@kernel.org
-Subject: Re: [PATCH 1/4] Input: edt-ft5x06 - ignore contacts with an
- out-of-range slot id
-Message-ID: <amJSt_g5We0R-eJo@google.com>
-References: <20260723-b4-ft5426-v1-0-d4b4e32be042@gmail.com>
- <20260723-b4-ft5426-v1-1-d4b4e32be042@gmail.com>
- <20260723114100.D6D641F000E9@smtp.kernel.org>
+To: Kyohei Kadota <lufia@lufia.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Input: xpad - add support for ZENAIM LEVERLESS
+Message-ID: <amJUufz21YuUCO4E@google.com>
+References: <CAFMepckDUuOHiDDVVhUYc-UqJMeCqrWSfCuxbJ2x2sGgdDD4nw@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -78,22 +73,19 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260723114100.D6D641F000E9@smtp.kernel.org>
+In-Reply-To: <CAFMepckDUuOHiDDVVhUYc-UqJMeCqrWSfCuxbJ2x2sGgdDD4nw@mail.gmail.com>
 
-On Thu, Jul 23, 2026 at 11:40:59AM +0000, sashiko-bot@kernel.org wrote:
-> Thank you for your contribution! Sashiko AI review found 2 potential issue(s) to consider:
+Hi Kyohei,
+
+On Thu, Jul 23, 2026 at 07:55:57PM +0900, Kyohei Kadota wrote:
+> Add the VID/PID for the ZENAIM LEVERLESS controller to xpad_device and
+> the VID to xpad_table.
 > 
-> Pre-existing issues:
-> - [High] Unbalanced `disable_irq()` calls when suspending and resuming in factory mode lead to a permanently disabled touchscreen.
+> Signed-off-by: KADOTA, Kyohei <lufia@lufia.org>
 
-This is obviously not caused by your series but might be real, need to
-check...
-
-> - [High] Stack-allocated buffers are passed to `regmap_bulk_read()` and `i2c_transfer()`, which can cause memory corruption or panics if the underlying I2C host controller driver uses DMA.
-
-Sashiko hallucinates here. I added I2C prompt to teach it that I2C is
-generally safe wrt on-stack buffers, but I am not sure if it will trace
-it to regmap.
+Your editor or mailer converted tabs to spaces. I fixed it up and
+applied, but just wanted to let you know in case you'd want to submit
+more patches in the future.
 
 Thanks.
 

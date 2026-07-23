@@ -1,114 +1,114 @@
-Received: from out-179.mta0.migadu.com (out-179.mta0.migadu.com [91.218.175.179])
+Received: from out-180.mta0.migadu.com (out-180.mta0.migadu.com [91.218.175.180])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 778282BB13
-	for <linux-input@vger.kernel.org>; Thu, 23 Jul 2026 00:51:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.179
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EA6812931F0
+	for <linux-input@vger.kernel.org>; Thu, 23 Jul 2026 00:52:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.180
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784767896; cv=none; b=QW4/raFHEA1gzZQS04/jdklTyU4WCn6MYpP9g21lrcFAnu2IEXbcZc9fZi6OUf3xCRDX5ApU04h/eEpQJ0RanMJMjfd1PiIlPt/K1AaXiXuLM3BTwcJul9mRDXjaYfYf3ts1Wz1VrlALqG2wATaqJeeOp+n2Q4vuDox1eRwp0x0=
+	t=1784767974; cv=none; b=tsFwOJEEzN2E3wIr+pXmrV7zG5/RmO6xirOLgitA+erojMI4KAFzUF/k4+G9XVCfmnO8oJYMld8fHnViITWHeQmTb8JYtRJ480m6iWhxjYvOpJN24Wd0Of/H82OlbtV9LBFZjcdzPWEpKTQQtgiRB5CNZSbeABskn4jyQZZxgIc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784767896; c=relaxed/simple;
-	bh=HGUXHalWp8l0xvm1E8pX9J6mPOzulxhOOI7xc1FVb/I=;
+	s=arc-20240116; t=1784767974; c=relaxed/simple;
+	bh=bDDVpICMqlkNzNjqrPx5yTXY+l0/mG71ZKn5CbNtRlY=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Zldg0x676w+Pkk1kqAafycwEIWdtE/8MS1YMovNyL05WKMzW9P6dqNoNuywJabR1zfv8+i6Smu627+PR9/zMWOGVwyswQpQAi5MQbdJQICbw0pDi1JQSlTlcexjfBdN72mLuhurDl3u8bYfoSu0/C4iiv7pwM7d2NkhLb22gtF4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=aOX5KQdD; arc=none smtp.client-ip=91.218.175.179
+	 In-Reply-To:Content-Type; b=EyaaK9QSeJYAxIgQGwJza2q1Cni2R53PZMhWQ9oQTkGQRDvDd8HuY3eEEeOxrIWj22YYFZ7s4nk/mTz+Zmi6Csz9nnEchM8Hnjsr/5hpt8/3F0m3LrMt2n8llQlORtA+mOgLmsQ4D+XGMwoQRSebz/h1bhEZxM3KeGl4kh5jIwI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=wuYE3UV0; arc=none smtp.client-ip=91.218.175.180
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="aOX5KQdD"
-Message-ID: <d4896c9a-fe31-4c1b-bfa5-3a17d18a10fa@linux.dev>
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="wuYE3UV0"
+Message-ID: <51467e81-3919-4192-9a3f-d2bce744f12a@linux.dev>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1784767882;
+	t=1784767970;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=oNpyNv0ICSBsPTntcujb5nsTOyzqh9djecQmrrIOoSk=;
-	b=aOX5KQdDVaLshQjM+asZbKKriNNEEqKnBGDIh1V+BjIXKVSJO8He9yXK6nk3hGAxv900ug
-	aMv4+X43CriaCnUwKtq0J3qiulkxNDFn0xo2gLtmBkQWzjIa+Ta992luip8Vt5E6J/OQt9
-	u7lViFMOdCLAMBUhF5WbpSBmFx1MgcM=
-Date: Wed, 22 Jul 2026 17:51:17 -0700
+	bh=OnyAA6FllzAzAKXvhBp6nEofnu4s0MdDRKBx0a5heF0=;
+	b=wuYE3UV0QrB5USHchVWfSpocKiNsbIUtzpPN/tWNhvVf9T01OLzUyNerkQVtw0kLT2xhff
+	xg+ZasyXNlnUpGgOHkhx0jnwod6sj3OSRuzhr9U8ocW28VEgubKRbGtHfqqxdnXGDCkWHL
+	J0W74+iwNt/wZUN9N9aI1vi71CDjIIw=
+Date: Wed, 22 Jul 2026 17:52:46 -0700
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Subject: Re: [PATCH bpf-next v1 3/8] resolve_btfids: Keep collected kfuncs in
- a rbtree
+Subject: Re: [PATCH bpf-next v1 6/8] HID: bpf: Make syscall kfunc flags match
+ the struct_ops set
 To: sashiko-reviews@lists.linux.dev
-Cc: linux-input@vger.kernel.org, bpf@vger.kernel.org,
- dmitry.torokhov@gmail.com
+Cc: bpf@vger.kernel.org, dmitry.torokhov@gmail.com,
+ linux-input@vger.kernel.org, Benjamin Tissoires <bentiss@kernel.org>,
+ Jiri Kosina <jikos@kernel.org>
 References: <20260722233518.778854-1-ihor.solodrai@linux.dev>
- <20260722233518.778854-4-ihor.solodrai@linux.dev>
- <20260722235024.C478C1F000E9@smtp.kernel.org>
+ <20260722233518.778854-7-ihor.solodrai@linux.dev>
+ <20260722234938.DF9D41F000E9@smtp.kernel.org>
 Content-Language: en-US
 X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
 From: Ihor Solodrai <ihor.solodrai@linux.dev>
-In-Reply-To: <20260722235024.C478C1F000E9@smtp.kernel.org>
+In-Reply-To: <20260722234938.DF9D41F000E9@smtp.kernel.org>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 X-Migadu-Flow: FLOW_OUT
 
-On 7/22/26 4:50 PM, sashiko-bot@kernel.org wrote:
+On 7/22/26 4:49 PM, sashiko-bot@kernel.org wrote:
 > Thank you for your contribution! Sashiko AI review found 1 potential issue(s) to consider:
-> - [Medium] Silent dismissal of inconsistent kfunc flags during deduplication.
+> 
+> Pre-existing issues:
+> - [High] TOCTOU NULL pointer dereference in `dispatch_hid_bpf_device_event` during dynamic HID-BPF attachment.
 > --
 > 
-> --- Patch [3]: [PATCH bpf-next v1 3/8] resolve_btfids: Keep collected kfuncs in a rbtree ---
-> commit d91e5d0dd32a660902e686ef89cb30a196dda160
+> --- Patch [6]: [PATCH bpf-next v1 6/8] HID: bpf: Make syscall kfunc flags match the struct_ops set ---
+> Note: The format of this review is altered to provide a free-form summary
+> due to text recitation restrictions. No direct patch diff quoting is used.
+> 
+> commit 460380780bad5817b193c7927dc05e04ce9f5480
 > Author: Ihor Solodrai <ihor.solodrai@linux.dev>
+> Subject: HID: bpf: Make syscall kfunc flags match the struct_ops set
 > 
-> resolve_btfids: Keep collected kfuncs in a rbtree
+> This commit updates the kfunc flags for hid_bpf_syscall_kfunc_ids to match
+> the hid_bpf_kfunc_ids set by adding the KF_SLEEPABLE flag. This ensures
+> per-kfunc flag consistency across BTF ID sets at build time.
 > 
-> This commit changes the storage of collected kfuncs from a dynamically grown
-> array to an rbtree keyed by BTF ID. This allows for efficient deduplication
-> when kfuncs are declared in multiple sets.
-> 
->> diff --git a/tools/bpf/resolve_btfids/main.c b/tools/bpf/resolve_btfids/main.c
->> index 3198198b03a78..de4986e1bc3d1 100644
->> --- a/tools/bpf/resolve_btfids/main.c
->> +++ b/tools/bpf/resolve_btfids/main.c
-> [ ... ]
->> @@ -979,14 +978,48 @@ static int push_decl_tag_id(struct btf2btf_context *ctx, u32 decl_tag_id)
->>  
->>  static int push_kfunc(struct btf2btf_context *ctx, struct kfunc *kfunc)
->>  {
->> -	if (ensure_mem(&ctx->kfuncs, &ctx->max_kfuncs, ctx->nr_kfuncs + 1))
->> +	struct rb_node **p = &ctx->kfuncs.rb_node;
->> +	struct rb_node *parent = NULL;
->> +	struct kfunc *k;
->> +
->> +	/* Dedup by BTF ID: collecting the same kfunc twice is a no-op. */
->> +	while (*p) {
->> +		parent = *p;
->> +		k = rb_entry(parent, struct kfunc, rb_node);
->> +
->> +		if (kfunc->btf_id < k->btf_id)
->> +			p = &(*p)->rb_left;
->> +		else if (kfunc->btf_id > k->btf_id)
->> +			p = &(*p)->rb_right;
->> +		else
->> +			return 0;
-> 
-> [Severity: Medium]
-> Does this silent return effectively ignore conflicting flags from subsequent
-> declarations?
+> [Severity: High]
+> This isn't a regression introduced by this patch, but while reviewing the
 
-This is deliberate here. Flags are checked for in the patch #8
+Not relevant to the change.
 
+However HID maintainers may be interested, adding them to cc.
+
+
+> HID-BPF event dispatching code, a potential time-of-check to time-of-use
+> issue was noticed in drivers/hid/bpf/hid_bpf_dispatch.c.
 > 
-> If the same kfunc is mistakenly declared in multiple BTF sets with different
-> flags (such as KF_ACQUIRE vs none), returning 0 here without checking if
-> k->flags == kfunc->flags will silently discard the incoming flags.
+> Could this sequence lead to a null pointer dereference when a HID-BPF
+> program is concurrently attached while a device is flooded with input
+> reports?
 > 
-> Could this cause critical security flags like KF_ACQUIRE or KF_TRUSTED_ARGS
-> to be unexpectedly dropped depending on the processing order?
+> In dispatch_hid_bpf_device_event(), the first lockless read of the device
+> data happens during context initialization:
 > 
->> +	}
->> +
->> +	k = zalloc(sizeof(*k));
->> +	if (!k)
->>  		return -ENOMEM;
+>     .data = hdev->bpf.device_data,
+> 
+> Shortly after, a second lockless read is used as a guard:
+> 
+>     if (!hdev->bpf.device_data)
+>         return data;
+> 
+> If __hid_bpf_allocate_data() is concurrently executed during a program
+> attachment, it updates these pointers without memory barriers or taking the
+> driver_input_lock:
+> 
+>     *data = alloc_data;
+>     *size = alloc_size;
+> 
+> If the allocation completes exactly between the two reads in
+> dispatch_hid_bpf_device_event(), the first read could evaluate to null
+> while the second read sees the newly allocated pointer and evaluates to
+> true. This would allow the code to bypass the guard and execute
+> memset(ctx_kern.data, 0, hdev->bpf.allocated_data) with a null pointer.
+> 
+> Would it be beneficial to use READ_ONCE() or proper synchronization here to
+> ensure consistent evaluation of the device data pointer?
 > 
 

@@ -1,75 +1,72 @@
-Received: from pdx-out-014.esa.us-west-2.outbound.mail-perimeter.amazon.com (pdx-out-014.esa.us-west-2.outbound.mail-perimeter.amazon.com [35.83.148.184])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pg1-f178.google.com (mail-pg1-f178.google.com [209.85.215.178])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5491B3A6EF0;
-	Thu, 23 Jul 2026 17:56:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=35.83.148.184
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DCDC1383C85
+	for <linux-input@vger.kernel.org>; Thu, 23 Jul 2026 18:41:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784829420; cv=none; b=Ktz4VppVXj6LLXFWC8v1bWrMKxGuvva+Tcnbojspf/2fUFAZMZNi9P2lrMmL7i4nUir5mW+fUGsINeVYFUVprP4N3XA5fNcdHdWjODQ7Dnz/P3MsiKmfpvhARZr2h77w3Lpb2Y+fImGqzcFGo6ChTKjwVdGx5D1IK68D6LSWJME=
+	t=1784832065; cv=none; b=EWJ/8egGhcMuUmX4uO9pKbvKC02L6RIITq/igyFI4cykZE0zvKXdCErhhNOLmdhfFoiIqVpZ240YY3BO8rWgIHnruhBBM3wMhsor0Bc1ZvdiQC7VY3mfWXTaknJu8nqj3ounVYpiwwhL8tOQr6gjUKKkxajDk3e364nw20ZEvIo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784829420; c=relaxed/simple;
-	bh=oR16xQ0l2QZ1HctK5sTlhQ03S1oe8xRZ47h7iuZrD8U=;
-	h=From:To:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=lhLcqfAFtrB1JLEZSp30OhmnFfQL8tnMtJFUMz7L9kHn0HECrlsJIyZVxrhmmuz+A1vr7xaTShdc5IiEFhoih90K4zXdOf8SixP9KbU1KSRULnoZiURV4UTJKvss6hBxUxBzkxhcQUL7AF1MXQHsD7AHH3G45IK/WoOZUQ+Vc1w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com; spf=pass smtp.mailfrom=amazon.com; dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b=ZYpmudVO; arc=none smtp.client-ip=35.83.148.184
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=amazon.com
+	s=arc-20240116; t=1784832065; c=relaxed/simple;
+	bh=UHH+EmqBu6HmSaNm/CUrvH95f3eI00qVQ3K8p9QgoOo=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=kp3LrajnkR29VkgLucOfmfcMlm7d+IE0JwzRA6Vf0L1UF77KqGNA+zuuejMMSblv1MQsZ9p8BAZHZNcJd6JSt4AGHp4xQKbQutruOltLg8C6uXFRk9cW1P0dQgIx4nR+An5/QZtyh9PoSgwY1wqr7iqJuFZf1uktK6wh07olqHo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=HKc+j5KF; arc=none smtp.client-ip=209.85.215.178
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b="ZYpmudVO"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="HKc+j5KF"
+Received: by mail-pg1-f178.google.com with SMTP id 41be03b00d2f7-ca88130e09aso753830a12.3
+        for <linux-input@vger.kernel.org>; Thu, 23 Jul 2026 11:41:03 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazoncorp2;
-  t=1784829418; x=1816365418;
-  h=from:to:subject:date:message-id:in-reply-to:references:
-   mime-version:content-transfer-encoding;
-  bh=jqAtat0tnNZsJMQ+mPgx7+6Yqu2gEeC9PKKRqoqiiYY=;
-  b=ZYpmudVOjoikVBzB2Zb+G2cSBBsxdugumqxEp+xhobfQ4Iv2yLyiFJYk
-   n7JILy553+8KN+23mlZZ62bOwkzvBPApoiMOHVRSAPv3ZFZrl4uYkMgyI
-   CXvns7hB2FJdpBH7bkPFrMhj6O5rA+kArTvMJhpFjcI9CfflA/DjSnAjY
-   ywXwT0l8IymwUrgxpc0CyptIFjUy0dIVcr2rSNXRtgcwxq0ET9j+/rYKt
-   GeXpT3TSOF3zUyaQAtiGbJzVAYpDg68tvcwnEjHuTFRFNJnl6QgjH/zo/
-   9UDRHrJcqcAGePJsXdzXSs2LNcsd2JiKehJGGorQixQAnt1eGN5Vzppgz
-   w==;
-X-CSE-ConnectionGUID: FwsnzNEUSw+MAZyytE0dZA==
-X-CSE-MsgGUID: f6oujNIJQ9SQHeJzPcBjjg==
-X-IronPort-AV: E=Sophos;i="6.25,181,1779148800"; 
-   d="scan'208";a="24038526"
-Received: from ip-10-5-6-203.us-west-2.compute.internal (HELO smtpout.naws.us-west-2.prod.farcaster.email.amazon.dev) ([10.5.6.203])
-  by internal-pdx-out-014.esa.us-west-2.outbound.mail-perimeter.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Jul 2026 17:56:53 +0000
-Received: from EX19MTAUWB002.ant.amazon.com [205.251.233.48:23766]
- by smtpin.naws.us-west-2.prod.farcaster.email.amazon.dev [10.0.31.176:2525] with esmtp (Farcaster)
- id 073ee108-1999-4093-947b-2bc7a319785e; Thu, 23 Jul 2026 17:56:52 +0000 (UTC)
-X-Farcaster-Flow-ID: 073ee108-1999-4093-947b-2bc7a319785e
-Received: from EX19D001UWA001.ant.amazon.com (10.13.138.214) by
- EX19MTAUWB002.ant.amazon.com (10.250.64.231) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.2562.43;
- Thu, 23 Jul 2026 17:56:52 +0000
-Received: from dev-dsk-farbere-1a-46ecabed.eu-west-1.amazon.com
- (172.19.116.181) by EX19D001UWA001.ant.amazon.com (10.13.138.214) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.2562.43; Thu, 23 Jul 2026
- 17:56:47 +0000
-From: Eliav Farber <farbere@amazon.com>
-To: <rafael@kernel.org>, <tony.luck@intel.com>, <bp@alien8.de>,
-	<guohanjun@huawei.com>, <mchehab@kernel.org>, <xueshuai@linux.alibaba.com>,
-	<lenb@kernel.org>, <laurent.pinchart@ideasonboard.com>, <linusw@kernel.org>,
-	<brgl@kernel.org>, <orsonzhai@gmail.com>, <baolin.wang@linux.alibaba.com>,
-	<zhang.lyra@gmail.com>, <jic23@kernel.org>, <dlechner@baylibre.com>,
-	<nuno.sa@analog.com>, <andy@kernel.org>, <dmitry.torokhov@gmail.com>,
-	<hansg@kernel.org>, <ilpo.jarvinen@linux.intel.com>, <W_Armin@gmx.de>,
-	<ukleinek@kernel.org>, <fabio.m.de.francesco@linux.intel.com>,
-	<kaihengf@nvidia.com>, <ankita@nvidia.com>, <leitao@debian.org>,
-	<farbere@amazon.com>, <jason@os.amperecomputing.com>, <pedro.pbg@usp.br>,
-	<paulmck@kernel.org>, <frederic@kernel.org>, <kees@kernel.org>,
-	<linux-acpi@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-	<linux-gpio@vger.kernel.org>, <linux-pwm@vger.kernel.org>,
-	<linux-iio@vger.kernel.org>, <linux-input@vger.kernel.org>,
-	<platform-driver-x86@vger.kernel.org>
-Subject: [PATCH 12/12] reboot: use devm_blocking_notifier_chain_register()
-Date: Thu, 23 Jul 2026 17:56:32 +0000
-Message-ID: <20260723175632.44812-3-farbere@amazon.com>
-X-Mailer: git-send-email 2.47.3
-In-Reply-To: <20260723175632.44812-1-farbere@amazon.com>
-References: <20260723175632.44812-1-farbere@amazon.com>
+        d=gmail.com; s=20251104; t=1784832063; x=1785436863; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=HNGo5p5iIgIdJkSj3S0Hy9gFCwit5dqb5k6KZ0sAFvg=;
+        b=HKc+j5KFyN3pgnaVcp1NYwhosytfbkLRqXbK0M9Jig3KKM3dokGhr5WQDrjRHsukRC
+         mUV3JPWzzumcRAilGHn1YoVju3TB6fw85vtFC4LzcSIO0pqQOSeFUlqCc/dgerJ3R0sD
+         zilaDpfe8woemVS6F++VtgMm9COKNSuxB1cmJpAcAfhCFnGAzgdelZPj0oBoY1mGilx9
+         0mCkcfF9KOiphVNHFrgY/V1jCwdl6kDMMr1rcRtHItAoQJ++a3N3XEyaC9CPHANwlECn
+         aLLoENs2V6XuagcwbKwZfXcfuMzZPrphgwyoMeAUY1ZYnj7OEyjAdhP13PRLVbdh+IZP
+         jlsQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1784832063; x=1785436863;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=HNGo5p5iIgIdJkSj3S0Hy9gFCwit5dqb5k6KZ0sAFvg=;
+        b=fhxdA5ytTWP77qy3FJwh0H0AAlwt75lj0Ivue9j9zfCQZ/ttGuhZ/Ghnnlxs7NPLs4
+         zV/8Ml4klxRJibeZmHUELDBxxEbGXyN5h9GRb2kJw8mJetJj6P0qqE+1wvKA1LCmwCPZ
+         2bxrVHbS1V/F5pD9geFKMHaqowk0wKntPlBMYxaHem6vJ5WdFAJKdaOSsf9TGkmgLROm
+         RShQvLeIlWoWl1oKc49CE50muIThZx9e/4TCUGN4uNbGj5clJOIhIqlQVkPGOSp5F/R/
+         jZshS4VlPbDmltsON0EtNpwlWeLAZQLo92kGLtm/exuSV4Z3QKI/BWCmM+w4sTYme969
+         TlfQ==
+X-Gm-Message-State: AOJu0YyrCA86Lv/+3XI/9XqlrUzx4db8azOI8Voq8j3Hewo8hU9FDbKo
+	yL9oxvzw3LvYaK+y9Gd7uDoUGCrOJTwFvwIdzJEwHRnXlPwDdiTRUtWIzkrdep2g
+X-Gm-Gg: AR+sD11WBRJg/FZycftqTNMA0RMxpXov87JImRFQRerZgKNbez4NYZTBe+XI4eTxjMf
+	YKOLdMdBzU/A2+S7lcss5FiKYD2LtFDJLc/gvqY+zSoJc6qj1zbT2N1SskIBt7RD0+31TYKUrS8
+	xyMzAjWYeHLRaa6ZfX9/jMIRGHnNWL5AT36TI9QpbQbjzG94bzfToSD001L/nENrzUlWQ03ciw4
+	DgbEZuwF+G1SVTW4Tx8/rt3NwNW89iwMvedOg/L3ng0La4KNPy8qGNsk39Bl38vkxs42D5947kM
+	3z30NR6bxcH5+leo6sIIr/dXT5FDaf+8ohm5FlnYzeAIyti/Caw+Hx3318rpXzqdpdF1jw5Vv1B
+	UiAqHaAe1iLurdeOAJwF04oBZOqS1flsofiESTkBJ/8JPzOHMk9wNL/SzTiHhknhdF8yTQ/MPA3
+	EK/sH56C4Sou3hRqoyb1fFxIHIvQ==
+X-Received: by 2002:a05:6a21:9f10:b0:3c3:875d:7053 with SMTP id adf61e73a8af0-3c44afb5895mr4922283637.8.1784832063138;
+        Thu, 23 Jul 2026 11:41:03 -0700 (PDT)
+Received: from ubuntu.localdomain ([49.43.240.68])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3147dc6162csm21737419eec.7.2026.07.23.11.41.00
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 23 Jul 2026 11:41:02 -0700 (PDT)
+From: Bivash Kumar Singh <bivashraj750@gmail.com>
+To: linux-input@vger.kernel.org
+Cc: dmitry.torokhov@gmail.com,
+	Bivash Kumar Singh <bivashraj750@gmail.com>
+Subject: [PATCH v6] Input: gunze: replace deprecated APIs and fix warning style
+Date: Fri, 24 Jul 2026 00:10:52 +0530
+Message-ID: <20260723184052.5144-1-bivashraj750@gmail.com>
+X-Mailer: git-send-email 2.53.0
+In-Reply-To: <20260718190040.10613-1-bivashraj750@gmail.com>
+References: <20260718190040.10613-1-bivashraj750@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -77,57 +74,103 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: EX19D037UWB001.ant.amazon.com (10.13.138.123) To
- EX19D001UWA001.ant.amazon.com (10.13.138.214)
 
-Replace the blocking_notifier_chain_register() +
-devm_add_action_or_reset() pattern with a single call to
-devm_blocking_notifier_chain_register(), removing the
-devm_unregister_reboot_notifier() callback.
+Replace printk(KERN_WARNING) with dev_warn_ratelimited(), and
+simple_strtoul() with sscanf() to parse the coordinate data.
+NUL-terminate the receive buffer in gunze_interrupt() so it can
+safely be treated as a string.
 
-Signed-off-by: Eliav Farber <farbere@amazon.com>
+Enlarge gunze->data by one byte to avoid the NUL terminator
+overflowing into the adjacent phys field. Also report BTN_TOUCH
+release on a corrupted 'R' packet so touch state can't get stuck
+down.
+
+Signed-off-by: Bivash Kumar Singh <bivashraj750@gmail.com>
 ---
- kernel/reboot.c | 24 ++----------------------
- 1 file changed, 2 insertions(+), 22 deletions(-)
+Changes in v6:
+  - Enlarge gunze->data[] by one byte (GUNZE_MAX_LENGTH + 1) to fix
+    an off-by-one overflow: NUL-terminating a full-length packet at
+    gunze->data[gunze->idx] wrote one byte past the array into the
+    adjacent phys field. (reported by Sashiko AI review)
+  - Restore BTN_TOUCH release reporting when sscanf() fails to parse
+    coordinates on a release ('R') packet, so touch state cannot get
+    stuck down.
 
-diff --git a/kernel/reboot.c b/kernel/reboot.c
-index 695c33e75efd..557609419989 100644
---- a/kernel/reboot.c
-+++ b/kernel/reboot.c
-@@ -136,30 +136,10 @@ int unregister_reboot_notifier(struct notifier_block *nb)
- }
- EXPORT_SYMBOL(unregister_reboot_notifier);
+Changes in v5:
+  - Switch from kstrtoul() to sscanf() as suggested by Dmitry Torokhov.
+    sscanf() naturally handles comma-separated coordinate data without
+    needing a local buffer copy or manual NUL termination tricks.
+  - NUL-terminate receive buffer in gunze_interrupt() before processing.
+  - Use dev_warn_ratelimited() to prevent log spam on noisy serial lines.
+
+Changes in v4:
+  - Remove early return on kstrtoul() failure to prevent touch state
+    getting permanently stuck if a release packet contains noisy data.
+    Initialize x and y to 0 as safe fallback values instead.
+    (reported by Sashiko AI review)
+
+Changes in v3:
+  - Fix comment style: add space after /* and use NUL instead of NULL
+  - Add missing Changes section that was absent in v2
+
+Changes in v2:
+  - Copy packet data to a local NUL-terminated buffer before calling
+    kstrtoul(), so the comma separator does not cause parsing to fail
+    on every valid touch event. (reported by Sashiko AI review)
+---
+ drivers/input/touchscreen/gunze.c | 22 ++++++++++++++++------
+ 1 file changed, 16 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/input/touchscreen/gunze.c b/drivers/input/touchscreen/gunze.c
+index 2baeb4f3b941..e2b1e1d970c6 100644
+--- a/drivers/input/touchscreen/gunze.c
++++ b/drivers/input/touchscreen/gunze.c
+@@ -34,22 +34,31 @@ struct gunze {
+ 	struct input_dev *dev;
+ 	struct serio *serio;
+ 	int idx;
+-	unsigned char data[GUNZE_MAX_LENGTH];
++	unsigned char data[GUNZE_MAX_LENGTH + 1];
+ 	char phys[32];
+ };
  
--static void devm_unregister_reboot_notifier(struct device *dev, void *res)
--{
--	WARN_ON(unregister_reboot_notifier(*(struct notifier_block **)res));
--}
--
- int devm_register_reboot_notifier(struct device *dev, struct notifier_block *nb)
+ static void gunze_process_packet(struct gunze *gunze)
  {
--	struct notifier_block **rcnb;
--	int ret;
--
--	rcnb = devres_alloc(devm_unregister_reboot_notifier,
--			    sizeof(*rcnb), GFP_KERNEL);
--	if (!rcnb)
--		return -ENOMEM;
--
--	ret = register_reboot_notifier(nb);
--	if (!ret) {
--		*rcnb = nb;
--		devres_add(dev, rcnb);
--	} else {
--		devres_free(rcnb);
--	}
--
--	return ret;
-+	return devm_blocking_notifier_chain_register(dev,
-+						     &reboot_notifier_list, nb);
- }
- EXPORT_SYMBOL(devm_register_reboot_notifier);
+ 	struct input_dev *dev = gunze->dev;
++	unsigned int x, y;
  
+-	if (gunze->idx != GUNZE_MAX_LENGTH || gunze->data[5] != ',' ||
+-		(gunze->data[0] != 'T' && gunze->data[0] != 'R')) {
+-		printk(KERN_WARNING "gunze.c: bad packet: >%.*s<\n", GUNZE_MAX_LENGTH, gunze->data);
++	if (gunze->data[0] != 'T' && gunze->data[0] != 'R') {
++		dev_warn_ratelimited(&gunze->serio->dev, "bad packet: >%s<\n", gunze->data);
+ 		return;
+ 	}
+ 
+-	input_report_abs(dev, ABS_X, simple_strtoul(gunze->data + 1, NULL, 10));
+-	input_report_abs(dev, ABS_Y, 1024 - simple_strtoul(gunze->data + 6, NULL, 10));
++	if (sscanf(gunze->data + 1, "%4u,%4u", &x, &y) != 2) {
++		dev_warn_ratelimited(&gunze->serio->dev, "bad packet: >%s<\n", gunze->data);
++		if (gunze->data[0] == 'R') {
++			input_report_key(dev, BTN_TOUCH, 0);
++			input_sync(dev);
++		}
++		return;
++	}
++
++	input_report_abs(dev, ABS_X, x);
++	input_report_abs(dev, ABS_Y, 1024 - y);
+ 	input_report_key(dev, BTN_TOUCH, gunze->data[0] == 'T');
+ 	input_sync(dev);
+ }
+@@ -60,6 +69,7 @@ static irqreturn_t gunze_interrupt(struct serio *serio,
+ 	struct gunze *gunze = serio_get_drvdata(serio);
+ 
+ 	if (data == '\r') {
++		gunze->data[gunze->idx] = '\0';
+ 		gunze_process_packet(gunze);
+ 		gunze->idx = 0;
+ 	} else {
 -- 
-2.47.3
+2.53.0
 

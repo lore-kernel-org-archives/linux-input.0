@@ -1,74 +1,75 @@
-Received: from mail-pj1-f44.google.com (mail-pj1-f44.google.com [209.85.216.44])
+Received: from mail-pg1-f177.google.com (mail-pg1-f177.google.com [209.85.215.177])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 34F2D47D456
-	for <linux-input@vger.kernel.org>; Thu, 23 Jul 2026 17:43:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 61C3533F38E
+	for <linux-input@vger.kernel.org>; Thu, 23 Jul 2026 17:45:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784828601; cv=none; b=D140Cqx2y04nQTl55OyU7XcahEPL28WolsXm3Q+lzFk//xzVo/zuLcFak40PHjcEUUMeO/9UuAzRxOFb0F7W3tODNakrp2ntHzzL1WlM46PDRuQot4rKXR8cVX9Th9wWaVmS4uRFwjDHe9WAxZ6BGPaj5qAQ2a3CT6o11PmJ9X0=
+	t=1784828751; cv=none; b=qqv0rEjfkubMsPYXpn5s8Ld6zp4PyjdfSWsYKlJjAdUpbMaBcSpqXuh4ZjKKL33C7qQkh/lG/ijpLtvJjGHi8IAb2C2lo+7CG6Tc0PbPyv2q2+ZEIBbkUOgIENfZKj+DHOO6GtspPGbd9NpwzlnSIBW7RVqgoazccokbIvx00Wk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784828601; c=relaxed/simple;
-	bh=onOMg4dyuXVGKUdKg0x4ObMl25KYAxMmlgWzU6oAaRc=;
+	s=arc-20240116; t=1784828751; c=relaxed/simple;
+	bh=KZY5Per6gqC//uqwYOs8Lx6+Xn/30uRA+CAzdNfsmCU=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Amq1kHYVX/3w++R6HwypkgdF2sSyTs2GNPWD4BlquPp312qIm3MgqlDvNHkVScjSDI3TEvXFTNWtj8ux8nWDQ74eNy7LstVKae+beUV+GqlLAbrXTCEAI/eE8jRQj8YMEEkndTRlZwuezeR8y5YRoj3+l98h18c9Z+US5lFGn2s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=EFugTMNb; arc=none smtp.client-ip=209.85.216.44
+	 Content-Type:Content-Disposition:In-Reply-To; b=JiYcDFO2X4Lbo1+iJoRC2oVq0q3Pt/f7TXDHvrV0XlsR6H3NtsvKkuEqfzvmtgS92/4gTibo6O37cpH+xYuVkBMJ0Y/TblBtcBvBbpGxpLXrei/smrrtGxd3i6FzVigCShBA1o5yWhR+aeZ/5neglWq4LtgwY4hFQh7vxE6gCC4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=pML5cErP; arc=none smtp.client-ip=209.85.215.177
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="EFugTMNb"
-Received: by mail-pj1-f44.google.com with SMTP id 98e67ed59e1d1-38ec1402b05so729415a91.2
-        for <linux-input@vger.kernel.org>; Thu, 23 Jul 2026 10:43:16 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="pML5cErP"
+Received: by mail-pg1-f177.google.com with SMTP id 41be03b00d2f7-c96c92c0980so633801a12.3
+        for <linux-input@vger.kernel.org>; Thu, 23 Jul 2026 10:45:48 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784828595; x=1785433395; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1784828747; x=1785433547; darn=vger.kernel.org;
         h=in-reply-to:content-disposition:content-type:mime-version
          :references:message-id:subject:cc:to:from:date:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=mxD/hD3bol4E3CIoQfiq0xA0eyEDzWsDzxIIks2DNV0=;
-        b=EFugTMNbtN+x3snlXPmzv8wXnfpT7N/Ru+wqKWCwNJMbobUmPu6IaNasOU6db1gN98
-         TXQJ5pve4gKmuKXbo3YisRiJTnN6kkwWSmyAgtg+lFufb10f6L/sVDF2QmEL+lcSzHdX
-         ZAqRTm0WJJokYGpZ6aP5OvVX7n4Nk/LgGolmKv1K/njZYbd0/3sJPaTgoIM/GNo5sP3y
-         ii7vi7fEfmSL6LNJqvK1W26el1IwzSSVGyCA07XihOKhdHc4K7mRFM6QkfqzfsSwfgH9
-         z0NUVvNJZluhwcA5qPgRtjeqCdPA3Fplp4HIjFZhoaU0QbLCMe1McE7T577uN2uvu64s
-         DDxA==
+        bh=2O4xFuAHBp+wc0jU7apiTfSbaN5z+iCv3LYdHU3FUCI=;
+        b=pML5cErPOAAtVMKfuUfPf8PEO/flUn9Y51MYDcpFUFYnvZlsUVemqVvoVTPuJ0htZt
+         uoKAWgDbOry4V/7Y6iXSRRa6ASi0r7KH/yAYiK4pFMy5vUE26Pb2XnhDQzql/cxfm4b6
+         yn81KjB3h5Yyu2Tz9bjiE1vDeWxYb/tm270TNG3RYrMgQF/nBMPKlW6NSXsubmM00hUR
+         UhxxRxplljfmm7c9foraJEN9RH2Tg1khZGnxw8V7Wofv4Ws5N5q8rzoIl1BjddqA9Gan
+         inmwP8GVqRFiCFjW3xWHXrHKimVaodgYKhqiurqX6OfBg7QR8G2zNo2iiczTaluHGl+U
+         DrsA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784828595; x=1785433395;
+        d=1e100.net; s=20251104; t=1784828747; x=1785433547;
         h=in-reply-to:content-disposition:content-type:mime-version
          :references:message-id:subject:cc:to:from:date:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=mxD/hD3bol4E3CIoQfiq0xA0eyEDzWsDzxIIks2DNV0=;
-        b=L8YLZQlUOY0GyPRvcaReqiaSILG2fcwvre23pqPtS4ojJ5uWpJBI7prCRaKqq3oqzX
-         AiVcXXKJqKOtcR8bm2RlvBvRqFSQjMIO2hST3ZPcyxDuMfVXcwrUDdmmg//tEuCHUW2J
-         BM9IXczrpaDTO1gLP+Dr1EbFoKzktiQ2pXU6YSwp0EdMtPtnOs42Da6c69U8PyNl2ftx
-         /Sf87z0pxZOyS76FoxaqBi4f6EeoMB4Z6o1Lw/NF2B/nWxzFKuHkwiWXrYh7fQFnLOmm
-         g5mY6VMI2I9n7jeeEMwPdy+fqCk6mwjD83mJ6pEuJag/E5NYT1ixPcuQQ2TzJLlgoPay
-         OIsg==
-X-Forwarded-Encrypted: i=1; AHgh+Rpf3tliylx0yOYIE1exkNc3amw+W0Q7uh030FMquLYaysPm5C3n4hS4mMkvxK4c92OIIc8xq951yn8HrA==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yx6LCieGfOvN6kg+qt+d4rCAc9dRQMgJKUQZOkyoXiynj4aRS/3
-	OptL5uWuRnfdAlJ0IiX49a8lmS2tieZYVI5tM3jkquq+P/5g4+ZEOxBu
-X-Gm-Gg: AR+sD116PDZHaBhoSPSdd/y2PsC76t5r0Tm/olA0V+TPfxutMvVMB+P4hkWcDhfc5oj
-	F3WdjuhuNw++aW+J8ExjZrCLYoRuF7T/UAlYU0Qu6XASEjh/Dbu0cPHASFD+e0/Q5ZeSIaOrLzO
-	nFdQObdhnG7ZwfeqWG53qHBOfjYchjQLknN6QfWbdeTactUX1R1gespVf1RlGwhSDGYbjC020bo
-	zhjFaI4S8zM0T+w6rmxLvh3Dp7N5c56oIuM9DPP1uyPdoLAE3fOzeWoz+5FUfucqegoTW63sNfV
-	8MterZWwQSlGG2awYvSPdXw5y1oCANBQjuek5DMi/onRSISp8eHbJJCbwpcTmgb/tfwzU+pYUun
-	57r1wDVcPzk+l/YEkHgPh5o8Ci7bIioj21JL7YwJAJjkALXM28mLASM0q5SJuNL30g5R5lbPAiV
-	OMafWBp1xn6wSuLmF1l0BIr5GS365mcvZbkZtv4ZwbFA==
-X-Received: by 2002:a17:90b:1350:b0:37f:a915:1c29 with SMTP id 98e67ed59e1d1-38ec64c1ab0mr4192747a91.19.1784828595262;
-        Thu, 23 Jul 2026 10:43:15 -0700 (PDT)
+        bh=2O4xFuAHBp+wc0jU7apiTfSbaN5z+iCv3LYdHU3FUCI=;
+        b=ZBfwO1T6F5qlBpGvkFjR0HalleeBmewMeUKaMpIJvN6sQAZJpJW25sAGhxgxT4Go93
+         qRQgjAooFOiWlpnH1hk2DDxvprbOeBZtlsIzyt9lektzAVo7NgJP83mGoh39Zku2uFIV
+         dcULGnr6NqHFGTln7PwPWFUCoHB8w+QmmZ7sSR1cPtHbOIlJuNgPMiedoBHqFL7TlUPS
+         ZuQ2db+w+NHYFNplOqa+4c3wSmGz0ttyrkgKoGg8WvmTnVR35XwNPc3ERX0a+/4I1TwV
+         wGEQ3JfLhTX3QDraUjS5Hn6F+2cqbEdWrouRhgWjuKpSjfwXkvrSVG9ZBbmB7sySdAx7
+         tvsw==
+X-Forwarded-Encrypted: i=1; AHgh+RrFMNwWhP6psyqfLm9ukpQrcZraOq9VmU6vApA4LwY6tTCHWHXzax6zzjSLvk71TD0BzDSUjQQ7g8u8iQ==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yz+a77tYzlpkX7UsCsJ3x6qk9KpsZ9DBjILuOA0NxhZarbG9Ypd
+	eK+0vKIKdWA4DKvy1P6iwhLGgRjjjKFVmU5pOzf+7WnE/ic9/Vjj/jHW
+X-Gm-Gg: AR+sD11+mU/2ppD8+B278rrzIoU7/EVBD6D5R6I494zaK7vICWqbDyxlKWQKJqAwho9
+	ly86xUZ0oOCWdVDQADdRwm9i8vX5SdndvOjmpk8tiNsvlcjqgHTrlLqbk3/qKfBiR3TEJbQxArT
+	tb9PUcpQo7/bCl319q4jT6K+VCdgRwehkEeniDsDre8b2gJnHJs/Qzf2vvWYXky8OTrkcbE927e
+	3staOcNTA6NcpnamYyntDh7Di2tem+EEPjl9gVpEeu6+dO6JnRQC2px4QGR6AAoLHfr1X42N51Y
+	8tpG+AVjQ3O1O2aJO5KhW8v2rYVbggXKgfS7VImXbMKcg8DcGu9bftlRZI781Ro20Yy59lXKaKx
+	tqM2VG6MPe3JEU2VRNAxnlqLJE0EOV94L1/Els+AroN6WIlLGc5uaPCkpoBQXiH2QIEgBqAauO9
+	05sTza1ijggZA3/gUc0IPJ2YGVjKEvVOKPlCtP5zlPTA==
+X-Received: by 2002:a05:6a20:e292:b0:3c3:7fff:ba72 with SMTP id adf61e73a8af0-3c44b2b9706mr4676613637.70.1784828747494;
+        Thu, 23 Jul 2026 10:45:47 -0700 (PDT)
 Received: from google.com ([2a00:79e0:2ebe:8:f5d:dfe5:9bb9:71ad])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-13d13003f12sm29470021c88.2.2026.07.23.10.43.13
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3147e1c7ff4sm23572393eec.27.2026.07.23.10.45.45
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 23 Jul 2026 10:43:14 -0700 (PDT)
-Date: Thu, 23 Jul 2026 10:43:11 -0700
+        Thu, 23 Jul 2026 10:45:46 -0700 (PDT)
+Date: Thu, 23 Jul 2026 10:45:43 -0700
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: azkali.limited@gmail.com
-Cc: Henrik Rydberg <rydberg@bitmath.org>, Rob Herring <robh@kernel.org>, 
-	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, linux-input@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
-Subject: Re: [PATCH v2] Input: edt-ft5x06 - ignore contacts with an
+To: sashiko-reviews@lists.linux.dev
+Cc: Alexandre Hamamdjian <azkali.limited@gmail.com>, conor+dt@kernel.org, 
+	devicetree@vger.kernel.org, linux-input@vger.kernel.org, robh@kernel.org
+Subject: Re: [PATCH 1/4] Input: edt-ft5x06 - ignore contacts with an
  out-of-range slot id
-Message-ID: <amJSpqqkqljPzHWt@google.com>
-References: <20260723-b4-ft5426-v2-1-cd2bed168051@gmail.com>
+Message-ID: <amJSt_g5We0R-eJo@google.com>
+References: <20260723-b4-ft5426-v1-0-d4b4e32be042@gmail.com>
+ <20260723-b4-ft5426-v1-1-d4b4e32be042@gmail.com>
+ <20260723114100.D6D641F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -77,27 +78,24 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260723-b4-ft5426-v2-1-cd2bed168051@gmail.com>
+In-Reply-To: <20260723114100.D6D641F000E9@smtp.kernel.org>
 
-On Thu, Jul 23, 2026 at 08:24:09PM +0700, Alexandre Hamamdjian via B4 Relay wrote:
-> From: Alexandre Hamamdjian <azkali.limited@gmail.com>
+On Thu, Jul 23, 2026 at 11:40:59AM +0000, sashiko-bot@kernel.org wrote:
+> Thank you for your contribution! Sashiko AI review found 2 potential issue(s) to consider:
 > 
-> The per-contact slot id is taken from the top nibble of the third
-> report byte, so it can be any value from 0 to 15. The driver only
-> allocates max_support_points MT slots (2 to 10 depending on the
-> variant), so a report that carries an id at or above that count - be it
-> a genuinely higher-numbered contact or a corrupted byte - is outside the
-> range the input core was told about.
-> 
-> input_mt_slot() silently ignores an ABS_MT_SLOT beyond num_slots and
-> leaves the current slot unchanged, so the following
-> input_mt_report_slot_state()/touchscreen_report_pos() pair is applied to
-> whichever slot happened to be selected last, reporting the contact at the
-> wrong position. Skip such entries instead.
-> 
-> Signed-off-by: Alexandre Hamamdjian <azkali.limited@gmail.com>
+> Pre-existing issues:
+> - [High] Unbalanced `disable_irq()` calls when suspending and resuming in factory mode lead to a permanently disabled touchscreen.
 
-Applied, thank you.
+This is obviously not caused by your series but might be real, need to
+check...
+
+> - [High] Stack-allocated buffers are passed to `regmap_bulk_read()` and `i2c_transfer()`, which can cause memory corruption or panics if the underlying I2C host controller driver uses DMA.
+
+Sashiko hallucinates here. I added I2C prompt to teach it that I2C is
+generally safe wrt on-stack buffers, but I am not sure if it will trace
+it to regmap.
+
+Thanks.
 
 -- 
 Dmitry

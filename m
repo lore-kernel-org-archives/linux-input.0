@@ -1,152 +1,105 @@
-Received: from mail-pj1-f46.google.com (mail-pj1-f46.google.com [209.85.216.46])
+Received: from layka.disroot.org (layka.disroot.org [178.21.23.139])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1514D483823
-	for <linux-input@vger.kernel.org>; Thu, 23 Jul 2026 18:46:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 295853C108B;
+	Thu, 23 Jul 2026 19:24:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=178.21.23.139
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784832412; cv=none; b=RVQaggtBmeTLU9OZt4pS9grjmqoCkDgsUjMWpvMzbD/z9f4wmMiflkzByUca0FynEEfePJq152Gtc6UBGxTAPO3t9E86u3K4o3H89uGaWBZQz364CclWOISY7ZIyLf4P++gnGVnvREyJElUmoHDPJ5t7BXDDWJMQKog3aw5FdIs=
+	t=1784834669; cv=none; b=FrCjRDNbyvtz6BgIsPUu7VzhCy1HycpleTgP0SRSy/HtA2faYg4mQUY0DOw+03J0REnGKazxv0BM3RDbMsLRw3JrlMAdh4Zc49i3bZ0Jz7mTwVQGlWVd7Q6UOO36JQHCmAqekQeql/HPTBDS4wJ2dP8HjMOMgut3bs1ZCcVCGmc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784832412; c=relaxed/simple;
-	bh=OjuU5sZNyEfe3NY/W693mYnbMjjdy0/PtxQZI/XdJ4s=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=HhGsB2BRY/RR2h5r6nCo8vkTf1SB++E5SYbTcbF437dv+L/AYu9ZqmFTRI8j2QDV614l0KyeMnPu782APQvvgBkCuQQcx2nUjDizBp/MOyGFhoV2y+oXxG0tl4pyhRGwMxpATeMLInOH9LKMLD0Jf8kMCzLyS3hp19vel8oc+ls=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=bfn2gqhm; arc=none smtp.client-ip=209.85.216.46
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1784834669; c=relaxed/simple;
+	bh=0IyY3WD1+waTTaaDTZVwe6gg2HdaKZ9OBT8RRjdbj1s=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=jKKlJ8ycVCXYp0T19eC9cMhfd3PucEWJ/ng31FLCFRloTU2nMo0KF6FJuTGMJ0i7pLV/I5HG5ZhV7ilxxYzjAvzFWgr3l3OegDEZ5HP/CJdELrucR/3tMwtEP2cg29HOmHJpmqZ3UQTtbQQ+KnmawhGcDVytiiCEoO0z1Lh/+d0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=disroot.org; spf=pass smtp.mailfrom=disroot.org; dkim=pass (2048-bit key) header.d=disroot.org header.i=@disroot.org header.b=NUtEnkGW; arc=none smtp.client-ip=178.21.23.139
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=disroot.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=disroot.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="bfn2gqhm"
-Received: by mail-pj1-f46.google.com with SMTP id 98e67ed59e1d1-38e88b60121so792955a91.3
-        for <linux-input@vger.kernel.org>; Thu, 23 Jul 2026 11:46:44 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784832402; x=1785437202; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=/ZyPlyAUxTK8Vz/tunABGXVD0bibLKDl8Em93+X7p/Y=;
-        b=bfn2gqhm/GGnWxwuwqByRgdWQ0oGWL0dfEhGLe402t2Jkrd9xl72xo+UF8IscgxRYt
-         6oWbdXnUXmPJ2/wFW/wY9A4BBfMoBjLM41qpesvBg/6mWmSYRjmNVfopYWGk24biU+Mw
-         Udu+DYkgMSye513XyNhElHr80sydkVL2DSGlQoU4/L74CKZE66Sej7Sx02+sqIwqnWLM
-         EPCe8YuDgW3A/JKWk57YFHWsRnl01mVcHYlrZUnOTLZScDacRf2WTqH81fgeQj5b2L/V
-         uadHYEu0zmDXmMatqWWSKjwjTWsjpQsMk7LSFTQm273w6bY2C3qfrE4c54kb/5CjRwSm
-         kyiQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784832402; x=1785437202;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=/ZyPlyAUxTK8Vz/tunABGXVD0bibLKDl8Em93+X7p/Y=;
-        b=ZlI3gay6i7msgyf4qfNcTfwbYgvZ7AHJvqs/h83E+WpWAeNSe2NLcxamX6V2/i2XwL
-         CpfR0BCg7++EwNiv+mfKnDyHZQ6wM2urt0h7CdfgsAxcRTrafRlDABrFirvEh70r64k+
-         n37HyL1AjaA6reO58Nwc/r2gRE9mw745LhzSvyFDJd6i5tohlIEcvwbLC7+6xdVNAfMn
-         aPDxTqNFXf7RwKoa+PaysLkdbK/6gYKOntMLyXFaxOjipLe7DYCL/sFBQWCMp/0joazs
-         aPgj2n3xXjY0Q/rVdB7NBLtuivpR4nmVAqky/fVrWyyZ8ainVE3irKWanBvg47JpQI/L
-         Hrsw==
-X-Forwarded-Encrypted: i=1; AHgh+RrG4aCnf2K51/y5GnSKQgswY4Rp8AHA6R+DrDzuVQCp6lCNMXTKgvpb2kcCIYtKbdoLJBxwwPvI/rIs2Q==@vger.kernel.org
-X-Gm-Message-State: AOJu0Ywk/SaKyuQTZSJWrvnWh0H6WnkDDlriF8vK690wXEprbiQh+CzG
-	lWTWQI/wsd8dq5kVh4hxX/X/VwSwPI6H+CyrZKVGT1RPYcByadsSKbWL
-X-Gm-Gg: AR+sD13gi9SnDJuJz7KmTx8HgcHIA2paDFVcVa5tXpGGutGPSaPc7fdlDOZsxUskO3n
-	GbWRqH947LX2JoZRpJQ9Np1OL4WOVEBx3kIMlJ3gfupicPbdO4127oLxIXqwUYlmGj1HnlPh8oK
-	Hm06OoyNNRYl9Foyw/ibccq4axfiZHQAQ+Pi9H0YiNhDtVt+Nrjyk9BF7UZko2McqGXwqpzLfNn
-	DVsfAK1Rn2lKTPXZC82P68/bTg8TdbZqwqwtSBVKCsWMoj90387diQeVSkYzWhKvyHgR4NfKyXc
-	Sp+3t7DXGxvg4Z0Nb+qLmLiWCZavv9aL366ZG+1uVw9lMysWST4nLGSW8Co1RLl6iFKd843DdgH
-	x4ZlxQ+1xpPtLz2NzExEMIjiZiB3L4irqaKQIIVO/NZP7ycMIqk+F9zMyhIdFTbXFUKCqSTOj
-X-Received: by 2002:a17:90b:1847:b0:381:a766:efcc with SMTP id 98e67ed59e1d1-38ec642bd8dmr4696955a91.14.1784832401698;
-        Thu, 23 Jul 2026 11:46:41 -0700 (PDT)
-Received: from ubuntu.. ([110.9.142.4])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-38f03af8a45sm308155a91.10.2026.07.23.11.46.40
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 23 Jul 2026 11:46:41 -0700 (PDT)
-From: Sang-Heon Jeon <ekffu200098@gmail.com>
-To: Julia.Lawall@inria.fr,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: cocci@inria.fr,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH 16/36] Input: remove conditional return with no effect
-Date: Fri, 24 Jul 2026 03:45:18 +0900
-Message-ID: <20260723184538.3888637-17-ekffu200098@gmail.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20260723184538.3888637-1-ekffu200098@gmail.com>
-References: <20260723184538.3888637-1-ekffu200098@gmail.com>
+	dkim=pass (2048-bit key) header.d=disroot.org header.i=@disroot.org header.b="NUtEnkGW"
+Received: from mail01.layka.lan (localhost [127.0.0.1])
+	by disroot.org (Postfix) with ESMTP id 767938444E;
+	Thu, 23 Jul 2026 21:24:19 +0200 (CEST)
+X-Virus-Scanned: SPAM Filter at disroot.org
+Received: from layka.disroot.org ([127.0.0.1])
+ by localhost (disroot.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id ok0EQX9YxwfW; Thu, 23 Jul 2026 21:24:18 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=disroot.org; s=mail;
+	t=1784834658; bh=0IyY3WD1+waTTaaDTZVwe6gg2HdaKZ9OBT8RRjdbj1s=;
+	h=From:Subject:Date:To:Cc;
+	b=NUtEnkGWLMDuU/4EXZJvE5m5wo/pV5Xqombi8N+R+Y/V2ulyrC/TSSGFfsDPkYoXG
+	 +HGp6+g+EXljg6sWaFkVIfFS14mXkuBafwJx8h6lpnlwlJP+Bm91qO4tAEiN0tIMBU
+	 pFJa3SVNbqQOdp01I8H39FUomaJpum9pNZ9rIkk+lG+kmXT0A1fnxAmepBLqxZr4Ji
+	 BoRh8zoTZ0Qesn2Lmq5nh/J5UgVvbiKi14UfZkWr0YQE+QhpMf+ehOyEEps95hAai/
+	 xqeL6M/s9t/I8eIgoOBFks5CI6YQJ0CWbyuQ7g+DiKxlDNj09mRGWM1qaLSG2gl2gR
+	 Q98H6bmhGbK8w==
+From: Kaustabh Chakraborty <kauschluss@disroot.org>
+Subject: [PATCH 0/5] Support zinitix touch modes 0 and 1, dt changes to
+ Galaxy J6 (j6lte)
+Date: Fri, 24 Jul 2026 00:54:02 +0530
+Message-Id: <20260724-zinitix-modes-v1-0-f6df7d86a878@disroot.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/yXMQQqDMBBG4avIrBtIoyjpVaQLTf7qCEbJqIji3
+ U3b5bd47yRBZAi9spMiNhaeQsLzkZHrm9BBsU8mo02pK5OrgwMvvKtx8hBlXeELbVsL5JSaOeL
+ D++9Xv/+WtR3glu+ErusG7RyfkHEAAAA=
+X-Change-ID: 20260723-zinitix-modes-9c4d409b9ee3
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
+ Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+ Conor Dooley <conor+dt@kernel.org>, Michael Srba <Michael.Srba@seznam.cz>, 
+ Linus Walleij <linusw@kernel.org>, Peter Griffin <peter.griffin@linaro.org>, 
+ Alim Akhtar <alim.akhtar@samsung.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
+ linux-samsung-soc@vger.kernel.org, 
+ Kaustabh Chakraborty <kauschluss@disroot.org>
 
-Both branches of the check return the same value, so the check has
-no effect. Remove it and return the value directly.
+The zinitix family of touchscreens support at least three modes, called
+0, 1, and 2. At least some digitizers (including, but not limited to
+ZT7548) are able to support multiple modes. Currently, the driver in
+linux supports mode 2 only. This series aims to add support for modes 0
+and 1, accompanied with necessary architectural changes.
 
-This is the result of running the Coccinelle script from
-scripts/coccinelle/misc/cond_return_no_effect.cocci.
+Among other things, perhaps the biggest difference between multiple
+modes is how the touch report schema is laid out. Modes may skip
+reporting certain properties such as touch width and pressure. For more
+implementation details, the android driver [1] can be referred to, which
+was also the primary reference material for these changes.
 
-Signed-off-by: Sang-Heon Jeon <ekffu200098@gmail.com>
+The last patch is for the Samsung Galaxy J6 (samsung-j6lte), which has a
+zinitix touchscreen digitizer. By default, mode 2 is assumed for the
+touchscreen, however the downstream kernel driver [1] for this device
+uses mode 0 by default. This creates an issue with aftermarket
+digitizers where mode 2 implementation isn't available simply because
+it's not required by the driver downstream.
+
+This last patch needs to be accepted into next only when the former
+patches are in next.  
+
+[1] https://github.com/samsungexynos7870/android_kernel_samsung_exynos7870/blob/master/drivers/input/touchscreen/zinitix/zinitix_zt75xx_ts.c
+
+Signed-off-by: Kaustabh Chakraborty <kauschluss@disroot.org>
 ---
- drivers/input/keyboard/pmic8xxx-keypad.c | 8 +-------
- drivers/input/mouse/synaptics_i2c.c      | 6 +-----
- drivers/input/rmi4/rmi_smbus.c           | 7 +------
- 3 files changed, 3 insertions(+), 18 deletions(-)
+Kaustabh Chakraborty (5):
+      Input: zinitix - check all available fingers for every touch event
+      Input: zinitix - do not ignore non-moving fingers
+      Input: zinitix - add support for modes 0 and 1
+      dt-bindings: input/ts/zinitix: document mode 0
+      arm64: dts: exynos7870-j6lte: set mode 0 as default for zinitix touchscreen
 
-diff --git a/drivers/input/keyboard/pmic8xxx-keypad.c b/drivers/input/keyboard/pmic8xxx-keypad.c
-index 35d1aa2a22a5..c916e80e2f58 100644
---- a/drivers/input/keyboard/pmic8xxx-keypad.c
-+++ b/drivers/input/keyboard/pmic8xxx-keypad.c
-@@ -462,15 +462,9 @@ static int pmic8xxx_kp_enable(struct pmic8xxx_kp *kp)
- 
- static int pmic8xxx_kp_disable(struct pmic8xxx_kp *kp)
- {
--	int rc;
--
- 	kp->ctrl_reg &= ~KEYP_CTRL_KEYP_EN;
- 
--	rc = regmap_write(kp->regmap, KEYP_CTRL, kp->ctrl_reg);
--	if (rc < 0)
--		return rc;
--
--	return rc;
-+	return regmap_write(kp->regmap, KEYP_CTRL, kp->ctrl_reg);
- }
- 
- static int pmic8xxx_kp_open(struct input_dev *dev)
-diff --git a/drivers/input/mouse/synaptics_i2c.c b/drivers/input/mouse/synaptics_i2c.c
-index d4cf982f1263..85e37e2ce45b 100644
---- a/drivers/input/mouse/synaptics_i2c.c
-+++ b/drivers/input/mouse/synaptics_i2c.c
-@@ -257,11 +257,7 @@ static s32 synaptics_i2c_reg_set(struct i2c_client *client, u16 reg, u8 val)
- 	if (error)
- 		return error;
- 
--	error = i2c_smbus_write_byte_data(client, reg & 0xff, val);
--	if (error)
--		return error;
--
--	return error;
-+	return i2c_smbus_write_byte_data(client, reg & 0xff, val);
- }
- 
- static s32 synaptics_i2c_word_get(struct i2c_client *client, u16 reg)
-diff --git a/drivers/input/rmi4/rmi_smbus.c b/drivers/input/rmi4/rmi_smbus.c
-index 6de68c602558..3160714a514a 100644
---- a/drivers/input/rmi4/rmi_smbus.c
-+++ b/drivers/input/rmi4/rmi_smbus.c
-@@ -177,13 +177,8 @@ static int smb_block_read(struct rmi_transport_dev *xport,
- 	struct rmi_smb_xport *rmi_smb =
- 		container_of(xport, struct rmi_smb_xport, xport);
- 	struct i2c_client *client = rmi_smb->client;
--	int retval;
- 
--	retval = i2c_smbus_read_block_data(client, commandcode, buf);
--	if (retval < 0)
--		return retval;
--
--	return retval;
-+	return i2c_smbus_read_block_data(client, commandcode, buf);
- }
- 
- static int rmi_smb_read_block(struct rmi_transport_dev *xport, u16 rmiaddr,
--- 
-2.43.0
+ .../bindings/input/touchscreen/zinitix,bt400.yaml  |   4 +-
+ arch/arm64/boot/dts/exynos/exynos7870-j6lte.dts    |   2 +
+ drivers/input/touchscreen/zinitix.c                | 144 +++++++++++++++++++--
+ 3 files changed, 136 insertions(+), 14 deletions(-)
+---
+base-commit: 290aaf24a551d5a0dce037e3fab30820f9113a10
+change-id: 20260723-zinitix-modes-9c4d409b9ee3
+
+Best regards,
+--  
+Kaustabh Chakraborty <kauschluss@disroot.org>
 

@@ -1,76 +1,126 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from out-182.mta1.migadu.com (out-182.mta1.migadu.com [95.215.58.182])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 468A917A31E;
-	Thu, 23 Jul 2026 00:46:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1D2621C861D
+	for <linux-input@vger.kernel.org>; Thu, 23 Jul 2026 00:50:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784767615; cv=none; b=JPA3b2Lsil2Hnm/6UJwNEGkM1CoDlOJ66fne/EZRXIq0hVTJqiHAcVTBCayLu2nPS6IHZStnZfysxEY5zJ4OJe+S3Hlwq1m0v+UiJHkRo/A7yUJKfZs9NUSpKa6EA2g0/K7b0dvJAg0ugiQUU9FapXHPPsM3WSVYkNGA9crI11o=
+	t=1784767833; cv=none; b=BT82MDrhlMwhXy0SvBtUI5nxFq34oU+uaLKZwxxM/mykocsE+aGyDHqEnxFvrFm2paL+6zu6d6YS5+Nv6aJaMU1UlLXxJNfTfNUhLt3ItfoML+3zl+sKOgWfDKe/f88/n7o/lPqY/41vFj6DBLH3qpFAn+0hB9iWqJ5a/Tr9eWM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784767615; c=relaxed/simple;
-	bh=KpnI/sSrjrj1XHka+S7lmbkwNn89Ju1ii8SXCJj830Q=;
-	h=Content-Type:MIME-Version:Message-Id:In-Reply-To:References:
-	 Subject:From:To:Cc:Date; b=ttU6oHWsfqBamG0DW8vFbN5zqZY50iurY76llzdZohzLAJg/mwYxTZcEUYSijndDDNWnHctg7pspRZ7ThYbak13D9DXjy3Lrcp5wvhq1Atf7MXEU6Jn0pSgL9LzC+neyF+KKTZVTDQhPbJx+MTPwF8vXo15QZoO2QKpqemC0VUo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=HFDxxa7b; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1784767833; c=relaxed/simple;
+	bh=qrcVV5NuQDIXgcvhV8X73prtKA5K5yPjsBqgtrCTqY0=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=rOhT2e3GospxzgiZxAUvdd2PFdXyrBbb6qW0+SBm6IWGeyboFHbJIYC8IoUDUojsys+uNSI+P158LADaOTgrsnAUBsfNIVGfGuJYTIcQPHxn0RjMnW8AhP6tz2dSlRVAmb/2G7A1E+VpxNy43Lghd14ENlm+p72xomema6HI5Js=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=iFPB0e1h; arc=none smtp.client-ip=95.215.58.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="HFDxxa7b"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5A051F000E9;
-	Thu, 23 Jul 2026 00:46:52 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784767613;
-	bh=FVcJA11VKUDxdCDtQsMHpWOMcl5sqbi4O+hmzJFZCqE=;
-	h=In-Reply-To:References:Subject:From:To:Cc:Date;
-	b=HFDxxa7bP5f3P78QErU9REszocchEDx17DzXaK+glto3GOi7i9Aq8d5OwL9OBmFx2
-	 J7FdMuledF7HvfDIzsiu5JBs6EmQMp6vFjNZd0hSuBXfk2YpUtRbe3CuFuEF4Zy9hK
-	 +6c2HM13RTw/kb/0EznvSWjwILY05+BLio+h5f8Nhk0tob0RMWXNFSlCNH9KJdEnpo
-	 V0qoz377YAZ0cvcvvc+7IrPXcCNGR0T3PVoD09am/pON0M6KsW2M40pg/T6Dev+Qb3
-	 zS5fAUhdPChAujo5lmEpMubaJMRAdqvHwUO7c5AOcDJ+X91CbK+IlIQjw2smC7IPXr
-	 7ZgPq4X2DCEyQ==
-Content-Type: multipart/mixed; boundary="===============8382247208943757258=="
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="iFPB0e1h"
+Message-ID: <96de438b-2637-4d42-b65d-7ec8a37e89a8@linux.dev>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+	t=1784767828;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=v6cZUZnkdCx64NXcrSiMNf/3VHLEYUKEG9qRg6czPsA=;
+	b=iFPB0e1hOWxlKFnpH1GzZcVcHD+ufOsiVCG+93mVaQUO4N29ovkzoH4IioEqEMP5Lc3D8x
+	T1I12yCNrfTWk54rfeN/yNaSClSClo0PI5dq4FZVnDdFuk53R1igYmGoWdmCsTAd8CRtwH
+	xOqWB4FFZvdDGrFDgp+vhfI4N9sQ0bQ=
+Date: Wed, 22 Jul 2026 17:50:08 -0700
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Message-Id: <9a741c388d686bc53380a8862320676bc0c4c37f249a9c7b3df437cb741f2eb8@mail.kernel.org>
-In-Reply-To: <20260722233518.778854-6-ihor.solodrai@linux.dev>
-References: <20260722233518.778854-6-ihor.solodrai@linux.dev>
-Subject: Re: [PATCH bpf-next v1 5/8] resolve_btfids: Fix the _impl lookup for module BTF
-From: bot+bpf-ci@kernel.org
-To: ihor.solodrai@linux.dev,ast@kernel.org,andrii@kernel.org,daniel@iogearbox.net,eddyz87@gmail.com,memxor@gmail.com
-Cc: bentiss@kernel.org,jikos@kernel.org,emil@etsalapatis.com,jolsa@kernel.org,bpf@vger.kernel.org,linux-input@vger.kernel.org,kernel-team@meta.com,ast@kernel.org,andrii@kernel.org,daniel@iogearbox.net,martin.lau@kernel.org,eddyz87@gmail.com,yonghong.song@linux.dev,clm@meta.com,ihor.solodrai@linux.dev
-Date: Thu, 23 Jul 2026 00:46:52 +0000 (UTC)
-
---===============8382247208943757258==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
+Subject: Re: [PATCH bpf-next v1 1/8] resolve_btfids: Implement generic
+ ensure_mem() to grow arrays
+To: sashiko-reviews@lists.linux.dev
+Cc: linux-input@vger.kernel.org, bpf@vger.kernel.org,
+ dmitry.torokhov@gmail.com
+References: <20260722233518.778854-1-ihor.solodrai@linux.dev>
+ <20260722233518.778854-2-ihor.solodrai@linux.dev>
+ <20260722234842.68B271F000E9@smtp.kernel.org>
+Content-Language: en-US
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+From: Ihor Solodrai <ihor.solodrai@linux.dev>
+In-Reply-To: <20260722234842.68B271F000E9@smtp.kernel.org>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
+X-Migadu-Flow: FLOW_OUT
 
-> resolve_btfids: Fix the _impl lookup for module BTF
->
-> process_kfunc_with_implicit_args() skips generating <name>_impl
-> function when one already exists for backwards compatibility.
->
-> It uses btf__find_by_name_kind(), which searches the base BTF before
-> the split BTF. When resolve_btfids processes a module, a same-named
-> _impl in vmlinux would be found and the module's own counterpart would
-> not be created.
->
-> Fix by using btf__find_by_name_kind_own() for the lookup.
->
-> Signed-off-by: Ihor Solodrai <ihor.solodrai@linux.dev>
+On 7/22/26 4:48 PM, sashiko-bot@kernel.org wrote:
+> Thank you for your contribution! Sashiko AI review found 1 potential issue(s) to consider:
+> - [Medium] Strict aliasing violation via `void **` casting leading to potential Use-After-Free.
+> --
+> 
+> --- Patch [1]: [PATCH bpf-next v1 1/8] resolve_btfids: Implement generic ensure_mem() to grow arrays ---
+> commit b5970d9bf6b1262c4ad812706df67f4a14ee5411
+> Author: Ihor Solodrai <ihor.solodrai@linux.dev>
+> 
+> resolve_btfids: Implement generic ensure_mem() to grow arrays
+> 
+> This commit factors out array growth logic from push_*() helpers into a
+> generic ensure_mem() macro and function. It uses a void ** cast to update
+> the array pointer upon reallocation.
+> 
+>> diff --git a/tools/bpf/resolve_btfids/main.c b/tools/bpf/resolve_btfids/main.c
+>> index f8a91fa7584f4..183466ddc5f97 100644
+>> --- a/tools/bpf/resolve_btfids/main.c
+>> +++ b/tools/bpf/resolve_btfids/main.c
+>> @@ -201,6 +201,35 @@ static int eprintf(int level, int var, const char *fmt, ...)
+>>  #define pr_info(fmt, ...) \
+>>  	eprintf(0, verbose, pr_fmt(fmt), ##__VA_ARGS__)
+>>  
+>> +/*
+>> + * Grow *data so it can hold at least cnt elements of elem_sz bytes each.
+>> + * *cap is the capacity in elements and is updated on growth.
+>> + */
+>> +static int __ensure_mem(void **data, u32 *cap, u32 cnt, size_t elem_sz)
+>> +{
+>> +	u32 new_cap, old_cap = *cap;
+>> +	void *arr;
+>> +
+>> +	if (cnt <= old_cap)
+>> +		return 0;
+>> +
+>> +	new_cap = max(old_cap + 256, old_cap * 2);
+>> +	if (new_cap < cnt)
+>> +		new_cap = cnt;
+>> +
+>> +	arr = realloc(*data, elem_sz * new_cap);
+>> +	if (!arr)
+>> +		return -ENOMEM;
+>> +
+>> +	*data = arr;
+> 
+> [Severity: Medium]
+> Will this assignment violate strict aliasing rules? Because void * and u32 *
+> are incompatible types, modifying the pointer through a void ** pointer
+> violates C strict aliasing.
+> 
+> While core kernel code is compiled with -fno-strict-aliasing, programs under
+> tools/ are compiled with standard optimizations including -fstrict-aliasing.
+> If __ensure_mem() is inlined, could the compiler assume that this assignment
+> does not modify the original typed pointer?
 
-The btf__find_by_name_kind() call being changed here was introduced
-along with process_kfunc_with_implicit_args() itself.  Should this
-carry a Fixes: tag?
+ensure_mem() is modeled on libbpf's own libbpf_ensure_mem(), which is
+called exactly this way throughout libbpf with typed pointers cast to
+(void **), built under the same tools/ flags.
 
-  Fixes: 9d199965990c ("resolve_btfids: Support for KF_IMPLICIT_ARGS")
+The pattern is long-established and hasn't caused issues in practice.
+Callers re-read the struct member after the call. Wontfix.
 
+> 
+>> +	*cap = new_cap;
+>> +
+>> +	return 0;
+>> +}
+>> +
+>> +#define ensure_mem(arr_ptr, cap_ptr, cnt) \
+>> +	__ensure_mem((void **)(arr_ptr), (cap_ptr), (cnt), sizeof(**(arr_ptr)))
+> 
+> [...]
+> 
 
----
-AI reviewed your patch. Please fix the bug or email reply why it's not a bug.
-See: https://github.com/kernel-patches/vmtest/blob/master/ci/claude/README.md
-
-CI run summary: https://github.com/kernel-patches/bpf/actions/runs/29967476366
---===============8382247208943757258==--

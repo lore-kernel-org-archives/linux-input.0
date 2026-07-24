@@ -1,60 +1,60 @@
-Received: from mail-wm1-f49.google.com (mail-wm1-f49.google.com [209.85.128.49])
+Received: from mail-wr1-f43.google.com (mail-wr1-f43.google.com [209.85.221.43])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 01DC7171CD
-	for <linux-input@vger.kernel.org>; Fri, 24 Jul 2026 00:08:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 30B1C4908A8
+	for <linux-input@vger.kernel.org>; Fri, 24 Jul 2026 00:10:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784851739; cv=none; b=HiiO7FGFefyNB0eX4iM3lPx+hxYnN+b1hOllJxRm6nmCJAO5SyDFZFgAyqoVdmFToiTjlRa8GjCI/F5nnwbnRDKjBNqsf+yRc1jgHGpstyj2R7bh62E9Twe7O/V7hEvrmnCmNjlZXHzYoJ+GSLgxX5+rYvctLwLAy4enfVtL2lg=
+	t=1784851816; cv=none; b=pc7Nzovhduo7qC/hHHuFI5gQ7SsGmk/ziUXG5bhHN1WgNH1RNaDGiKbJDX904AzRbJDzIN7LE9K6UTzJYI5Y3CsyvATuKFbFV3XrPWvFE3mzHv5Vm6zDfIIhtV16mh2Wv8sqpnR9+b7PPC1Ddiq4wYMrqWwmd/nlOjneX4W9ig8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784851739; c=relaxed/simple;
-	bh=OF4euTvz9Hql8JYKKoh5biNS8RtwKAs/ME/rZeYZvqU=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=BaizDQV3LoVuO0BmBsr1NB5nZzN9QRyvuTpfmQacfzVL4FGFhdFeg0uNEZ8eLMZ+OrNHpgq+0CS+YyqhL+qPcCvJly4/KFhm6/o1L5wGRxn+nUwl+YFU4ozQASponf1kXl6L204kzU0leFt2k/YChOt1UvqsyqTR4g/mw6RMdhk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=qPw0FSQB; arc=none smtp.client-ip=209.85.128.49
+	s=arc-20240116; t=1784851816; c=relaxed/simple;
+	bh=vh/JKGt51BiPqho1O21KWsVulMR0eJ/JWLjQkb/m7SM=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=tAVRGUb89cCNqep9zKIvZQkp8sI9uTe836ZK65efwiQCczwSSNhH36hfmhSCLvOL7uPrWdqDZOmkmYEgoAoLBeVxeAtquTyu63GCuxFmnaS8GeV1+iB3Wl+wlOTaen2/JPaccRkzVyGJDadHyvuvLXlSLy8zZLIY8tlmREkGgyw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=a9URDAgn; arc=none smtp.client-ip=209.85.221.43
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="qPw0FSQB"
-Received: by mail-wm1-f49.google.com with SMTP id 5b1f17b1804b1-4954afac04bso11593955e9.0
-        for <linux-input@vger.kernel.org>; Thu, 23 Jul 2026 17:08:57 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="a9URDAgn"
+Received: by mail-wr1-f43.google.com with SMTP id ffacd0b85a97d-47f6609c657so605942f8f.2
+        for <linux-input@vger.kernel.org>; Thu, 23 Jul 2026 17:10:14 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784851736; x=1785456536; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1784851813; x=1785456613; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=nZEegZeal7l4AtR9CR5NVf2WTYyHtR0C/RY7KRHJhyg=;
-        b=qPw0FSQBUhpNwglGQqX4CFE2SwjdBbxjCTI5It/fhtTEQLNRw5THmZBWx/FMkpsvC8
-         THnD6Rc2F1Gblurd2ot2Gab8ErbcvfUJYlo9eTafyIcmLH7/UaPKrcrlB9zKXd9fZrWC
-         E67F6Az+87yGE/mpYMQxA7Z4sAw2MfYK7bg9ylk7zE/DJVQONC9DVK5wXK754TYe2N7q
-         RtYzfPG8NdT1BE2HphMxuHUaa5FK5KcasC9LIvAm2yWuSNlQVFy2rywGdG8wox7sOR9h
-         wc+5Fj1OxAwvpMNlWbllzIqPD1kLnuPFzRkzMRBQflm8Cpn6mwLlqoEEanuhKTHDbxdt
-         5yWA==
+        bh=nU+jXdKU/lc4CNz9IWGgShjsy/wZZQkGpDW5ftzUhAM=;
+        b=a9URDAgngnRpEDGJdqif6nD1hzcEkF41T02GtG6/TOexUsW3g/Alh7Y3z7RDBiufsd
+         DqTjudzd4GmrHlRi2ueKFqlyplbPzv6uIjYkv/qrBx/PIF2Pn6yDHf/8e3zIFmHSI0oZ
+         VKv4tCjEn5IzJBR4dJlaz+6V8o/O8lZVo/koQm0/D00tnihNcnc/RlfDbxDTRRkXUfQc
+         dYnYBwHKZiuhDG4gM5GkV3zkg5Dd2bbsdHPi2ma9CAN63+aK0YD/H4mlxsM+Y/kWPNwV
+         nRTcJ/DQZh3dXEWPr104h7/slypwlUzNT5pb+WPDmD2EY1Awq4xNlB8HtCvFklORLF8F
+         q6XQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784851736; x=1785456536;
+        d=1e100.net; s=20251104; t=1784851813; x=1785456613;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=nZEegZeal7l4AtR9CR5NVf2WTYyHtR0C/RY7KRHJhyg=;
-        b=i56RQvzzLdksXT4Jmx5uKR2D1lzpvyeeqEmb+B00zsl7r0NLxt6PA+b4jp7RqrVVdA
-         f+62+PTJ1E2JAWt8E7+uw7BocZumAaMNEEdVH87wcus6jX8L8cpW+tU89hYsrvm9vc9m
-         FN/2kQuI6VbzPufa9WMkjuB0QwSi7JZ5TnwAy79LmGDrRrRyEQRr/pzlFVr4f1SMiwXO
-         IKSFGts7KobFl1LVHspKMhSts4AEDiBtmfVGqb2DIDFjHtr/hKSpQ4EZEDo+7VJTjSPK
-         8LCCqUrM3Uqw3wa+b8KvuCBtSRPGX1wUBtZKicgZPI/wNxHcUguW/lGZwri+G1UxUlyy
-         qXoQ==
-X-Gm-Message-State: AOJu0YyRIP4nLYHUXtNKaDdEgoA7masMOFJKuEWEQh+7gLzYmiZNAIRM
-	u75EJaxFWCCggHoJRt2ca7OtfZAhQ9cOBcxq5NObizTakeGceK5hBzjFKo9nOmR+kzg=
-X-Gm-Gg: AR+sD13sIpizYSUyce49l3po0LVCtRfxFbRr2EnSEMTEMLWBCST5AmlDDPGS0/RURy6
-	IpNuBrJooiEukfPEKCVu2ZDBXKqt9GPXMXewKBmpew0JNbSIhRNkhsFr5PlFnOBpX+uWQpHxXAI
-	pJoP4OkZzveTGvrCE17MMdxy9nbzDYmCxeTdRV/r6yqTkddqe87FJN0ForZ0qdQUrqT+Udp88Me
-	/KaaQAiCaKnh6+uWyVAWfNwirZUd0p2/PTFndn9Ba3yn3pp5S5Em+kkaOfsYd6BQNJBdgHYoAwJ
-	TzG4psVYm2ZzeBhxBXKenxtsTNPlNZHFGdzV24Qun89y7g2ML4pKwflYAl87x/4gUJXQqYXgiNe
-	jx9wLL2bdibpN0gqpVl7D/ayY0cNQ8yVrLqjfUb2U/QxooVAThfckBu7R03sMAWh82XEhUS82tg
+        bh=nU+jXdKU/lc4CNz9IWGgShjsy/wZZQkGpDW5ftzUhAM=;
+        b=p8L0Cz52MOPZqBQH47JS8i3xxrYr0b0Z+nXhbogmx3STojFAtYXJkahCuF8cqLaaNt
+         XdYKwqObgQgX/6afhmo3Hcie2uZRZ5Fqgt3r1eUx8qs0H45P2l+EeHaOmzIz31hhFAFJ
+         WxhcOjAA9G5hrIp1hd5zMqMP7BJ0UmB3jNUePaKkgepoZ5v2sruUlwptW9GIPO3Aoufw
+         7zZwpzoIST9hBRgBbltPABLe8ewKErmg8+SA+2q9odijKNfkaSBO2lv2Cw4RWv9dREoz
+         v9VCRp4aQsQRSVQV4bqC9gx33U/AAfIufUOszI+4gagzfGbjt3aOt6T27VvPoogppUZA
+         oFCQ==
+X-Gm-Message-State: AOJu0Yz7LdhnoZ+9NvcMYFYeXQEIGiG06zthmvu4IF08yPtATL9P/euh
+	1hoobglxZSwBYZhcXshUfuuSDVl5PHK4FHLqO7BZB3tdHx+yaB0m2ZL0WnvYhNyNeRc=
+X-Gm-Gg: AR+sD11sVtOvdXQU76uuXYhHGHDMTFYbl70HBDOS/bzholJ1AoMsGk4Q2DAx+wHR7U+
+	vAGZPliEgyTec8QTxZT4WC1vw3fu3TpPA1yOHFeHssNeS6oP4Q850SMl63JKBTmpFeoBzgwpsbt
+	qgyDnIYnEsaqzMfmCz3Nak6W0h2rbsibcdzg6hAhVpuvu2p/aeIVfvnFTM5pdRk/QIqyHrO80kf
+	TyAECJY+My48dLxStt38wmKurA4Dxx4odLlS1/5bwQgZogwELlClGmKSF0KFQ9fbn/2/9A7yn9c
+	S78qL6cxO7F8tCdhKlNunmJcyHL82pDIBpYxmITt8kaE2Xy6msvCN6w/d0vH1TSRSeqBge2VNwa
+	WkRtNfZ9frOcGzDbsMbS27N+X4QJLFWmCf3D1Xc4uM8mqigOUpCTPSl3hiYW+VaSyktG3xis+kg
 	==
-X-Received: by 2002:a05:600c:6012:b0:495:4d2d:82f2 with SMTP id 5b1f17b1804b1-49573d0eb3emr41533275e9.26.1784851736063;
-        Thu, 23 Jul 2026 17:08:56 -0700 (PDT)
+X-Received: by 2002:a05:6000:310e:b0:47f:8b94:19d5 with SMTP id ffacd0b85a97d-47f8dcc4039mr6598984f8f.57.1784851813343;
+        Thu, 23 Jul 2026 17:10:13 -0700 (PDT)
 Received: from beelink.. ([186.247.163.143])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4957afb4da8sm24786345e9.12.2026.07.23.17.08.52
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-47f85b9a5a2sm21104488f8f.7.2026.07.23.17.10.10
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 23 Jul 2026 17:08:54 -0700 (PDT)
+        Thu, 23 Jul 2026 17:10:12 -0700 (PDT)
 From: Aldo Ariel Panzardo <qwe.aldo@gmail.com>
 To: linux-input@vger.kernel.org
 Cc: jikos@kernel.org,
@@ -63,9 +63,9 @@ Cc: jikos@kernel.org,
 	Aldo Ariel Panzardo <qwe.aldo@gmail.com>,
 	stable@vger.kernel.org,
 	Sashiko AI review <sashiko-bot@kernel.org>
-Subject: [PATCH] HID: multitouch: keep MT_IO_FLAGS_RUNNING inside the flags word
-Date: Thu, 23 Jul 2026 21:08:41 -0300
-Message-ID: <20260724000841.933327-1-qwe.aldo@gmail.com>
+Subject: [PATCH] HID: multitouch: stop the release timer from being rearmed on remove
+Date: Thu, 23 Jul 2026 21:09:58 -0300
+Message-ID: <20260724000958.938675-1-qwe.aldo@gmail.com>
 X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
@@ -75,55 +75,74 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-MT_IO_FLAGS_RUNNING is bit 32 of td->mt_io_flags, which is a single
-unsigned long. On 32-bit architectures a long is 32 bits wide, so the
-valid bit indices are 0-31 and bit 32 falls in the next word. Both users
-take and release the flag with atomic bitops:
+mt_remove() quiesces the sticky-finger timer before stopping the
+hardware:
 
-    test_and_set_bit_lock(MT_IO_FLAGS_RUNNING, &td->mt_io_flags);
-    clear_bit_unlock(MT_IO_FLAGS_RUNNING, &td->mt_io_flags);
+    timer_delete_sync(&td->release_timer);
 
-so on a 32-bit build every report and every sticky-finger timer expiry
-reads and writes the four bytes that follow mt_io_flags in struct
-mt_device -- inputmode_value, maxcontacts and the is_* flags -- instead
-of the flags word itself.
+    sysfs_remove_group(&hdev->dev.kobj, &mt_attribute_group);
+    hid_hw_stop(hdev);
 
-Before commit 46f781e0d151 ("HID: multitouch: fix sticky fingers") the
-flag was bit 0 and the word only had to hold three flags. That commit
-reserved the low eight bits for per-slot state (MT_IO_SLOTS_MASK) and
-moved the flag out to bit 32, one word too far on 32-bit builds.
+timer_delete_sync() waits for a running callback and dequeues the timer,
+but it does not stop the timer from being armed again. The transport is
+still delivering reports at that point, and the report path rearms it:
 
-Put it at MT_IO_SLOTS_BITS, the first bit above the reserved slot range.
-The value is only ever used as a bit index, so nothing else has to
-change.
+    if (app->quirks & MT_QUIRK_STICKY_FINGERS) {
+        if (td->mt_io_flags & MT_IO_SLOTS_MASK)
+            mod_timer(&td->release_timer,
+                      jiffies + msecs_to_jiffies(100));
 
-Fixes: 46f781e0d151 ("HID: multitouch: fix sticky fingers")
+A report that arrives after timer_delete_sync() has returned therefore
+leaves the timer queued. td is allocated with devm_kzalloc() against
+hdev->dev, so it is freed when the driver is unbound, after mt_remove()
+returns. When the timer fires afterwards, mt_expired_timeout()
+dereferences the freed td:
+
+    struct mt_device *td = timer_container_of(td, t, release_timer);
+    struct hid_device *hdev = td->hdev;
+
+    if (test_and_set_bit_lock(MT_IO_FLAGS_RUNNING, &td->mt_io_flags))
+
+Simply moving the teardown after hid_hw_stop() does not fix this on its
+own, because mt_expired_timeout() calls mt_release_contacts(), which
+walks hdev->inputs; the timer still has to be quiesced before
+hid_hw_stop() tears the input devices down.
+
+Use timer_shutdown_sync() instead, which additionally makes any later
+mod_timer() a no-op, so neither ordering constraint has to be traded off
+against the other. This is the final-teardown pattern the function was
+introduced for, and hid-wiimote already uses it for the same reason.
+
+Fixes: 4f4001bc76fd ("HID: multitouch: fix rare Win 8 cases when the touch up event gets missing")
 Cc: stable@vger.kernel.org
 Reported-by: Sashiko AI review <sashiko-bot@kernel.org>
 Closes: https://sashiko.dev/#/patchset/20260723224211.613112-1-you@example.com?part=1
 Signed-off-by: Aldo Ariel Panzardo <qwe.aldo@gmail.com>
 ---
-This applies on top of "HID: multitouch: bound the slot index before
-touching mt_io_flags", which introduces MT_IO_SLOTS_BITS. The two are
-separate defects with the same Fixes: tag, so they should backport
-together.
+Found by code inspection after Sashiko AI review flagged the teardown
+ordering while reviewing an unrelated patch of mine. I have not
+reproduced the use-after-free at runtime: it needs a report to land in
+the window between timer_delete_sync() returning and the device being
+unbound, which I have no way to drive reliably on the hardware I have.
+The window and the rearm path are visible in the code, and the fix does
+not depend on the race being hit.
 
  drivers/hid/hid-multitouch.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index a75c821f7758..e7d811ed4123 100644
+index 0495152091e3..f25065b9ec66 100644
 --- a/drivers/hid/hid-multitouch.c
 +++ b/drivers/hid/hid-multitouch.c
-@@ -99,7 +99,7 @@ enum report_mode {
+@@ -2233,7 +2233,7 @@ static void mt_remove(struct hid_device *hdev)
+ {
+ 	struct mt_device *td = hid_get_drvdata(hdev);
  
- #define MT_IO_SLOTS_MASK		GENMASK(7, 0) /* reserve first 8 bits for slot tracking */
- #define MT_IO_SLOTS_BITS		8 /* bits covered by MT_IO_SLOTS_MASK */
--#define MT_IO_FLAGS_RUNNING		32
-+#define MT_IO_FLAGS_RUNNING		MT_IO_SLOTS_BITS
+-	timer_delete_sync(&td->release_timer);
++	timer_shutdown_sync(&td->release_timer);
  
- static const bool mtrue = true;		/* default for true */
- static const bool mfalse;		/* default for false */
+ 	sysfs_remove_group(&hdev->dev.kobj, &mt_attribute_group);
+ 	hid_hw_stop(hdev);
 -- 
 2.43.0
 

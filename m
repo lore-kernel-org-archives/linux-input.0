@@ -1,89 +1,78 @@
-Received: from mail-oo1-f71.google.com (mail-oo1-f71.google.com [209.85.161.71])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B81C872627
-	for <linux-input@vger.kernel.org>; Fri, 24 Jul 2026 04:32:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.161.71
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A6A204908B9;
+	Fri, 24 Jul 2026 06:06:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784867547; cv=none; b=e1f4T9oy4yCocIqrm9VkuVUgDSFuP2Xh5cra2ecaDpq0+Lr4JMqXYITWGIyNjxHigreg/3zX6/7JccQWlq5ecZ899Abk5zv6p/ou7eH6WC1C5hj+Wm9sRrKh66X+L22bhdKNeOBFeBj9BKk1M2R0OpaRwkq3Syxj69k5knln02Y=
+	t=1784873185; cv=none; b=aRmkptgtxkuOpHw+WIWN8nLm2KPfVhDG3Mh2pZ9Pf7bqHknv9yH/A6sME1r9OqPbM3dRQxfOrJBxuaov1YHjwgS3HczVjsWpmkF3M8RgObfGQ6pcSt3Do0I5iBZ4yWL2BnNACdbNcU5JcQ+jM3wtCuLaTI+e0l4pWG+2zFdvbG8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784867547; c=relaxed/simple;
-	bh=CdKyEk3A660YC7M49mNS94cKK3oCAt4mAd+ziOjf004=;
-	h=MIME-Version:Date:Message-ID:Subject:From:To:Content-Type; b=FQtv1OM4EApxHBxOX7c61pXELYlbQiI+wcE2Diq8WkZ5naykcV/Vt4xvWOal79TkDwy30WcsTdXV8vVvDwX6QhBVCfr+YvU2ckroavE400fwYuCw7HsogVJnQMZOy/ZACpTpT+0sMXi/SNp5IMYNcntOfOAZEwDrYkRufrwzkLw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.161.71
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
-Received: by mail-oo1-f71.google.com with SMTP id 006d021491bc7-6a344ad5c7bso763928eaf.3
-        for <linux-input@vger.kernel.org>; Thu, 23 Jul 2026 21:32:25 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784867544; x=1785472344;
-        h=content-type:to:from:subject:message-id:date:mime-version
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=5vWT0de9fvGubni0xcIU4FeApDCiZ5Iwk6hSTEcr9MQ=;
-        b=HB8C3rslcnsCm6N/x/NWb652Cq6ok1Ox9Fzpjk8TAJc6Kcaw4ofU2lZiL1nvHvPsNe
-         0THRdxP1Y/nCMDg18sLXaj0UePRBME3fK77OBf1UwlRCk69b2vjkrTxBci71064d4p8h
-         dE2uDNBhPB3/xAjTyK390Q6FEiMTen+MX+PIB0xo1HZRU++8kcRIH1Ec5CZ06yy6wR5d
-         Ojisvt25Ow987TM65JM4vDgfzuu0OoXUVjfbvm7nzcJuBqF3xRr3W4/Uj/PygEsHLWAg
-         juCAg3P0FLbKPZ46DpVfOOqBzZiVJi486GFXRlRZUrRJMoA486IMv7ia/YJE6v3eafPb
-         mR8Q==
-X-Gm-Message-State: AOJu0YyuNuMMdbQwkavM9TN18PRopQs6Ui9YCMNaxj8gzr3YRjKuNW8p
-	E2Qs/4jEAl2wAlaCaXZWEbsoQZfhquH40Iy+HY9QazgcxhB6nYXeVEvV4VpU8Ei74imK7gNKiPC
-	3sZxL9uZeNbWeINsUfdOQWTsvLYYceuCFCeZqkg1AlFTq4YmowSkf9L/FaVg=
+	s=arc-20240116; t=1784873185; c=relaxed/simple;
+	bh=cz4Rgyk6SE0Jy5yJIOzM0jLexd77fECOgRTELOCiN/k=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=ivuzxx3x570oqsH8ZjCgnyM5Oa32mtNaJ+o7d43UHKQV6CvMGoQXZ1J7rcrG0sPxZiqJQVFYjrEBQqSHlndqBLmf5kWRtXgn/Qc+D1h3kNRaFjFwWxXwtSf5eDGMFRE07KNrWv4mWQbQDpvqL09oGz6F+o+NpbdHbfW6spToI54=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=fUdDw2Vj; arc=none smtp.client-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="fUdDw2Vj"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 721BF1F000E9;
+	Fri, 24 Jul 2026 06:06:23 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1784873184;
+	bh=sR2SdUSKgTFGbEVS0wvxdwiXMBvONMXt7n2+RC5+RK0=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=fUdDw2VjHIGIpf5xZK2NH4yo+1pJFxeBM9CgSPqyS6NiRHacehwh09nsBV6fNg1eK
+	 MMkWLPbRC2B4g+e/aTFz/G5tXpi2D6rAzlUXc7keNTiku/42ixQmhkqNrj+Wx/93Hl
+	 u/iYAa2fslepTR0QxkJQnhPlWR0fk6ykIegJzvuX5lrjxNak42E0JDaEJb8ZpuZXtG
+	 Jke/u3BfXWPnp9mQ7jIPE6eqJOO+3uqgHhXvETEkoKh5168x8GpZ3DUAmmtc4/oXBK
+	 iTtAOhgrb5TKP6xiADv9ObVv0/VfEHeC+VTcKDR0W5XlpngyWA0kZ1lCsqpcv4wBT/
+	 FYKWsMIZBeYsg==
+Date: Fri, 24 Jul 2026 08:06:20 +0200
+From: Krzysztof Kozlowski <krzk@kernel.org>
+To: Eduard Bostina <egbostina@gmail.com>
+Cc: Aaro Koskinen <aaro.koskinen@iki.fi>, 
+	Andreas Kemnade <andreas@kemnade.info>, Conor Dooley <conor+dt@kernel.org>, 
+	Daniel Thompson <danielt@kernel.org>, devicetree@vger.kernel.org, 
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>, dri-devel@lists.freedesktop.org, 
+	Jingoo Han <jingoohan1@gmail.com>, Kevin Hilman <khilman@baylibre.com>, 
+	Krzysztof Kozlowski <krzk+dt@kernel.org>, Lee Jones <lee@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, 
+	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-leds@vger.kernel.org, 
+	linux-omap@vger.kernel.org, Mark Brown <broonie@kernel.org>, 
+	Mark Jackson <mpfj@newflow.co.uk>, Pavel Machek <pavel@kernel.org>, Rob Herring <robh@kernel.org>, 
+	Roger Quadros <rogerq@kernel.org>, Tony Lindgren <tony@atomide.com>, daniel.baluta@nxp.com, 
+	simona.toaca@nxp.com, goledhruva@gmail.com, m-chawdhry@ti.com
+Subject: Re: [PATCH v4 4/4] dt-bindings: leds: backlight: Convert TPS65217 to
+ DT schema
+Message-ID: <20260724-gentle-starfish-of-fantasy-cbb2a3@quoll>
+References: <20260723100605.628882-1-egbostina@gmail.com>
+ <20260723100605.628882-5-egbostina@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Received: by 2002:a05:6820:80c7:b0:6aa:e344:85f6 with SMTP id
- 006d021491bc7-6aae34486bdmr1177482eaf.28.1784867544686; Thu, 23 Jul 2026
- 21:32:24 -0700 (PDT)
-Date: Thu, 23 Jul 2026 21:32:24 -0700
-X-Google-Appengine-App-Id: s~syzkaller
-X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <6a62ead8.dde6c935.cf6c8.000c.GAE@google.com>
-Subject: [syzbot] Monthly input report (Jul 2026)
-From: syzbot <syzbot+list02151512ba2e47ca4e10@syzkaller.appspotmail.com>
-To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	syzkaller-bugs@googlegroups.com
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20260723100605.628882-5-egbostina@gmail.com>
 
-Hello input maintainers/developers,
+On Thu, Jul 23, 2026 at 10:06:02AM +0000, Eduard Bostina wrote:
+> Convert the Texas Instruments TPS65217 bindings to DT schema.
+> 
+> During the conversion, the following updates were made:
+> - Documented the 'regulators', 'charger' and 'pwrbutton' child nodes,
+>   which are used by the boards but were missing from the old txt
+>   binding.
+> - Documented the 'interrupts', 'interrupt-controller', '#interrupt-cells'
+>   and 'ti,pmic-shutdown-controller' properties, which are used by the
+>   am335x boards and read by the driver.
+> 
+> The regulator/tps65217.txt binding documented the same 'ti,tps65217'
+> compatible and is superseded by this schema, so remove it as well.
+> 
+> Signed-off-by: Eduard Bostina <egbostina@gmail.com>
 
-This is a 31-day syzbot report for the input subsystem.
-All related reports/information can be found at:
-https://syzkaller.appspot.com/upstream/s/input
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
 
-During the period, 2 new issues were detected and 0 were fixed.
-In total, 19 issues are still open and 63 have already been fixed.
-There are also 3 low-priority issues.
+Best regards,
+Krzysztof
 
-Some of the still happening issues:
-
-Ref Crashes Repro Title
-<1> 987     Yes   KASAN: slab-out-of-bounds Read in mcp2221_raw_event (2)
-                  https://syzkaller.appspot.com/bug?extid=1018672fe70298606e5f
-<2> 245     Yes   WARNING in cm109_input_open/usb_submit_urb (3)
-                  https://syzkaller.appspot.com/bug?extid=ac0f9c4cc1e034160492
-<3> 147     No    KASAN: slab-use-after-free Read in report_descriptor_read
-                  https://syzkaller.appspot.com/bug?extid=bc537ca7a0efe33988eb
-<4> 36      Yes   INFO: task hung in devres_release_group (2)
-                  https://syzkaller.appspot.com/bug?extid=d789904ff97c2f3dac88
-<5> 23      Yes   INFO: task hung in __input_unregister_device (5)
-                  https://syzkaller.appspot.com/bug?extid=78e2288f58b881ed3c45
-<6> 5       No    possible deadlock in tasklet_action_common (2)
-                  https://syzkaller.appspot.com/bug?extid=b5d7ab56d43de3fd5aac
-
----
-This report is generated by a bot. It may contain errors.
-See https://goo.gl/tpsmEJ for more information about syzbot.
-syzbot engineers can be reached at syzkaller@googlegroups.com.
-
-To disable reminders for individual bugs, reply with the following command:
-#syz set <Ref> no-reminders
-
-To change bug's subsystems, reply with:
-#syz set <Ref> subsystems: new-subsystem
-
-You may send multiple commands in a single email message.

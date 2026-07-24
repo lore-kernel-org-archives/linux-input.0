@@ -1,122 +1,123 @@
-Received: from mailgw.kylinos.cn (mailgw.kylinos.cn [124.126.103.232])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 17121394492;
-	Fri, 24 Jul 2026 09:24:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=124.126.103.232
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3BB553D954D
+	for <linux-input@vger.kernel.org>; Fri, 24 Jul 2026 09:37:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784885069; cv=none; b=ShmvdKH+d5pqYMH2D0MhoM1x9wgnqQ9N4yY5hjAGESWAPdJh8ptul+NhrWiwZ4d6GsF+RMd0glSGm/pEqveGYVKotkWS4dPUsIxlzeDIB8hJu68pE1Wamq0+nzcXE82+vOPUXbMon+hyU7VPj7vTobp0FB+1m8yxh065XfQpERY=
+	t=1784885842; cv=none; b=TP8YMPe6nwmXykjpNqexXC78OmmX78CSW1/23YpfwKj0m3j0aSk8FTKkRVBT4KW6TWlex4uxDgfhNPP+aMHu5NkzDqtNMdo/lctxME1Ib1HMxAWGoVanoA+r6QdXDrERXexEhFA9vwyc1Upx2wQqPHa+erQyL36QODh80ebwd0Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784885069; c=relaxed/simple;
-	bh=b+OIcDLdk8o57TP+rTxbw2kw5T70Jgx2V4nkkpBe1v8=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version:Content-Type; b=jyH4xYayi8jjLmkTcurJ6DMTAE6og/s1aH3GM1Djd2ieoR+vt10OLaguCOPDxmd5096wE9Vh0dpH/rg4cosPBvMJJGwTyB/y+oynzTjUirrZ06MnJtW/ohnIH3NPwaBqUGk6h2WlklZbKj7mwO8ikzBHMgQjjc4uHHKGDVEIY5c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn; spf=pass smtp.mailfrom=kylinos.cn; arc=none smtp.client-ip=124.126.103.232
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kylinos.cn
-X-UUID: ba2ba7ee874011f1aa26b74ffac11d73-20260724
-X-CID-P-RULE: Release_Ham
-X-CID-O-INFO: VERSION:1.3.12,REQID:ecb8103b-d1c1-491e-9c35-0cc8a9db6adc,IP:0,U
-	RL:0,TC:0,Content:0,EDM:0,RT:0,SF:0,FILE:0,BULK:0,RULE:Release_Ham,ACTION:
-	release,TS:0
-X-CID-META: VersionHash:e7bac3a,CLOUDID:8346bb12a24226b20e214d1f686305ee,BulkI
-	D:nil,BulkQuantity:0,Recheck:0,SF:102|850|865|898,TC:nil,Content:0|15|50,E
-	DM:-3,IP:nil,URL:0,File:nil,RT:nil,Bulk:nil,QS:nil,BEC:nil,COL:0,OSI:0,OSA
-	:0,AV:0,LES:1,SPR:NO,DKR:0,DKP:0,BRR:0,BRE:0,ARC:0
-X-CID-BVR: 2,SSN|SDN
-X-CID-BAS: 2,SSN|SDN,0,_
-X-CID-FACTOR: TF_CID_SPAM_SNR
-X-CID-RHF: D41D8CD98F00B204E9800998ECF8427E
-X-UUID: ba2ba7ee874011f1aa26b74ffac11d73-20260724
-X-User: chenchangcheng@kylinos.cn
-Received: from localhost.localdomain [(10.44.16.150)] by mailgw.kylinos.cn
-	(envelope-from <chenchangcheng@kylinos.cn>)
-	(Generic MTA with TLSv1.3 TLS_AES_256_GCM_SHA384 256/256)
-	with ESMTP id 709374669; Fri, 24 Jul 2026 17:19:09 +0800
-From: Chen Changcheng <chenchangcheng@kylinos.cn>
-To: jikos@kernel.org,
-	bentiss@kernel.org
-Cc: linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Chen Changcheng <chenchangcheng@kylinos.cn>
-Subject: [PATCH] HID: corsair: fix use-after-free by reordering remove sequence
-Date: Fri, 24 Jul 2026 17:19:06 +0800
-Message-Id: <20260724091906.240588-1-chenchangcheng@kylinos.cn>
-X-Mailer: git-send-email 2.25.1
+	s=arc-20240116; t=1784885842; c=relaxed/simple;
+	bh=uH3d5t4LCH02lLsYIqJpXg88PWrSRKA3Ys8NP2ijP78=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=VhXc9vbxyXuIz1hfHx3GBy0HOi+SHUbkSL7KwfJ4aKuJv/XIBOCJNUQaVX5ItuHhl1212Sz0DruhB7b/X9s66N4StyneL22roFvLE197VJP/LmzWVkVXrJ2aX9nTzLxG4gHzDL70+Kp7jXNwjicPzX5W5z3Eu9tk6W89+ul/nrw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=YyyLPZj5; arc=none smtp.client-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="YyyLPZj5"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A7EB1F000E9;
+	Fri, 24 Jul 2026 09:37:20 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1784885840;
+	bh=S4b8wtwZhBVdf8WXSBTqNCtjSO0j6Lo8xstSoP6RnUQ=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=YyyLPZj5JpqgTWobMdP5doc/1TvIFchxqkt7dumVRUD2uyObihHWfdqFWEqI+GKRf
+	 2XKNi8MdxhTqlLIe+ce1quaKbA5swjkWY8QTXsb+mFwSQEbZs5Fh2S+nzna5A/MNhk
+	 bXiSJiRBQ8aGHBzXys8g26ewWpZ5Rvk2r7+V0m7nHEaHLZrgw3Mnl2O/7epazQflMS
+	 VLuAJUVwoRqhbz0QHemSgFIAGhGgfEu6bopIBhfZ9RwD/S5TBu7hw7t1Mb9rZlA8IO
+	 +EqMZLdydRIRtqYHrjmy8Dc1XipzAyXuoRpKfqrFYHk9s3zlLNzl3jvUfq7KsnyCRH
+	 t/PPEXutG8TxQ==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH] HID: corsair: fix use-after-free by reordering remove
+ sequence
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Chen Changcheng" <chenchangcheng@kylinos.cn>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <20260724091906.240588-1-chenchangcheng@kylinos.cn>
+References: <20260724091906.240588-1-chenchangcheng@kylinos.cn>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Fri, 24 Jul 2026 09:37:20 +0000
+Message-Id: <20260724093720.8A7EB1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
 
-On device removal corsair_remove() currently does:
-    k90_cleanup_macro_functions()     ─┐
-        kfree(k90)                     │  k90 freed, drvdata->k90
-                                       │  is now a dangling pointer
-    k90_cleanup_backlight()            │
-    hid_hw_stop(dev)                  ─┘  HID I/O finally stopped
-The problem is that kfree happens before hid_hw_stop.  Between them,
-corsair_event() can still be invoked on another CPU:
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
 
-    CPU 0 (remove path)                  CPU 1 (USB interrupt)
-    ──────────────────                   ────────────────────
-    kfree(k90)
-                                          corsair_event()
-    ↓                                      if (!drvdata->k90)
-    ↓                                        return 0;   ← non-NULL!
-    ↓                                      drvdata->k90->record_led
-    ↓                                        .brightness = x;
-    ↓                                      ^^^^^^^^^^^^^^^^^^^^^^^^
-    ↓                                      UAF write into freed slab
-    hid_hw_stop(dev)
-      hid_disconnect()
-        clear claimed flags
-      usbhid_stop()
-        kill URBs
+Pre-existing issues:
+- [High] Pre-existing Use-After-Free race condition in k90_record_led_work =
+and k90_backlight_work.
+--
 
-The NULL check in corsair_event() is ineffective because
-k90_cleanup_macro_functions() never clears drvdata->k90 after kfree.
+--- Patch [1]: [PATCH] HID: corsair: fix use-after-free by reordering remov=
+e sequence ---
+commit 79119529f5e0e6e15e9750d9ceb51ce25886fb73
+Author: Chen Changcheng <chenchangcheng@kylinos.cn>
+Subject: HID: corsair: fix use-after-free by reordering remove sequence
 
-Fix by reordering so hid_hw_stop() runs first, eliminating the window:
-    hid_hw_stop(dev)                  ─┐  HID I/O stopped first,
-    k90_cleanup_macro_functions()      │  no more events can arrive
-    k90_cleanup_backlight()           ─┘
+This commit fixes a use-after-free in the corsair driver during device
+removal. It reorders the remove sequence to call hid_hw_stop() before
+freeing structures, preventing concurrent USB events from accessing freed
+memory. It also sets drvdata->k90 to NULL after freeing it as a defensive
+measure.
 
-Set drvdata->k90 = NULL after kfree() as a defensive measure, matching
-the existing pattern in k90_init_macro_functions()'s error path.
+> diff --git a/drivers/hid/hid-corsair.c b/drivers/hid/hid-corsair.c
+> index 21cd8b12a7572..ac12877a6db7b 100644
+> --- a/drivers/hid/hid-corsair.c
+> +++ b/drivers/hid/hid-corsair.c
 
-Signed-off-by: Chen Changcheng <chenchangcheng@kylinos.cn>
----
- drivers/hid/hid-corsair.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+[ ... ]
 
-diff --git a/drivers/hid/hid-corsair.c b/drivers/hid/hid-corsair.c
-index 21cd8b12a757..ac12877a6db7 100644
---- a/drivers/hid/hid-corsair.c
-+++ b/drivers/hid/hid-corsair.c
-@@ -545,6 +545,7 @@ static void k90_cleanup_macro_functions(struct hid_device *dev)
- 		kfree(k90->record_led.cdev.name);
- 
- 		kfree(k90);
-+		drvdata->k90 = NULL;
- 	}
- }
- 
-@@ -596,10 +597,10 @@ static int corsair_probe(struct hid_device *dev, const struct hid_device_id *id)
- 
- static void corsair_remove(struct hid_device *dev)
- {
-+	hid_hw_stop(dev);
-+
- 	k90_cleanup_macro_functions(dev);
- 	k90_cleanup_backlight(dev);
--
--	hid_hw_stop(dev);
- }
- 
- static int corsair_event(struct hid_device *dev, struct hid_field *field,
--- 
-2.25.1
+> @@ -596,10 +597,10 @@ static int corsair_probe(struct hid_device *dev, co=
+nst struct hid_device_id *id)
+> =20
+>  static void corsair_remove(struct hid_device *dev)
+>  {
+> +	hid_hw_stop(dev);
+> +
+>  	k90_cleanup_macro_functions(dev);
+>  	k90_cleanup_backlight(dev);
 
+[Severity: High]
+This is a pre-existing issue, but is there a use-after-free race between
+these cleanup functions and the LED worker threads?
+
+If a user modifies the LED brightness via sysfs, it schedules
+k90_backlight_work() or k90_record_led_work(). If the device is unplugged
+concurrently, they can race:
+
+CPU1 (Worker)
+k90_backlight_work() {
+    if (led->removed)
+        return;
+    <preempted>
+
+CPU2 (Remove)
+corsair_remove() {
+    k90_cleanup_backlight() {
+        drvdata->backlight->removed =3D true;
+        led_classdev_unregister(&drvdata->backlight->cdev);
+        // This unregisters and can free led->cdev.dev
+
+        cancel_work_sync(&drvdata->backlight->work);
+        // Blocks waiting for CPU1
+    }
+}
+
+CPU1 (Worker resumes)
+    dev =3D led->cdev.dev->parent;=20
+    // UAF dereferencing the freed led->cdev.dev
+
+Would swapping the order of led_classdev_unregister() and cancel_work_sync()
+in both cleanup functions prevent this memory corruption?
+
+> -
+> -	hid_hw_stop(dev);
+>  }
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260724091906.2405=
+88-1-chenchangcheng@kylinos.cn?part=3D1

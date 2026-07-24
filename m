@@ -1,65 +1,65 @@
-Received: from mail-pg1-f171.google.com (mail-pg1-f171.google.com [209.85.215.171])
+Received: from mail-pl1-f179.google.com (mail-pl1-f179.google.com [209.85.214.179])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5A83D36EA8D
-	for <linux-input@vger.kernel.org>; Fri, 24 Jul 2026 19:24:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.171
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B204535675E
+	for <linux-input@vger.kernel.org>; Fri, 24 Jul 2026 19:25:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.179
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784921049; cv=none; b=CXkAKFlykIWqnEg6FGDqLeX4NA52uUA60Fn+SHukjh+sJApbYXUZULRt0H9pb88JKohe8BXfJOSLEl6Ibpd5xFZdpKlslRCWXs5BA1/TqRiVj6YxAMYMtU++IZo5uVqDJ/OS0FUJ1MgCDZk/Yvjpr79Vm3lNwM4yAnElAoTOkPU=
+	t=1784921150; cv=none; b=QVyDFdFDJ1to5CuZpyByVe73SpVl8+dJK23cXxec8TkgBU9pJ2arF5wT3vcXQIR6dF2veZTcG65qaix9U9FozMOpoD/ffDaZ1qn9JdidykUqesdT9WlON23SxVNUODLgHmkETDyHyQK46M9H7a87kGiKjasRIrXupLGAW1cPnqI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784921049; c=relaxed/simple;
-	bh=hieC/kyuGvbUOouu6D2lYg+NmV0Y0CqegVgla8HlJRo=;
+	s=arc-20240116; t=1784921150; c=relaxed/simple;
+	bh=2ksqF5z1sIMNtrP1tAqgcwchwd8cY45U2teQX6Ds30I=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=qpewUXRCIJHJ1xHQzqtd8xRbXIRdZICemzVWoLrjktWovccGfex4blHG8ViwcyLsQK/kM//jQUmV5VM2hPSnnSDdBAQ0RWhgPvsOG5PsWmOTfYziGaGIiNgMQ8r0sTlJPTFKzxWIeEhKZck5WZXFCu9aHvBULPKxIuXAm+vjbrs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=qS6GaHjm; arc=none smtp.client-ip=209.85.215.171
+	 Content-Type:Content-Disposition:In-Reply-To; b=jRvSTY/BGQ4tWCyE6VZGltj6JfqjkGliIJH9wXtAgvgv/tJOUt9EpU8vIVAYg8+O09+Oy+/VgEVDdmzjBthjBlMSgfL8yOVRbSepsx1jr0hzfOmMF1uhat6EyeCSojwsqqfOQZ9zeC2uZIWDUSSPlXKgrRgZkczjrwXokeKr1+Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=U5DpW+Qj; arc=none smtp.client-ip=209.85.214.179
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="qS6GaHjm"
-Received: by mail-pg1-f171.google.com with SMTP id 41be03b00d2f7-cbb8b54fcf8so925069a12.0
-        for <linux-input@vger.kernel.org>; Fri, 24 Jul 2026 12:24:07 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="U5DpW+Qj"
+Received: by mail-pl1-f179.google.com with SMTP id d9443c01a7336-2cc7e86e7aeso9308355ad.2
+        for <linux-input@vger.kernel.org>; Fri, 24 Jul 2026 12:25:49 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784921047; x=1785525847; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1784921149; x=1785525949; darn=vger.kernel.org;
         h=in-reply-to:content-disposition:content-type:mime-version
          :references:message-id:subject:cc:to:from:date:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=wzWZ3WF1iTTyJII+h6wIVAKbIfkK/TqWCpKjALnDATk=;
-        b=qS6GaHjm+EtoF58nzoqgbIQJjCta0wGM+sc856WkYhg3KbaTl/fmLddXsedzDEHNxA
-         SF/jnMk2ESZr3MMcE/qDPRC6LQjUXYN6aYP6iNa07l+tuOFUba+ydNcs+UbvxNlhv9xE
-         9JVeIVAhTMLX5J7lZNI0EqBcIIGqjHHHmDxo6UF30/QSm+jfecKMJhVhwbi2K28tKXrr
-         tifFXagMx5aPTKwehGI+uHgd7bSbVAHu/AsmW2LSzUhvNA2bNl7XcsYOFk7l46jPGw6K
-         45sVvVdu5YlXZZUchGJcUT9IVcRZ6ogqJFizEuvH5Kq5u36lMQFok9EyERUt+1j4WAiQ
-         HBfQ==
+        bh=c0tC7vV+OGBtLj6C1dSzqQ74owp2ZWgS4CBF+5vZQqs=;
+        b=U5DpW+QjLEhqPtA+4gUme0zWGhUPsgeSIqst2Jeo+WStjwobZ4fKCeqjNNhq2XTuZs
+         jE3VHDwxCvUV5/MadJGYXMJxD1SnPUf/29Q87RU/Q6A4d/b95GjVc/SyKpZQ1+D0g8iY
+         zniCZVpX51oPFw7WKgTLGGUO1lxc+SRK2z2nISMo1doTxNnZUms5Ksa/TRqNYQf2ZclK
+         U3trorjmjVZkP/nrlmq0KymALkVquD81llgC4dPj9VYgxEtnmX4zDCS5l4HrIgYAAZjM
+         6m5MeAUXpskUg3DCncGrJpTDk6ZzM6+9wHY0vI0z+T6YLuf9a1MbH3iYFiBDe0bHyfgc
+         4bFQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784921047; x=1785525847;
+        d=1e100.net; s=20251104; t=1784921149; x=1785525949;
         h=in-reply-to:content-disposition:content-type:mime-version
          :references:message-id:subject:cc:to:from:date:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=wzWZ3WF1iTTyJII+h6wIVAKbIfkK/TqWCpKjALnDATk=;
-        b=UjOPpyCT5mFT9Zb2iZspYFqrV1MRUdC/PwLVhmQeD/QG8TBX0xkUpRhHr1Iyw3d/Ft
-         AAqaHtfvg9mpj8kv06O9mzoFqx/loN5HUtjCRC2kSzlbpKTMce00Go6r3nn2OcfD6P1X
-         QNrmKqxSarX0yt1VMb0Ve8uReGU5Nzq1z0y6r/XeHDnZq2gGd+ZGLpLglTIXSHedeO2U
-         yI+WKjK2L5sEa6ESsvlj8xXXbTVvceQnXFUluLbpY/ZFgKvyVPG1eQbH7SgswT38qian
-         JYLkHbwH7+fHBZF+QQAEqGFjA/dBl7vT37EyZmnnRdLMkr7foprw3D6u9Ad7/Dtl7CrN
-         vziQ==
-X-Forwarded-Encrypted: i=1; AHgh+RoiY8lCI+LszNPnGEMyXrAKHNMs+RnjzZLx/yC0cAlf/BtkADT7pMY5qWjDZ4H+trwg4Bl3ibTlg4fbAA==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yy2VOJSwauNrkcbDyAqrN9I2m1h+nWGGCjqxkJ4m6z22B94YOma
-	QTQkPYZMKWs+dLP9YHtoyGGD9+HE7qPQtaeiM/Ge+AxIAjGsfeLqme1v
-X-Gm-Gg: AR+sD12tdiIlkKUkwWyQLajIZyuXkxIq+w0v+wMEDPAM88gZd3braVMUdtqg0Csqpwn
-	Vax6uyYrkrDDa9Y4mJ35Fajvrcy8V4oI+q8aqI+WZvyNoHe+Ia8pbblc/AD/S8om2/Bgt4qVShN
-	pB5/RuLQGUEAEN3mmF70b4xl5OF2dPgrFwQYD2XLCOCtutjYRt+VvfrIu5TiEWqU6ZernQhH8yz
-	JAFmXJMzcZ5Bgv3D06DCdVcLYuk1B+LmOhBTZulBDthvu4aYvFm+P34D4cOwSBRaOskv22I/50Z
-	aKRqEwfU5Arg5plWPVUmduurbXwVYcSWBmC0xMZNPsHWJElBP8tUx5iRyd4FvAoKmToc5W27pdx
-	6JjPmeZVOs3tfemMo1OA8HaH2HR/+GVbqTPP0Mw7zH/HU8PL4axRWnG0Cu8wk15oJJQ6nqD57l8
-	4PimSwP5nOPlRyhwDHydUdTcWw4XCwj0mroIFR8+FVCv8ugteSiiWuzQ==
-X-Received: by 2002:a05:6300:408a:b0:3c3:a3fd:db0a with SMTP id adf61e73a8af0-3c44afda117mr9145039637.16.1784921046575;
-        Fri, 24 Jul 2026 12:24:06 -0700 (PDT)
+        bh=c0tC7vV+OGBtLj6C1dSzqQ74owp2ZWgS4CBF+5vZQqs=;
+        b=Cm5bL3s5yfldjou2OK0EO/YWlYzy2u8rBxK7E5q1vNpwT33YErGUhhNiBY1azf9Z3l
+         6xK0BC6YtO1MYvyP2R5ywZ32Au2OPkyynOiAJW41XG355wl6TPsOssMh0wgTCJa5o0rO
+         s0sQpZWlMgBW93Poj8lj3GRyiCf+kLWjjmpTPg99KjtRFVcP8oEv9PEo9FZmm3mUj8H7
+         GlEKOIYscv2nFH5izxmENEPsP6eR3JHq7Lh0I8oYUadTK7ihgj2tdosWekqsxqGfj3cK
+         aYVt8vzMQ4KFPfVeNHyKfZDDJFi8g3inSvxm/BtPnbHA7ljXbyd/6o8hXb7gKPcflnzK
+         M/4A==
+X-Forwarded-Encrypted: i=1; AHgh+Rq1J+V6O2TWYZaeDb9PL5ZAVdUnZMGb3Mf6gsxYYc3g51t23kao3nqrnXJqY9b8fSDArT2PAu2fA5Y0Hg==@vger.kernel.org
+X-Gm-Message-State: AOJu0YyYOcN2xxaoBhnP5zT4R3tmjwrKR+Ycgt/Ou4iojGSwlv9OBq2Z
+	WEVrv/W9HrQD7I2c0aaXJkEADdvvcV8oHB+a7B2bvchNGseAW+8ucf9Z
+X-Gm-Gg: AR+sD10WmunReTmfJ+LvPgAJj8hIjIb/2rbvAUnaOTeBgBz23RpkGN2KulA7OzChtx8
+	zA8JxEUbKJidwTudlxsjyseFxUX8g8hN9UdSYSHXG1aRoO+ETkvpq+hA5Ms/Qem6zX5jbRDgLgE
+	0/OoWR4vnvJIVL3w8vY3+U+8smwZy1FvXXsF21+oIAYEawSLnf4N9usYQizMp0GcaUHFDhbH9y5
+	ygz0d+r5qXV3zvQQIdtXs5bERDM4wnTAjUEm1pZSZ7looOqox5EZgKl568jna6p/c255ogQBf66
+	qGiuMvCE9NBrNxlfwTCp9en4ncQH05qmosNEtjH2hyCicZFNlkgwn8MkJsz8+eywdsvISnLLAPn
+	dvCUM2DE1pc3RNVtztve9nwTmJuSmrWsWkxpYN5/+C1WNIK0OmsPIra+XxmF7oGybYZgpZF2Qn7
+	vNWpG3fYvwlxQT5iMlWLW1liO1F8s8ktGL0AN3cC+/FKE=
+X-Received: by 2002:a17:902:d491:b0:2c2:62ee:5a0d with SMTP id d9443c01a7336-2cfa6b77547mr101121265ad.14.1784921148827;
+        Fri, 24 Jul 2026 12:25:48 -0700 (PDT)
 Received: from google.com ([2a00:79e0:2ebe:8:40e1:40e4:dabe:543e])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-314bc3e127asm3436937eec.2.2026.07.24.12.24.04
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-314bc579127sm1679206eec.21.2026.07.24.12.25.47
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 24 Jul 2026 12:24:05 -0700 (PDT)
-Date: Fri, 24 Jul 2026 12:24:01 -0700
+        Fri, 24 Jul 2026 12:25:48 -0700 (PDT)
+Date: Fri, 24 Jul 2026 12:25:45 -0700
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 To: Kaustabh Chakraborty <kauschluss@disroot.org>
 Cc: Rob Herring <robh@kernel.org>, 
@@ -68,10 +68,10 @@ Cc: Rob Herring <robh@kernel.org>,
 	Peter Griffin <peter.griffin@linaro.org>, Alim Akhtar <alim.akhtar@samsung.com>, 
 	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, 
 	linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org
-Subject: Re: [PATCH 2/5] Input: zinitix - do not ignore non-moving fingers
-Message-ID: <amO1AWyjGltjO0lZ@google.com>
+Subject: Re: [PATCH 3/5] Input: zinitix - add support for modes 0 and 1
+Message-ID: <amO7_sEL0hknUGO5@google.com>
 References: <20260724-zinitix-modes-v1-0-f6df7d86a878@disroot.org>
- <20260724-zinitix-modes-v1-2-f6df7d86a878@disroot.org>
+ <20260724-zinitix-modes-v1-3-f6df7d86a878@disroot.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -80,57 +80,41 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260724-zinitix-modes-v1-2-f6df7d86a878@disroot.org>
+In-Reply-To: <20260724-zinitix-modes-v1-3-f6df7d86a878@disroot.org>
 
 Hi Kaustabh,
 
-On Fri, Jul 24, 2026 at 12:54:04AM +0530, Kaustabh Chakraborty wrote:
-> With the ZT7548 touchscreen present in the Galaxy J6, multitouch does not
-> work reliably. This is due to the fact that the driver reports fingers
-> only when their state is changed, so it's either placed against the
-> scren, moved, or drawn away from the screen.
+On Fri, Jul 24, 2026 at 12:54:05AM +0530, Kaustabh Chakraborty wrote:
+> Zinitix touchscreens have three modes, numbered 0 to 2. The driver
+> implements mode 2, and leaves out modes 0 and 1. The difference in the
+> touchscreen modes is the schema of the event data.
 > 
-> The function which is responsible for this is zinitix_report_finger().
-> This function is called from the IRQ handler, under the following
-> condition:
-> 
-> 		if (p->sub_status & SUB_BIT_EXIST)
-> 			zinitix_report_finger(bt541, i, p);
-> 
-> This implies and ensures that every valid finger must have the
-> SUB_BIT_EXIST flag.
-> 
-> However, at the beginning of the function, it refuses to recognize any
-> finger if it has none of SUB_BIT_UP | SUB_BIT_DOWN | SUB_BIT_MOVE. This
-> excludes fingers in reports which do not move from the position since
-> the previous interrupt. Add SUB_BIT_EXIST to the list of valid bits.
-
-This makes the check basically a no-op as SUB_BIT_EXIST would always be
-set when we reach this function. It may very well be that we want to
-delete this check altogether, or maybe we need to add SUB_BIT_UPDATE and
-SUB_BIT_WAIT. I am curious what status bits you see when this condition
-(original) triggers for you...
-
+> Implement modes 0 and 1 in the driver, along with their event structs.
+> Maintain a common, canonical event struct which is to be the superset of
+> the mode-specific structs. With that, introduce functions to convert the
+> mode event info to the canonical format.
 > 
 > Signed-off-by: Kaustabh Chakraborty <kauschluss@disroot.org>
 > ---
->  drivers/input/touchscreen/zinitix.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/input/touchscreen/zinitix.c b/drivers/input/touchscreen/zinitix.c
-> index 3421b8ffb19b..fdcb80f52c91 100644
-> --- a/drivers/input/touchscreen/zinitix.c
-> +++ b/drivers/input/touchscreen/zinitix.c
-> @@ -406,7 +406,7 @@ static void zinitix_report_finger(struct bt541_ts_data *bt541, int slot,
->  	u16 x, y;
->  
->  	if (unlikely(!(p->sub_status &
-> -		       (SUB_BIT_UP | SUB_BIT_DOWN | SUB_BIT_MOVE)))) {
-> +		       (SUB_BIT_EXIST | SUB_BIT_UP | SUB_BIT_DOWN | SUB_BIT_MOVE)))) {
->  		dev_dbg(&bt541->client->dev, "unknown finger event %#02x\n",
->  			p->sub_status);
->  		return;
-> 
+...
+
+> +static int zinitix_read_point_status(struct bt541_ts_data *bt541,
+> +				     struct touch_event *event)
+> +{
+> +	switch (bt541->zinitix_mode) {
+> +	case 0:
+> +		return zinitix_read_point_status_mode0(bt541, event);
+> +	case 1:
+> +		return zinitix_read_point_status_mode1(bt541, event);
+> +	case 2:
+> +		return zinitix_read_point_status_mode2(bt541, event);
+> +	default:
+> +		dev_err(&bt541->client->dev, "Mode %d is unsupported\n",
+> +			bt541->zinitix_mode);
+> +		return -EINVAL;
+
+Instead of a switch this can be a pointer to "read status" function.
+
 
 Thanks.
 

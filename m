@@ -1,37 +1,38 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F038734B682;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F05574483A2;
 	Fri, 24 Jul 2026 17:14:34 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784913275; cv=none; b=jN56WRBZVInYCylpRDFVLWyCKrbRufc6k48FoZF0PJJ91UOJ8ZEtzlyczVpn+WX1y0c5tQBwyGIAljA7gKF3ys+R5d+rSoYiA3xIW8nMGEbs+49FthhOKWm6pLzClDYSwd/6c4eZ6gE79/u4fuI0xiGf853MQ/NPY4gWQ1I76wo=
+	t=1784913275; cv=none; b=Ip4L3/9bAqJkNnPzgXc6foDGMALN3VidiQ2L+u3ydLsPd4ASXr6CcEczhuv0UYywhl8lRDmkFEbUPwSCswbVgOv0vAA0J/VxzanWG1sMX12H7NHRejhZ08E7Hr+p/jiTv5cZgm/1MFfaX46wycjbkISQdMzJ/ehTOZChc9jLdRE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1784913275; c=relaxed/simple;
-	bh=VLmbC918n56zU5M7ig+ixBQFXWMbfyQwjpWwHo+6GOk=;
-	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=Bmc1tKhL1FCWk1MxGamQaHIYt/QbOc8ptD2u0Gc97Fu5CXkrNxPWhDCBYT8KJX0NFxgr6pDhAzXE4uwl0vJSOaoYiSn3tDJK3CZqQWFp5RvsdAp1TvA8rvtjlstzr3ILi+g+sCi2axBbvcVqKSziBOpHo+sCHReAo0aC0LwupFg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=JaeIIs93; arc=none smtp.client-ip=10.30.226.201
+	bh=6Sz2TNn5Fm2jH5hN5O393rqL3ELIe9HYZv5EDmHdF5k=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=aTxW+KEweqo4cg6LHjPLsjQxoADfm6SQ5wlX6M6IWlmC+lmkpYZxg6Dd1cw8IAtmJxVkxBlAOI13gojTiVkjGFxQuLnCNpvGLmuFTCL5FEGmPYrgbOLNr2NG17c7eLg5jAIasaf7l8vB+7dEsW8wrs8UjrqADTikYBXTzMHUvb8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=FbujzISk; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="JaeIIs93"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 8DDA8C19425;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="FbujzISk"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 9A5E2C2BCC6;
 	Fri, 24 Jul 2026 17:14:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
 	s=k20201202; t=1784913274;
-	bh=VLmbC918n56zU5M7ig+ixBQFXWMbfyQwjpWwHo+6GOk=;
-	h=From:Subject:Date:To:Cc:Reply-To:From;
-	b=JaeIIs93PyeKnhpT9KwV+IUWpZlWHaM/PuF1ZwhBhLuLVd1mb4hDK/FBs8wZrnezv
-	 2Er/FhCQ8z4SYNb2Laap0VhK7VnK8ORVsyWAqLyiejrld1HjbSIKIzE2YFK3mOsp9o
-	 m1nfLjM1fD4JXOg8ZI+tOgtazae8R/gwOmVbq2/d5tSXConflsMFzBQTm9m3JWhbFh
-	 7k430IctxhgpwC+hJSwew2/BD1L5wmzHSb/M3CYc3c6d57vfkFpHi2cn55D8uVxUQM
-	 1Yx8his63KeC4fT15yl8nWesKZaPwvbsqQFf+5onDcnQ3s1sHoVXsNkHJh5xsLyWgt
-	 FyfKbGV/rkTqA==
+	bh=6Sz2TNn5Fm2jH5hN5O393rqL3ELIe9HYZv5EDmHdF5k=;
+	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
+	b=FbujzISkiUj8/hCs7ekCtJx/4PhkgrfE6UgKuUk+eDFAwBsplVTopUIhUbRQLzz4f
+	 SZIqOrod3TSrjjGUQF6OnfXU1LwYYc1gLtaL0O9o9MPJAD3ioDuuG3KHFiOqY6Zc9w
+	 Igox8c6xKRjua2dyNv4+hWOS+It2B8iyMk6KuyHhRIOXR/HkQmmC74T+l9ojwXUNJ9
+	 hzITUkRxVdnHLEIdIIEKgWh+d57kayS+7FzjFItd2gkLp9TG9RHfHXsBRiI76dvrkW
+	 ISFVWiBoq0YR6+hqnpXi4IzDUR/q5Vv22V551eCJQHT8Rlz1TD4oLcxbIk8/mMWVC9
+	 +xZOqAmfA703A==
 Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 67CA8C531F9;
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 787B9C531C9;
 	Fri, 24 Jul 2026 17:14:34 +0000 (UTC)
 From: Sanjay Chitroda via B4 Relay <devnull+sanjayembeddedse.gmail.com@kernel.org>
-Subject: [PATCH 0/2] HID: iio: gyro: hid-sensor-gyro-3d: probe cleanup
-Date: Fri, 24 Jul 2026 22:44:29 +0530
-Message-Id: <20260724-24-july-hid-gyro-dev-log-clenaup-v1-0-0c932b77104a@gmail.com>
+Date: Fri, 24 Jul 2026 22:44:30 +0530
+Subject: [PATCH 1/2] iio: gyro: hid-sensor-gyro-3d: Remove redundant
+ dev_err()
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -40,10 +41,9 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-B4-Tracking: v=1; b=H4sIAHWdY2oC/yXNQQ6DIBCF4auYWTuJpWCtV2m6sDDFMQQMFFNjv
- HupJm/zbf63QaLIlKCvNoi0cOLgCy51BXocvCVkUwyiEW1zExLLpuxWHNmgXWNAQwu6YFE78kO
- eUXadukoS6t4qKJk50pu/x8XjeTrl10T68+/Cvv8Ayi8fLoQAAAA=
-X-Change-ID: 20260724-24-july-hid-gyro-dev-log-clenaup-488534e25965
+Message-Id: <20260724-24-july-hid-gyro-dev-log-clenaup-v1-1-0c932b77104a@gmail.com>
+References: <20260724-24-july-hid-gyro-dev-log-clenaup-v1-0-0c932b77104a@gmail.com>
+In-Reply-To: <20260724-24-july-hid-gyro-dev-log-clenaup-v1-0-0c932b77104a@gmail.com>
 To: Jiri Kosina <jikos@kernel.org>, Jonathan Cameron <jic23@kernel.org>, 
  Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, 
  David Lechner <dlechner@baylibre.com>, 
@@ -52,11 +52,11 @@ To: Jiri Kosina <jikos@kernel.org>, Jonathan Cameron <jic23@kernel.org>,
 Cc: linux-input@vger.kernel.org, linux-iio@vger.kernel.org, 
  linux-kernel@vger.kernel.org, Sanjay Chitroda <sanjayembeddedse@gmail.com>
 X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1784913273; l=753;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1784913273; l=1958;
  i=sanjayembeddedse@gmail.com; s=20260702; h=from:subject:message-id;
- bh=VLmbC918n56zU5M7ig+ixBQFXWMbfyQwjpWwHo+6GOk=;
- b=KcqKL2wXwE3y3Vm2P5JHnSR3tQP9UOLP7s6WOkdFmhb4Ah9nqWFVe6EzsBTYKO++vlbZi13Sv
- gUFEZWiaOSUDtFBZNfaRciSk0ZeUx0U4jYOco7QDFH3EPHj5CrNxqau
+ bh=zMheGuuc4vF/gP/k9/MKUw8lThFAAyDdy4zzifP2AP8=;
+ b=ivOd+yNZ9AFoKse8Muhv49b1pDBz0c4KekVlJcmhqydOryAaUmGJaBKyxqHzn9acVkK9XtC7j
+ fsLruF/8K28DgpA16Dt+OrofakH5N5yObfu7GiHFnjahVoJ4D4Pp70/
 X-Developer-Key: i=sanjayembeddedse@gmail.com; a=ed25519;
  pk=PcneEFtkmY+Ldl+KmOTpB/Q/HDsqko6Fb0/Z/5cuycI=
 X-Endpoint-Received: by B4 Relay for sanjayembeddedse@gmail.com/20260702
@@ -64,28 +64,67 @@ X-Endpoint-Received: by B4 Relay for sanjayembeddedse@gmail.com/20260702
 X-Original-From: Sanjay Chitroda <sanjayembeddedse@gmail.com>
 Reply-To: sanjayembeddedse@gmail.com
 
-Hi all,
+From: Sanjay Chitroda <sanjayembeddedse@gmail.com>
 
-This series cleans up probe error handling in the hid-sensor-gyro-3d
-driver by removing redundant dev_err() calls and replacing remaining
-dev_err() with dev_err_probe() to simplify error handling.
+Respective APIs used during probe setup already emit detailed error
+messages or return appropriate standard error codes on failure.
 
-Testing:
- - Compiled with W=1 for each patch in series
+Remove the redundant/dead driver-specific dev_err() calls to avoid
+duplicate error reporting.
 
+Signed-off-by: Sanjay Chitroda <sanjayembeddedse@gmail.com>
 ---
-Sanjay Chitroda (2):
-      iio: gyro: hid-sensor-gyro-3d: Remove redundant dev_err()
-      iio: gyro: hid-sensor-gyro-3d: Use dev_err_probe()
+ drivers/iio/gyro/hid-sensor-gyro-3d.c | 16 ++++------------
+ 1 file changed, 4 insertions(+), 12 deletions(-)
 
- drivers/iio/gyro/hid-sensor-gyro-3d.c | 35 ++++++++++++-----------------------
- 1 file changed, 12 insertions(+), 23 deletions(-)
----
-base-commit: 36c12dbda81c284d72f3c64689461647497b643b
-change-id: 20260724-24-july-hid-gyro-dev-log-clenaup-488534e25965
+diff --git a/drivers/iio/gyro/hid-sensor-gyro-3d.c b/drivers/iio/gyro/hid-sensor-gyro-3d.c
+index 58250a972567..bcf53e267701 100644
+--- a/drivers/iio/gyro/hid-sensor-gyro-3d.c
++++ b/drivers/iio/gyro/hid-sensor-gyro-3d.c
+@@ -291,10 +291,8 @@ static int hid_gyro_3d_probe(struct platform_device *pdev)
+ 
+ 	indio_dev->channels = devm_kmemdup(&pdev->dev, gyro_3d_channels,
+ 					   sizeof(gyro_3d_channels), GFP_KERNEL);
+-	if (!indio_dev->channels) {
+-		dev_err(&pdev->dev, "failed to duplicate channels\n");
++	if (!indio_dev->channels)
+ 		return -ENOMEM;
+-	}
+ 
+ 	ret = gyro_3d_parse_report(pdev, hsdev,
+ 				   (struct iio_chan_spec *)indio_dev->channels,
+@@ -313,26 +311,20 @@ static int hid_gyro_3d_probe(struct platform_device *pdev)
+ 
+ 	ret = hid_sensor_setup_trigger(indio_dev, name,
+ 				       &gyro_state->common_attributes);
+-	if (ret < 0) {
+-		dev_err(&pdev->dev, "trigger setup failed\n");
++	if (ret < 0)
+ 		return ret;
+-	}
+ 
+ 	gyro_state->callbacks.send_event = gyro_3d_proc_event;
+ 	gyro_state->callbacks.capture_sample = gyro_3d_capture_sample;
+ 	gyro_state->callbacks.pdev = pdev;
+ 	ret = sensor_hub_register_callback(hsdev, HID_USAGE_SENSOR_GYRO_3D,
+ 					   &gyro_state->callbacks);
+-	if (ret < 0) {
+-		dev_err(&pdev->dev, "callback reg failed\n");
++	if (ret < 0)
+ 		goto error_remove_trigger;
+-	}
+ 
+ 	ret = iio_device_register(indio_dev);
+-	if (ret) {
+-		dev_err(&pdev->dev, "device register failed\n");
++	if (ret)
+ 		goto error_remove_callback;
+-	}
+ 
+ 	return ret;
+ 
 
-Best regards,
---  
-Sanjay Chitroda <sanjayembeddedse@gmail.com>
+-- 
+2.34.1
 
 

@@ -1,130 +1,155 @@
-Received: from mail-m49198.qiye.163.com (mail-m49198.qiye.163.com [45.254.49.198])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3BA64432E97;
-	Fri, 24 Jul 2026 15:13:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.254.49.198
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 89EBC34E766
+	for <linux-input@vger.kernel.org>; Fri, 24 Jul 2026 15:28:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784906017; cv=none; b=D8U1AIy7gjFJ8ubzCvBUuwO3caua9edc1uacbUPjCUmj3OK4GcmafAkoUkYlTItH+tXTBlQqp5Yb/KHQ8LIbZJTxYPU0BhzXZzSSMS7bbYDKK+qkXNPDF+hpq3rQ0uP4eYGHbpKo0UuAeRxQbyuOoV5eMHzzoNOt/RQS7006ujo=
+	t=1784906896; cv=none; b=K94LN5MjppTehJNNV3j22D71nydL3Fkt1D5AgKhrxoBYo9U3FSJbCsnv+3dcHAyfUte2oZSuSaCKjZe2ysPYqhVRUWMx6kenP+6RrDQNH3KoKl+HwNmrwdGmUW/xtCt3/d3D9+jQssDZGu73d3zd/mYg+6y8jg+jjt5LDuyk+QQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784906017; c=relaxed/simple;
-	bh=HPUpxtCxpINYLEfuU25Z3pvyKyTLddcc+SYmp5XtriM=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=eCFMvuNjF/TohkKrENeSROKHW4jaOsxHFWnIT+x52XyGwL0dcKa9I4vid6rarA74EjO0H21TZvwaOhv4NNyds72XSkmw0T3QXvZnIUz1Gu+fxq9arqgoKC5emCuC9EgzKGOb3WVkRuwEdDml92d13kchjGY8xUgJNuPBiJ8Y/6c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=seu.edu.cn; spf=pass smtp.mailfrom=seu.edu.cn; dkim=pass (1024-bit key) header.d=seu.edu.cn header.i=@seu.edu.cn header.b=cpuyvyEI; arc=none smtp.client-ip=45.254.49.198
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=seu.edu.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=seu.edu.cn
+	s=arc-20240116; t=1784906896; c=relaxed/simple;
+	bh=n6/PG5bwM+YlrlAq3lV/lguTFNPTIkn3fTKCx6tehVQ=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=PXWEfVHCk1tZ9PEll8GK4SxMSPLS0r1tsnAVQaSRD61blzajsZIeeOKVHAoW9hkwXPpeDm1OOvrRTG5fvhE2Z2Jig2wEOq+KGgfIQ+Zhi81omD3Y5g5ojtWYRcasCdOpvVYe9n90yqUlr9DVEcrASmPHqTizcR9jcAj07Df6jME=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=d9GpTTZh; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=seu.edu.cn header.i=@seu.edu.cn header.b="cpuyvyEI"
-Received: from ShouCheng-Lab.localdomain (unknown [218.2.107.243])
-	by smtp.qiye.163.com (Hmail) with ESMTP id 477b224c2;
-	Fri, 24 Jul 2026 23:13:25 +0800 (GMT+08:00)
-From: Jiancheng Huang <jchuang@seu.edu.cn>
-To: Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>
-Cc: linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH v2] HID: lg4ff: validate report length before fixed offsets
-Date: Fri, 24 Jul 2026 23:13:17 +0800
-Message-ID: <20260724151317.1419574-1-jchuang@seu.edu.cn>
-X-Mailer: git-send-email 2.43.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="d9GpTTZh"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 270111F00A3A;
+	Fri, 24 Jul 2026 15:28:15 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1784906895;
+	bh=wFC088VIqC5Leq8MudYiNL0wSu0TkEXx04u29pt0NXc=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=d9GpTTZhm33CTXAYfrQ0qidOpqbc/pSD6OrDsKz8dlGLBjtdytYBq4WL94qX5MJwQ
+	 PZQJeI9FjVC2A01ibYp4GMGVAQptQWpFbq2EjAaiRFnb7Sd1sSDacbwWGxpWb/iIA2
+	 gRhvzdogwHZcM2vHTTS2LTG4eSkmKk56njYb29Rpuw8KaH4dxY8kaNvS/Y024pOl3f
+	 4isAmkau/vXiA6iLMTKAeW+YLSAiAz8PFYKLVlgVoOG/prgH6KcPfworSETWIiqB/t
+	 cAPv9/ApQj1I2bCZY4bO8G9dQgvI7OCwkZOmh7CulDw+o9mWpn6OHLKYNG9IMUOxWG
+	 U6/qaZepUqRHw==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v2] HID: lg4ff: validate report length before fixed
+ offsets
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Jiancheng Huang" <jchuang@seu.edu.cn>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20260724151317.1419574-1-jchuang@seu.edu.cn>
+References: <20260724151317.1419574-1-jchuang@seu.edu.cn>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Fri, 24 Jul 2026 15:28:14 +0000
+Message-Id: <20260724152815.270111F00A3A@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-HM-Tid: 0a9f94b03a2f03a2kunm63b44f9445778
-X-HM-MType: 10
-X-HM-Spam-Status: e1kfGhgUHx5ZQUpXWQgPGg8OCBgUHx5ZQUlOS1dZFg8aDwILHllBWSg2Ly
-	tZV1koWUFITzdXWRgWCB1ZQUpXWS1ZQUlXWQ8JGhUIEh9ZQVlCTk5LVh5PSh1DSk5MSE0ZGFYeHw
-	5VEwETFhoSFyQUDg9ZV1kYEgtZQVlJSkNVSVVKS0xVSU9IWVdZFhoPEhUdFFlBWU9LSFVKS0hKTk
-	xOVUpLS1VKQktLWQY+
-DKIM-Signature: a=rsa-sha256;
-	b=cpuyvyEIGOt8mYGF/uouhrbjJGm4F5/ciu1ojaUnOYdxj4ZS5iPnLzxTTezhQbOoDUhLySSkhRsOEHXlKXuKX015W6N0DNM5ALcirY0pJ9j/UXKX3VLwkxwCHlpwN74iI+U8w3mdQLgVLmh1poXsFK23HGa4YNKWhFz7K2aimKI=; s=default; c=relaxed/relaxed; d=seu.edu.cn; v=1;
-	bh=mfjyetoRQcuQJG/GPiFFBwofwgVMAPECP+RHTGK4/Tg=;
-	h=date:mime-version:subject:message-id:from;
 
+Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+s) to consider:
+
+Pre-existing issues:
+- [High] Force feedback is initialized on the input device after it has alr=
+eady been registered and made visible to userspace, violating input subsyst=
+em initialization order.
+- [High] Use-after-free of the lg4ff device properties (`entry`) during dev=
+ice removal or probe failure, as the properties are freed before hardware I=
+/O and input devices are fully unregistered.
+- [Low] Data race on `entry->wdata.combine` between sysfs store and interru=
+pt context raw event handler.
+--
+
+--- Patch [1]: [PATCH v2] HID: lg4ff: validate report length before fixed o=
+ffsets ---
+commit 64ee3d21ef774099318a4223423dc4d5d4eac310
+Author: Jiancheng Huang <jchuang@seu.edu.cn>
+
+HID: lg4ff: validate report length before fixed offsets
+   =20
 lg4ff_raw_event() rewrites fixed report offsets when combined pedals are
 enabled. It currently assumes that each product report contains every
 source and destination byte used by the rewrite.
-
+   =20
 Return without rewriting a short report before each product-specific
 access. Apply the same bound to the computed offset path.
 
-Fixes: c832f86effbc ("HID: hid-logitech: Add combined pedal support Logitech wheels")
-Signed-off-by: Jiancheng Huang <jchuang@seu.edu.cn>
-Assisted-by: Codex:gpt-5.6-luna
----
-Changes in v2:
-- Add the relevant public mailing lists to Cc; no source changes.
 
-Evidence (v7.2-rc4 KUnit/KASAN oracle under bounded QEMU):
-Source: confirmed/hid_lg4ff_short_report_oob_raw_excerpt.log
+[Severity: High]
+This isn't a bug introduced by this patch, but force feedback is initialize=
+d on
+the input device after it has already been registered.
 
-[    2.638792] KTAP version 1
-[    2.638888] 1..1
-[    2.641100]     KTAP version 1
-[    2.641235]     # Subtest: hid-lg4ff-exploration
-[    2.641784]     # module: hid_logitech
-[    2.641962]     1..1
-[    2.644581] ==================================================================
-[    2.645008] BUG: KASAN: slab-out-of-bounds in lg4ff_raw_event+0x2fd/0x410
-[    2.645369] Read of size 1 at addr ffff88800229fc63 by task kunit_try_catch/67
-[    2.645369] 
-[    2.645369] CPU: 1 UID: 0 PID: 67 Comm: kunit_try_catch Tainted: G                 N  7.2.0-rc4-dirty #3 PREEMPT(full) 
-[    2.645369] Tainted: [N]=TEST
-[    2.645369] Hardware name: QEMU Ubuntu 24.04 PC v2 (i440FX + PIIX, arch_caps fix, 1996), BIOS 1.16.3-debian-1.16.3-2 04/01/2014
-[    2.645369] Call Trace:
-[    2.645369]  <TASK>
-[    2.645369]  dump_stack_lvl+0x53/0x70
-[    2.645369]  print_report+0xd0/0x630
-[    2.645369]  ? __pfx__raw_spin_lock_irqsave+0x10/0x10
-[    2.645369]  ? lg4ff_raw_event+0x2fd/0x410
-[    2.645369]  kasan_report+0xe5/0x120
-[    2.645369]  ? lg4ff_raw_event+0x2fd/0x410
-[    2.645369]  lg4ff_raw_event+0x2fd/0x410
-[    2.645369]  lg4ff_short_report_oob_test+0x14e/0x250
+Looking at drivers/hid/hid-lg.c, lg_probe() registers the input device befo=
+re
+force feedback capabilities are set up:
 
- drivers/hid/hid-lg4ff.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+drivers/hid/hid-lg.c:lg_probe() {
+    ...
+	ret =3D hid_hw_start(hdev, connect_mask);
+    ...
+	if (drv_data->quirks & LG_FF4)
+		ret =3D lg4ff_init(hdev);
+    ...
+}
 
-diff --git a/drivers/hid/hid-lg4ff.c b/drivers/hid/hid-lg4ff.c
-index e901fdb7d..62f99a932 100644
---- a/drivers/hid/hid-lg4ff.c
-+++ b/drivers/hid/hid-lg4ff.c
-@@ -336,6 +336,8 @@ int lg4ff_raw_event(struct hid_device *hdev, struct hid_report *report,
- 	if (entry->wdata.combine) {
- 		switch (entry->wdata.product_id) {
- 		case USB_DEVICE_ID_LOGITECH_WHEEL:
-+			if (size < 7)
-+				return 0;
- 			rd[5] = rd[3];
- 			rd[6] = 0x7F;
- 			return 1;
-@@ -343,10 +345,14 @@ int lg4ff_raw_event(struct hid_device *hdev, struct hid_report *report,
- 		case USB_DEVICE_ID_LOGITECH_WINGMAN_FFG:
- 		case USB_DEVICE_ID_LOGITECH_MOMO_WHEEL:
- 		case USB_DEVICE_ID_LOGITECH_MOMO_WHEEL2:
-+			if (size < 6)
-+				return 0;
- 			rd[4] = rd[3];
- 			rd[5] = 0x7F;
- 			return 1;
- 		case USB_DEVICE_ID_LOGITECH_DFP_WHEEL:
-+			if (size < 7)
-+				return 0;
- 			rd[5] = rd[4];
- 			rd[6] = 0x7F;
- 			return 1;
-@@ -366,6 +372,8 @@ int lg4ff_raw_event(struct hid_device *hdev, struct hid_report *report,
- 		}
- 
- 		/* Compute a combined axis when wheel does not supply it */
-+		if (size <= offset + 1)
-+			return 0;
- 		rd[offset] = (0xFF + rd[offset] - rd[offset+1]) >> 1;
- 		rd[offset+1] = 0x7F;
- 		return 1;
--- 
-2.43.0
+Because hid_hw_start() exposes the device to userspace, could userspace (e.=
+g.
+udev, games) open the device and observe an incomplete capability set before
+lg4ff_init() modifies dev->ffbit and installs the FF callbacks?
+
+
+[Severity: High]
+This is a pre-existing issue, but is there a use-after-free risk for the lg=
+4ff
+device properties during device removal?
+
+In drivers/hid/hid-lg.c, the device properties are freed before hardware I/O
+and input devices are fully unregistered:
+
+drivers/hid/hid-lg.c:lg_remove() {
+	struct lg_drv_data *drv_data =3D hid_get_drvdata(hdev);
+	if (drv_data->quirks & LG_FF4)
+		lg4ff_deinit(hdev);
+	hid_hw_stop(hdev);
+	kfree(drv_data);
+}
+
+Since lg4ff_deinit() sets drv_data->device_props =3D NULL and frees the ent=
+ry,
+if an interrupt fires before hid_hw_stop() executes, could lg4ff_raw_event()
+cache the entry pointer just before it is freed, leading to a use-after-fre=
+e?
+
+Additionally, could lg4ff_play() be concurrently invoked via userspace ioctl
+while the input device is still registered, resulting in a similar
+use-after-free?
+
+
+> diff --git a/drivers/hid/hid-lg4ff.c b/drivers/hid/hid-lg4ff.c
+> index e901fdb7d033c..62f99a93210c9 100644
+> --- a/drivers/hid/hid-lg4ff.c
+> +++ b/drivers/hid/hid-lg4ff.c
+> @@ -336,6 +336,8 @@ int lg4ff_raw_event(struct hid_device *hdev, struct h=
+id_report *report,
+>  	if (entry->wdata.combine) {
+
+[Severity: Low]
+This is a pre-existing issue, but does reading entry->wdata.combine from
+interrupt context without locks or READ_ONCE() introduce a data race?
+
+The sysfs store function (lg4ff_combine_store) writes to this shared boolean
+state without locks or WRITE_ONCE(). Could this lead to a transient read of=
+ an
+inconsistent state if a user writes to the sysfs node while the device is
+actively sending events?
+
+>  		switch (entry->wdata.product_id) {
+>  		case USB_DEVICE_ID_LOGITECH_WHEEL:
+> +			if (size < 7)
+> +				return 0;
+>  			rd[5] =3D rd[3];
+
+[ ... ]
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260724151317.1419=
+574-1-jchuang@seu.edu.cn?part=3D1

@@ -1,118 +1,89 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-oo1-f71.google.com (mail-oo1-f71.google.com [209.85.161.71])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 033282931C1;
-	Fri, 24 Jul 2026 00:50:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B81C872627
+	for <linux-input@vger.kernel.org>; Fri, 24 Jul 2026 04:32:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.161.71
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784854252; cv=none; b=jFNitQm5wq/9Pq/d7NcjgHTb0XVkN1VEn+bkDNIyJ7VUaNbaMJiO/oCAtjK98p+WraS1tA3fk/2GI2rCvXZ0TOVumy5bo5K9XNauEnbRJg5goGyfDVQj8En/wXXlwG8AzUe0BlkM6Pu1yuXKmL7/R6j4MO2nnJlU5JARsClnCXA=
+	t=1784867547; cv=none; b=e1f4T9oy4yCocIqrm9VkuVUgDSFuP2Xh5cra2ecaDpq0+Lr4JMqXYITWGIyNjxHigreg/3zX6/7JccQWlq5ecZ899Abk5zv6p/ou7eH6WC1C5hj+Wm9sRrKh66X+L22bhdKNeOBFeBj9BKk1M2R0OpaRwkq3Syxj69k5knln02Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784854252; c=relaxed/simple;
-	bh=gNaswln45dMN8IadG+DHYm9R4IqyHYqklZA4RSCGm+s=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=YE0KhF0tAerazuu3yyUFNHp183vLARwghd+ld4zMuF+5SkPu/xcCDDF0DMKS7t39JqCP0pNGnFN692oRQ1DZgTKRYmGZaanFPu47blrZ6I0EjTEmTWHQ2ZiP98czFi+5HD2MITeC8yRccNrkyuBXWaOHwQ0TJ/CRk3W1ihbSKxY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=kaWyq3mw; arc=none smtp.client-ip=100.103.45.18
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="kaWyq3mw"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0FDD91F000E9;
-	Fri, 24 Jul 2026 00:50:47 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784854250;
-	bh=4p27NKwcTMVUYeEaXxRSDoWU3baMIxD7D4KV3WLcWX8=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References;
-	b=kaWyq3mwvTq1ZCtdxc7Sq1Pl7Ej5hYrnmJjK7kcxgcYjWKdLiS3TkNhudwF2FSLoQ
-	 WJ1+8PRrFg23GCkbqkmdC9GPw4oQbPjFPKr2QlahtzTO+Pq+Czgp3crKfGZMWZL6PX
-	 ywzi05/V8wZkqR+5WNQq0Vobz2WT6i6l5E5qvdZiLovaPCDo/tlCOZfu0arSbxIOA8
-	 /8Q/SwSgmnlUFCpodfb6ZGebdRL9wxtoHYqd+65XgLxytfbI3B8IJUpbbnNweBOEAe
-	 0faGCBSYwMzbsfB5TwXoOk1o4h/VaUDnTgfeZJdDoxnLvL4xoDxQ1V7XQ+fzVhzbhL
-	 HsboHmlNebpxw==
-Date: Fri, 24 Jul 2026 01:50:43 +0100
-From: Jonathan Cameron <jic23@kernel.org>
-To: Eliav Farber <farbere@amazon.com>
-Cc: <rafael@kernel.org>, <tony.luck@intel.com>, <bp@alien8.de>,
- <guohanjun@huawei.com>, <mchehab@kernel.org>, <xueshuai@linux.alibaba.com>,
- <lenb@kernel.org>, <laurent.pinchart@ideasonboard.com>,
- <linusw@kernel.org>, <brgl@kernel.org>, <orsonzhai@gmail.com>,
- <baolin.wang@linux.alibaba.com>, <zhang.lyra@gmail.com>,
- <dlechner@baylibre.com>, <nuno.sa@analog.com>, <andy@kernel.org>,
- <dmitry.torokhov@gmail.com>, <hansg@kernel.org>,
- <ilpo.jarvinen@linux.intel.com>, <W_Armin@gmx.de>, <ukleinek@kernel.org>,
- <fabio.m.de.francesco@linux.intel.com>, <kaihengf@nvidia.com>,
- <ankita@nvidia.com>, <leitao@debian.org>, <jason@os.amperecomputing.com>,
- <pedro.pbg@usp.br>, <paulmck@kernel.org>, <frederic@kernel.org>,
- <kees@kernel.org>, <linux-acpi@vger.kernel.org>,
- <linux-kernel@vger.kernel.org>, <linux-gpio@vger.kernel.org>,
- <linux-pwm@vger.kernel.org>, <linux-iio@vger.kernel.org>,
- <linux-input@vger.kernel.org>, <platform-driver-x86@vger.kernel.org>
-Subject: Re: [PATCH 08/12] ACPI: APEI: GHES: use
- devm_blocking_notifier_chain_register()
-Message-ID: <20260724015043.37cecbfb@jic23-huawei>
-In-Reply-To: <20260723175513.39849-4-farbere@amazon.com>
-References: <20260723175513.39849-1-farbere@amazon.com>
-	<20260723175513.39849-4-farbere@amazon.com>
-X-Mailer: Claws Mail 4.4.0 (GTK 3.24.52; x86_64-pc-linux-gnu)
+	s=arc-20240116; t=1784867547; c=relaxed/simple;
+	bh=CdKyEk3A660YC7M49mNS94cKK3oCAt4mAd+ziOjf004=;
+	h=MIME-Version:Date:Message-ID:Subject:From:To:Content-Type; b=FQtv1OM4EApxHBxOX7c61pXELYlbQiI+wcE2Diq8WkZ5naykcV/Vt4xvWOal79TkDwy30WcsTdXV8vVvDwX6QhBVCfr+YvU2ckroavE400fwYuCw7HsogVJnQMZOy/ZACpTpT+0sMXi/SNp5IMYNcntOfOAZEwDrYkRufrwzkLw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.161.71
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
+Received: by mail-oo1-f71.google.com with SMTP id 006d021491bc7-6a344ad5c7bso763928eaf.3
+        for <linux-input@vger.kernel.org>; Thu, 23 Jul 2026 21:32:25 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1784867544; x=1785472344;
+        h=content-type:to:from:subject:message-id:date:mime-version
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=5vWT0de9fvGubni0xcIU4FeApDCiZ5Iwk6hSTEcr9MQ=;
+        b=HB8C3rslcnsCm6N/x/NWb652Cq6ok1Ox9Fzpjk8TAJc6Kcaw4ofU2lZiL1nvHvPsNe
+         0THRdxP1Y/nCMDg18sLXaj0UePRBME3fK77OBf1UwlRCk69b2vjkrTxBci71064d4p8h
+         dE2uDNBhPB3/xAjTyK390Q6FEiMTen+MX+PIB0xo1HZRU++8kcRIH1Ec5CZ06yy6wR5d
+         Ojisvt25Ow987TM65JM4vDgfzuu0OoXUVjfbvm7nzcJuBqF3xRr3W4/Uj/PygEsHLWAg
+         juCAg3P0FLbKPZ46DpVfOOqBzZiVJi486GFXRlRZUrRJMoA486IMv7ia/YJE6v3eafPb
+         mR8Q==
+X-Gm-Message-State: AOJu0YyuNuMMdbQwkavM9TN18PRopQs6Ui9YCMNaxj8gzr3YRjKuNW8p
+	E2Qs/4jEAl2wAlaCaXZWEbsoQZfhquH40Iy+HY9QazgcxhB6nYXeVEvV4VpU8Ei74imK7gNKiPC
+	3sZxL9uZeNbWeINsUfdOQWTsvLYYceuCFCeZqkg1AlFTq4YmowSkf9L/FaVg=
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+X-Received: by 2002:a05:6820:80c7:b0:6aa:e344:85f6 with SMTP id
+ 006d021491bc7-6aae34486bdmr1177482eaf.28.1784867544686; Thu, 23 Jul 2026
+ 21:32:24 -0700 (PDT)
+Date: Thu, 23 Jul 2026 21:32:24 -0700
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <6a62ead8.dde6c935.cf6c8.000c.GAE@google.com>
+Subject: [syzbot] Monthly input report (Jul 2026)
+From: syzbot <syzbot+list02151512ba2e47ca4e10@syzkaller.appspotmail.com>
+To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	syzkaller-bugs@googlegroups.com
+Content-Type: text/plain; charset="UTF-8"
 
-On Thu, 23 Jul 2026 17:55:09 +0000
-Eliav Farber <farbere@amazon.com> wrote:
+Hello input maintainers/developers,
 
-> Replace the blocking_notifier_chain_register() +
-> devm_add_action_or_reset() pattern with a single call to
-> devm_blocking_notifier_chain_register(), removing the
-> ghes_vendor_record_notifier_destroy() callback.
-> 
-> Signed-off-by: Eliav Farber <farbere@amazon.com>
-> ---
->  drivers/acpi/apei/ghes.c | 15 +++------------
->  1 file changed, 3 insertions(+), 12 deletions(-)
-> 
-> diff --git a/drivers/acpi/apei/ghes.c b/drivers/acpi/apei/ghes.c
-> index 3236a3ce79d6..3aa29dcd70da 100644
-> --- a/drivers/acpi/apei/ghes.c
-> +++ b/drivers/acpi/apei/ghes.c
-> @@ -689,21 +689,12 @@ void ghes_unregister_vendor_record_noti	fier(struct notifier_block *nb)
->  }
->  EXPORT_SYMBOL_GPL(ghes_unregister_vendor_record_notifier);
->  
-> -static void ghes_vendor_record_notifier_destroy(void *nb)
-> -{
-> -	ghes_unregister_vendor_record_notifier(nb);
-> -}
-> -
->  int devm_ghes_register_vendor_record_notifier(struct device *dev,
->  					      struct notifier_block *nb)
->  {
-> -	int ret;
-> -
-> -	ret = ghes_register_vendor_record_notifier(nb);
-> -	if (ret)
-> -		return ret;
-> -
-> -	return devm_add_action_or_reset(dev, ghes_vendor_record_notifier_destroy, nb);
-> +	return devm_blocking_notifier_chain_register(dev,
-> +						     &vendor_record_notify_list,
-> +						     nb);
+This is a 31-day syzbot report for the input subsystem.
+All related reports/information can be found at:
+https://syzkaller.appspot.com/upstream/s/input
 
-Whilst correct, I'm less keen on this one because it looses the obvious connection
-to the non devm form.  I suppose with the code being so near
-to the non devm we can go with this. 
+During the period, 2 new issues were detected and 0 were fixed.
+In total, 19 issues are still open and 63 have already been fixed.
+There are also 3 low-priority issues.
 
-For that matter why do we have the non devm variants?  There are no users in tree.
-Can we just rip that and the unregister given this is removing the only users?
+Some of the still happening issues:
 
-Thanks,
+Ref Crashes Repro Title
+<1> 987     Yes   KASAN: slab-out-of-bounds Read in mcp2221_raw_event (2)
+                  https://syzkaller.appspot.com/bug?extid=1018672fe70298606e5f
+<2> 245     Yes   WARNING in cm109_input_open/usb_submit_urb (3)
+                  https://syzkaller.appspot.com/bug?extid=ac0f9c4cc1e034160492
+<3> 147     No    KASAN: slab-use-after-free Read in report_descriptor_read
+                  https://syzkaller.appspot.com/bug?extid=bc537ca7a0efe33988eb
+<4> 36      Yes   INFO: task hung in devres_release_group (2)
+                  https://syzkaller.appspot.com/bug?extid=d789904ff97c2f3dac88
+<5> 23      Yes   INFO: task hung in __input_unregister_device (5)
+                  https://syzkaller.appspot.com/bug?extid=78e2288f58b881ed3c45
+<6> 5       No    possible deadlock in tasklet_action_common (2)
+                  https://syzkaller.appspot.com/bug?extid=b5d7ab56d43de3fd5aac
 
-Jonathan
+---
+This report is generated by a bot. It may contain errors.
+See https://goo.gl/tpsmEJ for more information about syzbot.
+syzbot engineers can be reached at syzkaller@googlegroups.com.
 
+To disable reminders for individual bugs, reply with the following command:
+#syz set <Ref> no-reminders
 
->  }
->  EXPORT_SYMBOL_GPL(devm_ghes_register_vendor_record_notifier);
->  
+To change bug's subsystems, reply with:
+#syz set <Ref> subsystems: new-subsystem
 
+You may send multiple commands in a single email message.

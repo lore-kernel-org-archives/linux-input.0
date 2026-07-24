@@ -1,169 +1,175 @@
-Received: from mail-qt1-f169.google.com (mail-qt1-f169.google.com [209.85.160.169])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E27423A5E78
-	for <linux-input@vger.kernel.org>; Fri, 24 Jul 2026 07:12:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.160.169
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784877162; cv=pass; b=FdsG0BnfzTK0smAtd4+y0v4VnJOJZ4r3kmqkVa0Q7UelR14yD+WnS7e1K48z5aUo7jbcoB0IjAAlPiQQrmq/BMwWjbFg2kPaiCeamQpMeCX+ebD3GjcY5ZDq3OAn5uz3n12fGLJCUUueXSKt0MGX1qKzSxqxIZ/kRA07bBIT3Cs=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784877162; c=relaxed/simple;
-	bh=xGUvizPuVEq9S/D//hkOZzPE/Y56rvO9KY90rU8622g=;
-	h=MIME-Version:From:Date:Message-ID:Subject:To:Cc:Content-Type; b=BELXjgNqkZ5KmtgnJC2sNOQLLsR/THWAXTNSRiiUOT6cZ31b4aAqX2WE9CS7WZYPuRXjmGbqmz0zgjVQpWoqsJzFkiO07kn6STOhFqy71nEU0jAwOgRGHGKZv46rkeMLduyG3H+TvmIrnjwvr5nt+QLC26ZEFIGO24SyXYMlM2Q=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=EbcdqQCt; arc=pass smtp.client-ip=209.85.160.169
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C371E3A960A
+	for <linux-input@vger.kernel.org>; Fri, 24 Jul 2026 07:45:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1784879136; cv=none; b=HBxg2wZMF31xcxyDOIjij+4fiWuU/CiJYDaZ2bSbkDno5JcoICX4TlE4cPFEFesP5KMBWDMR2lx2Rl0TAME7U/Wv6TUL4uEsNxZqWbj+DTChv7wiDmi8BCQGKQX5SalTWwFPsWqUOFLDsVrEdjAe2MOAZ2kkT+7z1wVZgRKQhEw=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1784879136; c=relaxed/simple;
+	bh=Ga5EKR4S/Vz92tUd1yWNaId5dCO8C7LhZwYgnvT+zk8=;
+	h=From:In-Reply-To:MIME-Version:References:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=Xefk3LPzLpKlYpgT0fYGaPZ3OjUM2gpyM6rvvzwar9i7JpUN7IojnNHK+fFAn/0wTcsxyGtXSlXfD2hQ8LP7ZjOiUSdgD+1Z/fZd6gaSAboN5UXn2xkPD74RO6aiLVrsA7WBD06/wCfcplkMyu9ids95rg928F8p87ZabH1v9KU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=QFTGtRPi; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="EbcdqQCt"
-Received: by mail-qt1-f169.google.com with SMTP id d75a77b69052e-51ca592e80eso223361cf.2
-        for <linux-input@vger.kernel.org>; Fri, 24 Jul 2026 00:12:40 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1784877160; cv=none;
-        d=google.com; s=arc-20260327;
-        b=peXEUbUQjy1AIaD+Kv4RQU6SOXO3knZopmOge/ZGtglfALbk8eKNg8y5D6ucpP5GT3
-         GIE1yi6DudY6d3MKs4iOZM1a3aTAY/Ow1QDVpr/H6qanJgKO0oNEqB414lRz5d/ejoOB
-         pW25yp//AcQXH+zdloFfbCNPBuxd8Rwt6GJeT53cJhiEXlK2WN8XVWuNtHuKEaeNlqjm
-         biyjLyhWZyk9hRaqTNqm13F7svRg/9mXKn0MMCtLoVhErhkO1Vb3eIToMoNFbkHSCx2T
-         WrpJzt7AHSbRl6C+gUEwDtvkYda8yYUiZhRVZEVGx+hhyW+fa/CrM7XkueOpv1hHKUQ0
-         wllQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=cc:to:subject:message-id:date:from:mime-version:dkim-signature;
-        bh=IC1GTb3TLPTeqAoieueA9lJNkRWp5M+M/cNZOJoVguk=;
-        fh=J2MgbrkXlDlqcGlDple96bRjx/dtzTfq8U5OsiFxhCs=;
-        b=RZv4OGXeN4D1ldoCPhdCQU+w72SfU69B9V5ch2W3tkPev60kGP/qRvbZkiyczKXM5T
-         6imJ9yo9043W346kvAsT6xV6yxCchTttP2HMpN/ztN4vDRVlln3OutGh56sHv8UXu9Y6
-         1zxlAu7ld+EQxsuNZxIlCwy2onlhdqdcrBObYOv86YW3B+jfnIEgyMi1kwXJ6VZxtMeL
-         pfba6KgxW+c3ri9Qu+kcclj6J/YL62b6qyhiVMFcT9/rnf9unjLdwWwXnEnxqZi2UMyg
-         VwD3M4KxBucujXMMohvvZtYEc9z4SLfQW69rhF6o9LwCV3fexfMCOaz+x7xR/lyTt879
-         I71Q==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784877160; x=1785481960; darn=vger.kernel.org;
-        h=content-type:cc:to:subject:message-id:date:from:mime-version:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=IC1GTb3TLPTeqAoieueA9lJNkRWp5M+M/cNZOJoVguk=;
-        b=EbcdqQCtjg1WgoH3noeyFMHyHeQp7NKEj/FP59C/d4R8MEwDtHma5KslxQv/d2p9AK
-         uBh+gx9fJ6gKN1978yHo46zGQRBJbt0QIieQrAL4Q3qtZQA/9A8I5e+RvQa94b1FJcxU
-         6ePG1+Hs+eH7ZjrhBzFNwylLGI7AyF5cJk8KPpu9vfMELaOA0wPa2BBqnRVcA98RwtxJ
-         BddBUqWcBHM5/nMBbiY1ca/DrBsftjLoofgn91sWv3MWl/0Cjts8DJGxqnOZyfbgQ/7+
-         tbO6M4rg3Wt0z5yZjuKw0KlziB1y5udoL3+rrC2m+Kg/o60B2RmmamU2MsuprjkdOo8N
-         Oj9Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784877160; x=1785481960;
-        h=content-type:cc:to:subject:message-id:date:from:mime-version
-         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to:content-type;
-        bh=IC1GTb3TLPTeqAoieueA9lJNkRWp5M+M/cNZOJoVguk=;
-        b=tQ/V3HuNENJoyZXIBd4E9iUw8ondaI+YzhXM5Cv7MoWGYSG1Gh9rmjwtVPnzzhinm0
-         rbF967K8BB8b6E4jXyUQfqQSUuHQemstszo7S276EtFWin87P5s0QPhsOIpHGFwDRfxG
-         Vbu/i5rboicEVumK11W9ztHGxtyhCarcTSK4g0qkkoX3D4IAONPdXWdlPKM034L4oYPF
-         3F3kbnu0OdfbbXUbD3kFYYR63O9H+UW6RHpFfyacO5wGAXGfqXgmvFtmIZ0b1aLdtfvh
-         rxU/DPeis4iNRrTi5jAs5fjWdrYTm9fdCGiHYam9N4Uu73poQti4wA5Fy8kTQLmr3QDD
-         aLpQ==
-X-Gm-Message-State: AOJu0YxDTvNNvmgfRS0tdOHlY89CIGjuCC7tamtyPunm5laloHlZ7Fqd
-	kuMJ4ergf/ojExE8bVn9iO8guC5p4hkgLMbqCfrb/cfO3k6nlAWPXSt0v64o1oitP3ytM4YnpWu
-	QyK6bBZg+x6c6aoajiDouxf4hWQQm/cM=
-X-Gm-Gg: AR+sD11Xpn3Nc7bgfk24mil96eRRbV6SdT5Ti5dI1rIZfmDhSim3UcoFfD4zR1gEJUN
-	4FSb9Uxvo0a2wWzVud49J4IDkINW9qEce8qMynL2Z7HY/n6ALUwfB/VtBZcD+oyuBOCbB8bfMlX
-	rYlnHtaehOQ7XAlDoa0JOvtdj1z0LNJzl+n7a8MJdwar4XsactBFhEwcQnpw56b74ZTqnQH2lfF
-	r6Yq1M8zDuoglI360hvVPajCFMfmgP9zehlqwoumbhZ18BVYgZTWdP+i5er04KWnVrXa8RHofnp
-	Jdhi0gYCRlP3Qq6TrCp0scUjIPvR7xZEfRYoMXPJ/S7fcPbjUsrlz14Iuype+WlwaNfRHcfIpNW
-	J0AjBo9WP9kbWLKSi
-X-Received: by 2002:ac8:7fc1:0:b0:51b:ff78:f229 with SMTP id
- d75a77b69052e-528497b70cbmr22473281cf.5.1784877159685; Fri, 24 Jul 2026
- 00:12:39 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="QFTGtRPi"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 600651F00A3A
+	for <linux-input@vger.kernel.org>; Fri, 24 Jul 2026 07:45:35 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1784879135;
+	bh=GrrnEVjLeDYohAytxd9LGHL0XtaF/3QpIP+vjIXf7kY=;
+	h=From:In-Reply-To:References:Date:Subject:To:Cc;
+	b=QFTGtRPiljZBiO3q7FgTkHoETpqGXso5vKPegYuHLZmgv2Duzuk3mbNV2nfqUnvkm
+	 PDBjWMh8zLZdOunZGKGtIjoIvxd8HHpCTxfuiNMfyIjIcaWrsL/x/DO2IB5nqIj2ZS
+	 v/lqV3N9C4+EvEc+XIonse6p7T/r0+aL/XXVTB2Tt2jlcbNGuqQUptKFocEoP+LxQm
+	 V9H6Ze/8gJ6BR1qUo6aqPO1e+W3jT2AFI3lppwWGbXmNOHJKwvXS/DLvzrzpHmuaIZ
+	 Hq68lo1n2IwKrQ5nly3a3NmLvMbNdXC4cgUi22r7kQ3BsF8Dv1hYHeVtt6NrjWYqyq
+	 FjNohO9xi377A==
+Received: by mail-lj1-f177.google.com with SMTP id 38308e7fff4ca-39c7fd45465so1009341fa.1
+        for <linux-input@vger.kernel.org>; Fri, 24 Jul 2026 00:45:35 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AHgh+Rox4MowrdBmTVxHe/xB909/yN7ioYRFzRH/gbrYvEqOCck5wjsR7zdQ+iHBwn3RdQEXzGhKRaNjFPHhdQ==@vger.kernel.org
+X-Gm-Message-State: AOJu0YymifYdPDispquNYTEiw+k4DkKSAPtkUxOjBFiTMTUFIGv9bpHJ
+	zGDOTALDjlw2f0foiJkaQh1AJRMBi5mrEgAd/dpBN0JRiTTDwVXSATYJoccbZJ9yPbGvajeBh+x
+	iZ6KFJGqgdplOXsFriqAHwd4Ay7+z2ZTVPb/Qnl28Tw==
+X-Received: by 2002:a2e:9193:0:b0:39b:2df2:9014 with SMTP id
+ 38308e7fff4ca-39f07c63c72mr10175241fa.7.1784879133867; Fri, 24 Jul 2026
+ 00:45:33 -0700 (PDT)
+Received: from 969154062570 named unknown by gmailapi.google.com with
+ HTTPREST; Fri, 24 Jul 2026 00:45:31 -0700
+Received: from 969154062570 named unknown by gmailapi.google.com with
+ HTTPREST; Fri, 24 Jul 2026 00:45:31 -0700
+From: Bartosz Golaszewski <brgl@kernel.org>
+In-Reply-To: <20260723175325.37397-2-farbere@amazon.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-From: Daniel Paul Perinchery <danielpaulperinchery07012005@gmail.com>
-Date: Fri, 24 Jul 2026 12:42:29 +0530
-X-Gm-Features: AUfX_mx8H9gltbQgDBIO4d85xHHxI01kSyYqQrP-Ki9e9wjpNV70u7MN3JR24xM
-Message-ID: <CA+8Hp=M3ynUHzcDshLup5G+HDs0XoWkav0R5k-00m+O7LbOv1w@mail.gmail.com>
-Subject: hid-sensor-custom: async notification for input-report sysfs
- attributes? (human presence / attention sensors)
-To: Jiri Kosina <jikos@kernel.org>, Jonathan Cameron <jic23@kernel.org>, 
-	Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, 
-	Benjamin Tissoires <bentiss@kernel.org>
-Cc: linux-input@vger.kernel.org, linux-iio@vger.kernel.org, 
-	linux-kernel@vger.kernel.org
+References: <20260723175325.37397-1-farbere@amazon.com> <20260723175325.37397-2-farbere@amazon.com>
+Date: Fri, 24 Jul 2026 00:45:31 -0700
+X-Gmail-Original-Message-ID: <CAMRc=MeE_FdDMpXzzBB2dwH18DWmmT9B=CeouoaG1tV=y6-fXQ@mail.gmail.com>
+X-Gm-Features: AUfX_mxqAq5L_5_Kqqzi2lfcFgjsyeDKqIXC9pdA6t902qhg92eJpMfCKmh9flc
+Message-ID: <CAMRc=MeE_FdDMpXzzBB2dwH18DWmmT9B=CeouoaG1tV=y6-fXQ@mail.gmail.com>
+Subject: Re: [PATCH 01/12] notifier: add device-managed registration APIs
+To: Eliav Farber <farbere@amazon.com>
+Cc: rafael@kernel.org, tony.luck@intel.com, bp@alien8.de, guohanjun@huawei.com, 
+	mchehab@kernel.org, xueshuai@linux.alibaba.com, lenb@kernel.org, 
+	laurent.pinchart@ideasonboard.com, linusw@kernel.org, brgl@kernel.org, 
+	orsonzhai@gmail.com, baolin.wang@linux.alibaba.com, zhang.lyra@gmail.com, 
+	jic23@kernel.org, dlechner@baylibre.com, nuno.sa@analog.com, andy@kernel.org, 
+	dmitry.torokhov@gmail.com, hansg@kernel.org, ilpo.jarvinen@linux.intel.com, 
+	W_Armin@gmx.de, ukleinek@kernel.org, fabio.m.de.francesco@linux.intel.com, 
+	kaihengf@nvidia.com, ankita@nvidia.com, leitao@debian.org, 
+	jason@os.amperecomputing.com, pedro.pbg@usp.br, paulmck@kernel.org, 
+	frederic@kernel.org, kees@kernel.org, linux-acpi@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org, 
+	linux-pwm@vger.kernel.org, linux-iio@vger.kernel.org, 
+	linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 
-Hi,
+On Thu, 23 Jul 2026 19:53:14 +0200, Eliav Farber <farbere@amazon.com> said:
+> Add devm_atomic_notifier_chain_register(),
+> devm_blocking_notifier_chain_register(), and
+> devm_raw_notifier_chain_register() that automatically unregister the
+> notifier when the device is unbound.
+>
+> Many drivers repeat the same boilerplate pattern:
+>
+>   1. Register the notifier with *_notifier_chain_register()
+>   2. Check for error
+>   3. Register a devm action to unregister on teardown
+>   4. Implement a per-driver static unregister callback
+>
+> With the new devm_*_notifier_chain_register() APIs, this reduces to a
+> single call with one error path, eliminating per-driver unregister
+> callbacks entirely.
+>
+> The implementation follows the established devres pattern used by other
+> device-managed kernel APIs.
+>
+> Signed-off-by: Eliav Farber <farbere@amazon.com>
+> ---
+>  include/linux/notifier.h |  10 +++
+>  kernel/notifier.c        | 151 +++++++++++++++++++++++++++++++++++++++
+>  2 files changed, 161 insertions(+)
+>
+> diff --git a/include/linux/notifier.h b/include/linux/notifier.h
+> index 01b6c9d9956f..aa3745d7459b 100644
+> --- a/include/linux/notifier.h
+> +++ b/include/linux/notifier.h
+> @@ -46,6 +46,7 @@
+>   * often but notifier_blocks will seldom be removed.
+>   */
+>
+> +struct device;
+>  struct notifier_block;
+>
+>  typedef	int (*notifier_fn_t)(struct notifier_block *nb,
+> @@ -145,10 +146,19 @@ extern void srcu_init_notifier_head(struct srcu_notifier_head *nh);
+>
+>  extern int atomic_notifier_chain_register(struct atomic_notifier_head *nh,
+>  		struct notifier_block *nb);
+> +extern int devm_atomic_notifier_chain_register(struct device *dev,
+> +		struct atomic_notifier_head *nh,
+> +		struct notifier_block *nb);
 
-I've been investigating why userspace can't efficiently watch a
-hid-sensor-custom input-report value (specifically a human-presence
-sensor, HID usage 2000e1, on an AMD Sensor Fusion Hub / amd_sfh
-platform) for changes without polling, and wanted to check whether
-there's interest in closing this gap before I try to write anything.
+Please don't use extern with function prototypes in new code.
 
-Setup: Lenovo IdeaPad Pro 5 14AKP10, AMD Ryzen AI 7 350, kernel 7.0.13
-(Debian/Parrot, but this is stock hid-sensor-custom.c). Presence and
-gaze/attention are exposed as separate logical sensors under the same
-physical hub (HID-SENSOR-2000e1.x.auto), each with the usual
-auto-generated input-N-<usage>-value sysfs attribute.
+>  extern int blocking_notifier_chain_register(struct blocking_notifier_head *nh,
+>  		struct notifier_block *nb);
+> +extern int devm_blocking_notifier_chain_register(struct device *dev,
+> +		struct blocking_notifier_head *nh,
+> +		struct notifier_block *nb);
+>  extern int raw_notifier_chain_register(struct raw_notifier_head *nh,
+>  		struct notifier_block *nb);
+> +extern int devm_raw_notifier_chain_register(struct device *dev,
+> +		struct raw_notifier_head *nh,
+> +		struct notifier_block *nb);
+>  extern int srcu_notifier_chain_register(struct srcu_notifier_head *nh,
+>  		struct notifier_block *nb);
+>
+> diff --git a/kernel/notifier.c b/kernel/notifier.c
+> index 2f9fe7c30287..b811638aa878 100644
+> --- a/kernel/notifier.c
+> +++ b/kernel/notifier.c
+> @@ -1,4 +1,5 @@
+>  // SPDX-License-Identifier: GPL-2.0-only
+> +#include <linux/device.h>
+>  #include <linux/kdebug.h>
+>  #include <linux/kprobes.h>
+>  #include <linux/export.h>
+> @@ -197,6 +198,55 @@ int atomic_notifier_chain_unregister(struct atomic_notifier_head *nh,
+>  }
+>  EXPORT_SYMBOL_GPL(atomic_notifier_chain_unregister);
+>
+> +struct atomic_notifier_chain_devres {
+> +	struct atomic_notifier_head *nh;
+> +	struct notifier_block *nb;
+> +};
+> +
+> +static void devm_atomic_notifier_chain_unregister(struct device *dev, void *res)
+> +{
+> +	struct atomic_notifier_chain_devres *dr = res;
+> +
+> +	atomic_notifier_chain_unregister(dr->nh, dr->nb);
+> +}
+> +
+> +/**
+> + *	devm_atomic_notifier_chain_register - Device-managed atomic notifier registration
+> + *	@dev: Device to tie the notifier lifetime to
+> + *	@nh: Pointer to head of the atomic notifier chain
+> + *	@n: New entry in notifier chain
+> + *
+> + *	Adds a notifier to an atomic notifier chain and registers a cleanup
+> + *	action to automatically unregister it when @dev is unbound.
+> + *
+> + *	Returns 0 on success, negative errno on error.
 
-What I found tracing show_value() in hid-sensor-custom.c: for input
-reports, it calls sensor_hub_input_attr_get_raw_value(..., report_id,
-SENSOR_HUB_SYNC, false) -- i.e. every read of the -value file issues a
-synchronous GET_REPORT to the hub and returns the live answer. There's
-no cached field backing that attribute, so there's nothing for a
-notify-on-change mechanism to attach to on that path.
+Should be:
 
-Separately, hid_sensor_capture_sample() *is* a genuine async callback
-fired on hub-pushed input reports, but as far as I can tell it only
-feeds the raw kfifo behind the driver's misc-device streaming
-interface (custom_dev), gated on test_bit(0,
-&sensor_inst->misc_opened). It doesn't appear to update any per-field
-cached value, so it isn't reachable from the sysfs show_value() path
-either.
+Returns:
+0 on success...
 
-Net effect: there's no way for a userspace consumer to poll()/
-select() on the -value file and be woken only on real hardware events.
-The hub itself is already configured for threshold-based reporting
-(property-reporting-state = 2, i.e. "Threshold Events") in my case, so
-the inefficiency is entirely on the kernel/sysfs side -- userspace has
-to fall back to timed re-reads of a synchronous, firmware-round-trip
-attribute, which is more expensive per-read than a typical cached
-sysfs value and awkward to size a safe polling interval for.
-
-This seems like a real gap for the presence/proximity use case
-specifically (walk-away lock, auto-dim, etc.), which is inherently
-event-oriented and is exactly the kind of feature vendors implement
-natively on Windows via push notifications from the same class of
-sensor.
-
-Before I put together a patch I wanted to ask: is there interest in
-adding async caching + sysfs_notify() (or sysfs_notify_dirent(), if
-attrs end up carrying a stored kernfs_node) for input-report values
-specifically, sourced from hid_sensor_capture_sample()'s existing
-async path? Rough shape as I see it:
-
-  - add a cached "last input value" (+ a bool "valid") per relevant
-field in struct hid_sensor_custom_field
-  - in hid_sensor_capture_sample(), in addition to (or instead of,
-behind a config/attr) feeding the misc-device fifo, decode and store
-the value for the matching field, then sysfs_notify() its -value
-attribute
-  - leave show_value()'s SENSOR_HUB_SYNC path untouched for feature
-reports and for any input attrs that never get an async report, so
-nothing regresses for existing consumers
-
-Happy to be told this already exists via a different interface I've
-missed (I did look at whether this should just go through the IIO
-buffered/trigger interface instead, given some other hid-sensor-*
-drivers are IIO-backed -- but hid-sensor-custom exposes vendor/custom
-usages directly via this sysfs shape rather than IIO channels, so I
-wasn't sure that's the right layer to add it at). Also open to being
-told the misc-device/fifo interface is meant to be the async
-consumption path already and userspace tools should be using that
-instead of polling -value -- if so, is there existing tooling/docs for
-that path I should be pointing presence-detection use cases at?
-
-Not attaching a patch yet since I'd rather get a read on the right
-approach (and whether it's wanted at all) before writing one.
-
-Thanks,
-Daniel Paul
+Bart

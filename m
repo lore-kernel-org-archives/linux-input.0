@@ -1,155 +1,252 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.14])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 89EBC34E766
-	for <linux-input@vger.kernel.org>; Fri, 24 Jul 2026 15:28:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 63F24360751;
+	Fri, 24 Jul 2026 15:30:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.14
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784906896; cv=none; b=K94LN5MjppTehJNNV3j22D71nydL3Fkt1D5AgKhrxoBYo9U3FSJbCsnv+3dcHAyfUte2oZSuSaCKjZe2ysPYqhVRUWMx6kenP+6RrDQNH3KoKl+HwNmrwdGmUW/xtCt3/d3D9+jQssDZGu73d3zd/mYg+6y8jg+jjt5LDuyk+QQ=
+	t=1784907033; cv=none; b=qAFXn9M5MgCRQTT2yljA3A+kLVZOv/8WiOxOee9RgxUI3604k8T4Lf/+1ejrsTwmHVJVZURyY9NdNDuCCNR7f1BsQnWI0wCI6J3K99XW2Yi5HIMyKo7MBQz5jv9cweq0cE2lTvE7Dj9cX/PQjzsVT+AlpSUvbyo4IXy+f2cRom8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784906896; c=relaxed/simple;
-	bh=n6/PG5bwM+YlrlAq3lV/lguTFNPTIkn3fTKCx6tehVQ=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=PXWEfVHCk1tZ9PEll8GK4SxMSPLS0r1tsnAVQaSRD61blzajsZIeeOKVHAoW9hkwXPpeDm1OOvrRTG5fvhE2Z2Jig2wEOq+KGgfIQ+Zhi81omD3Y5g5ojtWYRcasCdOpvVYe9n90yqUlr9DVEcrASmPHqTizcR9jcAj07Df6jME=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=d9GpTTZh; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1784907033; c=relaxed/simple;
+	bh=O9piygf4mclTLSx4e3UlgjLQXNtkVuA++5iO9IxjET8=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=BqtbaTB+G87H99p1VE9hG8WhV/XbamdXt2axY4Jeen3W4ho7KHqbcTJRRcgnTAUHOTxI/ETOAVwIqIpDTc43ifLQrJkNUDKR9K+i/v02sKsCNlytEY6oPI8gbqSR42GUZrW/9Jakjqe8QCF8rv1qrx/XBdN9o06Ryrp+Yu7nki8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=B1AdiOqo; arc=none smtp.client-ip=192.198.163.14
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="d9GpTTZh"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 270111F00A3A;
-	Fri, 24 Jul 2026 15:28:15 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784906895;
-	bh=wFC088VIqC5Leq8MudYiNL0wSu0TkEXx04u29pt0NXc=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=d9GpTTZhm33CTXAYfrQ0qidOpqbc/pSD6OrDsKz8dlGLBjtdytYBq4WL94qX5MJwQ
-	 PZQJeI9FjVC2A01ibYp4GMGVAQptQWpFbq2EjAaiRFnb7Sd1sSDacbwWGxpWb/iIA2
-	 gRhvzdogwHZcM2vHTTS2LTG4eSkmKk56njYb29Rpuw8KaH4dxY8kaNvS/Y024pOl3f
-	 4isAmkau/vXiA6iLMTKAeW+YLSAiAz8PFYKLVlgVoOG/prgH6KcPfworSETWIiqB/t
-	 cAPv9/ApQj1I2bCZY4bO8G9dQgvI7OCwkZOmh7CulDw+o9mWpn6OHLKYNG9IMUOxWG
-	 U6/qaZepUqRHw==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2] HID: lg4ff: validate report length before fixed
- offsets
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Jiancheng Huang" <jchuang@seu.edu.cn>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260724151317.1419574-1-jchuang@seu.edu.cn>
-References: <20260724151317.1419574-1-jchuang@seu.edu.cn>
-Content-Type: text/plain; charset=utf-8
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="B1AdiOqo"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1784907031; x=1816443031;
+  h=message-id:subject:from:to:cc:date:in-reply-to:
+   references:content-transfer-encoding:mime-version;
+  bh=O9piygf4mclTLSx4e3UlgjLQXNtkVuA++5iO9IxjET8=;
+  b=B1AdiOqoVwn1sZAn4ObrASY0f3fCH0UKmK/urvACr2VLdJ+sxs1DT7a7
+   yki35sIPk+S6l2Lq6tw9h7MMzHyLeFX++mc8+E+L73m4SSiZWUw457JBZ
+   JboMW6MoSXGFbDyjZDWOYZYzAi0qSFekACKzOTTJi9o++mo0PJk1hMZwv
+   MPk9Ut4irlvvirCSV/cOai8tmBSiZipSSxWU5ILSGdwSPCeLg2HYbDOTZ
+   sF6uBfoTqJER/22amz1saoLtYuEWgdfLRtXCrHPMJuROJpzKMOWH+pyJR
+   Y7MTZoAEWOu00IH1MqdeReDiYYDmmz324yi1IYqyPftGCxwDCK2B9ZZsv
+   Q==;
+X-CSE-ConnectionGUID: vl1iv66NRKWTu9IPqLkBHA==
+X-CSE-MsgGUID: jykp7n0MRYS3v9XNMXbB4w==
+X-IronPort-AV: E=McAfee;i="6800,10657,11854"; a="85621717"
+X-IronPort-AV: E=Sophos;i="6.25,182,1779174000"; 
+   d="scan'208";a="85621717"
+Received: from orviesa003.jf.intel.com ([10.64.159.143])
+  by fmvoesa108.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 Jul 2026 08:30:30 -0700
+X-CSE-ConnectionGUID: HCrolK7iSO2wmuEtPkBZxA==
+X-CSE-MsgGUID: Tq4z16YQTx2NOg1ptwyHHw==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.25,182,1779174000"; 
+   d="scan'208";a="262256353"
+Received: from spandruv-desk2.jf.intel.com ([10.88.27.176])
+  by ORVIESA003-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 Jul 2026 08:30:31 -0700
+Message-ID: <7df349cbcccc8004d9aef37f95be5c8e0e51f713.camel@linux.intel.com>
+Subject: Re: hid-sensor-custom: async notification for input-report sysfs
+ attributes? (human presence / attention sensors)
+From: srinivas pandruvada <srinivas.pandruvada@linux.intel.com>
+To: Daniel Paul Perinchery <danielpaulperinchery07012005@gmail.com>, Jiri
+ Kosina <jikos@kernel.org>, Jonathan Cameron <jic23@kernel.org>, Benjamin
+ Tissoires	 <bentiss@kernel.org>
+Cc: linux-input@vger.kernel.org, linux-iio@vger.kernel.org, 
+	linux-kernel@vger.kernel.org
+Date: Fri, 24 Jul 2026 08:30:15 -0700
+In-Reply-To: <CA+8Hp=M3ynUHzcDshLup5G+HDs0XoWkav0R5k-00m+O7LbOv1w@mail.gmail.com>
+References: 
+	<CA+8Hp=M3ynUHzcDshLup5G+HDs0XoWkav0R5k-00m+O7LbOv1w@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 24 Jul 2026 15:28:14 +0000
-Message-Id: <20260724152815.270111F00A3A@smtp.kernel.org>
+User-Agent: Evolution 3.60.2 (3.60.2-1.fc44) 
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
-s) to consider:
+Hi,
 
-Pre-existing issues:
-- [High] Force feedback is initialized on the input device after it has alr=
-eady been registered and made visible to userspace, violating input subsyst=
-em initialization order.
-- [High] Use-after-free of the lg4ff device properties (`entry`) during dev=
-ice removal or probe failure, as the properties are freed before hardware I=
-/O and input devices are fully unregistered.
-- [Low] Data race on `entry->wdata.combine` between sysfs store and interru=
-pt context raw event handler.
---
+On Fri, 2026-07-24 at 12:42 +0530, Daniel Paul Perinchery wrote:
+> Hi,
+>=20
+> I've been investigating why userspace can't efficiently watch a
+> hid-sensor-custom input-report value (specifically a human-presence
+> sensor, HID usage 2000e1, on an AMD Sensor Fusion Hub / amd_sfh
+> platform) for changes without polling, and wanted to check whether
+> there's interest in closing this gap before I try to write anything.
+>=20
+> Setup: Lenovo IdeaPad Pro 5 14AKP10, AMD Ryzen AI 7 350, kernel
+> 7.0.13
+> (Debian/Parrot, but this is stock hid-sensor-custom.c). Presence and
+> gaze/attention are exposed as separate logical sensors under the same
+> physical hub (HID-SENSOR-2000e1.x.auto), each with the usual
+> auto-generated input-N-<usage>-value sysfs attribute.
+>=20
+> What I found tracing show_value() in hid-sensor-custom.c: for input
+> reports, it calls sensor_hub_input_attr_get_raw_value(..., report_id,
+> SENSOR_HUB_SYNC, false) -- i.e. every read of the -value file issues
+> a
+> synchronous GET_REPORT to the hub and returns the live answer.
+> There's
+> no cached field backing that attribute, so there's nothing for a
+> notify-on-change mechanism to attach to on that path.
+>=20
+> Separately, hid_sensor_capture_sample() *is* a genuine async callback
+> fired on hub-pushed input reports, but as far as I can tell it only
+> feeds the raw kfifo behind the driver's misc-device streaming
+> interface (custom_dev), gated on test_bit(0,
+> &sensor_inst->misc_opened). It doesn't appear to update any per-field
+> cached value, so it isn't reachable from the sysfs show_value() path
+> either.
+>=20
+> Net effect: there's no way for a userspace consumer to poll()/
+> select() on the -value file and be woken only on real hardware
+> events.
 
---- Patch [1]: [PATCH v2] HID: lg4ff: validate report length before fixed o=
-ffsets ---
-commit 64ee3d21ef774099318a4223423dc4d5d4eac310
-Author: Jiancheng Huang <jchuang@seu.edu.cn>
 
-HID: lg4ff: validate report length before fixed offsets
-   =20
-lg4ff_raw_event() rewrites fixed report offsets when combined pedals are
-enabled. It currently assumes that each product report contains every
-source and destination byte used by the rewrite.
-   =20
-Return without rewriting a short report before each product-specific
-access. Apply the same bound to the computed offset path.
+I have a test program for poll(). Attached poll part.
 
+#define DEVICE_PATH "/dev/HID-SENSOR-2000e1.2.auto"
+#define BUFFER_SIZE 256
 
-[Severity: High]
-This isn't a bug introduced by this patch, but force feedback is initialize=
-d on
-the input device after it has already been registered.
+int main(int argc, char *argv[])
+{
+	int fd;
+	struct pollfd pfd;
+	char buffer[BUFFER_SIZE];
+	int ret;
+	struct sigaction sa;
 
-Looking at drivers/hid/hid-lg.c, lg_probe() registers the input device befo=
-re
-force feedback capabilities are set up:
+	if (argc < 2) {
+		printf("syntax %s sample_interval\n", argv[0]);
+		exit(0);
+	}
+=09
 
-drivers/hid/hid-lg.c:lg_probe() {
-    ...
-	ret =3D hid_hw_start(hdev, connect_mask);
-    ...
-	if (drv_data->quirks & LG_FF4)
-		ret =3D lg4ff_init(hdev);
-    ...
+	// 1. Set up Ctrl+C signal handler
+	sa.sa_handler =3D handle_sigint;
+	sigemptyset(&sa.sa_mask);
+	sa.sa_flags =3D 0; // Don't use SA_RESTART so poll() unblocks on
+signal
+	if (sigaction(SIGINT, &sa, NULL) < 0) {
+		perror("Error setting up signal handler");
+		return -1;
+	}
+
+	enable_sensor(1);
+
+	// 2. Open the misc device
+	fd =3D open(DEVICE_PATH, O_RDONLY | O_NONBLOCK);
+	if (fd < 0) {
+		perror("Failed to open device");
+		return -1;
+	}
+
+	// 3. Configure poll structure
+	pfd.fd =3D fd;
+	pfd.events =3D POLLIN;
+
+	printf("Polling loop started. Press Ctrl+C to exit
+safely.\n");
+
+	// 4. Main event loop
+	while (keep_running) {
+		printf("Waiting for data...\n");
+=09
+		ret =3D poll(&pfd, 1, -1);=20
+
+		if (ret < 0) {
+			// Signal interrupted poll, loop will exit if
+it was SIGINT
+			continue;=20
+		}
+
+		if (ret =3D=3D 0) {
+			// Timeout reached with no data
+			continue;=20
+		}
+
+		// 5. Handle readable data event
+		if (pfd.revents & POLLIN) {
+			rx_tsc =3D read_rdtsc();
+			ssize_t bytes_read =3D read(fd, buffer,
+sizeof(buffer) - 1);
+			if (bytes_read > 0) {
+				time_t tm;
+
+				buffer[bytes_read] =3D '\0'; // Null-
+terminate string
+				printf("tm:%ld Received %ld bytes:
+%s\n", time(&tm), (long)bytes_read, buffer);
+				read_time_stamp(buffer, bytes_read);
+			} else if (bytes_read < 0) {
+				perror("Read error");
+			}
+		}
+	}
+
+	// 6. Cleanup
+	printf("\nExiting program cleanly...\n");
+	close(fd);
+
+	enable_sensor(0);
+
+	return 0;
 }
 
-Because hid_hw_start() exposes the device to userspace, could userspace (e.=
-g.
-udev, games) open the device and observe an incomplete capability set before
-lg4ff_init() modifies dev->ffbit and installs the FF callbacks?
+Does it help.
+
+Thanks,
+Srinivas
 
 
-[Severity: High]
-This is a pre-existing issue, but is there a use-after-free risk for the lg=
-4ff
-device properties during device removal?
-
-In drivers/hid/hid-lg.c, the device properties are freed before hardware I/O
-and input devices are fully unregistered:
-
-drivers/hid/hid-lg.c:lg_remove() {
-	struct lg_drv_data *drv_data =3D hid_get_drvdata(hdev);
-	if (drv_data->quirks & LG_FF4)
-		lg4ff_deinit(hdev);
-	hid_hw_stop(hdev);
-	kfree(drv_data);
-}
-
-Since lg4ff_deinit() sets drv_data->device_props =3D NULL and frees the ent=
-ry,
-if an interrupt fires before hid_hw_stop() executes, could lg4ff_raw_event()
-cache the entry pointer just before it is freed, leading to a use-after-fre=
-e?
-
-Additionally, could lg4ff_play() be concurrently invoked via userspace ioctl
-while the input device is still registered, resulting in a similar
-use-after-free?
-
-
-> diff --git a/drivers/hid/hid-lg4ff.c b/drivers/hid/hid-lg4ff.c
-> index e901fdb7d033c..62f99a93210c9 100644
-> --- a/drivers/hid/hid-lg4ff.c
-> +++ b/drivers/hid/hid-lg4ff.c
-> @@ -336,6 +336,8 @@ int lg4ff_raw_event(struct hid_device *hdev, struct h=
-id_report *report,
->  	if (entry->wdata.combine) {
-
-[Severity: Low]
-This is a pre-existing issue, but does reading entry->wdata.combine from
-interrupt context without locks or READ_ONCE() introduce a data race?
-
-The sysfs store function (lg4ff_combine_store) writes to this shared boolean
-state without locks or WRITE_ONCE(). Could this lead to a transient read of=
- an
-inconsistent state if a user writes to the sysfs node while the device is
-actively sending events?
-
->  		switch (entry->wdata.product_id) {
->  		case USB_DEVICE_ID_LOGITECH_WHEEL:
-> +			if (size < 7)
-> +				return 0;
->  			rd[5] =3D rd[3];
-
-[ ... ]
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260724151317.1419=
-574-1-jchuang@seu.edu.cn?part=3D1
+> The hub itself is already configured for threshold-based reporting
+> (property-reporting-state =3D 2, i.e. "Threshold Events") in my case,
+> so
+> the inefficiency is entirely on the kernel/sysfs side -- userspace
+> has
+> to fall back to timed re-reads of a synchronous, firmware-round-trip
+> attribute, which is more expensive per-read than a typical cached
+> sysfs value and awkward to size a safe polling interval for.
+>=20
+> This seems like a real gap for the presence/proximity use case
+> specifically (walk-away lock, auto-dim, etc.), which is inherently
+> event-oriented and is exactly the kind of feature vendors implement
+> natively on Windows via push notifications from the same class of
+> sensor.
+>=20
+> Before I put together a patch I wanted to ask: is there interest in
+> adding async caching + sysfs_notify() (or sysfs_notify_dirent(), if
+> attrs end up carrying a stored kernfs_node) for input-report values
+> specifically, sourced from hid_sensor_capture_sample()'s existing
+> async path? Rough shape as I see it:
+>=20
+> =C2=A0 - add a cached "last input value" (+ a bool "valid") per relevant
+> field in struct hid_sensor_custom_field
+> =C2=A0 - in hid_sensor_capture_sample(), in addition to (or instead of,
+> behind a config/attr) feeding the misc-device fifo, decode and store
+> the value for the matching field, then sysfs_notify() its -value
+> attribute
+> =C2=A0 - leave show_value()'s SENSOR_HUB_SYNC path untouched for feature
+> reports and for any input attrs that never get an async report, so
+> nothing regresses for existing consumers
+>=20
+> Happy to be told this already exists via a different interface I've
+> missed (I did look at whether this should just go through the IIO
+> buffered/trigger interface instead, given some other hid-sensor-*
+> drivers are IIO-backed -- but hid-sensor-custom exposes vendor/custom
+> usages directly via this sysfs shape rather than IIO channels, so I
+> wasn't sure that's the right layer to add it at). Also open to being
+> told the misc-device/fifo interface is meant to be the async
+> consumption path already and userspace tools should be using that
+> instead of polling -value -- if so, is there existing tooling/docs
+> for
+> that path I should be pointing presence-detection use cases at?
+>=20
+> Not attaching a patch yet since I'd rather get a read on the right
+> approach (and whether it's wanted at all) before writing one.
+>=20
+> Thanks,
+> Daniel Paul

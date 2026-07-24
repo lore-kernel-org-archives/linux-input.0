@@ -1,155 +1,174 @@
-Received: from mail-wr1-f44.google.com (mail-wr1-f44.google.com [209.85.221.44])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3A38A436BCD
-	for <linux-input@vger.kernel.org>; Fri, 24 Jul 2026 14:27:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 358DA440A2C
+	for <linux-input@vger.kernel.org>; Fri, 24 Jul 2026 14:39:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784903230; cv=none; b=biyskOy0Mgng4Hz1S3ODikxHge1CVn38Ky+iKhVViF21Jnx3vptakrEb/ST+zRW811errmu63+lqCp8CFpjsUVVUubRoM30e45gGf84NG3SuLCoLPoLZAD0w97spoyHP/fuqtFC+DuqGKrmYMcEocruiBPH87ZhdhfQG21Gysbs=
+	t=1784903972; cv=none; b=E/uTBhKXthYzIXYUu5KhyEHt69n7J0WaX+lVAI+A50VkcOFq3HaNbybrHHImZZ+job08Hvn/Fr5v1RZvYe7pvR2WDmgr6NkzIPIERCKqd0LxsLhHfzdrR10YNm/gTxXn+yPkMRDiAnTPXcKvZnEKk9ZwjWKmyk1eJo6muz9telA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784903230; c=relaxed/simple;
-	bh=Zj74hJMn5EEa+Tdvo+oBwE3+v+XfzQe/LuZObDwPF1I=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=RA36zCIvI22VElLCtf33beNAllEERBQQB/OFQetKAyT3lqS0RSfzre++uEbgX+Z62yW6vWdet7e+yLBa5cyW/S98Vt/dl2bhP2tu7+jWohfiTI32WQb2Qw+wqjMF2MlbDiBTEgZTIof+CmlxiB4y5pNaCgbqrAaUpLJJ8YppA6s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=0sec.ai; spf=pass smtp.mailfrom=0sec.ai; dkim=temperror (0-bit key) header.d=0sec.ai header.i=@0sec.ai header.b=kuEyiKhS; arc=none smtp.client-ip=209.85.221.44
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=0sec.ai
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=0sec.ai
+	s=arc-20240116; t=1784903972; c=relaxed/simple;
+	bh=zS6dvnbdA4ncrKW9jTIn19wPYIhldqhGgRyH1byV2TI=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=uaE6NI6IpxsiPgVvO/ZI2/KsU7N3cGoB8NTaMEHqwwJyrv5N5H1oFDEvhBB+BiNf/4zcEPJywx/Ytry1xuAZqzZMjngWe0ZIsSVGymG26dj5sR2ikCFZbmhYcNMuABnShZXxEVZl4lAppribyLuxjbbJUBf5NRtbD0Hh++SHsG8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=IyUc369f; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=temperror (0-bit key) header.d=0sec.ai header.i=@0sec.ai header.b="kuEyiKhS"
-Received: by mail-wr1-f44.google.com with SMTP id ffacd0b85a97d-47f59f25ec4so252097f8f.2
-        for <linux-input@vger.kernel.org>; Fri, 24 Jul 2026 07:27:07 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=0sec.ai; s=google; t=1784903226; x=1785508026; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=FOrMfHhwgNyC11nXJyc1Bax0nC8w1A9xAnO4x+p5G4g=;
-        b=kuEyiKhSeQeFZ5YSDQNA8JchxlAjUsg14ePTQJAxNc4InmyViaCxfzYCKeaFI/gFyK
-         AkeARS54GHCVR9+gHipXJruaFn9MXTEXYQe1z9H7S8UPU8ovioZIBSamwaC2st+38YOp
-         MxWdjQBRlgvYlI+V9hXtEI1wBHFsZFDtYMrN0o0CArHFiM4I77/9hM5UCMPLlFjNeVef
-         P5kUV5cHmUMkM1ewazxJBOyj++pyGnhZlXu/4kuNZMrdaMK7MQJ8Ek5ThzW8MO84I35T
-         yGrt5m+eBMn/CXjcnoTNRgX/nGiGykUnQfgAoAsVR95D1txrmaBy6tOpVo90NLt/1xJv
-         6nsQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784903226; x=1785508026;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=FOrMfHhwgNyC11nXJyc1Bax0nC8w1A9xAnO4x+p5G4g=;
-        b=IC/Rb7gqK2CGPZv/YTe6y/RIdP4RwVYyFAQsMNp2tPjioIYRGH7619QOKuP0I3TTen
-         5YkkeNZRgjYSyihO9WQE7M9rbQ8q6U6FeScZ8QkjjIRe4M0yC5AeCZ3RcbDjKhlz7XMb
-         FmNW12qfpuZE9/Fg4kleyLLProLCH/aD8FwtPf0iJl6D3JBLImYtbUrDuSAIdvmWw83S
-         z5aZ0ok89ExrTJ67h+RFKTFjsUQ12uWRx78/huurnlk8Xs2yzGUwSK6WjTxt/SU/pbIH
-         SDn/PVpZNDzfm3aDKHQm6lzsCESVqDFC6f0JHkwm/EWlb0Mz2XuBZ36Nbh9/FTm3ZHDY
-         CfpQ==
-X-Forwarded-Encrypted: i=1; AHgh+RqeE1MJfHtxrLdmEHkCdtwwXGDbfZrCLlKPkVCM5vNz2N5sHWZt0cEzaUbM6zw4MiFesULe3h2u14NkRQ==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yy9E3chwttfaRPvKFW8oZCHM9ClZ2IUXT1nZSFrscVOPJxweJgv
-	QVtw5u5HZSyOgakK6Tpnoxz0tmxOm/TQWt48fTzXOTYZmg3vjD+UE7ZTTevcXORzcbct
-X-Gm-Gg: AR+sD12wGEPgSW+wSmRG/2eKAOV9Bhp6JCsI//+li8mwhtrlui6LwZJrov+xSFjfX0/
-	YWEh91aNrlfcOPyDc88vwCaXD1Nw9nxbrbmFBl4CzDZ0qatxttf+seIM9vDticzMzFQzXZ9NQzD
-	YeTtn5/hzG8wR2fh1Yly1GTWOq3gjY8wb3ZAcicYxPN8E1dPth43rRISAuvyDRpuWbUXtwLJH9k
-	bRjTBmcSFdajrjFIIRrrm7+ugEWsiHvRt7PdFQe6LnkwZhyBsTzqEt5MI98STF5NJNZYMfLcZpJ
-	R7i1LP5/Hzg43ITeMHLgM+VbmVgQmHGhZ6QshPoPj6DKKY+J432/jv2iA3ONNa664eRszMKY7lA
-	JRn1d0Z4gWGDNA818PUXg67tkiaI6lZtjO/FpZHYNfjhlKKHYdJwdi22bzdN4+AOC/DX80zBKsY
-	xDb3ZkYuwVohszy15n7rxs558fnyqRL9ylbb6+jPsN0UDiH04RDZxZPKNJ2Y1QhvKWqnSRLgQVT
-	+C6qWf8n68io4aw7NtZkK4/FouFZgS0t71j
-X-Received: by 2002:a05:6000:2906:b0:479:e2ea:3d51 with SMTP id ffacd0b85a97d-47f8da6c47amr8782491f8f.17.1784903226005;
-        Fri, 24 Jul 2026 07:27:06 -0700 (PDT)
-Received: from PeakBook-Mini.tail8e484.ts.net ([178.197.219.241])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-47f85b9a64dsm26761420f8f.1.2026.07.24.07.27.04
-        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
-        Fri, 24 Jul 2026 07:27:05 -0700 (PDT)
-From: Doruk Tan Ozturk <doruk@0sec.ai>
-To: Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>
-Cc: Pascal Giard <pascal.giard@etsmtl.ca>,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	stable@vger.kernel.org
-Subject: [PATCH v2] HID: sony: fix UAF of ghl_poke_timer / ghl_urb at driver unbind
-Date: Fri, 24 Jul 2026 16:27:03 +0200
-Message-ID: <20260724142703.55813-1-doruk@0sec.ai>
-X-Mailer: git-send-email 2.53.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="IyUc369f"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 007D61F00A3A;
+	Fri, 24 Jul 2026 14:39:24 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1784903965;
+	bh=/rKuH7QpvKifVEyiuqLydwzjPsE9JAMtkrYySEplHx4=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=IyUc369fEv0mIrCLfn9yZeS3sMiWw4P0rB2rUPCyw4YlfBqLVjgm9yDj/ly1TUUSX
+	 ZtpjuczFFdSFWu48qhUMHVUcAQsltgoU2p1vi2BOwjWhYtaD8mUZOj7U5fmOMs0lGo
+	 cb8eUdqEo78DYrzmy3Vhc32qMuUZjXKEoi2IVWvo6nDJ50mpFHsOml9hnh5UQG5H1F
+	 bCCQpobrdpI1O5svlrgWoDzNc2Xd6vkPgME+jl+bTJY9njw46TaaVtglgx1oRdMXA3
+	 5A79df2fX+Y2zfLirEH3lSoo5OabQwNrxPiOHXNxiyv9EdhBdPfO/LuDEy7+nuSibv
+	 KNDsnwn1wPZ1g==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v2] HID: sony: fix UAF of ghl_poke_timer / ghl_urb at
+ driver unbind
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Doruk Tan Ozturk" <doruk@0sec.ai>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20260724142703.55813-1-doruk@0sec.ai>
+References: <20260724142703.55813-1-doruk@0sec.ai>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Fri, 24 Jul 2026 14:39:24 +0000
+Message-Id: <20260724143925.007D61F00A3A@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-For GHL (Guitar Hero Live) dongles, sony_probe() arms a periodic timer:
-ghl_magic_poke() (the timer callback) submits sc->ghl_urb, and the URB
-completion ghl_magic_poke_cb() re-arms the timer with mod_timer().
+Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+s) to consider:
 
-sony_remove() drained the timer with timer_delete_sync() and then freed
-the URB with usb_free_urb():
+Pre-existing issues:
+- [High] Error paths in `sony_probe()` fail to remove the device context fr=
+om `sony_device_list`, leading to a global use-after-free.
+- [High] System suspend breaks the periodic keep-alive timer, permanently d=
+isconnecting the GHL guitar dongle.
+- [Low] URB DMA buffers are allocated using `devm_kzalloc()`, violating DMA=
+ API cache-line alignment requirements.
+--
 
-	timer_delete_sync(&sc->ghl_poke_timer);
+--- Patch [1]: [PATCH v2] HID: sony: fix UAF of ghl_poke_timer / ghl_urb at=
+ driver unbind ---
+commit 0fb03a05b4d9cc719ee1096b892767332261493d
+Author: Doruk Tan Ozturk <doruk@0sec.ai>
+
+    HID: sony: fix UAF of ghl_poke_timer / ghl_urb at driver unbind
+   =20
+    For GHL (Guitar Hero Live) dongles, sony_probe() arms a periodic timer
+    that submits a URB, which on completion re-arms the timer.
+   =20
+    sony_remove() drained the timer with timer_delete_sync() and then freed
+    the URB, which did not block re-arming or kill in-flight URBs. This all=
+owed
+    the timer to re-arm on freed memory, causing a use-after-free.
+
+> diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
+> index e75246d29e16d..77ab30303080e 100644
+> --- a/drivers/hid/hid-sony.c
+> +++ b/drivers/hid/hid-sony.c
+> @@ -2424,7 +2424,9 @@ static void sony_remove(struct hid_device *hdev)
+>  	struct sony_sc *sc =3D hid_get_drvdata(hdev);
+> =20
+>  	if (sc->quirks & (GHL_GUITAR_PS3WIIU | GHL_GUITAR_PS4)) {
+> -		timer_delete_sync(&sc->ghl_poke_timer);
+> +		/* poison, not kill: a pending timer must not re-submit during teardow=
+n */
+> +		usb_poison_urb(sc->ghl_urb);
+> +		timer_shutdown_sync(&sc->ghl_poke_timer);
+>  		usb_free_urb(sc->ghl_urb);
+>  	}
+
+[Severity: High]
+This isn't a bug introduced by this patch, but error paths in sony_probe()
+fail to remove the device context from sony_device_list, leading to a global
+use-after-free.
+
+When hid_hw_start() triggers sony_input_configured(), the device context sc
+is added to the global sony_device_list. If a subsequent operation in
+sony_probe() fails (for example, usb_alloc_urb() returns NULL), the function
+jumps to the err label:
+
+drivers/hid/hid-sony.c:sony_probe() {
+    ...
+err:
 	usb_free_urb(sc->ghl_urb);
 
-timer_delete_sync() does not block re-arming, and while the URB is in
-flight the timer is not pending, so the sync delete is a no-op. A URB
-completion that runs after the delete re-arms the timer, and usb_free_urb()
-only drops a reference -- it does not kill an in-flight URB. sc is
-allocated with devm_kzalloc() and freed once sony_remove() returns, so the
-re-armed ghl_poke_timer (embedded in sc) then fires on freed memory, a
-use-after-free from timer softirq. This is a disconnect/rmmod race.
+	hid_hw_stop(hdev);
+	return ret;
+}
 
-Poison the URB first, then shut the timer down, before freeing the URB.
-usb_poison_urb() kills any in-flight URB and permanently rejects further
-submissions, so a poke timer that is still pending cannot re-submit the
-URB from ghl_magic_poke() in the window before timer_shutdown_sync() runs.
-usb_kill_urb() would not suffice: it only cancels the in-flight URB and
-leaves it submittable once it returns, so the pending timer could
-re-submit it and put a fresh URB in flight over the freed sc.
-timer_shutdown_sync() then drains any last callback and blocks re-arming.
-The probe error path is unaffected: it is only reached before the timer
-is armed.
+Can this lead to a crash when the devm subsystem frees sc upon returning
+the error? If the next Sony HID device is plugged in, it seems
+sony_check_add() will iterate over sony_device_list and dereference the
+freed sc pointer. Should this error path call sony_remove_dev_list(sc)
+and sony_release_device_id(sc)?
 
-Reproduced under KASAN on next-20260710 via dummy_hcd + raw-gadget
-emulation of the GHL PS4 dongle (VID 0x1430 / PID 0x07bb): hid-sony binds
-and arms the poke timer, the poke URB is held in flight, the driver is
-unbound (freeing sc), then the URB is released. The completion re-arms the
-timer on the freed sc, and the re-armed timer fires ~8 s later:
 
-  BUG: KASAN: slab-use-after-free in ghl_magic_poke+0x98/0xb0
-  Read of size 8 at addr ffff88810b02fd50 by task swapper/0/0
-   ghl_magic_poke+0x98/0xb0
-   call_timer_fn+0x35/0x2b0
-   __run_timers+0x69c/0x9a0
-   run_timer_softirq+0x173/0x2a0
-  Allocated by task 169:  sony_probe
-  Freed by task 338:      devres_release_group <- hid_device_remove (sony_remove)
+[Severity: High]
+This isn't a bug introduced by this patch, but system suspend breaks the
+periodic keep-alive timer, permanently disconnecting the GHL guitar dongle.
 
-Found by 0sec (https://0sec.ai) using automated source analysis.
+During system suspend, usb_submit_urb() fails synchronously. When this
+happens, the timer callback exits without re-arming the timer:
 
-Fixes: cc894ac55360 ("HID: sony: support for ghlive ps3/wii u dongles")
-Cc: stable@vger.kernel.org
-Assisted-by: 0sec:multi-model
-Signed-off-by: Doruk Tan Ozturk <doruk@0sec.ai>
----
-v2: use usb_poison_urb() instead of usb_kill_urb(). usb_kill_urb() only
-    cancels the in-flight URB and leaves it submittable once it returns,
-    so a still-pending poke timer could re-submit between the kill and
-    timer_shutdown_sync() and race the free (Sashiko review). Inline
-    comment kept terse; rationale in the log.
- drivers/hid/hid-sony.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+drivers/hid/hid-sony.c:ghl_magic_poke() {
+    ...
+	ret =3D usb_submit_urb(sc->ghl_urb, GFP_ATOMIC);
+	if (ret < 0)
+		hid_err(sc->hdev, "usb_submit_urb failed: %d", ret);
+    ...
+}
 
-diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
-index 253fff4066eb..112d1deaf3f3 100644
---- a/drivers/hid/hid-sony.c
-+++ b/drivers/hid/hid-sony.c
-@@ -2431,7 +2431,9 @@ static void sony_remove(struct hid_device *hdev)
- 	struct sony_sc *sc = hid_get_drvdata(hdev);
- 
- 	if (sc->quirks & (GHL_GUITAR_PS3WIIU | GHL_GUITAR_PS4)) {
--		timer_delete_sync(&sc->ghl_poke_timer);
-+		/* poison, not kill: a pending timer must not re-submit during teardown */
-+		usb_poison_urb(sc->ghl_urb);
-+		timer_shutdown_sync(&sc->ghl_poke_timer);
- 		usb_free_urb(sc->ghl_urb);
- 	}
- 
--- 
-2.43.0
+Neither sony_suspend() nor sony_resume() seem to manage ghl_poke_timer:
 
+drivers/hid/hid-sony.c:
+static int sony_suspend(struct hid_device *hdev, pm_message_t message)
+{
+    ...
+}
+
+static int sony_resume(struct hid_device *hdev)
+{
+    ...
+}
+
+Once the system resumes, will the timer remain dead, effectively dropping
+the device connection permanently? Does the suspend handler need to pause
+the timer and the resume handler restart it?
+
+
+[Severity: Low]
+This isn't a bug introduced by this patch, but URB DMA buffers are allocated
+using devm_kzalloc(), which violates DMA API cache-line alignment
+requirements.
+
+Looking at ghl_init_urb():
+
+	cr =3D devm_kzalloc(&sc->hdev->dev, sizeof(*cr), GFP_ATOMIC);
+	...=20
+	databuf =3D devm_kzalloc(&sc->hdev->dev, poke_size, GFP_ATOMIC);
+
+And in sony_allocate_output_report():
+
+		sc->output_report_dmabuf =3D
+			devm_kmalloc(&sc->hdev->dev,
+				sizeof(union sixaxis_output_report_01),
+				GFP_KERNEL);
+
+Since the devm subsystem prepends a devres_node header, the resulting
+pointers are offset from ARCH_DMA_MINALIGN. Is it safe to map these unalign=
+ed
+buffers for DMA by the USB core?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260724142703.5581=
+3-1-doruk@0sec.ai?part=3D1

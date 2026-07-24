@@ -1,77 +1,73 @@
-Received: from mail-pl1-f179.google.com (mail-pl1-f179.google.com [209.85.214.179])
+Received: from mail-pj1-f41.google.com (mail-pj1-f41.google.com [209.85.216.41])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B204535675E
-	for <linux-input@vger.kernel.org>; Fri, 24 Jul 2026 19:25:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.179
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 874C4456E1D
+	for <linux-input@vger.kernel.org>; Fri, 24 Jul 2026 19:30:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.41
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784921150; cv=none; b=QVyDFdFDJ1to5CuZpyByVe73SpVl8+dJK23cXxec8TkgBU9pJ2arF5wT3vcXQIR6dF2veZTcG65qaix9U9FozMOpoD/ffDaZ1qn9JdidykUqesdT9WlON23SxVNUODLgHmkETDyHyQK46M9H7a87kGiKjasRIrXupLGAW1cPnqI=
+	t=1784921442; cv=none; b=iKazXdePa880PxswEtnI7NSARpU5pyuFybEYgBaQYXFnhKqCHivOHiak2nqder4DsB1kjcvPmaERQwvEGOAdj2UKdu9f+rPpDo3gsy430ZjO3h7cXNxfDBCK8jyvZbwUm4mNV4X7obuRlwjEkWo8jp8xrZFbGhOe+8PAeRQx2ns=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784921150; c=relaxed/simple;
-	bh=2ksqF5z1sIMNtrP1tAqgcwchwd8cY45U2teQX6Ds30I=;
+	s=arc-20240116; t=1784921442; c=relaxed/simple;
+	bh=x9t1K0trkHASSg++otRH3aFra+mFYlWBldAGwuMVpRU=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=jRvSTY/BGQ4tWCyE6VZGltj6JfqjkGliIJH9wXtAgvgv/tJOUt9EpU8vIVAYg8+O09+Oy+/VgEVDdmzjBthjBlMSgfL8yOVRbSepsx1jr0hzfOmMF1uhat6EyeCSojwsqqfOQZ9zeC2uZIWDUSSPlXKgrRgZkczjrwXokeKr1+Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=U5DpW+Qj; arc=none smtp.client-ip=209.85.214.179
+	 Content-Type:Content-Disposition:In-Reply-To; b=ZGkW5wnATuVs5jiCoLsgj8ahMRwXnMdDUDQfm2GucXu44lv8mIwRIVmRDFntSUI2orssFum48tz664ScqmVbAHNfsgWicUsr+KJQQlEvZl4Kk1Ivej6UGIEXtE2lu3MFlCqyuwYBfuWUssUEKGYizxEsch/6Uc8Y5z3/OxJbV1s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=N77AC5b1; arc=none smtp.client-ip=209.85.216.41
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="U5DpW+Qj"
-Received: by mail-pl1-f179.google.com with SMTP id d9443c01a7336-2cc7e86e7aeso9308355ad.2
-        for <linux-input@vger.kernel.org>; Fri, 24 Jul 2026 12:25:49 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="N77AC5b1"
+Received: by mail-pj1-f41.google.com with SMTP id 98e67ed59e1d1-3811f512167so766162a91.3
+        for <linux-input@vger.kernel.org>; Fri, 24 Jul 2026 12:30:33 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784921149; x=1785525949; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1784921429; x=1785526229; darn=vger.kernel.org;
         h=in-reply-to:content-disposition:content-type:mime-version
          :references:message-id:subject:cc:to:from:date:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=c0tC7vV+OGBtLj6C1dSzqQ74owp2ZWgS4CBF+5vZQqs=;
-        b=U5DpW+QjLEhqPtA+4gUme0zWGhUPsgeSIqst2Jeo+WStjwobZ4fKCeqjNNhq2XTuZs
-         jE3VHDwxCvUV5/MadJGYXMJxD1SnPUf/29Q87RU/Q6A4d/b95GjVc/SyKpZQ1+D0g8iY
-         zniCZVpX51oPFw7WKgTLGGUO1lxc+SRK2z2nISMo1doTxNnZUms5Ksa/TRqNYQf2ZclK
-         U3trorjmjVZkP/nrlmq0KymALkVquD81llgC4dPj9VYgxEtnmX4zDCS5l4HrIgYAAZjM
-         6m5MeAUXpskUg3DCncGrJpTDk6ZzM6+9wHY0vI0z+T6YLuf9a1MbH3iYFiBDe0bHyfgc
-         4bFQ==
+        bh=dU6h0G7oXQdk5MdfE/YxhUvukc34BGEGg+/bm4XFaKo=;
+        b=N77AC5b1nY7fXhwV5pOkcGUdkX0GdLtwo4h+psMpLp1ItZIHmFpcxdoclq+JT6/Lw9
+         Ldm8KbtUf6+DTImtU2/c0CPsZDRgPFKnpRt41bvRBCtLRxTo2108GQFeScMPsoTLBzaY
+         2M7mRXfRTT9+TmDT20t6GnyjXHRv4oFqbzevXeYhqBcOVF75Fqdj/GqdTeWUGfzlNAOv
+         4w9FLuhDiu6i4C0L7RG007r9183e0oWoXb2E9V/tvVWSsJlsWqhjdReeIW3t4tvAR56p
+         X6R3xoBFRfFG4FkW7/cQ3vUFlTQAbij7srpVIgsJqy6Vj1E5L3NOXEQZYSSw2aYtwGDu
+         y7HA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784921149; x=1785525949;
+        d=1e100.net; s=20251104; t=1784921429; x=1785526229;
         h=in-reply-to:content-disposition:content-type:mime-version
          :references:message-id:subject:cc:to:from:date:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=c0tC7vV+OGBtLj6C1dSzqQ74owp2ZWgS4CBF+5vZQqs=;
-        b=Cm5bL3s5yfldjou2OK0EO/YWlYzy2u8rBxK7E5q1vNpwT33YErGUhhNiBY1azf9Z3l
-         6xK0BC6YtO1MYvyP2R5ywZ32Au2OPkyynOiAJW41XG355wl6TPsOssMh0wgTCJa5o0rO
-         s0sQpZWlMgBW93Poj8lj3GRyiCf+kLWjjmpTPg99KjtRFVcP8oEv9PEo9FZmm3mUj8H7
-         GlEKOIYscv2nFH5izxmENEPsP6eR3JHq7Lh0I8oYUadTK7ihgj2tdosWekqsxqGfj3cK
-         aYVt8vzMQ4KFPfVeNHyKfZDDJFi8g3inSvxm/BtPnbHA7ljXbyd/6o8hXb7gKPcflnzK
-         M/4A==
-X-Forwarded-Encrypted: i=1; AHgh+Rq1J+V6O2TWYZaeDb9PL5ZAVdUnZMGb3Mf6gsxYYc3g51t23kao3nqrnXJqY9b8fSDArT2PAu2fA5Y0Hg==@vger.kernel.org
-X-Gm-Message-State: AOJu0YyYOcN2xxaoBhnP5zT4R3tmjwrKR+Ycgt/Ou4iojGSwlv9OBq2Z
-	WEVrv/W9HrQD7I2c0aaXJkEADdvvcV8oHB+a7B2bvchNGseAW+8ucf9Z
-X-Gm-Gg: AR+sD10WmunReTmfJ+LvPgAJj8hIjIb/2rbvAUnaOTeBgBz23RpkGN2KulA7OzChtx8
-	zA8JxEUbKJidwTudlxsjyseFxUX8g8hN9UdSYSHXG1aRoO+ETkvpq+hA5Ms/Qem6zX5jbRDgLgE
-	0/OoWR4vnvJIVL3w8vY3+U+8smwZy1FvXXsF21+oIAYEawSLnf4N9usYQizMp0GcaUHFDhbH9y5
-	ygz0d+r5qXV3zvQQIdtXs5bERDM4wnTAjUEm1pZSZ7looOqox5EZgKl568jna6p/c255ogQBf66
-	qGiuMvCE9NBrNxlfwTCp9en4ncQH05qmosNEtjH2hyCicZFNlkgwn8MkJsz8+eywdsvISnLLAPn
-	dvCUM2DE1pc3RNVtztve9nwTmJuSmrWsWkxpYN5/+C1WNIK0OmsPIra+XxmF7oGybYZgpZF2Qn7
-	vNWpG3fYvwlxQT5iMlWLW1liO1F8s8ktGL0AN3cC+/FKE=
-X-Received: by 2002:a17:902:d491:b0:2c2:62ee:5a0d with SMTP id d9443c01a7336-2cfa6b77547mr101121265ad.14.1784921148827;
-        Fri, 24 Jul 2026 12:25:48 -0700 (PDT)
+        bh=dU6h0G7oXQdk5MdfE/YxhUvukc34BGEGg+/bm4XFaKo=;
+        b=C75Kv4XxyGAo8mXWjFZ72YHfB/3ZrHYLhZ4qkQ7WvCSCg1YzpPybdE8qAXkznmIxVA
+         cyuaUN74wg9eCdo2wYMyjVQikbkwO2yzaL7Mr26MsbXBVhIAhd7+uVVpaHK6fSHc3j5+
+         EfYZ8Eh69yyBIgSkaLY4b9nvOAGQAlMHoyn0oj9sVM28agIEZKL8T4a0PQIxpa6+yvpR
+         rSDGOgGeTdlpkt0wZNe56KP74vT7sLQCAin9fh5WIiEef0AqcsJ04D1nDtiChLAuRRTz
+         e6mceBCNmIIlrG7lKko903Pw7+WriDBTqIklXokPXqiCiDekm7vdJ1FaV30+S4TVOQu4
+         mMVw==
+X-Forwarded-Encrypted: i=1; AHgh+RqAFaUwV+rQ85VuYuISY4/dKElAh1dRZBqKHTJ1JrLz7G7dyl/NTjLLc6v5Q/Qx7uQB/LDC/dG3c94WuA==@vger.kernel.org
+X-Gm-Message-State: AOJu0YzlEstoWV9U2+frYS+PLZzuwuxCBGOfyJ+TZPlozwi4Ao5YJfLX
+	ck0o1bK/kz5F1rc2Of4/ChIHPttuzn7hNtiIhENk9VgIW7l/rJqqePh5
+X-Gm-Gg: AR+sD11lzy+RY30/WIb8le5p8K5SeH4yA42pIJDPo3ezbDMDXjX2N4gmo6TAVeMVHpX
+	ROXoz60Uvu66GM4fnVSwCidkOZFg8TKh4gQs9FPqhqPpdOEKRYsZaisw8w+FM0SP9uq38EEsAlZ
+	sBvnVQhAd5rtG37gmNPbZy1U0Zgo6ap2lKzrF+Bl/FNQVizq9B+N6E1kMU5Nl9pksHzBB/LxqI5
+	jaUtxI0k2sPvZ9616PO/oRSwODwJwxb0hoGm65dDnO3Q2wqsONVbXR5eBbNouRdGhOKA3UekEir
+	+JIlND+Ki47yalnjRjArZgX31WX0+2AqqoJxapkvqFRVRioaGBsaGXqTPgvBHQrmZkstp/AkH6s
+	ocJP/NPcGlpGiyPTnyNFvliOKtGoyURJSniv/YMbdpj8/qkq9aukYGOd262RwrNk8vHT/H+5HB2
+	EkOkB80HpcUG8nL+gkyo3RqeuQwXKtoJFnJxIwgTz/1RY=
+X-Received: by 2002:a17:90b:5645:b0:387:e0cb:c8dc with SMTP id 98e67ed59e1d1-38ec663d2a5mr8479389a91.37.1784921428504;
+        Fri, 24 Jul 2026 12:30:28 -0700 (PDT)
 Received: from google.com ([2a00:79e0:2ebe:8:40e1:40e4:dabe:543e])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-314bc579127sm1679206eec.21.2026.07.24.12.25.47
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-13d130f42bbsm30772866c88.14.2026.07.24.12.30.26
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 24 Jul 2026 12:25:48 -0700 (PDT)
-Date: Fri, 24 Jul 2026 12:25:45 -0700
+        Fri, 24 Jul 2026 12:30:27 -0700 (PDT)
+Date: Fri, 24 Jul 2026 12:30:24 -0700
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Kaustabh Chakraborty <kauschluss@disroot.org>
-Cc: Rob Herring <robh@kernel.org>, 
-	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
-	Michael Srba <Michael.Srba@seznam.cz>, Linus Walleij <linusw@kernel.org>, 
-	Peter Griffin <peter.griffin@linaro.org>, Alim Akhtar <alim.akhtar@samsung.com>, 
-	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, 
-	linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org
-Subject: Re: [PATCH 3/5] Input: zinitix - add support for modes 0 and 1
-Message-ID: <amO7_sEL0hknUGO5@google.com>
-References: <20260724-zinitix-modes-v1-0-f6df7d86a878@disroot.org>
- <20260724-zinitix-modes-v1-3-f6df7d86a878@disroot.org>
+To: Sang-Heon Jeon <ekffu200098@gmail.com>
+Cc: Julia.Lawall@inria.fr, cocci@inria.fr, linux-input@vger.kernel.org, 
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 16/36] Input: remove conditional return with no effect
+Message-ID: <amO8lj_0sqBFOqub@google.com>
+References: <20260723184538.3888637-1-ekffu200098@gmail.com>
+ <20260723184538.3888637-17-ekffu200098@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -80,41 +76,89 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260724-zinitix-modes-v1-3-f6df7d86a878@disroot.org>
+In-Reply-To: <20260723184538.3888637-17-ekffu200098@gmail.com>
 
-Hi Kaustabh,
-
-On Fri, Jul 24, 2026 at 12:54:05AM +0530, Kaustabh Chakraborty wrote:
-> Zinitix touchscreens have three modes, numbered 0 to 2. The driver
-> implements mode 2, and leaves out modes 0 and 1. The difference in the
-> touchscreen modes is the schema of the event data.
+On Fri, Jul 24, 2026 at 03:45:18AM +0900, Sang-Heon Jeon wrote:
+> Both branches of the check return the same value, so the check has
+> no effect. Remove it and return the value directly.
 > 
-> Implement modes 0 and 1 in the driver, along with their event structs.
-> Maintain a common, canonical event struct which is to be the superset of
-> the mode-specific structs. With that, introduce functions to convert the
-> mode event info to the canonical format.
+> This is the result of running the Coccinelle script from
+> scripts/coccinelle/misc/cond_return_no_effect.cocci.
 > 
-> Signed-off-by: Kaustabh Chakraborty <kauschluss@disroot.org>
+> Signed-off-by: Sang-Heon Jeon <ekffu200098@gmail.com>
 > ---
-...
+>  drivers/input/keyboard/pmic8xxx-keypad.c | 8 +-------
+>  drivers/input/mouse/synaptics_i2c.c      | 6 +-----
+>  drivers/input/rmi4/rmi_smbus.c           | 7 +------
+>  3 files changed, 3 insertions(+), 18 deletions(-)
+> 
+> diff --git a/drivers/input/keyboard/pmic8xxx-keypad.c b/drivers/input/keyboard/pmic8xxx-keypad.c
+> index 35d1aa2a22a5..c916e80e2f58 100644
+> --- a/drivers/input/keyboard/pmic8xxx-keypad.c
+> +++ b/drivers/input/keyboard/pmic8xxx-keypad.c
+> @@ -462,15 +462,9 @@ static int pmic8xxx_kp_enable(struct pmic8xxx_kp *kp)
+>  
+>  static int pmic8xxx_kp_disable(struct pmic8xxx_kp *kp)
+>  {
+> -	int rc;
+> -
+>  	kp->ctrl_reg &= ~KEYP_CTRL_KEYP_EN;
+>  
+> -	rc = regmap_write(kp->regmap, KEYP_CTRL, kp->ctrl_reg);
+> -	if (rc < 0)
+> -		return rc;
+> -
+> -	return rc;
+> +	return regmap_write(kp->regmap, KEYP_CTRL, kp->ctrl_reg);
 
-> +static int zinitix_read_point_status(struct bt541_ts_data *bt541,
-> +				     struct touch_event *event)
-> +{
-> +	switch (bt541->zinitix_mode) {
-> +	case 0:
-> +		return zinitix_read_point_status_mode0(bt541, event);
-> +	case 1:
-> +		return zinitix_read_point_status_mode1(bt541, event);
-> +	case 2:
-> +		return zinitix_read_point_status_mode2(bt541, event);
-> +	default:
-> +		dev_err(&bt541->client->dev, "Mode %d is unsupported\n",
-> +			bt541->zinitix_mode);
-> +		return -EINVAL;
+This is fine.
 
-Instead of a switch this can be a pointer to "read status" function.
+>  }
+>  
+>  static int pmic8xxx_kp_open(struct input_dev *dev)
+> diff --git a/drivers/input/mouse/synaptics_i2c.c b/drivers/input/mouse/synaptics_i2c.c
+> index d4cf982f1263..85e37e2ce45b 100644
+> --- a/drivers/input/mouse/synaptics_i2c.c
+> +++ b/drivers/input/mouse/synaptics_i2c.c
+> @@ -257,11 +257,7 @@ static s32 synaptics_i2c_reg_set(struct i2c_client *client, u16 reg, u8 val)
+>  	if (error)
+>  		return error;
+>  
+> -	error = i2c_smbus_write_byte_data(client, reg & 0xff, val);
+> -	if (error)
+> -		return error;
+> -
+> -	return error;
+> +	return i2c_smbus_write_byte_data(client, reg & 0xff, val);
 
+When there ate multiple failure points the preference is to explicitly
+return 0 on success.
+
+>  }
+>  
+>  static s32 synaptics_i2c_word_get(struct i2c_client *client, u16 reg)
+> diff --git a/drivers/input/rmi4/rmi_smbus.c b/drivers/input/rmi4/rmi_smbus.c
+> index 6de68c602558..3160714a514a 100644
+> --- a/drivers/input/rmi4/rmi_smbus.c
+> +++ b/drivers/input/rmi4/rmi_smbus.c
+> @@ -177,13 +177,8 @@ static int smb_block_read(struct rmi_transport_dev *xport,
+>  	struct rmi_smb_xport *rmi_smb =
+>  		container_of(xport, struct rmi_smb_xport, xport);
+>  	struct i2c_client *client = rmi_smb->client;
+> -	int retval;
+>  
+> -	retval = i2c_smbus_read_block_data(client, commandcode, buf);
+> -	if (retval < 0)
+> -		return retval;
+> -
+> -	return retval;
+> +	return i2c_smbus_read_block_data(client, commandcode, buf);
+
+This is fine too...
+
+>  }
+>  
+>  static int rmi_smb_read_block(struct rmi_transport_dev *xport, u16 rmiaddr,
 
 Thanks.
 

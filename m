@@ -1,161 +1,170 @@
-Received: from mail-pg1-f182.google.com (mail-pg1-f182.google.com [209.85.215.182])
+Received: from mail-oi1-f207.google.com (mail-oi1-f207.google.com [209.85.167.207])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DE47E30648C
-	for <linux-input@vger.kernel.org>; Sat, 25 Jul 2026 13:23:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.215.182
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784985807; cv=pass; b=MTFNLAJYd0CkACBBTinwEN/TgdyclgzxV/OP2jl/xMD18YkE0dqNMij4AVO/Q13Y0rt8Q7wXBx08ndNcEH43rrRYMSUVfqu7t8ct7/erSxipH/SICQq6xell+23/SYkTznMAcZtKhe/vRK1U6uVCs35iRjm5lvldhiWwvPct7Wo=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784985807; c=relaxed/simple;
-	bh=iyfAphcrJGor91FmD7IGYNutyAxV9/ncvttL25PE830=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=T7ixAMCrfpY+SDbUaSBmEoNCjWEV4pLr0yLDblIVOFqzr/l68mZCiEWN2s9ElMxyZVMDyIM8wKdyWHTzNdPXj4V4ADwDe7ci1SmHjsbP/B0HKGHhcJfYlHVJz96Gi1XUKoVn7TZSmaQNVvh7YgHaOTRhzSBXt3rH6LMFK3i/DGo=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=rwr4tQOP; arc=pass smtp.client-ip=209.85.215.182
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="rwr4tQOP"
-Received: by mail-pg1-f182.google.com with SMTP id 41be03b00d2f7-cbb973e6749so1552081a12.1
-        for <linux-input@vger.kernel.org>; Sat, 25 Jul 2026 06:23:25 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1784985805; cv=none;
-        d=google.com; s=arc-20260327;
-        b=s7bFaAHu47BB7BczA55c2ij4YnjZJ+9Ks1Tc9oKCthKwHEVkSTS2oHgTuaVid8P5f9
-         Fnn/UGiXK4wEhdnMNuItBxh+lQ7f8QtjYbfX+Bg/e8GueIY8e5YxqG3y12l3klROIzA7
-         5WPBwUxyMrChg7PRRDcm2NaDQnaFP5mpw1XHEt6Jt/z9bJx3+T3iNRShIYHI3ghNmUuo
-         u59r/VykReYBPDMyt+i9+pI/b/WrsaUTARvWOpL4a9nq6mH2oPq1BcDL36nJcYLp2kDs
-         f7e+I8s97qrtKDRfT4P+//Aej8bl5JwrIZoHz4mhDpOLQA1REG3YdtpxdYUONX1ZXceP
-         Dviw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=Dw44hJDz7rSvpH5qvEi2DXJBQouyq2n4xZUL150B+WY=;
-        fh=ikYHnkPV5k6S/DMuts5x9sHRkC5wrCE7aGQz8tJNyWk=;
-        b=bjizus6j2C0kaHQBxP6/uOy/ZkaTPpl9IvQMAR0B39qTk7/P9xR1Xj+nvcsLE0XUBU
-         m5lNqoPR+5LC8Q/gQhoxJ0QaJeRHB26H6bQVaZtP+nfKywMLRjEmezGSudU+i7ixsgKt
-         IuplDNaLkv7rT4h97rRe5aWV36eH0AD/0Gur6eNtdUcl4u0spx2Il/pRJ+Qs3j2SI+Gz
-         3ESV5kYTdRCMk8X6prNGP6U8bgeoshyT6qnnFksnzwFPU4w3dOomfJzkhLYbPDA60D3z
-         7hwXZq5NTdxqKcwY1wH12+dfTpgBby6RLdJVKZoxB6P8xIuFxVASAyMLnfo6uXFlMDM8
-         0z1w==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784985805; x=1785590605; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=Dw44hJDz7rSvpH5qvEi2DXJBQouyq2n4xZUL150B+WY=;
-        b=rwr4tQOP/NDuSVNy6MSTjghqfhqv/9wiglejRt1ULV6Th9ZpXSsgm5REam0H9lKkzk
-         o896/WR/6nNlL7/9jA0Dl7db0LpDOtVkkqJbmMGG5Q0A0dFsSwRlAiOSpOnLQa59vwZQ
-         lb/qby2aAFMubawZFbk9pH6OTbCd0xQI+VV+MlfrNEwwdY1foEztzk19SFDoBOaau+qJ
-         Jn0Q6WM26eRMQ3YfafZw8yfEJlCgHzxzGgR5GU9ilx4q+RTu0q23b6DyfWS62TSshZQ5
-         fD+eQZrNToPFKs2IYJ8/NHhI2AwCIH1QuaYVO5NtVzyqFuWeYNmvSCIB9Wn9qcqau3Kq
-         BckA==
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5E46D349CF2
+	for <linux-input@vger.kernel.org>; Sat, 25 Jul 2026 19:56:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.207
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1785009398; cv=none; b=IEbGRF54m9XP0QlHzvg/LhN364LubaTbtGmI/FK+BhfpFuRVVVl0uZqmMY3sw6nOCqr2wKvg8TT1FHZOc49lAp7ZZqrDKdnmHyL2TjIt2VjlcYrWQ0encOQkg8/E4zzajBmUKObru5ZWandbnuXJwpUHSLG2PL/Rh/RZNztt23w=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1785009398; c=relaxed/simple;
+	bh=IMoXS/BcO1qL7fj3zWRgRqxcBQPRGySD2aVm3fydnPk=;
+	h=MIME-Version:Date:Message-ID:Subject:From:To:Content-Type; b=DWus9FUp2xRKhRZipVZ5uOkRXMaSyoeZhmrjxw0WgzFE1Auks4HB5ya0r5AzAlRdOOyrfEnYu4rgMltGGdv+LgeMY1q2zO8CHiFa0+0wwwcH2x6WUfKEN3/HwxZ10sPGYBHfEhyc30GfSCf8o+HcOBznxt8JGQ+L/k/8UCUSQK8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.167.207
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
+Received: by mail-oi1-f207.google.com with SMTP id 5614622812f47-4a45997664aso2149182b6e.1
+        for <linux-input@vger.kernel.org>; Sat, 25 Jul 2026 12:56:36 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784985805; x=1785590605;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
+        d=1e100.net; s=20251104; t=1785009395; x=1785614195;
+        h=content-type:to:from:subject:message-id:date:mime-version
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=Dw44hJDz7rSvpH5qvEi2DXJBQouyq2n4xZUL150B+WY=;
-        b=K1SnUruNgW2vtlt8LhgcbHdnCqS1Vb7+awT2Uo3sZDeMcH1drQiAPi3LffOghzsDNI
-         wmQZ2Gx7j1Q/12+1BmIPRqUHOuzhdY5y2sO/z2dt6BDCyJPI9+n9IADk4NKFaqqrloFF
-         MmH/YNppWhuhtsuYPlS7PC/bt/udUnI7GAwEJzb8uK2UHQ2EiBoceENdriKf0jLB2LhY
-         pmQzmALzAEjUkACXmbvywZTcglKsbyaT/WLDiXjF09daJ9MGDdBtBXnVi1MvuGNhwnNq
-         fGVwtK/ooA2kRqARLjWLZle6z1g7syUDQxr5zfMgUf52ncIVV3Xtj/7qzBAMGPeQkbd+
-         afcw==
-X-Forwarded-Encrypted: i=1; AHgh+Rp0misUeJnNPDAEBiA/NlcK7eVjnz+nENzFJcpEmXC41y60F/KhCDgvYMcU7fEle1oAyf8m6zEjqCU5Dw==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yy+jdsyCHX/P6bqK8hTArn9MuDYilEhaYTiNz7MtdCAutfVgSlr
-	tuijDu49ZMTgo25eloaatXBuFzxt1zw+oWNb2naBnpFlcU9KXf8Fr7g6nt99OFI2UYJ60kcs01P
-	RvlT+q2Yl0K0aloZudGQFxnnG8Y42bio=
-X-Gm-Gg: AR+sD122dypF27vQqCI/msAAMiPCLSwdHTODduoqgqSiJ+GGgxhrUSppEJdUz7gkgzz
-	dwBIRr9b0AMnJFoiwypn+CuDJ/Cpi8XdPy5Ex01mWEvzk4TIyOldrX0pnr8R4MfGiTryTxaHQcs
-	JAiNlVnrwQ1TjRK0K8limdWcVsxWBvt9OAksYkCn954EoQyN7VWx2lWrkLvtVC1B1YXuNz/t/J1
-	Dm3S1gRLI+sdwUyp2HS9UKMJTo2M87M6vGkCYY23fJnx0WTj0ug6RNf5fD19mDYaKJKpH1kwjjC
-	qln/l30nFYNEunLLJdA=
-X-Received: by 2002:a05:6a20:c5aa:b0:3c0:9c1b:d0b3 with SMTP id
- adf61e73a8af0-3c67e026f9dmr2180177637.62.1784985805156; Sat, 25 Jul 2026
- 06:23:25 -0700 (PDT)
+        bh=tYLLa9d5ZZSEcz4GOUnCW5126Z1ea/JXPWPE7zU28Fs=;
+        b=O1vHJN4MwziPXgoBA0NizoY56hAfQhofoNfMp6OgL1MohouwEne2QPT3HkuK4XxyeL
+         OR85Y2HoKBCEBojED2RSpAs0FMbSeVHAowiqZOjX/L2ryt+ocMkprj+30NEG8o3ieHgy
+         KCgnJ7qR2qY/g8NHG9RZDnhaaAeX0QVhQh9XbQ6NKUGfSb5kUHzZgr4zHYbP/ygpE6VX
+         TziUQUA5Av6ZuCcRnKm19AxFsU8D7JqrsJ3ezTcx18eIo0lexd/PSWbu3sTBFS/6lX19
+         X7GQqy2TBOgWir9CYDmsYdMUS3phVv4/lvqt5R3Kmi3Od9NWjdWHWT66hkuBJLoODQtu
+         plSw==
+X-Forwarded-Encrypted: i=1; AHgh+RojDHqdMeuIpq8qT7YbQkymmsXEuSpXKQJz/VTys9s6V/lwZdrYQ54s3tjK/VR5PeO2O1MmzlzSzgWl+w==@vger.kernel.org
+X-Gm-Message-State: AOJu0YyHqp3ls62gHSg+f9SmQmTF2j1wywFa4snBaMIDgxtoMj04Ld6k
+	R1R9mKsRIcHZx/VbzBQcaTggdFjMqLN5pT2jSwq/uqr8JYvYvmz2BF21RHv8WglqxJX2R2njlkb
+	CtKf1JGonqNTwHX+vYerMsYI+CeKC+C6qAlgWAVa7Zj5NmKvOEKYaR/+mPIg=
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260721095233.420823-1-clamor95@gmail.com> <20260721095233.420823-3-clamor95@gmail.com>
- <amGx2fJCUB4_XW1M@monoceros>
-In-Reply-To: <amGx2fJCUB4_XW1M@monoceros>
-From: Svyatoslav Ryhel <clamor95@gmail.com>
-Date: Sat, 25 Jul 2026 16:23:13 +0300
-X-Gm-Features: AUfX_mx8PDd_aHDdNKfdxjyqn_bGAG_YlQFuZHOTbUPdXQnkuKB3mJ4_MrnWIhc
-Message-ID: <CAPVz0n2yWtTOgruRc+MAYTZ9=rd6qf6sEnX9v8THvJkN_opvbA@mail.gmail.com>
-Subject: Re: [PATCH v10 2/7] mfd: Add driver for ASUS Transformer embedded controller
-To: =?UTF-8?Q?Uwe_Kleine=2DK=C3=B6nig?= <u.kleine-koenig@baylibre.com>
-Cc: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
-	Conor Dooley <conor+dt@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
-	Lee Jones <lee@kernel.org>, Pavel Machek <pavel@kernel.org>, Sebastian Reichel <sre@kernel.org>, 
-	Ion Agorria <ion@agorria.com>, =?UTF-8?B?TWljaGHFgiBNaXJvc8WCYXc=?= <mirq-linux@rere.qmqm.pl>, 
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-input@vger.kernel.org, linux-leds@vger.kernel.org, 
-	linux-pm@vger.kernel.org
+X-Received: by 2002:a05:6808:159d:b0:489:352c:5153 with SMTP id
+ 5614622812f47-4ab6a113d99mr3129906b6e.21.1785009395234; Sat, 25 Jul 2026
+ 12:56:35 -0700 (PDT)
+Date: Sat, 25 Jul 2026 12:56:35 -0700
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <6a6514f3.70955b6c.323240.0025.GAE@google.com>
+Subject: [syzbot] [input?] [usb?] WARNING in cm109_input_ev/usb_submit_urb (2)
+From: syzbot <syzbot+25031f01508bf55c62ca@syzkaller.appspotmail.com>
+To: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org, 
+	syzkaller-bugs@googlegroups.com
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 
-=D1=87=D1=82, 23 =D0=BB=D0=B8=D0=BF. 2026=E2=80=AF=D1=80. =D0=BE 09:25 Uwe =
-Kleine-K=C3=B6nig
-<u.kleine-koenig@baylibre.com> =D0=BF=D0=B8=D1=88=D0=B5:
->
-> Hello,
->
-> On Tue, Jul 21, 2026 at 12:52:28PM +0300, Svyatoslav Ryhel wrote:
-> > From: Micha=C5=82 Miros=C5=82aw <mirq-linux@rere.qmqm.pl>
-> >
-> > Support Nuvoton NPCE795-based ECs as used in Asus Transformer TF201,
-> > TF300T, TF300TG, TF300TL and TF700T pad and dock, as well as TF101 dock
-> > and TF600T, P1801-T and TF701T pad. This is a glue driver handling
-> > detection and common operations for EC's functions.
-> >
-> > Co-developed-by: Svyatoslav Ryhel <clamor95@gmail.com>
-> > Signed-off-by: Svyatoslav Ryhel <clamor95@gmail.com>
-> > Signed-off-by: Micha=C5=82 Miros=C5=82aw <mirq-linux@rere.qmqm.pl>
->
-> Documentation/process/submitting-patches.rst has:
->
->         [...] the ordering of Signed-off-by: tags should reflect the
->         chronological history of the patch insofar as possible [...]
->
-> So your S-o-b should be last when you submit a patch.
->
-> > +#include <linux/i2c.h>
-> > [...]
-> > +#include <linux/mod_devicetable.h>
->
-> <linux/mod_devicetable.h> will go away soon. Please rely on
-> <linux/i2c.h> to provide a definition of struct of_device_id and drop
-> the #include of mod_devicetable.h.
->
-> > +static const struct of_device_id asus_ec_match[] =3D {
-> > +     {
-> > +             .compatible =3D "asus,sl101-ec-dock",
-> > +             .data =3D &asus_ec_sl101_dock_data
-> > +     }, {
-> > +             .compatible =3D "asus,tf101-ec-dock",
-> > +             .data =3D &asus_ec_tf101_dock_data
-> > +     }, {
-> > +             .compatible =3D "asus,tf201-ec-pad",
-> > +             .data =3D &asus_ec_tf201_pad_data
-> > +     }, {
-> > +             .compatible =3D "asus,tf600t-ec-pad",
-> > +             .data =3D &asus_ec_tf600t_pad_data
-> > +     },
-> > +     { /* sentinel */ }
-> > +};
->
-> Trailing comma after the assignments to .data please.
->
+Hello,
 
-Sure, but out of curiosity, why in this case you ask for trailing
-comma and if entries are in one line, you don't.
+syzbot found the following issue on:
 
-> Best regards
-> Uwe
+HEAD commit:    cc2b5f627e8c Add linux-next specific files for 20260714
+git tree:       linux-next
+console output: https://syzkaller.appspot.com/x/log.txt?x=128a1746580000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=2290ccbf984c524f
+dashboard link: https://syzkaller.appspot.com/bug?extid=25031f01508bf55c62ca
+compiler:       Debian clang version 22.1.8 (++20260613092233+e80beda6e255-1~exp1~20260613092250.77), Debian LLD 22.1.8
+syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=117b92b9580000
+
+Downloadable assets:
+disk image: https://storage.googleapis.com/syzbot-assets/6836f8efb1da/disk-cc2b5f62.raw.xz
+vmlinux: https://storage.googleapis.com/syzbot-assets/0109d3477cc7/vmlinux-cc2b5f62.xz
+kernel image: https://storage.googleapis.com/syzbot-assets/c2e49e350bbf/bzImage-cc2b5f62.xz
+
+IMPORTANT: if you fix the issue, please add the following tag to the commit:
+Reported-by: syzbot+25031f01508bf55c62ca@syzkaller.appspotmail.com
+
+------------[ cut here ]------------
+URB ffff88802bec5e00 submitted while active
+WARNING: drivers/usb/core/urb.c:379 at usb_submit_urb+0x79/0x18b0 drivers/usb/core/urb.c:379, CPU#0: syz.1.696/7407
+Modules linked in:
+CPU: 0 UID: 0 PID: 7407 Comm: syz.1.696 Not tainted syzkaller #0 PREEMPT_{RT,(full)} 
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 06/25/2026
+RIP: 0010:usb_submit_urb+0x7c/0x18b0 drivers/usb/core/urb.c:379
+Code: 4c 89 f0 48 c1 e8 03 80 3c 28 00 74 08 4c 89 f7 e8 f9 92 4d fb 49 83 3e 00 74 40 e8 0e 3c e1 fa 48 8d 3d 87 f1 f8 08 48 89 de <67> 48 0f b9 3a b8 f0 ff ff ff eb 11 e8 f3 3b e1 fa eb 05 e8 ec 3b
+RSP: 0018:ffffc900054ff3f8 EFLAGS: 00010293
+RAX: ffffffff86e467a2 RBX: ffff88802bec5e00 RCX: ffff88803151be80
+RDX: 0000000000000000 RSI: ffff88802bec5e00 RDI: ffffffff8fdd5930
+RBP: dffffc0000000000 R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000000 R11: ffffffff8e3c3880 R12: 1ffff1100b9e9d0a
+R13: dffffc0000000000 R14: ffff88802bec5e08 R15: 0000000000000820
+FS:  00007f395df0e6c0(0000) GS:ffff8881259f2000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007f29938eb580 CR3: 0000000040c08000 CR4: 00000000003526f0
+Call Trace:
+ <TASK>
+ cm109_submit_buzz_toggle drivers/input/misc/cm109.c:351 [inline]
+ cm109_toggle_buzzer_async drivers/input/misc/cm109.c:484 [inline]
+ cm109_input_ev+0x1d1/0x3b0 drivers/input/misc/cm109.c:615
+ input_event_dispose+0x80/0x6b0 drivers/input/input.c:322
+ input_inject_event+0x1fa/0x310 drivers/input/input.c:424
+ kd_sound_helper+0x101/0x210 drivers/tty/vt/keyboard.c:257
+ input_handler_for_each_handle+0x101/0x1c0 drivers/input/input.c:2540
+ kd_mksound+0x96/0x130 drivers/tty/vt/keyboard.c:281
+ handle_ascii drivers/tty/vt/vt.c:2382 [inline]
+ do_con_trol drivers/tty/vt/vt.c:2699 [inline]
+ do_con_write+0x2f5a/0x5540 drivers/tty/vt/vt.c:3325
+ con_write+0x31/0x2e0 drivers/tty/vt/vt.c:3661
+ process_output_block drivers/tty/n_tty.c:557 [inline]
+ n_tty_write+0xd4f/0x11e0 drivers/tty/n_tty.c:2366
+ iterate_tty_write drivers/tty/tty_io.c:1006 [inline]
+ file_tty_write+0x50b/0x980 drivers/tty/tty_io.c:1081
+ new_sync_write fs/read_write.c:595 [inline]
+ vfs_write+0x61e/0xbb0 fs/read_write.c:687
+ ksys_write+0x156/0x270 fs/read_write.c:739
+ do_syscall_x64 arch/x86/entry/syscall_64.c:61 [inline]
+ do_syscall_64+0x17b/0x530 arch/x86/entry/syscall_64.c:85
+ entry_SYSCALL_64_after_hwframe+0x77/0x7f
+RIP: 0033:0x7f395e8ade99
+Code: ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 e8 ff ff ff f7 d8 64 89 01 48
+RSP: 002b:00007f395df0e028 EFLAGS: 00000246 ORIG_RAX: 0000000000000001
+RAX: ffffffffffffffda RBX: 00007f395eb35fa0 RCX: 00007f395e8ade99
+RDX: 0000000000001006 RSI: 0000200000002080 RDI: 0000000000000004
+RBP: 00007f395e943eaf R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000000
+R13: 00007f395eb36038 R14: 00007f395eb35fa0 R15: 00007fff65968248
+ </TASK>
+----------------
+Code disassembly (best guess):
+   0:	4c 89 f0             	mov    %r14,%rax
+   3:	48 c1 e8 03          	shr    $0x3,%rax
+   7:	80 3c 28 00          	cmpb   $0x0,(%rax,%rbp,1)
+   b:	74 08                	je     0x15
+   d:	4c 89 f7             	mov    %r14,%rdi
+  10:	e8 f9 92 4d fb       	call   0xfb4d930e
+  15:	49 83 3e 00          	cmpq   $0x0,(%r14)
+  19:	74 40                	je     0x5b
+  1b:	e8 0e 3c e1 fa       	call   0xfae13c2e
+  20:	48 8d 3d 87 f1 f8 08 	lea    0x8f8f187(%rip),%rdi        # 0x8f8f1ae
+  27:	48 89 de             	mov    %rbx,%rsi
+* 2a:	67 48 0f b9 3a       	ud1    (%edx),%rdi <-- trapping instruction
+  2f:	b8 f0 ff ff ff       	mov    $0xfffffff0,%eax
+  34:	eb 11                	jmp    0x47
+  36:	e8 f3 3b e1 fa       	call   0xfae13c2e
+  3b:	eb 05                	jmp    0x42
+  3d:	e8                   	.byte 0xe8
+  3e:	ec                   	in     (%dx),%al
+  3f:	3b                   	.byte 0x3b
+
+
+---
+This report is generated by a bot. It may contain errors.
+See https://goo.gl/tpsmEJ for more information about syzbot.
+syzbot engineers can be reached at syzkaller@googlegroups.com.
+
+syzbot will keep track of this issue. See:
+https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
+
+If the report is already addressed, let syzbot know by replying with:
+#syz fix: exact-commit-title
+
+If you want syzbot to run the reproducer, reply with:
+#syz test: git://repo/address.git branch-or-commit-hash
+If you attach or paste a git patch, syzbot will apply it before testing.
+
+If you want to overwrite report's subsystems, reply with:
+#syz set subsystems: new-subsystem
+(See the list of subsystem names on the web dashboard)
+
+If the report is a duplicate of another one, reply with:
+#syz dup: exact-subject-of-another-report
+
+If you want to undo deduplication, reply with:
+#syz undup

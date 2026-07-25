@@ -1,170 +1,135 @@
-Received: from mail-oi1-f207.google.com (mail-oi1-f207.google.com [209.85.167.207])
+Received: from mail-qk1-f177.google.com (mail-qk1-f177.google.com [209.85.222.177])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5E46D349CF2
-	for <linux-input@vger.kernel.org>; Sat, 25 Jul 2026 19:56:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.207
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 90817331A7B
+	for <linux-input@vger.kernel.org>; Sat, 25 Jul 2026 20:35:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785009398; cv=none; b=IEbGRF54m9XP0QlHzvg/LhN364LubaTbtGmI/FK+BhfpFuRVVVl0uZqmMY3sw6nOCqr2wKvg8TT1FHZOc49lAp7ZZqrDKdnmHyL2TjIt2VjlcYrWQ0encOQkg8/E4zzajBmUKObru5ZWandbnuXJwpUHSLG2PL/Rh/RZNztt23w=
+	t=1785011742; cv=none; b=aPVFhnxiSHSxHRU3ZIlvNredb6XErWh0+Hna0lOCxS6KkAGDw8HG3mfOxH1aZOVKpK8vKBDbIZz04gGEvxE2W+Pgt3uQeHU3QkxTwM6p/XTjVXyke1V4CC6V+MEIE213ceC9uAdCuBLvGm+GBOKx/muHsf0+tgHUy+a3xDwVOTQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785009398; c=relaxed/simple;
-	bh=IMoXS/BcO1qL7fj3zWRgRqxcBQPRGySD2aVm3fydnPk=;
-	h=MIME-Version:Date:Message-ID:Subject:From:To:Content-Type; b=DWus9FUp2xRKhRZipVZ5uOkRXMaSyoeZhmrjxw0WgzFE1Auks4HB5ya0r5AzAlRdOOyrfEnYu4rgMltGGdv+LgeMY1q2zO8CHiFa0+0wwwcH2x6WUfKEN3/HwxZ10sPGYBHfEhyc30GfSCf8o+HcOBznxt8JGQ+L/k/8UCUSQK8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.167.207
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
-Received: by mail-oi1-f207.google.com with SMTP id 5614622812f47-4a45997664aso2149182b6e.1
-        for <linux-input@vger.kernel.org>; Sat, 25 Jul 2026 12:56:36 -0700 (PDT)
+	s=arc-20240116; t=1785011742; c=relaxed/simple;
+	bh=JI/1p4HiUb1gV1m1gIBwh7JAsAjpmArIYKEU5U/bgvg=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=RkmDtV8XVR6rUa5awaw8oOabWyN3uI9S1XlctrYmD1Smr3b1n1/h391jsAIE1ftJ2wJnJCILPjD1UrOPcJDA8yVaX8k25hrDX+QVA56EUT005iWTX+IVE72doY9MPd5B8Pweorv2j50XMJw2F+yrH6suUtUGMT4OJdNiy9FOwsE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=oGcN6Oiu; arc=none smtp.client-ip=209.85.222.177
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="oGcN6Oiu"
+Received: by mail-qk1-f177.google.com with SMTP id af79cd13be357-92e67555e24so94455685a.3
+        for <linux-input@vger.kernel.org>; Sat, 25 Jul 2026 13:35:41 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1785011740; x=1785616540; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=c2iGM0CeFJssdANSG6zo2+MACo+ipwveei6/ZK3TugU=;
+        b=oGcN6OiuHYRMKiFYCc3AhzSNDUb1p8NAS3j+3gwNo0QX0Dk/VRhfIr3B/xbvZHWn/G
+         GgSCQTf+vyRvDCXAuQK0HyH4gHgFu+Rz4KVzERspAtDct9bV1SUi2DaqaQY/lMlRJ6Mv
+         d2MkIi+pB5lPMZDguJVu5gydCm5a5WtRTmjeeVJyAfiYstpGdvwLeWqtoBa0ApzAmSpG
+         rs63Vy/x6cUyvYBejzMa54TdXhZqrJRYCzr+bA7vIUsVz3t2OjvzIXZ/+319mCmYCGtA
+         X1EoRiCWnHakrhu2jZagk0SFung9PUKMmze27bwDJFsMfz0W565yhxsMd5bQoeufZVkc
+         +0AA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785009395; x=1785614195;
-        h=content-type:to:from:subject:message-id:date:mime-version
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=tYLLa9d5ZZSEcz4GOUnCW5126Z1ea/JXPWPE7zU28Fs=;
-        b=O1vHJN4MwziPXgoBA0NizoY56hAfQhofoNfMp6OgL1MohouwEne2QPT3HkuK4XxyeL
-         OR85Y2HoKBCEBojED2RSpAs0FMbSeVHAowiqZOjX/L2ryt+ocMkprj+30NEG8o3ieHgy
-         KCgnJ7qR2qY/g8NHG9RZDnhaaAeX0QVhQh9XbQ6NKUGfSb5kUHzZgr4zHYbP/ygpE6VX
-         TziUQUA5Av6ZuCcRnKm19AxFsU8D7JqrsJ3ezTcx18eIo0lexd/PSWbu3sTBFS/6lX19
-         X7GQqy2TBOgWir9CYDmsYdMUS3phVv4/lvqt5R3Kmi3Od9NWjdWHWT66hkuBJLoODQtu
-         plSw==
-X-Forwarded-Encrypted: i=1; AHgh+RojDHqdMeuIpq8qT7YbQkymmsXEuSpXKQJz/VTys9s6V/lwZdrYQ54s3tjK/VR5PeO2O1MmzlzSzgWl+w==@vger.kernel.org
-X-Gm-Message-State: AOJu0YyHqp3ls62gHSg+f9SmQmTF2j1wywFa4snBaMIDgxtoMj04Ld6k
-	R1R9mKsRIcHZx/VbzBQcaTggdFjMqLN5pT2jSwq/uqr8JYvYvmz2BF21RHv8WglqxJX2R2njlkb
-	CtKf1JGonqNTwHX+vYerMsYI+CeKC+C6qAlgWAVa7Zj5NmKvOEKYaR/+mPIg=
+        d=1e100.net; s=20251104; t=1785011740; x=1785616540;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=c2iGM0CeFJssdANSG6zo2+MACo+ipwveei6/ZK3TugU=;
+        b=A52WbVouWEmb7//0z/xUnJ57Kb80NIm7AmYTHHKjVlNjgI0p2rqjSgopdCCkqi7NBs
+         rSZ/+/7w83ATSpQw77Kdq16IkiX2kpjLxb8uGFIwzyeFabYShDczGCnZEYBiLEyOCAiH
+         uAeYBjUeK9nuqjVoJYQDfqZcHJUgkEWJ/BO3yWTT+qfkbhK2+PymM5Uav/lNUAZsAC5a
+         WNBrYMtDYto13f8HfLBAOjsMH3n7c6a+NWAja/LKw6VL2lll4TMAbyJg+6GRnonhBide
+         Yw1hlzBpTkUSv6/vuW84eyIkNaPP6keI0XcqwngC+MVBlI/bt/Ki8vkBS1SKzUqGbe2o
+         vaWQ==
+X-Gm-Message-State: AOJu0Yy2rQ9Gx67PffNMZ/8QKyN1Rb7vmVrlzZtwgjKDZGNg2UwhDk/Z
+	pV3O9N6J8RaimCp14ZFKgd9sUXH//FWNLxEXCy/M52jJ9/CeT2e+rOUG
+X-Gm-Gg: AR+sD124930U6iWUDOvMDhae4UnA/FL60A6H9hFjKElYkmllClVj7xwF3KRPf64guUJ
+	P74ks24ZkDvTzcjBFOTLD4i5L3fh0gdLfkUQ2lTfCvixE9pLoRKcK/hxtfxA1BmSimhYj5OMSWC
+	5rbXsuzoLyvnZfRC0/xS/22hJfbSaqjmAg7MsZw3DNNZBcuN6mQ0X85wL6Og3B4rF/5uki3fPxr
+	i5SUUmuC0I4qEYfbbu4OkDG/uXlKo500Gv57UGWmGnotHbRzd9ESmACpGCCiVRl0uVtzepmiWow
+	QDt38VVviR2WK3A3FArz33GRigyyDHYNobmQaZUk0r2meKsvlU7Sv/5cKgfcEe1sgHJypYGTrcD
+	Go/ObQrl6uK0ictSRvTlYt31AT6EMQCdwmtVBSKlRDyvEaAKBcyYrMSuJSOC7ANDfSWipMlHFl7
+	8TeTYIwncBnOBMy1IBUQ==
+X-Received: by 2002:a05:620a:25d0:b0:932:dff0:93a8 with SMTP id af79cd13be357-932dff094b6mr311021385a.5.1785011740248;
+        Sat, 25 Jul 2026 13:35:40 -0700 (PDT)
+Received: from karch-btw.home.kod ([2600:4040:55d9:6c00:2cdb:f30a:f539:7b03])
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-932de636183sm214403985a.27.2026.07.25.13.35.39
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 25 Jul 2026 13:35:39 -0700 (PDT)
+From: Christopher Kodama <ckhordiasma@gmail.com>
+To: bentiss@kernel.org,
+	jikos@kernel.org
+Cc: linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Christopher Kodama <ckhordiasma@gmail.com>,
+	stable@vger.kernel.org
+Subject: [PATCH] HID: magicmouse: re-enable multitouch after reset-resume
+Date: Sat, 25 Jul 2026 16:34:46 -0400
+Message-ID: <20260725203446.35001-1-ckhordiasma@gmail.com>
+X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Received: by 2002:a05:6808:159d:b0:489:352c:5153 with SMTP id
- 5614622812f47-4ab6a113d99mr3129906b6e.21.1785009395234; Sat, 25 Jul 2026
- 12:56:35 -0700 (PDT)
-Date: Sat, 25 Jul 2026 12:56:35 -0700
-X-Google-Appengine-App-Id: s~syzkaller
-X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <6a6514f3.70955b6c.323240.0025.GAE@google.com>
-Subject: [syzbot] [input?] [usb?] WARNING in cm109_input_ev/usb_submit_urb (2)
-From: syzbot <syzbot+25031f01508bf55c62ca@syzkaller.appspotmail.com>
-To: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org, 
-	syzkaller-bugs@googlegroups.com
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 
-Hello,
+When the Apple Magic Trackpad 2 (USB) is reset across a power transition
+(e.g. resume from hibernation) it drops out of multitouch mode: it keeps
+sending report ID 0x02 on its HID_TYPE_USBMOUSE interface, but the packet
+shrinks from 21 to 8 bytes and the trackpad2 handler drops it (size < 12).
+Clicks still work but pointer motion is lost until the device is re-plugged
+or the driver reloaded.
 
-syzbot found the following issue on:
+Re-enable multitouch from .reset_resume via the workqueue.  Only
+.reset_resume is needed; suspend-to-idle keeps the device powered and
+retains multitouch.
 
-HEAD commit:    cc2b5f627e8c Add linux-next specific files for 20260714
-git tree:       linux-next
-console output: https://syzkaller.appspot.com/x/log.txt?x=128a1746580000
-kernel config:  https://syzkaller.appspot.com/x/.config?x=2290ccbf984c524f
-dashboard link: https://syzkaller.appspot.com/bug?extid=25031f01508bf55c62ca
-compiler:       Debian clang version 22.1.8 (++20260613092233+e80beda6e255-1~exp1~20260613092250.77), Debian LLD 22.1.8
-syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=117b92b9580000
-
-Downloadable assets:
-disk image: https://storage.googleapis.com/syzbot-assets/6836f8efb1da/disk-cc2b5f62.raw.xz
-vmlinux: https://storage.googleapis.com/syzbot-assets/0109d3477cc7/vmlinux-cc2b5f62.xz
-kernel image: https://storage.googleapis.com/syzbot-assets/c2e49e350bbf/bzImage-cc2b5f62.xz
-
-IMPORTANT: if you fix the issue, please add the following tag to the commit:
-Reported-by: syzbot+25031f01508bf55c62ca@syzkaller.appspotmail.com
-
-------------[ cut here ]------------
-URB ffff88802bec5e00 submitted while active
-WARNING: drivers/usb/core/urb.c:379 at usb_submit_urb+0x79/0x18b0 drivers/usb/core/urb.c:379, CPU#0: syz.1.696/7407
-Modules linked in:
-CPU: 0 UID: 0 PID: 7407 Comm: syz.1.696 Not tainted syzkaller #0 PREEMPT_{RT,(full)} 
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 06/25/2026
-RIP: 0010:usb_submit_urb+0x7c/0x18b0 drivers/usb/core/urb.c:379
-Code: 4c 89 f0 48 c1 e8 03 80 3c 28 00 74 08 4c 89 f7 e8 f9 92 4d fb 49 83 3e 00 74 40 e8 0e 3c e1 fa 48 8d 3d 87 f1 f8 08 48 89 de <67> 48 0f b9 3a b8 f0 ff ff ff eb 11 e8 f3 3b e1 fa eb 05 e8 ec 3b
-RSP: 0018:ffffc900054ff3f8 EFLAGS: 00010293
-RAX: ffffffff86e467a2 RBX: ffff88802bec5e00 RCX: ffff88803151be80
-RDX: 0000000000000000 RSI: ffff88802bec5e00 RDI: ffffffff8fdd5930
-RBP: dffffc0000000000 R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000000000000 R11: ffffffff8e3c3880 R12: 1ffff1100b9e9d0a
-R13: dffffc0000000000 R14: ffff88802bec5e08 R15: 0000000000000820
-FS:  00007f395df0e6c0(0000) GS:ffff8881259f2000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00007f29938eb580 CR3: 0000000040c08000 CR4: 00000000003526f0
-Call Trace:
- <TASK>
- cm109_submit_buzz_toggle drivers/input/misc/cm109.c:351 [inline]
- cm109_toggle_buzzer_async drivers/input/misc/cm109.c:484 [inline]
- cm109_input_ev+0x1d1/0x3b0 drivers/input/misc/cm109.c:615
- input_event_dispose+0x80/0x6b0 drivers/input/input.c:322
- input_inject_event+0x1fa/0x310 drivers/input/input.c:424
- kd_sound_helper+0x101/0x210 drivers/tty/vt/keyboard.c:257
- input_handler_for_each_handle+0x101/0x1c0 drivers/input/input.c:2540
- kd_mksound+0x96/0x130 drivers/tty/vt/keyboard.c:281
- handle_ascii drivers/tty/vt/vt.c:2382 [inline]
- do_con_trol drivers/tty/vt/vt.c:2699 [inline]
- do_con_write+0x2f5a/0x5540 drivers/tty/vt/vt.c:3325
- con_write+0x31/0x2e0 drivers/tty/vt/vt.c:3661
- process_output_block drivers/tty/n_tty.c:557 [inline]
- n_tty_write+0xd4f/0x11e0 drivers/tty/n_tty.c:2366
- iterate_tty_write drivers/tty/tty_io.c:1006 [inline]
- file_tty_write+0x50b/0x980 drivers/tty/tty_io.c:1081
- new_sync_write fs/read_write.c:595 [inline]
- vfs_write+0x61e/0xbb0 fs/read_write.c:687
- ksys_write+0x156/0x270 fs/read_write.c:739
- do_syscall_x64 arch/x86/entry/syscall_64.c:61 [inline]
- do_syscall_64+0x17b/0x530 arch/x86/entry/syscall_64.c:85
- entry_SYSCALL_64_after_hwframe+0x77/0x7f
-RIP: 0033:0x7f395e8ade99
-Code: ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 e8 ff ff ff f7 d8 64 89 01 48
-RSP: 002b:00007f395df0e028 EFLAGS: 00000246 ORIG_RAX: 0000000000000001
-RAX: ffffffffffffffda RBX: 00007f395eb35fa0 RCX: 00007f395e8ade99
-RDX: 0000000000001006 RSI: 0000200000002080 RDI: 0000000000000004
-RBP: 00007f395e943eaf R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000000
-R13: 00007f395eb36038 R14: 00007f395eb35fa0 R15: 00007fff65968248
- </TASK>
-----------------
-Code disassembly (best guess):
-   0:	4c 89 f0             	mov    %r14,%rax
-   3:	48 c1 e8 03          	shr    $0x3,%rax
-   7:	80 3c 28 00          	cmpb   $0x0,(%rax,%rbp,1)
-   b:	74 08                	je     0x15
-   d:	4c 89 f7             	mov    %r14,%rdi
-  10:	e8 f9 92 4d fb       	call   0xfb4d930e
-  15:	49 83 3e 00          	cmpq   $0x0,(%r14)
-  19:	74 40                	je     0x5b
-  1b:	e8 0e 3c e1 fa       	call   0xfae13c2e
-  20:	48 8d 3d 87 f1 f8 08 	lea    0x8f8f187(%rip),%rdi        # 0x8f8f1ae
-  27:	48 89 de             	mov    %rbx,%rsi
-* 2a:	67 48 0f b9 3a       	ud1    (%edx),%rdi <-- trapping instruction
-  2f:	b8 f0 ff ff ff       	mov    $0xfffffff0,%eax
-  34:	eb 11                	jmp    0x47
-  36:	e8 f3 3b e1 fa       	call   0xfae13c2e
-  3b:	eb 05                	jmp    0x42
-  3d:	e8                   	.byte 0xe8
-  3e:	ec                   	in     (%dx),%al
-  3f:	3b                   	.byte 0x3b
-
-
+Fixes: 87a2f10395c8 ("HID: magicmouse: Apple Magic Trackpad 2 USB-C driver support")
+Cc: stable@vger.kernel.org
+Assisted-by: Claude-Code:claude-opus-4-8
+Signed-off-by: Christopher Kodama <ckhordiasma@gmail.com>
 ---
-This report is generated by a bot. It may contain errors.
-See https://goo.gl/tpsmEJ for more information about syzbot.
-syzbot engineers can be reached at syzkaller@googlegroups.com.
+ drivers/hid/hid-magicmouse.c | 19 +++++++++++++++++++
+ 1 file changed, 19 insertions(+)
 
-syzbot will keep track of this issue. See:
-https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
+diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
+index 802a3479e..2bd1303e6 100644
+--- a/drivers/hid/hid-magicmouse.c
++++ b/drivers/hid/hid-magicmouse.c
+@@ -995,6 +995,22 @@ static void magicmouse_remove(struct hid_device *hdev)
+ 	hid_hw_stop(hdev);
+ }
+ 
++#ifdef CONFIG_PM
++static int magicmouse_reset_resume(struct hid_device *hdev)
++{
++	struct magicmouse_sc *msc = hid_get_drvdata(hdev);
++
++	/* The device drops out of multitouch mode on resume; re-send the
++	 * enable report.  Only the HID_TYPE_USBMOUSE interface accepts it, and
++	 * it must be deferred. Sending it inline here is too early.
++	 */
++	if (msc && hdev->type == HID_TYPE_USBMOUSE)
++		schedule_delayed_work(&msc->work, msecs_to_jiffies(500));
++
++	return 0;
++}
++#endif
++
+ static const __u8 *magicmouse_report_fixup(struct hid_device *hdev, __u8 *rdesc,
+ 					   unsigned int *rsize)
+ {
+@@ -1058,6 +1074,9 @@ static struct hid_driver magicmouse_driver = {
+ 	.event = magicmouse_event,
+ 	.input_mapping = magicmouse_input_mapping,
+ 	.input_configured = magicmouse_input_configured,
++#ifdef CONFIG_PM
++	.reset_resume = magicmouse_reset_resume,
++#endif
+ };
+ module_hid_driver(magicmouse_driver);
+ 
+-- 
+2.55.0
 
-If the report is already addressed, let syzbot know by replying with:
-#syz fix: exact-commit-title
-
-If you want syzbot to run the reproducer, reply with:
-#syz test: git://repo/address.git branch-or-commit-hash
-If you attach or paste a git patch, syzbot will apply it before testing.
-
-If you want to overwrite report's subsystems, reply with:
-#syz set subsystems: new-subsystem
-(See the list of subsystem names on the web dashboard)
-
-If the report is a duplicate of another one, reply with:
-#syz dup: exact-subject-of-another-report
-
-If you want to undo deduplication, reply with:
-#syz undup

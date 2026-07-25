@@ -1,145 +1,100 @@
-Received: from mail-pj1-f42.google.com (mail-pj1-f42.google.com [209.85.216.42])
+Received: from mail-pj1-f45.google.com (mail-pj1-f45.google.com [209.85.216.45])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 78846255F28
-	for <linux-input@vger.kernel.org>; Sat, 25 Jul 2026 00:47:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.42
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C6B1B331EA3
+	for <linux-input@vger.kernel.org>; Sat, 25 Jul 2026 01:03:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.45
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784940432; cv=none; b=h7R97886UArZQmhOsaQs6VZP8EWtERTMlJenqoBSRNjq2GQy/4TC0LfABLuRGBv5N7Gyb+GhX3wYYn5y5q/YfHOSXB3e75x1F2iqXYnhClZSUujU6INBqCqw/Yu9Je0Y6lNCty36hRi3FMhRxkPbZ0bYLuuutAZItS8U3hd5zb8=
+	t=1784941387; cv=none; b=b3bq6q4u4Gj/Dp6rrsCbxhO6c979IVA/DQzZMyHFOHUdJYaVCg8in1W2X8qjNh4V9BgMmq/sNWBda5E/BkuotNSNVHYXbd5eqocSaDBRkz2uA+xeD1u8cDgBvk/WxuJA+5phlHBUfrR5af+t8Sv8uFp/8IlzNAV0QFYzNuNPEzU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784940432; c=relaxed/simple;
-	bh=UJVA9+EOL1W+AO6b9PWinnVn9nww4fVVLjqsLiybgIk=;
+	s=arc-20240116; t=1784941387; c=relaxed/simple;
+	bh=TiLoywhZJG0EXwMCo9QLUPXjCy+ZCnB0vIt3vMPVpzc=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=oK8vPpdUorhWGkMsWZp3EVvT7PncfDklTnzTVwlGX8CNrevMSGVCuNkr/dYuVZtrKfwn18PJ7lS7L9JjCACqFZNC0TnTpAJiILrFrn4rzsWWcpOiy2Cy5C48ZdTunwscN6Uowj472zNu843K20WMWW3B+jLQ2MRhosmLInLiAvA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=X20XkpRt; arc=none smtp.client-ip=209.85.216.42
+	 Content-Type:Content-Disposition:In-Reply-To; b=XkRw8WbOqUYKoTUmPO9nfMFDeTvo6FiQ3VGSsbyy4Fa9TPOsiHt6+KHIjTzsEKx0FOJ88T9DAgOIdPpTDRc76fvHT6v0jstcjDUnvzq06/nOHLM7svqVv0iZOtSAasLQ4F9Pfb4pGIfSCBM8iGPukyrXtPgi59TIb4CCb6KF3NQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=eyUzuItr; arc=none smtp.client-ip=209.85.216.45
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="X20XkpRt"
-Received: by mail-pj1-f42.google.com with SMTP id 98e67ed59e1d1-382ef647e20so1048599a91.1
-        for <linux-input@vger.kernel.org>; Fri, 24 Jul 2026 17:47:11 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="eyUzuItr"
+Received: by mail-pj1-f45.google.com with SMTP id 98e67ed59e1d1-38dd55ad76cso957691a91.1
+        for <linux-input@vger.kernel.org>; Fri, 24 Jul 2026 18:03:04 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784940431; x=1785545231; darn=vger.kernel.org;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :content-type:mime-version:references:message-id:subject:cc:to:from
-         :date:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=nLa0EMw9PWWGmtr3YMFJ2UkiiCRgohdNwEzulmVed7c=;
-        b=X20XkpRtrqo80eIO8rjbrIPG9UlcXMVrdg/RJXAyDSPCkYyFg6WjYBjx4iJ/ENJ4gp
-         NQA43R9bKPhKBpPoYUY014esc/9m8aMvwl5U60APrFM4mqfbrDZblylYAMpUnOSMOE1z
-         4zxeEclL4DcoNmF6MVG5ZEiz6WBkOl9RR+YoflSuQdS1/+TIhH4sKcsWK/BLY8pl4jZb
-         Cr2DfDDwxs2kuquV3IzAe1e9PJVDrpqyqGAw8wKQ8k2c02YTBYf5z62TuA52qA8I0Bes
-         tp+t7rtDnyD5Z4oSwtOlHMfiejUYvEKwYtu5lJ9ENe3WxwIbhKFzhtFJkY978Xxkp+8E
-         UXCw==
+        d=gmail.com; s=20251104; t=1784941383; x=1785546183; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=mtzcZd0BHK8pah0ZqU0OyKfJs9YQfUCnaRspeibYxl8=;
+        b=eyUzuItrPejBPfS1Aug0e6Q/UFrLTOsD1YeJnmw3QKf73qO348jA8gC8/jRAe39dv/
+         XXqqaze7VcT98Dry2p4Sh0/wDdQo7f2UFpHac1zVFUlgC5yphKCq/+h6pwSbbXmDxU9L
+         CrQZ2Te8XnIZ4iGOLZHnEkL6S8fKe1nB20YhDD92Ne7uuoqvb++GmLvBgJX53PTMRLEY
+         xEAsDEcjrexSnhDoH/7R/HfTYgd5OnjRi/lWoe8678GPNtdejJ2m0btE6kbDxTkfEBn2
+         ADdB7bGN/n1lknRE9gQV6g7Hq8uyb+WNq+NPAvT08HzerxXBZUKdcq5oiIgLiFyln3oz
+         IqKQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784940431; x=1785545231;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :content-type:mime-version:references:message-id:subject:cc:to:from
-         :date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to:content-type;
-        bh=nLa0EMw9PWWGmtr3YMFJ2UkiiCRgohdNwEzulmVed7c=;
-        b=JMTlQrciYh8tD134LKnh+jJHhwh2TCX7HpYx0MzrpIiAdHv5mszu1lAO8lolFa6ecc
-         2XK/DRe9/MJgN/4AzzlOmjkCGSnGS327AePlarrusmrSDNN8u/lIGFjqNQLRX8Anye0h
-         6hFse6UBQUrf1vfJ9rBz5gSg/9mCoyrW8Cl40vil294vDzQbZ8Wee57upif1w3aNjP6u
-         xovZM3mHaMqRQs5ad6pz83n9yChMsEAushT8T9gk17O60O7j2CXRVurBmXOD/uIHrXGF
-         v1C7PS2Ttq5qhNPurx4r5FgZjH6XhDvy837pJFwdOW2VHazgIF7vYXFpHU2QwOikA5i9
-         MCRg==
-X-Gm-Message-State: AOJu0YyEQvsdEPJwvYP55Nb4aHkpE6z0pE0MRwgp61Rg5amM1oS8Fz3t
-	/WEu3dkZtG6nDjUhRh38IrfeeBhv4hYcTmjmTg39jz8RRK/ty7kCOO2d
-X-Gm-Gg: AR+sD10e/x4Gg0x7rkH0lfOGy1HC0jU65RV+0QEZho+rXeeaB2fIMxFiNkQTSNLKlkz
-	p7ob8ps3txdvWp82h9+B9EY7TlaNfD3LWHp0pcocRje9QID180iirlAcN6+XypdlWt898F633hn
-	pQBND6XaBVSw+H5eFeDMMJSU+Cepb8wmPsY6WTyVFkEWuCP4zVuWc664aIQqqYImpAGqvqq2O9W
-	zb/jxAHKWOofu2tXEo35MyTXcmcQK24YycFxjBqHKcPpnG/3kuJAr8qPZxev222zS5OTZ1csIrr
-	X6F4W96qzCygAgZZ4YhObwnRhQRCA/jOrgBF6X4GD2QjAd8DQiLZJEDl9guQb3Ga3VzrHtJXOBO
-	zTMdiGLsGKYSRSkLx9/65oBRKTBf7WiPHL/ohM6uKFHJdBV0ulge9SzUVbjS7YGBXM3pAJG7+8+
-	HXQ0wv4cMABVJdOF0JNydfM6yfBlLYPn9cGoio87rpIBk=
-X-Received: by 2002:a17:90b:3b83:b0:387:e0db:3d8e with SMTP id 98e67ed59e1d1-38f298857damr611643a91.41.1784940430666;
-        Fri, 24 Jul 2026 17:47:10 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1784941383; x=1785546183;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=mtzcZd0BHK8pah0ZqU0OyKfJs9YQfUCnaRspeibYxl8=;
+        b=qwvc0RKhyEhZ3kV+RXn9IJiRWwEF8IdKMkyGa31x4Nw3bI2w9ml03C8TatHwOgYzVo
+         KyWP6c9QNxLZv5IW58KEa8Lw/pdk0IvuzjGuXavXWnw1I1I9Z6N9HUkhrlMyP5/2ocfK
+         gvjhl7JBwHaDLCN8il0GzdZCCM3ZBqHoTYUX2Huv9vEpdhRK1hAUuYfLZDniqpBmQGjf
+         WGeqEPUtl+ZqGziQbqdk0jKz7KGCzalCH+CC1lrMBxqW0EqcUA5R+XD2k3/KCLT92XgC
+         rZBdvytdRlDyLaKPG7+i//aqym3yYLubZgDm92boYtfMcVWvKWssKfpv+6BPqyJRCtXh
+         B7/g==
+X-Forwarded-Encrypted: i=1; AHgh+RozJNDm9hGM84Ow62psF4tubRIXYVSOwDpFq35W1fAQIOndHt24Exy5RwTxoJkgCfGrhuAr+Peh8KH14g==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yx0spfkHtWnqb/n/h/oz5l4Xytqv+ZqhJAoWA37YD1OEWybvxtG
+	vR4FMRbexRuNf3krNU9vHiPNCWgZRKGPl3/nGhCrFc4+bHVQ0ijmDkY1
+X-Gm-Gg: AR+sD12ZMSt2cUXVUK+ASscrIBqVo6zge5JAYUQ4+H4Hm/2NKHiv+QNuIWl1PlBlbiE
+	hB8maksP9ahG2KYeZBBtiYojDWVBtWaoxgj9s1OpnAUzPSIqGkKlMZYLhPORKbsWP/jxin3I1jQ
+	F51Vyw98qfLYH92+jxoV25DwqFIftD6Rjp25vIzhZcxAQVcAXFkKqsE0XjPFQSPVlrkyk3qKb25
+	iSazcSg3tLrrUd8oisLiMvbH8xkHk0PegG10dZLcjVaAjL4ou8ATXLIxnFrd2x8I0K1p+gkdz1n
+	jX1hxyEkIgibYIC764j/hNbvyPsbGAcCUCa3ZkGKc4qNuugL13fxWZGklK8XSI7wDa9i/inZsAa
+	reoMSyHEshovrPbR+KoJ5XZe4UmK9Ai8wrY4cPNjGEd4BM64BUaxhPh5jdGGf18QSIcS8xJ3i9v
+	7gwqcVD022y0g7Cfz75hBaZFLRN024DSsvLK6rFtJaFYM=
+X-Received: by 2002:a17:90a:d885:b0:381:10a3:8b10 with SMTP id 98e67ed59e1d1-38f1efd68admr2511017a91.14.1784941383451;
+        Fri, 24 Jul 2026 18:03:03 -0700 (PDT)
 Received: from google.com ([2a00:79e0:2ebe:8:40e1:40e4:dabe:543e])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-13d130f55c6sm48048249c88.15.2026.07.24.17.47.09
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-13d130f42bbsm32542730c88.14.2026.07.24.18.03.01
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 24 Jul 2026 17:47:09 -0700 (PDT)
-Date: Fri, 24 Jul 2026 17:47:06 -0700
+        Fri, 24 Jul 2026 18:03:02 -0700 (PDT)
+Date: Fri, 24 Jul 2026 18:02:59 -0700
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Liang Zhan <liangzhan5dev@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Input: tca8418_keypad - fix potential infinite loop and
- OOB, access on I2C error
-Message-ID: <amP9vj5SZ6Jlipm0@google.com>
-References: <f03a892c-0961-4e07-a6e1-dbc3ff2064db@gmail.com>
+To: kr494167@gmail.com
+Cc: hvilleneuve@dimonoff.com, andriy.shevchenko@intel.com, 
+	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Input: charlieplex_keypad - check
+ gpiod_direction_output() return value
+Message-ID: <amQLPadZPLaAVXQV@google.com>
+References: <20260723022943.9337-1-kr494167@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <f03a892c-0961-4e07-a6e1-dbc3ff2064db@gmail.com>
+In-Reply-To: <20260723022943.9337-1-kr494167@gmail.com>
 
-Hi Liang,
+On Thu, Jul 23, 2026 at 07:59:43AM +0530, kr494167@gmail.com wrote:
+> From: Surendra Singh Chouhan <kr494167@gmail.com>
+> 
+> charlieplex_keypad_scan_line() currently ignores the return value of
+> gpiod_direction_output() when setting the active output line for scanning.
+> 
+> If setting the GPIO direction fails (e.g. on I2C/SPI GPIO expanders or
+> hardware errors), the function continues to sleep and read input values
+> from an improperly configured GPIO line.
+> 
+> Fix this by capturing the return value of gpiod_direction_output() and
+> returning the error code immediately if it fails.
+> 
+> Fixes: 2ca45e57ea02 ("Input: charlieplex_keypad - add GPIO charlieplex keypad")
+> Signed-off-by: Surendra Singh Chouhan <kr494167@gmail.com>
 
-On Thu, Jul 23, 2026 at 11:41:43AM +0800, Liang Zhan wrote:
-> From 187224ee38e19fd3f74bfc08d1908c97398fef82 Mon Sep 17 00:00:00 2001
-> From: Zhian Liang <liangzhan5dev@gmail.com>
-> Date: Thu, 23 Jul 2026 00:08:15 +0800
-> Subject: [PATCH] Input: tca8418_keypad - fix potential infinite loop and OOB
->  access on I2C error
-> MIME-Version: 1.0
-> Content-Type: text/plain; charset=UTF-8
-> Content-Transfer-Encoding: 8bit
-> If the I2C bus returns 0xFF (e.g., due to a stuck bus or device fault),
-> the original code would treat it as a valid key event, leading to two
-> critical issues:
-> 1. The loop in tca8418_read_keypad() would never terminate because the
->    condition "reg <= 0" is false for 0xFF (255). This stalls the threaded
->    IRQ handler indefinitely.
-
-Not everything that Sashiko generates needs to be taken literally. If
-transfer glitches I expect I2C core signal this properly.
-
-> 2. The extracted hardware keycode (127) is used to compute row/col
->    indices that exceed the valid range (rows*cols ≤ 80), causing an
->    out-of-bounds read on "keymap[code]" when reporting the key.
-> Fix both by:
-> - Recognizing 0xFF as an empty FIFO condition (along with 0x00).
-> - Validating the keycode before calculating row/col, skipping invalid
->   codes and preventing array overrun.
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Zhian Liang <liangzhan5dev@gmail.com>
-> ---
->  drivers/input/keyboard/tca8418_keypad.c | 11 +++++++++--
->  1 file changed, 9 insertions(+), 2 deletions(-)
-> diff --git a/drivers/input/keyboard/tca8418_keypad.c
-> b/drivers/input/keyboard/tca8418_keypad.c
-> index b124e576feca..cec6a589192d 100644
-> --- a/drivers/input/keyboard/tca8418_keypad.c
-> +++ b/drivers/input/keyboard/tca8418_keypad.c
-> @@ -171,13 +171,20 @@ static void tca8418_read_keypad(struct tca8418_keypad
-> *keypad_data)
->             break;
->         }
-> -       /* Assume that key code 0 signifies empty FIFO */
-> -       if (reg <= 0)
-> +       /* 0x00 =  empty FIFO, 0xFF = likely bus fault */
-> +       if (reg == 0 || reg == 0xFF)
->             break;
->         state = reg & KEY_EVENT_VALUE;
->         code  = reg & KEY_EVENT_CODE;
-
-Jet's move the check for empty FIFO here:
-
-	if (!code)
-		return;
-
-> +       /* validate keycode: must be non-zero and within hardware limits */
-> +       if (code == 0 || code > TCA8418_MAX_ROWS * TCA8418_MAX_COLS){
-
-This check is not sufficient if keypad is configured to use just part of
-potential matrix. We need to make sure that row and col is within the
-rows and cold limits we set up for the keypad.
-
-Thanks.
+Applied, thank you.
 
 -- 
 Dmitry

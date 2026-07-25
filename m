@@ -1,61 +1,63 @@
-Received: from mail-oi1-f170.google.com (mail-oi1-f170.google.com [209.85.167.170])
+Received: from mail-oa1-f45.google.com (mail-oa1-f45.google.com [209.85.160.45])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A6702314A8E
-	for <linux-input@vger.kernel.org>; Sat, 25 Jul 2026 07:32:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 040C431E821
+	for <linux-input@vger.kernel.org>; Sat, 25 Jul 2026 07:32:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.45
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784964744; cv=none; b=PG4GG4+cIeD+dmNXmYnC0VS/P83j4FY8No7KEjVMCxtsgx8t39Zkr/4y8+0q8bdsXOlWMAJtdK/oG+lvGk/bp/XgDlyzxa724+9TvwVRyaA6DlZyCJIAOsWiiPJMx0Eg9WDVfMMuyC7DHaOHistl+5Nx66z+0PpxKmjuWAwdNqE=
+	t=1784964749; cv=none; b=kyEu9pwpYaTc0iksW1JHAAyPU5zRtV/24pZzEyaqKBrN4FWEnIeDZ+tcWKT/kJNcIs875TLEEZKj1h/JTqjqkL4yeIXFqZbTGG8bQQfuDlcjnoxLgRvez5s/DUmNzFuXpYjmF5kyDUmcBLRSBJwmUAnbt27pn6hm3qvQkcWqIRY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784964744; c=relaxed/simple;
-	bh=VD0xIociW82aBeurLRpBqUbCiPYHYICDGIcMfrmvYtE=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=uacOucE+nT1NWkQF1bQJIP72jWrZb1kONa208VWYhoFkY/BwoTGFRK+6+ZpI/VgWfZ/Mx6tk/kroAIzvgRqs9eK7eKXFwZg+ulekya5wsa1u27KqaI9gMbEzQCxBIOf5wJBR8ytvl+Vt6zrKsCOxnInqKWGzylVLqBtxfPfpLsU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=YriIJm7d; arc=none smtp.client-ip=209.85.167.170
+	s=arc-20240116; t=1784964749; c=relaxed/simple;
+	bh=AQwUsaJyjCLgRN4dGNPNeCFVqZx0eYKgbL1H5GZFAJE=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=RfI5QYuG+6AxgknQSONRPAQKhZYyzjE+IFGkdoa4qD2tXSeRy4qZzMo9C7LcmECeYrEbGCg8Rx6QNGKx3d9GnhWXjtElaEAd1vH5SEKfgbNqK+lxH6FZymXZCAZBfr3xgQbfQdlTipdwS6pw5Ut5gtXr9bQ1DGhFi1b4ja7B1L4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=d9/4A4LL; arc=none smtp.client-ip=209.85.160.45
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="YriIJm7d"
-Received: by mail-oi1-f170.google.com with SMTP id 5614622812f47-4a4c6081f9fso255325b6e.3
-        for <linux-input@vger.kernel.org>; Sat, 25 Jul 2026 00:32:22 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="d9/4A4LL"
+Received: by mail-oa1-f45.google.com with SMTP id 586e51a60fabf-44ae14b4fd6so406273fac.2
+        for <linux-input@vger.kernel.org>; Sat, 25 Jul 2026 00:32:27 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784964741; x=1785569541; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=V02uRN29uXtZKMu3y18L5jDR+JLnN3WeCEmj8FgdeXY=;
-        b=YriIJm7dO3Gbg576JU1IP5aWJ9qAwUi7G7pkDn8xfpXV6yHTzyx0q6Mm9ZlBCZn/Aj
-         d5cKzFvjKOVWj/QQ4L1VBqOfC32pyIRfFcffgSwGYCnv1DL7+ZRrGluFmOKiEdslJAgu
-         +5EuXuEKcgzp7z8go1DF8uWu7Qmpm/M2fRCbTLrsfC7RO3+L/Mo1e9ljk4PcFMz0jmXu
-         b9eR/YDHNZGlWJfBEQSfabnF3foEJYczBihiWNQ6JT/sOu8mSpNTrUh0TRDtDfp/riiU
-         knlJVtBfeUq5wgmEUqBIKyg6vDYpM8JKpYYX3Lm9LsF65W6VxglJTfkpewM7XjTTZO+c
-         xd9Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784964741; x=1785569541;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=gmail.com; s=20251104; t=1784964747; x=1785569547; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=V02uRN29uXtZKMu3y18L5jDR+JLnN3WeCEmj8FgdeXY=;
-        b=BjahxgH7QuBR8vaYVdpLaD0i5lUkbJuW6RPYuJKLLRDWxcb+JrnVu/iDnwVIve92Hk
-         U+CRNKJ60/Mrhwhxhowx0tUFthAO+Xb2WUCmZ8obduvKqdYp3RWq/o9cxfgM+pNgGuI4
-         qyGsxHCf5E+Z87kV/81rWcTDH0V3o5k3TksjYSNfsdzdBZdjiRQWG+jem1Flzh5dQcjC
-         GG8vkG1Z/YB4hwwteSZecOxTKIPs69mZuHea/zbtyovo2KiWunQ6h7Hv9fLqgWCZLeJ1
-         cK6BNjZVB0Vs5DqOk7x75TjOZUU/bC5n6Pr8vi20U0giGNKpquX3owMWdnvqGD/xsvWf
-         o6+w==
-X-Forwarded-Encrypted: i=1; AHgh+RoVwz3b3gxk4MNeMfJ6jQgvPZeRY116O5hWn/BPCx2KmAXdbMukkwE3KNhwRZoIDHnJUts17h2qIMhW9Q==@vger.kernel.org
-X-Gm-Message-State: AOJu0YxAhBMAeab9x/CghM30RM2z40jtXchnrZMZecq7k8ZGuf85x4BU
-	4lnWvqn9CdVBM7iJi7dCicx9j0ie5SqDWld36J5wAleHwqpTUplj81ae
-X-Gm-Gg: AR+sD10FiFLMcow+l5BTFq3AJ1Zri0VPjh+LEw2LZAVhllv0On8s9J+2WmltXTmTduX
-	YC4IEIOEFYmVLbZKe8w44Q07kD7K3eUq9/kIghEZcZTVy6m0ghjI8Y9/A5Ub+AKRyBFSsuvj8Yc
-	Iat4+kSAnyGVHJ8DLJDKWgCU4lX7aGx0463/SWMNyZNRDFjrj3H2ExjcmAms3F0z7E95JMqejkc
-	GGEStG2rm3ZXxEBumG+22danQbVsE2N3Z/oFBE+ZSbLev5NNEOCwsXngloEEjUkZevQZJdbu3lt
-	+X3KYS9gJIdjZCsbdJgsX54CLNXGR8UA8HYeGt3qy+x5xJ5jxo/el2mya9dPaEoVVrVuPtN3I74
-	iHYZ86G1YvIDu/U+KIUZCpQ8AuWugxNfvq5TV9ySQGVshbotwQCSEKO2ENDrn0ZUIKKnvaPBh+j
-	RU7gO5oCn+V5SX3ZQhwIY=
-X-Received: by 2002:a05:6808:30a0:b0:4a4:dfff:2daa with SMTP id 5614622812f47-4ab6a246bfdmr1447852b6e.20.1784964741328;
-        Sat, 25 Jul 2026 00:32:21 -0700 (PDT)
+        bh=EBJMPsDIaUlKxFTZX7M5CaZJYE5N+5LrvYXn7n/pZ8A=;
+        b=d9/4A4LLjgDaKFGzch5BETDB2Uk3ClIAABP3Fmc98f7vTvy5RZV6o3aWABI/COTOG7
+         9QrHrOUN9BuFMnrrMIEW+5qYbfmVJjlx+nG/a9WYElvQGkOZ6T7QQmtFKhJaC1+o688D
+         OXrsiKIwTjF9BEMXeJMabzuSLMQyJ9mFVgwJIr7B9cBUVy267SY77rT0jm108qpBo8U9
+         OalJb/rwwelAC4JHhfZU/2h918MSsF3u0n1YbAczBJSuDSKs1sJvfHBQWEZ1dfpOcXU+
+         sb2gNr1PSuar4q9V5q76YBQqTs93abNn9WBdexm0UvOQeuZ5V059xs1cUOGMgdYLkeFj
+         yt8A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1784964747; x=1785569547;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=EBJMPsDIaUlKxFTZX7M5CaZJYE5N+5LrvYXn7n/pZ8A=;
+        b=Rykd3NgbX7n71HA8oQITqVOyat9elTAVuyql1kL8/kZRnDpDCpD5V35x+LNKamZjc4
+         WVR3t4a6wgm1Yd4OvwvNJ7twiQhRzUQqLuA9GqUdbYY9tCRjLPlz5iWt5Cc8t6IitiaI
+         tY06tSOYaO5DkCkqjyxUWQwReffESUVDPw5o2uH9Jd3MdMwntNsqxmHPMEjhqQMNbmmt
+         HBH0t5KOlYLx7PVXS26qoWgEWlbypsU1NLI67IlrYbnEAb51aXVLCquCr7pw4i+9ZDFR
+         o65akSys1tx30NRskrD9vUX8MrLx8kP8yJm8yx2HOmI8fUI2BkY4D8qQK9keWbR6JM5l
+         siag==
+X-Forwarded-Encrypted: i=1; AHgh+Rr0g2bcdV5hLKnxUGRfM3NCjlj33pft+JQI6xwf+RP61xZyf2zeZKea3+gVq2zXa/ko+VCz4SsCFg/5wg==@vger.kernel.org
+X-Gm-Message-State: AOJu0YyOnQ72MO5uVxtht85gCxCq8y4DaFcxV9LmOE1OmYHipsQG2HkU
+	mN0Eu0FR+z/JBkchYG9ZcnDLk8pDGURaHGgNrc+xqi2BTDjIMz1qk8Yp
+X-Gm-Gg: AR+sD10XbqS6MA2SMVWM2RSgWnmJyNLdSVkaCKNJzf/HdCZmfIdRmjA9qU3MTa90QPc
+	eb4uWULNv0B1Cu+/mJTsk7g/U923BytSwuQWeWaGDTyruE4XXd/+KS/vgnySb+MvCf+9TG29HlS
+	ZJ/NE8wBnjVDDyTrgfYyIlHxeXN3fDWLP0gzyD/WFmz25Zd8Lc92j3T1Pu8o2UrdZjIP1SYz1+B
+	fMPHDyl8t+vN9efQHSptsmXtRwCCNDYVboYITwhD91bQgynsTzjG7vw9Ew28tk0LwnFCi389a/M
+	z/ItBDwJs2Hyfp2VIojOSVj71vvoTmBqzvXSepNeK+GNx/JbLZpuinUup6CRF6BQlO3TqPXVUre
+	0u79pk25Q9ugGplKBMQ/PirEDinEPrS6nhORk7pINx8d2YcrkQdb7pEBjLHEa5sGLnJ1FMrm6Wu
+	7lsisCY2coCkqgc15gJ1jW5tkXPE05Hg==
+X-Received: by 2002:a05:6808:1910:b0:48f:c907:7a40 with SMTP id 5614622812f47-4ab69f433d7mr1705930b6e.11.1784964746724;
+        Sat, 25 Jul 2026 00:32:26 -0700 (PDT)
 Received: from u-ThinkPad-X1-Extreme-Gen-4i ([192.3.12.183])
-        by smtp.gmail.com with ESMTPSA id 5614622812f47-4ab3b21331esm4823598b6e.14.2026.07.25.00.32.16
+        by smtp.gmail.com with ESMTPSA id 5614622812f47-4ab3b21331esm4823598b6e.14.2026.07.25.00.32.21
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 25 Jul 2026 00:32:20 -0700 (PDT)
+        Sat, 25 Jul 2026 00:32:26 -0700 (PDT)
 From: Aaron Ma <mapengyu@gmail.com>
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
 	linux-input@vger.kernel.org (open list:INPUT (KEYBOARD, MOUSE, JOYSTICK, TOUCHSCREEN)...),
@@ -68,10 +70,12 @@ Cc: Sanjay Govind <sanjay.govind9@gmail.com>,
 	Elliot Tester <elliotctester@gmail.com>,
 	Kees Cook <kees@kernel.org>,
 	Dmitriy Zharov <contact@zharov.dev>
-Subject: [PATCH 1/2] Input: xpad - query MS OS descriptor for BTP-KP20D
-Date: Sat, 25 Jul 2026 15:28:12 +0800
-Message-ID: <20260725072813.339112-1-mapengyu@gmail.com>
+Subject: [PATCH 2/2] Input: xpad - add wired Beitong BTP-KP20D support
+Date: Sat, 25 Jul 2026 15:28:13 +0800
+Message-ID: <20260725072813.339112-2-mapengyu@gmail.com>
 X-Mailer: git-send-email 2.53.0
+In-Reply-To: <20260725072813.339112-1-mapengyu@gmail.com>
+References: <20260725072813.339112-1-mapengyu@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -80,75 +84,117 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The Beitong BTP-KP20D dongle cycles through its operating modes and
-never becomes usable unless the host requests the Microsoft OS string
-descriptor at index 0xee. Windows makes this request while discovering
-the XUSB10 compatible ID, but Linux USB core does not query Microsoft
-OS descriptors.
+The wired BTP-KP20D resets itself when its interrupt-IN pipe is idle
+for a few seconds, causing periodic re-enumeration whenever no
+userspace client holds the input device open. Add a FLAG_KEEPALIVE
+quirk that keeps the input URB running from probe to disconnect,
+mirroring the XTYPE_XBOX360W URB lifecycle.
 
-Add a device-specific quirk that performs the request during probe,
-allowing the dongle to remain in Xbox 360 mode.
+The device also needs the MS OS descriptor query to stay in Xbox 360
+mode.
 
 Signed-off-by: Aaron Ma <mapengyu@gmail.com>
 ---
- drivers/input/joystick/xpad.c | 23 +++++++++++++++++++++++
- 1 file changed, 23 insertions(+)
+ drivers/input/joystick/xpad.c | 27 ++++++++++++++++++++++++++-
+ 1 file changed, 26 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
-index feb8f368f834e..1616047e65f5e 100644
+index 1616047e65f5e..5369b880c6a08 100644
 --- a/drivers/input/joystick/xpad.c
 +++ b/drivers/input/joystick/xpad.c
-@@ -72,6 +72,7 @@
- #define PKT_XBE2_FW_5_11    4
+@@ -73,6 +73,7 @@
  
  #define FLAG_DELAY_INIT BIT(0)
-+#define FLAG_MS_OS_DESC BIT(1)
+ #define FLAG_MS_OS_DESC BIT(1)
++#define FLAG_KEEPALIVE  BIT(2)
  
  static bool dpad_to_buttons;
  module_param(dpad_to_buttons, bool, S_IRUGO);
-@@ -334,6 +335,7 @@ static const struct xpad_device {
+@@ -335,6 +336,7 @@ static const struct xpad_device {
  	{ 0x1ee9, 0x1590, "ZOTAC Gaming Zone", 0, XTYPE_XBOX360 },
  	{ 0x20bc, 0x5134, "BETOP BTP-KP50B Xinput Dongle", 0, XTYPE_XBOX360 },
  	{ 0x20bc, 0x514a, "BETOP BTP-KP50C Xinput Dongle", 0, XTYPE_XBOX360 },
-+	{ 0x20bc, 0x5159, "Beitong BTP-KP20D Controller", 0, XTYPE_XBOX360, FLAG_MS_OS_DESC },
++	{ 0x20bc, 0x5158, "Beitong BTP-KP20D Controller", 0, XTYPE_XBOX360, FLAG_MS_OS_DESC | FLAG_KEEPALIVE },
+ 	{ 0x20bc, 0x5159, "Beitong BTP-KP20D Controller", 0, XTYPE_XBOX360, FLAG_MS_OS_DESC },
  	{ 0x20d6, 0x2001, "BDA Xbox Series X Wired Controller", 0, XTYPE_XBOXONE },
  	{ 0x20d6, 0x2009, "PowerA Enhanced Wired Controller for Xbox Series X|S", 0, XTYPE_XBOXONE },
- 	{ 0x20d6, 0x2064, "PowerA Wired Controller for Xbox", MAP_SHARE_BUTTON, XTYPE_XBOXONE },
-@@ -786,6 +788,24 @@ static int xpad_start_input(struct usb_xpad *xpad);
- static void xpadone_ack_mode_report(struct usb_xpad *xpad, u8 seq_num);
- static void xpad360w_poweroff_controller(struct usb_xpad *xpad);
+@@ -780,6 +782,7 @@ struct usb_xpad {
+ 	time64_t mode_btn_down_ts;
+ 	bool delay_init;		/* init packets should be delayed */
+ 	bool delayed_init_done;
++	bool keepalive;			/* int URB must run from probe to disconnect */
+ };
  
-+static void xpad_query_ms_os_descriptor(struct usb_device *udev)
-+{
-+	u8 *descriptor;
-+	int error;
-+
-+	descriptor = kmalloc(18, GFP_KERNEL);
-+	if (!descriptor)
-+		return;
-+
-+	error = usb_get_descriptor(udev, USB_DT_STRING, 0xee,
-+				   descriptor, 18);
-+	if (error != 18)
-+		dev_warn(&udev->dev,
-+			 "unable to query MS OS descriptor: %d\n", error);
-+
-+	kfree(descriptor);
-+}
-+
- /*
-  *	xpad_process_packet
-  *
-@@ -2055,6 +2075,9 @@ static int xpad_probe(struct usb_interface *intf, const struct usb_device_id *id
- 			break;
+ static int xpad_init_input(struct usb_xpad *xpad);
+@@ -1971,7 +1974,7 @@ static int xpad_init_input(struct usb_xpad *xpad)
+ 
+ 	input_set_drvdata(input_dev, xpad);
+ 
+-	if (xpad->xtype != XTYPE_XBOX360W) {
++	if (xpad->xtype != XTYPE_XBOX360W && !xpad->keepalive) {
+ 		input_dev->open = xpad_open;
+ 		input_dev->close = xpad_close;
  	}
+@@ -2105,6 +2108,8 @@ static int xpad_probe(struct usb_interface *intf, const struct usb_device_id *id
+ 	xpad->name = xpad_device[i].name;
+ 	if (xpad_device[i].flags & FLAG_DELAY_INIT)
+ 		xpad->delay_init = true;
++	if (xpad_device[i].flags & FLAG_KEEPALIVE)
++		xpad->keepalive = true;
  
-+	if (xpad_device[i].flags & FLAG_MS_OS_DESC)
-+		xpad_query_ms_os_descriptor(udev);
+ 	xpad->packet_type = PKT_XB;
+ 	INIT_WORK(&xpad->work, xpad_presence_work);
+@@ -2227,9 +2232,22 @@ static int xpad_probe(struct usb_interface *intf, const struct usb_device_id *id
+ 		error = xpad_init_input(xpad);
+ 		if (error)
+ 			goto err_deinit_output;
 +
- 	xpad = kzalloc_obj(*xpad);
- 	if (!xpad)
- 		return -ENOMEM;
++		if (xpad->keepalive) {
++			/*
++			 * The device resets itself when the interrupt-IN pipe
++			 * is idle for a few seconds, so keep the URB running
++			 * from probe until disconnect.
++			 */
++			error = xpad_start_input(xpad);
++			if (error)
++				goto err_deinit_input;
++		}
+ 	}
+ 	return 0;
+ 
++err_deinit_input:
++	xpad_deinit_input(xpad);
+ err_deinit_output:
+ 	xpad_deinit_output(xpad);
+ err_free_in_urb:
+@@ -2247,6 +2265,8 @@ static void xpad_disconnect(struct usb_interface *intf)
+ 
+ 	if (xpad->xtype == XTYPE_XBOX360W)
+ 		xpad360w_stop_input(xpad);
++	else if (xpad->keepalive)
++		xpad_stop_input(xpad);
+ 
+ 	xpad_deinit_input(xpad);
+ 
+@@ -2288,6 +2308,8 @@ static int xpad_suspend(struct usb_interface *intf, pm_message_t message)
+ 		 */
+ 		if (auto_poweroff && xpad->pad_present)
+ 			xpad360w_poweroff_controller(xpad);
++	} else if (xpad->keepalive) {
++		xpad_stop_input(xpad);
+ 	} else {
+ 		guard(mutex)(&input->mutex);
+ 
+@@ -2309,6 +2331,9 @@ static int xpad_resume(struct usb_interface *intf)
+ 	if (xpad->xtype == XTYPE_XBOX360W)
+ 		return xpad360w_start_input(xpad);
+ 
++	if (xpad->keepalive)
++		return xpad_start_input(xpad);
++
+ 	guard(mutex)(&input->mutex);
+ 
+ 	if (input_device_enabled(input))
 -- 
 2.53.0
 

@@ -1,44 +1,44 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8C28B282F3C
-	for <linux-input@vger.kernel.org>; Sun, 26 Jul 2026 10:27:18 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A7BBF2D0C62
+	for <linux-input@vger.kernel.org>; Sun, 26 Jul 2026 10:27:54 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785061639; cv=none; b=Beyfck48jJrBigFv683Br5LO7c2dHzvDeyilTJ2hF84bWmhMBylZY331ibWjeTKqUNWLW7dYzR3Xh+Y5qQtMM8f2JYRfvtrDdOKgzBuD+1IXl7hUCh5E8OefQzhrhv9nZotMnbuGamDyrw++ouj0sVakrB/1bpj8tDbrdJbdB7s=
+	t=1785061676; cv=none; b=exznYjsRmSo3aQkp0L4pY3woRJdoKAFR6H9/E16bovAj2ZQvMYg5PRM0YL0PMcOJ7EStT9bY9wuQKd/FmalzGSOoifXWK9c6eOQ1BkTLCUUUfNOdBSMiw2MN1LS0U/Z2GQYXR9P3wOA4TCY4wj7uSNlGbkGZUSuhG9TPbVksOiY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785061639; c=relaxed/simple;
-	bh=T1tnxD5AMOBLPBsIHBxPQSS5k5PfHchWSRPZ8HcUazY=;
+	s=arc-20240116; t=1785061676; c=relaxed/simple;
+	bh=hpxNz0ulQAUL8xPdKaE03lR3/tlojSwz3Nz4R+mK60U=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=P3WyOTGtDsPmctIExdjIr0tdhUnF3w3Ge/ZmFj5/2rVnBEcTAab0CvdQ6AstGHf0woyTAjcZTfKM4lucjAcCqf5A4fC2s6bB2zLZmqFBYzFpCJef6xGDWPBXY0mgf4yd4Gw2wOWXSw9QKv/3Lubz9MyeWnvd+PXRmHiUYosQOwM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=C9XgQMGn; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=czqecYibDNlaA6spw5nmdhRRDAqN7JCs+Zr6WjfYze5UCOMHW1tDVOSgLDKdYOeG4ZCylOdLxGxgmL2gfiea80TOy7v6KB0PBvIjkKtlPlho6c/SUG9V5hFjWkoudA4uz6A9+xavhF3xE+l6SjWJ9SNwZu0aowFr+BGseWPXpAo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=XTpBNfQA; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="C9XgQMGn"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E691A1F000E9;
-	Sun, 26 Jul 2026 10:27:17 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="XTpBNfQA"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B172C1F000E9;
+	Sun, 26 Jul 2026 10:27:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785061638;
-	bh=97+ynmatqcT5GSln6+EIy5JgYYF5uVbhDLFemEZ9COA=;
+	s=k20260515; t=1785061673;
+	bh=2EIE8eYzTjXwsxWatBirTw4P8i6qmZ8rdoJGbfxKE9M=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=C9XgQMGn0dDc/VaqGB+IiIZ6L7nm/ijhY7bRhAqZPJOD8Ive5ANJQkhbmgYi3JizB
-	 t1y1MB3vvHzZc4qqI4eqFPQgDwVLrwbBMm13OCgTnR01PbsHQria29FJFoq1hRZ5k/
-	 DIXE5W8xzeVbT/9QPtdUwo0kdfS8fRKcHwhQFbLhiCZH4ro6C2yPyHwzer+IWirx0E
-	 73w/iCsmjd4a2mtpBrgLjTakHph7BvFWLoYelpl81QgrMwUwzvE8WJ9KG++7CgULiG
-	 I74izwMGfyx2faJdeExd9enspUY+U6giObCLB7XSyCV9pKIuksrUBz/tZxgKIzZMFk
-	 0sHCnWHO+yJZQ==
+	b=XTpBNfQAV0eD7PUGZzsLE2fPwZu52akleVidLoKxh4turtaKhC7OePvW3Bn8TeO/q
+	 lAfWxezwZ7m/UAD4qnq5ABBi9m+wGN1l9zmkY3sjsJf/jjErFS2bLSnCHwGaecQCHO
+	 wLdhCd/ZtVY/Pjq808ipKRvZNWB0xjz2IdXf22PXopgzYzm2GuwMYdlERb0pbCHG08
+	 r+0elQspO9w2zEmPrnZ67xYC5+b3Jvgf/9v5W3/R1CQ2QcCCcg751ehAoivqMNvOMF
+	 yNkZ6eyhN36IHDdG/6pXzCzl91ehZtRLlBpb/qD+Ua0TCewOuy+MNf7F3VYPMjE4Xj
+	 Zi2OMqZ/rBvrw==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v4 06/13] platform/x86: bitland-mifs-wmi: use
+Subject: Re: [PATCH v4 05/13] gpio: adp5585: use
  devm_blocking_notifier_chain_register()
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Eliav Farber" <farbere@amazon.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260726101739.33170-7-farbere@amazon.com>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <20260726101739.33170-6-farbere@amazon.com>
 References: <20260726101739.33170-1-farbere@amazon.com>
- <20260726101739.33170-7-farbere@amazon.com>
+ <20260726101739.33170-6-farbere@amazon.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Sun, 26 Jul 2026 10:27:17 +0000
-Message-Id: <20260726102717.E691A1F000E9@smtp.kernel.org>
+Date: Sun, 26 Jul 2026 10:27:53 +0000
+Message-Id: <20260726102753.B172C1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -49,71 +49,71 @@ Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
 
 Pre-existing issues:
-- [High] Potential NULL pointer dereference in `bitland_mifs_wmi_notify()` =
-when handling events for the CONTROL WMI device.
+- [High] Use-after-free of the gpiochip's IRQ domain during device unbindin=
+g due to incorrect devres registration order.
 --
 
---- Patch [6]: [PATCH v4 06/13] platform/x86: bitland-mifs-wmi: use devm_bl=
-ocking_notifier_chain_register() ---
-commit b97b8d7c2a6f0ffd33788a7a075476a57a269e06
+--- Patch [5]: [PATCH v4 05/13] gpio: adp5585: use devm_blocking_notifier_c=
+hain_register() ---
+commit 44c510dbb3ca8a6273606da82607128231bd2e31
 Author: Eliav Farber <farbere@amazon.com>
 
-platform/x86: bitland-mifs-wmi: use devm_blocking_notifier_chain_register()
+gpio: adp5585: use devm_blocking_notifier_chain_register()
 
-This commit simplifies the driver by replacing the combination of
-blocking_notifier_chain_register() and devm_add_action_or_reset()
-with a single call to devm_blocking_notifier_chain_register(). It
-also removes the now-unused bitland_notifier_unregister() callback.
+This commit replaces the manual blocking_notifier_chain_register() and
+devm_add_action_or_reset() pattern with a single call to
+devm_blocking_notifier_chain_register(), dropping the standalone
+unregister callback.
 
-> diff --git a/drivers/platform/x86/bitland-mifs-wmi.c b/drivers/platform/x=
-86/bitland-mifs-wmi.c
-> index b0d06a80e89ef..576d6f3733b4c 100644
-> --- a/drivers/platform/x86/bitland-mifs-wmi.c
-> +++ b/drivers/platform/x86/bitland-mifs-wmi.c
+> diff --git a/drivers/gpio/gpio-adp5585.c b/drivers/gpio/gpio-adp5585.c
+> --- a/drivers/gpio/gpio-adp5585.c
+> +++ b/drivers/gpio/gpio-adp5585.c
 
 [ ... ]
 
-> @@ -721,13 +714,9 @@ static int bitland_mifs_wmi_probe(struct wmi_device =
-*wdev, const void *context)
->  		return ret;
+> @@ -450,13 +440,9 @@ static int adp5585_gpio_probe(struct platform_device=
+ *pdev)
+>  		girq->threaded =3D true;
 > =20
->  	drv_data->notifier.notifier_call =3D bitland_notifier_callback;
-> -	ret =3D blocking_notifier_chain_register(&bitland_notifier_list, &drv_d=
-ata->notifier);
-> -	if (ret)
-> -		return ret;
+>  		adp5585_gpio->nb.notifier_call =3D adp5585_gpio_key_event;
+> -		ret =3D blocking_notifier_chain_register(&adp5585->event_notifier,
+> -						       &adp5585_gpio->nb);
+> -		if (ret)
+> -			return ret;
 > -
-> -	return devm_add_action_or_reset(&wdev->dev,
-> -				       bitland_notifier_unregister,
-> -				       &drv_data->notifier);
-> +	return devm_blocking_notifier_chain_register(&wdev->dev,
-> +						     &bitland_notifier_list,
-> +						     &drv_data->notifier);
->  }
-> =20
->  static void bitland_mifs_wmi_notify(struct wmi_device *wdev,
-
+> -		ret =3D devm_add_action_or_reset(dev, adp5585_gpio_unreg_notifier,
+> -					       adp5585_gpio);
+> +		ret =3D devm_blocking_notifier_chain_register(dev,
+> +							    &adp5585->event_notifier,
+> +							    &adp5585_gpio->nb);
 [Severity: High]
-This is a pre-existing issue, but I noticed a potential NULL pointer=20
-dereference in the notification handler.
+This is a pre-existing issue, but does this devres registration order create
+a use-after-free during device unbind?
 
-During bitland_mifs_wmi_probe(), data->input_dev is only allocated if the=20
-device type is BITLAND_WMI_EVENT. However, if firmware sends a hotkey=20
-event to the control device, bitland_mifs_wmi_notify() will run without=20
-checking if data->input_dev is actually allocated:
+Because the notifier is registered before the GPIO chip is added via
+devm_gpiochip_add_data() later in adp5585_gpio_probe(), devres will process
+the teardown in LIFO order. This means the GPIO chip and its IRQ domain are
+removed and freed first.
 
-bitland_mifs_wmi_notify()
+If an interrupt fires after the GPIO chip is removed but before the notifier
+is unregistered, the notifier callback adp5585_gpio_key_event() will attempt
+to access the freed domain:
+
+drivers/gpio/gpio-adp5585.c:adp5585_gpio_key_event() {
     ...
-    case WMI_EVENT_OPEN_APP:
-    case WMI_EVENT_CALCULATOR_START:
-    case WMI_EVENT_BROWSER_START: {
-        guard(mutex)(&data->lock);
-        if (!sparse_keymap_report_event(data->input_dev,
-                                        event->event_id, 1, true))
+	irq =3D irq_find_mapping(adp5585_gpio->gpio_chip.irq.domain, off);
+	if (!irq)
+		return NOTIFY_BAD;
+    ...
+}
 
-Could this cause a kernel panic in sparse_keymap_report_event() since it=20
-doesn't defensively check for a NULL input_dev?
+Should the notifier registration be moved after devm_gpiochip_add_data() to
+ensure a safe teardown sequence?
+
+>  		if (ret)
+>  			return ret;
+>  	}
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260726101739.3317=
-0-1-farbere@amazon.com?part=3D6
+0-1-farbere@amazon.com?part=3D5

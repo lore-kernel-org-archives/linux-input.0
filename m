@@ -1,74 +1,73 @@
-Received: from pdx-out-003.esa.us-west-2.outbound.mail-perimeter.amazon.com (pdx-out-003.esa.us-west-2.outbound.mail-perimeter.amazon.com [44.246.68.102])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f178.google.com (mail-pl1-f178.google.com [209.85.214.178])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B212B36998A;
-	Sun, 26 Jul 2026 06:40:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=44.246.68.102
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EC5B734B410
+	for <linux-input@vger.kernel.org>; Sun, 26 Jul 2026 06:50:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785048011; cv=none; b=rEtVy3dJuHB02R4bJb8IwX5Wfwofgf4Xn9SEJVO9Sl0j0KF0cfqg3xgliuZochE0vSWwD/eiViTyebCoY01uiktOyV5yqtvHyaq6NMmgNxdOT9v1ff0jhK5OdPFAgNCbe1i8xLrMylwv3h3StJok77jcoH0I1a5+1XlFw7eINiA=
+	t=1785048632; cv=none; b=Hqs4cLyFRgLsUqz7gadiknCtfntxnHZOG0QY+csTpCbwQ3iqwwxRQ7O2oJ2mTn7HeC0Z6ZzoRW2Gb+gNX0IbMEvYSSNprTyPKo0QZZMvoW1EG4RZ+xZBcUduo/R6jtSu65MoUOqq2mmQasUFh2A4v6KqjhQ8PxiLQcBzV8bYO7I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785048011; c=relaxed/simple;
-	bh=dJ68QbooWHZBKQDn5xlKP/a7N1o1WPC7m/Nz/t4kin4=;
-	h=From:To:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=hVk1JwBkis1bjEIfz4kZd34KHuEHu1jGd0GZDoQzdOjWZVTcUAN8YovzUpHHSewMY5Jgq0OVVJy0XLb5oy/YcbdDlH9i82xaN/VA+tIHCN1plDxf/e3mi08/WgAnqOo1LPIwAO+VahEoZ2A/8t36okWLzX6kLEYrtFY2wCCLXU8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com; spf=pass smtp.mailfrom=amazon.com; dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b=lppOrWc2; arc=none smtp.client-ip=44.246.68.102
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=amazon.com
+	s=arc-20240116; t=1785048632; c=relaxed/simple;
+	bh=cDWpLzDkKE+OR1F5V9sOaFAX1o4taHbt/RG5bvZp3xY=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=NE5xLwWcHeM9dzM7CeAczmE/qPZezOM+0nUuU99IpuPJFWPLnRf+PMWi03fRR8xqShK849rxnrrorYMYCY0JmDIce22q2q0UJIiiFMabhVMNcGvJNqljLs/jpLJXaRy2REJvFFW0l2PopdINhD20xORXY+J6gdN7Wdt9URJiC2w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=xbow.com; spf=pass smtp.mailfrom=xbow.com; dkim=pass (2048-bit key) header.d=xbow.com header.i=@xbow.com header.b=KbyaYqdZ; arc=none smtp.client-ip=209.85.214.178
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=xbow.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=xbow.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b="lppOrWc2"
+	dkim=pass (2048-bit key) header.d=xbow.com header.i=@xbow.com header.b="KbyaYqdZ"
+Received: by mail-pl1-f178.google.com with SMTP id d9443c01a7336-2cc7ef7ec27so21709265ad.1
+        for <linux-input@vger.kernel.org>; Sat, 25 Jul 2026 23:50:30 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazoncorp2;
-  t=1785048010; x=1816584010;
-  h=from:to:subject:date:message-id:in-reply-to:references:
-   mime-version:content-transfer-encoding;
-  bh=1PjrX0TYQgXkSpJZuPaWlzS4502XZn4rTZl60p1SQXk=;
-  b=lppOrWc2Dfv8JLTWpnlvi7nGbMqCcCPMNWg/DIMoPJg5DWvc5E21Qo3E
-   coeO1fPMezFzgdjiceDzmzC7gkCEL3crcBxr6ObhqyPqZla+3BKN9mDI7
-   XBch0z5mqKPqnl8P9HPLx4gwpP9VFxmIE/2HK71vHGs5dBNcsI7bZePfA
-   0uk3h9EkO0wL7wkB1QNkHrdN18WyPH3rD5s74rslXyz4RxP9x0bN4SG37
-   JbX8WbnnbYXds2hXhcsG7F3LAQ1w2NQDV2Bf0W1p5YTfx04ZJzP1681lk
-   2B6udMs1JafNdwqFTQn2Se2+pgj8n037PZPL0brIkA+z7lkCdfu9sITwR
-   g==;
-X-CSE-ConnectionGUID: NHEVld4iSjWQxVjxvcKtDg==
-X-CSE-MsgGUID: hJ7BKbGESPiWqqSINZIzCA==
-X-IronPort-AV: E=Sophos;i="6.25,186,1779148800"; 
-   d="scan'208";a="24381954"
-Received: from ip-10-5-0-115.us-west-2.compute.internal (HELO smtpout.naws.us-west-2.prod.farcaster.email.amazon.dev) ([10.5.0.115])
-  by internal-pdx-out-003.esa.us-west-2.outbound.mail-perimeter.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 26 Jul 2026 06:40:10 +0000
-Received: from EX19MTAUWB002.ant.amazon.com [205.251.233.48:9010]
- by smtpin.naws.us-west-2.prod.farcaster.email.amazon.dev [10.0.25.115:2525] with esmtp (Farcaster)
- id f4fe1e6f-f478-4186-b491-0d1c57155143; Sun, 26 Jul 2026 06:40:09 +0000 (UTC)
-X-Farcaster-Flow-ID: f4fe1e6f-f478-4186-b491-0d1c57155143
-Received: from EX19D001UWA001.ant.amazon.com (10.13.138.214) by
- EX19MTAUWB002.ant.amazon.com (10.250.64.231) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.2562.43;
- Sun, 26 Jul 2026 06:40:09 +0000
-Received: from dev-dsk-farbere-1a-46ecabed.eu-west-1.amazon.com
- (172.19.116.181) by EX19D001UWA001.ant.amazon.com (10.13.138.214) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.2562.45; Sun, 26 Jul 2026
- 06:40:04 +0000
-From: Eliav Farber <farbere@amazon.com>
-To: <rafael@kernel.org>, <tony.luck@intel.com>, <bp@alien8.de>,
-	<guohanjun@huawei.com>, <mchehab@kernel.org>, <xueshuai@linux.alibaba.com>,
-	<lenb@kernel.org>, <laurent.pinchart@ideasonboard.com>, <linusw@kernel.org>,
-	<brgl@kernel.org>, <orsonzhai@gmail.com>, <baolin.wang@linux.alibaba.com>,
-	<zhang.lyra@gmail.com>, <jic23@kernel.org>, <dlechner@baylibre.com>,
-	<nuno.sa@analog.com>, <andy@kernel.org>, <dmitry.torokhov@gmail.com>,
-	<hansg@kernel.org>, <ilpo.jarvinen@linux.intel.com>, <W_Armin@gmx.de>,
-	<ukleinek@kernel.org>, <fabio.m.de.francesco@linux.intel.com>,
-	<kaihengf@nvidia.com>, <ankita@nvidia.com>, <leitao@debian.org>,
-	<farbere@amazon.com>, <pedro.pbg@usp.br>, <paulmck@kernel.org>,
-	<frederic@kernel.org>, <kees@kernel.org>, <linux-acpi@vger.kernel.org>,
-	<linux-kernel@vger.kernel.org>, <linux-gpio@vger.kernel.org>,
-	<linux-pwm@vger.kernel.org>, <linux-iio@vger.kernel.org>,
-	<linux-input@vger.kernel.org>, <platform-driver-x86@vger.kernel.org>
-Subject: [PATCH v3 12/12] reboot: use devm_blocking_notifier_chain_register()
-Date: Sun, 26 Jul 2026 06:37:27 +0000
-Message-ID: <20260726063727.19111-13-farbere@amazon.com>
-X-Mailer: git-send-email 2.47.3
-In-Reply-To: <20260726063727.19111-1-farbere@amazon.com>
-References: <20260726063727.19111-1-farbere@amazon.com>
+        d=xbow.com; s=google; t=1785048630; x=1785653430; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=xhTM04DOXiDdofL3yenMY0XdGkR+wDC1veYQUjrGAdE=;
+        b=KbyaYqdZ2stwei+BE4wuEKW7/ly3EdHmvTPAPySxX4EfJ0TcPIy5yJ3W9z+oC40C1v
+         xWJUeeZoJZgS6HmKmUFOGi1RIKtGzYgKhZj4vD9jICr31GBpKIClumVMs9IdF001dUyp
+         opc7bBu6jDzY77JMdjzOsujFsObRs2v2GV7sm0Hjgo6roUJMTE6R50kQ1bUdDX7HKMQT
+         rPPtcqg4pDvpCEEPCq8kkferodkiCy++KGuiC7rSvPCxCntmkZbPQrT6Gsbb/PNCCPyn
+         p5jusT8mM+dPkuGF9r6fQm1BH1YzGzuDOqzq0BXQZGTJIvtPV1YGutxUfzPcZWljJbOW
+         Dcmg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1785048630; x=1785653430;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=xhTM04DOXiDdofL3yenMY0XdGkR+wDC1veYQUjrGAdE=;
+        b=OipH91B63MG4eCcTxMOkbSJIN+4dlyPn6aX7TvA1sWc6q4A/KaSDhNln87RdpG0/83
+         SqRW6X27fuhuubUpdY2dCPsrREB6oJ5hxX06OVOo3IrxBMuR+RKX4Vgt0JyoP+4Ez3ux
+         9rE0C97RDp5jOL/DOZpvu2MpDXUvA5+K5d+KDea4b3HqTJm5Ps2B/kb1iWFGViRQByLN
+         UMcHCAgzsIdx6/S0ws+GPMBCDl4f38IMeJbIDhDDPRhpqmqCwgWnfSyiyZsdoIfjLR4K
+         pv7iAPa0C1LxldcRayVM7fsaywyQJ/uVUiYFIkBzh12g1m80zxuljJSn778UMKkAlNvv
+         bm/A==
+X-Gm-Message-State: AOJu0Yz6hZPTfJDoIdtzsxNKfz12hz8Knn40TwvKYmDwJZ+n+2A+crJ7
+	7JD4TMZeeXxGp2LEJTdeIssAzwMbnlyKZP9NivQaL9sFswRELBH4CapgU8iu1QgaiAtVMmdUIW5
+	vgpfTtiY=
+X-Gm-Gg: AR+sD12Bo0IqUGsmd0wAgqvujLJyhNTI6iIIAm3GGXAlwf2BiUA2bI8vGBf3WEwpqSd
+	6P41Tv2s9d/Tsnkx6cAwfvJ1QakydyF6mPXmP3T4TwaF3LAyRevmh0Dg1Ku6K3VP6JP+LRRbNm+
+	TTfHDOyDKtgYEYhtI54ULFG8J60U3FNDzVJ1pB9Iu4JYxYR/5WQ4QWn76K1rib2b/VEbafPr3Hg
+	NdxvWw62ZcnZbi0WZVzr4occ+tiR+BJ6FMnR9HFSc7Ff2ClYGdjHCX727R2cUWQ+aPuRgd24BuR
+	noFnSvvZ+nQSrLvaUy4QS5S2+7t/BgbzYV1NYOecFiZwIPe8CML4CVNC12cuhjkSMjiZStsBSSD
+	Pq6V6ehTUH+tbBnX3mqn0Pn6m7eK2d1dOFvyvjEVK3jJcwy2PeFLZRgsVizFmCYR5y5j/finncV
+	jnaaou5zz/ijNnpfzHypn4tNMxpZ8EjC4xUB93WYfGxxY7CGXba3o5AHN+z8jW
+X-Received: by 2002:a17:902:c951:b0:2cf:b69a:8f58 with SMTP id d9443c01a7336-2cfde884a9cmr43824255ad.37.1785048630279;
+        Sat, 25 Jul 2026 23:50:30 -0700 (PDT)
+Received: from localhost.localdomain ([125.128.148.126])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2cfde7eea52sm17331635ad.61.2026.07.25.23.50.28
+        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
+        Sat, 25 Jul 2026 23:50:30 -0700 (PDT)
+From: Baul Lee <baul.lee@xbow.com>
+To: linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Cc: jikos@kernel.org,
+	bentiss@kernel.org,
+	federico.kirschbaum@xbow.com,
+	Baul Lee <baul.lee@xbow.com>,
+	stable@vger.kernel.org
+Subject: [PATCH] HID: core: fix OOB read of field->usage in hid_set_field()
+Date: Sun, 26 Jul 2026 15:50:24 +0900
+Message-ID: <20260726065024.46088-1-baul.lee@xbow.com>
+X-Mailer: git-send-email 2.50.1
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -76,60 +75,72 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: EX19D043UWC001.ant.amazon.com (10.13.139.202) To
- EX19D001UWA001.ant.amazon.com (10.13.138.214)
 
-Replace the manual devres_alloc() + register_reboot_notifier() pattern
-with a single call to devm_blocking_notifier_chain_register(), removing
-the devm_unregister_reboot_notifier() callback.
+hid_set_field() hands field->usage + offset to hid_dump_input() before
+the guard that bounds offset:
 
-Signed-off-by: Eliav Farber <farbere@amazon.com>
+	hid_dump_input(field->report->device, field->usage + offset, value);
+
+	if (offset >= field->report_count) {
+		hid_err(...);
+		return -1;
+	}
+
+Under CONFIG_DEBUG_FS hid_dump_input() dereferences that pointer, with
+buf = hid_resolv_usage(usage->hid, NULL).  The usage[] array is
+allocated inline with the hid_field in hid_register_field() and holds
+field->maxusage entries, so an offset past it reads off the end of the
+kvzalloc()ed allocation and into a neighbouring object.  Had the guard
+run first, offset < report_count <= maxusage would already have confined
+the pointer to the array.
+
+A caller supplies such an offset today.  picolcd_fb_send_tile()
+validates only report->maxfield before issuing
+hid_set_field(report->field[0], 11 + i, ...) for i = 0..31, so its
+offsets are fixed at 11..42 and are never checked against the bound
+field.  When the device registers that field with fewer usages, the
+framebuffer deferred-io work drives the read on every tile.  KASAN
+reports a 4-byte slab-out-of-bounds read in hid_dump_input() below
+hid_set_field(), and the same boot logs "offset (1) exceeds
+report_count (1)" from the guard that runs only afterwards.
+
+Move the hid_dump_input() call below the guard.  Because
+field->maxusage >= field->report_count, the guard then establishes that
+field->usage + offset lies inside the array before it is dereferenced,
+for every caller and without changing behaviour on the valid path.
+
+Discovered by XBOW, triaged by Baul Lee <baul.lee@xbow.com>
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Reported-by: Federico Kirschbaum <federico.kirschbaum@xbow.com>
+Reported-by: Baul Lee <baul.lee@xbow.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Baul Lee <baul.lee@xbow.com>
 ---
-Changes in v3:
-- Fix commit message to accurately describe the old code as using
-  devres_alloc() + register_reboot_notifier() (Sashiko)
+ drivers/hid/hid-core.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
- kernel/reboot.c | 24 ++----------------------
- 1 file changed, 2 insertions(+), 22 deletions(-)
-
-diff --git a/kernel/reboot.c b/kernel/reboot.c
-index 695c33e75efd..557609419989 100644
---- a/kernel/reboot.c
-+++ b/kernel/reboot.c
-@@ -136,30 +136,10 @@ int unregister_reboot_notifier(struct notifier_block *nb)
- }
- EXPORT_SYMBOL(unregister_reboot_notifier);
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index f107f5103b35..c3035414109d 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1933,13 +1933,14 @@ int hid_set_field(struct hid_field *field, unsigned offset, __s32 value)
  
--static void devm_unregister_reboot_notifier(struct device *dev, void *res)
--{
--	WARN_ON(unregister_reboot_notifier(*(struct notifier_block **)res));
--}
--
- int devm_register_reboot_notifier(struct device *dev, struct notifier_block *nb)
- {
--	struct notifier_block **rcnb;
--	int ret;
--
--	rcnb = devres_alloc(devm_unregister_reboot_notifier,
--			    sizeof(*rcnb), GFP_KERNEL);
--	if (!rcnb)
--		return -ENOMEM;
--
--	ret = register_reboot_notifier(nb);
--	if (!ret) {
--		*rcnb = nb;
--		devres_add(dev, rcnb);
--	} else {
--		devres_free(rcnb);
--	}
--
--	return ret;
-+	return devm_blocking_notifier_chain_register(dev,
-+						     &reboot_notifier_list, nb);
- }
- EXPORT_SYMBOL(devm_register_reboot_notifier);
+ 	size = field->report_size;
  
+-	hid_dump_input(field->report->device, field->usage + offset, value);
+-
+ 	if (offset >= field->report_count) {
+ 		hid_err(field->report->device, "offset (%d) exceeds report_count (%d)\n",
+ 				offset, field->report_count);
+ 		return -1;
+ 	}
++
++	hid_dump_input(field->report->device, field->usage + offset, value);
++
+ 	if (field->logical_minimum < 0) {
+ 		if (value != snto32(s32ton(value, size), size)) {
+ 			hid_err(field->report->device, "value %d is out of range\n", value);
 -- 
-2.47.3
+2.50.1 (Apple Git-155)
 

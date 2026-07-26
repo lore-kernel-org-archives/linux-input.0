@@ -1,57 +1,57 @@
-Received: from out162-62-58-211.mail.qq.com (out162-62-58-211.mail.qq.com [162.62.58.211])
+Received: from out162-62-57-49.mail.qq.com (out162-62-57-49.mail.qq.com [162.62.57.49])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4BC904908AF;
-	Sun, 26 Jul 2026 08:19:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=162.62.58.211
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EAF4A2F5A36;
+	Sun, 26 Jul 2026 08:21:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=162.62.57.49
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785053950; cv=none; b=UruciV70bTR9tCoBOz4hZswRqhj8FEriucPZSI3RvoX4+0QfcbImjvAkugXnukzLIriWPYAYwbRNDCgPch86kXisb3UrJskenzEyt7Y4vb26LOZg6SK9US9SSpFO35Zu/08rauJGafTml62OAMkAi2oT1m35tjq8MDZ/2HKFYeQ=
+	t=1785054121; cv=none; b=W/e2+af7eXlRTOWp7/o4vk/B/sGyVqWp8qExe7NMmF0S6M/Plpr/Gzj5Ir6r1MYMmzZNRUS5N/6ajTahxRgRGqMAXN5BLTufFw93+0jCp3KmODrBO8V5MmEECzxJGu366YcbMYMFWrks7an04wv1QAtUdymouVO4TJWcVPPmYFM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785053950; c=relaxed/simple;
-	bh=Zojn1E/xaUQYlkYDN8tYIb6eQiqbVs2Ju5a1EEMi9QQ=;
-	h=Message-ID:From:To:Cc:Subject:Date:MIME-Version; b=fNvT+DeXQdxVJE7GRT1rm0B1++qa+i05ygM9wL9QcX+JPcKnQc/eyKfigwdI/Qx9Bh28ZlIp0htvdedOPlZNFt3IqiyPft47en2p+xcwHax52buoDS7v8/j+yxHWqcrtl6cC1mXn87mE/qXLwdg8eZiCeSfAvn4MKnq2iGaQaE4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=foxmail.com; spf=pass smtp.mailfrom=foxmail.com; dkim=pass (1024-bit key) header.d=foxmail.com header.i=@foxmail.com header.b=AqMP+kx/; arc=none smtp.client-ip=162.62.58.211
+	s=arc-20240116; t=1785054121; c=relaxed/simple;
+	bh=NcU8wS93nsidkMQkptraF+nsgOhZAC/uHltM/sn88Xg=;
+	h=Message-ID:From:To:Cc:Subject:Date:MIME-Version; b=dhIQTjUnOnFqBnaoP2c3OIN6tkC3Io2fIwlbYiao6AlPKhGjOuExD3D4mVySCwFxgrmK0Wn+8HqhRxh9IK6fs1oDsMCltLLTyotAIjLIjOwPbnCpAk2mTwlf7P19ONXCVW+zjyWEabmH8UsfZofpaBOAWFtg50FNcGfOg/oL6fQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=foxmail.com; spf=pass smtp.mailfrom=foxmail.com; dkim=pass (1024-bit key) header.d=foxmail.com header.i=@foxmail.com header.b=JRIcRTb4; arc=none smtp.client-ip=162.62.57.49
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=foxmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=foxmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=foxmail.com header.i=@foxmail.com header.b="AqMP+kx/"
+	dkim=pass (1024-bit key) header.d=foxmail.com header.i=@foxmail.com header.b="JRIcRTb4"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=foxmail.com;
-	s=s201512; t=1785053942;
-	bh=ty5gNRJtPPi+JcVoZw2oyczsZ/rqj2eJnvfQwG05qQk=;
+	s=s201512; t=1785054107;
+	bh=VNA+U2VOyzrrfKPZselM2HN5dKOCfbYeAhwrq3WFrLY=;
 	h=From:To:Cc:Subject:Date;
-	b=AqMP+kx/j4DATlE9gmF2+/v+/2NGR+6mXy1E8swRRd7KPoWFxw1m5idi+JFm0PaQP
-	 cKZVyOtsQ5SFxDoizLEzHxO1M0fN4dWYCqg8FBwW1cRmzYJSz3uHKM7u1YHAZtJXiD
-	 DyNWU69jEk1N08NR9hIYvB1xaDEE4OwzqsUHEJX8=
+	b=JRIcRTb4Q72/kiyTpWTi7dXiXYurgXwVbq//V9t+S4HIsimX+SWo8HibF8lrx6lRh
+	 5+pN0Dh/tmwGAJAiwa7S+ar0cNpgVB1YzB6Nm5RfYyimeHYrB5diyVPDgd8BB1VjDE
+	 p3uzraZj9sjZuHqYbv9VY2CPhTKyQrmhW+4ZnGE8=
 Received: from localhost ([182.91.149.193])
-	by newxmesmtplogicsvrszc56-0.qq.com (NewEsmtp) with SMTP
-	id 4C09DA32; Sun, 26 Jul 2026 16:19:00 +0800
-X-QQ-mid: xmsmtpt1785053940tqun51yj6
-Message-ID: <tencent_3FA5706BA66E2CCCFA362E90F805A8FF370A@qq.com>
-X-QQ-XMAILINFO: NGZp1yYNf7Y+h/P0Afolh12FNhMMrcIsM/U29e+oEMY6gecBPiyq7IMXQre9SZ
-	 Kut3c83lhcFiC2bDV6cJ+hEOK9bi+uWxUcIS6W3YPwFSbZ63fsQ6OUd9nux+UZMx/B2t0Wkbqsov
-	 QgagzcgJ4q5GLuDFNLguRosPpMx+ktZNHBI0vjXejCFsH07vbB3BnbzN7ZOaP2jndfeDfvi+/xS4
-	 enTC04HfaS11ldWZROluqfiTUCIQQ6mrKlCbYNMFnRHvWlyU+MWBmCTHh/Clte9mR3zjBFbaUaBT
-	 bP6xCEKvqy/EPNnEOia6ANaPMW/xWhz1e4f3lAVxRjgKRQAoO9ZsOnUwl+4eCQj0UPgv0qFqSJ8U
-	 TmxZVeGxidN+HOdTXCjfgov51S9w7/4ZEJPuBc2vAOTXiVcPW+Uq+2d4YTRDh7xKtVhfCgJNGyAY
-	 7fXn151G5jjyXSKU9XBCSTJy+6pr99z1DxPLHrZubxvSWnsHlOKJO2smv4/CH6+bOtugquxQvtiL
-	 wTKcV5Nc3yF0757la5iE6C5jvNMjKnw2jccLpJagw5FY6yT8eF3gpqC6zxvh1UZgjkf34Sdo/fyC
-	 8iQYBGzWhJjQaB/KI62vzZkFix9/5YWn3UsL58kJNa3mmNLazyw6qIwk7h4CUeuHB0sdWC6wa0Tg
-	 6QRqc+qaufM4pTviO3B6E6BJZKWNeTrO0TytVk6WJJeBJ3g/iTD5u/q0uxdQrw4ecj2/CRm4B9HT
-	 U3+3zf/u75fBveIggTD37FuMy3cFqiFJfVfEZ7OGttgVDeZCBIxdzukTYpA7pjte2R8aMk+Bjpxn
-	 rfHbCAy0GyYbBTGE9pLVsxgV1BEfDzpshs5UkNUSbejq3WtnSZTwsofB1pyD8GlMLAOl0Gv9D2oU
-	 4XOpqstwlnf2aIKX8PuSMOSikCvFxsMhVb7u/I97wd5zi73p/5n+LZafnsaUpC+w8Bjj+ebGBPn8
-	 OW2L2bh9v/a3DkrC0qNPvQglJdMnkiSuCkwNcLIdQlC3uWt/QzyKR33FIXZPfuBeA1vkIkp/iq43
-	 6KnoLAVz/O7O3EOQbWhrfNCF2WpvxOlilZ5FvgI5vP44UaU1PZ5cvbu0+OuASJ6OEAC7YYBpu7EQ
-	 MY7+ps
-X-QQ-XMRINFO: MPJ6Tf5t3I/ylTmHUqvI8+Wpn+Gzalws3A==
+	by newxmesmtplogicsvrsza53-0.qq.com (NewEsmtp) with SMTP
+	id 56E0C221; Sun, 26 Jul 2026 16:21:46 +0800
+X-QQ-mid: xmsmtpt1785054106t2ufx02cv
+Message-ID: <tencent_CD9DBF098D1B3BB565A1DD5761C1D34F4805@qq.com>
+X-QQ-XMAILINFO: MhK4DKsBP06ipf9ZblDLdulzNxgP3BmOn5rh+H79S7GmcKsLhTAvdmJCmmoEnt
+	 L9iB0HF7Y+xksxbv23+MW36+GJaQBGlduGD6RiGXdY4FyParylXCWXBs4q2MVkaIRu8a+EsgzRiu
+	 F+Bxgb5FPFd5Z6PXdXPfbp/LjS6nEftMP8ut2tIAIufSno+4HmgRREDTFC9g9QIf8tO6L9tCZl4O
+	 S2e18dvGWNqVy7PjeuxMq4kiPkj+5QXYVz4Aj68dW16OE5Ty3JYeBh+/5yyaZ0N2BfKOMDg8av6k
+	 y1S2xxk6LtGekycOrH1822ahm9HWFMplU0vhQbMj3XZbvfVdkGVTChZuvpyHP24fa1mJMR/WDSPK
+	 EqrU4rPu0quQlobOOy5zWs7/5l1efZcaBboS4b/+T34M5b3D2kT/gz7+ID26VMxWzizCZKRK3Xoy
+	 wUvTEwhRimKpIPRX9RLHTeMSA4p6dog1A8oB4eQaqORXzplmJ1TF2H9jDuCUNg4WUy+p+wlL9+Da
+	 pU2jVyk8qQOVk9pJj0fFdFQDW9C5NJjIs0Y3YNzNeZFDCoNN/D0fRce7qC7IGKznqvuoVwGApGxi
+	 hXFEIXYj8wN3bUeEod2tSIcJHSWIqGdtVHvQuRJjrN1WCaQUoloB124bcqo82jOjl324hFSy2qBJ
+	 TB5aRkaOY1phhbQXsoolNskYdXETs4wA1lpY+23D54LGB3iKCw0Lb2RVzxrBISTHIfiuc1EIOcIG
+	 AJQp/j4yh7WBXW01GqW95En8JrHEIlv6fr5jpF+O0vY/H9BdvK31sGnjrsRd/hUvwhUvruykVFz4
+	 69f7fHeiTMAMmwtQHxwPYrFFqcO+AmqqgNu1cgHljlJZWn7KBi7YSslNXScPjLG5eTq8Ef32bJgZ
+	 M3vAm67bsTI01mP+UyZF/j136aji6JzzRsD0V1R+5Uppg7YnHg4W7p/g4zvq1y5BiePonbcSxsbM
+	 +c6AgD+F8T/0YpHtzO8NQDkqDP86fXsWm5F9qffLMkheuSCR/1qz2IBY/ib5jQQQ1HbIxRyGPpz5
+	 MYZGloTSj764hswINwRjg0iOKjAe8BxbyMe0CmtrS7j3kHhEdw362dZ3JziJmx8NGsb2UT19MNB0
+	 ZoaFeKN/P0Emv3erzBQwhtRoW6IhUMyPqVzes08nxYKSFN45w=
+X-QQ-XMRINFO: Nq+8W0+stu50tPAe92KXseR0ZZmBTk3gLg==
 From: VegetablCat <vegetablecat@foxmail.com>
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	vegetablecat <vegetablecat@foxmail.com>
-Subject: [PATCH] Input: xpad - add support for Beitong KP series controllers
-Date: Sun, 26 Jul 2026 16:18:34 +0800
-X-OQ-MSGID: <20260726081834.12192-1-vegetablecat@foxmail.com>
+Subject: [PATCH v2] Input: xpad - add support for Beitong KP series controllers
+Date: Sun, 26 Jul 2026 16:21:43 +0800
+X-OQ-MSGID: <20260726082143.14721-1-vegetablecat@foxmail.com>
 X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
@@ -86,8 +86,6 @@ a separate USB device with its own vendor ID (0x20dd), distinct
 from the controller (0x20bc).  The HID code is guarded with
 IS_ENABLED(CONFIG_HID) to avoid build failures when HID is
 disabled or built as a module.
-
-Based on earlier work by Zixing Liu <zixing.liu@canonical.com>.
 
 Tested on 20bc:5126 (KP20A) and 20bc:515b (KP40D).
 

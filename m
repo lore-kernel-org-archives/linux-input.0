@@ -1,104 +1,123 @@
-Received: from mail.alien8.de (mail.alien8.de [65.109.113.108])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f170.google.com (mail-pl1-f170.google.com [209.85.214.170])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 250E73BB13F;
-	Sun, 26 Jul 2026 14:11:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=65.109.113.108
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 82D201F3B85
+	for <linux-input@vger.kernel.org>; Sun, 26 Jul 2026 17:15:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.170
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785075087; cv=none; b=eWeYvJYmzp5CSJklOU2uu3twKSdEPBgR+Ph3iyHNymzsD/02q099TAMpXGDsqPuZ4INdvryUlRR41/zk2Opo7YF1I/AES5R4SZIok2I1+cjbCvtIwwa0Sw1KIV8cYUFSB5aUQeu6m4DpZFCKxqyrutSJNB/hqWEhTvju3LAcbBY=
+	t=1785086139; cv=none; b=Lm9AXCylrZO0ISyYf1XCHBjd/oR+yj/8KcZAeNaah1PJ3eMOPw5QepunVj//ldR//VvO7yGzwa+Fo+QU9V5bD7gYuf/3q8D8mgswdCPymSt6A8ROQhPnjHyEs/lMp0ZinDcDFyiD+D5f+mESjujiUUJDaWmA3qUCWCWVmpcFOsg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785075087; c=relaxed/simple;
-	bh=RsM7wLQ/jOnJ2CAOeD6Me72MGP1YsDb+SowXpnXJzvQ=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=XCPKoBpZGA55XoQfHNGiOVkxD4jbgfnfLUgcqRKTFS9HgLFfYIc+uwTbkRzJFiqM41u0UGkvdiYo8eplTOT9l/NSLct5Um4LQDBGFu+1N+ghsZ1YbICk/ohxcB6moftdFS5vUB1d+TGrmaGeCCaGL0LU5oAZsbMGEVZg63pCzew=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=alien8.de; spf=pass smtp.mailfrom=alien8.de; dkim=pass (4096-bit key) header.d=alien8.de header.i=@alien8.de header.b=PicAm15s; arc=none smtp.client-ip=65.109.113.108
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=alien8.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=alien8.de
+	s=arc-20240116; t=1785086139; c=relaxed/simple;
+	bh=cjgn1478+T5P73xJlLEUZoOVKQ6XxJ+/qcnEwhZc6d8=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=dvgMWHtbNrTMqGSNED7bO5DyjhExPXgtk9rZwigNBqLl21ZEIem6rhNsEePP93BQIy9h+f2fb6gxN97GulzA+ECpO07kpNKwMGznlQ09ObgBfirb5wakEQXTjjns+R1w57pHmevzTmN27A2nQ+ZGIT6qSERYqVj1k+NnpIfzZMk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Bpn24yX3; arc=none smtp.client-ip=209.85.214.170
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (4096-bit key) header.d=alien8.de header.i=@alien8.de header.b="PicAm15s"
-Received: from localhost (localhost.localdomain [127.0.0.1])
-	by mail.alien8.de (SuperMail on ZX Spectrum 128k) with ESMTP id 31E5540E00C3;
-	Sun, 26 Jul 2026 14:11:21 +0000 (UTC)
-X-Virus-Scanned: Debian amavisd-new at mail.alien8.de
-Authentication-Results: mail.alien8.de (amavisd-new); dkim=pass (4096-bit key)
-	header.d=alien8.de
-Received: from mail.alien8.de ([127.0.0.1])
-	by localhost (mail.alien8.de [127.0.0.1]) (amavisd-new, port 10026)
-	with ESMTP id 0d6Ot8_kfMTT; Sun, 26 Jul 2026 14:11:11 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=alien8;
-	t=1785075070; bh=r8doXaDn6ecHI39IRrqLZtoTpcRGraO81Kh8LY5Konc=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=PicAm15s5uT96SZg3N5NWfi+nCimx4ItIGt7nRIwH+6Du9jqDhyW5STVkhbifcuL7
-	 4JQCnJ1b/WdEduujnyrWslHwKUejWKGmu000WgsSEZvlvQ4e1jkD+pdkSfPcT7zSnU
-	 JVf7fIuElseMtHnwIJWZDL4jY7lLeDMejnaxUN2Wi528uwBP6KtsTMBflle1/sGmQ9
-	 PCNvUcQm3J3MBK+ENZfF5fsFGDBCZkQczEgrhGS+6B2kDbF33DP/pUaXp3Rdfzgp3h
-	 Mg28cYxc6+z0Rb12nvJZD5mkxDm/+28zUex+Imiqr738I6QMicj42IgC6CFQDcQuhI
-	 v1aLwwFEV+Hs3EUnzQ28+R44SQ9JXFzMX5dKxNWYAkgXcMfPVUs87XC1CQ9pI9iOhu
-	 4x/0EodwXBAnF0AC1LlybjC/K8ADD3ZCnioQKWcMPAAJMkzkn6Ed/b7vnCN2ZZfnns
-	 g19aV1R8B+hLk/nH1JImgWOuHvKNirKsaAbIrfXT1fN2dm3BBliOY8hfUjvYrUOzQ4
-	 hg3tPClCDuJe45kY0Q5GsWBm34c1B4fGcT4Pa+uzeRc2g+IyOXM5r19vpb+uHuG8PV
-	 hsYj5GRZ/SloQZMSg57Q23s74VhXbOhcyHP1pasyHkKda5DqY3UsW9ZFhXbmFVUdo0
-	 tvhT5aBPUeYNBwHuOCbWzvEA=
-Received: from stx.tnic (unknown [IPv6:2600:1700:38ca:c00::1b])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange ECDHE (P-256) server-signature ECDSA (P-256) server-digest SHA256)
-	(No client certificate requested)
-	by mail.alien8.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id CE79640E00B8;
-	Sun, 26 Jul 2026 14:10:32 +0000 (UTC)
-Date: Sun, 26 Jul 2026 07:10:29 -0700
-From: Borislav Petkov <bp@alien8.de>
-To: Eliav Farber <farbere@amazon.com>
-Cc: rafael@kernel.org, tony.luck@intel.com, guohanjun@huawei.com,
-	mchehab@kernel.org, xueshuai@linux.alibaba.com, lenb@kernel.org,
-	laurent.pinchart@ideasonboard.com, linusw@kernel.org,
-	brgl@kernel.org, orsonzhai@gmail.com, baolin.wang@linux.alibaba.com,
-	zhang.lyra@gmail.com, jic23@kernel.org, dlechner@baylibre.com,
-	nuno.sa@analog.com, andy@kernel.org, dmitry.torokhov@gmail.com,
-	hansg@kernel.org, ilpo.jarvinen@linux.intel.com, W_Armin@gmx.de,
-	ukleinek@kernel.org, fabio.m.de.francesco@linux.intel.com,
-	kaihengf@nvidia.com, ankita@nvidia.com, leitao@debian.org,
-	pedro.pbg@usp.br, paulmck@kernel.org, frederic@kernel.org,
-	kees@kernel.org, linux-acpi@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org,
-	linux-pwm@vger.kernel.org, linux-iio@vger.kernel.org,
-	linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org
-Subject: Re: [PATCH v4 00/13] notifier: add device-managed registration APIs
- and convert drivers
-Message-ID: <20260726141029.GAamYVVeVnJfH5ebH5@fat_crate.local>
-References: <20260726101739.33170-1-farbere@amazon.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Bpn24yX3"
+Received: by mail-pl1-f170.google.com with SMTP id d9443c01a7336-2ceae1ed204so19879215ad.0
+        for <linux-input@vger.kernel.org>; Sun, 26 Jul 2026 10:15:38 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1785086138; x=1785690938; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=sDPJ1LpP0ldJdO4mN8ph5m8Vr7Q5Nimh+jZcu3n1H8Y=;
+        b=Bpn24yX3ZjdAjDVZPo1GvRkLpMX/M4AyqxbOAmjB9DuGCPy2jLlsaFzLsUIMZUmGDg
+         tRA9h2n+DD0fJEPq8f/ZyrF0pKJP1mGOA5wavaJ8iJOfu+WiQimeDWPAxTzJW7BdXBT8
+         Bus+rO4+dCz4UyeE7ow6P8y57XrWiKgpTLI9NjwmlVAm4kaLC5LCFWsff0AAtZ7tq5gj
+         DZbUwqK0bf4lACTskmt5vowOLZU4uZim7BthBAX5F8OvOmjf9fNC8iKMYkgGp5X13pyC
+         nCiz5of0myS84QDCyIl6OSJn3XW6gYcyAqpFT4HFt90vZOXuUnmMamhFuo26VtBv20ah
+         iPjw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1785086138; x=1785690938;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=sDPJ1LpP0ldJdO4mN8ph5m8Vr7Q5Nimh+jZcu3n1H8Y=;
+        b=kdGXKK5WCXAy5R+ntz4G4wNR/QLhN3SIXoPgTLvKlttResSPMpb3F5RveXJaO/gmUG
+         xhVWRrwgyMbvJWGODY/BH4BabxbbrnL6XniJ9aaajtIuWbtSql00NFDpViP+wf0WXcRW
+         PgY62mtb9J8uGxz5mKTLqCOFyQ1qIAkY8brrgxcGUIkvqJj7dttcQnHSbG/YeHoP1MIx
+         fkubBwcst5y1Y+aH2RGicktTCLK5CRFbqzDXRiaoPjQw2Zi59EnqpnaPHRY0mRH5QCOe
+         FQ3jcvhpLrnGkTp68cI4VIM9zpQSSutsUfjUzFqGbb3zaDqo0NysWg4xNctBpNM+wqN4
+         lOxA==
+X-Gm-Message-State: AOJu0YwLSVREj1M0zzI4k2sIV7OJWmyhZ1Kjesj/ilzjXihrjancOqr+
+	GV1fiLmF9eNz67a4DDzbvODNj38I0JWTWfrCl+01DYJbwaH4NZqzjInFojTNikQHOQU=
+X-Gm-Gg: AR+sD112NXzeWTXKdmbTGeEcprEhAlFdagmDw+I0OYewdWueTKNtbvoGnsDb6Bt0BrM
+	nLJUJ+YBp0ODyAP5gVHPRiKNl03v/ce/l/Ly+obOuqitMoDW2dsYWuz3oQUeDWvWA3qsCOMRzIg
+	OZDNTA3HXhAM7tdTSkcUayoDRF850YGxh3G6QBhIvv/BGDLezKyWmwQeZc7GE28M+lvjDR11AZ3
+	OT2LqhPfqX6LcWNI5nK4FhFmyeYWiFkknIinwLuhbpGfwem8RJxbZHh+QT0aeKTD/i1ugtOiOjk
+	XUQ4U0agjklmIKdiEKlO/OUDAodxgkVTJh6wveLm7is5wULc1vLwYYXeKg/8p9ySun/LthbxlA8
+	s25rJvq7dHR+ox4HejRvMGw3dwE8aqvtn4h0zFZZLfNh1HwG/NTU9IBHhiNaU2hmoZOg8GcqTT2
+	B7n+sNkBJ+acEZqQ==
+X-Received: by 2002:a05:6a20:b7a7:b0:3c6:61b9:917d with SMTP id adf61e73a8af0-3c67df11232mr5186803637.49.1785086137675;
+        Sun, 26 Jul 2026 10:15:37 -0700 (PDT)
+Received: from Linux.bbrouter ([115.96.218.218])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-314bc57ae17sm19890333eec.22.2026.07.26.10.15.33
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 26 Jul 2026 10:15:36 -0700 (PDT)
+From: Ishaan Dandekar <ishaan.dandekar@gmail.com>
+To: linux-input@vger.kernel.org
+Cc: dmitry.torokhov@gmail.com,
+	gregkh@linuxfoundation.org,
+	Ishaan Dandekar <ishaan.dandekar@gmail.com>
+Subject: [PATCH v2] Input: xpad - add support for generic clone X-Input gamepads
+Date: Sun, 26 Jul 2026 22:45:26 +0530
+Message-Id: <20260726171526.43071-1-ishaan.dandekar@gmail.com>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20260726101739.33170-1-farbere@amazon.com>
+Content-Transfer-Encoding: 8bit
 
-On Sun, Jul 26, 2026 at 10:17:26AM +0000, Eliav Farber wrote:
-> Many drivers repeat the same boilerplate when registering notifiers with
-> device lifetime:
+This device exposes a vendor-specific Xbox 360 interface (0283:0001)
+but was previously ignored by the driver, causing it to fall back to
+a generic hid interface. Adding its ID to xpad_device and xpad_table
+allows it to initialize correctly as an X-Input gamepad.
 
-From: Documentation/process/submitting-patches.rst
+Signed-off-by: Ishaan Dandekar <ishaan.dandekar@gmail.com>
+---
+Note to maintainers:
+This device exposes a vendor-specific Xbox 360 interface (0283:0001). 
+Adding its ID to xpad_device and xpad_table allows it to initialize 
+correctly as an X-Input gamepad with full rumble support.
 
-Don't get discouraged - or impatient
-------------------------------------
+Context: This patch is a companion to a 2-patch series submitted to 
+the linux-usb subsystem (v2: "Fix initialization for Generic Clone 
+X-Input Gamepads"). The USB patches apply a 255-byte config request 
+quirk to prevent this device's firmware from crashing. Once stabilized 
+by the USB core, this xpad patch is required to actually route it 
+properly. Both can be merged independently.
 
-After you have submitted your change, be patient and wait.  Reviewers are
-busy people and may not get to your patch right away.
+Changes in v2:
+- Wrapped commit message at 72 columns.
+- Separated from the USB series to target the input subsystem directly.
 
-Once upon a time, patches used to disappear into the void without comment,
-but the development process works more smoothly than that now.  You should
-receive comments within a week or so; if that does not happen, make sure
-that you have sent your patches to the right place.  Wait for a minimum of
-						     ^^^^^^^^^^^^^^^^^^^^^
-one week before resubmitting or pinging reviewers - possibly longer during
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
-busy times like merge windows.
+ drivers/input/joystick/xpad.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
+diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
+index feb8f368f..c0a15db03 100644
+--- a/drivers/input/joystick/xpad.c
++++ b/drivers/input/joystick/xpad.c
+@@ -99,6 +99,7 @@ static const struct xpad_device {
+ } xpad_device[] = {
+ 	/* Please keep this list sorted by vendor and product ID. */
+ 	{ 0x0079, 0x18d4, "GPD Win 2 X-Box Controller", 0, XTYPE_XBOX360 },
++	{ 0x0283, 0x0001, "Generic X-Input Gamepad", 0, XTYPE_XBOX360 },
+ 	{ 0x0351, 0x1000, "CRKD LP Blueberry Burst Pro Edition (Xbox)", 0, XTYPE_XBOX360 },
+ 	{ 0x0351, 0x2000, "CRKD LP Black Tribal Edition (Xbox) ", 0, XTYPE_XBOX360 },
+ 	{ 0x03eb, 0xff01, "Wooting One (Legacy)", 0, XTYPE_XBOX360 },
+@@ -496,6 +497,7 @@ static const struct usb_device_id xpad_table[] = {
+ 	 */
+ 	{ USB_INTERFACE_INFO('X', 'B', 0) },	/* Xbox USB-IF not-approved class */
+ 	XPAD_XBOX360_VENDOR(0x0079),		/* GPD Win 2 controller */
++	{ USB_DEVICE(0x0283, 0x0001) }, /* Generic X-Input Gamepad */
+ 	XPAD_XBOX360_VENDOR(0x0351),		/* CRKD Controllers */
+ 	XPAD_XBOX360_VENDOR(0x03eb),		/* Wooting Keyboards (Legacy) */
+ 	XPAD_XBOX360_VENDOR(0x03f0),		/* HP HyperX Xbox 360 controllers */
 -- 
-Regards/Gruss,
-    Boris.
+2.34.1
 
-https://people.kernel.org/tglx/notes-about-netiquette

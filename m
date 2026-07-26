@@ -1,153 +1,92 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 650C12110E
-	for <linux-input@vger.kernel.org>; Sun, 26 Jul 2026 05:06:50 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 202883AC00
+	for <linux-input@vger.kernel.org>; Sun, 26 Jul 2026 05:07:00 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785042411; cv=none; b=cQyg/cGwRDme2ovnLipWJzubA4GZz80wPuCMiqkyoJOMOq5RNCBZ1REF+QnA9WL2XA41D2rXt108fTvIPA5g4GYo3W5q5NGMYjZEEUFpJ/ift4QVu2uuUJEe5vuT4aJq110Ld0jiudaEsWolH9kRZkT7oB8BaCN/ElXgoReSkYU=
+	t=1785042422; cv=none; b=LOA8c6OdlQyr8XpwN/6vWRrlMxCYXx5htFiLeK8JC5BOv66PCHd5kHAcRzijTty6tuSuVRWdWw4aocRxOqyRF5paY8KQsGy/2cOA569FysB1/TFrvFxhL8senSm0nBeE0rGqrLNbNLyyg1IWseyQN20z6zDzdseG/ydjXyS/0v4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785042411; c=relaxed/simple;
-	bh=GGSGAMRdPl1T94SvH2fnW/QYeO4JnXsUKDUlunHYoLM=;
+	s=arc-20240116; t=1785042422; c=relaxed/simple;
+	bh=uw9oU+BMIOTIPQ6LEzfIcLSmcYncyXDeFihd1ceio4o=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=rloQOy66+ApvaXnUNShYkU98BM3JIMWsqztuNLX4Fe1TjRvoodUo36mP7xc4EC5Hz/j9D1RfMfmJnKubS8AV1uf4Xc3nutNXYPaHAGo1KKStW3I6N0lNMV0nMrHYyziqpTETwT2cfgREIkl3xlUZ1O8u9gQmH/CK9OT2rkkUOvQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=iqeLe7Uk; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=os87hL23lNJvZ/4S+bxZGARh59TI1IXzrJC0c6733tJ6c8EluHQ3FGXs6NqGaVNgX6RO75G0v9aPNFkphtySHcM1vvUfSww54hp2GcVeD1p/KCkS4EGdq3uRSemNMbmqxSzAk08vhcC4N5Yr2aRjwTh/5OCUOQGEgWt6gWCYO5s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=eWptKswk; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="iqeLe7Uk"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B91DA1F000E9;
-	Sun, 26 Jul 2026 05:06:49 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="eWptKswk"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 864711F000E9;
+	Sun, 26 Jul 2026 05:07:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785042410;
-	bh=3A7FBRauqIbfLjzd7Bt3dwlXG7DkU9P9OpKh5dTrM0A=;
+	s=k20260515; t=1785042420;
+	bh=ssaQLtlpN92AbFova2W7wQ7s5X3SNQo7M9+OIvDAw6U=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=iqeLe7UkUF8ro2LCkI7fi+yKYkqEKNxr7qFs3mTkCwbODJnfpYStYXtNE0zy4jtUe
-	 ZKGMEuVXFSF5FbJ8QJN7NtWfxmRbBQCIr0gnOY4Fmf9ldsVibU6vNXu+pGvDjPA5gK
-	 vHIpfkZp2PyJQ51/k8KlN+qVy0J3PAlHDUwz8VODXNjZ6j7ZJUBoXz+5Dn7iclDAnz
-	 sBQ1mN4GmxfyLp6IXNDaNY3e539b6Zakff49X6xFcq6qsgio7QosNYyIku8dAJVA5T
-	 KObsWtdAAyvspKHoVJaa2qjvnjkEdxz26CTJZyL9rfEXZWfkUD6JUHb0mx/JQDcPlS
-	 ESpPpZWsHV5Uw==
+	b=eWptKswk2vfMSH6ukxCzOF6Gr9BnV9wYt1AN5pBNtU2B9j15vJvFe64fCjR7wXAm3
+	 sJPxxMTR609uwlI6Oz1A/rF2+oGIiBsyWjvVFxg1vor0tSeCRI+gvqICXNZzkm/gvJ
+	 ETotACw/sN1xFeoDpzhNhy3RkkCVcpIlWdvp22qO+MFJ8/vfXXASW8EZWhXrkm3pCT
+	 S01/9CJtSQLE+bxNx+O+EWFU4cPdY/zNIspwxRwSTmR2ULB4xm5BcoAY6rkeywvIRs
+	 5M0g6WhuNi6wRHN7Ce8opvPJ5HsK74cQ3McqNnN2bQLPKpq+bXOVXs1tX8dmVVseJi
+	 8ujMnUysKC9jA==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 01/12] notifier: add device-managed registration APIs
+Subject: Re: [PATCH v2 12/12] reboot: use
+ devm_blocking_notifier_chain_register()
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Eliav Farber" <farbere@amazon.com>
 Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260726045706.8169-2-farbere@amazon.com>
+In-Reply-To: <20260726045706.8169-13-farbere@amazon.com>
 References: <20260726045706.8169-1-farbere@amazon.com>
- <20260726045706.8169-2-farbere@amazon.com>
+ <20260726045706.8169-13-farbere@amazon.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Sun, 26 Jul 2026 05:06:49 +0000
-Message-Id: <20260726050649.B91DA1F000E9@smtp.kernel.org>
+Date: Sun, 26 Jul 2026 05:07:00 +0000
+Message-Id: <20260726050700.864711F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [High] devm_raw_notifier_chain_register structurally violates raw notifie=
-r locking contracts, causing lockless unregistration and list corruption.
-- [High] devm_raw_notifier_chain_register uses GFP_KERNEL inside caller-pro=
-vided locking, causing "sleeping in atomic context" panics if the lock is a=
- spinlock.
+- [Medium] The commit message incorrectly claims to replace the `blocking_n=
+otifier_chain_register() + devm_add_action_or_reset()` pattern, which was n=
+ot used in the original code.
 --
 
---- Patch [1]: [PATCH v2 01/12] notifier: add device-managed registration A=
-PIs ---
-commit c5d9a7bbfeb086f5fff3b21d687d1da2f68205b3
+--- Patch [12]: [PATCH v2 12/12] reboot: use devm_blocking_notifier_chain_r=
+egister() ---
+commit 8cd90dfccbe30e1a7f1ea6421b385708237370fb
 Author: Eliav Farber <farbere@amazon.com>
 
-notifier: add device-managed registration APIs
+reboot: use devm_blocking_notifier_chain_register()
 
-Add device-managed registration functions for atomic, blocking, and raw
-notifier chains. These automatically unregister the notifier when the device
-is unbound, reducing driver boilerplate.
+This commit replaces the manual devres allocation and registration pattern
+in devm_register_reboot_notifier() with a direct call to
+devm_blocking_notifier_chain_register(). It also drops the now unused
+devm_unregister_reboot_notifier() callback.
 
-> diff --git a/kernel/notifier.c b/kernel/notifier.c
-> index 2f9fe7c30287f..d8c82b237586e 100644
-> --- a/kernel/notifier.c
-> +++ b/kernel/notifier.c
+> Replace the blocking_notifier_chain_register() +
+> devm_add_action_or_reset() pattern with a single call to
+> devm_blocking_notifier_chain_register(), removing the
+> devm_unregister_reboot_notifier() callback.
 
-[ ... ]
+[Severity: Medium]
+This isn't a bug, but does the commit message accurately describe the old
+code?=20
 
-> +struct raw_notifier_chain_devres {
-> +	struct raw_notifier_head *nh;
-> +	struct notifier_block *nb;
-> +};
-> +
-> +static void devm_raw_notifier_chain_unregister(struct device *dev, void =
-*res)
-> +{
-> +	struct raw_notifier_chain_devres *dr =3D res;
-> +
-> +	raw_notifier_chain_unregister(dr->nh, dr->nb);
+Looking at the original implementation of devm_register_reboot_notifier()
+in kernel/reboot.c, it didn't use devm_add_action_or_reset(), but rather
+manually allocated the devres struct:
 
-[Severity: High]
-How is locking handled during device unbind? The documentation for raw noti=
-fiers
-states that all locking must be provided by the caller. When the devres
-framework automatically invokes devm_raw_notifier_chain_unregister() during
-teardown, it calls raw_notifier_chain_unregister() completely locklessly.
+    rcnb =3D devres_alloc(devm_unregister_reboot_notifier,
+                        sizeof(*rcnb), GFP_KERNEL);
+    if (!rcnb)
+        return -ENOMEM;
 
-Since there is no mechanism for this callback to acquire the caller's
-subsystem-specific lock, will this structural flaw force concurrent,
-unsynchronized list modifications and corrupt the notifier chain?
+    ret =3D register_reboot_notifier(nb);
 
-> +}
-> +
-> +/**
-> + *	devm_raw_notifier_chain_register - Device-managed raw notifier regist=
-ration
-> + *	@dev: Device to tie the notifier lifetime to
-> + *	@nh: Pointer to head of the raw notifier chain
-> + *	@n: New entry in notifier chain
-> + *
-> + *	Adds a notifier to a raw notifier chain and registers a cleanup
-> + *	action to automatically unregister it when @dev is unbound.
-> + *	All locking must be provided by the caller.
-> + *
-> + *	Return:
-> + *	0 on success, negative errno on error.
-> + */
-> +int devm_raw_notifier_chain_register(struct device *dev,
-> +				     struct raw_notifier_head *nh,
-> +				     struct notifier_block *n)
-> +{
-> +	struct raw_notifier_chain_devres *dr;
-> +	int ret;
-> +
-> +	dr =3D devres_alloc(devm_raw_notifier_chain_unregister,
-> +			  sizeof(*dr), GFP_KERNEL);
-
-[Severity: High]
-Will this devres_alloc() call trigger a scheduling while atomic bug? To saf=
-ely
-use devm_raw_notifier_chain_register() without racing, the caller must acqu=
-ire
-their chain-protecting lock before calling the function.
-
-If this lock is a spinlock, which is standard for raw notifiers used in
-atomic contexts, the unconditional GFP_KERNEL allocation here will sleep
-while the caller holds a spinlock.
-
-> +	if (!dr)
-> +		return -ENOMEM;
-> +
-> +	ret =3D raw_notifier_chain_register(nh, n);
-> +	if (ret) {
-> +		devres_free(dr);
-> +		return ret;
-> +	}
-> +
-> +	dr->nh =3D nh;
-> +	dr->nb =3D n;
-> +	devres_add(dev, dr);
-> +
-> +	return 0;
-> +}
-> +EXPORT_SYMBOL_GPL(devm_raw_notifier_chain_register);
+Could the commit message be updated to accurately reflect the pattern that
+was actually removed from the code?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260726045706.8169=
--1-farbere@amazon.com?part=3D1
+-1-farbere@amazon.com?part=3D12

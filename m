@@ -1,53 +1,53 @@
-Received: from pdx-out-003.esa.us-west-2.outbound.mail-perimeter.amazon.com (pdx-out-003.esa.us-west-2.outbound.mail-perimeter.amazon.com [44.246.68.102])
+Received: from pdx-out-011.esa.us-west-2.outbound.mail-perimeter.amazon.com (pdx-out-011.esa.us-west-2.outbound.mail-perimeter.amazon.com [52.35.192.45])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3BED9320A14;
-	Sun, 26 Jul 2026 04:57:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=44.246.68.102
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 27F2D3264E3;
+	Sun, 26 Jul 2026 04:57:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=52.35.192.45
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785041851; cv=none; b=jz8IEvPatdiy7iB54y+mXLHnG3k+ok8KR5aS2a7j0mlK7AxH5LWW1pxieENOxOrSO9yutfVkkMNHESVyPhXAY4B6LPPB3LOqUT3FGCSc75VWx80dcAcJ00qRFI1uMGShy1ysylCOrvuNvKtyvG0TUksihX8XPnESsTSvRRvlWyw=
+	t=1785041854; cv=none; b=kYT20ea0jYHpHmscvyDFUy0idSrBsJ7epzJ6r1mq5wJpfmA/UAbz2HmeGYEUz3DxeoMQwsp/dJVzj7Ei8lF7jbbXKfvLhhS3LlNG4pCIZ5Zwr0jq8NLVZkzrVj4UzP0hbwFO/2X1BXXBlEvWWesJy3pMxapXEqK/SoNkSKlfst8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785041851; c=relaxed/simple;
-	bh=2sCMJcF/jCocaMKemz+wYTGzNVDJYYar2m0z6xYBIVA=;
-	h=From:To:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=ntNYleu8e3Su7uPP4ThdO1akCNNXA5lYkCqJxaitLt+3MBccIw8J847b5xC1yym1xnp8nl8Y7vMdwrilYpHEznHUm3NoZ8SG8eaUuXFMY8xMEobUOyai0TvvQrzOltgtMwaj9S9C8kOaXYfzAz8td+wqyFUNoRRUOCjoq8gyiZs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com; spf=pass smtp.mailfrom=amazon.com; dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b=qZwaz3Zp; arc=none smtp.client-ip=44.246.68.102
+	s=arc-20240116; t=1785041854; c=relaxed/simple;
+	bh=+M9sI2R9j80yQvV/Q3lXYCnN2bX64b4KBLooYAZ8GDU=;
+	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=gqEeHNpiZDZq5uI6mirR427hGOSDS4MD/xvYkMFui1tiZO/eGUtlw1qoSH4xP869gcsnafS9aqnQ8evIt9+8JwClUYEmdRgpI/1R4QUKA7cwmoCu7haLodnILACuuOq7+6Z1ZZ3zPfgkV8k/NLP6RgtwrtlNCGe06BXp/5mlui0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com; spf=pass smtp.mailfrom=amazon.com; dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b=mKQa7kSN; arc=none smtp.client-ip=52.35.192.45
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=amazon.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b="qZwaz3Zp"
+	dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b="mKQa7kSN"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
   d=amazon.com; i=@amazon.com; q=dns/txt; s=amazoncorp2;
-  t=1785041850; x=1816577850;
-  h=from:to:subject:date:message-id:in-reply-to:references:
-   mime-version:content-transfer-encoding;
-  bh=H0Zz7eGZyr6tCR/p+X6brzlZictdZSNSnyLXgYwWiFg=;
-  b=qZwaz3Zpnk5/SrpNJ7VdZY2ZpoZqbsM6CBGA20UkqiQ0GRoBDk/n+gAm
-   GjJL4CltXNlnyph7KnurX6kXQPYQss0/CoCp6Ttj75G38NI7d/CY9ML7z
-   XGGGgx7q/zRFMuUpRYqU4qZup0o/kexjv8lygTSNJE6QgErLv+EYm6kpa
-   H7U2POvP82P7j11nqOZKSpWMRu0wkeo0Y9SETM89pTpaO851WnvaWAVzc
-   nX7HtA4Lf8aBEeLt+BgEmrlv59XrcQHj8JUnRV3YF40C8Q6RQgaLjHiy4
-   G9ulFKam5ExynKLDgzVlREQHmmYVwttCkUWnyMOHLDBJdNB1z09gYhERv
-   g==;
-X-CSE-ConnectionGUID: VlbhvaT2TK2OI8BlTm+7nA==
-X-CSE-MsgGUID: tbjS8ltyQCKB7hOv2BlqZw==
+  t=1785041853; x=1816577853;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=N4HMI+Ypt3dUaeVDcWgB1HqH6rx98OF+47H18f4iarc=;
+  b=mKQa7kSNhrYdZePDUIBUADpRbeDUOC1UlHjFq/jfOBtsXoJ8Aqb/wjUk
+   eD8IxlCN76zVOnsjicJkg/tuOqqDJfCpx42hC+Axu3zcanC5ynr307xiE
+   SghegOgPr/+DdJlR/KO2PitnpB1riFXZHdOSajafP086oQ5eQPYGO9JZO
+   QzbdKHmPqCRW1/uL3g/MCS5C1854JdFj7ifuK9meXMGHPcwMJZ3w231SD
+   GuMaRFGsk5xQIWPEioZm9+3sHCZ/iQVYmC+SBBWioDYNs7ctt0VsjMtxo
+   Nr1maONoA3OIIh/ahncOqgqUFaDLdSa4Ci3qJJuc/4r5BdhFLPoJxmNyJ
+   Q==;
+X-CSE-ConnectionGUID: nR/EGw2+Sw27zNkVAwJMuQ==
+X-CSE-MsgGUID: aO8O+AWlS2acUBU9QWSySQ==
 X-IronPort-AV: E=Sophos;i="6.25,185,1779148800"; 
-   d="scan'208";a="24380173"
+   d="scan'208";a="24131141"
 Received: from ip-10-5-12-219.us-west-2.compute.internal (HELO smtpout.naws.us-west-2.prod.farcaster.email.amazon.dev) ([10.5.12.219])
-  by internal-pdx-out-003.esa.us-west-2.outbound.mail-perimeter.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 26 Jul 2026 04:57:27 +0000
-Received: from EX19MTAUWA002.ant.amazon.com [205.251.233.234:25547]
- by smtpin.naws.us-west-2.prod.farcaster.email.amazon.dev [10.0.31.176:2525] with esmtp (Farcaster)
- id c7c2ec0f-7eb9-42b4-a99f-cb25d7cf885e; Sun, 26 Jul 2026 04:57:27 +0000 (UTC)
-X-Farcaster-Flow-ID: c7c2ec0f-7eb9-42b4-a99f-cb25d7cf885e
+  by internal-pdx-out-011.esa.us-west-2.outbound.mail-perimeter.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 26 Jul 2026 04:57:32 +0000
+Received: from EX19MTAUWB001.ant.amazon.com [205.251.233.51:17920]
+ by smtpin.naws.us-west-2.prod.farcaster.email.amazon.dev [10.0.47.230:2525] with esmtp (Farcaster)
+ id 2b0f4c96-a7d9-4075-bf29-45c4297417bd; Sun, 26 Jul 2026 04:57:32 +0000 (UTC)
+X-Farcaster-Flow-ID: 2b0f4c96-a7d9-4075-bf29-45c4297417bd
 Received: from EX19D001UWA001.ant.amazon.com (10.13.138.214) by
- EX19MTAUWA002.ant.amazon.com (10.250.64.202) with Microsoft SMTP Server
+ EX19MTAUWB001.ant.amazon.com (10.250.64.248) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.2562.43;
- Sun, 26 Jul 2026 04:57:26 +0000
+ Sun, 26 Jul 2026 04:57:32 +0000
 Received: from dev-dsk-farbere-1a-46ecabed.eu-west-1.amazon.com
  (172.19.116.181) by EX19D001UWA001.ant.amazon.com (10.13.138.214) with
  Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.2562.45; Sun, 26 Jul 2026
- 04:57:21 +0000
+ 04:57:26 +0000
 From: Eliav Farber <farbere@amazon.com>
 To: <rafael@kernel.org>, <tony.luck@intel.com>, <bp@alien8.de>,
 	<guohanjun@huawei.com>, <mchehab@kernel.org>, <xueshuai@linux.alibaba.com>,
@@ -63,9 +63,10 @@ To: <rafael@kernel.org>, <tony.luck@intel.com>, <bp@alien8.de>,
 	<linux-kernel@vger.kernel.org>, <linux-gpio@vger.kernel.org>,
 	<linux-pwm@vger.kernel.org>, <linux-iio@vger.kernel.org>,
 	<linux-input@vger.kernel.org>, <platform-driver-x86@vger.kernel.org>
-Subject: [PATCH v2 02/12] pwm: iqs620a: use devm_blocking_notifier_chain_register()
-Date: Sun, 26 Jul 2026 04:56:56 +0000
-Message-ID: <20260726045706.8169-3-farbere@amazon.com>
+CC: Jonathan Cameron <jonathan.cameron@oss.qualcomm.com>
+Subject: [PATCH v2 03/12] iio: light: iqs621-als: use devm_blocking_notifier_chain_register()
+Date: Sun, 26 Jul 2026 04:56:57 +0000
+Message-ID: <20260726045706.8169-4-farbere@amazon.com>
 X-Mailer: git-send-email 2.47.3
 In-Reply-To: <20260726045706.8169-1-farbere@amazon.com>
 References: <20260726045706.8169-1-farbere@amazon.com>
@@ -83,58 +84,61 @@ X-ClientProxiedBy: EX19D045UWA003.ant.amazon.com (10.13.139.46) To
 Replace the blocking_notifier_chain_register() +
 devm_add_action_or_reset() pattern with a single call to
 devm_blocking_notifier_chain_register(), removing the
-iqs620_pwm_notifier_unregister() callback.
+iqs621_als_notifier_unregister() callback.
 
 Signed-off-by: Eliav Farber <farbere@amazon.com>
+Acked-by: Jonathan Cameron <jonathan.cameron@oss.qualcomm.com>
 ---
- drivers/pwm/pwm-iqs620a.c | 21 +++------------------
- 1 file changed, 3 insertions(+), 18 deletions(-)
+ drivers/iio/light/iqs621-als.c | 24 +++---------------------
+ 1 file changed, 3 insertions(+), 21 deletions(-)
 
-diff --git a/drivers/pwm/pwm-iqs620a.c b/drivers/pwm/pwm-iqs620a.c
-index 13e5e138c8e9..12f7b1415ed4 100644
---- a/drivers/pwm/pwm-iqs620a.c
-+++ b/drivers/pwm/pwm-iqs620a.c
-@@ -173,17 +173,7 @@ static const struct pwm_ops iqs620_pwm_ops = {
- 	.get_state = iqs620_pwm_get_state,
- };
+diff --git a/drivers/iio/light/iqs621-als.c b/drivers/iio/light/iqs621-als.c
+index cd5843e3e2c3..f9d215ef1970 100644
+--- a/drivers/iio/light/iqs621-als.c
++++ b/drivers/iio/light/iqs621-als.c
+@@ -179,19 +179,6 @@ static int iqs621_als_notifier(struct notifier_block *notifier,
+ 	return NOTIFY_OK;
+ }
  
--static void iqs620_pwm_notifier_unregister(void *context)
+-static void iqs621_als_notifier_unregister(void *context)
 -{
--	struct iqs620_pwm_private *iqs620_pwm = context;
+-	struct iqs621_als_private *iqs621_als = context;
+-	struct iio_dev *indio_dev = iqs621_als->indio_dev;
 -	int ret;
- 
--	ret = blocking_notifier_chain_unregister(&iqs620_pwm->iqs62x->nh,
--						 &iqs620_pwm->notifier);
+-
+-	ret = blocking_notifier_chain_unregister(&iqs621_als->iqs62x->nh,
+-						 &iqs621_als->notifier);
 -	if (ret)
--		dev_err(iqs620_pwm->dev,
+-		dev_err(indio_dev->dev.parent,
 -			"Failed to unregister notifier: %d\n", ret);
 -}
+-
+ static int iqs621_als_read_raw(struct iio_dev *indio_dev,
+ 			       struct iio_chan_spec const *chan,
+ 			       int *val, int *val2, long mask)
+@@ -563,19 +550,14 @@ static int iqs621_als_probe(struct platform_device *pdev)
+ 	mutex_init(&iqs621_als->lock);
  
- static int iqs620_pwm_probe(struct platform_device *pdev)
- {
-@@ -218,19 +208,14 @@ static int iqs620_pwm_probe(struct platform_device *pdev)
- 	mutex_init(&iqs620_pwm->lock);
- 
- 	iqs620_pwm->notifier.notifier_call = iqs620_pwm_notifier;
--	ret = blocking_notifier_chain_register(&iqs620_pwm->iqs62x->nh,
--					       &iqs620_pwm->notifier);
+ 	iqs621_als->notifier.notifier_call = iqs621_als_notifier;
+-	ret = blocking_notifier_chain_register(&iqs621_als->iqs62x->nh,
+-					       &iqs621_als->notifier);
 +	ret = devm_blocking_notifier_chain_register(&pdev->dev,
-+						    &iqs620_pwm->iqs62x->nh,
-+						    &iqs620_pwm->notifier);
++						    &iqs621_als->iqs62x->nh,
++						    &iqs621_als->notifier);
  	if (ret) {
  		dev_err(&pdev->dev, "Failed to register notifier: %d\n", ret);
  		return ret;
  	}
  
 -	ret = devm_add_action_or_reset(&pdev->dev,
--				       iqs620_pwm_notifier_unregister,
--				       iqs620_pwm);
+-				       iqs621_als_notifier_unregister,
+-				       iqs621_als);
 -	if (ret)
 -		return ret;
 -
- 	ret = devm_pwmchip_add(&pdev->dev, chip);
- 	if (ret)
- 		dev_err(&pdev->dev, "Failed to add device: %d\n", ret);
+ 	return devm_iio_device_register(&pdev->dev, indio_dev);
+ }
+ 
 -- 
 2.47.3
 

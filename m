@@ -1,73 +1,57 @@
-Received: from mail-pl1-f178.google.com (mail-pl1-f178.google.com [209.85.214.178])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from out162-62-58-211.mail.qq.com (out162-62-58-211.mail.qq.com [162.62.58.211])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EC5B734B410
-	for <linux-input@vger.kernel.org>; Sun, 26 Jul 2026 06:50:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.178
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BBC4131A575;
+	Sun, 26 Jul 2026 08:02:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=162.62.58.211
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785048632; cv=none; b=Hqs4cLyFRgLsUqz7gadiknCtfntxnHZOG0QY+csTpCbwQ3iqwwxRQ7O2oJ2mTn7HeC0Z6ZzoRW2Gb+gNX0IbMEvYSSNprTyPKo0QZZMvoW1EG4RZ+xZBcUduo/R6jtSu65MoUOqq2mmQasUFh2A4v6KqjhQ8PxiLQcBzV8bYO7I=
+	t=1785052926; cv=none; b=mnRmSXgd93ML+JaCUWQadxu3gfspxugBudPmEUYI5zBeoEo+QsG73O/e4c409mXde0c3fwlQ2WqpL3j7brfj75wApGylsaMqCOL2qU+c3K/pizuvdYGhg6TxlDq3ADiH13Oqh/O6E/ZIcF/4YNM8fFxLiy4/H7qBs56q59B3/W8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785048632; c=relaxed/simple;
-	bh=cDWpLzDkKE+OR1F5V9sOaFAX1o4taHbt/RG5bvZp3xY=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=NE5xLwWcHeM9dzM7CeAczmE/qPZezOM+0nUuU99IpuPJFWPLnRf+PMWi03fRR8xqShK849rxnrrorYMYCY0JmDIce22q2q0UJIiiFMabhVMNcGvJNqljLs/jpLJXaRy2REJvFFW0l2PopdINhD20xORXY+J6gdN7Wdt9URJiC2w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=xbow.com; spf=pass smtp.mailfrom=xbow.com; dkim=pass (2048-bit key) header.d=xbow.com header.i=@xbow.com header.b=KbyaYqdZ; arc=none smtp.client-ip=209.85.214.178
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=xbow.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=xbow.com
+	s=arc-20240116; t=1785052926; c=relaxed/simple;
+	bh=JmOLrW5kN9SdoYm7njfZnOrB2QKJ0077RpHyiRffhJo=;
+	h=Message-ID:From:To:Cc:Subject:Date:MIME-Version; b=R8djVs9robRFEKG3j4dWwj8I3LVKRUZpK563w12r5kvQq4qEkejyDq/DJWu/AzEREbbIVSe1mmzuBBYqkldP/owwChTWVY9d8Z9UbHfbg2DjR6oSSglw2dGRWGv9xBttpcgPwrhIdKwx76g4u3PcKn4/zlYeVArtgxsBUpuEJAU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=foxmail.com; spf=pass smtp.mailfrom=foxmail.com; dkim=pass (1024-bit key) header.d=foxmail.com header.i=@foxmail.com header.b=liIywmht; arc=none smtp.client-ip=162.62.58.211
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=foxmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=foxmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=xbow.com header.i=@xbow.com header.b="KbyaYqdZ"
-Received: by mail-pl1-f178.google.com with SMTP id d9443c01a7336-2cc7ef7ec27so21709265ad.1
-        for <linux-input@vger.kernel.org>; Sat, 25 Jul 2026 23:50:30 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=xbow.com; s=google; t=1785048630; x=1785653430; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=xhTM04DOXiDdofL3yenMY0XdGkR+wDC1veYQUjrGAdE=;
-        b=KbyaYqdZ2stwei+BE4wuEKW7/ly3EdHmvTPAPySxX4EfJ0TcPIy5yJ3W9z+oC40C1v
-         xWJUeeZoJZgS6HmKmUFOGi1RIKtGzYgKhZj4vD9jICr31GBpKIClumVMs9IdF001dUyp
-         opc7bBu6jDzY77JMdjzOsujFsObRs2v2GV7sm0Hjgo6roUJMTE6R50kQ1bUdDX7HKMQT
-         rPPtcqg4pDvpCEEPCq8kkferodkiCy++KGuiC7rSvPCxCntmkZbPQrT6Gsbb/PNCCPyn
-         p5jusT8mM+dPkuGF9r6fQm1BH1YzGzuDOqzq0BXQZGTJIvtPV1YGutxUfzPcZWljJbOW
-         Dcmg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785048630; x=1785653430;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=xhTM04DOXiDdofL3yenMY0XdGkR+wDC1veYQUjrGAdE=;
-        b=OipH91B63MG4eCcTxMOkbSJIN+4dlyPn6aX7TvA1sWc6q4A/KaSDhNln87RdpG0/83
-         SqRW6X27fuhuubUpdY2dCPsrREB6oJ5hxX06OVOo3IrxBMuR+RKX4Vgt0JyoP+4Ez3ux
-         9rE0C97RDp5jOL/DOZpvu2MpDXUvA5+K5d+KDea4b3HqTJm5Ps2B/kb1iWFGViRQByLN
-         UMcHCAgzsIdx6/S0ws+GPMBCDl4f38IMeJbIDhDDPRhpqmqCwgWnfSyiyZsdoIfjLR4K
-         pv7iAPa0C1LxldcRayVM7fsaywyQJ/uVUiYFIkBzh12g1m80zxuljJSn778UMKkAlNvv
-         bm/A==
-X-Gm-Message-State: AOJu0Yz6hZPTfJDoIdtzsxNKfz12hz8Knn40TwvKYmDwJZ+n+2A+crJ7
-	7JD4TMZeeXxGp2LEJTdeIssAzwMbnlyKZP9NivQaL9sFswRELBH4CapgU8iu1QgaiAtVMmdUIW5
-	vgpfTtiY=
-X-Gm-Gg: AR+sD12Bo0IqUGsmd0wAgqvujLJyhNTI6iIIAm3GGXAlwf2BiUA2bI8vGBf3WEwpqSd
-	6P41Tv2s9d/Tsnkx6cAwfvJ1QakydyF6mPXmP3T4TwaF3LAyRevmh0Dg1Ku6K3VP6JP+LRRbNm+
-	TTfHDOyDKtgYEYhtI54ULFG8J60U3FNDzVJ1pB9Iu4JYxYR/5WQ4QWn76K1rib2b/VEbafPr3Hg
-	NdxvWw62ZcnZbi0WZVzr4occ+tiR+BJ6FMnR9HFSc7Ff2ClYGdjHCX727R2cUWQ+aPuRgd24BuR
-	noFnSvvZ+nQSrLvaUy4QS5S2+7t/BgbzYV1NYOecFiZwIPe8CML4CVNC12cuhjkSMjiZStsBSSD
-	Pq6V6ehTUH+tbBnX3mqn0Pn6m7eK2d1dOFvyvjEVK3jJcwy2PeFLZRgsVizFmCYR5y5j/finncV
-	jnaaou5zz/ijNnpfzHypn4tNMxpZ8EjC4xUB93WYfGxxY7CGXba3o5AHN+z8jW
-X-Received: by 2002:a17:902:c951:b0:2cf:b69a:8f58 with SMTP id d9443c01a7336-2cfde884a9cmr43824255ad.37.1785048630279;
-        Sat, 25 Jul 2026 23:50:30 -0700 (PDT)
-Received: from localhost.localdomain ([125.128.148.126])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2cfde7eea52sm17331635ad.61.2026.07.25.23.50.28
-        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
-        Sat, 25 Jul 2026 23:50:30 -0700 (PDT)
-From: Baul Lee <baul.lee@xbow.com>
-To: linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Cc: jikos@kernel.org,
-	bentiss@kernel.org,
-	federico.kirschbaum@xbow.com,
-	Baul Lee <baul.lee@xbow.com>,
-	stable@vger.kernel.org
-Subject: [PATCH] HID: core: fix OOB read of field->usage in hid_set_field()
-Date: Sun, 26 Jul 2026 15:50:24 +0900
-Message-ID: <20260726065024.46088-1-baul.lee@xbow.com>
-X-Mailer: git-send-email 2.50.1
+	dkim=pass (1024-bit key) header.d=foxmail.com header.i=@foxmail.com header.b="liIywmht"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=foxmail.com;
+	s=s201512; t=1785052911;
+	bh=hCdRf5n7sT1esNenVJeiJI6tnPYH5mJZzcBOPNHvcHU=;
+	h=From:To:Cc:Subject:Date;
+	b=liIywmhtTbHJlvN6DCfZT5TfdZbvmcqqZFQiEfFCMWn+HIwkWi+n7Ii65fwnrTFj1
+	 6+RYdM9DXPtZ6Dufva42NRMKqNszXr8W2NqgJpAKWcAdwq8lAIKz1Gd2MreXJjU949
+	 gsgobI4gsMxrmFQtZy4qfjiioO4sfFHgNJWEphwA=
+Received: from localhost ([182.91.149.193])
+	by newxmesmtplogicsvrsza73-0.qq.com (NewEsmtp) with SMTP
+	id 72848BC; Sun, 26 Jul 2026 16:01:50 +0800
+X-QQ-mid: xmsmtpt1785052910tl4mkgzqw
+Message-ID: <tencent_2DEADF4D9ADC33A9420BECBEA70B1A7EFD08@qq.com>
+X-QQ-XMAILINFO: No7DFzN00JnR98n0BRp0WdRLMx4xz9j7rr6MQM4v039V0lSgxzAMBsA9p5pN9C
+	 2py2qlIbOBOMyqPixH4hTPOhvXAgWeTJmDKkhE5dtY2aIS8YJpqketMWOycCpmN6NOWtwCMu15Uf
+	 +Ve2nx2OedkSWkMMBnTQTOUPLUn8t3yOod/kg3f1p7NAX4kbf/Z/2VCjb10LTneA4LUQW3fKguZB
+	 tfgDyx2PJzDnJQ3dpBBNBjukGqMreWOPRp4cjKuEvUVLdxeRnwz8Wbr8BkKN6oH8dVePx5OPjVUP
+	 Os5yBAtNty0SsdC8xmxiR6H8nDedx6lRW+50ypr/LJsQ6KxVLjCw0iJjJpWChNpvd0NFWgM2AUb+
+	 2IH6/os9ZGoXX9Nyxe3IkJZqGjwCo9SW+hTEinG1F9mhwK9kOF+3vofbgoAR8QnbUW55ElIgMH04
+	 StPvvubhmRxuqmsYct7OZ6CpKYvhb5HmdQzbtP6cr0Mw5t8JwkULku8uAYsdWwulCPWBUjsBZzZG
+	 bkxl9RO8AZlzo8tmvew9DTjFb35NlCjcXyDck9UC0RLfn7L58x+M3dEv6+LT1WS1E29CQYvyGsoX
+	 igRGG3is97COljAulrBcTEXbAKDwkjeRPSopAno7BXonbJV1zz1F4hD80xYhkWFTzOsZrO7eQNEG
+	 vqAYDauXyJyflanORIKFHwYyWRnLiSLg3nTWMvg69FwayBqkR0gNNW8J17dLtwyq/RxEDyokxQXh
+	 W0kpcSFJkgxxsiZO0sX5ynRUhT7qYU5nDdhrcWi35Nw3RtWa6kKXVsgJM140DFLBG06nbGGd4fd2
+	 yLvlVBEjgHP28wNnUc64c7huWRRsE0hWpO/Uf11UZk4U+lfusa11T9B2W0DHgQ4r6jWpbiJZ9jDJ
+	 y5pDJZKnLHCAEaB9hUI4tnX9yvW0JIGt3QwhcsgWvf5Bh9BjC+dWymoYxwUAAvuhAytFr9gwwGS9
+	 jOATjG7R+c/9HPAXq0SFY6H3m1hkKalJQzWilmFMLGbN8ApVoH6S+kgXdCRlDD99hXIYamVZqiff
+	 Vttz3wxwSgNo5zJ4GLe0FmXy3nqgedkzsgjYMSwQ==
+X-QQ-XMRINFO: Mp0Kj//9VHAxzExpfF+O8yhSrljjwrznVg==
+From: VegetablCat <vegetablecat@foxmail.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	vegetablecat <vegetablecat@foxmail.com>
+Subject: [PATCH] Input: xpad - add support for Beitong KP series controllers
+Date: Sun, 26 Jul 2026 16:01:48 +0800
+X-OQ-MSGID: <20260726080148.56301-1-vegetablecat@foxmail.com>
+X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -76,71 +60,208 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-hid_set_field() hands field->usage + offset to hid_dump_input() before
-the guard that bounds offset:
+From: vegetablecat <vegetablecat@foxmail.com>
 
-	hid_dump_input(field->report->device, field->usage + offset, value);
+Beitong KP series controllers (0x20bc:*) enumerate as standard
+Xbox 360 devices but require a Microsoft OS Extended Compat ID
+descriptor read (XUSB10) to lock into XInput mode.  Without this
+request the controller re-enumerates as a Nintendo Switch device
+(057e:2069) after approximately 1.9 seconds and stops reporting
+valid input.
 
-	if (offset >= field->report_count) {
-		hid_err(...);
-		return -1;
-	}
+Add FLAG_READ_XUSB10 and device table entries for KP20A/D,
+KP40A/B/D/F, KP50B/C/D/E, and KP70A.  Devices with this flag
+trigger a usb_control_msg_recv() during probe to read the XUSB10
+descriptor, which is the sole condition required to keep the
+controllers in XInput mode.
 
-Under CONFIG_DEBUG_FS hid_dump_input() dereferences that pointer, with
-buf = hid_resolv_usage(usage->hid, NULL).  The usage[] array is
-allocated inline with the hid_field in hid_register_field() and holds
-field->maxusage entries, so an offset past it reads off the end of the
-kvzalloc()ed allocation and into a neighbouring object.  Had the guard
-run first, offset < report_count <= maxusage would already have confined
-the pointer to the array.
+The flag follows the same pattern as FLAG_DELAY_INIT used for
+the ByoWave Proteus Controller.
 
-A caller supplies such an offset today.  picolcd_fb_send_tile()
-validates only report->maxfield before issuing
-hid_set_field(report->field[0], 11 + i, ...) for i = 0..31, so its
-offsets are fixed at 11..42 and are never checked against the bound
-field.  When the device registers that field with fewer usages, the
-framebuffer deferred-io work drives the read on every tile.  KASAN
-reports a 4-byte slab-out-of-bounds read in hid_dump_input() below
-hid_set_field(), and the same boot logs "offset (1) exceeds
-report_count (1)" from the guard that runs only afterwards.
+Additionally, add a minimal HID receiver driver for the KP40D
+receiver dongle (0x20dd:0x515c) that binds to its HID interface
+to prevent hid-generic from interfering.  This requires replacing
+module_usb_driver() with manual module_init/module_exit to
+register both the USB and HID drivers.
 
-Move the hid_dump_input() call below the guard.  Because
-field->maxusage >= field->report_count, the guard then establishes that
-field->usage + offset lies inside the array before it is dereferenced,
-for every caller and without changing behaviour on the valid path.
+Tested on 20bc:5126 (KP20A) and 20bc:515b (KP40D).
 
-Discovered by XBOW, triaged by Baul Lee <baul.lee@xbow.com>
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Reported-by: Federico Kirschbaum <federico.kirschbaum@xbow.com>
-Reported-by: Baul Lee <baul.lee@xbow.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Baul Lee <baul.lee@xbow.com>
+Signed-off-by: vegetablecat <vegetablecat@foxmail.com>
 ---
- drivers/hid/hid-core.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/input/joystick/xpad.c | 111 +++++++++++++++++++++++++++++++++-
+ 1 file changed, 110 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index f107f5103b35..c3035414109d 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1933,13 +1933,14 @@ int hid_set_field(struct hid_field *field, unsigned offset, __s32 value)
+diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
+index feb8f36..d33ca18 100644
+--- a/drivers/input/joystick/xpad.c
++++ b/drivers/input/joystick/xpad.c
+@@ -28,6 +28,7 @@
+  */
  
- 	size = field->report_size;
+ #include <linux/bits.h>
++#include <linux/hid.h>
+ #include <linux/kernel.h>
+ #include <linux/input.h>
+ #include <linux/rcupdate.h>
+@@ -72,6 +73,7 @@
+ #define PKT_XBE2_FW_5_11    4
  
--	hid_dump_input(field->report->device, field->usage + offset, value);
--
- 	if (offset >= field->report_count) {
- 		hid_err(field->report->device, "offset (%d) exceeds report_count (%d)\n",
- 				offset, field->report_count);
- 		return -1;
- 	}
+ #define FLAG_DELAY_INIT BIT(0)
++#define FLAG_READ_XUSB10 BIT(1)
+ 
+ static bool dpad_to_buttons;
+ module_param(dpad_to_buttons, bool, S_IRUGO);
+@@ -332,6 +334,32 @@ static const struct xpad_device {
+ 	{ 0x1bad, 0xfd00, "Razer Onza TE", 0, XTYPE_XBOX360 },
+ 	{ 0x1bad, 0xfd01, "Razer Onza", 0, XTYPE_XBOX360 },
+ 	{ 0x1ee9, 0x1590, "ZOTAC Gaming Zone", 0, XTYPE_XBOX360 },
++	{ 0x20bc, 0x5125, "BETOP BTP-KP20A/BTP-KP40A Controller", 0, XTYPE_XBOX360, FLAG_READ_XUSB10 },
++	{ 0x20bc, 0x5126, "BETOP BTP-KP20A Controller", 0, XTYPE_XBOX360, FLAG_READ_XUSB10 },
++	{ 0x20bc, 0x5127, "BETOP BTP-KP20A/BTP-KP40A Controller", 0, XTYPE_XBOX360, FLAG_READ_XUSB10 },
++	{ 0x20bc, 0x5128, "BETOP BTP-KP20A Controller", 0, XTYPE_XBOX360, FLAG_READ_XUSB10 },
++	{ 0x20bc, 0x512f, "BETOP BTP-KP70A Controller", 0, XTYPE_XBOX360, FLAG_READ_XUSB10 },
++	{ 0x20bc, 0x5130, "BETOP BTP-KP70A Controller", 0, XTYPE_XBOX360, FLAG_READ_XUSB10 },
++	{ 0x20bc, 0x5133, "BETOP BTP-KP50B Controller", 0, XTYPE_XBOX360, FLAG_READ_XUSB10 },
++	{ 0x20bc, 0x5145, "BETOP BTP-KP40A/BTP-KP40B Controller", 0, XTYPE_XBOX360, FLAG_READ_XUSB10 },
++	{ 0x20bc, 0x5146, "BETOP BTP-KP40A/BTP-KP40B Controller", 0, XTYPE_XBOX360, FLAG_READ_XUSB10 },
++	{ 0x20bc, 0x5149, "BETOP BTP-KP50C Controller", 0, XTYPE_XBOX360, FLAG_READ_XUSB10 },
++	{ 0x20bc, 0x5150, "BETOP BTP-KP50D Controller", 0, XTYPE_XBOX360, FLAG_READ_XUSB10 },
++	{ 0x20bc, 0x5151, "BETOP BTP-KP50D Controller", 0, XTYPE_XBOX360, FLAG_READ_XUSB10 },
++	{ 0x20bc, 0x5152, "BETOP BTP-KP50E Controller", 0, XTYPE_XBOX360, FLAG_READ_XUSB10 },
++	{ 0x20bc, 0x5153, "BETOP BTP-KP50E Controller", 0, XTYPE_XBOX360, FLAG_READ_XUSB10 },
++	{ 0x20bc, 0x5154, "BETOP BTP-KP40D Controller", 0, XTYPE_XBOX360, FLAG_READ_XUSB10 },
++	{ 0x20bc, 0x5155, "BETOP BTP-KP40D Controller", 0, XTYPE_XBOX360, FLAG_READ_XUSB10 },
++	{ 0x20bc, 0x5158, "BETOP BTP-KP20D Controller", 0, XTYPE_XBOX360, FLAG_READ_XUSB10 },
++	{ 0x20bc, 0x5159, "BETOP BTP-KP20D Controller", 0, XTYPE_XBOX360, FLAG_READ_XUSB10 },
++	{ 0x20bc, 0x515b, "BETOP BTP-KP40D Controller (White)", 0, XTYPE_XBOX360, FLAG_READ_XUSB10 },
++	{ 0x20bc, 0x515c, "BETOP BTP-KP40D Controller (White)", 0, XTYPE_XBOX360, FLAG_READ_XUSB10 },
++	{ 0x20bc, 0x515d, "BETOP BTP-KP40F Controller (White)", 0, XTYPE_XBOX360, FLAG_READ_XUSB10 },
++	{ 0x20bc, 0x515e, "BETOP BTP-KP40F Controller (White)", 0, XTYPE_XBOX360, FLAG_READ_XUSB10 },
++	{ 0x20bc, 0x515f, "BETOP BTP-KP70A Controller", 0, XTYPE_XBOX360, FLAG_READ_XUSB10 },
++	{ 0x20bc, 0x5160, "BETOP BTP-KP70A Controller", 0, XTYPE_XBOX360, FLAG_READ_XUSB10 },
++	{ 0x20bc, 0x5169, "BETOP BTP-KP40F Controller (Black)", 0, XTYPE_XBOX360, FLAG_READ_XUSB10 },
++	{ 0x20bc, 0x516a, "BETOP BTP-KP40F Controller (Black)", 0, XTYPE_XBOX360, FLAG_READ_XUSB10 },
+ 	{ 0x20bc, 0x5134, "BETOP BTP-KP50B Xinput Dongle", 0, XTYPE_XBOX360 },
+ 	{ 0x20bc, 0x514a, "BETOP BTP-KP50C Xinput Dongle", 0, XTYPE_XBOX360 },
+ 	{ 0x20d6, 0x2001, "BDA Xbox Series X Wired Controller", 0, XTYPE_XBOXONE },
+@@ -778,6 +806,7 @@ struct usb_xpad {
+ 	time64_t mode_btn_down_ts;
+ 	bool delay_init;		/* init packets should be delayed */
+ 	bool delayed_init_done;
++	bool read_xusb10;		/* read XUSB10 descriptor during probe */
+ };
+ 
+ static int xpad_init_input(struct usb_xpad *xpad);
+@@ -2044,6 +2073,7 @@ static int xpad_probe(struct usb_interface *intf, const struct usb_device_id *id
+ 	struct usb_device *udev = interface_to_usbdev(intf);
+ 	struct usb_xpad *xpad;
+ 	struct usb_endpoint_descriptor *ep_irq_in, *ep_irq_out;
++	u8 ms_feature_descriptor[40];
+ 	int i, error;
+ 
+ 	if (intf->cur_altsetting->desc.bNumEndpoints != 2)
+@@ -2082,6 +2112,8 @@ static int xpad_probe(struct usb_interface *intf, const struct usb_device_id *id
+ 	xpad->name = xpad_device[i].name;
+ 	if (xpad_device[i].flags & FLAG_DELAY_INIT)
+ 		xpad->delay_init = true;
++	if (xpad_device[i].flags & FLAG_READ_XUSB10)
++		xpad->read_xusb10 = true;
+ 
+ 	xpad->packet_type = PKT_XB;
+ 	INIT_WORK(&xpad->work, xpad_presence_work);
+@@ -2148,6 +2180,19 @@ static int xpad_probe(struct usb_interface *intf, const struct usb_device_id *id
+ 	xpad->irq_in->transfer_flags |= URB_NO_TRANSFER_DMA_MAP;
+ 
+ 	usb_set_intfdata(intf, xpad);
++	if (xpad->read_xusb10) {
++		error = usb_control_msg_recv(udev, 0, 0xee,
++					     USB_TYPE_VENDOR | USB_DIR_IN |
++						USB_RECIP_DEVICE,
++					     0x0000, 0x0004,
++					     ms_feature_descriptor,
++					     sizeof(ms_feature_descriptor), 25,
++					     GFP_KERNEL);
++		if (error)
++			dev_warn(&intf->dev,
++				 "unable to read Microsoft feature descriptor: %d\n",
++				 error);
++	}
+ 
+ 	/* Packet type detection */
+ 	if (le16_to_cpu(udev->descriptor.idVendor) == 0x045e) { /* Microsoft controllers */
+@@ -2312,7 +2357,71 @@ static struct usb_driver xpad_driver = {
+ 	.id_table	= xpad_table,
+ };
+ 
+-module_usb_driver(xpad_driver);
++static int xpad_receiver_probe(struct hid_device *hdev, const struct hid_device_id *id)
++{
++	int error;
 +
-+	hid_dump_input(field->report->device, field->usage + offset, value);
++	error = hid_parse(hdev);
++	if (error)
++		return error;
 +
- 	if (field->logical_minimum < 0) {
- 		if (value != snto32(s32ton(value, size), size)) {
- 			hid_err(field->report->device, "value %d is out of range\n", value);
++	error = hid_hw_start(hdev, 0);
++	if (error)
++		return error;
++
++	error = hid_hw_open(hdev);
++	if (error) {
++		hid_hw_stop(hdev);
++		return error;
++	}
++
++	return 0;
++}
++
++static void xpad_receiver_remove(struct hid_device *hdev)
++{
++	hid_hw_close(hdev);
++	hid_hw_stop(hdev);
++}
++
++static const struct hid_device_id xpad_receiver_devices[] = {
++	{ HID_USB_DEVICE(0x20dd, 0x515c) },
++	{ }
++};
++MODULE_DEVICE_TABLE(hid, xpad_receiver_devices);
++
++static struct hid_driver xpad_receiver_driver = {
++	.name = "xpad-kp40d-receiver",
++	.id_table = xpad_receiver_devices,
++	.probe = xpad_receiver_probe,
++	.remove = xpad_receiver_remove,
++};
++
++static int __init xpad_init(void)
++{
++	int error;
++
++	error = hid_register_driver(&xpad_receiver_driver);
++	if (error)
++		return error;
++
++	error = usb_register(&xpad_driver);
++	if (error) {
++		hid_unregister_driver(&xpad_receiver_driver);
++		return error;
++	}
++
++	return 0;
++}
++
++static void __exit xpad_exit(void)
++{
++	usb_deregister(&xpad_driver);
++	hid_unregister_driver(&xpad_receiver_driver);
++}
++
++module_init(xpad_init);
++module_exit(xpad_exit);
+ 
+ MODULE_AUTHOR("Marko Friedemann <mfr@bmx-chemnitz.de>");
+ MODULE_DESCRIPTION("Xbox pad driver");
 -- 
-2.50.1 (Apple Git-155)
+2.55.0
 

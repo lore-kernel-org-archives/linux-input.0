@@ -1,281 +1,157 @@
-Received: from out162-62-57-49.mail.qq.com (out162-62-57-49.mail.qq.com [162.62.57.49])
+Received: from pdx-out-004.esa.us-west-2.outbound.mail-perimeter.amazon.com (pdx-out-004.esa.us-west-2.outbound.mail-perimeter.amazon.com [44.246.77.92])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 23A921DE3B7;
-	Sun, 26 Jul 2026 08:31:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=162.62.57.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BA5701DF75A;
+	Sun, 26 Jul 2026 10:17:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=44.246.77.92
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785054668; cv=none; b=o20MZR0RIuIVUuHxFlE45mBS/cCpqbSfaClO8N7Nn2p7a0taBoWeJnbFyuOM/Z3Heqmm+LvBjraKp4DCSPfvU0YQap97aEKp6otanHqflBTqJVyXPY5ELFzDKXBaYffyFe9dVMAP43hVkRhkOOLcm+TMqEWuv9wDJvDrVu+81dw=
+	t=1785061078; cv=none; b=OgXPoGvGdH2dMOp4JhPSZNMOYD5u1lp6dQDsbsSSH0OLCIdSrlgbe6Z5GJM3zIoF+hBDpHPr5YJDJqa9tOvb9hnnGRfBcMTVDLQERGNpxwUMs6UxmwV+/Gi9xZAJxTy9jkc+3XEssMeMdbQ/Ng0DG3T94Yt8v5CM5c0Odx2+VhU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785054668; c=relaxed/simple;
-	bh=AjPg063Jv3eK++Fw4bWz8c5uOqEEDvpEI/dIOEVIA1A=;
-	h=Message-ID:From:To:Cc:Subject:Date:MIME-Version; b=GSLYe7VUysxlmo5RjivRWxorPYeGlHn1UdQ7df7qbnuAOTPkIOcrpO94mQzQs9w9qsBErHbN5h3UYFB1vEJwjQVo5StTESTVtyEOmI3Mo1KDrDumUDpZdUMvar+uRzdDEIUzXZCTUhujrYDPjlPuELNVMePXom7eXS3HE3TIjes=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=foxmail.com; spf=pass smtp.mailfrom=foxmail.com; dkim=pass (1024-bit key) header.d=foxmail.com header.i=@foxmail.com header.b=hZg6AZ2u; arc=none smtp.client-ip=162.62.57.49
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=foxmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=foxmail.com
+	s=arc-20240116; t=1785061078; c=relaxed/simple;
+	bh=allb5KNeRefH9BMm4RvnlhgzOZPGgF0M58H36b7ZsKI=;
+	h=From:To:Subject:Date:Message-ID:MIME-Version:Content-Type; b=rkHrUwhp1ojg8pM9IN5MjsO2lIx2XY9uOJirV6I/6EQ5+3Ym2u97Gi16+2a5NsP8LhTcCIsFAPVIc4prnAqU6oq8n72VeRT2jOvgeckCffp7J3tN42qBaJ3XgoWkIFYPRf4fWGC5xwsNbIxRACjg1nuZRcEeDGJMoz/uR0B8Mzc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com; spf=pass smtp.mailfrom=amazon.com; dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b=F+3+hNmV; arc=none smtp.client-ip=44.246.77.92
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=amazon.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=foxmail.com header.i=@foxmail.com header.b="hZg6AZ2u"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=foxmail.com;
-	s=s201512; t=1785054661;
-	bh=DmD8nmw81JtBh+DoqCuBj4SOmV6svb7yAZd61Io82cM=;
-	h=From:To:Cc:Subject:Date;
-	b=hZg6AZ2umdfP8diXbY/+HaQQSa/rVXwgU3QBXOgKZGnOdKFAU176xvWoJg1nIJuW8
-	 nWr55SSwrJ5/gD3BYPCLUx7GbP2euVsOzVphPPOKb6hN3iSi2yd6eblUzCot89YFHj
-	 2XMhoSAhvYKzYqJC/p0S59yKdMfPH4tQwsDOkqq0=
-Received: from localhost ([182.91.149.193])
-	by newxmesmtplogicsvrsza63-0.qq.com (NewEsmtp) with SMTP
-	id 7BB8E2BB; Sun, 26 Jul 2026 16:30:59 +0800
-X-QQ-mid: xmsmtpt1785054659t4uf4prm3
-Message-ID: <tencent_252E78F8262DB8F915A8CF35CD7087A50A0A@qq.com>
-X-QQ-XMAILINFO: Nx5J06Esz7r7VR60mi+D30T+n5DUeTbCBCbg0i4rdPPElHoLKTq5GGoeGv3ffQ
-	 8qbT3wubrbN6tnwNUnYou9chgA/CbSWqS/4gUIl876FcsRUk4WmFqx+f281kEOe52R8AmQLy9mJi
-	 86EYM/epMq8rEYg2FYLdWztVkKppyNwFODgLV4qagdgFSDCCmYHWYjx0TQI+ST1D1f4YiDWN3U68
-	 UX3ATkuG8XAjsz9IGH9VPOHSc4WzanMH9HGiNp/YQYtdJLPZr5DervY2E6w5n/e03keSO35iv8Fp
-	 Jmq0Y4sQ7phdQQXdTxLpt4LPKYhPcO+pY65slLRx0rQEwX4Iwwklb+sSPkkuq+ixeE91XQ1SOQNB
-	 R4xIe1ci/XEZGeGMKmvoaZ0gqQzdJXZqwn5WrLeRGQDgJy6IzAGQ4Zq+uZIoPXE1RhlX7caKsZUz
-	 4bHLf9vspQEadoLJDtjEIGm32H5pKHK6JeI9Rb4DqZ+uxLOib7nmcFgM2l+NJeB2MypNt0/zr7/z
-	 LAjwXHjD5+OSbGtkpse/sCaC8WBWWUt7QQBJZqgVjCL71h+i8NxPkBJXKhe46logC2XSeXd8eY/N
-	 MwBi/BvsfGylFAt4GufQtz2LJQqrPVbT3DRGPylXa+VexNWygPWX3x3S6RkLzHpqka9WDwOGjaDR
-	 7MW2jwnbRxX8+/idMqFTEPB6ZN88IxuTZdmThRpWDEN1HZKAaujo2/xMSKfBNuMozla2hBNDo6fo
-	 PXatWE7qZSlpsIsNoHV4H9HeMbFC+7P7d0OCVwqd6HBvNGMh0HegviXVKyRy3Z5K46FaqrUp5XpO
-	 HgBFYq0o9y662ZKd37JOETh8umn/+W+FLfiDuKP2/CB9LWzMVJHrCnsiJS9JS1Q+WmFPYreo/6TD
-	 a2LSHToGcMI3+QA1WJTHurbbAiTG2MbaluVd6M0RUVeyKeNCMSZdGY3tqoIp+bcd3iEFscVb2vGm
-	 vPWk+XwS4Gazsp9plXEnBmsYbnV089JmuC1YGi8G1raLokohH0AfhjSLWUqQn5Wm9k4yOg6+7jhh
-	 HqzHCg0LkLwJRVFb2L+rEGFhI8YnGfSff4Yja8PYlS+7K8e0JVmN6l28+JtC4sfYvdzhJ35QIiO0
-	 hX69TtKxCeoDUOZjnmjPcarmzykVjuLmppyVNg
-X-QQ-XMRINFO: MPJ6Tf5t3I/ylTmHUqvI8+Wpn+Gzalws3A==
-From: VegetablCat <vegetablecat@foxmail.com>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	vegetablecat <vegetablecat@foxmail.com>
-Subject: [PATCH v3] Input: xpad - add support for Beitong KP series controllers
-Date: Sun, 26 Jul 2026 16:30:56 +0800
-X-OQ-MSGID: <20260726083056.18825-1-vegetablecat@foxmail.com>
-X-Mailer: git-send-email 2.55.0
+	dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b="F+3+hNmV"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazoncorp2;
+  t=1785061076; x=1816597076;
+  h=from:to:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=NOzRwXLbdThqlskEtxfEsqrmGFxHPHNE59ZV5xlBpwA=;
+  b=F+3+hNmVcKWfyNGeqHlsTRQ4bAz6NCwMXKO64eJjoyOTBg6RAr3cGcIC
+   oVjzDPZaE893i3Erc6nNLnLZK0n/t3Dpv1Y9y9fK6Lpu3quwwGZjz+REE
+   7Tko4cI9/XFx3RgkvrYVw9MPvXi0TzhwiITG0+yHyffBMm6QPygBR8DdV
+   ssP6JNjey7EDS5J1p6VcJZe0A2KWNOZy4Cxpls2Z5QcVFQSXJshARg1vc
+   fOTAPAdziTXpAuDOBbwF8Xm++e18t7IT0kF82K+kGMM7doBwh9n+zzlLs
+   xftRdGW/NEFs42GDi3nLg8fS3gEHxn1fxPVWd8cyNttER1TGA/NMKj82/
+   Q==;
+X-CSE-ConnectionGUID: DThI+WwJRpi0A7aplxF1bg==
+X-CSE-MsgGUID: ibitYszJRrO3uyoJj7NbUQ==
+X-IronPort-AV: E=Sophos;i="6.25,186,1779148800"; 
+   d="scan'208";a="24362879"
+Received: from ip-10-5-9-48.us-west-2.compute.internal (HELO smtpout.naws.us-west-2.prod.farcaster.email.amazon.dev) ([10.5.9.48])
+  by internal-pdx-out-004.esa.us-west-2.outbound.mail-perimeter.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 26 Jul 2026 10:17:53 +0000
+Received: from EX19MTAUWA002.ant.amazon.com [205.251.233.178:2757]
+ by smtpin.naws.us-west-2.prod.farcaster.email.amazon.dev [10.0.32.26:2525] with esmtp (Farcaster)
+ id 4c7151db-74cc-41dd-8f7c-cde8848a34bf; Sun, 26 Jul 2026 10:17:53 +0000 (UTC)
+X-Farcaster-Flow-ID: 4c7151db-74cc-41dd-8f7c-cde8848a34bf
+Received: from EX19D001UWA001.ant.amazon.com (10.13.138.214) by
+ EX19MTAUWA002.ant.amazon.com (10.250.64.202) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.2562.43;
+ Sun, 26 Jul 2026 10:17:53 +0000
+Received: from dev-dsk-farbere-1a-46ecabed.eu-west-1.amazon.com
+ (172.19.116.181) by EX19D001UWA001.ant.amazon.com (10.13.138.214) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.2562.45; Sun, 26 Jul 2026
+ 10:17:48 +0000
+From: Eliav Farber <farbere@amazon.com>
+To: <rafael@kernel.org>, <tony.luck@intel.com>, <bp@alien8.de>,
+	<guohanjun@huawei.com>, <mchehab@kernel.org>, <xueshuai@linux.alibaba.com>,
+	<lenb@kernel.org>, <laurent.pinchart@ideasonboard.com>, <linusw@kernel.org>,
+	<brgl@kernel.org>, <orsonzhai@gmail.com>, <baolin.wang@linux.alibaba.com>,
+	<zhang.lyra@gmail.com>, <jic23@kernel.org>, <dlechner@baylibre.com>,
+	<nuno.sa@analog.com>, <andy@kernel.org>, <dmitry.torokhov@gmail.com>,
+	<hansg@kernel.org>, <ilpo.jarvinen@linux.intel.com>, <W_Armin@gmx.de>,
+	<ukleinek@kernel.org>, <fabio.m.de.francesco@linux.intel.com>,
+	<kaihengf@nvidia.com>, <ankita@nvidia.com>, <leitao@debian.org>,
+	<farbere@amazon.com>, <pedro.pbg@usp.br>, <paulmck@kernel.org>,
+	<frederic@kernel.org>, <kees@kernel.org>, <linux-acpi@vger.kernel.org>,
+	<linux-kernel@vger.kernel.org>, <linux-gpio@vger.kernel.org>,
+	<linux-pwm@vger.kernel.org>, <linux-iio@vger.kernel.org>,
+	<linux-input@vger.kernel.org>, <platform-driver-x86@vger.kernel.org>
+Subject: [PATCH v4 00/13] notifier: add device-managed registration APIs and convert drivers
+Date: Sun, 26 Jul 2026 10:17:26 +0000
+Message-ID: <20260726101739.33170-1-farbere@amazon.com>
+X-Mailer: git-send-email 2.47.3
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 8bit
+X-ClientProxiedBy: EX19D032UWB002.ant.amazon.com (10.13.139.190) To
+ EX19D001UWA001.ant.amazon.com (10.13.138.214)
 
-From: vegetablecat <vegetablecat@foxmail.com>
+Many drivers repeat the same boilerplate when registering notifiers with
+device lifetime:
 
-Beitong KP series controllers (0x20bc:*) enumerate as standard
-Xbox 360 devices but require a Microsoft OS Extended Compat ID
-descriptor read (XUSB10) to lock into XInput mode.  Without this
-request the controller re-enumerates as a Nintendo Switch device
-(057e:2069) after approximately 1.9 seconds and stops reporting
-valid input.
+  1. Register the notifier with *_notifier_chain_register()
+  2. Check for error
+  3. Register a devm action to unregister on teardown
+  4. Implement a per-driver static unregister callback
 
-Add FLAG_READ_XUSB10 and device table entries for KP20A/D,
-KP40A/B/D/F, KP50B/C/D/E, and KP70A.  Devices with this flag
-trigger a usb_control_msg_recv() during probe to read the XUSB10
-descriptor, which is the sole condition required to keep the
-controllers in XInput mode.
+This series adds devm_atomic_notifier_chain_register() and
+devm_blocking_notifier_chain_register() that automatically unregister
+the notifier when the device is unbound, then converts 11 drivers to use
+them.
 
-The flag follows the same pattern as FLAG_DELAY_INIT used for
-the ByoWave Proteus Controller.  The 25ms timeout for the
-usb_control_msg_recv() call is consistent with the existing
-usage in xpad_start_input() for the legacy Xbox 360 vendor
-capability request.
+Each conversion eliminates a per-driver unregister callback and the
+associated devm_add_action_or_reset() call, reducing code by ~15 lines
+per driver.
 
-Additionally, add an optional HID receiver driver for the KP40D
-receiver dongle (0x20dd:0x515c) that binds to its HID interface
-to prevent hid-generic from interfering.  The receiver dongle is
-a separate USB device with its own vendor ID (0x20dd), distinct
-from the controller (0x20bc).  The HID code is guarded with
-IS_REACHABLE(CONFIG_HID) to handle the case where xpad is
-built-in (y) and HID is a loadable module (m).
+The implementation follows the established devres pattern used by other
+device-managed kernel APIs.
 
-Tested on 20bc:5126 (KP20A) and 20bc:515b (KP40D).
+Changes in v4:
+- Patch 8: split the removal of unused
+  ghes_register_vendor_record_notifier() and
+  ghes_unregister_vendor_record_notifier() into a separate preceding
+  patch (Andy Shevchenko)
 
-Signed-off-by: vegetablecat <vegetablecat@foxmail.com>
----
- drivers/input/joystick/xpad.c | 119 +++++++++++++++++++++++++++++++++-
- 1 file changed, 118 insertions(+), 1 deletion(-)
+Changes in v3:
+- Patch 1: drop devm_raw_notifier_chain_register() since raw notifiers
+  require caller-provided locking which is incompatible with the devres
+  teardown callback (Sashiko)
+- Patch 12: fix commit message to accurately describe the old code as
+  using devres_alloc() + register_reboot_notifier() (Sashiko)
 
-diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
-index feb8f36..8cd4001 100644
---- a/drivers/input/joystick/xpad.c
-+++ b/drivers/input/joystick/xpad.c
-@@ -28,6 +28,7 @@
-  */
- 
- #include <linux/bits.h>
-+#include <linux/hid.h>
- #include <linux/kernel.h>
- #include <linux/input.h>
- #include <linux/rcupdate.h>
-@@ -72,6 +73,7 @@
- #define PKT_XBE2_FW_5_11    4
- 
- #define FLAG_DELAY_INIT BIT(0)
-+#define FLAG_READ_XUSB10 BIT(1)
- 
- static bool dpad_to_buttons;
- module_param(dpad_to_buttons, bool, S_IRUGO);
-@@ -332,6 +334,32 @@ static const struct xpad_device {
- 	{ 0x1bad, 0xfd00, "Razer Onza TE", 0, XTYPE_XBOX360 },
- 	{ 0x1bad, 0xfd01, "Razer Onza", 0, XTYPE_XBOX360 },
- 	{ 0x1ee9, 0x1590, "ZOTAC Gaming Zone", 0, XTYPE_XBOX360 },
-+	{ 0x20bc, 0x5125, "BETOP BTP-KP20A/BTP-KP40A Controller", 0, XTYPE_XBOX360, FLAG_READ_XUSB10 },
-+	{ 0x20bc, 0x5126, "BETOP BTP-KP20A Controller", 0, XTYPE_XBOX360, FLAG_READ_XUSB10 },
-+	{ 0x20bc, 0x5127, "BETOP BTP-KP20A/BTP-KP40A Controller", 0, XTYPE_XBOX360, FLAG_READ_XUSB10 },
-+	{ 0x20bc, 0x5128, "BETOP BTP-KP20A Controller", 0, XTYPE_XBOX360, FLAG_READ_XUSB10 },
-+	{ 0x20bc, 0x512f, "BETOP BTP-KP70A Controller", 0, XTYPE_XBOX360, FLAG_READ_XUSB10 },
-+	{ 0x20bc, 0x5130, "BETOP BTP-KP70A Controller", 0, XTYPE_XBOX360, FLAG_READ_XUSB10 },
-+	{ 0x20bc, 0x5133, "BETOP BTP-KP50B Controller", 0, XTYPE_XBOX360, FLAG_READ_XUSB10 },
-+	{ 0x20bc, 0x5145, "BETOP BTP-KP40A/BTP-KP40B Controller", 0, XTYPE_XBOX360, FLAG_READ_XUSB10 },
-+	{ 0x20bc, 0x5146, "BETOP BTP-KP40A/BTP-KP40B Controller", 0, XTYPE_XBOX360, FLAG_READ_XUSB10 },
-+	{ 0x20bc, 0x5149, "BETOP BTP-KP50C Controller", 0, XTYPE_XBOX360, FLAG_READ_XUSB10 },
-+	{ 0x20bc, 0x5150, "BETOP BTP-KP50D Controller", 0, XTYPE_XBOX360, FLAG_READ_XUSB10 },
-+	{ 0x20bc, 0x5151, "BETOP BTP-KP50D Controller", 0, XTYPE_XBOX360, FLAG_READ_XUSB10 },
-+	{ 0x20bc, 0x5152, "BETOP BTP-KP50E Controller", 0, XTYPE_XBOX360, FLAG_READ_XUSB10 },
-+	{ 0x20bc, 0x5153, "BETOP BTP-KP50E Controller", 0, XTYPE_XBOX360, FLAG_READ_XUSB10 },
-+	{ 0x20bc, 0x5154, "BETOP BTP-KP40D Controller", 0, XTYPE_XBOX360, FLAG_READ_XUSB10 },
-+	{ 0x20bc, 0x5155, "BETOP BTP-KP40D Controller", 0, XTYPE_XBOX360, FLAG_READ_XUSB10 },
-+	{ 0x20bc, 0x5158, "BETOP BTP-KP20D Controller", 0, XTYPE_XBOX360, FLAG_READ_XUSB10 },
-+	{ 0x20bc, 0x5159, "BETOP BTP-KP20D Controller", 0, XTYPE_XBOX360, FLAG_READ_XUSB10 },
-+	{ 0x20bc, 0x515b, "BETOP BTP-KP40D Controller (White)", 0, XTYPE_XBOX360, FLAG_READ_XUSB10 },
-+	{ 0x20bc, 0x515c, "BETOP BTP-KP40D Controller (White)", 0, XTYPE_XBOX360, FLAG_READ_XUSB10 },
-+	{ 0x20bc, 0x515d, "BETOP BTP-KP40F Controller (White)", 0, XTYPE_XBOX360, FLAG_READ_XUSB10 },
-+	{ 0x20bc, 0x515e, "BETOP BTP-KP40F Controller (White)", 0, XTYPE_XBOX360, FLAG_READ_XUSB10 },
-+	{ 0x20bc, 0x515f, "BETOP BTP-KP70A Controller", 0, XTYPE_XBOX360, FLAG_READ_XUSB10 },
-+	{ 0x20bc, 0x5160, "BETOP BTP-KP70A Controller", 0, XTYPE_XBOX360, FLAG_READ_XUSB10 },
-+	{ 0x20bc, 0x5169, "BETOP BTP-KP40F Controller (Black)", 0, XTYPE_XBOX360, FLAG_READ_XUSB10 },
-+	{ 0x20bc, 0x516a, "BETOP BTP-KP40F Controller (Black)", 0, XTYPE_XBOX360, FLAG_READ_XUSB10 },
- 	{ 0x20bc, 0x5134, "BETOP BTP-KP50B Xinput Dongle", 0, XTYPE_XBOX360 },
- 	{ 0x20bc, 0x514a, "BETOP BTP-KP50C Xinput Dongle", 0, XTYPE_XBOX360 },
- 	{ 0x20d6, 0x2001, "BDA Xbox Series X Wired Controller", 0, XTYPE_XBOXONE },
-@@ -778,6 +806,7 @@ struct usb_xpad {
- 	time64_t mode_btn_down_ts;
- 	bool delay_init;		/* init packets should be delayed */
- 	bool delayed_init_done;
-+	bool read_xusb10;		/* read XUSB10 descriptor during probe */
- };
- 
- static int xpad_init_input(struct usb_xpad *xpad);
-@@ -2044,6 +2073,7 @@ static int xpad_probe(struct usb_interface *intf, const struct usb_device_id *id
- 	struct usb_device *udev = interface_to_usbdev(intf);
- 	struct usb_xpad *xpad;
- 	struct usb_endpoint_descriptor *ep_irq_in, *ep_irq_out;
-+	u8 ms_feature_descriptor[40];
- 	int i, error;
- 
- 	if (intf->cur_altsetting->desc.bNumEndpoints != 2)
-@@ -2082,6 +2112,8 @@ static int xpad_probe(struct usb_interface *intf, const struct usb_device_id *id
- 	xpad->name = xpad_device[i].name;
- 	if (xpad_device[i].flags & FLAG_DELAY_INIT)
- 		xpad->delay_init = true;
-+	if (xpad_device[i].flags & FLAG_READ_XUSB10)
-+		xpad->read_xusb10 = true;
- 
- 	xpad->packet_type = PKT_XB;
- 	INIT_WORK(&xpad->work, xpad_presence_work);
-@@ -2148,6 +2180,19 @@ static int xpad_probe(struct usb_interface *intf, const struct usb_device_id *id
- 	xpad->irq_in->transfer_flags |= URB_NO_TRANSFER_DMA_MAP;
- 
- 	usb_set_intfdata(intf, xpad);
-+	if (xpad->read_xusb10) {
-+		error = usb_control_msg_recv(udev, 0, 0xee,
-+					     USB_TYPE_VENDOR | USB_DIR_IN |
-+						USB_RECIP_DEVICE,
-+					     0x0000, 0x0004,
-+					     ms_feature_descriptor,
-+					     sizeof(ms_feature_descriptor), 25,
-+					     GFP_KERNEL);
-+		if (error)
-+			dev_warn(&intf->dev,
-+				 "unable to read Microsoft feature descriptor: %d\n",
-+				 error);
-+	}
- 
- 	/* Packet type detection */
- 	if (le16_to_cpu(udev->descriptor.idVendor) == 0x045e) { /* Microsoft controllers */
-@@ -2312,7 +2357,79 @@ static struct usb_driver xpad_driver = {
- 	.id_table	= xpad_table,
- };
- 
--module_usb_driver(xpad_driver);
-+#if IS_REACHABLE(CONFIG_HID)
-+static int xpad_receiver_probe(struct hid_device *hdev, const struct hid_device_id *id)
-+{
-+	int error;
-+
-+	error = hid_parse(hdev);
-+	if (error)
-+		return error;
-+
-+	error = hid_hw_start(hdev, 0);
-+	if (error)
-+		return error;
-+
-+	error = hid_hw_open(hdev);
-+	if (error) {
-+		hid_hw_stop(hdev);
-+		return error;
-+	}
-+
-+	return 0;
-+}
-+
-+static void xpad_receiver_remove(struct hid_device *hdev)
-+{
-+	hid_hw_close(hdev);
-+	hid_hw_stop(hdev);
-+}
-+
-+static const struct hid_device_id xpad_receiver_devices[] = {
-+	{ HID_USB_DEVICE(0x20dd, 0x515c) },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(hid, xpad_receiver_devices);
-+
-+static struct hid_driver xpad_receiver_driver = {
-+	.name = "xpad-kp40d-receiver",
-+	.id_table = xpad_receiver_devices,
-+	.probe = xpad_receiver_probe,
-+	.remove = xpad_receiver_remove,
-+};
-+#endif
-+
-+static int __init xpad_init(void)
-+{
-+	int error;
-+
-+#if IS_REACHABLE(CONFIG_HID)
-+	error = hid_register_driver(&xpad_receiver_driver);
-+	if (error)
-+		return error;
-+#endif
-+
-+	error = usb_register(&xpad_driver);
-+	if (error) {
-+#if IS_REACHABLE(CONFIG_HID)
-+		hid_unregister_driver(&xpad_receiver_driver);
-+#endif
-+		return error;
-+	}
-+
-+	return 0;
-+}
-+
-+static void __exit xpad_exit(void)
-+{
-+	usb_deregister(&xpad_driver);
-+#if IS_REACHABLE(CONFIG_HID)
-+	hid_unregister_driver(&xpad_receiver_driver);
-+#endif
-+}
-+
-+module_init(xpad_init);
-+module_exit(xpad_exit);
- 
- MODULE_AUTHOR("Marko Friedemann <mfr@bmx-chemnitz.de>");
- MODULE_DESCRIPTION("Xbox pad driver");
+Changes in v2:
+- Patch 1: drop 'extern' from new function prototypes (Bart Van Assche)
+- Patch 1: fix kerneldoc to use 'Return:' format (Bart Van Assche)
+- Patch 1: use <linux/device/devres.h> instead of <linux/device.h>
+  (Andy Shevchenko)
+- Patch 8: also remove unused ghes_register_vendor_record_notifier() and
+  ghes_unregister_vendor_record_notifier() along with their exports and
+  ghes.h declarations (Jonathan Cameron)
+
+Eliav Farber (13):
+  notifier: add device-managed registration APIs
+  pwm: iqs620a: use devm_blocking_notifier_chain_register()
+  iio: light: iqs621-als: use devm_blocking_notifier_chain_register()
+  iio: position: iqs624: use devm_blocking_notifier_chain_register()
+  gpio: adp5585: use devm_blocking_notifier_chain_register()
+  platform/x86: bitland-mifs-wmi: use
+    devm_blocking_notifier_chain_register()
+  Input: adp5585: use devm_blocking_notifier_chain_register()
+  ACPI: APEI: GHES: remove unused
+    ghes_{,un}register_vendor_record_notifier()
+  ACPI: APEI: GHES: use devm_blocking_notifier_chain_register()
+  platform/x86: uniwill-wmi: use devm_blocking_notifier_chain_register()
+  gpio: eic-sprd: use devm_atomic_notifier_chain_register()
+  gpio: gpiolib-kunit: use devm_blocking_notifier_chain_register()
+  reboot: use devm_blocking_notifier_chain_register()
+
+ drivers/acpi/apei/ghes.c                   |  27 +-----
+ drivers/gpio/gpio-adp5585.c                |  20 +---
+ drivers/gpio/gpio-eic-sprd.c               |  17 +---
+ drivers/gpio/gpiolib-kunit.c               |  14 +--
+ drivers/iio/light/iqs621-als.c             |  24 +----
+ drivers/iio/position/iqs624-pos.c          |  24 +----
+ drivers/input/keyboard/adp5585-keys.c      |  18 +---
+ drivers/platform/x86/bitland-mifs-wmi.c    |  17 +---
+ drivers/platform/x86/uniwill/uniwill-wmi.c |  17 +---
+ drivers/pwm/pwm-iqs620a.c                  |  21 +----
+ include/acpi/ghes.h                        |  16 ----
+ include/linux/notifier.h                   |   7 ++
+ kernel/notifier.c                          | 103 +++++++++++++++++++++
+ kernel/reboot.c                            |  24 +----
+ 14 files changed, 140 insertions(+), 209 deletions(-)
+
 -- 
-2.55.0
+2.47.3
 

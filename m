@@ -1,162 +1,107 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f173.google.com (mail-pl1-f173.google.com [209.85.214.173])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9976D1E4BE
-	for <linux-input@vger.kernel.org>; Sun, 26 Jul 2026 13:04:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4A5D231F983
+	for <linux-input@vger.kernel.org>; Sun, 26 Jul 2026 13:23:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785071070; cv=none; b=Wrw0pp9YzDP8GKdsEwsSUgSfilulBAWkjhIi6guTheYjQd/TcxmvFVpshQVRKJk51askmscHud7llZLW5HhQ/xKAekNlWwvJPS3s2lZx0RUJFrMqL59UAUKZkV+PzYXEQswK81Lymwo3+a87NY67NFNXXY0pqF2085ksIengNmI=
+	t=1785072209; cv=none; b=AtoufCg0YjjqGJlxLsMkc9IsCiOwla0ZS5yCA5sHMvT6t19fBfxN/LlIGd+CTNDZkZZtm+d1HM7EfcTfA3GsicuIirWevq7RsRtxYozM0qMufQD3jpTDi9Zl3YwvVmqU8iV4Z+Em8PPPcfSTN1yzO0kpI3K+j3Uqb1My2xq27G8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785071070; c=relaxed/simple;
-	bh=DdSo9jnO4hSikUPKZqBLTwfhaH6vKwrv78IpMskrURw=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=C9rbEu4QNltIxTYRl50C9YvxVNgBLLIFCGS7qBW/kIOcIP+zAwMB39EZy67cnDBLrbg2Y+S6ruE7ZKuhan7d9vleJpUv5TlT9OTApjpM9rUIl8SmdLS7i+EyeSzvybT3pMzNZab3i1fnv5ZkT6BbZfOw+viQ6+r3WOhsFiJgq1g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Ax9B265i; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1785072209; c=relaxed/simple;
+	bh=rwEk9DOaoOH/aePz8XHcDqDAJcyl6iNdVIQDLbimJ4o=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=Kv/MH/90URQDMru6ONXRMbOZaU1ylOFpjg0Z6BnhB1pOeBDJ48L5f8jcMfsP143Ca6aKGRYj2vmo6kHxzwsCIuSPSKtbgvFN8J0LL/nTq6RozuPKv7jy/DMcWBwOZgYlpHMn8fZPMo7oUrz7hBA8GBT04M+5a2MsepVhBZfaj1g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=TbrkLqbB; arc=none smtp.client-ip=209.85.214.173
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Ax9B265i"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 165561F000E9;
-	Sun, 26 Jul 2026 13:04:29 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785071069;
-	bh=sK11Y+uhRRTFKJCOFA/rHdgtAVBlniZsxFFCBk+ycog=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=Ax9B265iVxjwpXlOJlwbRrN4M3LZwM1WkqyBGdqeJ3ikNxqneaoUNsK8tRqypy96Q
-	 pohqs0gjaYAiV8Feo8TvZsZrRc5EsHPuYXqLptDRx5wl3YWwY6fdg8plybHJ5EkOqN
-	 WI8RdQ5T0fH3ki5UQrPZloovLXkMZBN1S0DBJ+dh9rZlG5OQc3eeNtpVGn0JfrezN8
-	 KfuNpccKsawlouMWoWJory8oCl3M34/oDfMEx9FTe83Jmiy2ElC8t/FbI3abzm3Tmw
-	 ZUALIlJH4kPK9OjIhlWB1AW2+uHe2SgePsR7BNZNlVntnU9z5KLEqZG3tvj8+/NKXJ
-	 fhSEq87QDTncQ==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] HID: sony: clean up device list on probe failure
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Doruk Tan Ozturk" <doruk@0sec.ai>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260726124551.15323-1-doruk@0sec.ai>
-References: <20260726124551.15323-1-doruk@0sec.ai>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Sun, 26 Jul 2026 13:04:28 +0000
-Message-Id: <20260726130429.165561F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="TbrkLqbB"
+Received: by mail-pl1-f173.google.com with SMTP id d9443c01a7336-2caced6038eso20986335ad.0
+        for <linux-input@vger.kernel.org>; Sun, 26 Jul 2026 06:23:27 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1785072206; x=1785677006; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=fObd6HBzZug5ha7KKMXaZQiE1Nwuc1RsD0ttGJHVYJg=;
+        b=TbrkLqbBtjpS3TegGMqkEKtiGJ5f57WM9jgJZjw7M6kXOqOZL5qn8HgeteA+kd1m3F
+         3bnA/y+YTsCDnD4HjKGC83vu39NTX/F75SkWZFxTcczz4tkZLMsDY6R1uwou5qBk3rid
+         XJRqnxbP3e6lga84oOwWTRZdAuFnXUnyN991UhJ34g7vADvxQP8Z1xPGr0o9RnO0CI6i
+         /sRk4/fywgn8SjDtePWms04UhEfhUYn5f6XXwsGAa5Yv6UNJ0/2ytcIzXqME/cEDAty2
+         Ap7C2kaIZBR62ZbTBY2oVk7ZePBLNUkXBOguHpMoySPDK+86ZfUVia0llXmfHgo6NtnQ
+         Rm+g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1785072206; x=1785677006;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=fObd6HBzZug5ha7KKMXaZQiE1Nwuc1RsD0ttGJHVYJg=;
+        b=Siut9hdQC5JRieYM/l7R9TEc9wZRQDzc01fb6VbSnjotXNgPiqtYMH1v4h8sWcHHbN
+         wIcITg+/wcWq/b0Gi5rbWE5RD2yEa5mymnYzc6V+1DEIsEla8s92oX5zaltOOROR9gfI
+         I6MiS7LZViVNHJdXOps+kAX0eGqkI5yYG2Mf2+D+hseWOdTocPJ1vX0WzK+3iH2kjBRO
+         cuYpY9mcPLUk+pYP71UVQ3HdfHODiLmjwQs8YDIV0SksgAht9gBZENBkOB4OEucTaHYY
+         lrjIbMYjJZYeEjzWkZGSAOdsl22XzNhkEMpsjzuXEFY9y8bzx2RbuSrotN+bK1rbbxgM
+         +FbQ==
+X-Gm-Message-State: AOJu0YzAsUmFvjcKLcUpJLJ1UGp2/l2QlqTJttdxfgQpOMw40R3Oiq5d
+	jAkGlciXD3SyUD3LFT5ljtxY4g5K7C49oyYuC1bC4ty+I3F7jDh51ddkiOcy89yt
+X-Gm-Gg: AR+sD10sLKeD5EurQZG+Zl8mdyO+kAHQZwq2+gE+HZlw2PtZ9mjm993RfZ4O7ogFlEr
+	1bUnoXGl73U06Ir8PmxuxKBixeUR91mdukkpFGNkYhDp4lFPZAsSKNVe1pCYflH/3dRjd3NYKMZ
+	sjQ2FpoOWYG2j+Ea9ugep2CR17XHr9lO6cYNMLIdyKQje4RwS0jVwuqI/jobuVjcxDan7Ck6uMw
+	v/OhPi7g+cSlOYD22nAFJ6JUwgpo46skM/tMym723WPc1p60BoNSXCHJH+710MAlfuVmD2ybHLs
+	g6nsOAby4hdrRuioNyA54q6iPZK/hGX3R2DZ08r+NbZnxzkjORp7eici8AVcAUugR8osbUsEEcH
+	h4wVJghz/EZ+5jqCZJZg93cmKVSdcFzCe0uO8n38m/l/GFRcsGjLN+j+Z9j2Mo+OpZdaBLr74O9
+	rgSlL2fE2+IagE8w==
+X-Received: by 2002:a17:902:f709:b0:2cf:b23a:3e68 with SMTP id d9443c01a7336-2cfd72a4d0bmr70134335ad.25.1785072206402;
+        Sun, 26 Jul 2026 06:23:26 -0700 (PDT)
+Received: from Linux.bbrouter ([115.96.217.226])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-314bc419e3asm20784436eec.11.2026.07.26.06.23.21
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 26 Jul 2026 06:23:25 -0700 (PDT)
+From: Ishaan Dandekar <ishaan.dandekar@gmail.com>
+To: linux-input@vger.kernel.org,
+	linux-usb@vger.kernel.org
+Cc: gregkh@linuxfoundation.org,
+	nikhilsolanke5@gmail.com,
+	Ishaan Dandekar <ishaan.dandekar@gmail.com>
+Subject: [PATCH 0/3] Fix initialization and routing for Generic Clone X-Input Gamepads
+Date: Sun, 26 Jul 2026 18:50:37 +0530
+Message-Id: <20260726132039.28330-1-ishaan.dandekar@gmail.com>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
-s) to consider:
+This patch series fixes a two-stage failure preventing certain generic X-Input clone controllers (specifically 0283:0001) from functioning  correctly in Linux. The primary motivation for this series is to restore full device functionality, specifically haptic feedback (rumble), which is entirely lost when the device falls back to its limited Android mode.
 
-Pre-existing issues:
-- [Critical] Missing usb_kill_urb() in sony_remove() leads to a Use-After-F=
-ree and DMA to freed memory when the URB completes.
-- [Critical] Multiple HID collections in a malicious device cause permanent=
- IDA leak and list corruption.
-- [High] Unconditional calls to hid_hw_close(hdev) cause ll_open_count unde=
-rflow for devices without battery support.
---
+Phase 1: The Hardware Panic (USB Core layer)
+When the controller is plugged in, the USB core requests its configuration using a 9-byte request. The controller's firmware fails, disconnects, and shape-shifts into a fallback Android mode, completely losing its X-Input capabilities.
+Patch 1 (by Nikhil Solanke) builds the underlying core logic to allow a 255-byte config request (mimicking Windows behavior).
+Patch 2 (my contribution) adds this specific controller's hardware ID to Nikhil's new quirk list, preventing the crash and locking it in X-Input mode.
 
---- Patch [1]: [PATCH] HID: sony: clean up device list on probe failure ---
-commit 4f91112bdbfa06050765a7259fe71fafc5ed58f1
-Author: Doruk Tan Ozturk <doruk@0sec.ai>
-Subject: HID: sony: clean up device list on probe failure
+Phase 2: The Software Blind Spot (Input/xpad layer)
+Because Phase 1 succeeds, the controller stays in X-Input mode and presents the hardware ID 0283:0001. However, the xpad driver lacked this ID in its internal device tables. Because it wasn't recognized as an official Xbox controller, the kernel handed it to hid-generic, which only initialized the keyboard interface, resulting in ignored gamepad inputs and total loss of rumble.
+Patch 3 explicitly adds 0283:0001 to the xpad routing filters so it initializes as a proper gamepad with full haptic support.
 
-This commit attempts to fix a use-after-free by properly initializing the l=
-ist
-node and device ID, and making list removal idempotent. It introduces
-sony_cleanup() to consolidate cleanup paths on probe failure and device
-removal.
+I initially attempted to send just the quirk patch, but realized the device remained non-functional as a gamepad without the xpad routing fix. This series unites both fixes to ensure the hardware is actually usable out of the box.
 
-Link: https://lore.kernel.org/linux-input/20260724143925.007D61F00A3A@smtp.=
-kernel.org/
+(Note: My previous single-patch submission was corrupted by my email client's formatting; this series replaces it and is being submitted via git send-email).
 
-> diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
-> index 253fff4066ebd..56471b7b052d1 100644
-> --- a/drivers/hid/hid-sony.c
-> +++ b/drivers/hid/hid-sony.c
-[ ... ]
-> @@ -2127,6 +2126,13 @@ static inline void sony_cancel_work_sync(struct so=
-ny_sc *sc)
->  	}
->  }
-> =20
-> +static void sony_cleanup(struct sony_sc *sc)
-> +{
-> +	sony_cancel_work_sync(sc);
-> +	sony_remove_dev_list(sc);
-> +	sony_release_device_id(sc);
-> +}
-> +
->  static int sony_input_configured(struct hid_device *hdev,
->  					struct hid_input *hidinput)
->  {
+Ishaan Dandekar (2):
+  usb: quirks: Add ShanWan gamepad to quirk list
+  Input: xpad - add support for generic clone X-Input gamepads
 
-[Severity: Critical]
-This is a pre-existing issue, but what happens if a malicious USB device
-exposes multiple HID Application Collections?
+Nikhil Solanke (1):
+  usbcore: Add quirk for 255-bytes initial config read
 
-The HID core will invoke sony_input_configured() for each collection. Since
-this function isn't reentrant for the same device, won't it allocate multip=
-le
-IDAs in sony_set_device_id(), permanently leaking the previous ones?
+ .../admin-guide/kernel-parameters.txt         | 10 +++++
+ drivers/input/joystick/xpad.c                 |  2 +
+ drivers/usb/core/config.c                     | 39 +++++++++++++++----
+ drivers/usb/core/quirks.c                     |  7 ++++
+ include/linux/usb/quirks.h                    |  3 ++
+ 5 files changed, 54 insertions(+), 7 deletions(-)
 
-Furthermore, wouldn't a second invocation find the device in sony_device_li=
-st
-and call list_add_tail() on an already-linked node in
-sony_check_add_dev_list(), corrupting the list?
+-- 
+2.34.1
 
-[ ... ]
-> @@ -2313,9 +2319,7 @@ static int sony_input_configured(struct hid_device =
-*hdev,
->  err_close:
->  	hid_hw_close(hdev);
-
-[Severity: High]
-This isn't a bug introduced by this patch, but if sony_init_ff() fails for a
-device without the SONY_BATTERY_SUPPORT quirk, won't this unconditionally c=
-all
-hid_hw_close() and underflow the hdev->ll_open_count?
-
->  err_stop:
-> -	sony_cancel_work_sync(sc);
-> -	sony_remove_dev_list(sc);
-> -	sony_release_device_id(sc);
-> +	sony_cleanup(sc);
->  	return ret;
->  }
-[ ... ]
-> @@ -2436,13 +2443,7 @@ static void sony_remove(struct hid_device *hdev)
->  	}
-
-[Severity: Critical]
-This is a pre-existing issue, but shouldn't we call usb_kill_urb() before
-freeing the URB in this preceding block for GHL_GUITAR devices?
-
-If the URB is still in flight, could the completion callback
-ghl_magic_poke_cb() execute asynchronously after the sony_sc structure is
-freed by devres, leading to a use-after-free and timer list corruption?
-
-> =20
->  	hid_hw_close(hdev);
-
-[Severity: High]
-This is a pre-existing issue, but doesn't this unconditionally call
-hid_hw_close() even if hid_hw_open() was never called (e.g., if the device
-lacks SONY_BATTERY_SUPPORT)?
-
-Would this corrupt the reference count and permanently break the hardware
-state tracking if the device is later rebound via sysfs?
-
-> -
-> -	sony_cancel_work_sync(sc);
-> -
-> -	sony_remove_dev_list(sc);
-> -
-> -	sony_release_device_id(sc);
-> -
-> +	sony_cleanup(sc);
->  	hid_hw_stop(hdev);
->  }
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260726124551.1532=
-3-1-doruk@0sec.ai?part=3D1

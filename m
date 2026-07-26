@@ -1,132 +1,153 @@
-Received: from pdx-out-002.esa.us-west-2.outbound.mail-perimeter.amazon.com (pdx-out-002.esa.us-west-2.outbound.mail-perimeter.amazon.com [44.246.1.125])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B90F430648C;
-	Sun, 26 Jul 2026 05:00:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=44.246.1.125
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 650C12110E
+	for <linux-input@vger.kernel.org>; Sun, 26 Jul 2026 05:06:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785042032; cv=none; b=rviYueRHd7FEFkko4hEYxR28zdLGnc0Ixvv5gjY29zr2S4xx03pKWec2mfFAKOEMYkqIzx2VYiC9JPcC2ae1KGwv2HVCq+oYQ1yHZE0m/55Eas1aIrN1xksUmfnYOXpZGZurcvU99pwxvjY+dmnre0nYYHxoGsMcvqSeK6pKC1c=
+	t=1785042411; cv=none; b=cQyg/cGwRDme2ovnLipWJzubA4GZz80wPuCMiqkyoJOMOq5RNCBZ1REF+QnA9WL2XA41D2rXt108fTvIPA5g4GYo3W5q5NGMYjZEEUFpJ/ift4QVu2uuUJEe5vuT4aJq110Ld0jiudaEsWolH9kRZkT7oB8BaCN/ElXgoReSkYU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785042032; c=relaxed/simple;
-	bh=oR16xQ0l2QZ1HctK5sTlhQ03S1oe8xRZ47h7iuZrD8U=;
-	h=From:To:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=StZwWzg1Yp9RyuwRd5AznlR3qjg6FiZj5DM49jKQ+SlE9Cik4dUQZIMh7YL3u4x9KFwfmXhhiDSw4UVLkGR2iVaNbfPDZq8EXtZnOxHjm8ic1AIesKa/Z6Di+nW61KGvTc0vyBMcMUVgKtYl1lMkkJNNux7z2AmdkLKj2AVvS+w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com; spf=pass smtp.mailfrom=amazon.com; dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b=FIioPsDe; arc=none smtp.client-ip=44.246.1.125
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=amazon.com
+	s=arc-20240116; t=1785042411; c=relaxed/simple;
+	bh=GGSGAMRdPl1T94SvH2fnW/QYeO4JnXsUKDUlunHYoLM=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=rloQOy66+ApvaXnUNShYkU98BM3JIMWsqztuNLX4Fe1TjRvoodUo36mP7xc4EC5Hz/j9D1RfMfmJnKubS8AV1uf4Xc3nutNXYPaHAGo1KKStW3I6N0lNMV0nMrHYyziqpTETwT2cfgREIkl3xlUZ1O8u9gQmH/CK9OT2rkkUOvQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=iqeLe7Uk; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b="FIioPsDe"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazoncorp2;
-  t=1785042031; x=1816578031;
-  h=from:to:subject:date:message-id:in-reply-to:references:
-   mime-version:content-transfer-encoding;
-  bh=jqAtat0tnNZsJMQ+mPgx7+6Yqu2gEeC9PKKRqoqiiYY=;
-  b=FIioPsDeUIrpHqhuO5kIwzRkvwdSc7YfEggkL8vlakQfQR2c+9SDRYOq
-   83XjJWQKXVKyoFOdXuXueCNM6kT7iCL5YzkG7xIMSjbZwlO2YbRhwqKZM
-   ALwBzPQWvm7Tqi1RkltqsuVctjLo2TJFtEnF2WupZa3AWKuiBbMPljGh0
-   f7oNryu/HM5Z3I5kVw8fFOZSi/czaUW6u8/tll+vy9H/+COBSKhk7dfY2
-   TNarWWx6Y0Ti5XG5S83bP7yDFwO6BtL4gtIMbpXbJcM3O4hJ4EzNMEhCA
-   psez1i3yGFyzkeJiZ8iXwlmZPOjm+ONa4dto2QKD9qZseGImSOvnts7aQ
-   g==;
-X-CSE-ConnectionGUID: 57VgV9L0RlmfgFlDGV6xbA==
-X-CSE-MsgGUID: dYv4NfI+Q9GHvmKlCqLAsQ==
-X-IronPort-AV: E=Sophos;i="6.25,185,1779148800"; 
-   d="scan'208";a="24367779"
-Received: from ip-10-5-0-115.us-west-2.compute.internal (HELO smtpout.naws.us-west-2.prod.farcaster.email.amazon.dev) ([10.5.0.115])
-  by internal-pdx-out-002.esa.us-west-2.outbound.mail-perimeter.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 26 Jul 2026 05:00:31 +0000
-Received: from EX19MTAUWB001.ant.amazon.com [205.251.233.104:25469]
- by smtpin.naws.us-west-2.prod.farcaster.email.amazon.dev [10.0.31.176:2525] with esmtp (Farcaster)
- id 84412c6e-bcce-493b-8b22-3d84f02b5570; Sun, 26 Jul 2026 05:00:31 +0000 (UTC)
-X-Farcaster-Flow-ID: 84412c6e-bcce-493b-8b22-3d84f02b5570
-Received: from EX19D001UWA001.ant.amazon.com (10.13.138.214) by
- EX19MTAUWB001.ant.amazon.com (10.250.64.248) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.2562.43;
- Sun, 26 Jul 2026 05:00:30 +0000
-Received: from dev-dsk-farbere-1a-46ecabed.eu-west-1.amazon.com
- (172.19.116.181) by EX19D001UWA001.ant.amazon.com (10.13.138.214) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.2562.45; Sun, 26 Jul 2026
- 05:00:25 +0000
-From: Eliav Farber <farbere@amazon.com>
-To: <rafael@kernel.org>, <tony.luck@intel.com>, <bp@alien8.de>,
-	<guohanjun@huawei.com>, <mchehab@kernel.org>, <xueshuai@linux.alibaba.com>,
-	<lenb@kernel.org>, <laurent.pinchart@ideasonboard.com>, <linusw@kernel.org>,
-	<brgl@kernel.org>, <orsonzhai@gmail.com>, <baolin.wang@linux.alibaba.com>,
-	<zhang.lyra@gmail.com>, <jic23@kernel.org>, <dlechner@baylibre.com>,
-	<nuno.sa@analog.com>, <andy@kernel.org>, <dmitry.torokhov@gmail.com>,
-	<hansg@kernel.org>, <ilpo.jarvinen@linux.intel.com>, <W_Armin@gmx.de>,
-	<ukleinek@kernel.org>, <fabio.m.de.francesco@linux.intel.com>,
-	<kaihengf@nvidia.com>, <ankita@nvidia.com>, <leitao@debian.org>,
-	<farbere@amazon.com>, <pedro.pbg@usp.br>, <paulmck@kernel.org>,
-	<frederic@kernel.org>, <kees@kernel.org>, <linux-acpi@vger.kernel.org>,
-	<linux-kernel@vger.kernel.org>, <linux-gpio@vger.kernel.org>,
-	<linux-pwm@vger.kernel.org>, <linux-iio@vger.kernel.org>,
-	<linux-input@vger.kernel.org>, <platform-driver-x86@vger.kernel.org>
-Subject: [PATCH v2 12/12] reboot: use devm_blocking_notifier_chain_register()
-Date: Sun, 26 Jul 2026 04:57:06 +0000
-Message-ID: <20260726045706.8169-13-farbere@amazon.com>
-X-Mailer: git-send-email 2.47.3
-In-Reply-To: <20260726045706.8169-1-farbere@amazon.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="iqeLe7Uk"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B91DA1F000E9;
+	Sun, 26 Jul 2026 05:06:49 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1785042410;
+	bh=3A7FBRauqIbfLjzd7Bt3dwlXG7DkU9P9OpKh5dTrM0A=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=iqeLe7UkUF8ro2LCkI7fi+yKYkqEKNxr7qFs3mTkCwbODJnfpYStYXtNE0zy4jtUe
+	 ZKGMEuVXFSF5FbJ8QJN7NtWfxmRbBQCIr0gnOY4Fmf9ldsVibU6vNXu+pGvDjPA5gK
+	 vHIpfkZp2PyJQ51/k8KlN+qVy0J3PAlHDUwz8VODXNjZ6j7ZJUBoXz+5Dn7iclDAnz
+	 sBQ1mN4GmxfyLp6IXNDaNY3e539b6Zakff49X6xFcq6qsgio7QosNYyIku8dAJVA5T
+	 KObsWtdAAyvspKHoVJaa2qjvnjkEdxz26CTJZyL9rfEXZWfkUD6JUHb0mx/JQDcPlS
+	 ESpPpZWsHV5Uw==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v2 01/12] notifier: add device-managed registration APIs
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Eliav Farber" <farbere@amazon.com>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20260726045706.8169-2-farbere@amazon.com>
 References: <20260726045706.8169-1-farbere@amazon.com>
+ <20260726045706.8169-2-farbere@amazon.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Sun, 26 Jul 2026 05:06:49 +0000
+Message-Id: <20260726050649.B91DA1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: EX19D044UWB003.ant.amazon.com (10.13.139.168) To
- EX19D001UWA001.ant.amazon.com (10.13.138.214)
 
-Replace the blocking_notifier_chain_register() +
-devm_add_action_or_reset() pattern with a single call to
-devm_blocking_notifier_chain_register(), removing the
-devm_unregister_reboot_notifier() callback.
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+s) to consider:
+- [High] devm_raw_notifier_chain_register structurally violates raw notifie=
+r locking contracts, causing lockless unregistration and list corruption.
+- [High] devm_raw_notifier_chain_register uses GFP_KERNEL inside caller-pro=
+vided locking, causing "sleeping in atomic context" panics if the lock is a=
+ spinlock.
+--
 
-Signed-off-by: Eliav Farber <farbere@amazon.com>
----
- kernel/reboot.c | 24 ++----------------------
- 1 file changed, 2 insertions(+), 22 deletions(-)
+--- Patch [1]: [PATCH v2 01/12] notifier: add device-managed registration A=
+PIs ---
+commit c5d9a7bbfeb086f5fff3b21d687d1da2f68205b3
+Author: Eliav Farber <farbere@amazon.com>
 
-diff --git a/kernel/reboot.c b/kernel/reboot.c
-index 695c33e75efd..557609419989 100644
---- a/kernel/reboot.c
-+++ b/kernel/reboot.c
-@@ -136,30 +136,10 @@ int unregister_reboot_notifier(struct notifier_block *nb)
- }
- EXPORT_SYMBOL(unregister_reboot_notifier);
- 
--static void devm_unregister_reboot_notifier(struct device *dev, void *res)
--{
--	WARN_ON(unregister_reboot_notifier(*(struct notifier_block **)res));
--}
--
- int devm_register_reboot_notifier(struct device *dev, struct notifier_block *nb)
- {
--	struct notifier_block **rcnb;
--	int ret;
--
--	rcnb = devres_alloc(devm_unregister_reboot_notifier,
--			    sizeof(*rcnb), GFP_KERNEL);
--	if (!rcnb)
--		return -ENOMEM;
--
--	ret = register_reboot_notifier(nb);
--	if (!ret) {
--		*rcnb = nb;
--		devres_add(dev, rcnb);
--	} else {
--		devres_free(rcnb);
--	}
--
--	return ret;
-+	return devm_blocking_notifier_chain_register(dev,
-+						     &reboot_notifier_list, nb);
- }
- EXPORT_SYMBOL(devm_register_reboot_notifier);
- 
--- 
-2.47.3
+notifier: add device-managed registration APIs
 
+Add device-managed registration functions for atomic, blocking, and raw
+notifier chains. These automatically unregister the notifier when the device
+is unbound, reducing driver boilerplate.
+
+> diff --git a/kernel/notifier.c b/kernel/notifier.c
+> index 2f9fe7c30287f..d8c82b237586e 100644
+> --- a/kernel/notifier.c
+> +++ b/kernel/notifier.c
+
+[ ... ]
+
+> +struct raw_notifier_chain_devres {
+> +	struct raw_notifier_head *nh;
+> +	struct notifier_block *nb;
+> +};
+> +
+> +static void devm_raw_notifier_chain_unregister(struct device *dev, void =
+*res)
+> +{
+> +	struct raw_notifier_chain_devres *dr =3D res;
+> +
+> +	raw_notifier_chain_unregister(dr->nh, dr->nb);
+
+[Severity: High]
+How is locking handled during device unbind? The documentation for raw noti=
+fiers
+states that all locking must be provided by the caller. When the devres
+framework automatically invokes devm_raw_notifier_chain_unregister() during
+teardown, it calls raw_notifier_chain_unregister() completely locklessly.
+
+Since there is no mechanism for this callback to acquire the caller's
+subsystem-specific lock, will this structural flaw force concurrent,
+unsynchronized list modifications and corrupt the notifier chain?
+
+> +}
+> +
+> +/**
+> + *	devm_raw_notifier_chain_register - Device-managed raw notifier regist=
+ration
+> + *	@dev: Device to tie the notifier lifetime to
+> + *	@nh: Pointer to head of the raw notifier chain
+> + *	@n: New entry in notifier chain
+> + *
+> + *	Adds a notifier to a raw notifier chain and registers a cleanup
+> + *	action to automatically unregister it when @dev is unbound.
+> + *	All locking must be provided by the caller.
+> + *
+> + *	Return:
+> + *	0 on success, negative errno on error.
+> + */
+> +int devm_raw_notifier_chain_register(struct device *dev,
+> +				     struct raw_notifier_head *nh,
+> +				     struct notifier_block *n)
+> +{
+> +	struct raw_notifier_chain_devres *dr;
+> +	int ret;
+> +
+> +	dr =3D devres_alloc(devm_raw_notifier_chain_unregister,
+> +			  sizeof(*dr), GFP_KERNEL);
+
+[Severity: High]
+Will this devres_alloc() call trigger a scheduling while atomic bug? To saf=
+ely
+use devm_raw_notifier_chain_register() without racing, the caller must acqu=
+ire
+their chain-protecting lock before calling the function.
+
+If this lock is a spinlock, which is standard for raw notifiers used in
+atomic contexts, the unconditional GFP_KERNEL allocation here will sleep
+while the caller holds a spinlock.
+
+> +	if (!dr)
+> +		return -ENOMEM;
+> +
+> +	ret =3D raw_notifier_chain_register(nh, n);
+> +	if (ret) {
+> +		devres_free(dr);
+> +		return ret;
+> +	}
+> +
+> +	dr->nh =3D nh;
+> +	dr->nb =3D n;
+> +	devres_add(dev, dr);
+> +
+> +	return 0;
+> +}
+> +EXPORT_SYMBOL_GPL(devm_raw_notifier_chain_register);
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260726045706.8169=
+-1-farbere@amazon.com?part=3D1

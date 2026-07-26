@@ -1,53 +1,53 @@
-Received: from pdx-out-013.esa.us-west-2.outbound.mail-perimeter.amazon.com (pdx-out-013.esa.us-west-2.outbound.mail-perimeter.amazon.com [34.218.115.239])
+Received: from pdx-out-001.esa.us-west-2.outbound.mail-perimeter.amazon.com (pdx-out-001.esa.us-west-2.outbound.mail-perimeter.amazon.com [44.245.243.92])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EBE8732695F;
-	Sun, 26 Jul 2026 04:59:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=34.218.115.239
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AE3362FE056;
+	Sun, 26 Jul 2026 05:00:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=44.245.243.92
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785041954; cv=none; b=qD3oalnXhQSu9CGQxE7P5wwoQxeKz1zRqy97E9rdOqm71qqC7s3xjdxzMfGwNY7Udd9QfOzKC+stsFxh8QJSmTiTNYUgk+fptJeJ3kFEqb0nM+TTUdQ5UvYlr3rXbek3dzAw87Z/k0JRuMxiqsR01rK2eOh4aU9hjk5rolTiels=
+	t=1785042024; cv=none; b=m1kXRVXW4e77KXsmjpperalkbB9uDtl28ittPF85f3H5SOGdBpgbok+ftrQFB9suhLy34wLxDej99BGsf3XleiARaghFbKu9rO1OcWMv+UGVw2d9Qx70dj3l8QlfKiaJgVO1Httr4jNdUnQX6A8Qx3LSwzzgH70J+745a8I5dvA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785041954; c=relaxed/simple;
-	bh=Au2jGWBQN/i2YaPgSzikwkAxqaVP4qGTpVegc2n7t+s=;
-	h=From:To:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=ExjbcjxW8waZoZYml2Qt1QWVlWjcWxoyWvPqnZmXEKoVnlnd2goZ0wntkRR8/qpHUWmkIxY+DvrcHh7FR+Q3+9uuWbhgXr3rYtILGnuirSHINvPBn4iM+x/hzDWwLGIVQPVIc1Lp53sxRq2WvopqUjeuX8rACy8iXHTBWRvgYHY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com; spf=pass smtp.mailfrom=amazon.com; dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b=TLSXcYLf; arc=none smtp.client-ip=34.218.115.239
+	s=arc-20240116; t=1785042024; c=relaxed/simple;
+	bh=2UZaQQlsQT8zkXST8gzvEPpdtHMmLewK9HtUHBtHHVs=;
+	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=IR/lrYGiQ7IFlNMCgzXf6T4wAc4b1k2jCvQvd1sLsYRso/Y8T2T3FzqEvCXwtxTpeKste0xkq1JDIs7/XBAtuXdPRNAMbt3AiwlCE4OBpxK9dC4TwQTEH41R12/FoZcuthmvn3PxhDFkWRDsmGhKU8IsfWlYr5WdPgn4+KsnnGA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com; spf=pass smtp.mailfrom=amazon.com; dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b=O3PNHVm6; arc=none smtp.client-ip=44.245.243.92
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=amazon.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b="TLSXcYLf"
+	dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b="O3PNHVm6"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
   d=amazon.com; i=@amazon.com; q=dns/txt; s=amazoncorp2;
-  t=1785041953; x=1816577953;
-  h=from:to:subject:date:message-id:in-reply-to:references:
-   mime-version:content-transfer-encoding;
-  bh=yps4lBc/RYwlxTR0dmczc+YOvWPbhS0zT2kuXNnrCAk=;
-  b=TLSXcYLfm/Kk8hquovh8Q1XTmSSkJHCwZR5kEZp0DIqBfqEdpUgv1Xch
-   Xu7eXzxA3R3IsiJ5lgPOl0l5XQzy5JDHO5odqgqYGNXst9vaKEcdpPLxq
-   dwPlRig7sXmjQtgyb0WLW/78COlUJA+PKyJBh6RvDt8fyolWSR/79XGrP
-   k9tvwpguNfUxML8h0h/5kjGHax12+SSn6eB+qHjSLWtgArX8MHJLjqYPV
-   fT1GbJXXFktZI7SSQvCpH6zyNuPpgGB3xK+GcK7tFcsuSarUxOTKW/xsV
-   yRmlTGjjlDkAAVifauRsYJRj4JOIbaFB/aZJ5gx4Qmi/bfxFARPYIWLTE
-   Q==;
-X-CSE-ConnectionGUID: L3YVKN+VQMyeqfbRR5kuUQ==
-X-CSE-MsgGUID: rm3FU5++RJ+RUCR3f2ewbw==
+  t=1785042023; x=1816578023;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=4gDtBrheJbU+yqd7bADPibHx4zONzC4ypfh4Tdg/jZU=;
+  b=O3PNHVm6AeJKOzVd2Jtdd02BCZllhnZhsai7PhFy4AprsQTdi/nI+aNO
+   IlruHVEDdN4UBnumDx7sj5TYc4ChFYbrGR++6RgQpXBC7B/VO34A7LPXS
+   TAyWLrVS28iC/qy6ypmds0B+oeGxmy4MC5ud8DdnjKBNR8j29Nie6zhzZ
+   wLU45Mt+eRE2zXfrXljlld/QI7N05nH/m+1eqg5jWdX//ZzKQ4n9X4SMG
+   T+XedynfzfN70HEFUeFvzPVSXOMgVDbGrUHGbX40IDExTyKKJQDa1jr64
+   +Npay8/vPd9eRRq/LD3cziwHFUeHCTc+wicVUyx576qQ3GS8cZroG9dXP
+   g==;
+X-CSE-ConnectionGUID: JY2gEHw6TYu/vNxHn/5W0g==
+X-CSE-MsgGUID: l6Mb/+umT5Krsnn578Qe0g==
 X-IronPort-AV: E=Sophos;i="6.25,185,1779148800"; 
-   d="scan'208";a="24162318"
-Received: from ip-10-5-6-203.us-west-2.compute.internal (HELO smtpout.naws.us-west-2.prod.farcaster.email.amazon.dev) ([10.5.6.203])
-  by internal-pdx-out-013.esa.us-west-2.outbound.mail-perimeter.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 26 Jul 2026 04:59:09 +0000
-Received: from EX19MTAUWC001.ant.amazon.com [205.251.233.105:23059]
- by smtpin.naws.us-west-2.prod.farcaster.email.amazon.dev [10.0.55.142:2525] with esmtp (Farcaster)
- id e47d8e12-c38d-4b80-a9fb-0ad17b72cf9f; Sun, 26 Jul 2026 04:59:09 +0000 (UTC)
-X-Farcaster-Flow-ID: e47d8e12-c38d-4b80-a9fb-0ad17b72cf9f
+   d="scan'208";a="23860999"
+Received: from ip-10-5-0-115.us-west-2.compute.internal (HELO smtpout.naws.us-west-2.prod.farcaster.email.amazon.dev) ([10.5.0.115])
+  by internal-pdx-out-001.esa.us-west-2.outbound.mail-perimeter.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 26 Jul 2026 05:00:21 +0000
+Received: from EX19MTAUWB002.ant.amazon.com [205.251.233.48:18461]
+ by smtpin.naws.us-west-2.prod.farcaster.email.amazon.dev [10.0.32.26:2525] with esmtp (Farcaster)
+ id 75024a1c-51b7-4efe-8f1a-30be72258a13; Sun, 26 Jul 2026 05:00:20 +0000 (UTC)
+X-Farcaster-Flow-ID: 75024a1c-51b7-4efe-8f1a-30be72258a13
 Received: from EX19D001UWA001.ant.amazon.com (10.13.138.214) by
- EX19MTAUWC001.ant.amazon.com (10.250.64.174) with Microsoft SMTP Server
+ EX19MTAUWB002.ant.amazon.com (10.250.64.231) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.2562.43;
- Sun, 26 Jul 2026 04:59:09 +0000
+ Sun, 26 Jul 2026 05:00:20 +0000
 Received: from dev-dsk-farbere-1a-46ecabed.eu-west-1.amazon.com
  (172.19.116.181) by EX19D001UWA001.ant.amazon.com (10.13.138.214) with
  Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.2562.45; Sun, 26 Jul 2026
- 04:59:04 +0000
+ 05:00:15 +0000
 From: Eliav Farber <farbere@amazon.com>
 To: <rafael@kernel.org>, <tony.luck@intel.com>, <bp@alien8.de>,
 	<guohanjun@huawei.com>, <mchehab@kernel.org>, <xueshuai@linux.alibaba.com>,
@@ -63,9 +63,10 @@ To: <rafael@kernel.org>, <tony.luck@intel.com>, <bp@alien8.de>,
 	<linux-kernel@vger.kernel.org>, <linux-gpio@vger.kernel.org>,
 	<linux-pwm@vger.kernel.org>, <linux-iio@vger.kernel.org>,
 	<linux-input@vger.kernel.org>, <platform-driver-x86@vger.kernel.org>
-Subject: [PATCH v2 09/12] platform/x86: uniwill-wmi: use devm_blocking_notifier_chain_register()
-Date: Sun, 26 Jul 2026 04:57:03 +0000
-Message-ID: <20260726045706.8169-10-farbere@amazon.com>
+CC: Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>
+Subject: [PATCH v2 10/12] gpio: eic-sprd: use devm_atomic_notifier_chain_register()
+Date: Sun, 26 Jul 2026 04:57:04 +0000
+Message-ID: <20260726045706.8169-11-farbere@amazon.com>
 X-Mailer: git-send-email 2.47.3
 In-Reply-To: <20260726045706.8169-1-farbere@amazon.com>
 References: <20260726045706.8169-1-farbere@amazon.com>
@@ -77,49 +78,55 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
-X-ClientProxiedBy: EX19D040UWB001.ant.amazon.com (10.13.138.82) To
+X-ClientProxiedBy: EX19D044UWB003.ant.amazon.com (10.13.139.168) To
  EX19D001UWA001.ant.amazon.com (10.13.138.214)
 
-Replace the blocking_notifier_chain_register() +
+Replace the atomic_notifier_chain_register() +
 devm_add_action_or_reset() pattern with a single call to
-devm_blocking_notifier_chain_register(), removing the
-devm_uniwill_wmi_unregister_notifier() callback.
+devm_atomic_notifier_chain_register(), removing the
+sprd_eic_unregister_notifier() callback.
 
 Signed-off-by: Eliav Farber <farbere@amazon.com>
+Acked-by: Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>
 ---
- drivers/platform/x86/uniwill/uniwill-wmi.c | 17 +++--------------
- 1 file changed, 3 insertions(+), 14 deletions(-)
+ drivers/gpio/gpio-eic-sprd.c | 17 ++---------------
+ 1 file changed, 2 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/platform/x86/uniwill/uniwill-wmi.c b/drivers/platform/x86/uniwill/uniwill-wmi.c
-index afcbfa4f7552..2ffa29a829ee 100644
---- a/drivers/platform/x86/uniwill/uniwill-wmi.c
-+++ b/drivers/platform/x86/uniwill/uniwill-wmi.c
-@@ -26,22 +26,11 @@
+diff --git a/drivers/gpio/gpio-eic-sprd.c b/drivers/gpio/gpio-eic-sprd.c
+index 3b7ebcf12fe7..86eb9624d38a 100644
+--- a/drivers/gpio/gpio-eic-sprd.c
++++ b/drivers/gpio/gpio-eic-sprd.c
+@@ -601,13 +601,6 @@ static const struct irq_chip sprd_eic_irq = {
+ 	GPIOCHIP_IRQ_RESOURCE_HELPERS,
+ };
  
- static BLOCKING_NOTIFIER_HEAD(uniwill_wmi_chain_head);
- 
--static void devm_uniwill_wmi_unregister_notifier(void *data)
+-static void sprd_eic_unregister_notifier(void *data)
 -{
 -	struct notifier_block *nb = data;
 -
--	blocking_notifier_chain_unregister(&uniwill_wmi_chain_head, nb);
+-	atomic_notifier_chain_unregister(&sprd_eic_irq_notifier, nb);
 -}
 -
- int devm_uniwill_wmi_register_notifier(struct device *dev, struct notifier_block *nb)
+ static int sprd_eic_probe(struct platform_device *pdev)
  {
--	int ret;
+ 	const struct sprd_eic_variant_data *pdata;
+@@ -690,14 +683,8 @@ static int sprd_eic_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	sprd_eic->irq_nb.notifier_call = sprd_eic_irq_notify;
+-	ret = atomic_notifier_chain_register(&sprd_eic_irq_notifier,
+-					     &sprd_eic->irq_nb);
+-	if (ret)
+-		return dev_err_probe(dev, ret,
+-				     "Failed to register with the interrupt notifier");
 -
--	ret = blocking_notifier_chain_register(&uniwill_wmi_chain_head, nb);
--	if (ret < 0)
--		return ret;
--
--	return devm_add_action_or_reset(dev, devm_uniwill_wmi_unregister_notifier, nb);
-+	return devm_blocking_notifier_chain_register(dev,
-+						     &uniwill_wmi_chain_head,
-+						     nb);
+-	return devm_add_action_or_reset(dev, sprd_eic_unregister_notifier,
+-					&sprd_eic->irq_nb);
++	return devm_atomic_notifier_chain_register(dev, &sprd_eic_irq_notifier,
++						   &sprd_eic->irq_nb);
  }
  
- static void uniwill_wmi_notify(struct wmi_device *wdev, union acpi_object *obj)
+ static const struct of_device_id sprd_eic_of_match[] = {
 -- 
 2.47.3
 

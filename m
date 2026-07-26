@@ -1,129 +1,280 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from out162-62-58-211.mail.qq.com (out162-62-58-211.mail.qq.com [162.62.58.211])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AA59937DEA3
-	for <linux-input@vger.kernel.org>; Sun, 26 Jul 2026 08:10:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4BC904908AF;
+	Sun, 26 Jul 2026 08:19:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=162.62.58.211
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785053436; cv=none; b=FYXBtrdRukB3b2SkRUhFy0RIqDPvt7SmhKIgfEKPoLLGv3o9AfzNLZGB9m726sIRsGxcrg4YEWIAbNi1Cex7Em2s31HcYQ/b99GDnL3k5AvTc9MmE9vetsT16XSMw/tbaWIX8pKNYfpQQVpji0OICY/6wy76mCIt50/Tl8MZ8Yc=
+	t=1785053950; cv=none; b=UruciV70bTR9tCoBOz4hZswRqhj8FEriucPZSI3RvoX4+0QfcbImjvAkugXnukzLIriWPYAYwbRNDCgPch86kXisb3UrJskenzEyt7Y4vb26LOZg6SK9US9SSpFO35Zu/08rauJGafTml62OAMkAi2oT1m35tjq8MDZ/2HKFYeQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785053436; c=relaxed/simple;
-	bh=voMBMGc0iFoE/832BU0f8OMBUK3OPJE/TX7VjPLH6Mk=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=KNTQyc9F/T8atC/TPI1deMJ/F4cJXmr5QgKxIi1e0WHdb4rJCvQ82WxkrVL0/f08Aqr/aaZah9op4+wVmpvZNyZIIuTvUQxgwYrL10WzYCronILlZ5C5GMMsVYr0tqCPIEetVhShhY1jGqfMbT/3QWRYYIiK7lKWN8i9IiemIKE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=MKeZLctn; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1785053950; c=relaxed/simple;
+	bh=Zojn1E/xaUQYlkYDN8tYIb6eQiqbVs2Ju5a1EEMi9QQ=;
+	h=Message-ID:From:To:Cc:Subject:Date:MIME-Version; b=fNvT+DeXQdxVJE7GRT1rm0B1++qa+i05ygM9wL9QcX+JPcKnQc/eyKfigwdI/Qx9Bh28ZlIp0htvdedOPlZNFt3IqiyPft47en2p+xcwHax52buoDS7v8/j+yxHWqcrtl6cC1mXn87mE/qXLwdg8eZiCeSfAvn4MKnq2iGaQaE4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=foxmail.com; spf=pass smtp.mailfrom=foxmail.com; dkim=pass (1024-bit key) header.d=foxmail.com header.i=@foxmail.com header.b=AqMP+kx/; arc=none smtp.client-ip=162.62.58.211
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=foxmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=foxmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="MKeZLctn"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 307EB1F000E9;
-	Sun, 26 Jul 2026 08:10:34 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785053434;
-	bh=ZwTIQg8rT6wLeU8ZVR9YBzB9KczkZKG4lWUrcD8W7e4=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=MKeZLctnwNkadIdYwhjIF3/IdsBUzCrBUgTRFtcnG0p6kExaRNTsyt5XBI/Nr9SYz
-	 SebSKpsGu6eA+xkjw+nWzrQUwA1Xd+PWaX1HIrq30SLiINo0JCklnaYF0WxHyf0vPH
-	 iPcNqim3ODDOUeuXqpnseq2OPk7aTuayGpcuhg1Zs66R2KDOm88WzkAuCLhhyRVRMO
-	 gPQ0mcQL713miepelLfafYXi1gdsYyKv+6CJOY1ltZH7cJ0ie7DGki5eIomqaQeTCW
-	 HWx4hOpNItcAjYiQ+OUGnuo5zVWe2uF/wIBBAEsmtVlqItH3mXoXdD9e4MO28I1HaU
-	 cNrH/oyax7khA==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] Input: xpad - add support for Beitong KP series
- controllers
-Reply-To: sashiko-reviews@lists.linux.dev
-To: VegetablCat <vegetablecat@foxmail.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <tencent_2DEADF4D9ADC33A9420BECBEA70B1A7EFD08@qq.com>
-References: <tencent_2DEADF4D9ADC33A9420BECBEA70B1A7EFD08@qq.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Sun, 26 Jul 2026 08:10:33 +0000
-Message-Id: <20260726081034.307EB1F000E9@smtp.kernel.org>
+	dkim=pass (1024-bit key) header.d=foxmail.com header.i=@foxmail.com header.b="AqMP+kx/"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=foxmail.com;
+	s=s201512; t=1785053942;
+	bh=ty5gNRJtPPi+JcVoZw2oyczsZ/rqj2eJnvfQwG05qQk=;
+	h=From:To:Cc:Subject:Date;
+	b=AqMP+kx/j4DATlE9gmF2+/v+/2NGR+6mXy1E8swRRd7KPoWFxw1m5idi+JFm0PaQP
+	 cKZVyOtsQ5SFxDoizLEzHxO1M0fN4dWYCqg8FBwW1cRmzYJSz3uHKM7u1YHAZtJXiD
+	 DyNWU69jEk1N08NR9hIYvB1xaDEE4OwzqsUHEJX8=
+Received: from localhost ([182.91.149.193])
+	by newxmesmtplogicsvrszc56-0.qq.com (NewEsmtp) with SMTP
+	id 4C09DA32; Sun, 26 Jul 2026 16:19:00 +0800
+X-QQ-mid: xmsmtpt1785053940tqun51yj6
+Message-ID: <tencent_3FA5706BA66E2CCCFA362E90F805A8FF370A@qq.com>
+X-QQ-XMAILINFO: NGZp1yYNf7Y+h/P0Afolh12FNhMMrcIsM/U29e+oEMY6gecBPiyq7IMXQre9SZ
+	 Kut3c83lhcFiC2bDV6cJ+hEOK9bi+uWxUcIS6W3YPwFSbZ63fsQ6OUd9nux+UZMx/B2t0Wkbqsov
+	 QgagzcgJ4q5GLuDFNLguRosPpMx+ktZNHBI0vjXejCFsH07vbB3BnbzN7ZOaP2jndfeDfvi+/xS4
+	 enTC04HfaS11ldWZROluqfiTUCIQQ6mrKlCbYNMFnRHvWlyU+MWBmCTHh/Clte9mR3zjBFbaUaBT
+	 bP6xCEKvqy/EPNnEOia6ANaPMW/xWhz1e4f3lAVxRjgKRQAoO9ZsOnUwl+4eCQj0UPgv0qFqSJ8U
+	 TmxZVeGxidN+HOdTXCjfgov51S9w7/4ZEJPuBc2vAOTXiVcPW+Uq+2d4YTRDh7xKtVhfCgJNGyAY
+	 7fXn151G5jjyXSKU9XBCSTJy+6pr99z1DxPLHrZubxvSWnsHlOKJO2smv4/CH6+bOtugquxQvtiL
+	 wTKcV5Nc3yF0757la5iE6C5jvNMjKnw2jccLpJagw5FY6yT8eF3gpqC6zxvh1UZgjkf34Sdo/fyC
+	 8iQYBGzWhJjQaB/KI62vzZkFix9/5YWn3UsL58kJNa3mmNLazyw6qIwk7h4CUeuHB0sdWC6wa0Tg
+	 6QRqc+qaufM4pTviO3B6E6BJZKWNeTrO0TytVk6WJJeBJ3g/iTD5u/q0uxdQrw4ecj2/CRm4B9HT
+	 U3+3zf/u75fBveIggTD37FuMy3cFqiFJfVfEZ7OGttgVDeZCBIxdzukTYpA7pjte2R8aMk+Bjpxn
+	 rfHbCAy0GyYbBTGE9pLVsxgV1BEfDzpshs5UkNUSbejq3WtnSZTwsofB1pyD8GlMLAOl0Gv9D2oU
+	 4XOpqstwlnf2aIKX8PuSMOSikCvFxsMhVb7u/I97wd5zi73p/5n+LZafnsaUpC+w8Bjj+ebGBPn8
+	 OW2L2bh9v/a3DkrC0qNPvQglJdMnkiSuCkwNcLIdQlC3uWt/QzyKR33FIXZPfuBeA1vkIkp/iq43
+	 6KnoLAVz/O7O3EOQbWhrfNCF2WpvxOlilZ5FvgI5vP44UaU1PZ5cvbu0+OuASJ6OEAC7YYBpu7EQ
+	 MY7+ps
+X-QQ-XMRINFO: MPJ6Tf5t3I/ylTmHUqvI8+Wpn+Gzalws3A==
+From: VegetablCat <vegetablecat@foxmail.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	vegetablecat <vegetablecat@foxmail.com>
+Subject: [PATCH] Input: xpad - add support for Beitong KP series controllers
+Date: Sun, 26 Jul 2026 16:18:34 +0800
+X-OQ-MSGID: <20260726081834.12192-1-vegetablecat@foxmail.com>
+X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
-- [High] The HID device ID for the receiver dongle uses an incorrect vendor=
- ID (`0x20dd`), which conflicts with the `0x20bc` vendor ID defined in the =
-USB device table, preventing the driver from binding.
-- [Low] Missing Kconfig dependency on `CONFIG_HID` for `CONFIG_JOYSTICK_XPA=
-D` leads to build and linkage failures when HID is disabled or built as a m=
-odule.
---
+From: vegetablecat <vegetablecat@foxmail.com>
 
---- Patch [1]: [PATCH] Input: xpad - add support for Beitong KP series cont=
-rollers ---
-commit bcec2846a21020976ee3a5901681b58a510bad9a
-Author: vegetablecat <vegetablecat@foxmail.com>
-Subject: Input: xpad - add support for Beitong KP series controllers
+Beitong KP series controllers (0x20bc:*) enumerate as standard
+Xbox 360 devices but require a Microsoft OS Extended Compat ID
+descriptor read (XUSB10) to lock into XInput mode.  Without this
+request the controller re-enumerates as a Nintendo Switch device
+(057e:2069) after approximately 1.9 seconds and stops reporting
+valid input.
 
-This commit adds support for Beitong KP series controllers by reading the=20
-XUSB10 descriptor to lock them into XInput mode. It also introduces a=20
-minimal HID receiver driver for the KP40D receiver dongle to prevent=20
-hid-generic from interfering.
+Add FLAG_READ_XUSB10 and device table entries for KP20A/D,
+KP40A/B/D/F, KP50B/C/D/E, and KP70A.  Devices with this flag
+trigger a usb_control_msg_recv() during probe to read the XUSB10
+descriptor, which is the sole condition required to keep the
+controllers in XInput mode.
 
-> diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
-> index feb8f368f834e..d33ca181dfe8b 100644
-> --- a/drivers/input/joystick/xpad.c
-> +++ b/drivers/input/joystick/xpad.c
-[ ... ]
-> @@ -332,6 +334,32 @@ static const struct xpad_device {
->  	{ 0x1bad, 0xfd00, "Razer Onza TE", 0, XTYPE_XBOX360 },
->  	{ 0x1bad, 0xfd01, "Razer Onza", 0, XTYPE_XBOX360 },
->  	{ 0x1ee9, 0x1590, "ZOTAC Gaming Zone", 0, XTYPE_XBOX360 },
-[ ... ]
-> +	{ 0x20bc, 0x515b, "BETOP BTP-KP40D Controller (White)", 0, XTYPE_XBOX36=
-0, FLAG_READ_XUSB10 },
-> +	{ 0x20bc, 0x515c, "BETOP BTP-KP40D Controller (White)", 0, XTYPE_XBOX36=
-0, FLAG_READ_XUSB10 },
-> +	{ 0x20bc, 0x515d, "BETOP BTP-KP40F Controller (White)", 0, XTYPE_XBOX36=
-0, FLAG_READ_XUSB10 },
-[ ... ]
-> @@ -2312,7 +2357,71 @@ static struct usb_driver xpad_driver =3D {
-[ ... ]
-> +static const struct hid_device_id xpad_receiver_devices[] =3D {
-> +	{ HID_USB_DEVICE(0x20dd, 0x515c) },
-> +	{ }
-> +};
+The flag follows the same pattern as FLAG_DELAY_INIT used for
+the ByoWave Proteus Controller.
 
-[Severity: High]
-Is the vendor ID 0x20dd in the HID device table correct?
+Additionally, add an optional HID receiver driver for the KP40D
+receiver dongle (0x20dd:0x515c) that binds to its HID interface
+to prevent hid-generic from interfering.  The receiver dongle is
+a separate USB device with its own vendor ID (0x20dd), distinct
+from the controller (0x20bc).  The HID code is guarded with
+IS_ENABLED(CONFIG_HID) to avoid build failures when HID is
+disabled or built as a module.
 
-The USB device table defines product 0x515c with vendor ID 0x20bc,
-but the HID device ID table uses 0x20dd. Since a child HID device inherits
-its vendor ID from the underlying USB device, will the HID driver fail to
-bind to the dongle if it is looking for 0x20dd instead of 0x20bc?
+Based on earlier work by Zixing Liu <zixing.liu@canonical.com>.
 
-> +MODULE_DEVICE_TABLE(hid, xpad_receiver_devices);
-> +
-> +static struct hid_driver xpad_receiver_driver =3D {
-> +	.name =3D "xpad-kp40d-receiver",
-> +	.id_table =3D xpad_receiver_devices,
-> +	.probe =3D xpad_receiver_probe,
-> +	.remove =3D xpad_receiver_remove,
-> +};
-> +
-> +static int __init xpad_init(void)
-> +{
-> +	int error;
-> +
-> +	error =3D hid_register_driver(&xpad_receiver_driver);
+Tested on 20bc:5126 (KP20A) and 20bc:515b (KP40D).
 
-[Severity: Low]
-Does this driver now require a dependency on the HID subsystem in Kconfig?
+Signed-off-by: vegetablecat <vegetablecat@foxmail.com>
+---
+ drivers/input/joystick/xpad.c | 119 +++++++++++++++++++++++++++++++++-
+ 1 file changed, 118 insertions(+), 1 deletion(-)
 
-Since xpad_init() now unconditionally calls hid_register_driver(), will
-building the kernel with CONFIG_JOYSTICK_XPAD=3Dy and CONFIG_HID=3Dm (or
-disabled) cause a linker failure due to undefined HID core symbols?
+diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
+index feb8f36..13b6168 100644
+--- a/drivers/input/joystick/xpad.c
++++ b/drivers/input/joystick/xpad.c
+@@ -28,6 +28,7 @@
+  */
+ 
+ #include <linux/bits.h>
++#include <linux/hid.h>
+ #include <linux/kernel.h>
+ #include <linux/input.h>
+ #include <linux/rcupdate.h>
+@@ -72,6 +73,7 @@
+ #define PKT_XBE2_FW_5_11    4
+ 
+ #define FLAG_DELAY_INIT BIT(0)
++#define FLAG_READ_XUSB10 BIT(1)
+ 
+ static bool dpad_to_buttons;
+ module_param(dpad_to_buttons, bool, S_IRUGO);
+@@ -332,6 +334,32 @@ static const struct xpad_device {
+ 	{ 0x1bad, 0xfd00, "Razer Onza TE", 0, XTYPE_XBOX360 },
+ 	{ 0x1bad, 0xfd01, "Razer Onza", 0, XTYPE_XBOX360 },
+ 	{ 0x1ee9, 0x1590, "ZOTAC Gaming Zone", 0, XTYPE_XBOX360 },
++	{ 0x20bc, 0x5125, "BETOP BTP-KP20A/BTP-KP40A Controller", 0, XTYPE_XBOX360, FLAG_READ_XUSB10 },
++	{ 0x20bc, 0x5126, "BETOP BTP-KP20A Controller", 0, XTYPE_XBOX360, FLAG_READ_XUSB10 },
++	{ 0x20bc, 0x5127, "BETOP BTP-KP20A/BTP-KP40A Controller", 0, XTYPE_XBOX360, FLAG_READ_XUSB10 },
++	{ 0x20bc, 0x5128, "BETOP BTP-KP20A Controller", 0, XTYPE_XBOX360, FLAG_READ_XUSB10 },
++	{ 0x20bc, 0x512f, "BETOP BTP-KP70A Controller", 0, XTYPE_XBOX360, FLAG_READ_XUSB10 },
++	{ 0x20bc, 0x5130, "BETOP BTP-KP70A Controller", 0, XTYPE_XBOX360, FLAG_READ_XUSB10 },
++	{ 0x20bc, 0x5133, "BETOP BTP-KP50B Controller", 0, XTYPE_XBOX360, FLAG_READ_XUSB10 },
++	{ 0x20bc, 0x5145, "BETOP BTP-KP40A/BTP-KP40B Controller", 0, XTYPE_XBOX360, FLAG_READ_XUSB10 },
++	{ 0x20bc, 0x5146, "BETOP BTP-KP40A/BTP-KP40B Controller", 0, XTYPE_XBOX360, FLAG_READ_XUSB10 },
++	{ 0x20bc, 0x5149, "BETOP BTP-KP50C Controller", 0, XTYPE_XBOX360, FLAG_READ_XUSB10 },
++	{ 0x20bc, 0x5150, "BETOP BTP-KP50D Controller", 0, XTYPE_XBOX360, FLAG_READ_XUSB10 },
++	{ 0x20bc, 0x5151, "BETOP BTP-KP50D Controller", 0, XTYPE_XBOX360, FLAG_READ_XUSB10 },
++	{ 0x20bc, 0x5152, "BETOP BTP-KP50E Controller", 0, XTYPE_XBOX360, FLAG_READ_XUSB10 },
++	{ 0x20bc, 0x5153, "BETOP BTP-KP50E Controller", 0, XTYPE_XBOX360, FLAG_READ_XUSB10 },
++	{ 0x20bc, 0x5154, "BETOP BTP-KP40D Controller", 0, XTYPE_XBOX360, FLAG_READ_XUSB10 },
++	{ 0x20bc, 0x5155, "BETOP BTP-KP40D Controller", 0, XTYPE_XBOX360, FLAG_READ_XUSB10 },
++	{ 0x20bc, 0x5158, "BETOP BTP-KP20D Controller", 0, XTYPE_XBOX360, FLAG_READ_XUSB10 },
++	{ 0x20bc, 0x5159, "BETOP BTP-KP20D Controller", 0, XTYPE_XBOX360, FLAG_READ_XUSB10 },
++	{ 0x20bc, 0x515b, "BETOP BTP-KP40D Controller (White)", 0, XTYPE_XBOX360, FLAG_READ_XUSB10 },
++	{ 0x20bc, 0x515c, "BETOP BTP-KP40D Controller (White)", 0, XTYPE_XBOX360, FLAG_READ_XUSB10 },
++	{ 0x20bc, 0x515d, "BETOP BTP-KP40F Controller (White)", 0, XTYPE_XBOX360, FLAG_READ_XUSB10 },
++	{ 0x20bc, 0x515e, "BETOP BTP-KP40F Controller (White)", 0, XTYPE_XBOX360, FLAG_READ_XUSB10 },
++	{ 0x20bc, 0x515f, "BETOP BTP-KP70A Controller", 0, XTYPE_XBOX360, FLAG_READ_XUSB10 },
++	{ 0x20bc, 0x5160, "BETOP BTP-KP70A Controller", 0, XTYPE_XBOX360, FLAG_READ_XUSB10 },
++	{ 0x20bc, 0x5169, "BETOP BTP-KP40F Controller (Black)", 0, XTYPE_XBOX360, FLAG_READ_XUSB10 },
++	{ 0x20bc, 0x516a, "BETOP BTP-KP40F Controller (Black)", 0, XTYPE_XBOX360, FLAG_READ_XUSB10 },
+ 	{ 0x20bc, 0x5134, "BETOP BTP-KP50B Xinput Dongle", 0, XTYPE_XBOX360 },
+ 	{ 0x20bc, 0x514a, "BETOP BTP-KP50C Xinput Dongle", 0, XTYPE_XBOX360 },
+ 	{ 0x20d6, 0x2001, "BDA Xbox Series X Wired Controller", 0, XTYPE_XBOXONE },
+@@ -778,6 +806,7 @@ struct usb_xpad {
+ 	time64_t mode_btn_down_ts;
+ 	bool delay_init;		/* init packets should be delayed */
+ 	bool delayed_init_done;
++	bool read_xusb10;		/* read XUSB10 descriptor during probe */
+ };
+ 
+ static int xpad_init_input(struct usb_xpad *xpad);
+@@ -2044,6 +2073,7 @@ static int xpad_probe(struct usb_interface *intf, const struct usb_device_id *id
+ 	struct usb_device *udev = interface_to_usbdev(intf);
+ 	struct usb_xpad *xpad;
+ 	struct usb_endpoint_descriptor *ep_irq_in, *ep_irq_out;
++	u8 ms_feature_descriptor[40];
+ 	int i, error;
+ 
+ 	if (intf->cur_altsetting->desc.bNumEndpoints != 2)
+@@ -2082,6 +2112,8 @@ static int xpad_probe(struct usb_interface *intf, const struct usb_device_id *id
+ 	xpad->name = xpad_device[i].name;
+ 	if (xpad_device[i].flags & FLAG_DELAY_INIT)
+ 		xpad->delay_init = true;
++	if (xpad_device[i].flags & FLAG_READ_XUSB10)
++		xpad->read_xusb10 = true;
+ 
+ 	xpad->packet_type = PKT_XB;
+ 	INIT_WORK(&xpad->work, xpad_presence_work);
+@@ -2148,6 +2180,19 @@ static int xpad_probe(struct usb_interface *intf, const struct usb_device_id *id
+ 	xpad->irq_in->transfer_flags |= URB_NO_TRANSFER_DMA_MAP;
+ 
+ 	usb_set_intfdata(intf, xpad);
++	if (xpad->read_xusb10) {
++		error = usb_control_msg_recv(udev, 0, 0xee,
++					     USB_TYPE_VENDOR | USB_DIR_IN |
++						USB_RECIP_DEVICE,
++					     0x0000, 0x0004,
++					     ms_feature_descriptor,
++					     sizeof(ms_feature_descriptor), 25,
++					     GFP_KERNEL);
++		if (error)
++			dev_warn(&intf->dev,
++				 "unable to read Microsoft feature descriptor: %d\n",
++				 error);
++	}
+ 
+ 	/* Packet type detection */
+ 	if (le16_to_cpu(udev->descriptor.idVendor) == 0x045e) { /* Microsoft controllers */
+@@ -2312,7 +2357,79 @@ static struct usb_driver xpad_driver = {
+ 	.id_table	= xpad_table,
+ };
+ 
+-module_usb_driver(xpad_driver);
++#if IS_ENABLED(CONFIG_HID)
++static int xpad_receiver_probe(struct hid_device *hdev, const struct hid_device_id *id)
++{
++	int error;
++
++	error = hid_parse(hdev);
++	if (error)
++		return error;
++
++	error = hid_hw_start(hdev, 0);
++	if (error)
++		return error;
++
++	error = hid_hw_open(hdev);
++	if (error) {
++		hid_hw_stop(hdev);
++		return error;
++	}
++
++	return 0;
++}
++
++static void xpad_receiver_remove(struct hid_device *hdev)
++{
++	hid_hw_close(hdev);
++	hid_hw_stop(hdev);
++}
++
++static const struct hid_device_id xpad_receiver_devices[] = {
++	{ HID_USB_DEVICE(0x20dd, 0x515c) },
++	{ }
++};
++MODULE_DEVICE_TABLE(hid, xpad_receiver_devices);
++
++static struct hid_driver xpad_receiver_driver = {
++	.name = "xpad-kp40d-receiver",
++	.id_table = xpad_receiver_devices,
++	.probe = xpad_receiver_probe,
++	.remove = xpad_receiver_remove,
++};
++#endif
++
++static int __init xpad_init(void)
++{
++	int error;
++
++#if IS_ENABLED(CONFIG_HID)
++	error = hid_register_driver(&xpad_receiver_driver);
++	if (error)
++		return error;
++#endif
++
++	error = usb_register(&xpad_driver);
++	if (error) {
++#if IS_ENABLED(CONFIG_HID)
++		hid_unregister_driver(&xpad_receiver_driver);
++#endif
++		return error;
++	}
++
++	return 0;
++}
++
++static void __exit xpad_exit(void)
++{
++	usb_deregister(&xpad_driver);
++#if IS_ENABLED(CONFIG_HID)
++	hid_unregister_driver(&xpad_receiver_driver);
++#endif
++}
++
++module_init(xpad_init);
++module_exit(xpad_exit);
+ 
+ MODULE_AUTHOR("Marko Friedemann <mfr@bmx-chemnitz.de>");
+ MODULE_DESCRIPTION("Xbox pad driver");
+-- 
+2.55.0
 
-> +	if (error)
-> +		return error;
-> +
-> +	error =3D usb_register(&xpad_driver);
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/tencent_2DEADF4D9AD=
-C33A9420BECBEA70B1A7EFD08@qq.com?part=3D1

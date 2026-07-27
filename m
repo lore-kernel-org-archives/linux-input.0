@@ -1,111 +1,89 @@
-Received: from out30-112.freemail.mail.aliyun.com (out30-112.freemail.mail.aliyun.com [115.124.30.112])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.12])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1B85C35E944;
-	Mon, 27 Jul 2026 03:01:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.112
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BEAE23BCD2F;
+	Mon, 27 Jul 2026 03:02:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.12
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785121306; cv=none; b=E631dd3rtNwfoi/mxQi3/eoOYWtpQfsaAJNCpEqMhjBq0rbj/MrofQuZU/xFw7y+rKI5DnGID5rBF06pH+1Erpm/N7dmMZjf8xvUDGjJvLMxDPTAgH8InPz66635bNWlwba1LOxmEMd/HMwQZyULoxZTnGMgWwoCPy0o1kWAaZk=
+	t=1785121348; cv=none; b=tOoQqEvjbsQc7mBGteiHQ8FjgGaXh5iMnIoi5mk4lQ0Ef/lWCddqT1o+acKo4hdMLrj3WsBXVfxm4jSb5aol1oRsfM+LhDRBOYBcopX8i/XlTvi3xVM2AgTEvFB/68EHntAFP3ozBsMQbzA5D7Q1hkLNxMQp5gaWKn+GhlFwxv8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785121306; c=relaxed/simple;
-	bh=0Lot+TnJghW5oCMKx7b/SQcTN+EtQeNK0wfbz8ZtSlA=;
-	h=Message-ID:Date:MIME-Version:Subject:To:References:From:
-	 In-Reply-To:Content-Type; b=SowLnujnwUcU888AQh6bQozRJGg/R1/urTeGcDQdQXsPiEZe+T4cbKQAdOa1f9UxjwBZOcYisFOZN72EAEMIF+Lj1bcMSizYGRJ+4Rllqs+shbWMIJ9SnHsL+IieHkoLr3clmRmsA7xa/mrneGxoGXc3XNX8tfRVWHH46SnHD3s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=BvBh2W9d; arc=none smtp.client-ip=115.124.30.112
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1785121348; c=relaxed/simple;
+	bh=I5iv/F3SAmehI8bja8DsXWqKelHb81mAu/Q/B5cNgH0=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=ToK+AoXfT8s2KnCVne6Hn/+UtMRK8ilEp/AuL7X5JHiUcD9MasWrluV9310SWUoWGsv6D7XGa11Ny22CzCHT5d/2s7SGTwNJADWOYhAVZQnuMWqlKRMSjuwDK7Celx2tRaDcfJ+dn8PcPuypkeiI1lECLJGDEbbvmtQGyrNJ5go=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=Ge8d9ksM; arc=none smtp.client-ip=198.175.65.12
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="BvBh2W9d"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1785121293; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
-	bh=VQLn2zB/SNndgOSBeaoB1yZlEYmg2mNfunKtH1S8PsI=;
-	b=BvBh2W9dKKbQwLVJ7pSjcebD15yWGnxGJcD+gNQvenOhq6LDQyQ5f3gkBp16/J74XgLsPdgt6wX8+cWpQOnqsZ1v374CqRQYTq4P5RJg+XP+0ROQD+ysnvyKUj8k+MZ+hVpjzdE+l162ZTGTBvgKYG/vWLCctLLoqxT/jvSyaj4=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R461e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033045098064;MF=baolin.wang@linux.alibaba.com;NM=1;PH=DS;RN=38;SR=0;TI=SMTPD_---0X7oiUc4_1785121289;
-Received: from 30.74.144.127(mailfrom:baolin.wang@linux.alibaba.com fp:SMTPD_---0X7oiUc4_1785121289 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Mon, 27 Jul 2026 11:01:30 +0800
-Message-ID: <bbb207ce-1b85-4310-8af0-14ff8ce000b1@linux.alibaba.com>
-Date: Mon, 27 Jul 2026 11:01:28 +0800
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="Ge8d9ksM"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1785121347; x=1816657347;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=I5iv/F3SAmehI8bja8DsXWqKelHb81mAu/Q/B5cNgH0=;
+  b=Ge8d9ksMqbffLNvSU6OQmwQDhUK8RJ4yLzxZTSmQfnL2h2mce6QhGLN1
+   urxD60nYLbByQBeqZ126l8ZIQsg/QLuDXE+VuOvafSq4wejpmR17GS/5d
+   cNHeKCaeb/8nh+KIMwBMhdJW7bqjNLlOKr5LHGAAFpCBToilP7DVbwR+8
+   tyd7N9N0hO6lM49NuYeCSEEGHf/LkTifMJYYSQ90DX1fwzEg3PA94eSPy
+   EhFegXz5XQQl1EALnrLTSTmNVX5yQ/QtLoHmJwfSzrnnb/VfEuYYulbUQ
+   3iCSyvHRIFtCOOEKbxJz2Y3j0aC2cr9Dotx8L9qVnqQS/OLX2IcZPyJhB
+   Q==;
+X-CSE-ConnectionGUID: HsYIMCpdSoGenTCUIuclgQ==
+X-CSE-MsgGUID: tDyB58kAQ8WHPboCKPD8GQ==
+X-IronPort-AV: E=McAfee;i="6800,10657,11857"; a="97200396"
+X-IronPort-AV: E=Sophos;i="6.25,187,1779174000"; 
+   d="scan'208";a="97200396"
+Received: from fmviesa010.fm.intel.com ([10.60.135.150])
+  by orvoesa104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 26 Jul 2026 20:02:26 -0700
+X-CSE-ConnectionGUID: hb3RjPKRQf6y4DBXsJ4tag==
+X-CSE-MsgGUID: ovrbZwbNRcKWkpzjnDWDPA==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.25,187,1779174000"; 
+   d="scan'208";a="255365081"
+Received: from shsensorbuild.sh.intel.com ([10.239.132.250])
+  by fmviesa010.fm.intel.com with ESMTP; 26 Jul 2026 20:02:24 -0700
+From: Even Xu <even.xu@intel.com>
+To: bentiss@kernel.org,
+	jikos@kernel.org
+Cc: srinivas.pandruvada@linux.intel.com,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Even Xu <even.xu@intel.com>
+Subject: [PATCH 0/2] HID: Intel-thc-hid: Support complete I2C bus configuration
+Date: Mon, 27 Jul 2026 11:03:08 +0800
+Message-ID: <20260727030310.3850984-1-even.xu@intel.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 10/12] gpio: eic-sprd: use
- devm_atomic_notifier_chain_register()
-To: Eliav Farber <farbere@amazon.com>, rafael@kernel.org,
- tony.luck@intel.com, bp@alien8.de, guohanjun@huawei.com, mchehab@kernel.org,
- xueshuai@linux.alibaba.com, lenb@kernel.org,
- laurent.pinchart@ideasonboard.com, linusw@kernel.org, brgl@kernel.org,
- orsonzhai@gmail.com, zhang.lyra@gmail.com, jic23@kernel.org,
- dlechner@baylibre.com, nuno.sa@analog.com, andy@kernel.org,
- dmitry.torokhov@gmail.com, hansg@kernel.org, ilpo.jarvinen@linux.intel.com,
- W_Armin@gmx.de, ukleinek@kernel.org, fabio.m.de.francesco@linux.intel.com,
- kaihengf@nvidia.com, ankita@nvidia.com, leitao@debian.org,
- jason@os.amperecomputing.com, pedro.pbg@usp.br, paulmck@kernel.org,
- frederic@kernel.org, kees@kernel.org, linux-acpi@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org,
- linux-pwm@vger.kernel.org, linux-iio@vger.kernel.org,
- linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org
-References: <20260723175632.44812-1-farbere@amazon.com>
-From: Baolin Wang <baolin.wang@linux.alibaba.com>
-In-Reply-To: <20260723175632.44812-1-farbere@amazon.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
+The Intel THC QuickI2C driver currently configures only the target
+address, bus speed, and SCL high and low periods. Additional timing
+parameters supplied by firmware are not applied to the I2C sub-IP.
 
+Introduce a common I2C configuration structure in the THC core and use
+it to configure the target address, addressing mode, bus speed, SCL
+timings, and SDA transmit and receive hold periods. Populate this
+structure from the QuickI2C ACPI resources so that platform-specific
+timings are restored during both initialization and resume.
 
-On 7/24/26 1:56 AM, Eliav Farber wrote:
-> Replace the atomic_notifier_chain_register() +
-> devm_add_action_or_reset() pattern with a single call to
-> devm_atomic_notifier_chain_register(), removing the
-> sprd_eic_unregister_notifier() callback.
-> 
-> Signed-off-by: Eliav Farber <farbere@amazon.com>
-> ---
+Even Xu (2):
+  HID: Intel-thc-hid: Intel-thc: Refactor I2C bus configuration with
+    unified config structure
+  HID: Intel-thc-hid: Intel-quicki2c: Support full I2C BUS config
+    parameters
 
-LGTM. Thanks.
-Reviewed-by: Baolin Wang <baolin.wang@linux.alibaba.com>
+ .../intel-quicki2c/pci-quicki2c.c             | 46 +++++++------
+ .../intel-quicki2c/quicki2c-dev.h             | 14 ++--
+ .../intel-thc-hid/intel-thc/intel-thc-dev.c   | 69 ++++++++++++-------
+ .../intel-thc-hid/intel-thc/intel-thc-dev.h   | 23 ++++++-
+ .../intel-thc-hid/intel-thc/intel-thc-hw.h    |  3 +
+ 5 files changed, 97 insertions(+), 58 deletions(-)
 
->   drivers/gpio/gpio-eic-sprd.c | 17 ++---------------
->   1 file changed, 2 insertions(+), 15 deletions(-)
-> 
-> diff --git a/drivers/gpio/gpio-eic-sprd.c b/drivers/gpio/gpio-eic-sprd.c
-> index 3b7ebcf12fe7..86eb9624d38a 100644
-> --- a/drivers/gpio/gpio-eic-sprd.c
-> +++ b/drivers/gpio/gpio-eic-sprd.c
-> @@ -601,13 +601,6 @@ static const struct irq_chip sprd_eic_irq = {
->   	GPIOCHIP_IRQ_RESOURCE_HELPERS,
->   };
->   
-> -static void sprd_eic_unregister_notifier(void *data)
-> -{
-> -	struct notifier_block *nb = data;
-> -
-> -	atomic_notifier_chain_unregister(&sprd_eic_irq_notifier, nb);
-> -}
-> -
->   static int sprd_eic_probe(struct platform_device *pdev)
->   {
->   	const struct sprd_eic_variant_data *pdata;
-> @@ -690,14 +683,8 @@ static int sprd_eic_probe(struct platform_device *pdev)
->   	}
->   
->   	sprd_eic->irq_nb.notifier_call = sprd_eic_irq_notify;
-> -	ret = atomic_notifier_chain_register(&sprd_eic_irq_notifier,
-> -					     &sprd_eic->irq_nb);
-> -	if (ret)
-> -		return dev_err_probe(dev, ret,
-> -				     "Failed to register with the interrupt notifier");
-> -
-> -	return devm_add_action_or_reset(dev, sprd_eic_unregister_notifier,
-> -					&sprd_eic->irq_nb);
-> +	return devm_atomic_notifier_chain_register(dev, &sprd_eic_irq_notifier,
-> +						   &sprd_eic->irq_nb);
->   }
->   
->   static const struct of_device_id sprd_eic_of_match[] = {
+-- 
+2.43.0
 

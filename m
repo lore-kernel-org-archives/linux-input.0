@@ -1,187 +1,166 @@
-Received: from mail-yw1-f173.google.com (mail-yw1-f173.google.com [209.85.128.173])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.20])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 81C403F9F20
-	for <linux-input@vger.kernel.org>; Mon, 27 Jul 2026 11:08:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.128.173
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785150531; cv=pass; b=ltKjcBz/Ej59DGdRGeoie1KjGXB5GeNioEO7nFhBD9VJ1GrbN5i99HgwOV6yQ2zNz9lzpYt0qndKczKl/6XqoQNf061TdOn+C7AQZTa5xkKdTHt42csjqqP2nlpE2L2lrxgGCJa3PdETV1zZ6gyXSlWR1P+PzhkNO3X426URvhQ=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785150531; c=relaxed/simple;
-	bh=pV1TDUaa2YAV2kxJY3x35Y0FQXGiZRc6WWYevwzWDGg=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=FborLY8Cw5H9vEg5FDxY0K5eWltd4Yq0nGCwmkPMv1jT4DnOBmLCNBo387tn/ozCwfUThrlLpKZbiOfUHLTIiyBPw6P8r/5RiRGVVPQv3Tk/0+gTVt5HVXxlQ+XBs176vTqZ9N+Inb4ZbjXYfm069xEQI+GHtVi2Shd5zzXsydw=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=M3mRoCn4; arc=pass smtp.client-ip=209.85.128.173
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 31D653ED128;
+	Mon, 27 Jul 2026 11:09:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.20
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1785150586; cv=none; b=E291bpc/5ZWlZMdcC6azvVJ/FHLMyEWDSX8vWyGigslPWn16GvUkoqXoN5ZnqY4xaXYBu17BmBgb2/ng9sh4Vil13IllE0QHN3TRzH/5+ZYbaWUJKe40LSXvHNuftX1ow3/CJUqa3sBKjmd861q1yC6Myal0cTTbUfVgZtJa7dg=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1785150586; c=relaxed/simple;
+	bh=kCaruWpI1pazM7Yg1cdPpCF1PesbaDM35iGMeirp03M=;
+	h=From:Date:To:cc:Subject:In-Reply-To:Message-ID:References:
+	 MIME-Version:Content-Type; b=EGBSR/IdhX3mlj61YZRgz5OqjszSg7hextokvlhJXEf+S8iPRZHlXC7ag7jzC7SxbLJpV3vPylBk+ywGaAN8uWG45A8K/tqhExcU+v0++GbfyVfekK4VOM5SzrFkqIzzH+CD2A1FwoywJ49KVJvuAhKVyF+9c6FWj2dSXCoaqTk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=PAAvMY0D; arc=none smtp.client-ip=198.175.65.20
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="M3mRoCn4"
-Received: by mail-yw1-f173.google.com with SMTP id 00721157ae682-81e86df8987so29997087b3.3
-        for <linux-input@vger.kernel.org>; Mon, 27 Jul 2026 04:08:46 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1785150525; cv=none;
-        d=google.com; s=arc-20260327;
-        b=otAXpU8mAaZn8Mo9mog0aoG3SlC9USZEC8F+L/a4/VsncxcWphjtP3mAaS5F/dAxGE
-         5c1Qu78QPtBHQ0DhVSxzpVZK1xeGnBATgwju42W3q/BGsl6cMQKeFMNgF0vU7xFV1gie
-         udcPbXUbCvijF2/Brx22DtZH/kIIevIVCtH4QmqlAF1i2/PtDygi4mNnf2jpXaK5/tC1
-         GGqr5ciW8XgwtZMPede2eh1ApbSwU3BDE6fWNu0wFVTQPl+N2d+DCgIBwfyX9zYs9kb1
-         JAMwB68vzj4XQUp1TJWsTNnQ2Cz0+ZyXTLvpx3IZ6pFNwhiu6R1D2QhCFPPfQ6oVGPil
-         +wAg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=pV1TDUaa2YAV2kxJY3x35Y0FQXGiZRc6WWYevwzWDGg=;
-        fh=5XyXh1aHaGKM5xXbq+FPP088CDHc7jY1fqhTWaxbnEw=;
-        b=cCrcLzc5Ef/2KitnNihHp9AzXADWddQ+WDkBu3Rljw3Npkk8QSojZQEOI/EJLh7yP4
-         QYq1gsrdF5mgJ1Wym7xdwkByE2lc2WrymMnOslc3WbNJQZzH/0/wRYxUB8eGAi6w7u93
-         DrJCtZLyK2mowqHcBD2cjy2QsJD3ELo3f8pLzzrus+IAoMIYLyYBJVMXOCOWQakxQ2ex
-         1jbbSKaxlLiscYWZFnGWO9gXdYOnfb6XY6N6ExVoFno1/ZjD31H0sk9Zpndln+yhSWG6
-         vG/CXRuZzUsytcSLJzVN1sv1jueNkEyuSgGhm7a1Y7NDP1JNhR0aPnYqpWfkWivIVduO
-         xQzA==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1785150525; x=1785755325; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=pV1TDUaa2YAV2kxJY3x35Y0FQXGiZRc6WWYevwzWDGg=;
-        b=M3mRoCn4tl8RPjfQixKwIWWGSOwAsLGhmh+pOW5tV4opu6k/FIUqHgtBSUi/lYWXNo
-         K98eF+P/A41j+K8iwFXw6liU49SqTYrvvms0nmGWFjNMcapwdxy/m16HBI26xKOSiPvw
-         bHpYUNToOx9zQJmLUksPduoTCqqE2dSxgHeSldgGIbLqv2CWqoDhAou0N3efVhSwmwfM
-         VQbpCmhybFLItirVtnzw4TnneJchaVYJVzYdQrFlaDO4vxp9qnK66elczaAbAPUjs+C1
-         1bvSmITqLw2KhR3gNZaWHhZGr+7ZSQD962od3gweFtTkzKTtbvFjOOIGdEoRbtgOHS17
-         oVMA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785150525; x=1785755325;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=pV1TDUaa2YAV2kxJY3x35Y0FQXGiZRc6WWYevwzWDGg=;
-        b=DFFTKSx+YSmTejZrtOU4skjYiTKk+DO5UbSMpRoBs5KVuznPAZX1i/+/IBF2yV8wal
-         lIWjwOzrcrtjs0P7mK5UlaSEn6R6jYOMfcOFMdc8gYroMBbSUHysb+acHEx8YBRiwMIk
-         FYh9P2SO2PPi2q9NoTe7w5rOuuM2pguUq7npXnK9AiQL0wQUu6dNVkWRGX+sYcdI9Awb
-         MuXdNTpz9pxx9UP9Jo9RsVM+zljuV64JeudyrYGz/nDx/8EdEAuVPesqWpA31sCMMLGQ
-         kZWizrGa2+5fl+ieYwxMibSTQ3EGj2mOft63UAJRRif8lAdkIGktfXwEXfElcDetp+YF
-         +yJw==
-X-Forwarded-Encrypted: i=1; AHgh+Ror95ifoQL8awog8QheBogi3SR6gFXWckBf2MUH9HoFWMIwJl/edXNNxwFt55JleH5pYnw8lWTVNEX2Eg==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yz+AM/Krl/YEBdizWMdJxXbT/NTRP+sk5rFyPImSQIAzSCFoTzc
-	VfLNmgJGEJ2KtwRfm+yI3oxGOq+0Cd+GLmzvrmdeufk3I65zDmFrS62KvwcaAddKEAiRVVApwLQ
-	mzCLIS9DM+ZXeUsPyyF6JNZ1KlYU3UmE=
-X-Gm-Gg: AR+sD11CvLBCOYPtq859WFaRdtEjNO8z6QqWFIWiwAKJ/cWczqyRXiWMLuDM8UhqBvw
-	F/1OGRsOD2CJYwQ9To2L5DPbgMNjeQ5mM4YJe/t4bsrx3p6aj9Wd2QVlunPaMycY5xXjRCniTIH
-	1cTrIyt/sQqsbSTbygsrisnOaN5lPENBAtmtpg1/7TiMaZLpm7Yoibc4aEAllHBi/4ZTGcxSbMX
-	yUNfxuqrELaLnOPHe7KN81AMhUyEfDmGx24OLCGFIEpeyB+EBcbcAsTEk8=
-X-Received: by 2002:a05:690c:3747:b0:809:86c6:ee18 with SMTP id
- 00721157ae682-81f69e3978bmr27868337b3.37.1785150525277; Mon, 27 Jul 2026
- 04:08:45 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="PAAvMY0D"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1785150585; x=1816686585;
+  h=from:date:to:cc:subject:in-reply-to:message-id:
+   references:mime-version;
+  bh=kCaruWpI1pazM7Yg1cdPpCF1PesbaDM35iGMeirp03M=;
+  b=PAAvMY0DKK7eZR6pLhuZpSAv1ThrOqCF+DfMMkvW+FB0heHlruxWFFTd
+   3McgATw+q5FUlavPzC/eRbQOUG2C7QGp9zdNs1jGBL44G/ZH+3qvj7b5r
+   vRHwyKfk8uhkyMjLn8+lYebcjStmAvEVGkVlv2/eFBCV/t6sdefOxK+NY
+   JpOWuykKP+lNz4pQ5jQ/MVgYzcYYv5fWILUQdWw1aECndw0ctds6RAFtE
+   ky4KjVR+vXJUMxpWI31k5AmQqIvS5Om2/+6qWFPkCsOXLBeqpM0472Xw7
+   v3/RD53WCGEgaDhwTIM96KN40ke7Ka1HHOMMMkl8z8cL24ahGvhYu0LKM
+   g==;
+X-CSE-ConnectionGUID: TAMZIGm0TbC8Vvr0zckJhg==
+X-CSE-MsgGUID: YjCtrnR9QmmPQYEMaNHeFQ==
+X-IronPort-AV: E=McAfee;i="6800,10657,11857"; a="85478668"
+X-IronPort-AV: E=Sophos;i="6.25,188,1779174000"; 
+   d="scan'208";a="85478668"
+Received: from orviesa001.jf.intel.com ([10.64.159.141])
+  by orvoesa112.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 Jul 2026 04:09:44 -0700
+X-CSE-ConnectionGUID: AiDwzKjARSqaug0cAKr9EQ==
+X-CSE-MsgGUID: 5Wk+8iKbRaGWO0eeVZKODA==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.25,188,1779174000"; 
+   d="scan'208";a="297611875"
+Received: from ijarvine-mobl1.ger.corp.intel.com (HELO localhost) ([10.245.245.226])
+  by smtpauth.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 Jul 2026 04:09:39 -0700
+From: =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>
+Date: Mon, 27 Jul 2026 14:09:34 +0300 (EEST)
+To: =?ISO-8859-15?Q?Marcus_Gren=E4ngen?= <marcus@grenangen.se>
+cc: platform-driver-x86@vger.kernel.org, denis.benato@linux.dev, 
+    linux-input@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, 
+    luke@ljones.dev, Hans de Goede <hansg@kernel.org>, jikos@kernel.org, 
+    bentiss@kernel.org, corentin.chary@gmail.com
+Subject: Re: [PATCH v3 1/3] HID: asus: export asus_hid_fnlock_set() for direct
+ fn-lock control
+In-Reply-To: <20260507092911.8855-2-marcus@grenangen.se>
+Message-ID: <ad587675-cef3-f5b5-eb39-0f76dea8d617@linux.intel.com>
+References: <9b568ce0-93f7-4a7f-98e4-625e910f8a1d@linux.dev> <20260507092911.8855-1-marcus@grenangen.se> <20260507092911.8855-2-marcus@grenangen.se>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260723184538.3888637-1-ekffu200098@gmail.com>
- <20260724144822.6af8213f@kernel.org> <0ee1ef4aa7daa908bf28397ccc639c89b6aabd9c@intel.com>
-In-Reply-To: <0ee1ef4aa7daa908bf28397ccc639c89b6aabd9c@intel.com>
-From: Sang-Heon Jeon <ekffu200098@gmail.com>
-Date: Mon, 27 Jul 2026 20:08:33 +0900
-X-Gm-Features: AUfX_mzhfgKW48GB4CRuyNKliFu1x1EH8aDGDqYePXeE0rGOBX3Wid5IOU1hKpc
-Message-ID: <CABFDxMFMOAZ_3kYxEGCutnGt1OSSmgvmwx-=M1RxGc3VGKORYQ@mail.gmail.com>
-Subject: Re: [PATCH 00/36] treewide: remove conditional returns with no effect
-To: Jani Nikula <jani.nikula@linux.intel.com>
-Cc: Jakub Kicinski <kuba@kernel.org>, Julia.Lawall@inria.fr, 
-	Alex Deucher <alexander.deucher@amd.com>, 
-	Alexander Shishkin <alexander.shishkin@linux.intel.com>, 
-	Alexandre Belloni <alexandre.belloni@bootlin.com>, Andrew Lunn <andrew@lunn.ch>, 
-	Andrew Morton <akpm@linux-foundation.org>, 
-	Arkadiusz Kubalewski <arkadiusz.kubalewski@intel.com>, Borislav Petkov <bp@alien8.de>, 
-	=?UTF-8?Q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>, 
-	Daniel Lezcano <daniel.lezcano@kernel.org>, David Airlie <airlied@gmail.com>, 
-	"David S. Miller" <davem@davemloft.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
-	Eric Dumazet <edumazet@google.com>, Florian Westphal <fw@strlen.de>, 
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Hans de Goede <hansg@kernel.org>, 
-	Hans Verkuil <hverkuil@kernel.org>, Heikki Krogerus <heikki.krogerus@linux.intel.com>, 
-	Herbert Xu <herbert@gondor.apana.org.au>, 
-	=?UTF-8?Q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>, 
-	"James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>, Jaroslav Kysela <perex@perex.cz>, 
-	Jason Gunthorpe <jgg@ziepe.ca>, Jiri Pirko <jiri@resnulli.us>, "Joerg Roedel (AMD)" <joro@8bytes.org>, 
-	Johan Hovold <johan@kernel.org>, Jonathan Cameron <jic23@kernel.org>, 
-	Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, Julian Anastasov <ja@ssi.bg>, 
-	Leon Romanovsky <leon@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, Linus Walleij <linusw@kernel.org>, 
-	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Mark Brown <broonie@kernel.org>, 
-	"Martin K. Petersen" <martin.petersen@oracle.com>, Matthew Sakai <msakai@redhat.com>, 
-	Mauro Carvalho Chehab <mchehab@kernel.org>, Maxime Ripard <mripard@kernel.org>, 
-	Michael Turquette <mturquette@baylibre.com>, Mike Rapoport <rppt@kernel.org>, 
-	Miri Korenblit <miriam.rachel.korenblit@intel.com>, Nicolas Palix <nicolas.palix@imag.fr>, 
-	Pablo Neira Ayuso <pablo@netfilter.org>, Paolo Abeni <pabeni@redhat.com>, 
-	Ping-Ke Shih <pkshih@realtek.com>, "Rafael J. Wysocki" <rafael@kernel.org>, 
-	Rodrigo Vivi <rodrigo.vivi@intel.com>, Sebastian Reichel <sre@kernel.org>, Shuah Khan <shuah@kernel.org>, 
-	Simona Vetter <simona@ffwll.ch>, Simon Horman <horms@verge.net.au>, Stephen Boyd <sboyd@kernel.org>, 
-	Steve French <sfrench@samba.org>, Takashi Iwai <tiwai@suse.com>, Thomas Renninger <trenn@suse.com>, 
-	Thomas Zimmermann <tzimmermann@suse.de>, Tony Luck <tony.luck@intel.com>, 
-	Tvrtko Ursulin <tursulin@ursulin.net>, Vadim Fedorenko <vadim.fedorenko@linux.dev>, 
-	Vinod Koul <vkoul@kernel.org>, Will Deacon <will@kernel.org>, 
-	Yazen Ghannam <Yazen.Ghannam@amd.com>, cocci@inria.fr, amd-gfx@lists.freedesktop.org, 
-	dmaengine@vger.kernel.org, dm-devel@lists.linux.dev, 
-	dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org, 
-	intel-wired-lan@lists.osuosl.org, iommu@lists.linux.dev, 
-	linux-cifs@vger.kernel.org, linux-clk@vger.kernel.org, 
-	linux-crypto@vger.kernel.org, linux-edac@vger.kernel.org, 
-	linux-gpio@vger.kernel.org, linux-iio@vger.kernel.org, 
-	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-media@vger.kernel.org, linux-mm@kvack.org, linux-pm@vger.kernel.org, 
-	linux-rdma@vger.kernel.org, linux-rtc@vger.kernel.org, 
-	linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org, 
-	linux-sound@vger.kernel.org, linux-usb@vger.kernel.org, 
-	linux-wireless@vger.kernel.org, lvs-devel@vger.kernel.org, 
-	netdev@vger.kernel.org, netfilter-devel@vger.kernel.org, 
-	nouveau@lists.freedesktop.org, platform-driver-x86@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: multipart/mixed; boundary="8323328-771095002-1785150574=:1169"
 
-Hello,
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-On Mon, Jul 27, 2026 at 5:30=E2=80=AFPM Jani Nikula <jani.nikula@linux.inte=
-l.com> wrote:
->
-> On Fri, 24 Jul 2026, Jakub Kicinski <kuba@kernel.org> wrote:
-> > On Fri, 24 Jul 2026 03:45:02 +0900 Sang-Heon Jeon wrote:
-> >> Patch 1 adds a Coccinelle script that matches the pattern, including
-> >> negation and constant-comparison variants. Where a local variable is
-> >> assigned right before the check, the assignment and the two returns
-> >> turn into a single return of the assigned expression.
-> >
-> > Huh, I thought we already had such script. Various script children have
-> > been sending such "cleanups" in the past.
->
-> We did, and it was removed, I believe in 1a617a8475e8 ("coccinelle:
-> misc: remove "complex return code" warnings"), because people just don't
-> want this constant churn.
->
-> It's perfectly fine to have the error case and happy day scenario
-> separated.
+--8323328-771095002-1785150574=:1169
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 
-Thanks for sharing the history.
+On Thu, 7 May 2026, Marcus Gren=C3=A4ngen wrote:
 
-I checked the mailing list. The removed script looks similar to the
-new one, but it is different. The removed script reported a
-conditional return followed by an explicit return 0, where the error
-case and happy day scenario are separated as you mentioned, and Johan
-also complained about this 10 years ago.
+> Some ASUS platforms cannot control fn-lock via WMI DEVS and must send a
+> HID feature report directly to the N-Key keyboard device instead.
+>=20
+> Add a module-level fnlock_hdev pointer (protected by a mutex) that is set
+> at probe time for devices with QUIRK_HID_FN_LOCK and cleared at remove.
+> Export asus_hid_fnlock_set(bool) so that asus-armoury can call into
+> hid-asus without a circular dependency.
+>=20
+> Signed-off-by: Marcus Gren=C3=A4ngen <marcus@grenangen.se>
+> ---
+>  drivers/hid/hid-asus.c                     | 44 +++++++++++++++++++++-
+>  include/linux/platform_data/x86/asus-wmi.h | 15 ++++++++
+>  2 files changed, 58 insertions(+), 1 deletion(-)
+>=20
+> diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
+> index d34d74df3dc0..402ba9d5e982 100644
+> --- a/drivers/hid/hid-asus.c
+> +++ b/drivers/hid/hid-asus.c
+> @@ -584,6 +584,39 @@ static void asus_sync_fn_lock(struct work_struct *wo=
+rk)
+>  =09asus_kbd_set_fn_lock(drvdata->hdev, drvdata->fn_lock);
+>  }
+> =20
+> +/*
+> + * Module-level reference to the HID device that handles fn-lock via fea=
+ture
+> + * report. Set at probe and cleared at remove for QUIRK_HID_FN_LOCK devi=
+ces.
+> + * Protected by fnlock_hdev_lock.
+> + */
+> +static DEFINE_MUTEX(fnlock_hdev_lock);
+> +static struct hid_device *fnlock_hdev;
+> +
+> +/**
+> + * asus_hid_fnlock_set() - Set fn-lock state directly via HID feature re=
+port.
+> + * @enabled: true to lock fn (F1-F12 primary), false to unlock.
+> + *
+> + * Called by asus-armoury on platforms where the WMI DEVS path for fn-lo=
+ck is
+> + * non-functional (e.g. ASUS ProArt P16, N-Key keyboard product ID 0x19B=
+6).
+> + *
+> + * Returns: 0 on success, -ENODEV if no fn-lock capable HID device is pr=
+esent.
+> + */
+> +int asus_hid_fnlock_set(bool enabled)
+> +{
+> +=09int ret;
+> +
+> +=09guard(mutex)(&fnlock_hdev_lock);
+> +=09if (!fnlock_hdev)
+> +=09=09return -ENODEV;
+> +
+> +=09ret =3D asus_kbd_set_fn_lock(fnlock_hdev, enabled);
+> +=09if (ret < 0)
+> +=09=09return ret;
+> +
+> +=09return 0;
+> +}
+> +EXPORT_SYMBOL_GPL(asus_hid_fnlock_set);
+> +
+>  static void asus_schedule_work(struct asus_kbd_leds *led)
+>  {
+>  =09unsigned long flags;
+> @@ -969,6 +1002,8 @@ static int asus_input_configured(struct hid_device *=
+hdev, struct hid_input *hi)
+>  =09=09drvdata->fn_lock =3D true;
+>  =09=09INIT_WORK(&drvdata->fn_lock_sync_work, asus_sync_fn_lock);
+>  =09=09asus_kbd_set_fn_lock(hdev, true);
+> +=09=09guard(mutex)(&fnlock_hdev_lock);
+> +=09=09fnlock_hdev =3D hdev;
+>  =09}
+> =20
+>  =09if (drvdata->tp) {
+> @@ -1008,6 +1043,8 @@ static int asus_input_configured(struct hid_device =
+*hdev, struct hid_input *hi)
+>  =09=09drvdata->fn_lock =3D true;
+>  =09=09INIT_WORK(&drvdata->fn_lock_sync_work, asus_sync_fn_lock);
+>  =09=09asus_kbd_set_fn_lock(hdev, true);
+> +=09=09guard(mutex)(&fnlock_hdev_lock);
+> +=09=09fnlock_hdev =3D hdev;
 
-But the new script only reports when both branches return the same
-variable, not the explicit 0. So, I think the new script is close to
-the restricted version that Julia mentioned 10 years ago, and it
-should be acceptable.
+What's going on with this patch? Why this context appears more than once=20
+on different lines???
 
->
-> BR,
-> Jani.
->
->
-> --
-> Jani Nikula, Intel
+I even wasted my time on checking what hid tree has queued, and came up=20
+zero explanation (as expected).
 
-Best Regards,
-Sang-Heon Jeon
+--
+ i.
+--8323328-771095002-1785150574=:1169--

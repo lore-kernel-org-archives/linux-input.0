@@ -1,124 +1,169 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BAC3936B902
-	for <linux-input@vger.kernel.org>; Mon, 27 Jul 2026 15:18:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 17D40364926;
+	Mon, 27 Jul 2026 15:18:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785165498; cv=none; b=adkNVCuoBQexXbJyQMdwN7/NfYwrzh7NwY2tyi9pzPENHJ0X5Fa/pO/ns/J5HluRcKG6e18Cxq9fM4My6bkrkycd4x3gNOJDewlU1F3WgyWvzw2m2BECLMZx06wUzWdU7ugfrLvgBxzw34WjFFPje7eggYDHHwER6q8GyMXftGs=
+	t=1785165531; cv=none; b=FUSy2EIqmLoy73NjXftNlDJ2nZ2lXWZQBqk2JdPRjeMTKfAoLa3VTW2Rl+xjLkFsYrRp1R011kDxwxtes9G9tdRRydfBVWcJoNWOiYid2+LEo24GiZPqpfl9GyBuuuxETcODUlHPYTWMeGbjZiB72/wJVJ/FeoPVwiJ38dI6WoQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785165498; c=relaxed/simple;
-	bh=Q4cXKA9KJvp9Cw0tw+VHZvBjtKLK8yFG6JdQehX77Xo=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=L0Vq3IhPANDaXa6rEaozNPMupcUESszpXHGoxUGE43pK/EzsNRqQUx+kfyYtO1luQdfuiQ5lhFvi911ppz5LTWDUx2F90XJypsS6sO9sgNamshjc3qn2fMtrdop81dQGiTE+4BkwPb+HG9cccbTSxhdo62SilHnDFtrAXcqtFKs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ezQm5uSt; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1785165531; c=relaxed/simple;
+	bh=4nhhqHsdWy10c/f298WIUtXl9LQxIboutOsXwgYJL2g=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=kqrYZWTo1/GYLEdB1WbMo+6elTqxyqKnD6+q4xVFZyKXVooASN28deSnXkAwzXraNsxtfQo5IMC8ApOyt9Q/fq6qAng8kGacov6ds8DMrH88Z7ToR3WXMv29ljl+92bSLvbpVj4lQleqCbJRcwTBJ47eZEtUYxXQD4GcsIa7GyA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=Pg1kZHPG; arc=none smtp.client-ip=198.175.65.18
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ezQm5uSt"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A2C61F00A3A;
-	Mon, 27 Jul 2026 15:18:16 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785165496;
-	bh=+xbmbIV4+kY0QK5fmlZiZCKHUg+UxP65xt/jc8tBlT4=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=ezQm5uStuvKSok6miWlhJS5xDcDP1gDQRitR0Bk8v7Z5+Jid/0kb3l9rDGuO97YjR
-	 K187DVM6ByVewlcAhV4gwUk0SiBQYmdbsmnx2pn7hmVogbiIjwS/o4sWzpUivQqhk9
-	 TgtmLIQFmqJlNgo5Ipdtm3mwXI21Nj+u1whfOui6TDxF8oXdxAP3gE8nLEJKNl6eIx
-	 U1z3jPD7TA6C9myWn2DvrZtdxwk26SL8BnzUWbdApCLsZAVxKca9XlZCcATkulgQcy
-	 ruRZJ167Y2fy8nGVVepC2+W65wG+9DwDCxnOPR/hA4tdC/V6TfhBw2zSntum3ywloA
-	 5qjgzBoPqI3Ow==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v3 8/8] HID: wacom: do not use 'driver_data'
-Reply-To: sashiko-reviews@lists.linux.dev
-To: =?utf-8?b?UGF3ZWwgWmFsZXdza2kgKFRoZSBDYXBhYmxlIEh1Yik=?= <pzalewski@thegoodpenguin.co.uk>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260727-mod-devicetable-hid_device_id-v3-8-980896ca283e@thegoodpenguin.co.uk>
-References: <20260727-mod-devicetable-hid_device_id-v3-0-980896ca283e@thegoodpenguin.co.uk>
- <20260727-mod-devicetable-hid_device_id-v3-8-980896ca283e@thegoodpenguin.co.uk>
-Content-Type: text/plain; charset=utf-8
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="Pg1kZHPG"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1785165529; x=1816701529;
+  h=message-id:subject:from:to:cc:date:in-reply-to:
+   references:content-transfer-encoding:mime-version;
+  bh=4nhhqHsdWy10c/f298WIUtXl9LQxIboutOsXwgYJL2g=;
+  b=Pg1kZHPGK1NtBxxTGra+OIeGgMMeK4xLtGiFjVGJoW5v2nkxe4E5BS+9
+   33r/VuW+cg7Xksyac3nQdLUfHMgRIaAo/dOVbFK/CD28ppd+wjAugd4JL
+   Gx5/Ph0tOxM5YEuCxKlpO1x0apX8e+PwIZhRPG1WTtkKx7+uPVGgttwsE
+   TSgDDGWbb1QXqg4GknaJ2qnA+vGDxkH7T7TutTVH65kbIxSKXoYVxxtx4
+   TY0j8yOlfwUgzKyaU8O/TH1deyUmtxfXLn1ySywU422oruGIMYbLuxzkR
+   hdkc5k76JL20Ox1R2Q9t6qw7CRJR21D0af69kIkSW2FXDsRdPqVPNdmnD
+   w==;
+X-CSE-ConnectionGUID: Gjz9U9Y/TgO6PUX6AYsE3A==
+X-CSE-MsgGUID: +afM6lNlTb+0FHZfLHQbhw==
+X-IronPort-AV: E=McAfee;i="6800,10657,11858"; a="85820790"
+X-IronPort-AV: E=Sophos;i="6.25,188,1779174000"; 
+   d="scan'208";a="85820790"
+Received: from fmviesa002.fm.intel.com ([10.60.135.142])
+  by orvoesa110.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 Jul 2026 08:18:48 -0700
+X-CSE-ConnectionGUID: uaSfdDQlRayjZQISgv5IoQ==
+X-CSE-MsgGUID: A3bAv1ZBQtef/qR6qdOQ+Q==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.25,188,1779174000"; 
+   d="scan'208";a="282769243"
+Received: from spandruv-desk2.jf.intel.com ([10.88.27.176])
+  by fmviesa002-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 Jul 2026 08:18:48 -0700
+Message-ID: <b6e684365758146193421ac3a36b58d55af77691.camel@linux.intel.com>
+Subject: Re: [PATCH] iio: hid-sensor: als: scale each channel individually
+From: srinivas pandruvada <srinivas.pandruvada@linux.intel.com>
+To: dhs@frame.work, Jiri Kosina <jikos@kernel.org>, Jonathan Cameron
+	 <jic23@kernel.org>, David Lechner <dlechner@baylibre.com>, Nuno
+ =?ISO-8859-1?Q?S=E1?=
+	 <nuno.sa@analog.com>, Andy Shevchenko <andy@kernel.org>
+Cc: linux-input@vger.kernel.org, linux-iio@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, Sven =?ISO-8859-1?Q?Vaink=FCla?=
+	 <sven@xn--vainkla-r2a.ee>, linux@frame.work
+Date: Mon, 27 Jul 2026 08:18:47 -0700
+In-Reply-To: <20260723-chromaticity-v1-1-5ef5746ace2a@frame.work>
+References: <20260723-chromaticity-v1-1-5ef5746ace2a@frame.work>
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
-Date: Mon, 27 Jul 2026 15:18:15 +0000
-Message-Id: <20260727151816.2A2C61F00A3A@smtp.kernel.org>
+User-Agent: Evolution 3.60.2 (3.60.2-1.fc44) 
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
+On Thu, 2026-07-23 at 01:18 +0800, Daniel Schaefer via B4 Relay wrote:
+> From: Daniel Schaefer <dhs@frame.work>
+>=20
+> Some sensors have multiple channels (not just brightness but color
+> ALS
+> sensors) with different scaling factors.
+>=20
+> Tested on Asus ProArt PX13 laptop by Sven.
+>=20
+> Signed-off-by: Daniel Schaefer <dhs@frame.work>
+> Link:
+> https://gitlab.freedesktop.org/hadess/iio-sensor-proxy/-/merge_requests/4=
+13
+> Cc: Sven Vaink=C3=BCla <sven@xn--vainkla-r2a.ee>
+> Cc: Jiri Kosina <jikos@kernel.org>
+> Cc: Jonathan Cameron <jic23@kernel.org>
+> Cc: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+> Cc: David Lechner <dlechner@baylibre.com>
+> Cc: Nuno S=C3=A1 <nuno.sa@analog.com>
+> Cc: Andy Shevchenko <andy@kernel.org>
+> Cc: linux-input@vger.kernel.org
+> Cc: linux-iio@vger.kernel.org
+> Cc: linux@frame.work
 
-New issues:
-- [Critical] Removal of driver_data breaks dynamic device binding via sysfs=
- 'new_id', preventing testing of unknown/clone devices.
+Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 
-Pre-existing issues:
-- [High] Missing cancellation of `wacom->init_work` on the error path for w=
-ireless monitors leads to a UAF.
---
-
---- Patch [8]: [PATCH v3 8/8] HID: wacom: do not use 'driver_data' ---
-commit 147dba29dc34be167b7150ce20799c7b7dd39442
-Author: Pawel Zalewski (The Capable Hub) <pzalewski@thegoodpenguin.co.uk>
-
-HID: wacom: do not use 'driver_data'
-
-This patch removes the use of driver_data for looking up product features in
-the wacom driver. It instead looks up wacom_features directly by product ID
-to reduce macro complexity and simplify the code.
-
-[ ... ]
-
-> diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
-> index 834519751a5cf..4514b2762cc33 100644
-> --- a/drivers/hid/wacom_sys.c
-> +++ b/drivers/hid/wacom_sys.c
-> @@ -2848,7 +2845,7 @@ static int wacom_probe(struct hid_device *hdev,
-> =20
->  	wacom_wac =3D &wacom->wacom_wac;
-> =20
-> -	const struct wacom_features *id_features =3D get_wacom_features(id->dri=
-ver_data);
-> +	const struct wacom_features *id_features =3D get_wacom_features(id->pro=
-duct);
-
-[Severity: Critical]
-Does removing driver_data introduce a regression for dynamic device binding
-via sysfs 'new_id'?
-
-By strictly using get_wacom_features(id->product), the mechanism for inject=
-ing
-unknown product IDs seems rendered unusable because the injected PID won't =
-match
-any entry in the static wacom_features_table. Previously, couldn't users pa=
-ss a
-feature table index via driver_data to test unknown or clone devices?
-
-[Severity: High]
-This is a pre-existing issue, but is there a missing cancellation of=20
-wacom->init_work on the error path for wireless monitors?
-
-drivers/hid/wacom_sys.c:wacom_parse_and_register() {
-    ...
-	if (features->device_type & WACOM_DEVICETYPE_WL_MONITOR) {
-		error =3D hid_hw_open(hdev);
-		if (error) {
-			hid_err(hdev, "hw open failed\n");
-			goto fail_hw_stop;
-		}
-	}
-    ...
-}
-
-In wacom_parse_and_register(), wacom_query_tablet_data() schedules
-wacom->init_work. If hid_hw_open() subsequently fails for a wireless monitor
-(WACOM_DEVICETYPE_WL_MONITOR), the error path jumps to fail_hw_stop and
-returns without calling cancel_delayed_work_sync(&wacom->init_work).
-
-Because the wacom structure is managed by devres and will be freed upon pro=
-be
-failure, could this result in a use-after-free when init_work executes late=
-r?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260727-mod-device=
-table-hid_device_id-v3-0-980896ca283e@thegoodpenguin.co.uk?part=3D8
+> ---
+> =C2=A0drivers/iio/light/hid-sensor-als.c | 22 ++++++++++++----------
+> =C2=A01 file changed, 12 insertions(+), 10 deletions(-)
+>=20
+> diff --git a/drivers/iio/light/hid-sensor-als.c
+> b/drivers/iio/light/hid-sensor-als.c
+> index 384572844162..232cb58e0a9f 100644
+> --- a/drivers/iio/light/hid-sensor-als.c
+> +++ b/drivers/iio/light/hid-sensor-als.c
+> @@ -33,9 +33,9 @@ struct als_state {
+> =C2=A0		u32 illum[CHANNEL_SCAN_INDEX_MAX];
+> =C2=A0		aligned_s64 timestamp;
+> =C2=A0	} scan;
+> -	int scale_pre_decml;
+> -	int scale_post_decml;
+> -	int scale_precision;
+> +	int scale_pre_decml[CHANNEL_SCAN_INDEX_MAX];
+> +	int scale_post_decml[CHANNEL_SCAN_INDEX_MAX];
+> +	int scale_precision[CHANNEL_SCAN_INDEX_MAX];
+> =C2=A0	int value_offset;
+> =C2=A0	int num_channels;
+> =C2=A0	s64 timestamp;
+> @@ -186,9 +186,11 @@ static int als_read_raw(struct iio_dev
+> *indio_dev,
+> =C2=A0		ret_type =3D IIO_VAL_INT;
+> =C2=A0		break;
+> =C2=A0	case IIO_CHAN_INFO_SCALE:
+> -		*val =3D als_state->scale_pre_decml;
+> -		*val2 =3D als_state->scale_post_decml;
+> -		ret_type =3D als_state->scale_precision;
+> +		if (chan->scan_index >=3D CHANNEL_SCAN_INDEX_MAX)
+> +			return -EINVAL;
+> +		*val =3D als_state->scale_pre_decml[chan->scan_index];
+> +		*val2 =3D als_state->scale_post_decml[chan-
+> >scan_index];
+> +		ret_type =3D als_state->scale_precision[chan-
+> >scan_index];
+> =C2=A0		break;
+> =C2=A0	case IIO_CHAN_INFO_OFFSET:
+> =C2=A0		*val =3D als_state->value_offset;
+> @@ -338,6 +340,10 @@ static int als_parse_report(struct
+> platform_device *pdev,
+> =C2=A0		als_adjust_channel_bit_mask(channels, index, st-
+> >als[i].size);
+> =C2=A0		++index;
+> =C2=A0
+> +		st->scale_precision[i] =3D
+> hid_sensor_format_scale(usage_id,
+> +					&st->als[i], &st-
+> >scale_pre_decml[i],
+> +					&st->scale_post_decml[i]);
+> +
+> =C2=A0		dev_dbg(&pdev->dev, "als %x:%x\n", st->als[i].index,
+> =C2=A0			st->als[i].report_id);
+> =C2=A0	}
+> @@ -347,10 +353,6 @@ static int als_parse_report(struct
+> platform_device *pdev,
+> =C2=A0	if (index)
+> =C2=A0		ret =3D 0;
+> =C2=A0
+> -	st->scale_precision =3D hid_sensor_format_scale(usage_id,
+> -				&st-
+> >als[CHANNEL_SCAN_INDEX_INTENSITY],
+> -				&st->scale_pre_decml, &st-
+> >scale_post_decml);
+> -
+> =C2=A0	return ret;
+> =C2=A0}
+> =C2=A0
+>=20
+> ---
+> base-commit: 194a48576843858afcd9c00ed4f105ec2b398e6c
+> change-id: 20260723-chromaticity-88fec417f00c
+>=20
+> Best regards,

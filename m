@@ -1,87 +1,127 @@
-Received: from mail-pj1-f53.google.com (mail-pj1-f53.google.com [209.85.216.53])
+Received: from mail-pg1-f176.google.com (mail-pg1-f176.google.com [209.85.215.176])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7E27F1DDC2B
-	for <linux-input@vger.kernel.org>; Mon, 27 Jul 2026 04:59:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2BC7063B9
+	for <linux-input@vger.kernel.org>; Mon, 27 Jul 2026 05:08:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.176
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785128391; cv=none; b=Q/nVIEAF5iYvfjBUuUFpsqTkFC+8jZxd4TXrSL5xk3t8zXHSYk6Fu587VzftXslZf/srFmdsNZiEP6kLkXTmhpWWQCHyMgJ/rTrrN21LiqNPjCFlv06su+EAxNKa2YQdIe7Vgi609V1sKK0k5A6FYYxqtP7dC9Tl4R4qzu3I0ew=
+	t=1785128889; cv=none; b=JrhsYWHK++Id/9TXZXnA82OC4axABsnBbMiJRAJqPR8xw9lKDDlnMJogmFDcQp2/IqIv4d5HudE6AiEDTw2ouzgnDMKb6n+fumuqwMmcqXxFmSJHSzqDwbDgirJZaHv8cu3xX7Q8WLj08FnoDq7jhKXrldqfCGOikeH/UkXIRYU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785128391; c=relaxed/simple;
-	bh=KbMLDapCDnQ3gbB6WgqX2/3LGRgS1DrKgagn3WMLD8g=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=eN+QHLK/AHRyXiD1H7uYmo2I9sPUGCORbEDy/JKQE4nVNentvEVxKSDANGdjtonfBnUbQny05JnODdA6o+XDuA8vcvR2w+4HsXVpogLfzaBCIRjwd1ZApoCqrLuWUdzt+G/mStVtH3qRcJbnask5dkJWz/OIzBQFJQNfD/7PSMo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=cFwFI8NT; arc=none smtp.client-ip=209.85.216.53
+	s=arc-20240116; t=1785128889; c=relaxed/simple;
+	bh=hrcGTn+o78aobGI8WJuYL9ijKI4HZMfUg1J8TBl4u44=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=B3yaO72A9db3gKN2pT/3y4F8zjzb9427ll6FX9VVY/PH4rX3DSUL3UhHznwcVlbf/FrIgs+EMsztZeM8Tho/owduYhbgWP8yNf3wgCXQa70wLi5jE+xgUOjGEx+QeHcErVXYCTkaHFkdm9LsronhF+kFGON7/mFxXP0F9sIGyCI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=eUkd1Ngd; arc=none smtp.client-ip=209.85.215.176
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="cFwFI8NT"
-Received: by mail-pj1-f53.google.com with SMTP id 98e67ed59e1d1-38dfe7eb825so1723275a91.0
-        for <linux-input@vger.kernel.org>; Sun, 26 Jul 2026 21:59:50 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="eUkd1Ngd"
+Received: by mail-pg1-f176.google.com with SMTP id 41be03b00d2f7-ca00f126b7eso1304529a12.2
+        for <linux-input@vger.kernel.org>; Sun, 26 Jul 2026 22:08:08 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1785128390; x=1785733190; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=yf/y50jjHZ/2DjuYllUvY7ZWDz9jGEBmTBiZ2K7WMgw=;
-        b=cFwFI8NTLy9AWJbok4die8Q9+ntpPfjUJkdIE7fJt7jWSUJ07toGmzuy7hZkUO+PJA
-         QO3RzPezHsNxQ2Y6+grLC75r50lilKDLUQ6Y5iMqFzU5jppIorquzn5fy98XHDQ0dYRw
-         lfRgOwBBJKYA63xfP5e9YSc9evcEqj58wqAZ/Bz4twabyniG1/oatf9AZ26X72xYxFTz
-         qOHyDtI22lKr5GAWfgwPU+Rcib7qkFGaRdoY7Kadac9VnjCHbW+Py0WYmA+0jGkmYryu
-         9+gXnR/S0KmJzbcTiLBB6d6ybj4NdOmcNOcrD0KSM9cOg4oHBtihhTFxlGYU2gxsSdDQ
-         Xkww==
+        d=gmail.com; s=20251104; t=1785128887; x=1785733687; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=UvEFBVhRoHQmBUGbWpEFdFC3WxqapwFMgjQF5Tw0cqU=;
+        b=eUkd1NgdL47m4wvvHkwAY40nQoIq00z9+0nCmlDRKQ4S+RiocHCv50Pe3sYLAMiFN6
+         Wwk6dzv3m8NK4HMO5UnkHrV0khP6bxPYeipkBbITDrf8MTI0HqwuFxEdI6hLk2+yJJMP
+         ukkHi6XkBSFSpuN3jJCM2ALPKMl03wskbmZc9ct+gmFnS0jToRjp2lYLfREtNkUSahkt
+         xq/4zh1eHfl2rAt+JYjQn6V7QTIqzsAdReoINAvpbmNqReiN/mOp/WMTvxxZwKC/oPje
+         yBcMbLCTnsTTzoTvojaUXAkL472nY6RP0dRa8oVuCXvA+SM45sOJ9XYEih9SoD6Ed75k
+         y/yQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785128390; x=1785733190;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=yf/y50jjHZ/2DjuYllUvY7ZWDz9jGEBmTBiZ2K7WMgw=;
-        b=ZoBPD+ksXr0/ouIyj65gtTlZ7TrocZySALQDJGp5tuYJhiO6R/wPVkPrEBXo1E4GPW
-         9RZCLtucqHk5Y8VXEWJ1BP2NrVDfObv3hkoePzdySIFhsvuKT9H8wqwXqEH4Ivz09fPr
-         qrJWC7mMTMwdv7Wp7OmeBFZy1ejeVxVoo1abeaa2dhmayCoFHnQnNO/U27p8MSg5+ccG
-         G/HHl7Kv1awdPKjgObekHCqAzR1L6G0s44hbZd1WLJfdykMZ/LAfL0fp8g5NID78+kjY
-         rP40gwDIevmirXvu6unF3q/R0RuocI712ZoaZUjsRZmY4xsTi2QKpXux7seWwguQ1h6o
-         nfMg==
-X-Gm-Message-State: AOJu0YyrK/6wa1I7lR72rv6wZduFhVdDs30Gb+bUDyEH1wQx7rgra9Bk
-	AlCmfAAop9NC6RJ/pqqECGdu1AVkUyzlBs5pJGScuYX3BJa/03Pd7Syz
-X-Gm-Gg: AR+sD134DBz5/8QpXwM00g555Mr4hMW4fXdjFNluvOn0Jx9AG60YDCwhu04x6xUngzk
-	vbFjNFC8Mq9M11kkyGAnQwFfDBmS7449xKrgUK3gTPOdEFxDelqAZ9Mf+hyBfIXGPOdP9qhPVn+
-	f+CizGCU60UiftnIsIa015u7HIltRC7icE28W03tFCtov+XzoTxvqZEqdxK3fmxyVYqPuTXxNkD
-	Cj0kgBIUyKx31ZsJU2GfVQHJkR3VAhii6yF/XGTspmDy0DxnFkSTOJt/tLSYTGQqTPJPWDO1N+t
-	TJyc0fD3QS+EwD3AGdgpuP/3LBTKeD8N4XMdSbkCtVFUrdMdZYePSGoiJPCAXBBTDoInNXvVGQL
-	qyGa7w2RnMpJB2S/3jfb6DcU1CVUtomNpja6pPkFdPuH5noBziEuj4za+dVijwweQAiRC3b1F6j
-	J+SD8W5cKFpf7NNUmtiINk5LszhKYK9VCKv0MKvOWmmX0=
-X-Received: by 2002:a17:90b:2703:b0:38e:5b59:c2ff with SMTP id 98e67ed59e1d1-38f293cd41amr6792422a91.3.1785128389662;
-        Sun, 26 Jul 2026 21:59:49 -0700 (PDT)
-Received: from google.com ([2a00:79e0:2ebe:8:fc2f:1878:e714:ef41])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-13d130262d2sm45601415c88.7.2026.07.26.21.59.47
+        d=1e100.net; s=20251104; t=1785128887; x=1785733687;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=UvEFBVhRoHQmBUGbWpEFdFC3WxqapwFMgjQF5Tw0cqU=;
+        b=AZ+iIPJxx/NxMhslZSdV5hU+RID5hB5fUw/5b44cM8ytyeCV6jq6ceJpHlIamBJwjH
+         RQPaKKEr1KgkV0Pa8sSotfawOg5+S1Fi+RrdEDFpueb1vOsWPzh2OMc1QoVRZy2eTL8j
+         o6k53EhMnxUGYNzzqlPOkFNy+Psg5HQ5sj8iXY80Rg69WPdejRugjTj4+uXARWEX3JWZ
+         HXH7d22DvpUodTzxb+y9xL8xM/LRh1tRv05MFZFhJdYpEm4PDZwM9bhrmA2spgO71HjO
+         7/bBHeqE3xdJ735g9P4sHS7JfLM5FRQeVkjMi67iYAUPByrkKSZcYakDLIvdtr5HRyGp
+         /aDg==
+X-Gm-Message-State: AOJu0YwUs8gxui8Hn7GOi/o/zT2Wfk1nrifo7mv1/vcSNp9xf5+aCsqg
+	bFGGe5CAgXsp/L8Qhf81PkEPUq9D57XwaxIh4/AWzfsV9D7brOnq2XnjJd3X2Q==
+X-Gm-Gg: AR+sD11PMxr4Z1cFpWHHwjx5iS3SVN18xzS6AxsqyarrGeSSZfngmmWip8CQ+9OBNWo
+	0fibOqXiRbpXVprqe7Tl13mpI0GBE2Lmv2D1OVlhQ9dREuwSpvOOBkzRsgMnqj2OknNQrVWMQrx
+	XwBCQAeiNRhbSOXEk1TbRdUONHJ4Zku1NWO556S/7v97SXEyFJWTv74+2vsrH4UsZhq2DeuUiy1
+	WtyBNkhcrRugJjLcVGYBqEqtGqx6d4+pZ4i4TuWdb0C1igTmon4A+2FgfGx2gO7C0pS5XHJ0NQU
+	bCQ5AImr8kBmSYtRPWOBKpfICzXLLxkZL4z2CPP/FOi4aZkDr9On0PcpeVfurK1/FVqYiKkeUEV
+	rQyhdnKImHFjOwcquoDP84HErriHRUPABdXAKdRtOUiqP6SzlGbn4nLoVrUvyT5Uc0DqoD4yr+T
+	YzETTPrZEGHwLHLJBlvcXNgPcaxLc//XGhGXPKkB4ESK9UIjs0Li8TA0kWxM2Ik/YS4Q==
+X-Received: by 2002:a05:6a21:a345:b0:3c3:c687:a3b9 with SMTP id adf61e73a8af0-3c67dde9a65mr6342384637.48.1785128887294;
+        Sun, 26 Jul 2026 22:08:07 -0700 (PDT)
+Received: from dtor-ws.sjc.corp.google.com ([2a00:79e0:2ebe:8:fc2f:1878:e714:ef41])
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-13d2d1d0d1esm27123411c88.0.2026.07.26.22.08.06
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 26 Jul 2026 21:59:47 -0700 (PDT)
-Date: Sun, 26 Jul 2026 21:59:44 -0700
+        Sun, 26 Jul 2026 22:08:06 -0700 (PDT)
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: VegetablCat <vegetablecat@foxmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Input: xpad - add support for Beitong KP series
- controllers
-Message-ID: <amblrS6NsHCy6Vld@google.com>
-References: <tencent_A72FD342899FA27A59D321374BEAD5828706@qq.com>
+To: linux-input@vger.kernel.org
+Cc: Hans de Goede <hansg@kernel.org>
+Subject: [PATCH 1/4] Input: psmouse - fix use-after-free during protocol disconnect
+Date: Sun, 26 Jul 2026 22:07:58 -0700
+Message-ID: <20260727050803.1269941-1-dmitry.torokhov@gmail.com>
+X-Mailer: git-send-email 2.55.0.229.g6434b31f56-goog
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <tencent_A72FD342899FA27A59D321374BEAD5828706@qq.com>
+Content-Transfer-Encoding: 8bit
 
-On Mon, Jul 27, 2026 at 01:39:41AM +0800, VegetablCat wrote:
-> From: vegetablecat <vegetablecat@foxmail.com>
+When a PS/2 mouse is disconnected or unbound, psmouse_disconnect() calls
+the protocol disconnect handler (psmouse->disconnect()). During this time,
+stray bytes arriving from the physical controller can still be passed to
+psmouse_handle_byte(), which will invoke psmouse->protocol_handler().
 
-^^^^ Huh?
+This creates an asynchronous race condition with vendor disconnect handlers
+(such as synaptics_disconnect()), which free vendor-specific private
+structures (psmouse->private). If a byte arrives while the structures
+are being freed, it leads to a use-after-free or NULL pointer
+dereference in the protocol handler.
 
-Thanks.
+Fix this by explicitly setting psmouse->protocol_handler to NULL
+safely wrapped in scoped_guard(serio_pause_rx, serio) immediately before
+calling the vendor disconnect handler. We also add an unlikely check
+in psmouse_handle_byte() to safely drop incoming bytes if the protocol
+handler is NULL.
 
+Assisted-by: Antigravity:gemini-3.5-flash
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+---
+ drivers/input/mouse/psmouse-base.c | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/input/mouse/psmouse-base.c b/drivers/input/mouse/psmouse-base.c
+index 6ab5f1d96eae..916a14b9b6a7 100644
+--- a/drivers/input/mouse/psmouse-base.c
++++ b/drivers/input/mouse/psmouse-base.c
+@@ -267,7 +267,13 @@ void psmouse_set_state(struct psmouse *psmouse, enum psmouse_state new_state)
+  */
+ static int psmouse_handle_byte(struct psmouse *psmouse)
+ {
+-	psmouse_ret_t rc = psmouse->protocol_handler(psmouse);
++	psmouse_ret_t rc;
++
++	/* protocol_handler is NULL when device is being disconnected */
++	if (unlikely(!psmouse->protocol_handler))
++		return 0;
++
++	rc = psmouse->protocol_handler(psmouse);
+ 
+ 	switch (rc) {
+ 	case PSMOUSE_BAD_DATA:
+@@ -1466,6 +1472,9 @@ static void psmouse_disconnect(struct serio *serio)
+ 		psmouse_deactivate(parent);
+ 	}
+ 
++	scoped_guard(serio_pause_rx, serio)
++		psmouse->protocol_handler = NULL;
++
+ 	if (psmouse->disconnect)
+ 		psmouse->disconnect(psmouse);
+ 
 -- 
-Dmitry
+2.55.0.229.g6434b31f56-goog
+

@@ -1,140 +1,134 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.17])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f180.google.com (mail-pl1-f180.google.com [209.85.214.180])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A8DC137B00E;
-	Mon, 27 Jul 2026 08:30:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.17
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A0C1F371D11
+	for <linux-input@vger.kernel.org>; Mon, 27 Jul 2026 10:11:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.180
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785141041; cv=none; b=VKI5bW6DwjrdrPlLz+R1G58m3Jg+vjdxNOOKhEQ5z1ySQ+rhzzgh+DCSrN7sihfFjvfkO1DqECWSvcKw7oMJCCygguMXpTS8SNkAy/d/w9orowKIjpZqqHtdqo6dr9QbBSuToy2nyjc7rtB3y+PtStaEGaH7OwOPSLfIoPS/8jo=
+	t=1785147099; cv=none; b=sBKhbpfsKoZEDbGtky39WinXq+9AaXtyC3dAu4GzB1sycBKQjCc4zFD2uuKHqInwzjPRIwgmTpeHB/9l7pV7y6opfJGs73m6rXjar7nnK+OPKkkmi3asCv5G+XyupOwTn8J5D6NSqpSV6PWuIppylvKNlcmEX0GtxL6XUPI6wyo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785141041; c=relaxed/simple;
-	bh=qWnqu6VCUiwZWG189ixa/W9uGeC6PMG4tY9t7kvdnXI=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=h8LKZ8EVsai8wMrYj/fT0xVSgPTrl6DOh04/nUgZtFoRkGUPmdEqBdwE+VdRVHNKYYPYr8u+qMLJeJGWgH7glJdNWS6Amw1ytL7A1XMPHxgDaVTsiau46edgGKidGiYhptvON8UGHYeJRIfP1yJhpgmVpJCTvFCOacKBXdHd9K4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=bn7dLIip; arc=none smtp.client-ip=192.198.163.17
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1785147099; c=relaxed/simple;
+	bh=W4kKHuYIhn0a0CzjI58hAjUFZcNrXpir/68Zy+q6ZWE=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=fge5MvPXJ+RFMcDYVksnVAtMKg2BRGv5Hwd/VuALGHJDHLSsyLGolPYcUzJ4yJYUq2O68lBaXBeP9uw2R68oqpgpZ9HG4ckF8yb0G+ohHAQWOzxElgK9MDpoEm3CLUD+3HqWBcZAzDB/KFjQnycqhHpsFxfPOjW23HWnmEM2h2Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=VRhRpbvz; arc=none smtp.client-ip=209.85.214.180
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="bn7dLIip"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1785141039; x=1816677039;
-  h=from:to:cc:subject:in-reply-to:references:date:
-   message-id:mime-version;
-  bh=qWnqu6VCUiwZWG189ixa/W9uGeC6PMG4tY9t7kvdnXI=;
-  b=bn7dLIipZCNqvW289b61vT4b6u+LiCajh52WIL+tFfRrmJloKWtUXBG+
-   ZVDoonEWBjxGTWB+TpaP1dMgq905yih2+PZN8ueg2IgP/evaSIknEaQAL
-   sOKMLvBHqFYLDjGevHnwVch9P4Ys6B6dOm9LdKPySPt8mEYMMGnH2QoJC
-   aF5JBvyQDaYcJ0j4N4y7zOns8t8E4CNEzASqkc1P8xkX3THpp4bsMdc1r
-   4+3C/8LmINhYo2vRvUxZOSY6tooBcFJdahJfewgCAoBHpOnR3ol8IO/Kg
-   t6VRYs0MkffinszzXhu5i2/2b1QBE07PokaNo3Am7W/dJ1Y/8SCMhSsNn
-   Q==;
-X-CSE-ConnectionGUID: mgZgOQ5BQgGfhlx+0PVe4w==
-X-CSE-MsgGUID: I0V/57TmQ1qX9+TI9szaWA==
-X-IronPort-AV: E=McAfee;i="6800,10657,11857"; a="85573917"
-X-IronPort-AV: E=Sophos;i="6.25,188,1779174000"; 
-   d="scan'208";a="85573917"
-Received: from orviesa007.jf.intel.com ([10.64.159.147])
-  by fmvoesa111.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 Jul 2026 01:30:34 -0700
-X-CSE-ConnectionGUID: zuBRshsISau4U4oJl9pq1g==
-X-CSE-MsgGUID: S6JnVra9Qs26laDkF7yO1A==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.25,188,1779174000"; 
-   d="scan'208";a="259417611"
-Received: from rvuia-mobl.ger.corp.intel.com (HELO localhost) ([10.245.245.197])
-  by orviesa007-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 Jul 2026 01:30:04 -0700
-From: Jani Nikula <jani.nikula@linux.intel.com>
-To: Jakub Kicinski <kuba@kernel.org>, Sang-Heon Jeon <ekffu200098@gmail.com>
-Cc: Julia.Lawall@inria.fr, Alex Deucher <alexander.deucher@amd.com>,
- Alexander Shishkin <alexander.shishkin@linux.intel.com>, Alexandre Belloni
- <alexandre.belloni@bootlin.com>, Andrew Lunn <andrew@lunn.ch>, Andrew
- Morton <akpm@linux-foundation.org>, Arkadiusz Kubalewski
- <arkadiusz.kubalewski@intel.com>, Borislav Petkov <bp@alien8.de>,
- Christian =?utf-8?Q?K=C3=B6nig?= <christian.koenig@amd.com>, Daniel Lezcano
- <daniel.lezcano@kernel.org>, David Airlie <airlied@gmail.com>, "David S.
- Miller" <davem@davemloft.net>, Dmitry Torokhov
- <dmitry.torokhov@gmail.com>, Eric Dumazet <edumazet@google.com>, Florian
- Westphal <fw@strlen.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
- Hans de Goede <hansg@kernel.org>, Hans Verkuil <hverkuil@kernel.org>,
- Heikki Krogerus <heikki.krogerus@linux.intel.com>, Herbert Xu
- <herbert@gondor.apana.org.au>, Ilpo =?utf-8?Q?J=C3=A4rvinen?=
- <ilpo.jarvinen@linux.intel.com>, "James E.J. Bottomley"
- <James.Bottomley@HansenPartnership.com>, Jaroslav Kysela <perex@perex.cz>,
- Jason Gunthorpe <jgg@ziepe.ca>, Jiri Pirko <jiri@resnulli.us>, "Joerg
- Roedel
- (AMD)" <joro@8bytes.org>, Johan Hovold <johan@kernel.org>, Jonathan Cameron
- <jic23@kernel.org>, Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
- Julian Anastasov <ja@ssi.bg>, Leon Romanovsky <leon@kernel.org>, Liam
- Girdwood <lgirdwood@gmail.com>, Linus Walleij <linusw@kernel.org>, Maarten
- Lankhorst <maarten.lankhorst@linux.intel.com>, Mark Brown
- <broonie@kernel.org>, "Martin K. Petersen" <martin.petersen@oracle.com>,
- Matthew Sakai <msakai@redhat.com>, Mauro Carvalho Chehab
- <mchehab@kernel.org>, Maxime Ripard <mripard@kernel.org>, Michael
- Turquette <mturquette@baylibre.com>, Mike Rapoport <rppt@kernel.org>, Miri
- Korenblit <miriam.rachel.korenblit@intel.com>, Nicolas Palix
- <nicolas.palix@imag.fr>, Pablo Neira Ayuso <pablo@netfilter.org>, Paolo
- Abeni <pabeni@redhat.com>, Ping-Ke Shih <pkshih@realtek.com>, "Rafael J.
- Wysocki" <rafael@kernel.org>, Rodrigo Vivi <rodrigo.vivi@intel.com>,
- Sebastian Reichel <sre@kernel.org>, Shuah Khan <shuah@kernel.org>, Simona
- Vetter <simona@ffwll.ch>, Simon Horman <horms@verge.net.au>, Stephen Boyd
- <sboyd@kernel.org>, Steve French <sfrench@samba.org>, Takashi Iwai
- <tiwai@suse.com>, Thomas Renninger <trenn@suse.com>, Thomas Zimmermann
- <tzimmermann@suse.de>, Tony Luck <tony.luck@intel.com>, Tvrtko Ursulin
- <tursulin@ursulin.net>, Vadim Fedorenko <vadim.fedorenko@linux.dev>, Vinod
- Koul <vkoul@kernel.org>, Will
- Deacon <will@kernel.org>, Yazen Ghannam <Yazen.Ghannam@amd.com>,
- cocci@inria.fr, amd-gfx@lists.freedesktop.org, dmaengine@vger.kernel.org,
- dm-devel@lists.linux.dev, dri-devel@lists.freedesktop.org,
- intel-gfx@lists.freedesktop.org, intel-wired-lan@lists.osuosl.org,
- iommu@lists.linux.dev, linux-cifs@vger.kernel.org,
- linux-clk@vger.kernel.org, linux-crypto@vger.kernel.org,
- linux-edac@vger.kernel.org, linux-gpio@vger.kernel.org,
- linux-iio@vger.kernel.org, linux-input@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-media@vger.kernel.org,
- linux-mm@kvack.org, linux-pm@vger.kernel.org, linux-rdma@vger.kernel.org,
- linux-rtc@vger.kernel.org, linux-s390@vger.kernel.org,
- linux-scsi@vger.kernel.org, linux-sound@vger.kernel.org,
- linux-usb@vger.kernel.org, linux-wireless@vger.kernel.org,
- lvs-devel@vger.kernel.org, netdev@vger.kernel.org,
- netfilter-devel@vger.kernel.org, nouveau@lists.freedesktop.org,
- platform-driver-x86@vger.kernel.org
-Subject: Re: [PATCH 00/36] treewide: remove conditional returns with no effect
-In-Reply-To: <20260724144822.6af8213f@kernel.org>
-Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park,
- 6 krs Bertel Jungin Aukio 5, 02600 Espoo, Finland
-References: <20260723184538.3888637-1-ekffu200098@gmail.com>
- <20260724144822.6af8213f@kernel.org>
-Date: Mon, 27 Jul 2026 11:30:01 +0300
-Message-ID: <0ee1ef4aa7daa908bf28397ccc639c89b6aabd9c@intel.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="VRhRpbvz"
+Received: by mail-pl1-f180.google.com with SMTP id d9443c01a7336-2cee9b74ee1so19295135ad.3
+        for <linux-input@vger.kernel.org>; Mon, 27 Jul 2026 03:11:37 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1785147097; x=1785751897; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=CqxpEyBKTfjNC2pGfm3K4mlLSsR7OW6H572VDTFwp8E=;
+        b=VRhRpbvzYVCAWBCWIcjTVHq9fvTaAgL2WOVw4WoCLFBGOFkxlABQ4wwbr24dDQHj9w
+         o7XmqhjA/5kPls90RcYbvWjYx7X33fBxTv7aZv6/7ZSae5TW0D/XOBWk1ehikMeNtj19
+         ONdErz29/NtYMCZkWy/QZfosriE4byX81noqj+XvvA5PgkTa54k2IhXiHzAUwjpS3iXA
+         9xYgBudD0yrmc7VRUZCRSrIgurUEPdhZazmO6wKgX4etEAEurgU+yrC9Sr9qjzZ25Mtu
+         CPK1GWSOea1rH0x6AW4oGyvGqE1mGclj5Ca5y4vWL6K8hXXbug3tf1hrW7s0mDydErG/
+         CjIg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1785147097; x=1785751897;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=CqxpEyBKTfjNC2pGfm3K4mlLSsR7OW6H572VDTFwp8E=;
+        b=GZtzsY3+oBBuTijAhEOKfBXpDTOhgkPsuZp1tBuvPv+GUI54CHSm54mm205TcUlb0b
+         dqIfBBd2GRXAtpgzI2xfPQERbTRJc3F0BsSoGPYyZX/1xFwh9sCbMkb+wOrnZ3Bd7vLV
+         CouxHZkWasgS8AHv23FYsDvg+7FXDStlXbeYWsYWmSZtEWcLxVeaY37kPODNeo9a7oqb
+         9EdjSUzx0cAYLjLzaYT5NCM4Jd3Bwseiigd8ODolonOSyo0ihCX2pyh+EOElNuzgvTK6
+         kQLhMQibXOOsOVlFEGCpcrGtvyiu43WvR3Rg6A3sSUUDPGg7Tu8Yeh81wsF1f6LosYLN
+         LovA==
+X-Gm-Message-State: AOJu0Yx+9ITI+7AsweuC/xGH0P0zc6uSDgVJw7aONA5LC9EoOlv6F6lx
+	wrQANleOZbxCPy8YoXGjm78IUfrNQYKjPaer0G6+o2fAN4NgUHjwWj0q
+X-Gm-Gg: AR+sD10jWDimL7SNGtlVmNLI4cqwoiL3upjMP09QSPzgqD/bGqTe4ZIeNSCI4CZ6PUB
+	yLfBcDxHjoygz8Jj34ZXum2LIfSUWVCSFoKDpiY4SKl+fdrfzFaoNM9y4zg3dXE9Ag4ynjKg3yU
+	DX8/E7PaLPQiXyS2eMYtNQzykI17H1JtNCCdOhUdUZpTvqnLTHMC+NOnIUkSldysO6Uqcn9bQwB
+	RtujjxaxRumGPNVsfAehy8A6HpsIhHljPWDjQ/wY2JYzBIKzzR1I5s/V07QV4wLQ5IDTee/ZUA1
+	9tTPxYb3VWhPmCEFgnEKW7ZgOWMh8p8Re7E5Q7pFKuQX5zfwrj6uNt+h/SXIIqoGc4Co4F0xTdH
+	RjK57m+Y7F3g1rsmeOG8zNCcQIuag+AqmZhcwGrD9UvkfD51n7Ln1fDpJJ8P4+wbKRLrCfxdoLx
+	HJMWydGT1D3udrdJtdCH/UgqvPf2uJVQy9o4cXqyO31CDYszv7oSe7zxR+Str5xTuUHr54JAcO3
+	QKW5fbgq0ohSyCysi4FykFU3bSxEDCO
+X-Received: by 2002:a17:902:d485:b0:2c9:cf5d:d9bc with SMTP id d9443c01a7336-2cfde88614emr75673535ad.35.1785147096942;
+        Mon, 27 Jul 2026 03:11:36 -0700 (PDT)
+Received: from phuc-desktop.. ([183.91.15.56])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2cfde59bb5asm32371125ad.8.2026.07.27.03.11.35
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 27 Jul 2026 03:11:36 -0700 (PDT)
+From: phucduc.bui@gmail.com
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	bui duc phuc <phucduc.bui@gmail.com>
+Subject: [PATCH v2 1/2] Input: snvs_pwrkey: Improve probe error handling
+Date: Mon, 27 Jul 2026 17:11:24 +0700
+Message-ID: <20260727101125.28291-1-phucduc.bui@gmail.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Transfer-Encoding: 8bit
 
-On Fri, 24 Jul 2026, Jakub Kicinski <kuba@kernel.org> wrote:
-> On Fri, 24 Jul 2026 03:45:02 +0900 Sang-Heon Jeon wrote:
->> Patch 1 adds a Coccinelle script that matches the pattern, including
->> negation and constant-comparison variants. Where a local variable is
->> assigned right before the check, the assignment and the two returns
->> turn into a single return of the assigned expression.
->
-> Huh, I thought we already had such script. Various script children have
-> been sending such "cleanups" in the past.
+From: bui duc phuc <phucduc.bui@gmail.com>
 
-We did, and it was removed, I believe in 1a617a8475e8 ("coccinelle:
-misc: remove "complex return code" warnings"), because people just don't
-want this constant churn.
+Use dev_err_probe() for devm_clk_get() to prevent log spam when probe
+returns -EPROBE_DEFER.
+Return the original error from platform_get_irq() instead of replacing
+it with -EINVAL.
+Drop the redundant error message after devm_request_irq(), as the
+helper already reports request failures internally.
 
-It's perfectly fine to have the error case and happy day scenario
-separated.
+Signed-off-by: bui duc phuc <phucduc.bui@gmail.com>
+---
 
+Changes in v2:
+ - Clarify the commit message to better describe the purpose of 
+   using dev_err_probe()
 
-BR,
-Jani.
+ drivers/input/keyboard/snvs_pwrkey.c | 13 +++++--------
+ 1 file changed, 5 insertions(+), 8 deletions(-)
 
-
+diff --git a/drivers/input/keyboard/snvs_pwrkey.c b/drivers/input/keyboard/snvs_pwrkey.c
+index 954055aaf6e2..fa08ac561bf2 100644
+--- a/drivers/input/keyboard/snvs_pwrkey.c
++++ b/drivers/input/keyboard/snvs_pwrkey.c
+@@ -142,16 +142,15 @@ static int imx_snvs_pwrkey_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	clk = devm_clk_get_optional_enabled(&pdev->dev, NULL);
+-	if (IS_ERR(clk)) {
+-		dev_err(&pdev->dev, "Failed to get snvs clock (%pe)\n", clk);
+-		return PTR_ERR(clk);
+-	}
++	if (IS_ERR(clk))
++		return dev_err_probe(&pdev->dev, PTR_ERR(clk),
++				     "Failed to get snvs clock\n");
+ 
+ 	pdata->wakeup = of_property_read_bool(np, "wakeup-source");
+ 
+ 	pdata->irq = platform_get_irq(pdev, 0);
+ 	if (pdata->irq < 0)
+-		return -EINVAL;
++		return pdata->irq;
+ 
+ 	error = of_property_read_u32(np, "power-off-time-sec", &val);
+ 	if (!error) {
+@@ -209,10 +208,8 @@ static int imx_snvs_pwrkey_probe(struct platform_device *pdev)
+ 	error = devm_request_irq(&pdev->dev, pdata->irq,
+ 			       imx_snvs_pwrkey_interrupt,
+ 			       0, pdev->name, pdev);
+-	if (error) {
+-		dev_err(&pdev->dev, "interrupt not available.\n");
++	if (error)
+ 		return error;
+-	}
+ 
+ 	error = input_register_device(input);
+ 	if (error < 0) {
 -- 
-Jani Nikula, Intel
+2.43.0
+

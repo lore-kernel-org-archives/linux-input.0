@@ -1,75 +1,183 @@
-Received: from out30-99.freemail.mail.aliyun.com (out30-99.freemail.mail.aliyun.com [115.124.30.99])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F375635AC16;
-	Mon, 27 Jul 2026 03:13:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.99
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EA18A2AD03
+	for <linux-input@vger.kernel.org>; Mon, 27 Jul 2026 03:15:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785121991; cv=none; b=lD91lxVaZYXoITJHICU+QFM0KlEvsn87G3SaDrem4bG3fTNC7bmoGnxa8SrGxjHJjVQZz6CbY03R0l75Rz2TpMvYX7JBk5+wYW+ho73MVta2COzOowKMZGuNicxz4ZZq4+9T/7c9kJ1oM1pa6spPcWplZt95xDS0O51bKsxJrPg=
+	t=1785122130; cv=none; b=BsSfjraMadOfy88C2D47W9wUMjuov/SidMxtEn7jxcGYWZ8Sskqf/nvr3tRNiepYKUGTqONosx1MKZkqi61MCXL4Xepor2chClkIrA9cRsobxArK9khMufG70Ypi6s1cF+C0BQhd2CquZlI1bOsx/msRiKOP6BZvd1jm7mM9lq0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785121991; c=relaxed/simple;
-	bh=0ckSlAeWZGH5WlXALnVcyoq46mz5u82EFT2kJklHZU8=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=FsEysWAWOzsFjkRRxHygTy+T7DjJLCj41K+naLaHiLkQcq7qvQ519GMXOM4w1/QPvplFMGh90r+B3Vhi6vOYSgNSqb/YEebhu5YoP4Eqsp/iTNRLZZRw33I8Xdq0htuztThpvA5ob5MKr/LhcWZGo8Sz+7OHcWPdA6EbmULM8UQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=C/x8z990; arc=none smtp.client-ip=115.124.30.99
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1785122130; c=relaxed/simple;
+	bh=V+66jL/7CJUXInUsHg3gP4kO1rghxU2c3RbGRN6TWHU=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=dG+U+q4jwjgvMuKO6ewt5B/ThlZbl6DnbyWgLLYISshmuGq2KBzL8NKN8hnZri3kEci2cBpPa/w26i/3oiWYBRYetQALkad2Z3KCsEVJYi5FRELocLY4PB3Li5JvFSgBSlFenY8xuYi2QkrLUKWN0AZVk20yUsB7w0BgAWX9o3o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=OjWcXlVS; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="C/x8z990"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1785121982; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
-	bh=7cx4tkFQnMb16XGT7+w04RZ9UaK35xZo714kCs7v9gs=;
-	b=C/x8z990MuNlFZHqz9VsYV1dcwr2dQYTn0xwPYRzPJtpF0/e2a5IhfcH13lgOvy9z/XReZdQFazViifq3/Z8coC8wwgQy+zepWHOztpUBv+mlh7exhDDwNZF9pVXlfMFU5qZt3atPGRN5Edqh+LJLxLIKO1iK8A1OkUoHEoaU0U=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R121e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033045133197;MF=baolin.wang@linux.alibaba.com;NM=1;PH=DS;RN=38;SR=0;TI=SMTPD_---0X7ojItC_1785121978;
-Received: from 30.74.144.127(mailfrom:baolin.wang@linux.alibaba.com fp:SMTPD_---0X7ojItC_1785121978 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Mon, 27 Jul 2026 11:13:00 +0800
-Message-ID: <db3ecd09-fc0c-4bb5-a2da-422c36a2feb4@linux.alibaba.com>
-Date: Mon, 27 Jul 2026 11:12:58 +0800
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="OjWcXlVS"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F04D81F000E9;
+	Mon, 27 Jul 2026 03:15:27 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1785122128;
+	bh=vo+/nI6ffusKUnKf0Faj+yDxRXQlFX25XpIx7UIAuVg=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=OjWcXlVSbRBUF1qX4G8O0tWjr1tgSMjjXwbSzgLM+/trqiRmnVKL6f1prYQJmQAoX
+	 UjYJBsNLVWxVM7ibq3sGzbH9MnYQJhkZwU8Ill52EozzeZqGZkEx/XllcNaOyVXtkO
+	 OgVZgU7F9xNISGs+tsmhYF03ZdiX5R9xz0PPfY3eSVRwjvKJn6HxBWrMtzb8WjLuIQ
+	 v7dP7dRf8uv/bXcmtWRCHLsvtBeEN1CpvX5ua731A67ztw1/J4iGQ2LU/s60RoVMSl
+	 KgDqjoz35e8suLmjz3VkDJZ+PfkKXKq9nBuMmF/3tYhxOvmy6qixkC0mqLs+JHnKD9
+	 GevBPIgbyOB0A==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH 1/2] HID: Intel-thc-hid: Intel-thc: Refactor I2C bus
+ configuration with unified config structure
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Even Xu" <even.xu@intel.com>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20260727030310.3850984-2-even.xu@intel.com>
+References: <20260727030310.3850984-1-even.xu@intel.com>
+ <20260727030310.3850984-2-even.xu@intel.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Mon, 27 Jul 2026 03:15:27 +0000
+Message-Id: <20260727031527.F04D81F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v4 11/13] gpio: eic-sprd: use
- devm_atomic_notifier_chain_register()
-To: Eliav Farber <farbere@amazon.com>, rafael@kernel.org,
- tony.luck@intel.com, bp@alien8.de, guohanjun@huawei.com, mchehab@kernel.org,
- xueshuai@linux.alibaba.com, lenb@kernel.org,
- laurent.pinchart@ideasonboard.com, linusw@kernel.org, brgl@kernel.org,
- orsonzhai@gmail.com, zhang.lyra@gmail.com, jic23@kernel.org,
- dlechner@baylibre.com, nuno.sa@analog.com, andy@kernel.org,
- dmitry.torokhov@gmail.com, hansg@kernel.org, ilpo.jarvinen@linux.intel.com,
- W_Armin@gmx.de, ukleinek@kernel.org, fabio.m.de.francesco@linux.intel.com,
- kaihengf@nvidia.com, ankita@nvidia.com, leitao@debian.org, pedro.pbg@usp.br,
- paulmck@kernel.org, frederic@kernel.org, kees@kernel.org,
- linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-gpio@vger.kernel.org, linux-pwm@vger.kernel.org,
- linux-iio@vger.kernel.org, linux-input@vger.kernel.org,
- platform-driver-x86@vger.kernel.org
-Cc: Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>
-References: <20260726101739.33170-1-farbere@amazon.com>
- <20260726101739.33170-12-farbere@amazon.com>
-From: Baolin Wang <baolin.wang@linux.alibaba.com>
-In-Reply-To: <20260726101739.33170-12-farbere@amazon.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
 
+Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+s) to consider:
 
+New issues:
+- [High] Erroneous bitwise operation when configuring 10-bit address mode u=
+sing FIELD_PREP reverses the 7-bit and 10-bit modes.
+- [Low] The function signature of thc_i2c_subip_init() was modified to take=
+ a configuration struct, but callers in pci-quicki2c.c were not updated, le=
+ading to compilation failure.
 
-On 7/26/26 6:17 PM, Eliav Farber wrote:
-> Replace the atomic_notifier_chain_register() +
-> devm_add_action_or_reset() pattern with a single call to
-> devm_atomic_notifier_chain_register(), removing the
-> sprd_eic_unregister_notifier() callback.
-> 
-> Signed-off-by: Eliav Farber <farbere@amazon.com>
-> Acked-by: Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>
-> ---
+Pre-existing issues:
+- [Critical] Hardware-controlled stack and heap buffer overflows via unchec=
+ked PIO read size in pio_complete().
+--
 
-LGTM.
-Reviewed-by: Baolin Wang <baolin.wang@linux.alibaba.com>
+--- Patch [1]: [PATCH 1/2] HID: Intel-thc-hid: Intel-thc: Refactor I2C bus =
+configuration with unified config structure ---
+commit e5a64a16b521af522ba816d8c4f239b2bd596a69
+Author: Even Xu <even.xu@intel.com>
+Subject: HID: Intel-thc-hid: Intel-thc: Refactor I2C bus configuration with=
+ unified config structure
 
+This commit introduces a new struct thc_i2c_config to consolidate configura=
+ble
+I2C bus parameters. It renames and updates thc_i2c_subip_set_speed to
+thc_i2c_subip_bus_config and updates thc_i2c_subip_init to use the new
+structure.
+
+> diff --git a/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dev.c b/driver=
+s/hid/intel-thc-hid/intel-thc/intel-thc-dev.c
+> index 9a8449428170b..7b4a58e1416d6 100644
+> --- a/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dev.c
+> +++ b/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dev.c
+> @@ -1422,14 +1422,25 @@ static int thc_i2c_subip_pio_write(struct thc_dev=
+ice *dev, const u32 address,
+>  #define I2C_SUBIP_DMA_TDLR_DEFAULT	7
+>  #define I2C_SUBIP_DMA_RDLR_DEFAULT	7
+> =20
+> -static int thc_i2c_subip_set_speed(struct thc_device *dev, const u32 spe=
+ed,
+> -				   const u32 hcnt, const u32 lcnt)
+> +static int thc_i2c_subip_bus_config(struct thc_device *dev, const struct=
+ thc_i2c_config *i2c_config)
+>  {
+>  	u32 hcnt_offset, lcnt_offset;
+> -	u32 val;
+> +	u32 read_size =3D sizeof(u32);
+> +	u32 val =3D 0;
+>  	int ret;
+> =20
+> -	switch (speed) {
+> +	ret =3D thc_i2c_subip_pio_read(dev, THC_I2C_IC_TAR_OFFSET, &read_size, =
+&val);
+
+[Severity: Critical]
+This is a pre-existing issue, but could this cause a stack buffer overflow?
+
+If a compromised or malicious peripheral returns a large size via the
+hardware register in pio_complete(), it will be extracted and used directly
+as the byte count for regmap_bulk_read():
+
+drivers/hid/intel-thc-hid/intel-thc/intel-thc-dev.c:pio_complete() {
+    ...
+    regmap_bulk_read(dev->thc_regmap, THC_M_PRT_SW_SEQ_DATA1_OFFSET,
+                     buffer, *size / sizeof(u32));
+    ...
+}
+
+Since the destination buffer here is a 4-byte local stack variable (val),
+could an untrusted peripheral trigger a large out-of-bounds write to the
+kernel stack?
+
+> +	if (ret < 0)
+> +		return ret;
+> +
+> +	val &=3D ~(THC_I2C_IC_TAR_IC_TAR | THC_I2C_IC_TAR_IC_10BITADDR_MASTER);
+> +	val |=3D FIELD_PREP(THC_I2C_IC_TAR_IC_10BITADDR_MASTER, i2c_config->add=
+r_mode);
+
+[Severity: High]
+Does this logic correctly enable 10-bit mode?
+
+The struct documentation for thc_i2c_config explicitly instructs callers
+to pass the literal value 7 or 10 to addr_mode:
+
+drivers/hid/intel-thc-hid/intel-thc/intel-thc-dev.h:
+ * @addr_mode: Slave address mode of touch device (TIC), 7bit or 10bit
+
+When these values are passed to FIELD_PREP with a 1-bit mask:
+- For 7 (binary 0111), the mask yields 1, incorrectly enabling 10-bit mode.
+- For 10 (binary 1010), the mask yields 0, incorrectly disabling 10-bit mod=
+e.
+
+Could this inadvertently reverse the 7-bit and 10-bit mode configuration,
+causing I2C device communication to fail?
+
+[ ... ]
+
+> diff --git a/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dev.h b/driver=
+s/hid/intel-thc-hid/intel-thc/intel-thc-dev.h
+> index 0db435335e249..be8a9605d02fe 100644
+> --- a/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dev.h
+> +++ b/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dev.h
+> @@ -121,8 +141,7 @@ int thc_spi_write_config(struct thc_device *dev, u32 =
+spi_freq_val,
+>  			 u32 io_mode, u32 opcode, u32 spi_wr_mps, u32 perf_limit);
+>  void thc_spi_input_output_address_config(struct thc_device *dev, u32 inp=
+ut_hdr_addr,
+>  					 u32 input_bdy_addr, u32 output_addr);
+> -int thc_i2c_subip_init(struct thc_device *dev, const u32 target_address,
+> -		       const u32 speed, const u32 hcnt, const u32 lcnt);
+> +int thc_i2c_subip_init(struct thc_device *dev, const struct thc_i2c_conf=
+ig *i2c_config);
+
+[Severity: Low]
+Will this compile correctly given the other callers in the driver?
+
+It looks like the function signature of thc_i2c_subip_init() was changed
+from 5 arguments to 2 arguments, but callers in pci-quicki2c.c were not
+updated:
+
+drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c:quicki2c_probe() {
+    ...
+    ret =3D thc_i2c_subip_init(qcdev->thc_hw, qcdev->i2c_slave_addr,
+                             qcdev->i2c_speed_mode,
+                             qcdev->i2c_clock_hcnt,
+                             qcdev->i2c_clock_lcnt);
+    ...
+}
+
+Would this regression trigger a build failure at quicki2c_probe() and
+quicki2c_restore() since they still attempt to pass the old arguments?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260727030310.3850=
+984-1-even.xu@intel.com?part=3D1

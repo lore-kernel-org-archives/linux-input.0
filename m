@@ -1,48 +1,48 @@
 Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.12])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3F57A3BE146;
-	Mon, 27 Jul 2026 03:02:34 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 567873BE642;
+	Mon, 27 Jul 2026 03:02:37 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.12
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785121356; cv=none; b=SSVESgQNBs++27n29oej1NgHyvawDD2UP1K5OpOwcqA0Xjdu0ZG9Ffcyy3pp1FRSCbQ0MUyQDDTWM4ewhZtf14hCLPcO0czDPCyG+r5T0EwsGefGFArTUs24875BH4QGtrmZUNXZFq+qeDmtdabQIzM9cHZpVQ4PeFfNFDRS0vc=
+	t=1785121359; cv=none; b=j/s2ggrbG2G8GL4z4Au0ojE17XWaApDSlhmPGzUVGOlkY+X9f+TtjraLZgL41bTjPeiuiEZD3OeWXCAmjEqwrVUJklXFpHAvs19e7dkbcRSqN/bIdCr92w87o7WMRWghyIY4WaKtwP56q4Gh28LhPfMLFCnaQZc/THNEz/nahVE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785121356; c=relaxed/simple;
-	bh=2RtydDQ5LyilB9NLGKPpXV/OCvHJ7xnVGi8TRUr0mjw=;
+	s=arc-20240116; t=1785121359; c=relaxed/simple;
+	bh=F/w9FBc9HhgJUdkB3SlnNy7qFKVA3epIcfF4+EPtq4E=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=gXlGX0zmVmzguBhA4Cru18kkKBzCRIgcJcUiizXHAtM+Uaez1X86wM+hsfE0Y7YJDBX+XAZ/BKHW1GdaqZnnJQ3oAZlFwHksKp9qO8p1r8PBuRPbOyVU9mLZ+tOK29o3qD4JsBhJPMv860d0TPGRLpcgHxDY8NF/T5z/SFZQKlc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=elg4RUQc; arc=none smtp.client-ip=198.175.65.12
+	 MIME-Version; b=PVk22gXxhv1NEXfO/qkpdM7mm6yK+FshZRivpE8ra2F2ANp4egEqlgFQJMoZUgXxxRkiV5vXr2ldtPdm/s69S8Dvgq3BfxffhyG0/OD9HfIUMiff5vwDJl9zRZsUTA9IRv04ZZmjHS3qbQfGM5fEyqISNKjK69k2n33aoDCvJiI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=ebOu0KIf; arc=none smtp.client-ip=198.175.65.12
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="elg4RUQc"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="ebOu0KIf"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1785121354; x=1816657354;
+  t=1785121357; x=1816657357;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=2RtydDQ5LyilB9NLGKPpXV/OCvHJ7xnVGi8TRUr0mjw=;
-  b=elg4RUQcitmOtoITyf3s4CWehTfM88JliJZgYHU2uXyVs25hizENCPKU
-   HnZJFk8M6eXHkxF1p1M9HwBQtKjngQwpbevexV08C5iE/QFKmVMXsYHiW
-   57Csq2zjbFGlXcD9ELh0kmau7y+OvdVsNPEi+K4BKrZ2zxpTT/wpDRE3S
-   JYXTWTBsSCFeSYYKovQfCyOFLrNOnwhLpEfzKgNSgUqwWRcDOOsJUey7J
-   rRbVgzfzvLe/jNx9ZONyUk4AhOg8ZfUGzvytYezm+6iiyHXWXu6Atm6Gz
-   tiaE/h5/bxxzUKIzMxVRsoQ0+guirKSkG5Z6sdn6lTJcbxOdaai7LeD0X
-   g==;
-X-CSE-ConnectionGUID: pAZ7lY5hRfC6AbzDttkaRQ==
-X-CSE-MsgGUID: SelHHCZZS+m+tMs9VfQ8ZA==
-X-IronPort-AV: E=McAfee;i="6800,10657,11857"; a="97200400"
+  bh=F/w9FBc9HhgJUdkB3SlnNy7qFKVA3epIcfF4+EPtq4E=;
+  b=ebOu0KIf5AG2nyMckey3pdvWxTauGbill4UMjSXJY2i0l3SFPzesrhu/
+   It9iZjd17PffmbiLcbnBSCQn8z6bVEwTwduofHmRG1y8Rpaa9dvT8Kk6h
+   dHbyqS1WVvqU02+fY9Lq5BBUxoWUb44dd35hjdRRZwmChWk7sqwxv7Pco
+   hJjC1/0cznOzjgqUNJOc6P5pPTeXRllmDN98JUPKD1aHhNt1hXnGCaNHq
+   h/4qy1Nw8GLiLWk3Et0M2bL/prhwosOLluycsXYM8GMoZze2q0RUFYNAZ
+   SM4WjNR6nTl2up8Zl7pPQPj7DpvVt4iPX7BZNE+TpJQSVrNyQLPrLdLy+
+   A==;
+X-CSE-ConnectionGUID: RgkuBDOHT7e+WAZ5q4ebMw==
+X-CSE-MsgGUID: 0n7d/1CRRRa6ZSQkAj0sAw==
+X-IronPort-AV: E=McAfee;i="6800,10657,11857"; a="97200406"
 X-IronPort-AV: E=Sophos;i="6.25,187,1779174000"; 
-   d="scan'208";a="97200400"
+   d="scan'208";a="97200406"
 Received: from fmviesa010.fm.intel.com ([10.60.135.150])
-  by orvoesa104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 26 Jul 2026 20:02:33 -0700
-X-CSE-ConnectionGUID: VQ2X9a98SmOjNV4fE24g3w==
-X-CSE-MsgGUID: XbzUO4VyRbGVYN4YxnrD8w==
+  by orvoesa104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 26 Jul 2026 20:02:37 -0700
+X-CSE-ConnectionGUID: vDgvsPYsRYGSTqJs1SDehw==
+X-CSE-MsgGUID: 5pOo+AM2Td+S9LnFMflbIw==
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="6.25,187,1779174000"; 
-   d="scan'208";a="255365091"
+   d="scan'208";a="255365095"
 Received: from shsensorbuild.sh.intel.com ([10.239.132.250])
-  by fmviesa010.fm.intel.com with ESMTP; 26 Jul 2026 20:02:32 -0700
+  by fmviesa010.fm.intel.com with ESMTP; 26 Jul 2026 20:02:35 -0700
 From: Even Xu <even.xu@intel.com>
 To: bentiss@kernel.org,
 	jikos@kernel.org
@@ -50,9 +50,9 @@ Cc: srinivas.pandruvada@linux.intel.com,
 	linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	Even Xu <even.xu@intel.com>
-Subject: [PATCH 1/2] HID: Intel-thc-hid: Intel-thc: Refactor I2C bus configuration with unified config structure
-Date: Mon, 27 Jul 2026 11:03:09 +0800
-Message-ID: <20260727030310.3850984-2-even.xu@intel.com>
+Subject: [PATCH 2/2] HID: Intel-thc-hid: Intel-quicki2c: Support full I2C BUS config parameters
+Date: Mon, 27 Jul 2026 11:03:10 +0800
+Message-ID: <20260727030310.3850984-3-even.xu@intel.com>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20260727030310.3850984-1-even.xu@intel.com>
 References: <20260727030310.3850984-1-even.xu@intel.com>
@@ -64,217 +64,157 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Introduce a new struct thc_i2c_config to consolidate all configurable
-I2C bus parameters into a single structure for better maintainability
-and extensibility.
+Read complete I2C bus configuration parameters from ACPI and passes them
+to thc_i2c_subip_init() to properly initialize the THC I2C subip with
+platform-specific settings.
 
-Changes include:
-- Add struct thc_i2c_config to encapsulate I2C bus parameters
-- Rename thc_i2c_subip_set_speed() to thc_i2c_subip_bus_config() to
-  better reflect its expanded functionality
-- Update thc_i2c_subip_bus_config() to accept struct thc_i2c_config
-  parameter for comprehensive I2C parameter configuration
-- Modify thc_i2c_subip_init() to use struct thc_i2c_config and call
-  thc_i2c_subip_bus_config() for complete bus initialization
-
-This refactoring improves code organization and unifies I2C configuration
-parameters.
+This change enhances hardware compatibility by allowing full
+platform-specific I2C bus configurations.
 
 Signed-off-by: Even Xu <even.xu@intel.com>
 ---
- .../intel-thc-hid/intel-thc/intel-thc-dev.c   | 69 ++++++++++++-------
- .../intel-thc-hid/intel-thc/intel-thc-dev.h   | 23 ++++++-
- .../intel-thc-hid/intel-thc/intel-thc-hw.h    |  3 +
- 3 files changed, 68 insertions(+), 27 deletions(-)
+ .../intel-quicki2c/pci-quicki2c.c             | 46 ++++++++++---------
+ .../intel-quicki2c/quicki2c-dev.h             | 14 ++----
+ 2 files changed, 29 insertions(+), 31 deletions(-)
 
-diff --git a/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dev.c b/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dev.c
-index 9a8449428170..7b4a58e1416d 100644
---- a/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dev.c
-+++ b/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dev.c
-@@ -1422,14 +1422,25 @@ static int thc_i2c_subip_pio_write(struct thc_device *dev, const u32 address,
- #define I2C_SUBIP_DMA_TDLR_DEFAULT	7
- #define I2C_SUBIP_DMA_RDLR_DEFAULT	7
+diff --git a/drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c b/drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c
+index 3ccbddfe8e5e..c3c7cf8e4b63 100644
+--- a/drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c
++++ b/drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c
+@@ -175,7 +175,9 @@ static int quicki2c_get_acpi_resources(struct quicki2c_device *qcdev)
+ 	if (i2c_param.addressing_mode != HIDI2C_ADDRESSING_MODE_7BIT)
+ 		return -EOPNOTSUPP;
  
--static int thc_i2c_subip_set_speed(struct thc_device *dev, const u32 speed,
--				   const u32 hcnt, const u32 lcnt)
-+static int thc_i2c_subip_bus_config(struct thc_device *dev, const struct thc_i2c_config *i2c_config)
- {
- 	u32 hcnt_offset, lcnt_offset;
--	u32 val;
-+	u32 read_size = sizeof(u32);
-+	u32 val = 0;
- 	int ret;
- 
--	switch (speed) {
-+	ret = thc_i2c_subip_pio_read(dev, THC_I2C_IC_TAR_OFFSET, &read_size, &val);
-+	if (ret < 0)
-+		return ret;
+-	qcdev->i2c_slave_addr = i2c_param.device_address;
++	qcdev->i2c_config.addr_mode = HIDI2C_ADDRESSING_MODE_7BIT;
 +
-+	val &= ~(THC_I2C_IC_TAR_IC_TAR | THC_I2C_IC_TAR_IC_10BITADDR_MASTER);
-+	val |= FIELD_PREP(THC_I2C_IC_TAR_IC_10BITADDR_MASTER, i2c_config->addr_mode);
-+	val |= FIELD_PREP(THC_I2C_IC_TAR_IC_TAR, i2c_config->target_addr);
-+	ret = thc_i2c_subip_pio_write(dev, THC_I2C_IC_TAR_OFFSET, sizeof(u32), &val);
-+	if (ret < 0)
-+		return ret;
-+
-+	switch (i2c_config->speed) {
- 	case THC_I2C_STANDARD:
- 		hcnt_offset = THC_I2C_IC_SS_SCL_HCNT_OFFSET;
- 		lcnt_offset = THC_I2C_IC_SS_SCL_LCNT_OFFSET;
-@@ -1446,25 +1457,43 @@ static int thc_i2c_subip_set_speed(struct thc_device *dev, const u32 speed,
- 		break;
++	qcdev->i2c_config.target_addr = i2c_param.device_address;
  
- 	default:
--		dev_err_once(dev->dev, "Unsupported i2c speed %d\n", speed);
-+		dev_err_once(dev->dev, "Unsupported i2c speed %d\n", i2c_config->speed);
- 		ret = -EINVAL;
- 		return ret;
+ 	ret = quicki2c_acpi_get_dsd_property(adev, QUICKI2C_ACPI_METHOD_NAME_ISUB,
+ 					     ACPI_TYPE_BUFFER, &i2c_config);
+@@ -184,24 +186,32 @@ static int quicki2c_get_acpi_resources(struct quicki2c_device *qcdev)
+ 
+ 	if (i2c_param.connection_speed > 0 &&
+ 	    i2c_param.connection_speed <= QUICKI2C_SUBIP_STANDARD_MODE_MAX_SPEED) {
+-		qcdev->i2c_speed_mode = THC_I2C_STANDARD;
+-		qcdev->i2c_clock_hcnt = i2c_config.SMHX;
+-		qcdev->i2c_clock_lcnt = i2c_config.SMLX;
++		qcdev->i2c_config.speed = THC_I2C_STANDARD;
++		qcdev->i2c_config.scl_hcnt = (u32)i2c_config.SMHX;
++		qcdev->i2c_config.scl_lcnt = (u32)i2c_config.SMLX;
++		qcdev->i2c_config.sda_tx_hold = (u32)i2c_config.SMTD;
++		qcdev->i2c_config.sda_rx_hold = (u32)i2c_config.SMRD;
+ 	} else if (i2c_param.connection_speed > QUICKI2C_SUBIP_STANDARD_MODE_MAX_SPEED &&
+ 		   i2c_param.connection_speed <= QUICKI2C_SUBIP_FAST_MODE_MAX_SPEED) {
+-		qcdev->i2c_speed_mode = THC_I2C_FAST_AND_PLUS;
+-		qcdev->i2c_clock_hcnt = i2c_config.FMHX;
+-		qcdev->i2c_clock_lcnt = i2c_config.FMLX;
++		qcdev->i2c_config.speed = THC_I2C_FAST_AND_PLUS;
++		qcdev->i2c_config.scl_hcnt = (u32)i2c_config.FMHX;
++		qcdev->i2c_config.scl_lcnt = (u32)i2c_config.FMLX;
++		qcdev->i2c_config.sda_tx_hold = (u32)i2c_config.FMTD;
++		qcdev->i2c_config.sda_rx_hold = (u32)i2c_config.FMRD;
+ 	} else if (i2c_param.connection_speed > QUICKI2C_SUBIP_FAST_MODE_MAX_SPEED &&
+ 		   i2c_param.connection_speed <= QUICKI2C_SUBIP_FASTPLUS_MODE_MAX_SPEED) {
+-		qcdev->i2c_speed_mode = THC_I2C_FAST_AND_PLUS;
+-		qcdev->i2c_clock_hcnt = i2c_config.FPHX;
+-		qcdev->i2c_clock_lcnt = i2c_config.FPLX;
++		qcdev->i2c_config.speed = THC_I2C_FAST_AND_PLUS;
++		qcdev->i2c_config.scl_hcnt = (u32)i2c_config.FPHX;
++		qcdev->i2c_config.scl_lcnt = (u32)i2c_config.FPLX;
++		qcdev->i2c_config.sda_tx_hold = (u32)i2c_config.FPTD;
++		qcdev->i2c_config.sda_rx_hold = (u32)i2c_config.FPRD;
+ 	} else if (i2c_param.connection_speed > QUICKI2C_SUBIP_FASTPLUS_MODE_MAX_SPEED &&
+ 		   i2c_param.connection_speed <= QUICKI2C_SUBIP_HIGH_SPEED_MODE_MAX_SPEED) {
+-		qcdev->i2c_speed_mode = THC_I2C_HIGH_SPEED;
+-		qcdev->i2c_clock_hcnt = i2c_config.HMHX;
+-		qcdev->i2c_clock_lcnt = i2c_config.HMLX;
++		qcdev->i2c_config.speed = THC_I2C_HIGH_SPEED;
++		qcdev->i2c_config.scl_hcnt = (u32)i2c_config.HMHX;
++		qcdev->i2c_config.scl_lcnt = (u32)i2c_config.HMLX;
++		qcdev->i2c_config.sda_tx_hold = (u32)i2c_config.HMTD;
++		qcdev->i2c_config.sda_rx_hold = (u32)i2c_config.HMRD;
+ 	} else {
+ 		return -EOPNOTSUPP;
+ 	}
+@@ -415,10 +425,7 @@ static struct quicki2c_device *quicki2c_dev_init(struct pci_dev *pdev, void __io
+ 		return ERR_PTR(ret);
  	}
  
--	ret = thc_i2c_subip_pio_write(dev, hcnt_offset, sizeof(u32), &hcnt);
-+	ret = thc_i2c_subip_pio_write(dev, hcnt_offset, sizeof(u32), &i2c_config->scl_hcnt);
- 	if (ret < 0)
+-	ret = thc_i2c_subip_init(qcdev->thc_hw, qcdev->i2c_slave_addr,
+-				 qcdev->i2c_speed_mode,
+-				 qcdev->i2c_clock_hcnt,
+-				 qcdev->i2c_clock_lcnt);
++	ret = thc_i2c_subip_init(qcdev->thc_hw, &qcdev->i2c_config);
+ 	if (ret)
+ 		return ERR_PTR(ret);
+ 
+@@ -978,10 +985,7 @@ static int quicki2c_restore(struct device *device)
+ 	if (ret)
  		return ret;
  
--	ret = thc_i2c_subip_pio_write(dev, lcnt_offset, sizeof(u32), &lcnt);
-+	ret = thc_i2c_subip_pio_write(dev, lcnt_offset, sizeof(u32), &i2c_config->scl_lcnt);
- 	if (ret < 0)
+-	ret = thc_i2c_subip_init(qcdev->thc_hw, qcdev->i2c_slave_addr,
+-				 qcdev->i2c_speed_mode,
+-				 qcdev->i2c_clock_hcnt,
+-				 qcdev->i2c_clock_lcnt);
++	ret = thc_i2c_subip_init(qcdev->thc_hw, &qcdev->i2c_config);
+ 	if (ret)
  		return ret;
  
- 	val = I2C_SUBIP_CON_DEFAULT & ~THC_I2C_IC_CON_SPEED;
--	val |= FIELD_PREP(THC_I2C_IC_CON_SPEED, speed);
-+	val |= FIELD_PREP(THC_I2C_IC_CON_SPEED, i2c_config->speed);
- 	ret = thc_i2c_subip_pio_write(dev, THC_I2C_IC_CON_OFFSET, sizeof(u32), &val);
- 	if (ret < 0)
- 		return ret;
+diff --git a/drivers/hid/intel-thc-hid/intel-quicki2c/quicki2c-dev.h b/drivers/hid/intel-thc-hid/intel-quicki2c/quicki2c-dev.h
+index d72565de67b9..6d25a846153e 100644
+--- a/drivers/hid/intel-thc-hid/intel-quicki2c/quicki2c-dev.h
++++ b/drivers/hid/intel-thc-hid/intel-quicki2c/quicki2c-dev.h
+@@ -7,6 +7,8 @@
+ #include <linux/hid-over-i2c.h>
+ #include <linux/workqueue.h>
  
-+	ret = thc_i2c_subip_pio_read(dev, THC_I2C_IC_SDA_HOLD_OFFSET, &read_size, &val);
-+	if (ret < 0)
-+		return ret;
++#include "intel-thc-dev.h"
 +
-+	if (i2c_config->sda_tx_hold) {
-+		val &= ~THC_I2C_IC_SDA_HOLD_IC_SDA_TX_HOLD;
-+		val |= FIELD_PREP(THC_I2C_IC_SDA_HOLD_IC_SDA_TX_HOLD, i2c_config->sda_tx_hold);
-+	}
-+
-+	if (i2c_config->sda_rx_hold) {
-+		val &= ~THC_I2C_IC_SDA_HOLD_IC_SDA_RX_HOLD;
-+		val |= FIELD_PREP(THC_I2C_IC_SDA_HOLD_IC_SDA_RX_HOLD, i2c_config->sda_rx_hold);
-+	}
-+
-+	ret = thc_i2c_subip_pio_write(dev, THC_I2C_IC_SDA_HOLD_OFFSET, sizeof(u32), &val);
-+	if (ret < 0)
-+		return ret;
-+
- 	return 0;
- }
+ #define PCI_DEVICE_ID_INTEL_THC_LNL_DEVICE_ID_I2C_PORT1		0xA848
+ #define PCI_DEVICE_ID_INTEL_THC_LNL_DEVICE_ID_I2C_PORT2		0xA84A
+ #define PCI_DEVICE_ID_INTEL_THC_PTL_H_DEVICE_ID_I2C_PORT1	0xE348
+@@ -159,7 +161,6 @@ struct quicki2c_ddata {
  
-@@ -1474,6 +1503,7 @@ static u32 i2c_subip_regs[] = {
- 	THC_I2C_IC_INTR_MASK_OFFSET,
- 	THC_I2C_IC_RX_TL_OFFSET,
- 	THC_I2C_IC_TX_TL_OFFSET,
-+	THC_I2C_IC_SDA_HOLD_OFFSET,
- 	THC_I2C_IC_DMA_CR_OFFSET,
- 	THC_I2C_IC_DMA_TDLR_OFFSET,
- 	THC_I2C_IC_DMA_RDLR_OFFSET,
-@@ -1490,20 +1520,19 @@ static u32 i2c_subip_regs[] = {
-  * thc_i2c_subip_init - Initialize and configure THC I2C subsystem
-  *
-  * @dev: The pointer of THC private device context
-- * @target_address: Slave address of touch device (TIC)
-- * @speed: I2C bus frequency speed mode
-- * @hcnt: I2C clock SCL high count
-- * @lcnt: I2C clock SCL low count
-+ * @i2c_config: The pointer of THC I2C bus configure structure
-  *
-  * Return: 0 on success, other error codes on failed.
-  */
--int thc_i2c_subip_init(struct thc_device *dev, const u32 target_address,
--		       const u32 speed, const u32 hcnt, const u32 lcnt)
-+int thc_i2c_subip_init(struct thc_device *dev, const struct thc_i2c_config *i2c_config)
- {
- 	u32 read_size = sizeof(u32);
- 	u32 val;
- 	int ret;
+ struct device;
+ struct pci_dev;
+-struct thc_device;
+ struct hid_device;
+ struct acpi_device;
  
-+	if (!dev || !i2c_config)
-+		return -EINVAL;
-+
- 	ret = thc_i2c_subip_pio_read(dev, THC_I2C_IC_ENABLE_OFFSET, &read_size, &val);
- 	if (ret < 0)
- 		return ret;
-@@ -1513,17 +1542,7 @@ int thc_i2c_subip_init(struct thc_device *dev, const u32 target_address,
- 	if (ret < 0)
- 		return ret;
+@@ -174,13 +175,10 @@ struct acpi_device;
+  * @state: THC I2C device state
+  * @mem_addr: MMIO memory address
+  * @dev_desc: Device descriptor for HIDI2C protocol
+- * @i2c_slave_addr: HIDI2C device slave address
++ * @i2c_config: I2C bus configuration
+  * @hid_desc_addr: Register address for retrieve HID device descriptor
+  * @active_ltr_val: THC active LTR value
+  * @low_power_ltr_val: THC low power LTR value
+- * @i2c_speed_mode: 0 - standard mode, 1 - fast mode, 2 - fast mode plus
+- * @i2c_clock_hcnt: I2C CLK high period time (unit in cycle count)
+- * @i2c_clock_lcnt: I2C CLK low period time (unit in cycle count)
+  * @report_descriptor: Store a copy of device report descriptor
+  * @input_buf: Store a copy of latest input report data
+  * @report_buf: Store a copy of latest input/output report packet from set/get feature
+@@ -206,16 +204,12 @@ struct quicki2c_device {
+ 	void __iomem *mem_addr;
  
--	ret = thc_i2c_subip_pio_read(dev, THC_I2C_IC_TAR_OFFSET, &read_size, &val);
--	if (ret < 0)
--		return ret;
+ 	struct hidi2c_dev_descriptor dev_desc;
+-	u8 i2c_slave_addr;
++	struct thc_i2c_config i2c_config;
+ 	u16 hid_desc_addr;
+ 
+ 	u32 active_ltr_val;
+ 	u32 low_power_ltr_val;
+ 
+-	u32 i2c_speed_mode;
+-	u32 i2c_clock_hcnt;
+-	u32 i2c_clock_lcnt;
 -
--	val &= ~THC_I2C_IC_TAR_IC_TAR;
--	val |= FIELD_PREP(THC_I2C_IC_TAR_IC_TAR, target_address);
--	ret = thc_i2c_subip_pio_write(dev, THC_I2C_IC_TAR_OFFSET, sizeof(u32), &val);
--	if (ret < 0)
--		return ret;
--
--	ret = thc_i2c_subip_set_speed(dev, speed, hcnt, lcnt);
-+	ret = thc_i2c_subip_bus_config(dev, i2c_config);
- 	if (ret < 0)
- 		return ret;
- 
-diff --git a/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dev.h b/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dev.h
-index 0db435335e24..be8a9605d02f 100644
---- a/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dev.h
-+++ b/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dev.h
-@@ -49,6 +49,26 @@ enum thc_int_type {
- 	THC_UNKNOWN_INT
- };
- 
-+/**
-+ * struct thc_i2c_config - THC I2C bus configuration
-+ * @target_addr: Slave address of touch device (TIC)
-+ * @addr_mode: Slave address mode of touch device (TIC), 7bit or 10bit
-+ * @speed: I2C bus frequency speed mode
-+ * @scl_hcnt: I2C clock SCL high count
-+ * @scl_lcnt: I2C clock SCL low count
-+ * @sda_tx_hold: I2C Data SDA transmit hold period
-+ * @sda_rx_hold: I2C Data SDA receive hold period
-+ */
-+struct thc_i2c_config {
-+	u16 target_addr;
-+	u8  addr_mode;
-+	u32 speed;
-+	u32 scl_hcnt;
-+	u32 scl_lcnt;
-+	u32 sda_tx_hold;
-+	u32 sda_rx_hold;
-+};
-+
- /**
-  * struct thc_device - THC private device struct
-  * @thc_regmap: MMIO regmap structure for accessing THC registers
-@@ -121,8 +141,7 @@ int thc_spi_write_config(struct thc_device *dev, u32 spi_freq_val,
- 			 u32 io_mode, u32 opcode, u32 spi_wr_mps, u32 perf_limit);
- void thc_spi_input_output_address_config(struct thc_device *dev, u32 input_hdr_addr,
- 					 u32 input_bdy_addr, u32 output_addr);
--int thc_i2c_subip_init(struct thc_device *dev, const u32 target_address,
--		       const u32 speed, const u32 hcnt, const u32 lcnt);
-+int thc_i2c_subip_init(struct thc_device *dev, const struct thc_i2c_config *i2c_config);
- int thc_i2c_subip_regs_save(struct thc_device *dev);
- int thc_i2c_subip_regs_restore(struct thc_device *dev);
- int thc_i2c_set_rx_max_size(struct thc_device *dev, u32 max_rx_size);
-diff --git a/drivers/hid/intel-thc-hid/intel-thc/intel-thc-hw.h b/drivers/hid/intel-thc-hid/intel-thc/intel-thc-hw.h
-index c6d026686b7a..a21222543ce4 100644
---- a/drivers/hid/intel-thc-hid/intel-thc/intel-thc-hw.h
-+++ b/drivers/hid/intel-thc-hid/intel-thc/intel-thc-hw.h
-@@ -887,4 +887,7 @@ enum THC_I2C_SPEED_MODE {
- #define THC_I2C_IC_DMA_CR_RDMAE				BIT(0)
- #define THC_I2C_IC_DMA_CR_TDMAE				BIT(1)
- 
-+#define THC_I2C_IC_SDA_HOLD_IC_SDA_TX_HOLD		GENMASK(15, 0)
-+#define THC_I2C_IC_SDA_HOLD_IC_SDA_RX_HOLD		GENMASK(23, 16)
-+
- #endif /* _INTEL_THC_HW_H_  */
+ 	u8 *report_descriptor;
+ 	u8 *input_buf;
+ 	u8 *report_buf;
 -- 
 2.43.0
 

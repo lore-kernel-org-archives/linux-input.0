@@ -1,115 +1,121 @@
-Received: from mail-pj1-f41.google.com (mail-pj1-f41.google.com [209.85.216.41])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from relay5-d.mail.gandi.net (relay5-d.mail.gandi.net [217.70.183.197])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E1A753176EE
-	for <linux-input@vger.kernel.org>; Mon, 27 Jul 2026 12:46:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.41
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8DFF73E8695;
+	Mon, 27 Jul 2026 12:57:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.70.183.197
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785156391; cv=none; b=QK4aWab3q4a3w9Q07sINHqthuG/dipYeJl95DxdGKqLWTWGXTsm4Bu5tk31LtcQaPYQUwnqW/m9lUihA+411aNsbB2DD3vmtPANnjjwxWhwGMvYiNmQyW1W0JgKRUimzMulzhxoKcaBVMexXzx0XBHEN5SVO4f5+DmXOsZX4wek=
+	t=1785157056; cv=none; b=WdGBlFqXxFS2uTStwbc54gIrXYHbGLRuTrVwuJgJv9JQTj0dFSebcExC7gWuLgMlK9YPvAETFizg4YlBde5PyRN7FuKF8XpMo5VHxN1hFz0bNSaeyqs4apez8+7NPoF6heALk2g1T1E8ciVeYWAwD4dHQJNRkAWvApX8R6H03XA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785156391; c=relaxed/simple;
-	bh=VDDjkmzjU6n0G54i9rZl6mDjWJS+nAzi/UNqjMG7jqs=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=hKcbytjWGipSplxnVcdjJVPScerfVqg3q6zHF8Uhp3I2pl/tI1xrQii9SsLrSHWXll1vmAPG6rnPn7tpgZQaba0A0bV3Kt7EMsNnazvOZs7XKcvwgGFdyrgenX2XHSFVetBnPi26RaVlagb8i1TV6M/ITtxRQ4VAdnn4dtc8bPs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ACEHA29H; arc=none smtp.client-ip=209.85.216.41
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ACEHA29H"
-Received: by mail-pj1-f41.google.com with SMTP id 98e67ed59e1d1-38dfe910e9dso2376700a91.3
-        for <linux-input@vger.kernel.org>; Mon, 27 Jul 2026 05:46:29 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1785156389; x=1785761189; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=UBNUvjGcjm+xj3uAGQhgxGlKo+bmrY/qvFo6MzrXzyw=;
-        b=ACEHA29Hl4L6gEPkbgJ8gjVQUyx9MN5Ak7tb+fOECh7hHOPYJptBdzAkN4i0NP/7pJ
-         LH8tY/UBnYUStRiHgUiG+ekubN6XWRQr2oUw7w6IPYiuRSndSRjUd7WurvSxcL1dgwJ6
-         2MaN0m0VXGzaykFv0CU2MlhbgVjfrP6Ws7IdI+uvRnrezU0tBG3KAdXQ+kX41mFESRcS
-         mzElpjPxKDKoXuTURRLCO0oZ1b6fFLXj7gt3WA+yH4meaejwbcweBvCYqjPDDA5Uch5Y
-         ZUCfz8VC3WekEjMgmJXnRFADMr9KaB4UN7my8Kyb0YuAiH81iH6nRtwo7Yux5f8FuStG
-         2LYg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785156389; x=1785761189;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=UBNUvjGcjm+xj3uAGQhgxGlKo+bmrY/qvFo6MzrXzyw=;
-        b=GKc3k+M3eQ7zTAhc2MHw0We/icPYMPDyG3Z9rqRB3Q2mPTReawKD2139/L+niUyzV3
-         piF/eR2jwLap9ksr/4UzyPr405RLeoD3v67+1f2GGlsokFGzmT4CSXpZo5CsvW4tWl7H
-         /lu/O/pnctujGsGaINhe7uTnVw0hI8ukeOk3rUGti1sGsFmctzU6W98LEQgUBK4RFLCZ
-         D4JkRTTMkScRY5Ri33US+fbQqrwUvNiZ2o75DD/x/WO6yL8t4qtMQX4bIGXyTsGokro3
-         7mE1/Ljm4SrcLP5eLKDmAo7dW+9XdGlDQU6oW1AA2dAaxZ+1jZIS2SbychLCLOe4Isxp
-         57pg==
-X-Gm-Message-State: AOJu0YxvD6hpRPD+aQMuoGkwIxk9Z9dcNf0mKOPSkGqbWIQ1Eq0viahl
-	Y7r7/v/rEPl++qV9JV7Wn85McCvVZvoGo/Qg4CL2F40DX71I3qWWbkkNj3WLMVXHZqU=
-X-Gm-Gg: AR+sD11GGqpq1h044Ew1QnzKrFd08mXP4GAKhg2dSRp9eVGyw5DdvLCuH9qwtbTY97o
-	XQAFyh1XkPBmgysXWchQYwFYCsAFM1T1EFh/6tJglEJ5+HWftGlfwSmTbxHC6eWNoOPD7Ra9FLO
-	5o7nMnWwBcoOkQHUVuh1qs0VXZCofoqS5J1ElHbWbfii3DE+WLVvp1+ZxNpSmWIB7M/Z7r3kQIA
-	pM+YA7+GMWpnFr6+vlGuKKzuYYlfRFOI9W2rqEcVqVITbSwtO7GyRtNeLKpkHNFBPZidjEVv30D
-	BGAN6QA33w9jPHVg2RA81pl3PVn0oICWiYBUzyvgBp/fO/OlClmfGggc+eFzUJGWuluRFi46XMl
-	X5LkssPOHwyk3bxmORgFKCDJGixJrKYS8U5cZ6wguZGl1Dk4owzjt+PjUA6+ZgTXA9t3zF5xvKV
-	Y6QjpHNngcJHFmNCvLBy273Hmo
-X-Received: by 2002:a17:90a:c88f:b0:38e:c7b0:84ad with SMTP id 98e67ed59e1d1-38f603392aamr650243a91.0.1785156389137;
-        Mon, 27 Jul 2026 05:46:29 -0700 (PDT)
-Received: from Linux.bbrouter ([115.96.218.218])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-13d6ba579c3sm25613776c88.8.2026.07.27.05.46.26
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 27 Jul 2026 05:46:28 -0700 (PDT)
-From: Ishaan Dandekar <ishaan.dandekar@gmail.com>
-To: linux-input@vger.kernel.org
-Cc: dmitry.torokhov@gmail.com,
-	gregkh@linuxfoundation.org,
-	Ishaan Dandekar <ishaan.dandekar@gmail.com>
-Subject: [PATCH v3] Input: xpad - add support for generic clone X-Input gamepads
-Date: Mon, 27 Jul 2026 18:13:07 +0530
-Message-Id: <20260727124307.11155-1-ishaan.dandekar@gmail.com>
-X-Mailer: git-send-email 2.34.1
+	s=arc-20240116; t=1785157056; c=relaxed/simple;
+	bh=6Rij7ScHHcHlQFrcoRc4JRj1kJGB4MbagbYGGpcL9lw=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=qDOQzVZZdec1IGDI2GiEQXL7ykYvWgp23aPVEvhb9l6GeeEmQIwD+MtLHFGWy0JcTrHymaKTzbkIyab8xMlLXhzKPlsYeSTAeqwRdRY0WhmzCR/a//FJAYVPG2Abo2cnYdNX56bSAM8lAx5ill2DnjcedazUJwZ2ZMKnWiqO3t8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=hadess.net; spf=pass smtp.mailfrom=hadess.net; arc=none smtp.client-ip=217.70.183.197
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=hadess.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=hadess.net
+Received: by mail.gandi.net (Postfix) with ESMTPSA id AC8403EC21;
+	Mon, 27 Jul 2026 12:57:31 +0000 (UTC)
+Message-ID: <d1523afcbf13e612ce38809f43299bae8c3b8910.camel@hadess.net>
+Subject: Re: [PATCH v6 0/9] HID: steelseries: split out Arctis driver and
+ add Nova 5X/Nova 7 support
+From: Bastien Nocera <hadess@hadess.net>
+To: Sriman Achanta <srimanachanta@gmail.com>, Jiri Kosina
+ <jikos@kernel.org>,  Benjamin Tissoires	 <bentiss@kernel.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Simon Wood
+	 <simon@mungewell.org>, Christian Mayer <git@mayer-bgk.de>
+Date: Mon, 27 Jul 2026 14:57:31 +0200
+In-Reply-To: <20260709032316.1908460-1-68172138+srimanachanta@users.noreply.github.com>
+References: 
+	<20260709032316.1908460-1-68172138+srimanachanta@users.noreply.github.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.60.2 (3.60.2-1.fc44) 
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+X-GND-Sasl: hadess@hadess.net
+X-GND-Score: -100
+X-GND-Cause: dmFkZTFwFcnIaDv4UjnZcSFOkR6zIYBWDXd7Ud/psZ7xNY8Ge2dbXCN7XbQT7ZEiyFbqDKLzmaXwtFUWOcxwP+dc30IOVy0UpczeAEsxeaQcYWdAEtT9izkV9Z6LQSweSRC0eIk8n0Twhwr3UcoKRCSOm4gNwrRFm2vzcjTSGYPnZ8o4xy5tXKzg46X6sBYIj3Rhgh57YqMfR/Ke9BQc9P3Y8lvnS1KwOPiq/W9Qzbi4to1xTB8l66hHHxv54aBoY81emtBlAxHeukMBXfPpfhCMc4nnUMNvmBdWb2QzNm9l1V9jl9Tyh2sylK+mqFiDxc2e03HK1qLRs2AsEJoBqQyQPn+/FnlSGS56hDMJ8ugRxSmamusFg6+nxn1st5NtL/OcXzFOAy4wPWh2s48tVUii0L6hWea0vvoqai6kZMy8RgjEiE0Zvxk/xKsbzblMbvB20Q1u/PltHijfDy761q+jWceIz6VxoU/pVeTbYrCcnoK2ztS5OLVZFmgsFfCbHfj1F9XIpRiJlmgww4igZNd0PlDQ7e18ODI7vA8m3+AlMEpsrySsVUB0AqgIb/WBCkO02O1iiFrdSaHGY//j3zgc1/+Ui+gkPL1Hym1ORAYE+KWQaoMsiqv1hgAVz40nnkJDpGdbpj4N0m0tZdyualEdegHM8q7uVuxiyIPhjIoczlLX1Q
+X-GND-State: clean
 
-This device exposes a vendor-specific Xbox 360 interface (0283:0001)
-but was previously ignored by the driver, causing it to fall back to
-a generic hid interface. Adding its ID to xpad_device and xpad_table
-allows it to initialize correctly as an X-Input gamepad.
+On Wed, 2026-07-08 at 23:23 -0400, Sriman Achanta wrote:
+> From: Sriman Achanta <srimanachanta@gmail.com>
+>=20
+> This series moves the SteelSeries Arctis headset support out of
+> hid-steelseries.c into its own module, reworks it around a per-model
+> device_info table, hardens the battery power-supply lifetime, adds an
+> asynchronous status interface, and finally adds support for the
+> Arctis
+> Nova 5X and Nova 7 families. After the split, hid-steelseries.c is
+> left
+> handling only the SRW-S1 racing wheel.
+>=20
+> Changes since v5:
+> =C2=A0- Nova: rename the Gen2-only parse function and device_info to
+> =C2=A0=C2=A0 steelseries_arctis_nova_{parse_status,info} now that they ar=
+e also
+> =C2=A0=C2=A0 used by the Nova 5X and the 2026 refresh, not just Gen2.
+> =C2=A0- Nova: add device IDs and a device_info for the original (pre-Gen2=
+)
+> =C2=A0=C2=A0 Arctis Nova 7 family. It answers the same 0xb0/0xb7/0xb9/0xb=
+b
+> status
+> =C2=A0=C2=A0 opcodes on the same interfaces as Gen2, but reports battery
+> capacity
+> =C2=A0=C2=A0 as a discrete 0-4 level rather than a raw percentage, so it =
+gets
+> its
+> =C2=A0=C2=A0 own parse function that maps the level through
+> =C2=A0=C2=A0 steelseries_map_capacity() instead of using it directly.
+> =C2=A0- Nova: add the Arctis Nova 5X, which shares the Gen2/2026 protocol=
+.
+> =C2=A0- hid-ids.h: fix a whitespace-only bug where the new Nova 5X macro
+> was
+> =C2=A0=C2=A0 space-aligned instead of tab-aligned.
+> =C2=A0- Rebased on current master.
+>=20
+> The Nova 5X protocol was verified against hardware by
+> sp4m.an.joker@gmail.com, and the original Nova 7 protocol was
+> verified
+> against hardware by colin@1101b.com. Thanks to both for testing. I
+> previously ommited other devices in the v4 patch series due to being
+> unable to verify.
 
-Signed-off-by: Ishaan Dandekar <ishaan.dandekar@gmail.com>
----
-Changes in v3:
-- Swapped USB_DEVICE() macro for XPAD_XBOX360_VENDOR().
-- Fixed comment alignment.
+Tested locally, and reviewed all the patches, looks good to me, thanks
+for the work Sriman!
 
-Changes in v2:
-- Wrapped commit message at 72 columns.
-- Separated from the USB series to target the input subsystem directly.
+Reviewed-by: Bastien Nocera <hadess@hadess.net>
 
- drivers/input/joystick/xpad.c | 2 ++
- 1 file changed, 2 insertions(+)
-
-diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
-index feb8f368f..1e5eb601e 100644
---- a/drivers/input/joystick/xpad.c
-+++ b/drivers/input/joystick/xpad.c
-@@ -99,6 +99,7 @@ static const struct xpad_device {
- } xpad_device[] = {
- 	/* Please keep this list sorted by vendor and product ID. */
- 	{ 0x0079, 0x18d4, "GPD Win 2 X-Box Controller", 0, XTYPE_XBOX360 },
-+	{ 0x0283, 0x0001, "Generic X-Input Gamepad", 0, XTYPE_XBOX360 },
- 	{ 0x0351, 0x1000, "CRKD LP Blueberry Burst Pro Edition (Xbox)", 0, XTYPE_XBOX360 },
- 	{ 0x0351, 0x2000, "CRKD LP Black Tribal Edition (Xbox) ", 0, XTYPE_XBOX360 },
- 	{ 0x03eb, 0xff01, "Wooting One (Legacy)", 0, XTYPE_XBOX360 },
-@@ -496,6 +497,7 @@ static const struct usb_device_id xpad_table[] = {
- 	 */
- 	{ USB_INTERFACE_INFO('X', 'B', 0) },	/* Xbox USB-IF not-approved class */
- 	XPAD_XBOX360_VENDOR(0x0079),		/* GPD Win 2 controller */
-+	XPAD_XBOX360_VENDOR(0x0283),		/* Generic X-Input Gamepad */
- 	XPAD_XBOX360_VENDOR(0x0351),		/* CRKD Controllers */
- 	XPAD_XBOX360_VENDOR(0x03eb),		/* Wooting Keyboards (Legacy) */
- 	XPAD_XBOX360_VENDOR(0x03f0),		/* HP HyperX Xbox 360 controllers */
--- 
-2.34.1
-
+>=20
+> Sriman Achanta (9):
+> =C2=A0 HID: steelseries: Fix ARCTIS_1_X device mislabeling
+> =C2=A0 HID: steelseries: Split Arctis headset driver into separate module
+> =C2=A0 HID: steelseries: Inline and simplify SRWS1 wheel driver
+> =C2=A0 HID: steelseries: Refactor Arctis driver to use device_info
+> framework
+> =C2=A0 HID: steelseries: Report POWER_SUPPLY_STATUS_FULL when full
+> =C2=A0 HID: steelseries: Correct Arctis 9 battery calibration range
+> =C2=A0 HID: steelseries: Manage battery lifetime with refcounting
+> =C2=A0 HID: steelseries: Add async status interface support
+> =C2=A0 HID: steelseries: Add support for Arctis Nova 5X and Nova 7
+> families
+>=20
+> =C2=A0drivers/hid/Makefile=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 |=C2=A0=C2=A0 2 +-
+> =C2=A0drivers/hid/hid-ids.h=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 |=C2=A0 18 +-
+> =C2=A0drivers/hid/hid-quirks.c=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 |=C2=A0 16 +-
+> =C2=A0drivers/hid/hid-steelseries-arctis.c | 718
+> +++++++++++++++++++++++++++
+> =C2=A0drivers/hid/hid-steelseries.c=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0 | 406 +--------------
+> =C2=A05 files changed, 759 insertions(+), 401 deletions(-)
+> =C2=A0create mode 100644 drivers/hid/hid-steelseries-arctis.c
+>=20
+>=20
+> base-commit: 7404ce51637231382873d0b55edabc2f3b841a9d

@@ -1,156 +1,159 @@
-Received: from out-172.mta0.migadu.com (out-172.mta0.migadu.com [91.218.175.172])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 401F5217F27
-	for <linux-input@vger.kernel.org>; Mon, 27 Jul 2026 21:02:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.172
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D1F6736B905;
+	Mon, 27 Jul 2026 21:13:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785186123; cv=none; b=i4Rc8wNccSvVVMkDAZIAuKLBEfkDgK1vz1UGgC+DFb2sq5wz1GgAfNAL7o+/VZzWtWtRBDScAG0juY18ifmOnpcghInMkb56s5CTBWX4JpjT8bOeWvojjFrBnvTCCNZw+QliIE539mbhd1izhpahwvLlwuL0xj/r/TBtOVb052I=
+	t=1785186836; cv=none; b=HbucMeORQvlfFRDZbHKIzC1XZWMmYdhbERwX/WXWHntYCobpvVRtR/a/AZe2aPbWxKsQbtaZEHzkH/nX4wMcD56UPVQ6mVlcUWeEl2XE1AQMiWEt0gy4CprVPwgRA1PwFX1Qw/XmrYeYv6VtHj6p0vTQrdvmDTCocf0sxE13Ofk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785186123; c=relaxed/simple;
-	bh=zmKlsXzHHQvXRtPNHD4rdYc95qGUg0SprQfiY1tcqOk=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=YS3iB+NrdeafQ0tS5lW1Boutvs/jxO8maOABsCz6QBY+7EKlXCasVJTfYfxirZrw1pAS0RwEijwFczMUWyXQ3yh+V4II3scOfXhYyg4zAbntuMGvVN3ySuL87tdTGFTRvhBz0mPZDKfs28hjXh6aBI32W3uq8CMeWkCG2LTXdTM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=RjVKT2YQ; arc=none smtp.client-ip=91.218.175.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+	s=arc-20240116; t=1785186836; c=relaxed/simple;
+	bh=6OuHhWkr5k5h73x3L6NngBFNSF4CMb8qsuVefnRkODc=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=NxEbNL/nV4y2qdyNhPTy3uQcJvi6ogKb4qy8NBa9QGKlYgY3SOzBsy0nQU1LA7UiJUZhwe2rRQVCLA+493TzonMifj6g2CP8qTI/IB57vlG86OkPeOJCZuyPmiVixEaPKOOIKNqprgMDQ23RvxWH4+IWe5dzYiRQMX2IGvqSFVA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=owTX40ur; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="RjVKT2YQ"
-Message-ID: <583d411e-07c8-45f7-9919-c01247cad718@linux.dev>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1785186118;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=QFH0Uadlc10pZ/VQm8kqDe/uQo18rRyQM/o0zQy554Q=;
-	b=RjVKT2YQQLtyj4XdFbCzNUMNoCCVvja/QsqDfBm8GNuLP/4sF2v2roI7GxNeZXT/VOqe6r
-	NfmdDLRnZ039y0u2fnmB/4+xtkR6ZTtAEIXjA1CAOhotnByhEWmr6G1xtgcKSHd+e+q7lt
-	E3IQF5ehoBTyyypFiKMtvjKPXBZhSNs=
-Date: Mon, 27 Jul 2026 23:01:55 +0200
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="owTX40ur"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E6AE1F000E9;
+	Mon, 27 Jul 2026 21:13:51 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1785186833;
+	bh=31eF4FIh5kuxF/IJfqgmBo72pJnFnFPz7WY5RTWXcR4=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References;
+	b=owTX40urXVVnl0C1DkxoDi1zLMnKr36uPT5vh11dGcVGscQg0jybGu2VYZff3+nzx
+	 HVtC2GX4GyUXAF865lQK19pHqSlSaN1CU7di6eZe5ziAexZ+nGidvFBcI2RiDjGEJi
+	 quIb3g7W4IzpEpEgXI+4e8IubiS7UOZjMsYJhP69UjXnFV1NFisGLoKSJNCHz36mhd
+	 uoWGvGSt9sH5FvqpsIA6qwe6shhqyNBn5yi5m+ecWXeoxCEpF7okJ++j9jR8h+LZwx
+	 FVE9F8SNCTKAMM0ys/eF71m+0yicwMVFR83tgrMkmV4SxNsSdU/+q3i1i18j8hiIEL
+	 DBVOQyWulufcw==
+Date: Mon, 27 Jul 2026 22:13:48 +0100
+From: Jonathan Cameron <jic23@kernel.org>
+To: srinivas pandruvada <srinivas.pandruvada@linux.intel.com>
+Cc: dhs@frame.work, Jiri Kosina <jikos@kernel.org>, David Lechner
+ <dlechner@baylibre.com>, Nuno =?UTF-8?B?U8Oh?=  <nuno.sa@analog.com>, Andy
+ Shevchenko <andy@kernel.org>, linux-input@vger.kernel.org,
+ linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org, Sven
+ =?UTF-8?B?VmFpbmvDvGxh?=  <sven@xn--vainkla-r2a.ee>, linux@frame.work
+Subject: Re: [PATCH] iio: hid-sensor: als: scale each channel individually
+Message-ID: <20260727221338.29f1da9b@jic23-huawei>
+In-Reply-To: <b6e684365758146193421ac3a36b58d55af77691.camel@linux.intel.com>
+References: <20260723-chromaticity-v1-1-5ef5746ace2a@frame.work>
+	<b6e684365758146193421ac3a36b58d55af77691.camel@linux.intel.com>
+X-Mailer: Claws Mail 4.4.0 (GTK 3.24.52; x86_64-pc-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Subject: Re: [PATCH v3 1/3] HID: asus: export asus_hid_fnlock_set() for direct
- fn-lock control
-To: =?UTF-8?Q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
- =?UTF-8?Q?Marcus_Gren=C3=A4ngen?= <marcus@grenangen.se>
-Cc: platform-driver-x86@vger.kernel.org, linux-input@vger.kernel.org,
- LKML <linux-kernel@vger.kernel.org>, luke@ljones.dev,
- Hans de Goede <hansg@kernel.org>, jikos@kernel.org, bentiss@kernel.org,
- corentin.chary@gmail.com
-References: <9b568ce0-93f7-4a7f-98e4-625e910f8a1d@linux.dev>
- <20260507092911.8855-1-marcus@grenangen.se>
- <20260507092911.8855-2-marcus@grenangen.se>
- <ad587675-cef3-f5b5-eb39-0f76dea8d617@linux.intel.com>
-Content-Language: en-US
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-From: Denis Benato <denis.benato@linux.dev>
-In-Reply-To: <ad587675-cef3-f5b5-eb39-0f76dea8d617@linux.intel.com>
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Migadu-Flow: FLOW_OUT
+Content-Transfer-Encoding: quoted-printable
 
+On Mon, 27 Jul 2026 08:18:47 -0700
+srinivas pandruvada <srinivas.pandruvada@linux.intel.com> wrote:
 
-On 7/27/26 13:09, Ilpo Järvinen wrote:
-> On Thu, 7 May 2026, Marcus Grenängen wrote:
->
->> Some ASUS platforms cannot control fn-lock via WMI DEVS and must send a
->> HID feature report directly to the N-Key keyboard device instead.
->>
->> Add a module-level fnlock_hdev pointer (protected by a mutex) that is set
->> at probe time for devices with QUIRK_HID_FN_LOCK and cleared at remove.
->> Export asus_hid_fnlock_set(bool) so that asus-armoury can call into
->> hid-asus without a circular dependency.
->>
->> Signed-off-by: Marcus Grenängen <marcus@grenangen.se>
->> ---
->>  drivers/hid/hid-asus.c                     | 44 +++++++++++++++++++++-
->>  include/linux/platform_data/x86/asus-wmi.h | 15 ++++++++
->>  2 files changed, 58 insertions(+), 1 deletion(-)
->>
->> diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
->> index d34d74df3dc0..402ba9d5e982 100644
->> --- a/drivers/hid/hid-asus.c
->> +++ b/drivers/hid/hid-asus.c
->> @@ -584,6 +584,39 @@ static void asus_sync_fn_lock(struct work_struct *work)
->>  	asus_kbd_set_fn_lock(drvdata->hdev, drvdata->fn_lock);
->>  }
->>  
->> +/*
->> + * Module-level reference to the HID device that handles fn-lock via feature
->> + * report. Set at probe and cleared at remove for QUIRK_HID_FN_LOCK devices.
->> + * Protected by fnlock_hdev_lock.
->> + */
->> +static DEFINE_MUTEX(fnlock_hdev_lock);
->> +static struct hid_device *fnlock_hdev;
->> +
->> +/**
->> + * asus_hid_fnlock_set() - Set fn-lock state directly via HID feature report.
->> + * @enabled: true to lock fn (F1-F12 primary), false to unlock.
->> + *
->> + * Called by asus-armoury on platforms where the WMI DEVS path for fn-lock is
->> + * non-functional (e.g. ASUS ProArt P16, N-Key keyboard product ID 0x19B6).
->> + *
->> + * Returns: 0 on success, -ENODEV if no fn-lock capable HID device is present.
->> + */
->> +int asus_hid_fnlock_set(bool enabled)
->> +{
->> +	int ret;
->> +
->> +	guard(mutex)(&fnlock_hdev_lock);
->> +	if (!fnlock_hdev)
->> +		return -ENODEV;
->> +
->> +	ret = asus_kbd_set_fn_lock(fnlock_hdev, enabled);
->> +	if (ret < 0)
->> +		return ret;
->> +
->> +	return 0;
->> +}
->> +EXPORT_SYMBOL_GPL(asus_hid_fnlock_set);
->> +
->>  static void asus_schedule_work(struct asus_kbd_leds *led)
->>  {
->>  	unsigned long flags;
->> @@ -969,6 +1002,8 @@ static int asus_input_configured(struct hid_device *hdev, struct hid_input *hi)
->>  		drvdata->fn_lock = true;
->>  		INIT_WORK(&drvdata->fn_lock_sync_work, asus_sync_fn_lock);
->>  		asus_kbd_set_fn_lock(hdev, true);
->> +		guard(mutex)(&fnlock_hdev_lock);
->> +		fnlock_hdev = hdev;
->>  	}
->>  
->>  	if (drvdata->tp) {
->> @@ -1008,6 +1043,8 @@ static int asus_input_configured(struct hid_device *hdev, struct hid_input *hi)
->>  		drvdata->fn_lock = true;
->>  		INIT_WORK(&drvdata->fn_lock_sync_work, asus_sync_fn_lock);
->>  		asus_kbd_set_fn_lock(hdev, true);
->> +		guard(mutex)(&fnlock_hdev_lock);
->> +		fnlock_hdev = hdev;
-> What's going on with this patch? Why this context appears more than once 
-> on different lines???
-Hi Ilpo,
+> On Thu, 2026-07-23 at 01:18 +0800, Daniel Schaefer via B4 Relay wrote:
+> > From: Daniel Schaefer <dhs@frame.work>
+> >=20
+> > Some sensors have multiple channels (not just brightness but color
+> > ALS
+> > sensors) with different scaling factors.
+> >=20
+> > Tested on Asus ProArt PX13 laptop by Sven.
+> >=20
+> > Signed-off-by: Daniel Schaefer <dhs@frame.work>
+> > Link:
+> > https://gitlab.freedesktop.org/hadess/iio-sensor-proxy/-/merge_requests=
+/413
+> > Cc: Sven Vaink=C3=BCla <sven@xn--vainkla-r2a.ee>
+> > Cc: Jiri Kosina <jikos@kernel.org>
+> > Cc: Jonathan Cameron <jic23@kernel.org>
+> > Cc: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+> > Cc: David Lechner <dlechner@baylibre.com>
+> > Cc: Nuno S=C3=A1 <nuno.sa@analog.com>
+> > Cc: Andy Shevchenko <andy@kernel.org>
+> > Cc: linux-input@vger.kernel.org
+> > Cc: linux-iio@vger.kernel.org
+> > Cc: linux@frame.work =20
+>=20
+> Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Added.  Thanks Srinivas!
+J
+>=20
+> > ---
+> > =C2=A0drivers/iio/light/hid-sensor-als.c | 22 ++++++++++++----------
+> > =C2=A01 file changed, 12 insertions(+), 10 deletions(-)
+> >=20
+> > diff --git a/drivers/iio/light/hid-sensor-als.c
+> > b/drivers/iio/light/hid-sensor-als.c
+> > index 384572844162..232cb58e0a9f 100644
+> > --- a/drivers/iio/light/hid-sensor-als.c
+> > +++ b/drivers/iio/light/hid-sensor-als.c
+> > @@ -33,9 +33,9 @@ struct als_state {
+> > =C2=A0		u32 illum[CHANNEL_SCAN_INDEX_MAX];
+> > =C2=A0		aligned_s64 timestamp;
+> > =C2=A0	} scan;
+> > -	int scale_pre_decml;
+> > -	int scale_post_decml;
+> > -	int scale_precision;
+> > +	int scale_pre_decml[CHANNEL_SCAN_INDEX_MAX];
+> > +	int scale_post_decml[CHANNEL_SCAN_INDEX_MAX];
+> > +	int scale_precision[CHANNEL_SCAN_INDEX_MAX];
+> > =C2=A0	int value_offset;
+> > =C2=A0	int num_channels;
+> > =C2=A0	s64 timestamp;
+> > @@ -186,9 +186,11 @@ static int als_read_raw(struct iio_dev
+> > *indio_dev,
+> > =C2=A0		ret_type =3D IIO_VAL_INT;
+> > =C2=A0		break;
+> > =C2=A0	case IIO_CHAN_INFO_SCALE:
+> > -		*val =3D als_state->scale_pre_decml;
+> > -		*val2 =3D als_state->scale_post_decml;
+> > -		ret_type =3D als_state->scale_precision;
+> > +		if (chan->scan_index >=3D CHANNEL_SCAN_INDEX_MAX)
+> > +			return -EINVAL;
+> > +		*val =3D als_state->scale_pre_decml[chan->scan_index];
+> > +		*val2 =3D als_state->scale_post_decml[chan- =20
+> > >scan_index]; =20
+> > +		ret_type =3D als_state->scale_precision[chan- =20
+> > >scan_index]; =20
+> > =C2=A0		break;
+> > =C2=A0	case IIO_CHAN_INFO_OFFSET:
+> > =C2=A0		*val =3D als_state->value_offset;
+> > @@ -338,6 +340,10 @@ static int als_parse_report(struct
+> > platform_device *pdev,
+> > =C2=A0		als_adjust_channel_bit_mask(channels, index, st- =20
+> > >als[i].size); =20
+> > =C2=A0		++index;
+> > =C2=A0
+> > +		st->scale_precision[i] =3D
+> > hid_sensor_format_scale(usage_id,
+> > +					&st->als[i], &st- =20
+> > >scale_pre_decml[i], =20
+> > +					&st->scale_post_decml[i]);
+> > +
+> > =C2=A0		dev_dbg(&pdev->dev, "als %x:%x\n", st->als[i].index,
+> > =C2=A0			st->als[i].report_id);
+> > =C2=A0	}
+> > @@ -347,10 +353,6 @@ static int als_parse_report(struct
+> > platform_device *pdev,
+> > =C2=A0	if (index)
+> > =C2=A0		ret =3D 0;
+> > =C2=A0
+> > -	st->scale_precision =3D hid_sensor_format_scale(usage_id,
+> > -				&st- =20
+> > >als[CHANNEL_SCAN_INDEX_INTENSITY], =20
+> > -				&st->scale_pre_decml, &st- =20
+> > >scale_post_decml); =20
+> > -
+> > =C2=A0	return ret;
+> > =C2=A0}
+> > =C2=A0
+> >=20
+> > ---
+> > base-commit: 194a48576843858afcd9c00ed4f105ec2b398e6c
+> > change-id: 20260723-chromaticity-88fec417f00c
+> >=20
+> > Best regards, =20
+>=20
 
-I think this patch has been taken by HID already as I had to resolve another issue with it:
-mutex usage in atomic context; you can read out more here:
-https://lore.kernel.org/all/20260619001103.1189200-2-denis.benato@linux.dev/
-
-The main idea as I understood it is that to activate the fn key, do things, and then
-deactivate it: the problem in this logic comes from the fact that using true both time
-is very likely an oversight and it should have been true -> false.
-
-I requested clarification too but still haven't got any response yet.
-
-Let me know if I can do something.
-
-Thanks,
-Denis
-> I even wasted my time on checking what hid tree has queued, and came up 
-> zero explanation (as expected).
->
-> --
->  i.

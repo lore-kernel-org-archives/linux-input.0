@@ -1,183 +1,90 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EA18A2AD03
-	for <linux-input@vger.kernel.org>; Mon, 27 Jul 2026 03:15:28 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A24D0374E5B
+	for <linux-input@vger.kernel.org>; Mon, 27 Jul 2026 04:39:56 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785122130; cv=none; b=BsSfjraMadOfy88C2D47W9wUMjuov/SidMxtEn7jxcGYWZ8Sskqf/nvr3tRNiepYKUGTqONosx1MKZkqi61MCXL4Xepor2chClkIrA9cRsobxArK9khMufG70Ypi6s1cF+C0BQhd2CquZlI1bOsx/msRiKOP6BZvd1jm7mM9lq0=
+	t=1785127197; cv=none; b=hv87w9ZpCfmSrjFGbaIxzS96HmUU59DSdwu8b5l2/D4+EJGCyWQO4iTHVNE4Yp/75FA2Qz3Bxqp73KWlAGRP3GvCF/u4NWUaUwJaf0vRi54d8PIkwC4WSzd4rwxKK+ZBqj/7ypSz3C8lCXHfY7yj90JGIH6J1g9uL21O6E57vzQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785122130; c=relaxed/simple;
-	bh=V+66jL/7CJUXInUsHg3gP4kO1rghxU2c3RbGRN6TWHU=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=dG+U+q4jwjgvMuKO6ewt5B/ThlZbl6DnbyWgLLYISshmuGq2KBzL8NKN8hnZri3kEci2cBpPa/w26i/3oiWYBRYetQALkad2Z3KCsEVJYi5FRELocLY4PB3Li5JvFSgBSlFenY8xuYi2QkrLUKWN0AZVk20yUsB7w0BgAWX9o3o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=OjWcXlVS; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1785127197; c=relaxed/simple;
+	bh=pX2KlAu6UnIrxpcm8kmaOybSUfwnj020seDGzU1WLrY=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=mzBHuviYRDhHwlUc3sWGnhBqgD77W2Ip4VTZgEl517rg/ga0Hsj3uOGNM8By+M3wpACqpjIQ35cRP2f0IdRfLliENt/dGYh5ZqyN4efgG8Hy1GV9+BJYn72ceptIXSjSoy2iXhf7xwcPNnh4r8BJo/k4D6CNRQlCj9J2+I4MOGQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=feGy+KFl; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="OjWcXlVS"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F04D81F000E9;
-	Mon, 27 Jul 2026 03:15:27 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785122128;
-	bh=vo+/nI6ffusKUnKf0Faj+yDxRXQlFX25XpIx7UIAuVg=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=OjWcXlVSbRBUF1qX4G8O0tWjr1tgSMjjXwbSzgLM+/trqiRmnVKL6f1prYQJmQAoX
-	 UjYJBsNLVWxVM7ibq3sGzbH9MnYQJhkZwU8Ill52EozzeZqGZkEx/XllcNaOyVXtkO
-	 OgVZgU7F9xNISGs+tsmhYF03ZdiX5R9xz0PPfY3eSVRwjvKJn6HxBWrMtzb8WjLuIQ
-	 v7dP7dRf8uv/bXcmtWRCHLsvtBeEN1CpvX5ua731A67ztw1/J4iGQ2LU/s60RoVMSl
-	 KgDqjoz35e8suLmjz3VkDJZ+PfkKXKq9nBuMmF/3tYhxOvmy6qixkC0mqLs+JHnKD9
-	 GevBPIgbyOB0A==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 1/2] HID: Intel-thc-hid: Intel-thc: Refactor I2C bus
- configuration with unified config structure
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Even Xu" <even.xu@intel.com>
+	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="feGy+KFl"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 881FE1F000E9;
+	Mon, 27 Jul 2026 04:39:55 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linuxfoundation.org;
+	s=korg; t=1785127196;
+	bh=DW4ccjsDrulV273AU/s0/I3QYaatrMXKJTZJxcfuW6k=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=feGy+KFltmLadu//MvEkMylaGwnOFt7iMHC5ZLvB/TAonl2g4j5wrzdvk75rSFUEd
+	 xpkXfNYLXHNUp7Abd/OhluHu3/FMGJAFvyaK/x9sZwAJ6Jlky9dtn70qV6P1/6wdvT
+	 ydJV4dNz9N3ywpcuWLASiZFIedMERKQUmicvbLvc=
+Date: Mon, 27 Jul 2026 06:38:30 +0200
+From: Greg KH <gregkh@linuxfoundation.org>
+To: Ishaan Dandekar <ishaan.dandekar@gmail.com>
 Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260727030310.3850984-2-even.xu@intel.com>
-References: <20260727030310.3850984-1-even.xu@intel.com>
- <20260727030310.3850984-2-even.xu@intel.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Mon, 27 Jul 2026 03:15:27 +0000
-Message-Id: <20260727031527.F04D81F000E9@smtp.kernel.org>
+Subject: Re: [PATCH v2] Input: xpad - add support for generic clone X-Input
+ gamepads
+Message-ID: <2026072715-slam-viewing-d59a@gregkh>
+References: <20260726171526.43071-1-ishaan.dandekar@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260726171526.43071-1-ishaan.dandekar@gmail.com>
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
-s) to consider:
+On Sun, Jul 26, 2026 at 10:45:26PM +0530, Ishaan Dandekar wrote:
+> This device exposes a vendor-specific Xbox 360 interface (0283:0001)
+> but was previously ignored by the driver, causing it to fall back to
+> a generic hid interface. Adding its ID to xpad_device and xpad_table
+> allows it to initialize correctly as an X-Input gamepad.
+> 
+> Signed-off-by: Ishaan Dandekar <ishaan.dandekar@gmail.com>
+> ---
+> Note to maintainers:
+> This device exposes a vendor-specific Xbox 360 interface (0283:0001). 
+> Adding its ID to xpad_device and xpad_table allows it to initialize 
+> correctly as an X-Input gamepad with full rumble support.
+> 
+> Context: This patch is a companion to a 2-patch series submitted to 
+> the linux-usb subsystem (v2: "Fix initialization for Generic Clone 
+> X-Input Gamepads"). The USB patches apply a 255-byte config request 
+> quirk to prevent this device's firmware from crashing. Once stabilized 
+> by the USB core, this xpad patch is required to actually route it 
+> properly. Both can be merged independently.
+> 
+> Changes in v2:
+> - Wrapped commit message at 72 columns.
+> - Separated from the USB series to target the input subsystem directly.
+> 
+>  drivers/input/joystick/xpad.c | 2 ++
+>  1 file changed, 2 insertions(+)
+> 
+> diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
+> index feb8f368f..c0a15db03 100644
+> --- a/drivers/input/joystick/xpad.c
+> +++ b/drivers/input/joystick/xpad.c
+> @@ -99,6 +99,7 @@ static const struct xpad_device {
+>  } xpad_device[] = {
+>  	/* Please keep this list sorted by vendor and product ID. */
+>  	{ 0x0079, 0x18d4, "GPD Win 2 X-Box Controller", 0, XTYPE_XBOX360 },
+> +	{ 0x0283, 0x0001, "Generic X-Input Gamepad", 0, XTYPE_XBOX360 },
+>  	{ 0x0351, 0x1000, "CRKD LP Blueberry Burst Pro Edition (Xbox)", 0, XTYPE_XBOX360 },
+>  	{ 0x0351, 0x2000, "CRKD LP Black Tribal Edition (Xbox) ", 0, XTYPE_XBOX360 },
+>  	{ 0x03eb, 0xff01, "Wooting One (Legacy)", 0, XTYPE_XBOX360 },
+> @@ -496,6 +497,7 @@ static const struct usb_device_id xpad_table[] = {
+>  	 */
+>  	{ USB_INTERFACE_INFO('X', 'B', 0) },	/* Xbox USB-IF not-approved class */
+>  	XPAD_XBOX360_VENDOR(0x0079),		/* GPD Win 2 controller */
+> +	{ USB_DEVICE(0x0283, 0x0001) }, /* Generic X-Input Gamepad */
 
-New issues:
-- [High] Erroneous bitwise operation when configuring 10-bit address mode u=
-sing FIELD_PREP reverses the 7-bit and 10-bit modes.
-- [Low] The function signature of thc_i2c_subip_init() was modified to take=
- a configuration struct, but callers in pci-quicki2c.c were not updated, le=
-ading to compilation failure.
+Comment doesn't line up :(
 
-Pre-existing issues:
-- [Critical] Hardware-controlled stack and heap buffer overflows via unchec=
-ked PIO read size in pio_complete().
---
-
---- Patch [1]: [PATCH 1/2] HID: Intel-thc-hid: Intel-thc: Refactor I2C bus =
-configuration with unified config structure ---
-commit e5a64a16b521af522ba816d8c4f239b2bd596a69
-Author: Even Xu <even.xu@intel.com>
-Subject: HID: Intel-thc-hid: Intel-thc: Refactor I2C bus configuration with=
- unified config structure
-
-This commit introduces a new struct thc_i2c_config to consolidate configura=
-ble
-I2C bus parameters. It renames and updates thc_i2c_subip_set_speed to
-thc_i2c_subip_bus_config and updates thc_i2c_subip_init to use the new
-structure.
-
-> diff --git a/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dev.c b/driver=
-s/hid/intel-thc-hid/intel-thc/intel-thc-dev.c
-> index 9a8449428170b..7b4a58e1416d6 100644
-> --- a/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dev.c
-> +++ b/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dev.c
-> @@ -1422,14 +1422,25 @@ static int thc_i2c_subip_pio_write(struct thc_dev=
-ice *dev, const u32 address,
->  #define I2C_SUBIP_DMA_TDLR_DEFAULT	7
->  #define I2C_SUBIP_DMA_RDLR_DEFAULT	7
-> =20
-> -static int thc_i2c_subip_set_speed(struct thc_device *dev, const u32 spe=
-ed,
-> -				   const u32 hcnt, const u32 lcnt)
-> +static int thc_i2c_subip_bus_config(struct thc_device *dev, const struct=
- thc_i2c_config *i2c_config)
->  {
->  	u32 hcnt_offset, lcnt_offset;
-> -	u32 val;
-> +	u32 read_size =3D sizeof(u32);
-> +	u32 val =3D 0;
->  	int ret;
-> =20
-> -	switch (speed) {
-> +	ret =3D thc_i2c_subip_pio_read(dev, THC_I2C_IC_TAR_OFFSET, &read_size, =
-&val);
-
-[Severity: Critical]
-This is a pre-existing issue, but could this cause a stack buffer overflow?
-
-If a compromised or malicious peripheral returns a large size via the
-hardware register in pio_complete(), it will be extracted and used directly
-as the byte count for regmap_bulk_read():
-
-drivers/hid/intel-thc-hid/intel-thc/intel-thc-dev.c:pio_complete() {
-    ...
-    regmap_bulk_read(dev->thc_regmap, THC_M_PRT_SW_SEQ_DATA1_OFFSET,
-                     buffer, *size / sizeof(u32));
-    ...
-}
-
-Since the destination buffer here is a 4-byte local stack variable (val),
-could an untrusted peripheral trigger a large out-of-bounds write to the
-kernel stack?
-
-> +	if (ret < 0)
-> +		return ret;
-> +
-> +	val &=3D ~(THC_I2C_IC_TAR_IC_TAR | THC_I2C_IC_TAR_IC_10BITADDR_MASTER);
-> +	val |=3D FIELD_PREP(THC_I2C_IC_TAR_IC_10BITADDR_MASTER, i2c_config->add=
-r_mode);
-
-[Severity: High]
-Does this logic correctly enable 10-bit mode?
-
-The struct documentation for thc_i2c_config explicitly instructs callers
-to pass the literal value 7 or 10 to addr_mode:
-
-drivers/hid/intel-thc-hid/intel-thc/intel-thc-dev.h:
- * @addr_mode: Slave address mode of touch device (TIC), 7bit or 10bit
-
-When these values are passed to FIELD_PREP with a 1-bit mask:
-- For 7 (binary 0111), the mask yields 1, incorrectly enabling 10-bit mode.
-- For 10 (binary 1010), the mask yields 0, incorrectly disabling 10-bit mod=
-e.
-
-Could this inadvertently reverse the 7-bit and 10-bit mode configuration,
-causing I2C device communication to fail?
-
-[ ... ]
-
-> diff --git a/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dev.h b/driver=
-s/hid/intel-thc-hid/intel-thc/intel-thc-dev.h
-> index 0db435335e249..be8a9605d02fe 100644
-> --- a/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dev.h
-> +++ b/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dev.h
-> @@ -121,8 +141,7 @@ int thc_spi_write_config(struct thc_device *dev, u32 =
-spi_freq_val,
->  			 u32 io_mode, u32 opcode, u32 spi_wr_mps, u32 perf_limit);
->  void thc_spi_input_output_address_config(struct thc_device *dev, u32 inp=
-ut_hdr_addr,
->  					 u32 input_bdy_addr, u32 output_addr);
-> -int thc_i2c_subip_init(struct thc_device *dev, const u32 target_address,
-> -		       const u32 speed, const u32 hcnt, const u32 lcnt);
-> +int thc_i2c_subip_init(struct thc_device *dev, const struct thc_i2c_conf=
-ig *i2c_config);
-
-[Severity: Low]
-Will this compile correctly given the other callers in the driver?
-
-It looks like the function signature of thc_i2c_subip_init() was changed
-from 5 arguments to 2 arguments, but callers in pci-quicki2c.c were not
-updated:
-
-drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c:quicki2c_probe() {
-    ...
-    ret =3D thc_i2c_subip_init(qcdev->thc_hw, qcdev->i2c_slave_addr,
-                             qcdev->i2c_speed_mode,
-                             qcdev->i2c_clock_hcnt,
-                             qcdev->i2c_clock_lcnt);
-    ...
-}
-
-Would this regression trigger a build failure at quicki2c_probe() and
-quicki2c_restore() since they still attempt to pass the old arguments?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260727030310.3850=
-984-1-even.xu@intel.com?part=3D1

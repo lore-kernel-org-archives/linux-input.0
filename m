@@ -1,86 +1,120 @@
-Received: from out203-205-221-202.mail.qq.com (out203-205-221-202.mail.qq.com [203.205.221.202])
+Received: from relay4-d.mail.gandi.net (relay4-d.mail.gandi.net [217.70.183.196])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A861C41A505;
-	Mon, 27 Jul 2026 13:22:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=203.205.221.202
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E88621367;
+	Mon, 27 Jul 2026 13:31:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.70.183.196
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785158562; cv=none; b=YHnub6N8BB4ylQIwa8B++6106+aAsCYLqSCNS1I4gUTjSQqwT9YDQwQz9mdso3AuQPY7BbF8KkRMpfTUD9FbyOoPJVcH5oD4NexTfWg1QEMd2oEz6VErhREYr2aGURmYmgiAqZtX2ToIrp0h2R0idK5KB/RaBMjOjmVnSXE3wFQ=
+	t=1785159084; cv=none; b=m112Y3WHmwnEvrQGMvT9nkvUuxBxsoaBTKciM6muCK/tpqDQw3ffDM1eNoND0LqmZdZhEEoBcgzMSIMV0fejfddInpHod02l4HNI4BZ/q+PNHpOEPk39jJBMfY6OQl/6++eENiOHasfTXHfHd5jxo0IVHVWPX1Jp5LkVY8FqGRc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785158562; c=relaxed/simple;
-	bh=4h+fnq0F4Qv55k9xbXWWudJWzghLpWZllmMcOpKWfJ8=;
-	h=Message-ID:From:To:Cc:Subject:Date:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=JQeNwTwlcIYV4LDvjdAwNDat1JTPrhDbllpluF/gWtnQ12VPM/GgqJTUcI/U3dGZLgri/pYiSq4VWq/EVPqXRwFX0KEqPCto6Mh/yJB4aKtJ0ukadUR0jf6zQauCnjFpdvuai8HtTQmlWJ9DZPmFJHRy2l3YShPw3w2RrqGWXNQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=Red54.com; spf=pass smtp.mailfrom=red54.com; dkim=pass (1024-bit key) header.d=qq.com header.i=@qq.com header.b=FcWGuMYY; arc=none smtp.client-ip=203.205.221.202
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=Red54.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=red54.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=qq.com header.i=@qq.com header.b="FcWGuMYY"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qq.com; s=s201512;
-	t=1785158548; bh=4h+fnq0F4Qv55k9xbXWWudJWzghLpWZllmMcOpKWfJ8=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=FcWGuMYYrKp+tWOUJW25vrGW+0SLuGWy74pklE2dRKr9Y4E70BaUbwqqCieL0PK/C
-	 5r1XZP4v6vdaKdrO+ijDU2j5FLgrR0w9f558mR4GJBNRSBnPf2gpm5bCXdZ8ZbiVup
-	 Et7WsLwOdyqdC5UaQ5Tl7JaYcKpO0WK2qUkP6oQ4=
-Received: from mail.red54.com ([103.253.24.18])
-	by newxmesmtplogicsvrszc43-0.qq.com (NewEsmtp) with SMTP
-	id 5870AA4D; Mon, 27 Jul 2026 21:22:07 +0800
-X-QQ-mid: xmsmtpt1785158527tjaumlawf
-Message-ID: <tencent_B61FC9737ABBDDCF4A60256D7FCF98B5FD06@qq.com>
-X-QQ-XMAILINFO: MDbayGdXPuoeqBzBzlzqI2x3O7sxL5rh7LW6Q7FT5Oc86YJ0wAB6j6TdeGBpX5
-	 rYzkFtgWRpeZOzm+kPDsFJxQdAOJT7h3hO0d7OThhOimQBNoCC+NLkfrXnHle1lPWFJ8TKjt7cdl
-	 +lEuTPz+3GUXwkulM8zQfgRlwFqsv+wVpko7TYcIYfVca/Al2p2/7KuxxcCBeHThVLr6TFj5xM6o
-	 K+o4icgA70Odu5WUcgJmbL6xfqO4eTMGoDLW/mI5j0xbzu3JdTUS26UyRE4hcodLy4TH+W6tFcEv
-	 tOBsUACbRNGi97oaNOiqZrgh1DP6dTQO29EU2cktMwFD+KuI2B88rQhp1OYbmy6AAn3t2nsCclo/
-	 2Rg/9OmjvICqcYvigbTdNBxT9PrScvgYRy322yxEgYLGGbCneZ3XEbLNXQG5D+iB0cCp/0njoCqr
-	 nivOZAfxjXDQMGAn5ee8JStofUm1f3qILBHdy5csPFargIa+FgjG8ZFsyYNPuTd+Ljbtff+ljtCv
-	 L1/cFH1IL7yF2yUX9pU5V/p2PxZoIoGaUul8F+X7GMf/Kv9J0VypJVjBTMIE6kp6luZSW2Ea73s6
-	 4FyrJzPSyEde+R6XyoFSK1pdEcKqcoq5Ti70qkcZymzeyvMWw3WfKrw0KlCNpHJmsoSpTO7/iaEK
-	 y5fY8bfLOQnPPur1UFO+gJ/KnwzKB17U/08pu5mqMJcngiIjDcvCmvTljlELeugCMOFqsdYgH+XN
-	 OWdSkt/Of4yRGhpf3tBf2/kuuyakTwSMd8/FYtvg9osEb03d6pTA1W6IxiBJkC5SlUEFKEkCsA5V
-	 PIzAm7qbjvPk+BApypQ9Exm6DnImClnOVT2aSXof4Wsp89+ZgjOxfKNoy7pMmbsEIE7/MZmLV6ul
-	 Oi4IsdFODo8mpf+KAlLKQaWqg7etUIvhNnVXA3a4W6H4vQ+eg1lJPiSr+jNLzhc40nwLikGT8h1U
-	 Bz4wmtDFZWZkCp7PwrMblABMn5uvMULAfoD98t+W8+F3NEf7+izAcijN7WBkK4XfDnS8pcJwcfF/
-	 14Ioes/LfgkBuSZxiyTpgDXXToTOmvijHeFCYQzYi6C6QVpXdUHP78+66Gm0eXNgr6OMQdXbhe/p
-	 52rL/VdbIVpxCQUxI=
-X-QQ-XMRINFO: M/715EihBoGS47X28/vv4NpnfpeBLnr4Qg==
-Sender: yeking@red54.com
-From: =?UTF-8?q?=E8=B0=A2=E8=87=B4=E9=82=A6=20=28XIE=20Zhibang=29?= <Yeking@Red54.com>
-To: linux-input@vger.kernel.org,
-	hansg@kernel.org,
-	dmitry.torokhov@gmail.com,
-	bentiss@kernel.org,
-	jikos@kernel.org,
-	yeking@red54.com
-Cc: dianders@chromium.org,
-	linux-kernel@vger.kernel.org,
-	sashiko-bot@kernel.org,
-	sashiko-reviews@lists.linux.dev,
-	superm1@kernel.org
-Subject: Re: [PATCH v7] HID: i2c-hid: Refactor _DSM helper and add i2c-hid-acpi-prp0001 driver
-Date: Mon, 27 Jul 2026 13:22:00 +0000
-X-OQ-MSGID: <20260727132202.66220-1-Yeking@Red54.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <tencent_76FCB13C1FB6FBFFA004F2D19AF6E458030A@qq.com>
-References: <tencent_76FCB13C1FB6FBFFA004F2D19AF6E458030A@qq.com>
+	s=arc-20240116; t=1785159084; c=relaxed/simple;
+	bh=UUFWjqmd2bkOijzFQUZ1nbQKW06yZ7Z5xLVOXxT3FGc=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=ucu5yOr1fBDwHFfPCOC/vlb8+q3dZuspRBZcbHQS/61+6aKFhFXprj058k6XaAPKpTDz7BHMHU0HtdoUTvfOoHK6Ct8iY14BEtB5UwsjaSeUQatkDd3jAQxKk6PD+p1HayjbEFiRw7nTVM52kHCS5F4zshLa8tNmlW4o45FQFDI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=hadess.net; spf=pass smtp.mailfrom=hadess.net; arc=none smtp.client-ip=217.70.183.196
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=hadess.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=hadess.net
+Received: by mail.gandi.net (Postfix) with ESMTPSA id 689D03EC82;
+	Mon, 27 Jul 2026 13:31:19 +0000 (UTC)
+Message-ID: <58230edfca51830963e328e36ebbc1b84606087f.camel@hadess.net>
+Subject: Re: [PATCH] HID: logitech-hidpp: Fix FF device cleanup on init
+ failure
+From: Bastien Nocera <hadess@hadess.net>
+To: Haoxiang Li <haoxiang_li2024@163.com>, lains@riseup.net,
+ jikos@kernel.org, 	bentiss@kernel.org, e.velds@gmail.com
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Date: Mon, 27 Jul 2026 15:31:18 +0200
+In-Reply-To: <20260623065200.1966629-1-haoxiang_li2024@163.com>
+References: <20260623065200.1966629-1-haoxiang_li2024@163.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.60.2 (3.60.2-1.fc44) 
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+X-GND-Sasl: hadess@hadess.net
+X-GND-State: clean
+X-GND-Score: -100
+X-GND-Cause: dmFkZTEdXuXRV6cfm7lnaPPayKxfcltC+Z0KRkOljvMJfK0bOIuPHBkmUz58HmPsuNabo0XpxvX1mRhY9YMdAiH++FFb+Z8kcPi5/vfyXrkg8FjdtfOhm20umrXwcj5LIB3+2Dd8vxsCgW9iiF/nh6lTdyI+qytzypwUXJZQQivnsh9crx8Wh2Rbhob6YMz9YuNjlq9tulKvnILXwguw8nOz1htRh2vex1SxfK5s/fOLSYO2yN8MFGHlRnUDuIXeWD5veCUVnM7ybFaIbgepf0qTnYmZU5/Z/b2Tk1CU3xwgUU4yg0nQgsxL2XiE7i6m/luB1bEhUleCF/54PP0/arMhgQj1aDBHAaZcuQ58oRHRNlmf7yNVrutKNnCvYOj9msp4mI+pH7YPx9sr9MTb/NINUUu/XbLtVTTqPt1BaTrQVhJ7mbWmt9W3qyCQArwteKTRBJLIxLRvKoamR+uASVdCNQyy1n5HYpLPaR9d7fBYZpBLCXXYMCKhYRoQGIaKXzbUUkD234ZoyFjJB9jzMUDmpRo+Smil1XRzLCDO6a61AKGKnuvTOjsKO89MJL/xiJKwUjASuQd68NMBfxgCdc8uISgowaiUjQS0QFPBQkNGydRDkVK3CfvjTW/Jyh6hzWPWVcJM9l5w/OkSJBsz6xk5QeL0Wha/6ZZoo5xGemFEekK9ig
 
-Hi Hans, hi Benjamin, hi Jiri,
+On Tue, 2026-06-23 at 14:52 +0800, Haoxiang Li wrote:
+> hidpp_ff_init() creates the input force-feedback device with
+> input_ff_create(), then allocates the HID++ FF private data,
+> effect ID array, and workqueue.
+>=20
+> If any of those allocations fail after input_ff_create() succeeds,
+> the function returns an error without destroying the FF device.
+> Add an unwind path that frees the private allocations made by
+> hidpp_ff_init() and calls input_ff_destroy() for failures after
+> input_ff_create() succeeds.
+>=20
+> Fixes: ff21a635dd1a ("HID: logitech-hidpp: Force feedback support for
+> the Logitech G920")
+> Signed-off-by: Haoxiang Li <haoxiang_li2024@163.com>
 
-Friendly ping — v7 was posted on Jun 30:
-https://lore.kernel.org/all/tencent_76FCB13C1FB6FBFFA004F2D19AF6E458030A@qq.com/
+Looks correct. I wish there was an easier way to handle this.
 
-No further review comments have come in.
+It looks like hid-bigbenff.c doesn't handle post-input_ff_create*
+failure properly either.
 
-Is there anything else you'd like changed?
+Reviewed-by: Bastien Nocera <hadess@hadess.net>
 
-Regards,
-Zhibang
-
+> ---
+> =C2=A0drivers/hid/hid-logitech-hidpp.c | 23 ++++++++++++++++-------
+> =C2=A01 file changed, 16 insertions(+), 7 deletions(-)
+>=20
+> diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-
+> logitech-hidpp.c
+> index 90b0184df777..fb2062233df2 100644
+> --- a/drivers/hid/hid-logitech-hidpp.c
+> +++ b/drivers/hid/hid-logitech-hidpp.c
+> @@ -2861,18 +2861,19 @@ static int hidpp_ff_init(struct hidpp_device
+> *hidpp,
+> =C2=A0	 * ownership to FF core
+> =C2=A0	 */
+> =C2=A0	data =3D kmemdup(data, sizeof(*data), GFP_KERNEL);
+> -	if (!data)
+> -		return -ENOMEM;
+> +	if (!data) {
+> +		error =3D -ENOMEM;
+> +		goto err_destroy_ff;
+> +	}
+> =C2=A0	data->effect_ids =3D kzalloc_objs(int, num_slots);
+> =C2=A0	if (!data->effect_ids) {
+> -		kfree(data);
+> -		return -ENOMEM;
+> +		error =3D -ENOMEM;
+> +		goto err_free_data;
+> =C2=A0	}
+> =C2=A0	data->wq =3D create_singlethread_workqueue("hidpp-ff-
+> sendqueue");
+> =C2=A0	if (!data->wq) {
+> -		kfree(data->effect_ids);
+> -		kfree(data);
+> -		return -ENOMEM;
+> +		error =3D -ENOMEM;
+> +		goto err_free_effect_ids;
+> =C2=A0	}
+> =C2=A0
+> =C2=A0	data->hidpp =3D hidpp;
+> @@ -2902,6 +2903,14 @@ static int hidpp_ff_init(struct hidpp_device
+> *hidpp,
+> =C2=A0		 version);
+> =C2=A0
+> =C2=A0	return 0;
+> +
+> +err_free_effect_ids:
+> +	kfree(data->effect_ids);
+> +err_free_data:
+> +	kfree(data);
+> +err_destroy_ff:
+> +	input_ff_destroy(dev);
+> +	return error;
+> =C2=A0}
+> =C2=A0
+> =C2=A0/*
+> *********************************************************************
+> ***** */

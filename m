@@ -1,105 +1,120 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f178.google.com (mail-pl1-f178.google.com [209.85.214.178])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9C08630E835
-	for <linux-input@vger.kernel.org>; Tue, 28 Jul 2026 03:06:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 096933939B3
+	for <linux-input@vger.kernel.org>; Tue, 28 Jul 2026 04:17:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785207996; cv=none; b=YP98tczF1DHtZy2Q+0aDGRNBZu00h11WsoPVSotE+TO3cFo22btB3E85KWT2XfIBLxkkixGis66mm5i0gNXclMmSrYd0wJYzCSwmbiVvbU306PwJ03CaNZrgtbrOIztW9l6XDMaJUOhtSgfnQCowfv/+pQKaNdGlJYV2Z3fb8Rc=
+	t=1785212280; cv=none; b=Dfm4Qo0dsFz3jIwTUaaGU7a3yxbCIMblCdLi5l9fQTJQqTlreroEoqqpwZe7eTrjWxw/mEW8pP0GpcJUPTIHCmsFNqt18AZvhh+dToZ3K0GG0NKjPBnCRCZ0/6a7Am6UkOMDTk1qSlgoYD0YXvVxgydpSiNlI/zg4QnGAZ6Gfog=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785207996; c=relaxed/simple;
-	bh=dNR0SuGGfp1B2LwwpYKJaq5AKm5wcndtMt99kviJXKQ=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=QdLnqqpqF2XCor6QqWhyMJn5ANy1J6psLa/+B8+jsCtmBnPUybIimREojUHOKftzcf+N+sfsycUok1XoBGPi7Qr4huEMueQDGQSKWRsWBam9zpImQbHo5RGxZJfFDse41z+lKnTTrXuNm7jN3fIU3qswiGPhYZidmmzVP9G6SfQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Hxz7u08c; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1785212280; c=relaxed/simple;
+	bh=R9blW7WU+/KPJy2Kw6RAoVOj6pvSxTERJYTY2MhFFwk=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=IQJ3kY72oz6/qJrNBYPtn2zmu6NwvKeXJQiMfYHMk6TjGlZA9W0I0w6UaFl50LibXR69T9NUmxaPT2XlXtD05cAOp+N3khfF+4MdLTGvRns6Y3q9DgJzxuD25EXAaB1etddrNdiL9OuyQXjYOxg0gVtqzaINgpQwCRgzBE/1vaM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=cirque.corp-partner.google.com; spf=pass smtp.mailfrom=cirque.corp-partner.google.com; dkim=pass (2048-bit key) header.d=cirque-corp-partner-google-com.20251104.gappssmtp.com header.i=@cirque-corp-partner-google-com.20251104.gappssmtp.com header.b=Ufba6maO; arc=none smtp.client-ip=209.85.214.178
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=cirque.corp-partner.google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=cirque.corp-partner.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Hxz7u08c"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C5C51F000E9;
-	Tue, 28 Jul 2026 03:06:35 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785207995;
-	bh=YCUxzNMHu8ibvjMHv1/5wMo2KiXbEdj7suU7OLghw2o=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=Hxz7u08cyzJ5e2I/5+ekLPcS+JpPTaQX6ovOUCeqLX2cEt6FA7C3kJPB6bXl7ds45
-	 9ATHxRqrDGm6MH4Si/Bg7e7bopNjw4jQmnP5RqPVUKoWu8nM8VyUMd6MWtwxuYUqgg
-	 DdE4CeD/MkeKz5oHgnWzIOZWEgZzJUMmwFyY2ldFX29rLXDrWtXgjPd1YM+M6RDAkr
-	 VBVP+PAH5gVniQJJ+57/5zPwV8B7UpsrKKgQzf9XbNtZEo8xCqkRnYJ1teklQ26L9o
-	 4KtyvnZHR6QQmxCj9d+MXk/VDoMBsq2Krk8QUKUwxLd5XOeVXSxlljtwczWdH96o7C
-	 E4setWx/AjIaQ==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 3/4] HID: picolcd: Use min() macro to simplify code
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Chen Changcheng" <chenchangcheng@kylinos.cn>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260728025750.48249-4-chenchangcheng@kylinos.cn>
-References: <20260728025750.48249-1-chenchangcheng@kylinos.cn>
- <20260728025750.48249-4-chenchangcheng@kylinos.cn>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Tue, 28 Jul 2026 03:06:34 +0000
-Message-Id: <20260728030635.1C5C51F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=cirque-corp-partner-google-com.20251104.gappssmtp.com header.i=@cirque-corp-partner-google-com.20251104.gappssmtp.com header.b="Ufba6maO"
+Received: by mail-pl1-f178.google.com with SMTP id d9443c01a7336-2cace91f112so38468405ad.0
+        for <linux-input@vger.kernel.org>; Mon, 27 Jul 2026 21:17:56 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=cirque-corp-partner-google-com.20251104.gappssmtp.com; s=20251104; t=1785212275; x=1785817075; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=Yd9sQF9Oi6Er+YrvfB4CqNGV3pN/oiBL+0EmLj0srbg=;
+        b=Ufba6maOfdEo215azTDwePbXjg40tC3owFVfKVZgEP1oJUOo6REfK3fml2simtfd3F
+         Q4tUJHjSOBmBk5HM8opnIqw8bZQbgHBeXV0VKhGE4wRiUUCsoG244EA/uYkzTXrAgpc6
+         UqPbaX189hXEXW5SohCdb6ofb2Qfe4aJLTba0UanVzpqtEUeQeNQhjsUWY1sm8+C3guf
+         DttxmXfILNK4IzfDv1hLjuSJrFWNfKsVWOD8YQtdGJotwrhc1aZU3F9AtuKpUsJMuhuB
+         QxTQ1fJgfGAXcavy53WxicuKY0ynCg0jrMD26+ZHLAYKHE7LklmCVt4Kk3932iBo1FbZ
+         VWDw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1785212275; x=1785817075;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=Yd9sQF9Oi6Er+YrvfB4CqNGV3pN/oiBL+0EmLj0srbg=;
+        b=hWkg4WM53vdGdIzBF1XanyyLyCHYPxJlJsGi4onhTiLwmTF0Vp3xZFExCwr9XoRS+Q
+         0iUt0Kc9yvCjhorrWCrspyDGHejdvWl/kwaKKZMXBUP6j1M4K5iY9j26NkDkClOtuu+p
+         DUsiUI6jeBhYjJnc/1kAqwC/8Q7HTgsP0IOLdyIrSVUIC7Sf5JRhnyIfVpOtOY3V4iaA
+         28ys4SgM/v6KtKrPQp/uU9qztGVWyoaJbxulpaM0jL1aMbB0KH/lkpoCGEPP6+SvaHlW
+         K5dGg5BQIj7r8CcAuPyEa4FK674v/p7HSanJIKw/IGSBXayT8ODwkIvj+S71Nctfx0ee
+         f1ig==
+X-Forwarded-Encrypted: i=1; AHgh+RqwrwNrgt2ZtrUqCZ65nJXgOBYRX5L7fzeBABFAwi1xTj36R766ZRY8erciNaTs07v4QBd4A9jrTUtZrw==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yzr5XM9iueoZqGZljiDQqr1sQyV7eSTUefZBoXPBxv3cCbUBExT
+	n/S9s35/MlxtItuDk+Ja1iYTjXVRUXkaDBgDMILPlj6vbxuHPsFIlbBD30s52BlLwds=
+X-Gm-Gg: AR+sD11EKM0tzZrgGlKtW8UnNcYYHATvzZhQJygD2CHOPpcRU0gx6k/dn+U1TTIJQ5b
+	ax/WIprNnK4TM0gFFV4J+QMzbIVNoxW3RWnOZLHcqIP7GZ4XpNA1RcmAXEIL63Yajk0tmVWkln5
+	jKWhMQN0f6YVmUGsnAX/DOZrHf/ZoPbx8f7puXbykUZZG4TaUDVffzxUW0P/ZpCHUXuDDU4jduJ
+	hSs00WCTVYhtvV/hmDescT3KPuOuYh1dOVuyP4ROctMc4klJQ/dYGq0Z+JwJ8NSqx8BT2tw5H3m
+	1Wg5Pt+nbePnrcr77f/2+HPvYUHvqv9rDbw7hUjXaKtZrDEug1MEXuk/h/Qo3+GEtxXfMJPdm3K
+	Y+MPo60a7Om3wvXE+e6ERvJFIMj0PHtRs/Mgrmb00UcqooeJXvNwoLtZFKe4e5Nnt+2veKrcrBA
+	==
+X-Received: by 2002:a05:6a20:258f:b0:3a3:a9c4:3d60 with SMTP id adf61e73a8af0-3c8ab0e60abmr828309637.27.1785212275411;
+        Mon, 27 Jul 2026 21:17:55 -0700 (PDT)
+Received: from Armorhide.. ([2601:680:ce01:1ab0:20a8:986b:7e0:ab39])
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-13d130a8421sm55676149c88.10.2026.07.27.21.17.54
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 27 Jul 2026 21:17:54 -0700 (PDT)
+From: Vadim Klishko <vadim@cirque.corp-partner.google.com>
+X-Google-Original-From: Vadim Klishko <vadim@cirque.com>
+To: Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>
+Cc: Hans de Goede <hdegoede@redhat.com>,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Vadim Klishko <vadim@cirque.com>
+Subject: [PATCH v3] HID: i2c-hid: Add a quirk for a Cirque I2C device.
+Date: Mon, 27 Jul 2026 22:17:18 -0600
+Message-Id: <20260728041718.32954-1-vadim@cirque.com>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
+Cirque touchpads with PID D0C1 generate an error when probed
+by the I2C HID driver, resulting in no hidraw device created.
+Adding I2C_HID_QUIRK_NO_IRQ_AFTER_RESET fixes the issue.
 
-Pre-existing issues:
-- [High] Out-of-bounds read in `picolcd_debug_eeprom_read` leaking kernel h=
-eap memory to userspace.
---
+Signed-off-by: Vadim Klishko <vadim@cirque.com>
+---
+v3: Resending as a standalone thread to fix a Patchwork issue. No code changes.
+v2: https://lore.kernel.org/all/20260708003108.20288-1-vadim@cirque.com/
+v1: https://lore.kernel.org/all/20260703144726.14808-1-vadim@cirque.com/
 
---- Patch [3]: [PATCH 3/4] HID: picolcd: Use min() macro to simplify code -=
---
-commit 1474980d788a9366218f25c39b115f1aca750b68
-Author: Chen Changcheng <chenchangcheng@kylinos.cn>
+ drivers/hid/hid-ids.h              | 1 +
+ drivers/hid/i2c-hid/i2c-hid-core.c | 2 ++
+ 2 files changed, 3 insertions(+)
 
-HID: picolcd: Use min() macro to simplify code
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 1059922baaac..496589277bd5 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -334,6 +334,7 @@
+ 
+ #define I2C_VENDOR_ID_CIRQUE           0x0488
+ #define I2C_PRODUCT_ID_CIRQUE_1063     0x1063
++#define I2C_PRODUCT_ID_CIRQUE_D0C1     0xD0C1
+ 
+ #define USB_VENDOR_ID_CJTOUCH		0x24b8
+ #define USB_DEVICE_ID_CJTOUCH_MULTI_TOUCH_0020	0x0020
+diff --git a/drivers/hid/i2c-hid/i2c-hid-core.c b/drivers/hid/i2c-hid/i2c-hid-core.c
+index 3adb16366e93..63004bcbfa71 100644
+--- a/drivers/hid/i2c-hid/i2c-hid-core.c
++++ b/drivers/hid/i2c-hid/i2c-hid-core.c
+@@ -136,6 +136,8 @@ static const struct i2c_hid_quirks {
+ 		I2C_HID_QUIRK_BAD_INPUT_SIZE },
+ 	{ I2C_VENDOR_ID_CIRQUE, I2C_PRODUCT_ID_CIRQUE_1063,
+ 		I2C_HID_QUIRK_NO_SLEEP_ON_SUSPEND },
++	{ I2C_VENDOR_ID_CIRQUE, I2C_PRODUCT_ID_CIRQUE_D0C1,
++		I2C_HID_QUIRK_NO_IRQ_AFTER_RESET },
+ 	/*
+ 	 * Without additional power on command, at least some QTEC devices send garbage
+ 	 */
+-- 
+2.34.1
 
-This commit replaces an open-coded minimum check with the standard min()
-macro in hid-picolcd_debugfs.c. It simplifies the logic for limiting the
-read size for EEPROM data.
-
-> diff --git a/drivers/hid/hid-picolcd_debugfs.c b/drivers/hid/hid-picolcd_=
-debugfs.c
-> --- a/drivers/hid/hid-picolcd_debugfs.c
-> +++ b/drivers/hid/hid-picolcd_debugfs.c
-> @@ -86,7 +86,7 @@ static ssize_t picolcd_debug_eeprom_read(struct file *f=
-, char __user *u,
->  	/* prepare buffer with info about what we want to read (addr & len) */
->  	raw_data[0] =3D *off & 0xff;
->  	raw_data[1] =3D (*off >> 8) & 0xff;
-> -	raw_data[2] =3D s < 20 ? s : 20;
-> +	raw_data[2] =3D min(s, 20);
-
-[ ... ]
-
-> 	if (resp->in_report && resp->in_report->id =3D=3D REPORT_EE_DATA) {
-> 		/* successful read :) */
-> 		ret =3D resp->raw_data[2];
-> 		if (ret > s)
-> 			ret =3D s;
-> 		if (copy_to_user(u, resp->raw_data+3, ret))
-
-[Severity: High]
-This is a pre-existing issue, but while reviewing this function, can a
-malicious or buggy USB device cause an out-of-bounds read here?
-
-If a user reads from the eeprom file with a large size, for example=20
-s =3D 256, and a malicious device responds with a REPORT_EE_DATA containing
-a large embedded length field in resp->raw_data[2] up to 255, ret will take
-that device-controlled value.
-
-Since ret (255) would not be greater than s (256), this copy_to_user()
-call could attempt to copy up to 255 bytes.=20
-
-Given that resp->raw_data is a fixed 64-byte array, does this allow reading
-past the end of the struct picolcd_pending heap allocation and leaking
-adjacent kernel heap memory to userspace?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260728025750.4824=
-9-1-chenchangcheng@kylinos.cn?part=3D3

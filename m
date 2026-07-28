@@ -1,77 +1,77 @@
-Received: from mail-oo1-f48.google.com (mail-oo1-f48.google.com [209.85.161.48])
+Received: from mail-ot1-f43.google.com (mail-ot1-f43.google.com [209.85.210.43])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1FEFE466B1D
-	for <linux-input@vger.kernel.org>; Tue, 28 Jul 2026 18:40:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.161.48
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 49D1B46AF24
+	for <linux-input@vger.kernel.org>; Tue, 28 Jul 2026 18:41:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785264002; cv=none; b=DCzOw6ZsggFtWv9Y196kSlXVVzI9fSmecaS3Mw1kW7i55BRmjnKiqcmZ2cDoKULzewlSDkjUz85qXJQoIum33d9XvQCaMmd0ge57xnfKuSLbRHXxwJiLbnKO73RI8sJKfu9dPkzGNbFLoH9E6y4GBr6Jvd97MvWBL6epTjd4X2E=
+	t=1785264080; cv=none; b=RcFh3Ae3uZfCv5SX6Vt+VRtMdYtWEJErbno5sIIq8WRYNpIvrJSuge8SPCno3+uIFLC/mPOwFW0PcsI8Nit7QJglLEq/GjPI7mH0DiqxaQkjKeUgSBtkMrWYixDhPmbaWOFA6MfjvV9M+Df5dSyDeYOkFrkjyS1qAx/LmQ49Oh0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785264002; c=relaxed/simple;
-	bh=wmgqjAU8LGLuTBGTqgtzum73+chcg63x9G/qkZbkq50=;
+	s=arc-20240116; t=1785264080; c=relaxed/simple;
+	bh=S6xh4/8NiTa7ChYWZ1h2X4Uq+wR735kNcCvU6dnXzH4=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=Z6xjKU5uhngpLtvKyEbHtLsd1unp3zngNYNhepzuWGpG1lTbEIEZNytDb20H645gS5bWJjCiiAXBlYn6tiicftOivFkWS1Y32KGwk6UuFmWebnx71cqVD/4C9e0hWXpY9WSFGmDKqAmdiAN8Q5dkjDJjeBEr9RBdW7eXMpurk88=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=I+a8sfvA; arc=none smtp.client-ip=209.85.161.48
+	 MIME-Version:Content-Type; b=Dcwe84XHC1JSnwFWuQeAKOmzWtkdj1SWYWZeftCwp11ZCx7HXbmi+gjFiAlI91eS3KiA09qXe5llZXA1LHOAFf5xw/mlvrTd7utkxwxnYbSiRWMbNi6V80HxjUDUGpCE9Besi8aEQZ2GNN4MspZgOFyEi8lkFiY0RzCUR2cMcDg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=FBXaEU4V; arc=none smtp.client-ip=209.85.210.43
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="I+a8sfvA"
-Received: by mail-oo1-f48.google.com with SMTP id 006d021491bc7-6ab05b2f9daso95341eaf.2
-        for <linux-input@vger.kernel.org>; Tue, 28 Jul 2026 11:40:00 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="FBXaEU4V"
+Received: by mail-ot1-f43.google.com with SMTP id 46e09a7af769-7e6128bd9b3so110805a34.1
+        for <linux-input@vger.kernel.org>; Tue, 28 Jul 2026 11:41:18 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1785264000; x=1785868800; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1785264077; x=1785868877; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:mime-version:references
          :in-reply-to:message-id:date:subject:cc:to:from:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=Xkf9XQPSfNEqYu/lK1cOdYxG0oWwY1T1NURcZl6XkKk=;
-        b=I+a8sfvAJSC49dT8agF9dHd+aX069jzRgNcQXqlQeVU23Ce1cNYADLGFW6qK8AILeb
-         tYhmlXxhhByAtYwIiv9kWXjlRUPGViXkzO/MYEl4jpBGZo50ceTLuKkRpdG+8cWfPlHm
-         J16iHGmsUUnnT0T3GRkhKEaGvbVD0wVLpOPMFYcm7zgY0z6kDa/Zu/y4lU0L9to7Zpm1
-         gs4Xaw55oGuDv5vmH8bd8VSmkSaxnwRL6zerFHzfYuofz5ST8fLUfwR52nFYZTZTF4BF
-         dVIgrITmJFmaQeXLrBUnnDeXwHBjP1QBnrxEc73marbmCFFOLkto22X6N4i4jIcapmVq
-         1TGg==
+        bh=mNu6PWtMyvNAK0aPQFqc+HS8pqxvEFc07RUgnno339Y=;
+        b=FBXaEU4Vgf1wlXF9c+p8GzCyXda8wsmg8QW4+ekPBddEi40OIubzhu96/TrSCWZXsu
+         Lmo4Elq077PvBB90cwenfDCjjFd3B2emTEpCMujB12wssj5dQMpSVPCuITqtFO2FdGz9
+         PhoZ/pSOpDMumNYbhoMC6HHRR2qek9Dh9VjhUDimnth6bGdZO4Fu9WMvie3qguvl/hAe
+         +K5t3VUkSuXn7dZVYUfRqpmxvaNyQ5Nf4uzOOO3tGN/pN6CnMro4PST1t1V/8ZWnpOFc
+         0HiDneDzC2KZIEx5rnhqZNmI6JRIGqW6KyN/iw/RGwl+cY9itUP6mzrtcErj+zWiJxr9
+         09dA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785264000; x=1785868800;
+        d=1e100.net; s=20251104; t=1785264077; x=1785868877;
         h=content-transfer-encoding:content-type:mime-version:references
          :in-reply-to:message-id:date:subject:cc:to:from:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=Xkf9XQPSfNEqYu/lK1cOdYxG0oWwY1T1NURcZl6XkKk=;
-        b=WHDSbTkZw5w1oRr5oAmRNjyAIIieCjNkw9LIRgxiMhSY0HGhSisQC4ldk8LTEMypms
-         P8ZilV9q8Y3wJAtJDAcr9SKPgihSav35s7AIGVYD4u0Ud7hYTyT7W6R8tyziMix/YpLR
-         5658rgCMkwgWR1tsX4DnxSLL+tRzNn0FB9xKFZlPKiNzQf2T0nspKR0lAcvHJfk9T2k4
-         GAulS//5exa+AswKIqBh+yjgc7PDQyWHNB9SxfRCXLSJchpiO8QJj8Kxy7XchtaiDvQn
-         Ihv5vdRo4dlpApr0qk1BeylYZBh+Xa2tEzAxhSNSqArvX0HVexir/AYp8OdZ1nTCNInt
-         oIXQ==
-X-Forwarded-Encrypted: i=1; AHgh+RqPxQUieqyoRc167Frgf5yz+WRr7WP09ZVj5raZELPrnOPBoRm8HjSfbjFf1pig0uU/j+Ove0oRwXqHbw==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yyh1sjXgvFaYLSQTPtybd1Pn7ty3dAMjqZj+CobuzHX+z8kiiBI
-	ricuQcWgBrrpDO+Y42BlBULng65B7fCsWpXcdID824trmbTed16Ra5zm
-X-Gm-Gg: AR+sD10NEd+NHhhEbUDO5yySY7z7mBJSroKk3Lkj9D0tlaSf3VkI7nfrW8YaUZ/oOoV
-	GEYr7NIIz1QRljXEdosnkBE2hDTzXk6dP1lc15IUhWML9zRLNIgH558BuIPcQKCv96CRDm/ZNTT
-	wQKoQwfRB86+xBbzoPHps41IBxE87omPcGypJNWOayJEBXJbEiM4tOUgjBDk9VyR6tnmb1ZZ1EB
-	z4Lsg7H1v/ZjFxd67cYkwq5vZTOah1SRPkSUEjyWM2+pLkxs01+nOleWlgzskN7eTzmfbZZhDE+
-	RzQWnM56jW6OlDa1nn/gRjcqAsFhCyzi6pY/ufJYRe7G4Abwii2LBkn/RWgIeCmYPsWS/Vk5BFj
-	UVFBhLjDyCbTj0D5QLbE5ScHtkW6t2XOxqLNDSFFAallX1OCwB4XPzklo24mgjziCxy67KB1jpe
-	9o1A==
-X-Received: by 2002:a05:6820:4b8d:b0:6aa:fc2b:eb04 with SMTP id 006d021491bc7-6ac96c4160emr1775325eaf.50.1785263999873;
-        Tue, 28 Jul 2026 11:39:59 -0700 (PDT)
+        bh=mNu6PWtMyvNAK0aPQFqc+HS8pqxvEFc07RUgnno339Y=;
+        b=YMq46e4x8ngD4jcDZbqgi6LgLOVQsJ25jAM12DZlaj+vBhoazqCvJGXF7NtHGlz9ig
+         QXUdAhzEOquXBbOdAAml9CmCDfsj9A0CFQnTFr/DIwOAmlujLflaVt8CXnV1ih2Vw3iy
+         bBATA3b2GnPg0jgJxJrx2ySFlwRb+zM+TwJjFpNZ1BBav/rm87w4SCH9HcZ0TdS8u+z3
+         sXbJZkCEeRTeY24yL+Qt0Y5yFLx1zXsBx0v3Lj7/Xpp1AO5VTShPOLO4aYzDO7fUY/Lb
+         WrfFJ8K/ySPFd2e0HmmWZPh1XRWUdH2W/0JADWyduDOQKrnIzHXr5HyegFvmMsrx4Y7t
+         js3Q==
+X-Forwarded-Encrypted: i=1; AHgh+Rq8ia1Z4bl+8paAEiYXn41oLWSUK3RJ33mHOxaagCbW/sLLecNe1BIiLDrptT1d9MiihYsJ+wZ2mZDXQQ==@vger.kernel.org
+X-Gm-Message-State: AOJu0YyhpnkfbO3AHmeA9+QS4aIMZHkt1QZ5yIaN4OcucDUPsl1p3k22
+	KrMjt7sVVfO3d6xslkVPS4kKt5aG/6dfllO1Oejsh7qACcscUg/IBwaXGgNOdpE/
+X-Gm-Gg: AR+sD12W2OELWYpg7FyoMP6j8Z0k9mRXc9sFGPFWcV27z4+4y3Qf5wcDjDSa3Oqsfd3
+	PTSuieUwswItN12v5Ee85bJ7S+4qh2Pc7uVqi7JBUMHPvK4GpJjFziC3Uuh2bE97BqTo6pog+bQ
+	YEBKMaP3om2pdrEKISOxsArk8eo2W655+oAotikrpNByLny+otFFkufb2tu4BNrooocf2etK1vV
+	RHj8B52uw19bF0AGTmvq2RCV9QQslLI2TyMPJQ09wbkIg5RsiW/c4Elq1mgQ8VSOGWsXT0vN7tp
+	F1F1l1cSvt/4EaLSjDwoIFttYfR2+2+h8luOr6d2wPJwN3ddl3Y72p9oQwGt+G8InQLbzA1jbVr
+	B1ZoBAIYkZJkxn87GydRl4SAlzD5usG2wz2kT3SR7zkdZoj6szVw0bBTQsnYKsQfbGwiLNaPKE3
+	Jy/w==
+X-Received: by 2002:a05:6820:1528:b0:6a3:87fd:2130 with SMTP id 006d021491bc7-6ac96cda0ccmr1886791eaf.67.1785264077076;
+        Tue, 28 Jul 2026 11:41:17 -0700 (PDT)
 Received: from desktop ([2806:107e:1a:2f14:d204:ec3e:fc64:563b])
-        by smtp.gmail.com with ESMTPSA id 46e09a7af769-7f00d8d397asm381363a34.17.2026.07.28.11.39.58
+        by smtp.gmail.com with ESMTPSA id 006d021491bc7-6aca5254057sm177341eaf.4.2026.07.28.11.41.15
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 28 Jul 2026 11:39:59 -0700 (PDT)
+        Tue, 28 Jul 2026 11:41:16 -0700 (PDT)
 From: =?UTF-8?q?Jose=20Villase=C3=B1or=20Montfort?= <pepemontfort@gmail.com>
-To: Alec Hall <signshop.alec@gmail.com>
-Cc: Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>,
+To: Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>
+Cc: Alec Hall <signshop.alec@gmail.com>,
 	linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	=?UTF-8?q?Jose=20Villase=C3=B1or=20Montfort?= <pepemontfort@gmail.com>
-Subject: Re: [PATCH] HID: magicmouse: reject devices that bind without an input device
-Date: Tue, 28 Jul 2026 12:37:46 -0600
-Message-ID: <20260728183746.685507-1-pepemontfort@gmail.com>
+Subject: [PATCH v2] HID: magicmouse: avoid NULL pointer deref when there is no input device
+Date: Tue, 28 Jul 2026 12:40:59 -0600
+Message-ID: <20260728184059.688513-1-pepemontfort@gmail.com>
 X-Mailer: git-send-email 2.55.0
-In-Reply-To: <20260728072554.47069-1-signshop.alec@gmail.com>
-References: <20260715195853.1302765-1-pepemontfort@gmail.com> <20260728072554.47069-1-signshop.alec@gmail.com>
+In-Reply-To: <20260715195853.1302765-1-pepemontfort@gmail.com>
+References: <20260715195853.1302765-1-pepemontfort@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -81,54 +81,107 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-On Tue, Jul 28, 2026, Alec Hall wrote:
-> The second half of that turns out not to hold on real hardware. A USB
-> Magic Trackpad 2 exposes four HID interfaces, and only the first two
-> register an input; interfaces 2 and 3 are vendor-defined, hiddev/hidraw
-> only.
+magicmouse_raw_event() and magicmouse_event() dereference msc->input
+(e.g. input->id.product, and via magicmouse_emit_touch() and
+magicmouse_emit_buttons()) without checking it for NULL. hid-input only
+sets msc->input when the device exposes a usable input device.
 
-Thanks for putting it on hardware. You're right, and the stable argument
-settles it -- unbinding two interfaces of a healthy device is not
-something to ship as a fix. v1 is dropped.
+magicmouse_probe() has an "input not registered" check that fails the
+probe when msc->input is NULL, but the USB Magic Mouse 2 / Magic
+Trackpad 2 path returns 0 before reaching it. Real hardware ends up in
+that state: a USB Magic Trackpad 2 exposes four HID interfaces and only
+the first two register an input, and a USB-C Magic Trackpad (05ac:0324)
+exposes three with the same split. The remaining interfaces are
+vendor-defined, are claimed as hiddev/hidraw only, and stay bound to
+this driver with msc->input == NULL.
 
-I can confirm the same shape on the other model. A USB-C Magic Trackpad
-(05ac:0324) on an unpatched 7.1.5 here exposes three HID interfaces
-rather than four, all three bound to magicmouse:
+Both callbacks are reachable in that state. ->raw_event is called for
+every incoming report, and hid_process_event() calls ->event without
+requiring HID_CLAIMED_INPUT -- hid_match_usage() matches everything here
+because this driver has no usage_table. An input report on one of those
+interfaces therefore dereferences a NULL pointer and panics the kernel.
+A device that binds this driver by spoofing an Apple VID/PID, with a
+report descriptor that does not produce an input device, reaches the
+same state.
 
-  0003:05AC:0324.0006  input=input12  hidraw=hidraw5
-  0003:05AC:0324.0007  input=input13  hidraw=hidraw6
-  0003:05AC:0324.0008  input=<none>   hidraw=hidraw7
+Bail out of both callbacks when msc->input is NULL and leave the report
+to the generic HID paths, which is what those interfaces get today.
+Rejecting the bind in magicmouse_probe() instead would unbind interfaces
+that a healthy device legitimately exposes and drop their hidraw nodes.
 
-Interface 2 is the vendor-defined one (bInterfaceSubClass 0,
-bInterfaceProtocol 0, two endpoints) and has no input device. So the
-interface count varies by model, but an input-less interface bound to
-this driver is plain normal.
+Fixes: 0b91b4e4dae6 ("HID: magicmouse: Report battery level over USB")
+Suggested-by: Alec Hall <signshop.alec@gmail.com>
+Link: https://lore.kernel.org/linux-input/20260714102540.3EB2E1F000E9@smtp.kernel.org/
+Link: https://lore.kernel.org/linux-input/20260728072554.47069-1-signshop.alec@gmail.com/
+Cc: stable@vger.kernel.org
+Signed-off-by: Jose Villaseñor Montfort <pepemontfort@gmail.com>
+---
+Changes in v2:
+- Switch from rejecting the bind in magicmouse_probe() to guarding both
+  callbacks. Alec Hall tested v1 on a USB Magic Trackpad 2 and found that
+  it unbinds interfaces 2 and 3: they are vendor-defined, have no input
+  device, and have been claimed by this driver since 0b91b4e4dae6, so
+  every cable plug logged two -ENOMEM probe failures and their hidraw
+  nodes went away. Nothing user-facing broke (touch and battery live on
+  interfaces 0/1), but silently unbinding a healthy device's interfaces
+  is not a change to make in a stable-tagged fix. Report:
+  https://lore.kernel.org/linux-input/20260728072554.47069-1-signshop.alec@gmail.com/
+- I confirmed the same shape on a USB-C Magic Trackpad (05ac:0324) here,
+  on an unpatched 7.1.5: three HID interfaces, all three bound to
+  magicmouse, and the last one -- vendor-defined, bInterfaceSubClass 0,
+  two endpoints -- has a hidraw node but no input device. So the exact
+  interface count varies by model, but at least one input-less interface
+  bound to this driver is normal on genuine hardware.
+- Reworded the commit message accordingly. Those interfaces show that a
+  bind with msc->input == NULL is a state real hardware reaches, not only
+  a spoofed device; and hid_process_event() calls ->event regardless of
+  HID_CLAIMED_INPUT (hid_match_usage() matches everything, this driver
+  has no usage_table), so ->event is reachable on them too.
+- v1: https://lore.kernel.org/linux-input/20260715195853.1302765-1-pepemontfort@gmail.com/
 
-One thing worth adding to the picture: those interfaces do not merely
-bind with msc->input == NULL, they can also reach the dereference.
-hid_process_event() calls ->event without checking HID_CLAIMED_INPUT:
+This is a sibling hardening fix to "HID: magicmouse: prevent unbounded
+recursion in magicmouse_raw_event()" [1], which touches the same driver.
+If that one is applied first, this needs a trivial rebase: the guard
+moves into __magicmouse_raw_event().
 
-	if (hdrv && hdrv->event && hid_match_usage(hid, usage)) {
-		ret = hdrv->event(hid, field, usage, value);
-		...
-	}
+[1] https://lore.kernel.org/linux-input/20260715053526.574725-1-pepemontfort@gmail.com/
 
-	if (hid->claimed & HID_CLAIMED_INPUT)
-		hidinput_hid_event(hid, field, usage, value);
+ drivers/hid/hid-magicmouse.c | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
-and hid_match_usage() returns 1 for everything here, since magicmouse
-declares no usage_table. So an input report on interface 2 or 3 walks
-into magicmouse_event(), which dereferences msc->input->id.product right
-at the top; ->raw_event is called for every report regardless. The NULL
-deref is therefore reachable on genuine hardware, not only on a device
-spoofing an Apple VID/PID -- a better justification than the one I sent,
-so thanks for that as well.
+diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
+index 802a3479e..7164ced59 100644
+--- a/drivers/hid/hid-magicmouse.c
++++ b/drivers/hid/hid-magicmouse.c
+@@ -390,6 +390,14 @@ static int magicmouse_raw_event(struct hid_device *hdev,
+ 	struct input_dev *input = msc->input;
+ 	int x = 0, y = 0, ii, clicks = 0, npoints;
+ 
++	/*
++	 * This driver also binds interfaces that hid-input does not create an
++	 * input device for, so msc->input can legitimately be NULL here. Leave
++	 * their reports to the generic HID paths instead of dereferencing it.
++	 */
++	if (!input)
++		return 0;
++
+ 	/* Protect against zero sized recursive calls from DOUBLE_REPORT_ID */
+ 	if (size < 1)
+ 		return 0;
+@@ -538,6 +546,11 @@ static int magicmouse_event(struct hid_device *hdev, struct hid_field *field,
+ 		struct hid_usage *usage, __s32 value)
+ {
+ 	struct magicmouse_sc *msc = hid_get_drvdata(hdev);
++
++	/* See the comment in magicmouse_raw_event(). */
++	if (!msc->input)
++		return 0;
++
+ 	if ((msc->input->id.product == USB_DEVICE_ID_APPLE_MAGICMOUSE2 ||
+ 	     msc->input->id.product == USB_DEVICE_ID_APPLE_MAGICMOUSE2_USBC) &&
+ 	    field->report->id == MOUSE2_REPORT_ID) {
 
-v2 with the per-callback guards follows shortly. Both callbacks return 0,
-so those reports keep flowing through the generic HID paths exactly as
-they do today, and magicmouse_probe() is left alone. I've credited the
-change of approach to you with Suggested-by.
+base-commit: b7556c8e713c88596046a906c7c4385218d44736
+-- 
+2.55.0
 
-The offer to re-test over USB and Bluetooth is very welcome, thank you.
-
-Jose

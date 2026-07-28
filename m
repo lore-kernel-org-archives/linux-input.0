@@ -1,144 +1,126 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qk1-f179.google.com (mail-qk1-f179.google.com [209.85.222.179])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 975182949E0
-	for <linux-input@vger.kernel.org>; Tue, 28 Jul 2026 07:10:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1C92F3DA7D0
+	for <linux-input@vger.kernel.org>; Tue, 28 Jul 2026 07:25:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.179
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785222623; cv=none; b=RgZKDBwS7QEUs0YZv5mizTgjawQ6opXRt3mf90x5qxWbn2CXP49fmfyzPxCAyba3Cjj9nI9RfQTyMI7hUuqqlPO5Yliw/VghmqaXIbdkjrPlWrpyqZEKtTPzdW00vLfF3JMoUzSvkLgG7HbAUC3umcgJoe3VymFyYgOfgjYhtWQ=
+	t=1785223559; cv=none; b=ubwt7RMEvZWkc3LOoqFbNhoDpOvtamqXN5TnDInJAO+II+9i7Mm3uLPV/qApXzA+up61NNWcrtnXVISdQf6f3h+Js8A7fE+86R4yQxQe+lGGrNWQOCHbHpHke64xXjDzPJgnMZIRRW4YqZsw7y8ac0HPQWZFxD/uehdLHjDuImg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785222623; c=relaxed/simple;
-	bh=jTf2qB8/e4ptLCMj92hebj6woDKGVJuF1AWYO3sOHJ4=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=uQuVzVjz2AzLqnm5DeYldmbyEk0W1+KqNGLRNMwn/DHWlcscNTPEuGOo6ikY9zfTJ+raisxG7O/mSY1yCTtEaf5TSqjNzy0Xfj89JJ29x/zhS5InHu3tAg1DqdPBQBcf7zgmi7yC/oOKhQs6APCJoXCaFhOHC7spUpQLRtZ4fgg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=TbB2XGuq; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1785223559; c=relaxed/simple;
+	bh=6/KDwlm5ghMlZoZDr+8u5LRQ6G5KIkP2c8ShBPpCI34=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=rRMGajgRGtPSD/EnND3ZisF3nD8CNFYipeHPRYZ53sArBhEdOhBFmCnH1OlVO5ktoysHmxT+rSmVHL6gPwtXJd5jh0d99Tf0jIukm9gy2I1Gxx/D8bugi8Ip24k/XTkANldbxVt/k36BB2ubBQLNByJX4oU3yRT4tOUELr7X+Xg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=RLk2XQk8; arc=none smtp.client-ip=209.85.222.179
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="TbB2XGuq"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0EB21F000E9;
-	Tue, 28 Jul 2026 07:10:19 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785222620;
-	bh=z7uAnV5dzsyxWUDqIRR2souYWRUgeheDVY2Gmk2V+m0=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=TbB2XGuq8SQtV4+RDYsekJOPLX7Fb+gMLuwYNEj62xWNZ3e/d4xXK2tQp1TzpfW4+
-	 Zza4r4NdMWE1+kpZehroqBZUuKRP6XM3uhGlzke8Ja+Zqa6g6SBbks/gBMcVaYiFk2
-	 uaA/Pfh8N2w6lzuGAWRjKYvNf2WatJNVSmBQxcJDRfCYWOHmgNpfI5cP24EtPUGXQ5
-	 N2SF00KcKNaVf4PtHnVSO7zqkDBLyhba+B2sGEH8xIFaGNx4UpAfRee9uxNpUOEEft
-	 OO3DO+0MLs2GXZ6Y7fFo8B2FHHpyi6yrLdf59R/5wKHKlfyPFqx+WT10QhkDwChRC3
-	 JoFzrA0cQqvgg==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] Input: lm8323 - cancel PWM work before releasing device
- data
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Hongyan Xu" <getshell@seu.edu.cn>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260728065518.489-1-getshell@seu.edu.cn>
-References: <20260728065518.489-1-getshell@seu.edu.cn>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Tue, 28 Jul 2026 07:10:19 +0000
-Message-Id: <20260728071019.F0EB21F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="RLk2XQk8"
+Received: by mail-qk1-f179.google.com with SMTP id af79cd13be357-92edb12cdf2so226868885a.3
+        for <linux-input@vger.kernel.org>; Tue, 28 Jul 2026 00:25:57 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1785223557; x=1785828357; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:mime-version:references
+         :in-reply-to:message-id:date:subject:cc:to:from:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=8REJpVmdZHTajWXPY+els9sTJ1vLLgIwaTgLYZy06Ew=;
+        b=RLk2XQk8Yz52IJxVjSPxJI8dtJwgeceabtgD4w2gZpoOU1X36vQsDyvX8uGQEqVDhr
+         BGzzVtXqYBYoEwN4+ncBxPByy5IqZ4nOlej4ed54of98ImeCLcMJq26hly186ACWfi5Y
+         MfJWQ58G+mpv9bwEfmL0RH2pBdrBS6apaOcJB6pgFVLXEYjZSWIBaYAKTzZbDusnFtUu
+         IOVFE8cO9BAeed71IIk/2e0921K6BNNmjt33QD1Gfy6TOClat3xxLWXmn6VleEDX0Wa+
+         84MAoecY/l3cE7DA0bNz3f/zP08vY5G4/VihsMtHZMtNDaOSqWphPI+e0X5e4YMJhAnr
+         wIcQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1785223557; x=1785828357;
+        h=content-transfer-encoding:content-type:mime-version:references
+         :in-reply-to:message-id:date:subject:cc:to:from:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=8REJpVmdZHTajWXPY+els9sTJ1vLLgIwaTgLYZy06Ew=;
+        b=MwmUqoQMLm08PWJbqnMFuik1ZIH1XY0awrGJqyfuG8KJCT9k7rwlttx27krzNmWt3j
+         wt6hTWFhXiWZrYu0QoK+MVIvS/774BvVqXGPXQGyN/U1sSEwzTqZ0PrA9A5X5rOr8jxh
+         F+WWxnc2w7DInUWCYumsx/+T1ZNuXVyOO4psAw1GAQDT+Y60/5lP2a8NVrvFCsj6zBeB
+         thnp7bV2nXbT7FXJHkiMH0W42m0dMUuQnizbmGTj6L6Hr264BXBAXnEOw0DexI3Ux8Qw
+         3g1zQMPgUnBqE+WFE5dbAQo5Y+ep3rTtYLuptdTaKiHBrKJdMFaFc9zkGACsTu9MDfjR
+         VDLg==
+X-Forwarded-Encrypted: i=1; AHgh+RpjaU6bPP8Kavoqa9y4H9zUp7KZUo+yrnDppxQRog0w4n0/E7f25WxK6rpV6m6CaW7UZx4ctcaVzA7nSQ==@vger.kernel.org
+X-Gm-Message-State: AOJu0YycZMs1QhgYRaG8SwaOSJTrLzz//UPBI1SDIcLqz5+ezZ7pVaFq
+	MU2tlw6pLxzTeytySvbGJr1niDvKKBSkubo//7gxrxMZN2VL2PMvYs5r
+X-Gm-Gg: AR+sD120aJjQBJ0qr1uq4Vh8LP8Yr2L3Z9Qxg9XpbmPg3W7WpbpgHBeDwmah0fAyZIU
+	eDekgQjpRUOEticf7cqSg/fcJ+QGkcB4K1T7RzN/Mb/Ww6//Jx8ZqJ+qRfAmjdO7RhvHk6QdBxK
+	1eN6P/e38dalOfwbCgSZKwcaPJXKHVoLMWpWFWELKHiTuV4viNs8AJxvdG2zgpeCE3SZzrgDTCL
+	tgX05SJzu9wF5FKRlEPb/QPZwNThZcpHJ1WJeShf2mtrC/tp3QWnsNfJ0RPOrYM7QSssdkD/aOG
+	oG6WKx5jHdM6SsArdT2BphL/LCkDvlF20r+g0e1zzwcmdRjm8QwkcSNXvoI3GwRNH3aXVwJmvKm
+	L7YSj9sGloderL6d4WKhbubShpSPaRqokEkVGgR9bvwYB4FISZR1u8mGhSRVSiBmzL0ttN10+z7
+	UMyHo88z5Lpv0TQzJ0cZutOYk=
+X-Received: by 2002:a05:620a:1729:b0:930:e918:c737 with SMTP id af79cd13be357-93302719a1amr103406085a.62.1785223556768;
+        Tue, 28 Jul 2026 00:25:56 -0700 (PDT)
+Received: from FairplayBox ([2601:5cf:837e:d920::f9a2])
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-932de635f7asm795939185a.29.2026.07.28.00.25.54
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 28 Jul 2026 00:25:55 -0700 (PDT)
+From: Alec Hall <signshop.alec@gmail.com>
+To: pepemontfort@gmail.com
+Cc: jikos@kernel.org,
+	bentiss@kernel.org,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] HID: magicmouse: reject devices that bind without an input device
+Date: Tue, 28 Jul 2026 03:25:40 -0400
+Message-ID: <20260728072554.47069-1-signshop.alec@gmail.com>
+X-Mailer: git-send-email 2.55.0
+In-Reply-To: <20260715195853.1302765-1-pepemontfort@gmail.com>
+References: <20260715195853.1302765-1-pepemontfort@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
+On Wed, Jul 15, 2026, Jose Villaseñor Montfort wrote:
+> Move the msc->input check ahead of the early return so it covers every
+> bind path. Legitimate devices register an input during hid_hw_start()
+> and are unaffected.
 
-New issues:
-- [High] Canceling the PWM work synchronously during teardown leaves the LE=
-D permanently ON.
+The second half of that turns out not to hold on real hardware. A USB
+Magic Trackpad 2 exposes four HID interfaces, and only the first two
+register an input; interfaces 2 and 3 are vendor-defined, hiddev/hidraw
+only. With this patch applied (stacked on the pending battery series,
+kernel 7.1.5), plugging in a Magic Trackpad 2 over USB rejects both of
+them:
 
-Pre-existing issues:
-- [High] The LED brightness_set callback unconditionally acquires a mutex, =
-causing a kernel panic when triggered from an atomic context.
---
+  magicmouse 0003:05AC:0265.001F: magicmouse input not registered
+  magicmouse 0003:05AC:0265.0020: magicmouse input not registered
 
---- Patch [1]: [PATCH] Input: lm8323 - cancel PWM work before releasing dev=
-ice data ---
-commit c5dd51a9a738c81ec9f9a4442ce237316cd3f671
-Author: Hongyan Xu <getshell@seu.edu.cn>
+I confirmed with a temporary printk in probe that interfaces 2/3 reach
+the moved check with msc->input == NULL and hdev->claimed == 0x6
+(hiddev|hidraw, no input), while interfaces 0/1 probe with an input and
+claimed == 0x7 and keep working, battery included.
 
-Input: lm8323 - cancel PWM work before releasing device data
+The rejected interfaces then end up bound to nothing -- hid-generic
+declines them because a specific driver matches the ID -- so their
+hidraw nodes disappear, and every cable plug logs two -ENOMEM probe
+failures for a healthy device. Nothing user-facing breaks (touch and
+battery live on interfaces 0/1), but the driver has claimed those
+interfaces ever since 0b91b4e4dae6, and silently unbinding them with an
+error doesn't seem right for a stable-tagged fix.
 
-LED class device teardown sets the LED brightness to off. The LM8323
-brightness callback responds by scheduling its private PWM work, while
-LED core only flushes the class device's own work item.
+Bluetooth is unaffected: that path already required an input before the
+early return, and a Magic Trackpad 2 + Magic Keyboard over BT show no
+change with this patch.
 
-> diff --git a/drivers/input/keyboard/lm8323.c b/drivers/input/keyboard/lm8=
-323.c
-> index 8eac63b2d3046..88981de9a90fb 100644
-> --- a/drivers/input/keyboard/lm8323.c
-> +++ b/drivers/input/keyboard/lm8323.c
-> @@ -548,6 +548,13 @@ static struct attribute *lm8323_pwm_attrs[] =3D {
->  };
->  ATTRIBUTE_GROUPS(lm8323_pwm);
-> =20
-> +static void lm8323_cancel_pwm_work(void *data)
-> +{
-> +	struct lm8323_pwm *pwm =3D data;
-> +
-> +	cancel_work_sync(&pwm->work);
+> I went with fixing the probe path (rejecting a bind without an input)
+> rather than adding per-callback "if (!msc->input) return 0;" guards,
+> since a single check at probe covers both ->raw_event and ->event and
+> addresses the root asymmetry. Happy to switch to per-callback guards if
+> reviewers prefer that.
 
-[Severity: High]
-During device unbind, devres executes teardown actions in LIFO order.
-led_classdev_unregister() attempts to turn off the LED by calling the
-driver's brightness_set callback, which asynchronously schedules pwm->work.
-
-Immediately after, this newly added devm action calls
-cancel_work_sync(&pwm->work). Because the work was just queued, it is
-synchronously canceled without executing, and the I2C commands to shut off =
-the
-hardware LED are never dispatched. This leaves the hardware LED powered on
-indefinitely after the driver is unbound.
-
-Should flush_work(&pwm->work) be used instead of cancel_work_sync() here to
-ensure the shutdown commands reach the hardware?
-
-> +}
-> +
->  static int init_pwm(struct lm8323_chip *lm, int id, struct device *dev,
->  		    const char *name)
->  {
-> @@ -568,6 +575,10 @@ static int init_pwm(struct lm8323_chip *lm, int id, =
-struct device *dev,
->  	mutex_init(&pwm->lock);
->  	pwm->chip =3D lm;
-> =20
-> +	err =3D devm_add_action_or_reset(dev, lm8323_cancel_pwm_work, pwm);
-> +	if (err)
-> +		return err;
-> +
->  	if (name) {
->  		pwm->cdev.name =3D name;
->  		pwm->cdev.brightness_set =3D lm8323_pwm_set_brightness;
-
-[Severity: High]
-This is a pre-existing issue, but this callback implementation appears
-problematic for atomic contexts.
-
-The LED core allows brightness_set to be called directly from atomic contex=
-ts
-(e.g., by the timer or heartbeat triggers running in softirq context).
-However, lm8323_pwm_set_brightness() unconditionally acquires a mutex at the
-start of the function:
-
-drivers/input/keyboard/lm8323.c:lm8323_pwm_set_brightness() {
-    ...
-    scoped_guard(mutex, &pwm->lock) {
-        pwm->desired_brightness =3D brightness;
-    }
-    ...
-}
-
-Does acquiring this mutex unconditionally before checking in_interrupt() ca=
-use
-a 'scheduling while atomic' panic if used with a trigger like timer?
-
->  		pwm->cdev.groups =3D lm8323_pwm_groups;
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260728065518.489-=
-1-getshell@seu.edu.cn?part=3D1
+Given the above I think the per-callback guard is the better shape after
+all: it keeps the legitimate input-less USB interfaces bound exactly as
+today, while still closing the NULL deref in ->raw_event/->event -- and
+those interfaces demonstrate that a bind with msc->input == NULL is a
+state real devices reach, not only spoofed ones. Happy to re-test a v2
+on the same hardware over both USB and Bluetooth.

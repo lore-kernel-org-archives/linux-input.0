@@ -1,233 +1,146 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wr1-f44.google.com (mail-wr1-f44.google.com [209.85.221.44])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D942C283FE5
-	for <linux-input@vger.kernel.org>; Tue, 28 Jul 2026 13:30:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E093A447807
+	for <linux-input@vger.kernel.org>; Tue, 28 Jul 2026 13:51:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.44
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785245414; cv=none; b=PQvAVuDqDgHO/zVPGSiNfICWArWh6/1nm/Rl46UbEagLnEUzdcVkT7rDqpMPYMkeEYXbrd38t9YoG70mFl9Uhwlk1YhR2yMoBqw4DMduH2HqQ+yCv9VrvXQ/GcfhMax6fPi6niRek0GkvZIX8HKn3onPJLUBTidCH7z8DVNOMPQ=
+	t=1785246700; cv=none; b=fIF2v/0ayh1oliW+ZZG9/7VuIl+sXE15URcxtj+qtTBmnPrVQAyGs5WNOnT7wzzhefz1PNDXkCX5tsgA11NScZd5BbCQjgLbnVx13XZ7esT24q4PeGyUJ8ZEclErghhdyJkl8L/gwB1HBinX3fRlP4ddKPHKVcAzl9DbOzQRerk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785245414; c=relaxed/simple;
-	bh=juPJ9J/Zy3im3SWMaEOEYz5LdmnzGzpQTTp2LflxLxA=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=NZGXk7Wr5u7c8KWbPEukSl2VNKB3IRkjPGoANw4l4IC0k8tW8lc8Zdl3dokdeI1Mbi7NK2pUIeI0BxNlMZwlgC8P6SQxstCyQalDKn/joZP0PrJlgM3w3lRQ9y+YZQ7agL66WP8YYwRqf6hMBmtx1eIUZ89mnzkV5cvTYjip+LQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=QHxnpxw9; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1785246700; c=relaxed/simple;
+	bh=r96kwzBIc8Jied5GwHDPHGc6xnmckXwOtOi28k4xvZA=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=fUSoMpyMZQJCJN7u9Ll1edbPcXJEnLegSKUAOkFrvYbpQSVWxZsZp7kHV8Q364vs984O5ZfYfsFC3oxGZZFz2UBS5K99JGZuLeIhohuZA15/wjTSs+UWJEjEbo/Xm1NIJUDxVkBcT4FCkMtoWSYCboFbSnt+tylvKqEnNGqKSs0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Ax3A5mLe; arc=none smtp.client-ip=209.85.221.44
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="QHxnpxw9"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2C7401F000E9;
-	Tue, 28 Jul 2026 13:30:12 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785245412;
-	bh=iCMc3ItkdVwx/coRZ1z+5PVuqz9ueHB9lv4gN4HbDgg=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=QHxnpxw9zBNyKQWBab4XKOyK8H8VlckRLYc49yoXPezdQDT9ODqZn/p7F41mIqNqi
-	 SbYoN11nXBLOSH6MjP0qthk65yMR4H7PlxVhiHMpBMu/1Zlm7piVb44K90AcFFfP1w
-	 uvplXyJ0LCtllSuQsAnHXE/t5wAb7Va4hbt4QlrTjwu7i6Cq4cEaciJ8eAfyd0+q2B
-	 /zssNLuM7MhGHrUYuhbnv4UgZ/4r9+BMlzpE3EJkuO2TWmZEmhU0j3sZBUEfCgpxQe
-	 mCSKTCsOT+UvkoujhTSIjRGLvCISxa0j0fcfIHQzWMzFK1FnciRVf31sHyAqirteUb
-	 G2eVUirCGk99w==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 2/3] HID: mcp2221: clear rxbuf after I2C/SMBus
- transfer completes
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Jiangshan Yi" <yijiangshan@kylinos.cn>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260728131442.834604-3-yijiangshan@kylinos.cn>
-References: <20260728131442.834604-1-yijiangshan@kylinos.cn>
- <20260728131442.834604-3-yijiangshan@kylinos.cn>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Tue, 28 Jul 2026 13:30:11 +0000
-Message-Id: <20260728133012.2C7401F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Ax3A5mLe"
+Received: by mail-wr1-f44.google.com with SMTP id ffacd0b85a97d-47f7854678cso2248849f8f.1
+        for <linux-input@vger.kernel.org>; Tue, 28 Jul 2026 06:51:38 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1785246697; x=1785851497; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=cY1+qecTjpPQDXB5WlxHN8z+3cpmFqILEHWinOpbPx4=;
+        b=Ax3A5mLeAEyA7q5K/8vfR8LVAp3bY42wrpuDezFir6OEKSRhCtHQj0KpJNTbIBQsoi
+         LnX3RE2zyUUCLYgcLx+DkQ/x6n+v0RayBP71xwYraS3wXzZuufASj+xGL7gGe4qpgaVo
+         9cPM3VlAfjJvBmg6OdS2Ch7Tk5TFdUejElHXvtRHPbzhLVYxjDtgBWlFFFjkbN50rIHk
+         38Nnuw57aVqrmfpYJgUgC502fFEyQGhiaDTRbwMSvgFpM9rLZjcwzx0bmGMzBIXEgiFm
+         wPwEKtFTLZWfvqaWqNWjBSMBoa9W+w49eB4z04PaGBeQFEN8BwRrERnj3kHwwZCa0dMy
+         nvTA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1785246697; x=1785851497;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=cY1+qecTjpPQDXB5WlxHN8z+3cpmFqILEHWinOpbPx4=;
+        b=RSmG2K+FhhzGtwyhtvk5zwG69OPwoh/1OfkwQv7nqPks2Fli5c+hdCmkGB1g9hsIrl
+         ol0RPT6a6xDR7F8ltu/RLi6i2XJQF7ub6J3+pjAQQfZJyAb3ESQuMmEBF8gEfR6TGHea
+         y0d9LsTIBeRLIpdTJnMuhjUV78BmjBS4q5IGCQCPcsYShoDGrL0ufZ2C8rVUke5RO08n
+         U0DGwdRwZQcXssUkbee/JlrYm2QhpRDuGnhj7Autk74xzvgt9RR+riQWyJC9VwTgSKgY
+         iliHlVMqVUPvB6Toqqv6D4Z1K/x3kib38L8HMaz69CcX8Ep7t+wP4G49dqSzrSLn4/8M
+         5y9Q==
+X-Gm-Message-State: AOJu0Yw6B7DNz+2JNvNZlZofLWEhFtfMuOfM+h1+AKhVIJ8VxrRwWbBF
+	3/33P9tNkBsMXxsxqkHslanxc+3O+VR5CDdcEEpd9FwWaEM3xbgoJJr4
+X-Gm-Gg: AR+sD13pLF4N5LHSGdQM4xvrZJgAMnZPl2XaXR0O5O/W6CJnF5WlBzM9YMB/pumkAYj
+	UTpMf5guCbK/S2tIvSSX/j5uN1q1L7eGHR1XlIPaxAXYHTjzwjodPciIALCzsNywQcFMbZyXNi/
+	JfkWS3uJGiBpk/dNJQ7XGRrWNTwLZofI5y1JQq9sEnvuhRbEhxaXKkLJEARtq3u9BAG92xhq1co
+	5/73Q2A9gJEh8yEg6S1b1D2TdG58mglcDsQSSuK2k7VuGoBvaG2Cb6wOhl6bphoQSvJT/pN2Bsr
+	33k9Pp2ppzuvDmpamX1Qt+uU65mXqT3XL7Ui3UYpT7krDc+IHZJhkARfFBBd/SziNSv6DLRNGRM
+	g6xp03KwEX8g7e6ijvBHwDoh9fZROirapP/XQ1VKfm4ypEj3U4Ix8QFFaK1l7p+8+PC6ScZBU1A
+	0/g2KHIGbBv2s4J2w+Mep0N6oei6Y44OdQBWA9jvjscV0y3+An94ybWg/3GoWT2iTkhw==
+X-Received: by 2002:a05:600c:1391:b0:495:4a34:16d9 with SMTP id 5b1f17b1804b1-496c65ab4f0mr26696655e9.31.1785246696724;
+        Tue, 28 Jul 2026 06:51:36 -0700 (PDT)
+Received: from fedora ([202.47.63.86])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-47f85c6dc25sm57125898f8f.33.2026.07.28.06.51.34
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 28 Jul 2026 06:51:36 -0700 (PDT)
+From: Muhammad Bilal <meatuni001@gmail.com>
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	stable@vger.kernel.org,
+	Muhammad Bilal <meatuni001@gmail.com>,
+	Herlangga Maulani <w1zardsec@proton.me>
+Subject: [PATCH] Input: raydium_i2c_ts - propagate device info query errors from raydium_i2c_initialize()
+Date: Tue, 28 Jul 2026 18:51:27 +0500
+Message-ID: <20260728135127.48971-1-meatuni001@gmail.com>
+X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 5 potential issue(=
-s) to consider:
+raydium_i2c_initialize() calls raydium_i2c_query_ts_info() (or
+raydium_i2c_query_ts_bootloader_info() in bootloader mode) but never
+checks or returns its result. raydium_i2c_probe() treats a zero
+return from raydium_i2c_initialize() as full success, then
+unconditionally allocates ts->report_data with size ts->pkg_size and
+registers the IRQ handler.
 
-New issues:
-- [High] Time-Of-Check to Time-Of-Use (TOCTOU) race condition leading to NU=
-LL pointer dereference or Use-After-Free.
+If raydium_i2c_query_ts_info() fails on every one of its own retries
+(e.g. because the device is still completing power-up when probe
+runs), ts->pkg_size and ts->report_size are left at their
+devm_kzalloc()'d default of 0, and ts->report_data is never
+meaningfully allocated: devm_kmalloc(dev, 0, GFP_KERNEL) returns
+ZERO_SIZE_PTR, a non-NULL sentinel (include/linux/slab.h) that must
+never be dereferenced, which passes the existing
+'if (!ts->report_data)' check. RAYDIUM_TS_MAIN is also 0, the same
+value ts->boot_mode has from devm_kzalloc() before
+raydium_i2c_check_fw_status() ever confirms a mode, so a
+spurious/garbage first read that raydium_i2c_check_fw_status()
+does not recognize as either ack byte leaves boot_mode looking like
+an already-confirmed RAYDIUM_TS_MAIN without it ever being set.
 
-Pre-existing issues:
-- [High] Silent I2C data corruption due to brittle lock-step synchronizatio=
-n.
-- [High] Unkillable task hang (infinite loop) on 0-length payload.
-- [High] Kernel stack buffer overflow or broken I2C_SMBUS_BLOCK_DATA read d=
-ue to SMBus API misuse.
-- [High] Out-of-bounds read in the HID raw event handler due to missing rep=
-ort size validation.
---
+With both conditions met, probe() completes 'successfully' with a
+live IRQ, ts->boot_mode == RAYDIUM_TS_MAIN, and ts->report_data
+pointing at a zero-size allocation. The next touch fires
+raydium_i2c_irq(), which passes the boot_mode check and dereferences
+ts->report_data at offset ts->report_size, both derived from that
+never-actually-confirmed state, producing a NULL/invalid pointer
+dereference in interrupt context:
 
---- Patch [2]: [PATCH v2 2/3] HID: mcp2221: clear rxbuf after I2C/SMBus tra=
-nsfer completes ---
-commit 3603851056413fb3957e5edfb92c7c98a7d4fdf4
-Author: Jiangshan Yi <yijiangshan@kylinos.cn>
-Subject: HID: mcp2221: clear rxbuf after I2C/SMBus transfer completes
+  BUG: kernel NULL pointer dereference
+  RIP: raydium_i2c_irq+0x5b/0x1d0 [raydium_i2c_ts]
 
-This patch clears the caller-supplied buffer pointer in mcp->rxbuf and rese=
-ts
-mcp->rxbuf_size when an I2C/SMBus transfer completes or times out. This aims
-to prevent a write use-after-free where a delayed or spurious
-MCP2221_I2C_GET_DATA report could memcpy device data into a freed memory
-region.
+On kernels with CONFIG_PANIC_ON_OOPS=y (e.g. linux-hardened) this is
+a full system panic on the first touch; on a default kernel it only
+kills the IRQ thread, but the touchscreen stops working and a
+subsequent reboot can hang cleaning up the recursive fault.
 
-> diff --git a/drivers/hid/hid-mcp2221.c b/drivers/hid/hid-mcp2221.c
-> index 5c7fc56c7c671..9e03d1f733ff8 100644
-> --- a/drivers/hid/hid-mcp2221.c
-> +++ b/drivers/hid/hid-mcp2221.c
-> @@ -343,7 +343,7 @@ static int mcp_i2c_smbus_read(struct mcp2221 *mcp,
-> =20
->  	ret =3D mcp_send_data_req_status(mcp, mcp->txbuf, 4);
->  	if (ret)
-> -		return ret;
-> +		goto out;
+Have raydium_i2c_initialize() return the result of the info query in
+both the bootloader and main-firmware branches, so a failure there
+aborts raydium_i2c_probe() before report_data or the IRQ are ever
+set up, instead of leaving them in this half-initialized state.
 
-[Severity: High]
-This isn't a bug introduced by this patch, but does the driver's timeout
-handling lead to silent data corruption?
+Reported-by: Herlangga Maulani <w1zardsec@proton.me>
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=221777
+Fixes: 48a2b783483b ("Input: add Raydium I2C touchscreen driver")
+Cc: stable@vger.kernel.org
+Signed-off-by: Muhammad Bilal <meatuni001@gmail.com>
+---
+ drivers/input/touchscreen/raydium_i2c_ts.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-When waiting for a report, the driver uses a lock-step timeout:
+diff --git a/drivers/input/touchscreen/raydium_i2c_ts.c b/drivers/input/touchscreen/raydium_i2c_ts.c
+index 0256055abcef..a0b23772f4c0 100644
+--- a/drivers/input/touchscreen/raydium_i2c_ts.c
++++ b/drivers/input/touchscreen/raydium_i2c_ts.c
+@@ -426,9 +426,9 @@ static int raydium_i2c_initialize(struct raydium_data *ts)
+ 		ts->boot_mode = RAYDIUM_TS_BLDR;
+ 
+ 	if (ts->boot_mode == RAYDIUM_TS_BLDR)
+-		raydium_i2c_query_ts_bootloader_info(ts);
++		error = raydium_i2c_query_ts_bootloader_info(ts);
+ 	else
+-		raydium_i2c_query_ts_info(ts);
++		error = raydium_i2c_query_ts_info(ts);
+ 
+ 	return error;
+ }
+-- 
+2.55.0
 
-drivers/hid/hid-mcp2221.c:mcp_send_data_req_status() {
-        t =3D wait_for_completion_timeout(&mcp->wait_in_report,
-                                        msecs_to_jiffies(4000));
-        if (!t)
-                return -ETIMEDOUT;
-}
-
-If this times out, the driver starts a new transfer. However, if a delayed =
-HID
-report from the timed-out transfer arrives later, mcp2221_raw_event()
-unconditionally completes the wait:
-
-drivers/hid/hid-mcp2221.c:mcp2221_raw_event() {
-        buf =3D mcp->rxbuf;
-        memcpy(&buf[mcp->rxbuf_idx], &data[4], data[3]);
-        mcp->rxbuf_idx =3D mcp->rxbuf_idx + data[3];
-        mcp->status =3D 0;
-        break;
-        ...
-        complete(&mcp->wait_in_report);
-}
-
-Can this wake up the new transfer and mistakenly copy the old, delayed data
-into the new transfer's buffer?
-
-> =20
->  	mcp->rxbuf_idx =3D 0;
-> =20
-> @@ -365,7 +365,7 @@ static int mcp_i2c_smbus_read(struct mcp2221 *mcp,
->  			} else {
->  				usleep_range(980, 1000);
->  				mcp_cancel_last_cmd(mcp);
-> -				return ret;
-> +				goto out;
->  			}
->  		} else {
->  			retries =3D 0;
-
-[Severity: High]
-This is a pre-existing issue, but does this loop risk an unkillable task ha=
-ng
-if a 0-length payload is received?
-
-drivers/hid/hid-mcp2221.c:mcp2221_raw_event() {
-        if (!mcp_get_i2c_eng_state(mcp, data, 2)
-                && (data[3] =3D=3D 0)) {
-                mcp->status =3D 0;
-                break;
-        }
-}
-
-If a USB device continuously returns a 0-length payload, mcp2221_raw_event()
-sets mcp->status =3D 0 and calls complete().
-
-The read loop then observes a success and resets retries =3D 0, but rxbuf_i=
-dx
-does not advance. Does this cause the loop to spin infinitely?
-
-> @@ -375,6 +375,10 @@ static int mcp_i2c_smbus_read(struct mcp2221 *mcp,
->  	usleep_range(980, 1000);
->  	ret =3D mcp_chk_last_cmd_status_free_bus(mcp);
-> =20
-> +out:
-> +	mcp->rxbuf =3D NULL;
-> +	mcp->rxbuf_size =3D 0;
-
-[Severity: High]
-Could this lockless clearing introduce a Time-Of-Check to Time-Of-Use race?
-
-In mcp2221_raw_event(), which runs asynchronously in softirq context, the
-code checks the pointer and then dereferences it:
-
-drivers/hid/hid-mcp2221.c:mcp2221_raw_event() {
-        if (!mcp->rxbuf || mcp->rxbuf_idx < 0 || data[3] > 60) {
-        ...
-        buf =3D mcp->rxbuf;
-        memcpy(&buf[mcp->rxbuf_idx], &data[4], data[3]);
-}
-
-If this function clears mcp->rxbuf concurrently after mcp2221_raw_event()
-passes the check but before assigning it to buf, couldn't buf become NULL,
-causing memcpy() to trigger a panic?
-
-> +
->  	return ret;
->  }
-
-[Severity: High]
-This is a pre-existing issue, but does the driver misuse the SMBus API,
-potentially causing a kernel stack buffer overflow?
-
-For I2C_SMBUS_BLOCK_DATA reads, the driver uses data->block[0] as the
-input read length:
-
-drivers/hid/hid-mcp2221.c:mcp_smbus_xfer() {
-        case I2C_SMBUS_BLOCK_DATA:
-                if (read_write =3D=3D I2C_SMBUS_READ) {
-                        ...
-                        ret =3D mcp_i2c_smbus_read(mcp, NULL,
-                                                MCP2221_I2C_RD_RPT_START,
-                                                addr, data->block[0] + 1,
-                                                data->block);
-}
-
-If an in-kernel driver calls i2c_smbus_read_block_data(), data.block[0] is =
-an
-uninitialized stack variable. Does the driver then use this uninitialized
-stack garbage as the read length, causing mcp2221_raw_event() to blindly co=
-py
-up to 255 bytes into the 34-byte data.block array on the caller's kernel
-stack?
-
-[Severity: High]
-This isn't a bug introduced by this patch, but does mcp2221_raw_event()
-perform out-of-bounds reads due to missing report size validation?
-
-The function receives the size of the incoming HID report but never validat=
-es
-it before accessing fields far into the buffer:
-
-drivers/hid/hid-mcp2221.c:mcp2221_raw_event() {
-#if IS_REACHABLE(CONFIG_IIO)
-                memcpy(&mcp->adc_values, &data[50], sizeof(mcp->adc_values)=
-);
-#endif
-...
-        case MCP2221_GET_SRAM_SETTINGS:
-                switch (data[1]) {
-                case MCP2221_SUCCESS:
-                        memcpy(&mcp->mode, &data[22], 4);
-}
-
-If a malicious USB device presents a HID report descriptor with a very small
-report size, will the driver read past the bounds of the allocation on the
-kernel heap?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260728131442.8346=
-04-1-yijiangshan@kylinos.cn?part=3D2

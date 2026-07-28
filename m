@@ -1,146 +1,258 @@
-Received: from mail-wr1-f44.google.com (mail-wr1-f44.google.com [209.85.221.44])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E093A447807
-	for <linux-input@vger.kernel.org>; Tue, 28 Jul 2026 13:51:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6B9F943F8C4
+	for <linux-input@vger.kernel.org>; Tue, 28 Jul 2026 14:05:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785246700; cv=none; b=fIF2v/0ayh1oliW+ZZG9/7VuIl+sXE15URcxtj+qtTBmnPrVQAyGs5WNOnT7wzzhefz1PNDXkCX5tsgA11NScZd5BbCQjgLbnVx13XZ7esT24q4PeGyUJ8ZEclErghhdyJkl8L/gwB1HBinX3fRlP4ddKPHKVcAzl9DbOzQRerk=
+	t=1785247505; cv=none; b=oymaTDf7Ss6V1uevGDOMW+GhbO/bv2+66Go+433dYI3bIcFYUqyRPFghA4F0sqSkKijpbvvTujLdcBdNH8WTfud4rh8KK3lpe0EDDieVc9IWuEmyCluWsl/mTV4fcbWtz93/veNjOLRy5CV2e17gD++jH++xkMJoiiNAc/1fQUc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785246700; c=relaxed/simple;
-	bh=r96kwzBIc8Jied5GwHDPHGc6xnmckXwOtOi28k4xvZA=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=fUSoMpyMZQJCJN7u9Ll1edbPcXJEnLegSKUAOkFrvYbpQSVWxZsZp7kHV8Q364vs984O5ZfYfsFC3oxGZZFz2UBS5K99JGZuLeIhohuZA15/wjTSs+UWJEjEbo/Xm1NIJUDxVkBcT4FCkMtoWSYCboFbSnt+tylvKqEnNGqKSs0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Ax3A5mLe; arc=none smtp.client-ip=209.85.221.44
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1785247505; c=relaxed/simple;
+	bh=2S2fZeXJFn1crIqfpMUcyNd8kG0NwtBdguWHHwiAMI4=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=ZFLntGmN6pBlu98vpPEYxBaM5F4yV6TV9k2uiS41xQ4PuIsRPmVM0SrU3Fljj4LBWX6sXMVR3FMC1WLo1priyUUukncjJYcH0fjtN6XH4vZHPBetX9B4baP2gVhTKrKBDRbgQdOEOcjrlVAm5J/rOPA8h67pq2xx7tY8o0yiBpw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Nm+hlUCY; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Ax3A5mLe"
-Received: by mail-wr1-f44.google.com with SMTP id ffacd0b85a97d-47f7854678cso2248849f8f.1
-        for <linux-input@vger.kernel.org>; Tue, 28 Jul 2026 06:51:38 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1785246697; x=1785851497; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=cY1+qecTjpPQDXB5WlxHN8z+3cpmFqILEHWinOpbPx4=;
-        b=Ax3A5mLeAEyA7q5K/8vfR8LVAp3bY42wrpuDezFir6OEKSRhCtHQj0KpJNTbIBQsoi
-         LnX3RE2zyUUCLYgcLx+DkQ/x6n+v0RayBP71xwYraS3wXzZuufASj+xGL7gGe4qpgaVo
-         9cPM3VlAfjJvBmg6OdS2Ch7Tk5TFdUejElHXvtRHPbzhLVYxjDtgBWlFFFjkbN50rIHk
-         38Nnuw57aVqrmfpYJgUgC502fFEyQGhiaDTRbwMSvgFpM9rLZjcwzx0bmGMzBIXEgiFm
-         wPwEKtFTLZWfvqaWqNWjBSMBoa9W+w49eB4z04PaGBeQFEN8BwRrERnj3kHwwZCa0dMy
-         nvTA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785246697; x=1785851497;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=cY1+qecTjpPQDXB5WlxHN8z+3cpmFqILEHWinOpbPx4=;
-        b=RSmG2K+FhhzGtwyhtvk5zwG69OPwoh/1OfkwQv7nqPks2Fli5c+hdCmkGB1g9hsIrl
-         ol0RPT6a6xDR7F8ltu/RLi6i2XJQF7ub6J3+pjAQQfZJyAb3ESQuMmEBF8gEfR6TGHea
-         y0d9LsTIBeRLIpdTJnMuhjUV78BmjBS4q5IGCQCPcsYShoDGrL0ufZ2C8rVUke5RO08n
-         U0DGwdRwZQcXssUkbee/JlrYm2QhpRDuGnhj7Autk74xzvgt9RR+riQWyJC9VwTgSKgY
-         iliHlVMqVUPvB6Toqqv6D4Z1K/x3kib38L8HMaz69CcX8Ep7t+wP4G49dqSzrSLn4/8M
-         5y9Q==
-X-Gm-Message-State: AOJu0Yw6B7DNz+2JNvNZlZofLWEhFtfMuOfM+h1+AKhVIJ8VxrRwWbBF
-	3/33P9tNkBsMXxsxqkHslanxc+3O+VR5CDdcEEpd9FwWaEM3xbgoJJr4
-X-Gm-Gg: AR+sD13pLF4N5LHSGdQM4xvrZJgAMnZPl2XaXR0O5O/W6CJnF5WlBzM9YMB/pumkAYj
-	UTpMf5guCbK/S2tIvSSX/j5uN1q1L7eGHR1XlIPaxAXYHTjzwjodPciIALCzsNywQcFMbZyXNi/
-	JfkWS3uJGiBpk/dNJQ7XGRrWNTwLZofI5y1JQq9sEnvuhRbEhxaXKkLJEARtq3u9BAG92xhq1co
-	5/73Q2A9gJEh8yEg6S1b1D2TdG58mglcDsQSSuK2k7VuGoBvaG2Cb6wOhl6bphoQSvJT/pN2Bsr
-	33k9Pp2ppzuvDmpamX1Qt+uU65mXqT3XL7Ui3UYpT7krDc+IHZJhkARfFBBd/SziNSv6DLRNGRM
-	g6xp03KwEX8g7e6ijvBHwDoh9fZROirapP/XQ1VKfm4ypEj3U4Ix8QFFaK1l7p+8+PC6ScZBU1A
-	0/g2KHIGbBv2s4J2w+Mep0N6oei6Y44OdQBWA9jvjscV0y3+An94ybWg/3GoWT2iTkhw==
-X-Received: by 2002:a05:600c:1391:b0:495:4a34:16d9 with SMTP id 5b1f17b1804b1-496c65ab4f0mr26696655e9.31.1785246696724;
-        Tue, 28 Jul 2026 06:51:36 -0700 (PDT)
-Received: from fedora ([202.47.63.86])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-47f85c6dc25sm57125898f8f.33.2026.07.28.06.51.34
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 28 Jul 2026 06:51:36 -0700 (PDT)
-From: Muhammad Bilal <meatuni001@gmail.com>
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	stable@vger.kernel.org,
-	Muhammad Bilal <meatuni001@gmail.com>,
-	Herlangga Maulani <w1zardsec@proton.me>
-Subject: [PATCH] Input: raydium_i2c_ts - propagate device info query errors from raydium_i2c_initialize()
-Date: Tue, 28 Jul 2026 18:51:27 +0500
-Message-ID: <20260728135127.48971-1-meatuni001@gmail.com>
-X-Mailer: git-send-email 2.55.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Nm+hlUCY"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A9D8A1F000E9;
+	Tue, 28 Jul 2026 14:05:03 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1785247503;
+	bh=6TezT/UxNjy5NL9X7qeQ7IasNeryp4tZx4sR1mqkdR8=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=Nm+hlUCYIo5GMsB8XtUjh/aXDHKKyWTPML8xjPhlTJEBnx7b9JJ2KEBTFfBvyyHNY
+	 K4FHdt79k2a+oe+k2K+RwflDdSWXUhcJL/dxoBO4j3dXvBqKPSpAwx1XucbwRI+G8z
+	 E+VYiZxOonDISb+BLcbjAj69jUXuIxgrGsIE3a1F5oh3zT8BVCkWRlJEXTXhwWyFkU
+	 vIbgibqbuk1WwPeRKgyHkiHb4YWrKQLtb+hsA9t7A82CJVOnamTBaUaGh5oTMi3UwS
+	 jW1MehlR4oJC42wnKkuW74wgZynPihPpE1jFHrq6J7bgA7yC4YgcX3Owqbezajjq2T
+	 eO+tHUXVMD7Uw==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH] Input: raydium_i2c_ts - propagate device info query
+ errors from raydium_i2c_initialize()
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Muhammad Bilal" <meatuni001@gmail.com>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <20260728135127.48971-1-meatuni001@gmail.com>
+References: <20260728135127.48971-1-meatuni001@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Tue, 28 Jul 2026 14:05:03 +0000
+Message-Id: <20260728140503.A9D8A1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-raydium_i2c_initialize() calls raydium_i2c_query_ts_info() (or
-raydium_i2c_query_ts_bootloader_info() in bootloader mode) but never
-checks or returns its result. raydium_i2c_probe() treats a zero
-return from raydium_i2c_initialize() as full success, then
-unconditionally allocates ts->report_data with size ts->pkg_size and
-registers the IRQ handler.
+Thank you for your contribution! Sashiko AI review found 6 potential issue(=
+s) to consider:
 
-If raydium_i2c_query_ts_info() fails on every one of its own retries
-(e.g. because the device is still completing power-up when probe
-runs), ts->pkg_size and ts->report_size are left at their
-devm_kzalloc()'d default of 0, and ts->report_data is never
-meaningfully allocated: devm_kmalloc(dev, 0, GFP_KERNEL) returns
-ZERO_SIZE_PTR, a non-NULL sentinel (include/linux/slab.h) that must
-never be dereferenced, which passes the existing
-'if (!ts->report_data)' check. RAYDIUM_TS_MAIN is also 0, the same
-value ts->boot_mode has from devm_kzalloc() before
-raydium_i2c_check_fw_status() ever confirms a mode, so a
-spurious/garbage first read that raydium_i2c_check_fw_status()
-does not recognize as either ack byte leaves boot_mode looking like
-an already-confirmed RAYDIUM_TS_MAIN without it ever being set.
+New issues:
+- [High] Propagating the error from `raydium_i2c_query_ts_bootloader_info()=
+` makes non-fatal HWID read failures fatal, permanently breaking firmware r=
+ecovery.
 
-With both conditions met, probe() completes 'successfully' with a
-live IRQ, ts->boot_mode == RAYDIUM_TS_MAIN, and ts->report_data
-pointing at a zero-size allocation. The next touch fires
-raydium_i2c_irq(), which passes the boot_mode check and dereferences
-ts->report_data at offset ts->report_size, both derived from that
-never-actually-confirmed state, producing a NULL/invalid pointer
-dereference in interrupt context:
+Pre-existing issues:
+- [Critical] Firmware update from bootloader mode dereferences ZERO_SIZE_PT=
+R due to un-updated buffer size.
+- [High] The driver blindly trusts hardware-provided `pkg_size` and `tp_inf=
+o_size` without validation, leading to integer underflow, out-of-bounds rea=
+ds, and division-by-zero panics.
+- [High] The target patch's fix is bypassed because `ts->boot_mode` default=
+s to `RAYDIUM_TS_MAIN` (0), breaking the initialization retry loop and allo=
+wing ZERO_SIZE_PTR dereference if the I2C bus returns all zeros.
+- [High] The `calibrate_store` sysfs function performs a multi-step hardwar=
+e command sequence without disabling interrupts, allowing the touchscreen I=
+RQ handler to interleave its own I2C transactions.
+- [High] The driver extensively passes stack-allocated memory to I2C transf=
+er functions, violating DMA mapping rules and risking kernel panics.
+--
 
-  BUG: kernel NULL pointer dereference
-  RIP: raydium_i2c_irq+0x5b/0x1d0 [raydium_i2c_ts]
+--- Patch [1]: [PATCH] Input: raydium_i2c_ts - propagate device info query =
+errors from raydium_i2c_initialize() ---
+commit cc4ec8b45e33c4b58e61efd967f923405f1be4a5
+Author: Muhammad Bilal <meatuni001@gmail.com>
 
-On kernels with CONFIG_PANIC_ON_OOPS=y (e.g. linux-hardened) this is
-a full system panic on the first touch; on a default kernel it only
-kills the IRQ thread, but the touchscreen stops working and a
-subsequent reboot can hang cleaning up the recursive fault.
+Input: raydium_i2c_ts - propagate device info query errors from raydium_i2c=
+_initialize()
 
-Have raydium_i2c_initialize() return the result of the info query in
-both the bootloader and main-firmware branches, so a failure there
-aborts raydium_i2c_probe() before report_data or the IRQ are ever
-set up, instead of leaving them in this half-initialized state.
+This patch modifies raydium_i2c_initialize() to return the result of info
+queries in both bootloader and main modes. It aims to prevent probe from
+succeeding and allocating a zero-sized buffer if the info query fails on all
+retries. By aborting probe early, it prevents a subsequent NULL pointer
+dereference in the IRQ handler.
 
-Reported-by: Herlangga Maulani <w1zardsec@proton.me>
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=221777
-Fixes: 48a2b783483b ("Input: add Raydium I2C touchscreen driver")
-Cc: stable@vger.kernel.org
-Signed-off-by: Muhammad Bilal <meatuni001@gmail.com>
----
- drivers/input/touchscreen/raydium_i2c_ts.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=3D221777
 
-diff --git a/drivers/input/touchscreen/raydium_i2c_ts.c b/drivers/input/touchscreen/raydium_i2c_ts.c
-index 0256055abcef..a0b23772f4c0 100644
---- a/drivers/input/touchscreen/raydium_i2c_ts.c
-+++ b/drivers/input/touchscreen/raydium_i2c_ts.c
-@@ -426,9 +426,9 @@ static int raydium_i2c_initialize(struct raydium_data *ts)
- 		ts->boot_mode = RAYDIUM_TS_BLDR;
- 
- 	if (ts->boot_mode == RAYDIUM_TS_BLDR)
--		raydium_i2c_query_ts_bootloader_info(ts);
-+		error = raydium_i2c_query_ts_bootloader_info(ts);
- 	else
--		raydium_i2c_query_ts_info(ts);
-+		error = raydium_i2c_query_ts_info(ts);
- 
- 	return error;
- }
--- 
-2.55.0
+> diff --git a/drivers/input/touchscreen/raydium_i2c_ts.c b/drivers/input/t=
+ouchscreen/raydium_i2c_ts.c
+> index 0256055abcef3..a0b23772f4c0b 100644
+> --- a/drivers/input/touchscreen/raydium_i2c_ts.c
+> +++ b/drivers/input/touchscreen/raydium_i2c_ts.c
+> @@ -426,9 +426,9 @@ static int raydium_i2c_initialize(struct raydium_data=
+ *ts)
+>  		ts->boot_mode =3D RAYDIUM_TS_BLDR;
+> =20
+>  	if (ts->boot_mode =3D=3D RAYDIUM_TS_BLDR)
+> -		raydium_i2c_query_ts_bootloader_info(ts);
+> +		error =3D raydium_i2c_query_ts_bootloader_info(ts);
 
+[Severity: High]
+Does this change unintentionally break firmware recovery for devices with H=
+WID
+read issues?
+
+Looking at raydium_i2c_query_ts_bootloader_info(), if the HWID read fails, =
+it
+falls back to setting a dummy hw_ver but does not clear the error code:
+
+raydium_i2c_query_ts_bootloader_info() {
+        ...
+        error =3D raydium_i2c_read(client, RM_CMD_BOOT_CHK, rbuf, sizeof(rb=
+uf));
+        if (error) {
+                dev_err(&client->dev, "Read HWID command failed: %d (%4ph)\=
+n",
+                        error, rbuf + 1);
+                hw_ver =3D 0xffffffffUL;
+        } else {
+                hw_ver =3D get_unaligned_be32(rbuf + 1);
+        }
+        ...
+        return error;
+}
+
+By propagating this error, probe() will now fail and the device will unbind,
+preventing the sysfs node from being created and blocking recovery. Should
+the error code be cleared when falling back to the dummy hw_ver?
+
+>  	else
+> -		raydium_i2c_query_ts_info(ts);
+> +		error =3D raydium_i2c_query_ts_info(ts);
+> =20
+>  	return error;
+>  }
+
+[Severity: High]
+This is a pre-existing issue, but does the current driver state bypass the
+intended fix of this patch?
+
+Since RAYDIUM_TS_MAIN is 0, which is the default value of ts->boot_mode from
+allocation, the retry loop in raydium_i2c_initialize() breaks on the very
+first iteration:
+
+raydium_i2c_initialize() {
+        for (retry_cnt =3D 0; retry_cnt < RM_MAX_RETRIES; retry_cnt++) {
+                ...
+                if (ts->boot_mode =3D=3D RAYDIUM_TS_BLDR ||
+                    ts->boot_mode =3D=3D RAYDIUM_TS_MAIN) {
+                        break;
+                }
+        }
+        ...
+}
+
+If the I2C bus is hung and returns all zeros, raydium_i2c_query_ts_info()
+will also read 0s, set ts->pkg_size to 0, and return 0 (success). This
+completely bypasses the new error propagation check, allowing probe() to
+allocate a zero-sized pointer which can still crash the kernel in the IRQ
+handler.
+
+[Severity: Critical]
+This isn't a bug introduced by this patch, but can a firmware update trigger
+a panic due to a zero-sized pointer dereference?
+
+If the device initially probes in bootloader mode, ts->pkg_size remains 0
+and probe() allocates a zero-sized pointer for ts->report_data.
+
+During a firmware update, when raydium_i2c_query_ts_info() is called to
+switch to MAIN mode, it encounters this check:
+
+raydium_i2c_query_ts_info() {
+        ...
+        if (ts->report_data && ts->pkg_size !=3D data_info.pkg_size) {
+                dev_warn(&client->dev,
+                         "report size changes, was: %d, new: %d\n",
+                         ts->pkg_size, data_info.pkg_size);
+        } else {
+                ts->pkg_size =3D data_info.pkg_size;
+                ts->report_size =3D ts->pkg_size - RM_PACKET_CRC_SIZE;
+        }
+        ...
+}
+
+Since the pointer is non-NULL (0x10), the condition evaluates to true. The
+warning is logged, but ts->pkg_size is left as 0 and the buffer is never
+reallocated. When the next touch fires raydium_i2c_irq(), it reads 0 bytes
+and dereferences the zero-sized pointer.
+
+[Severity: High]
+This is a pre-existing issue, but does the driver validate the hardware
+parameters read from the device?
+
+In raydium_i2c_query_ts_info(), data_info.pkg_size and data_info.tp_info_si=
+ze
+are read directly from I2C.
+
+If a faulty device returns a pkg_size less than 2, the subtraction
+ts->pkg_size - RM_PACKET_CRC_SIZE underflows. If tp_info_size is 0,
+ts->contact_size becomes 0.
+
+Later in raydium_mt_event():
+
+raydium_mt_event() {
+        ...
+        for (i =3D 0; i < ts->report_size / ts->contact_size; i++) {
+                ...
+        }
+}
+
+Could a 0 contact_size result in a division-by-zero panic here?
+
+[Severity: High]
+This isn't a bug introduced by this patch, but is it possible for I2C
+commands to be interleaved during calibration?
+
+raydium_i2c_calibrate_store() initiates a multi-step sequence without
+disabling interrupts:
+
+raydium_i2c_calibrate_store() {
+        ...
+        scoped_guard(mutex_intr, &ts->sysfs_mutex) {
+                error =3D raydium_i2c_write_object(client, cal_cmd, ...);
+        ...
+}
+
+Since the IRQ handler does not acquire ts->sysfs_mutex, if a touch occurs
+during this sequence, raydium_i2c_irq() can fire and send RM_CMD_BANK_SWITC=
+H,
+injecting unexpected commands into the hardware's calibration state machine.
+
+[Severity: High]
+This is a pre-existing issue, but does this driver pass stack-allocated mem=
+ory
+to the I2C core?
+
+In raydium_i2c_read():
+
+raydium_i2c_read() {
+        struct raydium_bank_switch_header header =3D {
+                .cmd =3D RM_CMD_BANK_SWITCH,
+                .be_addr =3D cpu_to_be32(addr),
+        };
+        struct i2c_msg xfer[] =3D {
+                {
+                        .addr =3D client->addr,
+                        .len =3D sizeof(header),
+                        .buf =3D (u8 *)&header,
+                },
+        ...
+}
+
+If the underlying I2C master driver uses DMA, mapping these vmalloc virtual
+addresses (when CONFIG_VMAP_STACK=3Dy) will result in a kernel panic. Should
+these transfer buffers be heap-allocated instead?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260728135127.4897=
+1-1-meatuni001@gmail.com?part=3D1

@@ -1,63 +1,63 @@
-Received: from mail-qt1-f176.google.com (mail-qt1-f176.google.com [209.85.160.176])
+Received: from mail-qt1-f181.google.com (mail-qt1-f181.google.com [209.85.160.181])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 61E5C4749D2
-	for <linux-input@vger.kernel.org>; Tue, 28 Jul 2026 22:55:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.176
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4A4B73BBFB4
+	for <linux-input@vger.kernel.org>; Tue, 28 Jul 2026 22:55:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.181
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785279353; cv=none; b=dgNdBx4jeL9rHJ/ooVWDWog+hOPl4/DlfFJNl8w+r7/jT3Ik2EjT9d/UgtZyOFRpTnrd8DQGStH9SHfmogeAxvyMWEhoQ6Uit6IcdywjVL+PH0ZwhjafLnaHcC7/VVmFlQutXDnRr9JfbCesTXUpG1HcZZxVKzIkgnzTwu1lM74=
+	t=1785279354; cv=none; b=mMV8LUv0qCaBuO61swF/D1dj/yDkc4WiRjp8f6XG+CvYKvidA/2ZqWN+kJ92KbN/3T6RsoeL3gzndjWtjb/xhxLwMfafpmwjDFNloxDfttNOrs4PjuXJtvpF07eHdt6+mP+obBtTkG8wh8HD1TUXnOliWFgVCdhAfXDinZsJ9mQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785279353; c=relaxed/simple;
-	bh=wGG+q4pz1CgVXZkEDLp7XhSIpDfjEXz2RsC6cIFmzMw=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=RkHFngCUXuqhBAC8Xf4c3dbDqve4wbb+QASJCzx3JxZ1nOz+7ZJ+HLSa2K0327TdbxD+wySY2+NfNcA4+jQIpoump+MaexEIFKhIUl7xpsNzRh7zG0OE9zuqGqc7Jzd5UyqgK6EOGy6SslmXsFdRJL+UFl7kimLVK3mpENbz4dg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=REGDt0wA; arc=none smtp.client-ip=209.85.160.176
+	s=arc-20240116; t=1785279354; c=relaxed/simple;
+	bh=8QDTGea8YD5fzdTqveHssulvg3hImMkLzrmbzptehnQ=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=TmLzIqHUVusDZhSIhzCA3maR/N/ehTEkqD7zLBA4aBtv3UZJdX0lTCtYrXUh+NoEW3r5wZ+sXc5KfGDpuASPKlqaAwFPG03LlHvR+RHLX5Edi9U8TkHsRr5Bli6SkU4JHoNa45oqtuQJoMNLOark4M+8gT26LQbcJqn39lrfcqs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=nPawdzmh; arc=none smtp.client-ip=209.85.160.181
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="REGDt0wA"
-Received: by mail-qt1-f176.google.com with SMTP id d75a77b69052e-51c2b2c9eccso2766871cf.2
-        for <linux-input@vger.kernel.org>; Tue, 28 Jul 2026 15:55:52 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="nPawdzmh"
+Received: by mail-qt1-f181.google.com with SMTP id d75a77b69052e-51c4436d02cso2136031cf.1
+        for <linux-input@vger.kernel.org>; Tue, 28 Jul 2026 15:55:53 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1785279351; x=1785884151; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:mime-version:message-id:date
-         :subject:cc:to:from:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=02IMskWChRHwzu27lUSTDGSNx/5Zmv/TbofsfiL2H30=;
-        b=REGDt0wAfWwc4cfvVHPyk2mhosy8199oRJZU1R8oOgpWyq4wUjRk68bB5433qVcq9q
-         Oe/tujBmlY0vbou++9Ldrl8PhU9Q48maAgWYE5qEiUzR6ivnpyH7JQsMYX4ReYiWzesM
-         MmsXr/PORCeTNL574JQwwXMQT0vabJ2vMNnBcYEVZ31roN+0J5/VWerl8q+xz5oTTZw5
-         Vdb+HdRQlEZ+2MCPG2dPBfIuuhyi+eHMRyZCLvq2cWLcZ6A8GZdaKeLaul5Q+/Rkra0k
-         LP7yKv5MTvE1s7OfSVmgww58zvXGnRXycfYTXGoEzVhsCw9Fh//blIWYpmsHXu2pJgvd
-         5kRA==
+        d=gmail.com; s=20251104; t=1785279352; x=1785884152; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=ye3eMu6vu5RBUSzIcLpzipwJNEqmUBEyQ4TiICAypL8=;
+        b=nPawdzmhrFq7TRmUHRZwxbmV73cHRqgtYnaO7Le9pCtX/C5a07PxJthvC8wvKUCMuI
+         jnd5bXKv37RU2jVSMmoPE5fg2S1aCwwAfGUOlc9aZ3GXNn6A5BOb8SrjD4GhnZtMoaD+
+         WNxzx6lnsspQV8vWWTq70Nfhr0s5lmUX5LjD2T2l1FhZpDGUCHTqERIq0EguSZp4wRVH
+         hSsP+mU5x5KxYi0BF+PMf9uA5ZF0+ZBWiMfsv0rcg2R68nvLWyPF2H4ZFpKsDbVjx09S
+         cR9+8rLINrWwdTYZQgVVDaKyYVKU7g1kkLBOf6R2zwjRWCYrXar/hg3+XI+0pIf2ngka
+         Q2OA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785279351; x=1785884151;
-        h=content-transfer-encoding:content-type:mime-version:message-id:date
-         :subject:cc:to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=02IMskWChRHwzu27lUSTDGSNx/5Zmv/TbofsfiL2H30=;
-        b=azcTBtwSxhOies4qLcZve/cAkBN3QcjcTKl6LE62MmwF7VGTWHklswbIUfj0x1M+SZ
-         d7MDuo1tgbv8UpWggaXh7Fl3miuWXD3hlvUUcMz3E59IEcnU1qm42GpE64EvCE4bX1pd
-         tB3rAVURyaLocnUXpCD6rFQCQfPoyzzEs+i9mLLFc1jxMRborufbDXNfRc52JPhyAsVM
-         DVsupau46y2un5aLpZGoZDLg3tAE2/H1jy7+5lApVuGEkccPyTgojP8D7D4m5WflE5h+
-         qsN1O/arKvd2eP5UNZwzwUCrnQTMP+YS9oZ8u7Pue7rgGTiKxUKSfJoAs7izd7DseEGx
-         1JhA==
-X-Forwarded-Encrypted: i=1; AHgh+Rows39lWBWQp9ukQxG8oI6C+6gTY9MzNI40jTVOTxlrLaqv6Kq8MXqraC162X1NvHfVy+qhv0pK0e59gg==@vger.kernel.org
-X-Gm-Message-State: AOJu0YwfLvtcriXaECjG5yr//nOkFvAE/L6RlX+fT4dZ8Jp0TNvdGhHJ
-	hMlphWPM9Etb+KwQLtreBAYKINyZPRJhtvGu9GeuAR02bt2tBcpyEuW6
-X-Gm-Gg: AR+sD13UL/F2IoT32ihwRi7Kt2cWkUKddSXdhjzjZHzKWdBbys/1b1lFtiyevKyvgqX
-	xoC4Do8fg3JAGX+u4cnIXhvDtPUdxP2udzI0sBSktUba0SZRcrlncMr33lrpLMTqYw5YBykaBV9
-	9kZh1f61Wm5+6Wzfqs1FlJAp00jLIjusmSpS31sFHET+a7JLDNuvdf02bPk5L2MqF5b7qjZVMJ8
-	KNOGnAdJoXkwG7AyIEM824VyV7Ze1yBBW91K/hx58ZbtGwsDG79554BDLdruCxBLJqyd5+kqDZV
-	HxQZuhiORBYC/XCm6Mc67A+VZm8999t7UAjSfDmIkuK0x7Trp4vd9o1hMRjE5SEVcxeTNiTSl9O
-	p341AqDLlSle3VtLTWrSaW08j+zZVywSgsIdeGhDlV/o2A76j4j6dFQfp5pOcbutxkqREbmngbY
-	aTKrtWNxdSS77B8n2AKg1DttImrB/W2A9Qg3oIJjBGxErZpZ6K6IbJbd0KqDaxqLV/IjW7MCza5
-	RQO5dxknlMb2S29fqshl6+mM4yG4APhng==
-X-Received: by 2002:a05:622a:408e:b0:526:f963:2d0f with SMTP id d75a77b69052e-529d71daedamr43127151cf.53.1785279351294;
-        Tue, 28 Jul 2026 15:55:51 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1785279352; x=1785884152;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=ye3eMu6vu5RBUSzIcLpzipwJNEqmUBEyQ4TiICAypL8=;
+        b=f0w3xwdqebMkqFe9FJ630fPEKBioERLSVbjiNfE/NvtulzdVTGF78HwfDR5hXJAmMe
+         RkkVddWTsT0SFAgpDFmhGw79o8onhYThQ1sUNLCm883C4bkIP+oSiHvtVypjvDRJdNXI
+         GA1XuoJLt1+VE16weoGuiCeNfkNdoZsg/3CudRixPGjGwk2LUyTS6W2hK4os3IzHStgT
+         z2/VAleYrnB3FRB8YIGfNEyG8lxWlLVQW75+qo9hlup5k6P8/YRJlFOJdSEqDqj5+KDz
+         VazZPoegAdGRhqrGJfoHOUHGAjF9q6ZnxWsIInTDjtFPmAHF8to5JbayhNcjz+M+OpA8
+         W9UA==
+X-Forwarded-Encrypted: i=1; AHgh+RrMUzLNz0j1RO7A53DE4vRmYp5WeyK5roGlQaLFWXKm3qtx8Vrv2YZ3765XaLRN781rtXdGJjAcGRlHuA==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yzv6nF2YqPSkVG3pkfTAOY/lnAftzMBlani99lxDoo5y8au1W5C
+	bkUzJXacd2XbDr91jZkY6JOGhyde7+8+vzKkHRq6qxrjhdJytQgJVoYV
+X-Gm-Gg: AR+sD118KqYvA+dMlpwvXPryiFMsbiHTbbHWDH+6MNeBgLeB5ccOLYXe2eD3QS1ppFo
+	l88HKmW7pb4K/b4L5cPR+TFCAPz4wzq9Lu5yI3V0hPtAkEwwV4PlxM/9swJL2OPsW24fsqCTZyU
+	CWd1SeRKzdemPEZuA73hb26G6EQHnH74hD473Y9cwmSL4K4pOOTTbiBKxOA3oxZmZP3hg1WmVvY
+	whjfN1zgFNeFtXtjCRUlwduQpT5aTMpxcaoJsP6Ih0IIguWYgwP/7Q4c2J1wT1qPCFrn/aO1gv2
+	Kb0OGRZyet0BzMVwtYx+N8RBM4oP1ChsxvBL9KQQRqV6US3UZSvs6i05e3rjPlBJzwetFU6lZ4w
+	KYrXObYF2dfdt7HmqUmB4C1ZpzcvmwkquOvP/pjNIGreOdOFaNiGnAkfUXY63dJI0jIVW15O7bL
+	veymqwgWEOx/EUrBVw4g+R0LzBi60a4Y3YfXRYJhRIM1iskFI=
+X-Received: by 2002:a05:622a:1a85:b0:51c:1e2f:1281 with SMTP id d75a77b69052e-529d71e91e9mr40343311cf.42.1785279352015;
+        Tue, 28 Jul 2026 15:55:52 -0700 (PDT)
 Received: from fedora (pool-100-11-178-145.phlapa.fios.verizon.net. [100.11.178.145])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-529e2b4f241sm8017991cf.7.2026.07.28.15.55.50
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-529e2b4f241sm8017991cf.7.2026.07.28.15.55.51
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 28 Jul 2026 15:55:50 -0700 (PDT)
+        Tue, 28 Jul 2026 15:55:51 -0700 (PDT)
 From: Dave Carey <carvsdriver@gmail.com>
 To: platform-driver-x86@vger.kernel.org
 Cc: ilpo.jarvinen@linux.intel.com,
@@ -67,89 +67,77 @@ Cc: ilpo.jarvinen@linux.intel.com,
 	linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	Dave Carey <carvsdriver@gmail.com>
-Subject: [PATCH v15 0/2] Lenovo Yoga Book 9 keyboard dock detection
-Date: Tue, 28 Jul 2026 18:55:42 -0400
-Message-ID: <20260728225545.1333610-1-carvsdriver@gmail.com>
+Subject: [PATCH v15 1/2] platform/x86/lenovo: lenovo-ymc: Suppress probe on Yoga Book 9 14IAH10
+Date: Tue, 28 Jul 2026 18:55:43 -0400
+Message-ID: <20260728225545.1333610-2-carvsdriver@gmail.com>
 X-Mailer: git-send-email 2.55.0
+In-Reply-To: <20260728225545.1333610-1-carvsdriver@gmail.com>
+References: <20260728225545.1333610-1-carvsdriver@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-Changes in v15 (addressing Ilpo Järvinen's v14 review of patch 2/2):
+The Yoga Book 9 14IAH10 (DMI product name "83KJ") has a dedicated
+yb9-kbdock WMI driver that registers an input device reporting
+SW_TABLET_MODE to track the detachable Bluetooth keyboard.
 
-  - yb9_kbdock_notify_new(): restore .min_event_size = sizeof(__le32) in
-    struct wmi_driver and remove the manual buffer-length check; the
-    .min_event_size field was present in v12/v13 (added in v10) but was
-    accidentally dropped in v14.
+lenovo-ymc also loads on this machine and creates an input node with the
+SW_TABLET_MODE capability bit set.  For input switches, the presence of
+the capability bit has semantic meaning: userspace (e.g. GNOME) reads
+the switch state at startup from every node advertising the capability
+and does not expect more than one such node.
 
-Patch 1/2 (lenovo-ymc) is unchanged from v10.
+Add a DMI match for the Yoga Book 9 14IAH10 to probe() so that
+lenovo-ymc returns -ENODEV on this hardware, leaving yb9-kbdock as the
+sole SW_TABLET_MODE source.  The ymc_ec_trigger EC write, the only
+other action taken in response to a YMC event, is guarded by a separate
+DMI table that excludes this machine; no other functionality is affected.
 
-Changes in v14 (addressing Ilpo Järvinen's v13 review of patch 2/2):
+Signed-off-by: Dave Carey <carvsdriver@gmail.com>
+---
+ drivers/platform/x86/lenovo/ymc.c | 19 +++++++++++++++++++
+ 1 file changed, 19 insertions(+)
 
-  - Restore #include <linux/compiler_attributes.h> and <linux/spinlock.h>,
-    which were accidentally absent from v13.
-  - Restore spinlock_t lock in struct yb9_kbdock_data, spin_lock_init(),
-    and spin_lock/spin_unlock around input_report_switch + input_sync
-    in yb9_kbdock_report().
-  - Restore pointer-out yb9_kbdock_query(d, u32 *bkbd) and removal of
-    zero-initializer from struct wmi_buffer out.
-  - Restore int return from yb9_kbdock_sync() and error propagation in
-    yb9_kbdock_resume() and yb9_kbdock_block_probe().
+diff --git a/drivers/platform/x86/lenovo/ymc.c b/drivers/platform/x86/lenovo/ymc.c
+index 470d53e3c9d2..a13c89dcb285 100644
+--- a/drivers/platform/x86/lenovo/ymc.c
++++ b/drivers/platform/x86/lenovo/ymc.c
+@@ -24,6 +24,22 @@ static bool force;
+ module_param(force, bool, 0444);
+ MODULE_PARM_DESC(force, "Force loading on boards without a convertible DMI chassis-type");
 
-Changes in v13:
++static const struct dmi_system_id lenovo_ymc_nosupport_dmi_table[] = {
++	{
++		/*
++		 * Yoga Book 9 14IAH10: SW_TABLET_MODE is reported by the
++		 * yb9-kbdock driver.  Suppress lenovo-ymc on this machine to
++		 * avoid userspace seeing two input nodes that both advertise
++		 * the SW_TABLET_MODE capability.
++		 */
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "83KJ"),
++		},
++	},
++	{ }
++};
++
+ static const struct dmi_system_id allowed_chasis_types_dmi_table[] = {
+ 	{
+ 		.matches = {
+@@ -101,6 +117,9 @@ static int lenovo_ymc_probe(struct wmi_device *wdev, const void *ctx)
+ 	struct input_dev *input_dev;
+ 	int err;
 
-  - Resend of v12: v12 was corrupted in transit.  Root cause: the ABI
-    documentation uses RST table separator lines (==  ====...) which
-    contain '=' characters; git-send-email selected quoted-printable
-    transfer encoding due to non-ASCII in the changelog (UTF-8 author
-    name), encoding '=' as '=3D' and breaking git-am on the receiving
-    end.  Fixed by setting sendemail.transferEncoding=8bit.  No content
-    changes from v12.
-
-Changes in v12 (addressing Ilpo Järvinen's v11 review of patch 2/2):
-
-  - Add #include <linux/sysfs.h> (for sysfs_emit)
-  - Add #include <linux/types.h> (for __le32 and __packed)
-
-Changes in v11 (addressing Armin Wolf's v10 review of patch 2/2):
-
-  - ABI doc: correct Date to "June 2027" and KernelVersion to "7.3";
-    these fields should reflect when the ABI lands in the kernel, not
-    the submission date.
-
-Patch 1/2 (lenovo-ymc) is unchanged from v10.
-
-Changes in v10 (addressing Armin Wolf's v9 review of patch 2/2):
-
-  - Update ABI doc: Date: June 2026, KernelVersion: 6.16
-  - Add #include <linux/compiler_attributes.h> and <linux/types.h>
-  - yb9_kbdock_query(): change return to pointer-out u32 *bkbd to avoid
-    a 0xFFFFFFFF status value being misread as -EPERM
-  - struct yb9_kbdock_data: add spinlock_t lock
-  - yb9_kbdock_report(): hold lock across input_report_switch + input_sync
-  - yb9_kbdock_sync(): return int, propagate query error to callers
-  - yb9_kbdock_resume(), yb9_kbdock_block_probe(): propagate sync error
-  - struct wmi_buffer out: remove zero-initializer (not needed)
-  - yb9_kbdock_notify_new(): drop manual length check; use
-    .min_event_size = sizeof(__le32) in struct wmi_driver instead
-
-Patch 1/2 (lenovo-ymc) is unchanged from v9.
-
-Dave Carey (2):
-  platform/x86/lenovo: lenovo-ymc: Suppress probe on Yoga Book 9 14IAH10
-  platform/x86/lenovo: Add Yoga Book 9 keyboard dock detection driver
-
- Documentation/ABI/testing/sysfs-driver-lenovo-yb9-kbdock |  19 ++
- MAINTAINERS                                               |   7 +
- drivers/platform/x86/lenovo/Kconfig                       |  14 +
- drivers/platform/x86/lenovo/Makefile                      |   1 +
- drivers/platform/x86/lenovo/yb9-kbdock.c                  | 323 ++++++++++++
- drivers/platform/x86/lenovo/ymc.c                         |  19 ++
- 6 files changed, 383 insertions(+)
-
++	if (dmi_check_system(lenovo_ymc_nosupport_dmi_table))
++		return -ENODEV;
++
+ 	if (!dmi_check_system(allowed_chasis_types_dmi_table)) {
+ 		if (force)
+ 			dev_info(&wdev->dev, "Force loading Lenovo YMC support\n");
+--
 2.55.0

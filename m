@@ -1,120 +1,136 @@
-Received: from mailgw.kylinos.cn (mailgw.kylinos.cn [124.126.103.232])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DD5DB372EEC;
-	Tue, 28 Jul 2026 06:22:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=124.126.103.232
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 559313B8139
+	for <linux-input@vger.kernel.org>; Tue, 28 Jul 2026 06:36:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785219727; cv=none; b=pcBXFSv+GhMiDS6y4XCEXufUelhHDrYD4cRe+j1O+PAM01oJLxUZed0gJnEWzpJ5ODWCk6fP711pbvornBAd5alhSiCkiPJ9JJ4HQSquOOslqZzWOFH9C3sQyheCgir50pfz/2EvNgMko5Mbxbhrtnlx7daVtusJWiky4N5S3no=
+	t=1785220567; cv=none; b=tqmFjZf9Jpoazh0z23ac/IGZNuiK5dknAGFAJEikur+kEM5kUnsuhXVTlQLbg23QvwZd84E00bR2taP3QAMvgmdtHe3Qg3sVz1oL/lQHswNtE8f5gdkgcBYTSedbSqSZ5L/RS1o05jkG8mQeyiezMRoDap962qFhGsfh1w4q3dw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785219727; c=relaxed/simple;
-	bh=TzpeiGOtf+olQCTX8lvCxsbTpkrRpVynK7QBdLJOquw=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=L9/hmhSPHWK7O/97jjrbyWfTxNX6YTk6Y+nnzJng/Yjubgvsi+jTvNk/I70yuVkz/Sb7hQTrTtdTOxLhbp8JwSB2PSnAg1CL/WroZTE2DGnljDi8ynf6HEVfd78jPsr8/lIbcosLIRt1U9OoOo00mOmcDAt1I/trk2bcmaOJwNE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn; spf=pass smtp.mailfrom=kylinos.cn; arc=none smtp.client-ip=124.126.103.232
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kylinos.cn
-X-UUID: a16fcee28a4c11f1aa26b74ffac11d73-20260728
-X-CTIC-Tags:
-	HR_CC_COUNT, HR_CC_DOMAIN_COUNT, HR_CC_NAME, HR_CC_NO_NAME, HR_CTE_8B
-	HR_CTT_MISS, HR_DATE_H, HR_DATE_WKD, HR_DATE_ZONE, HR_FROM_NAME
-	HR_SJ_LANG, HR_SJ_LEN, HR_SJ_LETTER, HR_SJ_NOR_SYM, HR_SJ_PHRASE
-	HR_SJ_PHRASE_LEN, HR_SJ_WS, HR_TO_COUNT, HR_TO_DOMAIN_COUNT, HR_TO_NO_NAME
-	IP_TRUSTED, SRC_TRUSTED, DN_TRUSTED, SA_EXISTED, SN_EXISTED
-	SPF_NOPASS, DKIM_NOPASS, DMARC_NOPASS, CIE_GOOD, CIE_GOOD_SPF
-	GTI_FG_BS, GTI_RG_INFO, GTI_C_BU, AMN_GOOD, ABX_MISS_RDNS
-X-CID-P-RULE: Release_Ham
-X-CID-O-INFO: VERSION:1.3.12,REQID:40ed0d17-f4e5-4704-b0c3-0278786e1361,IP:15,
-	URL:0,TC:0,Content:-5,EDM:25,RT:0,SF:0,FILE:0,BULK:0,RULE:Release_Ham,ACTI
-	ON:release,TS:35
-X-CID-INFO: VERSION:1.3.12,REQID:40ed0d17-f4e5-4704-b0c3-0278786e1361,IP:15,UR
-	L:0,TC:0,Content:-5,EDM:25,RT:0,SF:0,FILE:0,BULK:0,RULE:Release_Ham,ACTION
-	:release,TS:35
-X-CID-META: VersionHash:e7bac3a,CLOUDID:d4f9c0994223fa8eb4582a5b57de8412,BulkI
-	D:260728141222NV3X2C1Z,BulkQuantity:1,Recheck:0,SF:10|38|66|78|102|127|136
-	|850|865|898,TC:nil,Content:0|15|50,EDM:5,IP:-2,URL:0,File:nil,RT:nil,Bulk
-	:41,QS:nil,BEC:nil,COL:0,OSI:0,OSA:0,AV:0,LES:1,SPR:NO,DKR:0,DKP:0,BRR:0,B
-	RE:0,ARC:0
-X-CID-BVR: 2,SSN|SDN
-X-CID-BAS: 2,SSN|SDN,0,_
-X-CID-FACTOR: TF_CID_SPAM_SNR
-X-CID-RHF: D41D8CD98F00B204E9800998ECF8427E
-X-UUID: a16fcee28a4c11f1aa26b74ffac11d73-20260728
-X-User: yijiangshan@kylinos.cn
-Received: from localhost.localdomain [(116.128.244.171)] by mailgw.kylinos.cn
-	(envelope-from <yijiangshan@kylinos.cn>)
-	(Generic MTA with TLSv1.3 TLS_AES_256_GCM_SHA384 256/256)
-	with ESMTP id 1669212354; Tue, 28 Jul 2026 14:21:55 +0800
-From: Jiangshan Yi <yijiangshan@kylinos.cn>
-To: djogorchock@gmail.com,
-	jikos@kernel.org,
-	bentiss@kernel.org
-Cc: linux-kernel@vger.kernel.org,
-	linux-input@vger.kernel.org,
-	13667453960@163.com,
-	Jiangshan Yi <yijiangshan@kylinos.cn>,
-	stable@vger.kernel.org
-Subject: [PATCH] HID: nintendo: stop device IO before hid_hw_stop on probe failure
-Date: Tue, 28 Jul 2026 14:21:28 +0800
-Message-Id: <20260728062128.312859-1-yijiangshan@kylinos.cn>
-X-Mailer: git-send-email 2.25.1
+	s=arc-20240116; t=1785220567; c=relaxed/simple;
+	bh=EPTVSEx4nv4q3PQ5aUN1IBEGPBArwTFizIcmktrdmgY=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=YTBpNmSA+df4VJ7q87FnXly5otWggB5Vu2bLC0E6c09IMX4f5Ks2YVt5J31mEXJIWN2Y+P311cANHSQSNIGP4PGHBPA/rtEJqrDqcpfYkWQS1K+7tseAeACXksQ5zExZgqULbnnCvzLAQU2zF8D03V0G0d7RAg5763r/jtDmyq8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=N2otLy8K; arc=none smtp.client-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="N2otLy8K"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A15311F000E9;
+	Tue, 28 Jul 2026 06:36:04 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1785220564;
+	bh=wWiZx8idQPlLp7PSjN3xbM8Mk4QtsDvide6umonWGxQ=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=N2otLy8KUQ3vMQ4j8DZTco5a2BwU6yrWOxxu2ZO3pHif4zluogIHa4fDSmhJcK6TD
+	 QNdL+GxZhbAp8+4Hrod61lZ9BOfhix6bofQFnErCX4/TNM08I/H3BJd4HPs+b9eUNG
+	 ERXkQlufMamk+sDLgkqDloJ2mMigWlzXnMyk0mfvFMKolThbdPU3QiFPpaZoWSTcTM
+	 ehf2MY4yWzLm8mzJ7Q/kfMTBn93leS/FlNep/1qM5DbKXgnzzuNFjeNNWRENM4LI0F
+	 NOjxdEiXPws/GwPKbeiTzJauFNZUe9o8KMtfZ5gjFn2IfqAGfkVIRfnVSffAdlW9r6
+	 ZLMUh05cGGiqA==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH] HID: mcp2221: stop device IO before hid_hw_stop
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Jiangshan Yi" <yijiangshan@kylinos.cn>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20260728061919.310367-1-yijiangshan@kylinos.cn>
+References: <20260728061919.310367-1-yijiangshan@kylinos.cn>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Tue, 28 Jul 2026 06:36:03 +0000
+Message-Id: <20260728063604.A15311F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-nintendo_hid_probe() calls hid_device_io_start() before joycon_init()
-and joycon_leds_create().  If either fails, the error path jumps to
-err_close which calls hid_hw_close()/hid_hw_stop() without first calling
-hid_device_io_stop().
+Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+s) to consider:
 
-hid_hw_stop() does not stop device IO, so hid_input_report() may still
-run and access driver data that is being torn down, resulting in a
-use-after-free.
+New issues:
+- [Medium] Unconditional call to `hid_device_io_stop()` causes spurious "io=
+ already stopped" kernel warnings on normal device removal.
 
-Add an err_io_stop label that calls hid_device_io_stop() before
-hid_hw_close(), and point the two post-io_start error paths at it.
+Pre-existing issues:
+- [High] The driver leaves `mcp->rxbuf` pointing to freed memory after an I=
+2C/SMBus transfer completes or times out, leading to a write use-after-free=
+ on spurious USB reports.
+- [High] The `mcp2221_raw_event` function fails to validate the `size` para=
+meter of incoming HID reports, causing an out-of-bounds read and kernel inf=
+ormation leak.
+--
 
-Fixes: 2af16c1f846b ("HID: nintendo: add nintendo switch controller driver")
-Cc: stable@vger.kernel.org
-Signed-off-by: Jiangshan Yi <yijiangshan@kylinos.cn>
----
- drivers/hid/hid-nintendo.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+--- Patch [1]: [PATCH] HID: mcp2221: stop device IO before hid_hw_stop ---
+commit 17aa5ce1c914b6c625bef7c6ef52e3e63205f24d
+Author: Jiangshan Yi <yijiangshan@kylinos.cn>
 
-diff --git a/drivers/hid/hid-nintendo.c b/drivers/hid/hid-nintendo.c
-index e7302ec01ff1..0db553528826 100644
---- a/drivers/hid/hid-nintendo.c
-+++ b/drivers/hid/hid-nintendo.c
-@@ -2736,14 +2736,14 @@ static int nintendo_hid_probe(struct hid_device *hdev,
- 	ret = joycon_init(hdev);
- 	if (ret) {
- 		hid_err(hdev, "Failed to initialize controller; ret=%d\n", ret);
--		goto err_close;
-+		goto err_io_stop;
- 	}
- 
- 	/* Initialize the leds */
- 	ret = joycon_leds_create(ctlr);
- 	if (ret) {
- 		hid_err(hdev, "Failed to create leds; ret=%d\n", ret);
--		goto err_close;
-+		goto err_io_stop;
- 	}
- 
- 	/* Initialize the battery power supply */
-@@ -2766,7 +2766,8 @@ static int nintendo_hid_probe(struct hid_device *hdev,
- 
- err_ida:
- 	ida_free(&nintendo_player_id_allocator, ctlr->player_id);
--err_close:
-+err_io_stop:
-+	hid_device_io_stop(hdev);
- 	hid_hw_close(hdev);
- err_stop:
- 	hid_hw_stop(hdev);
--- 
-2.25.1
+HID: mcp2221: stop device IO before hid_hw_stop
+   =20
+This commit adds a call to hid_device_io_stop() at the start of the devm
+cleanup callback mcp2221_hid_unregister(). This ensures device IO is
+quiesced before the hardware is stopped, addressing a potential
+use-after-free during probe failure or device removal.
 
+> diff --git a/drivers/hid/hid-mcp2221.c b/drivers/hid/hid-mcp2221.c
+> index e4ddd8e9293b6..83857ec1d61ca 100644
+> --- a/drivers/hid/hid-mcp2221.c
+> +++ b/drivers/hid/hid-mcp2221.c
+> @@ -1049,6 +1049,7 @@ static void mcp2221_hid_unregister(void *ptr)
+>  {
+>  	struct hid_device *hdev =3D ptr;
+> =20
+> +	hid_device_io_stop(hdev);
+[Severity: Medium]
+Will this unconditional call trigger a spurious "io already stopped" kernel
+warning on normal device removal?
+
+During normal device removal, hid_device_remove() sets hdev->io_started =3D=
+ false
+before tearing down the devres group. When devres subsequently invokes
+mcp2221_hid_unregister(), hid_device_io_stop() will hit the !io_started
+condition and print a dev_warn.
+
+>  	hid_hw_close(hdev);
+>  	hid_hw_stop(hdev);
+>  }
+
+[Severity: High]
+This is a pre-existing issue, but does this driver leave mcp->rxbuf pointing
+to freed memory if an I2C/SMBus transfer times out?
+
+In drivers/hid/hid-mcp2221.c:mcp_i2c_smbus_read(), the buffer pointer is se=
+t:
+
+    mcp->rxbuf =3D smbus_buf;
+    mcp->rxbuf_size =3D smbus_len;
+
+If the transfer times out, the function returns without clearing mcp->rxbuf.
+The caller may then free or pop the buffer. If a delayed or spurious report
+later arrives, mcp2221_raw_event() will blindly copy data into the stale
+pointer:
+
+    buf =3D mcp->rxbuf;
+    memcpy(&buf[mcp->rxbuf_idx], &data[4], data[3]);
+
+Can a malicious or slow USB device send a delayed MCP2221_I2C_GET_DATA pack=
+et
+and cause a write use-after-free here?
+
+
+[Severity: High]
+This is a pre-existing issue, but does mcp2221_raw_event() fail to validate
+the size of incoming HID reports?
+
+When processing raw USB input reports, the function trusts data[3] for the
+copy length without validating it against the actual received report size:
+
+    buf =3D mcp->rxbuf;
+    memcpy(&buf[mcp->rxbuf_idx], &data[4], data[3]);
+
+If a malicious USB device sends a short report (e.g., 4 bytes) but specifies
+a payload length of 60 in data[3], will this cause an out-of-bounds read
+from the HID core's transfer_buffer and leak uninitialized memory to
+userspace?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260728061919.3103=
+67-1-yijiangshan@kylinos.cn?part=3D1

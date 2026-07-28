@@ -1,135 +1,171 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qk1-f178.google.com (mail-qk1-f178.google.com [209.85.222.178])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E6A6540B109
-	for <linux-input@vger.kernel.org>; Tue, 28 Jul 2026 21:31:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C71153A83B1
+	for <linux-input@vger.kernel.org>; Tue, 28 Jul 2026 22:01:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785274314; cv=none; b=DwcHPih/j0Dm2a0ANUKhyWlsQzUh/s+p3SjLD0yfAScC/eH014I3HcZt8q+PS2bnEP1LKn01edKR0PfWx7f98DDtHaDUQik3iqg5ze+QQCRzWmcnUds7W28Bdn4Ou8krptJLUuGPce9aDclzGTsX+DEb84zFMWw5R7R0i2+9eW0=
+	t=1785276101; cv=none; b=cl4Hxj21uBskO6h2wV9/wmURVfiaSs2Qb81phxqFyK7o95Bh5phZ2YvH+ineNz1iYO0L5GvfvwBcqhCaZku7OBgJs8MTujCWkBaQvxt1VJIq/w3efWTHSekg3P0piCCrlgoVnyLJ4fxhgd41n8oBk9/JappWTa7rM5btP9bF2zA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785274314; c=relaxed/simple;
-	bh=+izbRbkpsEhywclegHwlmFD58IdV3ukFsFctXB6Hxzw=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=W8iCukPELO0Khnz63D7aiK/iLjSyto8B71jQCJ9N0gXQ5xal03G5KW9cYcbsBIZcdfXkFAE2fv4z78Ur2s5kwUONOz001yeFoDD8sZ3e6R+FsFR/JsylFFrNkx1jGs5tMvWvRnYS4lnbpg+6SGow9t2R80q+uf7gxf6oWd6hpWI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=QECXN7QT; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1785276101; c=relaxed/simple;
+	bh=0CH4KMcXr9oaeZD6NlFB8ot6AsfL7GrO+pmLK0gGiww=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=sWCrc/yUQRtv7DTubklnArAo3f7sKchI+Zi+jOej9UbxwkiP2UN+hyBEXWhUzA0Un2ULo90+ceeq8pBajEgJGA2Hcyb8FRp5wlK1iKs0eCTgV9pP79m6RImpeo0m1R6KzDKUCOkdtqULbiRv1Z71OgCk9gSTPasVdpyhWoX/yxo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=fXmEs9RV; arc=none smtp.client-ip=209.85.222.178
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="QECXN7QT"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D5B21F00A3A;
-	Tue, 28 Jul 2026 21:31:52 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785274312;
-	bh=CWiwlUBdDISvXO39jRxXMgyTCGMVn52zsV8tCen3lrY=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=QECXN7QTHv0od0N2xZkLeh36yXclXUs7kIz5UhGLhuyP1wI/23HgnNqmg8h2q+Yqk
-	 l/+4jecyW6y+HJ8VSXuzJSydTVSolzL3C/PU7QhUIXg3KMo+AgbhbRF6pmTOHon7ks
-	 w5ydfYM9G60ew8FhMe25t4pHwapNa4tqCM0GPCOf5Oe33ZzFJKnuowsdXXD/UZgkgX
-	 9X9iOzDlnHVMnEXndVDKcLl86OEATivkU1ZZ2YoISISWsUcgIgljnNQJrJPKZO1rCc
-	 dh7DwVMDajQf2lO8SbblBTOzEgafSgG4C9fJQkKdXUl3GO+Xyok+Vh4zxcHr2CKZof
-	 5+fvPpUx0d5bA==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCHv2 1/2] Input: mtk-pmic-keys: use
- of_device_get_match_data()
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Rosen Penev" <rosenp@gmail.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260728212438.54078-2-rosenp@gmail.com>
-References: <20260728212438.54078-1-rosenp@gmail.com>
- <20260728212438.54078-2-rosenp@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Tue, 28 Jul 2026 21:31:51 +0000
-Message-Id: <20260728213152.5D5B21F00A3A@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="fXmEs9RV"
+Received: by mail-qk1-f178.google.com with SMTP id af79cd13be357-92e5c92c389so23639185a.3
+        for <linux-input@vger.kernel.org>; Tue, 28 Jul 2026 15:01:35 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1785276094; x=1785880894; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:in-reply-to:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=nDoun7OEr0VFdjpcVSQJxT0IbQ+nFZ9G6YKg1Q7PLrM=;
+        b=fXmEs9RV91CLtFbAdYh7UvysjaRhmfATSMR/BBQL4tHd892tp5nALKAHMsgahDh6HP
+         KS9IWCyBYN2O1VpfazulCP8fBl7Tzb8O+NccxJdCEHpq2/da00FsKDc9DT+ztrxtBSdC
+         1UKMtKFHOs/xzb+dzmobbadd7NLYo+/qKpR8ASd+BjfUPbJF3bxYhfgedy5Egb54IiNu
+         ozAtI0+K6XSITpFcr9pM40BlnWIOaNKz9oPH4GUES0r7mbwsc80Q03sKlz7dr2OvtJuB
+         LqMfcRjRqv2T1849dDeXQO+2CuK16HzfW3GyuTbR50Lqp48WfkTQ5NPYjWkL67KUOlL/
+         +uBQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1785276094; x=1785880894;
+        h=content-transfer-encoding:content-type:in-reply-to:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=nDoun7OEr0VFdjpcVSQJxT0IbQ+nFZ9G6YKg1Q7PLrM=;
+        b=NGDE+8EP1ulXlLKBnAU/BLa75pBQju0QNexqQdP94gHV07TLknl/eLierR6v4FqMld
+         lS2vSF1N2if99WM7V37JKLcShcR8sBuqptjB8g8BCFOdFgF9jkphU42yYZC0uO63KkDX
+         KC0XKJdAZT1w4tvaujUBzcT8Ds9AGPxiyO8WiVU/VG61LEobEkib2NfTIYWFdZsTJmmz
+         Md/2wkcOqi6JU97vrrC5aFKAEDH2UGjzvMGKRyc8bZOf741OkLgsZtPec5GK+Qlxmv3W
+         tED5xQnhicV/cd2ciDYkKKwPo30Dgkrl/MFfNJkBDAh7/bZ4TOqwUE9uOP+hhFXD7IDU
+         MbFw==
+X-Forwarded-Encrypted: i=1; AHgh+RpkRoO6HYTo80AccLZKzFM63xLXkmmx+suGZ35hCskPbSSKIFDvCkSveUJ7M682C/CXfVO6xL8En20pyQ==@vger.kernel.org
+X-Gm-Message-State: AOJu0YwIArVpblOvMEYwRTdnhg8rQ04BaR1BtvEYefQef+JYqy7gMCES
+	bk2xv99nIdxUJpD3tjW3T6nB2CVADiOEDkxVCU5xFtSlGeSPaxuw8JoV
+X-Gm-Gg: AR+sD13sCrgxh7YUiuKUcAeGEprkBAju41iED0h7cGMIa9gYPqzBqaCuvMXEM0s7Sc3
+	2OXm8ySSGyDPu3bcI5tVuctB40KJhNpxndgYz5wjjSTvccF3L/vixw0rpbeVUADWj8BfqIR3YhT
+	Ru/PceJ9zK2GE+UjqUZZXY6bP7SZs+8N487YAlloUJG7tG8aJNeyizipVPsEkC5xByU8zR+gWc7
+	9oNwKSO/5kGrz4Q+nwaoIJS6kyMyvRO8riRRj0bJDMfM8Kv2MiDBbTtSsfJXE8g7qTj4hLkq9Om
+	fn8Is2S+BSZKJDW1ai9DUfznepu32FxiZ5AtdEq3HLq17/5TkeRop2H7eOz4va9jS0gls09ekyg
+	USFA3m6VDUsgX/TVYly4inSO971I0PsKvuyVAKR/9RBkH+orPmEMA1e7LZBc5x9k0gO/cZzXjE4
+	rmz1SNhTgyTXnC2PR9FLR3JVp3UEIpO0wanbUT9uXeMN1q3cl7r0cf8jN+EJmQQAB4isYT
+X-Received: by 2002:a05:620a:2787:b0:915:7e22:6f1f with SMTP id af79cd13be357-933026c884cmr440344985a.22.1785276093731;
+        Tue, 28 Jul 2026 15:01:33 -0700 (PDT)
+Received: from [192.168.0.78] (pool-100-11-178-145.phlapa.fios.verizon.net. [100.11.178.145])
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-933e7361dc2sm28717185a.43.2026.07.28.15.01.32
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 28 Jul 2026 15:01:33 -0700 (PDT)
+Message-ID: <cb66c1e4-25c8-46c3-9330-188c9e6665f8@gmail.com>
+Date: Tue, 28 Jul 2026 18:01:32 -0400
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v14 0/2] Lenovo Yoga Book 9 keyboard dock detection
+To: =?UTF-8?Q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>
+Cc: platform-driver-x86@vger.kernel.org, hdegoede@redhat.com, W_Armin@gmx.de,
+ jikos@kernel.org, linux-input@vger.kernel.org,
+ LKML <linux-kernel@vger.kernel.org>
+References: <20260722201659.874469-1-carvsdriver@gmail.com>
+ <10e5c25d-7fc8-5db8-e8d3-b76c5d413acd@linux.intel.com>
+Content-Language: en-US
+From: Dave Carey <carvsdriver@gmail.com>
+In-Reply-To: <10e5c25d-7fc8-5db8-e8d3-b76c5d413acd@linux.intel.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
+Got it.  Thanks again for your patience.
 
-Pre-existing issues:
-- [High] Mismatch between counting available child nodes and iterating over=
- all child nodes leads to an out-of-bounds array access.
---
+Putting together, hopefully the final version for this patch and 
+re-submitting.
 
---- Patch [1]: [PATCHv2 1/2] Input: mtk-pmic-keys: use of_device_get_match_=
-data() ---
-commit 8b3f8694df03175d2fcd1e69a487343b4d70d629
-Author: Rosen Penev <rosenp@gmail.com>
+Cheers!
+-Dave
 
-Input: mtk-pmic-keys: use of_device_get_match_data()
-
-This commit replaces open-coded match data retrieval with
-of_device_get_match_data() and removes the of_device.h include.
-
-> diff --git a/drivers/input/keyboard/mtk-pmic-keys.c b/drivers/input/keybo=
-ard/mtk-pmic-keys.c
-> index c78d9f6d97c4f..fd684ac169386 100644
-> --- a/drivers/input/keyboard/mtk-pmic-keys.c
-> +++ b/drivers/input/keyboard/mtk-pmic-keys.c
-[ ... ]
-> @@ -333,8 +332,6 @@ static int mtk_pmic_keys_probe(struct platform_device=
- *pdev)
->  	struct mtk_pmic_keys *keys;
->  	const struct mtk_pmic_regs *mtk_pmic_regs;
->  	struct input_dev *input_dev;
-> -	const struct of_device_id *of_id =3D
-> -		of_match_device(of_mtk_pmic_keys_match_tbl, &pdev->dev);
-> =20
->  	keys =3D devm_kzalloc(&pdev->dev, sizeof(*keys), GFP_KERNEL);
->  	if (!keys)
-> @@ -342,7 +339,7 @@ static int mtk_pmic_keys_probe(struct platform_device=
- *pdev)
-> =20
->  	keys->dev =3D &pdev->dev;
->  	keys->regmap =3D pmic_chip->regmap;
-> -	mtk_pmic_regs =3D of_id->data;
-> +	mtk_pmic_regs =3D of_device_get_match_data(&pdev->dev);
-> =20
->  	keys->input_dev =3D input_dev =3D devm_input_allocate_device(keys->dev);
-
-[Severity: High]
-This is a pre-existing issue, but while reviewing mtk_pmic_keys_probe(),
-I noticed a potential out-of-bounds array access further down in the
-function.
-
-The function correctly limits the expected number of keys by checking
-the count of available child nodes:
-
-drivers/input/keyboard/mtk-pmic-keys.c:mtk_pmic_keys_probe() {
-    ...
-    keycount =3D of_get_available_child_count(node);
-    if (keycount > MTK_PMIC_MAX_KEY_COUNT ||
-        keycount > ARRAY_SIZE(irqnames)) {
-            dev_err(keys->dev, "too many keys defined (%d)\n", keycount);
-            return -EINVAL;
-    }
-    ...
-}
-
-However, it then iterates over all child nodes, not just the available ones:
-
-drivers/input/keyboard/mtk-pmic-keys.c:mtk_pmic_keys_probe() {
-    ...
-    for_each_child_of_node_scoped(node, child) {
-        keys->keys[index].regs =3D &mtk_pmic_regs->keys_regs[index];
-        keys->keys[index].irq =3D
-            platform_get_irq_byname(pdev, irqnames[index]);
-    ...
-}
-
-If a device tree provides more child nodes than MTK_PMIC_MAX_KEY_COUNT
-but only a subset are marked as available (for example, with
-status =3D "okay"), the bounds check will pass. Because the loop iterates o=
-ver
-all child nodes regardless of their availability status, could index exceed
-the array limits?
-
-Would it be safer to use for_each_available_child_of_node_scoped() here to
-ensure the loop matches the earlier available child count check and prevents
-an out-of-bounds read on irqnames[] and write to keys->keys[]?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260728212438.5407=
-8-2-rosenp@gmail.com?part=3D1
+On 7/24/26 7:42 AM, Ilpo Järvinen wrote:
+> On Wed, 22 Jul 2026, Dave Carey wrote:
+>
+>> Changes in v14 (addressing Ilpo Järvinen's v13 review of patch 2/2):
+>>
+>>    - Restore #include <linux/compiler_attributes.h> and <linux/spinlock.h>,
+>>      which were accidentally absent from v13.
+>>    - Restore spinlock_t lock in struct yb9_kbdock_data, spin_lock_init(),
+>>      and spin_lock/spin_unlock around input_report_switch + input_sync
+>>      in yb9_kbdock_report().
+>>    - Restore pointer-out yb9_kbdock_query(d, u32 *bkbd) and removal of
+>>      zero-initializer from struct wmi_buffer out.
+>>    - Restore int return from yb9_kbdock_sync() and error propagation in
+>>      yb9_kbdock_resume() and yb9_kbdock_block_probe().
+> Hi,
+>
+> Unfortunately, this still seems to miss one non-cosmetic change (diff of
+> diffs, v12 vs v14):
+>
+> diff --git a/drivers/platform/x86/lenovo/yb9-kbdock.c b/drivers/platform/x86/lenovo/yb9>
+>   new file mode 100644
+> -index 0000000..0000000
+> +index 0000000..40a2566
+>   --- /dev/null
+>   +++ b/drivers/platform/x86/lenovo/yb9-kbdock.c
+> -@@ -0,0 +1,322 @@
+> +@@ -0,0 +1,324 @@
+>   +// SPDX-License-Identifier: GPL-2.0-or-later
+>   +/*
+>   + * Lenovo Yoga Book 9 keyboard-dock detection
+> @@ -421,8 +449,10 @@
+>   +      /*
+>   +       * _WED(0xEB) returns EC.BKBD directly as a 32-bit integer
+>   +       * (LENOVO_BTKBD_EVENT WmiDataId(1) uint32 Status).
+> -+       * Short-buffer guard is handled by .min_event_size below.
+>   +       */
+> ++      if (!data || data->length < sizeof(__le32))
+> ++              return;
+> ++
+>   +      u32 bkbd = le32_to_cpu(*(const __le32 *)data->data);
+>   +
+>   +      blocking_notifier_call_chain(&yb9_kbdock_chain_head, bkbd, NULL);
+> @@ -441,7 +471,6 @@
+>   +      .id_table       = yb9_kbdock_event_id_table,
+>   +      .no_singleton   = true,
+>   +      .notify_new     = yb9_kbdock_notify_new,
+> -+      .min_event_size = sizeof(__le32),
+>   +};
+>   +
+>   +/* ------------------------------------------------------------------
+>
+>
+>> Changes in v13:
+> [...snip...]
+>
+>> Changes in v10 (addressing Armin Wolf's v9 review of patch 2/2):
+> [...snip...]
+>
+>>    - yb9_kbdock_notify_new(): drop manual length check; use
+>>      .min_event_size = sizeof(__le32) in struct wmi_driver instead
+>>
+>> Patch 1/2 (lenovo-ymc) is unchanged from v9.
+>
+> ...And there's no need to apologize. :-)
+>
+>
+> I personally keep earlier versions of the patches I've sent myself around
+> as files so I can easily do diff-of-diffs against the previous version. It
+> has saved me sooo many time from making fool of myself.
+>
+> I actually normally write the patch version history bullets based on that
+> diff so I won't forget anything important from it. Nor hallucinate some
+> changes that I thought I'd made but didn't (=> back to the drawing board).
+>
+>
+> If you need the old version you can probably get them from lore archive if
+> you don't have them around anymore (but by not placing them cleanly into
+> own threads one needs to be careful to get the right ones).
+>

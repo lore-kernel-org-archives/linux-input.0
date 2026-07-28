@@ -1,116 +1,98 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.15])
+Received: from mailgw.kylinos.cn (mailgw.kylinos.cn [124.126.103.232])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CBD272FFF8B
-	for <linux-input@vger.kernel.org>; Tue, 28 Jul 2026 10:25:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.15
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 528E2433AD;
+	Tue, 28 Jul 2026 13:14:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=124.126.103.232
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785234330; cv=none; b=WSa3II8PrIHNIhrnPavjvveF+z0X6T+nbLumAEV5M2IBQ+LClQNdgfqEjlXnUHb4iSENGzdLaXoP8L+/reUjLjsC31lt2Ed1P35aPqo/bnQl29Gv96CNnUl2V51brbxkR4DuYUtAa4XL47zRGXFnZuz+2pLXLX14zquf7e62zu0=
+	t=1785244499; cv=none; b=ZXuOWtDxWIb5+v82/TxCSIFGA8eLXzpDLzOHfey1+LLeGzh9yi0UD09A9sphi42dFrbNBW203sZftRKUZSI3oV8KJEkY1+XI/nfRl8Jjxwydm1Rn6ghM3SWFhdxnFPUZT1cNezeWYNiw2z8gsnb+70GBTKilKhDfFEpEk5ecHhU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785234330; c=relaxed/simple;
-	bh=RZpMRfMyP+h6lc081I18uAB6nddhd2h76WaPWH1qxnU=;
-	h=Date:From:To:Cc:Subject:Message-ID; b=J/LSehgdhptfNIvqVyB3XC5WL+rjqCFOmpi3K8DQXel3X0cNocCiY373HmInpSlgV8ZvexNxX4jiqv1i8oK5SvGmmrc+lmdB9ytx1fZxT8k3OS4qQDi2J/8ztbEhgO3X3TESlPZooKv8RpeiYx5oYtywue8YyRMK0up9EinwO0c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=ne7N4mR+; arc=none smtp.client-ip=192.198.163.15
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="ne7N4mR+"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1785234328; x=1816770328;
-  h=date:from:to:cc:subject:message-id;
-  bh=RZpMRfMyP+h6lc081I18uAB6nddhd2h76WaPWH1qxnU=;
-  b=ne7N4mR+DWp2DLd5KsfmqZ7TciqMjOhNmZfA9BwzznpXxD3xH/JLBi6P
-   pQBZ6HUEQvPhKGugolYm2eaqmwIUhspSs9fxvmeSgS/Zt9RbYwEml8z/s
-   oirlCdYJHiwt/qPhati8hY6bvU3UBe+UKDiLYjQ8ZpU2osq/iOOSR4MRA
-   3NO7vLuUmW7NKIf9VoY871YAY/6KvR6Io67lLSv74GFG/6Kkx87gPO2OV
-   tDH6V7zLdl1fwQ8r06A5hqdgbkrMpPPjSXNw5bJZogWWlcg7ic55ckhKo
-   aTUSLIZyQkj52blXe+IBh81YOiBD36XShokuqcnCpI9gHnsmISCAoW3wg
-   g==;
-X-CSE-ConnectionGUID: 9zOYd4IPQyOAorcL8FIEeA==
-X-CSE-MsgGUID: 4of0Z0noQmyxiuT4YUMeUQ==
-X-IronPort-AV: E=McAfee;i="6800,10657,11858"; a="85932530"
-X-IronPort-AV: E=Sophos;i="6.25,190,1779174000"; 
-   d="scan'208";a="85932530"
-Received: from fmviesa002.fm.intel.com ([10.60.135.142])
-  by fmvoesa109.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Jul 2026 03:25:27 -0700
-X-CSE-ConnectionGUID: FIpt9LWWSsqrDDpbUU1Nsg==
-X-CSE-MsgGUID: 56rFENefQ328/fWsobL5Ew==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.25,190,1779174000"; 
-   d="scan'208";a="283012618"
-Received: from lkp-server02.sh.intel.com (HELO ea128546eb3d) ([10.239.97.151])
-  by fmviesa002.fm.intel.com with ESMTP; 28 Jul 2026 03:25:27 -0700
-Received: from kbuild by ea128546eb3d with local (Exim 4.98.2)
-	(envelope-from <lkp@intel.com>)
-	id 1wof00-00000000eEx-1xIE;
-	Tue, 28 Jul 2026 10:25:24 +0000
-Date: Tue, 28 Jul 2026 18:25:05 +0800
-From: kernel test robot <lkp@intel.com>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
-Subject: [dtor-input:test] BUILD SUCCESS
- ee9dccd3588c1e9cd3f0cec25f8cfb26e93ca093
-Message-ID: <202607281854.bvryxts7-lkp@intel.com>
-User-Agent: s-nail v14.9.25
+	s=arc-20240116; t=1785244499; c=relaxed/simple;
+	bh=/xlDQgJ2tjAgiyY/v+iAPldCGbouYeg9iBQLenkfTnI=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=i3dJT8k4kYjNLlC03TQLL3knfzTWCUjUg3fTRVlve3KGFH+Fcmh+wfIvttPi3y4ukNuThhjwT0EuNt9hN7HtuMncHSpBki92lVSrBPOsmPFFVW76bMUPMU1GjxT4dqZreTx9IyyJiS/phDmfum2qPfHJlMxSSmk0Rr5cgbGliqY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn; spf=pass smtp.mailfrom=kylinos.cn; arc=none smtp.client-ip=124.126.103.232
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kylinos.cn
+X-UUID: 4fd8c2a28a8611f1aa26b74ffac11d73-20260728
+X-CID-P-RULE: Release_Ham
+X-CID-O-INFO: VERSION:1.3.12,REQID:0b3a12e1-16e8-4a57-a279-6268e913479d,IP:0,U
+	RL:0,TC:0,Content:0,EDM:0,RT:0,SF:0,FILE:0,BULK:0,RULE:Release_Ham,ACTION:
+	release,TS:0
+X-CID-META: VersionHash:e7bac3a,CLOUDID:8c967f86c9ebb29009fd88e156e65d5e,BulkI
+	D:nil,BulkQuantity:0,Recheck:0,SF:102|850|865|898,TC:nil,Content:0|15|50,E
+	DM:-3,IP:nil,URL:99|1,File:nil,RT:nil,Bulk:nil,QS:nil,BEC:nil,COL:0,OSI:0,
+	OSA:0,AV:0,LES:1,SPR:NO,DKR:0,DKP:0,BRR:0,BRE:0,ARC:0
+X-CID-BVR: 2,SSN|SDN
+X-CID-BAS: 2,SSN|SDN,0,_
+X-CID-FACTOR: TF_CID_SPAM_SNR,TF_CID_SPAM_ULS
+X-CID-RHF: D41D8CD98F00B204E9800998ECF8427E
+X-UUID: 4fd8c2a28a8611f1aa26b74ffac11d73-20260728
+X-User: yijiangshan@kylinos.cn
+Received: from localhost.localdomain [(10.44.16.150)] by mailgw.kylinos.cn
+	(envelope-from <yijiangshan@kylinos.cn>)
+	(Generic MTA with TLSv1.3 TLS_AES_256_GCM_SHA384 256/256)
+	with ESMTP id 705825285; Tue, 28 Jul 2026 21:14:49 +0800
+From: Jiangshan Yi <yijiangshan@kylinos.cn>
+To: gupt21@gmail.com,
+	jikos@kernel.org,
+	bentiss@kernel.org
+Cc: hamish.martin@alliedtelesis.co.nz,
+	sashal@kernel.org,
+	linux-kernel@vger.kernel.org,
+	linux-input@vger.kernel.org,
+	linux-i2c@vger.kernel.org,
+	13667453960@163.com,
+	Jiangshan Yi <yijiangshan@kylinos.cn>
+Subject: [PATCH v2 0/3] DO-NOT-MERGE: HID: mcp2221: stop device IO before hid_hw_stop and fix UAF/OOB-read
+Date: Tue, 28 Jul 2026 21:14:39 +0800
+Message-Id: <20260728131442.834604-1-yijiangshan@kylinos.cn>
+X-Mailer: git-send-email 2.25.1
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-tree/branch: https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git test
-branch HEAD: ee9dccd3588c1e9cd3f0cec25f8cfb26e93ca093  Input: psmouse - use guard() for resource management
+This series revisits the "stop device IO before hid_hw_stop" v1
+submission and, while reviewing it, fixes two pre-existing security
+issues in the same driver.
 
-elapsed time: 877m
+Patch 1 is v2 of the original single-patch submission. v1 added an
+unconditional hid_device_io_stop() to the devm cleanup callback, which
+prints a spurious "io already stopped" warning on normal device
+removal: hid_device_remove() clears io_started before the devres group
+is released, so the callback always sees io_started == false. v2 guards
+the call with io_started so it only runs on the probe-failure path that
+actually needs to balance hid_device_io_start().
 
-configs tested: 39
-configs skipped: 1
+Patches 2 and 3 are independent, pre-existing bugs (both dating back to
+the driver's introduction in 67a95c21463d) that the Sashiko AI review
+flagged while reviewing v1. They are self-contained, each carries its
+own Fixes: tag for -stable, and neither depends on patch 1 or on each
+other:
 
-The following configs have been built successfully.
-More configs may be tested in the coming days.
+  * Patch 2 - mcp->rxbuf is left dangling after an I2C/SMBus transfer
+    completes or times out; a delayed or spurious report can then write
+    device data into the freed buffer (write use-after-free).
+  * Patch 3 - mcp2221_raw_event() never validates the report size and
+    trusts data[3] as the copy length, so a malicious short report can
+    leak uninitialized kernel memory back through the I2C read path.
 
-tested configs:
-alpha                  allnoconfig    gcc-16.1.0
-alpha                 allyesconfig    gcc-16.1.0
-alpha                    defconfig    gcc-16.1.0
-arc                   allmodconfig    gcc-16.1.0
-arc                   allyesconfig    gcc-16.1.0
-arm64      randconfig-001-20260728    gcc-8.5.0
-arm64      randconfig-002-20260728    clang-17
-arm64      randconfig-003-20260728    clang-24
-arm64      randconfig-004-20260728    gcc-8.5.0
-csky                  allmodconfig    gcc-16.1.0
-csky       randconfig-001-20260728    gcc-16.1.0
-csky       randconfig-002-20260728    gcc-10.5.0
-hexagon             randconfig-001    clang-17
-hexagon    randconfig-001-20260728    clang-24
-hexagon    randconfig-002-20260728    clang-24
-i386                  allmodconfig    gcc-14
-loongarch                defconfig    clang-24
-loongarch  randconfig-001-20260728    gcc-16.1.0
-loongarch  randconfig-002-20260728    gcc-16.1.0
-nios2                 allmodconfig    gcc-11.5.0
-nios2                  allnoconfig    gcc-11.5.0
-nios2      randconfig-001-20260728    gcc-11.5.0
-nios2      randconfig-002-20260728    gcc-11.5.0
-parisc                allmodconfig    gcc-16.1.0
-parisc                allyesconfig    gcc-16.1.0
-parisc                   defconfig    gcc-16.1.0
-parisc     generic-64bit_defconfig    gcc-16.1.0
-parisc     randconfig-001-20260728    gcc-8.5.0
-powerpc    randconfig-001-20260728    clang-24
-powerpc    randconfig-002-20260728    gcc-8.5.0
-powerpc64  randconfig-001-20260728    gcc-10.5.0
-powerpc64  randconfig-002-20260728    clang-24
-riscv      randconfig-001-20260728    clang-20
-riscv      randconfig-002-20260728    gcc-8.5.0
-s390       randconfig-001-20260728    clang-22
-s390       randconfig-002-20260728    gcc-8.5.0
-sh                       defconfig    gcc-16.1.0
-sh         randconfig-001-20260728    gcc-16.1.0
-sh         randconfig-002-20260728    gcc-14.3.0
+The original v1 submission is available at:
+https://lore.kernel.org/r/20260728061919.310367-1-yijiangshan@kylinos.cn
+
+Signed-off-by: Jiangshan Yi <yijiangshan@kylinos.cn>
+
+Jiangshan Yi (3):
+  HID: mcp2221: stop device IO before hid_hw_stop
+  HID: mcp2221: clear rxbuf after I2C/SMBus transfer completes
+  HID: mcp2221: validate report size in mcp2221_raw_event()
+
+ drivers/hid/hid-mcp2221.c | 17 +++++++++++++++--
+ 1 file changed, 15 insertions(+), 2 deletions(-)
 
 --
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+2.25.1
+

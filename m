@@ -1,136 +1,121 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from m16.mail.163.com (m16.mail.163.com [117.135.210.3])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 559313B8139
-	for <linux-input@vger.kernel.org>; Tue, 28 Jul 2026 06:36:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 428E6381EBB;
+	Tue, 28 Jul 2026 06:43:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=117.135.210.3
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785220567; cv=none; b=tqmFjZf9Jpoazh0z23ac/IGZNuiK5dknAGFAJEikur+kEM5kUnsuhXVTlQLbg23QvwZd84E00bR2taP3QAMvgmdtHe3Qg3sVz1oL/lQHswNtE8f5gdkgcBYTSedbSqSZ5L/RS1o05jkG8mQeyiezMRoDap962qFhGsfh1w4q3dw=
+	t=1785221017; cv=none; b=hwPdDVeYiOxy1LiC2RFFO7kVOKdXSY/TdT7Hifn5IIVb5C52QcP1ME6n+ZNEKF0VDLcvX/SOwHzETHEUfUuiF6xxLF8vsDtbX31H1XzCL6++7+0fGLAOrGapp6JWu1hY9FfP1ICNwa3nUihoAemfxp6P53XnMYDVF3jp5+8gxsQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785220567; c=relaxed/simple;
-	bh=EPTVSEx4nv4q3PQ5aUN1IBEGPBArwTFizIcmktrdmgY=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=YTBpNmSA+df4VJ7q87FnXly5otWggB5Vu2bLC0E6c09IMX4f5Ks2YVt5J31mEXJIWN2Y+P311cANHSQSNIGP4PGHBPA/rtEJqrDqcpfYkWQS1K+7tseAeACXksQ5zExZgqULbnnCvzLAQU2zF8D03V0G0d7RAg5763r/jtDmyq8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=N2otLy8K; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1785221017; c=relaxed/simple;
+	bh=J8Dov7z6LLHZwzehRAu4XdGG2ErrXopdJ4OGSnW7AMs=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=L3XvuunX2ZkgAoisTHuQVeTN/Djk6JU9KWGuuuBodCKPXSbdK6WayBlX2WCm54B/EsLkh1M91Xahx++HDXUHlTIZfdVtyc8e1BIcTYVrnlZT5V1RbwgOpnOrj7Tw++ZCARnfbsh+ZJ93oQQKdCuCziEjlCIrKA1P5vYyBQar6JM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=mvU+JvZZ; arc=none smtp.client-ip=117.135.210.3
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="N2otLy8K"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A15311F000E9;
-	Tue, 28 Jul 2026 06:36:04 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785220564;
-	bh=wWiZx8idQPlLp7PSjN3xbM8Mk4QtsDvide6umonWGxQ=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=N2otLy8KUQ3vMQ4j8DZTco5a2BwU6yrWOxxu2ZO3pHif4zluogIHa4fDSmhJcK6TD
-	 QNdL+GxZhbAp8+4Hrod61lZ9BOfhix6bofQFnErCX4/TNM08I/H3BJd4HPs+b9eUNG
-	 ERXkQlufMamk+sDLgkqDloJ2mMigWlzXnMyk0mfvFMKolThbdPU3QiFPpaZoWSTcTM
-	 ehf2MY4yWzLm8mzJ7Q/kfMTBn93leS/FlNep/1qM5DbKXgnzzuNFjeNNWRENM4LI0F
-	 NOjxdEiXPws/GwPKbeiTzJauFNZUe9o8KMtfZ5gjFn2IfqAGfkVIRfnVSffAdlW9r6
-	 ZLMUh05cGGiqA==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] HID: mcp2221: stop device IO before hid_hw_stop
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Jiangshan Yi" <yijiangshan@kylinos.cn>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260728061919.310367-1-yijiangshan@kylinos.cn>
-References: <20260728061919.310367-1-yijiangshan@kylinos.cn>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Tue, 28 Jul 2026 06:36:03 +0000
-Message-Id: <20260728063604.A15311F000E9@smtp.kernel.org>
+	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="mvU+JvZZ"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
+	s=s110527; h=From:To:Subject:Date:Message-Id:MIME-Version; bh=uc
+	rZ7rbWxAnx4KG5vmhUlTD3XdNcUvWnlnQv2q7XJYg=; b=mvU+JvZZ6xkgfZMjD9
+	v1vfjqfl+bJBgZAGVJ2HQACHefBKKj6MrJkk7Hk+nTSEm1mp4gblTROUPcDkx/Zk
+	CkJ1Fk8LgPIRZJDehmkgnwTQWPlVSUCUYdFT3JpInV/OpnQfMuEKED/7R7ddg2yu
+	6e8hehWeiM8HXdfv5vUT0ccIc=
+Received: from pc.localdomain (unknown [])
+	by gzga-smtp-mtada-g0-0 (Coremail) with SMTP id _____wD33114T2hq+5HxKw--.28687S2;
+	Tue, 28 Jul 2026 14:43:05 +0800 (CST)
+From: Jiale Yao <yaojiale02@163.com>
+To: Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>,
+	Miao Li <limiao@kylinos.cn>,
+	Nguyen Dinh Dang Duong <dangduong31205@gmail.com>,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Cc: Jiale Yao <yaojiale02@163.com>
+Subject: [PATCH] HID: huawei/rapoo: reject non-USB transports before to_usb_interface()
+Date: Tue, 28 Jul 2026 14:43:02 +0800
+Message-Id: <20260728064302.3853953-1-yaojiale02@163.com>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:_____wD33114T2hq+5HxKw--.28687S2
+X-Coremail-Antispam: 1Uf129KBjvJXoWxXr1fAryfWry5Cr13ArWfGrg_yoW5GrWUpa
+	1UWFWqyrWDtr1rCw4jyF4kXryF9F1kJa4xuFyxCw1Svw1YyFyYqrySy34jqF1rCrZayr12
+	gr4Ut3yUWa4jgw7anT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x0pRIzuLUUUUU=
+X-CM-SenderInfo: x1dryxhdohiji6rwjhhfrp/xtbC8Bqm4GpoT3oM-QAA3q
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
-s) to consider:
+hid-huawei's huawei_report_fixup() unconditionally calls
+to_usb_interface(hdev->dev.parent) without first verifying the
+device is actually a USB HID device.  When uhid spoofs bus = BUS_USB
+with matching VID/PID, hdev->dev.parent points to a uhid_device,
+not a usb_interface.  to_usb_interface() returns a garbage pointer,
+triggering:
 
-New issues:
-- [Medium] Unconditional call to `hid_device_io_stop()` causes spurious "io=
- already stopped" kernel warnings on normal device removal.
+  BUG: KASAN: slab-out-of-bounds in huawei_report_fixup
+  Read of size 8 at 1176 bytes beyond an 800-byte kmalloc-1k region
+  BUG: KASAN: null-ptr-deref in huawei_report_fixup
 
-Pre-existing issues:
-- [High] The driver leaves `mcp->rxbuf` pointing to freed memory after an I=
-2C/SMBus transfer completes or times out, leading to a write use-after-free=
- on spurious USB reports.
-- [High] The `mcp2221_raw_event` function fails to validate the `size` para=
-meter of incoming HID reports, causing an out-of-bounds read and kernel inf=
-ormation leak.
---
+  Call Trace:
+   huawei_report_fixup
+   hid_open_report
+   hid_device_probe
+   really_probe
+   uhid_device_add_worker
 
---- Patch [1]: [PATCH] HID: mcp2221: stop device IO before hid_hw_stop ---
-commit 17aa5ce1c914b6c625bef7c6ef52e3e63205f24d
-Author: Jiangshan Yi <yijiangshan@kylinos.cn>
+hid-rapoo's rapoo_probe() guards the to_usb_interface() call with
+hdev->bus == BUS_USB, but uhid can forge hdev->bus, trivially
+bypassing this check and causing the same type confusion.
 
-HID: mcp2221: stop device IO before hid_hw_stop
-   =20
-This commit adds a call to hid_device_io_stop() at the start of the devm
-cleanup callback mcp2221_hid_unregister(). This ensures device IO is
-quiesced before the hardware is stopped, addressing a potential
-use-after-free during probe failure or device removal.
+Fix both drivers by adding the proper hid_is_usb() guard -- a helper
+that inspects the actual parent device type rather than trusting the
+forgeable bus field -- before any to_usb_interface() dereference.
 
-> diff --git a/drivers/hid/hid-mcp2221.c b/drivers/hid/hid-mcp2221.c
-> index e4ddd8e9293b6..83857ec1d61ca 100644
-> --- a/drivers/hid/hid-mcp2221.c
-> +++ b/drivers/hid/hid-mcp2221.c
-> @@ -1049,6 +1049,7 @@ static void mcp2221_hid_unregister(void *ptr)
->  {
->  	struct hid_device *hdev =3D ptr;
-> =20
-> +	hid_device_io_stop(hdev);
-[Severity: Medium]
-Will this unconditional call trigger a spurious "io already stopped" kernel
-warning on normal device removal?
+Fixes: e93faaca84b7 ("HID: huawei: fix CD30 keyboard report descriptor issue")
+Fixes: b3b1c68fb726 ("HID: rapoo: Add support for side buttons on RAPOO 0x2015 mouse")
+Assisted-by: Claude:deepseek-v4-pro
+Signed-off-by: Jiale Yao <yaojiale02@163.com>
+---
+ drivers/hid/hid-huawei.c | 7 ++++++-
+ drivers/hid/hid-rapoo.c  | 2 +-
+ 2 files changed, 7 insertions(+), 2 deletions(-)
 
-During normal device removal, hid_device_remove() sets hdev->io_started =3D=
- false
-before tearing down the devres group. When devres subsequently invokes
-mcp2221_hid_unregister(), hid_device_io_stop() will hit the !io_started
-condition and print a dev_warn.
+diff --git a/drivers/hid/hid-huawei.c b/drivers/hid/hid-huawei.c
+index 6a616bf21b38..d2f9f15871a2 100644
+--- a/drivers/hid/hid-huawei.c
++++ b/drivers/hid/hid-huawei.c
+@@ -44,7 +44,12 @@ static const __u8 huawei_cd30_kbd_rdesc_fixed[] = {
+ static const __u8 *huawei_report_fixup(struct hid_device *hdev, __u8 *rdesc,
+ 				  unsigned int *rsize)
+ {
+-	struct usb_interface *intf = to_usb_interface(hdev->dev.parent);
++	struct usb_interface *intf;
++
++	if (!hid_is_usb(hdev))
++		return rdesc;
++
++	intf = to_usb_interface(hdev->dev.parent);
+ 
+ 	switch (hdev->product) {
+ 	case USB_DEVICE_ID_HUAWEI_CD30KBD:
+diff --git a/drivers/hid/hid-rapoo.c b/drivers/hid/hid-rapoo.c
+index 4c81f3086de4..5c9c396fabf7 100644
+--- a/drivers/hid/hid-rapoo.c
++++ b/drivers/hid/hid-rapoo.c
+@@ -36,7 +36,7 @@ static int rapoo_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 		return ret;
+ 	}
+ 
+-	if (hdev->bus == BUS_USB) {
++	if (hid_is_usb(hdev)) {
+ 		struct usb_interface *intf = to_usb_interface(hdev->dev.parent);
+ 
+ 		if (intf->cur_altsetting->desc.bInterfaceNumber != 1)
+-- 
+2.34.1
 
->  	hid_hw_close(hdev);
->  	hid_hw_stop(hdev);
->  }
-
-[Severity: High]
-This is a pre-existing issue, but does this driver leave mcp->rxbuf pointing
-to freed memory if an I2C/SMBus transfer times out?
-
-In drivers/hid/hid-mcp2221.c:mcp_i2c_smbus_read(), the buffer pointer is se=
-t:
-
-    mcp->rxbuf =3D smbus_buf;
-    mcp->rxbuf_size =3D smbus_len;
-
-If the transfer times out, the function returns without clearing mcp->rxbuf.
-The caller may then free or pop the buffer. If a delayed or spurious report
-later arrives, mcp2221_raw_event() will blindly copy data into the stale
-pointer:
-
-    buf =3D mcp->rxbuf;
-    memcpy(&buf[mcp->rxbuf_idx], &data[4], data[3]);
-
-Can a malicious or slow USB device send a delayed MCP2221_I2C_GET_DATA pack=
-et
-and cause a write use-after-free here?
-
-
-[Severity: High]
-This is a pre-existing issue, but does mcp2221_raw_event() fail to validate
-the size of incoming HID reports?
-
-When processing raw USB input reports, the function trusts data[3] for the
-copy length without validating it against the actual received report size:
-
-    buf =3D mcp->rxbuf;
-    memcpy(&buf[mcp->rxbuf_idx], &data[4], data[3]);
-
-If a malicious USB device sends a short report (e.g., 4 bytes) but specifies
-a payload length of 60 in data[3], will this cause an out-of-bounds read
-from the HID core's transfer_buffer and leak uninitialized memory to
-userspace?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260728061919.3103=
-67-1-yijiangshan@kylinos.cn?part=3D1

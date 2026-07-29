@@ -1,282 +1,273 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.19])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3E1C132B113;
-	Wed, 29 Jul 2026 05:01:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.19
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7890C39524D
+	for <linux-input@vger.kernel.org>; Wed, 29 Jul 2026 05:13:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785301281; cv=none; b=Yyl63Qy+vLsYd5r0Wz0d5ajEj9o2Fyg7o9zS7HXQipyQEnK4DOH5dqnSKv/WOMzzqE89uJJlkMxFpMmQMZsDcRSDByIc/yRjgRaSeGT+xqn61nwDGhPr5qiISXWkx/k1bHyDYVPzlQh5l88XDWmb++sL740PiofahcJwE6lKQq4=
+	t=1785302015; cv=none; b=ojreqSAW/H2Eq3evt2OApEIhsuviGAivdIeGJ3SbNuil8q8HFP3qLIjcBVFd9XVTSV11lFOUZat/XjgMrj9vQQH3y3JQRAcSmWf9lK34ozmhgi6XgUBD74GAT1xqG/ar6+CMI0zrAqYaO026lIG/0Zdmq0+K6nuvt1jODW5tpHY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785301281; c=relaxed/simple;
-	bh=MKSP3EwTXix3jhISInbUdGtddMHZf53kQz5o3kDduv0=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=s2Kwdrn9kpXhM34COFVVkkvoyYf/7Dy2Xu/V9bBrRQSdowyvHDVXrnXCEs9/RWM9IedrvBQI5JgkJ5gjQCz3/1d77CtFdMcVYAoJqRcORbY6f0Kzl9Bv3yfEH1j73hC/pD2FH2p2NkoAQqKAGosSpa1CsR7A6PJUHu5Q4iRHgas=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=TCNPORLQ; arc=none smtp.client-ip=198.175.65.19
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1785302015; c=relaxed/simple;
+	bh=IeItcribYZBiE3M+fVbn0YNuZnQfC33wPjYHfQJdSNE=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=dQVxROfuE5rJS4WxSn8Fb/HgPTNSVoc69J1xB1jAeAdAkg01D9iIAVfZmf5q17v67WC6gpeG4sHkNyD9GN8Is4fvcSZ8WFOmBxI7SLDvveiIihSFf9cBDkTUer1PJfOrilfXWELYp3J2PMnk9rfWdlSuRyIvt99vmXzy2JN/8rk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=RPJHSPOK; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="TCNPORLQ"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1785301279; x=1816837279;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=MKSP3EwTXix3jhISInbUdGtddMHZf53kQz5o3kDduv0=;
-  b=TCNPORLQOjAr6gc6x9nHjnH2708bBopeAJnV2aebFLJei8geogICd+2C
-   z7LMTW7bIPbgOzaixv2wl8LTByKX9Vh+FE4QecpmZDMfX/XA7a8Ty1dTt
-   tDqNXkQyvmsEWvv/NMjbg1/Hxhqif6ohEpNIZNFkn3WC8fqp6vZPqthlQ
-   NsYDq/Te1jceSB363Wkcz70iVk1zexRyUYN4/CEv0bUVhmDJDDDP+XSos
-   Pwh1ARmhV2AU/QvFDsk2CMmV130b2n6bhwmizJO1V9jcObnNO0qLMGczz
-   4+RckldOR1b5Yax7ofHMyDqwFDNo4ApEagziryP2S152p8rsr8oOYdSb+
-   A==;
-X-CSE-ConnectionGUID: DdW3dYp/RuuRKP5zNXGGdw==
-X-CSE-MsgGUID: HKKHzkNkSX2HRzyq8+s8fw==
-X-IronPort-AV: E=McAfee;i="6800,10657,11859"; a="85842158"
-X-IronPort-AV: E=Sophos;i="6.25,191,1779174000"; 
-   d="scan'208";a="85842158"
-Received: from fmviesa001.fm.intel.com ([10.60.135.141])
-  by orvoesa111.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Jul 2026 22:01:18 -0700
-X-CSE-ConnectionGUID: moC6M3kARZeURejyxdMelw==
-X-CSE-MsgGUID: yRcRdsS+Qqe7o7UQNwXZBw==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.25,191,1779174000"; 
-   d="scan'208";a="284447546"
-Received: from shsensorbuild.sh.intel.com ([10.239.132.250])
-  by fmviesa001.fm.intel.com with ESMTP; 28 Jul 2026 22:01:16 -0700
-From: Even Xu <even.xu@intel.com>
-To: bentiss@kernel.org,
-	jikos@kernel.org
-Cc: srinivas.pandruvada@linux.intel.com,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	hbarnor@chromium.org,
-	Even Xu <even.xu@intel.com>
-Subject: [PATCH v5 3/3] HID: Intel-thc-hid: Intel-quickspi: Refine recover callback
-Date: Wed, 29 Jul 2026 13:01:45 +0800
-Message-ID: <20260729050145.2272597-4-even.xu@intel.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20260729050145.2272597-1-even.xu@intel.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="RPJHSPOK"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 581D81F000E9;
+	Wed, 29 Jul 2026 05:13:31 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1785302011;
+	bh=CH33MiReCql9fLVZ8riLMY6QvD1ptc08WsPeDODlWW0=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=RPJHSPOKfEMfGaznAQLFEnI2AjcCKaCqHlxcZH8l3IWHwe6oK6Uw4qg5NcGlC0MgZ
+	 cGszX6fnT0UfTpqoha5izdUlUvI5BuPzOgkj3A7X5dhq2MTn/2wK1w9/KLcNFqmQNc
+	 q11KoHP/btIuIbe4dDMrKTjWvEcasWqHapzmDlMacBA7H8o+wHa6uxZE0sCD1H7/br
+	 1Uq/0rUHsarRfsiTFcaR+Ekq5E7pnmuWJ+sO0MAiDidB016M0pROqyN7oWUn1YxeE0
+	 YX67nzHUUzGPt3GSlf1Skk/tWSu193bG3Hp32NUSCdj7UjzyJRh+MNLnceI3BGCv7+
+	 mAYxKKoki23xA==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v5 1/3] HID: Intel-thc-hid: Intel-thc: Add API to reset
+ read DMA
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Even Xu" <even.xu@intel.com>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20260729050145.2272597-2-even.xu@intel.com>
 References: <20260729050145.2272597-1-even.xu@intel.com>
+ <20260729050145.2272597-2-even.xu@intel.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Wed, 29 Jul 2026 05:13:30 +0000
+Message-Id: <20260729051331.581D81F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-Refine recover flow:
-1. Use workqueue to handle recover flow instead of processing in irq
-   handler.
-2. Call thc_rxdma_reset() API to simplify the recover operation.
-3. Disable interrupt during whole recover flow.
-4. If recover fails, disable interrupt to avoid interrupt storm.
+Thank you for your contribution! Sashiko AI review found 6 potential issue(=
+s) to consider:
 
-Signed-off-by: Even Xu <even.xu@intel.com>
----
- .../intel-quickspi/pci-quickspi.c             | 71 ++++++++++++-------
- .../intel-quickspi/quickspi-dev.h             |  6 ++
- 2 files changed, 50 insertions(+), 27 deletions(-)
+New issues:
+- [Critical] thc_rxdma_reset() destructively unconfigures all DMA channels =
+(including TX and SW) without pausing them first, risking severe memory cor=
+ruption if they were left active by a previous timeout.
+- [High] Error paths in thc_rxdma_reset() bypass the interrupt unquiesce op=
+eration, leaving device interrupts permanently disabled.
+- [High] The PRD (Physical Region Descriptor) tables are not re-initialized=
+ before restarting the RxDMA engines, leading to immediate buffer overruns =
+upon hardware restart.
+- [Medium] The return value of thc_interrupt_quiesce(dev, false) is ignored=
+, potentially masking a failure that leaves the device permanently incapabl=
+e of generating interrupts.
 
-diff --git a/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c b/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c
-index 4ae2e1718b30..404f0d2f1b9d 100644
---- a/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c
-+++ b/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c
-@@ -252,34 +252,33 @@ static irqreturn_t quickspi_irq_quick_handler(int irq, void *dev_id)
- }
- 
- /**
-- * try_recover - Try to recovery THC and Device
-- * @qsdev: pointer to quickspi device
-+ * try_recover - Recover callback to recover THC
-+ * @work: pointer to work_struct
-  *
-- * This function is a error handler, called when fatal error happens.
-- * It try to reset Touch Device and re-configure THC to recovery
-+ * This function is an error handler, called when fatal error happens.
-+ * It try to reset Touch Device and re-configure THC to recover
-  * transferring between Device and THC.
-- *
-- * Return: 0 if successful or error code on failed.
-  */
--static int try_recover(struct quickspi_device *qsdev)
-+static void try_recover(struct work_struct *work)
- {
--	int ret;
-+	struct quickspi_device *qsdev = container_of(work, struct quickspi_device, recover_work);
- 
--	ret = reset_tic(qsdev);
--	if (ret) {
--		dev_err(qsdev->dev, "Reset touch device failed, ret = %d\n", ret);
--		return ret;
--	}
-+	if (READ_ONCE(qsdev->recovery_disabled))
-+		return;
- 
--	thc_dma_unconfigure(qsdev->thc_hw);
-+	if (pm_runtime_resume_and_get(qsdev->dev))
-+		return;
- 
--	ret = thc_dma_configure(qsdev->thc_hw);
--	if (ret) {
--		dev_err(qsdev->dev, "Re-configure THC DMA failed, ret = %d\n", ret);
--		return ret;
-+	thc_interrupt_enable(qsdev->thc_hw, false);
-+
-+	if (thc_rxdma_reset(qsdev->thc_hw)) {
-+		qsdev->state = QUICKSPI_DISABLED;
-+		dev_err(qsdev->dev, "RxDMA reset failed during recover, disable QuickSPI\n");
-+	} else {
-+		thc_interrupt_enable(qsdev->thc_hw, true);
- 	}
- 
--	return 0;
-+	pm_runtime_put_autosuspend(qsdev->dev);
- }
- 
- /**
-@@ -337,11 +336,10 @@ static irqreturn_t quickspi_irq_thread_handler(int irq, void *dev_id)
- 	}
- 
- end:
--	thc_interrupt_enable(qsdev->thc_hw, true);
--
- 	if (err_recover)
--		if (try_recover(qsdev))
--			qsdev->state = QUICKSPI_DISABLED;
-+		schedule_work(&qsdev->recover_work);
-+	else
-+		thc_interrupt_enable(qsdev->thc_hw, true);
- 
- 	pm_runtime_put_autosuspend(qsdev->dev);
- 
-@@ -385,6 +383,8 @@ static struct quickspi_device *quickspi_dev_init(struct pci_dev *pdev, void __io
- 	init_waitqueue_head(&qsdev->report_desc_got_wq);
- 	init_waitqueue_head(&qsdev->get_report_cmpl_wq);
- 	init_waitqueue_head(&qsdev->set_report_cmpl_wq);
-+	WRITE_ONCE(qsdev->recovery_disabled, false);
-+	INIT_WORK(&qsdev->recover_work, try_recover);
- 
- 	/* thc hw init */
- 	qsdev->thc_hw = thc_dev_init(qsdev->dev, qsdev->mem_addr);
-@@ -461,6 +461,10 @@ static struct quickspi_device *quickspi_dev_init(struct pci_dev *pdev, void __io
-  */
- static void quickspi_dev_deinit(struct quickspi_device *qsdev)
- {
-+	WRITE_ONCE(qsdev->recovery_disabled, true);
-+	cancel_work_sync(&qsdev->recover_work);
-+
-+	thc_interrupt_quiesce(qsdev->thc_hw, true);
- 	thc_interrupt_enable(qsdev->thc_hw, false);
- 	thc_ltr_unconfig(qsdev->thc_hw);
- 	thc_wot_unconfig(qsdev->thc_hw);
-@@ -711,12 +715,13 @@ static void quickspi_remove(struct pci_dev *pdev)
- 		return;
- 
- 	quickspi_hid_remove(qsdev);
-+
-+	quickspi_dev_deinit(qsdev);
-+
- 	quickspi_dma_deinit(qsdev);
- 
- 	pm_runtime_get_noresume(qsdev->dev);
- 
--	quickspi_dev_deinit(qsdev);
--
- 	pci_clear_master(pdev);
- }
- 
-@@ -737,10 +742,10 @@ static void quickspi_shutdown(struct pci_dev *pdev)
- 	if (!qsdev)
- 		return;
- 
-+	quickspi_dev_deinit(qsdev);
-+
- 	/* Must stop DMA before reboot to avoid DMA entering into unknown state */
- 	quickspi_dma_deinit(qsdev);
--
--	quickspi_dev_deinit(qsdev);
- }
- 
- static int quickspi_suspend(struct device *device)
-@@ -759,6 +764,9 @@ static int quickspi_suspend(struct device *device)
- 			return ret;
- 	}
- 
-+	WRITE_ONCE(qsdev->recovery_disabled, true);
-+	cancel_work_sync(&qsdev->recover_work);
-+
- 	ret = thc_interrupt_quiesce(qsdev->thc_hw, true);
- 	if (ret)
- 		return ret;
-@@ -784,6 +792,8 @@ static int quickspi_resume(struct device *device)
- 	if (ret)
- 		return ret;
- 
-+	WRITE_ONCE(qsdev->recovery_disabled, false);
-+
- 	/*
- 	 * A wake-enabled device keeps its power and state across suspend, so
- 	 * only restore the THC context. Resetting it here would discard a
-@@ -864,6 +874,9 @@ static int quickspi_freeze(struct device *device)
- 	if (!qsdev)
- 		return -ENODEV;
- 
-+	WRITE_ONCE(qsdev->recovery_disabled, true);
-+	cancel_work_sync(&qsdev->recover_work);
-+
- 	ret = thc_interrupt_quiesce(qsdev->thc_hw, true);
- 	if (ret)
- 		return ret;
-@@ -895,6 +908,8 @@ static int quickspi_thaw(struct device *device)
- 	if (ret)
- 		return ret;
- 
-+	WRITE_ONCE(qsdev->recovery_disabled, false);
-+
- 	return 0;
- }
- 
-@@ -919,6 +934,8 @@ static int quickspi_poweroff(struct device *device)
- 
- 	thc_ltr_unconfig(qsdev->thc_hw);
- 
-+	quickspi_dev_deinit(qsdev);
-+
- 	quickspi_dma_deinit(qsdev);
- 
- 	return 0;
-diff --git a/drivers/hid/intel-thc-hid/intel-quickspi/quickspi-dev.h b/drivers/hid/intel-thc-hid/intel-quickspi/quickspi-dev.h
-index bf5e18f5a5f4..2936c8b1532c 100644
---- a/drivers/hid/intel-thc-hid/intel-quickspi/quickspi-dev.h
-+++ b/drivers/hid/intel-thc-hid/intel-quickspi/quickspi-dev.h
-@@ -8,6 +8,7 @@
- #include <linux/hid-over-spi.h>
- #include <linux/sizes.h>
- #include <linux/wait.h>
-+#include <linux/workqueue.h>
- 
- #include "quickspi-protocol.h"
- 
-@@ -126,6 +127,8 @@ struct acpi_device;
-  * @get_feature_cmpl: indicate get feature received or not
-  * @set_feature_cmpl_wq: workqueue for waiting set feature to device
-  * @set_feature_cmpl: indicate set feature send complete or not
-+ * @recover_work: Work structure for recovery
-+ * @recovery_disabled: Whether recovery work is blocked during teardown
-  */
- struct quickspi_device {
- 	struct device *dev;
-@@ -173,6 +176,9 @@ struct quickspi_device {
- 
- 	wait_queue_head_t set_report_cmpl_wq;
- 	bool set_report_cmpl;
-+
-+	struct work_struct recover_work;
-+	bool recovery_disabled;
- };
- 
- #endif /* _QUICKSPI_DEV_H_ */
--- 
-2.43.0
+Pre-existing issues:
+- [High] thc_dma_write() overwrites its timeout error code, falsely returni=
+ng success to callers.
+- [High] thc_swdma_read() leaks interrupt quiesced state and leaves hardwar=
+e wedged on error paths.
+--
 
+--- Patch [1]: [PATCH v5 1/3] HID: Intel-thc-hid: Intel-thc: Add API to res=
+et read DMA ---
+commit c2eb7694465cfedd737d39cb05604d90ef90d739
+Author: Even Xu <even.xu@intel.com>
+Subject: HID: Intel-thc-hid: Intel-thc: Add API to reset read DMA
+
+This commit adds a helper function thc_rxdma_reset() to perform a read DMA
+reset, which can be called when a fatal DMA error happens.
+
+> diff --git a/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dma.c b/driver=
+s/hid/intel-thc-hid/intel-thc/intel-thc-dma.c
+> index 6ee675e0a7384..7ceb8aeeccd37 100644
+> --- a/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dma.c
+> +++ b/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dma.c
+> @@ -561,6 +561,57 @@ static int thc_wait_for_dma_pause(struct thc_device =
+*dev, enum thc_dma_channel c
+[ ... ]
+> +int thc_rxdma_reset(struct thc_device *dev)
+> +{
+> +	int ret;
+> +
+> +	if (mutex_lock_interruptible(&dev->thc_bus_lock))
+> +		return -EINTR;
+> +
+> +	ret =3D thc_interrupt_quiesce(dev, true);
+> +	if (ret) {
+> +		dev_err(dev->dev, "Quiesce interrupt failed during RxDMA reset\n");
+> +		goto end;
+> +	}
+> +
+> +	ret =3D thc_wait_for_dma_pause(dev, THC_RXDMA1);
+> +	if (ret) {
+> +		dev_err(dev->dev, "Wait for RxDMA1 pause failed during RxDMA reset\n");
+> +		goto end;
+
+[Severity: High]
+Does this error path bypass the interrupt unquiesce operation?
+
+If wait_for_dma_pause fails, execution jumps directly to the 'end' label.
+The 'end' label simply unlocks the mutex and returns, entirely skipping the
+thc_interrupt_quiesce(dev, false) cleanup step.
+
+Could this leave the hardware in an inconsistent state where device
+interrupts are permanently disabled and the device cannot be recovered?
+
+> +	}
+> +
+> +	ret =3D thc_wait_for_dma_pause(dev, THC_RXDMA2);
+> +	if (ret) {
+> +		dev_err(dev->dev, "Wait for RxDMA2 pause failed during RxDMA reset\n");
+> +		goto end;
+> +	}
+> +
+> +	thc_dma_unconfigure(dev);
+
+[Severity: Critical]
+Is it safe to call thc_dma_unconfigure() here while TX and SW DMA engines
+might still be active?
+
+If a synchronous operation like thc_dma_write() or thc_swdma_read() times o=
+ut,
+it releases thc_bus_lock while leaving its respective hardware DMA engine
+active (START bit =3D 1). If thc_rxdma_reset() is subsequently called to
+recover the device, it invokes thc_dma_unconfigure().
+
+thc_dma_unconfigure() loops over all four DMA channels and sets their
+Physical Region Descriptor (PRD) base addresses to 0, but it does not clear
+the START bits for TXDMA and SWDMA:
+
+void thc_dma_unconfigure(struct thc_device *dev)
+{
+	int chan;
+
+	for (chan =3D 0; chan < MAX_THC_DMA_CHANNEL; chan++) {
+		dma_set_prd_base_addr(dev, 0, &dev->dma_ctx->dma_config[chan]);
+		dma_clear_prd_control(dev, &dev->dma_ctx->dma_config[chan]);
+	}
+
+	regmap_write_bits(dev->thc_regmap, THC_M_PRT_READ_DMA_CNTRL_1_OFFSET,
+			  THC_M_PRT_READ_DMA_CNTRL_START, 0);
+
+	regmap_write_bits(dev->thc_regmap, THC_M_PRT_READ_DMA_CNTRL_2_OFFSET,
+			  THC_M_PRT_READ_DMA_CNTRL_START, 0);
+}
+
+By zeroing out the PRD base address for a still-running DMA engine, could
+this direct the hardware to fetch descriptors or write data to physical
+address 0, leading to severe memory corruption or IOMMU faults?
+
+> +
+> +	ret =3D thc_dma_configure(dev);
+
+[Severity: High]
+Are the PRD tables correctly re-initialized in memory before restarting the
+RxDMA engines?
+
+The hardware modifies PRD table entries (e.g., updating length fields) upon
+receiving data. Under normal operation, the driver restores these original
+sizes in thc_dma_read() using thc_copy_one_sgl_to_prd().
+
+When a fatal error occurs and thc_rxdma_reset() is called, the hardware
+read and write pointers are abruptly reset to 0 via thc_dma_configure().
+However, if the in-memory PRD tables are not re-initialized, could the
+hardware fetch PRD index 0 containing a reduced length and stale flags from
+a past partial transaction?
+
+Would this cause the hardware to assume a smaller buffer capacity, triggeri=
+ng
+a Buffer Overrun or PRD Entry Error upon the next DMA write?
+
+> +	if (ret) {
+> +		dev_err(dev->dev, "Re-config DMA failed during RxDMA reset\n");
+> +		goto end;
+> +	}
+> +
+> +	thc_interrupt_quiesce(dev, false);
+
+[Severity: Medium]
+Should the return value of thc_interrupt_quiesce() be checked and propagate=
+d?
+
+This function polls the hardware and can return -ETIMEDOUT if the hardware
+state is lost or unresponsive. By discarding this return value and instead
+returning the 0 (success) from the prior thc_dma_configure() step, could the
+caller falsely assume recovery was successful while the device remains
+incapable of generating interrupts?
+
+> +
+> +end:
+> +	mutex_unlock(&dev->thc_bus_lock);
+> +	return ret;
+> +}
+> +EXPORT_SYMBOL_NS_GPL(thc_rxdma_reset, "INTEL_THC");
+
+[Severity: High]
+This isn't a bug introduced by this patch, but does thc_dma_write()
+overwrite its timeout error code on failure paths?
+
+Looking at thc_dma_write() in the same file:
+
+	ret =3D wait_event_interruptible_timeout(dev->write_complete_wait,
+					       dev->write_done, 1 * HZ);
+	if (ret <=3D 0 || !dev->write_done) {
+		dev_err_once(dev->dev, "timeout for waiting TxDMA completion\n");
+		ret =3D -ETIMEDOUT;
+		goto end;
+	}
+	...
+end:
+	mutex_unlock(&dev->thc_bus_lock);
+
+	if (restore_interrupts)
+		ret =3D thc_interrupt_quiesce(dev, false);
+
+	return ret;
+
+If wait_event_interruptible_timeout() times out, ret is set to -ETIMEDOUT.
+However, since unquiescing typically succeeds and returns 0, the original
+-ETIMEDOUT error is overwritten by 0.
+
+Could this falsely return success to callers when the DMA write actually
+timed out, leading to data loss and state desynchronization?
+
+[Severity: High]
+This isn't a bug introduced by this patch, but do the error paths in
+thc_swdma_read() leak the interrupt quiesced state?
+
+Looking at thc_swdma_read() in the same file:
+
+	ret =3D thc_swdma_read_start(dev, write_buff, write_len, prd_tbl_len);
+	if (ret)
+		goto end;
+
+	ret =3D wait_event_interruptible_timeout(dev->swdma_complete_wait,
+					       dev->swdma_done, 1 * HZ);
+	if (ret <=3D 0 || !dev->swdma_done) {
+		dev_err_once(dev->dev, "timeout for waiting SWDMA completion\n");
+		ret =3D -ETIMEDOUT;
+		goto end;
+	}
+
+	ret =3D thc_dma_read(dev, &dev->dma_ctx->dma_config[THC_SWDMA],
+			   read_buff, read_len, NULL);
+	if (ret)
+		goto end;
+
+	ret =3D thc_swdma_read_completion(dev);
+
+end:
+	mutex_unlock(&dev->thc_bus_lock);
+	return ret;
+
+If the software DMA read times out or if thc_dma_read() fails, execution
+jumps to the 'end' label, bypassing thc_swdma_read_completion().
+
+Since thc_swdma_read_start() previously quiesced interrupts and stopped
+RXDMA2, could bypassing the completion routine cause the device to
+permanently leak its interrupt quiesced state? Would this leave the SWDMA
+engine active and prevent THC_RXDMA2 from being restarted?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260729050145.2272=
+597-1-even.xu@intel.com?part=3D1

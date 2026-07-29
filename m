@@ -1,138 +1,111 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-yx1-f46.google.com (mail-yx1-f46.google.com [74.125.224.46])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5EA281F942
-	for <linux-input@vger.kernel.org>; Wed, 29 Jul 2026 04:31:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785299497; cv=none; b=Bq6qvQidbIPZ3htAnOJMETqUZYoU5RcIs6MFRil4JItyVk6NyZdePzM/aLvLoUyrKNDwIdedtFGPzz1k/kRZYFW64VGSGl4anOM0U7Ql5jBt/KP1t5/CKq6LyH83sSULRfWZGrJA3aWvus22P89lFgKDIvDwn/AGQMQs5qv1R0o=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785299497; c=relaxed/simple;
-	bh=P5sTulE7R+tBbhwrdXaVr581dRuYEoEJg0dMQBoU5AE=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=OoGtx7HwCQgmTVeuhsx31fM2C2mKOYUgLMw+ghSv7lPypKsp3lUXjLW07KSJO6cOjhjf7uLLggnUdFNITzJFO+5eTR9HoJWMk6ij/LJSDaFcMKalsCQBhK35zsi7PoxGP+9F9LTTH7PV564NfnGGZmzC+LlJfx8UeqzEA3kU9zU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=eLvIJh0k; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4853ABA45
+	for <linux-input@vger.kernel.org>; Wed, 29 Jul 2026 04:41:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.224.46
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1785300067; cv=pass; b=W7ioIp49X4Cy/OMEkYOzINWO+y4GU8io88zf6wdtfxum6JHHi3o4aziAydq/CeZSyP2ozL/H7K2w6x5LEN6DxmwV6b8o008o22QSNXQC8FN8N+jCvWcIPU+nQl0MXk9HnmkJn0KPqI9AX6KU+V12nMQ2PyOI/ty7bTTtMB5YTU8=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1785300067; c=relaxed/simple;
+	bh=uA7NG5Dfr4VakgJXB94YnH6+2nDpY+bBSoINVwagc6U=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=KfoGwYHNuN96i9F31yZH8furnL6HNSFlxt0a9s+HiIX2YDJ0aQPPgeQzRsuNDDfd3Mmo5yeB8mhda+b8cPvCzjifrp/mm1NiPNzTMb5qcCKpphOEoz6iz8ggzQdAZdwSegIBV5twxJQrelFgapotpqhsTmVc7nrT2IbCbkgFfCw=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=HYkMsGdV; arc=pass smtp.client-ip=74.125.224.46
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="eLvIJh0k"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D4A51F000E9;
-	Wed, 29 Jul 2026 04:31:35 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785299495;
-	bh=/5wQCx085KuoRDdtIGKADIqTXNmS8MSiDTiUh2by128=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=eLvIJh0kGRAnmSVClvrj8ef+PQ+U9wT2raZfE2ZDm8qa4kD+ySr0sSp/+teZt0YMN
-	 FShMVzB8b0IFG41as/cBZS73TrjGSMEX+5+m/TF7V6e0o3mkYhHIR4ILwqSCFABpQP
-	 96PMqpJzI8eF3GQDht95zFUDJ5GJ2zIbKKP1DdGagrW/vcNSsA6H0DYePuGa+KKani
-	 chcJzFFVZlNodbJbKT/qen4QRE6OfmXcIt0yo1utDSgxX70NgIt27JD7wZ0ERQXpFl
-	 etTrDBvqakKAbOdNLeleMLEx5ohyJ41O3yNn9DvP1kvsvEETbchbaBGogr3ZIzOILH
-	 8/g+y1XJEB3VA==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] HID: magicmouse: do not keep a stale msc->input if no
- input is claimed
-Reply-To: sashiko-reviews@lists.linux.dev
-To: =?utf-8?b?Sm9zZSBWaWxsYXNlw7FvciBNb250Zm9ydA==?= <pepemontfort@gmail.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260729041557.1185819-1-pepemontfort@gmail.com>
-References: <20260729041557.1185819-1-pepemontfort@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Wed, 29 Jul 2026 04:31:35 +0000
-Message-Id: <20260729043135.9D4A51F000E9@smtp.kernel.org>
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="HYkMsGdV"
+Received: by mail-yx1-f46.google.com with SMTP id 956f58d0204a3-6679d88abdcso629504d50.2
+        for <linux-input@vger.kernel.org>; Tue, 28 Jul 2026 21:41:06 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1785300065; cv=none;
+        d=google.com; s=arc-20260327;
+        b=ftVqAofCGuOE3EkhWAFe2mHfNJo5JkvMHBYXS1X3fNIaq6lvmXdvlyX2Q1nxiU9D7w
+         tkx3isUsWJthwggEEfRJmwaa4llsi2gVGscfxayo7TV6KUtqlI1XgmNtivmbakcvDf9f
+         tzPf1uxtvdhPLSx1kivkUcl3usz44LVvHsKC6dSHKZ0UjBqGLulnDwDFMBuXQNDWAm+b
+         h9acl+HLmYkDAbYjInz9819moCg7ii/bj+UooFLDh78w/OYbGpo1pY2qdwo9nzt8yWnV
+         0EqAumBieHEhbQFCqXwIWwVJhm7Xisk2toysrwGl7ndQN7/pD7VrYGZmoLKRLpSMURms
+         e/8Q==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=uA7NG5Dfr4VakgJXB94YnH6+2nDpY+bBSoINVwagc6U=;
+        fh=SHty455XBFCtKXNInY2pd9Dvku9jtqXro3abznpddEs=;
+        b=FmKuLSwk1xRNEPo/QSdOfyeE68TsDlmit4NjM780QEW7J4TUcMhIhxNLE4d1xU5Fy6
+         IsE9Lw5i8pqk9erW6TLza8DEuxfaaIIi5afeIbRFUQIwzhf/aDI1V389wDBdm30WrnaV
+         bw1fNEs/K/qslFnhiGnbMN8yC1r5TnXZVwxiJFE5VSmvXttTl7hmDhk8mvLwaDt34Nc2
+         5etfNDcKmMl/j0qr1RzoDIqyjAR34m/yUp3oscmbk3l7rNsB4UQTKM3erFsJg6vYtyTp
+         esJTivlXFP6Y8n87DhAdOZFBSuJ2q1hTERDR+hXPl23njI/H7GlGW3LHTOeGoqi054TY
+         ocAA==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google; t=1785300065; x=1785904865; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=uA7NG5Dfr4VakgJXB94YnH6+2nDpY+bBSoINVwagc6U=;
+        b=HYkMsGdVWuhCl3L7mt6d2MfvUuXqBf/ipU5IwBBEtWpkXWUCQ8E+hLv2yp/c+KwE7F
+         cvbWL9H+0dXwlSoD4LfFjb49NfPHdJJ/n9dWAwXTWl8qdBgVL5EYSNA9SHR1+Pbeuzy7
+         1jFRPIQdPOckBdce9dj8zjNXKLdwM/03Ho8kY=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1785300065; x=1785904865;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=uA7NG5Dfr4VakgJXB94YnH6+2nDpY+bBSoINVwagc6U=;
+        b=MWCPDo50kRlbNxPEdKYpSEAv+DEv0ejLlccT2m+h0pqB4yVQrufMTrsj1QlMwV+5ob
+         +zdpaz2dlHMG6GPiNnGJjJG/c4SIbYtQgVeRbkxAUVLNW8/lfO02IyskO9eJ95olbqFV
+         4Y2CmBc+x8CpXCDxLEAGMIRlS8wCoOlRDrtCFoe75roItah8Hlo2TKAXwPZ/755RzzWE
+         O28Rk8zpURo74s/HNPWC0VnrLOtLj3OHPbCBLAyyQErCLlvPubwsXszi81wOfenMzh9z
+         LPvFsEbrfIjavQSuJ7F0E+Vu5mwDO4tnDfrUkK6W2orOiGP9sJKnytPwwpRqvjw3XPW4
+         ct6g==
+X-Gm-Message-State: AOJu0Yx8dFUKXqmb0NCHqlRtJSIJqmBQw84Zu3jOLaFeLNfJCioKh+82
+	ujkoKOYnBttN9C38XignE6qjvMBkBl33uM6VadBp+Qh1ZL/cip0+dMF6Mv3XqRIuer6hngNgZPQ
+	UI5MqG1Ff9+lntCqOGPjZgeJCIt6JdaW/O0h8ryWq
+X-Gm-Gg: AR+sD12CONAnedSF6lo+3+49YbRIbP0jJ/nifWpHyp4trQIouiDSZCGVrWem0kkIPwh
+	ORLVdQZ5+ISej2Ah5fpDhXkD9Uyv35gx9dkymZbTjXniul75x+WjlkLf7ibmRpj1mivdXUGZwVV
+	ZchdaMn3c7eShIhFy/E2isd5/EQTODBLVnv1emE/h0oPyUkmHV+3cLRPWqz63jOCEXF+jA5vkai
+	aRX5/HDSlkH0nzEBNgisbqiuDQt1N+jHs15pAQZSCHZuJc/T4Dh/xw43x3ouuU1MICRRxiLei3d
+	l7SdZc9gJjQDoVu/uDlY2ERdS0333CQkp5aeiApswPtijRJehu2Njz1Ol0+DVw56gXp+UWTodpU
+	=
+X-Received: by 2002:a05:690c:4c0c:b0:7ea:809c:2af5 with SMTP id
+ 00721157ae682-81f9935399dmr26755907b3.37.1785300065323; Tue, 28 Jul 2026
+ 21:41:05 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+References: <20260728212438.54078-1-rosenp@gmail.com> <20260728212438.54078-2-rosenp@gmail.com>
+In-Reply-To: <20260728212438.54078-2-rosenp@gmail.com>
+From: Chen-Yu Tsai <wenst@chromium.org>
+Date: Wed, 29 Jul 2026 12:40:54 +0800
+X-Gm-Features: AUfX_mycg9wolGjQePESF--FJZRN09rHxCnfAnS_fOgAk4-5gb4BJmW1LYVjLVA
+Message-ID: <CAGXv+5GfUGRsGkRAWyX+GnJC8GOREqgkXeN4sVxE4+Y01PG+hQ@mail.gmail.com>
+Subject: Re: [PATCHv2 1/2] Input: mtk-pmic-keys: use of_device_get_match_data()
+To: Rosen Penev <rosenp@gmail.com>
+Cc: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
+	Matthias Brugger <matthias.bgg@gmail.com>, 
+	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, 
+	"open list:ARM/Mediatek SoC support" <linux-kernel@vger.kernel.org>, 
+	"moderated list:ARM/Mediatek SoC support" <linux-arm-kernel@lists.infradead.org>, 
+	"moderated list:ARM/Mediatek SoC support" <linux-mediatek@lists.infradead.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
-- [High] Deterministic NULL pointer dereference in event handlers after a f=
-ailed input registration.
---
+On Wed, Jul 29, 2026 at 5:24=E2=80=AFAM Rosen Penev <rosenp@gmail.com> wrot=
+e:
+>
+> Instead of open coding it, use the proper function.
+>
+> All entries have a corresponding data entry so a NULL check is not
+> applied here.
+>
+> Remove of_device.h as a result.
+>
+> Signed-off-by: Rosen Penev <rosenp@gmail.com>
 
---- Patch [1]: [PATCH] HID: magicmouse: do not keep a stale msc->input if n=
-o input is claimed ---
-commit 6fea999082f28bca408072a6788f3616b0ebbd9f
-Author: Jose Villase=C3=B1or Montfort <pepemontfort@gmail.com>
-
-HID: magicmouse: do not keep a stale msc->input if no input is claimed
-
-This patch clears msc->input when the HID core does not claim an input
-device. This is intended to ensure existing NULL checks safely handle the
-failure path where hidinput_connect() frees the input devices.
-
-Link: https://lore.kernel.org/linux-input/20260728185542.65F091F000E9@smtp.=
-kernel.org/
-
-> diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
-> index 802a3479e24b9..2f14094a63b1e 100644
-> --- a/drivers/hid/hid-magicmouse.c
-> +++ b/drivers/hid/hid-magicmouse.c
-> @@ -900,6 +900,16 @@ static int magicmouse_probe(struct hid_device *hdev,
->  		return ret;
->  	}
-> =20
-> +	/*
-> +	 * When hidinput_connect() fails it frees every input device it
-> +	 * created, but that does not fail hid_hw_start(): the core simply
-> +	 * does not claim an input. msc->input, cached in ->input_mapping
-> +	 * while the report descriptor was parsed, would then be a dangling
-> +	 * pointer that passes every NULL check. Trust the core's claim.
-> +	 */
-> +	if (!(hdev->claimed & HID_CLAIMED_INPUT))
-> +		msc->input =3D NULL;
-> +
-
-[Severity: High]
-If msc->input is set to NULL here due to a failure, could this cause a NULL
-pointer dereference for certain USB devices?
-
-Looking further down in magicmouse_probe(), there is an early return on
-success for specific devices that bypasses the failure check:
-
-drivers/hid/hid-magicmouse.c:magicmouse_probe() {
-    ...
-    if (!(hdev->claimed & HID_CLAIMED_INPUT))
-        msc->input =3D NULL;
-    ...
-    if (is_usb_magicmouse2(id->vendor, id->product) ||
-        (is_usb_magictrackpad2(id->vendor, id->product) &&
-         hdev->type !=3D HID_TYPE_USBMOUSE))
-        return 0;
-
-    if (!msc->input) {
-        hid_err(hdev, "magicmouse input not registered\n");
-        ...
-}
-
-If the probe succeeds by returning 0, the driver remains bound.
-
-When an input report is later received, will magicmouse_raw_event() and
-magicmouse_event() unconditionally dereference the NULL msc->input pointer?
-
-For example, looking at magicmouse_raw_event():
-
-drivers/hid/hid-magicmouse.c:magicmouse_raw_event() {
-    ...
-    struct input_dev *input =3D msc->input;
-    ...
-    if (input->id.product =3D=3D USB_DEVICE_ID_APPLE_MAGICMOUSE ||
-    ...
-}
-
-And similarly in magicmouse_event():
-
-drivers/hid/hid-magicmouse.c:magicmouse_event() {
-    ...
-    struct magicmouse_sc *msc =3D hid_get_drvdata(hdev);
-    if ((msc->input->id.product =3D=3D USB_DEVICE_ID_APPLE_MAGICMOUSE2 ||
-    ...
-}
-
->  	if (is_usb_magicmouse2(id->vendor, id->product) ||
->  	    is_usb_magictrackpad2(id->vendor, id->product)) {
->  		timer_setup(&msc->battery_timer, magicmouse_battery_timer_tick, 0);
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260729041557.1185=
-819-1-pepemontfort@gmail.com?part=3D1
+Reviewed-by: Chen-Yu Tsai <wenst@chromium.org>

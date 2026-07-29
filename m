@@ -1,104 +1,180 @@
-Received: from mail-pf1-f169.google.com (mail-pf1-f169.google.com [209.85.210.169])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 63E9C42C504
-	for <linux-input@vger.kernel.org>; Wed, 29 Jul 2026 17:10:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.169
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1139642C4F6
+	for <linux-input@vger.kernel.org>; Wed, 29 Jul 2026 17:14:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785345014; cv=none; b=cOS5n9jnTlWmz5v9qtMHjTCIlg5myHFKO2opYZ/CYPBA5++kAUbAAbQ6nDmLIWltNKibS0EWAzTK6WjlXaaeVOo24A8fYB73KqT93blTp1rlNnC7lotOUQFshpxXUEq5gudVPLCbL+aO+z5GhBB57irOFomNvh1xCQjby29cQjI=
+	t=1785345271; cv=none; b=kN3h4n6+fhtQiN6IpCTphygrYLW2ixc1fVmR24Ipfuip/zW+/nD/dCdOR7bVIkldF2iZiKa3Ec4g84tu5TlxIUs5iNuRzPKfIDeanW6SgH+/eCoiLVqk7ixhv0VTKXmQWHOhiErBXV1lkT95ZZUCY4BOgfxaWmi87Q1UBrw5KRU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785345014; c=relaxed/simple;
-	bh=UR6pIQnyTzjaXOdm6+laYMyYYaPga4w7/YCHcdqAzSM=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=pQHE89+K7ZiOHqHGUt78ZnRMZnC4yUa9ftOznxAoiaIIHnu5bGdijpUQJ42xE5tL7TTeW0V7v3R8ybMwWOjs8YNxwtT0Hv0/HeaaIoBPdK/f2gG8AvxxuvHWYwtYqDsj8gOvzXeq9ZM2t/0Qy5DADJj/5cGAJclKkcNQ5Hxog6k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=p8am9Inq; arc=none smtp.client-ip=209.85.210.169
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1785345271; c=relaxed/simple;
+	bh=CvXnptDxWoiUuxltSdI56WGxljloVCvLtvbGh5aGQgo=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=Lun2Dpi4leBq9vdXHmQi62PDzJyaO+hd5qNt8CFgShI0R0l1Dsdm/baxYf0UnuEI+/NHhD1NYLOUpa6VoxPW3sfxfmJ4V5dMi9HAIV44mje8CZFDbk3MFz8uxS2xdVIkIQgrCSCO8QoDXBR1uJsyKPIOEdbdndHnImg/k9RF9AY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=imN5ADlS; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="p8am9Inq"
-Received: by mail-pf1-f169.google.com with SMTP id d2e1a72fcca58-84867f07d63so1510529b3a.2
-        for <linux-input@vger.kernel.org>; Wed, 29 Jul 2026 10:10:13 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1785345013; x=1785949813; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=JSM1Q/WNGN2fXPGxJdqhDOrZHCVLS2fhYK8dJtwyhB0=;
-        b=p8am9InqE83RMj930d7xUmnWvod1v8waMzYbcG3mNiDJGirDCYQ9fgxMzqsYm/FDAD
-         WN/b6ZeIBHrD+xGueePkuarc8WbvCigfLC3x80guZJ41yQhK3E4xDwghnG75AlT4IIMe
-         1HR+21D9+stanjIaJVoZSd5xus5oqlq5axtXa9hzupXA/intuD2jbi7zNOrYh9M4JkDD
-         lFU/BqCxe4AYcvgF5ZvckZVIDr9yYJmRB0YxlAD4FKWEKlEcvnbx4IHozFpmaP9sVZ8k
-         w06xlcaDsYC6QzzQGP1mEtMlQVDiEIQ76V7MParO8rXEe8ByMQtwRiVS3UQDOOMIq223
-         vryg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785345013; x=1785949813;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=JSM1Q/WNGN2fXPGxJdqhDOrZHCVLS2fhYK8dJtwyhB0=;
-        b=r1IE2kxQbgdGHIXBvr3wHew4Wl/Qzbx7gzhV6toDD/YRElFLxt6rL+K7M91cYRn7uP
-         vSxFyLXzq1mVPPxyjXq0K6OS9WaAQnuhudyjTexOnv6elO2b4A4DcfIiP8K0EzQhuNK8
-         fZSAAnShdsoWjiD6h57gmGbOQsRd4gmdU8qr2Af82L330ydWuGhzpsRq4STkSQv2E+iU
-         GP7GwM6Jv9Gn2/ODd7aE/dUMLefLh6x7pFbCfMGp5ZI7KayMmweepbingb8b+LXxs6rx
-         DFP48/JiK+O4Hf7PUQmp7Mi1IWefgxXl8QfbAPZcyFjGx5LrmuDdumC02CC9irMJYZta
-         RUvw==
-X-Gm-Message-State: AOJu0YwpFYFTYyJmNsInUlGhTFfYYQE5diIeb1swFR8Hc3+e12Mmg5b/
-	kQFZpIkiJWwrhj+DXBm34B3Yfc9NTpZnMd/y3AY5tvX35QqfO8nCAIP43OfkY9sw
-X-Gm-Gg: AR+sD12IxOX97+i6h9SuObPHAmJplQ5LTwIZiDcjHEODlaZglKEwX9kYuCG3UerTKrr
-	dgHkssfkBip0McyQo3YDZY2TD39h2R8+smul87XWaul69PW01jycYspvMDmzreiMiuZsl0YbStw
-	JZjxY5AyuFWfVyXQhqopMklFxTmYQmvdWF+k9RWPhyvWUNRqx29Cr937SNPati8XdfN8LSkqREN
-	2QJ/butV4YjfZiBJgvGVMP3gR1zMwB5cozMaQ7LcTw6XEwHLPEK/2s7PR1SLSZGpckUtgpz79w5
-	zeZNcikn0p3NiIjXn5yuCJWpa22sw7AOM/4up/gNxycRo+K3d3eAFiOBFQDXjLOay/UxIp+5sBQ
-	OKikrLmVm4YAiYSLTjK04/yC0B7p5EKJOjlKEJb3bI9XdVOSK29hBTjsJ4wJ0k4znu/HbI1W/AU
-	q01wJH964KjzESwPqxi2toQNd0anqpACn1mUCMe5d2HycTNqOUGFCCSH4=
-X-Received: by 2002:a05:6a00:1895:b0:84e:695:edfe with SMTP id d2e1a72fcca58-84e933f1cd1mr7926377b3a.59.1785345012698;
-        Wed, 29 Jul 2026 10:10:12 -0700 (PDT)
-Received: from ubuntu.. ([110.9.142.4])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-84ea0052e04sm1694231b3a.22.2026.07.29.10.10.11
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 29 Jul 2026 10:10:12 -0700 (PDT)
-From: Sang-Heon Jeon <ekffu200098@gmail.com>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH v2 3/3] Input: synaptics_i2c - return 0 explicitly on success
-Date: Thu, 30 Jul 2026 02:09:35 +0900
-Message-ID: <20260729171001.260698-4-ekffu200098@gmail.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20260729171001.260698-1-ekffu200098@gmail.com>
-References: <20260729171001.260698-1-ekffu200098@gmail.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="imN5ADlS"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D1D81F00A3A;
+	Wed, 29 Jul 2026 17:14:25 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1785345265;
+	bh=lOhiCaS6CR5tjFk8wsyAFea1A+2ZPyx+w/5+wFy9g0E=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=imN5ADlSg2upz8ciwHCFZRX9j9qKru6n2ic5U6kRLVwvUFaEMqYbEblI596Xz2yTb
+	 iNZlWrP6dNAFeKNMcmxZAY9S4qvcOoL9stb66kQWxEEKJIUjx5yup18scV08hucPgF
+	 Tnvkpj2GuOYBdUayTEJQqHs+3R0izLzSbpB6+VeTUxsc0wcTUrPZhR2cTatah9Kxyt
+	 qmwnuGIa41DEv7QwjWQWJ/PBy8Q7mS5YrCthOfqZUw3QxB/MdXe48aFaXkJOnVc7IP
+	 sJCk5M8EtjPcKSfR9qmpM2V3lbITtP2983pIY307tHPogRqnI0lE/7fDCEFWF6kEuE
+	 pLj8Q6eBgaPkw==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v3 3/4] HID: wiimote: use scoped cleanup in wiimote and
+ led probes
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Rafael Passos" <rafael@rcpassos.me>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20260729164928.1138468-4-rafael@rcpassos.me>
+References: <20260729164928.1138468-1-rafael@rcpassos.me>
+ <20260729164928.1138468-4-rafael@rcpassos.me>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Wed, 29 Jul 2026 17:14:25 +0000
+Message-Id: <20260729171425.9D1D81F00A3A@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-error is always zero at the last return in synaptics_i2c_reg_set().
-Explicitly return 0 on the success path instead of returning error,
-which is the preferred way when there are multiple failure points.
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+s) to consider:
+- [High] The new `__wiimote_probe_cleanup` scoped cleanup function fails to=
+ cancel asynchronous work queues (`init_worker`, `queue.worker`), shut down=
+ timers, and unload modules before freeing `wdata`, leading to a use-after-=
+free and memory leaks on the probe error path.
+- [High] An out-of-bounds array read occurs in `wiimote_modules_load()` due=
+ to integer promotion of the uninitialized `player_id`, causing the index c=
+alculation to yield -1.
+--
 
-No functional change.
+--- Patch [3]: [PATCH v3 3/4] HID: wiimote: use scoped cleanup in wiimote a=
+nd led probes ---
+commit 54b3fd3af006d3a0af4f6d249c24ee95bd657f14
+Author: Rafael Passos <rafael@rcpassos.me>
 
-Signed-off-by: Sang-Heon Jeon <ekffu200098@gmail.com>
----
- drivers/input/mouse/synaptics_i2c.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+HID: wiimote: use scoped cleanup in wiimote and led probes
+   =20
+Cleanup code in wiimote/led probe function, using the scoped cleanup.
+This prevents mistakes in future changes to this function.
 
-diff --git a/drivers/input/mouse/synaptics_i2c.c b/drivers/input/mouse/synaptics_i2c.c
-index d4cf982f1263..66e833974c6d 100644
---- a/drivers/input/mouse/synaptics_i2c.c
-+++ b/drivers/input/mouse/synaptics_i2c.c
-@@ -261,7 +261,7 @@ static s32 synaptics_i2c_reg_set(struct i2c_client *client, u16 reg, u8 val)
- 	if (error)
- 		return error;
- 
--	return error;
-+	return 0;
- }
- 
- static s32 synaptics_i2c_word_get(struct i2c_client *client, u16 reg)
--- 
-2.43.0
+> diff --git a/drivers/hid/hid-wiimote-core.c b/drivers/hid/hid-wiimote-cor=
+e.c
+> index 762b3c383194e..31ee86affc553 100644
+> --- a/drivers/hid/hid-wiimote-core.c
+> +++ b/drivers/hid/hid-wiimote-core.c
 
+[ ... ]
+
+> @@ -1772,16 +1772,40 @@ static void wiimote_destroy(struct wiimote_data *=
+wdata)
+>  /* Global id allocator for wii remotes */
+>  static DEFINE_IDA(wiimote_ida);
+> =20
+> +#define WIIMOTE_PROBE_HW_STARTED  BIT(0)  // hid_hw_start succeeded
+> +#define WIIMOTE_PROBE_HW_OPENED   BIT(1)  // hid_hw_open succeeded
+> +
+> +static void __wiimote_probe_cleanup(struct wiimote_data *wdata)
+> +{
+> +	if (!wdata)
+> +		return;
+> +
+> +	if (wdata->player_id)
+> +		ida_free(&wiimote_ida, wdata->player_id);
+> +
+> +	// safe, debugfs checks IS_ERR_OR_NULL
+> +	wiidebug_deinit(wdata);
+> +	// safe, checks dev for NULL
+> +	device_remove_file(&wdata->hdev->dev, &dev_attr_devtype);
+> +	device_remove_file(&wdata->hdev->dev, &dev_attr_extension);
+> +	if (wdata->probe_state & WIIMOTE_PROBE_HW_OPENED)
+> +		hid_hw_close(wdata->hdev);
+> +	if (wdata->probe_state & WIIMOTE_PROBE_HW_STARTED)
+> +		hid_hw_stop(wdata->hdev);
+> +	kfree(wdata);
+
+[Severity: High]
+Does this missing cancellation cause a use-after-free or memory leak if the
+probe fails later?
+
+During wiimote_hid_probe(), after hid_hw_start() and hid_hw_open() succeed,
+the hardware is active and can generate HID events. These events are
+processed by wiimote_hid_event(), which can asynchronously schedule
+wdata->init_worker and wdata->queue.worker.
+
+If a subsequent probe step like ida_alloc_min() fails, this cleanup function
+runs and frees wdata without cancelling the work queues (cancel_work_sync()=
+),
+shutting down timers (timer_shutdown_sync()), or unloading modules.
+
+If a worker accesses wdata after it has been freed, could it trigger a kern=
+el
+crash?
+
+> +}
+> +
+> +DEFINE_FREE(wiimote_probe_cleanup, struct wiimote_data *,
+> +	__wiimote_probe_cleanup(_T))
+> +
+
+[ ... ]
+
+> @@ -1790,68 +1814,54 @@ static int wiimote_hid_probe(struct hid_device *h=
+dev,
+>  	ret =3D hid_hw_start(hdev, HID_CONNECT_HIDRAW);
+>  	if (ret) {
+>  		hid_err(hdev, "HW start failed\n");
+> -		goto err;
+> +		return ret;
+>  	}
+> +	wdata->probe_state |=3D WIIMOTE_PROBE_HW_STARTED;
+> =20
+>  	ret =3D hid_hw_open(hdev);
+>  	if (ret) {
+>  		hid_err(hdev, "cannot start hardware I/O\n");
+> -		goto err_stop;
+> +		return ret;
+>  	}
+> +	wdata->probe_state |=3D WIIMOTE_PROBE_HW_OPENED;
+
+[Severity: High]
+Can an event arriving here before player_id is initialized cause an
+out-of-bounds read?
+
+If the device sends a status report or hotplug event immediately after
+hid_hw_open() completes, wiimote_hid_event() triggers and schedules
+wdata->init_worker.=20
+
+The worker calls wiimote_init_detect() -> wiimote_init_set_type() ->
+wiimote_modules_load().
+
+Because wdata->player_id is only populated later in this function, it is
+still 0 when wiimote_modules_load() is called.
+
+In wiimote_modules_load(), the calculation (wdata->player_id - 1) promotes =
+to
+int and evaluates to -1. The modulo operator (-1 % 4) yields -1, leading to
+an out-of-bounds access on the player_leds array:
+
+drivers/hid/hid-wiimote-core.c:wiimote_modules_load() {
+    ...
+    wiiproto_req_leds(wdata, player_leds[(wdata->player_id - 1) % 4]);
+    ...
+}
+
+Could this lead to an infoleak or kernel oops?
+
+> =20
+>  	ret =3D device_create_file(&hdev->dev, &dev_attr_extension);
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260729164928.1138=
+468-1-rafael@rcpassos.me?part=3D3

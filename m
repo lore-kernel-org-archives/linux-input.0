@@ -1,48 +1,48 @@
 Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.19])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9A777330650;
-	Wed, 29 Jul 2026 05:01:03 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5FD6E331ECF;
+	Wed, 29 Jul 2026 05:01:08 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.19
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785301266; cv=none; b=aOsb8F6nizs+dztjx/t37nl2TFj9u74xRQQEYl1iq3l3cYRGhsfMEn5KFHXoYis/ugXZn4JqpND1CJZ2guFoKWpK5LwHuGY/SH+2757JLfYza4/VhQic3XYAPfFG8uYtHSECJEEVs9F0VbtcyTtV/QWa5BHdVss8/TyJ0nAP8fg=
+	t=1785301272; cv=none; b=LDdk/ybzWPhhN7djmudWMFQQsiY8+0yPBNoR58yZo7AAZyvX/X2ZUw7RJiUGIb1XUWiaC9XHicQppaBh8wZUfJt7x4/efG/wG1tOrA/UzwNrvJCGYez69A46uBV/l7Ldknwbl4Im+jCecS1EIEBQOg8jpcOdv2/v2lKYdrafp+U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785301266; c=relaxed/simple;
-	bh=eX5vbVH5k+ZNjlDmhVGDDrAmZC4b0h2BMEuA3PVPYc8=;
+	s=arc-20240116; t=1785301272; c=relaxed/simple;
+	bh=dnultnWJolbbYiaG24gfJGBJ4w6A9XVjWpmW/NoS/GQ=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=Ehp8u9JMex69zuK5W7uX6/+A9WdULLD6WDU5dxOd4U78y7gmST73fD9aEURs3Q6NH5xYjT4xHT7k/tbsBmNUNuyQeQOfCrhO+xA1uaCkbR/9gFvRLwnejCpFqiqxuOTM6EDEwzGgHCkVKX/Hs2N8fSOoMA8E7MY7XnGQmPc6mHA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=L4jmVPKm; arc=none smtp.client-ip=198.175.65.19
+	 MIME-Version; b=DqrdIIqZ3fEbp65ERZGSZHdA8U2bENQQG4pWG/wikjDbTdDdoQzorlISkob3TB0MIOe+tfhDSBlM2KP9qTvHvMASDDLOt4/2ZfB7p/dK3VF4esNKpI5DJFKsBSHUUSM3F6aRGisNEQRpVUSP31kPDIWVl0TL5Pr9RNbufXBOiNY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=YR/Sv0SM; arc=none smtp.client-ip=198.175.65.19
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="L4jmVPKm"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="YR/Sv0SM"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1785301263; x=1816837263;
+  t=1785301268; x=1816837268;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=eX5vbVH5k+ZNjlDmhVGDDrAmZC4b0h2BMEuA3PVPYc8=;
-  b=L4jmVPKmONHbH+jm596Z+c7XhHZpZH0Zxyhc2B1to6wIeqPhfqf/eKAM
-   cj1by8QcpNnxNIZrC0ufNHJHKXEFekcftwkFmDBm5KpF6FFeE+fso4z2W
-   Zg05MLp+e+z4VDCugATgCjRHua/IyWLHeU4FTPbZTOhbm0qC7P42/r4eF
-   O1t9C6O0Fmhy/lh12kYDf05CqKXwXXvNMDWubA1a5ffaKINwy4TtX8GVT
-   jz5gOEd7qlVqIWNyrPJIEu3qBsAFey50zBJPq2vQKexYHAQC0nKQg12Ym
-   bxqP5ARqweamX32Adfekb1N8NcR65m8uixPSv4UGWEVcQK70Ez0W5z4+E
+  bh=dnultnWJolbbYiaG24gfJGBJ4w6A9XVjWpmW/NoS/GQ=;
+  b=YR/Sv0SMNGaWAGf1aJcYGB/5eXtJ4Kx4O6pMsHfDnnBbps/aZjKilOw4
+   YwMbxQh7/grF012QAB+S+vqMyjh9/+V4ZSWV3+BxsCFlSXSWYZjBtglTF
+   iGYytQIaL+gXyXR3Qdm6CwHKIu8OpH6iJ3xMaR8kzMr+TdPOWEt2lugW7
+   R75k/3Whsn11DDy+XORRsXcxt0TaRBPYSe3m9f7NOHhEGvZoGI7eyrdsT
+   NcItOFmLc9r5f6ReJL7wMCZgHoGGYah/3wfmAiFziT81vcPuFSraSjmUC
+   DkZTDkof4P9b7rQLymqN/yXTY14knf5u5JleYog+FyT2Ie6j2IbP3iwmr
    w==;
-X-CSE-ConnectionGUID: 3d+VH1XOR/qWOaWSoUKjLQ==
-X-CSE-MsgGUID: pm8eUC6tQmuX2HeXpB05ZQ==
-X-IronPort-AV: E=McAfee;i="6800,10657,11859"; a="85842133"
+X-CSE-ConnectionGUID: yFkn9o3sQ2i6WdT44RxUWg==
+X-CSE-MsgGUID: jSuFToyCSJWYAhlTAL+Ggg==
+X-IronPort-AV: E=McAfee;i="6800,10657,11859"; a="85842144"
 X-IronPort-AV: E=Sophos;i="6.25,191,1779174000"; 
-   d="scan'208";a="85842133"
+   d="scan'208";a="85842144"
 Received: from fmviesa001.fm.intel.com ([10.60.135.141])
-  by orvoesa111.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Jul 2026 22:01:02 -0700
-X-CSE-ConnectionGUID: /NkEl5T/SyKsD8vc/YGKpQ==
-X-CSE-MsgGUID: PaQj41acQGKTYQyTakGgTA==
+  by orvoesa111.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Jul 2026 22:01:08 -0700
+X-CSE-ConnectionGUID: VzaMK4+jS3KeDfIdJg3CKA==
+X-CSE-MsgGUID: +eIxnxnvRNSijRBQywYaJQ==
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="6.25,191,1779174000"; 
-   d="scan'208";a="284447499"
+   d="scan'208";a="284447522"
 Received: from shsensorbuild.sh.intel.com ([10.239.132.250])
-  by fmviesa001.fm.intel.com with ESMTP; 28 Jul 2026 22:01:00 -0700
+  by fmviesa001.fm.intel.com with ESMTP; 28 Jul 2026 22:01:06 -0700
 From: Even Xu <even.xu@intel.com>
 To: bentiss@kernel.org,
 	jikos@kernel.org
@@ -51,9 +51,9 @@ Cc: srinivas.pandruvada@linux.intel.com,
 	linux-kernel@vger.kernel.org,
 	hbarnor@chromium.org,
 	Even Xu <even.xu@intel.com>
-Subject: [PATCH v5 1/3] HID: Intel-thc-hid: Intel-thc: Add API to reset read DMA
-Date: Wed, 29 Jul 2026 13:01:43 +0800
-Message-ID: <20260729050145.2272597-2-even.xu@intel.com>
+Subject: [PATCH v5 2/3] HID: Intel-thc-hid: Intel-quicki2c: Refine recover callback
+Date: Wed, 29 Jul 2026 13:01:44 +0800
+Message-ID: <20260729050145.2272597-3-even.xu@intel.com>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20260729050145.2272597-1-even.xu@intel.com>
 References: <20260729050145.2272597-1-even.xu@intel.com>
@@ -65,89 +65,204 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Add a helper function thc_rxdma_reset() to do read DMA reset, it can be
-called when fatal DMA error happens.
+Refine recover flow:
+1. Use workqueue to handle recover flow instead of processing in irq
+   handler.
+2. Call thc_rxdma_reset() API to simplify the recover operation.
+3. Disable interrupt during whole recover flow.
+4. If recover fails, disable interrupt to avoid interrupt storm.
 
 Signed-off-by: Even Xu <even.xu@intel.com>
 ---
- .../intel-thc-hid/intel-thc/intel-thc-dma.c   | 51 +++++++++++++++++++
- .../intel-thc-hid/intel-thc/intel-thc-dma.h   |  1 +
- 2 files changed, 52 insertions(+)
+ .../intel-quicki2c/pci-quicki2c.c             | 66 ++++++++++++-------
+ .../intel-quicki2c/quicki2c-dev.h             |  5 ++
+ 2 files changed, 49 insertions(+), 22 deletions(-)
 
-diff --git a/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dma.c b/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dma.c
-index 6ee675e0a738..7ceb8aeeccd3 100644
---- a/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dma.c
-+++ b/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dma.c
-@@ -561,6 +561,57 @@ static int thc_wait_for_dma_pause(struct thc_device *dev, enum thc_dma_channel c
+diff --git a/drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c b/drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c
+index 2ec52cb35a13..62bd872b80c9 100644
+--- a/drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c
++++ b/drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c
+@@ -255,28 +255,33 @@ static irqreturn_t quicki2c_irq_quick_handler(int irq, void *dev_id)
+ }
+ 
+ /**
+- * try_recover - Try to recovery THC and Device
+- * @qcdev: Pointer to quicki2c_device structure
++ * try_recover - Recover callback to recover THC
++ * @work: pointer to work_struct
+  *
+  * This function is an error handler, called when fatal error happens.
+- * It try to reset touch device and re-configure THC to recovery
+- * communication between touch device and THC.
+- *
+- * Return: 0 if successful or error code on failure
++ * It try to reset Touch Device and re-configure THC to recover
++ * transferring between Device and THC.
+  */
+-static int try_recover(struct quicki2c_device *qcdev)
++static void try_recover(struct work_struct *work)
+ {
+-	int ret;
++	struct quicki2c_device *qcdev = container_of(work, struct quicki2c_device, recover_work);
+ 
+-	thc_dma_unconfigure(qcdev->thc_hw);
++	if (READ_ONCE(qcdev->recovery_disabled))
++		return;
+ 
+-	ret = thc_dma_configure(qcdev->thc_hw);
+-	if (ret) {
+-		dev_err(qcdev->dev, "Reconfig DMA failed\n");
+-		return ret;
++	if (pm_runtime_resume_and_get(qcdev->dev))
++		return;
++
++	thc_interrupt_enable(qcdev->thc_hw, false);
++
++	if (thc_rxdma_reset(qcdev->thc_hw)) {
++		qcdev->state = QUICKI2C_DISABLED;
++		dev_err(qcdev->dev, "RxDMA reset failed during recover, disable QuickI2C\n");
++	} else {
++		thc_interrupt_enable(qcdev->thc_hw, true);
+ 	}
+ 
+-	return 0;
++	pm_runtime_put_autosuspend(qcdev->dev);
+ }
+ 
+ static int handle_input_report(struct quicki2c_device *qcdev)
+@@ -353,11 +358,10 @@ static irqreturn_t quicki2c_irq_thread_handler(int irq, void *dev_id)
+ 	}
+ 
+ exit:
+-	thc_interrupt_enable(qcdev->thc_hw, true);
+-
+ 	if (err_recover)
+-		if (try_recover(qcdev))
+-			qcdev->state = QUICKI2C_DISABLED;
++		schedule_work(&qcdev->recover_work);
++	else
++		thc_interrupt_enable(qcdev->thc_hw, true);
+ 
+ 	pm_runtime_put_autosuspend(qcdev->dev);
+ 
+@@ -396,6 +400,8 @@ static struct quicki2c_device *quicki2c_dev_init(struct pci_dev *pdev, void __io
+ 	qcdev->ddata = ddata;
+ 
+ 	init_waitqueue_head(&qcdev->reset_ack_wq);
++	WRITE_ONCE(qcdev->recovery_disabled, false);
++	INIT_WORK(&qcdev->recover_work, try_recover);
+ 
+ 	/* THC hardware init */
+ 	qcdev->thc_hw = thc_dev_init(qcdev->dev, qcdev->mem_addr);
+@@ -446,6 +452,9 @@ static struct quicki2c_device *quicki2c_dev_init(struct pci_dev *pdev, void __io
+  */
+ static void quicki2c_dev_deinit(struct quicki2c_device *qcdev)
+ {
++	WRITE_ONCE(qcdev->recovery_disabled, true);
++	cancel_work_sync(&qcdev->recover_work);
++
+ 	thc_interrupt_quiesce(qcdev->thc_hw, true);
+ 	thc_interrupt_enable(qcdev->thc_hw, false);
+ 	thc_ltr_unconfig(qcdev->thc_hw);
+@@ -779,12 +788,13 @@ static void quicki2c_remove(struct pci_dev *pdev)
+ 		return;
+ 
+ 	quicki2c_hid_remove(qcdev);
++
++	quicki2c_dev_deinit(qcdev);
++
+ 	quicki2c_dma_deinit(qcdev);
+ 
+ 	pm_runtime_get_noresume(qcdev->dev);
+ 
+-	quicki2c_dev_deinit(qcdev);
+-
+ 	pci_clear_master(pdev);
+ }
+ 
+@@ -803,10 +813,10 @@ static void quicki2c_shutdown(struct pci_dev *pdev)
+ 	if (!qcdev)
+ 		return;
+ 
++	quicki2c_dev_deinit(qcdev);
++
+ 	/* Must stop DMA before reboot to avoid DMA entering into unknown state */
+ 	quicki2c_dma_deinit(qcdev);
+-
+-	quicki2c_dev_deinit(qcdev);
+ }
+ 
+ static int quicki2c_suspend(struct device *device)
+@@ -833,6 +843,9 @@ static int quicki2c_suspend(struct device *device)
+ 	if (ret)
+ 		return ret;
+ 
++	WRITE_ONCE(qcdev->recovery_disabled, true);
++	cancel_work_sync(&qcdev->recover_work);
++
+ 	ret = thc_interrupt_quiesce(qcdev->thc_hw, true);
+ 	if (ret)
+ 		return ret;
+@@ -874,6 +887,8 @@ static int quicki2c_resume(struct device *device)
+ 	if (ret)
+ 		return ret;
+ 
++	WRITE_ONCE(qcdev->recovery_disabled, false);
++
+ 	if (!device_may_wakeup(qcdev->dev))
+ 		return quicki2c_set_power(qcdev, HIDI2C_ON);
+ 
+@@ -890,6 +905,9 @@ static int quicki2c_freeze(struct device *device)
+ 	if (!qcdev)
+ 		return -ENODEV;
+ 
++	WRITE_ONCE(qcdev->recovery_disabled, true);
++	cancel_work_sync(&qcdev->recover_work);
++
+ 	ret = thc_interrupt_quiesce(qcdev->thc_hw, true);
+ 	if (ret)
+ 		return ret;
+@@ -921,6 +939,8 @@ static int quicki2c_thaw(struct device *device)
+ 	if (ret)
+ 		return ret;
+ 
++	WRITE_ONCE(qcdev->recovery_disabled, false);
++
  	return 0;
  }
  
-+/**
-+ * thc_rxdma_reset - Reset all read DMA engines
-+ *
-+ * @dev: The pointer of THC private device context
-+ *
-+ * This is a helper function to reset RxDMA configure. It's typically used
-+ * for RxDMA recovery when fatal error happens.
-+ *
-+ * Return: 0 if successful or error code on failure.
-+ */
-+int thc_rxdma_reset(struct thc_device *dev)
-+{
-+	int ret;
+@@ -945,6 +965,8 @@ static int quicki2c_poweroff(struct device *device)
+ 
+ 	thc_ltr_unconfig(qcdev->thc_hw);
+ 
++	quicki2c_dev_deinit(qcdev);
 +
-+	if (mutex_lock_interruptible(&dev->thc_bus_lock))
-+		return -EINTR;
+ 	quicki2c_dma_deinit(qcdev);
+ 
+ 	return 0;
+diff --git a/drivers/hid/intel-thc-hid/intel-quicki2c/quicki2c-dev.h b/drivers/hid/intel-thc-hid/intel-quicki2c/quicki2c-dev.h
+index 34ebda286028..6d25a846153e 100644
+--- a/drivers/hid/intel-thc-hid/intel-quicki2c/quicki2c-dev.h
++++ b/drivers/hid/intel-thc-hid/intel-quicki2c/quicki2c-dev.h
+@@ -189,6 +189,8 @@ struct acpi_device;
+  * @i2c_max_frame_size: Max RX frame size (unit in Bytes)
+  * @i2c_int_delay_enable: Indicate interrupt delay feature enabled or not
+  * @i2c_int_delay: Interrupt detection delay value (unit in 10 us)
++ * @recover_work: Work structure for recovery
++ * @recovery_disabled: Whether recovery work is blocked during teardown
+  */
+ struct quicki2c_device {
+ 	struct device *dev;
+@@ -220,6 +222,9 @@ struct quicki2c_device {
+ 	u32 i2c_max_frame_size;
+ 	u32 i2c_int_delay_enable;
+ 	u32 i2c_int_delay;
 +
-+	ret = thc_interrupt_quiesce(dev, true);
-+	if (ret) {
-+		dev_err(dev->dev, "Quiesce interrupt failed during RxDMA reset\n");
-+		goto end;
-+	}
-+
-+	ret = thc_wait_for_dma_pause(dev, THC_RXDMA1);
-+	if (ret) {
-+		dev_err(dev->dev, "Wait for RxDMA1 pause failed during RxDMA reset\n");
-+		goto end;
-+	}
-+
-+	ret = thc_wait_for_dma_pause(dev, THC_RXDMA2);
-+	if (ret) {
-+		dev_err(dev->dev, "Wait for RxDMA2 pause failed during RxDMA reset\n");
-+		goto end;
-+	}
-+
-+	thc_dma_unconfigure(dev);
-+
-+	ret = thc_dma_configure(dev);
-+	if (ret) {
-+		dev_err(dev->dev, "Re-config DMA failed during RxDMA reset\n");
-+		goto end;
-+	}
-+
-+	thc_interrupt_quiesce(dev, false);
-+
-+end:
-+	mutex_unlock(&dev->thc_bus_lock);
-+	return ret;
-+}
-+EXPORT_SYMBOL_NS_GPL(thc_rxdma_reset, "INTEL_THC");
-+
- static int read_dma_buffer(struct thc_device *dev,
- 			   struct thc_dma_configuration *read_config,
- 			   u8 prd_table_index, void *read_buff)
-diff --git a/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dma.h b/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dma.h
-index 541d33995baf..715423453a9d 100644
---- a/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dma.h
-+++ b/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dma.h
-@@ -145,6 +145,7 @@ int  thc_dma_allocate(struct thc_device *dev);
- int  thc_dma_configure(struct thc_device *dev);
- void thc_dma_unconfigure(struct thc_device *dev);
- void thc_dma_release(struct thc_device *dev);
-+int  thc_rxdma_reset(struct thc_device *dev);
- int  thc_rxdma_read(struct thc_device *dev, enum thc_dma_channel dma_channel,
- 		    void *read_buff, size_t *read_len, int *read_finished);
- int  thc_swdma_read(struct thc_device *dev, void *write_buff, size_t write_len,
++	struct work_struct recover_work;
++	bool recovery_disabled;
+ };
+ 
+ #endif /* _QUICKI2C_DEV_H_ */
 -- 
 2.43.0
 

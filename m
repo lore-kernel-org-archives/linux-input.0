@@ -1,365 +1,193 @@
-Received: from endrift.com (endrift.com [173.255.198.10])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A5838257459
-	for <linux-input@vger.kernel.org>; Wed, 29 Jul 2026 01:59:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=173.255.198.10
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 71CA531F9B4
+	for <linux-input@vger.kernel.org>; Wed, 29 Jul 2026 02:09:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785290353; cv=none; b=p7Y8Nu9l95rDB/D33rhun/1myRErPgn6X2TpruswHLT8q1pzsHcPYG3P2ro+AWKXGoF9LrIbPAgqUd4o0g+/A9jIuKt2b+a473DR1cqhm4BD6Kv8GtKwexeca+28op1b2fyOPznPyGFQyGrs7pnd88L15lP80FYMoTFlK6EIrbU=
+	t=1785290962; cv=none; b=uhAqtKE2YD+2bAo9MOymCjDmdzNby8yqTj1OfTnJGo613dWHjvpxPzpvAPMFd494/ujV2lNrNxt+wfyQMl01Bzrn3VfXFGQFY7DkuiLUzI9ByfOTI/J/TQMRCifIOsD7sbXMCOWYvCh73sg+LDrdySAjboKYjIQ0ON+JSCt9qwY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785290353; c=relaxed/simple;
-	bh=L17CxQ9R67lh2Rcpvo/+Tzgk7NGziGX12Zh2oHy26hM=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=n2SGPp5BxND8Ub8TqIdHywzjlQXZuBoBjnVIL9K5adYMEpAsyVHK2E0g7whAB28+t//tfg3VFEXpQBqF9UetzapTM6d20n+Ov3ULOyZykFMiORHqW64jPMxPLTSuviO96N1ltlmhmUFNuRhczvrHdeKfPxGCXGAXfLWZ8VHcQdE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com; spf=pass smtp.mailfrom=endrift.com; dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b=C8FqP26D; arc=none smtp.client-ip=173.255.198.10
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=endrift.com
+	s=arc-20240116; t=1785290962; c=relaxed/simple;
+	bh=QjF/ftpPcsz9PRer78zmEXDolMZYWv+BRr5M0e1P6+8=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=JMFJZ5T+H/aXWCqnM7EuWnuPv/sQxctNUwc7kalY69pSSO5crSwDG0yDf0rTybMth2HBnY8RIhUy0PGG5w+rC3fVSaWwSHGMms4d6ZHCldiM04UGikKOpQZBjxqxJo4uLAi0pM+XI0WCDrpbQZC5v8bGNtxbGEsPy/ftNAe43HU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=XrWjimYT; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b="C8FqP26D"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=endrift.com; s=2020;
-	t=1785290044; bh=L17CxQ9R67lh2Rcpvo/+Tzgk7NGziGX12Zh2oHy26hM=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=C8FqP26D3H/pLGcyvKUnIuJa2rgwl21UZetNdUU2M/fPbkHE3DCMZn0xhZrYjPzUW
-	 aDld5J7EiEhYm3VQUl3yhKS+r/INCnPhdR6aHlLO8ejTUshbn/ij5hUj8uoArwjcVW
-	 0fGropHW4sDfcvuZ8VlTUUkxiu/VywUQA3qjRpedzskzRKNtDf6vIPOyKhGEVEBCxg
-	 fQGByBhh57VLUMS17s15OqfeeY4Ebdn/0pekTNB9iU89sQmKlTKgl/M2GnG6lpPRWI
-	 BchgbqZBS45aFuwjSTNUL2ncElmdqQcY+JRGAHIXH1i6vBKoEF/5x2uNA+d4ob08LU
-	 bqGN3KN/Ac1sg==
-Received: from microtis.vulpes.eutheria.net (71-212-73-87.tukw.qwest.net [71.212.73.87])
-	by endrift.com (Postfix) with ESMTPSA id 6291CA091;
-	Tue, 28 Jul 2026 18:54:04 -0700 (PDT)
-From: Vicki Pfau <vi@endrift.com>
-To: Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>,
-	linux-input@vger.kernel.org
-Cc: Vicki Pfau <vi@endrift.com>,
-	Yousef Alhouseen <alhouseenyousef@gmail.com>
-Subject: [PATCH v4 02/11] HID: steam: Refactor and clean up report parsing
-Date: Tue, 28 Jul 2026 18:52:24 -0700
-Message-ID: <20260729015243.1170573-3-vi@endrift.com>
-X-Mailer: git-send-email 2.54.0
-In-Reply-To: <20260729015243.1170573-1-vi@endrift.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="XrWjimYT"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D28A51F000E9;
+	Wed, 29 Jul 2026 02:09:20 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1785290961;
+	bh=KhVTItaPHA8hIn86Lv6164WlhEt6VGq82fHweAsnYLQ=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=XrWjimYTqA35FXBGZJi8kv+bRScwSm8O6rLR1TsIMXUtmm6qTbwHoXyoNAVsm4z4K
+	 0V4AzJKgYJFlJ9abs6lXavftP9BoVy/7qfeIBEIyYbkSCCcSNNxKcaH4T8oFZov0tS
+	 0LewUMtU/+rUqMlHYmfLXIlrHOCtU1ylWajHv7bZNRY5TDuYq7pCy/Yk2Dpi/qFC4W
+	 LdOrwtxwAVlOuMNXQbZLmJWwPGoTYDKXTn0MdTR2oUITMiethyytfT8m6rBLPQ4Nkq
+	 ZwlBv8YxUCp14aIWibUIxfyWBzYCkJ3qmsw1WatoUJAu54dkLCGCqlIDLyaNPrUx/1
+	 U7xB0Jcv4mavA==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v4 05/11] HID: steam: Add support for sensor events on
+ the Steam Controller (2015)
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Vicki Pfau" <vi@endrift.com>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20260729015243.1170573-6-vi@endrift.com>
 References: <20260729015243.1170573-1-vi@endrift.com>
+ <20260729015243.1170573-6-vi@endrift.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Wed, 29 Jul 2026 02:09:20 +0000
+Message-Id: <20260729020920.D28A51F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-This switches from a parsing style where each button or axis is parsed
-individually out of a report using !!(byte & BIT(x)) style. This commit
-switches it to a mostly unified approach of defining a list of individual
-mappings in an array and passing it to a function that handles all of the
-extraction. Theoretically this is more lines, but in practice it results in
-(subjectively) cleaner code. Some exceptions still need to be made for
-things like handling the lizard mode toggle key, but in general there's a
-lot less manual code.
+Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+s) to consider:
 
-Signed-off-by: Vicki Pfau <vi@endrift.com>
----
- drivers/hid/hid-steam.c | 211 ++++++++++++++++++++++++----------------
- 1 file changed, 128 insertions(+), 83 deletions(-)
+New issues:
+- [Medium] Enabling lizard mode via gamepad closure implicitly disables the=
+ IMU, breaking active sensor listeners.
 
-diff --git a/drivers/hid/hid-steam.c b/drivers/hid/hid-steam.c
-index a854d6360a0e..75d6be0be0a2 100644
---- a/drivers/hid/hid-steam.c
-+++ b/drivers/hid/hid-steam.c
-@@ -43,6 +43,7 @@
- #include <linux/rcupdate.h>
- #include <linux/delay.h>
- #include <linux/power_supply.h>
-+#include <linux/unaligned.h>
- #include "hid-ids.h"
- 
- MODULE_DESCRIPTION("HID driver for Valve Steam Controller");
-@@ -1355,13 +1356,45 @@ static void steam_do_connect_event(struct steam_device *steam, bool connected)
-  * Clamp the values to 32767..-32767 so that the range is
-  * symmetrical and can be negated safely.
-  */
--static inline s16 steam_le16(u8 *data)
-+static inline s16 steam_le16(const u8 *data)
- {
--	s16 x = (s16) le16_to_cpup((__le16 *)data);
-+	s16 x = (s16) get_unaligned_le16((const __le16 *)data);
- 
- 	return x == -32768 ? -32767 : x;
- }
- 
-+struct steam_button_mapping {
-+	int code;
-+	u8 byte;
-+	u8 bit;
-+};
-+
-+struct steam_axis_mapping {
-+	int code;
-+	s8 sign;
-+	u8 byte;
-+};
-+
-+static void steam_map_buttons(struct input_dev *input,
-+		const struct steam_button_mapping *mappings, const u8 *data)
-+{
-+	const struct steam_button_mapping *mapping;
-+
-+	for (mapping = mappings; mapping->code; mapping++)
-+		input_report_key(input, mapping->code,
-+			data[mapping->byte] & BIT(mapping->bit));
-+}
-+
-+static void steam_map_axes(struct input_dev *input,
-+		const struct steam_axis_mapping *mappings, const u8 *data)
-+{
-+	const struct steam_axis_mapping *mapping;
-+
-+	for (mapping = mappings; mapping->sign; mapping++)
-+		input_report_abs(input, mapping->code,
-+			mapping->sign * steam_le16(&data[mapping->byte]));
-+}
-+
- /*
-  * The size for this message payload is 60.
-  * The known values are:
-@@ -1428,18 +1461,42 @@ static inline s16 steam_le16(u8 *data)
-  * 10.7  | --         | lpad_and_joy
-  */
- 
-+static const struct steam_button_mapping steam_controller_button_mappings[] = {
-+	{ BTN_TR2,		 8, 0 },
-+	{ BTN_TL2,		 8, 1 },
-+	{ BTN_TR,		 8, 2 },
-+	{ BTN_TL,		 8, 3 },
-+	{ BTN_Y,		 8, 4 },
-+	{ BTN_B,		 8, 5 },
-+	{ BTN_X,		 8, 6 },
-+	{ BTN_A,		 8, 7 },
-+	{ BTN_SELECT,		 9, 4 },
-+	{ BTN_MODE,		 9, 5 },
-+	{ BTN_START,		 9, 6 },
-+	{ BTN_GRIPL,		 9, 7 },
-+	{ BTN_GRIPR,		10, 0 },
-+	{ BTN_THUMBR,		10, 2 },
-+	{ BTN_THUMBL,		10, 6 },
-+	{ BTN_THUMB2,		10, 4 },
-+	{ BTN_DPAD_UP,		 9, 0 },
-+	{ BTN_DPAD_RIGHT,	 9, 1 },
-+	{ BTN_DPAD_LEFT,	 9, 2 },
-+	{ BTN_DPAD_DOWN,	 9, 3 },
-+	{ /* sentinel */ },
-+};
-+
-+static const struct steam_axis_mapping steam_controller_axis_mappings[] = {
-+	{ ABS_RX,  1, 20 },
-+	{ ABS_RY, -1, 22 },
-+	{ /* sentinel */ },
-+};
-+
- static void steam_do_input_event(struct steam_device *steam,
- 		struct input_dev *input, u8 *data)
- {
--	/* 24 bits of buttons */
--	u8 b8, b9, b10;
- 	s16 x, y;
- 	bool lpad_touched, lpad_and_joy;
- 
--	b8 = data[8];
--	b9 = data[9];
--	b10 = data[10];
--
- 	input_report_abs(input, ABS_HAT2Y, data[11]);
- 	input_report_abs(input, ABS_HAT2X, data[12]);
- 
-@@ -1451,8 +1508,8 @@ static void steam_do_input_event(struct steam_device *steam,
- 	 * joystick values.
- 	 * (lpad_touched || lpad_and_joy) tells if the lpad is really touched.
- 	 */
--	lpad_touched = b10 & BIT(3);
--	lpad_and_joy = b10 & BIT(7);
-+	lpad_touched = data[10] & BIT(3);
-+	lpad_and_joy = data[10] & BIT(7);
- 	x = steam_le16(data + 16);
- 	y = -steam_le16(data + 18);
- 
-@@ -1468,31 +1525,10 @@ static void steam_do_input_event(struct steam_device *steam,
- 		input_report_abs(input, ABS_HAT0X, 0);
- 		input_report_abs(input, ABS_HAT0Y, 0);
- 	}
-+	input_report_key(input, BTN_THUMB, lpad_touched || lpad_and_joy);
- 
--	input_report_abs(input, ABS_RX, steam_le16(data + 20));
--	input_report_abs(input, ABS_RY, -steam_le16(data + 22));
--
--	input_event(input, EV_KEY, BTN_TR2, !!(b8 & BIT(0)));
--	input_event(input, EV_KEY, BTN_TL2, !!(b8 & BIT(1)));
--	input_event(input, EV_KEY, BTN_TR, !!(b8 & BIT(2)));
--	input_event(input, EV_KEY, BTN_TL, !!(b8 & BIT(3)));
--	input_event(input, EV_KEY, BTN_Y, !!(b8 & BIT(4)));
--	input_event(input, EV_KEY, BTN_B, !!(b8 & BIT(5)));
--	input_event(input, EV_KEY, BTN_X, !!(b8 & BIT(6)));
--	input_event(input, EV_KEY, BTN_A, !!(b8 & BIT(7)));
--	input_event(input, EV_KEY, BTN_SELECT, !!(b9 & BIT(4)));
--	input_event(input, EV_KEY, BTN_MODE, !!(b9 & BIT(5)));
--	input_event(input, EV_KEY, BTN_START, !!(b9 & BIT(6)));
--	input_event(input, EV_KEY, BTN_GRIPL, !!(b9 & BIT(7)));
--	input_event(input, EV_KEY, BTN_GRIPR, !!(b10 & BIT(0)));
--	input_event(input, EV_KEY, BTN_THUMBR, !!(b10 & BIT(2)));
--	input_event(input, EV_KEY, BTN_THUMBL, !!(b10 & BIT(6)));
--	input_event(input, EV_KEY, BTN_THUMB, lpad_touched || lpad_and_joy);
--	input_event(input, EV_KEY, BTN_THUMB2, !!(b10 & BIT(4)));
--	input_event(input, EV_KEY, BTN_DPAD_UP, !!(b9 & BIT(0)));
--	input_event(input, EV_KEY, BTN_DPAD_RIGHT, !!(b9 & BIT(1)));
--	input_event(input, EV_KEY, BTN_DPAD_LEFT, !!(b9 & BIT(2)));
--	input_event(input, EV_KEY, BTN_DPAD_DOWN, !!(b9 & BIT(3)));
-+	steam_map_buttons(input, steam_controller_button_mappings, data);
-+	steam_map_axes(input, steam_controller_axis_mappings, data);
- 
- 	input_sync(input);
- }
-@@ -1595,23 +1631,67 @@ static void steam_do_input_event(struct steam_device *steam,
-  *  15.6 | --         | unknown
-  *  15.7 | --         | unknown
-  */
-+
-+static const struct steam_button_mapping steam_deck_button_mappings[] = {
-+	{ BTN_TR2,		 8, 0 },
-+	{ BTN_TL2,		 8, 1 },
-+	{ BTN_TR,		 8, 2 },
-+	{ BTN_TL,		 8, 3 },
-+	{ BTN_Y,		 8, 4 },
-+	{ BTN_B,		 8, 5 },
-+	{ BTN_X,		 8, 6 },
-+	{ BTN_A,		 8, 7 },
-+	{ BTN_SELECT,		 9, 4 },
-+	{ BTN_MODE,		 9, 5 },
-+	{ BTN_START,		 9, 6 },
-+	{ BTN_GRIPL2,		 9, 7 },
-+	{ BTN_GRIPR2,		10, 0 },
-+	{ BTN_THUMBL,		10, 6 },
-+	{ BTN_THUMBR,		11, 2 },
-+	{ BTN_DPAD_UP,		 9, 0 },
-+	{ BTN_DPAD_RIGHT,	 9, 1 },
-+	{ BTN_DPAD_LEFT,	 9, 2 },
-+	{ BTN_DPAD_DOWN,	 9, 3 },
-+	{ BTN_THUMB,		10, 1 },
-+	{ BTN_THUMB2,		10, 2 },
-+	{ BTN_GRIPL,		13, 1 },
-+	{ BTN_GRIPR,		13, 2 },
-+	{ BTN_BASE,		14, 2 },
-+	{ /* sentinel */ },
-+};
-+
-+static const struct steam_axis_mapping steam_deck_axis_mappings[] = {
-+	{ ABS_X,	 1, 48 },
-+	{ ABS_Y,	-1, 50 },
-+	{ ABS_RX,	 1, 52 },
-+	{ ABS_RY,	-1, 54 },
-+	{ ABS_HAT2Y,	 1, 44 },
-+	{ ABS_HAT2X,	 1, 46 },
-+	{ /* sentinel */ },
-+};
-+
-+static const struct steam_axis_mapping steam_deck_imu_mappings[] = {
-+	{ ABS_X,   1, 24 },
-+	{ ABS_Z,  -1, 26 },
-+	{ ABS_Y,   1, 28 },
-+	{ ABS_RX,  1, 30 },
-+	{ ABS_RZ, -1, 32 },
-+	{ ABS_RY,  1, 34 },
-+	{ /* sentinel */ },
-+};
-+
- static void steam_do_deck_input_event(struct steam_device *steam,
- 		struct input_dev *input, u8 *data)
- {
--	u8 b8, b9, b10, b11, b13, b14;
-+	bool start_pressed;
- 	bool lpad_touched, rpad_touched;
- 
--	b8 = data[8];
--	b9 = data[9];
--	b10 = data[10];
--	b11 = data[11];
--	b13 = data[13];
--	b14 = data[14];
-+	start_pressed = data[9] & BIT(6);
- 
--	if (!(b9 & BIT(6)) && steam->did_mode_switch) {
-+	if (!start_pressed && steam->did_mode_switch) {
- 		steam->did_mode_switch = false;
- 		cancel_delayed_work(&steam->mode_switch);
--	} else if (!steam->client_opened && (b9 & BIT(6)) && !steam->did_mode_switch) {
-+	} else if (!steam->client_opened && start_pressed && !steam->did_mode_switch) {
- 		steam->did_mode_switch = true;
- 		schedule_delayed_work(&steam->mode_switch, 45 * HZ / 100);
- 	}
-@@ -1619,8 +1699,8 @@ static void steam_do_deck_input_event(struct steam_device *steam,
- 	if (!steam->gamepad_mode && lizard_mode)
- 		return;
- 
--	lpad_touched = b10 & BIT(3);
--	rpad_touched = b10 & BIT(4);
-+	lpad_touched = data[10] & BIT(3);
-+	rpad_touched = data[10] & BIT(4);
- 
- 	if (lpad_touched) {
- 		input_report_abs(input, ABS_HAT0X, steam_le16(data + 16));
-@@ -1638,38 +1718,8 @@ static void steam_do_deck_input_event(struct steam_device *steam,
- 		input_report_abs(input, ABS_HAT1Y, 0);
- 	}
- 
--	input_report_abs(input, ABS_X, steam_le16(data + 48));
--	input_report_abs(input, ABS_Y, -steam_le16(data + 50));
--	input_report_abs(input, ABS_RX, steam_le16(data + 52));
--	input_report_abs(input, ABS_RY, -steam_le16(data + 54));
--
--	input_report_abs(input, ABS_HAT2Y, steam_le16(data + 44));
--	input_report_abs(input, ABS_HAT2X, steam_le16(data + 46));
--
--	input_event(input, EV_KEY, BTN_TR2, !!(b8 & BIT(0)));
--	input_event(input, EV_KEY, BTN_TL2, !!(b8 & BIT(1)));
--	input_event(input, EV_KEY, BTN_TR, !!(b8 & BIT(2)));
--	input_event(input, EV_KEY, BTN_TL, !!(b8 & BIT(3)));
--	input_event(input, EV_KEY, BTN_Y, !!(b8 & BIT(4)));
--	input_event(input, EV_KEY, BTN_B, !!(b8 & BIT(5)));
--	input_event(input, EV_KEY, BTN_X, !!(b8 & BIT(6)));
--	input_event(input, EV_KEY, BTN_A, !!(b8 & BIT(7)));
--	input_event(input, EV_KEY, BTN_SELECT, !!(b9 & BIT(4)));
--	input_event(input, EV_KEY, BTN_MODE, !!(b9 & BIT(5)));
--	input_event(input, EV_KEY, BTN_START, !!(b9 & BIT(6)));
--	input_event(input, EV_KEY, BTN_GRIPL2, !!(b9 & BIT(7)));
--	input_event(input, EV_KEY, BTN_GRIPR2, !!(b10 & BIT(0)));
--	input_event(input, EV_KEY, BTN_THUMBL, !!(b10 & BIT(6)));
--	input_event(input, EV_KEY, BTN_THUMBR, !!(b11 & BIT(2)));
--	input_event(input, EV_KEY, BTN_DPAD_UP, !!(b9 & BIT(0)));
--	input_event(input, EV_KEY, BTN_DPAD_RIGHT, !!(b9 & BIT(1)));
--	input_event(input, EV_KEY, BTN_DPAD_LEFT, !!(b9 & BIT(2)));
--	input_event(input, EV_KEY, BTN_DPAD_DOWN, !!(b9 & BIT(3)));
--	input_event(input, EV_KEY, BTN_THUMB, !!(b10 & BIT(1)));
--	input_event(input, EV_KEY, BTN_THUMB2, !!(b10 & BIT(2)));
--	input_event(input, EV_KEY, BTN_GRIPL, !!(b13 & BIT(1)));
--	input_event(input, EV_KEY, BTN_GRIPR, !!(b13 & BIT(2)));
--	input_event(input, EV_KEY, BTN_BASE, !!(b14 & BIT(2)));
-+	steam_map_buttons(input, steam_deck_button_mappings, data);
-+	steam_map_axes(input, steam_deck_axis_mappings, data);
- 
- 	input_sync(input);
- }
-@@ -1690,12 +1740,7 @@ static void steam_do_deck_sensors_event(struct steam_device *steam,
- 		return;
- 
- 	input_event(sensors, EV_MSC, MSC_TIMESTAMP, steam->sensor_timestamp_us);
--	input_report_abs(sensors, ABS_X, steam_le16(data + 24));
--	input_report_abs(sensors, ABS_Z, -steam_le16(data + 26));
--	input_report_abs(sensors, ABS_Y, steam_le16(data + 28));
--	input_report_abs(sensors, ABS_RX, steam_le16(data + 30));
--	input_report_abs(sensors, ABS_RZ, -steam_le16(data + 32));
--	input_report_abs(sensors, ABS_RY, steam_le16(data + 34));
-+	steam_map_axes(sensors, steam_deck_imu_mappings, data);
- 
- 	input_sync(sensors);
- }
--- 
-2.54.0
+Pre-existing issues:
+- [High] If `steam_register()` fails for a wired controller in `steam_probe=
+()`, the `steam` device is freed while remaining linked in the global `stea=
+m_devices` list.
+- [High] Concurrent execution of workqueues causes double unregistration of=
+ the input and sensors devices due to a TOCTOU race condition.
+--
 
+--- Patch [5]: [PATCH v4 05/11] HID: steam: Add support for sensor events o=
+n the Steam Controller (2015) ---
+commit bb1476f66b80150be67610fe42e5546b316d06ef
+Author: Vicki Pfau <vi@endrift.com>
+
+HID: steam: Add support for sensor events on the Steam Controller (2015)
+
+Sensor support was added for the Steam Deck previously, but Steam
+Controller sensor events were never added. This adds that missing support,
+bringing Steam Controller support much closer to feature parity with things
+like SDL and Steam itself.
+
+> diff --git a/drivers/hid/hid-steam.c b/drivers/hid/hid-steam.c
+> index 8bad79205b570..cabecd250072e 100644
+> --- a/drivers/hid/hid-steam.c
+> +++ b/drivers/hid/hid-steam.c
+
+[ ... ]
+
+> @@ -625,6 +689,42 @@ static void steam_input_close(struct input_dev *dev)
+>  	}
+>  }
+> =20
+> +static int steam_sensor_open(struct input_dev *dev)
+> +{
+> +	struct steam_device *steam =3D input_get_drvdata(dev);
+> +	unsigned long flags;
+> +	bool client_opened;
+> +
+> +	spin_lock_irqsave(&steam->lock, flags);
+> +	client_opened =3D steam->client_opened;
+> +	spin_unlock_irqrestore(&steam->lock, flags);
+> +	if (client_opened)
+> +		return 0;
+> +
+> +	guard(mutex)(&steam->report_mutex);
+> +	steam_write_settings(steam, SETTING_IMU_MODE,
+> +			SETTING_IMU_MODE_SEND_RAW_ACCEL | SETTING_IMU_MODE_SEND_RAW_GYRO,
+> +			0);
+
+[Severity: Medium]
+Does closing the gamepad evdev node implicitly disable the IMU, breaking
+active sensor listeners?
+
+When the gamepad evdev node is closed, the driver automatically re-enables
+"lizard mode" by calling steam_set_lizard_mode(steam, true) in
+steam_input_close(). This function sends the ID_LOAD_DEFAULT_SETTINGS
+command to the controller, which performs a hardware state reset.
+
+This reset wipes out the SETTING_IMU_MODE configuration previously requested
+by steam_sensor_open() here. Since the driver does not track or coordinate
+the IMU state across these logically independent evdev nodes, closing the
+gamepad node while the sensor node is still open will cause the controller
+to silently stop sending motion data.
+
+> +
+> +	return 0;
+> +}
+> +
+> +static void steam_sensor_close(struct input_dev *dev)
+> +{
+
+[ ... ]
+
+> @@ -917,9 +1029,6 @@ static void steam_sensors_unregister(struct steam_de=
+vice *steam)
+>  {
+>  	struct input_dev *sensors;
+> =20
+> -	if (!(steam->quirks & STEAM_QUIRK_DECK))
+> -		return;
+> -
+>  	rcu_read_lock();
+>  	sensors =3D rcu_dereference(steam->sensors);
+>  	rcu_read_unlock();
+
+[Severity: High]
+This isn't a bug introduced by this patch, but can concurrent execution of
+workqueues cause a double unregistration of the input and sensors devices
+due to a TOCTOU race condition?
+
+The workqueues work_connect and unregister_work cache the device state under
+a spinlock, drop the lock, and then act on the cached state. Both can run
+concurrently on different CPUs and call steam_sensors_unregister() or
+steam_input_unregister() simultaneously.
+
+In both unregister functions, the pointers (steam->sensors and steam->input)
+are read under rcu_read_lock(), but the lock is dropped immediately before
+checking if the pointer is NULL. Because there is no atomic swap or mutex
+protecting the RCU_INIT_POINTER assignment, both threads can read the same
+non-NULL pointer, wait for RCU, and call input_unregister_device() on the
+same device, causing a double-free and list corruption in the input core.
+
+> @@ -967,6 +1076,12 @@ static int steam_register(struct steam_device *stea=
+m)
+>  			strscpy(steam->serial_no, "XXXXXXXXXX",
+>  					sizeof(steam->serial_no));
+> =20
+> +		ret =3D steam_get_attributes(steam);
+> +		if (ret < 0)
+> +			hid_err(steam->hdev,
+> +				"%s:steam_get_attributes failed with error %d\n",
+> +				__func__, ret);
+> +
+
+[Severity: High]
+This is a pre-existing issue, but if steam_register() fails for a wired
+controller in steam_probe(), is the steam device freed while remaining
+linked in the global steam_devices list?
+
+In steam_register(), the steam object is added to the global steam_devices
+list under a lock. If registration subsequently fails (e.g., due to an
+out-of-memory error in steam_input_register()), steam_register() returns an
+error code without removing the object from the list.
+
+For a wired controller, steam_probe() catches this error and jumps to
+err_hw_close, bypassing err_steam_unregister and the steam_unregister()
+function that would normally remove it from the list. When steam_probe()
+returns the error, devres frees the steam object.
+
+Any subsequent iteration over steam_devices (e.g., changing lizard mode via
+sysfs) will dereference the freed memory, causing a use-after-free and
+potential kernel panic.
+
+>  		hid_info(steam->hdev, "Steam Controller '%s' connected",
+>  				steam->serial_no);
+>
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260729015243.1170=
+573-1-vi@endrift.com?part=3D5

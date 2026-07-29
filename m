@@ -1,115 +1,89 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from relay4-d.mail.gandi.net (relay4-d.mail.gandi.net [217.70.183.196])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 332A4453A4D
-	for <linux-input@vger.kernel.org>; Wed, 29 Jul 2026 14:38:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E08C6388E66;
+	Wed, 29 Jul 2026 15:02:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.70.183.196
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785335902; cv=none; b=pRxQlQOjVtVks+oNlHKImIsgI38y1+G6fhqWZ85V06gYq8dWz/YuEWZpI1JdSNI2jzNUjj+iyB8YMv9WLYC9J+woSsa5vxMy0JDIJ1OoaL3N0HfkR9i3PJpgu37ZuuBSgwgDqrSD5U1s8qaBipAr7lYMBghUxt7ELSwRvD9NG0s=
+	t=1785337340; cv=none; b=n+ZmZEUQoqDr/N5e/KHkWFFIQZT1C+B/SIk9dHTumhgfguvhcxdwhIaD/zgsH31kPzGT9JQitPyRCGPXOXxAPqZi6n+4LoO2I+2RsPo/PEMiaBkDSkvoKKHcG6IpgmSvugcVVFjmnhxGmEj7s5HA3fkcs/cH6xXQ5/Y4dkHaIMU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785335902; c=relaxed/simple;
-	bh=EvcjrdxCmH01MgLUKqfxahb6u0oXM/exWmgn7UWKre8=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=Ue2jdgnDKKmGq2ZhRPUHzCZ7wiUN1jDB1zxVBGNREkBaqWAehXG4qF2HKfgjkUGRShsF/6Sv1HBYQyYtduAtgVh+3RqeV18+U6YFnDdG618zyBmBtRUxN7DzAMjisEp3/Rj73XVJeAbGjvhn2eI6FKKC8hNETI92qXj2LktxWU0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=HptyU6Zm; arc=none smtp.client-ip=100.103.45.18
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="HptyU6Zm"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9CCC51F000E9;
-	Wed, 29 Jul 2026 14:38:20 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785335900;
-	bh=ZLSnrMG5MauomZNj4mhWnkXYx39z6wJAYZAPAGAHCJE=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=HptyU6ZmKMcMejNf5itGUpmCVvusmVCKT+ZYorj1xGOX93BJFWwK9Mkb1ddINtkPr
-	 25x9rOvPuCEBUiyoQn4zy84VBx6P2kuem6dx9RBM3ev4eLpuhyUq7WQxZ9y/yN+8b8
-	 YDaIBbYzU13RHB0mdnVDN4kAOXhZOfQZ6DlPKRvU6qdqkb9HLF52D1TyzCH+RvBNU7
-	 yylv1C7P7Lv2RQX3sCayQnSdA5aJjuQ5aQwDUWQnj5nVFq/9nD1IV+WDF/rrpOa/Xy
-	 MI6slsjq2UODSpVkQzf2YSUGe7Hq6rsKdPw7FqvvmiB5L3u+A2FZgdWk3CvKSlQBbX
-	 +DWPVZr4dVqLQ==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] HID: universal-pidff: stop the device when
- force-feedback init fails
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Baul Lee" <baul.lee@xbow.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260729142432.16184-1-baul.lee@xbow.com>
-References: <20260729142432.16184-1-baul.lee@xbow.com>
-Content-Type: text/plain; charset=utf-8
+	s=arc-20240116; t=1785337340; c=relaxed/simple;
+	bh=zK5CNuwfUWl+RkViSkVzxCQa9z/6UOnyRmq6jxbmsZw=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=tQlcg31xIsLhBwaXsmunbYLQayYxDFw84kG/9qN23lNgzt3TQgfLbsGtKYcks18Dk2OHEIRNC1kHTmMitbpDHhigiI/UfvWXX4FCVGYKsaMadGZoXIGnC2QdnMlWlNSNEkKLpUi7yDG5x84h58a/OZtHa1Q9llHOLvbKQwP46zg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=hadess.net; spf=pass smtp.mailfrom=hadess.net; arc=none smtp.client-ip=217.70.183.196
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=hadess.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=hadess.net
+Received: by mail.gandi.net (Postfix) with ESMTPSA id 529B63EDE3;
+	Wed, 29 Jul 2026 15:02:10 +0000 (UTC)
+Message-ID: <537756340b790add6a3d79939b66f2213fbd6e9e.camel@hadess.net>
+Subject: Re: [PATCH v5] HID: logitech-hidpp: Add support for HID++
+ Multi-Platform feature (0x4531)
+From: Bastien Nocera <hadess@hadess.net>
+To: DevExalt <exalt.dev.team@gmail.com>, jikos@kernel.org, bentiss@kernel.org
+Cc: lains@riseup.net, linux-input@vger.kernel.org,
+ linux-kernel@vger.kernel.org, 	sari.kreitem@exalt.corp-partner.google.com,
+ hbarnor@google.com
+Date: Wed, 29 Jul 2026 17:02:09 +0200
+In-Reply-To: <20260701073727.53636-1-exalt.dev.team@gmail.com>
+References: <20260625080807.74157-1-exalt.dev.team@gmail.com>
+	 <20260701073727.53636-1-exalt.dev.team@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 29 Jul 2026 14:38:20 +0000
-Message-Id: <20260729143820.9CCC51F000E9@smtp.kernel.org>
+User-Agent: Evolution 3.60.2 (3.60.2-1.fc44) 
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+X-GND-Sasl: hadess@hadess.net
+X-GND-State: clean
+X-GND-Score: 0
+X-GND-Cause: dmFkZTFX51i59nMsdZUESB4XJHd3qvLYJbI+HSdi/tUMK2Minkfululu5Ad2dWOnCNT3yxGKR4TPi8G2qqhYaFD1oeYmRIiXWphPGK3e6ZA+ZDueID7jWv/DD3tbfviHwhdblngAMyqoDS1f+zF+sGSGUW9ZqORVMI908GUOZ4Rzbs8UI7wIGIvBCM0uvOv3Wz1eDe685GKnj+kASEMHBcupWgVQ7v7Z6tIy6OacwHwf2gy3ud4IBgnZsCnQqrFZcFH59lYS8uVlNRnD3M+i3Loh0Jiv8+3rwv/Xl4XPxU8AQLnL4bjT2tVyQArKVCXguxMUpEzxi31LhB8EvnZjJfW6IObwG/0Cpwgm/etbSF3b6+bsO/a2dWZar+tm6GvjGP1LjVSY3kPaS9w2WDBpQzIKzg2sKD1RCJDCfEdWf5jC9uJEnfQWwMGL1HBDP0XQNrgnCJEsIFYo9QoLHpWQpugcfLKY2XduReWqaLioUm5sVCKp/2Jq9EObFL67Mc8FEs/kRqTc9kzKIIsz9BPE1dBlTpk4oLeMbpMfp9ISPC5NgY3CfQWabKYIPRg5gX1p6tJ8gfI3xRnWaSZQ69nm3WrbQNR9A8I1wzyA53A6t8bCsPDMbErL7uduYQI/AehoGukdh0favrisfdMTaPGVDGFi6Ye3KE+ViEI2a4dkX8aMxBInHg
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
+Hey,
 
-Pre-existing issues:
-- [Critical] Missing validation of input reports in `universal_pidff_probe`=
- causes an out-of-bounds heap write.
---
+On Wed, 2026-07-01 at 10:37 +0300, DevExalt wrote:
+> +static DEVICE_ATTR_WO(platform);
+> +
+> +static struct attribute *multiplatform_attrs[] =3D {
+> +	&dev_attr_platform.attr,
+> +	NULL
+> +};
+> +
+> +static const struct attribute_group multiplatform_attribute_group =3D
+> {
+> +	.attrs =3D multiplatform_attrs,
+> +};
 
---- Patch [1]: [PATCH] HID: universal-pidff: stop the device when force-fee=
-dback init fails ---
-commit 551db56065200f5b5fc8ed4d3eebe2e09f3793b4
-Author: Baul Lee <baul.lee@xbow.com>
+I just realised that even though you retrieve the list of supported
+platforms in the code to check whether it's supported, we don't have
+any ways to read it. It would really be useful if that was fixed before
+merging, it makes verifying that it works as expected much easier,
+including whether it can tell user-space that the value changed too.
 
-HID: universal-pidff: stop the device when force-feedback init fails
+I tested this with a recent K980 Slim Solar+ keyboard, using the info
+in this PDF to switch between macOS, Windows and Chrome using the
+keyboard:
+https://gzhls.at/blob/ldb/e/3/7/1/4d91f22c1050443f6235092b49270fd021e9.pdf
 
-This commit fixes a use-after-free issue when force-feedback initialization
-fails. It ensures the hardware is properly stopped if initialization fails,
-preventing the hidraw character device from outliving the device and writing
-into freed memory on subsequent opens.
+Shortcuts to switch between platforms:
+macos: fn + O
+windows: fn + P
+chrome: fn + C
 
-> diff --git a/drivers/hid/hid-universal-pidff.c b/drivers/hid/hid-universa=
-l-pidff.c
-> --- a/drivers/hid/hid-universal-pidff.c
-> +++ b/drivers/hid/hid-universal-pidff.c
-> @@ -104,12 +104,14 @@ static int universal_pidff_probe(struct hid_device =
-*hdev,
->  	error =3D init_function(hdev, id->driver_data);
+The F7 / screenshot key looks like it's something that changes usefully
+between platforms:
+- macOS: Shift+Win+4
+- Windows: Shift+Win+S
+- Chrome: SysRq
 
-[Severity: Critical]
-This isn't a bug introduced by this patch, but does calling init_function()
-here without verifying if the inputs list is empty risk an out-of-bounds
-write?
+Testing by between all 3 platforms using both the keyboard keys, and
+the sysfs attribute yielded the same results with the changing key
+combination generated by the F7 key.
 
-If a crafted USB device exposes a PID usage page and output reports but no
-input reports, hdev->inputs remains empty. When hid_pidff_init_with_quirks()
-is called without inputs:
+Happy to test again when you have read support added to the sysfs
+attribute.
 
-drivers/hid/usbhid/hid-pidff.c:hid_pidff_init_with_quirks() {
-    struct hid_input *hidinput =3D list_entry(hid->inputs.next, struct hid_=
-input, list);
-    struct input_dev *dev =3D hidinput->input;
-    ...
-}
-
-Because the inputs list is empty, list_entry() points to the list head
-itself. Due to the struct layouts of hid_device and hid_input, fetching
-hidinput->input aliases directly to hid->hidraw.
-
-This pointer to a much smaller struct hidraw object is then passed as a
-struct input_dev pointer to pidff_init_fields().
-
-If the descriptor contains the required output reports to pass
-pidff_reports_ok(), can operations like this write out of bounds?
-
-drivers/hid/usbhid/hid-pidff.c:pidff_init_fields() {
-    if (pidff->type_id[PID_CONSTANT])
-        set_bit(FF_CONSTANT, dev->ffbit);
-    ...
-}
-
->  	if (error) {
->  		hid_warn(hdev, "Error initialising force feedback\n");
-> -		goto err;
-> +		goto err_stop;
->  	}
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260729142432.1618=
-4-1-baul.lee@xbow.com?part=3D1
+Cheers

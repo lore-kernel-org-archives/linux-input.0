@@ -1,48 +1,48 @@
 Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.19])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5FD6E331ECF;
-	Wed, 29 Jul 2026 05:01:08 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3E1C132B113;
+	Wed, 29 Jul 2026 05:01:18 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.19
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785301272; cv=none; b=LDdk/ybzWPhhN7djmudWMFQQsiY8+0yPBNoR58yZo7AAZyvX/X2ZUw7RJiUGIb1XUWiaC9XHicQppaBh8wZUfJt7x4/efG/wG1tOrA/UzwNrvJCGYez69A46uBV/l7Ldknwbl4Im+jCecS1EIEBQOg8jpcOdv2/v2lKYdrafp+U=
+	t=1785301281; cv=none; b=Yyl63Qy+vLsYd5r0Wz0d5ajEj9o2Fyg7o9zS7HXQipyQEnK4DOH5dqnSKv/WOMzzqE89uJJlkMxFpMmQMZsDcRSDByIc/yRjgRaSeGT+xqn61nwDGhPr5qiISXWkx/k1bHyDYVPzlQh5l88XDWmb++sL740PiofahcJwE6lKQq4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785301272; c=relaxed/simple;
-	bh=dnultnWJolbbYiaG24gfJGBJ4w6A9XVjWpmW/NoS/GQ=;
+	s=arc-20240116; t=1785301281; c=relaxed/simple;
+	bh=MKSP3EwTXix3jhISInbUdGtddMHZf53kQz5o3kDduv0=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=DqrdIIqZ3fEbp65ERZGSZHdA8U2bENQQG4pWG/wikjDbTdDdoQzorlISkob3TB0MIOe+tfhDSBlM2KP9qTvHvMASDDLOt4/2ZfB7p/dK3VF4esNKpI5DJFKsBSHUUSM3F6aRGisNEQRpVUSP31kPDIWVl0TL5Pr9RNbufXBOiNY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=YR/Sv0SM; arc=none smtp.client-ip=198.175.65.19
+	 MIME-Version; b=s2Kwdrn9kpXhM34COFVVkkvoyYf/7Dy2Xu/V9bBrRQSdowyvHDVXrnXCEs9/RWM9IedrvBQI5JgkJ5gjQCz3/1d77CtFdMcVYAoJqRcORbY6f0Kzl9Bv3yfEH1j73hC/pD2FH2p2NkoAQqKAGosSpa1CsR7A6PJUHu5Q4iRHgas=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=TCNPORLQ; arc=none smtp.client-ip=198.175.65.19
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="YR/Sv0SM"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="TCNPORLQ"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1785301268; x=1816837268;
+  t=1785301279; x=1816837279;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=dnultnWJolbbYiaG24gfJGBJ4w6A9XVjWpmW/NoS/GQ=;
-  b=YR/Sv0SMNGaWAGf1aJcYGB/5eXtJ4Kx4O6pMsHfDnnBbps/aZjKilOw4
-   YwMbxQh7/grF012QAB+S+vqMyjh9/+V4ZSWV3+BxsCFlSXSWYZjBtglTF
-   iGYytQIaL+gXyXR3Qdm6CwHKIu8OpH6iJ3xMaR8kzMr+TdPOWEt2lugW7
-   R75k/3Whsn11DDy+XORRsXcxt0TaRBPYSe3m9f7NOHhEGvZoGI7eyrdsT
-   NcItOFmLc9r5f6ReJL7wMCZgHoGGYah/3wfmAiFziT81vcPuFSraSjmUC
-   DkZTDkof4P9b7rQLymqN/yXTY14knf5u5JleYog+FyT2Ie6j2IbP3iwmr
-   w==;
-X-CSE-ConnectionGUID: yFkn9o3sQ2i6WdT44RxUWg==
-X-CSE-MsgGUID: jSuFToyCSJWYAhlTAL+Ggg==
-X-IronPort-AV: E=McAfee;i="6800,10657,11859"; a="85842144"
+  bh=MKSP3EwTXix3jhISInbUdGtddMHZf53kQz5o3kDduv0=;
+  b=TCNPORLQOjAr6gc6x9nHjnH2708bBopeAJnV2aebFLJei8geogICd+2C
+   z7LMTW7bIPbgOzaixv2wl8LTByKX9Vh+FE4QecpmZDMfX/XA7a8Ty1dTt
+   tDqNXkQyvmsEWvv/NMjbg1/Hxhqif6ohEpNIZNFkn3WC8fqp6vZPqthlQ
+   NsYDq/Te1jceSB363Wkcz70iVk1zexRyUYN4/CEv0bUVhmDJDDDP+XSos
+   Pwh1ARmhV2AU/QvFDsk2CMmV130b2n6bhwmizJO1V9jcObnNO0qLMGczz
+   4+RckldOR1b5Yax7ofHMyDqwFDNo4ApEagziryP2S152p8rsr8oOYdSb+
+   A==;
+X-CSE-ConnectionGUID: DdW3dYp/RuuRKP5zNXGGdw==
+X-CSE-MsgGUID: HKKHzkNkSX2HRzyq8+s8fw==
+X-IronPort-AV: E=McAfee;i="6800,10657,11859"; a="85842158"
 X-IronPort-AV: E=Sophos;i="6.25,191,1779174000"; 
-   d="scan'208";a="85842144"
+   d="scan'208";a="85842158"
 Received: from fmviesa001.fm.intel.com ([10.60.135.141])
-  by orvoesa111.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Jul 2026 22:01:08 -0700
-X-CSE-ConnectionGUID: VzaMK4+jS3KeDfIdJg3CKA==
-X-CSE-MsgGUID: +eIxnxnvRNSijRBQywYaJQ==
+  by orvoesa111.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Jul 2026 22:01:18 -0700
+X-CSE-ConnectionGUID: moC6M3kARZeURejyxdMelw==
+X-CSE-MsgGUID: yRcRdsS+Qqe7o7UQNwXZBw==
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="6.25,191,1779174000"; 
-   d="scan'208";a="284447522"
+   d="scan'208";a="284447546"
 Received: from shsensorbuild.sh.intel.com ([10.239.132.250])
-  by fmviesa001.fm.intel.com with ESMTP; 28 Jul 2026 22:01:06 -0700
+  by fmviesa001.fm.intel.com with ESMTP; 28 Jul 2026 22:01:16 -0700
 From: Even Xu <even.xu@intel.com>
 To: bentiss@kernel.org,
 	jikos@kernel.org
@@ -51,9 +51,9 @@ Cc: srinivas.pandruvada@linux.intel.com,
 	linux-kernel@vger.kernel.org,
 	hbarnor@chromium.org,
 	Even Xu <even.xu@intel.com>
-Subject: [PATCH v5 2/3] HID: Intel-thc-hid: Intel-quicki2c: Refine recover callback
-Date: Wed, 29 Jul 2026 13:01:44 +0800
-Message-ID: <20260729050145.2272597-3-even.xu@intel.com>
+Subject: [PATCH v5 3/3] HID: Intel-thc-hid: Intel-quickspi: Refine recover callback
+Date: Wed, 29 Jul 2026 13:01:45 +0800
+Message-ID: <20260729050145.2272597-4-even.xu@intel.com>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20260729050145.2272597-1-even.xu@intel.com>
 References: <20260729050145.2272597-1-even.xu@intel.com>
@@ -74,195 +74,209 @@ Refine recover flow:
 
 Signed-off-by: Even Xu <even.xu@intel.com>
 ---
- .../intel-quicki2c/pci-quicki2c.c             | 66 ++++++++++++-------
- .../intel-quicki2c/quicki2c-dev.h             |  5 ++
- 2 files changed, 49 insertions(+), 22 deletions(-)
+ .../intel-quickspi/pci-quickspi.c             | 71 ++++++++++++-------
+ .../intel-quickspi/quickspi-dev.h             |  6 ++
+ 2 files changed, 50 insertions(+), 27 deletions(-)
 
-diff --git a/drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c b/drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c
-index 2ec52cb35a13..62bd872b80c9 100644
---- a/drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c
-+++ b/drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c
-@@ -255,28 +255,33 @@ static irqreturn_t quicki2c_irq_quick_handler(int irq, void *dev_id)
+diff --git a/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c b/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c
+index 4ae2e1718b30..404f0d2f1b9d 100644
+--- a/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c
++++ b/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c
+@@ -252,34 +252,33 @@ static irqreturn_t quickspi_irq_quick_handler(int irq, void *dev_id)
  }
  
  /**
 - * try_recover - Try to recovery THC and Device
-- * @qcdev: Pointer to quicki2c_device structure
+- * @qsdev: pointer to quickspi device
 + * try_recover - Recover callback to recover THC
 + * @work: pointer to work_struct
   *
-  * This function is an error handler, called when fatal error happens.
-- * It try to reset touch device and re-configure THC to recovery
-- * communication between touch device and THC.
-- *
-- * Return: 0 if successful or error code on failure
+- * This function is a error handler, called when fatal error happens.
+- * It try to reset Touch Device and re-configure THC to recovery
++ * This function is an error handler, called when fatal error happens.
 + * It try to reset Touch Device and re-configure THC to recover
-+ * transferring between Device and THC.
+  * transferring between Device and THC.
+- *
+- * Return: 0 if successful or error code on failed.
   */
--static int try_recover(struct quicki2c_device *qcdev)
+-static int try_recover(struct quickspi_device *qsdev)
 +static void try_recover(struct work_struct *work)
  {
 -	int ret;
-+	struct quicki2c_device *qcdev = container_of(work, struct quicki2c_device, recover_work);
++	struct quickspi_device *qsdev = container_of(work, struct quickspi_device, recover_work);
  
--	thc_dma_unconfigure(qcdev->thc_hw);
-+	if (READ_ONCE(qcdev->recovery_disabled))
-+		return;
- 
--	ret = thc_dma_configure(qcdev->thc_hw);
+-	ret = reset_tic(qsdev);
 -	if (ret) {
--		dev_err(qcdev->dev, "Reconfig DMA failed\n");
+-		dev_err(qsdev->dev, "Reset touch device failed, ret = %d\n", ret);
 -		return ret;
-+	if (pm_runtime_resume_and_get(qcdev->dev))
+-	}
++	if (READ_ONCE(qsdev->recovery_disabled))
 +		return;
+ 
+-	thc_dma_unconfigure(qsdev->thc_hw);
++	if (pm_runtime_resume_and_get(qsdev->dev))
++		return;
+ 
+-	ret = thc_dma_configure(qsdev->thc_hw);
+-	if (ret) {
+-		dev_err(qsdev->dev, "Re-configure THC DMA failed, ret = %d\n", ret);
+-		return ret;
++	thc_interrupt_enable(qsdev->thc_hw, false);
 +
-+	thc_interrupt_enable(qcdev->thc_hw, false);
-+
-+	if (thc_rxdma_reset(qcdev->thc_hw)) {
-+		qcdev->state = QUICKI2C_DISABLED;
-+		dev_err(qcdev->dev, "RxDMA reset failed during recover, disable QuickI2C\n");
++	if (thc_rxdma_reset(qsdev->thc_hw)) {
++		qsdev->state = QUICKSPI_DISABLED;
++		dev_err(qsdev->dev, "RxDMA reset failed during recover, disable QuickSPI\n");
 +	} else {
-+		thc_interrupt_enable(qcdev->thc_hw, true);
++		thc_interrupt_enable(qsdev->thc_hw, true);
  	}
  
 -	return 0;
-+	pm_runtime_put_autosuspend(qcdev->dev);
++	pm_runtime_put_autosuspend(qsdev->dev);
  }
  
- static int handle_input_report(struct quicki2c_device *qcdev)
-@@ -353,11 +358,10 @@ static irqreturn_t quicki2c_irq_thread_handler(int irq, void *dev_id)
+ /**
+@@ -337,11 +336,10 @@ static irqreturn_t quickspi_irq_thread_handler(int irq, void *dev_id)
  	}
  
- exit:
--	thc_interrupt_enable(qcdev->thc_hw, true);
+ end:
+-	thc_interrupt_enable(qsdev->thc_hw, true);
 -
  	if (err_recover)
--		if (try_recover(qcdev))
--			qcdev->state = QUICKI2C_DISABLED;
-+		schedule_work(&qcdev->recover_work);
+-		if (try_recover(qsdev))
+-			qsdev->state = QUICKSPI_DISABLED;
++		schedule_work(&qsdev->recover_work);
 +	else
-+		thc_interrupt_enable(qcdev->thc_hw, true);
++		thc_interrupt_enable(qsdev->thc_hw, true);
  
- 	pm_runtime_put_autosuspend(qcdev->dev);
+ 	pm_runtime_put_autosuspend(qsdev->dev);
  
-@@ -396,6 +400,8 @@ static struct quicki2c_device *quicki2c_dev_init(struct pci_dev *pdev, void __io
- 	qcdev->ddata = ddata;
+@@ -385,6 +383,8 @@ static struct quickspi_device *quickspi_dev_init(struct pci_dev *pdev, void __io
+ 	init_waitqueue_head(&qsdev->report_desc_got_wq);
+ 	init_waitqueue_head(&qsdev->get_report_cmpl_wq);
+ 	init_waitqueue_head(&qsdev->set_report_cmpl_wq);
++	WRITE_ONCE(qsdev->recovery_disabled, false);
++	INIT_WORK(&qsdev->recover_work, try_recover);
  
- 	init_waitqueue_head(&qcdev->reset_ack_wq);
-+	WRITE_ONCE(qcdev->recovery_disabled, false);
-+	INIT_WORK(&qcdev->recover_work, try_recover);
- 
- 	/* THC hardware init */
- 	qcdev->thc_hw = thc_dev_init(qcdev->dev, qcdev->mem_addr);
-@@ -446,6 +452,9 @@ static struct quicki2c_device *quicki2c_dev_init(struct pci_dev *pdev, void __io
+ 	/* thc hw init */
+ 	qsdev->thc_hw = thc_dev_init(qsdev->dev, qsdev->mem_addr);
+@@ -461,6 +461,10 @@ static struct quickspi_device *quickspi_dev_init(struct pci_dev *pdev, void __io
   */
- static void quicki2c_dev_deinit(struct quicki2c_device *qcdev)
+ static void quickspi_dev_deinit(struct quickspi_device *qsdev)
  {
-+	WRITE_ONCE(qcdev->recovery_disabled, true);
-+	cancel_work_sync(&qcdev->recover_work);
++	WRITE_ONCE(qsdev->recovery_disabled, true);
++	cancel_work_sync(&qsdev->recover_work);
 +
- 	thc_interrupt_quiesce(qcdev->thc_hw, true);
- 	thc_interrupt_enable(qcdev->thc_hw, false);
- 	thc_ltr_unconfig(qcdev->thc_hw);
-@@ -779,12 +788,13 @@ static void quicki2c_remove(struct pci_dev *pdev)
++	thc_interrupt_quiesce(qsdev->thc_hw, true);
+ 	thc_interrupt_enable(qsdev->thc_hw, false);
+ 	thc_ltr_unconfig(qsdev->thc_hw);
+ 	thc_wot_unconfig(qsdev->thc_hw);
+@@ -711,12 +715,13 @@ static void quickspi_remove(struct pci_dev *pdev)
  		return;
  
- 	quicki2c_hid_remove(qcdev);
+ 	quickspi_hid_remove(qsdev);
 +
-+	quicki2c_dev_deinit(qcdev);
++	quickspi_dev_deinit(qsdev);
 +
- 	quicki2c_dma_deinit(qcdev);
+ 	quickspi_dma_deinit(qsdev);
  
- 	pm_runtime_get_noresume(qcdev->dev);
+ 	pm_runtime_get_noresume(qsdev->dev);
  
--	quicki2c_dev_deinit(qcdev);
+-	quickspi_dev_deinit(qsdev);
 -
  	pci_clear_master(pdev);
  }
  
-@@ -803,10 +813,10 @@ static void quicki2c_shutdown(struct pci_dev *pdev)
- 	if (!qcdev)
+@@ -737,10 +742,10 @@ static void quickspi_shutdown(struct pci_dev *pdev)
+ 	if (!qsdev)
  		return;
  
-+	quicki2c_dev_deinit(qcdev);
++	quickspi_dev_deinit(qsdev);
 +
  	/* Must stop DMA before reboot to avoid DMA entering into unknown state */
- 	quicki2c_dma_deinit(qcdev);
+ 	quickspi_dma_deinit(qsdev);
 -
--	quicki2c_dev_deinit(qcdev);
+-	quickspi_dev_deinit(qsdev);
  }
  
- static int quicki2c_suspend(struct device *device)
-@@ -833,6 +843,9 @@ static int quicki2c_suspend(struct device *device)
- 	if (ret)
- 		return ret;
+ static int quickspi_suspend(struct device *device)
+@@ -759,6 +764,9 @@ static int quickspi_suspend(struct device *device)
+ 			return ret;
+ 	}
  
-+	WRITE_ONCE(qcdev->recovery_disabled, true);
-+	cancel_work_sync(&qcdev->recover_work);
++	WRITE_ONCE(qsdev->recovery_disabled, true);
++	cancel_work_sync(&qsdev->recover_work);
 +
- 	ret = thc_interrupt_quiesce(qcdev->thc_hw, true);
+ 	ret = thc_interrupt_quiesce(qsdev->thc_hw, true);
  	if (ret)
  		return ret;
-@@ -874,6 +887,8 @@ static int quicki2c_resume(struct device *device)
+@@ -784,6 +792,8 @@ static int quickspi_resume(struct device *device)
  	if (ret)
  		return ret;
  
-+	WRITE_ONCE(qcdev->recovery_disabled, false);
++	WRITE_ONCE(qsdev->recovery_disabled, false);
 +
- 	if (!device_may_wakeup(qcdev->dev))
- 		return quicki2c_set_power(qcdev, HIDI2C_ON);
- 
-@@ -890,6 +905,9 @@ static int quicki2c_freeze(struct device *device)
- 	if (!qcdev)
+ 	/*
+ 	 * A wake-enabled device keeps its power and state across suspend, so
+ 	 * only restore the THC context. Resetting it here would discard a
+@@ -864,6 +874,9 @@ static int quickspi_freeze(struct device *device)
+ 	if (!qsdev)
  		return -ENODEV;
  
-+	WRITE_ONCE(qcdev->recovery_disabled, true);
-+	cancel_work_sync(&qcdev->recover_work);
++	WRITE_ONCE(qsdev->recovery_disabled, true);
++	cancel_work_sync(&qsdev->recover_work);
 +
- 	ret = thc_interrupt_quiesce(qcdev->thc_hw, true);
+ 	ret = thc_interrupt_quiesce(qsdev->thc_hw, true);
  	if (ret)
  		return ret;
-@@ -921,6 +939,8 @@ static int quicki2c_thaw(struct device *device)
+@@ -895,6 +908,8 @@ static int quickspi_thaw(struct device *device)
  	if (ret)
  		return ret;
  
-+	WRITE_ONCE(qcdev->recovery_disabled, false);
++	WRITE_ONCE(qsdev->recovery_disabled, false);
 +
  	return 0;
  }
  
-@@ -945,6 +965,8 @@ static int quicki2c_poweroff(struct device *device)
+@@ -919,6 +934,8 @@ static int quickspi_poweroff(struct device *device)
  
- 	thc_ltr_unconfig(qcdev->thc_hw);
+ 	thc_ltr_unconfig(qsdev->thc_hw);
  
-+	quicki2c_dev_deinit(qcdev);
++	quickspi_dev_deinit(qsdev);
 +
- 	quicki2c_dma_deinit(qcdev);
+ 	quickspi_dma_deinit(qsdev);
  
  	return 0;
-diff --git a/drivers/hid/intel-thc-hid/intel-quicki2c/quicki2c-dev.h b/drivers/hid/intel-thc-hid/intel-quicki2c/quicki2c-dev.h
-index 34ebda286028..6d25a846153e 100644
---- a/drivers/hid/intel-thc-hid/intel-quicki2c/quicki2c-dev.h
-+++ b/drivers/hid/intel-thc-hid/intel-quicki2c/quicki2c-dev.h
-@@ -189,6 +189,8 @@ struct acpi_device;
-  * @i2c_max_frame_size: Max RX frame size (unit in Bytes)
-  * @i2c_int_delay_enable: Indicate interrupt delay feature enabled or not
-  * @i2c_int_delay: Interrupt detection delay value (unit in 10 us)
+diff --git a/drivers/hid/intel-thc-hid/intel-quickspi/quickspi-dev.h b/drivers/hid/intel-thc-hid/intel-quickspi/quickspi-dev.h
+index bf5e18f5a5f4..2936c8b1532c 100644
+--- a/drivers/hid/intel-thc-hid/intel-quickspi/quickspi-dev.h
++++ b/drivers/hid/intel-thc-hid/intel-quickspi/quickspi-dev.h
+@@ -8,6 +8,7 @@
+ #include <linux/hid-over-spi.h>
+ #include <linux/sizes.h>
+ #include <linux/wait.h>
++#include <linux/workqueue.h>
+ 
+ #include "quickspi-protocol.h"
+ 
+@@ -126,6 +127,8 @@ struct acpi_device;
+  * @get_feature_cmpl: indicate get feature received or not
+  * @set_feature_cmpl_wq: workqueue for waiting set feature to device
+  * @set_feature_cmpl: indicate set feature send complete or not
 + * @recover_work: Work structure for recovery
 + * @recovery_disabled: Whether recovery work is blocked during teardown
   */
- struct quicki2c_device {
+ struct quickspi_device {
  	struct device *dev;
-@@ -220,6 +222,9 @@ struct quicki2c_device {
- 	u32 i2c_max_frame_size;
- 	u32 i2c_int_delay_enable;
- 	u32 i2c_int_delay;
+@@ -173,6 +176,9 @@ struct quickspi_device {
+ 
+ 	wait_queue_head_t set_report_cmpl_wq;
+ 	bool set_report_cmpl;
 +
 +	struct work_struct recover_work;
 +	bool recovery_disabled;
  };
  
- #endif /* _QUICKI2C_DEV_H_ */
+ #endif /* _QUICKSPI_DEV_H_ */
 -- 
 2.43.0
 

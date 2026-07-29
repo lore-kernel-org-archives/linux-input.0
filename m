@@ -1,300 +1,112 @@
-Received: from mail-ed1-f51.google.com (mail-ed1-f51.google.com [209.85.208.51])
+Received: from mail-pg1-f178.google.com (mail-pg1-f178.google.com [209.85.215.178])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 59611451982
-	for <linux-input@vger.kernel.org>; Wed, 29 Jul 2026 18:34:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.51
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785350076; cv=pass; b=g+U0+xKJgJ4s83RlaU2dgDoeteWQ+hy40MSIaTvuMkJR1Xfjii8Im7ZHNyj9B4uyehKe+FxOWfpZamLZ/znN+F8QF0nj9IH0agu59XzVoWx+2gF7vlGjncjgnf8HukzrUtpTR/8Ckbry/7MjF4RmFhV5QzgA7vzKGAyixkdvVaU=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785350076; c=relaxed/simple;
-	bh=Y52FFZxBnt3o24JNkj8qFemVWHPnxljAu+U1PxeXx8k=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=LKrOe7WXHhRaS2lLzfvYRz7nTEKWk3Hm4LA5ixKTmat0S+CWQeIJ9Ycx/5mBlF6/uoC/ffRlRFRIVehPiXFjM58XGyz2L/kH4rAYEhG4bXdepRdLjTCVf4emhhfoa0Wi9VdadhOuzm6v5BneM+4q8n1pOATqQua6BAxaBsh8qH4=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=NqSEYWDp; arc=pass smtp.client-ip=209.85.208.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ED4012D838E
+	for <linux-input@vger.kernel.org>; Wed, 29 Jul 2026 18:34:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.178
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1785350086; cv=none; b=Ozr+zTRDYjh/RYiJe9T2JzJ4Ip9KS2bj90jqt3kN9V+VS67OSEarx6n+bSUscPQ0jMLdeHxxrij7xkRfq54/E5PxO8C+iXIOS6xiywssasuuVge0lU9B/XdLL1tCh0NARMJSFUZLSYkgtMD2BW9HZPxvD6ccSm8mbrMr1WbLz9A=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1785350086; c=relaxed/simple;
+	bh=c2TsB0jY1H8c4jyzK0RgzjvEkLN7ODWjeKPNPAnP1T4=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=pdSErLq3Gp6rPIH99476GjpQH5XThk5S31o7EettGhQADP6+D1z3RgsGkfD/0uzjWqXm0kPbQGugVRhKwN76XLPlQx2HnWX132TYFgyNJsmVYl3kYhkv6LNJISuWnfRoo06XopJH/T2rRn+gqWy+NnLtX5huSKna6B9bBSOhSCE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=XxS03VVZ; arc=none smtp.client-ip=209.85.215.178
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="NqSEYWDp"
-Received: by mail-ed1-f51.google.com with SMTP id 4fb4d7f45d1cf-69c600f76ccso1892920a12.0
-        for <linux-input@vger.kernel.org>; Wed, 29 Jul 2026 11:34:32 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1785350071; cv=none;
-        d=google.com; s=arc-20260327;
-        b=nDV+I+lUv4p1qBHX73QLkX1e25rkElvNN3+v+dcBZWl13reM0zMwxhUr5NMqV3egLF
-         LM1Reydld/xfJ3E8S29q6LKlEUBZlr4PskNlzIqkOeqhMscwvCq6qeLyZL3GsxkU8dsW
-         aki5limeD5M/0PFWBb853SbI+FYxVg3J35aMGvqMMSRaQFe6qJvLNGUOSjAtfYJSuRkO
-         8TThIBRfLpD0imGoLeCPRhdDMMBaeOua+3XMNoZvkghi8/5ChTKzmY5M3tunPhxxQ4IB
-         3T5/Gk3w1HInHCvnRkztRO46zq8FHYRXUSddDbeEbgF55CI3hl3YxDW963DJPXeXnypS
-         i89g==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=dEkdeq10zZmR1kctz1fIkkTbV43ha873suiUEwLT1nI=;
-        fh=qc0x1N1fhCrGQOAcoOBu/lBgoGtVS1ZyjTtB0YTQV9Y=;
-        b=IwcITcrRvmBtJ1teCt/+7iiRWvY5XBhbvvgKiNteoX6H9HUoRr9kdF3QXjYehcrZjP
-         kh4zcemsxhvVfT8shRyGh1v0G+Q/nP9riy8vV1FNDSqW9sixieKtLql2XQbyPtd220vB
-         dE1oQoGVNn3qpogMB0wSudnOMPzvj41ao1vw0Gguq8sqy+cjpztsMJJp7bl8hoSkBZJC
-         vRA7BOZparj4KVkUENRW0Fr4woi1hB7IrJ628ZvB7+pXyWXvn5WHvU9Gd7Csg/reTAps
-         RuoYyy26OSt0NAox0OvRi6ls05OtBSsaoHfwJ3cqTaFBo8dfNTeaFe5/fl/M1ewHFdKQ
-         dHtg==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="XxS03VVZ"
+Received: by mail-pg1-f178.google.com with SMTP id 41be03b00d2f7-ca00f126b7eso796244a12.2
+        for <linux-input@vger.kernel.org>; Wed, 29 Jul 2026 11:34:42 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1785350071; x=1785954871; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+        d=gmail.com; s=20251104; t=1785350081; x=1785954881; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=dEkdeq10zZmR1kctz1fIkkTbV43ha873suiUEwLT1nI=;
-        b=NqSEYWDpDowz4Xvy+u9/v5NG0ALpEqZvP3k2Gcrsu+2ZkLse6DR1ZlsDfKbxaiSZAv
-         1wrb+GTVP6zCCvchl02ZJnQDHHIYPUCbHY97WZmTL+exGMjfOP4m3OqhxCIO1qhNYpr8
-         N3FMfsIn7hrCVIjJ0XIGvaPp7Y75Efj0PcljZhr7url/+cY+vQCnkdBtzo8MZa0KWmH/
-         ejxEWB3jXg8TCFpYDDH1RA/gdSbYX/gDPJJbexHbnxwXDEIWpaOz1ILJv+M8b0mx5KLa
-         vfSXRJ9MpGfWsAL7X7Yj10fNdpHMeZ0odzTg5LNTgwcgMTO+m2B4S/1PIheoSeysLWyl
-         O/1w==
+        bh=ng6gcsobGxCVjmyl427Ar8FyFTwKr2tmMEzIY0pxgxQ=;
+        b=XxS03VVZnMRzd8zYyYK3MNqHo+8NO3N/6SWmkv6rGpQzCcECWO/kEDxwSCllmpbBT6
+         Tv6Iwlm4Kvl4XtigwpqoJPV4iooPF0fBzl/XqlefA5h5ZWZRaxenCGhQZykB+qgmPuCs
+         ZB6+y3ZXIJG3WxVGh19syNLJT4JPGBfEtoFat5eyRHCRS2LMA/fM+LqlgeI7dvoeXfVK
+         nqWs44G1VsoKOaAaPHvnKJ7zbkWquJqktWLQSlNMC3S4ZcNtaRg4byAyFQq4rgj4uT3W
+         mGpov1Mr1vTOLauWy5RkMmaZpfE29vPzEgIiFeqBeNpntobjEr2caetFsmDDEYuO7QMv
+         ri1w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785350071; x=1785954871;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
+        d=1e100.net; s=20251104; t=1785350081; x=1785954881;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=dEkdeq10zZmR1kctz1fIkkTbV43ha873suiUEwLT1nI=;
-        b=Gge5VGKvy8c6aWwsoyTyqs+P2plU2u+tnXyaVFnGAvNw3pd0rFp4NcOGOL7u3HsI9M
-         2WS07hbRBGFDP5407oxqjnGu/a8R5MXmqrccsKp/t6fFATt7ACeYBt3xJbayghM3Q1B9
-         iZQlNz47BOQfL/EGFeXRONDMpQLW4P5Na6PwUluQlmxqfSnLoAXbnSTzA//z+iU//L5c
-         PyIT8aVA5ndZQiVU9Kv2sbnEUbgnEg3VzwvrxO3pebGFmezTDDDT1U0I03Xm6dmZd4Vm
-         aNQsLcbyJsIwX/QBxnaMNht5/x3QGtrfMqGHccld6plAr7LFHtFXdKP9wX0eYQZOOX60
-         KomA==
-X-Gm-Message-State: AOJu0YyQODKhltOvXsWEnXYdViJg85cUu7l2QxME3fY966AEm6Yf5Ho+
-	z3ZOtL3ExPXPJXbufWxWHMc0mn3apIwkGSrDIX6dRrI6bJFYH7jL/MkJnTd2b/TN0jf6UXmLe6X
-	+2JgTPsqGdKgJbyO8LE65CmmFVI9AEEMiBgit
-X-Gm-Gg: AR+sD124I2GhZ+8C5DtTcbUuPgYR3t4iZIdtW9TRB3xaDA5EoKTGrrqPcMkCT4LPlfB
-	qBRbrSaCkktLGr1g1NuMzXYeUpU8SUHw3776yL4OtgGYrysmSoPFZ0QgOPCo2hdQfPcNKd450SB
-	SzYQcj7P29fZOHujlkW/fkCKPMQ81N8xaUIn5PFE7IIJNh/4/RKSNkVWg0yoLserldzpx69+pLL
-	PtQ3+uAeF04S1O7V/BXQoFCWqOQLw7LUv+XnS9M9KcQYLGSGHgpgCSu7dub3X1xDzcstm1EJkcd
-	q5aoDddEUi7lb4T7G1fpFaZwM9Mu+0kNnXjqvESUrTrrO4IJfN+4BpJY/OUJp7X9QW1JL24+h3x
-	BWX5HpQom7UOcIHRjzGkM+Dn6i11qlwzfXcuaj++fUsa5HDIKpFwQf/7n5YbyaPPYmOfYWVGtUy
-	YvxO8trOl4BkUUv2LxF8EHslP1V+ZILoZN7AWs+GPdiSTgiUOUT2bxiKw=
-X-Received: by 2002:a05:6402:2345:b0:698:50ea:2d97 with SMTP id
- 4fb4d7f45d1cf-6a034ab91cfmr4406703a12.20.1785350070955; Wed, 29 Jul 2026
- 11:34:30 -0700 (PDT)
+        bh=ng6gcsobGxCVjmyl427Ar8FyFTwKr2tmMEzIY0pxgxQ=;
+        b=D1p4MBRhXvErZc3U6t/bCkSj1CFfcb6biTAUEdLQOu240JNXm3Z4mz6dgOq1aqV7KP
+         78x/CxXAkczOv7mivu1AXn8T5rO8eGgtRD8wWdJirfLD0u6otCOc55uLSIeyRPk1AYgn
+         UVGLmT4dji3i4DjSdWDanfFzQYbOPcY+sfHK0zJOoNvspQtGu+rpAqf8uXmeQN++j1Mu
+         xYeQRKQ4DkG6MeUH1hJDIsUrjU2d4eLsWzQ4gp6R8PuKLEuKyZ6YYNdRGQN5k1v8Jcki
+         sL0Z8yHZLT4kB8QdQptsA8ks+apDVPcS1mmdki3fFGQPuZkH3NhTyTZYWqC9OVWWXAKN
+         qxGw==
+X-Gm-Message-State: AOJu0YzMQhM+ZMLz5oPAtHFGlrT9J3wPn91P4XxG4jIml6t12yV9gpZP
+	eKEckk7fN2wSkRex1L2b+fVLYC1p9K75QGpWUz70JOE08KLVAt8JEgpI
+X-Gm-Gg: AR+sD10C6edZ/Fp8BUovT9uq7pOm4BZL8FYVHURO0+m5vzzSRa3XAJFzHMNiHm2Tc2y
+	ikfiQR3v6FqOSVNWDywzQAVRCPFbIv5AL06btBvizNg1U3TL9rbyTUK661wOnkas5unmREx7Xxl
+	JX78yYkUE+vLhrkCYUKsHdRhCyIT+mTngFBd7KlycrLV6KwOKTtKEvuvBs0CouTMtsOKq93u0O8
+	IdzuR2SoswDdns4zKzpof/vLcKSO5Ys5DK0RdxOZixeOOQbpkzrGCOcG4DoF5byt5d7Al2JNn7N
+	FgC6SvVEjw6rxMj+LH4NdXt1RaBaDIW6dSWXs4PQjptwVsfjOfxhFQpsykTIdTrki1hXsonomPe
+	iDv3ACryQ8GcMUq7m9e9cDMCbql39LUYNvlTdnhSt5/OBvCrBKs1RfxyZZtlPrgNltdU8asNXnX
+	EM2Pz2d4rTbAMGFvxRM5suUxXctx8VMUCc144lwM3Wf/A3iJF0lpwHtd4jCkxJfCvrgTmXy7nVw
+	iZfWLaxnLHWE1rDaX+X0FqaBtRmjGCFspnVaWvKfw==
+X-Received: by 2002:a05:6a21:99a6:b0:3bb:2883:a723 with SMTP id adf61e73a8af0-3c8ba5b9c38mr8511518637.35.1785350081331;
+        Wed, 29 Jul 2026 11:34:41 -0700 (PDT)
+Received: from google.com ([2a00:79e0:2ebe:8:7d64:4b7a:74dc:6d35])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-31504d37368sm22611947eec.22.2026.07.29.11.34.40
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 29 Jul 2026 11:34:40 -0700 (PDT)
+Date: Wed, 29 Jul 2026 11:34:38 -0700
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: "zhangliuyang.zly" <zhangliuyang.zly@bytedance.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Input: evdev: drain queued events before reporting
+ device removal
+Message-ID: <ampG4-NiSpXev-Vu@google.com>
+References: <20260729092753.1596400-1-zhangliuyang.zly@bytedance.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260728212438.54078-1-rosenp@gmail.com> <20260728212438.54078-3-rosenp@gmail.com>
- <CAGXv+5EVSc4=ug=GU6Gvdu0UatqM1DD48i-c3AEb4p0GwktRvg@mail.gmail.com>
-In-Reply-To: <CAGXv+5EVSc4=ug=GU6Gvdu0UatqM1DD48i-c3AEb4p0GwktRvg@mail.gmail.com>
-From: Rosen Penev <rosenp@gmail.com>
-Date: Wed, 29 Jul 2026 11:34:17 -0700
-X-Gm-Features: AUfX_mxHHY_oKlFmxwUp_dDYkgE3HyOB09yEzi4_yjeUnpEenThghULANdcA5Us
-Message-ID: <CAKxU2N8VeE+xPGZ-41nqDCtk_LA_PvgzjrUbnOZ-5JmEb-uKHg@mail.gmail.com>
-Subject: Re: [PATCHv2 2/2] Input: mtk-pmic-keys: Count available keys during
- probe instead of pre-counting
-To: Chen-Yu Tsai <wenst@chromium.org>
-Cc: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
-	Matthias Brugger <matthias.bgg@gmail.com>, 
-	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, 
-	"open list:ARM/Mediatek SoC support" <linux-kernel@vger.kernel.org>, 
-	"moderated list:ARM/Mediatek SoC support" <linux-arm-kernel@lists.infradead.org>, 
-	"moderated list:ARM/Mediatek SoC support" <linux-mediatek@lists.infradead.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260729092753.1596400-1-zhangliuyang.zly@bytedance.com>
 
-On Tue, Jul 28, 2026 at 8:44=E2=80=AFPM Chen-Yu Tsai <wenst@chromium.org> w=
-rote:
->
-> On Wed, Jul 29, 2026 at 5:25=E2=80=AFAM Rosen Penev <rosenp@gmail.com> wr=
-ote:
-> >
-> > Replace the separate of_get_available_child_count() pre-count and
-> > validation step with a single pass through
-> > for_each_child_of_node_scoped().  Skip unavailable child nodes and
-> > bail if more than MTK_PMIC_MAX_KEY_COUNT available keys are found.
->
-> This actually fixes a small bug. The pre-count only gets the number
-> of available keys, but the subsequent for_each_child block doesn't
-> skip over the unavailable ones, so if an unavailable node is in
-> the middle of the tree, there could end up being a mismatch.
->
-> > Set nkeys after the loop so suspend/resume iterate only over
-> > initialized entries.  Use a local key variable in the loop for
-> > clarity.
-> >
-> > Add an irq > 0 guard to the suspend/resume wakeup paths so that
-> > uninitialized key entries are safely skipped.
->
-> You are trying to do too much in one patch. These other fixes should be
-> in separate patches.
->
-> And why not just modify the driver to keep "nkeys", so that it knows
-> how many entries are valid? No use in iterating over empty entries.
->
->
-> > Assisted-by: OpenCode:BigPickle
-> > Signed-off-by: Rosen Penev <rosenp@gmail.com>
-> > ---
-> >  drivers/input/keyboard/mtk-pmic-keys.c | 71 ++++++++++++--------------
-> >  1 file changed, 34 insertions(+), 37 deletions(-)
-> >
-> > diff --git a/drivers/input/keyboard/mtk-pmic-keys.c b/drivers/input/key=
-board/mtk-pmic-keys.c
-> > index fd684ac16938..e2ced6e5165a 100644
-> > --- a/drivers/input/keyboard/mtk-pmic-keys.c
-> > +++ b/drivers/input/keyboard/mtk-pmic-keys.c
-> > @@ -267,7 +267,7 @@ static int mtk_pmic_keys_suspend(struct device *dev=
-)
-> >         int index;
-> >
-> >         for (index =3D 0; index < MTK_PMIC_MAX_KEY_COUNT; index++) {
-> > -               if (keys->keys[index].wakeup) {
-> > +               if (keys->keys[index].irq > 0 && keys->keys[index].wake=
-up) {
-> >                         enable_irq_wake(keys->keys[index].irq);
-> >                         if (keys->keys[index].irq_r > 0)
-> >                                 enable_irq_wake(keys->keys[index].irq_r=
-);
-> > @@ -283,7 +283,7 @@ static int mtk_pmic_keys_resume(struct device *dev)
-> >         int index;
-> >
-> >         for (index =3D 0; index < MTK_PMIC_MAX_KEY_COUNT; index++) {
-> > -               if (keys->keys[index].wakeup) {
-> > +               if (keys->keys[index].irq > 0 && keys->keys[index].wake=
-up) {
-> >                         disable_irq_wake(keys->keys[index].irq);
-> >                         if (keys->keys[index].irq_r > 0)
-> >                                 disable_irq_wake(keys->keys[index].irq_=
-r);
-> > @@ -324,13 +324,13 @@ MODULE_DEVICE_TABLE(of, of_mtk_pmic_keys_match_tb=
-l);
-> >  static int mtk_pmic_keys_probe(struct platform_device *pdev)
-> >  {
-> >         int error, index =3D 0;
-> > -       unsigned int keycount;
-> >         struct mt6397_chip *pmic_chip =3D dev_get_drvdata(pdev->dev.par=
-ent);
-> >         struct device_node *node =3D pdev->dev.of_node;
-> >         static const char *const irqnames[] =3D { "powerkey", "homekey"=
- };
-> >         static const char *const irqnames_r[] =3D { "powerkey_r", "home=
-key_r" };
-> >         struct mtk_pmic_keys *keys;
-> >         const struct mtk_pmic_regs *mtk_pmic_regs;
-> > +       struct mtk_pmic_keys_info *key;
-> >         struct input_dev *input_dev;
-> >
-> >         keys =3D devm_kzalloc(&pdev->dev, sizeof(*keys), GFP_KERNEL);
-> > @@ -353,45 +353,42 @@ static int mtk_pmic_keys_probe(struct platform_de=
-vice *pdev)
-> >         input_dev->id.product =3D 0x0001;
-> >         input_dev->id.version =3D 0x0001;
-> >
-> > -       keycount =3D of_get_available_child_count(node);
-> > -       if (keycount > MTK_PMIC_MAX_KEY_COUNT ||
-> > -           keycount > ARRAY_SIZE(irqnames)) {
-> > -               dev_err(keys->dev, "too many keys defined (%d)\n", keyc=
-ount);
-> > -               return -EINVAL;
-> > -       }
-> > -
-> >         for_each_child_of_node_scoped(node, child) {
-> > -               keys->keys[index].regs =3D &mtk_pmic_regs->keys_regs[in=
-dex];
-> > -
-> > -               keys->keys[index].irq =3D
-> > -                       platform_get_irq_byname(pdev, irqnames[index]);
-> > -               if (keys->keys[index].irq < 0)
-> > -                       return keys->keys[index].irq;
-> > -
-> > -               if (mtk_pmic_regs->key_release_irq) {
-> > -                       keys->keys[index].irq_r =3D platform_get_irq_by=
-name(pdev,
-> > -                                                                      =
-   irqnames_r[index]);
-> > -
-> > -                       if (keys->keys[index].irq_r < 0)
-> > -                               return keys->keys[index].irq_r;
-> > +               if (index >=3D MTK_PMIC_MAX_KEY_COUNT) {
-> > +                       dev_err(&pdev->dev, "too many keys defined\n");
-> > +                       return -EINVAL;
-> >                 }
-> >
-> > -               error =3D of_property_read_u32(child,
-> > -                       "linux,keycodes", &keys->keys[index].keycode);
-> > -               if (error) {
-> > -                       dev_err(keys->dev,
-> > -                               "failed to read key:%d linux,keycode pr=
-operty: %d\n",
-> > -                               index, error);
-> > -                       return error;
-> > +               if (of_device_is_available(child)) {
->
-> Instead of re-indenting the whole block and making the diff huge and
-> unreadable, please make this skip over the remaining code when the
-> condition fails, i.e.:
->
->                   if (!of_device_is_available(child))
->                           continue;
-Yeah probably better.
->
-> Or better yet, just use for_each_available_child_of_node_scoped() { ... }
-> instead.
-In v1 this is exactly what I did and was told not to.
->
-> I normally suggest people read the API docs (either on docs.kernel.org
-> or the kernel-doc sections in the code) to find better suited constructs
-> to use.
->
->
-> Thanks
-> ChenYu
->
-> > +                       key =3D &keys->keys[index];
-> > +                       key->regs =3D &mtk_pmic_regs->keys_regs[index];
-> > +
-> > +                       key->irq =3D platform_get_irq_byname(pdev, irqn=
-ames[index]);
-> > +                       if (key->irq < 0)
-> > +                               return key->irq;
-> > +
-> > +                       if (mtk_pmic_regs->key_release_irq) {
-> > +                               key->irq_r =3D platform_get_irq_byname(=
-pdev, irqnames_r[index]);
-> > +                               if (key->irq_r < 0)
-> > +                                       return key->irq_r;
-> > +                       }
-> > +
-> > +                       error =3D of_property_read_u32(child, "linux,ke=
-ycodes", &key->keycode);
-> > +                       if (error) {
-> > +                               dev_err(keys->dev,
-> > +                                       "failed to read key:%d linux,ke=
-ycode property: %d\n",
-> > +                                       index, error);
-> > +                               return error;
-> > +                       }
-> > +
-> > +                       if (of_property_present(child, "wakeup-source")=
-)
-> > +                               key->wakeup =3D true;
-> > +
-> > +                       error =3D mtk_pmic_key_setup(keys, key);
-> > +                       if (error)
-> > +                               return error;
-> >                 }
-> >
-> > -               if (of_property_read_bool(child, "wakeup-source"))
-> > -                       keys->keys[index].wakeup =3D true;
-> > -
-> > -               error =3D mtk_pmic_key_setup(keys, &keys->keys[index]);
-> > -               if (error)
-> > -                       return error;
-> > -
-> >                 index++;
-> >         }
-> >
-> > --
-> > 2.55.0
-> >
-> >
+Hi,
+
+On Wed, Jul 29, 2026 at 05:27:53PM +0800, zhangliuyang.zly wrote:
+> When an input device is unregistered, the input core calls
+> input_dev_release_keys() and sends a SYN_REPORT before closing the input
+> handles. This is intended to deliver synthetic key-up events for keys that
+> are still pressed when the device disappears.
+> 
+> However, evdev_read() currently checks evdev->exist before draining the
+> per-client event queue. If evdev_disconnect() marks the evdev node dead
+> before userspace reads the queued synthetic release packet, read() returns
+> -ENODEV immediately and the queued key-up events are lost from userspace's
+> point of view.
+> 
+> This can happen on Android with USB OTG 2.4G keyboard receivers. The input
+> core generates the release event during disconnect, but Android EventHub 
+> may observe the evdev hangup/removal first and then fail to read the 
+> pending EV_KEY value=0 event. The framework then falls back to device 
+> reset/cancel semantics instead of dispatching a normal ACTION_UP.
+> 
+> Allow evdev_read() to drain already queued events even after evdev->exist 
+> is cleared. Return -ENODEV only when the client queue is empty, or when 
+> the client has been revoked. Keep zero-length reads compatible with the 
+> previous error-checking behavior.
+
+I'd rather Android handle devices going away properly. Input core tries
+to clear the key state for its own internal purposes (sysrq handling,
+etc); userspace should take care of this on its own.
+
+Thanks.
+
+-- 
+Dmitry

@@ -1,45 +1,42 @@
 Received: from endrift.com (endrift.com [173.255.198.10])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 18BBA31A7E2
-	for <linux-input@vger.kernel.org>; Wed, 29 Jul 2026 01:54:11 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A59B12DA749
+	for <linux-input@vger.kernel.org>; Wed, 29 Jul 2026 01:59:11 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=173.255.198.10
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785290054; cv=none; b=lkvtTswle2wmC4VYoy3Pa3pXFd6/2k+vRdyBkvXBeazMu7W9lB1Zh72/CV9q+FWk5r3joTfoNnGztfZTLPDoHs+FJe7tEyCpcLGLTM+8YhTM/g7UzTFRLXT3rSzWMLPRN01zS7g+0KDI9dhhYCYq+z/pztAntucLOK34tvs7Bq0=
+	t=1785290352; cv=none; b=MdBi8FWynArhlZTGcAO9/LGUpI2z91ENxMqx73ot01TKmJ8YG//CN46yZyV7uahBVe0xuKSE8Q+m31sItRatkXr7KE7MEd5rGN4GQvutp0Yh2t1w3kiQoJuqOCkhk+tav3swUEdaHC4c1J+twk2jesOllY0WmoxXiL8wDTi0/T0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785290054; c=relaxed/simple;
-	bh=74LUm2u/f40Dl3j5nr0bBn+aGcUEKvxU1mRP2ttmUyQ=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=PF0eGbF/8iq++HcxAX33tY2Sz2kAeWG8n4cGm0Q/TScQy7KAVPReQURamS6WWBsG2qbqusPGhT1HjWqOOAjH48w3XUAz73bSccIcATu+RPljeLZgUkyxxjiXgU6KMP1giRCA5VihChVhTtRIAIeY+IcETnfRsayAHLgW3zoF7vM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com; spf=pass smtp.mailfrom=endrift.com; dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b=AJFKtkVJ; arc=none smtp.client-ip=173.255.198.10
+	s=arc-20240116; t=1785290352; c=relaxed/simple;
+	bh=2shMBqiNw/lS3NOAt26hXnWc/99tmbFYIkUFhYc8rsU=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=eLUbM7FDSUTBkyWe7tqBXfFxTAMNB+QWWYyumWpOSTZIvztcsoSqEBeJMZa7HRlBLPeVcFuNy5Pa6RNZJAQ7xiz9Sb7nQh3x5m/4U0HFCmyIMUcySB2cxOsUUekYOsFST8S8dzDWQDp26yUCKvpkEZmCqViHFkV4CT/b6kdCDAc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com; spf=pass smtp.mailfrom=endrift.com; dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b=cL5L2Haa; arc=none smtp.client-ip=173.255.198.10
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=endrift.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b="AJFKtkVJ"
+	dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b="cL5L2Haa"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=endrift.com; s=2020;
-	t=1785290046; bh=74LUm2u/f40Dl3j5nr0bBn+aGcUEKvxU1mRP2ttmUyQ=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=AJFKtkVJVKuQv4a4nAXVCPcoM3qYaFmCb8qsGqwXOR48IjDj4QIb16XVdxKJneEbD
-	 mhIlKN8BWm+YF/oA4U6mONqt9Xf74ZnMbEVTRDpzA6ctcitytUuyiTUB07UdXOXSxk
-	 nLQ9YRWD1wJlG5CXl60CX83JANool8l+5hyH66E9I0Hp+7sQyb0/k5ScQG06ru8uQI
-	 HRErcHqrZx0uNPPXkrj++ClICFKoS2ygsl7Z+OHdcw5qyufJg5PABGtd3j27mwH1HJ
-	 K7+zzTqvrU4dTm07VQpbZplUYEbWGxXxDlz1oTIpm/CcmpdEKqio5hD1yCZq38Uo6e
-	 x661Xw1qutJvg==
+	t=1785290043; bh=2shMBqiNw/lS3NOAt26hXnWc/99tmbFYIkUFhYc8rsU=;
+	h=From:To:Cc:Subject:Date:From;
+	b=cL5L2Haau4xChhPkd9ifLKl74IjjOeTlmhEmorDubfirI28OhHvvSb7fbVy+Z+jcF
+	 F3UDgOBeGjYs7ccifkpze21TvRtI81yy+izCSuOQeAWTLIXOuMWRXN2825SacX7CTp
+	 4614D6xlhKMzk6IOb4L4A+zi9pIL6nWCry1NPomPdoq8Llh8cYg8+lN3e8LR9dkDVY
+	 SoXMg/zefVwKo/RD+P9vH/EOSr0TgZ2AuOVq6k9OR3qTS7d2aJRIi7/JFY7ElJ4GAl
+	 z1STSwuAu0JgSbmPJ7uFlcdffYPWOmitCMEkNhHdrnh97McHeoUP6aR+cSVFOepgdB
+	 3i+gL637DPMzw==
 Received: from microtis.vulpes.eutheria.net (71-212-73-87.tukw.qwest.net [71.212.73.87])
-	by endrift.com (Postfix) with ESMTPSA id 08FA4A0AD;
-	Tue, 28 Jul 2026 18:54:05 -0700 (PDT)
+	by endrift.com (Postfix) with ESMTPSA id 8B658A028;
+	Tue, 28 Jul 2026 18:54:03 -0700 (PDT)
 From: Vicki Pfau <vi@endrift.com>
 To: Jiri Kosina <jikos@kernel.org>,
 	Benjamin Tissoires <bentiss@kernel.org>,
 	linux-input@vger.kernel.org
 Cc: Vicki Pfau <vi@endrift.com>,
 	Yousef Alhouseen <alhouseenyousef@gmail.com>
-Subject: [PATCH v4 06/11] HID: steam: Coalesce rumble packets
-Date: Tue, 28 Jul 2026 18:52:28 -0700
-Message-ID: <20260729015243.1170573-7-vi@endrift.com>
+Subject: [PATCH v4 00/10] HID: steam: General cleanup and improvements
+Date: Tue, 28 Jul 2026 18:52:22 -0700
+Message-ID: <20260729015243.1170573-1-vi@endrift.com>
 X-Mailer: git-send-email 2.54.0
-In-Reply-To: <20260729015243.1170573-1-vi@endrift.com>
-References: <20260729015243.1170573-1-vi@endrift.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -48,92 +45,45 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The Steam Deck resets the haptic pattern every time it receives a rumble
-packet, leading to weird discontinuities or sometimes cutting out entirely.
-Instead of overloading the interface, Steam interally rate-limits sending
-these packets, so we should too.
+This is the first half of a patch series improving the hid-steam driver.
 
-Signed-off-by: Vicki Pfau <vi@endrift.com>
----
- drivers/hid/hid-steam.c | 26 ++++++++++++++++++++++++++
- 1 file changed, 26 insertions(+)
+This series contains a few notable changes:
+- As I've been maintaining it downstream in SteamOS as well as writing
+  general improvements, I'm marking myself as the maintainer of the driver.
+- Renames some stuff, notably marking the original Steam Controller as
+  Steam Controller (2015) in preparation of adding support for the Steam
+  Controller (2026), which will be in the second half of this series once
+  it's ready for submission.
+- Adds IMU support for the Steam Controller (2015).
+- Some reliability improvements, especially surrounding edge cases
+  regarding scheduled work during teardown.
+- Fixes a short read issue reported by syzkaller.
 
-diff --git a/drivers/hid/hid-steam.c b/drivers/hid/hid-steam.c
-index cabecd250072..a200878db8ac 100644
---- a/drivers/hid/hid-steam.c
-+++ b/drivers/hid/hid-steam.c
-@@ -343,6 +343,7 @@ struct steam_device {
- 	bool did_mode_switch;
- 	bool gamepad_mode;
- 	struct work_struct rumble_work;
-+	struct delayed_work coalesce_rumble_work;
- 	u16 rumble_left;
- 	u16 rumble_right;
- 	unsigned int sensor_timestamp_us;
-@@ -602,10 +603,24 @@ static void steam_haptic_rumble_cb(struct work_struct *work)
- {
- 	struct steam_device *steam = container_of(work, struct steam_device,
- 							rumble_work);
-+
- 	steam_haptic_rumble(steam, 0, steam->rumble_left,
- 		steam->rumble_right, 2, 0);
- }
- 
-+static void steam_coalesce_rumble_cb(struct work_struct *work)
-+{
-+	struct steam_device *steam = container_of(to_delayed_work(work),
-+							struct steam_device,
-+							coalesce_rumble_work);
-+
-+	steam_haptic_rumble(steam, 0, steam->rumble_left,
-+		steam->rumble_right, 2, 0);
-+
-+	if (steam->rumble_left || steam->rumble_right)
-+		schedule_delayed_work(&steam->coalesce_rumble_work, HZ / 20);
-+}
-+
- #ifdef CONFIG_STEAM_FF
- static int steam_play_effect(struct input_dev *dev, void *data,
- 				struct ff_effect *effect)
-@@ -615,6 +630,14 @@ static int steam_play_effect(struct input_dev *dev, void *data,
- 	steam->rumble_left = effect->u.rumble.strong_magnitude;
- 	steam->rumble_right = effect->u.rumble.weak_magnitude;
- 
-+	/*
-+	 * The interface gets somewhat overloaded when too many rumble
-+	 * packets are sent in a row, so Steam throttles it to 20 Hz
-+	 */
-+	if (delayed_work_pending(&steam->coalesce_rumble_work))
-+		return 0;
-+
-+	schedule_delayed_work(&steam->coalesce_rumble_work, HZ / 20);
- 	return schedule_work(&steam->rumble_work);
- }
- #endif
-@@ -1359,6 +1382,7 @@ static int steam_probe(struct hid_device *hdev,
- 	INIT_DELAYED_WORK(&steam->mode_switch, steam_mode_switch_cb);
- 	INIT_LIST_HEAD(&steam->list);
- 	INIT_WORK(&steam->rumble_work, steam_haptic_rumble_cb);
-+	INIT_DELAYED_WORK(&steam->coalesce_rumble_work, steam_coalesce_rumble_cb);
- 	steam->sensor_timestamp_us = 0;
- 	if (steam->quirks & STEAM_QUIRK_DECK)
- 		steam->sensor_update_rate_us = 4000;
-@@ -1425,6 +1449,7 @@ static int steam_probe(struct hid_device *hdev,
- 	cancel_work_sync(&steam->work_connect);
- 	cancel_delayed_work_sync(&steam->mode_switch);
- 	cancel_work_sync(&steam->rumble_work);
-+	cancel_delayed_work_sync(&steam->coalesce_rumble_work);
- 	cancel_work_sync(&steam->unregister_work);
- 
- 	return ret;
-@@ -1443,6 +1468,7 @@ static void steam_remove(struct hid_device *hdev)
- 	cancel_delayed_work_sync(&steam->mode_switch);
- 	cancel_work_sync(&steam->work_connect);
- 	cancel_work_sync(&steam->rumble_work);
-+	cancel_delayed_work_sync(&steam->coalesce_rumble_work);
- 	cancel_work_sync(&steam->unregister_work);
- 	steam->client_hdev = NULL;
- 	steam->client_opened = 0;
+Hopefully the second half of the series will be ready soon, but I am
+waiting on more testing by SteamOS users before I submit it.
+
+This is a minor interation on v3 that fixes a few issues that came up
+during review of v3, as well as reverting a false positive from sashiko
+that was added in v3.
+
+Vicki Pfau (11):
+  HID: steam: Update documentation
+  HID: steam: Refactor and clean up report parsing
+  HID: steam: Rename some constants that got renamed upstream
+  HID: steam: Zero-initialize reply in serial lookup
+  HID: steam: Add support for sensor events on the Steam Controller
+    (2015)
+  HID: steam: Coalesce rumble packets
+  HID: steam: Fully unregister controller when hidraw is opened
+  HID: steam: Rearrange teardown sequence
+  HID: steam: Improve logging and other cleanup
+  HID: steam: Reject short reads
+  HID: steam: Retry send/recv reports if stale
+
+ MAINTAINERS             |   6 +
+ drivers/hid/hid-steam.c | 723 +++++++++++++++++++++++++++-------------
+ 2 files changed, 491 insertions(+), 238 deletions(-)
+
 -- 
 2.54.0
 

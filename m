@@ -1,68 +1,68 @@
-Received: from mail-pj1-f49.google.com (mail-pj1-f49.google.com [209.85.216.49])
+Received: from mail-pg1-f182.google.com (mail-pg1-f182.google.com [209.85.215.182])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BE8DF21CC5A
-	for <linux-input@vger.kernel.org>; Wed, 29 Jul 2026 00:54:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3C4DB24E4A1
+	for <linux-input@vger.kernel.org>; Wed, 29 Jul 2026 00:55:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785286466; cv=none; b=ZKGUCFxTi7pXzzdSmpc1n2kOGpjuQs+414eS0GzIErXbg1PhLCvgYtwaw1LsuhtqmjwzNQ5Ev3X6YV56/n3kzyID55PDT3jkzU6Xddo3EqZ7PdP+/XvbnfCrEndskzC4rd4BApiZqfoTXJFwTEMX1Ctly1pyi9RQgeXDiEj+UW0=
+	t=1785286553; cv=none; b=Ee+DbWWfjdcqpSGCPFj5piF73/Hg47AJYLMEVemZKzhhxYGaiec55qv0OrLKUJnyaR2a0euXBUwQW7pxelMz27g1zMdyD7A7/WqwWWnANMNqwzRPrDMtce5GILh3V5xm/zXfBO3KGeHHRSstGVfySZEq+/mYzv9qnb7bSk6se0I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785286466; c=relaxed/simple;
-	bh=5Lr5IjUyDlxwY8dBQ/hmJQBVPhCGetFAfVOSN4wo3ro=;
+	s=arc-20240116; t=1785286553; c=relaxed/simple;
+	bh=7Iv+GFGwZ/GK6yGpCIeJlgsRTg0wQ6eBXuiN9TaFpVk=;
 	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=sR+mCAvci7Qa/UTQtQN4wFOc4mwguvr92k+5IwY9dC2SUU4DUiI4RaxYnBnIjmMgtT1zBPp++rXBzO3cEhkinJAVcELupLr3Jsbp4knDNKxmkWM9uDyj0i28wfy1ZrWJ3yFaiJwLK9tI/HX0epy7BgpHRfZYGQeDj8Fva6h2vyU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=UeU+3Vqh; arc=none smtp.client-ip=209.85.216.49
+	 Content-Type:MIME-Version; b=uuDC9IBf9jAYHpeysAUfhvFjG8+21eKhRruH/DK/mMJePU/HfsOXrcXaWVgIqR/Ychtc3HwLAkiZ3JgJxaSLCk7UiThAOjJOXfFhJeeb1wU63YwIBSFJ1BnlUDP0cYABv7P50fqvsI/YY5DUNTU05nokxT9hJCEuvJXbIVIm5GM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=QdNwPieU; arc=none smtp.client-ip=209.85.215.182
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="UeU+3Vqh"
-Received: by mail-pj1-f49.google.com with SMTP id 98e67ed59e1d1-38ec1402b05so308339a91.2
-        for <linux-input@vger.kernel.org>; Tue, 28 Jul 2026 17:54:25 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="QdNwPieU"
+Received: by mail-pg1-f182.google.com with SMTP id 41be03b00d2f7-cbb85186d43so157659a12.3
+        for <linux-input@vger.kernel.org>; Tue, 28 Jul 2026 17:55:52 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1785286465; x=1785891265; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1785286551; x=1785891351; darn=vger.kernel.org;
         h=mime-version:user-agent:content-transfer-encoding:content-type
          :references:in-reply-to:date:cc:to:from:subject:message-id:from:to
          :cc:subject:date:message-id:reply-to:content-type;
-        bh=ZbHvEL7dXUPa0tTQnGqai5VPfxBX3kXlGujGxijLDec=;
-        b=UeU+3VqhxSTZSyaKBdD+SYhY0DOXpKLaaNdwAuUxS3z00K7+fbdW38pmH83OlUdybm
-         CxYDyj4/VJvq6h9fAjRpwYWfbX9zoNUP8uaidbQIBh5l/ZBneo6O7XoPLKuHVwOLG97A
-         JEW7h6sMBIcI7+yOM3q3GO41pIIe9HHMPOVIXksZOej9mxdNPkf1BlmH31Lnib44Lo2R
-         xzHkpJszWR2M8XCd3XQlLNBJ4qrVnRX9kLpJzSXApUwQ094LgKO2+00aQRnctmqrOpRf
-         74EPzkTvC3bI2qbUug4whR1AVcZ2QR59uDKv3fj5BW9Nx/zEI/STQpDD9y4z00mtQMR3
-         KXAw==
+        bh=7Iv+GFGwZ/GK6yGpCIeJlgsRTg0wQ6eBXuiN9TaFpVk=;
+        b=QdNwPieUiv4lmAYiQSjTNAWXQ8qPiCkpVSnrlVOYNk5n8dAK7+p17cMFdXdE9p7u1P
+         3mWe50L+Adga4zZhOF9yqTrtN0Ee0Vs8ezhcqBa5uDMXlJdPCbGaSYjNEShKGxE/gThy
+         Sg9zIj9bbnuekA/RbAa8/hU0JHwYMP3AyeD11nWI2A3/s4SOsRiPNiAlCWR5GHMOW9lS
+         2LN6/u4FNCQ1P2u84rwfiGnw48UWauYDZQJMId1xvBkMnoXal7YR6+p67zsln2J7WMjE
+         nfWacolv79ER1+qTjSS9y2vAmrYe7EpspXUP1NssglRgJQJdkI8hhz2uvTBGzIVsdUz7
+         BoWw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785286465; x=1785891265;
+        d=1e100.net; s=20251104; t=1785286551; x=1785891351;
         h=mime-version:user-agent:content-transfer-encoding:content-type
          :references:in-reply-to:date:cc:to:from:subject:message-id:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=ZbHvEL7dXUPa0tTQnGqai5VPfxBX3kXlGujGxijLDec=;
-        b=oIHG9GD7+L9wN/chbdX97qkKFz2Ad5m536aTtq9sAJcxddwKvK5rweUHt+ylhmogUl
-         c1au7Pk1Mn0uLxEqD6DA6OE+Xmzq0RspZq85Bxf3yh29jn32g30F1uNgCHIr9DJcmAC5
-         SAadXWzI7q718mt4J7bRIKrC8zeHl4zWtauXRJNJpJ2bwXOwgi+blVml6yp6N/EKcDTU
-         0hFsESPX0+JlMJoRILUGFurmT2LouPAuneNofx3GdU6RXMbzqnImy3SJRhb9CpSUPuAm
-         nKDNFyVOmJCVTpk1B9qFzkPbFSuNZJabHFHqe1yncTnkKL3W6GFX4BhFvBBsaeqEej/G
-         dkfQ==
-X-Forwarded-Encrypted: i=1; AHgh+Rp8k3L/M2SaYCuCcPdm7Zrg4p+GaPzCb/iiEPRuWwvK3hnKys6rrFg381cGn2ECMWmn+TGqIVdrZl17jQ==@vger.kernel.org
-X-Gm-Message-State: AOJu0YwG3ZWPf25z8aSXrsLUk1oiwLUXlQg7WxADLN8LqZVhsW0w+qT0
-	ZuwH1YQOMDPNmvefjMnFbOWUO9ziSG900ZXRnqoDaUc59O6Mp9pM6DNt
-X-Gm-Gg: AR+sD12Yp8Zk2ju5VcffaImGh4sEwtTmVABEvczTOT98z/ri6ULQoBklACgXUhEUoSj
-	B4/VqR0vBgf9vgHjnBoI5kXcX9Y0TUkNWAe40wwrJM2gkeNlLPudNjlHpejOis6E26MIfEWpmfj
-	0jC0HEQSPbYsWDP6x8JbRK3OvTnjZNm3zxEVQecTPrafYOmaoN7qGGdxmJfDGecHuphPu4wDYL/
-	pol1Yi43i2KRbskpk4c04Jge5R2GRffD6WRI97muFd04IvRaWKnU7qd/bsH52sh33E6l+Y2Li+8
-	IP+VzPCp0ojfwyr3AInDeKpXl9+9MfAvpQZ5K4QBZT58ZWXwGMKuFn9ZCT+VK5DPzBTzjmSOEdi
-	NzT8oHfCSe8KcxG0qHuBtPpNHIt+k6uGLdXk4qfQStsIXu8OBuEVG4D2LD9kGbnXxsNnKUtJt6d
-	fwQ+J8aDoI7uCJvv1lD6+VMlZplYuQg/akN9DguVtP9WzJGe1jHIVjj2v5xS5aRjP68rqynYqEy
-	3slbD2HUutDovbh6lpGJdgjL7B3E0R5B+Xp6Z2BHV1RpQ==
-X-Received: by 2002:a17:90b:4cc6:b0:381:5a08:6291 with SMTP id 98e67ed59e1d1-38f6a557bacmr4735473a91.20.1785286465024;
-        Tue, 28 Jul 2026 17:54:25 -0700 (PDT)
+        bh=7Iv+GFGwZ/GK6yGpCIeJlgsRTg0wQ6eBXuiN9TaFpVk=;
+        b=r2846xlxjPXCYp+No5eo+V499op69ZnvDAQ+o+TdYQyQJui3b2SYIlCkRvKo7xpOv8
+         6gmia3DOmnsBFlgIl3QoUfGx5zxck0As4zmalqWkgo0/iJWrEQDkmGDGWtEo4kVOX/q0
+         Q3fB2SHkAF1WOraFhLxgLNoWb3CXzuTYlrhPPLQV3EjWFrgDVdfh75+tBPb4BH2r5JBr
+         suAVTKniMgfaRP7EtQk8/hfqvXdxSLvCSG/mhlL4MoOq9fLfarbS+VJ7NP2AlXyQMnsw
+         8kRnqDbd/ZJyC8AbmjhpOg76H3lzJs3Ik0bCSuMqXAZGRBCdt71QLSLFlWcCtrc+QRtB
+         UwjA==
+X-Forwarded-Encrypted: i=1; AHgh+RpnEUR6h+nL/l+vlP8FaS+GIRvPvTEgqnUCjoxcGV9S7wEsS5cwvQJs0/j8CBJOE+yfh7OLCzY1s7X+AQ==@vger.kernel.org
+X-Gm-Message-State: AOJu0YxOO+AYWuCyTGWaUlm1mAz6kraNGs0Do7e7z6c3LdrH4YvutD8I
+	sMOZwgko0Rb4tu9Qg68NODl2+ZKNAMUGDkFTpL7JqGF905/h8y3ssPxM
+X-Gm-Gg: AR+sD12k2wGjSh7fnQG3q8aR4dywupahS4TNxYHWeh6ak/qQ23D5daqdqHwx0b7ZtY6
+	bK73mx5HtXpwmzGqqJw+x9bBcT1G9F0tP2AmlX9c3zc1h9MsVvjvgvO/d3ZHVaZd2zuQ947gUhb
+	PidWz8aSEFYYaT1QamrXK+/x4Y8+V2PMaUW9ADAaJ6j/COwamdn9k+FqeFWfJAPvlV66y+AjvJS
+	OxS9U/oXkWDp9T217L+aoy4nD1R8fIic30Lyqbc+jYBmnUZnae3YQFIRfCDgq/P/Nsdr9PmcRM7
+	K0Z35OD8tYwnVoFl3lzp/IELowsBP/r8xCezCDQHem2U7wEnTZ2mrgHTGmhw29PqduS0AJ1I2S8
+	a00RMZgVcMQwBHEVIcMKTGBkYT6fE/gFtW88C4+cG5/fi6X6mlJPdBSDz6hjNlZsgdHqiNXSUqx
+	7QRtXA/3xpTNtf5CAMHQ1JPJ/xJaQcoxm/ilHD0paqhTVLrXswC4WO2xOl6dlOXVfhD/Pjkn1v1
+	zUfe3Z9mRFeTeLjAI4r7Fr6zyWXLtBDNIWA4f8jq9AegQ==
+X-Received: by 2002:a05:6a21:6e91:b0:3bf:6c07:b2f0 with SMTP id adf61e73a8af0-3c8ba6132f8mr5806787637.51.1785286551493;
+        Tue, 28 Jul 2026 17:55:51 -0700 (PDT)
 Received: from ?IPv6:2a03:83e0:115c:1:a4d1:33fd:cfd0:d646? ([2620:10d:c090:500::7:3a0a])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-13e7265010esm3407972c88.6.2026.07.28.17.54.23
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-31504d37368sm5610706eec.22.2026.07.28.17.55.50
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 28 Jul 2026 17:54:24 -0700 (PDT)
-Message-ID: <e847bd1af74a5b8e5f0bb7741335fd4a5c647bdf.camel@gmail.com>
-Subject: Re: [PATCH bpf-next v1 4/8] libbpf: Export
- btf__find_by_name_kind_own()
+        Tue, 28 Jul 2026 17:55:51 -0700 (PDT)
+Message-ID: <b4a41c7b549bb96af669bf56a89da6f4a7e6e7d7.camel@gmail.com>
+Subject: Re: [PATCH bpf-next v1 5/8] resolve_btfids: Fix the _impl lookup
+ for module BTF
 From: Eduard Zingerman <eddyz87@gmail.com>
 To: Ihor Solodrai <ihor.solodrai@linux.dev>, Alexei Starovoitov
  <ast@kernel.org>,  Andrii Nakryiko <andrii@kernel.org>, Daniel Borkmann
@@ -70,10 +70,10 @@ To: Ihor Solodrai <ihor.solodrai@linux.dev>, Alexei Starovoitov
 Cc: Benjamin Tissoires <bentiss@kernel.org>, Jiri Kosina <jikos@kernel.org>,
   Emil Tsalapatis <emil@etsalapatis.com>, Jiri Olsa <jolsa@kernel.org>,
  bpf@vger.kernel.org, 	linux-input@vger.kernel.org, kernel-team@meta.com
-Date: Tue, 28 Jul 2026 17:54:22 -0700
-In-Reply-To: <20260722233518.778854-5-ihor.solodrai@linux.dev>
+Date: Tue, 28 Jul 2026 17:55:49 -0700
+In-Reply-To: <20260722233518.778854-6-ihor.solodrai@linux.dev>
 References: <20260722233518.778854-1-ihor.solodrai@linux.dev>
-	 <20260722233518.778854-5-ihor.solodrai@linux.dev>
+	 <20260722233518.778854-6-ihor.solodrai@linux.dev>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 User-Agent: Evolution 3.60.1 (3.60.1-1.fc44) 
@@ -85,30 +85,19 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 
 On Wed, 2026-07-22 at 16:35 -0700, Ihor Solodrai wrote:
-> btf__find_by_name_kind() searches the base BTF before the split BTF,
-> so in case of a name collision between base and split it always
-> returns a base type. Tools that process split BTF may need to restrict
-> a lookup to the split's own types.
+> process_kfunc_with_implicit_args() skips generating <name>_impl
+> function when one already exists for backwards compatibility.
 >=20
-> The internal helper btf__find_by_name_kind_own() already does exactly
-> that. Make it a public API.
+> It uses btf__find_by_name_kind(), which searches the base BTF before
+> the split BTF. When resolve_btfids processes a module, a same-named
+> _impl in vmlinux would be found and the module's own counterpart would
+> not be created.
+>=20
+> Fix by using btf__find_by_name_kind_own() for the lookup.
 >=20
 > Signed-off-by: Ihor Solodrai <ihor.solodrai@linux.dev>
 > ---
 
 Reviewed-by: Eduard Zingerman <eddyz87@gmail.com>
-
-...
-
-> +++ b/tools/lib/bpf/btf.h
-> @@ -172,6 +172,8 @@ LIBBPF_API __s32 btf__find_by_name(const struct btf *=
-btf,
->  				   const char *type_name);
->  LIBBPF_API __s32 btf__find_by_name_kind(const struct btf *btf,
->  					const char *type_name, __u32 kind);
-> +LIBBPF_API __s32 btf__find_by_name_kind_own(const struct btf *btf,
-> +					    const char *type_name, __u32 kind);
-
-Nit: please add a docstring.
 
 ...

@@ -1,136 +1,139 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B988F469830
-	for <linux-input@vger.kernel.org>; Wed, 29 Jul 2026 17:16:51 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3A09E25B0B9
+	for <linux-input@vger.kernel.org>; Wed, 29 Jul 2026 17:17:58 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785345412; cv=none; b=konfPs126p1NOy18z6cW+dAfmg/EXLkGEjtZrFpvdfPayTcBdFf9xUZFwnUIrEbDyHI7o6/6sybFAJiR4prxyOtAajubx+bnUodHC8m3tNRZ6yINiJ3/erdXo1noXTMHd32dBXm6xjroWhZxHgImHzC1E51XPWS50yRW1jZOCrs=
+	t=1785345480; cv=none; b=bW+3cq5WJbmiXs7cowQiBbiOSxAWVg9DO2zvLhGt2c6HHTZXtXGzivP7ir8LELOsXmQNe827iIZ8f8dti4Eis31Zs25A/JzJCGLUy5o9X6weuB6iZ4WAbb0ymaxUssRvTWuu1juivKCLnZlzpptKKcXlNNcurSKJi6CnAZGWOcY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785345412; c=relaxed/simple;
-	bh=LLGPXzXFSvcifVqgxUnjJ/Qmkb3yalhVsbpUz6jSS3Y=;
+	s=arc-20240116; t=1785345480; c=relaxed/simple;
+	bh=I3gX1F2m+50XQea5Py238jL/TpFl7MMqy78483LPZIk=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=NkC90K81TT8+CKVGYkmW144cka0C1av0GkkvPpmCnMlfRbjc7TXcI7wU+5l9jLBMSYdG4QNzwQYcfyED3eaV3boDwo0xB3RatNJJgnG+iIkqH/apFWosLfaczP6JEqBqCjsHhtEonO3syrYmGdcjzhbHc0isK4LY7ffvXvI+Gu0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Dh36Gm8F; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=CHY+Cm2kDbq5MzjeTtk2iClE4EdOqS3P3g6RRfiZ5/4IKE6bznMlQponpXddub0ecoDu35Pqo0o4mFE9szjzKGD1e+KPvhbMEZVUZMW2uNMe2Tx8BfCXvmL8sQ1brIYQTeyz9jeO8E/mKIhr8Kteu8v1ayU0sOvaDMjt9KW8iAk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=J2RLGQOm; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Dh36Gm8F"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15FDC1F000E9;
-	Wed, 29 Jul 2026 17:16:51 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="J2RLGQOm"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84C0B1F000E9;
+	Wed, 29 Jul 2026 17:17:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785345411;
-	bh=OlfRnn+ENroBcn2QXbB+WZugj1a67e+I9eHwMsgpXPg=;
+	s=k20260515; t=1785345478;
+	bh=MxS2Ykdum9HvFQwGDLoAvNYJNrUy9Qz6X5RDBC4W3DI=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=Dh36Gm8FwGDHh6DsA5RM/POxiilLJk+zE6vvuqCwzi5QdzOO+ThB2T+YHGON8XdEb
-	 mddmvh/bgpYmXHTq6fbUqzVF+231dKAuVV3OWCJTGtuzQdVvoVswzfwwj2o65t9GQo
-	 QMySU/o2I6IAXRtyKrcQK6FPtaNkpIKp6dFeQ08xniFxoYaJ4XeRDG9Cuu0XrQtHAw
-	 S6uLZ39lCIqa5V5MECbEIdB6hMScuw6Ajy/wCFpuXvWS9BqOJJwq4uQKrj7iChKohg
-	 LbPe/t/Wy6jhLQx1SBPgcU3C8VG3rkTw0vBoYvyvC3xVpSWBiZQZIAqzmd0920dM+G
-	 dnJ++esv/3rMQ==
+	b=J2RLGQOmNdwrXzAIAbnlsnqM22DaLFFuimnZEjGPE1lK23649xyUho080V17IdTWM
+	 vh9asEkAMQjPcIg734Drjp5IeqKZi88oexXFCa8rwmAQghBFwoRcVtjczYV0U9y3Pr
+	 HwnCFgtILJ+NOHrz02uucbd5uS5GrNTmDujwAQ9lBQ1w4SjnMiO1l9luPhB88/Jxon
+	 /U19J7VQZAbnlQ8Yv0RBENSQ+mi35fGPj/lQWxsS2d1OD8ikdyWvMxKG8UT1ONnjUj
+	 8WH/fpqhB9ktnsQAV6VLvsxDAKI/r9OMCsLE+1vwXarlHmTR5HtlknQP1UtBGmLBld
+	 OB6R+HBSpPEMA==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 3/3] Input: synaptics_i2c - return 0 explicitly on
- success
+Subject: Re: [PATCH v2 2/3] Input: rmi_smbus - remove conditional return
+ with no effect
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Sang-Heon Jeon" <ekffu200098@gmail.com>
 Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260729171001.260698-4-ekffu200098@gmail.com>
+In-Reply-To: <20260729171001.260698-3-ekffu200098@gmail.com>
 References: <20260729171001.260698-1-ekffu200098@gmail.com>
- <20260729171001.260698-4-ekffu200098@gmail.com>
+ <20260729171001.260698-3-ekffu200098@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 29 Jul 2026 17:16:50 +0000
-Message-Id: <20260729171651.15FDC1F000E9@smtp.kernel.org>
+Date: Wed, 29 Jul 2026 17:17:58 +0000
+Message-Id: <20260729171758.84C0B1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
 s) to consider:
 
 Pre-existing issues:
-- [High] The delayed work `touch->dwork` is not cancelled on driver unbind =
-or probe failure, leading to a use-after-free.
+- [High] Buffer overflow in smb_block_read() due to ignoring the requested =
+length.
+- [High] Out-of-bounds read in rmi_smb_write_block() due to using the total=
+ length instead of the remaining length.
 --
 
---- Patch [3]: [PATCH v2 3/3] Input: synaptics_i2c - return 0 explicitly on=
- success ---
-commit 2cc2d0ff5c54be0c06b9f9251e169b1467e86f9b
+--- Patch [2]: [PATCH v2 2/3] Input: rmi_smbus - remove conditional return =
+with no effect ---
+commit c43fcefd3c43ed84b5f32f45bd591ace30890382
 Author: Sang-Heon Jeon <ekffu200098@gmail.com>
 
-Input: synaptics_i2c - return 0 explicitly on success
+Input: rmi_smbus - remove conditional return with no effect
+   =20
+This patch simplifies the return path in smb_block_read() by removing an
+unnecessary conditional check. Both branches of the check returned the same
+value, so it now returns the result of i2c_smbus_read_block_data() directly.
 
-error is always zero at the last return in synaptics_i2c_reg_set().
-Explicitly return 0 on the success path instead of returning error,
-which is the preferred way when there are multiple failure points.
-
-> diff --git a/drivers/input/mouse/synaptics_i2c.c b/drivers/input/mouse/sy=
-naptics_i2c.c
-> index d4cf982f12632..66e833974c6da 100644
-> --- a/drivers/input/mouse/synaptics_i2c.c
-> +++ b/drivers/input/mouse/synaptics_i2c.c
-> @@ -261,7 +261,7 @@ static s32 synaptics_i2c_reg_set(struct i2c_client *c=
-lient, u16 reg, u8 val)
->  	if (error)
->  		return error;
+> diff --git a/drivers/input/rmi4/rmi_smbus.c b/drivers/input/rmi4/rmi_smbu=
+s.c
+> index 6de68c602558b..3160714a514a5 100644
+> --- a/drivers/input/rmi4/rmi_smbus.c
+> +++ b/drivers/input/rmi4/rmi_smbus.c
+> @@ -177,13 +177,8 @@ static int smb_block_read(struct rmi_transport_dev *=
+xport,
+>  	struct rmi_smb_xport *rmi_smb =3D
+>  		container_of(xport, struct rmi_smb_xport, xport);
+>  	struct i2c_client *client =3D rmi_smb->client;
+> -	int retval;
 > =20
-> -	return error;
-> +	return 0;
+> -	retval =3D i2c_smbus_read_block_data(client, commandcode, buf);
+> -	if (retval < 0)
+> -		return retval;
+> -
+> -	return retval;
+> +	return i2c_smbus_read_block_data(client, commandcode, buf);
 >  }
-> =20
->  static s32 synaptics_i2c_word_get(struct i2c_client *client, u16 reg)
 
 [Severity: High]
-This is a pre-existing issue, but I noticed that the delayed work touch->dw=
-ork
-doesn't appear to be cancelled on driver unbind or probe failure.
+This is a pre-existing issue, but by removing the intermediate check, it dr=
+aws
+attention to a buffer overflow in this function.
 
-In synaptics_i2c_probe(), interrupts are enabled and devm_request_irq() is
-called before input_register_device(). The IRQ handler can immediately sche=
-dule
-touch->dwork.
+Can this corrupt memory? The smb_block_read() function takes a len paramete=
+r,
+but it is completely ignored when calling i2c_smbus_read_block_data().
 
-If input_register_device() fails:
+If a malicious or buggy I2C device returns up to 32 bytes (SMB_MAX_COUNT),
+i2c_smbus_read_block_data() will copy that full amount into buf. If the
+original len was less than 32 (for instance, on the final chunk of a read in
+rmi_smb_read_block()), this could overflow the buffer and corrupt memory.
 
-drivers/input/mouse/synaptics_i2c.c:synaptics_i2c_probe() {
-	...
-	error =3D input_register_device(touch->input);
-	if (error) {
-		dev_err(dev, "Input device register failed: %d\n", error);
-		return error;
-	}
-	...
+> =20
+>  static int rmi_smb_read_block(struct rmi_transport_dev *xport, u16 rmiad=
+dr,
+>  			      void *databuff, size_t len)
+>  {
+
+[ ... ]
+
+While reviewing this, I also noticed another pre-existing issue in the near=
+by
+rmi_smb_write_block() function:
+
+drivers/input/rmi4/rmi_smbus.c:rmi_smb_write_block() {
+    ...
+	while (cur_len > 0) {
+		/*
+		 * break into 32 bytes chunks to write get command code
+		 */
+		int block_len =3D min_t(int, len, SMB_MAX_COUNT);
+    ...
 }
 
-The probe function returns the error directly. Since devres will automatica=
-lly
-free the IRQ and the touch structure, but the pending work on system_dfl_wq=
- is
-never cancelled, could the delayed work run later and access the freed touch
-memory?
+[Severity: High]
+This is a pre-existing issue, but can this lead to an out-of-bounds read?
 
-Furthermore, the driver lacks a remove callback entirely:
+When chunking the write, the loop calculates block_len using the original t=
+otal
+len instead of the remaining cur_len.
 
-drivers/input/mouse/synaptics_i2c.c:
-static struct i2c_driver synaptics_i2c_driver =3D {
-	.driver =3D {
-		.name	=3D DRIVER_NAME,
-		.of_match_table =3D of_match_ptr(synaptics_i2c_of_match),
-		.pm	=3D pm_sleep_ptr(&synaptics_i2c_pm),
-	},
-
-	.probe		=3D synaptics_i2c_probe,
-	.id_table	=3D synaptics_i2c_id_table,
-};
-
-If the device is unbound via sysfs, devres will automatically tear down
-resources. However, the delayed work is only explicitly cancelled if the in=
-put
-device is currently open (via synaptics_i2c_close()).
-
-If the device was never opened before it is unbound, does this mean the work
-is never cancelled before the memory is freed?
+If len is greater than 32, block_len will remain exactly 32 for every
+iteration, even the final one where fewer than 32 bytes remain. This causes
+smb_block_write() to read 32 bytes starting from the advanced databuff
+pointer, potentially reading past the end of the original buffer.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260729171001.2606=
-98-1-ekffu200098@gmail.com?part=3D3
+98-1-ekffu200098@gmail.com?part=3D2

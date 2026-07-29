@@ -1,55 +1,54 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3AF403403E3
-	for <linux-input@vger.kernel.org>; Wed, 29 Jul 2026 07:46:58 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B195F3F413C
+	for <linux-input@vger.kernel.org>; Wed, 29 Jul 2026 07:47:28 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785311226; cv=none; b=uRzFQ4PK89UCADPbQq4Gv4bluvhLcIS92H6IfTSOU5Rob0G+GxFTnmrhVpdth3skj6Cx3vBhQeUTNFfq32392/rRIp3iTGQLfzikFT+s+7vy1Al88N0Acq/Qm87TdV66r8xCEs3tS+QMHyJ7DLHD5Y7GXUc+z6+wjPFk3Q6r+hU=
+	t=1785311251; cv=none; b=P65RgtSXiIOIgmVBIoTCYursnie1DQKoKRkUrCx25rlfsofWe755+rCMj/bw27F+RvDt+kBK/dG/Sko+PEa9YfRUK8fs2l6wz8ynNDNrzy817xRF0l+q5fguFNQboHmywR7zNTsn+uf5y5paGM0JdruqCHqxkRyCfglJiPnsFRA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785311226; c=relaxed/simple;
-	bh=CnDfjy0gxmr2Cbj6LcfLZcNzLV1wsZsbYNBRZJUebR0=;
+	s=arc-20240116; t=1785311251; c=relaxed/simple;
+	bh=osMyXD9bF52+PH//j2kDJlPWHg0XSz5RwrfnJBrCoj4=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=ZmLjKI7o5HEbOv7s4lLkNcnOQw5tNoq9RpOwaaBGfLEuwPGTZYQiu32YBxjGpaJPKmOy2Ktayds/E18rbY7x9aMxS1EbX+PpYpkLhe2NIGqeOde9i+LfDFKMjZhD2x2JdXIQquakTJQI6NcsNzFxpj3I128NX9GjwIfYMuOKQU0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=WGgyo5g0; arc=none smtp.client-ip=100.103.45.18
+	 To:Cc:Content-Type; b=BkAKyD6h5zVk9zocTMgosoqe4OO08HgH612YoOHNzbSkYGsLFq0ncRLJ7ckqGeyjXOHPE+Ygpin2emJHVQby9lQ/Tv5EpTrbjOD5QFAP9qm299g4FMkbdz3ckyP6snsPaI7js+Hp/SwP3fMM4oCCHs7+E9RnH/mzzRpJrHjmUoM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=E0K+wGVL; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="WGgyo5g0"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D37DA1F000E9
-	for <linux-input@vger.kernel.org>; Wed, 29 Jul 2026 07:46:56 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="E0K+wGVL"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 092DB1F00A3A
+	for <linux-input@vger.kernel.org>; Wed, 29 Jul 2026 07:47:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785311216;
-	bh=CnDfjy0gxmr2Cbj6LcfLZcNzLV1wsZsbYNBRZJUebR0=;
+	s=k20260515; t=1785311246;
+	bh=osMyXD9bF52+PH//j2kDJlPWHg0XSz5RwrfnJBrCoj4=;
 	h=References:In-Reply-To:From:Date:Subject:To:Cc;
-	b=WGgyo5g0P6oM+zvZ7jMoAzErZdJUVVjpA+j8GT/Q/LYb6QbknoBCh44P32vpS/wig
-	 1JQdITrCnegvoQ9VOtpwyz+SWxd2AwmpPBBSUipobSdVUo5qOa+F+o7FsmGJ1I6uVi
-	 SB0Fw7f3OiMDr29m33K5RbkjHLfpk7+6CWaaGMqCS7zdgHGJZN8VDNdScRuV/r89aj
-	 TbnDkkA4hHl5rkgMShmuwEYdiXXP/o4wmTJ3r3lN+KYl+2Tq92fZTWFBI8YEK+f31T
-	 pcPG5co9FMGSJHrSErxRam34rpBECpzoEFU5eAOk2OXvnsiUaClriCU1dHlkKJA0/2
-	 qxagxr6IFp1PA==
-Received: by mail-lf1-f44.google.com with SMTP id 2adb3069b0e04-5b14d1f9315so492874e87.2
-        for <linux-input@vger.kernel.org>; Wed, 29 Jul 2026 00:46:56 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AHgh+RqFIAvLIe5IooKj+H/2OdHjQhtBmxtoHdYazEDCE9CMU8+jgbpgxu/9T07vBllQu/a8scU2WFuEeFLpfA==@vger.kernel.org
-X-Gm-Message-State: AOJu0YzXz05pEVWhWBTJAQvth8QS9vFbxvhLvwxOhbR8yG2i3RVOYsTl
-	FkFRGR2RAbGiqkfO1mGCHdnyFGJSKAW3hNmVWmqvSysKmKSPve6qyJSsZNcdBLTGix9LVVOfgK2
-	9YNLedyIRyC3CDzHDkfWVJXOkSBAlxug=
-X-Received: by 2002:a05:6512:3d28:b0:5b2:b7f2:f7fc with SMTP id
- 2adb3069b0e04-5b2d0274201mr1124477e87.59.1785311215686; Wed, 29 Jul 2026
- 00:46:55 -0700 (PDT)
+	b=E0K+wGVLBFB5bcDJ5g9po9V99TbFbC/5KkgVjk//bjsdTXqP6fHH9zMES2FMHQgHq
+	 Z1p7fEVj39MNnT+YROuRBo1fGfh16YQVmMrx2bopF+qWZ0m1P9K5/Fh3jtzkW/IHGc
+	 4aFV4xYaToEeOfwwRdF59BYbYUpm69wZmaejq6b2aFctDUx+xno3UZ02Iq32P4vVVn
+	 GSfarRvFAwMnsWx9F301mIfm3ylJy+JnX7XmcZ7oV83dSgYIuBLVhpX7gNui1B+Fl9
+	 AwGXU7yhSvAI0MgVUD4JWK00kg5OfSjri2pEPZkNMvP+4npeqG6bAaadyvDu3Antop
+	 zHkSrGI78gf2Q==
+Received: by mail-lj1-f172.google.com with SMTP id 38308e7fff4ca-39c94d4fdb9so6521881fa.1
+        for <linux-input@vger.kernel.org>; Wed, 29 Jul 2026 00:47:25 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AHgh+RpZxzZM6HAlz1zM2xFDEw7PNEO+SgyebM6UKs4M2/7fDvVvbA9RdThsHdYXGO72LWJhHJcNLyaKi1onsQ==@vger.kernel.org
+X-Gm-Message-State: AOJu0YwI14l2HQ7YFsU4Yx8ItWdWSgL7xqiZpt8u8MbU8g/uQFAUPChU
+	2wGycXRXjtkJvYPlxs/Z031QBWiHpGv7oxSpn1eb8p25WBjq59SVV15et5c/0ZUcgDAEh3sNji9
+	XsClKe9YpqvuxeoEOXnaHXIO5GXj3Gck=
+X-Received: by 2002:a2e:be0d:0:b0:39a:e32c:1b1 with SMTP id
+ 38308e7fff4ca-39f606d63b1mr3064111fa.19.1785311244856; Wed, 29 Jul 2026
+ 00:47:24 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260724-zinitix-modes-v1-0-f6df7d86a878@disroot.org>
-In-Reply-To: <20260724-zinitix-modes-v1-0-f6df7d86a878@disroot.org>
+References: <20260724-zinitix-modes-v1-0-f6df7d86a878@disroot.org> <20260724-zinitix-modes-v1-4-f6df7d86a878@disroot.org>
+In-Reply-To: <20260724-zinitix-modes-v1-4-f6df7d86a878@disroot.org>
 From: Linus Walleij <linusw@kernel.org>
-Date: Wed, 29 Jul 2026 09:46:43 +0200
-X-Gmail-Original-Message-ID: <CAD++jLkRsHTL-vy0BcKL80onEocp3Js7UKgx=kKqFn8DEH8H8g@mail.gmail.com>
-X-Gm-Features: AUfX_mz6x0cLcw53qb2d4v30_RvCZ1PIlNE2O6iglWvSmm_YIQGxQudd43yM1KA
-Message-ID: <CAD++jLkRsHTL-vy0BcKL80onEocp3Js7UKgx=kKqFn8DEH8H8g@mail.gmail.com>
-Subject: Re: [PATCH 0/5] Support zinitix touch modes 0 and 1, dt changes to
- Galaxy J6 (j6lte)
+Date: Wed, 29 Jul 2026 09:47:11 +0200
+X-Gmail-Original-Message-ID: <CAD++jLmfsbuFBfbVBV=eMcJ1r7uh5MFoLD4+R=KHc+FWeTaTzw@mail.gmail.com>
+X-Gm-Features: AUfX_mxkC3SpPsYSgeGeQ9pahX3w_eSvwBQwmYhfecejjbcDeQVEdwRlJNOgKjg
+Message-ID: <CAD++jLmfsbuFBfbVBV=eMcJ1r7uh5MFoLD4+R=KHc+FWeTaTzw@mail.gmail.com>
+Subject: Re: [PATCH 4/5] dt-bindings: input/ts/zinitix: document mode 0
 To: Kaustabh Chakraborty <kauschluss@disroot.org>
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh@kernel.org>, 
 	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
@@ -63,14 +62,15 @@ Content-Transfer-Encoding: quoted-printable
 On Thu, Jul 23, 2026 at 9:24=E2=80=AFPM Kaustabh Chakraborty
 <kauschluss@disroot.org> wrote:
 
-> The zinitix family of touchscreens support at least three modes, called
-> 0, 1, and 2. At least some digitizers (including, but not limited to
-> ZT7548) are able to support multiple modes. Currently, the driver in
-> linux supports mode 2 only. This series aims to add support for modes 0
-> and 1, accompanied with necessary architectural changes.
+> Zinitix touchscreens support three modes, numbered 0 to 2. These modes
+> differ based on their event report schema.
+>
+> The devicetree schema does not mention mode 0, thus does not consider it
+> as a valid state. Add it.
+>
+> Signed-off-by: Kaustabh Chakraborty <kauschluss@disroot.org>
 
-I wanted to test the patches on my hardware but didn't find the time,
-anyway it all looks fine so it's OK to merge.
+Reviewed-by: Linus Walleij <linusw@kernel.org>
 
 Yours,
 Linus Walleij

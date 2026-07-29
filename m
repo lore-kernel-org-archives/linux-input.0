@@ -1,125 +1,138 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 396EB1C3BF7
-	for <linux-input@vger.kernel.org>; Wed, 29 Jul 2026 02:11:24 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2608D299959
+	for <linux-input@vger.kernel.org>; Wed, 29 Jul 2026 02:12:10 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785291085; cv=none; b=cIUNQ/7ULtqGoKBVl9i3xWpCaD4LEgAwMBI20XXkX6gSsuGby3lIdCnlgJe/YQ804ExZ0+EFRfDIXXK4WZjISwtAB1iFNYkpLOKLKqdy9XU8rBOQfoa2dRTWUNlaWqaD/Rs/wlMzN53iAst4IXaHDUARw/qPoZqMI7ccWkRxljM=
+	t=1785291132; cv=none; b=A+miKD5Fbiqlp9cZQbpiVUkAtLbo2oIte5hUtnc/3d8TYV3xjt2Y1J5Tf0/j6TTYxY8SZOVYtg4sRi48ABk8XDWLHqj+SHFh8BxdKRqX/Ioc9MPrccS1Ru7p8msjA4YC6rdYosMuAZZ+HeMCQk+IbfDg9J4or4VJuqh2MbYhupw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785291085; c=relaxed/simple;
-	bh=kt8PIbzq6G/C6eqnGNriB54MYbzhBTMyswNC2j42rZ4=;
+	s=arc-20240116; t=1785291132; c=relaxed/simple;
+	bh=1E08JZmX4Od86DJpLMsf2VccGoxStn5Qku8Nir6QReI=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=BrkbwViRqgE+jWYUKolWwjNTg0FPpmsxlLRCiX0jrtehMczgfuvrOwONzr0YyWUO+A8oC4HktiZtK1LaOX8rL4GovnSGhyqk5byJxtPCzlcEw/Wu1eMHzbXBd+k4yjyc5VC+d2MwMs3Hh70KCL1miKC5n7CU5gI1G6aPcvnpPco=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=CDtjMfXf; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=b3vK6UxYEU77k40CwkEnq5+u81h9itgE0PFfCR4Ib1bPbVwp6ZrTJkjk80a0gvHOR+jGKdnlGuMCUZHmxY68AINNYpot5AhdEVPFe9gIGFWlD98pc/Fu5qzE8FKHIjJs1L9WmlZXrhQFr9Jj7a+WNpk3+4SddfteWII5qwOko1c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ZdzH5Fy4; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="CDtjMfXf"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DEC851F000E9;
-	Wed, 29 Jul 2026 02:11:23 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ZdzH5Fy4"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B4861F000E9;
+	Wed, 29 Jul 2026 02:12:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785291084;
-	bh=6h5USIzMp3a1Fv2F1uB5N1shb05Ih24Hd4QOUSAzRKs=;
+	s=k20260515; t=1785291130;
+	bh=EQRwHim9vYoTRGtWGNyS7QI7ch7MhQoEtmXAsOy4H3U=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=CDtjMfXfFBCYaGbG/OcDEiggaCWwbKcWGIoAsJvGEGeGl67YlGOWXJGav+MfBxTHw
-	 EOHH7mW7Mv+xSk0YNZmetIniaEaZ7nyzq663+piKvTrdBIrkjFwR5fEdjosD7qGKLa
-	 HfVqUlayUCkurlNJzSTlVCh3oPyV5WvwUnBHL8tfuX5aFLfxgiMlwCqY3jimZoX+Pj
-	 1o6UDYoOKA1pwYfwUNTMgRKFkQpX3uI1dJMwaAnbNXu0lGuQfvE7ceOURlPqsBEXZS
-	 S+v9Oqa9/tpkU4mvUpcjjnTpm3lVW1Vqs29pI9A716gYhjLV5CtomVSe9hCSXfvtAg
-	 SBf46GRs+0w4w==
+	b=ZdzH5Fy4V5nZ+wess3z4f6xDFDFss4raiVFEP1Qnz8cPsYrIg3tX+KllC7iDqTzM5
+	 bEFEbjFggKkluxmyHXAP2CYGYrpS1HJ9+pLH8O9JG1fBpcuuJ+p55SLgIF6NGz3aDG
+	 c2Kil6u9IARJCEKyekZki9DcvTvy/1XV0Wi7qo3D4pUFW9AqSk1J/ngKt1vZYbEw1Y
+	 OUnoHcby53N8F9wxG/M7iyXpmoJr7T8X1MHiJH2w8n890PjtM1Np3WJjgiQh0ds2md
+	 kexVbLgQ60n3CinAtv1iTeLBmPrZIerLBeXhMRBQKzNh5nY+eqPr6P44fiF7O/hvZN
+	 UhxCkOOWnhjPA==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v4 09/11] HID: steam: Improve logging and other cleanup
+Subject: Re: [PATCH v4 07/11] HID: steam: Fully unregister controller when
+ hidraw is opened
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Vicki Pfau" <vi@endrift.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260729015243.1170573-10-vi@endrift.com>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <20260729015243.1170573-8-vi@endrift.com>
 References: <20260729015243.1170573-1-vi@endrift.com>
- <20260729015243.1170573-10-vi@endrift.com>
+ <20260729015243.1170573-8-vi@endrift.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 29 Jul 2026 02:11:23 +0000
-Message-Id: <20260729021123.DEC851F000E9@smtp.kernel.org>
+Date: Wed, 29 Jul 2026 02:12:09 +0000
+Message-Id: <20260729021210.4B4861F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
 s) to consider:
 
+New issues:
+- [Medium] Unifying connect and unregister logic causes log spam and unnece=
+ssary I/O on hidraw open/close.
+
 Pre-existing issues:
-- [High] The error path in `steam_register()` fails to remove the device fr=
-om the global `steam_devices` list, leading to a Use-After-Free when probe =
-fails.
+- [High] Dangling pointer in the global `steam_devices` list on probe failu=
+re.
 --
 
---- Patch [9]: [PATCH v4 09/11] HID: steam: Improve logging and other clean=
-up ---
-commit e2534775e852c76ea14b6b8605e36139ce7654b1
+--- Patch [7]: [PATCH v4 07/11] HID: steam: Fully unregister controller whe=
+n hidraw is opened ---
+commit d6b711a20faba4cc20306f07e01853b79872c545
 Author: Vicki Pfau <vi@endrift.com>
 
-    HID: steam: Improve logging and other cleanup
-   =20
-    Adds more logging as appropriate, reindents an enum to match surrounding
-    style, as well as cleaning up some places where we can use guard() inst=
-ead
-    of doing locking and unlocking manually.
+HID: steam: Fully unregister controller when hidraw is opened
+
+To avoid conflicts between anything touching the hidraw and the driver, this
+patch fully unregisters the controller internally when hidraw is opened,
+leaving only the hidraw active until it's closed. It also unifies the
+unregister and connect callbacks.
 
 > diff --git a/drivers/hid/hid-steam.c b/drivers/hid/hid-steam.c
-> index 5ab4396a241e0..3738a4de3bffb 100644
+> index a200878db8ac7..ff112aa1b0e91 100644
 > --- a/drivers/hid/hid-steam.c
 > +++ b/drivers/hid/hid-steam.c
-
 [ ... ]
-
-> @@ -1838,6 +1847,7 @@ static void steam_do_deck_input_event(struct steam_=
-device *steam,
->  		steam->did_mode_switch =3D false;
->  		cancel_delayed_work(&steam->mode_switch);
->  	} else if (!steam->client_opened && start_pressed && !steam->did_mode_s=
-witch) {
-> +		hid_dbg(steam->hdev, "%s: doing mode switch\n", __func__);
->  		steam->did_mode_switch =3D true;
->  		schedule_delayed_work(&steam->mode_switch, 45 * HZ / 100);
->  	}
+> @@ -1141,38 +1142,41 @@ static int steam_register(struct steam_device *st=
+eam)
+[ ... ]
+>  static void steam_work_connect_cb(struct work_struct *work)
+>  {
+>  	struct steam_device *steam =3D container_of(work, struct steam_device,
+>  							work_connect);
+> +
+>  	unsigned long flags;
+>  	bool connected;
+> +	bool opened;
+>  	int ret;
+> =20
+>  	spin_lock_irqsave(&steam->lock, flags);
+> +	opened =3D steam->client_opened;
+>  	connected =3D steam->connected;
+>  	spin_unlock_irqrestore(&steam->lock, flags);
+> =20
+> -	if (connected) {
+> +	if (connected && !opened) {
+>  		ret =3D steam_register(steam);
 
 [Severity: High]
-This is a pre-existing issue, but the error path in steam_register() fails =
-to
-remove the device from the global steam_devices list, which could lead to a
-use-after-free when probe fails.
+This is a pre-existing issue, but does steam_register() leak the list
+entry if it fails?
 
-If steam_register() fails during steam_probe() for a wired device (e.g., if
-steam_sensors_register() returns an error), the steam object is added to the
-global steam_devices list but is not removed on the error path:
+If steam_register() fails (e.g., if input_allocate_device() fails inside
+steam_input_register()), the device is added to the global steam_devices
+list but not removed.
 
-drivers/hid/hid-steam.c:steam_register() {
-    ...
-steam_register_sensors_fail:
-	steam_input_unregister(steam);
-steam_register_input_fail:
-	return ret;
-}
+Also, in steam_probe(), if a wired Steam controller is probed but an error
+occurs later, the error path jumps to err_hw_stop, bypassing
+err_steam_unregister. Devres will free the steam_device structure, leaving a
+dangling pointer in steam_devices. Could this lead to a use-after-free if t=
+he
+list is later traversed (e.g., when a user modifies lizard_mode)?
 
-steam_probe() then returns the error, jumping to the err_hw_stop label and
-bypassing steam_unregister(), which would have removed it from the list:
+> -		if (ret) {
+> +		if (ret)
+>  			hid_err(steam->hdev,
+>  				"%s:steam_register failed with error %d\n",
+>  				__func__, ret);
+> -		}
+>  	} else {
+>  		steam_unregister(steam);
+>  	}
 
-drivers/hid/hid-steam.c:steam_probe() {
-    ...
-		ret =3D steam_register(steam);
-		if (ret) {
-			hid_err(hdev, "%s:steam_register failed with error %d\n", __func__, ret);
-			goto err_hw_stop;
-		}
-    ...
-}
+[Severity: Medium]
+By unifying the connect and unregister logic here, will this cause log spam
+and unnecessary synchronous USB I/O when hidraw is opened and closed?
 
-Because the steam object was allocated with devm_kzalloc(), the kernel frees
-it upon probe failure, leaving a dangling pointer in the steam_devices list.
+steam_unregister() clears the serial number and logs a disconnect message.
+When hidraw is closed, steam_register() logs a connect message and performs
+synchronous USB I/O to re-fetch the serial number and device attributes.
 
-Can this memory corruption be triggered by plugging in a second Steam
-Controller, or by writing to the lizard_mode sysfs parameter?
+Could an unprivileged userspace application rapidly open and close the
+hidraw node (which is typical for gamepads managed by udev), flooding the
+kernel log and triggering localized DoS via USB I/O?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260729015243.1170=
-573-1-vi@endrift.com?part=3D9
+573-1-vi@endrift.com?part=3D7

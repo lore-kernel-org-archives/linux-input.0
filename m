@@ -1,42 +1,42 @@
 Received: from endrift.com (endrift.com [173.255.198.10])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A5A3031A7E2
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A5AAD31E831
 	for <linux-input@vger.kernel.org>; Wed, 29 Jul 2026 01:59:11 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=173.255.198.10
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785290352; cv=none; b=YVPog3L8WGWz/LgoUP0lZz2pmDi2bE1Dsj6LG3gwBW+/EUAOICka+7SAza4cWUy0D41emHux9saieDqUHCA2sSf6m46HFCLgRIBpD3B/AqYHT40OO5mOUhMn3MnnJMJlZ+j4CmHnQvFbLolRWdQgLELTRewsyGDK1ePDH0e//I4=
+	t=1785290353; cv=none; b=ocfcx+2Nwwnx931G/6ZZmwtJAhQWmA2W+qrqk/E5oP8hLoSrX1Ywu2pcHWliev0kgfnxYjLytUuDTux7O84Sjah9ZsuZKGX4emsJ53u7tNHjZMQ2WRhaNCRAe4UfcEznN6gF0AAKQRx8/RY4NDS4cPBnEDYjyxE2Fc3tpDgAaAw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785290352; c=relaxed/simple;
-	bh=NiY+LWn3m83BQyVxD4VcMQgTDgaUX1edy8Z6k8V0ssc=;
+	s=arc-20240116; t=1785290353; c=relaxed/simple;
+	bh=CP5laiHk+bd7zH26K4w/uw0EBvzNCZpSGTE12LokN9c=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=C3asWxAw0nOJNF7PcrcP5X5W1OazV3YEPrmrTNBC/AtWpL2qIVneuEam835v+c7lRQ4vmKo2m0RhM24MsrYISI1iZxhQ45eBitvJmIB1752JQCAhJzAySqV9sFflF8NuVzJToxtO8NH1MLsMP15r2l+KlLasOfZYfZBm+lunRsQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com; spf=pass smtp.mailfrom=endrift.com; dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b=hOlHuH/6; arc=none smtp.client-ip=173.255.198.10
+	 MIME-Version; b=VmEOfsxsXXK56543oAz0Oph507b9B9Icrn4+9/BLV9y7WW+4LMzy7zOL3TaAyhoGvJljR+I2HoLOA41zbvXxpQNIJo2ejomcb50J0dVL1+ADpGtQs1nkO3T44ydN+W4Phh3fwYbuyylIIvzCZgqgrzkgoWzcKCJ0cBrdMPJawxI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com; spf=pass smtp.mailfrom=endrift.com; dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b=qdkyNTy/; arc=none smtp.client-ip=173.255.198.10
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=endrift.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b="hOlHuH/6"
+	dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b="qdkyNTy/"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=endrift.com; s=2020;
-	t=1785290045; bh=NiY+LWn3m83BQyVxD4VcMQgTDgaUX1edy8Z6k8V0ssc=;
+	t=1785290045; bh=CP5laiHk+bd7zH26K4w/uw0EBvzNCZpSGTE12LokN9c=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=hOlHuH/6O7JmF1uXS7S/qYo41CwhFeiBB2FbMzG50exzncfyNyu035SmzDaVuHNWK
-	 vXNjpq32ZxBtlyMec6Mi0zZe4zZNRcfoSoQNkApDNiI6vyBjQhEP7NjFTipVrtH/ps
-	 H5fGvoQFQevLAHJ3Vs1LahNbdYPiRYtKeGn8/QTb7FSGQs1yAMg2zB2Tv3MrOdXI8B
-	 cottQ/pr58qbmPDW1v/GPgEGvxzqFeLnUnrsNYf7KwP/TZJaecKDSJEVkxbgOi+tEu
-	 /V48cFV6dK4tyFvHORaUDAuj0ZvXhIzYR6qSAAU+RqnOi5JmogkAeEGp3Qa5xwBw5s
-	 fI11+Vme2QX0Q==
+	b=qdkyNTy/A6kQxo6NBw0NuC7H0h9J0A7J+dnniOt3/ny7tG2gG4nDN/IcYTHOW91+T
+	 9WfDzycf//UAEknB+R8hR8nMRiC5ILtBcqtYZ1o1BxhXHMojadfxw9LTt7yV1MEdW3
+	 tmThnJHrBWShar/vI3LW3l6cotqTg1xnibLnTq+hLjLktDjutO4uC/NEtjna10nl6Z
+	 mDyqV7Bn1LuTXN99XBXa6KmLRghNGKiTlpdMj45FrbH5+sxft42bOLqTjyKCo1hqna
+	 pT11h+s23YSiE0+urUTukC3BxHCmDsp9j14dZaFgm9AeBFHob7svwIyml+1f6W+ORq
+	 JH5WalSECzT/w==
 Received: from microtis.vulpes.eutheria.net (71-212-73-87.tukw.qwest.net [71.212.73.87])
-	by endrift.com (Postfix) with ESMTPSA id C6601A099;
-	Tue, 28 Jul 2026 18:54:04 -0700 (PDT)
+	by endrift.com (Postfix) with ESMTPSA id 366E4A0A9;
+	Tue, 28 Jul 2026 18:54:05 -0700 (PDT)
 From: Vicki Pfau <vi@endrift.com>
 To: Jiri Kosina <jikos@kernel.org>,
 	Benjamin Tissoires <bentiss@kernel.org>,
 	linux-input@vger.kernel.org
 Cc: Vicki Pfau <vi@endrift.com>,
 	Yousef Alhouseen <alhouseenyousef@gmail.com>
-Subject: [PATCH v4 03/11] HID: steam: Rename some constants that got renamed upstream
-Date: Tue, 28 Jul 2026 18:52:25 -0700
-Message-ID: <20260729015243.1170573-4-vi@endrift.com>
+Subject: [PATCH v4 04/11] HID: steam: Zero-initialize reply in serial lookup
+Date: Tue, 28 Jul 2026 18:52:26 -0700
+Message-ID: <20260729015243.1170573-5-vi@endrift.com>
 X-Mailer: git-send-email 2.54.0
 In-Reply-To: <20260729015243.1170573-1-vi@endrift.com>
 References: <20260729015243.1170573-1-vi@endrift.com>
@@ -48,50 +48,38 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-SETTING_MOUSE_POINTER_ENABLED was renamed to SETTING_LIZARD_MODE upstream.
-SETTING_GYRO_MODE was renamed to SETTING_IMU_MODE in an older commit, but
-the associated enum was overlooked.
+When requesting the serial number from a controller, the function will do
+some basic bounds checking to make sure the reply is valid, as well as
+capping off the reply with a null byte before copying. However, the error
+logging can leak uninitialized memory in some cases. We can simplify and
+solve this by just zero-initalizing the reply memory eagerly instead.
 
 Signed-off-by: Vicki Pfau <vi@endrift.com>
 ---
- drivers/hid/hid-steam.c | 16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ drivers/hid/hid-steam.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
 diff --git a/drivers/hid/hid-steam.c b/drivers/hid/hid-steam.c
-index 75d6be0be0a2..983d18d1de4f 100644
+index 983d18d1de4f..8bad79205b57 100644
 --- a/drivers/hid/hid-steam.c
 +++ b/drivers/hid/hid-steam.c
-@@ -151,7 +151,7 @@ enum {
- 	SETTING_USB_DEBUG_MODE,
- 	SETTING_LEFT_TRACKPAD_MODE,
- 	SETTING_RIGHT_TRACKPAD_MODE,
--	SETTING_MOUSE_POINTER_ENABLED,
-+	SETTING_LIZARD_MODE,
+@@ -447,7 +447,7 @@ static int steam_get_serial(struct steam_device *steam)
+ 	 */
+ 	int ret = 0;
+ 	u8 cmd[] = {ID_GET_STRING_ATTRIBUTE, sizeof(steam->serial_no), ATTRIB_STR_UNIT_SERIAL};
+-	u8 reply[3 + STEAM_SERIAL_LEN + 1];
++	u8 reply[3 + STEAM_SERIAL_LEN + 1] = {0};
  
- 	/* 10 */
- 	SETTING_DPAD_DEADZONE,
-@@ -261,14 +261,14 @@ enum {
- 	ATTRIB_STR_UNIT_SERIAL,
- };
- 
--/* Values for GYRO_MODE (bitmask) */
-+/* Values for IMU_MODE (bitmask) */
- enum {
--	SETTING_GYRO_MODE_OFF			= 0,
--	SETTING_GYRO_MODE_STEERING		= BIT(0),
--	SETTING_GYRO_MODE_TILT			= BIT(1),
--	SETTING_GYRO_MODE_SEND_ORIENTATION	= BIT(2),
--	SETTING_GYRO_MODE_SEND_RAW_ACCEL	= BIT(3),
--	SETTING_GYRO_MODE_SEND_RAW_GYRO		= BIT(4),
-+	SETTING_IMU_MODE_OFF			= 0,
-+	SETTING_IMU_MODE_STEERING		= BIT(0),
-+	SETTING_IMU_MODE_TILT			= BIT(1),
-+	SETTING_IMU_MODE_SEND_ORIENTATION	= BIT(2),
-+	SETTING_IMU_MODE_SEND_RAW_ACCEL		= BIT(3),
-+	SETTING_IMU_MODE_SEND_RAW_GYRO		= BIT(4),
- };
- 
- /* Trackpad modes */
+ 	mutex_lock(&steam->report_mutex);
+ 	ret = steam_send_report(steam, cmd, sizeof(cmd));
+@@ -461,7 +461,6 @@ static int steam_get_serial(struct steam_device *steam)
+ 		ret = -EIO;
+ 		goto out;
+ 	}
+-	reply[3 + STEAM_SERIAL_LEN] = 0;
+ 	strscpy(steam->serial_no, reply + 3, reply[1]);
+ out:
+ 	mutex_unlock(&steam->report_mutex);
 -- 
 2.54.0
 

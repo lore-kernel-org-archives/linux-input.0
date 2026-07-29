@@ -1,69 +1,69 @@
-Received: from mail-pf1-f174.google.com (mail-pf1-f174.google.com [209.85.210.174])
+Received: from mail-pf1-f175.google.com (mail-pf1-f175.google.com [209.85.210.175])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C3B5F45C713
-	for <linux-input@vger.kernel.org>; Wed, 29 Jul 2026 17:10:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.174
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9F7AC45FFBD
+	for <linux-input@vger.kernel.org>; Wed, 29 Jul 2026 17:10:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.175
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785345010; cv=none; b=jUWXbQbVr81o1d7dYBKpG8rdql1KlnSUjBGctgscndDAlnOUYIIb5QCaYhhj+7rzSulDCmMMssDgtoJ9BOTGYK/4THN5HPrTbtr/iw1Yw8BjcRnUfd8urmyoPRVcGNOBiRun8F8ICGH2yh9KRpSrraHDwRMUmsyl7U5HxB06LtA=
+	t=1785345012; cv=none; b=igjo5KVK+AIdpwpnFSQlMVeVrVbTaPOJlnKeInT89BzYPuG5e0M4MZiNQd+5LheOiK428rpm+5PZt54uLFprTryDMr4NwrhEermaYVYvHuDMKquhpveDBMIOqIbLyUNuGOovZwTAdgaPNdRgy8jW8ibq2GrFe5Mr8cbaHioVw/s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785345010; c=relaxed/simple;
-	bh=hozdLyqkwUyv7nQGeKMb9Yul7dJcbrG59xMfsmKI734=;
+	s=arc-20240116; t=1785345012; c=relaxed/simple;
+	bh=rW1UH6QqT5HoM3X6vIUIhx8zAo13pIpUQrcQ0zBoEKo=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=ETy8Z836c2G2csu3jQrF/+l1RWXWoutfmHty8cKmXWYFqpzNMNzJ6yvRXYpgpYcPeozkEXbPzsyVcgaxGOu73xfZEoH1wvAOYHXhvpQ9mLEhMmOTdD3tFVrJELOAf65L/N110eNqoIPII3yNZ6mm6+teZjF0KCRQ4UMtBDDdl50=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=F/vliqsd; arc=none smtp.client-ip=209.85.210.174
+	 MIME-Version; b=R37pHMvjYbVikzot6GORMf3OmuuKJL5/nVSL+6AMprF3uOSd6noTaTmcbafFXrSBC9rDm5xixDoznEgpHtJgHxbrZLFJwb2JbSpBuJhPhV2aXVYnMlYdbuwVyObC1fiApV0JkokFizPSV2y4Ym4eS/fUjMOZAigtJgbyqvhqgtQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=P5/6NV2U; arc=none smtp.client-ip=209.85.210.175
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="F/vliqsd"
-Received: by mail-pf1-f174.google.com with SMTP id d2e1a72fcca58-84862b0d5f8so1092331b3a.3
-        for <linux-input@vger.kernel.org>; Wed, 29 Jul 2026 10:10:08 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="P5/6NV2U"
+Received: by mail-pf1-f175.google.com with SMTP id d2e1a72fcca58-84a4d8fd6ecso1382649b3a.1
+        for <linux-input@vger.kernel.org>; Wed, 29 Jul 2026 10:10:11 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1785345008; x=1785949808; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1785345011; x=1785949811; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=Ep93HPjH5mmfbaJOhBXSdXp3nxY941Jgshzn8ZjPsSw=;
-        b=F/vliqsdRzUs6x4m569+gWW9LXTjPHZs0AlBqg+/qTrvhwiYgpP2q5gzamkDwsAxdl
-         AHmv3iaVYyGRBviw7HnjdCCdZjz7TeP+kiOnYF0bcw4/BeVdoFdLkntYNxfLgbw3y9oS
-         OSu7Vby6N9degefnfnpuWKA9qDw+y86w9n8/CjugCJ6lsBQrd8U9+j+XH8hn+qJPFBvn
-         Rwivr/FRIKP2bk6j4KI31AvCiC9VcrCoDSNk/cOwIeYdohWZnfwAUT4FFd7wqCwCoorw
-         FHA9UaX28fxDUPRB++Vv3BHO4J72mvBDB5Q7Q8iWH2mCgW+EGCmLAQSiy1L03ID1t3I7
-         WT5Q==
+        bh=8KfsUxOImFYNB/Y0+13Cr6DSQW6iSW7V0sSvSozS8cU=;
+        b=P5/6NV2UTEPeeugJ2bzkHY3xHX2LdODfaZGOKbqnoCpHd1RPQ6kgCMwlW+ktxskQJ3
+         moxYYteRQAxDFuH3K6Eqz6XBb4k3mQIlp6vX57J6hN614gV/wdDDi6120Z07VYDwuD4H
+         BHzGqqHDZbq9fEKUbUgPTd24G3W4kL/Lt2FDjQwfdrJ7NS3zKjvE0RmaRNg/4Psm/7Xk
+         97/z5eNsFXIIkEKESjg3MKdsmV/OCQ/qazxBiNULVbHweOQLn0+5T56n+8dMO932/zOl
+         wLqEF53fAhhezu2Q9snnFBflGw2MxFg4SnhNb1pb4b+VBRg5xlYjklacGZt69YBslzEf
+         /Ecg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785345008; x=1785949808;
+        d=1e100.net; s=20251104; t=1785345011; x=1785949811;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=Ep93HPjH5mmfbaJOhBXSdXp3nxY941Jgshzn8ZjPsSw=;
-        b=lxwkkeFYJsvndFLYgKHvXxq6gGgHXoAjijUwhIWkXk5w04hqEd4ddFH2FFqMH1BBn6
-         BqI9kfMAPnfxRE7NSI3fRL5NZXx2LlGYSgsTjsCl1qkiHPRUyvelCK0wPGA4Fx5k4MKj
-         /d/4MJhuAGS75mz+kXM2yOMOdAUWFLwQHjgd05yBk9gKdYfu0ZQstKfolYG3dEB+eXRX
-         qN4/VfpLP1rdKSgBdXN4+rgTuT4HIt9DuSxUoRsEfX7EhR0vCf8ONNhAi8Dp8iWrjAFO
-         IcuSqy0qeEw1Vt5tQDVRusWsq17qyfKAsRly82b8B724ZfcD8BFPtU//CWOGJE+Mi0mP
-         WYew==
-X-Gm-Message-State: AOJu0Ywimh5NbWY18jKCtRZJ/p/qc6QlunPjU8nM/1FI+t4sG6P/0CHa
-	mvHx9tKze4Gg2z+AfOIGxrD5/tfjKZmtrUZHwKtj+hRf2BM3Pe7t6UQL1Mo86kVp
-X-Gm-Gg: AR+sD10WHFSX9nIPUS4aPHA2YOBn9nJfMWhDFRpAm1rqhm1aWszjZHxK90sZUoNnsOg
-	6e86qskSMRLum2jpbyzyI2ax03StOkCw2TtT0hH4rj6QafOi9O3CVxRY14U0xZNRpusqnqVQR0r
-	0VWX9sjQa1sxxVN5ml9NxOVOqsIOof7SwA/cW2mLlD0bsiDxi5NZUmpQQQQRUzQDLiUKtx42JDW
-	e9/BGiUHhZ3CzLiEn2Nyo3fydVAF3nCS/ve8UnSqEDag2gnQD7xFBijNVzmfmLXs0YOFR4hW50A
-	lsa9esFSs2GoqXNLnRCVkyeUrXkPWCJbCBQqCR6YzzSnaqqsOa/PyWvVOBr4qtHuW9oQ9IINNfv
-	uooUTKfj9G0fAckhM6YtK42McnV3z7w/c++a5hHHZXS3X8OJPn7eIltD061NBDBirbI8Rv9301D
-	YCo1EalDlncpgrd/eRMI69rLiDfmCu8qzFRsa4WRwCbf9mHrfSb3A1UY0=
-X-Received: by 2002:a05:6a00:10c3:b0:845:d274:c024 with SMTP id d2e1a72fcca58-84e932c7a28mr7886101b3a.61.1785345007996;
-        Wed, 29 Jul 2026 10:10:07 -0700 (PDT)
+        bh=8KfsUxOImFYNB/Y0+13Cr6DSQW6iSW7V0sSvSozS8cU=;
+        b=Fv4H+LRgopsPlgniTzi04Ppu94EAcFMg46+LEPcXkMr91vuG3/RID6x1iUbCPdTZ9o
+         b07fet1ncgMe0MTg6okTnZtPselFFIC7mSDi307RG00mlc4MfNtPbVHLjBjR0fwJyGcC
+         z4U5PDOX4e1mxpZWGj4btYKm6oUaDHLl7O7NKBWt7DRBIhSQSt6+1I4Win8EKdjXx3an
+         SHCiV26TmStYuV7qKIJOdIsuS+ybfi8Jsgp+K8A8IL/BEkfbE4IBA4ffi5F4gTcat7Qe
+         EN4uhE2CmHJ5FuVXi+R5DmTvIv1MmxqDiumjuuqHbRTGREY3vKnRjIzJDRDoZGy1hxY5
+         u1/A==
+X-Gm-Message-State: AOJu0YwxaOVslDwpa1ydIhqEr6QVW1CswsnjKMFfemOfRiEpmSW3C2tr
+	+R6xZTe/nUQ47vZlfhdBxCAxdbWB4eqQekZPerxM+NYzUyKV50B9octH
+X-Gm-Gg: AR+sD12t7S3u1T73naZitk/RDICUL3W5+5dGK3e6fuSc/5od2SDE7BS2XF3uoABjphi
+	LR0bPu5R2HSJqgvsKEkGeF+3HXPV2Hclr44uT8BmsNIwcTdSLlx6kgZXxM87w3PocRv9xCO8UOk
+	eJKTXvWCvbiHjW3M8H4z0Et2alg+oc43lmmCJUPFgyukcy5PMODCQ8Foik7F2KA0QZjevWyS+ql
+	Slg7UZv1+ZAhgMwodDCetNrAtBx0sNCcdXkrdGZAiUAfu8MN18zC6K4v5qnYUbLnlzPgZpFU2oa
+	Q+vvWQEPBUH6obFEPtAzpt8Oo6Wc7Ki4DC8jDjDGEJrq4bEFcFFZYfwLbXByDUCI2vOW3HVRYxg
+	bSqEXAvDa55rX+TUSoimJSyCVq+v8jXM3ipuGRSqVDz59Vz5UxwQqDmI4JFhaP7g2tZX8a3Cx27
+	vnGhJv9AIrDOwB97kJg1ai9phL2bBVl0sQ1Hmkyq+mU/oecfMJduoUalI=
+X-Received: by 2002:a05:6a00:189b:b0:841:dca1:8b69 with SMTP id d2e1a72fcca58-84e93196934mr8144425b3a.5.1785345010870;
+        Wed, 29 Jul 2026 10:10:10 -0700 (PDT)
 Received: from ubuntu.. ([110.9.142.4])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-84ea0052e04sm1694231b3a.22.2026.07.29.10.10.06
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-84ea0052e04sm1694231b3a.22.2026.07.29.10.10.08
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 29 Jul 2026 10:10:07 -0700 (PDT)
+        Wed, 29 Jul 2026 10:10:09 -0700 (PDT)
 From: Sang-Heon Jeon <ekffu200098@gmail.com>
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH v2 1/3] Input: pmic8xxx-keypad - remove conditional return with no effect
-Date: Thu, 30 Jul 2026 02:09:33 +0900
-Message-ID: <20260729171001.260698-2-ekffu200098@gmail.com>
+Subject: [PATCH v2 2/3] Input: rmi_smbus - remove conditional return with no effect
+Date: Thu, 30 Jul 2026 02:09:34 +0900
+Message-ID: <20260729171001.260698-3-ekffu200098@gmail.com>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20260729171001.260698-1-ekffu200098@gmail.com>
 References: <20260729171001.260698-1-ekffu200098@gmail.com>
@@ -83,30 +83,28 @@ scripts/coccinelle/misc/cond_return_no_effect.cocci.
 
 Signed-off-by: Sang-Heon Jeon <ekffu200098@gmail.com>
 ---
- drivers/input/keyboard/pmic8xxx-keypad.c | 8 +-------
- 1 file changed, 1 insertion(+), 7 deletions(-)
+ drivers/input/rmi4/rmi_smbus.c | 7 +------
+ 1 file changed, 1 insertion(+), 6 deletions(-)
 
-diff --git a/drivers/input/keyboard/pmic8xxx-keypad.c b/drivers/input/keyboard/pmic8xxx-keypad.c
-index 35d1aa2a22a5..c916e80e2f58 100644
---- a/drivers/input/keyboard/pmic8xxx-keypad.c
-+++ b/drivers/input/keyboard/pmic8xxx-keypad.c
-@@ -462,15 +462,9 @@ static int pmic8xxx_kp_enable(struct pmic8xxx_kp *kp)
+diff --git a/drivers/input/rmi4/rmi_smbus.c b/drivers/input/rmi4/rmi_smbus.c
+index 6de68c602558..3160714a514a 100644
+--- a/drivers/input/rmi4/rmi_smbus.c
++++ b/drivers/input/rmi4/rmi_smbus.c
+@@ -177,13 +177,8 @@ static int smb_block_read(struct rmi_transport_dev *xport,
+ 	struct rmi_smb_xport *rmi_smb =
+ 		container_of(xport, struct rmi_smb_xport, xport);
+ 	struct i2c_client *client = rmi_smb->client;
+-	int retval;
  
- static int pmic8xxx_kp_disable(struct pmic8xxx_kp *kp)
- {
--	int rc;
+-	retval = i2c_smbus_read_block_data(client, commandcode, buf);
+-	if (retval < 0)
+-		return retval;
 -
- 	kp->ctrl_reg &= ~KEYP_CTRL_KEYP_EN;
- 
--	rc = regmap_write(kp->regmap, KEYP_CTRL, kp->ctrl_reg);
--	if (rc < 0)
--		return rc;
--
--	return rc;
-+	return regmap_write(kp->regmap, KEYP_CTRL, kp->ctrl_reg);
+-	return retval;
++	return i2c_smbus_read_block_data(client, commandcode, buf);
  }
  
- static int pmic8xxx_kp_open(struct input_dev *dev)
+ static int rmi_smb_read_block(struct rmi_transport_dev *xport, u16 rmiaddr,
 -- 
 2.43.0
 

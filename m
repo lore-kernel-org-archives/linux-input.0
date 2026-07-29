@@ -1,166 +1,192 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 440063A59A7
-	for <linux-input@vger.kernel.org>; Wed, 29 Jul 2026 05:17:14 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 50AB431E82E
+	for <linux-input@vger.kernel.org>; Wed, 29 Jul 2026 05:18:00 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785302235; cv=none; b=s2k18HvMidSOxrKhodcA4lIN9aUsP1ilRwYHbSqfQKyEghCIQ8oTUQR+RAlf2zac9v7Wl4RZGc00jjNbhXIfZR+69AyuptetdZbVxGQfqDDqtQ6H7DWSFIjVEKuVn7nfzqNgdvj7Ajr6c5H5IQe67lye4pZdY2gt2ypaT8WKsw4=
+	t=1785302281; cv=none; b=Q65WwMEAaC/Xv/KcwCblrAsyAe9IoZ70hh06XgNLK6U0nJJPWlMkx/nQOREvedimOAJzfZBUb16DQHph3b05KdCahAAfEJo1N9qGc6hHesuO9P5H50Pmto8oWXw1nR6zP9g45IcD/goZy0ayyzilkxfeiMx14ofBmivgI4EgnHU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785302235; c=relaxed/simple;
-	bh=F6CgO4na4C6mzFdrz/UURzLQji9m152eMGe2MzS+AVQ=;
+	s=arc-20240116; t=1785302281; c=relaxed/simple;
+	bh=9WIe0VzXXo5QevSEt0lYA/E0ZZYoZoSNasWjajJ9SRA=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=ro1ViYJD5FrCw8JAi7ZUfMtFl/85qeaiF1bCgA4pFapExS2rST/88uzh1eElkjyQNmurgKwIN9VZgmGRStY725tqTT4gW8iA7f/39Cuaq/HF3g/mcFkrVfY8oE3DL7Jxjo63dUac00WBELHwtLQTsHPPYoGoNEjB+jjkJewim0U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=E+ZABOzF; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=lbPqxHLNZG362CdNH28/qS5vGz8bOjATsLs6kKr5BQ82izWvzXcQ1p0s7Mq+Uzu8J5YEXWPVPzSZp53JdrRBPX7RzCeRFdWiDP/WBKYPLuWMmQsMBAyrpUP0MSmBfI6HS98a8H5/wpVl9Vwzh7K9uJ8n2d71QMynRVD4wzgx4P8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Ye+VY8tC; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="E+ZABOzF"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A59D01F000E9;
-	Wed, 29 Jul 2026 05:17:13 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Ye+VY8tC"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BEC6D1F000E9;
+	Wed, 29 Jul 2026 05:17:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785302233;
-	bh=5boJFaz+jPlZ3Q68X1beVfeeDCcVHgASN7Rtklu9viY=;
+	s=k20260515; t=1785302280;
+	bh=BEnM4MLNQVYrkPvhXphyu3ft2T/lcRaI6DDRP2+yZQY=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=E+ZABOzFBTWacPOUwtc8DNMwkv4sQKwZGDtxXrxLBlMMV4tp2pF/WdIe1kJ2gmnUg
-	 vY8FDqX7yYZH+gX+09tGickndqRg8IQIGWh7oexCkNBvzPdfLXhRqG+fuDFw6NYqCg
-	 3U/BpV/7/fyySZjbG0CQqER2dnHV+8Xv/YnRp5cw2lXwCi5FvMHqM7jsEPpodkgegi
-	 SmGDk1DXisRCliRSbPcL4lc7BSDXNG2YSra2cmqzOHH/ZkSsXksvGqzmGrXTilRj2m
-	 Hcqvfp1YlxqLOuipQbnN8UpmkeXAtW1diLQ6xRWGxpZ79h6RhUcyGajgbj6lnIf+YI
-	 6wWQAUvZEvj8A==
+	b=Ye+VY8tC9/k/PLgBMZQpPTTJkdO5i9Xru5FS5DP1AVaDJ27pfQoyFgaen05TPOIp8
+	 +iQeAKXmY1diyPSeCTF3joizWa62z2syuGQUwjt6lthSUo2QRa+/7GnV0UBGNgJmrb
+	 XsqtZkS7V487K2gGgX2EVxl9klpj6k49ewrGMw2u57S/30Btucf0e8gVrfp5/k2L/k
+	 By/lvM1mY5iBrWHCHx7Ejz3W3iNHJmCA7OOllAyeOLeuCVbIVRo5O6c2bChd32ay16
+	 3XeULWyClC37aG6OJRBh+BaijFVM3X5Y5r7rf9EPwCLL+nWcZ7kxvAgnMJmywXwUIC
+	 bR6JNsE2fJvFQ==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v5 3/3] HID: Intel-thc-hid: Intel-quickspi: Refine
+Subject: Re: [PATCH v5 2/3] HID: Intel-thc-hid: Intel-quicki2c: Refine
  recover callback
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Even Xu" <even.xu@intel.com>
 Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260729050145.2272597-4-even.xu@intel.com>
+In-Reply-To: <20260729050145.2272597-3-even.xu@intel.com>
 References: <20260729050145.2272597-1-even.xu@intel.com>
- <20260729050145.2272597-4-even.xu@intel.com>
+ <20260729050145.2272597-3-even.xu@intel.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 29 Jul 2026 05:17:13 +0000
-Message-Id: <20260729051713.A59D01F000E9@smtp.kernel.org>
+Date: Wed, 29 Jul 2026 05:17:59 +0000
+Message-Id: <20260729051759.BEC6D1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+Thank you for your contribution! Sashiko AI review found 5 potential issue(=
 s) to consider:
 
 New issues:
-- [High] Race condition during device removal allows the recovery workqueue=
- item to be scheduled after it was cancelled, leading to a Use-After-Free o=
-n `qsdev`.
+- [High] Use-After-Free and race condition during device teardown due to im=
+proper workqueue cancellation.
+- [Medium] Failed suspend operation leaves the device recovery mechanism pe=
+rmanently disabled.
 
 Pre-existing issues:
-- [High] The HID device is destroyed before hardware interrupts are disable=
-d, creating a race condition where the IRQ handler can dereference a freed =
-HID device pointer.
+- [High] Missing cleanup of IRQ vectors on error paths and device removal, =
+leading to an IRQ resource leak.
+- [High] Unsafe MMIO register access in hard IRQ handler without PM runtime=
+ verification.
+- [High] Use-After-Free on the HID device structure during removal.
 --
 
---- Patch [3]: [PATCH v5 3/3] HID: Intel-thc-hid: Intel-quickspi: Refine re=
+--- Patch [2]: [PATCH v5 2/3] HID: Intel-thc-hid: Intel-quicki2c: Refine re=
 cover callback ---
-commit 08604fa17c3b0d7c83e325ba80b11d716e4a7d1a
+commit f51d43428a895d224d1667aba97de68a9108ddc3
 Author: Even Xu <even.xu@intel.com>
 
-HID: Intel-thc-hid: Intel-quickspi: Refine recover callback
+HID: Intel-thc-hid: Intel-quicki2c: Refine recover callback
 
-This commit refines the recover flow by using a workqueue to handle
-recovery instead of processing it in the irq handler. It also calls
-thc_rxdma_reset() to simplify the operation and disables interrupts
-during the recovery flow.
+This commit introduces a workqueue for the recovery flow in the quicki2c
+driver instead of processing it in the IRQ handler. It also simplifies
+recovery using the thc_rxdma_reset() API and disables interrupts during
+the whole recover flow to prevent storms on failure.
 
-> --- a/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c
-> +++ b/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c
-[ ... ]
-> @@ -337,11 +336,10 @@ static irqreturn_t quickspi_irq_thread_handler(int =
-irq, void *dev_id)
->  	}
-> =20
->  end:
-> -	thc_interrupt_enable(qsdev->thc_hw, true);
-> -
->  	if (err_recover)
-> -		if (try_recover(qsdev))
-> -			qsdev->state =3D QUICKSPI_DISABLED;
-> +		schedule_work(&qsdev->recover_work);
-> +	else
-> +		thc_interrupt_enable(qsdev->thc_hw, true);
-> =20
->  	pm_runtime_put_autosuspend(qsdev->dev);
-> =20
-[ ... ]
-> @@ -461,6 +461,10 @@ static struct quickspi_device *quickspi_dev_init(str=
-uct pci_dev *pdev, void __io
->   */
->  static void quickspi_dev_deinit(struct quickspi_device *qsdev)
->  {
-> +	WRITE_ONCE(qsdev->recovery_disabled, true);
-> +	cancel_work_sync(&qsdev->recover_work);
-> +
-> +	thc_interrupt_quiesce(qsdev->thc_hw, true);
->  	thc_interrupt_enable(qsdev->thc_hw, false);
->  	thc_ltr_unconfig(qsdev->thc_hw);
->  	thc_wot_unconfig(qsdev->thc_hw);
+> diff --git a/drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c b/dr=
+ivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c
+> index 46d3e9a019995..539da002aa4fd 100644
+> --- a/drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c
+> +++ b/drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c
+> @@ -245,28 +245,33 @@ static irqreturn_t quicki2c_irq_quick_handler(int i=
+rq, void *dev_id)
+>  }
 
 [Severity: High]
-Can this sequence cause a use-after-free on qsdev?
+This is a pre-existing issue, but could this cause an unsafe MMIO access?
 
-Looking at quickspi_dev_deinit(), the recovery work is cancelled before
-hardware interrupts are quiesced and disabled. If a hardware error
-interrupt occurs immediately after cancel_work_sync() completes, the
-IRQ thread will still run.
+Looking at quicki2c_irq_quick_handler():
 
-In quickspi_irq_thread_handler(), the work is unconditionally scheduled
-without checking the recovery_disabled flag:
+static irqreturn_t quicki2c_irq_quick_handler(int irq, void *dev_id)
+{
+    ...
+    /* Disable THC interrupt before current interrupt be handled */
+    thc_interrupt_enable(qcdev->thc_hw, false);
+    ...
+}
 
-    if (err_recover)
-        schedule_work(&qsdev->recover_work);
+The probe function allows fallback to shared legacy INTx interrupts via
+pci_alloc_irq_vectors(). If the device is in D3hot (runtime suspended) and
+a shared interrupt triggers on the same line, could this handler access the
+thc_interrupt_enable MMIO register on powered-down hardware?
 
-If this happens during device removal in quickspi_remove(), devres will
-subsequently free qsdev, but the workqueue will execute try_recover()
-afterwards and dereference the freed memory.
+PM subsystem guidelines suggest checking pm_runtime_get_if_active() before
+register access in shared IRQ handlers.
 
-Could we either check the recovery_disabled flag before scheduling,
-or disable interrupts before cancelling the work?
+[ ... ]
 
-> @@ -711,12 +715,13 @@ static void quickspi_remove(struct pci_dev *pdev)
+> @@ -439,6 +445,9 @@ static struct quicki2c_device *quicki2c_dev_init(stru=
+ct pci_dev *pdev, void __io
+>   */
+>  static void quicki2c_dev_deinit(struct quicki2c_device *qcdev)
+>  {
+> +	WRITE_ONCE(qcdev->recovery_disabled, true);
+> +	cancel_work_sync(&qcdev->recover_work);
+> +
+>  	thc_interrupt_quiesce(qcdev->thc_hw, true);
+>  	thc_interrupt_enable(qcdev->thc_hw, false);
+
+[Severity: High]
+Is there a race condition here that could lead to a use-after-free?
+
+Because cancel_work_sync() is called before the hardware interrupt source
+is disabled with thc_interrupt_enable(), could a concurrent or preempted
+threaded IRQ handler call schedule_work() immediately after
+cancel_work_sync() returns?
+
+If the work is placed back on the queue and the qcdev structure is
+subsequently freed during removal, would the workqueue eventually execute
+try_recover() on freed memory?
+
+[ ... ]
+
+> @@ -772,12 +781,13 @@ static void quicki2c_remove(struct pci_dev *pdev)
 >  		return;
 > =20
->  	quickspi_hid_remove(qsdev);
+>  	quicki2c_hid_remove(qcdev);
 > +
-> +	quickspi_dev_deinit(qsdev);
-> +
->  	quickspi_dma_deinit(qsdev);
+> +	quicki2c_dev_deinit(qcdev);
+
+[Severity: High]
+This is a pre-existing issue, but does destroying the HID device before
+disabling hardware interrupts create a race window?
+
+If an RX interrupt arrives after quicki2c_hid_remove() completes but before
+quicki2c_dev_deinit() disables interrupts, could the threaded IRQ handler
+execute handle_input_report() and invoke quicki2c_hid_send_report(),
+leading to a dereference of the freed qcdev->hid_dev pointer?
+
+[Severity: High]
+This is also a pre-existing issue, but are the IRQ vectors leaked
+during removal?
+
+The probe function allocates vectors via pci_alloc_irq_vectors() with
+PCI_IRQ_ALL_TYPES, but there does not appear to be a corresponding
+pci_free_irq_vectors() in quicki2c_remove() or the probe error paths.
+
+Does this result in a permanent leak of system IRQ resources?
+
+>  	quicki2c_dma_deinit(qcdev);
 > =20
->  	pm_runtime_get_noresume(qsdev->dev);
+>  	pm_runtime_get_noresume(qcdev->dev);
 > =20
-> -	quickspi_dev_deinit(qsdev);
+> -	quicki2c_dev_deinit(qcdev);
 > -
 >  	pci_clear_master(pdev);
 >  }
 
-[Severity: High]
-This is a pre-existing issue, but can this sequence lead to a
-use-after-free of the HID device?
+[ ... ]
 
-In quickspi_remove(), quickspi_hid_remove() is called to destroy the
-HID device before quickspi_dev_deinit() disables hardware interrupts.
+> @@ -826,6 +836,9 @@ static int quicki2c_suspend(struct device *device)
+>  	if (ret)
+>  		return ret;
+> =20
+> +	WRITE_ONCE(qcdev->recovery_disabled, true);
+> +	cancel_work_sync(&qcdev->recover_work);
+> +
+>  	ret =3D thc_interrupt_quiesce(qcdev->thc_hw, true);
+>  	if (ret)
+>  		return ret;
 
-If a data interrupt fires in the window between these two calls,
-quickspi_irq_thread_handler() will process it:
+[Severity: Medium]
+If thc_interrupt_quiesce() fails and returns an error here, is
+qcdev->recovery_disabled left permanently set to true?
 
-    if (int_mask & BIT(THC_RXDMA2_INT)) {
-        ...
-        quickspi_handle_input_data(qsdev, input_len);
-    }
-
-Since the HID device has already been freed by quickspi_hid_remove(),
-attempting to report input data could dereference a freed pointer.
-
-Should we ensure interrupts are disabled before destroying the HID device?
+Since a failed suspend aborts the transition and won't trigger a subsequent
+resume callback to reset the flag, would this leave the driver in a state
+where try_recover() silently aborts on all future errors?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260729050145.2272=
-597-1-even.xu@intel.com?part=3D3
+597-1-even.xu@intel.com?part=3D2

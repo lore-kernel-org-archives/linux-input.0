@@ -1,68 +1,72 @@
-Received: from mail-pf1-f170.google.com (mail-pf1-f170.google.com [209.85.210.170])
+Received: from mail-pf1-f174.google.com (mail-pf1-f174.google.com [209.85.210.174])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C532642C518
-	for <linux-input@vger.kernel.org>; Wed, 29 Jul 2026 17:10:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C3B5F45C713
+	for <linux-input@vger.kernel.org>; Wed, 29 Jul 2026 17:10:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785345008; cv=none; b=DR6pz6C7sTz7Db6Cgx0OWgIWUbaDfwlxQ7JgBGrXkTEiYPbE5EaDxXk6Qg2fcf2VKBWxvneq4vcBtTzvFeLfmk8F5vbHdreZWynBm5DSq47/0xCTTa98oLJtbUaq7UD9eomfMpnuiWfxtc7wbdvBGcM/AO5ZHcx3RftlaUaTDfs=
+	t=1785345010; cv=none; b=jUWXbQbVr81o1d7dYBKpG8rdql1KlnSUjBGctgscndDAlnOUYIIb5QCaYhhj+7rzSulDCmMMssDgtoJ9BOTGYK/4THN5HPrTbtr/iw1Yw8BjcRnUfd8urmyoPRVcGNOBiRun8F8ICGH2yh9KRpSrraHDwRMUmsyl7U5HxB06LtA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785345008; c=relaxed/simple;
-	bh=WsXGpbXIu6GxKGXE7l0+bSLeE7QRMBDy1W1Iz0fVOFM=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=YxCX0v1kQXFo6kwEAOy/020AQxWYTa2WqnhPna38I3Yc2Py8NftrCnWuMpFW9i1TASFHXr0PVisPvJUsYWkgvu8hWgVKFwRqC7Sch8TF8ETwRbMxpvgbAlhrLHScDWPKAg2vC7VvQwpDtCeVCaWEFFR5JkmmW3zT1Tbb9c393HM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=AZ4JDzqE; arc=none smtp.client-ip=209.85.210.170
+	s=arc-20240116; t=1785345010; c=relaxed/simple;
+	bh=hozdLyqkwUyv7nQGeKMb9Yul7dJcbrG59xMfsmKI734=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=ETy8Z836c2G2csu3jQrF/+l1RWXWoutfmHty8cKmXWYFqpzNMNzJ6yvRXYpgpYcPeozkEXbPzsyVcgaxGOu73xfZEoH1wvAOYHXhvpQ9mLEhMmOTdD3tFVrJELOAf65L/N110eNqoIPII3yNZ6mm6+teZjF0KCRQ4UMtBDDdl50=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=F/vliqsd; arc=none smtp.client-ip=209.85.210.174
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="AZ4JDzqE"
-Received: by mail-pf1-f170.google.com with SMTP id d2e1a72fcca58-84a4d8fd6ecso1382548b3a.1
-        for <linux-input@vger.kernel.org>; Wed, 29 Jul 2026 10:10:06 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="F/vliqsd"
+Received: by mail-pf1-f174.google.com with SMTP id d2e1a72fcca58-84862b0d5f8so1092331b3a.3
+        for <linux-input@vger.kernel.org>; Wed, 29 Jul 2026 10:10:08 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1785345006; x=1785949806; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=TPVDTrduiuVX4VmCbK7NTqZ/bp707VKiuFKdVexETQI=;
-        b=AZ4JDzqEmGHAdX3MScQ97FpZoI5pTUKg8L2UlE5bVD/5gCs9/YI2BzUN7sVi3j8Bg3
-         3NHH7GxkrejNQSSHk9HKkKOJLIKlWb2AIaYc8zNtPQiux5muunTTDx1n6OlXRjf80/72
-         0ZoDOAJ1PQH9L/l0QAx+wwG1unU1Ho91Ow14Y9MgDAlVX2WbA1hsUarwt5zIC5aMucf+
-         w03jLtPbDemxd8bG1itr9VgAX5f01zDKA1wskUy72I1W9McEe1F+dzugKevuKYKvLWJj
-         BKGbIWCBN+vHndU7sURuZkydrGobeWHQ7ohqhA0QBN/xNo3SuqWl0vXtI3UhBhZ+USyW
-         NnkQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785345006; x=1785949806;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=gmail.com; s=20251104; t=1785345008; x=1785949808; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=TPVDTrduiuVX4VmCbK7NTqZ/bp707VKiuFKdVexETQI=;
-        b=KowADD/EWrrQ0fLBz5qzYwp/rVpsQRSNMP+cmWN0UOUq/pluiYgw/sko7PQJGc5ruw
-         5AeMXd8sCkZrF0FTKeVOWj92MuvU9Q8azjWAAOHcSPzY9HJQ6Aot+Qg7uitYBPg+bPKO
-         vSORt1ztbsyc2XqTPSfdEt50aESNYzGwgCSdfINox4BIwya3wpk7whXM1eeduKKCqau3
-         PFeEsbmieyer62n/k62FGkneuZp1OUwr1zQCYVxzUNJcIYnTQyn4GCv/fU6ON3goouqP
-         3GEgaf6tu3soHxPq2Bsk5hVkANcCCO3+Id8TzS9lE038vD9mNkkLqaP5enNcP2gmU5wa
-         LF0A==
-X-Gm-Message-State: AOJu0YwqCCw3v/WI/yd/4WUs67HZekfCUSMFxFKZcbhqH1koz3f8E3Ml
-	bQ8irYUHNgXMOWp1P+4Luq2XO01PJsevHRS9s8vaEN2CjfwZyZj7iC2FBP2napGk
-X-Gm-Gg: AR+sD10oDbiYLR2ryRNQ486VP/G5oB6xH1mKSCayODgd3qmpg7u6XNGPMj9C0yidZIw
-	5QK3i+5BsiWNcSJJy/CHsLnSI9y8IuchyUOAhgg4n54sralDMrmg3nWXi5JinaTKE5S3s5k04o/
-	9OUHSh2+E/n+1XSjoXBdAk0Ba1cBPS22oOjSXczQYEpDBJZsXgdW0acxO3HN8DKyXC42tm/UDvr
-	+GAKNkS9Rhf0JqBVdbYDrlJjcyC3B8z2s7KFqpgGNUdoiiwIuaYY/68jOyAoAlGccHaNVVL+KHC
-	WdROjkXmvBt4pqxzJGmaSRn4D629Bbt4SnGatDSyEBcf+P12ZP4H99f3yFqZrd0MfMyT7B0sTCr
-	OAMVOMDDTt1lshWY7a/YqieO4iH8yZWeiUqjsYWZKj/tTOW2OCvBK+uTZaXlvwY7mIea3aXACwq
-	UJP0Seygdr9JT+XCI2Os4Fta/FaVM+RnyAlXrOVRmbRXvX8tX8/wVfQYj0jvIl/xjMxw==
-X-Received: by 2002:a05:6a00:9510:b0:842:614e:cc94 with SMTP id d2e1a72fcca58-84e931f69e4mr8380240b3a.26.1785345005989;
-        Wed, 29 Jul 2026 10:10:05 -0700 (PDT)
+        bh=Ep93HPjH5mmfbaJOhBXSdXp3nxY941Jgshzn8ZjPsSw=;
+        b=F/vliqsdRzUs6x4m569+gWW9LXTjPHZs0AlBqg+/qTrvhwiYgpP2q5gzamkDwsAxdl
+         AHmv3iaVYyGRBviw7HnjdCCdZjz7TeP+kiOnYF0bcw4/BeVdoFdLkntYNxfLgbw3y9oS
+         OSu7Vby6N9degefnfnpuWKA9qDw+y86w9n8/CjugCJ6lsBQrd8U9+j+XH8hn+qJPFBvn
+         Rwivr/FRIKP2bk6j4KI31AvCiC9VcrCoDSNk/cOwIeYdohWZnfwAUT4FFd7wqCwCoorw
+         FHA9UaX28fxDUPRB++Vv3BHO4J72mvBDB5Q7Q8iWH2mCgW+EGCmLAQSiy1L03ID1t3I7
+         WT5Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1785345008; x=1785949808;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=Ep93HPjH5mmfbaJOhBXSdXp3nxY941Jgshzn8ZjPsSw=;
+        b=lxwkkeFYJsvndFLYgKHvXxq6gGgHXoAjijUwhIWkXk5w04hqEd4ddFH2FFqMH1BBn6
+         BqI9kfMAPnfxRE7NSI3fRL5NZXx2LlGYSgsTjsCl1qkiHPRUyvelCK0wPGA4Fx5k4MKj
+         /d/4MJhuAGS75mz+kXM2yOMOdAUWFLwQHjgd05yBk9gKdYfu0ZQstKfolYG3dEB+eXRX
+         qN4/VfpLP1rdKSgBdXN4+rgTuT4HIt9DuSxUoRsEfX7EhR0vCf8ONNhAi8Dp8iWrjAFO
+         IcuSqy0qeEw1Vt5tQDVRusWsq17qyfKAsRly82b8B724ZfcD8BFPtU//CWOGJE+Mi0mP
+         WYew==
+X-Gm-Message-State: AOJu0Ywimh5NbWY18jKCtRZJ/p/qc6QlunPjU8nM/1FI+t4sG6P/0CHa
+	mvHx9tKze4Gg2z+AfOIGxrD5/tfjKZmtrUZHwKtj+hRf2BM3Pe7t6UQL1Mo86kVp
+X-Gm-Gg: AR+sD10WHFSX9nIPUS4aPHA2YOBn9nJfMWhDFRpAm1rqhm1aWszjZHxK90sZUoNnsOg
+	6e86qskSMRLum2jpbyzyI2ax03StOkCw2TtT0hH4rj6QafOi9O3CVxRY14U0xZNRpusqnqVQR0r
+	0VWX9sjQa1sxxVN5ml9NxOVOqsIOof7SwA/cW2mLlD0bsiDxi5NZUmpQQQQRUzQDLiUKtx42JDW
+	e9/BGiUHhZ3CzLiEn2Nyo3fydVAF3nCS/ve8UnSqEDag2gnQD7xFBijNVzmfmLXs0YOFR4hW50A
+	lsa9esFSs2GoqXNLnRCVkyeUrXkPWCJbCBQqCR6YzzSnaqqsOa/PyWvVOBr4qtHuW9oQ9IINNfv
+	uooUTKfj9G0fAckhM6YtK42McnV3z7w/c++a5hHHZXS3X8OJPn7eIltD061NBDBirbI8Rv9301D
+	YCo1EalDlncpgrd/eRMI69rLiDfmCu8qzFRsa4WRwCbf9mHrfSb3A1UY0=
+X-Received: by 2002:a05:6a00:10c3:b0:845:d274:c024 with SMTP id d2e1a72fcca58-84e932c7a28mr7886101b3a.61.1785345007996;
+        Wed, 29 Jul 2026 10:10:07 -0700 (PDT)
 Received: from ubuntu.. ([110.9.142.4])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-84ea0052e04sm1694231b3a.22.2026.07.29.10.10.04
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-84ea0052e04sm1694231b3a.22.2026.07.29.10.10.06
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 29 Jul 2026 10:10:05 -0700 (PDT)
+        Wed, 29 Jul 2026 10:10:07 -0700 (PDT)
 From: Sang-Heon Jeon <ekffu200098@gmail.com>
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH v2 0/3] Input: clean up conditional returns with no effect
-Date: Thu, 30 Jul 2026 02:09:32 +0900
-Message-ID: <20260729171001.260698-1-ekffu200098@gmail.com>
+Subject: [PATCH v2 1/3] Input: pmic8xxx-keypad - remove conditional return with no effect
+Date: Thu, 30 Jul 2026 02:09:33 +0900
+Message-ID: <20260729171001.260698-2-ekffu200098@gmail.com>
 X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20260729171001.260698-1-ekffu200098@gmail.com>
+References: <20260729171001.260698-1-ekffu200098@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -71,39 +75,38 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Hello,
+Both branches of the check return the same value, so the check has no
+effect. Remove it and return the value directly.
 
-This series cleans up conditional returns where both branches return
-the same value, so the check has no effect. The Input patch of the
-treewide v1 series [1] is split per driver and posted separately.
+This is the result of running the Coccinelle script from
+scripts/coccinelle/misc/cond_return_no_effect.cocci.
 
-Patches 1-2 are generated by the Coccinelle script, which you can
-find in v1.
-
-Patch 3 keeps the check in synaptics_i2c_reg_set() and returns 0
-explicitly instead, which is the preferred way when there are
-multiple failure points.
-
+Signed-off-by: Sang-Heon Jeon <ekffu200098@gmail.com>
 ---
-Changes from v1 [1]
-- Split patches per driver
-- Change base to input/next
-- Filter only Input patch
-- Return 0 instead of removing the check, as suggested by Dmitry
-
-[1] https://lore.kernel.org/all/20260723184538.3888637-1-ekffu200098@gmail.com/
----
-
-Sang-Heon Jeon (3):
-  Input: pmic8xxx-keypad - remove conditional return with no effect
-  Input: rmi_smbus - remove conditional return with no effect
-  Input: synaptics_i2c - return 0 explicitly on success
-
  drivers/input/keyboard/pmic8xxx-keypad.c | 8 +-------
- drivers/input/mouse/synaptics_i2c.c      | 2 +-
- drivers/input/rmi4/rmi_smbus.c           | 7 +------
- 3 files changed, 3 insertions(+), 14 deletions(-)
+ 1 file changed, 1 insertion(+), 7 deletions(-)
 
+diff --git a/drivers/input/keyboard/pmic8xxx-keypad.c b/drivers/input/keyboard/pmic8xxx-keypad.c
+index 35d1aa2a22a5..c916e80e2f58 100644
+--- a/drivers/input/keyboard/pmic8xxx-keypad.c
++++ b/drivers/input/keyboard/pmic8xxx-keypad.c
+@@ -462,15 +462,9 @@ static int pmic8xxx_kp_enable(struct pmic8xxx_kp *kp)
+ 
+ static int pmic8xxx_kp_disable(struct pmic8xxx_kp *kp)
+ {
+-	int rc;
+-
+ 	kp->ctrl_reg &= ~KEYP_CTRL_KEYP_EN;
+ 
+-	rc = regmap_write(kp->regmap, KEYP_CTRL, kp->ctrl_reg);
+-	if (rc < 0)
+-		return rc;
+-
+-	return rc;
++	return regmap_write(kp->regmap, KEYP_CTRL, kp->ctrl_reg);
+ }
+ 
+ static int pmic8xxx_kp_open(struct input_dev *dev)
 -- 
 2.43.0
 

@@ -1,111 +1,140 @@
-Received: from mail-yx1-f46.google.com (mail-yx1-f46.google.com [74.125.224.46])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.13])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4853ABA45
-	for <linux-input@vger.kernel.org>; Wed, 29 Jul 2026 04:41:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.224.46
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785300067; cv=pass; b=W7ioIp49X4Cy/OMEkYOzINWO+y4GU8io88zf6wdtfxum6JHHi3o4aziAydq/CeZSyP2ozL/H7K2w6x5LEN6DxmwV6b8o008o22QSNXQC8FN8N+jCvWcIPU+nQl0MXk9HnmkJn0KPqI9AX6KU+V12nMQ2PyOI/ty7bTTtMB5YTU8=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785300067; c=relaxed/simple;
-	bh=uA7NG5Dfr4VakgJXB94YnH6+2nDpY+bBSoINVwagc6U=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=KfoGwYHNuN96i9F31yZH8furnL6HNSFlxt0a9s+HiIX2YDJ0aQPPgeQzRsuNDDfd3Mmo5yeB8mhda+b8cPvCzjifrp/mm1NiPNzTMb5qcCKpphOEoz6iz8ggzQdAZdwSegIBV5twxJQrelFgapotpqhsTmVc7nrT2IbCbkgFfCw=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=HYkMsGdV; arc=pass smtp.client-ip=74.125.224.46
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ACFCE32B99F;
+	Wed, 29 Jul 2026 05:00:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.13
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1785301260; cv=none; b=gWW2Ax5yjzt3o7K0U7UvCC/Z/u9Af9Auj6bnUjG9JYcJ0cZz3Vyafu+of9z6bT3WSoaXnn4G+8PHUBd/1DicklhFNlROV512MGkwiurduWxU//Ok02gwaC7J3Dlgo4Ttc1LVJMXJceMt8zpAnvakZxNBs2weAXBxxIiTJzqGO2k=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1785301260; c=relaxed/simple;
+	bh=t3VD2Lxicsf1yrpKethrujOEsXIRf1ZNzI6sKypV948=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=O8xvyG5KTJwSlt/mkW0MOYa1CuVmdtcM/ziXAmm5DMokBE5Ds5XdNff1ZZNqdGq+ket73/7qY9zdCztj6l+iModESVsNgzE88FF3QlEpFYKPW2xd1ZO2KAf1CNFT5Dg0C27e/4PB11sFn8HMK/mya8YLfSsTzfUz3rEdRHXqpmY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=V+YnoLa5; arc=none smtp.client-ip=198.175.65.13
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="HYkMsGdV"
-Received: by mail-yx1-f46.google.com with SMTP id 956f58d0204a3-6679d88abdcso629504d50.2
-        for <linux-input@vger.kernel.org>; Tue, 28 Jul 2026 21:41:06 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1785300065; cv=none;
-        d=google.com; s=arc-20260327;
-        b=ftVqAofCGuOE3EkhWAFe2mHfNJo5JkvMHBYXS1X3fNIaq6lvmXdvlyX2Q1nxiU9D7w
-         tkx3isUsWJthwggEEfRJmwaa4llsi2gVGscfxayo7TV6KUtqlI1XgmNtivmbakcvDf9f
-         tzPf1uxtvdhPLSx1kivkUcl3usz44LVvHsKC6dSHKZ0UjBqGLulnDwDFMBuXQNDWAm+b
-         h9acl+HLmYkDAbYjInz9819moCg7ii/bj+UooFLDh78w/OYbGpo1pY2qdwo9nzt8yWnV
-         0EqAumBieHEhbQFCqXwIWwVJhm7Xisk2toysrwGl7ndQN7/pD7VrYGZmoLKRLpSMURms
-         e/8Q==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=uA7NG5Dfr4VakgJXB94YnH6+2nDpY+bBSoINVwagc6U=;
-        fh=SHty455XBFCtKXNInY2pd9Dvku9jtqXro3abznpddEs=;
-        b=FmKuLSwk1xRNEPo/QSdOfyeE68TsDlmit4NjM780QEW7J4TUcMhIhxNLE4d1xU5Fy6
-         IsE9Lw5i8pqk9erW6TLza8DEuxfaaIIi5afeIbRFUQIwzhf/aDI1V389wDBdm30WrnaV
-         bw1fNEs/K/qslFnhiGnbMN8yC1r5TnXZVwxiJFE5VSmvXttTl7hmDhk8mvLwaDt34Nc2
-         5etfNDcKmMl/j0qr1RzoDIqyjAR34m/yUp3oscmbk3l7rNsB4UQTKM3erFsJg6vYtyTp
-         esJTivlXFP6Y8n87DhAdOZFBSuJ2q1hTERDR+hXPl23njI/H7GlGW3LHTOeGoqi054TY
-         ocAA==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1785300065; x=1785904865; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=uA7NG5Dfr4VakgJXB94YnH6+2nDpY+bBSoINVwagc6U=;
-        b=HYkMsGdVWuhCl3L7mt6d2MfvUuXqBf/ipU5IwBBEtWpkXWUCQ8E+hLv2yp/c+KwE7F
-         cvbWL9H+0dXwlSoD4LfFjb49NfPHdJJ/n9dWAwXTWl8qdBgVL5EYSNA9SHR1+Pbeuzy7
-         1jFRPIQdPOckBdce9dj8zjNXKLdwM/03Ho8kY=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785300065; x=1785904865;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=uA7NG5Dfr4VakgJXB94YnH6+2nDpY+bBSoINVwagc6U=;
-        b=MWCPDo50kRlbNxPEdKYpSEAv+DEv0ejLlccT2m+h0pqB4yVQrufMTrsj1QlMwV+5ob
-         +zdpaz2dlHMG6GPiNnGJjJG/c4SIbYtQgVeRbkxAUVLNW8/lfO02IyskO9eJ95olbqFV
-         4Y2CmBc+x8CpXCDxLEAGMIRlS8wCoOlRDrtCFoe75roItah8Hlo2TKAXwPZ/755RzzWE
-         O28Rk8zpURo74s/HNPWC0VnrLOtLj3OHPbCBLAyyQErCLlvPubwsXszi81wOfenMzh9z
-         LPvFsEbrfIjavQSuJ7F0E+Vu5mwDO4tnDfrUkK6W2orOiGP9sJKnytPwwpRqvjw3XPW4
-         ct6g==
-X-Gm-Message-State: AOJu0Yx8dFUKXqmb0NCHqlRtJSIJqmBQw84Zu3jOLaFeLNfJCioKh+82
-	ujkoKOYnBttN9C38XignE6qjvMBkBl33uM6VadBp+Qh1ZL/cip0+dMF6Mv3XqRIuer6hngNgZPQ
-	UI5MqG1Ff9+lntCqOGPjZgeJCIt6JdaW/O0h8ryWq
-X-Gm-Gg: AR+sD12CONAnedSF6lo+3+49YbRIbP0jJ/nifWpHyp4trQIouiDSZCGVrWem0kkIPwh
-	ORLVdQZ5+ISej2Ah5fpDhXkD9Uyv35gx9dkymZbTjXniul75x+WjlkLf7ibmRpj1mivdXUGZwVV
-	ZchdaMn3c7eShIhFy/E2isd5/EQTODBLVnv1emE/h0oPyUkmHV+3cLRPWqz63jOCEXF+jA5vkai
-	aRX5/HDSlkH0nzEBNgisbqiuDQt1N+jHs15pAQZSCHZuJc/T4Dh/xw43x3ouuU1MICRRxiLei3d
-	l7SdZc9gJjQDoVu/uDlY2ERdS0333CQkp5aeiApswPtijRJehu2Njz1Ol0+DVw56gXp+UWTodpU
-	=
-X-Received: by 2002:a05:690c:4c0c:b0:7ea:809c:2af5 with SMTP id
- 00721157ae682-81f9935399dmr26755907b3.37.1785300065323; Tue, 28 Jul 2026
- 21:41:05 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="V+YnoLa5"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1785301257; x=1816837257;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=t3VD2Lxicsf1yrpKethrujOEsXIRf1ZNzI6sKypV948=;
+  b=V+YnoLa5zO7wVHgI8m22B0lYP2QIlNNf5eRruGOIKf2bqRbcpbWlQdlR
+   XmOawFiAir7yRzg2njSi+6Xy9zwbNy3n2L403OzoR7QIRUg4uJCck71IA
+   ljipUGaHXpsZ7TChv3Oe2vJRz7dxi6cKbOLN8mESkOsWG3bajcbQXr9vj
+   VSo/DdRxRrhrpCHldYHftesSp0imcwT0/YFNBgGW28N+1rEMEffkNCuMr
+   spLQFBhb5qqh1fYSeNItHZcxuBtj0ZKGSnToPrT5voA8u8u6AkyGFoUP1
+   5uA1RYI2aPQsV2bSeqx25RYtNTC79j0prlmCrgvQYBSS9nnq+65tugRZj
+   Q==;
+X-CSE-ConnectionGUID: 2C39eNSCTKCRE2qGgRfQCQ==
+X-CSE-MsgGUID: Vm1CJSOLRJuXElw7KyyybQ==
+X-IronPort-AV: E=McAfee;i="6800,10657,11859"; a="97056386"
+X-IronPort-AV: E=Sophos;i="6.25,191,1779174000"; 
+   d="scan'208";a="97056386"
+Received: from fmviesa001.fm.intel.com ([10.60.135.141])
+  by orvoesa105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Jul 2026 22:00:57 -0700
+X-CSE-ConnectionGUID: jft9nkcSQt+4vO6Mlqk7CA==
+X-CSE-MsgGUID: VK3khgZtRoaKlFMqmX89Tw==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.25,191,1779174000"; 
+   d="scan'208";a="284447493"
+Received: from shsensorbuild.sh.intel.com ([10.239.132.250])
+  by fmviesa001.fm.intel.com with ESMTP; 28 Jul 2026 22:00:54 -0700
+From: Even Xu <even.xu@intel.com>
+To: bentiss@kernel.org,
+	jikos@kernel.org
+Cc: srinivas.pandruvada@linux.intel.com,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	hbarnor@chromium.org,
+	Even Xu <even.xu@intel.com>
+Subject: [PATCH v5 0/3] HID: Intel-thc-hid: Refine error recovery flow
+Date: Wed, 29 Jul 2026 13:01:42 +0800
+Message-ID: <20260729050145.2272597-1-even.xu@intel.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260728212438.54078-1-rosenp@gmail.com> <20260728212438.54078-2-rosenp@gmail.com>
-In-Reply-To: <20260728212438.54078-2-rosenp@gmail.com>
-From: Chen-Yu Tsai <wenst@chromium.org>
-Date: Wed, 29 Jul 2026 12:40:54 +0800
-X-Gm-Features: AUfX_mycg9wolGjQePESF--FJZRN09rHxCnfAnS_fOgAk4-5gb4BJmW1LYVjLVA
-Message-ID: <CAGXv+5GfUGRsGkRAWyX+GnJC8GOREqgkXeN4sVxE4+Y01PG+hQ@mail.gmail.com>
-Subject: Re: [PATCHv2 1/2] Input: mtk-pmic-keys: use of_device_get_match_data()
-To: Rosen Penev <rosenp@gmail.com>
-Cc: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
-	Matthias Brugger <matthias.bgg@gmail.com>, 
-	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, 
-	"open list:ARM/Mediatek SoC support" <linux-kernel@vger.kernel.org>, 
-	"moderated list:ARM/Mediatek SoC support" <linux-arm-kernel@lists.infradead.org>, 
-	"moderated list:ARM/Mediatek SoC support" <linux-mediatek@lists.infradead.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Wed, Jul 29, 2026 at 5:24=E2=80=AFAM Rosen Penev <rosenp@gmail.com> wrot=
-e:
->
-> Instead of open coding it, use the proper function.
->
-> All entries have a corresponding data entry so a NULL check is not
-> applied here.
->
-> Remove of_device.h as a result.
->
-> Signed-off-by: Rosen Penev <rosenp@gmail.com>
+This series refines the fatal error recovery flow for the Intel THC
+(Touch Host Controller) subsystem, covering both the QuickI2C and
+QuickSPI drivers.
 
-Reviewed-by: Chen-Yu Tsai <wenst@chromium.org>
+Currently, when a fatal DMA error is detected in the IRQ thread handler,
+the recovery is performed inline: the interrupt handler calls
+try_recover() directly, which unconfigures and reconfigures the DMA
+engine.
+
+This approach has several problems:
+1. Recovery runs in the IRQ thread context, which is not ideal for
+   potentially slow reset operations.
+2. The interrupt is re-enabled before recovery completes, risking an
+   interrupt storm if DMA errors persist.
+3. The DMA reset logic is open-coded in each protocol driver, leading
+   to duplication and divergence over time.
+
+This patch series addresses all of the above:
+
+By adding a new thc_rxdma_reset() API to the THC core layer, QuickI2C
+and QuickSPI drivers can call it respectively to refine the recovery
+callback.
+
+The synchronous try_recover() call in the IRQ thread is replaced with
+schedule_work(), deferring recovery to a workqueue.  Within the work
+function:
+- The interrupt line is disabled before any DMA manipulation.
+- thc_rxdma_reset() is used instead of the open-coded sequence.
+- On failure the device is marked DISABLED and the interrupt remains
+  off, preventing an interrupt storm.
+
+Change log:
+v5:
+ - Add log message in quicki2c/quickspi driver to indicate driver
+   function was disabled when recover failed.
+
+v4:
+ - Refine cancel_work_sync() flow to reduce race condition of DMA
+   operation confliction and reschedule.
+
+v3:
+ - Quiesce external interrupt and disable THC internal interrupt in
+   remove() and shutdown() callback before cancel_work_sync().
+
+v2:
+ - Use dev_err() instead of dev_err_once() so repeated failures during
+   recurring recovery are not silently suppressed.
+ - Pause both RxDMA channels via thc_wait_for_dma_pause() before calling
+   thc_dma_unconfigure() to ensure the DMA engines are inactive before
+   clearing PRD base addresses, preventing potential IOMMU faults or
+   memory corruption.
+ - Hold a runtime PM reference inside try_recover() to prevent the
+   device from suspending while the work accesses hardware registers.
+ - Add cancel_work_sync() in quicki2c_remove() and quicki2c_shutdown()
+   to prevent use-after-free if recovery work is still queued at teardown.
+ - Only re-enable the interrupt in the IRQ thread handler when no recovery
+   is needed; the work function handles re-enabling after successful reset,
+   avoiding an interrupt storm from the uncleared hardware error state.
+
+
+Even Xu (3):
+  HID: Intel-thc-hid: Intel-thc: Add API to reset read DMA
+  HID: Intel-thc-hid: Intel-quicki2c: Refine recover callback
+  HID: Intel-thc-hid: Intel-quickspi: Refine recover callback
+
+ .../intel-quicki2c/pci-quicki2c.c             | 66 +++++++++++------
+ .../intel-quicki2c/quicki2c-dev.h             |  5 ++
+ .../intel-quickspi/pci-quickspi.c             | 71 ++++++++++++-------
+ .../intel-quickspi/quickspi-dev.h             |  6 ++
+ .../intel-thc-hid/intel-thc/intel-thc-dma.c   | 51 +++++++++++++
+ .../intel-thc-hid/intel-thc/intel-thc-dma.h   |  1 +
+ 6 files changed, 151 insertions(+), 49 deletions(-)
+
+-- 
+2.43.0
+

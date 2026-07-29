@@ -1,139 +1,160 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f178.google.com (mail-pl1-f178.google.com [209.85.214.178])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3A09E25B0B9
-	for <linux-input@vger.kernel.org>; Wed, 29 Jul 2026 17:17:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B1E05450400
+	for <linux-input@vger.kernel.org>; Wed, 29 Jul 2026 18:30:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785345480; cv=none; b=bW+3cq5WJbmiXs7cowQiBbiOSxAWVg9DO2zvLhGt2c6HHTZXtXGzivP7ir8LELOsXmQNe827iIZ8f8dti4Eis31Zs25A/JzJCGLUy5o9X6weuB6iZ4WAbb0ymaxUssRvTWuu1juivKCLnZlzpptKKcXlNNcurSKJi6CnAZGWOcY=
+	t=1785349850; cv=none; b=h375b7HkMdo+Lr5Z0CcJwM75SNhXno2aI2hJmAk8dp3YXqMMwzV5HtpwWyxWOv0hwMV8dAZb7aIWGVVqd6uEghIp/OW/SHq/PzCfJDM/cTHLljtpuX1GWre4nz2xCF4+V8Vq9nkm/cgVZsjsaOqrCsVeaWAyl8flQX0qio1tsAs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785345480; c=relaxed/simple;
-	bh=I3gX1F2m+50XQea5Py238jL/TpFl7MMqy78483LPZIk=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=CHY+Cm2kDbq5MzjeTtk2iClE4EdOqS3P3g6RRfiZ5/4IKE6bznMlQponpXddub0ecoDu35Pqo0o4mFE9szjzKGD1e+KPvhbMEZVUZMW2uNMe2Tx8BfCXvmL8sQ1brIYQTeyz9jeO8E/mKIhr8Kteu8v1ayU0sOvaDMjt9KW8iAk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=J2RLGQOm; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1785349850; c=relaxed/simple;
+	bh=fhOi5PAo2gpAxBWIN2cRjpuX4ifBRc2NZjvCoF761Ec=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition; b=K04cRo8DwcykUVGSrhVGtbDYmjBEGQ8ds8oKSvzYEilUjX+ZY93p2TpgE7tHKNMKYJ1gARz66XF4WeZT3jHh6AXnR4GJ6Tl5uVtqiIlQMFd2GVDb6N17BRBYZ5ASnNysD9diCKFzvieBhh1azxR8lMeiVtwTrvousYI4aKPLejU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Vj7q3sxQ; arc=none smtp.client-ip=209.85.214.178
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="J2RLGQOm"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84C0B1F000E9;
-	Wed, 29 Jul 2026 17:17:58 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785345478;
-	bh=MxS2Ykdum9HvFQwGDLoAvNYJNrUy9Qz6X5RDBC4W3DI=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=J2RLGQOmNdwrXzAIAbnlsnqM22DaLFFuimnZEjGPE1lK23649xyUho080V17IdTWM
-	 vh9asEkAMQjPcIg734Drjp5IeqKZi88oexXFCa8rwmAQghBFwoRcVtjczYV0U9y3Pr
-	 HwnCFgtILJ+NOHrz02uucbd5uS5GrNTmDujwAQ9lBQ1w4SjnMiO1l9luPhB88/Jxon
-	 /U19J7VQZAbnlQ8Yv0RBENSQ+mi35fGPj/lQWxsS2d1OD8ikdyWvMxKG8UT1ONnjUj
-	 8WH/fpqhB9ktnsQAV6VLvsxDAKI/r9OMCsLE+1vwXarlHmTR5HtlknQP1UtBGmLBld
-	 OB6R+HBSpPEMA==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 2/3] Input: rmi_smbus - remove conditional return
- with no effect
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Sang-Heon Jeon" <ekffu200098@gmail.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260729171001.260698-3-ekffu200098@gmail.com>
-References: <20260729171001.260698-1-ekffu200098@gmail.com>
- <20260729171001.260698-3-ekffu200098@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Wed, 29 Jul 2026 17:17:58 +0000
-Message-Id: <20260729171758.84C0B1F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Vj7q3sxQ"
+Received: by mail-pl1-f178.google.com with SMTP id d9443c01a7336-2cf452def93so21775ad.1
+        for <linux-input@vger.kernel.org>; Wed, 29 Jul 2026 11:30:49 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1785349849; x=1785954649; darn=vger.kernel.org;
+        h=content-disposition:content-type:mime-version:message-id:subject:cc
+         :to:from:date:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=ovnLIAD+XyGb/mkkC3+YLZwoVPF6ZcojA0tze6Sb0Os=;
+        b=Vj7q3sxQJabnUnd9vvZP3gDSS7oDH0yzJPZ+Cf0b4yMmUPdnUUun/Zq2PSaDyKqGfC
+         j50D9Vs8Yhj1DsyofYo6DimVJobnhmgQH2b35HmBO3Ngj9fOTVIo3QIk9IaMzEM5TfU8
+         pz31rWCPaXCjrqBUCcvadC1N8AnSbkKy5xcYYmJ4jpSOJodnpoqzXgc86AkYH9gKteQE
+         w82LvsyPA2t9MEDUoH4HNO0XvHtkl2FPWSk7sJuFkn5uZ1nav8KTxPiWx0loWG/gX/Ci
+         NsMwM77sdp3o+b/DqlDSrPzxcsFkLXat/InDhhmvOl1l7M8YeaCuOCboYxz816YN4Ypf
+         dnqA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1785349849; x=1785954649;
+        h=content-disposition:content-type:mime-version:message-id:subject:cc
+         :to:from:date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=ovnLIAD+XyGb/mkkC3+YLZwoVPF6ZcojA0tze6Sb0Os=;
+        b=glVI+qQDKN78Vi0/ZO/EtnjdI2byeyfCL4QQSBhpd7F7lcRlteXUQzE+9+G9kszC96
+         rgEJJ30VGM130aF74JEraVhnkUkGyP3oqD6RlAlntKmcz3tP5JM/tcYCgIDI7+ihwtIw
+         2ykJeYv13CfGBU3X17i2f8niRi08dGGZvsxZheBeaCRqg7EAk+w6vu9QYZluDmkyzNiW
+         pqLskky3DWW7pYW+1JFOQL0FZPLD9jBLxTbhwvAkrXSyYAg2gtJvhCuyjmwsVaoeHTDA
+         KV671zgA2lZtWbrj2+EVYMZueHK+atZMkcJshYgOb3nzG/5QYhpSbNm0uFHZRJI/Gc7N
+         SgZA==
+X-Gm-Message-State: AOJu0YxUlzXBYcOZefyRbs6p7ixdI55gUmMIZWlr3SgZ9LYr0s554j0Q
+	DoWHNL5TZQ1JW7mf/v6hml++V4HDuhfJeGKCgQbP+PrlHQWnvLHx4slBaLhTLQ==
+X-Gm-Gg: AR+sD100tv7TYo04Lr13FMroK+eUwLBSEBwGDyMziBSSoQvYjbIsnZfHJNwJJ8cfpTv
+	iC5pdECt4jf3i6Vl/lUvTwHAdxjRkL3vy0dWU9ZXBj+/WzXSbhp3N7pnLKAPagifs5IMVca0Zz+
+	yZCHoazmrglcyJNedesvFF9zugjrHaZcwfcehka3sekeJJTWvncpYHEYZXHn4kpCOSq+mhjdrtv
+	C0kj+IyQjEx94ZOoHn91Dxf4oufeYTMnneN4edB06zy/zAG/wPH7L1Cj9d4nLTtUS4KydlVdgXx
+	M4PuvnDbvzN28OgdhGX9rA3cFpgpJB6Fg6goT6Ku8G73l23BYcFU5sdRE2NWK1opiFSHbTjINFy
+	bB2AN1QZAhsGy2Y5mFhReKfhKGt72oyCaDblHZY+dDbeO48nIOoPZDgyANGiF0Unk+TvD3ETw6B
+	oFk8Z7hlXaa6rV8p2ffX+LJb6Q3jzy8flL2OLGWEB7GdbSWFpKsMHltNGNW3dNu9INEldBUcBEA
+	TQ6FWGLOSslI9ueI04rL8Jn9AJkWw==
+X-Received: by 2002:a17:902:ea0e:b0:2bd:2c3a:2a36 with SMTP id d9443c01a7336-2d02623c6aamr35799715ad.0.1785349848973;
+        Wed, 29 Jul 2026 11:30:48 -0700 (PDT)
+Received: from google.com ([2a00:79e0:2ebe:8:7d64:4b7a:74dc:6d35])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-31504dca6a8sm12418157eec.29.2026.07.29.11.30.47
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 29 Jul 2026 11:30:47 -0700 (PDT)
+Date: Wed, 29 Jul 2026 11:30:45 -0700
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: linux-input@vger.kernel.org
+Cc: Kees Cook <kees@kernel.org>, linux-kernel@vger.kernel.org
+Subject: [PATCH] Input: evdev - fix information leak in evdev_pass_values()
+Message-ID: <ampGGKo4UMKru6f5@google.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
+In evdev_pass_values(), the input_event structure is allocated on the
+kernel stack and populated field-by-field. However, it is never fully
+initialized. On architectures where struct input_event contains explicit
+or implicit padding (such as the 32-bit __pad field on SPARC64), these
+padding bytes are left uninitialized.
 
-Pre-existing issues:
-- [High] Buffer overflow in smb_block_read() due to ignoring the requested =
-length.
-- [High] Out-of-bounds read in rmi_smb_write_block() due to using the total=
- length instead of the remaining length.
---
+When this event structure is subsequently passed to the client buffer
+and later copied to userspace, the uninitialized padding bytes leak
+kernel stack memory, potentially exposing sensitive information.
 
---- Patch [2]: [PATCH v2 2/3] Input: rmi_smbus - remove conditional return =
-with no effect ---
-commit c43fcefd3c43ed84b5f32f45bd591ace30890382
-Author: Sang-Heon Jeon <ekffu200098@gmail.com>
+Similar issues exist in __evdev_queue_syn_dropped and __pass_event.
 
-Input: rmi_smbus - remove conditional return with no effect
-   =20
-This patch simplifies the return path in smb_block_read() by removing an
-unnecessary conditional check. Both branches of the check returned the same
-value, so it now returns the result of i2c_smbus_read_block_data() directly.
+Fix this by explicitly zeroing the entire event structure with memset()
+before populating its fields. This ensures all padding bytes are cleared
+before the data crosses the security boundary.
 
-> diff --git a/drivers/input/rmi4/rmi_smbus.c b/drivers/input/rmi4/rmi_smbu=
-s.c
-> index 6de68c602558b..3160714a514a5 100644
-> --- a/drivers/input/rmi4/rmi_smbus.c
-> +++ b/drivers/input/rmi4/rmi_smbus.c
-> @@ -177,13 +177,8 @@ static int smb_block_read(struct rmi_transport_dev *=
-xport,
->  	struct rmi_smb_xport *rmi_smb =3D
->  		container_of(xport, struct rmi_smb_xport, xport);
->  	struct i2c_client *client =3D rmi_smb->client;
-> -	int retval;
-> =20
-> -	retval =3D i2c_smbus_read_block_data(client, commandcode, buf);
-> -	if (retval < 0)
-> -		return retval;
-> -
-> -	return retval;
-> +	return i2c_smbus_read_block_data(client, commandcode, buf);
->  }
+Reported-by: sashiko-bot@kernel.org
+Cc: stable@vger.kernel.org
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+---
+ drivers/input/evdev.c | 22 ++++++++++++----------
+ 1 file changed, 12 insertions(+), 10 deletions(-)
 
-[Severity: High]
-This is a pre-existing issue, but by removing the intermediate check, it dr=
-aws
-attention to a buffer overflow in this function.
+diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
+index 5764c98b4f1f..114524806293 100644
+--- a/drivers/input/evdev.c
++++ b/drivers/input/evdev.c
+@@ -146,11 +146,11 @@ static void __evdev_queue_syn_dropped(struct evdev_client *client)
+ 	struct timespec64 ts = ktime_to_timespec64(ev_time[client->clk_type]);
+ 	struct input_event ev;
+ 
++	memset(&ev, 0, sizeof(ev));
+ 	ev.input_event_sec = ts.tv_sec;
+ 	ev.input_event_usec = ts.tv_nsec / NSEC_PER_USEC;
+ 	ev.type = EV_SYN;
+ 	ev.code = SYN_DROPPED;
+-	ev.value = 0;
+ 
+ 	client->buffer[client->head++] = ev;
+ 	client->head &= client->bufsize - 1;
+@@ -212,20 +212,20 @@ static void __pass_event(struct evdev_client *client,
+ 	client->head &= client->bufsize - 1;
+ 
+ 	if (unlikely(client->head == client->tail)) {
++		struct input_event ev;
++
++		memset(&ev, 0, sizeof(ev));
++		ev.input_event_sec = event->input_event_sec;
++		ev.input_event_usec = event->input_event_usec;
++		ev.type = EV_SYN;
++		ev.code = SYN_DROPPED;
++
+ 		/*
+ 		 * This effectively "drops" all unconsumed events, leaving
+ 		 * EV_SYN/SYN_DROPPED plus the newest event in the queue.
+ 		 */
+ 		client->tail = (client->head - 2) & (client->bufsize - 1);
+-
+-		client->buffer[client->tail] = (struct input_event) {
+-			.input_event_sec = event->input_event_sec,
+-			.input_event_usec = event->input_event_usec,
+-			.type = EV_SYN,
+-			.code = SYN_DROPPED,
+-			.value = 0,
+-		};
+-
++		client->buffer[client->tail] = ev;
+ 		client->packet_head = client->tail;
+ 	}
+ 
+@@ -247,6 +247,8 @@ static void evdev_pass_values(struct evdev_client *client,
+ 	if (client->revoked)
+ 		return;
+ 
++	memset(&event, 0, sizeof(event));
++
+ 	ts = ktime_to_timespec64(ev_time[client->clk_type]);
+ 	event.input_event_sec = ts.tv_sec;
+ 	event.input_event_usec = ts.tv_nsec / NSEC_PER_USEC;
+-- 
+2.55.0.508.g3f0d502094-goog
 
-Can this corrupt memory? The smb_block_read() function takes a len paramete=
-r,
-but it is completely ignored when calling i2c_smbus_read_block_data().
 
-If a malicious or buggy I2C device returns up to 32 bytes (SMB_MAX_COUNT),
-i2c_smbus_read_block_data() will copy that full amount into buf. If the
-original len was less than 32 (for instance, on the final chunk of a read in
-rmi_smb_read_block()), this could overflow the buffer and corrupt memory.
-
-> =20
->  static int rmi_smb_read_block(struct rmi_transport_dev *xport, u16 rmiad=
-dr,
->  			      void *databuff, size_t len)
->  {
-
-[ ... ]
-
-While reviewing this, I also noticed another pre-existing issue in the near=
-by
-rmi_smb_write_block() function:
-
-drivers/input/rmi4/rmi_smbus.c:rmi_smb_write_block() {
-    ...
-	while (cur_len > 0) {
-		/*
-		 * break into 32 bytes chunks to write get command code
-		 */
-		int block_len =3D min_t(int, len, SMB_MAX_COUNT);
-    ...
-}
-
-[Severity: High]
-This is a pre-existing issue, but can this lead to an out-of-bounds read?
-
-When chunking the write, the loop calculates block_len using the original t=
-otal
-len instead of the remaining cur_len.
-
-If len is greater than 32, block_len will remain exactly 32 for every
-iteration, even the final one where fewer than 32 bytes remain. This causes
-smb_block_write() to read 32 bytes starting from the advanced databuff
-pointer, potentially reading past the end of the original buffer.
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260729171001.2606=
-98-1-ekffu200098@gmail.com?part=3D2
+-- 
+Dmitry

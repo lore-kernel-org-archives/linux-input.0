@@ -1,201 +1,149 @@
-Received: from mail-wm1-f47.google.com (mail-wm1-f47.google.com [209.85.128.47])
+Received: from mail-yw1-f178.google.com (mail-yw1-f178.google.com [209.85.128.178])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B91353F8257
-	for <linux-input@vger.kernel.org>; Wed, 29 Jul 2026 12:34:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0BF5B4BC02C
+	for <linux-input@vger.kernel.org>; Wed, 29 Jul 2026 14:24:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785328447; cv=none; b=IqnLNBaOB5oG+a5+DTVYOHfzRcdZqV0IkkzOC/UzPVy9YmmLDfRWJuLkwKvRNI5U/6FNEyLMGLUoJl4MPYTyRG+4VEeAaMKYLogdn6owqajclQ6FZpG0V9ixziZppsgCffXbII/SOtXjWWE96y7BARlDi+rrC2BgJEWnvg0rtjE=
+	t=1785335081; cv=none; b=uiFNjgwHoxI6QsOpd7z1vnvUAX5uyku2Jzd48T4zZxHKYkaTK+sykb+eucjhSNYNvPvIXh8iocI55ti8C6emxEqVrliLZyLLy275OyuVmMOhJLrkw51uMJoRTDvbOnjbu/t76kUuM+RltYZu0chtsfVyGrC1PwFILjcgSfKQw2c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785328447; c=relaxed/simple;
-	bh=HeAEDpOyWDfK0HywfMKKJR7m/lfHHAOTVtMyX32Yin4=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=ANNlNI67qtAv72AD+CUnctVGS86QIBwLvu9rbSeEQdbdnV5bkN/GWTPwuPU2yBIPLO/lQJqzO67Q6o2exfsnqRczvbtrFs7yfZyJbhCqaTuXOAvHiB7Eq8S4pGgyCHW+iSkFJTCyXwokwmOGLGkz2JsPrIHlYZ196PRCpW5h6Is=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com; spf=pass smtp.mailfrom=baylibre.com; dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b=JyLSAyA7; arc=none smtp.client-ip=209.85.128.47
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=baylibre.com
+	s=arc-20240116; t=1785335081; c=relaxed/simple;
+	bh=fKkUvmDvRRfHEVPs89a+rGIvpKFeUTytUx1BNtJnSGA=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Wp6DxW/OQ+fppguMdv2YWQ5j6HYTK6YmTmShGq0rrqFbmGKgsShb/XvuUreMEAYxZmUABHecXzPrsqdBho3jPiVUwOIC7SiVKWX4bRnv9nC1mfLwz51r18tYbVh0oHNz4VZByl7U2ciS6wvIjR8rgeAsNNdb9Cd7zQEqqsEUFrc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=xbow.com; spf=pass smtp.mailfrom=xbow.com; dkim=pass (2048-bit key) header.d=xbow.com header.i=@xbow.com header.b=j/Db4hwB; arc=none smtp.client-ip=209.85.128.178
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=xbow.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=xbow.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b="JyLSAyA7"
-Received: by mail-wm1-f47.google.com with SMTP id 5b1f17b1804b1-49553515a8bso11534115e9.1
-        for <linux-input@vger.kernel.org>; Wed, 29 Jul 2026 05:34:03 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=xbow.com header.i=@xbow.com header.b="j/Db4hwB"
+Received: by mail-yw1-f178.google.com with SMTP id 00721157ae682-81ed073fed0so15299507b3.0
+        for <linux-input@vger.kernel.org>; Wed, 29 Jul 2026 07:24:39 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=baylibre.com; s=google; t=1785328442; x=1785933242; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=hj7jv6pRB6x5AF5ocoOAZbiwUraKrz6rxk84/RgEz0M=;
-        b=JyLSAyA7JLsBjzsv5sIAMPO8UgSES5gspaHVhSgXArmDW4bnZ3K4YkR+4qtU1fywnQ
-         Irjg6ff/Nvjc9ubPdR9GnYaiSVWJ6Da7YS4a2hnizuFlf9PDpqpYTwK03dtfX8cAxayz
-         3UIZ5GdqQYnTu1hiva6mTgO8/7DP+6yIaC7oIU6+J9wmD2Rn8dcoVWOezjHdTsbyn5Mk
-         wpC1l0wxXWdOpnXu+GBVY3mIhqePwqtPbHJTgwmpDO+x1laQYOe+JfuOWdoTQefrmkOK
-         MowjE8U9DfsaCnyRNE5JCeZysqJapQ45v5K48JDGha168J44FXT5NQUi73Yy62IRY1vI
-         IhkQ==
+        d=xbow.com; s=google; t=1785335079; x=1785939879; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=waRiGRNRRE7BjnlCyRtowR9v4vZUtc6UXn19J+eU9W0=;
+        b=j/Db4hwBhfnIWu8Hrx+SlJ2NMX5Invf468RGW3BpC6rCVxTg+cAGTgiq7D7WHYoJCr
+         83QLPqb9kBNse8UmXb2d4+o5LT6nYHEIOGuuSpBt0X1QznhJKSiFBA4Y4pexTMW2Ubuf
+         Giz5/ECG3sY68AMcNpUyqKZK3oDumL/1tAT0QOplUElrkstc2LRpdBPcJznUVUbtvOvu
+         Af7ZAv4pw2oRreLDmmnp/O4u9aHIKdM0nCOdQrCgGuQbLFZTnTti1nz95nvJnAZf7utA
+         HWkeVefW5u8gx+MPXveqohBYAuTg5oeOA1fzQ0cw7dQT9Shviidf4XP+U2cE94qv1ckI
+         RTEQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785328442; x=1785933242;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=hj7jv6pRB6x5AF5ocoOAZbiwUraKrz6rxk84/RgEz0M=;
-        b=DNNrUICqsJ2kVY+K8uo+xstDiVNlFyXccNfRBkEdttEEElKiC06wbgFJpdr0xTAxd1
-         xXVwIkZLtqljQL5hEBMb1RJCfp/M4Zy6CW8PAnG9dMxtMNmkx7gZ+qrnQQ5iHejklLM4
-         DF8HGlmG/veociO8Mep9jtKFv1Dd/25Lw93ClbyxntoExN/GaB2YwpHu5454rQB7ztMC
-         JfRWgwt504X30l3iCcpDWWXmRAWsi+/Ipmc2dfPGgGWSPnMjJyl2F5N+dcARGxINTgru
-         pXmOkisIkkk6UE1199p0dgPqRG/PXO8mAbohaP5D3G+HJjGsC4Gj1QPXMfaz3xJstwww
-         5lbg==
-X-Forwarded-Encrypted: i=1; AHgh+RoXY+LTbI0h+pSlwJX7bRTn4RpuwlEfsjsLOLRUxhmPPWrf/ZJTCGQt/DsLrIDeWRbN7oJSQ+JueJjNVg==@vger.kernel.org
-X-Gm-Message-State: AOJu0YxvtBS9BaNrup71KyKuONRi6stKfnUenz5+gb02stqdJZyWVsdu
-	heBb0BDyDkf3LwoeFw3lcuZUPst8dYgUCM4G+eFHEOQ/LCiT2AAuzjcg2mJK9kR/wUs=
-X-Gm-Gg: AR+sD13Q7jk4JbT5jZcRLoraaZiLIqeKjjtgb7CqI/DMn9OXP7hBkkqLsZWYVwK2p/H
-	6WfLKRKM1TFexAohDVnKWdyvlI01BuMr2fntaOiaajAyrHxoeqRFrpE6P7Cru1v7gjhKO+0Mz2f
-	7ACJPf3B3TqsN5LQ6JtSMheZFpPUHwfez2clY4FBJIYQ5HRN7+/nR0LtXU1z8J+f2ybctOoPqsO
-	2UtnZi3rSynetLr+VbHn4b/89Ff5x5WmPk7+PVWt2GNSe0NVP6ggd9J4KpzEL9u5/LemkrTCCO0
-	1sleo4gLKPWjxL9Jjmxdu3YSvgtHupkfAMTNgdACcli8zSngN/wyXiLZ0pkl/3HBaXLXYaPqeSz
-	ifkK4EwEzrxcjkn3WN+nyVL3929qABSj98N+ZzRY4q+d5Aos313iOvPvKEp6xa+avyXvBsKFbuS
-	N5yAtUDDXXi3wj3XL+jfFNZGUaD5Aq50hmo690AuT5jmdlZfoGbOMmYmzjzIUoGmqOWVf9xXDRM
-	3MgXp3tl8avXpiB0cIqHWezcGfzDqb0am3zIhsqWQe47egixLHhfdzz+rKULg==
-X-Received: by 2002:a05:600c:1f95:b0:490:c6c2:52 with SMTP id 5b1f17b1804b1-496c64261d4mr74271315e9.3.1785328441446;
-        Wed, 29 Jul 2026 05:34:01 -0700 (PDT)
-Received: from localhost (p200300f65f47db0401da7fd03a16a046.dip0.t-ipconnect.de. [2003:f6:5f47:db04:1da:7fd0:3a16:a046])
-        by smtp.gmail.com with UTF8SMTPSA id 5b1f17b1804b1-49764d6d0f8sm50701985e9.2.2026.07.29.05.34.00
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 29 Jul 2026 05:34:00 -0700 (PDT)
-Date: Wed, 29 Jul 2026 14:33:59 +0200
-From: Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@baylibre.com>
-To: Svyatoslav Ryhel <clamor95@gmail.com>
-Cc: Rob Herring <robh@kernel.org>, 
-	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee@kernel.org>, Pavel Machek <pavel@kernel.org>, 
-	Sebastian Reichel <sre@kernel.org>, Ion Agorria <ion@agorria.com>, 
-	=?utf-8?B?TWljaGHFgiBNaXJvc8WCYXc=?= <mirq-linux@rere.qmqm.pl>, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-input@vger.kernel.org, linux-leds@vger.kernel.org, linux-pm@vger.kernel.org
-Subject: Re: [PATCH v10 2/7] mfd: Add driver for ASUS Transformer embedded
- controller
-Message-ID: <amnxliqWscD4Mjdz@monoceros>
-References: <20260721095233.420823-1-clamor95@gmail.com>
- <20260721095233.420823-3-clamor95@gmail.com>
- <amGx2fJCUB4_XW1M@monoceros>
- <CAPVz0n2yWtTOgruRc+MAYTZ9=rd6qf6sEnX9v8THvJkN_opvbA@mail.gmail.com>
+        d=1e100.net; s=20251104; t=1785335079; x=1785939879;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=waRiGRNRRE7BjnlCyRtowR9v4vZUtc6UXn19J+eU9W0=;
+        b=Qd/Jg6CeJ66oG0yhghXzunE59mwYWBMfxjO2bS0+MId/GDQ7kOV+gK2+0yUqT7R0do
+         sI9G6FF6KhKQkBfJokXeDP9KpJLgLzJVb3Sis0GLqMnWjSrJ+Uf8JknYFD21NPKI0Bzc
+         Vhf0hMOG2FZwiGB3WjHtOC/PQjl/AqEa3KvxmNA7ha3tuhXUuwniG2Tvt5lYMcnCx7v+
+         JhTibGGBdbic9CEKVTayT0UAbh7yZJBat2bEp7UhRBGVE8ZnKbspn7C6pebce0FiehWz
+         E3gVgLJO2lIu2VcPYk/AI1cOUNShPldXiTCFC33weDvrSeVd4L+N1dbaybHJcOiHuCZJ
+         y1IQ==
+X-Gm-Message-State: AOJu0YwQewAROc+GVcJyh6Qn4rlSEytwYAoTtEOVlfZN/S6o/bdPwdOw
+	7e1tlOa8sDlUCjn6H0Eh1zZQ28Y7PFXbh0U2rghNurhKW/2zKYeI4ex7NW5I1Um+DTvPTzzpG+7
+	gpx60xikVXA==
+X-Gm-Gg: AR+sD11YSXo39xU35PfpZtuzsWdktln3xH1cIsFD6vgAkRBmTYf33mdPbKoxWhig5l5
+	KIdIcB0HWPHw+wBpcme42J734CtxEc9juNEhyMroFZJQn5AecYwSSnloh10bG7zWZWqav8KZxF/
+	6MfaSoHbmKAwdk0kyxqlwDhAMywzMBL2S0d6f8EnV+mPrDnuopyeTRpceJf9AJqCaRP3BEZC1Jw
+	mW6AAzwWMrpP6Wv6xxuKC57Ns9tcU1nwOcMP4c7MkY094unt14jm0kHNXPIBM07Q/8JQvvoB/q5
+	74n6lQG57iZuwXn890ToAMksCjJod6gt7RBkjrgEkxgjiqzLThQZOUxlXfvkh+/zfOP0s0tvyP0
+	wsUZo5eE4iCATTS9vsznyJMFVn2sn2qhI2puZmytT8Ht7aefT3y8VML8AMZ+huHRtaXEsFUjUmx
+	DfDrp0dDP2B5Qiyock2hw9OtwV0zwCKgzKl9gwxMQTcRIET9AAKoQPdrgeOLyF/a9YfgiENq6WI
+	XEr6Yz/eMxd0HBx95iCrhMNANIm+480y5GkDuacRA8SFL5u1w6VxH3YvLqPVg8eVsYd4DPydyBl
+	fMXkGjgxwNzfpcp1SF/VrUJZp7jvtw==
+X-Received: by 2002:a05:690c:6a0d:b0:81e:84dd:2142 with SMTP id 00721157ae682-81f992cd5femr38887937b3.55.1785335078974;
+        Wed, 29 Jul 2026 07:24:38 -0700 (PDT)
+Received: from buildmachine.tailf331da.ts.net (ec2-3-14-143-233.us-east-2.compute.amazonaws.com. [3.14.143.233])
+        by smtp.gmail.com with ESMTPSA id 00721157ae682-81fa279b529sm18830747b3.15.2026.07.29.07.24.36
+        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
+        Wed, 29 Jul 2026 07:24:38 -0700 (PDT)
+From: Baul Lee <baul.lee@xbow.com>
+To: linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Cc: =?UTF-8?q?Tomasz=20Paku=C5=82a?= <tomasz.pakula.oficjalny@gmail.com>,
+	Oleg Makarenko <oleg@makarenk.ooo>,
+	Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>,
+	stable@vger.kernel.org,
+	Baul Lee <baul.lee@xbow.com>
+Subject: [PATCH] HID: universal-pidff: stop the device when force-feedback init fails
+Date: Wed, 29 Jul 2026 23:24:32 +0900
+Message-ID: <20260729142432.16184-1-baul.lee@xbow.com>
+X-Mailer: git-send-email 2.50.1
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="6dqlofrf2szwmrad"
-Content-Disposition: inline
-In-Reply-To: <CAPVz0n2yWtTOgruRc+MAYTZ9=rd6qf6sEnX9v8THvJkN_opvbA@mail.gmail.com>
+Content-Transfer-Encoding: 8bit
 
+universal_pidff_probe() starts the device with hid_hw_start() and then, if
+force-feedback initialisation fails, returns the error through a label that
+only does "return error".  The device is left started.
 
---6dqlofrf2szwmrad
-Content-Type: text/plain; protected-headers=v1; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-Subject: Re: [PATCH v10 2/7] mfd: Add driver for ASUS Transformer embedded
- controller
-MIME-Version: 1.0
+The HID core does not unwind on the driver's behalf.  __hid_device_probe()
+releases the devres group, closes the report and clears hdev->driver:
 
-On Sat, Jul 25, 2026 at 04:23:13PM +0300, Svyatoslav Ryhel wrote:
-> =D1=87=D1=82, 23 =D0=BB=D0=B8=D0=BF. 2026=E2=80=AF=D1=80. =D0=BE 09:25 Uw=
-e Kleine-K=C3=B6nig
-> <u.kleine-koenig@baylibre.com> =D0=BF=D0=B8=D1=88=D0=B5:
-> >
-> > Hello,
-> >
-> > On Tue, Jul 21, 2026 at 12:52:28PM +0300, Svyatoslav Ryhel wrote:
-> > > From: Micha=C5=82 Miros=C5=82aw <mirq-linux@rere.qmqm.pl>
-> > >
-> > > Support Nuvoton NPCE795-based ECs as used in Asus Transformer TF201,
-> > > TF300T, TF300TG, TF300TL and TF700T pad and dock, as well as TF101 do=
-ck
-> > > and TF600T, P1801-T and TF701T pad. This is a glue driver handling
-> > > detection and common operations for EC's functions.
-> > >
-> > > Co-developed-by: Svyatoslav Ryhel <clamor95@gmail.com>
-> > > Signed-off-by: Svyatoslav Ryhel <clamor95@gmail.com>
-> > > Signed-off-by: Micha=C5=82 Miros=C5=82aw <mirq-linux@rere.qmqm.pl>
-> >
-> > Documentation/process/submitting-patches.rst has:
-> >
-> >         [...] the ordering of Signed-off-by: tags should reflect the
-> >         chronological history of the patch insofar as possible [...]
-> >
-> > So your S-o-b should be last when you submit a patch.
-> >
-> > > +#include <linux/i2c.h>
-> > > [...]
-> > > +#include <linux/mod_devicetable.h>
-> >
-> > <linux/mod_devicetable.h> will go away soon. Please rely on
-> > <linux/i2c.h> to provide a definition of struct of_device_id and drop
-> > the #include of mod_devicetable.h.
-> >
-> > > +static const struct of_device_id asus_ec_match[] =3D {
-> > > +     {
-> > > +             .compatible =3D "asus,sl101-ec-dock",
-> > > +             .data =3D &asus_ec_sl101_dock_data
-> > > +     }, {
-> > > +             .compatible =3D "asus,tf101-ec-dock",
-> > > +             .data =3D &asus_ec_tf101_dock_data
-> > > +     }, {
-> > > +             .compatible =3D "asus,tf201-ec-pad",
-> > > +             .data =3D &asus_ec_tf201_pad_data
-> > > +     }, {
-> > > +             .compatible =3D "asus,tf600t-ec-pad",
-> > > +             .data =3D &asus_ec_tf600t_pad_data
-> > > +     },
-> > > +     { /* sentinel */ }
-> > > +};
-> >
-> > Trailing comma after the assignments to .data please.
-> >
->=20
-> Sure, but out of curiosity, why in this case you ask for trailing
-> comma and if entries are in one line, you don't.
+	if (ret) {
+		devres_release_group(&hdev->dev, hdev->devres_group_id);
+		hid_close_report(hdev);
+		hdev->driver = NULL;
+	}
 
-Because this is the most used style. The rationale for the trailing
-comma is that if you want to add a new assignment to a multiline
-initializer you have to touch the line without comma:
+The hidraw character device that hid_hw_start() registered through
+hid_connect() is allocated with kzalloc() and added with cdev_device_add(),
+so it is not devres-managed and survives that.  With hdev->driver NULL,
+hid_device_remove() skips hid_hw_stop() as well, because it only unwinds
+while a driver is still attached.  The registration therefore outlives the
+device on both paths.
 
- 	}, {
- 		.compatible =3D "asus,tf600t-ec-pad",
--		.data =3D &asus_ec_tf600t_pad_data
-+		.data =3D &asus_ec_tf600t_pad_data,
-+		.something_else =3D &foobar,
- 	},
+Opening the surviving /dev/hidrawX writes into freed memory.  KASAN reports
+a use-after-free write from hidraw_open() -> hid_hw_open() -> the
+transport's open callback, which takes a spinlock inside the freed object.
+A descriptor that carries a PID usage page and no input reports is enough:
+hidraw claims the device so hid_hw_start() succeeds, while hid->inputs
+stays empty so force-feedback init fails.  The other failure returns in
+hid_pidff_init_with_quirks() - no output reports, an allocation failure,
+pidff_init_fields(), pidff_check_autocenter(), an unusable effect count,
+input_ff_create() - all reach the same label.
 
-so if the comma is already there, the patch reduces to:
+Stop the device on that path.  hid-dr.c and hid-emsff.c, which start the
+device with the same HID_CONNECT_DEFAULT & ~HID_CONNECT_FF mask, already do
+this.  The two earlier gotos must keep returning without hid_hw_stop(),
+since neither has a started device, so give the path that fails after the
+start its own label.
 
- 	}, {
- 		.compatible =3D "asus,tf600t-ec-pad",
- 		.data =3D &asus_ec_tf600t_pad_data,
-+		.something_else =3D &foobar,
- 	},
+Discovered by XBOW, triaged by Baul Lee <baul.lee@xbow.com>
 
-=2E For adding a new assignment to:
+Fixes: f06bf8d94fff ("HID: Add hid-universal-pidff driver and supported device ids")
+Cc: stable@vger.kernel.org
+Signed-off-by: Baul Lee <baul.lee@xbow.com>
+---
+ drivers/hid/hid-universal-pidff.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
- 	{ .compatible =3D "..." }
+diff --git a/drivers/hid/hid-universal-pidff.c b/drivers/hid/hid-universal-pidff.c
+index 549dac555d40..60180467a0bf 100644
+--- a/drivers/hid/hid-universal-pidff.c
++++ b/drivers/hid/hid-universal-pidff.c
+@@ -104,12 +104,14 @@ static int universal_pidff_probe(struct hid_device *hdev,
+ 	error = init_function(hdev, id->driver_data);
+ 	if (error) {
+ 		hid_warn(hdev, "Error initialising force feedback\n");
+-		goto err;
++		goto err_stop;
+ 	}
+ 
+ 	hid_info(hdev, "Universal pidff driver loaded successfully!");
+ 
+ 	return 0;
++err_stop:
++	hid_hw_stop(hdev);
+ err:
+ 	return error;
+ }
+-- 
+2.53.0
 
-you have to touch the line anyhow, so there is no advantage to already
-have the comma. And then it seems parsimony prevails.
-
-Best regards
-Uwe
-
---6dqlofrf2szwmrad
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEP4GsaTp6HlmJrf7Tj4D7WH0S/k4FAmpp8zUACgkQj4D7WH0S
-/k6ZNAf8DhR7uBfXuQZzNcJ2dR9KB5Mucc4l5ZRolBWJcq6FHN8KK2BbDb+bkrcE
-pUhYeNPt0LnZBA6JHWhJAM1zlHnLaQ2PlBWxeR4EIwAhM8nyXcfHgmgMJxBHSeEQ
-qHWXZKtQd90uCGYg4BnQO8LmgAQR610/ujayOjnD0EgB2Wy19ZkENuG5Nu+Irzef
-8DWW0WMWbrTCP49l4fgVWsLE8/yOaBE1jBeyaZ17yXLwz5vbs6OfeCkqaK11AOnH
-KXbRlcea/K7YZX7wPKZLhHMSvmzSk+NEQgQpg7+qgg7NYMLDgJFCfvFTWhNj5lqb
-GcHcRJv6c3GBFhS3t9oSrHiBeXrX0A==
-=JxD4
------END PGP SIGNATURE-----
-
---6dqlofrf2szwmrad--

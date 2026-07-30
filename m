@@ -1,125 +1,128 @@
-Received: from out203-205-221-153.mail.qq.com (out203-205-221-153.mail.qq.com [203.205.221.153])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BBFFA392C4F;
-	Thu, 30 Jul 2026 12:53:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=203.205.221.153
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AF3E63C379F
+	for <linux-input@vger.kernel.org>; Thu, 30 Jul 2026 12:55:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785415985; cv=none; b=HG8gUb37O++T2AROCTkqXK2KfYUxZfKaxVhzHE5oR0C1sDLO5hAP4vrhyFxwc3yHHLOP4ZXyLezPb04rLoiPfatBdJkMhW+PsBRhQaO7+zAfSykGqqqljBtG7dW/TcXfl5k73mVYNty9z77SaM0CAAuUPKOznHy78MhyuTje/38=
+	t=1785416148; cv=none; b=su7rbna2e24a/LQD7XOPBds/Kef+FGxNIBDGF2MYP7yMTADhqYygbPPnNUxN+3Z1axXmsXoI0lrQVPmjuBnJSVpneFgjgaSAilc8VTcinuegpWG06LU6RZzkNxZtY38YtWFsRYysSzFR7h7eTY2pCjMbZL3EbGtP3501nng4aIY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785415985; c=relaxed/simple;
-	bh=0pVKDw7VTT5NTOCXE8Eb2zYY/zVZZZLssctGknNwaUs=;
-	h=Message-ID:From:To:Cc:Subject:Date:In-Reply-To:References:
-	 MIME-Version; b=bsKO6fg6rmhpZO+pRvKRil4tCMvxIm7g+9oqV4LNfHyxf9DsW/xFyxKbuT7/pswfSDx1ZHcjt1BT3jL8loxOKwpCG9UqFIAaVe3Elg8U4BiVPqhCO0+K7wl+QOXIaiLcK6nC54hVpRBBaHXDRBPr9tbD1TNLc6lpVn/Q17Bvamc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=foxmail.com; spf=pass smtp.mailfrom=foxmail.com; dkim=pass (1024-bit key) header.d=foxmail.com header.i=@foxmail.com header.b=NW9oI5lx; arc=none smtp.client-ip=203.205.221.153
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=foxmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=foxmail.com
+	s=arc-20240116; t=1785416148; c=relaxed/simple;
+	bh=nXSzq7NcSI8XpLEEcbdRfFctn1lW3xw+TzwBFGKWEt0=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=KEBXXVIrk2c8QW7k60IYho5tUlWrVG+qUd48JDiAQRgEFm6GvxrBr+CwIe+tB2YQlkvNbo6XhjF1qtGODV2flaQHiIyigqukZ5WroRwFe2za87JAXkfNykR9kpnmpw7NezyFeaX9sRTHYjxRPHoRkbBMtV6xWLlNku8yz+Nq7ek=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Wv9yTqov; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=foxmail.com header.i=@foxmail.com header.b="NW9oI5lx"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=foxmail.com;
-	s=s201512; t=1785415975;
-	bh=rohzAr17Hgx/FIVw3ixFYlsqi7P7a5Z48TtmBNIVHdg=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=NW9oI5lxSLadNRLeM00KO9bJZJ6gOYFdbi7cjQ7gh3MFy52HeyKLig0ZdL6bVPpuj
-	 NswqdxURtyOOjofPwgnAnd+bs+U5GOPDdQHxbKsD2GpNJTGfgNZh3/uYKWIraNlc2X
-	 XdU05F81psknTuuDJ5PEjEsUJP8KCRxNx4/TvKeQ=
-Received: from VM-0-7-ubuntu.. ([101.35.250.50])
-	by newxmesmtplogicsvrszc56-0.qq.com (NewEsmtp) with SMTP
-	id D35390A1; Thu, 30 Jul 2026 20:52:53 +0800
-X-QQ-mid: xmsmtpt1785415973tqy3df663
-Message-ID: <tencent_6D1C4A793D4B3D07F0415D2A86B91BA33508@qq.com>
-X-QQ-XMAILINFO: NnYhxYSyuBnL5jEYngCda9lz2KSSrAM08b1Mu74H2s9Fru5Aj4H52qWWa/sVIV
-	 nx0dWqfhq93jm6IZXLYxT5K+Pjxw/Ias2hm2mfvzUI+0ZXm88KhWdokjuQ1ANt8tr8Er9qpQ0Jdx
-	 wrFng5qdi+LbxyzcBfKT8r2JMEJNQHpdCkgpHDW6eHe9O4f754xnhvxetsP/LK9Q4aZZP1atT/Vi
-	 S9XFa459jp6SpXR4N6q8UTePm5rfxcydZEzL2/q/WqBW5/Axa5A9y+AHsSgYgIeSPQHI/yZpaE8y
-	 4Q8E3CLfJTdw7/M0GbtjuPBE0ZJYsyQjhm4sVsBuJwueDMdI7EB2FSl1aGoLYdPT0dDToeyhH11N
-	 MymruKzGE5RnC44y/GafW5Z46ZmIIOICZ7sFLKC+nyqDWGPGf7NSU1qkiV8aZ7EVqwYROno+XTCw
-	 vAADV5fUHHj4fDvF/fi1QSL5TOXxUvekw0qmFzlJvTOvKVPOHz7cOs2V71jdLp70uAZ/x9Ai/UNR
-	 caAH47Gv1XDXhoVZPji7tfhETqnVlFUg9doM03H7J865GXvKDXdYeYML/Uw7mR6KnmyokwE8+zbR
-	 MLrqbScYXQB4IsgoYsxjhsYfDevk6AhYB7pEYHw5+tgDH6+R7+7Z0dTJgMPtRB15rVEjlTOzCKOA
-	 7kPN4iMXktCGdiDt2dEPOuKl3j9XiPtoNRTT7bbht4VnjKm8uGJ19wdEdjIbZsCk13o7K7Cu1B6q
-	 p2HfzclfMfdBuP35h+uDYxxgXryBy66+Y2CbKnYGv6VTdGW7Xg7sYdqfnl4WdqcVKn022hltwjj9
-	 V6hJMME8qL7/kKON9OL63bQQ6TlBa0TPLPayHU278bZag7ZS5owtmZ8MMAMiJtfwuIcWPhYAxjZ/
-	 ojJdP1+siSj4Oey4frI+x4TIr11MwG0DXStGXB/qeFR+jgcfS9Gynl/BqJGe356TIXphxpQoj7eo
-	 uu3NiZoabF0dtBYXKAklTBsGIXgaOPZ15U023VUkVrLEKy0guqq2lR4n+nYJUn71zOwZ56kThwc3
-	 IyWhbWiPh6xSZGD5TzytiQBOXKKCGpBc+mwIWtM6HD8jKpwEERjZp19HRFjboCkhR45e+epdBiLU
-	 rSjqAw
-X-QQ-XMRINFO: MPJ6Tf5t3I/ylTmHUqvI8+Wpn+Gzalws3A==
-From: Shen Yongchao <grayhat@foxmail.com>
-To: linux-input@vger.kernel.org
-Cc: Shen Yongchao <grayhat@foxmail.com>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
-	Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH v2 3/4] HID: intel-ish-hid: prevent size_t underflow in report_list parsing
-Date: Thu, 30 Jul 2026 20:52:53 +0800
-X-OQ-MSGID: <20260730125253.294317-1-grayhat@foxmail.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20260730115600.218172-1-grayhat@foxmail.com>
-References: 
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Wv9yTqov"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26FF31F00A3A;
+	Thu, 30 Jul 2026 12:55:46 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1785416147;
+	bh=IdYmDr/IOLKnCkpMkw4IGtYU/0kzQslwcj8rRkAtonI=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=Wv9yTqovpuu+E8rxp54u01619xQcDWg48iMVQa8RiorOHCs4Oh1rjaZiZYjucyS7/
+	 lHdpLIZ88ndQONjsRNM0yRVqe/C43XXuVhcPxqGxOOdmCDP7yTF+CTH6bh/Ufy2c3B
+	 bCDNae1EoNLGITSEERnfk747t//0Rbg+Ptuqn4437fe2IGcNbhX6dYL6k2lbUBcPml
+	 M6AEun5hSv49qB4Rm2FCvYO3i749CB1/bHbONkLbFO/OtkDtrQs7EeDSa1EmMYWJeT
+	 wAZ7VT+Mc8N1U7cOAkp2Pba512o8Ff7eP0NVuieTTrwJ1rLpjVJ9u/RQxUg1266mLO
+	 bT0YKe3NHwiZA==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v3] HID: multitouch: Fix stale MT slots when contact
+ count drops to zero
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Dave Carey" <carvsdriver@gmail.com>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20260730124336.637339-1-carvsdriver@gmail.com>
+References: <20260730124336.637339-1-carvsdriver@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Thu, 30 Jul 2026 12:55:46 +0000
+Message-Id: <20260730125547.26FF31F00A3A@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-payload_len is computed as report_len - sizeof(struct
-hostif_msg_hdr) where report_len is a firmware-controlled u16
-stored in a size_t.  Values 0..5 underflow to ~SIZE_MAX, causing
-hid_input_report() to read far past the receive buffer.
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
 
-Add an explicit check for report_len < sizeof(struct
-hostif_msg_hdr) and use a local inner_len variable instead of
-overwriting the outer loop's payload_len.
+Pre-existing issues:
+- [High] Preexisting teardown race condition in mt_remove() where the stick=
+y fingers release timer can be re-armed after deletion, leading to a Use-Af=
+ter-Free.
+--
 
+--- Patch [1]: [PATCH v3] HID: multitouch: Fix stale MT slots when contact =
+count drops to zero ---
+commit de5f919b17036295856b898ddbe48949c82b0650
+Author: Dave Carey <carvsdriver@gmail.com>
 
-Assisted-by: LLM
-Signed-off-by: Shen Yongchao <grayhat@foxmail.com>
-Fixes: 0b28cb4bcb17 ("HID: intel-ish-hid: ISH HID client driver")
-Cc: stable@vger.kernel.org
----
-diff --git a/drivers/hid/intel-ish-hid/ishtp-hid-client.c b/drivers/hid/intel-ish-hid/ishtp-hid-client.c
-index 6609130ce..efe5c5326 100644
---- a/drivers/hid/intel-ish-hid/ishtp-hid-client.c
-+++ b/drivers/hid/intel-ish-hid/ishtp-hid-client.c
-@@ -77,6 +77,7 @@ static void process_recv(struct ishtp_cl *hid_ishtp_cl, void *recv_buf,
- 	u8 *pos;
- 	u8 *list_end;
- 	size_t report_len;
-+	size_t inner_len;
- 	struct ishtp_cl_data *client_data = ishtp_get_client_data(hid_ishtp_cl);
- 	int curr_hid_dev = client_data->cur_hid_dev;
- 	struct ishtp_hid_data *hid_data = NULL;
-@@ -293,8 +294,11 @@ static void process_recv(struct ishtp_cl *hid_ishtp_cl, void *recv_buf,
- 				recv_msg = container_of(&report->msg,
- 							struct hostif_msg, hdr);
- 				report_len = report->size;
--				payload = recv_msg->payload;
--				payload_len = report_len -
-+				if (report_len < sizeof(struct hostif_msg_hdr))
-+					break;
-+
-+
-+				inner_len = report_len -
- 					sizeof(struct hostif_msg_hdr);
- 
- 				for (i = 0; i < client_data->num_hid_devices;
-@@ -306,11 +310,11 @@ static void process_recv(struct ishtp_cl *hid_ishtp_cl, void *recv_buf,
- 						client_data->hid_sensor_hubs[
- 									i],
- 						report_type,
--						payload, payload_len,
-+						recv_msg->payload, inner_len,
- 						0);
- 					}
- 
--				pos += sizeof(struct report) + payload_len;
-+				pos += sizeof(struct report) + inner_len;
- 			}
- 			break;
- 		default:
+HID: multitouch: Fix stale MT slots when contact count drops to zero
 
+The INGENIC 17EF:6161 touchscreen reports a contact count of 0 in the frame
+immediately following the last finger lift. This commit fixes an issue where
+the driver left num_expected at its previous value, preventing stale slots
+from being released. It resolves this by explicitly resetting num_expected =
+to
+0 for a new multi-report frame.
+
+> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+> index edb37b4c867e4..418925b03691b 100644
+> --- a/drivers/hid/hid-multitouch.c
+> +++ b/drivers/hid/hid-multitouch.c
+> @@ -1321,21 +1321,18 @@ static void mt_touch_report(struct hid_device *hi=
+d,
+>  	 * Includes multi-packet support where subsequent
+>  	 * packets are sent with zero contactcount.
+>  	 */
+> -	if (contact_count >=3D 0) {
+> +	if (contact_count > 0)
+> +		app->num_expected =3D contact_count;
+
+[ ... ]
+
+> +		app->num_expected =3D 0;
+>  	}
+>  	app->prev_scantime =3D scantime;
+> =20
+
+[Severity: High]
+This is a pre-existing issue, but while looking at mt_touch_report(), I not=
+iced
+a potential race condition during device teardown that might lead to a
+use-after-free.
+
+In mt_remove(), the release timer is deleted before stopping the hardware:
+
+drivers/hid/hid-multitouch.c:mt_remove() {
+    ...
+	timer_delete_sync(&td->release_timer);
+
+	sysfs_remove_group(&hdev->dev.kobj, &mt_attribute_group);
+	hid_hw_stop(hdev);
+    ...
+}
+
+Since hid_hw_stop() hasn't been called yet, the hardware is still active and
+can generate events. If an incoming HID report is processed concurrently by
+mt_touch_report(), it can re-arm the timer:
+
+drivers/hid/hid-multitouch.c:mt_touch_report() {
+    ...
+	if (app->quirks & MT_QUIRK_STICKY_FINGERS) {
+		if (!bitmap_empty(td->active_slots, td->maxcontacts))
+			mod_timer(&td->release_timer,
+				  jiffies + msecs_to_jiffies(100));
+    ...
+}
+
+After mt_remove() completes, the devm-managed mt_device structure (td) is f=
+reed.
+If the re-armed timer expires 100ms later, could mt_expired_timeout() execu=
+te
+on the freed td structure?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260730124336.6373=
+39-1-carvsdriver@gmail.com?part=3D1

@@ -1,144 +1,119 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mailgw.kylinos.cn (mailgw.kylinos.cn [124.126.103.232])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E3B2C3BB67F
-	for <linux-input@vger.kernel.org>; Thu, 30 Jul 2026 10:04:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 865BD337BB8;
+	Thu, 30 Jul 2026 10:15:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=124.126.103.232
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785405888; cv=none; b=erJeAETPCt9Dk1YyxZD/2tSY8qrEQV+aOXngdP37xY0X8b4Owv4yTLI98wiTgy/vggX9+w8kJLWUz3ZY988km5wS2HD5SqSnEBIB+NDaQgQGGGQ6uT9sK97mtYm6Y58tpNKx5VckjeeVad+Et6+YnxC/xOx8s54PdDwU6ov5cCw=
+	t=1785406550; cv=none; b=HqcWG+KyOR+1J9bimU888ndzYkdgsUYj37Gr/YNLOMrw8tUZZdcD42enzWT/JKDjO8W0A+nWJHLk91AWp8kddLkSKO6SHFjxCH8bsVaVUyMHluy66pXy0lX7RbNyo4rYLnitLmsdUqg7AFWUfoKZmmXEMywv+gv9jexn1P7B//E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785405888; c=relaxed/simple;
-	bh=dbof+drmw4J29RphJq5vHunFZV+h5S9UwvWUfVVIFck=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=MXyEfwN/G15O0hKIyY9ZiIswhKjpns9PgtD2y8j1w55WJsDTQizZzE0LzkOJs3+A7GPt1Ok4xg99lsxHcYa6OApspgS4FW05Ms8ZAOTJDHkZpZgYSlJxdrSgk/Q4v+tElFHHTg5yWU5O/OHSU8brRbXlSiqkUD9tS6loalZA8tU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=IDSGgXqC; arc=none smtp.client-ip=100.103.45.18
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="IDSGgXqC"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5599E1F000E9;
-	Thu, 30 Jul 2026 10:04:46 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785405886;
-	bh=iXw4iCH21gJgm91TIZVC89O3QWOG8NNcCXljdwPoyIU=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=IDSGgXqCLqiQ7/ZHN8GnrZvubCTowHbu9DRxlDgFzyJ0R2v/V97zKnrUAffMgyRYH
-	 nXz8+GTyQf/C/yGAz+orz190m4nLDjuUtCNQBR/NjUF2mMFW//kdPr59yvmEn8qW09
-	 1OyiQ3dMa3Q7e+/Ut9uTREQgYnS/5Jxr82KRVp0a36TjMNUjBgnqBpAShUGnICjEJa
-	 liE+jFiSOjZk4ex2xNQshAYuszEyB5BiGiHixvA5CXmV5Bd/OoV4irXEEcMTL9cUr8
-	 ngiNHWnr5jMq13iWsHiWQLqsFTKE6SPgWboGKhGrNgOoLnIgWaKUy3e1oR54z3O+NP
-	 4WxAnqYS9PWDQ==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 1/3] input: uapi: Add trigger_left and trigger_right to
- ff_rumble_effect struct
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Guillaume Casal" <guillaume.casal.42@gmail.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260730095317.767418-2-guillaume.casal.42@gmail.com>
-References: <20260730095317.767418-1-guillaume.casal.42@gmail.com>
- <20260730095317.767418-2-guillaume.casal.42@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Thu, 30 Jul 2026 10:04:45 +0000
-Message-Id: <20260730100446.5599E1F000E9@smtp.kernel.org>
+	s=arc-20240116; t=1785406550; c=relaxed/simple;
+	bh=LnntfNw/y5kXo6ctlrcTcJ9zVjYBMSadqsdXJu28F+Q=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=HiazGm9sTY53g8WBPVKEZvsRTgE7FL59d1AHIW3BeppZy7GDc4pvq0EZZ7t5OvHTZlCCeK4iKSU+tp95VMAOiNdl+xxUyW3UA88FvbR1EmiUPrCAEwUJnIbfUySTGfXCjRjF30uuaEuWTl73oVqYpWDF0JNM083aSKcPjB3V830=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn; spf=pass smtp.mailfrom=kylinos.cn; arc=none smtp.client-ip=124.126.103.232
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kylinos.cn
+X-UUID: 995ad5e48bff11f1aa26b74ffac11d73-20260730
+X-CTIC-Tags:
+	HR_CC_COUNT, HR_CC_DOMAIN_COUNT, HR_CC_NAME, HR_CC_NO_NAME, HR_CTE_8B
+	HR_CTT_MISS, HR_DATE_H, HR_DATE_WKD, HR_DATE_ZONE, HR_FROM_NAME
+	HR_SJ_LANG, HR_SJ_LEN, HR_SJ_LETTER, HR_SJ_NOR_SYM, HR_SJ_PHRASE
+	HR_SJ_PHRASE_LEN, HR_SJ_WS, HR_TO_COUNT, HR_TO_DOMAIN_COUNT, HR_TO_NO_NAME
+	IP_TRUSTED, SRC_TRUSTED, DN_TRUSTED, SA_EXISTED, SN_EXISTED
+	SPF_NOPASS, DKIM_NOPASS, DMARC_NOPASS, UD_TRUSTED, CIE_BAD
+	CIE_GOOD, CIE_GOOD_SPF, GTI_FG_BS, GTI_RG_INFO, GTI_C_BU
+	AMN_GOOD, ABX_MISS_RDNS
+X-CID-P-RULE: Release_Ham
+X-CID-O-INFO: VERSION:1.3.12,REQID:f66b0023-c092-4e70-a553-aaff266ebd56,IP:15,
+	URL:25,TC:0,Content:-5,EDM:0,RT:0,SF:0,FILE:0,BULK:0,RULE:Release_Ham,ACTI
+	ON:release,TS:35
+X-CID-INFO: VERSION:1.3.12,REQID:f66b0023-c092-4e70-a553-aaff266ebd56,IP:15,UR
+	L:25,TC:0,Content:-5,EDM:0,RT:0,SF:0,FILE:0,BULK:0,RULE:Release_Ham,ACTION
+	:release,TS:35
+X-CID-META: VersionHash:e7bac3a,CLOUDID:1c7dfba27a1a6ab8277e1a20b8207cfd,BulkI
+	D:260730181537BLSJV2LQ,BulkQuantity:0,Recheck:0,SF:10|38|66|78|102|127|850
+	|865|898,TC:nil,Content:0|15|50,EDM:-3,IP:-2,URL:11|94|82|1,File:nil,RT:ni
+	l,Bulk:nil,QS:nil,BEC:nil,COL:0,OSI:0,OSA:0,AV:0,LES:1,SPR:NO,DKR:0,DKP:0,
+	BRR:0,BRE:0,ARC:0
+X-CID-BVR: 2,SSN|SDN
+X-CID-BAS: 2,SSN|SDN,0,_
+X-CID-FACTOR: TF_CID_SPAM_SNR,TF_CID_SPAM_ULN
+X-CID-RHF: D41D8CD98F00B204E9800998ECF8427E
+X-UUID: 995ad5e48bff11f1aa26b74ffac11d73-20260730
+X-User: yijiangshan@kylinos.cn
+Received: from localhost.localdomain [(116.128.244.171)] by mailgw.kylinos.cn
+	(envelope-from <yijiangshan@kylinos.cn>)
+	(Generic MTA with TLSv1.3 TLS_AES_256_GCM_SHA384 256/256)
+	with ESMTP id 427557263; Thu, 30 Jul 2026 18:15:33 +0800
+From: Jiangshan Yi <yijiangshan@kylinos.cn>
+To: djogorchock@gmail.com,
+	jikos@kernel.org,
+	bentiss@kernel.org
+Cc: linux-kernel@vger.kernel.org,
+	linux-input@vger.kernel.org,
+	13667453960@163.com,
+	Jiangshan Yi <yijiangshan@kylinos.cn>,
+	sashiko-bot@kernel.org,
+	stable@vger.kernel.org
+Subject: [PATCH] HID: nintendo: register input device after capabilities are set
+Date: Thu, 30 Jul 2026 18:15:06 +0800
+Message-Id: <20260730101506.547340-1-yijiangshan@kylinos.cn>
+X-Mailer: git-send-email 2.25.1
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
+input_register_device() exposes the device to userspace immediately.
+In joycon_input_create() it was called before joycon_config_rumble()
+configures the FF_RUMBLE capability and the memless force-feedback
+device, so a concurrent EVIOCSFF could dereference a NULL dev->ff.
 
-New issues:
-- [High] Adding `trigger_left` and `trigger_right` to `struct ff_rumble_eff=
-ect` within a union breaks backward compatibility and causes random device =
-actuation for legacy userspace applications.
+Registering early also means the initial udev event lacks button and
+axis information, which can make input managers ignore the device.
 
-Pre-existing issues:
-- [High] 4 bytes of uninitialized kernel stack memory are leaked to userspa=
-ce via the `uinput` subsystem when a 32-bit compat application sends an `EV=
-IOCSFF` ioctl.
---
+Move input_register_device() to the end of joycon_input_create(), after
+all capabilities, the IMU input device and the force-feedback callbacks
+have been configured.
 
---- Patch [1]: [PATCH 1/3] input: uapi: Add trigger_left and trigger_right =
-to ff_rumble_effect struct ---
-commit 47b93f39a2f9b455e85b8381fa40a96ca5aaac36
-Author: Daniel Bomar <dbdaniel42@gmail.com>
+Fixes: 2af16c1f846b ("HID: nintendo: add nintendo switch controller driver")
+Reported-by: sashiko-bot@kernel.org
+Closes: https://sashiko.dev/#/patchset/20260730031927.25444-1-yijiangshan@kylinos.cn?part=1
+Cc: stable@vger.kernel.org
+Signed-off-by: Jiangshan Yi <yijiangshan@kylinos.cn>
+---
+ drivers/hid/hid-nintendo.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-input: uapi: Add trigger_left and trigger_right to ff_rumble_effect struct
+diff --git a/drivers/hid/hid-nintendo.c b/drivers/hid/hid-nintendo.c
+index e7302ec01ff1..7f014f371800 100644
+--- a/drivers/hid/hid-nintendo.c
++++ b/drivers/hid/hid-nintendo.c
+@@ -2162,10 +2162,6 @@ static int joycon_input_create(struct joycon_ctlr *ctlr)
+ 	ctlr->input->phys = hdev->phys;
+ 	input_set_drvdata(ctlr->input, ctlr);
+ 
+-	ret = input_register_device(ctlr->input);
+-	if (ret)
+-		return ret;
+-
+ 	if (joycon_type_is_right_joycon(ctlr)) {
+ 		joycon_config_right_stick(ctlr->input);
+ 		joycon_config_buttons(ctlr->input, right_joycon_button_mappings);
+@@ -2208,6 +2204,10 @@ static int joycon_input_create(struct joycon_ctlr *ctlr)
+ 	if (joycon_has_rumble(ctlr))
+ 		joycon_config_rumble(ctlr);
+ 
++	ret = input_register_device(ctlr->input);
++	if (ret)
++		return ret;
++
+ 	return 0;
+ }
+ 
+-- 
+2.25.1
 
-This adds two variables to control the trigger motors to the struct that
-is passed in from userspace. It reuses existing union padding to maintain
-the total size of struct ff_effect.
-
-Link: https://lore.kernel.org/lkml/20220410220449.5071-1-dbdaniel42@gmail.c=
-om/
-
-> diff --git a/include/uapi/linux/input.h b/include/uapi/linux/input.h
-> index 6aa703fcfcfb7..3d62603a387b9 100644
-> --- a/include/uapi/linux/input.h
-> +++ b/include/uapi/linux/input.h
-[ ... ]
-> @@ -427,6 +429,8 @@ struct ff_periodic_effect {
->  struct ff_rumble_effect {
->  	__u16 strong_magnitude;
->  	__u16 weak_magnitude;
-> +	__u16 trigger_left;
-> +	__u16 trigger_right;
->  };
-
-[Severity: High]
-Does this break backward compatibility for legacy userspace applications?
-
-Because struct ff_rumble_effect resides within a union inside struct ff_eff=
-ect,
-extending its size from 4 to 8 bytes does not change the overall size of
-struct ff_effect, and the EVIOCSFF ioctl number remains identical.
-
-Legacy userspace applications typically allocate struct ff_effect on the st=
-ack
-without zero-initializing the entire union padding. When calling EVIOCSFF f=
-or
-a rumble effect, they leave uninitialized stack memory in the trailing bytes
-that now correspond to trigger_left and trigger_right.
-
-Could an updated driver read these uninitialized fields and actuate the tri=
-gger
-motors based on random stack garbage?
-
-[Severity: High]
-This isn't a bug introduced by this patch, but does the input subsystem leak
-uninitialized kernel stack memory to userspace during 32-bit compat ioctls?
-
-In drivers/input/evdev.c:evdev_do_ioctl(), an uninitialized 48-byte effect
-variable is declared on the stack:
-
-	struct ff_effect effect;
-
-When a 32-bit compat application calls EVIOCSFF, input_ff_effect_from_user(=
-) in
-drivers/input/input-compat.c copies only 44 bytes from userspace:
-
-		if (copy_from_user(compat_effect, buffer,
-				   sizeof(struct ff_effect_compat)))
-			return -EFAULT;
-
-This leaves 4 bytes of the effect structure untouched, containing uninitial=
-ized
-kernel stack data.
-
-If this effect is uploaded to a virtual uinput device, uinput_dev_upload_ef=
-fect()
-stores a pointer to this stack variable. When a 64-bit uinput daemon process
-calls the UI_BEGIN_FF_UPLOAD ioctl in
-drivers/input/misc/uinput.c:uinput_ioctl_handler():
-
-		retval =3D uinput_ff_upload_to_user(p, &ff_up);
-
-it copies the entire 48-byte struct ff_effect back to userspace, reliably
-disclosing 4 bytes of uninitialized kernel stack memory per ioctl call. Cou=
-ld
-this be exploited to read kernel memory layout?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260730095317.7674=
-18-1-guillaume.casal.42@gmail.com?part=3D1

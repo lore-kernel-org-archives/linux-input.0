@@ -1,189 +1,106 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wr1-f51.google.com (mail-wr1-f51.google.com [209.85.221.51])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 11392372ECA;
-	Thu, 30 Jul 2026 20:32:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1AF513B5E08
+	for <linux-input@vger.kernel.org>; Thu, 30 Jul 2026 20:41:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785443529; cv=none; b=nE5a2lMTh63OZcM6IrOf/Q/78Pgup2Q5Oq6VFaHaRlSV8NxMmZ8r3NCvtR0jqGglVLNbUiANDr1e1ukv9d+LyQuRyYE3rq/9ERPnYXlBnCvtbf/3zu3j8j/QyybrKmrGKXtc+rIVK6dpy58+dCgSQ9ePLBKZcAdlag2DihfP5kw=
+	t=1785444116; cv=none; b=Rsv9XaBARJTbY7+w+C2t+DBEDM6U9YIAJKFQVualaEOWNUN32vyds8o7OLuXP71x4Sb4TUc/Pv5iH8baW1POYpYLFxxAhHF461OxqZsit1LBnq/4hp3wX0+op6iHvTtxfY7x07cHn2EZPj84c/clDXBsTt7Mt/mC910cjHUjk4U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785443529; c=relaxed/simple;
-	bh=ltp9rpH75N4jzEu8KYmLVjYxA4yX/WK1khrIYuEAo0Q=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=jDZ4a/oJ5q2G+C9UqwZ8r9aisMtalfseq1OyxgSzzu+pirt582KXAldt2DS2Xd6D1pJRINR0k6wzru4MKajIgdr2iRrwRjL4/p6cj81klAwQZs+nI7YqVeIp9zP6R+Nwo/lFdakTXrLbSiA/K28GWpOJFvO7iWxJGbL7/NL87co=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=oXwHl/+4; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1785444116; c=relaxed/simple;
+	bh=HYxoZYuwQeO6t0bZr0FMt/eeSDvXYszea8DGKlrOSPA=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=Vgl3Y2Z8LKNulRo32wjoqc+Rzlj4oER1fRVAov2sbhdILF4HyF0YcxNfq9yz3ZN9mfz9Q034NuVIZxW7cqFRqzslYdZVVYFmHF74SidGZRhxTrYnUR2K+aIIZ0/n3DrL/pBmWr/cVLPOn1RWrDTa/xiFeBU0PnMGgD3wT6/CI7g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com; spf=pass smtp.mailfrom=baylibre.com; dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b=lhK85+dk; arc=none smtp.client-ip=209.85.221.51
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=baylibre.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="oXwHl/+4"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 399FD1F000E9;
-	Thu, 30 Jul 2026 20:31:58 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785443518;
-	bh=OqQrlLzevJfKesxlgN2vLjLIVLSv6VJzAb67OIIJts4=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=oXwHl/+4DzTDwW7DUDbB26UzLAyTPC6V9z0ujmbXa15FLrmxEv6zdqPgtnTV+DFU7
-	 zBbwjf9imexqru0saIrcf++vthzwka09083JNT+uDluOeJ4A+u4Krxz2a2LKJCEVtg
-	 RjsVok3Xco36s2JdaJvH7CKbw45dTQlS7jlKxnD+EspmH2kX7tz9a2KQOuNANg4nkc
-	 awMaKVc14Zg4LdsOqBHx9qQCraS6v22jRi3TLKEbVoQyZ59LzfNrRbkNKq56SZAdyA
-	 XkGiEDc0G0dhchE8Oo+/LrI9eoB+3I6wAxXF0QwX6z3wtqGE75O9xE85eNf9EvE+Ot
-	 xwmaT3ZAlw+kQ==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v3 1/5] Input: zinitix - check all available fingers for
- every touch event
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Kaustabh Chakraborty" <kauschluss@disroot.org>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, robh@kernel.org, conor+dt@kernel.org, devicetree@vger.kernel.org
-In-Reply-To: <20260731-zinitix-modes-v3-1-2c8de712997a@disroot.org>
-References: <20260731-zinitix-modes-v3-0-2c8de712997a@disroot.org>
- <20260731-zinitix-modes-v3-1-2c8de712997a@disroot.org>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Thu, 30 Jul 2026 20:31:57 +0000
-Message-Id: <20260730203158.399FD1F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b="lhK85+dk"
+Received: by mail-wr1-f51.google.com with SMTP id ffacd0b85a97d-47f93b2fe4cso81845f8f.0
+        for <linux-input@vger.kernel.org>; Thu, 30 Jul 2026 13:41:51 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=baylibre.com; s=google; t=1785444109; x=1786048909; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:mime-version:message-id:date
+         :subject:cc:to:from:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=IbgiCBDyQUJMyqllgJeAiMgyi6jiM8Wyrk+BIn2+hws=;
+        b=lhK85+dkqWgHZpN2z1y42NAP8C45x53kQVzAYwrkWRsZncgH0q1lGFIKPzFLIzy+em
+         wdj+ZAGQ9W+caLsNQFa2usHK266hbT+GRX3K1XbNWbV2UMnlmPnJ6slADkWTb2iHhB9P
+         cFUZd0g5hL2TGAywr+891FW1vaA5FlM/tBNtGgrtepxbV1jWYniGpQJpzDXHJ87NentY
+         sBhMASNy+I6aPC+JLgLjNkBxei/hncEvuV7TqYRE9A7J/G5HtNp4M3hApf8mZ/nYk0Ba
+         y5ufQPEGmMCha7iVDajIOZYE9SyzZb4h7f+BErFenDBjJV7vj/2S/bmUPML/n1A549Dj
+         jf8A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1785444109; x=1786048909;
+        h=content-transfer-encoding:content-type:mime-version:message-id:date
+         :subject:cc:to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=IbgiCBDyQUJMyqllgJeAiMgyi6jiM8Wyrk+BIn2+hws=;
+        b=lpnnZnzt00E+7vGMCd+iaELi3QEpXYgCpfdod0ShDN/CMBHKJQYejquHSS5m8SSXUC
+         bC6sk54q9p/1BqghifPj9uXyqkjfFgP18r9OASf1rJaLPQiFEMNEGQO0n5RKZVt6cHy9
+         L8QnUO+bnp6+emMTm3t9eUOffaq6H3zbEL3P29RZxRlDcrS93CL7elznIFh9f+ipKdaP
+         FmJToAMRn26yk2tivMrQujZ38Y6ZYc98QZIP67PKZOCy7hvR2QggOSq8JmhgJq/5CjiA
+         0WKRIHvlVYRVKe2nsT4u58r9wlIliJH4CD1y7x1RV/xadPf658pcmtC32dQk+D2IA9bg
+         mSfw==
+X-Gm-Message-State: AOJu0YzlfA7Ide4Cx2FxD7kH6KdyIxhTG747ZkEC3YdbnevUOIQGzamg
+	i0RNNmxd4hIW1rNqQG+oc+Ayr67aMzfOUMM+cDTDJlBbrdmOnpyPLXErP6WUgF0i2TVH1/bJcS4
+	WVza5
+X-Gm-Gg: AR+sD11GQa41HpfrFhkxCYxlRqkNmGx6jamyMlHHK+8wYYwmKbBe/0LmvtNPn7haxNz
+	b6EvedXcFloXtlrMkWFgIOXe6Yv0rdGfwFCZESvRdod5UBVSArpuWoTy/pcEYOiW14xSNRchMVh
+	eejiOa708IlKuU1svVacMlrvU9c4/y2nHJVePgDBdR5sQLLrJ+0Shbr/i6nScnScgZYLvXqiinp
+	anYgeO+4lF/KnlJSs0+dmROAnjpzWsZll0Q2kkxkOHWTIiT4PCVERe+Rrtd+0MZzl5RzpN31a0i
+	m5K5EeSgCo1b7hgjDWWZia0JYZHQc4WUzgEbzcX2UorVFhSlLn6gv8WswMLRa8nn4ME1e0OKhfS
+	wBJBVvU0UFeYENC5F2Wb2xNf8Tos3JhQVMGej8KYCNeHLmCzW7MOmQZZNxBGp9+YV2m5Te3mHZx
+	QuNYJ8CnSn6NAOSxeGbV0pfjNZlQ4hvkCUxrSRvDJvaamnXo0CrEj8jqJH+vkY46iVGA==
+X-Received: by 2002:a5d:5f42:0:b0:47f:97e9:fe4a with SMTP id ffacd0b85a97d-47fc81fc91dmr5933828f8f.43.1785444109447;
+        Thu, 30 Jul 2026 13:41:49 -0700 (PDT)
+Received: from localhost ([2a02:8071:56d1:2de0:1d24:d58d:2b65:c291])
+        by smtp.gmail.com with UTF8SMTPSA id ffacd0b85a97d-47fc88e424fsm13436095f8f.14.2026.07.30.13.41.48
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 30 Jul 2026 13:41:48 -0700 (PDT)
+From: =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig=20=28The=20Capable=20Hub=29?= <u.kleine-koenig@baylibre.com>
+To: Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>
+Cc: linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH] HID: Fix comment about header defining HID_GROUP_ANY
+Date: Thu, 30 Jul 2026 22:41:36 +0200
+Message-ID: <20260730204136.1606050-2-u.kleine-koenig@baylibre.com>
+X-Mailer: git-send-email 2.55.0.11.g153666a7d9bb
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+X-Developer-Signature: v=1; a=openpgp-sha256; l=871; i=u.kleine-koenig@baylibre.com; h=from:subject; bh=HYxoZYuwQeO6t0bZr0FMt/eeSDvXYszea8DGKlrOSPA=; b=owEBbQGS/pANAwAKAY+A+1h9Ev5OAcsmYgBqa7cAIl9orfKdHM3BFPSaJFHouobPJhSAclXV+ aKmwnInpYeJATMEAAEKAB0WIQQ/gaxpOnoeWYmt/tOPgPtYfRL+TgUCamu3AAAKCRCPgPtYfRL+ TtiuB/4wWZ89j6i/pmwQ7M/phXzu5odwXNwoXZdcmHaxmbVdMY9KJHmwTkH7f+h5j7vuVGAI3j+ bzCKUj7ZtPt7jA0uZJ6stJQIvBJPRTWAo0RnIIZZ0+y6OLfDXdu0S7HXWCss+e86zGN0Vwr/NoM s+Nk/XECK/pftcXjkhmwT5yW88rNRx1ZuqdKj8lx4M+er+Mz7gw3KNorDAzw71K2ez/bF1wy5Y5 ueCMYT6vCg4NkpUruvfEPNxk7PoR9QvVu/0lVAAqI+TZnmhBkZ/jMoko/tVlD9DqG4nGYhGUNIE mViWfG4ZH1aUPIDzJ8Zm9U3102Y4CQzFfYAI/ainE1x652JX
+X-Developer-Key: i=u.kleine-koenig@baylibre.com; a=openpgp; fpr=0D2511F322BFAB1C1580266BE2DCDD9132669BD6
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 4 potential issue(=
-s) to consider:
+Since commit ad428f5811bd ("mod_devicetable.h: Split into per subsystem
+headers") HID_GROUP_ANY isn't defined in linux/mod_devicetable.h
+(directly) any more. Fix the comment accordingly.
 
-New issues:
-- [High] Unconditionally iterating all slots without a mask reinstates a kn=
-own phantom fingers bug on certain devices.
+Signed-off-by: Uwe Kleine-König (The Capable Hub) <u.kleine-koenig@baylibre.com>
+---
+ include/linux/hid.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Pre-existing issues:
-- [High] The input device is registered and exposed to userspace before its=
- operational properties are fully parsed and initialized.
-- [High] Failing to read icon events discards already successfully read tou=
-ch events, bypassing synchronization.
-- [High] Stack-allocated variables are used directly as data buffers for I2=
-C transfers, violating DMA safety requirements.
---
+diff --git a/include/linux/hid.h b/include/linux/hid.h
+index b240baa95ab5..56bd7f274387 100644
+--- a/include/linux/hid.h
++++ b/include/linux/hid.h
+@@ -424,7 +424,7 @@ struct hid_item {
+ /*
+  * HID device groups
+  *
+- * Note: HID_GROUP_ANY is declared in linux/mod_devicetable.h
++ * Note: HID_GROUP_ANY is declared in <linux/device-id/hid.h>
+  * and has a value of 0x0000
+  */
+ #define HID_GROUP_GENERIC			0x0001
 
---- Patch [1]: [PATCH v3 1/5] Input: zinitix - check all available fingers =
-for every touch event ---
-commit 324dca54b2be4e95e88ba6bec7c1bec867e0e687
-Author: Kaustabh Chakraborty <kauschluss@disroot.org>
-Input: zinitix - check all available fingers for every touch event
+base-commit: 95d6a9ccef99117115e41e9adb271243bd5e985b
+-- 
+2.55.0.11.g153666a7d9bb
 
-This patch changes the touch reporting to iterate unconditionally over all
-slots rather than relying on the finger_mask field. It relies on the
-SUB_BIT_EXIST bit in the finger status to filter valid touches.
-
-Link: https://android.googlesource.com/kernel/bcm/+/23d376ef33aa4c500a5ea24=
-a290f029d5f8e2de3/drivers/input/touchscreen/zinitix_touch.c#1942 [1]
-
-> diff --git a/drivers/input/touchscreen/zinitix.c b/drivers/input/touchscr=
-een/zinitix.c
-> index 0c36765bd79f8..3421b8ffb19b2 100644
-> --- a/drivers/input/touchscreen/zinitix.c
-> +++ b/drivers/input/touchscreen/zinitix.c
-> @@ -445,7 +445,6 @@ static irqreturn_t zinitix_ts_irq_handler(int irq, vo=
-id *bt541_handler)
->  	struct bt541_ts_data *bt541 =3D bt541_handler;
->  	struct i2c_client *client =3D bt541->client;
->  	struct touch_event touch_event;
-
-[Severity: High]
-This isn't a bug introduced by this patch, but touch_event is allocated on
-the stack and then passed to zinitix_read_data(), which feeds it directly
-to the I2C subsystem. Since this buffer might be used for DMA transfers on
-certain I2C host controllers, can this cause memory corruption or a kernel
-panic when CONFIG_VMAP_STACK is enabled?
-
-Similarly, in zinitix_read_data():
-
-zinitix_read_data() {
-    __le16 reg_le =3D cpu_to_le16(reg);
-    ...
-    ret =3D i2c_master_send(client, (u8 *)&reg_le, sizeof(reg_le));
-    ...
-}
-
-Are there similar DMA safety concerns when using the stack-allocated reg_le
-buffer for I2C sending?
-
-> -	unsigned long finger_mask;
->  	__le16 icon_events;
->  	int error;
->  	int i;
-> @@ -470,8 +469,7 @@ static irqreturn_t zinitix_ts_irq_handler(int irq, vo=
-id *bt541_handler)
->  		zinitix_report_keys(bt541, le16_to_cpu(icon_events));
->  	}
-
-[Severity: High]
-This is a pre-existing issue, but I noticed something about the error handl=
-ing
-just above this block:
-
-zinitix_ts_irq_handler() {
-    ...
-    if (le16_to_cpu(touch_event.status) & BIT_ICON_EVENT) {
-        error =3D zinitix_read_data(bt541->client, bt541->icon_status_reg,
-                                  &icon_events, sizeof(icon_events));
-        if (error) {
-            dev_err(&client->dev, "Failed to read icon events\n");
-            goto out;
-        }
-        ...
-    }
-    ...
-out:
-    zinitix_write_cmd(bt541->client, ZINITIX_CLEAR_INT_STATUS_CMD);
-    return IRQ_HANDLED;
-}
-
-If zinitix_read_data() for the icon events fails, the code jumps directly to
-out. Will this discard the successfully read touch_event data and skip the
-input_mt_sync_frame() and input_sync() calls, potentially leaving stuck tou=
-ches
-in the input core?
-
-> =20
-> -	finger_mask =3D touch_event.finger_mask;
-> -	for_each_set_bit(i, &finger_mask, MAX_SUPPORTED_FINGER_NUM) {
-> +	for (i =3D 0; i < MAX_SUPPORTED_FINGER_NUM; i++) {
->  		const struct point_coord *p =3D &touch_event.point_coord[i];
-> =20
->  		/* Only process contacts that are actually reported */
-
-[Severity: High]
-The commit message mentions that phantom fingers will be ignored because
-zinitix_report_finger() checks the SUB_BIT_EXIST bit. However, the
-finger_mask check was originally introduced (in commit e941dc13fd37) because
-some hardware erroneously sets SUB_BIT_EXIST for phantom fingers.=20
-
-By removing the finger_mask iteration, is it possible this reinstates the
-known phantom touches bug on affected hardware (like the BT404) where a
-single physical touch causes multiple active slots?
-
-[Severity: High]
-This isn't a bug introduced by this patch, but looking at the device
-initialization in zinitix_ts_probe():
-
-zinitix_ts_probe() {
-    ...
-    error =3D zinitix_init_input_dev(bt541);
-    if (error) {
-        ...
-    }
-
-    error =3D device_property_read_u32(&client->dev, "zinitix,mode",
-                                     &bt541->zinitix_mode);
-    ...
-}
-
-Since zinitix_init_input_dev() calls input_register_device(), the input
-device becomes immediately visible to userspace. If userspace opens the dev=
-ice
-instantly, zinitix_input_open() -> zinitix_start() will run before the
-zinitix,mode property is read.
-
-Could this cause the hardware to be configured with an incorrect mode
-(0 instead of the requested or default 2)?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260731-zinitix-mo=
-des-v3-0-2c8de712997a@disroot.org?part=3D1

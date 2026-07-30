@@ -1,121 +1,186 @@
-Received: from endrift.com (endrift.com [173.255.198.10])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 90226368D40
-	for <linux-input@vger.kernel.org>; Thu, 30 Jul 2026 04:14:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=173.255.198.10
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4DD38222597
+	for <linux-input@vger.kernel.org>; Thu, 30 Jul 2026 04:33:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785384877; cv=none; b=ojTnzIZGH0hmsR2KNe0U6lYRCn8ItxsGfSR0sbIhKGocTW/ufKPs8+DT1o5ncgL6iDCDWHJi4OwOPBpQCqd6QJ9jWEq5jfa6BgpfzphzPAdvNLCpSD0YXIOJnFARQDeEQaMPvR00AD6NWnY5673PNMezpxjOhS+aa60TEPQSiC4=
+	t=1785386028; cv=none; b=oaD6ZTDnahJZArImKDsaHEgJUxRlFAXDCwOfi94pVRrWAFioktqwRE1pkaUkYL9x90Wn66JFfGOTp20KTBXb0QTlWWIYEcihcCABs+oUL6F34wfto4l/7zQjdJH22d80b/+x6F+3I3l8kGKBFZpNs21G/EM9RXfRHGVWDcF+bZc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785384877; c=relaxed/simple;
-	bh=MZxK2SAm3YPVZhJ1hT8gdBhRLlQmiXwtnn4QbM/CvEk=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=mB/ve9XaIKPVlJFqnpZJLnPyCLL1O9sA6CQK4UOm2R/yDbpxptmuX9VNOYAAVeiI9lDwtwUH3StBcZQAZyAqTm/haC5qmDZdGqxq+6g8wpnRonqnD8s49ICeYyfLSI93BQrI9Ymn8lUbmH29KwGd/12c/t6PqKyIavAavSIApTA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com; spf=pass smtp.mailfrom=endrift.com; dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b=Tn0N1ul1; arc=none smtp.client-ip=173.255.198.10
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=endrift.com
+	s=arc-20240116; t=1785386028; c=relaxed/simple;
+	bh=MX05MpoBRjVdj9hfidiC5wjE7Ka5hqH1aUMNSYVbutA=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=NgJK8Wl7rwKtfUM69htuyO2lA31yeXS7uEkAQSqar/72L9JiCsyjWVTOhNPW1Hm1bpjlOKrqx8P3ZCdBQ0egNGr+exsozEFvjCTJoVOD95oRoiGB2oYUUHwGyAL7ItiVama9/PK1AKyvgrheysr/uYoYPjwndEXqyzwJMkCiO8Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=hJYlch30; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b="Tn0N1ul1"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=endrift.com; s=2020;
-	t=1785384870; bh=MZxK2SAm3YPVZhJ1hT8gdBhRLlQmiXwtnn4QbM/CvEk=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=Tn0N1ul1TXjJ8Z6VbtKTukoxXjtHvusFzc9KMCB2/9lD4ZaxJ6P3AyqnaEy9tfMaD
-	 7TE3ySFVUR4HoH+5SbkYpIm8b2N8ElI7Gda7OnUXhjYljStFjNnZhd5g4ABnzXPOqH
-	 h1oCMWrIruzA9SX6syK3RwE/UaMkWMO7DlJnAYmCd9CISPS3Z7Wk+UE0ewdBEftgIF
-	 t7r9VCFGqeBUOFjLnBtCuFtj6kPc5iznAa/0lcrrasn3ZaZ0B1jOi1afpKf0SzA/fA
-	 Kpv7F1XAIcJEUnODxV0lTrc1/oGIPaWmEstih8bv1qilCrD6HubRrZfOD/gdAZqvob
-	 PPpJwfKWqlsGg==
-Received: from microtis.vulpes.eutheria.net (71-212-73-87.tukw.qwest.net [71.212.73.87])
-	by endrift.com (Postfix) with ESMTPSA id 9C92613208B;
-	Wed, 29 Jul 2026 21:14:29 -0700 (PDT)
-From: Vicki Pfau <vi@endrift.com>
-To: Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>,
-	linux-input@vger.kernel.org
-Cc: Vicki Pfau <vi@endrift.com>,
-	Yousef Alhouseen <alhouseenyousef@gmail.com>,
-	syzbot+75f3f9bff8c510602d36@syzkaller.appspotmail.com
-Subject: [PATCH v5 10/11] HID: steam: Reject short reads
-Date: Wed, 29 Jul 2026 21:12:33 -0700
-Message-ID: <20260730041251.1659029-11-vi@endrift.com>
-X-Mailer: git-send-email 2.54.0
-In-Reply-To: <20260730041251.1659029-1-vi@endrift.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="hJYlch30"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84BD01F000E9;
+	Thu, 30 Jul 2026 04:33:46 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1785386026;
+	bh=StvZtfGZhojiR8IpS8BcQ4cGvlxkeJxx6h5X54rhA9U=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=hJYlch30hiJb6mE5YIXO4mpR53zycMR1fjSpAMim55SVJbrRdg5OPD/eukDa15eJq
+	 B+6oDQme4w1xtJFXfkLpUxv+ZsZ9sZOZ9SK03NPW3AZi+zDE2yEJRgl6aGXrzY9v4Z
+	 QZjY8fM10X/5UMNRWCCXQpoELGAWim4gpKQD6pQw+90w1IzWkbTFDQaaqKkZEydEeO
+	 9h1Fyfa0FWHbqYn2xVoz0fVlHKt4Dg1MnjFvGXRWuA4AQef7RXyAhmi+WQbzXJaf/e
+	 TQwhIKnuXat4B/NxQ5CemxqGDRdK0DjoXJ6WkX72i9aUfmpC6tVOl81EBf0hsJerUI
+	 Db7x1LARHVFRg==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v5 05/11] HID: steam: Coalesce rumble packets
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Vicki Pfau" <vi@endrift.com>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20260730041251.1659029-6-vi@endrift.com>
 References: <20260730041251.1659029-1-vi@endrift.com>
+ <20260730041251.1659029-6-vi@endrift.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Thu, 30 Jul 2026 04:33:46 +0000
+Message-Id: <20260730043346.84BD01F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-Steam Controller FEATURE reports encode the size of the message in the
-message itself. Previously we were trusting that the size reported matched
-the size we actually read, leading to a potential issue with short reads.
-Instead, we should actually verify the length of the read.
+Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+s) to consider:
 
-Fixes: c164d6abf384 ("HID: add driver for Valve Steam Controller")
-Reported-by: syzbot+75f3f9bff8c510602d36@syzkaller.appspotmail.com
-Closes: https://syzkaller.appspot.com/bug?extid=75f3f9bff8c510602d36
+New issues:
+- [High] Dynamic device unregistration fails to cancel `coalesce_rumble_wor=
+k`, causing an infinite loop and resource leak.
+- [Medium] Lockless `delayed_work_pending()` check bypasses rate limiting, =
+causing haptic reset bugs.
 
-Signed-off-by: Vicki Pfau <vi@endrift.com>
----
- drivers/hid/hid-steam.c | 29 +++++++++++++++++++++++++----
- 1 file changed, 25 insertions(+), 4 deletions(-)
+Pre-existing issues:
+- [High] Teardown order in `steam_remove()` causes Use-After-Free by cancel=
+ling work items before unregistering the input device.
+--
 
-diff --git a/drivers/hid/hid-steam.c b/drivers/hid/hid-steam.c
-index ddd439dd069b..3b4a588c20ad 100644
---- a/drivers/hid/hid-steam.c
-+++ b/drivers/hid/hid-steam.c
-@@ -357,6 +357,13 @@ static int steam_recv_report(struct steam_device *steam,
- 	u8 *buf;
- 	int ret;
- 
-+	/*
-+	 * All reports start with a two byte header.
-+	 * We must read at least two bytes to get a sensible output.
-+	 */
-+	if (size < 2)
-+		return -EINVAL;
-+
- 	r = steam->hdev->report_enum[HID_FEATURE_REPORT].report_id_hash[0];
- 	if (!r) {
- 		hid_err(steam->hdev, "No HID_FEATURE_REPORT submitted -  nothing to read\n");
-@@ -380,16 +387,30 @@ static int steam_recv_report(struct steam_device *steam,
- 			buf, hid_report_len(r) + 1,
- 			HID_FEATURE_REPORT, HID_REQ_GET_REPORT);
- 	if (ret > 0) {
--		ret = min(size, ret - 1);
--		memcpy(data, buf + 1, ret);
-+		/* Remove the report ID from the return buffer */
-+		ret--;
-+		size = min(size, ret);
-+		memcpy(data, buf + 1, size);
- 	}
- 	kfree(buf);
- 
- 	if (ret < 0)
- 		hid_err(steam->hdev, "%s: error %d\n", __func__, ret);
- 	else
--		hid_dbg(steam->hdev, "Received report %*ph\n", ret, data);
--	return ret;
-+		hid_dbg(steam->hdev, "Received report %*ph\n", size, data);
-+	if (ret < 0)
-+		return ret;
-+
-+	if (ret < 2) {
-+		hid_err(steam->hdev, "%s: reply too short\n", __func__);
-+		return -EPROTO;
-+	}
-+	if (ret < data[1] + 2) {
-+		hid_err(steam->hdev, "%s: expected %u bytes, read %i\n",
-+				__func__, data[1] + 2, ret);
-+		return -EPROTO;
-+	}
-+	return size;
- }
- 
- static int steam_send_report(struct steam_device *steam,
--- 
-2.54.0
+--- Patch [5]: [PATCH v5 05/11] HID: steam: Coalesce rumble packets ---
+commit d8418fccc5859b59417d02482c0b768383aa61ef
+Author: Vicki Pfau <vi@endrift.com>
 
+HID: steam: Coalesce rumble packets
+
+This commit introduces a 20Hz rate limit for rumble packets sent to the Ste=
+am
+Deck to prevent the hardware from resetting haptic patterns on every packet.
+It implements this rate limiting by using a delayed work queue to coalesce=
+=20
+rumble updates.
+
+> diff --git a/drivers/hid/hid-steam.c b/drivers/hid/hid-steam.c
+> --- a/drivers/hid/hid-steam.c
+> +++ b/drivers/hid/hid-steam.c
+[ ... ]
+> @@ -603,10 +604,24 @@ static void steam_haptic_rumble_cb(struct work_stru=
+ct *work)
+>  {
+>  	struct steam_device *steam =3D container_of(work, struct steam_device,
+>  							rumble_work);
+> +
+>  	steam_haptic_rumble(steam, 0, steam->rumble_left,
+>  		steam->rumble_right, 2, 0);
+>  }
+> =20
+> +static void steam_coalesce_rumble_cb(struct work_struct *work)
+> +{
+> +	struct steam_device *steam =3D container_of(to_delayed_work(work),
+> +							struct steam_device,
+> +							coalesce_rumble_work);
+> +
+> +	steam_haptic_rumble(steam, 0, steam->rumble_left,
+> +		steam->rumble_right, 2, 0);
+> +
+> +	if (steam->rumble_left || steam->rumble_right)
+> +		schedule_delayed_work(&steam->coalesce_rumble_work, HZ / 20);
+> +}
+
+[Severity: High]
+Will this work item reschedule itself indefinitely if the device is dynamic=
+ally
+unregistered while a haptic effect is playing?
+
+When the device is dynamically unregistered, such as during a wireless
+disconnect or a mode switch, steam_unregister() destroys the input device
+via steam_input_unregister().
+
+However, steam_unregister() does not cancel coalesce_rumble_work, and the
+input core does not proactively clear the rumble_left and rumble_right
+magnitudes when an input device is destroyed. Because the input device is
+gone, userspace can never send a 0-magnitude effect to stop the rumble,
+leaving this worker to loop indefinitely every 50ms and leak CPU cycles
+and USB bandwidth.
+
+> +
+>  #ifdef CONFIG_STEAM_FF
+>  static int steam_play_effect(struct input_dev *dev, void *data,
+>  				struct ff_effect *effect)
+> @@ -616,6 +631,14 @@ static int steam_play_effect(struct input_dev *dev, =
+void *data,
+>  	steam->rumble_left =3D effect->u.rumble.strong_magnitude;
+>  	steam->rumble_right =3D effect->u.rumble.weak_magnitude;
+> =20
+> +	/*
+> +	 * The interface gets somewhat overloaded when too many rumble
+> +	 * packets are sent in a row, so Steam throttles it to 20 Hz
+> +	 */
+> +	if (delayed_work_pending(&steam->coalesce_rumble_work))
+> +		return 0;
+> +
+> +	schedule_delayed_work(&steam->coalesce_rumble_work, HZ / 20);
+> +	return schedule_work(&steam->rumble_work);
+>  }
+
+[Severity: Medium]
+Could this lockless check of delayed_work_pending() defeat the intended
+rate limiting?
+
+The workqueue core clears the pending bit immediately before executing the
+worker callback. Because steam_coalesce_rumble_cb() acquires a mutex and
+performs synchronous USB I/O, its execution time can be relatively large.
+
+If a userspace process updates force feedback effects while the callback is
+actively executing, delayed_work_pending() will evaluate to false. This
+causes steam_play_effect() to immediately queue another rumble_work, which
+then executes right after the callback finishes, sending two packets
+back-to-back and bypassing the 50ms throttle.
+
+[ ... ]
+> @@ -1444,6 +1469,7 @@ static void steam_remove(struct hid_device *hdev)
+>  	cancel_delayed_work_sync(&steam->mode_switch);
+>  	cancel_work_sync(&steam->work_connect);
+>  	cancel_work_sync(&steam->rumble_work);
+> +	cancel_delayed_work_sync(&steam->coalesce_rumble_work);
+>  	cancel_work_sync(&steam->unregister_work);
+>  	steam->client_hdev =3D NULL;
+>  	steam->client_opened =3D 0;
+
+[Severity: High]
+This is a pre-existing issue, but does the teardown order in steam_remove()
+allow a use-after-free?
+
+The works are cancelled before the input device is unregistered:
+
+steam_remove() {
+    ...
+    cancel_work_sync(&steam->rumble_work);
+    cancel_delayed_work_sync(&steam->coalesce_rumble_work);
+    ...
+    steam_unregister(steam);
+}
+
+If a userspace process continuously calls the EVIOCSFF ioctl to play
+force-feedback effects while the device is being removed, the ioctl
+path in steam_play_effect() can queue new rumble_work and
+coalesce_rumble_work items after they have been cancelled.
+
+Once steam_remove() completes, the devm-managed steam structure is freed,
+but the newly queued work items will eventually execute and dereference
+the freed memory.
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260730041251.1659=
+029-1-vi@endrift.com?part=3D5

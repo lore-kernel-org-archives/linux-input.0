@@ -1,132 +1,99 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from endrift.com (endrift.com [173.255.198.10])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4D56F38B14D
-	for <linux-input@vger.kernel.org>; Thu, 30 Jul 2026 03:42:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BE3D439A048
+	for <linux-input@vger.kernel.org>; Thu, 30 Jul 2026 04:14:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=173.255.198.10
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785382922; cv=none; b=MQhnWrAr1QW6rK9HSpx39rUSqc/n6k6hcNbJJphLiOiR7oNNbs8jekg5qeC9Dgk8W52hfZfVTJLH0i2ro/d9Ij6z0HX2RiINuowbncFcWXwOXXz7v+sIOcj3kGO77UNgFrCvLCEuJkxDLUJSrRmITa69cdsvC5R8onhqRYySHoU=
+	t=1785384874; cv=none; b=GbJPpPCvCma6cXPt9RZTL1hHp3GytciLbLP0Vv0vTvioT0nC5x93P0IPecbqRqCX1RFUYmkxKzh3mtkbUgcKObmP9NbwFH95bvR30OjPl6xW/CE0p45MPY5ECQAuuG5gS/PzxU6GGL6X5QWcB9HyYVIcm1oxTcB+ekx9BP1AnFY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785382922; c=relaxed/simple;
-	bh=DvMVvC+WFiJH6mmBncfeATfHxnJqA/3rs++ucQRnk3U=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=plWXcoWhTRu+/nkHifyDT4kOtYysSPh3qX1B49yFgIbfe2YlLDozxRuTVNcV/G6hx7a/5IPf1sA4cFoXd8ZMWYVUr1HYyjs2AjMtlx6LzBpv8mgDn3x+05NtbMAkSngdFN4kR0fPGBnL0LeiyqgOn6+le8Hg90JR4NydQznqDnw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=I8M5XO2Q; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1785384874; c=relaxed/simple;
+	bh=Y0wK3UXwYtr7dbUhiJUwfnjBJl8wfoc1fRIU8e4Ez1w=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=QA+U/4fLUm0uvPL3KRhWJsdt8dUdT7Al1FTg6HE+aQXdQBhuO+Ui/xK3ao7QN6Cu3XwXUP9qTBbrOO+lG7Nzqg9Ex/iGjpYFKRKOu1va8vHAB45+cDHa9niTxUvS8wmeSPCmPQiCEQrHnbf/lkap4KbnHb0YjU26pprOXJAY9mA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com; spf=pass smtp.mailfrom=endrift.com; dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b=AIWfe2WE; arc=none smtp.client-ip=173.255.198.10
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=endrift.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="I8M5XO2Q"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC90D1F000E9;
-	Thu, 30 Jul 2026 03:42:00 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785382920;
-	bh=WZgosDnk7WmKvUZBJKY7tq1ZcX0Lc1Ig210ZQ+XWtuk=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=I8M5XO2QdoPmogFZ/k6O2mzg6RbMfI4yYLy/C8bK6nJqsg4EO1bZ0fdUSSlzehkcV
-	 u/7jp+vawEOot0UrHO0tF6w1oGS8BZ3RkCGqu1WRwZO+kELK0wZTEHfwPTNOvE+pUP
-	 HXC9yCyW6BXY1uWEpcUD+BW/iyu0YSwzpJZlm8h3zTOY23quWkuUKOgmpImEBc8+3u
-	 fB85bRSEVe2lDW6t7YdwcG+JXT9rSt6vn2YH/msCzgXwem6l8W0w9UoUH7M5EL0+IT
-	 f461cIhR8Cq3PXgybYJhfcAA11TFT197fGsw98Htm3UqyNIyFV1jdyMbISiHKeitJ5
-	 thzoUuL1y66Kw==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2] HID: nintendo: stop device IO before hid_hw_stop on
- probe failure
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Jiangshan Yi" <yijiangshan@kylinos.cn>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260730031927.25444-1-yijiangshan@kylinos.cn>
-References: <20260730031927.25444-1-yijiangshan@kylinos.cn>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Thu, 30 Jul 2026 03:42:00 +0000
-Message-Id: <20260730034200.AC90D1F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b="AIWfe2WE"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=endrift.com; s=2020;
+	t=1785384865; bh=Y0wK3UXwYtr7dbUhiJUwfnjBJl8wfoc1fRIU8e4Ez1w=;
+	h=From:To:Cc:Subject:Date:From;
+	b=AIWfe2WER/e44jq9KeavLUmtGvaep1IA9UGKIB9NJ9zeYVEM5Ns14vdzdCpYxOUwn
+	 tT0rJD5aFjVgWrGxa9ExL2HYGLww/MNuqpwHKz8m4ZSbCxSuM/EtSWw1Y2F7KVY+ec
+	 zzvSvo82qQsq+LjcQGagtgMKK/RNwJxW42zLDLuJyWkI+a6Xt1wVeeCOCtmR9i86gE
+	 tXLpYUyf/H05iYzyg9omkdit+fWqUdT2CHBXoOm54aGv6VLQ9RpWWVRv+OrhRiK1O6
+	 ic1vkp5d88Y5HC7qf3+voBLX7tX29f8CBzYhZ3ofmDbyWzhBc0DdoohBg6stOqSh00
+	 YjL4sivNDzn6A==
+Received: from microtis.vulpes.eutheria.net (71-212-73-87.tukw.qwest.net [71.212.73.87])
+	by endrift.com (Postfix) with ESMTPSA id 66DCCA06C;
+	Wed, 29 Jul 2026 21:14:25 -0700 (PDT)
+From: Vicki Pfau <vi@endrift.com>
+To: Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>,
+	linux-input@vger.kernel.org
+Cc: Vicki Pfau <vi@endrift.com>,
+	Yousef Alhouseen <alhouseenyousef@gmail.com>
+Subject: [PATCH v5 00/10] HID: steam: General cleanup and improvements
+Date: Wed, 29 Jul 2026 21:12:23 -0700
+Message-ID: <20260730041251.1659029-1-vi@endrift.com>
+X-Mailer: git-send-email 2.54.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
+This is the first half of a patch series improving the hid-steam driver.
 
-Pre-existing issues:
-- [High] The driver registers the input device before fully initializing it=
-s capabilities and force-feedback callbacks, violating subsystem rules and =
-introducing a race condition that can lead to a NULL pointer dereference an=
-d broken userspace device recognition.
---
+This series contains a few notable changes:
+- As I've been maintaining it downstream in SteamOS as well as writing
+  general improvements, I'm marking myself as the maintainer of the driver.
+- Renames some stuff, notably marking the original Steam Controller as
+  Steam Controller (2015) in preparation of adding support for the Steam
+  Controller (2026), which will be in the second half of this series once
+  it's ready for submission.
+- Adds IMU support for the Steam Controller (2015).
+- Some reliability improvements, especially surrounding edge cases
+  regarding scheduled work during teardown.
+- Fixes a short read issue reported by syzkaller.
 
---- Patch [1]: [PATCH v2] HID: nintendo: stop device IO before hid_hw_stop =
-on probe failure ---
-commit 175b2ac9211bb7f8a122c8a3e3d05eeac1ea8dac
-Author: Jiangshan Yi <yijiangshan@kylinos.cn>
+Hopefully the second half of the series will be ready soon, but I am
+waiting on more testing by SteamOS users before I submit it.
 
-HID: nintendo: stop device IO before hid_hw_stop on probe failure
+v4 introduced failed to properly revert a patch from v3, which is fixed
+here, as well as a completely random other bug that sashiko brought up for
+some reason.
 
-nintendo_hid_probe() calls hid_device_io_start() before joycon_init()
-and joycon_leds_create().  If either fails, the error path jumps to
-err_close which calls hid_hw_close()/hid_hw_stop() without first calling
-hid_device_io_stop().
+I am pretty exhausted from sashiko jerking me around. It has several issues
+that I think are entirely imagined, in this series mostly invovling HID
+startup and teardown. It seems to believe that HID interrupts will get
+serviced during startup and teardown, but I'm pretty sure that isn't the
+case if hid_device_io_start isn't called. I've wasted a lot of hours trying
+to fix theoretical issues regarding this in this and other patch series.
+And that's only one of the classes of bugs it's hallucinated. This thing is
+very clearly not ready to be taken seriously, especially if we don't want
+to burn out maintainers.
 
-hid_hw_stop() does not stop device IO, so hid_input_report() may still
-run and access driver data that is being torn down, resulting in a
-use-after-free.
+Vicki Pfau (11):
+  HID: steam: Update documentation
+  HID: steam: Refactor and clean up report parsing
+  HID: steam: Rename some constants that got renamed upstream
+  HID: steam: Add support for sensor events on the Steam Controller
+    (2015)
+  HID: steam: Coalesce rumble packets
+  HID: steam: Fully unregister controller when hidraw is opened
+  HID: steam: Rearrange teardown sequence
+  HID: steam: Improve logging and other cleanup
+  HID: steam: Zero-initialize reply in serial lookup
+  HID: steam: Reject short reads
+  HID: steam: Retry send/recv reports if stale
 
-> diff --git a/drivers/hid/hid-nintendo.c b/drivers/hid/hid-nintendo.c
-> index e7302ec01ff1f..0db5535288263 100644
-> --- a/drivers/hid/hid-nintendo.c
-> +++ b/drivers/hid/hid-nintendo.c
-[ ... ]
-> @@ -2766,7 +2766,8 @@ static int nintendo_hid_probe(struct hid_device *hd=
-ev,
-> =20
->  err_ida:
->  	ida_free(&nintendo_player_id_allocator, ctlr->player_id);
-> -err_close:
-> +err_io_stop:
-> +	hid_device_io_stop(hdev);
->  	hid_hw_close(hdev);
->  err_stop:
->  	hid_hw_stop(hdev);
+ MAINTAINERS             |   6 +
+ drivers/hid/hid-steam.c | 685 +++++++++++++++++++++++++++-------------
+ 2 files changed, 473 insertions(+), 218 deletions(-)
 
-[Severity: High]
-This is a pre-existing issue, but I noticed a potential race condition in h=
-ow
-the input device is registered in joycon_input_create(), which is called=20
-slightly further down in nintendo_hid_probe().
+-- 
+2.54.0
 
-In joycon_input_create(), input_register_device() is called before the devi=
-ce=20
-capabilities and force-feedback callbacks are fully configured:
-
-    ret =3D input_register_device(ctlr->input);
-    if (ret)
-        return ret;
-
-    if (joycon_type_is_right_joycon(ctlr)) {
-        joycon_config_right_stick(ctlr->input);
-...
-    if (joycon_has_rumble(ctlr))
-        joycon_config_rumble(ctlr);
-
-And in joycon_config_rumble():
-
-    input_set_capability(ctlr->input, EV_FF, FF_RUMBLE);
-    input_ff_create_memless(ctlr->input, NULL, joycon_play_effect);
-
-Because input_register_device() makes the device visible to userspace=20
-immediately, couldn't a userspace process open the device and trigger the=20
-EVIOCSFF ioctl concurrently?
-
-If evdev calls input_ff_upload() while joycon_config_rumble() is running, it
-might observe the EV_FF bit but dereference an uninitialized dev->ff,
-potentially causing a NULL pointer dereference. Additionally, registering
-before setting capabilities means the initial udev event might lack button
-and axis information, which could cause input managers like Wayland to
-ignore the device.
-
-Should the call to input_register_device() be moved to the end of=20
-joycon_input_create() after all capabilities and force-feedback are=20
-initialized?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260730031927.2544=
-4-1-yijiangshan@kylinos.cn?part=3D1

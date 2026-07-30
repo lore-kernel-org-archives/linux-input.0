@@ -1,60 +1,59 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.11])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.20])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C972C3164B7;
-	Thu, 30 Jul 2026 18:08:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.11
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 51EA4448CEE;
+	Thu, 30 Jul 2026 18:11:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.20
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785434928; cv=none; b=WZtF5SgfBFcoVLoBaVBkiS0RqtAvuxnQcuaN52XvGcXUGBKgRaavRCurELAlSTE8DDXqrp3DqwbAUNwkL5+IqiYdyBg1IvMf/lgsAL4/ehtnJKu6buDp+jMS9SiNhm6wT6q5JTBXyL+dnEWPomcpO2a1cSK6znMP9kTkoDAkZ+w=
+	t=1785435083; cv=none; b=thVYmzz+9/G2X1ii6lkct7mvrDO89hoBIYmZq9ZXFWBJeHluJT+X6v4rQhzcpQxGylMzfmIUU7TZWAuKpSBGih/jzo3Gm4VPHchvF7w779BJBeaRnFXrsLOcNu+xzEglq31ZQVur8R1KCPyR/cXo9lWBo+MD8eg9T5+xub9zSV0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785434928; c=relaxed/simple;
-	bh=QKpVGzWRseZNbLmP+4Y0d5jtyzMQI6zZpTfMJ5vylxU=;
+	s=arc-20240116; t=1785435083; c=relaxed/simple;
+	bh=beEu6S0fwn8Hdoi9I6zC3tVTq+Ny8jr3hL9rMFhRY5I=;
 	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=mzoOLxjF374Jcpc3TVIUuo5C4KIni6YeAOflX/H1QoH7j+vxOQMMdDUfDDsdPlIOpIrh0PdjUefEb88eCMcYvr7ajUWgU8TqExrzgzdv27XxHC03nKwBqtJQvpmo8cO1eWC65/gxAb7PI8yIHkoKoDGxDcYxhMmTo3sPN5vOJi0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=GJYWcSav; arc=none smtp.client-ip=198.175.65.11
+	 Content-Type:MIME-Version; b=hmIk0JrVS9RPgmTusDdWuYm++yYGNYgGod+PtX/y3P5pv3/1BNGiU4jdAViMb0qcovcFoDk+uN4jw8qU+2Gv8lZ+LnAlohMhnwDkbwc1VU1PFIC3PsYiF8Lbk1BKTtD/K5y7UNd4MCHDZ7BknCg98OiC4DiUd3+zcspgMcMgb1Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=OpW2metb; arc=none smtp.client-ip=198.175.65.20
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="GJYWcSav"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="OpW2metb"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1785434926; x=1816970926;
+  t=1785435076; x=1816971076;
   h=message-id:subject:from:to:cc:date:in-reply-to:
    references:content-transfer-encoding:mime-version;
-  bh=QKpVGzWRseZNbLmP+4Y0d5jtyzMQI6zZpTfMJ5vylxU=;
-  b=GJYWcSavNvYoqj7pGsuc4qGWT6szf6FtBECxw3gT+t6XXvfGedWIWckT
-   dF7PrV1tLXFRrVXUF1gUA9Syecpv8hqdb0jWuBw697KyUhalcIBBZzgq6
-   J9+LETup3y/qBi9p/i71uMkayUx2XpCdjQ7STE19fpopcHeTQCNb9oNWi
-   kUvzV5Dvq9UQzdK1DvCpLWNV4IZfzc/81xtCKzMg1tMiyMjIGKmFIKmay
-   Y8KrJe5ysL3W/Xb3ixmLIHMdLwH95BvSrT2Rwo6vZ3ag9A9ZuZ/c+TDN1
-   F6cr9odxYl7Poyb6R1050UotrB/oEE/ewk1YouhlQjieaxSgDbv5eVb48
-   w==;
-X-CSE-ConnectionGUID: 7rkBdcY5SV60HTwBLW26jg==
-X-CSE-MsgGUID: vxzv7hgDSWysDd5yrDjM8A==
-X-IronPort-AV: E=McAfee;i="6800,10657,11860"; a="96420980"
+  bh=beEu6S0fwn8Hdoi9I6zC3tVTq+Ny8jr3hL9rMFhRY5I=;
+  b=OpW2metbjk1eRsXV4/33FFkcEdxlY3+HsyQz/JHva2lpqvso3yr/K86O
+   SYcGw7iBeVyzZRhUyB/6mk+7bZGlRJQfiheLmy2aTML7SLsEN+5sNd/5H
+   2ly719T68RcfzgnjxeLopF9vVPyHHgrwb3PvdaVC4U1DK2p8dUL5BVh5w
+   Elqlt4tDpbSMOIyyTqV6bXKA/13CoE8Fh8poSbC6b/jFM+EVCZf44GtGN
+   gr2Vicz623NXQbFKu2Z1gsfEzc+wocMBpXoVsQKb0f+DD7mswBMgzm2WF
+   tN7RilugjIIkk9ecCnEVw3wu2lccuvVxZpJNAqmkcYOdMV8q7MuVGPS6W
+   Q==;
+X-CSE-ConnectionGUID: uFtH6OYRQSG6nSgpPb1UMQ==
+X-CSE-MsgGUID: qZHuTQNkRG6CTevprJi20w==
+X-IronPort-AV: E=McAfee;i="6800,10657,11860"; a="85827795"
 X-IronPort-AV: E=Sophos;i="6.25,195,1779174000"; 
-   d="scan'208";a="96420980"
-Received: from fmviesa001.fm.intel.com ([10.60.135.141])
-  by orvoesa103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 30 Jul 2026 11:08:46 -0700
-X-CSE-ConnectionGUID: 7I2+h4PoS0KL8O5bAN8KyQ==
-X-CSE-MsgGUID: BCBKXkpmTjuXSxRS/o2HFw==
+   d="scan'208";a="85827795"
+Received: from orviesa007.jf.intel.com ([10.64.159.147])
+  by orvoesa112.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 30 Jul 2026 11:11:09 -0700
+X-CSE-ConnectionGUID: hin3VgF8QNKL7MadDk4wvw==
+X-CSE-MsgGUID: 9Vy/abKvRLa/KlsRMZLhaw==
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="6.25,195,1779174000"; 
-   d="scan'208";a="284961573"
+   d="scan'208";a="260434070"
 Received: from spandruv-desk2.jf.intel.com ([10.88.27.176])
-  by smtpauth.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 30 Jul 2026 11:08:45 -0700
-Message-ID: <8836d77de5c2de98876f49a866a7f149c49fff89.camel@linux.intel.com>
-Subject: Re: [PATCH v2 1/4] HID: intel-ish-hid: fix report_list iterator
- pointer arithmetic
+  by orviesa007-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 30 Jul 2026 11:11:10 -0700
+Message-ID: <e338934762abc4f13366ba9607790e9ffdb55427.camel@linux.intel.com>
+Subject: Re: [PATCH v2] HID: intel-ish-hid: clamp HID device count to
+ MAX_HID_DEVICES
 From: srinivas pandruvada <srinivas.pandruvada@linux.intel.com>
-To: Shen Yongchao <grayhat@foxmail.com>, linux-input@vger.kernel.org, Zhang
- Lixu <lixu.zhang@intel.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jiri Kosina
-	 <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>, 
-	linux-kernel@vger.kernel.org
-Date: Thu, 30 Jul 2026 11:08:44 -0700
-In-Reply-To: <tencent_F203F6206515915C81D1210ECEBCBCA5D707@qq.com>
-References: <tencent_F203F6206515915C81D1210ECEBCBCA5D707@qq.com>
+To: Shen Yongchao <grayhat@foxmail.com>, Greg Kroah-Hartman
+	 <gregkh@linuxfoundation.org>, Zhang Lixu <lixu.zhang@intel.com>
+Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>,
+ 	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Date: Thu, 30 Jul 2026 11:11:09 -0700
+In-Reply-To: <tencent_D20397201115F1DCF4D1798EA0BCC6A5B007@qq.com>
+References: <tencent_D20397201115F1DCF4D1798EA0BCC6A5B007@qq.com>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 User-Agent: Evolution 3.60.2 (3.60.2-1.fc44) 
@@ -67,94 +66,63 @@ MIME-Version: 1.0
 
 +Lixu
 
-On Thu, 2026-07-30 at 20:52 +0800, Shen Yongchao wrote:
-> Since commit 63cafaf47a83 ("HID: ishtp-hid-client: replace
-> fake-flex arrays with flex-array members", v6.13), the
-> HOSTIF_PUBLISH_INPUT_REPORT_LIST handler iterates over sub-reports
-> using a struct report * pointer:
+On Thu, 2026-07-30 at 20:25 +0800, Shen Yongchao wrote:
+> The HOSTIF_DM_ENUM_DEVICES response handler takes the HID device
+> count from the first payload byte of the ISH firmware response
+> (max 255) and stores it in hid_dev_count without any bounds
+> check.=C2=A0 This value propagates to num_hid_devices and is used to
+> index five fixed-size arrays in struct ishtp_cl_data
+> (MAX_HID_DEVICES =3D 32): report_descr[], report_descr_size[],
+> hid_sensor_hubs[], hid_descr[], and hid_descr_size[].
 >=20
-> 	report +=3D sizeof(*report) + payload_len;
+> If the firmware reports more than 32 devices, hid_ishtp_cl_init()
+> writes past all five arrays, corrupting subsequent struct fields
+> (including work_struct members with embedded function pointers)
+> and potentially adjacent heap objects.
 >=20
-> Because report is a struct report * (not a char *), the compiler
-> multiplies the advance by sizeof(struct report) =3D 8, making the
-> actual stride (8 + payload_len) * 8 bytes instead of the intended
-> 8 + payload_len bytes.=C2=A0 On v6.13+ a legitimate aggregated list
-> with num_of_reports >=3D 2 drives the second iteration far outside
-> the message buffer.
+> Clamp hid_dev_count to MAX_HID_DEVICES at the single point where
+> it enters the driver (process_recv, ENUM_DEVICES branch), which
+> covers both the probe and the reset paths.
 >=20
-> Replace the struct report * iterator with a byte-granular u8 *pos
-> so the advance is computed in bytes.
+> This is a data-validation hardening fix: the ISH firmware is
+> within the platform trust boundary (loaded via CSME).
 >=20
+> This patch was drafted with AI assistance; the vulnerability
+> analysis and source-level verification were done manually.
 >=20
-> Assisted-by: LLM
+> Signed-off-by: Shen Yongchao <grayhat@foxmail.com>
+> Fixes: 0b28cb4bcb17 ("HID: intel-ish-hid: ISH HID client driver")
+> Cc: stable@vger.kernel.org
 
-Need to follow:
-
-https://docs.kernel.org/process/coding-assistants.html
+Missing
 
 Assisted-by: AGENT_NAME:MODEL_VERSION [TOOL1] [TOOL2]
 
-Lixu,
-Please give a test on few devices. Not sure if we have such device.
 
 Thanks,
 Srinivas
 
-> Signed-off-by: Shen Yongchao <grayhat@foxmail.com>
-> Fixes: 63cafaf47a83 ("HID: ishtp-hid-client: replace fake-flex arrays
-> with flex-array members")
-> Cc: stable@vger.kernel.org
 > ---
+> =C2=A0drivers/hid/intel-ish-hid/ishtp-hid-client.c | 2 ++
+> =C2=A01 file changed, 2 insertions(+)
+>=20
 > diff --git a/drivers/hid/intel-ish-hid/ishtp-hid-client.c
 > b/drivers/hid/intel-ish-hid/ishtp-hid-client.c
-> index 6d64008f2..ba52e185c 100644
+> index 6d64008..XXXXXXX 100644
 > --- a/drivers/hid/intel-ish-hid/ishtp-hid-client.c
 > +++ b/drivers/hid/intel-ish-hid/ishtp-hid-client.c
-> @@ -74,6 +74,7 @@ static void process_recv(struct ishtp_cl
+> @@ -123,6 +123,8 @@ static void process_recv(struct ishtp_cl
 > *hid_ishtp_cl, void *recv_buf,
-> =C2=A0	int report_type;
-> =C2=A0	struct report_list *reports_list;
-> =C2=A0	struct report *report;
-> +	u8 *pos;
-> =C2=A0	size_t report_len;
-> =C2=A0	struct ishtp_cl_data *client_data =3D
-> ishtp_get_client_data(hid_ishtp_cl);
-> =C2=A0	int curr_hid_dev =3D client_data->cur_hid_dev;
-> @@ -280,9 +281,10 @@ static void process_recv(struct ishtp_cl
-> *hid_ishtp_cl, void *recv_buf,
-> =C2=A0		case HOSTIF_PUBLISH_INPUT_REPORT_LIST:
-> =C2=A0			report_type =3D HID_INPUT_REPORT;
-> =C2=A0			reports_list =3D (struct report_list
-> *)payload;
-> -			report =3D reports_list->reports;
-> +			pos =3D (u8 *)reports_list->reports;
-> =C2=A0
-> =C2=A0			for (j =3D 0; j < reports_list-
-> >num_of_reports; j++) {
-> +				report =3D (struct report *)pos;
-> =C2=A0				recv_msg =3D container_of(&report-
-> >msg,
-> =C2=A0							struct
-> hostif_msg, hdr);
-> =C2=A0				report_len =3D report->size;
-> @@ -303,7 +305,7 @@ static void process_recv(struct ishtp_cl
-> *hid_ishtp_cl, void *recv_buf,
-> =C2=A0						0);
-> =C2=A0					}
-> =C2=A0
-> -				report +=3D sizeof(*report) +
-> payload_len;
-> +				pos +=3D sizeof(struct report) +
-> payload_len;
+> =C2=A0				break;
 > =C2=A0			}
-> =C2=A0			break;
-> =C2=A0		default:
-> @@ -956,4 +958,4 @@ MODULE_AUTHOR("Daniel Drubin
-> <daniel.drubin@intel.com>");
-> =C2=A0 */
-> =C2=A0MODULE_AUTHOR("Srinivas Pandruvada
-> <srinivas.pandruvada@linux.intel.com>");
-> =C2=A0
-> -MODULE_LICENSE("GPL");
-> +MODULE_LICENSE("GPL");
-> \ No newline at end of file
+> =C2=A0			client_data->hid_dev_count =3D (unsigned
+> int)*payload;
+> +			if (client_data->hid_dev_count >
+> MAX_HID_DEVICES)
+> +				client_data->hid_dev_count =3D
+> MAX_HID_DEVICES;
+> =C2=A0			if (!client_data->hid_devices)
+> =C2=A0				client_data->hid_devices =3D
+> devm_kcalloc(
+> =C2=A0						cl_data_to_dev(clien
+> t_data),

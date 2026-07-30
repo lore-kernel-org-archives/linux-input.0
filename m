@@ -1,120 +1,127 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mailgw.kylinos.cn (mailgw.kylinos.cn [124.126.103.232])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 73BCE4156C6
-	for <linux-input@vger.kernel.org>; Wed, 29 Jul 2026 23:10:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6CA8A243964;
+	Thu, 30 Jul 2026 03:20:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=124.126.103.232
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785366651; cv=none; b=UPhFjh/gEJx1CZdvXHyohcqtsZ22r1/qUZL9kHO/Xt6/+upS7x/4Sle+OhirnPA+lBWrkZpnhlzeMH+nFXqsWZv1BmH7brOzX3XeCGWjQVRPVTkuffHO72AwwTAAWaqzmjBag0pJxgCaYW/aQp7IJrjnJcvVF+fQzon3xqvSOH8=
+	t=1785381631; cv=none; b=J9mFdzsQBmTPWLm2wZpmRTaygjOQLdV+vwiOdbCPUV6jZKBoLe83AC+QKQmz0und4SmF4XmZn0cvPdHL9fCYGSNcBhv0hULY0s+cK0rmFzNjlv8HSHt/086rbQnYRYKpqFYvU6wkuqYTEOnFYOiX92XA5se5jJD1KNCrlBMlxGI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785366651; c=relaxed/simple;
-	bh=FiKBdl2m9zLzYypT+jbOJ+LtV/yH1/G4C6EIR0jCFRk=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=E/Jd6PBWY0gqWPpvyDR9WYIMAEvsgXP8n/w1jsWjc9DSLXDRnsSD+D9MT0ztg13zu3fh9+g4vJo2vCVT9iWIkNo45RSTbHMNRziKfEHOkE5C1jAVStp9ji0MnGunw95TdhsIHL63AWCzHs+Z1qg8qCe9/MtiQgL/42OKAmi8cQQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=d2RqXYCy; arc=none smtp.client-ip=100.103.45.18
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="d2RqXYCy"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D041B1F00A3A;
-	Wed, 29 Jul 2026 23:10:49 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785366650;
-	bh=BgHqScF8FkAhN01E/0EaMvaRk+2rP+ZDvR32x7g5rok=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=d2RqXYCyH8DC196oT9mkYeCiKFcTT75oTKaKT3o5GxPMOoo56ge44HrcXznWAe+Ts
-	 MN3LXr7kiqQegFYNbp0Fd0idU8C4sNowGxK2qOUfK40ENFLBjEnlJLOxgwpplCt5H7
-	 j9wImWHRo3gZnPRdMH4x2dBO3Nr2u3f7TIVjCcU9VxVr/000Qap8cmPIl//svBBcLV
-	 /QsDSIUvTrNXMsdE1DvxqxRw3OglTfeepmAFQ2jsMzXVtz5Hd79YQbDmf+IYih/Q12
-	 yF98L4M8+7NPTSll3KaR5/Wk2Qi3GmXGswdGOAinZwj02XNnAfBjJfITnIEP68lJ0t
-	 WGq0Qv5+7/Jzg==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] Input: wacom_w8001 - compose the device basename in one
- place
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Ian Bridges" <icb@fastmail.org>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <amqGsb0A6_dr9JLA@dev>
-References: <amqGsb0A6_dr9JLA@dev>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Wed, 29 Jul 2026 23:10:49 +0000
-Message-Id: <20260729231049.D041B1F00A3A@smtp.kernel.org>
+	s=arc-20240116; t=1785381631; c=relaxed/simple;
+	bh=VWIMBa3SxuFHXYMBRqivQUmY962zNRHov92FasjAwlk=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=oyC6keV9NHYeVHyv/l33X6M4Ui38yoHpSmitINCcdeH7WRgVkHAnrCEhzyfXmyxiMBGawC4GsMsEfGecFDSLu863uTrdws3yCdIo81jQjFpthnKRlKKMH166xSZwbciU9HL3L5cN1F/xucJTbtQD5ytb/cQ6mBv3asHZtCUtfxo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn; spf=pass smtp.mailfrom=kylinos.cn; arc=none smtp.client-ip=124.126.103.232
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kylinos.cn
+X-UUID: 96f280a28bc511f1aa26b74ffac11d73-20260730
+X-CTIC-Tags:
+	HR_CC_COUNT, HR_CC_DOMAIN_COUNT, HR_CC_NAME, HR_CC_NO_NAME, HR_CTE_8B
+	HR_CTT_MISS, HR_DATE_H, HR_DATE_WKD, HR_DATE_ZONE, HR_FROM_NAME
+	HR_SJ_DIGIT_LEN, HR_SJ_LANG, HR_SJ_LEN, HR_SJ_LETTER, HR_SJ_NOR_SYM
+	HR_SJ_PHRASE, HR_SJ_PHRASE_LEN, HR_SJ_WS, HR_TO_COUNT, HR_TO_DOMAIN_COUNT
+	HR_TO_NO_NAME, IP_TRUSTED, SRC_TRUSTED, DN_TRUSTED, SA_EXISTED
+	SN_EXISTED, SPF_NOPASS, DKIM_NOPASS, DMARC_NOPASS
+X-CID-P-RULE: Release_Ham
+X-CID-O-INFO: VERSION:1.3.12,REQID:2bcdebba-4db3-48cb-af5b-01ef822d712f,IP:15,
+	URL:0,TC:0,Content:-5,EDM:25,RT:0,SF:0,FILE:0,BULK:0,RULE:Release_Ham,ACTI
+	ON:release,TS:35
+X-CID-INFO: VERSION:1.3.12,REQID:2bcdebba-4db3-48cb-af5b-01ef822d712f,IP:15,UR
+	L:0,TC:0,Content:-5,EDM:25,RT:0,SF:0,FILE:0,BULK:0,RULE:Release_Ham,ACTION
+	:release,TS:35
+X-CID-META: VersionHash:e7bac3a,CLOUDID:085507df76078190b2dd1861e766e12e,BulkI
+	D:260730112021NWMBRRRF,BulkQuantity:0,Recheck:0,SF:10|38|66|78|102|127|136
+	|850|865|898,TC:nil,Content:0|15|50,EDM:5,IP:-2,URL:99|1,File:nil,RT:nil,B
+	ulk:nil,QS:nil,BEC:nil,COL:0,OSI:0,OSA:0,AV:0,LES:1,SPR:NO,DKR:0,DKP:0,BRR
+	:0,BRE:0,ARC:0
+X-CID-BVR: 2,SSN|SDN
+X-CID-BAS: 2,SSN|SDN,0,_
+X-CID-FACTOR: TF_CID_SPAM_SNR,TF_CID_SPAM_ULS
+X-CID-RHF: D41D8CD98F00B204E9800998ECF8427E
+X-UUID: 96f280a28bc511f1aa26b74ffac11d73-20260730
+X-User: yijiangshan@kylinos.cn
+Received: from localhost.localdomain [(116.128.244.171)] by mailgw.kylinos.cn
+	(envelope-from <yijiangshan@kylinos.cn>)
+	(Generic MTA with TLSv1.3 TLS_AES_256_GCM_SHA384 256/256)
+	with ESMTP id 478973950; Thu, 30 Jul 2026 11:20:18 +0800
+From: Jiangshan Yi <yijiangshan@kylinos.cn>
+To: djogorchock@gmail.com,
+	jikos@kernel.org,
+	bentiss@kernel.org
+Cc: linux-kernel@vger.kernel.org,
+	linux-input@vger.kernel.org,
+	13667453960@163.com,
+	Jiangshan Yi <yijiangshan@kylinos.cn>,
+	stable@vger.kernel.org
+Subject: [PATCH v2] HID: nintendo: stop device IO before hid_hw_stop on probe failure
+Date: Thu, 30 Jul 2026 11:19:27 +0800
+Message-Id: <20260730031927.25444-1-yijiangshan@kylinos.cn>
+X-Mailer: git-send-email 2.25.1
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
+nintendo_hid_probe() calls hid_device_io_start() before joycon_init()
+and joycon_leds_create().  If either fails, the error path jumps to
+err_close which calls hid_hw_close()/hid_hw_stop() without first calling
+hid_device_io_stop().
 
-Pre-existing issues:
-- [High] Calling `input_free_device()` on a successfully registered device =
-pointer during the error path, leading to a double-free.
---
+hid_hw_stop() does not stop device IO, so hid_input_report() may still
+run and access driver data that is being torn down, resulting in a
+use-after-free.
 
---- Patch [1]: [PATCH] Input: wacom_w8001 - compose the device basename in =
-one place ---
-commit c5b975c9cd0e7f7aaa34347ef2a6ab2d8f4d90b0
-Author: Ian Bridges <icb@fastmail.org>
+Add an err_io_stop label that calls hid_device_io_stop() before
+hid_hw_close(), and point the two post-io_start error paths at it.
 
-Input: wacom_w8001 - compose the device basename in one place
-   =20
-This commit simplifies the device basename composition in the wacom_w8001
-driver. It removes the append helper and instead records the touch name
-suffix in the device structure, allowing the basename to be assembled in a
-single step using scnprintf(). The patch resolves format truncation
-warnings while keeping the produced names identical.
+Fixes: 2af16c1f846b ("HID: nintendo: add nintendo switch controller driver")
+Cc: stable@vger.kernel.org
+Signed-off-by: Jiangshan Yi <yijiangshan@kylinos.cn>
+---
+  Changes in v2:
+  - Resend as a standalone patch.  v1 was accidentally sent twice,
+    once as [PATCH 3/6] (part of an unrelated series) and once as
+    [PATCH], which confused the Sashiko bot into attempting to apply
+    both copies simultaneously.  No code changes.
 
-Link: https://lore.kernel.org/r/20260716103236.28c1b5bb@pumpkin
+  v1: https://lore.kernel.org/all/20260728061132.299461-1-yijiangshan@kylinos.cn/
 
-> diff --git a/drivers/input/touchscreen/wacom_w8001.c b/drivers/input/touc=
-hscreen/wacom_w8001.c
-> --- a/drivers/input/touchscreen/wacom_w8001.c
-> +++ b/drivers/input/touchscreen/wacom_w8001.c
+ drivers/hid/hid-nintendo.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-[ ... ]
+diff --git a/drivers/hid/hid-nintendo.c b/drivers/hid/hid-nintendo.c
+index e7302ec01ff1..0db553528826 100644
+--- a/drivers/hid/hid-nintendo.c
++++ b/drivers/hid/hid-nintendo.c
+@@ -2736,14 +2736,14 @@ static int nintendo_hid_probe(struct hid_device *hdev,
+ 	ret = joycon_init(hdev);
+ 	if (ret) {
+ 		hid_err(hdev, "Failed to initialize controller; ret=%d\n", ret);
+-		goto err_close;
++		goto err_io_stop;
+ 	}
+ 
+ 	/* Initialize the leds */
+ 	ret = joycon_leds_create(ctlr);
+ 	if (ret) {
+ 		hid_err(hdev, "Failed to create leds; ret=%d\n", ret);
+-		goto err_close;
++		goto err_io_stop;
+ 	}
+ 
+ 	/* Initialize the battery power supply */
+@@ -2766,7 +2766,8 @@ static int nintendo_hid_probe(struct hid_device *hdev,
+ 
+ err_ida:
+ 	ida_free(&nintendo_player_id_allocator, ctlr->player_id);
+-err_close:
++err_io_stop:
++	hid_device_io_stop(hdev);
+ 	hid_hw_close(hdev);
+ err_stop:
+ 	hid_hw_stop(hdev);
+-- 
+2.25.1
 
-> @@ -654,8 +648,8 @@ static int w8001_connect(struct serio *serio, struct =
-serio_driver *drv)
->  	}
-> =20
->  	if (!err_touch) {
-> -		snprintf(w8001->touch_name, sizeof(w8001->touch_name),
-> -			 "%s Finger", basename);
-> +		scnprintf(w8001->touch_name, sizeof(w8001->touch_name),
-> +			  "%s Finger", basename);
->  		input_dev_touch->name =3D w8001->touch_name;
-> =20
->  		w8001_set_devdata(input_dev_touch, w8001, serio);
-
-[Severity: High]
-This is a pre-existing issue, but I noticed a potential double-free in the
-error handling path of w8001_connect() that occurs just after this code blo=
-ck.
-
-If input_register_device(w8001->touch_dev) fails, the code jumps to the fai=
-l4
-label:
-
-fail4:
-        if (w8001->pen_dev)
-                input_unregister_device(w8001->pen_dev);
-fail3:
-        serio_close(serio);
-fail2:
-        serio_set_drvdata(serio, NULL);
-fail1:
-        input_free_device(input_dev_pen);
-        input_free_device(input_dev_touch);
-
-Since input_unregister_device() manages dropping the reference count for
-successfully registered devices, falling through to fail1 calls
-input_free_device(input_dev_pen) on the same non-NULL pointer, which will
-drop the reference count a second time.
-
-Could this cause a double-free of the input_dev structure? Would it be safer
-to set input_dev_pen =3D NULL in the fail4 block after unregistering?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/amqGsb0A6_dr9JLA@de=
-v?part=3D1

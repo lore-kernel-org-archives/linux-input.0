@@ -1,227 +1,193 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f53.google.com (mail-wm1-f53.google.com [209.85.128.53])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8DE9A433BD3
-	for <linux-input@vger.kernel.org>; Thu, 30 Jul 2026 13:17:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A1CCF439903
+	for <linux-input@vger.kernel.org>; Thu, 30 Jul 2026 13:40:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.53
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785417480; cv=none; b=V0EAvvY8/qp6i6VGPAxkMyIKgvAvwwa6ZWACgoGRS3HYnaJjF/QXtdHr0pxdfQc5vI9VGzD4ywZqh7YZ/CjlOodhvLnUu1oYUhPvNKeqb26m3pYmUy6w49udOuWUwYPxUyxTMnMZlK009squIjQsJq+SiwZtj9CXqvv5/EPUIe8=
+	t=1785418831; cv=none; b=lsZjjg2LkHQ08sMF+B/ohLw14QQ//KeFYnf13wxL+VXwsSyl4eoYvogrn0TEifRdksn6gGCnQu8tBEExZ2UX5yoSkDDU1zUdNlKnOLhide6vHBjIYXR0qaK2fDWqoyrL8e120O6eCr1SnUKll3eBLIj6FmpewIZ/K90pf+xOyyA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785417480; c=relaxed/simple;
-	bh=jKWtPJaJNA4cwJMqn70fNYmgRRXlPq59FUq/rzk2YQM=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=DzT8PVI/aAK8UhOx4/yMjAJ7ZmMS9i3cehoAwTZn737Xm0mDIeI1W+zLmcl5jWUsHdng7QEfACxKsWmUOAwbKkBMCmvvfTGUHlKYW/zzeFW3VEfBKbi3Ykihk3UCmFuJANDu4ieeQ3861pqK3CCjwkhPAmsPMSU+NfP8pAhHQM8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=AvfJtELi; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1785418831; c=relaxed/simple;
+	bh=/q1OjoHS6MiKNeHhu9PPhy+3MlydIup74UGW+aL9gS0=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=lrZ+YI9LftUY6Tdys9MbmZl9EM5ZPXTQJBJBEgGIw0CVOABZMVjjmI2kqnmkfhp4Wh9pvU41i0eZXzqi8xkenrwciFGA+YjDNwu7QRqsFKZnefqtB+Hhm39+GqRLqhPNMgejkZjaPkxmgCfGNEU3+8va89pnp1K7wEsRlGl/GHg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=hfHFyO47; arc=none smtp.client-ip=209.85.128.53
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="AvfJtELi"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D05A1F00A3D;
-	Thu, 30 Jul 2026 13:17:50 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785417470;
-	bh=nQeiSuP6YAJ/9TRivWgozlhhjppvQnZgvjxudHH2NUY=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=AvfJtELi/MGd7KvzpxVY4vu9+WSZb6/My1g485GYrUE8irvASqIo0lce/5ABjLso1
-	 hHD0c7M9X6iAG6HqT321gBSMycJuqu7MGlqdgPkyEQuNhvfpmwFX9agWcT3wVvLu85
-	 Q9CJ7lvvGTBD75HYY9lL0I/yY5qEJoNB+BbPZhXBwyqBRQLpwk85xj1rfAqsR0G5Nw
-	 GzFw1NtpLO3qQYGfVOhzjYmqhCe+HKAXZRDPykMLz2nh47cGSjyf+W1x/90/5y8dzD
-	 sUN1TK7CZEw7xCKpySVGs5plHTcb4/cfizof6nfOyKkTd3PHAoV6h3cfCjrpEs0lF4
-	 xLgSGIRRz7hmw==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 1/4] HID: intel-ish-hid: fix report_list iterator
- pointer arithmetic
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Shen Yongchao" <grayhat@foxmail.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <tencent_F203F6206515915C81D1210ECEBCBCA5D707@qq.com>
-References: <tencent_F203F6206515915C81D1210ECEBCBCA5D707@qq.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Thu, 30 Jul 2026 13:17:49 +0000
-Message-Id: <20260730131750.3D05A1F00A3D@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hfHFyO47"
+Received: by mail-wm1-f53.google.com with SMTP id 5b1f17b1804b1-4953e04ef16so20834125e9.2
+        for <linux-input@vger.kernel.org>; Thu, 30 Jul 2026 06:40:29 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1785418828; x=1786023628; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=hAFpVRzBiMTtEH84JsrcqWwHWR7JlfZJmQLb9fZx3Lg=;
+        b=hfHFyO476PnPaEVSq2iCfR8XfH6xJjNw2sk95nwQ9GPluVGijzT5NzQ2tOSBbEoByj
+         MbrGeOHXxPGAetrdbghU2TiNinVvKkdH97qW3kdO/F8AXlWByCfO4eixgz7QnLR6muY0
+         O7VTOh/dpLju9yERsR7dKxRdc0rVbzMHhXHqlyvemGINbQIo4w9nYW8PWVJVP5w0KOp5
+         mRwNu+/lSnGB/4le2Np7l6ZEX4MV1QrPONP7IW/IVuPf/8WA6/FbCYKduI2fIHgSj9kh
+         lrCZAgZ06562ckfWXMbiuFG169rQl7UwBWvfVJS3WT9aboeH97ty6ontNL61ZDY9fTXH
+         ou6A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1785418828; x=1786023628;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=hAFpVRzBiMTtEH84JsrcqWwHWR7JlfZJmQLb9fZx3Lg=;
+        b=eptgqYxc7yNLXv98JpFsBxUMRfVImznfJLM0eAFRui367z+gz9aOZZS6wwdlDrXCKd
+         cB9EWbo1fnaR/U+NY3RnwAQiCRbqRgQbGFRj2HBocwmDzsPL+Tzudf4pK82XEj6wxgLe
+         Q9wv0P3M9gVPZ1o4VG8SCAxOMK0+tgvgRZY0ZxeuDIQ6ByPjDQJpWKey1InWLxs3uCQa
+         DHtj6MfZcLLpO0n4Ylx/lrVjkeMzDbEOAHX2cnhr5RXEL/6iKzPv2B0g9+5okr0Q/kYx
+         3V/pqXJR2+jXkeO3UzYrBfRaIVvfx2nQ1xe/GuPozV8xR2t+Cd8v5lhF9fXumFFPU1nl
+         UkJw==
+X-Gm-Message-State: AOJu0Yz+dD8BzRiL812H9SS/Of7Re0PXZpCWTBrX0tpGuJ5fBWpT3lxa
+	IGFfgdgfZRKLoyAnnyGdxKwH21iu/2naHfS1b/Qk1EnLwavB+qdsHooO849vQiDX
+X-Gm-Gg: AR+sD10BglLXA+j000ClwzqQD9v1yR7O6WW7T96NtUTTSr1JNacloRiimfkxOU8W5An
+	mehF2YdtmA7rFpyGOtleHflq+N1ppEEiFnO+YTGc7q2dRgAKtM82MOcbyVE2PoFtClDk8ByorBV
+	tv0Bl30Z3HhIMjYvfy7mF0bWmW60odUF0E6S0Bj2mWLMVqdLtSAuz8yPW8ixQN4X6viHJQ3Hmxs
+	lR63Ef4NniilEqowdoewM5u9jNHM1rUaPrqpgEjFhP7fsNWkkV4Q26F/TJGEyom/LIBv42HorOi
+	aUcPxwW8fzJSMN3eK4i2H+DOYo4a4YO03V3Ky6WQtxnBoF43dEG+o82ibdstsb/gv8Rs41GfhLK
+	//E59GfaaPhLhkh8g/sQXMRqWXG7kTod6oS5cpdpIwyzqND4Jp/XgYsKwmjMOR4/zpXvfr/nODS
+	i2cb8/JCF9Hpw/3jv3Af4eZaXXcJFWGzliCXmZho+k115yqkEbwlFJF7eNy/N0XApU1mDyCyCNw
+	Z2RLRNp0IdXg7WQzMdP
+X-Received: by 2002:a05:600c:4f8a:b0:495:472c:208d with SMTP id 5b1f17b1804b1-49800ebb090mr37096515e9.38.1785418827676;
+        Thu, 30 Jul 2026 06:40:27 -0700 (PDT)
+Received: from mortifia-tour.localdomain ([2a01:cb11:e0e:6900:846:ff2d:816e:3783])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-498012168e7sm66405305e9.15.2026.07.30.06.40.26
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 30 Jul 2026 06:40:27 -0700 (PDT)
+From: Guillaume Casal <guillaume.casal.42@gmail.com>
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	dbdaniel42@gmail.com
+Subject: [PATCH v2 0/4] input: force feedback for trigger rumble motors
+Date: Thu, 30 Jul 2026 15:40:00 +0200
+Message-ID: <20260730134004.1118476-1-guillaume.casal.42@gmail.com>
+X-Mailer: git-send-email 2.55.0
+In-Reply-To: <20260730095317.767418-1-guillaume.casal.42@gmail.com>
+References: <20260730095317.767418-1-guillaume.casal.42@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 7 potential issue(=
-s) to consider:
+Some gamepads carry rumble motors behind their triggers, in addition to
+the usual two in the grips: Xbox controllers call them impulse triggers,
+and handhelds such as the ASUS ROG Xbox Ally X have them too. The force
+feedback API cannot reach those motors.
 
-Pre-existing issues:
-- [High] Missing validation of `hid_dev_count` against `MAX_HID_DEVICES` al=
-lows firmware to trigger out-of-bounds array accesses.
-- [High] Missing boundary checks when iterating over aggregated reports in =
-`HOSTIF_PUBLISH_INPUT_REPORT_LIST`.
-- [High] Integer underflow when calculating `payload_len` in `HOSTIF_PUBLIS=
-H_INPUT_REPORT_LIST`.
-- [High] Insufficient bounds checking when parsing `device_info` structures=
- in `HOSTIF_DM_ENUM_DEVICES`.
-- [High] The inner loop handling HOSTIF_PUBLISH_INPUT_REPORT_LIST overwrite=
-s the outer loop's control variables, causing parser desynchronization.
-- [High] Missing cancellation of asynchronous background works on device re=
-moval leads to Use-After-Free.
-- [High] Missing buffer reallocation during hardware reset allows out-of-bo=
-unds writes if device attributes expand.
---
+v1: https://lore.kernel.org/linux-input/20260730095317.767418-1-guillaume.casal.42@gmail.com/
 
---- Patch [1]: [PATCH v2 1/4] HID: intel-ish-hid: fix report_list iterator =
-pointer arithmetic ---
-commit 57fdd01a4139a53de9833b822824ccfd37902302
-Author: Shen Yongchao <grayhat@foxmail.com>
+Changes since v1
+================
 
-HID: intel-ish-hid: fix report_list iterator pointer arithmetic
+v1 followed the 2022 series by Daniel Bomar and added trigger_left and
+trigger_right to struct ff_rumble_effect. That was wrong, and I am
+grateful the problem was pointed out on the list before it went any
+further.
 
-This commit fixes an issue where the report iterator pointer was being=20
-advanced by a multiple of the struct size rather than bytes. It introduces=
-=20
-a u8 *pos iterator to correctly compute the pointer arithmetic in bytes.
+EVIOCSFF copies the whole struct ff_effect from userspace. An
+application that sets only strong_magnitude and weak_magnitude, and does
+not clear the rest of the union, passes uninitialised stack content in
+the bytes that v1 gave meaning to. ff-memless would then scale that
+content and hand it to the driver, so a program that works today would
+start buzzing the triggers at random. Keeping the size of the union
+unchanged makes the layout compatible, not the meaning. This is likely
+why the 2022 series never went anywhere.
 
-> diff --git a/drivers/hid/intel-ish-hid/ishtp-hid-client.c b/drivers/hid/i=
-ntel-ish-hid/ishtp-hid-client.c
-> index 6d64008f2ce05..ba52e185ce051 100644
-> --- a/drivers/hid/intel-ish-hid/ishtp-hid-client.c
-> +++ b/drivers/hid/intel-ish-hid/ishtp-hid-client.c
-[ ... ]
-> @@ -280,9 +281,10 @@ static void process_recv(struct ishtp_cl *hid_ishtp_=
-cl, void *recv_buf,
->  		case HOSTIF_PUBLISH_INPUT_REPORT_LIST:
->  			report_type =3D HID_INPUT_REPORT;
->  			reports_list =3D (struct report_list *)payload;
-> -			report =3D reports_list->reports;
-> +			pos =3D (u8 *)reports_list->reports;
-> =20
->  			for (j =3D 0; j < reports_list->num_of_reports; j++) {
+v2 therefore uses a distinct effect type, FF_TRIGGER_RUMBLE, with its own
+struct ff_trigger_rumble_effect, following what was done for FF_HAPTIC.
+No existing application emits this type, so no uninitialised byte can be
+mistaken for a magnitude. The capability bit of v1 is dropped: userspace
+discovers the type in the EVIOCGBIT(EV_FF) bitmap, as it does for
+FF_RUMBLE.
 
-[Severity: High]
-This is a pre-existing issue, but does this loop lack boundary checks?
+Two smaller points raised on v1 are fixed here as well: the missing entry
+in the force[] array of hid-debug.c, and the missing line in
+Documentation/input/ff.rst.
 
-If the firmware sends malformed packets in HOSTIF_PUBLISH_INPUT_REPORT_LIST,
-could we iterate past the end of the containing message or network buffer?
-There don't appear to be bounds checks on pos and the sub-report payloads.
+Design notes
+============
 
-> +				report =3D (struct report *)pos;
->  				recv_msg =3D container_of(&report->msg,
->  							struct hostif_msg, hdr);
->  				report_len =3D report->size;
+ml_get_combo_effect() groups playing effects by type, so a trigger rumble
+effect forms its own combo and reaches the driver in its own
+play_effect() call, without disturbing FF_RUMBLE. An effect that has
+finished still contributes its type with zero magnitudes, so the stop
+path needs no change.
 
-[Severity: High]
-This is a pre-existing issue, but can this lead to an integer underflow?
+Testing
+=======
 
-When calculating payload_len:
+checkpatch.pl reports no warnings on any of the four patches.
 
-    payload_len =3D report_len - sizeof(struct hostif_msg_hdr);
+I booted v7.2-rc5 with this series applied under QEMU, with a small
+memless driver compiled in that advertises both types and logs the
+magnitudes it is handed. Userspace side, a static init issues the
+EVIOCSFF ioctls. Output, kernel lines interleaved with userspace ones:
 
-If a sub-report is sent with report->size less than=20
-sizeof(struct hostif_msg_hdr), will this underflow the size_t variable to a
-huge value, which is then passed to hid_input_report() and used to advance=
-=20
-the pos pointer?
+  capabilities advertised : FF_RUMBLE yes, FF_TRIGGER_RUMBLE yes
 
-[Severity: High]
-This is a pre-existing issue, but does the inner loop overwrite the outer
-loop's control variables?
+  triggers only      -> FF_TRIGGER_RUMBLE left=65535 right=65535
+  grips only         -> FF_RUMBLE         strong=65535 weak=65535
+  left trigger only  -> FF_TRIGGER_RUMBLE left=65535 right=    0
+  right trigger only -> FF_TRIGGER_RUMBLE left=    0 right=65535
 
-The inner loop modifies payload and payload_len:
+Each effect is followed by a call with zero magnitudes when it expires,
+so the existing stop path needs no change.
 
-    payload =3D recv_msg->payload;
-    payload_len =3D report_len - sizeof(struct hostif_msg_hdr);
-   =20
-Once this switch statement finishes, the outer loop uses payload_len to=20
-advance cur_pos:
+The last case is the one that matters for the concern raised on v1. The
+test fills the whole struct ff_effect with 0xAA, sets only type,
+replay.length and the two rumble magnitudes, and uploads it, which is
+what a careless application does today:
 
-    msg_len =3D payload_len + sizeof(struct hostif_msg);
-    if (!cur_pos && cur_pos + msg_len < total_len)
-        ++client_data->multi_packet_cnt;
+  old-style app, dirty union
+                     -> FF_RUMBLE         strong=32768 weak=32768
+                        and no FF_TRIGGER_RUMBLE call at all
 
-    cur_pos +=3D msg_len;
+The dirty bytes cannot be mistaken for trigger magnitudes, because they
+never carry that meaning for an FF_RUMBLE effect. With v1 they would have
+been scaled and sent to the hardware.
 
-Could the corrupted payload_len (now the size of the last sub-report instead
-of the aggregate list) cause parser desynchronization and out-of-bounds rea=
-ds
-on the next iteration?
+The same was then run against real hardware. The vendor kernel of my
+handheld cannot be rebuilt, its sources are not published, so I booted
+the patched kernel in a VM on the same machine and handed it the gamepad
+by USB passthrough. The driver bound it as usual and the device came up
+advertising both types:
 
-> @@ -303,7 +305,7 @@ static void process_recv(struct ishtp_cl *hid_ishtp_c=
-l, void *recv_buf,
->  						0);
->  					}
-> =20
-> -				report +=3D sizeof(*report) + payload_len;
-> +				pos +=3D sizeof(struct report) + payload_len;
->  			}
->  			break;
->  		default:
+  peripheral: /dev/input/event8 (ASUS ROG Ally X Gamepad)
+  capabilities advertised : FF_RUMBLE yes, FF_TRIGGER_RUMBLE yes
 
-While reviewing this, I also noticed a few other pre-existing issues in=20
-this driver.
+Capturing the physical bus from the host with usbmon while the VM drove
+the pad gives the reports the firmware actually received:
 
-[Severity: High]
-This is a pre-existing issue, but is there missing validation of=20
-hid_dev_count against MAX_HID_DEVICES?
+  triggers: L=100 R=100   grips: L=  0 R=  0    triggers only
+  triggers: L=  0 R=  0   grips: L=100 R=100    grips only
+  triggers: L=100 R=  0   grips: L=  0 R=  0    left trigger only
+  triggers: L=  0 R=100   grips: L=  0 R=  0    right trigger only
+  triggers: L=  0 R=  0   grips: L= 50 R= 50    old-style app, dirty union
 
-In process_recv() during HOSTIF_DM_ENUM_DEVICES:
+The four actuators are driven independently, and the careless
+application gets its 50% in the grips with nothing in the triggers,
+which is the whole point of the change in shape since v1.
 
-    client_data->hid_dev_count =3D (unsigned int)*payload;
+The driver patch that fills those two magnitudes is not part of this
+series: that driver is not in mainline, and I will send it to its
+maintainers once the API here settles.
 
-If the firmware sends a count greater than MAX_HID_DEVICES, the driver=20
-directly assigns this without validation. Could subsequent loops use this t=
-o=20
-access fixed-size arrays like hid_descr and report_descr out of bounds,=20
-corrupting memory?
+Guillaume Casal (4):
+  input: Add FF_TRIGGER_RUMBLE effect type
+  input: ff-memless: Handle FF_TRIGGER_RUMBLE
+  HID: debug: Add FF_TRIGGER_RUMBLE name
+  Documentation: input: Document FF_TRIGGER_RUMBLE
 
-[Severity: High]
-This is a pre-existing issue, but does this allocation logic miss buffer
-reallocation during a hardware reset?
-
-During enumeration:
-
-    if (!client_data->hid_devices)
-        client_data->hid_devices =3D devm_kcalloc(...);
-
-And later:
-
-    for (i =3D 0; i < client_data->hid_dev_count; ++i) {
-
-If a hardware reset occurs and hid_ishtp_cl_reset_handler() retriggers
-enumeration, the check bypasses reallocation. If the firmware returns a=20
-larger hid_dev_count after reset, could the loop write device info past=20
-the end of the existing heap buffer?
-
-[Severity: High]
-This is a pre-existing issue, but is the boundary check sufficient when=20
-parsing device_info structures?
-
-In the same ENUM_DEVICES loop:
-
-    if (1 + sizeof(struct device_info) * i >=3D data_len)
-        break;
-
-This compares an offset relative to payload (which is already past the head=
-er)
-against the total data_len. It also only checks the start offset of the str=
-uct
-rather than the end. Could this allow memcpy to read up to=20
-sizeof(struct device_info) + sizeof(struct hostif_msg_hdr) - 1 bytes past=20
-the actual recv_buf?
-
-[Severity: High]
-This is a pre-existing issue, but does hid_ishtp_cl_remove() need to=20
-cancel background works?
-
-drivers/hid/intel-ish-hid/ishtp-hid-client.c:hid_ishtp_cl_remove() {
-    ...
-    ishtp_cl_driver_unregister(&hid_ishtp_cl_driver);
-    ...
-}
-
-This teardown function unregisters the driver but does not call
-cancel_work_sync() for client_data->work or client_data->resume_work. Since=
-=20
-client_data is allocated with devm_kzalloc(), it is automatically freed whe=
-n=20
-remove returns. If a reset or resume work is executing or queued concurrent=
-ly,=20
-could this lead to a Use-After-Free?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260730115600.2181=
-72-1-grayhat@foxmail.com?part=3D1
+ Documentation/input/ff.rst |  1 +
+ drivers/hid/hid-debug.c    |  1 +
+ drivers/input/ff-memless.c |  9 +++++++++
+ include/uapi/linux/input.h | 17 ++++++++++++++++-
+ 4 files changed, 27 insertions(+), 1 deletion(-)

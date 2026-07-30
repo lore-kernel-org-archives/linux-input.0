@@ -1,113 +1,122 @@
-Received: from mail-pj1-f45.google.com (mail-pj1-f45.google.com [209.85.216.45])
+Received: from mail-qk1-f169.google.com (mail-qk1-f169.google.com [209.85.222.169])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 819A33CAE73
-	for <linux-input@vger.kernel.org>; Thu, 30 Jul 2026 12:00:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C759533FE1F
+	for <linux-input@vger.kernel.org>; Thu, 30 Jul 2026 12:24:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.169
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785412809; cv=none; b=X8vcIY2ELLQ7CRKmTQLbo5nRe48O4makTb1hYAGXxt6kLDRoUDCgbgWzcjJYQhkZLWcfUeTsE+PM5ufMW1NiX+qu6JT4sIxGZQ7abQinUyTQHEMf8CzcQwJpYoLAAq4BzqG45B2AdS4fHWYPBuD6Tf0tGHO/8BA/LB/VvCxVpxc=
+	t=1785414297; cv=none; b=Bcw2/b3AYVcXzkBIkRjE4PQ6aflgwJhhOpwxdmKyrqAici/+3mgOCZ01gS1yGW9rxdmyT4bHo39WtIUuk1Ug8BwEi0tyn6fonr+vbPPaKt/plw1+/vgcLaPdb3P/D2bB2aYYfmzZB3aExDTx2fLsiMy9vzlF8g/wyAuHmFrpH7I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785412809; c=relaxed/simple;
-	bh=8Y0zg9I9JXgVFPHAkNmJWkRNpLBPiV+yFpJKZtcdiSA=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=RQ8jXwM6jmp5JcASGcELPLGFCnakehc1DPYtKdEw9AzDodCYZJng1JS5kA2PkOQQq0oGmdA8/mftpaTn9e9qp4c1K1Buj7yhscPioCEJduyEHC1OrRAmJ55zBZvTeimtIaLD/feDj42uh0O9sVoDdcnByyr9T14lDCvtB/Vk4qc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.216.45
+	s=arc-20240116; t=1785414297; c=relaxed/simple;
+	bh=hjSCNa8VBj3LwTzLNo2UTrVcfHlIib4kXLh+AlykK9w=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=EnyWPqX3uMpdHZCxdd4NlMtYIWYX6Xn7Dkz9cLb+TXFqDEmbV02wrqoESGexTF53z5AFaBMobc3YJjqDJamp0VwgwdtdFi0j57mYJl171OPd+NgzOh7thV+Mh+1SWpWbbBk/AGF4fENWcamTvCChkJfh7uVa/0WdLAaNk+snjRs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=PA9rlxVw; arc=none smtp.client-ip=209.85.222.169
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Received: by mail-pj1-f45.google.com with SMTP id 98e67ed59e1d1-382ef647e20so2042990a91.1
-        for <linux-input@vger.kernel.org>; Thu, 30 Jul 2026 05:00:08 -0700 (PDT)
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="PA9rlxVw"
+Received: by mail-qk1-f169.google.com with SMTP id af79cd13be357-92ed3993c1eso119261385a.1
+        for <linux-input@vger.kernel.org>; Thu, 30 Jul 2026 05:24:55 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1785414294; x=1786019094; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:in-reply-to:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=wNDoYQ8/yRjrNOVgEPBvardx2QlUL1XI/80KODMgLwo=;
+        b=PA9rlxVwndP5rpFr4vEiffXweh4HKKenTyFLD65a/Tk8Eg+4sLUws7Mbc/1CPVUpgK
+         Hjb9KIyNsxtWS1BrxPOe1iVuM77Guvl3+9Bz400EAwuD9uvc6jyV/5B1fhTclimd7nnW
+         qzBKvNSWeVdEbvMIWXnXtAO608Py7X3/j81e1S9f7J+bpLHdV6Jol4tgftrssMWHg2DI
+         9+3y923VCl2mGcNBfBZQqBQ48oHXRmLFrSjsRjwLn/7rJAYCiyygwnPnAq1mQV7WEIfI
+         sgoLZqP9pS7XLc+0FlgngF6eUHGTRh7MrSQZwy3ABMVBbqgFgILJB12JZaeY3rnXcqFH
+         P7Iw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785412808; x=1786017608;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=1e100.net; s=20251104; t=1785414294; x=1786019094;
+        h=content-transfer-encoding:content-type:in-reply-to:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=/xkO7ahM06Zo3Is02qQeMPpHg0AM2vLWCsIF0+w1yok=;
-        b=osEavPRJfLkXoDRRKFn8lLdt2lRWRNXZWowNL8gsuBcLM77ugGvPi2j/HlZUbFphh8
-         DH28fnc4qXAuEWtZtyPS01f8XATVn+Dd6m76PpyQSmJ0S6frTB7ECVlyuwIhzqBwIHqU
-         9vlezmx8lmuBnJwGbY1sDNb2BVsdn55xt0qUPD40UEvRK0eC/p/ZtIrIsQYwoomWXVRD
-         o728mC40pqVtman+M/K1ye3fMpUnjVWjiLlyLjH4RcN//BQ4u4YIbAq20nYCR22mwzCC
-         SRjGDArXlAmz9D9HLJ+tuV/fQviL5U7HL4L0NL5OIJ2Nw+cdyS2GPXh0B/OUTarIllcX
-         TviQ==
-X-Gm-Message-State: AOJu0YxCGNdAk3W/2FE1aHyy5Rn/1vAHXPEBgj5oDG8tBcJH3hLWdqgS
-	1nuKVcMuq5WwCEjWyZlxON1TJ1ZlnvlnmNfHVj+d/YUmMc0WOqJG0/VbknLjGLbG
-X-Gm-Gg: AR+sD10b8kdo2CeETW0SfyiEybM1tPpnB5/Iumj1n3DKTTp/La8Wa8EcMKVrqC5rY0f
-	Rsc3ru1cG+wY1b+Y74ceYWPhw77OywNHroJiGa5tIjgR8TJSBbr3L3IFz6mBUru3N5CJW5fZCSh
-	TXmDsz7mBPEx9Q+pNF4gIoJbXAK+nBNNrysdF6GWLEIvlq+8Lf8eKKIlCrLcCsY0fYLf2ivdzMs
-	e7PDUZ4qKiJW65fqpeuA0tz7ZDWXmmglsL+65ya/+vhRe6XeTYi4g+6eSiLLWdm+XAKkDiNJF/3
-	DH8BgObA0iypkQ7VMl/VTat56C2qPUDoowASn4DKLcsry/PzTogPKuw0ExnsZXzgn6j0ZKo5DE+
-	QEhOGrq3QlsDbDPv+vEGJHlGD73Dn/nuTpJ+K96SK5zM1c3Kvy75P3YDz2W4BXpJUrRaeUnKKKF
-	KpmuA+eXSa7cPd7jtakICgFG8oNO1zqee6LwfBPQUykHI=
-X-Received: by 2002:a17:90b:2892:b0:381:5bd6:eb19 with SMTP id 98e67ed59e1d1-38f9bdb4dacmr2014640a91.18.1785412807555;
-        Thu, 30 Jul 2026 05:00:07 -0700 (PDT)
-Received: from manit.. ([2401:4900:d9e6:b0d6:8e08:121e:b0e3:5406])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-13e7265010esm21172674c88.6.2026.07.30.05.00.04
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 30 Jul 2026 05:00:06 -0700 (PDT)
-From: Dinesh dkkhatana136@gmail.com
-To: linux-input@vger.kernel.org
-Cc: dmitry.torokhov@gmail.com,
-	Dinesh <dkkhatana136@gmail.com>
-Subject: [RFC] Input: atkbd: HP Pavilion Gaming keyboard backlight key reports unknown scancode
-Date: Thu, 30 Jul 2026 17:29:50 +0530
-Message-ID: <20260730115950.85353-1-dkkhatana136@gmail.com>
-X-Mailer: git-send-email 2.43.0
+        bh=wNDoYQ8/yRjrNOVgEPBvardx2QlUL1XI/80KODMgLwo=;
+        b=lK7GqhW2DOVJrRma5O+Ixx8PIifZroDYNcQCum3/k7hm2scAsQTfUMwXwBQE2aX1k7
+         Sirhu3dimHq1OQU6z6/5g8kgbt69l6tTO4v/Zri6mp9dI+9HLUFwuMdy9Y38ELsQNZyE
+         g+jseMypKhKzhR+FwWg0sDU4KzBW1G/+uZBGja0oO35vnRV1mWNy3T5U5carRnEKumsU
+         v+SwF5SQiriHGOuhhk5Fq6Hx5AQXrDjobx0jq/SpjcbQYd8sK6l2A/nc/3V34rADt7MG
+         HB/m00+0tiVnAwMXJ9wBEn86yTYh2I9iiAdVLtcwGsrmjbDQVVJJVCCMdL9xs6AUofe0
+         inFA==
+X-Forwarded-Encrypted: i=1; AHgh+RrxBJWD8Qjc8+Hz8EdwMLXK++noAgNQHKl9Iv5gQUkwusC61RFNDniULlelL3xbmUkbL4Z8ICDKPt0rdA==@vger.kernel.org
+X-Gm-Message-State: AOJu0YyhtO2Pc46z9+Lm4L9WJVJxmsAzyyD/wSkwt+xKJgOGgRzfZ1g0
+	PXqk0FrBpLCI3/QSdsg7pIMBrF3hoU//pEYIXhl/N7XgbPkIOVyyGdltdeGCZA==
+X-Gm-Gg: AR+sD11pyq+urgFW/GnmQirGfP5+EYo5oh+V+vFz7nRwUvtu+eCDV7wRfIRvytPsxiA
+	5dWR+WIBjiaW9laukHPP2Ob8e+HxJ1tFlIzVKW0bWBV81iggweWQ7KQHFLppdT9TSIzg6G9PhdZ
+	M4yxQW7JjbgNGkwIOUFROrcWPZEtwFdBV+WEHLGBRQrIY3xm6MmhBvu6/w9adJzutDdMMalchBT
+	WCH/OF+j4o2uVNOWzqxS+9Fv+PLGCUbZ7+uO98P7VjfG2doW8mZ5vfqTwkm21e3I7JzngLtVELR
+	DL0He0+WIqPGIND/n+LFdRAGrmiknxfBCp/Jy0ftL+yyWUcUrgsAr5Ep/wGBqYAzriNwh67w7Xf
+	A2uM+CFVN4UWbDKeP8KYA6nKkOymdrvs5zQIXCf1R7byyj4Gu6DyqrQz/U/r5cTLwFm9t20Bfue
+	ZBbTvmsZY7fzj2ZqAEGYu3oVFcj1gtD/sCvsWlAtti3BlF4cCDLz1FSSaPlUPTaQCepj9sQ+BKj
+	wFQ8gZ0S26mc55bWACEsYWtoZ/HUjRF6oAv4Q==
+X-Received: by 2002:a05:620a:43a3:b0:92f:fc1:ae5c with SMTP id af79cd13be357-93486af4cf9mr230775585a.59.1785414294398;
+        Thu, 30 Jul 2026 05:24:54 -0700 (PDT)
+Received: from ?IPV6:2600:383:440:7bed:54ac:9f45:f987:a319? ([2600:383:440:7bed:54ac:9f45:f987:a319])
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-933d325ade8sm401156285a.12.2026.07.30.05.24.52
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 30 Jul 2026 05:24:53 -0700 (PDT)
+Message-ID: <8d3e05d3-6953-42d8-9f0e-ce42e2439c3e@gmail.com>
+Date: Thu, 30 Jul 2026 08:24:51 -0400
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 2/5] HID: multitouch: Fix stale MT slots when contact
+ count drops to zero
+To: Benjamin Tissoires <bentiss@kernel.org>
+Cc: Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org
+References: <20260522111527.69428-1-carvsdriver@gmail.com>
+ <20260715143312.32408-1-carvsdriver@gmail.com> <amsJcWohgC8TJsYH@beelink>
+Content-Language: en-US
+From: Dave Carey <carvsdriver@gmail.com>
+In-Reply-To: <amsJcWohgC8TJsYH@beelink>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 
-From: Dinesh <dkkhatana136@gmail.com>
+I will resubmit as a V3.  This was just a ping since the patch has been 
+sitting out there for a few weeks, looks like I confused even myself 
+with this one.
 
-Hi Dmitry,
+Apologies for the confusion.
 
-I'm investigating support for the keyboard backlight hotkey on an HP Pavilion Gaming Laptop and would appreciate guidance on the preferred upstream implementation before preparing a patch.
 
-System information:
+-Dave
 
-  Manufacturer: HP
-  Product: HP Pavilion Gaming Laptop
-  Kernel: 7.0.0-28-generic
-
-When pressing the keyboard backlight hotkey (Fn+F5), the kernel reports:
-
-    atkbd serio0: Unknown key pressed (translated set 2, code 0xab)
-    atkbd serio0: Use 'setkeycodes e02b <keycode>' to make it known.
-
-Running:
-
-    sudo setkeycodes e02b 228
-
-(where 228 corresponds to KEY_KBDILLUMTOGGLE)
-
-causes the key to be reported correctly by the input subsystem.
-
-To understand where the fix belongs, I investigated both the AT keyboard path and the HP WMI path.
-
-Observations:
-
-- The key generates translated Set 2 scancode e02b.
-- acpi_listen reports no event when Fn+F5 is pressed.
-- evtest on the HP WMI input device reports no event.
-- Only the AT keyboard device receives the scancode.
-- The recent hp-wmi commit "platform/x86: hp-wmi: Ignore backlight and FnLock events" (e8c597368b85) handles WMI notifications for newer HP systems, but my system does not emit those WMI events.
-
-From my investigation, the issue appears to be that translated scancode 0xab is left as KEY_UNKNOWN by atkbd, while hp-wmi is never involved on this machine.
-
-Before preparing a patch, I'd like to ask about the preferred upstream approach.
-
-Would maintainers prefer:
-
-1. Adding a generic atkbd Set 2 keymap entry mapping translated scancode 0xab to KEY_KBDILLUMTOGGLE,
-
-or
-
-2. Implementing this as HP-specific handling (for example via a DMI-based quirk)?
-
-I'd appreciate guidance on which direction would be preferred.
-
-Thank you for your time.
-
-Best regards,
-Dinesh
+On 7/30/26 4:22 AM, Benjamin Tissoires wrote:
+> Hi Dave,
+>
+> On Jul 15 2026, Dave Carey wrote:
+>> Hi Jiri,
+>>
+>> Gentle second ping on this patch, now about eight weeks since submission
+>> with no feedback.
+>>
+>> For context, the other hid-multitouch patches for the same device are
+>> already in tree: the INPUT_PROP_BUTTONPAD misclassification fix merged
+>> to mainline 2026-05-28, and the ghost contacts fix (MT_QUIRK_CONTACT_CNT_ACCURATE)
+>> was applied to hid/for-next by Benjamin on 2026-06-10.  This stale-slots
+>> fix is the last remaining hid-multitouch patch for the Yoga Book 9 14IAH10.
+>>
+>> Happy to rebase, respin, or address any concerns.
+> I'm very confused. I don't see any v2 in my mailbox nor on
+> lore.kernel.org. All I see is a reply to v1 with patch 2/5, which would
+> mean that patch is part of a series that I don't have any context.
+>
+> Please resend a proper v2/v3 with the correct tags so we can actually
+> process them.
+>
+> Cheers,
+> Benjamin
+>
+>> Thanks,
+>> Dave
+>>

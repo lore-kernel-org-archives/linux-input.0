@@ -1,146 +1,154 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 56983355057;
-	Thu, 30 Jul 2026 19:59:30 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4D836326928;
+	Thu, 30 Jul 2026 20:00:44 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785441574; cv=none; b=WIEkUdX76Dp0qCgMJJsI8tfA0mxpvClVHvr4mWZ962Wad1HUpC4Qn1Bl/K4GVbgs9r2V0iBBUKwmSwPc/fRCLV+pychK/d6ATd2fj8Zqv8GD/r/LhBZL0KqMq0X+6aeI51+/rZFV5EjqXJWH4koctcN87i2PNU3qtAZs9OzfVsw=
+	t=1785441647; cv=none; b=bA+4huhsJOz9ZQZBkopHd6lwj6g4amGWrnx50cUPvG/4qnTOhS2jPD4quoq9Nk/uZ+z9HY8kgBX6Pn/wT6wyPrp8VpN1ySGz6XgubedapBaa9rbeZY/vqOPUiDpn++G68nmKsRYOSPJ8F0WvN15KJozmpGDGR/XU6eIWQTaNHjQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785441574; c=relaxed/simple;
-	bh=tpzejd0SPnpC8FgCH3J5WeGfBvoRb/qDQolqraS2sko=;
+	s=arc-20240116; t=1785441647; c=relaxed/simple;
+	bh=UOvLgXOOi45j8zP+aFGHYnXv4GW2hGuPgOjhWWo7JU8=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=oPULND+pKyQJejjwXO3U96pMjqLsZmFyP7VOkrzXF7uveQG3QRmiu5sdfOcL71onVGh2OKQUkuvOqUWDcfoq0MxQot9yvvD6Waa3AWAGWc4vWDCm1+Wf8V28cOYYKhfDBkeu4QInnomyx8hklN6dhQYHrNbirqckv2g0owOhV9A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Nfdm0utS; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=gLLOhIO0Wymfb8OnH9QIVKwbby1pyDSATPDe+cFCNvePEW0OcTjwv/OzOMEQsLdH0kCStkVpSC27Oj1okhKFuPm+ne9PS/8PgxeBJ/jgIjqMWIr1QQ6VZP8EVlmFgF7fU7orMnoHrozXQgMssH2jp1pVZEaxFRhImdXjhXmYUPI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=UxoM6kc0; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Nfdm0utS"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F5861F000E9;
-	Thu, 30 Jul 2026 19:59:28 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="UxoM6kc0"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4282B1F000E9;
+	Thu, 30 Jul 2026 20:00:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785441569;
-	bh=ma5Sy60TxgYX/x/NMieoAc85I5ieEw80K2T4n7zPQmA=;
+	s=k20260515; t=1785441641;
+	bh=Pka+rjf1pyY0+8KUe7zlVHBVyCfeueZooJFQfuEc+yI=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=Nfdm0utSUFGsKXR4y9XRW37fr4WQgRTRhAU3O/KOmkG3g/fOlBB+GpSDnM1uEhawG
-	 mufNj7yMDT4XCnrNHEC6C2fiU6lcl9mvYqaaCFz3oNCXYTmx2VAOJXNR3wsWKaUHO8
-	 f1qWrKuH78djHH1XOJIijxH8RdXPoScOt6dJMuGf+gLu4j0w+HFIc9LCu97D+frakO
-	 QDtkZBwN9BhF6f9aY/h6mzd0ywQaR4+OQp45x4wX98SW5TyFWJv+VNiPRATRxAVIxS
-	 9Ps2nFSAPGJbtSz3tBvZ9P8H04UYm0XAE0iXSkZy/cTYBVhRX86oAOKGqMH6bEynS3
-	 +j4/fhGiRuMzw==
+	b=UxoM6kc0ts/1fXYOsIcI2z60JX9Mwur2YWq9AT0ltXRxETTNnPywRS4JQpZkPTEpj
+	 ueLIVrB+d2iKu88cEwX64/vh1s/Xmav1GJ0uSLQMCttjZndZkKY+XLLoyhH9+g0/1l
+	 aSo2PH12acMXnX3oIEWKk/tfV9BUm5U9nIALlxG/hEhasbYCWF89DZVvHaxo+oQaMw
+	 DpX9TD4u8txPnM6csRkuTJludprZMIrjdJzwpY2ZxAJLbIcSPn28SVQkoscBQRGkt2
+	 0AACJ7knkjNybqKkZB+gbXt0pkXMO0ciW5KxYUzETKNld0Mt5SVJSdF7eZtZjhPPcg
+	 e9LrBj94dKm/Q==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 1/5] Input: zinitix - check all available fingers for
- every touch event
+Subject: Re: [PATCH v2 3/5] Input: zinitix - add support for modes 0 and 1
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Kaustabh Chakraborty" <kauschluss@disroot.org>
-Cc: robh@kernel.org, conor+dt@kernel.org, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, devicetree@vger.kernel.org
-In-Reply-To: <20260731-zinitix-modes-v2-1-ffe2ec9a9031@disroot.org>
+Cc: linux-input@vger.kernel.org, robh@kernel.org, conor+dt@kernel.org, devicetree@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20260731-zinitix-modes-v2-3-ffe2ec9a9031@disroot.org>
 References: <20260731-zinitix-modes-v2-0-ffe2ec9a9031@disroot.org>
- <20260731-zinitix-modes-v2-1-ffe2ec9a9031@disroot.org>
+ <20260731-zinitix-modes-v2-3-ffe2ec9a9031@disroot.org>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 30 Jul 2026 19:59:28 +0000
-Message-Id: <20260730195928.9F5861F000E9@smtp.kernel.org>
+Date: Thu, 30 Jul 2026 20:00:40 +0000
+Message-Id: <20260730200041.4282B1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
 s) to consider:
 
 New issues:
-- [High] Unconditionally iterating over all slots reverts a previous bugfix=
- and reintroduces phantom touches on BT404 controllers.
+- [High] The input device is registered and exposed to userspace before its=
+ private `read_point_status` function pointer is initialized, creating a ra=
+ce condition that leads to a NULL pointer dereference in the IRQ handler.
 
 Pre-existing issues:
-- [High] I2C message buffers are allocated on the stack, violating DMA API =
-rules.
-- [High] Input device is registered before all driver private data is fully=
- initialized, allowing a Use-After-Free if probe fails.
+- [High] The driver passes stack-allocated structs to the I2C subsystem for=
+ receiving data, which can cause memory corruption or kernel panics if the =
+I2C controller driver maps the buffers for DMA.
 --
 
---- Patch [1]: [PATCH v2 1/5] Input: zinitix - check all available fingers =
-for every touch event ---
-commit 035227fe3b93a4e9baec0dee6f309a653f790ded
+--- Patch [3]: [PATCH v2 3/5] Input: zinitix - add support for modes 0 and =
+1 ---
+commit 2caca9eabecb85f6226ee1af1cfdde1aeb2f1bc2
 Author: Kaustabh Chakraborty <kauschluss@disroot.org>
 
-Input: zinitix - check all available fingers for every touch event
+Input: zinitix - add support for modes 0 and 1
 
-This commit modifies the Zinitix touchscreen driver to unconditionally
-iterate over all possible fingers during a touch event, removing the
-use of the finger_mask field.
-
-Link: https://android.googlesource.com/kernel/bcm/+/23d376ef33aa4c500a5ea24=
-a290f029d5f8e2de3/drivers/input/touchscreen/zinitix_touch.c#1942 [1]
+Zinitix touchscreens have three modes, numbered 0 to 2. The driver
+implements mode 2, and leaves out modes 0 and 1. Implement modes 0 and 1
+in the driver, along with their event structs.
 
 > diff --git a/drivers/input/touchscreen/zinitix.c b/drivers/input/touchscr=
 een/zinitix.c
-> index 0c36765bd79f8..3421b8ffb19b2 100644
+> index a0a89d25e25bb..aafd0b7d8edbd 100644
 > --- a/drivers/input/touchscreen/zinitix.c
 > +++ b/drivers/input/touchscreen/zinitix.c
-> @@ -445,7 +445,6 @@ static irqreturn_t zinitix_ts_irq_handler(int irq, vo=
-id *bt541_handler)
->  	struct bt541_ts_data *bt541 =3D bt541_handler;
->  	struct i2c_client *client =3D bt541->client;
->  	struct touch_event touch_event;
-
-[Severity: High]
-This is a pre-existing issue, but does passing this stack-allocated variable
-to the I2C read functions violate DMA API rules?
-
-During a touch event, zinitix_ts_irq_handler() passes the stack-allocated
-touch_event down to zinitix_read_data(), which eventually reaches
-i2c_master_recv(). If the I2C master driver uses DMA, mapping this stack
-memory could lead to memory corruption or a kernel panic on architectures
-with VMAP_STACK and DMA API debugging enabled.
 
 [ ... ]
-> @@ -470,8 +469,7 @@ static irqreturn_t zinitix_ts_irq_handler(int irq, vo=
-id *bt541_handler)
->  		zinitix_report_keys(bt541, le16_to_cpu(icon_events));
+
+> @@ -440,6 +471,87 @@ static void zinitix_report_keys(struct bt541_ts_data=
+ *bt541, u16 icon_events)
+>  				 bt541->keycodes[i], icon_events & BIT(i));
+>  }
+> =20
+> +static int zinitix_read_point_status_mode0(struct bt541_ts_data *bt541,
+> +					   struct touch_event *event)
+> +{
+> +	struct touch_event_mode0 event_mode0;
+> +	int ret;
+> +	int i;
+> +
+> +	ret =3D zinitix_read_data(bt541->client, ZINITIX_POINT_STATUS_REG,
+> +				&event_mode0, sizeof(struct touch_event_mode0));
+
+[Severity: High]
+This is a pre-existing issue, but does passing this stack-allocated
+event_mode0 struct to the I2C subsystem cause memory corruption or kernel
+panics if the underlying I2C host controller driver maps it for DMA?
+
+The same pattern is also present in the new zinitix_read_point_status_mode1=
+()
+and zinitix_read_point_status_mode2() functions.
+
+[ ... ]
+
+> @@ -682,13 +793,19 @@ static int zinitix_ts_probe(struct i2c_client *clie=
+nt)
+>  		bt541->zinitix_mode =3D DEFAULT_TOUCH_POINT_MODE;
 >  	}
 > =20
-> -	finger_mask =3D touch_event.finger_mask;
-> -	for_each_set_bit(i, &finger_mask, MAX_SUPPORTED_FINGER_NUM) {
-> +	for (i =3D 0; i < MAX_SUPPORTED_FINGER_NUM; i++) {
->  		const struct point_coord *p =3D &touch_event.point_coord[i];
-> =20
->  		/* Only process contacts that are actually reported */
+> -	if (bt541->zinitix_mode !=3D 2) {
+> -		/*
+> -		 * If there are devices that don't support mode 2, support
+> -		 * for other modes (0, 1) will be needed.
+> -		 */
+> +	switch (bt541->zinitix_mode) {
+> +	case 0:
+> +		bt541->read_point_status =3D zinitix_read_point_status_mode0;
 
 [Severity: High]
-Could unconditionally iterating over all slots revert a previous bugfix for
-BT404 controllers?
+Can a fast userspace trigger a NULL pointer dereference here?
 
-When a touch occurs on a BT404 controller, the firmware incorrectly leaves
-SUB_BIT_EXIST set for shadow fingers. By dropping the finger_mask filter
-here, it looks like zinitix_report_finger() will be called for those
-shadow fingers, potentially causing multiple phantom inputs for every
-physical touch.
+Since zinitix_init_input_dev() is called earlier in zinitix_ts_probe(),
+the device is registered and exposed to userspace before
+bt541->read_point_status is initialized:
 
+zinitix_ts_probe()
+    zinitix_init_input_dev()
+        input_register_device()
+    ...
+    switch (bt541->zinitix_mode) {
+    case 0:
+        bt541->read_point_status =3D zinitix_read_point_status_mode0;
 
-[Severity: High]
-This is a pre-existing issue, but looking at zinitix_ts_probe(), is there a
-use-after-free window if probe fails?
+If userspace opens the device and an interrupt triggers before the switch
+statement, zinitix_ts_irq_handler() will dereference the uninitialized
+read_point_status pointer:
 
-The zinitix,mode property is parsed and validated after the input device is
-already registered by zinitix_init_input_dev():
+zinitix_ts_irq_handler()
+    bt541->read_point_status(bt541, &touch_event);
 
-zinitix_ts_probe() {
-        ...
-        error =3D zinitix_init_input_dev(bt541);
-        if (error) { ... }
+> +		break;
+> +	case 1:
+> +		bt541->read_point_status =3D zinitix_read_point_status_mode1;
+> +		break;
+> +	case 2:
+> +		bt541->read_point_status =3D zinitix_read_point_status_mode2;
+> +		break;
 
-        error =3D device_property_read_u32(&client->dev, "zinitix,mode",
-                                         &bt541->zinitix_mode);
-        if (error < 0) { ... }
-        ...
-}
-
-If parsing fails, probe returns an error and devres frees the bt541
-structure. If userspace opens the device during this window, the input_dev
-survives the probe failure. When userspace subsequently closes it, wouldn't
-zinitix_input_close() dereference the freed bt541 pointer?
+[ ... ]
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260731-zinitix-mo=
-des-v2-0-ffe2ec9a9031@disroot.org?part=3D1
+des-v2-0-ffe2ec9a9031@disroot.org?part=3D3

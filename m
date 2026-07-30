@@ -1,174 +1,216 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A23383C1F3A
-	for <linux-input@vger.kernel.org>; Thu, 30 Jul 2026 13:08:17 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6F9F937EFEC
+	for <linux-input@vger.kernel.org>; Thu, 30 Jul 2026 13:09:10 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785416898; cv=none; b=Zw0VG9vvbGDX02fFTf9CjxSzEofreSq2VDztTX3fZYIpqaZtsYmGrvzT0UGTioQ4qwAlhddm71+Q/V2THOogX/TNeRprx0ZAOxPZd0cpSoONd6Z4VnAMMAGgrpbHyeBJ0GZtsTm3eBMypUTMEe9PTJG9JjBIviDKw8D+ilcWFms=
+	t=1785416951; cv=none; b=OOc/TjOg84AzcKKbNcd/39G1h8Pnn2E7auIFcbsc277V7O6b2stMWDKs9kQHv35GG70u+JkXS5aoBnjfoqDDDD5ci5XbBLJZxykx15PQFo8DRPcu2D5ikKh3SC55KLaNQD1UGv3de1DEz+dsr7LaBUW3uNrqVh9ixDimVU8XBeQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785416898; c=relaxed/simple;
-	bh=/dTcwoQdqMLnCCTMcMj4lrQeEY7npB7+bzUCydrrCPk=;
+	s=arc-20240116; t=1785416951; c=relaxed/simple;
+	bh=2biCtU4I6hRn5v0ATd38ar6JajtoAPDhzgsMWxgHBqg=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=fATKxeHDIofFmud8AZ8kzGzGTA0rTTKoDiw2rUY8v0SwyjlSz5vRKpL939ivAk9EimqSS+k0iGy7Dl4lor3Ub7OXNQ50kJy6wHDHg83KoWjMcJ8uOT8K5q18ovfJ+qMJ460BpECburEj4wtZOBd73vHIaSRqxy8ACqC2I1TQYPQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=JR2PJoku; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=NZeyo5wcl96MFCF1I0tMuL0NY7e9J3w+SbCykLZOrtb8gA47vUKMrZ7B5REx98fRyuygdt95wl49EuWbJTWICkKmUHunwHDRYZH3VnYIknDd4/dsrsCR3K7ZTWvtYcWxq7MJxY9ICqnzftTDF1qwQKwxyYjsMPkI4wBOhDJRtQE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ie0OB47z; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="JR2PJoku"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F0781F000E9;
-	Thu, 30 Jul 2026 13:08:17 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ie0OB47z"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC42C1F000E9;
+	Thu, 30 Jul 2026 13:09:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785416897;
-	bh=zlffWPbB1WRltO4yiALthC7uxBd9A9CKmfmARWkHagw=;
+	s=k20260515; t=1785416950;
+	bh=8n+dilMPm6oacdBfQtNW1g1eeTMsdOxzn5uVREZ2DIM=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=JR2PJokuMNw92D4inf1Jzi+Eo1yDg1Ki0Dv3xRIXkvRVDdh8QUTUmfBf9FVRcbrSh
-	 MSzu6c1QznCboTPq5Qa3kvH32IY1aQX9Uu7hrATjNL502i7XaEFJJtyL9f1ZIe8CrR
-	 GVzR48hA+jsngCBxtkjsrUGPKhAnbthVrj04gGaWiUibRZwanhokCLlwRe1IoIHeYW
-	 H9M/RBQyrVUSsjAS0kogO9A6XE8SSCJXs099yTlBKqnt4XE87r1CN/y3KgRIZnZ91M
-	 2yG2HkxxblMhYiPvdL3GGust+b08wXeXk9w6+LTBYEJjlNU+4cjHGoqz08Zj0PM9kv
-	 u8ZgsEiHfuP0A==
+	b=ie0OB47zbeg/uZyVQHdPCtoT/e2OMiO9GlKEvrQ5MsiZwsqi60g/9bxIYwO3XWBRW
+	 opu/tw+nQAL/lJPlFj5Pzeyv9IVYkdhCtLnW3v7ebPpud48OBiJf7QR87+ah3gjruA
+	 4bAdrPcj8MPFPjaS186xu7i0EOCEimH5SMVqm08o7UWflSSdHTw5D2RNLjplLYqYHA
+	 fxi+war8awNs90RXh/4cUTTvi8trHSwyU0BkcB89rQSXQVdI3L65R4OB38TAAkQfoc
+	 wQsDiv2W5QEUTEmpW1BcPJa9cT4EX1FQr4LwcIGVtrwahXTc9ewQS+MB3+CjLAc13e
+	 2eoG34hw8n4GA==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 2/4] HID: intel-ish-hid: bound report_list iteration
- to message size
+Subject: Re: [PATCH v2 4/4] HID: intel-ish-hid: add full entry bounds check
+ to report_list parsing
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Shen Yongchao" <grayhat@foxmail.com>
 Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <tencent_9DD5BCA4258383AEA05715975CA7D16C0E07@qq.com>
-References: <tencent_9DD5BCA4258383AEA05715975CA7D16C0E07@qq.com>
+In-Reply-To: <tencent_7441292A34B9A7A3111C7679504B7407B808@qq.com>
+References: <tencent_7441292A34B9A7A3111C7679504B7407B808@qq.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 30 Jul 2026 13:08:16 +0000
-Message-Id: <20260730130817.4F0781F000E9@smtp.kernel.org>
+Date: Thu, 30 Jul 2026 13:09:09 +0000
+Message-Id: <20260730130909.AC42C1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+Thank you for your contribution! Sashiko AI review found 5 potential issue(=
 s) to consider:
 
 Pre-existing issues:
-- [Critical] Outer loop variables used for message parsing are clobbered in=
-side the inner sub-report processing loop, permanently desynchronizing the =
-outer ISHTP message parser.
-- [High] Processing duplicate initialization responses (e.g., HOSTIF_GET_HI=
-D_DESCRIPTOR) before `init_done` is set leads to a heap buffer overflow.
-- [High] In the HOSTIF_DM_ENUM_DEVICES case, the driver suffers from out-of=
--bounds reads because it improperly uses `data_len` instead of `payload_len=
-` for loop boundaries.
+- [High] Missing check against MAX_HID_DEVICES allows out-of-bounds array i=
+ndexing in client_data.
+- [High] Reusing previously allocated heap memory without size checks on re=
+dundant initialization responses causes heap buffer overflows.
+- [High] Flawed bounds checking in HOSTIF_DM_ENUM_DEVICES allows out-of-bou=
+nds reads across messages and beyond the receive buffer.
+- [High] Missing cancellation of workqueues during device removal leads to =
+Use-After-Free.
+- [Medium] Missing minimum payload length checks allow reading past the end=
+ of the packet buffer.
 --
 
---- Patch [2]: [PATCH v2 2/4] HID: intel-ish-hid: bound report_list iterati=
-on to message size ---
-commit d383335a5cf9c011bbef2b75bc812227c6cc17cc
+--- Patch [4]: [PATCH v2 4/4] HID: intel-ish-hid: add full entry bounds che=
+ck to report_list parsing ---
+commit ac6e6de794611e6aba0e28b1be2df9e2337fcb9e
 Author: Shen Yongchao <grayhat@foxmail.com>
 
-HID: intel-ish-hid: bound report_list iteration to message size
+HID: intel-ish-hid: add full entry bounds check to report_list parsing
 
-The commit introduces bounds checking in the ISH HID client's report parsing
-loop. It ensures the iteration does not proceed past the message buffer by
-calculating a list_end pointer and verifying the next report falls within t=
-he
-valid payload.
+This commit adds a bounds check to ensure the full entry (report header plus
+payload) fits within the message before processing it. It also updates the
+report list and list end pointers to use the current message payload instead
+of a stale variable.
 
 > diff --git a/drivers/hid/intel-ish-hid/ishtp-hid-client.c b/drivers/hid/i=
 ntel-ish-hid/ishtp-hid-client.c
-> index ba52e185ce051..6609130ce63e1 100644
+> index efe5c5326de3b..0ac7be0c4adf5 100644
 > --- a/drivers/hid/intel-ish-hid/ishtp-hid-client.c
 > +++ b/drivers/hid/intel-ish-hid/ishtp-hid-client.c
-> @@ -75,6 +75,7 @@ static void process_recv(struct ishtp_cl *hid_ishtp_cl,=
- void *recv_buf,
->  	struct report_list *reports_list;
->  	struct report *report;
->  	u8 *pos;
-> +	u8 *list_end;
->  	size_t report_len;
->  	struct ishtp_cl_data *client_data =3D ishtp_get_client_data(hid_ishtp_c=
-l);
->  	int curr_hid_dev =3D client_data->cur_hid_dev;
+> @@ -282,9 +282,9 @@ static void process_recv(struct ishtp_cl *hid_ishtp_c=
+l, void *recv_buf,
+> =20
+>  		case HOSTIF_PUBLISH_INPUT_REPORT_LIST:
+>  			report_type =3D HID_INPUT_REPORT;
+> -			reports_list =3D (struct report_list *)payload;
+> +			reports_list =3D (struct report_list *)recv_msg->payload;
+>  			pos =3D (u8 *)reports_list->reports;
+> -			list_end =3D (u8 *)payload + payload_len;
+> +			list_end =3D (u8 *)recv_msg->payload + payload_len;
+> =20
+>  			for (j =3D 0; j < reports_list->num_of_reports; j++) {
+
+[Severity: Medium]
+This isn't a bug introduced by this patch, but does this code read past the=
+ end=20
+of the packet buffer if the payload is truncated?
+
+If the firmware sends a zero-length or truncated payload for
+HOSTIF_PUBLISH_INPUT_REPORT_LIST, we access reports_list->num_of_reports
+without verifying payload_len is at least sizeof(struct report_list).
+
+I noticed a similar lack of minimum payload checks earlier in this function
+when accessing *payload:
+
+drivers/hid/intel-ish-hid/ishtp-hid-client.c:process_recv() {
+    ...
+    client_data->hid_dev_count =3D (unsigned int)*payload;
+    ...
+}
+
+Can these accesses read from adjacent out-of-bounds memory when the message
+sits exactly at the end of the receive buffer?
 
 [ ... ]
 
-> @@ -282,8 +283,12 @@ static void process_recv(struct ishtp_cl *hid_ishtp_=
-cl, void *recv_buf,
->  			report_type =3D HID_INPUT_REPORT;
->  			reports_list =3D (struct report_list *)payload;
->  			pos =3D (u8 *)reports_list->reports;
-> +			list_end =3D (u8 *)payload + payload_len;
-> =20
->  			for (j =3D 0; j < reports_list->num_of_reports; j++) {
-> +				if (pos + sizeof(struct report) > list_end)
-> +					break;
-> +
->  				report =3D (struct report *)pos;
->  				recv_msg =3D container_of(&report->msg,
->  							struct hostif_msg, hdr);
-
 [Severity: High]
-This is a pre-existing issue, but could we trigger a heap buffer overflow in
-HOSTIF_GET_HID_DESCRIPTOR?
+This is a pre-existing issue, but I noticed a potential out-of-bounds array
+access related to hid_dev_count when reviewing the rest of process_recv():
 
 drivers/hid/intel-ish-hid/ishtp-hid-client.c:process_recv() {
     ...
-		case HOSTIF_GET_HID_DESCRIPTOR:
-    ...
-			if (!client_data->hid_descr[curr_hid_dev])
-				client_data->hid_descr[curr_hid_dev] =3D
-				devm_kmalloc(cl_data_to_dev(client_data),
-					     payload_len, GFP_KERNEL);
-			if (client_data->hid_descr[curr_hid_dev]) {
-				memcpy(client_data->hid_descr[curr_hid_dev],
-				       payload, payload_len);
+    client_data->hid_dev_count =3D (unsigned int)*payload;
     ...
 }
 
-If the firmware sends two HOSTIF_GET_HID_DESCRIPTOR responses back-to-back
-before initialization finishes, the first response allocates the buffer wit=
-h its
-payload_len.
+and later in ishtp_enum_enum_devices():
 
-If the second response has a larger payload_len, it skips reallocation since
-the pointer is no longer NULL, but then executes the memcpy() with the new
-larger payload_len.
+drivers/hid/intel-ish-hid/ishtp-hid-client.c:ishtp_enum_enum_devices() {
+    ...
+    client_data->num_hid_devices =3D client_data->hid_dev_count;
+    ...
+}
 
-Can this overwrite the previously allocated buffer?
+Could a firmware response provide a hid_dev_count up to 255, which is then
+assigned to client_data->num_hid_devices without being bounded to
+MAX_HID_DEVICES?
 
-
-[Severity: High]
-This is also a pre-existing issue, but I noticed a potential out-of-bounds =
-read
-in the HOSTIF_DM_ENUM_DEVICES case:
+When this value is used as an index:
 
 drivers/hid/intel-ish-hid/ishtp-hid-client.c:process_recv() {
     ...
-		case HOSTIF_DM_ENUM_DEVICES:
-    ...
-			for (i =3D 0; i < client_data->hid_dev_count; ++i) {
-    ...
-				if (1 + sizeof(struct device_info) * i >=3D
-						data_len)
-					break;
-
-				dev_info =3D (struct device_info *)(payload + 1 +
-					sizeof(struct device_info) * i);
-				if (client_data->hid_devices)
-					memcpy(client_data->hid_devices + i,
-					       dev_info,
-					       sizeof(struct device_info));
-			}
+    if (!client_data->hid_descr[curr_hid_dev])
     ...
 }
 
-Does the check `1 + sizeof(struct device_info) * i >=3D data_len` use the w=
-rong
-boundary?
+Does this code allow out-of-bounds reads and writes to the hid_descr array?
 
-Since data_len is the total size of the receive buffer, but the payload is
-offset by cur_pos and the message header size, it seems this check could al=
-low
-reading past the end of the receive buffer if payload_len is small but
-hid_dev_count is large.
+[Severity: High]
+This isn't a bug introduced by this patch, but does this memory allocation
+pattern allow a heap buffer overflow if redundant initialization responses
+are received?
+
+drivers/hid/intel-ish-hid/ishtp-hid-client.c:process_recv() {
+    ...
+    if (!client_data->hid_descr[curr_hid_dev])
+        client_data->hid_descr[curr_hid_dev] =3D
+        devm_kmalloc(cl_data_to_dev(client_data),
+                     payload_len, GFP_KERNEL);
+
+    if (client_data->hid_descr[curr_hid_dev]) {
+        memcpy(client_data->hid_descr[curr_hid_dev],
+               payload, payload_len);
+    ...
+}
+
+If multiple HOSTIF_GET_HID_DESCRIPTOR responses arrive, the first one
+allocates the buffer based on the initial payload_len. On subsequent respon=
+ses,
+the allocation check fails and skips reallocation, but the memcpy uses the =
+new,
+potentially much larger payload_len.
+
+Can this corrupt adjacent heap memory?
+
+[Severity: High]
+This is a pre-existing issue, but the bounds check for device enumeration
+seems to compare against the total buffer size incorrectly:
+
+drivers/hid/intel-ish-hid/ishtp-hid-client.c:process_recv() {
+    ...
+    if (1 + sizeof(struct device_info) * i >=3D data_len)
+        break;
+    ...
+    memcpy(client_data->hid_devices + i,
+           dev_info,
+           sizeof(struct device_info));
+    ...
+}
+
+Since payload is an offset within the recv_buf (equal to
+recv_buf + cur_pos + sizeof(header)), does this check allow the actual
+accessed address to extend past the end of recv_buf by up to cur_pos +
+sizeof(header) bytes?
+
+Would this result in copying out-of-bounds heap memory into the newly
+allocated hid_devices array?
+
+[Severity: High]
+This isn't a bug introduced by this patch, but I have a question about the
+device removal lifecycle:
+
+drivers/hid/intel-ish-hid/ishtp-hid-client.c:hid_ishtp_cl_remove() {
+    ...
+}
+
+If hid_ishtp_cl_remove() returns without calling cancel_work_sync(), devres
+will free the client_data memory.
+
+If a background work item (like client_data->work or client_data->resume_wo=
+rk)
+is still pending or executing, will it dereference the freed client_data
+structure and cause a use-after-free regression?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260730115600.2181=
-72-1-grayhat@foxmail.com?part=3D2
+72-1-grayhat@foxmail.com?part=3D4

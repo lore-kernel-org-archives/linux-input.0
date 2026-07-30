@@ -1,71 +1,71 @@
-Received: from mail-wm1-f52.google.com (mail-wm1-f52.google.com [209.85.128.52])
+Received: from mail-wm1-f44.google.com (mail-wm1-f44.google.com [209.85.128.44])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 69EBF421EF8
-	for <linux-input@vger.kernel.org>; Thu, 30 Jul 2026 13:40:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 20C3F42D774
+	for <linux-input@vger.kernel.org>; Thu, 30 Jul 2026 13:40:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.44
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785418832; cv=none; b=QwCDNZ/m0ivus5L51YInbFkahwwGLRHr9fBvdI4aZanfxFLkUzyXtZOMBHMqL1rcWVzAtMxY8TXo8luRAud38wP0sqBFEFgFlYgFAkZ7j0XgBRdp2I2+33y4DTyUOxPHSox+NJ5rwkDeIoR5IlITj7fUh5eHhMfHvxFs6QcINLM=
+	t=1785418833; cv=none; b=BJfD+W1aThIhCOLPQW0pJnoz0pzlpv1+AO7sGeWo/8pR09C+ZBEIqVRmrb5ucnrzeTVL6KM/TGAM0Lkj7s1JIL0dxWGsY7JWOoRQz11z0xVTBEsvJK5guQOA7aVWB0h9f09+xKSKtSIUYux1sj9m4XBPUaZhaIlZphQrp9OefoY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785418832; c=relaxed/simple;
-	bh=U6QB4MnHdBIHYeizwxxukTDFw4uQE3ezii4oQvWyL/I=;
+	s=arc-20240116; t=1785418833; c=relaxed/simple;
+	bh=eEglfdU5NKeCVkGM1ZbDEcNdiQaf6a8VpYub4K+kR2A=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=iFDcaoTuAnK3taAIwJnBq5GemrcNnH3zvRi21kUBOH+iYy2FaWC786BzL7x+NMog2pYXMXG/5uzgkb2V47DL1oPOOA3kqSbu6mkbZZN72bryuYV4krMGRMRvqP2laBaX2nTvbeoJynQJPkDR77XRmLXSFLsdcRF6xBUR5E+pmHg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=UjVdyoC/; arc=none smtp.client-ip=209.85.128.52
+	 MIME-Version; b=BUxQpQKyyviziSoKf9z+tntXoq/AdqbfnZBdkJCyjwupojGCNq5b84nTcV1AzFba0bGy8V6Gilg0Ii6MfTszYqqTfx5G5jbRwK/cVm1+ovaBw1pp3v/hS/eV8E3wSmOWEh3lIb6Jz26S3HZCCZZLTbBN2gmjzgUj1o+t40QaiHc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ekEqOmFF; arc=none smtp.client-ip=209.85.128.44
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="UjVdyoC/"
-Received: by mail-wm1-f52.google.com with SMTP id 5b1f17b1804b1-49545ba3d4eso9637395e9.3
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ekEqOmFF"
+Received: by mail-wm1-f44.google.com with SMTP id 5b1f17b1804b1-4954df200ddso13042835e9.0
         for <linux-input@vger.kernel.org>; Thu, 30 Jul 2026 06:40:31 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20251104; t=1785418830; x=1786023630; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=K4/IxvVyXaXnWBb9xawSOoIIvBUnkDkziVXhjgbdIiU=;
-        b=UjVdyoC/zdcYYeV9c5QMwRxyR704HmRe/8A3KddTbJYzhOp7vho8WXePHE34V21xTL
-         hpU/kXO1flQRNMKhz+CeyxgaZ3yaQEWXAXLyEMUgvGW+T9Gz2h4FQUw8TPsNxMgP6/7s
-         Xtg6K1mU4Xx6WCeaf3x41RKfV7fIDF6L5KslTuCCl43/IYCAs4nI8M/2tYO09M0Sd98g
-         KEX2nObxex9vDfvVlDF1RpTVzBAOb/ADw8wr4R9WjDzLZS1PZe7m2tMNQ0Vy3h2DIk09
-         QPTamNyqTS41LlRsqFf2H1IeVFHQ4gaOl9N7LyGEujFn4nzjt9HpsIQEP3Nvygs9yqOB
-         +QVw==
+        bh=cXlmEM+opo6hR1/SsuBV9a6HOAEDgwAGIwmp3dr8Q0U=;
+        b=ekEqOmFFG9Jm9LjmaNyNRgKDN7xvC6UVFlioCFX0r8LJ5ZJF1oJ+LOVPkx0i2pZ4Rr
+         EwH0znGuAZ0Crwp9M3SQbXpXRDPtbP0Apdzk3NqeP3w7zsYxpsz+ITcbeA6OI+Ze6WC6
+         otzzVrbNKJ/JJ2Yl1CeJMOTa7UmDvlQPp4GNbixLvAkqwm67oCYiDYqpkR6Q3UGkoDBq
+         uP2zI0znhPr2N8NtWv5cWiTR8R1lBDG4KbOZL6qWaGTbD0/sM5bPN77GY1LrBndmxHrp
+         pcmeNTfZlE/DHEUf4XYEf+9KGI0xW0i2AfGFOGHTsfTYgF+TSB3dmhe2Bg00qNWu4NIY
+         TPbw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20251104; t=1785418830; x=1786023630;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=K4/IxvVyXaXnWBb9xawSOoIIvBUnkDkziVXhjgbdIiU=;
-        b=RHAVAyyo4AKkFteAXXEoimcMaIHkqHgG4h1eqj32a7MGDJ39oOYjMLT27FWeerXs1j
-         TYtB1qeTtserHDFZ9xDcmpSq3oQYsHDC30LrGxULO/tDWoO/pP7RHRy7SM3P/8wNj8Zj
-         t4XHBGlvCjQoBLceBt7+Br991+U6sJJLYf6QXm2ME3WIW4t6zXZMJ5Rbk1mKNO+a0yTf
-         4PPs++bcZk4IoZStC+hL0gWVAInhCbO3/B7Qg/xnVXl8Cx7R8oDfOl+X/B1iGK6zmoUu
-         /lTctrW4MaXvvtT5p4TI+XIKwScyTWieD/J7nbUL09s5OuFcfQ8GSftrxFz9JoQ82wDM
-         Br1A==
-X-Gm-Message-State: AOJu0Yxswg707f4h3AZaBHAERUX5reaZcrR6PCdbrXwf7Tv7c13hY/+W
-	TfXXwTffajS+qRfDOoWEcH1RX5hqETMMsLdRIn/aqKhv4wF0BGBRyrll
-X-Gm-Gg: AR+sD12HN4PQHwAYoTvpoOyOi6u38pPgtUSd6SOb5oktRpkVAyYCILIyBOEorP/P5iM
-	MxNUvFHDUUW+L3C5WSFGrPVszNy8a+SUNL1ApJUMNrRGiZEZBMEVYm+R2pdYWbziFQmVUA/b81Z
-	LWTblZx4108PgoqyaMpaVO73zJi/A/MW52MRKwRszELTRmO4UX+hnZdcL0MsMqVQDhXjutPdvWE
-	yyGDE6UaVg5TxOUAFr9OiCFponPU78i+qWWNjC8ZSaYLOSYEpjJpKxuBSAych3OweqQYuUbKv1w
-	MjOBVru7fBr/5CeIIDq7AnjoHfgHX8klDgygOgGi9b8XGB5xGJDNV7CBHnB1ejNnZdYpQQiojGY
-	lRfENGKWPu0u2SbDgjpNYkEHULsIX9HZSyCuIqyzknAjmws98JgwZp2ifDdK+/gpPxtZS93SY3H
-	R68/mvYiMt05b0jN5TKRO/pQkxkzBfREiisAsxj1SXNr+6+Y46j9vWqRf3txJYKdwJDBdvE9c/D
-	zXJ4/lMFTy8Y5iMgn3r
-X-Received: by 2002:a05:600c:4ecd:b0:493:c10c:22f0 with SMTP id 5b1f17b1804b1-49804c531c5mr6353345e9.20.1785418829509;
-        Thu, 30 Jul 2026 06:40:29 -0700 (PDT)
+        bh=cXlmEM+opo6hR1/SsuBV9a6HOAEDgwAGIwmp3dr8Q0U=;
+        b=B1J8Lhl1vHtUg3ldc+WdJhiBmOIXHiNODJC1e62musZHAwPm6toYpK/oP0D08cz0Bz
+         2gj9fks8ZU4JVPZ9kfXrYbf6w5Yjcy/AaPaLfxGA8BjLroMBaCYxpEalBsPm6Evye3HQ
+         E0QTk98DdFBRQ6aVZwaVM1yom1fGG5JKMacrKaIWCpJTHjjHjz2d40e840lnDOYeEoAN
+         2B1rBHCkBm6PRtDbANpCe2v8GcTtl1GQV1PdrM00QaiZxS6VWmnWos5IKyHrsgqMCNoD
+         ML80j1EMbZL/o/1mTZICf+/vAuUqkyOiWU/RYApyxqwhSzj/m+9pLid+99svrjvqTSLJ
+         /PKw==
+X-Gm-Message-State: AOJu0Yw+jvbIBgYqzNzwW1Mh6WTTEYrfmvQEkPQL8t5JCYE8eGjRXYT0
+	R7Ky/2yKR4cCkvt9mRxIG5I4QZAiMvw+itis+/a0Z7BelXR3cogocrfCLLlRMWvm
+X-Gm-Gg: AR+sD13qOHiBVTNtBLen2W6bmlbzSo+55uGSKtzIWJKjfFdg5ezuhmxdjoOZm0+7BJi
+	Kj3ysP5oRKnftuhrOswPEh0b8XOpF7JE3obAWXnvG2ZmR8eQZlN+cNeWmLDD5AbxKzkF+e3jCWl
+	07FLjNWy4Z1XPv9ItO4N3mjuKnW6v84OoybZ/6pmbItV4gVB5RULI8FzhpW7yKoy5Ra85/EJWHq
+	7ObLfmErpsKVnHXFxPY6x1cjSl8QtEI80l02iTMzziVX6M+LrOAKQvaIUmP61U5V76CJlhDYaCB
+	XmsTC3rMvXD0/fzY8qmzzgfdOgwNYQ7oELqDaHSVinYi8ckw5nSCh85Zo60cZA9105ZZaYDs8o2
+	eZijSyUhM3MRR9o1ObYF1/kiLlTc1X+UmBoBPO1E55Nj3iYjfRi5Kfh8qM1LkGJTk/8d1767usH
+	UXKO/pdVk+L3HRzh94zauImKXcn1+X/MpnCDOuorOLCgkk1kv6nYZW+Xuj2hQOZQTxpkVMYIVt/
+	xCVethiF3bm3r1vkMiIjl+4jmcWYtY=
+X-Received: by 2002:a05:600c:45d5:b0:497:ffd4:ee3e with SMTP id 5b1f17b1804b1-49800ea001bmr37209415e9.20.1785418830423;
+        Thu, 30 Jul 2026 06:40:30 -0700 (PDT)
 Received: from mortifia-tour.localdomain ([2a01:cb11:e0e:6900:846:ff2d:816e:3783])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-498012168e7sm66405305e9.15.2026.07.30.06.40.28
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-498012168e7sm66405305e9.15.2026.07.30.06.40.29
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 30 Jul 2026 06:40:28 -0700 (PDT)
+        Thu, 30 Jul 2026 06:40:29 -0700 (PDT)
 From: Guillaume Casal <guillaume.casal.42@gmail.com>
 To: dmitry.torokhov@gmail.com
 Cc: linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	dbdaniel42@gmail.com
-Subject: [PATCH v2 2/4] input: ff-memless: Handle FF_TRIGGER_RUMBLE
-Date: Thu, 30 Jul 2026 15:40:02 +0200
-Message-ID: <20260730134004.1118476-3-guillaume.casal.42@gmail.com>
+Subject: [PATCH v2 3/4] HID: debug: Add FF_TRIGGER_RUMBLE name
+Date: Thu, 30 Jul 2026 15:40:03 +0200
+Message-ID: <20260730134004.1118476-4-guillaume.casal.42@gmail.com>
 X-Mailer: git-send-email 2.55.0
 In-Reply-To: <20260730134004.1118476-1-guillaume.casal.42@gmail.com>
 References: <20260730095317.767418-1-guillaume.casal.42@gmail.com>
@@ -78,33 +78,19 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Combine trigger rumble effects the way the other types are combined, so
-that drivers using input_ff_create_memless() receive them.
-
-Because ml_get_combo_effect() groups playing effects by type, a trigger
-rumble effect forms its own combo and reaches the driver in its own
-play_effect() call, leaving FF_RUMBLE untouched. An effect that has
-finished still contributes its type to the combo with zero magnitudes,
-so the existing stop path works unchanged.
+Without an entry in the force[] array, hid_resolv_event() prints the raw
+hex code instead of the name in debugfs.
 
 Signed-off-by: Guillaume Casal <guillaume.casal.42@gmail.com>
 ---
-diff --git a/drivers/input/ff-memless.c b/drivers/input/ff-memless.c
---- a/drivers/input/ff-memless.c
-+++ b/drivers/input/ff-memless.c
-@@ -289,6 +289,15 @@
- 			min(weak + effect->u.rumble.weak_magnitude, 0xffffU);
- 		break;
+diff --git a/drivers/hid/hid-debug.c b/drivers/hid/hid-debug.c
+--- a/drivers/hid/hid-debug.c
++++ b/drivers/hid/hid-debug.c
+@@ -3583,6 +3583,7 @@
+ };
  
-+	case FF_TRIGGER_RUMBLE:
-+		effect->u.trigger_rumble.left_magnitude =
-+			min((u32)new->u.trigger_rumble.left_magnitude * gain / 0xffff +
-+			    effect->u.trigger_rumble.left_magnitude, 0xffffU);
-+		effect->u.trigger_rumble.right_magnitude =
-+			min((u32)new->u.trigger_rumble.right_magnitude * gain / 0xffff +
-+			    effect->u.trigger_rumble.right_magnitude, 0xffffU);
-+		break;
-+
- 	case FF_PERIODIC:
- 		i = apply_envelope(state, abs(new->u.periodic.magnitude),
- 				   &new->u.periodic.envelope);
+ static const char *force[FF_CNT] = {
++	[FF_TRIGGER_RUMBLE] = "FF_TRIGGER_RUMBLE",
+ 	[FF_RUMBLE] = "FF_RUMBLE",
+ 	[FF_PERIODIC] = "FF_PERIODIC",
+ 	[FF_CONSTANT] = "FF_CONSTANT",

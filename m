@@ -1,49 +1,50 @@
-Received: from out203-205-221-239.mail.qq.com (out203-205-221-239.mail.qq.com [203.205.221.239])
+Received: from out203-205-221-153.mail.qq.com (out203-205-221-153.mail.qq.com [203.205.221.153])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D0F1E3C7E0E;
-	Thu, 30 Jul 2026 12:53:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=203.205.221.239
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BBFFA392C4F;
+	Thu, 30 Jul 2026 12:53:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=203.205.221.153
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785415984; cv=none; b=kyv7FvLX4pErRkzfH7B6MvMgek2GvW1ED7//E2nvueyfya2jwey+0VW6SGgYzUewBNt0pNZZ/n4waNS1YwyM4xkbaj3cSKOXJMwmHJIMgJrz9fJBnp9QOcT4I8NsBVpJLuqJoLvT0B67JaLD6/zv3z7/IuxE/0urzg3QVCrNvRw=
+	t=1785415985; cv=none; b=HG8gUb37O++T2AROCTkqXK2KfYUxZfKaxVhzHE5oR0C1sDLO5hAP4vrhyFxwc3yHHLOP4ZXyLezPb04rLoiPfatBdJkMhW+PsBRhQaO7+zAfSykGqqqljBtG7dW/TcXfl5k73mVYNty9z77SaM0CAAuUPKOznHy78MhyuTje/38=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785415984; c=relaxed/simple;
-	bh=JcZTdBLPONSMN3g7pLniTsMh5cTd74d3w4mpm5xfLoY=;
+	s=arc-20240116; t=1785415985; c=relaxed/simple;
+	bh=0pVKDw7VTT5NTOCXE8Eb2zYY/zVZZZLssctGknNwaUs=;
 	h=Message-ID:From:To:Cc:Subject:Date:In-Reply-To:References:
-	 MIME-Version; b=sYyovcpaxjoVV+hFfAhJJCyUv+B9Vi1QaK5eMS2vxPB3ZK3hoCCHDYW5YISSj60RqZzuwpdMnGM8AyNo1bO4jK8uYKUWFKk6cPII/1IMXgr6IHk/XYM9rBv3e5V56D6MtOua5TCJ7yDUYNkYEW5adLxcv7//HNnkuSCZEmIveYQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=foxmail.com; spf=pass smtp.mailfrom=foxmail.com; dkim=pass (1024-bit key) header.d=foxmail.com header.i=@foxmail.com header.b=GFUuIy7L; arc=none smtp.client-ip=203.205.221.239
+	 MIME-Version; b=bsKO6fg6rmhpZO+pRvKRil4tCMvxIm7g+9oqV4LNfHyxf9DsW/xFyxKbuT7/pswfSDx1ZHcjt1BT3jL8loxOKwpCG9UqFIAaVe3Elg8U4BiVPqhCO0+K7wl+QOXIaiLcK6nC54hVpRBBaHXDRBPr9tbD1TNLc6lpVn/Q17Bvamc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=foxmail.com; spf=pass smtp.mailfrom=foxmail.com; dkim=pass (1024-bit key) header.d=foxmail.com header.i=@foxmail.com header.b=NW9oI5lx; arc=none smtp.client-ip=203.205.221.153
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=foxmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=foxmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=foxmail.com header.i=@foxmail.com header.b="GFUuIy7L"
+	dkim=pass (1024-bit key) header.d=foxmail.com header.i=@foxmail.com header.b="NW9oI5lx"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=foxmail.com;
-	s=s201512; t=1785415974;
-	bh=p80+pukJdgAJAb7CITttv6/I59vuCl8XwyOmwQtbp3w=;
+	s=s201512; t=1785415975;
+	bh=rohzAr17Hgx/FIVw3ixFYlsqi7P7a5Z48TtmBNIVHdg=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=GFUuIy7L8e2nVOJEJAuFOygXC8VOv/P8fKn6gz6PReyZLNoyUWkihgHZPrwGaPJbj
-	 nvsj47W3oXi3eE/loUUG8FF7hMcwQaqot5lRoECLjhdpFS5WlLdMbpCH9mtWLj4pkg
-	 WYIb53i3SmR5XBDxtRfloPaUKaT840w8DzZKLI1g=
+	b=NW9oI5lxSLadNRLeM00KO9bJZJ6gOYFdbi7cjQ7gh3MFy52HeyKLig0ZdL6bVPpuj
+	 NswqdxURtyOOjofPwgnAnd+bs+U5GOPDdQHxbKsD2GpNJTGfgNZh3/uYKWIraNlc2X
+	 XdU05F81psknTuuDJ5PEjEsUJP8KCRxNx4/TvKeQ=
 Received: from VM-0-7-ubuntu.. ([101.35.250.50])
-	by newxmesmtplogicsvrszc50-0.qq.com (NewEsmtp) with SMTP
-	id D339D47F; Thu, 30 Jul 2026 20:52:51 +0800
-X-QQ-mid: xmsmtpt1785415971tkhq510jf
-Message-ID: <tencent_9DD5BCA4258383AEA05715975CA7D16C0E07@qq.com>
-X-QQ-XMAILINFO: M1rD3f8svNznK2zMH5TR8J037JBuJhMmPdpMvgNtqPdv741/9oPfjddnveZ/S+
-	 lvI2Vh9J471tiQpYpgGFsBmYC4+SrQq1Xm6PimBppnf13aE1JbrjLHp/thtcpayzY7PWqvgPcnb9
-	 UZfgC/P8QDfYUmx+bLrHH2plbsjlUoeCXYF5bS+9ANByiwwxpwWM1+be5zYufc2ZYER/MUOchDJB
-	 x2q676bB/zBGae8vDylt5mpumadPFVnpRhsbE+txXKiDEYSxW+n7wrY3XsgA+qQcOnC/FDEM4A/s
-	 KD+Clsiqxhy4pBbIkW3V9beRJbkrB9nO19qOjAbmj9wCpYJNulWd0ZpKdJgq6mgRSUbkQpoNp7Oh
-	 ICaPu3JKJCsh4+nXKq8Kc49iCU66+SgbP1hq3GAMffN2hbudbpPISzYCyFU8KJDzfgSsNScu6gSf
-	 Vb+pZyE1og0KT8MfrJteWmBnHC8+JxNjkTDqIWBKdg2mqwaodzvKW8LTPibe78yoH5UwEtFE5xYn
-	 Dnp64w3Pdj120nFV9UvBItFMIHbxJ3Xtf8ReB32rmZaiitGYbFZ0RcwJjAbWFFrWKi6YA2iz5aCO
-	 0cgJBjdJex1I8T77u68cOYsozrv70y+T2f7d/60fO8AYAajzrKNCkTjwjQRPQvFto+iwJQ4pZsXS
-	 9Vob5nLBmkjVNNsiIgR0jeGxZVGuQdmUMmYRN7fQ2FWcCFBlwyq3PQWuHM6e3UJ70C7UU88ssbxD
-	 RZ7jIEfWYCi16HCmQb8HUeh1uWRfV1kG9haAEcsvUNRFfDvOJANXQgq1kfr23eV0l2oXhyMrA5Z9
-	 XXYmvyyhvPf9e9ZBzXOsJ9Y3MbQLTRtdZX5QfBg38s+alJntqjIcxuOzDsZoDWelmCJ3K87hqQLc
-	 n1HOrUzSGDTtVfaFmfIbimsYD5EQ0bOve50KdoQqAdugzBNeTZFjGwqgoXZwdd/OEhcIymOhdNXW
-	 efkQf8p2DtE3LyHWdmTel99HwnlPGf2e+CNFxM+ETZ7ly7KA8hqHvUXM5LftmmIOdyPW+/KGP84j
-	 +tTZ9Ex/K2YS+L/xrA151OWmht0syJaR+923sNFRdzqgQoviZsqX3cZbebITc=
-X-QQ-XMRINFO: NyFYKkN4Ny6FuXrnB5Ye7Aabb3ujjtK+gg==
+	by newxmesmtplogicsvrszc56-0.qq.com (NewEsmtp) with SMTP
+	id D35390A1; Thu, 30 Jul 2026 20:52:53 +0800
+X-QQ-mid: xmsmtpt1785415973tqy3df663
+Message-ID: <tencent_6D1C4A793D4B3D07F0415D2A86B91BA33508@qq.com>
+X-QQ-XMAILINFO: NnYhxYSyuBnL5jEYngCda9lz2KSSrAM08b1Mu74H2s9Fru5Aj4H52qWWa/sVIV
+	 nx0dWqfhq93jm6IZXLYxT5K+Pjxw/Ias2hm2mfvzUI+0ZXm88KhWdokjuQ1ANt8tr8Er9qpQ0Jdx
+	 wrFng5qdi+LbxyzcBfKT8r2JMEJNQHpdCkgpHDW6eHe9O4f754xnhvxetsP/LK9Q4aZZP1atT/Vi
+	 S9XFa459jp6SpXR4N6q8UTePm5rfxcydZEzL2/q/WqBW5/Axa5A9y+AHsSgYgIeSPQHI/yZpaE8y
+	 4Q8E3CLfJTdw7/M0GbtjuPBE0ZJYsyQjhm4sVsBuJwueDMdI7EB2FSl1aGoLYdPT0dDToeyhH11N
+	 MymruKzGE5RnC44y/GafW5Z46ZmIIOICZ7sFLKC+nyqDWGPGf7NSU1qkiV8aZ7EVqwYROno+XTCw
+	 vAADV5fUHHj4fDvF/fi1QSL5TOXxUvekw0qmFzlJvTOvKVPOHz7cOs2V71jdLp70uAZ/x9Ai/UNR
+	 caAH47Gv1XDXhoVZPji7tfhETqnVlFUg9doM03H7J865GXvKDXdYeYML/Uw7mR6KnmyokwE8+zbR
+	 MLrqbScYXQB4IsgoYsxjhsYfDevk6AhYB7pEYHw5+tgDH6+R7+7Z0dTJgMPtRB15rVEjlTOzCKOA
+	 7kPN4iMXktCGdiDt2dEPOuKl3j9XiPtoNRTT7bbht4VnjKm8uGJ19wdEdjIbZsCk13o7K7Cu1B6q
+	 p2HfzclfMfdBuP35h+uDYxxgXryBy66+Y2CbKnYGv6VTdGW7Xg7sYdqfnl4WdqcVKn022hltwjj9
+	 V6hJMME8qL7/kKON9OL63bQQ6TlBa0TPLPayHU278bZag7ZS5owtmZ8MMAMiJtfwuIcWPhYAxjZ/
+	 ojJdP1+siSj4Oey4frI+x4TIr11MwG0DXStGXB/qeFR+jgcfS9Gynl/BqJGe356TIXphxpQoj7eo
+	 uu3NiZoabF0dtBYXKAklTBsGIXgaOPZ15U023VUkVrLEKy0guqq2lR4n+nYJUn71zOwZ56kThwc3
+	 IyWhbWiPh6xSZGD5TzytiQBOXKKCGpBc+mwIWtM6HD8jKpwEERjZp19HRFjboCkhR45e+epdBiLU
+	 rSjqAw
+X-QQ-XMRINFO: MPJ6Tf5t3I/ylTmHUqvI8+Wpn+Gzalws3A==
 From: Shen Yongchao <grayhat@foxmail.com>
 To: linux-input@vger.kernel.org
 Cc: Shen Yongchao <grayhat@foxmail.com>,
@@ -52,9 +53,9 @@ Cc: Shen Yongchao <grayhat@foxmail.com>,
 	Jiri Kosina <jikos@kernel.org>,
 	Benjamin Tissoires <bentiss@kernel.org>,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH v2 2/4] HID: intel-ish-hid: bound report_list iteration to message size
-Date: Thu, 30 Jul 2026 20:52:51 +0800
-X-OQ-MSGID: <20260730125251.294274-1-grayhat@foxmail.com>
+Subject: [PATCH v2 3/4] HID: intel-ish-hid: prevent size_t underflow in report_list parsing
+Date: Thu, 30 Jul 2026 20:52:53 +0800
+X-OQ-MSGID: <20260730125253.294317-1-grayhat@foxmail.com>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20260730115600.218172-1-grayhat@foxmail.com>
 References: 
@@ -66,14 +67,14 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-num_of_reports is a u8 (up to 255) taken directly from the
-firmware message, never compared against the actual payload size.
-If the count exceeds the number of sub-reports the payload can
-hold, the loop iterates past the receive buffer.
+payload_len is computed as report_len - sizeof(struct
+hostif_msg_hdr) where report_len is a firmware-controlled u16
+stored in a size_t.  Values 0..5 underflow to ~SIZE_MAX, causing
+hid_input_report() to read far past the receive buffer.
 
-Compute list_end from the outer message payload and break out of
-the loop when the next struct report header would fall outside
-the message.
+Add an explicit check for report_len < sizeof(struct
+hostif_msg_hdr) and use a local inner_len variable instead of
+overwriting the outer loop's payload_len.
 
 
 Assisted-by: LLM
@@ -82,28 +83,43 @@ Fixes: 0b28cb4bcb17 ("HID: intel-ish-hid: ISH HID client driver")
 Cc: stable@vger.kernel.org
 ---
 diff --git a/drivers/hid/intel-ish-hid/ishtp-hid-client.c b/drivers/hid/intel-ish-hid/ishtp-hid-client.c
-index ba52e185c..6609130ce 100644
+index 6609130ce..efe5c5326 100644
 --- a/drivers/hid/intel-ish-hid/ishtp-hid-client.c
 +++ b/drivers/hid/intel-ish-hid/ishtp-hid-client.c
-@@ -75,6 +75,7 @@ static void process_recv(struct ishtp_cl *hid_ishtp_cl, void *recv_buf,
- 	struct report_list *reports_list;
- 	struct report *report;
+@@ -77,6 +77,7 @@ static void process_recv(struct ishtp_cl *hid_ishtp_cl, void *recv_buf,
  	u8 *pos;
-+	u8 *list_end;
+ 	u8 *list_end;
  	size_t report_len;
++	size_t inner_len;
  	struct ishtp_cl_data *client_data = ishtp_get_client_data(hid_ishtp_cl);
  	int curr_hid_dev = client_data->cur_hid_dev;
-@@ -282,8 +283,12 @@ static void process_recv(struct ishtp_cl *hid_ishtp_cl, void *recv_buf,
- 			report_type = HID_INPUT_REPORT;
- 			reports_list = (struct report_list *)payload;
- 			pos = (u8 *)reports_list->reports;
-+			list_end = (u8 *)payload + payload_len;
- 
- 			for (j = 0; j < reports_list->num_of_reports; j++) {
-+				if (pos + sizeof(struct report) > list_end)
-+					break;
-+
- 				report = (struct report *)pos;
+ 	struct ishtp_hid_data *hid_data = NULL;
+@@ -293,8 +294,11 @@ static void process_recv(struct ishtp_cl *hid_ishtp_cl, void *recv_buf,
  				recv_msg = container_of(&report->msg,
  							struct hostif_msg, hdr);
+ 				report_len = report->size;
+-				payload = recv_msg->payload;
+-				payload_len = report_len -
++				if (report_len < sizeof(struct hostif_msg_hdr))
++					break;
++
++
++				inner_len = report_len -
+ 					sizeof(struct hostif_msg_hdr);
+ 
+ 				for (i = 0; i < client_data->num_hid_devices;
+@@ -306,11 +310,11 @@ static void process_recv(struct ishtp_cl *hid_ishtp_cl, void *recv_buf,
+ 						client_data->hid_sensor_hubs[
+ 									i],
+ 						report_type,
+-						payload, payload_len,
++						recv_msg->payload, inner_len,
+ 						0);
+ 					}
+ 
+-				pos += sizeof(struct report) + payload_len;
++				pos += sizeof(struct report) + inner_len;
+ 			}
+ 			break;
+ 		default:
 

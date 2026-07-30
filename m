@@ -1,216 +1,132 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from out203-205-221-245.mail.qq.com (out203-205-221-245.mail.qq.com [203.205.221.245])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 84A487262E
-	for <linux-input@vger.kernel.org>; Thu, 30 Jul 2026 12:44:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 246CB3BC685;
+	Thu, 30 Jul 2026 12:52:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=203.205.221.245
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785415463; cv=none; b=R6ojAeQQTOfDDf/xsiDEKHKXesaprWif55Nsw8NE5Ls3ozX7NAXjn/0ImtioQLPwsPKMH6a3LYm+JfFWhMeeK5hIy+ef6XsitkCMeX8fJ0wZ7SttQZk57DzursBxIvGLmugnI+5Rp4WiCNh9J5/WfzSIDKqQSo0SmDstNJbnId4=
+	t=1785415979; cv=none; b=GzPfXjAATdBhxITIX5UMT2VN1kO2xcXcLUlUdjvyuiRz+EBzJDhmb4g5s+cUz4J7iiHY27/DiIx3pN9uuGjOaFMVfiaQfZiiqINqhC5NsFjbIpqrL/7huu6t4NutvzNpfV3qrIRyzeAsdH3iIC7jVqr8gDrDBM6uAjJGRigX09w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785415463; c=relaxed/simple;
-	bh=tiOaJ0dgfgXyR1K/MhyuAY42rExac6UvUiYH5rgfg5E=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=ZHnknOB5cphUfJeXofWfCQ8HfqRmyvMuYSCEji9qWRmDeYp44LQBVJPIhdoBkLuQfQohDaWP2TWlzIrrWwwCPKah21uZbPV9NFM4ca+Obs2J8XVIwey6CUMdyaRIT8Kbub90aRg1XOxPcvnZI5XBHjmZdmk5yPwNcUmaB4sSeJI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=XH8dJqKQ; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1785415979; c=relaxed/simple;
+	bh=iOdvuOKnU7e/S72T0bOW7u2+uE5A/B3RVfyw7sYIwgc=;
+	h=Message-ID:From:To:Cc:Subject:Date:In-Reply-To:References:
+	 MIME-Version; b=VMcAwytQnHPt1Tkn1jP4EmzeY2Fqi1vqDPmlhGsnZxDoGPXLmI3Zq93Zf5M00gNhiSZZQCfLHvY0voiBm1kEY4kpZ4jCiwSJvGxONurqG59NfmhPuDpEa29ZCBClFMlgkvk0XaEZ9zndXZzKnfLwJLzhbVYCSCba8llreaamRMM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=foxmail.com; spf=pass smtp.mailfrom=foxmail.com; dkim=pass (1024-bit key) header.d=foxmail.com header.i=@foxmail.com header.b=JQD9Y2XH; arc=none smtp.client-ip=203.205.221.245
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=foxmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=foxmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="XH8dJqKQ"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E57A81F000E9;
-	Thu, 30 Jul 2026 12:44:21 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785415462;
-	bh=cvNPx3EANrBkiuYmn4Sr8NCV7sOYbKuyCwWBM4+/LkE=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=XH8dJqKQ51w9wjK2THAivVvCCgGWtA/q7Xl4VaHNa6RQsaS1ADL7Vs6MZi4ORrmIj
-	 UhoLLVGRmxtDY0IZ19CK0kV8gWvxyWIr9dj1hJnX1NhNQpp19udc+26N4046iN1C5c
-	 G7q9LcM+LpSU9jfRc1KqpMn5533MgDMy2rNqgzA55XGQjV7HhijDA6mg8ORqhx3zTT
-	 LzwpDQL0AVju5K99Fct+3th4qtraK5qgylIB73PNxbRczICK1hgeNH3EZKX9E5BMul
-	 INP4McgqpGvhCf3pRKfP3YaMQEtnaGUiH90SHl8HtGzjWITEg90bVRaNr7gLmewGCR
-	 uj1GHOafHKr9A==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2] HID: intel-ish-hid: clamp HID device count to
- MAX_HID_DEVICES
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Shen Yongchao" <grayhat@foxmail.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <tencent_D20397201115F1DCF4D1798EA0BCC6A5B007@qq.com>
-References: <tencent_D20397201115F1DCF4D1798EA0BCC6A5B007@qq.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Thu, 30 Jul 2026 12:44:21 +0000
-Message-Id: <20260730124421.E57A81F000E9@smtp.kernel.org>
+	dkim=pass (1024-bit key) header.d=foxmail.com header.i=@foxmail.com header.b="JQD9Y2XH"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=foxmail.com;
+	s=s201512; t=1785415972;
+	bh=6uPCuLRuN+pM5uwajhdIBPkX31WQIO6QOTJhMaEsJ1I=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References;
+	b=JQD9Y2XHaYggNIcV+wyoy8mymc3GAkPETwIMp78whlQi3lkiPxakDhRNR20cRejiy
+	 gVGfv/OlnMxt6w14tuE+C7rsxW9JZJnpedru5QxGhkh9vs8eBe7wM8G9Id6cyR8X96
+	 FRp97sZu43YmqNXD+I9Qg90F+nwaDh1R7sTwFc6A=
+Received: from VM-0-7-ubuntu.. ([101.35.250.50])
+	by newxmesmtplogicsvrszb51-0.qq.com (NewEsmtp) with SMTP
+	id D322C298; Thu, 30 Jul 2026 20:52:50 +0800
+X-QQ-mid: xmsmtpt1785415970tqkm4y5sb
+Message-ID: <tencent_F203F6206515915C81D1210ECEBCBCA5D707@qq.com>
+X-QQ-XMAILINFO: MllZffuBkEb58WBoO07PjOiBD1kgsio3L7/aWBFXxrIu1DqjrhT4NDN82Qao4r
+	 5KjJzHAvMAixlOfJIE+/Rsq0KIH/+iwQyNZgl/hwJkbMp96KmxdcWvcB4HQX0altv8vgWILpwk/K
+	 8I8butu6rqWxtJucs90mWrJEmmONzmiZZc1e3rnfmhzW+auSiH1sVjxLLjoVF9uQ+MyomrOeNYxP
+	 Bjs7YqIB+D9p1M3PDruc5q9R7mnCtud+kxUL2j3/y+ieNyPljseknzXSp7+9GuDQq6AsunlUefJs
+	 UDmkYw0n2Z2gWgxjMXysGnHl2mvzq604lgNlhXJOzAxughP2zxGkutDIoJq3sckGuckqtXHrFwxy
+	 46Uor0/C5UNpIZTlmADeS6b2kvDC5zJibU3Y4HkV7hg6oLDdDW8eOv9UE9j0eP8nFpX1BCOmAfbw
+	 b+SHH9Flo5jdBSd7c0Imj+1uX84CluSQrRg8VZHtXFY6EDFo0wdClNj8bIgh0ihH1mGyrOahzR4G
+	 IqPZa47MU3ZVC4Cmk443iR7ZvmE5RbS1RLhISC3gerF0NuhsotMdTrXkrAkE44K3BzI+A4cvcPSQ
+	 XUN1f9PGX1VfMWraWaqanwfSQXD1OEd92OUEifC8ZytpvoSWXLGWW55CN1wzFnY79af2+m4v6mGs
+	 r/oaOWEPNlgBcxcSLUEcWmcKPOYMUEhhXSgMTw5IVyUX2KQDknTASjPfyUmOBjoluL2hCHZqu4iB
+	 OLTnOQ146aOOuczhYTF8u/5PnwcMNlyy3XA8QhMNFCE9sapT42GN57Nxa2vQG4+wdKuXE+xxb7xy
+	 5dP1g7P4JqNn42zkjb+NiMni6pA6mKV2Ju5fTr3dRuXUESL2yz0y7jEAGT8GPinWzS2S5Mlk/0il
+	 bK9jHbbUHB/t+B25oOK4jsJgexJqC0dttVjvnUTo2/b7CM4R7bZZKya9rGCz54/WiQ301oYYTpUl
+	 EZxDxCcgZsCwRn4YhWPZFLk8FpeKEz/AhBZIRnUBG/fGwIzsdaYvyriQgDpeYde4wZqLk6JCerFe
+	 e8ZvcOnTpByjxUQo3cu07NpyigL+bQXY6qYSK9MhtFODLHLzVOdW3bZ6BC8Mk=
+X-QQ-XMRINFO: Nq+8W0+stu50tPAe92KXseR0ZZmBTk3gLg==
+From: Shen Yongchao <grayhat@foxmail.com>
+To: linux-input@vger.kernel.org
+Cc: Shen Yongchao <grayhat@foxmail.com>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+	Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH v2 1/4] HID: intel-ish-hid: fix report_list iterator pointer arithmetic
+Date: Thu, 30 Jul 2026 20:52:49 +0800
+X-OQ-MSGID: <20260730125250.294211-1-grayhat@foxmail.com>
+X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20260730115600.218172-1-grayhat@foxmail.com>
+References: 
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 6 potential issue(=
-s) to consider:
+Since commit 63cafaf47a83 ("HID: ishtp-hid-client: replace
+fake-flex arrays with flex-array members", v6.13), the
+HOSTIF_PUBLISH_INPUT_REPORT_LIST handler iterates over sub-reports
+using a struct report * pointer:
 
-Pre-existing issues:
-- [High] Heap buffer overflow due to missing reallocation on repeated firmw=
-are enumeration.
-- [High] Pointer arithmetic bug and integer underflow in HOSTIF_PUBLISH_INP=
-UT_REPORT_LIST leads to massive out-of-bounds read.
-- [High] Missing unregistration of HID devices on probe error path leads to=
- Use-After-Free.
-- [High] Dangling ISHTP event callback on probe error leads to Use-After-Fr=
-ee.
-- [High] Missing cancellation of workqueues in the device remove path leads=
- to Use-After-Free.
-- [Medium] Out-of-bounds read in ENUM_DEVICES due to flawed bounds check.
---
+	report += sizeof(*report) + payload_len;
 
---- Patch [1]: [PATCH v2] HID: intel-ish-hid: clamp HID device count to MAX=
-_HID_DEVICES ---
-commit c49d3200c2984f75996b1adb9efa6e6cf870abe9
-Author: Shen Yongchao <grayhat@foxmail.com>
-Subject: HID: intel-ish-hid: clamp HID device count to MAX_HID_DEVICES
+Because report is a struct report * (not a char *), the compiler
+multiplies the advance by sizeof(struct report) = 8, making the
+actual stride (8 + payload_len) * 8 bytes instead of the intended
+8 + payload_len bytes.  On v6.13+ a legitimate aggregated list
+with num_of_reports >= 2 drives the second iteration far outside
+the message buffer.
 
-This patch addresses an out-of-bounds array write in the ISH HID client
-driver. It clamps the reported HID device count to MAX_HID_DEVICES during
-the HOSTIF_DM_ENUM_DEVICES response parsing, preventing firmware from
-overwriting fixed-size arrays within the client data structure.
-
-> diff --git a/drivers/hid/intel-ish-hid/ishtp-hid-client.c b/drivers/hid/i=
-ntel-ish-hid/ishtp-hid-client.c
-> index 6d64008f2ce05..6ea997932aeab 100644
-> --- a/drivers/hid/intel-ish-hid/ishtp-hid-client.c
-> +++ b/drivers/hid/intel-ish-hid/ishtp-hid-client.c
-> @@ -123,6 +123,8 @@ static void process_recv(struct ishtp_cl *hid_ishtp_c=
-l, void *recv_buf,
->  				break;
->  			}
->  			client_data->hid_dev_count =3D (unsigned int)*payload;
-> +			if (client_data->hid_dev_count > MAX_HID_DEVICES)
-> +				client_data->hid_dev_count =3D MAX_HID_DEVICES;
->  			if (!client_data->hid_devices)
->  				client_data->hid_devices =3D devm_kcalloc(
->  						cl_data_to_dev(client_data),
-
-[Severity: High]
-This is a pre-existing issue, but does this allocation logic leave us
-vulnerable if the firmware sends the HOSTIF_DM_ENUM_DEVICES packet multiple
-times?
-
-If a reset occurs or multiple packets are sent, and the new hid_dev_count is
-larger than the previous one, the check for (!client_data->hid_devices) will
-skip reallocation.
-
-The loop that follows will then copy the new, larger count of devices into
-the older, smaller buffer, which can corrupt adjacent heap memory.
+Replace the struct report * iterator with a byte-granular u8 *pos
+so the advance is computed in bytes.
 
 
-[Severity: Medium]
-This isn't a bug introduced by this patch, but is there a bounds checking
-flaw in the device enumeration loop?
+Assisted-by: LLM
+Signed-off-by: Shen Yongchao <grayhat@foxmail.com>
+Fixes: 63cafaf47a83 ("HID: ishtp-hid-client: replace fake-flex arrays with flex-array members")
+Cc: stable@vger.kernel.org
+---
+diff --git a/drivers/hid/intel-ish-hid/ishtp-hid-client.c b/drivers/hid/intel-ish-hid/ishtp-hid-client.c
+index 6d64008f2..ba52e185c 100644
+--- a/drivers/hid/intel-ish-hid/ishtp-hid-client.c
++++ b/drivers/hid/intel-ish-hid/ishtp-hid-client.c
+@@ -74,6 +74,7 @@ static void process_recv(struct ishtp_cl *hid_ishtp_cl, void *recv_buf,
+ 	int report_type;
+ 	struct report_list *reports_list;
+ 	struct report *report;
++	u8 *pos;
+ 	size_t report_len;
+ 	struct ishtp_cl_data *client_data = ishtp_get_client_data(hid_ishtp_cl);
+ 	int curr_hid_dev = client_data->cur_hid_dev;
+@@ -280,9 +281,10 @@ static void process_recv(struct ishtp_cl *hid_ishtp_cl, void *recv_buf,
+ 		case HOSTIF_PUBLISH_INPUT_REPORT_LIST:
+ 			report_type = HID_INPUT_REPORT;
+ 			reports_list = (struct report_list *)payload;
+-			report = reports_list->reports;
++			pos = (u8 *)reports_list->reports;
+ 
+ 			for (j = 0; j < reports_list->num_of_reports; j++) {
++				report = (struct report *)pos;
+ 				recv_msg = container_of(&report->msg,
+ 							struct hostif_msg, hdr);
+ 				report_len = report->size;
+@@ -303,7 +305,7 @@ static void process_recv(struct ishtp_cl *hid_ishtp_cl, void *recv_buf,
+ 						0);
+ 					}
+ 
+-				report += sizeof(*report) + payload_len;
++				pos += sizeof(struct report) + payload_len;
+ 			}
+ 			break;
+ 		default:
+@@ -956,4 +958,4 @@ MODULE_AUTHOR("Daniel Drubin <daniel.drubin@intel.com>");
+  */
+ MODULE_AUTHOR("Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>");
+ 
+-MODULE_LICENSE("GPL");
++MODULE_LICENSE("GPL");
+\ No newline at end of file
 
-drivers/hid/intel-ish-hid/ishtp-hid-client.c:process_recv() {
-...
-    for (i =3D 0; i < client_data->hid_dev_count; ++i) {
-        ...
-        if (1 + sizeof(struct device_info) * i >=3D data_len)
-            break;
-       =20
-        dev_info =3D (struct device_info *)(payload + 1 +
-                   sizeof(struct device_info) * i);
-...
-}
-
-The check uses data_len (the absolute total message length) but compares it
-to an offset relative to payload. Since payload is already offset by the
-header size (6 bytes), this check permits reading out of bounds.
-
-Also, it only verifies the start offset, missing the 9-byte size of the
-struct itself, which can allow uninitialized ring buffer memory to leak.
-
-
-[Severity: High]
-This is a pre-existing issue, but can this pointer arithmetic lead to a
-massive out-of-bounds read in the HOSTIF_PUBLISH_INPUT_REPORT_LIST handler?
-
-drivers/hid/intel-ish-hid/ishtp-hid-client.c:process_recv() {
-...
-    payload_len =3D report_len - sizeof(struct hostif_msg_hdr);
-    ...
-    report +=3D sizeof(*report) + payload_len;
-...
-}
-
-If report_len is less than 6, payload_len underflows to a very large intege=
-r.
-
-Furthermore, because report is a typed pointer to struct report (which is
-size 8), adding (sizeof(*report) + payload_len) multiplies that offset by 8.
-
-This advances the pointer far past the message boundary, causing subsequent
-iterations to read arbitrary memory and pass it to hid_input_report().
-
-
-[Severity: High]
-This isn't a bug introduced by this patch, but does the initialization path
-leak HID devices on probe failure?
-
-drivers/hid/intel-ish-hid/ishtp-hid-client.c:hid_ishtp_cl_init() {
-...
-    for (i =3D 0; i < client_data->num_hid_devices; ++i) {
-        ...
-        rv =3D ishtp_hid_probe(i, client_data);
-        if (rv) {
-            dev_err(...);
-            goto err_cl_disconnect;
-        }
-    }
-...
-}
-
-If ishtp_hid_probe() fails during the loop, it returns without unregistering
-the devices that succeeded in previous iterations.=20
-
-When the probe fails, devres frees the client_data, but the leaked active
-HID devices retain dangling pointers to this freed memory via their
-driver_data, leading to a use-after-free when accessed.
-
-
-[Severity: High]
-This is a pre-existing issue, but is the event callback left dangling on
-probe errors?
-
-drivers/hid/intel-ish-hid/ishtp-hid-client.c:hid_ishtp_cl_init() {
-...
-    ishtp_register_event_cb(client_data->cl_device, ish_cl_event_cb);
-...
-}
-
-The callback is registered here but is not unregistered in the
-err_cl_disconnect path or the hid_ishtp_cl_probe() error path.=20
-
-If operations like ishtp_enum_enum_devices() fail, probe aborts and
-client_data is freed. An incoming ISHTP message would then trigger the
-registered callback, dereferencing the freed client_data and causing a
-use-after-free.
-
-
-[Severity: High]
-This isn't a bug introduced by this patch, but are the workqueues properly
-canceled during device removal?
-
-drivers/hid/intel-ish-hid/ishtp-hid-client.c:hid_ishtp_cl_remove() {
-    struct ishtp_cl *hid_ishtp_cl =3D ishtp_get_drvdata(cl_device);
-    struct ishtp_cl_data *client_data =3D ishtp_get_client_data(hid_ishtp_c=
-l);
-    ...
-}
-
-The remove function tears down the driver instance but omits stopping the
-embedded work items (client_data->work and client_data->resume_work) via
-cancel_work_sync().=20
-
-Since client_data is devres-managed, it is freed shortly after remove()
-returns. If a reset or resume event occurs concurrently, the uncanceled wor=
-ks
-will execute using freed memory, resulting in a use-after-free.
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/tencent_D2039720111=
-5F1DCF4D1798EA0BCC6A5B007@qq.com?part=3D1

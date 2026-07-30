@@ -1,50 +1,49 @@
-Received: from out162-62-58-216.mail.qq.com (out162-62-58-216.mail.qq.com [162.62.58.216])
+Received: from out203-205-221-239.mail.qq.com (out203-205-221-239.mail.qq.com [203.205.221.239])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 12B893C4154;
-	Thu, 30 Jul 2026 12:53:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=162.62.58.216
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D0F1E3C7E0E;
+	Thu, 30 Jul 2026 12:53:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=203.205.221.239
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785415984; cv=none; b=nzJpR6LLQfvXI8A/9NrxXskHxWXxjCUpre7TXuRzETjpxtJLu5LUyLPj4AL7k0k3JCQAThfB21YnD+hmWBewTuR2fxwUL57+82Hw1OpRgJ2igA3AjvB8q1i94eKav0z9iTiXllF/eCSerwZjLR+BrtYnqpYTsZLe/Nkoi0GSExM=
+	t=1785415984; cv=none; b=kyv7FvLX4pErRkzfH7B6MvMgek2GvW1ED7//E2nvueyfya2jwey+0VW6SGgYzUewBNt0pNZZ/n4waNS1YwyM4xkbaj3cSKOXJMwmHJIMgJrz9fJBnp9QOcT4I8NsBVpJLuqJoLvT0B67JaLD6/zv3z7/IuxE/0urzg3QVCrNvRw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1785415984; c=relaxed/simple;
-	bh=EC533UZ1iBNxkcH5ie25ne/ZA7sZCNbJSu78/xN9kVk=;
+	bh=JcZTdBLPONSMN3g7pLniTsMh5cTd74d3w4mpm5xfLoY=;
 	h=Message-ID:From:To:Cc:Subject:Date:In-Reply-To:References:
-	 MIME-Version; b=YTNhFqKWC3U5GF6bSkbD+Rt7R5NKJkpn5KSLzCUQstRNOzW5TS7dKNcfYYWWkS3dts2uGcrMlitRPhXXuQ0uGZmLxiF8jlvnWf48hy3eB1yPidoF7zqdQ5p6t0a0YicEa9nUhEh6drrh/QLRYJP9cR1c5YmaWBPvfub6MJNDebk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=foxmail.com; spf=pass smtp.mailfrom=foxmail.com; dkim=pass (1024-bit key) header.d=foxmail.com header.i=@foxmail.com header.b=q7oRQfNg; arc=none smtp.client-ip=162.62.58.216
+	 MIME-Version; b=sYyovcpaxjoVV+hFfAhJJCyUv+B9Vi1QaK5eMS2vxPB3ZK3hoCCHDYW5YISSj60RqZzuwpdMnGM8AyNo1bO4jK8uYKUWFKk6cPII/1IMXgr6IHk/XYM9rBv3e5V56D6MtOua5TCJ7yDUYNkYEW5adLxcv7//HNnkuSCZEmIveYQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=foxmail.com; spf=pass smtp.mailfrom=foxmail.com; dkim=pass (1024-bit key) header.d=foxmail.com header.i=@foxmail.com header.b=GFUuIy7L; arc=none smtp.client-ip=203.205.221.239
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=foxmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=foxmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=foxmail.com header.i=@foxmail.com header.b="q7oRQfNg"
+	dkim=pass (1024-bit key) header.d=foxmail.com header.i=@foxmail.com header.b="GFUuIy7L"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=foxmail.com;
-	s=s201512; t=1785415977;
-	bh=mUxWo3nitaj42/uWK8MMjzpXXCu5OCZ+NC2Ngw5/XZc=;
+	s=s201512; t=1785415974;
+	bh=p80+pukJdgAJAb7CITttv6/I59vuCl8XwyOmwQtbp3w=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=q7oRQfNg7ELepPT+BUQXevM8qD0xpjIf0edEKhHYHVNT9D2OK4Vb15xVwZ37oqtuy
-	 LCO560yjFTpRTfQfzrKekHRd17O3ShGa+pqXs/L6gKK2O8dC4VUM4J09B2qX3L0PBe
-	 PUBPCbTAqPE6Ppacc3wLjT0xWm91suJoTstGZTew=
+	b=GFUuIy7L8e2nVOJEJAuFOygXC8VOv/P8fKn6gz6PReyZLNoyUWkihgHZPrwGaPJbj
+	 nvsj47W3oXi3eE/loUUG8FF7hMcwQaqot5lRoECLjhdpFS5WlLdMbpCH9mtWLj4pkg
+	 WYIb53i3SmR5XBDxtRfloPaUKaT840w8DzZKLI1g=
 Received: from VM-0-7-ubuntu.. ([101.35.250.50])
 	by newxmesmtplogicsvrszc50-0.qq.com (NewEsmtp) with SMTP
-	id D37066DE; Thu, 30 Jul 2026 20:52:55 +0800
-X-QQ-mid: xmsmtpt1785415975tncrhuw4e
-Message-ID: <tencent_7441292A34B9A7A3111C7679504B7407B808@qq.com>
-X-QQ-XMAILINFO: MZu/+/yIvVI0Rfk77xAZLnAokwThnPN5aU39H+3nbG88wzP2STOA7Y0tdM42wZ
-	 Pc2XAttFUwk2d+6WQUSsE7/2l/1GUfeD7AgKvixO/NLZDvQJntFaxUuPth/4NnmM3Uqh+Rb2hmLX
-	 SdHnjkaYC5wAYfleJ7RJaHlpegD7nes1S/PEq6wzbNS827O8GuZXL9mQK+zP1+xjcHMzO5JHdFWD
-	 harRqlLWQ7NsxqcRmtbYo0gZKu0tKyQlp+5b3MgTsvLIhPoF/+ELEllsAwH3LylM77sWXH8vlJRj
-	 2Pka9VTDHDifaRVS61suKXpWe7Kyss+l0HmIon5acBismdvOrdpeWZnj/iHBZWk++pgim8hv5KDk
-	 6sKNjKahYgzOXBdMjzKtI4PeqqRTjYR5qe9dXOwQCWA/kiCoCg00iFooWB0GppdD7QkyqUUTY0yO
-	 VqSigxE41is1/3bVlbe98sLT24mOjr+MuuHYaJyAqkQEjyWnL3TlQEOwUclgt2P1/0fsSgY2G7Sj
-	 xhF49jkRViTi3E6lV2TTCdzwGHbRsLicBEr17FnsDvEoesRZ5qnW937i4Z47aUvsMCN1tzdTQfrq
-	 UKR8D+UuUObT8lLyjzUQtczysQYVqlqlYAaG80A37uPJWhM8GfCVCzRKopQ3JiYD43Bt2p3ugNsG
-	 G0Vl1bbcsmFTuHvVLG6NHKghMpPLeWAzX1eXvit+OQEEGkEgkAyXBa7lrfmX+W6e1LgLfvyMsrwc
-	 DuGS5zCkDyatNQ6lZ+OQ3pyfHI8l0hvyq8paZ3o1YvXQ5C0M3YbgbotKZxdp7gOdKfyH7pvvVbni
-	 piqdwUBB5LFd6kJqlClqccwsNm1HsaV0tuoowVVQbx02xjJ1oE58NOzeSr5lWLaNXMlkFmhTwTaO
-	 Zz6/xJnvA8bpktpIQ+PTFLTyzcTUV3tokO0gPk3Ct+7b+5QIx35SlQx1xSLYGS9l6PZTJdsJ9K8F
-	 OBOkXhaXTXMREMOuTYkRdYKjRxApYnIuuSXgzpLDSgGHuvXg17EfaCNntcNnu0gHptD2TJjwNXMU
-	 Vq6hxWvT796hvTLQdpjDzIKugrg9MCmoHLiiikOk0pTId9qrV6SOZrg7s/2LoygzV1i9tgE1+y7i
-	 P2jfEfmdwCoAYapyE327rMAhqpLA==
-X-QQ-XMRINFO: MPJ6Tf5t3I/ylTmHUqvI8+Wpn+Gzalws3A==
+	id D339D47F; Thu, 30 Jul 2026 20:52:51 +0800
+X-QQ-mid: xmsmtpt1785415971tkhq510jf
+Message-ID: <tencent_9DD5BCA4258383AEA05715975CA7D16C0E07@qq.com>
+X-QQ-XMAILINFO: M1rD3f8svNznK2zMH5TR8J037JBuJhMmPdpMvgNtqPdv741/9oPfjddnveZ/S+
+	 lvI2Vh9J471tiQpYpgGFsBmYC4+SrQq1Xm6PimBppnf13aE1JbrjLHp/thtcpayzY7PWqvgPcnb9
+	 UZfgC/P8QDfYUmx+bLrHH2plbsjlUoeCXYF5bS+9ANByiwwxpwWM1+be5zYufc2ZYER/MUOchDJB
+	 x2q676bB/zBGae8vDylt5mpumadPFVnpRhsbE+txXKiDEYSxW+n7wrY3XsgA+qQcOnC/FDEM4A/s
+	 KD+Clsiqxhy4pBbIkW3V9beRJbkrB9nO19qOjAbmj9wCpYJNulWd0ZpKdJgq6mgRSUbkQpoNp7Oh
+	 ICaPu3JKJCsh4+nXKq8Kc49iCU66+SgbP1hq3GAMffN2hbudbpPISzYCyFU8KJDzfgSsNScu6gSf
+	 Vb+pZyE1og0KT8MfrJteWmBnHC8+JxNjkTDqIWBKdg2mqwaodzvKW8LTPibe78yoH5UwEtFE5xYn
+	 Dnp64w3Pdj120nFV9UvBItFMIHbxJ3Xtf8ReB32rmZaiitGYbFZ0RcwJjAbWFFrWKi6YA2iz5aCO
+	 0cgJBjdJex1I8T77u68cOYsozrv70y+T2f7d/60fO8AYAajzrKNCkTjwjQRPQvFto+iwJQ4pZsXS
+	 9Vob5nLBmkjVNNsiIgR0jeGxZVGuQdmUMmYRN7fQ2FWcCFBlwyq3PQWuHM6e3UJ70C7UU88ssbxD
+	 RZ7jIEfWYCi16HCmQb8HUeh1uWRfV1kG9haAEcsvUNRFfDvOJANXQgq1kfr23eV0l2oXhyMrA5Z9
+	 XXYmvyyhvPf9e9ZBzXOsJ9Y3MbQLTRtdZX5QfBg38s+alJntqjIcxuOzDsZoDWelmCJ3K87hqQLc
+	 n1HOrUzSGDTtVfaFmfIbimsYD5EQ0bOve50KdoQqAdugzBNeTZFjGwqgoXZwdd/OEhcIymOhdNXW
+	 efkQf8p2DtE3LyHWdmTel99HwnlPGf2e+CNFxM+ETZ7ly7KA8hqHvUXM5LftmmIOdyPW+/KGP84j
+	 +tTZ9Ex/K2YS+L/xrA151OWmht0syJaR+923sNFRdzqgQoviZsqX3cZbebITc=
+X-QQ-XMRINFO: NyFYKkN4Ny6FuXrnB5Ye7Aabb3ujjtK+gg==
 From: Shen Yongchao <grayhat@foxmail.com>
 To: linux-input@vger.kernel.org
 Cc: Shen Yongchao <grayhat@foxmail.com>,
@@ -53,9 +52,9 @@ Cc: Shen Yongchao <grayhat@foxmail.com>,
 	Jiri Kosina <jikos@kernel.org>,
 	Benjamin Tissoires <bentiss@kernel.org>,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH v2 4/4] HID: intel-ish-hid: add full entry bounds check to report_list parsing
-Date: Thu, 30 Jul 2026 20:52:54 +0800
-X-OQ-MSGID: <20260730125254.294381-1-grayhat@foxmail.com>
+Subject: [PATCH v2 2/4] HID: intel-ish-hid: bound report_list iteration to message size
+Date: Thu, 30 Jul 2026 20:52:51 +0800
+X-OQ-MSGID: <20260730125251.294274-1-grayhat@foxmail.com>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20260730115600.218172-1-grayhat@foxmail.com>
 References: 
@@ -67,16 +66,14 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The report iterator is never checked against the receive buffer
-boundary after computing the sub-report length, so a crafted
-report_len can advance the iterator past the message and
-subsequent iterations read from arbitrary out-of-bounds memory.
+num_of_reports is a u8 (up to 255) taken directly from the
+firmware message, never compared against the actual payload size.
+If the count exceeds the number of sub-reports the payload can
+hold, the loop iterates past the receive buffer.
 
-Add a check that the full entry (struct report header plus
-payload) fits within the message before processing it.  Also
-switch the reports_list and list_end sources from the stale
-outer-loop payload variable to recv_msg->payload, which always
-points to the current message.
+Compute list_end from the outer message payload and break out of
+the loop when the next struct report header would fall outside
+the message.
 
 
 Assisted-by: LLM
@@ -85,30 +82,28 @@ Fixes: 0b28cb4bcb17 ("HID: intel-ish-hid: ISH HID client driver")
 Cc: stable@vger.kernel.org
 ---
 diff --git a/drivers/hid/intel-ish-hid/ishtp-hid-client.c b/drivers/hid/intel-ish-hid/ishtp-hid-client.c
-index efe5c5326..0ac7be0c4 100644
+index ba52e185c..6609130ce 100644
 --- a/drivers/hid/intel-ish-hid/ishtp-hid-client.c
 +++ b/drivers/hid/intel-ish-hid/ishtp-hid-client.c
-@@ -282,9 +282,9 @@ static void process_recv(struct ishtp_cl *hid_ishtp_cl, void *recv_buf,
- 
- 		case HOSTIF_PUBLISH_INPUT_REPORT_LIST:
+@@ -75,6 +75,7 @@ static void process_recv(struct ishtp_cl *hid_ishtp_cl, void *recv_buf,
+ 	struct report_list *reports_list;
+ 	struct report *report;
+ 	u8 *pos;
++	u8 *list_end;
+ 	size_t report_len;
+ 	struct ishtp_cl_data *client_data = ishtp_get_client_data(hid_ishtp_cl);
+ 	int curr_hid_dev = client_data->cur_hid_dev;
+@@ -282,8 +283,12 @@ static void process_recv(struct ishtp_cl *hid_ishtp_cl, void *recv_buf,
  			report_type = HID_INPUT_REPORT;
--			reports_list = (struct report_list *)payload;
-+			reports_list = (struct report_list *)recv_msg->payload;
+ 			reports_list = (struct report_list *)payload;
  			pos = (u8 *)reports_list->reports;
--			list_end = (u8 *)payload + payload_len;
-+			list_end = (u8 *)recv_msg->payload + payload_len;
++			list_end = (u8 *)payload + payload_len;
  
  			for (j = 0; j < reports_list->num_of_reports; j++) {
- 				if (pos + sizeof(struct report) > list_end)
-@@ -300,6 +300,10 @@ static void process_recv(struct ishtp_cl *hid_ishtp_cl, void *recv_buf,
- 
- 				inner_len = report_len -
- 					sizeof(struct hostif_msg_hdr);
-+				if (pos + sizeof(struct report) + inner_len >
-+						list_end)
++				if (pos + sizeof(struct report) > list_end)
 +					break;
 +
- 
- 				for (i = 0; i < client_data->num_hid_devices;
- 				     ++i)
+ 				report = (struct report *)pos;
+ 				recv_msg = container_of(&report->msg,
+ 							struct hostif_msg, hdr);
 

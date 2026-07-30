@@ -1,74 +1,75 @@
-Received: from mail-wm1-f53.google.com (mail-wm1-f53.google.com [209.85.128.53])
+Received: from mail-wm1-f46.google.com (mail-wm1-f46.google.com [209.85.128.46])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A1CCF439903
-	for <linux-input@vger.kernel.org>; Thu, 30 Jul 2026 13:40:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8DE7F439917
+	for <linux-input@vger.kernel.org>; Thu, 30 Jul 2026 13:40:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.46
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785418831; cv=none; b=lsZjjg2LkHQ08sMF+B/ohLw14QQ//KeFYnf13wxL+VXwsSyl4eoYvogrn0TEifRdksn6gGCnQu8tBEExZ2UX5yoSkDDU1zUdNlKnOLhide6vHBjIYXR0qaK2fDWqoyrL8e120O6eCr1SnUKll3eBLIj6FmpewIZ/K90pf+xOyyA=
+	t=1785418832; cv=none; b=tvEo4YF96vi0Zf4w2j0uAyRWlhLBFPUT9DJO1YQcryKLRAW56FjGQSM6+UX+Am40wA7L/wXE6oGi/cCLG/USC7LiWoPny9U3LxABF8Wv2uUPit/cVQX21FechuGX/XE1vzU4PA4whU+vx7kX/xYujzM3FVcZJ6ZjWgEk50b3Wko=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785418831; c=relaxed/simple;
-	bh=/q1OjoHS6MiKNeHhu9PPhy+3MlydIup74UGW+aL9gS0=;
+	s=arc-20240116; t=1785418832; c=relaxed/simple;
+	bh=2ixlKtCsITzOcTeXqNephJUaZacWCXQceZOKel/dW9M=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=lrZ+YI9LftUY6Tdys9MbmZl9EM5ZPXTQJBJBEgGIw0CVOABZMVjjmI2kqnmkfhp4Wh9pvU41i0eZXzqi8xkenrwciFGA+YjDNwu7QRqsFKZnefqtB+Hhm39+GqRLqhPNMgejkZjaPkxmgCfGNEU3+8va89pnp1K7wEsRlGl/GHg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=hfHFyO47; arc=none smtp.client-ip=209.85.128.53
+	 MIME-Version; b=eT9e+x/ICE93sOIJjEJFMkJoXADGi8ZwH4ne/MVu2lgfIhx8r8ME9iWve6d6XifIhcMukA5yZNYJx73ls4q9Val1UeyavXcGcwkWN/iIP7bQGmHn6z/8AZ9BoOUQ80ruIj/DQYY2iqsSzICJa/31ysU902aZpWey7FU3b32exBA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=PBuQcw9K; arc=none smtp.client-ip=209.85.128.46
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hfHFyO47"
-Received: by mail-wm1-f53.google.com with SMTP id 5b1f17b1804b1-4953e04ef16so20834125e9.2
-        for <linux-input@vger.kernel.org>; Thu, 30 Jul 2026 06:40:29 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="PBuQcw9K"
+Received: by mail-wm1-f46.google.com with SMTP id 5b1f17b1804b1-49557167508so18148785e9.1
+        for <linux-input@vger.kernel.org>; Thu, 30 Jul 2026 06:40:30 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1785418828; x=1786023628; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1785418829; x=1786023629; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=hAFpVRzBiMTtEH84JsrcqWwHWR7JlfZJmQLb9fZx3Lg=;
-        b=hfHFyO476PnPaEVSq2iCfR8XfH6xJjNw2sk95nwQ9GPluVGijzT5NzQ2tOSBbEoByj
-         MbrGeOHXxPGAetrdbghU2TiNinVvKkdH97qW3kdO/F8AXlWByCfO4eixgz7QnLR6muY0
-         O7VTOh/dpLju9yERsR7dKxRdc0rVbzMHhXHqlyvemGINbQIo4w9nYW8PWVJVP5w0KOp5
-         mRwNu+/lSnGB/4le2Np7l6ZEX4MV1QrPONP7IW/IVuPf/8WA6/FbCYKduI2fIHgSj9kh
-         lrCZAgZ06562ckfWXMbiuFG169rQl7UwBWvfVJS3WT9aboeH97ty6ontNL61ZDY9fTXH
-         ou6A==
+        bh=bKfjt2cHDv3xaHdoiWiG6KJPWOg1YD5kHemO33DsuQ8=;
+        b=PBuQcw9K2E31EvWcR8VF1VHUlbZoVIc6PDAD1dffIvwFIznmTy9PnR9889D3gD5+zT
+         12XQ+Jgkx1ppqRykmtGmHSurj0I8FiHAO2SfZhqs249UWVTF6oDtZ90Z9V9+SIpCYFd8
+         RuWowOBX32mZKJSnNTXj0b6OgpcJVFLSNwTMDlinmhGITzSbEBR24Bd0Er/rkClD/6kk
+         mx8rYXarOgZHsGoAPT+87p6HlkjAK/mT8+rTsC8iqNNGc+pi3aJk+bs1o7twQFsvXBKL
+         YE5xA7HBTx4isX0PXvVx+d7S4ZuA3K+ViWgltCebr1HZ3XbgzZwgy//16ezBaV5PcYDs
+         wNmg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785418828; x=1786023628;
+        d=1e100.net; s=20251104; t=1785418829; x=1786023629;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=hAFpVRzBiMTtEH84JsrcqWwHWR7JlfZJmQLb9fZx3Lg=;
-        b=eptgqYxc7yNLXv98JpFsBxUMRfVImznfJLM0eAFRui367z+gz9aOZZS6wwdlDrXCKd
-         cB9EWbo1fnaR/U+NY3RnwAQiCRbqRgQbGFRj2HBocwmDzsPL+Tzudf4pK82XEj6wxgLe
-         Q9wv0P3M9gVPZ1o4VG8SCAxOMK0+tgvgRZY0ZxeuDIQ6ByPjDQJpWKey1InWLxs3uCQa
-         DHtj6MfZcLLpO0n4Ylx/lrVjkeMzDbEOAHX2cnhr5RXEL/6iKzPv2B0g9+5okr0Q/kYx
-         3V/pqXJR2+jXkeO3UzYrBfRaIVvfx2nQ1xe/GuPozV8xR2t+Cd8v5lhF9fXumFFPU1nl
-         UkJw==
-X-Gm-Message-State: AOJu0Yz+dD8BzRiL812H9SS/Of7Re0PXZpCWTBrX0tpGuJ5fBWpT3lxa
-	IGFfgdgfZRKLoyAnnyGdxKwH21iu/2naHfS1b/Qk1EnLwavB+qdsHooO849vQiDX
-X-Gm-Gg: AR+sD10BglLXA+j000ClwzqQD9v1yR7O6WW7T96NtUTTSr1JNacloRiimfkxOU8W5An
-	mehF2YdtmA7rFpyGOtleHflq+N1ppEEiFnO+YTGc7q2dRgAKtM82MOcbyVE2PoFtClDk8ByorBV
-	tv0Bl30Z3HhIMjYvfy7mF0bWmW60odUF0E6S0Bj2mWLMVqdLtSAuz8yPW8ixQN4X6viHJQ3Hmxs
-	lR63Ef4NniilEqowdoewM5u9jNHM1rUaPrqpgEjFhP7fsNWkkV4Q26F/TJGEyom/LIBv42HorOi
-	aUcPxwW8fzJSMN3eK4i2H+DOYo4a4YO03V3Ky6WQtxnBoF43dEG+o82ibdstsb/gv8Rs41GfhLK
-	//E59GfaaPhLhkh8g/sQXMRqWXG7kTod6oS5cpdpIwyzqND4Jp/XgYsKwmjMOR4/zpXvfr/nODS
-	i2cb8/JCF9Hpw/3jv3Af4eZaXXcJFWGzliCXmZho+k115yqkEbwlFJF7eNy/N0XApU1mDyCyCNw
-	Z2RLRNp0IdXg7WQzMdP
-X-Received: by 2002:a05:600c:4f8a:b0:495:472c:208d with SMTP id 5b1f17b1804b1-49800ebb090mr37096515e9.38.1785418827676;
-        Thu, 30 Jul 2026 06:40:27 -0700 (PDT)
+        bh=bKfjt2cHDv3xaHdoiWiG6KJPWOg1YD5kHemO33DsuQ8=;
+        b=ZlHPRtTM2HpmVdXZVsQ2X1mffogeDEQhdz9Sg2KC37bANkq32q6mBU2aOvXeJgGEt9
+         OcSckCTgM+4O2sMLnfPo15dlM2xBmDXGr/CXiUSwdOiPwPk8uPaP6AOkk8xrSusfUbxz
+         bWwbZNces561a7hZXSBlM+BQzCxIVOJaJdxOH1wBVOqgwmIlTicsCLhRQwKO8G/z0uh+
+         e3Fj5T6FbDgpT8o2DykkwJjcXF4mGXzz7owu48OmH8fH1ltxb7wAMtVQwK4Isg0HPWoG
+         CKTCdX2Ntd5jOgV/RrYrte/huZWc/1ZQ459Y2HHqJY6CfbF7DeOEnu75s5xNc8yrgTcm
+         c0rg==
+X-Gm-Message-State: AOJu0YzdyHVi7N85mxX1aJt+BjN6pBsVrf4dENvvcFi8Nl2jJLmmIE5P
+	HY8yyB2Qm8k0h4Amgptnjofgmw92W+bP8/nO6SraquvDKMqt1SeG04E6
+X-Gm-Gg: AR+sD12U5VtpeFd2d6sT+nMV5dzzWNW0MkdeXaK4PUtdnTdP6nEScslymlrp3NJDQt5
+	GMT+wXVhdviozJc1E5CHLyRxps4YGWKfTLqOgK0ZdTVU+o4SWn30kkmwnYHjnfH5e9d4uVKbIav
+	kdigbdHBTs/hia4U3hVZNBjlLgqv2zE7dXxSfjFkwdqBRmubije65J8aCEBRaULnDxAg5uHnZ8p
+	V00S9TlmI+nu7TSsG4P4sWmRcMkDWfLUXtOdao+SdoBvqZzISNBSVuEA5vnrL0tx89oyenthpzo
+	r6rpLyZp1p0ZGXyHQMegK6SGIJI7+GGlhS5dLfI8vA8lk2UubWzl1GRivc8CtPObe9A/ylb/+24
+	GZNP/OvlWPdi3QCREfUI9GJTqeLNNAfCrxiIqMv3dZM18ENRboRirbgdMmuJp6wjXKTjX8Gqlfo
+	YZ/sYLB7Mwji3FgvGkgmogO40lcKxJTKR1n+0aBq2hRgZaztcsCNiPQnzbllv0VpSs49EAHOyki
+	N9DJIPIGMFKCimIc6EA
+X-Received: by 2002:a05:600c:4487:b0:495:5858:e163 with SMTP id 5b1f17b1804b1-49800ec6d8fmr23565095e9.27.1785418828577;
+        Thu, 30 Jul 2026 06:40:28 -0700 (PDT)
 Received: from mortifia-tour.localdomain ([2a01:cb11:e0e:6900:846:ff2d:816e:3783])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-498012168e7sm66405305e9.15.2026.07.30.06.40.26
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-498012168e7sm66405305e9.15.2026.07.30.06.40.27
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 30 Jul 2026 06:40:27 -0700 (PDT)
+        Thu, 30 Jul 2026 06:40:28 -0700 (PDT)
 From: Guillaume Casal <guillaume.casal.42@gmail.com>
 To: dmitry.torokhov@gmail.com
 Cc: linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	dbdaniel42@gmail.com
-Subject: [PATCH v2 0/4] input: force feedback for trigger rumble motors
-Date: Thu, 30 Jul 2026 15:40:00 +0200
-Message-ID: <20260730134004.1118476-1-guillaume.casal.42@gmail.com>
+Subject: [PATCH v2 1/4] input: Add FF_TRIGGER_RUMBLE effect type
+Date: Thu, 30 Jul 2026 15:40:01 +0200
+Message-ID: <20260730134004.1118476-2-guillaume.casal.42@gmail.com>
 X-Mailer: git-send-email 2.55.0
-In-Reply-To: <20260730095317.767418-1-guillaume.casal.42@gmail.com>
+In-Reply-To: <20260730134004.1118476-1-guillaume.casal.42@gmail.com>
 References: <20260730095317.767418-1-guillaume.casal.42@gmail.com>
+ <20260730134004.1118476-1-guillaume.casal.42@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -78,116 +79,85 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
 Some gamepads carry rumble motors behind their triggers, in addition to
-the usual two in the grips: Xbox controllers call them impulse triggers,
-and handhelds such as the ASUS ROG Xbox Ally X have them too. The force
-feedback API cannot reach those motors.
+the ones in the grips that FF_RUMBLE drives: Xbox controllers call them
+impulse triggers, and handhelds such as the ASUS ROG Xbox Ally X have
+them too. The force feedback API cannot reach those motors.
 
-v1: https://lore.kernel.org/linux-input/20260730095317.767418-1-guillaume.casal.42@gmail.com/
+Add FF_TRIGGER_RUMBLE as a new effect type carrying its own
+struct ff_trigger_rumble_effect, and move FF_EFFECT_MIN down to it, in
+the same way FF_HAPTIC was added.
 
-Changes since v1
-================
+v1 took the approach of the 2022 series and added two members to
+struct ff_rumble_effect instead:
 
-v1 followed the 2022 series by Daniel Bomar and added trigger_left and
-trigger_right to struct ff_rumble_effect. That was wrong, and I am
-grateful the problem was pointed out on the list before it went any
-further.
+  https://lore.kernel.org/linux-input/20260730095317.767418-1-guillaume.casal.42@gmail.com/
 
-EVIOCSFF copies the whole struct ff_effect from userspace. An
-application that sets only strong_magnitude and weak_magnitude, and does
-not clear the rest of the union, passes uninitialised stack content in
-the bytes that v1 gave meaning to. ff-memless would then scale that
-content and hand it to the driver, so a program that works today would
-start buzzing the triggers at random. Keeping the size of the union
-unchanged makes the layout compatible, not the meaning. This is likely
-why the 2022 series never went anywhere.
+That is not safe. EVIOCSFF copies the whole struct ff_effect from
+userspace, and an application that leaves the tail of the union
+uninitialised, which is common when only strong_magnitude and
+weak_magnitude are set, would have had that stack content interpreted as
+trigger magnitudes. Working programs would start buzzing their triggers
+at random. Keeping the size of the union unchanged makes the ABI
+compatible in layout, not in meaning.
 
-v2 therefore uses a distinct effect type, FF_TRIGGER_RUMBLE, with its own
-struct ff_trigger_rumble_effect, following what was done for FF_HAPTIC.
-No existing application emits this type, so no uninitialised byte can be
-mistaken for a magnitude. The capability bit of v1 is dropped: userspace
-discovers the type in the EVIOCGBIT(EV_FF) bitmap, as it does for
+A distinct effect type has no such problem: no existing application ever
+emits it, so no uninitialised byte can be mistaken for a magnitude. It
+also removes the need for a separate capability bit, since userspace
+discovers the type in the EVIOCGBIT(EV_FF) bitmap exactly as it does for
 FF_RUMBLE.
 
-Two smaller points raised on v1 are fixed here as well: the missing entry
-in the force[] array of hid-debug.c, and the missing line in
-Documentation/input/ff.rst.
+Based on an earlier attempt by Daniel Bomar:
 
-Design notes
-============
+  https://lore.kernel.org/lkml/20220410220449.5071-1-dbdaniel42@gmail.com/
 
-ml_get_combo_effect() groups playing effects by type, so a trigger rumble
-effect forms its own combo and reaches the driver in its own
-play_effect() call, without disturbing FF_RUMBLE. An effect that has
-finished still contributes its type with zero magnitudes, so the stop
-path needs no change.
-
-Testing
-=======
-
-checkpatch.pl reports no warnings on any of the four patches.
-
-I booted v7.2-rc5 with this series applied under QEMU, with a small
-memless driver compiled in that advertises both types and logs the
-magnitudes it is handed. Userspace side, a static init issues the
-EVIOCSFF ioctls. Output, kernel lines interleaved with userspace ones:
-
-  capabilities advertised : FF_RUMBLE yes, FF_TRIGGER_RUMBLE yes
-
-  triggers only      -> FF_TRIGGER_RUMBLE left=65535 right=65535
-  grips only         -> FF_RUMBLE         strong=65535 weak=65535
-  left trigger only  -> FF_TRIGGER_RUMBLE left=65535 right=    0
-  right trigger only -> FF_TRIGGER_RUMBLE left=    0 right=65535
-
-Each effect is followed by a call with zero magnitudes when it expires,
-so the existing stop path needs no change.
-
-The last case is the one that matters for the concern raised on v1. The
-test fills the whole struct ff_effect with 0xAA, sets only type,
-replay.length and the two rumble magnitudes, and uploads it, which is
-what a careless application does today:
-
-  old-style app, dirty union
-                     -> FF_RUMBLE         strong=32768 weak=32768
-                        and no FF_TRIGGER_RUMBLE call at all
-
-The dirty bytes cannot be mistaken for trigger magnitudes, because they
-never carry that meaning for an FF_RUMBLE effect. With v1 they would have
-been scaled and sent to the hardware.
-
-The same was then run against real hardware. The vendor kernel of my
-handheld cannot be rebuilt, its sources are not published, so I booted
-the patched kernel in a VM on the same machine and handed it the gamepad
-by USB passthrough. The driver bound it as usual and the device came up
-advertising both types:
-
-  peripheral: /dev/input/event8 (ASUS ROG Ally X Gamepad)
-  capabilities advertised : FF_RUMBLE yes, FF_TRIGGER_RUMBLE yes
-
-Capturing the physical bus from the host with usbmon while the VM drove
-the pad gives the reports the firmware actually received:
-
-  triggers: L=100 R=100   grips: L=  0 R=  0    triggers only
-  triggers: L=  0 R=  0   grips: L=100 R=100    grips only
-  triggers: L=100 R=  0   grips: L=  0 R=  0    left trigger only
-  triggers: L=  0 R=100   grips: L=  0 R=  0    right trigger only
-  triggers: L=  0 R=  0   grips: L= 50 R= 50    old-style app, dirty union
-
-The four actuators are driven independently, and the careless
-application gets its 50% in the grips with nothing in the triggers,
-which is the whole point of the change in shape since v1.
-
-The driver patch that fills those two magnitudes is not part of this
-series: that driver is not in mainline, and I will send it to its
-maintainers once the API here settles.
-
-Guillaume Casal (4):
-  input: Add FF_TRIGGER_RUMBLE effect type
-  input: ff-memless: Handle FF_TRIGGER_RUMBLE
-  HID: debug: Add FF_TRIGGER_RUMBLE name
-  Documentation: input: Document FF_TRIGGER_RUMBLE
-
- Documentation/input/ff.rst |  1 +
- drivers/hid/hid-debug.c    |  1 +
- drivers/input/ff-memless.c |  9 +++++++++
- include/uapi/linux/input.h | 17 ++++++++++++++++-
- 4 files changed, 27 insertions(+), 1 deletion(-)
+Signed-off-by: Guillaume Casal <guillaume.casal.42@gmail.com>
+---
+diff --git a/include/uapi/linux/input.h b/include/uapi/linux/input.h
+--- a/include/uapi/linux/input.h
++++ b/include/uapi/linux/input.h
+@@ -438,6 +438,20 @@
+  * @repeat_count: number of times to retrigger effect
+  * @retrigger_period: time before effect is retriggered (in ms)
+  */
++/**
++ * struct ff_trigger_rumble_effect - parameters of a trigger rumble effect
++ * @left_magnitude: magnitude of the motor behind the left trigger
++ * @right_magnitude: magnitude of the motor behind the right trigger
++ *
++ * Some gamepads carry rumble motors behind their triggers, in addition to
++ * the ones in the grips that FF_RUMBLE drives. Xbox controllers call them
++ * impulse triggers.
++ */
++struct ff_trigger_rumble_effect {
++	__u16 left_magnitude;
++	__u16 right_magnitude;
++};
++
+ struct ff_haptic_effect {
+ 	__u16 hid_usage;
+ 	__u16 vendor_id;
+@@ -483,6 +497,7 @@
+ 		struct ff_periodic_effect periodic;
+ 		struct ff_condition_effect condition[2]; /* One for each axis */
+ 		struct ff_rumble_effect rumble;
++		struct ff_trigger_rumble_effect trigger_rumble;
+ 		struct ff_haptic_effect haptic;
+ 	} u;
+ };
+@@ -491,6 +506,7 @@
+  * Force feedback effect types
+  */
+ 
++#define FF_TRIGGER_RUMBLE	0x4e
+ #define FF_HAPTIC		0x4f
+ #define FF_RUMBLE	0x50
+ #define FF_PERIODIC	0x51
+@@ -501,7 +517,7 @@
+ #define FF_INERTIA	0x56
+ #define FF_RAMP		0x57
+ 
+-#define FF_EFFECT_MIN	FF_HAPTIC
++#define FF_EFFECT_MIN	FF_TRIGGER_RUMBLE
+ #define FF_EFFECT_MAX	FF_RAMP
+ 
+ /*

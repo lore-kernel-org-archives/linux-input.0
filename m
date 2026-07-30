@@ -1,209 +1,202 @@
-Received: from mail-pj1-f51.google.com (mail-pj1-f51.google.com [209.85.216.51])
+Received: from mail-oa1-f49.google.com (mail-oa1-f49.google.com [209.85.160.49])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E420245FFBE
-	for <linux-input@vger.kernel.org>; Thu, 30 Jul 2026 19:28:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.216.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F236B35F19D
+	for <linux-input@vger.kernel.org>; Thu, 30 Jul 2026 19:34:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.160.49
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785439703; cv=pass; b=IXTIC4wDYMiR6RCpCcf0dMFwxF1ngTYHPtHOHDW6DDOc9r+jlx/M5kuPDCLm2vrKvl3V9PFyJr69UIufpGUvYlCI8egJFnlcuf8EQ7NI/qSXgJ7RdRK8S/ePoCBjuDPZkdP0mXLK7LwM9NVGCaGSX+NW6Vu8qJgdWXwTNxenI78=
+	t=1785440044; cv=pass; b=NOH2UOLYyUww7wznqe7r9YiAN9piMewt344tjLlvhe/FGKOoY8o1S8IRoH+zqnqX3wM4nWbO2zgXa1ttiXMwiVapnH+KzMyKROGjlwcUL8/g8hUT2IuwnE9rSnre3DHytpjiZqsY2maRQWXrFPUpyUAZzVGSdJGAV9c906k/h8M=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785439703; c=relaxed/simple;
-	bh=ll/FaK04GC8vCwFkBBQHSFd/0rrd11opybKM/RHi/Cc=;
+	s=arc-20240116; t=1785440044; c=relaxed/simple;
+	bh=/lI5XI2KNtXCzJu7N3TC4oGMh3TlCtrLy6y3hLHrfAQ=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=SDpRdxH3nJp3ad6aJozQyDlR5yvj7A3ME0vLO07DIUdupJzvUKOTWL58/HLwyZeFmHvwoLQoRQ7mpYvaQ2hXkTuvpE/L51Lv16YjIVsFsS3jneWhCut8BsLO7FVZt19JxXe5gIFg1RJnyX5Vix02zsJflCjld0MzZNRe98Gfbno=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=KDTO8Fba; arc=pass smtp.client-ip=209.85.216.51
+	 To:Cc:Content-Type; b=Et08d4AfNDYDq3YlX/2sMfqvqgoOLok4xAv7c7x8l49hcuVAncT8s7zf8cTIE0BXmTzdHiRNVkKDAQuHXw/13pW96syNaBMt813+ejRlzFDYwseUmosmH5F2OHjDqVtioKTEzsfmPfwHl2gIqhnQW3w6LuurUUUl71ryznkur6A=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=iKuudd2Y; arc=pass smtp.client-ip=209.85.160.49
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="KDTO8Fba"
-Received: by mail-pj1-f51.google.com with SMTP id 98e67ed59e1d1-38e3efab7e0so43849a91.0
-        for <linux-input@vger.kernel.org>; Thu, 30 Jul 2026 12:28:17 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1785439695; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="iKuudd2Y"
+Received: by mail-oa1-f49.google.com with SMTP id 586e51a60fabf-43b7e186a0cso149621fac.0
+        for <linux-input@vger.kernel.org>; Thu, 30 Jul 2026 12:34:01 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1785440039; cv=none;
         d=google.com; s=arc-20260327;
-        b=UXnxiDU5lg18vTI1HbBlnOdYuFNMkvD5BSGB1Cb7Yl06EAhRjxgwdm6PGcWc5JJtXx
-         q7cgz6D0Q+dk8xe4tAfUMaMJ+v0mIMCj+tvghMNXuX1MdGnCIvrbV0tPDhnPGgYLWbpZ
-         dYA4W+5hn1xAQ6alvikvsNcoDbc8ujDqnxlv4R/sVNYllZvEQdQNlBIZaFZj+nlVl+ir
-         zhEWf3LPNyRLkQJlwLekLDk42LwCDg8EcLDeXwoPUN52EAHlVuCowkQCqk9zOrjIhFSO
-         dPYevub8d4xT19/90wxSC6R5cJPNTq8NyX4C3DVzE5p2+yF3HNKmK2MSkhQofC4jIJXb
-         YIqQ==
+        b=ewyU8kJkjSzhH7s8EDqzO1KTrWOO/OYuJG8dmMb10SiVILspHhEvf/3nErm5RcFsGE
+         KPIAGlFnWPb/Gd1rD2gnRhH27VG/3NJR/eZzBNgxMubLbnQj1muC8Prp3fbjxF2y573x
+         pn3bxFwwoVYu8F4WCWMVOUR4DSoz8/9h2kYsBhXWoETBcGazSsFburSOThrIRFbTg8Jh
+         BXHhCB66rc8vQeuz4886oQUQXa4lWL3SogP6rfYTxewSWBuRDJamPT8KEHhYuMmbMeXE
+         U7Cm2CJXrTAjoi1TUFRQLDM/rlSSzrZZc0fovY50lZjzZmnRXtnRrs/jQkkQmDcFSnAZ
+         UHOg==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=hs3O7+0+O1BzynlCu6bABVAxk2P74JiftgV+5qL8qh8=;
-        fh=AixnZChnQQCgr/B7uVIHCO/p9qIF1As8zqS/66kZ4Y8=;
-        b=TR3gUVPtK85QgJfJmFRZ4MyudcpviR/8LtWzKvMWWTWLpz0Cz7/8s0iH3WStACr/uy
-         dbVazPu2LHRuIb/5uryn9xkIPamTUcjlyzixisgiv9wRyIMcb+3dLbvDUDEFPMEgqZHN
-         RJCop0rNA879sChbz/XLj3rVcVqNwcE89uLQX5OTDWy/VYA8xe8Dh/e8MS9rIAmKzXSD
-         SIwHqmO0Zso16LRRAA3eEYyEP3gtFVenxgByMQyz+4UgrNwfNTI87gd5QjTQGVGlaK8d
-         K2h4+lFoaFRHXNP2NGo9CkG+9BpkmrL+8hboVGfmh//JGglkj2urd2VrRD6Pc9Zckxmz
-         tGJA==;
+        bh=OER/PrjpR2ePDxGtg4rSGKG360JXfsYXkKMI8tkl8r4=;
+        fh=l1AP/n4HAQ/9vHRqEexf6IiAxAqjltEguhhet2HCYvI=;
+        b=QRH/QDbAcLhLsPjofDkvLStC1X2+XKHm5CgKQZ7fHxAZ7xjklOJUbBhOrj3EXj5Dkz
+         16WWq5kauiFHvI3ROmkkEMwdIDCFiaBjmv6LaG5fIWELlqJmNDLhABSQWD32JvBbjc0E
+         AJoM/CIz/AY7LFMLUftIq8wjioZ+er1bxL4UzFO0Q5MTDdSKff/y0630Ufl5QHAFZdNK
+         5asZcL9SA3VzqAufaQpDE5bRJApdM/OfRj8Wt+RN4mBwkGxN3d/keHwQczhxHlC9DBmw
+         bFAf3/5QI5elOXl6k+Drwwjm6QXyUVvRCW9iPdMln9fF9Q+v8m/AJKGDT7iDflUP59Vs
+         ZReg==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1785439695; x=1786044495; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1785440039; x=1786044839; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=hs3O7+0+O1BzynlCu6bABVAxk2P74JiftgV+5qL8qh8=;
-        b=KDTO8Fba/EqjXNBQZACIfEE6OX698r6ac6Rhy+1Jr3GNSzF/wyiyO5UGEdBuxeNGJI
-         0FmReaDwEPJNp4sJ2jKyRfYG/PtZeH9ldIl+xPnUw6mptx+ukGjzYDf9zQ/lw5otqvqH
-         n7IhzLeRll721j62b/a47gx1UqDm3Sbz70iU0bPVVQZAG3CAKrZg1FCCwDb159HiEuCy
-         1gRlaSXZLShIBUojbLXYlroacPMCEmmcpGvLwOnVryuou7b5XHefntgd40Cqjf3gcX0b
-         t29EyMNlITuEe2+8SkYw3lLdXdxMfwyL/6pGxnN7qq9acPFJuv68HEAuOYTw16oRE13c
-         FA9g==
+        bh=OER/PrjpR2ePDxGtg4rSGKG360JXfsYXkKMI8tkl8r4=;
+        b=iKuudd2Ypn2Zlpyf3u25S7rnV+x3/7tG80pi57GI7pK21jIO/5WG6r0cBi7hORO4el
+         w+rB85xZvqSKVeUv8g2/62HVWhUGtQlzNQKEvez+hFTWI8pSOna8xqwlrEVryDGoU8Lf
+         jhmaQuULyw5uFDll9rFnvGsOiCx181lbJJUjaFKwBItYdynjbTSg/mac2rRZ38TQjYlK
+         AnyfH1nha9tf1sSD/OQdyEWfQHPJSHltJx4gK1HWmFlX2GS5YBvFJMUBE23B95bCXW6j
+         QWqCdsif9dp+9PsQjkonPbJrIPTex4GG1izIdi3i3qYQ2Vig8abzrvCyPSHSXjI0rCrg
+         sofw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785439695; x=1786044495;
+        d=1e100.net; s=20251104; t=1785440039; x=1786044839;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=hs3O7+0+O1BzynlCu6bABVAxk2P74JiftgV+5qL8qh8=;
-        b=as8eDzbvBfedJV2ym1auhVs5uy4KP0isUhk/3Abds3ftBDgUORdH2pVHL0ahh45AKp
-         TlK7lbUD1A5yH543OOOWxe2KArwK1YrkzZc4X8k0lEmUwmOuQ3YOJztKFKe/q2Vs0eRl
-         7NZOj6lJqXrtAuK2P/mPteGLjTFC14RQyo0NJb1ByIpg4BOvfBTpRHCHejWx7uDXdPyZ
-         5uisxeDtqUA2LsjHVq+I6FCdQXUAoiOCSRDCgFf4Uxns56r0Iv6lu+3NiNoROsvjVP3j
-         B7NSE065h4d/LF+Ze7Lg3Dq6H09iiqL65IaF4GPEuchFix+BM9aC5JmHjjR3pK1ZeagS
-         Hp8w==
-X-Forwarded-Encrypted: i=1; AHgh+RpEQrUNgSrPl3S1ihKrRccd9jgkdZOEZNZt4xvlFx9j2Wwcoud3/aTfU/8vAsgpPe9H+yJP+oh8hL+DwQ==@vger.kernel.org
-X-Gm-Message-State: AOJu0YxqOPwPtnqZVY3yGhu6M0PvOZyBrF4BRzAwnJLR48dGqdlor00s
-	TsmvVybcoaS4BcZJKCGIbeS98NqcOZ8WI0XW+NW3VL9vcRsKa3HXf1Dadw6kOfc01AjBAup06aS
-	gCwoeT8t0Evf1PfV4wVtsGqg7afZeiVA=
-X-Gm-Gg: AR+sD11F64oCMyp499icvnyCM8uW6ZIrvqIbnprTIZe6eG2G8OaSI80rAaRoeD13mml
-	fvEP1sWAXnBlWjP6z0R3sKxVq9EEbRE1Xiv1ex3w7U3tN3p5iduvRaicm7vclrDbFy8CI5ElkaP
-	DYcXc4qYCs8Ix02fWFNHdNB3Mt3+KSbUXIbQ8iDPBATr/6WgARdgGTIiLFFRO8RuDrW+G714SWk
-	H6yqU2rVnu1tmw7NqubVwJKi33kuyKdFKTBqcKYPXNkjrx0jgmrBk+IW1SHy5UGeuguUBWLMzsC
-	kQDajyCNT64XsMn//Kpf8YNoVKdnXJtxmUMRUDakPViuDYneFYnlRaKAVgd0NkTPL42cCM9Yc2Y
-	xF+aV7OBrhkPpILrXvMC3sVUKjy4=
-X-Received: by 2002:a17:90b:4c85:b0:387:d5bd:622e with SMTP id
- 98e67ed59e1d1-38fa7824b05mr937031a91.17.1785439695076; Thu, 30 Jul 2026
- 12:28:15 -0700 (PDT)
+        bh=OER/PrjpR2ePDxGtg4rSGKG360JXfsYXkKMI8tkl8r4=;
+        b=Cx2sgGD8ChOhvCUYEk3pgFFxlh0FkazFxiEZHZV5e0+CXhx2jpsDAjRduJVWP/83E2
+         6rtwAcrQEIgPC6IOwTgANxL2velPCVFNBpvXUZ5pBt1tSiknZoyF2j3cAQgt9GpfZDjP
+         Udz9j6yS54xaL967m7Rt3oNy2IGHnATndsWpeDoDGOHHHOlpxUgj+EssfMZjt8MTDS2N
+         r4M9c8o7x45nArtcHFyeE64NY4qVe3HBtI384ZRWTcPOWsvrkdCGrxHcriLcFTKPIIa4
+         oK2MoFftEK2ccC6iXKQm03PBGk+2ogDQ/BTRuBqtgVlsz1bhXmM6LoyMdUQm/EE3q+eP
+         jVYg==
+X-Gm-Message-State: AOJu0YyAO0jq8+RNhdVK9aTkr4Bv330HyCY27l+DMVSZf//l+O21jU/+
+	L1nlWrrWJ1biSoFujesxVaPdjpG+zpCsy092DdN1rIn3y76Ebcxaho/BZzPWoRc+zZEbO64jwuU
+	WHLczAGHSzEqP/BIxYBH+hNQU8A1dfko=
+X-Gm-Gg: AR+sD12Nj7Sg/CcviMnR+9HJ1PDtlYUJOpYVS7dBTnq9XGAT2frB+1KqeWEhgSYaK5W
+	egV9q3ZVT9L2RuV7Ic6DTeXDal/bKzf+U1SxXV41dnbRxYvIpg4vbZov6IYyH3pwHXnSxPzy5wH
+	ZPy8j8UVH/eGrgVd6vbYszkin1Q/1Duxa+p4gPp9DmjNjJ+rYoL2BKieEAm6Qn8GVgs3rfgLtQQ
+	YAJrProdkBMOabB8OyNtRiAoW2SyFIdhPpuiEkfezAMDqNVYtlZPfMwfJ+DlZDMJWdcPYRT9Fas
+	QGh/MeVYGY57nBBXfJfKmf3M8USTlEzl7QGg0rrvJCAJXzSkyoEc4jL0yzORVTbRQrdFK/Sj6f0
+	x7oo22F+CkV2L+w==
+X-Received: by 2002:a05:6808:1783:b0:496:301:36b9 with SMTP id
+ 5614622812f47-4ad873ca645mr3324420b6e.0.1785440038998; Thu, 30 Jul 2026
+ 12:33:58 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <CABWMpWQiSEKMkROgKZJ6nV8GXYgr7E=-SmsatQie4eK8b3F9Xw@mail.gmail.com>
-In-Reply-To: <CABWMpWQiSEKMkROgKZJ6nV8GXYgr7E=-SmsatQie4eK8b3F9Xw@mail.gmail.com>
-From: Jamie Stephens <jamie.stephens@gmail.com>
-Date: Thu, 30 Jul 2026 15:28:02 -0400
-X-Gm-Features: AUfX_mz_8J7N5cSdJsnEi7DuUMOyhEc8gY0WtMhugK0SpmdWDoQhR3Drz3IuJAo
-Message-ID: <CABWMpWR7Law_vHdeAMsOcY28VBcvX2jYSqq2SpksJSiLFcXhuw@mail.gmail.com>
-Subject: Re: [REGRESSION] CyberPower LE1000DG (0764:0501) USB HID regression
- on x86
-To: jikos@kernel.org, bentiss@kernel.org
-Cc: regressions@lists.linux.dev, gregkh@linuxfoundation.org, 
-	stern@rowland.harvard.edu, linux-usb@vger.kernel.org, 
-	linux-input@vger.kernel.org
+References: <cover.1783094954.git.edouglas7358@gmail.com> <2e719e56029386f148d748a7d555023f4efe3862.1783094954.git.edouglas7358@gmail.com>
+ <a98072328950f6b45a358086cbd6a16c5b645416.camel@hadess.net>
+In-Reply-To: <a98072328950f6b45a358086cbd6a16c5b645416.camel@hadess.net>
+From: Elliot Douglas <edouglas7358@gmail.com>
+Date: Thu, 30 Jul 2026 12:33:38 -0700
+X-Gm-Features: AUfX_mz6oijK-oDuEGQNHoKFUcd6Pvm_7LF5gSUg54kK2DNdKW4vY3Ywmu-P5Rg
+Message-ID: <CAGt6S1oVO1zE9+HZWfvVBEfgLEc6cisfG-SonUVFf+XSTft2+A@mail.gmail.com>
+Subject: Re: [PATCH v2 2/2] HID: logitech-hidpp: enable reprogrammable buttons
+ on Signature M650
+To: Bastien Nocera <hadess@hadess.net>
+Cc: linux-input@vger.kernel.org, lains@riseup.net, jikos@kernel.org, 
+	bentiss@kernel.org, linux-kernel@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-Hi,
+Thanks for the feedback. I just left for a trip, but I'll be back and
+should be able to work on it on Tuesday, August 11th.
 
-Per the recommendation on Proxmox Bugzilla #7850, I=E2=80=99m reporting wha=
-t
-appears to be a Linux USB/HID regression affecting a CyberPower
-LE1000DG UPS.
 
-Hardware
-
-UPS
-
-CyberPower LE1000DG
-USB VID:PID 0764:0501
-
-Affected x86 platform
-
-Intel Tiger Lake-H USB 3.2 Gen 2 xHCI Host Controller
-PCI ID: 8086:43ed
-
-Problem
-
-When connected to the x86 system, the UPS enumerates successfully and
-is bound by the kernel to hid-generic.
-
-Kernel messages include:
-
-usb 1-3: New USB device found, idVendor=3D0764, idProduct=3D0501
-
-usb 1-3: Product: LE1000DG
-
-hid-generic 0003:0764:0501.0001: hiddev0,hidraw0:
-
-USB HID v1.11 Device [CPS LE1000DG]
-
-However,
-
-sudo lsusb -v -d 0764:0501
-
-reports:
-
-wDescriptorLength     504
-
-Warning: can't get report descriptor, LIBUSB_ERROR_PIPE
-
-cannot read device status, Resource temporarily unavailable (11)
-
-As a result, usbhid-ups is unable to reliably communicate with the
-device and NUT cannot reliably monitor UPS status.
-
-Kernels Tested
-
-The issue reproduces on:
-
-Proxmox VE kernel 7.0.14-5-pve
-Proxmox VE kernel 7.0.14-6-pve
-Ubuntu mainline 7.1.5-070105-generic
-
-Reproducing the issue on an Ubuntu mainline kernel indicates the
-behavior is not specific to Proxmox and appears to exist in upstream
-Linux as well.
-
-Comparison
-
-The identical UPS, USB cable, and NUT configuration were moved to a
-Raspberry Pi 5 running:
-
-Debian 13 (trixie)
-Linux 6.18.34+rpt-rpi-2712
-NUT 2.8.1
-
-On the Raspberry Pi:
-
-the device binds successfully to hid-generic
-usbhid-ups initializes successfully
-NUT communicates reliably
-upsc ups@localhost consistently returns complete UPS status, including
-charge, runtime, voltage, load, and other telemetry
-
-This behavior has remained reliable through repeated testing and reboots.
-
-For completeness, lsusb -v on the Raspberry Pi also reports the HID
-report descriptor as unavailable. Despite this, usbhid-ups
-communicates with the UPS reliably. The communication failure only
-occurs on the affected x86 platform.
-
-Troubleshooting Performed
-
-Tested multiple USB ports
-Tested USB 2.0 and USB 3.x ports
-Replaced the USB cable
-Tested NUT 2.8.1, 2.8.5, and current development master
-Tested as both root and the nut service user
-Verified udev permissions
-Verified USB VID:PID 0764:0501
-Reproduced the issue on Ubuntu mainline 7.1.5
-
-A Proxmox developer suggested this may require a USB HID device quirk
-and requested that the issue be reported upstream.
-
-Reference:
-
-Proxmox Bugzilla #7850: https://bugzilla.proxmox.com/show_bug.cgi?id=3D7850
-
-Please let me know if additional information would be helpful. I can
-provide complete dmesg, lsusb, and usbhid-upsdebug logs or perform
-additional testing if needed.
-
-Thank you,
-Jamie Stephens
+On Thu, Jul 30, 2026 at 1:07=E2=80=AFAM Bastien Nocera <hadess@hadess.net> =
+wrote:
+>
+> On Sat, 2026-07-04 at 16:10 -0700, Elliot Douglas wrote:
+> > The Bluetooth Signature M650 exposes its side buttons through the
+> > normal
+> > mouse report, but the observed events are short click-like events
+> > emitted
+> > around release rather than physical press/release state.
+> >
+> > The device appears to use the held side-button state for its built-in
+> > gesture and side-button + wheel horizontal-scroll mode. As a result,
+> > holding a side button long enough
+>
+> s/long enough/more than approximately 2 seconds/ ?
+>
+> >  can prevent the normal mouse report from
+> > emitting a usable button event at all.
+> >
+> > HID++ REPROG_CONTROLS_V4 diversion for control IDs 0x0053 and 0x0056
+> > provides real press and release timing for those same controls.
+> > Logitech
+> > documents the Signature M650 side buttons as Back/Forward buttons, so
+> > report the diverted controls as BTN_BACK and BTN_FORWARD.
+> >
+> > The HID++ 0x1b04 documentation lists those control IDs as Back and
+> > Forward. The driver still verifies that the controls are present in
+> > the
+> > device control table and advertised as divertable before changing
+> > their
+> > reporting mode.
+> >
+> > Link:
+> > https://support.logi.com/hc/en-nz/articles/4414473810583-Getting-Starte=
+d-Signature-M650
+> > Signed-off-by: Elliot Douglas <edouglas7358@gmail.com>
+>
+> Tested with my M650 mouse connected through Bluetooth.
+>
+> Reviewed-by: Bastien Nocera <hadess@hadess.net>
+>
+> > ---
+> >  drivers/hid/hid-logitech-hidpp.c | 20 +++++++++++++++++++-
+> >  1 file changed, 19 insertions(+), 1 deletion(-)
+> >
+> > diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-
+> > logitech-hidpp.c
+> > index f9189e14fb78..e71dd2457e80 100644
+> > --- a/drivers/hid/hid-logitech-hidpp.c
+> > +++ b/drivers/hid/hid-logitech-hidpp.c
+> > @@ -3624,14 +3624,30 @@ static int
+> > hidpp10_extra_mouse_buttons_raw_event(struct hidpp_device *hidpp,
+> >
+> >  #define HIDPP_REPROG_CONTROLS_EVENT_DIVERTED 0x00
+> >
+> > +#define HIDPP_REPROG_CONTROL_BACK 0x0053
+> > +#define HIDPP_REPROG_CONTROL_FORWARD 0x0056
+> > +
+> > +#define HIDPP_PRODUCT_SIGNATURE_M650 0xb02a
+>
+> If you want to add a product ID constant, please do it in hid-ids.h
+> instead.
+>
+> > +
+> >  struct hidpp_reprog_control_mapping {
+> >   u16 control;
+> >   u16 code;
+> >  };
+> >
+> > +static const struct hidpp_reprog_control_mapping
+> > m650_reprog_control_mappings[] =3D {
+> > + { HIDPP_REPROG_CONTROL_BACK, BTN_BACK },
+> > + { HIDPP_REPROG_CONTROL_FORWARD, BTN_FORWARD },
+> > + { }
+> > +};
+> > +
+> >  static const struct hidpp_reprog_control_mapping *
+> >  hidpp20_reprog_controls_get_mappings(struct hidpp_device *hidpp)
+> >  {
+> > + switch (hidpp->hid_dev->product) {
+> > + case HIDPP_PRODUCT_SIGNATURE_M650:
+> > + return m650_reprog_control_mappings;
+> > + }
+> > +
+> >   return NULL;
+> >  }
+> >
+> > @@ -4911,7 +4927,9 @@ static const struct hid_device_id
+> > hidpp_devices[] =3D {
+> >   { /* MX Vertical mouse over Bluetooth */
+> >     HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb020) },
+> >   { /* Signature M650 over Bluetooth */
+> > -   HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb02a) },
+> > +   HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH,
+> > +        HIDPP_PRODUCT_SIGNATURE_M650),
+> > +   .driver_data =3D HIDPP_QUIRK_HIDPP_REPROG_CONTROLS_BTNS },
+> >   { /* MX Master 3 mouse over Bluetooth */
+> >     HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb023) },
+> >   { /* MX Anywhere 3 mouse over Bluetooth */

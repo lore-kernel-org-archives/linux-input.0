@@ -1,41 +1,40 @@
 Received: from layka.disroot.org (layka.disroot.org [178.21.23.139])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E17593A254D;
-	Thu, 30 Jul 2026 19:48:49 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3C78F31985C;
+	Thu, 30 Jul 2026 19:49:04 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=178.21.23.139
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785440936; cv=none; b=sf1cdka9KePm8/vKDzeFh87UCku2JNDd9vgwoVzK0ViNWaPXhmfMyXm/yo7dj0nK716UWXRZLr3ewbInGXJN25iklbq41dvNMfIGdUASY6k5PpZpuxF9896es4ifiVikNOndfrF2H+NB9Ru/7n2sJv2LhXD0whL/3/WU73khJsA=
+	t=1785440953; cv=none; b=hiFqZYQQHqOz7W0R5+SzLiXsSauh7LRaqbX15U/eXVm+jXdWIQkMt11PMLpUz0vc/E/bL+JRRs0L7w+tDWkALOuCsb8ZlpbvqrNUk6ma1YIk7SaxEGOxM3neAId7n9pe1atOnUaRs6a+UtBKAXhopLRILfy8sD0Jxwy9oSbnRns=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785440936; c=relaxed/simple;
-	bh=Kx/SqQ5YypakUXn6zd5yZDIz4kpBBehlvhVjWn5tQFo=;
+	s=arc-20240116; t=1785440953; c=relaxed/simple;
+	bh=5OosL7UAzAlw+AfOM4QcdD9qlKoevvkWJfZrS6zvBNQ=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=FTM+frfqMd/GbewcUzOqAMKylGJi4xKC7TJFZzWSzHuQpj+p5HtCN33lMMqSPT65r5EYnyNE4SRDW8IFwcm+YdvwKauNJAAjZ2QUtdDBkFgy7DpAQSDmq+1P3/R8FcScmyuXrNif+6FlDtp57oSO4D8J2nYYiPljw90RaPEWNOE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=disroot.org; spf=pass smtp.mailfrom=disroot.org; dkim=pass (2048-bit key) header.d=disroot.org header.i=@disroot.org header.b=HQhm7n1u; arc=none smtp.client-ip=178.21.23.139
+	 In-Reply-To:To:Cc; b=c6+bdC2xU9wW4Vm3GIo7a4mivHP5H0/BPdZumX0SgXdIVO0JnAFuJclgv68E5nqGfG5AfZYDRa5/eI+t+LhgYGo2lm3+LnCKoUlVPR3dYWZ7SRQb7SsrHvAWNy9HM7I6fX8D9wdkSFsVE12EtdIkr6YFVDf0cYK2H12l2TBgLf4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=disroot.org; spf=pass smtp.mailfrom=disroot.org; dkim=pass (2048-bit key) header.d=disroot.org header.i=@disroot.org header.b=RfPxy95n; arc=none smtp.client-ip=178.21.23.139
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=disroot.org
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=disroot.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=disroot.org header.i=@disroot.org header.b="HQhm7n1u"
+	dkim=pass (2048-bit key) header.d=disroot.org header.i=@disroot.org header.b="RfPxy95n"
 Received: from mail01.layka.lan (localhost [127.0.0.1])
-	by disroot.org (Postfix) with ESMTP id 6B59641B83;
-	Thu, 30 Jul 2026 21:48:47 +0200 (CEST)
+	by disroot.org (Postfix) with ESMTP id 2070D41C0A;
+	Thu, 30 Jul 2026 21:48:59 +0200 (CEST)
 X-Virus-Scanned: SPAM Filter at disroot.org
 Received: from layka.disroot.org ([127.0.0.1])
  by localhost (disroot.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id XI_ohf7IfS-w; Thu, 30 Jul 2026 21:48:46 +0200 (CEST)
+ id twh4_bGASbqc; Thu, 30 Jul 2026 21:48:58 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=disroot.org; s=mail;
-	t=1785440926; bh=Kx/SqQ5YypakUXn6zd5yZDIz4kpBBehlvhVjWn5tQFo=;
+	t=1785440938; bh=5OosL7UAzAlw+AfOM4QcdD9qlKoevvkWJfZrS6zvBNQ=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc;
-	b=HQhm7n1uHtUAchYEysLVLhkwrzhRjkM+V8qbu+3yo7A8nHamF8sOq7X4pO1vIX1qV
-	 uy2FVNe79/tlDoFBPBWSvZeiIUu07UdOM8Vt9a3yLIGvPm2vK8316i/DaoiNX9EIy7
-	 tbzTjqzF+v6F9r7m8OYpl/HKuFBsvWGpmX7wFsDsrRjXXP3Qc1WdBoVDi6RHdnz8Hc
-	 90w4C6pFf0EBRpj/9Mj1ZyOnNC1k6X4c3z1P/soFT+nfqM0fQNvUc6NpBd7lfw9GqN
-	 x3D6oQb6yXVO3wQkSj7BjlHaXnFkI6Jst0oYvw71wTs6Yldb85VI+ZmjMt1/sGtbmn
-	 yfv1zb+QVXxlQ==
+	b=RfPxy95nrBGr4RUcT6igf1c9IC/it5/M8WhA8SDcCraOn351JXMlcQNP8vagstq5f
+	 pqi1RBiV/2aIqCRik7ikWAkL3kMqX6qgVctOmDAQBnTp1y/fQZeCCshKurk+yr7qHH
+	 D7AhEy6wrYjD7oRHS7NnwQBpKlSDdmeoSAY4Esz5Ykjh0WM+oUjvA2O0hH/3xlKGAd
+	 o5WsDsK17WoqAXDVuoEW6sBarOBWRys+dUeW1PSRLGptQbO04sA/T4amD9uPS2n5Ej
+	 DJNZfWDnuqSginQZnxRTb4CQpiTP6HL2dNTXWM5mMzmBgxJIXHctdQHcYlXDFZnwo/
+	 2bFVkwd1aTWTg==
 From: Kaustabh Chakraborty <kauschluss@disroot.org>
-Date: Fri, 31 Jul 2026 01:18:21 +0530
-Subject: [PATCH v2 1/5] Input: zinitix - check all available fingers for
- every touch event
+Date: Fri, 31 Jul 2026 01:18:22 +0530
+Subject: [PATCH v2 2/5] Input: zinitix - do not ignore non-moving fingers
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -44,7 +43,7 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260731-zinitix-modes-v2-1-ffe2ec9a9031@disroot.org>
+Message-Id: <20260731-zinitix-modes-v2-2-ffe2ec9a9031@disroot.org>
 References: <20260731-zinitix-modes-v2-0-ffe2ec9a9031@disroot.org>
 In-Reply-To: <20260731-zinitix-modes-v2-0-ffe2ec9a9031@disroot.org>
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
@@ -57,60 +56,53 @@ Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
  linux-samsung-soc@vger.kernel.org, 
  Kaustabh Chakraborty <kauschluss@disroot.org>
 
-When this initial driver was first added to tree, that is, in commit
-26822652c85e ("Input: add zinitix touchscreen driver"), the touch_event
-struct had a field called finger_cnt. It was supposed to report how many
-fingers are touching the screen.
+With the ZT7548 touchscreen present in the Galaxy J6, multitouch does not
+work reliably. This is due to the fact that the driver reports fingers
+only when their state is changed, so it's either placed against the
+screen, moved, or drawn away from the screen.
 
-But then, in commit e941dc13fd37 ("Input: zinitix - do not report shadow
-fingers"), some touchscreens reportedly exposed a bit mask for the
-fingers, instead of the count. So the code was changed to bitwise
-iteration.
+The function which is responsible for this is zinitix_report_finger().
+This function is called from the IRQ handler, under the following
+condition:
 
-With my testing on the ZT7548 touchscreen of the Galaxy J6, I find the
-former to be true. This shows that there's two valid methods depending
-on what hardware the driver is made to work on.
+		if (p->sub_status & SUB_BIT_EXIST)
+			zinitix_report_finger(bt541, i, p);
 
-One solution is to implement both methods, and use some flag to select
-between the two. However, this introduces more implementation overhead,
-and a possibility of regression on devices the driver is expected to work.
+This implies and ensures that every valid finger must have the
+SUB_BIT_EXIST flag.
 
-Instead, unconditionally check all fingers. The finger_mask field is now
-left unused, thus serving as padding bytes in the struct. For each
-finger, zinitix_report_finger() is called if the status reports the
-SUB_BIT_EXIST bit, so phantom fingers are not going to be a thing.
+However, at the beginning of the function, it refuses to recognize any
+finger if it has none of SUB_BIT_UP | SUB_BIT_DOWN | SUB_BIT_MOVE. This
+excludes fingers in reports which do not move from the position since
+the previous interrupt. Add SUB_BIT_EXIST to the list of valid bits.
 
-Moreover, the android driver [1] does exactly that, so it's a tried
-method of implementation.
-
-Link: https://android.googlesource.com/kernel/bcm/+/23d376ef33aa4c500a5ea24a290f029d5f8e2de3/drivers/input/touchscreen/zinitix_touch.c#1942 [1]
 Signed-off-by: Kaustabh Chakraborty <kauschluss@disroot.org>
 ---
- drivers/input/touchscreen/zinitix.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/input/touchscreen/zinitix.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/input/touchscreen/zinitix.c b/drivers/input/touchscreen/zinitix.c
-index 0c36765bd79f..3421b8ffb19b 100644
+index 3421b8ffb19b..a0a89d25e25b 100644
 --- a/drivers/input/touchscreen/zinitix.c
 +++ b/drivers/input/touchscreen/zinitix.c
-@@ -445,7 +445,6 @@ static irqreturn_t zinitix_ts_irq_handler(int irq, void *bt541_handler)
- 	struct bt541_ts_data *bt541 = bt541_handler;
- 	struct i2c_client *client = bt541->client;
- 	struct touch_event touch_event;
--	unsigned long finger_mask;
- 	__le16 icon_events;
- 	int error;
- 	int i;
-@@ -470,8 +469,7 @@ static irqreturn_t zinitix_ts_irq_handler(int irq, void *bt541_handler)
- 		zinitix_report_keys(bt541, le16_to_cpu(icon_events));
- 	}
+@@ -406,7 +406,7 @@ static void zinitix_report_finger(struct bt541_ts_data *bt541, int slot,
+ 	u16 x, y;
  
--	finger_mask = touch_event.finger_mask;
--	for_each_set_bit(i, &finger_mask, MAX_SUPPORTED_FINGER_NUM) {
-+	for (i = 0; i < MAX_SUPPORTED_FINGER_NUM; i++) {
+ 	if (unlikely(!(p->sub_status &
+-		       (SUB_BIT_UP | SUB_BIT_DOWN | SUB_BIT_MOVE)))) {
++		       (SUB_BIT_EXIST | SUB_BIT_UP | SUB_BIT_DOWN | SUB_BIT_MOVE)))) {
+ 		dev_dbg(&bt541->client->dev, "unknown finger event %#02x\n",
+ 			p->sub_status);
+ 		return;
+@@ -473,7 +473,7 @@ static irqreturn_t zinitix_ts_irq_handler(int irq, void *bt541_handler)
  		const struct point_coord *p = &touch_event.point_coord[i];
  
  		/* Only process contacts that are actually reported */
+-		if (p->sub_status & SUB_BIT_EXIST)
++		if (p->sub_status)
+ 			zinitix_report_finger(bt541, i, p);
+ 	}
+ 
 
 -- 
 2.54.0

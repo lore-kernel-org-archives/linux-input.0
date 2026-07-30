@@ -1,123 +1,161 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D5C2929D281
-	for <linux-input@vger.kernel.org>; Thu, 30 Jul 2026 04:34:32 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5F52037A498
+	for <linux-input@vger.kernel.org>; Thu, 30 Jul 2026 04:34:44 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785386073; cv=none; b=sjraNpkq2Buap6NQlQRmbj1ujhG21QVnqHDzxbesiLvImzDYsp4JiYBvYAr4z84UW+iaO+y/uNM4BSZIDQ/4ChBaveXN6pcduC5TtJeRvx9zkV9RqEg5g989vbzRhztjTluWVsG5jwiJfVbQBW9dvasA5dqSgCqf1xMJDiBmPJc=
+	t=1785386086; cv=none; b=WuZhUZtMdgcGqq8P8va4gwoN+P7dhK49I0RsZwo8e0ROMewZLoj1caBeGjGYqJAchBAo+Uj/dmFz/iATmkVnlT6/TkF0xp7lK/lkVQuUx0qeBfFvxtLfyT1+6+9XKNUj4S3gjFt9sDk3CqT/m2fIISdIEW4nR9bvZ+9winhhnSs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785386073; c=relaxed/simple;
-	bh=h8z1bxpZ3C8ZO0V9iIZqFLYUGDL6nLDkKDCgi9nQtF8=;
+	s=arc-20240116; t=1785386086; c=relaxed/simple;
+	bh=bIEdGsB8SaNt+bXDSQU3pOWRssusOHKJzdvNYBJO2TM=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=slIXH3Fi2bUqk+gWSHBuqaCehcIwB5u5QAKCUYW/qS0//UOP9Mk1n9KNi4MxrFKju1CqNfmyN5a8HWF6CX27KtnMfMbJZ2zs1HmexQRlWDdbWoPPJr0eGmTMu9WCTfVxPmK9G+SriN+M8gWJ6fXGnADmwbIAVBPRDR+c4zZ5TrA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=apyqunj2; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=kiP4U4tBvbSbm8xrOWQg2NWLQ31flaiyP93LSVN0c8K5BfweAW1MSzi9ex2n+HLEEEeDAFbCAFBEPB9JcUJCpUFtz0iH00VrSuqsRwDrYg/i94cPm7Rz7h044zOZji1jSf+rhCpWX1LfzDrudL6sgN+ZDZQPL9UKj8a6n4W1B2A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=b2fnxSwL; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="apyqunj2"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E2481F00A3D;
-	Thu, 30 Jul 2026 04:34:32 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="b2fnxSwL"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 960E31F000E9;
+	Thu, 30 Jul 2026 04:34:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785386072;
-	bh=uVztWyaPA0e719pVwcZLUgA12kBRJdytvMe2Kla27xY=;
+	s=k20260515; t=1785386083;
+	bh=kDP9DTJvUf5FstPkIyrQCjyu/oCjGUFCXpBNoNDoZEA=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=apyqunj2RXKoREcMoX0lIyUUzuhmmJN5pHgjmWEQoOx8uMp6w3Mvd0WG+38fYigoH
-	 FqDMNl4WU6MmuyqFPvSYIQ2EMLl+13aNkO0QImauPzsz/Cxt5vqvPVcXdCX3hvheXd
-	 0BeMETA/jpBMSn1laNN/b9gdPTnWZyGaYnnQUdW1UTV01t5m0L9s4AMchPDP48B6Sg
-	 d6WYnlJUgcsoXhUia3W3BYMQrwcSYYjUM7/JvoGPguCNp/UNj3MOU+hQFDtO+cIlP9
-	 GbmlvY39HKVyycOprWQ/egVR9Y9bYYx0PWAeLBCbA5ZvIu4h404W1ZqDM5+1QXXeIj
-	 OS7nU9KM306JA==
+	b=b2fnxSwLhC3YqNu0nNgXWkfX7E99UYYNkKkfQO0661izJ7cn/PtbQrmIjdq1Kn7rb
+	 1eZFLydsdQHSzQT4c5ysmOBDGdmgEIPRulhE+Q3cK/ZGa1yuD1iu1/UNk3M6swG09L
+	 Sj3ezOxAUzK+Fwcd13S9edoQhLCR2TK8DU4Y8mXMKRzAqc9iOB9sQbp0gEAXKHPl49
+	 MI3NB4ghSu74jSTMOUXMMeoZdOE67F/Masv0GjaDTsjmjTfv777z/Zzdubb3BoP2IF
+	 NZI4dMhsYl7T6KeNLJZ2p8ED9F/vlkO+YzWxBrRQFbheTLc4NHtt4fliLO3eqWudb4
+	 sjp4p4o3xShKA==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v5 08/11] HID: steam: Improve logging and other cleanup
+Subject: Re: [PATCH v5 06/11] HID: steam: Fully unregister controller when
+ hidraw is opened
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Vicki Pfau" <vi@endrift.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260730041251.1659029-9-vi@endrift.com>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20260730041251.1659029-7-vi@endrift.com>
 References: <20260730041251.1659029-1-vi@endrift.com>
- <20260730041251.1659029-9-vi@endrift.com>
+ <20260730041251.1659029-7-vi@endrift.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 30 Jul 2026 04:34:32 +0000
-Message-Id: <20260730043432.6E2481F00A3D@smtp.kernel.org>
+Date: Thu, 30 Jul 2026 04:34:43 +0000
+Message-Id: <20260730043443.960E31F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
 s) to consider:
-- [High] The newly added error logging in `steam_get_serial` leaks uninitia=
-lized kernel stack memory to the kernel log via `hid_err`.
+
+New issues:
+- [Medium] The local variable `do_add` in `steam_register()` can be evaluat=
+ed uninitialized.
+
+Pre-existing issues:
+- [High] Teardown order in `steam_remove()` causes Use-After-Free and doubl=
+e-free vulnerabilities.
 --
 
---- Patch [8]: [PATCH v5 08/11] HID: steam: Improve logging and other clean=
-up ---
-commit 15f36444bb8b36e80ca21a45d7b255628f820523
+--- Patch [6]: [PATCH v5 06/11] HID: steam: Fully unregister controller whe=
+n hidraw is opened ---
+commit 14e48fa0937746f55f6b26048f8ecca7fe02bb3e
 Author: Vicki Pfau <vi@endrift.com>
+Subject: HID: steam: Fully unregister controller when hidraw is opened
 
-HID: steam: Improve logging and other cleanup
-
-This patch adds additional logging to the hid-steam driver and aligns
-enumeration definitions. It also cleans up several error paths by replacing
-manual mutex lock and unlock calls with scope-based guard() protection.
+This patch changes the driver to fully unregister the controller
+internally when hidraw is opened, leaving only the hidraw active until
+it is closed. It also unifies the unregister and connect callbacks to
+share identical logic.
 
 > diff --git a/drivers/hid/hid-steam.c b/drivers/hid/hid-steam.c
-> index 663fda8a86fdb..222b5751040a6 100644
+> index 87b3817a2f69d..12203d61922f7 100644
 > --- a/drivers/hid/hid-steam.c
 > +++ b/drivers/hid/hid-steam.c
 
 [ ... ]
 
-> @@ -481,22 +490,21 @@ static int steam_get_serial(struct steam_device *st=
-eam)
->  	u8 cmd[] =3D {ID_GET_STRING_ATTRIBUTE, sizeof(steam->serial_no), ATTRIB=
-_STR_UNIT_SERIAL};
->  	u8 reply[3 + STEAM_SERIAL_LEN + 1];
+> @@ -1084,6 +1085,7 @@ static int steam_register(struct steam_device *stea=
+m)
+>  	int ret;
+>  	unsigned long client_opened;
+>  	unsigned long flags;
+> +	bool do_add;
 > =20
-> -	mutex_lock(&steam->report_mutex);
-> +	guard(mutex)(&steam->report_mutex);
->  	ret =3D steam_send_report(steam, cmd, sizeof(cmd));
->  	if (ret < 0)
-> -		goto out;
-> +		return ret;
->  	ret =3D steam_recv_report(steam, reply, sizeof(reply));
->  	if (ret < 0)
-> -		goto out;
-> +		return ret;
->  	if (reply[0] !=3D ID_GET_STRING_ATTRIBUTE || reply[1] < 1 ||
->  	    reply[1] > sizeof(steam->serial_no) || reply[2] !=3D ATTRIB_STR_UNI=
-T_SERIAL) {
-> -		ret =3D -EIO;
-> -		goto out;
-> +		hid_err(steam->hdev, "%s: invalid reply (%*ph)\n", __func__,
-> +				(int)sizeof(reply), reply);
-
-[Severity: High]
-Could this leak uninitialized stack memory to the kernel log?
-
-The reply array is allocated on the stack at the start of steam_get_serial()
-without being zero-initialized.
-
-If steam_recv_report() reads a short or invalid response, it may return
-fewer bytes than the full size of the buffer. By unconditionally printing
-sizeof(reply) bytes in this error path, it looks like uninitialized kernel
-stack data will be dumped to dmesg.
-
-Would it be safer to print only the number of bytes actually received (ret),
-or to zero-initialize the reply array when it is declared?
-
-> +		return -EIO;
+>  	/*
+>  	 * This function can be called several times in a row with the
+> @@ -1113,10 +1115,7 @@ static int steam_register(struct steam_device *ste=
+am)
+>  		if (steam->quirks & STEAM_QUIRK_WIRELESS)
+>  			steam_battery_register(steam);
+> =20
+> -		mutex_lock(&steam_devices_lock);
+> -		if (list_empty(&steam->list))
+> -			list_add(&steam->list, &steam_devices);
+> -		mutex_unlock(&steam_devices_lock);
+> +		do_add =3D true;
 >  	}
->  	reply[3 + STEAM_SERIAL_LEN] =3D 0;
->  	strscpy(steam->serial_no, reply + 3, reply[1]);
-> -out:
-> -	mutex_unlock(&steam->report_mutex);
->  	return ret;
->  }
 > =20
+>  	spin_lock_irqsave(&steam->lock, flags);
+> @@ -1132,6 +1131,13 @@ static int steam_register(struct steam_device *ste=
+am)
+>  		if (ret !=3D 0)
+>  			goto steam_register_sensors_fail;
+>  	}
+> +
+> +	if (do_add) {
+
+[Severity: Medium]
+Is it possible for do_add to be evaluated uninitialized here?
+
+When steam_register() is invoked on an already-registered device,
+steam->serial_no[0] is already populated. This causes the initialization bl=
+ock
+for "if (!steam->serial_no[0])" to be skipped, meaning do_add is never
+assigned a value. Could this undefined behavior lead to compiler
+optimizations altering the control flow or causing redundant lock
+acquisitions?
+
+> +		mutex_lock(&steam_devices_lock);
+> +		if (list_empty(&steam->list))
+> +			list_add(&steam->list, &steam_devices);
+> +		mutex_unlock(&steam_devices_lock);
+> +	}
+>  	return 0;
 
 [ ... ]
 
+> @@ -1470,7 +1452,6 @@ static void steam_remove(struct hid_device *hdev)
+>  	cancel_work_sync(&steam->work_connect);
+>  	cancel_work_sync(&steam->rumble_work);
+>  	cancel_delayed_work_sync(&steam->coalesce_rumble_work);
+> -	cancel_work_sync(&steam->unregister_work);
+
+[Severity: High]
+This is a pre-existing issue, but does the teardown order in steam_remove()
+cause a Use-After-Free and double-free vulnerability?
+
+Currently, work items like steam->work_connect are canceled before calling
+hid_hw_stop(). Since the HID event stream is still active, an incoming
+interrupt (such as a connection status report) can trigger steam_raw_event(=
+):
+
+steam_raw_event()
+  steam_do_connect_event()
+    schedule_work(&steam->work_connect)
+
+When steam_remove() completes, devres frees the steam_device struct, leaving
+a dangling work item in the queue that triggers a UAF when executed.
+
+Furthermore, if the rescheduled work executes concurrently with the end of
+steam_remove(), both threads can invoke steam_unregister() simultaneously.
+Because steam_unregister() lacks mutual exclusion, does this lead to
+concurrent double-frees of the input and sensor devices?
+
+>  	steam->client_hdev =3D NULL;
+>  	steam->client_opened =3D 0;
+>  	if (steam->quirks & STEAM_QUIRK_WIRELESS) {
+
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260730041251.1659=
-029-1-vi@endrift.com?part=3D8
+029-1-vi@endrift.com?part=3D6

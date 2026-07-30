@@ -1,49 +1,50 @@
-Received: from out203-205-221-245.mail.qq.com (out203-205-221-245.mail.qq.com [203.205.221.245])
+Received: from out162-62-58-216.mail.qq.com (out162-62-58-216.mail.qq.com [162.62.58.216])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 246CB3BC685;
-	Thu, 30 Jul 2026 12:52:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=203.205.221.245
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 12B893C4154;
+	Thu, 30 Jul 2026 12:53:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=162.62.58.216
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785415979; cv=none; b=GzPfXjAATdBhxITIX5UMT2VN1kO2xcXcLUlUdjvyuiRz+EBzJDhmb4g5s+cUz4J7iiHY27/DiIx3pN9uuGjOaFMVfiaQfZiiqINqhC5NsFjbIpqrL/7huu6t4NutvzNpfV3qrIRyzeAsdH3iIC7jVqr8gDrDBM6uAjJGRigX09w=
+	t=1785415984; cv=none; b=nzJpR6LLQfvXI8A/9NrxXskHxWXxjCUpre7TXuRzETjpxtJLu5LUyLPj4AL7k0k3JCQAThfB21YnD+hmWBewTuR2fxwUL57+82Hw1OpRgJ2igA3AjvB8q1i94eKav0z9iTiXllF/eCSerwZjLR+BrtYnqpYTsZLe/Nkoi0GSExM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785415979; c=relaxed/simple;
-	bh=iOdvuOKnU7e/S72T0bOW7u2+uE5A/B3RVfyw7sYIwgc=;
+	s=arc-20240116; t=1785415984; c=relaxed/simple;
+	bh=EC533UZ1iBNxkcH5ie25ne/ZA7sZCNbJSu78/xN9kVk=;
 	h=Message-ID:From:To:Cc:Subject:Date:In-Reply-To:References:
-	 MIME-Version; b=VMcAwytQnHPt1Tkn1jP4EmzeY2Fqi1vqDPmlhGsnZxDoGPXLmI3Zq93Zf5M00gNhiSZZQCfLHvY0voiBm1kEY4kpZ4jCiwSJvGxONurqG59NfmhPuDpEa29ZCBClFMlgkvk0XaEZ9zndXZzKnfLwJLzhbVYCSCba8llreaamRMM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=foxmail.com; spf=pass smtp.mailfrom=foxmail.com; dkim=pass (1024-bit key) header.d=foxmail.com header.i=@foxmail.com header.b=JQD9Y2XH; arc=none smtp.client-ip=203.205.221.245
+	 MIME-Version; b=YTNhFqKWC3U5GF6bSkbD+Rt7R5NKJkpn5KSLzCUQstRNOzW5TS7dKNcfYYWWkS3dts2uGcrMlitRPhXXuQ0uGZmLxiF8jlvnWf48hy3eB1yPidoF7zqdQ5p6t0a0YicEa9nUhEh6drrh/QLRYJP9cR1c5YmaWBPvfub6MJNDebk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=foxmail.com; spf=pass smtp.mailfrom=foxmail.com; dkim=pass (1024-bit key) header.d=foxmail.com header.i=@foxmail.com header.b=q7oRQfNg; arc=none smtp.client-ip=162.62.58.216
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=foxmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=foxmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=foxmail.com header.i=@foxmail.com header.b="JQD9Y2XH"
+	dkim=pass (1024-bit key) header.d=foxmail.com header.i=@foxmail.com header.b="q7oRQfNg"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=foxmail.com;
-	s=s201512; t=1785415972;
-	bh=6uPCuLRuN+pM5uwajhdIBPkX31WQIO6QOTJhMaEsJ1I=;
+	s=s201512; t=1785415977;
+	bh=mUxWo3nitaj42/uWK8MMjzpXXCu5OCZ+NC2Ngw5/XZc=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=JQD9Y2XHaYggNIcV+wyoy8mymc3GAkPETwIMp78whlQi3lkiPxakDhRNR20cRejiy
-	 gVGfv/OlnMxt6w14tuE+C7rsxW9JZJnpedru5QxGhkh9vs8eBe7wM8G9Id6cyR8X96
-	 FRp97sZu43YmqNXD+I9Qg90F+nwaDh1R7sTwFc6A=
+	b=q7oRQfNg7ELepPT+BUQXevM8qD0xpjIf0edEKhHYHVNT9D2OK4Vb15xVwZ37oqtuy
+	 LCO560yjFTpRTfQfzrKekHRd17O3ShGa+pqXs/L6gKK2O8dC4VUM4J09B2qX3L0PBe
+	 PUBPCbTAqPE6Ppacc3wLjT0xWm91suJoTstGZTew=
 Received: from VM-0-7-ubuntu.. ([101.35.250.50])
-	by newxmesmtplogicsvrszb51-0.qq.com (NewEsmtp) with SMTP
-	id D322C298; Thu, 30 Jul 2026 20:52:50 +0800
-X-QQ-mid: xmsmtpt1785415970tqkm4y5sb
-Message-ID: <tencent_F203F6206515915C81D1210ECEBCBCA5D707@qq.com>
-X-QQ-XMAILINFO: MllZffuBkEb58WBoO07PjOiBD1kgsio3L7/aWBFXxrIu1DqjrhT4NDN82Qao4r
-	 5KjJzHAvMAixlOfJIE+/Rsq0KIH/+iwQyNZgl/hwJkbMp96KmxdcWvcB4HQX0altv8vgWILpwk/K
-	 8I8butu6rqWxtJucs90mWrJEmmONzmiZZc1e3rnfmhzW+auSiH1sVjxLLjoVF9uQ+MyomrOeNYxP
-	 Bjs7YqIB+D9p1M3PDruc5q9R7mnCtud+kxUL2j3/y+ieNyPljseknzXSp7+9GuDQq6AsunlUefJs
-	 UDmkYw0n2Z2gWgxjMXysGnHl2mvzq604lgNlhXJOzAxughP2zxGkutDIoJq3sckGuckqtXHrFwxy
-	 46Uor0/C5UNpIZTlmADeS6b2kvDC5zJibU3Y4HkV7hg6oLDdDW8eOv9UE9j0eP8nFpX1BCOmAfbw
-	 b+SHH9Flo5jdBSd7c0Imj+1uX84CluSQrRg8VZHtXFY6EDFo0wdClNj8bIgh0ihH1mGyrOahzR4G
-	 IqPZa47MU3ZVC4Cmk443iR7ZvmE5RbS1RLhISC3gerF0NuhsotMdTrXkrAkE44K3BzI+A4cvcPSQ
-	 XUN1f9PGX1VfMWraWaqanwfSQXD1OEd92OUEifC8ZytpvoSWXLGWW55CN1wzFnY79af2+m4v6mGs
-	 r/oaOWEPNlgBcxcSLUEcWmcKPOYMUEhhXSgMTw5IVyUX2KQDknTASjPfyUmOBjoluL2hCHZqu4iB
-	 OLTnOQ146aOOuczhYTF8u/5PnwcMNlyy3XA8QhMNFCE9sapT42GN57Nxa2vQG4+wdKuXE+xxb7xy
-	 5dP1g7P4JqNn42zkjb+NiMni6pA6mKV2Ju5fTr3dRuXUESL2yz0y7jEAGT8GPinWzS2S5Mlk/0il
-	 bK9jHbbUHB/t+B25oOK4jsJgexJqC0dttVjvnUTo2/b7CM4R7bZZKya9rGCz54/WiQ301oYYTpUl
-	 EZxDxCcgZsCwRn4YhWPZFLk8FpeKEz/AhBZIRnUBG/fGwIzsdaYvyriQgDpeYde4wZqLk6JCerFe
-	 e8ZvcOnTpByjxUQo3cu07NpyigL+bQXY6qYSK9MhtFODLHLzVOdW3bZ6BC8Mk=
-X-QQ-XMRINFO: Nq+8W0+stu50tPAe92KXseR0ZZmBTk3gLg==
+	by newxmesmtplogicsvrszc50-0.qq.com (NewEsmtp) with SMTP
+	id D37066DE; Thu, 30 Jul 2026 20:52:55 +0800
+X-QQ-mid: xmsmtpt1785415975tncrhuw4e
+Message-ID: <tencent_7441292A34B9A7A3111C7679504B7407B808@qq.com>
+X-QQ-XMAILINFO: MZu/+/yIvVI0Rfk77xAZLnAokwThnPN5aU39H+3nbG88wzP2STOA7Y0tdM42wZ
+	 Pc2XAttFUwk2d+6WQUSsE7/2l/1GUfeD7AgKvixO/NLZDvQJntFaxUuPth/4NnmM3Uqh+Rb2hmLX
+	 SdHnjkaYC5wAYfleJ7RJaHlpegD7nes1S/PEq6wzbNS827O8GuZXL9mQK+zP1+xjcHMzO5JHdFWD
+	 harRqlLWQ7NsxqcRmtbYo0gZKu0tKyQlp+5b3MgTsvLIhPoF/+ELEllsAwH3LylM77sWXH8vlJRj
+	 2Pka9VTDHDifaRVS61suKXpWe7Kyss+l0HmIon5acBismdvOrdpeWZnj/iHBZWk++pgim8hv5KDk
+	 6sKNjKahYgzOXBdMjzKtI4PeqqRTjYR5qe9dXOwQCWA/kiCoCg00iFooWB0GppdD7QkyqUUTY0yO
+	 VqSigxE41is1/3bVlbe98sLT24mOjr+MuuHYaJyAqkQEjyWnL3TlQEOwUclgt2P1/0fsSgY2G7Sj
+	 xhF49jkRViTi3E6lV2TTCdzwGHbRsLicBEr17FnsDvEoesRZ5qnW937i4Z47aUvsMCN1tzdTQfrq
+	 UKR8D+UuUObT8lLyjzUQtczysQYVqlqlYAaG80A37uPJWhM8GfCVCzRKopQ3JiYD43Bt2p3ugNsG
+	 G0Vl1bbcsmFTuHvVLG6NHKghMpPLeWAzX1eXvit+OQEEGkEgkAyXBa7lrfmX+W6e1LgLfvyMsrwc
+	 DuGS5zCkDyatNQ6lZ+OQ3pyfHI8l0hvyq8paZ3o1YvXQ5C0M3YbgbotKZxdp7gOdKfyH7pvvVbni
+	 piqdwUBB5LFd6kJqlClqccwsNm1HsaV0tuoowVVQbx02xjJ1oE58NOzeSr5lWLaNXMlkFmhTwTaO
+	 Zz6/xJnvA8bpktpIQ+PTFLTyzcTUV3tokO0gPk3Ct+7b+5QIx35SlQx1xSLYGS9l6PZTJdsJ9K8F
+	 OBOkXhaXTXMREMOuTYkRdYKjRxApYnIuuSXgzpLDSgGHuvXg17EfaCNntcNnu0gHptD2TJjwNXMU
+	 Vq6hxWvT796hvTLQdpjDzIKugrg9MCmoHLiiikOk0pTId9qrV6SOZrg7s/2LoygzV1i9tgE1+y7i
+	 P2jfEfmdwCoAYapyE327rMAhqpLA==
+X-QQ-XMRINFO: MPJ6Tf5t3I/ylTmHUqvI8+Wpn+Gzalws3A==
 From: Shen Yongchao <grayhat@foxmail.com>
 To: linux-input@vger.kernel.org
 Cc: Shen Yongchao <grayhat@foxmail.com>,
@@ -52,9 +53,9 @@ Cc: Shen Yongchao <grayhat@foxmail.com>,
 	Jiri Kosina <jikos@kernel.org>,
 	Benjamin Tissoires <bentiss@kernel.org>,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH v2 1/4] HID: intel-ish-hid: fix report_list iterator pointer arithmetic
-Date: Thu, 30 Jul 2026 20:52:49 +0800
-X-OQ-MSGID: <20260730125250.294211-1-grayhat@foxmail.com>
+Subject: [PATCH v2 4/4] HID: intel-ish-hid: add full entry bounds check to report_list parsing
+Date: Thu, 30 Jul 2026 20:52:54 +0800
+X-OQ-MSGID: <20260730125254.294381-1-grayhat@foxmail.com>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20260730115600.218172-1-grayhat@foxmail.com>
 References: 
@@ -66,67 +67,48 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Since commit 63cafaf47a83 ("HID: ishtp-hid-client: replace
-fake-flex arrays with flex-array members", v6.13), the
-HOSTIF_PUBLISH_INPUT_REPORT_LIST handler iterates over sub-reports
-using a struct report * pointer:
+The report iterator is never checked against the receive buffer
+boundary after computing the sub-report length, so a crafted
+report_len can advance the iterator past the message and
+subsequent iterations read from arbitrary out-of-bounds memory.
 
-	report += sizeof(*report) + payload_len;
-
-Because report is a struct report * (not a char *), the compiler
-multiplies the advance by sizeof(struct report) = 8, making the
-actual stride (8 + payload_len) * 8 bytes instead of the intended
-8 + payload_len bytes.  On v6.13+ a legitimate aggregated list
-with num_of_reports >= 2 drives the second iteration far outside
-the message buffer.
-
-Replace the struct report * iterator with a byte-granular u8 *pos
-so the advance is computed in bytes.
+Add a check that the full entry (struct report header plus
+payload) fits within the message before processing it.  Also
+switch the reports_list and list_end sources from the stale
+outer-loop payload variable to recv_msg->payload, which always
+points to the current message.
 
 
 Assisted-by: LLM
 Signed-off-by: Shen Yongchao <grayhat@foxmail.com>
-Fixes: 63cafaf47a83 ("HID: ishtp-hid-client: replace fake-flex arrays with flex-array members")
+Fixes: 0b28cb4bcb17 ("HID: intel-ish-hid: ISH HID client driver")
 Cc: stable@vger.kernel.org
 ---
 diff --git a/drivers/hid/intel-ish-hid/ishtp-hid-client.c b/drivers/hid/intel-ish-hid/ishtp-hid-client.c
-index 6d64008f2..ba52e185c 100644
+index efe5c5326..0ac7be0c4 100644
 --- a/drivers/hid/intel-ish-hid/ishtp-hid-client.c
 +++ b/drivers/hid/intel-ish-hid/ishtp-hid-client.c
-@@ -74,6 +74,7 @@ static void process_recv(struct ishtp_cl *hid_ishtp_cl, void *recv_buf,
- 	int report_type;
- 	struct report_list *reports_list;
- 	struct report *report;
-+	u8 *pos;
- 	size_t report_len;
- 	struct ishtp_cl_data *client_data = ishtp_get_client_data(hid_ishtp_cl);
- 	int curr_hid_dev = client_data->cur_hid_dev;
-@@ -280,9 +281,10 @@ static void process_recv(struct ishtp_cl *hid_ishtp_cl, void *recv_buf,
+@@ -282,9 +282,9 @@ static void process_recv(struct ishtp_cl *hid_ishtp_cl, void *recv_buf,
+ 
  		case HOSTIF_PUBLISH_INPUT_REPORT_LIST:
  			report_type = HID_INPUT_REPORT;
- 			reports_list = (struct report_list *)payload;
--			report = reports_list->reports;
-+			pos = (u8 *)reports_list->reports;
+-			reports_list = (struct report_list *)payload;
++			reports_list = (struct report_list *)recv_msg->payload;
+ 			pos = (u8 *)reports_list->reports;
+-			list_end = (u8 *)payload + payload_len;
++			list_end = (u8 *)recv_msg->payload + payload_len;
  
  			for (j = 0; j < reports_list->num_of_reports; j++) {
-+				report = (struct report *)pos;
- 				recv_msg = container_of(&report->msg,
- 							struct hostif_msg, hdr);
- 				report_len = report->size;
-@@ -303,7 +305,7 @@ static void process_recv(struct ishtp_cl *hid_ishtp_cl, void *recv_buf,
- 						0);
- 					}
+ 				if (pos + sizeof(struct report) > list_end)
+@@ -300,6 +300,10 @@ static void process_recv(struct ishtp_cl *hid_ishtp_cl, void *recv_buf,
  
--				report += sizeof(*report) + payload_len;
-+				pos += sizeof(struct report) + payload_len;
- 			}
- 			break;
- 		default:
-@@ -956,4 +958,4 @@ MODULE_AUTHOR("Daniel Drubin <daniel.drubin@intel.com>");
-  */
- MODULE_AUTHOR("Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>");
+ 				inner_len = report_len -
+ 					sizeof(struct hostif_msg_hdr);
++				if (pos + sizeof(struct report) + inner_len >
++						list_end)
++					break;
++
  
--MODULE_LICENSE("GPL");
-+MODULE_LICENSE("GPL");
-\ No newline at end of file
+ 				for (i = 0; i < client_data->num_hid_devices;
+ 				     ++i)
 

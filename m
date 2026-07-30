@@ -1,43 +1,44 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4D836326928;
-	Thu, 30 Jul 2026 20:00:44 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 353423559E1;
+	Thu, 30 Jul 2026 20:01:33 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785441647; cv=none; b=bA+4huhsJOz9ZQZBkopHd6lwj6g4amGWrnx50cUPvG/4qnTOhS2jPD4quoq9Nk/uZ+z9HY8kgBX6Pn/wT6wyPrp8VpN1ySGz6XgubedapBaa9rbeZY/vqOPUiDpn++G68nmKsRYOSPJ8F0WvN15KJozmpGDGR/XU6eIWQTaNHjQ=
+	t=1785441696; cv=none; b=nSeJBFtzTQYaquIlZb1HlE5AdKxGcJlEJhHew1NrxExA63PapLDBPmHlvu36LqqpLT42HxA/Kcc+t8Ei+i7qxKSh1uXw5McFdyPiBuzcEqEcZIc0K7RJZl6xueJXGgpNYq9oNtiIrNfTQ/p9KPu+91ehVNI1vsox9ylRXCX5d54=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785441647; c=relaxed/simple;
-	bh=UOvLgXOOi45j8zP+aFGHYnXv4GW2hGuPgOjhWWo7JU8=;
+	s=arc-20240116; t=1785441696; c=relaxed/simple;
+	bh=f93fCmGWnoImWam34URDWG7c4IawJDr+vx1wKcDQFck=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=gLLOhIO0Wymfb8OnH9QIVKwbby1pyDSATPDe+cFCNvePEW0OcTjwv/OzOMEQsLdH0kCStkVpSC27Oj1okhKFuPm+ne9PS/8PgxeBJ/jgIjqMWIr1QQ6VZP8EVlmFgF7fU7orMnoHrozXQgMssH2jp1pVZEaxFRhImdXjhXmYUPI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=UxoM6kc0; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=Rt9KGXRspt74nAGPowRh8cBG2BRVNTVJWPHumsLomX3IvCkLUi9F2PHQKfSiqemDNo7gb6SvXwCR2HpSWx7gShRfJsfC+Jd3BiuFvhr2UG0GLAF+qEWQ5syghFZa9/zRDnF90E59qnu4dUl8n/bc8TnSeFoSLHiX92YfKJcoZN0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Bxxaa28i; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="UxoM6kc0"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4282B1F000E9;
-	Thu, 30 Jul 2026 20:00:41 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Bxxaa28i"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B2FE11F000E9;
+	Thu, 30 Jul 2026 20:01:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785441641;
-	bh=Pka+rjf1pyY0+8KUe7zlVHBVyCfeueZooJFQfuEc+yI=;
+	s=k20260515; t=1785441693;
+	bh=xT2kJDI1dEXQ1gjwiVa98E3BtDlc/4uaOMCTO+rHOs8=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=UxoM6kc0ts/1fXYOsIcI2z60JX9Mwur2YWq9AT0ltXRxETTNnPywRS4JQpZkPTEpj
-	 ueLIVrB+d2iKu88cEwX64/vh1s/Xmav1GJ0uSLQMCttjZndZkKY+XLLoyhH9+g0/1l
-	 aSo2PH12acMXnX3oIEWKk/tfV9BUm5U9nIALlxG/hEhasbYCWF89DZVvHaxo+oQaMw
-	 DpX9TD4u8txPnM6csRkuTJludprZMIrjdJzwpY2ZxAJLbIcSPn28SVQkoscBQRGkt2
-	 0AACJ7knkjNybqKkZB+gbXt0pkXMO0ciW5KxYUzETKNld0Mt5SVJSdF7eZtZjhPPcg
-	 e9LrBj94dKm/Q==
+	b=Bxxaa28iZJrZxg4GjFKKxSyTnJPM6FegR9ztfRJmwt5S4GnaGVtiG2/xQ57RCb+Kd
+	 uOu03recDFJ5yBgMu/TAmX7WAcRt57UhpVEjrHUK0NlOt61XeBJeGnhQQA28BBOY9G
+	 FKBZ8y6I190BKe3B/K/qcdNnZSSXvW3N2d/c0LPwJxfOWyN4P5TNe+Gc/aLLkg+CgN
+	 c+TBVuVbZyqFgnQmRKAR+uMojYRUePM9su+2KBwSX+jCOwRCBvmC8hxgMjrY4J9Cny
+	 cu3/m/7guEzRMMKmKVLuFDtz/zlUzVnQmR17ZQlQUmVkRsmVzW3flo7x1kR1Tr/M8/
+	 BTPH7nJZ3fXXA==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 3/5] Input: zinitix - add support for modes 0 and 1
+Subject: Re: [PATCH v2 5/5] arm64: dts: exynos7870-j6lte: set mode 0 as
+ default for zinitix touchscreen
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Kaustabh Chakraborty" <kauschluss@disroot.org>
-Cc: linux-input@vger.kernel.org, robh@kernel.org, conor+dt@kernel.org, devicetree@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260731-zinitix-modes-v2-3-ffe2ec9a9031@disroot.org>
+Cc: dmitry.torokhov@gmail.com, robh@kernel.org, devicetree@vger.kernel.org, conor+dt@kernel.org, linux-input@vger.kernel.org
+In-Reply-To: <20260731-zinitix-modes-v2-5-ffe2ec9a9031@disroot.org>
 References: <20260731-zinitix-modes-v2-0-ffe2ec9a9031@disroot.org>
- <20260731-zinitix-modes-v2-3-ffe2ec9a9031@disroot.org>
+ <20260731-zinitix-modes-v2-5-ffe2ec9a9031@disroot.org>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 30 Jul 2026 20:00:40 +0000
-Message-Id: <20260730200041.4282B1F000E9@smtp.kernel.org>
+Date: Thu, 30 Jul 2026 20:01:32 +0000
+Message-Id: <20260730200132.B2FE11F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -46,109 +47,114 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
 Thank you for your contribution! Sashiko AI review found 2 potential issue(=
 s) to consider:
-
-New issues:
-- [High] The input device is registered and exposed to userspace before its=
- private `read_point_status` function pointer is initialized, creating a ra=
-ce condition that leads to a NULL pointer dereference in the IRQ handler.
-
-Pre-existing issues:
-- [High] The driver passes stack-allocated structs to the I2C subsystem for=
- receiving data, which can cause memory corruption or kernel panics if the =
-I2C controller driver maps the buffers for DMA.
+- [High] NULL pointer dereference in IRQ handler due to race condition with=
+ input device registration.
+- [Medium] Commit message and code logic mismatch regarding finger event fi=
+ltering.
 --
 
---- Patch [3]: [PATCH v2 3/5] Input: zinitix - add support for modes 0 and =
-1 ---
-commit 2caca9eabecb85f6226ee1af1cfdde1aeb2f1bc2
+--- Patch [5]: [PATCH v2 5/5] arm64: dts: exynos7870-j6lte: set mode 0 as d=
+efault for zinitix touchscreen ---
+commit 8857c310eb5f5f4f8a5e742e862931240c3227fa
 Author: Kaustabh Chakraborty <kauschluss@disroot.org>
 
-Input: zinitix - add support for modes 0 and 1
+arm64: dts: exynos7870-j6lte: set mode 0 as default for zinitix touchscreen
 
-Zinitix touchscreens have three modes, numbered 0 to 2. The driver
-implements mode 2, and leaves out modes 0 and 1. Implement modes 0 and 1
-in the driver, along with their event structs.
+This commit sets the default mode for the ZT7548 touchscreen chip to 0 in t=
+he
+Galaxy J6 device tree. It ensures that fake aftermarket digitizers, which o=
+nly
+implement mode 0, function correctly since the downstream kernel driver also
+utilizes mode 0.
 
-> diff --git a/drivers/input/touchscreen/zinitix.c b/drivers/input/touchscr=
-een/zinitix.c
-> index a0a89d25e25bb..aafd0b7d8edbd 100644
-> --- a/drivers/input/touchscreen/zinitix.c
-> +++ b/drivers/input/touchscreen/zinitix.c
+> arm64: dts: exynos7870-j6lte: set mode 0 as default for zinitix touchscre=
+en
 
-[ ... ]
+[Severity: Medium]
+Is there a mismatch between the commit message and code logic regarding fin=
+ger
+event filtering?
 
-> @@ -440,6 +471,87 @@ static void zinitix_report_keys(struct bt541_ts_data=
- *bt541, u16 icon_events)
->  				 bt541->keycodes[i], icon_events & BIT(i));
->  }
-> =20
-> +static int zinitix_read_point_status_mode0(struct bt541_ts_data *bt541,
-> +					   struct touch_event *event)
-> +{
-> +	struct touch_event_mode0 event_mode0;
-> +	int ret;
-> +	int i;
-> +
-> +	ret =3D zinitix_read_data(bt541->client, ZINITIX_POINT_STATUS_REG,
-> +				&event_mode0, sizeof(struct touch_event_mode0));
+The commit "Input: zinitix - do not ignore non-moving fingers" states in its
+message: "...under the following condition: if (p->sub_status & SUB_BIT_EXI=
+ST)
+zinitix_report_finger(bt541, i, p); This implies and ensures that every val=
+id
+finger must have the SUB_BIT_EXIST flag."
 
-[Severity: High]
-This is a pre-existing issue, but does passing this stack-allocated
-event_mode0 struct to the I2C subsystem cause memory corruption or kernel
-panics if the underlying I2C host controller driver maps it for DMA?
+However, the condition simply checks if (p->sub_status):
 
-The same pattern is also present in the new zinitix_read_point_status_mode1=
-()
-and zinitix_read_point_status_mode2() functions.
-
-[ ... ]
-
-> @@ -682,13 +793,19 @@ static int zinitix_ts_probe(struct i2c_client *clie=
-nt)
->  		bt541->zinitix_mode =3D DEFAULT_TOUCH_POINT_MODE;
->  	}
-> =20
-> -	if (bt541->zinitix_mode !=3D 2) {
-> -		/*
-> -		 * If there are devices that don't support mode 2, support
-> -		 * for other modes (0, 1) will be needed.
-> -		 */
-> +	switch (bt541->zinitix_mode) {
-> +	case 0:
-> +		bt541->read_point_status =3D zinitix_read_point_status_mode0;
-
-[Severity: High]
-Can a fast userspace trigger a NULL pointer dereference here?
-
-Since zinitix_init_input_dev() is called earlier in zinitix_ts_probe(),
-the device is registered and exposed to userspace before
-bt541->read_point_status is initialized:
-
-zinitix_ts_probe()
-    zinitix_init_input_dev()
-        input_register_device()
+drivers/input/touchscreen/zinitix.c:zinitix_ts_irq_handler() {
     ...
-    switch (bt541->zinitix_mode) {
-    case 0:
-        bt541->read_point_status =3D zinitix_read_point_status_mode0;
+		/* Only process contacts that are actually reported */
+		if (p->sub_status)
+			zinitix_report_finger(bt541, i, p);
+    ...
+}
 
-If userspace opens the device and an interrupt triggers before the switch
-statement, zinitix_ts_irq_handler() will dereference the uninitialized
-read_point_status pointer:
+Does this regression allow events without SUB_BIT_EXIST to bypass the filte=
+r,
+invalidating the stated premise?
 
-zinitix_ts_irq_handler()
-    bt541->read_point_status(bt541, &touch_event);
+> diff --git a/arch/arm64/boot/dts/exynos/exynos7870-j6lte.dts b/arch/arm64=
+/boot/dts/exynos/exynos7870-j6lte.dts
+> index de30d0970336f..bd8f798c9810b 100644
+> --- a/arch/arm64/boot/dts/exynos/exynos7870-j6lte.dts
+> +++ b/arch/arm64/boot/dts/exynos/exynos7870-j6lte.dts
+> @@ -424,6 +424,8 @@ touchscreen@20 {
+>  		touchscreen-size-y =3D <1480>;
+> =20
+>  		vdd-supply =3D <&vdd_ldo34>;
+> +
+> +		zinitix,mode =3D <0>;
 
-> +		break;
-> +	case 1:
-> +		bt541->read_point_status =3D zinitix_read_point_status_mode1;
-> +		break;
-> +	case 2:
-> +		bt541->read_point_status =3D zinitix_read_point_status_mode2;
-> +		break;
+[Severity: High]
+Could setting the mode here introduce a regression where a NULL pointer
+dereference occurs in the IRQ handler due to a race condition with input
+device registration?
 
-[ ... ]
+Looking at drivers/input/touchscreen/zinitix.c:zinitix_ts_probe(), it calls
+zinitix_init_input_dev() which registers the input device:
+
+drivers/input/touchscreen/zinitix.c:zinitix_init_input_dev() {
+    ...
+	error =3D input_register_device(input_dev);
+    ...
+}
+
+This immediately exposes the evdev node to userspace. If userspace (e.g., u=
+dev)
+opens the device instantly, zinitix_input_open() invokes zinitix_start(),
+which enables the hardware IRQ.
+
+If an interrupt fires at this exact moment, zinitix_ts_irq_handler() runs a=
+nd
+dereferences the callback:
+
+drivers/input/touchscreen/zinitix.c:zinitix_ts_irq_handler() {
+    ...
+	error =3D bt541->read_point_status(bt541, &touch_event);
+    ...
+}
+
+However, the probe thread has not yet assigned this function pointer, becau=
+se
+it happens later via the mode switch:
+
+drivers/input/touchscreen/zinitix.c:zinitix_ts_probe() {
+    ...
+	switch (bt541->zinitix_mode) {
+	case 0:
+		bt541->read_point_status =3D zinitix_read_point_status_mode0;
+    ...
+}
+
+Since the function pointer is uninitialized when the IRQ fires, would this
+regression cause a kernel panic?
+
+>  	};
+>  };
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260731-zinitix-mo=
-des-v2-0-ffe2ec9a9031@disroot.org?part=3D3
+des-v2-0-ffe2ec9a9031@disroot.org?part=3D5

@@ -1,188 +1,145 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 36BDB2BEC2A
-	for <linux-input@vger.kernel.org>; Thu, 30 Jul 2026 04:39:32 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B77202857FA
+	for <linux-input@vger.kernel.org>; Thu, 30 Jul 2026 04:52:37 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785386374; cv=none; b=r/tfKgmCqGyl9zrunnVyEdg8MUwv6sfdfvHLLEj/S7T0wlQc6FX+t42qOQmIP09Nh1kdky109tAw2VsVM522dVS1TVXFUK5CKTNgSoul1J9Hc+qV/aEJ4O4YE8A4WyxZYIQBMpK3Ax3SaNkd2buM22Tb6/KAWu4R7/q80E2XQRg=
+	t=1785387158; cv=none; b=nOl/ZbUVD2A+6XLURJbCj2ZUa6Tq8/WDcL1aPbqPW/SWCuTx32XYpVzeWW53ZzTXgpXHJYSxb1T9DLMMajoc/43YOlerXG21KPZwvX2d4+IsQGtNixV5UqBuQpsqInae4KAKycl3XN1bgXSE6ND16kuhBK5Mj5jF0YDbEQlN7MU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785386374; c=relaxed/simple;
-	bh=ODtcBa/jyAxj9rimdAEPlUyq0qV21C4Zz2xK1ctvrpg=;
+	s=arc-20240116; t=1785387158; c=relaxed/simple;
+	bh=LVjAu4rZkLQb/uJatyGJJkVUTj6tyirbVnUOOwZFsLI=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=ZjMK+sQitStnYwhkkUWDrZ2M5FQSk+aEgWFd5MEZsDS8KsbTGB3qtMgycw9WzS0i3U+Ic/PCsHTRolCc1KR9MpKTviwcwmfHPGtfedcNK85jRP6FPiFnx4GhJ8PyxGWo6vgwZ9bTLE/G9AsoiMBm6vCSCd7n/6ri3DH9nSfkZiU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=WU3FpUEZ; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=cOR3OZJtLJNrnT1EMF3k+59CUjmRqB2SqyUQ8cxY93dp6Zo8xxA93l0goh0OejT3yFo673aTcz8JjPEMmkvs5gOEB4xDTb9VHN71DAfDsNTsBbe+VINY9Ur2kCJa5aac1fsYYc77sKm1Q3ZOWgHwHXg09pkRivjHLjXiePJiL7s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=JW2XLcju; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="WU3FpUEZ"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B94E91F000E9;
-	Thu, 30 Jul 2026 04:39:32 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="JW2XLcju"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E7961F000E9;
+	Thu, 30 Jul 2026 04:52:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785386372;
-	bh=aW3QJsMqJ4lkYfCALFv6MP19gTNegknJ2qD5XkoS2ws=;
+	s=k20260515; t=1785387157;
+	bh=gw+fY9xyuLKIj2mhSVL8Dnd1lrielRq4p3s2ONNzxd8=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=WU3FpUEZLNMGEWExsXxf3Yh4BalHwuqDuoJigBOlhJazu1Jxv8J+lF8Ke5d0whYMi
-	 1DZhikucAuVxJLVxq6oqCrL31h3IgIySLc/LmLo02aCfa2YxViGZqz4kcKfIaQaa3K
-	 50RvEM3OWnLiemEqwesXfis/IjNKutxmHIWkSFbWFUH/Cu/gdtjEWF89jhKdvNWdIs
-	 XV7vafQ3PRVP1Fa0jtXrCg6yKzRz4M0G5mWuC6rAOryHn9lJBatE9fN5ZdajdyoIsF
-	 vTgjPOZQ4k3AiY9cl1/xFsAXDw20cxCI7J5K8ZYt4/S0Hp5QloAJfRh1cs5olbFUP1
-	 Ww9KZUbbh5hpQ==
+	b=JW2XLcju9U7gbLZxa0qzMJH1cb8bxPeoTPKXuF1UzyvL8ZtVtKoRmLbWx0CL0mFHe
+	 SiTYo8N2VMhZBeiS6w5jRe2QVby5ifOSGF0MUMT4tzQOeNUXff1qQV8i9qAZWDXwAt
+	 zM49MfBOhf5cHTFxdw0nUP8BOevPic/4A6wgZOmXzWWqheZi9vUBhsZuV/0tKw2qok
+	 8vjMienzIecbzvw+6SJ99B645is/qDS76UpE5d6QuhJ8toW8iag167CfhLNdUdY9ji
+	 f3AAWqHsOD2MjKwOzqx/Mq79cgC2wvJaMdQuwzED5/lbxNCasq+DpgiHHRFyceNeKd
+	 jo21HZfGEBRrw==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v5 07/11] HID: steam: Rearrange teardown sequence
+Subject: Re: [PATCH v5 02/11] HID: steam: Refactor and clean up report
+ parsing
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Vicki Pfau" <vi@endrift.com>
 Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260730041251.1659029-8-vi@endrift.com>
+In-Reply-To: <20260730041251.1659029-3-vi@endrift.com>
 References: <20260730041251.1659029-1-vi@endrift.com>
- <20260730041251.1659029-8-vi@endrift.com>
+ <20260730041251.1659029-3-vi@endrift.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 30 Jul 2026 04:39:32 +0000
-Message-Id: <20260730043932.B94E91F000E9@smtp.kernel.org>
+Date: Thu, 30 Jul 2026 04:52:36 +0000
+Message-Id: <20260730045237.2E7961F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
 
 Pre-existing issues:
-- [High] Use-after-free due to `work_connect` rescheduling after cancellati=
-on in `steam_remove`.
-- [High] Race condition leading to use-after-free in `steam_probe` error pa=
-th.
-- [High] Lockless TOCTOU race in `steam_raw_event` leads to Use-After-Free =
-of `steam->client_hdev`.
+- [High] Works (`work_connect` and `rumble_work`) can be re-armed after the=
+y are cancelled during device removal, leading to a Use-After-Free.
 --
 
---- Patch [7]: [PATCH v5 07/11] HID: steam: Rearrange teardown sequence ---
-commit 0f9077495b7412b91d8e827f54f32dc26780b709
+--- Patch [2]: [PATCH v5 02/11] HID: steam: Refactor and clean up report pa=
+rsing ---
+commit b341becd37dc80cfee5384e2c463afc0e1624d32
 Author: Vicki Pfau <vi@endrift.com>
 
-HID: steam: Rearrange teardown sequence
+HID: steam: Refactor and clean up report parsing
 
-This patch reorders the teardown sequence for the Steam controller driver to
-address a narrow window where callbacks could be scheduled with a dangling
-pointer. It also moves the cancellation of rumble and mode switch work to
-steam_unregister().
+This switches from a parsing style where each button or axis is parsed
+individually out of a report using !!(byte & BIT(x)) style. This commit
+switches it to a mostly unified approach of defining a list of individual
+mappings in an array and passing it to a function that handles all of the
+extraction. Theoretically this is more lines, but in practice it results in
+(subjectively) cleaner code. Some exceptions still need to be made for
+things like handling the lizard mode toggle key, but in general there's a
+lot less manual code.
 
 > diff --git a/drivers/hid/hid-steam.c b/drivers/hid/hid-steam.c
-> index 12203d61922f7..663fda8a86fdb 100644
+> index a854d6360a0e3..75d6be0be0a29 100644
 > --- a/drivers/hid/hid-steam.c
 > +++ b/drivers/hid/hid-steam.c
+> @@ -43,6 +43,7 @@
+>  #include <linux/rcupdate.h>
+>  #include <linux/delay.h>
+>  #include <linux/power_supply.h>
+> +#include <linux/unaligned.h>
+>  #include "hid-ids.h"
+> =20
+>  MODULE_DESCRIPTION("HID driver for Valve Steam Controller");
+
 [ ... ]
-> @@ -1441,25 +1444,24 @@ static int steam_probe(struct hid_device *hdev,
->  static void steam_remove(struct hid_device *hdev)
->  {
->  	struct steam_device *steam =3D hid_get_drvdata(hdev);
-> +	unsigned long flags;
-> =20
->  	if (!steam || hdev->group =3D=3D HID_GROUP_STEAM) {
->  		hid_hw_stop(hdev);
->  		return;
->  	}
-> =20
-> +	hid_hw_close(hdev);
->  	hid_destroy_device(steam->client_hdev);
-> -	cancel_delayed_work_sync(&steam->mode_switch);
-> -	cancel_work_sync(&steam->work_connect);
-> -	cancel_work_sync(&steam->rumble_work);
-> -	cancel_delayed_work_sync(&steam->coalesce_rumble_work);
-> -	steam->client_hdev =3D NULL;
-> +	spin_lock_irqsave(&steam->lock, flags);
->  	steam->client_opened =3D 0;
 
 [Severity: High]
-This is a pre-existing issue, but does this sequence leave a window for a
-use-after-free on steam->client_hdev?
+This is a pre-existing issue, but while reviewing the driver's event handli=
+ng=20
+I noticed a potential use-after-free during device removal.
 
-In steam_remove(), hid_destroy_device(steam->client_hdev) is called to free
-the virtual client device while the hardware is still active, since
-hid_hw_stop() has not been called yet.
+In steam_remove(), work_connect is cancelled before the hardware event=20
+source is stopped:
 
-Meanwhile, steam_raw_event() locklessly checks if the client is opened befo=
-re
-dereferencing steam->client_hdev:
-
-drivers/hid/hid-steam.c:steam_raw_event() {
+steam_remove() {
     ...
-    if (steam->client_opened)
-        hid_input_report(steam->client_hdev, HID_FEATURE_REPORT,
-                         data, size, 0);
-    ...
+    cancel_work_sync(&steam->work_connect);
+    if (steam->quirks & STEAM_QUIRK_WIRELESS) {
+        hid_info(hdev, "Steam wireless receiver disconnected");
+    }
+    steam_unregister(steam);
+    hid_hw_stop(hdev);
 }
 
-If an interrupt fires and passes the client_opened check, could it get
-preempted, and then resume to call hid_input_report() on the freed
-client_hdev pointer after steam_remove() completes the destruction?
+If a wireless connect or disconnect report arrives after cancel_work_sync()=
+=20
+but before hid_hw_stop(), steam_do_connect_event() could process it:
 
-> +	spin_unlock_irqrestore(&steam->lock, flags);
-> +	cancel_work_sync(&steam->work_connect);
->  	if (steam->quirks & STEAM_QUIRK_WIRELESS) {
->  		hid_info(hdev, "Steam wireless receiver disconnected");
->  	}
-> -	hid_hw_close(hdev);
-> -	hid_hw_stop(hdev);
->  	steam_unregister(steam);
-> +	hid_hw_stop(hdev);
->  }
-
-[Severity: High]
-This is a pre-existing issue, but can steam->work_connect still be
-rescheduled after it is cancelled here?
-
-In steam_remove(), cancel_work_sync(&steam->work_connect) is called, but
-hid_hw_stop(hdev) isn't called until the very end.
-
-If a wireless connect or disconnect event arrives in between,
-steam_do_connect_event() unconditionally reschedules the work:
-
-drivers/hid/hid-steam.c:steam_do_connect_event() {
+steam_do_connect_event() {
     ...
     if (changed && schedule_work(&steam->work_connect) =3D=3D 0)
-        ...
+    ...
 }
 
-When steam_remove() finishes, the steam object is freed by devres, leaving a
-dangling work item in the system workqueue. Will this lead to a
-use-after-free when the scheduled work executes?
+Could this re-arm the cancelled work, leading to it executing after the=20
+devm-managed steam_device is freed? Would it be safer to call hid_hw_stop()=
+=20
+earlier in the function?
 
 [Severity: High]
-This is another pre-existing issue, but does the error path in steam_probe()
-have a similar race condition with work_connect?
+This is also a pre-existing issue, but I noticed a similar work queue order=
+ing
+issue in steam_unregister().
 
-In the steam_probe() error path, steam_unregister() is called before
-cancel_work_sync(&steam->work_connect):
+The rumble_work is cancelled before its producer, coalesce_rumble_work:
 
-drivers/hid/hid-steam.c:steam_probe() {
+steam_unregister() {
     ...
-err_steam_unregister:
-    if (steam->connected)
-        steam_unregister(steam);
-err_hw_close:
-    hid_hw_close(hdev);
-err_hw_stop:
-    hid_hw_stop(hdev);
-err_cancel_work:
-    cancel_work_sync(&steam->work_connect);
+    cancel_work_sync(&steam->rumble_work);
+    cancel_delayed_work_sync(&steam->mode_switch);
+    cancel_delayed_work_sync(&steam->coalesce_rumble_work);
     ...
 }
 
-steam_unregister() clears the device state by setting steam->serial_no[0] =
-=3D 0.
+If coalesce_rumble_work fires during this window, its callback
+steam_coalesce_rumble_cb() unconditionally calls=20
+schedule_work(&steam->rumble_work).=20
 
-If steam_work_connect_cb() is currently queued and runs concurrently, it
-will see connected =3D=3D true and call steam_register().
-
-Because serial_no was cleared, steam_register() re-registers all input
-devices and adds the steam object back to the global steam_devices list.
-
-After the work finishes, cancel_work_sync() silently returns, steam_probe()
-returns an error, and the steam object is freed by devres. Does this leave a
-freed object in the global list and registered to input subsystems, leading
-to a use-after-free?
+Could this cause the rumble_work to be re-armed and subsequently execute on=
+=20
+freed memory? Would reversing the cancellation order prevent this race?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260730041251.1659=
-029-1-vi@endrift.com?part=3D7
+029-1-vi@endrift.com?part=3D2

@@ -1,236 +1,227 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8AFBD33D4E2
-	for <linux-input@vger.kernel.org>; Thu, 30 Jul 2026 13:11:49 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8DE9A433BD3
+	for <linux-input@vger.kernel.org>; Thu, 30 Jul 2026 13:17:51 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785417110; cv=none; b=P2U88uyN4S+TLlfTF3ENaxWE/hIYe44OQd5JHu6WoY4G5Jdz5NCeVK1NZS+jL8bytwmvUTLoFGnSoSGraztKNH0i9CFhY2lZ9HE7SQmQG70GdCNdoA9Y7mS/0Zy2X0BXknaHul2aVEyJcSmRvWYRnwpuajPCp4Ouky6urmu7vFo=
+	t=1785417480; cv=none; b=V0EAvvY8/qp6i6VGPAxkMyIKgvAvwwa6ZWACgoGRS3HYnaJjF/QXtdHr0pxdfQc5vI9VGzD4ywZqh7YZ/CjlOodhvLnUu1oYUhPvNKeqb26m3pYmUy6w49udOuWUwYPxUyxTMnMZlK009squIjQsJq+SiwZtj9CXqvv5/EPUIe8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785417110; c=relaxed/simple;
-	bh=YFtaYK9PWs9W0z1tw0W7Dn9CH2zhpItXYY47dsyqE4c=;
+	s=arc-20240116; t=1785417480; c=relaxed/simple;
+	bh=jKWtPJaJNA4cwJMqn70fNYmgRRXlPq59FUq/rzk2YQM=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=kRpCjUGHYKtnfF3P6Beni4COa9dE+AHf/Zg8JlLVbg05Uke0y9Azyb9jJevRJ1N7iInEmx8dobiCh31chTOZTVfRqjf2OyqC2wr4CaggUhqYsLUIV036ibrM+rLt8ww5MAxTeNghrFdsKDjvZkKnvAJUicyZ9Lr7fil+DkHIVBQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Xv+C9TeV; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=DzT8PVI/aAK8UhOx4/yMjAJ7ZmMS9i3cehoAwTZn737Xm0mDIeI1W+zLmcl5jWUsHdng7QEfACxKsWmUOAwbKkBMCmvvfTGUHlKYW/zzeFW3VEfBKbi3Ykihk3UCmFuJANDu4ieeQ3861pqK3CCjwkhPAmsPMSU+NfP8pAhHQM8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=AvfJtELi; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Xv+C9TeV"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C7261F000E9;
-	Thu, 30 Jul 2026 13:11:48 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="AvfJtELi"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D05A1F00A3D;
+	Thu, 30 Jul 2026 13:17:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785417109;
-	bh=/SuZCFFK2QzkY4hZP/+qoHM1YKnkNRHl04vMCIe7vcI=;
+	s=k20260515; t=1785417470;
+	bh=nQeiSuP6YAJ/9TRivWgozlhhjppvQnZgvjxudHH2NUY=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=Xv+C9TeVRiTRInyzwrtwcPlFFx/YpxI2jZgtFaniA2pxBjCVzlr/OuyYjl4IFCVQa
-	 9VhrFttLCuYhiFZwybzVtqtUrmI36WUEKyXzqEGbpZcTVzjQPk2Jlhbjm28BZEiZgV
-	 U0QOWTq6FHr5LETCSV5DdwbKOp0Yp85n/UUmpmb2absXSiTGB4Wv826i+FkNM2ISyx
-	 iCtoA6crorh0LUvfu44aDLRT1e05GBysZgZDIxfu90c9GZZK/HwXgAYVjLGkN+e/Hj
-	 ISa+0b8pN3a2vtK0RPQz6Nj9e1r0hJ1PoFo8CoFQPWXxgDmRvsyh8ZRpwXQLanEtGr
-	 9EPw3UeFeJ7MQ==
+	b=AvfJtELi/MGd7KvzpxVY4vu9+WSZb6/My1g485GYrUE8irvASqIo0lce/5ABjLso1
+	 hHD0c7M9X6iAG6HqT321gBSMycJuqu7MGlqdgPkyEQuNhvfpmwFX9agWcT3wVvLu85
+	 Q9CJ7lvvGTBD75HYY9lL0I/yY5qEJoNB+BbPZhXBwyqBRQLpwk85xj1rfAqsR0G5Nw
+	 GzFw1NtpLO3qQYGfVOhzjYmqhCe+HKAXZRDPykMLz2nh47cGSjyf+W1x/90/5y8dzD
+	 sUN1TK7CZEw7xCKpySVGs5plHTcb4/cfizof6nfOyKkTd3PHAoV6h3cfCjrpEs0lF4
+	 xLgSGIRRz7hmw==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 3/4] HID: intel-ish-hid: prevent size_t underflow in
- report_list parsing
+Subject: Re: [PATCH v2 1/4] HID: intel-ish-hid: fix report_list iterator
+ pointer arithmetic
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Shen Yongchao" <grayhat@foxmail.com>
 Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <tencent_6D1C4A793D4B3D07F0415D2A86B91BA33508@qq.com>
-References: <tencent_6D1C4A793D4B3D07F0415D2A86B91BA33508@qq.com>
+In-Reply-To: <tencent_F203F6206515915C81D1210ECEBCBCA5D707@qq.com>
+References: <tencent_F203F6206515915C81D1210ECEBCBCA5D707@qq.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 30 Jul 2026 13:11:48 +0000
-Message-Id: <20260730131149.0C7261F000E9@smtp.kernel.org>
+Date: Thu, 30 Jul 2026 13:17:49 +0000
+Message-Id: <20260730131750.3D05A1F00A3D@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 6 potential issue(=
+Thank you for your contribution! Sashiko AI review found 7 potential issue(=
 s) to consider:
 
 Pre-existing issues:
-- [Critical] Heap buffer overflow due to missing reallocation when processi=
-ng duplicate initialization responses.
-- [High] Missing payload length validation before accessing specific messag=
-e fields in HOSTIF_DM_ENUM_DEVICES and HOSTIF_PUBLISH_INPUT_REPORT_LIST.
-- [High] Flawed bounds checking in HOSTIF_DM_ENUM_DEVICES loop allows massi=
-ve out-of-bounds read.
-- [High] Missing bounds check for sub-report payload length against outer m=
-essage size leads to out-of-bounds read.
-- [High] Dangling pointer in hid_sensor_hubs on ishtp_hid_probe failure lea=
-ding to Use-After-Free.
-- [High] Missing cancellation of event_work on probe failure leads to Use-A=
-fter-Free.
+- [High] Missing validation of `hid_dev_count` against `MAX_HID_DEVICES` al=
+lows firmware to trigger out-of-bounds array accesses.
+- [High] Missing boundary checks when iterating over aggregated reports in =
+`HOSTIF_PUBLISH_INPUT_REPORT_LIST`.
+- [High] Integer underflow when calculating `payload_len` in `HOSTIF_PUBLIS=
+H_INPUT_REPORT_LIST`.
+- [High] Insufficient bounds checking when parsing `device_info` structures=
+ in `HOSTIF_DM_ENUM_DEVICES`.
+- [High] The inner loop handling HOSTIF_PUBLISH_INPUT_REPORT_LIST overwrite=
+s the outer loop's control variables, causing parser desynchronization.
+- [High] Missing cancellation of asynchronous background works on device re=
+moval leads to Use-After-Free.
+- [High] Missing buffer reallocation during hardware reset allows out-of-bo=
+unds writes if device attributes expand.
 --
 
---- Patch [3]: [PATCH v2 3/4] HID: intel-ish-hid: prevent size_t underflow =
-in report_list parsing ---
-commit 527ae48f789326594bc98a86ac234f6084ebf2f5
+--- Patch [1]: [PATCH v2 1/4] HID: intel-ish-hid: fix report_list iterator =
+pointer arithmetic ---
+commit 57fdd01a4139a53de9833b822824ccfd37902302
 Author: Shen Yongchao <grayhat@foxmail.com>
 
-HID: intel-ish-hid: prevent size_t underflow in report_list parsing
+HID: intel-ish-hid: fix report_list iterator pointer arithmetic
 
-This patch fixes a size_t underflow in hid_input_report() when report_len
-is smaller than the hostif message header. It adds an explicit check for
-the length and uses a local inner_len variable instead of overwriting the
-outer loop's payload_len.
-
-Fixes: 0b28cb4bcb17 ("HID: intel-ish-hid: ISH HID client driver")
-Cc: stable@vger.kernel.org
+This commit fixes an issue where the report iterator pointer was being=20
+advanced by a multiple of the struct size rather than bytes. It introduces=
+=20
+a u8 *pos iterator to correctly compute the pointer arithmetic in bytes.
 
 > diff --git a/drivers/hid/intel-ish-hid/ishtp-hid-client.c b/drivers/hid/i=
 ntel-ish-hid/ishtp-hid-client.c
-> index 6609130ce63e1..efe5c5326de3b 100644
+> index 6d64008f2ce05..ba52e185ce051 100644
 > --- a/drivers/hid/intel-ish-hid/ishtp-hid-client.c
 > +++ b/drivers/hid/intel-ish-hid/ishtp-hid-client.c
 [ ... ]
-> @@ -293,8 +294,11 @@ static void process_recv(struct ishtp_cl *hid_ishtp_=
+> @@ -280,9 +281,10 @@ static void process_recv(struct ishtp_cl *hid_ishtp_=
 cl, void *recv_buf,
+>  		case HOSTIF_PUBLISH_INPUT_REPORT_LIST:
+>  			report_type =3D HID_INPUT_REPORT;
+>  			reports_list =3D (struct report_list *)payload;
+> -			report =3D reports_list->reports;
+> +			pos =3D (u8 *)reports_list->reports;
+> =20
+>  			for (j =3D 0; j < reports_list->num_of_reports; j++) {
+
+[Severity: High]
+This is a pre-existing issue, but does this loop lack boundary checks?
+
+If the firmware sends malformed packets in HOSTIF_PUBLISH_INPUT_REPORT_LIST,
+could we iterate past the end of the containing message or network buffer?
+There don't appear to be bounds checks on pos and the sub-report payloads.
+
+> +				report =3D (struct report *)pos;
 >  				recv_msg =3D container_of(&report->msg,
 >  							struct hostif_msg, hdr);
 >  				report_len =3D report->size;
 
 [Severity: High]
-This isn't a bug introduced by this patch, but is it possible for a malform=
-ed
-firmware message to cause an out-of-bounds read here?
+This is a pre-existing issue, but can this lead to an integer underflow?
 
-Looking at HOSTIF_PUBLISH_INPUT_REPORT_LIST in process_recv():
+When calculating payload_len:
 
-	reports_list =3D (struct report_list *)recv_msg->payload;
-	pos =3D (u8 *)reports_list->reports;
-	list_end =3D (u8 *)recv_msg->payload + payload_len;
+    payload_len =3D report_len - sizeof(struct hostif_msg_hdr);
 
-	for (j =3D 0; j < reports_list->num_of_reports; j++) {
-
-The num_of_reports field is accessed without checking if payload_len is lar=
-ge
-enough to contain a struct report_list.
-
-Additionally, in the HOSTIF_DM_ENUM_DEVICES case:
-
-	client_data->hid_dev_count =3D (unsigned int)*payload;
-
-The payload pointer is dereferenced without checking if payload_len >=3D 1,=
- which
-could similarly read out of bounds.
-
-> -				payload =3D recv_msg->payload;
-> -				payload_len =3D report_len -
-> +				if (report_len < sizeof(struct hostif_msg_hdr))
-> +					break;
-> +
-> +
-> +				inner_len =3D report_len -
->  					sizeof(struct hostif_msg_hdr);
+If a sub-report is sent with report->size less than=20
+sizeof(struct hostif_msg_hdr), will this underflow the size_t variable to a
+huge value, which is then passed to hid_input_report() and used to advance=
+=20
+the pos pointer?
 
 [Severity: High]
-This isn't a bug introduced by this patch, but could this still lead to an
-out-of-bounds read when hid_input_report() is called?
+This is a pre-existing issue, but does the inner loop overwrite the outer
+loop's control variables?
 
-While the sub-report header is bounded against list_end in a previous check:
+The inner loop modifies payload and payload_len:
 
-	if (pos + sizeof(struct report) > list_end)
-		break;
+    payload =3D recv_msg->payload;
+    payload_len =3D report_len - sizeof(struct hostif_msg_hdr);
+   =20
+Once this switch statement finishes, the outer loop uses payload_len to=20
+advance cur_pos:
 
-There doesn't appear to be a check to ensure that the payload itself
-(inner_len bytes) fits within list_end. A forged, huge sub-report length co=
-uld
-cause hid_input_report() to read past the end of the receive buffer.
+    msg_len =3D payload_len + sizeof(struct hostif_msg);
+    if (!cur_pos && cur_pos + msg_len < total_len)
+        ++client_data->multi_packet_cnt;
 
-> =20
->  				for (i =3D 0; i < client_data->num_hid_devices;
-> @@ -306,11 +310,11 @@ static void process_recv(struct ishtp_cl *hid_ishtp=
-_cl, void *recv_buf,
->  						client_data->hid_sensor_hubs[
->  									i],
->  						report_type,
-> -						payload, payload_len,
-> +						recv_msg->payload, inner_len,
+    cur_pos +=3D msg_len;
+
+Could the corrupted payload_len (now the size of the last sub-report instead
+of the aggregate list) cause parser desynchronization and out-of-bounds rea=
+ds
+on the next iteration?
+
+> @@ -303,7 +305,7 @@ static void process_recv(struct ishtp_cl *hid_ishtp_c=
+l, void *recv_buf,
 >  						0);
 >  					}
 > =20
-> -				pos +=3D sizeof(struct report) + payload_len;
-> +				pos +=3D sizeof(struct report) + inner_len;
+> -				report +=3D sizeof(*report) + payload_len;
+> +				pos +=3D sizeof(struct report) + payload_len;
 >  			}
 >  			break;
 >  		default:
 
-[Severity: High]
-This isn't a bug introduced by this patch, but does the boundary check duri=
-ng
-device enumeration correctly prevent out-of-bounds reads?
-
-Looking at the fallback boundary check in process_recv():
-
-	if (1 + sizeof(struct device_info) * i >=3D data_len)
-		break;
-
-Since dev_info is offset by cur_pos + sizeof(struct hostif_msg_hdr) from the
-start of recv_buf, this check ignores the initial payload offset. If i is l=
-arge
-enough, could the memory address calculated for dev_info vastly exceed
-recv_buf + data_len, resulting in slab-out-of-bounds reads into the hid_dev=
-ices
-array?
-
-[Severity: Critical]
-This isn't a bug introduced by this patch, but could duplicate initializati=
-on
-responses cause a heap buffer overflow?
-
-When handling HOSTIF_DM_ENUM_DEVICES, the code does:
-
-	if (!client_data->hid_devices)
-		client_data->hid_devices =3D devm_kcalloc(...);
-
-And similarly for HOSTIF_GET_HID_DESCRIPTOR:
-
-	if (!client_data->hid_descr[curr_hid_dev])
-		client_data->hid_descr[curr_hid_dev] =3D devm_kmalloc(...);
-
-If a second response arrives before init_done is true and contains a larger
-payload or count, the driver skips allocation but still uses the new
-payload_len or hid_dev_count to perform memory copies. Could this copy data
-past the old buffer's boundary?
+While reviewing this, I also noticed a few other pre-existing issues in=20
+this driver.
 
 [Severity: High]
-This isn't a bug introduced by this patch, but could a failure in
-ishtp_hid_probe() lead to a use-after-free?
+This is a pre-existing issue, but is there missing validation of=20
+hid_dev_count against MAX_HID_DEVICES?
 
-In ishtp_hid_probe():
+In process_recv() during HOSTIF_DM_ENUM_DEVICES:
 
-	err_hid_device:
-		kfree(hid_data);
-	err_hid_data:
-		hid_destroy_device(hid);
-		return rv;
+    client_data->hid_dev_count =3D (unsigned int)*payload;
 
-The hid device is stored in client_data->hid_sensor_hubs[cur_hid_dev] before
-this error path, but is not cleared to NULL when the error path frees the
-device. Since the ISHTP event callback is already registered, could a concu=
-rrent
-firmware message processed by process_recv() find the freed pointer and pas=
-s it
-to hid_input_report()?
+If the firmware sends a count greater than MAX_HID_DEVICES, the driver=20
+directly assigns this without validation. Could subsequent loops use this t=
+o=20
+access fixed-size arrays like hid_descr and report_descr out of bounds,=20
+corrupting memory?
 
 [Severity: High]
-This isn't a bug introduced by this patch, but does hid_ishtp_cl_probe()
-properly clean up if it fails after hid_ishtp_cl_init()?
+This is a pre-existing issue, but does this allocation logic miss buffer
+reallocation during a hardware reset?
 
-In hid_ishtp_cl_probe():
+During enumeration:
 
-	rv =3D hid_ishtp_cl_init(hid_ishtp_cl, false);
-	if (rv) {
-		ishtp_cl_free(hid_ishtp_cl);
-		return rv;
-	}
+    if (!client_data->hid_devices)
+        client_data->hid_devices =3D devm_kcalloc(...);
 
-The hid_ishtp_cl_init() function registers an event callback via
-ishtp_register_event_cb(). If the probe subsequently fails, the error path
-frees hid_ishtp_cl without unregistering the event callback or canceling the
-pending event work. Could an incoming ISHTP message arriving shortly after
-execute the scheduled callback on freed memory?
+And later:
+
+    for (i =3D 0; i < client_data->hid_dev_count; ++i) {
+
+If a hardware reset occurs and hid_ishtp_cl_reset_handler() retriggers
+enumeration, the check bypasses reallocation. If the firmware returns a=20
+larger hid_dev_count after reset, could the loop write device info past=20
+the end of the existing heap buffer?
+
+[Severity: High]
+This is a pre-existing issue, but is the boundary check sufficient when=20
+parsing device_info structures?
+
+In the same ENUM_DEVICES loop:
+
+    if (1 + sizeof(struct device_info) * i >=3D data_len)
+        break;
+
+This compares an offset relative to payload (which is already past the head=
+er)
+against the total data_len. It also only checks the start offset of the str=
+uct
+rather than the end. Could this allow memcpy to read up to=20
+sizeof(struct device_info) + sizeof(struct hostif_msg_hdr) - 1 bytes past=20
+the actual recv_buf?
+
+[Severity: High]
+This is a pre-existing issue, but does hid_ishtp_cl_remove() need to=20
+cancel background works?
+
+drivers/hid/intel-ish-hid/ishtp-hid-client.c:hid_ishtp_cl_remove() {
+    ...
+    ishtp_cl_driver_unregister(&hid_ishtp_cl_driver);
+    ...
+}
+
+This teardown function unregisters the driver but does not call
+cancel_work_sync() for client_data->work or client_data->resume_work. Since=
+=20
+client_data is allocated with devm_kzalloc(), it is automatically freed whe=
+n=20
+remove returns. If a reset or resume work is executing or queued concurrent=
+ly,=20
+could this lead to a Use-After-Free?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260730115600.2181=
-72-1-grayhat@foxmail.com?part=3D3
+72-1-grayhat@foxmail.com?part=3D1

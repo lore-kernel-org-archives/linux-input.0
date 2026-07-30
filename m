@@ -1,186 +1,123 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4DD38222597
-	for <linux-input@vger.kernel.org>; Thu, 30 Jul 2026 04:33:46 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D5C2929D281
+	for <linux-input@vger.kernel.org>; Thu, 30 Jul 2026 04:34:32 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785386028; cv=none; b=oaD6ZTDnahJZArImKDsaHEgJUxRlFAXDCwOfi94pVRrWAFioktqwRE1pkaUkYL9x90Wn66JFfGOTp20KTBXb0QTlWWIYEcihcCABs+oUL6F34wfto4l/7zQjdJH22d80b/+x6F+3I3l8kGKBFZpNs21G/EM9RXfRHGVWDcF+bZc=
+	t=1785386073; cv=none; b=sjraNpkq2Buap6NQlQRmbj1ujhG21QVnqHDzxbesiLvImzDYsp4JiYBvYAr4z84UW+iaO+y/uNM4BSZIDQ/4ChBaveXN6pcduC5TtJeRvx9zkV9RqEg5g989vbzRhztjTluWVsG5jwiJfVbQBW9dvasA5dqSgCqf1xMJDiBmPJc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785386028; c=relaxed/simple;
-	bh=MX05MpoBRjVdj9hfidiC5wjE7Ka5hqH1aUMNSYVbutA=;
+	s=arc-20240116; t=1785386073; c=relaxed/simple;
+	bh=h8z1bxpZ3C8ZO0V9iIZqFLYUGDL6nLDkKDCgi9nQtF8=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=NgJK8Wl7rwKtfUM69htuyO2lA31yeXS7uEkAQSqar/72L9JiCsyjWVTOhNPW1Hm1bpjlOKrqx8P3ZCdBQ0egNGr+exsozEFvjCTJoVOD95oRoiGB2oYUUHwGyAL7ItiVama9/PK1AKyvgrheysr/uYoYPjwndEXqyzwJMkCiO8Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=hJYlch30; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=slIXH3Fi2bUqk+gWSHBuqaCehcIwB5u5QAKCUYW/qS0//UOP9Mk1n9KNi4MxrFKju1CqNfmyN5a8HWF6CX27KtnMfMbJZ2zs1HmexQRlWDdbWoPPJr0eGmTMu9WCTfVxPmK9G+SriN+M8gWJ6fXGnADmwbIAVBPRDR+c4zZ5TrA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=apyqunj2; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="hJYlch30"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84BD01F000E9;
-	Thu, 30 Jul 2026 04:33:46 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="apyqunj2"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E2481F00A3D;
+	Thu, 30 Jul 2026 04:34:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785386026;
-	bh=StvZtfGZhojiR8IpS8BcQ4cGvlxkeJxx6h5X54rhA9U=;
+	s=k20260515; t=1785386072;
+	bh=uVztWyaPA0e719pVwcZLUgA12kBRJdytvMe2Kla27xY=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=hJYlch30hiJb6mE5YIXO4mpR53zycMR1fjSpAMim55SVJbrRdg5OPD/eukDa15eJq
-	 B+6oDQme4w1xtJFXfkLpUxv+ZsZ9sZOZ9SK03NPW3AZi+zDE2yEJRgl6aGXrzY9v4Z
-	 QZjY8fM10X/5UMNRWCCXQpoELGAWim4gpKQD6pQw+90w1IzWkbTFDQaaqKkZEydEeO
-	 9h1Fyfa0FWHbqYn2xVoz0fVlHKt4Dg1MnjFvGXRWuA4AQef7RXyAhmi+WQbzXJaf/e
-	 TQwhIKnuXat4B/NxQ5CemxqGDRdK0DjoXJ6WkX72i9aUfmpC6tVOl81EBf0hsJerUI
-	 Db7x1LARHVFRg==
+	b=apyqunj2RXKoREcMoX0lIyUUzuhmmJN5pHgjmWEQoOx8uMp6w3Mvd0WG+38fYigoH
+	 FqDMNl4WU6MmuyqFPvSYIQ2EMLl+13aNkO0QImauPzsz/Cxt5vqvPVcXdCX3hvheXd
+	 0BeMETA/jpBMSn1laNN/b9gdPTnWZyGaYnnQUdW1UTV01t5m0L9s4AMchPDP48B6Sg
+	 d6WYnlJUgcsoXhUia3W3BYMQrwcSYYjUM7/JvoGPguCNp/UNj3MOU+hQFDtO+cIlP9
+	 GbmlvY39HKVyycOprWQ/egVR9Y9bYYx0PWAeLBCbA5ZvIu4h404W1ZqDM5+1QXXeIj
+	 OS7nU9KM306JA==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v5 05/11] HID: steam: Coalesce rumble packets
+Subject: Re: [PATCH v5 08/11] HID: steam: Improve logging and other cleanup
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Vicki Pfau" <vi@endrift.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260730041251.1659029-6-vi@endrift.com>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <20260730041251.1659029-9-vi@endrift.com>
 References: <20260730041251.1659029-1-vi@endrift.com>
- <20260730041251.1659029-6-vi@endrift.com>
+ <20260730041251.1659029-9-vi@endrift.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 30 Jul 2026 04:33:46 +0000
-Message-Id: <20260730043346.84BD01F000E9@smtp.kernel.org>
+Date: Thu, 30 Jul 2026 04:34:32 +0000
+Message-Id: <20260730043432.6E2481F00A3D@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-
-New issues:
-- [High] Dynamic device unregistration fails to cancel `coalesce_rumble_wor=
-k`, causing an infinite loop and resource leak.
-- [Medium] Lockless `delayed_work_pending()` check bypasses rate limiting, =
-causing haptic reset bugs.
-
-Pre-existing issues:
-- [High] Teardown order in `steam_remove()` causes Use-After-Free by cancel=
-ling work items before unregistering the input device.
+- [High] The newly added error logging in `steam_get_serial` leaks uninitia=
+lized kernel stack memory to the kernel log via `hid_err`.
 --
 
---- Patch [5]: [PATCH v5 05/11] HID: steam: Coalesce rumble packets ---
-commit d8418fccc5859b59417d02482c0b768383aa61ef
+--- Patch [8]: [PATCH v5 08/11] HID: steam: Improve logging and other clean=
+up ---
+commit 15f36444bb8b36e80ca21a45d7b255628f820523
 Author: Vicki Pfau <vi@endrift.com>
 
-HID: steam: Coalesce rumble packets
+HID: steam: Improve logging and other cleanup
 
-This commit introduces a 20Hz rate limit for rumble packets sent to the Ste=
-am
-Deck to prevent the hardware from resetting haptic patterns on every packet.
-It implements this rate limiting by using a delayed work queue to coalesce=
-=20
-rumble updates.
+This patch adds additional logging to the hid-steam driver and aligns
+enumeration definitions. It also cleans up several error paths by replacing
+manual mutex lock and unlock calls with scope-based guard() protection.
 
 > diff --git a/drivers/hid/hid-steam.c b/drivers/hid/hid-steam.c
+> index 663fda8a86fdb..222b5751040a6 100644
 > --- a/drivers/hid/hid-steam.c
 > +++ b/drivers/hid/hid-steam.c
-[ ... ]
-> @@ -603,10 +604,24 @@ static void steam_haptic_rumble_cb(struct work_stru=
-ct *work)
->  {
->  	struct steam_device *steam =3D container_of(work, struct steam_device,
->  							rumble_work);
-> +
->  	steam_haptic_rumble(steam, 0, steam->rumble_left,
->  		steam->rumble_right, 2, 0);
->  }
-> =20
-> +static void steam_coalesce_rumble_cb(struct work_struct *work)
-> +{
-> +	struct steam_device *steam =3D container_of(to_delayed_work(work),
-> +							struct steam_device,
-> +							coalesce_rumble_work);
-> +
-> +	steam_haptic_rumble(steam, 0, steam->rumble_left,
-> +		steam->rumble_right, 2, 0);
-> +
-> +	if (steam->rumble_left || steam->rumble_right)
-> +		schedule_delayed_work(&steam->coalesce_rumble_work, HZ / 20);
-> +}
-
-[Severity: High]
-Will this work item reschedule itself indefinitely if the device is dynamic=
-ally
-unregistered while a haptic effect is playing?
-
-When the device is dynamically unregistered, such as during a wireless
-disconnect or a mode switch, steam_unregister() destroys the input device
-via steam_input_unregister().
-
-However, steam_unregister() does not cancel coalesce_rumble_work, and the
-input core does not proactively clear the rumble_left and rumble_right
-magnitudes when an input device is destroyed. Because the input device is
-gone, userspace can never send a 0-magnitude effect to stop the rumble,
-leaving this worker to loop indefinitely every 50ms and leak CPU cycles
-and USB bandwidth.
-
-> +
->  #ifdef CONFIG_STEAM_FF
->  static int steam_play_effect(struct input_dev *dev, void *data,
->  				struct ff_effect *effect)
-> @@ -616,6 +631,14 @@ static int steam_play_effect(struct input_dev *dev, =
-void *data,
->  	steam->rumble_left =3D effect->u.rumble.strong_magnitude;
->  	steam->rumble_right =3D effect->u.rumble.weak_magnitude;
-> =20
-> +	/*
-> +	 * The interface gets somewhat overloaded when too many rumble
-> +	 * packets are sent in a row, so Steam throttles it to 20 Hz
-> +	 */
-> +	if (delayed_work_pending(&steam->coalesce_rumble_work))
-> +		return 0;
-> +
-> +	schedule_delayed_work(&steam->coalesce_rumble_work, HZ / 20);
-> +	return schedule_work(&steam->rumble_work);
->  }
-
-[Severity: Medium]
-Could this lockless check of delayed_work_pending() defeat the intended
-rate limiting?
-
-The workqueue core clears the pending bit immediately before executing the
-worker callback. Because steam_coalesce_rumble_cb() acquires a mutex and
-performs synchronous USB I/O, its execution time can be relatively large.
-
-If a userspace process updates force feedback effects while the callback is
-actively executing, delayed_work_pending() will evaluate to false. This
-causes steam_play_effect() to immediately queue another rumble_work, which
-then executes right after the callback finishes, sending two packets
-back-to-back and bypassing the 50ms throttle.
 
 [ ... ]
-> @@ -1444,6 +1469,7 @@ static void steam_remove(struct hid_device *hdev)
->  	cancel_delayed_work_sync(&steam->mode_switch);
->  	cancel_work_sync(&steam->work_connect);
->  	cancel_work_sync(&steam->rumble_work);
-> +	cancel_delayed_work_sync(&steam->coalesce_rumble_work);
->  	cancel_work_sync(&steam->unregister_work);
->  	steam->client_hdev =3D NULL;
->  	steam->client_opened =3D 0;
+
+> @@ -481,22 +490,21 @@ static int steam_get_serial(struct steam_device *st=
+eam)
+>  	u8 cmd[] =3D {ID_GET_STRING_ATTRIBUTE, sizeof(steam->serial_no), ATTRIB=
+_STR_UNIT_SERIAL};
+>  	u8 reply[3 + STEAM_SERIAL_LEN + 1];
+> =20
+> -	mutex_lock(&steam->report_mutex);
+> +	guard(mutex)(&steam->report_mutex);
+>  	ret =3D steam_send_report(steam, cmd, sizeof(cmd));
+>  	if (ret < 0)
+> -		goto out;
+> +		return ret;
+>  	ret =3D steam_recv_report(steam, reply, sizeof(reply));
+>  	if (ret < 0)
+> -		goto out;
+> +		return ret;
+>  	if (reply[0] !=3D ID_GET_STRING_ATTRIBUTE || reply[1] < 1 ||
+>  	    reply[1] > sizeof(steam->serial_no) || reply[2] !=3D ATTRIB_STR_UNI=
+T_SERIAL) {
+> -		ret =3D -EIO;
+> -		goto out;
+> +		hid_err(steam->hdev, "%s: invalid reply (%*ph)\n", __func__,
+> +				(int)sizeof(reply), reply);
 
 [Severity: High]
-This is a pre-existing issue, but does the teardown order in steam_remove()
-allow a use-after-free?
+Could this leak uninitialized stack memory to the kernel log?
 
-The works are cancelled before the input device is unregistered:
+The reply array is allocated on the stack at the start of steam_get_serial()
+without being zero-initialized.
 
-steam_remove() {
-    ...
-    cancel_work_sync(&steam->rumble_work);
-    cancel_delayed_work_sync(&steam->coalesce_rumble_work);
-    ...
-    steam_unregister(steam);
-}
+If steam_recv_report() reads a short or invalid response, it may return
+fewer bytes than the full size of the buffer. By unconditionally printing
+sizeof(reply) bytes in this error path, it looks like uninitialized kernel
+stack data will be dumped to dmesg.
 
-If a userspace process continuously calls the EVIOCSFF ioctl to play
-force-feedback effects while the device is being removed, the ioctl
-path in steam_play_effect() can queue new rumble_work and
-coalesce_rumble_work items after they have been cancelled.
+Would it be safer to print only the number of bytes actually received (ret),
+or to zero-initialize the reply array when it is declared?
 
-Once steam_remove() completes, the devm-managed steam structure is freed,
-but the newly queued work items will eventually execute and dereference
-the freed memory.
+> +		return -EIO;
+>  	}
+>  	reply[3 + STEAM_SERIAL_LEN] =3D 0;
+>  	strscpy(steam->serial_no, reply + 3, reply[1]);
+> -out:
+> -	mutex_unlock(&steam->report_mutex);
+>  	return ret;
+>  }
+> =20
+
+[ ... ]
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260730041251.1659=
-029-1-vi@endrift.com?part=3D5
+029-1-vi@endrift.com?part=3D8

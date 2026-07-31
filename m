@@ -1,195 +1,111 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ua1-f43.google.com (mail-ua1-f43.google.com [209.85.222.43])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CAC7A4446F4
-	for <linux-input@vger.kernel.org>; Fri, 31 Jul 2026 16:14:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5229D489873
+	for <linux-input@vger.kernel.org>; Fri, 31 Jul 2026 17:08:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785514504; cv=none; b=SEXQM8XcCJsw4ue16OJ16DIjrqXbJJ6/TdZ8Dk4pNEraAH/LaIUXmciXdoPZUsXK/gWBK+ZZc0ou2JGFRQddhpvy3H5O3+bsHhEDZcgsrcKYDiNPsaRx0e/PBGa/nXHzCu3Tb8p8yxyTrwpeLBBSbYZEX0x5F+73gpYAtGKDDw0=
+	t=1785517721; cv=none; b=NEmXA1ymZdls3Lgr/tKGyuPM1dzFV1OJx1xdyZ3rYE9PjQm56adwfe2p8g7wL3spe/60YOM4PD5hS1NPTXkRe1JDJ21SXsvC6kBDhlAmr8qUr4utUPTJejxpNrpI6jv+rvT2vJ3/t379pcfl+OE+LOHar79ZvZyWs44a82MRmqo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785514504; c=relaxed/simple;
-	bh=ynRunjgWFyw3/rYHTXVp+wDmXvweuLXPNiXB81RJ0rE=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=poUv6c+XRV6Dt6CKzyl1p4S7G4zWEEXsfQkwyZGEZpeCr67UTUTp9stVdwVgqcY12NAoZHQzZmJFv7+dZt2KcdAV31fvpTQiiNoZOcA/b2ceqy+V9eXeTaAcRpOZNcTwzMWP/gluZ3fqc6lOxVS06SOHu+f8rK+eHAW/bnhp00o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Zbm8+ZCb; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1785517721; c=relaxed/simple;
+	bh=rPZcOpyFAWw+rCmO5axPYt0b1DLzUbaTjOBX/SXE0XA=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=gaTjGTs/H9G/gikla5FKjK6StHZQGEa5c89tpjw5hyr9Vz5CFrcDLZmgcpUWMKzna+FNzoPFMXIrvlZIfkCqrvVtGh8HLomT7e5QyphDbu9g6rgfH6ygwNfXcUbCXgq8dtmKmmuOsqWlacrhKSGr9HwdRbIHWM3JUtMJhYPJ+JY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=cx9hKZ22; arc=none smtp.client-ip=209.85.222.43
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Zbm8+ZCb"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0CD391F00AC4;
-	Fri, 31 Jul 2026 16:14:58 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785514499;
-	bh=LMZLsN4/4iGU1JrvxKM3OGaRuBycF7JnvNfxvt7ZHy4=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=Zbm8+ZCblLZ4VQqgZ32BMAWMY15jHYBUPQpicHGP7kBO8eD1qyKWOBx7ckc9SduHm
-	 panckgubs52fJGsDOyJc7zDxTfpjpG0vYf6eucjnLeBE1X8wqNUjoNQFJ8/IiLG4O6
-	 hapuDeUg6qwcb8vk8OHwJ6Q1NjuULgD9cUPwCMftR6xOkJOdDUarFXkk8L8vJT/nGx
-	 /3IowRSmGQ5xD3GWzEP8qd8xicg9SnEdPCihZv5Uh2Wpd9XpeFh2+cQIKynthLUlDC
-	 REoHiskmV6SwkPblknK/T6X2jUM6d90VF7OO1zzUUdCa9OKRHzlfAftRPqXbTKMFIl
-	 zaUc+tHn2QSXQ==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v3] HID: intel-ish-hid: clamp HID device count to
- MAX_HID_DEVICES
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Shen Yongchao" <grayhat@foxmail.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <tencent_130404E5ABECE66E8D0E70D8E6892C751C0A@qq.com>
-References: <tencent_130404E5ABECE66E8D0E70D8E6892C751C0A@qq.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Fri, 31 Jul 2026 16:14:58 +0000
-Message-Id: <20260731161459.0CD391F00AC4@smtp.kernel.org>
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="cx9hKZ22"
+Received: by mail-ua1-f43.google.com with SMTP id a1e0cc1a2514c-9770e900464so807729241.0
+        for <linux-input@vger.kernel.org>; Fri, 31 Jul 2026 10:08:40 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google; t=1785517719; x=1786122519; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=a3uosmlQ92VLotu1yUsXXtb0Ksng61Ixtp5DDKNHhqo=;
+        b=cx9hKZ224QDEpRu6eiR8Kl+WMvtsIEPibCcKqFpl3WGRqmvi2iQ9HfyIXpea7VdVkY
+         1tDlYxb9ThNybVRYbR2uq2DwoKoemj242RZXLunV/eBv9A1q0/uvK41DXc2zlNocDSKX
+         1E70EaMEkH3dfTvf3Z38XTtsrZOro3vR1FTCU=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1785517719; x=1786122519;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=a3uosmlQ92VLotu1yUsXXtb0Ksng61Ixtp5DDKNHhqo=;
+        b=FTdtr8kbNdLZ+CRf5NhxCBe7vYHRnVNG5omlMpj23nSJgslaJFSwaYo18bK0KT9knN
+         sBP98XqYU192fEy4HXwK/NQs92yzTq3HjRbTTrtNb0azJQhVAuiyIaORN30cmRosXThO
+         MZQYFjrIL3bSDb/ffR2NR+PKjder0X4sJiR2uAFgahuVsXkteqhwqlPjgnxR0IRXVSCi
+         MUPwX9scTBCwAAhX1HP0+1TiItgS8kLQOQgE9cggvbTexkasyN4Y4rGIRNEbyRPMkfXd
+         9E/cgWwrXL/cJc5rEClWZ8tIzHmhxsz3YpLk+8SiKmniGen48hUMGOGTDZ9fahKpqm3X
+         636w==
+X-Forwarded-Encrypted: i=1; AHgh+RpNsj1wrRA+jZhOW9Zx9Opon9fQ6URg4qFKdu1eazPLQSpU10QBoNdiZfw4YfHQejIsb6t8dgI46dh2fQ==@vger.kernel.org
+X-Gm-Message-State: AOJu0YzmzBvSefWuW6PGem6m5N5jWYUHaIctVgpDb9jt8DbJG7Oc11zI
+	8YrQtMn86sdgwMPIkm1sBLmzU+PRDfb+8pBal6kXo4IgGh4PYDvCewVGvP8G72X4uW6ogqzNZi9
+	Xu7A=
+X-Gm-Gg: AR+sD111HfkVZ4l905pPg6DJNtRyxsin37KAtsujbJigNTuhfPQe+Is6oRJUOwiE8nx
+	QueIC4xRUe4Tn9gS0+CLFrgBQDAbjSxi1lOEM6vqID4a2MfrKKSPlrbINvSyTqsuH0X8ALHzWN7
+	8PU8y6uTDLx6EA3R8GubDCw0m+ebitBn6NcAkXjoisFlpwqmJJ8hSfl2EkK7cWeNV3ok/iEa7/w
+	73WdKYY1yTNODeCupuW3By++V80oDphTBHmGPa848sOot3FSLMZrnszW4RXplUqTFf8oZutauxF
+	eHZ7cLl0cOtWodwL1bFH5SjyZg9zKbRk67ZA7czZEuAjPxpTMCQjAkZTEGGuvg2h3DF4QPIkucT
+	KLQeLn3sjqaOtzoTSMUqF8vqdFeDFKGYLN1RaJqPEyIcmO/Ib9chJnL4rsO5SBNTVMB34MZdZ9H
+	W90MwbAAjVriTeI+CEh3jr5CHyU9E3MG0HhY5Zkxf4SpQ7gBGSmfEjtqOvWO1OgoFZo9rrifmyQ
+	0iyu4qyVTZoGKIF7q3wwsay5Hp6qOI=
+X-Received: by 2002:a05:6102:33dc:b0:745:53b2:d651 with SMTP id ada2fe7eead31-758fa7bd7eamr744525137.12.1785517719093;
+        Fri, 31 Jul 2026 10:08:39 -0700 (PDT)
+Received: from mail-vk1-f179.google.com (mail-vk1-f179.google.com. [209.85.221.179])
+        by smtp.gmail.com with ESMTPSA id a1e0cc1a2514c-977eaef58c0sm724132241.1.2026.07.31.10.08.38
+        for <linux-input@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 31 Jul 2026 10:08:38 -0700 (PDT)
+Received: by mail-vk1-f179.google.com with SMTP id 71dfb90a1353d-5bfdd59df9bso1303814e0c.1
+        for <linux-input@vger.kernel.org>; Fri, 31 Jul 2026 10:08:38 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AHgh+RpMHmPYEcPxU6nAZS6g113Z1jUhWHKBrLqB3+2hPxF/r5KQdSbTQovK2e6PoBZnGEaC96hVcEgNIzObaQ==@vger.kernel.org
+X-Received: by 2002:a05:6122:4641:10b0:5bf:6dd0:36d with SMTP id
+ 71dfb90a1353d-5c37e954434mr788785e0c.8.1785517717221; Fri, 31 Jul 2026
+ 10:08:37 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+References: <tencent_FE1CA7ED99022E1734F8C9CAB538AB477405@qq.com>
+In-Reply-To: <tencent_FE1CA7ED99022E1734F8C9CAB538AB477405@qq.com>
+From: Doug Anderson <dianders@chromium.org>
+Date: Fri, 31 Jul 2026 10:08:26 -0700
+X-Gmail-Original-Message-ID: <CAD=FV=XkFCqreB_70m1f0gZd50mU6AQLEfF4WBXOBqnYNpvijg@mail.gmail.com>
+X-Gm-Features: AUfX_mw2h7GZHELPTxhnrIO8qI4k3I1yebCvbdVIhfmU4wAymq1lhqxG3gKJnpY
+Message-ID: <CAD=FV=XkFCqreB_70m1f0gZd50mU6AQLEfF4WBXOBqnYNpvijg@mail.gmail.com>
+Subject: Re: [PATCH] HID: i2c-hid: goodix: Disable VDD on VDDIO enable failure
+To: Chao Huang <958028483@qq.com>
+Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>, 
+	Matthias Kaehlcke <mka@chromium.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
+	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	Chao Huang <huangchao@kylinos.cn>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Thank you for your contribution! Sashiko AI review found 5 potential issue(=
-s) to consider:
+Hi,
 
-Pre-existing issues:
-- [High] Missing cancellation of work items in driver removal leads to a Us=
-e-After-Free when the devres-allocated client data is freed.
-- [High] Dynamic arrays are not reallocated on subsequent firmware response=
-s or device resets, causing heap buffer overflows when larger payloads bypa=
-ss the reallocation logic.
-- [High] Flawed bounds checking and missing loop termination when parsing `=
-HOSTIF_DM_ENUM_DEVICES` allow reading past the end of `recv_buf`.
-- [High] Pointer arithmetic on a typed `report` pointer implicitly scales b=
-y the structure size in `HOSTIF_PUBLISH_INPUT_REPORT_LIST`, causing massive=
- out-of-bounds memory reads.
-- [High] If `ishtp_hid_probe()` fails for a device during initialization, p=
-reviously registered HID devices are left stranded and active, leading to a=
- Use-After-Free.
---
+On Wed, Jul 22, 2026 at 2:37=E2=80=AFAM Chao Huang <958028483@qq.com> wrote=
+:
+>
+> From: Chao Huang <huangchao@kylinos.cn>
+>
+> If enabling VDDIO fails after VDD has been enabled, the power-up
+> path returns without disabling VDD. This leaves the regulator enabled
+> and its enable count unbalanced.
+>
+> Disable VDD before returning the VDDIO error.
+>
+> Fixes: eb16f59e8e58 ("HID: i2c-hid: goodix: Add mainboard-vddio-supply")
+> Signed-off-by: Chao Huang <huangchao@kylinos.cn>
+> ---
+>  drivers/hid/i2c-hid/i2c-hid-of-goodix.c | 4 +++-
+>  1 file changed, 3 insertions(+), 1 deletion(-)
 
---- Patch [1]: [PATCH v3] HID: intel-ish-hid: clamp HID device count to MAX=
-_HID_DEVICES ---
-commit 559bcab8783934e29e559180566c360b1aa54115
-Author: Shen Yongchao <grayhat@foxmail.com>
-Subject: HID: intel-ish-hid: clamp HID device count to MAX_HID_DEVICES
+Thanks for the fix.
 
-This commit clamps the HID device count received from the ISH firmware to
-MAX_HID_DEVICES. This prevents potential out-of-bounds array writes during
-initialization when the firmware reports more devices than supported.
-
-> diff --git a/drivers/hid/intel-ish-hid/ishtp-hid-client.c b/drivers/hid/i=
-ntel-ish-hid/ishtp-hid-client.c
-> --- a/drivers/hid/intel-ish-hid/ishtp-hid-client.c
-> +++ b/drivers/hid/intel-ish-hid/ishtp-hid-client.c
-> @@ -123,6 +123,8 @@ static void process_recv(struct ishtp_cl *hid_ishtp_c=
-l, void *recv_buf,
->  				break;
->  			}
->  			client_data->hid_dev_count =3D (unsigned int)*payload;
-
-[Severity: High]
-This is a pre-existing issue, but is it possible for the firmware to send a
-message where the payload length is zero?
-
-If payload_len is zero, dereferencing the payload here could lead to an
-out-of-bounds read.
-
-Additionally, does the parsing loop properly bounds check the device_info
-payload?
-
-drivers/hid/intel-ish-hid/ishtp-hid-client.c:process_recv() {
-    ...
-    for (i =3D 0; i < client_data->hid_dev_count; ++i) {
-        if (1 + sizeof(struct device_info) * i >=3D payload_len) {
-            dev_err(...);
-        }
-        if (1 + sizeof(struct device_info) * i >=3D data_len)
-            break;
-        ...
-        memcpy(client_data->hid_devices + i, dev_info,
-               sizeof(struct device_info));
-    }
-}
-
-The loop only checks the start offset against data_len. If the end of the
-device_info structure straddles the boundary, could this memcpy() read past
-the end of the buffer? It also appears the loop does not break if the
-payload_len bounds check fails.
-
-> +			if (client_data->hid_dev_count > MAX_HID_DEVICES)
-> +				client_data->hid_dev_count =3D MAX_HID_DEVICES;
->  			if (!client_data->hid_devices)
->  				client_data->hid_devices =3D devm_kcalloc(
->  						cl_data_to_dev(client_data),
-
-[Severity: High]
-This is a pre-existing issue, but how does this handle sequential firmware
-responses with varying device counts?
-
-If a subsequent HOSTIF_DM_ENUM_DEVICES response arrives with a larger count,
-the allocation is skipped. Could the parsing loop then copy up to the new,
-larger count and write past the end of the previously allocated array?
-
-This same pattern appears in the HOSTIF_GET_HID_DESCRIPTOR and
-HOSTIF_GET_REPORT_DESCRIPTOR handlers, where a larger subsequent payload
-might bypass reallocation and overflow the buffers.
-
-
-While reviewing the rest of the file, I noticed a few other pre-existing
-issues that might need attention:
-
-[Severity: High]
-This is a pre-existing issue, but does the pointer arithmetic in the
-HOSTIF_PUBLISH_INPUT_REPORT_LIST handler scale correctly?
-
-drivers/hid/intel-ish-hid/ishtp-hid-client.c:process_recv() {
-    ...
-    report +=3D sizeof(*report) + payload_len;
-    ...
-}
-
-Since report is a pointer to struct report, C pointer arithmetic will
-implicitly multiply the added value by the size of the structure. Could this
-cause the loop to advance by (6 + payload_len) * 6 bytes instead of the
-intended size, leading to an out-of-bounds memory read?
-
-
-[Severity: High]
-This is a pre-existing issue, but does the device removal path properly
-cancel pending work items?
-
-drivers/hid/intel-ish-hid/ishtp-hid-client.c:hid_ishtp_cl_remove() {
-    ...
-    ishtp_put_device(cl_device);
-    ishtp_hid_remove(client_data);
-    hid_ishtp_cl_deinit(hid_ishtp_cl);
-
-    hid_ishtp_cl =3D NULL;
-}
-
-If a reset or resume event queues work concurrently with or immediately pri=
-or
-to unbind, could client_data be freed by devres while the workqueue still
-references it, leading to a use-after-free?
-
-
-[Severity: High]
-This is a pre-existing issue, but does the initialization failure path leave
-previously registered HID devices stranded?
-
-drivers/hid/intel-ish-hid/ishtp-hid-client.c:hid_ishtp_cl_init() {
-    ...
-    rv =3D ishtp_hid_probe(i, client_data);
-    if (rv) {
-        dev_err(cl_data_to_dev(client_data),
-                "[hid-ish]: HID probe for #%u failed: %d\n", i, rv);
-        goto err_cl_disconnect;
-    }
-    ...
-}
-
-If ishtp_hid_probe() fails for a subsequent device (e.g., index 1), the
-function returns an error without unregistering the previously successful
-device (index 0). Could this leave the first device fully registered in the
-HID subsystem while client_data is freed by devres, leading to a
-use-after-free upon interaction?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/tencent_130404E5ABE=
-CE66E8D0E70D8E6892C751C0A@qq.com?part=3D1
+Reviewed-by: Douglas Anderson <dianders@chromium.org>

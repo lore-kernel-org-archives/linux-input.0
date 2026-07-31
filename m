@@ -1,172 +1,138 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5403645C718
-	for <linux-input@vger.kernel.org>; Fri, 31 Jul 2026 18:23:15 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B088E41A50A
+	for <linux-input@vger.kernel.org>; Fri, 31 Jul 2026 18:25:53 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785522196; cv=none; b=XvRIlyF5Ow+isETIRn/ZMGfo1CAZ9/LsT1SZK9XboRyrIBOLhlyC5iX1MrbxjNOl/78i9PU3obEuHbPWRujh8n77NuL8CWs6sRNtFW7zY2/ZLU13YYopMZ0etN77kcOlOctzS1JWYaJou7OtMotF7Zro9sw9nbzVv15+5eznlUI=
+	t=1785522354; cv=none; b=BXcrTWfy18zvtP2qqMqm9cVY7J+tpdK7lpE8R/QI1SE/pZNNieGBLM245n6c6wzGjCPhx56kXq1j3PNV/xZQqq13TjPzW8l2Tla6CYdoa7n3Xiv5MsGOCTm3QdhTyiGQBHSoddjxqPNdoj5k8YbirgYATv5jba8WNCjLRJqtBIU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785522196; c=relaxed/simple;
-	bh=9KaPWGCKAv+vKVQAmZ5q8OMGoVqo1bZvRE/guIRKQeE=;
+	s=arc-20240116; t=1785522354; c=relaxed/simple;
+	bh=dWzOwp3s5hMNksf6HWoFvNm+z+F2HZa8dRg5CvWamw4=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=HMQwc8TePUKlMoD8Cwpa8QGIyB3EWw4oKjub/n5tjDU7TYJmGjrZHO6V50ZBsRwFMZ9EPZzHxzsgp6Rsrw3LrTpY09SMtvz9HGzy7MKiuzKvxVttnSH2Jf5ZAIrGpbJvUy+Ae4Dv/VO7kv6cmmwokgs/UMrHYKbaJfrmUcUkw+8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=GGp2YdYo; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=boSNq784Syvowf0CJG6KxjZ77CWG7E1izUpesLYi5C9Mh0+3DRrtPsUTbOqEhuKPgwb/5hwkVFZXCetDe+H2FdXHG3MPFoAme8X3vfRMuiD8N7JU7w5GjJjxVsdkqTSXPl+95T6YUYqi81LHelsGnrWxTnU5hVWGsNXqKy1rARQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=RDnhbCC4; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="GGp2YdYo"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D00EA1F00AC4;
-	Fri, 31 Jul 2026 18:23:14 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="RDnhbCC4"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E9EA1F00AC4;
+	Fri, 31 Jul 2026 18:25:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785522195;
-	bh=F4zKtFdNFwaEdV6zJzbutpsolf7hZkZlfE1Y/3MeMkE=;
+	s=k20260515; t=1785522352;
+	bh=DLlXV2LMSnOtwyJgRUMm5Paq5dugPlAOp+4CMtZU894=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=GGp2YdYoIklTaD9KT2w1LfIOB0IDRaxeJKF4KfDleGCF65VX9b753S1OrTbwgr/g9
-	 UgCBU6+fm9Ao17IPG4wchCDmRg5jAyWZSUKoDhi0t1Mf1zhYsm3H0kfCLzzRzAouul
-	 jSIXouiAGkXOJFczUzvMhOK2Gr6GQg89qJ6Bf1mRDLrLrEjGLTHgNjWjGNofT+UXtt
-	 WdscCVix+MpyDEZX1johrIYfjB6a5m9RB3SOroN64tXkj22X2V+swhw4LjDMeH/3p7
-	 1SjH/tkgxNm0/x3EOWlnRaMe6GOfuWAkv2QiJFkAWyUwwOBpn1HwaGhlDgHQCACVMX
-	 4Eya1erLKHGww==
+	b=RDnhbCC48lcEfFTF4z66bvPwtxTSCwXE7KC4l36pXwc4+Ub/7TBfFnan/V92sQb/0
+	 jdPS57tEOAvrbJfT+6CKjOwVUiNlBAl8vA5zMhoaIVgY9TCPZBH6zQGlz+O0aAwi+8
+	 Jnf+mKTRsd0O4IrP1kUv1OYMsIMWVmUTqbij1RJCi2jqafWOLIrh3rwbcOdM+Ho6Cg
+	 KGTXPpFEnvuBVV7nqfTJRF/KqijJZKYSMBugGfFYnx1jK28cGAW8cjy4vWkTBz5rqH
+	 bdNFO+tbSbWubSlyrNQ4Koce2Yo12bxrIo3PJXRpbfjwLCSgZL4tMpcCYdzZv0Ijgh
+	 JTrTP1CPLvYCQ==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 2/2] Input: rmi4 - fallback to platform data for x/y-mm
- in F12
+Subject: Re: [PATCH 1/2] Input: rmi4 - report difference between platform
+ data and detected coord in F12
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "David Heidelberg" <david@ixit.cz>
 Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260731-respect-x-y-mm-v1-2-3e85a4bec745@ixit.cz>
+In-Reply-To: <20260731-respect-x-y-mm-v1-1-3e85a4bec745@ixit.cz>
 References: <20260731-respect-x-y-mm-v1-0-3e85a4bec745@ixit.cz>
- <20260731-respect-x-y-mm-v1-2-3e85a4bec745@ixit.cz>
+ <20260731-respect-x-y-mm-v1-1-3e85a4bec745@ixit.cz>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 31 Jul 2026 18:23:14 +0000
-Message-Id: <20260731182314.D00EA1F00AC4@smtp.kernel.org>
+Date: Fri, 31 Jul 2026 18:25:52 +0000
+Message-Id: <20260731182552.9E9EA1F00AC4@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
 s) to consider:
 
 Pre-existing issues:
-- [High] Potential kernel panic due to division by zero if the device firmw=
-are returns 0 for DPM resolution.
-- [High] Potential read of uninitialized stack memory when parsing device s=
-ubpackets.
-- [High] Truncation of physical dimensions `x_mm` and `y_mm` for devices la=
-rger than 255 mm.
+- [High] Potential division by zero if the device hardware reports a DPM re=
+solution of 0.
+- [High] Uninitialized kernel stack memory leak due to insufficient validat=
+ion of register size against subpacket map.
 --
 
---- Patch [2]: [PATCH 2/2] Input: rmi4 - fallback to platform data for x/y-=
-mm in F12 ---
-commit 825204fcd696c68bb8002a2ae57765aed06fc9e4
+--- Patch [1]: [PATCH 1/2] Input: rmi4 - report difference between platform=
+ data and detected coord in F12 ---
+commit b9eac21396bb125557501cbe3a56f93e5854436c
 Author: David Heidelberg <david@ixit.cz>
 
-Input: rmi4 - fallback to platform data for x/y-mm in F12
+Input: rmi4 - report difference between platform data and detected coord in=
+ F12
 
-When detection for touchscreen-x-mm / y-mm returns 0, fallback to the
-platform data, so we get meaningful values.
+Platform data may define touchscreen-x-mm and touchscreen-y-mm, but
+these are quietly overridden by data provided by sensor.
+
+Warn when detected data doesn't match the device-tree data.
 
 > diff --git a/drivers/input/rmi4/rmi_f12.c b/drivers/input/rmi4/rmi_f12.c
-> index 88797556e738c..6f2e98c3a3499 100644
+> index 88c28089de993..88797556e738c 100644
 > --- a/drivers/input/rmi4/rmi_f12.c
 > +++ b/drivers/input/rmi4/rmi_f12.c
-> @@ -199,8 +199,19 @@ static int rmi_f12_read_sensor_tuning(struct f12_dat=
-a *f12)
+> @@ -100,6 +100,7 @@ static int rmi_f12_read_sensor_tuning(struct f12_data=
+ *f12)
+>  	int ret;
+>  	int offset;
+>  	u8 buf[15];
+> +	u8 x_mm, y_mm;
 
 [Severity: High]
-This isn't a bug introduced by this patch, but could this lead to a kernel
-panic from division by zero?
+This isn't a bug introduced by this patch, but could this code leak
+uninitialized stack memory if a peripheral advertises a small register size?
 
-Earlier in rmi_f12_read_sensor_tuning(), dpm_resolution is read directly
-from the hardware into buf:
+In rmi_f12_read_sensor_tuning(), buf is populated via rmi_read_block() with
+exactly item->reg_size bytes. Later in the function, it unconditionally
+parses fields if the corresponding subpacket bit is set:
 
-        ret =3D rmi_read(fn->rmi_dev, query_dpm_addr, buf);
-        if (ret) {
-                ...
-        }
-        dpm_resolution =3D buf[0];
+rmi_f12_read_sensor_tuning()
+    ...
+    offset =3D 0;
+    if (rmi_register_desc_has_subpacket(item, 0)) {
+        sensor->max_x =3D get_unaligned_le16(&buf[offset]);
+        sensor->max_y =3D get_unaligned_le16(&buf[offset + 2]);
+    ...
 
-        x_mm =3D sensor->max_x / dpm_resolution;
-        y_mm =3D sensor->max_y / dpm_resolution;
+If a peripheral sends a crafted register descriptor with a small reg_size
+(e.g., 2 bytes) but sets bits in the subpacket map, does this cause the
+driver to read past the initialized portion of buf and expose stack memory
+to userspace?
 
-If a buggy or malicious device returns 0 for the DPM resolution, this will
-unconditionally crash the kernel during the probe path. Should there be a=20
-check for dpm_resolution =3D=3D 0 before performing this division?
+>  	int pitch_x =3D 0;
+>  	int pitch_y =3D 0;
+>  	int rx_receivers =3D 0;
 
+[ ... ]
 
-[Severity: High]
-This is a pre-existing issue, but does this code read uninitialized stack=20
-memory when parsing device subpackets?
-
-In rmi_f12_read_sensor_tuning(), a 15-byte stack array is declared without
-initialization:
-
-        u8 buf[15];
-
-The driver reads item->reg_size bytes into this buffer:
-
-        ret =3D rmi_read_block(rmi_dev, fn->fd.control_base_addr + offset,
-                             buf, item->reg_size);
-
-The size is controlled by the device descriptor. The driver then uses offse=
-ts
-to access this buffer based purely on rmi_register_desc_has_subpacket(),
-without ensuring item->reg_size actually covers the accessed offsets.
-
-If a device supplies a small reg_size but claims all subpackets are present,
-could this read past the initialized portion of buf and leak kernel stack
-memory or cause erratic behavior?
-
->  			 "platform data y_mm (%d) !=3D detected y_mm: (%d)\n",
->  			 sensor->y_mm, y_mm);
+> @@ -171,8 +172,8 @@ static int rmi_f12_read_sensor_tuning(struct f12_data=
+ *f12)
+>  		}
+>  		dpm_resolution =3D buf[0];
 > =20
-> -	sensor->x_mm =3D x_mm;
-> -	sensor->y_mm =3D y_mm;
-> +	if (x_mm)
-> +		sensor->x_mm =3D x_mm;
+> -		sensor->x_mm =3D sensor->max_x / dpm_resolution;
+> -		sensor->y_mm =3D sensor->max_y / dpm_resolution;
+> +		x_mm =3D sensor->max_x / dpm_resolution;
+> +		y_mm =3D sensor->max_y / dpm_resolution;
 
 [Severity: High]
-This is a pre-existing issue, but could the physical dimensions overflow on=
-=20
-larger devices, which this patch might now incorrectly interpret as a failu=
-re?
+This is a pre-existing issue, but is it possible for a malicious or
+malfunctioning device to cause a division by zero panic here?
 
-The dimensions are calculated in millimeters and stored in u8 variables:
+The dpm_resolution value is read directly from the hardware query register
+into buf[0] and then used unconditionally as the denominator:
 
-drivers/input/rmi4/rmi_f12.c:rmi_f12_read_sensor_tuning()
-        u8 x_mm, y_mm;
+    dpm_resolution =3D buf[0];
+    x_mm =3D sensor->max_x / dpm_resolution;
 
-And also stored as u8 in struct rmi_2d_sensor:
+If the unprivileged peripheral returns a value of 0, could this crash the
+entire system?
 
-drivers/input/rmi4/rmi_2d_sensor.h:
-        u8 x_mm;
-        u8 y_mm;
-
-For any touchscreen larger than 255 mm (approx. 10 inches), the value will
-overflow and truncate. If a dimension is exactly 256 mm, it truncates to 0.
-
-With this patch, a truncated 0 will trigger the x_mm =3D=3D 0 fallback path=
- and
-incorrectly retain platform data instead of the detected value. Should thes=
-e=20
-dimensions be stored using u16?
-
-> +	else
-> +		dev_warn(&fn->dev,
-> +			 "x_mm detection returned 0, keeping %d\n",
-> +			 sensor->x_mm);
-> +
-> +	if (y_mm)
-> +		sensor->y_mm =3D y_mm;
-> +	else
-> +		dev_warn(&fn->dev,
-> +			 "y_mm detection returned 0, keeping %d\n",
-> +			 sensor->y_mm);
-> =20
->  	rmi_dbg(RMI_DEBUG_FN, &fn->dev, "%s: x_mm: %d y_mm: %d\n", __func__,
->  		sensor->x_mm, sensor->y_mm);
+>  	} else {
+>  		if (rmi_register_desc_has_subpacket(item, 3)) {
+>  			rx_receivers =3D buf[offset];
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260731-respect-x-=
-y-mm-v1-0-3e85a4bec745@ixit.cz?part=3D2
+y-mm-v1-0-3e85a4bec745@ixit.cz?part=3D1

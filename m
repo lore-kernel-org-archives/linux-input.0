@@ -1,138 +1,196 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B088E41A50A
-	for <linux-input@vger.kernel.org>; Fri, 31 Jul 2026 18:25:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4FA38446078;
+	Fri, 31 Jul 2026 18:40:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785522354; cv=none; b=BXcrTWfy18zvtP2qqMqm9cVY7J+tpdK7lpE8R/QI1SE/pZNNieGBLM245n6c6wzGjCPhx56kXq1j3PNV/xZQqq13TjPzW8l2Tla6CYdoa7n3Xiv5MsGOCTm3QdhTyiGQBHSoddjxqPNdoj5k8YbirgYATv5jba8WNCjLRJqtBIU=
+	t=1785523248; cv=none; b=ezvfZNmDg/2lh6sQotttFSZQbaFw5gk4xoLBtC1SirhIN5ixNGcMpzNS+dBXGpyg29ehoFX1FHhL6DrII6YhSeBjS6yyT91uaOkQByyP4ajlHyfvT52URAl3h6Pu2nf5hJD9P2dHl4V3GEYsz+vmNYxNQVYdlQfJ5D6Er7DI8aU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785522354; c=relaxed/simple;
-	bh=dWzOwp3s5hMNksf6HWoFvNm+z+F2HZa8dRg5CvWamw4=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=boSNq784Syvowf0CJG6KxjZ77CWG7E1izUpesLYi5C9Mh0+3DRrtPsUTbOqEhuKPgwb/5hwkVFZXCetDe+H2FdXHG3MPFoAme8X3vfRMuiD8N7JU7w5GjJjxVsdkqTSXPl+95T6YUYqi81LHelsGnrWxTnU5hVWGsNXqKy1rARQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=RDnhbCC4; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1785523248; c=relaxed/simple;
+	bh=sWecVut9IO1UNFSzN7N6qoxmebQ+iLq73k5eThwkTa0=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=HzMRnckFXVrf7wmC0TLLfsbOdmtg5tfMEVEYba5cfq5vOz/f2hKDPD4kfY3gQcvcf88RJ91b3FBeWwFEnkwzgH59P0OY8aA2L8RhpLSIgddIZl1BuDbOgvAgjQsQsvJV+y+n2vPaZwishKeoSHk33HeCCugA8tQ5R70EG0Q08wE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=m6ubt+Zb; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="RDnhbCC4"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E9EA1F00AC4;
-	Fri, 31 Jul 2026 18:25:52 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785522352;
-	bh=DLlXV2LMSnOtwyJgRUMm5Paq5dugPlAOp+4CMtZU894=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=RDnhbCC48lcEfFTF4z66bvPwtxTSCwXE7KC4l36pXwc4+Ub/7TBfFnan/V92sQb/0
-	 jdPS57tEOAvrbJfT+6CKjOwVUiNlBAl8vA5zMhoaIVgY9TCPZBH6zQGlz+O0aAwi+8
-	 Jnf+mKTRsd0O4IrP1kUv1OYMsIMWVmUTqbij1RJCi2jqafWOLIrh3rwbcOdM+Ho6Cg
-	 KGTXPpFEnvuBVV7nqfTJRF/KqijJZKYSMBugGfFYnx1jK28cGAW8cjy4vWkTBz5rqH
-	 bdNFO+tbSbWubSlyrNQ4Koce2Yo12bxrIo3PJXRpbfjwLCSgZL4tMpcCYdzZv0Ijgh
-	 JTrTP1CPLvYCQ==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 1/2] Input: rmi4 - report difference between platform
- data and detected coord in F12
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "David Heidelberg" <david@ixit.cz>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260731-respect-x-y-mm-v1-1-3e85a4bec745@ixit.cz>
-References: <20260731-respect-x-y-mm-v1-0-3e85a4bec745@ixit.cz>
- <20260731-respect-x-y-mm-v1-1-3e85a4bec745@ixit.cz>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Fri, 31 Jul 2026 18:25:52 +0000
-Message-Id: <20260731182552.9E9EA1F00AC4@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="m6ubt+Zb"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id CB8CEC2BCB9;
+	Fri, 31 Jul 2026 18:40:47 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1785523247;
+	bh=sWecVut9IO1UNFSzN7N6qoxmebQ+iLq73k5eThwkTa0=;
+	h=From:Date:Subject:To:Cc:Reply-To:From;
+	b=m6ubt+ZbyrN1O2m3JObDdtAE2DIUHBhSjut3EM//09OQ3ir44ZjG99OqRzyj/WQIQ
+	 5Pkh3/VvbPWd1eZDYUzvdO18xZS6EF2YyWpuFLhnAYT7bJ4aU+I7i3jw/RvKA7wSsO
+	 W/hVftzObpvvV+cPi0WSQQKx7aq9VUmGo/hztQ6bdwRBvMq4e3kyKBNXzsk+Ruc9ud
+	 ZUHlFda0Bh43G9rSe8Furg4qRU/JPefAf1fmiJQnB/IoQKYM9HOGp55Vd2St9s9Ang
+	 maTIQuLGEu3lK5TiELJ78aEhrk/AIiRiR+FAUMYKC/6nbKRda2azYWFHbQToBGuXz2
+	 afN3GKHAZ8ZdA==
+Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B76B6C5516F;
+	Fri, 31 Jul 2026 18:40:47 +0000 (UTC)
+From: David Heidelberg via B4 Relay <devnull+david.ixit.cz@kernel.org>
+Date: Fri, 31 Jul 2026 20:40:46 +0200
+Subject: [PATCH RESEND] Input: rmi4 - Move sensor initialization into own
+ function for F12
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20260731-synaptics-rmi4-fnsplit-v1-1-8175cec2ded1@ixit.cz>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ David Heidelberg <david@ixit.cz>
+X-Mailer: b4 0.15.2
+X-Developer-Signature: v=1; a=openpgp-sha256; l=3732; i=david@ixit.cz;
+ h=from:subject:message-id;
+ bh=QDJN7B9WH2UFwNDJgEJB7okxE7kCxvUO/EcFvb1axfQ=;
+ b=owEBbQKS/ZANAwAIAWACP8TTSSByAcsmYgBqbOwupdhinibbJUHqJxPnWc7o1syaAsNMzPDAO
+ BQoUuSQNhmJAjMEAAEIAB0WIQTXegnP7twrvVOnBHRgAj/E00kgcgUCamzsLgAKCRBgAj/E00kg
+ ckjcEACynQ6oR5lfcRPLk52TvNhbYoJWzgSrjvrJzLGeO8OCa/O+kFkI8LKr558BY5owzzTa0e1
+ zciknVqgOACyviiERsjyT/RHyx8U58gULB7KqDFW6hc/Pv8jLZ0s/PT1mcEaWF3pYhhyePAtpYG
+ ownwmeGAeFbEYYiJ5bDlem4eqdyg9ERcSglXFg4USpSpJSvFuB4WBEybK8nIKoG5kKCePVn/JCQ
+ hKZL/YliEEpktWCUy3/asQhYAF67Ccgi8gBzOxxYkrR+BPDri/Fx9kgBmu7E7WqPCpUSqNc2DKI
+ iL5JLdvMVtP+9Va9DHzsqmQw+1ct1kvq8+70pV6WKDJpdhI/ahVZlp3c0xWAVJh8Ehtw3W9KcLf
+ 3ySYtZsmNgCkXEufRlvIfcMVyQHjsIjBF8ARgKO93NCm0BELwMI6AIQbMLUe1PuvZ4pPsEWfSAK
+ ypl3ZX2c/Ej/CRTe67Q0/PD14J9eSfPwEjnYKslgNyJ1yYh27c/OKA2gil3d6DDf5JFYoylUfPf
+ g29EMNuZDOTV+wry2f96AoChBCtPjucCKJrTg9INR3k6/6nWzD1yjvWZ/Gl8AGbNX3xHITDVy9l
+ H5Md3FNem01zLr+ydGa/Ngz7VfPnbNXiwX4nKjrio61GUdyrZsiTRmGvdgxigwW1rOauUbOucry
+ 0qrcqVysaPDJJ8Q==
+X-Developer-Key: i=david@ixit.cz; a=openpgp;
+ fpr=D77A09CFEEDC2BBD53A7047460023FC4D3492072
+X-Endpoint-Received: by B4 Relay for david@ixit.cz/default with auth_id=355
+X-Original-From: David Heidelberg <david@ixit.cz>
+Reply-To: david@ixit.cz
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
+From: David Heidelberg <david@ixit.cz>
 
-Pre-existing issues:
-- [High] Potential division by zero if the device hardware reports a DPM re=
-solution of 0.
-- [High] Uninitialized kernel stack memory leak due to insufficient validat=
-ion of register size against subpacket map.
---
+Makes rmi_f12_probe function a bit cleaner and more structured.
 
---- Patch [1]: [PATCH 1/2] Input: rmi4 - report difference between platform=
- data and detected coord in F12 ---
-commit b9eac21396bb125557501cbe3a56f93e5854436c
-Author: David Heidelberg <david@ixit.cz>
+Signed-off-by: David Heidelberg <david@ixit.cz>
+---
+ drivers/input/rmi4/rmi_f12.c | 58 ++++++++++++++++++++++++++------------------
+ 1 file changed, 35 insertions(+), 23 deletions(-)
 
-Input: rmi4 - report difference between platform data and detected coord in=
- F12
+diff --git a/drivers/input/rmi4/rmi_f12.c b/drivers/input/rmi4/rmi_f12.c
+index 88c28089de993..333477bf0663e 100644
+--- a/drivers/input/rmi4/rmi_f12.c
++++ b/drivers/input/rmi4/rmi_f12.c
+@@ -364,29 +364,60 @@ static int rmi_f12_config(struct rmi_function *fn)
+ 	ret = rmi_f12_write_control_regs(fn);
+ 	if (ret)
+ 		dev_warn(&fn->dev,
+ 			 "Failed to write F12 control registers: %d\n", ret);
+ 
+ 	return 0;
+ }
+ 
++static int rmi_f12_sensor_init(struct rmi_function *fn, struct f12_data *f12)
++{
++	struct rmi_2d_sensor *sensor = &f12->sensor;
++	size_t pkt_size;
++
++	sensor->fn = fn;
++	f12->data_addr = fn->fd.data_base_addr;
++	pkt_size = rmi_register_desc_calc_size(&f12->data_reg_desc);
++	if (pkt_size > SZ_1M) {
++		dev_err(&fn->dev, "Invalid data packet size: %zu\n", pkt_size);
++		return -EINVAL;
++	}
++	sensor->pkt_size = pkt_size;
++
++	sensor->axis_align = f12->sensor_pdata.axis_align;
++
++	sensor->x_mm = f12->sensor_pdata.x_mm;
++	sensor->y_mm = f12->sensor_pdata.y_mm;
++	sensor->dribble = f12->sensor_pdata.dribble;
++
++	if (sensor->sensor_type == rmi_sensor_default)
++		sensor->sensor_type = f12->sensor_pdata.sensor_type;
++
++	rmi_dbg(RMI_DEBUG_FN, &fn->dev, "%s: data packet size: %u\n", __func__,
++		sensor->pkt_size);
++	sensor->data_pkt = devm_kmalloc(&fn->dev, sensor->pkt_size, GFP_KERNEL);
++	if (!sensor->data_pkt)
++		return -ENOMEM;
++
++	return 0;
++}
++
+ static int rmi_f12_probe(struct rmi_function *fn)
+ {
+ 	struct f12_data *f12;
+ 	int ret;
+ 	struct rmi_device *rmi_dev = fn->rmi_dev;
+ 	char buf;
+ 	u16 query_addr = fn->fd.query_base_addr;
+ 	const struct rmi_register_desc_item *item;
+ 	struct rmi_2d_sensor *sensor;
+ 	struct rmi_device_platform_data *pdata = rmi_get_platform_data(rmi_dev);
+ 	struct rmi_driver_data *drvdata = dev_get_drvdata(&rmi_dev->dev);
+ 	size_t data_offset = 0;
+-	size_t pkt_size;
+ 	int irq_mask_size;
+ 	int i;
+ 
+ 	rmi_dbg(RMI_DEBUG_FN, &fn->dev, "%s\n", __func__);
+ 
+ 	irq_mask_size = BITS_TO_LONGS(drvdata->irq_count);
+ 
+ 	ret = rmi_read(fn->rmi_dev, query_addr, &buf);
+@@ -421,39 +452,20 @@ static int rmi_f12_probe(struct rmi_function *fn)
+ 		f12->sensor_pdata = pdata->sensor_pdata;
+ 	}
+ 
+ 	ret = rmi_f12_read_register_descs(fn, f12, query_addr);
+ 	if (ret)
+ 		return ret;
+ 
+ 	sensor = &f12->sensor;
+-	sensor->fn = fn;
+-	f12->data_addr = fn->fd.data_base_addr;
+-	pkt_size = rmi_register_desc_calc_size(&f12->data_reg_desc);
+-	if (pkt_size > SZ_1M) {
+-		dev_err(&fn->dev, "Invalid data packet size: %zu\n", pkt_size);
+-		return -EINVAL;
+-	}
+-	sensor->pkt_size = pkt_size;
+-
+-	sensor->axis_align = f12->sensor_pdata.axis_align;
+ 
+-	sensor->x_mm = f12->sensor_pdata.x_mm;
+-	sensor->y_mm = f12->sensor_pdata.y_mm;
+-	sensor->dribble = f12->sensor_pdata.dribble;
+-
+-	if (sensor->sensor_type == rmi_sensor_default)
+-		sensor->sensor_type = f12->sensor_pdata.sensor_type;
+-
+-	rmi_dbg(RMI_DEBUG_FN, &fn->dev, "%s: data packet size: %u\n", __func__,
+-		sensor->pkt_size);
+-	sensor->data_pkt = devm_kmalloc(&fn->dev, sensor->pkt_size, GFP_KERNEL);
+-	if (!sensor->data_pkt)
+-		return -ENOMEM;
++	ret = rmi_f12_sensor_init(fn, f12);
++	if (ret)
++		return ret;
+ 
+ 	dev_set_drvdata(&fn->dev, f12);
+ 
+ 	ret = rmi_f12_read_sensor_tuning(f12);
+ 	if (ret)
+ 		return ret;
+ 
+ 	/*
 
-Platform data may define touchscreen-x-mm and touchscreen-y-mm, but
-these are quietly overridden by data provided by sensor.
+---
+base-commit: 3d5670d672ae08b8c534b7beed6f57c8b44e7b43
+change-id: 20260627-synaptics-rmi4-fnsplit-3698a620b73c
 
-Warn when detected data doesn't match the device-tree data.
+Best regards,
+-- 
+David Heidelberg <david@ixit.cz>
 
-> diff --git a/drivers/input/rmi4/rmi_f12.c b/drivers/input/rmi4/rmi_f12.c
-> index 88c28089de993..88797556e738c 100644
-> --- a/drivers/input/rmi4/rmi_f12.c
-> +++ b/drivers/input/rmi4/rmi_f12.c
-> @@ -100,6 +100,7 @@ static int rmi_f12_read_sensor_tuning(struct f12_data=
- *f12)
->  	int ret;
->  	int offset;
->  	u8 buf[15];
-> +	u8 x_mm, y_mm;
 
-[Severity: High]
-This isn't a bug introduced by this patch, but could this code leak
-uninitialized stack memory if a peripheral advertises a small register size?
-
-In rmi_f12_read_sensor_tuning(), buf is populated via rmi_read_block() with
-exactly item->reg_size bytes. Later in the function, it unconditionally
-parses fields if the corresponding subpacket bit is set:
-
-rmi_f12_read_sensor_tuning()
-    ...
-    offset =3D 0;
-    if (rmi_register_desc_has_subpacket(item, 0)) {
-        sensor->max_x =3D get_unaligned_le16(&buf[offset]);
-        sensor->max_y =3D get_unaligned_le16(&buf[offset + 2]);
-    ...
-
-If a peripheral sends a crafted register descriptor with a small reg_size
-(e.g., 2 bytes) but sets bits in the subpacket map, does this cause the
-driver to read past the initialized portion of buf and expose stack memory
-to userspace?
-
->  	int pitch_x =3D 0;
->  	int pitch_y =3D 0;
->  	int rx_receivers =3D 0;
-
-[ ... ]
-
-> @@ -171,8 +172,8 @@ static int rmi_f12_read_sensor_tuning(struct f12_data=
- *f12)
->  		}
->  		dpm_resolution =3D buf[0];
-> =20
-> -		sensor->x_mm =3D sensor->max_x / dpm_resolution;
-> -		sensor->y_mm =3D sensor->max_y / dpm_resolution;
-> +		x_mm =3D sensor->max_x / dpm_resolution;
-> +		y_mm =3D sensor->max_y / dpm_resolution;
-
-[Severity: High]
-This is a pre-existing issue, but is it possible for a malicious or
-malfunctioning device to cause a division by zero panic here?
-
-The dpm_resolution value is read directly from the hardware query register
-into buf[0] and then used unconditionally as the denominator:
-
-    dpm_resolution =3D buf[0];
-    x_mm =3D sensor->max_x / dpm_resolution;
-
-If the unprivileged peripheral returns a value of 0, could this crash the
-entire system?
-
->  	} else {
->  		if (rmi_register_desc_has_subpacket(item, 3)) {
->  			rx_receivers =3D buf[offset];
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260731-respect-x-=
-y-mm-v1-0-3e85a4bec745@ixit.cz?part=3D1

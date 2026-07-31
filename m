@@ -1,106 +1,138 @@
-Received: from mail-wr1-f51.google.com (mail-wr1-f51.google.com [209.85.221.51])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from out203-205-221-191.mail.qq.com (out203-205-221-191.mail.qq.com [203.205.221.191])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1AF513B5E08
-	for <linux-input@vger.kernel.org>; Thu, 30 Jul 2026 20:41:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 07F83285060;
+	Fri, 31 Jul 2026 01:39:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=203.205.221.191
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785444116; cv=none; b=Rsv9XaBARJTbY7+w+C2t+DBEDM6U9YIAJKFQVualaEOWNUN32vyds8o7OLuXP71x4Sb4TUc/Pv5iH8baW1POYpYLFxxAhHF461OxqZsit1LBnq/4hp3wX0+op6iHvTtxfY7x07cHn2EZPj84c/clDXBsTt7Mt/mC910cjHUjk4U=
+	t=1785461956; cv=none; b=Vk73oIAc6rKH+CvtbYOnM1LmQZX8TLSXTiiyJ5QHmlYSxVTwqlXh6NM3ETm24hdcbNgkJPEU8LsOAoL4S0cubrLeSIVw+QMjjKXjhB145ShmGAngSdfx/cHxiu9WB/YGdhjU6c6GB5aQ94X6QvmJcTQfTdj/lEmD/muYGlfkYec=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785444116; c=relaxed/simple;
-	bh=HYxoZYuwQeO6t0bZr0FMt/eeSDvXYszea8DGKlrOSPA=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=Vgl3Y2Z8LKNulRo32wjoqc+Rzlj4oER1fRVAov2sbhdILF4HyF0YcxNfq9yz3ZN9mfz9Q034NuVIZxW7cqFRqzslYdZVVYFmHF74SidGZRhxTrYnUR2K+aIIZ0/n3DrL/pBmWr/cVLPOn1RWrDTa/xiFeBU0PnMGgD3wT6/CI7g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com; spf=pass smtp.mailfrom=baylibre.com; dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b=lhK85+dk; arc=none smtp.client-ip=209.85.221.51
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=baylibre.com
+	s=arc-20240116; t=1785461956; c=relaxed/simple;
+	bh=QdkgbGYVE09bUDYdSmworDNXnP4241nAKDCn8UC/mpQ=;
+	h=Message-ID:Date:From:To:Cc:Subject:References:Mime-Version:
+	 Content-Type; b=ma80wfNwIqcCyq9hAAw4wCeBTcVgUYphEHAVXJUcfr0EE7TWd5+ms+6FoDK316EHdALp1TK/NBHjjadwavxp6RyZKnsk6wWAw02/2s/pk0XTNLrwx/LaYPHj95liMBbkE5wQSRzhlcWHN/FLN8kZGSpAlCAkdqA+ehZV/QZPMU4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=foxmail.com; spf=pass smtp.mailfrom=foxmail.com; dkim=pass (1024-bit key) header.d=foxmail.com header.i=@foxmail.com header.b=pXPm2KTq; arc=none smtp.client-ip=203.205.221.191
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=foxmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=foxmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b="lhK85+dk"
-Received: by mail-wr1-f51.google.com with SMTP id ffacd0b85a97d-47f93b2fe4cso81845f8f.0
-        for <linux-input@vger.kernel.org>; Thu, 30 Jul 2026 13:41:51 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=baylibre.com; s=google; t=1785444109; x=1786048909; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:mime-version:message-id:date
-         :subject:cc:to:from:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=IbgiCBDyQUJMyqllgJeAiMgyi6jiM8Wyrk+BIn2+hws=;
-        b=lhK85+dkqWgHZpN2z1y42NAP8C45x53kQVzAYwrkWRsZncgH0q1lGFIKPzFLIzy+em
-         wdj+ZAGQ9W+caLsNQFa2usHK266hbT+GRX3K1XbNWbV2UMnlmPnJ6slADkWTb2iHhB9P
-         cFUZd0g5hL2TGAywr+891FW1vaA5FlM/tBNtGgrtepxbV1jWYniGpQJpzDXHJ87NentY
-         sBhMASNy+I6aPC+JLgLjNkBxei/hncEvuV7TqYRE9A7J/G5HtNp4M3hApf8mZ/nYk0Ba
-         y5ufQPEGmMCha7iVDajIOZYE9SyzZb4h7f+BErFenDBjJV7vj/2S/bmUPML/n1A549Dj
-         jf8A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785444109; x=1786048909;
-        h=content-transfer-encoding:content-type:mime-version:message-id:date
-         :subject:cc:to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=IbgiCBDyQUJMyqllgJeAiMgyi6jiM8Wyrk+BIn2+hws=;
-        b=lpnnZnzt00E+7vGMCd+iaELi3QEpXYgCpfdod0ShDN/CMBHKJQYejquHSS5m8SSXUC
-         bC6sk54q9p/1BqghifPj9uXyqkjfFgP18r9OASf1rJaLPQiFEMNEGQO0n5RKZVt6cHy9
-         L8QnUO+bnp6+emMTm3t9eUOffaq6H3zbEL3P29RZxRlDcrS93CL7elznIFh9f+ipKdaP
-         FmJToAMRn26yk2tivMrQujZ38Y6ZYc98QZIP67PKZOCy7hvR2QggOSq8JmhgJq/5CjiA
-         0WKRIHvlVYRVKe2nsT4u58r9wlIliJH4CD1y7x1RV/xadPf658pcmtC32dQk+D2IA9bg
-         mSfw==
-X-Gm-Message-State: AOJu0YzlfA7Ide4Cx2FxD7kH6KdyIxhTG747ZkEC3YdbnevUOIQGzamg
-	i0RNNmxd4hIW1rNqQG+oc+Ayr67aMzfOUMM+cDTDJlBbrdmOnpyPLXErP6WUgF0i2TVH1/bJcS4
-	WVza5
-X-Gm-Gg: AR+sD11GQa41HpfrFhkxCYxlRqkNmGx6jamyMlHHK+8wYYwmKbBe/0LmvtNPn7haxNz
-	b6EvedXcFloXtlrMkWFgIOXe6Yv0rdGfwFCZESvRdod5UBVSArpuWoTy/pcEYOiW14xSNRchMVh
-	eejiOa708IlKuU1svVacMlrvU9c4/y2nHJVePgDBdR5sQLLrJ+0Shbr/i6nScnScgZYLvXqiinp
-	anYgeO+4lF/KnlJSs0+dmROAnjpzWsZll0Q2kkxkOHWTIiT4PCVERe+Rrtd+0MZzl5RzpN31a0i
-	m5K5EeSgCo1b7hgjDWWZia0JYZHQc4WUzgEbzcX2UorVFhSlLn6gv8WswMLRa8nn4ME1e0OKhfS
-	wBJBVvU0UFeYENC5F2Wb2xNf8Tos3JhQVMGej8KYCNeHLmCzW7MOmQZZNxBGp9+YV2m5Te3mHZx
-	QuNYJ8CnSn6NAOSxeGbV0pfjNZlQ4hvkCUxrSRvDJvaamnXo0CrEj8jqJH+vkY46iVGA==
-X-Received: by 2002:a5d:5f42:0:b0:47f:97e9:fe4a with SMTP id ffacd0b85a97d-47fc81fc91dmr5933828f8f.43.1785444109447;
-        Thu, 30 Jul 2026 13:41:49 -0700 (PDT)
-Received: from localhost ([2a02:8071:56d1:2de0:1d24:d58d:2b65:c291])
-        by smtp.gmail.com with UTF8SMTPSA id ffacd0b85a97d-47fc88e424fsm13436095f8f.14.2026.07.30.13.41.48
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 30 Jul 2026 13:41:48 -0700 (PDT)
-From: =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig=20=28The=20Capable=20Hub=29?= <u.kleine-koenig@baylibre.com>
-To: Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>
-Cc: linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH] HID: Fix comment about header defining HID_GROUP_ANY
-Date: Thu, 30 Jul 2026 22:41:36 +0200
-Message-ID: <20260730204136.1606050-2-u.kleine-koenig@baylibre.com>
-X-Mailer: git-send-email 2.55.0.11.g153666a7d9bb
+	dkim=pass (1024-bit key) header.d=foxmail.com header.i=@foxmail.com header.b="pXPm2KTq"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=foxmail.com;
+	s=s201512; t=1785461949;
+	bh=QdkgbGYVE09bUDYdSmworDNXnP4241nAKDCn8UC/mpQ=;
+	h=Date:From:To:Cc:Subject:References;
+	b=pXPm2KTqrOu7bwh57tLNhvmzQ1fTWLYHRh/JgzcvdnaTRrgtjEPBIMnkWofYfaolE
+	 SETXSiNxAzwVIuWH6hzG4ppZmMIbStkxrmDi3goKQa4e6b1yJkhN7h9NgL8plD9eM3
+	 CNCPP9Qvd8MyCN2mBBEDPlqfkVggB90MfdwY/t+4=
+Received: from PC-20201120SBOH ([183.205.156.133])
+	by newxmesmtplogicsvrszb51-1.qq.com (NewEsmtp) with SMTP
+	id 9C6B6C44; Fri, 31 Jul 2026 09:39:06 +0800
+X-QQ-mid: xmsmtpt1785461946t7g3ux002
+Message-ID: <tencent_58E45E8DB6735CE5E12ED11DD00551A8940A@qq.com>
+X-QQ-XMAILINFO: MoyhOLHmmf4YkDza/1rbGS8yCeLdLlbHRBPQQaoZcplJKKQtXm3Y82gsdrBlxN
+	 3hZiKVZGqIJGQfuhakKR0h79DWjEhrWGX+e0lmNwvjV0gvojZV2GLCqPIHAm3qOjNhtxDgIRHiua
+	 OfR3YzU88zeyYjdrE2g4MYmoizIpl2AbFl07hfzLAEFuT/f93pPJ4CSQ+cENRORzYOPO+Ag9Asmt
+	 cvtOC62JAPk1U8oX1awzTlNa2qfBNq+uqP9DiKQJ7qpO0UWJsxrP0V8juay1+CLCBkb8YUHidUaH
+	 RBsCaQ36Jl63HtyEBUI88KdY8TgwB8U265BLFLrpQWhe1mGxyyLwhTbwRSKDVegP9VuPM3u2xIAv
+	 ggcj+/QHVSiY2ZdrvyQCQAMlJwbwhNikfkzLCKQKMEsER3Qr7IHSfBsVTgjpQ2HFaZmHZSSwoScm
+	 h0G5VJoOz6cHoKGVZ6GWDsw5Yv6UkQ+cJ8VosaPAwcarmz01IclP8FxL7G8n5TRknpGanuot4heM
+	 rutH9rvWVaCGk9ZZ1J/z0NUqsyZlqytFvi4bfMSAKjRgYdwFhMkUFJ1H+XIzDhROLnBcgksEt6l8
+	 88FzNU8nZ4uEFAtw9EpokY1xCFEuf1ZyF8t7TCxniFo67oOjJaP6DRHG3gbTJecYLBuxS0lAQgb+
+	 ShO97vMYrmsS2dqY6B2DxwspsDD7yxkNpIeDoz9eagR0xzabcv4W+o9gPXYpZGsocfS8Q1W70HUD
+	 govmN45CrBrFooPKiDiD6zRbjxBLrKVTFFCf0h5V/Vvkpb8+wxvjMHvqYojmWVfDYIqX70fGmWr5
+	 7FYTfTtQMQAf4RK4TBgW51KFdH7i1ycd0g5TukjxAARZYo3Qr+vetlwNRfSY8wJIMTBFIwDpzwVW
+	 bTF1/Uo0H6qkY/j3kPHmepiI8vIkvLAwGqmF7lCORBjBqyLkK4exuDMzjEZ00ySSUCjiDV9d6J+e
+	 LIcQTPpFejUMAJqM7uh09+1Infwy2mAg9fDIr6Pbctx5e7IwmH8G18CpgSWZAblM0TJ6KG8XQhNo
+	 /AsMXkmrmTOO7cj33dAAbCIPSbb1tWgkDo1XcZOT1Rf4w9mUh7obXxRBP8lxlzLHxBvWyLAQLIen
+	 Q3xQyrFZji5jfBPgJ6bvTJ7KrWPs/OFxctloVQTBS8VpaAzvmd22f1OEs6nQ==
+X-QQ-XMRINFO: MZZzJzC9sPzZ0XEjdpx3SfqIs2fvVm4gOA==
+Date: Fri, 31 Jul 2026 09:39:06 +0800
+From: "grayhat@foxmail.com" <grayhat@foxmail.com>
+To: "srinivas pandruvada" <srinivas.pandruvada@linux.intel.com>, 
+	linux-input <linux-input@vger.kernel.org>, 
+	"Zhang Lixu" <lixu.zhang@intel.com>
+Cc: gregkh <gregkh@linuxfoundation.org>, 
+	"Jiri Kosina" <jikos@kernel.org>, 
+	"Benjamin Tissoires" <bentiss@kernel.org>, 
+	linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Re: [PATCH v2 1/4] HID: intel-ish-hid: fix report_list iterator pointer arithmetic
+References: <tencent_F203F6206515915C81D1210ECEBCBCA5D707@qq.com>, 
+	<8836d77de5c2de98876f49a866a7f149c49fff89.camel@linux.intel.com>
+X-Priority: 3
+X-GUID: B523AD08-1083-4BB5-93BE-23362FF30D96
+X-Has-Attach: no
+X-Mailer: Foxmail 7.2.25.542[cn]
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-X-Developer-Signature: v=1; a=openpgp-sha256; l=871; i=u.kleine-koenig@baylibre.com; h=from:subject; bh=HYxoZYuwQeO6t0bZr0FMt/eeSDvXYszea8DGKlrOSPA=; b=owEBbQGS/pANAwAKAY+A+1h9Ev5OAcsmYgBqa7cAIl9orfKdHM3BFPSaJFHouobPJhSAclXV+ aKmwnInpYeJATMEAAEKAB0WIQQ/gaxpOnoeWYmt/tOPgPtYfRL+TgUCamu3AAAKCRCPgPtYfRL+ TtiuB/4wWZ89j6i/pmwQ7M/phXzu5odwXNwoXZdcmHaxmbVdMY9KJHmwTkH7f+h5j7vuVGAI3j+ bzCKUj7ZtPt7jA0uZJ6stJQIvBJPRTWAo0RnIIZZ0+y6OLfDXdu0S7HXWCss+e86zGN0Vwr/NoM s+Nk/XECK/pftcXjkhmwT5yW88rNRx1ZuqdKj8lx4M+er+Mz7gw3KNorDAzw71K2ez/bF1wy5Y5 ueCMYT6vCg4NkpUruvfEPNxk7PoR9QvVu/0lVAAqI+TZnmhBkZ/jMoko/tVlD9DqG4nGYhGUNIE mViWfG4ZH1aUPIDzJ8Zm9U3102Y4CQzFfYAI/ainE1x652JX
-X-Developer-Key: i=u.kleine-koenig@baylibre.com; a=openpgp; fpr=0D2511F322BFAB1C1580266BE2DCDD9132669BD6
-Content-Transfer-Encoding: 8bit
+Mime-Version: 1.0
+X-OQ-MSGID: <202607310939063380465@foxmail.com>
+Content-Type: text/plain;
+	charset="UTF-8"
+Content-Transfer-Encoding: base64
 
-Since commit ad428f5811bd ("mod_devicetable.h: Split into per subsystem
-headers") HID_GROUP_ANY isn't defined in linux/mod_devicetable.h
-(directly) any more. Fix the comment accordingly.
-
-Signed-off-by: Uwe Kleine-König (The Capable Hub) <u.kleine-koenig@baylibre.com>
----
- include/linux/hid.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/include/linux/hid.h b/include/linux/hid.h
-index b240baa95ab5..56bd7f274387 100644
---- a/include/linux/hid.h
-+++ b/include/linux/hid.h
-@@ -424,7 +424,7 @@ struct hid_item {
- /*
-  * HID device groups
-  *
-- * Note: HID_GROUP_ANY is declared in linux/mod_devicetable.h
-+ * Note: HID_GROUP_ANY is declared in <linux/device-id/hid.h>
-  * and has a value of 0x0000
-  */
- #define HID_GROUP_GENERIC			0x0001
-
-base-commit: 95d6a9ccef99117115e41e9adb271243bd5e985b
--- 
-2.55.0.11.g153666a7d9bb
+VGhhbmtzLCArTGl4dSBub3RlZC4KCkNvcnJlY3RlZCB0YWc6CgpBc3Npc3RlZC1ieTogSGVybWVz
+OmtpbWktazMKCihUaGUgbGFzdCBodW5rIG9mIHRoYXQgcGF0Y2ggaXMgc3RyYXkgLS0gcGxlYXNl
+IGRpc2NhcmQgaXQ7IGl0CnJlbW92ZXMgdGhlIHRyYWlsaW5nIG5ld2xpbmUgYWZ0ZXIgTU9EVUxF
+X0xJQ0VOU0UuKQoKTGV0IG1lIGtub3cgaWYgeW91IHdhbnQgaXQgcmVzZW50IGFzIGEgcHJvcGVy
+IFtQQVRDSCB2Ml0uCgpUaGFua3MsClNoZW4gWW9uZ2NoYW8KPitMaXh1CgoKPgoKCgo+T24gVGh1
+LCAyMDI2LTA3LTMwIGF0IDIwOjUyICswODAwLCBTaGVuIFlvbmdjaGFvIHdyb3RlOgoKCgo+PiBT
+aW5jZSBjb21taXQgNjNjYWZhZjQ3YTgzICgiSElEOiBpc2h0cC1oaWQtY2xpZW50OiByZXBsYWNl
+CgoKCj4+IGZha2UtZmxleCBhcnJheXMgd2l0aCBmbGV4LWFycmF5IG1lbWJlcnMiLCB2Ni4xMyks
+IHRoZQoKCgo+PiBIT1NUSUZfUFVCTElTSF9JTlBVVF9SRVBPUlRfTElTVCBoYW5kbGVyIGl0ZXJh
+dGVzIG92ZXIgc3ViLXJlcG9ydHMKCgoKPj4gdXNpbmcgYSBzdHJ1Y3QgcmVwb3J0ICogcG9pbnRl
+cjoKCgoKPj4gCgoKCj4+IAlyZXBvcnQgKz0gc2l6ZW9mKCpyZXBvcnQpICsgcGF5bG9hZF9sZW47
+CgoKCj4+IAoKCgo+PiBCZWNhdXNlIHJlcG9ydCBpcyBhIHN0cnVjdCByZXBvcnQgKiAobm90IGEg
+Y2hhciAqKSwgdGhlIGNvbXBpbGVyCgoKCj4+IG11bHRpcGxpZXMgdGhlIGFkdmFuY2UgYnkgc2l6
+ZW9mKHN0cnVjdCByZXBvcnQpID0gOCwgbWFraW5nIHRoZQoKCgo+PiBhY3R1YWwgc3RyaWRlICg4
+ICsgcGF5bG9hZF9sZW4pICogOCBieXRlcyBpbnN0ZWFkIG9mIHRoZSBpbnRlbmRlZAoKCgo+PiA4
+ICsgcGF5bG9hZF9sZW4gYnl0ZXMuwqAgT24gdjYuMTMrIGEgbGVnaXRpbWF0ZSBhZ2dyZWdhdGVk
+IGxpc3QKCgoKPj4gd2l0aCBudW1fb2ZfcmVwb3J0cyA+PSAyIGRyaXZlcyB0aGUgc2Vjb25kIGl0
+ZXJhdGlvbiBmYXIgb3V0c2lkZQoKCgo+PiB0aGUgbWVzc2FnZSBidWZmZXIuCgoKCj4+IAoKCgo+
+PiBSZXBsYWNlIHRoZSBzdHJ1Y3QgcmVwb3J0ICogaXRlcmF0b3Igd2l0aCBhIGJ5dGUtZ3JhbnVs
+YXIgdTggKnBvcwoKCgo+PiBzbyB0aGUgYWR2YW5jZSBpcyBjb21wdXRlZCBpbiBieXRlcy4KCgoK
+Pj4gCgoKCj4+IAoKCgo+PiBBc3Npc3RlZC1ieTogTExNCgoKCj4KCgoKPk5lZWQgdG8gZm9sbG93
+OgoKCgo+CgoKCj5odHRwczovL2RvY3Mua2VybmVsLm9yZy9wcm9jZXNzL2NvZGluZy1hc3Npc3Rh
+bnRzLmh0bWwKCgoKPgoKCgo+QXNzaXN0ZWQtYnk6IEFHRU5UX05BTUU6TU9ERUxfVkVSU0lPTiBb
+VE9PTDFdIFtUT09MMl0KCgoKPgoKCgo+TGl4dSwKCgoKPlBsZWFzZSBnaXZlIGEgdGVzdCBvbiBm
+ZXcgZGV2aWNlcy4gTm90IHN1cmUgaWYgd2UgaGF2ZSBzdWNoIGRldmljZS4KCgoKPgoKCgo+VGhh
+bmtzLAoKCgo+U3Jpbml2YXMKCgoKPgoKCgo+PiBTaWduZWQtb2ZmLWJ5OiBTaGVuIFlvbmdjaGFv
+IDxncmF5aGF0QGZveG1haWwuY29tPgoKCgo+PiBGaXhlczogNjNjYWZhZjQ3YTgzICgiSElEOiBp
+c2h0cC1oaWQtY2xpZW50OiByZXBsYWNlIGZha2UtZmxleCBhcnJheXMKCgoKPj4gd2l0aCBmbGV4
+LWFycmF5IG1lbWJlcnMiKQoKCgo+PiBDYzogc3RhYmxlQHZnZXIua2VybmVsLm9yZwoKCgo+PiAt
+LS0KCgoKPj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvaGlkL2ludGVsLWlzaC1oaWQvaXNodHAtaGlk
+LWNsaWVudC5jCgoKCj4+IGIvZHJpdmVycy9oaWQvaW50ZWwtaXNoLWhpZC9pc2h0cC1oaWQtY2xp
+ZW50LmMKCgoKPj4gaW5kZXggNmQ2NDAwOGYyLi5iYTUyZTE4NWMgMTAwNjQ0CgoKCj4+IC0tLSBh
+L2RyaXZlcnMvaGlkL2ludGVsLWlzaC1oaWQvaXNodHAtaGlkLWNsaWVudC5jCgoKCj4+ICsrKyBi
+L2RyaXZlcnMvaGlkL2ludGVsLWlzaC1oaWQvaXNodHAtaGlkLWNsaWVudC5jCgoKCj4+IEBAIC03
+NCw2ICs3NCw3IEBAIHN0YXRpYyB2b2lkIHByb2Nlc3NfcmVjdihzdHJ1Y3QgaXNodHBfY2wKCgoK
+Pj4gKmhpZF9pc2h0cF9jbCwgdm9pZCAqcmVjdl9idWYsCgoKCj4+IMKgCWludCByZXBvcnRfdHlw
+ZTsKCgoKPj4gwqAJc3RydWN0IHJlcG9ydF9saXN0ICpyZXBvcnRzX2xpc3Q7CgoKCj4+IMKgCXN0
+cnVjdCByZXBvcnQgKnJlcG9ydDsKCgoKPj4gKwl1OCAqcG9zOwoKCgo+PiDCoAlzaXplX3QgcmVw
+b3J0X2xlbjsKCgoKPj4gwqAJc3RydWN0IGlzaHRwX2NsX2RhdGEgKmNsaWVudF9kYXRhID0KCgoK
+Pj4gaXNodHBfZ2V0X2NsaWVudF9kYXRhKGhpZF9pc2h0cF9jbCk7CgoKCj4+IMKgCWludCBjdXJy
+X2hpZF9kZXYgPSBjbGllbnRfZGF0YS0+Y3VyX2hpZF9kZXY7CgoKCj4+IEBAIC0yODAsOSArMjgx
+LDEwIEBAIHN0YXRpYyB2b2lkIHByb2Nlc3NfcmVjdihzdHJ1Y3QgaXNodHBfY2wKCgoKPj4gKmhp
+ZF9pc2h0cF9jbCwgdm9pZCAqcmVjdl9idWYsCgoKCj4+IMKgCQljYXNlIEhPU1RJRl9QVUJMSVNI
+X0lOUFVUX1JFUE9SVF9MSVNUOgoKCgo+PiDCoAkJCXJlcG9ydF90eXBlID0gSElEX0lOUFVUX1JF
+UE9SVDsKCgoKPj4gwqAJCQlyZXBvcnRzX2xpc3QgPSAoc3RydWN0IHJlcG9ydF9saXN0CgoKCj4+
+ICopcGF5bG9hZDsKCgoKPj4gLQkJCXJlcG9ydCA9IHJlcG9ydHNfbGlzdC0+cmVwb3J0czsKCgoK
+Pj4gKwkJCXBvcyA9ICh1OCAqKXJlcG9ydHNfbGlzdC0+cmVwb3J0czsKCgoKPj4gwqAKCgoKPj4g
+wqAJCQlmb3IgKGogPSAwOyBqIDwgcmVwb3J0c19saXN0LQoKCgo+PiA+bnVtX29mX3JlcG9ydHM7
+IGorKykgewoKCgo+PiArCQkJCXJlcG9ydCA9IChzdHJ1Y3QgcmVwb3J0ICopcG9zOwoKCgo+PiDC
+oAkJCQlyZWN2X21zZyA9IGNvbnRhaW5lcl9vZigmcmVwb3J0LQoKCgo+PiA+bXNnLAoKCgo+PiDC
+oAkJCQkJCQlzdHJ1Y3QKCgoKPj4gaG9zdGlmX21zZywgaGRyKTsKCgoKPj4gwqAJCQkJcmVwb3J0
+X2xlbiA9IHJlcG9ydC0+c2l6ZTsKCgoKPj4gQEAgLTMwMyw3ICszMDUsNyBAQCBzdGF0aWMgdm9p
+ZCBwcm9jZXNzX3JlY3Yoc3RydWN0IGlzaHRwX2NsCgoKCj4+ICpoaWRfaXNodHBfY2wsIHZvaWQg
+KnJlY3ZfYnVmLAoKCgo+PiDCoAkJCQkJCTApOwoKCgo+PiDCoAkJCQkJfQoKCgo+PiDCoAoKCgo+
+PiAtCQkJCXJlcG9ydCArPSBzaXplb2YoKnJlcG9ydCkgKwoKCgo+PiBwYXlsb2FkX2xlbjsKCgoK
+Pj4gKwkJCQlwb3MgKz0gc2l6ZW9mKHN0cnVjdCByZXBvcnQpICsKCgoKPj4gcGF5bG9hZF9sZW47
+CgoKCj4+IMKgCQkJfQoKCgo+PiDCoAkJCWJyZWFrOwoKCgo+PiDCoAkJZGVmYXVsdDoKCgoKPj4g
+QEAgLTk1Niw0ICs5NTgsNCBAQCBNT0RVTEVfQVVUSE9SKCJEYW5pZWwgRHJ1YmluCgoKCj4+IDxk
+YW5pZWwuZHJ1YmluQGludGVsLmNvbT4iKTsKCgoKPj4gwqAgKi8KCgoKPj4gwqBNT0RVTEVfQVVU
+SE9SKCJTcmluaXZhcyBQYW5kcnV2YWRhCgoKCj4+IDxzcmluaXZhcy5wYW5kcnV2YWRhQGxpbnV4
+LmludGVsLmNvbT4iKTsKCgoKPj4gwqAKCgoKPj4gLU1PRFVMRV9MSUNFTlNFKCJHUEwiKTsKCgoK
+Pj4gK01PRFVMRV9MSUNFTlNFKCJHUEwiKTsKCgoKPj4gXCBObyBuZXdsaW5lIGF0IGVuZCBvZiBm
+aWxlCgoK
 

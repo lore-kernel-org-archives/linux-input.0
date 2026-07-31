@@ -1,111 +1,92 @@
-Received: from mail-ua1-f43.google.com (mail-ua1-f43.google.com [209.85.222.43])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5229D489873
-	for <linux-input@vger.kernel.org>; Fri, 31 Jul 2026 17:08:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.43
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3176542C513;
+	Fri, 31 Jul 2026 18:13:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785517721; cv=none; b=NEmXA1ymZdls3Lgr/tKGyuPM1dzFV1OJx1xdyZ3rYE9PjQm56adwfe2p8g7wL3spe/60YOM4PD5hS1NPTXkRe1JDJ21SXsvC6kBDhlAmr8qUr4utUPTJejxpNrpI6jv+rvT2vJ3/t379pcfl+OE+LOHar79ZvZyWs44a82MRmqo=
+	t=1785521624; cv=none; b=qxushmC50Rg84Y5vKlNvYIN9BzPTfRiI/WM+UuS9/XwPfzS7TsBkuVYYM3MfKXGb2qyKjBst9oCkjtVVH4rOG7FtW3T0uOunvTkkbUo0uC5B9cn7TCItug/7epvxlF4wV4RPv7YFQw+uewUaIp3tDfGnMoQeR2pETzqpbxRdJis=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785517721; c=relaxed/simple;
-	bh=rPZcOpyFAWw+rCmO5axPYt0b1DLzUbaTjOBX/SXE0XA=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=gaTjGTs/H9G/gikla5FKjK6StHZQGEa5c89tpjw5hyr9Vz5CFrcDLZmgcpUWMKzna+FNzoPFMXIrvlZIfkCqrvVtGh8HLomT7e5QyphDbu9g6rgfH6ygwNfXcUbCXgq8dtmKmmuOsqWlacrhKSGr9HwdRbIHWM3JUtMJhYPJ+JY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=cx9hKZ22; arc=none smtp.client-ip=209.85.222.43
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
+	s=arc-20240116; t=1785521624; c=relaxed/simple;
+	bh=QH6rhX6GTBqhnnmniQGR0A1Bs7zSWu/v95M/i6cELvw=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=QKBko3omm/TS6yDo47wYi5qER6+S8sPl2INEWE1RfJlOG2onUeSWHuehEs+7aVftFzjM7ujyv5mOcVOfU+BZmeELhF+hQNpY24ixcAFpCkXcQg5dH9tqS9w2Yp3bMq3nqt0QNx9XboUk9yRrsZiDss4TelO6qBBhlaQIV/UhHOo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=CkfP7X2l; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="cx9hKZ22"
-Received: by mail-ua1-f43.google.com with SMTP id a1e0cc1a2514c-9770e900464so807729241.0
-        for <linux-input@vger.kernel.org>; Fri, 31 Jul 2026 10:08:40 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1785517719; x=1786122519; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=a3uosmlQ92VLotu1yUsXXtb0Ksng61Ixtp5DDKNHhqo=;
-        b=cx9hKZ224QDEpRu6eiR8Kl+WMvtsIEPibCcKqFpl3WGRqmvi2iQ9HfyIXpea7VdVkY
-         1tDlYxb9ThNybVRYbR2uq2DwoKoemj242RZXLunV/eBv9A1q0/uvK41DXc2zlNocDSKX
-         1E70EaMEkH3dfTvf3Z38XTtsrZOro3vR1FTCU=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785517719; x=1786122519;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=a3uosmlQ92VLotu1yUsXXtb0Ksng61Ixtp5DDKNHhqo=;
-        b=FTdtr8kbNdLZ+CRf5NhxCBe7vYHRnVNG5omlMpj23nSJgslaJFSwaYo18bK0KT9knN
-         sBP98XqYU192fEy4HXwK/NQs92yzTq3HjRbTTrtNb0azJQhVAuiyIaORN30cmRosXThO
-         MZQYFjrIL3bSDb/ffR2NR+PKjder0X4sJiR2uAFgahuVsXkteqhwqlPjgnxR0IRXVSCi
-         MUPwX9scTBCwAAhX1HP0+1TiItgS8kLQOQgE9cggvbTexkasyN4Y4rGIRNEbyRPMkfXd
-         9E/cgWwrXL/cJc5rEClWZ8tIzHmhxsz3YpLk+8SiKmniGen48hUMGOGTDZ9fahKpqm3X
-         636w==
-X-Forwarded-Encrypted: i=1; AHgh+RpNsj1wrRA+jZhOW9Zx9Opon9fQ6URg4qFKdu1eazPLQSpU10QBoNdiZfw4YfHQejIsb6t8dgI46dh2fQ==@vger.kernel.org
-X-Gm-Message-State: AOJu0YzmzBvSefWuW6PGem6m5N5jWYUHaIctVgpDb9jt8DbJG7Oc11zI
-	8YrQtMn86sdgwMPIkm1sBLmzU+PRDfb+8pBal6kXo4IgGh4PYDvCewVGvP8G72X4uW6ogqzNZi9
-	Xu7A=
-X-Gm-Gg: AR+sD111HfkVZ4l905pPg6DJNtRyxsin37KAtsujbJigNTuhfPQe+Is6oRJUOwiE8nx
-	QueIC4xRUe4Tn9gS0+CLFrgBQDAbjSxi1lOEM6vqID4a2MfrKKSPlrbINvSyTqsuH0X8ALHzWN7
-	8PU8y6uTDLx6EA3R8GubDCw0m+ebitBn6NcAkXjoisFlpwqmJJ8hSfl2EkK7cWeNV3ok/iEa7/w
-	73WdKYY1yTNODeCupuW3By++V80oDphTBHmGPa848sOot3FSLMZrnszW4RXplUqTFf8oZutauxF
-	eHZ7cLl0cOtWodwL1bFH5SjyZg9zKbRk67ZA7czZEuAjPxpTMCQjAkZTEGGuvg2h3DF4QPIkucT
-	KLQeLn3sjqaOtzoTSMUqF8vqdFeDFKGYLN1RaJqPEyIcmO/Ib9chJnL4rsO5SBNTVMB34MZdZ9H
-	W90MwbAAjVriTeI+CEh3jr5CHyU9E3MG0HhY5Zkxf4SpQ7gBGSmfEjtqOvWO1OgoFZo9rrifmyQ
-	0iyu4qyVTZoGKIF7q3wwsay5Hp6qOI=
-X-Received: by 2002:a05:6102:33dc:b0:745:53b2:d651 with SMTP id ada2fe7eead31-758fa7bd7eamr744525137.12.1785517719093;
-        Fri, 31 Jul 2026 10:08:39 -0700 (PDT)
-Received: from mail-vk1-f179.google.com (mail-vk1-f179.google.com. [209.85.221.179])
-        by smtp.gmail.com with ESMTPSA id a1e0cc1a2514c-977eaef58c0sm724132241.1.2026.07.31.10.08.38
-        for <linux-input@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 31 Jul 2026 10:08:38 -0700 (PDT)
-Received: by mail-vk1-f179.google.com with SMTP id 71dfb90a1353d-5bfdd59df9bso1303814e0c.1
-        for <linux-input@vger.kernel.org>; Fri, 31 Jul 2026 10:08:38 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AHgh+RpMHmPYEcPxU6nAZS6g113Z1jUhWHKBrLqB3+2hPxF/r5KQdSbTQovK2e6PoBZnGEaC96hVcEgNIzObaQ==@vger.kernel.org
-X-Received: by 2002:a05:6122:4641:10b0:5bf:6dd0:36d with SMTP id
- 71dfb90a1353d-5c37e954434mr788785e0c.8.1785517717221; Fri, 31 Jul 2026
- 10:08:37 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="CkfP7X2l"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 7BD9AC2BCB9;
+	Fri, 31 Jul 2026 18:13:43 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1785521623;
+	bh=QH6rhX6GTBqhnnmniQGR0A1Bs7zSWu/v95M/i6cELvw=;
+	h=From:Subject:Date:To:Cc:Reply-To:From;
+	b=CkfP7X2l+eBmCpGt/2tFrvEjePo6KYT04QE3cf6hcMHKTxwUohEyh5NsRW8a674vK
+	 ssMZRKc5/uGTQ7gCa5qH40KSvTnG+TO98XBsudoPe4fqZ4hbXQBTW0NeKTvlpteWIB
+	 +9eA6NnXJxnLkFx76hQQE4yhS7Q/f/v6U95qJ+/Y+IU4svbu+/9wBfmDTBcEjgl5nH
+	 LANq/cg1IhicjptxPukE2evlNE7Le9g2guMPVqzzuA0fJ39LEiOmeTM57zo86TrFzc
+	 ARtO1lbSexOdVL25UIRcPrPokMem4LMa0rVDKS4XmG3FHVmI7d4WYX94ql1eJlK+hK
+	 EeLO9mMuUPKGg==
+Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 58846C55173;
+	Fri, 31 Jul 2026 18:13:43 +0000 (UTC)
+From: David Heidelberg via B4 Relay <devnull+david.ixit.cz@kernel.org>
+Subject: [PATCH 0/2] Input: rmi4 - honor touchscreen-{x,y}-mm
+Date: Fri, 31 Jul 2026 20:13:40 +0200
+Message-Id: <20260731-respect-x-y-mm-v1-0-3e85a4bec745@ixit.cz>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <tencent_FE1CA7ED99022E1734F8C9CAB538AB477405@qq.com>
-In-Reply-To: <tencent_FE1CA7ED99022E1734F8C9CAB538AB477405@qq.com>
-From: Doug Anderson <dianders@chromium.org>
-Date: Fri, 31 Jul 2026 10:08:26 -0700
-X-Gmail-Original-Message-ID: <CAD=FV=XkFCqreB_70m1f0gZd50mU6AQLEfF4WBXOBqnYNpvijg@mail.gmail.com>
-X-Gm-Features: AUfX_mw2h7GZHELPTxhnrIO8qI4k3I1yebCvbdVIhfmU4wAymq1lhqxG3gKJnpY
-Message-ID: <CAD=FV=XkFCqreB_70m1f0gZd50mU6AQLEfF4WBXOBqnYNpvijg@mail.gmail.com>
-Subject: Re: [PATCH] HID: i2c-hid: goodix: Disable VDD on VDDIO enable failure
-To: Chao Huang <958028483@qq.com>
-Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>, 
-	Matthias Kaehlcke <mka@chromium.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
-	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	Chao Huang <huangchao@kylinos.cn>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/yXMTQ5AMBBA4avIrE1SJRquIhbFYCR+0kGIuLti+
+ S3eu0DIMQnkwQWOdhaeJ48oDKDu7dQRcuMNWulUmThCR7JQveKBJ44jtiaxOjOKssqAjxZHLR/
+ fsCh/y1YNvngvcN8PBHKtSXIAAAA=
+X-Change-ID: 20260731-respect-x-y-mm-f74a2970e9b7
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ phone-devel@vger.kernel.org, David Heidelberg <david@ixit.cz>
+X-Mailer: b4 0.15.2
+X-Developer-Signature: v=1; a=openpgp-sha256; l=722; i=david@ixit.cz;
+ h=from:subject:message-id;
+ bh=QH6rhX6GTBqhnnmniQGR0A1Bs7zSWu/v95M/i6cELvw=;
+ b=owEBbQKS/ZANAwAIAWACP8TTSSByAcsmYgBqbOXVtsLTJnFvCQFOknc7zX2vdae+YTc4iKEby
+ WZq6CGfNRqJAjMEAAEIAB0WIQTXegnP7twrvVOnBHRgAj/E00kgcgUCamzl1QAKCRBgAj/E00kg
+ csQED/0VgFmR2xTHUCDCPDe0mqBolsFDp5+W3ZPjiLKCeB7idnjlaZKLrUAq4F+waWqIDcZ5eyY
+ u93uB39YgvDaCldllltCrwH7iK8W9HRXVeriJNTrhXu/EyGQ2GddGlS53bU+bs212GeztldG5/Z
+ PV+x+ZVSUqh147cEtxcA/txBFEvsIeitrcv2PbBr5TxJDG5Mo9kgCqVCvmKVKxvM9QwPweK9XLc
+ Nbg6ozRAHpiFJD4oDyrJeP7F3q8WXTt83zH6MbRH9DO1kbfTo+Utymaba3M11tAbXr8taywSIIL
+ UMpEy/VG4fAXlAr27NZewJM1DxlFI7bYEUH63mjEQwQlFDbE9n/4zPk8itwkfWuUHf2XD/mFRxG
+ eYRGTsn3lPChXifriWfooIa1rWshz7QajVv180HhjCYpcIcc45qAfVuVwLoHJcDUASVTxNSk3cw
+ qIAXpEhr5EPysriXp+SO9ufPjc9HISQZkaHAwecrzpcM89lUFhDIjd1TU3end5xfSWnC7TeFDBw
+ HAgnPrvN0spACKDzzlPUdlfEMqwKIejDgEcQukbL5faMZFF4nwcRK1OPIGoaFbfxDxiZEF0g/Wf
+ WZTzfENjf1Kkd9WqwAXcCNoFbzDnlP8bAmshkaiZj197HIj8dSp1nVhTleFW6IFkdx5EST685BT
+ 6nsR7Mvvl5xxPXg==
+X-Developer-Key: i=david@ixit.cz; a=openpgp;
+ fpr=D77A09CFEEDC2BBD53A7047460023FC4D3492072
+X-Endpoint-Received: by B4 Relay for david@ixit.cz/default with auth_id=355
+X-Original-From: David Heidelberg <david@ixit.cz>
+Reply-To: david@ixit.cz
 
-Hi,
+This series ensures, that when invalid value is detected or mismatch
+between value defined in the device-tree and the read from the
+touchscreen is observed, the user is notified and zero is ignored.
 
-On Wed, Jul 22, 2026 at 2:37=E2=80=AFAM Chao Huang <958028483@qq.com> wrote=
-:
->
-> From: Chao Huang <huangchao@kylinos.cn>
->
-> If enabling VDDIO fails after VDD has been enabled, the power-up
-> path returns without disabling VDD. This leaves the regulator enabled
-> and its enable count unbalanced.
->
-> Disable VDD before returning the VDDIO error.
->
-> Fixes: eb16f59e8e58 ("HID: i2c-hid: goodix: Add mainboard-vddio-supply")
-> Signed-off-by: Chao Huang <huangchao@kylinos.cn>
-> ---
->  drivers/hid/i2c-hid/i2c-hid-of-goodix.c | 4 +++-
->  1 file changed, 3 insertions(+), 1 deletion(-)
+Signed-off-by: David Heidelberg <david@ixit.cz>
+---
+David Heidelberg (2):
+      Input: rmi4 - report difference between platform data and detected coord in F12
+      Input: rmi4 - fallback to platform data for x/y-mm in F12
 
-Thanks for the fix.
+ drivers/input/rmi4/rmi_f12.c | 33 +++++++++++++++++++++++++++++----
+ 1 file changed, 29 insertions(+), 4 deletions(-)
+---
+base-commit: 95d6a9ccef99117115e41e9adb271243bd5e985b
+change-id: 20260731-respect-x-y-mm-f74a2970e9b7
 
-Reviewed-by: Douglas Anderson <dianders@chromium.org>
+Best regards,
+--  
+David Heidelberg <david@ixit.cz>
+
+

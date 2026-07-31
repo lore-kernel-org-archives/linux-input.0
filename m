@@ -1,158 +1,135 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from smtpbgjp3.qq.com (smtpbgjp3.qq.com [54.92.39.34])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E42CB3537F5
-	for <linux-input@vger.kernel.org>; Fri, 31 Jul 2026 07:57:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ED1043D75D1;
+	Fri, 31 Jul 2026 08:50:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=54.92.39.34
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785484669; cv=none; b=ufMdxMdjbPBf4krxMP85YA5oH+FDr8eqjNka1mqXziggXk7fetzl7iThKlCB/zc7JjhICnMWwNbKGcnML4lSvCj8gAOig8Qr46rOxU87HmoW5lwPdVK8feckDur1Q0qkL4y/rMkqwuKKi7ZK9asb34ERv0SeG23YEfWNpN9ka1A=
+	t=1785487864; cv=none; b=YDt46IoEInjlK54Cnh7Vu0kcH/bI4snjrsjenE7VkeOvZ0UAKRHcJlgRVeZotWx7YeUYjd284zuWGuXzqDpQZxO332+4SaLE1mZ1Z7EWxVjV6T5Wwfp8A62RXxtnLYxR6f60f7cpirksOJ5dar56kxVtXto6FXLQHv/vpjNDDlc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785484669; c=relaxed/simple;
-	bh=SJwGrGOso1jmWzB7PbpDPvyT4wim9b/i4ofs/keTe8E=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=hYc1Z8gPomZySValnYNlH9S3A6FbJ61vGlsmEASRtB4B6DskGnEAjUWa2opuW9p0GfwJHs9VOAJPUi5fxj25OW/6I0W+CYNm2IDa0IYk5okJDwpsl8omoouL4uzjGH8VUrrMNJPuZA47ioagpBM8qZgQcgjJ5Ul+rtGyukFSXaA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=B9VzvyZD; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1785487864; c=relaxed/simple;
+	bh=M7AO/cYklFIWanNZ9acjjF56hbbu/V3yW+eRYtfVAvk=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=R1rfndW24VOZR7iI6JcYMm2mewxgJzCYSblal71KrISSF+JQZ3bSXuT+HVBBQSyEsMJP4qmRrRRPrbhISuaQvzrJ9EudmwPBwTnQXMGEpRzCf9RZ3L3NcuDaVr9Bluf5HgB3dujKMmpkh/CDhsStpW3mx27D/5GskiN13S/sKE8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=uniontech.com; spf=pass smtp.mailfrom=uniontech.com; dkim=pass (1024-bit key) header.d=uniontech.com header.i=@uniontech.com header.b=KU3FUovM; arc=none smtp.client-ip=54.92.39.34
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=uniontech.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=uniontech.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="B9VzvyZD"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E60F1F000E9;
-	Fri, 31 Jul 2026 07:57:47 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785484667;
-	bh=6SydWzpkAfUMEFoA1lKuzD+Yc4iXcMkrm4NRQZ//SsI=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=B9VzvyZDlrXJ+wQMFJ1QLRDLINME9SfUxVzmFsmmRsV9t86uvY/Fi5NmaYdjYgc+H
-	 8cUAC+WILAewEUv5l8HNgRlZZuydgcuwEBLzGDhyknesYcyUm4UBhysKSGcYXGf4ue
-	 z+05ByhDUF3L98LOA0Rx6QVD9z9eRfjdC2EBs/tibBz8gY0mpu7nll6eo8yvaAZ0uX
-	 5iJr+FmLNi7utJ3pKmChh0QdhVuoglWsSr9UD9240J1qVbRbW8R401Xp94A0pIXYg7
-	 xvNnkgLAObq2ctFhfGO4AnplOto9OxNtLW5DH/8/xrwKs8/QMYSTfz1V59fYehmTRs
-	 1pUUALMAYUgWA==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v3 1/4] input: Add FF_TRIGGER_RUMBLE effect type
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Guillaume Casal" <guillaume.casal.42@gmail.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260731054159.1982164-2-guillaume.casal.42@gmail.com>
-References: <20260730134004.1118476-1-guillaume.casal.42@gmail.com>
- <20260731054159.1982164-1-guillaume.casal.42@gmail.com>
- <20260731054159.1982164-2-guillaume.casal.42@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Fri, 31 Jul 2026 07:57:47 +0000
-Message-Id: <20260731075747.9E60F1F000E9@smtp.kernel.org>
+	dkim=pass (1024-bit key) header.d=uniontech.com header.i=@uniontech.com header.b="KU3FUovM"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=uniontech.com;
+	s=onoh2408; t=1785487787;
+	bh=j2d6Kj4efhOmsGE3VeSWl77MNEh59dtvqXGiBs7PKEk=;
+	h=From:To:Subject:Date:Message-ID:MIME-Version;
+	b=KU3FUovMSQ1MzCoB8nExPKS1raWgDwIlOa9IQ5Hxsfr7kMOxbrYy1GJ9Di7qgPEbV
+	 be7z3zh4Y+XqNOrJbtPnB7PdLZM6fKK/RIFpJKzIwmI4Z0WQCLmdUzLRYFaMAt/3CB
+	 5a/DU1XLDd1caE4IMA+nNPUAKyhus33+B1Jeln6A=
+X-QQ-mid: esmtpgz16t1785487770tbc7ae547
+X-QQ-Originating-IP: 3zxAjfepPUaL6xiXnujpSg+ZdcBgjACSBYEx8FXrl/s=
+Received: from PEN202512010004 ( [113.57.152.160])
+	by bizesmtp.qq.com (ESMTP) with 
+	id ; Fri, 31 Jul 2026 16:49:28 +0800 (CST)
+X-QQ-SSF: 0000000000000000000000000000000
+X-QQ-GoodBg: 1
+X-BIZMAIL-ID: 93860266829892047
+EX-QQ-RecipientCnt: 7
+From: raoxu <raoxu@uniontech.com>
+To: erazor_de@users.sourceforge.net
+Cc: jikos@kernel.org,
+	bentiss@kernel.org,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	raoxu@uniontech.com,
+	stable@vger.kernel.org
+Subject: [PATCH] HID: roccat: free buffered reports when destroying device
+Date: Fri, 31 Jul 2026 16:49:26 +0800
+Message-ID: <B93A126D2A126AAD+20260731084926.1771993-1-raoxu@uniontech.com>
+X-Mailer: git-send-email 2.50.1
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-QQ-SENDSIZE: 520
+Feedback-ID: esmtpgz:uniontech.com:qybglogicsvrgz:qybglogicsvrgz6b-0
+X-QQ-XMAILINFO: MQZ/dZQlO/THOE8XGfHK1S7hala1SbFa7nbwdwgGS36+p84gd2kYJ1IP
+	od5gAfW77VZgdV+p8xPzqv+8gd5xrtUhM/PNsqlGJt260MQZCd1MBPQS2BS0RfXwsGnhFg/
+	/uFUgnO5fw9cKizg03X/NEInYmkc4pYLzPQQ45n10BhUxU51qWx0aFGglhfogibgkHuDJ4h
+	SgehR272hnA3jf3wh0K1a9vvbO88uVerYhcYVuf6rLnHUwwrPt+9uU82gbdXYquiau0p43i
+	85paLlkk26APQ1GzebNB+jADgYjzLqu54HdKSICWv7wTcIK5x6eHHCesLSw6VJCSGKb4T9e
+	myQ2PcjNXMc08DEGHtDt9ir4aEe8Bj2DYHda4h6SGuyxuu4TllxTwktjMmWU6UC+3xbSnTV
+	p/T3z44xCEGJNzO/ApTf0jgNhDjJSHv3FmjsVXr5PS5e/wi69nlJdbZu/Ro2uTVLPtxJooH
+	ytgszqLEPxGDm5/095LXMcBtRECP88xt15eToFRGAmuWBXwShi2G5LSE2cs1ym6udgHE90v
+	9OjzApxRDw+pXBPCTwva550ImQUwWjEfC+Hc5FCJk69r65h/15at/neR2h9yGzCke/5TkzY
+	cfh9+JxGLqW18HkwdkXG+nvYp87W4sAZGxbrpAuBysqTinSlaXOfvmnoqRL74CcyTpItVSQ
+	KympsCiVYRh7k619MauwQir32N4PffSN1ceAVR3pqOfstvp6f+jjC80PJenAAymxLIxpfRF
+	VXJQRDuCWL0alZUQ+mz/RACSNmmDvRqk7IswMlayejRwP1UXfk+oZdL6s1j3rbKmnn3OU7c
+	jLHklvjJsjqumxHKJxIihTx8ULl1owRjLdv7IBylBqeFVwC1/o4VmIGcR5yWVaXRhvl6Wps
+	H7oSpwOiiiYY7tLLe1fNbmMocZqytJtt12H4Room7FRIPcghvdmEa0viixJTFjGRHRwOqT/
+	rsKCf3MEogk3AkX59bzKeONcEJTIHoc9CUxjeWyQW8h8bGk5gkontcqXVzX72HJW3niC7Tz
+	ygqJyepxyAC6hLC0LQtHGc51TBoCfoPlqAkTSSaGKzk4on10q4ZlNYmu4e8t/p7ycaJalOg
+	w==
+X-QQ-XMRINFO: NI4Ajvh11aEjEMj13RCX7UuhPEoou2bs1g==
+X-QQ-RECHKSPAM: 0
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
-s) to consider:
+From: Xu Rao <raoxu@uniontech.com>
 
-New issues:
-- [Medium] The memoryless force-feedback core (`ff-memless.c`) lacks suppor=
-t for the newly added `FF_TRIGGER_RUMBLE` effect, causing trigger rumble ef=
-fects to be silently discarded.
-- [Low] The `FF_TRIGGER_RUMBLE` effect is missing from the HID debug subsys=
-tem's string mapping array.
+roccat_report_event() duplicates each report with kmemdup() and stores
+the allocation in a circular-buffer slot. The allocation is released only
+when that slot is reused.
 
-Pre-existing issues:
-- [High] Pre-existing 4-byte kernel stack memory leak to userspace in 32-bi=
-t compat EVIOCSFF ioctl via partially uninitialized struct ff_effect.
+The device destruction paths free struct roccat_device without releasing
+reports still stored in cbuf[]. This makes those allocations unreachable
+and leaks up to ROCCAT_CBUF_SIZE report buffers per device.
+
+Add a small destructor that frees every buffered report before freeing the
+device, and use it in both paths that can destroy a registered device.
+
+Fixes: 206f5f2fcb5f ("HID: roccat: propagate special events of roccat hardware to userspace")
+Cc: stable@vger.kernel.org
+Signed-off-by: Xu Rao <raoxu@uniontech.com>
+---
+ drivers/hid/hid-roccat.c | 13 +++++++++++--
+ 1 file changed, 11 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/hid/hid-roccat.c b/drivers/hid/hid-roccat.c
+index d6fff53d4ee7..4f15eb951039 100644
+--- a/drivers/hid/hid-roccat.c
++++ b/drivers/hid/hid-roccat.c
+@@ -70,6 +70,15 @@ static struct roccat_device *devices[ROCCAT_MAX_DEVICES];
+ /* protects modifications of devices array */
+ static DEFINE_MUTEX(devices_lock);
+
++static void roccat_free_device(struct roccat_device *device)
++{
++	int i;
++
++	for (i = 0; i < ROCCAT_CBUF_SIZE; i++)
++		kfree(device->cbuf[i].value);
++	kfree(device);
++}
++
+ static ssize_t roccat_read(struct file *file, char __user *buffer,
+ 		size_t count, loff_t *ppos)
+ {
+@@ -226,7 +235,7 @@ static int roccat_release(struct inode *inode, struct file *file)
+ 			hid_hw_power(device->hid, PM_HINT_NORMAL);
+ 			hid_hw_close(device->hid);
+ 		} else {
+-			kfree(device);
++			roccat_free_device(device);
+ 		}
+ 	}
+
+@@ -374,7 +383,7 @@ void roccat_disconnect(int minor)
+ 		hid_hw_close(device->hid);
+ 		wake_up_interruptible(&device->wait);
+ 	} else {
+-		kfree(device);
++		roccat_free_device(device);
+ 	}
+ }
+ EXPORT_SYMBOL_GPL(roccat_disconnect);
 --
+2.50.1
 
---- Patch [1]: [PATCH v3 1/4] input: Add FF_TRIGGER_RUMBLE effect type ---
-commit 3d2db8431a4c26c55eb87cf71c1052fd6e1eefd5
-Author: Guillaume Casal <guillaume.casal.42@gmail.com>
-
-input: Add FF_TRIGGER_RUMBLE effect type
-
-Some gamepads carry rumble motors behind their triggers, in addition to
-the ones in the grips that FF_RUMBLE drives: Xbox controllers call them
-impulse triggers, and handhelds such as the ASUS ROG Xbox Ally X have
-them too. The force feedback API cannot reach those motors.
-
-[ ... ]
-
-Based on an earlier attempt by Daniel Bomar:
-
-  https://lore.kernel.org/lkml/20220410220449.5071-1-dbdaniel42@gmail.com/
-
-> diff --git a/include/uapi/linux/input.h b/include/uapi/linux/input.h
-> index 6aa703fcfcfb7..e63d19d9a093d 100644
-> --- a/include/uapi/linux/input.h
-> +++ b/include/uapi/linux/input.h
-
-[ ... ]
-
-> @@ -483,6 +501,7 @@ struct ff_effect {
->  		struct ff_periodic_effect periodic;
->  		struct ff_condition_effect condition[2]; /* One for each axis */
->  		struct ff_rumble_effect rumble;
-> +		struct ff_trigger_rumble_effect trigger_rumble;
-
-[Severity: High]
-This is a pre-existing issue and was not introduced by this patch, but does
-adding to this union highlight a potential kernel stack memory leak when
-struct ff_effect is used in the 32-bit compat EVIOCSFF ioctl?
-
-When evdev_do_ioctl() in drivers/input/evdev.c declares the struct on
-the stack without zero-initializing it:
-
-drivers/input/evdev.c:evdev_do_ioctl() {
-        struct ff_effect effect;
-        ...
-        case EVIOC_MASK_SIZE(EVIOCSFF):
-                if (input_ff_effect_from_user(p, size, &effect))
-
-Does the compat handler in drivers/input/input-compat.c leave the last
-4 bytes of the 48-byte struct uninitialized by only copying 44 bytes?
-
-drivers/input/input-compat.c:input_ff_effect_from_user() {
-        compat_effect =3D (struct ff_effect_compat *)effect;
-
-        if (copy_from_user(compat_effect, buffer,
-                           sizeof(struct ff_effect_compat)))
-
-If the evdev device is backed by uinput, can those uninitialized stack
-bytes then be copied to the 64-bit uinput daemon?
-
-drivers/input/misc/uinput.c:uinput_ff_upload_to_user() {
-        if (copy_to_user(buffer, ff_up, sizeof(struct uinput_ff_upload)))
-
->  		struct ff_haptic_effect haptic;
->  	} u;
->  };
-> @@ -491,6 +510,7 @@ struct ff_effect {
->   * Force feedback effect types
->   */
-> =20
-> +#define FF_TRIGGER_RUMBLE	0x4e
-
-[Severity: Medium]
-Does the memoryless force-feedback core need to be updated to support
-this new effect?
-
-Looking at ml_combine_effects() in drivers/input/ff-memless.c, it
-appears FF_TRIGGER_RUMBLE will fall through to the default case and log
-an error instead of populating the combined effect magnitudes:
-
-drivers/input/ff-memless.c:ml_combine_effects() {
-        switch (new->type) {
-        case FF_CONSTANT:
-        ...
-        default:
-                pr_err("invalid type in ml_combine_effects()\n");
-
-[Severity: Low]
-Should this new effect type also be added to the string mapping array in
-the HID debug subsystem?
-
-Looking at drivers/hid/hid-debug.c, debugfs reads will fail to display
-the string name for FF_TRIGGER_RUMBLE without it:
-
-drivers/hid/hid-debug.c:
-static const char *force[FF_CNT] =3D {
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260731054159.1982=
-164-1-guillaume.casal.42@gmail.com?part=3D1

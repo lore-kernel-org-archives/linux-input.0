@@ -1,161 +1,172 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 25D8E317145;
-	Fri, 31 Jul 2026 18:13:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5403645C718
+	for <linux-input@vger.kernel.org>; Fri, 31 Jul 2026 18:23:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785521624; cv=none; b=iUtBZd704KdziZeDRf/0llvMQYmez8AodXgoFctR31aVK3JRaC54fO6wjlHzwfVzJUgFWud1cRe/EnhaZZUgcTnD3mwOHIahEUykYykiXEsaq96CblmQJ0Q/wMmdX8Oxu7d3yJU8p8xue0jU56/nd/bkNmy3obUgbh8mr1wDS88=
+	t=1785522196; cv=none; b=XvRIlyF5Ow+isETIRn/ZMGfo1CAZ9/LsT1SZK9XboRyrIBOLhlyC5iX1MrbxjNOl/78i9PU3obEuHbPWRujh8n77NuL8CWs6sRNtFW7zY2/ZLU13YYopMZ0etN77kcOlOctzS1JWYaJou7OtMotF7Zro9sw9nbzVv15+5eznlUI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785521624; c=relaxed/simple;
-	bh=KfTjNNKnWk5wHsdCCE5vzAX6dsXmM8yrfPK7Dobg8/U=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=qTYe8nryhSP1wRqL0wIFGhFYQxlKf13DSQOBn35Gs2JR/nDzyK78vvCqUDIBdxw1kZNUT1rcC+CoRII5sDJaZwjIt4JOMoW4u+w09G+OTFHfYLYZyM3Wp15Q1fIQDlwRgWDeA4fhqQOaHjQCJxK6ycko53HuG34T8hPfFfHyETw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=WPVBSzuq; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1785522196; c=relaxed/simple;
+	bh=9KaPWGCKAv+vKVQAmZ5q8OMGoVqo1bZvRE/guIRKQeE=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=HMQwc8TePUKlMoD8Cwpa8QGIyB3EWw4oKjub/n5tjDU7TYJmGjrZHO6V50ZBsRwFMZ9EPZzHxzsgp6Rsrw3LrTpY09SMtvz9HGzy7MKiuzKvxVttnSH2Jf5ZAIrGpbJvUy+Ae4Dv/VO7kv6cmmwokgs/UMrHYKbaJfrmUcUkw+8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=GGp2YdYo; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="WPVBSzuq"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 85082C2BCF4;
-	Fri, 31 Jul 2026 18:13:43 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1785521623;
-	bh=KfTjNNKnWk5wHsdCCE5vzAX6dsXmM8yrfPK7Dobg8/U=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
-	b=WPVBSzuqCPVuFHFgMjfvnV3Pt6lNHPyuIueeyghWMB0ZsDu91k/CeDzI7qfmi9+lm
-	 CP/qZeeOt5/vCOtZqsrKkU8kForn3jvSn+MH5KXN0fA17HfkeqdnsFsrRBQQa318kd
-	 /tCkiT8UX+nD69cLFJYVh2y+yf8VwhmY+DSt3sTwiGJi02agPBE0l6roSKWBE1ljAU
-	 JtSAyKLe+uJK/Zus+dPSdtBTpHECjGgeGs+Lj4IuePYVKRz0eYkKX+ykpMTrVORew/
-	 FEbD5qttCBpJjf9jpooHNwaFizegbhh5tWx7wWi6uAK2UeSUKn/mc+mmF0CLoJs5Zb
-	 QRkyb/qpCTiXw==
-Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 68C6EC55174;
-	Fri, 31 Jul 2026 18:13:43 +0000 (UTC)
-From: David Heidelberg via B4 Relay <devnull+david.ixit.cz@kernel.org>
-Date: Fri, 31 Jul 2026 20:13:41 +0200
-Subject: [PATCH 1/2] Input: rmi4 - report difference between platform data
- and detected coord in F12
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="GGp2YdYo"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D00EA1F00AC4;
+	Fri, 31 Jul 2026 18:23:14 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1785522195;
+	bh=F4zKtFdNFwaEdV6zJzbutpsolf7hZkZlfE1Y/3MeMkE=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=GGp2YdYoIklTaD9KT2w1LfIOB0IDRaxeJKF4KfDleGCF65VX9b753S1OrTbwgr/g9
+	 UgCBU6+fm9Ao17IPG4wchCDmRg5jAyWZSUKoDhi0t1Mf1zhYsm3H0kfCLzzRzAouul
+	 jSIXouiAGkXOJFczUzvMhOK2Gr6GQg89qJ6Bf1mRDLrLrEjGLTHgNjWjGNofT+UXtt
+	 WdscCVix+MpyDEZX1johrIYfjB6a5m9RB3SOroN64tXkj22X2V+swhw4LjDMeH/3p7
+	 1SjH/tkgxNm0/x3EOWlnRaMe6GOfuWAkv2QiJFkAWyUwwOBpn1HwaGhlDgHQCACVMX
+	 4Eya1erLKHGww==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH 2/2] Input: rmi4 - fallback to platform data for x/y-mm
+ in F12
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "David Heidelberg" <david@ixit.cz>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <20260731-respect-x-y-mm-v1-2-3e85a4bec745@ixit.cz>
+References: <20260731-respect-x-y-mm-v1-0-3e85a4bec745@ixit.cz>
+ <20260731-respect-x-y-mm-v1-2-3e85a4bec745@ixit.cz>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Fri, 31 Jul 2026 18:23:14 +0000
+Message-Id: <20260731182314.D00EA1F00AC4@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20260731-respect-x-y-mm-v1-1-3e85a4bec745@ixit.cz>
-References: <20260731-respect-x-y-mm-v1-0-3e85a4bec745@ixit.cz>
-In-Reply-To: <20260731-respect-x-y-mm-v1-0-3e85a4bec745@ixit.cz>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
- phone-devel@vger.kernel.org, David Heidelberg <david@ixit.cz>
-X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=openpgp-sha256; l=2648; i=david@ixit.cz;
- h=from:subject:message-id;
- bh=KcxlaadXI0sDygb4fMMOU6arV2orhy2zzcrNAiR0jQA=;
- b=owEBbQKS/ZANAwAIAWACP8TTSSByAcsmYgBqbOXWBzQlWNZ4k7e/PuXXPdS4g4A8HHOfc1etk
- AQeKgB0UPeJAjMEAAEIAB0WIQTXegnP7twrvVOnBHRgAj/E00kgcgUCamzl1gAKCRBgAj/E00kg
- ct0nEADDU1m0h5E1HySL4fEtbDGO537e4dzP4nDXxN1tR8B6iOdck8Y3p4BClpaMUMZaPlTeJmj
- hlvXT+OR8pHB9xUD3fWppLn/ktYcRRtzotow42fvRQFPzA9HXb/jEVCH87oeFNkscOR1K2joYJN
- ofHgEFktQUHUU06TeLAw3Fmzd1a6/hX8wHqf9Cx7XFmFKrLtHL6XrnncGkG2gCbNSn6dnkP9P9f
- SV3LRt4ReGw0DHAozsAwasya6vKZqBi4ZdK/VFRnRj1vOXifZVyTLdI3W1iIk8k7HYyROIj0eww
- OXZwQMkeeoVmE2ldAxM1wgpvTxfw9IqgyVP57+MNfhN0pCPfKcmW8Rw7mT6LRNQJL+wx7LhiqcR
- fAMkNtUXomJ8kLpuElBT47FDokCG6BIUbcovFsVVEqiFZHecbJi1FFKS7rPTd1fbDjLmwLGTVPs
- VkF/n8uUsjI6oEXLfe04H6bUx0YCwR++5yIouNSlIkK9DESCSaqr6HEhUJe7/F+DNlsJsS53I+N
- DFFO0uAUvkh7r3a+TJINsHiF5hitE6XwtDwEloPUhJgLNVrahDHVeDI0gU1XU43R8VGPpOS7BPn
- hDohvrLEiC1DXPGHrBUHWt/IKt3IpbzrF4IuxeV/UKWu37jCiLyVAMC4OMhroJtDWLFUTAMUNDG
- aS6OQfACqR0oH+Q==
-X-Developer-Key: i=david@ixit.cz; a=openpgp;
- fpr=D77A09CFEEDC2BBD53A7047460023FC4D3492072
-X-Endpoint-Received: by B4 Relay for david@ixit.cz/default with auth_id=355
-X-Original-From: David Heidelberg <david@ixit.cz>
-Reply-To: david@ixit.cz
 
-From: David Heidelberg <david@ixit.cz>
+Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+s) to consider:
 
-Platform data may define touchscreen-x-mm and touchscreen-y-mm, but
-these are quietly overridden by data provided by sensor.
+Pre-existing issues:
+- [High] Potential kernel panic due to division by zero if the device firmw=
+are returns 0 for DPM resolution.
+- [High] Potential read of uninitialized stack memory when parsing device s=
+ubpackets.
+- [High] Truncation of physical dimensions `x_mm` and `y_mm` for devices la=
+rger than 255 mm.
+--
 
-Warn when detected data doesn't match the device-tree data.
+--- Patch [2]: [PATCH 2/2] Input: rmi4 - fallback to platform data for x/y-=
+mm in F12 ---
+commit 825204fcd696c68bb8002a2ae57765aed06fc9e4
+Author: David Heidelberg <david@ixit.cz>
 
-Signed-off-by: David Heidelberg <david@ixit.cz>
----
- drivers/input/rmi4/rmi_f12.c | 22 ++++++++++++++++++----
- 1 file changed, 18 insertions(+), 4 deletions(-)
+Input: rmi4 - fallback to platform data for x/y-mm in F12
 
-diff --git a/drivers/input/rmi4/rmi_f12.c b/drivers/input/rmi4/rmi_f12.c
-index 88c28089de993..88797556e738c 100644
---- a/drivers/input/rmi4/rmi_f12.c
-+++ b/drivers/input/rmi4/rmi_f12.c
-@@ -95,16 +95,17 @@ static int rmi_f12_read_sensor_tuning(struct f12_data *f12)
- {
- 	const struct rmi_register_desc_item *item;
- 	struct rmi_2d_sensor *sensor = &f12->sensor;
- 	struct rmi_function *fn = sensor->fn;
- 	struct rmi_device *rmi_dev = fn->rmi_dev;
- 	int ret;
- 	int offset;
- 	u8 buf[15];
-+	u8 x_mm, y_mm;
- 	int pitch_x = 0;
- 	int pitch_y = 0;
- 	int rx_receivers = 0;
- 	int tx_receivers = 0;
- 	u16 query_dpm_addr = 0;
- 	int dpm_resolution = 0;
- 
- 	item = rmi_get_register_desc_item(&f12->control_reg_desc, 8);
-@@ -166,33 +167,46 @@ static int rmi_f12_read_sensor_tuning(struct f12_data *f12)
- 		query_dpm_addr = fn->fd.query_base_addr	+ offset;
- 		ret = rmi_read(fn->rmi_dev, query_dpm_addr, buf);
- 		if (ret) {
- 			dev_err(&fn->dev, "Failed to read DPM value: %d\n", ret);
- 			return ret;
- 		}
- 		dpm_resolution = buf[0];
- 
--		sensor->x_mm = sensor->max_x / dpm_resolution;
--		sensor->y_mm = sensor->max_y / dpm_resolution;
-+		x_mm = sensor->max_x / dpm_resolution;
-+		y_mm = sensor->max_y / dpm_resolution;
- 	} else {
- 		if (rmi_register_desc_has_subpacket(item, 3)) {
- 			rx_receivers = buf[offset];
- 			tx_receivers = buf[offset + 1];
- 			offset += 2;
- 		}
- 
- 		/* Skip over sensor flags */
- 		if (rmi_register_desc_has_subpacket(item, 4))
- 			offset += 1;
- 
--		sensor->x_mm = (pitch_x * rx_receivers) >> 12;
--		sensor->y_mm = (pitch_y * tx_receivers) >> 12;
-+		x_mm = (pitch_x * rx_receivers) >> 12;
-+		y_mm = (pitch_y * tx_receivers) >> 12;
- 	}
- 
-+	if (sensor->x_mm && sensor->x_mm != x_mm)
-+		dev_warn(&fn->dev,
-+			 "platform data x_mm (%d) != detected x_mm: (%d)\n",
-+			 sensor->x_mm, x_mm);
-+
-+	if (sensor->y_mm && sensor->y_mm != y_mm)
-+		dev_warn(&fn->dev,
-+			 "platform data y_mm (%d) != detected y_mm: (%d)\n",
-+			 sensor->y_mm, y_mm);
-+
-+	sensor->x_mm = x_mm;
-+	sensor->y_mm = y_mm;
-+
- 	rmi_dbg(RMI_DEBUG_FN, &fn->dev, "%s: x_mm: %d y_mm: %d\n", __func__,
- 		sensor->x_mm, sensor->y_mm);
- 
- 	return 0;
- }
- 
- static void rmi_f12_process_objects(struct f12_data *f12, u8 *data1, u32 size)
- {
+When detection for touchscreen-x-mm / y-mm returns 0, fallback to the
+platform data, so we get meaningful values.
 
--- 
-2.53.0
+> diff --git a/drivers/input/rmi4/rmi_f12.c b/drivers/input/rmi4/rmi_f12.c
+> index 88797556e738c..6f2e98c3a3499 100644
+> --- a/drivers/input/rmi4/rmi_f12.c
+> +++ b/drivers/input/rmi4/rmi_f12.c
+> @@ -199,8 +199,19 @@ static int rmi_f12_read_sensor_tuning(struct f12_dat=
+a *f12)
+
+[Severity: High]
+This isn't a bug introduced by this patch, but could this lead to a kernel
+panic from division by zero?
+
+Earlier in rmi_f12_read_sensor_tuning(), dpm_resolution is read directly
+from the hardware into buf:
+
+        ret =3D rmi_read(fn->rmi_dev, query_dpm_addr, buf);
+        if (ret) {
+                ...
+        }
+        dpm_resolution =3D buf[0];
+
+        x_mm =3D sensor->max_x / dpm_resolution;
+        y_mm =3D sensor->max_y / dpm_resolution;
+
+If a buggy or malicious device returns 0 for the DPM resolution, this will
+unconditionally crash the kernel during the probe path. Should there be a=20
+check for dpm_resolution =3D=3D 0 before performing this division?
 
 
+[Severity: High]
+This is a pre-existing issue, but does this code read uninitialized stack=20
+memory when parsing device subpackets?
+
+In rmi_f12_read_sensor_tuning(), a 15-byte stack array is declared without
+initialization:
+
+        u8 buf[15];
+
+The driver reads item->reg_size bytes into this buffer:
+
+        ret =3D rmi_read_block(rmi_dev, fn->fd.control_base_addr + offset,
+                             buf, item->reg_size);
+
+The size is controlled by the device descriptor. The driver then uses offse=
+ts
+to access this buffer based purely on rmi_register_desc_has_subpacket(),
+without ensuring item->reg_size actually covers the accessed offsets.
+
+If a device supplies a small reg_size but claims all subpackets are present,
+could this read past the initialized portion of buf and leak kernel stack
+memory or cause erratic behavior?
+
+>  			 "platform data y_mm (%d) !=3D detected y_mm: (%d)\n",
+>  			 sensor->y_mm, y_mm);
+> =20
+> -	sensor->x_mm =3D x_mm;
+> -	sensor->y_mm =3D y_mm;
+> +	if (x_mm)
+> +		sensor->x_mm =3D x_mm;
+
+[Severity: High]
+This is a pre-existing issue, but could the physical dimensions overflow on=
+=20
+larger devices, which this patch might now incorrectly interpret as a failu=
+re?
+
+The dimensions are calculated in millimeters and stored in u8 variables:
+
+drivers/input/rmi4/rmi_f12.c:rmi_f12_read_sensor_tuning()
+        u8 x_mm, y_mm;
+
+And also stored as u8 in struct rmi_2d_sensor:
+
+drivers/input/rmi4/rmi_2d_sensor.h:
+        u8 x_mm;
+        u8 y_mm;
+
+For any touchscreen larger than 255 mm (approx. 10 inches), the value will
+overflow and truncate. If a dimension is exactly 256 mm, it truncates to 0.
+
+With this patch, a truncated 0 will trigger the x_mm =3D=3D 0 fallback path=
+ and
+incorrectly retain platform data instead of the detected value. Should thes=
+e=20
+dimensions be stored using u16?
+
+> +	else
+> +		dev_warn(&fn->dev,
+> +			 "x_mm detection returned 0, keeping %d\n",
+> +			 sensor->x_mm);
+> +
+> +	if (y_mm)
+> +		sensor->y_mm =3D y_mm;
+> +	else
+> +		dev_warn(&fn->dev,
+> +			 "y_mm detection returned 0, keeping %d\n",
+> +			 sensor->y_mm);
+> =20
+>  	rmi_dbg(RMI_DEBUG_FN, &fn->dev, "%s: x_mm: %d y_mm: %d\n", __func__,
+>  		sensor->x_mm, sensor->y_mm);
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260731-respect-x-=
+y-mm-v1-0-3e85a4bec745@ixit.cz?part=3D2

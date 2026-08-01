@@ -1,94 +1,106 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f177.google.com (mail-pl1-f177.google.com [209.85.214.177])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4379F331ED2
-	for <linux-input@vger.kernel.org>; Sat,  1 Aug 2026 09:16:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9B2DB43553A
+	for <linux-input@vger.kernel.org>; Sat,  1 Aug 2026 10:19:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785575781; cv=none; b=hVAdnrpRgQrUvln+sCBdnXG+At0poHGBWpKJu95AfM+KFR0P+KalFjEscBu/ofsG9EvFfpurdrJFxc524Qc7hU+vwgMNonn1nxDu4qw+esl4unVfwFq1V4YKaDpv/ajiyANELdkDH6q3ug0SEr/fscTJ6qAg+bAaU+J9kHAs5Yk=
+	t=1785579570; cv=none; b=g0+S1lDCD19VsDZb2hNukSIh6+OE7veTq3yyQPcyWfi/7qsBsewHjEInRcmx+hpxhN95/53XdZxq3tUJtaUYKriRJdeJLsz2B/1ouJ9vKpvTiobdDe7AhjgmzFgoQCs0bycT/lgKATrDuDY4v+OR7KStp8pGFivdFMjGFeU4loY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785575781; c=relaxed/simple;
-	bh=g3xoZBf3v20/eNT2CZqcAwAa4KyPBbt3duH1gedFFTk=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=S1+tM8KrILq+4U73L4Odm0sWzFML39LTVfbUhresHBanVjfesRK+LckA0rAP/IzlWf3xxz5u9qTbF2AcqqBijvyyG1AYRN4khYElaisvLsNka/igqL9JF3ltW7AI/h4XZixyF+Ka3rrn4ojzn6OOGadBk1A1EtByybfp6wU8pNo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=BSvx8Weq; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1785579570; c=relaxed/simple;
+	bh=uqXJD6BV6xnkaRAj6UkGJyJamyPWK72UY4hAzwPjqU8=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=sZANKxNEusjPNsztIc625r/TTMUE1Q4uRL4oAqG0rJZPY8MtzRGFfGBNt5qjpmAe8/JFSIbhZWX2wVp9Vog5v3XbJlK84GD9tzLpcFTPsWjksn1+ucmWOFO1gGnM5t8wK1VKg8XPSOGueAiMzFWIiMGQ4GHg0v/6xbve9ReF31g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=PYcT8gfk; arc=none smtp.client-ip=209.85.214.177
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="BSvx8Weq"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92AC91F00AC4;
-	Sat,  1 Aug 2026 09:16:19 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785575780;
-	bh=Le5N5ZmXILHlFvdaJLueUQm8OKBy7yVzsQ77FHweqd0=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=BSvx8WeqvYk4zqLvp53z6Af0nAHYS6d+9RHZ9EyGNbOrQfMC4MaufWXqtE44+vFCX
-	 5ke3PvHHCIfa+w436thcW7QfHuv4teOJ9+cVuQgTtoS7Cecr4rSLcVLCl3O23OGdrl
-	 tnSDGKIRArYp0rjsqYYEnmEGOLd4zAsO9m1p7ycJT65NIjgSLLYqbgPtv8S0vJ/O/d
-	 6YTLH1qC8J3V9waZZN/dMBrk2aDVis9fRM5eWuYeRBmVCYNHm8zEyubtfztaltEKd2
-	 C7o8CXonuCSffbK7a1N08u3R63NDl25LTRTx0unQGNmKvfC2XuBs69l8PgAqAVpnud
-	 NZ3hPz6d7mOsA==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] HID: nintendo: fix rumble starved by the input report
- cadence gate
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Alexandre Derumier" <aderumier@gmail.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260801090059.1349535-1-aderumier@gmail.com>
-References: <20260801090059.1349535-1-aderumier@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Sat, 01 Aug 2026 09:16:19 +0000
-Message-Id: <20260801091619.92AC91F00AC4@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="PYcT8gfk"
+Received: by mail-pl1-f177.google.com with SMTP id d9443c01a7336-2cf27856f9cso18936065ad.2
+        for <linux-input@vger.kernel.org>; Sat, 01 Aug 2026 03:19:26 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1785579566; x=1786184366; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=dQivBhoyLILkT0xK6WqciGz/f9cGO872vLrrXwrtBSQ=;
+        b=PYcT8gfknSp7+osjrbNpyPLWWDsf7SNBEJ+Kea665hQb0APZLplB3cZmGQ5kizMbs0
+         BNoCyQR+pFsKsL/WNHRmsYZnF28Wk9qK+O1jmCZotroIcHACmnoXqjbmAzT+qtnS8Ssd
+         yT+pngWvpbx9uTGBJkzm+lz1sm6BvRiDe59hUMnXqXl16SSvHl8myw36uN2AXmWzhh9w
+         DDo8oWvQKELBcTOZiojZDnq6W9oBPS7i0KSZ9E3uYwXigzUI8azYEPiao/HDh7kO5c40
+         lKW8Gewl1AwjRD6Ch1GtDY1N7CNqgB7Kx5kMUlTQiPhQi24L6AMvpTwhW09l2SiHSBZT
+         54Eg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1785579566; x=1786184366;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=dQivBhoyLILkT0xK6WqciGz/f9cGO872vLrrXwrtBSQ=;
+        b=oiaC0rjJ1ARFnxIe5riP+yb0QwHbMitJ/0BhBgt5BI45xtO7SwrhMSmyDd5JLYQ+tJ
+         ubA3Lt6eW31i2KiNInnoLvQfacdf4UMGte1tsMwxiy0IWjuXA2lT4NGJTfWQzXGbM4Zu
+         FJCBJZZL0Nlh6cAEd1qIVgiXf69XBO5SJh+G6T0ITLiUE1BV12SeIVqXQx9SsvdytfG8
+         RbmzaQbBmid9l1g4383ITzBM3t0FVhgoH926N++1IZdz4on64RWFSTwUexnwUNo1smlO
+         xe3iMy45DLMwYMZ61Af8IjE55jIQKvNV0Y0ckQUQCuPjWOQU0SmMwmhKRG02TMSqxBuM
+         DPxQ==
+X-Gm-Message-State: AOJu0Yw9TWnz54X4CmcaQ1Jf6j7nHuNsOEaeKuEvTSndY1y/CHed96Ls
+	FccxbOE5Y90re9mIQux63h6kAWRQSprK0pRzqTwCzzQch834wlO0Usxe
+X-Gm-Gg: AR+sD11aKgeNmecOOeADYYqRcp5QlGRifEvsrPhpmfg1eVP9pK8sgZuQcFeyoE+6kIY
+	whb3g0FobnkVNwhAcEQWRYe47TWvysTCt/oovqX0bbFKngUbJ3jyCai+3a4KmIgZTU3r9hvhmHz
+	DlpUX+PHzYzoiZex+m4Af5B3yznAjFA/99qndGRXl69zptJWO00ePr2TZAPRRbiEnuEg6PCj0C+
+	q4hSGLWPZ4RVlVoJjvI6CQ4pb+n4ZoZTzb2bo7G814umyKmaE6/C+04ESVvkw8HvyhQCuj1TJdH
+	ijni+EJIXDhSnogSC/EgPb7I78zArlZ+R9T4JD6Fz93gZQ6ZdLcP1w6MR8HUOpEY86rV4q14DeK
+	x5TwyqbuywrcFd9suvkPwZ00/smvX54nn96J5faiVNGsNCkEl/iuT5B8URwmeg+a1fm6pGFBZ5+
+	6n/Timrj0x65V6kZFPRAFjTjijs9fTSwxoUAUllEx36BqqLEv+WxdlhUr1Ffm2OA==
+X-Received: by 2002:a17:902:ea05:b0:2c9:d55d:2d3 with SMTP id d9443c01a7336-2d052244e67mr31844595ad.15.1785579565484;
+        Sat, 01 Aug 2026 03:19:25 -0700 (PDT)
+Received: from xiaomibookpro-14 ([149.19.17.31])
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-13fab4cb51asm18560574c88.9.2026.08.01.03.19.23
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 01 Aug 2026 03:19:25 -0700 (PDT)
+From: Zhefu Zhang <a723356@gmail.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Zhefu Zhang <a723356@gmail.com>
+Subject: [PATCH] Input: atkbd - skip deactivate for Xiaomi Book Pro 14's internal keyboard
+Date: Sat,  1 Aug 2026 22:19:08 +1200
+Message-ID: <20260801101908.33838-1-a723356@gmail.com>
+X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
+The internal keyboard of the Xiaomi Book Pro 14 does not work unless
+atkbd skips deactivating it at the end of atkbd_probe().
 
-Pre-existing issues:
-- [High] Premature registration of input device before capabilities are ful=
-ly configured.
---
+DMI: XIAOMI Xiaomi Book Pro 14/TM2424, BIOS XMAPT4B0P0909 05/06/2026
 
---- Patch [1]: [PATCH] HID: nintendo: fix rumble starved by the input repor=
-t cadence gate ---
-commit b0ec0e9322fbf2a41d6005445efd2343b058fb43
-Author: Alexandre Derumier <aderumier@gmail.com>
+Signed-off-by: Zhefu Zhang <a723356@gmail.com>
+---
+ drivers/input/keyboard/atkbd.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-    HID: nintendo: fix rumble starved by the input report cadence gate
+diff --git a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/atkbd.c
+index 8cb4dc6fb..6c897282d 100644
+--- a/drivers/input/keyboard/atkbd.c
++++ b/drivers/input/keyboard/atkbd.c
+@@ -1938,6 +1938,14 @@ static const struct dmi_system_id atkbd_dmi_quirk_table[] __initconst = {
+ 		},
+ 		.callback = atkbd_deactivate_fixup,
+ 	},
++	{
++		/* Xiaomi Book Pro 14 (TM2424) */
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "XIAOMI"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "Xiaomi Book Pro 14"),
++		},
++		.callback = atkbd_deactivate_fixup,
++	},
+ 	{ }
+ };
+ 
+-- 
+2.55.0
 
-    Rumble on third-party controllers speaking the Switch protocol is weak
-    and intermittent over bluetooth, and absent on some units. This commit
-    adds a fallback to the legacy subcommand throttle when the controller
-    fails to meet the strict cadence requirements.
-
-> [ ... ]
-
-This is a pre-existing issue, but looking at joycon_input_create() in
-drivers/hid/hid-nintendo.c:
-
-drivers/hid/hid-nintendo.c:joycon_input_create() {
-...
-	ret =3D input_register_device(ctlr->input);
-	if (ret)
-		return ret;
-
-	if (joycon_type_is_right_joycon(ctlr)) {
-		joycon_config_right_stick(ctlr->input);
-		joycon_config_buttons(ctlr->input, right_joycon_button_mappings);
-...
-}
-
-[Severity: High]
-Does this code register the input device before its capabilities (such as
-buttons, axes, and force-feedback) are fully configured?
-
-Registering before configuration completes can lead to undersized event
-buffers and incorrect udev or Wayland classification since the capabilities
-are checked at registration time.
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260801090059.1349=
-535-1-aderumier@gmail.com?part=3D1

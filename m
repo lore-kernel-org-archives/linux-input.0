@@ -1,170 +1,79 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pg1-f177.google.com (mail-pg1-f177.google.com [209.85.215.177])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9BF093242D8
-	for <linux-input@vger.kernel.org>; Sat,  1 Aug 2026 08:11:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6BB1F2BEFEF
+	for <linux-input@vger.kernel.org>; Sat,  1 Aug 2026 08:24:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785571898; cv=none; b=Bav/FRtFrUnnc/nLN92gPI/OYKnkjlIRwUz7r1drafwf2D4dCJRPFvJpfJoT2NccX7+Fej2ow5bkd3mkNWRT/waEQltTdiuoNylzus35ztoAvQAZ6y9eb/zaqbrPZ/ylOQIdXhz+U6vtZ6eQ1SQbOwTUiW4ygxtvP8Cb2vT6+AY=
+	t=1785572654; cv=none; b=GgmDZJ1QhapbW/0tJQyIhLO8MgOubld7AIqNJ3c3RkFMak2r5at6UV0M+JQ7hsiYJbnyokO0extdf+8+tumYmm1I3L2dDZskU/nzAzUcYAP1YVJdumRoZUa1RU6MaYmyu55WuZcJDg26oBdE8Oal2VC5wXsg1dNM2+S9x0/MbJo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785571898; c=relaxed/simple;
-	bh=vKaL4AxRjaph/TF7sHrK67+hdjJNWc47zxZTzgbWthU=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=DsnSBTk3NPDD3DMF0awEzKa5k8JeFsRyKXgD5loRSmBboW7f4qbjg0lDFLN1KOeAA+B1HBVTF55CeZyzlbbA7C5yHWuCUI32/7UVlUE0V3BP1Cs29PXqA6W7YztZsyIxBPFbU4MAG7ngop7sltw+oQ4Ol0Snsng1+Q79ge7Ogjc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=VL5cEb2C; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1785572654; c=relaxed/simple;
+	bh=cO/RfmsdyKO4A//tbu1napYS2r6IRvYSwLN2LisWtaQ=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=hjCByLXyu0ClIjBtVf5TIvEyycdy5ywvdFJOWrcsoWjUF0ws+/ezwExdW91Kgnijxne4+92x2Kwy8nh8C4PnlEA0W4qKY8x5GoW2avx997a01nnwLkq7nPOO5Q95B+1fVpTopLl44LVTnncJF16TZaOafGvJnSCluGqIl6WlPNg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=CBQRyo8e; arc=none smtp.client-ip=209.85.215.177
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="VL5cEb2C"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 053CD1F00AC4;
-	Sat,  1 Aug 2026 08:11:36 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785571897;
-	bh=9dW7THjAYYyJCZA+oD5rnqa2sMBDkj8n/6jfyV0tqf4=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=VL5cEb2CaeW26uuF/LczwXcphQGwzUWYhNuMtVNot630whw7N3gvJePe4ntSzFpNM
-	 QEV9v4hJxdoJAhWW9wheCGRBGTY/O+a2ZlcYiljDFU77cOlbZOXp0HiXNqoMBkCL5y
-	 LUv/gEQCrBTTrHfUgH9MwAtHyqBuM0DmpPxBl+ouAuhmLBbGO2kPkZwTlMAWp7amyv
-	 dDavwioVKDyngMxBjB77QhKsQxiv8VZF/zdiAY9k7Wxo3O2aI8aaVUSvmYneqolxi4
-	 r9OeOecaPuWfIvNlCy32cZzBHl3Kb9iR0eGiHEvevGsEDMs5PzzUwV0O4prWzDl7VE
-	 fPAlnXDL/XKYA==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 2/2] Input: xpad - add wired Beitong BTP-KP20D
- support
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Aaron Ma" <mapengyu@gmail.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260801075623.2769601-2-mapengyu@gmail.com>
-References: <20260801075623.2769601-1-mapengyu@gmail.com>
- <20260801075623.2769601-2-mapengyu@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Sat, 01 Aug 2026 08:11:36 +0000
-Message-Id: <20260801081137.053CD1F00AC4@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="CBQRyo8e"
+Received: by mail-pg1-f177.google.com with SMTP id 41be03b00d2f7-ca913a601fbso1228664a12.3
+        for <linux-input@vger.kernel.org>; Sat, 01 Aug 2026 01:24:13 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1785572653; x=1786177453; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=cO/RfmsdyKO4A//tbu1napYS2r6IRvYSwLN2LisWtaQ=;
+        b=CBQRyo8e07UY3LgAZemLYWaM63azIHlpZMCnOCTu4dl7xU6YhDtHYr0NqEQSTd8zHs
+         /EzL1mCLdUvEmGB9vyMTGy7uIQcu7nsAqCRqvETncij/7PLQYUYK0pI1R02jXb5F91RG
+         TJyKyGZWWt0XnfapIaFl9UgvoWHQhUiIwktTqVYsXHAk2Lw3mPlQ4tLjeGlq6JJl70mr
+         +sNwnrVsPJns01X2qXI1IVWIwbAqaWuMEkzeX+foaiJQ3KX8wrj0js6XZgi/tRe/WVXA
+         Hzf3awefPbEb8OpzBgHcLDtorGXoo9rokIbH51Uw5Uc4/ignhWpKzgUyfhMP2EZ6bsTA
+         i5iw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1785572653; x=1786177453;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=cO/RfmsdyKO4A//tbu1napYS2r6IRvYSwLN2LisWtaQ=;
+        b=Y5j9QeRK3UB0z3oHExaTLHdXmEDZtN7m3/51FVrUmDRpJbJOBFZhkiwjMEw6enZ4VR
+         T9gVnp6J6BOzI0RmA2C0HviJAHldDwhxxnGx/CrDVtwC8zLiQhJxQfTdBTX0DX5voYqN
+         UHQHgdG0yaQ8Jf8+wAOl5uFibxWzkhve+ttTmkxNqBd22w3DbIJNx7xLReLZmhu7eLjZ
+         NG5GjKaIkeV4nksZdiu6aeF7ivcxP3n3rTxJjPxSKBLtvRH+OsopfNncZuJyrqThhJFL
+         GgI60yVjBOyUjt7oycGVlr/EONlt6LOXG/QayJPBk9Y5pCUGnH7moWivPq5q9zLFbGot
+         Us0A==
+X-Gm-Message-State: AOJu0YycnuN9AD6nEu1HREkWSK1zHHbPbTU+9b7OJBDQpMBhVR+p9i6o
+	uGplSoUqOadD6AALxiEuZ+/NLFLFzTYxsB4jQ/zwKABkAP0dXMdm3zsUmzoUnxsInpsgw2j5
+X-Gm-Gg: AR+sD13iRxyyGJH+dTwMo2ff/1ymTpzGq7DfnVwpPjNqJFKqN8hG+kfrz59/8YOeqeF
+	scRIoPDH4LHgBAwrAorHQPE91ljEeuwcxm/FzfMYsmg46Cp6G5axCAmqshmepTtwayd/u7p58/q
+	by/Zg5dPvjmWer00TWbidsquqmZmtuof026iNT6jmBG2e+9W2dLLANxLCtALJrk1ShMnp3OUeGK
+	W4I/4GjJVQ0F9cGqdkK7khCdot+HBHjQnYBUG7XM+6NLKGUyZhrJ1ZlHXvAgyC1wghx8c9flRL5
+	kUbkNY6zCwJiNmDHa1QNxdEVx0FwAEPd3LFsI27MFTxEufQm6f4e4UsxlnSNEaEfQH8H6xtbkNQ
+	2sxDu3I/R/mTxE4IMxFaXcEjmn3XfDLh7OJ3lm3+4aJPUvqNk8HI/aqaiiiQZCrh3marCFsXVsO
+	zZP65D1o2J7D/DGJtASQJfz4NKeUvBp9PE+77V8vOSqULTB9o1sk46X3pbOgqD2ujqGQZtNgv9a
+	J5dvEeVxnIvrK+rNULqDg+KulijJq0=
+X-Received: by 2002:a05:6a21:a91:b0:3c3:a6f0:80af with SMTP id adf61e73a8af0-3c92a84e06fmr2899407637.60.1785572652679;
+        Sat, 01 Aug 2026 01:24:12 -0700 (PDT)
+Received: from XiaomiLaptop (n112119120034.netvigator.com. [112.119.120.34])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3153e045016sm21479134eec.19.2026.08.01.01.24.10
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 01 Aug 2026 01:24:12 -0700 (PDT)
+From: Andrew Zhou <zhoulol888@gmail.com>
+To: linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org,
+	dmitry.torokhov@gmail.com
+Subject: Re: [PATCH] Input: i8042 - add Xiaomi Book Pro 14 to dumbkbd quirk list
+Date: Sat,  1 Aug 2026 16:24:01 +0800
+Message-ID: <20260801082401.211093-1-zhoulol888@gmail.com>
+X-Mailer: git-send-email 2.54.0
+In-Reply-To: <20260718122437.11112-1-zhoulol888@gmail.com>
+References: <20260718122437.11112-1-zhoulol888@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
-
-Pre-existing issues:
-- [High] Missing workqueue cancellation in xpad_probe error path leads to U=
-se-After-Free.
-- [High] Sleeping in atomic context when processing GIP_CMD_ANNOUNCE from t=
-he URB completion handler.
---
-
---- Patch [2]: [PATCH v2 2/2] Input: xpad - add wired Beitong BTP-KP20D sup=
-port ---
-commit 600bda7a2ef7ea6aabd37796bfb7164b015f813b
-Author: Aaron Ma <mapengyu@gmail.com>
-
-Input: xpad - add wired Beitong BTP-KP20D support
-
-This patch adds support for the wired Beitong BTP-KP20D controller and
-introduces a FLAG_KEEPALIVE quirk. The quirk keeps the input URB running
-from probe to disconnect to prevent the device from resetting itself when i=
-dle.
-
-> diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
-> index 1616047e65f5e..9adc419066353 100644
-> --- a/drivers/input/joystick/xpad.c
-> +++ b/drivers/input/joystick/xpad.c
-
-[ ... ]
-
-> @@ -2227,10 +2232,24 @@ static int xpad_probe(struct usb_interface *intf,=
- const struct usb_device_id *id
->  		error =3D xpad_init_input(xpad);
->  		if (error)
->  			goto err_deinit_output;
-> +
-> +		if (xpad->keepalive) {
-> +			/*
-> +			 * The device resets itself when the interrupt-IN pipe
-> +			 * is idle for a few seconds, so keep the URB running
-> +			 * from probe until disconnect.
-> +			 */
-> +			error =3D xpad_start_input(xpad);
-
-[Severity: High]
-This is a pre-existing issue, but does xpad_start_input() sleep in atomic
-context when called from the URB completion handler?
-
-For XTYPE_XBOXONE devices with FLAG_DELAY_INIT, a GIP_CMD_ANNOUNCE packet
-triggers xpadone_process_packet() from the URB completion handler xpad_irq_=
-in(),
-which executes in an atomic context (softirq).
-
-xpadone_process_packet() then invokes xpad_start_input():
-
-	if (xpad->delay_init && !xpad->delayed_init_done) {
-		xpad->delayed_init_done =3D true;
-		error =3D xpad_start_input(xpad);
-
-xpad_start_input() calls usb_submit_urb() with GFP_KERNEL, which can sleep:
-
-	if (usb_submit_urb(xpad->irq_in, GFP_KERNEL))
-		return -EIO;
-
-It also calls xpad_start_xbox_one(), which invokes usb_set_interface() to
-disable the audio interface using synchronous USB control messages that can=
- wait
-and sleep.
-
-Can this trigger a kernel bug or panic if a malicious USB device sends a
-GIP_CMD_ANNOUNCE packet?
-
-> +			if (error)
-> +				goto err_deinit_input;
-> +		}
->  	}
->  	return 0;
-> =20
-> +err_deinit_input:
-> +	xpad_deinit_input(xpad);
->  err_deinit_output:
-> +	xpad_stop_output(xpad);
->  	xpad_deinit_output(xpad);
->  err_free_in_urb:
-
-[Severity: High]
-This is a pre-existing issue, but is it possible for xpad_probe() to free t=
-he
-xpad structure without canceling the workqueue on the error path?
-
-For XTYPE_XBOX360W devices, xpad_probe() calls xpad360w_start_input(), which
-submits the irq_in URB and then calls xpad_inquiry_pad_presence():
-
-	error =3D xpad_inquiry_pad_presence(xpad);
-	if (error) {
-		usb_kill_urb(xpad->irq_in);
-		return error;
-	}
-
-If a malicious or buggy device responds immediately via the IN endpoint,
-xpad_irq_in() will run and xpad360w_process_packet() may schedule xpad->wor=
-k.
-
-If xpad_inquiry_pad_presence() fails, xpad360w_start_input() kills the URB =
-and
-returns an error without canceling the scheduled work.
-
-xpad_probe() then takes the err_deinit_output path:
-
-	if (xpad->xtype =3D=3D XTYPE_XBOX360W) {
-		...
-		error =3D xpad360w_start_input(xpad);
-		if (error)
-			goto err_deinit_output;
-
-This eventually frees the xpad structure via kfree(xpad).
-
-Can the workqueue execute xpad_presence_work() later, causing a Use-After-F=
-ree
-when accessing the freed xpad structure?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260801075623.2769=
-601-1-mapengyu@gmail.com?part=3D2
+Gentle ping, since there was no response for 2 weeks.

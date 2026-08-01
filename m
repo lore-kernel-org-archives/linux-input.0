@@ -1,128 +1,134 @@
-Received: from mail-ed1-f54.google.com (mail-ed1-f54.google.com [209.85.208.54])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mail.cyberchaos.dev (mail.cyberchaos.dev [195.39.247.168])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 24E1B1EFFA1
-	for <linux-input@vger.kernel.org>; Sat,  1 Aug 2026 20:48:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.54
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785617323; cv=pass; b=fC5oS4HWc5BhlM0Qtr1fTF8nxXRQ5j4ZxhWXRWUq/3vC1XEJCAaQ8LHWY77v0dAXQvPTzfeub3+oM5MTMvegNDrgRHYncF/K08nN2/FV0heLke2HPYjRddwu2Nzixp0meEgjUf49VXal64Ell5y8MIR278wxrxp6VBTaIB5S/5A=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785617323; c=relaxed/simple;
-	bh=FYVVH9Z6xx2L/TtILXFBLUfy/6UVPix7AnYQEBk8K10=;
-	h=MIME-Version:From:Date:Message-ID:Subject:To:Cc:Content-Type; b=r9Ueq9PtXYSAXuuHxHgGAz4L6EN4C5gI7+uqSF1HX/Fk9UOa7GucW6oP35Rt3hQAteaX0gtqtumbgUJyUwvH81D2yj9e8c2OTGamOoZn8zfsrbNJfoLpbb7ZuhuXC6+OAlaZ6xRnORqbYY+CkUv3rxxzOaoBCgiVmvU8zl++shU=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=n6krdQJ5; arc=pass smtp.client-ip=209.85.208.54
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3BEB03BED61;
+	Sat,  1 Aug 2026 21:56:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.39.247.168
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1785621403; cv=none; b=uC/rB5q5dOe5WVnyCzp72KUNaf70Cyhzp1lPC2g176wcoeWKXkFWQfp4+YELB11J+i/a1UejLD2El6VvJJ4CGSZSjevx0js5npozt0Ml1KGALRVJXhcMIg3VvV6dhrkEZWzbWTxh2jjQheMmujWp4BcQkpJx9+8zZPyoQKvprCY=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1785621403; c=relaxed/simple;
+	bh=t7EzEiPFxc4GuN5FmnkOGyt8BqSvWGuuHx+k4MnQxMU=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=N40fzmQkbvl14t8J4RMLQLPes0b1/H207I1qo8/M5Vo1cvSqQZuuQGHUrgAfBYhDH+QZ8cE1okIY4R3GAz/eq+kcmA1/YjW+n178CConooJnsmahjl5VQCROpvxj6irfiVgIefUjHVuYuAa6v5onoXnp5gyIBbDuEZn4jNEhd3w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=cyberchaos.dev; spf=pass smtp.mailfrom=cyberchaos.dev; dkim=pass (1024-bit key) header.d=cyberchaos.dev header.i=@cyberchaos.dev header.b=Xmddp+7G; arc=none smtp.client-ip=195.39.247.168
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=cyberchaos.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=cyberchaos.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="n6krdQJ5"
-Received: by mail-ed1-f54.google.com with SMTP id 4fb4d7f45d1cf-6a09ba1ab24so2672947a12.3
-        for <linux-input@vger.kernel.org>; Sat, 01 Aug 2026 13:48:41 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1785617320; cv=none;
-        d=google.com; s=arc-20260327;
-        b=N2hwOW22Aj0D0vREbq+r3tQuxFY/FRwwiFi41DLz1SkmRcdRME0fNi3hPEsJPqrps8
-         I6XsTOoOHzh2jDawf8ZwVnvBOYIu4/nXkNJWvjo1dgGPPZfxByEWRXq5JgUJNpsBNq8H
-         ZpfkQXVoQI2uqW2PbFTuf36NZQrBsS5f7UMSsE9ttQ95zchCJ8Meu3EcPRcj0CEhg+YH
-         4p9OoOvRqYvaQYS/h45nhNvJhaYai3nLGF2rtSRGkxhdkGVmepZEAmAAEXdhhWDbe1Vy
-         9itLPtvCwepfmE1L8eFViBa3KF7bs7dlyG5ROjs91PdCHPirVAke/V/d0Vs5gFphWLmC
-         jTCw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=cc:to:subject:message-id:date:from:mime-version:dkim-signature;
-        bh=rTqzz0I3ZH7JaMPTsFfPLtt1Gunb5JyU40Xvqov0VEM=;
-        fh=Wl54MOfKHjjYU5HrwdpRMl8tk9fZAsihW5aejgkYy7U=;
-        b=Tt5cGllwGoBxzc/yuVbG3B/Eyu7WDtAnfQdB+exjUmkQgep6iDjwzj+lDFXoi+2Ipz
-         4uTSATLEEoCCVsInXBdlxM5d/RlFPEYxLk7/Cy9UC74k1PRi3cd/NZkIZ1nm9ahRXQMq
-         HNMK73t/kCSackkAbw1jvMThHEJWCW+Lx9NfMaraxHkeRHQlrcXKqEyRSPy3l+QwfOt6
-         zLLUFsdg073DnGPbmVNKaRm9+OltiBv8N6ReheNq5IuSKntyqlDe7OMijedCBxGhGeRv
-         STFoFH1L0T/RJOp27JZtuSl5NNe7nB1Hq1uDFsRhSWO3lUJdyNkTvRcS9BzB0GDSajUB
-         TaLg==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1785617320; x=1786222120; darn=vger.kernel.org;
-        h=content-type:cc:to:subject:message-id:date:from:mime-version:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=rTqzz0I3ZH7JaMPTsFfPLtt1Gunb5JyU40Xvqov0VEM=;
-        b=n6krdQJ5ag8Hkw7kjuzrG70njEOXSpGivy1STTOI3V0rbSmDqF/i5JDr21OMTtAMSp
-         Y+f0QPJEK1guf2I9cyFcJ8rFde3R4M7Slci+3WI7bUILnnTF46PveMxGZcDM6/cSUJxh
-         Iz1nxZyp2ZH0c6WnH3+uaMWSSuirtcn9bAht5FYhU10qxH18aoX7dcIZZNl3TSkP2Ehu
-         HWkstQQymkS9QRM57xiSfWSuLdvIMH6AeFl7dW3hTM12wwl30B7VglRa5mneIzONjiS/
-         jNKris2xYgntJcWfroqUlrFG9G97CImXuHomAXEggyKml5ih8JFFuojPrvQnvO3h0dwb
-         wsng==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785617320; x=1786222120;
-        h=content-type:cc:to:subject:message-id:date:from:mime-version
-         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to:content-type;
-        bh=rTqzz0I3ZH7JaMPTsFfPLtt1Gunb5JyU40Xvqov0VEM=;
-        b=ruRDHhddIm3jZIHJqD5Eb4jqbazo61ZuYZ9RPjYVCuSWrwSyjCO2PlazogkQJ8iir/
-         6u39QFIRp+6Kz4WvXlcNhAuHHadtwkKp3KKyJrC1rTbPAGUkNWHjE/9bhOir6UdojU4b
-         GcrWA7Fg0BFNwhmgn5OxsWSI/qw9g5LmdFXWvpBPsnf9hUYHW3dWBH2twDJWUYGPiRMl
-         drnvTKgs01Wb3P1uL9l4egUb4GjsdA4IUH82WTMHIUSKao6If2dpI9ujA72q1npMRFVo
-         rfsHaSer1x8zv66uuhfU0o8CA379yTo3nu8tyJSer+Ti3NDMa04AbArvP7wUz0IGzMEg
-         vEqQ==
-X-Forwarded-Encrypted: i=1; AHgh+RoAqzMn9l1bacVhD1LgXPmDfibYVNLqQ9PMphgUQupzmGcFCDzhWYVbMo1jxPJe2m4pkmLzqdThzAdNkg==@vger.kernel.org
-X-Gm-Message-State: AOJu0YxsRYE56LO9obZlC0zNpB8E/DJEF5vCWMni0rMvgSvzwgvBc3Pa
-	mGF9bVlPW5umqZxbT1PjuwhHVmfouCPT8x1pwq1ZAhSM1EhyQusg5Mjwpqh9y+D1xnq/sTJ9LWP
-	gRpDTsIq4XKrdRPP6agjt9T9DWXuDXcYejC6UWeo=
-X-Gm-Gg: AR+sD10qdcVbr5VTmCY7WT6OiMTrmnKwWXc3btXwtE9ynS2W2t1Ng4HeJOHrbp+I/0p
-	g/03btd9rRU/2Fllinxir6l5HoE0m6EP8ZusFBY+i6DvWo7liEu3pv0C9fddi/m6wU8IElNWxMm
-	/lqmsItxgbcox548yf3c9ObzZre+3MSpJ6TZtm9SUOUqewB6z32+fUfwibq7jQkTktr7MjMbq8o
-	8QELS3WkodfFAZrLJmYq8/oEeyyk5NEAte8epW0GJIt+8Mn62KXkyZ2yP4epFAq4Pg7epPVv0Ng
-	Tj98FJoOF3e5DbhfabYETMz+tp8idtH3bryhLmZwp5DY
-X-Received: by 2002:a17:906:1d1a:b0:c17:cf99:6154 with SMTP id
- a640c23a62f3a-c1fe7eec7afmr254094666b.16.1785617320015; Sat, 01 Aug 2026
- 13:48:40 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=cyberchaos.dev header.i=@cyberchaos.dev header.b="Xmddp+7G"
+Message-ID: <03eb4c22-045e-470e-8259-ebf9b1cfe2ed@cyberchaos.dev>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=cyberchaos.dev;
+	s=mail; t=1785621398;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=8oEGy8rqwZ/gqYzJNGC0Im+DxBJzFqohOOWzha3aJP0=;
+	b=Xmddp+7GQRTeX/CMdkkJE6vw4Zyu/9477fXl54HZRSDhJInS9Ax5tLWR0X9sCOkZ/OIk/D
+	DgwY4x69kYBw+2X2mAi6YDH1umCIvjCrb47alfpFuLgGU8krLzUPrd8newkgtva2O/gaYW
+	lHaQ6KbmX3Dgj+Bl6ZryVS/IGtW9Ek8=
+Date: Sat, 1 Aug 2026 23:56:20 +0200
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-From: Ruslan Shevchenko <adefka@gmail.com>
-Date: Sat, 1 Aug 2026 23:48:28 +0300
-X-Gm-Features: AUfX_my2s8AlyBIKdDRYUS_DETHq44jvEofm2kmjUmv9h_0QqDB3d37c339Bzu8
-Message-ID: <CAJB8JAXa7nVzuhbJf-LMcxN08rEmhCkKKSx_UwfN5zd8AP0j3w@mail.gmail.com>
-Subject: Re: [PATCH v2] Input: atkbd - skip deactivate for HONOR ZQC-P
-To: donglin_lyu@outlook.com
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Subject: Re: [PATCH 08/10] HID: apple: Add DockChannel HID transport driver
+To: Michael Reeves <michael.reeves077@gmail.com>,
+ Yureka Lilian <yureka@cyberchaos.dev>
+Cc: Sven Peter <sven@kernel.org>, Janne Grunau <j@jannau.net>,
+ Neal Gompa <neal@gompa.dev>, Jassi Brar <jassisinghbrar@gmail.com>,
+ Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
+ Conor Dooley <conor+dt@kernel.org>, Hector Martin <marcan@marcan.st>,
+ "Joerg Roedel (AMD)" <joro@8bytes.org>, Will Deacon <will@kernel.org>,
+ Robin Murphy <robin.murphy@arm.com>,
+ Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jikos@kernel.org>,
+ Benjamin Tissoires <bentiss@kernel.org>, asahi@lists.linux.dev,
+ linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+ devicetree@vger.kernel.org, iommu@lists.linux.dev,
+ linux-input@vger.kernel.org
+References: <20260630-apple-mtp-keyboard-final-v1-0-506d936a1707@gmail.com>
+ <20260630-apple-mtp-keyboard-final-v1-8-506d936a1707@gmail.com>
+ <05d39c4d-8405-4fe7-a798-c8a9c92699ed@cyberchaos.dev>
+ <CANpmGNs3s2yLw05jkpZ9mscQNZ9JvfbqEgyW8V=cMD29aU8c2A@mail.gmail.com>
+Content-Language: en-US
+From: Yureka Lilian <yureka@cyberchaos.dev>
+In-Reply-To: <CANpmGNs3s2yLw05jkpZ9mscQNZ9JvfbqEgyW8V=cMD29aU8c2A@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-On Sat, Aug 01, 2026 at 03:11:30PM +0000, Donglin Lyu wrote:
-> The internal keyboard on the HONOR ZQC-P (HONOR MagicBook Pro 14 2026)
-> does not work after boot.
+On 7/1/26 16:32, Michael Reeves wrote:
+> Hi Yureka,
+>
+> Thank you for the review and the feedback.
+>
+> On Tue, Jun 30, 2026 at 11:21 PM Yureka Lilian <yureka@cyberchaos.dev> wrote:
+> [...]
+>>> +     strscpy(hid->uniq, dchid->serial, sizeof(hid->uniq));
+>> If the keyboard appeared before stm, dchip->serial might be uninitialized.
+> Yes, true, thank you for picking this up!
+> [...]
+>>> +     /*
+>>> +      * Prefer to enable STM first, since it provides device IDs. Some
+>>> +      * firmware versions do not expose STM, so let the keyboard start
+>>> +      * without it.
+>>> +      */
+>>> +     if (iface->dchid->id_ready || !strcmp(iface->name, "stm") ||
+>>> +         !strcmp(iface->name, "keyboard"))
+>> I specifically asked for a mechanism to let the keyboard probe even on
+>> devices which do not expose/have stm. Thanks for adding that!
+>> However, I think this might need some more sophisticated mechanism to
+>> decide whether the stm is still going to appear after the keyboard, or
+>> not at all. I'm not sure if there is a way to tell this at this point,
+>> or we need to add a timeout for the stm to appearing, which needs to
+>> expire before we create the other interfaces with fake serials.
+>>
+> I do not think there is a way to tell at this point, unfortunately.
+>
+> I think the best way to resolve this would be to implement a delayed work
+> item that is scheduled during probe. If STM appears and initalises before
+> the timer (I'm not sure how long it should be right now, I will prototype and
+> experiment) we cancel the delayed work, get the real serial, and spin up
+> the keyboard. If the timeout expires without seeing the STM interface, we
+> assume the platform does not have one, mark id_ready as true, and
+> proceed to init the keyboard.
 
-Confirmed on a second, independently sourced ZQC-P unit. Same DMI as
-yours, down to the BIOS revision:
+I see three ways forward (no specific order):
 
-  sys_vendor    HONOR
-  product_name  ZQC-P
-  board_name    ZQC-P-PCB
-  bios_version  1.09
-  bios_date     03/19/2026
+1) Implement the timeout as you described.
 
-Applied on top of 7.1.5 and booted with no i8042 parameters at all. The
-keyboard works, no repeats and no dropped keys, and the Caps Lock LED
-works again. The observable difference is that the keyboard input device
-gains EV_LED:
+2) Use the approach that always waits for the stm to appear, and is 
+proven to work well on the M2 devices targeted by this series. A 
+different behavior that does not wait for the stm / determines the 
+serials using other means can be added at a later point in the same 
+driver but with a different compatible string.
 
-  without the quirk, booted with i8042.dumbkbd=1
-    B: EV=100013
-    H: Handlers=sysrq kbd event2
-    no LED class devices
+3) Add an stm subnode (like the downstream Asahi device trees have for 
+their dockchannel-mtp nodes [1]) which indicates whether the stm is 
+present. Check for the existence of this subnode to decide whether to 
+wait for the stm or add the HID devices with fake serials. Support for 
+other methods of retrieving the serials can be added later and indicated 
+by other subnodes.
 
-  with the quirk, booted with no i8042 parameters
-    B: EV=120013
-    H: Handlers=sysrq kbd leds event2
-    /sys/class/leds/input2::capslock
-    /sys/class/leds/input2::numlock
-    /sys/class/leds/input2::scrolllock
+I would appreciate feedback from all of you on which of these options we 
+should move forward with.
 
-Nothing else on the machine changed: the I2C HID touchpad and
-touchscreen, HDA and SOF audio, and the platform WMI hotkeys all behave
-exactly as before.
+>
+> I will work on this and experiment to see if it's the best solution or
+> if there's
+> any others as well as to find the ideal timeout, and submit as part of v2.
+> [...]
+>
+> Thanks again,
+> Michael
 
-Worth noting for the record that atkbd_dmi_quirk_table already carries
-HONOR FMB-P and HONOR BCC-N, so ZQC-P is the third machine of the same
-family needing this.
 
-Tested-by: Ruslan Shevchenko <adefka@gmail.com>
+Thanks,
+
+- Yureka
+
+Link: 
+https://github.com/AsahiLinux/linux/blob/asahi-7.1.5-2/arch/arm64/boot/dts/apple/t8112-j413.dts#L260 
+[1]
+

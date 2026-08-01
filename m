@@ -1,69 +1,75 @@
-Received: from mail-pl1-f177.google.com (mail-pl1-f177.google.com [209.85.214.177])
+Received: from mail-pg1-f182.google.com (mail-pg1-f182.google.com [209.85.215.182])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9B2DB43553A
-	for <linux-input@vger.kernel.org>; Sat,  1 Aug 2026 10:19:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.177
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 818E617DFFA
+	for <linux-input@vger.kernel.org>; Sat,  1 Aug 2026 10:30:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785579570; cv=none; b=g0+S1lDCD19VsDZb2hNukSIh6+OE7veTq3yyQPcyWfi/7qsBsewHjEInRcmx+hpxhN95/53XdZxq3tUJtaUYKriRJdeJLsz2B/1ouJ9vKpvTiobdDe7AhjgmzFgoQCs0bycT/lgKATrDuDY4v+OR7KStp8pGFivdFMjGFeU4loY=
+	t=1785580235; cv=none; b=q0ixbCUlMUKcc9/8f72G/l4egXikSebQmXfClzQ7Z6jqbDSNYtMBs0S0Kc/EeKZPvfLqVZ73RN7fqO7BlC35yzpsLAV9OLEb9LCnIE3ehtORDTiIjik9In11Va3Vq5gEBcvQNe4HDJHxn+weZhdIphPkT9OemHax2IVpn0QxD4c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785579570; c=relaxed/simple;
-	bh=uqXJD6BV6xnkaRAj6UkGJyJamyPWK72UY4hAzwPjqU8=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=sZANKxNEusjPNsztIc625r/TTMUE1Q4uRL4oAqG0rJZPY8MtzRGFfGBNt5qjpmAe8/JFSIbhZWX2wVp9Vog5v3XbJlK84GD9tzLpcFTPsWjksn1+ucmWOFO1gGnM5t8wK1VKg8XPSOGueAiMzFWIiMGQ4GHg0v/6xbve9ReF31g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=PYcT8gfk; arc=none smtp.client-ip=209.85.214.177
+	s=arc-20240116; t=1785580235; c=relaxed/simple;
+	bh=ohlnl419En7WmpkldBcnOODjFe4MOBH6dlQrHo9uFdE=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=XmJYr8V3wCGy/aqzso1S0mPPc62lsxKehwTwov9WcerV1b7vvV8wSY5cBdGYHJ5UkRP1UURvtA8QgIztt5byBFeuiTH025L3sujir1IC96P9fI/N8lXES30Zk4QDW92ZMmOrdYPdCVw4KNjl51ilG9+570bTfcL8gjtNmEaH1Ps=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=TAQWKoQH; arc=none smtp.client-ip=209.85.215.182
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="PYcT8gfk"
-Received: by mail-pl1-f177.google.com with SMTP id d9443c01a7336-2cf27856f9cso18936065ad.2
-        for <linux-input@vger.kernel.org>; Sat, 01 Aug 2026 03:19:26 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="TAQWKoQH"
+Received: by mail-pg1-f182.google.com with SMTP id 41be03b00d2f7-cbb662575d3so1029956a12.0
+        for <linux-input@vger.kernel.org>; Sat, 01 Aug 2026 03:30:34 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1785579566; x=1786184366; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=dQivBhoyLILkT0xK6WqciGz/f9cGO872vLrrXwrtBSQ=;
-        b=PYcT8gfknSp7+osjrbNpyPLWWDsf7SNBEJ+Kea665hQb0APZLplB3cZmGQ5kizMbs0
-         BNoCyQR+pFsKsL/WNHRmsYZnF28Wk9qK+O1jmCZotroIcHACmnoXqjbmAzT+qtnS8Ssd
-         yT+pngWvpbx9uTGBJkzm+lz1sm6BvRiDe59hUMnXqXl16SSvHl8myw36uN2AXmWzhh9w
-         DDo8oWvQKELBcTOZiojZDnq6W9oBPS7i0KSZ9E3uYwXigzUI8azYEPiao/HDh7kO5c40
-         lKW8Gewl1AwjRD6Ch1GtDY1N7CNqgB7Kx5kMUlTQiPhQi24L6AMvpTwhW09l2SiHSBZT
-         54Eg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785579566; x=1786184366;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=gmail.com; s=20251104; t=1785580234; x=1786185034; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=dQivBhoyLILkT0xK6WqciGz/f9cGO872vLrrXwrtBSQ=;
-        b=oiaC0rjJ1ARFnxIe5riP+yb0QwHbMitJ/0BhBgt5BI45xtO7SwrhMSmyDd5JLYQ+tJ
-         ubA3Lt6eW31i2KiNInnoLvQfacdf4UMGte1tsMwxiy0IWjuXA2lT4NGJTfWQzXGbM4Zu
-         FJCBJZZL0Nlh6cAEd1qIVgiXf69XBO5SJh+G6T0ITLiUE1BV12SeIVqXQx9SsvdytfG8
-         RbmzaQbBmid9l1g4383ITzBM3t0FVhgoH926N++1IZdz4on64RWFSTwUexnwUNo1smlO
-         xe3iMy45DLMwYMZ61Af8IjE55jIQKvNV0Y0ckQUQCuPjWOQU0SmMwmhKRG02TMSqxBuM
-         DPxQ==
-X-Gm-Message-State: AOJu0Yw9TWnz54X4CmcaQ1Jf6j7nHuNsOEaeKuEvTSndY1y/CHed96Ls
-	FccxbOE5Y90re9mIQux63h6kAWRQSprK0pRzqTwCzzQch834wlO0Usxe
-X-Gm-Gg: AR+sD11aKgeNmecOOeADYYqRcp5QlGRifEvsrPhpmfg1eVP9pK8sgZuQcFeyoE+6kIY
-	whb3g0FobnkVNwhAcEQWRYe47TWvysTCt/oovqX0bbFKngUbJ3jyCai+3a4KmIgZTU3r9hvhmHz
-	DlpUX+PHzYzoiZex+m4Af5B3yznAjFA/99qndGRXl69zptJWO00ePr2TZAPRRbiEnuEg6PCj0C+
-	q4hSGLWPZ4RVlVoJjvI6CQ4pb+n4ZoZTzb2bo7G814umyKmaE6/C+04ESVvkw8HvyhQCuj1TJdH
-	ijni+EJIXDhSnogSC/EgPb7I78zArlZ+R9T4JD6Fz93gZQ6ZdLcP1w6MR8HUOpEY86rV4q14DeK
-	x5TwyqbuywrcFd9suvkPwZ00/smvX54nn96J5faiVNGsNCkEl/iuT5B8URwmeg+a1fm6pGFBZ5+
-	6n/Timrj0x65V6kZFPRAFjTjijs9fTSwxoUAUllEx36BqqLEv+WxdlhUr1Ffm2OA==
-X-Received: by 2002:a17:902:ea05:b0:2c9:d55d:2d3 with SMTP id d9443c01a7336-2d052244e67mr31844595ad.15.1785579565484;
-        Sat, 01 Aug 2026 03:19:25 -0700 (PDT)
+        bh=ohlnl419En7WmpkldBcnOODjFe4MOBH6dlQrHo9uFdE=;
+        b=TAQWKoQHDPZbJvSi5CIJ5mey6UL9q3lD9SvvGH6ydLJ2tx/3FCgjmkUEPhN9dmEPPd
+         tIKQ0lTjnl5deDEi++z6Lo2qNAIC05KcZOTaCeuSCQxIXKfCjwJlG006Aybc7BSeizES
+         mI1j0eBGI7lNTwkG7HAuIA68egVqRktvmf0clADYmRQn2IEH14JqLlQhiOYqbQf6VFo9
+         dHse9Vj4D+40Y7qOgnTPORWg2YtxS5X/lwrmhXuSRvIaewsXU5DM/DBqxaBaesUS3Pqq
+         eV4GMzKA3dOAipnrz1ljLZgY0aNcFKmF7wV4ljxzzwIC0CjOHcYnfLvXh1dKSPX3y/jF
+         lKbg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1785580234; x=1786185034;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=ohlnl419En7WmpkldBcnOODjFe4MOBH6dlQrHo9uFdE=;
+        b=mT02s/ELNz78vetxJcVfLaZ3v7QOVFwYGsivUBvSS6G5Tcl48uZrHkC8sNaZsX5IKE
+         onWegkHaQ5izfkRmLa9m0Wy2THZAv+h7m63r6/7lMwulpjAI2LUhXKS7fuDzGEnN3/o+
+         XF8VBthT1KhVNf6TdiHkZsT+FTw74K40ruTmSMvib5L1BmZ/hX5XYlZLWhq+WezQMwS4
+         6W80OPcmFtABDrx/LUhRkO4K5BTt+p3Km2PKYl4VvyR2i0drDjU62BKuql+vFrV9miOV
+         RxAdGlF+8ST/yMLKxh1NfGatIWpdEAfaTl3JFOUk253UhcZrd5kb6zWHhZwmaoAms8NP
+         lQ0Q==
+X-Forwarded-Encrypted: i=1; AHgh+Rq/eG1ctL2cVQdu32Z/O4YPn/u3kgYw5QSUFkm3NlW9kWluHh42Sr9O1Kkr4cHnBEZuQ6mGP7b9WlWSPg==@vger.kernel.org
+X-Gm-Message-State: AOJu0YyU7nfhbo1RVuvDx4bn9gAm2F6gwByywQiuVN5cqGecDA5z3FTa
+	dWaDwv5xEj7GM7sDp5lGadFHPFgdT4GI6PsmzG/auVCxiKf2Vwwd2y51
+X-Gm-Gg: AR+sD11KhJPQBC5vRGf5NFqtVdDKCS/79jtUXfNfbk7eHew/8ly2Ztl0Ie6/rby4P7n
+	Il30f4Z0gpp+8m06a9WVACVMF3rrX4SH9f3O4sRp7PzA9HKoivxOHUS4cklyMmrtdnjR5cOGf6e
+	bDVkDXK1TiIcOXa5fS/F+gdenjJk/sBasdUza3MuV7JKdGB9gU9r3TCqmDkQ3fNM1K+/MnwzDRq
+	KFtqAnVEdHREaNXbkgAHnjVILH6GrAm5+/zMdGQHAGRZ4OlgL/qFXAUhehAMYjm0Qqf5byPqTnj
+	zyhtpRbOkTGqXI3+HSMMg1866uROQ5SIv7HCE/a9+t2HJXc+NJn7d4B+RqnPCa2gPojP+LKfYx1
+	XMRMhS5sYZW8eQcCGGqDIiFFTBdUaDSPqDBAJZAUKOCwDU3L1dNKHxvgODr71C4Ni+PPcf0nLvW
+	5AR2CSaoTxbRk/EFma7B8pbuYd3aKMcC3XWzoze+2pp4R2hqkzw2RtfbR0FCLFeQ==
+X-Received: by 2002:a05:6a20:914a:b0:3c3:a17c:1f77 with SMTP id adf61e73a8af0-3c92aa2ada0mr2878840637.51.1785580233796;
+        Sat, 01 Aug 2026 03:30:33 -0700 (PDT)
 Received: from xiaomibookpro-14 ([149.19.17.31])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-13fab4cb51asm18560574c88.9.2026.08.01.03.19.23
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3153e18e114sm27560090eec.28.2026.08.01.03.30.30
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 01 Aug 2026 03:19:25 -0700 (PDT)
+        Sat, 01 Aug 2026 03:30:33 -0700 (PDT)
 From: Zhefu Zhang <a723356@gmail.com>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org,
+To: Andrew Zhou <zhoulol888@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	Zhefu Zhang <a723356@gmail.com>
-Subject: [PATCH] Input: atkbd - skip deactivate for Xiaomi Book Pro 14's internal keyboard
-Date: Sat,  1 Aug 2026 22:19:08 +1200
-Message-ID: <20260801101908.33838-1-a723356@gmail.com>
+Subject: Re: [PATCH] Input: i8042 - add Xiaomi Book Pro 14 to dumbkbd quirk list
+Date: Sat,  1 Aug 2026 22:30:12 +1200
+Message-ID: <20260801103012.4142-1-a723356@gmail.com>
 X-Mailer: git-send-email 2.55.0
+In-Reply-To: <20260718122437.11112-1-zhoulol888@gmail.com>
+References: <20260718122437.11112-1-zhoulol888@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -72,35 +78,22 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The internal keyboard of the Xiaomi Book Pro 14 does not work unless
-atkbd skips deactivating it at the end of atkbd_probe().
+Hi Andrew,
 
-DMI: XIAOMI Xiaomi Book Pro 14/TM2424, BIOS XMAPT4B0P0909 05/06/2026
+I have the same machine and sent an alternative fix today, "Input: atkbd -
+skip deactivate for Xiaomi Book Pro 14's internal keyboard".
 
-Signed-off-by: Zhefu Zhang <a723356@gmail.com>
----
- drivers/input/keyboard/atkbd.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+On this machine atkbd deactivates the keyboard at the end of atkbd_probe();
+the EC acknowledges the ATKBD_CMD_ENABLE issued afterwards but never resumes
+scanning, so no key is ever reported. Setting the existing
+atkbd_deactivate_fixup quirk avoids the deactivation and the internal
+keyboard works.
 
-diff --git a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/atkbd.c
-index 8cb4dc6fb..6c897282d 100644
---- a/drivers/input/keyboard/atkbd.c
-+++ b/drivers/input/keyboard/atkbd.c
-@@ -1938,6 +1938,14 @@ static const struct dmi_system_id atkbd_dmi_quirk_table[] __initconst = {
- 		},
- 		.callback = atkbd_deactivate_fixup,
- 	},
-+	{
-+		/* Xiaomi Book Pro 14 (TM2424) */
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "XIAOMI"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "Xiaomi Book Pro 14"),
-+		},
-+		.callback = atkbd_deactivate_fixup,
-+	},
- 	{ }
- };
- 
--- 
-2.55.0
+Compared to SERIO_QUIRK_DUMBKBD this also keeps the keyboard LED working:
+with dumbkbd the driver never writes to the keyboard at all, so the Caps Lock
+LED is not available.
 
+Tested on Xiaomi Book Pro 14, board TM2424.
+
+Thanks,
+Zhefu Zhang

@@ -1,68 +1,68 @@
-Received: from mail-ej1-f46.google.com (mail-ej1-f46.google.com [209.85.218.46])
+Received: from mail-ej1-f51.google.com (mail-ej1-f51.google.com [209.85.218.51])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D4B1032ED4E
-	for <linux-input@vger.kernel.org>; Sat,  1 Aug 2026 23:18:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C5A48332EBB
+	for <linux-input@vger.kernel.org>; Sat,  1 Aug 2026 23:25:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785626308; cv=none; b=BmnHAh2Th5BYuk9zXkGGXbBiQePNrV5VLU/OiTbr6iByS7179Hka1bowjdh2OQY8lKKC6ayeSU8E0KF9eaB+KN3ljMFVbeDvns/YtDej+L2xCl9y6ti0BEkFnCxT/7JcQCHR5/RbwQhdcZCOWoysyxQVd/ELiunXWUiJaM2IdW8=
+	t=1785626755; cv=none; b=Tx+kjK6CIc7d02WgdwGa/lBDu+rcknx28VONtR2CnuiMp0m9JEOI1Zq0FPMp90SA2Y8OcAmAbR8Idjrfyv8WCkocBnJPc+5h9QxKcQ08RxJugMUPsDNcM0Hcfk8ZPF4FuTG83Z9LbF8Y4F0RYShV9Zt5k/YCnV7HQihH6QOHjp4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785626308; c=relaxed/simple;
-	bh=HfV76qd2RJ6Kvi7tbX1P3x2LNsWnEMrj4U8gClgW5eg=;
+	s=arc-20240116; t=1785626755; c=relaxed/simple;
+	bh=Us2pie5/ZlQAJJYFqJHN0j1yUSXmxqJ+9dX1xFgY4Zw=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=I7y1NQ085DeludzeLPc/kWcK0Uugzadg1hFl80ToindIKKg3rqrO/Etif8PErGqB/UNAc3QT0a2gM6ZI3kkJoZlQGd28/lSFtYB6MO4TF4FoJIcKviqed1JwFTLozG31TH37YokvtqFEcoIpZuVBgk9qRr7nysl4R7/ahdvSD9A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=IHr3itUw; arc=none smtp.client-ip=209.85.218.46
+	 In-Reply-To:Content-Type; b=DuTO+VxRvmocwPRyUw7WXykNrUweRZmn9uCqGOLPPVJjpRopMAiUCpvOx6EFWgO3QHBs1fhgjMjRSEB+D++xba+Oum5JJAWDYuKr8hwtntRsCvUdKU79MoJT8Rlpz6ingrtAHqr9Yic8xGKZgPtxoT1EutjrXSI6P7tCS4+niXQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=GmFjaEe5; arc=none smtp.client-ip=209.85.218.51
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="IHr3itUw"
-Received: by mail-ej1-f46.google.com with SMTP id a640c23a62f3a-c197eaaab00so362391066b.0
-        for <linux-input@vger.kernel.org>; Sat, 01 Aug 2026 16:18:26 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="GmFjaEe5"
+Received: by mail-ej1-f51.google.com with SMTP id a640c23a62f3a-c1712a04ddaso360010766b.2
+        for <linux-input@vger.kernel.org>; Sat, 01 Aug 2026 16:25:53 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1785626305; x=1786231105; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1785626752; x=1786231552; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:in-reply-to:from
          :content-language:references:cc:to:subject:user-agent:mime-version
          :date:message-id:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=1sI0dPeWZgkJ3ivK+Qdn0DY+4aa4E9Wwiwd/CGwrygk=;
-        b=IHr3itUw2nI+gdZfXLB5nA/wQ5S8H3D1DiyT/t0HItB1EIiT7zs3q1i7nNdd9G9YiO
-         u9HwwyxIzw19I5KVmGLqs5fWas9MtMceFqlPS3WGgSIlorOjcFq/oJtkL7rSErH6PfjM
-         bqzNjnxzuRyvtXCXOm4ulCaaxfCfi0F3HJGVkkJA38peQCskvPwox2ab30BTmHG/aQmm
-         UnRvHnb+2v4WJ0/UVHBZTw5GrMQioI5FjtLT/WZ2hGypm/gcFGVUqTpLZqmKMkGoOcmH
-         E5HMyE66KDy3+Bl8g6NaGc4qOPMOf6kQT4DDZ52/zIdRFwqmmYN7P/Cd2v3RYGe6fH8o
-         ONQw==
+        bh=KpcRkFY087ds4cMoBIRtuIy848EiAdaOb7SMFkq0qcw=;
+        b=GmFjaEe51nZulPD68Fwf7HMdg/FfKpGFTmwL3xBWZCYnHKtq5F6HQtIMgU41BExW4T
+         MlNflIo8D3R/FMIqAFi/7KP6bKvDIHCDjglpNa/nd+0HDSI1nQVho8etu0kQpjMesw57
+         hSuLQZwJIxuNpg1lqftv14HiwG1cY3CzTDslODJw891y/CoPV3n/s7jyiSOTRNhqgH5m
+         An61heUq59sBeGhfMJ+B8HXOAeFKiiw4oYIW2x8TiF9X4SuQdWT7AtvA5+J0kkhkAOyA
+         FosXvKcgN73MSgPy6M+o8NVdtRq/SO42lDcvcOS0IQgfcfULqJ82q/ZrpWEV24Mxv/Fj
+         h9vQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785626305; x=1786231105;
+        d=1e100.net; s=20251104; t=1785626752; x=1786231552;
         h=content-transfer-encoding:content-type:in-reply-to:from
          :content-language:references:cc:to:subject:user-agent:mime-version
          :date:message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=1sI0dPeWZgkJ3ivK+Qdn0DY+4aa4E9Wwiwd/CGwrygk=;
-        b=P8fFBCXI9+bademp/dclY0+gbu0mCthFNddgC7c8iebzIhfsTUDmtP1RWkt4Y6Tg33
-         pcSifNSI21F1lUigZc0hYyeg52NF5CgsC0V7GLR+OsmErq9/fHmsGqRvkvrUKppSyEcR
-         nnUmf4rTJDNDBoSfGP1zzfEx3RhdIzdGg+i6HmZnCxLrV+bnvGrkSXRtlTD89Bcd0Ty3
-         E4pn4+FDFiBTLg38kP6XT1tW+UXNLicjamRfy2yRflMw7g1ri3fg/A8/8BYzCCtwm7bI
-         vbuDWWxGQnoWa2fLujB4QgGh/FOXEtKKx34bq4bc82KtCTNKiS4WGw1s26P2q5RMYxuN
-         HLQA==
-X-Forwarded-Encrypted: i=1; AHgh+RoWgP/2BD8D19s7SRwSf0zUNc8itpLSHzCD4c4TGn6RLYSjOkVc1s6cmBMBTRBPnjfy96eXbD9DPEy0tw==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yw3iLnqeBDMZcO+z29RtVzlMWlYs33AvuvGocJCcU9MdcXwYTlb
-	+m+mkyfMEg8KFx4A5UNyjaQ+vgYum56Afu5nB6C/KNhdMPjFu/CDVXOz
-X-Gm-Gg: AR+sD10E7iD1esyOscHtVyVQ/lalz4p8TJ6hjmAb/O6BLofo1ZKm9ATNWEJkv+tx8+N
-	HPnmtB7Jl32hZ0Vde7AourxsWcdljf94Fry/AF46yNbxCnbWoidmMcLOweJUHsxaG3I3i6kRAiI
-	kgVdBT8N5kT/ORFyh/SSPMKLkVYQE+9RzlT9iOySATOX2funjsVZfOmzt/ntxjxSqbTx/kYQ7JR
-	NPc0WZuuWFg+QlHMekQsSgLLp8x6WJQBiqbdxiY0by8mJTqGQUiKXdrVRxyTys+0znyu3qf28N3
-	jXVsBxiPddi8hp3GzLHyP/MBTb9gqF/lFBiEhtbD/q4RGfO66pEou8J8ui8fFM2R/GImrn8gH9S
-	ZsOf4i5M0l0UQ34Q/Es7iE+EdBJ9w30PYr38wcG4+gOEgBcnuyH08F5WePHeWoxT3ydZ463il+1
-	1hVSTGCAiUddLEleeoUDz69UFi1vXz9UQUDmI7phDmybMH3tJLjCAk89jzzLWkOVtzEMG9XtSgQ
-	tvgVB9hmae9QtsBR0dXpV4I5AD4p8TLqmpeVPjLfqU=
-X-Received: by 2002:a17:907:1b21:b0:c19:523f:5a0 with SMTP id a640c23a62f3a-c1fe8167bb8mr347281066b.11.1785626304677;
-        Sat, 01 Aug 2026 16:18:24 -0700 (PDT)
+        bh=KpcRkFY087ds4cMoBIRtuIy848EiAdaOb7SMFkq0qcw=;
+        b=q6aGolp4dutW57nrPXOiTk4Bso9gA8XbIDHJ+VBBjDee4WETXRLi1A96GK0OwrO+/b
+         jC/TQlUsywpLcyl3u5OFRBTA3cfxkFY+l7db9es/jUPHOa8rxDE04pTurTT/ubOu0+qN
+         3GtqdgBqYKY9W2xdwtFJ2yisDuwj0JR5d8M0v3CQJHWnU7peouV91seHal4GffLy0kNl
+         x1SHuX1R5D8jbJd351haNghntFPqGHTU2bgJGXsOnE4yvPgQSlR34xhc7KkvYXvxqo5I
+         ++QOp2IXys2/k6SQxb2564ng5p6HYUreQjrDpS18e9xUFq+hHTNgfRhlYO9f/4JZaZkY
+         T9/g==
+X-Forwarded-Encrypted: i=1; AHgh+Rrb4S9fQaBbITx6Jbtq1Wb1C6wrVIgYrJzYvh/YODZOaWTu/Cv/YUVFjiM0gMtkXmOFpisfjkCeZli3tA==@vger.kernel.org
+X-Gm-Message-State: AOJu0YyVO9ZZRSx/XLhM6+hQFko4iOZxd+jbHuRUyq0JFodN2tffzZna
+	yK43KO2GuttJf41l0JqDOc/J/u84qJQ6BWqonINJJoMKDCojEX4PYZwV
+X-Gm-Gg: AR+sD12Fm0CI1WlbY1MgemFdNJhPO9sGMyKJ3Og/f+8m496HYVsg0N3Bm3gFr2lydSV
+	TIyIy/6+5agnQmv3/I0y94yoTXXxaqYKIDYB/BMIONeNKHer/yyx3UT2et98GMYZJHQU9zUl18M
+	emFy9uD9m8ZvoMypTEIEDlkmWK17I0PPPRj8K462/jJP5CqbYfyFZZHQGG2GL7VfdZRGCRmW8oD
+	Oj6nAIjzReCu9Pq6S3MwmR+1ilDUljfmiTJn8bTcZNykI5eqslxcbEbKoryf1U2j7tOtaNVcOQY
+	i1ahT/ijzTDRmO3llg7GBuJ9AlRY3F++9KRTzS4ikJUKFBEpfrsH8C+3Ajd8Rb5He7urqv43gkQ
+	n9BskUZhFuVd5DjWIstvdI3vVNKn3pvdQMpMoKNMTnNsrhwIzhtOInt9JMU1CSAebeBm1bxy+E7
+	QoxzS92MobhfdbIqR+CgxftAry/Wz9/KAlNQh5Vg4/GTMQpwdt61eN3f/3SKZgAJfLDfbr9vxXf
+	swZe0v/Cu88AlhGasKhkH+w6UtO2yZm
+X-Received: by 2002:a17:907:ea8a:b0:c1f:e9d3:a3f0 with SMTP id a640c23a62f3a-c1fe9d3a799mr336087966b.7.1785626751707;
+        Sat, 01 Aug 2026 16:25:51 -0700 (PDT)
 Received: from [192.168.86.89] (81-224-151-184-no600.tbcn.telia.com. [81.224.151.184])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c1fd455f671sm336487966b.57.2026.08.01.16.18.22
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c1fe119ce8bsm268154166b.45.2026.08.01.16.25.50
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sat, 01 Aug 2026 16:18:23 -0700 (PDT)
-Message-ID: <bce18a69-a7ce-4aa3-b631-59613c8ce114@gmail.com>
-Date: Sun, 2 Aug 2026 01:18:21 +0200
+        Sat, 01 Aug 2026 16:25:50 -0700 (PDT)
+Message-ID: <f44b06b1-e1fd-4d96-9728-4567fe62c501@gmail.com>
+Date: Sun, 2 Aug 2026 01:25:49 +0200
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -72,259 +72,83 @@ MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
 Subject: Re: [PATCH v2 1/1] HID: logitech: add Bolt receiver support for
  Logitech HID++ devices
-To: Bastien Nocera <hadess@hadess.net>, jikos@kernel.org, bentiss@kernel.org
-Cc: lains@riseup.net, k8ie@mcld.eu, linux-input@vger.kernel.org,
- linux-kernel@vger.kernel.org
-References: <345f7347-30a8-4568-a7a6-c70f54a52a8d@mcld.eu>
- <20260713201201.391538-1-erikhakan@gmail.com>
- <20260713201201.391538-2-erikhakan@gmail.com>
- <87314b89c73bd06c9824da73811a53b3f88a5059.camel@hadess.net>
+To: Bastien Nocera <hadess@hadess.net>, =?UTF-8?B?S2F0ZcWZaW5hIE1lZHbEm2Rv?=
+ =?UTF-8?B?dsOh?= <k8ie@mcld.eu>
+Cc: bentiss@kernel.org, jikos@kernel.org, lains@riseup.net,
+ linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <bcbf28f0-a3da-454d-b05e-a554017fba0e@mcld.eu>
+ <20260714005441.472898-1-erikhakan@gmail.com>
+ <54844d1b-636c-4896-8994-f4e960e57944@mcld.eu>
+ <14807a258220aaa2bf4ae5020b452c7da4201168.camel@hadess.net>
 Content-Language: en-US
 From: =?UTF-8?Q?Erik_H=C3=A5kansson?= <erikhakan@gmail.com>
-In-Reply-To: <87314b89c73bd06c9824da73811a53b3f88a5059.camel@hadess.net>
+In-Reply-To: <14807a258220aaa2bf4ae5020b452c7da4201168.camel@hadess.net>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 
-Hi!
 
-Thanks for the review!
-I've looked into the issues a bit.
-
-On 7/30/26 10:36, Bastien Nocera wrote:
-> Hey Eric,
->
-> On Mon, 2026-07-13 at 22:12 +0200, Erik Håkansson wrote:
->> Add Logitech Bolt receiver support to the Logitech HID receiver and
->> HID++ drivers.
+On 7/30/26 10:38, Bastien Nocera wrote:
+> On Tue, 2026-07-14 at 12:32 +0200, Kateřina Medvědová wrote:
+>> Hi,
 >>
->> Handle Bolt receiver notifications in hid-logitech-dj and add a
->> Bolt-specific initialization path in hid-logitech-hidpp, separate from
->> the existing Unifying receiver path.
+>> Just tested V1 again with both of the receiver versions I have on
+>> hand
+>> and the input issues I described happen on both.
 >>
->> This allows Bolt-connected HID++ devices to expose battery information
->> through the kernel power_supply path, so userspace tools can report
->> their battery status with the correct device model.
+>> btw, thank you for pointing out that you can check the FW version in
+>> fwupd. This greatly simplified testing.
 >>
->> Tested with:
->> - Logitech MX Keys for Business via Bolt receiver
-> I tested this with a Bolt receiver connected to the same M650 mouse I
-> used in another test earlier, and my Slim Solar+ keyboard.
+>> I do have one find -- when a device gets powered off (yanked battery,
+>> switch moved to the off position, switching devices), the battery
+>> stays
+>> in upower. Unifying also does this, disconnected devices stay.
+> Unifying definitely didn't use to do this, I don't know whether it's a
+> problem in upower or the kernel.
 >
-> Every time the mouse is turned off, I get:
-> kernel: logitech-hidpp-device 0003:046D:B02A.0009: hidpp_root_get_protocol_version: received protocol error 0x04
-> which probably shouldn't happen.
+> "udevadm monitor -k -p" correctly shows the battery switching between
+> POWER_SUPPLY_ONLINE=0 and POWER_SUPPLY_ONLINE=1 when turning the device
+> off. Not sure whether that's what it used to do.
+>
+> If someone has time, please test with older versions of upower (I would
+> say go back to 1.90.2 and start bisecting).
 
-I managed to reproduce this and have a fix for it locally. It turns out
-Bolt sends 0x04 (HIDPP_ERROR_CONNECT_FAIL) whereas Lightspeed (the only
-other device I have to test with) send out 0x09
-(HIDPP_ERROR_RESOURCE_ERROR) on device disconnect. So the fix is simply
-to support 0x04 as well.
-
->
-> I also see the battery not going away, but that looks to be a separate
-> problem.
->
-> The only thing I haven't tested, and which might need fixing before we
-> can merge this is figuring out how quirks can be applied.
->
-> The battery reporting works because it probes the available interfaces,
-> and reports that.
->
-> But what about things like:
->          { /* Signature M650 over Bluetooth */
->            HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH,
->                                 HIDPP_PRODUCT_SIGNATURE_M650),
->            .driver_data = HIDPP_QUIRK_HIDPP_REPROG_CONTROLS_BTNS },
-> which were added in:
-> https://patchwork.kernel.org/project/linux-input/list/?series=1121633
->
-> The recent "HID: logitech-hidpp: Add support for HID++ Multi-Platform
-> feature (0x4531)" doesn't work either:
-> https://patchwork.kernel.org/project/linux-input/list/?series=1119501
->
-> Cheers
-
-Regarding both the quirks and discrepancy with the bluetooth route, as
-well as the Multi-platform feature, I'm still looking into that and
-will hopefully have a patch ready in a few days.
-
-Regards,
-Erik
+I can confirm the behaviour you're describing from "udevadm monitor -k -p". upower changes "state: discharging" to "state: 
+unknown" when disconnected while Solaar simply displays the device as 
+disconnect but paired. This behaviour is the same for me for both my 
+Bolt keyboard and my Lightspeed mouse. The KDE Power widget removes the 
+"Discharging" prefix before the battery percentage but otherwise nothing 
+changes when disconnecting for either Bolt or Lightspeed device, which I 
+guess is because it's based on upower. I could have a look at this and 
+try older upower and/or kernel versions, but since it seems to be 
+unrelated to this patch I suggest I do it as a separate activity. 
+Regards, Erik
 
 >
->> Reported-by: Kateřina Medvědová <k8ie@mcld.eu>
->> Link: https://lore.kernel.org/linux-input/345f7347-30a8-4568-a7a6-c70f54a52a8d@mcld.eu/
->> Signed-off-by: Erik Håkansson <erikhakan@gmail.com>
->> ---
->> Changes in v2:
->> - Handle only the Bolt receiver/control interface in hid-logitech-dj and
->>    leave the other Bolt receiver interfaces to generic HID handling.
->> - Handle Bolt HID++ unpair notifications so child HID devices are removed
->>    after unpairing.
+>>   Either
+>> this was intentional or a bug. Either way the behavior is consistent
+>> with the existing code and isn't introduced by your changes. I'm just
+>> not sure what the correct behavior should be. Sorry if this pollutes
+>> the
+>> discussion, I'm completely new to the LKML.
 >>
->>   drivers/hid/hid-logitech-dj.c    | 48 +++++++++++++++++++++++++++++---
->>   drivers/hid/hid-logitech-hidpp.c | 48 ++++++++++++++++++++++++++++++--
->>   2 files changed, 89 insertions(+), 7 deletions(-)
+>> I'm not sure what else I could try, I'll keep your V2 on my system
+>> and
+>> let you know if any issues pop up.
 >>
->> diff --git a/drivers/hid/hid-logitech-dj.c b/drivers/hid/hid-logitech-dj.c
->> index 9c574ab8b60b..571d5caa5bb5 100644
->> --- a/drivers/hid/hid-logitech-dj.c
->> +++ b/drivers/hid/hid-logitech-dj.c
->> @@ -121,6 +121,7 @@ enum recvr_type {
->>   	recvr_type_27mhz,
->>   	recvr_type_bluetooth,
->>   	recvr_type_dinovo,
->> +	recvr_type_bolt,
->>   };
->>   
->>   struct dj_report {
->> @@ -1156,6 +1157,10 @@ static void logi_hidpp_recv_queue_notif(struct hid_device *hdev,
->>   		logi_hidpp_dev_conn_notif_equad(hdev, hidpp_report, &workitem);
->>   		workitem.reports_supported |= STD_KEYBOARD;
->>   		break;
->> +	case 0x10:
->> +		device_type = "Bolt";
->> +		logi_hidpp_dev_conn_notif_equad(hdev, hidpp_report, &workitem);
->> +		break;
->>   	}
->>   
->>   	/* custom receiver device (eg. powerplay) */
->> @@ -1745,6 +1750,24 @@ static int logi_dj_hidpp_event(struct hid_device *hdev,
->>   
->>   	dj_dev = djrcv_dev->paired_dj_devices[device_index];
->>   
->> +	/*
->> +	 * Bolt receivers send explicit unpair notifications as HID++ events;
->> +	 * queue device removal when we receive one.
->> +	 */
->> +	if (djrcv_dev->type == recvr_type_bolt &&
->> +	    hidpp_report->report_id == REPORT_ID_HIDPP_SHORT &&
->> +	    hidpp_report->sub_id == REPORT_TYPE_NOTIF_DEVICE_UNPAIRED) {
->> +		struct dj_workitem workitem = {
->> +			.device_index = device_index,
->> +			.type = WORKITEM_TYPE_UNPAIRED,
->> +		};
->> +
->> +		kfifo_in(&djrcv_dev->notif_fifo, &workitem, sizeof(workitem));
->> +		schedule_work(&djrcv_dev->work);
->> +		spin_unlock_irqrestore(&djrcv_dev->lock, flags);
->> +		return false;
->> +	}
->> +
->>   	/*
->>   	 * With 27 MHz receivers, we do not get an explicit unpair event,
->>   	 * remove the old device if the user has paired a *different* device.
->> @@ -1884,6 +1907,9 @@ static int logi_dj_probe(struct hid_device *hdev,
->>   	 * treat these as logitech-dj interfaces then this causes input events
->>   	 * reported through this extra interface to not be reported correctly.
->>   	 * To avoid this, we treat these as generic-hid devices.
->> +	 *
->> +	 * Bolt receivers only use LOGITECH_DJ_INTERFACE_NUMBER for receiver
->> +	 * reporting. Treat all other Bolt interfaces as generic-hid devices.
->>   	 */
->>   	switch (id->driver_data) {
->>   	case recvr_type_dj:		no_dj_interfaces = 3; break;
->> @@ -1897,10 +1923,20 @@ static int logi_dj_probe(struct hid_device *hdev,
->>   	}
->>   	if (hid_is_usb(hdev)) {
->>   		intf = to_usb_interface(hdev->dev.parent);
->> -		if (intf && intf->altsetting->desc.bInterfaceNumber >=
->> -							no_dj_interfaces) {
->> -			hdev->quirks |= HID_QUIRK_INPUT_PER_APP;
->> -			return hid_hw_start(hdev, HID_CONNECT_DEFAULT);
->> +		if (intf) {
->> +			bool generic_hid_interface;
->> +
->> +			if (id->driver_data == recvr_type_bolt)
->> +				generic_hid_interface =
->> +					intf->altsetting->desc.bInterfaceNumber !=
->> +					LOGITECH_DJ_INTERFACE_NUMBER;
->> +			else
->> +				generic_hid_interface =
->> +					intf->altsetting->desc.bInterfaceNumber >= no_dj_interfaces;
->> +			if (generic_hid_interface) {
->> +				hdev->quirks |= HID_QUIRK_INPUT_PER_APP;
->> +				return hid_hw_start(hdev, HID_CONNECT_DEFAULT);
->> +			}
->>   		}
->>   	}
->>   
->> @@ -2103,6 +2139,10 @@ static const struct hid_device_id logi_dj_receivers[] = {
->>   	  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH,
->>   		USB_DEVICE_ID_LOGITECH_NANO_RECEIVER_LIGHTSPEED_1_3),
->>   	 .driver_data = recvr_type_gaming_hidpp_ls_1_3},
->> +	{ /* Logitech Bolt receiver (0xc548) */
->> +	  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH,
->> +			 USB_DEVICE_ID_LOGITECH_BOLT_RECEIVER),
->> +	 .driver_data = recvr_type_bolt},
->>   	{ /* Logitech lightspeed receiver (0xc54d) */
->>   	  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH,
->>   		USB_DEVICE_ID_LOGITECH_NANO_RECEIVER_LIGHTSPEED_1_4),
->> diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
->> index 90b0184df777..0b5d0a322ae8 100644
->> --- a/drivers/hid/hid-logitech-hidpp.c
->> +++ b/drivers/hid/hid-logitech-hidpp.c
->> @@ -4161,8 +4161,50 @@ static int hidpp_initialize_battery(struct hidpp_device *hidpp)
->>   	return ret;
->>   }
->>   
->> +static bool hidpp_is_bolt_child(struct hid_device *hdev)
->> +{
->> +	struct device *parent = hdev->dev.parent;
->> +	struct hid_device *receiver_hdev;
->> +
->> +	if (!parent)
->> +		return false;
->> +
->> +	receiver_hdev = to_hid_device(parent);
->> +	return receiver_hdev->vendor == USB_VENDOR_ID_LOGITECH &&
->> +	       receiver_hdev->product == USB_DEVICE_ID_LOGITECH_BOLT_RECEIVER;
->> +}
->> +
->> +static int hidpp_bolt_init(struct hidpp_device *hidpp)
->> +{
->> +	struct hid_device *hdev = hidpp->hid_dev;
->> +	char *name;
->> +	int ret;
->> +
->> +	ret = hidpp_serial_init(hidpp);
->> +	if (ret)
->> +		return ret;
->> +
->> +	name = hidpp_get_device_name(hidpp);
->> +	if (!name)
->> +		return -EIO;
->> +
->> +	snprintf(hdev->name, sizeof(hdev->name), "%s", name);
->> +	dbg_hid("HID++ Bolt: Got name: %s\n", name);
->> +
->> +	kfree(name);
->> +	return 0;
->> +}
->> +
->> +static int hidpp_receiver_init(struct hidpp_device *hidpp)
->> +{
->> +	if (hidpp_is_bolt_child(hidpp->hid_dev))
->> +		return hidpp_bolt_init(hidpp);
->> +
->> +	return hidpp_unifying_init(hidpp);
->> +}
->> +
->>   /* Get name + serial for USB and Bluetooth HID++ devices */
->> -static void hidpp_non_unifying_init(struct hidpp_device *hidpp)
->> +static void hidpp_non_receiver_init(struct hidpp_device *hidpp)
->>   {
->>   	struct hid_device *hdev = hidpp->hid_dev;
->>   	char *name;
->> @@ -4510,9 +4552,9 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
->>   
->>   	/* Get name + serial, store in hdev->name + hdev->uniq */
->>   	if (id->group == HID_GROUP_LOGITECH_DJ_DEVICE)
->> -		hidpp_unifying_init(hidpp);
->> +		hidpp_receiver_init(hidpp);
->>   	else
->> -		hidpp_non_unifying_init(hidpp);
->> +		hidpp_non_receiver_init(hidpp);
->>   
->>   	if (hidpp->quirks & HIDPP_QUIRK_DELAYED_INIT)
->>   		connect_mask &= ~HID_CONNECT_HIDINPUT;
+>> Regards,
+>> Kate
+>>
+>> On 7/14/26 2:54 AM, Erik Håkansson wrote:
+>>> Hi,
+>>>
+>>> Thank you very much for your help.
+>>>
+>>> Unfortunately I don't have a Windows system easily accessible, so I
+>>> can't check my firmware version in Options+.
+>>> fwupdmgr says:
+>>>> Current version:    MPR05.03_B0020
+>>> so perhaps that means 5.03.20.
+>>>
+>>> Let me know if anything pops up if you dig some more,
+>>> Thanks,
+>>> Erik

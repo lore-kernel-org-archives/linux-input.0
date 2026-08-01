@@ -1,91 +1,77 @@
-Received: from mail-pl1-f171.google.com (mail-pl1-f171.google.com [209.85.214.171])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from out28-99.mail.aliyun.com (out28-99.mail.aliyun.com [115.124.28.99])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 904A3313E0D
-	for <linux-input@vger.kernel.org>; Sat,  1 Aug 2026 11:17:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.171
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9F7183431F8;
+	Sat,  1 Aug 2026 11:30:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.28.99
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785583055; cv=none; b=C7u5M7Bf1jGoupUyZFLieyjFibiSMjL3JMJ3bUmkClTtqDF5DfndMIUlHiFwPDZsFd3lQ6vOw0yyOu+i1olUCu4E84SH9LeFZ2G0mtmkjEVJOfiTKR+7Wzkro+koqr8ugCM1RAKB0YV3tK/h/ur2uh0rPXTQxv9FILjfkuIN/Ww=
+	t=1785583862; cv=none; b=OiLUxRYEYWpMvCSTuNlLpLW4TITX6tryEieSko2hZSyqQVkkQPDnYDMB61MirhbwfPJq4H1Ukx4dvTnQv5EJapATXO0Jfpnhz8aSPWhuGKk8i0dUN8M04I2hOmej3qB+tRSkhKrNf1hpE47I/pX9YP1dkVLILAZLs0Kl0pkc4A8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785583055; c=relaxed/simple;
-	bh=AIdQLwD87MzxH8DeCnVNtXMyYJKN/E/weJYvac66iWM=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=c5pNYcgQDKrNgwJWPJJ61JYTfd9CT2K5D+8rKc4DRMNfqNqO+Mk34rx68hsaeeSs98L2nErtTU+v9PzwFmc2CuuA3FAxTRyyFqWErWIBi1eSXHyEIhp6XK2qpJo/3lIBpb3QyG1FsP6c/kslVyfkwjjaio1R+ryqZ5BrnUWbVak=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=dbhdH+H5; arc=none smtp.client-ip=209.85.214.171
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="dbhdH+H5"
-Received: by mail-pl1-f171.google.com with SMTP id d9443c01a7336-2cc891373e0so19809615ad.2
-        for <linux-input@vger.kernel.org>; Sat, 01 Aug 2026 04:17:34 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1785583054; x=1786187854; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=/VG+5dO4TEq8eygHl1KT4HFqoXYTY3UsQSMOo7l/YN8=;
-        b=dbhdH+H5Nfej8q32+v5J89Ear5dmSvtYLH1g/wd1tyiFaj70A1HBL6W6jkXwD6W0y5
-         3Xl4ALhwFAnJgSRvvIwgrDmugbZsa1bMUtV3YV88VFKQJf3zysvrjtZcPjyxOHp7RRK/
-         fNDfMdNhyoZ4lnPcNe3T2hyu6dRRTPBiOGbstgieinB7yjk9HbWopM36IAp9JeSg/2rR
-         2C7kzlU8JBbSqUxzTGXM8NXWBI6pPLwrGx0f02jje/466SE/E+EaAjuoShH5FhssfVJH
-         xqH2IBypJaXzBEcgHtCarLbmuMAjTcIm9uNRLeIQJAmhFZQGbjuYhzDUHwrxQfoeDEgz
-         fIrQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785583054; x=1786187854;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=/VG+5dO4TEq8eygHl1KT4HFqoXYTY3UsQSMOo7l/YN8=;
-        b=V1b6Z+VBXofAMx4QXpNL1V6ijSRHAXIk1OU6VNC9EOs8T4gDqCv5m7daqazvmaLYIH
-         V4f+ovmlGZTqIpCSioRLbsOcDXKGH1k9OVOalA1dQ/pOmdQTKi10yXOfapt1Uk0xGSS7
-         FYeapOVjk/azxgBc3D/pRbR2LPp/x1z3VWu3mQj793BWK3v0kXjgB8h5e8ykZKjDubf3
-         W5J3J4/s+eRDlWI3dNE9q0c/m1g2H7GwT91IujRNUf4wzzvhHDStPFKCUf1kBvrgWMQU
-         bqYVKaH0RDjsNGrVuV7NGpnARGq5YQVqzBmyvcdSAvSuX28rNY5hNTWsdMlEtaz1RAmm
-         KRaw==
-X-Forwarded-Encrypted: i=1; AHgh+Rob/vaclCjyumDLiYL8i9/H72S6bSwHiQqQ+uWCWq+sVxFdlHMJ0Vo8uAING7ULEf4k4vkFItF84ytJTA==@vger.kernel.org
-X-Gm-Message-State: AOJu0Ywu0cga6qnPz74sjL08MznD3jxid5VnLoWe/z90uSWw3AdNiH2x
-	dPo5K8cMOrBvsNzmmnDAFxATSYYavfG+eBcH4sReO0EyVX82HUkYFdt3
-X-Gm-Gg: AR+sD12gOmi8fxRsYakhFghTeUdIa8kLkjoOSHaMS45Y8804gvhiudasi4ipWAL3TyW
-	SmVTC2bFUxM26v3zDAf6FliOH7MJI18z8Y6z3glqJqiwmbScWcrBvyST5/PLufYIMgi49OzAbUO
-	6M4iPsuLhw6+w12X8MHaOiI4lierU9kaKyEpy4189Hv86NzGKdIxlu6X2F7qvjFgMx3UoRd59nR
-	24xVuQP2pOWoIOcfdBlgJwUUD9Jq4AiS9hfUjs+kI4nsroHIvKVikrgseQeIlklMSqxSMYXBgCN
-	bHXl5wNvnREGDmCmic57jH2nc6kI07tT0uZY0qhK/pmKVNdxn/bG15ZZgHRdXEhiapqnn3ort/E
-	ieepuPodr50ud5usAixE0coTE2AdOHbMnjf1/6DwUf1InikShEcqHBsd9aIBgCikRKH64bwnGUL
-	1NE1MnS1HTq55Jspxqj1Oxrp4vDT9ytfYV3J4wC9acRWdEsMd2x9hApwV6v7I37qmnd+9juFXiP
-	wr/XpfFDinDOD73EWkQtR3IV0RP3Olu
-X-Received: by 2002:a17:902:f602:b0:2ca:e3f:6a4a with SMTP id d9443c01a7336-2d05225107fmr30254785ad.21.1785583053888;
-        Sat, 01 Aug 2026 04:17:33 -0700 (PDT)
-Received: from XiaomiLaptop (42-3-128-140.ptr.netvigator.com. [42.3.128.140])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2d04b11e69asm16540745ad.56.2026.08.01.04.17.32
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 01 Aug 2026 04:17:33 -0700 (PDT)
-From: Andrew Zhou <zhoulol888@gmail.com>
-To: Zhefu Zhang <a723356@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Input: i8042 - add Xiaomi Book Pro 14 to dumbkbd quirk list
-Date: Sat,  1 Aug 2026 19:17:29 +0800
-Message-ID: <20260801111729.4592-1-zhoulol888@gmail.com>
-X-Mailer: git-send-email 2.54.0
-In-Reply-To: <20260801103012.4142-1-a723356@gmail.com>
-References: <20260801103012.4142-1-a723356@gmail.com>
+	s=arc-20240116; t=1785583862; c=relaxed/simple;
+	bh=I9BSQ5yobtw432mT3LjiUw8ce0CbJt0O8LAqe1TnoGw=;
+	h=Content-Type:MIME-Version:From:To:Cc:Date:Subject:Message-ID; b=iA6xtGjl+vwnE7dVtDzJdzVMXlFVrMRWZxOSuzSddfpT3NIs+dcZUtUjy8DpN9NoCT3MNHj3uTjgA3cnBgk/MKshpcaLv4NxlUq1PDTCsDGnXbKtX3fCG/UUfmIWXbp6dRAsZ9mU9eFuKh4MDvN3WOcRHhPUcVl019HfilwLM6U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sz-huijia.com; spf=pass smtp.mailfrom=sz-huijia.com; arc=none smtp.client-ip=115.124.28.99
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sz-huijia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sz-huijia.com
+X-Alimail-AntiSpam:AC=CONTINUE;BC=0.900714|0.6600377;CH=green;DM=|SPAM|false|;DS=CONTINUE|ham_alarm|0.579744-0.000312291-0.419944;FP=18446194795494400235|0|0|0|0|-1|-1|-1;HT=maildocker-contentspam033037021217;MF=hj117@sz-huijia.com;NM=1;PH=DS;RN=3;RT=3;SR=0;TI=SMTPD_---.ibC4JB2_1785583849;
+Received: from HJ117-PC.hjz.lan(mailfrom:hj117@sz-huijia.com fp:SMTPD_---.ibC4JB2_1785583849 cluster:ay29)
+          by smtp.aliyun-inc.com;
+          Sat, 01 Aug 2026 19:30:50 +0800
+Content-Type: multipart/mixed; boundary="===============2822691185236032729=="
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+From: Dongxu Su <hj117@sz-huijia.com>
+To: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+Cc: stable@vger.kernel.org
+Date: Sat, 01 Aug 2026 19:30:49 +0800
+Subject: [PATCH] Input: xpad - add Voyetra Turtle Beach PC Rematch Gamepad
+Message-ID: <xpad-pc-rematch-gamepad@sz-huijia.com>
 
-Hi Zhefu,
+--===============2822691185236032729==
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: base64
 
-Thanks for looking into this. Your approach is superior.
+RnJvbSA0YmU0M2M4Y2U4YmZhZTIwYmM2MTI2ZjhjNmE0YWE0Zjg0NDQ4MTJhIE1vbiBTZXAgMTcg
+MDA6MDA6MDAgMjAwMQpBZGQgc3VwcG9ydCBmb3IgdGhlIFZveWV0cmEgVHVydGxlIEJlYWNoIFBD
+IFJlbWF0Y2ggR2FtZXBhZCwKYSB0cmlwbGUtbW9kZSAod2lyZWQsIDIuNEcgd2lyZWxlc3MsIEJs
+dWV0b290aCkgUEMgZ2FtZSBjb250cm9sbGVyLgpUaGUgVklEIDB4MTBGNSBpcyBhbHJlYWR5IGlu
+IHRoZSBYUEFEX1hCT1hPTkVfVkVORE9SIHdoaXRlbGlzdAooY292ZXJpbmcgdGhlIEdJUCBtb2Rl
+IFBJRHMgMHg2MDE1IGFuZCAweDYwMTYpLCBidXQgWElucHV0IHN1cHBvcnQKd2FzIG1pc3Npbmcu
+CkFkZCBYUEFEX1hCT1gzNjBfVkVORE9SKDB4MTBGNSkgdG8geHBhZF90YWJsZSB0byBlbmFibGUg
+WElucHV0IG1vZGUKKGJvdGggd2lyZWQgYW5kIHdpcmVsZXNzKSwgYW5kIGFkZCB4cGFkX2Rldmlj
+ZSBlbnRyaWVzIGZvciBhbGwgZm91cgpQSURzIHRvIGdpdmUgdGhlbSBodW1hbi1yZWFkYWJsZSBu
+YW1lczoKICAtIDB4NjAxMzogWElucHV0IHdpcmVkIChYVFlQRV9YQk9YMzYwKQogIC0gMHg2MDE0
+OiBYSW5wdXQgd2lyZWxlc3MgMi40RyAoWFRZUEVfWEJPWDM2MFcpCiAgLSAweDYwMTU6IEdJUCB3
+aXJlZCAoWFRZUEVfWEJPWE9ORSkKICAtIDB4NjAxNjogR0lQIHdpcmVsZXNzIDIuNEcgKFhUWVBF
+X1hCT1hPTkUpClNpZ25lZC1vZmYtYnk6IERvbmd4dSBTdSA8aGoxMTdAc3otaHVpamlhLmNvbT4K
+LS0tCiB4cGFkLmMgfCA1ICsrKysrCiAxIGZpbGUgY2hhbmdlZCwgNSBpbnNlcnRpb25zKCspCmRp
+ZmYgLS1naXQgYS94cGFkLmMgYi94cGFkLmMKaW5kZXggZjcyNmI0Mi4uMDNjYjgwMiAxMDA2NDQK
+LS0tIGEveHBhZC5jCisrKyBiL3hwYWQuYwpAQCAtMzE5LDYgKzMxOSwxMCBAQCBzdGF0aWMgY29u
+c3Qgc3RydWN0IHhwYWRfZGV2aWNlIHsKIAl7IDB4MTAyYywgMHhmZjBjLCAiSm95dGVjaCBXaXJl
+bGVzcyBBZHZhbmNlZCBDb250cm9sbGVyIiwgMCwgWFRZUEVfWEJPWCB9LAogCXsgMHgxMDM4LCAw
+eDE0MzAsICJTdGVlbFNlcmllcyBTdHJhdHVzIER1byIsIDAsIFhUWVBFX1hCT1gzNjAgfSwKIAl7
+IDB4MTAzOCwgMHgxNDMxLCAiU3RlZWxTZXJpZXMgU3RyYXR1cyBEdW8iLCAwLCBYVFlQRV9YQk9Y
+MzYwIH0sCisJeyAweDEwZjUsIDB4NjAxMywgIlBDIFJlbWF0Y2ggR2FtZXBhZCIsIDAsIFhUWVBF
+X1hCT1gzNjAgfSwKKwl7IDB4MTBmNSwgMHg2MDE0LCAiUEMgUmVtYXRjaCBHYW1lcGFkIChXaXJl
+bGVzcykiLCAwLCBYVFlQRV9YQk9YMzYwVyB9LAorCXsgMHgxMGY1LCAweDYwMTUsICJQQyBSZW1h
+dGNoIEdhbWVwYWQiLCAwLCBYVFlQRV9YQk9YT05FIH0sCisJeyAweDEwZjUsIDB4NjAxNiwgIlBD
+IFJlbWF0Y2ggR2FtZXBhZCAoV2lyZWxlc3MpIiwgMCwgWFRZUEVfWEJPWE9ORSB9LAogCXsgMHgx
+MGY1LCAweDcwMDUsICJUdXJ0bGUgQmVhY2ggUmVjb24gQ29udHJvbGxlciIsIDAsIFhUWVBFX1hC
+T1hPTkUgfSwKIAl7IDB4MTFjOSwgMHg1NWYwLCAiTmFjb24gR0MtMTAwWEYiLCAwLCBYVFlQRV9Y
+Qk9YMzYwIH0sCiAJeyAweDExZmYsIDB4MDUxMSwgIlBYTiBWOTAwIiwgMCwgWFRZUEVfWEJPWDM2
+MCB9LApAQCAtNTU4LDYgKzU2Miw3IEBAIHN0YXRpYyBjb25zdCBzdHJ1Y3QgdXNiX2RldmljZV9p
+ZCB4cGFkX3RhYmxlW10gPSB7CiAJWFBBRF9YQk9YT05FX1ZFTkRPUigweDBmMGQpLAkJLyogSG9y
+aSBjb250cm9sbGVycyAqLwogCVhQQURfWEJPWDM2MF9WRU5ET1IoMHgxMDM4KSwJCS8qIFN0ZWVs
+U2VyaWVzIGNvbnRyb2xsZXJzICovCiAJWFBBRF9YQk9YT05FX1ZFTkRPUigweDEwZjUpLAkJLyog
+VHVydGxlIEJlYWNoIENvbnRyb2xsZXJzICovCisJWFBBRF9YQk9YMzYwX1ZFTkRPUigweDEwZjUp
+LAkJLyogVHVydGxlIEJlYWNoIENvbnRyb2xsZXJzICovCiAJWFBBRF9YQk9YMzYwX1ZFTkRPUigw
+eDExYzkpLAkJLyogTmFjb24gR0MxMDBYRiAqLwogCVhQQURfWEJPWDM2MF9WRU5ET1IoMHgxMWZm
+KSwJCS8qIFBYTiBWOTAwICovCiAJWFBBRF9YQk9YMzYwX1ZFTkRPUigweDEyMDkpLAkJLyogQXJk
+d2lpbm8gQ29udHJvbGxlcnMgKi8KLS0gCjIuNTQuMC53aW5kb3dzLjEKCg==
 
-Please feel free to add:
-  Reviewed-by: Andrew Zhou <zhoulol888@gmail.com>
-
-I'll drop my patch in favor of yours.
-
-Thanks,
-Andrew
+--===============2822691185236032729==--

@@ -1,146 +1,165 @@
-Received: from users.org.uk (users.org.uk [91.203.57.137])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f47.google.com (mail-wm1-f47.google.com [209.85.128.47])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8BE1E3C09EA
-	for <linux-input@vger.kernel.org>; Sun,  2 Aug 2026 15:23:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.203.57.137
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 01E8C331ECF
+	for <linux-input@vger.kernel.org>; Sun,  2 Aug 2026 20:29:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.47
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785684185; cv=none; b=CJfO3mdT5MPITud2avdGES4DDfZzD0pgBxJTDNkvwKpL3j49XAN5TmOS2IeFKy+qn8exa+YtmUBQg6VBOki+/iOroo152V2R0sSyR6t5ca4jjeICRXieKCazSRg4OlEfCaZFVoqO2ByPwa892lnnvuJfi4RC6jzPLaZjo/V4fNk=
+	t=1785702551; cv=none; b=KZZLSPUdyYN7gNSMNx8328/RDho75KR/cEFz4pColib49uSA3BVLGO3GLhOwNcudWkn2AUSuEZXIGE0LSGk65nCuHNljs2jYVad0ZqFvC6cfqVxbAfuvyL/QzyHdzKPgq4X9XHBxRbaYmAZC/+oboOL1yaXnkjb/0aSHCG+zrdA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785684185; c=relaxed/simple;
-	bh=lZ7gCdySFwMo1qQkiBzjMc4SkSI7L6CzPj9btqR1QW4=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=T7bziFUSaAFZehQalRFWynBPf78BwcBV3mjkU9wtmToUSR2xBM957p6vvlLTunsqEr37F0jfl399zJsboW9NtqL8jZs0AE7+PK3QJPDrCTE6EmBzsY7wB2wYszqHUoCYRwQUMAWLY6IBGTeO3iW1uHuVdn+Hvh+uC5ZB6+JuEHw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arachsys.com; spf=pass smtp.mailfrom=arachsys.com; arc=none smtp.client-ip=91.203.57.137
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arachsys.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arachsys.com
-Received: from richard by users.org.uk with local
-	(envelope-from <richard@arachsys.com>)
-	id 1wqXyx-000000008Mf-2ioY;
-	Sun, 02 Aug 2026 15:20:07 +0000
-Date: Sun, 2 Aug 2026 15:20:07 +0000
-From: Richard Davies <richard@arachsys.com>
-To: linux-input@vger.kernel.org,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Mathias Gottschlag <mgottschlag@gmail.com>,
-	Hans de Goede <hansg@kernel.org>
-Subject: Re: [PATCH] Input: focaltech - fix array out-of-bounds in
- focaltech_process_rel_packet
-Message-ID: <am9gJ2siGC34jTVB@users.org.uk>
-References: <20260701190932.14960-1-richard@arachsys.com>
- <akVqYaOOKNrkDf_h@users.org.uk>
+	s=arc-20240116; t=1785702551; c=relaxed/simple;
+	bh=hU6z7tDH/RIBfFMVZ0vmIWyj2jSjD8asNjxERxcj6Mc=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=ON4eU6FjDjaPv/soux+QC+4tH5SgYPjWBl/sCDo86KYuSc3SExXHHn2NSsQM71AddTIdzHRqVhnZCEslJ39XcJiRsd2kpDR5yI8uqQpmWM4KMPTCSFSSJd+lxULqb3SjJFzPDnViXlIp3dLG9WDDDxMbpCDQZPl0AvOJIgIg3l4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=R3Tzf7zB; arc=none smtp.client-ip=209.85.128.47
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="R3Tzf7zB"
+Received: by mail-wm1-f47.google.com with SMTP id 5b1f17b1804b1-4954c08a7c8so2022265e9.3
+        for <linux-input@vger.kernel.org>; Sun, 02 Aug 2026 13:29:09 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1785702548; x=1786307348; darn=vger.kernel.org;
+        h=mime-version:user-agent:content-transfer-encoding:content-type
+         :disposition-notification-to:references:in-reply-to:date:cc:to:from
+         :subject:message-id:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=mQQf06IDZFsoJ7D/EZprq+pM+J9k2ih+aOiCkbV2M8U=;
+        b=R3Tzf7zBNVGilplnVjgsxLFzZb+C7Q9IFODerqnXInvoml2ncK0nLnFQGZ0o9Ggd/Q
+         +C5XjC8XX6T5RRjsS7JJ0pSBpuJf/6ZnvGlAOyyrPQ+8/6ohi+KOsllC4na4hu0REl7l
+         1BmcneSw4k7CPOW9VnpUISywgvoFPgzYsXZLFfC/j64dcp3icxmyc1wMouBD2EGMt50v
+         4jDFEbWcc1P1SQY7AZxyr6mSO/DBRfhayPBt212E4aB5Bt7W3cVmX5fO7lbcy30JFRFk
+         SBR1CvmIOpbtF5Ig4LI3/J8XbIgirdit+W2I2lBRH6mNUYFT3dGeqVFJQUGS0+spl5S1
+         MU2Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1785702548; x=1786307348;
+        h=mime-version:user-agent:content-transfer-encoding:content-type
+         :disposition-notification-to:references:in-reply-to:date:cc:to:from
+         :subject:message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=mQQf06IDZFsoJ7D/EZprq+pM+J9k2ih+aOiCkbV2M8U=;
+        b=kxXaVeZVpwJj2InSGCMirqJ91UMjmay/AdmtLa5tAgCrb/xrJ79ejYiDQ/ispfspCu
+         jtostmUovJ03tOIomgPgPElov2R5jtc4mI5iW+MsDa9ueH4G+2O7m4K7gryPCLN2jsn0
+         8Zm4JhJPz8e1D+on6U/qxlyxcFNqlmzVPwLsGB7+8dkTejUyndqmVoy6D434GVzS8/pT
+         sWVT2gE0n2VQNWNmjOUd6Z130YncL1IPL+1xlIJmk9+VIrY9ct/RXTrPazhQVsTYfsRC
+         Fy0FWYAmegvrbG8MERIMYD5eT0FkHkDa1/3Q4baotxhvEZD7UAASjaNkACG/dgIOYmr3
+         2jew==
+X-Forwarded-Encrypted: i=1; AHgh+RqLHKvmP7U055RjfUjBCtPppcXJ27FoSyzOJna2qTEOUxF3gAgoxQ1VFt3N4j+pq25Qyg4KyFRdurvFjQ==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yz231yt+3U1aalO88NKS902RO2yPaPLw25XdSF8ZRl7gO2nEKmF
+	RYHh0OtvKcXK0B4k8jm8n/i+TYR0ITXFfWWb7ic2rTABl8HW1u8KxmHU
+X-Gm-Gg: AR+sD11Lti2dEYizFfoujXK8NzTSahIvIgmCJiiUZ1wwjwYK/Blk6sEKRUFoePIuyA6
+	W3Gz+BmoJ4hbr8oXh3UghaxaAyeV/j8vkz4D7xR5Zzs7hN19+gH7UoZAw9N7YWNEI7M0ZetRztd
+	VUteaN4uKxmr7AHzqb6GuLsmWHnrekRMyTuhwpWQT7n5No6agl3avB1+6Q7ElM9s0t/SGI/044w
+	7lXkoCz6G5ngBmFR9ajJTdfI4N1TfY0h5F0inTkN8vFgo3MH1NT2aSSA+JqqE3WVhFCi5PB5CDQ
+	d8+AcEhtGde4XspFyjLjyOw1VBCrJaMRaM8wh+hSnwTKy7UZUBCmI565iTjD6xYzlOzk+fK6BOL
+	Ij94nYmVnc/jqjJLartxNOztCCc1S9C6y/1o/sdEOPE3OW12cNlAM3hSvph/crFWFPsswBtNBAO
+	fEzwoYb/y9C+gHshZ7RqVGmW85EJPOdA3nnha2XSBhSFJ/xbLCoIEMd2KFw4GCpwPzHoZY9QiUf
+	xl5dRG1QZz7AGO733JaiPTOjGW7cEKMHx2pWmTtBZ0IfEWF
+X-Received: by 2002:a05:600c:1d21:b0:495:6713:9ae2 with SMTP id 5b1f17b1804b1-4980c66d99bmr96563135e9.1.1785702547947;
+        Sun, 02 Aug 2026 13:29:07 -0700 (PDT)
+Received: from [192.168.1.239] (87-205-5-123.static.ip.netia.com.pl. [87.205.5.123])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49807b9441csm158560585e9.4.2026.08.02.13.29.06
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 02 Aug 2026 13:29:07 -0700 (PDT)
+Message-ID: <5ca2e1c1eb36880a0686682588dcb2b6799121ff.camel@gmail.com>
+Subject: Re: [PATCH] HID: pidff: fix OOB write when hid->inputs is empty
+From: Tomasz =?UTF-8?Q?Paku=C5=82a?= <tomasz.pakula.oficjalny@gmail.com>
+To: Baul Lee <baul.lee@xbow.com>, linux-input@vger.kernel.org, 
+	linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: oleg@makarenk.ooo, jikos@kernel.org, bentiss@kernel.org, 
+	federico.kirschbaum@xbow.com
+Date: Sun, 02 Aug 2026 22:29:06 +0200
+In-Reply-To: <20260726062503.43717-1-baul.lee@xbow.com>
+References: <20260726062503.43717-1-baul.lee@xbow.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.60.2 
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <akVqYaOOKNrkDf_h@users.org.uk>
 
-Hi Dmitry, [and fixing Hans cc:ed email address]
+On Sun, 2026-07-26 at 15:25 +0900, Baul Lee wrote:
+> hid_pidff_init_with_quirks() derives its input_dev from
+>=20
+> 	list_entry(hid->inputs.next, struct hid_input, list)
+>=20
+> without first checking that hid->inputs is non-empty.  The list member
+> of struct hid_input is at offset 0, so on an empty list list_entry()
+> yields &hid->inputs itself and the following hidinput->input load reads
+> an unrelated member of struct hid_device.  dev is then a type-confused
+> pointer, and force-feedback init writes through it: each
+> set_bit(FF_*, dev->ffbit) stores 8 bytes at dev + 192, past the end of
+> the object dev actually aliases, and input_ff_create() adds further
+> writes of a heap pointer and two function pointers.
+>=20
+> Until hid-universal-pidff the only caller was hid_pidff_init() from
+> usbhid, which runs under HID_CLAIMED_INPUT and therefore always has at
+> least one hid_input.  universal_pidff_probe() starts the device with
+> HID_CONNECT_DEFAULT & ~HID_CONNECT_FF and then calls
+> hid_pidff_init_with_quirks() directly whenever the descriptor carries a
+> PID usage page, bypassing that gate.  A report descriptor whose only
+> application collection is on HID_UP_PID leaves hid->inputs empty while
+> hid_connect() still succeeds through the hidraw claim, so probe reaches
+> the unguarded list_entry().
+>=20
+> The write happens in the USB probe path, on the hotplug workqueue, so
+> plugging in a malicious device is enough to trigger it; no attacker
+> software and no logged-in user are required.  KASAN reports an 8-byte
+> out-of-bounds write in hid_pidff_init_with_quirks() reached from
+> universal_pidff_probe().
+>=20
+> Check for an empty list before deriving dev and return -ENODEV, as the
+> other HID force-feedback drivers already do.  universal_pidff_probe()
+> propagates the error and unwinds.
+>=20
+> Discovered by XBOW, triaged by Baul Lee <baul.lee@xbow.com>
+>=20
+> Fixes: f06bf8d94fff ("HID: Add hid-universal-pidff driver and supported d=
+evice ids")
+> Reported-by: Federico Kirschbaum <federico.kirschbaum@xbow.com>
+> Reported-by: Baul Lee <baul.lee@xbow.com>
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Baul Lee <baul.lee@xbow.com>
+> ---
+>  drivers/hid/usbhid/hid-pidff.c | 13 ++++++++++---
+>  1 file changed, 10 insertions(+), 3 deletions(-)
+>=20
+> diff --git a/drivers/hid/usbhid/hid-pidff.c b/drivers/hid/usbhid/hid-pidf=
+f.c
+> index 5f4395f7c645..22951b7ecd17 100644
+> --- a/drivers/hid/usbhid/hid-pidff.c
+> +++ b/drivers/hid/usbhid/hid-pidff.c
+> @@ -1539,13 +1539,20 @@ static int pidff_check_autocenter(struct pidff_de=
+vice *pidff,
+>  int hid_pidff_init_with_quirks(struct hid_device *hid, u32 initial_quirk=
+s)
+>  {
+>  	struct pidff_device *pidff;
+> -	struct hid_input *hidinput =3D
+> -		list_entry(hid->inputs.next, struct hid_input, list);
+> -	struct input_dev *dev =3D hidinput->input;
+> +	struct hid_input *hidinput;
+> +	struct input_dev *dev;
+>  	struct ff_device *ff;
+>  	int max_effects;
+>  	int error;
+> =20
+> +	if (list_empty(&hid->inputs)) {
+> +		hid_err(hid, "no inputs found\n");
+> +		return -ENODEV;
+> +	}
+> +
+> +	hidinput =3D list_first_entry(&hid->inputs, struct hid_input, list);
+> +	dev =3D hidinput->input;
+> +
+>  	hid_dbg(hid, "starting pid init\n");
+> =20
+>  	if (list_empty(&hid->report_enum[HID_OUTPUT_REPORT].report_list)) {
 
-Do you have any feedback on my patch to fix my UBSAN error?
-I'm keen to get the fix upstream.
-
-Is there any other maintainer who I should also copy for review?
-
-Thank you,
-
-Richard.
-
-
-Richard Davies wrote:
->Richard Davies wrote:
->>Make finger2 (and also finger1) unsigned, so that if the finger index in
->>the packet is 0 then subtracting 1 creates an array index which overflows
->>above the existing check for FOC_MAX_FINGERS, as the existing comment says
->>it should, instead of writing to state->fingers[-1].
->
->Some further context for my patch...
->
->I get errors such as the following on my laptop running Ubuntu 26.04 LTS:
->
->[   52.422376] ------------[ cut here ]------------
->[   52.422381] UBSAN: array-index-out-of-bounds in /build/linux-IJm0IA/linux-7.0.0/drivers/input/mouse/focaltech.c:221:17
->[   52.422386] index -1 is out of range for type 'focaltech_finger_state [5]'
->[   52.422389] CPU: 3 UID: 0 PID: 0 Comm: swapper/3 Tainted: G S                  7.0.0-27-generic #27-Ubuntu PREEMPT(lazy) 
->[   52.422392] Tainted: [S]=CPU_OUT_OF_SPEC
->[   52.422393] Hardware name: ASUSTeK COMPUTER INC. N550JK/N550JK, BIOS N550JK.208 09/26/2014
->[   52.422395] Call Trace:
->[   52.422396]  <IRQ>
->[   52.422399]  show_stack+0x49/0x60
->[   52.422405]  dump_stack_lvl+0x5f/0x90
->[   52.422409]  dump_stack+0x10/0x18
->[   52.422410]  ubsan_epilogue+0x9/0x39
->[   52.422416]  __ubsan_handle_out_of_bounds.cold+0x50/0x55
->[   52.422421]  focaltech_process_packet+0x541/0x560 [psmouse]
->[   52.422435]  focaltech_process_byte+0x23/0x30 [psmouse]
->[   52.422443]  psmouse_handle_byte+0x19/0x70 [psmouse]
->[   52.422450]  psmouse_receive_byte+0x8d/0x300 [psmouse]
->[   52.422456]  ps2_interrupt+0xa1/0x110
->[   52.422462]  serio_interrupt+0x4b/0xb0
->[   52.422464]  i8042_handle_data+0x189/0x370
->[   52.422466]  ? timekeeping_adjust+0x1e/0x180
->[   52.422469]  ? __note_gp_changes+0x1f3/0x270
->[   52.422473]  ? sched_balance_domains+0xd9/0x380
->[   52.422475]  i8042_interrupt+0x15/0x60
->[   52.422478]  __handle_irq_event_percpu+0x59/0x230
->[   52.422481]  handle_irq_event+0x36/0x90
->[   52.422484]  handle_edge_irq+0xd3/0x1a0
->[   52.422487]  __common_interrupt+0x50/0x160
->[   52.422489]  ? irq_enter_rcu+0x75/0x90
->[   52.422492]  common_interrupt+0xb0/0xe0
->[   52.422495]  </IRQ>
->[   52.422496]  <TASK>
->[   52.422497]  asm_common_interrupt+0x27/0x40
->[   52.422499] RIP: 0010:cpuidle_enter_state+0xca/0x700
->[   52.422502] Code: 00 e8 ca 91 dd fe e8 15 ee ff ff 49 89 c5 0f 1f 44 00 00 31 ff e8 06 7f db fe 80 7d d0 00 0f 85 c6 01 00 00 fb 0f 1f 44 00 00 <45> 85 e4 0f 88 3e 02 00 00 4d 63 fc 49 83 ff 0a 0f 83 1d 05 00 00
->[   52.422503] RSP: 0018:ffffd20bc00f3e00 EFLAGS: 00000246
->[   52.422505] RAX: 0000000000000000 RBX: ffff8ef0a6dbd6c0 RCX: 0000000000000000
->[   52.422507] RDX: 0000000000000000 RSI: 0000000000000000 RDI: 0000000000000000
->[   52.422507] RBP: ffffd20bc00f3e50 R08: 0000000000000000 R09: 0000000000000000
->[   52.422508] R10: 0000000000000000 R11: 0000000000000000 R12: 0000000000000005
->[   52.422509] R13: 0000000c349ddabc R14: ffffffffb1d54c40 R15: 0000000000000005
->[   52.422511]  ? tick_nohz_stop_tick+0x5e/0x260
->[   52.422516]  cpuidle_enter+0x30/0x50
->[   52.422520]  call_cpuidle+0x21/0x50
->[   52.422523]  cpuidle_idle_call+0x16b/0x1f0
->[   52.422526]  do_idle+0x94/0xf0
->[   52.422528]  cpu_startup_entry+0x29/0x30
->[   52.422529]  start_secondary+0x125/0x180
->[   52.422532]  ? soft_restart_cpu+0x14/0x14
->[   52.422534]  common_startup_64+0x13e/0x141
->[   52.422537]  </TASK>
->[   52.422537] ---[ end trace ]---
->
->These no longer occur when this patch is applied.
->
->I found similar reports from other users at
->https://bugs.launchpad.net/ubuntu/+source/linux/+bug/2125250
->
->I found a related review comment when this code was first written at
->https://lore.kernel.org/linux-input/20141111171554.GB27720@dtor-ws/
->
->>Fixes: 05be1d079ec0 ("Input: psmouse - support for the FocalTech PS/2 protocol extensions")
->>Signed-off-by: Richard Davies <richard@arachsys.com>
->>---
->>drivers/input/mouse/focaltech.c | 2 +-
->>1 file changed, 1 insertion(+), 1 deletion(-)
->>
->>diff --git a/drivers/input/mouse/focaltech.c b/drivers/input/mouse/focaltech.c
->>index 43f9939b7c63..d3ad4af5aa09 100644
->>--- a/drivers/input/mouse/focaltech.c
->>+++ b/drivers/input/mouse/focaltech.c
->>@@ -197,7 +197,7 @@ static void focaltech_process_rel_packet(struct psmouse *psmouse,
->>{
->>	struct focaltech_data *priv = psmouse->private;
->>	struct focaltech_hw_state *state = &priv->state;
->>-	int finger1, finger2;
->>+	unsigned int finger1, finger2;
->>
->>	state->pressed = packet[0] >> 7;
->>	finger1 = ((packet[0] >> 4) & 0x7) - 1;
->>-- 
->>2.53.0
+Looks good, doesn't break anything and will help in such scenario.
+Thanks!
+--=20
+Reviewed-by: Tomasz Paku=C5=82a <tomasz.pakula.oficjalny@gmail.com>

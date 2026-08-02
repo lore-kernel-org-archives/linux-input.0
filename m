@@ -1,123 +1,102 @@
-Received: from mail-pj1-f47.google.com (mail-pj1-f47.google.com [209.85.216.47])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mout-p-201.mailbox.org (mout-p-201.mailbox.org [80.241.56.171])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2C2061C861D
-	for <linux-input@vger.kernel.org>; Sun,  2 Aug 2026 03:16:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6EBF22BD587
+	for <linux-input@vger.kernel.org>; Sun,  2 Aug 2026 08:56:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=80.241.56.171
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785640582; cv=none; b=CPVK5GMlAlxeB12J9tRBnnrC/KudvEGnflpNZlilItyCVfRnV+2nSopK3GKr2PluPS2OAwsIEnyZ79RCxF5yl7FQ9xBfBkiA6qpDnRPXpMrBnqL7UwhuHnvzW38Xeoqjy73GhJJumuJdQFgoR2cZAhFvEYKVHYMY89QbujutOII=
+	t=1785660977; cv=none; b=K3uTKAoFHoJtnZMYzGfVkT1ZpaNN1RWASG4hfazGu6sbnc3dL6BU8HKteGUaS78EO2SyeIskz1eXQFTnx7ZnU/u1VEjmUvIOr+gTDIL2v5n5SwLe7J9luQIUu03uX9O3S13ZBHFSHchsnFCqrHJvHWs4kASdZ602U0zbLKQ1szg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785640582; c=relaxed/simple;
-	bh=/XhZ1aVu4At1OajSWcUasRCtEb+jFFura59MTLZj4ss=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=kPeW3LLjCTtfHEuIsHnMrshsmNi41sbkAlmLmVltJcbHy64SJM12LllL50K6pRqeX5CdmB5T65YQdNGgUVw74sp6dqN8yzhpHofqC0XKpWEnTE9qUnydnMOLI7VaI/jz+h6Z+eE0wu3fEkvdKzrMytDYbrHjyLVl5tNW5FPQyeY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=hEedcliD; arc=none smtp.client-ip=209.85.216.47
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hEedcliD"
-Received: by mail-pj1-f47.google.com with SMTP id 98e67ed59e1d1-384930ca5e2so2006456a91.3
-        for <linux-input@vger.kernel.org>; Sat, 01 Aug 2026 20:16:19 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1785640579; x=1786245379; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=J8kkEhJEL1gBoW9A1iqS1uDrICA5x8rxqvqKjWPtAyE=;
-        b=hEedcliDqgeoLbJGWP3yzC73b9KnMLcxpTGF2gLDssGELBoqtHFC+rYLmzyak6llM7
-         i4gI2OlnU+5dHwu0wqLvOTo6YT5GQA+FF8jVO1jWR0idfXTh7kna9A1xBRKjVY0o9qKW
-         RlyCDoQbjEOjV37TOlWwPFW3bQOdypk4yMiR6cyhxnFKJbSbTFsw1Ro0myILMM9wDjCl
-         Z32fgTaEYe4dor3WUR235b9LOaJxEJ7BLE3FcoPIBogWN/t9AeDAl+lfpNk89Iu7v7j7
-         NEMNGcSyvKlLPgZxrqqy8sudxqjaypnEy2fTSta9JCOIFXFv5y9jlHqQpsc6Hd6Fy5GH
-         6E1g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785640579; x=1786245379;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=J8kkEhJEL1gBoW9A1iqS1uDrICA5x8rxqvqKjWPtAyE=;
-        b=ZqDYBSs6WIvYfI/+P9EjnR2/rwem5Fg4Ko9lrse7kK4u+FvG9gj7qM6rnR7SHZfReo
-         LUzEO2W4FCuWV/qHQ1RSMv9yjkTqfKoqWFdhnF4NXWZsQkc+E7Y47CJqhPo1jnlVz52K
-         fWEXDqNX8lj60lB+LcNQDmUhecRXXkiithpOJSEYEenSNAm3Zx6VIH8WDRJBKbh+h4V3
-         RpxmGtDw9WkIYARD88P61EN7GI+ZA4/QwHx5n+084i3WTsqFCbvryZae6vzuxz8VbkyX
-         U2PwvR8SRmYvEBtx+GDLJQ8RXr1U+3rJfJgQcyLB6VDNHP70PEcTZbpNyf/i8vQJ5iLz
-         1TcQ==
-X-Forwarded-Encrypted: i=1; AHgh+RpY6CtLOV1IuyumeZEFMXgS3+FyhkoCSYiZOugP+ICOk3lo/Ogd4MDZP23EQ6vGdkakiGhdHf5ZLRAF2g==@vger.kernel.org
-X-Gm-Message-State: AOJu0YywLdsTHbaHCPqM739fNu7+PuRE2Gatrd4sz+ejriA/x3tlYgvT
-	ayapTp11Zovk5qdhNn68L6DyAZkWIE2wzp11sZwxF/Z1xqk46p733eJ5
-X-Gm-Gg: AR+sD13e7eHl6pfCRIxCIQOqW6qDidBC0aLLtvsOfrCcsN4BNoIH2fD95T6L+KTpbFp
-	RXwRa4GAcBq7uVuyP4Ij8QI2AnyFTNdSOx6jvzt047jJPkZLw0sLmpznichQclHxD+IYU4OdLT8
-	pPoYTPoLE+wihxhYchaJeFkiwXM5d11nvXu+Ms2Jy2JBOTi/YB6M5t8g+zzrVc2m1ASbeLul5XW
-	CGpM+qu39CimKYdfRiesRT1KcG6PtJHIPfIIAB7/TzKcL2bLqIYrYSxT1d41lXbUoraT96rAuP5
-	zeIhViRgs8CXg6omsyiw94/fgV7aaixQaeXXrkHwlm3QhYmKr7rRyqwORNTX5foq5uxMbX7QEWe
-	mmPa0wXKsqUpWL/+7xaSDCU4oTW+M7YtQZaOEWP2fIv+c/xiwE8rPlNVxfAP9AjoSMhuRima8D5
-	M+M5dS+AFgrsRvfst6OdoKLS7+1r8LZtpNFa7+w/hAOScoq0Gzm4hMTjfshhiHMw==
-X-Received: by 2002:a17:90b:5746:b0:38e:67e1:15b with SMTP id 98e67ed59e1d1-38fbc40e2f2mr4915356a91.6.1785640579288;
-        Sat, 01 Aug 2026 20:16:19 -0700 (PDT)
-Received: from xiaomibookpro-14 ([149.19.17.31])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-13fab4e44bcsm25356701c88.12.2026.08.01.20.16.16
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 01 Aug 2026 20:16:18 -0700 (PDT)
-From: Zhefu Zhang <a723356@gmail.com>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Andrew Zhou <zhoulol888@gmail.com>,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Zhefu Zhang <a723356@gmail.com>
-Subject: [PATCH v2] Input: atkbd - skip deactivate for Xiaomi Book Pro 14's internal keyboard
-Date: Sun,  2 Aug 2026 15:15:59 +1200
-Message-ID: <20260802031559.19701-1-a723356@gmail.com>
-X-Mailer: git-send-email 2.55.0
-In-Reply-To: <20260801101908.33838-1-a723356@gmail.com>
-References: <20260801101908.33838-1-a723356@gmail.com>
+	s=arc-20240116; t=1785660977; c=relaxed/simple;
+	bh=d1JVSPwjQaVSt6xzWFa+bNo6JsHGVP43sHHspFzQyY0=;
+	h=Message-ID:Date:MIME-Version:To:From:Subject:Content-Type; b=GrAX2M2ygAtcN/N1cvl9uvnzfHxdhEhc6g/ECBlzAQoVZyaL5vB2gARlmUgQHkjqJXgHBXxuYKDrVU1GdJaVCUOVpcd4I+p4cJa7/lajACZb3oIiNj4sW+Q+pXykexaMXGDKTiQ+PhQKtSamGRoTNywFp7Ohgf/eH3vHox9Hh7Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=carsten-raddatz.de; spf=none smtp.mailfrom=carsten-raddatz.de; arc=none smtp.client-ip=80.241.56.171
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=carsten-raddatz.de
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=carsten-raddatz.de
+Received: from smtp102.mailbox.org (smtp102.mailbox.org [IPv6:2001:67c:2050:b231:465::102])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange x25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mout-p-201.mailbox.org (Postfix) with ESMTPS id 4hCYZ35pVLzMlHy
+	for <linux-input@vger.kernel.org>; Sun, 02 Aug 2026 10:56:11 +0200 (CEST)
+Authentication-Results: outgoing_mbo_mout;
+	dkim=none;
+	spf=none (outgoing_mbo_mout: domain of kontakt@carsten-raddatz.de has no SPF policy when checking 2001:67c:2050:b231:465::102) smtp.mailfrom=kontakt@carsten-raddatz.de
+Message-ID: <be58d0e5-feb0-46e1-b43e-e873de461802@carsten-raddatz.de>
+Date: Sun, 2 Aug 2026 10:56:24 +0200
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Language: en-US
+To: linux-input@vger.kernel.org
+From: Carsten Raddatz <kontakt@carsten-raddatz.de>
+Subject: [RMI4/SMBus Test Report] Lenovo ThinkPad E495 touchpad intertouch
+ attempt (LEN205d PNP0f13)
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
+X-Rspamd-Queue-Id: 4hCYZ35pVLzMlHy
 
-The internal keyboard of the Xiaomi Book Pro 14 does not work unless
-atkbd skips deactivating it at the end of atkbd_probe().
+Hi Linux Input Team,
 
-Using 'i8042.dumbkbd=1' also makes the keyboard work, but then the driver
-never writes to the keyboard at all, so the Caps Lock LED is lost. The
-atkbd_deactivate_fixup quirk fixes both without a boot parameter.
+I am writing because dmesg output on this Debian Trixie 13.6 suggested 
+as much. This mail reports the result of testing 
+`psmouse.synaptics_intertouch=1` on a Lenovo ThinkPad E495, as suggested 
+by the psmouse driver in dmesg.
 
-DMI: XIAOMI Xiaomi Book Pro 14/TM2424, BIOS XMAPT4B0P0909 05/06/2026
+Hardware Details:
+- Laptop: Lenovo ThinkPad E495 (20NE)
+- Touchpad PNP ID: LEN205d (PNP0f13)
+- OS: Debian 13 (Trixie)
+- Kernel: 6.12.100+deb13-amd64 (very vanilla)
 
-Signed-off-by: Zhefu Zhang <a723356@gmail.com>
-Reviewed-by: Andrew Zhou <zhoulol888@gmail.com>
----
-v2:
-- add Andrew's Reviewed-by
-- explain why i8042.dumbkbd is not an equivalent fix
+Pre-test setup check:
+Neither `i2c-hid` nor `hid-rmi` were driving the device. The touchpad 
+was bound to the legacy PS/2 bus 
+(`/devices/platform/i8042/serio1/input/input7`). `lsmod` showed no 
+active module usages for `i2c_hid` or `hid_rmi`.
 
-Previous: https://lore.kernel.org/all/20260801101908.33838-1-a723356@gmail.com/
+Test Result with `psmouse.synaptics_intertouch=1`:
+When booting with `psmouse.synaptics_intertouch=1`, intertouch 
+initialization fails due to timing/readiness issues with the SMBus 
+companion, causing psmouse to fall back to standard PS/2 mode.
 
- drivers/input/keyboard/atkbd.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+Relevant dmesg snippet:
 
-diff --git a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/atkbd.c
-index 8cb4dc6fb..6c897282d 100644
---- a/drivers/input/keyboard/atkbd.c
-+++ b/drivers/input/keyboard/atkbd.c
-@@ -1938,6 +1938,14 @@ static const struct dmi_system_id atkbd_dmi_quirk_table[] __initconst = {
- 		},
- 		.callback = atkbd_deactivate_fixup,
- 	},
-+	{
-+		/* Xiaomi Book Pro 14 (TM2424) */
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "XIAOMI"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "Xiaomi Book Pro 14"),
-+		},
-+		.callback = atkbd_deactivate_fixup,
-+	},
- 	{ }
- };
- 
--- 
-2.55.0
+[    0.018317] Kernel command line: 
+BOOT_IMAGE=/boot/vmlinuz-6.12.100+deb13-amd64 
+root=UUID=d8389723-dbf0-4502-ac1a-4d9c9ac601c0 ro quiet splash 
+psmouse.synaptics_intertouch=1
+...
+[    2.492227] psmouse serio1: synaptics: queried max coordinates: x 
+[..5678], y [..4694]
+[    2.538765] psmouse serio1: synaptics: queried min coordinates: x 
+[1266..], y [1162..]
+[    2.538777] psmouse serio1: synaptics: Trying to set up SMBus access
+[    2.543173] psmouse serio1: synaptics: SMbus companion is not ready yet
+[    2.645656] psmouse serio1: synaptics: Touchpad model: 1, fw: 10.32, 
+id: 0x1e2a1, caps: 0xf014a3/0x940300/0x12e800/0x500000, board id: 3471, 
+fw id: 3972349
+[    2.645683] psmouse serio1: synaptics: serio: Synaptics pass-through 
+port at isa0060/serio1/input0
+[    2.709409] input: SynPS/2 Synaptics TouchPad as 
+/devices/platform/i8042/serio1/input/input7
+[    3.370088] psmouse serio2: trackpoint: Elan TrackPoint firmware: 
+0x11, buttons: 3/3
+[    3.672181] input: TPPS/2 Elan TrackPoint as 
+/devices/platform/i8042/serio1/serio2/input/input8
+
+The touchpad continues to function normally (multitouch gesture) via 
+PS/2 fallback, but as I understand from this SMBus access could not be 
+established.
+
+Please let me know if you need further logs or would like me to test a 
+patch or additional kernel parameters.
+
+Best regards,
+Carsten
+
+(Gentoo linux user usually)
 

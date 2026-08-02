@@ -1,77 +1,123 @@
-Received: from sendmail.purelymail.com (sendmail.purelymail.com [34.202.193.197])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f47.google.com (mail-pj1-f47.google.com [209.85.216.47])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 73B2C17A300
-	for <linux-input@vger.kernel.org>; Sun,  2 Aug 2026 00:25:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=34.202.193.197
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2C2061C861D
+	for <linux-input@vger.kernel.org>; Sun,  2 Aug 2026 03:16:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.47
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785630313; cv=none; b=LLNjZe1OSLp3e1x9CFEDWAlMxC19a2owVi0C1SHvNdEYFaEOq0hI+0qjDbJjbYLYS4/6Cr2BocPHE0QII4WHMAkbUne0iPWXQO28KcFL85bYprf5OOto0pf+EbpOzArKyJ5mTRZy4BIdOry9vV3yVBFNi5ttD3rq15TG2g50r9A=
+	t=1785640582; cv=none; b=CPVK5GMlAlxeB12J9tRBnnrC/KudvEGnflpNZlilItyCVfRnV+2nSopK3GKr2PluPS2OAwsIEnyZ79RCxF5yl7FQ9xBfBkiA6qpDnRPXpMrBnqL7UwhuHnvzW38Xeoqjy73GhJJumuJdQFgoR2cZAhFvEYKVHYMY89QbujutOII=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785630313; c=relaxed/simple;
-	bh=5PnSmekTWi20lc9XfRoOoPQ2Wk/A9//JYD9RvL7+rkE=;
-	h=Mime-Version:Content-Type:Date:Message-Id:From:To:Subject:Cc:
-	 References:In-Reply-To; b=mhnN4Khf9fmDRFv5ETx8m0B2fpQdoTZohrMF5N260mk2n8Dyj8DYNo3oroa8qVpFWjAgRjCblFPAiu+ivB098OyV4ifV2EPj1mRhYYKAuFFrK1C3CQkbWNOpSjBHJWWMj6c/FOgPncT1D+t+DbhoumTuB54ZfO8POzZwEf34tfA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=rcpassos.me; spf=pass smtp.mailfrom=rcpassos.me; dkim=pass (2048-bit key) header.d=rcpassos.me header.i=@rcpassos.me header.b=Tm8QQ4se; dkim=pass (2048-bit key) header.d=purelymail.com header.i=@purelymail.com header.b=Esx/JCjx; arc=none smtp.client-ip=34.202.193.197
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=rcpassos.me
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rcpassos.me
+	s=arc-20240116; t=1785640582; c=relaxed/simple;
+	bh=/XhZ1aVu4At1OajSWcUasRCtEb+jFFura59MTLZj4ss=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=kPeW3LLjCTtfHEuIsHnMrshsmNi41sbkAlmLmVltJcbHy64SJM12LllL50K6pRqeX5CdmB5T65YQdNGgUVw74sp6dqN8yzhpHofqC0XKpWEnTE9qUnydnMOLI7VaI/jz+h6Z+eE0wu3fEkvdKzrMytDYbrHjyLVl5tNW5FPQyeY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=hEedcliD; arc=none smtp.client-ip=209.85.216.47
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=rcpassos.me header.i=@rcpassos.me header.b="Tm8QQ4se";
-	dkim=pass (2048-bit key) header.d=purelymail.com header.i=@purelymail.com header.b="Esx/JCjx"
-Authentication-Results: purelymail.com; auth=pass
-DKIM-Signature: a=rsa-sha256; b=Tm8QQ4se3cUboXQa/U7BkNdsQv1VReILZqBBaorZ/2PRPI0Uf9jazbxLeoG3rB4BW53qEW9XaLDUDzlDXAU4vwB14yuReH/VaAa2k8g/CONHvjtz1tfDrne6nypK9MAeeZ2l9jtOMWu/zLsQyGVq/FdflZYoEQ9V3e9XF47EFLsByeT/CwPk2A7fNDFLhch9vbXax3DGyY2GmyRUVoBv/Q4Vwyva0cSytkvtFzaDfx3SfuRTro4lEl8yWaz5IPiSDyCiYR/JIvT0QRGVIqwAPcs4KaZnMKpmAg+g9m34K8SLofuL1IFNfSrr9DsXqyKeg/A4QCFOF3j1VTz/Lb/SQw==; s=purelymail1; d=rcpassos.me; v=1; bh=5PnSmekTWi20lc9XfRoOoPQ2Wk/A9//JYD9RvL7+rkE=; h=Received:Date:From:To:Subject;
-DKIM-Signature: a=rsa-sha256; b=Esx/JCjxAJGO6iesbW4Ld4vy/mHaGoqgl2WK0i8/U7yIayMBnnuq8/1aOayeBiP2FGioqq5Fy2jb6Q+2ONt+Wjq5Tff72mrAHTNjr5RXd3MdbJWeZXQvMoL5b3Rhyx5EUF3E3F6kggFVYkHtwXauWitd8j0JojD1ysEXzy5jrF7q92GlN74l+5u8vXz+xeahuHkpzPRGe1pzcOWaGrzMG/l21q3eCyU2mdH3vRBePXuh57xkX21LSKJFql7LY83bIvfPA0fz5oxHERfLkDTuDpQRx47TIqORQvpJfSu8xhfOa3WoE6+UPn9E7zduZoKjz6uncog2JPOmKkXVi869Kg==; s=purelymail1; d=purelymail.com; v=1; bh=5PnSmekTWi20lc9XfRoOoPQ2Wk/A9//JYD9RvL7+rkE=; h=Feedback-ID:Received:Date:From:To:Subject;
-Feedback-ID: 45355:7809:null:purelymail
-X-Pm-Original-To: linux-input@vger.kernel.org
-Received: by smtp.purelymail.com (Purelymail SMTP) with ESMTPSA id -285589192;
-          (version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384);
-          Sun, 02 Aug 2026 00:24:51 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hEedcliD"
+Received: by mail-pj1-f47.google.com with SMTP id 98e67ed59e1d1-384930ca5e2so2006456a91.3
+        for <linux-input@vger.kernel.org>; Sat, 01 Aug 2026 20:16:19 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1785640579; x=1786245379; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=J8kkEhJEL1gBoW9A1iqS1uDrICA5x8rxqvqKjWPtAyE=;
+        b=hEedcliDqgeoLbJGWP3yzC73b9KnMLcxpTGF2gLDssGELBoqtHFC+rYLmzyak6llM7
+         i4gI2OlnU+5dHwu0wqLvOTo6YT5GQA+FF8jVO1jWR0idfXTh7kna9A1xBRKjVY0o9qKW
+         RlyCDoQbjEOjV37TOlWwPFW3bQOdypk4yMiR6cyhxnFKJbSbTFsw1Ro0myILMM9wDjCl
+         Z32fgTaEYe4dor3WUR235b9LOaJxEJ7BLE3FcoPIBogWN/t9AeDAl+lfpNk89Iu7v7j7
+         NEMNGcSyvKlLPgZxrqqy8sudxqjaypnEy2fTSta9JCOIFXFv5y9jlHqQpsc6Hd6Fy5GH
+         6E1g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1785640579; x=1786245379;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=J8kkEhJEL1gBoW9A1iqS1uDrICA5x8rxqvqKjWPtAyE=;
+        b=ZqDYBSs6WIvYfI/+P9EjnR2/rwem5Fg4Ko9lrse7kK4u+FvG9gj7qM6rnR7SHZfReo
+         LUzEO2W4FCuWV/qHQ1RSMv9yjkTqfKoqWFdhnF4NXWZsQkc+E7Y47CJqhPo1jnlVz52K
+         fWEXDqNX8lj60lB+LcNQDmUhecRXXkiithpOJSEYEenSNAm3Zx6VIH8WDRJBKbh+h4V3
+         RpxmGtDw9WkIYARD88P61EN7GI+ZA4/QwHx5n+084i3WTsqFCbvryZae6vzuxz8VbkyX
+         U2PwvR8SRmYvEBtx+GDLJQ8RXr1U+3rJfJgQcyLB6VDNHP70PEcTZbpNyf/i8vQJ5iLz
+         1TcQ==
+X-Forwarded-Encrypted: i=1; AHgh+RpY6CtLOV1IuyumeZEFMXgS3+FyhkoCSYiZOugP+ICOk3lo/Ogd4MDZP23EQ6vGdkakiGhdHf5ZLRAF2g==@vger.kernel.org
+X-Gm-Message-State: AOJu0YywLdsTHbaHCPqM739fNu7+PuRE2Gatrd4sz+ejriA/x3tlYgvT
+	ayapTp11Zovk5qdhNn68L6DyAZkWIE2wzp11sZwxF/Z1xqk46p733eJ5
+X-Gm-Gg: AR+sD13e7eHl6pfCRIxCIQOqW6qDidBC0aLLtvsOfrCcsN4BNoIH2fD95T6L+KTpbFp
+	RXwRa4GAcBq7uVuyP4Ij8QI2AnyFTNdSOx6jvzt047jJPkZLw0sLmpznichQclHxD+IYU4OdLT8
+	pPoYTPoLE+wihxhYchaJeFkiwXM5d11nvXu+Ms2Jy2JBOTi/YB6M5t8g+zzrVc2m1ASbeLul5XW
+	CGpM+qu39CimKYdfRiesRT1KcG6PtJHIPfIIAB7/TzKcL2bLqIYrYSxT1d41lXbUoraT96rAuP5
+	zeIhViRgs8CXg6omsyiw94/fgV7aaixQaeXXrkHwlm3QhYmKr7rRyqwORNTX5foq5uxMbX7QEWe
+	mmPa0wXKsqUpWL/+7xaSDCU4oTW+M7YtQZaOEWP2fIv+c/xiwE8rPlNVxfAP9AjoSMhuRima8D5
+	M+M5dS+AFgrsRvfst6OdoKLS7+1r8LZtpNFa7+w/hAOScoq0Gzm4hMTjfshhiHMw==
+X-Received: by 2002:a17:90b:5746:b0:38e:67e1:15b with SMTP id 98e67ed59e1d1-38fbc40e2f2mr4915356a91.6.1785640579288;
+        Sat, 01 Aug 2026 20:16:19 -0700 (PDT)
+Received: from xiaomibookpro-14 ([149.19.17.31])
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-13fab4e44bcsm25356701c88.12.2026.08.01.20.16.16
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 01 Aug 2026 20:16:18 -0700 (PDT)
+From: Zhefu Zhang <a723356@gmail.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Andrew Zhou <zhoulol888@gmail.com>,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Zhefu Zhang <a723356@gmail.com>
+Subject: [PATCH v2] Input: atkbd - skip deactivate for Xiaomi Book Pro 14's internal keyboard
+Date: Sun,  2 Aug 2026 15:15:59 +1200
+Message-ID: <20260802031559.19701-1-a723356@gmail.com>
+X-Mailer: git-send-email 2.55.0
+In-Reply-To: <20260801101908.33838-1-a723356@gmail.com>
+References: <20260801101908.33838-1-a723356@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset=UTF-8
-Date: Sat, 01 Aug 2026 21:24:50 -0300
-Message-Id: <DKE13Z04GD3M.1AMEVQ7XTSAB5@rcpassos.me>
-From: "Rafael Passos" <rafael@rcpassos.me>
-To: "David Rheinsberg" <david@readahead.eu>, "Rafael Passos"
- <rafael@rcpassos.me>, "Jiri Kosina" <jikos@kernel.org>, "Benjamin
- Tissoires" <bentiss@kernel.org>
-Subject: Re: [PATCH v3 3/4] HID: wiimote: use scoped cleanup in wiimote and
- led probes
-Cc: "Shuah Khan" <skhan@linuxfoundation.org>, "Brigham Campbell"
- <me@brighamcampbell.com>, "Jori Koolstra" <jkoolstra@xs4all.nl>,
- <linux-input@vger.kernel.org>
-X-Mailer: aerc 0.21.0
-References: <20260729164928.1138468-1-rafael@rcpassos.me>
- <20260729164928.1138468-4-rafael@rcpassos.me>
- <42b2b3bf-a165-4caf-a746-0c37bfa925a2@app.fastmail.com>
-In-Reply-To: <42b2b3bf-a165-4caf-a746-0c37bfa925a2@app.fastmail.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-On Fri Jul 31, 2026 at 8:18 AM -03, David Rheinsberg wrote:
-> Hi
->
-> On Wed, Jul 29, 2026, at 6:49 PM, Rafael Passos wrote:
->> Cleanup code in wiimote/led probe function, using the scoped cleanup.
->> This prevents mistakes in future changes to this function.
->>
->> In wiimote_probe_clenaup, a few functions are safe to call without
->> checking. For the hid_hw calls, a new bit mask was introduced to track
->> probing state.
->
-> Is this patch worth it? the led-probe looks ok, but the wiimote_probe() c=
-hange looks convoluted. If you really want to go that route I would prefer =
-if you reuse wiimote_destroy() and ensure it checks for the right condition=
-s, rather than adding __wiimote_probe_cleanup().
->
-> Thanks
-> David
+The internal keyboard of the Xiaomi Book Pro 14 does not work unless
+atkbd skips deactivating it at the end of atkbd_probe().
 
-That's a good point.
-I will try merging the cleanup and destroy functions.
-If it is still not good, we can just go back to the v1 for this commit.
+Using 'i8042.dumbkbd=1' also makes the keyboard work, but then the driver
+never writes to the keyboard at all, so the Caps Lock LED is lost. The
+atkbd_deactivate_fixup quirk fixes both without a boot parameter.
 
-Thanks,
-Rafael Passos
+DMI: XIAOMI Xiaomi Book Pro 14/TM2424, BIOS XMAPT4B0P0909 05/06/2026
+
+Signed-off-by: Zhefu Zhang <a723356@gmail.com>
+Reviewed-by: Andrew Zhou <zhoulol888@gmail.com>
+---
+v2:
+- add Andrew's Reviewed-by
+- explain why i8042.dumbkbd is not an equivalent fix
+
+Previous: https://lore.kernel.org/all/20260801101908.33838-1-a723356@gmail.com/
+
+ drivers/input/keyboard/atkbd.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/atkbd.c
+index 8cb4dc6fb..6c897282d 100644
+--- a/drivers/input/keyboard/atkbd.c
++++ b/drivers/input/keyboard/atkbd.c
+@@ -1938,6 +1938,14 @@ static const struct dmi_system_id atkbd_dmi_quirk_table[] __initconst = {
+ 		},
+ 		.callback = atkbd_deactivate_fixup,
+ 	},
++	{
++		/* Xiaomi Book Pro 14 (TM2424) */
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "XIAOMI"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "Xiaomi Book Pro 14"),
++		},
++		.callback = atkbd_deactivate_fixup,
++	},
+ 	{ }
+ };
+ 
+-- 
+2.55.0
+

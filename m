@@ -1,126 +1,119 @@
-Received: from mail-qk1-f174.google.com (mail-qk1-f174.google.com [209.85.222.174])
+Received: from mail-wm1-f47.google.com (mail-wm1-f47.google.com [209.85.128.47])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 033D53845D5
-	for <linux-input@vger.kernel.org>; Mon,  3 Aug 2026 05:17:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.174
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 94C9E390229
+	for <linux-input@vger.kernel.org>; Mon,  3 Aug 2026 05:40:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.47
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785734234; cv=none; b=XpK9qgc3BmHRsliQ77PibmjZH5hJZlRdUZGo/81XP51mXAy6bMNUsEqiIrBjl0q1qRU2xZO3NPwfTU0VaFFj6FkNDxNUONx47a+kIdqWLqpiM9+sZA86uX999xeuBodm9cNT/Wg6JXvAsdvCPRd1zYCG3qJaEvFNX1ck1IaYe7c=
+	t=1785735605; cv=none; b=ZnnSrJIq40a8qVjpOmuoEcvatUQKlSAGQDbdJZ9CdM4SUoM303ah/9RocLIs+3ZmrulQ7vXuF1RkotVsZgCME3wGGQKlxDJXEkVZUA4N8L5ILc2Mf/zWlQmpHLYZ5+Vnp7tA3EXcrXZJ2U9lFOFHunp9utK9l5x2Y7mLkDs1RUI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785734234; c=relaxed/simple;
-	bh=KmL2sbnHKLahsnko/p7IL/HAXoGfUFNYPlNNLbso7Xo=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=d/DX/nFFhJ8GSMMZZHiSFDtim7x8Gq4UcaogCIAixu79tCBmuEh+Y0fQa+fWpDpatWD1W4k+dsrqR9BrRNcBsP+4PVjgC3Bcy6rEN8R7n3t2ZLaQ0NTwEJk5iVFl6HGgqsmAORype3KXB17FhTlwZRC3ZSYPGw1vhC/2S7MXRdE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=psvhIjBH; arc=none smtp.client-ip=209.85.222.174
+	s=arc-20240116; t=1785735605; c=relaxed/simple;
+	bh=CEAvbppTHkOWGeSIsutgaKGrdMgluE1ZZ8Eu6tsd/Ck=;
+	h=From:To:Subject:Date:Message-ID:MIME-Version; b=tK8refdJGfq0Hg4PPzSUbrgeKuraIMV6ubPT+khXPsucvKWFLV3kTMSLnm5hNaZG9kPy7ogA4ZuyNcgc4lxWEKnlirZoUKX13wNDIHhUrzALyrf+x5qrkUG45hV62LXzAxTyWispPcghO0b62bjMYiuKfPKyJhywwRocGtNlNsI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ZAz13un7; arc=none smtp.client-ip=209.85.128.47
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="psvhIjBH"
-Received: by mail-qk1-f174.google.com with SMTP id af79cd13be357-92ed3993c1eso146565885a.1
-        for <linux-input@vger.kernel.org>; Sun, 02 Aug 2026 22:17:12 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ZAz13un7"
+Received: by mail-wm1-f47.google.com with SMTP id 5b1f17b1804b1-495757ccbc1so14869295e9.2
+        for <linux-input@vger.kernel.org>; Sun, 02 Aug 2026 22:40:03 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1785734232; x=1786339032; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:mime-version:references
-         :in-reply-to:message-id:date:subject:cc:to:from:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=4k0ugYvWzxtiO//veve6HLDZsW72yaJjTh1QvzWOQdk=;
-        b=psvhIjBHdX2GlggxYuOa1Q0S/3N8PkcQnoXVPxr2HwgLno4UNWDVv2odoMKqFrYQfx
-         EyeUzYmiZRg7HHDXdyCntEI4lZXxnV7Sf8clmr4OJMirfHf2vtkvYt8WlxIz6IazvlnL
-         emDsR6W/l8uaxQomEdvXF07sjoGhhe2C8pJ6SNZIkw+wgtmRBq408Dhx60JdvIHa0oEO
-         iD8tjmw+cavSebg9qchyFhB41UhUhngfmIqGRqNLO92BdF8YPdD3f4Jog2EhpP5i9Hqk
-         pvqRJ+qMjJVbmEbrXH+DqYBb7xqRgdJi2vgGBTu3jorx2LNdurZ2r0zJdZUqLtEKjuy2
-         9vHQ==
+        d=gmail.com; s=20251104; t=1785735602; x=1786340402; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:to
+         :from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=Oc1rdx0ZcfYUk5xHv5HVHhYRleOebJmZFBrc3lIgAEs=;
+        b=ZAz13un73raWB7lq6aKbdIC8CfgqdQl5SfdHbAqYcZjNbHGvKmN1S/z+WXPJ9raC33
+         RsHTU4B1Xao0snqCIedONNaj434/SjXMUngHrEL/uH23pJTLJOdhyMnQVyvkFHtiL9Ky
+         xSix00GxnkkL1BRraESWh6H0IOmU1dWI8IPgEwJFUApYID1P0WBP4vPoeA0veKLfCS77
+         TkM5KL8issUiLUYdP6Mcb+g6P1AUCRVLC4Fd3d7YywE/wCZWBnCH/2anK9l13ZZhP3bM
+         J9+JIWSok8xlw1jfgTsPMFF+cT4LuvBG86vX3LZn98gZtS9cOIIpAYcv/TuxPVCfwpH8
+         xqYQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785734232; x=1786339032;
-        h=content-transfer-encoding:content-type:mime-version:references
-         :in-reply-to:message-id:date:subject:cc:to:from:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=4k0ugYvWzxtiO//veve6HLDZsW72yaJjTh1QvzWOQdk=;
-        b=g8UvrGkR2d8jYvgIzGydvmnZDKOXlRmQCsP/ze5S8p26eXOUSmc4oBsl08SfeSYPTM
-         lpWG6TaVunbIKSOEArUEjHQZQ8hjdpbTP9LHds7wNEqNI+h12yqowULqIAPLTWUU7wGg
-         MutocVKRYJVRp367pkKjZ1OjPVVBCsWxl8xhhj1xnABWBuy7FdcFcOrbKByO04PdlNY1
-         FlgKhvideRp0H8RuxiV0pBAFNpLJHO5D3hRIVkeV4B7gZpQ8mlOmNwemATrb6GyTYzuS
-         9k2f0eybwDeJYB5w2a8N4dgEurO1R9mVEBOV055lutWAf6je8Xm6u9KQKhPcDQiQ6tQI
-         mHUQ==
-X-Forwarded-Encrypted: i=1; AHgh+Rr2tTAbeqwpaTcAAKwYqJ35NSPeVqBNA/29O4A1jrnqNAH9jkn8Kmt4/OKpA5VTWldODHSzOSb5wqz0Eg==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yw1HTEhTZnMFml8woSVuTOTogdoIVkr8uQ6+2RZCeB8SVgfmZ2i
-	RiQLkqgXw6UjPgptmx907da7D8o0ZEjnErZQMFY2kqUl4Kd9en03TMq2
-X-Gm-Gg: AR+sD10hDGawrxRDqIJiBWARzk8vWe1nMLav2wAo+7T3DMBLJF8yYtXBny9sTj1GoJz
-	q8Uh9ZFGYoU1Pdp2HrhpWHjM1QFH6ytbObQuxsY2KtHfkkOEipGY1BSxh+saJMB0Jvmb8YU4/+u
-	kTGLP2ExAG7o4bumgXuGhg1qW9MzBeMgtM1wz7CtZ9BZ7+tAmhLKryj8YvZOaEpOpZKAomAKTaV
-	mDUlwMfmbuMuFDVFN9IoxFYDU65X3hu4NPUIoqq9yXFyJ06kgHB+5tnFjmd76zqBvFkBJjjT1lh
-	SPikd+WxP55Myf/5jYchbtJJycrF8zcP3a7gnjXNicE0LTELwVE5ui851KjhYCEUo5z37GDSNki
-	GPMmC5UosfzP1XDOfwmQ22n/sMFyn+CHkejmPhvIns+k8UwZJQ1nQckd0cE4zQcuEKNYLDY1vc/
-	Fc/1p3kYGc3OGIXvu+s/SBEsY6Q21pC+f/CAiXOF6X/dFZ+xi/WDrDtUDU6UzQuFlitn5x/6pf6
-	0Uf0pR8+w==
-X-Received: by 2002:a05:620a:6506:b0:923:45bb:a95c with SMTP id af79cd13be357-934a07395d4mr1649450685a.10.1785734231869;
-        Sun, 02 Aug 2026 22:17:11 -0700 (PDT)
-Received: from FairplayBox ([2601:5cf:837e:d920::f9a2])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-9349c1dcee1sm585700185a.38.2026.08.02.22.17.11
+        d=1e100.net; s=20251104; t=1785735602; x=1786340402;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:to
+         :from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=Oc1rdx0ZcfYUk5xHv5HVHhYRleOebJmZFBrc3lIgAEs=;
+        b=NQ6yyxuV8xd8+hnu0WQJIFG/upHK/n7ZQAIDNlFWLOjr4r5tBmGMTcjUuxwcno+7x0
+         Ru4gi9Mg0kve2nZSPVYwOCz2vSU1yg/2dOU4f1XdoMQgGdqdCqnSMLXUeTPB/IlvWcgs
+         ycLiE3rQg47z8RqhMqbT1TrBBuEykPS4CJy7Jnp7PvvYcvtKJ4o20wnTjYylaBmy4hQ7
+         xn3G3mokz0HGVJKEVJiTCymuSdTn731cAkEya2jTvuwBB/X6oSMpSs5C3VHsWKFXVxwg
+         TrXa73eCXm0FDw8T0aQmhVwV6OmMK+MpmUGw4U3k5c3uZZ//zpoOgbeJpCtUXYBDmlv+
+         Kcbg==
+X-Forwarded-Encrypted: i=1; AHgh+Roe7yjndOaAhtcIh/FzDXz8bRYQfzqngqjzkEiYw6lsy2myaJcKiIMRCv+6Hu6HpzZunNlgVitD848bHA==@vger.kernel.org
+X-Gm-Message-State: AOJu0YwKf31ytEwhWkxEeaVbUGSFZMmPG0iR7bGdC+moPvTdC1jRxKgH
+	DVYeK3r8bpeJUyBpdC0BEH7u6X8eMkWUG2bpTVydTuZlEA8kz5Kc4Wn8
+X-Gm-Gg: AR+sD13HNnib3DG6tWsyn7E7z7Gr3F4RavapP1jjJfSUnoV9HQqg2qw5751Xsop9L4b
+	Re+idCskw8kJnUSWYd5n0YnZNlSAyKLKVyFEEyJJ0t/ySdqD9UePEENpXTySQYqMZ2d4dxMGzXo
+	zNg3waIi0X2aWcGKqzT4w8Kiq0vclh1paBSikINUzS503oCqs1asK5OAfqX6R1ElPOhv2naQytm
+	605z4R08jDb6SMNjd9oIXiwqnIHPxiqRbEgCi7s3UCFWsneXdyhnTnXcUgfD4uLGZfwiveLCpy9
+	axpoHoJkPfEf7h2bxA0Y94LXPC/17h8AYJY0V4S4pTUck+VK/Lxf6+Sz0KGeOyl4yxEgjb8BTdZ
+	JMRRskf0I5cDlYiUz6vM7lIWMb/PAT/2cYoJAsvYYOAENNDH4rUb/WVQ7d4FV7Kv/3S7kbPwCUt
+	lPPWPiHMnuhaQ7mukZzdx8GnEVrH5FUDlA4XeFrGc59Rq9M9btMix0rU9nwVBw+uQgLjFm48sY7
+	k3UY+Yd
+X-Received: by 2002:a05:600c:840f:b0:497:ff73:68d5 with SMTP id 5b1f17b1804b1-4980c6071c5mr157379795e9.0.1785735601424;
+        Sun, 02 Aug 2026 22:40:01 -0700 (PDT)
+Received: from u-ThinkPad-X1-Extreme-Gen-4i ([103.155.100.8])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49807bad893sm164022325e9.3.2026.08.02.22.39.55
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 02 Aug 2026 22:17:11 -0700 (PDT)
-From: Alec Hall <signshop.alec@gmail.com>
-To: jikos@kernel.org,
-	bentiss@kernel.org,
-	linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org,
-	pepemontfort@gmail.com,
-	Alec Hall <signshop.alec@gmail.com>
-Subject: Re: [PATCH 0/3] HID: Apple Magic Keyboard/Trackpad battery over Bluetooth
-Date: Mon,  3 Aug 2026 01:17:06 -0400
-Message-ID: <20260803051707.53252-1-signshop.alec@gmail.com>
-X-Mailer: git-send-email 2.55.0
-In-Reply-To: <20260714101235.99447-1-signshop.alec@gmail.com>
-References: <20260714101235.99447-1-signshop.alec@gmail.com>
+        Sun, 02 Aug 2026 22:39:59 -0700 (PDT)
+From: Aaron Ma <mapengyu@gmail.com>
+To: Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH] HID: quirks: Add ALWAYS_POLL quirk for Beitong BTP-KP20D dongle
+Date: Mon,  3 Aug 2026 13:39:32 +0800
+Message-ID: <20260803053932.5897-1-mapengyu@gmail.com>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-Gentle ping on this series, posted three weeks ago. No rush intended -- I
-am mostly checking it has not fallen through a crack, and asking whether
-anything is wanted from me before it can be looked at.
+The BTP-KP20D dongle in Direct/HID mode (20dd:5159) re-enumerates every
+few seconds because usbhid never submits its interrupt-IN URB: no HID
+driver binds to the vendor-specific report descriptor, so the device is
+never opened, and the firmware treats the idle endpoint as a lost link.
 
-Some context that has accumulated on the list since, in case it affects
-how you would like to sequence things:
+Add HID_QUIRK_ALWAYS_POLL to keep the interrupt-IN URB submitted from
+probe time.
 
-Jose Villaseñor Montfort has three fixes in flight touching the same
-driver and the generic battery path. I have reviewed and tested all
-three on a Magic Keyboard and a Magic Trackpad 2 over both USB and
-Bluetooth:
+Signed-off-by: Aaron Ma <mapengyu@gmail.com>
+---
+ drivers/hid/hid-ids.h    | 3 +++
+ drivers/hid/hid-quirks.c | 1 +
+ 2 files changed, 4 insertions(+)
 
-  HID: magicmouse: prevent unbounded recursion in magicmouse_raw_event()
-    https://lore.kernel.org/linux-input/20260715053526.574725-1-pepemontfort@gmail.com/
-  HID: magicmouse: avoid NULL pointer deref when there is no input device
-    https://lore.kernel.org/linux-input/20260728184059.688513-1-pepemontfort@gmail.com/
-  HID: magicmouse: do not keep a stale msc->input if no input is claimed
-    https://lore.kernel.org/linux-input/20260729041557.1185819-1-pepemontfort@gmail.com/
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 1059922baaacd..2bb4952d0b0c1 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -263,6 +263,9 @@
+ #define USB_VENDOR_ID_BAANTO		0x2453
+ #define USB_DEVICE_ID_BAANTO_MT_190W2	0x0100
+ 
++#define USB_VENDOR_ID_BEITONG		0x20dd
++#define USB_DEVICE_ID_BEITONG_KP20D	0x5159
++
+ #define USB_VENDOR_ID_BELKIN		0x050d
+ #define USB_DEVICE_ID_FLIP_KVM		0x3201
+ 
+diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
+index 57d8efdd9b890..63283eb853f0f 100644
+--- a/drivers/hid/hid-quirks.c
++++ b/drivers/hid/hid-quirks.c
+@@ -45,6 +45,7 @@ static const struct hid_device_id hid_quirks[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ATEN, USB_DEVICE_ID_ATEN_CS682), HID_QUIRK_NOGET },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ATEN, USB_DEVICE_ID_ATEN_CS692), HID_QUIRK_NOGET },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ATEN, USB_DEVICE_ID_ATEN_UC100KM), HID_QUIRK_NOGET },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_BEITONG, USB_DEVICE_ID_BEITONG_KP20D), HID_QUIRK_ALWAYS_POLL },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_CHICONY, USB_DEVICE_ID_CHICONY_MULTI_TOUCH), HID_QUIRK_MULTI_INPUT },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_CHICONY, USB_DEVICE_ID_CHICONY_PIXART_USB_OPTICAL_MOUSE), HID_QUIRK_ALWAYS_POLL },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_CHICONY, USB_DEVICE_ID_CHICONY_PIXART_USB_OPTICAL_MOUSE2), HID_QUIRK_ALWAYS_POLL },
+-- 
+2.53.0
 
-Patch 3/3 of this series touches the top of magicmouse_raw_event(), which
-the recursion fix splits into a wrapper and an inner function. Whichever
-lands first, the other is a one-hunk rebase; I have both applied together
-here and can respin this series on top of his at any point -- just say
-which order you would prefer, and I will send a v2 rather than leave you
-to resolve it.
-
-There is also a generic fix from him for the battery query path:
-
-  HID: input: read battery capacity from its actual report offset
-    https://lore.kernel.org/linux-input/20260728201309.776026-1-pepemontfort@gmail.com/
-
-That one is complementary to this series rather than overlapping: it
-corrects where hidinput_query_battery_capacity() reads the capacity from,
-while this series changes which devices get a solicited fetch at all.
-Worth noting it also improves the behaviour of this series -- until the
-first battery report is parsed, capacity reads go through that query
-path, so on my trackpad the power supply reads the flags byte for about
-a minute after a Bluetooth reconnect before settling on the real value.
-
-Happy to send a v2 with any changes you would like. Thanks for your time.
-
-Alec

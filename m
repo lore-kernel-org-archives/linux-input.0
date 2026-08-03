@@ -1,129 +1,213 @@
-Received: from mail-pf1-f182.google.com (mail-pf1-f182.google.com [209.85.210.182])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from OS0P286CU011.outbound.protection.outlook.com (mail-japanwestazolkn19010077.outbound.protection.outlook.com [52.103.66.77])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 829B727603F
-	for <linux-input@vger.kernel.org>; Mon,  3 Aug 2026 07:44:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.210.182
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 17D2A356779;
+	Mon,  3 Aug 2026 09:40:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.103.66.77
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785743050; cv=pass; b=XVZ8P0bgwMsGRniSNsr2a5dH00mTzwtfIqR40S2JbAQEWWHZfb7s+DjONleN8mJ3oWTlgt67QEbUKt/dFDj8JEe9xYXpqQYwjOE81enlQfzzQZdlDsgZaZcDMdjBJ902p/nuulbdL3TrPNqYEfbAbsWR6iAm6TDsr6GcswXFzRw=
+	t=1785750017; cv=fail; b=fsCUcLsaNxtbmuxNKZ659CnCpUL9HPzsN5jsaco2FU4qvH0Oh+zyWlOFG/zRrK1aQsMqtTNZYvUpxRQteREKDL9yJ/RfnkR1QjjfY8YdHBTxgR1dZErJgy3m56vDnkfFIxlFlLlkptNub7s5h2ELj0+D8AQ7aTiyZ4IK7lglAQk=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785743050; c=relaxed/simple;
-	bh=Dr6mbAiUpLjriFA9/Fr3q7PDlQa4stUtOFXp/+mOe3M=;
-	h=MIME-Version:From:Date:Message-ID:Subject:To:Cc:Content-Type; b=e5t5cSSKRH82HTtFJpRPbmx8Q9I4H/0j6altmJAX7S2jtZy4dVt/f92tM/S6E2ZXFqcYmXvtcp42tJeck9DikX9+U9fHG8RrDa94iob9izx3prLlgF1cBBf6dFx3HOSPWWLfb/O1iSiQ2hDUUWuL0Z5zgIp/sKl5FxvmRMwLCT0=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=fENsvPea; arc=pass smtp.client-ip=209.85.210.182
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1785750017; c=relaxed/simple;
+	bh=7/9Xeaxd/vilmzasElltjinp9XiT61eUs8x+v0SfUak=;
+	h=Message-ID:Date:Cc:Subject:To:References:From:In-Reply-To:
+	 Content-Type:MIME-Version; b=SU6jrN6zkUS8Sjk9mbinA7hFlYF+OcuWVNZjcXgyF3/ACyPZr7kTtwyT4QIu3jr9HNyttsdS97736BpR31aHxFF7rvtt+DgT8Lnoz/woE6KtR3GwpN2kXvehsmoq9BX6dPywwb+8OneUb8rAFVUt0N8H1u1wEzlwbfQFFXq+tyw=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=outlook.com; spf=pass smtp.mailfrom=outlook.com; dkim=pass (2048-bit key) header.d=outlook.com header.i=@outlook.com header.b=NPA7wufd; arc=fail smtp.client-ip=52.103.66.77
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=outlook.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=outlook.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="fENsvPea"
-Received: by mail-pf1-f182.google.com with SMTP id d2e1a72fcca58-84536ecfc5bso3558009b3a.2
-        for <linux-input@vger.kernel.org>; Mon, 03 Aug 2026 00:44:09 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1785743049; cv=none;
-        d=google.com; s=arc-20260327;
-        b=fqJuYZEZj/gmlbNyX2ViGu4vRr1H+dPPweI8jvuOj9mtSSEmZa1tAYHgyp/Vj5/m39
-         ReVyjh1XYErnXGjPxeHFrZtV6DBat/yd0S+bUSg71OVwj/SCfBblke5oqIh759flIinc
-         YvWyLB/sE5REiJl58mJSbm1CCOfFGfC369Q6Wz+praAsWAUdEG3COfPy9sCyVaSudyDl
-         Rb8tFOJ3r538EID7Ex112/Gv6hFueN6AynlFnnHknAwNeDsaZf6i51qRsTaNQfE/91YM
-         VJAj52b5gTk4XchtrXNKyujAvYqnByGjCmSam430Wxksd7EF0eeoXm/G9a4sJtMEdS/o
-         2dQg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=cc:to:subject:message-id:date:from:mime-version:dkim-signature;
-        bh=Dr6mbAiUpLjriFA9/Fr3q7PDlQa4stUtOFXp/+mOe3M=;
-        fh=6UGC11zvy2ZLwvU5EjUQgNBQqAUnU0n6PX89wO/3Roc=;
-        b=oDFTvTXCPTIfMPcPkDWf+QgLsCvxK6wFGCYjfJl0QI0mM4VKlxPKUE+nXr97BideFR
-         7stYipNEmCvyh2ft3WMAj06/WetjvgTw8d3EpJThkVaU6cDwbmIiHluasRRF/04mRiJ1
-         RPw32H/Asyr2V5EI/NfLZUbOZKqJMMAiimVryRMtzDWtscDOdNUbQaRtGlWUPMhphpox
-         dc65ihkWREfcR3eWeF0s+wm6sl2VLjGvEjaWgDWLYyEz6iwjHD0fiQQGFufO++HtUSWO
-         lBnHUO6whqer7L2kEvQawCvUd92K7WilT5QhHlVBr3Izd59VJJ2meJGTAvygcxh6ugfX
-         8aTQ==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1785743049; x=1786347849; darn=vger.kernel.org;
-        h=content-type:cc:to:subject:message-id:date:from:mime-version:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=Dr6mbAiUpLjriFA9/Fr3q7PDlQa4stUtOFXp/+mOe3M=;
-        b=fENsvPeaH4gSv8OT+bBl295b9stMAoe/gNbGEpJ+mAnRT77ebu6UNzicauZTltm+e1
-         zABBpIfB1abXBRih1PhLu7nJ2DoYcKWbhcKEv6rFgUKq7Uchp2lNn+1WEgHEYqJvAmld
-         5+cyGItOeTbe0q6OgiV1IKqEkj4kdT0ix9+A2/ZC/e4K4m6sYEw6Ejq9G/eJutgGdaI4
-         OyCrMMonvP/a4HNlm3NaLVimc9zxbZfWxjC//s3zsoQsg47jt2tH2nqOZgH3fVij5JRn
-         /sxXFFn0XdYBvLh5/rDZ0IZleKMsKdQkZITuuwAJtBTtgZfhCkSIfHxn0wQPVgb3M+E2
-         09Sg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785743049; x=1786347849;
-        h=content-type:cc:to:subject:message-id:date:from:mime-version
-         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to:content-type;
-        bh=Dr6mbAiUpLjriFA9/Fr3q7PDlQa4stUtOFXp/+mOe3M=;
-        b=VhsmTprhZsQDTV4/qrIAGkSd3LwzLmJhvM8y3m8YeKTwRQNg/Esb5Tm+ao1MqJuArV
-         SviC9bICr5/abd+pGr4qF+C+R7qkpvJXMOnDsZTwDtUTdqzVnexLf2rUGFqQGpIEAss3
-         4a0YqQYDsVtSWaOUO+8nLOkKIYk8iSqyRHyMot8cZGc0IW2de14PVt/12FUHleky4ERb
-         3kQqksq2bq2r64x7pzc8Pr3HEegbNvXPRNy0iMIsWmoZW7u72q+cxVJ/Lmk43lLdCqJf
-         9RdQCiQ9q+6wgrjlO5jU0tFR2do7EkR4YEab+2Sb56HL2FVpg6XGunadXG1osRxcaEl/
-         mV6g==
-X-Forwarded-Encrypted: i=1; AHgh+Rryw69UiRqutAPgknOyiZpq/Opj54UBiaWiNBe58oU30jdeqif2jvVpKXagQsg9fQhsWa5V9/FWEK0bUQ==@vger.kernel.org
-X-Gm-Message-State: AOJu0YzMfVisycmCu65KFdA+luTPcfwOInwFMqDCExCfQ3RYzPyWht/y
-	dX1mZpVrQW0li7Zh9VM9qTkZQDkLd6WQfshyWf9XULZUHLcrv6s/0K24EcR/+k+agJmkKwqPQ4K
-	eX+P9GqQYXv/TgOVPznv2oABlQg/cf9w=
-X-Gm-Gg: AR+sD13UlZ9TA0LOeaGB/BfH4oXYk7kntr6BTV0X2lekZQ9XCt2fsVbUf138j6CcBBJ
-	+uCLJPD29U7rGQOapM2SJxveq5ggrVNuR8uojJJT7RE3hf5f4PYOvF4nrTOAiC4XOmGs57zJiJX
-	2lZsI8j9nfeUB3CQyJrm32+Y63Ned4nvO8FxKUGOX8whmfZay9O7u/RbTbgCWufToSUfteqF2vY
-	ttkWdZOgbFkk2JddzNJnnU3pr1zgYxbYWrMBqEKi4K/GRefAJ6/7uLLyR47Vya+FoavG+Atd1dY
-	LeYagJ1Efjk/2Q0oPyvp3YN+ozPoNo+Q24dHm6Y75yYP
-X-Received: by 2002:a05:6a00:1702:b0:845:c662:2be with SMTP id
- d2e1a72fcca58-84ee4953b8cmr7620017b3a.42.1785743048751; Mon, 03 Aug 2026
- 00:44:08 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=outlook.com header.i=@outlook.com header.b="NPA7wufd"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=MTresNUksuXK+1zfH+bAtDe+21cACmOS7OokpdidVEOHkRXIN9w+mNAhfALCWKP6T4E8Ysx3+ljTpZd/od+BXLEBy7a+FHOOyeL3+zWXC03WD3pYeMs+DA3XDy1TENvZydfWjm+cAJEhGPpraRyTy+WrCRkiZFzT60LI4tTQE/+fnOVn1hQuimetgvA2279y7w2dQhSwwDAryJX+VUqrUwjC6ff6MyHAyK9OFMEY/j/jC5phepaTBAQ/ca9WTT2E2u1r95khdVL4qdsZiiuvZ0f1YArzrTZ19uvbbpJmy6epvc7zlnm9XNP4vNFdoZ0zF1T+orhePNCB0+ujf8ej3g==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=7/9Xeaxd/vilmzasElltjinp9XiT61eUs8x+v0SfUak=;
+ b=O6yV0/vYYiY3jox04Jx1MtDcjYH8Q9JYPhKzFV46qp1oeJCFzoVo5Gugto7QAKyS3kJKJT+xEljCtv7/kaUmLGrUnF3hJu6lZmgJ2JCgQFYrdVcYsaNqpBYt0HHFvXuEzKYg9nNZOKyH3kG9jBqGZNptNp4rfIwyBwAeHGo1lMyvMbtyd6Rqg/nrEV3UGMdx4htuhzvcrplkxZNIxWNpdR2CIrO9FJsGUy1Es6GrK7xDp5DHEo2K7jo7wakCmUUF94aWW0yi1Azt8ESomg2WziWTwI1LQ1zKPuDwqiG1enjdGJZVXkT/dcQde7g792/Rk5moEWk4oURxltBIPnk6fA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
+ dkim=none; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=outlook.com;
+ s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=7/9Xeaxd/vilmzasElltjinp9XiT61eUs8x+v0SfUak=;
+ b=NPA7wufd0IUjERlhmRzACqmecSdaqOtd9yvqiqxpuPz7K1pi4HFc5fAG9ti9Tqd/0ui4jDvivI4GdrDiNFRitAVKvmTGp2N1sZwYTWWsMYxsXuG2qVOlv5iiz+Sk25fiUuoyo5YVtjR5yDLmBz7Hn7zFtkFDdp5C67zASNkrBh9Y4qCVUkIEsxn4BJveSbVq/ZCa67/A77SjT5/5Y5ZVwE71Lk4f9vx+HiKGpl6Sw7tCh4w1ma/a6ASCejnfP30vAzsJxTnahztpYlwrTDUf+AgJpQoJwzPvxRkeizh8Y2LpOkjBxXLth5oB5Ud9VuVepK2O93MGL+XNIwQmHk8fAQ==
+Received: from TY4PR01MB14432.jpnprd01.prod.outlook.com
+ (2603:1096:405:235::10) by OS3PR01MB9673.jpnprd01.prod.outlook.com
+ (2603:1096:604:1f1::13) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.270.17; Mon, 3 Aug
+ 2026 09:40:12 +0000
+Received: from TY4PR01MB14432.jpnprd01.prod.outlook.com
+ ([fe80::de2b:6c81:9bd7:99c2]) by TY4PR01MB14432.jpnprd01.prod.outlook.com
+ ([fe80::de2b:6c81:9bd7:99c2%6]) with mapi id 15.21.0270.016; Mon, 3 Aug 2026
+ 09:40:12 +0000
+Message-ID:
+ <TY4PR01MB14432E24FD0D38D1FB84F99AC98D52@TY4PR01MB14432.jpnprd01.prod.outlook.com>
+Date: Mon, 3 Aug 2026 17:39:44 +0800
+User-Agent: Mozilla Thunderbird
+Cc: wiagn233@outlook.com, Sanjay Govind <sanjay.govind9@gmail.com>,
+ Kees Cook <kees@kernel.org>, Zoltan Illes <zoliviragh@gmail.com>,
+ Qbeliw Tanaka <q.tanaka@gmx.com>, Elliot Tester <elliotctester@gmail.com>,
+ Dmitriy Zharov <contact@zharov.dev>
+Subject: Re: [PATCH v2 1/2] Input: xpad - query MS OS descriptor for BTP-KP20D
+To: Aaron Ma <mapengyu@gmail.com>, Dmitry Torokhov
+ <dmitry.torokhov@gmail.com>,
+ "open list:INPUT (KEYBOARD, MOUSE, JOYSTICK, TOUCHSCREEN)..."
+ <linux-input@vger.kernel.org>, linux-kernel@vger.kernel.org
+References: <20260801075623.2769601-1-mapengyu@gmail.com>
+From: Shengyu Qu <wiagn233@outlook.com>
+Content-Language: en-US
+In-Reply-To: <20260801075623.2769601-1-mapengyu@gmail.com>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="------------2vOLqatgnclKlQ6H0iIDGnPv"
+X-ClientProxiedBy: SL2P216CA0129.KORP216.PROD.OUTLOOK.COM (2603:1096:101:1::8)
+ To TY4PR01MB14432.jpnprd01.prod.outlook.com (2603:1096:405:235::10)
+X-Microsoft-Original-Message-ID:
+ <2b2b11fa-7549-482e-b3a1-4533fb69f470@outlook.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-From: Pengyu Ma <mapengyu@gmail.com>
-Date: Mon, 3 Aug 2026 15:43:56 +0800
-X-Gm-Features: AUfX_myGIH6SemeXP2CSnDTtcW166c-uAydnQoV0L70Z-doI2YGaCipwesY_NPI
-Message-ID: <CALSz7m0RLK9qMArB55TuzQhc8YZhJras9XYLTdU3+E6imCsDhg@mail.gmail.com>
-Subject: Re: [PATCH v3] Input: xpad - add support for Beitong KP series controllers
-To: vegetablecat@foxmail.com
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
-	"open list:INPUT (KEYBOARD, MOUSE, JOYSTICK, TOUCHSCREEN)..." <linux-input@vger.kernel.org>, open list <linux-kernel@vger.kernel.org>, 
-	liushuyu@aosc.io, Shengyu Qu <wiagn233@outlook.com>
-Content-Type: text/plain; charset="UTF-8"
+X-MS-Exchange-MessageSentRepresentingType: 1
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: TY4PR01MB14432:EE_|OS3PR01MB9673:EE_
+X-MS-Office365-Filtering-Correlation-Id: 79dfb130-6d65-479c-3b33-08def14336d8
+X-Microsoft-Antispam:
+	BCL:0;ARA:14566002|24021099003|8060799015|19110799012|12121999013|5072599009|23021999003|15080799012|25010399006|4140399003|16041099003|53005399003|2607281247196008|40105399003|440099028|3412199025|26104999009|1710799026;
+X-Microsoft-Antispam-Message-Info:
+	=?utf-8?B?c3UxWGFrT0lkQ3dyd0lnejRLMjMwQkJtR3NwaWorZkZpc0RoVmxTd2FXcGxP?=
+ =?utf-8?B?NVdnNzdxa3phK0NsekdGSnJCVjNudFZiM2VjdnY2MzAvMVVjamdob3RlbVk2?=
+ =?utf-8?B?bHoxem1qN2tWSXdJYzc2RjByazg5VW5WbDF1bnhSL2dObm5ITWtjYmd4ZHVy?=
+ =?utf-8?B?MExmYlFKR1BFVHlzV2JJaVdJeXMvK0J1VCtiYkU2NHZBbUl2dWlTOEtmQWhl?=
+ =?utf-8?B?V3F2K0c1Ri9pS2ZrbVpBQXEraUM0cklibENxL3JJN1ZrUmp2S0JpcUZPN0dD?=
+ =?utf-8?B?YnIvV0pGcFdwbWc2S3RqeU5MK0dtQzRNOHFncEpkMFpKYml0YklTNXU2Unh3?=
+ =?utf-8?B?SDQ1a1ZuR2YxR2JPM1o3OHlFQzAzNWR3NXZtRm0zczFFenlhRFpYYWhCVGNl?=
+ =?utf-8?B?U0FpVXZRZWpoMzdrek1weVBiLzluK2NHMG5UK2lpS1BlMWREUXIyT3o0Y2Z5?=
+ =?utf-8?B?UHFPMjIzNXhUVG8xOHVjRGZFenZqenNrUDc1OFNyMnJZbTFCaFBnWlVmVGVU?=
+ =?utf-8?B?YkM3a0xvU283cUNUOVA0WE80Zk5iUXVDRWFkMHYvRVB3c3g1cjdsV0hTMTdx?=
+ =?utf-8?B?YjhaSW1LUmM2OXJMaFpSd3NpQkFIc0V0OEVNc3JJWTBtZ3BTaDNMWXYyN0tq?=
+ =?utf-8?B?SzhlS1dHTktaTDJmMkxwZktMRTVnNmtOWVRmRlI0VFZVcXB5UlA3MEZxUXM3?=
+ =?utf-8?B?YllEM2h3OEZnclpma3JaVlVUZ1ZTSDI3WWhHTlhXdEpSWFdlVklpajIrcWJB?=
+ =?utf-8?B?YmUrT1FZdnNsRHFyVGowTHJhaC9LRGVqM3IxRnZlS3YxTTM3NjVHekY4TkFZ?=
+ =?utf-8?B?NnpoL0UvM2VuMWE3bU5qTjFsdWZTaUluMmFWeE9zQzJTeUFpejBEa3ZsQmg4?=
+ =?utf-8?B?UFVPRmxXUEd5dnVJVFhJN2dRalk0YjVzaitja1B5U0tlR1hVenZQelFScTg4?=
+ =?utf-8?B?amlqSE1hOXJpNk5GUzFaM1Uvem5nNjZmcVJEUzY2OXVtNTQzN05hTVl1MlJK?=
+ =?utf-8?B?Q3VsZ21wQ29mRzdrNkdFR3M5WHQ5ODJBRTVLTlBETU1iTkZVbTBiRmtCb0d5?=
+ =?utf-8?B?TnVLV2l4L2h3OUVHb2ZQL2FJelRtSS9GZFVXWUhRUW5GbGtFZmRmemMzYUFT?=
+ =?utf-8?B?MkV1aVZUWWJUc2NyeVRrVVdwZUpaYlhuZDdXQ1R6Njd2N1hRTU96SUg1Nllt?=
+ =?utf-8?B?SFczbTNCc2RJVEdWRDR5Y0tYb0VDU0ZyWmsyek9TRHBkUE9iVFNFOEMxWThl?=
+ =?utf-8?B?eXBETzJ3ZFRFT3R2Uk9tQllpSVpxd3RPV3EvNkFRVEJWYjcwYjFoWUZvVVAw?=
+ =?utf-8?B?NUhoMk5lRnBETkZaL283OGtPNGlRNG9rLzF4OU1UVDNoaGJVTTgyZ0VTVCtm?=
+ =?utf-8?B?bGlkYWE2ZUxYTEE9PQ==?=
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?utf-8?B?YlRONGpRUnMrT1VlK2RxeEJGQlZ1L2VzcDFZNXNabFFub2JsZmRFRUFyQmt0?=
+ =?utf-8?B?dXVudWJUMFNTSU5BdzBwYXhIZVdNQTVtYUdOUXB2c0s1aHdHaEhXZ0VKbENm?=
+ =?utf-8?B?VWtoc2liSjIzb2Z0Y0hQQkxVcUF2Rm5VdXU5djQwOEw2TDdUTVl3b2cxTC96?=
+ =?utf-8?B?bjZvc2l1SUxkN2paWDEvdldWVjh4clh0bXBhb1pNbGxTUFlLcEM0ajMzV2hp?=
+ =?utf-8?B?SlNDZklwTXpiMDVOQ29WTW5zOG91WjhyV0Y1WnBSekY0L3BISHZhZmlGYnRi?=
+ =?utf-8?B?VEhqOEltVmU4VEhzdGJmbEhmWVZhNUE3U2FQSDdDellhWDBIM2VvUE53UGdW?=
+ =?utf-8?B?dXJreVl2MzRNMFFXbXdkN2swMkFXWFF1aHJBQm1FOUZ1MU5GWm5sZ3M5YzBw?=
+ =?utf-8?B?M2N6dE9XdVBGV20xaGpvcFMyUjRyTVluV215cTdYVDMrSjhrOVhmV2t4VGhn?=
+ =?utf-8?B?WE1UN2lRRjVzcWJaNHFLM2NocVZZYmJqWHpYMGtoSkF4clpPNkhyN3VpLy9Z?=
+ =?utf-8?B?QkdGZ0ZGVFZUZVkyV3JDdjdCRWU1YXBMMksxUHN0SGJHR01hakFranZzYXNi?=
+ =?utf-8?B?aXQ3RzRteTJibko1bmhBYWs1MCs5dTViaFdkNE9KMlpKSmljVnBHOWRWRnZO?=
+ =?utf-8?B?SFJldDBnbUdPZ045cGQ4S3Y2cW5ocDQ2VzRsczFWZ0Rvb2p0aFdCWFF6bVVV?=
+ =?utf-8?B?MUFCSTM0NElTbUh0QWRka2VwVlZMWjhlQmwrbEdwN21Gb0JLRHdHbGY0NmVo?=
+ =?utf-8?B?dWtnR2Z0WVI0NDJNR1FPTXhWUE1JSC83UXNML2U3N1dSMkNyQzRxUjd2Sk11?=
+ =?utf-8?B?Ri8wMXpzU2tUak1hK0oxdmNvMm5ab3BISzlibzFUNWRYcWxKREplSURYZTNC?=
+ =?utf-8?B?WStJbnVjWEhPNFk5ZDc4ZVY3SUJBVTBUQ3BPZEVtdy9BWFlMME1lQXBVdnpC?=
+ =?utf-8?B?b1hqVm1lejVCTU5zMlZZTGZDV2RBVnV6cWFVcjZKcGNrQmhZeGlWbkJrcXVE?=
+ =?utf-8?B?enlSYmk1L1VBYVU4aitxVlVzQ2FRSG5qaXJVSjhGZjRQdGVGdUVQN3pnWk4v?=
+ =?utf-8?B?YWdxSHNBOEljUTY3REpCTjBzQitKVnk2QlJ5SDA3Unpzcno2MWthVmVrdFZE?=
+ =?utf-8?B?amVKZUZiQ3c1Zk12cUhRRnkwM1grSXVWS1JrVXZiZTJLMXFMcmwyRGFwRDFF?=
+ =?utf-8?B?SjMxUjZVRjllMEFBTWk3Uk93R01taDVrcXB5cGYwNkxVQ045SHRWSmdNL2ZL?=
+ =?utf-8?B?VE50amxLbS9rbktxRDVxRmUxKzAzLzluRStNb1prcnI5bnhjYXdrQ09OSmR2?=
+ =?utf-8?B?d2N5dzRtSzZrZmNkenVDalhHU0lkOUl3bkdsRDBEQ3JqMG5HL1E5dTQ5akpm?=
+ =?utf-8?B?cXRFbXN0YVNUT1MxZVZjRWFLSmVpSzZxTFF5RlV1RUlJTWF4TmpIekpYYXJ6?=
+ =?utf-8?B?czlGZFovUzRWMDQ4ZGhOOTFRcnB1NnJjNGlRZTFGU2xuNkR0Z2xHNFliWEN3?=
+ =?utf-8?B?Y1NQYlE5RzBQekFXdXp1T0o2bU95QlVqS2FXWU14ZWN4NFV4dk5KcTViMnJq?=
+ =?utf-8?B?dStWb3J6YWdYNmMrREZ0dFNmMkJhTUFCTUtGdERFS09RQW9aTVViNnZ1MVRp?=
+ =?utf-8?B?OGpIbUtTV0R4T2s5QUE0MGNHTXFNYlVOaHNJR1BvTjNhYndEOXMyWmNtMUlY?=
+ =?utf-8?B?SFlJeWFWU0Y2QWZPNE8rTkRTa2ZFKzU2Z3N1U2JLSUVDTTAwai9yTlJxOWxE?=
+ =?utf-8?B?WlY4MXZDcE5MaWh4UUF4M1cxaERmTlo1Y2lYL1BFQ0R0dVpzZXovWXB6aisr?=
+ =?utf-8?B?MkZ3LzJRa2Y2NHF4cU5YSHQyZmFSaWFLVDlPaU9OZ1ZETDhua0Q5OTE2dy9C?=
+ =?utf-8?B?V1VVTXV1bHlOK1o0SDNuTitQMUpmbS8wZHA3enczazJsK3lzZzhUd1dTR3JC?=
+ =?utf-8?Q?YvL3OUWoOxte5NCgamUNMkzYoZkTMslq?=
+X-OriginatorOrg: outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 79dfb130-6d65-479c-3b33-08def14336d8
+X-MS-Exchange-CrossTenant-AuthSource: TY4PR01MB14432.jpnprd01.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 03 Aug 2026 09:40:12.3692
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: OS3PR01MB9673
 
-Hi VegetablCat,
+--------------2vOLqatgnclKlQ6H0iIDGnPv
+Content-Type: multipart/mixed; boundary="------------5TZ9ebXIFKaDSPtgCrmkwPjF";
+ protected-headers="v1"; hp="clear"
+Message-ID: <2b2b11fa-7549-482e-b3a1-4533fb69f470@outlook.com>
+Date: Mon, 3 Aug 2026 17:39:44 +0800
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Cc: wiagn233@outlook.com, Sanjay Govind <sanjay.govind9@gmail.com>,
+ Kees Cook <kees@kernel.org>, Zoltan Illes <zoliviragh@gmail.com>,
+ Qbeliw Tanaka <q.tanaka@gmx.com>, Elliot Tester <elliotctester@gmail.com>,
+ Dmitriy Zharov <contact@zharov.dev>
+Subject: Re: [PATCH v2 1/2] Input: xpad - query MS OS descriptor for BTP-KP20D
+To: Aaron Ma <mapengyu@gmail.com>, Dmitry Torokhov
+ <dmitry.torokhov@gmail.com>,
+ "open list:INPUT (KEYBOARD, MOUSE, JOYSTICK, TOUCHSCREEN)..."
+ <linux-input@vger.kernel.org>, linux-kernel@vger.kernel.org
+References: <20260801075623.2769601-1-mapengyu@gmail.com>
+From: Shengyu Qu <wiagn233@outlook.com>
+Content-Language: en-US
+In-Reply-To: <20260801075623.2769601-1-mapengyu@gmail.com>
 
-Thank you for covering the wider KP device family. My patches overlap
-with yours but use a different request to keep the controllers in XInput
-mode.
+--------------5TZ9ebXIFKaDSPtgCrmkwPjF
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: base64
 
-Instead of requesting the Microsoft OS Extended Compat ID directly, my
-patch sends the standard USB GET_DESCRIPTOR request for the Microsoft OS
-string descriptor at index 0xee during probe.
+DQoNCuWcqCAyMDI2LzgvMSAxNTo1NiwgQWFyb24gTWEg5YaZ6YGTOg0KDQo+IEBAIC0zMzQs
+NiArMzM1LDcgQEAgc3RhdGljIGNvbnN0IHN0cnVjdCB4cGFkX2RldmljZSB7DQo+ICAgCXsg
+MHgxZWU5LCAweDE1OTAsICJaT1RBQyBHYW1pbmcgWm9uZSIsIDAsIFhUWVBFX1hCT1gzNjAg
+fSwNCj4gICAJeyAweDIwYmMsIDB4NTEzNCwgIkJFVE9QIEJUUC1LUDUwQiBYaW5wdXQgRG9u
+Z2xlIiwgMCwgWFRZUEVfWEJPWDM2MCB9LA0KPiAgIAl7IDB4MjBiYywgMHg1MTRhLCAiQkVU
+T1AgQlRQLUtQNTBDIFhpbnB1dCBEb25nbGUiLCAwLCBYVFlQRV9YQk9YMzYwIH0sDQo+ICsJ
+eyAweDIwYmMsIDB4NTE1OSwgIkJlaXRvbmcgQlRQLUtQMjBEIENvbnRyb2xsZXIiLCAwLCBY
+VFlQRV9YQk9YMzYwLCBGTEFHX01TX09TX0RFU0MgfSwNCg0KSSB0aGluayB1c2luZyBkb25n
+bGUgaW5zdGVhZCBvZiBjb250cm9sbGVyIGlzIG1vcmUgY2xlYXI/IFNpbmNlDQpjb250cm9s
+bGVyIGl0c2VsZiB1c2UgYSBkaWZmZXJlbnQgVklELg0KDQo+ICAgCXsgMHgyMGQ2LCAweDIw
+MDEsICJCREEgWGJveCBTZXJpZXMgWCBXaXJlZCBDb250cm9sbGVyIiwgMCwgWFRZUEVfWEJP
+WE9ORSB9LA0KPiAgIAl7IDB4MjBkNiwgMHgyMDA5LCAiUG93ZXJBIEVuaGFuY2VkIFdpcmVk
+IENvbnRyb2xsZXIgZm9yIFhib3ggU2VyaWVzIFh8UyIsIDAsIFhUWVBFX1hCT1hPTkUgfSwN
+Cj4gICAJeyAweDIwZDYsIDB4MjA2NCwgIlBvd2VyQSBXaXJlZCBDb250cm9sbGVyIGZvciBY
+Ym94IiwgTUFQX1NIQVJFX0JVVFRPTiwgWFRZUEVfWEJPWE9ORSB9LA0K
 
-In the Microsoft OS 1.0 sequence, Windows first requests this string
-descriptor, which supplies the vendor code for the subsequent Extended
-Compat ID request that returns XUSB10. Your patch issues the second
-request directly with bRequest set to 0xee.
+--------------5TZ9ebXIFKaDSPtgCrmkwPjF--
 
-In my testing on 20bc:5158 and 20bc:5159, the initial string-descriptor
-request alone is sufficient to keep the controller in Xbox 360 mode; a
-subsequent Extended Compat ID request is not required on these two
-devices. The 5158 device additionally needs a keepalive quirk to prevent
-it from resetting when its interrupt-IN endpoint is idle.
+--------------2vOLqatgnclKlQ6H0iIDGnPv
+Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="OpenPGP_signature.asc"
 
-Could we use the Microsoft OS string-descriptor request as the common
-mechanism while retaining your device coverage and attribution? This
-follows the protocol sequence and avoids assuming a fixed vendor code.
+-----BEGIN PGP SIGNATURE-----
 
-For the separate 20dd devices, I suggest using HID_QUIRK_ALWAYS_POLL
-instead of registering a HID driver from xpad. I verified this on
-20dd:5159; 20dd:515c still needs testing.
+iQIzBAEBCgAdFiEET/yoGP3p5Zl+RKVuX75KBAfJsRkFAmpwYeAACgkQX75KBAfJ
+sRkHQRAApjE5Aypn6KX7kVzdK6lsD0fmnfB40FHvKZuELw46mCynZjm26TqyMdNW
+fUcFukYu+Dw5+8gT9EZ2BIhaRsjgh2ATC5sX/XcHkLSjLOEwl7viIYQ3ffZCwjUX
+lDJ5G3oNplHoLFkeM63QKte7yJNlC+CueTF3Vo7t7nALUN1VA+YVn61Nf6g/kU5W
+fhGqBv8VgAkEyrQYijweBpt5azEe9gMTTqmIv7QDKrNoQhn6MS10URbvZj0FLOIp
+HCAMyYMHMTygE+0cONhn4+TGLP8SIGq/pYGdLz27o3KlKCE/wCoY2vFG35psA1Z4
+ESww4xBNYt1ve130hImacMUG7cauvVoKmKPaGMivcmITSLjXLqKrKAgpeQsQNVe2
+5Q0CNiIs9pwztGimH2hYCAvXbEoNG0XTnUujA8VnUNIp7x3T0mEmwfT5yDvcnHi0
+dbfgLmh0vOe0Cy2mvhj3ejBoXK9BiWwdVBJ1EuLHltNLiQijmaRvKM54PSiX+Em1
+JzpjdBb+e6+4Az59/r1oJioPIdpdzl1bUUWMidi/De5Q0gPfxTQFhRgRalfmXc8C
++geNGlJza+1OkKmy/e/A57thoudOaTJbpHxi61Dcpm8KRg40Xa8MDnBRY5OT+fpv
+MDJfKi9ewWWVGjX0c3VInLtUmilw+0maLhISWTp4/AuDo81lxv0=
+=rbpi
+-----END PGP SIGNATURE-----
 
-Could you test the string-descriptor request on the other KP devices? If
-it works, we can consolidate the overlapping submissions and preserve
-your device coverage and attribution.
-
-[1] https://lore.kernel.org/linux-input/20260725072813.339112-1-mapengyu@gmail.com/
-[2] https://lore.kernel.org/linux-input/20260803053932.5897-1-mapengyu@gmail.com/
-
-Thanks,
-Aaron
+--------------2vOLqatgnclKlQ6H0iIDGnPv--

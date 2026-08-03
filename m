@@ -1,151 +1,81 @@
-Received: from endrift.com (endrift.com [173.255.198.10])
+Received: from mail.mcld.eu (mail.mcld.eu [84.242.69.186])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 76DC93A544D;
-	Mon,  3 Aug 2026 20:39:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=173.255.198.10
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 306902F7EF2;
+	Mon,  3 Aug 2026 22:08:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=84.242.69.186
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785789587; cv=none; b=AMzT+vlIBZ6/IbjQyXAiBWCNEqss43GeQXr4flCPPcVc63xOAt3SK7ZWsN474O9PqQ+f6L4RsJHWz/Ff/sDJQ01X16qy4rI3SyRsWRHZVTintFLRyBXeYd+q+RcSx52rhTxDUO1j0ipyMYfOtHoWlObtVmQCGMncQnZ8/JjbEBM=
+	t=1785794932; cv=none; b=maUtTig/L/6P3nXe/GTDRXsl76MdXQr0p7zFSawZEWglJacdtW8FoVutcw5FZgtiawMmxeZlLKxD+ChawETdw6eoLxh0lme4nASMWjTvmrODKPN4r8EVqxG4ta3MynE/nyOccwE3hmDmfygKIBXb+2av+Usu38ytDFyrigKJv+w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785789587; c=relaxed/simple;
-	bh=vRQZJ1+RrWzeryMXLPcZ3xJQLqhQEwlXx2PTPu/N0ss=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=hFamH74e3ljjDHdjS7jIVW7p55+uxu3sKVOKJDwjL+mAxJspmiYe8NOA/LkmGMiOnzd1B72SiMhvTvFIbq3w6RyBWfO3SFJoajzYbSVRfzOf9CNYrF2M99i0J4LIWQ+izoMjec3D1S0VdulXziRnznj+NnGxApJlTk8GTJlpdLs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com; spf=pass smtp.mailfrom=endrift.com; dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b=EuTIFE+C; arc=none smtp.client-ip=173.255.198.10
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=endrift.com
+	s=arc-20240116; t=1785794932; c=relaxed/simple;
+	bh=BB261IfGQglu+lEWGr2/GghdJzI6uHefzzy/1kI8qKY=;
+	h=Date:From:To:CC:Subject:In-Reply-To:References:Message-ID:
+	 MIME-Version:Content-Type; b=X5dGvDkb7OK8GOZvWeNFdtCApdQ0Ppo5NkYmxNioBtT9pkHagLU13vLGFsLv4h8TqLZg0OdcyRELDNJwrO5cg9NtItAswtRM5M9ve7+6E+oI02DNnXQ9FUcmh+16T/y2BAqJk40D4oTxnz1BJ2F8tvFSzlaBCIPkviJuzJmHqos=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=mcld.eu; spf=pass smtp.mailfrom=mcld.eu; dkim=permerror (0-bit key) header.d=mcld.eu header.i=@mcld.eu header.b=iCrwdJTA; dkim=pass (2048-bit key) header.d=mcld.eu header.i=@mcld.eu header.b=R4GREi3z; arc=none smtp.client-ip=84.242.69.186
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=mcld.eu
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mcld.eu
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b="EuTIFE+C"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=endrift.com; s=2020;
-	t=1785789577; bh=vRQZJ1+RrWzeryMXLPcZ3xJQLqhQEwlXx2PTPu/N0ss=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=EuTIFE+CLvZrVEnJOnE2hpkvJsE1Z+9pAHKjjuvRMaliCfRRWAqJKcTFF/ZbH8T9S
-	 9lv5xqK/nI4TaO/Rf6bOXLHvfZvxjNX5QbZA9Hr1U6Has92STypuJv7PO4HsLtL92v
-	 zErurJlr+U+hPZgESgAI65olaBDc1bhaA1hD5DGguGzi+UQtqv+FIS/WvNRHVAIEAY
-	 iPbxkBHCKXTCYc9wmKnNN6qkPS5VUhy7DLTUG3eb7rR4Lkql8ofB2UL8rLX2F0PiN1
-	 SLcLL6U/NjHEpKdnIBhH0vomW5GaQdoHJIgD/FDbmqLVi0251eNgasLwBFN6kV6Or9
-	 sELch0M204z9g==
-Received: from [192.168.0.27] (71-212-73-87.tukw.qwest.net [71.212.73.87])
-	by endrift.com (Postfix) with ESMTPSA id 1B80BA010;
-	Mon, 03 Aug 2026 13:39:37 -0700 (PDT)
-Message-ID: <5ad5f7d4-a29f-409a-8153-c162059807b2@endrift.com>
-Date: Mon, 3 Aug 2026 13:39:35 -0700
+	dkim=permerror (0-bit key) header.d=mcld.eu header.i=@mcld.eu header.b="iCrwdJTA";
+	dkim=pass (2048-bit key) header.d=mcld.eu header.i=@mcld.eu header.b="R4GREi3z"
+DKIM-Signature: v=1; a=ed25519-sha256; s=202501e; d=mcld.eu; c=relaxed/relaxed; r=y;
+	h=Message-ID:Subject:To:From:Date; t=1785794785; bh=BB261IfGQglu+lEWGr2/Ggh
+	dJzI6uHefzzy/1kI8qKY=; b=iCrwdJTAgg/XW8M3ZkrqNDqg3ZWFx03dDPAKgZR6zgttiAp8pe
+	VKgwE9Dqv7/M8X4kK+PZ4qGGbtgif3tuSrAg==;
+DKIM-Signature: v=1; a=rsa-sha256; s=202501r; d=mcld.eu; c=relaxed/relaxed; r=y;
+	h=Message-ID:Subject:To:From:Date; t=1785794785; bh=BB261IfGQglu+lEWGr2/Ggh
+	dJzI6uHefzzy/1kI8qKY=; b=R4GREi3zqgZKzJs5pHt4nyl0sGOO1zgOwbl+tN0q0FpggvyA0f
+	8tZOxaNUQkEt86g4la6+Rn5yH27d3UebhBjGnW5QteiTSl1DgBoYjkAWcagvTW7lptdHI/39Zyr
+	Y9e7mCmDMBBdmBjMEZcf2Knu3XmsMwuUMXIv9l2H4dFqaS6A1FJv1/vSPJsyF+JeXd0dZIGdsDK
+	2orIQEAoJLRsSfZ5Jy6KV16Gdz85r93/melZcebMBmVVI0u/VOV9EQRJutxsENEQwXa+6LbHehz
+	JqY+v1xNFjqcLyQk08AIZt8kxlpYlP5HI9yjBxHpL+L0pHrrhLcfQYGOGIjplYNXNeA==;
+Date: Tue, 04 Aug 2026 00:06:25 +0200
+From: =?UTF-8?Q?Kate=C5=99ina_Medv=C4=9Bdov=C3=A1?= <k8ie@mcld.eu>
+To: Roderick Colenbrander <thunderbird2k@gmail.com>
+CC: Roderick Colenbrander <roderick.colenbrander@sony.com>,
+ Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>,
+ linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: =?US-ASCII?Q?Re=3A_=5BPATCH_v2=5D_HID=3A_playstation=3A_Support?=
+ =?US-ASCII?Q?_DualSense_player_LED_brightness_control?=
+User-Agent: Thunderbird for Android
+In-Reply-To: <CAEc3jaD8epAdtS-ZGhH2Yk_82A2fp57LUeLzq3vapGVQX5d7eA@mail.gmail.com>
+References: <20260714180424.70662-1-k8ie@mcld.eu> <20260714184225.84646-1-k8ie@mcld.eu> <CAEc3jaD8epAdtS-ZGhH2Yk_82A2fp57LUeLzq3vapGVQX5d7eA@mail.gmail.com>
+Message-ID: <E1C90FA0-E613-404D-A48B-66348AA53CCF@mcld.eu>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] HID: hid-steam: fix uninit-value access in
- steam_get_serial
-To: Jiri Kosina <jikos@kernel.org>, Pei Xiao <xiaopei01@kylinos.cn>
-Cc: Benjamin Tissoires <bentiss@kernel.org>, linux-input@vger.kernel.org,
- linux-kernel@vger.kernel.org,
- syzbot+75f3f9bff8c510602d36@syzkaller.appspotmail.com,
- syzkaller-bugs@googlegroups.com
-References: <6a27d055.39669fcc.33b062.008d.GAE@google.com>
- <0c5f5bcd3d01776615a97d7f23b5c1bff6a2acce.1781092734.git.xiaopei01@kylinos.cn>
- <85n82qo4-q3q8-8052-1qnr-n7qo12p2p01n@xreary.bet>
-Content-Language: en-US
-From: Vicki Pfau <vi@endrift.com>
-Autocrypt: addr=vi@endrift.com; keydata=
- xsBNBFtJAmYBCADmRIN9O/aBbYc93lUMvG2hPip++otLit+65EwNHB1y9BmbVr0Q8Tz7rbAM
- K2mB0EiA4Z3DesoLIOzlJq0E4fgDsAi8ok/i7aTx35d0Qeab95GEdkCMcL98xNJE0agq+KYk
- pnvFlhdyC23K32KdOijsUqqbd86GgxRZmuf/Yf932KxKAj+n0aFBw5y6i0ep7WQBF6ytpqah
- Uzy04D//smiTr6rrXg+C09MX0XZ2Fvcv3gmimnoV6C/ZCO1Zecqyhrs0YFfdIhFEBp2ItYim
- MoeU4g6y726gyRO/+wwzZkryJMU8hHootzW1gUylZeELSwx8uIJSHFiLE7AK+M5soPtDABEB
- AAHNG1ZpY2tpIFBmYXUgPHZpQGVuZHJpZnQuY29tPsLAjgQTAQoAOBYhBNj+0QMp9OPSosB4
- 6X72E7X7Nb0rBQJbSQJmAhsDBQsJCAcCBhUKCQgLAgQWAgMBAh4BAheAAAoJEH72E7X7Nb0r
- WIcH/0GnIOkmAyy2UlgS/VKi193ZRWYJjBfUncIBf57gLt1KYY0PvUoR9MVvkLqcx8vaCxWh
- bVSqzxT6WU1ECp/URdQV2W4IGB6W4B8rT3VGw0QzbVVQRmt6vReEMFVL+vBfgHKTRBItiy7x
- Bd+JZDusiyrrGok9TqqkBYlZPWE29ajiOAe05N1UhuRq7y8w/bOkzFD36ohMtfqV4hByWV+q
- d0LujqgZm1AkM1FqpJ4j8h1Gox5rpmWfaHJmBQ8HcKqQfwACQCvDNHS2vlTXJYfxlh+mVerL
- YKZgWnyvqx4pLKqJOXQKssIaDjnDfTu6bQgXvhaKb1+piBUYuoe9/+3E15TOwE0EW0kCZgEI
- AL/KzT+NR1/LbJ7Kuv3gAHFp+S7cfyyPSamN6i6/X135vNSawG7g81iWUweAW6YahFA2haqw
- t+8/Bm9Dzc8rF6RHCElK1GoHiF4SIYQxjqPo2wwqvTad9FblWTfaYRKfVDvNz2Rz4i681JrR
- 8gizvzJPX+gocH7FMzPwb1DAwL2kKA5wilgAGSv8nZqeG55hNt2t/XiT6Yd97DJv86D24UUP
- BetLTq2jUWtX+omt+JhF3QzMjnyGQYKHNXUB/ipBxNSkwnDrWg/f1EjDtNzuOHManJDC9Bqi
- qhi1abiTNlmmewI5iLEnnxzfSKS5HO9nCC1szl229DHwIMH7jA+G+z0AEQEAAcLAdgQYAQoA
- IBYhBNj+0QMp9OPSosB46X72E7X7Nb0rBQJbSQJmAhsMAAoJEH72E7X7Nb0roioIAM0oDKEU
- QH7Og4+AXm35uklIiCX6cFQPgDVlQn7M/QFLnEhhCfPTt8PkIIN4dLgs4lIJxExpgQWgOLUX
- h+ZLLupzZXoysAXfdwNLf/RqRed/zTZbUjssy4D7yeNIJThzU32kDy0Hx3pMNM/Hd9yaXmHL
- LDkfwcyQuqA9+eeOogkDC8inLNLfYQ8JtVQZuWppNcbOZkBxfMVAmPHg6C9fe2biQFojoLPe
- 4nQheprKfBp5QsY2cIjP8kaWPpfJEJ5i2aNgtrfebEzjYoWWLkK78Lo8qABdxkVhH6rhAlw2
- rVf41cHNCfHF7ddvOb9IItWacXxYn7ql+dI/Se3+ISWDboQ=
-In-Reply-To: <85n82qo4-q3q8-8052-1qnr-n7qo12p2p01n@xreary.bet>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+ charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Autocrypt: addr=k8ie@mcld.eu; keydata=
+ mDMEZdtdGhYJKwYBBAHaRw8BAQdA8pDTm0x+ycmCkmJX00g58Fn/gLrPIW+DpTR8lVjwr3G0NEth
+ dGXFmWluYSBNZWR2xJtkb3bDoSAoTWFpbiBQZXJzb25hbCkgPGs4aWVAbWNsZC5ldT6IkQQTFgoA
+ OQIbAwIXgAIZARYhBHlvKqktmAxER0PJsvSrQLRnorm2BQJmBHXLBAsJCAcFFQoJCAsEFgIDAQIe
+ BQAKCRD0q0C0Z6K5tksuAQDUhwePcb1WHOJBwbpb43qT2u/JDCAYRrCqInZH/7S9fgEAyipqvsq0
+ HF+9pYa4yReYsHjycd8J0nT9FSWmmfyCvwC4OARl210aEgorBgEEAZdVAQUBAQdAiXmCYEDjCR5j
+ pXCZp6bsT15OnQdwjirDU1v6UvFzyEIDAQgHiHgEGBYKACAWIQR5byqpLZgMREdDybL0q0C0Z6K5
+ tgUCZdtdGgIbDAAKCRD0q0C0Z6K5tjNaAP9C3hba95o2WurhvpSbM6l63IBc0u+oE9slAw6/A4Nz
+ HQD/c2+XB0qLk8XVtCtoP7Lia8nt8fwYdSUdpD96m1vHywY=
 
-Hi Jiri,
+Hi Roderick!
 
-On 8/3/26 12:34 PM, Jiri Kosina wrote:
-> CCing Vicki Pfau here ... could you please give your Ack to this fix?
+Thank you for your reply! Yes, this is true unfortunately=2E=2E=2E Applica=
+tions would need to look at the max_brightness instead of assuming how the =
+LEDs behave=2E
 
-This was already fixed in 9f8ee99f831b2711624ef81d0abba1d183f28b09 in the series I submitted earlier. I didn't realize there was an open bug report for it.
+One thing that comes to my mind is that we could add a module parameter (e=
+=2Eg=2E player_led_brightness_enabled =3D 0/1) and only expose the brightne=
+ss adjustment when the parameter is set=2E The default behavior would stay =
+the same as it is now (max_brightness =3D 1)=2E
 
-> 
-> Thanks.
-> 
-> On Wed, 10 Jun 2026, Pei Xiao wrote:
-> 
->> The reply buffer in steam_get_serial() is allocated on the stack without
->> initialization. In cases where steam_recv_report() returns a short read or
->> an error, not all bytes of the buffer are written, leading to subsequent
->> access of uninitialized memory when checking reply[0], reply[1], reply[2].
->>
->> Zero-initialize the reply array to prevent KMSAN uninit-value warnings.
->>
->> Logs:
->> hid-steam 0003:28DE:1102.0007: unknown main item tag 0x0
->> hid-steam 0003:28DE:1102.0007: unknown main item tag 0x0
->> hid-steam 0003:28DE:1102.0007: :
->> USB HID v7f.fd Device [HID 28de:1102] on usb-dummy_hcd.1-1/input0
->> =====================================================
->> BUG: KMSAN: uninit-value in steam_get_serial drivers/hid/hid-steam.c:457 [inline]
->> BUG: KMSAN: uninit-value in steam_register+0xd83/0x10e0 drivers/hid/hid-steam.c:965
->>  steam_get_serial drivers/hid/hid-steam.c:457 [inline]
->>  steam_register+0xd83/0x10e0 drivers/hid/hid-steam.c:965
->>  steam_probe+0x6f1/0x19b0 drivers/hid/hid-steam.c:1273
->>  __hid_device_probe drivers/hid/hid-core.c:2822 [inline]
->>  hid_device_probe+0x60d/0xb90 drivers/hid/hid-core.c:2859
->>  call_driver_probe drivers/base/dd.c:-1 [inline]
->>  really_probe+0x4d5/0xe40 drivers/base/dd.c:709
->>  ...
->>
->> Local variable reply.i created at:
->>  steam_get_serial drivers/hid/hid-steam.c:448 [inline]
->>  steam_register+0x180/0x10e0 drivers/hid/hid-steam.c:965
->>  steam_probe+0x6f1/0x19b0 drivers/hid/hid-steam.c:1273
->>
->> Reported-by: syzbot+75f3f9bff8c510602d36@syzkaller.appspotmail.com
->> Closes: https://lore.kernel.org/lkml/6a27d055.39669fcc.33b062.008d.GAE@google.com/
->> Fixes: c164d6abf384 ("HID: add driver for Valve Steam Controller")
->> Signed-off-by: Pei Xiao <xiaopei01@kylinos.cn>
-> 
-> 
-> 
->> ---
->>  drivers/hid/hid-steam.c | 2 +-
->>  1 file changed, 1 insertion(+), 1 deletion(-)
->>
->> diff --git a/drivers/hid/hid-steam.c b/drivers/hid/hid-steam.c
->> index 197126d6e081..f65ad1a21c01 100644
->> --- a/drivers/hid/hid-steam.c
->> +++ b/drivers/hid/hid-steam.c
->> @@ -445,7 +445,7 @@ static int steam_get_serial(struct steam_device *steam)
->>  	 */
->>  	int ret = 0;
->>  	u8 cmd[] = {ID_GET_STRING_ATTRIBUTE, sizeof(steam->serial_no), ATTRIB_STR_UNIT_SERIAL};
->> -	u8 reply[3 + STEAM_SERIAL_LEN + 1];
->> +	u8 reply[3 + STEAM_SERIAL_LEN + 1] = { 0 };
->>  
->>  	mutex_lock(&steam->report_mutex);
->>  	ret = steam_send_report(steam, cmd, sizeof(cmd));
->> -- 
->> 2.25.1
->>
-> 
+Unfortunately it doesn't prevent manufacturers from shipping OS images wit=
+h the parameter overridden to 1 by default and breaking applications' expec=
+tations just the same=2E But I don't see any other way around this=2E
 
-Vicki
+Would the module parameter address your concerns?
+
+Regards,
+Kate
 

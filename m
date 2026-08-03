@@ -1,147 +1,102 @@
-Received: from mail-pg1-f175.google.com (mail-pg1-f175.google.com [209.85.215.175])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6B80B2E62B7
-	for <linux-input@vger.kernel.org>; Mon,  3 Aug 2026 01:22:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.175
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 54A618634C
+	for <linux-input@vger.kernel.org>; Mon,  3 Aug 2026 01:27:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785720166; cv=none; b=GDrhJ2KCS46hwbPKoh8F5VZb/RUQ2KuTB17Lj0n6yO5N4yfqolGerYvW7iUWf+ACiSO6+9UF3ajcyfhOL24vzZraj+RN/+OT5USI4383r3dA/itPJxyCpNGvnu8NXgW8aRvUVLJdMw/DrFfI98o4WdMDj44I/Vuq3DR5VAP9arM=
+	t=1785720479; cv=none; b=CmU/Lx3pDYpsydQFjKchm5zqX2d1Z1EN/lpLG4Tq4O3PKI4/gj2FDM7ln7EVR5KH5/PU0Mp/qDkLic3O6NINW/KNLXgKYiF44BL3pbqkV6brYdVB2WYjDPgHT+ZBq8myYLpbTkJXlkWvvSQKcmTq5lHeNqNvkiP/X2ToZUyIy+g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785720166; c=relaxed/simple;
-	bh=w60xHHDm9F8SAZ2d6EJehwap+FjePOGuUHew2BGk1MY=;
-	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition; b=Sw18dmamOV3KZtpyx1MzH3E7WQsVLXIBhlRsC8Qrn3nQ9WSt1kU//GZ6UUKkKmJdzFzcGirSVG50ESWPWKQuugMVmhEe455uZDWLc/DFryXCaQgzeYveBVfMsdQZgiOhlE2fh8UhK8kL5Ywek5HidacciTIrhYTYfQpWrrzmd4c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=r6mg78If; arc=none smtp.client-ip=209.85.215.175
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1785720479; c=relaxed/simple;
+	bh=oTMPlQj1GfPpSg9cp3d4X0t/SZJboxwW7rqoN8z6cx4=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=W3Hb68Tuah0Sm0XibDwTznPJvjqrIzlNSLiW4dcWS8154kvkAqdyUjIsvzVYJZXFtkqAs8W1yk0bWfG+vGFC/OQJymZgMQo223jOfHnBuWyY9W7Mf19MG6odTDN3gMpTZ9+/8k8qWfR1C9r5h6wECHNqumALSFMNIoUeDZs4zM4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=igLdcvk/; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="r6mg78If"
-Received: by mail-pg1-f175.google.com with SMTP id 41be03b00d2f7-ca97d139d5fso1673036a12.0
-        for <linux-input@vger.kernel.org>; Sun, 02 Aug 2026 18:22:44 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1785720163; x=1786324963; darn=vger.kernel.org;
-        h=content-disposition:content-type:mime-version:message-id:subject:cc
-         :to:from:date:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=pinT79H7PFWF2UbBIjosXbbXUGgPnltGssDiSYyEm60=;
-        b=r6mg78IfClrED0yFkVm8CpmWD5SxI9GYXTvQ7ZisiLfDEKpTGlFMAI2wP7Oi73neVu
-         sXU8bXoIqHEdWv61GH/CfcUxZ1b36pKtraaZPnarsDCkTsPsE63o80v16zk5BmVxdjZE
-         0d/TedcQgV/wCsmSTIBMUrPLQs3tDvmJ/v2/nbZliYBeQ2IDItBjUTHwPs9U2UP3uZro
-         qLApBVw7dVr1bp9R1dIBRf/NDI9QuDKf5b+P/C2BGJ5aD0xXKenqyJF/wmvKZNSfx/k7
-         55MPwYgLJQ6NW1DnIWP8SjRq7TUcZRLY0kbxLrcVsXMzv/tmzRnImUuwhG29X0zO0E8z
-         vsQw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785720163; x=1786324963;
-        h=content-disposition:content-type:mime-version:message-id:subject:cc
-         :to:from:date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=pinT79H7PFWF2UbBIjosXbbXUGgPnltGssDiSYyEm60=;
-        b=EgfvOl/dlkZdiWvfPPMuPIE/DfA59W9UOGNSQ3Vjw+PIOk9wsiI4kpUuTcidPfEfx6
-         VeXn7ymBifChJ9E566Hf26rOa5njtbn9Qla7keIk4kMxwEs+74b1vy8Hw895AstPt77Q
-         V5MFj7wys5SIPJYJtNYn4JIGTBK+waWi+6v88p/jnJ/CGe8HCkThWsBm++MPD2+Z005j
-         cklX/rTjuqk3Zep7dQL0xVRPf4/skYXcDVVMopN0LwyfGrWUW30QUvtkY63Xt1FphXf5
-         7KtliZ0NMaR83m0jGTC57CAdWOO7SkoKM5CcALix4ID5TUhEYkKeHH0lvxJbvllZ+cPt
-         6ZQQ==
-X-Gm-Message-State: AOJu0Yw3tc6yj3EzM148jeTePh0o2xsXqQcM8040GtvypW2gIlfMJJSF
-	mhHoCOKdrXtb3WntguRH238jHHWcE+BLomhthT37NfnnbZojcjZUPzsCXzkvzw==
-X-Gm-Gg: AR+sD12WBvovCwo9J3FkhyAJ+oh5FiZ1clE3IjE1k/UT5LbMN+o7k0clbRaYvfcwksa
-	8Zy5fL0fDh4VJ84FXmaiiORZ6tPncPtp5sUrbKWz3adJHvuuX/WxCfJ4KVCy9KpPczogTRn1kfy
-	hwiZJl5Q9RSvT6FTII0wN3S9Q3TZC9y9Ftyx8cfTFnlI3x2katBwfsZwL6SEbhU0qYC5unsikyw
-	2x/+/WsbkO7PX7UnnYTNF0X9X4IEhbtOF2q/oi8qXoC7pLAZ2J7/HpfK54ypvC/XU9uY3I9b+9L
-	s0eBIATnkrq0kNkGzWaAq4Da/QgZyXjuWdyt4NHZrVWaznAyRQnEkoSgcB8T1A62CQk7UXzXb47
-	fi+QBoEL3IhoI0Ybk8vUVDV2r/C7KzcZQ8IwaGArsguZnNbxL7ftusaMQyLOQ9Rui9z4ycVi02E
-	wW/vTGQMmVa9rjyCUDj+M14r9GXlJEPLcKArf1x2r9mwI4WpB/1UHFtonBCYPPJ4lvmW1hFmZSK
-	hp8O9bGEMH8iI3h6KwZIQb+6o839Q==
-X-Received: by 2002:a05:6a21:3390:b0:3c4:3ada:384d with SMTP id adf61e73a8af0-3c92a57baf2mr7063094637.30.1785720163372;
-        Sun, 02 Aug 2026 18:22:43 -0700 (PDT)
-Received: from google.com ([2a00:79e0:2ebe:8:4fff:876c:cdae:e53c])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3153db2f911sm35037247eec.0.2026.08.02.18.22.42
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 02 Aug 2026 18:22:42 -0700 (PDT)
-Date: Sun, 2 Aug 2026 18:22:40 -0700
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: linux-input@vger.kernel.org
-Cc: Richard Davies <richard@arachsys.com>, 
-	Mathias Gottschlag <mgottschlag@gmail.com>, Hans de Goede <hansg@kernel.org>, linux-kernel@vger.kernel.org
-Subject: [PATCH] Input: focaltech - use signed coordinates to prevent
- underflow
-Message-ID: <am_tH_F938rK6ask@google.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="igLdcvk/"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BBB1E1F000E9;
+	Mon,  3 Aug 2026 01:27:57 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1785720477;
+	bh=UmJEJbqjRK4qL4KOuKYsX/7oiBLoF94gvOecGyGkA/Y=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=igLdcvk/bM1sawfH/WZFaT8KxKIrCV8mp+WhPPXPs9GKr0rD+8bFxeUWigEo9LSw5
+	 yKhthunxj3FgfW97621MDsyV6ojFPovfyS4Uu/GnZHAKU1a4oDmJGGHQzVFssqhVlR
+	 kA1bcFSEYJsmGyZS2E/H5AzBdx7Qbg2KX7Y2Ed7RNn9mZWhtPw9fCTjE8kWUDmaAeZ
+	 YDM8mSyLGVQA/sU9hzr064H1D93IC8VCbt64TgcXFtQiJHAHYm2E8uh60S68/aJReJ
+	 kWr7+SdTo9e6kEuGgfK487UclutX4p1uccY9wV/3Du2Xz7a0iXzasA3tmcQfRzrtqk
+	 X2MFP7HxYvIZg==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v2 3/4] Input: call handler->start() when uninhibiting
+ device
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20260803005210.1251102-3-dmitry.torokhov@gmail.com>
+References: <20260803005210.1251102-1-dmitry.torokhov@gmail.com>
+ <20260803005210.1251102-3-dmitry.torokhov@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Mon, 03 Aug 2026 01:27:57 +0000
+Message-Id: <20260803012757.BBB1E1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 
-focaltech_finger_state stores finger coordinates x and y as unsigned
-int. When processing relative packets, negative deltas can cause
-unsigned integer underflow if the finger moves past the left or bottom
-boundary of the touchpad, wrapping the coordinates to values near
-UINT_MAX.
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
 
-When clamping the coordinates in focaltech_report_state(), these
-underflowed values are clamped against priv->x_max / priv->y_max instead
-of 0, causing the cursor to jump erratically to the opposite edge of the
-touchpad.
+Pre-existing issues:
+- [High] Sysfs uninhibiting a device can race with device unregistration, c=
+ausing `dev->open()` to be called on a hardware device that is being destro=
+yed.
+--
 
-Change the coordinate variables and limits to signed int so that
-negative values resulting from relative movements clamp correctly to 0.
+--- Patch [3]: [PATCH v2 3/4] Input: call handler->start() when uninhibitin=
+g device ---
+commit 7812e6dd22b71b48fc822b6545778a4eb30f8e35
+Author: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Fixes: 05be1d079ec0 ("Input: psmouse - support for the FocalTech PS/2 protocol extensions")
-Reported-by: sashiko-bot@kernel.org
-Assisted-by: Antigravity:gemini-3.6-flash
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
----
- drivers/input/mouse/focaltech.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+Input: call handler->start() when uninhibiting device
 
-diff --git a/drivers/input/mouse/focaltech.c b/drivers/input/mouse/focaltech.c
-index d3ad4af5aa09..c6f6540e3e29 100644
---- a/drivers/input/mouse/focaltech.c
-+++ b/drivers/input/mouse/focaltech.c
-@@ -78,8 +78,8 @@ struct focaltech_finger_state {
- 	 * Absolute position (from the bottom left corner) of the
- 	 * finger.
- 	 */
--	unsigned int x;
--	unsigned int y;
-+	int x;
-+	int y;
- };
- 
- /*
-@@ -108,7 +108,7 @@ struct focaltech_hw_state {
- };
- 
- struct focaltech_data {
--	unsigned int x_max, y_max;
-+	int x_max, y_max;
- 	struct focaltech_hw_state state;
- };
- 
-@@ -126,14 +126,14 @@ static void focaltech_report_state(struct psmouse *psmouse)
- 		input_mt_slot(dev, i);
- 		input_mt_report_slot_state(dev, MT_TOOL_FINGER, active);
- 		if (active) {
--			unsigned int clamped_x, clamped_y;
-+			int clamped_x, clamped_y;
- 			/*
- 			 * The touchpad might report invalid data, so we clamp
- 			 * the resulting values so that we do not confuse
- 			 * userspace.
- 			 */
--			clamped_x = clamp(finger->x, 0U, priv->x_max);
--			clamped_y = clamp(finger->y, 0U, priv->y_max);
-+			clamped_x = clamp(finger->x, 0, priv->x_max);
-+			clamped_y = clamp(finger->y, 0, priv->y_max);
- 			input_report_abs(dev, ABS_MT_POSITION_X, clamped_x);
- 			input_report_abs(dev, ABS_MT_POSITION_Y,
- 					 priv->y_max - clamped_y);
--- 
-2.55.0.508.g3f0d502094-goog
+When an input device is uninhibited, the driver is re-opened. This patch
+ensures that complex handlers are also notified to re-synchronize their
+state by calling handler->start() for each open handle.
 
+> diff --git a/drivers/input/input.c b/drivers/input/input.c
+> index e4f8c2067b84d..47886a394c6b8 100644
+> --- a/drivers/input/input.c
+> +++ b/drivers/input/input.c
+> @@ -1806,6 +1806,7 @@ static int input_inhibit_device(struct input_dev *d=
+ev)
+> =20
+>  static int input_uninhibit_device(struct input_dev *dev)
+>  {
+> +	struct input_handle *handle;
+>  	int error;
+> =20
+>  	guard(mutex)(&dev->mutex);
 
--- 
-Dmitry
+[Severity: High]
+This is a pre-existing issue, but does this function open a race condition
+with input_unregister_device() by missing a check for dev->going_away?
+
+When a driver calls input_unregister_device(), the core sets
+dev->going_away =3D true in input_disconnect_device() and releases
+dev->mutex.
+
+If a concurrent sysfs write to the inhibited attribute executes
+input_uninhibit_device(), it acquires dev->mutex here.
+
+Because it lacks a dev->going_away check (unlike input_open_device()), it
+proceeds to set dev->inhibited =3D false and calls dev->open() on a dying
+device.
+
+Can this lead to a use-after-free or hardware state corruption if the
+driver has already freed its IO mappings or IRQs during unregistration?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260803005210.1251=
+102-1-dmitry.torokhov@gmail.com?part=3D3

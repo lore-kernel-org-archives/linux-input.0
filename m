@@ -1,67 +1,67 @@
-Received: from mail-pj1-f43.google.com (mail-pj1-f43.google.com [209.85.216.43])
+Received: from mail-pg1-f182.google.com (mail-pg1-f182.google.com [209.85.215.182])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3D60E439014
-	for <linux-input@vger.kernel.org>; Mon,  3 Aug 2026 18:46:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.43
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2B1334399E9
+	for <linux-input@vger.kernel.org>; Mon,  3 Aug 2026 18:46:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785782805; cv=none; b=R2qREhKXeqT0HLE65KseRu5EH4Rj/bbBaIQchBsNLR7gsRo2X1RTixrQT9335o4ksStEDO/tUvTw/hpXjrirBrpPzyveN1YdteeO0w+eDF2rQ3FRFSHBTwKsF4YttQWJ0BfwYaSOr4qmz+TSbEziEFQTG+2dWcF86Uky6Ws7kcM=
+	t=1785782808; cv=none; b=VOJiTMZxWiphJnZo11tslHFpg4ceqJx0iOvkkDS+tCexOW/FdpfR1sPIoTFCS8vk5rDbXr7YVPu+NOlzwYE3Jt39OjgI3B3OIR1BH9O2wAbKPPxmDOP5uiLzRRrEoKAePFXhUHp4VgTDBr5XCJMyj07LRY4VRGUtDgWIP2bd1xU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785782805; c=relaxed/simple;
-	bh=FLBZ6TUpfMBXlB7N0BVa7vU2Xr9/kJojTsuqYcBwngA=;
+	s=arc-20240116; t=1785782808; c=relaxed/simple;
+	bh=92PvuERNoxRSPO39JTqhB9ZUwSyTWzKMYKZ36bV17RM=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=Cdoa3Zw5dp8y34bdS0WmKc9/wRfmkpNJTrnFC7IMANkHInJ8CKVBhDhKmIjhNoKltkLZwpIs8e+nrHh07GV8FOSZ8iDk3AMtNQdTCI2Q67XfVZie27j6BMW0ueD1/WCF0DIBiA4Mz1X3dAZ2S13cBn+loHmW9oB01g9yZIhof98=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=F3S2ayFk; arc=none smtp.client-ip=209.85.216.43
+	 In-Reply-To:To:Cc; b=WFfQ2Doed8pSU5GSFcvnmuD/o/GGRYqFdLOE+/1iaQe/WJiP+XDVgRiHAyTHEX6jy7pXpZ8n9UUUf3HRl8fsVh0LFaG/MB5pBs/77Y+5jnO0zAmtKpf4ERRbk6fDk1Qwu2eHJYn+Ge7INVTaxvOe+q4WiwbwS36n4hhWsugZub0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=NPKUMAA/; arc=none smtp.client-ip=209.85.215.182
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="F3S2ayFk"
-Received: by mail-pj1-f43.google.com with SMTP id 98e67ed59e1d1-384930ca5e2so3158731a91.3
-        for <linux-input@vger.kernel.org>; Mon, 03 Aug 2026 11:46:42 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="NPKUMAA/"
+Received: by mail-pg1-f182.google.com with SMTP id 41be03b00d2f7-cbb85186d43so1772666a12.3
+        for <linux-input@vger.kernel.org>; Mon, 03 Aug 2026 11:46:43 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1785782801; x=1786387601; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1785782803; x=1786387603; darn=vger.kernel.org;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :content-type:mime-version:subject:date:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=nlCI4/gle3R9IwS53kvCY4cjueCVDjt1k2gYqGOMeAY=;
-        b=F3S2ayFkYSrOLutKodBQQBz/tdE97usQ4NB3iYYl4PQZYo5Y+nDiQ0+L+817rYK0nU
-         wE3wR5/ZDSo5gGf9LejuS9Z9Trhj7tdGjy9R9bdk1C1+11VjLFG/gDMFxL8/APK7YY2J
-         ILFyBm1yWJo6aFpJcWqBcsqIRa7Gp6Ib+QmmA/k0oprEnSnrMHLivcTjyMCA4lfxwxCq
-         WALBLSc9N0Iu1vZiHwqm4pFLhOCiFKMFmhrA8TNkDZCpFvGO4nyRpuJG5uzHxrwOUGuC
-         AL6QwdT37KpmHn3VAiumWLm23NhVn4/6b28paj7dnFfzEs2BsNKNW3SiOJQXbeXhrb6m
-         Y7ww==
+        bh=HOz5PiX1ZSB+vLRo+K76aRMaf9WXlDbNtHntTklC834=;
+        b=NPKUMAA/t2xrKi+aTUBD2QU1v0VlE5jVyU7vt9T06YsF6xLBz8DGgXnd9QEMwGd4Gc
+         +hvOzyOG4w9MjXvicGW08yfp4GNtgQv2HfZgg4lBgaVnW0PGoZ8QBaay1B18uEYMjgO5
+         C6UGmf3ZVNSDAW7ngmzim62HUhN1qXqxBDr7exnPiRPiH5EnqT2Q3zJryJE7oP0BJmPo
+         lftWk1pPCM1l1e4zjwtsFhchyJlNkWN1DXQrcFVPwRaFFwaIsLKPRCajBfqltv1we2t6
+         HviYcAS1EgIYuLnjh4zSwiW4vIgqxpAtu37JQSYaCrP5LfnZAXqy+uv/lTdSW2AwIOF5
+         xCgQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785782801; x=1786387601;
+        d=1e100.net; s=20251104; t=1785782803; x=1786387603;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :content-type:mime-version:subject:date:from:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=nlCI4/gle3R9IwS53kvCY4cjueCVDjt1k2gYqGOMeAY=;
-        b=oRonJwueTEjkR5W8iCVPR8r/TNcEMyU678kat7TFWz/uEfMcoRG/KiOkA1BozZvuWY
-         Cp7wN6fsnI87rk2aFQKtzTbd3qPFojqktSuYt9MTYNFwA2+aPiLyeC+theGfAv3tSTug
-         Db7nXZhv9OPv2SDwuJNDwA+IRoW+6UKtOXISu0fq3a/BuF8/9JidZdKMiUBTtBr6w29+
-         3blp1gTli0L2emOL+DF0D3EZF9IzDmwrmhnqg8h+MP4BI90A8K4hU4quQzGBa2MTD5j1
-         DdWZPv/Wa7jgEJ6eXwXI2UnMuQ2ISPwQXq/8YD+MqrJ/r7QcpE/I7EtUguYbieB/NPYn
-         TWjQ==
-X-Gm-Message-State: AOJu0YyK2T8n4EtVlZ699w7dRCeg3ruBcYpl9kDljSCiNeU8YUHqz3J1
-	e6rdJSHe42a07XRqj2tbTalrpqYKfvO4TE059IlgFXv/BqiCpw2vgm3x
-X-Gm-Gg: AR+sD13Yzy/f0CIZwVfJFrP6VUKA6P72fOTG8KJt8FhVRaoa73mp0NPzGpbgSigLZi1
-	mbf7w1OUGYKKjgrPhXN9JLq3QWPRoBoPFCv69Sd2yVFxEguois/QUzPelejzErUBgNcg8tF7M8Y
-	dluaphvq9axK7XcUoOjz2LP3rgiDkVqon6T/lGl+2gBW9kU2sFK/v5ZURGk4D0tUUSPLQVut62g
-	tCsuSuC0RLTT7fCeLTepDeBlxjWagrBupF5/liYFOC0IIJHgBc+KM5tsziR6rSU/GD3dvxwe0a+
-	xjr9S8S1cgCtsePgFrvxI69HczXynYFCZ/vIuaJZek7Ox4dumC0CJz3/9TF86i05WXXhVUoafRx
-	+113Rv3tIdQVQ18U+fSuZ90uw14vMUSxo+ACVmQqPnzcjDHwyE9tOZbxsXX1+0p+Jkr7j7Z6zYB
-	h0m1MQGwohYR8C3+Z314/b9xyW+Jau1A95n2Xki5YmJH2FRXJemzIawI/oQfMvfb6iYXoAA/g4p
-	6yXAvpCSrFWVbCZy9NgmgZ39mycMgQUBXXm5LUaoRUxauUBKvQe7bY1fRr99uo=
-X-Received: by 2002:a17:90b:2649:b0:387:e0db:3d8d with SMTP id 98e67ed59e1d1-38fbc552923mr10107203a91.40.1785782801117;
-        Mon, 03 Aug 2026 11:46:41 -0700 (PDT)
+        bh=HOz5PiX1ZSB+vLRo+K76aRMaf9WXlDbNtHntTklC834=;
+        b=TLer/pm7Ef6ToiyPDp0u5iTf7lQkkqJegTeW8MX5sZXs+k+Lp4S7LamYy9SFRpKhor
+         DF8yoOUpslrgcBoOeeeMkIMIGy08JffilfG/T9jaeHnxWef8QIhTDL/N9LWdZ0/T6R0i
+         rFN5SuYDx13eAiWhNaEvea7yDLIpNhzGH54oXIF5qoCudNAcz3YyjlJmHPL2QrVMBwir
+         gAKtM3SybB2nSJOYGxRloaUMzrwAzQYap0kEbfuLCvXu6+HkyFfdOo9I1EFvQjOd1/FX
+         xp78JSWX/CMQmupkTspLisKoPXdoWG9Yn0MuQMhLWhYIBk2ncFDArQ8tZVgaQ8yvuLto
+         /vxA==
+X-Gm-Message-State: AOJu0YzW08JMsaUXtcQDJWNKyXXD7Yc2Xdlk5Us+MLKmZ7qeXAnDwQmZ
+	RhId1kVCDVk1nN7xhwnEVKdm6SdJQOdL7fXiDYxO+H4jSWS6sSgp7uSX
+X-Gm-Gg: AR+sD11VfPR2xtmVKrED1bW+EM2Bn9mkijNaWHO1S/M4Pz5/n6asRpfnm0FlUpp3/ZA
+	5soZojsiCEQXiTncVnrwq9l5TRMGK2E0fvPIrWhUmb8SuVf3SnmLy4EK+985lvIQwiS3sjKMh8j
+	UJQcwX1LLFLguxyct9D8z1LdORGttBSyRabkOz6luD5/obdjrcLmNbywUd8GSS9Sa0cw7lA2DOb
+	JoFgEewnMB4HtUCV/YSUSqTcP2Teu8mXhfgn9fQI9NM3uDaRJJSqQayqcxIpfGEXafHWzvbz11T
+	aP7xCOWB36SVJMc4k4lUv38d6f5c41DF8/DFSVOewoA70XeYx2G/o/NbBq+a2ZPagvgmiVkaMzU
+	lilO/QaOaw4rDTZZGkbY4bUwsRlxvQno/B3K6V+zGogjgRMwO9xttKviKdz3PxZOeOzrfVBDFwb
+	Yjte71GdhT5xsxBD42OibqZYgzNXK4/cKAC/q7Uim7VoawgvymVIT/E8umgzN105CtsD9ZqX6uN
+	GsF0MDZaIeFsLflvbXanBQgOl+K3QQoq15ukyC1UoqHswyFhsXpszx+s6farsw=
+X-Received: by 2002:a05:6a21:648f:b0:3c9:e7d:b170 with SMTP id adf61e73a8af0-3c92a8f3f7dmr11102990637.58.1785782802450;
+        Mon, 03 Aug 2026 11:46:42 -0700 (PDT)
 Received: from dtor-ws.sjc.corp.google.com ([2a00:79e0:2ebe:8:d109:cdba:8a20:74ad])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-13fab24ec10sm33935472c88.6.2026.08.03.11.46.39
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-13fab24ec10sm33935472c88.6.2026.08.03.11.46.41
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 03 Aug 2026 11:46:40 -0700 (PDT)
+        Mon, 03 Aug 2026 11:46:41 -0700 (PDT)
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Date: Mon, 03 Aug 2026 11:46:30 -0700
-Subject: [PATCH 05/21] HID: bigben: move FF initialization to
+Date: Mon, 03 Aug 2026 11:46:31 -0700
+Subject: [PATCH 06/21] HID: dragonrise: move FF initialization to
  .input_configured()
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
@@ -71,7 +71,7 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260803-hid-ff-input-configured-v1-5-1dc9bbacd88c@gmail.com>
+Message-Id: <20260803-hid-ff-input-configured-v1-6-1dc9bbacd88c@gmail.com>
 References: <20260803-hid-ff-input-configured-v1-0-1dc9bbacd88c@gmail.com>
 In-Reply-To: <20260803-hid-ff-input-configured-v1-0-1dc9bbacd88c@gmail.com>
 To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>, 
@@ -94,151 +94,133 @@ the device is fully prepared before registration.
 Assisted-by: Gemini:gemini-3.1-pro
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 ---
- drivers/hid/hid-bigbenff.c | 89 ++++++++++++++++++++++------------------------
- 1 file changed, 43 insertions(+), 46 deletions(-)
+ drivers/hid/hid-dr.c | 66 ++++++++++++----------------------------------------
+ 1 file changed, 15 insertions(+), 51 deletions(-)
 
-diff --git a/drivers/hid/hid-bigbenff.c b/drivers/hid/hid-bigbenff.c
-index 9f05465358d9..3c87317ccc6b 100644
---- a/drivers/hid/hid-bigbenff.c
-+++ b/drivers/hid/hid-bigbenff.c
-@@ -366,58 +366,29 @@ static void bigben_remove(struct hid_device *hid)
- 	hid_hw_stop(hid);
+diff --git a/drivers/hid/hid-dr.c b/drivers/hid/hid-dr.c
+index 8a8f68a7feb0..a1e10ee8df4d 100644
+--- a/drivers/hid/hid-dr.c
++++ b/drivers/hid/hid-dr.c
+@@ -71,29 +71,26 @@ static int drff_play(struct input_dev *dev, void *data,
+ 	return 0;
  }
  
--static int bigben_probe(struct hid_device *hid,
--	const struct hid_device_id *id)
-+static int bigben_input_configured(struct hid_device *hid, struct hid_input *hidinput)
+-static int drff_init(struct hid_device *hid)
++static int dr_input_configured(struct hid_device *hid, struct hid_input *hidinput)
  {
--	struct bigben_device *bigben;
+ 	struct drff_device *drff;
+ 	struct hid_report *report;
 -	struct hid_input *hidinput;
-+	struct bigben_device *bigben = hid_get_drvdata(hid);
-+	struct input_dev *input_dev = hidinput->input;
- 	struct led_classdev *led;
- 	char *name;
- 	size_t name_sz;
- 	int n, error;
+ 	struct list_head *report_list =
+ 			&hid->report_enum[HID_OUTPUT_REPORT].report_list;
+-	struct input_dev *dev;
++	struct input_dev *dev = hidinput->input;
+ 	int error;
  
--	bigben = devm_kzalloc(&hid->dev, sizeof(*bigben), GFP_KERNEL);
--	if (!bigben)
--		return -ENOMEM;
--	hid_set_drvdata(hid, bigben);
--	bigben->hid = hid;
--	bigben->removed = false;
--
--	error = hid_parse(hid);
--	if (error) {
--		hid_err(hid, "parse failed\n");
--		return error;
--	}
--
--	error = hid_hw_start(hid, HID_CONNECT_DEFAULT & ~HID_CONNECT_FF);
--	if (error) {
--		hid_err(hid, "hw start failed\n");
--		return error;
--	}
-+	if (!list_is_first(&hidinput->list, &hid->inputs))
-+		return 0;
- 
- 	bigben->report = hid_validate_values(hid, HID_OUTPUT_REPORT, 0, 0, 8);
- 	if (!bigben->report) {
- 		hid_err(hid, "no output report found\n");
--		error = -ENODEV;
--		goto error_hw_stop;
--	}
--
 -	if (list_empty(&hid->inputs)) {
 -		hid_err(hid, "no inputs found\n");
--		error = -ENODEV;
--		goto error_hw_stop;
-+		return -ENODEV;
- 	}
- 
+-		return -ENODEV;
+-	}
 -	hidinput = list_first_entry(&hid->inputs, struct hid_input, list);
--	set_bit(FF_RUMBLE, hidinput->input->ffbit);
--
--	INIT_WORK(&bigben->worker, bigben_worker);
--	spin_lock_init(&bigben->lock);
-+	set_bit(FF_RUMBLE, input_dev->ffbit);
- 
--	error = input_ff_create_memless(hidinput->input, NULL,
--		hid_bigben_play_effect);
-+	error = input_ff_create_memless(input_dev, NULL, hid_bigben_play_effect);
- 	if (error)
--		goto error_hw_stop;
-+		return error;
- 
- 	name_sz = strlen(dev_name(&hid->dev)) + strlen(":red:bigben#") + 1;
- 
-@@ -427,10 +398,9 @@ static int bigben_probe(struct hid_device *hid,
- 			sizeof(struct led_classdev) + name_sz,
- 			GFP_KERNEL
- 		);
--		if (!led) {
--			error = -ENOMEM;
--			goto error_hw_stop;
--		}
-+		if (!led)
-+			return -ENOMEM;
+-	dev = hidinput->input;
++	if (!list_is_first(&hidinput->list, &hid->inputs))
++		return 0;
 +
- 		name = (void *)(&led[1]);
- 		snprintf(name, name_sz,
- 			"%s:red:bigben%d",
-@@ -444,7 +414,7 @@ static int bigben_probe(struct hid_device *hid,
- 		bigben->leds[n] = led;
- 		error = devm_led_classdev_register(&hid->dev, led);
- 		if (error)
--			goto error_hw_stop;
-+			return error;
++	if (hid->product != 0x0006)
++		return 0;
+ 
+-	if (list_empty(report_list)) {
++	report = list_first_entry_or_null(report_list, struct hid_report, list);
++	if (!report) {
+ 		hid_err(hid, "no output reports found\n");
+ 		return -ENODEV;
+ 	}
+-
+-	report = list_first_entry(report_list, struct hid_report, list);
+ 	if (report->maxfield < 1) {
+ 		hid_err(hid, "no fields in the report\n");
+ 		return -ENODEV;
+@@ -108,6 +105,7 @@ static int drff_init(struct hid_device *hid)
+ 	if (!drff)
+ 		return -ENOMEM;
+ 
++	drff->report = report;
+ 	set_bit(FF_RUMBLE, dev->ffbit);
+ 
+ 	error = input_ff_create_memless(dev, drff, drff_play);
+@@ -116,7 +114,6 @@ static int drff_init(struct hid_device *hid)
+ 		return error;
  	}
  
- 	/* initial state: LED1 is on, no rumble effect */
-@@ -458,10 +428,36 @@ static int bigben_probe(struct hid_device *hid,
- 	hid_info(hid, "LED and force feedback support for BigBen gamepad\n");
- 
+-	drff->report = report;
+ 	drff->report->field[0]->value[0] = 0xf3;
+ 	drff->report->field[0]->value[1] = 0x00;
+ 	drff->report->field[0]->value[2] = 0x00;
+@@ -132,7 +129,8 @@ static int drff_init(struct hid_device *hid)
  	return 0;
-+}
- 
--error_hw_stop:
--	hid_hw_stop(hid);
--	return error;
-+static int bigben_probe(struct hid_device *hid, const struct hid_device_id *id)
-+{
-+	struct bigben_device *bigben;
-+	int error;
-+
-+	bigben = devm_kzalloc(&hid->dev, sizeof(*bigben), GFP_KERNEL);
-+	if (!bigben)
-+		return -ENOMEM;
-+
-+	hid_set_drvdata(hid, bigben);
-+	bigben->hid = hid;
-+	bigben->removed = false;
-+	INIT_WORK(&bigben->worker, bigben_worker);
-+	spin_lock_init(&bigben->lock);
-+
-+	error = hid_parse(hid);
-+	if (error) {
-+		hid_err(hid, "parse failed\n");
-+		return error;
-+	}
-+
-+	error = hid_hw_start(hid, HID_CONNECT_DEFAULT);
-+	if (error) {
-+		hid_err(hid, "hw start failed\n");
-+		return error;
-+	}
-+
-+	return 0;
+ }
+ #else
+-static inline int drff_init(struct hid_device *hid)
++static inline int dr_input_configured(struct hid_device *hid,
++				      struct hid_input *hidinput)
+ {
+ 	return 0;
+ }
+@@ -266,43 +264,9 @@ static int dr_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+ 	return 0;
  }
  
- static const __u8 *bigben_report_fixup(struct hid_device *hid, __u8 *rdesc,
-@@ -487,6 +483,7 @@ static struct hid_driver bigben_driver = {
- 	.probe = bigben_probe,
- 	.report_fixup = bigben_report_fixup,
- 	.remove = bigben_remove,
-+	.input_configured = bigben_input_configured,
+-static int dr_probe(struct hid_device *hdev, const struct hid_device_id *id)
+-{
+-	int ret;
+-
+-	dev_dbg(&hdev->dev, "DragonRise Inc. HID hardware probe...");
+-
+-	ret = hid_parse(hdev);
+-	if (ret) {
+-		hid_err(hdev, "parse failed\n");
+-		goto err;
+-	}
+-
+-	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT & ~HID_CONNECT_FF);
+-	if (ret) {
+-		hid_err(hdev, "hw start failed\n");
+-		goto err;
+-	}
+-
+-	switch (hdev->product) {
+-	case 0x0006:
+-		ret = drff_init(hdev);
+-		if (ret) {
+-			dev_err(&hdev->dev, "force feedback init failed\n");
+-			hid_hw_stop(hdev);
+-			goto err;
+-		}
+-		break;
+-	}
+-
+-	return 0;
+-err:
+-	return ret;
+-}
+-
+ static const struct hid_device_id dr_devices[] = {
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, 0x0006),  },
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, 0x0011),  },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, 0x0006), },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, 0x0011), },
+ 	{ }
  };
- module_hid_driver(bigben_driver);
+ MODULE_DEVICE_TABLE(hid, dr_devices);
+@@ -311,8 +275,8 @@ static struct hid_driver dr_driver = {
+ 	.name = "dragonrise",
+ 	.id_table = dr_devices,
+ 	.report_fixup = dr_report_fixup,
+-	.probe = dr_probe,
+ 	.input_mapping = dr_input_mapping,
++	.input_configured = dr_input_configured,
+ };
+ module_hid_driver(dr_driver);
  
 
 -- 

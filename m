@@ -1,45 +1,42 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C123F27B340;
-	Mon,  3 Aug 2026 18:42:23 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D8DB431B131;
+	Mon,  3 Aug 2026 18:43:02 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785782544; cv=none; b=Q2MTztKGK2IjLMh1NjY4PviwVW/jbG8UQMFg03oc4hYhWmTBJvJk8cMdFovHlJdW+TBcA5++JKMvzDIGNe9vbAUNKhQ/VEtfxQCrQ3qy+JWH+9qLik84ZJS4CJDlbjHzvjvP0ycdSOTVP2UebgKzIR03l5nOdJc5OVECJS6R+DA=
+	t=1785782583; cv=none; b=JX1Xq1/HZeBH8gDmQLdTgLLTC9FxJNgNuRKEPc7OcM2yFo1rYPfmkStomPwuvm+FZ4SIKYP6AXWG/msGjoHVk6USQ4sl+d/osCVUmeMfPSOOR3MLdCYVwXMcUipFg6XUmo/9GiPtx5PbDGmmwlESupHhYNXhjP5v1Kf0MAVCS7E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785782544; c=relaxed/simple;
-	bh=pvd+aNiQfbaYNIdoOe+0L183qaMccbNa6asoH8I2L/A=;
+	s=arc-20240116; t=1785782583; c=relaxed/simple;
+	bh=fK4QMHdVbxaPNNBXI+a1b9TEw3jbCGwh0v76e9sejuc=;
 	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
-	 MIME-Version:Content-Type; b=Lnv3VHKTUDsjbNpn9pgcq7Mll+j2J5As6tCEqaAmwhNWflf/pXVNupsUlLZgceJUWmOatXpyFBn8VjJbXtursavrtmheT1H4eA8mpE+mOe9OTYBaxXXjqbKAe25ehDwf77rZMo0XJ8FsBCL64HRQNs0Q+j8X6wo9/pXCI7sJQcs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=GGE9Ym5k; arc=none smtp.client-ip=100.103.45.18
+	 MIME-Version:Content-Type; b=PMEDPmN8Qp+yMNiV5nnbVv4KYv9UXE2BwjJCkhs9P4c9EHN6E2wj0RF0ArLVsDSfkB9maR04wKsXtwwvgjg8P5NPo0dNZ+hLFvnHm1HT6u3+bWZ6w02oye4CnnpEW+SWEG1yLEw31oFHYjZZeZileFkIILeQQHB6iC+cIz6UVhc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=DzQW4ucn; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="GGE9Ym5k"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D3C361F000E9;
-	Mon,  3 Aug 2026 18:42:22 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="DzQW4ucn"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A9E061F000E9;
+	Mon,  3 Aug 2026 18:43:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785782543;
-	bh=2ooiK6t9LGEiEm9R9qYnYVLQv0O4AAFKR1ZIP1b4fFg=;
+	s=k20260515; t=1785782582;
+	bh=k3AVQiq01uPqHUN4j6E9Vnu+RDRUpPJHAqiHIYSTTpk=;
 	h=Date:From:To:cc:Subject:In-Reply-To:References;
-	b=GGE9Ym5kZQHAvWD7jXwnfQCUZqvZXqpMVJDWYuGlQOkkPM9/RooWq0Gz+UTmYvobm
-	 7hCQm/gjwRhRJEnAoakMmrODF2M0d8UXqGigqn6IyGKtVJDeFRhJ9YDX1lz4mZSdPO
-	 owE62hgOcBNF6WzRS3lYku8FwgZLHQ6rWd6jyUVok2shtBsEREgP5tzh9KgTNWseyV
-	 KKrU56YF5F/hqeJaLi+Gir6nQkuRQgUCwcLtvmkst43ne9b29e1ShQRdKmKVo+Cl/O
-	 ENGImAvMxLDXw2d8YEnOPqMCLNPy55FLcbvH/9rlCnI0ARKysql+IyHhglkOxoeZgY
-	 yPq5YIqLrvnvQ==
-Date: Mon, 3 Aug 2026 20:42:20 +0200 (CEST)
+	b=DzQW4ucnWyWEBoxub5Hk8i5fxNycw3jXu62CQKw6X7iD5eYdapvsjhML+Uc8tL9RA
+	 JX+Sz5oC66AePICZG1t+iztKrFWefRPVXYMigJUdawtYfIfxMsz2MCknaXDueNhOMz
+	 +3miYYa39k46qwWeYNNMfChXC61QTAfMwqFqlZ0AQd8Kv3esqb2fj2GBl4OAtPRETu
+	 RPmWLXmGDh73GES0zasHGJwJtVMwyn1oRcg83vtvO6QKeyItmdr8LpHvlKAjVDsAPt
+	 EQqSdVRvdjFmkQ7pZJxf50Gvg5r3Qib5+OjxHB7HhRq4y+0+zl3PRTwd9Mec7S8tkR
+	 lMUYLOYbP3yFA==
+Date: Mon, 3 Aug 2026 20:42:59 +0200 (CEST)
 From: Jiri Kosina <jikos@kernel.org>
 To: Jann Horn <jannh@google.com>
 cc: Benjamin Tissoires <bentiss@kernel.org>, 
-    =?ISO-8859-15?Q?Ilpo_J=E4rvinen?= <ilpo.jarvinen@linux.intel.com>, 
-    Mario Limonciello <mario.limonciello@amd.com>, 
-    "Luke D. Jones" <luke@ljones.dev>, Miao Li <limiao@kylinos.cn>, 
-    linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
-    stable@vger.kernel.org
-Subject: Re: [PATCH v2 0/3] hid: fix missing hid_is_usb() checks in three
- drivers
-In-Reply-To: <20260703-hid-usbcheck-v2-0-c5ed7bc94772@google.com>
-Message-ID: <7q67s0p2-1250-45p6-496r-8n6o57005o86@xreary.bet>
-References: <20260703-hid-usbcheck-v2-0-c5ed7bc94772@google.com>
+    Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org, 
+    linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH] HID: core: fix number/pointer type confusion on long
+ items
+In-Reply-To: <20260703-hid-core-data-typeconfusion-v1-1-3c63c0d77ab1@google.com>
+Message-ID: <0n7530pq-8781-124q-pn80-q735q8q8905r@xreary.bet>
+References: <20260703-hid-core-data-typeconfusion-v1-1-3c63c0d77ab1@google.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -50,26 +47,37 @@ Content-Type: text/plain; charset=US-ASCII
 
 On Fri, 3 Jul 2026, Jann Horn wrote:
 
-> This fixes missing hid_is_usb() checks before to_usb_interface() in
-> three HID drivers.
-> I've split it into three patches so that they can have separate "Fixes"
-> tags, hopefully they are easier to stable-backport this way.
+> When fetch_item() is called by hid_scan_report() on an item with
+> HID_ITEM_TAG_LONG, it stores a pointer to the item data in
+> item->data.longdata instead of storing a value directly in
+> item->data.{u8/u16/u32}.
 > 
+> When item_udata() or item_sdata() encounters such an item, it incorrectly
+> assumes that the item is in short format, and therefore returns the lower
+> part of a kernel pointer reinterpreted as a number.
+> 
+> When a HID device is connected whose descriptor contains a
+> HID_GLOBAL_ITEM_TAG_REPORT_SIZE encoded in long format with size=4, this
+> causes the lower half of a kernel pointer to be printed into dmesg as a
+> number, like this:
+> 
+>     hid (null): invalid report_size 107953555
+> 
+> To fix it, let item_udata() and item_sdata() verify that the item is in
+> short format.
+> 
+> Note that this bug only affects hid_scan_report(), while the main parsing
+> pass hid_parse_collections() will always bail out when encountering a long
+> item.
+> 
+> Sidenote: There are currently no users of data.longdata; maybe we should
+> just remove any parsing of long-format descriptors as a follow-up.
+> 
+> Fixes: 3dc8fc083dbf ("HID: Use hid_parser for pre-scanning the report descriptors")
+> Cc: stable@vger.kernel.org
 > Signed-off-by: Jann Horn <jannh@google.com>
-> ---
-> Changes in v2:
-> - patch 3/3: fix typo in "Fixes" line
-> - patch 3/3: add USB_HID dependency (alternative would be to implement a
->   stub for hid_is_usb())
-> - Link to v1: https://patch.msgid.link/20260703-hid-usbcheck-v1-0-e80259ff625d@google.com
-> 
-> ---
-> Jann Horn (3):
->       HID: asus: fix missing hid_is_usb() check
->       HID: huawei: fix missing hid_is_usb() check
->       HID: rapoo: fix missing hid_is_usb() check
 
-Thanks, now applied. Sorry for the delay.
+Applied, thanks Jann.
 
 -- 
 Jiri Kosina

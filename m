@@ -1,42 +1,41 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6EFC13932E8;
-	Mon,  3 Aug 2026 18:27:59 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BD7B742C4ED;
+	Mon,  3 Aug 2026 18:29:14 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785781680; cv=none; b=hznQ5BUguzZRCKkJwxJOaP6M6C8TBJMJPqwA/G9u2MCU6/hzPxTRWzkBlCnRPyw/hx6Gff2y5AsmsHjQot+Joo0SZF0oiGyexdkzS9lEg8gTtOs2G8YDAQauuiY1EtRU6hpj2YqldhB3DmfNXsMRDXIaCBRQPEv6hj2XaUflVE8=
+	t=1785781759; cv=none; b=rticOjB9tzb7AXUjvKSnvRWLxue6jGsurOCQEqv+XUxTf086kv6k6FKmyDjDnefaJtP31Fw1+XrN6RW+Oe0Frrb+R5xPcMYJX+h8IB8GIZiDuUz+uWPR/4xsRpXJaZJ5RhZWIkBTzV3jE6bDQjn9LQOSWNCZWz9FWUIJ8UUOEMo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785781680; c=relaxed/simple;
-	bh=jIz3BJTDhW73H+tLjep0/ppR366ZBftJ1KK3CoTOfGM=;
+	s=arc-20240116; t=1785781759; c=relaxed/simple;
+	bh=bHFxxFiRgw7oqdEQWiqDO4hDfcxA+zqWQoS5AA/r0Xg=;
 	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
-	 MIME-Version:Content-Type; b=XETDhNZLXTsVUiRaZ1/yNachwpyg987zyp7mm//bP6tF81GfHwUUOT2UJW/8OWA6lQt/pc2KCsQsxhksGjjLf7CHXIs6VKYyAZflan7itP3oqo58PPLoQ8pbK8j+sTlei94pf969eBLIlQ+pw0ZYubAxFSz71444hVhF1s4BV10=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=DkB7rq2S; arc=none smtp.client-ip=100.103.45.18
+	 MIME-Version:Content-Type; b=sVjSZE1xtetMWebF6gScHFzREVVk+4VncVSPsf5l4fZ1oSM1H/BC41DgHC+3TqSzWr9f6NQ47IuXILWsgzHSdUPWQgzlRVUievKq37s4/0Ztec4JO7bxtXcrZUcTxb3YmwBZUC/ti0j5Zrxb3M1ZlPofyYR4c0G2cFHFlGB+Im0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=fQsSUVTp; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="DkB7rq2S"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CBB971F000E9;
-	Mon,  3 Aug 2026 18:27:58 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="fQsSUVTp"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A24581F00A3A;
+	Mon,  3 Aug 2026 18:29:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785781679;
-	bh=WmbOkPAiaMrLGRjtVF9xC4tPfFZSeLU4xssR1Id2CAg=;
+	s=k20260515; t=1785781753;
+	bh=63aSZEWLdtDpxGWcR9RyTQJuWBDy9VOieOwbCJXeWbA=;
 	h=Date:From:To:cc:Subject:In-Reply-To:References;
-	b=DkB7rq2SE2HZlq3PQCev8CRkgzaCtgPsfB711Uk8GWz8SdIBoCNtCSqW/tKkENYnM
-	 Uchg5KYFdTrLhk1od/9DMNLmr9BdGe6lG5ixEw3X5MWRfZk+Xyj5di4VJdBxg+UrlO
-	 Lwv/hoxlwxfQWtUR9P3U0wfWg7zwl9VQOXQki6QAmZYrvWzoMjg96yI79V0wguW8p4
-	 Vvqzz6FhPTxG7lxJSGB3aY/E2xPPO3GU1A7Z0a96fwD2FDdMHdpkyJjsfHuuyUwZnh
-	 rHvTJQ/uueppfIXIIkFsOcFZlJoQOggAMomquQoo+a2niGdhssjdEJb4k4ouDxgjKe
-	 tc+gNvA37/p2w==
-Date: Mon, 3 Aug 2026 20:27:56 +0200 (CEST)
+	b=fQsSUVTpql6sGxygaH+s94K5nMONoiPRn2aSPI3o8oQEEMPpgHWxbod5f6EmNPBHp
+	 WN/HlD32j1znh94m0cinehVkqZQVyzHr1i3XNz8DR1Kl+C4WK8jtuI28kaT/LyPAUS
+	 sg4kMp4YH3T8c+h6qCjiu5q9z8nEV14DMM7YZCeG7aEfOXM5SvSM/NiiAUUDLmQLm9
+	 7oF6Aa1IjBNThvtazne/lOB7CPtvecpIzmGt9fB3LrOs1K3ep7MbhNgf7HDgnmG8Or
+	 mvrfmMo9VXnVsThGV6QMYE5xBw0NQrruFavOnZ9ecx5LzVBe2kN8I4d3NUjx2GSGxr
+	 2f54A1L8lMV3Q==
+Date: Mon, 3 Aug 2026 20:29:10 +0200 (CEST)
 From: Jiri Kosina <jikos@kernel.org>
 To: Baul Lee <baul.lee@xbow.com>
-cc: linux-input@vger.kernel.org, linux-usb@vger.kernel.org, 
-    linux-kernel@vger.kernel.org, tomasz.pakula.oficjalny@gmail.com, 
-    oleg@makarenk.ooo, bentiss@kernel.org, federico.kirschbaum@xbow.com, 
-    stable@vger.kernel.org
-Subject: Re: [PATCH] HID: pidff: fix OOB write when hid->inputs is empty
-In-Reply-To: <20260726062503.43717-1-baul.lee@xbow.com>
-Message-ID: <9s691pno-26o7-2099-0001-sn9751958r8r@xreary.bet>
-References: <20260726062503.43717-1-baul.lee@xbow.com>
+cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
+    bentiss@kernel.org, federico.kirschbaum@xbow.com, stable@vger.kernel.org
+Subject: Re: [PATCH] HID: core: fix OOB read of field->usage in
+ hid_set_field()
+In-Reply-To: <20260726065024.46088-1-baul.lee@xbow.com>
+Message-ID: <510on277-p2p2-11p2-p30o-5914n0r8n221@xreary.bet>
+References: <20260726065024.46088-1-baul.lee@xbow.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -47,48 +46,48 @@ Content-Type: text/plain; charset=US-ASCII
 
 On Sun, 26 Jul 2026, Baul Lee wrote:
 
-> hid_pidff_init_with_quirks() derives its input_dev from
+> hid_set_field() hands field->usage + offset to hid_dump_input() before
+> the guard that bounds offset:
 > 
-> 	list_entry(hid->inputs.next, struct hid_input, list)
+> 	hid_dump_input(field->report->device, field->usage + offset, value);
 > 
-> without first checking that hid->inputs is non-empty.  The list member
-> of struct hid_input is at offset 0, so on an empty list list_entry()
-> yields &hid->inputs itself and the following hidinput->input load reads
-> an unrelated member of struct hid_device.  dev is then a type-confused
-> pointer, and force-feedback init writes through it: each
-> set_bit(FF_*, dev->ffbit) stores 8 bytes at dev + 192, past the end of
-> the object dev actually aliases, and input_ff_create() adds further
-> writes of a heap pointer and two function pointers.
+> 	if (offset >= field->report_count) {
+> 		hid_err(...);
+> 		return -1;
+> 	}
 > 
-> Until hid-universal-pidff the only caller was hid_pidff_init() from
-> usbhid, which runs under HID_CLAIMED_INPUT and therefore always has at
-> least one hid_input.  universal_pidff_probe() starts the device with
-> HID_CONNECT_DEFAULT & ~HID_CONNECT_FF and then calls
-> hid_pidff_init_with_quirks() directly whenever the descriptor carries a
-> PID usage page, bypassing that gate.  A report descriptor whose only
-> application collection is on HID_UP_PID leaves hid->inputs empty while
-> hid_connect() still succeeds through the hidraw claim, so probe reaches
-> the unguarded list_entry().
+> Under CONFIG_DEBUG_FS hid_dump_input() dereferences that pointer, with
+> buf = hid_resolv_usage(usage->hid, NULL).  The usage[] array is
+> allocated inline with the hid_field in hid_register_field() and holds
+> field->maxusage entries, so an offset past it reads off the end of the
+> kvzalloc()ed allocation and into a neighbouring object.  Had the guard
+> run first, offset < report_count <= maxusage would already have confined
+> the pointer to the array.
 > 
-> The write happens in the USB probe path, on the hotplug workqueue, so
-> plugging in a malicious device is enough to trigger it; no attacker
-> software and no logged-in user are required.  KASAN reports an 8-byte
-> out-of-bounds write in hid_pidff_init_with_quirks() reached from
-> universal_pidff_probe().
+> A caller supplies such an offset today.  picolcd_fb_send_tile()
+> validates only report->maxfield before issuing
+> hid_set_field(report->field[0], 11 + i, ...) for i = 0..31, so its
+> offsets are fixed at 11..42 and are never checked against the bound
+> field.  When the device registers that field with fewer usages, the
+> framebuffer deferred-io work drives the read on every tile.  KASAN
+> reports a 4-byte slab-out-of-bounds read in hid_dump_input() below
+> hid_set_field(), and the same boot logs "offset (1) exceeds
+> report_count (1)" from the guard that runs only afterwards.
 > 
-> Check for an empty list before deriving dev and return -ENODEV, as the
-> other HID force-feedback drivers already do.  universal_pidff_probe()
-> propagates the error and unwinds.
+> Move the hid_dump_input() call below the guard.  Because
+> field->maxusage >= field->report_count, the guard then establishes that
+> field->usage + offset lies inside the array before it is dereferenced,
+> for every caller and without changing behaviour on the valid path.
 > 
 > Discovered by XBOW, triaged by Baul Lee <baul.lee@xbow.com>
 > 
-> Fixes: f06bf8d94fff ("HID: Add hid-universal-pidff driver and supported device ids")
+> Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
 > Reported-by: Federico Kirschbaum <federico.kirschbaum@xbow.com>
 > Reported-by: Baul Lee <baul.lee@xbow.com>
 > Cc: stable@vger.kernel.org
 > Signed-off-by: Baul Lee <baul.lee@xbow.com>
 
-Applied, thanks.
+Good catch. Applied, thanks.
 
 -- 
 Jiri Kosina

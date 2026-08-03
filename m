@@ -1,76 +1,76 @@
 Received: from fout-a3-smtp.messagingengine.com (fout-a3-smtp.messagingengine.com [103.168.172.146])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D40C0371065;
-	Mon,  3 Aug 2026 15:07:32 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 21135340402;
+	Mon,  3 Aug 2026 15:07:33 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.146
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785769654; cv=none; b=OoABTupGsxAPDGgHoylNp6fgKALh3mUJ5OUopmdF/B85dcoGJlwgqSlqoEzxU+exeuJJkqr8mnqZ4+lAlS7Hr0VEEaOM+e3//dXBg6rZ93rRHnK/BsSHrZ9gX6LVNebP8VKrQDWwjEGuW7npzYqMRBkJm26fHrtTE0MVrqWGpwI=
+	t=1785769655; cv=none; b=IFkopC6BSAWWrw+qhDPIQgaXHyR7rSDrUvw2EnJDvCF6fgJl2XxBZjE0Gx3YI4rgKx2JYUhOfvnKschZvyMMZb6uJCYo++fTFPEkzZ+gud+5UlR0qtMH6k2xP0v8+2+63XW4m0/U5ahfZVpMZiC4vTkzrX5AaWuZThHOIzShpVc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785769654; c=relaxed/simple;
-	bh=X6oGQpVZgdQv/0fuRfVXzgPV15Ki+qIArWC3froxYwY=;
+	s=arc-20240116; t=1785769655; c=relaxed/simple;
+	bh=EesKxDDhHAI4sxtiHnNP2yIZ4rWEuJT+g6zRucqo69I=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=dbaasARoEUjLWkbRthf7CRjI7bad2EmmlUvmOGy4OQvspkpZmHpPlrx+E4O3O5v4cmabshkwIiFV+HKvIjzU6G507cPJ6vmPdB9cBVNzi2dFp2HrO8D8vk/KXNebG4XET3Vgm7yYdbyM15fubD4+oHXbBVVXMWwlMdV1iPBjMbc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=kroah.com; spf=pass smtp.mailfrom=kroah.com; dkim=pass (2048-bit key) header.d=kroah.com header.i=@kroah.com header.b=SZ5krotB; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=Ur8Z/YdH; arc=none smtp.client-ip=103.168.172.146
+	 In-Reply-To:To:Cc; b=SRKVxIId6Wy/cmAMrNSHI7PPzE/S9rsbguaTgFeORBS/cZspScCV5jdqfsPBwRuhkk/hqwOzVrDSypEvv469vgls5BAaSZ9+eVEyM5JFzoNNrD0DePeE6mbBhk7qFN6B2iW4zBOC9r5Ksu0gcpwHX7Ct+KG4xzWvWwoW06KQfu4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=kroah.com; spf=pass smtp.mailfrom=kroah.com; dkim=pass (2048-bit key) header.d=kroah.com header.i=@kroah.com header.b=Ttc2+8KQ; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=W+nSHsmY; arc=none smtp.client-ip=103.168.172.146
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=kroah.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kroah.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kroah.com header.i=@kroah.com header.b="SZ5krotB";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="Ur8Z/YdH"
-Received: from phl-compute-01.internal (phl-compute-01.internal [10.202.2.41])
-	by mailfout.phl.internal (Postfix) with ESMTP id DB0AAEC018E;
-	Mon,  3 Aug 2026 11:07:31 -0400 (EDT)
+	dkim=pass (2048-bit key) header.d=kroah.com header.i=@kroah.com header.b="Ttc2+8KQ";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="W+nSHsmY"
+Received: from phl-compute-02.internal (phl-compute-02.internal [10.202.2.42])
+	by mailfout.phl.internal (Postfix) with ESMTP id 41652EC011C;
+	Mon,  3 Aug 2026 11:07:33 -0400 (EDT)
 Received: from phl-frontend-04 ([10.202.2.163])
-  by phl-compute-01.internal (MEProxy); Mon, 03 Aug 2026 11:07:31 -0400
+  by phl-compute-02.internal (MEProxy); Mon, 03 Aug 2026 11:07:33 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=cc
 	:cc:content-transfer-encoding:content-type:content-type:date
 	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to; s=fm3; t=1785769651;
-	 x=1785856051; bh=ApUAsKxBE4w+lfKiY2JD2GIGKL13uUTqRLiVzj0ficI=; b=
-	SZ5krotBeNn07czCtM0wl8Hsk7iQPXHWSH2rYXinKvVcXnf8k4fopN13VgI1Ap2h
-	EhX8RfAeDi4Bhw4zFVeHbk131v8lAA+jkvijZrx5EQv/U4a0PSj3II5Cpy8e3i5e
-	uc0ydYdCJ1EJUHfurGgjkARk0z+TXgEZAZIkFOC67H/XPKzDomp3xOjVRJ/OXEnC
-	46ntaMohwiRw7hEemvn1MUa0Mulqz09ClSVPo7KGq92wbJycsEHtoZyeGIRnZjmL
-	XNyVRmtWbQKKq/+oDnAuJrxfpsYMkDC7fopiam3yWUOfPaw+oVY5itIqaZKItLQE
-	AbViP5bHXvJ3Caay4yxvsg==
+	:references:reply-to:subject:subject:to:to; s=fm3; t=1785769653;
+	 x=1785856053; bh=32KV9qwFIqKCwsdt3k41eVbZ01GDKWoaUuM5bmiSqfM=; b=
+	Ttc2+8KQYRAs9NnVaNiGvzyMrtS33wkuh/LxMIQZOvC6yM16EFXCqnUxoZOGz8Je
+	teFTtAveQ42ODXeWtwcLa4D0PWdoPZ7bTJB5yV2pD36R99cP4rZDs9pqwGGKyEi1
+	NUHPBnEn0c5FlaxOrcaXVdi6WP7jUpZSn1vpcSTTSpPt8GAjxtClkk9tN2Nzj02m
+	yxL3CpV52L3e4KmNUnAFJt4rEA2Id1qX4jOhAuMhocmNpAcyUZjLeTD3Oy4nN8rq
+	JiHwdUj63Zi3DWQEK5gKutyIt1thkbBhaLBowPjRoMdBU3EdNBPZQGCiHUxYxRsq
+	k6CXY6G08KRlnEFixGLiXA==
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
 	messagingengine.com; h=cc:cc:content-transfer-encoding
 	:content-type:content-type:date:date:feedback-id:feedback-id
 	:from:from:in-reply-to:in-reply-to:message-id:mime-version
 	:references:reply-to:subject:subject:to:to:x-me-proxy
-	:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; t=1785769651; x=
-	1785856051; bh=ApUAsKxBE4w+lfKiY2JD2GIGKL13uUTqRLiVzj0ficI=; b=U
-	r8Z/YdHWyw9ZFSxiI/wTheJIMK9mA4Yl+O1bzP7kXxP3zmz52WKlkJCe8kcx4MV5
-	R/ULLKb7+OGFjlvs+d4UMf0Eb8iAy1p1L0JXx9GLssQ1tGc89lagnqehlFW7WsE3
-	x38cRfJqQvzn8sIwKlBjQIoIQlmJoovIDbyvqWN/BgNdp/i/+gQtBg+7cOMQnxM8
-	UggzIcxX0Fo8QeTAfyBH9bCxjC1G9WiQS5Rdmj4exmImlYPwzGnAZpYZADLwvZez
-	fSXUwJa2oklIMHikuw9SSrt1jKvD1mBUFPHOOGtJtR9XRUQ7T3w5uCeDIs8t5TnB
-	OjlknsxXNiLFJqDr12G7A==
-X-ME-Sender: <xms:s65walQJl8bckrwCwkRGpoK8CL6pNUBXOCWKBHFFn6qHO1sDI_btNQ>
-    <xme:s65waoHgDZZWj8owqWA4dhL17Oci8zHhw8Ki7Gj_OAJOeX6D9LnoyG6iIgHXMlqGI
-    AyMTuiMpB2rHYHci2_B2PMs62_iOsHVCf9iyPuV2phSzlu4yx4>
-X-ME-Received: <xmr:s65waiFM_pbUCepLeSUQd1JlfpKNlTVIBzyOHEaPhh7p08bV7roDOcUHDLFcCx7QKCb1ExTEs6RwUuQdsrF4QF0BjPa_f_ePtOF12qhm9_yh66XsVlo>
-X-ME-Proxy-Cause: dmFkZTFKNsn2uOSOGAfNsJddI2DrNmFMhKGpqLqNoOzfNmuE7sXscLHyXTPD862jP/25l3
-    2aWFTNFrDQV52GInQJRZQ1Q5PsIvUDlLYDqUkxKXUxo3h3fMzMpAD+Qzyx51AoUjMEve+t
-    7R5wkJ5OBXr6tAWccGkPWxsCg1Ie2jtH9BN1hCA/1OSasgl3+yHfnWxL84BN+xT6Cbzw/i
-    pnvqwjNeqx9dd4VvN/vKaKh888VPoh0iRz3vLP8MWpIKAkZmmQE/Nsnd5muDktAKBUonF9
-    vb3jlO2Rf3Z7fp7QtKVzGnZIpcdZjKznbLTSrYdbRJqR9M0HleHxQMTIrc1sFYYX3oXCk7
-    Hs0OiTQEtG/9agSBmlU9DRYR2V53rDGY0R/2fDdF4kBxcgB7eAVKBLczZ9tV5MqTzXwMkM
-    V4XTQE5rUF7BXVhgLtbLaOBz3d9Jp3O75v2OszwRuCMOlvlwdmgrqL2Stz5RJyvWZiicCG
-    uRe2SAs6/NkXbuIf3iEdkh9BxdC2m/hhP8z0MWZa1w5QEldyh19mhKxnm2yebKAWiJr3CS
-    LjfJ27WB8cDcjYDuqL35jESYZfVxV4uNPcqIteLLUOXMYGKNV+CWG99It5alEsowZ3m56c
-    xg1IeE72HiOAgHWNLF4WjbeOHzrfWDlPiI7nzABp74UUcdZk7BjHbAMZ8QtQ
-X-ME-Proxy: <xmx:s65wauQuSB7iOPRk9uTiogU2TFl5Nt-8pTWkX8PnRqRX4kxic4Xa6Q>
-    <xmx:s65warJFFb9pfYEXdJSx50CXWZ8QEQ_kiJHPjM7nf3peJzXqHGVz_w>
-    <xmx:s65wahadkhNpTv2jAJYNbFQhv-YzOxBoyz0onZpGQRd4bMss8voHmw>
-    <xmx:s65wal-CGt633jXcrO_SsFeJHKvG0gfblBWBKrDPCE5CfFL6o4bdZw>
-    <xmx:s65waqk8GcMMw0kKLL95y0RTj9HlT0rj86aRS9C2dFGsWvQsN6grq0td>
+	:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; t=1785769653; x=
+	1785856053; bh=32KV9qwFIqKCwsdt3k41eVbZ01GDKWoaUuM5bmiSqfM=; b=W
+	+nSHsmYRD1hoN3ijgYcWzilcI6oz/yb6To+kYfSeT1zgXNuFfEDXXjG8aFS1Vku/
+	KEk+QKLsxqll7HlL36Y3evZ6JSI1+BdfRDMGkZSSeuguy20sNiwd0IiV520rClv8
+	v2RG2LQSsdz3Rm3y5nlHedH7O/UWwD2x6rGsvnlMFa0/BVZyZAHRxwTrFZp0mIAv
+	MRij37e9IFd4K1vKbToBlCJbqMJ0f8aZNKOU8vU8/Smy6Jz3GJjAdaCqqhGvtqRp
+	Tshg6ytW/AxGabszK97khAJzYHiRy3C8wc7NfEEpAwD2HVlq2x8OuAkEPbH/whe4
+	re9eUrFpCXL4MlAclLKhQ==
+X-ME-Sender: <xms:ta5wauWntLiaoZ5Q6ru9JvAp2DxW_wy5QQB7hf9PdhHGNQCa6AkWsA>
+    <xme:ta5waj6qzDRuHQrzgL40si04RtrD6iD_XaEu6QhKNUplSjnGGYdRwGaVbxQH0ylzK
+    w7DTui-rdHak5p5Siuux5K1QeyaWg2GYVFzurCmBY1ONu6KF14>
+X-ME-Received: <xmr:ta5wapr_tXfLshIOcB0Lag9YION7mulH2WL8B2yyQ7xaANG5uEfW_RW65MerpTPcUYRszXf2e6wuEExpqHf63aKwguRgcGYxz1SYRqX0IZM4WTo08vo>
+X-ME-Proxy-Cause: dmFkZTF+fQKSIBfA7HwOVKseRCZh0uKnLZitkSHsUQMmaspPL8FhZxEWFaJuVaeTxg64W3
+    mScE3lxp7ppuqjxzantNBTKFXRk4QweupupTQ+qGBoCS0TsMOftnN5I/P+/Tpuy16jjXLN
+    RqhzqLfMCPlxUms5RRi7VBwoJB5k7TeQw5vuQe8tpMYZSyUHG9aNsWJ8GdaK7bbOkfDldf
+    HJs4eAcfqnf17iDuPeUQmBUzPymVqqtHtO4Ppa0b9ezoYIsPMGxtkYbXstqTcB4Objn6U9
+    ELoZAJmnwQz/2zmxjwUyWaJCHP8Zw1cLtg/t70Pyhuf7OezLQYkdD8xW6yB83ZhG4UysHS
+    zXJ55l1lY9iJbEzEyerC+j/F7bSqlKkW6soXOuHFxTZWCF4d4L7e9Hfn5gDE7NUCXfx1fl
+    6NoyFfoqfCVDR5bQ3TOlhBPl07b8SWN+AQ3ch/LQIAxdkSj8LC+CwM8m23C4kKP07j21RO
+    Gap5Fd0j5d6cxEzVJEFaViwpXg2l+Kz2nXCmbGvsNJVw6EfiCofpNhxs3/ZPo2FChgGFib
+    XxJEhkzp45FMbuNnRXnnecZVgZDKPxYQ9x9Tgujxm8C/09D/UbY8DHo2ZNyTMdIB241Eg9
+    JdYl2v5+Sn53SPoktKTKt7hVkcYpzhzhwYFHOLKJ6OWP80b5D0lBKX+chnCg
+X-ME-Proxy: <xmx:ta5wamlPSjmjf3CaURSu8DA5XP1ooEvHiQPJuLJ2QGyL3yMPb8AZMA>
+    <xmx:ta5walOc0Hjjtj1AJ64-QENv5rBuqUpXlKQKI07cPJBAtFVh72Yd9A>
+    <xmx:ta5waqMll_K59c4bpWGq4D7R6IDlW5Jgx90wwe8bi7Puihr3Cqgwfw>
+    <xmx:ta5wamhUsw3LWrGbAZVM7mm9KTEgnPPGooo3zI6ZcXdr95YtbWiKQw>
+    <xmx:ta5wauoDPoPxG1T1HmoWrUrXGSxl9cmLZmHYBHvZixfg6Zr63UKnH0QL>
 Feedback-ID: i1d2843be:Fastmail
 Received: by mail.messagingengine.com (Postfix) with ESMTPA; Mon,
- 3 Aug 2026 11:07:30 -0400 (EDT)
+ 3 Aug 2026 11:07:32 -0400 (EDT)
 From: Griffin Kroah-Hartman <griffin@kroah.com>
-Date: Mon, 03 Aug 2026 17:07:24 +0200
-Subject: [PATCH 1/3] Input: xpad - add safer data access framework
+Date: Mon, 03 Aug 2026 17:07:25 +0200
+Subject: [PATCH 2/3] Input: xpad - add sdata_check() to xpad controllers
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -79,7 +79,7 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260803-xpadone_packet_fix-v1-1-280da203f15c@kroah.com>
+Message-Id: <20260803-xpadone_packet_fix-v1-2-280da203f15c@kroah.com>
 References: <20260803-xpadone_packet_fix-v1-0-280da203f15c@kroah.com>
 In-Reply-To: <20260803-xpadone_packet_fix-v1-0-280da203f15c@kroah.com>
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
@@ -87,244 +87,117 @@ Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
  Griffin Kroah-Hartman <griffin@kroah.com>, Ingo Molnar <mingo@kernel.org>, 
  Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1785769647; l=9952;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1785769647; l=4426;
  i=griffin@kroah.com; s=20260706; h=from:subject:message-id;
- bh=X6oGQpVZgdQv/0fuRfVXzgPV15Ki+qIArWC3froxYwY=;
- b=O6QDpQKZb5nIAlSWmlzalBZod+k9qv3izpNNgxU0ClLBpH9SAg/zwsQKSCtnSiUA9+ZqWBJri
- fLAAwZLU6rrBO1RPL3ZYn8mYk2Vd6qmlY+aBNr0IuFJRi03lOFBIcRx
+ bh=EesKxDDhHAI4sxtiHnNP2yIZ4rWEuJT+g6zRucqo69I=;
+ b=MUjxYrYtk/pj5SWpj+9L/u4aEnw4DoQS9/CmmrWsyiOiaYoABI9QkudZy2bZqnE6G0lx9W3NY
+ NKESalUxLnaB85FvsO4OfAnexfQZTyaOxctPJ43s5DuBA2prSjZ0LfT
 X-Developer-Key: i=griffin@kroah.com; a=ed25519;
  pk=Hy1TuVHERdQhLAWwjmxLFNtGj7eEEjaZWPXehAlic5M=
 
-USB xpad devices could send short messages which would cause reads and
-writes outside of the data buffer.
-
-Fix this by adding the safe_data struct and the sdata_check() function when
-accessing packet data for input events, and add the usage of this to
-xpadone_process_packet(), which was vulnerable to OOB reads/writes.
+Add the sdata_check() safety wrapper to the xpad_process_packet()
+branch. Which should include the original Xbox Controller.
 
 Suggested-by: Ingo Molnar <mingo@kernel.org>
 Suggested-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Griffin Kroah-Hartman <griffin@kroah.com>
 ---
- drivers/input/joystick/xpad.c | 115 ++++++++++++++++++++++++++----------------
- 1 file changed, 71 insertions(+), 44 deletions(-)
+ drivers/input/joystick/xpad.c | 50 ++++++++++++++++++++++++-------------------
+ 1 file changed, 28 insertions(+), 22 deletions(-)
 
 diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
-index feb8f368f834..c516860711a8 100644
+index c516860711a8..319a4c4a695f 100644
 --- a/drivers/input/joystick/xpad.c
 +++ b/drivers/input/joystick/xpad.c
-@@ -780,6 +780,24 @@ struct usb_xpad {
- 	bool delayed_init_done;
- };
- 
-+struct safe_data {
-+	unsigned char *data;
-+	u32 len;
-+};
-+
-+/*
-+ * Safe Data Check
-+ *
-+ * Returns the correct data when inside the array's bounds,
-+ * returns 0 when accessing an out-of-bounds index.
-+ */
-+static u8 sdata_check(struct safe_data *sdata, int idx)
-+{
-+	if (idx >= sdata->len)
-+		return 0;
-+	return sdata->data[idx];
-+}
-+
- static int xpad_init_input(struct usb_xpad *xpad);
- static void xpad_deinit_input(struct usb_xpad *xpad);
- static int xpad_start_input(struct usb_xpad *xpad);
-@@ -1033,41 +1051,45 @@ static void xpad360w_process_packet(struct usb_xpad *xpad, u16 cmd, unsigned cha
- static void xpadone_process_packet(struct usb_xpad *xpad, u16 cmd, unsigned char *data, u32 len)
+@@ -813,9 +813,13 @@ static void xpad360w_poweroff_controller(struct usb_xpad *xpad);
+  *	The used report descriptor was taken from ITO Takayuki's website:
+  *	 http://euc.jp/periphs/xbox-controller.ja.html
+  */
+-static void xpad_process_packet(struct usb_xpad *xpad, u16 cmd, unsigned char *data)
++static void xpad_process_packet(struct usb_xpad *xpad, u16 cmd, unsigned char *data, u32 len)
  {
  	struct input_dev *dev = xpad->dev;
 +	struct safe_data sdata;
- 	bool do_sync = false;
- 
++
 +	sdata.data = data;
 +	sdata.len = len;
-+
- 	/* the xbox button has its own special report */
--	if (data[0] == GIP_CMD_VIRTUAL_KEY) {
-+	if (sdata_check(&sdata, 0) == GIP_CMD_VIRTUAL_KEY) {
- 		/*
- 		 * The Xbox One S controller requires these reports to be
- 		 * acked otherwise it continues sending them forever and
- 		 * won't report further mode button events.
- 		 */
--		if (data[1] == (GIP_OPT_ACK | GIP_OPT_INTERNAL))
--			xpadone_ack_mode_report(xpad, data[2]);
-+		if (sdata_check(&sdata, 1) == (GIP_OPT_ACK | GIP_OPT_INTERNAL))
-+			xpadone_ack_mode_report(xpad, sdata_check(&sdata, 2));
  
--		input_report_key(dev, BTN_MODE, data[4] & GENMASK(1, 0));
-+		input_report_key(dev, BTN_MODE, sdata_check(&sdata, 4) & GENMASK(1, 0));
- 		input_sync(dev);
+ 	if (!(xpad->mapping & MAP_STICKS_TO_NULL)) {
+ 		/* left stick */
+@@ -833,42 +837,44 @@ static void xpad_process_packet(struct usb_xpad *xpad, u16 cmd, unsigned char *d
  
- 		do_sync = true;
--	} else if (data[0] == GIP_CMD_FIRMWARE) {
-+	} else if (sdata_check(&sdata, 0) == GIP_CMD_FIRMWARE) {
- 		/* Some packet formats force us to use this separate to poll paddle inputs */
- 		if (xpad->packet_type == PKT_XBE2_FW_5_11) {
- 			/* Mute paddles if controller is in a custom profile slot
- 			 * Checked by looking at the active profile slot to
- 			 * verify it's the default slot
- 			 */
--			if (data[19] != 0)
-+			if (sdata_check(&sdata, 19) != 0)
- 				data[18] = 0;
+ 	/* triggers left/right */
+ 	if (xpad->mapping & MAP_TRIGGERS_TO_BUTTONS) {
+-		input_report_key(dev, BTN_TL2, data[10]);
+-		input_report_key(dev, BTN_TR2, data[11]);
++		input_report_key(dev, BTN_TL2, sdata_check(&sdata, 10));
++		input_report_key(dev, BTN_TR2, sdata_check(&sdata, 11));
+ 	} else {
+-		input_report_abs(dev, ABS_Z, data[10]);
+-		input_report_abs(dev, ABS_RZ, data[11]);
++		input_report_abs(dev, ABS_Z, sdata_check(&sdata, 10));
++		input_report_abs(dev, ABS_RZ, sdata_check(&sdata, 11));
+ 	}
  
- 			/* Elite Series 2 split packet paddle bits */
--			input_report_key(dev, BTN_GRIPR, data[18] & BIT(0));
--			input_report_key(dev, BTN_GRIPR2, data[18] & BIT(1));
--			input_report_key(dev, BTN_GRIPL, data[18] & BIT(2));
--			input_report_key(dev, BTN_GRIPL2, data[18] & BIT(3));
-+			input_report_key(dev, BTN_GRIPR, sdata_check(&sdata, 18) & BIT(0));
-+			input_report_key(dev, BTN_GRIPR2, sdata_check(&sdata, 18) & BIT(1));
-+			input_report_key(dev, BTN_GRIPL, sdata_check(&sdata, 18) & BIT(2));
-+			input_report_key(dev, BTN_GRIPL2, sdata_check(&sdata, 18) & BIT(3));
+ 	/* digital pad */
+ 	if (xpad->mapping & MAP_DPAD_TO_BUTTONS) {
+ 		/* dpad as buttons (left, right, up, down) */
+-		input_report_key(dev, BTN_DPAD_LEFT, data[2] & BIT(2));
+-		input_report_key(dev, BTN_DPAD_RIGHT, data[2] & BIT(3));
+-		input_report_key(dev, BTN_DPAD_UP, data[2] & BIT(0));
+-		input_report_key(dev, BTN_DPAD_DOWN, data[2] & BIT(1));
++		input_report_key(dev, BTN_DPAD_LEFT, sdata_check(&sdata, 2) & BIT(2));
++		input_report_key(dev, BTN_DPAD_RIGHT, sdata_check(&sdata, 2) & BIT(3));
++		input_report_key(dev, BTN_DPAD_UP, sdata_check(&sdata, 2) & BIT(0));
++		input_report_key(dev, BTN_DPAD_DOWN, sdata_check(&sdata, 2) & BIT(1));
+ 	} else {
+ 		input_report_abs(dev, ABS_HAT0X,
+-				 !!(data[2] & 0x08) - !!(data[2] & 0x04));
++				 !!(sdata_check(&sdata, 2) & 0x08) -
++				 !!(sdata_check(&sdata, 2) & 0x04));
+ 		input_report_abs(dev, ABS_HAT0Y,
+-				 !!(data[2] & 0x02) - !!(data[2] & 0x01));
++				 !!(sdata_check(&sdata, 2) & 0x02) -
++				 !!(sdata_check(&sdata, 2) & 0x01));
+ 	}
  
- 			do_sync = true;
- 		}
--	} else if (data[0] == GIP_CMD_ANNOUNCE) {
-+	} else if (sdata_check(&sdata, 0) == GIP_CMD_ANNOUNCE) {
- 		int error;
+ 	/* start/back buttons and stick press left/right */
+-	input_report_key(dev, BTN_START,  data[2] & BIT(4));
+-	input_report_key(dev, BTN_SELECT, data[2] & BIT(5));
+-	input_report_key(dev, BTN_THUMBL, data[2] & BIT(6));
+-	input_report_key(dev, BTN_THUMBR, data[2] & BIT(7));
++	input_report_key(dev, BTN_START,  sdata_check(&sdata, 2) & BIT(4));
++	input_report_key(dev, BTN_SELECT, sdata_check(&sdata, 2) & BIT(5));
++	input_report_key(dev, BTN_THUMBL, sdata_check(&sdata, 2) & BIT(6));
++	input_report_key(dev, BTN_THUMBR, sdata_check(&sdata, 2) & BIT(7));
  
- 		if (xpad->delay_init && !xpad->delayed_init_done) {
-@@ -1078,44 +1100,49 @@ static void xpadone_process_packet(struct usb_xpad *xpad, u16 cmd, unsigned char
- 					 "unable to start delayed input: %d\n",
- 					 error);
- 		}
--	} else if (data[0] == GIP_CMD_INPUT) { /* The main valid packet type for inputs */
-+	} else if (sdata_check(&sdata, 0) == GIP_CMD_INPUT) {
-+		/* The main valid packet type for inputs */
-+
- 		/* menu/view buttons */
--		input_report_key(dev, BTN_START,  data[4] & BIT(2));
--		input_report_key(dev, BTN_SELECT, data[4] & BIT(3));
-+		input_report_key(dev, BTN_START,  sdata_check(&sdata, 4) & BIT(2));
-+		input_report_key(dev, BTN_SELECT, sdata_check(&sdata, 4) & BIT(3));
- 		if (xpad->mapping & MAP_SHARE_BUTTON) {
- 			u32 offset = (xpad->mapping & MAP_SHARE_OFFSET) ? 26 : 18;
+ 	/* "analog" buttons A, B, X, Y */
+-	input_report_key(dev, BTN_A, data[4]);
+-	input_report_key(dev, BTN_B, data[5]);
+-	input_report_key(dev, BTN_X, data[6]);
+-	input_report_key(dev, BTN_Y, data[7]);
++	input_report_key(dev, BTN_A, sdata_check(&sdata, 4));
++	input_report_key(dev, BTN_B, sdata_check(&sdata, 5));
++	input_report_key(dev, BTN_X, sdata_check(&sdata, 6));
++	input_report_key(dev, BTN_Y, sdata_check(&sdata, 7));
  
- 			if (len >= offset)
--				input_report_key(dev, KEY_RECORD, data[len - offset] & BIT(0));
-+				input_report_key(dev, KEY_RECORD,
-+						 sdata_check(&sdata, len - offset) & BIT(0));
- 		}
+ 	/* "analog" buttons black, white */
+-	input_report_key(dev, BTN_C, data[8]);
+-	input_report_key(dev, BTN_Z, data[9]);
++	input_report_key(dev, BTN_C, sdata_check(&sdata, 8));
++	input_report_key(dev, BTN_Z, sdata_check(&sdata, 9));
  
- 		/* buttons A,B,X,Y */
--		input_report_key(dev, BTN_A,	data[4] & BIT(4));
--		input_report_key(dev, BTN_B,	data[4] & BIT(5));
--		input_report_key(dev, BTN_X,	data[4] & BIT(6));
--		input_report_key(dev, BTN_Y,	data[4] & BIT(7));
-+		input_report_key(dev, BTN_A,	sdata_check(&sdata, 4) & BIT(4));
-+		input_report_key(dev, BTN_B,	sdata_check(&sdata, 4) & BIT(5));
-+		input_report_key(dev, BTN_X,	sdata_check(&sdata, 4) & BIT(6));
-+		input_report_key(dev, BTN_Y,	sdata_check(&sdata, 4) & BIT(7));
  
- 		/* digital pad */
- 		if (xpad->mapping & MAP_DPAD_TO_BUTTONS) {
- 			/* dpad as buttons (left, right, up, down) */
--			input_report_key(dev, BTN_DPAD_LEFT, data[5] & BIT(2));
--			input_report_key(dev, BTN_DPAD_RIGHT, data[5] & BIT(3));
--			input_report_key(dev, BTN_DPAD_UP, data[5] & BIT(0));
--			input_report_key(dev, BTN_DPAD_DOWN, data[5] & BIT(1));
-+			input_report_key(dev, BTN_DPAD_LEFT, sdata_check(&sdata, 5) & BIT(2));
-+			input_report_key(dev, BTN_DPAD_RIGHT, sdata_check(&sdata, 5) & BIT(3));
-+			input_report_key(dev, BTN_DPAD_UP, sdata_check(&sdata, 5) & BIT(0));
-+			input_report_key(dev, BTN_DPAD_DOWN, sdata_check(&sdata, 5) & BIT(1));
- 		} else {
- 			input_report_abs(dev, ABS_HAT0X,
--					!!(data[5] & 0x08) - !!(data[5] & 0x04));
-+					!!(sdata_check(&sdata, 5) & 0x08) -
-+					!!(sdata_check(&sdata, 5) & 0x04));
- 			input_report_abs(dev, ABS_HAT0Y,
--					!!(data[5] & 0x02) - !!(data[5] & 0x01));
-+					!!(sdata_check(&sdata, 5) & 0x02) -
-+					!!(sdata_check(&sdata, 5) & 0x01));
- 		}
+ 	input_sync(dev);
+@@ -1265,7 +1271,7 @@ static void xpad_irq_in(struct urb *urb)
+ 		xpadone_process_packet(xpad, 0, xpad->idata, urb->actual_length);
+ 		break;
+ 	default:
+-		xpad_process_packet(xpad, 0, xpad->idata);
++		xpad_process_packet(xpad, 0, xpad->idata, urb->actual_length);
+ 	}
  
- 		/* TL/TR */
--		input_report_key(dev, BTN_TL,	data[5] & BIT(4));
--		input_report_key(dev, BTN_TR,	data[5] & BIT(5));
-+		input_report_key(dev, BTN_TL,	sdata_check(&sdata, 5) & BIT(4));
-+		input_report_key(dev, BTN_TR,	sdata_check(&sdata, 5) & BIT(5));
- 
- 		/* stick press left/right */
--		input_report_key(dev, BTN_THUMBL, data[5] & BIT(6));
--		input_report_key(dev, BTN_THUMBR, data[5] & BIT(7));
-+		input_report_key(dev, BTN_THUMBL, sdata_check(&sdata, 5) & BIT(6));
-+		input_report_key(dev, BTN_THUMBR, sdata_check(&sdata, 5) & BIT(7));
- 
- 		if (!(xpad->mapping & MAP_STICKS_TO_NULL)) {
- 			/* left stick */
-@@ -1146,7 +1173,7 @@ static void xpadone_process_packet(struct usb_xpad *xpad, u16 cmd, unsigned char
- 
- 		/* Profile button has a value of 0-3, so it is reported as an axis */
- 		if (xpad->mapping & MAP_PROFILE_BUTTON)
--			input_report_abs(dev, ABS_PROFILE, data[34]);
-+			input_report_abs(dev, ABS_PROFILE, sdata_check(&sdata, 34));
- 
- 		/* paddle handling */
- 		/* based on SDL's SDL_hidapi_xboxone.c */
-@@ -1160,38 +1187,38 @@ static void xpadone_process_packet(struct usb_xpad *xpad, u16 cmd, unsigned char
- 					data[32] = 0;
- 
- 				/* OG Elite Series Controller paddle bits */
--				input_report_key(dev, BTN_GRIPR, data[32] & BIT(1));
--				input_report_key(dev, BTN_GRIPR2, data[32] & BIT(3));
--				input_report_key(dev, BTN_GRIPL, data[32] & BIT(0));
--				input_report_key(dev, BTN_GRIPL2, data[32] & BIT(2));
-+				input_report_key(dev, BTN_GRIPR, sdata_check(&sdata, 32) & BIT(1));
-+				input_report_key(dev, BTN_GRIPR2, sdata_check(&sdata, 32) & BIT(3));
-+				input_report_key(dev, BTN_GRIPL, sdata_check(&sdata, 32) & BIT(0));
-+				input_report_key(dev, BTN_GRIPL2, sdata_check(&sdata, 32) & BIT(2));
- 			} else if (xpad->packet_type == PKT_XBE2_FW_OLD) {
- 				/* Mute paddles if controller has a custom mapping applied.
- 				 * Checked by comparing the current mapping
- 				 * config against the factory mapping config
- 				 */
--				if (data[19] != 0)
-+				if (sdata_check(&sdata, 19) != 0)
- 					data[18] = 0;
- 
- 				/* Elite Series 2 4.x firmware paddle bits */
--				input_report_key(dev, BTN_GRIPR, data[18] & BIT(0));
--				input_report_key(dev, BTN_GRIPR2, data[18] & BIT(1));
--				input_report_key(dev, BTN_GRIPL, data[18] & BIT(2));
--				input_report_key(dev, BTN_GRIPL2, data[18] & BIT(3));
-+				input_report_key(dev, BTN_GRIPR, sdata_check(&sdata, 18) & BIT(0));
-+				input_report_key(dev, BTN_GRIPR2, sdata_check(&sdata, 18) & BIT(1));
-+				input_report_key(dev, BTN_GRIPL, sdata_check(&sdata, 18) & BIT(2));
-+				input_report_key(dev, BTN_GRIPL2, sdata_check(&sdata, 18) & BIT(3));
- 			} else if (xpad->packet_type == PKT_XBE2_FW_5_EARLY) {
- 				/* Mute paddles if controller has a custom mapping applied.
- 				 * Checked by comparing the current mapping
- 				 * config against the factory mapping config
- 				 */
--				if (data[23] != 0)
-+				if (sdata_check(&sdata, 23) != 0)
- 					data[22] = 0;
- 
- 				/* Elite Series 2 5.x firmware paddle bits
- 				 * (before the packet was split)
- 				 */
--				input_report_key(dev, BTN_GRIPR, data[22] & BIT(0));
--				input_report_key(dev, BTN_GRIPR2, data[22] & BIT(1));
--				input_report_key(dev, BTN_GRIPL, data[22] & BIT(2));
--				input_report_key(dev, BTN_GRIPL2, data[22] & BIT(3));
-+				input_report_key(dev, BTN_GRIPR, sdata_check(&sdata, 22) & BIT(0));
-+				input_report_key(dev, BTN_GRIPR2, sdata_check(&sdata, 22) & BIT(1));
-+				input_report_key(dev, BTN_GRIPL, sdata_check(&sdata, 22) & BIT(2));
-+				input_report_key(dev, BTN_GRIPL2, sdata_check(&sdata, 22) & BIT(3));
- 			}
- 		}
- 
+ exit:
 
 -- 
 2.55.0

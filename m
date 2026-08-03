@@ -1,42 +1,45 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BF8244248A9;
-	Mon,  3 Aug 2026 17:21:09 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1FA2A420477;
+	Mon,  3 Aug 2026 17:26:04 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785777670; cv=none; b=V16ZqkQ01WjxiQAtI3swaC5t16hDMikTGcJuLNMNAo9Tlpi1HaojpyNbDahDajbYoFFleOCStyM4HyzcXD+g3DOJ3PPTz2HQm69uEm84ahtyB0eDfTBO0ixcCRyY3dPVltxUJrLl/ksYGx6PTCLdVKxQK5foSuJLVNEQhy5rUY8=
+	t=1785777966; cv=none; b=RPtE4k6hTNQm3JKB+nfCNIlraaIoJCIvZIEM7OtwV/ggrCZe1ZjSGkO93SAGseGsCkIBfAoe47kKkwJ8z6ybFp9arGomSNxzocAolRsry4fGHcusC8eqHgTdiHKPaxR7uN6MQ40h85MAgcSNbv/ezWyxNRD5HP8A2/phzcT6Atw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785777670; c=relaxed/simple;
-	bh=KSByC83TNLIyvp/ZfybPH/UTua4Mm8Ekf9qt7gTaTvA=;
+	s=arc-20240116; t=1785777966; c=relaxed/simple;
+	bh=1EVYDBXY8jEzoSguAG656R+OMpsZAX/JKZv9OW6hEDs=;
 	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
-	 MIME-Version:Content-Type; b=u/2/jSlPZt7BpzGHdXqDp3VIN/8GZi97ZAsSJHVMDOI3SUGU0Okl7Qzw2ishm3SwBq+7pLgpftozm/dcOJjjO9JVnrbwrCGxXKwvdZOIY3w/0qZqLR0F6TNihpDWgdy0Dy9nO0avx7ulezEGUTxJ2aGYq9w3GWRmKcpTJrErsUo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=OaLE1euk; arc=none smtp.client-ip=100.103.45.18
+	 MIME-Version:Content-Type; b=M2S84rz/BDlzcf9LK3JpPA+1c+OvY8heEULPoXlW9GyhrrouCpWKiA9zFqFbe0wfjSlo9D4rkuzWFOxvwCyPWmGL1VKGqMmAq7CWoo8wwowSkUIT3+3BsSYEuVn2Flptzxs83wP9qvfhBKpzaETR0yBlbSTuGD7ELlPw8GIIruQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Al6Aw8Cm; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="OaLE1euk"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 25C181F00A3A;
-	Mon,  3 Aug 2026 17:21:08 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Al6Aw8Cm"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45B151F000E9;
+	Mon,  3 Aug 2026 17:26:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785777669;
-	bh=/kmsI67Z2c2CDSUl1Hn4hXjxCks4WaqNMw78U/QdWNc=;
+	s=k20260515; t=1785777964;
+	bh=azdNOfQfg+0njIn/J9/RadvykQP9fIxdT53ym20rnUY=;
 	h=Date:From:To:cc:Subject:In-Reply-To:References;
-	b=OaLE1eukjNchfUBXBPtcbGdK74dloZrZSPvYS2YwaOtpLyXQ5I9Kb/I//x5o5knac
-	 N30MOaIxbp11Jd5JlALr3xsPGpCeUoWtoH4t2UL5Moq40FGd/EBOjRZyCD1VqcRz0I
-	 CYSvcNZ8XOiUyNHb/tAV6WRCjE1Xf1p+QctEQ/S0XsCwedxB/4zzDAsrAs/5jLh0GW
-	 wru5EjPjhYAr+Bo+EF96LhI091xyCCdFRVRIfiSFdFbnuwWg4WP4v1S0+8NF0w7Hrh
-	 EF/SIKAUONJptW3XXcafHjJBc3HHkZQCz4NSzlVPbugsKLz3aX/62+EcHO+sM1kn/W
-	 bLmR1zqy5ebKg==
-Date: Mon, 3 Aug 2026 19:21:07 +0200 (CEST)
+	b=Al6Aw8CmUMF0GYPC29hAHYYCkZOWenMccWs4he+kmjWgPKRzql+6Xt/K1RqfviyIk
+	 qEUgcPziBYrpnWEdu6hkJP2DtHzCGDxWOCufptLshn+pX42GhER4epPsT28jiQMZxe
+	 4RNqikx+Dn61OijpEvgHiJiqrISRRI/0j3KguGGidSI2X/2vu716uJVR5rXD7jYc9K
+	 XRV/p9jCAnKluviYVBHF1q2h+uLn/PSeEyYZ1NuLy59bSDBrs52OnENsGdELNi1IIk
+	 VdxHpCq+a0Bb11R11RShlkOZnaF07AgpujFJmyb3KR6nAwM0YmPm0CPwR3aHVMta1b
+	 gLk/GY2YKLMjw==
+Date: Mon, 3 Aug 2026 19:26:02 +0200 (CEST)
 From: Jiri Kosina <jikos@kernel.org>
-To: Jiangshan Yi <yijiangshan@kylinos.cn>
-cc: gupt21@gmail.com, bentiss@kernel.org, hamish.martin@alliedtelesis.co.nz, 
-    sashal@kernel.org, linux-kernel@vger.kernel.org, 
-    linux-input@vger.kernel.org, linux-i2c@vger.kernel.org, 
-    13667453960@163.com, stable@vger.kernel.org
-Subject: Re: [PATCH] HID: mcp2221: stop device IO before hid_hw_stop
-In-Reply-To: <20260728061919.310367-1-yijiangshan@kylinos.cn>
-Message-ID: <oq501p96-sp97-1136-p19s-p96p3no031os@xreary.bet>
-References: <20260728061919.310367-1-yijiangshan@kylinos.cn>
+To: Denis Benato <denis.benato@linux.dev>
+cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, 
+    Benjamin Tissoires <bentiss@kernel.org>, 
+    "Luke D . Jones" <luke@ljones.dev>, Mateusz Schyboll <dragonn@op.pl>, 
+    Denis Benato <benato.denis96@gmail.com>, 
+    Antheas Kapenekakis <lkml@antheas.dev>, 
+    Connor Belli <connorbelli2003@gmail.com>
+Subject: Re: [PATCH v5 0/5] HID: asus: security fixes and more hardware
+ support
+In-Reply-To: <ab282e6e-bc0a-4705-b25a-780d3ab33f5b@linux.dev>
+Message-ID: <7nps151s-q114-3589-5116-2nro3sssp6rs@xreary.bet>
+References: <20260619001103.1189200-1-denis.benato@linux.dev> <rr8s664r-5s34-1815-57ss-32p461sopp45@xreary.bet> <ab282e6e-bc0a-4705-b25a-780d3ab33f5b@linux.dev>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -45,22 +48,26 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 
-On Tue, 28 Jul 2026, Jiangshan Yi wrote:
+On Mon, 29 Jun 2026, Denis Benato wrote:
 
-> mcp2221_probe() calls hid_device_io_start() to allow synchronous HID
-> transactions during setup.  If probe fails afterwards, the devm cleanup
-> callback mcp2221_hid_unregister() calls hid_hw_close()/hid_hw_stop()
-> without first calling hid_device_io_stop().
+> > thanks. Could you please flag which patches you'd prefer to go in still 
+> > for 7.1 and which ones are not critical and could wait for 7.2? The whole 
+> > lot is quite big.
+> Hi Jiri!
 > 
-> hid_hw_stop() does not stop device IO, so hid_input_report() may still
-> be delivered and access driver data being freed, causing a
-> use-after-free.  The same window exists on normal device removal.
+> Patch 1 contains multiple fixes, mainly use of sleeping calls in atomic contexts:
+> I'd say slap it in 7.1 fixes.
 > 
-> Call hid_device_io_stop() at the top of mcp2221_hid_unregister() so
-> that IO is quiesced before the hardware is stopped in both the error
-> and remove paths.
+> Patch 2 is a minor improvement removing an OOM message to align the driver
+> to newer code where that would have been a flagged warning: probably a fix for
+> 7.1 but there's no rush for this one.
+> 
+> Patch 3 is a logic fix, condition is very rare (not sure if even possible) but belongs
+> to 7.1 almost certainly.
 
-Applied, thanks.
+Sorry for the delay, summer kicked in :) 1,2,3 are now queued.
+
+Thanks,
 
 -- 
 Jiri Kosina

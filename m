@@ -1,41 +1,41 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C00BC3290B9;
-	Mon,  3 Aug 2026 17:46:34 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B06B5423774;
+	Mon,  3 Aug 2026 17:47:50 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785779195; cv=none; b=JaDfDBalommxfvVizB2kl1IrB4Hrqbx4TDw+cGTECFaAkotaYBAyh47zwSCUspsNZgsoALQd/G8afz0CMBSL34P0jRHoGll2EIt24JtdZenrb85MpzpA95gGvSOAo2pPWW8GSqFq8RAeQ8NAonO9NB9S718jvypI7Xjr88OTgXU=
+	t=1785779273; cv=none; b=t+ckowB7kZv6VrN83aFTJnZLrHqAJnKrXkmyS6UUPH9g8GxWrCO/Rqp7zZZ7eKZHeYfgOl+p93/ReDVYwj0ZFoIo5o8JhYI4U4uA+xltpByGVmsOKsb25JMfhybRPERiJi5TyLHBGni3x80ckgyR1xIk5Iy7a4qyNwW6bZdFM74=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785779195; c=relaxed/simple;
-	bh=Jv03YdJypRlKMqeTPuP54VwFCUe79BCf0SVecokVhCY=;
+	s=arc-20240116; t=1785779273; c=relaxed/simple;
+	bh=i+hU5fqU2W0gylC1ftXGBbGUg8vvcP7obRyDv8hkUns=;
 	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
-	 MIME-Version:Content-Type; b=qcSpYpIZNJa3cuNWNKpScunJvH3yBXA0meOV0jjZ00NZ/TTEXvABJ5G/QW//V6s3a+SZTkCsjJaeMyHyglXHI0IUOxYH4GBHGhFfjXxKfvXrxjWSGl3Mwf+Z7XommUwruiCigs7YN4BoTtq3UvDgEDKYcIbi8J+OO/owCurVTEw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=OBu2vWDY; arc=none smtp.client-ip=100.103.45.18
+	 MIME-Version:Content-Type; b=r2oBSHTQLF+GbeCfnQavNlfIhYyDMm+5DW+rZLLzN60jiqBSlkbnHB1KtiARYIR65FAlFh2dxx7iHFxAOKKJk4hQSJpxPz0PSBuxlHQoM0EPPILlYX6iOFQQffqCzw1Ikl2cUSRcJWUF6Bu4uQ/L5KdfRMPwwBDIEtCQ5xlJ0fI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=PVTGQ5RF; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="OBu2vWDY"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D80911F000E9;
-	Mon,  3 Aug 2026 17:46:33 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="PVTGQ5RF"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B0541F000E9;
+	Mon,  3 Aug 2026 17:47:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785779194;
-	bh=bw7W2C30haTMcWUYbm86u/RBXeYStpNYSsBRQRSIEoE=;
+	s=k20260515; t=1785779269;
+	bh=2AsbDoCIumgKqQYZ/nuNuS8hloxzjeqZAFgMjT01IVo=;
 	h=Date:From:To:cc:Subject:In-Reply-To:References;
-	b=OBu2vWDY+JuErGrPeeyjVLQI1dNC/1ALVCn7NYZNmOeXafL2gvXxGvSQuHAabbt1t
-	 fXsGduGEpOrIlNnkTm898TZ0zxijNMppFjf9RIt3h2FIywr7PQwn0xX8qgXw22ddjt
-	 3mu/UxtvWplr1gTSsYpFPPDq6i2Ol4OXCWYUhjD8P2+BZrY7nMjAWSsdlGtlPtpV9n
-	 f8xz3DxT6aDONabbcaiFijI8QCnC1iRFrEeHH+3ydGSwPIjFIXHzwceJvjjOrkYZhs
-	 QnX7p3qTGum7ixWAjjx2byHIZkoWDrVs8peQWKl2QR+P2X3ymiRsb5d/1Tq1o36H3j
-	 VqNz1qnO6Lqqg==
-Date: Mon, 3 Aug 2026 19:46:31 +0200 (CEST)
+	b=PVTGQ5RFjwhV9aFF+wWQ7xI+ROFyhRBYVblebxVdYSwec8rUH1Oys/954+FaqI+pD
+	 80mA8m/2fgUBwngrsamqkuIgLUf64nJRlzMKmyFUbzt4FwiB0sLSnsLBskUB9IoAfY
+	 Kx9beM5sfqMmGkcc04ycJ8pSHDLEDwhKw/eaMKfCz3FnQEFzDajuCaVYgmXlaDuZ5f
+	 mvQuBxE9eH+HNM76ag0/pXGHR+R+MeYQCAhLLG1JgiurmFR9s+xVKk811tirEbi9NN
+	 yd0QcjeiqvwgrLc7qY/wrrZk2id53hcKZorqL1rJHnXm4aGY1jwFBq66APqspSelnk
+	 0wfkrEdLQ2+Zw==
+Date: Mon, 3 Aug 2026 19:47:46 +0200 (CEST)
 From: Jiri Kosina <jikos@kernel.org>
-To: Stuart Hayhurst <stuart.a.hayhurst@gmail.com>
-cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
-    Benjamin Tissoires <bentiss@kernel.org>, stable@vger.kernel.org
-Subject: Re: [PATCH v2] HID: corsair-void: Check size of status and firmware
- events before reading them
-In-Reply-To: <20260630010656.626157-3-stuart.a.hayhurst@gmail.com>
-Message-ID: <2rqpp566-6oq0-p024-s784-p3714q02oqpo@xreary.bet>
-References: <20260630010656.626157-3-stuart.a.hayhurst@gmail.com>
+To: Pengpeng Hou <pengpeng@iscas.ac.cn>
+cc: Benjamin Tissoires <bentiss@kernel.org>, linux-input@vger.kernel.org, 
+    linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] HID: rmi: check report length before trimming sentinel
+ bytes
+In-Reply-To: <2026063007016439.1-ccfa108-0006-HID-rmi-check-report-length-pengpeng@iscas.ac.cn>
+Message-ID: <9p90o702-so88-p21s-7s46-r2s193r5nr5s@xreary.bet>
+References: <2026063007016439.1-ccfa108-0006-HID-rmi-check-report-length-pengpeng@iscas.ac.cn>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -44,15 +44,13 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 
-On Tue, 30 Jun 2026, Stuart Hayhurst wrote:
+On Tue, 30 Jun 2026, Pengpeng Hou wrote:
 
-> Malformed status and firmware events could cause an out-of-bounds read since
-> the size wasn't being checked. Check the size and warn on unexpected values to
-> avoid this.
+> rmi_check_sanity() trims trailing 0xff sentinel bytes, but its loop
+> reads data[valid_size - 1] before checking that valid_size is non-zero.
 > 
-> Fixes: 6ea2a6fd3872 ("HID: corsair-void: Add Corsair Void headset family driver")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Stuart Hayhurst <stuart.a.hayhurst@gmail.com>
+> Reverse the condition so the length is proved before the last byte is
+> inspected.
 
 Applied, thanks.
 

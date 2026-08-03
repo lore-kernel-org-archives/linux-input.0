@@ -1,148 +1,82 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from out28-123.mail.aliyun.com (out28-123.mail.aliyun.com [115.124.28.123])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3BCD42D7DF1
-	for <linux-input@vger.kernel.org>; Mon,  3 Aug 2026 01:39:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 53BA6253B73;
+	Mon,  3 Aug 2026 01:49:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.28.123
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785721184; cv=none; b=PzWg06E+5zfuTu9+O+2BDzjDiZ6XrYvLq3o4135ZxjHHOWl//UmZH5oeit2kK76YOcy0E39kg5RD7ouypv9jqwTyTC6ara6KbbEQuJjYzVOT3XKHIMX59e49damkXZn0eMKIjH7OKl5Fw+HtLOjYBiAJBnaWugOyNXxg7bw9yHs=
+	t=1785721750; cv=none; b=bT5w6DkAcHoK9OohXWZY5VH+s6owTeCmkZy4DnQeGFtF87Sve/4BFKKvCbFVdu6kPwfI3jgIMNlgqseezoIK4kKktSCrdeg4wj1Oqzia/Z1/xZx5ITSqbkB3KjCKl/7Fna5l/MVRBcGipbvDf01Dz147Z4WxvKo6PaTstoceFDU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785721184; c=relaxed/simple;
-	bh=PDvSkoa3EBUsmP8mUzQvaGS8nAPvJ/4RbmSuVExaPEQ=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=siI4Uxyvkiyy7PqzRpWogN0og8YEwI1hw2BZ4FVwh3yAx3au5S0/4pZJGOd+qTmdtPhsyXHQznh8PDMynACXPOuU63KEBfdWeJPMVCaMalg8wQ7Itilm9SZAiUQDExMNk5584R6jofZ+Y4Uza0ZjO75A9E6iJgSiU3B9icLZnZ8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=adgkYkUm; arc=none smtp.client-ip=100.103.45.18
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="adgkYkUm"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F5761F000E9;
-	Mon,  3 Aug 2026 01:39:42 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785721182;
-	bh=c6ye07a51X/zp4+yNOZBrnz0Jhdatbb4ZN8kczylNGM=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=adgkYkUmTS6CnDefYiXS6wZJ4LSlBQ4FSPvlCQ3AFsqtHe7k7auxMjxT56me7nu9Q
-	 gRsOztUzpevbqzyOiN3aL6GIwN4A3/s6xfzKWDnUgnbWnJibKUA2TJFQpJzBgGpr1T
-	 2hoTfaTZU477niu3jjrg+31XKZu3xiSsW8JiQvzZeay4yZQiWgRiHsl/GJbn8WhcGX
-	 lPRkplPqhebMb1YGmqaSluYWmWIsmXb3KG2fG5uDayWfSD9FxiJWE/xC0wD5oBIAW0
-	 JV3rCR8egLjnPDJK49bcz9h1PUkobZAjfi4mxIyPTa77Tpd0GemkOxCdTMGKkv4oLA
-	 IXqAZAr8HDWxw==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] Input: focaltech - use signed coordinates to prevent
- underflow
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <am_tH_F938rK6ask@google.com>
-References: <am_tH_F938rK6ask@google.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Mon, 03 Aug 2026 01:39:42 +0000
-Message-Id: <20260803013942.9F5761F000E9@smtp.kernel.org>
+	s=arc-20240116; t=1785721750; c=relaxed/simple;
+	bh=xa4op5BFmvSOxtl0jKDqKP4zfEGxCBIeWhBj379mP+s=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=fnQgLweQ7wU4jY5djIf+Y0Xx0lOC5kG1asZt1m0c8L4HAtaXLqYDdBovXzSIpfvrLeTGcHQ66EwVd5ZY/r+3VaR+ZsT+i3QC79X51Q7+Bezc5CmB9QI9nXkxkpw/NGd+0+I16fUZixlWw9L+GYsNdkobzsbFr5/EeM7VM0lYTso=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sz-huijia.com; spf=pass smtp.mailfrom=sz-huijia.com; arc=none smtp.client-ip=115.124.28.123
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sz-huijia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sz-huijia.com
+X-Alimail-AntiSpam:AC=CONTINUE;BC=0.9120722|0.1672187;CH=green;DM=|AD|false|;DS=CONTINUE|ham_alarm|0.447767-0.000931567-0.551302;FP=18445791274796245223|0|0|0|0|-1|-1|-1;HT=maildocker-contentspam033032053168;MF=hj117@sz-huijia.com;NM=1;PH=DS;RN=4;RT=4;SR=0;TI=SMTPD_---.icAV0-d_1785721742;
+Received: from HJ117-PC.hjz.lan(mailfrom:hj117@sz-huijia.com fp:SMTPD_---.icAV0-d_1785721742 cluster:ay29)
+          by smtp.aliyun-inc.com;
+          Mon, 03 Aug 2026 09:49:02 +0800
+From: Dongxu Su <hj117@sz-huijia.com>
+To: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+Cc: stable@vger.kernel.org, gregkh@linuxfoundation.org
+Subject: [PATCH v2] Input: xpad - add Voyetra Turtle Beach PC Rematch Gamepad
+Date: Mon, 03 Aug 2026 09:49:01 +0800
+Message-ID: <178572174191.26980.4407731925140715976@sz-huijia.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
 
-New issues:
-- [High] The patch changes internal coordinates to signed integers to preve=
-nt underflow jumps, but fails to write the clamped coordinates back to the =
-internal state, creating a wind-up bug at the screen edges.
+Add support for the Voyetra Turtle Beach PC Rematch Gamepad,
+a triple-mode (wired, 2.4G wireless, Bluetooth) PC game controller.
 
-Pre-existing issues:
-- [Critical] A signedness bug in `focaltech_process_rel_packet` allows an u=
-nused finger index to evaluate to -1 and bypass bounds checks, causing an o=
-ut-of-bounds array write that silently corrupts the touchpad's physical bou=
-nds limits.
---
+The VID 0x10F5 is already in the XPAD_XBOXONE_VENDOR whitelist
+(covering the GIP mode PIDs 0x6015 and 0x6016), but XInput support
+was missing.
 
---- Patch [1]: [PATCH] Input: focaltech - use signed coordinates to prevent=
- underflow ---
-commit e1624dd1b0cb6c1665dcbaeda6430fe12e1a62aa
-Author: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Add XPAD_XBOX360_VENDOR(0x10F5) to xpad_table to enable XInput mode
+(both wired and wireless), and add xpad_device entries for all four
+PIDs to give them human-readable names:
+  - 0x6013: XInput wired (XTYPE_XBOX360)
+  - 0x6014: XInput wireless 2.4G (XTYPE_XBOX360W)
+  - 0x6015: GIP wired (XTYPE_XBOXONE)
+  - 0x6016: GIP wireless 2.4G (XTYPE_XBOXONE)
 
-Input: focaltech - use signed coordinates to prevent underflow
+Signed-off-by: Dongxu Su <hj117@sz-huijia.com>
+---
+ drivers/input/joystick/xpad.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-This commit changes the internal finger coordinates from unsigned to signed
-integers to prevent underflow when processing relative packets. It updates
-the variables in focaltech_finger_state and the clamping limits in
-focaltech_data to avoid erratic cursor jumps when moving past the touchpad
-boundaries.
+diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
+index feb8f36..7f593fc 100644
+--- a/drivers/input/joystick/xpad.c
++++ b/drivers/input/joystick/xpad.c
+@@ -267,6 +267,10 @@ static const struct xpad_device {
+ 	{ 0x1038, 0x1431, "SteelSeries Stratus Duo", 0, XTYPE_XBOX360 },
+ 	{ 0x10f5, 0x7005, "Turtle Beach Recon Controller", 0, XTYPE_XBOXONE },
+ 	{ 0x10f5, 0x7008, "Turtle Beach Recon Controller", MAP_SHARE_BUTTON, XTYPE_XBOXONE },
++	{ 0x10f5, 0x6013, "PC Rematch Gamepad", 0, XTYPE_XBOX360 },
++	{ 0x10f5, 0x6014, "PC Rematch Gamepad (Wireless)", 0, XTYPE_XBOX360W },
++	{ 0x10f5, 0x6015, "PC Rematch Gamepad", 0, XTYPE_XBOXONE },
++	{ 0x10f5, 0x6016, "PC Rematch Gamepad (Wireless)", 0, XTYPE_XBOXONE },
+ 	{ 0x10f5, 0x7073, "Turtle Beach Stealth Ultra Controller", MAP_SHARE_BUTTON, XTYPE_XBOXONE },
+ 	{ 0x11c9, 0x55f0, "Nacon GC-100XF", 0, XTYPE_XBOX360 },
+ 	{ 0x11ff, 0x0511, "PXN V900", 0, XTYPE_XBOX360 },
+@@ -522,6 +526,7 @@ static const struct usb_device_id xpad_table[] = {
+ 	XPAD_XBOXONE_VENDOR(0x0f0d),		/* Hori controllers */
+ 	XPAD_XBOX360_VENDOR(0x1038),		/* SteelSeries controllers */
+ 	XPAD_XBOXONE_VENDOR(0x10f5),		/* Turtle Beach Controllers */
++	XPAD_XBOX360_VENDOR(0x10f5),		/* Turtle Beach Controllers */
+ 	XPAD_XBOX360_VENDOR(0x11c9),		/* Nacon GC100XF */
+ 	XPAD_XBOX360_VENDOR(0x11ff),		/* PXN V900 */
+ 	XPAD_XBOX360_VENDOR(0x1209),		/* Ardwiino Controllers */
+-- 
+2.47.1.windows.1
 
-> diff --git a/drivers/input/mouse/focaltech.c b/drivers/input/mouse/focalt=
-ech.c
-> index 43f9939b7c63c..4c909c4ca76c9 100644
-> --- a/drivers/input/mouse/focaltech.c
-> +++ b/drivers/input/mouse/focaltech.c
 
-[ ... ]
-
-> @@ -126,14 +126,14 @@ static void focaltech_report_state(struct psmouse *=
-psmouse)
->  		input_mt_slot(dev, i);
->  		input_mt_report_slot_state(dev, MT_TOOL_FINGER, active);
->  		if (active) {
-> -			unsigned int clamped_x, clamped_y;
-> +			int clamped_x, clamped_y;
->  			/*
->  			 * The touchpad might report invalid data, so we clamp
->  			 * the resulting values so that we do not confuse
->  			 * userspace.
->  			 */
-> -			clamped_x =3D clamp(finger->x, 0U, priv->x_max);
-> -			clamped_y =3D clamp(finger->y, 0U, priv->y_max);
-> +			clamped_x =3D clamp(finger->x, 0, priv->x_max);
-> +			clamped_y =3D clamp(finger->y, 0, priv->y_max);
-
-[Severity: High]
-Does changing these coordinates to signed integers without updating the
-underlying state create a wind-up effect at the screen edges?
-
-When swiping past the left or bottom edge, finger->x or finger->y will now
-be driven into negative values. Because the code clamps these values for
-reporting but does not write the bounded coordinates back to finger->x or
-finger->y, the out-of-bounds coordinates can accumulate wind-up.
-
-Would the user then have to swipe a significant distance in the opposite
-direction just to offset this accumulated negative value before the cursor
-visibly moves away from the edge?
-
->  			input_report_abs(dev, ABS_MT_POSITION_X, clamped_x);
->  			input_report_abs(dev, ABS_MT_POSITION_Y,
-
-[Severity: Critical]
-This is a pre-existing issue, but does this out-of-bounds array write in
-focaltech_process_rel_packet() explain the original erratic jumping behavior
-the patch aims to fix?
-
-When an odd number of fingers touches the pad, the hardware reports unused
-fingers with an index of 0. In focaltech_process_rel_packet(), the index is
-computed and checked like this:
-
-drivers/input/mouse/focaltech.c:focaltech_process_rel_packet() {
-    ...
-    finger2 =3D ((packet[3] >> 4) & 0x7) - 1;
-    if (finger2 < FOC_MAX_FINGERS) {
-        state->fingers[finger2].x +=3D (s8)packet[4];
-    ...
-}
-
-Because finger2 is a signed int, an unused index of 0 evaluates to -1.
-The bounds check -1 < FOC_MAX_FINGERS incorrectly evaluates to true,
-bypassing the safety check. The exact same signedness flaw exists for
-finger1.
-
-Due to the struct layout in focaltech_data, accessing state->fingers[-1]
-offsets backwards by exactly 12 bytes. This perfectly aliases
-state->fingers[-1].x to priv->x_max and state->fingers[-1].y to priv->y_max.
-
-Could this out-of-bounds write be silently corrupting the touchpad physical
-bounds limits, continuously adding relative movement deltas to the device's
-maximum coordinate limits and causing the cursor to jump erratically?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/am_tH_F938rK6ask@go=
-ogle.com?part=3D1

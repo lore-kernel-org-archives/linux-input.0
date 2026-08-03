@@ -1,164 +1,106 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.19])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.12])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E5E4F358378;
-	Mon,  3 Aug 2026 16:43:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.19
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 543EB23BCF7;
+	Mon,  3 Aug 2026 17:14:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.12
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785775383; cv=none; b=DfeJCrMktfWkKhydZKpT4p1+EgoKvWI8pu3tv2SbivYv1ehDQU+qg99qGkAoS4lJx+ukxwgwBGgn0SYXV/eaBfUp0efEY/weTcsJ9d+15+ifDKWKBf6SHpxPKx8bn/BGz1V9rJVyxoeYsO0G+tD10eLNTFSFlfOaf5TdqhG9sHw=
+	t=1785777261; cv=none; b=V3tbleW9ScneSCl5UVjUl6UZEhw+VXsz7/LJsNNt+bO813lWf9w7is6kCA2HdHc/pYUpmvHzlG1R2EiE3FcZJrUCyRr+fG0KGwLO4A5Dl4XyU7wzPzvzu9xK6/SpaictDUnV5b2cY6/Y55638qIuwrEseDCMYKFNONiteBjUNpE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785775383; c=relaxed/simple;
-	bh=3NDkwT9awZYfvoORE0bau45fdFFCeYi5IA5RKptQ3NE=;
-	h=From:Date:To:cc:Subject:In-Reply-To:Message-ID:References:
-	 MIME-Version:Content-Type; b=a4pLHPA4kpI67Z8MmJZuEo7UenstQGXbg945Npwr8svLBHOHqmMiuMqxV7fCIIVwrgjBM2pGaJB1XcFSktj1hwYlaDZQq+2mTwxS42c9eWe7olMBRSJLU9Y2WEFSov5GfQfCvCOPWZiI+H3DLSheT0dUAvNJcHot0lit3cjINeQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=DAJQT1+u; arc=none smtp.client-ip=198.175.65.19
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
+	s=arc-20240116; t=1785777261; c=relaxed/simple;
+	bh=jGRz6kdHaHp2LNgVgSF7lUbV2OC6XWABGW1rWxCQqik=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=e9yhsBhMBzaYFO5whkei05WY27gQFkXrplgdZBdR7B/OG+Vf3DfLpJbqITGaLtDulkSgHYBfVXxhlk9wfwfguozw3q0nmw202eUO6FgZ0hrIYt8jozpd0KuMy4x3z3boyOJFkKnkRiw0qAlb8zLofLWuQ1w/dv7aiR3GD9sOkPo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=NC5n/bFv; arc=none smtp.client-ip=192.198.163.12
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="DAJQT1+u"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="NC5n/bFv"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1785775381; x=1817311381;
-  h=from:date:to:cc:subject:in-reply-to:message-id:
-   references:mime-version:content-id;
-  bh=3NDkwT9awZYfvoORE0bau45fdFFCeYi5IA5RKptQ3NE=;
-  b=DAJQT1+u6/rooRqUJ2w6f99t7oNVzQ5wL8belZIFucI7MGBpgQ2TlQBq
-   2hnszrIJ4ACh7iRa4MtVevrgwWW6nLPm4/6SMsAaYjsKIgNq/RTNsFxqq
-   hOGMdviuyuVUkS1qtPQX5IMmu25fYJbwx6zusKne1if3wQkhGcqX4YcHO
-   hlsvZffl6noxPhzqMn1C0ZXpxH60Q94rrA62TPJx7NyCJ9owDs9NndGDd
-   R9qM/DcuONGjd5L3Q9fyobcx4CANAV8yZwFmo2O+o3ZHdS54erKQSZD8O
-   63rRz41yemrPiJY5dUtAKs34rwgw6uGpwqcS6jS/kDGO6cwAbEHAViMsA
-   g==;
-X-CSE-ConnectionGUID: uQPDeMThTEG5Y6MQv18Tig==
-X-CSE-MsgGUID: BmxOz/WrQ1yxXtjT/d8WcA==
-X-IronPort-AV: E=McAfee;i="6800,10657,11864"; a="86264780"
+  t=1785777260; x=1817313260;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=jGRz6kdHaHp2LNgVgSF7lUbV2OC6XWABGW1rWxCQqik=;
+  b=NC5n/bFvVHmTzlWYY9UNHpPd9eprQzLdZeG5nVpsIkzD90i5Avr1J5A8
+   cw+asXRS2jjc2SIGGABmgd0gSfpY1Y6alTraM1T4dPg0e/8Wncw6wvOmp
+   aLCX62gvqaII0MHePf9Rm5t0DaPMZC7pJ6ozoYs1qs9+1McjwOnplGG+C
+   d33H7JJLDpeaNov+qMK8o/kG6YLF63YpnjE4oM3BM8qv3CngfPd+yqeV6
+   GUeHwJprc9jpwOIRvpFk1kwE+ETmyRh7z2XMTiR5M3kezVh2xEotx1KjM
+   YNeGbFIYTDoEgbTPJviswiobVL7uxb0nxVyyFKKnANT2whPQBdtsTva45
+   Q==;
+X-CSE-ConnectionGUID: ma5LWqo+RBm+ttIFkNr4GA==
+X-CSE-MsgGUID: hwnm01u+RKC8JzgG347/eQ==
+X-IronPort-AV: E=McAfee;i="6800,10657,11864"; a="90131972"
 X-IronPort-AV: E=Sophos;i="6.25,202,1779174000"; 
-   d="scan'208";a="86264780"
-Received: from orviesa001.jf.intel.com ([10.64.159.141])
-  by orvoesa111.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Aug 2026 09:43:01 -0700
-X-CSE-ConnectionGUID: GYKq5WwQTsCGfGOzoLiu0g==
-X-CSE-MsgGUID: f7298wewSpWE3SqXsJKqBg==
+   d="scan'208";a="90131972"
+Received: from orviesa008.jf.intel.com ([10.64.159.148])
+  by fmvoesa106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Aug 2026 10:14:19 -0700
+X-CSE-ConnectionGUID: vVDKQ1kRSNWmA0Y7HHg1LQ==
+X-CSE-MsgGUID: Im4KLYwuTgmg1ciDt1Lu8A==
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="6.25,202,1779174000"; 
-   d="scan'208";a="299487689"
-Received: from ijarvine-mobl1.ger.corp.intel.com (HELO localhost) ([10.245.245.61])
-  by smtpauth.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Aug 2026 09:42:57 -0700
-From: =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>
-Date: Mon, 3 Aug 2026 19:42:54 +0300 (EEST)
-To: Dave Carey <carvsdriver@gmail.com>
-cc: platform-driver-x86@vger.kernel.org, hdegoede@redhat.com, W_Armin@gmx.de, 
-    jikos@kernel.org, linux-input@vger.kernel.org, 
-    LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH v15 0/2] Lenovo Yoga Book 9 keyboard dock detection
-In-Reply-To: <20260728225545.1333610-1-carvsdriver@gmail.com>
-Message-ID: <369a1d84-f6a2-1075-b62e-c1852ae25894@linux.intel.com>
-References: <20260728225545.1333610-1-carvsdriver@gmail.com>
+   d="scan'208";a="260681372"
+Received: from lkp-server01.sh.intel.com (HELO 6eda058d650d) ([10.239.97.150])
+  by orviesa008.jf.intel.com with ESMTP; 03 Aug 2026 10:14:18 -0700
+Received: from kbuild by 6eda058d650d with local (Exim 4.98.2)
+	(envelope-from <lkp@intel.com>)
+	id 1wqwEw-000000007RV-3jLH;
+	Mon, 03 Aug 2026 17:14:14 +0000
+Date: Tue, 4 Aug 2026 01:13:47 +0800
+From: kernel test robot <lkp@intel.com>
+To: Jiale Yao <yaojiale02@163.com>, Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>,
+	Miao Li <limiao@kylinos.cn>,
+	Nguyen Dinh Dang Duong <dangduong31205@gmail.com>,
+	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev,
+	Jiale Yao <yaojiale02@163.com>
+Subject: Re: [PATCH] HID: huawei/rapoo: reject non-USB transports before
+ to_usb_interface()
+Message-ID: <202608040101.4jtONal7-lkp@intel.com>
+References: <20260728064302.3853953-1-yaojiale02@163.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; BOUNDARY="8323328-134009376-1785774538=:1172"
-Content-ID: <a0a78e8b-56a6-cf99-0eaa-fcf22e5d6568@linux.intel.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260728064302.3853953-1-yaojiale02@163.com>
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+Hi Jiale,
 
---8323328-134009376-1785774538=:1172
-Content-Type: text/plain; CHARSET=ISO-8859-15
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Content-ID: <0e9fcf9e-64a6-1deb-87a9-b869e4dac184@linux.intel.com>
+kernel test robot noticed the following build errors:
 
-On Tue, 28 Jul 2026, Dave Carey wrote:
+[auto build test ERROR on hid/for-next]
+[also build test ERROR on linus/master v7.2-rc6 next-20260731]
+[If your patch is applied to the wrong git tree, kindly drop us a note.
+And when submitting patch, we suggest to use '--base' as documented in
+https://git-scm.com/docs/git-format-patch#_base_tree_information]
 
-> Changes in v15 (addressing Ilpo J=E4rvinen's v14 review of patch 2/2):
->=20
->   - yb9_kbdock_notify_new(): restore .min_event_size =3D sizeof(__le32) i=
-n
->     struct wmi_driver and remove the manual buffer-length check; the
->     .min_event_size field was present in v12/v13 (added in v10) but was
->     accidentally dropped in v14.
->=20
-> Patch 1/2 (lenovo-ymc) is unchanged from v10.
+url:    https://github.com/intel-lab-lkp/linux/commits/Jiale-Yao/HID-huawei-rapoo-reject-non-USB-transports-before-to_usb_interface/20260803-165822
+base:   https://git.kernel.org/pub/scm/linux/kernel/git/hid/hid.git for-next
+patch link:    https://lore.kernel.org/r/20260728064302.3853953-1-yaojiale02%40163.com
+patch subject: [PATCH] HID: huawei/rapoo: reject non-USB transports before to_usb_interface()
+config: hexagon-randconfig-001-20260803 (https://download.01.org/0day-ci/archive/20260804/202608040101.4jtONal7-lkp@intel.com/config)
+compiler: clang version 22.1.3 (https://github.com/llvm/llvm-project e9846648fd6183ee6d8cbdb4502213fcf902a211)
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20260804/202608040101.4jtONal7-lkp@intel.com/reproduce)
 
-Thanks for all the effort. I've now applied this to the review-ilpo-next=20
-branch with Hans' reviewed by tag reinstanted as that too seemed to have=20
-gotten lost.
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202608040101.4jtONal7-lkp@intel.com/
+
+All errors (new ones prefixed by >>):
+
+>> ld.lld: error: undefined symbol: hid_is_usb
+   >>> referenced by hid-rapoo.c:39 (drivers/hid/hid-rapoo.c:39)
+   >>>               drivers/hid/hid-rapoo.o:(rapoo_probe) in archive vmlinux.a
+   >>> referenced by hid-rapoo.c:39 (drivers/hid/hid-rapoo.c:39)
+   >>>               drivers/hid/hid-rapoo.o:(rapoo_probe) in archive vmlinux.a
 
 --
- i.
-
-> Changes in v14 (addressing Ilpo J=E4rvinen's v13 review of patch 2/2):
->=20
->   - Restore #include <linux/compiler_attributes.h> and <linux/spinlock.h>=
-,
->     which were accidentally absent from v13.
->   - Restore spinlock_t lock in struct yb9_kbdock_data, spin_lock_init(),
->     and spin_lock/spin_unlock around input_report_switch + input_sync
->     in yb9_kbdock_report().
->   - Restore pointer-out yb9_kbdock_query(d, u32 *bkbd) and removal of
->     zero-initializer from struct wmi_buffer out.
->   - Restore int return from yb9_kbdock_sync() and error propagation in
->     yb9_kbdock_resume() and yb9_kbdock_block_probe().
->=20
-> Changes in v13:
->=20
->   - Resend of v12: v12 was corrupted in transit.  Root cause: the ABI
->     documentation uses RST table separator lines (=3D=3D  =3D=3D=3D=3D...=
-) which
->     contain '=3D' characters; git-send-email selected quoted-printable
->     transfer encoding due to non-ASCII in the changelog (UTF-8 author
->     name), encoding '=3D' as '=3D3D' and breaking git-am on the receiving
->     end.  Fixed by setting sendemail.transferEncoding=3D8bit.  No content
->     changes from v12.
->=20
-> Changes in v12 (addressing Ilpo J=E4rvinen's v11 review of patch 2/2):
->=20
->   - Add #include <linux/sysfs.h> (for sysfs_emit)
->   - Add #include <linux/types.h> (for __le32 and __packed)
->=20
-> Changes in v11 (addressing Armin Wolf's v10 review of patch 2/2):
->=20
->   - ABI doc: correct Date to "June 2027" and KernelVersion to "7.3";
->     these fields should reflect when the ABI lands in the kernel, not
->     the submission date.
->=20
-> Patch 1/2 (lenovo-ymc) is unchanged from v10.
->=20
-> Changes in v10 (addressing Armin Wolf's v9 review of patch 2/2):
->=20
->   - Update ABI doc: Date: June 2026, KernelVersion: 6.16
->   - Add #include <linux/compiler_attributes.h> and <linux/types.h>
->   - yb9_kbdock_query(): change return to pointer-out u32 *bkbd to avoid
->     a 0xFFFFFFFF status value being misread as -EPERM
->   - struct yb9_kbdock_data: add spinlock_t lock
->   - yb9_kbdock_report(): hold lock across input_report_switch + input_syn=
-c
->   - yb9_kbdock_sync(): return int, propagate query error to callers
->   - yb9_kbdock_resume(), yb9_kbdock_block_probe(): propagate sync error
->   - struct wmi_buffer out: remove zero-initializer (not needed)
->   - yb9_kbdock_notify_new(): drop manual length check; use
->     .min_event_size =3D sizeof(__le32) in struct wmi_driver instead
->=20
-> Patch 1/2 (lenovo-ymc) is unchanged from v9.
->=20
-> Dave Carey (2):
->   platform/x86/lenovo: lenovo-ymc: Suppress probe on Yoga Book 9 14IAH10
->   platform/x86/lenovo: Add Yoga Book 9 keyboard dock detection driver
->=20
->  Documentation/ABI/testing/sysfs-driver-lenovo-yb9-kbdock |  19 ++
->  MAINTAINERS                                               |   7 +
->  drivers/platform/x86/lenovo/Kconfig                       |  14 +
->  drivers/platform/x86/lenovo/Makefile                      |   1 +
->  drivers/platform/x86/lenovo/yb9-kbdock.c                  | 323 ++++++++=
-++++
->  drivers/platform/x86/lenovo/ymc.c                         |  19 ++
->  6 files changed, 383 insertions(+)
->=20
-> 2.55.0
->=20
-
---=20
- i.
---8323328-134009376-1785774538=:1172--
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki

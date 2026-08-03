@@ -1,43 +1,41 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5B57938F945;
-	Mon,  3 Aug 2026 19:42:28 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 770EA3A3826
+	for <linux-input@vger.kernel.org>; Mon,  3 Aug 2026 19:57:09 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785786149; cv=none; b=krdgglwHNepIW4Ahfhf2LjARWIjXEclDPOggRRidft2uhYhp6RKORB0pas0EH+iaohyk8WLumwz3WFY9bRNDhXNDb139weMdIYHndPWzt/5TXxSB9VWAR41DrNwPFZeaXtm0Boq2fiuYcB4fStjR+DlmHN2+LGoELQuj6zaCtr0=
+	t=1785787030; cv=none; b=iBWgJ2dK1K1n7misfz7hHIvMnuiTOivOC4GzL5gn1y+DMR2qhDSBdE0QPhVNr09bD22tpwvWFqNEzz+D5cZ2joTQSYuwOe2wREFJHK0pS3jqKkCgV1SUXbN/LC8ondugwpfEQYNo6fHjxFWZWVeY8dasK1TTgn+Xn/PklPoeH4A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785786149; c=relaxed/simple;
-	bh=UZZxPuYF4VskiTorbPtrxUYQMq7QIuTMmu9jn1T0B6M=;
+	s=arc-20240116; t=1785787030; c=relaxed/simple;
+	bh=x4sNSj7bAzSs4U/3B488i1Dy8cUpEMoMIdKFVJN5L5c=;
 	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
-	 MIME-Version:Content-Type; b=HqsfqrKT5EpkojsV94KkqcE3n3zHxqPJ73JSDeyCiQYisZqEB1xT63OCLKcmT5Y3cWCILr+tKFfv+dYpRJUeh2V9VzpiE76qe8kuOnrbXtlZppKoYIXRpyy1kTZF3pd8wFW+QsBRF2r2Mn1p66+nVfVnc7UfCujpNOTn+icJbgM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=erzYjX/Q; arc=none smtp.client-ip=100.103.45.18
+	 MIME-Version:Content-Type; b=HUj/j7X22JGL1kM+fC8dbF5E9ep6aC4fFLx/nFIGYszFtOI+/JW+MXt6gOfJ5m1idup5rTyCsLKydJ7eZCBkdYYnIkgaPcv8POx7cO19yCvk3P/J7gQWldFh9LHrj66gynZWxKKEzTmOI8ReAEM07MZtUyW4aPFUX3LOwE75A+A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=N4hptH59; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="erzYjX/Q"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65B351F000E9;
-	Mon,  3 Aug 2026 19:42:27 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="N4hptH59"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A5501F000E9;
+	Mon,  3 Aug 2026 19:57:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785786148;
-	bh=uKDvb+7BjDjbIZbK5so1hZN87PZxzHZIdme5WTnNNLQ=;
+	s=k20260515; t=1785787029;
+	bh=CFzmKZcULOSOf+wJALrKENCduC9+boLQZK0fYvqxJDo=;
 	h=Date:From:To:cc:Subject:In-Reply-To:References;
-	b=erzYjX/QDpMBE2wq8I66ydu+uHJp5S72tG7WoB5U5QUmMeDpMvgzUmMTTcX3d/T8M
-	 qQeHKRHHpQRn0COKGCHZ4Jf+S44ER9evY//vw9daPbFv2uu2hmhUWp8eEY/wFjNQSa
-	 +w7FXMn42IyHDVSB7OUT14ap9sJo+Mg/o6DsaMfiiAaiqbMJa/Ru/7jjFCMdWn8Vx9
-	 f1dWsGLqP6UjG6i2/2LppWXgxQ4i2ukQ/b+gNsGrR/yfQ79amapg6vjHk5v7/eHF4A
-	 kHSLR9Sthx1pc36fOekvEwBFmTLRu7sPcRdMhBddtNMoEnHeYdW0d/NJkD+dAKDaRV
-	 ZygQSECGznv4g==
-Date: Mon, 3 Aug 2026 21:42:25 +0200 (CEST)
+	b=N4hptH59H3qoTCGO46TleTbQ7FCgyV6DI7D4OBmV4UQLdCtpvOjKEzLRl+oHbaFKQ
+	 GVt38CEhg6EE9/YHWXaPJEhhdoN2JdkZFxRAbqghTYe74iBoFXzgdJ+Hpkpe2942D4
+	 0nU40SfVj2Vk2/vCO4HQ9FdXK/hCuMDKMmiILXETn2EjRMezwlRcc+D3uI9i42n5ML
+	 LigcjtcKmg+6F6aTN4mYJdIak/9VpPoQBBw8Wx1gL4U57WT/7fLXdz3hlS7V7nh392
+	 Bd4yOgdOiEP+Cgj9RRbawBcJlvZdUCPfwErQPAOewjkp6sbA9B0AtDlBWdg2slKePZ
+	 BiXCm+7bEBt3w==
+Date: Mon, 3 Aug 2026 21:57:06 +0200 (CEST)
 From: Jiri Kosina <jikos@kernel.org>
-To: "Derek J. Clark" <derekjohn.clark@gmail.com>
-cc: Benjamin Tissoires <bentiss@kernel.org>, 
-    "Pierre-Loup A . Griffais" <pgriffais@valvesoftware.com>, 
-    Denis Benato <denis.benato@linux.dev>, 
-    Zhouwang Huang <honjow311@gmail.com>, linux-input@vger.kernel.org, 
-    linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v13 0/4] Add MSI Claw HID Configuration Driver
-In-Reply-To: <20260720031549.2272658-1-derekjohn.clark@gmail.com>
-Message-ID: <n7so4q55-1699-6s6p-qo38-4pr7055202qs@xreary.bet>
-References: <20260720031549.2272658-1-derekjohn.clark@gmail.com>
+To: Wahid7852 <wahidzk0091@gmail.com>
+cc: linux-input@vger.kernel.org, srinivas.pandruvada@linux.intel.com, 
+    Lixu Zhang <lixu.zhang@intel.com>
+Subject: Re: [PATCH v2] HID: intel-ish-hid: ignore post-init ENUM_DEVICES
+ from firmware
+In-Reply-To: <20260720175656.559351-1-wahidzk0091@gmail.com>
+Message-ID: <5o73858o-6607-p601-7306-911r63nr7948@xreary.bet>
+References: <20260627224753.35075-1-wahidzk0091@gmail.com> <20260720175656.559351-1-wahidzk0091@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -46,38 +44,30 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 
-On Mon, 20 Jul 2026, Derek J. Clark wrote:
+On Mon, 20 Jul 2026, Wahid7852 wrote:
 
-> This series adds an HID Configuration driver for the MSI Claw line of
-> Handheld Gaming PC's. The MSI Claw HID interface provides multiple
-> features, such as the ability to switch between xinput, dinput, and a
-> desktop mode, RGB control, rumble intensity, and mapping of the rear "M"
-> keys. There are additional gamepad modes that are not included in this
-> driver as they appear to be used in assembly line testing or are
-> incomplete in the firmware. During my testing I found them to be unstable.
+> From: Wahid Khan <wahidzk0091@gmail.com>
 > 
-> The initial version of this driver was written by Denis Benato, which
-> contained the initial reverse-engineering and implementation for the
-> gamepad mode switching. This work was later expanded by Zhouwang Huang
-> to include more gamepad modes and additional features. Finally, I
-> refactored the entire driver, fixed multiple bugs, and refined the overall
-> format to conform to kernel driver best practices and style guide.
+> Some ISH firmware versions (observed on Tiger Lake LP, 8086:a0fc,
+> GUID {33AECD58-B679-4E54-9BD9-A04D34F0C226}) periodically re-send an
+> unsolicited HOSTIF_DM_ENUM_DEVICES response roughly every 79 seconds.
 > 
-> Claude was used initially by Zhouwang Huang to quickly parse HID captures
-> during the reverse-engineering of some of the features. Since Claude had
-> already been used, as a test of its capabilities I had it implement the
-> rumble intensity attribute after I had already rewritten most of the
-> driver, which I then manually edited to fix some mistakes. I also used
-> Claude to review the driver and these patches for any mistakes and bugs.
+> The current guard collapses two distinct cases into one condition:
 > 
-> Assisted-by: Claude:claude-sonnet-4-6
-> Co-developed-by: Denis Benato <denis.benato@linux.dev>
-> Signed-off-by: Denis Benato <denis.benato@linux.dev>
-> Co-developed-by: Zhouwang Huang <honjow311@gmail.com>
-> Signed-off-by: Zhouwang Huang <honjow311@gmail.com>
-> Signed-off-by: Derek J. Clark <derekjohn.clark@gmail.com>
+>   if (!(response_flag) || init_done)  ->  bad packet + ish_hw_reset
+> 
+> This incorrectly treats a valid post-init firmware announcement as a
+> corrupted packet, triggering an ISH soft-reset and a full ISHTP
+> re-initialisation cycle on each occurrence (~1100 times per day on
+> affected hardware).
+> 
+> Split the check: reject messages with no response flag as before, but
+> simply discard valid ENUM_DEVICES messages that arrive after init is
+> complete.
+> 
+> Signed-off-by: Wahid Khan <wahidzk0091@gmail.com>
 
-Now in hid.git#for-7.3/msi. Thanks,
+Applied, thanks.
 
 -- 
 Jiri Kosina

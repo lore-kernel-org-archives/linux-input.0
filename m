@@ -1,43 +1,42 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A38B5388397;
-	Mon,  3 Aug 2026 18:25:48 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6EFC13932E8;
+	Mon,  3 Aug 2026 18:27:59 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785781549; cv=none; b=fBZ1O9WBHfdFe72uhWYBrc+NDu1Hi0g3TJlHixn1kTffjaMqIvwUIZ4onb9KF+/Tx6K1yPtc4gWTz0xg+6I530xYiUGf3pheGEjbasNn7lOV6wgROo/swCxlibU1Gd2r5SQhNl7BplfVl/KHkY9p3758Y9W478044P4O4pxLdag=
+	t=1785781680; cv=none; b=hznQ5BUguzZRCKkJwxJOaP6M6C8TBJMJPqwA/G9u2MCU6/hzPxTRWzkBlCnRPyw/hx6Gff2y5AsmsHjQot+Joo0SZF0oiGyexdkzS9lEg8gTtOs2G8YDAQauuiY1EtRU6hpj2YqldhB3DmfNXsMRDXIaCBRQPEv6hj2XaUflVE8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785781549; c=relaxed/simple;
-	bh=uGk5cbcMyy4gOATPjBQ8gESnI/mspf+kPzaK2LBc9rY=;
+	s=arc-20240116; t=1785781680; c=relaxed/simple;
+	bh=jIz3BJTDhW73H+tLjep0/ppR366ZBftJ1KK3CoTOfGM=;
 	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
-	 MIME-Version:Content-Type; b=t60zYaUNFHx0vDH4b9nDXjiVRWTf2iHQRhR5tygKzPlWbDO96hdv4SnUgPNdav+B/6pdoaaRLqu3KQqpH+7tNNUBnQtPdoZpujABje+hj87ZlrprhlJtVRmNr0rB7RncwLwCV3RK77HOIS57wg2w0RrlMgVvzWN0MpzeW+ZrW4g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=LNCxeQst; arc=none smtp.client-ip=100.103.45.18
+	 MIME-Version:Content-Type; b=XETDhNZLXTsVUiRaZ1/yNachwpyg987zyp7mm//bP6tF81GfHwUUOT2UJW/8OWA6lQt/pc2KCsQsxhksGjjLf7CHXIs6VKYyAZflan7itP3oqo58PPLoQ8pbK8j+sTlei94pf969eBLIlQ+pw0ZYubAxFSz71444hVhF1s4BV10=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=DkB7rq2S; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="LNCxeQst"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4DBD1F000E9;
-	Mon,  3 Aug 2026 18:25:47 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="DkB7rq2S"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CBB971F000E9;
+	Mon,  3 Aug 2026 18:27:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785781548;
-	bh=uJr8VhX6TVlvX9DEgK98jRMwoZAnZLB3SaHmNdDT6as=;
+	s=k20260515; t=1785781679;
+	bh=WmbOkPAiaMrLGRjtVF9xC4tPfFZSeLU4xssR1Id2CAg=;
 	h=Date:From:To:cc:Subject:In-Reply-To:References;
-	b=LNCxeQstaP+U6WdSEWQHqil2wdBcHLvw6SX5yQhNae2kfX92v1iP6GUrjKeMpPtDI
-	 CaR5Vsh55qx39ZEidS23VYxEN9DrSc43edL3a3MN51iX0L273W8nIQGAfLlQ0hGnua
-	 WJ+AkjBlmBHIHJOSzATviIuT2rbN6ZD/ps2UfPEqT3CdFJiL4lFLqH5MzR+uwJ/aRg
-	 8L0m3OVzWM+tbowQr3EnpZMeuho6FmcH31+L5MTfgvDHyZsbYImbbaJzpM36LkAdd8
-	 9XnDhovVROUuHX7ln4/03hvvTwLOvzQeciB29SFJ09Fb8qKtsa5HzdIn+kRSSzTEqS
-	 gL9SQB7buevrA==
-Date: Mon, 3 Aug 2026 20:25:45 +0200 (CEST)
+	b=DkB7rq2SE2HZlq3PQCev8CRkgzaCtgPsfB711Uk8GWz8SdIBoCNtCSqW/tKkENYnM
+	 Uchg5KYFdTrLhk1od/9DMNLmr9BdGe6lG5ixEw3X5MWRfZk+Xyj5di4VJdBxg+UrlO
+	 Lwv/hoxlwxfQWtUR9P3U0wfWg7zwl9VQOXQki6QAmZYrvWzoMjg96yI79V0wguW8p4
+	 Vvqzz6FhPTxG7lxJSGB3aY/E2xPPO3GU1A7Z0a96fwD2FDdMHdpkyJjsfHuuyUwZnh
+	 rHvTJQ/uueppfIXIIkFsOcFZlJoQOggAMomquQoo+a2niGdhssjdEJb4k4ouDxgjKe
+	 tc+gNvA37/p2w==
+Date: Mon, 3 Aug 2026 20:27:56 +0200 (CEST)
 From: Jiri Kosina <jikos@kernel.org>
-To: Bastien Nocera <hadess@hadess.net>
-cc: Stuart Hayhurst <stuart.a.hayhurst@gmail.com>, 
-    linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, 
-    Benjamin Tissoires <bentiss@kernel.org>, 
-    =?ISO-8859-15?Q?Filipe_La=EDns?= <lains@riseup.net>
-Subject: Re: [PATCH] HID: logitech-hidpp: Remove duplicate ID for the G703
- Hero over USB
-In-Reply-To: <21e8047a869d9d15eaae927fc0282bf0689b69f3.camel@hadess.net>
-Message-ID: <s8p49rsp-1772-7rp9-4543-o5762rps432o@xreary.bet>
-References: <20260721173710.500368-2-stuart.a.hayhurst@gmail.com> <21e8047a869d9d15eaae927fc0282bf0689b69f3.camel@hadess.net>
+To: Baul Lee <baul.lee@xbow.com>
+cc: linux-input@vger.kernel.org, linux-usb@vger.kernel.org, 
+    linux-kernel@vger.kernel.org, tomasz.pakula.oficjalny@gmail.com, 
+    oleg@makarenk.ooo, bentiss@kernel.org, federico.kirschbaum@xbow.com, 
+    stable@vger.kernel.org
+Subject: Re: [PATCH] HID: pidff: fix OOB write when hid->inputs is empty
+In-Reply-To: <20260726062503.43717-1-baul.lee@xbow.com>
+Message-ID: <9s691pno-26o7-2099-0001-sn9751958r8r@xreary.bet>
+References: <20260726062503.43717-1-baul.lee@xbow.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -46,36 +45,50 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 
-On Mon, 27 Jul 2026, Bastien Nocera wrote:
+On Sun, 26 Jul 2026, Baul Lee wrote:
 
-> > The ID appears to be given twice, remove the duplicate
-> > 
-> > Signed-off-by: Stuart Hayhurst <stuart.a.hayhurst@gmail.com>
+> hid_pidff_init_with_quirks() derives its input_dev from
 > 
-> Indeed, at line 4652:
->         { /* Logitech G703 Hero Gaming Mouse over USB */
->           HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, 0xC090) },
->         { /* Logitech G900 Gaming Mouse over USB */
->           HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, 0xC081) },
->         { /* Logitech G903 Gaming Mouse over USB */
->           HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, 0xC086) },
->         { /* Logitech G Pro Gaming Mouse over USB */
->           HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, 0xC088) },
->         { /* MX Vertical over USB */
->           HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, 0xC08A) },
->         { /* Logitech G703 Hero Gaming Mouse over USB */
->           HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, 0xC090) },
+> 	list_entry(hid->inputs.next, struct hid_input, list)
 > 
-> Benjamin, Jiri, is there not a way to detect duplicates like this?
-
-I think the modern way to do this is to ask some LLM to find all of them 
-:)
-
-> In any case, looks good to me.
+> without first checking that hid->inputs is non-empty.  The list member
+> of struct hid_input is at offset 0, so on an empty list list_entry()
+> yields &hid->inputs itself and the following hidinput->input load reads
+> an unrelated member of struct hid_device.  dev is then a type-confused
+> pointer, and force-feedback init writes through it: each
+> set_bit(FF_*, dev->ffbit) stores 8 bytes at dev + 192, past the end of
+> the object dev actually aliases, and input_ff_create() adds further
+> writes of a heap pointer and two function pointers.
 > 
-> Reviewed-by: Bastien Nocera <hadess@hadess.net>
+> Until hid-universal-pidff the only caller was hid_pidff_init() from
+> usbhid, which runs under HID_CLAIMED_INPUT and therefore always has at
+> least one hid_input.  universal_pidff_probe() starts the device with
+> HID_CONNECT_DEFAULT & ~HID_CONNECT_FF and then calls
+> hid_pidff_init_with_quirks() directly whenever the descriptor carries a
+> PID usage page, bypassing that gate.  A report descriptor whose only
+> application collection is on HID_UP_PID leaves hid->inputs empty while
+> hid_connect() still succeeds through the hidraw claim, so probe reaches
+> the unguarded list_entry().
+> 
+> The write happens in the USB probe path, on the hotplug workqueue, so
+> plugging in a malicious device is enough to trigger it; no attacker
+> software and no logged-in user are required.  KASAN reports an 8-byte
+> out-of-bounds write in hid_pidff_init_with_quirks() reached from
+> universal_pidff_probe().
+> 
+> Check for an empty list before deriving dev and return -ENODEV, as the
+> other HID force-feedback drivers already do.  universal_pidff_probe()
+> propagates the error and unwinds.
+> 
+> Discovered by XBOW, triaged by Baul Lee <baul.lee@xbow.com>
+> 
+> Fixes: f06bf8d94fff ("HID: Add hid-universal-pidff driver and supported device ids")
+> Reported-by: Federico Kirschbaum <federico.kirschbaum@xbow.com>
+> Reported-by: Baul Lee <baul.lee@xbow.com>
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Baul Lee <baul.lee@xbow.com>
 
-Thanks a lot, now queued.
+Applied, thanks.
 
 -- 
 Jiri Kosina

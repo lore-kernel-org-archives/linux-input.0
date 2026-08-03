@@ -1,63 +1,63 @@
-Received: from mail-qt1-f176.google.com (mail-qt1-f176.google.com [209.85.160.176])
+Received: from mail-qt1-f170.google.com (mail-qt1-f170.google.com [209.85.160.170])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5CE08435EFE
-	for <linux-input@vger.kernel.org>; Mon,  3 Aug 2026 19:16:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.176
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 936BE435EF0
+	for <linux-input@vger.kernel.org>; Mon,  3 Aug 2026 19:16:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.170
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785784566; cv=none; b=IqsjsSXmui9L0e4s7dMnVTkwSVuvSgnxsy2zGSCwbnT+H4Cr7NcLeHXQXbScRFRWkBstgadjKaj9VSjEETlgSfaMSRtqqa67lbcLbRngUfJlREXdQqjbzLS/V9UtqAM1Ks6VDjE3EpbK1j4LTDr7c8CP7743OQdM85BN1onjd5I=
+	t=1785784566; cv=none; b=hG1oY3bQtuvF6+v1E4DMR0tSn7BcI7ooJpy3qxfnRVm223vydmLEd93lsgwWAbH1q5MLn2rA8eoWNZ+8sohaxx+FuVnTANba6pxltMjq3EOdywRW9U3ORV+HQaCZTzFpdAZE+Xc2Rjs+mJ6ua7N61SG1D/GOoBS/Lz2odMpwZq4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1785784566; c=relaxed/simple;
-	bh=rgiOAxrws7HtpWLSKi4FZUyJEZqLol8aZnFJ5cEkP1Q=;
+	bh=HcLY56V4G5qgz15CvOjbSYpkabPXRbcPz2MAIR5hkY0=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=t1pGEcDsYZhUjv/a7JfhDuBoV9J6ge8fr/NVrbbAOymtmkXjdsGHbDajfKBI+jrMIG4lY71lQ5CR8cjaigzB5c22+ciGxLTGnWcQRXqM+Pbw5mfLZfRFATa08Of8GRXmxLEStuB/ZUqcjmumqXaP/kZ2KlVxUBE4Pmh0RGTu+fY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=NImpVHgM; arc=none smtp.client-ip=209.85.160.176
+	 MIME-Version; b=Ex/TfysbWhKqpyuSFX+jkj0LMo8p3/GJQsGsyBlF5ZzMJ3AE9iXh2Y8ehjZ3vT96/A7f1Bh8k5aTWNZo064FOpGPGtUwXi0inc3/nS+4ld9GKPJhmDXWDmDqsGSRgC8Bw/Yok1PpQ+lFNWqO7BRV5DnN3Qh4o555VNV7W9+Vkk8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=RkKuMmT1; arc=none smtp.client-ip=209.85.160.170
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="NImpVHgM"
-Received: by mail-qt1-f176.google.com with SMTP id d75a77b69052e-526f963372aso22301161cf.1
-        for <linux-input@vger.kernel.org>; Mon, 03 Aug 2026 12:16:03 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="RkKuMmT1"
+Received: by mail-qt1-f170.google.com with SMTP id d75a77b69052e-51c0ecfaee7so22925441cf.0
+        for <linux-input@vger.kernel.org>; Mon, 03 Aug 2026 12:16:02 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1785784562; x=1786389362; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1785784561; x=1786389361; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=geHMteasP6UB71yeWgSjp/T6tZ4uWNyLwhqzRYexiv0=;
-        b=NImpVHgMJDPfCn7cTyLmi4Hy6lrosZkm+ripuPY+l6nwVjEfZT+60iLEMYX7asvVh0
-         vr2SCRmLtJo7mkr21WwRX+YW2POwz4q9n8LvncvRfU2pdyxjwCJk5Rh96P7Okdns3Ay4
-         fnh9LzkHwRACPT31emJMq3EclblNdq6pZ5PhE72TC9z1VGzwZHim/8a/Wk4NrvxoTtYm
-         l3G7a4s4MNkX7cTWhG6TO8qKcp6d0yZS6Jo+qOunRi/fJwcV/1x1R36VTT7MCEGYF8NK
-         5Og4hSnYfLlKcjjRau2fjHoGjxl/EojZB4awrA8Gx2kmO2223i4EVO/xP+qZvqqY44/r
-         KaxA==
+        bh=M3ueuoAKdkN9M8HNhpGDUHsXDw7G2MpREUxH5XZmVNo=;
+        b=RkKuMmT1gl4UXrHdFDfQVtgsT57hhVx6tnLOSRXSGeBSOSUMdalfJTDhhnd3u3WbRE
+         dZ9PlnfjqMTCCjCgRi1PSwcEssRO9DAjBNKzavKaaY+7QYqYCMOKnMQO740hpDwmQcLD
+         CGN5FHPvaNPfkfN5qWFJgdL07gPKHBJr13w9R+v4Wckmi1+9x/UkmS2L5QoSksfXX71t
+         acSkMnaYOnvCjlgRKeBhvIinzNFzDrFMd8dSLY+FqMxQM/aPrt01wD1nCb2H66AzAAws
+         PvtiMA7pVUMMm9XZwDL74J+ObuMBXnY/Ux6QDKYVXIedWAbYv/resJimaEM/Fgjeo9T9
+         7ogw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785784562; x=1786389362;
+        d=1e100.net; s=20251104; t=1785784561; x=1786389361;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=geHMteasP6UB71yeWgSjp/T6tZ4uWNyLwhqzRYexiv0=;
-        b=OkwZAqxdTHNNNBHozLimzdY8te81lLxv88OEC1k0wd3PYdKDFH21GYg5KTJTpjvj5C
-         1WRfl05Mrh3unHKFsU/a3fDjjYFnAk/tRLE8T9aX5hSGiKAMZ+Mlga92x8Z0dciSudOQ
-         ckpWoM8qjR6/Hbj9F4MJXG1AQdhTbPthUSpvFKFQZzBxdfH15AiaYd26M6PE6k0Bk/ZN
-         XBIYx1OMUwYaeJiCKbNWMkz2e4KifdVrhcd5iVBjxCQ8SrTJesmAc277n6TWERp1tN14
-         8TqV0O1t4Q/sFdnBAkax/pU81IUewxdpFWq9Lr0YjF4lRTZDJiLxFS4bf5e5JSYWqncS
-         0mfg==
-X-Gm-Message-State: AOJu0YzEWuaQa2kZqbm4VEBFZQFUPMBEmr6Sj8kC0KAtVO7QIu9Az6gt
-	9G5105fGJaPfrK5ogauKWoDHZeWBpIFmut+hXwGXS+LBHJxBwTjEzk7t
-X-Gm-Gg: AR+sD11zPGsOI5c7IP7HbkxANOQ4zaVCdkQs9aXM5DdJjFeJxIz9RbqOvqVAqqK66Gk
-	fhBQ6Zy0YrZ50aBsALKSAzdw5mFZmury8kb6eKFPRz15R/OX4MvgDHJAVyRnHoQn0iC3S84ucG8
-	bqRFYCo1252kFNg/9deyN5qXYyke+kLK+viMYIe1HzMwBY9LF5BgYr3sf1vPpqF/RqO0daaw5Ff
-	CrTeZJ2yWrdo41AbQmRaB5XKAXnhcybcz/jWHn11T458cCiPjj/uGZhNbcgE9uhySi6/U1JWqlN
-	GN2ZwH9ZkNd1x4qh0ofW6w95UqmAqGbSBOp4/k5wjWyYUby8yMEmN5PXUjNT3XrTKGI1BztPobN
-	ifpSZcY+wuLmTNDPqf51oow88ZEW+6v2xQGfgkeMG82FSjy3OBG3FU5I6mS4Obk91cCG6Ed8kCZ
-	klCTlSbKOSOiOFDg+xUUyArKPMlPTCQukq18MjzEvH6EkcelzCe/KHVm5gr/xXFYN3SJFq4wjlc
-	ZqV384C/wvcaDdRRyc=
-X-Received: by 2002:a05:622a:1e0e:b0:51c:1bb9:137f with SMTP id d75a77b69052e-52b56776470mr219645181cf.24.1785784561685;
+        bh=M3ueuoAKdkN9M8HNhpGDUHsXDw7G2MpREUxH5XZmVNo=;
+        b=lDKv9sJ7cyzFMycNda6EW4405IIPIcgYiIuYgxuuBFA5rnvrtnSwKCGBUuQGhvnt/l
+         PxAOrxKNha0BZ37fjszoWs/lZF82Dmmo7nus8l7VTpYVeXPYfuEhKCs/zTex/oBvdYH2
+         P6wYWMhfRhEQX3v9Bko5Gk3BHCxfuIVdJdsBzDXsE4F35iupMzYYv/8OtYGEFtg/3aCI
+         CmPaSP28OJ6PmHNNsrGDcteFRglje1dgExC3IxbECYCWr8iLClmf6prkw/UvtB2Z+8CE
+         6cv5to/cZO0gH3xPIPT/EuSqt5aaGDEwuZHbS5SHeQ7bHh8cRcoWo+MokPsY42nolwR1
+         bysg==
+X-Gm-Message-State: AOJu0YzcyoytlWZmXWz6ImIshvADTr0ziP6t9fOFi32APtBXEjbZ0sCH
+	8N5b6pfl9IcAe9TczQQu3gS9BMeTGubhZ1UE60/OgNIGhG28XxXRARu4
+X-Gm-Gg: AR+sD11/fn3V8+/5n3DeSNKln3LTkRyS/4lMcfe3zdjw5ifl9fqoP+8I85uhwBvZLf9
+	DV+zTIfx3jFiXTPMZFjBO1+N77gdLz7e20HXIDKgtMQQ6XH5L1mNmELvwzeo/iPTKtR0z/odz1w
+	VDkTDsZlj2i5md4QGoKiY9DqeUFM4qGKKB5oCm6pp3dr38720QYaf5hJROuUXMNRtKtw9n5wVht
+	71nxQ7XWvl+wKlev0fO350KKu7A/fOrNVMjbP1a7ndKM71v8SSYb55MQF9iVmkzmoUZhoyZ+3Z1
+	iHj+j2TlsH5IjTbSKfyxvTwE8jqcdQq/7ttJ12Ii2u8OXPyexg6+jWFz+y9YoODm+Pa9aEdA5tV
+	sLDCwhiezcRGUJO6L8gASxGJBIimbwqX5aCVx7WoPHblVKu/+XLhWdtn/WuRwDffok0aHVamHFY
+	832C/otkRVUrZcqCYLQX2pGmWsuJQ+xDDZmUcKds97PlxDlrtmnXlv7JTnTJpOvTBp4PazQm5hq
+	1zy40YV3lfmzS85XpQ=
+X-Received: by 2002:a05:622a:2b44:b0:528:17d9:2d99 with SMTP id d75a77b69052e-52b567f9725mr202750661cf.43.1785784561006;
         Mon, 03 Aug 2026 12:16:01 -0700 (PDT)
 Received: from achantapc.tail227c81.ts.net ([2600:4040:122e:7d00:f04d:e0df:fe04:e789])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-52b4e64df9bsm67803541cf.0.2026.08.03.12.16.01
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-52b4e64df9bsm67803541cf.0.2026.08.03.12.16.00
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 03 Aug 2026 12:16:01 -0700 (PDT)
+        Mon, 03 Aug 2026 12:16:00 -0700 (PDT)
 From: Sriman Achanta <srimanachanta@gmail.com>
 To: Jiri Kosina <jikos@kernel.org>,
 	Benjamin Tissoires <bentiss@kernel.org>
@@ -67,9 +67,9 @@ Cc: linux-input@vger.kernel.org,
 	Simon Wood <simon@mungewell.org>,
 	Christian Mayer <git@mayer-bgk.de>,
 	Sriman Achanta <srimanachanta@gmail.com>
-Subject: [PATCH v7 7/8] HID: steelseries: Add async status interface support
-Date: Mon,  3 Aug 2026 15:15:52 -0400
-Message-ID: <20260803191553.66368-8-srimanachanta@gmail.com>
+Subject: [PATCH v7 6/8] HID: steelseries: Manage battery lifetime with refcounting
+Date: Mon,  3 Aug 2026 15:15:51 -0400
+Message-ID: <20260803191553.66368-7-srimanachanta@gmail.com>
 X-Mailer: git-send-email 2.55.0
 In-Reply-To: <20260803191553.66368-1-srimanachanta@gmail.com>
 References: <20260803191553.66368-1-srimanachanta@gmail.com>
@@ -81,262 +81,169 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Some headsets expose a second HID interface that sends battery and
-connection updates on its own. Watching that interface lets the driver
-stop polling the sync interface. Add a
-steelseries_device_info::async_interface field and the code to handle
-it:
+The next change shares one steelseries_device between two HID
+interfaces, so the state can outlive either interface. Stop using devm
+for it. Reference count the struct with a kref and free it from
+steelseries_device_release(). Register and unregister the power supply
+explicitly, and clear sd->battery under sd->lock in remove() so it is
+not touched after it is unregistered.
 
-  - The driver binds both the sync and async interfaces. The async
-    interface shares the steelseries_device created by the sync
-    interface. It finds the sibling with usb_ifnum_to_if(), and before
-    trusting its intfdata it rejects non-HID siblings by descriptor
-    class and holds the sibling's device lock across the lookup, so a
-    crafted device cannot cause a type-confused read and a concurrent
-    unbind cannot free the hid_device from under it. It then takes a
-    reference and returns -EPROBE_DEFER until the sync interface has
-    probed. If the sync interface never binds, the async interface
-    defers forever, which is fine here.
-  - raw_event() now holds sd->lock and re-checks sd->removed so events
-    on either interface are serialised against removal.
-  - status_work runs once for async devices instead of rearming. A
-    single status request is sent when the headset connects to get the
-    initial battery level.
+Drop the global atomic battery counter and name the power supply after
+the device (hdev->uniq, or dev_name() when empty), as hid-input and the
+other HID battery drivers do.
 
-No device sets async_interface yet. This is the infrastructure for the
-next commit.
+No functional change for the current single-interface devices.
 
 Signed-off-by: Sriman Achanta <srimanachanta@gmail.com>
 ---
- drivers/hid/hid-steelseries-arctis.c | 158 ++++++++++++++++++++++-----
- 1 file changed, 131 insertions(+), 27 deletions(-)
+ drivers/hid/hid-steelseries-arctis.c | 47 +++++++++++++++++++++-------
+ 1 file changed, 36 insertions(+), 11 deletions(-)
 
 diff --git a/drivers/hid/hid-steelseries-arctis.c b/drivers/hid/hid-steelseries-arctis.c
-index e534aa44e70a..9960c0ec512b 100644
+index b54f20f081a2..e534aa44e70a 100644
 --- a/drivers/hid/hid-steelseries-arctis.c
 +++ b/drivers/hid/hid-steelseries-arctis.c
-@@ -26,6 +26,7 @@ struct steelseries_device_info {
- 	unsigned long capabilities;
+@@ -8,6 +8,8 @@
  
- 	u8 sync_interface;
-+	u8 async_interface;
+ #include <linux/device.h>
+ #include <linux/hid.h>
++#include <linux/kref.h>
++#include <linux/slab.h>
+ #include <linux/module.h>
+ #include <linux/power_supply.h>
+ #include <linux/spinlock.h>
+@@ -30,6 +32,8 @@ struct steelseries_device_info {
+ };
  
- 	int (*request_status)(struct hid_device *hdev);
- 	void (*parse_status)(struct steelseries_device *sd, u8 *data, int size);
-@@ -271,7 +272,8 @@ static void steelseries_status_timer_work_handler(struct work_struct *work)
- 	sd->info->request_status(sd->hdev);
- 
- 	spin_lock_irqsave(&sd->lock, flags);
--	if (!sd->removed)
-+	/* Async devices push status events themselves; only poll once. */
-+	if (!sd->removed && !sd->info->async_interface)
- 		schedule_delayed_work(&sd->status_work,
- 				msecs_to_jiffies(STEELSERIES_HEADSET_STATUS_TIMEOUT_MS));
- 	spin_unlock_irqrestore(&sd->lock, flags);
-@@ -318,6 +320,53 @@ static int steelseries_battery_register(struct steelseries_device *sd)
- 	return 0;
- }
- 
-+static struct hid_driver steelseries_arctis_driver;
+ struct steelseries_device {
++	struct kref refcnt;
 +
-+static struct steelseries_device *
-+steelseries_get_sibling_sd(struct hid_device *hdev, int interface_num)
+ 	struct hid_device *hdev;
+ 	const struct steelseries_device_info *info;
+ 
+@@ -45,6 +49,14 @@ struct steelseries_device {
+ 	bool removed;
+ };
+ 
++static void steelseries_device_release(struct kref *ref)
 +{
-+	struct usb_interface *intf = to_usb_interface(hdev->dev.parent);
-+	struct usb_device *usb_dev = interface_to_usbdev(intf);
-+	struct usb_interface *sibling_intf;
-+	struct hid_device *sibling_hdev;
-+	struct steelseries_device *sd = NULL;
++	struct steelseries_device *sd =
++		container_of(ref, struct steelseries_device, refcnt);
 +
-+	sibling_intf = usb_ifnum_to_if(usb_dev, interface_num);
-+	if (!sibling_intf)
-+		return NULL;
-+
-+	/*
-+	 * usb_get_intfdata() only yields a hid_device when usbhid is bound;
-+	 * gate on the descriptor class so a non-HID sibling (e.g. a crafted
-+	 * device exposing storage or audio here) is never treated as one.
-+	 */
-+	if (sibling_intf->cur_altsetting->desc.bInterfaceClass != USB_INTERFACE_CLASS_HID)
-+		return NULL;
-+
-+	/*
-+	 * Take the sibling's device lock across the intfdata read and the
-+	 * kref_get so a concurrent unbind cannot free the hid_device underneath
-+	 * us; usbhid leaves intfdata dangling on disconnect, so dev.driver is
-+	 * the reliable "still bound" test under this lock. Use device_trylock()
-+	 * to stay off the lockdep chain of the interface being probed and let
-+	 * the caller retry via -EPROBE_DEFER if the sibling is momentarily busy.
-+	 */
-+	if (!device_trylock(&sibling_intf->dev))
-+		return NULL;
-+	if (sibling_intf->dev.driver) {
-+		sibling_hdev = usb_get_intfdata(sibling_intf);
-+		if (sibling_hdev &&
-+		    sibling_hdev->driver == &steelseries_arctis_driver) {
-+			sd = hid_get_drvdata(sibling_hdev);
-+			if (sd)
-+				kref_get(&sd->refcnt);
-+		}
-+	}
-+	device_unlock(&sibling_intf->dev);
-+
-+	return sd;
++	kfree(sd);
 +}
 +
- static int steelseries_arctis_probe(struct hid_device *hdev,
- 				    const struct hid_device_id *id)
- {
-@@ -339,43 +388,81 @@ static int steelseries_arctis_probe(struct hid_device *hdev,
- 	if (ret)
- 		return ret;
+ /*
+  * Headset report helpers
+  */
+@@ -267,9 +279,8 @@ static void steelseries_status_timer_work_handler(struct work_struct *work)
  
--	/* Let hid-generic handle non-sync interfaces */
--	if (interface_num != info->sync_interface)
-+	/* Let hid-generic handle non-vendor or unknown interfaces */
-+	if (interface_num != info->sync_interface &&
-+	    (!info->async_interface || interface_num != info->async_interface))
+ static int steelseries_battery_register(struct steelseries_device *sd)
+ {
+-	static atomic_t battery_no = ATOMIC_INIT(0);
+ 	struct power_supply_config battery_cfg = { .drv_data = sd, };
+-	unsigned long n;
++	struct power_supply *battery;
+ 	int ret;
+ 
+ 	sd->battery_desc.type = POWER_SUPPLY_TYPE_BATTERY;
+@@ -277,9 +288,10 @@ static int steelseries_battery_register(struct steelseries_device *sd)
+ 	sd->battery_desc.num_properties = ARRAY_SIZE(steelseries_battery_props);
+ 	sd->battery_desc.get_property = steelseries_battery_get_property;
+ 	sd->battery_desc.use_for_apm = 0;
+-	n = atomic_inc_return(&battery_no) - 1;
+ 	sd->battery_desc.name = devm_kasprintf(&sd->hdev->dev, GFP_KERNEL,
+-						"steelseries_headset_battery_%ld", n);
++					       "steelseries_headset_battery_%s",
++					       sd->hdev->uniq[0] ? sd->hdev->uniq :
++					       dev_name(&sd->hdev->dev));
+ 	if (!sd->battery_desc.name)
+ 		return -ENOMEM;
+ 
+@@ -289,17 +301,19 @@ static int steelseries_battery_register(struct steelseries_device *sd)
+ 	sd->headset_connected = false;
+ 	steelseries_headset_set_wireless_status(sd->hdev, false);
+ 
+-	sd->battery = devm_power_supply_register(&sd->hdev->dev,
++	battery = power_supply_register(&sd->hdev->dev,
+ 			&sd->battery_desc, &battery_cfg);
+-	if (IS_ERR(sd->battery)) {
+-		ret = PTR_ERR(sd->battery);
+-		sd->battery = NULL;
++	if (IS_ERR(battery)) {
++		ret = PTR_ERR(battery);
+ 		hid_err(sd->hdev,
+ 				"%s:power_supply_register failed with error %d\n",
+ 				__func__, ret);
+ 		return ret;
+ 	}
+-	power_supply_powers(sd->battery, &sd->hdev->dev);
++	power_supply_powers(battery, &sd->hdev->dev);
++
++	/* Assign on success only, so a concurrent raw_event never sees an ERR_PTR. */
++	sd->battery = battery;
+ 
+ 	return 0;
+ }
+@@ -329,10 +343,11 @@ static int steelseries_arctis_probe(struct hid_device *hdev,
+ 	if (interface_num != info->sync_interface)
  		return hid_hw_start(hdev, HID_CONNECT_DEFAULT);
  
--	sd = kzalloc_obj(*sd, GFP_KERNEL);
--	if (!sd)
--		return -ENOMEM;
--
--	kref_init(&sd->refcnt);
--	sd->hdev = hdev;
--	sd->info = info;
--	spin_lock_init(&sd->lock);
-+	if (interface_num == info->sync_interface) {
-+		sd = kzalloc_obj(*sd, GFP_KERNEL);
-+		if (!sd)
-+			return -ENOMEM;
-+
-+		kref_init(&sd->refcnt);
-+		sd->hdev = hdev;
-+		sd->info = info;
-+		spin_lock_init(&sd->lock);
-+		INIT_DELAYED_WORK(&sd->status_work, steelseries_status_timer_work_handler);
-+
-+		ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
-+		if (ret)
-+			goto err_free;
-+
-+		ret = hid_hw_open(hdev);
-+		if (ret)
-+			goto err_stop;
-+
-+		if (info->capabilities & SS_CAP_BATTERY) {
-+			ret = steelseries_battery_register(sd);
-+			if (ret < 0)
-+				hid_warn(hdev, "Failed to register battery: %d\n", ret);
-+		}
+-	sd = devm_kzalloc(&hdev->dev, sizeof(*sd), GFP_KERNEL);
++	sd = kzalloc_obj(*sd, GFP_KERNEL);
+ 	if (!sd)
+ 		return -ENOMEM;
  
--	hid_set_drvdata(hdev, sd);
-+		/*
-+		 * Publish drvdata only once fully initialised: the async sibling
-+		 * attaches by reading it, so it must never observe a half-built or
-+		 * failed instance. A failed probe never gets here, so the error
-+		 * path below has nothing to unpublish.
-+		 */
-+		hid_set_drvdata(hdev, sd);
-+		schedule_delayed_work(&sd->status_work, msecs_to_jiffies(100));
++	kref_init(&sd->refcnt);
+ 	sd->hdev = hdev;
+ 	sd->info = info;
+ 	spin_lock_init(&sd->lock);
+@@ -341,7 +356,7 @@ static int steelseries_arctis_probe(struct hid_device *hdev,
  
--	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
--	if (ret)
--		goto err_put;
-+		return 0;
-+	}
+ 	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
+ 	if (ret)
+-		return ret;
++		goto err_put;
  
--	ret = hid_hw_open(hdev);
--	if (ret)
--		goto err_stop;
-+	/*
-+	 * The async interface shares the steelseries_device created by the
-+	 * sync interface. Defer until the sync interface has probed and
-+	 * published its drvdata.
-+	 */
-+	if (info->async_interface && interface_num == info->async_interface) {
-+		sd = steelseries_get_sibling_sd(hdev, info->sync_interface);
-+		if (!sd)
-+			return -EPROBE_DEFER;
-+
-+		hid_set_drvdata(hdev, sd);
-+
-+		ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
-+		if (ret) {
-+			kref_put(&sd->refcnt, steelseries_device_release);
-+			return ret;
-+		}
- 
--	if (info->capabilities & SS_CAP_BATTERY) {
--		ret = steelseries_battery_register(sd);
--		if (ret < 0)
--			hid_warn(hdev, "Failed to register battery: %d\n", ret);
-+		ret = hid_hw_open(hdev);
-+		if (ret) {
-+			hid_hw_stop(hdev);
-+			kref_put(&sd->refcnt, steelseries_device_release);
-+			return ret;
-+		}
-+		return 0;
- 	}
- 
--	INIT_DELAYED_WORK(&sd->status_work, steelseries_status_timer_work_handler);
--	schedule_delayed_work(&sd->status_work, msecs_to_jiffies(100));
--
--	return 0;
-+	return -ENODEV;
+ 	ret = hid_hw_open(hdev);
+ 	if (ret)
+@@ -360,12 +375,15 @@ static int steelseries_arctis_probe(struct hid_device *hdev,
  
  err_stop:
  	hid_hw_stop(hdev);
--err_put:
-+err_free:
-+	/* drvdata is unpublished until full success, so no sibling can hold sd. */
- 	kref_put(&sd->refcnt, steelseries_device_release);
++err_put:
++	kref_put(&sd->refcnt, steelseries_device_release);
  	return ret;
  }
-@@ -428,10 +515,21 @@ static int steelseries_arctis_raw_event(struct hid_device *hdev,
- 	u8 old_capacity;
- 	bool old_connected;
- 	bool old_charging;
-+	bool is_async_interface;
-+	unsigned long flags;
  
- 	if (!sd)
- 		return 0;
+ static void steelseries_arctis_remove(struct hid_device *hdev)
+ {
+ 	struct steelseries_device *sd;
++	struct power_supply *battery;
+ 	unsigned long flags;
+ 	struct usb_interface *intf;
+ 	u8 interface_num;
+@@ -387,13 +405,20 @@ static void steelseries_arctis_remove(struct hid_device *hdev)
+ 	if (interface_num == sd->info->sync_interface) {
+ 		spin_lock_irqsave(&sd->lock, flags);
+ 		sd->removed = true;
++		battery = sd->battery;
++		sd->battery = NULL;
+ 		spin_unlock_irqrestore(&sd->lock, flags);
  
-+	is_async_interface = (hdev != sd->hdev);
+ 		cancel_delayed_work_sync(&sd->status_work);
 +
-+	spin_lock_irqsave(&sd->lock, flags);
-+
-+	if (sd->removed) {
-+		spin_unlock_irqrestore(&sd->lock, flags);
-+		return 0;
-+	}
-+
- 	old_capacity = sd->battery_capacity;
- 	old_connected = sd->headset_connected;
- 	old_charging = sd->battery_charging;
-@@ -444,6 +542,10 @@ static int steelseries_arctis_raw_event(struct hid_device *hdev,
- 			old_connected ? "" : "not ",
- 			sd->headset_connected ? "" : "not ");
- 
-+		if (sd->headset_connected && !old_connected &&
-+		    sd->info->async_interface && is_async_interface)
-+			schedule_delayed_work(&sd->status_work, 0);
-+
- 		if (sd->battery) {
- 			steelseries_headset_set_wireless_status(sd->hdev,
- 							       sd->headset_connected);
-@@ -467,6 +569,8 @@ static int steelseries_arctis_raw_event(struct hid_device *hdev,
- 			power_supply_changed(sd->battery);
++		if (battery)
++			power_supply_unregister(battery);
  	}
  
-+	spin_unlock_irqrestore(&sd->lock, flags);
+ 	hid_hw_close(hdev);
+ 	hid_hw_stop(hdev);
 +
- 	return 0;
++	kref_put(&sd->refcnt, steelseries_device_release);
  }
  
+ static int steelseries_arctis_raw_event(struct hid_device *hdev,
 -- 
 2.55.0
 

@@ -1,52 +1,43 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 87588355819;
-	Mon,  3 Aug 2026 19:41:13 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5B57938F945;
+	Mon,  3 Aug 2026 19:42:28 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785786075; cv=none; b=K/dpzVA0YAtPGNML2Bgh15SbjIu2iYi4JOXvO24+47DS/i5dHoTNC9Rhu4evYEQC+75BULl8Kq0SPy5UJRy3HyTOxS0XZcdi1Rns+cl7Mu4/OkOMCaasoplruuRYI7kyXcsbNvcMrNBJN1l57Or4jQx2/2LRmHCtMm0MLsDOLeM=
+	t=1785786149; cv=none; b=krdgglwHNepIW4Ahfhf2LjARWIjXEclDPOggRRidft2uhYhp6RKORB0pas0EH+iaohyk8WLumwz3WFY9bRNDhXNDb139weMdIYHndPWzt/5TXxSB9VWAR41DrNwPFZeaXtm0Boq2fiuYcB4fStjR+DlmHN2+LGoELQuj6zaCtr0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785786075; c=relaxed/simple;
-	bh=EpM4nVXg56SL0a6+ddYWPNtMAntwlvHkpVBUIZGi2Z8=;
+	s=arc-20240116; t=1785786149; c=relaxed/simple;
+	bh=UZZxPuYF4VskiTorbPtrxUYQMq7QIuTMmu9jn1T0B6M=;
 	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
-	 MIME-Version:Content-Type; b=T6B7x2wD0Fi1CP1IM+KT9ZXvAgFJvdvBdeB3n3h1qiMa1rVZS56/AB8ApnxE5dNHGERpDrNlDMvnno6eNRfCj/d3tw2mp1B34YhrMFgte27YMD6UIc5W8Z5gl1YJloUohQxuxy6HN4/ST6s4atv1v66suKrRH/iCYKRmNciFEv8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=eS386hCw; arc=none smtp.client-ip=100.103.45.18
+	 MIME-Version:Content-Type; b=HqsfqrKT5EpkojsV94KkqcE3n3zHxqPJ73JSDeyCiQYisZqEB1xT63OCLKcmT5Y3cWCILr+tKFfv+dYpRJUeh2V9VzpiE76qe8kuOnrbXtlZppKoYIXRpyy1kTZF3pd8wFW+QsBRF2r2Mn1p66+nVfVnc7UfCujpNOTn+icJbgM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=erzYjX/Q; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="eS386hCw"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9476F1F000E9;
-	Mon,  3 Aug 2026 19:41:12 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="erzYjX/Q"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65B351F000E9;
+	Mon,  3 Aug 2026 19:42:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785786073;
-	bh=G632JSs0JVWtYzDBB3w3sC4WoF6dk9yDMNFm3libwz8=;
+	s=k20260515; t=1785786148;
+	bh=uKDvb+7BjDjbIZbK5so1hZN87PZxzHZIdme5WTnNNLQ=;
 	h=Date:From:To:cc:Subject:In-Reply-To:References;
-	b=eS386hCwG/GaUrQ0fFf9kQ/ggJq24n2E2nMUAscQ+D48QniKfwhAGF6qtXWJ2JZFN
-	 xYLms5wuhMQeR6hRI2IhH8iBHoL1HLXZDgtXrpTwIziTTCok1vqW+x2+qN8w9onZMo
-	 +28BzvNEibmzM2XoFJoAwB/A4pHE1hpHZqXNLKo0zIRHzXrffQjCCHz8ZxH8smkSYC
-	 RMziRPZKJ143x78Ycd3oYbOuKsPDP28sjLC9QAxRzC7kQci3VVwIDMfWzb8CGDul33
-	 uUBPJaDMv0NisalGlCxTMYO7c8eKFjh7j/tJkzJ4YBAA30JiLyJJBkKou6pTYmNP+r
-	 S8hJBlIRiK5BQ==
-Date: Mon, 3 Aug 2026 21:41:10 +0200 (CEST)
+	b=erzYjX/QDpMBE2wq8I66ydu+uHJp5S72tG7WoB5U5QUmMeDpMvgzUmMTTcX3d/T8M
+	 qQeHKRHHpQRn0COKGCHZ4Jf+S44ER9evY//vw9daPbFv2uu2hmhUWp8eEY/wFjNQSa
+	 +w7FXMn42IyHDVSB7OUT14ap9sJo+Mg/o6DsaMfiiAaiqbMJa/Ru/7jjFCMdWn8Vx9
+	 f1dWsGLqP6UjG6i2/2LppWXgxQ4i2ukQ/b+gNsGrR/yfQ79amapg6vjHk5v7/eHF4A
+	 kHSLR9Sthx1pc36fOekvEwBFmTLRu7sPcRdMhBddtNMoEnHeYdW0d/NJkD+dAKDaRV
+	 ZygQSECGznv4g==
+Date: Mon, 3 Aug 2026 21:42:25 +0200 (CEST)
 From: Jiri Kosina <jikos@kernel.org>
-To: Pan Chuang <panchuang@vivo.com>
-cc: Basavaraj Natikar <basavaraj.natikar@amd.com>, 
-    Benjamin Tissoires <bentiss@kernel.org>, 
-    Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, 
-    Even Xu <even.xu@intel.com>, Xinpeng Sun <xinpeng.sun@intel.com>, 
-    Zhang Lixu <lixu.zhang@intel.com>, 
-    Andy Shevchenko <andriy.shevchenko@intel.com>, 
-    Steven Rostedt <rostedt@goodmis.org>, 
-    Vineeth Pillai <vineeth@bitbyteword.org>, 
-    Sakari Ailus <sakari.ailus@linux.intel.com>, 
-    Abhishek Tamboli <abhishektamboli9@gmail.com>, 
-    "Danny D." <d3z.the.dev@gmail.com>, 
-    "open list:AMD SENSOR FUSION HUB DRIVER" <linux-input@vger.kernel.org>, 
-    open list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH v3 0/4] HID: Remove redundant error messages on IRQ
- request failure
-In-Reply-To: <20260720084310.210976-1-panchuang@vivo.com>
-Message-ID: <n947825p-92q2-7pr4-nr1n-4p1n5642p9r0@xreary.bet>
-References: <20260720084310.210976-1-panchuang@vivo.com>
+To: "Derek J. Clark" <derekjohn.clark@gmail.com>
+cc: Benjamin Tissoires <bentiss@kernel.org>, 
+    "Pierre-Loup A . Griffais" <pgriffais@valvesoftware.com>, 
+    Denis Benato <denis.benato@linux.dev>, 
+    Zhouwang Huang <honjow311@gmail.com>, linux-input@vger.kernel.org, 
+    linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v13 0/4] Add MSI Claw HID Configuration Driver
+In-Reply-To: <20260720031549.2272658-1-derekjohn.clark@gmail.com>
+Message-ID: <n7so4q55-1699-6s6p-qo38-4pr7055202qs@xreary.bet>
+References: <20260720031549.2272658-1-derekjohn.clark@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -55,30 +46,38 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 
-On Mon, 20 Jul 2026, Pan Chuang wrote:
+On Mon, 20 Jul 2026, Derek J. Clark wrote:
 
-> Commit 55b48e23f5c4 ("genirq/devres: Add error handling in
-> devm_request_*_irq()") added automatic error logging to
-> devm_request_threaded_irq() and devm_request_any_context_irq()
-> via the new devm_request_result() helper, which prints device
-> name, IRQ number, handler functions, and error code on failure.
+> This series adds an HID Configuration driver for the MSI Claw line of
+> Handheld Gaming PC's. The MSI Claw HID interface provides multiple
+> features, such as the ability to switch between xinput, dinput, and a
+> desktop mode, RGB control, rumble intensity, and mapping of the rear "M"
+> keys. There are additional gamepad modes that are not included in this
+> driver as they appear to be used in assembly line testing or are
+> incomplete in the firmware. During my testing I found them to be unstable.
 > 
-> Since devm_request_irq() is a static inline wrapper around
-> devm_request_threaded_irq(), it also benefits from this
-> automatic logging.
+> The initial version of this driver was written by Denis Benato, which
+> contained the initial reverse-engineering and implementation for the
+> gamepad mode switching. This work was later expanded by Zhouwang Huang
+> to include more gamepad modes and additional features. Finally, I
+> refactored the entire driver, fixed multiple bugs, and refined the overall
+> format to conform to kernel driver best practices and style guide.
 > 
-> Remove the now-redundant dev_err() and dev_err_probe() calls
-> in hid drivers that follow these devm_request_*_irq()
-> functions, as the core now provides more detailed diagnostic
-> information on failure.
+> Claude was used initially by Zhouwang Huang to quickly parse HID captures
+> during the reverse-engineering of some of the features. Since Claude had
+> already been used, as a test of its capabilities I had it implement the
+> rumble intensity attribute after I had already rewritten most of the
+> driver, which I then manually edited to fix some mistakes. I also used
+> Claude to review the driver and these patches for any mistakes and bugs.
 > 
-> v1 -> v2:
-> - Added the same change for the intel-quicki2c driver
-> 
-> v2 -> v3:
-> - amd_sfh: directly return devm_request_irq() result
+> Assisted-by: Claude:claude-sonnet-4-6
+> Co-developed-by: Denis Benato <denis.benato@linux.dev>
+> Signed-off-by: Denis Benato <denis.benato@linux.dev>
+> Co-developed-by: Zhouwang Huang <honjow311@gmail.com>
+> Signed-off-by: Zhouwang Huang <honjow311@gmail.com>
+> Signed-off-by: Derek J. Clark <derekjohn.clark@gmail.com>
 
-Applied, thanks.
+Now in hid.git#for-7.3/msi. Thanks,
 
 -- 
 Jiri Kosina

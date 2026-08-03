@@ -1,44 +1,44 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D7298211A14
-	for <linux-input@vger.kernel.org>; Mon,  3 Aug 2026 19:29:53 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E48784334A4
+	for <linux-input@vger.kernel.org>; Mon,  3 Aug 2026 19:30:00 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785785395; cv=none; b=N3NLXVOefPN6UIYgOqt2RpIl4cCaJd7nMb6pvFHlaEuvdV/COV+I7rSi1JU+gvlpQ/LLreEojmTXA26jZIab+r2+s5ajyZ2GZDvgre3OCNkIunX5C5/QhSbmGJVDN2UdIixdAPvCJf7Ob5zorfosoxM1sLnWX/zJhAB0yRRba7w=
+	t=1785785402; cv=none; b=DuT6oFh3D5Gn1vx1LuUnun6C4rMSwq+j/nUx+Ni7P6M2ZpKoRZNIgMuN+2G76w4Zmhx+Vvb42GKJOmnWCFNhgbHLeLQbRtA8qtjmKOM3h4nCKp1KQlDbJNPCiKF7sYV2UcEyDllwpWEHoNQ6wd1OZ9Lo/zp8IlIBS72SHFVkcIk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785785395; c=relaxed/simple;
-	bh=218/CQqbjl3eiBZujlQXnJ9jd1SC2Z64IyODX+EIXrQ=;
+	s=arc-20240116; t=1785785402; c=relaxed/simple;
+	bh=cbegjGoMKPVYysQ2P1y/4lV/k90XvTW92OBxMOJMxoM=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=U5Dls+lzJG8DsgSgBzstW5K4cXWRaaRvCgoDKvmcz7VIzZgNaCjxY9kHpN2Ps4sr2jaEzW1oC6I2M0+ts0NCFwcmTU0QCxYHIT96jTtC09XNCxp6irB1hlmGcvq5lYG3tl5FnJMGY55YqNC+BGHN49/Zn9GdltMwFWW110dHrmo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=eCN7+JmC; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=DPQ6Dyf3yMXdyz/LRWVVx66hDuNv6qpZiAMZNO8XnD92tjJmWwwViti8D0K92YRaMincNVb1+QhS833ITyfXoqaNZX875ErpsQJYUwsZe020vxpYN0kPlXh7+NaSA6gLH7LYdBrAL3ho4QD193y0sZGG/40kqMzl7zGn9QAvBGg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ovfuN0ub; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="eCN7+JmC"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8DE651F000E9;
-	Mon,  3 Aug 2026 19:29:53 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ovfuN0ub"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC0C11F000E9;
+	Mon,  3 Aug 2026 19:29:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785785393;
-	bh=2qp8K2gMgCCd6zSSwLdqI+ZbFaFtOdlOGPsyOhIFN3c=;
+	s=k20260515; t=1785785400;
+	bh=IvSPd9X1I92jGOJv/HWZhc3WPpjD4CORqLERvp+hZCc=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=eCN7+JmCYiSyWKJ1fT1qj3Rd+cI6fcZ6NQz/l2Wt8XE9FS/Zcu/KDIyxrsPqlYpUy
-	 vLMu+jBG6ubUfQQFVj8CKDqQAYK7PHRV8u+cCD1+aDYK0+41yAbgYLzFde3NYGLBfN
-	 3RG8HHnBfyQMPh7LfbR1xAynxAAoPYSaqb80MTeiAJlYzssg891x3psnjzbjs83mNT
-	 Z71ctOxPV1yen0bZhfZJemJkDZ/fa/jgBhKTxEArJQSamZ3EDcY74nfE3njFEcFxXo
-	 uSy9QorIxHWmGg+q/m5Rqye65QFoWKFrCkjmQ4jMEjLf9ld3PHQnrCZDpI661vU1Z1
-	 u3cBDOOLatC7Q==
+	b=ovfuN0ubJwPOiHq0Jj0PKkwiNzpMqtmVh7xyZFO8AAtaLoRiist7ohOshMAnkCJ/Y
+	 u7WtNlWTziVkSsmzthebesGBqjwHDZ0B74o87+49sCfJuRvCR+hzTRXhPaUsUkFLyC
+	 UqafvJWZaBHVD5JlLiHLWVliXUmaKbkf5n/RLx0UJUYwnviat0mPUGQqlMbFkYg6hk
+	 ApaF6jyI9/kySUQnjnlipZRsIUp9YXT544AdfxMh9pup/j746xATM/x1tcZBzTeztU
+	 B9CgzR2YohRjh64D4VvSP5bt+PW3BU0Apw+sw5X7MPiYcS8fJ8hUPfbg9vVb1GEwZl
+	 z5OeEt5/mI/EA==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v7 6/8] HID: steelseries: Manage battery lifetime with
- refcounting
+Subject: Re: [PATCH v7 7/8] HID: steelseries: Add async status interface
+ support
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Sriman Achanta" <srimanachanta@gmail.com>
 Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260803191553.66368-7-srimanachanta@gmail.com>
+In-Reply-To: <20260803191553.66368-8-srimanachanta@gmail.com>
 References: <20260803191553.66368-1-srimanachanta@gmail.com>
- <20260803191553.66368-7-srimanachanta@gmail.com>
+ <20260803191553.66368-8-srimanachanta@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Mon, 03 Aug 2026 19:29:53 +0000
-Message-Id: <20260803192953.8DE651F000E9@smtp.kernel.org>
+Date: Mon, 03 Aug 2026 19:29:59 +0000
+Message-Id: <20260803192959.EC0C11F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -47,83 +47,85 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
 Thank you for your contribution! Sashiko AI review found 2 potential issue(=
 s) to consider:
-- [High] Concurrent execution of `steelseries_arctis_raw_event()` and expli=
-cit battery unregistration in `steelseries_arctis_remove()` introduces a Us=
-e-After-Free and NULL pointer dereference.
-- [Medium] The power supply name string is allocated with `devm_kasprintf` =
-but is embedded inside a manually reference-counted object `sd`, leading to=
- a lifecycle mismatch.
+- [High] The `steelseries_get_sibling_sd` function uses `usb_get_intfdata` =
+on a sibling USB interface and unconditionally casts the result to `struct =
+hid_device *`, which leads to type confusion if a different driver binds to=
+ it.
+- [High] A concurrent sysfs unbind of the HID driver from the sync interfac=
+e can cause `steelseries_get_sibling_sd` to return a freed `steelseries_dev=
+ice` (sd) and call `kref_get` on it, leading to a Use-After-Free.
 --
 
---- Patch [6]: [PATCH v7 6/8] HID: steelseries: Manage battery lifetime wit=
-h refcounting ---
-commit fd37e70cee8d0953a9d3de05f0149d2fc76d513a
+--- Patch [7]: [PATCH v7 7/8] HID: steelseries: Add async status interface =
+support ---
+commit 816a244e480f8271ebf1dbc58fbdbe5e0bdbafab
 Author: Sriman Achanta <srimanachanta@gmail.com>
 
-HID: steelseries: Manage battery lifetime with refcounting
+HID: steelseries: Add async status interface support
 
-This commit changes the steelseries_device structure to use a kref for
-lifetime management instead of devm. It explicitly registers and
-unregisters the battery power supply and nullifies the battery pointer
-during removal.
+Some headsets expose a second HID interface that sends battery and
+connection updates on its own. Watching that interface lets the driver
+stop polling the sync interface.
 
 > diff --git a/drivers/hid/hid-steelseries-arctis.c b/drivers/hid/hid-steel=
 series-arctis.c
-> index b54f20f081a26..e534aa44e70a0 100644
 > --- a/drivers/hid/hid-steelseries-arctis.c
 > +++ b/drivers/hid/hid-steelseries-arctis.c
-
 [ ... ]
-
-> @@ -277,9 +288,10 @@ static int steelseries_battery_register(struct steel=
+> @@ -318,6 +320,53 @@ static int steelseries_battery_register(struct steel=
 series_device *sd)
->  	sd->battery_desc.num_properties =3D ARRAY_SIZE(steelseries_battery_prop=
-s);
->  	sd->battery_desc.get_property =3D steelseries_battery_get_property;
->  	sd->battery_desc.use_for_apm =3D 0;
-> -	n =3D atomic_inc_return(&battery_no) - 1;
->  	sd->battery_desc.name =3D devm_kasprintf(&sd->hdev->dev, GFP_KERNEL,
-> -						"steelseries_headset_battery_%ld", n);
-> +					       "steelseries_headset_battery_%s",
-> +					       sd->hdev->uniq[0] ? sd->hdev->uniq :
-> +					       dev_name(&sd->hdev->dev));
-
-[Severity: Medium]
-Since the steelseries_device struct sd is now refcounted and can outlive
-the device, will using devm_kasprintf() for sd->battery_desc.name leave a
-dangling pointer inside sd when the device unbinds and devres frees the
-string?
-
-[ ... ]
-
-> @@ -387,13 +405,20 @@ static void steelseries_arctis_remove(struct hid_de=
-vice *hdev)
->  	if (interface_num =3D=3D sd->info->sync_interface) {
->  		spin_lock_irqsave(&sd->lock, flags);
->  		sd->removed =3D true;
-> +		battery =3D sd->battery;
-> +		sd->battery =3D NULL;
->  		spin_unlock_irqrestore(&sd->lock, flags);
-> =20
->  		cancel_delayed_work_sync(&sd->status_work);
+> +static struct steelseries_device *
+> +steelseries_get_sibling_sd(struct hid_device *hdev, int interface_num)
+> +{
+> +	struct usb_interface *intf =3D to_usb_interface(hdev->dev.parent);
+> +	struct usb_device *usb_dev =3D interface_to_usbdev(intf);
+> +	struct usb_interface *sibling_intf;
+> +	struct hid_device *sibling_hdev;
+> +	struct steelseries_device *sd =3D NULL;
 > +
-> +		if (battery)
-> +			power_supply_unregister(battery);
->  	}
-> =20
->  	hid_hw_close(hdev);
->  	hid_hw_stop(hdev);
+> +	sibling_intf =3D usb_ifnum_to_if(usb_dev, interface_num);
+> +	if (!sibling_intf)
+> +		return NULL;
+[ ... ]
+> +	if (!device_trylock(&sibling_intf->dev))
+> +		return NULL;
+> +	if (sibling_intf->dev.driver) {
+> +		sibling_hdev =3D usb_get_intfdata(sibling_intf);
+> +		if (sibling_hdev &&
+> +		    sibling_hdev->driver =3D=3D &steelseries_arctis_driver) {
 
 [Severity: High]
-Can an incoming HID event trigger steelseries_arctis_raw_event() concurrent=
-ly
-with this teardown, leading to a NULL pointer dereference or use-after-free?
+Is it safe to assume sibling_intf is bound to usbhid here?
 
-Since hid_hw_stop() hasn't been called yet, hardware events can still fire.
-If steelseries_arctis_raw_event() locklessly checks sd->battery and then
-calls power_supply_changed(sd->battery), could remove() nullify and free the
-battery in between the check and the use?
+If an attacker plugs in a crafted USB device, the async interface could be
+bound to a different driver (like usbfs or usbmouse). Since
+usb_get_intfdata() is unconditionally treated as a struct hid_device
+pointer, checking sibling_hdev->driver could result in an out-of-bounds
+read if the bound driver's data structure is smaller.
+
+> +			sd =3D hid_get_drvdata(sibling_hdev);
+> +			if (sd)
+> +				kref_get(&sd->refcnt);
+
+[Severity: High]
+Could a concurrent unbind of the HID driver cause a use-after-free on sd?
+
+While the USB interface lock (&sibling_intf->dev) is held here, this
+doesn't serialize against a sysfs unbind of the HID driver. If a user
+unbinds the HID driver from the sibling interface via sysfs, the HID core's
+hid_device_remove() calls the driver's remove callback (which drops the
+refcount and frees sd), and only clears hdev->driver afterwards.
+
+This could allow hid_get_drvdata() to return a pointer to a freed
+steelseries_device, leading to a kref_get() on freed memory.
+
+> +		}
+> +	}
+> +	device_unlock(&sibling_intf->dev);
+> +
+> +	return sd;
+> +}
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260803191553.6636=
-8-1-srimanachanta@gmail.com?part=3D6
+8-1-srimanachanta@gmail.com?part=3D7

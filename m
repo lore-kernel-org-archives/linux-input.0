@@ -1,40 +1,41 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 22BA9435523
-	for <linux-input@vger.kernel.org>; Mon,  3 Aug 2026 19:00:50 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7989A4334B2;
+	Mon,  3 Aug 2026 19:03:09 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785783652; cv=none; b=ppf+jE8yg1rpQ95Liqmf1Alnw5lHJ8hXaisWSMMZjiCEMyftNoZj7kFnUuELGiW6FgP0CIOlLQacKM73tZCc4Qo7wVQPK+X5poQr/nBwhQlOQzFpVKs1L3yZgUmblSEGJ6BJFhS0+f4oybJEzg8QQSZsBhWZN5WJE2oS83eXgfk=
+	t=1785783790; cv=none; b=rkTsqWOHBolUpCXRx/auC9k8cf1o8mSKQihGbbuNZks+QMMlQzW43zPsMNcmqf+Fr+6+hWnm5w4Wf6gzJA5JCvAj3HBiBNxQLmgTDBvfjr+rUpDQMc+zeb4tkV6vsHcQz39UWydOSsTzrvwWDXlLehxv/gGeZgESitggR7Vsc/4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785783652; c=relaxed/simple;
-	bh=ufzogOLsRjB/4+zQj5Ko+/zH3GNbS4P0o7ap6L+V+c0=;
+	s=arc-20240116; t=1785783790; c=relaxed/simple;
+	bh=q79nvBknNJwlsPFH3ffiXtIe7Otx+TdZPcim1Cc1BB0=;
 	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
-	 MIME-Version:Content-Type; b=mchALdKP84tWE+u2oPwcgLxQ2jkDYmRgTWfk2Dck2LXp3oAeFHJYF9XYxS5h3Qgw/r0MJdI++RMZ5eM3o+rO6j4Eb59ZL/DYPupigVkOcfJvDjUiOpJK5mc/if5VXCnI+9INO0n7mmvpKESYk+T2Yquaq27aAtbi9DT7kJrOSJY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=abR1PPVn; arc=none smtp.client-ip=100.103.45.18
+	 MIME-Version:Content-Type; b=USc/d0/VoVohJ3sxIW9H932FEJjXj6yCyT3v3rpIslpVJQD9OtbSJSHWYbh14qFl4JMzy6k2GMNd7mMOtnkJtvfIiqOfdNT74PTpjeOlzpVLt0pCNcZxuGWcI5TK24NyaASKWcwSEgLLvE6Yqjlc5HZ1viZnqtgaE2Q4tQPj/ck=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=J06W7bLP; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="abR1PPVn"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2FC281F000E9;
-	Mon,  3 Aug 2026 19:00:50 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="J06W7bLP"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E67A1F000E9;
+	Mon,  3 Aug 2026 19:03:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785783650;
-	bh=aiRMq3KzFeNLkMpHhrH9uEyFNREMLlxG7ioAXLT+aak=;
+	s=k20260515; t=1785783789;
+	bh=FoBvKsqdoyz4c3zKUfYQSTb6gh4q85lnXIpmkbUqoBU=;
 	h=Date:From:To:cc:Subject:In-Reply-To:References;
-	b=abR1PPVnFW0+OEck9Kyfv+9gKMtll+CN8WZW2ID0r8zTa+knV5LzVFpHooNf5TlC/
-	 Ckh3nAK8dMAlvpQJEQ6o3lUzqo+tib7ehMjHF1Stgc0G2uKagc9D8fVKKslXe8J3WY
-	 l5aE87KfgU9wlhMHuAhtQmRuqPzGPXwOBettiPrdT3x7Fzd7bpAz94xL1YAb9sLHC8
-	 i+f2IFBi3lKTk9+QAnhaDu9eYRbw90ghoQYgJFF2GRG1s8/dCum57DUw12jY69H5Ig
-	 viuIhCBMMPV+XIQPTiwb+wZA86Qr8bTAMYGeKC7HVJ0BtRXxio3V96S+OqNoRsm8cG
-	 Bfb2x7vuDr4/Q==
-Date: Mon, 3 Aug 2026 21:00:48 +0200 (CEST)
+	b=J06W7bLPcPFQqbF10mXIU98Nj6EUEQfnkA+1S8wHbyKW5Fhv8OFiFW9m17y5ke96y
+	 0JXeUhhJgeR4j6dX6lDIZwIXFnM2zeMbWt6EHHFQyynLPhaSL2MF+NHY1uMXNntWZf
+	 gYzcoSvJyTufPvc63/M5RTJPWynaRIh+tCIKBEG7RQ4QoZOwihSY2YIgXBTsw7sspa
+	 zGw7b+cmXDYeIIA2kc62vLjvfmMfECbFkS65Oqp18EJ68tpGXYKZ1TY8Dqjs05dRaI
+	 2NPXwMbxO+CsYTLI4YR+g3SQW7a716uuGCN+7ShkjZBlDfUgvFjnKnOn+PyvO5Mddb
+	 gyVin951eeSOg==
+Date: Mon, 3 Aug 2026 21:03:06 +0200 (CEST)
 From: Jiri Kosina <jikos@kernel.org>
-To: Vicki Pfau <vi@endrift.com>
+To: Andrei Fed <andfed.net@gmail.com>
 cc: Benjamin Tissoires <bentiss@kernel.org>, linux-input@vger.kernel.org, 
-    Yousef Alhouseen <alhouseenyousef@gmail.com>
-Subject: Re: [PATCH v5 00/10] HID: steam: General cleanup and improvements
-In-Reply-To: <20260730041251.1659029-1-vi@endrift.com>
-Message-ID: <38n90452-08r3-2362-3122-n54n5qrqqr56@xreary.bet>
-References: <20260730041251.1659029-1-vi@endrift.com>
+    linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH] HID: magicmouse: fix battery reporting for Bluetooth
+ Magic Trackpad USB-C
+In-Reply-To: <20260706175507.47288-1-andfed.net@gmail.com>
+Message-ID: <s548r57p-qnq7-34o4-2989-9r4911q0r2q2@xreary.bet>
+References: <20260706175507.47288-1-andfed.net@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -43,11 +44,14 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 
-On Wed, 29 Jul 2026, Vicki Pfau wrote:
+On Mon, 6 Jul 2026, Andrei Fed wrote:
 
-> This is the first half of a patch series improving the hid-steam driver.
+> The Apple Magic Trackpad 2 (USB-C) reports a wildly wrong battery
+> capacity over Bluetooth, for example a constant 4% for a pack that is
+> actually at 74%.
+[ ... snip ... ]
 
-This series is now queued in hid.git#for-7.3/steam. Thanks,
+Applied, thanks.
 
 -- 
 Jiri Kosina

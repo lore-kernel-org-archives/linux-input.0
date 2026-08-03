@@ -1,75 +1,70 @@
-Received: from mail-pg1-f175.google.com (mail-pg1-f175.google.com [209.85.215.175])
+Received: from mail-pg1-f174.google.com (mail-pg1-f174.google.com [209.85.215.174])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 22FDF37E301
-	for <linux-input@vger.kernel.org>; Mon,  3 Aug 2026 23:33:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.175
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8B6B63B42C0
+	for <linux-input@vger.kernel.org>; Mon,  3 Aug 2026 23:48:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785800024; cv=none; b=hXJA57gAMuLFVK8j+4m+75iXTIX5CE9vydZJuMzbIJCVZkpMuR3yEI2sP/sW87Hm6gDDXGobGnLENS8RYp9rihS+j/tdL76YQCyyeFWd7oIx3s7AbhXjowv9o3oI3dialTpVg/97Bute0Ll8Kb6iDy/xm4YR5a5JyTwZVHmzAoA=
+	t=1785800907; cv=none; b=DfamHpPMIgVpqndbtyjch2M04JF8oYKPIt44UGM6AFN3gpuOPRqNsROaOoew4lqSxH0oyd5W+f/uClvzjfy5O0F9EsNnJDgk72k0R1BwR1meo52RHYxUhTs6DBPsxXvCavdRqLe71ub0SdWavRXy6wqmB0sqM9rBLzj98+tJGI4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785800024; c=relaxed/simple;
-	bh=MgBl1tjaTrOko8MnuN3rOVFNmFaTGLEvWTS5I1o0Blg=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=WUmL7AUzZaxXzCISxsToQVvQpJQ3ZA5/rqlzo+DyUDST0aPj+A74/Js0UiIdv3KRrsXuJsLOQajSDUeNRDfFr8U5fg6+GK2uKjTYMx40KoEsH2tLPNlnohVJ6TkzPzgY0spILuxidRnDwUrA79JimLV2w6kZNM96+BTMl9dV+M0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=CUfAjpW5; arc=none smtp.client-ip=209.85.215.175
+	s=arc-20240116; t=1785800907; c=relaxed/simple;
+	bh=AAFARNeKXceasPZwtKiPmdn3eYRuyGQsWoRLRDxFa+c=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition; b=I30pK/OgRqa3ctkrIkmoVvTVafgMUgUA+xjjq4xf+UqauG4scQtUe1IDpztBLsoyuxUPa1cs4WAIGvJRJYoIVn1zO2iXfyFKPJuzQ/Xz250j8C9CBi/DhXXTv83u8bbKOl7L0UuEXPQPiwl7/Toujph8wUALsSu6BRQfRop2WVs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Ybal8tbP; arc=none smtp.client-ip=209.85.215.174
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="CUfAjpW5"
-Received: by mail-pg1-f175.google.com with SMTP id 41be03b00d2f7-c9e7391839cso3479450a12.0
-        for <linux-input@vger.kernel.org>; Mon, 03 Aug 2026 16:33:41 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Ybal8tbP"
+Received: by mail-pg1-f174.google.com with SMTP id 41be03b00d2f7-c99eaa1f020so3858717a12.2
+        for <linux-input@vger.kernel.org>; Mon, 03 Aug 2026 16:48:18 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1785800021; x=1786404821; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=QeqgW/4lTIg3SEDE03Q3XP4TRyhw16cUEWUdFHbkHtU=;
-        b=CUfAjpW5UsBgcHH5Jm8/6yCif3diFamGY9jWV5MxlMlWa+R0hg3c88k96LSNQuZyev
-         hEiS3ujDxnV+sOXAAzY39b4JosEUxh7SaP3ss4MlyBp+NGJfe2XYC2XTrqDspJrFv7gC
-         QnXR49uVztlS3cI2YIJD7UcNYCNx35aLqhWFMuoD+uGuDkrJFelPTCSDdWdkJPs/dbzR
-         PXJQAR6zpwAL1Mww24gGUG4ajVYlxtk7igLMBSGvYUefXeXRyOu7J+/rz8KQYSSyTjCN
-         ZL8FQY5UQwPCecQzJLpPEsyv44Pm9rPmWdCBAyQ1WOgM3JLQpM7g9n6sTEfA+ux/2CcL
-         8B3Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785800021; x=1786404821;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+        d=gmail.com; s=20251104; t=1785800894; x=1786405694; darn=vger.kernel.org;
+        h=content-disposition:content-type:mime-version:message-id:subject:cc
+         :to:from:date:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=QeqgW/4lTIg3SEDE03Q3XP4TRyhw16cUEWUdFHbkHtU=;
-        b=WZCS4WLmBIIeiBi/hwWRjRgbTliq/kSpmpgh9rd6/ese1Hq6Nxfz72bnoCbf9Pam1s
-         QsTynapX/370/CPC2VJJS6XOWzPjOMr0t4nyZfoNJLZsgMS0ApMZM+o41S2V1mdnwQWk
-         ilyun0147r5ThgJ1h9hGO7cG+TgtpR4HNtNsp052KOadklp5N1PMejtGpqI0kYlZA4Ye
-         1Fd5D0Yc1m1BVbWNQb4ao0AZsTND1XH9pijcwSgT7YbU13SL/dOTZexxO646ULPtzRep
-         Wscl4hlJja84xSkSAEIWQn0ObEZFj1O7CrbBVB4rtOvzBkrzbH2GOc9p5VKCD+8zw/3U
-         9KFA==
-X-Forwarded-Encrypted: i=1; AHgh+Rp+OMeGi3b2ltWwccmJO1FcM5FicsxjxI5yJuOQ7DtvvdDyZwUxU38vSlmcawJaZS/wU839j/VwkTOpDQ==@vger.kernel.org
-X-Gm-Message-State: AOJu0YweLTn1d0C3OwN/vektBIKVkOL3eOe93t+XAnA+khBQVohRPVFI
-	n3mq6hTVUNRJXWjtUG2tfuTIrcAyrBviX+rUyTAOQxr6JEfUni4kB6bL
-X-Gm-Gg: AR+sD13BK7G7yVsdOYNIHHC5734mxpaz2T/9A0l7WQC3dNL73kGjEBSU0h1ZekpKyGm
-	p6tJ8OdIS/Mx7c51z2fCjmVCsnJoHv1YNgZxVkkiAhCdd2YNgZXWGomvfDh9T+FkL3CY1bGr7Tn
-	CGKKz8G065SaWROYmbrL0hV43bBmHIqiyy0FCGxU3jGIpvlD8aGK5ZifBrzGlOwHY02cwzseBsy
-	5h3IevTdoxJtmiW1T1bkUuerv8jXNsyVMGcHBclWMIFEvIqZkbvCnKapWByWI964+dUxZXNDYv6
-	lyspEGnSXSw+md6idN+nd1nA6JJhDicWvJxTF5LXeAYOAfDT6GYGXNTJmgjXALl0Y45QjU/nCTs
-	d9g+hfTEijVAF22khKkCB9X/dCVYh+Lv+Bje4x+ZSG1FV5Z+AYyGBMU9jsmSl6W5UrU9k1ic1l9
-	WH8dLscW5sab7QMI7XSRfsIBfVsfXCHYI2VJ7/jmdEUhk6UIJ6WwYJqmRvaJuxKDs2UJ/hTrLcD
-	cSgSuIhf6qXt2m/GJayM/PcelUxPE7Ge10CQNs/
-X-Received: by 2002:a05:6a21:a89:b0:3b3:223f:d3fc with SMTP id adf61e73a8af0-3c92a864c77mr11650058637.45.1785800021346;
-        Mon, 03 Aug 2026 16:33:41 -0700 (PDT)
+        bh=koNBidNkBzz3w3S5JKYG4xx62FxheLcPS+8lMG+vrIQ=;
+        b=Ybal8tbPdeGnq8gSSDPO9oKSuU3umk3dEGSWKeRK8dj17ozJxOOR+IyOGph+r0dVVt
+         hwkNw7mGxi0aES65EELe5h5ohv2T6FGUMnPRboXQE816E9yr+x2sXLSFZ9dZJnlx580m
+         lk+Qw+nfAkkX/8WL0R6cP23COwPZSABSjSUQcOI4JIgkiwAPgCXsf/dgYrneDq0W5+YP
+         4DRyN3TG0kHWu6OShz30C6xIS1yP/KZ+f1AX6pJYTWNv9YDlDd6se3Tz6l11QrvXZ7B7
+         IuuRhIyJtTy6nqk9/QKs/tpqyHWk0lpNzQGyLiDTThG/FCootTprx3TWHyKm0xPOL5XH
+         +rtQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1785800894; x=1786405694;
+        h=content-disposition:content-type:mime-version:message-id:subject:cc
+         :to:from:date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=koNBidNkBzz3w3S5JKYG4xx62FxheLcPS+8lMG+vrIQ=;
+        b=E1eyEQQcQ34y/RLSrjkb9uKad1mfYLMRVGovUHp6UcmiEiX+71zQjSeTi0jPjGSNuS
+         OMC8jsOLRRw+4QPwPBbzIOJmPpwoRa0vu0eQzWMcwAn9wX/ZRm2Whg80Jw2nfx0T8GK3
+         K7TJ9pQMs2Yi908agHWpSEwKF3btQE2jjlgUJqP7KcjXg+aRw192i2DKBpzTm5NZfWMh
+         Qj69cGAu1Z9UQCfvdIzMJfCOjJXFzjHBAVa1TgfkvsSTqibIZnJKApbCFZ/dt7LIeHvn
+         3zPIuM7ngpC4AdcpcO17lpwhby6BQwDYPb5bG+feq1hvyR9kyQ2n/c0BGjMUeXbPDdOY
+         qeCQ==
+X-Gm-Message-State: AOJu0YyT+1vH52udHmWNW6c1jK0pLm6mxQH2Q3/Cl6WxHphNajWLNJI9
+	iiChYYgRKHiW44BQdFzZbZTNpEAgTmWzvovGtVITp4PQATpjJ/YyIVu+QrDTsQ==
+X-Gm-Gg: AR+sD108RzKLXiuXRxab78xkUnJOf7HdwZmN+2NCwmzXMtlXL2XCpUJaR8fTSqjqpks
+	YO77sXwRg1DTZBSJKHdzU0OWd0p6T95D1/lVj+gSpSXIwAk5rVe/FwwN0su7eu34CbX2XynYs8J
+	+/qu36OUaFOtq1WM71t9q57Lk8kZuecfE0UfAlA3Ocu1EuvdJNqDIFVXQyEooyHzyIVf633AQ1J
+	IBNPRsde7hzVVUzbrOm0ZKJWPJ+hMy/mYE+lxGQWeodbRC0LjdP4AGx0mUxvcPbSpsXqlG6BUaX
+	SA5EI0MgnypvzUcSu1YZ9dD6qfl7P+KVjpgujR2d9bZTxl0MoUk9wYoBuogIbtPvUbSeOOH9UD/
+	G6Akh4C/+B83i6RVl4zy1xoX8T8/VwqflpbTnt21ri06sMN2LukLx1TXdIXjbpfg4kquaX6HLlN
+	lZI5OaxkK4ZPP/fs7Hslhru30f+Aq/cv+zgm8wEH3zGB3bN/xv4zK684A9K6IDjPsp5Al3U4Pi5
+	O9WaPWJnsMlpMru7sgZQ9Ga3YHrdQ==
+X-Received: by 2002:a05:6a21:1644:b0:3b2:8685:1473 with SMTP id adf61e73a8af0-3c92a51df40mr11783580637.7.1785800894664;
+        Mon, 03 Aug 2026 16:48:14 -0700 (PDT)
 Received: from google.com ([2a00:79e0:2ebe:8:d109:cdba:8a20:74ad])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3153e06f88fsm41168805eec.20.2026.08.03.16.33.39
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3153e18e70esm69374770eec.29.2026.08.03.16.48.13
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 03 Aug 2026 16:33:40 -0700 (PDT)
-Date: Mon, 3 Aug 2026 16:33:37 -0700
+        Mon, 03 Aug 2026 16:48:14 -0700 (PDT)
+Date: Mon, 3 Aug 2026 16:48:11 -0700
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Shengzhuo Wei <me@cherr.cc>
-Cc: "Derek J. Clark" <derekjohn.clark@gmail.com>, 
-	Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>, 
-	Zhouwang Huang <honjow311@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	stable@vger.kernel.org
-Subject: Re: [PATCH] HID: hid-oxp: fix UAF on pending work in remove()
-Message-ID: <anElA4get_VxNuB4@google.com>
-References: <20260804-oxp-fix-v1-1-51a4fe787167@cherr.cc>
+To: linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Input: reject inhibit and uninhibit requests on
+ unregistering devices
+Message-ID: <anEolqA35rGei9ql@google.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -78,60 +73,72 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260804-oxp-fix-v1-1-51a4fe787167@cherr.cc>
 
-Hi Shengzhuo,
+When an input device is being unregistered via input_unregister_device(),
+input_disconnect_device() sets dev->going_away = true under dev->mutex
+and releases the mutex.
 
-On Tue, Aug 04, 2026 at 07:15:32AM +0800, Shengzhuo Wei wrote:
-> oxp_cfg_probe() arms drvdata.oxp_mcu_init to run 50 ms after probe, and
-> oxp_mcu_init_fn() dereferences drvdata.hdev to issue MCU output reports
-> (oxp_set_buttons()/oxp_gen_2_property_out() -> hid_hw_output_report(),
-> each followed by msleep(200)). oxp_hid_remove() cancels it with the
-> non-synchronising cancel_delayed_work(), so a worker already running is
-> not waited for; removing the device while the worker is asleep then frees
-> the hid_device underneath it, leaving drvdata.hdev stale -- a
-> use-after-free when the worker wakes.
-> 
-> The oxp_rgb_queue and oxp_btn_queue workers, wired up the same way and
-> also cancelled with cancel_delayed_work() in oxp_hid_remove(), have the
-> same problem.
-> 
-> Drain all three works with cancel_delayed_work_sync() in oxp_hid_remove()
-> so they have exited before the hid_device is freed.
-> 
-> Fixes: 84910c459d65 ("HID: hid-oxp: Add OneXPlayer configuration driver")
-> Fixes: e4c850a6e750 ("HID: hid-oxp: Add Button Mapping Interface")
-> Fixes: 2f424f28fb39 ("HID: hid-oxp: Add Second Generation Gamepad Mode Switch")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Shengzhuo Wei <me@cherr.cc>
-> ---
-> Same delayed-work use-after-free class as the 7.2-rc6 sweep
-> (hid-lenovo-go, hid-lenovo-go-s, hid-lg-g15, hid-appleir, hid-letsketch);
-> hid-oxp was missed. The fix mirrors the cancel_delayed_work_sync()
-> approach already used by hid-lenovo-go / hid-lenovo-go-s.
-> ---
->  drivers/hid/hid-oxp.c | 6 +++---
->  1 file changed, 3 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/hid/hid-oxp.c b/drivers/hid/hid-oxp.c
-> index 20a54f337220dc2aee3483a14d542b66c487bd60..d8fb6a69d40d43f2595179df1067d42b4b3e166a 100644
-> --- a/drivers/hid/hid-oxp.c
-> +++ b/drivers/hid/hid-oxp.c
-> @@ -1552,9 +1552,9 @@ static int oxp_hid_probe(struct hid_device *hdev,
->  
->  static void oxp_hid_remove(struct hid_device *hdev)
->  {
-> -	cancel_delayed_work(&drvdata.oxp_rgb_queue);
-> -	cancel_delayed_work(&drvdata.oxp_btn_queue);
-> -	cancel_delayed_work(&drvdata.oxp_mcu_init);
-> +	cancel_delayed_work_sync(&drvdata.oxp_rgb_queue);
-> +	cancel_delayed_work_sync(&drvdata.oxp_btn_queue);
-> +	cancel_delayed_work_sync(&drvdata.oxp_mcu_init);
+If a concurrent sysfs write to the inhibited attribute executes
+input_inhibit_device() or input_uninhibit_device(), it acquires
+dev->mutex. Because neither function checks dev->going_away (unlike
+input_open_device()), input_uninhibit_device() proceeds to call
+dev->open() and start polling on a device that is in the middle of being
+unregistered and torn down.
 
-What stops these jobs from re-arming? Should it use
-disable_delayed_work_sync() instead?
+Fix this by checking dev->going_away in input_inhibit_device() and
+input_uninhibit_device() under dev->mutex and returning -ENODEV if the
+device is going away.
 
-Thanks.
+Fixes: a181616487db ("Input: Add "inhibited" property")
+Reported-by: sashiko-bot@kernel.org
+Assisted-by: Antigravity:gemini-3.6-flash
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+---
+ drivers/input/input.c | 6 ++++++
+ include/linux/input.h | 3 ++-
+ 2 files changed, 8 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/input/input.c b/drivers/input/input.c
+index cf6fecea79b8..dcb1f72711c3 100644
+--- a/drivers/input/input.c
++++ b/drivers/input/input.c
+@@ -1756,6 +1756,9 @@ static int input_inhibit_device(struct input_dev *dev)
+ {
+ 	guard(mutex)(&dev->mutex);
+ 
++	if (dev->going_away)
++		return -ENODEV;
++
+ 	if (dev->inhibited)
+ 		return 0;
+ 
+@@ -1784,6 +1787,9 @@ static int input_uninhibit_device(struct input_dev *dev)
+ 
+ 	guard(mutex)(&dev->mutex);
+ 
++	if (dev->going_away)
++		return -ENODEV;
++
+ 	if (!dev->inhibited)
+ 		return 0;
+ 
+diff --git a/include/linux/input.h b/include/linux/input.h
+index 76f7aa226202..bb97ebb815bf 100644
+--- a/include/linux/input.h
++++ b/include/linux/input.h
+@@ -117,7 +117,8 @@ enum input_clock_type {
+  *	user opens device and dev->close() is called when the very
+  *	last user closes the device
+  * @going_away: marks devices that are in a middle of unregistering and
+- *	causes input_open_device*() fail with -ENODEV.
++ *	causes input_open_device() and input_inhibit/uninhibit_device()
++ *	to fail with -ENODEV.
+  * @dev: driver model's view of this device
+  * @h_list: list of input handles associated with the device. When
+  *	accessing the list dev->mutex must be held
+-- 
+2.55.0.629.g250fe7f194-goog
+
 
 -- 
 Dmitry

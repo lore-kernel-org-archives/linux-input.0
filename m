@@ -1,42 +1,41 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1B19A427FA9;
-	Mon,  3 Aug 2026 18:04:41 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7BFAA42AF89
+	for <linux-input@vger.kernel.org>; Mon,  3 Aug 2026 18:23:44 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785780284; cv=none; b=qLdicSO7iiUV0ga4qUXmxOBUpw6WO/hD79OXUHd3WMqPviSBD7iGLKOL1grHZS+cTbJbQ0nqH6rsortAtqjFrKm1OCcGgZGOeE3uLfenXaeoND9YcGPlzBl0ZHVAIui7pfe+9qrXnK5IAtTD6OSTKD6PLlk+UQAU63c5TQboHCQ=
+	t=1785781425; cv=none; b=gOdPZI/Pgv7iRpNjUqoDa+dLhggUyC2shY80Xtczi3FrdA9nbQx5gpVpFwMHzEOetWnk5/dkZ/Kyu43BNIukPGuYXsza/9SsbKm6YprpK+FgtbJp60eJIQni6RLeQ0pm47X2KbbgFwtQAWDLdFow9oiDababWa4b+xU/+atT4wY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785780284; c=relaxed/simple;
-	bh=bgs+vrRE2bas4JDMXeynS+ayRA8a8ZXT4tFG7FCxcS0=;
+	s=arc-20240116; t=1785781425; c=relaxed/simple;
+	bh=FpmJSp9oJMmZGuWA9NgO8QaqcORGth/D4474QGvh6kU=;
 	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
-	 MIME-Version:Content-Type; b=EkIcEOfNDBPAE3IgCHD/QgtOZwklmdZhsREqBKaIW4ltHShRs5r4WJrHdm5qxpGujztJxpXCOgzdVj56GguZ3Ld1Cr7noLQ74NB9LNJgU4pnHZMzavDjw2KiSh+0tehYcg8XC+cLGKbnrMbRUBM1AxFT8bwwR0bkCwUUjLdZdAE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=CZz6m3eH; arc=none smtp.client-ip=100.103.45.18
+	 MIME-Version:Content-Type; b=i5ongzIN80FjzfPSmxAvgEJ/czHW6u7J0DZmGce/lECGJEwPNGUoC/2lVhMXXLF2M/Qra+oUvMb3m8jVyEZ+r+hMYTtxFm7thjc3gHRvwVjrVyUVVe4PN86rgK8xuLYq1JwW5Obl8iB+D1b75jC5fwvwTlQZ3LTEYrbgdSnYqW4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=e6YHz9tD; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="CZz6m3eH"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 315521F000E9;
-	Mon,  3 Aug 2026 18:04:41 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="e6YHz9tD"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87E8E1F000E9;
+	Mon,  3 Aug 2026 18:23:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785780281;
-	bh=fl6hJdsienU67gAbtfxfdRkpX+319qi7kN5o44Na9Go=;
+	s=k20260515; t=1785781424;
+	bh=eHkhteMMeD1r+Mysk09zx5h7QdhrhDyD3ZbJUsBP1D8=;
 	h=Date:From:To:cc:Subject:In-Reply-To:References;
-	b=CZz6m3eH8sk+kavGxJWhHsoLsiF/3Dou7pHZvieV930Cd3omPQUnyNMdHKmRS5XQc
-	 T5nhtAsyNoWMkze7SHcozegTG1nxJ2XgIsq5dAPlQ/DHxMuqH7WYNImnsZ/xFAg6Vk
-	 BsEcjeEJf4VqJjmbTyl4WyWScJE9DEPYGjDk5kWakeJDlkR4syTjk7anan976uBeaj
-	 ++EGktR9OY1yjuYmDVoHczMQRF6atxpCeoFTnnrD/AeOfb9sKrcNewJLGTQlnpuUnM
-	 i4TZzLAiLnggwRN9yo5ScRmufQSg0WyjaB6Gpbg6dwHmE0IV7VLy/zlbSwaAj70Mf0
-	 z2Z4qtwRxbgKg==
-Date: Mon, 3 Aug 2026 20:04:38 +0200 (CEST)
+	b=e6YHz9tD62DcuePh1+t6xIxvkjmtPdSzn5UjyYOGlgqgJpH6DRq5DFci7jQFrcMXC
+	 nJu8a7b1fEyAkxNA+6Ix35edx16/n+Yj65lgbV20tpgOHQBxJqVxbs4CPFDmnX91Hu
+	 lXgMxen3ktim4QuKqaN2kfVbT7fTspoHyfe1Vu++92HJLgJF0DaedS6c7zsorBOyt1
+	 baLQl9VN/9kkal/U2n0IJNolYxHRvECOWw2RYxlItYcYZ3bP6iyd0OPkdenEgZZ8+H
+	 V+/zQBYfpTsFwBLLzHMjmTlOl9YYk5ZxwdL3z4bPf0jsxR+DVTRHLA+KIsdRcYV9L+
+	 ADzCD9TtgS4BQ==
+Date: Mon, 3 Aug 2026 20:23:41 +0200 (CEST)
 From: Jiri Kosina <jikos@kernel.org>
-To: Alexandre Derumier <aderumier@gmail.com>
-cc: "Daniel J . Ogorchock" <djogorchock@gmail.com>, 
-    Benjamin Tissoires <bentiss@kernel.org>, linux-input@vger.kernel.org, 
-    linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] HID: nintendo: fix rumble starved by the input report
- cadence gate
-In-Reply-To: <20260801090059.1349535-1-aderumier@gmail.com>
-Message-ID: <8q45nos3-s5q2-0028-7o72-po920q5892q3@xreary.bet>
-References: <20260801090059.1349535-1-aderumier@gmail.com>
+To: Basavaraj Natikar <bnatikar@amd.com>
+cc: Helge Bahmann <hcb@chaoticmind.net>, linux-input@vger.kernel.org, 
+    Basavaraj Natikar <Basavaraj.Natikar@amd.com>
+Subject: Re: [PATCH 2/2] amd-sfh-tabletmode: interpret sfh tablet mode hid
+ report
+In-Reply-To: <1500f3cd-528c-49f9-95b2-ed2463eef351@amd.com>
+Message-ID: <1qp25no9-rps0-n4s6-15n6-9ns9o47q5sss@xreary.bet>
+References: <6879487.lOV4Wx5bFT@lothlorien> <2632507.ElGaqSPkdT@lothlorien> <ecadaac8-e222-420a-ac5b-4d529fb3317e@amd.com> <14202195.uLZWGnKmhe@zephyr> <8083nr01-02qn-5984-pp59-264pr475p132@xreary.bet> <1500f3cd-528c-49f9-95b2-ed2463eef351@amd.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -45,42 +44,20 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 
-On Sat, 1 Aug 2026, Alexandre Derumier wrote:
+On Mon, 3 Aug 2026, Basavaraj Natikar wrote:
 
-> Rumble on third-party controllers speaking the Switch protocol is weak
-> and intermittent over bluetooth, and absent on some units.
+> >> Add a driver that hooks into the tablet mode hid reports
+> >> generated by the amd-sfh-hid driver. This enables tablet
+> >> mode switching on e.g. Asus Vivobook devices.
+> >>
+> >> Signed-off-by: Helge Bahmann <hcb@chaoticmind.net>
+> > Basavaraj, I'd like to have your Ack on these two, please.
 > 
-> Since commit d750d1480362 ("HID: nintendo: fix rumble rate limiter"),
-> joycon_enforce_subcmd_rate() requires JC_SUBCMD_VALID_DELTA_REQ (3)
-> consecutive input reports spaced 8-17ms apart before releasing a
-> subcommand. That window is the official Pro Controller's bluetooth
-> cadence, and controllers that do not report on it cannot pass the gate,
-> so their rumble is starved.
+> Hi Jiri,
 > 
-> Measured over bluetooth on one host, reading the controller directly,
-> fraction of reports at which the requirement is met:
-> 
->   official Pro Controller     95%
->   Datafrog clone              46-52%
->   8BitDo Pro 2                2.5-4%
-> 
-> The Pro 2 delivers reports in pairs, so 11-19% of its deltas are 0ms and
-> reset the counter. Affected controllers report Nintendo's USB IDs, and
-> the MAC is no better: the Datafrog clone reports an OUI registered to
-> Nintendo, so identifying them by vendor would misclassify it.
-> 
-> Instead, notice when the requirement cannot be met: after
-> JC_SUBCMD_RATE_MAX_FAILURES exhaustions of the limiter, fall back to the
-> pre-d750d1480362 throttle, which keeps the 25ms spacing and the
-> transmit-after-receive synchronisation from commit e93363f716a2 ("HID:
-> nintendo: ratelimit subcommands and rumble") and drops only the cadence
-> requirement. Exhaustions are counted cumulatively, as an affected
-> controller meets the requirement occasionally and a consecutive count
-> would never be reached.
-> 
-> Signed-off-by: Alexandre Derumier <aderumier@gmail.com>
+> Asus quirk will be handled separately once below generic series in place.
 
-Applied, thanks.
+Ah, now I see, thanks.
 
 -- 
 Jiri Kosina

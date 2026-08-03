@@ -1,68 +1,68 @@
-Received: from mail-pf1-f179.google.com (mail-pf1-f179.google.com [209.85.210.179])
+Received: from mail-pf1-f170.google.com (mail-pf1-f170.google.com [209.85.210.170])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5E47E43B491
-	for <linux-input@vger.kernel.org>; Mon,  3 Aug 2026 18:46:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.179
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 96EB543BDB3
+	for <linux-input@vger.kernel.org>; Mon,  3 Aug 2026 18:46:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.170
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785782811; cv=none; b=B+0AnqscC3BXb4+JYts/6GcN0k+Dkf0YxlUKq8xG3aKBm5w+Htbqv1rbzPCKIJelOPSUhcQ/uyzRd1PD4NzkSq5H0DvBstUojAamDaULBBJQpbRTOq3w1M41NjyUO5QlhaXEz4d6oN54NMApr46yJTBSulhESx3dEhmupS712NM=
+	t=1785782812; cv=none; b=f7RLbhlkocKAO3yvkXkNY3/cPWu6gBpQE2MCojncYUlKCZ814sY0oOk1nZMT61XkuzKjvgqCN60jvrPYNhfFrF3mw0G0SYS0eSuwudevS7sZC7zNOLR0JsToBSGdhjRdWjrtaYqiGX5JtfcXnGR4kBD6HbUCOKcPJu7L6+aEHX8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785782811; c=relaxed/simple;
-	bh=qaDSk/5YmV6gZkAdMcHZslIzINZ+ip8Z1U6jUiEQCkI=;
+	s=arc-20240116; t=1785782812; c=relaxed/simple;
+	bh=Uf8he7nAsG/KRuBT/yGn3TrZ1ExEAQm9BaOvzIjqfp4=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=P1zMJnp7EG0fiholfg0r7PTC99RT2/R6GhUWH5OYG+1ZKmDpz/hv9x8Dvxv+74hdv8cBAdEA64v5rWCzQnxXKoxDxNiP//TUGVyTSVgmEwFkKOQP/eZJNJOiKXjQ4aVo9yxGu9VTOK6z7exY/xnZRpj7+PUIfvo2taCE+oFIhAE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=UojGgpTM; arc=none smtp.client-ip=209.85.210.179
+	 In-Reply-To:To:Cc; b=fZFn+/Uf+hhSEbT5ZIduW36gTSQqm/ZJ3vnhshYRcQIH2VOrs+zeb/htRVe/Pv/tzNRgfoNTjwMRCYx/SA5dABlIK4y0kjdmoyrYcxDlTHZEic7LXChXjpl/XeEW5DxeNTCUoaPUZl2vgq+ErVLI2twIEA297S4Nh6JKdtwdtD8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=V7/0T1m2; arc=none smtp.client-ip=209.85.210.170
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="UojGgpTM"
-Received: by mail-pf1-f179.google.com with SMTP id d2e1a72fcca58-84874b52eabso5081507b3a.0
-        for <linux-input@vger.kernel.org>; Mon, 03 Aug 2026 11:46:48 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="V7/0T1m2"
+Received: by mail-pf1-f170.google.com with SMTP id d2e1a72fcca58-84a652535dcso2504110b3a.3
+        for <linux-input@vger.kernel.org>; Mon, 03 Aug 2026 11:46:49 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1785782807; x=1786387607; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1785782808; x=1786387608; darn=vger.kernel.org;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :content-type:mime-version:subject:date:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=SV2MN5jqx3aqjs62FVvaU6OUodkPbSGwRNX49TcVWl8=;
-        b=UojGgpTM/RbHpng8Ahk0hkgXYtt8tzAjgnARt/9zR+NwwlkckcQqZr75v83wYQE1Gp
-         dAUDPpmrll1DayJ7j76N8Cy9s83PeXQxzQiDxsm5De2lQlYrmWcTubiNiUILL+0iWCHF
-         vbbrnIl1XT0tRyBpsi9j2ZtSR5SHibg9CIGgkNv1+5Uf0fXq8FBS3P/YohmH1/oBFebG
-         GikzNLZAgQZClMdDqqBuYijnGtoS3b6HkjnWcDTF1HZUmpHFQ5bB+mSe3t2DPSacWsRq
-         Qnn9Q3HATVGejorrtRczdeOEhT4dBq4R4zVU2cVRYGzt5mFwexYInmt4E7/6PW0kzUa2
-         B4TA==
+        bh=87bvLzjv5ZZpsa24dDBIH3Ak2KXTk9+GG+h8XVlqydU=;
+        b=V7/0T1m2pKy5JIoxdxw587Ans8MZ52s3+7VT5Otak3wz43+yBND7QqRp1pTalwv/IP
+         5qvZlyrfUUYHLXh20nPCPWn8C9w6Fn9f2ocz2uf3rwmqAm14LDaZ3z2Xfe6pc11NlW/q
+         jnG9akAG6xcDjkJg+uDc3+DF3+dffYXkURl+CpyfWOlFeykOE3iHuZVqIoRrGQk5xPTk
+         s+B39781ZYOGFe8siOO0cal1RwjZZNTyDUj4SCVzk6SnIPkqH6iVze/9fkf/ERA4L/EP
+         7UNBLxowUXw5VpLmgNBurqAUk5DYbWc7lH+VEjZLTik75bh5ZIhse9v5L+p8K1qFHKxm
+         8/0w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785782807; x=1786387607;
+        d=1e100.net; s=20251104; t=1785782808; x=1786387608;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :content-type:mime-version:subject:date:from:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=SV2MN5jqx3aqjs62FVvaU6OUodkPbSGwRNX49TcVWl8=;
-        b=Odl2+LSXeLjIV6lykrdy82yHM1sQEkTcm9qpJc/+mVszuY3D2Z7bo+RzfrM6v3VlC6
-         U6lBzCIVtDYuC5XG1gmjpYitVf0TTotykKcuxPz9g88uuwBdU4U8rSOvjNaGBkkXm6Vf
-         F/1uJHdZjm1TEEwcvHiOorkwhVD9BOoEMFANQ1T0NTs757dEr5My7mpu4IwHixgkaXA3
-         758wMsVzb1vtJ6xDObqUdPZWhuCFZhvwQyzwa/2NdL/chdPMm20rRqB3VrED0CGYl5vz
-         2Gd0TX+JdGhLDER0lpWt3EmYSY4eEftpRiTcv/zKgL+7slZz7fTh2LF2qDDzvMPxpWA6
-         zceQ==
-X-Gm-Message-State: AOJu0YweKt+FyK5lv8lpaVc3VulUb0htW1rap+noNOs0RDJ5WKLTULzB
-	xU1SWBL1iDx5bdKmKEtT9gfwdoAn1CfxrA+AG/reATXSU+rpq2cbMotU
-X-Gm-Gg: AR+sD10WLCqH73nJEFhst805soMTV2xrs4Nk/qmTa7ViLbUu+/Exr7YfYbDuisXlO4l
-	s3dTYPvmqk564WOAo2fQgOKXNRyErftBj6k1BAwWm3pRU2F8Gw94aOd4N+/TtYhl1WTCCo43yHl
-	6PSvyHMPdTc/IeQdvhNSTkKxdQB9vIDDZ02Lx5yjIWKwlK4Vnj9KE3boazb46Dv4rcY+/jkAwKx
-	TvxzSjxwwojb3CcQFZvioUJJXmdOZ9dUrHLyiJmXGC9kYKluYtnfTQJtwWPbGBmgzJmS9C2Df+E
-	37UVTG81B7EmfO9u3jhU4D0vYa0up5bqk1I70OqmdhPdNHfikpRfCOHtx1bAmDdbitj3rCQVXPV
-	X/FLMZjY3CTvLT8J+4qKy4eAYVOFMlsmP7pAbRFn8RZKHeY6nzGKMx1OD9vw3tQQ0B5oicoqDJ2
-	62CPy4FFUO16XtvWV25vNYtio4Gqtf+fhCy3nIbJhwRF6Y7ifwLa/8H/VBCHX2gNwIn47b53S3C
-	u7QS9vaSQPzdgd8oYv8rJ5T9TjpcvhV1yr6b4yHfQdwVM3omcVL
-X-Received: by 2002:a05:6a21:7002:b0:3c2:dcdd:a861 with SMTP id adf61e73a8af0-3c92a85c953mr11789820637.43.1785782806919;
-        Mon, 03 Aug 2026 11:46:46 -0700 (PDT)
+        bh=87bvLzjv5ZZpsa24dDBIH3Ak2KXTk9+GG+h8XVlqydU=;
+        b=qkXznk5a5EDg2JwNOICEoZ24x9LdzgzIP3Rfy7ZdbMNY5kMwp1jCc9AXv21RLWv4i9
+         3gobI5Irw1R3aR2GvSYlQSWyB8fJxlvzkrJxjyXUZhoR7+foSvOptflI7IZ5aBXLxKhH
+         GgRk0J59VzETxJ0IkBmEz/jkcR1BlnO3oAG0PJv0mvzXdZ8nG1B0uknoDZhRAi6eyTk4
+         ZTTFxmwv00eLsWB5dOOziSYA//bzlmjaakHaovdhq2mr1E6svKAVSOBxuQd0lh8Y173P
+         x4VDkP1WThZkuNeztM9zj9i26nFDeE/a3Ipc7UXXGK6BpyAcP6kH7JCWFOz67lHR9aJF
+         MpAw==
+X-Gm-Message-State: AOJu0Yw4FtuL7nK8d6dVgzXWWuzSjDSDWQhCO2lvAvBG6sxOW/GDw0yh
+	TFgWaMjzLP60eJCj/ryfmpPQY6DRuKa5xWcKlyHT7Zq9i7A0HTyg8tLp
+X-Gm-Gg: AR+sD10ffqPrxf1tQWS2OIRhsZ/Ib/I/3iF4DLgwk+xIW6F7JCpRBSnHAwJE6u0k/hG
+	5nmdFezxnJr4cpOv1goj+izgC9skwFFt6W3UD+AEGaypnBKsCBdJ/ckCsDTvv7vS0qk3IS4PWy3
+	AXCup1Nci4L/kmliKXg1S0fRaPpoNKKA+G3S04n8FISM27goBnCoFKo3I0eNn6npmICZ3UF4QQA
+	AvyUCC7TAieQIAFl5NO+KWhjJOCIQm9Le+UC+mYsQ6VtZb/t8Kc/88UcY+yc6rEFidya4j5NXUu
+	rjXBWulQv5pBomjZjW44JXK98eKNtWF1aoebmJcVKYTzP1jxKgqrvfui0e3fec2SlBWg6QWgyNn
+	4cLeipDAxZ0bRc7Re3BVXwU4fI+pIq2fDIEkXSamOcOJP68M55Nm2RMgNI/7P7ElEu05V1eYM2/
+	BtW6gZA7ANm/Ff3kepkDiVti4z0HiQKUu5oWmjEkIxfpCXyylWRU9JM0ev/PL8acl5OQZE0tNEv
+	nUe9FbyxRUuKFGGL5Hux98N43C6HrE425TiUsiVwU1s4h0/wLFC
+X-Received: by 2002:a05:6a21:1fc4:b0:3c3:c185:f334 with SMTP id adf61e73a8af0-3c92a95073cmr13139560637.66.1785782808357;
+        Mon, 03 Aug 2026 11:46:48 -0700 (PDT)
 Received: from dtor-ws.sjc.corp.google.com ([2a00:79e0:2ebe:8:d109:cdba:8a20:74ad])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-13fab24ec10sm33935472c88.6.2026.08.03.11.46.45
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-13fab24ec10sm33935472c88.6.2026.08.03.11.46.47
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 03 Aug 2026 11:46:46 -0700 (PDT)
+        Mon, 03 Aug 2026 11:46:47 -0700 (PDT)
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Date: Mon, 03 Aug 2026 11:46:34 -0700
-Subject: [PATCH 09/21] HID: stadia: use open/close to manage workqueue
- lifecycle
+Date: Mon, 03 Aug 2026 11:46:35 -0700
+Subject: [PATCH 10/21] HID: stadia: move FF initialization to
+ .input_configured()
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -71,7 +71,7 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260803-hid-ff-input-configured-v1-9-1dc9bbacd88c@gmail.com>
+Message-Id: <20260803-hid-ff-input-configured-v1-10-1dc9bbacd88c@gmail.com>
 References: <20260803-hid-ff-input-configured-v1-0-1dc9bbacd88c@gmail.com>
 In-Reply-To: <20260803-hid-ff-input-configured-v1-0-1dc9bbacd88c@gmail.com>
 To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>, 
@@ -83,153 +83,88 @@ Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
  linux-doc@vger.kernel.org, cocci@inria.fr
 X-Mailer: b4 0.16-dev-b242f
 
-Override input device open() and close() callbacks to enable and disable
-the force-feedback workqueue item synchronously.
+The driver currently initializes force-feedback in its probe() function
+after calling hid_hw_start() with HID_CONNECT_DEFAULT. This is racy as
+the input device is already registered and visible to userspace at that
+point.
 
-When the input device is opened by userspace, call hid_hw_open() and
-enable_work(). When it is closed, disable_work_sync() ensures that any
-pending or running work item is cancelled/flushed and no further work
-items can be scheduled.
+Move the FF initialization to the .input_configured() callback to ensure
+the device is fully prepared before registration.
 
-In close(), zero out magnitudes and issue a final report to turn off the
-rumble motors on the physical controller before shutting down transport
-I/O.
-
-Pack strong and weak magnitudes into a single u32 integer using
-WRITE_ONCE() and READ_ONCE() for atomic, lockless updates.
-
-This allows eliminating the manual 'removed' boolean flag and spinlock
-completely.
-
-Assisted-by: Antigravity:gemini-3.6-flash
+Assisted-by: Gemini:gemini-3.1-pro
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 ---
- drivers/hid/hid-google-stadiaff.c | 71 +++++++++++++++++++++------------------
- 1 file changed, 38 insertions(+), 33 deletions(-)
+ drivers/hid/hid-google-stadiaff.c | 41 +++++----------------------------------
+ 1 file changed, 5 insertions(+), 36 deletions(-)
 
 diff --git a/drivers/hid/hid-google-stadiaff.c b/drivers/hid/hid-google-stadiaff.c
-index 6b38d2421d3d..d6a73d210599 100644
+index d6a73d210599..0214aae6b0fa 100644
 --- a/drivers/hid/hid-google-stadiaff.c
 +++ b/drivers/hid/hid-google-stadiaff.c
-@@ -17,10 +17,7 @@
- struct stadiaff_device {
- 	struct hid_device *hid;
- 	struct hid_report *report;
--	spinlock_t lock;
--	bool removed;
--	uint16_t strong_magnitude;
--	uint16_t weak_magnitude;
-+	u32 magnitudes;
- 	struct work_struct work;
- };
- 
-@@ -29,12 +26,10 @@ static void stadiaff_work(struct work_struct *work)
- 	struct stadiaff_device *stadiaff =
- 		container_of(work, struct stadiaff_device, work);
- 	struct hid_field *rumble_field = stadiaff->report->field[0];
--	unsigned long flags;
-+	u32 mags = READ_ONCE(stadiaff->magnitudes);
- 
--	spin_lock_irqsave(&stadiaff->lock, flags);
--	rumble_field->value[0] = stadiaff->strong_magnitude;
--	rumble_field->value[1] = stadiaff->weak_magnitude;
--	spin_unlock_irqrestore(&stadiaff->lock, flags);
-+	rumble_field->value[0] = mags & 0xffff;
-+	rumble_field->value[1] = (mags >> 16) & 0xffff;
- 
- 	hid_hw_request(stadiaff->hid, stadiaff->report, HID_REQ_SET_REPORT);
- }
-@@ -44,19 +39,41 @@ static int stadiaff_play(struct input_dev *dev, void *data,
- {
- 	struct hid_device *hid = input_get_drvdata(dev);
- 	struct stadiaff_device *stadiaff = hid_get_drvdata(hid);
--	unsigned long flags;
-+	u32 mags = (u32)effect->u.rumble.strong_magnitude |
-+		  ((u32)effect->u.rumble.weak_magnitude << 16);
- 
--	spin_lock_irqsave(&stadiaff->lock, flags);
--	if (!stadiaff->removed) {
--		stadiaff->strong_magnitude = effect->u.rumble.strong_magnitude;
--		stadiaff->weak_magnitude = effect->u.rumble.weak_magnitude;
--		schedule_work(&stadiaff->work);
--	}
--	spin_unlock_irqrestore(&stadiaff->lock, flags);
-+	WRITE_ONCE(stadiaff->magnitudes, mags);
-+	schedule_work(&stadiaff->work);
- 
- 	return 0;
+@@ -74,20 +74,15 @@ static void stadia_input_close(struct input_dev *dev)
+ 	hid_hw_close(hid);
  }
  
-+static int stadia_input_open(struct input_dev *dev)
-+{
-+	struct hid_device *hid = input_get_drvdata(dev);
-+	struct stadiaff_device *stadiaff = hid_get_drvdata(hid);
-+	int error;
-+
-+	error = hid_hw_open(hid);
-+	if (error)
-+		return error;
-+
-+	enable_work(&stadiaff->work);
-+	return 0;
-+}
-+
-+static void stadia_input_close(struct input_dev *dev)
-+{
-+	struct hid_device *hid = input_get_drvdata(dev);
-+	struct stadiaff_device *stadiaff = hid_get_drvdata(hid);
-+
-+	WRITE_ONCE(stadiaff->magnitudes, 0);
-+	stadiaff_work(&stadiaff->work);
-+	disable_work_sync(&stadiaff->work);
-+
-+	hid_hw_close(hid);
-+}
-+
- static int stadiaff_init(struct hid_device *hid)
+-static int stadiaff_init(struct hid_device *hid)
++static int stadia_input_configured(struct hid_device *hid, struct hid_input *hidinput)
  {
  	struct stadiaff_device *stadiaff;
-@@ -90,11 +107,13 @@ static int stadiaff_init(struct hid_device *hid)
- 	if (error)
- 		return error;
+ 	struct hid_report *report;
+-	struct hid_input *hidinput;
+-	struct input_dev *dev;
++	struct input_dev *dev = hidinput->input;
+ 	int error;
  
--	stadiaff->removed = false;
- 	stadiaff->hid = hid;
- 	stadiaff->report = report;
- 	INIT_WORK(&stadiaff->work, stadiaff_work);
--	spin_lock_init(&stadiaff->lock);
-+	disable_work_sync(&stadiaff->work);
-+
-+	dev->open = stadia_input_open;
-+	dev->close = stadia_input_close;
+-	if (list_empty(&hid->inputs)) {
+-		hid_err(hid, "no inputs found\n");
+-		return -ENODEV;
+-	}
+-	hidinput = list_entry(hid->inputs.next, struct hid_input, list);
+-	dev = hidinput->input;
++	if (!list_is_first(&hidinput->list, &hid->inputs))
++		return 0;
  
- 	hid_info(hid, "Force Feedback for Google Stadia controller\n");
- 
-@@ -127,19 +146,6 @@ static int stadia_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 	report = hid_validate_values(hid, HID_OUTPUT_REPORT,
+ 				     STADIA_FF_REPORT_ID, 0, 2);
+@@ -120,32 +115,6 @@ static int stadiaff_init(struct hid_device *hid)
  	return 0;
  }
  
--static void stadia_remove(struct hid_device *hid)
+-static int stadia_probe(struct hid_device *hdev, const struct hid_device_id *id)
 -{
--	struct stadiaff_device *stadiaff = hid_get_drvdata(hid);
--	unsigned long flags;
+-	int ret;
 -
--	spin_lock_irqsave(&stadiaff->lock, flags);
--	stadiaff->removed = true;
--	spin_unlock_irqrestore(&stadiaff->lock, flags);
+-	ret = hid_parse(hdev);
+-	if (ret) {
+-		hid_err(hdev, "parse failed\n");
+-		return ret;
+-	}
 -
--	cancel_work_sync(&stadiaff->work);
--	hid_hw_stop(hid);
+-	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT & ~HID_CONNECT_FF);
+-	if (ret) {
+-		hid_err(hdev, "hw start failed\n");
+-		return ret;
+-	}
+-
+-	ret = stadiaff_init(hdev);
+-	if (ret) {
+-		hid_err(hdev, "force feedback init failed\n");
+-		hid_hw_stop(hdev);
+-		return ret;
+-	}
+-
+-	return 0;
 -}
 -
  static const struct hid_device_id stadia_devices[] = {
  	{ HID_USB_DEVICE(USB_VENDOR_ID_GOOGLE, USB_DEVICE_ID_GOOGLE_STADIA) },
  	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_GOOGLE, USB_DEVICE_ID_GOOGLE_STADIA) },
-@@ -151,7 +157,6 @@ static struct hid_driver stadia_driver = {
+@@ -156,7 +125,7 @@ MODULE_DEVICE_TABLE(hid, stadia_devices);
+ static struct hid_driver stadia_driver = {
  	.name = "stadia",
  	.id_table = stadia_devices,
- 	.probe = stadia_probe,
--	.remove = stadia_remove,
+-	.probe = stadia_probe,
++	.input_configured = stadia_input_configured,
  };
  module_hid_driver(stadia_driver);
  

@@ -1,46 +1,46 @@
-Received: from DM1PR04CU001.outbound.protection.outlook.com (mail-centralusazon11010068.outbound.protection.outlook.com [52.101.61.68])
+Received: from SA9PR02CU001.outbound.protection.outlook.com (mail-southcentralusazon11013006.outbound.protection.outlook.com [40.93.196.6])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8E11A426ED3
-	for <linux-input@vger.kernel.org>; Mon,  3 Aug 2026 17:53:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.61.68
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DB8494248DC
+	for <linux-input@vger.kernel.org>; Mon,  3 Aug 2026 17:53:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.93.196.6
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785779594; cv=fail; b=reyR+HeCWrZujteHAeBqOZdnnqgCxKlF0O+BUSSarSOrNtzHSHW3D7bYr2WfNGq1m4w52Xb9eOV8h2q1/b8q1S0x27cqSaRHVCdWbW73nIaEhIL6VNHXTKzBngYS0y20VLPF/VzlSMUUVfGuOYLMut09MuBAAok1Pob9CW9iTvY=
+	t=1785779595; cv=fail; b=mHnEmm9ryUA9+xTQ62qnLHHRnTj3sj9X38J7mqsK9ltff4P10f5nanr3MGAFSyR2rZrgExIGKDrjJqCpNcfaHPQ8f79dqWZq94Itk0/t5OTA7royNO8u41TXAkD/iUb4773ctGjS/DKx7bvSO6RmPn5eF3wwK+krrWsvLKqU6XE=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785779594; c=relaxed/simple;
-	bh=FM1MUMXiood3X2WI83lYFwBiZfQTjWxT+Y4C7/Ckat8=;
+	s=arc-20240116; t=1785779595; c=relaxed/simple;
+	bh=HTgFWKVaoOOWOgE7qf3jB1Q92VfhmSnaBaAd7JWF7KE=;
 	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=gk72hG+XXaBrp3fXqv/lX30vTq8Dj2X82qh5e4q9weqo9PL2hz0F9tGxjsETeFPqDhZdrJh6gHR1nnGwVEn8XGOS5iS0KVlwinLJfbpN1mL26wd6wSnFB7rITmwmLVRE7Yuu1bBJM/PVZ9UkR6X7z/YUmc1uUPptYpfdra/jGd4=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com; spf=fail smtp.mailfrom=amd.com; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=ESiERvdP; arc=fail smtp.client-ip=52.101.61.68
+	 MIME-Version:Content-Type; b=OA46VgtpocuHONSE+wdRYO2aDVBIZqLY9mjmvfgkoi9HFjTnbkxHc2Psw0AsEsaPS8PSpOkrY+h0ZwnGTBuFxpK0WC8tcBo0WyrEN9xgM7/CdBlgEYFWaXEwF3RVcv+sff5dK7Sg7uGYiZHE86VrGaQbAl7fpNRbjFP4P+e3rJ0=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com; spf=fail smtp.mailfrom=amd.com; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=hBUe1JVt; arc=fail smtp.client-ip=40.93.196.6
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
 Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=amd.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="ESiERvdP"
+	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="hBUe1JVt"
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=B7/3AQY29s0GbxRXW6W9U0GHqOEw0luRrCsLP51BmO/v4S7uecH58qT3gmsKKIFPzi2e323ESiIRzKpCSSYnWAhteoaYLrAskrSZi3LMAa+fWLYvY2xx+38TImW19IjOjraOj9Se+F0T2gAUuUbmHv1inZ4el3ss2EFXbprsXH+xoe2xm1kCB7DStSghzvSy7GPxYABAxLtEZYx1tAM/ajdymM+yGZtClKzz4Qj+TLGDAoj70sTSwh8bN2sGjCt5vt9S1kh9wibMAa7n1awemk2prSFnle7qxLuq3X1hXBs4/cwPq3jxHywqlKnRoTYjoRXm53cTOUuCEtOEzhe8gQ==
+ b=kBhtFaFf8WlDljXf3L6cUsSA6M3Xp/4xTCGwbbjTTf6ITdXnmZj5Iw6asj/qZKysA3+SA/sT1C3V+EKU5iwLVz9TO1oRPxE2lBG0IA2wDeZCY3XgnKjF2CHXpG1lovrKYp3onooqoawuIdFvC4P4Kg7HfyLfV6JYp25887axyUd513Cz0fyVzLOMVSQXWAKr2BpMT9p0XWn3uqDKcApU08TdBUV737I+zB9Mgyizmg4+5j6gf4lAk7TpLyduhhWiS4dG7WGLvBcgynJOck0imFV5+mZ0hoFzF/UUpi4s0tdppvJTO2DgRySRCdkEpYFlrPf/JVd0l3VdnFkPVQ1z0w==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector10001;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=RZ1zrcwuMv/t9lR1nQ5ZC5vZA/SH9XBrHBwuKNz2ock=;
- b=kQfLxVcFKjwmon3k5Y8BegwrD4uiTvnEawlAmjL7A6VqJk+pZ1H/+t48rVb0cirt4MAq2R2ncmgLM9gJ01r8qMy/sKZH++wrAYNSLHyFtWxXDJmrrzaFbdB5dwv0IySDjHiOfdj0h+xpzxhRZUWopN5ByDHawwaeyeMUkBUL73BX61bpZ8qmTRviLPag3xwjLdSbTk7mMZEK4D1jv0m6Dsk6rJs6SI6+OifE9+WkfrUtgEku5kDqkx560QalnNL+SheaURk7WUh/rUZNTgOOeRcvyyTDxg8zOLCFIisPEPLMM8eGFufCe2iUklLJYETPbX5cvZp94KFr7A/vRpzz/Q==
+ bh=Tc2LVpxKslCavFco8vvmVcDOdyaVTxqo3JxghfgU4NE=;
+ b=UX89YOdInPDWa432SyYq814BXckgztpDOgwCmB6tOgXrBfaRlIxwtrc7huXTHyh2BahQWnpOilktHeh1ximOdqhfULZt82s0RNQ8dAwKl4A5akOirsftkoZLvNppQ7f8DYDDfJ+WRnAgDtnrMzwtZMjHPcQiX1w+bcnMD8/cYn5MiiVKoooX7QjRFid9FbAeXf4iR4pkb7h+Lk7LYXP46tw2nZkmKkbf0v4vPCSJjgdGN30zYhxxx66tVJMTWEUqi9LvGeRqXOVstu19Ti16bKpstZP8DYz5bLLvPRFvghg7owpjAecmMXg6eIbDsdChiJyIY2pJmtGSectnK9snSA==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
  165.204.84.17) smtp.rcpttodomain=kernel.org smtp.mailfrom=amd.com; dmarc=pass
  (p=quarantine sp=quarantine pct=100) action=none header.from=amd.com;
  dkim=none (message not signed); arc=none (0)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=RZ1zrcwuMv/t9lR1nQ5ZC5vZA/SH9XBrHBwuKNz2ock=;
- b=ESiERvdPm4FPwEUr1qeByc38un0qY9VbqgUhs7GTFFUsTDO+9itISGA1L5N59Y+qV2noEMs/BELs1K6bdvEOM9t3RsgZ4IJ4Jy1lZSANxeoM4QMokU9n0XxNGT6oKayyEvLt479nW7ZwboaBUL93+S8BnZ32egHp6XdL0Qb8i/U=
-Received: from DM6PR05CA0061.namprd05.prod.outlook.com (2603:10b6:5:335::30)
- by DS0PR12MB8246.namprd12.prod.outlook.com (2603:10b6:8:de::19) with
+ bh=Tc2LVpxKslCavFco8vvmVcDOdyaVTxqo3JxghfgU4NE=;
+ b=hBUe1JVtTn8l6z2w972UedSsPau6HNWSQ2IbcZpeG5jk4HwBF6YXIPZEZKCVeird+PlBDVEgynJTmyf/WJoGON7dyM2nqR288XjIzXn8D850yvjx+OjnyLB/D3LUREi6WyBMu6QIUx1glF80dFI2vWQ497pINmXLuQnctDhvS5g=
+Received: from PH8PR02CA0041.namprd02.prod.outlook.com (2603:10b6:510:2da::23)
+ by SA3PR12MB7831.namprd12.prod.outlook.com (2603:10b6:806:311::14) with
  Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.270.18; Mon, 3 Aug
- 2026 17:53:06 +0000
-Received: from SN1PEPF0002BA4B.namprd03.prod.outlook.com
- (2603:10b6:5:335:cafe::78) by DM6PR05CA0061.outlook.office365.com
- (2603:10b6:5:335::30) with Microsoft SMTP Server (version=TLS1_3,
- cipher=TLS_AES_256_GCM_SHA384) id 15.21.292.14 via Frontend Transport; Mon, 3
- Aug 2026 17:53:06 +0000
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.270.17; Mon, 3 Aug
+ 2026 17:53:03 +0000
+Received: from SN1PEPF0002BA4D.namprd03.prod.outlook.com
+ (2603:10b6:510:2da:cafe::13) by PH8PR02CA0041.outlook.office365.com
+ (2603:10b6:510:2da::23) with Microsoft SMTP Server (version=TLS1_3,
+ cipher=TLS_AES_256_GCM_SHA384) id 15.21.270.18 via Frontend Transport; Mon, 3
+ Aug 2026 17:53:03 +0000
 X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
  smtp.mailfrom=amd.com; dkim=none (message not signed)
  header.d=none;dmarc=pass action=none header.from=amd.com;
@@ -48,20 +48,20 @@ Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
  165.204.84.17 as permitted sender) receiver=protection.outlook.com;
  client-ip=165.204.84.17; helo=satlexmb07.amd.com; pr=C
 Received: from satlexmb07.amd.com (165.204.84.17) by
- SN1PEPF0002BA4B.mail.protection.outlook.com (10.167.242.68) with Microsoft
+ SN1PEPF0002BA4D.mail.protection.outlook.com (10.167.242.70) with Microsoft
  SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.21.292.8 via Frontend Transport; Mon, 3 Aug 2026 17:53:05 +0000
+ 15.21.292.8 via Frontend Transport; Mon, 3 Aug 2026 17:53:03 +0000
 Received: from airavat.amd.com (10.180.168.240) by satlexmb07.amd.com
  (10.181.42.216) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.41; Mon, 3 Aug
- 2026 12:53:03 -0500
+ 2026 12:53:01 -0500
 From: Basavaraj Natikar <Basavaraj.Natikar@amd.com>
 To: <jikos@kernel.org>, <bentiss@kernel.org>, <dmitry.torokhov@gmail.com>
 CC: <linux-input@vger.kernel.org>, Basavaraj Natikar
 	<Basavaraj.Natikar@amd.com>
-Subject: [PATCH v3 2/5] HID: amd_sfh: Serialize access to the shared emp2 pointer
-Date: Mon, 3 Aug 2026 23:22:27 +0530
-Message-ID: <20260803175230.3839752-3-Basavaraj.Natikar@amd.com>
+Subject: [PATCH v3 1/5] HID: amd_sfh: Track MP2 version explicitly
+Date: Mon, 3 Aug 2026 23:22:26 +0530
+Message-ID: <20260803175230.3839752-2-Basavaraj.Natikar@amd.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20260803175230.3839752-1-Basavaraj.Natikar@amd.com>
 References: <20260803175230.3839752-1-Basavaraj.Natikar@amd.com>
@@ -77,88 +77,104 @@ X-ClientProxiedBy: satlexmb08.amd.com (10.181.42.217) To satlexmb07.amd.com
  (10.181.42.216)
 X-EOPAttributedMessage: 0
 X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: SN1PEPF0002BA4B:EE_|DS0PR12MB8246:EE_
-X-MS-Office365-Filtering-Correlation-Id: 92eda5ab-aa63-4f77-19ae-08def1881225
+X-MS-TrafficTypeDiagnostic: SN1PEPF0002BA4D:EE_|SA3PR12MB7831:EE_
+X-MS-Office365-Filtering-Correlation-Id: 57ceb1e1-1205-445a-f67b-08def18810f9
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|82310400026|36860700016|23010399003|1800799024|376014|56012099006|10067099003|11063799006|18002099003|22082099003;
+	BCL:0;ARA:13230040|36860700016|376014|23010399003|1800799024|82310400026|56012099006|10067099003|11063799006|22082099003|18002099003;
 X-Microsoft-Antispam-Message-Info:
-	AeozATW3dpnlt2EeYQDOWJ1l+jhU6solfB6JH2ySTB1Z52XINkI51IQf4O/Pp5awr6Svb7DjwMQKtWMVk0rkU7MoRg6fWdBRw9jweE7sLGZkLUmok6t2S2psArEa8OknQ3YYZYCkvKiHsE0/BLr08Bs+wBwvNrjVckr9pRO3OJGQFxRXYX6kk/9SBmYUcI63r6skeBqzHBitPURyoz87nCEkd4Vv+dZeEHrctxYZMwfo7x6zGz9R0/FHcpwABUlPeBPkgEjAiKbMyx14Y4TkSdoXxt7KJOvCn5v2i5lRvu32Dk37oforEWOP3HR+6bnfucwYRpN0hFqKmOflcgt4Ux/PP3ARqh0BjD74EXAL2dFJDUuFK0Tkamthj7qXuqKli74K0ExxzT2YfQXTZ08/4/nXokVUCjymV+76DxPB1xy84AWZ3DL6e6WE06WpqdoJViiHW2c7nsBzMwyp/qYkjioCE/ZYv7SpsH/hbi6iXlTwlpvLWV1gJBHC7hksvMB1Yy4eAwkpouam0ToKMd1IvxtGoCKsHM7GKDWUkupsKOilJSbAEF+YjSWa5tTBMEO8c2UVRHdB8gHgsUUh3ZevDj0WzyMgpq4TJBO6Ijm5dwZngGomKP4nknrxtRyOz4VaLECtE29ef/2s3/XkZGPMcdyuQk5fYy87Kl2mL+zgn1kne/otNxShYN2NYQQKjoyo/oc+EeWizGkeueEzrgL+Qg==
+	5vpIkrLBmfdwgeOLriLo6D38sGHvVsgqsmXPmZVZzLjtLL018g/UY8DmB7FZlGcghrQ+7joaQrhH0d/HdXEVlMYLCDz83F9Y5tJAwWAWpvpSvh1edFBWSwK2mGhboMubFNfNN3wcI+RIhmHRoChy21R57qwb/knHIAw1BE0FAvsTKZu4O1OojN1A3lubwuM/R/rQtjoHfPOfLPWpstR21KkhSfGQ2pu2HXSibqng5OjtFLwxEmMoSO+bP/sXarR6fCo4RsUSfE/IR44tS14qtbHlxs6v0wOD077BYfzJnq7gvbWsXOvCj3vHEBIv1Ttnri7giXgkYjoQ5fEabuSKSIcH2FdecditAChBTpFZQPKa8J6lGHKZVdwTFn6nIz0izJMkRG+WXKiEytjUAr+E0lwbC4/8Vexgq3ZApjq67v/4vggc+epEq/p6J73Yg0MPuME+eNjAPZdzJnZ2y36P4ViKOQL1rU5hOQfBUY4t2RJOi38TH7qbqMNVqVo5190AhqULo+DKD/ckxqzKYZLKIPnqTIOlLqin5lEgGsnVKivPFt5I0tag4N6Q+SO1+2oGtW0lNQL7ZYJ6HBLizfcUwaiF7O5xhAyQp4Dck6ccsDVoZEoLEJ9nnbJ9Tj+yXVsq+pMmidWh0qwu/ORcrua28+2Dh3nyDMFdZpn8hup0rr0uBeOmKV84OF8i714/TtBnF1fjZ2Qh/sw717HmE7ei2Q==
 X-Forefront-Antispam-Report:
-	CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:satlexmb07.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230040)(82310400026)(36860700016)(23010399003)(1800799024)(376014)(56012099006)(10067099003)(11063799006)(18002099003)(22082099003);DIR:OUT;SFP:1101;
+	CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:satlexmb07.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230040)(36860700016)(376014)(23010399003)(1800799024)(82310400026)(56012099006)(10067099003)(11063799006)(22082099003)(18002099003);DIR:OUT;SFP:1101;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
 X-MS-Exchange-AntiSpam-MessageData-0:
-	bctB98XeeyvCdzOcxOA174tpMjcdRB3iVHZKsyQUgGkwXUeXMv6RYQYj5MwdfOnh3oJ+kOxBDPW67/4ULF+WbZJUpIPH9qNNFaR6d3Keq9O0axRnH4HvHjNFzGiNz41WrD8b2+U7lOzXZc9YqBtqO4/yqcda9+fJi309N/ajYMQuunyUXoMHYxC2ReP56/971jrIYb1Z/zbDClLK1JyMRc7YBhh9KjgQSHliHDpSByd99xDxwaoufHZhlxqrii1BCRI5l6oeSQimsPfghEpc/2cZoq8GbMAWzxlSIptB5FfuN78RTyDmBqCp79gatz8xD45ptQ/batdAq2hRhd1PWDAVqCqHmlqmKYnl9EJW/Usq2Rw1pGKnCzg1Z88tgF9iuQ2o/Do6rZXsYCVBLfY5ff+ekg3+/6S48co18V6WNzdchvw1CxlFbN+ceXdNMx0s
+	aZY6T78MKFk4/++UvKJVDvG/eBKKTlLyZlLctER2K6DHRoJoRfuz54U8tCnOHDRh1owwhtiCc5gxQScgL1An3DCuym8DIMbj/mjHS4t5R5RgtUgwfNxhgvciFDF12O/nUqU+Q0CLNp1Xh/LM3g7sAFb7M1rzyBuTIIJrbblN5NThjczNjihTe7ROKsjJPaGrCEkPXl/kAFT5Xfv5iIp384m2Ir39QL0F6v9gNwXsgEqOy2stxTbUzBcGIQyTTIoaxiiYgdUj3x6wgyy61c3rRmI58Ocsu6xNaKCQ9E5fVN2pOXpVBwgZHNbY7ryLlxoK17CHgu2RoYXuTEMUz8+VL1vFSbhpyWVeMt1hhA3IDPgS2qvGU4+1KlDcqnW7nuHkufP6PfBk4t4xuyZxmpD5PGzSxC1Uu3o/7wqu3NA50IPINGoQV5le5RxEMtLf5euS
 X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 03 Aug 2026 17:53:05.4791
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 03 Aug 2026 17:53:03.5217
  (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 92eda5ab-aa63-4f77-19ae-08def1881225
+X-MS-Exchange-CrossTenant-Network-Message-Id: 57ceb1e1-1205-445a-f67b-08def18810f9
 X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
 X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[satlexmb07.amd.com]
 X-MS-Exchange-CrossTenant-AuthSource:
-	SN1PEPF0002BA4B.namprd03.prod.outlook.com
+	SN1PEPF0002BA4D.namprd03.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Anonymous
 X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS0PR12MB8246
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SA3PR12MB7831
 
-The SFH accessors reach the device through a file-global emp2 pointer
-that is published at probe and cleared on remove. amd_get_sfh_info() is
-exported and called from other modules on unrelated threads, so a reader
-can observe a non-NULL emp2 and then race a concurrent unbind that clears
-it and frees the device.
+The MP2 version is currently known only implicitly, from whether an ops
+pointer was stored in the PCI driver_data. Subsequent changes need to
+act on the MP2 version directly, for example to read the operating-mode
+register only on confirmed MP2 v2.
 
-Serialize the emp2 publish/clear and all readers under a mutex, so a
-reader either sees a live device for the whole access or sees NULL.
+Track the MP2 version explicitly so that version-specific behaviour can
+be gated on it, and leave it unset for generations that do not require
+such handling.
 
 Signed-off-by: Basavaraj Natikar <Basavaraj.Natikar@amd.com>
 ---
- drivers/hid/amd-sfh-hid/sfh1_1/amd_sfh_interface.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/hid/amd-sfh-hid/amd_sfh_common.h | 6 ++++++
+ drivers/hid/amd-sfh-hid/amd_sfh_pcie.c   | 9 +++++----
+ 2 files changed, 11 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/hid/amd-sfh-hid/sfh1_1/amd_sfh_interface.c b/drivers/hid/amd-sfh-hid/sfh1_1/amd_sfh_interface.c
-index 837d59e7a661..dd2720bae65c 100644
---- a/drivers/hid/amd-sfh-hid/sfh1_1/amd_sfh_interface.c
-+++ b/drivers/hid/amd-sfh-hid/sfh1_1/amd_sfh_interface.c
-@@ -8,12 +8,14 @@
-  * Author: Basavaraj Natikar <Basavaraj.Natikar@amd.com>
-  */
- #include <linux/amd-pmf-io.h>
-+#include <linux/cleanup.h>
- #include <linux/io-64-nonatomic-lo-hi.h>
- #include <linux/iopoll.h>
+diff --git a/drivers/hid/amd-sfh-hid/amd_sfh_common.h b/drivers/hid/amd-sfh-hid/amd_sfh_common.h
+index 78f830c133e5..68586f08ab23 100644
+--- a/drivers/hid/amd-sfh-hid/amd_sfh_common.h
++++ b/drivers/hid/amd-sfh-hid/amd_sfh_common.h
+@@ -35,6 +35,11 @@ enum cmd_id {
+ 	STOP_ALL_SENSORS = 8,
+ };
  
- #include "amd_sfh_interface.h"
- 
- static struct amd_mp2_dev *emp2;
-+static DEFINE_MUTEX(emp2_lock);
- 
- static int amd_sfh_wait_response(struct amd_mp2_dev *mp2, u8 sid, u32 cmd_id)
- {
-@@ -78,12 +80,14 @@ static struct amd_mp2_ops amd_sfh_ops = {
- 
- void sfh_deinit_emp2(void)
- {
-+	guard(mutex)(&emp2_lock);
- 	emp2 = NULL;
- }
- 
- void sfh_interface_init(struct amd_mp2_dev *mp2)
- {
- 	mp2->mp2_ops = &amd_sfh_ops;
-+	guard(mutex)(&emp2_lock);
- 	emp2 = mp2;
- }
- 
-@@ -160,6 +164,8 @@ static int amd_sfh_als_info(u32 *ambient_light)
- 
- int amd_get_sfh_info(struct amd_sfh_info *sfh_info, enum sfh_message_type op)
- {
-+	guard(mutex)(&emp2_lock);
++enum amd_mp2_version {
++	MP2_VER_V2 = 1,
++	MP2_VER_1_1 = 2,
++};
 +
- 	if (sfh_info) {
- 		switch (op) {
- 		case MT_HPD:
+ struct amd_mp2_sensor_info {
+ 	u8 sensor_idx;
+ 	u32 period;
+@@ -64,6 +69,7 @@ struct amd_mp2_dev {
+ 	struct mutex lock;
+ 	u8 init_done;
+ 	u8 rver;
++	u8 mp2_ver;
+ };
+ 
+ struct amd_mp2_ops {
+diff --git a/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c b/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c
+index 4b81cebdc335..92801ca38957 100644
+--- a/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c
++++ b/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c
+@@ -285,6 +285,7 @@ static void mp2_select_ops(struct amd_mp2_dev *privdata)
+ 	switch (acs) {
+ 	case V2_STATUS:
+ 		privdata->mp2_ops = &amd_sfh_ops_v2;
++		privdata->mp2_ver = MP2_VER_V2;
+ 		break;
+ 	default:
+ 		privdata->mp2_ops = &amd_sfh_ops;
+@@ -471,8 +472,9 @@ static int amd_mp2_pci_probe(struct pci_dev *pdev, const struct pci_device_id *i
+ 	if (rc)
+ 		return rc;
+ 
+-	privdata->sfh1_1_ops = (const struct amd_sfh1_1_ops *)id->driver_data;
+-	if (privdata->sfh1_1_ops) {
++	privdata->mp2_ver = (enum amd_mp2_version)id->driver_data;
++	if (privdata->mp2_ver >= MP2_VER_1_1) {
++		privdata->sfh1_1_ops = &sfh1_1_ops;
+ 		if (boot_cpu_data.x86 >= 0x1A)
+ 			privdata->rver = 1;
+ 
+@@ -540,8 +542,7 @@ static SIMPLE_DEV_PM_OPS(amd_mp2_pm_ops, amd_mp2_pci_suspend,
+ 
+ static const struct pci_device_id amd_mp2_pci_tbl[] = {
+ 	{ PCI_VDEVICE(AMD, PCI_DEVICE_ID_AMD_MP2) },
+-	{ PCI_VDEVICE(AMD, PCI_DEVICE_ID_AMD_MP2_1_1),
+-	  .driver_data = (kernel_ulong_t)&sfh1_1_ops },
++	{ PCI_DEVICE_DATA(AMD, MP2_1_1, MP2_VER_1_1) },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(pci, amd_mp2_pci_tbl);
 -- 
 2.34.1
 

@@ -1,86 +1,93 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6943538E8C9
-	for <linux-input@vger.kernel.org>; Mon,  3 Aug 2026 17:50:40 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0A72040DFD5;
+	Mon,  3 Aug 2026 17:51:46 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785779441; cv=none; b=YWIr+oG5VB+hosd5E+uSquj34aUsh1KnuvTiZ/t6yVDz2cBc5Ui66vIVGyofyBfiiP3K1cL6Pelj9rPUkT9a/QYooTIaHKA/khNgqk3bqeDtWSD0tuL8mnUSLiTAS9E1QrqK1lHdGfhSfl+rLI2tIjHVSbOVD3V9Z8BeoBwlnn4=
+	t=1785779508; cv=none; b=j7M5VQ7AiE+EXkuYfepl9pSAh8fPf79f76mkerOAB21RFx3GlyGTWH7H2tWzAnJMCPdvNCT98JDoK7HWBUr0AABLCovJecsjOwZ+Pkuvqy/cGMujH1Ui94CWa+h4/92j0ZOvVFiWMFcrolrLwdFvZI7NS7INjV0c+21qpqa4x6I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785779441; c=relaxed/simple;
-	bh=NFqf7VwYGGs/Li4sTQL0Cs7agrk3v7M8/0ra1Ynv/C4=;
+	s=arc-20240116; t=1785779508; c=relaxed/simple;
+	bh=wN25sKGFgVh/TobytATtp2qo5MdhUMdu94BpHFYKMOU=;
 	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
-	 MIME-Version:Content-Type; b=KNguT5dJRd4fpyxJDnv+WNUg6ZDj//r5FwgCYGmJ1dyaKvfXnLGePGTsUY4JS4jmbevJidG5xRnO9jZiF7NLaeFZjyyTOtiruinFWZ8VnswAuzb/aiPazwkSb067W1R2fe4MGDYEC3TckgV8xF8eBw4f9dHCBONJ3n8Qg/9/Y8c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=LLtyzZoD; arc=none smtp.client-ip=100.103.45.18
+	 MIME-Version:Content-Type; b=pK0JVsvZvf7v8rKEwochb/1cGudJF881p+ep9kbLRgVjjlrG4wA/NTGSs/lKVJ3pTqX9f9Zc8uNAy5zHqUQ1ESidlzv1zBSnvDC8xL6cGByJK7wTagfTxS0Sc63wUI/5BCEo7O+66AgRX+Cd28cqorjlL0TgJbuLegN6nMRcwvg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Fc43MR0O; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="LLtyzZoD"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7CC621F000E9;
-	Mon,  3 Aug 2026 17:50:39 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Fc43MR0O"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1BCDC1F000E9;
+	Mon,  3 Aug 2026 17:51:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785779440;
-	bh=0+UNBe5hEsk5JRTxyqZRzH7B+iESHeezMo+ZpxXSu9s=;
+	s=k20260515; t=1785779506;
+	bh=wN25sKGFgVh/TobytATtp2qo5MdhUMdu94BpHFYKMOU=;
 	h=Date:From:To:cc:Subject:In-Reply-To:References;
-	b=LLtyzZoDXXvRbMCeZZvWgm+9D3eg+rkSdw1FtIjD/xy2R2vJVKFJNI//GHJCnZQJg
-	 GL3ybsNGeQL5lQVF1/15tZi3hJWAqjjOvo339fs/gxln8v7CeBT7g/YqLZ/pJA2Lv1
-	 2jQFLCnTAbAffV0lM3NfnMjYF0JEEDrtvCJEBQB+atCDEMYSyKOD/fhU2zA0mM92jW
-	 pCcghB2h5SI0LUOqLkcQrhxiICD2GDOnbFdRE0K6LA8ObzPg+7fszbqLzOs/BVCaVb
-	 Qrx5thts38kJp9thWjSdaaubAqi5FCsEagRYzsM1w4NtuZIcLUJLMchPXunycvOliO
-	 15pGLzv+RSbDg==
-Date: Mon, 3 Aug 2026 19:50:37 +0200 (CEST)
+	b=Fc43MR0OzCuTop9hbY3JGFY4j1H+P0rEtG8lxg3X7ff0eHWB9yBfU+FIDlGQEulPH
+	 Eb8TQi+dxKIpLyVu0+lHL1mjyPLbKGuNmL6sYDP+WNSJu6Vkgw1XPNrbvDRtvDUCa/
+	 HPitiYPJjAGKLGjU0bLOU7qkFIUWxGOjr84os6y9xcEh1KZ77SUfW5Gv6KjKMAhut1
+	 IXAE2EwVG2JqXi6flO2z9pcqH0i5t40azbxF9YiPGV2Sf0yAI2DhFKWsyfuEQWGRjo
+	 XBVd81v9d08LWNjGu/QVaMXKL/r0+gjK4DvPAkihtlwzS7yt5F/DQyIt05gTE4baQs
+	 +WLpljTw9E5cA==
+Date: Mon, 3 Aug 2026 19:51:44 +0200 (CEST)
 From: Jiri Kosina <jikos@kernel.org>
-To: Vicki Pfau <vi@endrift.com>
-cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
-    Benjamin Tissoires <bentiss@kernel.org>, linux-input@vger.kernel.org, 
-    Silvan Jegen <s.jegen@gmail.com>
-Subject: Re: [PATCH v12 1/3] HID: nintendo: Add preliminary Switch 2 controller
- driver
-In-Reply-To: <20260715033409.3599913-2-vi@endrift.com>
-Message-ID: <psq9p9s2-53r1-0990-9606-2o77n0267s60@xreary.bet>
-References: <20260715033409.3599913-1-vi@endrift.com> <20260715033409.3599913-2-vi@endrift.com>
+To: =?ISO-8859-15?Q?Jose_Villase=F1or_Montfort?= <pepemontfort@gmail.com>
+cc: Benjamin Tissoires <bentiss@kernel.org>, linux-input@vger.kernel.org, 
+    linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] HID: magicmouse: prevent unbounded recursion in
+ magicmouse_raw_event()
+In-Reply-To: <20260715053526.574725-1-pepemontfort@gmail.com>
+Message-ID: <11op08r0-95q2-q2r9-o3qo-7949r1n4p081@xreary.bet>
+References: <20260715053526.574725-1-pepemontfort@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 
-On Tue, 14 Jul 2026, Vicki Pfau wrote:
+On Tue, 14 Jul 2026, Jose Villase=F1or Montfort wrote:
 
-> This adds a new driver for the Switch 2 controllers. The Switch 2 uses an
-> unusual split-interface design such that input and rumble occur on the main
-> HID interface, but all other communication occurs over a "configuration"
-> interface. This is the case on both USB and Bluetooth, so this new driver
-> uses a split-driver design with the HID interface being the "main" driver
-> and the configuration interface is a secondary driver that looks up to the
-> HID interface, sharing resources on a common struct.
-> 
-> Due to using a non-standard pairing interface as well as Bluetooth
-> communications being extremely limited in the kernel, a custom interface
-> between userspace and the kernel will need to be designed, along with
-> bringup in BlueZ. That is beyond the scope of this initial patch, which
-> only contains the generic HID and USB configuration interface drivers.
-> 
-> This initial work supports general input for the Joy-Con 2, Pro Controller
-> 2, and GameCube NSO controllers. IMU, rumble and battery support is not yet
-> present.
-> 
-> Signed-off-by: Vicki Pfau <vi@endrift.com>
+> magicmouse_raw_event() handles DOUBLE_REPORT_ID (0xf7) packets, which pac=
+k
+> two touch reports into one, by splitting the packet and calling itself on
+> each half. The only guard against runaway recursion is a "size < 1" check=
+,
+> which stops zero-sized calls but does not bound the recursion depth.
+>=20
+> A malicious HID device that matches this driver can send a report startin=
+g
+> with DOUBLE_REPORT_ID and filled with the sequence [0xf7, 0x00]. Each lev=
+el
+> consumes two bytes and recurses on the remainder, so an incoming report o=
+f
+> up to HID_MAX_BUFFER_SIZE (16 KiB) drives roughly 8000 nested calls. That
+> easily exhausts the 16 KiB kernel stack, leading to a stack overflow: a
+> panic with CONFIG_VMAP_STACK, or memory corruption without it.
+>=20
+> A double report only ever wraps two normal reports; it is never
+> legitimately nested. Refuse to re-enter the DOUBLE_REPORT_ID case from a
+> recursive call so the recursion depth is bounded to two, while all valid
+> packets keep being parsed exactly as before.
+>=20
+> Fixes: a462230e16ac ("HID: magicmouse: enable Magic Trackpad support")
+> Link: https://lore.kernel.org/linux-input/20260706181347.700DB1F00A3F@smt=
+p.kernel.org/
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Jose Villase=F1or Montfort <pepemontfort@gmail.com>
 > ---
->  MAINTAINERS                                   |    1 +
->  drivers/hid/Kconfig                           |   11 +-
->  drivers/hid/hid-ids.h                         |    4 +
->  drivers/hid/hid-nintendo.c                    | 1277 ++++++++++++++++-
->  drivers/hid/hid-nintendo.h                    |   72 +
->  drivers/input/joystick/Kconfig                |   11 +
->  drivers/input/joystick/Makefile               |    1 +
->  drivers/input/joystick/nintendo-switch2-usb.c |  475 ++++++
+> Noticed while reviewing hid-magicmouse.c during the discussion of the
+> parallel Magic Trackpad USB-C battery work [1]. The recursion issue is
+> independent of that series and is sent as its own fix.
+>=20
+> I also considered refactoring the report parsing into a non-recursive
+> helper that dispatches the two sub-reports iteratively, which removes the
+> recursion entirely. That is a larger and more intrusive change; this
+> minimal guard keeps the diff small and is trivial to backport, so I went
+> with it. Happy to switch to the refactor if maintainers prefer it.
 
-Dmitry, can you please Ack the drivers/input/ bits here?
+Looks good to me, thanks. Queued.
 
-Thanks,
-
--- 
+--=20
 Jiri Kosina
 SUSE Labs
 

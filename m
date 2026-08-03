@@ -1,41 +1,42 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6531F435EF0;
-	Mon,  3 Aug 2026 18:53:41 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 64F8C4322E6;
+	Mon,  3 Aug 2026 18:55:03 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785783222; cv=none; b=AJVfKtXy/NhgAKjHh8IhEAy8ykCJan870jRu6vNvcc2VAopkNs1MjDl0nm3LPqsWqYtyu1/+IoaKHe8BDeoc0FZvWsDteIc7RtkSVUsTJpUszyfIjx+Glp2r1wPkv952b67mI15BXJJB6L2bR19q7ikWEJ9rK+CNnXdEjsRTOuE=
+	t=1785783304; cv=none; b=e98oXMF1ya0lhPMixABS/eOlaFvoW4MpPQil3DPVo5o9RT/cz9Tc2M/4uFyT46JiN30433KdsDYkR4H9OUaubRKtCHQMRzJhS/RyZKx9zGVVOE6iLXlBJRVbETn5qTunsgZcYAT8bvajoaDAwgvEz8JdfSC775VOuz/hrX5rFYs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785783222; c=relaxed/simple;
-	bh=miA7RuTsTDOqlqESlDvLspOX3rG4OiGReUQlxuKe2QY=;
+	s=arc-20240116; t=1785783304; c=relaxed/simple;
+	bh=BFy1mHr7X4+eG6w2oV3Q6JFRozZEGT4to+nTEWSDQto=;
 	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
-	 MIME-Version:Content-Type; b=XXpxPDZap/NcPQhafM/rHAFFQa7lTFW8+EQ2h+iMiyytXKaI1MuhVT3Uml1lJVVHZTj502SAqmfLj6d4/usZQhEv3SydJPEBwaF9ebmVOk25GgnmmQ5SAAeD4QDzrHW2baxaLc0sPgz5aPHb+RL6tJHkWEC0D1vVWGeCez5HSVU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ekUY/8bt; arc=none smtp.client-ip=100.103.45.18
+	 MIME-Version:Content-Type; b=d/LmBsfhgL1rRZZnXqqe3+8gZcQmf1BaIQ/oOcraHZIpZlBTgsDsP23HfaNYoLLNYGvD55xbAOL7DUbTp7DTMQkCdt4KOBVdjlHnEQD8lcH25k6YYM0JaIqYa7FcJEY29oL2YoDTiEpxhd1DfbM0NWFIczM5AXMcB1qqa00C4HA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=eepH/rW0; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ekUY/8bt"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D4801F000E9;
-	Mon,  3 Aug 2026 18:53:40 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="eepH/rW0"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69B0F1F000E9;
+	Mon,  3 Aug 2026 18:55:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785783221;
-	bh=X2uOnMZy2XnsCSZBPr1Tr3EQz5e9a0hr9emk4UjN7ss=;
+	s=k20260515; t=1785783303;
+	bh=Pxke/vqfk9U7IMz7tijv+uflzPa8znz+eeiIXihph84=;
 	h=Date:From:To:cc:Subject:In-Reply-To:References;
-	b=ekUY/8btybb2BeGbIQPuHymMT6U9PFfRlwE9b5s7DB+1ulsWLaUv1eDcyz2xayr3Y
-	 kdCQrZ845HTAAFSOPbshtBGGEfqJM2kduxjqSKa6LNOkXuvlLpqr0t6A1OblJGW1EI
-	 IXnPGwlhwt8ZJ/cqsDgakv/laHn5MVqUVC0YILA8tuQ+hEGZus/C4PQqEUflWb9GqQ
-	 uX5cgR/3hc557A7WIGnaBtDiUIAhJ2cQiLJQXgfvD8UPr3EJagdbGE/ZsOZt5/6xlf
-	 78bmX/87UdaYEUA0O++yueEeebyj1/0Oe7N6QlxUORgYm7vfFW88vdUBbvufpDid54
-	 194FRyo9aArRg==
-Date: Mon, 3 Aug 2026 20:53:38 +0200 (CEST)
+	b=eepH/rW06JMNgz46yjOqSUW4rQ0sE8cHvxiKaNZCYlQ7h0g++X/SgiQP0GX4c8poR
+	 O/ZReWnvwqfK2MraCc1DAC9Fp1f6LP6dp/fFWcQoSbkv6Bw6rvP3Z58CbfLWqo9Cou
+	 kagRyCbY3JZ+opciiklySLQzWMqyZMhAwHZc046C0Te2dlQ65vkn4sx4SQSf7s2tEM
+	 Ndwfx1Pmqj10XlQCHW458yGBw+V/WztKpYMeFeT6HhjRbretExzEMB0P9/Omi2ouMf
+	 Vf0JRBon8hO+tT5wSAuFU64skHxTc7hsh8HWTIBAprxZvkof2iqo4dvgAuHPWdDQQg
+	 mEDavr8PA/uGA==
+Date: Mon, 3 Aug 2026 20:55:00 +0200 (CEST)
 From: Jiri Kosina <jikos@kernel.org>
-To: Even Xu <even.xu@intel.com>
-cc: bentiss@kernel.org, srinivas.pandruvada@linux.intel.com, 
+To: raoxu <raoxu@uniontech.com>
+cc: erazor_de@users.sourceforge.net, bentiss@kernel.org, 
     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
-    hbarnor@chromium.org
-Subject: Re: [PATCH v5 0/3] HID: Intel-thc-hid: Refine error recovery flow
-In-Reply-To: <20260729050145.2272597-1-even.xu@intel.com>
-Message-ID: <rq974non-9809-043q-6r8n-qr8937n6305n@xreary.bet>
-References: <20260729050145.2272597-1-even.xu@intel.com>
+    stable@vger.kernel.org
+Subject: Re: [PATCH] HID: roccat: free buffered reports when destroying
+ device
+In-Reply-To: <B93A126D2A126AAD+20260731084926.1771993-1-raoxu@uniontech.com>
+Message-ID: <89r4o32s-150q-8q34-0oq8-sp77rr5q0q1n@xreary.bet>
+References: <B93A126D2A126AAD+20260731084926.1771993-1-raoxu@uniontech.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -44,11 +45,24 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 
-On Wed, 29 Jul 2026, Even Xu wrote:
+On Fri, 31 Jul 2026, raoxu wrote:
 
-> This series refines the fatal error recovery flow for the Intel THC
-> (Touch Host Controller) subsystem, covering both the QuickI2C and
-> QuickSPI drivers.
+> From: Xu Rao <raoxu@uniontech.com>
+> 
+> roccat_report_event() duplicates each report with kmemdup() and stores
+> the allocation in a circular-buffer slot. The allocation is released only
+> when that slot is reused.
+> 
+> The device destruction paths free struct roccat_device without releasing
+> reports still stored in cbuf[]. This makes those allocations unreachable
+> and leaks up to ROCCAT_CBUF_SIZE report buffers per device.
+> 
+> Add a small destructor that frees every buffered report before freeing the
+> device, and use it in both paths that can destroy a registered device.
+> 
+> Fixes: 206f5f2fcb5f ("HID: roccat: propagate special events of roccat hardware to userspace")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Xu Rao <raoxu@uniontech.com>
 
 Applied, thanks.
 

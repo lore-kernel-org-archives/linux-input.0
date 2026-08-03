@@ -1,67 +1,67 @@
-Received: from mail-pf1-f170.google.com (mail-pf1-f170.google.com [209.85.210.170])
+Received: from mail-pg1-f169.google.com (mail-pg1-f169.google.com [209.85.215.169])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 96EB543BDB3
-	for <linux-input@vger.kernel.org>; Mon,  3 Aug 2026 18:46:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EDD17435A86
+	for <linux-input@vger.kernel.org>; Mon,  3 Aug 2026 18:46:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.169
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785782812; cv=none; b=f7RLbhlkocKAO3yvkXkNY3/cPWu6gBpQE2MCojncYUlKCZ814sY0oOk1nZMT61XkuzKjvgqCN60jvrPYNhfFrF3mw0G0SYS0eSuwudevS7sZC7zNOLR0JsToBSGdhjRdWjrtaYqiGX5JtfcXnGR4kBD6HbUCOKcPJu7L6+aEHX8=
+	t=1785782813; cv=none; b=HlKIecN5fR9VAUwsAdi/OMgGMxqJLc5p1K+vjD0VPOhu43BtO7C77Plm4E1Q/O/lhKAWirglyEMexIqlxaqVvt1/0pptPZ3OW9ubHI+nhnGqFsoCq0GbfDjjdXIcKvBQpyxHVUldLqpc/CN4s3IHXL1QrTnXz1tvXIFVod3x7nc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785782812; c=relaxed/simple;
-	bh=Uf8he7nAsG/KRuBT/yGn3TrZ1ExEAQm9BaOvzIjqfp4=;
+	s=arc-20240116; t=1785782813; c=relaxed/simple;
+	bh=43vki49h06rq45+wi6hFCpgITlqMDHeBeV30GmHzBQU=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=fZFn+/Uf+hhSEbT5ZIduW36gTSQqm/ZJ3vnhshYRcQIH2VOrs+zeb/htRVe/Pv/tzNRgfoNTjwMRCYx/SA5dABlIK4y0kjdmoyrYcxDlTHZEic7LXChXjpl/XeEW5DxeNTCUoaPUZl2vgq+ErVLI2twIEA297S4Nh6JKdtwdtD8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=V7/0T1m2; arc=none smtp.client-ip=209.85.210.170
+	 In-Reply-To:To:Cc; b=VW1mlMMLs4XXLSuYC3H3HXWYNgDrDL7bWfdADOszELaE8+H/xAmuAXN9rXveE4XUyVKik6fOosGG02wLzJ8RYMwD5viLiFMCQHkmY7QQD5bdKclEMbiOZ0jE+ptkTqJgkCXjTFCBKH9dkgAMHzdAuKsrqahfDO29vD+j2NcIG30=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=lXKMmOUc; arc=none smtp.client-ip=209.85.215.169
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="V7/0T1m2"
-Received: by mail-pf1-f170.google.com with SMTP id d2e1a72fcca58-84a652535dcso2504110b3a.3
-        for <linux-input@vger.kernel.org>; Mon, 03 Aug 2026 11:46:49 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="lXKMmOUc"
+Received: by mail-pg1-f169.google.com with SMTP id 41be03b00d2f7-ca97d139d8dso2051496a12.2
+        for <linux-input@vger.kernel.org>; Mon, 03 Aug 2026 11:46:50 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1785782808; x=1786387608; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1785782810; x=1786387610; darn=vger.kernel.org;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :content-type:mime-version:subject:date:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=87bvLzjv5ZZpsa24dDBIH3Ak2KXTk9+GG+h8XVlqydU=;
-        b=V7/0T1m2pKy5JIoxdxw587Ans8MZ52s3+7VT5Otak3wz43+yBND7QqRp1pTalwv/IP
-         5qvZlyrfUUYHLXh20nPCPWn8C9w6Fn9f2ocz2uf3rwmqAm14LDaZ3z2Xfe6pc11NlW/q
-         jnG9akAG6xcDjkJg+uDc3+DF3+dffYXkURl+CpyfWOlFeykOE3iHuZVqIoRrGQk5xPTk
-         s+B39781ZYOGFe8siOO0cal1RwjZZNTyDUj4SCVzk6SnIPkqH6iVze/9fkf/ERA4L/EP
-         7UNBLxowUXw5VpLmgNBurqAUk5DYbWc7lH+VEjZLTik75bh5ZIhse9v5L+p8K1qFHKxm
-         8/0w==
+        bh=ydH8f/RNEjiAE8vzC0rt7/9rgp0aug18seAQOKz0/VY=;
+        b=lXKMmOUcfzkhR4P9DHpcm73LPrdw9Ul9LGtJQoMc7rITpSjEkbPvK60QBSyAU/TKfG
+         4F1Bn3K4K5LDklMUuMpSjCtrgNjPmoMe9tVevcdjyGyxS5YIaUV1sD7FgCEXX6MsITvI
+         LWYxpo2RGGjqoDGwrhgbYCfr8bW0MMlKpsfnEDUyu8VvjEdApsTQWLnN+ZkeuNfevhDc
+         Eq4BsGIKUu8q1EhsjtFcJuWRa2nOrqaQlQhuYiyq9+26RK2SzYdI5r0vONO02VKaVxp9
+         U+7uYFHyw6+aqvzcEk5PbmN5xw+yIgMntbPXgkjHHFWMfUkSUvMIhUL6c08csDvHzWbz
+         sdtQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785782808; x=1786387608;
+        d=1e100.net; s=20251104; t=1785782810; x=1786387610;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :content-type:mime-version:subject:date:from:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=87bvLzjv5ZZpsa24dDBIH3Ak2KXTk9+GG+h8XVlqydU=;
-        b=qkXznk5a5EDg2JwNOICEoZ24x9LdzgzIP3Rfy7ZdbMNY5kMwp1jCc9AXv21RLWv4i9
-         3gobI5Irw1R3aR2GvSYlQSWyB8fJxlvzkrJxjyXUZhoR7+foSvOptflI7IZ5aBXLxKhH
-         GgRk0J59VzETxJ0IkBmEz/jkcR1BlnO3oAG0PJv0mvzXdZ8nG1B0uknoDZhRAi6eyTk4
-         ZTTFxmwv00eLsWB5dOOziSYA//bzlmjaakHaovdhq2mr1E6svKAVSOBxuQd0lh8Y173P
-         x4VDkP1WThZkuNeztM9zj9i26nFDeE/a3Ipc7UXXGK6BpyAcP6kH7JCWFOz67lHR9aJF
-         MpAw==
-X-Gm-Message-State: AOJu0Yw4FtuL7nK8d6dVgzXWWuzSjDSDWQhCO2lvAvBG6sxOW/GDw0yh
-	TFgWaMjzLP60eJCj/ryfmpPQY6DRuKa5xWcKlyHT7Zq9i7A0HTyg8tLp
-X-Gm-Gg: AR+sD10ffqPrxf1tQWS2OIRhsZ/Ib/I/3iF4DLgwk+xIW6F7JCpRBSnHAwJE6u0k/hG
-	5nmdFezxnJr4cpOv1goj+izgC9skwFFt6W3UD+AEGaypnBKsCBdJ/ckCsDTvv7vS0qk3IS4PWy3
-	AXCup1Nci4L/kmliKXg1S0fRaPpoNKKA+G3S04n8FISM27goBnCoFKo3I0eNn6npmICZ3UF4QQA
-	AvyUCC7TAieQIAFl5NO+KWhjJOCIQm9Le+UC+mYsQ6VtZb/t8Kc/88UcY+yc6rEFidya4j5NXUu
-	rjXBWulQv5pBomjZjW44JXK98eKNtWF1aoebmJcVKYTzP1jxKgqrvfui0e3fec2SlBWg6QWgyNn
-	4cLeipDAxZ0bRc7Re3BVXwU4fI+pIq2fDIEkXSamOcOJP68M55Nm2RMgNI/7P7ElEu05V1eYM2/
-	BtW6gZA7ANm/Ff3kepkDiVti4z0HiQKUu5oWmjEkIxfpCXyylWRU9JM0ev/PL8acl5OQZE0tNEv
-	nUe9FbyxRUuKFGGL5Hux98N43C6HrE425TiUsiVwU1s4h0/wLFC
-X-Received: by 2002:a05:6a21:1fc4:b0:3c3:c185:f334 with SMTP id adf61e73a8af0-3c92a95073cmr13139560637.66.1785782808357;
-        Mon, 03 Aug 2026 11:46:48 -0700 (PDT)
+        bh=ydH8f/RNEjiAE8vzC0rt7/9rgp0aug18seAQOKz0/VY=;
+        b=doiD8bIPwHR/uYKE5I9N1nAHVtAcR90vuAY0gI+yBkD8GywbbnMx589aRhXl8ICets
+         Q2UrcGgOfSCZ/qwt54NV+3wGb60fAJ+BYKLcoFexMAoob2tvI2j2S0/fURq7Zy+S8MYn
+         unW4RaEMw5/VcVWUXY68/g1oZzzFQ820I+Q3Q7ZPS1n87Kku1AigkMvR6t1QcJ0utj24
+         49CUtmLDqTQKEBZr4zoukONvBXfm2369/a7AMA5RJpO4EkVgq/OpPy4s1h2WogUVgwix
+         Olc42mU8g8YC4UCcyf3PC9gAeugYE/vJElRMIHx3b8sYu4Ws5t2Ww+bD0kNcV3nQbHJA
+         xLbg==
+X-Gm-Message-State: AOJu0YwXY6vyiyBsDe50ntm9LpCDsf/t0/gbx3yi2psgqONr9+l4bo1j
+	5SRe/l6jyPCOQmlgB5SMlGRVzteuWKNzQ2t2Zfp8ofnlJInXvcsK0ozD
+X-Gm-Gg: AR+sD10BRptyPmSPDztm3Ne47N4J4wx9xFeQg+T7xBp9BZFgi9SIR103jeg6c5nzP4s
+	sc/cCFp1RnMV8N4bA9YukVvEethS81NmQwAEgUQIiIzipYVAKGtQtmbIpS/lw8zKj95WzU1IlGA
+	duzWnFMY46E3IbwU9smaQDtddXod75PSHYIf/atTk5JqUeSv/lzR5cfW3MZmfotSEcC3/2oOmNi
+	Wkj1yQNIIIulnRTh2k48qKH5Jn9RRDXMUL1eJYTPSz5cBwDY3/SVJjEqiAGTKGiI8x7rg7Xkfzu
+	H6Lifew2BXIvtYM54z+mQcIiV23JKdybOBkVD8/V1d6pbFKYkWfiW/3oajAg9pVHEX1UGgEN2wm
+	2pddtGzS2bVENBTms3zq8ZTqosnYhQUoWWrI73h8COBv7C9BH8xHQVVPG53Xr4OH8xXfpXx5y34
+	NK4p+GHsfRYCs5k6KOftKp6TeoaE6BFAG6D+7/wegWbTL9MqqQBpapW7ubM/zxE7jyCiBtoudWG
+	ticJPQVI9LKH8t3/Ccf3e9XhZTMn1KHipLun9vEbYCeBwsz9k1S
+X-Received: by 2002:a05:6a21:7009:b0:3c3:76a8:c0f with SMTP id adf61e73a8af0-3c92a598292mr11186788637.4.1785782809771;
+        Mon, 03 Aug 2026 11:46:49 -0700 (PDT)
 Received: from dtor-ws.sjc.corp.google.com ([2a00:79e0:2ebe:8:d109:cdba:8a20:74ad])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-13fab24ec10sm33935472c88.6.2026.08.03.11.46.47
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-13fab24ec10sm33935472c88.6.2026.08.03.11.46.48
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 03 Aug 2026 11:46:47 -0700 (PDT)
+        Mon, 03 Aug 2026 11:46:49 -0700 (PDT)
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Date: Mon, 03 Aug 2026 11:46:35 -0700
-Subject: [PATCH 10/21] HID: stadia: move FF initialization to
+Date: Mon, 03 Aug 2026 11:46:36 -0700
+Subject: [PATCH 11/21] HID: holtek: move FF initialization to
  .input_configured()
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
@@ -71,7 +71,7 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260803-hid-ff-input-configured-v1-10-1dc9bbacd88c@gmail.com>
+Message-Id: <20260803-hid-ff-input-configured-v1-11-1dc9bbacd88c@gmail.com>
 References: <20260803-hid-ff-input-configured-v1-0-1dc9bbacd88c@gmail.com>
 In-Reply-To: <20260803-hid-ff-input-configured-v1-0-1dc9bbacd88c@gmail.com>
 To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>, 
@@ -94,23 +94,25 @@ the device is fully prepared before registration.
 Assisted-by: Gemini:gemini-3.1-pro
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 ---
- drivers/hid/hid-google-stadiaff.c | 41 +++++----------------------------------
- 1 file changed, 5 insertions(+), 36 deletions(-)
+ drivers/hid/hid-holtekff.c | 46 +++++++++-------------------------------------
+ 1 file changed, 9 insertions(+), 37 deletions(-)
 
-diff --git a/drivers/hid/hid-google-stadiaff.c b/drivers/hid/hid-google-stadiaff.c
-index d6a73d210599..0214aae6b0fa 100644
---- a/drivers/hid/hid-google-stadiaff.c
-+++ b/drivers/hid/hid-google-stadiaff.c
-@@ -74,20 +74,15 @@ static void stadia_input_close(struct input_dev *dev)
- 	hid_hw_close(hid);
+diff --git a/drivers/hid/hid-holtekff.c b/drivers/hid/hid-holtekff.c
+index 32d08f7a660d..4834d42b2fa6 100644
+--- a/drivers/hid/hid-holtekff.c
++++ b/drivers/hid/hid-holtekff.c
+@@ -120,30 +120,24 @@ static int holtekff_play(struct input_dev *dev, void *data,
+ 	return 0;
  }
  
--static int stadiaff_init(struct hid_device *hid)
-+static int stadia_input_configured(struct hid_device *hid, struct hid_input *hidinput)
+-static int holtekff_init(struct hid_device *hid)
++static int holtek_input_configured(struct hid_device *hid, struct hid_input *hidinput)
  {
- 	struct stadiaff_device *stadiaff;
+ 	struct holtekff_device *holtekff;
  	struct hid_report *report;
 -	struct hid_input *hidinput;
+ 	struct list_head *report_list =
+ 			&hid->report_enum[HID_OUTPUT_REPORT].report_list;
 -	struct input_dev *dev;
 +	struct input_dev *dev = hidinput->input;
  	int error;
@@ -124,49 +126,64 @@ index d6a73d210599..0214aae6b0fa 100644
 +	if (!list_is_first(&hidinput->list, &hid->inputs))
 +		return 0;
  
- 	report = hid_validate_values(hid, HID_OUTPUT_REPORT,
- 				     STADIA_FF_REPORT_ID, 0, 2);
-@@ -120,32 +115,6 @@ static int stadiaff_init(struct hid_device *hid)
+-	if (list_empty(report_list)) {
++	report = list_first_entry_or_null(report_list, struct hid_report, list);
++	if (!report) {
+ 		hid_err(hid, "no output report found\n");
+ 		return -ENODEV;
+ 	}
+ 
+-	report = list_entry(report_list->next, struct hid_report, list);
+-
+ 	if (report->maxfield < 1 || report->field[0]->report_count != 7) {
+ 		hid_err(hid, "unexpected output report layout\n");
+ 		return -ENODEV;
+@@ -172,35 +166,13 @@ static int holtekff_init(struct hid_device *hid)
  	return 0;
  }
+ #else
+-static inline int holtekff_init(struct hid_device *hid)
++static inline int holtek_input_configured(struct hid_device *hid,
++					  struct hid_input *hidinput)
+ {
+ 	return 0;
+ }
+ #endif
  
--static int stadia_probe(struct hid_device *hdev, const struct hid_device_id *id)
+-static int holtek_probe(struct hid_device *hdev, const struct hid_device_id *id)
 -{
 -	int ret;
 -
 -	ret = hid_parse(hdev);
 -	if (ret) {
 -		hid_err(hdev, "parse failed\n");
--		return ret;
+-		goto err;
 -	}
 -
 -	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT & ~HID_CONNECT_FF);
 -	if (ret) {
 -		hid_err(hdev, "hw start failed\n");
--		return ret;
+-		goto err;
 -	}
 -
--	ret = stadiaff_init(hdev);
--	if (ret) {
--		hid_err(hdev, "force feedback init failed\n");
--		hid_hw_stop(hdev);
--		return ret;
--	}
+-	holtekff_init(hdev);
 -
 -	return 0;
+-err:
+-	return ret;
 -}
 -
- static const struct hid_device_id stadia_devices[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_GOOGLE, USB_DEVICE_ID_GOOGLE_STADIA) },
- 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_GOOGLE, USB_DEVICE_ID_GOOGLE_STADIA) },
-@@ -156,7 +125,7 @@ MODULE_DEVICE_TABLE(hid, stadia_devices);
- static struct hid_driver stadia_driver = {
- 	.name = "stadia",
- 	.id_table = stadia_devices,
--	.probe = stadia_probe,
-+	.input_configured = stadia_input_configured,
+ static const struct hid_device_id holtek_devices[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_HOLTEK, USB_DEVICE_ID_HOLTEK_ON_LINE_GRIP) },
+ 	{ }
+@@ -210,7 +182,7 @@ MODULE_DEVICE_TABLE(hid, holtek_devices);
+ static struct hid_driver holtek_driver = {
+ 	.name = "holtek",
+ 	.id_table = holtek_devices,
+-	.probe = holtek_probe,
++	.input_configured = holtek_input_configured,
  };
- module_hid_driver(stadia_driver);
+ module_hid_driver(holtek_driver);
  
 
 -- 

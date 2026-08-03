@@ -1,41 +1,42 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9E8C5357D07;
-	Mon,  3 Aug 2026 18:32:48 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1D78D430CF8;
+	Mon,  3 Aug 2026 18:34:20 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785781970; cv=none; b=YeNAH5tFIVanFchCtMRFOmr6vJdefsD2doSwU4lu96GWUbqchDkrvtI5G0igPbToe0dTDhLpgGzjE/PldUiaGbm4Y37YZ8y1z/CWjXBA7RUrJsON9Z2kLYp+lByJwb153wjdOzPtFl/sx2wbc76YS03vzLuUZ9OmBGwRCeRH8jg=
+	t=1785782062; cv=none; b=heDdsLMY1FCbZ7Voq0RHpdQuirArKWKKejqY243EpP95PjAdCI7PMiVQmFAdXcT1bh2Cl6gB6rOKZK21hQ/u9FPskk14lQI4sWy5jmfR7TDtqspeoVME7o3AzY6TxdL19IgyZPEMV8mFOnvJ77wvvZlD+1t7QYSHAA4H4fJGOJ4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785781970; c=relaxed/simple;
-	bh=BCbASCybN56BT3oY5+9L4vXGd8H/c9B687zgRI2bF0c=;
+	s=arc-20240116; t=1785782062; c=relaxed/simple;
+	bh=LwtbQ4x0I5KiTBxBJqePSCGBv5wKNrfXEbzeV3Y+QqE=;
 	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
-	 MIME-Version:Content-Type; b=IMTATRhKgQZt7iojGaIQBMmMDrqGhlarXI9/2nkWvdkD64biSXIBqaJKia343LxZS0NunW1vMvtW5QU9QjhMwL5Osgnnu8SY/F6IjujnWA8G7rwP0cZYDmZR06gXSHLm7F2KZuUkXyc5hNept73HliYnGj4ye4MRtD7/xB0IbrI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=WVbsqoaX; arc=none smtp.client-ip=100.103.45.18
+	 MIME-Version:Content-Type; b=OfL5rc1GDF+1Kz5EMgOknPZr8SJpgtAibsT+r6Vw0OXvD5JZCmqXqQ6GTSja+pRWtQDTdzoB8ArbRjc6X1D2EffcZAT1k6HfgswrqRvF3kEFwL3Yl353+d4Fitid1SWYn+otB7AvZ563dMtEvufJiQTnsKlr+O7DpD3XoqokkH4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=AYtKSboh; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="WVbsqoaX"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81A511F000E9;
-	Mon,  3 Aug 2026 18:32:45 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="AYtKSboh"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2EAAC1F000E9;
+	Mon,  3 Aug 2026 18:34:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785781966;
-	bh=zplmEX51jNCDAo6A99F3dLa2Xh2tXvzspe0ZYy6m/oI=;
+	s=k20260515; t=1785782060;
+	bh=rU079syS0fSmf7On9+3DESKMDhK+tUSmUPZWbUaCm50=;
 	h=Date:From:To:cc:Subject:In-Reply-To:References;
-	b=WVbsqoaXTHRTrc8oUZKXcOGosd0ANOBDlZjzhbGdb13WEirc7nTAFbf+bBMEYivsW
-	 ZPuTeXa2YKZxk6l3tM8blTlSjH/AXyhcFYqEZm3TJ/EX6wC3yZLoVlhCiXXnbk8KAv
-	 6+kjkqauZPbBBrGJ4vslG4gz3tifyH0UJW37omXJnJZwXJRDX+4EO413Wz0jJFuB8D
-	 pYc9Agq4vgVnCP8nCqEzg+6dIOwCp9sDEyCMNyhauoC2hqaWT19Lh6wXHTX+SU370I
-	 2zgc/ND1IHsrDRHqKY4vnFuSJTVhxCvUfaN06uVpDVNzJzR8/nuESyskSYpAQ/oarm
-	 PvTJhyFSUdBZA==
-Date: Mon, 3 Aug 2026 20:32:43 +0200 (CEST)
+	b=AYtKSbohAoOWgNJOKUCII/3Bx+NlDQm5pQlG8U+A+kmNrTdJ/6KPjVFTm3yyGOd75
+	 gZK8hQAaCXuaT7hpuGc7sTpYkClxijbqGdJs5olCeUPjkB/ZQSd2SSgvERA+633JlI
+	 f993RudvvgH+w1yPH/+0Mfr1u246qUF7F+hhEl0kv5lVylNILrGQm+KgiHrACpzWF/
+	 S6Hy4yUd45TELZhNXWPhxvUZjORCCYMf5DG46nMGEm9+OwX54lSa4ILuNhGAZNeMMH
+	 szTO58rghjVvaiJtuek/YRE2nUv+mXraor0NniishBdl1CCVbNSrf8PW9XNyrpxeon
+	 P3r33mkCj0djA==
+Date: Mon, 3 Aug 2026 20:34:18 +0200 (CEST)
 From: Jiri Kosina <jikos@kernel.org>
-To: Even Xu <even.xu@intel.com>
-cc: bentiss@kernel.org, srinivas.pandruvada@linux.intel.com, 
-    linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/2] HID: Intel-thc-hid: Support complete I2C bus
- configuration
-In-Reply-To: <20260727030310.3850984-1-even.xu@intel.com>
-Message-ID: <r60q2282-q1s5-2nrs-qp71-s565qn220qrq@xreary.bet>
-References: <20260727030310.3850984-1-even.xu@intel.com>
+To: Jiangshan Yi <yijiangshan@kylinos.cn>
+cc: djogorchock@gmail.com, bentiss@kernel.org, linux-kernel@vger.kernel.org, 
+    linux-input@vger.kernel.org, 13667453960@163.com, sashiko-bot@kernel.org, 
+    stable@vger.kernel.org
+Subject: Re: [PATCH] HID: nintendo: register input device after capabilities
+ are set
+In-Reply-To: <20260730101506.547340-1-yijiangshan@kylinos.cn>
+Message-ID: <np9784o9-856r-977p-03p7-qn1o8s537n23@xreary.bet>
+References: <20260730101506.547340-1-yijiangshan@kylinos.cn>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -44,30 +45,25 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 
-On Mon, 27 Jul 2026, Even Xu wrote:
+On Thu, 30 Jul 2026, Jiangshan Yi wrote:
 
-> The Intel THC QuickI2C driver currently configures only the target
-> address, bus speed, and SCL high and low periods. Additional timing
-> parameters supplied by firmware are not applied to the I2C sub-IP.
+> input_register_device() exposes the device to userspace immediately.
+> In joycon_input_create() it was called before joycon_config_rumble()
+> configures the FF_RUMBLE capability and the memless force-feedback
+> device, so a concurrent EVIOCSFF could dereference a NULL dev->ff.
 > 
-> Introduce a common I2C configuration structure in the THC core and use
-> it to configure the target address, addressing mode, bus speed, SCL
-> timings, and SDA transmit and receive hold periods. Populate this
-> structure from the QuickI2C ACPI resources so that platform-specific
-> timings are restored during both initialization and resume.
+> Registering early also means the initial udev event lacks button and
+> axis information, which can make input managers ignore the device.
 > 
-> Even Xu (2):
->   HID: Intel-thc-hid: Intel-thc: Refactor I2C bus configuration with
->     unified config structure
->   HID: Intel-thc-hid: Intel-quicki2c: Support full I2C BUS config
->     parameters
+> Move input_register_device() to the end of joycon_input_create(), after
+> all capabilities, the IMU input device and the force-feedback callbacks
+> have been configured.
 > 
->  .../intel-quicki2c/pci-quicki2c.c             | 46 +++++++------
->  .../intel-quicki2c/quicki2c-dev.h             | 14 ++--
->  .../intel-thc-hid/intel-thc/intel-thc-dev.c   | 69 ++++++++++++-------
->  .../intel-thc-hid/intel-thc/intel-thc-dev.h   | 23 ++++++-
->  .../intel-thc-hid/intel-thc/intel-thc-hw.h    |  3 +
->  5 files changed, 97 insertions(+), 58 deletions(-)
+> Fixes: 2af16c1f846b ("HID: nintendo: add nintendo switch controller driver")
+> Reported-by: sashiko-bot@kernel.org
+> Closes: https://sashiko.dev/#/patchset/20260730031927.25444-1-yijiangshan@kylinos.cn?part=1
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Jiangshan Yi <yijiangshan@kylinos.cn>
 
 Applied, thanks.
 

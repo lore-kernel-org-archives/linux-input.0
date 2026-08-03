@@ -1,93 +1,71 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0A72040DFD5;
-	Mon,  3 Aug 2026 17:51:46 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CD0D733FE33;
+	Mon,  3 Aug 2026 17:52:21 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785779508; cv=none; b=j7M5VQ7AiE+EXkuYfepl9pSAh8fPf79f76mkerOAB21RFx3GlyGTWH7H2tWzAnJMCPdvNCT98JDoK7HWBUr0AABLCovJecsjOwZ+Pkuvqy/cGMujH1Ui94CWa+h4/92j0ZOvVFiWMFcrolrLwdFvZI7NS7INjV0c+21qpqa4x6I=
+	t=1785779543; cv=none; b=t4ETb4Oh6nh7dNnxkTSFhJWkSUf7D9e/YEtg6cTRFmvWzjWPnT9ilPX1Y289KLQIXwdMw9lvbOwmQ2J+JzhMvzA/4g1OhRd6ywxvF4scKVsprPzPuw3nGC3JjAeNyAtmWy7N7a1DUNxUoYBdhRfVYeUAqWOAxQn83S8IL1hSGV0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785779508; c=relaxed/simple;
-	bh=wN25sKGFgVh/TobytATtp2qo5MdhUMdu94BpHFYKMOU=;
+	s=arc-20240116; t=1785779543; c=relaxed/simple;
+	bh=IhcRV3I4vc6RujPp/HpqFCpolIAcbaZJ47t8qTte0fA=;
 	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
-	 MIME-Version:Content-Type; b=pK0JVsvZvf7v8rKEwochb/1cGudJF881p+ep9kbLRgVjjlrG4wA/NTGSs/lKVJ3pTqX9f9Zc8uNAy5zHqUQ1ESidlzv1zBSnvDC8xL6cGByJK7wTagfTxS0Sc63wUI/5BCEo7O+66AgRX+Cd28cqorjlL0TgJbuLegN6nMRcwvg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Fc43MR0O; arc=none smtp.client-ip=100.103.45.18
+	 MIME-Version:Content-Type; b=hs8t1vxceDvQlLcvA6s8gOBdqR0zSMacC6nja4WPa3xr8/kAxKlhJ97r3gUUD0KOBrIElpsZ0pD3NjByiw46h5j/poNgt8wYHnaJBUTLi92W/kvPbPSwyVj2gmb804w0XNfm8/uTk2r4VRRPWwzWvsuTs8b35wK0UC3/IhZrfpI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=PZWaxZ6b; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Fc43MR0O"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1BCDC1F000E9;
-	Mon,  3 Aug 2026 17:51:45 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="PZWaxZ6b"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D03671F000E9;
+	Mon,  3 Aug 2026 17:52:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785779506;
-	bh=wN25sKGFgVh/TobytATtp2qo5MdhUMdu94BpHFYKMOU=;
+	s=k20260515; t=1785779541;
+	bh=Pgy0BJL09XR08RqFsuBtd4EX57TcuIZMksSgeuPRGfM=;
 	h=Date:From:To:cc:Subject:In-Reply-To:References;
-	b=Fc43MR0OzCuTop9hbY3JGFY4j1H+P0rEtG8lxg3X7ff0eHWB9yBfU+FIDlGQEulPH
-	 Eb8TQi+dxKIpLyVu0+lHL1mjyPLbKGuNmL6sYDP+WNSJu6Vkgw1XPNrbvDRtvDUCa/
-	 HPitiYPJjAGKLGjU0bLOU7qkFIUWxGOjr84os6y9xcEh1KZ77SUfW5Gv6KjKMAhut1
-	 IXAE2EwVG2JqXi6flO2z9pcqH0i5t40azbxF9YiPGV2Sf0yAI2DhFKWsyfuEQWGRjo
-	 XBVd81v9d08LWNjGu/QVaMXKL/r0+gjK4DvPAkihtlwzS7yt5F/DQyIt05gTE4baQs
-	 +WLpljTw9E5cA==
-Date: Mon, 3 Aug 2026 19:51:44 +0200 (CEST)
+	b=PZWaxZ6bUFTnIVbIqvpfDPg4Pe0m7FhYoMq17MYPXEBhtv4gXNYE/5w+y1JxvJxZv
+	 MfCMqI60nu6q2+ML6RekNy2tljy8vduiBGeIVoVnXz7keJ1K4GAoMAH/ippWW9rNOA
+	 YlzHt2TasyZfN9W2EfURK8Fh8xPLfd0TXTijGxlapsMXQBWBCCvWEdJZMkDNncrd1J
+	 /XnilDoW6E1oGTWDU28AiRlJR+otYSzIZ4bE2GMpNABcybo6VWHx3Ve4+Kx7R4rmbO
+	 imv1ANmUgqj4AKdBtIAuB8FCfQHkrExIQX9WjUcIJBQlmvWCX6JSe9PiAE3Uf9yNZy
+	 6WGcu1dEI2JLA==
+Date: Mon, 3 Aug 2026 19:52:18 +0200 (CEST)
 From: Jiri Kosina <jikos@kernel.org>
-To: =?ISO-8859-15?Q?Jose_Villase=F1or_Montfort?= <pepemontfort@gmail.com>
-cc: Benjamin Tissoires <bentiss@kernel.org>, linux-input@vger.kernel.org, 
+To: Chen Changcheng <chenchangcheng@kylinos.cn>
+cc: basavaraj.natikar@amd.com, bentiss@kernel.org, linux-input@vger.kernel.org, 
     linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] HID: magicmouse: prevent unbounded recursion in
- magicmouse_raw_event()
-In-Reply-To: <20260715053526.574725-1-pepemontfort@gmail.com>
-Message-ID: <11op08r0-95q2-q2r9-o3qo-7949r1n4p081@xreary.bet>
-References: <20260715053526.574725-1-pepemontfort@gmail.com>
+Subject: Re: [PATCH] HID: amd_sfh: clear hid_sensor_hubs entry on probe
+ failure
+In-Reply-To: <20260715094622.115062-1-chenchangcheng@kylinos.cn>
+Message-ID: <527no024-6364-ssqp-nqr0-806r624onr44@xreary.bet>
+References: <20260715094622.115062-1-chenchangcheng@kylinos.cn>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=US-ASCII
 
-On Tue, 14 Jul 2026, Jose Villase=F1or Montfort wrote:
+On Wed, 15 Jul 2026, Chen Changcheng wrote:
 
-> magicmouse_raw_event() handles DOUBLE_REPORT_ID (0xf7) packets, which pac=
-k
-> two touch reports into one, by splitting the packet and calling itself on
-> each half. The only guard against runaway recursion is a "size < 1" check=
-,
-> which stops zero-sized calls but does not bound the recursion depth.
->=20
-> A malicious HID device that matches this driver can send a report startin=
-g
-> with DOUBLE_REPORT_ID and filled with the sequence [0xf7, 0x00]. Each lev=
-el
-> consumes two bytes and recurses on the remainder, so an incoming report o=
-f
-> up to HID_MAX_BUFFER_SIZE (16 KiB) drives roughly 8000 nested calls. That
-> easily exhausts the 16 KiB kernel stack, leading to a stack overflow: a
-> panic with CONFIG_VMAP_STACK, or memory corruption without it.
->=20
-> A double report only ever wraps two normal reports; it is never
-> legitimately nested. Refuse to re-enter the DOUBLE_REPORT_ID case from a
-> recursive call so the recursion depth is bounded to two, while all valid
-> packets keep being parsed exactly as before.
->=20
-> Fixes: a462230e16ac ("HID: magicmouse: enable Magic Trackpad support")
-> Link: https://lore.kernel.org/linux-input/20260706181347.700DB1F00A3F@smt=
-p.kernel.org/
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Jose Villase=F1or Montfort <pepemontfort@gmail.com>
-> ---
-> Noticed while reviewing hid-magicmouse.c during the discussion of the
-> parallel Magic Trackpad USB-C battery work [1]. The recursion issue is
-> independent of that series and is sent as its own fix.
->=20
-> I also considered refactoring the report parsing into a non-recursive
-> helper that dispatches the two sub-reports iteratively, which removes the
-> recursion entirely. That is a larger and more intrusive change; this
-> minimal guard keeps the diff small and is trivial to backport, so I went
-> with it. Happy to switch to the refactor if maintainers prefer it.
+> In amdtp_hid_probe(), the newly allocated HID device is stored in
+> cli_data->hid_sensor_hubs[cur_hid_dev] before calling hid_add_device().
+> If hid_add_device() fails, the error path frees the HID device and its
+> driver_data but does not clear the array entry, leaving a dangling
+> pointer.
+> 
+> When the caller (amd_sfh_hid_client_init or
+> amd_sfh1_1_hid_client_init) detects the probe failure, it jumps to its
+> cleanup label, which unconditionally calls amd_sfh_hid_client_deinit()
+> and subsequently amdtp_hid_remove(). The latter iterates over all
+> hid_sensor_hubs[] entries and, upon encountering the non-NULL but freed
+> pointer, performs a use-after-free read followed by double-free of both
+> the HID device and its driver_data.
+> 
+> Clear the array entry in the error path of amdtp_hid_probe() so that
+> amdtp_hid_remove() skips the failed entry.
 
-Looks good to me, thanks. Queued.
+Applied, thanks.
 
---=20
+-- 
 Jiri Kosina
 SUSE Labs
 

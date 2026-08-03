@@ -1,131 +1,164 @@
-Received: from mail-pf1-f170.google.com (mail-pf1-f170.google.com [209.85.210.170])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.19])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1003D312837
-	for <linux-input@vger.kernel.org>; Mon,  3 Aug 2026 16:23:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E5E4F358378;
+	Mon,  3 Aug 2026 16:43:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.19
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785774210; cv=none; b=BXYBzCgaHq45hULW+wNuF0ibvFj4dj3oa0IzvmsB62Y5LP2dp8wNPQ80ihZweqc3xSMG1N8/6iq3F2Hm75TowSO+MKEZC3rSCZcQF2hxjvirtYtWOGTEofBAcUsMOPN2nmBBkjlbGnFaVTnI0xKjAIg33VbwTYg0T3saty8ZYsI=
+	t=1785775383; cv=none; b=DfeJCrMktfWkKhydZKpT4p1+EgoKvWI8pu3tv2SbivYv1ehDQU+qg99qGkAoS4lJx+ukxwgwBGgn0SYXV/eaBfUp0efEY/weTcsJ9d+15+ifDKWKBf6SHpxPKx8bn/BGz1V9rJVyxoeYsO0G+tD10eLNTFSFlfOaf5TdqhG9sHw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785774210; c=relaxed/simple;
-	bh=+E+dovH20Z3BzIx6gDwowX8vcV9ujxhqvh6i4kCrDSs=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=MRzekJhXo5BXlA95IAAVZi7HL4U66xtv6Fev4PpyyA9tr5nUE9CqcwsWUpCbamCVNMD/DegFCpoBCKb8n2h4pNj46EKOTw3vRnSbfKdVK2X3rg/z3icmWe+UFSSFojkQyUEO9edZmB8uUiC3aQXBxdLLo7IH8ztCIXjiJSxs2Tc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=crWDDFtA; arc=none smtp.client-ip=209.85.210.170
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1785775383; c=relaxed/simple;
+	bh=3NDkwT9awZYfvoORE0bau45fdFFCeYi5IA5RKptQ3NE=;
+	h=From:Date:To:cc:Subject:In-Reply-To:Message-ID:References:
+	 MIME-Version:Content-Type; b=a4pLHPA4kpI67Z8MmJZuEo7UenstQGXbg945Npwr8svLBHOHqmMiuMqxV7fCIIVwrgjBM2pGaJB1XcFSktj1hwYlaDZQq+2mTwxS42c9eWe7olMBRSJLU9Y2WEFSov5GfQfCvCOPWZiI+H3DLSheT0dUAvNJcHot0lit3cjINeQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=DAJQT1+u; arc=none smtp.client-ip=198.175.65.19
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="crWDDFtA"
-Received: by mail-pf1-f170.google.com with SMTP id d2e1a72fcca58-8486672f03cso4040843b3a.0
-        for <linux-input@vger.kernel.org>; Mon, 03 Aug 2026 09:23:28 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1785774208; x=1786379008; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=/MCvJOFJV8ipMWE62yWISNasmONj7SWa3jUTj8zprYQ=;
-        b=crWDDFtAQ2L2+KZIMLsl4mUE36nQqJBF+nI1XKUzvBo3fnqwFW3HJEeGkbKq+j1Eo9
-         MVRgGpKG6QdeQLpGuleniQu+GNG76uZGSU0aPAr98qBcYjX6EIMGN15XUbJ8z6uuKl8z
-         QKt3vUZ7j64gTJXfhr5pP8IKlJMILd75N1f8DAW0kIQ4FyHPxoQEZ7utnyiAmhatRizr
-         7oHrhq2JvEnfWfZzEUJxzU/OPz1vjUJnCgPGHfdhA2dZK2CNq3xJc3ArjC4o9SZnO45g
-         fQDggfQSvNDgJSALfCf/i6zjlUY/F9pJLpiLg1sxWkVhkeUBfuFnLOmcf2Phzo6FzBtc
-         gdBg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785774208; x=1786379008;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=/MCvJOFJV8ipMWE62yWISNasmONj7SWa3jUTj8zprYQ=;
-        b=OILclzAFn0firqoWqkuV8GdYlN+Rf8KGvwx7ioaBpRotm/3v0vPkqF4hbudxy/Yfza
-         xK74w9SRNk0iBVOXxOBXkD+vu788T0thP4oz5QqizMF56C3ciDag+eG5a8jWkHrjyW5W
-         RWAOZufyCCdBngaPrLHiHg99hgIH2qvWhj32chvfgLwbIBrs1bDLxzRey6eem8KwY1TF
-         JzAwz2Qxq8W9ZK7wn/svTxgMB2f85CUxR9SmCwtIGmMDIZy9qYdgmEUKgvPcXdYKzcOr
-         wyXwkHfnBuv9SRrT9RVzx8YSJ4CmrqOhXK5XslJYdVrMdqeH5ge5zs2lWWcJZy/Btj/5
-         q9QQ==
-X-Gm-Message-State: AOJu0YzFVG/sF8420vhJIWk6DGuhDwIC73uLPr/g3VHd//XbLrk8bEeW
-	nNhYc2KRb5SM8Bi0CFBM1+9hKut51BIzSsCOZqmYLcJwD1xd0e+Re6o0
-X-Gm-Gg: AR+sD11m+UOwFM3GzQbqGMGLQ1C/sGiJLC1mtnrXYQjQjbfvkNRBxql03N28I5zrx/p
-	NMvDRQXmew1PnaKN9KGq/Q9ABN9pmSm1n6BzVLyxOIXwTYu/FLXI2ekkm5uBZX/mvJiq6O6Pxsi
-	gNeSIcZFOJXSSR337uLXWxFdMUwFEuoaDeI5yX61Wv05FdAQN9QHphLIb/uPgqqYW88JMfqvHRj
-	6bbIBbQ7NxeZ86tSG2V3UU2WfACT+zpeKGJZucuytXNXlBXvueynL6MxtC0uekbgLI0FFa5rLme
-	9kBjn+oCIduPURyZ+LRrSg36STevWGj5iVMo7C7QHIySPC3Vz9RefdkBCSVvE+RMnYdmiixz78a
-	sDVR2lqgcK1dvjBbLAi9qJoaCjwBvru/LuhHyNefTVfhyWcvRk4rOBJW37duq5PuwfvDR800X3H
-	NDoCnguxSjK30FUTOfKEWWJBgh5MddkeSbKiFvaD2OYFS/l+rjgKMfX+rFu8/DK3ZbkIKNzXD53
-	Z3rHwsq4iOfAUSiY+vGOzaHNEddzR4=
-X-Received: by 2002:a05:6a20:6a06:b0:3c6:61b9:917c with SMTP id adf61e73a8af0-3c92a518b1emr9469376637.11.1785774208484;
-        Mon, 03 Aug 2026 09:23:28 -0700 (PDT)
-Received: from google.com ([2a00:79e0:2ebe:8:4fff:876c:cdae:e53c])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3153dd4e47dsm58242974eec.3.2026.08.03.09.23.27
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 03 Aug 2026 09:23:27 -0700 (PDT)
-Date: Mon, 3 Aug 2026 09:23:25 -0700
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Griffin Kroah-Hartman <griffin@kroah.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	Ingo Molnar <mingo@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: [PATCH 1/3] Input: xpad - add safer data access framework
-Message-ID: <anDAK28M7wBWtzSf@google.com>
-References: <20260803-xpadone_packet_fix-v1-0-280da203f15c@kroah.com>
- <20260803-xpadone_packet_fix-v1-1-280da203f15c@kroah.com>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="DAJQT1+u"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1785775381; x=1817311381;
+  h=from:date:to:cc:subject:in-reply-to:message-id:
+   references:mime-version:content-id;
+  bh=3NDkwT9awZYfvoORE0bau45fdFFCeYi5IA5RKptQ3NE=;
+  b=DAJQT1+u6/rooRqUJ2w6f99t7oNVzQ5wL8belZIFucI7MGBpgQ2TlQBq
+   2hnszrIJ4ACh7iRa4MtVevrgwWW6nLPm4/6SMsAaYjsKIgNq/RTNsFxqq
+   hOGMdviuyuVUkS1qtPQX5IMmu25fYJbwx6zusKne1if3wQkhGcqX4YcHO
+   hlsvZffl6noxPhzqMn1C0ZXpxH60Q94rrA62TPJx7NyCJ9owDs9NndGDd
+   R9qM/DcuONGjd5L3Q9fyobcx4CANAV8yZwFmo2O+o3ZHdS54erKQSZD8O
+   63rRz41yemrPiJY5dUtAKs34rwgw6uGpwqcS6jS/kDGO6cwAbEHAViMsA
+   g==;
+X-CSE-ConnectionGUID: uQPDeMThTEG5Y6MQv18Tig==
+X-CSE-MsgGUID: BmxOz/WrQ1yxXtjT/d8WcA==
+X-IronPort-AV: E=McAfee;i="6800,10657,11864"; a="86264780"
+X-IronPort-AV: E=Sophos;i="6.25,202,1779174000"; 
+   d="scan'208";a="86264780"
+Received: from orviesa001.jf.intel.com ([10.64.159.141])
+  by orvoesa111.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Aug 2026 09:43:01 -0700
+X-CSE-ConnectionGUID: GYKq5WwQTsCGfGOzoLiu0g==
+X-CSE-MsgGUID: f7298wewSpWE3SqXsJKqBg==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.25,202,1779174000"; 
+   d="scan'208";a="299487689"
+Received: from ijarvine-mobl1.ger.corp.intel.com (HELO localhost) ([10.245.245.61])
+  by smtpauth.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Aug 2026 09:42:57 -0700
+From: =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>
+Date: Mon, 3 Aug 2026 19:42:54 +0300 (EEST)
+To: Dave Carey <carvsdriver@gmail.com>
+cc: platform-driver-x86@vger.kernel.org, hdegoede@redhat.com, W_Armin@gmx.de, 
+    jikos@kernel.org, linux-input@vger.kernel.org, 
+    LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH v15 0/2] Lenovo Yoga Book 9 keyboard dock detection
+In-Reply-To: <20260728225545.1333610-1-carvsdriver@gmail.com>
+Message-ID: <369a1d84-f6a2-1075-b62e-c1852ae25894@linux.intel.com>
+References: <20260728225545.1333610-1-carvsdriver@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260803-xpadone_packet_fix-v1-1-280da203f15c@kroah.com>
+Content-Type: multipart/mixed; BOUNDARY="8323328-134009376-1785774538=:1172"
+Content-ID: <a0a78e8b-56a6-cf99-0eaa-fcf22e5d6568@linux.intel.com>
 
-Hi Griffin,
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-On Mon, Aug 03, 2026 at 05:07:24PM +0200, Griffin Kroah-Hartman wrote:
-> USB xpad devices could send short messages which would cause reads and
-> writes outside of the data buffer.
-> 
-> Fix this by adding the safe_data struct and the sdata_check() function when
-> accessing packet data for input events, and add the usage of this to
-> xpadone_process_packet(), which was vulnerable to OOB reads/writes.
-> 
-> Suggested-by: Ingo Molnar <mingo@kernel.org>
-> Suggested-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> Signed-off-by: Griffin Kroah-Hartman <griffin@kroah.com>
-> ---
->  drivers/input/joystick/xpad.c | 115 ++++++++++++++++++++++++++----------------
->  1 file changed, 71 insertions(+), 44 deletions(-)
-> 
-> diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
-> index feb8f368f834..c516860711a8 100644
-> --- a/drivers/input/joystick/xpad.c
-> +++ b/drivers/input/joystick/xpad.c
-> @@ -780,6 +780,24 @@ struct usb_xpad {
->  	bool delayed_init_done;
->  };
->  
-> +struct safe_data {
-> +	unsigned char *data;
-> +	u32 len;
-> +};
-> +
-> +/*
-> + * Safe Data Check
-> + *
-> + * Returns the correct data when inside the array's bounds,
-> + * returns 0 when accessing an out-of-bounds index.
-> + */
-> +static u8 sdata_check(struct safe_data *sdata, int idx)
-> +{
-> +	if (idx >= sdata->len)
-> +		return 0;
-> +	return sdata->data[idx];
-> +}
+--8323328-134009376-1785774538=:1172
+Content-Type: text/plain; CHARSET=ISO-8859-15
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-ID: <0e9fcf9e-64a6-1deb-87a9-b869e4dac184@linux.intel.com>
 
-I'd rather we had explicit length checks for various packets and skipped
-the processing if the packet is short instead of making large number of
-what can be considered repeated checks.
+On Tue, 28 Jul 2026, Dave Carey wrote:
 
-Thanks.
+> Changes in v15 (addressing Ilpo J=E4rvinen's v14 review of patch 2/2):
+>=20
+>   - yb9_kbdock_notify_new(): restore .min_event_size =3D sizeof(__le32) i=
+n
+>     struct wmi_driver and remove the manual buffer-length check; the
+>     .min_event_size field was present in v12/v13 (added in v10) but was
+>     accidentally dropped in v14.
+>=20
+> Patch 1/2 (lenovo-ymc) is unchanged from v10.
 
--- 
-Dmitry
+Thanks for all the effort. I've now applied this to the review-ilpo-next=20
+branch with Hans' reviewed by tag reinstanted as that too seemed to have=20
+gotten lost.
+
+--
+ i.
+
+> Changes in v14 (addressing Ilpo J=E4rvinen's v13 review of patch 2/2):
+>=20
+>   - Restore #include <linux/compiler_attributes.h> and <linux/spinlock.h>=
+,
+>     which were accidentally absent from v13.
+>   - Restore spinlock_t lock in struct yb9_kbdock_data, spin_lock_init(),
+>     and spin_lock/spin_unlock around input_report_switch + input_sync
+>     in yb9_kbdock_report().
+>   - Restore pointer-out yb9_kbdock_query(d, u32 *bkbd) and removal of
+>     zero-initializer from struct wmi_buffer out.
+>   - Restore int return from yb9_kbdock_sync() and error propagation in
+>     yb9_kbdock_resume() and yb9_kbdock_block_probe().
+>=20
+> Changes in v13:
+>=20
+>   - Resend of v12: v12 was corrupted in transit.  Root cause: the ABI
+>     documentation uses RST table separator lines (=3D=3D  =3D=3D=3D=3D...=
+) which
+>     contain '=3D' characters; git-send-email selected quoted-printable
+>     transfer encoding due to non-ASCII in the changelog (UTF-8 author
+>     name), encoding '=3D' as '=3D3D' and breaking git-am on the receiving
+>     end.  Fixed by setting sendemail.transferEncoding=3D8bit.  No content
+>     changes from v12.
+>=20
+> Changes in v12 (addressing Ilpo J=E4rvinen's v11 review of patch 2/2):
+>=20
+>   - Add #include <linux/sysfs.h> (for sysfs_emit)
+>   - Add #include <linux/types.h> (for __le32 and __packed)
+>=20
+> Changes in v11 (addressing Armin Wolf's v10 review of patch 2/2):
+>=20
+>   - ABI doc: correct Date to "June 2027" and KernelVersion to "7.3";
+>     these fields should reflect when the ABI lands in the kernel, not
+>     the submission date.
+>=20
+> Patch 1/2 (lenovo-ymc) is unchanged from v10.
+>=20
+> Changes in v10 (addressing Armin Wolf's v9 review of patch 2/2):
+>=20
+>   - Update ABI doc: Date: June 2026, KernelVersion: 6.16
+>   - Add #include <linux/compiler_attributes.h> and <linux/types.h>
+>   - yb9_kbdock_query(): change return to pointer-out u32 *bkbd to avoid
+>     a 0xFFFFFFFF status value being misread as -EPERM
+>   - struct yb9_kbdock_data: add spinlock_t lock
+>   - yb9_kbdock_report(): hold lock across input_report_switch + input_syn=
+c
+>   - yb9_kbdock_sync(): return int, propagate query error to callers
+>   - yb9_kbdock_resume(), yb9_kbdock_block_probe(): propagate sync error
+>   - struct wmi_buffer out: remove zero-initializer (not needed)
+>   - yb9_kbdock_notify_new(): drop manual length check; use
+>     .min_event_size =3D sizeof(__le32) in struct wmi_driver instead
+>=20
+> Patch 1/2 (lenovo-ymc) is unchanged from v9.
+>=20
+> Dave Carey (2):
+>   platform/x86/lenovo: lenovo-ymc: Suppress probe on Yoga Book 9 14IAH10
+>   platform/x86/lenovo: Add Yoga Book 9 keyboard dock detection driver
+>=20
+>  Documentation/ABI/testing/sysfs-driver-lenovo-yb9-kbdock |  19 ++
+>  MAINTAINERS                                               |   7 +
+>  drivers/platform/x86/lenovo/Kconfig                       |  14 +
+>  drivers/platform/x86/lenovo/Makefile                      |   1 +
+>  drivers/platform/x86/lenovo/yb9-kbdock.c                  | 323 ++++++++=
+++++
+>  drivers/platform/x86/lenovo/ymc.c                         |  19 ++
+>  6 files changed, 383 insertions(+)
+>=20
+> 2.55.0
+>=20
+
+--=20
+ i.
+--8323328-134009376-1785774538=:1172--

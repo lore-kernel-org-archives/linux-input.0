@@ -1,135 +1,103 @@
-Received: from va-2-50.ptr.blmpb.com (va-2-50.ptr.blmpb.com [209.127.231.50])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 879193A425B
-	for <linux-input@vger.kernel.org>; Tue,  4 Aug 2026 09:51:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.127.231.50
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A68AC443AB1;
+	Tue,  4 Aug 2026 10:02:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785837066; cv=none; b=mAyWo4N9jfVNFDg7aL1DZczv+j78AqEmOgEFV9qFjUZp7FW+/TwIjSNaprAuLNIm3bw4wWWjVxLXc640lgZ6h/3T1glU3jE8Vv62Zu+bCnfImGnsqlReh3SdFvG5YCUUetU5D3R++XGsjbuLGX1RbqzC38iyHpxy3SqFSS0/eOc=
+	t=1785837757; cv=none; b=RCzKE5HT0w7N/ub5vIquxn3B6yclGWs9Eet/hBYHgZDLbJwrwt5LcD4tu2wvG+E5zIe+K55UIPgPKu2FpRuVz3AMaFgLJyA2YlXJr+VGPv2sKmJv39ldmnh2yV43MJSUfKtSAlwxg2IywGkKKa42JUIXL2tz1OSN2eyoLH8GgLg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785837066; c=relaxed/simple;
-	bh=PllK0pyn2cHhRpegMjYFIhXeXddygZ0H5loZWAJmlJ4=;
-	h=Message-Id:To:Cc:Date:From:Subject:Mime-Version:Content-Type; b=LBVKudVMgAYNZ2MPU1TWueWqHWp40VRu3y9PyP0+cxs1PrGGWCnx8SRfwwoLe5PyxF07FclJZxtr9DfAtYA4fDdjTtbrd1v2wzjISnfnSh8Zwe56ZsBCh8uG9+FpA825yr/PKpKqFvrhPYpUJ/n1iHq0hLJnfA8m5h2qs/3RxYQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=cherr.cc; spf=pass smtp.mailfrom=cherr.cc; dkim=pass (2048-bit key) header.d=cherr.cc header.i=@cherr.cc header.b=kU913vBg; arc=none smtp.client-ip=209.127.231.50
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=cherr.cc
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=cherr.cc
+	s=arc-20240116; t=1785837757; c=relaxed/simple;
+	bh=Pz4mZ0gWIYkb32TdekD39kCxXjdpkuSdjjoDfL7FFfg=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Rjcf3iF21JMK3Q/+vIF8PSmUz7RBbAAFZb9ASo3pDdkH+ySLWl4X9RmUFbaIMHF/tJ4gdEOn+MELGeQc/60CsOcBFabs7yJ8bdhgk1o/TrlE6HOgw3t6iQ1G5j+BLLXkh3iequIP0msb/SivNJ9cslixDbNbQmKel9J06ypVzAg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=ADLbrD9a; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=cherr.cc header.i=@cherr.cc header.b="kU913vBg"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
- s=feishu2604220257; d=cherr.cc; t=1785837048; h=from:subject:
- mime-version:from:date:message-id:subject:to:cc:reply-to:content-type:
- mime-version:in-reply-to:message-id;
- bh=93G7QUyO/8KOqjQwFuFq3XJtKN9m29vvNua5vmaR2wA=;
- b=kU913vBg6kFMMB02gdNF0CyRBl2G5zakxgIiz+7vmt4Ru2d0vuA4W0LEPGB+EhBXLGN8IV
- g0+9rwTKFHRsIiOsJKFDOj+t8a0hOPZcMzfmG5vML6pY96jJWUgGeREi/Cyf/gEziqhtiP
- SAOkF0kf8t1eyCCUTpttIcrca8LL7vrcmqq3KP+w33mnMKaI++VozSrMk/S3bnsOXUWOWJ
- ksGWUeYrUSNXTur/59IcxlMeXmDOc0Lznag4pTBuiC2MqjmEC/bHdTiyDHdXyrpj2eR6ui
- tP02Yf6SQlXst5lKzR8sjyWH9PZx8xcFdY0Wk245oZD8jG358JlxI4RCnAevqA==
-Message-Id: <20260804-oxp-fix-v2-1-b2d56e4c8a2c@cherr.cc>
-X-Mailer: b4 0.14.2
-To: "Derek J. Clark" <derekjohn.clark@gmail.com>, 
-	"Jiri Kosina" <jikos@kernel.org>, 
-	"Benjamin Tissoires" <bentiss@kernel.org>, 
-	"Zhouwang Huang" <honjow311@gmail.com>
-Cc: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>, 
-	<linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>, 
-	<stable@vger.kernel.org>, "Shengzhuo Wei" <me@cherr.cc>
-Date: Tue, 04 Aug 2026 17:50:30 +0800
-X-Original-From: Shengzhuo Wei <me@cherr.cc>
-Received: from [192.168.9.107] ([111.40.58.243]) by smtp.feishu.cn with ESMTPS; Tue, 04 Aug 2026 17:50:45 +0800
-X-Change-Id: 20260804-oxp-fix-879390c5e47f
-X-Lms-Return-Path: <lba+26a71b5f6+e4b66e+vger.kernel.org+me@cherr.cc>
-From: "Shengzhuo Wei" <me@cherr.cc>
-Subject: [PATCH v2] HID: hid-oxp: fix UAF on pending work in remove()
+	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="ADLbrD9a"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC4561F000E9;
+	Tue,  4 Aug 2026 10:02:34 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linuxfoundation.org;
+	s=korg; t=1785837755;
+	bh=VxjTd4DMfSlIiscaLQ7eIc5oumgImZjg2if2c59j51s=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=ADLbrD9ahdT6+9xEsuuWTS+XOzeA6R8XnMv708Wwm3fncdv/WZtIKoyCs+FpSUg3u
+	 u9oUu9Eqewj4dEOTMX/w1c+y22KtGHnCYOKh1NDBiPfsfH+d0qIc4oPx/ef9IaLLJP
+	 gofdPT+PA0I9PtMWcBBtYe8T9paX88MasQNubdTQ=
+Date: Tue, 4 Aug 2026 12:02:19 +0200
+From: Greg KH <gregkh@linuxfoundation.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, Kees Cook <kees@kernel.org>,
+	linux-kernel@vger.kernel.org,
+	"Wagenaar, C.C.J. (Chris)" <c.c.j.wagenaar@vu.nl>
+Subject: Re: [PATCH] Input: evdev - sanitize event type index when fetching
+ event masks
+Message-ID: <2026080412-camping-fringe-8219@gregkh>
+References: <anFCAfvxwXB5eJF1@google.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=UTF-8
-X-B4-Tracking: v=1; b=H4sIAOW1cWoC/2WMQQ6DIBAAv2L23G2AomBP/UfjwdClcBGzGGJj+ Hup1x5nMpkDMnGkDPfuAKYSc0xLA3XpwIV5eRPGV2NQQg3CCo1pX9HHHa0Zb6NwPWnjodUrU9P n6Tk1DjFviT/nuMif/X8UiRJ7OWtPxho5mIcLxHx1DqZa6xeNvXAonQAAAA==
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <anFCAfvxwXB5eJF1@google.com>
 
-oxp_cfg_probe() arms drvdata.oxp_mcu_init to run 50 ms after probe, and
-oxp_mcu_init_fn() dereferences drvdata.hdev to issue MCU output reports
-(hid_hw_output_report() followed by msleep(200)). The oxp_rgb_queue and
-oxp_btn_queue workers are wired up the same way. oxp_hid_remove()
-cancels all three with the non-synchronising cancel_delayed_work(), so a
-worker already running is not waited for; removing the device while a
-worker is asleep then frees the hid_device underneath it, leaving
-drvdata.hdev stale -- a use-after-free when the worker wakes.
+On Mon, Aug 03, 2026 at 06:41:49PM -0700, Dmitry Torokhov wrote:
+> The user-supplied event type index passed to EVIOCGMASK / EVIOCSMASK
+> ioctls is used to index the static counts array in evdev_get_mask_cnt()
+> and client evmasks array in evdev_get_mask().
+> 
+> While the event type is architecturally bounded by EV_CNT, speculative
+> execution may mispredict bounds checks and perform out-of-bounds loads.
+> 
+> Sanitize the event type index in evdev_get_mask_cnt() branchlessly using
+> array_index_mask_nospec(). This clamps the index to 0 for safe array
+> access and forces the returned count to 0 speculatively when the index
+> is out of bounds.
+> 
+> We do not need additional array_index_nospec() calls in evdev_get_mask()
+> because evdev_get_mask_cnt() speculatively forces the count (and
+> resulting xfer_size) to 0 for out-of-bounds types, preventing any
+> speculative memory access to client evmasks array.
+> 
+> Reported-by: "Wagenaar, C.C.J. (Chris)" <c.c.j.wagenaar@vu.nl>
+> Cc: stable@vger.kernel.org
+> Assisted-by: Antigravity:gemini-3.6-flash
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> ---
+>  drivers/input/evdev.c | 5 ++++-
+>  1 file changed, 4 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
+> index 5764c98b4f1f..796ac7ac2b8c 100644
+> --- a/drivers/input/evdev.c
+> +++ b/drivers/input/evdev.c
+> @@ -21,6 +21,7 @@
+>  #include <linux/init.h>
+>  #include <linux/input/mt.h>
+>  #include <linux/major.h>
+> +#include <linux/nospec.h>
+>  #include <linux/device.h>
+>  #include <linux/cdev.h>
+>  #include "input-compat.h"
+> @@ -67,8 +68,10 @@ static size_t evdev_get_mask_cnt(unsigned int type)
+>  		[EV_SND]	= SND_CNT,
+>  		[EV_FF]		= FF_CNT,
+>  	};
+> +	unsigned long mask = array_index_mask_nospec(type, EV_CNT);
+>  
+> -	return (type < EV_CNT) ? counts[type] : 0;
+> +	/* Returns 0 for out-of-bounds types, including speculatively */
+> +	return counts[type & mask] & mask;
+>  }
+>  
+>  /* requires the buffer lock to be held */
+> -- 
+> 2.55.0.629.g250fe7f194-goog
+> 
+> 
+> -- 
+> Dmitry
 
-Use disable_delayed_work_sync() for all three in oxp_hid_remove(): it
-drains a running worker and, unlike cancel_delayed_work_sync(), leaves
-the works disabled so they cannot be re-armed by oxp_hid_raw_event_gen_2()
-or oxp_rgb_brightness_set() while the device is torn down. Arm
-oxp_mcu_init only after devm_device_add_group() succeeds in
-oxp_cfg_probe(), so a probe failure can no longer leave it pending to
-fire on the hid_device the caller tears down.
-
-Fixes: 84910c459d65 ("HID: hid-oxp: Add OneXPlayer configuration driver")
-Fixes: e4c850a6e750 ("HID: hid-oxp: Add Button Mapping Interface")
-Fixes: 2f424f28fb39 ("HID: hid-oxp: Add Second Generation Gamepad Mode Switch")
-Cc: stable@vger.kernel.org
-Signed-off-by: Shengzhuo Wei <me@cherr.cc>
----
-Same delayed-work use-after-free class as the 7.2-rc6 sweep
-(hid-lenovo-go, hid-lenovo-go-s, hid-lg-g15, hid-appleir, hid-letsketch);
-hid-oxp was missed.
----
-Changes in v2:
-- Use disable_delayed_work_sync() instead of cancel_delayed_work_sync()
-  so the works cannot be re-armed (e.g. via oxp_rgb_brightness_set())
-  while the device is being torn down (Dmitry Torokhov).
-- Arm oxp_mcu_init only after devm_device_add_group() succeeds, so a
-  probe failure can no longer leave it pending to fire on a freed
-  hid device (sashiko).
-- Link to v1: https://lore.kernel.org/r/20260804-oxp-fix-v1-1-51a4fe787167@cherr.cc
----
- drivers/hid/hid-oxp.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
-
-diff --git a/drivers/hid/hid-oxp.c b/drivers/hid/hid-oxp.c
-index 20a54f337220dc2aee3483a14d542b66c487bd60..abd622ff1b26b312ad9c8a4375822832f8371533 100644
---- a/drivers/hid/hid-oxp.c
-+++ b/drivers/hid/hid-oxp.c
-@@ -1501,14 +1501,14 @@ static int oxp_cfg_probe(struct hid_device *hdev, u16 up)
- 	drvdata.gamepad_mode = OXP_GP_MODE_XINPUT;
- 	drvdata.rumble_intensity = 5;
- 
--	INIT_DELAYED_WORK(&drvdata.oxp_mcu_init, oxp_mcu_init_fn);
--	mod_delayed_work(system_wq, &drvdata.oxp_mcu_init, msecs_to_jiffies(50));
--
- 	ret = devm_device_add_group(&hdev->dev, &oxp_cfg_attrs_group);
- 	if (ret)
- 		return dev_err_probe(&hdev->dev, ret,
- 				     "Failed to attach configuration attributes\n");
- 
-+	INIT_DELAYED_WORK(&drvdata.oxp_mcu_init, oxp_mcu_init_fn);
-+	mod_delayed_work(system_wq, &drvdata.oxp_mcu_init, msecs_to_jiffies(50));
-+
- 	return 0;
- }
- 
-@@ -1552,9 +1552,9 @@ static int oxp_hid_probe(struct hid_device *hdev,
- 
- static void oxp_hid_remove(struct hid_device *hdev)
- {
--	cancel_delayed_work(&drvdata.oxp_rgb_queue);
--	cancel_delayed_work(&drvdata.oxp_btn_queue);
--	cancel_delayed_work(&drvdata.oxp_mcu_init);
-+	disable_delayed_work_sync(&drvdata.oxp_rgb_queue);
-+	disable_delayed_work_sync(&drvdata.oxp_btn_queue);
-+	disable_delayed_work_sync(&drvdata.oxp_mcu_init);
- 	hid_hw_close(hdev);
- 	hid_hw_stop(hdev);
- }
-
----
-base-commit: 075b74841bd0065a3bda3440873c747938e69b68
-change-id: 20260804-oxp-fix-879390c5e47f
-
-Best regards,
--- 
-Shengzhuo Wei <me@cherr.cc>
+Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>

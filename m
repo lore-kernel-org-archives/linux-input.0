@@ -1,73 +1,76 @@
-Received: from mail-pj1-f45.google.com (mail-pj1-f45.google.com [209.85.216.45])
+Received: from mail-pg1-f170.google.com (mail-pg1-f170.google.com [209.85.215.170])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 50EC2175A99
-	for <linux-input@vger.kernel.org>; Tue,  4 Aug 2026 04:51:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C759A249E5
+	for <linux-input@vger.kernel.org>; Tue,  4 Aug 2026 05:03:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.170
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785819081; cv=none; b=OfaphkXfIWj7Vdb6BxwIR2V2SZE/rxIQKj+rhXXKvkgPREDTkG9aKrbY0Rsbwj8WYVLuPGDPtLtFKeeAIc+sltuU0YhBO65Jn4UU1qs4iynBNwtSata6cBZCBj3J2Ee7cGpfxZiBQSB1YXeVoT4mctGd9s9dmjrbcU7KniXSHLE=
+	t=1785819801; cv=none; b=OouWJRJYhtuDqCwAnHow+DEILK7F/wo8rh3COHLWe2R/fGTfxDF9x2mLkHo84fh1xIAhQ5A3WlNSf/VxsLwMUQk4X8cpqLMLfiKGBLTlHUz2fq21LNt3OrdkEXC//UegsmvlBfRR3hGK87DnlQnwFuSGNen1qJRUA5/lfZyy5Eg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785819081; c=relaxed/simple;
-	bh=bTEnF0GSN3SBXW2xrn7XaencUwWpEBCFuVm/FLAWE4E=;
+	s=arc-20240116; t=1785819801; c=relaxed/simple;
+	bh=R2VmxxTs+MpXch2wxSsqwZgW7vlIaZ+bgUcmW+Zx31M=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=mRaTunReSu+RtwAmZJEq+KIkHwjrgZZ6yud1+/pxL1LrR7TrnvSuAKrUedCR7ARIsR+0mNM+OYdNQ4VCvrO26sjld/PTg37dsBHzCrK9+6U7N3thFPJgT7JY6xVrW6h56HTSBV6QdmmLtjJI9gWemn/EA2u3V0JD1WUIBWB9ZoE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=G1XeVLEt; arc=none smtp.client-ip=209.85.216.45
+	 Content-Type:Content-Disposition:In-Reply-To; b=Flb5P7BHZhaRVnGxFmXDarPBIJ9LujtkksFGMeKXocLbu2i1IevJwoOri29VHVs/mvI6ByMil2Ozgc+0dXTGNXSeppiHWascpgHSSzirVL1gPSA/C6ZYNZuopYdW0zkFIr4rKBzilsQH1hOSa5i1L+14VohHfspi2o2W3LN7vpM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=oT7upiHo; arc=none smtp.client-ip=209.85.215.170
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="G1XeVLEt"
-Received: by mail-pj1-f45.google.com with SMTP id 98e67ed59e1d1-384930ca5e2so3546345a91.3
-        for <linux-input@vger.kernel.org>; Mon, 03 Aug 2026 21:51:20 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="oT7upiHo"
+Received: by mail-pg1-f170.google.com with SMTP id 41be03b00d2f7-c9aea40d799so2194746a12.0
+        for <linux-input@vger.kernel.org>; Mon, 03 Aug 2026 22:03:19 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1785819080; x=1786423880; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1785819799; x=1786424599; darn=vger.kernel.org;
         h=in-reply-to:content-disposition:content-type:mime-version
          :references:message-id:subject:cc:to:from:date:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=mdfSBvQXwGzTtQw/QDJdQFO/fQB5csp00HtUR8um7Bk=;
-        b=G1XeVLEtPdPT9+IQ3T+TlKetDbfOEdLmB6GR9t7e3Usj2K4QRtnyDOapJfNKU9KeY3
-         KVkKBK1zrZSvoyS4ugeKf9uc4Fg4D7NVzYLC0sRMDZnD73mFqoouBdbXk2WR4PM9Kbpu
-         VelIgZr/JFCKvdOwYAbLC6TtBT0orAjaWot9/5HPhUzHGyflfcwGeVQbxe/GfzNfJ+o5
-         li2ajTNu0BEUwaBwv4Xo3IiDo5FcAJCvnzgeoGHDSvxP0MKeMt9wfsS02foOMqVDZ+iS
-         PmZk2V7BIA2py2aDoquMD6gTE5/u1jZtwa1JSWM++ny6xDVoK7zummbg+hFs7qNEZqq4
-         9+xA==
+        bh=/8CDi2Jj1vQpqhue3/u9PKS7MdffrHoCAeV6rBW/gOw=;
+        b=oT7upiHoki1v1JkPHHAiIMCNXaXcmMB645Dp5lGcAkq0picQo0HVxlAzL6Re0W+rtj
+         5xwdEwwx4M4MJYWvnruWdyQIks/Bu0qmHCa+PMi/unenKrkZJ/7xsy9StXvqRigxNY4X
+         87Ido1oFpDbtwnojP4NQ4BXaLs1V1Po3sznI6ewsOP4Sbpa2LFaX8r6mQW3sBFBjxAj+
+         I7HZCzWifuBpIZGgzY0u8+VX/sHNLG8deYwmnji3n2diGZSHHcqQtrM6gNS8Yod6SQ4R
+         jfaSlW8727IZ/2DHORjrdD+V65Iw4proAZV8EKsHDWG/J2q7QsuVCwnmiP1cnY1pd+Y6
+         OIWA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785819080; x=1786423880;
+        d=1e100.net; s=20251104; t=1785819799; x=1786424599;
         h=in-reply-to:content-disposition:content-type:mime-version
          :references:message-id:subject:cc:to:from:date:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=mdfSBvQXwGzTtQw/QDJdQFO/fQB5csp00HtUR8um7Bk=;
-        b=c3q6Wd9RJ5XYCu3RVcAgq3+DNLmi+6u7cW/PtVCuJMy/bSv3EXGsWEy+CUaS9iMX87
-         GbM9j5n2J5mRS3AOuqSCYrI9sbfDPUgDTK/DWgqQmo2jBckTPH4oApMsjw80ohTJQpNf
-         jt7PteBgpDphzbm9nJrkbwYNCfffqWss1ZOm4fncO4VBztMvVye+yXdwsdvuf4szMJX+
-         foji8T+KrRs0XjNW6j/f5UG1Iuvs7qqxcqE9Vmvn4fo6/0QTNTI8h0nYtd0tmNckr/wW
-         LJ54lZ1p4q3AiuFxYrDSnIIXAnmnhbs9x9PyhI3mWuDH9O46hMOUeDJvdA+MM+nYKWJA
-         kQjA==
-X-Gm-Message-State: AOJu0YxrIfT5XNuR43vAxc8zEOx6W9xR4hehrUgRzjhOcfBs4us0YCgy
-	ki6yBz6epVshFqc5+mmV6c5tqYGkjR+qyb4/CPiyPyluvUWjGOf2K17H
-X-Gm-Gg: AR+sD113Oa4S9ixL4J2K6+hvggyWOO3EC09tgsea3GrOTOs++IiUEMD/2T3u1DsRKxl
-	1Q2+2FJt0grNCGoNsIUgt/JPgPcF4TK6+MMQF2cAD1OweliBHmHexUmjxMRQjMrp2AnlK0JF59W
-	VqqcbcNwxq9DOlP6siWVLeppWkO0hfeGPm8hI64ib9c+ZpH5rpzbjFW4Wlsk91UOpUZIbLuIeYR
-	cw961QHSpU2pjTjKpjaHzksKZITK4TG8XPFhGQtEocX8r2iMxph4gBXUiYp1lqsmbkYiHoJNgdl
-	3PxgPkW7aQn3chHOFbwWur7V39zkWxe6+RZP0+CEKaw3+/dXi5/BPLNh6xZO6eMVGdup7fqGmB5
-	4WzuZI6XEsCkeofknV25cmWln1mtc2B+HRv+dGUtJlJbS/3t7IJHCYUfE3joSb/s8FtM/cuj3b+
-	6lfKDCugnoKOy6ESoEBxEM7b634XDaWGkaZtOyXBbp7gHkP/5Ik0UxB7PVcVu61e+kviDCP8Pms
-	DmPB5YDX/cZCk2Lgux+ja+FqXhVtg==
-X-Received: by 2002:a17:90b:3851:b0:38e:dc4:3f64 with SMTP id 98e67ed59e1d1-38fbc52da42mr11200125a91.38.1785819079614;
-        Mon, 03 Aug 2026 21:51:19 -0700 (PDT)
+        bh=/8CDi2Jj1vQpqhue3/u9PKS7MdffrHoCAeV6rBW/gOw=;
+        b=rEG7pHFM53qYYIfLZ1cHkhbEVdfpv2H/zN/KpOohHw9SL2yHS09Gw3Gz/XbNwrf3uH
+         v/g5NSURifZhv8PmclVzcZqTuAw3DXaZtLh7Sg+kXnNVrRPP2Z/Oqn+rJkeTrVMD1OFi
+         kugOo+p9XKq4imTz9tqrbLfTgzcnEpgBPRqPSNI1ERGQB5UnBsarE1LQDby4Rvtj+Mcu
+         hKQrRXhYAVAzsDo9kr5DK/7toBbBQw/gaZeheVjwlZklMuJ1962PTIpoxRk7OOwQBcyi
+         hRF4KHaPCW8mIdEVQTS2q2LFDyOoTfeF+r8dYHtqw/gJvo2UiPYQjn42uOtepmQ8Poov
+         EfHA==
+X-Forwarded-Encrypted: i=1; AHgh+RrR5Da87epmc/YOsfHqaF4PkklGmp0Ys8mgyWXqv1oEF0pXVDZnxYfm7RwZChbf3MPkfBS9oDkWC5QxAA==@vger.kernel.org
+X-Gm-Message-State: AOJu0YzxNL8px1LO70sT4UtIygGnhfRnVGtIaXJhkhG37UtVeiR5Dqz7
+	zUJ/PHn3P3wvXQMHOttV+wFEPeJOHXrj5F3QETsSiZDOXmNEMMK25Ibn
+X-Gm-Gg: AR+sD10xYiqb66b1YHBqj9yQEQ1hFkDb57q3FAeTKx/RWfb9N8Q8ZtyOSWQSRUHT8xu
+	662l1+4OWV6cKOkIjxpuhQ63N3ZdGrPpqtUEut6xrisnvc2OOWljSAhdIkjwLCkW60jxwt4jylw
+	rs4CFCACkplmpbg1PQpsqTTWiFY7/g/83sI2i8yf7tC32aOPCx2U/giFbUThOa91ta2FAGfLJQc
+	bBPG1gh6dl2qaP84CavUdy4tbHhO77fBCbODIpS3yM2PAqB7xGCFcumN8tNMPydy5rG955O4/ev
+	a82QQuLvDp/zGnlc+OwGiF0orTjkQlgh/hshktZ6sTdj0jOrZI2Bkr7BoKGb3MExIrRqJ+GG3QW
+	yrgW2NtTijTbZDULQB8IyLnVhcB7qXp2/oakgPydiP/sEqn9YlWla+SA2hnBcp8EQhQbxzJyaTK
+	SP+sRumBpO6jQBqbfKn0jVe7nMy66nazJMz/i5cM8z2PT8bbL4gBFePqpR7sAM5NshOjCDfOTKQ
+	EPTqKRxpWOS6/2z3FiAqEsWkOmJBxSB7u0cd2TS
+X-Received: by 2002:a05:6a21:3a96:b0:3b3:1b38:d9d6 with SMTP id adf61e73a8af0-3c92a89da25mr12660784637.39.1785819799052;
+        Mon, 03 Aug 2026 22:03:19 -0700 (PDT)
 Received: from google.com ([2a00:79e0:2ebe:8:d109:cdba:8a20:74ad])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3153e06f8dbsm46423466eec.22.2026.08.03.21.51.18
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3153db2f911sm49653631eec.0.2026.08.03.22.03.17
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 03 Aug 2026 21:51:18 -0700 (PDT)
-Date: Mon, 3 Aug 2026 21:51:16 -0700
+        Mon, 03 Aug 2026 22:03:18 -0700 (PDT)
+Date: Mon, 3 Aug 2026 22:03:15 -0700
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Jianing Li <m13940358460@163.com>
-Cc: linux-input@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH v2] Input: hynitron_cstxxx: validate touch count and
- finger IDs
-Message-ID: <anFu87r00Dv6cP-u@google.com>
-References: <20260804020314.2082-1-m13940358460@163.com>
- <20260804031339.2379-1-m13940358460@163.com>
+To: sashiko-reviews@lists.linux.dev
+Cc: Marco Felsch <m.felsch@pengutronix.de>, robh@kernel.org, 
+	linux-input@vger.kernel.org, conor+dt@kernel.org, devicetree@vger.kernel.org
+Subject: Re: [PATCH v7 4/4] Input: Add TouchNetix aXiom I2C Touchscreen
+ support
+Message-ID: <anFxs8grhvIVSdNA@google.com>
+References: <20260703-v6-10-topic-touchscreen-axiom-v7-0-0d2a550a7ee8@pengutronix.de>
+ <20260703-v6-10-topic-touchscreen-axiom-v7-4-0d2a550a7ee8@pengutronix.de>
+ <20260702224804.E0B0D1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -76,79 +79,40 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260804031339.2379-1-m13940358460@163.com>
+In-Reply-To: <20260702224804.E0B0D1F000E9@smtp.kernel.org>
 
-Hi Jianing,
+On Thu, Jul 02, 2026 at 10:48:04PM +0000, sashiko-bot@kernel.org wrote:
+> Thank you for your contribution! Sashiko AI review found 18 potential issue(s) to consider:
+> - [High] Missing bounds checking during firmware chunk parsing allows malformed firmware to trigger integer underflow and out-of-bounds memory accesses.
+> - [High] Invalid cast of regmap buffer to u16* causes endian-dependent behavior and corrupts register addresses.
+> - [High] Unbalanced pm_runtime_put in firmware upload cleanup leads to negative PM usage counts.
+> - [High] Firmware-controlled allocation size allows out-of-bounds heap read when checking touch slots.
+> - [High] The driver prevents firmware recovery when the device boots in bootloader mode by improperly failing the probe.
+> - [High] fwupdate_lock is held across system calls violating kernel mutex semantics, and is double-unlocked on error paths.
+> - [High] Improper devm teardown order causes Use-After-Free of the input device by background firmware upload threads.
 
-On Tue, Aug 04, 2026 at 11:13:39AM +0800, Jianing Li wrote:
-> The driver allocates max_touch_num input slots, which are indexed from
-> zero through max_touch_num - 1.  The current check allows a finger ID
-> equal to max_touch_num to reach input_mt_report_slot_state(), resulting
-> in an out-of-bounds slot access.
+I am not sure this is true as sysfs attributes should be removed iand
+handlers complete before we get to remove() method. 
 
-This is not quite correct. There is no OOB access because input core
-validates reported slot ids and wil refuse switching to a slot that is
-outside of limits.
+> - [High] Use-after-free of ts->input in the threaded IRQ handler during config firmware updates and device removal.
+> - [High] The driver waits on completion primitives for hardware resets and saves without reinitializing them, causing future waits to falsely succeed immediately.
+> - [High] The driver passes stack-allocated buffers to I2C transfers, which violates DMA requirements and can cause memory corruption.
 
-Still, the driver should not be reporting such packets.
+This is Sashiko's hallucination.
 
-> 
-> The touch count is read from the controller's report and is used to
-> index the fixed-size report buffer without first checking its range.
-> Reject counts larger than the supported number of touch slots before
-> checking the trailing byte or parsing touch data.
-> 
-> Reject IDs at the upper bound before using them as slot indexes.
-> 
-> The V821 Avaota F1 board configures the vendor driver with one touch
-> slot, so finger ID 1 is already invalid on that device.
-> 
-> Fixes: 66603243f528 ("Input: add driver for Hynitron cstxxx touchscreens")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Jianing Li <m13940358460@163.com>
-> ---
->  drivers/input/touchscreen/hynitron_cstxxx.c | 6 +++++-
->  1 file changed, 5 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/input/touchscreen/hynitron_cstxxx.c b/drivers/input/touchscreen/hynitron_cstxxx.c
-> index f6139b1a8681..05e877b0d877 100644
-> --- a/drivers/input/touchscreen/hynitron_cstxxx.c
-> +++ b/drivers/input/touchscreen/hynitron_cstxxx.c
-> @@ -293,6 +293,11 @@ static void cst3xx_touch_report(struct i2c_client *client)
->  	touch_cnt = buf[5] & CST3XX_TOUCH_COUNT_MASK;
-> +	if (touch_cnt > ts_data->chip->max_touch_num) {
-> +		dev_err(&client->dev, "cst3xx touch read failure\n");
+> - [High] NULL pointer dereference in `axiom_remove_axfw_fwl_action` if `devm_add_action_or_reset` fails.
+> - [Medium] An operator precedence error in subtracting the preamble and postamble causes the calculated report payload length to be artificially inflated.
+> - [Medium] Probe error paths leak PM runtime references and fail to disable regulators.
+> - [Medium] I2C read errors are swallowed and falsely reported as success in polling functions.
+> - [Medium] Missing NULL check on `kasprintf` results in a crash or broken sysfs state when registering the firmware upload interfaces.
+> - [Medium] The driver lacks system sleep power management callbacks, causing the device to remain powered on during system suspend if not acting as a panel follower.
+> - [Medium] Dead code in `axiom_register_input_dev` prevents failing initialization when no touchslots are enabled.
+> - [Low] Typo in the sysfs `device_state` output violates the documented ABI.
+> --
 
-We need to have better error message.
+However there appears to be quite a few items that need addressing.
 
-> +		return;
-> +	}
-> +
->  	/*
->  	 * Check the check bit of the last touch slot. The check bit is
->  	 * always present after touch point 1 for valid data, and then
->  	 * appears as the last byte after all other touch data.
->  	 */
-> @@ -333,7 +338,7 @@ static void cst3xx_touch_report(struct i2c_client *client)
->  		sw = (buf[idx] & 0x0f) >> 1;
->  		finger_id = (buf[idx] >> 4) & 0x0f;
->  
->  		/* Sanity check we don't have more fingers than we expect */
-> -		if (ts_data->chip->max_touch_num < finger_id) {
-> +		if (finger_id >= ts_data->chip->max_touch_num) {
->  			dev_err(&client->dev, "cst3xx touch read failure\n");
-
-Same here.
-
->  			break;
-
-Not your change but break here results in finalizing incomplete packet.
-It is better to abort (return) and wait for proper packet without
-invalid fingers.
-
->  	}
-
-I made adjustments and applied, thank you.
+Thanks.
 
 -- 
 Dmitry

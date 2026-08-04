@@ -1,71 +1,77 @@
-Received: from mail-pf1-f170.google.com (mail-pf1-f170.google.com [209.85.210.170])
+Received: from mail-pl1-f181.google.com (mail-pl1-f181.google.com [209.85.214.181])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0D0CF3D6CA3
-	for <linux-input@vger.kernel.org>; Tue,  4 Aug 2026 01:41:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0A2EF283FD4
+	for <linux-input@vger.kernel.org>; Tue,  4 Aug 2026 01:47:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.181
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785807715; cv=none; b=e4hHEx6iH17l780t7pLwumuduuU0QJAp6EKhlPjxnBYgeDtdiMHQ85aFG0PuEAEMD49kFNVS/5GYAPVE027GzExZhMcxfivpyJiF80AUPEKUm6KR+Fw+pDeusVDzkg2P/SvEvAvYR3wG1k3eDJv4X47hviBxKsciHWWQuYg7inw=
+	t=1785808049; cv=none; b=AAfyFu9Owas3tSXSPhNBXI0+o5yFXLDxLn/YVpzotvW+PJwnmW2L0I3KX2BfWfKxAOh0LlPlTHsYEvHdz7hCUCQLSTGNz/uqKE85i1B2PZ4ZgGWa8GEXAwFKwcmkiCukDDCrZRy9PLz9kiQUK0hk86NmKS5aCg7NWcrPmKHk0sA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785807715; c=relaxed/simple;
-	bh=ro+Wx+hreEXUc1+FbWqBmslCj+PhsGQeaz9tmn3EjCs=;
-	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition; b=PXuZClZEBGY6VTmxgH0vb/jEQxrA1sDGhmv7jYr+bALJf/gZzMm50MuBEsSTjbXEtYCgjfvx4U1isZJ+EKrkiLrzzPCM1zWCP6UGqgAQG7cN6m/T0ztu5X3ziMHv5A3RRecaxPqlaLVvkHuIIzHnrfEAKcNlppVW46njE7F9VX8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=EFxgri2o; arc=none smtp.client-ip=209.85.210.170
+	s=arc-20240116; t=1785808049; c=relaxed/simple;
+	bh=AlNJyTnQ+/4lHutdhmK/M1oi40ml9td+PGCVh1fLE0s=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=PuO4OyAkOhO7F7NdJJBbQx+2Uu1LiqIuu4FMx8+zCSgNIMpPzeSrP9oGhjmHxxmFVUjuJMQ57Uw8MFVdZqMy1+mlaDAGzkGnP9978LFRWYMPrfcuYvSZag0BK3m2V7HDtJL/+K26V5atSd//WTIX2zMh2PIh0DVwQOuSbw4xARQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=FiTMHqYJ; arc=none smtp.client-ip=209.85.214.181
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="EFxgri2o"
-Received: by mail-pf1-f170.google.com with SMTP id d2e1a72fcca58-8423f236418so3235142b3a.1
-        for <linux-input@vger.kernel.org>; Mon, 03 Aug 2026 18:41:53 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="FiTMHqYJ"
+Received: by mail-pl1-f181.google.com with SMTP id d9443c01a7336-2ccf2360620so35801465ad.3
+        for <linux-input@vger.kernel.org>; Mon, 03 Aug 2026 18:47:27 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1785807713; x=1786412513; darn=vger.kernel.org;
-        h=content-disposition:content-type:mime-version:message-id:subject:cc
-         :to:from:date:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=CNPgSNpSCLs8Fm5mEm2tT9XyZGyB1J0tABlRmKt+IFM=;
-        b=EFxgri2o4sXW+RL44Ls0BKKaFporJwe6REDeBBcLPTxnZH8uFmYj5rlp0RlfUZ/0ts
-         Nn4dxceJ8hzlv4pxOQ9w45Oa4vlJ134qTcUgopHDVw4tufuBN1kdjI8ZXMKXQPRRdc71
-         qyG42aqCWEdd6q+btz9eBBH23inZc0VvAO36x1Ig+Zy2X2LMqnn57Z8A90g2uAulNPPi
-         GiLp7+Fz0PlPNuhCoKgSGGTm7tyuYGGLLt4pRQYiexNavf9YXtl4QOftiyGQoSDOP7Qg
-         mytfnriVsSngwmA2TRfZ643uaPVA3XNCDngs+Ifsj1ZcQmvKQNx2bP2ptZ+ceqxbqoFF
-         ZK4g==
+        d=gmail.com; s=20251104; t=1785808047; x=1786412847; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=PJCid5QSTmLmbjEgfYWoSErYZcDK6ekrRH1upJJmdlQ=;
+        b=FiTMHqYJdS5M5olrNnWK10C0QLdjACPXEQFwc/tpT4CqGEHFD25t7hbBTZiNmhdTNX
+         2AaXv9jCZ2CO7+F0npeTkxGBIFx8+6xlgj6atIGpR+U0gdreapWg6CSVs3eKLKonKtil
+         6edysg0sriKLF6Q/jN1Ac4AL8mGGo05yHRX8316F0BzfS/kqjAvKmrvDGxdwuqaNMq4y
+         az7AuDoAV/YVoChXclV9mWRFw8ZfyNVjKZIxhzJchTbviXxMJ47ONVatoRWSIFpWL1w9
+         EnxoYPokdQIo9f3+jb+bD/F06QmlUKMzv2aOLJd5ShCOH0iCTYUXHVwbQ+KjYGo3170h
+         FIOg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785807713; x=1786412513;
-        h=content-disposition:content-type:mime-version:message-id:subject:cc
-         :to:from:date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=CNPgSNpSCLs8Fm5mEm2tT9XyZGyB1J0tABlRmKt+IFM=;
-        b=QFRaD6+EoDRCD0tKzJ2GsxnZSRJX578kB3kegcSzg9SkioallrEogu9evLboTXHsE6
-         /wGlENfVzfOxutRoahNtDRy7dId7HsWEw4/2ymJvqI1W9w42rXdB37kkPCYwfn5NC6CG
-         ohqcnN2ZzZPdY7m1WbzSIwgEzN6ohn6b/epGt33FZg3k8+e96eMfMfuCcd9cbmVPEfoI
-         FAUN2ihKvVD2Qx2JNTSA9xMfirMhKQjsDFLjJEjoyv47QUMws7QiWn9sUn/qZ6paSWn/
-         9jLZzYL44pTa59qYE36UWDtWH3yYFJbsHq0+jSVye1bydgpm83jSlRmGzvFAgNRUJG0x
-         69uQ==
-X-Gm-Message-State: AOJu0YzhfiAxyuxQnAxdlFj61bgeA/8K02Nx7cbOO+ZGxb7eXjaX7rfY
-	wJLgZf31FjGxbwswzZ8xLYC4WaIxI2s0Y45p7b9s4ZY1ni5QJe5EjJf/8izkFw==
-X-Gm-Gg: AR+sD10fIqj6rZa0ZRx5sY0yn/jvV4He6gtLvpSl/fpnMatYEZhKO6/azEHXxzpKGf/
-	g5Vbz+jUfCU80UrwBxSa67mNO1JO09ygfZiRNThuA5xfYznV6c4ydS+UKuifBEmlW3zwA8416vu
-	ka2Lc2IOqNnvBL4IXOLrqD5Jnx7k4H4MURB2j3c4oUE/Kq2bWPL5sRmOWm0VK/dgxmM3sAet1ra
-	sOGYIkU6eBYJ5tW58q0KJ5J3jiSbBLm0pWCMZpJkjak3PPjyOdE27zIJHBtk8WSHtwfQe8zDkAG
-	tOrKCcd3ib2z4S5xSaSp+lHo48hf1Disop2h78DpNQyS9XLvAaHZyCOs7gUml9EfwZaCZDdOVQg
-	Gb4PdOYYEi0h7xNzd8I9SC2I/+kwOWbH2sncxXBvCk/JwkQ9S7iF1CCWs8L43f0b4TG6QGvpj2E
-	ZxuN0pVrypTM9EvbqZqjt3mnd9IajYnyP1diDcgSkpEme9ez1i5eUtqZJ1Cz7RBWK4/TSNwQXrr
-	IyqtWSIcCHjEfESTjZhFku2/oyMsQ==
-X-Received: by 2002:a05:6a21:111:b0:3c8:e313:8d2a with SMTP id adf61e73a8af0-3c92a9c70dfmr11518181637.43.1785807713318;
-        Mon, 03 Aug 2026 18:41:53 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1785808047; x=1786412847;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=PJCid5QSTmLmbjEgfYWoSErYZcDK6ekrRH1upJJmdlQ=;
+        b=rJo9lK7YLV40RJJa2B8rEj2/xXJvIq+vFDemskJt5l6p4dAmsFbCf/YntzBXUIArd5
+         RWIdmWTEZETQT+OjNs7f0hlxTWdsZosQaJKA1mnMQbb5Trr+4h/L8YtjKyorGVvR+SdV
+         WSbZVWQZhlWHvgdmQuSA41WQcapykjGYO30kigO8u+NuCLVOV2Mxli4ASrPNWgDKfUJW
+         Z9yiQ9/P4o3SiIf7+hC1+GFert0IWuSuBf4jVdC4kBBR4+a7RTsLoQx3V/hj/J/uqB26
+         +YZRaBycS/lAdwu9Wv0/Z+RfJOKW6X69gmyxc2Lz4mJAv9SjnnUq/ifF/3FWLC8d5uJk
+         sZRw==
+X-Forwarded-Encrypted: i=1; AHgh+RoLuOIN4IXv2dUgzpoU5/MwySr3mJgVlnGpqApNVyd95XOJmYJDFFTio/CD7RWbwYLou6QHsf4kfCfm0g==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yyh0af5NN8YqvOFkjp689EcWDYBXI8cYOQg2sAE9f/RbOedR0ps
+	ULM+UIDXPaXytA4pQ5Y+LgAG4eEuKxM1+Jyz6CsMCIBkmzTyUD/b/Eeq
+X-Gm-Gg: AR+sD111yPmtH50foUsnmp69PAY11BCPAGG5AaXyL6Unxj1VSIJ5KrhV427oLgpMpuD
+	rFQwFpPWp38AgBVw307ch/lDx59qhBLWEN/4+/zTzS8jm94dq6D08cuRVcF8oeCCkSh1G/9cSM/
+	Z+n+zkmhOntHsetxwnFXQWGGD1nWiOrzVhitulZC7crWVO6JQ7NHMkwiDk52HaOlbXwFL4D0j//
+	zvEEW7cHCYpHgNQPQq1v6ykNWo3cDKtM18G3CjZHEY9P7cX5+fGGMtXbh9J/8oBFov8YZAUeSGA
+	U0uLqJQgm8+iu5hUmRGYgEazvH8n+/x4/5nRzHiBpFvRudsVurvkh+t3nnLJfsXofE6SrbXNTpJ
+	Sf9ooqAYlsdE3lK0WR1cZOghdqjTL/ZJvFv1UjXVH7JpwaVVXLwLfdbsydIjP6rscAVLm8bRTlp
+	3/vFhHE/mxEQXIMnhKtVr8Rzq5sudv8uzRdqpMuGQqmJCWmj203ZAgR6Bo1ytuvPkDzg4lClczW
+	3CsCRR/hCPh3fpV+A7Y2A6gRjrhIg==
+X-Received: by 2002:a17:903:3c27:b0:2c0:b6c7:227e with SMTP id d9443c01a7336-2d05219f8fcmr126095735ad.5.1785808047215;
+        Mon, 03 Aug 2026 18:47:27 -0700 (PDT)
 Received: from google.com ([2a00:79e0:2ebe:8:d109:cdba:8a20:74ad])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-13fab1334cfsm39924803c88.1.2026.08.03.18.41.52
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3153e04456dsm39860651eec.14.2026.08.03.18.47.26
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 03 Aug 2026 18:41:52 -0700 (PDT)
-Date: Mon, 3 Aug 2026 18:41:49 -0700
+        Mon, 03 Aug 2026 18:47:26 -0700 (PDT)
+Date: Mon, 3 Aug 2026 18:47:23 -0700
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: linux-input@vger.kernel.org
-Cc: Kees Cook <kees@kernel.org>, linux-kernel@vger.kernel.org, 
-	"Wagenaar, C.C.J. (Chris)" <c.c.j.wagenaar@vu.nl>, Greg KH <gregkh@linuxfoundation.org>
-Subject: [PATCH] Input: evdev - sanitize event type index when fetching event
- masks
-Message-ID: <anFCAfvxwXB5eJF1@google.com>
+To: Jiri Kosina <jikos@kernel.org>
+Cc: David Rheinsberg <david@readahead.eu>, 
+	Peter Hutterer <peter.hutterer@who-t.net>, Benjamin Tissoires <bentiss@kernel.org>, 
+	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Input: uinput/uhid - disallow control characters in phys
+ paths
+Message-ID: <anFDip3gGB4vEA8p@google.com>
+References: <20260717-wip-uinput-sanitize-phys-v1-1-f6459542ce4b@who-t.net>
+ <1ed3a0b5-db39-4a82-b549-0ed7e2cf89c2@app.fastmail.com>
+ <p3886qn6-q75n-8srq-49rp-09p86788s65o@xreary.bet>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -74,59 +80,116 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <p3886qn6-q75n-8srq-49rp-09p86788s65o@xreary.bet>
 
-The user-supplied event type index passed to EVIOCGMASK / EVIOCSMASK
-ioctls is used to index the static counts array in evdev_get_mask_cnt()
-and client evmasks array in evdev_get_mask().
+On Mon, Aug 03, 2026 at 09:58:35PM +0200, Jiri Kosina wrote:
+> On Fri, 24 Jul 2026, David Rheinsberg wrote:
+> 
+> > > There is no good reason to support those, no physical device will ever
+> > > produce those. Allowing \n in phys previously triggered CVE-2026-50292
+> > > in libinput - there the PHYS udev property value was used as part of
+> > > another udev property value. The linebreak then caused the property
+> > > to be split across two lines, allowing uinput devices to inject
+> > > malicious properties. While the bug is squarely inlibinput's court
+> > > there still isn't a good reason for control characters in uinput/uhid.
+> > >
+> > > Signed-off-by: Peter Hutterer <peter.hutterer@who-t.net>
+> > > ---
+> > >  drivers/hid/uhid.c          |  1 +
+> > >  drivers/input/misc/uinput.c |  1 +
+> > >  include/linux/input.h       | 15 +++++++++++++++
+> > >  3 files changed, 17 insertions(+)
+> > >
+> > > diff --git a/drivers/hid/uhid.c b/drivers/hid/uhid.c
+> > > index 37b60c3aaf66..baf1fe8290f7 100644
+> > > --- a/drivers/hid/uhid.c
+> > > +++ b/drivers/hid/uhid.c
+> > > @@ -513,16 +513,17 @@ static int uhid_dev_create2(struct uhid_device *uhid,
+> > >  		ret = PTR_ERR(hid);
+> > >  		goto err_free;
+> > >  	}
+> > > 
+> > >  	BUILD_BUG_ON(sizeof(hid->name) != sizeof(ev->u.create2.name));
+> > >  	strscpy(hid->name, ev->u.create2.name, sizeof(hid->name));
+> > >  	BUILD_BUG_ON(sizeof(hid->phys) != sizeof(ev->u.create2.phys));
+> > >  	strscpy(hid->phys, ev->u.create2.phys, sizeof(hid->phys));
+> > > +	input_sanitize_phys(hid->phys);
+> > >  	BUILD_BUG_ON(sizeof(hid->uniq) != sizeof(ev->u.create2.uniq));
+> > >  	strscpy(hid->uniq, ev->u.create2.uniq, sizeof(hid->uniq));
+> > > 
+> > >  	hid->ll_driver = &uhid_hid_driver;
+> > >  	hid->bus = ev->u.create2.bus;
+> > >  	hid->vendor = ev->u.create2.vendor;
+> > >  	hid->product = ev->u.create2.product;
+> > >  	hid->version = ev->u.create2.version;
+> > > diff --git a/drivers/input/misc/uinput.c b/drivers/input/misc/uinput.c
+> > > index d32fa4b508fc..70fe4f3e73bf 100644
+> > > --- a/drivers/input/misc/uinput.c
+> > > +++ b/drivers/input/misc/uinput.c
+> > > @@ -998,16 +998,17 @@ static long uinput_ioctl_handler(struct file 
+> > > *file, unsigned int cmd,
+> > > 
+> > >  		phys = strndup_user(p, 1024);
+> > >  		if (IS_ERR(phys)) {
+> > >  			retval = PTR_ERR(phys);
+> > >  			goto out;
+> > >  		}
+> > > 
+> > >  		kfree(udev->dev->phys);
+> > > +		input_sanitize_phys(phys);
+> > >  		udev->dev->phys = phys;
+> > >  		goto out;
+> > > 
+> > >  	case UI_BEGIN_FF_UPLOAD:
+> > >  		retval = uinput_ff_upload_from_user(p, &ff_up);
+> > >  		if (retval)
+> > >  			goto out;
+> > > 
+> > > diff --git a/include/linux/input.h b/include/linux/input.h
+> > > index 76f7aa226202..6c182f5c783f 100644
+> > > --- a/include/linux/input.h
+> > > +++ b/include/linux/input.h
+> > > @@ -527,16 +527,31 @@ int input_set_keycode(struct input_dev *dev,
+> > > 
+> > >  bool input_match_device_id(const struct input_dev *dev,
+> > >  			   const struct input_device_id *id);
+> > > 
+> > >  void input_enable_softrepeat(struct input_dev *dev, int delay, int period);
+> > > 
+> > >  bool input_device_enabled(struct input_dev *dev);
+> > > 
+> > > +/**
+> > > + * input_sanitize_phys - replace invalid characters in a phys string
+> > > + * @phys: the phys path to sanitize (modified in place)
+> > > + *
+> > > + * Replaces any control characters and non-ASCII characters with '?'.
+> > > + **/
+> > > +static inline void input_sanitize_phys(char *phys)
+> > > +{
+> > > +	char *p;
+> > > +
+> > > +	for (p = phys; *p; p++)
+> > > +		if (*p < 0x20 || *p > 0x7e)
+> > > +			*p = '?';
+> > > +}
+> > > +
+> > 
+> > Reviewed-by: David Rheinsberg <david@readahead.eu>
+> > 
+> > I would also be fine to just reject them in uinput, but I guess this is the less intrusive option.
+> 
+> Thanks for the fix.
+> 
+> Dmitry, can you please Ack the above addition to input.h?
 
-While the event type is architecturally bounded by EV_CNT, speculative
-execution may mispredict bounds checks and perform out-of-bounds loads.
+Jiri, as I mentioned I believe that if we need to sanitize phys we
+should also sanitize other fields, especially given that they can be
+set by userspace.
 
-Sanitize the event type index in evdev_get_mask_cnt() branchlessly using
-array_index_mask_nospec(). This clamps the index to 0 for safe array
-access and forces the returned count to 0 speculatively when the index
-is out of bounds.
+I also wonder why it needs to be inline? And what is wrong with using
+isprint() here? 
 
-We do not need additional array_index_nospec() calls in evdev_get_mask()
-because evdev_get_mask_cnt() speculatively forces the count (and
-resulting xfer_size) to 0 for out-of-bounds types, preventing any
-speculative memory access to client evmasks array.
-
-Reported-by: "Wagenaar, C.C.J. (Chris)" <c.c.j.wagenaar@vu.nl>
-Cc: stable@vger.kernel.org
-Assisted-by: Antigravity:gemini-3.6-flash
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
----
- drivers/input/evdev.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
-index 5764c98b4f1f..796ac7ac2b8c 100644
---- a/drivers/input/evdev.c
-+++ b/drivers/input/evdev.c
-@@ -21,6 +21,7 @@
- #include <linux/init.h>
- #include <linux/input/mt.h>
- #include <linux/major.h>
-+#include <linux/nospec.h>
- #include <linux/device.h>
- #include <linux/cdev.h>
- #include "input-compat.h"
-@@ -67,8 +68,10 @@ static size_t evdev_get_mask_cnt(unsigned int type)
- 		[EV_SND]	= SND_CNT,
- 		[EV_FF]		= FF_CNT,
- 	};
-+	unsigned long mask = array_index_mask_nospec(type, EV_CNT);
- 
--	return (type < EV_CNT) ? counts[type] : 0;
-+	/* Returns 0 for out-of-bounds types, including speculatively */
-+	return counts[type & mask] & mask;
- }
- 
- /* requires the buffer lock to be held */
--- 
-2.55.0.629.g250fe7f194-goog
-
+Thanks.
 
 -- 
 Dmitry

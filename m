@@ -1,159 +1,132 @@
-Received: from mailgw.kylinos.cn (mailgw.kylinos.cn [124.126.103.232])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f170.google.com (mail-pf1-f170.google.com [209.85.210.170])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 50D21257855;
-	Tue,  4 Aug 2026 01:41:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=124.126.103.232
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0D0CF3D6CA3
+	for <linux-input@vger.kernel.org>; Tue,  4 Aug 2026 01:41:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.170
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785807713; cv=none; b=QLNVFYWKGlzQLpyc5sKvC8XLbZw9QEC3JbpJqG/rv91GX44KEs/Ufevtlk/5/rjg/aPd8ecbmPJq5wv2ziGBi8sb5TL+G657qR3PwauyQNG7Wx6+CsbSrVrn1MbIgzmgqfqitZr7yofi12YT0YEcDe6Zb2IhN7QCgCBikjTyYN4=
+	t=1785807715; cv=none; b=e4hHEx6iH17l780t7pLwumuduuU0QJAp6EKhlPjxnBYgeDtdiMHQ85aFG0PuEAEMD49kFNVS/5GYAPVE027GzExZhMcxfivpyJiF80AUPEKUm6KR+Fw+pDeusVDzkg2P/SvEvAvYR3wG1k3eDJv4X47hviBxKsciHWWQuYg7inw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785807713; c=relaxed/simple;
-	bh=5gNcFCB3Vj5V9Zpv0AFqmr3gsHDzKG4qPPzrkhBLJ4w=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=dN5T/06w5+BGNUhG1idpxzvfdMxIIUSWGqcD2SrcNpXj9RneaLaZpMNg17qTys5va9mb9dYyM2K6yXDXdB0W3ujUFks67kFKsT2WC9nSwNJVecErNjSFDAscFrFP69UJH1KU1TX3WLxIBBA2kXMIhkf6NkoYkEQ4J990/su/Xfs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn; spf=pass smtp.mailfrom=kylinos.cn; arc=none smtp.client-ip=124.126.103.232
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kylinos.cn
-X-UUID: a4d770728fa511f1aa26b74ffac11d73-20260804
-X-CID-CACHE: Type:Local,Time:202608040858+08,HitQuantity:1
-X-CID-P-RULE: Release_Ham
-X-CID-O-INFO: VERSION:1.3.12,REQID:30382da1-3fe8-4b40-a7f9-4314c8fc7e90,IP:0,U
-	RL:0,TC:0,Content:0,EDM:0,RT:0,SF:0,FILE:0,BULK:0,RULE:Release_Ham,ACTION:
-	release,TS:0
-X-CID-META: VersionHash:e7bac3a,CLOUDID:14b31d5e9135692ec2635d0aa24d34bf,BulkI
-	D:nil,BulkQuantity:0,Recheck:0,SF:80|81|82|83|102|865|898,TC:nil,Content:0
-	|15|52,EDM:-3,IP:nil,URL:99|1,File:nil,RT:nil,Bulk:nil,QS:nil,BEC:nil,COL:
-	0,OSI:0,OSA:0,AV:0,LES:1,SPR:NO,DKR:0,DKP:0,BRR:0,BRE:0,ARC:0
-X-CID-BVR: 2,SSN|SDN
-X-CID-BAS: 2,SSN|SDN,0,_
-X-CID-FACTOR: TF_CID_SPAM_SNR,TF_CID_SPAM_ULS
-X-CID-RHF: D41D8CD98F00B204E9800998ECF8427E
-X-UUID: a4d770728fa511f1aa26b74ffac11d73-20260804
-X-User: xiaopei01@kylinos.cn
-Received: from [10.42.12.251] [(10.44.16.150)] by mailgw.kylinos.cn
-	(envelope-from <xiaopei01@kylinos.cn>)
-	(Generic MTA with TLSv1.3 TLS_AES_128_GCM_SHA256 128/128)
-	with ESMTP id 1945894045; Tue, 04 Aug 2026 09:41:42 +0800
-Message-ID: <1ecf4899-53f3-4688-a3cb-fa29cbf277ee@kylinos.cn>
-Date: Tue, 4 Aug 2026 09:41:39 +0800
+	s=arc-20240116; t=1785807715; c=relaxed/simple;
+	bh=ro+Wx+hreEXUc1+FbWqBmslCj+PhsGQeaz9tmn3EjCs=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition; b=PXuZClZEBGY6VTmxgH0vb/jEQxrA1sDGhmv7jYr+bALJf/gZzMm50MuBEsSTjbXEtYCgjfvx4U1isZJ+EKrkiLrzzPCM1zWCP6UGqgAQG7cN6m/T0ztu5X3ziMHv5A3RRecaxPqlaLVvkHuIIzHnrfEAKcNlppVW46njE7F9VX8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=EFxgri2o; arc=none smtp.client-ip=209.85.210.170
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="EFxgri2o"
+Received: by mail-pf1-f170.google.com with SMTP id d2e1a72fcca58-8423f236418so3235142b3a.1
+        for <linux-input@vger.kernel.org>; Mon, 03 Aug 2026 18:41:53 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1785807713; x=1786412513; darn=vger.kernel.org;
+        h=content-disposition:content-type:mime-version:message-id:subject:cc
+         :to:from:date:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=CNPgSNpSCLs8Fm5mEm2tT9XyZGyB1J0tABlRmKt+IFM=;
+        b=EFxgri2o4sXW+RL44Ls0BKKaFporJwe6REDeBBcLPTxnZH8uFmYj5rlp0RlfUZ/0ts
+         Nn4dxceJ8hzlv4pxOQ9w45Oa4vlJ134qTcUgopHDVw4tufuBN1kdjI8ZXMKXQPRRdc71
+         qyG42aqCWEdd6q+btz9eBBH23inZc0VvAO36x1Ig+Zy2X2LMqnn57Z8A90g2uAulNPPi
+         GiLp7+Fz0PlPNuhCoKgSGGTm7tyuYGGLLt4pRQYiexNavf9YXtl4QOftiyGQoSDOP7Qg
+         mytfnriVsSngwmA2TRfZ643uaPVA3XNCDngs+Ifsj1ZcQmvKQNx2bP2ptZ+ceqxbqoFF
+         ZK4g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1785807713; x=1786412513;
+        h=content-disposition:content-type:mime-version:message-id:subject:cc
+         :to:from:date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=CNPgSNpSCLs8Fm5mEm2tT9XyZGyB1J0tABlRmKt+IFM=;
+        b=QFRaD6+EoDRCD0tKzJ2GsxnZSRJX578kB3kegcSzg9SkioallrEogu9evLboTXHsE6
+         /wGlENfVzfOxutRoahNtDRy7dId7HsWEw4/2ymJvqI1W9w42rXdB37kkPCYwfn5NC6CG
+         ohqcnN2ZzZPdY7m1WbzSIwgEzN6ohn6b/epGt33FZg3k8+e96eMfMfuCcd9cbmVPEfoI
+         FAUN2ihKvVD2Qx2JNTSA9xMfirMhKQjsDFLjJEjoyv47QUMws7QiWn9sUn/qZ6paSWn/
+         9jLZzYL44pTa59qYE36UWDtWH3yYFJbsHq0+jSVye1bydgpm83jSlRmGzvFAgNRUJG0x
+         69uQ==
+X-Gm-Message-State: AOJu0YzhfiAxyuxQnAxdlFj61bgeA/8K02Nx7cbOO+ZGxb7eXjaX7rfY
+	wJLgZf31FjGxbwswzZ8xLYC4WaIxI2s0Y45p7b9s4ZY1ni5QJe5EjJf/8izkFw==
+X-Gm-Gg: AR+sD10fIqj6rZa0ZRx5sY0yn/jvV4He6gtLvpSl/fpnMatYEZhKO6/azEHXxzpKGf/
+	g5Vbz+jUfCU80UrwBxSa67mNO1JO09ygfZiRNThuA5xfYznV6c4ydS+UKuifBEmlW3zwA8416vu
+	ka2Lc2IOqNnvBL4IXOLrqD5Jnx7k4H4MURB2j3c4oUE/Kq2bWPL5sRmOWm0VK/dgxmM3sAet1ra
+	sOGYIkU6eBYJ5tW58q0KJ5J3jiSbBLm0pWCMZpJkjak3PPjyOdE27zIJHBtk8WSHtwfQe8zDkAG
+	tOrKCcd3ib2z4S5xSaSp+lHo48hf1Disop2h78DpNQyS9XLvAaHZyCOs7gUml9EfwZaCZDdOVQg
+	Gb4PdOYYEi0h7xNzd8I9SC2I/+kwOWbH2sncxXBvCk/JwkQ9S7iF1CCWs8L43f0b4TG6QGvpj2E
+	ZxuN0pVrypTM9EvbqZqjt3mnd9IajYnyP1diDcgSkpEme9ez1i5eUtqZJ1Cz7RBWK4/TSNwQXrr
+	IyqtWSIcCHjEfESTjZhFku2/oyMsQ==
+X-Received: by 2002:a05:6a21:111:b0:3c8:e313:8d2a with SMTP id adf61e73a8af0-3c92a9c70dfmr11518181637.43.1785807713318;
+        Mon, 03 Aug 2026 18:41:53 -0700 (PDT)
+Received: from google.com ([2a00:79e0:2ebe:8:d109:cdba:8a20:74ad])
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-13fab1334cfsm39924803c88.1.2026.08.03.18.41.52
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 03 Aug 2026 18:41:52 -0700 (PDT)
+Date: Mon, 3 Aug 2026 18:41:49 -0700
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: linux-input@vger.kernel.org
+Cc: Kees Cook <kees@kernel.org>, linux-kernel@vger.kernel.org, 
+	"Wagenaar, C.C.J. (Chris)" <c.c.j.wagenaar@vu.nl>, Greg KH <gregkh@linuxfoundation.org>
+Subject: [PATCH] Input: evdev - sanitize event type index when fetching event
+ masks
+Message-ID: <anFCAfvxwXB5eJF1@google.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] HID: hid-steam: fix uninit-value access in
- steam_get_serial
-To: Vicki Pfau <vi@endrift.com>, Jiri Kosina <jikos@kernel.org>
-Cc: Benjamin Tissoires <bentiss@kernel.org>, linux-input@vger.kernel.org,
- linux-kernel@vger.kernel.org,
- syzbot+75f3f9bff8c510602d36@syzkaller.appspotmail.com,
- syzkaller-bugs@googlegroups.com
-References: <6a27d055.39669fcc.33b062.008d.GAE@google.com>
- <0c5f5bcd3d01776615a97d7f23b5c1bff6a2acce.1781092734.git.xiaopei01@kylinos.cn>
- <85n82qo4-q3q8-8052-1qnr-n7qo12p2p01n@xreary.bet>
- <5ad5f7d4-a29f-409a-8153-c162059807b2@endrift.com>
- <16471b27-6f78-4627-874b-9474ee28375c@kylinos.cn>
- <03420881-edf5-4102-8156-79f314284a07@endrift.com>
-From: Pei Xiao <xiaopei01@kylinos.cn>
-In-Reply-To: <03420881-edf5-4102-8156-79f314284a07@endrift.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+The user-supplied event type index passed to EVIOCGMASK / EVIOCSMASK
+ioctls is used to index the static counts array in evdev_get_mask_cnt()
+and client evmasks array in evdev_get_mask().
+
+While the event type is architecturally bounded by EV_CNT, speculative
+execution may mispredict bounds checks and perform out-of-bounds loads.
+
+Sanitize the event type index in evdev_get_mask_cnt() branchlessly using
+array_index_mask_nospec(). This clamps the index to 0 for safe array
+access and forces the returned count to 0 speculatively when the index
+is out of bounds.
+
+We do not need additional array_index_nospec() calls in evdev_get_mask()
+because evdev_get_mask_cnt() speculatively forces the count (and
+resulting xfer_size) to 0 for out-of-bounds types, preventing any
+speculative memory access to client evmasks array.
+
+Reported-by: "Wagenaar, C.C.J. (Chris)" <c.c.j.wagenaar@vu.nl>
+Cc: stable@vger.kernel.org
+Assisted-by: Antigravity:gemini-3.6-flash
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+---
+ drivers/input/evdev.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
+index 5764c98b4f1f..796ac7ac2b8c 100644
+--- a/drivers/input/evdev.c
++++ b/drivers/input/evdev.c
+@@ -21,6 +21,7 @@
+ #include <linux/init.h>
+ #include <linux/input/mt.h>
+ #include <linux/major.h>
++#include <linux/nospec.h>
+ #include <linux/device.h>
+ #include <linux/cdev.h>
+ #include "input-compat.h"
+@@ -67,8 +68,10 @@ static size_t evdev_get_mask_cnt(unsigned int type)
+ 		[EV_SND]	= SND_CNT,
+ 		[EV_FF]		= FF_CNT,
+ 	};
++	unsigned long mask = array_index_mask_nospec(type, EV_CNT);
+ 
+-	return (type < EV_CNT) ? counts[type] : 0;
++	/* Returns 0 for out-of-bounds types, including speculatively */
++	return counts[type & mask] & mask;
+ }
+ 
+ /* requires the buffer lock to be held */
+-- 
+2.55.0.629.g250fe7f194-goog
 
 
-
-在 2026/8/4 09:05, Vicki Pfau 写道:
-> Hi Pei,
-> 
-> On 8/3/26 5:58 PM, Pei Xiao wrote:
->>
->>
->> 在 2026/8/4 04:39, Vicki Pfau 写道:
->>> Hi Jiri,
->>>
->>> On 8/3/26 12:34 PM, Jiri Kosina wrote:
->>>> CCing Vicki Pfau here ... could you please give your Ack to this fix?
->>>
->>> This was already fixed in 9f8ee99f831b2711624ef81d0abba1d183f28b09 in the series I submitted earlier. I didn't realize there was an open bug report for it.
->> Hi maintainer and Vicki,
->> I took a look at this commit. In fact, my patch was nearly two months
->> earlier than this commit. I had originally thought that this one-line
->> patch, especially for an error-path case, had been ignored by the
->> maintainer.
-> 
-> Yes, sorry, I wasn't marked as maintainer at the time and didn't notice it before I wrote my equivalent patch. Jiri just happened to merge mine first.
-> 
-It's okay.
-> Vicki
-> 
->>
->> thanks！
->> Pei.
->>>
->>>>
->>>> Thanks.
->>>>
->>>> On Wed, 10 Jun 2026, Pei Xiao wrote:
->>>>
->>>>> The reply buffer in steam_get_serial() is allocated on the stack without
->>>>> initialization. In cases where steam_recv_report() returns a short read or
->>>>> an error, not all bytes of the buffer are written, leading to subsequent
->>>>> access of uninitialized memory when checking reply[0], reply[1], reply[2].
->>>>>
->>>>> Zero-initialize the reply array to prevent KMSAN uninit-value warnings.
->>>>>
->>>>> Logs:
->>>>> hid-steam 0003:28DE:1102.0007: unknown main item tag 0x0
->>>>> hid-steam 0003:28DE:1102.0007: unknown main item tag 0x0
->>>>> hid-steam 0003:28DE:1102.0007: :
->>>>> USB HID v7f.fd Device [HID 28de:1102] on usb-dummy_hcd.1-1/input0
->>>>> =====================================================
->>>>> BUG: KMSAN: uninit-value in steam_get_serial drivers/hid/hid-steam.c:457 [inline]
->>>>> BUG: KMSAN: uninit-value in steam_register+0xd83/0x10e0 drivers/hid/hid-steam.c:965
->>>>>  steam_get_serial drivers/hid/hid-steam.c:457 [inline]
->>>>>  steam_register+0xd83/0x10e0 drivers/hid/hid-steam.c:965
->>>>>  steam_probe+0x6f1/0x19b0 drivers/hid/hid-steam.c:1273
->>>>>  __hid_device_probe drivers/hid/hid-core.c:2822 [inline]
->>>>>  hid_device_probe+0x60d/0xb90 drivers/hid/hid-core.c:2859
->>>>>  call_driver_probe drivers/base/dd.c:-1 [inline]
->>>>>  really_probe+0x4d5/0xe40 drivers/base/dd.c:709
->>>>>  ...
->>>>>
->>>>> Local variable reply.i created at:
->>>>>  steam_get_serial drivers/hid/hid-steam.c:448 [inline]
->>>>>  steam_register+0x180/0x10e0 drivers/hid/hid-steam.c:965
->>>>>  steam_probe+0x6f1/0x19b0 drivers/hid/hid-steam.c:1273
->>>>>
->>>>> Reported-by: syzbot+75f3f9bff8c510602d36@syzkaller.appspotmail.com
->>>>> Closes: https://lore.kernel.org/lkml/6a27d055.39669fcc.33b062.008d.GAE@google.com/
->>>>> Fixes: c164d6abf384 ("HID: add driver for Valve Steam Controller")
->>>>> Signed-off-by: Pei Xiao <xiaopei01@kylinos.cn>
->>>>
->>>>
->>>>
->>>>> ---
->>>>>  drivers/hid/hid-steam.c | 2 +-
->>>>>  1 file changed, 1 insertion(+), 1 deletion(-)
->>>>>
->>>>> diff --git a/drivers/hid/hid-steam.c b/drivers/hid/hid-steam.c
->>>>> index 197126d6e081..f65ad1a21c01 100644
->>>>> --- a/drivers/hid/hid-steam.c
->>>>> +++ b/drivers/hid/hid-steam.c
->>>>> @@ -445,7 +445,7 @@ static int steam_get_serial(struct steam_device *steam)
->>>>>  	 */
->>>>>  	int ret = 0;
->>>>>  	u8 cmd[] = {ID_GET_STRING_ATTRIBUTE, sizeof(steam->serial_no), ATTRIB_STR_UNIT_SERIAL};
->>>>> -	u8 reply[3 + STEAM_SERIAL_LEN + 1];
->>>>> +	u8 reply[3 + STEAM_SERIAL_LEN + 1] = { 0 };
->>>>>  
->>>>>  	mutex_lock(&steam->report_mutex);
->>>>>  	ret = steam_send_report(steam, cmd, sizeof(cmd));
->>>>> -- 
->>>>> 2.25.1
->>>>>
->>>>
->>>
->>> Vicki
->>
-
+-- 
+Dmitry

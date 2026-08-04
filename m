@@ -1,73 +1,73 @@
-Received: from mail-pj1-f44.google.com (mail-pj1-f44.google.com [209.85.216.44])
+Received: from mail-pj1-f45.google.com (mail-pj1-f45.google.com [209.85.216.45])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 51B8C2E22B5
-	for <linux-input@vger.kernel.org>; Tue,  4 Aug 2026 04:18:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 50EC2175A99
+	for <linux-input@vger.kernel.org>; Tue,  4 Aug 2026 04:51:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.45
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785817110; cv=none; b=lBHrWYgg15DY8VJpKexm8hFWv1uxUeCKaPkvEaL9OBkM0q+a4i+eQcG9afwqG+MJgWRKN0u7EMu+ymO12xVzG5v1hhdlFChl2fIov8nP2pQ9ZhRhAw+SEThB+uBL0cjsmNrdW32bLA5QYypYWsIqUl9Am2/K5N6FVbcSQnzTI6U=
+	t=1785819081; cv=none; b=OfaphkXfIWj7Vdb6BxwIR2V2SZE/rxIQKj+rhXXKvkgPREDTkG9aKrbY0Rsbwj8WYVLuPGDPtLtFKeeAIc+sltuU0YhBO65Jn4UU1qs4iynBNwtSata6cBZCBj3J2Ee7cGpfxZiBQSB1YXeVoT4mctGd9s9dmjrbcU7KniXSHLE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785817110; c=relaxed/simple;
-	bh=Pzc+stFIC47bcug9qLJKtKBL7CSfTEjOdrZmzZctNpg=;
+	s=arc-20240116; t=1785819081; c=relaxed/simple;
+	bh=bTEnF0GSN3SBXW2xrn7XaencUwWpEBCFuVm/FLAWE4E=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=OiTPshDJIX/0ULlI3o7hh2vUdO+o5/ob42YinpsIbgu3mVxA5C0k7mrTuXwn/ZuVD9uMXYVrBiUFaa97DaKg03TM6ZgWFzb95vk+/uDd0B9xWHXCHvuw+9HtnqOd/IQJMUMREjR0azpC0B/TAVgey6mlY0qn6lJma21t14ST3SI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=nuCFP+u+; arc=none smtp.client-ip=209.85.216.44
+	 Content-Type:Content-Disposition:In-Reply-To; b=mRaTunReSu+RtwAmZJEq+KIkHwjrgZZ6yud1+/pxL1LrR7TrnvSuAKrUedCR7ARIsR+0mNM+OYdNQ4VCvrO26sjld/PTg37dsBHzCrK9+6U7N3thFPJgT7JY6xVrW6h56HTSBV6QdmmLtjJI9gWemn/EA2u3V0JD1WUIBWB9ZoE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=G1XeVLEt; arc=none smtp.client-ip=209.85.216.45
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="nuCFP+u+"
-Received: by mail-pj1-f44.google.com with SMTP id 98e67ed59e1d1-38deea72eebso3938957a91.1
-        for <linux-input@vger.kernel.org>; Mon, 03 Aug 2026 21:18:29 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="G1XeVLEt"
+Received: by mail-pj1-f45.google.com with SMTP id 98e67ed59e1d1-384930ca5e2so3546345a91.3
+        for <linux-input@vger.kernel.org>; Mon, 03 Aug 2026 21:51:20 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1785817108; x=1786421908; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1785819080; x=1786423880; darn=vger.kernel.org;
         h=in-reply-to:content-disposition:content-type:mime-version
          :references:message-id:subject:cc:to:from:date:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=HNpfIZ0OfydC6fKax55kUfhD/gOfTNbtFad2cCOF1NQ=;
-        b=nuCFP+u+wcAdadL2TIyJBLawPW0lAhOfn5XHEoOiTK9xYDqPrMPZE7eps6eDI2harx
-         jjT7KyeS5rtun/nrdKaxlvMXVEPeKHM9kzGYntdbXZAYLrIh+nRN9VzChCiVoI8J2WiU
-         /58EUMB/WU2S5YBm3cIXk+gaNmJRprjfXJ7NcIUBtdcAPJQ9nfWmi8IhWpljIN++J2Z0
-         TzXMgLaR1dl5fJiCVJhFk/VxZ/Qf8Ju7a82Nwh2s30jZX2LCvIK6h63FxBfpT4JbQSix
-         ge1BXyE6S/0en5RtYpDE2F52DDs0M58f2pyxciSpLz1SEcyDHmd/PUgFdU53wj/GMK20
-         ErTw==
+        bh=mdfSBvQXwGzTtQw/QDJdQFO/fQB5csp00HtUR8um7Bk=;
+        b=G1XeVLEtPdPT9+IQ3T+TlKetDbfOEdLmB6GR9t7e3Usj2K4QRtnyDOapJfNKU9KeY3
+         KVkKBK1zrZSvoyS4ugeKf9uc4Fg4D7NVzYLC0sRMDZnD73mFqoouBdbXk2WR4PM9Kbpu
+         VelIgZr/JFCKvdOwYAbLC6TtBT0orAjaWot9/5HPhUzHGyflfcwGeVQbxe/GfzNfJ+o5
+         li2ajTNu0BEUwaBwv4Xo3IiDo5FcAJCvnzgeoGHDSvxP0MKeMt9wfsS02foOMqVDZ+iS
+         PmZk2V7BIA2py2aDoquMD6gTE5/u1jZtwa1JSWM++ny6xDVoK7zummbg+hFs7qNEZqq4
+         9+xA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785817108; x=1786421908;
+        d=1e100.net; s=20251104; t=1785819080; x=1786423880;
         h=in-reply-to:content-disposition:content-type:mime-version
          :references:message-id:subject:cc:to:from:date:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=HNpfIZ0OfydC6fKax55kUfhD/gOfTNbtFad2cCOF1NQ=;
-        b=hbg0NwNb/h9iXi4egcTfTe2/W0+mwV9fJx88LLxunba9bBwZIGx0SjwDP1+DUtQRT9
-         qDQbI0xlAtq+L5acP04EJztH5Xd7gLTvSD37LU9e6G3x8ZDAd3NCCoMcK3pGhCO1skrv
-         bX3EXaJL0gZCk46vrSEoQk825Y+phSsHusTFuYSDo+aslnugILLK91btRfkXMAOkFDBr
-         TzGOX+81Dr6vRRb1gEKJUwqHC6b2exiDCNli4py0rwvhKSJA44sqPoHJAy5H8C+oH+g1
-         LtsntQTKyt1/LAZIc29m9rurPetusQYBwwXLNaqwSec89H9WNJHKw6v9jg/LdnrybSLm
-         zfHQ==
-X-Gm-Message-State: AOJu0Yzfq4xHHB+LG6SmJnvAX2T7siIyBGMcaxkk2Kz5Q8GjXA+2VZMf
-	ZGrEA6QgpNCrr4MzzAIKSBcvAQBSDyPikFbcyG7SyaMAE0kWUXlqKHO6
-X-Gm-Gg: AR+sD11KMBfdrGmOSa3UMA0DCkRz8rWpBi3s9TrEecOdVnqY2LKNgsUN0uqpGFcPAlA
-	QqNzrzK95N7zNcT6DcJOqgc3lQyhHDrlZWxJEoWXcjJsbUepwK/Uzmyp2HGXDBUtcG2WrxfD58z
-	FEg5UZtBwLfsL9ucrjPpTPKSeD97VjXqRIXtKVKrvbiMX0OCOiB6tvrWEimwpxwPM+C+7poxHbm
-	kvnUOtViwBbOpWsusZXnAMWQbiwUKJLdAXnx14ExkKwYhVWcHkUFwvZtsTDnw2WmKMXs7b9imjx
-	tS6Ufyfm8fAdmQZptSxksQYBR7NQM5WYH2QZkuJ9VsDQlbFVovYhCArCfFEWoU9hTzaSW04/s0T
-	wpA42sE+OdWCm+R2gD1afarXZXiLkVY4x+p82Ma5IknjfLswyAPayGdRls5LHmB69Xulwu2xJKt
-	PiLT6dTbBZd6b/FKBImDGVaSiepFFxkLzBz+ysya69PnyHgYZ/O1NhBQfrhnanvUzCU4gG7vvZF
-	lMCVDPsbe6RLgRZ6fUKPfsKtrrTxg==
-X-Received: by 2002:a17:90b:3985:b0:38e:9045:babe with SMTP id 98e67ed59e1d1-38fbc4053d7mr10826936a91.7.1785817108418;
-        Mon, 03 Aug 2026 21:18:28 -0700 (PDT)
+        bh=mdfSBvQXwGzTtQw/QDJdQFO/fQB5csp00HtUR8um7Bk=;
+        b=c3q6Wd9RJ5XYCu3RVcAgq3+DNLmi+6u7cW/PtVCuJMy/bSv3EXGsWEy+CUaS9iMX87
+         GbM9j5n2J5mRS3AOuqSCYrI9sbfDPUgDTK/DWgqQmo2jBckTPH4oApMsjw80ohTJQpNf
+         jt7PteBgpDphzbm9nJrkbwYNCfffqWss1ZOm4fncO4VBztMvVye+yXdwsdvuf4szMJX+
+         foji8T+KrRs0XjNW6j/f5UG1Iuvs7qqxcqE9Vmvn4fo6/0QTNTI8h0nYtd0tmNckr/wW
+         LJ54lZ1p4q3AiuFxYrDSnIIXAnmnhbs9x9PyhI3mWuDH9O46hMOUeDJvdA+MM+nYKWJA
+         kQjA==
+X-Gm-Message-State: AOJu0YxrIfT5XNuR43vAxc8zEOx6W9xR4hehrUgRzjhOcfBs4us0YCgy
+	ki6yBz6epVshFqc5+mmV6c5tqYGkjR+qyb4/CPiyPyluvUWjGOf2K17H
+X-Gm-Gg: AR+sD113Oa4S9ixL4J2K6+hvggyWOO3EC09tgsea3GrOTOs++IiUEMD/2T3u1DsRKxl
+	1Q2+2FJt0grNCGoNsIUgt/JPgPcF4TK6+MMQF2cAD1OweliBHmHexUmjxMRQjMrp2AnlK0JF59W
+	VqqcbcNwxq9DOlP6siWVLeppWkO0hfeGPm8hI64ib9c+ZpH5rpzbjFW4Wlsk91UOpUZIbLuIeYR
+	cw961QHSpU2pjTjKpjaHzksKZITK4TG8XPFhGQtEocX8r2iMxph4gBXUiYp1lqsmbkYiHoJNgdl
+	3PxgPkW7aQn3chHOFbwWur7V39zkWxe6+RZP0+CEKaw3+/dXi5/BPLNh6xZO6eMVGdup7fqGmB5
+	4WzuZI6XEsCkeofknV25cmWln1mtc2B+HRv+dGUtJlJbS/3t7IJHCYUfE3joSb/s8FtM/cuj3b+
+	6lfKDCugnoKOy6ESoEBxEM7b634XDaWGkaZtOyXBbp7gHkP/5Ik0UxB7PVcVu61e+kviDCP8Pms
+	DmPB5YDX/cZCk2Lgux+ja+FqXhVtg==
+X-Received: by 2002:a17:90b:3851:b0:38e:dc4:3f64 with SMTP id 98e67ed59e1d1-38fbc52da42mr11200125a91.38.1785819079614;
+        Mon, 03 Aug 2026 21:51:19 -0700 (PDT)
 Received: from google.com ([2a00:79e0:2ebe:8:d109:cdba:8a20:74ad])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3153e04491dsm58433183eec.16.2026.08.03.21.18.27
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3153e06f8dbsm46423466eec.22.2026.08.03.21.51.18
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 03 Aug 2026 21:18:27 -0700 (PDT)
-Date: Mon, 3 Aug 2026 21:18:24 -0700
+        Mon, 03 Aug 2026 21:51:18 -0700 (PDT)
+Date: Mon, 3 Aug 2026 21:51:16 -0700
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: sashiko-reviews@lists.linux.dev
-Cc: linux-input@vger.kernel.org
-Subject: Re: [PATCH] Input: evdev - sanitize event type index when fetching
- event masks
-Message-ID: <anFmI06p-i0vusxe@google.com>
-References: <anFCAfvxwXB5eJF1@google.com>
- <20260804015414.E04CA1F000E9@smtp.kernel.org>
+To: Jianing Li <m13940358460@163.com>
+Cc: linux-input@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH v2] Input: hynitron_cstxxx: validate touch count and
+ finger IDs
+Message-ID: <anFu87r00Dv6cP-u@google.com>
+References: <20260804020314.2082-1-m13940358460@163.com>
+ <20260804031339.2379-1-m13940358460@163.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -76,94 +76,79 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260804015414.E04CA1F000E9@smtp.kernel.org>
+In-Reply-To: <20260804031339.2379-1-m13940358460@163.com>
 
-On Tue, Aug 04, 2026 at 01:54:13AM +0000, sashiko-bot@kernel.org wrote:
-> Thank you for your contribution! Sashiko AI review found 1 potential issue(s) to consider:
-> 
-> Pre-existing issues:
-> - [High] Incomplete Spectre v1 mitigation due to misunderstanding of speculative execution on branches.
-> --
-> 
-> --- Patch [1]: [PATCH] Input: evdev - sanitize event type index when fetching event masks ---
-> commit e9eb78cd8dbba1d32ef31f1eec9a5c00e54b5aad
-> Author: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> 
-> Input: evdev - sanitize event type index when fetching event masks
-> 
-> This commit uses array_index_mask_nospec() in evdev_get_mask_cnt() to clamp 
-> out-of-bounds event types to 0. It asserts that this is sufficient to prevent 
-> speculative out-of-bounds memory accesses in functions like evdev_get_mask() 
-> because the returned count is speculatively forced to 0.
-> 
-> > We do not need additional array_index_nospec() calls in evdev_get_mask()
-> > because evdev_get_mask_cnt() speculatively forces the count (and
-> > resulting xfer_size) to 0 for out-of-bounds types, preventing any
-> > speculative memory access to client evmasks array.
-> 
-> [Severity: High]
-> This is a pre-existing issue, but does relying on the returned count being 0 
-> fully prevent speculative out-of-bounds accesses in callers like 
-> evdev_get_mask() and evdev_set_mask()?
-> 
-> When CPU branch predictors mispredict the conditions checking the count, they
-> do not wait for the condition to evaluate. 
-> 
-> For example, if the if (cnt > 0) branch in evdev_get_mask() is mispredicted:
-> 
-> drivers/input/evdev.c:evdev_get_mask() {
->     ...
->     cnt = evdev_get_mask_cnt(type);
->     ...
->     if (cnt > 0) {
->         mask = client->evmasks[type];
->     ...
-> }
-> 
-> The branch predictor will speculatively execute the block using the 
-> original, unclamped type variable, performing an out-of-bounds read on 
-> client->evmasks[type]. The retrieved pointer is then accessed by 
-> bits_to_user().
+Hi Jianing,
 
-No it will not because xfer_size will be 0 and bits_to_user
-(copy_to_user) will not dereference the pointer at all.
+On Tue, Aug 04, 2026 at 11:13:39AM +0800, Jianing Li wrote:
+> The driver allocates max_touch_num input slots, which are indexed from
+> zero through max_touch_num - 1.  The current check allows a finger ID
+> equal to max_touch_num to reach input_mt_report_slot_state(), resulting
+> in an out-of-bounds slot access.
+
+This is not quite correct. There is no OOB access because input core
+validates reported slot ids and wil refuse switching to a slot that is
+outside of limits.
+
+Still, the driver should not be reporting such packets.
 
 > 
-> A similar pattern exists in evdev_set_mask(), where a mispredicted if (!cnt) 
-> branch can lead to using the unclamped type:
+> The touch count is read from the controller's report and is used to
+> index the fixed-size report buffer without first checking its range.
+> Reject counts larger than the supported number of touch slots before
+> checking the trailing byte or parsing touch data.
 > 
-> drivers/input/evdev.c:evdev_set_mask() {
->     ...
->     cnt = evdev_get_mask_cnt(type);
->     if (!cnt)
->         return 0;
->     ...
->     oldmask = client->evmasks[type];
->     ...
->     bitmap_free(oldmask);
-> }
+> Reject IDs at the upper bound before using them as slot indexes.
 > 
-> The speculative read of oldmask is followed by a dereference in bitmap_free(),
-> which creates an exploitable side-channel gadget.
-
-kfree() can not serve as a side-channel gadget. Additionally there are
-speculation barriers in copy_from_user() and when taking the spinlock.
-
+> The V821 Avaota F1 board configures the vendor driver with one touch
+> slot, so finger ID 1 is already invalid on that device.
 > 
-> This pattern also appears in __evdev_is_filtered(). A mispredicted bounds 
-> check can lead to speculative out-of-bounds accesses for test_bit(type, mask) 
-> or mask = client->evmasks[type].
-
-This is internal kernel function and is not user-controlled.
-
+> Fixes: 66603243f528 ("Input: add driver for Hynitron cstxxx touchscreens")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Jianing Li <m13940358460@163.com>
+> ---
+>  drivers/input/touchscreen/hynitron_cstxxx.c | 6 +++++-
+>  1 file changed, 5 insertions(+), 1 deletion(-)
 > 
-> Do we still need to explicitly use array_index_nospec(type, EV_CNT) inside
-> these caller functions to prevent the unclamped type from being used during 
-> speculative execution?
+> diff --git a/drivers/input/touchscreen/hynitron_cstxxx.c b/drivers/input/touchscreen/hynitron_cstxxx.c
+> index f6139b1a8681..05e877b0d877 100644
+> --- a/drivers/input/touchscreen/hynitron_cstxxx.c
+> +++ b/drivers/input/touchscreen/hynitron_cstxxx.c
+> @@ -293,6 +293,11 @@ static void cst3xx_touch_report(struct i2c_client *client)
+>  	touch_cnt = buf[5] & CST3XX_TOUCH_COUNT_MASK;
+> +	if (touch_cnt > ts_data->chip->max_touch_num) {
+> +		dev_err(&client->dev, "cst3xx touch read failure\n");
 
-So no.
+We need to have better error message.
 
-Thanks.
+> +		return;
+> +	}
+> +
+>  	/*
+>  	 * Check the check bit of the last touch slot. The check bit is
+>  	 * always present after touch point 1 for valid data, and then
+>  	 * appears as the last byte after all other touch data.
+>  	 */
+> @@ -333,7 +338,7 @@ static void cst3xx_touch_report(struct i2c_client *client)
+>  		sw = (buf[idx] & 0x0f) >> 1;
+>  		finger_id = (buf[idx] >> 4) & 0x0f;
+>  
+>  		/* Sanity check we don't have more fingers than we expect */
+> -		if (ts_data->chip->max_touch_num < finger_id) {
+> +		if (finger_id >= ts_data->chip->max_touch_num) {
+>  			dev_err(&client->dev, "cst3xx touch read failure\n");
+
+Same here.
+
+>  			break;
+
+Not your change but break here results in finalizing incomplete packet.
+It is better to abort (return) and wait for proper packet without
+invalid fingers.
+
+>  	}
+
+I made adjustments and applied, thank you.
 
 -- 
 Dmitry

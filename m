@@ -1,120 +1,154 @@
-Received: from mail-lf1-f49.google.com (mail-lf1-f49.google.com [209.85.167.49])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from fhigh-b6-smtp.messagingengine.com (fhigh-b6-smtp.messagingengine.com [202.12.124.157])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 085592FE56F
-	for <linux-input@vger.kernel.org>; Tue,  4 Aug 2026 07:06:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.167.49
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785827171; cv=pass; b=HptsiZvIo+ZEu0b+UVTD9mmneW9dk3oLuV+h1UvlEF/M7h8d9AnYsZylUocoVdZoP1E3SxvkKdW/X5dTY+D+tWwS5RtptgxLPptEIUYkYjQtfkh6zH+M1uB9o6Zs5drKj+xAeeu6hyS+IBTMCrD6fCRMA5l3EhaESAmfPOJFA5Q=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785827171; c=relaxed/simple;
-	bh=niywOdzhojN/SlE0OircIR7xoFGK9onF6ItkQOW0fZw=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=mbaprW2lSBtcI/U+xcKcjloHejPpnPktSQ29YRYoNbZ9fjXfWhw2gOXh2UCnAcd3WSdJj9dbcrISpm7poHdBfW9cHlg/Lzqu6hfLVQNdRzqdSSdklxB0rQTiGI35tLuxPVY812IKKIxTVxYjfM0fI5HlVelq3GWqu8MvSZ+agf0=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b=c18gkent; arc=pass smtp.client-ip=209.85.167.49
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2DB7142E8DD;
+	Tue,  4 Aug 2026 08:02:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.157
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1785830544; cv=none; b=QOTG6in2Cjie/M7Ce6VgNZXbV9DOeLBPoc6ldvDcBUKpTu5u/O8ZIXijjxeeY9lwa5UqNfe0xnZUsQ0K8HXpSylKOR9yxPthzMInCJRJS3b5yuXLgFvwPnTprZZj+6bR8grMEbZdneeopFEvn7442rI/ayV4373ZkQAjk8LFzhY=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1785830544; c=relaxed/simple;
+	bh=pG3EVgqIvbZnSgpk957Ha+nWQjvXv0NLfo0AdSGRry4=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=NFRKlfE3/zxiznJLNx7SNQbFLdJv9ho+ibcjarOOOrVonfbjCMcGVTNxxzouT8gDEglVSCYBWlkRz+yxz93byBwabV5KFrUuGxOgDT0x6TpnYKcCbcydBpkc1iJbdnhAX5xP7qjMONQ/wpeM/kPhMmqJUUMnuYCxa9svEf0Oz08=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=kroah.com; spf=pass smtp.mailfrom=kroah.com; dkim=pass (2048-bit key) header.d=kroah.com header.i=@kroah.com header.b=F4Jink/C; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=jEAAyXfL; arc=none smtp.client-ip=202.12.124.157
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=kroah.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kroah.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="c18gkent"
-Received: by mail-lf1-f49.google.com with SMTP id 2adb3069b0e04-5b159850b16so3492721e87.3
-        for <linux-input@vger.kernel.org>; Tue, 04 Aug 2026 00:06:09 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1785827168; cv=none;
-        d=google.com; s=arc-20260327;
-        b=PzyN6tkCXpKmcwpkhMzS/QW2VQW08nNzx/7jxXTRhrLoeDK/f05gFqXHiDiVSCeqmW
-         TI3K42FLQ3i2dHK4tTM/6IW2ao0yMNUpKzdz2bCque7WMqk7GJ6g1098n8al1YB5r8L5
-         SjFpT+Ylh9P5A6EN2gMS5osyLrR/GOVKuOx9omuVV+oKnI8QHXa/BIDKPgwLO7mVQAiz
-         o/I/hBfUhjVs4u2BuJXBJdZov+GzIy/a3v+vqDX1JLmLRxsk6Wh9unkBvVYknaQulh2K
-         maveuiMXtr98aiEI6kJCcZZ55aOUl8ZgH/T//tyGWCufxD1Q8Gfdvb3/gGnPvmSzdc8Z
-         07Zw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=niywOdzhojN/SlE0OircIR7xoFGK9onF6ItkQOW0fZw=;
-        fh=VWb7UJOBgmxF5rKH0FYFoC4lOTJBdIAcvtQ/HNnkEok=;
-        b=qtZlETTARn5CHT+BmEEkahp55MWSsuhjGCJOOATvN42nziF6cQsj6p3HyET8Ew7D77
-         DVk2KE1S5RJSRzWni3CRZiOCmwXjLtnbU15j6U6Q0yL4ctvvZhorrygrs3Ns2TTtoarX
-         fw6/AC+Gy3akR03kuZDJmwm56Imwi67jS34NTXd1oFnBdpgqp78+cf8mba7ibLN91bVe
-         YloW5IpyKKVlBLb0T3J7Jswqhoh4JdtkHQbD9KRdHWKxPOiym08BXrpNrSXxT2PWFarL
-         mlVwHxuciIXP/zLwqMMjO9lMpHV8Ko6+dHozMWS87xQs+5aNI/l/8h78zzeZG2t/lyLZ
-         joMw==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=suse.com; s=google; t=1785827168; x=1786431968; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=niywOdzhojN/SlE0OircIR7xoFGK9onF6ItkQOW0fZw=;
-        b=c18gkentSx7zmNqXWwcsMSNT/arSyB2o6vk2cJggZsRnIyUaqb6gFonesPCKqnwSs2
-         a34HXZ3yF+uaAOVrviExT9K7QWy60FSTQnbPWjHWiTuy9f3OgqyxH2uniFE8PBgLhqP4
-         s5MjsY+qOLZV6LQEoqbu0ThGi83GP8KFk2LOHlkpwZ+DOFajokc9imvxWgy8xSP3Jd/h
-         2EypGmiexw6zU3nghd0xtbBSADnFx/K1tp1erD2FyV9gLCy3dLDJHExgmSHpK6bIChz6
-         NnfyOC35Uc6MAPlrLjjRV6+ozIISqfnLphD1a0AgOYnzAvttf6fccgXn1A3YHWdH/qTv
-         hnUg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785827168; x=1786431968;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=niywOdzhojN/SlE0OircIR7xoFGK9onF6ItkQOW0fZw=;
-        b=LAumbcVs5cTkaIbESk9dtSTY/Jzml6G+IW6PrkIUvwxTQjHWm3siSd/oJsqC26CPFm
-         nDKHy60q++KjYJix7ghoSiLuWeYaFMvbVA/viCG5WJbpb3cYWPoURTBYdKy0Mkc9oOFu
-         Nc/03zJRJbSti/RfrnLYY1S4NrcnkHi98+lmRxVh2GIPjy6XAm7ikZiV54/TcqGQKb/q
-         nAnoe+PDWo+qz3II8Dd5kqyV+u1Z9vV4skdk/SU5OxAMQJvGmYbqvHdwvquHsHXTU4Hd
-         71Xll0U+0AhDDktdqSsbJg1mSeL1hP39ipBraZdgEFf6re6ORDKAcxf7/Ozb2As6mHKC
-         scag==
-X-Forwarded-Encrypted: i=1; AHgh+RosZYD2/QEaPU2I01qLyTS7howHhFMLF6kojoSV9pcWnMdsyiHmvcTXD4TqSSNKZg19X195R3J83ejEcw==@vger.kernel.org
-X-Gm-Message-State: AOJu0Ywib/6LfUiDJZZ9Y/z18NyEIzj3XeLBCvXGUQ5tTvMBrsw25Hzt
-	sShSJJrqOvIcsyBfx0dazGMcdUevMx/KA139SM/F/36n9axqrTfV5uUW9122K+v7Au/eGh0sWIC
-	3zJP8x0F3Uha6PMe08GJjX+OIJySNZ4aoCLtHy97WmTOkXvqEyArcwE4=
-X-Gm-Gg: AR+sD10FK8+XFizqpQoeWqmulDzoqHESJQrUhHC9p3avRwz2zWHJcPYPaWn27FUR7B0
-	7mMaMCRoUAAr/hqwH2AvK21lKakplM8i91ga3ey7Z4eExy+15gC14ht+07VRP0vLfBVRQ6qqlrT
-	i7x1V2dQKZwQDBod5iNkeIKq0ZE11uqV0YBSmU/IVRLkvDW+FhoMvwOLeC5yCBK+WATu/P6/+rf
-	XV1N40nlofiiD78rA9vr3PU0pgerSJ5P4d2L+x+a66TRPul0NvCnOqPPL1vTg5Ws39FVGisj5uU
-	HRNqMuMOZ426hq0hclALn1Ps2hg/5IwWEg12a1R+plUCnsdOe7PN6ZJuTgY1h6TDCnZEe9vbfwL
-	X8g==
-X-Received: by 2002:ac2:5a45:0:b0:5b0:1433:13b9 with SMTP id
- 2adb3069b0e04-5b2e4f34619mr1753330e87.25.1785827168026; Tue, 04 Aug 2026
- 00:06:08 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=kroah.com header.i=@kroah.com header.b="F4Jink/C";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="jEAAyXfL"
+Received: from phl-compute-05.internal (phl-compute-05.internal [10.202.2.45])
+	by mailfhigh.stl.internal (Postfix) with ESMTP id 869707A0045;
+	Tue,  4 Aug 2026 04:02:17 -0400 (EDT)
+Received: from phl-frontend-03 ([10.202.2.162])
+  by phl-compute-05.internal (MEProxy); Tue, 04 Aug 2026 04:02:17 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=cc
+	:cc:content-transfer-encoding:content-type:content-type:date
+	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to; s=fm3; t=1785830537;
+	 x=1785916937; bh=aWTUcPVr/evagyqHivUsnZPDcpUu7p23rLzEyEGYUDU=; b=
+	F4Jink/CcQ90VF9eYn9UK4zEl/U6Gkqk2ca4M96k5hQsslV1d0Fdvf3s3Adqx306
+	m4l0AG5FAztVTEbO3yiGVSoKif2s3Cnshcw1NVWUWkdJrttjCSoKqtX335hCqUk8
+	OUOngM4pIUaQQ6dmZfkTtLVFZxmoZ8As2IsxzRWhzxlPIwhyvsPpmQXM54xf8TaV
+	/JpE9+8Fym+T/I9FNEj92kbiUocpZriijXSZHCXtCHGm/DKqBpVOGTvkXIvBbTUe
+	3DMhldGMYRrztKggq0KD2Xerw14SHwFsjItcyzTnJja1xeZ1+MIfmU4r4+E0d/4s
+	U7wq6BrLVNQevddOfr0lJA==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-transfer-encoding
+	:content-type:content-type:date:date:feedback-id:feedback-id
+	:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to:x-me-proxy
+	:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; t=1785830537; x=
+	1785916937; bh=aWTUcPVr/evagyqHivUsnZPDcpUu7p23rLzEyEGYUDU=; b=j
+	EAAyXfLyoGdB/a0dFdcR+yTHH8KkcFPu1mhfTEHG8bI3YykNGcEnn4c83ny10QGt
+	JxLhQsbRGHeF5rVlrYZTbRo4GMbOpw1ydoGXwHXUmXzZ0u4R7cUYUzi0uV0a2UmW
+	8sqGLaCOuCxvejBTBdbj5ypUlEs383BQ2WpYve4aOltRwtaHE4ihatDDT96t7UHy
+	L4qdUkM2O3RsurR3/PXX7ScAUPYVM9fdN0yTEDGjXUi1bZGRc+ctvkSfk6fZiD8I
+	3rboTNe2yQhdVXqfJ33B+DVnQSI1xflOibYiDFyAWCxewmD9M30Y0QztAjbUVOBx
+	M6whk5ZZMvKgsC+XafBcg==
+X-ME-Sender: <xms:iZxxaimufXlev9c-HKFdIwz01epkSv8o47CU3Ri97ZrWrsTPFS-_xQ>
+    <xme:iZxxarUnaUb_VHtdIPUS1bcVi3EALhkXu-ctyqHV-sFoZ2sp_DQYiyiTvDlshlfGX
+    M7b3udn4U7KG98d1ezyiKj6iULnPW0A2dZawBeLzQPYD9gcdfg>
+X-ME-Received: <xmr:iZxxagtDZDpFBN3d2iTt6VnUs3QJWufMQYMhe-XrZSXPCRGnDIG_NXWlIpYOS5DniOzOD5_ijcehJnDgQgyE6YxCZ6OPU1iSomh4CJrs-9QLiBmgRVI>
+X-ME-Proxy-Cause: dmFkZTFHrmUYQx/7BdqUI0OodASGrSuRg4/XdyscnSO0sxcGCRPVvCwmVyOnMYIbrj5FHT
+    eK8fVqOnwNfdDqUbyGfq0pa1t6eUc+btAS9pztxgdFGgVK19Zuv3Z2sJp1IbCbp5iDyaE8
+    xQvdUCEfHNUNwk68wLosMASkEf+t1m2NzXkUetx6fAxM7syCeNvPFD5LJ0QcmXbOOqb0dR
+    OLRxrWwVJ3TsCC3yWUsNfeN7/3SA9SRQU/2CH+ikJMExPUveLdgCafNZPcGQ9SHevg2Tck
+    9erouizVTMI4X9/xb6fNhw880RMb4pDOCIDXDuWu3YQdyoJKrRCoC9jWuNpL6ZCyIwwVnn
+    2ewqhh9a7ChgSzCjJ74q4t/SMaOd8EmgerrKE/KpQwodjpDSgCkUYdZQFj/a9yoDfkF/q6
+    897GO+MvDhJWSMmhtsu/IHRQc3czKwHEpkHaDWPLV0LFfgdbYXAlOIQndHPFH2fIG962UD
+    gl7wC2hiz2vUsE+AevjgYA0KVDcc8Ou24X4aijibN/rL2DooohhjOScW7eE431cL6sCdza
+    HhKFOrNOEbHItUQ90ZMM81ssfY1BRZW/eqEBzrKPfNr746djHMyr9TPK5WawHVE6EB5Nhr
+    Tnwy9nbDWI12eXPggCG6lEa24N0h3szFcHGKhC+mKFkCOb5pCtcqcEvp+bDw
+X-ME-Proxy: <xmx:iZxxambHDE3Cg-6RLUoR0Xd9EjIfvIegkRhi4yWxvK_smxnvHyoB1Q>
+    <xmx:iZxxanXS1-WKJXnCwdDtGml0IjpkELtU7M3gmmSHdcvJ2U4QqJD_lw>
+    <xmx:iZxxajT7RjUJP0qW7llruy15dGE7YiV1DmPb6hMkFeptZNQyglHqjQ>
+    <xmx:iZxxatMHnWkVE7ouKi1WVkKKJ2BvnVD2EydbkvlfUSPYvp2uL75DgQ>
+    <xmx:iZxxalbmN_OeG-uiJTwG29qgva4txyE4NuAhWqg4OX6EEKxobEADhQvs>
+Feedback-ID: i1d2843be:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Tue,
+ 4 Aug 2026 04:02:16 -0400 (EDT)
+Message-ID: <adb228d4-abef-441c-91ff-fe009cd899e8@kroah.com>
+Date: Tue, 4 Aug 2026 10:02:12 +0200
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260707145327.313292-1-marco.crivellari@suse.com> <93161p47-3sn5-r588-o6o5-6n895365387o@xreary.bet>
-In-Reply-To: <93161p47-3sn5-r588-o6o5-6n895365387o@xreary.bet>
-From: Marco Crivellari <marco.crivellari@suse.com>
-Date: Tue, 4 Aug 2026 09:05:57 +0200
-X-Gm-Features: AUfX_mxrcFeuu4oiuifQhlyMnyL7h-iga7xuwuWzDYm2yWLJG8sL6IY7TBfBVdc
-Message-ID: <CAAofZF6a66b64FE-nRqvZ7YxxHvCa4nUMxZwhboJnNuUTjTTsw@mail.gmail.com>
-Subject: Re: [PATCH RFC 0/2] HID: Replace system_wq with system_dfl_wq
-To: Jiri Kosina <jikos@kernel.org>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, 
-	Tejun Heo <tj@kernel.org>, Lai Jiangshan <jiangshanlai@gmail.com>, 
-	Frederic Weisbecker <frederic@kernel.org>, Sebastian Andrzej Siewior <bigeasy@linutronix.de>, 
-	Michal Hocko <mhocko@suse.com>, Benjamin Tissoires <bentiss@kernel.org>, 
-	"Derek J. Clark" <derekjohn.clark@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 1/3] Input: xpad - add safer data access framework
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+ Ingo Molnar <mingo@kernel.org>,
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+References: <20260803-xpadone_packet_fix-v1-0-280da203f15c@kroah.com>
+ <20260803-xpadone_packet_fix-v1-1-280da203f15c@kroah.com>
+ <anDAK28M7wBWtzSf@google.com>
+Content-Language: en-US
+From: Griffin Kroah-Hartman <griffin@kroah.com>
+In-Reply-To: <anDAK28M7wBWtzSf@google.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Mon, Aug 3, 2026 at 9:04=E2=80=AFPM Jiri Kosina <jikos@kernel.org> wrote=
-:
-> [...]
-> > Since the workqueue work doesn't rely on per-cpu variables, there is no
-> > obvious reason that justify the use of a per-cpu workqueue. So change t=
-he
-> > workqueue with system_dfl_wq, so that the used workqueue is now unbound
-> > and can benefit from scheduler task placement.
+Hi Dmitry,
+
+On 8/3/26 6:23 PM, Dmitry Torokhov wrote:
+> Hi Griffin,
 >
-> This definitely is a step in a right direction, thanks! Now applied (and
-> sorry for the delay).
+> On Mon, Aug 03, 2026 at 05:07:24PM +0200, Griffin Kroah-Hartman wrote:
+>> USB xpad devices could send short messages which would cause reads and
+>> writes outside of the data buffer.
+>>
+>> Fix this by adding the safe_data struct and the sdata_check() function when
+>> accessing packet data for input events, and add the usage of this to
+>> xpadone_process_packet(), which was vulnerable to OOB reads/writes.
+>>
+>> Suggested-by: Ingo Molnar <mingo@kernel.org>
+>> Suggested-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+>> Signed-off-by: Griffin Kroah-Hartman <griffin@kroah.com>
+>> ---
+>>   drivers/input/joystick/xpad.c | 115 ++++++++++++++++++++++++++----------------
+>>   1 file changed, 71 insertions(+), 44 deletions(-)
+>>
+>> diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
+>> index feb8f368f834..c516860711a8 100644
+>> --- a/drivers/input/joystick/xpad.c
+>> +++ b/drivers/input/joystick/xpad.c
+>> @@ -780,6 +780,24 @@ struct usb_xpad {
+>>   	bool delayed_init_done;
+>>   };
+>>   
+>> +struct safe_data {
+>> +	unsigned char *data;
+>> +	u32 len;
+>> +};
+>> +
+>> +/*
+>> + * Safe Data Check
+>> + *
+>> + * Returns the correct data when inside the array's bounds,
+>> + * returns 0 when accessing an out-of-bounds index.
+>> + */
+>> +static u8 sdata_check(struct safe_data *sdata, int idx)
+>> +{
+>> +	if (idx >= sdata->len)
+>> +		return 0;
+>> +	return sdata->data[idx];
+>> +}
+> I'd rather we had explicit length checks for various packets and skipped
+> the processing if the packet is short instead of making large number of
+> what can be considered repeated checks.
 
-Thanks Jiri!
+Sure thing, I can instead replicate something similar to my original 
+patch here:
 
---=20
+https://lore.kernel.org/all/20260727-xpadone_length_checks-v1-1-19aa9331e82d@kroah.com/
 
-Marco Crivellari
+Ingo had suggested this method instead.
 
-SUSE Labs
+
+Thanks,
+
+Griffin
+

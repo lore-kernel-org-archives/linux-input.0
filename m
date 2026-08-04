@@ -1,143 +1,163 @@
-Received: from mail-pf1-f178.google.com (mail-pf1-f178.google.com [209.85.210.178])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8187C380FC3
-	for <linux-input@vger.kernel.org>; Tue,  4 Aug 2026 05:51:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.210.178
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785822709; cv=pass; b=seeqadS6iteJ+VJ3w5ElTKbRBkVOuE4VQhVUaXdsALLL6F76OKgSykFEG6vOtaTZu6XwADuxMSqpQw0obLm60ICy6KQm47c9Y3f92kbGXctEs+b32E81SysxLojzR68YgKIZNNc5go7F0DRAnhVHQ6HfMFJW/99SFIIIZaiHerU=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785822709; c=relaxed/simple;
-	bh=WDf824U2xsDWh+g9mjzcBbcDiCTfCVOWztCK8BOJw18=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=ZV+SB6CG68LTv6+RhE4MUenxkFBz0t4d/lLTxXzBl54/wqeNaaqbKw/jIQulqWYXfnR4eVl/uKq12EZ6QGinRNUsVwmQ85kf0rXrmdL44EZxOWgXxeY9hug+4sOdrLSTZJW8o9muh+DaNU44rcfZ46fVkjWzE/fDqQoBbyU7oT8=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=JKIiC9cT; arc=pass smtp.client-ip=209.85.210.178
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AC3A03BD225
+	for <linux-input@vger.kernel.org>; Tue,  4 Aug 2026 05:56:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1785823009; cv=none; b=Iv0vsO0pK9kBJxghiDUhSR6pnbQX3kSiCilj3LU16ObI3kThiHcx65QupIkqOYqc0oiyLemmwhHK9s1Zq60wqnjNmtucAvIR9V0FUL4G7ooX06v5H3RJ5e+safO0YP6lcsD89hmUX3cqtxRjXje68zbW6dgl2WnXMUgfcq9GHdU=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1785823009; c=relaxed/simple;
+	bh=pu1t0j2xVb1em4Wgx35AIz0pvUzzAv/XDYiTR15md5A=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=N8LuhvIaeKHnsiaOYrKFPB+XULOd2Zly3ToUgd2i1sckRJTPsmCVnvBFFORHfOu7VPgLyYczEMgUreFKiy14OW6pppkogfwYphd3MFcoX6UVjXp4q2zm3auT7w5QyjcT+Ic+JihqfcaYkT0c3VxXaxaSn1SZnXWAA+H3+4ykxyI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=TWGv95d+; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="JKIiC9cT"
-Received: by mail-pf1-f178.google.com with SMTP id d2e1a72fcca58-8487214ad2bso5894205b3a.1
-        for <linux-input@vger.kernel.org>; Mon, 03 Aug 2026 22:51:47 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1785822707; cv=none;
-        d=google.com; s=arc-20260327;
-        b=el7Xi4nNd7LiW61h5u6B4cmUONXbNN/ZMKlWk7X2FSMem4uFQU3/dCJCsA27SZ4vAv
-         bGkWCJEyEbFIed/S/24fGtxTCKgZ4rebuMHFqtjxs3IaluyLptpclUTVioTxT0xar86M
-         D94paMiYctsUtif4E+x6zWfRR2BwVSCu9w9bulHnOSHKCV2eBi4eAxK3J7gWp3Wz8k9E
-         hIWtizLfWaA6lc7NB3pZJ1n6PUHyceiG3Wu8rs0GaJpqi6Mq15ce69nhwqW1Qf7KHhOf
-         jaP5MQBL0T0rBiGkhNYneq/QUcv0H3qMRuuIGA6wMfRUR7tmB5jmqBeJe6C2lX7w/pKg
-         bdlw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=YbSrywpWPl9l/WB4sN4GQ7+YbQ8bmN71lrzXFRNMDcM=;
-        fh=8Q4MPaufHYyTqkRBbYSgcRTsh76qnTM5kPeEn3clURM=;
-        b=K+Ea8oCzJ2k0OmYCJRM1YbJLfZ0bV2bjA7TdsbZ2d7klnkgwIqWjgS3piqI8zCa6bY
-         dMpBW9KMeT7glAlZQEEgJIv+dIEgcg0fq8ruRWR6o3jX99jxWF92JPGq4rLIS+c1IDFQ
-         JtnRIRFDzPmofT4PDEd69QuRKCRclUWJUWL4UfzwH78a5FN040002ABmzRYHVW3N9pTa
-         oFjKn7EaCBKLi7XHiNtLnZH7tu9XNPlwsy6SAP5eGRKjK1DQOYK7syvGOFA4hR2mWIXs
-         0MNLOuIqT6A9ORp0ubaWOJlk0lbIIkS9EgAmemgfHGlRRnZJ6W1vy07dIjdoJnpJxEyb
-         F+9g==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1785822707; x=1786427507; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=YbSrywpWPl9l/WB4sN4GQ7+YbQ8bmN71lrzXFRNMDcM=;
-        b=JKIiC9cTT12PXBnZIYQEo/u9Fk8Eww9SPfiO/tlce4BMopDJ8LQcpLJolM9qr//YaJ
-         IF3iMWPv+3h7E2ZEybGPXbuqpEUY4OKBj6iLu+MREULcgH3MH5XgKaaPcVICCpn2tk6+
-         cTIA1QhzdR47Od6bZpCMN2x0YKTZGuUzzP7G2upWWFRCMopd5SyjEoRuqtd37uVrIrcz
-         LIXfFOEtAWb8DyXXdc3DPsxrS/GKy+LXmJZQ5BQ++XqKhqLC5Ch4vIrWll0txfUgmxLu
-         aKFzt0DEPUUODNeKfkz+bKiq7Et5L0pjwbaSMX2Xy7h4neSJsJBel9VUXf6DBM0jd5RO
-         m3mA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785822707; x=1786427507;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=YbSrywpWPl9l/WB4sN4GQ7+YbQ8bmN71lrzXFRNMDcM=;
-        b=JpU26kjU5yHBFthhx+FJjhoYS/glrDgq04pxetSnHw2sa3zHhi2a2EtGB4onsiZW1E
-         8vfiubWjriS8ei7tv8wjYex6S+wfpon0E8L969XNrDbTCIDfpdO5BsakrGVQY/YrbiVm
-         3ZEx+qzgGWQj2ByeQ/eM+sRIaMFdD+IXC6DBeaCC/d0FKsdwt+hNEu6hQnjNlH1RCSUV
-         pHl5l5xVMi6/0/K8EHOMxNARbGa7121IokM7UPjOCrjdMZvV43Cb2UrIA3yh+0aR8lCI
-         /RPA5FtJuWu7s1dmtd7I3S0haXBe75anwYYZe0YdMfLYPb10zA6gNZiQVHh8tBcJ9M4H
-         QhKg==
-X-Forwarded-Encrypted: i=1; AHgh+RpIWz6FzoEdC/UYX84TwsnEdBiokR8zG+JAYdCwDiXykl7xVcTshl0yZXpY5kR5kXob/rD53Fe0OuFVvw==@vger.kernel.org
-X-Gm-Message-State: AOJu0YyxqjS8+X+6bgTGHjNMDi5yO7tRW+MNfbB1+j4nOu37zm/Pdsrx
-	x7e7OwgcK6Z01fjI3RoLR3/uzuQpN6eYy5Kr+oHMLgpz4x9KYB09cZqyTg3F0jCR8KZDn8BbcwW
-	NTK33woIfvn+i3kBY5I4mDnDS+kpP8Mk=
-X-Gm-Gg: AR+sD10XNckup079/AhyZQTZnyLBHUEdpBGgXFSOwWr52YdcIOc/UJTlYpvwVsX5808
-	bYnc92OthyCZr0I6dtH0JuMyW2ARmXg/uS6u9Vjbx0MZvLPOY1CcW4CBZgO62FdYTPIzTzp3dt+
-	VkzWUAdy56yt1uF/xUtw6xHy4WNyw1MlQg50z6R5rQ/62L5MwsC4xq+/bYSL4aXbmOEaXOQ4QQ4
-	d5a6kt9biPcVxeO3DP8wWfoeED4V6XbDznkhob6hJoYDB1BQ+EGehbdB9ScmkIpHP35YqEOqDqo
-	QEsmu7T1f+9q+7o4WWgAW2vONSEItRhSc0sokTtV4qUYCKawmo7mGCE=
-X-Received: by 2002:a05:6a00:a112:b0:845:d284:9e10 with SMTP id
- d2e1a72fcca58-84ee495540fmr11496936b3a.55.1785822706726; Mon, 03 Aug 2026
- 22:51:46 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="TWGv95d+"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0FE821F000E9;
+	Tue,  4 Aug 2026 05:56:48 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1785823008;
+	bh=Pw/aqo1hCf5qiZ68iPqnLsRGIkZW9/aK6iQZGgVvEu8=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=TWGv95d+zBR1yiRIL8OLDLMxwPowvK+BX2Gn29OACtm2WbJtTy0ho2M0cPB0Z3wNe
+	 Hg7Vce9eoYiMB3w74xumFKi+JP+2RaIYlIyqhQd7U578gCW98pQP82uEQoZYAzrseA
+	 DAzR9MSGcCndJbsl57y3e5gca0it98Rs8kTxiCfwWz1iwXO5Vq1uQqK9u7zab0u0+I
+	 h3u0MCV8puVxklSF+PKoMpTgyWUMk1tgzgkGaHK8Z/TELTE3K7vbqpBS5jSCgbb4Mb
+	 IbvERDU9XKa+fSNPoZimOdj5mfmzDHlUSRX4OinPCY3NYLfXlU7Weyne0ub+I0ceIK
+	 Cp7Mns6S0u2Hw==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v4] Input: xpad - add support for Beitong KP series
+ controllers
+Reply-To: sashiko-reviews@lists.linux.dev
+To: vegetablecat@foxmail.com
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <tencent_72D4D10513DFB685733F4F75EDA62F6EE107@qq.com>
+References: <tencent_72D4D10513DFB685733F4F75EDA62F6EE107@qq.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Tue, 04 Aug 2026 05:56:47 +0000
+Message-Id: <20260804055648.0FE821F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-References: <20260801075623.2769601-1-mapengyu@gmail.com> <TY4PR01MB14432E24FD0D38D1FB84F99AC98D52@TY4PR01MB14432.jpnprd01.prod.outlook.com>
- <CALSz7m0x_sgJU_A3dnM59vefSwvu_XC2QT7WdHJhVx6ZszKCzA@mail.gmail.com> <TY4PR01MB14432E89E86246C0DDC8B816F98D52@TY4PR01MB14432.jpnprd01.prod.outlook.com>
-In-Reply-To: <TY4PR01MB14432E89E86246C0DDC8B816F98D52@TY4PR01MB14432.jpnprd01.prod.outlook.com>
-From: Pengyu Ma <mapengyu@gmail.com>
-Date: Tue, 4 Aug 2026 13:51:35 +0800
-X-Gm-Features: AUfX_mzfEivQUJ3tjTSJ1_W6p21ZX4yuaBtWyRTQpzvAN4g6bFIeNdgWWbJIjK4
-Message-ID: <CALSz7m1BeZqraipNv46skaLQCnSCV3qiKoou=0QFJEGt4hn1Xw@mail.gmail.com>
-Subject: Re: [PATCH v2 1/2] Input: xpad - query MS OS descriptor for BTP-KP20D
-To: Shengyu Qu <wiagn233@outlook.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
-	"open list:INPUT (KEYBOARD, MOUSE, JOYSTICK, TOUCHSCREEN)..." <linux-input@vger.kernel.org>, linux-kernel@vger.kernel.org, 
-	Sanjay Govind <sanjay.govind9@gmail.com>, Kees Cook <kees@kernel.org>, 
-	Zoltan Illes <zoliviragh@gmail.com>, Qbeliw Tanaka <q.tanaka@gmx.com>, 
-	Elliot Tester <elliotctester@gmail.com>, Dmitriy Zharov <contact@zharov.dev>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 
-On Tue, Aug 4, 2026 at 1:32=E2=80=AFAM Shengyu Qu <wiagn233@outlook.com> wr=
-ote:
->
->
-> =E5=9C=A8 2026/8/3 20:13, Pengyu Ma =E5=86=99=E9=81=93:
-> > On Mon, Aug 3, 2026 at 5:40=E2=80=AFPM Shengyu Qu <wiagn233@outlook.com=
-> wrote:
-> >>
-> >>
-> >>
-> >> =E5=9C=A8 2026/8/1 15:56, Aaron Ma =E5=86=99=E9=81=93:
-> >>
-> >>> @@ -334,6 +335,7 @@ static const struct xpad_device {
-> >>>        { 0x1ee9, 0x1590, "ZOTAC Gaming Zone", 0, XTYPE_XBOX360 },
-> >>>        { 0x20bc, 0x5134, "BETOP BTP-KP50B Xinput Dongle", 0, XTYPE_XB=
-OX360 },
-> >>>        { 0x20bc, 0x514a, "BETOP BTP-KP50C Xinput Dongle", 0, XTYPE_XB=
-OX360 },
-> >>> +     { 0x20bc, 0x5159, "Beitong BTP-KP20D Controller", 0, XTYPE_XBOX=
-360, FLAG_MS_OS_DESC },
-> >>
-> >> I think using dongle instead of controller is more clear? Since
-> >> controller itself use a different VID.
-> >>
-> >
-> > This is the controller VID.
-> > The controller is idVendor=3D20bc
-> > The dongle ID is idVendor=3D20dd.
-> >
-> > Aaron
->
-> It's not consistent with your patch description. Also interestingly,
-> this seems not working on KP50B/C.
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+s) to consider:
+- [High] Contradictory Vendor ID for the KP40D controller between the Xpad =
+driver table and HID quirks.
+- [Medium] Unconditional `-EREMOTEIO` errors and spurious warnings due to `=
+usb_control_msg_recv()` exact-size enforcement.
+--
 
-Please provide KP50B/C IDs.
-How did you tested?
-Could you attach the dmesg?
+--- Patch [1]: [PATCH v4] Input: xpad - add support for Beitong KP series c=
+ontrollers ---
+commit 70428191ed674d48449b3a34df01ce588dc47bd5
+Author: vegetablecat@foxmail.com <vegetablecat@foxmail.com>
 
-Aaron
+Input: xpad - add support for Beitong KP series controllers
+   =20
+This patch adds support for the Beitong KP series controllers (both wired
+and wireless modes) to the xpad driver. It introduces a Microsoft OS 1.0
+descriptor sequence to lock the controllers into XInput mode during probe
+and adds a keepalive HID quirk for the KP40D receiver.
 
->
-> Shengyu
+Link: https://lore.kernel.org/linux-input/20260102030154.197749-2-liushuyu@=
+aosc.io/
+
+> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+> index b70f719b3b075..8baa9efd2f724 100644
+> --- a/drivers/hid/hid-ids.h
+> +++ b/drivers/hid/hid-ids.h
+> @@ -273,6 +273,8 @@
+>  #define USB_VENDOR_ID_BETOP_2185PC	0x11c0
+>  #define USB_VENDOR_ID_BETOP_2185V2PC	0x8380
+>  #define USB_VENDOR_ID_BETOP_2185V2BFM	0x20bc
+> +#define USB_VENDOR_ID_BETOP_20DD		0x20dd
+> +#define USB_DEVICE_ID_BETOP_KP40D	0x515c
+
+[Severity: High]
+Is the Vendor ID for the KP40D correct here?=20
+
+In the xpad driver modifications below, the KP40D dongle (PID 0x515c) is
+registered using the Vendor ID 0x20bc:
+
+    { 0x20bc, 0x515c, "BETOP BTP-KP40D Xinput Dongle", ... }
+
+If the device actually uses VID 0x20bc, applying the HID quirk to VID 0x20dd
+in hid-quirks.c will prevent the HID_QUIRK_ALWAYS_POLL quirk from matching
+the device. Which VID is the correct one for the KP40D?
+
+[ ... ]
+
+> diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
+> index 2da0b7f1722aa..ec511dc2e0806 100644
+> --- a/drivers/input/joystick/xpad.c
+> +++ b/drivers/input/joystick/xpad.c
+
+[ ... ]
+
+> @@ -2150,6 +2159,41 @@ static int xpad_probe(struct usb_interface *intf, =
+const struct usb_device_id *id
+>  	xpad->irq_in->transfer_flags |=3D URB_NO_TRANSFER_DMA_MAP;
+> =20
+>  	usb_set_intfdata(intf, xpad);
+> +	if (xpad->read_ms_os_desc) {
+> +		/*
+> +		 * Microsoft OS 1.0 sequence: first read the OS string
+> +		 * descriptor at index 0xEE, then the Extended Compat ID
+> +		 * descriptor. Some devices (e.g. 20bc:5158/5159) lock into
+> +		 * XInput mode on the string descriptor read alone; others
+> +		 * (e.g. 20bc:5126/515b) require the Extended Compat ID read.
+> +		 * Send both to cover the whole family; each may fail on
+> +		 * devices that do not implement it, which is harmless.
+> +		 */
+> +		error =3D usb_control_msg_recv(udev, 0,
+> +					     USB_REQ_GET_DESCRIPTOR,
+> +					     USB_DIR_IN,
+> +					     (USB_DT_STRING << 8) | 0xee,
+> +					     0x0000,
+> +					     ms_os_desc,
+> +					     sizeof(ms_os_desc), 25,
+> +					     GFP_KERNEL);
+
+[Severity: Medium]
+Will this unconditionally fail and print spurious warnings in dmesg?=20
+
+The usb_control_msg_recv() helper expects the USB device to return exactly
+the number of bytes requested, otherwise it considers it a short read and
+returns -EREMOTEIO.=20
+
+Since the Microsoft OS string descriptor is typically 18 bytes and the feat=
+ure
+descriptor is usually 40 bytes, won't passing sizeof(ms_os_desc) (128 bytes)
+for both requests cause them to always fail and trigger the dev_warn() paths
+below?
+
+> +		if (error)
+> +			dev_warn(&intf->dev,
+> +				 "unable to read Microsoft OS string descriptor: %d\n",
+> +				 error);
+> +
+> +		error =3D usb_control_msg_recv(udev, 0, 0xee,
+> +					     USB_TYPE_VENDOR | USB_DIR_IN |
+> +						USB_RECIP_DEVICE,
+> +					     0x0000, 0x0004,
+> +					     ms_os_desc,
+> +					     sizeof(ms_os_desc), 25,
+> +					     GFP_KERNEL);
+> +		if (error)
+> +			dev_warn(&intf->dev,
+> +				 "unable to read Microsoft feature descriptor: %d\n",
+> +				 error);
+> +	}
+> =20
+>  	/* Packet type detection */
+>  	if (le16_to_cpu(udev->descriptor.idVendor) =3D=3D 0x045e) { /* Microsof=
+t controllers */
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/tencent_72D4D10513D=
+FB685733F4F75EDA62F6EE107@qq.com?part=3D1

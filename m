@@ -1,189 +1,163 @@
-Received: from mail-pg1-f176.google.com (mail-pg1-f176.google.com [209.85.215.176])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7B5313909AE
-	for <linux-input@vger.kernel.org>; Tue,  4 Aug 2026 14:15:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.176
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 19D7A3B1029
+	for <linux-input@vger.kernel.org>; Tue,  4 Aug 2026 15:15:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785852941; cv=none; b=DTRqfBR6VeD6G+zSLm+nQhlMoqP5Gfjg5nDNYPLAlEYlHzhKvUummqvyqkqVDsV6ftAstMUeAH4C/WvHpatYnTPx6pcr6wFZsp/3AIHEXUxMynF1uRq8/gszxP4ueXQ/7GCPTkTq2iDgQqeGAjKoDVR707kRXUITExBMb9RIayk=
+	t=1785856533; cv=none; b=N1AicY9821HZqzwzLOGIGLcMzJZsyqXlJgKMozCY3owhFO6n+GJtmUXTdHEl4TCtHZYTBluaG9lvwkeSmPYZ6Cwg/FaVtXHzD4llT6yLcXDw9y8QzkQOIF5FerUgw3/3KyM6f9Mg6/be38B8MGUpAcaFAq+FaayN7zp1G5ST9mQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785852941; c=relaxed/simple;
-	bh=tseOFkRH+VkKpLPw9eW+OguB+gLNud5Nib8WI23LXjg=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Gfb5Q+SjGlstrFSIkMxoA7P/958s7EbM+8m4KxtzZdDc19ZFSCIHy7+MX12c9GNYP4IMI+mqjslsWWV9aQb34r788C/DuDfQHbG9bLGF3RpHU1WREAmVDdY8a52cuqNbnKFD4oy/LPRzojVK1Uyrdt9lixmviBl5sFaLUCaRFwM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Vv0Hh89c; arc=none smtp.client-ip=209.85.215.176
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1785856533; c=relaxed/simple;
+	bh=2c8rN5AVsbgGzZ4O175/AIayNlLWwqu+cdQRxX0q1vM=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=RipZVXXudBj56dTFFtV9sRAcXp8BbSHxK4HAl0dU4KFrDhbyGwhwE1uTE/pdR9fP41aByXOSgmrvLWm0NiNzk8OqEyGysIen/5KxuYZBBRrXW582Y71h4eNxCWi1xIujErv/99U5x4Y1o/fDLi0wua+gYHRwegKSDYc98Y+1ad0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=aQTZhslC; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Vv0Hh89c"
-Received: by mail-pg1-f176.google.com with SMTP id 41be03b00d2f7-ca97d139d8dso2621444a12.2
-        for <linux-input@vger.kernel.org>; Tue, 04 Aug 2026 07:15:35 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1785852931; x=1786457731; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=pkA8brq9aD3a7UhTDQ51dCKqynsS+dZa04GQD9wvAc4=;
-        b=Vv0Hh89cNQYO/nUQIm9aGhNeLirmizlPEgBmX6wUNfZmsQYTOc8XKTMCeMV3J7aKQR
-         tmXjwB5D48Pz2ujWFzzv1BsXBZanARX0FSVNP3IwV46mMu9Hgxnz0pYxXcPT1fLmC5zl
-         Dge9noHfOzgvuvlODNCW8wb1G/x+f4VHU5xN6I6hAHUUzEkTK8s30Pto4jbeWSkwbK+f
-         UA+Hqz/nQagvYHSoeEqxNfUQUllT0c04aaH3BlfL4a0a692t42yWhRJVE/qovszsWQe2
-         VAMVbK8k/pIf3QHSAoBxyguKDer956kcbJYIxLubs4QDygjNnwM4ikTc/9nJzwGdJAWz
-         YfAA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785852931; x=1786457731;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=pkA8brq9aD3a7UhTDQ51dCKqynsS+dZa04GQD9wvAc4=;
-        b=Zv8qigTDtedEPoS0cnFhmFFWwuOBtH2p+fizZWhh9IxIkDdL9t2/hdM8Nri0OB5ZVR
-         30oA8vzjZo4KECzwZM3evoDXnmS0c0hmvUvMbu/ObKT56Jw4GzkXV59KJARo+R//fqVQ
-         l6nb5WmomYaYfUojllpbJ6zUdevwfgZu3jn78Lo/XZL79bU4wc3tyDGRNJ3FAplL3EF8
-         YIQ5le3GbPVrRgbdEx3nWvs36VzIx21i7oWzhz3f/1ckeX9h8wa1U0/4zYR8r6vvNKX0
-         a2D80yx1hTsTlOdPmxsL9Nvf7vlg56V5qXFMatQK6zO1Yo1I801UARb+Y3iAv6xY+zKE
-         5afg==
-X-Forwarded-Encrypted: i=1; AHgh+RoMWrn9jc4XB/R3TIbjK/T8+eO1eQwBa+UtTVYqzSO44eMY+jnaZ960FD1sqoJpaFw7U4LnzmMjb5eipg==@vger.kernel.org
-X-Gm-Message-State: AOJu0YzDOpaAsQfSrnylhTochAA29DjS5Qri1P4nWQQQiekduLSMI2Hw
-	im6700VoQqaAMJ/+uABJvZqsXDwJd4mQtdUIaxM6DLHaFzweu20bVoE=
-X-Gm-Gg: AR+sD12mdp7p7erZ8UMPBvKQnkV1RIp+szzDZjzSPNWAEazy3UQy61ehBQLTSWXkMj6
-	y1PgoAVLJiFj1okKWTNrpTLQOFo9Ayh6TfBYl/DCGNcXs8xNrLhYaw21UlY0Q7yhWydgIIqT7kt
-	JFtXdrp23z4n7bPs/okg2W2QK2t3w89nfw1Jyk69k27PRiIIM53cCQGSjiBcG3qpdTTTIj16xFh
-	eYoblFgdwvqR2fqVx95GWzXbxbGSetT8DhyF8JQbkjwk9kcwYKgUxFz93pI98Lc3qCiIhNgQ0cm
-	JXTSlpZNs7eAZumIggZgFtqSpNRHKmGL/EecfhtijvIKUIZ8iZLJRvP4rFlgnyNIyKzYvXVyoc7
-	5lXo72vZoPuz1iW6WB6gryt1//evSfFllHcr3ZW7UjTaAwsFLucVcFIHS5F+dRNBpUkO0Cs6I09
-	c5+v6xk8p5dIc3i4GupBkIJE8cNG6TpFGER3TuDdGF9M62zMIKXQhM0QzolA3NO/+ljnYaH+VBO
-	02HO84LdjEELBxz9izGC0YibLwTalEPETjqto6ZdrcXJaFmQyMyGrd6IXFw5BgpgQKVI0wktDCF
-	N9YrXZ8nvjZUE//aQ8ZuYUiEL1I/bOeLgw==
-X-Received: by 2002:a05:6a20:6a1e:b0:3c8:e313:8d42 with SMTP id adf61e73a8af0-3c92a77e60fmr14018709637.31.1785852931219;
-        Tue, 04 Aug 2026 07:15:31 -0700 (PDT)
-Received: from localhost.localdomain ([1.226.165.54])
-        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-cbe396eb7e2sm5056572a12.18.2026.08.04.07.15.27
-        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
-        Tue, 04 Aug 2026 07:15:30 -0700 (PDT)
-From: Myeonghun Pak <mhun512@gmail.com>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Linus Walleij <linusw@kernel.org>,
-	Samuel Ortiz <sameo@linux.intel.com>,
-	Rabin Vincent <rabin.vincent@stericsson.com>,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	stable@vger.kernel.org
-Subject: [PATCH] Input: stmpe-keypad - disable keypad on probe failure
-Date: Tue,  4 Aug 2026 23:15:25 +0900
-Message-ID: <20260804141525.39388-1-mhun512@gmail.com>
-X-Mailer: git-send-email 2.47.1
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="aQTZhslC"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D0881F000E9;
+	Tue,  4 Aug 2026 15:15:30 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1785856530;
+	bh=q4DPEolo3b+vrWVfcWFgKwApzb+loCD6AnF/wHczHCA=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=aQTZhslCQv4ww2b//Zd0fUzQvPF6LNf5JeQ1foA+6PsXuTVwAgZl2Ld7lItFZbdAW
+	 1aJCO0QKdza+p912C6BxF7c5PPH6CQfvK+owiN9/ETiosWGKsXgqy8VkZgyr6+yGZ0
+	 8AXg3TwRwtiZLeJF2E9tT+ML/hjI9HBVSefkitRz0hJE1HRB2ZmdBBt8b6mDsRPelW
+	 S/WefU1Dp5NfGCqGJ1PuEiTeQFS233ihY6eeUR0veBQNE4vWulK8l+m+bHz45ftf0W
+	 wCH2VpYRQSXcJKaym8MWbm6LNBIg0sRP1GpirRCqCohvXx4Ea/xtX+E/wAqY98FT3F
+	 jz91+U+gJKHTA==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH] Input: stmpe-keypad - disable keypad on probe failure
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Myeonghun Pak" <mhun512@gmail.com>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <20260804141525.39388-1-mhun512@gmail.com>
+References: <20260804141525.39388-1-mhun512@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Tue, 04 Aug 2026 15:15:29 +0000
+Message-Id: <20260804151530.8D0881F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+
+Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+s) to consider:
+
+New issues:
+- [Medium] Disabling hardware before freeing managed IRQ creates a race con=
+dition on probe failure.
+
+Pre-existing issues:
+- [High] Logic bug in `stmpe_keypad_altfunc_init()` aborts pull-up configur=
+ation on non-zero register values and ignores errors.
+- [High] Heap buffer overflow in `keymap` parsing when device tree specifie=
+s dimensions exceeding 8x8.
+--
+
+--- Patch [1]: [PATCH] Input: stmpe-keypad - disable keypad on probe failur=
+e ---
+commit 849a668c20609a76cff8c0630950b6029798e3f9
+Author: Myeonghun Pak <mhun512@gmail.com>
+Subject: Input: stmpe-keypad - disable keypad on probe failure
 
 stmpe_keypad_chip_init() enables the keypad block before programming
-its registers. If any subsequent register access fails, the function
-returns without disabling the block. The later IRQ request and input
-device registration failures have the same problem.
-
-Route every failure after a successful stmpe_enable() through a cleanup
-path so a failed probe does not leave the keypad block enabled.
-
-This issue was identified during our ongoing static-analysis research while
-reviewing kernel code.
+its registers, but does not disable it on failure. This patch routes
+initialization and probe failures through a cleanup path so a failed
+probe does not leave the keypad block enabled.
 
 Fixes: 76f10845318b ("input: Add STMPE keypad driver")
 Cc: stable@vger.kernel.org
-Co-developed-by: Ijae Kim <ae878000@gmail.com>
-Signed-off-by: Ijae Kim <ae878000@gmail.com>
-Signed-off-by: Myeonghun Pak <mhun512@gmail.com>
----
- drivers/input/keyboard/stmpe-keypad.c | 38 ++++++++++++++++++---------
- 1 file changed, 26 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/input/keyboard/stmpe-keypad.c b/drivers/input/keyboard/stmpe-keypad.c
-index 0acded4fb9c9c..58a5ce4eaa80b 100644
---- a/drivers/input/keyboard/stmpe-keypad.c
-+++ b/drivers/input/keyboard/stmpe-keypad.c
-@@ -280,35 +280,44 @@ static int stmpe_keypad_chip_init(struct stmpe_keypad *keypad)
- 
- 	ret = stmpe_keypad_altfunc_init(keypad);
- 	if (ret < 0)
--		return ret;
-+		goto disable_keypad;
- 
- 	ret = stmpe_reg_write(stmpe, STMPE_KPC_COL, keypad->cols);
- 	if (ret < 0)
--		return ret;
-+		goto disable_keypad;
- 
- 	ret = stmpe_reg_write(stmpe, STMPE_KPC_ROW_LSB, keypad->rows);
- 	if (ret < 0)
--		return ret;
-+		goto disable_keypad;
- 
- 	if (variant->max_rows > 8) {
- 		ret = stmpe_set_bits(stmpe, STMPE_KPC_ROW_MSB,
- 				     STMPE_KPC_ROW_MSB_ROWS,
- 				     keypad->rows >> 8);
- 		if (ret < 0)
--			return ret;
-+			goto disable_keypad;
- 	}
- 
- 	ret = stmpe_set_bits(stmpe, STMPE_KPC_CTRL_MSB,
- 			     STMPE_KPC_CTRL_MSB_SCAN_COUNT,
- 			     keypad->scan_count << 4);
- 	if (ret < 0)
--		return ret;
-+		goto disable_keypad;
-+
-+	ret = stmpe_set_bits(stmpe, STMPE_KPC_CTRL_LSB,
-+			     STMPE_KPC_CTRL_LSB_SCAN |
-+			     STMPE_KPC_CTRL_LSB_DEBOUNCE,
-+			     STMPE_KPC_CTRL_LSB_SCAN |
-+			     (keypad->debounce_ms << 1));
-+	if (ret < 0)
-+		goto disable_keypad;
- 
--	return stmpe_set_bits(stmpe, STMPE_KPC_CTRL_LSB,
--			      STMPE_KPC_CTRL_LSB_SCAN |
--			      STMPE_KPC_CTRL_LSB_DEBOUNCE,
--			      STMPE_KPC_CTRL_LSB_SCAN |
--			      (keypad->debounce_ms << 1));
-+	return 0;
-+
-+disable_keypad:
-+	stmpe_disable(stmpe, STMPE_BLOCK_KEYPAD);
-+
-+	return ret;
- }
- 
- static void stmpe_keypad_fill_used_pins(struct stmpe_keypad *keypad,
-@@ -389,19 +398,24 @@ static int stmpe_keypad_probe(struct platform_device *pdev)
- 					  IRQF_ONESHOT, "stmpe-keypad", keypad);
- 	if (error) {
- 		dev_err(&pdev->dev, "unable to get irq: %d\n", error);
--		return error;
-+		goto disable_keypad;
- 	}
- 
- 	error = input_register_device(input);
- 	if (error) {
- 		dev_err(&pdev->dev,
- 			"unable to register input device: %d\n", error);
--		return error;
-+		goto disable_keypad;
- 	}
- 
- 	platform_set_drvdata(pdev, keypad);
- 
- 	return 0;
-+
-+disable_keypad:
-+	stmpe_disable(stmpe, STMPE_BLOCK_KEYPAD);
-+
-+	return error;
- }
- 
- static void stmpe_keypad_remove(struct platform_device *pdev)
--- 
-2.47.1
+> diff --git a/drivers/input/keyboard/stmpe-keypad.c b/drivers/input/keyboa=
+rd/stmpe-keypad.c
+> --- a/drivers/input/keyboard/stmpe-keypad.c
+> +++ b/drivers/input/keyboard/stmpe-keypad.c
+[ ... ]
+> @@ -280,35 +280,44 @@ static int stmpe_keypad_chip_init(struct stmpe_keyp=
+ad *keypad)
+> =20
+>  	ret =3D stmpe_keypad_altfunc_init(keypad);
+>  	if (ret < 0)
+> -		return ret;
+> +		goto disable_keypad;
+> =20
 
+[Severity: High]
+This is a pre-existing issue, but does this logic correctly handle the retu=
+rn
+value of the configuration function?
+
+Looking at stmpe_keypad_altfunc_init(), it reads a register which returns a
+positive value on success, but it treats any non-zero value as an error:
+
+drivers/input/keyboard/stmpe-keypad.c:stmpe_keypad_altfunc_init() {
+    ...
+    ret =3D stmpe_reg_read(stmpe, pureg);
+    if (ret)
+        return ret;
+    ...
+}
+
+This causes stmpe_keypad_altfunc_init() to return a positive value, skipping
+the rest of the pull-up configuration. Because the check here in
+stmpe_keypad_chip_init() only looks for (ret < 0), the positive error code =
+is
+silently ignored, leaving the matrix columns floating.
+
+[ ... ]
+> @@ -389,19 +398,24 @@ static int stmpe_keypad_probe(struct platform_devic=
+e *pdev)
+>  					  IRQF_ONESHOT, "stmpe-keypad", keypad);
+>  	if (error) {
+>  		dev_err(&pdev->dev, "unable to get irq: %d\n", error);
+> -		return error;
+> +		goto disable_keypad;
+>  	}
+> =20
+>  	error =3D input_register_device(input);
+>  	if (error) {
+>  		dev_err(&pdev->dev,
+>  			"unable to register input device: %d\n", error);
+> -		return error;
+> +		goto disable_keypad;
+>  	}
+
+[Severity: High]
+This is a pre-existing issue, but could the matrix_keypad_build_keymap()
+call earlier in this probe function cause a heap buffer overflow?
+
+The keypad->keymap array is statically sized to 64 elements
+(STMPE_KEYPAD_MAX_ROWS * STMPE_KEYPAD_MAX_COLS). However, the device tree
+parsing does not validate that the parsed rows and cols fit within these 8x8
+bounds.
+
+If a variant like STMPE24xx supports and specifies 12 rows in the device
+tree, won't matrix_keypad_build_keymap() write up to 96 elements into the
+64-element keypad->keymap array?
+
+> =20
+>  	platform_set_drvdata(pdev, keypad);
+> =20
+>  	return 0;
+> +
+> +disable_keypad:
+> +	stmpe_disable(stmpe, STMPE_BLOCK_KEYPAD);
+> +
+> +	return error;
+>  }
+
+[Severity: Medium]
+Because the IRQ is managed by devres via devm_request_threaded_irq(), it
+won't be freed until after the probe function returns. By manually disabling
+the keypad block here, does this introduce a race condition?
+
+If an interrupt fires before devres cleans up the IRQ, won't the interrupt
+handler (stmpe_keypad_irq) execute and attempt to read from the disabled
+hardware registers?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260804141525.3938=
+8-1-mhun512@gmail.com?part=3D1

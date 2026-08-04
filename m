@@ -1,140 +1,132 @@
-Received: from mail-pj1-f54.google.com (mail-pj1-f54.google.com [209.85.216.54])
+Received: from va-2-18.ptr.blmpb.com (va-2-18.ptr.blmpb.com [209.127.231.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 224D0495531
-	for <linux-input@vger.kernel.org>; Tue,  4 Aug 2026 19:00:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.216.54
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785870057; cv=pass; b=hocAtk3xUn937Kfcd8G16W+nLSatbI5f+pmixqhmn1GKGy/ZML7rTo/QuTZu5cqflkITxFcQaTgzBiQwB6pJPCGiSuO3Mtvyp893uE/8gMgD8Oa9nbLX8SEVPpvkp/9USdTwSse6ynC2qVcOQT1BPNr0CTppODyaspJ0MNCTl5s=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785870057; c=relaxed/simple;
-	bh=/XFOYEBNoZSJfESMossA4x0IZOYiXot0R5f6spMo1Q4=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Ie9Mixm8mRuK3h7LNfXq7dhkVD2Qd+DKGdNwGwfRvqj2GWit6cWX+Fe+fSERUNtZpwoz8IG2kwBZlJVPN3bFZRqmBDIvy76Mhwa6c2qD60I46QloLNvmCzzvL2w4shi/quyyFRuJodRBD9lCv9GK8RfYcozuJ+xLwD7vfV/W+vI=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=NefSuPrw; arc=pass smtp.client-ip=209.85.216.54
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 47BD53F12C8
+	for <linux-input@vger.kernel.org>; Tue,  4 Aug 2026 20:07:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.127.231.18
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1785874022; cv=none; b=hy9nmZCTtmOXRgdwXfyvwpzT7wVPiAdBDK9rIo+ud0G4e7brMIfYESfEiXQ/vJdAVtc4BFVZgYs7/9eW47lD8/BIkuT+HvJhziuBznxaehg97dm3wv1+j9MTBPglrQpyePF9ZQ8YFwiZSOq+bbdiLpJ23Fvg5pg7vnCXwvYvKCQ=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1785874022; c=relaxed/simple;
+	bh=AWqkZ/frT8Ig8rD0d5amHm7Rww4cuJ/rYWq8Ww3xRH8=;
+	h=To:Date:Content-Type:Mime-Version:Content-Disposition:Cc:
+	 In-Reply-To:References:From:Subject:Message-Id; b=RI1c2GwjRzBbAMPW1IhsErSyKgURCCJg8KyVukoG1xJLhlyj0LCxqYwtBPd/S0lOOvlU6bLTtFb+fgZ2VnYIL4InvZbuTy7GymLMSdd4yjVWl58c6Y5ZwaUUsdaag5a/FqTyBTKAVJOLdGAHgoylKHNeqUJYMkcKGCI4SP/KjO4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=cherr.cc; spf=pass smtp.mailfrom=cherr.cc; dkim=pass (2048-bit key) header.d=cherr.cc header.i=@cherr.cc header.b=gKOp3Dfh; arc=none smtp.client-ip=209.127.231.18
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=cherr.cc
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=cherr.cc
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="NefSuPrw"
-Received: by mail-pj1-f54.google.com with SMTP id 98e67ed59e1d1-38d489b6b71so169736a91.0
-        for <linux-input@vger.kernel.org>; Tue, 04 Aug 2026 12:00:50 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1785870049; cv=none;
-        d=google.com; s=arc-20260327;
-        b=l6lQ4da+h+PFj9JsiXhXEjqHlImh96EL99hGlph1Q8FHlvkyT49B8BfMYyqqTgf6Gj
-         cF02GAjg33vCM14EBjxuOkrpu+CV6UbUCrr0y4ftllBX9jQ4ABh2uAT0LcOkr3GqmuT7
-         tC/oG/W89iTHfXf+Q/sq86HI+fbmnJAh2j6ICkYIk1Ky2APvqawLtcFtejV4fm2kkWIB
-         6CldLLmxQli+27y5h5Y/8EwpLPPV6U4Cq30CKH85l3/wr+XwDbQMssKmCK8oM+Azwun3
-         0WMgEmvWmEprHeOv2kjpoZyVDkSlyyqwzVP+CuiaPHrtS4s1nXDe1ECYNG7cYnOM4gdn
-         5Gag==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=/YyqCD8BW4XPHRakH4x68/qGqs02sJDv65IoJPvWYwQ=;
-        fh=I4HJkF/gbtl0wCFQR0XiD8kayou7AHHZQz5Ij9hebSA=;
-        b=KQMeCyCf1mFieEkjBDWuOlte2SleQqEV2pKaZ4RXHkCJQHiVjb1SeSTM/bUR8+zEiH
-         Xvx47E0dYv+JXoDrAjQikmceZMgdqeSbvrWhjatiQPztwwCUf5NBLdYulSL/rjFWKKj5
-         CMtcq5RX4zUdZrRgqDBHOMl/5PDSBVk6cMKOROxzMimnBWj4r/7QoUeRNKMNk/JEmb1n
-         djdIy/lSb5526N1LNL264+cDF32DPnCqsuHGUrXru7H73SMFzjdDRGzcJWhz7d4qaos5
-         0A7DDNs9EFxg/IuECJoruUpBywYFUbSo8UVwY86wcI3eGCBKGR5cDjvxGmsbevf0Adfw
-         w+Rw==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1785870049; x=1786474849; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=/YyqCD8BW4XPHRakH4x68/qGqs02sJDv65IoJPvWYwQ=;
-        b=NefSuPrwRWmDTb7it8chd9kXRExY/fFvKdKTUFFk4XNM0+J7Xlu6IPpNVv5F3FUUn5
-         qmTkE+a9F8774on+c/hl3CuWrVB/yMwiKPGxZDEyX36gdhxXRbri/6S9laQCPM0iD7v8
-         yvrhKWMxW2464Ham/Yn95qsKj/IhH/tD7q21PbtMzmctLeVecGkZKsYa/j6FQfPXPyBC
-         2HVrbnazF6uOjkftG0JgrXwtg+MgHAhw0v5MN4xo0wM7+Gj+uiu4E4dpsmm+kOCfv7f7
-         KidleKwH98refvhS+hfOhVu+tLBSnsVxzG2P+5twSkEsz3RAcImHIcUuUokh9UOc/ajI
-         Eh9Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785870049; x=1786474849;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=/YyqCD8BW4XPHRakH4x68/qGqs02sJDv65IoJPvWYwQ=;
-        b=tVvKaeX6i9i563kZ2n1vcpgjFaf750Z+QG7fMr7QCgli/alZjT8nrcLfXpAMaR8q85
-         oSS1heYRZEGrSqLqvmxiL7dRqR6L29z2NOu59Hvh1J+Ea6HxW3f4RMvV7ZD74uQF8xF4
-         YKfcWx95vBB9WBa9DZt2/2xuZnlB/5eUmCjcvnCvzRIKRYrlsJBkBr2cUB5GWvraYZR9
-         Jyp+R8IO8rzCUROEJ1SJvbpVFrTn5Bl67L3btDs428+0ZEzBIRSHZCwwB2UYOBh4xFuq
-         9FrWfoCLFx2cVQ28zKhySfLE9QRRdsTQqPIkGXkyfxWQi1MxJNysN14P5IcG2pI8+DZl
-         wiYg==
-X-Forwarded-Encrypted: i=1; AHgh+Ros4yZdUOFL7ybPqPI3sohETH0CKs9g/VL3I3PcReFqSweE92cKAHWY4XVJCmd5WbMQcw5FrN/Tbu9N2g==@vger.kernel.org
-X-Gm-Message-State: AOJu0YxxS0dnSrjBVHKj+9cX+AgAet2oA7F/8qkiwTtFNXTMbWEYFWUu
-	z03M34XUsp6aexHhUwLuj9f6OH3E+7e4Ct1CpotlWdkSLqrI64VBhboZWYYtG4VuLcMHsLKZJsL
-	Fb3Q/4Uc0MzArSBc3IqQoLcOZinRTRh4=
-X-Gm-Gg: AR+sD12FzEXsAFxPs+jLwrUkD2xR2lEIUMoTQUqwDbQbr827UURRb1jv+zfpP/4ZMcs
-	/u7MSIfsUlPCCfdzZfBEXaenFLFBkarLCC3lFTCeH0uyM8+Tz955WMjtmpdiLJ1Y04PryMEP9Oe
-	878XeXSZoB9L5aRyTtV+sIebs6YOSxuxF8Nczm4cIEuHHNJNzvykmwJUMm8s0N40ha0SLR9yPni
-	brcOaWQy8OJdR+o4dMkUlc+IqeSDoTXEB50A8Ou5U9Lg0PqAQrQt5dO+Ova3adL3znTZzDuIVHz
-	1LUonOCYZIR7wJWxAncr7ml4BDgK58NaffySS5DdSKPlB6A/ON6q0RYOg+/ly82PlTw6zax4rLG
-	VF7RgfZ+PSGe1e6v+PX3b9YhyZ9s=
-X-Received: by 2002:a17:90b:5112:b0:38e:542:6485 with SMTP id
- 98e67ed59e1d1-3903c5919c4mr924860a91.12.1785870049156; Tue, 04 Aug 2026
- 12:00:49 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=cherr.cc header.i=@cherr.cc header.b="gKOp3Dfh"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+ s=feishu2604220257; d=cherr.cc; t=1785874015; h=from:subject:
+ mime-version:from:date:message-id:subject:to:cc:reply-to:content-type:
+ mime-version:in-reply-to:message-id;
+ bh=g2+Kq/2ATNpIZmZ2LFcdbtA0odwTHd3mykJnHCsnUyA=;
+ b=gKOp3DfhuTuNHuRMxc712H3hwGilUDyt1bjoSOtZsL7mnt5OTRtynmvN6PFejKvtB7fXrD
+ ogd5Jq5wU588Hg3oM2tAjpawyV+xlMD1lTCqCecLyCEEA41k1FSjzn/im78QR1gdUNjj7S
+ 2joaKEigYcHiKpXTedWV6lCfnAwBz7Bhelc0qDLkfbTzs2Fp3u52FTVa0VQln3Mj5QFq/8
+ 7qpEANNmwnjqCFLOqCCNfg3pwbvciI74D0wvw7r7J1JP1AaPPjmoZXhp8j4tYd3abxSeeo
+ /5zilyZDu8wn0xDXk3gWUNYKHtt8Wi1DPQL1hnF8ArwaHnDMRm7ObsulaCdLUw==
+X-Original-From: Shengzhuo Wei <me@cherr.cc>
+X-Lms-Return-Path: <lba+26a72465d+0ab012+vger.kernel.org+me@cherr.cc>
+To: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>, 
+	"Derek J. Clark" <derekjohn.clark@gmail.com>, 
+	"Jiri Kosina" <jikos@kernel.org>, 
+	"Benjamin Tissoires" <bentiss@kernel.org>, 
+	"Zhouwang Huang" <honjow311@gmail.com>
+Date: Wed, 5 Aug 2026 04:06:50 +0800
+Received: from pve ([111.42.148.100]) by smtp.feishu.cn with ESMTPS; Wed, 05 Aug 2026 04:06:52 +0800
+Content-Type: text/plain; charset=UTF-8
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-References: <CABWMpWQiSEKMkROgKZJ6nV8GXYgr7E=-SmsatQie4eK8b3F9Xw@mail.gmail.com>
- <CABWMpWR7Law_vHdeAMsOcY28VBcvX2jYSqq2SpksJSiLFcXhuw@mail.gmail.com> <anIhyHL4Kl-DX2G_@eggarch>
-In-Reply-To: <anIhyHL4Kl-DX2G_@eggarch>
-From: Jamie Stephens <jamie.stephens@gmail.com>
-Date: Tue, 4 Aug 2026 15:00:37 -0400
-X-Gm-Features: AUfX_mzKEFWesy9_PyKm-5nbf0o3VldJqhUPwpqyxb0HY0FLUd51o98kcLYGN30
-Message-ID: <CABWMpWT8fGTVABdi6KF42UTmarneeBQgYQfCVj=09jyEtHS=rQ@mail.gmail.com>
-Subject: Re: [REGRESSION] CyberPower LE1000DG (0764:0501) USB HID regression
- on x86
-To: Lovekesh Solanki <lovekeshsolanki00@gmail.com>
-Cc: jikos@kernel.org, bentiss@kernel.org, regressions@lists.linux.dev, 
-	gregkh@linuxfoundation.org, stern@rowland.harvard.edu, 
-	linux-usb@vger.kernel.org, linux-input@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Mime-Version: 1.0
+Content-Disposition: inline
+Cc: <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>, 
+	<stable@vger.kernel.org>, "Shengzhuo Wei" <me@cherr.cc>
+In-Reply-To: <20260804-oxp-fix-v2-1-b2d56e4c8a2c@cherr.cc>
+References: <20260804-oxp-fix-v2-1-b2d56e4c8a2c@cherr.cc>
+Content-Transfer-Encoding: 7bit
+From: "Shengzhuo Wei" <me@cherr.cc>
+Subject: Re: [PATCH v2] HID: hid-oxp: fix UAF on pending work in remove()
+Message-Id: <anJGWjlmRxNMoVLG@pve>
 
-Thank you, will set aside some time in the next day or so  to run the
-patches and git bisection
+On 2026-08-04 17:50, Shengzhuo Wei wrote:
+> ---
+>  drivers/hid/hid-oxp.c | 12 ++++++------
+>  1 file changed, 6 insertions(+), 6 deletions(-)
+> 
+> diff --git a/drivers/hid/hid-oxp.c b/drivers/hid/hid-oxp.c
+> index 20a54f337220dc2aee3483a14d542b66c487bd60..abd622ff1b26b312ad9c8a4375822832f8371533 100644
+> --- a/drivers/hid/hid-oxp.c
+> +++ b/drivers/hid/hid-oxp.c
+> @@ -1501,14 +1501,14 @@ static int oxp_cfg_probe(struct hid_device *hdev, u16 up)
+>  	drvdata.gamepad_mode = OXP_GP_MODE_XINPUT;
+>  	drvdata.rumble_intensity = 5;
+>  
+> -	INIT_DELAYED_WORK(&drvdata.oxp_mcu_init, oxp_mcu_init_fn);
+> -	mod_delayed_work(system_wq, &drvdata.oxp_mcu_init, msecs_to_jiffies(50));
+> -
+>  	ret = devm_device_add_group(&hdev->dev, &oxp_cfg_attrs_group);
+>  	if (ret)
+>  		return dev_err_probe(&hdev->dev, ret,
+>  				     "Failed to attach configuration attributes\n");
+>  
+> +	INIT_DELAYED_WORK(&drvdata.oxp_mcu_init, oxp_mcu_init_fn);
+> +	mod_delayed_work(system_wq, &drvdata.oxp_mcu_init, msecs_to_jiffies(50));
+> +
+>  	return 0;
+>  }
+>  
+> @@ -1552,9 +1552,9 @@ static int oxp_hid_probe(struct hid_device *hdev,
+>  
+>  static void oxp_hid_remove(struct hid_device *hdev)
+>  {
+> -	cancel_delayed_work(&drvdata.oxp_rgb_queue);
+> -	cancel_delayed_work(&drvdata.oxp_btn_queue);
+> -	cancel_delayed_work(&drvdata.oxp_mcu_init);
+> +	disable_delayed_work_sync(&drvdata.oxp_rgb_queue);
+> +	disable_delayed_work_sync(&drvdata.oxp_btn_queue);
+> +	disable_delayed_work_sync(&drvdata.oxp_mcu_init);
+>  	hid_hw_close(hdev);
+>  	hid_hw_stop(hdev);
+>  }
+> 
+> ---
 
-On Tue, Aug 4, 2026 at 2:56=E2=80=AFPM Lovekesh Solanki
-<lovekeshsolanki00@gmail.com> wrote:
->
-> Thanks for the report,
->
-> On Thu, Jul 30, 2026 at 03:28:02PM -0400, Jamie Stephens wrote:
-> > sudo lsusb -v -d 0764:0501
-> >
-> > reports:
-> >
-> > wDescriptorLength     504
-> >
-> > Warning: can't get report descriptor, LIBUSB_ERROR_PIPE
-> >
-> > cannot read device status, Resource temporarily unavailable (11)
-> >
-> > As a result, usbhid-ups is unable to reliably communicate with the
-> > device and NUT cannot reliably monitor UPS status.
-> The lsusb failure and NUT seem to be seperate, lsusb failure could
-> simply be device property.
->
-> Few possibilities I can think of worth testing:
-> 1) It may be related to LPM, the device may be advertising this but may
-> not be handling it properly.
-> 2) Commit 8020c41b39f5 (usb: core: allow ACPI-managed hard-wired ports to=
- power off)
-> lets acpi managed ports be powered off even if hub does not advertise
-> power switching. The UPS may be sitting on such port and its power could
-> be cycled out and leave it in a stale state.
->
-> I'm attaching two patches to see if they have any effect, please apply
-> and test them seperatly and let us know the results.
-> And, as per Thorsten's advice above, run git bisection regardless.
->
-> Regards,
-> Lovekesh
+Hi Dmitry,
+
+Thanks again for the v1 review. Sashiko's v2 review raised two points I
+want to act on:
+
+1. "Uninitialized work struct access during early raw events" -- agreed.
+   v2 moved INIT_DELAYED_WORK(&drvdata.oxp_mcu_init) to the end of
+   oxp_cfg_probe(), widening the window in which an early status report
+   could mod_delayed_work() a not-yet-initialized (zeroed) work. I'll
+   fix this in v3 by keeping INIT_DELAYED_WORK() before
+   devm_device_add_group() and moving only the mod_delayed_work() after
+   it: the work is then initialized before any raw event can arm it,
+   while a probe failure still can't leave it armed.
+
+2. "Global workqueues permanently disabled on inert interface removal."
+   The driver keeps all state in a single static global drvdata, and
+   module_hid_driver() binds it to every interface of the device, so
+   oxp_hid_remove() runs when any interface is unbound. With
+   disable_delayed_work_sync() and no enable_delayed_work() anywhere,
+   unbinding an inert interface disables the works for the still-bound
+   gamepad interface. cancel_delayed_work_sync() (v1) re-enabled them,
+   so it didn't have this side effect.
+
+   This looks like a symptom of the static-global-drvdata issue rather
+   than disable_delayed_work_sync() itself -- with per-device drvdata
+   each interface would have its own works. Before I send v3, would you
+   prefer to keep disable_delayed_work_sync() (and address the
+   multi-interface case via the per-device drvdata refactor you
+   mentioned as a separate patch), or go back to
+   cancel_delayed_work_sync()? I'll hold v3 until I hear from you.
+
+The remaining sashiko items look pre-existing and outside this fix.
+
+Thanks,
+Shengzhuo

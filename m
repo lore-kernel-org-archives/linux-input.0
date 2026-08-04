@@ -1,104 +1,135 @@
-Received: from mx1.white.stw.pengutronix.de (mx1.white.stw.pengutronix.de [185.203.200.13])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from va-2-50.ptr.blmpb.com (va-2-50.ptr.blmpb.com [209.127.231.50])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D950538E8B9;
-	Tue,  4 Aug 2026 09:31:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.203.200.13
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 879193A425B
+	for <linux-input@vger.kernel.org>; Tue,  4 Aug 2026 09:51:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.127.231.50
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785835878; cv=none; b=TW49/F1/Hv7rVjZ3HmR16USECRUdFYE4O3CPlB2HWycoVCDzkK98NOOo5oaeVqrbOU/tz0xVx587fE+GLIS2cNpPfXfUbJlo2XRbRGnPs2hUuGElJ+XHI0stoE5Fnq6cqm/S/lR/6Tk52K23KbgVg0KKuycVgEMMIxFKNNjaYqU=
+	t=1785837066; cv=none; b=mAyWo4N9jfVNFDg7aL1DZczv+j78AqEmOgEFV9qFjUZp7FW+/TwIjSNaprAuLNIm3bw4wWWjVxLXc640lgZ6h/3T1glU3jE8Vv62Zu+bCnfImGnsqlReh3SdFvG5YCUUetU5D3R++XGsjbuLGX1RbqzC38iyHpxy3SqFSS0/eOc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785835878; c=relaxed/simple;
-	bh=SvhAFQKo0L2Xf0Mrn7YvwV7QtrLUDpBUYPhtf7tQd+g=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=BXdaQnjXW/ntZ838qPGlZtVaddkmvoDGq5iwxjoddadjEbIlEJ0HAqBKryMVmnzRttS5vuXnUPbCcF7R06N4MGUErkyCLaLiwjCxLZ9Fxtb1FKiGn5njSQzhaE9c/fnADKaqKsTWc8Q3nhuI9Wer8HN7As5ojs10sNIN2668YI0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=pengutronix.de; spf=pass smtp.mailfrom=pengutronix.de; arc=none smtp.client-ip=185.203.200.13
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=pengutronix.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=pengutronix.de
-Received: from drehscheibe.grey.stw.pengutronix.de (drehscheibe.grey.stw.pengutronix.de [IPv6:2a0a:edc0:0:c01:1d::a2])
-	(Authenticated sender: relay-from-drehscheibe.grey.stw.pengutronix.de)
-	by mx1.white.stw.pengutronix.de (Postfix) with ESMTPSA id 5368F200048;
-	Tue, 04 Aug 2026 11:31:13 +0200 (CEST)
-Received: from pty.whiteo.stw.pengutronix.de ([2a0a:edc0:2:b01:1d::c5])
-	by drehscheibe.grey.stw.pengutronix.de with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-	(Exim 4.96)
-	(envelope-from <mfe@pengutronix.de>)
-	id 1wrBUP-002qKg-0o;
-	Tue, 04 Aug 2026 11:31:13 +0200
-Received: from mfe by pty.whiteo.stw.pengutronix.de with local (Exim 4.98.2)
-	(envelope-from <mfe@pengutronix.de>)
-	id 1wrBUP-0000000AUTU-0c5e;
-	Tue, 04 Aug 2026 11:31:13 +0200
-Date: Tue, 4 Aug 2026 11:31:13 +0200
-From: Marco Felsch <m.felsch@pengutronix.de>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: sashiko-reviews@lists.linux.dev, robh@kernel.org, 
-	linux-input@vger.kernel.org, conor+dt@kernel.org, devicetree@vger.kernel.org
-Subject: Re: [PATCH v7 4/4] Input: Add TouchNetix aXiom I2C Touchscreen
- support
-Message-ID: <ujewi7j52r5vtgofpkg26brbh767onsahwknuiify4ikyltsev@7gufjzgpeqfd>
-References: <20260703-v6-10-topic-touchscreen-axiom-v7-0-0d2a550a7ee8@pengutronix.de>
- <20260703-v6-10-topic-touchscreen-axiom-v7-4-0d2a550a7ee8@pengutronix.de>
- <20260702224804.E0B0D1F000E9@smtp.kernel.org>
- <anFxs8grhvIVSdNA@google.com>
+	s=arc-20240116; t=1785837066; c=relaxed/simple;
+	bh=PllK0pyn2cHhRpegMjYFIhXeXddygZ0H5loZWAJmlJ4=;
+	h=Message-Id:To:Cc:Date:From:Subject:Mime-Version:Content-Type; b=LBVKudVMgAYNZ2MPU1TWueWqHWp40VRu3y9PyP0+cxs1PrGGWCnx8SRfwwoLe5PyxF07FclJZxtr9DfAtYA4fDdjTtbrd1v2wzjISnfnSh8Zwe56ZsBCh8uG9+FpA825yr/PKpKqFvrhPYpUJ/n1iHq0hLJnfA8m5h2qs/3RxYQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=cherr.cc; spf=pass smtp.mailfrom=cherr.cc; dkim=pass (2048-bit key) header.d=cherr.cc header.i=@cherr.cc header.b=kU913vBg; arc=none smtp.client-ip=209.127.231.50
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=cherr.cc
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=cherr.cc
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=cherr.cc header.i=@cherr.cc header.b="kU913vBg"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+ s=feishu2604220257; d=cherr.cc; t=1785837048; h=from:subject:
+ mime-version:from:date:message-id:subject:to:cc:reply-to:content-type:
+ mime-version:in-reply-to:message-id;
+ bh=93G7QUyO/8KOqjQwFuFq3XJtKN9m29vvNua5vmaR2wA=;
+ b=kU913vBg6kFMMB02gdNF0CyRBl2G5zakxgIiz+7vmt4Ru2d0vuA4W0LEPGB+EhBXLGN8IV
+ g0+9rwTKFHRsIiOsJKFDOj+t8a0hOPZcMzfmG5vML6pY96jJWUgGeREi/Cyf/gEziqhtiP
+ SAOkF0kf8t1eyCCUTpttIcrca8LL7vrcmqq3KP+w33mnMKaI++VozSrMk/S3bnsOXUWOWJ
+ ksGWUeYrUSNXTur/59IcxlMeXmDOc0Lznag4pTBuiC2MqjmEC/bHdTiyDHdXyrpj2eR6ui
+ tP02Yf6SQlXst5lKzR8sjyWH9PZx8xcFdY0Wk245oZD8jG358JlxI4RCnAevqA==
+Message-Id: <20260804-oxp-fix-v2-1-b2d56e4c8a2c@cherr.cc>
+X-Mailer: b4 0.14.2
+To: "Derek J. Clark" <derekjohn.clark@gmail.com>, 
+	"Jiri Kosina" <jikos@kernel.org>, 
+	"Benjamin Tissoires" <bentiss@kernel.org>, 
+	"Zhouwang Huang" <honjow311@gmail.com>
+Cc: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>, 
+	<linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>, 
+	<stable@vger.kernel.org>, "Shengzhuo Wei" <me@cherr.cc>
+Date: Tue, 04 Aug 2026 17:50:30 +0800
+X-Original-From: Shengzhuo Wei <me@cherr.cc>
+Received: from [192.168.9.107] ([111.40.58.243]) by smtp.feishu.cn with ESMTPS; Tue, 04 Aug 2026 17:50:45 +0800
+X-Change-Id: 20260804-oxp-fix-879390c5e47f
+X-Lms-Return-Path: <lba+26a71b5f6+e4b66e+vger.kernel.org+me@cherr.cc>
+From: "Shengzhuo Wei" <me@cherr.cc>
+Subject: [PATCH v2] HID: hid-oxp: fix UAF on pending work in remove()
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <anFxs8grhvIVSdNA@google.com>
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+X-B4-Tracking: v=1; b=H4sIAOW1cWoC/2WMQQ6DIBAAv2L23G2AomBP/UfjwdClcBGzGGJj+ Hup1x5nMpkDMnGkDPfuAKYSc0xLA3XpwIV5eRPGV2NQQg3CCo1pX9HHHa0Zb6NwPWnjodUrU9P n6Tk1DjFviT/nuMif/X8UiRJ7OWtPxho5mIcLxHx1DqZa6xeNvXAonQAAAA==
 
-On 26-08-03, Dmitry Torokhov wrote:
-> On Thu, Jul 02, 2026 at 10:48:04PM +0000, sashiko-bot@kernel.org wrote:
-> > Thank you for your contribution! Sashiko AI review found 18 potential issue(s) to consider:
-> > - [High] Missing bounds checking during firmware chunk parsing allows malformed firmware to trigger integer underflow and out-of-bounds memory accesses.
-> > - [High] Invalid cast of regmap buffer to u16* causes endian-dependent behavior and corrupts register addresses.
-> > - [High] Unbalanced pm_runtime_put in firmware upload cleanup leads to negative PM usage counts.
-> > - [High] Firmware-controlled allocation size allows out-of-bounds heap read when checking touch slots.
-> > - [High] The driver prevents firmware recovery when the device boots in bootloader mode by improperly failing the probe.
-> > - [High] fwupdate_lock is held across system calls violating kernel mutex semantics, and is double-unlocked on error paths.
-> > - [High] Improper devm teardown order causes Use-After-Free of the input device by background firmware upload threads.
-> 
-> I am not sure this is true as sysfs attributes should be removed iand
-> handlers complete before we get to remove() method. 
-> 
-> > - [High] Use-after-free of ts->input in the threaded IRQ handler during config firmware updates and device removal.
-> > - [High] The driver waits on completion primitives for hardware resets and saves without reinitializing them, causing future waits to falsely succeed immediately.
-> > - [High] The driver passes stack-allocated buffers to I2C transfers, which violates DMA requirements and can cause memory corruption.
-> 
-> This is Sashiko's hallucination.
-> 
-> > - [High] NULL pointer dereference in `axiom_remove_axfw_fwl_action` if `devm_add_action_or_reset` fails.
-> > - [Medium] An operator precedence error in subtracting the preamble and postamble causes the calculated report payload length to be artificially inflated.
-> > - [Medium] Probe error paths leak PM runtime references and fail to disable regulators.
-> > - [Medium] I2C read errors are swallowed and falsely reported as success in polling functions.
-> > - [Medium] Missing NULL check on `kasprintf` results in a crash or broken sysfs state when registering the firmware upload interfaces.
-> > - [Medium] The driver lacks system sleep power management callbacks, causing the device to remain powered on during system suspend if not acting as a panel follower.
-> > - [Medium] Dead code in `axiom_register_input_dev` prevents failing initialization when no touchslots are enabled.
-> > - [Low] Typo in the sysfs `device_state` output violates the documented ABI.
-> > --
-> 
-> However there appears to be quite a few items that need addressing.
+oxp_cfg_probe() arms drvdata.oxp_mcu_init to run 50 ms after probe, and
+oxp_mcu_init_fn() dereferences drvdata.hdev to issue MCU output reports
+(hid_hw_output_report() followed by msleep(200)). The oxp_rgb_queue and
+oxp_btn_queue workers are wired up the same way. oxp_hid_remove()
+cancels all three with the non-synchronising cancel_delayed_work(), so a
+worker already running is not waited for; removing the device while a
+worker is asleep then frees the hid_device underneath it, leaving
+drvdata.hdev stale -- a use-after-free when the worker wakes.
 
-Already on it.
+Use disable_delayed_work_sync() for all three in oxp_hid_remove(): it
+drains a running worker and, unlike cancel_delayed_work_sync(), leaves
+the works disabled so they cannot be re-armed by oxp_hid_raw_event_gen_2()
+or oxp_rgb_brightness_set() while the device is torn down. Arm
+oxp_mcu_init only after devm_device_add_group() succeeds in
+oxp_cfg_probe(), so a probe failure can no longer leave it pending to
+fire on the hid_device the caller tears down.
 
-Regards,
-  Marco
+Fixes: 84910c459d65 ("HID: hid-oxp: Add OneXPlayer configuration driver")
+Fixes: e4c850a6e750 ("HID: hid-oxp: Add Button Mapping Interface")
+Fixes: 2f424f28fb39 ("HID: hid-oxp: Add Second Generation Gamepad Mode Switch")
+Cc: stable@vger.kernel.org
+Signed-off-by: Shengzhuo Wei <me@cherr.cc>
+---
+Same delayed-work use-after-free class as the 7.2-rc6 sweep
+(hid-lenovo-go, hid-lenovo-go-s, hid-lg-g15, hid-appleir, hid-letsketch);
+hid-oxp was missed.
+---
+Changes in v2:
+- Use disable_delayed_work_sync() instead of cancel_delayed_work_sync()
+  so the works cannot be re-armed (e.g. via oxp_rgb_brightness_set())
+  while the device is being torn down (Dmitry Torokhov).
+- Arm oxp_mcu_init only after devm_device_add_group() succeeds, so a
+  probe failure can no longer leave it pending to fire on a freed
+  hid device (sashiko).
+- Link to v1: https://lore.kernel.org/r/20260804-oxp-fix-v1-1-51a4fe787167@cherr.cc
+---
+ drivers/hid/hid-oxp.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-> 
-> Thanks.
-> 
-> -- 
-> Dmitry
-> 
+diff --git a/drivers/hid/hid-oxp.c b/drivers/hid/hid-oxp.c
+index 20a54f337220dc2aee3483a14d542b66c487bd60..abd622ff1b26b312ad9c8a4375822832f8371533 100644
+--- a/drivers/hid/hid-oxp.c
++++ b/drivers/hid/hid-oxp.c
+@@ -1501,14 +1501,14 @@ static int oxp_cfg_probe(struct hid_device *hdev, u16 up)
+ 	drvdata.gamepad_mode = OXP_GP_MODE_XINPUT;
+ 	drvdata.rumble_intensity = 5;
+ 
+-	INIT_DELAYED_WORK(&drvdata.oxp_mcu_init, oxp_mcu_init_fn);
+-	mod_delayed_work(system_wq, &drvdata.oxp_mcu_init, msecs_to_jiffies(50));
+-
+ 	ret = devm_device_add_group(&hdev->dev, &oxp_cfg_attrs_group);
+ 	if (ret)
+ 		return dev_err_probe(&hdev->dev, ret,
+ 				     "Failed to attach configuration attributes\n");
+ 
++	INIT_DELAYED_WORK(&drvdata.oxp_mcu_init, oxp_mcu_init_fn);
++	mod_delayed_work(system_wq, &drvdata.oxp_mcu_init, msecs_to_jiffies(50));
++
+ 	return 0;
+ }
+ 
+@@ -1552,9 +1552,9 @@ static int oxp_hid_probe(struct hid_device *hdev,
+ 
+ static void oxp_hid_remove(struct hid_device *hdev)
+ {
+-	cancel_delayed_work(&drvdata.oxp_rgb_queue);
+-	cancel_delayed_work(&drvdata.oxp_btn_queue);
+-	cancel_delayed_work(&drvdata.oxp_mcu_init);
++	disable_delayed_work_sync(&drvdata.oxp_rgb_queue);
++	disable_delayed_work_sync(&drvdata.oxp_btn_queue);
++	disable_delayed_work_sync(&drvdata.oxp_mcu_init);
+ 	hid_hw_close(hdev);
+ 	hid_hw_stop(hdev);
+ }
 
+---
+base-commit: 075b74841bd0065a3bda3440873c747938e69b68
+change-id: 20260804-oxp-fix-879390c5e47f
+
+Best regards,
 -- 
-#gernperDu 
-#CallMeByMyFirstName
-
-Pengutronix e.K.                           |                             |
-Steuerwalder Str. 21                       | https://www.pengutronix.de/ |
-31137 Hildesheim, Germany                  | Phone: +49-5121-206917-0    |
-Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-9    |
+Shengzhuo Wei <me@cherr.cc>

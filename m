@@ -1,102 +1,114 @@
-Received: from m16.mail.163.com (m16.mail.163.com [117.135.210.4])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 849743F075B;
-	Tue,  4 Aug 2026 03:14:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=117.135.210.4
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DF051370D47
+	for <linux-input@vger.kernel.org>; Tue,  4 Aug 2026 03:21:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785813250; cv=none; b=J2ViMziKHW1VQAmYLYXj6whBgU23kLGY77w/yCr+ZHdg2S8XmXbW0swuj03RcWF2BRMH7YORSEp2f+bY3UC25h6H4qNnewZ64TIGrvmmfZC79rm6Plmus3cFaGbyd7DQYLcsCh47B7MIAmzw6gWu15MzeAHNkEnms66X/fJfiNo=
+	t=1785813676; cv=none; b=KepdqFOiG9A5vAyWboLitR3vrXVJgwGB3gLos/oMfjWTAg+X0asyvZpLRrrZRVQaSj3eR6WPTJ26r5rwD2iFhAeqx92N39yfQdIiOMNzikfp4vLDXEy5NknKD5s2wO3+fBo+dXz25zbKT5FXgfx4uXGQmo3ji8xget8t/MgElyI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785813250; c=relaxed/simple;
-	bh=AgJFHO5LaaJu9FedrBZkXeR6m9k38PBwh2TW+aJUWTY=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=sQia6zcHj9/zQYNH6usHBmmrz2HcXYTFkH7HlnvOYy7o7O7NphWEn+iI37z7ncV8nDUdcBDTdIyb2sKMWf6/0AMRjUQVC0BC2OKi7nXkjIpZe8RKjMUIIJ1EG3HZDaCr14nGNU3BRY/K3PSMDFy0srIn+atZiMmEA55ufpbMbyM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=iVbSvy/w; arc=none smtp.client-ip=117.135.210.4
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
+	s=arc-20240116; t=1785813676; c=relaxed/simple;
+	bh=VtEv4rfpVGMTmblcSEkvQaKwUEX5rzCbZM9Yvkpfigo=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=Q50e/s2z80LRZGf/j/Hphe0qKIzQPa5zqXHy5taGUrLw6VIKosBH1mMSQh4GiT5jaqRHvqAwVlGz5hZZr+ZRa/68p+r3sustifvcnUIMLCNGgncivcnjPp97O9XFdutY/8mQaRIcmLU+fqg+I0K5aCDZXdSIKdLsusUkfy1e6Qg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=R0e5QpFE; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="iVbSvy/w"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
-	s=s110527; h=From:To:Subject:Date:Message-Id:MIME-Version; bh=Wt
-	iCv8C/GztLeCsRCdX8B2xYQsnGnhX1Ga7iz6EtsNI=; b=iVbSvy/w7Vo3h3RxAg
-	1pS78OQDXKPSbM7FEcmBSemXPuzKoR+m5aUh7psgAowoeQHzA4xtzV86pMSAk/nO
-	X09nKaXlu2NAtrjaCiMQNtqT4yHpuDJ6HHD+obvs1F+VwrGDP1VRE27QA0VXAG43
-	oOBTOpXzAiVFLd1ylyD1PsSrU=
-Received: from QD202103290168A.neusoft.internal (unknown [])
-	by gzga-smtp-mtada-g1-2 (Coremail) with SMTP id _____wDX3pjuWHFqNC0_NQ--.57319S2;
-	Tue, 04 Aug 2026 11:13:53 +0800 (CST)
-From: Jianing Li <m13940358460@163.com>
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org,
-	stable@vger.kernel.org
-Subject: [PATCH v2] Input: hynitron_cstxxx: validate touch count and finger IDs
-Date: Tue,  4 Aug 2026 11:13:39 +0800
-Message-Id: <20260804031339.2379-1-m13940358460@163.com>
-X-Mailer: git-send-email 2.23.0.windows.1
-In-Reply-To: <20260804020314.2082-1-m13940358460@163.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="R0e5QpFE"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46D491F000E9;
+	Tue,  4 Aug 2026 03:21:14 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1785813674;
+	bh=yrrZjlgqZtVuNu15zEpLQIFvYK2FZHqNizuEDs+0Lu0=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=R0e5QpFEYgxF4B3DsO0rxydosSCNyww1DrBieIfd3pwSopGmmZPmL25xOAfWeZjMS
+	 MfD1DS0h9bIUaZ/d84c7sQPGmKxS/3psQvVItpet0LmdKX/PF67nPXEGttF5Zr4iem
+	 zYSoQ7FoNDwJLtCpx/bcQ42WYHcu5VI656r+G4eC2RS1X4aE1wsD6gKjXfH1Opjdqu
+	 dTnhDJHM4UmAowFp0c6duoZtYm5hA+YpjVs0jT7c19QFJAtlT8bCKzpcxTR37Qajh0
+	 Wz+hyI5sLjB600dqAtiS2L1cdO6b8Ft6fPSdpVUsWxzYU+MDQOoTsYYWsUp2plwnD9
+	 ExK12PKbfqC1A==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v2] Input: hynitron_cstxxx: validate touch count and
+ finger IDs
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Jianing Li" <m13940358460@163.com>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <20260804031339.2379-1-m13940358460@163.com>
 References: <20260804020314.2082-1-m13940358460@163.com>
+ <20260804031339.2379-1-m13940358460@163.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Tue, 04 Aug 2026 03:21:12 +0000
+Message-Id: <20260804032114.46D491F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:_____wDX3pjuWHFqNC0_NQ--.57319S2
-X-Coremail-Antispam: 1Uf129KBjvJXoW7uF48tw4fCFy5KFy7GrW8tFb_yoW8urykpF
-	WrG345urWktF4fKw1UtF4v9FyYk3y8GFWUuF1kt3WkW3Z8ur4j9asYvw4vqF1Yyrn3Jr1q
-	kr10vrZFga4qvaDanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x07UPhL5UUUUU=
-X-CM-SenderInfo: jprtmkaqtvmkiwq6il2tof0z/xtbC3xFJg2pxWPFkLgAA38
 
-The driver allocates max_touch_num input slots, which are indexed from
-zero through max_touch_num - 1.  The current check allows a finger ID
-equal to max_touch_num to reach input_mt_report_slot_state(), resulting
-in an out-of-bounds slot access.
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
 
-The touch count is read from the controller's report and is used to
-index the fixed-size report buffer without first checking its range.
-Reject counts larger than the supported number of touch slots before
-checking the trailing byte or parsing touch data.
+Pre-existing issues:
+- [High] The driver passes stack-allocated buffers directly to I2C transfer=
+ functions, which violates DMA mapping rules and can cause kernel panics or=
+ data corruption.
+--
 
-Reject IDs at the upper bound before using them as slot indexes.
+--- Patch [1]: [PATCH v2] Input: hynitron_cstxxx: validate touch count and =
+finger IDs ---
+commit cf5d1ec7af0f8cb9ee23a1f75f59f7e64afb8fe7
+Author: Jianing Li <m13940358460@163.com>
 
-The V821 Avaota F1 board configures the vendor driver with one touch
-slot, so finger ID 1 is already invalid on that device.
+Input: hynitron_cstxxx: validate touch count and finger IDs
 
-Fixes: 66603243f528 ("Input: add driver for Hynitron cstxxx touchscreens")
-Cc: stable@vger.kernel.org
-Signed-off-by: Jianing Li <m13940358460@163.com>
----
- drivers/input/touchscreen/hynitron_cstxxx.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+This commit adds bounds checking for the touch count and finger ID read
+from the controller. It ensures that neither exceeds max_touch_num,
+preventing out-of-bounds slot accesses during input reporting.
 
-diff --git a/drivers/input/touchscreen/hynitron_cstxxx.c b/drivers/input/touchscreen/hynitron_cstxxx.c
-index f6139b1a8681..05e877b0d877 100644
---- a/drivers/input/touchscreen/hynitron_cstxxx.c
-+++ b/drivers/input/touchscreen/hynitron_cstxxx.c
-@@ -293,6 +293,11 @@ static void cst3xx_touch_report(struct i2c_client *client)
- 	touch_cnt = buf[5] & CST3XX_TOUCH_COUNT_MASK;
-+	if (touch_cnt > ts_data->chip->max_touch_num) {
-+		dev_err(&client->dev, "cst3xx touch read failure\n");
-+		return;
-+	}
-+
- 	/*
- 	 * Check the check bit of the last touch slot. The check bit is
- 	 * always present after touch point 1 for valid data, and then
- 	 * appears as the last byte after all other touch data.
- 	 */
-@@ -333,7 +338,7 @@ static void cst3xx_touch_report(struct i2c_client *client)
- 		sw = (buf[idx] & 0x0f) >> 1;
- 		finger_id = (buf[idx] >> 4) & 0x0f;
- 
- 		/* Sanity check we don't have more fingers than we expect */
--		if (ts_data->chip->max_touch_num < finger_id) {
-+		if (finger_id >= ts_data->chip->max_touch_num) {
- 			dev_err(&client->dev, "cst3xx touch read failure\n");
- 			break;
- 	}
--- 
-2.45.2
+> diff --git a/drivers/input/touchscreen/hynitron_cstxxx.c b/drivers/input/=
+touchscreen/hynitron_cstxxx.c
+> index f6139b1a86811..5f2737fe99026 100644
+> --- a/drivers/input/touchscreen/hynitron_cstxxx.c
+> +++ b/drivers/input/touchscreen/hynitron_cstxxx.c
+> @@ -312,6 +312,11 @@ static void cst3xx_touch_report(struct i2c_client *c=
+lient)
+>  		return;
+> =20
+>  	touch_cnt =3D buf[5] & CST3XX_TOUCH_COUNT_MASK;
 
+[Severity: High]
+This is a pre-existing issue, but I noticed that buf is a stack-allocated
+array in cst3xx_touch_report() that is passed to i2c_transfer() via
+cst3xx_i2c_read_register() earlier in the function.
+
+If the I2C host controller maps the buffers for DMA, passing a stack-alloca=
+ted
+buffer can lead to memory corruption, kernel panics, or DMA API debug warni=
+ngs
+because stack memory is not DMA-safe (especially with virtual kernel stacks
+enabled).
+
+Looking at the rest of drivers/input/touchscreen/hynitron_cstxxx.c, similar
+stack allocations occur in other functions:
+
+cst3xx_i2c_read_register() allocates __le16 buf
+cst3xx_firmware_info() allocates unsigned char buf[4]
+cst3xx_bootloader_enter() allocates unsigned char buf[3]
+cst3xx_finish_touch_read() allocates unsigned char buf[3]
+
+Should these buffers be heap-allocated or moved to a DMA-safe allocation
+within the device structure to prevent DMA corruption?
+
+> +	if (touch_cnt > ts_data->chip->max_touch_num) {
+> +		dev_err(&client->dev, "cst3xx touch read failure\n");
+> +		return;
+> +	}
+> +
+>  	/*
+>  	 * Check the check bit of the last touch slot. The check bit is
+>  	 * always present after touch point 1 for valid data, and then
+[ ... ]
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260804031339.2379=
+-1-m13940358460@163.com?part=3D1

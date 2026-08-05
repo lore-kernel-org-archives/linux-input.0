@@ -1,139 +1,114 @@
-Received: from mail-pg1-f177.google.com (mail-pg1-f177.google.com [209.85.215.177])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A3BEE3BBFA1
-	for <linux-input@vger.kernel.org>; Wed,  5 Aug 2026 05:08:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.177
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DFD7E23AE62
+	for <linux-input@vger.kernel.org>; Wed,  5 Aug 2026 05:20:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785906540; cv=none; b=krXAccdSq7RS99NGGu/wpuYvV+wGMAO1/kjWnf2Ug5Q1SWu73GKs+k5eRRGnto0B04gIMBc/KfWbOzyX9Ky0IVCDsfOEtfBAtwyixEVglBz/pQPStRGLjyPzwwoS6hFmcvbTtkZCEDmqMooQebiy/ZfYH8eQeKr1GP4mmVuRGII=
+	t=1785907242; cv=none; b=fECRKz1P3wB5Of5om2dJ6kqHARa4Lj3FDcaJ1n5luFQb49nwvu40Mgtv4Xka/1vtnVdRWBPVhrHaFzqVGPwEZVxdzBrk10SwgHVZnZq0JrDjcjJTcLVreoeD7yFlgNwfczgt+Atm3l9Zs62drV0dFxJYRRY59SiDAAQqoA3O8ME=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785906540; c=relaxed/simple;
-	bh=XjGnkKbz8Rb9EuBzDyxeRzqNwncAPrVTYrZRPB8Vz2E=;
-	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition; b=lfpZlHV/27Il+7bHN4kXzgk9yqh/l4ibO4V+S4BFVAoTD1hE11mWff45eYjcBMerGtTniAmP+cLPtEqbISRYGKStN2+cTybe+hfMOpqNL1Vtp2xbcEAMtu84+3R2e23dd7zDPjM/tSpE8oO9bz/VMsbxs5gmekuB0kH80lnrZpQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=qg0MoPax; arc=none smtp.client-ip=209.85.215.177
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1785907242; c=relaxed/simple;
+	bh=wbeuJ4qycU2XurcKhJfwNSrzleoobV0aFJp3AXIrEMM=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=pHFuIBqXjyUWLNQhNJOBu5P93qJrCFBffzsgYrYSzNGIDKQziTsBhy71DFyaP02tT0E4M0AcT2wxdDFzMSVLI4ZZ35EcDGTPzGzCCZt/yrfBiJsGlod0Z5sq2JdQOvzy1j3bATlsR8NnraHDaQgFkm0FQhZ85UkYwaMemp+lXTE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=nu+Ib8aH; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="qg0MoPax"
-Received: by mail-pg1-f177.google.com with SMTP id 41be03b00d2f7-ca957432c7fso518716a12.1
-        for <linux-input@vger.kernel.org>; Tue, 04 Aug 2026 22:08:58 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1785906538; x=1786511338; darn=vger.kernel.org;
-        h=content-disposition:content-type:mime-version:message-id:subject:cc
-         :to:from:date:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=kT2AjLary7mMQwGAhHHhXdSYn8k6stuUNJfnGqWcbZY=;
-        b=qg0MoPaxTMA0y6zfXNM6ThqxtU2+5vGP8qp0dL15p4YwQZRbQLGQNTMN9hUAQtgZmQ
-         +OWI0IBO7MDmn4wipOlJgk9p+euv/OaIB5YBypbnVDU+9MewjIAdAbln8EbriCcPReE/
-         IYXfuem040qJjKy6OdE91j7i4F7tnXArZO+wpJyW28toDW/5bgnIlrYaOnLhyo5bZy/J
-         Bq6J/dF20o82YYbVBST+L+TQ7ORX9cGLxqMtXdg93Y0oZTZ8cBJF7B+kmLPkZKq2FgAr
-         wRQvXb6WYnq4X9dC6aROrLbZbYT+F8QuUX9lrSztHCbK4xqBPC6RxQvAq2L3d9xob9Be
-         xdKQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785906538; x=1786511338;
-        h=content-disposition:content-type:mime-version:message-id:subject:cc
-         :to:from:date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=kT2AjLary7mMQwGAhHHhXdSYn8k6stuUNJfnGqWcbZY=;
-        b=CeEwvpCdw3wHWEpPitxAbZfjVXwWa9J61/QU6+qcU8xtxD3EaaurHVdyjyBzeGn2Yl
-         /CZrsO5I0+ITVyBRD5cvqEe5rKgdvKlVisoe3qoFEXcRy8F6OrOhq0n+vz8TpHlLUkJ/
-         UAWjKm6rHekth/eV1Y+d3R6DVP3Xh4ky6cvkqvvV8Uvd3treUDkqyEdGAsgSjUYbCyZG
-         FkUrtBJIZKJxGXlijhlHq1/6bCvY3vFx4Nhl3SvljXor6wJVi/jYY+pIqthwXsWcdlfw
-         GAWVYD0yDMQ0JelWiR4TrosXgfouSBM6AlaW7VoCq4KthooPYmRB21anYhHxSwV76agH
-         K2jQ==
-X-Gm-Message-State: AOJu0YyD5PWJAOgJek4pHzKzKRcxMZcvDYxqwsztx+OFQZ79pm6su1GO
-	AldP1BuJg5hIZxcFHEEm+9OsX3RaM4wGNzDBSRCGkO3VzfLCNY2I+PJvXhOHjw==
-X-Gm-Gg: AR+sD11sePFKQ3Nr5Tf1T+xwmB4nBFJrrELW04yMcg1XB2qmloXbh6sUrT2QwOLVy6R
-	q8misrMUZjk2Ju/lcx28JYBYAuq0sG9DhlZ73qdYzcvN2KwScDrDjJ41ESR83VZlPkG9femst5j
-	GowF8phnW2VEu3aOvC8RInL3Rxl64kzYUA1UPGjpIYqWhYt/JpIt8KuEZhqPzEfc4eBnu3DM3/i
-	1LyhwcqiC4NGZH5FbxSVP9QdPKMsUaasyQhZdG5RkhcT52HmTQzEgWvBXhNjKdmrnaWnjZM/zde
-	VZ2NgPLCzIEVo4OvQmddQdJoKjWG5gN6mYiHInEUpyKCDHuBezDMmCoTmsE/SNvHJ44yUqJWDQ/
-	qcyHaLqg+JcZjh2LQVYfkg6BMJLqwdKCq9T/kBfNXfhGjua4CPsPuQigianjpQWtzkrxVN4vxo9
-	EQQzT+6busjDoRRTfJ3Y25sNU6W281vK87ffOv9t+lCT+0oncMp5/nWHmP5LZqIbkTOYAbIVomZ
-	NSOZLxX4Z5P6yjXmxw8vkbE80rohQDcD5gRxqFy
-X-Received: by 2002:a05:6a20:d48f:b0:3bf:d487:4b42 with SMTP id adf61e73a8af0-3cb86027257mr4815520637.35.1785906537980;
-        Tue, 04 Aug 2026 22:08:57 -0700 (PDT)
-Received: from google.com ([2a00:79e0:2ebe:8:bf3a:ac93:79c4:84fd])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-315863b0c54sm12695769eec.5.2026.08.04.22.08.56
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 04 Aug 2026 22:08:57 -0700 (PDT)
-Date: Tue, 4 Aug 2026 22:08:54 -0700
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: linux-input@vger.kernel.org
-Cc: Benjamin Tissoires <bentiss@kernel.org>, 
-	Andrew Duggan <aduggan@synaptics.com>, linux-kernel@vger.kernel.org
-Subject: [PATCH] Input: rmi_smbus - fix out-of-bounds read in
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="nu+Ib8aH"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1CA21F000E9;
+	Wed,  5 Aug 2026 05:20:39 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1785907240;
+	bh=XbvKZDC5rkp7+B0WsE8XIiyxjWuVb5sbns3A0aiP1kw=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=nu+Ib8aHeYwJ/soIZudRHYa87qUlyNmAQhT1gTXxSh3qgnAfd7BC19C946wPjV5gI
+	 Q+JfWFQbbOgfIEg+BTckPKdLtbTzg5naZZMlckp0lT5pSxfaC8ebhNq9CzkUxCAWUu
+	 DsI5kYonTLhxrxrXJT+vABnxIowWlSuUW3kvXVD8iiLXagclOZrycHX14tOK4BFpb+
+	 z1EOdqOl75wFU4+qD6M3ltJGvkDyJiwml3NqD/UmV97DYbpOspY61Bx9grXK2bRnbG
+	 LYhB6Fw7bmEX4Y1k68nOOYgWGmtwOz5hznjENVWfoLtxfvvDfpNPDH3vKj23tQf+aB
+	 iVFdayPito/CA==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH] Input: rmi_smbus - fix out-of-bounds read in
  rmi_smb_write_block()
-Message-ID: <anLFSMKSoKyyZ272@google.com>
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <anLFSMKSoKyyZ272@google.com>
+References: <anLFSMKSoKyyZ272@google.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Wed, 05 Aug 2026 05:20:39 +0000
+Message-Id: <20260805052039.C1CA21F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 
-When chunking writes into SMBus blocks in rmi_smb_write_block(), the
-loop calculates block_len using the original total length (len) instead
-of the remaining length (cur_len).
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
 
-If len is greater than 32 bytes (SMB_MAX_COUNT), block_len remains 32
-for every iteration, even on the final partial chunk where fewer than 32
-bytes remain. This causes smb_block_write() to read 32 bytes from the
-advanced data buffer pointer, reading past the end of the input buffer.
+Pre-existing issues:
+- [High] Pre-existing stack/heap buffer overflow in `rmi_smb_read_block()` =
+due to unsafe use of `i2c_smbus_read_block_data()` without a bounce buffer.
+--
 
-Fix this by calculating block_len using cur_len and advancing the buffer
-and address pointers by block_len.
+--- Patch [1]: [PATCH] Input: rmi_smbus - fix out-of-bounds read in rmi_smb=
+_write_block() ---
+commit 530e4667b6144c7e030412bbc818f1de86a5a09e
+Author: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Fixes: 82264d0cf7aef ("Input: synaptics-rmi4 - add SMBus support")
-Cc: stable@vger.kernel.org
-Reported-by: sashiko-bot@kernel.org
-Assisted-by: Antigravity:gemini-3.6-flash
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
----
- drivers/input/rmi4/rmi_smbus.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+Input: rmi_smbus - fix out-of-bounds read in rmi_smb_write_block()
 
-diff --git a/drivers/input/rmi4/rmi_smbus.c b/drivers/input/rmi4/rmi_smbus.c
-index 6de68c602558..d799405fbd33 100644
---- a/drivers/input/rmi4/rmi_smbus.c
-+++ b/drivers/input/rmi4/rmi_smbus.c
-@@ -140,7 +140,7 @@ static int rmi_smb_write_block(struct rmi_transport_dev *xport, u16 rmiaddr,
- 	u8 commandcode;
- 	struct rmi_smb_xport *rmi_smb =
- 		container_of(xport, struct rmi_smb_xport, xport);
--	int cur_len = (int)len;
-+	size_t cur_len = len;
- 
- 	mutex_lock(&rmi_smb->page_mutex);
- 
-@@ -148,7 +148,7 @@ static int rmi_smb_write_block(struct rmi_transport_dev *xport, u16 rmiaddr,
- 		/*
- 		 * break into 32 bytes chunks to write get command code
- 		 */
--		int block_len = min_t(int, len, SMB_MAX_COUNT);
-+		int block_len = min_t(size_t, cur_len, SMB_MAX_COUNT);
- 
- 		retval = rmi_smb_get_command_code(xport, rmiaddr, block_len,
- 						  false, &commandcode);
-@@ -161,9 +161,9 @@ static int rmi_smb_write_block(struct rmi_transport_dev *xport, u16 rmiaddr,
- 			goto exit;
- 
- 		/* prepare to write next block of bytes */
--		cur_len -= SMB_MAX_COUNT;
--		databuff += SMB_MAX_COUNT;
--		rmiaddr += SMB_MAX_COUNT;
-+		cur_len -= block_len;
-+		databuff += block_len;
-+		rmiaddr += block_len;
- 	}
- exit:
- 	mutex_unlock(&rmi_smb->page_mutex);
--- 
-2.55.0.571.g244d577d93-goog
+This commit fixes an out-of-bounds read in rmi_smb_write_block() by ensuring
+block_len is calculated using the remaining length (cur_len) rather than the
+original total length.
 
+> diff --git a/drivers/input/rmi4/rmi_smbus.c b/drivers/input/rmi4/rmi_smbu=
+s.c
+> --- a/drivers/input/rmi4/rmi_smbus.c
+> +++ b/drivers/input/rmi4/rmi_smbus.c
+[ ... ]
+> @@ -148,7 +148,7 @@ static int rmi_smb_write_block(struct rmi_transport_d=
+ev *xport, u16 rmiaddr,
+>  		/*
+>  		 * break into 32 bytes chunks to write get command code
+>  		 */
+> -		int block_len =3D min_t(int, len, SMB_MAX_COUNT);
+> +		int block_len =3D min_t(size_t, cur_len, SMB_MAX_COUNT);
+> =20
+>  		retval =3D rmi_smb_get_command_code(xport, rmiaddr, block_len,
+>  						  false, &commandcode);
+[ ... ]
 
--- 
-Dmitry
+[Severity: High]
+This is a pre-existing issue, but since the chunking logic in=20
+rmi_smb_write_block() is being corrected here, does a similar buffer overfl=
+ow=20
+exist in the read path?
+
+Looking at smb_block_read(), it ignores the len argument and passes the=20
+buffer directly to i2c_smbus_read_block_data():
+
+drivers/input/rmi4/rmi_smbus.c:smb_block_read() {
+    ...
+    retval =3D i2c_smbus_read_block_data(client, commandcode, buf);
+    ...
+}
+
+If a caller requests a small read, or if the final partial chunk in=20
+rmi_smb_read_block() has less than 32 bytes of capacity remaining:
+
+drivers/input/rmi4/rmi_smbus.c:rmi_smb_read_block() {
+    ...
+    retval =3D smb_block_read(xport, commandcode, databuff, block_len);
+    ...
+}
+
+Could a malfunctioning I2C device returning a length greater than block_len=
+=20
+cause the I2C core to unconditionally copy up to 32 bytes, overflowing=20
+the databuff allocation?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/anLFSMKSoKyyZ272@go=
+ogle.com?part=3D1

@@ -1,77 +1,77 @@
-Received: from fout-b6-smtp.messagingengine.com (fout-b6-smtp.messagingengine.com [202.12.124.149])
+Received: from fhigh-b3-smtp.messagingengine.com (fhigh-b3-smtp.messagingengine.com [202.12.124.154])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BB21941A4E1;
-	Wed,  5 Aug 2026 09:56:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.149
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 56C5B41A516;
+	Wed,  5 Aug 2026 09:56:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.154
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785923806; cv=none; b=IiqRwE6lqvOOimG9v0WsoGit8dgJI/Xa2zo+bxWz4wH4DhB9IDir1lAt4L6/W+EflwiEdmE7qyAivL9Ju55dyNp/LxPiojDQ3xRbWqoxLENaYh1P80wvcx/YNs19nIFgJZYASwLZby9+Ks9vx77drBxIiZyMH3Ja4xKnGOQk3fI=
+	t=1785923807; cv=none; b=QjXqoMkJllMrMF7OAhu5vLyLK+hb1WH1gGML9t6ziy8hevUD6FHK1c9D+S3oy6tlRvdafgNwTb2QWdJRFzMzZsqCcgPanOODYVt68sftdvixIVh8LOz3YLmSLGNTw5QMrB0rOoey79t+hYiow8NcX5vsdpgIgULeS25occNklHY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785923806; c=relaxed/simple;
-	bh=ysulJ+qIdP9M03dX9q3uuIZsRi1KA0P5wAYKVrFTxkU=;
+	s=arc-20240116; t=1785923807; c=relaxed/simple;
+	bh=jNdWbaG1JTO4YVucHlz45Nf1w5WMDfgHYsy7ENTovIc=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=r9ux3AjeWnuKFFZaIusbqhjXpXPXbtOB3/NEQmqAWHSV8GrsjwWVTXMakT37DqNo7e6GG0NyrpwjAX+oJppE+mpVoVZusVJ+mlhLNL6V0PEA46t47jGlFINeNqXOLovXUaf7yPEXFW5QBUc6N2KACF9V80+qSeWS7Ul0PvRn+60=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=kroah.com; spf=pass smtp.mailfrom=kroah.com; dkim=pass (2048-bit key) header.d=kroah.com header.i=@kroah.com header.b=lEWTKV4c; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=aQK1Hooq; arc=none smtp.client-ip=202.12.124.149
+	 In-Reply-To:To:Cc; b=D9Q8mhRcGfYImwLtL1jpoJ29NA92VZSFIN+59ToQyeMesJ6APq6sxAMYswyrpEoQhs4JjPHcX1XYhQMyXJwp0mZIZ7vIszERmWoXubLE6kiWBaGLP0LIvocR/ZYTZz9EIAdxB1I0z0b8EXR1QMy4bs9Uux8f1LlmmeceuDCuUtc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=kroah.com; spf=pass smtp.mailfrom=kroah.com; dkim=pass (2048-bit key) header.d=kroah.com header.i=@kroah.com header.b=QxpGBPP6; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=jbKeg0Z0; arc=none smtp.client-ip=202.12.124.154
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=kroah.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kroah.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kroah.com header.i=@kroah.com header.b="lEWTKV4c";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="aQK1Hooq"
-Received: from phl-compute-02.internal (phl-compute-02.internal [10.202.2.42])
-	by mailfout.stl.internal (Postfix) with ESMTP id BCE031D0011F;
-	Wed,  5 Aug 2026 05:56:43 -0400 (EDT)
+	dkim=pass (2048-bit key) header.d=kroah.com header.i=@kroah.com header.b="QxpGBPP6";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="jbKeg0Z0"
+Received: from phl-compute-03.internal (phl-compute-03.internal [10.202.2.43])
+	by mailfhigh.stl.internal (Postfix) with ESMTP id 5AAF37A0160;
+	Wed,  5 Aug 2026 05:56:45 -0400 (EDT)
 Received: from phl-frontend-04 ([10.202.2.163])
-  by phl-compute-02.internal (MEProxy); Wed, 05 Aug 2026 05:56:43 -0400
+  by phl-compute-03.internal (MEProxy); Wed, 05 Aug 2026 05:56:45 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=cc
 	:cc:content-transfer-encoding:content-type:content-type:date
 	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to; s=fm3; t=1785923803;
-	 x=1786010203; bh=fC7lT3XFqTMVz0S9gEzMPr616r+hjTfz37jKvq6p+Zs=; b=
-	lEWTKV4clADGaDUqYEyBURKNkpGKyfsXz2RYiKImgtKADKht5cexo9+qT6mFqQz+
-	u6GX3U2K0K6XcmojEeLicQ5qfbN3QMLxXMk43tOP9YEJDAaZcU/hWi7SqHaK/O5L
-	OECYYJBCEVsCSDjWGZNq6KakVd6rvR+xIVGvudt3zgi0G8zS60Zq+3niusmnf19a
-	eqZJ1frEpr4RFqCHpBgc2Y3ZjIX6SVXhu/xPpit0fI9YsJ3BgL7y/QC0soG8YU7P
-	GvQodOkr9JFv1fB2DsqcibziPFMSmVRRdiPyP7v1VSGfskmexprfhYBImjkbUBaP
-	b71QLwPoMYRrxp/KY+CpGw==
+	:references:reply-to:subject:subject:to:to; s=fm3; t=1785923805;
+	 x=1786010205; bh=9H7tqjmM41XGATvnizOzKXIiYIaR1C4nEL91sCrc0JE=; b=
+	QxpGBPP6N4ifhSMb/hCdG3se1V73u4SqBPiTnrmo34TjOvVRpopKjMsYLxMD3+HX
+	hwkdM1yIBxs2un1F55d6WoOsiethNw8cHADbKPxLNCDclXaL79AY7IgCa5gp+2SW
+	UJG6sLDmnw5Inq5t4T4OMgtV92PcpNg0IVgc9ov8jyKhUOunl+iUDgGgaDpyxGVn
+	CE9qWnBmTVU4qwZorvFeXSjFRM/cF7jIZ/jgjjUCtix+aEuVe+PKlshQ+uwO11wa
+	l1jD+3TOrtU/JPHqEMuaM18elDvqNAzIGC2j4Ywe7Jf4N4ivUkJnmEleT/iADwXT
+	PYW4mBsGyAYMk4Em+5hEHA==
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
 	messagingengine.com; h=cc:cc:content-transfer-encoding
 	:content-type:content-type:date:date:feedback-id:feedback-id
 	:from:from:in-reply-to:in-reply-to:message-id:mime-version
 	:references:reply-to:subject:subject:to:to:x-me-proxy
-	:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; t=1785923803; x=
-	1786010203; bh=fC7lT3XFqTMVz0S9gEzMPr616r+hjTfz37jKvq6p+Zs=; b=a
-	QK1HooqnCCwug21fYZ/S+3J4/xsXk8zejDCic7UR7Esz29iHqtA1Zu4TqJKDG6D9
-	8rJ7qqDL+EkXtCDZQ6zWJpkyz0G89cocnNjxoWvGv21UnLET76JvhmLyXbGTR9ZO
-	Rfazex4zimNW3taiY2nsrwH1HzkOiWgskdxr9nSWXa5u2sAJVs74XWJDE8zN40VB
-	W/1LbOeiBXmvTzTWoeoIfVrCNMbgo0XnM+HWIRANNZSeSix3A351xiQ887mhvq/C
-	SxUtvSAnrNon3oVNg6MZSsnAEdj/g+xrnOqOvns+Buh8AM5RdDltOJ3kYW0lUPmi
-	9SGjSpVZihgFBqsVbI15A==
-X-ME-Sender: <xms:2whzav65vWtLi1DNZ7_TLizdFZ1obtbemydZeWSj_8nUQctHOQSTTQ>
-    <xme:2whzaitzKuia03YVXlSvPUxR4wQ5KqiYPCw9ZOsr2hkh8lOmAIrQreiUz3JThhRvr
-    Mdxxli8HBdlFXYjyx4WNA3AU1RHBP4QDV-YiLRk9pKt2B9jnTx6>
-X-ME-Received: <xmr:2whzag7hcCDo7vF9HD1plQ-4ng5sonPDDAEYrs5pP5WL1ORWsIFI4eXMPw75a16IZWZyJF8s9Nts9KtJ9gGmFbWX7-tkCvktFZFzijTKbDHUUU5CagA>
-X-ME-Proxy-Cause: dmFkZTGFmieYTi6XVSD9JS6fFv4Co7/tsx/JNRmS47kQ29d8pHJTrqV8y2YYcKvdOSEOsy
-    amltvU1PihpoMPE9lypDUg/6+RcLmLeiRhVhdB2TRj4x7BXBh5Kqp/k0BTuFPaJJ0fGabH
-    Di0slKmG24fGELEppYniAqsRVJURoRRgu2i2BK8GLrYmli4SKxSi3n55E3H/0a5xG+zG1s
-    Lho5fEA7CE0KIIug9ZFYAnjcLRWNtDwaYdrQhrTZVUzMnumGGsz2QIwo6PhT3lSk7UFoc4
-    O7RUy6ZFvCTjOQaAr24VYGuRnM5Zj4wDzO4ue4+btCjvpfrTYOjaj8Dibz9zfHzSqkJEF1
-    zxzYjW7lnQC3C8tYsRWj7nQwR7H+vth3qonhl3P2zzqV1aA6r8XX1FWJ3Gl62iITS7QqLR
-    K4wr7LL7RcYMaW7ir0rnH30OM6jV4wquOmbEA/3UnygoV1uAx4oIIV0tC+cJbP0u0XDZcB
-    DqYtKJKtlidGlqeZQtMFINeidZCA5/rxZBf0YxPp3LumPRBvYmLBY3rYIeUZhAF674vhnV
-    fYSujmwpTq/oHgqpcA6zUdNoEBeD9nV+t5Jx58q8GZsRVhj5LF0ixPutpbg2KoOspUuvcm
-    860rCixJCu51OQHVz8H1eu0pRPXg9Kby45EbAIB5HVDkrfoMKasIYTwysRIA
-X-ME-Proxy: <xmx:2whzatW0wCVUNj8pLIr6RGWZfIImqGnQwjug4yYl4uwz_tJquRD9cg>
-    <xmx:2whzai9wyycxLfSq6-9i2uive5YOcnVAXqvh02s-eFWWDYQQ4p5J9g>
-    <xmx:2whzapnk6QBZ9bsgPf_svz84E2KM72HbbVIlzzZspz8TLw8PO8Ev5Q>
-    <xmx:2whzagVeFpVeolPVGSbwlhJhfWq5W17cVshGjjkj0eBYZWe_uUQZMg>
-    <xmx:2whzauRESYDxzZ72Rx45IyOqLUdKliS7oIkT8gbTCi7WKKNqHQuINyRr>
+	:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; t=1785923805; x=
+	1786010205; bh=9H7tqjmM41XGATvnizOzKXIiYIaR1C4nEL91sCrc0JE=; b=j
+	bKeg0Z0gZsu2f2scOZlyLevjx6JWqa+6lLV9yXZov1MyrgTaKV8PjFZ1ug4rmkA+
+	9Ddli3mvQcYdfdW9DgmLGxNlrV4QmFgWOK6GbzAFUqKfn2U2e1c4LUqwxF++EiwA
+	cW9VqD2UhuvBTeAy35/aGg4SbBEDatWhoSl203R6ZHCHQE3NsLVMv9p9J3tHBmUB
+	+EZr8uIreTvpzjYfDSvoEQ1fxI9/GVfAg3zqAp5va+Ku+I8Sdzn2eDOQZQtKnr8u
+	DfnFHGA6iGUrXNH5eA75+viJFkYDwx23yBSLib3fnmvEomvnWhfbkORkEF9JrQ8M
+	cZJZZ1Of//xid5F8rUnJQ==
+X-ME-Sender: <xms:3QhzalV__ILHQ3Qfu-kHzZ08jK-U5XiBGKXP2eJavNMCp7vp8EHlTg>
+    <xme:3QhzajajZJGKY7-QZ7aRrHP0xz2AqMGGQr-97O0LA_j4QMxcOYoBWSizyxr6_MRTT
+    RHAzVBCOSmU7YZDtqr0qTJ-0gQXU8SwRzSP8iULVqdw2AVfi5Kz>
+X-ME-Received: <xmr:3Qhzar03hUnXRFVIodj7mnuwRYXl8tVoFPlzJlaa6XhJ5LPOVyRFaWeCPPcw1SnYZ5YqWdWQdZpXQ8E4RGcwLlZGczCiPoiKpR3yoELRwLkAhwylO-A>
+X-ME-Proxy-Cause: dmFkZTErfihmOAQGP1owjinQa15+b58ASSp2+EpXbMDCY18TakmGdDOd7kS8QlWJHK6Akk
+    JmZvI11v1vDpWVeMy6GH/+8SXf4DfFC67MWfsrwTuOZlktEcNWSO67WhyknexN3hurM52E
+    ADVRYD6u8JSJGsN3tC4tRthmsBlaFiKaSBh3tN/tFOt1dPnIBaUdvkvArJT1bKgqhDCslM
+    Zy6lNXyqgUvtM8btJ7En0SOupr11+pqUULhGqHA5Xo7BkWIYuoihnYrmFQrckUAzC8jg0M
+    bT+BTxqemc31+eHPm7BJ8b9lOgPt4Ddk9WdbOw0GYMtz+Xdu83vxH5m557vnBS97gkeCp0
+    PesBTdyxrfMiB7S2PN1OYfS84u/qV8e0Cx10cFLrgSj7Ij/VFYkABcB+GeT2KnjR/GhyEs
+    zhjmh6x8eYibI82GQ97wJ19Sc3Z8IJUf+/DD5G2YJ6ZU/B0hfj9zC7PP84F4vB5j1gNCLN
+    Q8/YYP2AsiZHeFKuFFAJ0SShvu7ZbBTbOSdMCNEF2/kDAF+woUSy8QBIWoBKVF7Q+pLkgz
+    ybHaMYSbjmO+bnQd298fUFRQkGcoYUXcWf4vWwlZKrnNHyXUPvYj7VuxusjVRg5WyiPJx+
+    PL6mps7NRlEYgLj0pQcK/DLdpJHLnqMoYi55cz7X7exZxifJ9Bxx/ZqA3MDw
+X-ME-Proxy: <xmx:3QhzaljXnpTOFOoifLUwnsMvT-5ignBSBV_RbZ8PGFCxSVbpDvtanQ>
+    <xmx:3QhzavbTJVp8wIGNqQt1UECdYdcUhGYI6la3qabsx0YltMawfbwDnw>
+    <xmx:3QhzalQqfzT2YUQHyECLxOGJwTpV595_B0sJb6SBatrqQEG5LlPw1g>
+    <xmx:3QhzaqQQrxpYXREyuqyujwFrhboUmM3APAncKeZt2JkseqQ03TCoAg>
+    <xmx:3QhzalMsnKtOpa9CrrzK6KkwREq0xUHr1KTKR5Wr9i3gMqVH35TjdYrE>
 Feedback-ID: i1d2843be:Fastmail
 Received: by mail.messagingengine.com (Postfix) with ESMTPA; Wed,
- 5 Aug 2026 05:56:42 -0400 (EDT)
+ 5 Aug 2026 05:56:44 -0400 (EDT)
 From: Griffin Kroah-Hartman <griffin@kroah.com>
-Date: Wed, 05 Aug 2026 11:56:36 +0200
-Subject: [PATCH v2 2/3] Input: xpad - add packet length check for
- xpad_process_packet()
+Date: Wed, 05 Aug 2026 11:56:37 +0200
+Subject: [PATCH v2 3/3] Input: xpad - add size checks to xpad360 packet
+ processing
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -80,57 +80,86 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260805-xpadone_length_checks-v2-2-f3e925e0280b@kroah.com>
+Message-Id: <20260805-xpadone_length_checks-v2-3-f3e925e0280b@kroah.com>
 References: <20260805-xpadone_length_checks-v2-0-f3e925e0280b@kroah.com>
 In-Reply-To: <20260805-xpadone_length_checks-v2-0-f3e925e0280b@kroah.com>
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
  Griffin Kroah-Hartman <griffin@kroah.com>
 X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1785923798; l=1356;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1785923798; l=2267;
  i=griffin@kroah.com; s=20260706; h=from:subject:message-id;
- bh=ysulJ+qIdP9M03dX9q3uuIZsRi1KA0P5wAYKVrFTxkU=;
- b=xb0D/E6AM+YrymkHhVmkKTrTzAFLbI2v25TrCC+sM2leFn6yRp4zXFOfOHZ7rZZun0UxFsnXH
- Ln2m2yetDYOCK1F77MIXnMe2B9Po6E/9/nrXqIGu5AffSBIS0VLq8b9
+ bh=jNdWbaG1JTO4YVucHlz45Nf1w5WMDfgHYsy7ENTovIc=;
+ b=QCytBoRe3Vtn8W6U5uZXZSgAA28DPBbtFjfL552fXO5n2yBst0E0pJoevzm3PfBHuoRf94NhO
+ w1C7XBmrJKpDukPBPI8OyaQbWvumTEwTlpeqI7LQ4gRE4k0QAxBVZfy
 X-Developer-Key: i=griffin@kroah.com; a=ed25519;
  pk=Hy1TuVHERdQhLAWwjmxLFNtGj7eEEjaZWPXehAlic5M=
 
-Add a check to ensure that the packet being processed is not less than
-20 bytes, which would enable an OOB read if true.
+Add size checks to xbox360_process_packet() and
+xbox360w_process_packet() to prevent OOB reads with the data[] array.
 
 Signed-off-by: Griffin Kroah-Hartman <griffin@kroah.com>
 ---
- drivers/input/joystick/xpad.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/input/joystick/xpad.c | 17 ++++++++++-------
+ 1 file changed, 10 insertions(+), 7 deletions(-)
 
 diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
-index 9ce792503b3a..83bc361b15f7 100644
+index 83bc361b15f7..6f15eafc6477 100644
 --- a/drivers/input/joystick/xpad.c
 +++ b/drivers/input/joystick/xpad.c
-@@ -795,10 +795,13 @@ static void xpad360w_poweroff_controller(struct usb_xpad *xpad);
-  *	The used report descriptor was taken from ITO Takayuki's website:
-  *	 http://euc.jp/periphs/xbox-controller.ja.html
+@@ -870,10 +870,10 @@ static void xpad_process_packet(struct usb_xpad *xpad, u16 cmd, unsigned char *d
   */
--static void xpad_process_packet(struct usb_xpad *xpad, u16 cmd, unsigned char *data)
-+static void xpad_process_packet(struct usb_xpad *xpad, u16 cmd, unsigned char *data, u32 len)
- {
- 	struct input_dev *dev = xpad->dev;
  
-+	if (len < 20)
+ static void xpad360_process_packet(struct usb_xpad *xpad, struct input_dev *dev,
+-				   u16 cmd, unsigned char *data)
++				   u16 cmd, unsigned char *data, u32 len)
+ {
+ 	/* valid pad data */
+-	if (data[0] != 0x00)
++	if (data[0] != 0x00 || len < 14)
+ 		return;
+ 
+ 	/* digital pad */
+@@ -998,11 +998,14 @@ static void xpad_presence_work(struct work_struct *work)
+  * 01.1 - Pad state (Bytes 4+) valid
+  *
+  */
+-static void xpad360w_process_packet(struct usb_xpad *xpad, u16 cmd, unsigned char *data)
++static void xpad360w_process_packet(struct usb_xpad *xpad, u16 cmd, unsigned char *data, u32 len)
+ {
+ 	struct input_dev *dev;
+ 	bool present;
+ 
++	if (len < 2)
 +		return;
 +
- 	if (!(xpad->mapping & MAP_STICKS_TO_NULL)) {
- 		/* left stick */
- 		input_report_abs(dev, ABS_X,
-@@ -1259,7 +1262,7 @@ static void xpad_irq_in(struct urb *urb)
- 		xpadone_process_packet(xpad, 0, xpad->idata, urb->actual_length);
- 		break;
- 	default:
--		xpad_process_packet(xpad, 0, xpad->idata);
-+		xpad_process_packet(xpad, 0, xpad->idata, urb->actual_length);
- 	}
+ 	/* Presence change */
+ 	if (data[0] & 0x08) {
+ 		present = (data[1] & 0x80) != 0;
+@@ -1019,8 +1022,8 @@ static void xpad360w_process_packet(struct usb_xpad *xpad, u16 cmd, unsigned cha
  
- exit:
+ 	rcu_read_lock();
+ 	dev = rcu_dereference(xpad->x360w_dev);
+-	if (dev)
+-		xpad360_process_packet(xpad, dev, cmd, &data[4]);
++	if (dev && len > 4)
++		xpad360_process_packet(xpad, dev, cmd, &data[4], len - 4);
+ 	rcu_read_unlock();
+ }
+ 
+@@ -1253,10 +1256,10 @@ static void xpad_irq_in(struct urb *urb)
+ 
+ 	switch (xpad->xtype) {
+ 	case XTYPE_XBOX360:
+-		xpad360_process_packet(xpad, xpad->dev, 0, xpad->idata);
++		xpad360_process_packet(xpad, xpad->dev, 0, xpad->idata, urb->actual_length);
+ 		break;
+ 	case XTYPE_XBOX360W:
+-		xpad360w_process_packet(xpad, 0, xpad->idata);
++		xpad360w_process_packet(xpad, 0, xpad->idata, urb->actual_length);
+ 		break;
+ 	case XTYPE_XBOXONE:
+ 		xpadone_process_packet(xpad, 0, xpad->idata, urb->actual_length);
 
 -- 
 2.55.0

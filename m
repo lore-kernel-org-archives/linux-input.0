@@ -1,108 +1,140 @@
-Received: from va-2-43.ptr.blmpb.com (va-2-43.ptr.blmpb.com [209.127.231.43])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 911DA483BD1
-	for <linux-input@vger.kernel.org>; Wed,  5 Aug 2026 16:38:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.127.231.43
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 540643749FD
+	for <linux-input@vger.kernel.org>; Wed,  5 Aug 2026 16:51:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785947929; cv=none; b=Ox5kvY4hjB/GX6qDprPtKAaZtH9P6s3YNMYL21BFhMBRwAwN2UYmGajTdRJzcThzn0tcNsx89fT8K8R1zPs23PY7k9a1a1/MvD/PhvC+YnPfxMf765NPRvrxKr3R4XO5wn9VoBfwL3Pq4Q+lsAxJkFCeXNiTZg/rWQ3It9Kycxw=
+	t=1785948684; cv=none; b=r+P+aenJ1NkF2R3iJPRsVeTvEsyQcrn3zinEycQhgzv1QK5ITIExMQrPG92Li+0lr+0fH8vTLg+pSVmkUO39418lsdvNpP/fIIiQaEkIHVgQUXfIht3xprdaQIupLbVJBPtPbIEM1fr4RG7z2b+OEtZiR1GIgwc6JD80Y0uDLcI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785947929; c=relaxed/simple;
-	bh=1eaZjSyQiauYjPvavxFDl1LvGdOwtRGiMfDerN/NcNc=;
-	h=Date:Mime-Version:To:From:Subject:Message-Id:Content-Type:Cc; b=U4xT+HI1vEUByzvUnM/8o9bDAKoI99C7bZj9DmfD+PJs488ijN+BPBsUztNwKgh6cILRsqA7NDvcicTJLpahziHaF4o1cDV6N+RphjJiNIRKOuQSNoj+BU4NLhWp53genCXIzQpmumJ7+f3IoSyI/gaCLiYstpxirZwF3wjnYY4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=cherr.cc; spf=pass smtp.mailfrom=cherr.cc; dkim=pass (2048-bit key) header.d=cherr.cc header.i=@cherr.cc header.b=VZImHwDo; arc=none smtp.client-ip=209.127.231.43
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=cherr.cc
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=cherr.cc
+	s=arc-20240116; t=1785948684; c=relaxed/simple;
+	bh=zgfUE1BalYVnLJEGhKVwjUqRJDb6zHZSKGnsUf3eYIo=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=QlGC8SkkDDW7bivigozNR6CDIXi0ECWwprgdWYU+dz6z9HesFH7n1VeUDl2LIUUeCL5CCA2BLoNEtc3pGaDOYIa8X9Mcbpb1G3i1O57iv1jOK007EmQeb+gbCWyvyrz4/7FA5AOELl5pYB362EhG8vtOFKnanq3psnNJDOazbHA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=AMVsCqQy; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=cherr.cc header.i=@cherr.cc header.b="VZImHwDo"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
- s=feishu2604220257; d=cherr.cc; t=1785947916; h=from:subject:
- mime-version:from:date:message-id:subject:to:cc:reply-to:content-type:
- mime-version:in-reply-to:message-id;
- bh=LnsE1iNZiHSw8OO+Ugls5I5U6nYU7LBTDmRHK5suJ3U=;
- b=VZImHwDo0JalED+kG++QnWTV07wV81cfVk+C7p3gAVIg6XB6+fLvsdOKfQcn7dQ/HFb9gp
- /ivk5pibGare/KttFMfhNCqLlpzAtRAPOQiCfEDeMuXpPS3WxxGNVTJRnepA3VgCIeCbms
- jV/h+x9Htne7h5CRD/ukPQ+Dia7niPhluK2R3T1KPFHibDDSc/vhuDPgtlYkF9w3oaKm0Y
- bAg9JzStRHaMGRk8BQNBhv7KypOyj9rAJHYs7LhzcGgwhA7sliOssHmRnX8I9/adTuZSdD
- DXBzhBqKFiwFqwkn+UZXgrtqo5ygp4f6+OI6hZ0ybT/bpLPE5y0bX0zfVNdXqA==
-Date: Thu, 06 Aug 2026 00:38:19 +0800
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="AMVsCqQy"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C77E31F000E9;
+	Wed,  5 Aug 2026 16:51:22 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1785948683;
+	bh=rvl50VucpBVpWJETInG3ZSUfTAjA4wCki1wstf8bK4M=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=AMVsCqQy7Dsy+6d3R80hoWl7vUgVb/Cbl3Ewt0a281bPs92ynApgT6WOG0ySdne/E
+	 g5OMDAGA8VuC+hek0TT3BnZaMyhC04K7KHVEijwbTFg4G784NVMo0wW7XVZSPsWfmJ
+	 /Wm+Lua3C1dODVEJP50DG7hliTaQQ/aOOe8V+UOt/dsFbOq6QtM53L529+f5oxCVVj
+	 /SEqMkePyU4JUhkTTgPvwCUALABoGL2Clrvw3CMh7j4BXDZQczQSB/U6EBk479ia6f
+	 h2BwVMowflzU5yN5EpiLSzX3OHBsBmzLfdHwDf7lkCUKWaeweyAh2cGR4TDaSSgu2r
+	 ZTiaEVMsq4Uhg==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH] HID: sensor-hub: fix out-of-bounds access in
+ sensor_hub_get_feature()
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Shengzhuo Wei" <me@cherr.cc>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20260806-hid-sensor-hub-oob-v1-1-f8e210e7eafe@cherr.cc>
+References: <20260806-hid-sensor-hub-oob-v1-1-f8e210e7eafe@cherr.cc>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Wed, 05 Aug 2026 16:51:22 +0000
+Message-Id: <20260805165122.C77E31F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-Received: from [192.168.9.107] ([111.40.58.243]) by smtp.feishu.cn with ESMTPS; Thu, 06 Aug 2026 00:38:33 +0800
-To: "Jiri Kosina" <jikos@kernel.org>, "Jonathan Cameron" <jic23@kernel.org>, 
-	"Srinivas Pandruvada" <srinivas.pandruvada@linux.intel.com>, 
-	"Benjamin Tissoires" <bentiss@kernel.org>
-From: "Shengzhuo Wei" <me@cherr.cc>
-Subject: [PATCH] HID: sensor-hub: fix out-of-bounds access in sensor_hub_get_feature()
-Message-Id: <20260806-hid-sensor-hub-oob-v1-1-f8e210e7eafe@cherr.cc>
-X-Change-Id: 20260806-hid-sensor-hub-oob-f316fd015b76
-Content-Transfer-Encoding: 7bit
-X-Mailer: b4 0.14.2
-Content-Type: text/plain; charset=UTF-8
-X-Original-From: Shengzhuo Wei <me@cherr.cc>
-Cc: <linux-input@vger.kernel.org>, <linux-iio@vger.kernel.org>, 
-	<linux-kernel@vger.kernel.org>, <stable@vger.kernel.org>, 
-	"Shengzhuo Wei" <me@cherr.cc>
-X-B4-Tracking: v=1; b=H4sIAPpmc2oC/x3MQQqAIBBA0avErBvQIouuEi0yx5yNhkMRSHdPW r7F/wWEMpPA3BTIdLNwihW6bWAPWzwI2VVDpzqjJmUwsEOhKCljuCymZNH32nin9GBHAzU8M3l +/umyvu8HR4BHdWQAAAA=
-X-Lms-Return-Path: <lba+26a73670a+ae85e9+vger.kernel.org+me@cherr.cc>
 
-sensor_hub_get_feature() copies each field value with
-memcpy(..., report->field[...]->report_size / 8), a size taken only
-from the descriptor and bounded neither to the caller buffer nor to the
-field->value[] array.
+Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+s) to consider:
 
-When report_size exceeds the remaining buffer (e.g. a 64-bit power-state
-field into a 4-byte int) the copy overflows the caller's stack on the
-first iteration; when report_size > 32 it also reads past field->value[]
-(one __s32 per logical value) into slab, leaking bytes to userspace via
-callers that expose the buffer (hid-sensor-custom show_value over sysfs).
-Reachable from an untrusted USB or Bluetooth HID device with no local
-privileges.
+Pre-existing issues:
+- [High] The introduced bounds check allows reading adjacent independent it=
+ems into a single item's buffer space when `report_size > 32`.
+- [High] Byte-wise `memcpy` from native-endian `s32` array copies padding b=
+ytes on Big-Endian architectures for fields smaller than 32 bits.
+- [High] Fields smaller than 8 bits are silently dropped due to integer div=
+ision by 8.
+--
 
-Bound the per-iteration copy to min(report_size/8,
-(report_count-i)*sizeof(__s32), buffer_size - buffer_index).
+--- Patch [1]: [PATCH] HID: sensor-hub: fix out-of-bounds access in sensor_=
+hub_get_feature() ---
+commit b3260de30fa032d167e378c546af0b283ff6ce04
+Author: Shengzhuo Wei <me@cherr.cc>
 
-Fixes: 5459ada2b3cd ("HID: sensor-hub: Fix packing of result buffer for feature report")
-Cc: stable@vger.kernel.org
-Signed-off-by: Shengzhuo Wei <me@cherr.cc>
----
- drivers/hid/hid-sensor-hub.c | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+HID: sensor-hub: fix out-of-bounds access in sensor_hub_get_feature()
 
-diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
-index 34f710c465b80a0c46cc207e3d99a07c5767f291..978335db71b09617c87e879911b8e75b6bfdebb8 100644
---- a/drivers/hid/hid-sensor-hub.c
-+++ b/drivers/hid/hid-sensor-hub.c
-@@ -270,11 +270,18 @@ int sensor_hub_get_feature(struct hid_sensor_hub_device *hsdev, u32 report_id,
- 
- 	val_ptr = (u8 *)report->field[field_index]->value;
- 	for (i = 0; i < report->field[field_index]->report_count; ++i) {
-+		int copy = report->field[field_index]->report_size / 8;
-+		int src_remaining = (report->field[field_index]->report_count - i) *
-+				    sizeof(__s32);
-+
- 		if (buffer_index >= ret)
- 			break;
- 
--		memcpy(&((u8 *)buffer)[buffer_index], val_ptr,
--		       report->field[field_index]->report_size / 8);
-+		if (copy > src_remaining)
-+			copy = src_remaining;
-+		if (copy > buffer_size - buffer_index)
-+			copy = buffer_size - buffer_index;
-+		memcpy(&((u8 *)buffer)[buffer_index], val_ptr, copy);
- 		val_ptr += sizeof(__s32);
- 		buffer_index += (report->field[field_index]->report_size / 8);
- 	}
+This commit addresses an out-of-bounds access issue in
+sensor_hub_get_feature() by bounding the per-iteration copy size. It restri=
+cts
+the copy size to the minimum of the report size, remaining source buffer, a=
+nd
+remaining destination buffer.
 
----
-base-commit: bf0a94fb2b59542f9dd6fea4eec67336f1ccfa56
-change-id: 20260806-hid-sensor-hub-oob-f316fd015b76
+> diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
+> index 90666ff629def..7e97ca98a3883 100644
+> --- a/drivers/hid/hid-sensor-hub.c
+> +++ b/drivers/hid/hid-sensor-hub.c
+> @@ -270,11 +270,18 @@ int sensor_hub_get_feature(struct hid_sensor_hub_de=
+vice *hsdev, u32 report_id,
+> =20
+>  	val_ptr =3D (u8 *)report->field[field_index]->value;
+>  	for (i =3D 0; i < report->field[field_index]->report_count; ++i) {
+> +		int copy =3D report->field[field_index]->report_size / 8;
 
-Best regards,
--- 
-Shengzhuo Wei <me@cherr.cc>
+[Severity: High]
+This is a pre-existing issue, but does this silently drop fields smaller
+than 8 bits?
+
+When sensor_hub_get_feature() is called for a sub-byte field (like a 4-bit
+flag), the integer division by 8 evaluates to 0. This causes memcpy to copy
+0 bytes, leaving the caller's buffer unpopulated even though the HID core
+correctly parsed the value into the field->value array.
+
+> +		int src_remaining =3D (report->field[field_index]->report_count - i) *
+> +				    sizeof(__s32);
+> +
+>  		if (buffer_index >=3D ret)
+>  			break;
+> =20
+> -		memcpy(&((u8 *)buffer)[buffer_index], val_ptr,
+> -		       report->field[field_index]->report_size / 8);
+> +		if (copy > src_remaining)
+> +			copy =3D src_remaining;
+
+[Severity: High]
+This isn't a bug introduced by this patch, but does this bounds check still
+allow reading adjacent independent items into a single item's buffer space?
+
+The HID core truncates and stores each field item in a single 4-byte __s32
+element. By bounding the copy size to src_remaining (the remaining size of
+the entire field->value array) instead of a single element (sizeof(__s32)),
+if the report size is greater than 32 bits, the copy size will exceed
+4 bytes.
+
+Could this cause memcpy to incorrectly read the next independent value
+element from the array and append it to the current item?
+
+> +		if (copy > buffer_size - buffer_index)
+> +			copy =3D buffer_size - buffer_index;
+> +		memcpy(&((u8 *)buffer)[buffer_index], val_ptr, copy);
+
+[Severity: High]
+This is a pre-existing issue, but does this byte-wise memcpy from a
+native-endian s32 array copy padding bytes on big-endian architectures for
+fields smaller than 32 bits?
+
+The function extracts fields that the HID core has parsed into native-endian
+32-bit integers. For a 16-bit field on a big-endian system, the valid data
+resides at byte offsets 2 and 3, but memcpy copies from the lowest memory
+address.
+
+Could this result in returning zeroes by copying the most significant
+padding bytes instead of the actual data?
+
+>  		val_ptr +=3D sizeof(__s32);
+>  		buffer_index +=3D (report->field[field_index]->report_size / 8);
+>  	}
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260806-hid-sensor=
+-hub-oob-v1-1-f8e210e7eafe@cherr.cc?part=3D1

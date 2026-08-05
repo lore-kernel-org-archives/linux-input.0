@@ -1,160 +1,142 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.12])
+Received: from mx.hiro.moe (mx.hiro.moe [118.91.186.92])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E9F093C3F4B;
-	Wed,  5 Aug 2026 17:05:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.12
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 881023DAAC5;
+	Wed,  5 Aug 2026 19:07:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=118.91.186.92
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785949509; cv=none; b=YcyfUeJxDikfDv72g1Wi49qzAaMAQHA283Gny00zv/vjqDxnHvNfVcuPqBnlbSgPdNR0Nnr+egl1DAHzay9pHyK9sMF3vGwghdKmC7PReN6zm/eQPS16tmbpZexPkYQAA2v2Bp895sbqKqasx9QUCGwbH5UyN8rloAXt/VBAgBc=
+	t=1785956866; cv=none; b=YCFPypYeQ61ttT3TYv7r7h3zCT0efmvPemZ5fzkRA35+xcW/B63pE4wQ1WXUpkGGbfIjNhiRemaLMdw3phUl1TSdFArCtZiYh+zmqo+2SQaffSa4St9kvKyLjMgSX1jz5PWzekkrorBChJI82BsqjK8jXpjdVtwARjyiGFA3wmA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785949509; c=relaxed/simple;
-	bh=QiEEDunoEbE34+oEHqUg7+IJfL2ep4DHrf6JxCZvHMU=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=Wn0uiO1ukw9m2tnOLMcXMdYUIC2Z6woSsPSADsZZv+2ZK8NDHLfRHK2zzGReAstf0S/tHRdwq1KCp+ZV61mskqzvD16h57OEyEfwOdNhnsUxOd1OzAQFle+5OYdWe/J1VTrOCzQm6XG8jVJYFr75OIp52vDhcj4E7eCxlHCYivg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=C2xiLxcq; arc=none smtp.client-ip=192.198.163.12
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
+	s=arc-20240116; t=1785956866; c=relaxed/simple;
+	bh=LcfOuQL/DTf+VuNERCxYkeZGTFdnIPrpgO4tHX6l0v8=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=QR8x11donaORSS8TD/ltXIErsutWkycakcnA3cgZP1jBb9alDlrfIdsZsSqbSXgQM1rVwwPZfSVs0MA1KnWkQzYpEhPSCQiyAVtsQHWSVKneyt0w/iAiEGsS5rO91KoUmyb1JsduR3wAL0jNuL25EePHuvScnf5dRt2W9aToGWY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bakabaka9.tech; spf=pass smtp.mailfrom=bakabaka9.tech; dkim=pass (2048-bit key) header.d=bakabaka9.tech header.i=@bakabaka9.tech header.b=RM7x/1DH; arc=none smtp.client-ip=118.91.186.92
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bakabaka9.tech
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bakabaka9.tech
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="C2xiLxcq"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1785949507; x=1817485507;
-  h=message-id:subject:from:to:cc:date:in-reply-to:
-   references:content-transfer-encoding:mime-version;
-  bh=QiEEDunoEbE34+oEHqUg7+IJfL2ep4DHrf6JxCZvHMU=;
-  b=C2xiLxcqZMulR3CZ5UWx2tZOP2lZA5H/qZ27UtoeMd7b2wlAljANgo7H
-   jvZl3ZIdXOD6C0EHP1ulSPVtQE7TKaUPoZq3rHfwZJDcnd8MA3krjl6Aw
-   +Inainqw3SMzL3YSLV4rEMcX0TqLCkh5X5xxbm1UPnfnFfvFMVAZyM7d6
-   YF26IDRsMnmm/KKag+dfUPR7bT7BaCAioadxm8HlSQNmGjzGIIu7SBgcV
-   +oFJc4NaiygZg/1JmjLVQThcMaXfTW+WzYa+5t5ge9YWPRRiyGde5eUfG
-   zMD1DBifIn2Jg25zhr+E7+zy/PqeHNKNRRWir+ULBiH+qk3O4AM0uk0t6
-   A==;
-X-CSE-ConnectionGUID: 9THtuLdVRnKX8x/jftTLnQ==
-X-CSE-MsgGUID: 0sB3N6SGT5KbOwdbxC3I8w==
-X-IronPort-AV: E=McAfee;i="6800,10657,11866"; a="90347763"
-X-IronPort-AV: E=Sophos;i="6.25,206,1779174000"; 
-   d="scan'208";a="90347763"
-Received: from fmviesa004.fm.intel.com ([10.60.135.144])
-  by fmvoesa106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 Aug 2026 10:05:06 -0700
-X-CSE-ConnectionGUID: aoTNVkWBQ+6fxFA07S6Jsg==
-X-CSE-MsgGUID: OTczlXtYRJOQtzF9crDfFg==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.25,206,1779174000"; 
-   d="scan'208";a="263843068"
-Received: from unknown (HELO spandruv-desk2.jf.intel.com) ([10.241.242.127])
-  by fmviesa004-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 Aug 2026 10:00:56 -0700
-Message-ID: <519ed426adad9031dabe2270b27e1ef7374bcaa5.camel@linux.intel.com>
-Subject: Re: [PATCH] HID: sensor-hub: fix out-of-bounds access in
- sensor_hub_get_feature()
-From: srinivas pandruvada <srinivas.pandruvada@linux.intel.com>
-To: Shengzhuo Wei <me@cherr.cc>, Jiri Kosina <jikos@kernel.org>, Jonathan
- Cameron <jic23@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>,
- Bakabaka_9	 <baka9@bakabaka9.tech>
-Cc: linux-input@vger.kernel.org, linux-iio@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Date: Wed, 05 Aug 2026 10:00:55 -0700
-In-Reply-To: <20260806-hid-sensor-hub-oob-v1-1-f8e210e7eafe@cherr.cc>
-References: <20260806-hid-sensor-hub-oob-v1-1-f8e210e7eafe@cherr.cc>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.60.2 (3.60.2-1.fc44) 
+	dkim=pass (2048-bit key) header.d=bakabaka9.tech header.i=@bakabaka9.tech header.b="RM7x/1DH"
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id BBF53C99E5;
+	Thu,  6 Aug 2026 02:58:12 +0800 (CST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bakabaka9.tech;
+	s=dkim; t=1785956295; h=from:subject:date:message-id:to:cc:mime-version:
+	 content-transfer-encoding; bh=lvYoLdsKTcl0fSewV/cx+DkK9/GJsf16sAKIu/NWIVc=;
+	b=RM7x/1DHlrEhscKnRluSrdgfTCWts4zXjl+WtSFS0Sy+rmfRxXnh3tLOvvqWloPECHjQjX
+	7xCBMur8lelytBoec5sSQKOSFipS1l91PM2p75pAJRrp79Xrjwl7Ix3GUGEVnOogQE6+6P
+	vipwIXBwA0VHH78KnS27XX45LgZodVUzXCxF+dIodYrJSMO8JZpToBih3xRV/TzzkNQ1Vk
+	DsE21/78X6ZP9H0uQnb+s5WpPXmGwewaYly1f+cxnODUiGNJKLOUBJ0fcXcMqAyu2JDFvn
+	MavtD0jMNq4kv2zMLtMWpxX2wwKLHfmFEBF/DhT7R85k3j+2muWrHm98Vjjtkg==
+From: bakabaka9 <baka9@bakabaka9.tech>
+To: jikos@kernel.org,
+	jic23@kernel.org,
+	srinivas.pandruvada@linux.intel.com,
+	bentiss@kernel.org
+Cc: linux-input@vger.kernel.org,
+	linux-iio@vger.kernel.org,
+	Xingrui Li <baka9@bakabaka9.tech>,
+	stable@kernel.org
+Subject: [PATCH v2 RESEND] HID: sensor-hub: Fix out-of-bounds write in sensor_hub_get_feature
+Date: Wed,  5 Aug 2026 18:57:53 +0000
+Message-ID: <20260805185753.3069-1-baka9@bakabaka9.tech>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-Last-TLS-Session-Version: TLSv1.3
 
-On Thu, 2026-08-06 at 00:38 +0800, Shengzhuo Wei wrote:
-> sensor_hub_get_feature() copies each field value with
-> memcpy(..., report->field[...]->report_size / 8), a size taken only
-> from the descriptor and bounded neither to the caller buffer nor to
-> the
-> field->value[] array.
->=20
-> When report_size exceeds the remaining buffer (e.g. a 64-bit power-
-> state
-> field into a 4-byte int) the copy overflows the caller's stack on the
-> first iteration; when report_size > 32 it also reads past field-
-> >value[]
-> (one __s32 per logical value) into slab, leaking bytes to userspace
-> via
-> callers that expose the buffer (hid-sensor-custom show_value over
-> sysfs).
-> Reachable from an untrusted USB or Bluetooth HID device with no local
-> privileges.
->=20
-> Bound the per-iteration copy to min(report_size/8,
-> (report_count-i)*sizeof(__s32), buffer_size - buffer_index).
->=20
+From: Xingrui Li <baka9@bakabaka9.tech>
 
-There was a patch posted "PATCH v2] HID: sensor-hub: Fix out-of-bounds
-write in sensor_hub_get_feature"
-and I did ACK. But checked it didn't have correct CC list.
+sensor_hub_get_feature() clamps its return value to the caller's buffer
+size, but the copy loop still copies field->report_size / 8 bytes for
+each report value. A malicious HID descriptor can advertise a large
+feature field size while an IIO caller supplies a small stack buffer,
+such as a single s32, causing an out-of-bounds write.
 
-"
-Fixes: 5459ada2b3cd69 ("HID: sensor-hub: Fix packing of result buffer
-for feature report")
+HID core stores parsed report values in __s32 slots and clamps extracted
+values to 32 bits. Reject feature fields that require more than one slot
+per value, guard the total byte count calculation, and clamp each
+per-value copy to the remaining caller buffer.
+
+Fixes: 5459ada2b3cd69 ("HID: sensor-hub: Fix packing of result buffer for feature report")
 Cc: stable@kernel.org
 Assisted-by: OpenAI:GPT-5.5-Cyber
 Signed-off-by: Xingrui Li <baka9@bakabaka9.tech>
-"
+---
+ drivers/hid/hid-sensor-hub.c | 42 +++++++++++++++++++++---------------
+ 1 file changed, 25 insertions(+), 17 deletions(-)
 
-Xingrui, Please resend to all in this list here.
+diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
+index 34f710c465b8..6470a290ebfc 100644
+--- a/drivers/hid/hid-sensor-hub.c
++++ b/drivers/hid/hid-sensor-hub.c
+@@ -239,12 +239,17 @@ int sensor_hub_get_feature(struct hid_sensor_hub_device *hsdev, u32 report_id,
+ 			   u32 field_index, int buffer_size, void *buffer)
+ {
+ 	struct hid_report *report;
++	struct hid_field *field;
+ 	struct sensor_hub_data *data = hid_get_drvdata(hsdev->hdev);
+-	int report_size;
++	size_t field_size;
++	size_t report_size;
++	size_t copied = 0;
++	size_t to_copy;
+ 	int ret = 0;
+-	u8 *val_ptr;
+-	int buffer_index = 0;
+-	int i;
++	unsigned int i;
++
++	if (!buffer || buffer_size <= 0)
++		return -EINVAL;
+ 
+ 	memset(buffer, 0, buffer_size);
+ 
+@@ -258,26 +263,29 @@ int sensor_hub_get_feature(struct hid_sensor_hub_device *hsdev, u32 report_id,
+ 	hid_hw_request(hsdev->hdev, report, HID_REQ_GET_REPORT);
+ 	hid_hw_wait(hsdev->hdev);
+ 
++	field = report->field[field_index];
++
+ 	/* calculate number of bytes required to read this field */
+-	report_size = DIV_ROUND_UP(report->field[field_index]->report_size,
+-				   8) *
+-				   report->field[field_index]->report_count;
+-	if (!report_size) {
++	field_size = DIV_ROUND_UP(field->report_size, 8);
++	/* HID core stores each parsed report value in a __s32 slot. */
++	if (!field_size || field_size > sizeof(field->value[0])) {
++		ret = -EINVAL;
++		goto done_proc;
++	}
++	if (field->report_count > SIZE_MAX / field_size) {
+ 		ret = -EINVAL;
+ 		goto done_proc;
+ 	}
+-	ret = min(report_size, buffer_size);
+ 
+-	val_ptr = (u8 *)report->field[field_index]->value;
+-	for (i = 0; i < report->field[field_index]->report_count; ++i) {
+-		if (buffer_index >= ret)
+-			break;
++	report_size = field_size * field->report_count;
++	report_size = min_t(size_t, report_size, buffer_size);
+ 
+-		memcpy(&((u8 *)buffer)[buffer_index], val_ptr,
+-		       report->field[field_index]->report_size / 8);
+-		val_ptr += sizeof(__s32);
+-		buffer_index += (report->field[field_index]->report_size / 8);
++	for (i = 0; i < field->report_count && copied < report_size; ++i) {
++		to_copy = min(field_size, report_size - copied);
++		memcpy(&((u8 *)buffer)[copied], &field->value[i], to_copy);
++		copied += to_copy;
+ 	}
++	ret = copied;
+ 
+ done_proc:
+ 	mutex_unlock(&data->mutex);
+-- 
+2.43.0
 
-Thanks,
-Srinivas
-
-
-
-
-
-> Fixes: 5459ada2b3cd ("HID: sensor-hub: Fix packing of result buffer
-> for feature report")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Shengzhuo Wei <me@cherr.cc>
-> ---
-> =C2=A0drivers/hid/hid-sensor-hub.c | 11 +++++++++--
-> =C2=A01 file changed, 9 insertions(+), 2 deletions(-)
->=20
-> diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-
-> hub.c
-> index
-> 34f710c465b80a0c46cc207e3d99a07c5767f291..978335db71b09617c87e879911b
-> 8e75b6bfdebb8 100644
-> --- a/drivers/hid/hid-sensor-hub.c
-> +++ b/drivers/hid/hid-sensor-hub.c
-> @@ -270,11 +270,18 @@ int sensor_hub_get_feature(struct
-> hid_sensor_hub_device *hsdev, u32 report_id,
-> =C2=A0
-> =C2=A0	val_ptr =3D (u8 *)report->field[field_index]->value;
-> =C2=A0	for (i =3D 0; i < report->field[field_index]->report_count;
-> ++i) {
-> +		int copy =3D report->field[field_index]->report_size /
-> 8;
-> +		int src_remaining =3D (report->field[field_index]-
-> >report_count - i) *
-> +				=C2=A0=C2=A0=C2=A0 sizeof(__s32);
-> +
-> =C2=A0		if (buffer_index >=3D ret)
-> =C2=A0			break;
-> =C2=A0
-> -		memcpy(&((u8 *)buffer)[buffer_index], val_ptr,
-> -		=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 report->field[field_index]->repor=
-t_size / 8);
-> +		if (copy > src_remaining)
-> +			copy =3D src_remaining;
-> +		if (copy > buffer_size - buffer_index)
-> +			copy =3D buffer_size - buffer_index;
-> +		memcpy(&((u8 *)buffer)[buffer_index], val_ptr,
-> copy);
-> =C2=A0		val_ptr +=3D sizeof(__s32);
-> =C2=A0		buffer_index +=3D (report->field[field_index]-
-> >report_size / 8);
-> =C2=A0	}
->=20
-> ---
-> base-commit: bf0a94fb2b59542f9dd6fea4eec67336f1ccfa56
-> change-id: 20260806-hid-sensor-hub-oob-f316fd015b76
->=20
-> Best regards,

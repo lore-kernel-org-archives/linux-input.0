@@ -1,101 +1,126 @@
-Received: from va-2-56.ptr.blmpb.com (va-2-56.ptr.blmpb.com [209.127.231.56])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from fout-b6-smtp.messagingengine.com (fout-b6-smtp.messagingengine.com [202.12.124.149])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C811B3E5A0C
-	for <linux-input@vger.kernel.org>; Wed,  5 Aug 2026 08:01:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.127.231.56
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 716AC417365;
+	Wed,  5 Aug 2026 09:56:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.149
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785916897; cv=none; b=NWBD3SiD5fWgzNvL4Pd0NW2DhV9W+8sNuLz/sKem1LyVY6qYR8tl+OEQBhdgkf1ZCRdeUHcLFAdxMYNmuAEuDnDoUbuHSMRknjuWwHdEy7gON7f5c6UwRsrY5MatcogBB7nLk4qgVu86EDu55BAMqp12tvTPH7bE0fehEM5noG4=
+	t=1785923803; cv=none; b=Cc/BbkMfyOBEyWHNzbGPMmCW1tXdvIs824uDKp2T9jxQdw7BZGERhl+ae54FAYGE6OmCUqTP7/+76DehQX3f1GtvoSU4glSM3bMaZ+jYM1WTOwWtmv/zu7pbSf/dt3B58ARwVDMsMFdFWGGWGcKdeNKme/omo2KQpbaUTqFscNc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785916897; c=relaxed/simple;
-	bh=5nbgeTlwPmpvxBjsWXUMA4e+lDFnLr7P4RDG2gdlXMs=;
-	h=Subject:Date:Cc:Mime-Version:References:In-Reply-To:To:Message-Id:
-	 Content-Disposition:From:Content-Type; b=hPsVzDwr0dyL+NMDESvG2Dnxh3f0cZnAcJQqEV/PD0HmnwNm2W2IfpElcbWnWyeoRUK9w//dqpJ+wfSf9rvYqqKkw5qNymT4VNXf0HFTXE0mtfWndAvHGpNvtAnkCODu2zxtct3pJW4NQtOBSmzf1RGMzUR4GeZM3le74EE0x9g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=cherr.cc; spf=pass smtp.mailfrom=cherr.cc; dkim=pass (2048-bit key) header.d=cherr.cc header.i=@cherr.cc header.b=Qk9mnCWd; arc=none smtp.client-ip=209.127.231.56
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=cherr.cc
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=cherr.cc
+	s=arc-20240116; t=1785923803; c=relaxed/simple;
+	bh=1v6a/g9PNsWehtO7qhGh3X0Iz2aiPbGMlxJ0mPgN5No=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=SMQ/0KURJsaUYLO4LcWs34WgzpSmw0377UbB6Mb0ePWkHqfTMz2tbFwazZTRZacGGRjrvBaPnDxWjKYALexweiQ+DK22AQTKRretc2kw0rnXm0ncoBb6t6wTvPW4EwefHxrph/6/3Er3m1Z9gvOTPromqFKA61Y1bwmymLO2VP8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=kroah.com; spf=pass smtp.mailfrom=kroah.com; dkim=pass (2048-bit key) header.d=kroah.com header.i=@kroah.com header.b=M9H0veJ2; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=is6tmf/N; arc=none smtp.client-ip=202.12.124.149
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=kroah.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kroah.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=cherr.cc header.i=@cherr.cc header.b="Qk9mnCWd"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
- s=feishu2604220257; d=cherr.cc; t=1785916888; h=from:subject:
- mime-version:from:date:message-id:subject:to:cc:reply-to:content-type:
- mime-version:in-reply-to:message-id;
- bh=5nbgeTlwPmpvxBjsWXUMA4e+lDFnLr7P4RDG2gdlXMs=;
- b=Qk9mnCWdzGgvSrGCBwpgCx0fjBzp338Slz7vZSnIaKNRc5gRMMcmKjmCLG0on5pd8dGc40
- Gce/RTNqjOtRtOGesBFrsdp++N3KDxx+pHsbRMWRe0uEVfjjPaUm79b1zCPx7tMGKR/+rQ
- UahBr75Xz0N+i5Bn2DaWdqpK6k6DY9mwnXq6ykVu7uozmUt0lG8LWbkvBOyZMOMce/7w3R
- 9V0e7CL8lJ7jW2bvm3g7WNlmy3odbDlqNOw1ujXcF4WJ0pKuFrfUku/f6oAebbzdoBH2a8
- 7RchS99MU/JN2GcBnH4fqmqqVJclKBoSHPGj/Najo0S+BNtxp9UgxTovStJS2w==
-Subject: Re: [PATCH v2] HID: hid-oxp: fix UAF on pending work in remove()
-Date: Wed, 5 Aug 2026 16:01:12 +0800
-Content-Transfer-Encoding: 7bit
-Cc: "Shengzhuo Wei" <me@cherr.cc>, "Jiri Kosina" <jikos@kernel.org>, 
-	"Benjamin Tissoires" <bentiss@kernel.org>, 
-	"Zhouwang Huang" <honjow311@gmail.com>, <linux-input@vger.kernel.org>, 
-	<linux-kernel@vger.kernel.org>, <stable@vger.kernel.org>
-X-Original-From: Shengzhuo Wei <me@cherr.cc>
+	dkim=pass (2048-bit key) header.d=kroah.com header.i=@kroah.com header.b="M9H0veJ2";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="is6tmf/N"
+Received: from phl-compute-04.internal (phl-compute-04.internal [10.202.2.44])
+	by mailfout.stl.internal (Postfix) with ESMTP id 7DF231D0012F;
+	Wed,  5 Aug 2026 05:56:40 -0400 (EDT)
+Received: from phl-frontend-04 ([10.202.2.163])
+  by phl-compute-04.internal (MEProxy); Wed, 05 Aug 2026 05:56:40 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=cc
+	:cc:content-transfer-encoding:content-type:content-type:date
+	:date:from:from:in-reply-to:message-id:mime-version:reply-to
+	:subject:subject:to:to; s=fm3; t=1785923800; x=1786010200; bh=Cy
+	6sWLYxU/NA36a5+ExhXn4nFo/odEp+xCMw/QjTGvI=; b=M9H0veJ2x2r8KIQRhK
+	IcMwUoCf+BVSGK9MlpxItmZZjsjfvyci46QxT0pELd9+W4jWHm2G+AKaDVb9BdoG
+	7PGYhKzoSaDWSlftHGBFcA3sPLFfAWlaySOr7fhhZirvERZ7f+cgEYItwdjpPZBR
+	/ZeKSG/DDSQKjHTNFScJUeAy/Wx2TySBo+IvVwmrnMm/gqZTppz47H/BSLNOufQC
+	kOq7UVecDRj+xwWImHRltvEQZMfUbbxCdODNA+pYMJIwH00xRYMAgAL4W7/340Ei
+	T5zKX6oGaoDbNByrPzpyeF5GYgGozX2T0jb41DRlsU4K1I4Bg7+7k/XmQJnHvqG3
+	J7fQ==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-transfer-encoding
+	:content-type:content-type:date:date:feedback-id:feedback-id
+	:from:from:in-reply-to:message-id:mime-version:reply-to:subject
+	:subject:to:to:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
+	fm3; t=1785923800; x=1786010200; bh=Cy6sWLYxU/NA36a5+ExhXn4nFo/o
+	dEp+xCMw/QjTGvI=; b=is6tmf/ND9+nmf0W761dtvgJQwFOqUStcoCZqJ7idVrd
+	l151ErsqjbzfgGJLhEtZws8C6cDo18jDLxAO/FKZ6Tj8m0hOkLs6wCR/zFRRyPAH
+	KREthEuxRBQxnuUEAfKmYWjixCaHPi9Dgch58alv5shIbiPtYmNysvQMeIym23lt
+	F/F75RuCN2I/CC63HqdD6oQWbHD0Co5DoQ9txLjqZNhClG2aUKhzROX+MDJza77l
+	hhhQJrOq90ZopjNqptpudRNWfRv3uO84gNcTSbO14nL7hsPmGDqxM5qOcLSdo0aq
+	8UGLhXxaUB1KQGTjDIr4VVVARewxp9nW0zY2obXIQQ==
+X-ME-Sender: <xms:2Ahzaj6vTqVxYO9s7CnA-5WB2JxRYhMvdGg6QLVyHcdbAbPbm0hxfg>
+    <xme:2AhzamtfOj7d_d-d8-ctjKkfQzBpWp9JsNkMee9rUVP9EAh_9SiOrmbtSQ2ISA1Pi
+    -vjZDIfqDT543DeWAcPU3WZ_vCh99zngK7kJcHQqMDjBNSYTg>
+X-ME-Received: <xmr:2Ahzak74eV5kAUcmZZAPldwnt23km9gK-82SA8D0AQLDJFj3dq12EH-uIaXLI_bzkYuyTZTUoGK9J71rdqoqhLRnXavRc-JOvM8cHL0j0v-9cImJeu0>
+X-ME-Proxy-Cause: dmFkZTGy/4wrm6fd8gljwhMvXoGfsOmy7/s+pfnxZo6fYuhhpLk2o7zpREM8hNTjeNCTVe
+    yigXOt1bnDaNbmo4cI0xX9x9eA3ob8om1E2ZAJGdIOpCgNutGXO4PBVRQ/9JSgaxkJAG5j
+    i5sy/iKH+8/GYEDdZ8enafmabCqETXNcZcig+yRzXdvXTRi12ExQd34WvL20b3IpqBXq3I
+    nA83n3Gm5V2QBVpJvDoIlSRWHzrupFYwaof0D6UKWx27ktIV2Y6xGdYgkU9m3Iqt372nOg
+    RyfjlNnTvrUU/lc6HiKvb0z9aLRA1OQFyds2uhl3vwPciSt7DlvPTFQ3V08c4tTrpIOtXX
+    SQ2ZVpOrSXXEOVE44jVFA8a95/o85lhXzX9ukZ0omlwUL/5pcgEPSRSrhvcLq3mtKhkvgX
+    kgQobagZj8ABJK9yLePaMeptQO/T8uQ/e77uQIwCalTLJfZm0/T0wHeYHPM+YgKV+y5tTL
+    t12l/5zRWRDZfeFy4V2bE3g3F/yMIbPw+G6jHXGX7JIYiEN/BWFkFNFV9Oz5o4nC4vpq+7
+    ILjRkWNa9KjSvYq+mzhxq4rUrGQyeuMAh5ERlZ1AZ/VUA+jjvrLpYIuPt7vw8drs78td1y
+    vlbSqTByMeE/IsSSV1p0stl4MP0sp1uoMGEOuSuSPrUVVnWHs214fOw/sdog
+X-ME-Proxy: <xmx:2AhzahUbg6laKIJ9jxbIVo8IjaVoCCbG3aa3GQcLLH9Uf1ppcSmqxg>
+    <xmx:2Ahzam95bqyHLQVtH_aRKS3xjS1GDjD2cco3Tyuc8qIUU7uum_uxYw>
+    <xmx:2AhzatlUpPsmMa3j7SSz-4Dj3yTBWbKyjILvHzD0qsp9x5IuxWSMEw>
+    <xmx:2AhzakWpUdIBFkeyh7ETNkR-1kUllfQEZgAO1J5lT2CLew-5cV15mQ>
+    <xmx:2AhzaiTsnxxdsNFlgXQDMitv_IMRI3GDuqJJWqL3zmnK46IItqsl7PaN>
+Feedback-ID: i1d2843be:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Wed,
+ 5 Aug 2026 05:56:39 -0400 (EDT)
+From: Griffin Kroah-Hartman <griffin@kroah.com>
+Subject: [PATCH v2 0/3] xpad packet size checks
+Date: Wed, 05 Aug 2026 11:56:34 +0200
+Message-Id: <20260805-xpadone_length_checks-v2-0-f3e925e0280b@kroah.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-References: <20260804-oxp-fix-v2-1-b2d56e4c8a2c@cherr.cc> <anJGWjlmRxNMoVLG@pve> <CAFqHKT=AEy0-AZsUmcFGbo1iQ00J+ZMdY_9dNJp64wq1QSk6Gw@mail.gmail.com> <anK_oQqFpZLwCA-a@google.com>
-In-Reply-To: <anK_oQqFpZLwCA-a@google.com>
-To: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>, 
-	"Derek John Clark" <derekjohn.clark@gmail.com>
-Message-Id: <anLtyBB-Vq2D6REw@pve>
-Content-Disposition: inline
-Received: from pve ([111.40.58.243]) by smtp.feishu.cn with ESMTPS; Wed, 05 Aug 2026 16:01:16 +0800
-X-Lms-Return-Path: <lba+26a72edce+f8d438+vger.kernel.org+me@cherr.cc>
-From: "Shengzhuo Wei" <me@cherr.cc>
-Content-Type: text/plain; charset=UTF-8
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/4WNQQ6DIBREr2L+ujSAjWhXvUdjDOJXqC0YoMbGe
+ PeiPUAzq5fMzFshoDcY4Jqt4HE2wTibgJ8yUFraAYnpEgOnvKCCC7JMsnMWmyfaIepGaVRjILR
+ knLaVEMWlh7SdPPZmOX7v9Y/Du32givvZ3tAmROc/h3hme++fY2YkpZKyynOGJe9uo3dSn5V7Q
+ b1t2xcMar/LzAAAAA==
+X-Change-ID: 20260727-xpadone_length_checks-08120b97764f
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ Griffin Kroah-Hartman <griffin@kroah.com>
+X-Mailer: b4 0.15.2
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1785923798; l=1021;
+ i=griffin@kroah.com; s=20260706; h=from:subject:message-id;
+ bh=1v6a/g9PNsWehtO7qhGh3X0Iz2aiPbGMlxJ0mPgN5No=;
+ b=YCxZq8feT6Zse/8QU8W/sh9dPasFRH6A+xfCTCl+eji9DJkk40ydnHDYdhYAO0yEQ309WB8Vj
+ DJvYlkr0gc/AW0CKeirdi13NGRYDUbwr8GFpL/6k4M4rb0/Oa9KgmZt
+X-Developer-Key: i=griffin@kroah.com; a=ed25519;
+ pk=Hy1TuVHERdQhLAWwjmxLFNtGj7eEEjaZWPXehAlic5M=
 
-Hi Derek, Dmitry,
+Small patchset to add size checks to the process_packet() functions in
+xpad, ensuring that OOB data is not accessed.
 
-Derek wrote:
-> Out of curiosity, do you have a device available to test as well? If
-> so, which model do you have?
+Signed-off-by: Griffin Kroah-Hartman <griffin@kroah.com>
+---
+Changes in v2:
+- Now a patchset, covering all process_packet functions
+- Link to v1: https://patch.msgid.link/20260727-xpadone_length_checks-v1-1-19aa9331e82d@kroah.com
 
-I don't have any OneXPlayer hardware. I found this bug by creating a
-gen2 OXP device through /dev/uhid and tearing it down under KASAN in
-QEMU, not on a real device, and I'm not deeply familiar with the HID
-subsystem overall.
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
 
-On disable_delayed_work_sync() I seem to be caught between your two
-positions. Derek:
+---
+Griffin Kroah-Hartman (3):
+      Input: xpad - add out-of-bounds checks for xpadone
+      Input: xpad - add packet length check for xpad_process_packet()
+      Input: xpad - add size checks to xpad360 packet processing
 
-> I don't think the bug fix switching to disable_delayed_work_sync is
-> worth the side effects without first addressing the global drvdata
-> issue. That would introduce a true regression to fix a theoretical
-> logic bug. I would rather you either switch to the devm_alloc drvdata
-> first or hold that change until I'm able to do it later myself.
+ drivers/input/joystick/xpad.c | 49 +++++++++++++++++++++++++++++++++----------
+ 1 file changed, 38 insertions(+), 11 deletions(-)
+---
+base-commit: f5098b6bae761e346ebcd9da7f95622c04733cff
+change-id: 20260727-xpadone_length_checks-08120b97764f
 
-Dmitry:
+Best regards,
+--  
+Griffin Kroah-Hartman <griffin@kroah.com>
 
-> If there is possibility to have multiple instances then this driver is
-> FUBAR in the current shape: one device instance fires up work items
-> for another device. So holding the patch makes no sense IMO.
-
-I'm not well placed to own the per-device drvdata refactor: I have no
-hardware to validate the multi-interface behavior, and I don't have the
-HID-subsystem familiarity to do that rework confidently. So I'd rather
-not take that piece on.
-
-Given that, what would you like me to do? The realistic contribution I
-can stand behind is a minimal v3 that only fixes the use-after-free I
-actually found and verified -- cancel_delayed_work() ->
-cancel_delayed_work_sync() in oxp_hid_remove() (the v1 approach),
-reverting v2's probe change and dropping disable_delayed_work_sync().
-It's KASAN-verified, introduces no regression, and needs no hardware.
-The re-arm hardening and the drvdata/attr-ordering rework would then be
-Derek's, on real hardware with the hid-msi pattern.
-
-If you'd rather I drop the patch entirely and leave the whole thing
-(including the cancel_delayed_work_sync part) to Derek, that's fine
-too. I'd like to land this fix if there's a version of it you'd accept
-from me, but I defer to your judgment on scope -- I just didn't want to
-silently walk away from a bug I reported.
-
-Thanks,
-Shengzhuo

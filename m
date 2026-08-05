@@ -1,97 +1,96 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pg1-f178.google.com (mail-pg1-f178.google.com [209.85.215.178])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 000EF34A3AB
-	for <linux-input@vger.kernel.org>; Wed,  5 Aug 2026 03:59:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7C48E17B418
+	for <linux-input@vger.kernel.org>; Wed,  5 Aug 2026 04:29:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785902378; cv=none; b=tjiFsFceYD9w2radl6bPXk2n8D4M2QaAmB2UI94v22P45UvcJwo3ZnzHZ4T8wbYU8AZGBsn26v4mprk1oj+pVO2ZzZjLYPMEXshAB0DDw+0WdoeXeSGCPhULOTj+1oSktUewUSnhBAJv8byfae3d0+by0qQECNQdR4Ly6I4zAGo=
+	t=1785904175; cv=none; b=kGEYr+5lPlYWRh5vgWc9uSPC9r9x3CBspTXqcWQ1Sb4sr6F6GCU3wU7G+PXxnh+zZ7Bq4htdnmKxaCbXVOXF3dlz+vh3kyYCkJ9NULHWmXTgNmzKwQ6CYDqESa+Rxgi/WfCf7T8fQsEqyZSCzhidchaYsG3leivGHMiGpS/zqiI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785902378; c=relaxed/simple;
-	bh=vgn7lq0sh759LKjMkub401OD0F35SEg8bb1NUclpZ/c=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=Eflg3bP1zUH7pqhKGpyN3aJPijdDrwT145LnoO+rUe/PGKpphWfhN3m7uBmDnWCXiFLo0kaptN9QzwbRRYEMoRPKxsqOsd1E8EgCF7EP9ILNYv3yRRdiXDj6wAV0iAUPahxvJwK+YuxspAwJRc1QySvq2VTpuxiWu/vufvPHkjk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=c2N+Kcif; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1785904175; c=relaxed/simple;
+	bh=c6qaAcE400LJQHv0RvofYMrC+28wDjxX/9YIHIm3+ls=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=FPMhiAVHXMegXZdpji1DdDuaB1XpXrd4wA31HvRBvwkRvXpggKECkMSIms89WDGTNp4zAHgWSmOy2dCmzIjPhtW1cWKO0QwrB0pjJAOe5BSqw/z21lFZ57eBsCg7DmYwFsBGYHoIrOrn3kfxm1KszYOYpTET45qEMHZq/wpy19M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=SprYMmcJ; arc=none smtp.client-ip=209.85.215.178
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="c2N+Kcif"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52EE41F000E9;
-	Wed,  5 Aug 2026 03:59:36 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785902376;
-	bh=6yqp1Jw4epOvQu9mUyRNaKK7LLjRZFmmFju5aqvbybA=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=c2N+Kcifcw8IKydrA6OA4mSrXY2EUB/zrUv9M83c8invWybs2AB6BNAUHk3BDkbXp
-	 lfjkCswEBv6guZ7ylLOB265LMOFJPy1hIkDW/bkD9HhqfxjIVPAACq0lToOvEbuS7W
-	 buOMfbkMcKyfyIjwATK3KYBh/1nDUpZww1Ex7jnflMSTyfvFVSstrR5FloFYu/vUsy
-	 hsYCsZeA/5Z0zDTGVaAK3d+pCKtBMTlpdV/yNo4Fd+4Fennhjy7sUs1bFxiGyLRpwQ
-	 Et7gEKa8dnv9A5SDWGqg2/5Gcc1S8Yrkw1+MSF8zFihYF0HbrQZdQA4vrnpQ7b58wv
-	 2Q+oVu3azN6JA==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] Input: mms114 - fix touch slot corruption in suspend
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <anKxGkyRRu5A92Q_@google.com>
-References: <anKxGkyRRu5A92Q_@google.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Wed, 05 Aug 2026 03:59:35 +0000
-Message-Id: <20260805035936.52EE41F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="SprYMmcJ"
+Received: by mail-pg1-f178.google.com with SMTP id 41be03b00d2f7-ca913a601fbso456354a12.3
+        for <linux-input@vger.kernel.org>; Tue, 04 Aug 2026 21:29:34 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1785904174; x=1786508974; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=CsJQ1UBzULplQjauLQuztygbP37D8KegaQ/fwFL4BdY=;
+        b=SprYMmcJeiLourbT8vmrrUv+HGexNhwXAW6c8bl6FcjRYDHpFfGYgdX6OfiUtuCdEH
+         TDhbfh4QS2CgOXusMlDzdh6TWTvwBWtg4AEsKr+IMV4LIfkyNw6MYh6OHwozKBSP2lub
+         zxog2D12kyPHCAIn8YuZ9TArtJOR5Oc20P9zl8JZdnljMyTbokcaqqPoRw9ED0dSIVMX
+         2KSW3gx/g9J9JyqMCVd2jBliOQ0etKIimNzAn4wuMiA1B5abEJHvP0dNCXOpWIKGKlnQ
+         T1w6TOTJ6YJFhDNI5fgIRp37uUNbXTaOVSOtyz5hxm3dx7r1joqOZMvDZa8n3pqbRrcL
+         9XBQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1785904174; x=1786508974;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=CsJQ1UBzULplQjauLQuztygbP37D8KegaQ/fwFL4BdY=;
+        b=YaCc5NJcPh0RFZaOyc9QDB41FAuEf46b03ZGrFBEj99wVyj7yewWA2+2ctG1rK29+s
+         yjbwqweVA3j27o2jnLRDlWkDx2jai5TWo/qujSvgL4UYgSCzlEKYugvCMm4Vwkoyz+eM
+         2/p2Km/8S4JSFMaVvFDxqwGCzuQXlGde+4dvHCEPZWY5eI8e6/jnpHAh6W/I7pbEinGX
+         dKnBhWSwFeJncOUvJwjT7Vr95otMwzo6mkNjmk0+Jla+DkCnNj1qNOu0OURD4DuTYsC3
+         csGoRJiK9GBKpSjHdMnnFTfZi7KQSzvpnZWncRm1YlQJD+rPDqXLm7w0cA0TMIFAQFL+
+         SVhg==
+X-Gm-Message-State: AOJu0YxdM92BZGBjcBeRbPeoIXUYiYyHqJCfHKYGc1+e4eIaWLhjervB
+	mF2fqmr5KVKmU6G/L3upbIUKU/4igdT3nKYbNQP3AzaYg288erQO43wm
+X-Gm-Gg: AR+sD12t5ok/l0TElnEoqHzO1B+tdMR4rcoAOp2pgpJDu2+YhivHKoO6fHk81q8pgpl
+	F8zzPu/Vf3WuT1vVAR0HhcogL6aQTMqUtsnPP2wQRVktbmZ0fwAHRWcDz+yullEJoWTykDq/lRQ
+	yt8e+0rJSV2QfcT30cdz1tKMQHZaTqMyyc/xATo1TnK+xs8CabILOlCtbAf9mE+cOn1+3fLsHCq
+	vHqzPUhM5iq56y45tutmIeNef1Kzk4Xf/3BA6qWhINkja+9CLX+QzgkymG4VNls9/hY52w94fex
+	JAfUZ1kWJkAYqXv5Y7KDdmSGO2vNr39TD3hsrapVQFEwhYq//w6vCTBrtH9wkubxXErYG4ayE0u
+	nI/a2+W65HApD1tL3hfcxbGwN300UXXk74CTkFU/YxVkb4uzGratoGKQkGncio8H1/qQnXAie9d
+	nIpCbci9dB8K2KIGbl7ytdZwAkPUNlOHuirZY/HfDDbwRKXcRGbHZL7hB4xZIv81XzWnExoT1d6
+	0XU4vhLwn1Z6b/qe52V3H+UAvFAgQ==
+X-Received: by 2002:a05:6a20:6a06:b0:3c3:7179:a640 with SMTP id adf61e73a8af0-3cb85df09famr4045038637.3.1785904173734;
+        Tue, 04 Aug 2026 21:29:33 -0700 (PDT)
+Received: from google.com ([2a00:79e0:2ebe:8:bf3a:ac93:79c4:84fd])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-315867bc261sm10862873eec.28.2026.08.04.21.29.32
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 04 Aug 2026 21:29:32 -0700 (PDT)
+Date: Tue, 4 Aug 2026 21:29:29 -0700
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Sang-Heon Jeon <ekffu200098@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2 0/3] Input: clean up conditional returns with no effect
+Message-ID: <anK8HVdQOuJzgSdH@google.com>
+References: <20260729171001.260698-1-ekffu200098@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260729171001.260698-1-ekffu200098@gmail.com>
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
+On Thu, Jul 30, 2026 at 02:09:32AM +0900, Sang-Heon Jeon wrote:
+> Hello,
+> 
+> This series cleans up conditional returns where both branches return
+> the same value, so the check has no effect. The Input patch of the
+> treewide v1 series [1] is split per driver and posted separately.
+> 
+> Patches 1-2 are generated by the Coccinelle script, which you can
+> find in v1.
+> 
+> Patch 3 keeps the check in synaptics_i2c_reg_set() and returns 0
+> explicitly instead, which is the preferred way when there are
+> multiple failure points.
 
-Pre-existing issues:
-- [High] Active touchkeys are not released during suspend, potentially caus=
-ing them to be stuck upon resume.
---
+Applied the lot, thank you.
 
---- Patch [1]: [PATCH] Input: mms114 - fix touch slot corruption in suspend=
- ---
-commit 1d29053929170cae6a2ebfa311bed7d55133b74a
-Author: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-
-Input: mms114 - fix touch slot corruption in suspend
-
-This commit fixes a race condition during suspend by disabling the IRQ and
-synchronizing with the interrupt handler before synthesizing touch release
-events. It also ensures touch release events are only synthesized if the
-input device is enabled, protecting the sequence with the input device mute=
-x.
-
-> diff --git a/drivers/input/touchscreen/mms114.c b/drivers/input/touchscre=
-en/mms114.c
-> index 27911a9f4e9eb..734c37579f5a4 100644
-> --- a/drivers/input/touchscreen/mms114.c
-> +++ b/drivers/input/touchscreen/mms114.c
-> @@ -679,6 +679,13 @@ static int mms114_suspend(struct device *dev)
-[ ... ]
-> +	mms114_stop(data);
-> +
->  	/* Release all touch */
->  	for (id =3D 0; id < MMS114_MAX_TOUCH; id++) {
->  		input_mt_slot(input_dev, id);
->  		input_mt_report_slot_inactive(input_dev);
->  	}
-> =20
->  	input_mt_report_pointer_emulation(input_dev, true);
->  	input_sync(input_dev);
-
-[Severity: High]
-This is a pre-existing issue, but does this sequence also need to synthesize
-release events for active touchkeys?
-
-If a touchkey (such as Back or Menu) is pressed when the device suspends,
-mms114_stop() powers down the hardware without sending a hardware release
-interrupt. Since this loop only releases multitouch slots, it seems the
-touchkey could remain logically stuck in the active state in the input core
-upon resume.
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/anKxGkyRRu5A92Q_@go=
-ogle.com?part=3D1
+-- 
+Dmitry

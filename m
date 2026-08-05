@@ -1,133 +1,106 @@
-Received: from mail-qt1-f179.google.com (mail-qt1-f179.google.com [209.85.160.179])
+Received: from mail-yx1-f49.google.com (mail-yx1-f49.google.com [74.125.224.49])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5104F36195B
-	for <linux-input@vger.kernel.org>; Wed,  5 Aug 2026 00:26:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.179
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785889615; cv=none; b=rmaw/9RU4bF5PqfH3JA/nxZJUPXzB9WrSJbHKOmck98kRu/jKvw0Dtn/cwGwjCOpVTcmWDDtSXrSozeVU68gvqcs8iWTiJ/EPU68rAQZdyiOFvJ3skxSWeoaK/TXtObf2Zek6jV0AXTfJx+2J2wL7ljYOIXXbXHS+qEifAlH1Sw=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785889615; c=relaxed/simple;
-	bh=8Ib/qaTGa1PbwNGkWBKQxFQsk2D4CT9qe0pTurwwlvc=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=X/CYZzUWECLa/sAwygdRYwj2gz39MNfeewoQww9Mc5p8H8IzWLWK/juOp44+ESukjr+rbD+aIX0zGQses3XQO6qQjN9BmRkvSC/cm1qXs4O96HlWnoOPo8ds2pBjlM9ssXSDhTPObHmHPQaViWmyp53YRy2Ybdga2uogabjC+Ks=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Tv1ImsfN; arc=none smtp.client-ip=209.85.160.179
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BBAF84A35
+	for <linux-input@vger.kernel.org>; Wed,  5 Aug 2026 01:24:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.224.49
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1785893053; cv=pass; b=O5nhVAW3PLIi54YAQWn6USRUNvN4vYctDB6Jycre/53ydqWEnMA8jesESmKUBCDYmwwl9Al5M85xAgochUTS3B0wEHkpgNeqm4iDjrD1LCHsXBpvle2v6DIK92fa8WExWLZMstBT2f8qpiIGFx6sewdeku1P2Wvy/4DHIHuArtc=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1785893053; c=relaxed/simple;
+	bh=tmxvPnC8g8NOlS/WboF/VhTQfeG5R00KcSwfFVREwI8=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=P6dNNaURwd9wPseT4nqT68K0IwTikqTPE30uYu7aVD9Uj18dfrf7wAJB5ix758IwBZ9jBnnYmLxgP2LO4+qbRHLC5rPok68jA+0QFD9cCqHmQ06D587Rq6kOG3RGehvFKYGD/YUlYjzsQcJ4co2EuKPdDhgiM+j9L0lnzA067bQ=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=frame.work; spf=pass smtp.mailfrom=frame.work; dkim=pass (2048-bit key) header.d=frame.work header.i=@frame.work header.b=pv4BB5OS; arc=pass smtp.client-ip=74.125.224.49
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=frame.work
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=frame.work
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Tv1ImsfN"
-Received: by mail-qt1-f179.google.com with SMTP id d75a77b69052e-52b6543169fso2505511cf.2
-        for <linux-input@vger.kernel.org>; Tue, 04 Aug 2026 17:26:54 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=frame.work header.i=@frame.work header.b="pv4BB5OS"
+Received: by mail-yx1-f49.google.com with SMTP id 956f58d0204a3-66892c81725so614758d50.2
+        for <linux-input@vger.kernel.org>; Tue, 04 Aug 2026 18:24:11 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1785893051; cv=none;
+        d=google.com; s=arc-20260327;
+        b=FPwmiL3Naa5NFU3krAo5cWrm+JKTgRVn0IM9/js0EDuKkT9uhAwr9tA/nJWdpZVS71
+         JfMughu/f/4IajYvE4ZEa51sfqCZfHhrTRXGHqYgNkNP3tzWhe4bVLc5qF5MlIxFnkiT
+         5KVFTU65kpvQdcP3r95HPXk6ZkO4DmDcqfE0LYFOHdWPkEGmThuzQTmINBWyUS4EZK9w
+         Snu1p/uPRXuFvVf7paRpyP6fksLbotVRNBcUIpE3mQjPYNJX89dM0EwK4LnmUSXt9Zf+
+         MIigFr0FQDrlRenfpK/FXTVC49Jd5ysX8i0O9VbG3TU5UIhSuG4OYW2DbFT8+P7vRURO
+         uQlw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:dkim-signature;
+        bh=YTZY9qIc5z9CVljfPesZ7wDN4EMIeL5vhxioi/EavNE=;
+        fh=Fp9ajLKPd8Ktau++vnGDoTv4hUCffcE/Bfbc1h/t1Zw=;
+        b=CGBYHOpbj86zK/vcJI/DuMyA6++oxNFb0vlzSEhfMakfti7J8DkVMMsbXP7JmmV+Jd
+         D63Bw3qOBzdyJZw6vyYkCh6kI41z5sB0U3TTemfisHltmcbH69djTj18E93S+P2oCtb6
+         gvU18wZ8fvl9p4dp8icouvIl2hYjGFiQIRi63PSrrypNBOSxwZcX9C3ExFPpaPQneVdn
+         Vch9B6s27L9zh+FtmfWnP8QXZVJ4WCbHVEZ4AcYfY+4Wnjiut/uiYtVjA18aEVg4Msiv
+         hOcy4nhFMT51UW/pyQVDF1L4CZgZEfmuOnEc5REz8cb1eWQGBpGg5d8UwjD6knaINtul
+         XlLg==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1785889613; x=1786494413; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:in-reply-to:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:from:to:cc:subject:date:message-id:reply-to
+        d=frame.work; s=google; t=1785893051; x=1786497851; darn=vger.kernel.org;
+        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
+         :references:mime-version:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=3IZ+EqBseqdBQygIlQeWXwAUEvO6/PiuHwN+sYz3VZo=;
-        b=Tv1ImsfNYP68CARZDZt4Z3kS9JB4j5nd3x13MFJzSvS27+WQA7AvaJKVEG06uPr3ia
-         UaMghgktJrgrYLrqS+C8aILOXkHBAGFIm9+KaqTgNWS8AKlZz1Ho83s+O6jR/rroOwRz
-         syKVf+oii+o7iIwVEB454ejcyNatgr0V/+roKeee6cN1whn10q9Rf/xj5MLaFt89q8dn
-         xyu7gV23MICJ6es2iP6k1QVI1ubTDXPz6jnqKKgV1Sex8vDy8zcz4KGEdT+sKS+TBbEW
-         x6WVlvbSte4pM0srFlNxiJko3HFuiFXzVQXOG8mOpeTnE/UNbFHbbUidZHraciUoMDfn
-         EYww==
+        bh=YTZY9qIc5z9CVljfPesZ7wDN4EMIeL5vhxioi/EavNE=;
+        b=pv4BB5OS/Ri0wgCFSarJUf3N0JOGFZYuXr2xbeR4bvI2W8GArKV3+OsbE/MRw7fc1b
+         M2uEqhRei+ktencUNMoi4ipc/Ji8QG4fpQjmKcOiA2Z1BLUosZRZ6kikIiFdxGINFRVM
+         huiu5RNMKz+4K3fBpaIsdc+iNn7gpeAsX44fhRlyz6NhEVqS15xmn5DjsTH2zkAmNdA5
+         DwIZx8687P/NC4TotAbJtZVqX1vS1CSv7yQEyPJ4tT44FTyfX8Jg8Z/Yo8VEeNUXUcI2
+         L4ld3TtADjO0yXbXSbxRTfcJV3x5STVHqjE5DWWlf0oOZoCyMcNu24RBaxsfb1NfsjqC
+         LHdw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785889613; x=1786494413;
-        h=content-transfer-encoding:content-type:in-reply-to:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=3IZ+EqBseqdBQygIlQeWXwAUEvO6/PiuHwN+sYz3VZo=;
-        b=ECRFkwsccHWWVC7A1QeysitYj3JRJP0+RqaEE+hG7IX7EE8m9VUzIq5bNxIPHT7hyK
-         +GopEy7ELm4iUs18n8lNqTvCD105udTq20Eo8d3q+BaXFZh4qrNimSQIvX4Dj44+vzgP
-         PbxAXxoqy57RNrjOLH0oSewKihwXsjBA3GkBtyZDqouP8hZMf8ORS705ikH+lbwSsmJk
-         G+hYLjYAIdA2w4m9/mfyLrUIwrfTJgaq1qPGkSj6re4lhpyqDvJEAp6TgRr0klrqngiF
-         F46JK9cPCmMM0y/Ic0sDnrSswPH5ctTiFc2d1eMNhn0Y67tvyEw7perKasCK/r01fgYa
-         cNiA==
-X-Forwarded-Encrypted: i=1; AHgh+RpPRliY/CcP4gPDFclvGYtn/4qXCyPhXgX/kVYDmA7zQwTLKQSSn5EhtwNqp1QH1gvpiA4i60P4rlrdYQ==@vger.kernel.org
-X-Gm-Message-State: AOJu0YzkfrNEyU7rZmut/mQUJFHIjtADekgWXeNbTvA5r+Jklt97PZIs
-	BSUBe7/vu3MlDv1I0Iw18kLcCquklt1B4cp7wX3IoQWgDdM2qhvF+c8XDrs1ZDfm46c=
-X-Gm-Gg: AR+sD11JUIgHVTMWQqPW7rQPeElmY7wjCITsy4R0zYLm/AlfkFsgRlgvk0p7fAFhr1F
-	JWNI4NCKeVnTW2dx+lF1jc7VXXOIlKyrIRmlqHSUp2RZ7yo2nAJ/3+Hz7EQDjjkr7Ibxth99N95
-	DyUN6xFOLEODuen7Z1BZAfKOpO0i7m1jjHNFZFPJ2XVCourbtpyeWM7yL0x5lv8bYrSvQB9QqnU
-	+kthl34V8B1vW1RX48npbFEJmdcO+t96cDP9Mc91JqTrGInxUkCYKAS33zaLiHmtCwrs0XgqpE8
-	x9IcBzLze6IOYgtL2JQeAiBoe5UU4Cx/zxmuXps4VvhkYmQiE/CTh+uoPr/uKWI6BdrKjd5Bh6K
-	Lg5RYQxXJcj0pWyN4tOgB7SxL+KSRBo/zsfIKr+IzIylB0iULhx3sTZNJD3Bd01lnx/JcxcWN7i
-	6uSLveSGrGUADjsruFZIli0GHyLkwHUlnEw+YiJnrJWtx/VVBCk0+Rwbex0Voxe9M+glhfJBbJT
-	n/8EPYs5zN0pw==
-X-Received: by 2002:a05:622a:230b:b0:51c:22c5:daf4 with SMTP id d75a77b69052e-52ce60c18eemr34720641cf.28.1785889613088;
-        Tue, 04 Aug 2026 17:26:53 -0700 (PDT)
-Received: from [10.0.0.128] ([66.31.161.230])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-52ce8972e90sm5650541cf.27.2026.08.04.17.26.51
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 04 Aug 2026 17:26:51 -0700 (PDT)
-Message-ID: <1d62c563-4ee3-4693-8f68-d464e5da57f4@gmail.com>
-Date: Tue, 4 Aug 2026 20:26:50 -0400
+        d=1e100.net; s=20251104; t=1785893051; x=1786497851;
+        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
+         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=YTZY9qIc5z9CVljfPesZ7wDN4EMIeL5vhxioi/EavNE=;
+        b=VzjNCiOj81KXHe8W4g6Eht5VhWhhxFJrldqniVci52D5qNBHHetFt0Rmc9bZzhSgfn
+         Q75q8KufHF/yvR175bFKxCc1/GBgikqpjFgA4dbQPuiNDIpFx6RhZ1P2YtSb5GnAtkxo
+         g4I5KqZzmQ50FcpGhF3r+AgBKxUWKzags2kyN2Sdw29dW78i6i0C8kN4ywjm+QQICJgz
+         D5iExlVBV/8qAJDzd9bQo58oDWqR3SFMgU1xtFNS65OZjGB3MbUDqs24mgyogTHOIgG7
+         09R/Tx+aMmdJynETj4gOP7IPR/58cavkLWI8wWDGborJaxlgdmY5mmTiFGIL68Ewl8bW
+         2mEg==
+X-Forwarded-Encrypted: i=1; AHgh+RqoCkEFjSKap039q1Nauhm5k7Qp25lAlOXzlULVtNq/d7BCRcuNlxlyHZWG/WQ5RUYzgtuv0ckXZP8AWQ==@vger.kernel.org
+X-Gm-Message-State: AOJu0YyBuP7uaWEQl6qTsSQsrVviEEtp4Ac8uQW7rt6fOGRoIcgJz3l1
+	Ess+xf811jP25gnCDhW/Ge9SetlNfBHSCOsvtDXVK2bb7ovIofwJLuBW62Hb2ih6Ahgr/MOrGco
+	DqnwcupCu4+XVXHEStvw7QGDrFNuE3bwAMRqhP5Bf8w==
+X-Gm-Gg: AR+sD10+t3cs6cUc0PFxgZrVscqZ9hek5YOo7xYWgM6VKLwE75Xh+l+MOc0gKLTncQl
+	raxOC2DKS6jPNPpFEhdYrvj57m5jW1/r3jODUEBo0FmqX8sN/94gdh92Bk58wt/tbx722DBLK9e
+	+FN9b5uBstvjynFwsI0ztCNwr3J+HJjh6qi1f7tGip0HV5qg2CkSqpU1zuRQxSVDxIrYgGHvb5c
+	AtfVDCueYglII2VOwc/CH3QKyS3PmOEafSxLcGAXtllJTawn6maino3HJjypfSfOgJ0pshu6U0B
+	KZfTJLHN7K28q6Cs4OIHXxhmaEpQYcjj8xCqGw9mtLPBGu0HbLj6+HL+cdo8UnstDOl5c6rUS2r
+	N+BSom8A7hkLCsSdS18yd0gPSJop3v0l7RU+L78WbNpy+1rfIZdrouOfgLsI=
+X-Received: by 2002:a53:de46:0:b0:668:8bca:3c41 with SMTP id
+ 956f58d0204a3-6699aa07c2bmr1434552d50.17.1785893050757; Tue, 04 Aug 2026
+ 18:24:10 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Betterbird (Linux)
-Subject: Re: [PATCH v7 0/8] HID: steelseries: split out Arctis driver and add
- Nova 5X/Nova 7 support
-To: Jiri Kosina <jikos@kernel.org>, Sriman Achanta <srimanachanta@gmail.com>
-Cc: Benjamin Tissoires <bentiss@kernel.org>, linux-input@vger.kernel.org,
- linux-kernel@vger.kernel.org, Bastien Nocera <hadess@hadess.net>,
- Simon Wood <simon@mungewell.org>, Christian Mayer <git@mayer-bgk.de>
-References: <20260803191553.66368-1-srimanachanta@gmail.com>
- <p2ro1683-r1p3-80qs-q6s1-nr6p18ss03p8@xreary.bet>
-Content-Language: en-US
-From: Benjamin Wheeler <benjaminwheeler0510@gmail.com>
-In-Reply-To: <p2ro1683-r1p3-80qs-q6s1-nr6p18ss03p8@xreary.bet>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+References: <20260723-chromaticity-v1-1-5ef5746ace2a@frame.work>
+ <b6e684365758146193421ac3a36b58d55af77691.camel@linux.intel.com>
+ <20260727221338.29f1da9b@jic23-huawei> <CAAjcXz45hB7+4wns0L=2VKeAeq2UaPhwHa11vPgFJux7Q1WLRg@mail.gmail.com>
+In-Reply-To: <CAAjcXz45hB7+4wns0L=2VKeAeq2UaPhwHa11vPgFJux7Q1WLRg@mail.gmail.com>
+From: Daniel Schaefer <dhs@frame.work>
+Date: Wed, 5 Aug 2026 09:23:34 +0800
+X-Gm-Features: AUfX_mzowNSw8oJ_BWsMvsuBfDPCC2ZoMA7KG6a59qc4VajLvGMGgnsWHW0O6FI
+Message-ID: <CAAjcXz5Y7W69LaUsFg323rTsd7waaSnLkD=dJYJvOCwPV2Apmg@mail.gmail.com>
+Subject: Re: [PATCH] iio: hid-sensor: als: scale each channel individually
+To: Jonathan Cameron <jic23@kernel.org>
+Cc: srinivas pandruvada <srinivas.pandruvada@linux.intel.com>, Jiri Kosina <jikos@kernel.org>, 
+	David Lechner <dlechner@baylibre.com>, =?UTF-8?B?TnVubyBTw6E=?= <nuno.sa@analog.com>, 
+	Andy Shevchenko <andy@kernel.org>, linux-input@vger.kernel.org, linux-iio@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, =?UTF-8?Q?Sven_Vaink=C3=BCla?= <sven@xn--vainkla-r2a.ee>, 
+	linux@frame.work
+Content-Type: text/plain; charset="UTF-8"
 
-I'm glad to hear this is getting merged! I have studied and tested older 
-revisions of Sriman's patchset on my Arctis 7 Gen2 and would love to 
-contribute a patch that adds support for it as well. I see you have a 
-branch called for-7.3/steelseries in the hid kernel fork. Should I base 
-my patchset off that? And should I aim to have this ready before the 7.3 
-merge window, or would 7.4 be more realistic? Thanks for the direction.
+>  I'll queue it up on the testing branch of iio.git but more eyes welcome if
+anyone has time to take a look.
 
-Sincerely,
-
-Benjamin Wheeler
-
-
-P.S. And thanks for working on this, Sriman!
-
-
-On 8/3/26 3:32 PM, Jiri Kosina wrote:
-> On Mon, 3 Aug 2026, Sriman Achanta wrote:
->
->> This series moves the SteelSeries Arctis headset support out of
->> hid-steelseries.c into its own module, reworks it around a per-model
->> device_info table, hardens the battery power-supply lifetime, adds an
->> asynchronous status interface, and finally adds support for the Arctis
->> Nova 5X and Nova 7 families. After the split, hid-steelseries.c is left
->> handling the SRW-S1 racing wheel and the MSI RGB LED devices.
->>
->> Changes since v6:
->>   - Rebased onto hid.git#for-7.3/steelseries.
->>     - The split now leaves the MSI RGB code in hid-steelseries.c
->>       alongside SRW-S1, and strips only the headset members from
->>       struct steelseries_device. The MSI RGB quirk bit is renumbered
->>       to BIT(1) since the two Arctis bits are gone.
->>     - The Arctis hardening that came with the MSI commit moves into
->>       hid-steelseries-arctis.c with the rest of the headset code: the
->>       hdev->rsize < 3 guard in steelseries_is_vendor_usage_page(), the
->>       battery_registered store/load-acquire pair, the !sd checks, and
->>       the hid_hw_stop() on the hid_hw_open() error path. The
->>       steelseries_is_headset() dispatch is dropped, as the new module
->>       only binds headsets. The battery_registered flag then goes away
->>       in patch 3, where the device_info rework guards every
->>       power_supply_changed() on sd->battery instead.
->>     - The v6 patch "HID: steelseries: Inline and simplify SRWS1 wheel
->>       driver" is dropped. Its premise was that hid-steelseries.c only
->>       handles the SRW-S1 after the split, which is no longer true.
->>   - No other changes. The resulting hid-steelseries-arctis.c is
->>     byte-identical to v6.
-> Thanks a lot for such a brisk rebase. Now queued.
->
+Sorry I'm not sure what that means. Is the patch applied or
+should I send another one with commit message update?

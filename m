@@ -1,106 +1,212 @@
-Received: from mail-wm1-f46.google.com (mail-wm1-f46.google.com [209.85.128.46])
+Received: from mail-pg1-f171.google.com (mail-pg1-f171.google.com [209.85.215.171])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 89B8133D6FC
-	for <linux-input@vger.kernel.org>; Wed,  5 Aug 2026 04:48:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9AB513B42C0
+	for <linux-input@vger.kernel.org>; Wed,  5 Aug 2026 04:53:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.171
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785905306; cv=none; b=kKJUE7YxIV0kC5u3Jy5OKB2EFZ+yemg1PZZWoB7UW1DVmvmI7DJk8jgL+gz1eFHmvtb/lTZKCuKnoJnZ/hr3Y3Jignw/bFTHwsmPOjDb+mumdrazfNAXfDedodw4vPohPUdnvl/bAyZkuWbS0+RsJkakaKPN41qKkALbT6DjZZY=
+	t=1785905634; cv=none; b=RPMUrak2juxtBfNfmQEV39CdHRYUPlg9UNevUimPm+dUWOq34N00Nxxv/gz5jW0Ptg21F5JXfZzPqCZrgVOfN6DFKipd6obW/irTPyJhcvSmHq7hhXFFvZ2uNRNVkQ01/ij59HdlZMxCp6yogb8p+Vp89KrwcSlL/RH1EccfntM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785905306; c=relaxed/simple;
-	bh=6Dja9uktIHlytGxQ4Mfy9LyhfBwiNIxQgC7eDqSetaI=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=d3cPwvmCVVGlkMWuU8Buvy4iFT6Ox1RU7Ab+/F6yjbNlmC22NTzigybIFl+YFGaWpwLYl9p4theI9ZSEQJIez3XK32ntZv3Yr1Mc0RCMEsSFvhQbw3l1hEdm8gMo68ziewjUI08ou8GUadK3o32UVrPEFbgaObwTYJbK3HiKslA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=nGbZOdPD; arc=none smtp.client-ip=209.85.128.46
+	s=arc-20240116; t=1785905634; c=relaxed/simple;
+	bh=vRwjsM5xXnKdcyCTyukRvv6xJjBvYDL+6EfJNM3AJkk=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=oW83XFFC3RDN7n4tE/ohOdwB9vs4s6YppCvHTH8bP9AHeApyrFb0FZrwKVyP/guJhXqKlk1uOGxxKE7DTCWZCW7IlT+SL2y3UU1w0AYlQ4P33fzbZxFcVHdepZvVoDs4JZw8tkk4FoqT7re56XI0d4FG/2XcfZSf1I+Rmeq9IMQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=G/LsUJI6; arc=none smtp.client-ip=209.85.215.171
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="nGbZOdPD"
-Received: by mail-wm1-f46.google.com with SMTP id 5b1f17b1804b1-49548e01d02so2630255e9.0
-        for <linux-input@vger.kernel.org>; Tue, 04 Aug 2026 21:48:24 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="G/LsUJI6"
+Received: by mail-pg1-f171.google.com with SMTP id 41be03b00d2f7-c999f162c9aso359850a12.3
+        for <linux-input@vger.kernel.org>; Tue, 04 Aug 2026 21:53:52 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1785905303; x=1786510103; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:mime-version:references
-         :in-reply-to:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=6Dja9uktIHlytGxQ4Mfy9LyhfBwiNIxQgC7eDqSetaI=;
-        b=nGbZOdPDfjaqLBPa2edV/rnBGVIfVJJj3RK+G98GwlXBfhhDSI65UmKAEADoKLspen
-         49IL2eRmfmU37CO8obw21IeIXfVtDzAdAw8qfy02626Rd90e4BXklFxuHSlm4xwJuP2C
-         wwIHNiIjQ+7c793hIGFEYJOClQ7k2tGgiaJzI9AZnVyMMxpktA269OQDlwQNw+erwvRo
-         77st0Yl6Rep2ujE0/XzjTdwWgJpNBF2pM0lLM4p9wxJ8A+h+Noa8BKtrrlAGQpaW5wvo
-         92BtretSXkW2sSVe9i2uP7Tf0lermBG1bXyL2YEhZsVmLKT9ZY9V8jKksgGEUTkxc+Za
-         +f1w==
+        d=gmail.com; s=20251104; t=1785905632; x=1786510432; darn=vger.kernel.org;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :content-type:mime-version:references:message-id:subject:cc:to:from
+         :date:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=r5geohaxBsDx9rnOZdu68dW9bxex9dycQnzSElI378c=;
+        b=G/LsUJI6MIGcUxr5u/BBhmnGsfqnAhVWg9hiQ3ZB8fOSiB5OlXtvzFdeLc+K/DgP75
+         XLuJoGTda05ASgYpL4u5kky6I4I7bk0hcvYIlT21iRTu95ulr2Q6HMoviCrk4UGf3yzb
+         MwbrPuCwlBY3osrZzTzsa1rGl9X6AzHsGiuLaVMXNYSPZ9EGtTn/Nu+/vrROdSs4fBev
+         9pjekYGvDjipE5tmOqhLq3BXRCQu/KJcNzUpOh4DfiJwrUQkU8DTfh3GaXNG9j9rger0
+         JGyGC7ywvlnipM9jRQUyS/mgmHRO0I9/7fVgOQmWGl8nYZ/ctUsUF9zklyli0RPx+mfH
+         yT8w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785905303; x=1786510103;
-        h=content-transfer-encoding:content-type:mime-version:references
-         :in-reply-to:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=6Dja9uktIHlytGxQ4Mfy9LyhfBwiNIxQgC7eDqSetaI=;
-        b=VeC0H2f3CaJSAxLFSkXFd2rQMem2CTirKwRTZqfoWPl5HfxhG+u70TtW7LW4rZ5ajB
-         5z9x2Er/Vd7cppynMzD985230o88FZPlFMS8yMzKiDEUGMdtrcKCeITZvJmtVFVwCLzC
-         3EPGG61FZqiTgs+EqRIviYAl6IwXQvdllEUhta6wJZ/pBnB1JPb+r0OKVAmbwzVUVGEi
-         ls8LaQbkKtpz/rvF2o4hNUwnlQg8dEvtyOk/IB3Nh148F+tuVij67kGsjKyK4+Pfcste
-         qVVXEJgoyeBT0PLBu/hhM/Grj5jPknUnoEJqOdT/wkjou5fdNUv6mKVH7FU+iUSiEi1Y
-         ATVw==
-X-Forwarded-Encrypted: i=1; AHgh+RqztxPZ6XFpltul2FT25baDDIDxdO9eLMCROsuvj8Y4WhCrdZA6b813S1Gba3JdcwWFwIkGvZBjId9rQg==@vger.kernel.org
-X-Gm-Message-State: AOJu0YzKJSHi8hijrGtksg52YNptPTBmJvGDzV2VuXEKGJfgx20uWKHG
-	a5qBOJ59ARW82VViKyBvJ0qbQF7dtlHiNHEiPOhe41LdpyQFyTSiYIlz
-X-Gm-Gg: AR+sD10fIz9dEYLe1Ol6wHZTwdbQDwTLMXh2H15FGSjnbQtzpe9zPlm6M2FeXQhzzAG
-	V+k0X5AMphCOiPRqoeaos30B+EKGhafmiidhrfwUGEPTiplHGre4lcE1Ph1ycog114JzgZj7wSA
-	/VeO5qtIwCYjHFSTxYGILRK4MpS7KljKeONjm5lxW0wDE/1pueAGsWl0EhXgwSEwkihqCqIoAhA
-	QhFCTggY26kO2/Yc7Nb6PNMqSspOnr6W1/9DDkWRatPgRVJvLSaJl/ZkAqSBqzntVQtHiF27Aaa
-	T4Q3sFJADGzguBSjo7HgR7v/CdsFrBvFiOQiLabdbdWdNViuOP8HF4GfJxP9AoBdciSp1rtGHu4
-	9snChhhbZMoUkm6TG7LSmSm4VLrEYvlOkKxD1zvtLa97hihuSAaYY90xc3Z9OdOQCHxn0bwhD3k
-	JBqBX/+1PQnyxcZxDlZFgEwgIyfWeFO/e5OWmnH+M/FbkLOmbXwTaZSquvfdy+MZ4GyuXS6mi8
-X-Received: by 2002:a05:600c:5251:b0:499:4dd6:3cc6 with SMTP id 5b1f17b1804b1-4994e73207amr32358695e9.5.1785905302689;
-        Tue, 04 Aug 2026 21:48:22 -0700 (PDT)
-Received: from foxbook (bgt135.neoplus.adsl.tpnet.pl. [83.28.83.135])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4994f124135sm10989415e9.2.2026.08.04.21.48.21
-        (version=TLS1_2 cipher=AES128-SHA bits=128/128);
-        Tue, 04 Aug 2026 21:48:22 -0700 (PDT)
-Date: Wed, 5 Aug 2026 06:48:18 +0200
-From: Michal Pecio <michal.pecio@gmail.com>
-To: Jamie Stephens <jamie.stephens@gmail.com>
-Cc: jikos@kernel.org, bentiss@kernel.org, regressions@lists.linux.dev,
- gregkh@linuxfoundation.org, stern@rowland.harvard.edu,
- linux-usb@vger.kernel.org, linux-input@vger.kernel.org
-Subject: Re: [REGRESSION] CyberPower LE1000DG (0764:0501) USB HID regression
- on x86
-Message-ID: <20260805064818.542210d6.michal.pecio@gmail.com>
-In-Reply-To: <CABWMpWR7Law_vHdeAMsOcY28VBcvX2jYSqq2SpksJSiLFcXhuw@mail.gmail.com>
-References: <CABWMpWQiSEKMkROgKZJ6nV8GXYgr7E=-SmsatQie4eK8b3F9Xw@mail.gmail.com>
-	<CABWMpWR7Law_vHdeAMsOcY28VBcvX2jYSqq2SpksJSiLFcXhuw@mail.gmail.com>
+        d=1e100.net; s=20251104; t=1785905632; x=1786510432;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :content-type:mime-version:references:message-id:subject:cc:to:from
+         :date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=r5geohaxBsDx9rnOZdu68dW9bxex9dycQnzSElI378c=;
+        b=P/LXlHIDkVDjz6na5OaXBCWow4FWOor0W0UQKSGYm/W3RnGF5bJmYJuVlDdfvmVDOD
+         gIpqsGYLwYe2HYZtIV9WkaKSUFWJLQ2ezEokADOFZPVCaCLMiPry6nBGzV5Rtf2HmAAn
+         Q9g+dXryfJXdIXDs0dnt8QT5SDzlVol4bji1bKJOMRdMn6XmQyONstRV35+XzcS9O+fB
+         qrJ84FvjuN+U5N68xIBllkMcNM8BkA1h/fFXpckcidH+hN9XSuQSKq+XWMrJXuKfmVoT
+         UEzqrTM8vJaUCQ7hrEvSESLfQu3cMBDc7qnjX4TJm7SW70nj7r8MjcqSf8k3ENZ0Hh93
+         Mk+w==
+X-Forwarded-Encrypted: i=1; AHgh+RoA3yQDZ31HcLRXy6mdlxnnfRdMgVKwP0BiM8WUfLEbFWlQL3Ugh/NbYmGfqwSWueTbWSMTFu7vb0+POw==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yw45+cJHgQ/HbgiLVg/1Xz5o1eHHxEpjyEo5Q6baGFpTz7bPYGE
+	3j+N5FgtVY8pPTyvJlKjaE0APslnZN3/N8rIOSR+uZQ4PFAJyI5Ro7DW
+X-Gm-Gg: AR+sD11VQMj93m/9kOWtPfZdxLmdwJKEudG9SW+rxqN4ki7Eq7xhmkZlg8Ea9tb3HbR
+	Edk79CNJaKaSduwNUpNsEXTrbREQ5UxH5KOWBdP+CpLNqG16y9/cVQWx1LQITtPa9WY7UpsIErv
+	Io+k7Qs2l6CsRlulwT4AtqTLKqLOGQeQdBoE8w8xFHQ5vCHudpUTQNiYMDVhpopOHQJ+jOyMKJ/
+	84vGfmdHxBOAqH//T9PZN1JobBJMtExDL25cSCbeAzrjyujLmG5yRY/GlZpBZKyVx1yjaTu/m85
+	eRsqsC/JFrsP8Ojhw/HgfHxyIGREVIb9x1aNEY3CWz1u3ZtT1JjYNCx7BiPly8tvhI9L3Iy33Kg
+	qBYCt9aJlJ0jn+fnK3zxk/ss5zBpcxK/uxaAtMW1ziU6XuyHbi/pDiqW8r56j3irikYI/AsDShj
+	P44L+7B7qK6NL7UNOSLmL/DCgB1rW7zcVRpPIEXv9qbeDIB2h/XVu27bz/0tXEehZ6RTwihd2CT
+	d/F50VoZguqzHeE02jbii3OrkVxOpCWYVAQ2vcy
+X-Received: by 2002:a05:6a21:b97:b0:3bf:b8d8:8296 with SMTP id adf61e73a8af0-3cb85ea6f84mr4478577637.26.1785905631930;
+        Tue, 04 Aug 2026 21:53:51 -0700 (PDT)
+Received: from google.com ([2a00:79e0:2ebe:8:bf3a:ac93:79c4:84fd])
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-13fca8df88csm8511990c88.11.2026.08.04.21.53.50
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 04 Aug 2026 21:53:51 -0700 (PDT)
+Date: Tue, 4 Aug 2026 21:53:48 -0700
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Derek John Clark <derekjohn.clark@gmail.com>
+Cc: Shengzhuo Wei <me@cherr.cc>, Jiri Kosina <jikos@kernel.org>, 
+	Benjamin Tissoires <bentiss@kernel.org>, Zhouwang Huang <honjow311@gmail.com>, 
+	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH v2] HID: hid-oxp: fix UAF on pending work in remove()
+Message-ID: <anK_oQqFpZLwCA-a@google.com>
+References: <20260804-oxp-fix-v2-1-b2d56e4c8a2c@cherr.cc>
+ <anJGWjlmRxNMoVLG@pve>
+ <CAFqHKT=AEy0-AZsUmcFGbo1iQ00J+ZMdY_9dNJp64wq1QSk6Gw@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAFqHKT=AEy0-AZsUmcFGbo1iQ00J+ZMdY_9dNJp64wq1QSk6Gw@mail.gmail.com>
 
-On Thu, 30 Jul 2026 15:28:02 -0400, Jamie Stephens wrote:
-> Hi,
->=20
-> Per the recommendation on Proxmox Bugzilla #7850, I=E2=80=99m reporting w=
-hat
-> appears to be a Linux USB/HID regression affecting a CyberPower
-> LE1000DG UPS.
->
-> Proxmox Bugzilla #7850: https://bugzilla.proxmox.com/show_bug.cgi?id=3D78=
-50
+On Tue, Aug 04, 2026 at 02:24:14PM -0700, Derek John Clark wrote:
+> On Tue, Aug 4, 2026 at 1:06 PM Shengzhuo Wei <me@cherr.cc> wrote:
+> >
+> > On 2026-08-04 17:50, Shengzhuo Wei wrote:
+> > > ---
+> > >  drivers/hid/hid-oxp.c | 12 ++++++------
+> > >  1 file changed, 6 insertions(+), 6 deletions(-)
+> > >
+> > > diff --git a/drivers/hid/hid-oxp.c b/drivers/hid/hid-oxp.c
+> > > index 20a54f337220dc2aee3483a14d542b66c487bd60..abd622ff1b26b312ad9c8a4375822832f8371533 100644
+> > > --- a/drivers/hid/hid-oxp.c
+> > > +++ b/drivers/hid/hid-oxp.c
+> > > @@ -1501,14 +1501,14 @@ static int oxp_cfg_probe(struct hid_device *hdev, u16 up)
+> > >       drvdata.gamepad_mode = OXP_GP_MODE_XINPUT;
+> > >       drvdata.rumble_intensity = 5;
+> > >
+> > > -     INIT_DELAYED_WORK(&drvdata.oxp_mcu_init, oxp_mcu_init_fn);
+> > > -     mod_delayed_work(system_wq, &drvdata.oxp_mcu_init, msecs_to_jiffies(50));
+> > > -
+> > >       ret = devm_device_add_group(&hdev->dev, &oxp_cfg_attrs_group);
+> > >       if (ret)
+> > >               return dev_err_probe(&hdev->dev, ret,
+> > >                                    "Failed to attach configuration attributes\n");
+> > >
+> > > +     INIT_DELAYED_WORK(&drvdata.oxp_mcu_init, oxp_mcu_init_fn);
+> > > +     mod_delayed_work(system_wq, &drvdata.oxp_mcu_init, msecs_to_jiffies(50));
+> > > +
+> > >       return 0;
+> > >  }
+> > >
+> > > @@ -1552,9 +1552,9 @@ static int oxp_hid_probe(struct hid_device *hdev,
+> > >
+> > >  static void oxp_hid_remove(struct hid_device *hdev)
+> > >  {
+> > > -     cancel_delayed_work(&drvdata.oxp_rgb_queue);
+> > > -     cancel_delayed_work(&drvdata.oxp_btn_queue);
+> > > -     cancel_delayed_work(&drvdata.oxp_mcu_init);
+> > > +     disable_delayed_work_sync(&drvdata.oxp_rgb_queue);
+> > > +     disable_delayed_work_sync(&drvdata.oxp_btn_queue);
+> > > +     disable_delayed_work_sync(&drvdata.oxp_mcu_init);
+> > >       hid_hw_close(hdev);
+> > >       hid_hw_stop(hdev);
+> > >  }
+> > >
+> > > ---
+> >
+> > Hi Dmitry,
+> >
+> > Thanks again for the v1 review. Sashiko's v2 review raised two points I
+> > want to act on:
+> >
+> > 1. "Uninitialized work struct access during early raw events" -- agreed.
+> >    v2 moved INIT_DELAYED_WORK(&drvdata.oxp_mcu_init) to the end of
+> >    oxp_cfg_probe(), widening the window in which an early status report
+> >    could mod_delayed_work() a not-yet-initialized (zeroed) work. I'll
+> >    fix this in v3 by keeping INIT_DELAYED_WORK() before
+> >    devm_device_add_group() and moving only the mod_delayed_work() after
+> >    it: the work is then initialized before any raw event can arm it,
+> >    while a probe failure still can't leave it armed.
+> >
+> Hi Shengzhuo,
+> 
+> I dealt with this when writing the hid-msi drivers as well, and
+> Sashiko will continuously come up with new issues for each revision.
 
-So apparently you are running some Ubuntu-based distribution and
-"The UPS works correctly with kernel 7.0.2-6-pve, but fails with kernels
-7.0.14-5-pve and 7.0.14-6-pve". Also with "Ubuntu mainline 7.1.5".
+Yes, so we do not require patch submitters to act on all Sashiko
+findings (and quite often they are not right), especially pre-existing
+ones. So feel free to ignore this.
 
-If your distribution supplies such kernel packages, I would suggest
-starting with narrowing it down to a single exact release, e.g.
-"7.0.8-3-pve is the first broken one".
+For this particular instance maybe simply drop this change from v3: it
+is all broken anyways. The driver should initialize all internal
+structures (work items, lock, etc) beforehand and then start configuring
+the behavior since events can be coming in at any moment.
 
-This will make bisecting faster, or maybe there will be few enough USB
-and HID changes in this release that something will become obvious.
+And on probe error it should try to clean up everything (again, on the
 
-Regards,
-Michal
+> The next issue is going to be that the attributes are initialized
+> before the setup function has run to query the device after the MCU
+> will accept messages. The solution I found was to move
+> devm_device_add_group to the end of the init work queue once the query
+> has been completed, then inform sysfs with a `change` uevent. Perhaps
+> that pattern will be useful here.
+> 
+> For ease of reviewing, below is the cfg_setup_fn from that driver
+> 
+> > 2. "Global workqueues permanently disabled on inert interface removal."
+> >    The driver keeps all state in a single static global drvdata, and
+> >    module_hid_driver() binds it to every interface of the device, so
+> >    oxp_hid_remove() runs when any interface is unbound. With
+> >    disable_delayed_work_sync() and no enable_delayed_work() anywhere,
+> >    unbinding an inert interface disables the works for the still-bound
+> >    gamepad interface. cancel_delayed_work_sync() (v1) re-enabled them,
+> >    so it didn't have this side effect.
+> >
+> >    This looks like a symptom of the static-global-drvdata issue rather
+> >    than disable_delayed_work_sync() itself -- with per-device drvdata
+> >    each interface would have its own works. Before I send v3, would you
+> >    prefer to keep disable_delayed_work_sync() (and address the
+> >    multi-interface case via the per-device drvdata refactor you
+> >    mentioned as a separate patch), or go back to
+> >    cancel_delayed_work_sync()? I'll hold v3 until I hear from you.
+> >
+
+Yes, so feel free to ignore Sashiko or (if you have spare cycles)
+address this global instance in a separate patch at some later time.
+
+> 
+> I had planned on devm_alloc the drvdata per device once the msi
+> drivers are done. If you are willing to take that on I'll be glad to
+> test with my F1 Pro. Out of curiosity, do you have a device available
+> to test as well? If so, which model do you have? I can ask the
+> community to test on any device family that isn't covered.
+> 
+> To your question, I don't think the bug fix switching to
+> disable_delayed_work_sync is worth the side effects without first
+> addressing the global drvdata issue. That would introduce a true
+> regression to fix a theoretical logic bug. I would rather you either
+> switch to the devm_alloc drvdata first or hold that change until I'm
+> able to do it later myself.
+
+If there is possibility to have multiple instances then this driver is
+FUBAR in the current shape: one device instance fires up work items for
+another device. So holding the patch makes no sense IMO.
+
+Thanks.
+
+-- 
+Dmitry

@@ -1,44 +1,44 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8CB9225B095
-	for <linux-input@vger.kernel.org>; Thu,  6 Aug 2026 12:39:33 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E9CA327057D
+	for <linux-input@vger.kernel.org>; Thu,  6 Aug 2026 12:40:33 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786019978; cv=none; b=U/TlEuw/l4HebXo11kmDyb7AY6yYebUidD0amhLOE96ycrPuzJn84S2wYpXAm72kiqCcHW70egi78dYPAzf34idJdCqwHaLpQz66jyTeCzMKrRQyiJNotxP7tCbgyRvc1zBGnGp6a8H7uTlmUztXgQqX/SttAXdtPy1lWTBjPI0=
+	t=1786020035; cv=none; b=DUGXdnqRx35Jm45GgnDRxO4ADQC3OfTw99WEtPiM1J/Wpc4WdIrwSpkjXy5ZoJFTQs7PJTqiuenT2oUJ6ddgJ/By5JYRVA6rPeVi2LEwSEUR+IH13JiH/IGwmGRoZkNEuYphAAN2CvJR8dVTSzKeJM5QuGNeRlgigZuQVkagT2g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786019978; c=relaxed/simple;
-	bh=IDlb+PDFHb2qMqibp7jNA3/GwYdeiSq5i09QHdwKIAY=;
+	s=arc-20240116; t=1786020035; c=relaxed/simple;
+	bh=fFzlH6ttuQcpVQdrvqe/2dNuXrd1wqR1WL0FZhQVD/E=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=Vxf17NIkAGM+A3uPPA3xjln/fsUhUU/ftv48oOi3SpSV3vffmOA9Zx1Hk3jTGfUXinxNItYA/DzB7bJlhVaMm1fWPk3rq7VA37aPwNc4ZxM0QZnFzLax/3zUv4qNOh+OTbv01MdaFxnbDMk6uJKe5F5JC/6vdUQ+oUmS1E4TTOE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=CHyScY22; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=Wll+0qQnt+KohLP6iZFLW2sHLgFcqwHN0uf+hxwFa/b/I03zxNIw0r5pdpPX7HeMOsGya1bZLa8v5/aqig7taM+heY+DXlEe6mgkgsLdr5jIiOZ0CVoUpdKKnUFPSt7Cc5E7aKpHNMbYQEX/2cdGvjRY9dmRvrLtoEKUFXGUOkg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ZPz3TSuW; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="CHyScY22"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50C001F000E9;
-	Thu,  6 Aug 2026 12:39:32 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ZPz3TSuW"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F68B1F000E9;
+	Thu,  6 Aug 2026 12:40:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786019972;
-	bh=s76xtWiwGGGhH3CDAapikueJKAWgN/1kucQPl4nRUbc=;
+	s=k20260515; t=1786020033;
+	bh=Y08UwGX0NxkfFE6fS8/ZY65ojOai8seqE5YsogB0vsU=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=CHyScY22R20L7C7aOybXOZnEwFGHDygXBHiDMbY5vQ7nOHTyW60uotGL2eV10cDXr
-	 l5qI/xwUCBV8t8d7vRSiD6UrKZM2Q7vSmC8UNQIyyNHN2dVmQPpyLJ/nbCgDY3zfLI
-	 J7zl2OZgAGrGuPblDgfQkRwL0uUPTMBogEBbVLOD6ebfTkU6BXrwFBUz7qNmnC82pp
-	 Vy285TqvCKTCvVckWFpRFZjga/Nhqf4NE4ynbR8wg+Uw/VmBoptLtKgxb3ZAZdkO8L
-	 yoCECKrl/Dd3wHaN1QsnfkPGzR16eJPX6jKlWZJoXP6cHLu6k0cB+JbkzueiHJPdyQ
-	 TNEOPy9hEKoGg==
+	b=ZPz3TSuW+L9uj1wkuXldpSIPuuoX30BoBgXcS1jgRyigKBwwf3gMysj48Uhc8Kllb
+	 I3fdGFoLmKKKgWgu7O0E5S4VZVeZFMFivT43P3C/SmYKb44nRXWa8mvuT4g9p8kmOF
+	 evf0zYkTZajZdXXHvZGJNLHwDXjODnRB3F+7cgQMPtPJ8vCWP4tFirfAGpchxJtLji
+	 IXb6FjIxvBssMY9I7ldijGVRWIcB54c8jfGDEpo+UgnUxGTKce/KM/soOsi/EIhkrw
+	 ylO2pfTfO7XiQA3P64D7ZVf5FIi+99UpIJCuFsEGe1IsNWfoH56pr5yPOaGuNiTTTn
+	 eDmnCQUFWbBOw==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v5 05/13] iio: accel: hid-sensor-accel-3d: convert probe
- and teardown to devm-managed resources
+Subject: Re: [PATCH v5 03/13] HID: hid-sensor-hub: introduce device managed
+ API
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Sanjay Chitroda" <sanjayembeddedse@gmail.com>
 Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260806-28-apr-iio-redundant-argument-v5-temp-v5-5-f1f92c1d830f@gmail.com>
+In-Reply-To: <20260806-28-apr-iio-redundant-argument-v5-temp-v5-3-f1f92c1d830f@gmail.com>
 References: <20260806-28-apr-iio-redundant-argument-v5-temp-v5-0-f1f92c1d830f@gmail.com>
- <20260806-28-apr-iio-redundant-argument-v5-temp-v5-5-f1f92c1d830f@gmail.com>
+ <20260806-28-apr-iio-redundant-argument-v5-temp-v5-3-f1f92c1d830f@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 06 Aug 2026 12:39:31 +0000
-Message-Id: <20260806123932.50C001F000E9@smtp.kernel.org>
+Date: Thu, 06 Aug 2026 12:40:32 +0000
+Message-Id: <20260806124033.4F68B1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -49,81 +49,73 @@ Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
 
 Pre-existing issues:
-- [Critical] Concurrent HID sensor events can trigger a Use-After-Free beca=
-use callback deregistration does not synchronize with active event handlers.
+- [High] Lack of synchronization in `sensor_hub_remove_callback` allows `se=
+nsor_hub_raw_event` to access a freed `usage_callback` during driver unbind.
 --
 
---- Patch [5]: [PATCH v5 05/13] iio: accel: hid-sensor-accel-3d: convert pr=
-obe and teardown to devm-managed resources ---
-commit a9b078923d03e5b1bd623e5152abd36454ac1fc5
+--- Patch [3]: [PATCH v5 03/13] HID: hid-sensor-hub: introduce device manag=
+ed API ---
+commit 1f72201981d4eabf709dd34d77a678b2f0acfcf2
 Author: Sanjay Chitroda <sanjayembeddedse@gmail.com>
 
-iio: accel: hid-sensor-accel-3d: convert probe and teardown to devm-managed=
- resources
-   =20
-Convert HID IIO driver resource management to use devm-managed helpers,
-tying the lifetime of all resources to the device.
+HID: hid-sensor-hub: introduce device managed API
 
-> diff --git a/drivers/iio/accel/hid-sensor-accel-3d.c b/drivers/iio/accel/=
-hid-sensor-accel-3d.c
-> index a7cccbaa82f86..7ba0228f18b43 100644
-> --- a/drivers/iio/accel/hid-sensor-accel-3d.c
-> +++ b/drivers/iio/accel/hid-sensor-accel-3d.c
+This commit introduces devm_sensor_hub_register_callback() to handle
+resource acquisition and release using the device managed framework. It
+adds a devres action that automatically unregisters the sensor hub
+callback when the device is detached or unbound.
 
+> diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
+> --- a/drivers/hid/hid-sensor-hub.c
+> +++ b/drivers/hid/hid-sensor-hub.c
 [ ... ]
+> @@ -187,6 +187,38 @@ int sensor_hub_remove_callback(struct hid_sensor_hub=
+_device *hsdev,
+>  }
+>  EXPORT_SYMBOL_GPL(sensor_hub_remove_callback);
+> =20
+> +static void sensor_hub_remove_callback_helper(void *ptr)
+> +{
+> +	struct sensor_hub_cb_devres *res =3D ptr;
+> +
+> +	sensor_hub_remove_callback(res->hsdev, res->usage_id);
+> +}
 
-> @@ -384,38 +385,14 @@ static int hid_accel_3d_probe(struct platform_devic=
-e *pdev)
->  	accel_state->callbacks.send_event =3D accel_3d_proc_event;
->  	accel_state->callbacks.capture_sample =3D accel_3d_capture_sample;
->  	accel_state->callbacks.pdev =3D pdev;
-> -	ret =3D sensor_hub_register_callback(hsdev, hsdev->usage,
-> -					   &accel_state->callbacks);
-> +	ret =3D devm_sensor_hub_register_callback(dev, hsdev, hsdev->usage,
-> +						&accel_state->callbacks);
+[Severity: High]
+This isn't a bug introduced by this patch, but does
+sensor_hub_remove_callback() lack synchronization with ongoing raw events?
 
-[Severity: Critical]
-This is a pre-existing issue, but does this sequence leave a use-after-free
-window during device teardown?
+When a client driver is unbound via sysfs, this helper will call
+sensor_hub_remove_callback() to clean up. While the remove function
+acquires pdata->dyn_callback_lock to unlink the callback, it returns
+immediately without acquiring pdata->lock.
 
-If the driver unbinds or probe fails, devres will call
-sensor_hub_remove_callback(). This removes the callback from the list using
-dyn_callback_lock, but it does not wait for active sensor_hub_raw_event()
-invocations to complete.
+This means it does not wait for ongoing events to finish:
 
-If sensor_hub_raw_event() is running concurrently and has already obtained =
-the
-callback pointer, devres will proceed to free the indio_dev memory.
+drivers/hid/hid-sensor-hub.c:sensor_hub_remove_callback() {
+        spin_lock_irqsave(&pdata->dyn_callback_lock, flags);
+        // unlinks callback
+        spin_unlock_irqrestore(&pdata->dyn_callback_lock, flags);
+       =20
+        return 0;
+}
 
-When the event loop subsequently invokes the callback, wouldn't
-accel_3d_capture_sample() execute on the freed memory?
+Meanwhile, sensor_hub_raw_event() can be actively executing on another CPU,
+having already dropped dyn_callback_lock:
 
 drivers/hid/hid-sensor-hub.c:sensor_hub_raw_event() {
-    ...
-    if (callback->capture_sample) {
-        if (report->field[i]->logical)
-            callback->capture_sample(...);
-    ...
+        ...
+        callback->capture_sample(hsdev, ...);
+        ...
 }
 
-Could this lead to out-of-bounds writes when it attempts to store the
-sample data into the freed accel_state?
+Because the unbind process continues immediately after the removal returns,
+it can free the memory containing the usage_callback (such as through
+devres_release_all()).
 
-drivers/iio/accel/hid-sensor-accel-3d.c:accel_3d_capture_sample() {
-    ...
-    struct iio_dev *indio_dev =3D platform_get_drvdata(priv);
-    struct accel_3d_state *accel_state =3D iio_priv(indio_dev);
-    ...
-    accel_state->scan.accel_val[CHANNEL_SCAN_INDEX_X + offset] =3D
-                        *(u32 *)raw_data;
-    ...
-}
-
->  	if (ret < 0) {
->  		dev_err(&pdev->dev, "callback reg failed\n");
-> -		goto error_remove_trigger;
-> -	}
+Could this lead to a use-after-free in sensor_hub_raw_event() when it
+dereferences the freed callback pointer?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260806-28-apr-iio=
--redundant-argument-v5-temp-v5-0-f1f92c1d830f@gmail.com?part=3D5
+-redundant-argument-v5-temp-v5-0-f1f92c1d830f@gmail.com?part=3D3

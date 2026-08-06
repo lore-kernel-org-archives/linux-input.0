@@ -1,126 +1,118 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mail-m155101.qiye.163.com (mail-m155101.qiye.163.com [101.71.155.101])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A3310175A5
-	for <linux-input@vger.kernel.org>; Thu,  6 Aug 2026 06:01:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E3314175A5
+	for <linux-input@vger.kernel.org>; Thu,  6 Aug 2026 06:05:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=101.71.155.101
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785996105; cv=none; b=YMuBSGfiiQPDFrxXTql+2Ss2dqVfNNLzNmC2JLvIp+PbnI2ElNMlUn147dWDfa3qGz4vlZjqQaRZdg24je6vCmSlLrGcap3Y3BVnbibeyTR/cBU15Us6B2cWoztZX7MZrNaIDI3tteVHQkKrHeFaQljb9JkSwYV++yaFA380GnU=
+	t=1785996339; cv=none; b=F4qr4HW0bhhckDmd+wczZ5h9aETv+r9znyxCNgOpJslMos+3Vpxm3+uIbzn10TgGdpa0gPubOY6Zf+Jt8Ez17isDvS7LCoGzO9pTYtyZKbkZ0HOSETylxdiMMtB0/I+jvGczCjBpKAXtBzT1v2Yzw9Jly5U/tKGKuyfHY5YWw/Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785996105; c=relaxed/simple;
-	bh=fb8vLzrJwZzUSnBUFmKQUgHXCSWvVbkvWzZ8OBxvymE=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=HZ8LrRGZB6n6ExLcgyar9A1gj6baCxM6rR+oncflJPYg6vhQpmCCSByu30FGpxz+EBJgVb5SicV9L3PljE1L2X6dCmJtyP/qsupUhyXmeD3No6iBrkp4VslTGwUjmxxovcyQatadrZZZ4s5t7zaLoVCsIBaWy3oNIjNntDMrRUc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=K4UBtwFY; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1785996339; c=relaxed/simple;
+	bh=MIsAVjPubDne95Y25JwNO+YeCB7G99BE0zj6gyXiaUE=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=rBgdr8nB5I5OJPJh5j8uYed6BQVTtMxL52xnGTNfEiWPuCy8mJoUZbVunGgQLxKRf7PWENI3uOtMercku77IvrqUDJQ5EIihB+hWA6XwVgkqakA7Kez8LzvEQwofo3DGpIb3gAWG8KZtmr2PGfCFhbWpEJKTUZI3FnVN0dXQY/0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=seu.edu.cn; spf=pass smtp.mailfrom=seu.edu.cn; dkim=pass (1024-bit key) header.d=seu.edu.cn header.i=@seu.edu.cn header.b=fC58c73V; arc=none smtp.client-ip=101.71.155.101
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=seu.edu.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=seu.edu.cn
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="K4UBtwFY"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C23E1F000E9;
-	Thu,  6 Aug 2026 06:01:44 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785996104;
-	bh=5+fEYmeF/bXRjsXjJrhdW3npyEj6Q6qYSZPeZmGTUlQ=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=K4UBtwFYwInf26DoaEhB+TGx4YfnVQeckD64rON6PdveASYIXojmFlhk2R4bvzGIM
-	 cRzUBvZxgIPkJc5nE1+pS1aAhwmq/yd+V33Qy/OnR8NTBMQETx6+I77x+9f3XEzW9T
-	 nRoxEVtf1JGjRS103OHIV0ww1D6yB+EhmGJ4IK1viLRm8JiOHqMsSh46lIdss8HDEW
-	 jOA/yW61PA1c6BrxdjiKvAXifbHoY01plwAAGv9J+ZuVF0pkfhKsAFjp7yTmqluuVw
-	 KAjRwGpGAeIHPAl5NOrfhZEAbWQMYyBIjXod09GAOz6Cbeny50y5Yp8qw4MpGZAJ8C
-	 yTEKzA+3IP1ew==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] Input: atkbd - factor out atkbd_recreate_device()
- helper
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <anQg6dtUwQ1Fx4hM@google.com>
-References: <anQg6dtUwQ1Fx4hM@google.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Thu, 06 Aug 2026 06:01:43 +0000
-Message-Id: <20260806060144.4C23E1F000E9@smtp.kernel.org>
+	dkim=pass (1024-bit key) header.d=seu.edu.cn header.i=@seu.edu.cn header.b="fC58c73V"
+Received: from LAPTOP-99KJFSET (unknown [36.153.54.46])
+	by smtp.qiye.163.com (Hmail) with ESMTP id 48fb94a12;
+	Thu, 6 Aug 2026 14:05:24 +0800 (GMT+08:00)
+From: Hongyan Xu <getshell@seu.edu.cn>
+To: Stefan Achatz <erazor_de@users.sourceforge.net>
+Cc: Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>,
+	linux-input@vger.kernel.org,
+	jianhao.xu@seu.edu.cn,
+	Hongyan Xu <getshell@seu.edu.cn>
+Subject: [PATCH] HID: roccat: fix device lifetime during disconnect
+Date: Thu,  6 Aug 2026 14:05:11 +0800
+Message-ID: <20260806060512.1664-1-getshell@seu.edu.cn>
+X-Mailer: git-send-email 2.50.1.windows.1
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-HM-Tid: 0a9fd5ad1ed403a1kunmdcd14d7b2892c7
+X-HM-MType: 10
+X-HM-Spam-Status: e1kfGhgUHx5ZQUpXWQgPGg8OCBgUHx5ZQUlOS1dZFg8aDwILHllBWSg2Ly
+	tZV1koWUFITzdXWRgWCB1ZQUpXWS1ZQUlXWQ8JGhUIEh9ZQVlCSUpOVk8dTk0dGU9KHh5LSFYeHw
+	5VEwETFhoSFyQUDg9ZV1kYEgtZQVlITVVKTkhVTk9VT01ZV1kWGg8SFR0UWUFZT0tIVUpLSEpPSE
+	xVSktLVUpCS0tZBg++
+DKIM-Signature: a=rsa-sha256;
+	b=fC58c73VZg/NQIWtTU/uqguonbF0wdJrsEbvkg2TufHr/BGoslKyiriuJUw8Tql4q35i59kJqy4pEp4lcNqGGC13RgTbsbzxxChZdBOEdz0d7ZiwltEGe6BaifM1OO2QfxDFDMFs0HUsOuiFqGFHqDAR1oSGZeHbIlvXlgOKPbw=; s=default; c=relaxed/relaxed; d=seu.edu.cn; v=1;
+	bh=Dr1bydI6JmQObPZN6riBOnHLZUIXqB7k5WlpjtxhovY=;
+	h=date:mime-version:subject:message-id:from;
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
+roccat_disconnect() drops devices_lock after loading the device pointer. A
+concurrent release of the last reader can then free the device before
+disconnect continues to access it. Release also looks the device up by
+minor, so closing a file after disconnect either leaks its reader when the
+slot is NULL or operates on a replacement device if the minor was reused.
 
-Pre-existing issues:
-- [High] The error recovery path in atkbd_recreate_device() corrupts the ac=
-tive input device by clearing its EV_SYN capability, rendering the keyboard=
- completely unresponsive.
---
+Keep devices_lock held while disconnect marks and removes the device, and
+have release use the device retained by its reader. The open count then
+keeps a disconnected device alive until the final file is released.
 
---- Patch [1]: [PATCH] Input: atkbd - factor out atkbd_recreate_device() he=
-lper ---
-commit 90c8b25166b08db625d55de3789ce58cd2cfc65c
-Author: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Fixes: 206f5f2fcb5f ("HID: roccat: propagate special events of roccat hardware to userspace")
+Signed-off-by: Hongyan Xu <getshell@seu.edu.cn>
+---
+ drivers/hid/hid-roccat.c | 15 +++------------
+ 1 file changed, 3 insertions(+), 12 deletions(-)
 
-Input: atkbd - factor out atkbd_recreate_device() helper
+diff --git a/drivers/hid/hid-roccat.c b/drivers/hid/hid-roccat.c
+index d6fff53d4ee7..4f504e7575e8 100644
+--- a/drivers/hid/hid-roccat.c
++++ b/drivers/hid/hid-roccat.c
+@@ -202,19 +202,11 @@ static int roccat_open(struct inode *inode, struct file *file)
+ 
+ static int roccat_release(struct inode *inode, struct file *file)
+ {
+-	unsigned int minor = iminor(inode);
+ 	struct roccat_reader *reader = file->private_data;
+-	struct roccat_device *device;
++	struct roccat_device *device = reader->device;
+ 
+ 	mutex_lock(&devices_lock);
+ 
+-	device = devices[minor];
+-	if (!device) {
+-		mutex_unlock(&devices_lock);
+-		pr_emerg("roccat device with minor %d doesn't exist\n", minor);
+-		return -ENODEV;
+-	}
+-
+ 	mutex_lock(&device->readers_lock);
+ 	list_del(&reader->node);
+ 	mutex_unlock(&device->readers_lock);
+@@ -360,15 +352,12 @@ void roccat_disconnect(int minor)
+ 
+ 	mutex_lock(&devices_lock);
+ 	device = devices[minor];
+-	mutex_unlock(&devices_lock);
+ 
+ 	device->exist = 0; /* TODO exist maybe not needed */
+ 
+ 	device_destroy(device->dev->class, MKDEV(roccat_major, minor));
+ 
+-	mutex_lock(&devices_lock);
+ 	devices[minor] = NULL;
+-	mutex_unlock(&devices_lock);
+ 
+ 	if (device->open) {
+ 		hid_hw_close(device->hid);
+@@ -376,6 +365,8 @@ void roccat_disconnect(int minor)
+ 	} else {
+ 		kfree(device);
+ 	}
++
++	mutex_unlock(&devices_lock);
+ }
+ EXPORT_SYMBOL_GPL(roccat_disconnect);
+ 
+-- 
+2.50.1.windows.1
 
-This commit factors out the common logic for unregistering the old input
-device, allocating a new one, updating state, and registering the new device
-into a new atkbd_recreate_device() helper to reduce code duplication.
-
-> diff --git a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/atkb=
-d.c
-> index 8cb4dc6fb1658..cc061bd0761f4 100644
-> --- a/drivers/input/keyboard/atkbd.c
-> +++ b/drivers/input/keyboard/atkbd.c
-> @@ -1452,6 +1452,47 @@ static ssize_t atkbd_attr_set_helper(struct device=
- *dev, const char *buf, size_t
-
-[ ... ]
-
-> +static int atkbd_recreate_device(struct atkbd *atkbd,
-> +				 unsigned char new_set, bool new_extra)
-> +{
-> +	struct input_dev *new_dev, *old_dev =3D atkbd->dev;
-> +	bool old_extra =3D atkbd->extra;
-> +	u8 old_set =3D atkbd->set;
-> +	int err;
-
-[ ... ]
-
-> +	err =3D input_register_device(atkbd->dev);
-> +	if (err) {
-> +		input_free_device(new_dev);
-> +
-> +		atkbd->dev =3D old_dev;
-> +		atkbd->set =3D atkbd_select_set(atkbd, old_set, old_extra);
-> +		atkbd_set_keycode_table(atkbd);
-> +		atkbd_set_device_attrs(atkbd);
-
-[Severity: High]
-This is a pre-existing issue, but does calling atkbd_set_device_attrs() on
-the already-registered old_dev corrupt its capabilities during this error
-recovery path?
-
-Looking at atkbd_set_device_attrs(), it initializes capabilities using a
-direct assignment:
-
-    input_dev->evbit[0] =3D BIT_MASK(EV_KEY) | BIT_MASK(EV_REP) |
-        BIT_MASK(EV_MSC);
-
-This unconditionally clears bit 0 (EV_SYN). For a newly allocated device
-this is fine, as input_register_device() adds EV_SYN later.
-
-However, when called on the active old_dev after input_register_device()
-fails, it strips the EV_SYN capability. Without EV_SYN, does the input core
-drop all synchronization events (SYN_REPORT), leaving key events stuck in
-client buffers and rendering the keyboard unresponsive?
-
-> +
-> +		return err;
-> +	}
-> +
-> +	input_unregister_device(old_dev);
-> +
-> +	return 0;
-> +}
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/anQg6dtUwQ1Fx4hM@go=
-ogle.com?part=3D1

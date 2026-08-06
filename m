@@ -1,38 +1,38 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E3E3347987B;
-	Thu,  6 Aug 2026 12:26:44 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CF5E547CC97;
+	Thu,  6 Aug 2026 12:26:45 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786019205; cv=none; b=CuFpjGf6vNJNYblrcmFzH2lKXAO6IhkSiZGZf7ZJBYrTtjWoMRj5jVKkMiUTD68/TCVBBDqor9B679g/aiQKHvmH1yk9KSjYXZRkb266qza23p4a4idxKa5T/DwxsrxQIDdJERv4sSAxDn8O4724mW1E2fxKMRduscmiaOMA96c=
+	t=1786019205; cv=none; b=OgW5VbKme5LlkfQBaEnJY4nQlyEZ5HYVlpzh+a1YxwnyFmOkbcO/HvMFXkjz5uIGg8bZz0uS25LTthnnKWmOfzcswd/9u0VgTPHSF383IxOFXVt/o4GqWorQcX67uJddK/SEAQTXLHRBS5POXHAx53IvWuvowUNQdDE0tIOUcHE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1786019205; c=relaxed/simple;
-	bh=txus2AJE/kVu+dxppUJupcIuWbp4gFKzp2cIZUvkXBc=;
+	bh=C1GqCMMKb48DecNRwGf3L/dSBBcDqYr6g0ke2uxiX4M=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=HYTHlqgPzIE2iVRIO9lc176cvXd6CbuOHG7+zXE+j/Hz/asVSTH74Dqmd9zEqgcF+VdzbDUqGIVRydiYBxP5MSnk03sNxQjehxgF3hnibzeB3FfuUoVtQlH5fz06IB4Td6uyGs1E2GgjurI4GWOaZC8r4ISBLWBQW+fZZrdnB4g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=izvSidW2; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:To:Cc; b=GfcgpIVKVWHCYvJlhvOtHoDYD1QcZ0W+tknueZHbnYANe3BHzUzmTow1hswh63NwfUUPRvtSPP8BI5Qq3JYzcNS+xaaLD+FDfWzJRduaLPooEeOVh7eryQf1z8NNZxZumptLAV/N0yGgwN6UhbY5ygOX89eiF2rJJ2UvRT8jDcs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=YzNert9h; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="izvSidW2"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 41973C2BD05;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="YzNert9h"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id B1E64C2BCFA;
 	Thu,  6 Aug 2026 12:26:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
 	s=k20201202; t=1786019204;
-	bh=txus2AJE/kVu+dxppUJupcIuWbp4gFKzp2cIZUvkXBc=;
+	bh=C1GqCMMKb48DecNRwGf3L/dSBBcDqYr6g0ke2uxiX4M=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
-	b=izvSidW2Yuoxnf/6SOo3zXsgv6M+D9rNSH6WH8CgsO+SH0nk4edBNgYAfNXuULVkr
-	 +h5THcZmt4McABAzTnIFkTz/S7aj3kOSy+860eQiKExPTOiH5sMeizN5wI2+GMv6Rw
-	 gUOu+2cLkInHDwh2zB3Od8iyKKayvKFD7u+08UOOCSjrGHLyPC5aPM5vYCiEXY3cHL
-	 YSGtGZ+gVe+U5KF/UauG2wkYwgGsyEuhM8u7IYsp3I6TsPIVyAPCVvSSHi5k2Kxx55
-	 ozeh2634yTGcb2dJ7aju0MBODeFK5v0T3JvWZhrXMoj9o2RHv+jONqvayitd40bKW+
-	 cJmCzpgNv/kzg==
+	b=YzNert9h8bAGynBNa3Rfwa7T+/XRZr7U8e7S5rPKQFWbHC+qefT31Vob3y+Vl/1S/
+	 XLEK/jDUYGRgYqYSSLgi4/ah/AXUAzCEQuas9Itu0UV++lndWNNVS6UTg3J3E48mnH
+	 oSkwGptZMTPL8rh7bIqTsSsa09GnMp8mQmiX97LexB5rSoc1xb+HLW55APLRnwqfWx
+	 3o3tabrLUer6kejjXROhx/Jj6h1W7VwGD9n1BGBQdHurum2lu/c1A4VIic96toRag9
+	 Ox1Bx9dUZuGAtShw8rNXCRZOO3rIuAuKkx6TBnTaJVbzH0SKHblcn/uszfjXtICPyj
+	 wZ4IiTS4RBd+A==
 Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2AF50C56205;
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9CB0BC5AC7A;
 	Thu,  6 Aug 2026 12:26:44 +0000 (UTC)
 From: Sanjay Chitroda via B4 Relay <devnull+sanjayembeddedse.gmail.com@kernel.org>
-Date: Thu, 06 Aug 2026 17:55:54 +0530
-Subject: [PATCH v5 08/13] iio: light: hid-sensor-als: convert probe and
- teardown to devm-managed resources
+Date: Thu, 06 Aug 2026 17:55:57 +0530
+Subject: [PATCH v5 11/13] iio: orientation: hid-sensor-rotation: convert
+ probe and teardown to devm-managed resources
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -41,7 +41,7 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260806-28-apr-iio-redundant-argument-v5-temp-v5-8-f1f92c1d830f@gmail.com>
+Message-Id: <20260806-28-apr-iio-redundant-argument-v5-temp-v5-11-f1f92c1d830f@gmail.com>
 References: <20260806-28-apr-iio-redundant-argument-v5-temp-v5-0-f1f92c1d830f@gmail.com>
 In-Reply-To: <20260806-28-apr-iio-redundant-argument-v5-temp-v5-0-f1f92c1d830f@gmail.com>
 To: Jonathan Cameron <jic23@kernel.org>, 
@@ -53,11 +53,11 @@ To: Jonathan Cameron <jic23@kernel.org>,
 Cc: linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org, 
  linux-input@vger.kernel.org, Sanjay Chitroda <sanjayembeddedse@gmail.com>
 X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1786019201; l=3431;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1786019201; l=3506;
  i=sanjayembeddedse@gmail.com; s=20260702; h=from:subject:message-id;
- bh=YJB29GHZCncYhwv+cTV1yg7AaHm7y9Zh7SdPyAgjnjg=;
- b=NikBq7UJpPp8X7NGx+AaCNQef0VI7JcmDeAJcpODreC6j6ehFwt/kKIhlN0dTKi8vvtC9embd
- rWXc92la3HRBrxjPuOgITnrS53EphDSHLoNvawwRbsFVavlw7F15igg
+ bh=BDVC86SZvqLOX2iVvgiEQXnwTwUQvLH+wAp8Ce5SNu8=;
+ b=POpxieaUSfErrLm07+SE0/fFgAB6I9DGXqqZuytIsGxlSKHqjDh7kp0seki4jebEjmbTopDwf
+ TqnXkUZ1F4qBQYNt5gotKr4GdKirpcx4L2y23OzsRL2sA4OiWVJxsIr
 X-Developer-Key: i=sanjayembeddedse@gmail.com; a=ed25519;
  pk=PcneEFtkmY+Ldl+KmOTpB/Q/HDsqko6Fb0/Z/5cuycI=
 X-Endpoint-Received: by B4 Relay for sanjayembeddedse@gmail.com/20260702
@@ -79,42 +79,43 @@ eliminates the remove callback entirely.
 
 Signed-off-by: Sanjay Chitroda <sanjayembeddedse@gmail.com>
 ---
- drivers/iio/light/hid-sensor-als.c | 39 ++++++++------------------------------
- 1 file changed, 8 insertions(+), 31 deletions(-)
+ drivers/iio/orientation/hid-sensor-rotation.c | 40 ++++++---------------------
+ 1 file changed, 8 insertions(+), 32 deletions(-)
 
-diff --git a/drivers/iio/light/hid-sensor-als.c b/drivers/iio/light/hid-sensor-als.c
-index 10bf46ea4f47..633fd1569987 100644
---- a/drivers/iio/light/hid-sensor-als.c
-+++ b/drivers/iio/light/hid-sensor-als.c
-@@ -348,7 +348,8 @@ static int als_parse_report(struct platform_device *pdev,
+diff --git a/drivers/iio/orientation/hid-sensor-rotation.c b/drivers/iio/orientation/hid-sensor-rotation.c
+index 67ffa4f4075e..3ef89d66a88f 100644
+--- a/drivers/iio/orientation/hid-sensor-rotation.c
++++ b/drivers/iio/orientation/hid-sensor-rotation.c
+@@ -265,7 +265,8 @@ static int dev_rot_parse_report(struct platform_device *pdev,
  /* Function to initialize the processing for usage id */
- static int hid_als_probe(struct platform_device *pdev)
+ static int hid_dev_rot_probe(struct platform_device *pdev)
  {
 -	struct hid_sensor_hub_device *hsdev = dev_get_platdata(&pdev->dev);
 +	struct device *dev = &pdev->dev;
 +	struct hid_sensor_hub_device *hsdev = dev_get_platdata(dev);
- 	int ret = 0;
- 	static const char *name = "als";
+ 	int ret;
+ 	char *name;
  	struct iio_dev *indio_dev;
-@@ -396,8 +397,8 @@ static int hid_als_probe(struct platform_device *pdev)
+@@ -320,8 +321,8 @@ static int hid_dev_rot_probe(struct platform_device *pdev)
  
- 	atomic_set(&als_state->common_attributes.data_ready, 0);
+ 	atomic_set(&rot_state->common_attributes.data_ready, 0);
  
 -	ret = hid_sensor_setup_trigger(indio_dev, name,
--				       &als_state->common_attributes);
+-				       &rot_state->common_attributes);
 +	ret = devm_hid_sensor_setup_trigger(dev, indio_dev, name,
-+					    &als_state->common_attributes);
- 	if (ret < 0) {
++					    &rot_state->common_attributes);
+ 	if (ret) {
  		dev_err(&pdev->dev, "trigger setup failed\n");
  		return ret;
-@@ -406,37 +407,14 @@ static int hid_als_probe(struct platform_device *pdev)
- 	als_state->callbacks.send_event = als_proc_event;
- 	als_state->callbacks.capture_sample = als_capture_sample;
- 	als_state->callbacks.pdev = pdev;
--	ret = sensor_hub_register_callback(hsdev, hsdev->usage, &als_state->callbacks);
+@@ -330,38 +331,14 @@ static int hid_dev_rot_probe(struct platform_device *pdev)
+ 	rot_state->callbacks.send_event = dev_rot_proc_event;
+ 	rot_state->callbacks.capture_sample = dev_rot_capture_sample;
+ 	rot_state->callbacks.pdev = pdev;
+-	ret = sensor_hub_register_callback(hsdev, hsdev->usage,
+-					   &rot_state->callbacks);
 +	ret = devm_sensor_hub_register_callback(dev, hsdev, hsdev->usage,
-+						&als_state->callbacks);
- 	if (ret < 0) {
++						&rot_state->callbacks);
+ 	if (ret) {
  		dev_err(&pdev->dev, "callback reg failed\n");
 -		goto error_remove_trigger;
 -	}
@@ -126,36 +127,36 @@ index 10bf46ea4f47..633fd1569987 100644
 +		return ret;
  	}
  
--	return ret;
+-	return 0;
 -
 -error_remove_callback:
 -	sensor_hub_remove_callback(hsdev, hsdev->usage);
 -error_remove_trigger:
--	hid_sensor_remove_trigger(&als_state->common_attributes);
+-	hid_sensor_remove_trigger(&rot_state->common_attributes);
 -	return ret;
 -}
 -
 -/* Function to deinitialize the processing for usage id */
--static void hid_als_remove(struct platform_device *pdev)
+-static void hid_dev_rot_remove(struct platform_device *pdev)
 -{
 -	struct hid_sensor_hub_device *hsdev = dev_get_platdata(&pdev->dev);
 -	struct iio_dev *indio_dev = platform_get_drvdata(pdev);
--	struct als_state *als_state = iio_priv(indio_dev);
+-	struct dev_rot_state *rot_state = iio_priv(indio_dev);
 -
 -	iio_device_unregister(indio_dev);
 -	sensor_hub_remove_callback(hsdev, hsdev->usage);
--	hid_sensor_remove_trigger(&als_state->common_attributes);
+-	hid_sensor_remove_trigger(&rot_state->common_attributes);
 +	return devm_iio_device_register(dev, indio_dev);
  }
  
- static const struct platform_device_id hid_als_ids[] = {
-@@ -459,7 +437,6 @@ static struct platform_driver hid_als_platform_driver = {
- 		.pm	= &hid_sensor_pm_ops,
+ static const struct platform_device_id hid_dev_rot_ids[] = {
+@@ -388,7 +365,6 @@ static struct platform_driver hid_dev_rot_platform_driver = {
+ 		.pm     = &hid_sensor_pm_ops,
  	},
- 	.probe		= hid_als_probe,
--	.remove		= hid_als_remove,
+ 	.probe		= hid_dev_rot_probe,
+-	.remove		= hid_dev_rot_remove,
  };
- module_platform_driver(hid_als_platform_driver);
+ module_platform_driver(hid_dev_rot_platform_driver);
  
 
 -- 

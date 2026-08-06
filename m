@@ -1,38 +1,37 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B124A47D929;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4873D47D458;
 	Thu,  6 Aug 2026 12:26:44 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786019204; cv=none; b=Vc7gxdxBD4Kn/vpkiIMSRc+rCPhBlZ/iqa+NCKoduFetMmu24+otjXWifa9bbKew92DiBm5fiIhhtGH0N0qzAVb3FCVF+zIU6xABd5XmmkKxF1eVVfKSeoz31tcNR5jTBM9d03E7kjqu+g0nfMJ3oFBTGgM8xtHXAHQqAXSizOk=
+	t=1786019204; cv=none; b=fvw9dB6XmzzpObBNzWtpAWuYpb62e7WSn1GDt+JQ37KU4MZWQoUgzfiiSjx3lF3PLrE3cyKT+IN/+k8r8QslDQuxSFgVvK1lMf6Nn7rGajNrnQmBq5aQ7jK4v1l1AoL+np9mbLu6g0neZjPfZBEos6oP0mCTo0r74D81AkKu5DY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1786019204; c=relaxed/simple;
-	bh=QpjVvJ9+DS2Q2uKPLWC5fqkfnG8PzhLU5vAJoczIpNU=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=gdo1M63w/J35pfHbrWDvOyusya0rU7NRz8IPcFvXdzvV9mcrIw3gqPSBZ6fvuQt6YsnvuUQizU0/xcmFeWm7G4vn1XOQACNBGiWB5RoaaBxNCFl6uQV2+PurbXKpuoSF/w0DAFf+uwsoQpLRbo9eH4MBtg2qQV4IVhqHJIJsmWo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=llfpIwTd; arc=none smtp.client-ip=10.30.226.201
+	bh=DfjdwMIzg3OAVxzDZ8MAQUpgXBwQf4rJVCbZ/FlrV28=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=Yp54GsgAaTESU20T7Z+0KsecvcjPqpEpm9R0Fb7Nov7c8jwvV41sttB3IE7BMC+QxmcJqRIj4+BcrlRCQ6kv5tBfLeulfKCakoQvZyoHVjndwpZGwwJPSxv0zRRx5wIeUel1BmXs/vp6HP6PiSNtlup6bwZiWkOef5jLJs5mcIs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=a/o6kA6m; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="llfpIwTd"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 10DEBC2BCFC;
-	Thu,  6 Aug 2026 12:26:44 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="a/o6kA6m"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 9E171C2BCC7;
+	Thu,  6 Aug 2026 12:26:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1786019204;
-	bh=QpjVvJ9+DS2Q2uKPLWC5fqkfnG8PzhLU5vAJoczIpNU=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
-	b=llfpIwTdTSPHAmLzs32objNVE2Ag/2IFSF0/o/BqXuv571Rb8QvNfnC6Ko+zF5slp
-	 cYnqDbdU+YLPt9+FZ8EM7NEqkeRlaFRteiRDGCPXdYcFIo2w0Bu1NiwTI8UCLJjmI9
-	 q5WkxRZ0sP3LmyeMFBTMWubcS5kovcW2Rj0RS/g4jDKCUH4yWONmveOdekBf5IIR97
-	 LayOCaPAV17z2+8Ti7mXCwONI/8KGrhNQjFNch9pNt7bUpkpyGNsYdzpxMCrJCFLFJ
-	 /O2diDuIEc0USBTnyTwpsRbU79LiAcgQrWpCp8nhRl/EUx6i48TT6kacxL3bZyl5n1
-	 8DR9n8rwEBibA==
+	s=k20201202; t=1786019203;
+	bh=DfjdwMIzg3OAVxzDZ8MAQUpgXBwQf4rJVCbZ/FlrV28=;
+	h=From:Subject:Date:To:Cc:Reply-To:From;
+	b=a/o6kA6mRwAPYfju1UDETEhBL50yMGdMs9IURniV/GtD0oNO762JQg3u8gPZv9S4K
+	 kW9AbvcO6SBuU7tchh1oBArLj8O4p4+45upOKiBTsGfnZ7x457XQkYJQdYhIVZgEo7
+	 1kIPLOYc4m28+ClJJ/QgvQm7RvooK5igQxT0kg07zM1L3FByWADCFjWz3xOs1LeBqh
+	 S5Zn3vINOLwaFQBAIqIJRDL0y9Px7AXdxVXlBeshD2sekF+JhEhEYtFLj0TvDv8MOE
+	 kHmhjlPAKcgsaaE+DOsAY1xLHd5sR7ZoXS3ESwpucckTlTDgN1rYXOjIVzdraXuYQ6
+	 c3yhJMib5spdQ==
 Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F0A0EC56205;
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 739E9C56208;
 	Thu,  6 Aug 2026 12:26:43 +0000 (UTC)
 From: Sanjay Chitroda via B4 Relay <devnull+sanjayembeddedse.gmail.com@kernel.org>
-Date: Thu, 06 Aug 2026 17:55:52 +0530
-Subject: [PATCH v5 06/13] iio: humidity: hid-sensor-humidity: convert probe
- and teardown to devm-managed resources
+Subject: [PATCH v5 00/13] HID: iio: Introduce devm_ APIs for HID sensors
+Date: Thu, 06 Aug 2026 17:55:46 +0530
+Message-Id: <20260806-28-apr-iio-redundant-argument-v5-temp-v5-0-f1f92c1d830f@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -41,9 +40,10 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260806-28-apr-iio-redundant-argument-v5-temp-v5-6-f1f92c1d830f@gmail.com>
-References: <20260806-28-apr-iio-redundant-argument-v5-temp-v5-0-f1f92c1d830f@gmail.com>
-In-Reply-To: <20260806-28-apr-iio-redundant-argument-v5-temp-v5-0-f1f92c1d830f@gmail.com>
+X-B4-Tracking: v=1; b=H4sIAEt9dGoC/yXNywqDMBSE4VeRs+6BEDXYvkrpIjWjPQVjyEUE8
+ d2btrv5Nv8clBAFiW7NQRGbJFl9RX9paHxZP4PFVZNW2iijWtYD2xBZZOUIV7yzPrONc1lQx9Z
+ zxhK4Q3cF3GBaO1FthYhJ9t/P/fF3Ks83xvyN03l+ADEExK+JAAAA
+X-Change-ID: 20260603-28-apr-iio-redundant-argument-v5-temp-4e49eed863af
 To: Jonathan Cameron <jic23@kernel.org>, 
  David Lechner <dlechner@baylibre.com>, 
  =?utf-8?q?Nuno_S=C3=A1?= <nuno.sa@analog.com>, 
@@ -51,13 +51,14 @@ To: Jonathan Cameron <jic23@kernel.org>,
  Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, 
  Benjamin Tissoires <bentiss@kernel.org>
 Cc: linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org, 
- linux-input@vger.kernel.org, Sanjay Chitroda <sanjayembeddedse@gmail.com>
+ linux-input@vger.kernel.org, Sanjay Chitroda <sanjayembeddedse@gmail.com>, 
+ Zhang Lixu <lixu.zhang@intel.com>
 X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1786019201; l=3821;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1786019201; l=4907;
  i=sanjayembeddedse@gmail.com; s=20260702; h=from:subject:message-id;
- bh=HqyYHVuWmDcuCY2uw/mZntv1xCDdrJhZceeQRiOBrc0=;
- b=faTu/9zW6rjlr2K4q/vw1kw3M8o6o/tfLJKCyhdkJinkRWnWvTxLhdXOMz4Iw9uW+f1H3jDPK
- B87nbgz5sMZAt1VdxrcH9/kINL0/AVDelcOmatPx/cXYrupgPLmzUxE
+ bh=DfjdwMIzg3OAVxzDZ8MAQUpgXBwQf4rJVCbZ/FlrV28=;
+ b=QyDfZ5gaMB5Zz/DpqD2Y/mSYIwZYCJliiu3/io9hmI+hLoOro51V/bBklk33PMPDLEPGCfaZ4
+ oo1XGuqesicCF7PcA6SDaVZlEuLia3r1bGVLmR7IskJQ0a5eRP+dzDN
 X-Developer-Key: i=sanjayembeddedse@gmail.com; a=ed25519;
  pk=PcneEFtkmY+Ldl+KmOTpB/Q/HDsqko6Fb0/Z/5cuycI=
 X-Endpoint-Received: by B4 Relay for sanjayembeddedse@gmail.com/20260702
@@ -65,110 +66,88 @@ X-Endpoint-Received: by B4 Relay for sanjayembeddedse@gmail.com/20260702
 X-Original-From: Sanjay Chitroda <sanjayembeddedse@gmail.com>
 Reply-To: sanjayembeddedse@gmail.com
 
-From: Sanjay Chitroda <sanjayembeddedse@gmail.com>
+Following feedback from reviewers and Srinivas, v4 series was split
+into two additional sub-series to perform cleanup and preparatory work
+before adding devm support:
+- HID: iio: warning clean up and prefer kernel coding style
+  https://lore.kernel.org/all/20260707-15-jun-hid-iio-alignment-v3-0-8791574ad0fe@gmail.com/
+- HID: iio: basic clean up for usage_id
+  https://lore.kernel.org/all/20260610-6-june-hid-iio-correct-usage-id-v2-0-c3c5f0720493@gmail.com/
 
-Convert HID IIO driver resource management to use devm-managed helpers,
-tying the lifetime of all resources to the device.
+Both series have been merged into IIO tree. This series introduces
+device-managed APIs and converts HID IIO sensor drivers to use the new
+devm-managed resources.
 
-HID trigger setup, IIO registration, and sensor hub callback resource
-are now managed using devm APIs. Cleanup logic previously handled
-explicitly in probe error and teardown paths.
-
-This simplifies the probe path by removing goto-based error handling,
-eliminates the remove callback entirely.
-
-Signed-off-by: Sanjay Chitroda <sanjayembeddedse@gmail.com>
----
 changes in v5:
-- Fully convert driver to devm usage, dropped Tested-by tag
+- With input from Jonathan, convert all HID IIO drivers to use
+  fully devm instead of partial or specific API; this is potential
+  goal and validation on that will reduce multiple validation cycle.
+- Rebase changes on latest iio/testing tree and resolve merge conflict
+- Resolve mail client issue as v4 series was splitted into sub-series
+- v4 series -> https://lore.kernel.org/all/20260524192059.1193716-1-sanjayembedded@gmail.com/
 changes in v4:
-- No update in change, added Tested-by tag
+- Extend the series to cover remaining HID IIO drivers with devm API usage
+- Reorder patches to place cleanup and warning fix at beginning and,
+  devm-related changes toward the end based on feedback from David
+- v3 series -> https://lore.kernel.org/all/20260509101040.791404-1-sanjayembedded@gmail.com/
 changes in v3:
-- Update commit message based on review comment from Andy
-- Based on discussion using parent device of HID platform driver used
-  with devres framework for this driver
-- v2 link -> https://lore.kernel.org/all/20260429175918.2541914-5-sanjayembedded@gmail.com/
+- Added cleanup and prepratory changes before adding devm_ API
+  conversion based on self review: 0002, 0004, 0006, 0007 and 0008
+- Address andy's review comment on commit message and coding style
+- v2 series -> https://lore.kernel.org/all/20260429175918.2541914-1-sanjayembedded@gmail.com/
+changes in v2:
+- Following input from Jonathan and Andy, squash initial patch v1
+  series in single change as individual change should not break anything
+- Add devm API support and two driver using the same
+- v1 series -> https://lore.kernel.org/all/20260428071613.1134053-1-sanjayembedded@gmail.com/
+
+Testing:
+  - Compiled with W=1 for each patch in series
+  - Build-tested on QEMU x86_64
+
+PS:
+- Sashiko reported an issue in a different driver and noted that it is not
+  introduced by this series. I have taken this feedback into account and
+  will address the actual issue in a separate series focus on that driver.
+
 ---
- drivers/iio/humidity/hid-sensor-humidity.c | 38 +++++++-----------------------
- 1 file changed, 8 insertions(+), 30 deletions(-)
+Sanjay Chitroda (13):
+      iio: hid-sensors: remove unused iio_dev argument
+      iio: hid-sensors: introduce device managed API
+      HID: hid-sensor-hub: introduce device managed API
+      iio: gyro: hid-sensor-gyro-3d: convert probe and teardown to devm-managed resources
+      iio: accel: hid-sensor-accel-3d: convert probe and teardown to devm-managed resources
+      iio: humidity: hid-sensor-humidity: convert probe and teardown to devm-managed resources
+      iio: light: hid-sensor-prox: convert probe and teardown to devm-managed resources
+      iio: light: hid-sensor-als: convert probe and teardown to devm-managed resources
+      iio: magnetometer: hid-sensor-magn-3d: convert probe and teardown to devm-managed resources
+      iio: orientation: hid-sensor-incl-3d: convert probe and teardown to devm-managed resources
+      iio: orientation: hid-sensor-rotation: convert probe and teardown to devm-managed resources
+      iio: position: hid-sensor-custom-intel-hinge: convert probe and teardown to devm-managed resources
+      iio: pressure: hid-sensor-press: convert probe and teardown to devm-managed resources
 
-diff --git a/drivers/iio/humidity/hid-sensor-humidity.c b/drivers/iio/humidity/hid-sensor-humidity.c
-index 89daf9d534d1..12c88efe66be 100644
---- a/drivers/iio/humidity/hid-sensor-humidity.c
-+++ b/drivers/iio/humidity/hid-sensor-humidity.c
-@@ -192,11 +192,12 @@ static struct hid_sensor_hub_callbacks humidity_callbacks = {
- /* Function to initialize the processing for usage id */
- static int hid_humidity_probe(struct platform_device *pdev)
- {
-+	struct device *dev = &pdev->dev;
-+	struct hid_sensor_hub_device *hsdev = dev_get_platdata(dev);
- 	static const char *name = "humidity";
- 	struct iio_dev *indio_dev;
- 	struct hid_humidity_state *humid_st;
- 	struct iio_chan_spec *humid_chans;
--	struct hid_sensor_hub_device *hsdev = dev_get_platdata(&pdev->dev);
- 	int ret;
- 
- 	indio_dev = devm_iio_device_alloc(&pdev->dev, sizeof(*humid_st));
-@@ -233,42 +234,20 @@ static int hid_humidity_probe(struct platform_device *pdev)
- 
- 	atomic_set(&humid_st->common_attributes.data_ready, 0);
- 
--	ret = hid_sensor_setup_trigger(indio_dev, name,
--				       &humid_st->common_attributes);
-+	ret = devm_hid_sensor_setup_trigger(dev, indio_dev, name,
-+					    &humid_st->common_attributes);
- 	if (ret)
- 		return ret;
- 
- 	platform_set_drvdata(pdev, indio_dev);
- 
- 	humidity_callbacks.pdev = pdev;
--	ret = sensor_hub_register_callback(hsdev, HID_USAGE_SENSOR_HUMIDITY,
--					   &humidity_callbacks);
-+	ret = devm_sensor_hub_register_callback(dev, hsdev, HID_USAGE_SENSOR_HUMIDITY,
-+						&humidity_callbacks);
- 	if (ret)
--		goto error_remove_trigger;
--
--	ret = iio_device_register(indio_dev);
--	if (ret)
--		goto error_remove_callback;
--
--	return ret;
--
--error_remove_callback:
--	sensor_hub_remove_callback(hsdev, HID_USAGE_SENSOR_HUMIDITY);
--error_remove_trigger:
--	hid_sensor_remove_trigger(&humid_st->common_attributes);
--	return ret;
--}
--
--/* Function to deinitialize the processing for usage id */
--static void hid_humidity_remove(struct platform_device *pdev)
--{
--	struct hid_sensor_hub_device *hsdev = dev_get_platdata(&pdev->dev);
--	struct iio_dev *indio_dev = platform_get_drvdata(pdev);
--	struct hid_humidity_state *humid_st = iio_priv(indio_dev);
-+		return ret;
- 
--	iio_device_unregister(indio_dev);
--	sensor_hub_remove_callback(hsdev, HID_USAGE_SENSOR_HUMIDITY);
--	hid_sensor_remove_trigger(&humid_st->common_attributes);
-+	return devm_iio_device_register(dev, indio_dev);
- }
- 
- static const struct platform_device_id hid_humidity_ids[] = {
-@@ -287,7 +266,6 @@ static struct platform_driver hid_humidity_platform_driver = {
- 		.pm	= &hid_sensor_pm_ops,
- 	},
- 	.probe		= hid_humidity_probe,
--	.remove		= hid_humidity_remove,
- };
- module_platform_driver(hid_humidity_platform_driver);
- 
+ drivers/hid/hid-sensor-hub.c                       | 32 +++++++++++++++++
+ drivers/iio/accel/hid-sensor-accel-3d.c            | 40 +++++----------------
+ .../iio/common/hid-sensors/hid-sensor-trigger.c    | 21 +++++++++--
+ .../iio/common/hid-sensors/hid-sensor-trigger.h    |  5 +--
+ drivers/iio/gyro/hid-sensor-gyro-3d.c              | 41 +++++----------------
+ drivers/iio/humidity/hid-sensor-humidity.c         | 38 +++++---------------
+ drivers/iio/light/hid-sensor-als.c                 | 39 +++++---------------
+ drivers/iio/light/hid-sensor-prox.c                | 40 +++++----------------
+ drivers/iio/magnetometer/hid-sensor-magn-3d.c      | 41 +++++----------------
+ drivers/iio/orientation/hid-sensor-incl-3d.c       | 42 +++++-----------------
+ drivers/iio/orientation/hid-sensor-rotation.c      | 40 +++++----------------
+ .../iio/position/hid-sensor-custom-intel-hinge.c   | 38 ++++----------------
+ drivers/iio/pressure/hid-sensor-press.c            | 41 +++++----------------
+ drivers/iio/temperature/hid-sensor-temperature.c   |  4 +--
+ include/linux/hid-sensor-hub.h                     | 24 +++++++++++++
+ 15 files changed, 163 insertions(+), 323 deletions(-)
+---
+base-commit: 350d1fb9204b13c5f95e511e98b8bcb47574d425
+change-id: 20260603-28-apr-iio-redundant-argument-v5-temp-4e49eed863af
 
--- 
-2.34.1
+Best regards,
+--  
+Sanjay Chitroda <sanjayembeddedse@gmail.com>
 
 

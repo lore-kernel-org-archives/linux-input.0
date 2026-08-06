@@ -1,38 +1,38 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E54C847A86C;
-	Thu,  6 Aug 2026 12:26:44 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1980C47D93E;
+	Thu,  6 Aug 2026 12:26:45 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786019205; cv=none; b=uN+ByH0b6OjgjKKevXIuJU1o48Wz8jXqzApn0loo3L5yEY02KvMtHMeMyQi9SyokzdPTpQHqxy1xX5BcPWF/dzipO5hRTc4WniLv2iT8pTGYNpu5UNaKey2rtd5R+/fiBt7vD8Pu2kJ6BYZMmZDtDiiJAHbWUAEdmAOpdVL3agk=
+	t=1786019205; cv=none; b=YaYaFGlpQfRZIacEz5r21TwLqRNqbH+PgVjOShuhFBSm/LAeleYtstyTsRfEfX2Iu5i40p9Z2v2wQN7zTLnG/8ISBD/zl3fILy98f9/jTJyJmSjjhyA5lLlKxysUQOEiPBrCxYsd68kg3wEYes7h599j/HXTecKnazOS96yujxk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1786019205; c=relaxed/simple;
-	bh=d0a1H9PELbVmQhNglK5y5FtIcmnFR2yg9BW8d3/JhTY=;
+	bh=tq/IbJVpEbqrjPtNTxWQz6KzoyoryI8jJvw3bm2ttI4=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=eP5Nbbop4d5ULJ+7ZDvgzLb19LKDHc6JCHO0I8DYfWCr3AVDKUvLHDv9ME/GmUcXj2XJppj0Ez5dXrDjNdJijOyU7EPy1w2VOstWR/ilSNrvQ/3fVGUt85bKEkDg/UgkSCTxXhhlMTMTdnwyW07tP6HLCDyoHEu5oko/0g/BkIc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=GP5AsiyJ; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:To:Cc; b=abbi/cbMJ9yGv8Z9wCs5rmuDmYh19rTyraSKl6IwY1d5Y8kB6b/fWr/d4b5Ec0/qgjaXz01a3jn7OvVpb/3qCBTqIN0k76QnzKLTijgcHUAgrizqNPNhUecLpvItNdXmlC0s1hnYm/o9RvPim0N3ulptFGG99iLBIZru/OqDMuo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=NfmBTfiw; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="GP5AsiyJ"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id C976FC2BCC7;
-	Thu,  6 Aug 2026 12:26:44 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="NfmBTfiw"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id F3AAFC2BCF4;
+	Thu,  6 Aug 2026 12:26:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
 	s=k20201202; t=1786019204;
-	bh=d0a1H9PELbVmQhNglK5y5FtIcmnFR2yg9BW8d3/JhTY=;
+	bh=tq/IbJVpEbqrjPtNTxWQz6KzoyoryI8jJvw3bm2ttI4=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
-	b=GP5AsiyJtxfXyd+36tOMhpKyOHictjJQtRSRU0RzjFlpCxgu0a9jTd58lT8pJR24/
-	 /V43PKpQ4wVhH2VqrEr/lQpkxqLgFWtO5QYw4Doudwo8cNZY7pnMyPQS9h8UNVzxg+
-	 lQ5xp55LygwFHIgJb5BmQWrOMryg0Gye9ZO9Cl1wF33bQsuDWYkXwuivn70rYOkzWv
-	 +KmoRe9MTDcby7NuCuiV8tU1xIthI+oGzikNl38QoH6bZE4x2FP90ab85JRpSCmnjQ
-	 TJevYO/NxP9fWmOo5KyuOZhE9PKZV3MMsfWeT8EMEULB0jJ+sHMq2G7+mjawcb6kOU
-	 qJyebnsMqiJgg==
+	b=NfmBTfiwLMVesuqAc0iPUN7WjuRz+tLQ8hqEqLsAn8bMrUbQIHkfugZztDclltliw
+	 wFSHaI8ExfiqM2IvyK1LyFz+G9mIzuzueSchjdtuIIHYhxaWHFrx4PATuVtzGvVw+e
+	 1bCPLYow3EECgIOFjlrEvqqym8c4htUkHkfsbeEWZjtyidyPwOCNhCIt++hFk4v9CR
+	 IWmqA/AzT4K5uWhnSwtnudboMrr5TKoMPZHoAgA93Tce1YO/Ezy8G3tWVGu6b3/YqH
+	 X0XRTW0NotItfo+667At6vvZdnlbB1wzh+JC+Ngo/T45frDhEnpQy+88fciAxz8KhZ
+	 Mvcc6a+O+uM1w==
 Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B4F2EC56208;
-	Thu,  6 Aug 2026 12:26:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DDD0CC56208;
+	Thu,  6 Aug 2026 12:26:43 +0000 (UTC)
 From: Sanjay Chitroda via B4 Relay <devnull+sanjayembeddedse.gmail.com@kernel.org>
-Date: Thu, 06 Aug 2026 17:55:58 +0530
-Subject: [PATCH v5 12/13] iio: position: hid-sensor-custom-intel-hinge:
- convert probe and teardown to devm-managed resources
+Date: Thu, 06 Aug 2026 17:55:51 +0530
+Subject: [PATCH v5 05/13] iio: accel: hid-sensor-accel-3d: convert probe
+ and teardown to devm-managed resources
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -41,7 +41,7 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260806-28-apr-iio-redundant-argument-v5-temp-v5-12-f1f92c1d830f@gmail.com>
+Message-Id: <20260806-28-apr-iio-redundant-argument-v5-temp-v5-5-f1f92c1d830f@gmail.com>
 References: <20260806-28-apr-iio-redundant-argument-v5-temp-v5-0-f1f92c1d830f@gmail.com>
 In-Reply-To: <20260806-28-apr-iio-redundant-argument-v5-temp-v5-0-f1f92c1d830f@gmail.com>
 To: Jonathan Cameron <jic23@kernel.org>, 
@@ -53,11 +53,11 @@ To: Jonathan Cameron <jic23@kernel.org>,
 Cc: linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org, 
  linux-input@vger.kernel.org, Sanjay Chitroda <sanjayembeddedse@gmail.com>
 X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1786019201; l=3491;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1786019201; l=3533;
  i=sanjayembeddedse@gmail.com; s=20260702; h=from:subject:message-id;
- bh=i4Tkmjvqq1X1HXfT1Ajunvn9KfzjkXAM5FZZp1If76U=;
- b=g9Qs3oAR/8y07kBUhgIdBKN8jyEfSALZp3YeMKjflozG38xbGe7blLrKmZsxHls9w8o7LxIui
- ZhXklD+Qdy8BwvaT+ZOt9nPlHksb7doMYNwPPVgDePCVJVUjWy/9TTG
+ bh=8MWI/12hlI4M9yhRZDPc0n3MB0pcjTD/Emba1guoIhc=;
+ b=MZal0cvwGDtehKVxt7L/TWs+AfT6QAVJEnhx70adYXeoGXjpnpCSjODYESYM5q1u1LzIqtCdT
+ h+8IhyEJc9qCVMLEF6+IoRoNN9BQjKrD0Od2ZoEe8U0olL+8gueI86S
 X-Developer-Key: i=sanjayembeddedse@gmail.com; a=ed25519;
  pk=PcneEFtkmY+Ldl+KmOTpB/Q/HDsqko6Fb0/Z/5cuycI=
 X-Endpoint-Received: by B4 Relay for sanjayembeddedse@gmail.com/20260702
@@ -79,40 +79,42 @@ eliminates the remove callback entirely.
 
 Signed-off-by: Sanjay Chitroda <sanjayembeddedse@gmail.com>
 ---
- .../iio/position/hid-sensor-custom-intel-hinge.c   | 38 ++++------------------
- 1 file changed, 7 insertions(+), 31 deletions(-)
+ drivers/iio/accel/hid-sensor-accel-3d.c | 40 +++++++--------------------------
+ 1 file changed, 8 insertions(+), 32 deletions(-)
 
-diff --git a/drivers/iio/position/hid-sensor-custom-intel-hinge.c b/drivers/iio/position/hid-sensor-custom-intel-hinge.c
-index 7f6186fea004..101d84b533c9 100644
---- a/drivers/iio/position/hid-sensor-custom-intel-hinge.c
-+++ b/drivers/iio/position/hid-sensor-custom-intel-hinge.c
-@@ -263,7 +263,8 @@ static int hinge_parse_report(struct platform_device *pdev,
+diff --git a/drivers/iio/accel/hid-sensor-accel-3d.c b/drivers/iio/accel/hid-sensor-accel-3d.c
+index a7cccbaa82f8..7ba0228f18b4 100644
+--- a/drivers/iio/accel/hid-sensor-accel-3d.c
++++ b/drivers/iio/accel/hid-sensor-accel-3d.c
+@@ -314,7 +314,8 @@ static int accel_3d_parse_report(struct platform_device *pdev,
  /* Function to initialize the processing for usage id */
- static int hid_hinge_probe(struct platform_device *pdev)
+ static int hid_accel_3d_probe(struct platform_device *pdev)
  {
 -	struct hid_sensor_hub_device *hsdev = dev_get_platdata(&pdev->dev);
 +	struct device *dev = &pdev->dev;
 +	struct hid_sensor_hub_device *hsdev = dev_get_platdata(dev);
- 	struct hinge_state *st;
+ 	int ret = 0;
+ 	const char *name;
  	struct iio_dev *indio_dev;
- 	int ret;
-@@ -310,8 +311,8 @@ static int hid_hinge_probe(struct platform_device *pdev)
- 	indio_dev->modes = INDIO_DIRECT_MODE;
+@@ -374,8 +375,8 @@ static int hid_accel_3d_probe(struct platform_device *pdev)
  
- 	atomic_set(&st->common_attributes.data_ready, 0);
--	ret = hid_sensor_setup_trigger(indio_dev, indio_dev->name,
--				       &st->common_attributes);
-+	ret = devm_hid_sensor_setup_trigger(dev, indio_dev, indio_dev->name,
-+					    &st->common_attributes);
+ 	atomic_set(&accel_state->common_attributes.data_ready, 0);
+ 
+-	ret = hid_sensor_setup_trigger(indio_dev, name,
+-				       &accel_state->common_attributes);
++	ret = devm_hid_sensor_setup_trigger(dev, indio_dev, name,
++					    &accel_state->common_attributes);
  	if (ret < 0) {
  		dev_err(&pdev->dev, "trigger setup failed\n");
  		return ret;
-@@ -320,37 +321,13 @@ static int hid_hinge_probe(struct platform_device *pdev)
- 	st->callbacks.send_event = hinge_proc_event;
- 	st->callbacks.capture_sample = hinge_capture_sample;
- 	st->callbacks.pdev = pdev;
--	ret = sensor_hub_register_callback(hsdev, hsdev->usage, &st->callbacks);
-+	ret = devm_sensor_hub_register_callback(dev, hsdev, hsdev->usage, &st->callbacks);
+@@ -384,38 +385,14 @@ static int hid_accel_3d_probe(struct platform_device *pdev)
+ 	accel_state->callbacks.send_event = accel_3d_proc_event;
+ 	accel_state->callbacks.capture_sample = accel_3d_capture_sample;
+ 	accel_state->callbacks.pdev = pdev;
+-	ret = sensor_hub_register_callback(hsdev, hsdev->usage,
+-					   &accel_state->callbacks);
++	ret = devm_sensor_hub_register_callback(dev, hsdev, hsdev->usage,
++						&accel_state->callbacks);
  	if (ret < 0) {
  		dev_err(&pdev->dev, "callback reg failed\n");
 -		goto error_remove_trigger;
@@ -130,31 +132,31 @@ index 7f6186fea004..101d84b533c9 100644
 -error_remove_callback:
 -	sensor_hub_remove_callback(hsdev, hsdev->usage);
 -error_remove_trigger:
--	hid_sensor_remove_trigger(&st->common_attributes);
+-	hid_sensor_remove_trigger(&accel_state->common_attributes);
 -	return ret;
 -}
 -
 -/* Function to deinitialize the processing for usage id */
--static void hid_hinge_remove(struct platform_device *pdev)
+-static void hid_accel_3d_remove(struct platform_device *pdev)
 -{
 -	struct hid_sensor_hub_device *hsdev = dev_get_platdata(&pdev->dev);
 -	struct iio_dev *indio_dev = platform_get_drvdata(pdev);
--	struct hinge_state *st = iio_priv(indio_dev);
+-	struct accel_3d_state *accel_state = iio_priv(indio_dev);
 -
 -	iio_device_unregister(indio_dev);
 -	sensor_hub_remove_callback(hsdev, hsdev->usage);
--	hid_sensor_remove_trigger(&st->common_attributes);
+-	hid_sensor_remove_trigger(&accel_state->common_attributes);
 +	return devm_iio_device_register(dev, indio_dev);
  }
  
- static const struct platform_device_id hid_hinge_ids[] = {
-@@ -369,7 +346,6 @@ static struct platform_driver hid_hinge_platform_driver = {
+ static const struct platform_device_id hid_accel_3d_ids[] = {
+@@ -437,7 +414,6 @@ static struct platform_driver hid_accel_3d_platform_driver = {
  		.pm	= &hid_sensor_pm_ops,
  	},
- 	.probe		= hid_hinge_probe,
--	.remove		= hid_hinge_remove,
+ 	.probe		= hid_accel_3d_probe,
+-	.remove		= hid_accel_3d_remove,
  };
- module_platform_driver(hid_hinge_platform_driver);
+ module_platform_driver(hid_accel_3d_platform_driver);
  
 
 -- 

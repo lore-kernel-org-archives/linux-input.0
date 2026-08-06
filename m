@@ -1,248 +1,200 @@
-Received: from mail-pl1-f178.google.com (mail-pl1-f178.google.com [209.85.214.178])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6EADA31F983
-	for <linux-input@vger.kernel.org>; Thu,  6 Aug 2026 05:52:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.178
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CADDC3859CB
+	for <linux-input@vger.kernel.org>; Thu,  6 Aug 2026 05:57:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785995550; cv=none; b=Pu7YiIATvDSnxcPhNTGfYfcNUky/NBfWkMjZikUMuQD3aj7awtG8EfChF9nGNOPChY5IgwbsvmTb9u91gmmaLSKIheJ8vGRa07iyN2uE4Fq/J2usrwIZGnnFeh1B/h1M1VX3UkBOY/qA8lbsRR6EOa4TPXZCRgJWp9yywE566Z0=
+	t=1785995837; cv=none; b=ak2qdsh28Wy0cyxw6MFndYPYITadQ7v6pqZ2V2g1vqjcgVxUXcYXXtfKfDbmDMN47WRjhc6bpdN5CFGS/2pLX2vb7nSbPZnh4qJkERvZOTSGDo6+6lnDQCzfFkZPdmDn2kxqZqKdww+cTqnsldgrzfeAHS7sLO+bBb00BTuzSMg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785995550; c=relaxed/simple;
-	bh=2AXd0QCUkhNbgBbc180DV9AhiysthlhRHBZTSwf2bHU=;
-	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition; b=hd1h413aGuQxpwiu9rfAqumd1+2GcVL6y/3knTk78uTisIjpJUpUhyuy5HTW8p+nnFrj+tYKKG2PL/rioPnyX8+v5FJwZzz3XAITb1UBOoIGGrrrtfA6Zz8zD5Yj+0/8xCO4oGdTHnppfus0GStyqBoV8Wj/hxkHBTbmy0NMY8s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=QqNGRFEc; arc=none smtp.client-ip=209.85.214.178
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1785995837; c=relaxed/simple;
+	bh=YRk0T+5TRBShCJ1i1eG9RUUWavap7ofMy+f06KKTBoU=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=mQ8FhFnpVyifygtuNG5Xut7CMeY0BcsJ+2xrv51XfCpqB1MRf99xfsQfCs4AH6HR7bbuIxp0HdXvtzbWr3wZz9StgjMb3MMycNw9q4jNpA4AjsIpxjMg7rY33wQHZa/uke8EB/bP3AMPSs0KJcMvoNgPDtNL/QYBRkgt0nJvQ1E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=hBFlYM7G; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="QqNGRFEc"
-Received: by mail-pl1-f178.google.com with SMTP id d9443c01a7336-2cc73e322dbso21314655ad.1
-        for <linux-input@vger.kernel.org>; Wed, 05 Aug 2026 22:52:29 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1785995549; x=1786600349; darn=vger.kernel.org;
-        h=content-disposition:content-type:mime-version:message-id:subject:cc
-         :to:from:date:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=/jZ23w7GfQc3eQ7VCO4oVKKe1P7gXWLzuG3JrExJvEo=;
-        b=QqNGRFEc10nmf8knM1HbYXtTgqV8fHLQXyNlg4grADe68rYsQ8gCBERYPtiUgcNm8C
-         8Fs9XclUhLUoMVCkZ0lsPergS+K5knaKhuE4zwynqLhr8j0G7XC+zSBELQcYILuSJ8lo
-         BzfYcxAvlQtAdsT/QB4UxJi7q6WidVHWjlW6M1RAZgToQ3dDiDQQ/dLfzB/cdW5YJjnN
-         dLMOcPtzmVuM56tSX/FBEYHx8I2A5IWbQlbhKIFJA2SxufH7i13LfiChPcO/AfjncO8U
-         ieyXVtFpi6q3v9tjdY10ohyYToWpLJS+oEpXe95L9aIe6wSyEh72OuJmZp8z7Sb15ttJ
-         rMjg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785995549; x=1786600349;
-        h=content-disposition:content-type:mime-version:message-id:subject:cc
-         :to:from:date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=/jZ23w7GfQc3eQ7VCO4oVKKe1P7gXWLzuG3JrExJvEo=;
-        b=gqyHRvUVvRbKh+vedhrW9Tdl0y4mIrqTx6DvoLaMQ/0BU9kztxObpfgv1EN01OY1rz
-         HET9QuTm+c+lYLEdNyAH5h/P7EhNNg/C0UIMSLpZx21zbsVEt8G7C+wsP7fDumGjyaWe
-         K8KK+xB08yOgOKtB4Zt+VeP0vaoaxJ5VdeyXqCYv7Ho4jRP783tt4ZoJGVDS5gtFQvGO
-         EdaqRXDICJFvE3mfUdjgNOa9e/g9OvvMx8C8ccvOKVGTujlVj285zM/P/A+5MGNYceMS
-         K5Y+rX2inqLCCmgLzrNf6XIuvA7u7bf1RDFiMrw56cmHaKqwma6wuIBP1e35yRDfT8zt
-         kmsg==
-X-Gm-Message-State: AOJu0YwFGD7ydzuuL3DrNKAPzcsHgRcUHsaFlpxYjfFfcD6PKTFo7hW9
-	OO2f+OHX6gyAwH2CLde5Yk4WmR73uIz+t7Urnuh9lJrWmxCkf7TpmNKl96wM+Q==
-X-Gm-Gg: AR+sD10hJKpuRlYKHR5qfRYnRS0DwmWqiDCUF6ynlflRhnqHVIFhfZ+PyjqGIGRwgNC
-	AdY7wV+xmmTDGOGmtZjBtiFeGyFn0qUxt/7DsMXt4hXO2m6oGv9XneYzRUaEJB5qAeVHrlyoQ7H
-	RRdlk760ArwmdfvjAcBYArEWVrlc1iafaycfvitmpDjWXeSGUK6k2kWBFvwuG/S6FpxpxK9yaoW
-	81zFoyQL91CiQwokYgAcltrboRs+mk5RkbTUW5JM1IeBlsL+sptl0lxnXQV9Qkc0huRfiIXXBvv
-	KKZ0y4SctHz7sElYqw5Zj0OUdoeoGJM/nLL84h9nkz/YQT5tyExshTDuf6MxkaHcWXwZAzN87dx
-	rXsPfRKms6kmrNV9UTjv1XtVwLrKgdmLlicovQMZBQx0/Aj/vsPg5cJG9G5Kcnmx2WHrLE9kq0r
-	2C/tP/4RazGe3xOD4OB8cHsr0epomGCzO6DVKxgXP7dKMfKs+x8LyalLigP+Ragago/K/cb8teC
-	2p8SgXTOmYEupIqSyGCW+FhUVkT1FXT9L1h8OU=
-X-Received: by 2002:a05:6a21:3390:b0:3c3:93ce:663 with SMTP id adf61e73a8af0-3cb85f4a26emr13527585637.26.1785995548644;
-        Wed, 05 Aug 2026 22:52:28 -0700 (PDT)
-Received: from google.com ([2a00:79e0:2ebe:8:d081:36b2:965:e66f])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-13fca8df88csm18435051c88.11.2026.08.05.22.52.26
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 05 Aug 2026 22:52:27 -0700 (PDT)
-Date: Wed, 5 Aug 2026 22:52:24 -0700
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Input: atkbd - factor out atkbd_recreate_device() helper
-Message-ID: <anQg6dtUwQ1Fx4hM@google.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="hBFlYM7G"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5DBB01F000E9;
+	Thu,  6 Aug 2026 05:57:15 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1785995835;
+	bh=noEgNPj98EbmUNgKtIk2j/n37wDxmh13EQHnGpK7124=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=hBFlYM7GyDGxwZq8KNu8VoKDv5O2CpOVA2O+aw1KMxd9DwGUfqmiv6zqTEwg9Exkq
+	 MPVOzOtEXT1fYM0L+XiS+gs+bdj6aHGtaiHW3wQ69DWkteEHVQPJiA3WMwZtWAmmv4
+	 tHFbIg/cGG4GpCdyDjZXPVBTojIU1K+0nkItfbgV+nqW4E6Wpx4kakViqVVmBwPPCc
+	 n4JzFXENK6HatsvcEK3K7TLS05b7Y9p8D9TtProDXNGCsNp9ipqsAiYLgGhmy16tHh
+	 UfAKQsrAh84hPN450KXHxKQxsnZOB/74C/s69kWaE6T5VmIVMeRcG3ksRLbYCaEN0e
+	 7wQPovOm1zgww==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH] Input: synaptics-rmi4 - fix GPF in suspend and resume
+ when unbound
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <anQe8UiyUR4x0flD@google.com>
+References: <anQe8UiyUR4x0flD@google.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Thu, 06 Aug 2026 05:57:14 +0000
+Message-Id: <20260806055715.5DBB01F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 
-The sysfs attribute setters atkbd_set_extra() and atkbd_set_set() contain
-identical logic for unregistering the old input device, allocating a new
-one, updating state, and registering the new device.
+Thank you for your contribution! Sashiko AI review found 4 potential issue(=
+s) to consider:
 
-Factor out this common logic into an atkbd_recreate_device() helper to
-reduce code duplication.
+Pre-existing issues:
+- [High] The exported function `rmi_set_attn_data()` dereferences `drvdata`=
+ without a NULL check, leading to a potential NULL pointer dereference if t=
+he physical device probe fails.
+- [High] If `rmi_driver_probe()` fails after `rmi_f34_create_sysfs()` succe=
+eds, the error path fails to call `rmi_f34_remove_sysfs()`, leaking the sys=
+fs group. Accessing the leaked sysfs files causes a NULL pointer dereferenc=
+e.
+- [Medium] If `rmi_suspend_functions()` fails, `rmi_driver_suspend()` and `=
+rmi_i2c_suspend()` disable IRQs and regulators, but propagate the error to =
+the PM core. The PM core aborts suspend and does not call `resume` for this=
+ device, leaving it permanently powered off.
+- [Low] Misleading copy-paste error messages in suspend and resume paths.
+--
 
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
----
- drivers/input/keyboard/atkbd.c | 109 ++++++++++++++-------------------
- 1 file changed, 46 insertions(+), 63 deletions(-)
+--- Patch [1]: [PATCH] Input: synaptics-rmi4 - fix GPF in suspend and resum=
+e when unbound ---
+commit 19d89c520c8ddb566dee79a7cfbffc9acc8839a2
+Author: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-diff --git a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/atkbd.c
-index 5736f4bc5a50..3ff7e9dea9fe 100644
---- a/drivers/input/keyboard/atkbd.c
-+++ b/drivers/input/keyboard/atkbd.c
-@@ -1444,6 +1444,47 @@ static ssize_t atkbd_attr_set_helper(struct device *dev, const char *buf, size_t
- 	return -EINTR;
- }
- 
-+static int atkbd_recreate_device(struct atkbd *atkbd,
-+				 unsigned char new_set, bool new_extra)
-+{
-+	struct input_dev *new_dev, *old_dev = atkbd->dev;
-+	bool old_extra = atkbd->extra;
-+	u8 old_set = atkbd->set;
-+	int err;
-+
-+	/*
-+	 * Since device's properties will change we need to unregister
-+	 * the old device. But allocate and register the new one first
-+	 * to make sure we have it.
-+	 */
-+	new_dev = input_allocate_device();
-+	if (!new_dev)
-+		return -ENOMEM;
-+
-+	atkbd->dev = new_dev;
-+	atkbd->set = atkbd_select_set(atkbd, new_set, new_extra);
-+	atkbd_reset_state(atkbd);
-+	atkbd_activate(atkbd);
-+	atkbd_set_keycode_table(atkbd);
-+	atkbd_set_device_attrs(atkbd);
-+
-+	err = input_register_device(atkbd->dev);
-+	if (err) {
-+		input_free_device(new_dev);
-+
-+		atkbd->dev = old_dev;
-+		atkbd->set = atkbd_select_set(atkbd, old_set, old_extra);
-+		atkbd_set_keycode_table(atkbd);
-+		atkbd_set_device_attrs(atkbd);
-+
-+		return err;
-+	}
-+
-+	input_unregister_device(old_dev);
-+
-+	return 0;
-+}
-+
- static ssize_t atkbd_show_extra(struct atkbd *atkbd, char *buf)
- {
- 	return sprintf(buf, "%d\n", atkbd->extra ? 1 : 0);
-@@ -1451,11 +1492,8 @@ static ssize_t atkbd_show_extra(struct atkbd *atkbd, char *buf)
- 
- static ssize_t atkbd_set_extra(struct atkbd *atkbd, const char *buf, size_t count)
- {
--	struct input_dev *old_dev, *new_dev;
- 	unsigned int value;
- 	int err;
--	bool old_extra;
--	u8 old_set;
- 
- 	if (!atkbd->write)
- 		return -EIO;
-@@ -1468,38 +1506,9 @@ static ssize_t atkbd_set_extra(struct atkbd *atkbd, const char *buf, size_t coun
- 		return -EINVAL;
- 
- 	if (atkbd->extra != value) {
--		/*
--		 * Since device's properties will change we need to
--		 * unregister old device. But allocate and register
--		 * new one first to make sure we have it.
--		 */
--		old_dev = atkbd->dev;
--		old_extra = atkbd->extra;
--		old_set = atkbd->set;
--
--		new_dev = input_allocate_device();
--		if (!new_dev)
--			return -ENOMEM;
--
--		atkbd->dev = new_dev;
--		atkbd->set = atkbd_select_set(atkbd, atkbd->set, value);
--		atkbd_reset_state(atkbd);
--		atkbd_activate(atkbd);
--		atkbd_set_keycode_table(atkbd);
--		atkbd_set_device_attrs(atkbd);
--
--		err = input_register_device(atkbd->dev);
--		if (err) {
--			input_free_device(new_dev);
--
--			atkbd->dev = old_dev;
--			atkbd->set = atkbd_select_set(atkbd, old_set, old_extra);
--			atkbd_set_keycode_table(atkbd);
--			atkbd_set_device_attrs(atkbd);
--
-+		err = atkbd_recreate_device(atkbd, atkbd->set, value);
-+		if (err)
- 			return err;
--		}
--		input_unregister_device(old_dev);
- 	}
- 
- 	return count;
-@@ -1586,11 +1595,8 @@ static ssize_t atkbd_show_set(struct atkbd *atkbd, char *buf)
- 
- static ssize_t atkbd_set_set(struct atkbd *atkbd, const char *buf, size_t count)
- {
--	struct input_dev *old_dev, *new_dev;
- 	unsigned int value;
- 	int err;
--	u8 old_set;
--	bool old_extra;
- 
- 	if (!atkbd->write)
- 		return -EIO;
-@@ -1603,34 +1609,11 @@ static ssize_t atkbd_set_set(struct atkbd *atkbd, const char *buf, size_t count)
- 		return -EINVAL;
- 
- 	if (atkbd->set != value) {
--		old_dev = atkbd->dev;
--		old_extra = atkbd->extra;
--		old_set = atkbd->set;
--
--		new_dev = input_allocate_device();
--		if (!new_dev)
--			return -ENOMEM;
--
--		atkbd->dev = new_dev;
--		atkbd->set = atkbd_select_set(atkbd, value, atkbd->extra);
--		atkbd_reset_state(atkbd);
--		atkbd_activate(atkbd);
--		atkbd_set_keycode_table(atkbd);
--		atkbd_set_device_attrs(atkbd);
--
--		err = input_register_device(atkbd->dev);
--		if (err) {
--			input_free_device(new_dev);
--
--			atkbd->dev = old_dev;
--			atkbd->set = atkbd_select_set(atkbd, old_set, old_extra);
--			atkbd_set_keycode_table(atkbd);
--			atkbd_set_device_attrs(atkbd);
--
-+		err = atkbd_recreate_device(atkbd, value, atkbd->extra);
-+		if (err)
- 			return err;
--		}
--		input_unregister_device(old_dev);
- 	}
-+
- 	return count;
- }
- 
--- 
-2.55.0.679.g6767b8d81c-goog
+Input: synaptics-rmi4 - fix GPF in suspend and resume when unbound
 
+Transport drivers invoke rmi_driver_suspend() and rmi_driver_resume()
+on their child rmi_dev device during power management events. This
+prevents a GPF by checking if driver data is attached, exiting early
+if not present.
 
--- 
-Dmitry
+Closes: https://syzkaller.appspot.com/bug?extid=3D09103639e39c989e3ed3
+
+> diff --git a/drivers/input/rmi4/rmi_driver.c b/drivers/input/rmi4/rmi_dri=
+ver.c
+> index 5d49a9021c7d0..a349dfd17519c 100644
+> --- a/drivers/input/rmi4/rmi_driver.c
+> +++ b/drivers/input/rmi4/rmi_driver.c
+> @@ -991,6 +991,15 @@ int rmi_driver_suspend(struct rmi_device *rmi_dev, b=
+ool enable_wake)
+>  {
+>  	int retval;
+> =20
+> +	/*
+> +	 * Transport driver will try to suspend RMI device even if physical
+> +	 * driver did not bind to the RMI device, because transport device
+> +	 * (I2C, SPI) is fully registered and operational. Exit early if
+> +	 * there is no driver data attached to the RMI device.
+> +	 */
+> +	if (!dev_get_drvdata(&rmi_dev->dev))
+> +		return 0;
+> +
+>  	retval =3D rmi_suspend_functions(rmi_dev);
+
+[Severity: Medium]
+This isn't a bug introduced by this patch, but looking at the rest of
+rmi_driver_suspend():
+
+rmi_driver_suspend() {
+    ...
+    retval =3D rmi_suspend_functions(rmi_dev);
+    if (retval)
+        dev_warn(&rmi_dev->dev, "Failed to suspend functions: %d\n", retval=
+);
+   =20
+    rmi_disable_irq(rmi_dev, enable_wake);
+    return retval;
+}
+
+If rmi_suspend_functions() fails, the error path still disables the IRQ
+and returns the error to the PM core. The I2C transport driver then
+unconditionally disables regulators in rmi_i2c_suspend() and also
+propagates the error.
+
+Since the PM core aborts suspend and skips calling resume for devices
+that return an error, does this leave the device permanently disabled and
+unresponsive?
+
+> @@ -1005,6 +1014,10 @@ int rmi_driver_resume(struct rmi_device *rmi_dev, =
+bool clear_wake)
+>  {
+>  	int retval;
+> =20
+> +	/* Skip if not fully bound to RMI driver */
+> +	if (!dev_get_drvdata(&rmi_dev->dev))
+> +		return 0;
+> +
+>  	rmi_enable_irq(rmi_dev, clear_wake);
+> =20
+>  	retval =3D rmi_resume_functions(rmi_dev);
+
+[Severity: Low]
+This is a pre-existing issue, but further down in rmi_driver_resume() there
+appears to be a copy-paste error in the warning message:
+
+rmi_driver_resume() {
+    ...
+    retval =3D rmi_resume_functions(rmi_dev);
+    if (retval)
+        dev_warn(&rmi_dev->dev, "Failed to suspend functions: %d\n",
+            retval);
+    ...
+}
+
+Should this warning say "Failed to resume functions"? Similarly, in
+rmi_i2c_suspend(), there is a warning that says "Failed to resume device"
+when suspend fails.
+
+[Severity: High]
+This is a pre-existing issue, but since this patch addresses NULL pointer
+dereferences from unbound devices, is there a similar vulnerability in
+rmi_set_attn_data()?
+
+rmi_set_attn_data() {
+    struct rmi_driver_data *drvdata =3D dev_get_drvdata(&rmi_dev->dev);
+   =20
+    if (!drvdata->enabled)
+        return;
+    ...
+}
+
+If rmi_driver_probe() fails, dev_get_drvdata() is cleared to NULL. However,
+the HID transport driver (hid-rmi) sets the RMI_STARTED bit after successful
+transport registration, independent of the physical driver probe.
+
+If hardware sends events or malicious data is provided after a probe failur=
+e,
+can rmi_input_event() bypass the RMI_STARTED check and call
+rmi_set_attn_data(), leading to a NULL pointer dereference when accessing
+drvdata->enabled?
+
+[Severity: High]
+This is another pre-existing issue, but looking at the error handling in
+rmi_driver_probe():
+
+rmi_driver_probe() {
+    ...
+    err_destroy_functions:
+        rmi_free_function_list(rmi_dev);
+    err:
+        return retval;
+}
+
+If rmi_driver_probe() fails after successfully calling
+rmi_f34_create_sysfs(), it jumps to err_destroy_functions but misses a
+call to rmi_f34_remove_sysfs().
+
+Does this leak the sysfs group? If the sysfs group is leaked and the driver
+core clears drvdata, could a later user-space read to the world-readable
+update_fw_status sysfs attribute trigger a NULL pointer dereference in
+rmi_driver_update_fw_status_show() when it checks data->f34_container?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/anQe8UiyUR4x0flD@go=
+ogle.com?part=3D1

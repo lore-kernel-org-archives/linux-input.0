@@ -1,118 +1,101 @@
-Received: from mail-m155101.qiye.163.com (mail-m155101.qiye.163.com [101.71.155.101])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f50.google.com (mail-pj1-f50.google.com [209.85.216.50])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E3314175A5
-	for <linux-input@vger.kernel.org>; Thu,  6 Aug 2026 06:05:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=101.71.155.101
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 803533D4123
+	for <linux-input@vger.kernel.org>; Thu,  6 Aug 2026 06:16:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.50
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785996339; cv=none; b=F4qr4HW0bhhckDmd+wczZ5h9aETv+r9znyxCNgOpJslMos+3Vpxm3+uIbzn10TgGdpa0gPubOY6Zf+Jt8Ez17isDvS7LCoGzO9pTYtyZKbkZ0HOSETylxdiMMtB0/I+jvGczCjBpKAXtBzT1v2Yzw9Jly5U/tKGKuyfHY5YWw/Q=
+	t=1785996973; cv=none; b=qaHQ81+bFyLcX8BthFSpwis/kBbz+KvUHyFxmiMGm65QtgSgl634vI620yXKzWzZ6PugKYz5GnkdermIsLB51vFx6qxvi5GhyIpxve53zAdYlTM2GCJvMINkWxjqm1TVVRhDTn8505G2vV5o+XyAcJi9zYBTpDqZCzpssswSSi0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785996339; c=relaxed/simple;
-	bh=MIsAVjPubDne95Y25JwNO+YeCB7G99BE0zj6gyXiaUE=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=rBgdr8nB5I5OJPJh5j8uYed6BQVTtMxL52xnGTNfEiWPuCy8mJoUZbVunGgQLxKRf7PWENI3uOtMercku77IvrqUDJQ5EIihB+hWA6XwVgkqakA7Kez8LzvEQwofo3DGpIb3gAWG8KZtmr2PGfCFhbWpEJKTUZI3FnVN0dXQY/0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=seu.edu.cn; spf=pass smtp.mailfrom=seu.edu.cn; dkim=pass (1024-bit key) header.d=seu.edu.cn header.i=@seu.edu.cn header.b=fC58c73V; arc=none smtp.client-ip=101.71.155.101
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=seu.edu.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=seu.edu.cn
+	s=arc-20240116; t=1785996973; c=relaxed/simple;
+	bh=QqDgaN3QLEWvxdQzR38D0itKNcr94KPZdjDc2AmBvk8=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=uesIvKr15B7q3pK1HjYM5Q860KldsliNzwKFQ/miTvPuxTt+4QFEadjU3KyosP40FiYY3B7ssiyJXjsZVXe5ygmUicJGSq4egMd7zLOrA0xDl3mneAS0LFbKbhBAxxYuQIr4xN0ibdudhnN6s/D8eOO8Ad3KloDUNNhjh3mSq2M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=jLP13XwD; arc=none smtp.client-ip=209.85.216.50
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=seu.edu.cn header.i=@seu.edu.cn header.b="fC58c73V"
-Received: from LAPTOP-99KJFSET (unknown [36.153.54.46])
-	by smtp.qiye.163.com (Hmail) with ESMTP id 48fb94a12;
-	Thu, 6 Aug 2026 14:05:24 +0800 (GMT+08:00)
-From: Hongyan Xu <getshell@seu.edu.cn>
-To: Stefan Achatz <erazor_de@users.sourceforge.net>
-Cc: Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>,
-	linux-input@vger.kernel.org,
-	jianhao.xu@seu.edu.cn,
-	Hongyan Xu <getshell@seu.edu.cn>
-Subject: [PATCH] HID: roccat: fix device lifetime during disconnect
-Date: Thu,  6 Aug 2026 14:05:11 +0800
-Message-ID: <20260806060512.1664-1-getshell@seu.edu.cn>
-X-Mailer: git-send-email 2.50.1.windows.1
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jLP13XwD"
+Received: by mail-pj1-f50.google.com with SMTP id 98e67ed59e1d1-38dc4553f62so1955503a91.0
+        for <linux-input@vger.kernel.org>; Wed, 05 Aug 2026 23:16:12 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1785996972; x=1786601772; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=sHCR4Pl+L0o94n1jBJ2gxemm61MSJDR8xkqz2EWs+Jo=;
+        b=jLP13XwDcgx8oDA/mc4srkCvjvXocVx3Jl+YiaGWw7kq/gKTZn0wdX8KIVk83wkyq6
+         odkRfHF9iPXjiLMLUjB4+hUf42TwU9KgI5ITs7PURPDBlea3nyKLtL/Rru4i8FiW1ugq
+         nS9S+msI/1HmVIjB34ZphiLHO15/uNKdBxF21OOp+IiXC1E6jTChUaYm1MCABPXjsZIx
+         VBc8AUFun04RZmKMBauVNa3Co39VeWfrNPbb0xn7aKk05JX2jOSanStjArRLO2eAtuXX
+         y5ywAqO64Sd0997A7TY3z4gkLd9GFHD5+3YV4M9YTCM3S0DY4Cdf0L5C6OFRZ6tssa0N
+         Sqew==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1785996972; x=1786601772;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=sHCR4Pl+L0o94n1jBJ2gxemm61MSJDR8xkqz2EWs+Jo=;
+        b=HRWR0Y1AgKU5HQQdtUe93riEkYUjPmXbB8PN1xCP+tnk/ZhCyx+B4jjcb1HPAbIbwP
+         Aru6k/t//V0wNz9ngkigJp9HG0bPy114mlyppm9yd8EGSs/nNq52pZ31VsCMfBEBik+W
+         sZFW/Nx3SZxxCjhpuMEig/ocW/8ARnvm9x2/FWrXfRdbsp0eZg20VoQchtmguR+3QiM3
+         xNdFc1gY+UMYNnJuK9H1AkVq+UXxlKolc/GSl//TmrFLdCi2cfonsOZvIdT0Jg1d78bp
+         9t3/dc7amPsp519OvhuD4Y3uYVzepkBrtEqdKV4Br0L7+eb121Z/1s+jslCseaCDiNos
+         nEBw==
+X-Gm-Message-State: AOJu0YwjMdM6PorxZSOwIRWQgBAfeIYZfIobemyOoBCWIiyBDxj5LJkw
+	HASJcd0LAA9hwNrTvOFk/JvRxtB6fxaAN55q04rqZUr7wrZXLb6MDi3k
+X-Gm-Gg: AR+sD11qSGaXyB9U7G0xbJb4ng1tbx8xayHwHsUztqyoS6PbmwBH/hbA91NuSxrzTMw
+	BMvzmFChOW0SyX6UFCZMJH6Z+6gddQB4JI5QXGlb9EMNo44wfBHeh7gxob7mYYIN/UFPiMF9LM6
+	yjDxgIsR+Vp64picqXDpEyoTZJboIlanGn8Vzpy4YMCcRTFdBgJPsipMEGtZfWT1Qu5rwgr2WJZ
+	6Kmnsamrhun7YGUNjM49kwGo8VPlw3DYTHvw+UofxBIgQFchbkWcvJ/MS4U/LqRR2mJPCReIunU
+	559/QdFK1VZC5SBhXfY2jaVO7m0RQF7Vf1f8XulxIZDzA5TeAEmKPXDHsgg7NOVjuToLk492ljH
+	O1/TnmO1TmzxdG4KxCsDfXe2uCNiKx1m/fggS/w3k6Q7kHv6bQN5BQbrWZUZtDrZgq4ckTEIrHY
+	Q+nZFtXyYAClobsiPoBVpeL1IGCPUSgAGqpm9exUkP2Tw7N3cp3W2Po1ZVS8v7tztBxldaESD6H
+	qPD27eS7biD5ilVQ+IVjGvH2Y/N
+X-Received: by 2002:a17:90b:2785:b0:37f:e1af:df22 with SMTP id 98e67ed59e1d1-3903c5f03a0mr13935687a91.17.1785996971639;
+        Wed, 05 Aug 2026 23:16:11 -0700 (PDT)
+Received: from google.com ([2a00:79e0:2ebe:8:d081:36b2:965:e66f])
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-13fca6576b7sm18965936c88.7.2026.08.05.23.16.10
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 05 Aug 2026 23:16:10 -0700 (PDT)
+Date: Wed, 5 Aug 2026 23:16:08 -0700
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Dineshdkkhatana136@gmail.com
+Cc: linux-input@vger.kernel.org, Dinesh <dkkhatana136@gmail.com>
+Subject: Re: [RFC] Input: atkbd: HP Pavilion Gaming keyboard backlight key
+ reports unknown scancode
+Message-ID: <anQlOWU9YhC-2J-S@google.com>
+References: <20260730115950.85353-1-dkkhatana136@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-HM-Tid: 0a9fd5ad1ed403a1kunmdcd14d7b2892c7
-X-HM-MType: 10
-X-HM-Spam-Status: e1kfGhgUHx5ZQUpXWQgPGg8OCBgUHx5ZQUlOS1dZFg8aDwILHllBWSg2Ly
-	tZV1koWUFITzdXWRgWCB1ZQUpXWS1ZQUlXWQ8JGhUIEh9ZQVlCSUpOVk8dTk0dGU9KHh5LSFYeHw
-	5VEwETFhoSFyQUDg9ZV1kYEgtZQVlITVVKTkhVTk9VT01ZV1kWGg8SFR0UWUFZT0tIVUpLSEpPSE
-	xVSktLVUpCS0tZBg++
-DKIM-Signature: a=rsa-sha256;
-	b=fC58c73VZg/NQIWtTU/uqguonbF0wdJrsEbvkg2TufHr/BGoslKyiriuJUw8Tql4q35i59kJqy4pEp4lcNqGGC13RgTbsbzxxChZdBOEdz0d7ZiwltEGe6BaifM1OO2QfxDFDMFs0HUsOuiFqGFHqDAR1oSGZeHbIlvXlgOKPbw=; s=default; c=relaxed/relaxed; d=seu.edu.cn; v=1;
-	bh=Dr1bydI6JmQObPZN6riBOnHLZUIXqB7k5WlpjtxhovY=;
-	h=date:mime-version:subject:message-id:from;
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260730115950.85353-1-dkkhatana136@gmail.com>
 
-roccat_disconnect() drops devices_lock after loading the device pointer. A
-concurrent release of the last reader can then free the device before
-disconnect continues to access it. Release also looks the device up by
-minor, so closing a file after disconnect either leaks its reader when the
-slot is NULL or operates on a replacement device if the minor was reused.
+Hi Dinesh,
 
-Keep devices_lock held while disconnect marks and removes the device, and
-have release use the device retained by its reader. The open count then
-keeps a disconnected device alive until the final file is released.
+On Thu, Jul 30, 2026 at 05:29:50PM +0530, Dineshdkkhatana136@gmail.com wrote:
+> Before preparing a patch, I'd like to ask about the preferred upstream approach.
+> 
+> Would maintainers prefer:
+> 
+> 1. Adding a generic atkbd Set 2 keymap entry mapping translated scancode 0xab to KEY_KBDILLUMTOGGLE,
+> 
+> or
+> 
+> 2. Implementing this as HP-specific handling (for example via a DMI-based quirk)?
+> 
+> I'd appreciate guidance on which direction would be preferred.
 
-Fixes: 206f5f2fcb5f ("HID: roccat: propagate special events of roccat hardware to userspace")
-Signed-off-by: Hongyan Xu <getshell@seu.edu.cn>
----
- drivers/hid/hid-roccat.c | 15 +++------------
- 1 file changed, 3 insertions(+), 12 deletions(-)
+You should submit a patch to systemd adding an entry for your key to
+hwdb.d/60-keyboard.hwdb based on DMI data for your device.
 
-diff --git a/drivers/hid/hid-roccat.c b/drivers/hid/hid-roccat.c
-index d6fff53d4ee7..4f504e7575e8 100644
---- a/drivers/hid/hid-roccat.c
-+++ b/drivers/hid/hid-roccat.c
-@@ -202,19 +202,11 @@ static int roccat_open(struct inode *inode, struct file *file)
- 
- static int roccat_release(struct inode *inode, struct file *file)
- {
--	unsigned int minor = iminor(inode);
- 	struct roccat_reader *reader = file->private_data;
--	struct roccat_device *device;
-+	struct roccat_device *device = reader->device;
- 
- 	mutex_lock(&devices_lock);
- 
--	device = devices[minor];
--	if (!device) {
--		mutex_unlock(&devices_lock);
--		pr_emerg("roccat device with minor %d doesn't exist\n", minor);
--		return -ENODEV;
--	}
--
- 	mutex_lock(&device->readers_lock);
- 	list_del(&reader->node);
- 	mutex_unlock(&device->readers_lock);
-@@ -360,15 +352,12 @@ void roccat_disconnect(int minor)
- 
- 	mutex_lock(&devices_lock);
- 	device = devices[minor];
--	mutex_unlock(&devices_lock);
- 
- 	device->exist = 0; /* TODO exist maybe not needed */
- 
- 	device_destroy(device->dev->class, MKDEV(roccat_major, minor));
- 
--	mutex_lock(&devices_lock);
- 	devices[minor] = NULL;
--	mutex_unlock(&devices_lock);
- 
- 	if (device->open) {
- 		hid_hw_close(device->hid);
-@@ -376,6 +365,8 @@ void roccat_disconnect(int minor)
- 	} else {
- 		kfree(device);
- 	}
-+
-+	mutex_unlock(&devices_lock);
- }
- EXPORT_SYMBOL_GPL(roccat_disconnect);
- 
+Thanks.
+
 -- 
-2.50.1.windows.1
-
+Dmitry

@@ -1,117 +1,131 @@
-Received: from mail-pl1-f171.google.com (mail-pl1-f171.google.com [209.85.214.171])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from fout-a1-smtp.messagingengine.com (fout-a1-smtp.messagingengine.com [103.168.172.144])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2E7543E51CC
-	for <linux-input@vger.kernel.org>; Thu,  6 Aug 2026 08:00:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.171
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 322223D565B
+	for <linux-input@vger.kernel.org>; Thu,  6 Aug 2026 08:02:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.144
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786003230; cv=none; b=e57WblekNpiNjHernOQHBMxpVxfHjYZ+/2oRhZRZIjSvKf7+aRDEzoPakxgPID5D5EIO0AzxfpS8STgiq2I0FV8uhtcIejTSScUXFs4sKnSLc6H9+HI7j4PvT0f4eJHTaHpIpjnRJ+sgIp3Obcb90jof5hJ8dGnW4L+nHf041a4=
+	t=1786003326; cv=none; b=isrUz7mfKMxa/6rCfPt9ajDVzd/A/HrYk1HHRV/ayP7A4K/mNAx0O/RKXNArjW4ayuHV0xH+Oeu5qMyyM0u5TFKf3krIXYdKAMFs30hTrBtRTGEzAljoja6EXjjnAATdPXor7Yg00Ytg0p9LKE59nMU/Riq2RzKCfVEmx9LpCAw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786003230; c=relaxed/simple;
-	bh=thsDQLnCR6SfzvS1uM0l/YNM1YyNmv++oFkd1kZC3Qo=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=fUOgK6zxUTK5ueJ62eqi3TX3QsOywscfWfzR/km1DLCHHcUCciVFTYT9alwxSsvBwGUnWoNvTZaOxfDr7LWeLgsj7F0TM8rlj4boxRAWJAF0I/d63CM6eOjlDvk8RjT2+NoErMspSuRrMCDa40tcu+KMBlz58IrXVExlhA1fjgc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=AORNd/83; arc=none smtp.client-ip=209.85.214.171
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1786003326; c=relaxed/simple;
+	bh=Sp51I9A4HwmjWLoiwlhtt51aWNWATeMNcpphqPPpb6Q=;
+	h=MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
+	 Subject:Content-Type; b=hUCcNv6Sc/ampLAsqw70og5bWV8AJzPfun1VyHOnJWjdvPYAKK68/Jbtyp3Eb/mvR52ZtYRflrUHPdfyD30/AS3JKebOKrrtHpHJLSNUP63otFMRDaIhxi66adkD1OjrXi6QjWUOpruF6bEUfRrxbC6uZj4MEnVJioogjTxHVdc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=readahead.eu; spf=pass smtp.mailfrom=readahead.eu; dkim=pass (2048-bit key) header.d=readahead.eu header.i=@readahead.eu header.b=Dvbkxlji; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=HLMa1piu; arc=none smtp.client-ip=103.168.172.144
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=readahead.eu
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=readahead.eu
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="AORNd/83"
-Received: by mail-pl1-f171.google.com with SMTP id d9443c01a7336-2cf452def93so5262735ad.1
-        for <linux-input@vger.kernel.org>; Thu, 06 Aug 2026 01:00:29 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1786003228; x=1786608028; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=bNkhnL9orn28bsi55S87ql+B+2Su5aGr3RVynXyjRm8=;
-        b=AORNd/83KBqZ07mlAiYBVAk1ekSVcupD130GzzlLBIzp5J/oe2bOLflf/C6+8ukaZM
-         F8n5Ur17oHTmwFpIvJ8C/lD/wr62HodssWF/taS2I+WkCNZG1dNIOkjj0AWu/fkX6zS1
-         E+m/n2lmj2Msd/Q3iqRACqk+iHv5SLIwE400rHh072kSsoG+uERj0AtoW4S0PI08Do/2
-         wy6TqLpf8WjOOLlmyI6XDZyleThu9kKzIJpu9Z7hSci/ORxwBJ1epLbLMoigrQuh/k+W
-         XeQqLrMZTR1HDQTjNDSzVyGjymG0tYnHlw95fBz3D9tPLnHglu1ZhE+fNTy/qdgkZai+
-         3btQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1786003228; x=1786608028;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=bNkhnL9orn28bsi55S87ql+B+2Su5aGr3RVynXyjRm8=;
-        b=WBjhWdp/b2VbuFljZAH8WkDk3hfKsVUUYS6LLOCf6ACvmuET0fsThYqLb/wN6ju2C+
-         V4/p8Cfx/0d1ENSKetk0Zg5a6nW3HhJ0evVHtxu9B0F4XsTra0FuSNAUTMmHyoijtNHR
-         zTK4EqEHaBbZrkSOmv81llz28MvQKAwVT208hyHMCa0Q5Jmkox+QZgMBQRN3kFCwGOIv
-         +7jojTgGUz35gJ55dL/RkyoI7m+QPJyuPQWFBiysh/03OKQ8gNIbSuHTDt3xWjPeatuq
-         dP8PrtaUDinnPjIiOOvWc30+ywlYUaHO/5iHSRqcF1sz53zYiJnCebGz2TH11VezEDNH
-         Hpcg==
-X-Forwarded-Encrypted: i=1; AHgh+RpUSErc+NJFNvaZBesTPaANhwB1Dts0KOCSNfnEni1fIK6M9KO4EyzvL/eeiqhNGv1XfOM2TKXe4aGjiw==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yw8M0b215yMGyeIWe6qGKKipqwSxIZy7/LB91O4EanHQtAjEYpV
-	nRoxZgQS1NVsoigc08O72oQEXToYuh6kodq7Amkuf5szuT3asw258tGo
-X-Gm-Gg: AR+sD12WdbzKOngyAE7M6G7y+SzTa4xou9+zFpbfmIPw1c2ke10Xk3K/bpGSNg1lvTM
-	p2bexGGpJviTRs65NS96pq+nqSboZWE7bqXq4KzIFuI1Xdlo7Kjn4PystpR3RKQBpfSz3s9N5tY
-	1qD2N+3aXlXlzrB3eRIi75votZ24ntr2hIwIh+F7qWAhu0snhUK/jQPBBPqouA1s1Z5e0c9MJkq
-	muMV9LdsdPXUbSUSfmsZU5sT0LfudfUASsvXNZ7rxY65UrColjodGb8p/7XO2r/kKpJE4/XIxx1
-	YoFylHxaWhnZLTIEaWxfga9vuJ8e8XczI65dygnbmq7abb/9JaEAQri3WSFbppKbXPA3jwblOM1
-	xu71e6KIGUbcltyDaalJ4L14zlhWKOkSpHv9as0gs6N0hrk6tQ62jAAWUPh0t7zC5KTWJsOr2H4
-	Xgo6Hj/X8JL49Vz/bJfqlfx27gixoeZfL0v2mClFZrCVjbDCk4GijFbOgNnVZ2lrVdcjDEY7GZD
-	LMjlONQrHteLBsUQz/unlhsoA==
-X-Received: by 2002:a17:903:2f0f:b0:2cf:70d2:da7c with SMTP id d9443c01a7336-2d0f1c3c54dmr67031155ad.12.1786003228440;
-        Thu, 06 Aug 2026 01:00:28 -0700 (PDT)
-Received: from deepanshu.. ([2401:4900:bc2b:c75c:ceb4:d41d:8705:b6d1])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-31586402e53sm35852556eec.11.2026.08.06.01.00.24
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 06 Aug 2026 01:00:27 -0700 (PDT)
-From: Deepanshu Kartikey <kartikey406@gmail.com>
-To: dmitry.torokhov@gmail.com
-Cc: kees@kernel.org,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Deepanshu Kartikey <kartikey406@gmail.com>,
-	syzbot+683f6c071b5abfc266c1@syzkaller.appspotmail.com
-Subject: [PATCH] Input: sur40 - fix use-after-free in sur40_open()
-Date: Thu,  6 Aug 2026 13:30:18 +0530
-Message-Id: <20260806080018.10050-1-kartikey406@gmail.com>
-X-Mailer: git-send-email 2.34.1
+	dkim=pass (2048-bit key) header.d=readahead.eu header.i=@readahead.eu header.b="Dvbkxlji";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="HLMa1piu"
+Received: from ams-compute-02.internal (ams-compute-02.internal [10.64.2.62])
+	by mailfout.phl.internal (Postfix) with ESMTP id 3C5EBEC00A7;
+	Thu,  6 Aug 2026 04:02:01 -0400 (EDT)
+Received: from ams-imap-03 ([10.64.2.23])
+  by ams-compute-02.internal (MEProxy); Thu, 06 Aug 2026 04:02:01 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=readahead.eu; h=
+	cc:cc:content-transfer-encoding:content-type:content-type:date
+	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to; s=fm2; t=1786003320;
+	 x=1786089720; bh=RiCfBmytWb9lovh9XW3KP3nmJXbNXW4d6cDXCURF6RA=; b=
+	DvbkxljiTZrdj0WpmctrXjQEj3OB0/0Gyz6T8fyYPOqSbVyGRHRWykQe5+XmNs6i
+	AXHctFz9vkpOj1cevK3TsGhx83YQBwX0du1SHiJfUMiJtPd2WsU5TJC9oxJr3qG3
+	FoK6/NpPgXtnoC+7R82cODy/Fd8JJAhr2/FWq4NXn/w0pX2cbO+p8d7SKHx9m5Uw
+	aNZ9SDVPk3TmRRGiq4SoPvBPaIgg0bYdpx8B+YVCDWeJxD9XR6BUq0XGVSHP+ICS
+	09qO/8RWJQX7blgs3ElgiAvEL7gv/2BlQ95IELaaGNRtDCYT0rPyVfO7uX+gddxd
+	HBEDoMA4vmJ+W9b1Ddty6w==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-transfer-encoding
+	:content-type:content-type:date:date:feedback-id:feedback-id
+	:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to:x-me-proxy
+	:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; t=1786003320; x=
+	1786089720; bh=RiCfBmytWb9lovh9XW3KP3nmJXbNXW4d6cDXCURF6RA=; b=H
+	LMa1piuz2G1rsxUgcdDYqJhf0NL7WOTKdPp1TzWyBirkuhiaauVjnZ9VUGg7CHbx
+	9Er/XP+kSn1e+9LjxiR+X36QkP1bV80CR1lCG4TMC8A7bRa8IjTUJqYIvbVaEF1K
+	szK1Nz6hVyMUIP4RyK+E+75IXzPrGs1BtaqdKZdlqI161COBkEt/Px6Ck7pncgCU
+	/DZe9ge/KFqOxbwV/o02zM3N8YUSlTq/DGTFAJepVdD8fi/lhyZ4movyQleeRVyn
+	+qcAUCCa0GRHPJ+54s//FzgQBzB8DnOmcNOFny0a6fiA9GOS7vyXbjQ+axDCgsQW
+	IqspXJahSlZLeZlDgNaXw==
+X-ME-Sender: <xms:cz90akLuUWjsSOmP1gmT6hqb49MKS0zd5SDlT_pct4Voki1VKv_9Sw>
+    <xme:cz90au-RWMM9X8vPTakH0nDhGblGZXukC6JCyys8RsLwWXP8qCUvsf2H_JvHzGjEE
+    evccvjyNraFmUYmWGAfUKlhgSBFhg8W42fTB1j_heDGZheOlikHSL58>
+X-ME-Proxy-Cause: dmFkZTFTUREjfTQWEoN6uWg/HZUP/g1GkQFXjSOEfg2gEnK/h9T8L39pAswAea5bQOmy6e
+    8CZx7RqcziDd7M2u3KHaAp5qSQiDevSeKOPz0ewfr13XKGCsd3KF0IoqWAs+9NaTcUd3jt
+    sc7zPE32l3mijFDNDeiLPLGS4D7x7qC3PCir0M2vrMfRGrQ8TPRxErpJTlOXU8d7KaqIH5
+    PHrc+KAfVSYRGZ9naYmbdU5OHoJluv0JB/sH1i3xtjx99gBs5v9o/sJvhL6bTUdHyvVFZW
+    SwAkkCb63C+AfES2+a6cSmLuC9LJAcNHak0w5drTTl74lTK0SFDYUdUZAgK51SUDJXuJiL
+    NOpQM+ak9rSHZorw1vMhXqYMaIkLznjweJT75cnpyLIw2zZrEwpEudtebfjDxHLfBdLfHb
+    NNmCLZZ14vx84fy9syG9EiY06YepYLbERUesgqraMEMZFczHfxgWEFcS2K9frzGMzzFLzM
+    qH53e1vL/3Rg0BMp2sBKzUlJnrxKfKSer6l8+/6KUKRRtZ7va21TpMBPiEs+8wzhqUs52e
+    ddTKNT1LOlLlAgTa8YdJyY7D0K/rL2bU/cnKVuh3t5InAcq+8mDBezZVDzwHBrkdEmY5aW
+    86ILanSS3gYhZXaQJntJ/1rvDSO5d1WqIaN6KdKN5hFupFumt4WHzzLQEEyw
+X-ME-Proxy: <xmx:dD90agBcDpM-PF_Z-ySmKf27znb8L3XZJ57cSas96JDbtQoDljG0aw>
+    <xmx:dD90ajOadOJCq_N0GlQNpJbXqouIsiGHQjXPWxPPJVeAOpm2OspgxA>
+    <xmx:dD90ahxO6NZ9ZVARy8Qu2nUniEDpx4z8oqBRAHOloR2tiS2xRgX3nA>
+    <xmx:dD90arXJM9NCyskwMwsxP0Gt2JFeoZy_JtNrn1Ys7AZKZ-kDCkta5w>
+    <xmx:eD90al2HfJdBeWJ1a63_0cz5VgFV2EzqkRNxjOLOmwFZ2svp5UwY0k7w>
+Feedback-ID: id2994666:Fastmail
+Received: by mailuser.ams.internal (Postfix, from userid 501)
+	id 0D29332A0066; Thu,  6 Aug 2026 04:01:55 -0400 (EDT)
+X-Mailer: MessagingEngine.com Webmail Interface
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+X-ThreadId: A_FoBlbN4D9R
+Date: Thu, 06 Aug 2026 10:01:34 +0200
+From: "David Rheinsberg" <david@readahead.eu>
+To: "Rafael Passos" <rafael@rcpassos.me>, "Jiri Kosina" <jikos@kernel.org>,
+ "Benjamin Tissoires" <bentiss@kernel.org>
+Cc: "Shuah Khan" <skhan@linuxfoundation.org>,
+ "Brigham Campbell" <me@brighamcampbell.com>,
+ "Jori Koolstra" <jkoolstra@xs4all.nl>, linux-input@vger.kernel.org
+Message-Id: <c444d532-0aa0-4978-8629-7578e8b90bcb@app.fastmail.com>
+In-Reply-To: <DKE11FVZYDCW.1UEUU1GSXHP3B@rcpassos.me>
+References: <20260729164928.1138468-1-rafael@rcpassos.me>
+ <20260729164928.1138468-2-rafael@rcpassos.me>
+ <6ffe2879-5d76-42b3-bd65-2180967d1498@app.fastmail.com>
+ <DKE11FVZYDCW.1UEUU1GSXHP3B@rcpassos.me>
+Subject: Re: [PATCH v3 1/4] HID: wiimote: turn on the LEDs indicating the controller id
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-If any of the registration steps after input_register_device() fail
-(v4l2_device_register(), vb2_queue_init(), ctrl handler setup,
-video_register_device()), the error path frees sur40 via
-input_free_device() + kfree() without ever calling
-input_unregister_device(). Since the input device was already
-registered, it remains live and openable, so a racing open() (e.g.
-from udevd) can dereference the freed sur40 via sur40_open().
+Hi
 
-Split the unwind so that once input_register_device() has succeeded,
-the failure path properly calls input_unregister_device() before
-freeing sur40 and its buffer.
+On Sun, Aug 2, 2026, at 2:21 AM, Rafael Passos wrote:
+> On Fri Jul 31, 2026 at 6:02 AM -03, David Rheinsberg wrote:
+>>> -	hid_info(hdev, "New device registered\n");
+>>> +	player_id = ida_alloc_min(&wiimote_ida, 1, GFP_KERNEL);
+>>> +	if (player_id < 1) {
+>>> +		hid_err(hdev, "cannot allocate controller id\n");
+>>> +		ret = player_id;
+>>> +		goto err_free;
+>>> +	}
+>>> +
+>>> +	wdata->player_id = player_id;
+>>> +
+>>> +	hid_info(hdev, "New device registered (Wiimote %d)\n", player_id);
+>>
+>> `wiimote_create()` should initialize `wdata->player_id` to -1, so `ida_free()` is a no-op in the `err_free` path. Right now it is implicitly initialized to 0, and thus ida_free() will warn about an unallocated ID.
+>>
+>> Also: Why not just use IDs starting from 0?
+>
+> I chose to start from 1 to avoid "id 0 = player 1".
 
-Fixes: 08b936012964 ("Input: sur40 - switch to using polled mode of input devices")
-Reported-by: syzbot+683f6c071b5abfc266c1@syzkaller.appspotmail.com
-Closes: https://syzkaller.appspot.com/bug?extid=683f6c071b5abfc266c1
-Tested-by: syzbot+683f6c071b5abfc266c1@syzkaller.appspotmail.com
-Signed-off-by: Deepanshu Kartikey <kartikey406@gmail.com>
----
- drivers/input/touchscreen/sur40.c | 4 ++++
- 1 file changed, 4 insertions(+)
+I think this would be perfectly fine, but I don't insist on changing this.
 
-diff --git a/drivers/input/touchscreen/sur40.c b/drivers/input/touchscreen/sur40.c
-index fe63d53d56db..b0958422ff76 100644
---- a/drivers/input/touchscreen/sur40.c
-+++ b/drivers/input/touchscreen/sur40.c
-@@ -808,6 +808,10 @@ static int sur40_probe(struct usb_interface *interface,
- 	video_unregister_device(&sur40->vdev);
- err_unreg_v4l2:
- 	v4l2_device_unregister(&sur40->v4l2);
-+	input_unregister_device(input);
-+	kfree(sur40->bulk_in_buffer);
-+	kfree(sur40);
-+	return error;
- err_free_buffer:
- 	kfree(sur40->bulk_in_buffer);
- err_free_input:
--- 
-2.34.1
+> Wouldn't setting an u8 to -1 result into 255 ? If so,
+> this would not be a no-op. Also, comparing player_id < 0 would never be
+> true. If the IDA starts from 0, there is no usable "empty value" in a u8
+> when deciding if I should call ida_free.
+> If I let "failure" to be 0, I can just use this in destroy:
+>
+> if (wdata->player_id)
+> 	ida_free(&wiimote_ida, wdata->player_id);
 
+Whatever you decide on using as invalid value, you need to check it before calling into ida_free(). If you reserve 0, use what you suggested. If you put -1 in, check for -1 / 255 (even though technically you should then also limit the allocations to 254). Or change the type to s8 or int, or whatever works.
+
+Thanks
+David

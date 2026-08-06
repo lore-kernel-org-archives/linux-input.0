@@ -1,44 +1,44 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ADA42279DCC
-	for <linux-input@vger.kernel.org>; Thu,  6 Aug 2026 12:37:00 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9CD2F257845
+	for <linux-input@vger.kernel.org>; Thu,  6 Aug 2026 12:37:39 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786019821; cv=none; b=R1m8ZtMmAs6GrSA0Tk/XreqL0M/yzkwmhu14SqBBOoJeU8qEFr/OjPDywaOkTGOYQmyo1mMMEX3qfDf+Heb//nMBZRwRJjAJJ2dzCwRlwOGi4BrweeAdwgVtbe3Qwxa51C8dMZ6yWslxuQwX3xWGDZA0d5M6yE5cB6H3xfJ0lTU=
+	t=1786019862; cv=none; b=hyZ9w1OoWWcY/U54cQbkP2IxeUdlC61E8w+Vhmc5driri88mVVQ912g17C6fuPHFflC0RGdnYj8VtXJlcMF4ab8PyQGqiVhpVuj7zEr9PF+ic1VDXbawEEdNZZMSGhQ7rlLBcbbrcDTD+3f6fWc3vHPuMTR/LRRdBx4PUdS4Rxo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786019821; c=relaxed/simple;
-	bh=2tGDgPc+Olsv8qbD9EEztucQKzzT4gk0RtmCeOzrJTw=;
+	s=arc-20240116; t=1786019862; c=relaxed/simple;
+	bh=zEG3k5QiJ5NuFXz/luIutGO0FAm5gRbHyscudAfBL00=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=ll7weaLO+ZRE/gZbnN8uqByIsD947dE8jfUeO6JrtkDJSOR2Bm/7XuvPEbUYjJayZQgYuVZzZ+3a7HS5q2hAiU0T+xslwFDe4atwjJR0+gsIiFfOAqFPWaSmUA29muN3wDE6kXR6Hpbd18Vp+qYwl2LlWsDFc4Z91aN/5yIV24s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=guGH3YMx; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=kvaZ4x8pPEJrW+sl3+rfFg3wurZ5HV81FrTobkxvzqOJwJYHvvVOgW9QJqer0z8bnFIC45i31L0+uKGVbXGfUUgFEBBryZOXD5K6qfSmob2ShZoShofsyH0dGhytSz8DC6BtoRnILIMcJEGjc0Vb5YXSfCsjoASnGpHT5IHhHzg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=MZuTPkbU; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="guGH3YMx"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5320C1F000E9;
-	Thu,  6 Aug 2026 12:37:00 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="MZuTPkbU"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5103F1F000E9;
+	Thu,  6 Aug 2026 12:37:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786019820;
-	bh=l7a/9q25FfLKFCZnarGxYPnRQ+XSpL+BFPOOD2BV1a0=;
+	s=k20260515; t=1786019858;
+	bh=eV35Rx4bImmyQHkI7SFQzHMF2i05f/DEV3GwRzCOJX8=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=guGH3YMxoQA4PY5l2dw8ntzp2lsp8HfSo8I0KhAoH4hj72Ig8HYPbBTLfkurftc5J
-	 HQclAltSq3xZ4M7PBlzT3in59Y4WcRK54GdIuaO68sZ1ILGXwR7pv1TO3TAvmAKhMa
-	 PO0j1rBvxz8Iv7SOX6TmrbazJVB7mGNs6lH1U5kfzVYgb9/OMeRE6Zi/J6G6KATkU4
-	 9CqQ8I+rhxI7jxHaiQPC7D64Z2aMJ0b6EWclIgN5e9I6IglEhGfhJSz9oRaC1cp8A4
-	 2K1Qg28HxAPMiaJ8mvPk4UBJ/kitZP814A2a05U9LmRBpjXNjMqYCE+pjrtUyW9PZQ
-	 wgrTF81lOqYbg==
+	b=MZuTPkbU7zlY55/FGJPXesJ4r07lGbEZ8tLMtRF7wJq8sBEbnxAy1gAt5j1H15pZk
+	 V+T3DhSYC3WAYdIXCoXJIoD2rDl74PJA+pGE6u435jUmmHFQyyKqpsz9jDVfNZ4sC4
+	 izRMEKr5ycgCYOQSzTjEm6HWwllSKlZbR5x9MZBr9/aF33QwbIlXSNY6yNOXr6S+8X
+	 DrYANP/PwtZHPfwCao5lKP4A54RH2p18yuZ03dAWXwRkiQhjDac08lif2R9BYiqvll
+	 bQHARUmazzq2nXZxm1E+zd2iQFYDTVVJgV7BcvC/pLfT9yuxy4VHGzjUz30fKw0PQZ
+	 vwm8RzxvzJ+QA==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v5 06/13] iio: humidity: hid-sensor-humidity: convert
- probe and teardown to devm-managed resources
+Subject: Re: [PATCH v5 01/13] iio: hid-sensors: remove unused iio_dev
+ argument
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Sanjay Chitroda" <sanjayembeddedse@gmail.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260806-28-apr-iio-redundant-argument-v5-temp-v5-6-f1f92c1d830f@gmail.com>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <20260806-28-apr-iio-redundant-argument-v5-temp-v5-1-f1f92c1d830f@gmail.com>
 References: <20260806-28-apr-iio-redundant-argument-v5-temp-v5-0-f1f92c1d830f@gmail.com>
- <20260806-28-apr-iio-redundant-argument-v5-temp-v5-6-f1f92c1d830f@gmail.com>
+ <20260806-28-apr-iio-redundant-argument-v5-temp-v5-1-f1f92c1d830f@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 06 Aug 2026 12:36:59 +0000
-Message-Id: <20260806123700.5320C1F000E9@smtp.kernel.org>
+Date: Thu, 06 Aug 2026 12:37:37 +0000
+Message-Id: <20260806123738.5103F1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -49,61 +49,72 @@ Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
 
 Pre-existing issues:
-- [High] Shared global `humidity_callbacks` structure causes `.pdev` pointe=
-r overwrite, leading to state corruption and use-after-free when multiple h=
-umidity sensors are present.
+- [High] Concurrent execution of `sensor_hub_raw_event` and a child IIO dri=
+ver's `remove` function can cause a Use-After-Free on the IIO device state.
 --
 
---- Patch [6]: [PATCH v5 06/13] iio: humidity: hid-sensor-humidity: convert=
- probe and teardown to devm-managed resources ---
-commit 56374932f747b4eb1a636c154cf264875bcdacc6
+--- Patch [1]: [PATCH v5 01/13] iio: hid-sensors: remove unused iio_dev arg=
+ument ---
+commit c12a28d854a2931313f7d217face266eaf20a33a
 Author: Sanjay Chitroda <sanjayembeddedse@gmail.com>
 
-iio: humidity: hid-sensor-humidity: convert probe and teardown to devm-mana=
-ged resources
+iio: hid-sensors: remove unused iio_dev argument
 
-This commit converts the HID IIO driver resource management to use
-devm-managed helpers. This ties the lifetime of all resources to the
-device, simplifies error handling in the probe path, and removes the
-explicit remove callback entirely.
+hid_sensor_remove_trigger() no longer uses the iio_dev argument. Remove the
+unused argument from all HID IIO drivers to match updated function prototyp=
+e.
 
-> diff --git a/drivers/iio/humidity/hid-sensor-humidity.c b/drivers/iio/hum=
-idity/hid-sensor-humidity.c
-> --- a/drivers/iio/humidity/hid-sensor-humidity.c
-> +++ b/drivers/iio/humidity/hid-sensor-humidity.c
+> diff --git a/drivers/iio/accel/hid-sensor-accel-3d.c b/drivers/iio/accel/=
+hid-sensor-accel-3d.c
+> --- a/drivers/iio/accel/hid-sensor-accel-3d.c
+> +++ b/drivers/iio/accel/hid-sensor-accel-3d.c
 [ ... ]
-> @@ -233,42 +234,20 @@ static int hid_humidity_probe(struct platform_devic=
+> @@ -415,7 +415,7 @@ static void hid_accel_3d_remove(struct platform_devic=
 e *pdev)
->  	platform_set_drvdata(pdev, indio_dev);
 > =20
->  	humidity_callbacks.pdev =3D pdev;
-> -	ret =3D sensor_hub_register_callback(hsdev, HID_USAGE_SENSOR_HUMIDITY,
-> -					   &humidity_callbacks);
-> +	ret =3D devm_sensor_hub_register_callback(dev, hsdev, HID_USAGE_SENSOR_=
-HUMIDITY,
-> +						&humidity_callbacks);
+>  	iio_device_unregister(indio_dev);
+>  	sensor_hub_remove_callback(hsdev, hsdev->usage);
 
 [Severity: High]
-This is a pre-existing issue, but does assigning pdev to the shared global
-humidity_callbacks structure risk state corruption and a use-after-free?
+This isn't a bug introduced by this patch, but does the concurrent execution
+of sensor_hub_raw_event() and this remove() function cause a use-after-free
+on the IIO device state?
 
-If multiple humidity sensors are probed, the last probed device overwrites
-this global pointer. If that last device is later removed, the global pdev
-pointer will point to freed memory.
+Looking at sensor_hub_remove_callback() in drivers/hid/hid-sensor-hub.c, it
+removes the callback using dyn_callback_lock but does not synchronize with
+pdata->lock:
 
-When an event later arrives for the remaining active device,
-humidity_proc_event() will dereference the freed pdev:
-
-static int humidity_proc_event(struct hid_sensor_hub_device *hsdev,
-                               u32 usage_id, void *pdev)
-{
-        struct iio_dev *indio_dev =3D platform_get_drvdata(pdev);
-        ...
+drivers/hid/hid-sensor-hub.c:sensor_hub_remove_callback() {
+    spin_lock_irqsave(&pdata->dyn_callback_lock, flags);
+    // list removal
+    spin_unlock_irqrestore(&pdata->dyn_callback_lock, flags);
 }
 
-Should humidity_callbacks be dynamically allocated per-device or stored
-within the device's private data rather than shared globally?
+If an unbind happens concurrently with an incoming hardware event:
+
+CPU1
+sensor_hub_raw_event()
+    acquires pdata->lock
+    finds registered callback
+
+CPU2
+hid_accel_3d_remove()
+    sensor_hub_remove_callback()
+        removes callback and returns
+    devres framework frees the IIO device state
+
+CPU1
+sensor_hub_raw_event()
+    if (callback->capture_sample) {
+        callback->capture_sample(...) // Dereferences freed IIO state
+
+Can this lead to memory corruption during physical device removal or sysfs
+unbind?
+
+> -	hid_sensor_remove_trigger(indio_dev, &accel_state->common_attributes);
+> +	hid_sensor_remove_trigger(&accel_state->common_attributes);
+>  }
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260806-28-apr-iio=
--redundant-argument-v5-temp-v5-0-f1f92c1d830f@gmail.com?part=3D6
+-redundant-argument-v5-temp-v5-0-f1f92c1d830f@gmail.com?part=3D1

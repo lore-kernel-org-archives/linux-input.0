@@ -1,250 +1,139 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f174.google.com (mail-pl1-f174.google.com [209.85.214.174])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1E79619E97B
-	for <linux-input@vger.kernel.org>; Thu,  6 Aug 2026 02:49:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C0822389E07
+	for <linux-input@vger.kernel.org>; Thu,  6 Aug 2026 05:44:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785984573; cv=none; b=awamoQdIh1i7wboRTaXJK2eWeWdHTeaM6uxZLyTqS/iUv8t0ABcYTGPOv2wFrWUPa+KM0dlydp3UfZpMslYgnwCR/WBvLXldWuBhsoVw55P+a9wIHNP0enxe+9NyuszUQ9OcKMzSWS4X+AZuzYTGGO6bSjPC6NBs11bi8oTCQhU=
+	t=1785995069; cv=none; b=ra1p5MUW7tAOPDooFSj0WJScZoFGhkT6Q+LVd6sgPk9QSkWDLTwnGcRatdEnWsVru/UpJeHSOwzCHqdhP/wq4BSa0j79Hva6h9nhuUACrZSwuccN0dZbHd9HM80bena8R/m1xKJhRpewDMc/Of+vVr2rV1sEFHBoeXnS4iwuy1s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785984573; c=relaxed/simple;
-	bh=MdV4ihZYAHL/hJtQBtsHkJxLAgI0G+adcK90MioLOhA=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=LFql2ze57NutliZvAehSX2LhfewysNp+wQzH1901gbyarCiAN74gPctcDqNqV2HxMfgp64hl2TM4d2JYD3AAmxuaFitKdx7jxOOgEZfMqKulUVu6Q22/iE9bnT62BaLIM98eTsgEtSe9J4mcV0f/wi8lo++2WNLCPZObTV/iASE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=oMlqNNh7; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1785995069; c=relaxed/simple;
+	bh=BB0XDwtNsg5sGEaL5ETDBRFLTiF+vf+mXIZ7iLAQGXI=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition; b=tOY/y2euUtQzbEga1M4rw1sF9OV9SlBW9mdkE2sa3N+U2yt/t+PbUz+wFfiUDEyzlYJUzF+ctp5zNWvxICVXIi9O1OZLTiKjiz3yf1b8dm88N1UcvKW/dM7nbAVj+68B2X+sxSQMuChNEV/fEnFkHOfKpAoPT6tpbY2Rj2SYV2E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=l5fOf9TW; arc=none smtp.client-ip=209.85.214.174
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="oMlqNNh7"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D77F1F000E9;
-	Thu,  6 Aug 2026 02:49:31 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785984571;
-	bh=d+X5BoGBy6+PxNnfBijshtiP3HSETx5P/JtRPeNWAqA=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=oMlqNNh7cazwyipMCe3qg7I5IPBkWGwLQpllk0JK2Fq7cNarGC8oyLivX3acAaqh2
-	 ASmi6LmO7JVvsNYRu5uj6j2IUMElZTikThHfmnkvSIKEe0Jl4VwerlQc7wY01txydG
-	 3aaefUL7WPBgjUOaBaL0q3HhibktHn4KCtUXIytK1S43qgWGNXm2gYsoFonQgSyUzO
-	 PZF3oynaPtnf7ozxiHfqk0KZ5tWsBFseW/yb+xex8dA6KWnj/I+7Er10MWQWN8fb0V
-	 DpiRYJ0vSF7G1avP009sYGW8KsoldYdlsEpuVD/+Hl+ToFgpvR2xyj+2Uhjjz6ECjZ
-	 DuyIatdNDq7Rg==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 2/6] HID: steam: Initial 2026 Steam Controller
- support
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Vicki Pfau" <vi@endrift.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260806022653.93939-3-vi@endrift.com>
-References: <20260806022653.93939-1-vi@endrift.com>
- <20260806022653.93939-3-vi@endrift.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Thu, 06 Aug 2026 02:49:30 +0000
-Message-Id: <20260806024931.8D77F1F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="l5fOf9TW"
+Received: by mail-pl1-f174.google.com with SMTP id d9443c01a7336-2cee9b74ee1so16001645ad.3
+        for <linux-input@vger.kernel.org>; Wed, 05 Aug 2026 22:44:27 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1785995067; x=1786599867; darn=vger.kernel.org;
+        h=content-disposition:content-type:mime-version:message-id:subject:cc
+         :to:from:date:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=pychluIunaubpB1G6cK611lZWZ6uJ2B672d9+W8YoV0=;
+        b=l5fOf9TWd2qdryEfPxK+6/aQZaTXHWbp/XEtX9xkDQQpZSetU2/U4wLeCel2fCVuuC
+         qkqgdLrucEiasAOcCPzH/BU3LX3qZPkPXHTOaxkkMhjHg0QzZCvHsFNFNz3YYV2xw6RA
+         SzQGPLn51dP5WtuB8RqVsu5V43BUI3T4oZZrXxgkF72Ltmw5uYSmCDjYrty/yfqxLyiY
+         ZqGYDPFIyAWwWGTLG2vXB/8C2Fpt2F/jkgBbPzGyTmYn5aKO1NAd4lpYOEsujO9VVGiA
+         NiW3IAkZ2w6uP/crGbFNVAdHMTuPIp8VIP1+rhfOPJ0ABhI2DX2k2LB0QvhcV60jGP86
+         uxWA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1785995067; x=1786599867;
+        h=content-disposition:content-type:mime-version:message-id:subject:cc
+         :to:from:date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=pychluIunaubpB1G6cK611lZWZ6uJ2B672d9+W8YoV0=;
+        b=LYiv6hYvRm0l8k8JICQVOahs4DqwRtKijJyzzgcOBaY/nevPU129kK5SKhblG0lC2l
+         Xl8k4VaOX9Uk4Fpzjzw18u8vsezEUuSXENVXL0V1Su4FAjnUd8EzzeuR+JdOoKMZoRcF
+         FklXJLf6KdjoNfW3wywWoPuzapz86jShryer77+ZrkLmshFk1mME0YBHCvWggqTCJam+
+         6m7pVMxCmG8Q/Rh4hub4Z+CNI/wxjJ1kMAxzWxYX8Z97HFG0aU03fC4de7Ay6+QQHI1t
+         H9cZO3MctDzpqwLBnRiZvjxTxEVphnQmY4m1XsC9B/7HHnyXGx3Wbr4YJSVxgxtwUmja
+         mvJw==
+X-Gm-Message-State: AOJu0YwN9yr1Rvl9IYBcIzZGc1FPoY2wMJPeMCb29//BmyyP3Ft9lkAx
+	GaF9pXRXRLHjys42Z0k2WXIIuh8Er+bKU3XlnsF4kILUTXZfoYa221j66sWO9g==
+X-Gm-Gg: AR+sD12CTfvczIOBswVUj2ghpAwU8VWhOOhVaH9ojuRkXlIbFucuncbZkIYjQ45UMX0
+	JHKuIMVzROYVG1Uh+KAHMnM4bRtHiGADPXSrte0HdzYOjlX+UvFWmcIweu4tzKtZOTe8yUlfPTw
+	c39yAOhNbCs+542QCMR8tofdNwo1VM0DgK26QjtCwHpxkTamj1+hKwtMDJqSFhv44VTd9CpIFOG
+	U5m/exoa5JvlzyuEUEcj91dfkqH2DhVkrPwYBA5eaG7jnbs/qw5k/S4ThJeQfhUiBiR/tUrF1HV
+	eu6iQuSQtZLnTUqEOri/orGLw6PZ6fis2XQ5rMA8PL1g7v/3EMOQ7ZsohjFxFn5x7dIYstyxSoA
+	7uSukfpGfdqQ4GHwg+VzoQVkKyhzSsVLmK1+meYj4i2DPChj8Qa+h4L8zK7fPSPwOVGlOAd6wIa
+	TiA2wAcFP1HM2WUHDfTEYNJ/DCl7X1bUF877f25LQ4M2fPupXsyZqBGeP8ESeF13v/vWRCCLHGj
+	pR6sA+gLavX/ana8fxP7vHLILyg
+X-Received: by 2002:a05:6a21:391:b0:3c3:8044:8b0d with SMTP id adf61e73a8af0-3cb85e2b60cmr15315703637.12.1785995066874;
+        Wed, 05 Aug 2026 22:44:26 -0700 (PDT)
+Received: from google.com ([2a00:79e0:2ebe:8:d081:36b2:965:e66f])
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-13fca908068sm20185951c88.12.2026.08.05.22.44.25
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 05 Aug 2026 22:44:26 -0700 (PDT)
+Date: Wed, 5 Aug 2026 22:44:23 -0700
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: linux-input@vger.kernel.org
+Cc: Andrew Duggan <aduggan@synaptics.com>, linux-kernel@vger.kernel.org
+Subject: [PATCH] Input: synaptics-rmi4 - fix GPF in suspend and resume when
+ unbound
+Message-ID: <anQe8UiyUR4x0flD@google.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Thank you for your contribution! Sashiko AI review found 4 potential issue(=
-s) to consider:
+Transport drivers (such as rmi_i2c and rmi_spi) invoke
+rmi_driver_suspend() and rmi_driver_resume() on their child rmi_dev
+device during system power management events. However, transport drivers
+are fully registered and operational even if the physical RMI driver
+failed to bind or probe the rmi_dev device.
 
-New issues:
-- [Medium] The removal of the explicit query workaround in `steam_write_set=
-tings` can cause driver initialization to fail on subsequent driver binds o=
-r module reloads due to lingering reports.
+When rmi_driver_suspend() or rmi_driver_resume() is called on an unbound
+rmi_dev, dev_get_drvdata() returns NULL. Calling rmi_disable_irq() or
+rmi_enable_irq() without driver data attached causes a NULL pointer
+dereference and General Protection Fault when attempting to lock
+data->enabled_mutex.
 
-Pre-existing issues:
-- [High] Use-After-Free due to HID events triggering work re-queuing during=
- teardown because `hid_hw_stop` is called after `cancel_work_sync`.
-- [High] Concurrent execution of `steam_register` leads to resource leaks a=
-nd Use-After-Free/Double-Free on error paths due to missing locking.
-- [High] Race condition in teardown functions (`steam_battery_unregister`, =
-`steam_input_unregister`, etc.) leads to double-free of device components.
---
+Fix this by checking if driver data is attached to rmi_dev in
+rmi_driver_suspend() and rmi_driver_resume(), exiting early if
+no driver data is present.
 
---- Patch [2]: [PATCH v2 2/6] HID: steam: Initial 2026 Steam Controller sup=
-port ---
-commit 4e3ca92dc2f8afcf2d70cdcfce3822923a4ccbfc
-Author: Vicki Pfau <vi@endrift.com>
+Fixes: 2b6a321da9a2 ("Input: synaptics-rmi4 - add support for Synaptics RMI4 devices")
+Reported-by: syzbot+09103639e39c989e3ed3@syzkaller.appspotmail.com
+Closes: https://syzkaller.appspot.com/bug?extid=09103639e39c989e3ed3
+Cc: stable@vger.kernel.org
+Assisted-by: Antigravity:gemini-3.6-flash
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+---
+ drivers/input/rmi4/rmi_driver.c | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
-HID: steam: Initial 2026 Steam Controller support
+diff --git a/drivers/input/rmi4/rmi_driver.c b/drivers/input/rmi4/rmi_driver.c
+index 5d49a9021c7d..a349dfd17519 100644
+--- a/drivers/input/rmi4/rmi_driver.c
++++ b/drivers/input/rmi4/rmi_driver.c
+@@ -991,6 +991,15 @@ int rmi_driver_suspend(struct rmi_device *rmi_dev, bool enable_wake)
+ {
+ 	int retval;
+ 
++	/*
++	 * Transport driver will try to suspend RMI device even if physical
++	 * driver did not bind to the RMI device, because transport device
++	 * (I2C, SPI) is fully registered and operational. Exit early if
++	 * there is no driver data attached to the RMI device.
++	 */
++	if (!dev_get_drvdata(&rmi_dev->dev))
++		return 0;
++
+ 	retval = rmi_suspend_functions(rmi_dev);
+ 	if (retval)
+ 		dev_warn(&rmi_dev->dev, "Failed to suspend functions: %d\n",
+@@ -1005,6 +1014,10 @@ int rmi_driver_resume(struct rmi_device *rmi_dev, bool clear_wake)
+ {
+ 	int retval;
+ 
++	/* Skip if not fully bound to RMI driver */
++	if (!dev_get_drvdata(&rmi_dev->dev))
++		return 0;
++
+ 	rmi_enable_irq(rmi_dev, clear_wake);
+ 
+ 	retval = rmi_resume_functions(rmi_dev);
+-- 
+2.55.0.679.g6767b8d81c-goog
 
-This brings support for the 2026 Steam Controller, comparably featureful to
-the existing support for the Steam Deck.
 
-> diff --git a/drivers/hid/hid-steam.c b/drivers/hid/hid-steam.c
-> index 967f12c7a599a..6476fbdc58886 100644
-> --- a/drivers/hid/hid-steam.c
-> +++ b/drivers/hid/hid-steam.c
-
-[ ... ]
-
-> @@ -489,16 +615,7 @@ static int steam_write_settings(struct steam_device =
-*steam,
->  	}
->  	va_end(args);
-> =20
-> -	ret =3D steam_send_report(steam, cmd, 2 + cmd[1]);
-> -	if (ret < 0)
-> -		return ret;
-> -
-> -	/*
-> -	 * Sometimes a lingering report for this command can
-> -	 * get read back instead of the last set report if
-> -	 * this isn't explicitly queried
-> -	 */
-> -	return steam_recv_report(steam, cmd, 2 + cmd[1]);
-> +	return steam_send_report(steam, cmd, 2 + cmd[1]);
-
-[Severity: Medium]
-By removing the explicit steam_recv_report() call here, could a lingering
-report be left in the device buffer?
-
-If the module is later reloaded or the driver rebound, steam_probe() will
-call steam_get_conn_status() which expects a wireless state report.
-
->  }
-
-[ ... ]
-
-> -/*
-> - * This command requests the wireless adaptor to post an event
-> - * with the connection status. Useful if this driver is loaded when
-> - * the controller is already connected.
-> - */
-> -static inline int steam_request_conn_status(struct steam_device *steam)
-> +static int steam_get_conn_status(struct steam_device *steam)
->  {
-> +	int ret =3D 0;
-> +	u8 cmd[] =3D {ID_DONGLE_GET_WIRELESS_STATE};
-> +	u8 reply[3] =3D {};
-> +	u8 report_id;
-> +
-> +	if (steam->quirks & STEAM_QUIRK_IBEX)
-> +		report_id =3D REPORT_ID_FEATURES_DONGLE;
-> +	else
-> +		report_id =3D 0;
-> +
->  	guard(mutex)(&steam->report_mutex);
-> -	return steam_send_report_byte(steam, ID_DONGLE_GET_WIRELESS_STATE);
-> +	ret =3D steam_send_report_id(steam, cmd, sizeof(cmd), report_id);
-> +	if (ret < 0)
-> +		return ret;
-> +	ret =3D steam_recv_report_id(steam, reply, sizeof(reply), report_id);
-> +	if (ret < 0)
-> +		return ret;
-> +	if (reply[0] !=3D ID_DONGLE_GET_WIRELESS_STATE || reply[1] < 1) {
-> +		hid_err(steam->hdev, "%s: invalid reply (%*ph)\n", __func__,
-> +				(int)sizeof(reply), reply);
-> +		return -EIO;
-> +	}
-> +
-> +	return reply[2];
->  }
-
-[Severity: Medium]
-Does this function read the lingering ID_SET_SETTINGS_VALUES report instead=
- of
-the expected status?
-
-Because this lacks a retry mechanism, it appears this would fail the
-reply[0] !=3D ID_DONGLE_GET_WIRELESS_STATE check and return -EIO, breaking
-device initialization.
-
-[ ... ]
-
-> @@ -1149,51 +1377,42 @@ static int steam_register(struct steam_device *st=
-eam)
->  	 * another client send a get_connection_status command, for example.
->  	 * The battery and serial number are set just once per device.
->  	 */
-> -	if (!steam->serial_no[0]) {
-> -		/*
-> -		 * Unlikely, but getting the serial could fail, and it is not so
-> -		 * important, so make up a serial number and go on.
-> -		 */
-> -		if (steam_get_serial(steam) < 0)
-> -			strscpy(steam->serial_no, "XXXXXXXXXX",
-> -					sizeof(steam->serial_no));
-> -
-> -		ret =3D steam_get_attributes(steam);
-> -		if (ret < 0)
-> -			hid_err(steam->hdev,
-> -				"%s:steam_get_attributes failed with error %d\n",
-> -				__func__, ret);
-> +	if (steam->serial_no[0])
-> +		return 0;
-
-[Severity: High]
-This is a pre-existing issue, but does this check allow concurrent executio=
-n?
-
-If a wireless connect event triggers steam_work_connect_cb() simultaneously
-with steam_probe() invoking steam_get_conn_status(), could both threads
-evaluate steam->serial_no[0] as empty because there is no locking here?
-
-If so, both could proceed to allocate and register input devices and
-batteries.
-
-Could this potentially overwrite the pointers and leak the first set, or
-cause a use-after-free when one thread fails and runs the error cleanup
-path on resources the other thread just allocated?
-
-[ ... ]
-
-> -	if (do_add) {
-> -		mutex_lock(&steam_devices_lock);
-> -		if (list_empty(&steam->list))
-> -			list_add(&steam->list, &steam_devices);
-> -		mutex_unlock(&steam_devices_lock);
-> -	}
-> +	mutex_lock(&steam_devices_lock);
-> +	if (list_empty(&steam->list))
-> +		list_add(&steam->list, &steam_devices);
-> +	mutex_unlock(&steam_devices_lock);
->  	return 0;
-> =20
->  steam_register_sensors_fail:
-
-[Severity: High]
-This is a pre-existing issue, but does the teardown sequence in
-steam_battery_unregister() and steam_input_unregister() have a race conditi=
-on?
-
-If these unregister functions are called concurrently (for example, if
-steam_register() fails on one thread while steam_work_connect_cb()
-processes a disconnect event on another), both threads could read the
-same component pointer within the RCU read-side critical section before
-either thread executes RCU_INIT_POINTER(..., NULL).
-
-Would this cause both threads to call power_supply_unregister() and
-devm_kfree() on the exact same pointer, leading to a double-free?
-
-[ ... ]
-
-[Severity: High]
-This is a pre-existing issue, but can the sequence in steam_remove() lead to
-a use-after-free?
-
-drivers/hid/hid-steam.c:steam_remove() {
-    ...
-    cancel_work_sync(&steam->work_connect);
-    ...
-    hid_hw_stop(hdev);
-}
-
-Because hid_hw_stop() is called after cancel_work_sync(), the HID transport=
- can
-still deliver events during this window.
-
-If an event like REPORT_ID_WIRELESS_EVENT arrives, steam_raw_event() will c=
-all
-steam_do_connect_event(), which calls schedule_work(&steam->work_connect),
-re-queuing the work after it was cancelled.
-
-Once steam_remove() returns and devres frees the steam_device structure,
-will the workqueue run steam_work_connect_cb() on the freed memory?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260806022653.9393=
-9-1-vi@endrift.com?part=3D2
+-- 
+Dmitry

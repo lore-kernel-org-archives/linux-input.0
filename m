@@ -1,173 +1,265 @@
-Received: from mail-ot1-f79.google.com (mail-ot1-f79.google.com [209.85.210.79])
+Received: from mail-pj1-f44.google.com (mail-pj1-f44.google.com [209.85.216.44])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 761CCCA6B
-	for <linux-input@vger.kernel.org>; Thu,  6 Aug 2026 00:01:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.79
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785974494; cv=none; b=oggy3N8MpR+7sGB3flLEEm6MXnXK01Ukj7YLaGG++ieNdkiHbj36BBEnWLg08ju9QCbr7r0bY9rV0VoMc1WJKku5HZxKkPLZtGA4NX3hQzwaYNd5OglciGmSoja4df3hLTQ+v9B/VY4WVKjpyXwF+iPiQtxTQnvVMWD3UNUXMg0=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785974494; c=relaxed/simple;
-	bh=B04ygfIgQXOvi69UA5sVP7pGlaMwq5/5VQpk4MreyBA=;
-	h=MIME-Version:Date:Message-ID:Subject:From:To:Content-Type; b=Q4441z5IFQ5Rvrua8G65KgrCFGawxcL4g/tSXhWYFncW+8fEq6+i0pbGk8MuxBVPvLo2STJYEp1ZA9IdZuV6X9SaTkPWdNbR93uYq3Nx21xiAwPADNcST+sUlZXDR+m1yuWlMy8LwGTftqp12+WCjEve6I4F1/yZxRS1S0aO9AA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.210.79
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
-Received: by mail-ot1-f79.google.com with SMTP id 46e09a7af769-7e9fc6dc091so1276227a34.2
-        for <linux-input@vger.kernel.org>; Wed, 05 Aug 2026 17:01:32 -0700 (PDT)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0A25E2E7379
+	for <linux-input@vger.kernel.org>; Thu,  6 Aug 2026 00:08:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.216.44
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1785974917; cv=pass; b=Ys09mJa2BlqHMQQwhuVncapjHeohNQwZEjWUrL6sQuGUqaGh0lDvuEWaNZn3ewb9ejZqO/fCqVWiZkeCAC/nnl3zYwvM4mcj+X38ZC47lFZDGr0HdLJAD9mcKBmgQ0b9DWxinoe8krOwiYCjrcIqalOaMyhyotomMAoEolBdQas=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1785974917; c=relaxed/simple;
+	bh=1iu5d+I5/K4BVPrMkCaJZCHy0u+IaD5kCta9cXPqI9Q=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=qlgM3mzia/sxPNHSZGpNk5WEzkFN0h/6ES3dhfj4VyxurTFxChAI1d4I2CR6HVvDdKG+fn+pHSPM8McNihMNbswhxNllrdXtg/K+fwp8ORnQvuxE7mQ+z/Iv84fCOevcnM71IzWSmf4PdL3w2Gd2BFd4GfGmAbP7O7bgg1C6b2A=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=svtDcUcn; arc=pass smtp.client-ip=209.85.216.44
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="svtDcUcn"
+Received: by mail-pj1-f44.google.com with SMTP id 98e67ed59e1d1-38dc4553f62so1733592a91.0
+        for <linux-input@vger.kernel.org>; Wed, 05 Aug 2026 17:08:33 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1785974912; cv=none;
+        d=google.com; s=arc-20260327;
+        b=Zeg2TI8bqNNjj7WsaFO0P08XaB68pFvSLObA9KYL7X0lYJvt50riniwyEbNpWXrA4O
+         UJykn+QUUs+DzS26dvCgW5Khze7hXsfcajrkIsngaWrxFOtG5YnLfnhgSzbcOX4WPIr9
+         Xr4mKLLzpjJCO1VNuYuQfyzPzmuIL+JDHbf8TpYU+eKC0dHCQNxrEsWP85PNTtnYk2XU
+         EkAnT4SvFDxk96IaExbKaHUw5SqpxsT1lk/lbc1Pd1mn/5crMBL3UG7c5PAA0IhyjjfY
+         IuZShhhEn7RevxIgKBxFyXm+Nt3f+xsFEuSW3ECjHMfQWvVrXut6KouRFzW0LoNzJQwY
+         UtMQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=5vW05tTD3g3Q72ERS87XMCcMXQMeuaxyt2ovrslKYZ4=;
+        fh=KHrXx9yTg+mXy3SbHTlQQe/MIWe0C/C3k2kfWTetw5U=;
+        b=FiS5ERYSZcEjO5c60/1j0gO1pIVtLqMqg1UmezdA8SLxWEaF2rwNi7SNUj0dxwvB2J
+         ipxCV6iw1icslUqKKahEO61smRom7hkcGDfwg4hmohNB9bbZHjIHfNg3m1yH32YFutnp
+         OYl++XnY8XyArB9AMLf8EoNlHbNyG4DXHmlrWEZeLrZumn0pbzvbWyBQN8DonkxCduvE
+         5Kueh5ZXK2ChVkn1A5fyM2WwLVkp48uUJbkSIkWJf4XYpFprzr3MNptoPHHurtgLKdrx
+         iTQN0RIZU60/PZZAS75XTWfG2Gcz1F9GkWFv49J9pwbefyE/5YB0TybVO0v9bx+0ajrk
+         g/kA==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1785974912; x=1786579712; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=5vW05tTD3g3Q72ERS87XMCcMXQMeuaxyt2ovrslKYZ4=;
+        b=svtDcUcnrW6iP4cDqc+Pp2KlIvFKw7TVFMRP7v0NtQxQPK9+pfi+iK/wLtvXEaSCVa
+         dtD79TNKXy1xzGfBz8PWj6i9vcZ72ABzuVpLQHFfPC4YmXdasdL2BfW8XcFfauqAJrUW
+         FN9korxrdzDXJHZaDvzgZ3hzNkZMorVj+WqU/9p+HDeW9pc0xGwLdVhm7kjPW+TFjw/i
+         SanzT6jUSgD9ujBKt0ALo+ei/1T+YJEr7GT5zQ1rIbjsXBPxAoOUaSuLlgEmJcvEFg9f
+         xd3YR2+0NDdzkAuOh+A1Fb3AEbiXtvB7pwA8KJ4mn5a7l8WjNudl9+3eoo7s2nSRMEal
+         Svig==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785974491; x=1786579291;
-        h=content-type:to:from:subject:message-id:date:mime-version
+        d=1e100.net; s=20251104; t=1785974912; x=1786579712;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=31zx18yk6ThXUw/fy3wZUkl6sFqEwujzgZRw5o7QV0I=;
-        b=pIW1XnuOFD3/HR+7APYQ/jG/mQoA6UwYsoXpAggPqQ6+R5lcHur5q2DnfryPHbSXOj
-         dWWPTHBtL/nzNbOFQeJ97TDTOD3fxGVzFYoRmnpeYV2m+C6Y/1RGsctH/fbccpDK8wxv
-         gWlONYyB2oH8MhQLVjhG7eUzCjzfvzUPyrWf0sNjv/UTVwR1oBIDNDAQ03WTim4oYpRR
-         duoxiKFDwVHesToaV1elbzsvhlFatkdYNORjeII37u0UQk2uTdS3xYst26NUjycmkjjb
-         Jh4EeLwwZyO0YUwKHUv8elEFhbuW8uvEoY122Yaz8bE4+xS/YTT1uQ3jSsZxbh4KV2Au
-         Prug==
-X-Forwarded-Encrypted: i=1; AHgh+RqFF0G4TjhFll0kFw6VrT9hnC1+J20xPjMXvNBYlQtkDflowe1yC/aiDzz2gV/ubeihrXsYqet1zOGqng==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yxggk2rmtfjBx8u2fWBSSUlS2ptwhBRQQQSHprVZ4vCONGHJlUb
-	EKL8CPDZ0z6T4a+CBCbzNhOa96Npk+T41XbC8SqtAIijoLDNeTpRDHAEuFF6u2ULTh9HcUoo00b
-	arcDCGvxMwABtsR2QI68jeeRGQDVcqtXk2zTOc9lI6+vJpDUO/uY91SpRazk=
+        bh=5vW05tTD3g3Q72ERS87XMCcMXQMeuaxyt2ovrslKYZ4=;
+        b=UsjowiFwBrmF5kFzpT1pErOuQfB2Lq/qi1KIokX7Z9wRg4jWm78nAaYdi2zjp7o5xf
+         T9jL5FWojkz3c0J/o+l8gFD6siyJPpDX9nVeequZeE7Zcg0NyrZDZf4XcumIwIqFbBM0
+         ZkNYzWIqfYNWJzHEniv2RRSiDUX3QOr5P5FLwD5mq8005D7Mw1hRIYBSe/YFRaQHkPmq
+         EVOTTNvYaH6L+JPRb+4pwhCpGQDH+yS4Uy9mbSdJD55qrTABEvDu1cQiOVwmsBuE4PiU
+         6Q20DwoqXTaBXRmvj6uCduSG4shliw+D481U4J67uXvUNM++i10Y7JiMcX+ZSGzyfp4j
+         W+aw==
+X-Forwarded-Encrypted: i=1; AHgh+Rr1k9r5JFLrT/xOn/gNwkKxDCQbGoMXn0P8YykPmba/Ie1OJXEubq6i61i9cVyfmiY9bG3Ok5gaE6kMFg==@vger.kernel.org
+X-Gm-Message-State: AOJu0YyXQvtw1prECqv6RsQdIPARsX0fOCAJEhZ2huFsRHRUnqJTGLB0
+	3UfiDI6wKv8Q1rrnigGePeUANW0svWnFA7PhaAwvCPtp/FrlC0vW9Hlyu5dTSNIDA3YhJVOobPN
+	eCGNM2KsroaUqeiH4LAL9EB7g8i9zZvA=
+X-Gm-Gg: AR+sD12RvShwnoAVLbq+paynYf1LSjq4ZjWe0MEHPosI0s7eqtGxXP3+ccPWUTEePQv
+	GbHpcQUOn4iUKPvuEj7Z9jBstomsF2q95kuhDp0nrc4uwpz6vtgAxM+apzq7Bm+IUN+a8SuuJOR
+	EJyNQsYAbyp1wbXqriB5fDsCxjUcWlIFB2XMRGSiJJ+FoGq+Px8lTAAMotNj3vwsCdp908kk/Jw
+	dCt0+ES19NNowj22upwnRCswQJr4PHznMZtnfFLhhfRBtseZiwAKiZnypZHDG3HJhDltEkoZXMo
+	dKFSV/7vkeQR5s993zRRE/h/txOIZwakXBcm/Tca+aBzbKAx/QYfLDIOnL+7Lq1xs7GcvRHJaE1
+	31bft2PQfDbw83uvHti6EjxgOg+T/feC7n2G9ZDMMi2tPKQBcLIqYr+ymUZM=
+X-Received: by 2002:a17:90b:3a8d:b0:38e:57a3:f218 with SMTP id
+ 98e67ed59e1d1-3903c5b9f70mr9408859a91.13.1785974911569; Wed, 05 Aug 2026
+ 17:08:31 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Received: by 2002:a4a:e841:0:b0:6aa:e10e:649c with SMTP id
- 006d021491bc7-6ae96f8076amr5657475eaf.26.1785974491110; Wed, 05 Aug 2026
- 17:01:31 -0700 (PDT)
-Date: Wed, 05 Aug 2026 17:01:31 -0700
-X-Google-Appengine-App-Id: s~syzkaller
-X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <6a73cedb.5aeeccc9.207e63.0009.GAE@google.com>
-Subject: [syzbot] [input?] general protection fault in rmi_driver_suspend
-From: syzbot <syzbot+09103639e39c989e3ed3@syzkaller.appspotmail.com>
-To: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, syzkaller-bugs@googlegroups.com
+References: <CABWMpWQiSEKMkROgKZJ6nV8GXYgr7E=-SmsatQie4eK8b3F9Xw@mail.gmail.com>
+ <CABWMpWR7Law_vHdeAMsOcY28VBcvX2jYSqq2SpksJSiLFcXhuw@mail.gmail.com>
+ <anIhyHL4Kl-DX2G_@eggarch> <CABWMpWQEfycicrctrW3RD1yNf0rv1ZrioY9FcjoZZGEz4GAm_Q@mail.gmail.com>
+In-Reply-To: <CABWMpWQEfycicrctrW3RD1yNf0rv1ZrioY9FcjoZZGEz4GAm_Q@mail.gmail.com>
+From: Jamie Stephens <jamie.stephens@gmail.com>
+Date: Wed, 5 Aug 2026 20:08:19 -0400
+X-Gm-Features: AUfX_mzWccQa-XGJ0eOY4WMfNWGqgAW-Qd5A9IgdUUwdNC3nZgowQzhwzISJkns
+Message-ID: <CABWMpWTn3H7UKqYzr7JP9tkQCEJHsXX-F103nyyey_srn7mvHA@mail.gmail.com>
+Subject: Re: [REGRESSION] CyberPower LE1000DG (0764:0501) USB HID regression
+ on x86
+To: Lovekesh Solanki <lovekeshsolanki00@gmail.com>
+Cc: jikos@kernel.org, bentiss@kernel.org, regressions@lists.linux.dev, 
+	gregkh@linuxfoundation.org, stern@rowland.harvard.edu, 
+	linux-usb@vger.kernel.org, linux-input@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Hello,
+Thanks again for all of the suggestions. I wanted to provide an update
+after spending some more time testing.
 
-syzbot found the following issue on:
+At this point I'm no longer convinced this is simply a kernel regression.
 
-HEAD commit:    848acc8ffe1b Merge tag 'fsverity-for-linus' of git://git.k..
-git tree:       upstream
-console output: https://syzkaller.appspot.com/x/log.txt?x=12094bb9580000
-kernel config:  https://syzkaller.appspot.com/x/.config?x=cb17729fb04b1e3a
-dashboard link: https://syzkaller.appspot.com/bug?extid=09103639e39c989e3ed3
-compiler:       Debian clang version 22.1.8 (++20260613092233+e80beda6e255-1~exp1~20260613092250.77), Debian LLD 22.1.8
-syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=17b27649580000
+I've now tested the UPS across multiple kernel generations, including:
 
-Downloadable assets:
-disk image: https://storage.googleapis.com/syzbot-assets/375d27e96ecb/disk-848acc8f.raw.xz
-vmlinux: https://storage.googleapis.com/syzbot-assets/4ba19a656b9d/vmlinux-848acc8f.xz
-kernel image: https://storage.googleapis.com/syzbot-assets/7c2a17aaee7c/bzImage-848acc8f.xz
+- 6.0.x
 
-IMPORTANT: if you fix the issue, please add the following tag to the commit:
-Reported-by: syzbot+09103639e39c989e3ed3@syzkaller.appspotmail.com
+- 6.18.40
 
-Oops: general protection fault, probably for non-canonical address 0xdffffc000000000f: 0000 [#1] SMP KASAN PTI
-KASAN: null-ptr-deref in range [0x0000000000000078-0x000000000000007f]
-CPU: 1 UID: 0 PID: 1035 Comm: kworker/u8:8 Not tainted syzkaller #0 PREEMPT_{RT,(full)} 
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 07/24/2026
-Workqueue: pm pm_runtime_work
-RIP: 0010:dev_get_drvdata include/linux/device.h:989 [inline]
-RIP: 0010:rmi_suspend_functions drivers/input/rmi4/rmi_driver.c:283 [inline]
-RIP: 0010:rmi_driver_suspend+0x30/0x180 drivers/input/rmi4/rmi_driver.c:994
-Code: 57 41 56 41 55 41 54 53 50 89 74 24 04 48 89 fb 48 bd 00 00 00 00 00 fc ff df e8 6b c7 5e fa 4c 8d 73 78 4c 89 f0 48 c1 e8 03 <80> 3c 28 00 74 08 4c 89 f7 e8 e2 3a c8 fa 4d 8b 36 4c 89 f0 48 c1
-RSP: 0018:ffffc90005f67670 EFLAGS: 00010206
-RAX: 000000000000000f RBX: 0000000000000000 RCX: ffff888027c58000
-RDX: 0000000000000000 RSI: 0000000000000000 RDI: 0000000000000000
-RBP: dffffc0000000000 R08: 0000000000000000 R09: 0000000000000000
-R10: dffffc0000000000 R11: ffffffff88838110 R12: dffffc0000000000
-R13: 0000000000000003 R14: 0000000000000078 R15: 0000000000000000
-FS:  0000000000000000(0000) GS:ffff888125d3e000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 0000001b2cc63fff CR3: 000000003c77c000 CR4: 00000000003526f0
-Call Trace:
- <TASK>
- rmi_suspend+0xa7/0xf0 drivers/hid/hid-rmi.c:448
- hid_suspend+0x4a3/0x530 drivers/hid/usbhid/hid-core.c:1618
- usb_suspend_interface drivers/usb/core/driver.c:1323 [inline]
- usb_suspend_both+0x285/0x1040 drivers/usb/core/driver.c:1446
- usb_runtime_suspend+0x58/0x110 drivers/usb/core/driver.c:2000
- __rpm_callback+0x2d6/0x930 drivers/base/power/runtime.c:406
- rpm_callback drivers/base/power/runtime.c:460 [inline]
- rpm_suspend+0x8a0/0x17a0 drivers/base/power/runtime.c:698
- pm_runtime_work+0x132/0x1b0 drivers/base/power/runtime.c:-1
- process_one_work kernel/workqueue.c:3322 [inline]
- process_scheduled_works+0xa8e/0x14e0 kernel/workqueue.c:3405
- worker_thread+0xa47/0xfb0 kernel/workqueue.c:3486
- kthread+0x388/0x470 kernel/kthread.c:436
- ret_from_fork+0x514/0xb70 arch/x86/kernel/process.c:158
- ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:245
- </TASK>
-Modules linked in:
----[ end trace 0000000000000000 ]---
-RIP: 0010:dev_get_drvdata include/linux/device.h:989 [inline]
-RIP: 0010:rmi_suspend_functions drivers/input/rmi4/rmi_driver.c:283 [inline]
-RIP: 0010:rmi_driver_suspend+0x30/0x180 drivers/input/rmi4/rmi_driver.c:994
-Code: 57 41 56 41 55 41 54 53 50 89 74 24 04 48 89 fb 48 bd 00 00 00 00 00 fc ff df e8 6b c7 5e fa 4c 8d 73 78 4c 89 f0 48 c1 e8 03 <80> 3c 28 00 74 08 4c 89 f7 e8 e2 3a c8 fa 4d 8b 36 4c 89 f0 48 c1
-RSP: 0018:ffffc90005f67670 EFLAGS: 00010206
-RAX: 000000000000000f RBX: 0000000000000000 RCX: ffff888027c58000
-RDX: 0000000000000000 RSI: 0000000000000000 RDI: 0000000000000000
-RBP: dffffc0000000000 R08: 0000000000000000 R09: 0000000000000000
-R10: dffffc0000000000 R11: ffffffff88838110 R12: dffffc0000000000
-R13: 0000000000000003 R14: 0000000000000078 R15: 0000000000000000
-FS:  0000000000000000(0000) GS:ffff888125d3e000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 0000001b2cc63fff CR3: 000000003c77c000 CR4: 00000000003526f0
-----------------
-Code disassembly (best guess):
-   0:	57                   	push   %rdi
-   1:	41 56                	push   %r14
-   3:	41 55                	push   %r13
-   5:	41 54                	push   %r12
-   7:	53                   	push   %rbx
-   8:	50                   	push   %rax
-   9:	89 74 24 04          	mov    %esi,0x4(%rsp)
-   d:	48 89 fb             	mov    %rdi,%rbx
-  10:	48 bd 00 00 00 00 00 	movabs $0xdffffc0000000000,%rbp
-  17:	fc ff df
-  1a:	e8 6b c7 5e fa       	call   0xfa5ec78a
-  1f:	4c 8d 73 78          	lea    0x78(%rbx),%r14
-  23:	4c 89 f0             	mov    %r14,%rax
-  26:	48 c1 e8 03          	shr    $0x3,%rax
-* 2a:	80 3c 28 00          	cmpb   $0x0,(%rax,%rbp,1) <-- trapping instruction
-  2e:	74 08                	je     0x38
-  30:	4c 89 f7             	mov    %r14,%rdi
-  33:	e8 e2 3a c8 fa       	call   0xfac83b1a
-  38:	4d 8b 36             	mov    (%r14),%r14
-  3b:	4c 89 f0             	mov    %r14,%rax
-  3e:	48                   	rex.W
-  3f:	c1                   	.byte 0xc1
+- 7.0.2-6
 
+- 7.0.14-8
 
----
-This report is generated by a bot. It may contain errors.
-See https://goo.gl/tpsmEJ for more information about syzbot.
-syzbot engineers can be reached at syzkaller@googlegroups.com.
+- 7.2.x
 
-syzbot will keep track of this issue. See:
-https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
+The behavior varies somewhat between versions=E2=80=947.0.2-6 gets the
+farthest=E2=80=94but none of them provide stable long-term communication wi=
+th
+the UPS.
 
-If the report is already addressed, let syzbot know by replying with:
-#syz fix: exact-commit-title
+On 7.0.2-6, the driver successfully:
 
-If you want syzbot to run the reproducer, reply with:
-#syz test: git://repo/address.git branch-or-commit-hash
-If you attach or paste a git patch, syzbot will apply it before testing.
+- Claims interface 0
 
-If you want to overwrite report's subsystems, reply with:
-#syz set subsystems: new-subsystem
-(See the list of subsystem names on the web dashboard)
+- Reads the HID report descriptor
 
-If the report is a duplicate of another one, reply with:
-#syz dup: exact-subject-of-another-report
+- Detects the UPS correctly as a CyberPower LE1000DG (VID:PID 0764:0501)
 
-If you want to undo deduplication, reply with:
-#syz undup
+- Retrieves battery charge, runtime, voltage, load, and other values
+
+- Completes several successful polling/update cycles
+
+Eventually communication stops. At that point the running driver
+repeatedly logs:
+
+    libusb1: Could not open any HID devices: insufficient permissions
+on everything
+
+and upsd reports:
+
+    Data for UPS [ups] is stale - check driver
+
+One thing I find particularly interesting is that the UPS never
+disappears from the USB bus. Even after communication becomes stale it
+is still present in lsusb:
+
+    Bus 001 Device 007: ID 0764:0501 Cyber Power System LE1000DG
+
+There are also no USB disconnects, resets, xHCI errors, or other
+kernel USB errors after the device has initialized.
+
+What makes this especially confusing is that this does not appear to
+be a normal permissions problem. The driver clearly has permission to
+open the device initially=E2=80=94it successfully claims the interface, rea=
+ds
+the HID report descriptor, and communicates with the UPS for several
+polling cycles before failing. Once it enters this state, however, it
+repeatedly reports "insufficient permissions on everything" until the
+driver is restarted.
+
+Since I can reproduce essentially the same failure across 6.0, 6.18,
+7.0, and 7.2 kernels, I'm beginning to think the kernel version only
+affects how long the driver remains functional, rather than being the
+underlying cause.
+
+Over the next few days I plan to test the UPS using a dedicated PCIe
+USB controller based on an ASMedia chipset to determine whether the
+behavior is specific to the Intel xHCI controller. I'll report those
+results back to the list once I've completed that testing.
+
+Has anyone seen this pattern before, where usbhid-ups initializes
+successfully, polls normally for a short period, then loses
+communication and repeatedly reports:
+
+    libusb1: Could not open any HID devices: insufficient permissions
+on everything
+
+while the USB device itself remains present and enumerated?
+
+Thanks again for everyone's time and suggestions. I'll follow up once
+I've completed the additional USB controller testing.
+
+On Tue, Aug 4, 2026 at 8:01=E2=80=AFPM Jamie Stephens <jamie.stephens@gmail=
+.com> wrote:
+>
+> Hi Lovekesh,
+>
+> I have now tested 02-resume-reset.patch separately on Linux 7.1.5 with
+> the CyberPower device 0764:0501.
+>
+> The patched kernel was active:
+>
+>   7.1.5-ups-reset-resume
+>
+> The device was detected by lsusb, but USB initialization still failed:
+>
+>   usb 1-3: new full-speed USB device number 4 using xhci_hcd
+>   usb 1-3: New USB device found, idVendor=3D0764, idProduct=3D0501
+>   usb 1-3: New USB device strings: Mfr=3D3, Product=3D1, SerialNumber=3D2
+>   usb 1-3: can't set config #1, error -71
+>
+> The UPS therefore never attached to hid-generic and NUT could not use it.
+>
+> I then returned the same USB cable and UPS to the PiAware NUT server,
+> where it immediately resumed working normally:
+>
+>   ups.status: OL
+>   battery.charge: 100
+>   input.voltage: 122.0
+>   output.voltage: 122.0
+>   ups.load: 23
+>   driver.version.data: CyberPower HID 0.8
+>
+> Results so far:
+>
+>   01-no-lpm.patch: did not resolve the regression
+>   02-resume-reset.patch: did not resolve the regression
+>
+> I will proceed with the requested git bisection unless you would like
+> any additional targeted logs or tests first.
+>
+> Regards,
+> Jamie Stephens
+>
+> On Tue, Aug 4, 2026 at 2:56=E2=80=AFPM Lovekesh Solanki
+> <lovekeshsolanki00@gmail.com> wrote:
+> >
+> > Thanks for the report,
+> >
+> > On Thu, Jul 30, 2026 at 03:28:02PM -0400, Jamie Stephens wrote:
+> > > sudo lsusb -v -d 0764:0501
+> > >
+> > > reports:
+> > >
+> > > wDescriptorLength     504
+> > >
+> > > Warning: can't get report descriptor, LIBUSB_ERROR_PIPE
+> > >
+> > > cannot read device status, Resource temporarily unavailable (11)
+> > >
+> > > As a result, usbhid-ups is unable to reliably communicate with the
+> > > device and NUT cannot reliably monitor UPS status.
+> > The lsusb failure and NUT seem to be seperate, lsusb failure could
+> > simply be device property.
+> >
+> > Few possibilities I can think of worth testing:
+> > 1) It may be related to LPM, the device may be advertising this but may
+> > not be handling it properly.
+> > 2) Commit 8020c41b39f5 (usb: core: allow ACPI-managed hard-wired ports =
+to power off)
+> > lets acpi managed ports be powered off even if hub does not advertise
+> > power switching. The UPS may be sitting on such port and its power coul=
+d
+> > be cycled out and leave it in a stale state.
+> >
+> > I'm attaching two patches to see if they have any effect, please apply
+> > and test them seperatly and let us know the results.
+> > And, as per Thorsten's advice above, run git bisection regardless.
+> >
+> > Regards,
+> > Lovekesh

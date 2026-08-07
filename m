@@ -1,133 +1,146 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1E51830EF91
-	for <linux-input@vger.kernel.org>; Fri,  7 Aug 2026 01:53:51 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F12C912B94
+	for <linux-input@vger.kernel.org>; Fri,  7 Aug 2026 01:56:18 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786067633; cv=none; b=NYeGk2A304qwrj1vJaVgzQCO75YvLwiNfkyBcWNZC0g4XQ2UEGIJvr/zRJwivQtXhmphEPCvsMCkFPFGJLRRxppG9cuD6B96rwURVvcwNQGTLkQAL+AriFF+RMHTC0UhracfTQ/515E3nkvh9r6cu7+EzSDJTgHIM6EeL6//TXM=
+	t=1786067780; cv=none; b=e9syXbPf8QlDB9A33JQK/6zLd84xvPA+y4aeJ2FNZtWyfpjRXGuDPBjKagS9wYfzJ+mP5zHR9wmuT6S6ybAVv42fHOvk3YBLziEYsOqKaxhUQ0v/ibjWJe4diycenHsJbtgyTWQ43Ljf7TQbOZdBicRIWkDK9T1J4pSsThwUm+Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786067633; c=relaxed/simple;
-	bh=+G4h7+i3V24pdHQqSNMm/c5Ugr8b5NJ65uA9LkgdbHs=;
+	s=arc-20240116; t=1786067780; c=relaxed/simple;
+	bh=f+ppHdO5f0GSxWEobdnmiHG05RVXCUJ7UfPIdTXjiTo=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=lLWxwKTjKA8TPKlFXF5AmjblmGKFjuVK6QRcVTRPGWPPe8fSapzq4vRYLv+uB+FyzI1PvJZfCWNU4K5NBP6E1Lf7xe4Kz8FXCzKaAmqB5u5IIUUnrCS9NleOwjbT401xBIYvbAGDcUhR+jEp1P48OzVWHxkupIpdhvrqS8zsbFY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=CqBpCmNw; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=mKnZPIFXpQDoLvmOHo64wDs+N59XJ4Fh8D0Glwv6GFpNe1ZmGtPUHY0ntKHYc53ZHWuV486HRAAORvOqa1R5GiETl5/pO8mNPJMxxKI3CH+5AXciEvFT+foTOp+Y+05uNnoZQgeuN5rRKp1CKAo2bK7ucfWkQIo0RudTU4FgTXQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=okKcg5EJ; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="CqBpCmNw"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75CAF1F000E9;
-	Fri,  7 Aug 2026 01:53:51 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="okKcg5EJ"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4FD561F000E9;
+	Fri,  7 Aug 2026 01:56:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786067631;
-	bh=3tH/kR9zYt/c+VfU4t8BanRCclp4PzcizX2l2oSPcVE=;
+	s=k20260515; t=1786067778;
+	bh=5aA85e+i+AHEe+FXkR0bAgC+Ep/llzNup5PGAlQ+EnU=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=CqBpCmNwurLXnlfoKvz7SbMICBkxCa9HGSuBMLSi3qOPvQR2eVOApWUmnNDW6I8wl
-	 p4sr6NmwLrZ/+XTfrznV54WpABh0xfyuDiPzrAvBS+QOyfY90hyu15wQZeqH3waZSq
-	 ILTO853sXWbzr+r932Oo7LbXP5svH00S6OAWiutWwrNAJET628ng2g9QfeOpkZJFDz
-	 jwYRv5wqPtrfUWBjH33qbO+LgHEbvc5kDkVP/SnkgbVNBOVXXOnYrRCjsUv1Csg48D
-	 Wv/zp+zfP/mQyydoC9i7lgQw6X/4MJw//uUxCQjFEoMfvmbbzVT8wEBeX8LN7WqdlH
-	 ysf3U1cWQRyyA==
+	b=okKcg5EJeNGCBGfnWD3h3EoAtsKS1g/na4mtyF4ISDa3Z5y5R7Nr925FQAsCo6cCi
+	 n67sfGn15XE31sNELOggZkgQda/+MosyUCwMDXrwUbdalsQOP8J61+JcBZOvAodY07
+	 6h+EHsJUzO6cD/DzE0ezmyg/jANYY3og9iaE2ub2TMvjWZ2EWJB9ODG/gBwqtSIsHh
+	 j//fhvSSf0+fzVNYoEtP3SW+PWtlVbXtqfJ6MpmFg+XAKvM8SNAj5tI557oEP+2qRX
+	 hSEgEPXRdmVfbBw6iInwDsswmRX1qHTgP5q+Q5tFzB323Ai8P4+9UXRQgNJQr68fKN
+	 nxlZpoD6AGE7Q==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v3 1/6] HID: steam: Unregister battery on partial
- registration error
+Subject: Re: [PATCH v3 5/6] HID: steam: Clean up locking
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Vicki Pfau" <vi@endrift.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260807013334.2109386-2-vi@endrift.com>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <20260807013334.2109386-6-vi@endrift.com>
 References: <20260807013334.2109386-1-vi@endrift.com>
- <20260807013334.2109386-2-vi@endrift.com>
+ <20260807013334.2109386-6-vi@endrift.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 07 Aug 2026 01:53:51 +0000
-Message-Id: <20260807015351.75CAF1F000E9@smtp.kernel.org>
+Date: Fri, 07 Aug 2026 01:56:17 +0000
+Message-Id: <20260807015618.4FD561F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-
-New issues:
-- [Medium] Tearing down the battery on the error path without clearing `ste=
-am->serial_no` prevents battery registration on subsequent retries.
-
-Pre-existing issues:
-- [High] Concurrent execution of unregistration functions allows unprotecte=
-d RCU pointer modifications, causing potential double frees.
+- [High] Recursive spinlock acquisition causes an immediate deadlock when p=
+rocessing battery events.
 --
 
---- Patch [1]: [PATCH v3 1/6] HID: steam: Unregister battery on partial reg=
-istration error ---
-commit 024061e54a475950f36c1803b7d20aeb74ac4f96
+--- Patch [5]: [PATCH v3 5/6] HID: steam: Clean up locking ---
+commit d43242604b3382e36db4c7f009a0ddce883ed333
 Author: Vicki Pfau <vi@endrift.com>
 
-HID: steam: Unregister battery on partial registration error
-
-In a previous refactor the code for unregistering a battery if later
-registration steps failed was accidentally left out. As a result, a
-lingering power_supply object could get left over after the steam object
-was torn down.
+HID: steam: Clean up locking
+   =20
+This cleans up several issues with locking behavior, including RCU accesses
+not being guarded behind a lock.
 
 > diff --git a/drivers/hid/hid-steam.c b/drivers/hid/hid-steam.c
-> index 6199f67f3c4cd..967f12c7a599a 100644
+> index d95296b28f92b..0e0ccf263416f 100644
 > --- a/drivers/hid/hid-steam.c
 > +++ b/drivers/hid/hid-steam.c
-> @@ -1199,6 +1199,7 @@ static int steam_register(struct steam_device *stea=
-m)
->  steam_register_sensors_fail:
->  	steam_input_unregister(steam);
->  steam_register_input_fail:
-> +	steam_battery_unregister(steam);
-
-[Severity: Medium]
-Will this error path leave the device in an inconsistent state on retry?
-
-If steam_register() fails and steam_battery_unregister() is called,
-steam->serial_no[0] is not cleared.
-
-On a subsequent retry (e.g. from steam_work_connect_cb()), steam_register()
-will see the serial number populated and skip the initialization block where
-steam_battery_register() is called.
-
-This results in the input devices registering successfully, but the battery
-object being permanently missing until a full device disconnect.
+[ ... ]
+> @@ -2230,8 +2234,6 @@ static void steam_do_deck_sensors_event(struct stea=
+m_device *steam,
+>  static void steam_do_battery_event(struct steam_device *steam,
+>  		struct power_supply *battery, u8 *data)
+>  {
+> -	unsigned long flags;
+> -
+>  	s16 volts =3D steam_le16(data + 12);
+>  	u8 batt =3D data[14];
+> =20
+> @@ -2239,10 +2241,9 @@ static void steam_do_battery_event(struct steam_de=
+vice *steam,
+>  	rcu_read_lock();
+>  	battery =3D rcu_dereference(steam->battery);
+>  	if (likely(battery)) {
+> -		spin_lock_irqsave(&steam->lock, flags);
+> +		guard(spinlock_irqsave)(&steam->lock);
 
 [Severity: High]
-This is a pre-existing issue, but does calling steam_battery_unregister()
-here expose a race condition?
+Does this code cause a recursive spinlock deadlock?
 
-When a user holds the HID device open, hid_hw_close(hdev) in steam_remove()
-doesn't drop ll_open_count to zero, leaving the interrupt URB active.
+steam_raw_event() now acquires steam->lock for the entire function scope and
+calls steam_do_battery_event().
 
-After cancel_work_sync(&steam->work_connect), the active URB can still
-receive raw events and re-queue work_connect.
+When a battery event is received, we'll see this call chain:
 
-This allows a worker thread to execute steam_register() or
-steam_unregister() concurrently with steam_remove().
+steam_raw_event()
+   guard(spinlock_irqsave)(&steam->lock);
+   ...
+   steam_do_battery_event()
+       guard(spinlock_irqsave)(&steam->lock); <-- deadlock
 
-Since steam_battery_unregister() only uses rcu_read_lock() for reads, both
-threads can observe a non-NULL battery pointer:
+>  		steam->battery_voltage =3D volts;
+>  		steam->battery_charge =3D batt;
+> -		spin_unlock_irqrestore(&steam->lock, flags);
+>  		power_supply_changed(battery);
+>  	}
+>  	rcu_read_unlock();
+[ ... ]
+> @@ -2427,15 +2428,13 @@ static void steam_do_ibex_battery_event(struct st=
+eam_device *steam,
+>  		struct power_supply *battery,
+>  		const struct steam_ibex_battery_status *data)
+>  {
+> -	unsigned long flags;
+> -
+>  	/* Creating the battery may have failed */
+>  	guard(rcu)();
+>  	battery =3D rcu_dereference(steam->battery);
+>  	if (!likely(battery))
+>  		return;
+> =20
+> -	spin_lock_irqsave(&steam->lock, flags);
+> +	guard(spinlock_irqsave)(&steam->lock);
 
-drivers/hid/hid-steam.c:steam_battery_unregister() {
-	rcu_read_lock();
-	battery =3D rcu_dereference(steam->battery);
-	rcu_read_unlock();
+[Severity: High]
+Can this also cause a deadlock for the same reason?
 
-	if (!battery)
-		return;
-	RCU_INIT_POINTER(steam->battery, NULL);
-	synchronize_rcu();
-	power_supply_unregister(battery);
-	devm_kfree(&steam->hdev->dev, steam->battery_desc.name);
-}
+steam_raw_event()
+   guard(spinlock_irqsave)(&steam->lock);
+   ...
+   steam_do_ibex_battery_event()
+       guard(spinlock_irqsave)(&steam->lock); <-- deadlock
 
-Is it possible for both threads to proceed past the NULL check and
-double-free the battery and its memory?
-
->  	return ret;
->  }
+>  	steam->battery_voltage =3D get_unaligned_le16(&data->battery_voltage);
+>  	steam->battery_current =3D get_unaligned_le16(&data->battery_current);
+>  	steam->battery_temp =3D get_unaligned_le16(&data->temperature);
+[ ... ]
+> @@ -2470,6 +2468,7 @@ static int steam_raw_event(struct hid_device *hdev,
+>  	if (!steam)
+>  		return 0;
+> =20
+> +	guard(spinlock_irqsave)(&steam->lock);
+>  	if (steam->client_opened)
+>  		hid_input_report(steam->client_hdev, report->type, data, size, 0);
+>
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260807013334.2109=
-386-1-vi@endrift.com?part=3D1
+386-1-vi@endrift.com?part=3D5

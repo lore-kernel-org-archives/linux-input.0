@@ -1,1010 +1,1319 @@
-Received: from out-183.mta0.migadu.com (out-183.mta0.migadu.com [91.218.175.183])
+Received: from endrift.com (endrift.com [173.255.198.10])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AFE7E4B04BF
-	for <linux-input@vger.kernel.org>; Fri,  7 Aug 2026 01:23:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.183
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E92BD38DC4C
+	for <linux-input@vger.kernel.org>; Fri,  7 Aug 2026 01:35:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=173.255.198.10
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786065835; cv=none; b=YFgO5TdeuFaFEwANo/ygcIsf9VXR+9wIprb+FtnYRqV3nVKq+dDGmFn9yZYzYqXx9G41IPDIhy6Lsha3qiE6CeyKhKl+KrDduwyovDOCI81wtouJLoHGAMpDmHVhj6mo55TOkJD8mMiTtarRKMaaUdEzQLeFDHrfafPFp9zenIc=
+	t=1786066510; cv=none; b=caD24IXzJtgxVNlXprwdmMrdJ9WfA5r+F6NI5LT4z7wbeaBms0+dFBPVzZiCo/uz4IPS55xX6B4hFibtG5C/Vb7YYLvmZJ++OTU8v9Gz4K/d8fc7DIxl/W1hO5oFi8hQxZIOt/dfjiTFKN+pbIKDeb0GmvGl7PZxp51U9Jf/1ew=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786065835; c=relaxed/simple;
-	bh=JtZagRf2E5EOW4jeKMhngaZY2VNggJpbkMC2UfAS7OM=;
+	s=arc-20240116; t=1786066510; c=relaxed/simple;
+	bh=O2Fm2M9u6esWOVJCu9KyFe39tuUPNI3Yi1HMP5cQ5rg=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=OjqWytPxIcyBL4i5/SEfNa6BArRKEgitYSYUuPe+traC21ua5nGAzbpbzxTvNvXU5QAjBN5plvPOprxb695TsUxbQRwpIuJQhsSGUQwnJ38e+EBKr7yNB2Y/47dFVQorXw+yLZrVUbuB9xc/Hys0kd3Bz+njok6yj20K+8lcxPw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=rN3xtyvF; arc=none smtp.client-ip=91.218.175.183
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+	 MIME-Version:Content-Type; b=pjMaJhzusrAxJQnZQh7lVzvbora0nQOyTBYkHagE2k3ekd+xX95hvIPyS4wdUL6+PTxl6lZJzjSsXNYXFLCDTrhTbsmVJczys/hyu0g55EKYi8m31ueqs3OhcSySn2XlBw/+EJhn4qz95O/PyNcpWxbxqfoOwLyjXdlojqJfK4E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com; spf=pass smtp.mailfrom=endrift.com; dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b=VIWrqfbH; arc=none smtp.client-ip=173.255.198.10
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=endrift.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="rN3xtyvF"
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1786065829;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=urDWufMaFf0LekqLxjrCnySCpSFvCV7CK6mJTwTcktM=;
-	b=rN3xtyvFa9+c5612FdTRotnVEMhFdR62ZPoqC2XhM7NHjgzf6a0Bfl9T81r5AomzlZZ4VX
-	kfXEX0QaVmCnucaQysXbnlClWUBfI87kTuWv0gowlqf4IyfDEqou7CsMQmdcJrhJyDbC2h
-	vyW3ZJcCovONW3eqPCaFrGaa9irYQUg=
-From: Denis Benato <denis.benato@linux.dev>
-To: 'Jiri Kosina' <jikos@kernel.org>
-Cc: 'Benjamin Tissoires' <bentiss@kernel.org>,
-	'Dmitry Torokho v' <dmitry.torokhov@gmail.com>,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Denis Benato <denis.benato@linux.dev>,
-	Adolfo Rodrigues <adolfotregosa@gmail.com>
-Subject: [PATCH 1/2] HID: flydigi: add support for vader 5 pro
-Date: Fri,  7 Aug 2026 01:23:33 +0000
-Message-ID: <20260807012334.58737-2-denis.benato@linux.dev>
-In-Reply-To: <20260807012334.58737-1-denis.benato@linux.dev>
-References: <20260807012334.58737-1-denis.benato@linux.dev>
+	dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b="VIWrqfbH"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=endrift.com; s=2020;
+	t=1786066500; bh=O2Fm2M9u6esWOVJCu9KyFe39tuUPNI3Yi1HMP5cQ5rg=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+	b=VIWrqfbHTAeF9NsxnHQjRsKoXfeeQwGUQsDn2Zz0GtV/zDKboK5K/h3GGDGbg8F6V
+	 +UlzGDUL7+wV0QHtGN5MG4/Kx7SAAjON59sM23nk+YLEhd7XSG7l9/zJ8Yx7Sr5LFd
+	 8x2cTOnF8uNfXMAXHD5SuNXnhcLQfv5kQcD9ajB1kAi1oABCwc5r1dN+58KxWcp5SW
+	 coGuJG4SA09zu7qo5OSggR3DclVezVj9UCV9Hp3SriQqzFNt3z9v5hHoQ1aDpl/3ws
+	 oTOO86XQafMhVYADCH7YfOJa9nKbgQj0vcM+S9uTFQq6UxNI+qmmpMrpFaHmFdXaIL
+	 FSE00rKuqx4lQ==
+Received: from microtis.vulpes.eutheria.net (71-212-73-87.tukw.qwest.net [71.212.73.87])
+	by endrift.com (Postfix) with ESMTPSA id 711C2A239;
+	Thu, 06 Aug 2026 18:35:00 -0700 (PDT)
+From: Vicki Pfau <vi@endrift.com>
+To: Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>,
+	linux-input@vger.kernel.org
+Cc: Vicki Pfau <vi@endrift.com>
+Subject: [PATCH v3 2/6] HID: steam: Initial 2026 Steam Controller support
+Date: Thu,  6 Aug 2026 18:33:26 -0700
+Message-ID: <20260807013334.2109386-3-vi@endrift.com>
+X-Mailer: git-send-email 2.54.0
+In-Reply-To: <20260807013334.2109386-1-vi@endrift.com>
+References: <20260807013334.2109386-1-vi@endrift.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Migadu-Flow: FLOW_OUT
 
-The Flydigi Vader Pro 5 is a gamepad with additional buttons
-and a gyroscope that is connected wireless to a PC via its
-own dongle so it's always a USB device: add support for it
-by following the enstablished pattern of spawning two evdevs
-that share the same uniqid so that SDL can match the two and
-expose them as a single controller.
+This brings support for the 2026 Steam Controller, comparably featureful to
+the existing support for the Steam Deck.
 
-Assisted-by: VSCode:gpt-5.3-codex
-Tested-by: Adolfo Rodrigues <adolfotregosa@gmail.com>
-Signed-off-by: Denis Benato <denis.benato@linux.dev>
+This also includes some cleanup/streamlining of the registration flow to
+make it cleaner and avoid potential pitfalls going forwards.
+
+Signed-off-by: Vicki Pfau <vi@endrift.com>
 ---
- drivers/hid/Kconfig       |   8 +
- drivers/hid/Makefile      |   1 +
- drivers/hid/hid-flydigi.c | 887 ++++++++++++++++++++++++++++++++++++++
- drivers/hid/hid-ids.h     |   3 +
- 4 files changed, 899 insertions(+)
- create mode 100644 drivers/hid/hid-flydigi.c
+ drivers/hid/hid-ids.h   |   4 +
+ drivers/hid/hid-steam.c | 853 +++++++++++++++++++++++++++++++++-------
+ 2 files changed, 714 insertions(+), 143 deletions(-)
 
-diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index aa7fa11a0197..59afcdb7ac18 100644
---- a/drivers/hid/Kconfig
-+++ b/drivers/hid/Kconfig
-@@ -1205,6 +1205,14 @@ config STEAM_FF
- 	Say Y here if you want to enable force feedback support for the Steam
- 	Deck.
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 1059922baaac..b3559e70eec8 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -1374,6 +1374,10 @@
+ #define USB_DEVICE_ID_STEAM_CONTROLLER		0x1102
+ #define USB_DEVICE_ID_STEAM_CONTROLLER_WIRELESS	0x1142
+ #define USB_DEVICE_ID_STEAM_DECK	0x1205
++#define USB_DEVICE_ID_STEAM_CONTROLLER_IBEX	0x1302
++#define USB_DEVICE_ID_STEAM_CONTROLLER_IBEX_BLE	0x1303
++#define USB_DEVICE_ID_STEAM_CONTROLLER_PROTEUS	0x1304
++#define USB_DEVICE_ID_STEAM_CONTROLLER_NEREID	0x1305
  
-+config HID_FLYDIGI
-+	tristate "Flydigi game controller support"
-+	depends on USB_HID
-+	select INPUT_FF_MEMLESS
-+	help
-+	Support for Flydigi game controllers that use the vendor-specific
-+	HID protocol, including Vader 5 Pro.
-+
- config HID_STEELSERIES
- 	tristate "Steelseries devices support"
- 	depends on USB_HID
-diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
-index 48a863b245ee..356c19b31585 100644
---- a/drivers/hid/Makefile
-+++ b/drivers/hid/Makefile
-@@ -56,6 +56,7 @@ obj-$(CONFIG_HID_FT260)		+= hid-ft260.o
- obj-$(CONFIG_HID_GEMBIRD)	+= hid-gembird.o
- obj-$(CONFIG_HID_GFRM)		+= hid-gfrm.o
- obj-$(CONFIG_HID_GLORIOUS)  += hid-glorious.o
-+obj-$(CONFIG_HID_FLYDIGI)	+= hid-flydigi.o
- obj-$(CONFIG_HID_VIVALDI_COMMON) += hid-vivaldi-common.o
- obj-$(CONFIG_HID_GOODIX_SPI)	+= hid-goodix-spi.o
- obj-$(CONFIG_HID_GOOGLE_HAMMER)	+= hid-google-hammer.o
-diff --git a/drivers/hid/hid-flydigi.c b/drivers/hid/hid-flydigi.c
-new file mode 100644
-index 000000000000..48129f429f3c
---- /dev/null
-+++ b/drivers/hid/hid-flydigi.c
-@@ -0,0 +1,887 @@
-+// SPDX-License-Identifier: GPL-2.0-or-later
-+/*
-+ * Flydigi Vader 5 Pro HID driver
-+ *
-+ * Exposes two evdev nodes with matching uniq values:
-+ * - Gamepad with force feedback
-+ * - Motion sensors (accelerometer + gyroscope)
-+ *
-+ * The protocol details and report layout are based on upstream SDL's
-+ * Flydigi HID backend.
-+ */
-+
-+#include <linux/cleanup.h>
-+#include <linux/hid.h>
-+#include <linux/input.h>
-+#include <linux/jiffies.h>
-+#include <linux/module.h>
-+#include <linux/mutex.h>
-+#include <linux/spinlock.h>
-+#include <linux/unaligned.h>
+ #define USB_VENDOR_ID_STEELSERIES	0x1038
+ #define USB_DEVICE_ID_STEELSERIES_SRWS1	0x1410
+diff --git a/drivers/hid/hid-steam.c b/drivers/hid/hid-steam.c
+index 967f12c7a599..ec7ccbe5aba0 100644
+--- a/drivers/hid/hid-steam.c
++++ b/drivers/hid/hid-steam.c
+@@ -44,6 +44,7 @@
+ #include <linux/delay.h>
+ #include <linux/power_supply.h>
+ #include <linux/unaligned.h>
 +#include <linux/usb.h>
-+#include <linux/workqueue.h>
+ #include "hid-ids.h"
+ 
+ MODULE_DESCRIPTION("HID driver for Valve Steam Controller");
+@@ -58,6 +59,8 @@ static LIST_HEAD(steam_devices);
+ 
+ #define STEAM_QUIRK_WIRELESS		BIT(0)
+ #define STEAM_QUIRK_DECK		BIT(1)
++#define STEAM_QUIRK_IBEX		BIT(2)
++#define STEAM_QUIRK_BLE			BIT(3)
+ 
+ /* Touch pads are 40 mm in diameter and 65535 units */
+ #define STEAM_PAD_RESOLUTION 1638
+@@ -310,11 +313,83 @@ enum {
+ 	TRACKPAD_GESTURE_KEYBOARD,
+ };
+ 
++/* Report identifiers (Ibex only) */
++enum {
++	/* Feature */
++	REPORT_ID_FEATURES_CONTROLLER	= 1,
++	REPORT_ID_FEATURES_DONGLE	= 2,
 +
-+#include "hid-ids.h"
++	/* Input */
++	REPORT_ID_INPUT			= 0x42,
++	REPORT_ID_BATTERY		= 0x43,
++	REPORT_ID_INPUT2		= 0x45,
++	REPORT_ID_WIRELESS_EVENT	= 0x79,
 +
-+#define FLYDIGI_REPORT_SIZE		32
-+
-+#define FLYDIGI_MAGIC1			0x5a
-+#define FLYDIGI_MAGIC2			0xa5
-+#define FLYDIGI_CMD_INFO		0x01
-+#define FLYDIGI_CMD_STATUS		0x10
-+#define FLYDIGI_CMD_STATUS_UPDATE	0x11
-+#define FLYDIGI_CMD_HAPTIC		0x12
-+#define FLYDIGI_CMD_ACQUIRE		0x1c
-+#define FLYDIGI_CMD_INPUT		0xef
-+
-+#define FLYDIGI_ACQUIRE_PERIOD_MS	30000
-+
-+/* SDL identifies this class as 4096 counts per g and 2000 dps full-scale. */
-+#define FLYDIGI_ACCEL_RES_PER_G	4096
-+#define FLYDIGI_GYRO_RES_PER_DPS	16
-+
-+/* Protocol packet offsets (payload starts at magic byte 0x5a). */
-+#define FLYDIGI_OFF_LX			3
-+#define FLYDIGI_OFF_LY			5
-+#define FLYDIGI_OFF_RX			7
-+#define FLYDIGI_OFF_RY			9
-+#define FLYDIGI_OFF_DPAD_ABXY		11
-+#define FLYDIGI_OFF_MISC_BTNS		12
-+#define FLYDIGI_OFF_EXTRA_BTNS		13
-+#define FLYDIGI_OFF_SYSTEM_BTNS	14
-+#define FLYDIGI_OFF_LT			15
-+#define FLYDIGI_OFF_RT			16
-+#define FLYDIGI_OFF_GYRO_X		17
-+#define FLYDIGI_OFF_GYRO_Z		19
-+#define FLYDIGI_OFF_GYRO_Y		21
-+#define FLYDIGI_OFF_ACCEL_X		23
-+#define FLYDIGI_OFF_ACCEL_Z		25
-+#define FLYDIGI_OFF_ACCEL_Y		27
-+
-+struct flydigi_device {
-+	struct hid_device *hdev;
-+	struct input_dev *gamepad;
-+	struct input_dev *sensors;
-+
-+	struct mutex output_mutex;
-+	spinlock_t lock;
-+	u8 output_buf[FLYDIGI_REPORT_SIZE];
-+	u8 output_report_id;
-+
-+	struct work_struct rumble_work;
-+	struct delayed_work acquire_work;
-+
-+	u16 strong;
-+	u16 weak;
-+	bool gamepad_open;
-+	bool removed;
++	/* Output */
++	REPORT_ID_HAPTIC_RUMBLE		= 0x80,
++	REPORT_ID_HAPTIC_PULSE		= 0x81,
++	REPORT_ID_HAPTIC_COMMAND	= 0x82,
++	REPORT_ID_HAPTIC_LFO_TONE	= 0x83,
++	REPORT_ID_HAPTIC_LOG_SWEEP	= 0x84,
++	REPORT_ID_HAPTIC_SCRIPT		= 0x85,
 +};
 +
-+/**
-+ * flydigi_send_output - send one vendor packet through the selected report
-+ * @fd: controller state
-+ * @payload: protocol bytes without the HID report ID prefix
-+ * @payload_len: number of bytes in @payload
-+ *
-+ * Vader firmware variants expose either numbered or unnumbered output reports.
-+ * Descriptor probing selects one report ID at probe time, and all later writes
-+ * use that framing so the same packet builders work for both variants.
-+ *
-+ * Return: number of bytes transferred, or a negative error code.
-+ */
-+static int flydigi_send_output(struct flydigi_device *fd, const u8 *payload,
-+			       size_t payload_len)
-+{
-+	u8 *buf = fd->output_buf;
-+	size_t copy_len;
-+	bool no_output_report;
-+	int ret;
++/* Ibex charge state */
++enum {
++	CHARGE_STATE_DISCHARGING	= 1,
++	CHARGE_STATE_CHARGING		= 2,
++	CHARGE_STATE_CHARGING_DONE	= 4,
++};
 +
-+	copy_len = min(payload_len, (size_t)FLYDIGI_REPORT_SIZE - 1);
++/* Ibex wireless events */
++enum {
++	WIRELESS_EVENT_DISCONNECT	= 1,
++	WIRELESS_EVENT_CONNECT		= 2,
++	WIRELESS_EVENT_PAIR		= 3,
++};
 +
-+	no_output_report = !fd->hdev->ll_driver ||
-+			   !fd->hdev->ll_driver->output_report;
+ struct steam_controller_attribute {
+ 	unsigned char tag;
+ 	__le32 value;
+ } __packed;
+ 
++struct steam_ibex_battery_status {
++	u8 charge_state;
++	u8 battery_level;
++	__le16 battery_voltage;
++	__le16 system_voltage;
++	__le16 input_voltage;
++	__le16 battery_current;
++	__le16 input_current;
++	__le16 temperature;
++};
 +
-+	{
-+		guard(mutex)(&fd->output_mutex);
++struct steam_ibex_haptic_rumble {
++	u8 type;
++	__le16 intensity;
++	struct {
++		__le16 speed;
++		u8 gain;
++	} __packed left, right;
++} __packed;
++static_assert(sizeof(struct steam_ibex_haptic_rumble) == 9);
 +
-+		memset(buf, 0, FLYDIGI_REPORT_SIZE);
-+		buf[0] = fd->output_report_id;
-+		memcpy(&buf[1], payload, copy_len);
-+		ret = hid_hw_output_report(fd->hdev, buf, FLYDIGI_REPORT_SIZE);
-+		if (ret == -EOPNOTSUPP || (ret < 0 && no_output_report)) {
-+			ret = hid_hw_raw_request(fd->hdev, fd->output_report_id, buf,
-+						 FLYDIGI_REPORT_SIZE, HID_OUTPUT_REPORT,
-+						 HID_REQ_SET_REPORT);
-+		}
-+	}
++struct steam_ibex_haptic_pulse {
++	u8 side;
++	__le16 on_us;
++	__le16 off_us;
++	__le16 repeat_count;
++} __packed;
++static_assert(sizeof(struct steam_ibex_haptic_pulse) == 7);
 +
-+	if (ret < 0 && ret != -ENODEV)
-+		hid_dbg(fd->hdev, "output command failed: %d\n", ret);
-+
-+	return ret;
-+}
-+
-+static bool flydigi_desc_has_seq(const u8 *rdesc, unsigned int rsize,
-+				 const u8 *seq, size_t seq_size)
-+{
-+	size_t i;
-+
-+	if (!rdesc || !rsize || !seq || !seq_size || rsize < seq_size)
-+		return false;
-+
-+	for (i = 0; i <= rsize - seq_size; i++) {
-+		if (!memcmp(&rdesc[i], seq, seq_size))
-+			return true;
-+	}
-+
-+	return false;
-+}
-+
-+/**
-+ * flydigi_detect_protocol_descriptor - identify protocol interface layout
-+ * @hdev: HID device being probed
-+ * @output_report_id: resolved output report ID for protocol writes
-+ *
-+ * The controller exports multiple interfaces and not all of them transport the
-+ * extended Flydigi protocol. We key off descriptor signatures instead of fixed
-+ * interface numbers so the driver keeps working across firmware revisions.
-+ *
-+ * Return: true when the interface looks like the Flydigi protocol endpoint.
-+ */
-+static bool flydigi_detect_protocol_descriptor(struct hid_device *hdev,
-+					      u8 *output_report_id)
-+{
-+	const u8 *rdesc = hdev->dev_rdesc;
-+	unsigned int rsize = hdev->dev_rsize;
-+	static const u8 usage_ffa0[] = { 0x06, 0xa0, 0xff };
-+	static const u8 report_id_21[] = { 0x85, 0x21, 0x95, 0x1f };
-+	static const u8 report_32_in[] = { 0x95, 0x20, 0x81 };
-+	static const u8 report_32_out[] = { 0x95, 0x20, 0x91 };
-+
-+	if (!flydigi_desc_has_seq(rdesc, rsize, usage_ffa0, sizeof(usage_ffa0)))
-+		return false;
-+
-+	if (flydigi_desc_has_seq(rdesc, rsize, report_id_21,
-+				 sizeof(report_id_21))) {
-+		*output_report_id = 0x21;
-+		return true;
-+	}
-+
-+	if (flydigi_desc_has_seq(rdesc, rsize, report_32_in,
-+				 sizeof(report_32_in)) &&
-+	    flydigi_desc_has_seq(rdesc, rsize, report_32_out,
-+				 sizeof(report_32_out))) {
-+		*output_report_id = 0x00;
-+		return true;
-+	}
-+
-+	return false;
-+}
-+
-+static int flydigi_get_interface_number(struct hid_device *hdev)
-+{
-+	struct usb_interface *intf;
-+	struct usb_host_interface *alt;
-+
-+	if (!hid_is_usb(hdev))
-+		return -ENODEV;
-+
-+	intf = to_usb_interface(hdev->dev.parent);
-+	if (!intf)
-+		return -ENODEV;
-+
-+	alt = intf->cur_altsetting;
-+	if (!alt)
-+		return -ENODEV;
-+
-+	return alt->desc.bInterfaceNumber;
-+}
-+
-+/**
-+ * flydigi_send_acquire - request ownership of the controller protocol stream
-+ * @fd: controller state
-+ *
-+ * The firmware requires an explicit acquire token and periodic refreshes before
-+ * delivering full input and motion data.
-+ *
-+ * Return: number of bytes transferred, or a negative error code.
-+ */
-+static int flydigi_send_acquire(struct flydigi_device *fd)
-+{
-+	const u8 payload[31] = {
-+		FLYDIGI_MAGIC1,
-+		FLYDIGI_MAGIC2,
-+		FLYDIGI_CMD_ACQUIRE,
-+		23,
-+		1,
-+		'S', 'D', 'L'
++struct steam_ibex_output_report {
++	u8 id;
++	union {
++		struct steam_ibex_haptic_rumble rumble;
++		struct steam_ibex_haptic_pulse pulse;
 +	};
++} __packed;
 +
-+	return flydigi_send_output(fd, payload, sizeof(payload));
+ /* Pad identifiers for the deck */
+ #define STEAM_PAD_LEFT 0
+ #define STEAM_PAD_RIGHT 1
+@@ -334,11 +409,15 @@ struct steam_device {
+ 	unsigned long quirks;
+ 	struct work_struct work_connect;
+ 	bool connected;
++	bool registered;
+ 	char serial_no[STEAM_SERIAL_LEN + 1];
+ 	struct power_supply_desc battery_desc;
+ 	struct power_supply __rcu *battery;
+ 	u8 battery_charge;
+-	u16 voltage;
++	u8 battery_status;
++	u16 battery_temp;
++	u16 battery_voltage;
++	u16 battery_current;
+ 	struct delayed_work mode_switch;
+ 	bool did_mode_switch;
+ 	bool gamepad_mode;
+@@ -350,12 +429,14 @@ struct steam_device {
+ 	unsigned int sensor_update_rate_us;
+ };
+ 
+-static int steam_recv_report(struct steam_device *steam,
+-		u8 *data, int size)
++static int steam_recv_report_id(struct steam_device *steam,
++		u8 *data, int size, u8 report_id)
+ {
+ 	struct hid_report *r;
+ 	u8 *buf;
++	unsigned int retries = 50;
+ 	int ret;
++	u32 len;
+ 
+ 	/*
+ 	 * All reports start with a two byte header.
+@@ -364,13 +445,14 @@ static int steam_recv_report(struct steam_device *steam,
+ 	if (size < 2)
+ 		return -EINVAL;
+ 
+-	r = steam->hdev->report_enum[HID_FEATURE_REPORT].report_id_hash[0];
++	r = steam->hdev->report_enum[HID_FEATURE_REPORT].report_id_hash[report_id];
+ 	if (!r) {
+-		hid_err(steam->hdev, "No HID_FEATURE_REPORT submitted -  nothing to read\n");
++		hid_err(steam->hdev, "No HID_FEATURE_REPORT present for ID %u\n", report_id);
+ 		return -EINVAL;
+ 	}
+ 
+-	if (hid_report_len(r) < 64)
++	len = hid_report_len(r);
++	if (len < 64)
+ 		return -EINVAL;
+ 
+ 	buf = hid_alloc_report_buf(r, GFP_KERNEL);
+@@ -378,22 +460,36 @@ static int steam_recv_report(struct steam_device *steam,
+ 		return -ENOMEM;
+ 
+ 	/*
+-	 * The report ID is always 0, so strip the first byte from the output.
++	 * The report ID is consistent, so strip the first byte from the output.
+ 	 * hid_report_len() is not counting the report ID, so +1 to the length
+ 	 * or else we get a EOVERFLOW. We are safe from a buffer overflow
+ 	 * because hid_alloc_report_buf() allocates +7 bytes.
+ 	 */
+-	ret = hid_hw_raw_request(steam->hdev, 0x00,
+-			buf, hid_report_len(r) + 1,
+-			HID_FEATURE_REPORT, HID_REQ_GET_REPORT);
++	if (!(steam->quirks & STEAM_QUIRK_IBEX))
++		len += 1;
++
++	/*
++	 * Sometimes the wireless controller fails with EPIPE
++	 * when sending a feature report.
++	 * Doing a HID_REQ_GET_REPORT and waiting for a while
++	 * seems to fix that.
++	 */
++	do {
++		ret = hid_hw_raw_request(steam->hdev, report_id,
++				buf, len,
++				HID_FEATURE_REPORT, HID_REQ_GET_REPORT);
++		if (ret != -EPIPE)
++			break;
++		msleep(20);
++	} while (--retries);
+ 	if (ret > 0) {
+ 		/* Remove the report ID from the return buffer */
+ 		ret--;
+ 		size = min(size, ret);
+ 		memcpy(data, buf + 1, size);
+ 	}
+-	kfree(buf);
+ 
++	kfree(buf);
+ 	if (ret < 0)
+ 		hid_err(steam->hdev, "%s: error %d\n", __func__, ret);
+ 	else
+@@ -413,41 +509,60 @@ static int steam_recv_report(struct steam_device *steam,
+ 	return size;
+ }
+ 
+-static int steam_send_report(struct steam_device *steam,
+-		u8 *cmd, int size)
++static int steam_recv_report(struct steam_device *steam,
++		u8 *data, int size)
++{
++	u8 report_id;
++
++	if (steam->quirks & STEAM_QUIRK_IBEX)
++		report_id = REPORT_ID_FEATURES_CONTROLLER;
++	else
++		report_id = 0;
++
++	return steam_recv_report_id(steam, data, size, report_id);
 +}
 +
-+static int flydigi_send_info_request(struct flydigi_device *fd)
-+{
-+	const u8 payload[] = {
-+		FLYDIGI_MAGIC1,
-+		FLYDIGI_MAGIC2,
-+		FLYDIGI_CMD_INFO,
-+		2,
-+		0,
-+	};
++static int steam_send_report_id(struct steam_device *steam,
++		u8 *cmd, int size, u8 report_id)
+ {
+ 	struct hid_report *r;
+ 	u8 *buf;
+ 	unsigned int retries = 50;
+ 	int ret;
++	u32 len;
+ 
+-	r = steam->hdev->report_enum[HID_FEATURE_REPORT].report_id_hash[0];
++	r = steam->hdev->report_enum[HID_FEATURE_REPORT].report_id_hash[report_id];
+ 	if (!r) {
+-		hid_err(steam->hdev, "No HID_FEATURE_REPORT submitted -  nothing to read\n");
++		hid_err(steam->hdev, "No HID_FEATURE_REPORT present for ID %u\n", report_id);
+ 		return -EINVAL;
+ 	}
+ 
+-	if (hid_report_len(r) < 64)
++	len = hid_report_len(r);
++	if (len < 64)
+ 		return -EINVAL;
+ 
+ 	buf = hid_alloc_report_buf(r, GFP_KERNEL);
+ 	if (!buf)
+ 		return -ENOMEM;
+ 
+-	/* The report ID is always 0 */
++	/* The report ID is always consistent */
++	buf[0] = report_id;
+ 	memcpy(buf + 1, cmd, size);
+ 
+ 	hid_dbg(steam->hdev, "Sending report %*ph\n", size, cmd);
+ 
++	if (!(steam->quirks & STEAM_QUIRK_IBEX))
++		len += 1;
 +
-+	return flydigi_send_output(fd, payload, sizeof(payload));
+ 	/*
+ 	 * Sometimes the wireless controller fails with EPIPE
+ 	 * when sending a feature report.
+-	 * Doing a HID_REQ_GET_REPORT and waiting for a while
++	 * Doing a HID_REQ_SET_REPORT and waiting for a while
+ 	 * seems to fix that.
+ 	 */
+ 	do {
+-		ret = hid_hw_raw_request(steam->hdev, 0,
+-				buf, max(size, 64) + 1,
++		ret = hid_hw_raw_request(steam->hdev, report_id,
++				buf, max(size + 1, len),
+ 				HID_FEATURE_REPORT, HID_REQ_SET_REPORT);
+ 		if (ret != -EPIPE)
+ 			break;
+@@ -461,6 +576,19 @@ static int steam_send_report(struct steam_device *steam,
+ 	return ret;
+ }
+ 
++static int steam_send_report(struct steam_device *steam,
++		u8 *cmd, int size)
++{
++	u8 report_id;
++
++	if (steam->quirks & STEAM_QUIRK_IBEX)
++		report_id = REPORT_ID_FEATURES_CONTROLLER;
++	else
++		report_id = 0;
++
++	return steam_send_report_id(steam, cmd, size, report_id);
 +}
 +
-+static int flydigi_send_status_request(struct flydigi_device *fd)
-+{
-+	const u8 payload[] = {
-+		FLYDIGI_MAGIC1,
-+		FLYDIGI_MAGIC2,
-+		FLYDIGI_CMD_STATUS,
-+	};
+ static inline int steam_send_report_byte(struct steam_device *steam, u8 cmd)
+ {
+ 	return steam_send_report(steam, &cmd, 1);
+@@ -473,7 +601,6 @@ static int steam_write_settings(struct steam_device *steam,
+ 	u8 reg;
+ 	u16 val;
+ 	u8 cmd[64] = {ID_SET_SETTINGS_VALUES, 0x00};
+-	int ret;
+ 	va_list args;
+ 
+ 	va_start(args, steam);
+@@ -489,16 +616,7 @@ static int steam_write_settings(struct steam_device *steam,
+ 	}
+ 	va_end(args);
+ 
+-	ret = steam_send_report(steam, cmd, 2 + cmd[1]);
+-	if (ret < 0)
+-		return ret;
+-
+-	/*
+-	 * Sometimes a lingering report for this command can
+-	 * get read back instead of the last set report if
+-	 * this isn't explicitly queried
+-	 */
+-	return steam_recv_report(steam, cmd, 2 + cmd[1]);
++	return steam_send_report(steam, cmd, 2 + cmd[1]);
+ }
+ 
+ static int steam_exchange_report(struct steam_device *steam, u8 *cmd, int csize,
+@@ -591,15 +709,32 @@ static int steam_get_attributes(struct steam_device *steam)
+ 	return 0;
+ }
+ 
+-/*
+- * This command requests the wireless adaptor to post an event
+- * with the connection status. Useful if this driver is loaded when
+- * the controller is already connected.
+- */
+-static inline int steam_request_conn_status(struct steam_device *steam)
++static int steam_get_conn_status(struct steam_device *steam)
+ {
++	int ret = 0;
++	u8 cmd[] = {ID_DONGLE_GET_WIRELESS_STATE};
++	u8 reply[3] = {};
++	u8 report_id;
 +
-+	return flydigi_send_output(fd, payload, sizeof(payload));
-+}
++	if (steam->quirks & STEAM_QUIRK_IBEX)
++		report_id = REPORT_ID_FEATURES_DONGLE;
++	else
++		report_id = 0;
 +
-+static int flydigi_send_rumble(struct flydigi_device *fd, u8 low, u8 high)
-+{
-+	const u8 payload[] = {
-+		FLYDIGI_MAGIC1,
-+		FLYDIGI_MAGIC2,
-+		FLYDIGI_CMD_HAPTIC,
-+		6,
-+		low,
-+		high,
-+		0,
-+		0,
-+		0,
-+	};
-+
-+	return flydigi_send_output(fd, payload, sizeof(payload));
-+}
-+
-+static void flydigi_rumble_worker(struct work_struct *work)
-+{
-+	struct flydigi_device *fd = container_of(work, struct flydigi_device,
-+						 rumble_work);
-+	u16 strong;
-+	u16 weak;
-+	bool removed;
-+
-+	{
-+		guard(spinlock_irqsave)(&fd->lock);
-+
-+		strong = fd->strong;
-+		weak = fd->weak;
-+		removed = fd->removed;
+ 	guard(mutex)(&steam->report_mutex);
+-	return steam_send_report_byte(steam, ID_DONGLE_GET_WIRELESS_STATE);
++	ret = steam_send_report_id(steam, cmd, sizeof(cmd), report_id);
++	if (ret < 0)
++		return ret;
++	ret = steam_recv_report_id(steam, reply, sizeof(reply), report_id);
++	if (ret < 0)
++		return ret;
++	if (reply[0] != ID_DONGLE_GET_WIRELESS_STATE || reply[1] < 1) {
++		hid_err(steam->hdev, "%s: invalid reply (%*ph)\n", __func__,
++				(int)sizeof(reply), reply);
++		return -EIO;
 +	}
 +
-+	if (removed)
-+		return;
++	return reply[2];
+ }
+ 
+ /*
+@@ -612,24 +747,42 @@ static inline int steam_haptic_pulse(struct steam_device *steam, u8 pad,
+ 				u16 duration, u16 interval, u16 count, u8 gain)
+ {
+ 	int ret;
+-	u8 report[10] = {ID_TRIGGER_HAPTIC_PULSE, 8};
+ 
+ 	/* Left and right are swapped on this report for legacy reasons */
+ 	if (pad < STEAM_PAD_BOTH)
+ 		pad ^= 1;
+ 
+-	report[2] = pad;
+-	report[3] = duration & 0xFF;
+-	report[4] = duration >> 8;
+-	report[5] = interval & 0xFF;
+-	report[6] = interval >> 8;
+-	report[7] = count & 0xFF;
+-	report[8] = count >> 8;
+-	report[9] = gain;
++	if (steam->quirks & STEAM_QUIRK_IBEX) {
++		struct steam_ibex_output_report *report =
++			kzalloc(sizeof(struct steam_ibex_output_report), GFP_KERNEL);
 +
-+	flydigi_send_rumble(fd, strong >> 8, weak >> 8);
-+}
++		if (!report)
++			return -ENOMEM;
 +
-+/**
-+ * flydigi_acquire_worker - keep the protocol session alive while opened
-+ * @work: delayed work item
-+ *
-+ * The device times out its acquired state. Refreshing acquire/info/status keeps
-+ * the stream active and prevents stale state after userspace idles briefly.
-+ */
-+static void flydigi_acquire_worker(struct work_struct *work)
-+{
-+	struct flydigi_device *fd = container_of(to_delayed_work(work),
-+						 struct flydigi_device,
-+						 acquire_work);
-+	bool open;
-+	bool removed;
++		report->id = REPORT_ID_HAPTIC_PULSE;
++		report->pulse.side = pad;
++		put_unaligned_le16(duration, &report->pulse.on_us);
++		put_unaligned_le16(interval, &report->pulse.off_us);
++		put_unaligned_le16(count, &report->pulse.repeat_count);
 +
-+	{
-+		guard(spinlock_irqsave)(&fd->lock);
++		ret = hid_hw_output_report(steam->hdev, (u8 *)report, 8);
 +
-+		open = fd->gamepad_open;
-+		removed = fd->removed;
++		kfree(report);
++	} else {
++		u8 report[10] = {ID_TRIGGER_HAPTIC_PULSE, 8, pad};
++
++		report[3] = duration & 0xFF;
++		report[4] = duration >> 8;
++		report[5] = interval & 0xFF;
++		report[6] = interval >> 8;
++		report[7] = count & 0xFF;
++		report[8] = count >> 8;
++		report[9] = gain;
++
++		guard(mutex)(&steam->report_mutex);
++		ret = steam_send_report(steam, report, 10);
 +	}
+ 
+-	mutex_lock(&steam->report_mutex);
+-	ret = steam_send_report(steam, report, sizeof(report));
+-	mutex_unlock(&steam->report_mutex);
+ 	return ret;
+ }
+ 
+@@ -638,20 +791,39 @@ static inline int steam_haptic_rumble(struct steam_device *steam,
+ 				u8 left_gain, u8 right_gain)
+ {
+ 	int ret;
+-	u8 report[11] = {ID_TRIGGER_RUMBLE_CMD, 9};
+ 
+-	report[3] = intensity & 0xFF;
+-	report[4] = intensity >> 8;
+-	report[5] = left_speed & 0xFF;
+-	report[6] = left_speed >> 8;
+-	report[7] = right_speed & 0xFF;
+-	report[8] = right_speed >> 8;
+-	report[9] = left_gain;
+-	report[10] = right_gain;
++	if (steam->quirks & STEAM_QUIRK_IBEX) {
++		struct steam_ibex_output_report *report =
++			kzalloc(sizeof(struct steam_ibex_output_report), GFP_KERNEL);
+ 
+-	mutex_lock(&steam->report_mutex);
+-	ret = steam_send_report(steam, report, sizeof(report));
+-	mutex_unlock(&steam->report_mutex);
++		if (!report)
++			return -ENOMEM;
 +
-+	if (removed || !open)
-+		return;
++		report->id = REPORT_ID_HAPTIC_RUMBLE;
++		put_unaligned_le16(intensity, &report->rumble.intensity);
++		put_unaligned_le16(left_speed, &report->rumble.left.speed);
++		report->rumble.left.gain = left_gain;
++		put_unaligned_le16(right_speed, &report->rumble.right.speed);
++		report->rumble.right.gain = right_gain;
 +
-+	flydigi_send_acquire(fd);
-+	flydigi_send_info_request(fd);
-+	flydigi_send_status_request(fd);
-+	schedule_delayed_work(&fd->acquire_work,
-+			      msecs_to_jiffies(FLYDIGI_ACQUIRE_PERIOD_MS));
-+}
++		ret = hid_hw_output_report(steam->hdev, (u8 *)report, 10);
 +
-+static int flydigi_play_effect(struct input_dev *dev, void *data,
-+			      struct ff_effect *effect)
-+{
-+	struct flydigi_device *fd = input_get_drvdata(dev);
++		kfree(report);
++	} else {
++		u8 report[11] = {ID_TRIGGER_RUMBLE_CMD, 9};
 +
-+	if (effect->type != FF_RUMBLE)
++		report[3] = intensity & 0xFF;
++		report[4] = intensity >> 8;
++		report[5] = left_speed & 0xFF;
++		report[6] = left_speed >> 8;
++		report[7] = right_speed & 0xFF;
++		report[8] = right_speed >> 8;
++		report[9] = left_gain;
++		report[10] = right_gain;
++
++		guard(mutex)(&steam->report_mutex);
++		ret = steam_send_report(steam, report, sizeof(report));
++	}
+ 	return ret;
+ }
+ 
+@@ -713,20 +885,18 @@ static void steam_set_lizard_mode(struct steam_device *steam, bool enable)
+ 		/* disable esc, enter, cursor */
+ 		steam_send_report_byte(steam, ID_CLEAR_DIGITAL_MAPPINGS);
+ 
+-		if (steam->quirks & STEAM_QUIRK_DECK) {
++		if (steam->quirks & (STEAM_QUIRK_DECK | STEAM_QUIRK_IBEX))
+ 			steam_write_settings(steam,
+-				SETTING_LEFT_TRACKPAD_MODE, TRACKPAD_NONE, /* disable mouse */
+-				SETTING_RIGHT_TRACKPAD_MODE, TRACKPAD_NONE, /* disable mouse */
+-				SETTING_LEFT_TRACKPAD_CLICK_PRESSURE, 0xFFFF, /* disable haptic click */
+-				SETTING_RIGHT_TRACKPAD_CLICK_PRESSURE, 0xFFFF, /* disable haptic click */
+-				SETTING_STEAM_WATCHDOG_ENABLE, 0, /* disable watchdog that tests if Steam is active */
++				/* disable lizard mode */
++				SETTING_LIZARD_MODE, 0,
++				/* disable watchdog that tests if Steam is active */
++				SETTING_STEAM_WATCHDOG_ENABLE, 0,
+ 				0);
+-		} else {
++		else
+ 			steam_write_settings(steam,
+ 				SETTING_LEFT_TRACKPAD_MODE, TRACKPAD_NONE, /* disable mouse */
+ 				SETTING_RIGHT_TRACKPAD_MODE, TRACKPAD_NONE, /* disable mouse */
+ 				0);
+-		}
+ 	}
+ 	mutex_unlock(&steam->report_mutex);
+ }
+@@ -742,7 +912,7 @@ static int steam_input_open(struct input_dev *dev)
+ 	 * Controller. On the Steam Deck, this is toggled manually by holding
+ 	 * the options button instead, handled by steam_mode_switch_cb.
+ 	 */
+-	if (!(steam->quirks & STEAM_QUIRK_DECK)) {
++	if (!(steam->quirks & (STEAM_QUIRK_DECK | STEAM_QUIRK_IBEX))) {
+ 		spin_lock_irqsave(&steam->lock, flags);
+ 		set_lizard_mode = !steam->client_opened && lizard_mode;
+ 		spin_unlock_irqrestore(&steam->lock, flags);
+@@ -759,7 +929,7 @@ static void steam_input_close(struct input_dev *dev)
+ 	unsigned long flags;
+ 	bool set_lizard_mode;
+ 
+-	if (!(steam->quirks & STEAM_QUIRK_DECK)) {
++	if (!(steam->quirks & (STEAM_QUIRK_DECK | STEAM_QUIRK_IBEX))) {
+ 		spin_lock_irqsave(&steam->lock, flags);
+ 		set_lizard_mode = !steam->client_opened && lizard_mode;
+ 		spin_unlock_irqrestore(&steam->lock, flags);
+@@ -817,25 +987,40 @@ static int steam_battery_get_property(struct power_supply *psy,
+ {
+ 	struct steam_device *steam = power_supply_get_drvdata(psy);
+ 	unsigned long flags;
+-	s16 volts;
++	u16 volts;
++	u16 curr;
++	u16 temp;
+ 	u8 batt;
++	u8 status;
+ 	int ret = 0;
+ 
+ 	spin_lock_irqsave(&steam->lock, flags);
+-	volts = steam->voltage;
++	volts = steam->battery_voltage;
++	curr = steam->battery_current;
+ 	batt = steam->battery_charge;
++	temp = steam->battery_temp;
++	status = steam->battery_status;
+ 	spin_unlock_irqrestore(&steam->lock, flags);
+ 
+ 	switch (psp) {
+ 	case POWER_SUPPLY_PROP_PRESENT:
+ 		val->intval = 1;
+ 		break;
++	case POWER_SUPPLY_PROP_STATUS:
++		val->intval = status;
++		break;
+ 	case POWER_SUPPLY_PROP_SCOPE:
+ 		val->intval = POWER_SUPPLY_SCOPE_DEVICE;
+ 		break;
+ 	case POWER_SUPPLY_PROP_VOLTAGE_NOW:
+ 		val->intval = volts * 1000; /* mV -> uV */
+ 		break;
++	case POWER_SUPPLY_PROP_CURRENT_NOW:
++		val->intval = curr * 1000; /* mA -> uA */
++		break;
++	case POWER_SUPPLY_PROP_TEMP:
++		val->intval = temp / 100; /* thousandths °C -> tenths °C */
++		break;
+ 	case POWER_SUPPLY_PROP_CAPACITY:
+ 		val->intval = batt;
+ 		break;
+@@ -846,6 +1031,16 @@ static int steam_battery_get_property(struct power_supply *psy,
+ 	return ret;
+ }
+ 
++static enum power_supply_property steam_ibex_battery_props[] = {
++	POWER_SUPPLY_PROP_PRESENT,
++	POWER_SUPPLY_PROP_STATUS,
++	POWER_SUPPLY_PROP_SCOPE,
++	POWER_SUPPLY_PROP_VOLTAGE_NOW,
++	POWER_SUPPLY_PROP_CURRENT_NOW,
++	POWER_SUPPLY_PROP_CAPACITY,
++	POWER_SUPPLY_PROP_TEMP,
++};
++
+ static int steam_battery_register(struct steam_device *steam)
+ {
+ 	struct power_supply *battery;
+@@ -854,19 +1049,35 @@ static int steam_battery_register(struct steam_device *steam)
+ 	int ret;
+ 
+ 	steam->battery_desc.type = POWER_SUPPLY_TYPE_BATTERY;
+-	steam->battery_desc.properties = steam_battery_props;
+-	steam->battery_desc.num_properties = ARRAY_SIZE(steam_battery_props);
++	if (steam->quirks & STEAM_QUIRK_IBEX) {
++		steam->battery_desc.properties = steam_ibex_battery_props;
++		steam->battery_desc.num_properties = ARRAY_SIZE(steam_ibex_battery_props);
++		/*
++		 * Ibex needs a shorter name as it has a temperature and the
++		 * thermal zone name length limit is 20 characters. It's more
++		 * ambiguous sounding, so let's only use it when needed.
++		 */
++		steam->battery_desc.name = devm_kasprintf(&steam->hdev->dev,
++				GFP_KERNEL, "steam-%s",
++				steam->serial_no);
++	} else {
++		steam->battery_desc.properties = steam_battery_props;
++		steam->battery_desc.num_properties = ARRAY_SIZE(steam_battery_props);
++		steam->battery_desc.name = devm_kasprintf(&steam->hdev->dev,
++				GFP_KERNEL, "steam-controller-%s-battery",
++				steam->serial_no);
++	}
+ 	steam->battery_desc.get_property = steam_battery_get_property;
+-	steam->battery_desc.name = devm_kasprintf(&steam->hdev->dev,
+-			GFP_KERNEL, "steam-controller-%s-battery",
+-			steam->serial_no);
+ 	if (!steam->battery_desc.name)
+ 		return -ENOMEM;
+ 
+ 	/* avoid the warning of 0% battery while waiting for the first info */
+ 	spin_lock_irqsave(&steam->lock, flags);
+-	steam->voltage = 3000;
++	steam->battery_voltage = 3000;
+ 	steam->battery_charge = 100;
++	steam->battery_current = 0;
++	steam->battery_temp = 20000;
++	steam->battery_status = POWER_SUPPLY_STATUS_UNKNOWN;
+ 	spin_unlock_irqrestore(&steam->lock, flags);
+ 
+ 	battery = power_supply_register(&steam->hdev->dev,
+@@ -938,7 +1149,7 @@ static int steam_input_register(struct steam_device *steam)
+ 	input_set_capability(input, EV_KEY, BTN_THUMB2);
+ 	input_set_capability(input, EV_KEY, BTN_GRIPL);
+ 	input_set_capability(input, EV_KEY, BTN_GRIPR);
+-	if (steam->quirks & STEAM_QUIRK_DECK) {
++	if (steam->quirks & (STEAM_QUIRK_DECK | STEAM_QUIRK_IBEX)) {
+ 		input_set_capability(input, EV_KEY, BTN_BASE);
+ 		input_set_capability(input, EV_KEY, BTN_GRIPL2);
+ 		input_set_capability(input, EV_KEY, BTN_GRIPR2);
+@@ -952,7 +1163,7 @@ static int steam_input_register(struct steam_device *steam)
+ 	input_set_abs_params(input, ABS_HAT0Y, -32767, 32767,
+ 			STEAM_PAD_FUZZ, 0);
+ 
+-	if (steam->quirks & STEAM_QUIRK_DECK) {
++	if (steam->quirks & (STEAM_QUIRK_DECK | STEAM_QUIRK_IBEX)) {
+ 		input_set_abs_params(input, ABS_HAT2Y, 0, 32767, 0, 0);
+ 		input_set_abs_params(input, ABS_HAT2X, 0, 32767, 0, 0);
+ 
+@@ -992,7 +1203,7 @@ static int steam_input_register(struct steam_device *steam)
+ 	input_abs_set_res(input, ABS_HAT0Y, STEAM_PAD_RESOLUTION);
+ 
+ #ifdef CONFIG_STEAM_FF
+-	if (steam->quirks & STEAM_QUIRK_DECK) {
++	if (steam->quirks & (STEAM_QUIRK_DECK | STEAM_QUIRK_IBEX)) {
+ 		input_set_capability(input, EV_FF, FF_RUMBLE);
+ 		ret = input_ff_create_memless(input, NULL, steam_play_effect);
+ 		if (ret)
+@@ -1017,6 +1228,7 @@ static int steam_sensors_register(struct steam_device *steam)
+ 	struct hid_device *hdev = steam->hdev;
+ 	struct input_dev *sensors;
+ 	int ret;
++	bool needs_open_close;
+ 
+ 	rcu_read_lock();
+ 	sensors = rcu_dereference(steam->sensors);
+@@ -1032,7 +1244,27 @@ static int steam_sensors_register(struct steam_device *steam)
+ 
+ 	input_set_drvdata(sensors, steam);
+ 	sensors->dev.parent = &hdev->dev;
+-	if (!(steam->quirks & STEAM_QUIRK_DECK)) {
++
++	/*
++	 * The open/close calls are needed in these specific cases:
++	 *
++	 * - Steam Controller (2015): Always
++	 * - Steam Deck: Never
++	 * - Steam Controller (2026): Only when wireless/BLE
++	 */
++	if (steam->quirks & STEAM_QUIRK_DECK)
++		needs_open_close = false;
++	else if (steam->quirks & (STEAM_QUIRK_WIRELESS | STEAM_QUIRK_BLE))
++		/* Both wireless Steam Controller setups */
++		needs_open_close = true;
++	else if (steam->quirks & STEAM_QUIRK_IBEX)
++		/* Wired Steam Controller (2026) */
++		needs_open_close = false;
++	else
++		/* Wired Steam Controller (2015) */
++		needs_open_close = true;
++
++	if (needs_open_close) {
+ 		sensors->open = steam_sensor_open;
+ 		sensors->close = steam_sensor_close;
+ 	}
+@@ -1139,61 +1371,49 @@ static void steam_battery_unregister(struct steam_device *steam)
+ static int steam_register(struct steam_device *steam)
+ {
+ 	int ret;
+-	unsigned long client_opened;
+-	unsigned long flags;
+-	bool do_add;
+ 
+ 	/*
+ 	 * This function can be called several times in a row with the
+ 	 * wireless adaptor, without steam_unregister() between them, because
+ 	 * another client send a get_connection_status command, for example.
+-	 * The battery and serial number are set just once per device.
+ 	 */
+-	if (!steam->serial_no[0]) {
+-		/*
+-		 * Unlikely, but getting the serial could fail, and it is not so
+-		 * important, so make up a serial number and go on.
+-		 */
+-		if (steam_get_serial(steam) < 0)
+-			strscpy(steam->serial_no, "XXXXXXXXXX",
+-					sizeof(steam->serial_no));
+-
+-		ret = steam_get_attributes(steam);
+-		if (ret < 0)
+-			hid_err(steam->hdev,
+-				"%s:steam_get_attributes failed with error %d\n",
+-				__func__, ret);
++	if (steam->registered)
 +		return 0;
-+
-+	{
-+		guard(spinlock_irqsave)(&fd->lock);
-+
-+		if (!fd->removed) {
-+			fd->strong = effect->u.rumble.strong_magnitude;
-+			fd->weak = effect->u.rumble.weak_magnitude;
-+			schedule_work(&fd->rumble_work);
-+		}
-+	}
-+
-+	return 0;
-+}
-+
-+static int flydigi_gamepad_open(struct input_dev *dev)
-+{
-+	struct flydigi_device *fd = input_get_drvdata(dev);
-+
-+	{
-+		guard(spinlock_irqsave)(&fd->lock);
-+
-+		fd->gamepad_open = true;
-+	}
-+
-+	schedule_delayed_work(&fd->acquire_work, 0);
-+
-+	return 0;
-+}
-+
-+static void flydigi_gamepad_close(struct input_dev *dev)
-+{
-+	struct flydigi_device *fd = input_get_drvdata(dev);
-+
-+	cancel_delayed_work_sync(&fd->acquire_work);
-+
-+	{
-+		guard(spinlock_irqsave)(&fd->lock);
-+
-+		fd->gamepad_open = false;
-+		fd->strong = 0;
-+		fd->weak = 0;
-+	}
-+
-+	schedule_work(&fd->rumble_work);
-+}
-+
-+static void flydigi_map_hat(u8 value, int *x, int *y)
-+{
-+	switch (value & 0x0f) {
-+	case 0x01:
-+		*x = 0;
-+		*y = -1;
-+		break;
-+	case 0x03:
-+		*x = 1;
-+		*y = -1;
-+		break;
-+	case 0x02:
-+		*x = 1;
-+		*y = 0;
-+		break;
-+	case 0x06:
-+		*x = 1;
-+		*y = 1;
-+		break;
-+	case 0x04:
-+		*x = 0;
-+		*y = 1;
-+		break;
-+	case 0x0c:
-+		*x = -1;
-+		*y = 1;
-+		break;
-+	case 0x08:
-+		*x = -1;
-+		*y = 0;
-+		break;
-+	case 0x09:
-+		*x = -1;
-+		*y = -1;
-+		break;
-+	default:
-+		*x = 0;
-+		*y = 0;
-+		break;
-+	}
-+}
-+
-+/**
-+ * flydigi_report_gamepad - translate one protocol input packet to evdev keys
-+ * @fd: controller state
-+ * @data: protocol packet starting at magic byte 0x5a
-+ *
-+ * Keep this mapping aligned with SDL's Flydigi backend so userspace sees the
-+ * same logical layout across hidraw and evdev paths.
-+ */
-+static void flydigi_report_gamepad(struct flydigi_device *fd, const u8 *data)
-+{
-+	struct input_dev *gamepad = fd->gamepad;
-+	s16 axis;
-+	int hat_x;
-+	int hat_y;
-+
-+	flydigi_map_hat(data[FLYDIGI_OFF_DPAD_ABXY], &hat_x, &hat_y);
-+	input_report_abs(gamepad, ABS_HAT0X, hat_x);
-+	input_report_abs(gamepad, ABS_HAT0Y, hat_y);
-+
-+	input_report_key(gamepad, BTN_SOUTH,
-+			 data[FLYDIGI_OFF_DPAD_ABXY] & BIT(4));
-+	input_report_key(gamepad, BTN_EAST,
-+			 data[FLYDIGI_OFF_DPAD_ABXY] & BIT(5));
+ 
+-		hid_info(steam->hdev, "Steam Controller '%s' connected",
+-				steam->serial_no);
 +	/*
-+	 * Keep BTN_WEST/BTN_NORTH aligned with printed X/Y legends used by
-+	 * applications. On-wire encoding for X/Y is swapped on this model.
++	 * Unlikely, but getting the serial could fail, and it is not so
++	 * important, so make up a serial number and go on.
 +	 */
-+	input_report_key(gamepad, BTN_WEST,
-+			 data[FLYDIGI_OFF_MISC_BTNS] & BIT(0));
-+	input_report_key(gamepad, BTN_NORTH,
-+			 data[FLYDIGI_OFF_DPAD_ABXY] & BIT(7));
-+	input_report_key(gamepad, BTN_SELECT,
-+			 data[FLYDIGI_OFF_DPAD_ABXY] & BIT(6));
-+	input_report_key(gamepad, BTN_START,
-+			 data[FLYDIGI_OFF_MISC_BTNS] & BIT(1));
-+	input_report_key(gamepad, BTN_TL,
-+			 data[FLYDIGI_OFF_MISC_BTNS] & BIT(2));
-+	input_report_key(gamepad, BTN_TR,
-+			 data[FLYDIGI_OFF_MISC_BTNS] & BIT(3));
-+	input_report_key(gamepad, BTN_THUMBL,
-+			 data[FLYDIGI_OFF_MISC_BTNS] & BIT(6));
-+	input_report_key(gamepad, BTN_THUMBR,
-+			 data[FLYDIGI_OFF_MISC_BTNS] & BIT(7));
++	if (steam_get_serial(steam) < 0 || !steam->serial_no[0])
++		strscpy(steam->serial_no, "XXXXXXXXXX",
++				sizeof(steam->serial_no));
+ 
+-		/* ignore battery errors, we can live without it */
+-		if (steam->quirks & STEAM_QUIRK_WIRELESS)
+-			steam_battery_register(steam);
++	ret = steam_get_attributes(steam);
++	if (ret < 0)
++		hid_err(steam->hdev,
++			"%s:steam_get_attributes failed with error %d\n",
++			__func__, ret);
+ 
+-		do_add = true;
+-	}
++	hid_info(steam->hdev, "Steam Controller '%s' connected",
++			steam->serial_no);
+ 
+-	spin_lock_irqsave(&steam->lock, flags);
+-	client_opened = steam->client_opened;
+-	spin_unlock_irqrestore(&steam->lock, flags);
++	/* ignore battery errors, we can live without it */
++	if (steam->quirks & (STEAM_QUIRK_WIRELESS | STEAM_QUIRK_IBEX))
++		steam_battery_register(steam);
+ 
+-	if (!client_opened) {
+-		steam_set_lizard_mode(steam, lizard_mode);
+-		ret = steam_input_register(steam);
+-		if (ret != 0)
+-			goto steam_register_input_fail;
+-		ret = steam_sensors_register(steam);
+-		if (ret != 0)
+-			goto steam_register_sensors_fail;
+-	}
++	steam_set_lizard_mode(steam, lizard_mode);
++	ret = steam_input_register(steam);
++	if (ret != 0)
++		goto steam_register_input_fail;
++	ret = steam_sensors_register(steam);
++	if (ret != 0)
++		goto steam_register_sensors_fail;
+ 
+-	if (do_add) {
+-		mutex_lock(&steam_devices_lock);
+-		if (list_empty(&steam->list))
+-			list_add(&steam->list, &steam_devices);
+-		mutex_unlock(&steam_devices_lock);
+-	}
++	steam->registered = true;
++	mutex_lock(&steam_devices_lock);
++	if (list_empty(&steam->list))
++		list_add(&steam->list, &steam_devices);
++	mutex_unlock(&steam_devices_lock);
+ 	return 0;
+ 
+ steam_register_sensors_fail:
+@@ -1205,11 +1425,12 @@ static int steam_register(struct steam_device *steam)
+ 
+ static void steam_unregister(struct steam_device *steam)
+ {
+-	if (!steam->serial_no[0])
++	if (!steam->registered)
+ 		return;
+ 
+ 	hid_info(steam->hdev, "Steam Controller '%s' disconnected",
+ 			steam->serial_no);
++	steam->registered = false;
+ 	steam_battery_unregister(steam);
+ 	steam_sensors_unregister(steam);
+ 	steam_input_unregister(steam);
+@@ -1219,7 +1440,6 @@ static void steam_unregister(struct steam_device *steam)
+ 	mutex_lock(&steam_devices_lock);
+ 	list_del_init(&steam->list);
+ 	mutex_unlock(&steam_devices_lock);
+-	steam->serial_no[0] = 0;
+ }
+ 
+ static void steam_work_connect_cb(struct work_struct *work)
+@@ -1277,21 +1497,46 @@ static void steam_mode_switch_cb(struct work_struct *work)
+ 	}
+ }
+ 
+-static bool steam_is_valve_interface(struct hid_device *hdev)
++static bool steam_is_valve_interface(struct hid_device *hdev, int quirks)
+ {
+ 	struct hid_report_enum *rep_enum;
+ 
+ 	/*
+-	 * The wired device creates 3 interfaces:
++	 * The 2015 wired controller creates 3 interfaces:
+ 	 *  0: emulated mouse.
+ 	 *  1: emulated keyboard.
+ 	 *  2: the real game pad.
+-	 * The wireless device creates 5 interfaces:
++	 * The 2015 wireless adapter creates 5 interfaces:
+ 	 *  0: emulated keyboard.
+-	 *  1-4: slots where up to 4 real game pads will be connected to.
+-	 * We know which one is the real gamepad interface because they are the
+-	 * only ones with a feature report.
++	 *  1-4: slots where up to 4 real controllers will be connected to.
++	 * The Steam Deck creates 5 interfaces:
++	 *  0: emulated mouse.
++	 *  1: emulated keyboard.
++	 *  2: the real game pad.
++	 *  3-4: internal device comms (not HID).
++	 * The 2026 wired controller creates 1 unified interface.
++	 * The 2026 wireless puck creates 7 interfaces:
++	 *  0-1: internal device comms (not HID).
++	 *  2-5: slots where up to 4 real controllers will be connected to.
++	 *  6: basic pogo pin interface.
++	 *
++	 * We know which one is the real controller interface for the pre-2026
++	 * controllers because they are the only ones with a feature report.
++	 *
++	 * The puck's pogo pin interface should be ignored as it's stripped
++	 * down. It has one collection with usage page FF00 with usage ID 2.
+ 	 */
++	if (quirks & STEAM_QUIRK_IBEX) {
++		/* There is only one BLE HID interface */
++		if (quirks & STEAM_QUIRK_BLE)
++			return true;
 +
-+	input_report_key(gamepad, BTN_MODE,
-+			 data[FLYDIGI_OFF_SYSTEM_BTNS] & BIT(3));
++		if (hdev->maxcollection < 1)
++			return true;
 +
-+	/*
-+	 * SDL's generic Linux evdev mapper recognizes paddles specifically on
-+	 * BTN_TRIGGER_HAPPY5..8, so keep M1..M4 on that range for Steam/SDL.
-+	 */
-+	input_report_key(gamepad, BTN_TRIGGER_HAPPY1,
-+			 data[FLYDIGI_OFF_EXTRA_BTNS] & BIT(0)); /* C */
-+	input_report_key(gamepad, BTN_TRIGGER_HAPPY2,
-+			 data[FLYDIGI_OFF_EXTRA_BTNS] & BIT(1)); /* Z */
-+	input_report_key(gamepad, BTN_TRIGGER_HAPPY5,
-+			 data[FLYDIGI_OFF_EXTRA_BTNS] & BIT(2)); /* M1 */
-+	input_report_key(gamepad, BTN_TRIGGER_HAPPY6,
-+			 data[FLYDIGI_OFF_EXTRA_BTNS] & BIT(3)); /* M2 */
-+	input_report_key(gamepad, BTN_TRIGGER_HAPPY7,
-+			 data[FLYDIGI_OFF_EXTRA_BTNS] & BIT(4)); /* M3 */
-+	input_report_key(gamepad, BTN_TRIGGER_HAPPY8,
-+			 data[FLYDIGI_OFF_EXTRA_BTNS] & BIT(5)); /* M4 */
-+	input_report_key(gamepad, BTN_TRIGGER_HAPPY9,
-+			 data[FLYDIGI_OFF_EXTRA_BTNS] & BIT(6)); /* LM */
-+	input_report_key(gamepad, BTN_TRIGGER_HAPPY10,
-+			 data[FLYDIGI_OFF_EXTRA_BTNS] & BIT(7)); /* RM */
-+	input_report_key(gamepad, BTN_TRIGGER_HAPPY11,
-+			 data[FLYDIGI_OFF_SYSTEM_BTNS] & BIT(0)); /* Circle */
++		return hdev->collection[0].usage != 0xFF000002;
++	}
 +
-+	axis = (s16)get_unaligned_le16(&data[FLYDIGI_OFF_LX]);
-+	input_report_abs(gamepad, ABS_X, axis);
+ 	rep_enum = &hdev->report_enum[HID_FEATURE_REPORT];
+ 	return !list_empty(&rep_enum->report_list);
+ }
+@@ -1351,6 +1596,14 @@ static int steam_client_ll_raw_request(struct hid_device *hdev,
+ 			report_type, reqtype);
+ }
+ 
++static int steam_client_ll_output_report(struct hid_device *hdev,
++				u8 *buf, size_t count)
++{
++	struct steam_device *steam = hdev->driver_data;
 +
-+	axis = -(s16)get_unaligned_le16(&data[FLYDIGI_OFF_LY]);
-+	if (axis <= -32768)
-+		axis = 32767;
-+	input_report_abs(gamepad, ABS_Y, axis);
-+
-+	axis = (s16)get_unaligned_le16(&data[FLYDIGI_OFF_RX]);
-+	input_report_abs(gamepad, ABS_RX, axis);
-+
-+	axis = -(s16)get_unaligned_le16(&data[FLYDIGI_OFF_RY]);
-+	if (axis <= -32768)
-+		axis = 32767;
-+	input_report_abs(gamepad, ABS_RY, axis);
-+
-+	input_report_abs(gamepad, ABS_Z,
-+			 ((int)data[FLYDIGI_OFF_LT] * 257) - 32768);
-+	input_report_abs(gamepad, ABS_RZ,
-+			 ((int)data[FLYDIGI_OFF_RT] * 257) - 32768);
-+
-+	input_sync(gamepad);
++	return hid_hw_output_report(steam->hdev, buf, count);
 +}
 +
-+/**
-+ * flydigi_report_sensors - publish IMU samples from one protocol packet
-+ * @fd: controller state
-+ * @data: protocol packet starting at magic byte 0x5a
-+ *
-+ * Motion data is exposed as a dedicated evdev node so userspace can consume
-+ * gyro/accelerometer data independently of gamepad button polling.
-+ */
-+static void flydigi_report_sensors(struct flydigi_device *fd, const u8 *data)
-+{
-+	struct input_dev *sensors = fd->sensors;
+ static const struct hid_ll_driver steam_client_ll_driver = {
+ 	.parse = steam_client_ll_parse,
+ 	.start = steam_client_ll_start,
+@@ -1358,6 +1611,7 @@ static const struct hid_ll_driver steam_client_ll_driver = {
+ 	.open = steam_client_ll_open,
+ 	.close = steam_client_ll_close,
+ 	.raw_request = steam_client_ll_raw_request,
++	.output_report = steam_client_ll_output_report,
+ };
+ 
+ static struct hid_device *steam_create_client_hid(struct hid_device *hdev)
+@@ -1412,7 +1666,7 @@ static int steam_probe(struct hid_device *hdev,
+ 	 * The non-valve interfaces (mouse and keyboard emulation) are
+ 	 * connected without changes.
+ 	 */
+-	if (!steam_is_valve_interface(hdev))
++	if (!steam_is_valve_interface(hdev, id->driver_data))
+ 		return hid_hw_start(hdev, HID_CONNECT_DEFAULT);
+ 
+ 	steam = devm_kzalloc(&hdev->dev, sizeof(*steam), GFP_KERNEL);
+@@ -1451,14 +1705,21 @@ static int steam_probe(struct hid_device *hdev,
+ 		goto err_hw_stop;
+ 	}
+ 
++	steam->connected = true;
 +
-+	if (!sensors)
+ 	if (steam->quirks & STEAM_QUIRK_WIRELESS) {
+ 		hid_info(hdev, "Steam wireless receiver connected");
+ 		/* If using a wireless adaptor ask for connection status */
+ 		steam->connected = false;
+-		steam_request_conn_status(steam);
+-	} else {
+-		/* A wired connection is always present */
+-		steam->connected = true;
++		ret = steam_get_conn_status(steam);
++		if (ret < 0)
++			hid_err(hdev,
++				"%s:steam_get_conn_status failed with error %d\n",
++				__func__, ret);
++		else if (ret == WIRELESS_EVENT_CONNECT)
++			steam->connected = true;
++	}
++	if (steam->connected) {
+ 		ret = steam_register(steam);
+ 		if (ret) {
+ 			hid_err(hdev,
+@@ -1969,7 +2230,7 @@ static void steam_do_battery_event(struct steam_device *steam,
+ 	battery = rcu_dereference(steam->battery);
+ 	if (likely(battery)) {
+ 		spin_lock_irqsave(&steam->lock, flags);
+-		steam->voltage = volts;
++		steam->battery_voltage = volts;
+ 		steam->battery_charge = batt;
+ 		spin_unlock_irqrestore(&steam->lock, flags);
+ 		power_supply_changed(battery);
+@@ -1977,6 +2238,216 @@ static void steam_do_battery_event(struct steam_device *steam,
+ 	rcu_read_unlock();
+ }
+ 
++/*
++ * The size for this message payload is 53 in REPORT_ID_INPUT and 45 in REPORT_ID_INPUT2.
++ * The values are:
++ *  (* values only in REPORT_ID_INPUT)
++ *  Offset| Type  | Mapped to |Meaning
++ * -------+-------+-----------+--------------------------
++ *  1     | u8    | --        | sequence number
++ *  2-5   | u32   | see below | buttons
++ *  6-7   | s16   | ABS_HAT2Y | left trigger (uncalibrated)
++ *  8-9   | s16   | ABS_HAT2X | right trigger (uncalibrated)
++ *  10-11 | s16   | ABS_X     | left joystick X
++ *  12-13 | s16   | ABS_Y     | left joystick Y
++ *  14-15 | s16   | ABS_RX    | right joystick X
++ *  16-17 | s16   | ABS_RY    | right joystick Y
++ *  18-19 | s16   | ABS_HAT0X | left-pad X value
++ *  20-21 | s16   | ABS_HAT0Y | left-pad Y value
++ *  22-23 | u16   | --        | left pad pressure
++ *  24-25 | s16   | ABS_HAT1X | right-pad X value
++ *  26-27 | s16   | ABS_HAT1Y | right-pad Y value
++ *  28-29 | u16   | --        | right pad pressure
++ *  30-33 | u32   | IMU MSC_TIMESTAMP | IMU timestamp
++ *  34-35 | s16   | IMU ABS_X | accelerometer X value
++ *  36-37 | s16   | IMU ABS_Z | accelerometer Y value
++ *  38-39 | s16   | IMU ABS_Y | accelerometer Z value
++ *  40-41 | s16   | IMU ABS_RX | gyro X value
++ *  42-43 | s16   | IMU ABS_RZ | gyro Y value
++ *  44-45 | s16   | IMU ABS_RY | gyro Z value
++ *  46-47 | s16   | --        | * quaternion W value
++ *  48-49 | s16   | --        | * quaternion X value
++ *  50-51 | s16   | --        | * quaternion Y value
++ *  52-53 | s16   | --        | * quaternion Z value
++ *
++ * The buttons are:
++ *  Bit  | Mapped to  | Description
++ * ------+------------+--------------------------------
++ *  2.0  | BTN_A      | button A
++ *  2.1  | BTN_B      | button B
++ *  2.2  | BTN_X      | button X
++ *  2.3  | BTN_Y      | button Y
++ *  2.4  | BTN_BASE   | quick access button
++ *  2.5  | BTN_THUMBR | right joystick clicked
++ *  2.6  | BTN_START  | menu
++ *  2.7  | BTN_GRIPR  | right top grip button
++ *  3.0  | BTN_GRIPR2 | right bottom grip button
++ *  3.1  | BTN_TR     | right shoulder
++ *  3.2  | BTN_DPAD_DOWN  | left-pad down
++ *  3.3  | BTN_DPAD_RIGHT | left-pad right
++ *  3.4  | BTN_DPAD_LEFT  | left-pad left
++ *  3.5  | BTN_DPAD_UP    | left-pad up
++ *  3.6  | BTN_SELECT | view
++ *  3.7  | BTN_THUMBL | left joystick clicked
++ *  4.0  | BTN_MODE   | steam logo
++ *  4.1  | BTN_GRIPL  | left top grip button
++ *  4.2  | BTN_GRIPL2 | left bottom grip button
++ *  4.3  | BTN_TL     | left shoulder
++ *  4.4  | --         | right joystick touched
++ *  4.5  | --         | right pad touched
++ *  4.6  | BTN_THUMB2 | right pad pressed
++ *  4.7  | BTN_TR2    | right trigger fully pressed
++ *  5.0  | --         | left joystick touched
++ *  5.1  | --         | left pad touched
++ *  5.2  | BTN_THUMB  | left pad pressed
++ *  5.3  | BTN_TL2    | left trigger fully pressed
++ *  5.4  | --         | right grip touch
++ *  5.5  | --         | left grip touch
++ *  5.6  | --         | unmapped
++ *  5.7  | --         | unmapped
++ */
++
++static const struct steam_button_mapping steam_ibex_button_mappings[] = {
++	{ BTN_A,		2, 0 },
++	{ BTN_B,		2, 1 },
++	{ BTN_X,		2, 2 },
++	{ BTN_Y,		2, 3 },
++	{ BTN_BASE,		2, 4 },
++	{ BTN_THUMBR,		2, 5 },
++	{ BTN_START,		2, 6 },
++	{ BTN_GRIPR,		2, 7 },
++	{ BTN_GRIPR2,		3, 0 },
++	{ BTN_TR,		3, 1 },
++	{ BTN_DPAD_DOWN,	3, 2 },
++	{ BTN_DPAD_RIGHT,	3, 3 },
++	{ BTN_DPAD_LEFT,	3, 4 },
++	{ BTN_DPAD_UP,		3, 5 },
++	{ BTN_SELECT,		3, 6 },
++	{ BTN_THUMBL,		3, 7 },
++	{ BTN_MODE,		4, 0 },
++	{ BTN_GRIPL,		4, 1 },
++	{ BTN_GRIPL2,		4, 2 },
++	{ BTN_TL,		4, 3 },
++	{ BTN_THUMB2,		4, 6 },
++	{ BTN_TR2,		4, 7 },
++	{ BTN_THUMB,		5, 2 },
++	{ BTN_TL2,		5, 3 },
++	{ /* sentinel */ },
++};
++
++static const struct steam_axis_mapping steam_ibex_axis_mappings[] = {
++	{ ABS_X,	 1, 10 },
++	{ ABS_Y,	-1, 12 },
++	{ ABS_RX,	 1, 14 },
++	{ ABS_RY,	-1, 16 },
++	{ ABS_HAT2Y,	 1, 6 },
++	{ ABS_HAT2X,	 1, 8 },
++	{ /* sentinel */ },
++};
++
++static const struct steam_axis_mapping steam_ibex_imu_mappings[] = {
++	{ ABS_X,   1, 34 },
++	{ ABS_Z,  -1, 36 },
++	{ ABS_Y,   1, 38 },
++	{ ABS_RX,  1, 40 },
++	{ ABS_RZ, -1, 42 },
++	{ ABS_RY,  1, 44 },
++	{ /* sentinel */ },
++};
++
++static void steam_do_ibex_input_event(struct steam_device *steam,
++		struct input_dev *input, const u8 *data)
++{
++	bool start_pressed;
++	bool lpad_touched, rpad_touched;
++
++	start_pressed = data[2] & BIT(6);
++
++	if (!start_pressed && steam->did_mode_switch) {
++		steam->did_mode_switch = false;
++		cancel_delayed_work(&steam->mode_switch);
++	} else if (!steam->client_opened && start_pressed && !steam->did_mode_switch) {
++		steam->did_mode_switch = true;
++		schedule_delayed_work(&steam->mode_switch, 45 * HZ / 100);
++	}
++
++	if (!steam->gamepad_mode && lizard_mode)
 +		return;
 +
-+	input_event(sensors, EV_MSC, MSC_TIMESTAMP,
-+		    ktime_to_us(ktime_get_boottime()));
++	lpad_touched = data[5] & BIT(1);
++	rpad_touched = data[4] & BIT(5);
 +
-+	/* Accelerometer */
-+	input_report_abs(sensors, ABS_X,
-+			 (s16)get_unaligned_le16(&data[FLYDIGI_OFF_ACCEL_X]));
-+	input_report_abs(sensors, ABS_Y,
-+			 (s16)get_unaligned_le16(&data[FLYDIGI_OFF_ACCEL_Y]));
-+	input_report_abs(sensors, ABS_Z,
-+			 -(s16)get_unaligned_le16(&data[FLYDIGI_OFF_ACCEL_Z]));
++	if (lpad_touched) {
++		input_report_abs(input, ABS_HAT0X, steam_le16(data + 18));
++		input_report_abs(input, ABS_HAT0Y, steam_le16(data + 20));
++	} else {
++		input_report_abs(input, ABS_HAT0X, 0);
++		input_report_abs(input, ABS_HAT0Y, 0);
++	}
 +
-+	/* Gyroscope */
-+	input_report_abs(sensors, ABS_RX,
-+			 (s16)get_unaligned_le16(&data[FLYDIGI_OFF_GYRO_X]));
-+	input_report_abs(sensors, ABS_RY,
-+			 (s16)get_unaligned_le16(&data[FLYDIGI_OFF_GYRO_Y]));
-+	input_report_abs(sensors, ABS_RZ,
-+			 -(s16)get_unaligned_le16(&data[FLYDIGI_OFF_GYRO_Z]));
++	if (rpad_touched) {
++		input_report_abs(input, ABS_HAT1X, steam_le16(data + 24));
++		input_report_abs(input, ABS_HAT1Y, steam_le16(data + 26));
++	} else {
++		input_report_abs(input, ABS_HAT1X, 0);
++		input_report_abs(input, ABS_HAT1Y, 0);
++	}
++	steam_map_buttons(input, steam_ibex_button_mappings, data);
++	steam_map_axes(input, steam_ibex_axis_mappings, data);
++
++	input_sync(input);
++}
++
++static void steam_do_ibex_sensors_event(struct steam_device *steam,
++		struct input_dev *sensors, const u8 *data)
++{
++	u32 timestamp;
++
++	if (!steam->gamepad_mode && lizard_mode)
++		return;
++
++	timestamp = (u32) get_unaligned_le32((__le32 *)&data[30]);
++	input_event(sensors, EV_MSC, MSC_TIMESTAMP, timestamp);
++	steam_map_axes(sensors, steam_ibex_imu_mappings, data);
 +
 +	input_sync(sensors);
 +}
 +
-+/**
-+ * flydigi_raw_event - parse vendor packets delivered by HID core
-+ * @hdev: HID device
-+ * @report: HID report metadata
-+ * @data: raw bytes from device
-+ * @size: number of bytes in @data
-+ *
-+ * The transport may prepend a synthetic report ID byte. Strip it when present,
-+ * then dispatch by vendor command so gamepad and sensor state stay in sync.
-+ *
-+ * Return: always 0 so hidraw still sees the original traffic.
-+ */
-+static int flydigi_raw_event(struct hid_device *hdev, struct hid_report *report,
-+			     u8 *data, int size)
++static void steam_do_ibex_battery_event(struct steam_device *steam,
++		struct power_supply *battery,
++		const struct steam_ibex_battery_status *data)
 +{
-+	struct flydigi_device *fd = hid_get_drvdata(hdev);
-+	const u8 *payload = data;
-+	int len = size;
-+	(void)report;
++	unsigned long flags;
 +
-+	if (!fd || size <= 0)
-+		return 0;
++	/* Creating the battery may have failed */
++	guard(rcu)();
++	battery = rcu_dereference(steam->battery);
++	if (!likely(battery))
++		return;
 +
-+	if (payload[0] != FLYDIGI_MAGIC1) {
-+		payload++;
-+		len--;
-+	}
-+
-+	if (len < 31)
-+		return 0;
-+	if (payload[0] != FLYDIGI_MAGIC1 || payload[1] != FLYDIGI_MAGIC2) {
-+		hid_dbg(hdev,
-+			"non-protocol packet ignored: sz=%d b0=%02x b1=%02x b2=%02x\n",
-+			len, payload[0], payload[1], payload[2]);
-+		return 0;
-+	}
-+
-+	switch (payload[2]) {
-+	case FLYDIGI_CMD_INPUT:
-+		flydigi_report_gamepad(fd, payload);
-+		flydigi_report_sensors(fd, payload);
++	spin_lock_irqsave(&steam->lock, flags);
++	steam->battery_voltage = get_unaligned_le16(&data->battery_voltage);
++	steam->battery_current = get_unaligned_le16(&data->battery_current);
++	steam->battery_temp = get_unaligned_le16(&data->temperature);
++	steam->battery_charge = data->battery_level;
++	switch (data->charge_state) {
++	case CHARGE_STATE_CHARGING:
++		steam->battery_status = POWER_SUPPLY_STATUS_CHARGING;
 +		break;
-+	case FLYDIGI_CMD_INFO:
-+	case FLYDIGI_CMD_STATUS:
-+	case FLYDIGI_CMD_ACQUIRE:
-+	case FLYDIGI_CMD_HAPTIC:
-+		/* Expected replies/acks to commands sent by this driver. */
++	case CHARGE_STATE_DISCHARGING:
++		steam->battery_status = POWER_SUPPLY_STATUS_DISCHARGING;
 +		break;
-+	case FLYDIGI_CMD_STATUS_UPDATE:
-+		flydigi_send_status_request(fd);
-+		schedule_delayed_work(&fd->acquire_work, 0);
++	case CHARGE_STATE_CHARGING_DONE:
++		steam->battery_status = POWER_SUPPLY_STATUS_FULL;
 +		break;
 +	default:
-+		hid_dbg(hdev, "unhandled command: cmd=%02x sz=%d\n",
-+			payload[2], len);
++		steam->battery_status = POWER_SUPPLY_STATUS_UNKNOWN;
 +		break;
 +	}
-+
-+	return 0;
++	spin_unlock_irqrestore(&steam->lock, flags);
++	power_supply_changed(battery);
 +}
 +
-+static int flydigi_register_gamepad(struct flydigi_device *fd)
-+{
-+	struct hid_device *hdev = fd->hdev;
-+	struct input_dev *gamepad;
-+	int ret;
-+
-+	gamepad = devm_input_allocate_device(&hdev->dev);
-+	if (!gamepad)
-+		return -ENOMEM;
-+
-+	gamepad->name = hdev->name;
-+	gamepad->phys = hdev->phys;
-+	gamepad->uniq = hdev->uniq;
-+	gamepad->id.bustype = hdev->bus;
-+	gamepad->id.vendor = hdev->vendor;
-+	gamepad->id.product = hdev->product;
-+	gamepad->id.version = hdev->version;
-+	gamepad->open = flydigi_gamepad_open;
-+	gamepad->close = flydigi_gamepad_close;
-+	input_set_drvdata(gamepad, fd);
-+
-+	input_set_capability(gamepad, EV_KEY, BTN_SOUTH);
-+	input_set_capability(gamepad, EV_KEY, BTN_EAST);
-+	input_set_capability(gamepad, EV_KEY, BTN_WEST);
-+	input_set_capability(gamepad, EV_KEY, BTN_NORTH);
-+	input_set_capability(gamepad, EV_KEY, BTN_SELECT);
-+	input_set_capability(gamepad, EV_KEY, BTN_START);
-+	input_set_capability(gamepad, EV_KEY, BTN_MODE);
-+	input_set_capability(gamepad, EV_KEY, BTN_TL);
-+	input_set_capability(gamepad, EV_KEY, BTN_TR);
-+	input_set_capability(gamepad, EV_KEY, BTN_THUMBL);
-+	input_set_capability(gamepad, EV_KEY, BTN_THUMBR);
-+
-+	input_set_capability(gamepad, EV_KEY, BTN_TRIGGER_HAPPY1);
-+	input_set_capability(gamepad, EV_KEY, BTN_TRIGGER_HAPPY2);
-+	input_set_capability(gamepad, EV_KEY, BTN_TRIGGER_HAPPY5);
-+	input_set_capability(gamepad, EV_KEY, BTN_TRIGGER_HAPPY6);
-+	input_set_capability(gamepad, EV_KEY, BTN_TRIGGER_HAPPY7);
-+	input_set_capability(gamepad, EV_KEY, BTN_TRIGGER_HAPPY8);
-+	input_set_capability(gamepad, EV_KEY, BTN_TRIGGER_HAPPY9);
-+	input_set_capability(gamepad, EV_KEY, BTN_TRIGGER_HAPPY10);
-+	input_set_capability(gamepad, EV_KEY, BTN_TRIGGER_HAPPY11);
-+
-+	input_set_abs_params(gamepad, ABS_X, -32768, 32767, 0, 0);
-+	input_set_abs_params(gamepad, ABS_Y, -32768, 32767, 0, 0);
-+	input_set_abs_params(gamepad, ABS_RX, -32768, 32767, 0, 0);
-+	input_set_abs_params(gamepad, ABS_RY, -32768, 32767, 0, 0);
-+	input_set_abs_params(gamepad, ABS_Z, -32768, 32767, 0, 0);
-+	input_set_abs_params(gamepad, ABS_RZ, -32768, 32767, 0, 0);
-+	input_set_abs_params(gamepad, ABS_HAT0X, -1, 1, 0, 0);
-+	input_set_abs_params(gamepad, ABS_HAT0Y, -1, 1, 0, 0);
-+
-+	input_set_capability(gamepad, EV_FF, FF_RUMBLE);
-+	ret = input_ff_create_memless(gamepad, NULL, flydigi_play_effect);
-+	if (ret)
-+		return ret;
-+
-+	ret = input_register_device(gamepad);
-+	if (ret)
-+		return ret;
-+
-+	fd->gamepad = gamepad;
-+	return 0;
-+}
-+
-+static int flydigi_register_sensors(struct flydigi_device *fd)
-+{
-+	struct hid_device *hdev = fd->hdev;
-+	struct input_dev *sensors;
-+	char *name;
-+	int ret;
-+
-+	sensors = devm_input_allocate_device(&hdev->dev);
-+	if (!sensors)
-+		return -ENOMEM;
-+
-+	name = devm_kasprintf(&hdev->dev, GFP_KERNEL, "%s Motion Sensors",
-+			      hdev->name);
-+	if (!name)
-+		return -ENOMEM;
-+
-+	sensors->name = name;
-+	/* Matching phys/uniq helps userspace pair gamepad and IMU endpoints. */
-+	sensors->phys = hdev->phys;
-+	sensors->uniq = hdev->uniq;
-+	sensors->id.bustype = hdev->bus;
-+	sensors->id.vendor = hdev->vendor;
-+	sensors->id.product = hdev->product;
-+	sensors->id.version = hdev->version;
-+	input_set_drvdata(sensors, fd);
-+
-+	__set_bit(INPUT_PROP_ACCELEROMETER, sensors->propbit);
-+	__set_bit(EV_MSC, sensors->evbit);
-+	__set_bit(MSC_TIMESTAMP, sensors->mscbit);
-+
-+	input_set_abs_params(sensors, ABS_X, -32768, 32767, 16, 0);
-+	input_set_abs_params(sensors, ABS_Y, -32768, 32767, 16, 0);
-+	input_set_abs_params(sensors, ABS_Z, -32768, 32767, 16, 0);
-+	input_abs_set_res(sensors, ABS_X, FLYDIGI_ACCEL_RES_PER_G);
-+	input_abs_set_res(sensors, ABS_Y, FLYDIGI_ACCEL_RES_PER_G);
-+	input_abs_set_res(sensors, ABS_Z, FLYDIGI_ACCEL_RES_PER_G);
-+
-+	input_set_abs_params(sensors, ABS_RX, -32768, 32767, 16, 0);
-+	input_set_abs_params(sensors, ABS_RY, -32768, 32767, 16, 0);
-+	input_set_abs_params(sensors, ABS_RZ, -32768, 32767, 16, 0);
-+	input_abs_set_res(sensors, ABS_RX, FLYDIGI_GYRO_RES_PER_DPS);
-+	input_abs_set_res(sensors, ABS_RY, FLYDIGI_GYRO_RES_PER_DPS);
-+	input_abs_set_res(sensors, ABS_RZ, FLYDIGI_GYRO_RES_PER_DPS);
-+
-+	ret = input_register_device(sensors);
-+	if (ret)
-+		return ret;
-+
-+	fd->sensors = sensors;
-+	return 0;
-+}
-+
-+/**
-+ * flydigi_init_uniq - provide a stable unique string for endpoint pairing
-+ * @hdev: HID device
-+ *
-+ * Userspace often merges controller and sensor nodes only when uniq matches.
-+ * Populate uniq early when firmware does not provide one.
-+ */
-+static void flydigi_init_uniq(struct hid_device *hdev)
-+{
-+	struct usb_interface *intf;
-+	struct usb_device *udev;
-+	char path[64];
-+	int ret;
-+
-+	/*
-+	 * Some Flydigi units expose a static USB serial string, which is not
-+	 * unique across controllers. Use the USB topology path so userspace can
-+	 * pair gamepad and sensor nodes per physical device.
-+	 */
-+	if (hid_is_usb(hdev)) {
-+		intf = to_usb_interface(hdev->dev.parent);
-+		if (intf) {
-+			udev = interface_to_usbdev(intf);
-+			if (udev) {
-+				ret = usb_make_path(udev, path, sizeof(path));
-+				if (ret > 0) {
-+					strscpy(hdev->uniq, path, sizeof(hdev->uniq));
-+					return;
-+				}
-+			}
-+		}
-+	}
-+
-+	if (hdev->uniq[0])
-+		return;
-+
-+	if (hdev->phys[0]) {
-+		strscpy(hdev->uniq, hdev->phys, sizeof(hdev->uniq));
-+		return;
-+	}
-+
-+	snprintf(hdev->uniq, sizeof(hdev->uniq), "%04x:%04x",
-+		 hdev->vendor, hdev->product);
-+}
-+
-+static int flydigi_probe(struct hid_device *hdev, const struct hid_device_id *id)
-+{
-+	struct flydigi_device *fd;
-+	u8 output_report_id = 0;
-+	int ifnum;
-+	int ret;
-+
-+	ifnum = flydigi_get_interface_number(hdev);
-+	if (ifnum < 0)
-+		return -ENODEV;
-+
-+	if (!flydigi_detect_protocol_descriptor(hdev, &output_report_id))
-+		return -ENODEV;
-+
-+	hid_dbg(hdev, "binding protocol interface %d (report id 0x%02x)\n",
-+		ifnum, output_report_id);
-+
-+	ret = hid_parse(hdev);
-+	if (ret) {
-+		hid_err(hdev, "parse failed: %d\n", ret);
-+		return ret;
-+	}
-+
-+	fd = devm_kzalloc(&hdev->dev, sizeof(*fd), GFP_KERNEL);
-+	if (!fd)
-+		return -ENOMEM;
-+
-+	fd->hdev = hdev;
-+	fd->output_report_id = output_report_id;
-+	hid_set_drvdata(hdev, fd);
-+
-+	spin_lock_init(&fd->lock);
-+	mutex_init(&fd->output_mutex);
-+	INIT_WORK(&fd->rumble_work, flydigi_rumble_worker);
-+	INIT_DELAYED_WORK(&fd->acquire_work, flydigi_acquire_worker);
-+
-+	flydigi_init_uniq(hdev);
-+
-+	ret = hid_hw_start(hdev, HID_CONNECT_HIDRAW);
-+	if (ret) {
-+		hid_err(hdev, "hw start failed: %d\n", ret);
-+		return ret;
-+	}
-+
-+	ret = hid_hw_open(hdev);
-+	if (ret) {
-+		hid_err(hdev, "hw open failed: %d\n", ret);
-+		hid_hw_stop(hdev);
-+		return ret;
-+	}
-+
-+	ret = flydigi_register_gamepad(fd);
-+	if (ret)
-+		goto err_close;
-+
-+	ret = flydigi_register_sensors(fd);
-+	if (ret)
-+		goto err_close;
-+
-+	/*
-+	 * Prime protocol state so input/IMU packets start flowing immediately.
-+	 * Best-effort: some devices transiently NAK these while initialization
-+	 * settles, and the periodic acquire worker will retry shortly.
-+	 */
-+	(void)flydigi_send_info_request(fd);
-+	(void)flydigi_send_status_request(fd);
-+	(void)flydigi_send_acquire(fd);
-+
-+	return 0;
-+
-+err_close:
-+	hid_hw_close(hdev);
-+	hid_hw_stop(hdev);
-+	cancel_delayed_work_sync(&fd->acquire_work);
-+	cancel_work_sync(&fd->rumble_work);
-+	mutex_destroy(&fd->output_mutex);
-+	return ret;
-+}
-+
-+static void flydigi_remove(struct hid_device *hdev)
-+{
-+	struct flydigi_device *fd = hid_get_drvdata(hdev);
-+
-+	{
-+		guard(spinlock_irqsave)(&fd->lock);
-+
-+		fd->removed = true;
-+		fd->strong = 0;
-+		fd->weak = 0;
-+	}
-+
-+	cancel_delayed_work_sync(&fd->acquire_work);
-+	cancel_work_sync(&fd->rumble_work);
-+
-+	/* Stop motors on teardown to avoid controllers that keep last FF state. */
-+	flydigi_send_rumble(fd, 0, 0);
-+
-+	hid_hw_close(hdev);
-+	hid_hw_stop(hdev);
-+	mutex_destroy(&fd->output_mutex);
-+}
-+
-+static const struct hid_device_id flydigi_devices[] = {
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_FLYDIGI, USB_DEVICE_ID_FLYDIGI_VADER5) },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(hid, flydigi_devices);
-+
-+static struct hid_driver flydigi_driver = {
-+	.name = "flydigi",
-+	.id_table = flydigi_devices,
-+	.probe = flydigi_probe,
-+	.remove = flydigi_remove,
-+	.raw_event = flydigi_raw_event,
-+};
-+module_hid_driver(flydigi_driver);
-+
-+MODULE_AUTHOR("Denis Benato <denis.benato@linux.dev>");
-+MODULE_DESCRIPTION("Flydigi HID driver");
-+MODULE_LICENSE("GPL");
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 19ab36489a60..9f151074814a 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -515,6 +515,9 @@
- #define USB_VENDOR_ID_FLATFROG		0x25b5
- #define USB_DEVICE_ID_MULTITOUCH_3200	0x0002
+ static int steam_raw_event(struct hid_device *hdev,
+ 			struct hid_report *report, u8 *data,
+ 			int size)
+@@ -1990,8 +2461,84 @@ static int steam_raw_event(struct hid_device *hdev,
+ 		return 0;
  
-+#define USB_VENDOR_ID_FLYDIGI		0x37d7
-+#define USB_DEVICE_ID_FLYDIGI_VADER5	0x2401
+ 	if (steam->client_opened)
+-		hid_input_report(steam->client_hdev, HID_FEATURE_REPORT,
+-				data, size, 0);
++		hid_input_report(steam->client_hdev, report->type, data, size, 0);
 +
- #define USB_VENDOR_ID_FUTABA            0x0547
- #define USB_DEVICE_ID_LED_DISPLAY       0x7000
++	/* Ibex uses a different report format */
++	if (steam->quirks & STEAM_QUIRK_IBEX) {
++		if (report->type != HID_INPUT_REPORT)
++			return 0;
++
++		switch (report->id) {
++		case REPORT_ID_INPUT:
++			if (size != 54)
++				return 0;
++			if (steam->client_opened)
++				return 0;
++			rcu_read_lock();
++			input = rcu_dereference(steam->input);
++			if (likely(input)) {
++				steam_do_ibex_input_event(steam, input, data);
++			} else {
++				dbg_hid("%s: input data without connect event\n",
++					__func__);
++				steam_do_connect_event(steam, true);
++			}
++			sensors = rcu_dereference(steam->sensors);
++			if (likely(sensors))
++				steam_do_ibex_sensors_event(steam, sensors, data);
++			rcu_read_unlock();
++			break;
++		case REPORT_ID_INPUT2:
++			if (size != 46)
++				return 0;
++			if (steam->client_opened)
++				return 0;
++			rcu_read_lock();
++			input = rcu_dereference(steam->input);
++			if (likely(input)) {
++				steam_do_ibex_input_event(steam, input, data);
++			} else {
++				dbg_hid("%s: input data without connect event\n",
++					__func__);
++				steam_do_connect_event(steam, true);
++			}
++			sensors = rcu_dereference(steam->sensors);
++			if (likely(sensors))
++				steam_do_ibex_sensors_event(steam, sensors, data);
++			rcu_read_unlock();
++			break;
++		case REPORT_ID_BATTERY:
++			if (size != 15)
++				return 0;
++			rcu_read_lock();
++			battery = rcu_dereference(steam->battery);
++			if (likely(battery)) {
++				steam_do_ibex_battery_event(steam, battery,
++					(const struct steam_ibex_battery_status *)&data[1]);
++			} else {
++				dbg_hid("%s: battery data without connect event\n",
++					__func__);
++				steam_do_connect_event(steam, true);
++			}
++			rcu_read_unlock();
++			break;
++		case REPORT_ID_WIRELESS_EVENT:
++			if (size != 2)
++				return 0;
++			switch (data[1]) {
++			case WIRELESS_EVENT_DISCONNECT:
++				steam_do_connect_event(steam, false);
++				break;
++			case WIRELESS_EVENT_CONNECT:
++				steam_do_connect_event(steam, true);
++				break;
++			}
++			break;
++		}
++
++		return 0;
++	}
++
+ 	/*
+ 	 * All messages are size=64, all values little-endian.
+ 	 * The format is:
+@@ -2114,6 +2661,26 @@ static const struct hid_device_id steam_controllers[] = {
+ 		USB_DEVICE_ID_STEAM_DECK),
+ 	  .driver_data = STEAM_QUIRK_DECK
+ 	},
++	{ /* Steam Controller (2026) wired */
++	  HID_USB_DEVICE(USB_VENDOR_ID_VALVE,
++		USB_DEVICE_ID_STEAM_CONTROLLER_IBEX),
++	  .driver_data = STEAM_QUIRK_IBEX
++	},
++	{ /* Steam Controller (2026) BLE */
++	  HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_VALVE,
++		USB_DEVICE_ID_STEAM_CONTROLLER_IBEX_BLE),
++	  .driver_data = STEAM_QUIRK_IBEX | STEAM_QUIRK_BLE
++	},
++	{ /* Steam Controller (2026) Puck */
++	  HID_USB_DEVICE(USB_VENDOR_ID_VALVE,
++		USB_DEVICE_ID_STEAM_CONTROLLER_PROTEUS),
++	  .driver_data = STEAM_QUIRK_IBEX | STEAM_QUIRK_WIRELESS
++	},
++	{ /* Steam Controller (2026) Steam Machine internal receiver */
++	  HID_USB_DEVICE(USB_VENDOR_ID_VALVE,
++		USB_DEVICE_ID_STEAM_CONTROLLER_NEREID),
++	  .driver_data = STEAM_QUIRK_IBEX | STEAM_QUIRK_WIRELESS
++	},
+ 	{}
+ };
  
 -- 
-2.47.3
+2.54.0
 

@@ -1,157 +1,117 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3E1FD3EC83F
-	for <linux-input@vger.kernel.org>; Fri,  7 Aug 2026 23:53:45 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9D5873B2AA
+	for <linux-input@vger.kernel.org>; Fri,  7 Aug 2026 23:59:22 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786146827; cv=none; b=Hx8hufR3R4Fxvz1RSPfYgyWimigbFT1Y4VujigJS2G245EPlDD5CdOufds6OIzEZ+NQP0QZIbpknhmJ4chK3wyCBthTuLTu2E8mhIAmsHKcCQnQEFk3if3CWOiV6bq46M7Rt72kAwGbVOLFgkDO2eeU1/qrMGKk/5prQuZ72cIc=
+	t=1786147163; cv=none; b=ZVxaZ47gOlRIxHec5rJg1Kn1yvYMyxGwyCsEBc501Dz7oc3wxX+qePv4YOnV9PQGtYkCsFhxlohMjZM9lyU05Is09dSZjzUd4JtFMvqbH8JuxdXlTnuBy96ChvrIzRAlOqLm0rR0x2qF08P5zsHa2/rIxcwGRzffbCl2a4kixMc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786146827; c=relaxed/simple;
-	bh=+rAh20Ep2Iur2JTwsBqCKGbgLW5lbGTs48vp7/floGg=;
+	s=arc-20240116; t=1786147163; c=relaxed/simple;
+	bh=kGkSnkKUU/4SoEUMOQum5WR9eAbYuK1eVMmX8x/2JGw=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=bWEm54lXILKFeorvN4MswuUj/XMVelB/nfh3+Sjq6eb3TnHOzff0t+nLn2Vib7bxapHFF5Oqj1WJEhCbqQ+7KU0tCI6ETYEFU0HIr14/rtp2S+OPueafP18jJj40RCQA325GolZf5kMU+Z+P1ROdYHfHr6wAbRZgdEMI7lbBEN0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=aGsu5DUN; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=VnVszGYp9IEJab0qahmZo4CMskIOElA+ZDAAgO4kHT9ElRCaPyBq5Sa6FPLs/iiaJ5pFlIc8a/jlgfmhKsOZhKBtNOEAwAkBCs+1UBcpqdlDe8BMd5pZW9SjA14q8YFh/YeuWs/JGMN46rdDkAYR7xwXfkVi/Q6zDQ90f20VPEI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=hY8pOyJa; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="aGsu5DUN"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1AEA1F000E9;
-	Fri,  7 Aug 2026 23:53:45 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="hY8pOyJa"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 185D71F000E9;
+	Fri,  7 Aug 2026 23:59:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786146825;
-	bh=VOf5EV44mHYkpgSjyd+++208GWxycRx+NLx9JgiaPTg=;
+	s=k20260515; t=1786147162;
+	bh=wxGUD2X/Ev1ILBJ6k98hfL5F+mgmFtX5veJvgwUTle0=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=aGsu5DUNnaljYV6q/EmdH5M5PCooiU1aJK1j0aAslvBx9NnKqlppzKo33FWmnl5Ay
-	 CIhgSbu2d+rybqjn27iRlkAmC9Ns9PNGnRM4PKG4YIw92yZp0NPUYPuJ7+EgiecFgP
-	 HeNFJyU5/P/n5C5tpreK/zj3O+6D7C3cl0VEhQr46J8LRRL0umZXoahdS8ykT5+aiR
-	 o+1fwWgbeFlUboVyVhEuP+I0R1pVvPsW+yCqFTvHE0lCrblOBEg735WZ7HHUsDHSO1
-	 SmQLa/dKRB/LUhnaenwclgulhoPqdshqMOSQkwu6Pc3iITZcqx4dP67UxZvT4Vrhpm
-	 73Zz6x8BWm8gw==
+	b=hY8pOyJarYXND9RoYpQZptsqbBQ1E1PTiO40eA15Dh5Uf+BSsE+xbGGoAty/AkLOp
+	 iN5h3DkBeuNyfV2N9tTdkSX1F/j5lp8pvjlX8BQMWqGjI3X2y5R54s0l0BJ24tZKR7
+	 XkJuRfynll+m2Nc5ZG7AjIqZoSTlVEOHQK18gSSnNX46c1iFMNS3HZILejkQYg/4tC
+	 hmOhJWJgr3yDOMdFRaSkDERq38twNZOX4uX91jWfTXQMH0SRwBmFRgYAKldVLM2vuJ
+	 nlnMtu07SxSP1cDS+u8K5szSjEZSIKiraejDZKhIxBecKaqhAiPNoT+t/SMkEVVauS
+	 vLn88l252RVKA==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v4 5/6] HID: steam: Clean up locking
+Subject: Re: [PATCH v4 2/6] HID: steam: Initial 2026 Steam Controller
+ support
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Vicki Pfau" <vi@endrift.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260807232339.2799205-6-vi@endrift.com>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <20260807232339.2799205-3-vi@endrift.com>
 References: <20260807232339.2799205-1-vi@endrift.com>
- <20260807232339.2799205-6-vi@endrift.com>
+ <20260807232339.2799205-3-vi@endrift.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 07 Aug 2026 23:53:45 +0000
-Message-Id: <20260807235345.A1AEA1F000E9@smtp.kernel.org>
+Date: Fri, 07 Aug 2026 23:59:21 +0000
+Message-Id: <20260807235922.185D71F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-
-New issues:
-- [High] Missing `report_mutex` acquisition in `steam_register` causes conc=
-urrent HID report sequence corruption.
-
-Pre-existing issues:
-- [High] Use-After-Free of `steam->client_hdev` in `steam_raw_event` due to=
- incorrect teardown sequence.
+- [High] Use-After-Free (UAF) of the `steam` struct due to uncancelled dela=
+yed works when asynchronous registration fails.
 --
 
---- Patch [5]: [PATCH v4 5/6] HID: steam: Clean up locking ---
-commit b7298af16f52c40e58c726cf4668c6523e3cddaf
+--- Patch [2]: [PATCH v4 2/6] HID: steam: Initial 2026 Steam Controller sup=
+port ---
+commit 1d87ff75b79e456dee7ec00f38dd2bafa9555a17
 Author: Vicki Pfau <vi@endrift.com>
-Date:   Fri Aug 7 23:23:36 2026 +0000
 
-    HID: steam: Clean up locking
-   =20
-    This cleans up several issues with locking behavior, including RCU acce=
-sses
-    not being guarded behind a lock.
+HID: steam: Initial 2026 Steam Controller support
+
+This brings support for the 2026 Steam Controller, comparably featureful to
+the existing support for the Steam Deck.
 
 > diff --git a/drivers/hid/hid-steam.c b/drivers/hid/hid-steam.c
-> index d95296b28f92b..95e252665351c 100644
+> index 5deeff2db266e..ec7ccbe5aba09 100644
 > --- a/drivers/hid/hid-steam.c
 > +++ b/drivers/hid/hid-steam.c
 
 [ ... ]
 
-> @@ -633,7 +634,6 @@ static int steam_exchange_report(struct steam_device =
-*steam, u8 *cmd, int csize,
->  	unsigned int retries =3D 5;
->  	int ret;
-> =20
-> -	guard(mutex)(&steam->report_mutex);
->  	do {
->  		ret =3D steam_send_report(steam, cmd, csize);
->  		if (ret < 0)
-
-[ ... ]
-
-> @@ -1380,13 +1376,16 @@ static int steam_register(struct steam_device *st=
-eam)
->  {
->  	int ret;
-> =20
-> +	mutex_lock(&steam->registration_mutex);
->  	/*
->  	 * This function can be called several times in a row with the
->  	 * wireless adaptor, without steam_unregister() between them, because
->  	 * another client send a get_connection_status command, for example.
->  	 */
-> -	if (steam->registered)
-> +	if (steam->registered) {
-> +		mutex_unlock(&steam->registration_mutex);
->  		return 0;
-> +	}
-> =20
->  	/*
->  	 * Unlikely, but getting the serial could fail, and it is not so
+> @@ -1210,7 +1440,6 @@ static void steam_unregister(struct steam_device *s=
+team)
+>  	mutex_lock(&steam_devices_lock);
+>  	list_del_init(&steam->list);
+>  	mutex_unlock(&steam_devices_lock);
+> -	steam->serial_no[0] =3D 0;
+>  }
 
 [Severity: High]
-Does this leave the HID report sequence unprotected during device registrat=
-ion?
+Can this result in a use-after-free of the steam struct?
 
-Because the patch removes the report_mutex from steam_exchange_report() and
-steam_set_lizard_mode(), their callers are now expected to hold it. However,
-steam_register() doesn't acquire report_mutex before it continues execution
-and calls steam_get_serial() (which calls steam_exchange_report()) and
-steam_set_lizard_mode().
+If a controller connects asynchronously and steam_register() is called,
+it registers the input device. If a subsequent step like
+steam_sensors_register() fails, the error path is taken:
 
-For example, a wireless connection immediately after USB enumeration trigge=
-rs
-steam_raw_event() -> steam_do_connect_event(), which queues
-steam_work_connect_cb to call steam_register(). At the same time, the
-original steam_probe() thread continues and calls steam_get_conn_status().=
-=20
+drivers/hid/hid-steam.c:steam_register() {
+...
+	ret =3D steam_sensors_register(steam);
+	if (ret !=3D 0)
+		goto steam_register_sensors_fail;
 
-Since steam_register() lacks the report_mutex, its HID transmissions could=
-=20
-interleave with the internally-locked steam_get_conn_status() operations.
-Can this lead to corrupted replies or matching a reply to the wrong request?
+	steam->registered =3D true;
+...
+steam_register_sensors_fail:
+	steam_input_unregister(steam);
+...
+}
 
-[ ... ]
+Because steam->registered is never set to true, any delayed works scheduled
+during the brief window the input device was active (such as mode_switch
+or rumble_work) might still be pending.
 
-> @@ -2470,6 +2466,7 @@ static int steam_raw_event(struct hid_device *hdev,
->  	if (!steam)
->  		return 0;
-> =20
-> +	guard(spinlock_irqsave)(&steam->lock);
->  	if (steam->client_opened)
->  		hid_input_report(steam->client_hdev, report->type, data, size, 0);
-> =20
+Later, when the device is removed, steam_unregister() is called but
+returns early without canceling those works:
 
-[Severity: High]
-This is a pre-existing issue, but could this lead to a use-after-free of
-steam->client_hdev if an event arrives during teardown?
+drivers/hid/hid-steam.c:steam_unregister() {
+	if (!steam->registered)
+		return;
+...
+}
 
-In steam_remove(), hid_destroy_device(steam->client_hdev) is called to
-destroy the child HID device, but hid_hw_stop(hdev) is not called until the
-very end of the function. This means hardware interrupts can still deliver
-raw events.=20
-
-If steam_raw_event() triggers after the child device is destroyed, but
-before steam->client_opened is explicitly cleared under the lock in
-steam_remove(), it will dereference the freed steam->client_hdev pointer.
+When devres frees the steam struct at the end of steam_remove(), wouldn't
+the still-pending works execute and access freed memory?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260807232339.2799=
-205-1-vi@endrift.com?part=3D5
+205-1-vi@endrift.com?part=3D2

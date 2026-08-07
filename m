@@ -1,103 +1,132 @@
-Received: from azure-sdnproxy.icoremail.net (azure-sdnproxy.icoremail.net [52.237.72.81])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id D86D137EFF8;
-	Fri,  7 Aug 2026 05:24:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=52.237.72.81
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D992F3A6B77
+	for <linux-input@vger.kernel.org>; Fri,  7 Aug 2026 05:37:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786080306; cv=none; b=ULvraDJhUNgdArZFls90Fu1EW0iuAHrlRSNdpJQrN1IuEmBgQywkA6KqCLEbnSQxtnQFWox0Xb8eVRZW7UjndoqBXe94/KUly6u+oeJctRTeBHilQQsz3IRLIq0wzJ+ibpy6rWXm2iFrSySSqNWfvgFGLOUiGUiKb9stYJv2nDY=
+	t=1786081035; cv=none; b=ne6S19FnsxRLSY9IO24osxvasS3RLY76BsflEE5JE3t2/SyFUsyBuSbWjHI6NqHLYXHj/wdsAIHuOPgpQ8NgLR7O5XsWMO9XGA/NMTOAFrgDQg3dArbAD2LZg3dG30IJx7lpkrdpug7fjmKMUtn8DGH+7aFgO5UYnJdr8UeIMsc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786080306; c=relaxed/simple;
-	bh=UCPPa0M1nBQrqutfvKs9QKDkUq7cUuqPgXGCoK1GKYI=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=j0V+Da+2tnOMCI2T8yWJwhOlV/27REFN9F5OZhvIYAmLCtU+g7RAgXSvvJuf9uqlYoS4dbMOMOjJCgjHQWHvrffGjl7PCWrhdUExRd0oJqBCWwgH7BZFE7bYO3xleBPn8t9mEw+tRsyaCcmZS5nqufwiKVJsJpZxFXZk+mOKtq0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=zju.edu.cn; spf=pass smtp.mailfrom=zju.edu.cn; arc=none smtp.client-ip=52.237.72.81
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=zju.edu.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zju.edu.cn
-Received: from zju.edu.cn (unknown [10.98.66.117])
-	by mtasvr (Coremail) with SMTP id _____wBnQX4bbHVqYldxAA--.1314S3;
-	Fri, 07 Aug 2026 13:24:44 +0800 (CST)
-Received: from localhost.localdomain (unknown [10.98.66.117])
-	by mail-app3 (Coremail) with SMTP id zS_KCgCXgncabHVqURIOBA--.51109S2;
-	Fri, 07 Aug 2026 13:24:42 +0800 (CST)
-From: Fan Wu <fanwu01@zju.edu.cn>
-To: jikos@kernel.org,
-	bentiss@kernel.org,
-	linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org,
-	Fan Wu <fanwu01@zju.edu.cn>,
-	stable@vger.kernel.org,
-	Pascal Giard <pascal.giard@etsmtl.ca>
-Subject: [PATCH] HID: sony: fix use-after-free when removing GHL devices
-Date: Fri,  7 Aug 2026 05:23:28 +0000
-Message-Id: <20260807052328.11404-1-fanwu01@zju.edu.cn>
-X-Mailer: git-send-email 2.34.1
+	s=arc-20240116; t=1786081035; c=relaxed/simple;
+	bh=SP1T8OGlEToGqLkC6vpfib9OAvXoJ3FDgqUAXMLKhKA=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=C9b+rQmd0veEd3aF/z8J+YgjH9qptN/HO+4L0EJhIRmn940I9OW8qVopm9JuZf1zW04PYuQgTYtOqEv920Cue4xcqhN10gFdvoDEuGZSKLKwoi8yCHeYbU3CNDwKE2J3K1RdKnso0nRT/TxTW/RPJUGgzOqED+vD4G+ydb7r8UU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=boRB13lQ; arc=none smtp.client-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="boRB13lQ"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E39C1F000E9;
+	Fri,  7 Aug 2026 05:37:13 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1786081033;
+	bh=/BHRgh2RdP25jN3CtkDXXDuG20JxQMBcXbwYwHv+e2c=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=boRB13lQm8n9ZFBhXQYlFPwkthdlyKiHwLrvZwFfxy5ffBSGkedXq69L1+hjOtU7v
+	 DiQDnpoDKm9fzIXlmzVoXtXrtdLQt5KjdpuLv4da65N3hv2oP+11MiIaehnR+M42Up
+	 mfLab1jXe6MiZFbRQDA2HOW0XXrBiZHRJufBBhXtu2gaPUZ4bmt1jgQDm+guv99dEE
+	 ZXqEWfBuSFSU2vvSmqtqXtw58/pLVBQ/IP5J0DltOfcAsZ7RkAsDrLlQZa93NQQJyN
+	 q9BQnuq3meFfSOQjr4mw5imTbJX/m8xhnCD0yPWl4Zi7hTM4eV7awhZ6bzG95PGjEx
+	 egnDHLJP5dOUg==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH] HID: sony: fix use-after-free when removing GHL devices
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Fan Wu" <fanwu01@zju.edu.cn>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <20260807052328.11404-1-fanwu01@zju.edu.cn>
+References: <20260807052328.11404-1-fanwu01@zju.edu.cn>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Fri, 07 Aug 2026 05:37:12 +0000
+Message-Id: <20260807053713.4E39C1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:zS_KCgCXgncabHVqURIOBA--.51109S2
-X-CM-SenderInfo: qrstjiaswqq6lmxovvfxof0/
-X-CM-DELIVERINFO: =?B?Ce+Y2AXKKxbFmtjJiESix3B1w3vZ3A9ovKVTomAyoQazvoRs/NHSP8GI2EvgeEEW7R
-	sfnZPoDCNGYdHSfuFmYJL54WNdqH/uLH5WfyK0WVr6WicCUSwDHfwhYn+Nx/FPKYE5orky
-	efaELHOLEhIUz0Kwmkyp9E6mavGmQbzmcFsnzP86
-X-Coremail-Antispam: 1Uk129KBj93XoW7tr4DGFy5Ww1ftF4DCr45Arc_yoW8Ar18pa
-	97G3sxKryUXr4Ik3WagFn7WFy5A393JrW7uFyxC3y5ZwsxAr17Jay5tr17WFW7Jayqv39x
-	AF40q3y3GF9akacCm3ZEXasCq-sJn29KB7ZKAUJUUUUU529EdanIXcx71UUUUU7KY7ZEXa
-	sCq-sGcSsGvfJ3Ic02F40EFcxC0VAKzVAqx4xG6I80ebIjqfuFe4nvWSU5nxnvy29KBjDU
-	0xBIdaVrnRJUUU9Gb4IE77IF4wAFF20E14v26r4j6ryUM7CY07I20VC2zVCF04k26cxKx2
-	IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48v
-	e4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_tr0E3s1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI
-	0_Gr1j6F4UJwA2z4x0Y4vEx4A2jsIE14v26rxl6s0DM28EF7xvwVC2z280aVCY1x0267AK
-	xVW0oVCq3wAac4AC62xK8xCEY4vEwIxC4wAS0I0E0xvYzxvE52x082IY62kv0487Mc804V
-	CY07AIYIkI8VC2zVCFFI0UMc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0I7IYx2IY67AK
-	xVWUJVWUGwAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFVCjc4AY6r1j6r4UM4x0Y48Icx
-	kI7VAKI48JM4x0Y48IcxkI7VAKI48G6xCjnVAKz4kxMxAIw28IcxkI7VAKI48JMxC20s02
-	6xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8CrVAFwI0_Jr0_Jr4lx2IqxVCjr7xvwVAFwI0_Jr
-	I_JrWlx4CE17CEb7AF67AKxVWUAVWUtwCIc40Y0x0EwIxGrwCI42IY6xIIjxv20xvE14v2
-	6r1j6r1xMIIF0xvE2Ix0cI8IcVCY1x0267AKxVWUJVW8JwCI42IY6xAIw20EY4v20xvaj4
-	0_Jr0_JF4lIxAIcVC2z280aVAFwI0_Jr0_Gr1lIxAIcVC2z280aVCY1x0267AKxVW8JVW8
-	JrUvcSsGvfC2KfnxnUUI43ZEXa7IU85l1PUUUUU==
 
-The GHL poke timer and its control URB re-arm each other: the timer
-callback submits the URB, and the URB completion re-arms the timer.
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+s) to consider:
 
-sony_remove() only called timer_delete_sync(), which waits for a running
-callback but does not stop a URB the callback already submitted and does
-not stop the completion from re-arming the timer.  The sony_sc structure
-is devm-allocated and freed after sony_remove() returns, so on removal
-the completion or the re-armed timer can run on freed memory.
+Pre-existing issues:
+- [High] In the `sony_probe()` error path, driver-specific resources regist=
+ered during `sony_input_configured()` are not cleaned up when probe fails a=
+fter `hid_hw_start()`, leading to a Use-After-Free.
+- [High] The GHL poke timer and its URB are not paused during system suspen=
+d, causing the poke loop to permanently stop and the device to freeze upon =
+resume.
+--
 
-Use timer_shutdown_sync() instead, which also detaches the callback so
-the completion can no longer re-arm the timer, and add usb_kill_urb()
-before usb_free_urb() to drain any URB the callback submitted.  The URB
-is driver-private and not anchored, so hid_hw_stop() does not touch it.
+--- Patch [1]: [PATCH] HID: sony: fix use-after-free when removing GHL devi=
+ces ---
+commit 60eeab13afba312995f6d575044d513de06674d1
+Author: Fan Wu <fanwu01@zju.edu.cn>
 
-Found by a static analysis tool.
+HID: sony: fix use-after-free when removing GHL devices
 
-Fixes: fb1a79a6b6e1 ("HID: sony: fix freeze when inserting ghlive ps3/wii dongles")
-Cc: stable@vger.kernel.org
-Cc: Pascal Giard <pascal.giard@etsmtl.ca>
-Assisted-by: Codex:gpt-5.6
-Signed-off-by: Fan Wu <fanwu01@zju.edu.cn>
----
- drivers/hid/hid-sony.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+This commit fixes a use-after-free issue during the removal of GHL devices
+by using timer_shutdown_sync() to prevent timer re-arming. It also adds
+usb_kill_urb() to drain any URB the callback submitted before freeing it.
 
-diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
-index b966e4044238..bbd95adfbed6 100644
---- a/drivers/hid/hid-sony.c
-+++ b/drivers/hid/hid-sony.c
-@@ -2164,7 +2164,8 @@ static void sony_remove(struct hid_device *hdev)
- 	struct sony_sc *sc = hid_get_drvdata(hdev);
- 
- 	if (sc->quirks & (GHL_GUITAR_PS3WIIU | GHL_GUITAR_PS4)) {
--		timer_delete_sync(&sc->ghl_poke_timer);
-+		timer_shutdown_sync(&sc->ghl_poke_timer);
-+		usb_kill_urb(sc->ghl_urb);
- 		usb_free_urb(sc->ghl_urb);
- 	}
- 
--- 
-2.34.1
+> diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
+> index e75246d29e16d..f7929a7848be4 100644
+> --- a/drivers/hid/hid-sony.c
+> +++ b/drivers/hid/hid-sony.c
+> @@ -2424,7 +2424,8 @@ static void sony_remove(struct hid_device *hdev)
+>  	struct sony_sc *sc =3D hid_get_drvdata(hdev);
+> =20
+>  	if (sc->quirks & (GHL_GUITAR_PS3WIIU | GHL_GUITAR_PS4)) {
+> -		timer_delete_sync(&sc->ghl_poke_timer);
+> +		timer_shutdown_sync(&sc->ghl_poke_timer);
+> +		usb_kill_urb(sc->ghl_urb);
+>  		usb_free_urb(sc->ghl_urb);
+>  	}
 
+[Severity: High]
+This isn't a bug introduced by this patch, but looking at how the GHL poke
+timer is managed, is the timer properly paused during system suspend?
+
+If the system enters suspend and the USB bus is suspended, what happens if =
+the
+timer fires? It looks like usb_submit_urb() in ghl_magic_poke() will return=
+ an
+error and fail to re-arm the timer:
+
+drivers/hid/hid-sony.c:ghl_magic_poke() {
+	...
+	ret =3D usb_submit_urb(sc->ghl_urb, GFP_ATOMIC);
+	if (ret < 0)
+		hid_err(sc->hdev, "usb_submit_urb failed: %d", ret);
+	...
+}
+
+Neither sony_suspend() nor sony_resume() appear to pause and restart this
+timer loop. Does this mean the poke loop silently dies upon suspend, causing
+the GHL device to freeze when the system resumes?
+
+[Severity: High]
+This is also a pre-existing issue, but seeing the teardown sequence in
+sony_remove() raises a question about the error path in sony_probe().
+
+When hid_hw_start() succeeds, it internally calls the driver's
+sony_input_configured() callback, which allocates resources and adds the
+device to the global sony_device_list.
+
+If a subsequent check in sony_probe() fails, it jumps to the err label:
+
+drivers/hid/hid-sony.c:sony_probe() {
+	...
+err:
+	usb_free_urb(sc->ghl_urb);
+
+	hid_hw_stop(hdev);
+	return ret;
+}
+
+This error path does not appear to call sony_remove_dev_list(sc) or
+sony_release_device_id(sc) like sony_remove() does. Since sc is managed by
+devm_kzalloc(), the memory is freed when probe returns, leaving a dangling
+pointer in sony_device_list. Can this lead to a use-after-free the next time
+any Sony device is probed and the list is traversed?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260807052328.1140=
+4-1-fanwu01@zju.edu.cn?part=3D1

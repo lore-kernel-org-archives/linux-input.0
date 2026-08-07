@@ -1,44 +1,43 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2B9BE2BEC23
-	for <linux-input@vger.kernel.org>; Fri,  7 Aug 2026 23:48:16 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3E1FD3EC83F
+	for <linux-input@vger.kernel.org>; Fri,  7 Aug 2026 23:53:45 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786146498; cv=none; b=jTp+Sd3nsgGtSr7cgwsBf755upuGEjIiI+OSbnvZuozrb7DuF96VtnCaxIpis5okJ8nVw6yVhY88n5bELXmDGZDCe+gq7FVcXE09+Sdu1aNdYqWykS8vLjF51ES9UOuLi80bJxjdznlneeKcoHVOO6AgErRRcqviOv3wYRJnDZY=
+	t=1786146827; cv=none; b=Hx8hufR3R4Fxvz1RSPfYgyWimigbFT1Y4VujigJS2G245EPlDD5CdOufds6OIzEZ+NQP0QZIbpknhmJ4chK3wyCBthTuLTu2E8mhIAmsHKcCQnQEFk3if3CWOiV6bq46M7Rt72kAwGbVOLFgkDO2eeU1/qrMGKk/5prQuZ72cIc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786146498; c=relaxed/simple;
-	bh=ftkLLQ0piDCyiB581mGdB9YmRW+TIbtN5sWlBZqlGAs=;
+	s=arc-20240116; t=1786146827; c=relaxed/simple;
+	bh=+rAh20Ep2Iur2JTwsBqCKGbgLW5lbGTs48vp7/floGg=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=o4xD3Tx/7jsjzxEka+WGo0cbytr1Cl8ESkVpSLEauJzDn8a/7GY1tumSFWVer5gIUmRld1k8MBSw/J7TLkEjQ+RXhAxYLNSvFQbCsOQjhNLgHIkjOjE91KNGILA7frS2ztmAZ2QOzgbBYatGmwa2O53UChlMimfPm7XGxeTMc7E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=CB6/TwGP; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=bWEm54lXILKFeorvN4MswuUj/XMVelB/nfh3+Sjq6eb3TnHOzff0t+nLn2Vib7bxapHFF5Oqj1WJEhCbqQ+7KU0tCI6ETYEFU0HIr14/rtp2S+OPueafP18jJj40RCQA325GolZf5kMU+Z+P1ROdYHfHr6wAbRZgdEMI7lbBEN0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=aGsu5DUN; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="CB6/TwGP"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47EC31F000E9;
-	Fri,  7 Aug 2026 23:48:16 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="aGsu5DUN"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1AEA1F000E9;
+	Fri,  7 Aug 2026 23:53:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786146496;
-	bh=dFaeizh9854OPFqdNDgxTG9xCOFgxjccKU2hpLHLZF4=;
+	s=k20260515; t=1786146825;
+	bh=VOf5EV44mHYkpgSjyd+++208GWxycRx+NLx9JgiaPTg=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=CB6/TwGP8q974eOduRFBsr5T9DgtS2YUD+yD/FqLHBvXQ0b//hSUmgN5Or4/6LEEC
-	 B/ww03fv/0Rc3udcpHqqWqHASYHmNR5AMXEbn4+tQjfgedG2qxeULLa8wNRPlaZCQv
-	 LqdG36ogY2TUvc9fYD2YsncNPh9qTKqjn6oALnd4RDueRrAF0CtyX7cjRfGLbSrjVl
-	 y8DMpYpzfS1ZGL8AfJpkkyyPaE7qTLYEg15+hMPNZueeQLARR1eK134tl5686nzXoj
-	 EMi5Lx6uh6xF9tEReW7iAqYN2n5Bfj92F4JMAvMOgPRMSno/RgjFVoPry8dhje8bgg
-	 wcmXBUlTinALA==
+	b=aGsu5DUNnaljYV6q/EmdH5M5PCooiU1aJK1j0aAslvBx9NnKqlppzKo33FWmnl5Ay
+	 CIhgSbu2d+rybqjn27iRlkAmC9Ns9PNGnRM4PKG4YIw92yZp0NPUYPuJ7+EgiecFgP
+	 HeNFJyU5/P/n5C5tpreK/zj3O+6D7C3cl0VEhQr46J8LRRL0umZXoahdS8ykT5+aiR
+	 o+1fwWgbeFlUboVyVhEuP+I0R1pVvPsW+yCqFTvHE0lCrblOBEg735WZ7HHUsDHSO1
+	 SmQLa/dKRB/LUhnaenwclgulhoPqdshqMOSQkwu6Pc3iITZcqx4dP67UxZvT4Vrhpm
+	 73Zz6x8BWm8gw==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v4 4/6] HID: steam: Don't set feature reports when
- disconnecting
+Subject: Re: [PATCH v4 5/6] HID: steam: Clean up locking
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Vicki Pfau" <vi@endrift.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260807232339.2799205-5-vi@endrift.com>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20260807232339.2799205-6-vi@endrift.com>
 References: <20260807232339.2799205-1-vi@endrift.com>
- <20260807232339.2799205-5-vi@endrift.com>
+ <20260807232339.2799205-6-vi@endrift.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 07 Aug 2026 23:48:15 +0000
-Message-Id: <20260807234816.47EC31F000E9@smtp.kernel.org>
+Date: Fri, 07 Aug 2026 23:53:45 +0000
+Message-Id: <20260807235345.A1AEA1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -48,113 +47,111 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 Thank you for your contribution! Sashiko AI review found 2 potential issue(=
 s) to consider:
 
+New issues:
+- [High] Missing `report_mutex` acquisition in `steam_register` causes conc=
+urrent HID report sequence corruption.
+
 Pre-existing issues:
-- [High] Use-after-free of `steam->client_hdev` in `steam_raw_event` due to=
- lockless state read and improper teardown order.
-- [High] Use-after-free of the `steam` object due to delayed works being sc=
-heduled after they are cancelled in `steam_remove`.
+- [High] Use-After-Free of `steam->client_hdev` in `steam_raw_event` due to=
+ incorrect teardown sequence.
 --
 
---- Patch [4]: [PATCH v4 4/6] HID: steam: Don't set feature reports when di=
-sconnecting ---
-commit a4f986bc6df63f014c012a55b0b8e0ff17917cf8
+--- Patch [5]: [PATCH v4 5/6] HID: steam: Clean up locking ---
+commit b7298af16f52c40e58c726cf4668c6523e3cddaf
 Author: Vicki Pfau <vi@endrift.com>
+Date:   Fri Aug 7 23:23:36 2026 +0000
 
-HID: steam: Don't set feature reports when disconnecting
-
-This commit updates the driver to fail silently when setting feature reports
-fails with -ENODEV during device disconnect. It prevents expected errors
-from flooding the kernel log when lizard mode and IMU mode are reset.
+    HID: steam: Clean up locking
+   =20
+    This cleans up several issues with locking behavior, including RCU acce=
+sses
+    not being guarded behind a lock.
 
 > diff --git a/drivers/hid/hid-steam.c b/drivers/hid/hid-steam.c
-> index 8d3ef523682bd..d95296b28f92b 100644
+> index d95296b28f92b..95e252665351c 100644
 > --- a/drivers/hid/hid-steam.c
 > +++ b/drivers/hid/hid-steam.c
 
 [ ... ]
 
-> @@ -570,7 +574,11 @@ static int steam_send_report_id(struct steam_device =
-*steam,
->  	} while (--retries);
+> @@ -633,7 +634,6 @@ static int steam_exchange_report(struct steam_device =
+*steam, u8 *cmd, int csize,
+>  	unsigned int retries =3D 5;
+>  	int ret;
 > =20
->  	kfree(buf);
-> -	if (ret < 0)
-> +	/*
-> +	 * Don't log if the failure is -ENODEV, as this
-> +	 * can happen normally on disconnect.
-> +	 */
-> +	if (ret < 0 && ret !=3D -ENODEV)
->  		hid_err(steam->hdev, "%s: error %d (%*ph)\n", __func__,
->  				ret, size, cmd);
->  	return ret;
+> -	guard(mutex)(&steam->report_mutex);
+>  	do {
+>  		ret =3D steam_send_report(steam, cmd, csize);
+>  		if (ret < 0)
+
+[ ... ]
+
+> @@ -1380,13 +1376,16 @@ static int steam_register(struct steam_device *st=
+eam)
+>  {
+>  	int ret;
+> =20
+> +	mutex_lock(&steam->registration_mutex);
+>  	/*
+>  	 * This function can be called several times in a row with the
+>  	 * wireless adaptor, without steam_unregister() between them, because
+>  	 * another client send a get_connection_status command, for example.
+>  	 */
+> -	if (steam->registered)
+> +	if (steam->registered) {
+> +		mutex_unlock(&steam->registration_mutex);
+>  		return 0;
+> +	}
+> =20
+>  	/*
+>  	 * Unlikely, but getting the serial could fail, and it is not so
 
 [Severity: High]
-This isn't a bug introduced by this patch, but while reviewing the disconne=
-ct
-handling, is it possible for the interrupt handler to access freed memory?
+Does this leave the HID report sequence unprotected during device registrat=
+ion?
 
-Looking at steam_remove(), the client device is destroyed before the
-client_opened flag is cleared and before hardware interrupts are stopped:
+Because the patch removes the report_mutex from steam_exchange_report() and
+steam_set_lizard_mode(), their callers are now expected to hold it. However,
+steam_register() doesn't acquire report_mutex before it continues execution
+and calls steam_get_serial() (which calls steam_exchange_report()) and
+steam_set_lizard_mode().
 
-drivers/hid/hid-steam.c:steam_remove() {
-    ...
-    hid_destroy_device(steam->client_hdev);
-    spin_lock_irqsave(&steam->lock, flags);
-    steam->client_opened =3D 0;
-    ...
-}
+For example, a wireless connection immediately after USB enumeration trigge=
+rs
+steam_raw_event() -> steam_do_connect_event(), which queues
+steam_work_connect_cb to call steam_register(). At the same time, the
+original steam_probe() thread continues and calls steam_get_conn_status().=
+=20
 
-If a USB report arrives in this window, could steam_raw_event() locklessly
-read steam->client_opened (which still evaluates to true) and call
-hid_input_report() on the already freed steam->client_hdev?
+Since steam_register() lacks the report_mutex, its HID transmissions could=
+=20
+interleave with the internally-locked steam_get_conn_status() operations.
+Can this lead to corrupted replies or matching a reply to the wrong request?
 
-drivers/hid/hid-steam.c:steam_raw_event() {
-    ...
-    if (steam->client_opened)
-        hid_input_report(steam->client_hdev, report->type, data, size, 0);
-    ...
-}
+[ ... ]
+
+> @@ -2470,6 +2466,7 @@ static int steam_raw_event(struct hid_device *hdev,
+>  	if (!steam)
+>  		return 0;
+> =20
+> +	guard(spinlock_irqsave)(&steam->lock);
+>  	if (steam->client_opened)
+>  		hid_input_report(steam->client_hdev, report->type, data, size, 0);
+> =20
 
 [Severity: High]
-This is also a pre-existing issue, but does steam_remove() leave a window
-where cancelled works can be re-queued?
+This is a pre-existing issue, but could this lead to a use-after-free of
+steam->client_hdev if an event arrives during teardown?
 
-In steam_remove(), the works are cancelled and the device is unregistered
-before hardware interrupts are finally stopped via hid_hw_stop():
+In steam_remove(), hid_destroy_device(steam->client_hdev) is called to
+destroy the child HID device, but hid_hw_stop(hdev) is not called until the
+very end of the function. This means hardware interrupts can still deliver
+raw events.=20
 
-drivers/hid/hid-steam.c:steam_remove() {
-    ...
-    cancel_work_sync(&steam->work_connect);
-    ...
-    steam_unregister(steam);
-    hid_hw_stop(hdev);
-    ...
-}
-
-Because hardware interrupts can remain active in this window, incoming HID
-events can still trigger steam_raw_event(). If a user presses the start
-button in this window, could steam_do_deck_input_event() queue the
-mode_switch delayed work?
-
-drivers/hid/hid-steam.c:steam_do_deck_input_event() {
-    ...
-    schedule_delayed_work(&steam->mode_switch, 45 * HZ / 100);
-    ...
-}
-
-Similarly, could incoming wireless events trigger steam_do_connect_event()
-and queue work_connect after it was already cancelled?
-
-drivers/hid/hid-steam.c:steam_do_connect_event() {
-    ...
-    if (changed && schedule_work(&steam->work_connect) =3D=3D 0)
-    ...
-}
-
-Once steam_remove() returns, the steam struct is freed via devres. Could
-these pending works then execute on the freed steam object, causing a
-use-after-free?
+If steam_raw_event() triggers after the child device is destroyed, but
+before steam->client_opened is explicitly cleared under the lock in
+steam_remove(), it will dereference the freed steam->client_hdev pointer.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260807232339.2799=
-205-1-vi@endrift.com?part=3D4
+205-1-vi@endrift.com?part=3D5

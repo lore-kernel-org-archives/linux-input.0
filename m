@@ -1,207 +1,193 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from endrift.com (endrift.com [173.255.198.10])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3B8AF383C86;
-	Fri,  7 Aug 2026 15:56:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D870A3F4845
+	for <linux-input@vger.kernel.org>; Fri,  7 Aug 2026 23:25:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=173.255.198.10
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786118202; cv=none; b=W74dTsGdP/1OVtrMHKRLTVK4jj43C8aBPIybzE+txkO43MnhT2BT/gudVw5zScXDWzmJl1TwoGuXPaREwYr9Y9N8D3tyjwTM5MtYKrtQkR9AjyyjdAVTVFMnG1HQhX+jL+xJo9EsQil3fx2hNXAHPzpclF51bpwLb6bcBGsGCf4=
+	t=1786145113; cv=none; b=KGgyCHxso7mQ0s+W8BluZde/90XHkQ0nWxps69qwdxCVjApZkmPp57n1jNPuvcMkEc6B3Ncq70F9yUzUcGnzXyajXBlKSq/uctu38tXEI7SOXIdzwjJRxYrFafcYJfGtv6lKkvk1eeQaqEXzF0lOGiNJyJoQ8pbY5x6pIg3dHao=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786118202; c=relaxed/simple;
-	bh=VA70aSST0+oXzeKBLFAIe/feNAXy4mW5hiharidblwQ=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=ls/7lG7TP3aw63mpWmemub3RVK5aYgP22IyCf5Kffix3psIES+/3Q313QA1NV+SDySGin28Yue71ay9Rcyu+spkeV16vj7nqqmku1ki4E8MXl6EvwSVsYbV4kbPJ296d8PS/4+r+xr7yx3xIvSVEYOfn/zeZVJVbm9r5zraiCuI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=BsV/FfWR; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1786145113; c=relaxed/simple;
+	bh=iX2koLzLC5LC2Z5HkRI/KgsEtd46/HWcQAs6oq7Lk9c=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=c/VW+tR90RTcofmynb7bZ1mmh6tk3yZCPXnTeVyeDTOtM7FnXgEPMQcrTcWGLRLQ1spCBNyscAlEvWsM5nYLaqq8kzzBUVnPK9J0vV8oniyxyTU7Gu8VMaJ3lm7y1lLRQWvaZ6WaDu2Hz28J3uFS/NzNtdQqqnH1pFrW2JcShrY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com; spf=pass smtp.mailfrom=endrift.com; dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b=xylMgkHN; arc=none smtp.client-ip=173.255.198.10
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=endrift.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="BsV/FfWR"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A90391F000E9;
-	Fri,  7 Aug 2026 15:56:40 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786118200;
-	bh=MRMaX8bBod1PGkHnlzs/1ZV4S9uRJLKErxlT+0jAdrM=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=BsV/FfWRD+MvrNV5aAa3PYVyjOp9O24nf4pHGLqYuQoIB/DGF+HV2KmS8cd9BvUJb
-	 /1bOtDW5RljLVug4XNjPEeMtQSjaIDX72+SqNGnds6Wv9CYHdafzoyNpzA1h8u9iln
-	 V//adPr6RuqCnsKeQ0fsImSItT1ItcHoCbP6Ha8xDRnEoginVVeX6AD/q1MfoX46ZO
-	 1I75zHtOCWS3LjTzoWGlTGAMXAn4pletnBOmtRmUwNEyhMZZp5Yy8sOtkezQ9s4G0N
-	 8TpD2w05vrRpXOXY4HI7BjQorQxmPmWFa/sK9cEVTjEfVr1dklRIEJQZapM3iSAr7/
-	 2UAVNLkG2HuFA==
-Date: Fri, 7 Aug 2026 10:56:40 -0500
-From: Rob Herring <robh@kernel.org>
-To: Fenglin Wu <fenglin.wu@oss.qualcomm.com>
-Cc: linux-arm-msm@vger.kernel.org,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>, Lee Jones <lee@kernel.org>,
-	Stephen Boyd <sboyd@kernel.org>,
-	Bjorn Andersson <andersson@kernel.org>,
-	Konrad Dybcio <konradybcio@kernel.org>,
-	David Collins <david.collins@oss.qualcomm.com>,
-	Subbaraman Narayanamurthy <subbaraman.narayanamurthy@oss.qualcomm.com>,
-	Kamal Wadhwa <kamal.wadhwa@oss.qualcomm.com>,
-	linux-input@vger.kernel.org, devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
-Subject: Re: [PATCH v6 1/2] dt-bindings: input: Add Qualcomm SPMI PMIC haptics
-Message-ID: <20260807155640.GA893689-robh@kernel.org>
-References: <20260806-qcom-spmi-haptics-v6-0-19fcecd5204f@oss.qualcomm.com>
- <20260806-qcom-spmi-haptics-v6-1-19fcecd5204f@oss.qualcomm.com>
+	dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b="xylMgkHN"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=endrift.com; s=2020;
+	t=1786145105; bh=iX2koLzLC5LC2Z5HkRI/KgsEtd46/HWcQAs6oq7Lk9c=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+	b=xylMgkHNCDAA35OimN8PjKyo3iSuwvkL/VQm/A+alJ7HdW05sxoN1LRIj2bCBNIXo
+	 XBngTWMbTmNQKmXcy5Khm93j+Pq7Uxu8mMq+i8mPMIAWtJfvcE6sujULYvazvSILpD
+	 E7FNAYafRz1dpcYdyGJ3nxGzzevQ+7trhEjr0DYvP9whRcpvOyKG0PGmtSAZ8Jc6L0
+	 wGWjEw0WotncGZXvnb+QcfUZaZ5yHrUDDq9L6gKnMd07uq3aI15sD/phOMiG1J8JFW
+	 cci0ZeXNf35fZloS5Hsa6KdpQfKpYgu5kASwDbtiPmO/geLHzTIopj4DQFUNtFMAxY
+	 0TWHnZ4rw5u/w==
+Received: from microtis.vulpes.eutheria.net (71-212-73-87.tukw.qwest.net [71.212.73.87])
+	by endrift.com (Postfix) with ESMTPSA id 89680A074;
+	Fri, 07 Aug 2026 16:25:05 -0700 (PDT)
+From: Vicki Pfau <vi@endrift.com>
+To: Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>,
+	linux-input@vger.kernel.org
+Cc: Vicki Pfau <vi@endrift.com>
+Subject: [PATCH v4 1/6] HID: steam: Refactor registration
+Date: Fri,  7 Aug 2026 16:23:32 -0700
+Message-ID: <20260807232339.2799205-2-vi@endrift.com>
+X-Mailer: git-send-email 2.54.0
+In-Reply-To: <20260807232339.2799205-1-vi@endrift.com>
+References: <20260807232339.2799205-1-vi@endrift.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260806-qcom-spmi-haptics-v6-1-19fcecd5204f@oss.qualcomm.com>
+Content-Transfer-Encoding: 8bit
 
-On Thu, Aug 06, 2026 at 11:21:40PM -0700, Fenglin Wu wrote:
-> Add binding document for the haptics module inside Qualcomm PMIC
-> PMIH0108.
-> 
-> Assisted-by: Claude:claude-4-8-opus
-> Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
-> Signed-off-by: Fenglin Wu <fenglin.wu@oss.qualcomm.com>
-> ---
->  .../bindings/input/qcom,spmi-haptics.yaml          | 136 +++++++++++++++++++++
->  1 file changed, 136 insertions(+)
-> 
-> diff --git a/Documentation/devicetree/bindings/input/qcom,spmi-haptics.yaml b/Documentation/devicetree/bindings/input/qcom,spmi-haptics.yaml
-> new file mode 100644
-> index 000000000000..b1a69e9886ee
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/input/qcom,spmi-haptics.yaml
-> @@ -0,0 +1,136 @@
-> +# SPDX-License-Identifier: GPL-2.0-only OR BSD-2-Clause
-> +%YAML 1.2
-> +---
-> +$id: http://devicetree.org/schemas/input/qcom,spmi-haptics.yaml#
-> +$schema: http://devicetree.org/meta-schemas/core.yaml#
-> +
-> +title: Haptics device inside Qualcomm Technologies, Inc. PMIC
-> +
-> +maintainers:
-> +  - Fenglin Wu <fenglin.wu@oss.qualcomm.com>
-> +
-> +description: |
-> +  Certain Qualcomm PMICs integrate a haptics module, such as the HAP530_HV haptics
-> +  module in the PMIH0108 PMIC, which drives an LRA (Linear Resonant Actuator) with
-> +  an output voltage up to 10 V. Several play modes are supported in HAP530_HV:
-> +
-> +    DIRECT_PLAY: The hardware outputs sinusoidal waveforms whose period is
-> +      defined by qcom,lra-period-us and whose peak voltage is defined by
-> +      qcom,vmax-microvolt. The driving amplitude can be scaled in the range
-> +      [0, 255] via a single register byte.  Hardware-based LRA auto-resonance
-> +      tracking is enabled by default in this mode, allowing the haptics engine
-> +      to follow the actual resonant frequency of the LRA and update the driving
-> +      period accordingly to achieve stronger vibration magnitude.
-> +
-> +    FIFO: The hardware can play an arbitrary waveform composed of a sequence
-> +      of 8-bit samples at a configurable play rate.  Samples are pre-filled
-> +      into the internal FIFO memory of the haptics module and continuously
-> +      replenished via the FIFO-empty IRQ until all samples have been played.
-> +      An 8K-byte FIFO memory bank is available in the HAP530_HV haptics module,
-> +      shared between the FIFO and PAT_MEM play modes. The memory partition
-> +      between the two modes is configurable via registers, and FIFO mode always
-> +      uses the 1st partition starting from offset 0.
-> +
-> +    PAT_MEM: This mode is very similar to FIFO streaming mode but without the
-> +      data refilling capability. It is designed mainly for short, latency-critical
-> +      vibrations. The memory space for PAT_MEM mode must be reserved for dedicated
-> +      usage, and the waveform data should be preloaded and remain unchanged
-> +      thereafter. The haptics module can play the waveform data from the memory
-> +      region specified by the PAT_MEM play start address and length registers.
-> +
-> +    In either FIFO mode or PAT_MEM mode, the following play rates are supported:
-> +      -- 0(T_LRA): each FIFO byte drives one full sinusoidal cycle with the
-> +        period defined in qcom,lra-period-us.
-> +      -- 1/2/3(T_LRA_DIV_2/4/8): each FIFO byte drives a half/quarter/eighth
-> +        sinusoidal cycle with the period defined in qcom,lra-period-us.
-> +      -- 4/5/6(T_LRA_X_2/4/8): each FIFO byte drives 2/4/8 sinusoidal cycles
-> +        with the period defined in qcom,lra-period-us.
-> +      -- 8/9/10/11/12/13(8KHz/16KHz/24KHz/32KHz/44.1KHz/48KHz): the FIFO
-> +        data is treated as PCM samples and drives the output with an
-> +        arbitrarily shaped waveform.  This mode is typically used to define
-> +        custom driving waveforms for specific vibration effects such as fast
-> +        attack, crisp brake, etc.
-> +
-> +    The drive voltage in FIFO or PAT_MEM mode can exceed the value defined in
-> +    qcom,vmax-microvolt to achieve a special vibration effect, but the waveform
-> +    must be short enough to prevent the LRA from being damaged by operating at
-> +    an overvoltage.
-> +
-> +    Also, hardware-based LRA auto-resonance tracking is normally disabled in
-> +    FIFO or PAT_MEM mode, as these modes are intended to drive arbitrary
-> +    waveforms that may not follow the resonant frequency; autonomous hardware
-> +    resonance correction would interfere with the intended output.
-> +
-> +properties:
-> +  compatible:
-> +    items:
-> +      - const: qcom,pmih0108-haptics
-> +      - const: qcom,spmi-haptics
-> +
-> +  reg:
-> +    items:
-> +      - description: HAP_CFG module base address
-> +      - description: HAP_PTN module base address
-> +
-> +  reg-names:
-> +    items:
-> +      - const: cfg
-> +      - const: ptn
-> +
-> +  interrupts:
-> +    maxItems: 1
-> +
-> +  interrupt-names:
-> +    items:
-> +      - const: fifo-empty
-> +
-> +  qcom,vmax-microvolt:
-> +    description:
-> +      Maximum allowed output driving voltage in microvolts, must be a multiple
-> +      of 50,000 uV. This is the peak driving voltage in DIRECT_PLAY mode,
-> +      which outputs sinusoidal waveforms. The value should be equal to the
-> +      square root of 2 times the Vrms voltage of the LRA.
-> +    minimum: 50000
-> +    maximum: 10000000
-> +    multipleOf: 50000
-> +
-> +  qcom,lra-period-us:
-> +    description:
-> +      LRA actuator initial resonance period in microseconds
-> +      (1,000,000 / resonant_freq_hz).  Used to configure T_LRA-based play
-> +      rates and the auto-resonance zero-crossing window. It could be also used
-> +      as the initial period if the LRA wants to be driven off resonance.
-> +    minimum: 5
-> +    maximum: 20475
-> +    multipleOf: 5
-> +
-> +required:
-> +  - compatible
-> +  - reg
-> +  - reg-names
-> +  - interrupts
-> +  - interrupt-names
-> +  - qcom,vmax-microvolt
-> +  - qcom,lra-period-us
-> +
-> +additionalProperties: false
-> +
-> +examples:
-> +  - |
-> +    #include <dt-bindings/interrupt-controller/irq.h>
-> +
-> +    pmic {
-> +        #address-cells = <1>;
-> +        #size-cells = <0>;
-> +
-> +        haptics@f000 {
+This refactors and simplifies the registration/unregistration flow. Since
+we now only perform registration when the client isn't opened anymore, the
+logic for handling that can be removed, and the rest of the function
+streamlined.
 
-No incomplete examples please. Put this in the example for the PMIC.
+We also remove the previous assumption that we have a serial number to show
+we're registered, replacing it with a single purpose boolean.
 
-And please comment on sashiko report. Looks valid to me.
+In a previous refactor the code for unregistering a battery if later
+registration steps failed was accidentally left out. As a result, a
+lingering power_supply object could get left over after the steam object
+was torn down. This is also fixed here.
 
-Rob
+Signed-off-by: Vicki Pfau <vi@endrift.com>
+---
+ drivers/hid/hid-steam.c | 78 ++++++++++++++++++-----------------------
+ 1 file changed, 35 insertions(+), 43 deletions(-)
+
+diff --git a/drivers/hid/hid-steam.c b/drivers/hid/hid-steam.c
+index 6199f67f3c4c..5deeff2db266 100644
+--- a/drivers/hid/hid-steam.c
++++ b/drivers/hid/hid-steam.c
+@@ -334,6 +334,7 @@ struct steam_device {
+ 	unsigned long quirks;
+ 	struct work_struct work_connect;
+ 	bool connected;
++	bool registered;
+ 	char serial_no[STEAM_SERIAL_LEN + 1];
+ 	struct power_supply_desc battery_desc;
+ 	struct power_supply __rcu *battery;
+@@ -1139,9 +1140,6 @@ static void steam_battery_unregister(struct steam_device *steam)
+ static int steam_register(struct steam_device *steam)
+ {
+ 	int ret;
+-	unsigned long client_opened;
+-	unsigned long flags;
+-	bool do_add;
+ 
+ 	/*
+ 	 * This function can be called several times in a row with the
+@@ -1149,66 +1147,60 @@ static int steam_register(struct steam_device *steam)
+ 	 * another client send a get_connection_status command, for example.
+ 	 * The battery and serial number are set just once per device.
+ 	 */
+-	if (!steam->serial_no[0]) {
+-		/*
+-		 * Unlikely, but getting the serial could fail, and it is not so
+-		 * important, so make up a serial number and go on.
+-		 */
+-		if (steam_get_serial(steam) < 0)
+-			strscpy(steam->serial_no, "XXXXXXXXXX",
+-					sizeof(steam->serial_no));
+-
+-		ret = steam_get_attributes(steam);
+-		if (ret < 0)
+-			hid_err(steam->hdev,
+-				"%s:steam_get_attributes failed with error %d\n",
+-				__func__, ret);
++	if (steam->registered)
++		return 0;
+ 
+-		hid_info(steam->hdev, "Steam Controller '%s' connected",
+-				steam->serial_no);
++	/*
++	 * Unlikely, but getting the serial could fail, and it is not so
++	 * important, so make up a serial number and go on.
++	 */
++	if (steam_get_serial(steam) < 0 || !steam->serial_no[0])
++		strscpy(steam->serial_no, "XXXXXXXXXX",
++				sizeof(steam->serial_no));
+ 
+-		/* ignore battery errors, we can live without it */
+-		if (steam->quirks & STEAM_QUIRK_WIRELESS)
+-			steam_battery_register(steam);
++	ret = steam_get_attributes(steam);
++	if (ret < 0)
++		hid_err(steam->hdev,
++			"%s:steam_get_attributes failed with error %d\n",
++			__func__, ret);
+ 
+-		do_add = true;
+-	}
++	hid_info(steam->hdev, "Steam Controller '%s' connected",
++			steam->serial_no);
+ 
+-	spin_lock_irqsave(&steam->lock, flags);
+-	client_opened = steam->client_opened;
+-	spin_unlock_irqrestore(&steam->lock, flags);
++	/* ignore battery errors, we can live without it */
++	if (steam->quirks & STEAM_QUIRK_WIRELESS)
++		steam_battery_register(steam);
+ 
+-	if (!client_opened) {
+-		steam_set_lizard_mode(steam, lizard_mode);
+-		ret = steam_input_register(steam);
+-		if (ret != 0)
+-			goto steam_register_input_fail;
+-		ret = steam_sensors_register(steam);
+-		if (ret != 0)
+-			goto steam_register_sensors_fail;
+-	}
++	steam_set_lizard_mode(steam, lizard_mode);
++	ret = steam_input_register(steam);
++	if (ret != 0)
++		goto steam_register_input_fail;
++	ret = steam_sensors_register(steam);
++	if (ret != 0)
++		goto steam_register_sensors_fail;
+ 
+-	if (do_add) {
+-		mutex_lock(&steam_devices_lock);
+-		if (list_empty(&steam->list))
+-			list_add(&steam->list, &steam_devices);
+-		mutex_unlock(&steam_devices_lock);
+-	}
++	steam->registered = true;
++	mutex_lock(&steam_devices_lock);
++	if (list_empty(&steam->list))
++		list_add(&steam->list, &steam_devices);
++	mutex_unlock(&steam_devices_lock);
+ 	return 0;
+ 
+ steam_register_sensors_fail:
+ 	steam_input_unregister(steam);
+ steam_register_input_fail:
++	steam_battery_unregister(steam);
+ 	return ret;
+ }
+ 
+ static void steam_unregister(struct steam_device *steam)
+ {
+-	if (!steam->serial_no[0])
++	if (!steam->registered)
+ 		return;
+ 
+ 	hid_info(steam->hdev, "Steam Controller '%s' disconnected",
+ 			steam->serial_no);
++	steam->registered = false;
+ 	steam_battery_unregister(steam);
+ 	steam_sensors_unregister(steam);
+ 	steam_input_unregister(steam);
+-- 
+2.54.0
+

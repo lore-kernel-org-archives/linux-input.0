@@ -1,41 +1,44 @@
 Received: from endrift.com (endrift.com [173.255.198.10])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 30BC93F4854
-	for <linux-input@vger.kernel.org>; Fri,  7 Aug 2026 23:25:11 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B4A003F58C2
+	for <linux-input@vger.kernel.org>; Fri,  7 Aug 2026 23:25:12 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=173.255.198.10
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786145113; cv=none; b=jAfSQm0WzlA58CIgBnrQ4Z3qTsB7o0V1s/wAglS8AAIhEIlXGyy8GcmFEMvgCfMbONwfg0wijr/wRbudtfois4/KhhSax6c8o8Jdmur8z0PTqukU/twn8Sq+hYKbn7Ozm5RGrihHZihI6ULGGPwJAb7+k38A7eR0vBd82fjXidE=
+	t=1786145114; cv=none; b=lPKeKQ3hDfHeFTCjDVYIY+0omJloBgvhCS1r6oZAM6ARZMn4v3EPu3MRjMKAz5U/FvtrZkan2GC+mOhzP3kY+NUpTD/ayuTXPnRBYP/5K9L5oJbfztS1sNHbW3ouGkdYOZVQ5IbBnzWjnQDPEP4ir2dK9O4m6YtFVG29WbhotPQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786145113; c=relaxed/simple;
-	bh=p4uwMz2WTFH9/V6k8CoBOUE/VHlXlkjMFt6OT/D6t4Y=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Pf7xesQFAmV+bpadMgO+nkpjXATRuN8UlI4KO1s2CoUKhKee6rv3zbqdEx9BTlt7Ep3GWTTZAYy6vfp3m9w+W7CFcZQhT0b6qMfdzV6FzrI+vJDD3KRzV5e7scVsf1ZRT8WEgTkbyfO8J9M5GQ/ltjFRosQpy7hWhx4XqmA/pow=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com; spf=pass smtp.mailfrom=endrift.com; dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b=KHXwD/Yv; arc=none smtp.client-ip=173.255.198.10
+	s=arc-20240116; t=1786145114; c=relaxed/simple;
+	bh=y1DaM9WleROTsZkqYcGmBE2eRZ1P4KJXudwiD2Soj1Y=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=u1q85k48XSUflzXvk7IKnWOy+vDMrKkriYoTGk2RBCsRMhLGSKfYMTbeYBchdCGnQJyYGRxuE9r5Vv3fyojJFp3xwldW/V+btPYfsKQsUI2Ib0/xLgrrWDXHiZLlMCuEt9Eua+fCeuLkfR5PgfdCx3vSUHUjZkEFrG9hFgsRwhM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com; spf=pass smtp.mailfrom=endrift.com; dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b=kQG7l6NH; arc=none smtp.client-ip=173.255.198.10
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=endrift.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b="KHXwD/Yv"
+	dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b="kQG7l6NH"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=endrift.com; s=2020;
-	t=1786145105; bh=p4uwMz2WTFH9/V6k8CoBOUE/VHlXlkjMFt6OT/D6t4Y=;
-	h=From:To:Cc:Subject:Date:From;
-	b=KHXwD/YvELJVJXZZw4OtUNF4givwfNOAjjf18QYenk3tMK1pLRU5b/35ghF8BqeGz
-	 E+rPEgpyNsdmbE/SSijLXEEHzzD8I6NYiDuZsILfqbVkt3dLRK/REI2Ojlha5Bvzjo
-	 nsIxc+CaORQoE3waVjZHjbQPyr8oodY68OhJ6LTORAVo2+5C/8Ft0npdlg9rmgydwW
-	 +Yc6i6Pboy86SmM3SZ6YjVsauxwbsjJPHOwpZkYS/sK7TItvDL0lAc2CSuQ7JmoEw5
-	 M/dioUQu+O6z8Hu6kq9/fVuiijgSqUcnfmB/Kwi4Vii3s5IEjXWcKQ15SxLY0xPnRE
-	 xmwl985wIf1Zg==
+	t=1786145106; bh=y1DaM9WleROTsZkqYcGmBE2eRZ1P4KJXudwiD2Soj1Y=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+	b=kQG7l6NHb0F474/tWFPf1+1qcPS2FvLDKVWpTJNs8UAzXyJ8QPLUtxmoRHwAtZGsF
+	 TpMyyB3mFvB5evFAVInUYWNEiPCNsyM5roGXdaatYfiFtxZkEGC4wDT7SYJR0e92D4
+	 oMmCE3SJar7Vu5Yngs1atLDE+LccsO2DHwte9Ndlj7jpn21RqlfogTwAtohBMr2v0/
+	 hv7l08UmCeOywM3HaCxMDqBNMr8dmushe0zUMmq8pySAdwtZQ+WxGs8M5RqUOmbegB
+	 Mh/N22ZjOJXTlDd7/SQ0o2wUahINAiFyQrmnO3mqflK9P69Uh3E5Yakni+TlqUbn02
+	 SYL6CoQEL/f/g==
 Received: from microtis.vulpes.eutheria.net (71-212-73-87.tukw.qwest.net [71.212.73.87])
-	by endrift.com (Postfix) with ESMTPSA id 2C5A3A058;
-	Fri, 07 Aug 2026 16:25:05 -0700 (PDT)
+	by endrift.com (Postfix) with ESMTPSA id 586D8132031;
+	Fri, 07 Aug 2026 16:25:06 -0700 (PDT)
 From: Vicki Pfau <vi@endrift.com>
 To: Jiri Kosina <jikos@kernel.org>,
 	Benjamin Tissoires <bentiss@kernel.org>,
 	linux-input@vger.kernel.org
 Cc: Vicki Pfau <vi@endrift.com>
-Subject: [PATCH v4 0/6] HID: steam: Add 2026 Steam Controller support
-Date: Fri,  7 Aug 2026 16:23:31 -0700
-Message-ID: <20260807232339.2799205-1-vi@endrift.com>
+Subject: [PATCH v4 3/6] HID: steam: Fix wording of connect/disconnect logs
+Date: Fri,  7 Aug 2026 16:23:34 -0700
+Message-ID: <20260807232339.2799205-4-vi@endrift.com>
 X-Mailer: git-send-email 2.54.0
+In-Reply-To: <20260807232339.2799205-1-vi@endrift.com>
+References: <20260807232339.2799205-1-vi@endrift.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -44,28 +47,38 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-This is the second half of a series that modernizes the hid-steam
-controller. It adds support for the new 2026 Steam Controller, with feature
-parity compared to the 2015 model and the Steam Deck drivers, as well as
-some smaller cleanup. The biggest cleanup is cleaning up the somewhat lax
-locking practices, but a few more minor things exposed to userspace include
-logging improvements and zeroing inputs when switching from gamepad mode to
-lizard mode.
+It always said Controller, even on Deck. Since we special-case other
+instances of Controller vs. Deck in strings, let's be consistent here too.
 
-This fixes a deadlock that accidentally crept into the last version.
+Signed-off-by: Vicki Pfau <vi@endrift.com>
+---
+ drivers/hid/hid-steam.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-Vicki Pfau (6):
-  HID: steam: Refactor registration
-  HID: steam: Initial 2026 Steam Controller support
-  HID: steam: Fix wording of connect/disconnect logs
-  HID: steam: Don't set feature reports when disconnecting
-  HID: steam: Clean up locking
-  HID: steam: Zero out inputs when disabling gamepad mode
-
- drivers/hid/hid-ids.h   |    4 +
- drivers/hid/hid-steam.c | 1024 ++++++++++++++++++++++++++++++++-------
- 2 files changed, 842 insertions(+), 186 deletions(-)
-
+diff --git a/drivers/hid/hid-steam.c b/drivers/hid/hid-steam.c
+index ec7ccbe5aba0..8d3ef523682b 100644
+--- a/drivers/hid/hid-steam.c
++++ b/drivers/hid/hid-steam.c
+@@ -1394,7 +1394,8 @@ static int steam_register(struct steam_device *steam)
+ 			"%s:steam_get_attributes failed with error %d\n",
+ 			__func__, ret);
+ 
+-	hid_info(steam->hdev, "Steam Controller '%s' connected",
++	hid_info(steam->hdev, "Steam %s '%s' connected",
++			steam->quirks & STEAM_QUIRK_DECK ? "Deck" : "Controller",
+ 			steam->serial_no);
+ 
+ 	/* ignore battery errors, we can live without it */
+@@ -1428,7 +1429,8 @@ static void steam_unregister(struct steam_device *steam)
+ 	if (!steam->registered)
+ 		return;
+ 
+-	hid_info(steam->hdev, "Steam Controller '%s' disconnected",
++	hid_info(steam->hdev, "Steam %s '%s' disconnected",
++			steam->quirks & STEAM_QUIRK_DECK ? "Deck" : "Controller",
+ 			steam->serial_no);
+ 	steam->registered = false;
+ 	steam_battery_unregister(steam);
 -- 
 2.54.0
 

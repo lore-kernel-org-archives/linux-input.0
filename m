@@ -1,175 +1,103 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E26C63A784F
-	for <linux-input@vger.kernel.org>; Fri,  7 Aug 2026 02:07:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+Received: from azure-sdnproxy.icoremail.net (azure-sdnproxy.icoremail.net [52.237.72.81])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id D86D137EFF8;
+	Fri,  7 Aug 2026 05:24:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=52.237.72.81
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786068428; cv=none; b=OsmxFTSsldEDSdYEFMBbdRFe/AdayETFJrkvzdM07SVD5lRBOywSv7LJD1kH3lZyknsJ8g33lKMC7W2i6E05LOaTU6CIOpJ44tjfISf9sYwGVJq1YGBNrKBs2rrZt7pUd6HSZHvT2kcEFbGRhSkK+lR9XPnRxx9PVrKd6WRZGik=
+	t=1786080306; cv=none; b=ULvraDJhUNgdArZFls90Fu1EW0iuAHrlRSNdpJQrN1IuEmBgQywkA6KqCLEbnSQxtnQFWox0Xb8eVRZW7UjndoqBXe94/KUly6u+oeJctRTeBHilQQsz3IRLIq0wzJ+ibpy6rWXm2iFrSySSqNWfvgFGLOUiGUiKb9stYJv2nDY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786068428; c=relaxed/simple;
-	bh=alFkPKYMbgUECCazKUG+eGLpjhtMTMh0AznUtvYE5n8=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=W7fN0+RsKcD9IEf4O1GdJbUzWMvfHdN8MiqZqstFQqBJ6lLPWfoHDUDxaMN4N9JuTzY+kWREM6OEQ8JhcEsixnN0qyinuW1Qm6J5qnxm0HAZPX8kXnUQ1TYaZ4fR9gaTqZOqvwAE+VK48787CeP+I0wCnDWh/q7fJgyCc+tXTao=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=R3zBAx3p; arc=none smtp.client-ip=100.103.45.18
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="R3zBAx3p"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 611381F000E9;
-	Fri,  7 Aug 2026 02:07:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786068426;
-	bh=HBKd/Jb2i+rP0pgSYlBOprr9ZsYzsQHD0SZ5k+5afyU=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=R3zBAx3pr9JMVCyseABrBOE98A1Dk9/p5LfwZUnMLPQdtjhWH1SWWbrFdbYncLGOW
-	 V5Mfv7hmKav9VzbaFoT+iHV3RqSDexql48mTlUn3ABBXfb/tUrG3jxLiDVMy5OQ0s4
-	 uxx0oA8NHbfGOQlszJ3qew1vcEFRRY03J7XVerWOiW1GpWrqe9o9hYDL2igN3BIp2O
-	 h3/0JFAGAEffqi2xtPsWYTNWEHvoqXaJ0JIgxT8RvBTEkD0gBuUx5UnStm+cZEAqCT
-	 jBw7h7+rFTmi50hPvBSM8TQ8InWjeAN6diciVHH46Td5NDjCi6er9nma+qKNVnAHoS
-	 4tkRMDbI1mh9Q==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v3 2/6] HID: steam: Initial 2026 Steam Controller
- support
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Vicki Pfau" <vi@endrift.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260807013334.2109386-3-vi@endrift.com>
-References: <20260807013334.2109386-1-vi@endrift.com>
- <20260807013334.2109386-3-vi@endrift.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Fri, 07 Aug 2026 02:07:05 +0000
-Message-Id: <20260807020706.611381F000E9@smtp.kernel.org>
+	s=arc-20240116; t=1786080306; c=relaxed/simple;
+	bh=UCPPa0M1nBQrqutfvKs9QKDkUq7cUuqPgXGCoK1GKYI=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=j0V+Da+2tnOMCI2T8yWJwhOlV/27REFN9F5OZhvIYAmLCtU+g7RAgXSvvJuf9uqlYoS4dbMOMOjJCgjHQWHvrffGjl7PCWrhdUExRd0oJqBCWwgH7BZFE7bYO3xleBPn8t9mEw+tRsyaCcmZS5nqufwiKVJsJpZxFXZk+mOKtq0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=zju.edu.cn; spf=pass smtp.mailfrom=zju.edu.cn; arc=none smtp.client-ip=52.237.72.81
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=zju.edu.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zju.edu.cn
+Received: from zju.edu.cn (unknown [10.98.66.117])
+	by mtasvr (Coremail) with SMTP id _____wBnQX4bbHVqYldxAA--.1314S3;
+	Fri, 07 Aug 2026 13:24:44 +0800 (CST)
+Received: from localhost.localdomain (unknown [10.98.66.117])
+	by mail-app3 (Coremail) with SMTP id zS_KCgCXgncabHVqURIOBA--.51109S2;
+	Fri, 07 Aug 2026 13:24:42 +0800 (CST)
+From: Fan Wu <fanwu01@zju.edu.cn>
+To: jikos@kernel.org,
+	bentiss@kernel.org,
+	linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org,
+	Fan Wu <fanwu01@zju.edu.cn>,
+	stable@vger.kernel.org,
+	Pascal Giard <pascal.giard@etsmtl.ca>
+Subject: [PATCH] HID: sony: fix use-after-free when removing GHL devices
+Date: Fri,  7 Aug 2026 05:23:28 +0000
+Message-Id: <20260807052328.11404-1-fanwu01@zju.edu.cn>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:zS_KCgCXgncabHVqURIOBA--.51109S2
+X-CM-SenderInfo: qrstjiaswqq6lmxovvfxof0/
+X-CM-DELIVERINFO: =?B?Ce+Y2AXKKxbFmtjJiESix3B1w3vZ3A9ovKVTomAyoQazvoRs/NHSP8GI2EvgeEEW7R
+	sfnZPoDCNGYdHSfuFmYJL54WNdqH/uLH5WfyK0WVr6WicCUSwDHfwhYn+Nx/FPKYE5orky
+	efaELHOLEhIUz0Kwmkyp9E6mavGmQbzmcFsnzP86
+X-Coremail-Antispam: 1Uk129KBj93XoW7tr4DGFy5Ww1ftF4DCr45Arc_yoW8Ar18pa
+	97G3sxKryUXr4Ik3WagFn7WFy5A393JrW7uFyxC3y5ZwsxAr17Jay5tr17WFW7Jayqv39x
+	AF40q3y3GF9akacCm3ZEXasCq-sJn29KB7ZKAUJUUUUU529EdanIXcx71UUUUU7KY7ZEXa
+	sCq-sGcSsGvfJ3Ic02F40EFcxC0VAKzVAqx4xG6I80ebIjqfuFe4nvWSU5nxnvy29KBjDU
+	0xBIdaVrnRJUUU9Gb4IE77IF4wAFF20E14v26r4j6ryUM7CY07I20VC2zVCF04k26cxKx2
+	IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48v
+	e4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_tr0E3s1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI
+	0_Gr1j6F4UJwA2z4x0Y4vEx4A2jsIE14v26rxl6s0DM28EF7xvwVC2z280aVCY1x0267AK
+	xVW0oVCq3wAac4AC62xK8xCEY4vEwIxC4wAS0I0E0xvYzxvE52x082IY62kv0487Mc804V
+	CY07AIYIkI8VC2zVCFFI0UMc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0I7IYx2IY67AK
+	xVWUJVWUGwAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFVCjc4AY6r1j6r4UM4x0Y48Icx
+	kI7VAKI48JM4x0Y48IcxkI7VAKI48G6xCjnVAKz4kxMxAIw28IcxkI7VAKI48JMxC20s02
+	6xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8CrVAFwI0_Jr0_Jr4lx2IqxVCjr7xvwVAFwI0_Jr
+	I_JrWlx4CE17CEb7AF67AKxVWUAVWUtwCIc40Y0x0EwIxGrwCI42IY6xIIjxv20xvE14v2
+	6r1j6r1xMIIF0xvE2Ix0cI8IcVCY1x0267AKxVWUJVW8JwCI42IY6xAIw20EY4v20xvaj4
+	0_Jr0_JF4lIxAIcVC2z280aVAFwI0_Jr0_Gr1lIxAIcVC2z280aVCY1x0267AKxVW8JVW8
+	JrUvcSsGvfC2KfnxnUUI43ZEXa7IU85l1PUUUUU==
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
+The GHL poke timer and its control URB re-arm each other: the timer
+callback submits the URB, and the URB completion re-arms the timer.
 
-Pre-existing issues:
-- [High] Concurrent execution of `steam_register` between `steam_probe` and=
- `steam_work_connect_cb` leads to data races, double registration, memory l=
-eaks, and Use-After-Free (UAF).
-- [High] Teardown ordering in `steam_remove` incorrectly cancels works befo=
-re stopping hardware events, leading to Use-After-Free.
---
+sony_remove() only called timer_delete_sync(), which waits for a running
+callback but does not stop a URB the callback already submitted and does
+not stop the completion from re-arming the timer.  The sony_sc structure
+is devm-allocated and freed after sony_remove() returns, so on removal
+the completion or the re-armed timer can run on freed memory.
 
---- Patch [2]: [PATCH v3 2/6] HID: steam: Initial 2026 Steam Controller sup=
-port ---
-commit d704660582137e2d95967bceb5a602df38e73e5e
-Author: Vicki Pfau <vi@endrift.com>
-Subject: HID: steam: Initial 2026 Steam Controller support
+Use timer_shutdown_sync() instead, which also detaches the callback so
+the completion can no longer re-arm the timer, and add usb_kill_urb()
+before usb_free_urb() to drain any URB the callback submitted.  The URB
+is driver-private and not anchored, so hid_hw_stop() does not touch it.
 
-This commit brings support for the 2026 Steam Controller, adding new
-capabilities comparable to the Steam Deck. It also includes cleanup of
-the registration flow to make it cleaner and avoid potential pitfalls.
+Found by a static analysis tool.
 
-> diff --git a/drivers/hid/hid-steam.c b/drivers/hid/hid-steam.c
-> index 967f12c7a599a..ec7ccbe5aba09 100644
-> --- a/drivers/hid/hid-steam.c
-> +++ b/drivers/hid/hid-steam.c
-[ ... ]
-> @@ -1139,61 +1371,49 @@ static void steam_battery_unregister(struct steam=
-_device *steam)
->  static int steam_register(struct steam_device *steam)
->  {
->  	int ret;
-> -	unsigned long client_opened;
-> -	unsigned long flags;
-> -	bool do_add;
-> =20
->  	/*
->  	 * This function can be called several times in a row with the
->  	 * wireless adaptor, without steam_unregister() between them, because
->  	 * another client send a get_connection_status command, for example.
-> -	 * The battery and serial number are set just once per device.
->  	 */
-> -	if (!steam->serial_no[0]) {
-> -		/*
-> -		 * Unlikely, but getting the serial could fail, and it is not so
-> -		 * important, so make up a serial number and go on.
-> -		 */
-> -		if (steam_get_serial(steam) < 0)
-> -			strscpy(steam->serial_no, "XXXXXXXXXX",
-> -					sizeof(steam->serial_no));
-> -
-> -		ret =3D steam_get_attributes(steam);
-> -		if (ret < 0)
-> -			hid_err(steam->hdev,
-> -				"%s:steam_get_attributes failed with error %d\n",
-> -				__func__, ret);
-> +	if (steam->registered)
-> +		return 0;
+Fixes: fb1a79a6b6e1 ("HID: sony: fix freeze when inserting ghlive ps3/wii dongles")
+Cc: stable@vger.kernel.org
+Cc: Pascal Giard <pascal.giard@etsmtl.ca>
+Assisted-by: Codex:gpt-5.6
+Signed-off-by: Fan Wu <fanwu01@zju.edu.cn>
+---
+ drivers/hid/hid-sony.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-[Severity: High]
-This is a pre-existing issue, but does this lockless check allow concurrent
-registration?
+diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
+index b966e4044238..bbd95adfbed6 100644
+--- a/drivers/hid/hid-sony.c
++++ b/drivers/hid/hid-sony.c
+@@ -2164,7 +2164,8 @@ static void sony_remove(struct hid_device *hdev)
+ 	struct sony_sc *sc = hid_get_drvdata(hdev);
+ 
+ 	if (sc->quirks & (GHL_GUITAR_PS3WIIU | GHL_GUITAR_PS4)) {
+-		timer_delete_sync(&sc->ghl_poke_timer);
++		timer_shutdown_sync(&sc->ghl_poke_timer);
++		usb_kill_urb(sc->ghl_urb);
+ 		usb_free_urb(sc->ghl_urb);
+ 	}
+ 
+-- 
+2.34.1
 
-When hid_hw_open() is called in steam_probe(), the hardware can immediately
-generate a wireless connect event. This triggers steam_do_connect_event(),
-which schedules steam_work_connect_cb() to run on a workqueue concurrently
-with the remainder of steam_probe().
-
-Both threads call steam_register(), which performs a lockless check of this
-registration state. Both threads can see it as false and concurrently execu=
-te
-the registration sequence.
-
-This results in multiple concurrency bugs: steam_battery_register()
-concurrently allocates and frees steam->battery_desc.name using
-devm_kasprintf()/devm_kfree(), causing the power supply subsystem to access
-freed memory (UAF). Additionally, input_allocate_device() is called twice
-with the first pointer leaked via RCU pointer overwrite.
-
-Does this need a lock around the registration check to prevent double
-registration and memory corruption?
-
-[ ... ]
-> @@ -1219,7 +1440,6 @@ static void steam_unregister(struct steam_device *s=
-team)
->  	mutex_lock(&steam_devices_lock);
->  	list_del_init(&steam->list);
->  	mutex_unlock(&steam_devices_lock);
-> -	steam->serial_no[0] =3D 0;
->  }
-
-[Severity: High]
-This is a pre-existing issue, but does the teardown ordering in steam_remov=
-e()
-incorrectly cancel works before stopping hardware events, leading to a UAF?
-
-During device removal, cancel_work_sync(&steam->work_connect) and
-steam_unregister() are called before hid_hw_stop(hdev):
-
-static void steam_remove(struct hid_device *hdev)
-{
-        ...
-        cancel_work_sync(&steam->work_connect);
-        ...
-        steam_unregister(steam);
-        hid_hw_stop(hdev);
-}
-
-While hid_hw_close(hdev) is called earlier, it only drops the logical open
-count and does not reliably guarantee the immediate cessation of all incomi=
-ng
-hardware events across all possible low-level transport drivers.
-
-Because hid_hw_stop() is the definitive function for stopping the underlying
-transport and killing pending events, an incoming interrupt can trigger
-steam_raw_event() in the window after the works are canceled but before the
-hardware is stopped.
-
-If a connect or disconnect event is received, steam_raw_event() calls
-steam_do_connect_event(), which queues steam->work_connect. After
-steam_remove() completes, devres frees the steam_device structure. When the
-newly scheduled work executes, it accesses the freed steam_device, resulting
-in a UAF memory corruption.
-
-Should hid_hw_stop() be called before canceling the workqueues?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260807013334.2109=
-386-1-vi@endrift.com?part=3D2

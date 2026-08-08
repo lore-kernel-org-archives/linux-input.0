@@ -1,121 +1,177 @@
-Received: from mail-qt1-f175.google.com (mail-qt1-f175.google.com [209.85.160.175])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C39B53321A1
-	for <linux-input@vger.kernel.org>; Sat,  8 Aug 2026 19:18:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.175
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0A8AC4B0493
+	for <linux-input@vger.kernel.org>; Sat,  8 Aug 2026 19:32:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786216703; cv=none; b=tn499Iiyrw9WZcHJcNCT0OivP4VFVJiMcd62dqk+XdDQkb+vVH4rWMAC2HHHt3C5oUT9HnozLF9h89n9Dq771UFQHZbQTpesYtmX7EG701XP347N6xWmLUHyZ6MSjENBIGd5hKxzL1LBV8/iv9OrLGNk77bS+YwFBoTcZXVmsYg=
+	t=1786217529; cv=none; b=DIliJ/GVBgaRh7lesB9S0Sh+svHqxYkpyzv6Utltnwk/WF5fgxk5UEq3+K4HE5yBi00apPxy57eHyMAxceOMQAv7rDkKK/FO4q0xDuFcn/sXGwDVF65mlLhMdsD69uqJbIuR7qpGsIizs1D0/hz79c1D910nrKAPAyevwdxhObc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786216703; c=relaxed/simple;
-	bh=kItp9Z1e8JBemDwqeOPjo5Xxl2mgPRr4PDK1h4h3tHY=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=FsE98Rh2Qt7ssO7rrPRtD7y7AI43zeu5tk2MoXRbqYFDmmIhv5pbJOy3zavgw8EuNLne/MjM+DWbeNb3cn+q1t1Ku9Yg700EbcFsi6XDxt68cTQXxwogzgMbJhIXLMBlz7SSIZAAiHYpBH18Kpou/NPdbPYKhXdSSO4VgUtxWV4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rowland.harvard.edu; spf=fail smtp.mailfrom=g.harvard.edu; dkim=pass (2048-bit key) header.d=rowland.harvard.edu header.i=@rowland.harvard.edu header.b=p9WD2jz9; arc=none smtp.client-ip=209.85.160.175
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rowland.harvard.edu
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=g.harvard.edu
+	s=arc-20240116; t=1786217529; c=relaxed/simple;
+	bh=Rsq5oBI8VyslqetnsX8au16AuGmY5nC5NTdsNwYLGpo=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=NdnvHf/3iTUFTuJGtnEbACASp7grEmmszi0UItQuReDtvOhMMKrHwHppDg5Zi7GfS0OpoTglqExxBhHnbMWheDaSkHywvfPVQHlLSLRwew9fukTFIBLLZdvsQhudxTWs21o6o2dh94O5+QBmCOD9agxYutPRtn8VgdZEFvrfgBU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=MYWIyGQV; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=rowland.harvard.edu header.i=@rowland.harvard.edu header.b="p9WD2jz9"
-Received: by mail-qt1-f175.google.com with SMTP id d75a77b69052e-51c05dcdf49so6626551cf.0
-        for <linux-input@vger.kernel.org>; Sat, 08 Aug 2026 12:18:21 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=rowland.harvard.edu; s=google; t=1786216701; x=1786821501; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=rLFxNt6cekVDYhRViYWogX3gp+Zn05f4HEhIaap8PSo=;
-        b=p9WD2jz9Y8XSjF7q7b/0c5kuLXcOW9eHQhDt1iLfmuNZNHhtUYaeoA2SrzYShUAeCR
-         GlnRUQGhWm+E/tICw3dGlo7Hd0A7SXU52JveFTAUk+sNppm0M/9bo9g6TFubOl5p0Dhl
-         D+HSShuGr/kxUKMy6HwWabnZwbWhS6s0PgerapzzDfWPGQaNBQdNeIuus3iVUO4tNKo5
-         rCZFC5uGXDqEQwvpbWRRaY69gk3zws1dpyUcjB4mMsIs1jWSonoszV3ysPjtOhTeLiz8
-         Hft60D2o0YfcyFKvtBdRL7Be1Qb28OiDgp3HYKvZr6xeoeQmHitkUGfBGutwksNG7mDA
-         acjA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1786216701; x=1786821501;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=rLFxNt6cekVDYhRViYWogX3gp+Zn05f4HEhIaap8PSo=;
-        b=p+C36JIkck5BO578KesPrgeDj3wNQLDeEoFzOhzRxQszx89E5Glmx1TJzr2MihWR5R
-         tHRkeoItTp/ng9Kf7UfVBkEmWhqC2KFgxeioPWhuC0e8LfvNY66Tzg+95eyO3cPsaYfu
-         zxx7F61QoFlOSbz2wIQ3PGWGwR736Wddfj1uIVQXF8F+5kv7QD1g5g6UUyCDjXFsFWkx
-         GZMmtQPcggvzkcoKvAf0PfuZRlZp64z6ALf18ho2NT6QayPueytqJohy/mw75FLrfAEN
-         Cn/Gl0uQ1PCsy3mv+c1YuJ3R3gh1BEHJEWpxF1GbUocF7tSEjfaXK/kEL+Bs7oY0heSo
-         ZUuA==
-X-Forwarded-Encrypted: i=1; AHgh+RpXpLPBchPjlM5FfeUROLL5HjZsZaJA/i/C6tkP6qa+nhpfILwdaQkvfZfBvmGDIoacsfgPga3v98O+ug==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yz2spneVeBW370P8VoNkCkX2Sadg9JmIpQV6slmTkeguV4McPqg
-	fMHSB5kHQi+8YMuhuJWXDscB2mZXuHk59AgOOObYAikKaPDImq3kl4nNGy2p/ndShQ==
-X-Gm-Gg: AR+sD12KSDgY0jFHGfTe+FhzO/O8MaEUkMG6Ht8k9fZGahsFp6wf3TDD/ADYD0AjUex
-	jJYdl8bI3ievRzRXEEzxVWorYvSqTPMYT3GgTueJgZt1wvv2PV4Cn1r31d5JtiPZFZeSVP/JDo8
-	8/btHpYGMoHLNPihX+gHnLdGPPQRNiWJqWRLHQHMicTxV1Koe4Aczo4SdXk3inaZW8+fT7TOw8Z
-	7d9MkVfGXfbnb7dEQzZP/zmQHv25jENl6PpGFcbgxdRS4Co6uXofc9D94cl2UYZp1vFTfmZQfq8
-	el3SyyUUFNzUL7WsZbtHspcQx3EBUotzo4+p3DvufWLDKL2XxUJ1eYkrU6eq77SY00QE0VosP4T
-	qn+rzZcCAmqgGGZC/x2mBA3r3NDTCs2ukja89elNEvBjr6AvWA12atzDFRk+FNBvp6nRx5Tgo0l
-	xJTs29r2GPMdAnjqkqCNYy7b3ieORh0Tn/xGYg0X5EdbiroYq9iDJDmYqHml4O9w==
-X-Received: by 2002:a05:622a:609:b0:51c:1a11:75cf with SMTP id d75a77b69052e-52ce5f7ed9emr323594671cf.7.1786216700651;
-        Sat, 08 Aug 2026 12:18:20 -0700 (PDT)
-Received: from rowland.harvard.edu ([2601:19b:d01:d210::dfd8])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-908a92ff8d1sm36588246d6.25.2026.08.08.12.18.19
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 08 Aug 2026 12:18:19 -0700 (PDT)
-Date: Sat, 8 Aug 2026 15:18:17 -0400
-From: Alan Stern <stern@rowland.harvard.edu>
-To: Jamie Stephens <jamie.stephens@gmail.com>
-Cc: Lovekesh Solanki <lovekeshsolanki00@gmail.com>, jikos@kernel.org,
-	bentiss@kernel.org, regressions@lists.linux.dev,
-	gregkh@linuxfoundation.org, linux-usb@vger.kernel.org,
-	linux-input@vger.kernel.org
-Subject: Re: [REGRESSION] CyberPower LE1000DG (0764:0501) USB HID regression
- on x86
-Message-ID: <be3775ba-3e7f-4548-aa1b-4710711f8aed@rowland.harvard.edu>
-References: <CABWMpWQiSEKMkROgKZJ6nV8GXYgr7E=-SmsatQie4eK8b3F9Xw@mail.gmail.com>
- <CABWMpWR7Law_vHdeAMsOcY28VBcvX2jYSqq2SpksJSiLFcXhuw@mail.gmail.com>
- <anIhyHL4Kl-DX2G_@eggarch>
- <CABWMpWQEfycicrctrW3RD1yNf0rv1ZrioY9FcjoZZGEz4GAm_Q@mail.gmail.com>
- <CABWMpWTn3H7UKqYzr7JP9tkQCEJHsXX-F103nyyey_srn7mvHA@mail.gmail.com>
- <CABWMpWSkJgmoZACA4LYEbmsbEGJMYLyixwv2V3tZbneeKBxpWg@mail.gmail.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="MYWIyGQV"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 615CD1F000E9;
+	Sat,  8 Aug 2026 19:32:07 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1786217527;
+	bh=+tLkYiS7vGVdwC3qqIxj8cmCOffIJIPqhWtorcBM3kc=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=MYWIyGQVgHPGPiOmOR/1x3bImAV5c/Br5mbK6XI7+xlQhJk4htndCdpVNlRgpPC+9
+	 +OXZIvNCT9uhsNLU37c8K3jd3TWXfMkdOBw4+vDR5wG1ZaMWTYm9HsDKfJoM4fj8Pr
+	 QjcXtn5cezz2lE2JnhEZ8UnQi5fkn8rIuEbtclQvjIkkoP/dF+v4qJwTU6L21QRlA5
+	 FK4Cw2sj1mRb9EvwfLswqBu3007tSQfr0ZkOwJaG1PTKBVu0N2IJXZFNDBpoMYAFXf
+	 O2KfDpLqu4/nT9DP+9qoVug6A3K0VXbxBn0sNMtIyqUm6DFu3BahWpWr6EwbfF2kBD
+	 LyyMxgzBBKeiQ==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH] HID: haptic: don't write an uninitialized value to
+ unhandled usages
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Karl Mehltretter" <kmehltretter@gmail.com>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20260808190417.87415-1-kmehltretter@gmail.com>
+References: <20260808190417.87415-1-kmehltretter@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Sat, 08 Aug 2026 19:32:06 +0000
+Message-Id: <20260808193207.615CD1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CABWMpWSkJgmoZACA4LYEbmsbEGJMYLyixwv2V3tZbneeKBxpWg@mail.gmail.com>
 
-On Sat, Aug 08, 2026 at 03:14:38PM -0400, Jamie Stephens wrote:
-> I also completed the test with a separate PCIe USB controller based on
-> the ASMedia ASM1042.
-> 
-> The UPS enumerates normally on the ASMedia controller and the kernel
-> identifies it correctly as the CyberPower LE1000DG (0764:0501).
-> However, on this controller the failure mode is different.
-> 
-> The device and HID descriptors are readable, but the 504-byte HID
-> report descriptor is consistently unavailable. Ten consecutive runs
-> of:
-> 
->     lsusb -v -d 0764:0501
-> 
-> all showed:
-> 
->     Report Descriptors:
->         ** UNAVAILABLE **
-> 
-> NUT behaves consistently with that result. usbhid-ups successfully
-> opens the device and claims interface 0, but then fails while
-> attempting to retrieve the HID report descriptor:
-> 
->     Unable to get HID descriptor (Pipe error)
->     HID descriptor length 504
->     Unable to get Report descriptor: Resource temporarily unavailable
->     No matching HID UPS found
-> 
-> There are no USB disconnects or xHCI errors in dmesg. The device
-> remains present and enumerated on the ASMedia controller.
+Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+s) to consider:
 
-What shows up in usbmon (or equivalently, Wireshark)?
+Pre-existing issues:
+- [High] This problem wasn't introduced by this patch, but there is a Use-A=
+fter-Free of work_struct when destroying the haptic device.
+- [High] This problem wasn't introduced by this patch, but there is an unba=
+lanced put_device() and module_put() in the initialization error path.
+- [High] This problem wasn't introduced by this patch, but there is a probe=
+ crash (Null Pointer Dereference) in `hid_haptic_init()` when a device omit=
+s `HID_HP_AUTOTRIGGER`.
+--
 
-Alan Stern
+--- Patch [1]: [PATCH] HID: haptic: don't write an uninitialized value to u=
+nhandled usages ---
+commit 969510b84661436472ff272c9047594db1487c3c
+Author: Karl Mehltretter <kmehltretter@gmail.com>
+
+    HID: haptic: don't write an uninitialized value to unhandled usages
+
+    fill_effect_buf() initializes value only for the four haptic usages
+    handled by its switch, but writes it to field->value[] for every usage.
+    An unhandled usage can therefore receive either an uninitialized value
+    or one left over from the previous usage. hid_output_report() then
+    serializes that value into the effect's report buffer.
+
+> diff --git a/drivers/hid/hid-haptic.c b/drivers/hid/hid-haptic.c
+> index deadab28cdbef..66d90f0f78a3b 100644
+> --- a/drivers/hid/hid-haptic.c
+> +++ b/drivers/hid/hid-haptic.c
+> @@ -187,7 +187,7 @@ static void fill_effect_buf(struct hid_haptic_device =
+*haptic,
+>  				value =3D waveform_ordinal;
+>  				break;
+>  			default:
+> -				break;
+> +				continue;
+>  			}
+> =20
+>  			field->value[j] =3D value;
+
+[Severity: High]
+This problem wasn't introduced by this patch, but there is a Use-After-Free
+of work_struct when destroying the haptic device.
+
+drivers/hid/hid-haptic.c:hid_haptic_destroy() {
+...
+	if (haptic->effect) {
+		for (r =3D 0; r < ff->max_effects; r++)
+			kfree(haptic->effect[r].report_buf);
+		kfree(haptic->effect);
+	}
+	haptic->effect =3D NULL;
+
+	destroy_workqueue(haptic->wq);
+...
+
+Will destroy_workqueue() attempt to drain the queue and access pending work
+items that reside inside the dynamically allocated haptic->effect, which was
+just freed by kfree()?
+
+
+[Severity: High]
+This problem wasn't introduced by this patch, but there is an unbalanced
+put_device() and module_put() in the initialization error path.
+
+drivers/hid/hid-haptic.c:hid_haptic_init() {
+...
+	if (!try_module_get(THIS_MODULE)) {
+		dev_err(&hdev->dev, "Failed to increase module count.\n");
+		goto input_free;
+	}
+	if (!get_device(&hdev->dev)) {
+		dev_err(&hdev->dev, "Failed to get hdev device.\n");
+		module_put(THIS_MODULE);
+		goto input_free;
+	}
+...
+
+Does jumping to input_free invoke input_ff_destroy(), which then
+unconditionally triggers hid_haptic_destroy()?
+
+drivers/hid/hid-haptic.c:hid_haptic_destroy() {
+...
+	if (hdev)
+		put_device(&hdev->dev);
+...
+	module_put(THIS_MODULE);
+...
+
+Will this unconditionally call put_device() and module_put() despite failing
+to acquire them, causing reference count underflows?
+
+
+[Severity: High]
+This problem wasn't introduced by this patch, but there is a probe crash
+(Null Pointer Dereference) in hid_haptic_init() when a device omits
+HID_HP_AUTOTRIGGER.
+
+If a malicious HID device advertises a Windows 8 Multitouch class and
+includes a HID_DG_TIPPRESSURE field with force units, it appears
+td->is_haptic_touchpad will be set to true.
+
+drivers/hid/hid-multitouch.c:mt_input_configured() {
+...
+	if (td->is_haptic_touchpad && (td->mtclass.name =3D=3D MT_CLS_WIN_8 ||
+	    td->mtclass.name =3D=3D MT_CLS_WIN_8_FORCE_MULTI_INPUT ||
+	    td->mtclass.name =3D=3D MT_CLS_WIN_8_KEEP_LATENCY_ON_CLOSE)) {
+		if (hid_haptic_input_configured(hdev, td->haptic, hi) =3D=3D 0)
+			td->is_haptic_touchpad =3D false;
+	} else {
+...
+
+Does mt_input_configured() leave is_haptic_touchpad set to true if
+hid_haptic_input_configured() returns -1?
+
+If this is bypassed, and mt_probe() subsequently calls hid_haptic_init():
+
+drivers/hid/hid-haptic.c:hid_haptic_init() {
+...
+	mutex_init(&haptic->auto_trigger_mutex);
+	for (r =3D 0; r < haptic->auto_trigger_report->maxfield; r++)
+		parse_auto_trigger_field(haptic, haptic->auto_trigger_report->field[r]);
+...
+
+Will haptic->auto_trigger_report be NULL and cause an immediate kernel panic
+when dereferenced if the device omitted HID_HP_AUTOTRIGGER?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260808190417.8741=
+5-1-kmehltretter@gmail.com?part=3D1

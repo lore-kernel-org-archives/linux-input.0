@@ -1,123 +1,182 @@
-Received: from mail-pj1-f53.google.com (mail-pj1-f53.google.com [209.85.216.53])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9739C3264C4
-	for <linux-input@vger.kernel.org>; Sat,  8 Aug 2026 15:00:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E6C5A2F39C7
+	for <linux-input@vger.kernel.org>; Sat,  8 Aug 2026 15:14:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786201206; cv=none; b=WZynHi972QkfUxx14FWjDu5Ko+92Tvl/NRddQadjYokJfKgXbZl0iN4fhCoVj0LR403KDEvzikblrPEnjg/AWm2wtpsYPlSEeN6QgKmOokzTHeIdVGLqQE/YVEueUa8wDVxH5JsmJgS1kl/xqSdTKQJW9wjdmh+Nu2YMoOMDog8=
+	t=1786202099; cv=none; b=dzsIoW5zU0pk5AfVCGCylAnHwnjnEyOTRR6NvZTnCW/upHHnJaHSCSejctPBIUt6lZmYPeHuk2Nzq3ppMxF/8nfEce0fYZT3qxSsmgDDGEWaj1Sg1DkWN2suxGMeZ5V2229/vtfxZV6w5A6lKZtix6Vw6zqhdMbzPHWPXv65c04=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786201206; c=relaxed/simple;
-	bh=GfW2YEBWG6q+0lA0pPenck81sZPjv90TsJei2jwNBls=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=UWDYgg3+mpRn9SPWqe7hH6dpze0CIK7dncjHdtbsEceuU5o0X0s++2pw+13sVPXQlCJDs9ajH6K+D3ISxDvEB4RVFLHQseYQW+UhmY+/w4nrkH1qkHuAOrq2GNQLAiX8VrZLVSCuhcHjJzfLRq9DJtUGJkuINqek36W7awcJSVo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=jAFbbBrr; arc=none smtp.client-ip=209.85.216.53
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1786202099; c=relaxed/simple;
+	bh=tqoUNkCwmbp3kIkR8wMqDzq/RqmSorgBN634CNsF1aw=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=K03ZZg7JLZpwuqAPv9gKFUMxNPNx4bNEpnJNtp5kWL80IKuHnv3XqrGIUye5DLqL3OH0cSFAAB7U/Y7+eQCNZA7NTb+yp7b19QTQ6czpZMxI3daGxgqfSn5m7mITcw+1ZVG5DSME68+xKb312yJO0uqLoIyPBcummMctMvZk3VQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=luLkww8C; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jAFbbBrr"
-Received: by mail-pj1-f53.google.com with SMTP id 98e67ed59e1d1-3810c5d691bso407120a91.1
-        for <linux-input@vger.kernel.org>; Sat, 08 Aug 2026 08:00:05 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1786201205; x=1786806005; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=oOONO+kZ83xynxRyUTPEoSdvpl1Q3Luqgq4ZyfoVH8o=;
-        b=jAFbbBrrja3AI2d3/h4bTqZuDrqhui73COWcWo83t7STmUinCVT1pq6QKlsoBDCq0e
-         CZV9DdSilcSi+fAAWxZo+bFn9lvhTbsvJqw3GA83wyoBPvhAaGhASgpNKpjf9Djrf6s5
-         wEA3QcvXj4/e/glGutvvTPUaHIv7yciB7GjyFdTX3x/A6Q1YbIhaQLhfRGur8ilZFp4E
-         8w1y5HlPItpIJWt23yYDTwH+LBMlPDyGp1A2bsXFO78wagnpJQmIAkSVaGTKiWv7t3S8
-         gKiPH4pyDolzsREzb8xHvrJODvyD/zwoYbtNyZ20+dCf+sh6O/7XLPUZWXUVvnFfMcYJ
-         e8Ew==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1786201205; x=1786806005;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=oOONO+kZ83xynxRyUTPEoSdvpl1Q3Luqgq4ZyfoVH8o=;
-        b=YRVJx39NGqlIRBqrnwrADkmvjUcJVdBDIs5PR3nRWCAejGo7Fqx037qCcshKPgs8KU
-         RGqOfw35aOCkJi7MwEYeMgU9d05+5DGkXdOLGT121Xf3aiu/9anplXmZbgMdXdXCuzww
-         42KObkNZmk82RXwfzsUZTVJWeZB5XhhD3KJPPX5DErkyNlRN+z6TYWpP+KWiLFx8gQ7y
-         hSBHCe9M+J55HG0ofpV/DhxLabMaMBkm5Ejcc43aHjPD79znRs8zVHMkFguQytGrenwj
-         2/N40jS7kX7YHQkCr8GLfVTgyiGe3ZUPVJAxRc6WEHD5UntigbIkv+3E2nmczxDqsXY1
-         QYKQ==
-X-Forwarded-Encrypted: i=1; AHgh+Rrmt4O8gbnwp2eB8U99Lq0//vEgTUdi80X6+pYh3m/FpSkHi1ap7xxZjUq0WnIoZv3IrNannoMvNzeB2g==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yw3MQUsf27IW5XfIHiBNiQoWfpx9s9HldEBmlXLQCTUQhSoQXGA
-	W8fzvZNkDTOFFgfU09MG11g6u4d8qAxgEN1+B/y0TnpKVlCnvlfs0IqT
-X-Gm-Gg: AR+sD12hpPOvoIUo/LKOOW+HS/poWaqWRmQswKvci41MZUdqZ2ytOtGER8c2Fc1zRrH
-	eI5uudXFDji9vdgHi7wR3ejGNBqOyImzH9FAkoF0q7hCD22l8t+5D47RIo/ZrHAJKVISkkrb7/6
-	B59GvgBDrJVOr9MO+Si/5Z8LGs7FXgPGzxQJXZkSTxM8NcPPGjbndxysastMJw71gYhJxBxoGqK
-	iM23hvKPQo2QNwmIQueJTBvtHKylMtJJLbmtcw/bo7A9Ss7vJw0vJq9dUVMZvOw5Wk5DcBJYfhD
-	KNN5/3VxLamqEC7GNXdM1zv09pOqoKr+UZ2r9foinLV8Oa7o78qazbZvIR5N2zBCvLsifK2Ebrj
-	v3R/LYdNEg6IvPyqnDF8CEesWOGqrSk6E+POKLBYhGIe/iaEvFY2KMML3ryHaHNfqiOKOlZqjxI
-	ggSEBJh2iRCaKff4K7N8KF2Dfv2SJdhnhd62gzhyDg/8w=
-X-Received: by 2002:a17:90b:528c:b0:37f:bfd6:8b40 with SMTP id 98e67ed59e1d1-3903c5993cemr32295133a91.5.1786201204670;
-        Sat, 08 Aug 2026 08:00:04 -0700 (PDT)
-Received: from lgs.. ([2001:250:5800:1000::f280])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3925fc6f13dsm6447642a91.1.2026.08.08.08.00.01
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 08 Aug 2026 08:00:04 -0700 (PDT)
-From: Guangshuo Li <lgs201920130244@gmail.com>
-To: Even Xu <even.xu@intel.com>,
-	Xinpeng Sun <xinpeng.sun@intel.com>,
-	Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>,
-	Sakari Ailus <sakari.ailus@linux.intel.com>,
-	Guangshuo Li <lgs201920130244@gmail.com>,
-	Mark Pearson <mpearson-lenovo@squebb.ca>,
-	Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Cc: stable@vger.kernel.org
-Subject: [PATCH] HID: intel-thc-hid: intel-quicki2c: fix autosuspend cleanup during teardown
-Date: Sat,  8 Aug 2026 22:57:48 +0800
-Message-ID: <20260808145748.2926096-1-lgs201920130244@gmail.com>
-X-Mailer: git-send-email 2.43.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="luLkww8C"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F2881F000E9;
+	Sat,  8 Aug 2026 15:14:57 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1786202097;
+	bh=Yca3ksce6KTxV8PzOK/3GTHqWpd9JkjnNnlM7RjKON0=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=luLkww8CBYbjFWTVmfbq+h0mh+j06t7wlfBzk0+Xy72/mDHPzo1zOMqfU4rWge1KD
+	 GSwR82VbGM5Jqheb0sx86Vthjd60lK2ryjXGc1BKxhVAj2GmEEj3/0E4It9b4ikKA7
+	 DsY0U7f7axHCegn095R2WB0Skhhg14rR1KNMXWdEyXljyaFPLjPxOyctmyKiplw6pY
+	 iJQoGbebr2EsdibYTSWwl8wddRzeSYqY0TyTdzZyG7cR5tHm2VeZYHvmhZ0tcD82PH
+	 v+0jX/QfoMDWh06LyMTqInm86jNz95ivTV0QA4RNAqXTu6RGZsAoqPZB1+ubkRpfNN
+	 YzJrZocLZhSzA==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH] HID: intel-thc-hid: intel-quicki2c: fix autosuspend
+ cleanup during teardown
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Guangshuo Li" <lgs201920130244@gmail.com>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <20260808145748.2926096-1-lgs201920130244@gmail.com>
+References: <20260808145748.2926096-1-lgs201920130244@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Sat, 08 Aug 2026 15:14:56 +0000
+Message-Id: <20260808151457.4F2881F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
+Thank you for your contribution! Sashiko AI review found 4 potential issue(=
+s) to consider:
+
+Pre-existing issues:
+- [Critical] Missing bounds check on untrusted DMA data length in `handle_i=
+nput_report()` leads to out-of-bounds read and potential crash.
+- [High] The driver drops the Runtime PM usage count twice in `quicki2c_pro=
+be()`, causing an unbalanced usage count and potential underflow.
+- [High] The hard IRQ handler accesses memory-mapped hardware registers wit=
+hout verifying the device is in an active power state.
+- [High] The device removal routine destroys the HID device and unconfigure=
+s DMA before disabling the hardware interrupt, allowing concurrent access t=
+o freed structures (Use-After-Free).
+--
+
+--- Patch [1]: [PATCH] HID: intel-thc-hid: intel-quicki2c: fix autosuspend =
+cleanup during teardown ---
+commit 8a35b0594fb992d3e7467b6a60b895077101a1f0
+Author: Guangshuo Li <lgs201920130244@gmail.com>
+
+HID: intel-thc-hid: intel-quicki2c: fix autosuspend cleanup during teardown
+   =20
 quicki2c_probe() calls pm_runtime_use_autosuspend(), but
 quicki2c_remove() does not call the matching
 pm_runtime_dont_use_autosuspend() during teardown.
-
+   =20
 If the autosuspend delay is set to a negative value while autosuspend
 is enabled, the runtime PM core increments usage_count to prevent
 runtime suspend. Without calling pm_runtime_dont_use_autosuspend()
 during teardown, this reference is not dropped.
 
-The documentation for pm_runtime_use_autosuspend() also notes that it
-is important to undo it with pm_runtime_dont_use_autosuspend() at
-driver exit time, unless runtime PM was initially enabled with
-devm_pm_runtime_enable().
+> diff --git a/drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c b/dr=
+ivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c
+> index 46d3e9a019995..4126c2408d986 100644
+> --- a/drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c
+> +++ b/drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c
+> @@ -774,6 +774,7 @@ static void quicki2c_remove(struct pci_dev *pdev)
+>  	quicki2c_hid_remove(qcdev);
+>  	quicki2c_dma_deinit(qcdev);
+> =20
+> +	pm_runtime_dont_use_autosuspend(qcdev->dev);
+>  	pm_runtime_get_noresume(qcdev->dev);
+> =20
+>  	quicki2c_dev_deinit(qcdev);
 
-Add the missing pm_runtime_dont_use_autosuspend() call to the driver
-remove path.
+[Severity: High]
+This isn't a bug introduced by this patch, but does this teardown sequence
+allow a Use-After-Free?
 
-This issue was found by manual code inspection.
+The device removal routine destroys the HID device via quicki2c_hid_remove()
+before disabling hardware interrupts in quicki2c_dev_deinit(). If an
+interrupt fires in this window, the IRQ thread executes:
 
-Fixes: 5f420e8215c6 ("HID: intel-thc-hid: intel-quicki2c: Add PM implementation")
-Cc: stable@vger.kernel.org
-Signed-off-by: Guangshuo Li <lgs201920130244@gmail.com>
----
- drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c | 1 +
- 1 file changed, 1 insertion(+)
+quicki2c_irq_thread_handler()
+   handle_input_report()
+      quicki2c_hid_send_report()
 
-diff --git a/drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c b/drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c
-index 46d3e9a01999..4126c2408d98 100644
---- a/drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c
-+++ b/drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c
-@@ -774,6 +774,7 @@ static void quicki2c_remove(struct pci_dev *pdev)
- 	quicki2c_hid_remove(qcdev);
- 	quicki2c_dma_deinit(qcdev);
- 
-+	pm_runtime_dont_use_autosuspend(qcdev->dev);
- 	pm_runtime_get_noresume(qcdev->dev);
- 
- 	quicki2c_dev_deinit(qcdev);
--- 
-2.43.0
+which could access the freed qcdev->hid_dev structure.
 
+
+drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c:quicki2c_probe() {
+    ...
+	pm_runtime_use_autosuspend(qcdev->dev);
+	pm_runtime_set_autosuspend_delay(qcdev->dev, DEFAULT_AUTO_SUSPEND_DELAY_MS=
+);
+	pm_runtime_put_noidle(qcdev->dev);
+	pm_runtime_put_autosuspend(qcdev->dev);
+    ...
+}
+
+[Severity: High]
+This is a pre-existing issue, but does this code drop the PM usage count
+twice?
+
+Calling pm_runtime_put_noidle() followed by pm_runtime_put_autosuspend()
+drops the usage count twice when it should only be dropped once to balance
+the initial count of 1.
+
+This can cause the usage count to underflow and break runtime PM logic.
+
+
+drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c:quicki2c_irq_quick_=
+handler() {
+    ...
+	if (qcdev->state =3D=3D QUICKI2C_DISABLED)
+		return IRQ_HANDLED;
+
+	/* Disable THC interrupt before current interrupt be handled */
+	thc_interrupt_enable(qcdev->thc_hw, false);
+    ...
+}
+
+[Severity: High]
+This isn't a bug introduced by this patch, but does this hard IRQ handler
+access memory-mapped registers without verifying the device is in an active
+power state?
+
+The PCI core can transition the device to D3hot while an in-flight MSI is
+arriving.
+
+When quicki2c_irq_quick_handler() executes in this suspended state, blindly
+writing to the MMIO register via thc_interrupt_enable() can cause a PCIe
+Master Abort, potentially freezing or crashing the system.
+
+
+drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c:handle_input_report=
+() {
+    ...
+		/* Discard samples before driver probe complete */
+		if (qcdev->state !=3D QUICKI2C_ENABLED)
+			continue;
+
+		quicki2c_hid_send_report(qcdev, pkt->data,
+					 HIDI2C_DATA_LEN(le16_to_cpu(pkt->len)));
+	}
+
+	return 0;
+}
+
+[Severity: Critical]
+This is a pre-existing issue, but does this code lack a bounds check on the
+untrusted DMA data length?
+
+The pkt->len field is read directly from DMA memory originating from the
+peripheral.
+
+If a malicious or faulty device supplies a len of 1, the HIDI2C_DATA_LEN()
+macro calculates 1 - 2, which underflows.
+
+Passing this value to quicki2c_hid_send_report() causes an out-of-bounds re=
+ad
+that can leak memory or cause a kernel panic.
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260808145748.2926=
+096-1-lgs201920130244@gmail.com?part=3D1

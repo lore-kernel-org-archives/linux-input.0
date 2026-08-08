@@ -1,140 +1,127 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2E7783CEBB7
-	for <linux-input@vger.kernel.org>; Sat,  8 Aug 2026 12:32:24 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 705F835B137;
+	Sat,  8 Aug 2026 13:39:19 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786192352; cv=none; b=WVh31ylvnAHRW2aTKb7Dc/nM0o9Ai49BL4TvY7WSanIA3h9sgH16Am53beBKUK2iIX6JIXThYplYlmV4aUop0iH+Q5mRZvXBDlQF/s987NxkWJM44OxZjENjPFkIb5GJL6Q4kVhyqunZGZX9S5Ui/DY53ShziT/rPmRpL0f1cKw=
+	t=1786196360; cv=none; b=GZZAYL1xal8YKS8yokZ4Ga0700Gz6ap8UuEXdgJW8eDIBWJXdYd2Na28Pmf+SCBIXPmhWfYHpLxF1O1fFnqDsisTfxAEj0iL1sQ0TEb7fM8KRpbknAoPBWwjg//u+J5+PCWhqwTcUc8f9YtHXdaobAV0XKdjTQDZL19r+/djJG8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786192352; c=relaxed/simple;
-	bh=XTNIPpZqUrPmOmW1+Ak1wlfI+Y9j3fqjhk5uEaknCxM=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=F3k6Qu4VFnybmExmky+/dbIK1+XAbc4xp55SH5nOl53YUJ+9z3NGQnh2FPHE34JLTaRnGKJx+Ik09CaQzsrZU+qu+3wQp3234VEhgt+cNURYUSLC1S4MfpmpcGDJi1W/3bdb1TPUr0Zl8RbALiEdbhdmwD95NVoELWusW5/KN88=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=XjcZEqVR; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1786196360; c=relaxed/simple;
+	bh=Qvx/YdpWxrdeHSIfbb5Z3+M5OXb0fS/yQRzlCnHa0HI=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=bGrzNoJf2ce5bh48YLFwmQcwexTiJnQoW/vUdV+Bh3yPyzMUJRAPWzZzF+PCIg2yHrrTklmIMpWEhyxgCbJzPo5Xm1kQXxPDL6LCrAIosRhzowBIFLgsgfszUcNVA2E0mDy2v1rGINJTVperMew9a2eitMd47ysZnxk5fwZtNW0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=EpzYFApS; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="XjcZEqVR"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 587011F000E9;
-	Sat,  8 Aug 2026 12:32:24 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="EpzYFApS"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0BD9F1F000E9;
+	Sat,  8 Aug 2026 13:39:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786192344;
-	bh=L8GpKRoncdPZnxoYYSCvX4lrOziQPcEH/zrwNU9RNpE=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=XjcZEqVRyr0MlBlVu3eZ8EVQS/oksuUXqXopVw+JBj8YeDFRpurUOnmvoPwI0nFTK
-	 77Q/LWrvN3hXIKLoK3zAbwbBe7OD1NX0KRkamjsJCpVF/XIvISZYvKppy4fwE98Pfo
-	 Vi3zHEP/EL5RXf7o4Q5Yw1WEYMjib44SLl2231hIB0TEFazFi/IMDAJdDnI0T8nqgZ
-	 rHSmuSz6Owtncx/6yuYatoZVpFl2mx+7Ei9RAfk1HV7nXs24hb38Vu5KGrPUXUOnKq
-	 DbTOmbsbCPZ4egPbcKgwDL0OytPwewHrds5B4F7ifCr4N2xiJK2YVLFpgonqyuydu0
-	 WUrt6hI4D2q5g==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 1/2] HID: flydigi: add support for vader 5 pro
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Denis Benato" <denis.benato@linux.dev>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260808122439.69159-2-denis.benato@linux.dev>
-References: <20260808122439.69159-1-denis.benato@linux.dev>
- <20260808122439.69159-2-denis.benato@linux.dev>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Sat, 08 Aug 2026 12:32:23 +0000
-Message-Id: <20260808123224.587011F000E9@smtp.kernel.org>
+	s=k20260515; t=1786196359;
+	bh=FpARLT0ntytvRaBnHmVX6doAJF6A046KyxMWuRGLl/Y=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To;
+	b=EpzYFApSpqdneSBM5AD3yxJbSyo/PnvM2KPXuoW3v27RMBLqGMb9g1aY9b7RALw33
+	 CSAttEY+pwp5iqiS5n5F2y3Dj/omQJbfIrynsba9DsQK335A0TbweUm+T0+BElLpq/
+	 BqV849GIn/QUbn0jV8xwikpQP+QX7CKBJjaRXLETsszhPhpRM8+YcVT11RCoR5s7zd
+	 jlRD5LIYvGfQkOb9SuHe+MTpUxBf6ewom3QbjcObTQ7gye4LA51N0z8YVSGQIOhbrG
+	 dX87jdbDDnQknUhAbj/pztO6FXLC5gAuM55Lezys1Zjrv8+LiJwxqwgNkFTpZ6WznK
+	 RsGkknX4rwiYg==
+Message-ID: <704af23d-32a7-48b6-bd3c-f7f471e18073@kernel.org>
+Date: Sat, 8 Aug 2026 15:39:16 +0200
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] Input: focaltech - use signed coordinates to prevent
+ underflow
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+Cc: Richard Davies <richard@arachsys.com>,
+ Mathias Gottschlag <mgottschlag@gmail.com>, linux-kernel@vger.kernel.org
+References: <am_tH_F938rK6ask@google.com>
+From: Hans de Goede <hansg@kernel.org>
+Content-Language: en-US, nl
+In-Reply-To: <am_tH_F938rK6ask@google.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
-- [High] Probe error path fails to set `fd->removed =3D true`, leading to U=
-AF and destroyed mutex usage via devres unregistration and input callbacks.
---
+Hi,
 
---- Patch [1]: [PATCH v2 1/2] HID: flydigi: add support for vader 5 pro ---
-commit 0a66486909a61950a8b4745db38b10508fd08b5c
-Author: Denis Benato <denis.benato@linux.dev>
+On 3-Aug-26 03:22, Dmitry Torokhov wrote:
+> focaltech_finger_state stores finger coordinates x and y as unsigned
+> int. When processing relative packets, negative deltas can cause
+> unsigned integer underflow if the finger moves past the left or bottom
+> boundary of the touchpad, wrapping the coordinates to values near
+> UINT_MAX.
+> 
+> When clamping the coordinates in focaltech_report_state(), these
+> underflowed values are clamped against priv->x_max / priv->y_max instead
+> of 0, causing the cursor to jump erratically to the opposite edge of the
+> touchpad.
+> 
+> Change the coordinate variables and limits to signed int so that
+> negative values resulting from relative movements clamp correctly to 0.
+> 
+> Fixes: 05be1d079ec0 ("Input: psmouse - support for the FocalTech PS/2 protocol extensions")
+> Reported-by: sashiko-bot@kernel.org
+> Assisted-by: Antigravity:gemini-3.6-flash
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-HID: flydigi: add support for vader 5 pro
+Thanks, patch looks good to me:
 
-This commit adds support for the Flydigi Vader 5 Pro gamepad. It introduces
-a driver that creates two evdev nodes (gamepad and sensors) sharing the
-same uniqid.
+Reviewed-by: Hans de Goede <johannes.goede@oss.qualcomm.com>
 
-> diff --git a/drivers/hid/hid-flydigi.c b/drivers/hid/hid-flydigi.c
-> new file mode 100644
-> index 0000000000000..ee95ade7d127b
-> --- /dev/null
-> +++ b/drivers/hid/hid-flydigi.c
-[ ... ]
-> +static void flydigi_gamepad_close(struct input_dev *dev)
-> +{
-> +	struct flydigi_device *fd =3D input_get_drvdata(dev);
-> +	bool removed;
-> +
-> +	scoped_guard(spinlock_irqsave, &fd->lock) {
-> +		fd->gamepad_open =3D false;
-> +		fd->strong =3D 0;
-> +		fd->weak =3D 0;
-> +	}
-> +
-> +	cancel_delayed_work_sync(&fd->acquire_work);
-> +
-> +	scoped_guard(spinlock_irqsave, &fd->lock)
-> +		removed =3D fd->removed;
-> +
-> +	if (!removed)
-> +		schedule_work(&fd->rumble_work);
-> +}
-[ ... ]
-> +static int flydigi_probe(struct hid_device *hdev, const struct hid_devic=
-e_id *id)
-> +{
-[ ... ]
-> +	ret =3D flydigi_register_gamepad(fd);
-> +	if (ret)
-> +		goto err_stop;
-> +
-> +	ret =3D flydigi_register_sensors(fd);
-> +	if (ret)
-> +		goto err_stop;
-> +
-> +	ret =3D hid_hw_open(hdev);
-> +	if (ret) {
-> +		hid_err(hdev, "hw open failed: %d\n", ret);
-> +		goto err_stop;
-> +	}
-[ ... ]
-> +err_stop:
-> +	hid_hw_stop(hdev);
-> +	cancel_delayed_work_sync(&fd->acquire_work);
-> +	cancel_work_sync(&fd->rumble_work);
-> +	mutex_destroy(&fd->output_mutex);
-> +	return ret;
+Regards,
 
-[Severity: High]
-Can a probe failure after gamepad registration cause a use-after-free?
+Hans
 
-If flydigi_probe() fails after flydigi_register_gamepad() completes (for
-example, if hid_hw_open() fails), the err_stop path is taken. However,
-fd->removed is not set to true.
 
-When probe returns an error, devres will unregister the input device. If
-userspace had already opened the device, the unregistration will trigger
-flydigi_gamepad_close(). Because fd->removed is still false, it will
-schedule fd->rumble_work:
+> ---
+>  drivers/input/mouse/focaltech.c | 12 ++++++------
+>  1 file changed, 6 insertions(+), 6 deletions(-)
+> 
+> diff --git a/drivers/input/mouse/focaltech.c b/drivers/input/mouse/focaltech.c
+> index d3ad4af5aa09..c6f6540e3e29 100644
+> --- a/drivers/input/mouse/focaltech.c
+> +++ b/drivers/input/mouse/focaltech.c
+> @@ -78,8 +78,8 @@ struct focaltech_finger_state {
+>  	 * Absolute position (from the bottom left corner) of the
+>  	 * finger.
+>  	 */
+> -	unsigned int x;
+> -	unsigned int y;
+> +	int x;
+> +	int y;
+>  };
+>  
+>  /*
+> @@ -108,7 +108,7 @@ struct focaltech_hw_state {
+>  };
+>  
+>  struct focaltech_data {
+> -	unsigned int x_max, y_max;
+> +	int x_max, y_max;
+>  	struct focaltech_hw_state state;
+>  };
+>  
+> @@ -126,14 +126,14 @@ static void focaltech_report_state(struct psmouse *psmouse)
+>  		input_mt_slot(dev, i);
+>  		input_mt_report_slot_state(dev, MT_TOOL_FINGER, active);
+>  		if (active) {
+> -			unsigned int clamped_x, clamped_y;
+> +			int clamped_x, clamped_y;
+>  			/*
+>  			 * The touchpad might report invalid data, so we clamp
+>  			 * the resulting values so that we do not confuse
+>  			 * userspace.
+>  			 */
+> -			clamped_x = clamp(finger->x, 0U, priv->x_max);
+> -			clamped_y = clamp(finger->y, 0U, priv->y_max);
+> +			clamped_x = clamp(finger->x, 0, priv->x_max);
+> +			clamped_y = clamp(finger->y, 0, priv->y_max);
+>  			input_report_abs(dev, ABS_MT_POSITION_X, clamped_x);
+>  			input_report_abs(dev, ABS_MT_POSITION_Y,
+>  					 priv->y_max - clamped_y);
 
-	if (!removed)
-		schedule_work(&fd->rumble_work);
-
-After devres frees the fd structure, the workqueue could execute
-flydigi_rumble_worker(), resulting in a use-after-free and an attempt to
-lock the destroyed output_mutex.
-
-Should fd->removed be set to true in the err_stop path, similar to what is
-done in flydigi_remove()?
-
-> +}
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260808122439.6915=
-9-1-denis.benato@linux.dev?part=3D1

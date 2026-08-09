@@ -1,247 +1,98 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ej1-f44.google.com (mail-ej1-f44.google.com [209.85.218.44])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7F705282F01
-	for <linux-input@vger.kernel.org>; Sun,  9 Aug 2026 06:09:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786255771; cv=none; b=BUOFtDCx9YhVROhXO4GpdD6AmX4Foky1owOeuvEZoinuTCBfE7eAUOEBetc4NjMmdFlpFd+34L8tlb+7NXGVzzE3jW8t6guAHwafKkks23vscystFDqMn8F6QQwFRy6X7attThSVXDPDgO5xz2Phq1kkpTHp0MNntcFLTbgFxz0=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786255771; c=relaxed/simple;
-	bh=23QSatMPFS8J/oJOlYCFq3cMwhM3fPVZb15sQiS5rG0=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=cXGftv9dvUi0BvYiaG8YQKoX6Tz835dImJ+M/uuih+elPiOICCqyVCPleGvW+YRuX2DTbGi7g6mhxzGYPPkOPFRbq6HMUvkrwmk2XVOBEbiLb7V7upcAj14TqNe7bC/h9/lXxOtf2xTjiUw2tmaGK7VxqD6XAY059hmmEc3vfC0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=KsY7JhT4; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A17503A875A
+	for <linux-input@vger.kernel.org>; Sun,  9 Aug 2026 07:43:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.218.44
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1786261433; cv=pass; b=ac4vK8PYuv2b0pJ0ry3k4jPtL4x6uEY0GMhxWIclCHmS5xrU1EnE8Mhd7/BvJwcFDUQDRz2xsQHbV0KeRIJRg6fAFMcIQ0ZW758+Rpmmw2wKF0v92QtjMpDxSjE5EQPFYSNzMUogFCidPEh/KIWAVk7jm6HaUgjw19ms9L+Phnk=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1786261433; c=relaxed/simple;
+	bh=/05qgLE2p32zGsXwhgc3ZNNTDJgV+xekWeEwacpLC7Q=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=WHyDRMEJKtow5vgB3gEPCKt/21l6h7UCUNop0c5aGT5lagQ0lDC45go/0oFVQ+gzPBhiE7bg+Y8CRin0BqZ8EXPYFpf4bY8nD8k8FpXwwx/2a9djNckG1hRV0VpNdB30IT1hko4eexdWhOxEBbHiq5HiumDGoIXR4N+X4MWSXkQ=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=azeron.eu; spf=pass smtp.mailfrom=azeron.eu; dkim=pass (2048-bit key) header.d=azeron.eu header.i=@azeron.eu header.b=g1QRG5gI; arc=pass smtp.client-ip=209.85.218.44
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=azeron.eu
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=azeron.eu
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="KsY7JhT4"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF3491F000E9;
-	Sun,  9 Aug 2026 06:09:29 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786255770;
-	bh=car6KNJaB1lgUzX6umkUFylo5a9+6WvjkxKXtR0Ajbw=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=KsY7JhT4r2MLKZ52iHWBZai7j5V75AaMMZHDBXIvmiPDXprj+zQ6pVHjOK6j7MUJ8
-	 UP2Vv3FixObJhuu2qvZSJSFOCi1W+T0I79nmH9pydfeBzlQduBObbniQAjUtNEBrw6
-	 6Vx6cRlcOxpR5ko13sLiZXtUCUqCQiMQPlIAbKl2xJMbgZehea1Ydo1vuPk/EV0Aeb
-	 lzUYTA8uMvbmP/nqKAHjf1fV4r4UUsiDJ9ITz1Oh5keza8rwqiuELUFYnQgYXrBqtW
-	 SwEd5uxpQs7zv1QsK32tyn4smGElr2WY8Rj5PWgfWiWlPz6X0WUttigtLEh4Cf0plz
-	 +YIkRtZ2O/uUg==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] Input: synaptics - add transparent pass-through mode
- for TrackPoint
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Laserology OSS" <development@laserology.net>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260809053322.25430-1-development@laserology.net>
-References: <20260809053322.25430-1-development@laserology.net>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Sun, 09 Aug 2026 06:09:29 +0000
-Message-Id: <20260809060929.CF3491F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=azeron.eu header.i=@azeron.eu header.b="g1QRG5gI"
+Received: by mail-ej1-f44.google.com with SMTP id a640c23a62f3a-c197eaaab00so121541666b.0
+        for <linux-input@vger.kernel.org>; Sun, 09 Aug 2026 00:43:51 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1786261430; cv=none;
+        d=google.com; s=arc-20260327;
+        b=GVOn2YBqaotspye9CROYUwqjd6h+vHmpXfruGj2W4fDjJtLt02zEy3P2AaTCzM6AYf
+         /AnjOYc1o2pjh4SkYmPT4JRQ+Gn/ytZT00q9++hs19pjJdrkdvuVqfBpoMXY/pqKhnyV
+         kYp60Xge4zbgGP63FnEjUfzhyfwHwn6+GeU6YzAa2rqLq5WsF4luKdGENgcmEYtMwkIe
+         XZX410X62Tv2let+6GVt6VQCzQSw4y7L+0CsvnVlQR/c2OEjjmUP6BzeGnDd9B8qU/ar
+         Ak+03McUhQIUljAtWrNppY2huohjwjjEhx/hVrqv2/0p9yI8Cb7u9IZKzfSRNCKV22sU
+         p9GQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:dkim-signature;
+        bh=/05qgLE2p32zGsXwhgc3ZNNTDJgV+xekWeEwacpLC7Q=;
+        fh=UcC90ngqAqc4GNuOhC/QSbXA65W4AiKPQffaGXIAR9M=;
+        b=WWr4KmtPs9dnxMAx77cqjrkm6R4uCPP8H70bbJTbCrP5nf1e3KE2veYR6LUsyh41Zx
+         p3q9uG+q+V2T0ZlHWgVCJj4a5mzg9IRUkpteDcWb+pMOqAI8S6PpIjaER1ykfWyea59Z
+         KOMJFAQ9Y728p8cdRgIw5FtIOszUf5Bq6n9mPgG/QpNSX/qsvWBod3k8mLyP3nWO8D1z
+         MHhwilBmO6W/j62q29Eg3UFBOPMIoKIBW4uASladGsaKtF/FxQN3mAnrFv9y4rB4Wchg
+         M+OMU7pjf5txZtZQe7j9A7epWQgAT8GgV8h2+0tvB8z7xa8Uygh/wE1505Irs2ZmetvU
+         lfrA==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=azeron.eu; s=google; t=1786261430; x=1786866230; darn=vger.kernel.org;
+        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
+         :references:mime-version:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=/05qgLE2p32zGsXwhgc3ZNNTDJgV+xekWeEwacpLC7Q=;
+        b=g1QRG5gIJVHgtBG+A+cZT0Jfj1GhUSGXEuCs7j7olkVGCGJFrruOFPHecq21BsTXyw
+         dar8d7197R2fSatzg3O189dM6xK7LzWSePdtArhDVKxeKxDs5r9GfGorwJvZAuRTeyeE
+         mttqrs8ZSrjnb+zJLByWpwrGIKPofvw8oEhi6c2sKC/UGQLpmAWAOLklr8GolUoRODM7
+         vVVYG5OQCpGDzJz2VAbNyUgM1f2tATuCSXEvD/L/dH5eeemGpLylXPGBn2lQEMGPGpKo
+         amCTALPXk4Yepui6oxKPeQAEctKSr6g2AHDuccjhnD/yvFfPX+EtyS+2QqSHYlY1DsMl
+         s6WA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1786261430; x=1786866230;
+        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
+         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=/05qgLE2p32zGsXwhgc3ZNNTDJgV+xekWeEwacpLC7Q=;
+        b=FhCaLsD8+KaO6EqLVqKyiH5GIFsJSr/4L9yIoDzk9V1nOYjiNdUTSb3/49oVM0dJRD
+         1s4FDI9FN+PMKRSH2c+MTLqF+646E32L/EmsBgHwfDSsFURxbkEdRPk9wIuMoza3xWaB
+         EH9CIJ1cNEUBislFNSnROhn2RLZwxqMWcfepulFbZ4wCJ4mhoIdbuli71QY7Z4btMbgF
+         +0M46aEXC6EklWVJA/JgTZMLDmP1myPw6w91TPrf0R/MKKUDCVB9MoioCmMmqMGdaWLc
+         stgWhDNwNtZ1fcW0f3v3jUllVzOePmeBeaKp9NGsqoQcxCbCx9nsT8lma3XctbxUHUX1
+         4YSQ==
+X-Gm-Message-State: AOJu0YxEXnmBvosvCfrJh773KUnrL0hbFDM90jLqblnmMjGVcHxJagFR
+	06lvbPPznyZdvnbHF3Ad7VVHStR9tR7+bhYEV3tpCGz4vQyrtRYEVWtDYe7Siebsd3tWZZKSh+z
+	9mlNaNoQhIkAtM7U5X7j/ingkpPEkuHCynemkB6/fQA==
+X-Gm-Gg: AR+sD10HNM+671JdH2uIBm6lcaJHhP0P37RC+pbPbHBOYCtQJSgqCgSTFbg719avAtk
+	uV1c/3gwTT5K8hG0O0tMsp3BmmaP1Uwg3JPwNfPP90KuUelzlYMWPQYHZIZb2YgFANmpSHGhGl5
+	/pnJzUyuCSjUSgjez5zeN02pWMJNbF57Vgv1Ph3zkA0Amv9Pze8juCASAZEhUs1cdt3V7kS0Wi3
+	Ff8ufUPKbuCIHSrML2Jw+dJfq+vCAMqyVaCvB/HbOVNYeIniAv5zt4dsrqVV63LJ7+hHnOlf1+c
+	Sd1wBG8jc1i4TWzZDidIiC5u1FdbdJEIaOz8CPKjhFdySQ==
+X-Received: by 2002:a17:907:6d0b:b0:c12:83da:7eeb with SMTP id
+ a640c23a62f3a-c207ece5c9amr691125666b.19.1786261429179; Sun, 09 Aug 2026
+ 00:43:49 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+References: <20260619132821.18764-1-roberts.kursitis@azeron.eu> <20260619142256.208361-1-roberts.kursitis@azeron.eu>
+In-Reply-To: <20260619142256.208361-1-roberts.kursitis@azeron.eu>
+From: =?UTF-8?Q?Roberts_Kurs=C4=ABtis?= <roberts.kursitis@azeron.eu>
+Date: Sun, 9 Aug 2026 10:43:38 +0300
+X-Gm-Features: AUfX_myPJjQYOS-F1e896a2GS3QtX1v2rGmBoof081QdKKSENfbyuM4MmHFhF68
+Message-ID: <CAKNRk2kDXag8g15Zz5zdnQRXS65GSr2xK6BtFg10bGcDVBRC5Q@mail.gmail.com>
+Subject: Re: [PATCH v3] Input: xpad - add support for Azeron devices
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 
-Thank you for your contribution! Sashiko AI review found 6 potential issue(=
-s) to consider:
+Ping. This isn't in linux-next. Should I resend, or is there something
+you want changed first?
 
-New issues:
-- [Critical] Missing pass-through port check in psmouse_receive_byte causes=
- type confusion and control flow hijacking for non-psmouse parent ports.
-- [High] Blind cast of pass-through port's drvdata in synaptics_set_transpa=
-rent_mode leads to type confusion and NULL pointer dereferences.
-- [Medium] Hardware and software states become permanently desynchronized i=
-f the guest port is stopped while transparent mode is active.
-- [Medium] Unprotected updates to protocol_handler and pktsize in synaptics=
-_set_transparent_mode() cause a data race with the RX interrupt.
-- [Medium] Skipping synaptics_set_mode() during reconnect in transparent mo=
-de leaves the hardware uninitialized when transparent mode is later disable=
-d.
-
-Pre-existing issues:
-- [High] Failing to create sysfs attributes leaks the pass-through port and=
- causes a use-after-free on its access.
---
-
---- Patch [1]: [PATCH] Input: synaptics - add transparent pass-through mode=
- for TrackPoint ---
-commit 1fc824e1e4a325dcff29e0fb66487d7ede60f009
-Author: Laserology OSS <development@laserology.net>
-Subject: Input: synaptics - add transparent pass-through mode for TrackPoint
-
-This patch adds a transparent pass-through mode for Synaptics touchpads
-with a pass-through port. It allows the guest device to run at its full
-poll rate while temporarily disabling the touchpad.
-
-Link: https://lore.kernel.org/all/6932d599-2625-0376-d9c6-58cbb8879ff4@gmai=
-l.com/
-
-> diff --git a/drivers/input/mouse/psmouse-base.c b/drivers/input/mouse/psm=
-ouse-base.c
-> --- a/drivers/input/mouse/psmouse-base.c
-> +++ b/drivers/input/mouse/psmouse-base.c
-[ ... ]
-> @@ -392,8 +392,18 @@ static void psmouse_receive_byte(struct ps2dev *ps2d=
-ev, u8 data)
->  		}
-> =20
->  		if (psmouse->packet[1] =3D=3D PSMOUSE_RET_ID) {
-> +			struct serio *serio =3D ps2dev->serio;
-> +			struct psmouse *parent_psmouse =3D NULL;
-> +
->  			__psmouse_set_state(psmouse, PSMOUSE_IGNORE);
-> -			serio_reconnect(ps2dev->serio);
-> +			/* Some devices need parent to be reconnected instead */
-> +			if (serio->parent)
-> +				parent_psmouse =3D psmouse_from_serio(serio->parent);
-> +			if (parent_psmouse && parent_psmouse->pt_reconnect_parent &&
-> +			    parent_psmouse->pt_reconnect_parent(parent_psmouse))
-
-[Severity: Critical]
-Is it safe to unconditionally cast serio->parent's driver data to a psmouse
-struct here?
-
-If the parent port is a multiplexer driven by ps2mult, its driver data
-would be a different struct. Accessing parent_psmouse->pt_reconnect_parent
-could then lead to type confusion and read a bogus function pointer,
-potentially causing a crash or arbitrary execution when called.
-
-> +				serio_reconnect(serio->parent);
-> +			else
-> +				serio_reconnect(serio);
->  			return;
->  		}
-> =20
-> diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synapt=
-ics.c
-> --- a/drivers/input/mouse/synaptics.c
-> +++ b/drivers/input/mouse/synaptics.c
-[ ... ]
-> @@ -672,6 +750,8 @@ static void synaptics_pt_stop(struct serio *serio)
-> =20
->  	guard(serio_pause_rx)(parent->ps2dev.serio);
->  	priv->pt_port =3D NULL;
-> +
-> +	synaptics_update_protocol_handler(parent);
-
-[Severity: Medium]
-If the guest port is unbound while transparent mode is active, priv->pt_port
-becomes NULL and synaptics_update_protocol_handler() will revert the softwa=
-re
-handler to synaptics_process_byte. Will this cause the hardware and software
-states to become permanently desynchronized?
-
-The hardware would still be in transparent mode sending 3-byte packets, but
-the software would expect 6-byte absolute packets, which could lead to
-erratic pointer behavior.
-
->  }
-[ ... ]
-> @@ -1438,6 +1535,80 @@ PSMOUSE_DEFINE_ATTR(disable_gesture, S_IWUSR | S_I=
-RUGO, NULL,
-[ ... ]
-> +	WRITE_ONCE(priv->transparent_mode, value);
-> +
-> +	synaptics_update_protocol_handler(psmouse);
-
-[Severity: Medium]
-Should this call to synaptics_update_protocol_handler() be protected by
-guard(serio_pause_rx)? It updates psmouse->protocol_handler and
-psmouse->pktsize outside of the lock.
-
-If an interrupt arrives concurrently, psmouse_receive_byte() might read the
-new pktsize but the old protocol_handler, leading to incorrect packet
-processing.
-
-> +
-> +	/*
-> +	 * The touchpad is stopped for the duration of the mode switch, but the
-> +	 * pass-through guest keeps streaming. It may therefore be left with a
-> +	 * partially assembled packet from the previous mode. Drop it so the
-> +	 * stream restarts cleanly in the new mode and no stale bytes are
-> +	 * misparsed as pointer motion or spurious button clicks.
-> +	 */
-> +	if (READ_ONCE(priv->pt_port)) {
-> +		struct psmouse *child =3D psmouse_from_serio(priv->pt_port);
-> +
-> +		if (child && child->state =3D=3D PSMOUSE_ACTIVATED)
-> +			psmouse_set_state(child, PSMOUSE_ACTIVATED);
-> +	}
-
-[Severity: High]
-Does this cast safely handle the case where the guest port is unbound or
-bound to a different driver?
-
-If the port is unbound, the drvdata is NULL and psmouse_from_serio()
-evaluates to a negative offset, causing a panic when child->state is checke=
-d.
-
-If it is bound to another driver like serio_raw, this causes type confusion
-and psmouse_set_state() could dereference an invalid pointer, leading to
-memory corruption.
-
-> +
-> +	return len;
-> +}
-[ ... ]
-> @@ -1478,8 +1655,16 @@ static int synaptics_reconnect(struct psmouse *psm=
-ouse)
->  			 */
->  			ssleep(1);
->  		}
-> -		ps2_command(&psmouse->ps2dev, param, PSMOUSE_CMD_GETID);
-> -		error =3D synaptics_detect(psmouse, 0);
-> +		if (READ_ONCE(priv->transparent_mode) && READ_ONCE(priv->pt_port)) {
-> +			error =3D synaptics_enter_transparent_mode(psmouse);
-> +			if (!error) {
-> +				serio_reconnect(priv->pt_port);
-> +				return 0;
-> +			}
-
-[Severity: Medium]
-Returning early here bypasses the normal synaptics_set_mode() initialization
-during reconnect. If the user later disables transparent mode via sysfs,
-synaptics_exit_transparent_mode() only restores the previous mode byte but
-won't re-enable Advanced Gesture Mode or other configurations set up by
-synaptics_set_mode().
-
-Could this leave the touchpad uninitialized after a suspend/resume cycle?
-
-> +		} else {
-> +			ps2_command(&psmouse->ps2dev, param, PSMOUSE_CMD_GETID);
-> +			error =3D synaptics_detect(psmouse, 0);
-> +		}
->  	} while (error && ++retry < 3);
-[ ... ]
-> @@ -1691,9 +1869,26 @@ static int synaptics_init_ps2(struct psmouse *psmo=
-use,
-[ ... ]
->   init_fail:
-> +	if (!priv->absolute_mode && SYN_ID_DISGEST_SUPPORTED(priv->info.identit=
-y))
-> +		device_remove_file(&psmouse->ps2dev.serio->dev,
-> +				   &psmouse_attr_disable_gesture.dattr);
-> +	if (SYN_CAP_PASS_THROUGH(priv->info.capabilities))
-> +		device_remove_file(&psmouse->ps2dev.serio->dev,
-> +				   &psmouse_attr_transparent_mode.dattr);
->  	kfree(priv);
->  	return err;
->  }
-
-[Severity: High]
-This isn't a bug introduced by this patch, but if device_create_file() fails
-in synaptics_init_ps2(), the code jumps to init_fail, frees the priv struct=
-ure,
-and returns an error without unregistering the pass-through serio child por=
-t.
-
-The child port remains active, and any subsequent interaction with it could
-trigger callbacks that dereference the freed parent->private pointer,
-resulting in a use-after-free. Should the port be unregistered during
-cleanup?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260809053322.2543=
-0-1-development@laserology.net?part=3D1
+Thanks!
+Roberts

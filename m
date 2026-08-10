@@ -1,115 +1,196 @@
-Received: from mail.attrio.net (mail.attrio.net [167.235.71.149])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 63BA83B47F3;
-	Mon, 10 Aug 2026 09:57:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=167.235.71.149
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A32243B14D5;
+	Mon, 10 Aug 2026 10:56:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786355837; cv=none; b=k/51l95nUCf5+O8iR2KHfACV31/vn9NaLrEHKXjrCZ2ZJqbNcPYP6HzAdwtgPCeo05MznJT/KC/wLljJQ7oWeAh1ljrY04voYUFF1K9TAmpkKtTTXZzCyCUGYb2ldm7ak2eSUEc89AGhJQgBBGm2f9JoHilLnvw9Qi1ocXW7Cjg=
+	t=1786359399; cv=none; b=JiBKTL11nVV9gSUy6QwfqppIQZ4CRQn+ACx82Z69okUFbUD3GE6N3vqbKFYc3WWj8rTvefI9XzYYB9j15qc9OFh3ysaoi6eJZ26DxyJaE6PZst/1bzUfw3IMqYFDQuVQvuBEAzRUYk/JV3qMMhCnDJLqpkHzMLHa/PmQJ5Zoj7k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786355837; c=relaxed/simple;
-	bh=D1Iip0pMjyoncMTjzwRHFjbAJ/7U4vT65XMNG45ZABY=;
-	h=From:Content-Type:Date:Cc:To:MIME-Version:Message-ID:Subject; b=q5Ni+alg0NNNAVLREITddBsDfDWXsybk82CmVkNr3yiHHYX0YBu0a8L58b8I0VzyzhIhRcvbs8QuSgCt6gqzbWFhNohOqr7ATNE4rm6KPSfJiD+ywJOB/9vryD/n5qUqvnv7MBEqu2g5hQSq3uhaaqmCFVmsahxPJoaFFb3sLkU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=leypold.cz; spf=pass smtp.mailfrom=leypold.cz; dkim=pass (2048-bit key) header.d=leypold.cz header.i=@leypold.cz header.b=fNaIN1Rj; arc=none smtp.client-ip=167.235.71.149
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=leypold.cz
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=leypold.cz
+	s=arc-20240116; t=1786359399; c=relaxed/simple;
+	bh=FcC+8qNn4CkKVg90lcKylua5Eiy7LX9NPCyvVFukhT0=;
+	h=Date:From:To:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=GinAFwIwgvMSMotJSlPWuBHNm29XXVGLyu7W/a+krgiL62YjU1ng5vV9biO6pKfi8XLIvI+ASFuSjDibYSL5hf1/9cALXEH9VdYoPa35MjiRUfjhXZaB19Dl92DKJj4W0WjPGNFmmc7rWqpdO9Ni13CBfmUWlE9++mEhAQTW9ec=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=TZcxY0aC; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=leypold.cz header.i=@leypold.cz header.b="fNaIN1Rj"
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPA id DF294AF034;
-	Mon, 10 Aug 2026 11:57:11 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=leypold.cz; s=mdkim;
-	t=1786355833; h=from:subject:date:message-id:to:cc:mime-version:content-type:
-	 content-transfer-encoding; bh=3PO7o0uZ1gbi2+0e4KW7FZAhEaE8wv6oNKEqk9TF+VM=;
-	b=fNaIN1RjuJtnqhJU84TL3oVHvqEYXUqC1agPl56kfZPfwB11PEJTyBAr2fJBCxj8506iBV
-	TcislMiyomGpwhNVqedp3TdyEJnhGk+bcbbyBUsvJQPgjpDQS61dROuSORaa87bmg+kZcg
-	Euu3q+tAoji4yE6nwljWjHqGkGnGFjPeiMAqMvkc/JecSK4/K1fgNglc1iPnnVXeXs94be
-	WnEcHNW4/4cA72tjsLwOUDqz7rNeFOsVw7dWJJsxgRGYKOu8MQsVDgv1llm9/h/2im/8G/
-	LWg/OLBgt716MryhqHaYkjamn/7Ws5FtyQ6BqoHSfqWzNZvJfFovVvwtkGWcsQ==
-From: "Tomas Leypold" <tomas@leypold.cz>
-Content-Type: text/plain; charset="utf-8"
-Date: Mon, 10 Aug 2026 11:57:11 +0200
-Cc: linux-input@vger.kernel.org, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, nfraprado@collabora.com
-To: jikos@kernel.org, bentiss@kernel.org
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="TZcxY0aC"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3B96A1F000E9;
+	Mon, 10 Aug 2026 10:56:36 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1786359398;
+	bh=zdNfmbEO60BNxQLDtjP0gZGUv3ksIWau//PSgd/XITs=;
+	h=Date:From:To:Subject:References:In-Reply-To;
+	b=TZcxY0aCp4n2oDKk3egdnLCOEDkeLdQbGkZ28wk8Q/vYVnA95eqp9kIGCIpXguKJI
+	 cg0S+TTEvq/5byFiVjxk2+zJ72WPqWBtoDdINoZSWsJH0n5ML2Hji2RR3ZZs2IPEHO
+	 8NtojiZCuUwCHWFUYbU7fR2dsakfho73Ye+GrmxvtxnvmrslNnb9dHqbcZ6tokB7rq
+	 PK9rqH24auTyDwknFhN+DRS9EPoP9naUBrlZrHQLamKSKtGOTBAreMXn9uSaw5cP8N
+	 VbrKAfJXUTuedlM/TjcnEOZsKaY9sVVAUbuh+An9GtIN23Y1josAwnQNqJ0hHJORsd
+	 IBLggfde60Eng==
+Date: Mon, 10 Aug 2026 11:56:33 +0100
+From: Lee Jones <lee@kernel.org>
+To: Ping Cheng <ping.cheng@wacom.com>,
+	Jason Gerecke <jason.gerecke@wacom.com>,
+	Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>,
+	Aaron Skomra <aaron.skomra@wacom.com>,
+	Peter Hutterer <peter.hutterer@who-t.net>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v7 1/4] HID: wacom: Advertise SW_MUTE_DEVICE capability
+ prior to registration
+Message-ID: <20260810105633.GS2869284@google.com>
+References: <20260804103209.1496683-1-lee@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Message-ID: <5a6e9d44-52ca-4707-5b72-66d92dd799c4@leypold.cz>
-Subject: [BUG] =?utf-8?q?usbhid=3A?= logitech bolt =?utf-8?q?(046d=3Ac548)?= 
- spuriously wakes system from suspend
-User-Agent: SOGoMail 5.12.9
-Content-Transfer-Encoding: quoted-printable
-X-Last-TLS-Session-Version: None
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260804103209.1496683-1-lee@kernel.org>
 
-Hi, I've got an logitech mx keys s keyboard with a logi bolt receiver
-(046d:c548)
-that wakes my pc from suspend on its own, no input involved, just a
-moment after it goes to sleep. Reproducible on two different machines,
-both nixos. One's a laptop with s2idle, the other's a pc with s3/deep.
+Jason,
 
-Aug 09 00:08:07 w01 kernel: PM: suspend entry (deep)
-Aug 09 00:08:12 w01 kernel: ACPI: PM: Preparing to enter system sleep
-state S3
-Aug 09 00:08:12 w01 kernel: ACPI: PM: Waking up from system sleep state=
- S3
-Aug 09 00:08:12 w01 kernel: PM: suspend exit
+Can you confirm that you've seen this new version please?
 
-Sometimes replugging the receiver into a different USB port fixes it
-temporarily, for a while.
-
-HID=5FQUIRK=5FALWAYS=5FPOLL
-(https://lore.kernel.org/linux-input/20260407-logi-bolt-hid-quirk-alway=
-s-poll-v1-1-4dae0fda344e@collabora.com/)
-doesn't seem relevant to this issue. 6.18.41 doesn't have that quirk,
-7.1.6 does, and the bug happens on both.
-
-In forums, people with the same problem recommend a udev rule setting
-power/wakeup to disabled. That disables keyboard wake entirely.
-
-After some debugging I found a more targeted workaround with no
-downsides that I know of: unbinding usbhid from interface 0 (the
-keyboard interface) right before suspend, rebinding after resume.
-Remote wakeup stays armed, so a keypress still wakes the machine
-normally.
-
-Tried unbinding each of the four interfaces on its own, only interface
-0 makes a difference.
-
-Here's the systemd-sleep script, drop it in
-/usr/lib/systemd/system-sleep/50-bolt-unbind, or wherever your distro
-puts these, and chmod +x:
-
-#!/bin/sh
-find=5Fdev() {
-   for d in /sys/bus/usb/devices/*/idProduct; do
-     [ -r "$d" ] || continue
-     v=3D$(cat "$(dirname "$d")/idVendor" 2>/dev/null)
-     p=3D$(cat "$d" 2>/dev/null)
-     [ "$v" =3D "046d" ] && [ "$p" =3D "c548" ] && basename "$(dirname
-"$d")" && return
-   done
-}
-case "$1" in
-   pre)
-     dev=3D$(find=5Fdev)
-     [ -n "$dev" ] || exit 0
-     echo "$dev:1.0" > /sys/bus/usb/drivers/usbhid/unbind
-     ;;
-   post)
-     dev=3D$(find=5Fdev)
-     [ -n "$dev" ] || exit 0
-     echo "$dev:1.0" > /sys/bus/usb/drivers/usbhid/bind
-     ;;
-esac
-
-No idea what the right fix looks like on the kernel side, just wanted
-to share what I found.
-
-Happy to run further tests and try out patches.
-
-Best regards,
-Tomas Leypold
+[intentional top-post]
 
 
+On Tue, 04 Aug 2026, Lee Jones wrote:
+
+> Input subsystem guidelines require that device capabilities are advertised
+> before the input device is registered.  The Wacom driver was violating
+> this by advertising the SW_MUTE_DEVICE capability post-registration in
+> wacom_set_shared_values() (and duplicating it in device-specific setup
+> cases).
+> 
+> Resolve this by moving the SW_MUTE_DEVICE capability setup to
+> wacom_setup_touch_input_capabilities() for all touch devices that support
+> it, including composite USB generic touch devices.
+> 
+> Additionally, replace the lookup-dependent
+> 'wacom_wac->shared->touch->product' references with 'hdev->product'
+> inside wacom_setup_touch_input_capabilities() as 'hdev' is already
+> available and represents the touch device itself.
+> 
+> Fixes: d2ec58aee8b1 ("HID: wacom: generic: support generic touch switch")
+> Signed-off-by: Lee Jones <lee@kernel.org>
+> ---
+> 
+> v4 -> v5: New patch used to split out SW_MUTE_DEVICE as per Jason's request
+> v5 -> v6: Unconditionally advertise SW_MUTE_DEVICE on generic touch devices
+> v6 -> v7: Only advertise SW_MUTE_DEVICE on composite USB generic touch devices
+> 
+>  drivers/hid/wacom_sys.c | 23 +++++++++++++++++------
+>  drivers/hid/wacom_wac.c | 19 +++++++++++--------
+>  2 files changed, 28 insertions(+), 14 deletions(-)
+> 
+> diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
+> index 0eafa483b7f7..92b73ed0028f 100644
+> --- a/drivers/hid/wacom_sys.c
+> +++ b/drivers/hid/wacom_sys.c
+> @@ -2359,12 +2359,6 @@ static void wacom_set_shared_values(struct wacom_wac *wacom_wac)
+>  			wacom_wac->shared->is_touch_on = true;
+>  	}
+>  
+> -	if (wacom_wac->shared->has_mute_touch_switch &&
+> -	    wacom_wac->shared->touch_input) {
+> -		set_bit(EV_SW, wacom_wac->shared->touch_input->evbit);
+> -		input_set_capability(wacom_wac->shared->touch_input, EV_SW,
+> -				     SW_MUTE_DEVICE);
+> -	}
+>  }
+>  
+>  static int wacom_parse_and_register(struct wacom *wacom, bool wireless)
+> @@ -2414,6 +2408,23 @@ static int wacom_parse_and_register(struct wacom *wacom, bool wireless)
+>  	wacom_retrieve_hid_descriptor(hdev, features);
+>  	wacom_setup_device_quirks(wacom);
+>  
+> +	if (features->type == HID_GENERIC &&
+> +	    (features->device_type & WACOM_DEVICETYPE_TOUCH)) {
+> +		if (wacom->usbdev && wacom->usbdev->actconfig &&
+> +		    wacom->usbdev->actconfig->desc.bNumInterfaces > 1) {
+> +			/*
+> +			 * Heuristic: Composite USB devices (like tablets with
+> +			 * pen/pad + touch) likely have a touch mute switch.
+> +			 * We flag it here to advertise the capability before
+> +			 * registration. We also set is_soft_touch_switch to
+> +			 * default touch to ON in case there is no physical
+> +			 * switch.
+> +			 */
+> +			wacom_wac->has_mute_touch_switch = true;
+> +			wacom_wac->is_soft_touch_switch = true;
+> +		}
+> +	}
+> +
+>  	if (features->device_type == WACOM_DEVICETYPE_NONE &&
+>  	    features->type != WIRELESS) {
+>  		error = features->type == HID_GENERIC ? -ENODEV : 0;
+> diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+> index a29bf051ada7..afc82fcbb20b 100644
+> --- a/drivers/hid/wacom_wac.c
+> +++ b/drivers/hid/wacom_wac.c
+> @@ -3953,6 +3953,8 @@ int wacom_setup_pen_input_capabilities(struct input_dev *input_dev,
+>  int wacom_setup_touch_input_capabilities(struct input_dev *input_dev,
+>  					 struct wacom_wac *wacom_wac)
+>  {
+> +	struct wacom *wacom = container_of(wacom_wac, struct wacom, wacom_wac);
+> +	struct hid_device *hdev = wacom->hdev;
+>  	struct wacom_features *features = &wacom_wac->features;
+>  
+>  	if (!(features->device_type & WACOM_DEVICETYPE_TOUCH))
+> @@ -3963,9 +3965,12 @@ int wacom_setup_touch_input_capabilities(struct input_dev *input_dev,
+>  	else
+>  		__set_bit(INPUT_PROP_POINTER, input_dev->propbit);
+>  
+> -	if (features->type == HID_GENERIC)
+> +	if (features->type == HID_GENERIC) {
+> +		if (wacom_wac->has_mute_touch_switch)
+> +			input_set_capability(input_dev, EV_SW, SW_MUTE_DEVICE);
+>  		/* setup has already been done */
+>  		return 0;
+> +	}
+>  
+>  	input_dev->evbit[0] |= BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
+>  	__set_bit(BTN_TOUCH, input_dev->keybit);
+> @@ -3997,19 +4002,17 @@ int wacom_setup_touch_input_capabilities(struct input_dev *input_dev,
+>  		input_dev->evbit[0] |= BIT_MASK(EV_SW);
+>  		__set_bit(SW_MUTE_DEVICE, input_dev->swbit);
+>  
+> -		if (wacom_wac->shared->touch->product == 0x361) {
+> +		if (hdev->product == 0x361) {
+>  			input_set_abs_params(input_dev, ABS_MT_POSITION_X,
+>  					     0, 12440, 4, 0);
+>  			input_set_abs_params(input_dev, ABS_MT_POSITION_Y,
+>  					     0, 8640, 4, 0);
+> -		}
+> -		else if (wacom_wac->shared->touch->product == 0x360) {
+> +		} else if (hdev->product == 0x360) {
+>  			input_set_abs_params(input_dev, ABS_MT_POSITION_X,
+>  					     0, 8960, 4, 0);
+>  			input_set_abs_params(input_dev, ABS_MT_POSITION_Y,
+>  					     0, 5920, 4, 0);
+> -		}
+> -		else if (wacom_wac->shared->touch->product == 0x393) {
+> +		} else if (hdev->product == 0x393) {
+>  			input_set_abs_params(input_dev, ABS_MT_POSITION_X,
+>  					     0, 6400, 4, 0);
+>  			input_set_abs_params(input_dev, ABS_MT_POSITION_Y,
+> @@ -4039,8 +4042,8 @@ int wacom_setup_touch_input_capabilities(struct input_dev *input_dev,
+>  		fallthrough;
+>  
+>  	case WACOM_27QHDT:
+> -		if (wacom_wac->shared->touch->product == 0x32C ||
+> -		    wacom_wac->shared->touch->product == 0xF6) {
+> +		if (hdev->product == 0x32C ||
+> +		    hdev->product == 0xF6) {
+>  			input_dev->evbit[0] |= BIT_MASK(EV_SW);
+>  			__set_bit(SW_MUTE_DEVICE, input_dev->swbit);
+>  			wacom_wac->has_mute_touch_switch = true;
+> -- 
+> 2.55.0.571.g244d577d93-goog
+> 
+
+-- 
+Lee Jones

@@ -1,303 +1,160 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.18])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C1F4A377AAE;
-	Mon, 10 Aug 2026 06:29:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=192.198.163.18
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786343396; cv=fail; b=dcTMA8Z8fEG/1FmBWgzxGxY2C+ffA96PDOb67LCYyjaKrJsi4nhVimZXAbFuG2PQM2GjnNSL60AeJCQCZ8+155tD8gej4OFPuDs39iGGOpozGtOsHH4mAXohxMA2pJBB0PSmeLMOgfZ46opq+VUOaCwC/htDZkQH5WsKX0GiLjk=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786343396; c=relaxed/simple;
-	bh=hQwEyp6YLJtsZMg/7eqPa1OA3PFGDBScYCY2mEYnOBY=;
-	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
-	 Content-Type:MIME-Version; b=pbAoM0DjPvu4DjbljD5nS4d+sB1snL0y9FsQh+pXStYLznJoKYZxu35pnwm4D4RsL+9L+6KuONiVmDhW8meSpFIYr93joDNff30h/nLguWEteIaO6qTys9ooKREWpJY+nRfCR8ekpA2ZCJHNDhJd55EJsejbZn7Q2n72wGnx0fQ=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=OKo6+IL2; arc=fail smtp.client-ip=192.198.163.18
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E470C39C657
+	for <linux-input@vger.kernel.org>; Mon, 10 Aug 2026 07:05:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1786345555; cv=none; b=Uqr/gEFN94t5jL56SORu1HphmV+ImmZB2ogrS0Vj+CvtkrHHtHEFVqePrDrcek5rbmzpwtEZE5+/zleQkCi8pmHGnyuZtayLSoELQc1ijhMrgpVUw3BaKf5C5iyubjUEKJfzCLr72QNLBMfsgmNDaAUKl9kwd87a8cPCXFRahyQ=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1786345555; c=relaxed/simple;
+	bh=KiYTJr6ciY41S0faZ/K7ky6D53SOLmHv6iAAKkbh7HQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=TtiU4FlEE7+N++l0932950QgUPEg4+Y3uxNPrCTR0apUCnux3NSd5C6dp3d8B1n6MXqAjf/5ysVjCE7zBhnphH03QiVLo+Po45DR54cdfs4PnP0z2rZ+kvNJUX6m00+EWZAGvbKO6hET5fnau/YwMyIoGQHZfQDH2+EyGbGf5iA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=da0s6Tiw; dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b=XKy8TVbR; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="OKo6+IL2"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1786343394; x=1817879394;
-  h=from:to:cc:subject:date:message-id:references:
-   in-reply-to:content-transfer-encoding:mime-version;
-  bh=hQwEyp6YLJtsZMg/7eqPa1OA3PFGDBScYCY2mEYnOBY=;
-  b=OKo6+IL2VXMXcxM3ZUhAn1njRKMn3UM9LIwH6fv3XxvR7tpo8oyGY6Al
-   KaP+jE8ryVKrjm2iT2sNJhIVDEx+Fb7+kgofFJbKq04pSCk95iPe7GzuB
-   tiYTOH60COeVUCIZTiIEfr0GLfdr6zQ+aGsi6RijUqm3//hqFbbK58U6C
-   TegogoWFq0JxOrhxMCwaRo1WjInrY2dbPhZXUlPDvQ+nul9DpnMhwJdb8
-   cVyLnKDRKdvIwtkzMEsYCc+MHMRN7XnrkiU5RxKm/J5wktothix4PqG5g
-   kFj7RUBww5es4S/xRLbC9ieR1zv0jILFy8FxDzkz9pIdxIAb3A0irGerx
-   Q==;
-X-CSE-ConnectionGUID: PM2RrMF7QiaqHC4CavHoyA==
-X-CSE-MsgGUID: sv0LtJYvRjGx5r37I05AdQ==
-X-IronPort-AV: E=McAfee;i="6800,10657,11870"; a="85967519"
-X-IronPort-AV: E=Sophos;i="6.25,215,1779174000"; 
-   d="scan'208";a="85967519"
-Received: from orviesa008.jf.intel.com ([10.64.159.148])
-  by fmvoesa112.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Aug 2026 23:29:38 -0700
-X-CSE-ConnectionGUID: 2L0voFo+SWeMLmXKN7dGYA==
-X-CSE-MsgGUID: Aim7QVpMTNWGqIEXmQe9UQ==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.25,215,1779174000"; 
-   d="scan'208";a="262433398"
-Received: from orsmsx903.amr.corp.intel.com ([10.22.229.25])
-  by orviesa008.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Aug 2026 23:29:33 -0700
-Received: from ORSMSX902.amr.corp.intel.com (10.22.229.24) by
- ORSMSX903.amr.corp.intel.com (10.22.229.25) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.2562.45; Sun, 9 Aug 2026 23:29:33 -0700
-Received: from ORSEDG901.ED.cps.intel.com (10.7.248.11) by
- ORSMSX902.amr.corp.intel.com (10.22.229.24) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.2562.45 via Frontend Transport; Sun, 9 Aug 2026 23:29:33 -0700
-Received: from SA9PR02CU001.outbound.protection.outlook.com (40.93.196.41) by
- edgegateway.intel.com (134.134.137.111) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.2562.45; Sun, 9 Aug 2026 23:29:32 -0700
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=Ag4xIKSE7YvknbbNaPAjkIe/Qfbo2MMOqjzZ/EI/H0FrZap8p2SbYszPp5Db7iRaBiv5/BxSL2mdvbKQJNzuFkT8fvq+SqbpAJcLuceTmyYNat7lEJjYcnFXDbdwOCO+A2WxdgoeRtacPwTXqWzDeEle2+fvweUThylCcM+Nz6HoUFIahIYi+avnN99SB7Yf8UgFoR9iI65LBgOEiAIre4CpL5IMMMiDIOFCrNwqSsQdph1xGfH5JNAQxFm7w2bnG6p26Az8wYkxLX8EU4XA5j2nrPfcnt0pQT9TTBf+zN/CFR4MkQMqk/gg9ZMsYjVy4b/2JgIvxu8KjvLh5BuelA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=YzJ/HnR/oDfzB5sdw131chrrrAtxdJ0jkdO9LDeI1i4=;
- b=rCXyITu6hRmJkAsB/13sj8Vgc/pJlBECNCCtdaq/wOnZojy4WcRpR2+EROy0dxZMQQqGPuWk2Opo4zrke08FQ7DeRHU0GdthXlHS6pkPz0lInnh45GzTk63VzD2dSC9zCXPOmIpCwhldwAAVBn3a/9qTsi+yXXcMduBxkwvTHUDOHCm6W4MiO4YwzB6QvqkNa9D3rsRF+trsxpjTFz/6J+ORybDqgM05LELsfbbfKeSrpiQ402LrB+cKSB0eu96cGVaWgCs6kTZE9/7nDbIKvdK29Hlrt+fpEODccDfmJwyGL8fzHhC6kMlHjC7qFcZSdpO7fY35BsBamnKDJfWI8A==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
- dkim=pass header.d=intel.com; arc=none
-Received: from IA1PR11MB6098.namprd11.prod.outlook.com (2603:10b6:208:3d6::20)
- by PH8PR11MB7989.namprd11.prod.outlook.com (2603:10b6:510:258::13) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.292.25; Mon, 10 Aug
- 2026 06:29:30 +0000
-Received: from IA1PR11MB6098.namprd11.prod.outlook.com
- ([fe80::b1d9:3282:7e31:3799]) by IA1PR11MB6098.namprd11.prod.outlook.com
- ([fe80::b1d9:3282:7e31:3799%4]) with mapi id 15.21.0292.024; Mon, 10 Aug 2026
- 06:29:30 +0000
-From: "Xu, Even" <even.xu@intel.com>
-To: HyeongJun An <sammiee5311@gmail.com>, Jiri Kosina <jikos@kernel.org>,
-	"Sun, Xinpeng" <xinpeng.sun@intel.com>
-CC: Benjamin Tissoires <bentiss@kernel.org>, "linux-input@vger.kernel.org"
-	<linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org"
-	<linux-kernel@vger.kernel.org>, "stable@vger.kernel.org"
-	<stable@vger.kernel.org>, Sashiko AI <sashiko-bot@kernel.org>
-Subject: RE: [PATCH v3] HID: intel-thc-hid: intel-quickspi: bound GET_REPORT
- response to the caller buffer
-Thread-Topic: [PATCH v3] HID: intel-thc-hid: intel-quickspi: bound GET_REPORT
- response to the caller buffer
-Thread-Index: AQHdJbPN7zrv318gHkSzMHzoEcGWBbaW1xwQ
-Date: Mon, 10 Aug 2026 06:29:30 +0000
-Message-ID: <IA1PR11MB6098C6AAD23AC33281FFD6D6F4DE2@IA1PR11MB6098.namprd11.prod.outlook.com>
-References: <20260806142321.3383353-1-sammiee5311@gmail.com>
- <20260806145619.3386809-1-sammiee5311@gmail.com>
-In-Reply-To: <20260806145619.3386809-1-sammiee5311@gmail.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach:
-X-MS-TNEF-Correlator:
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=intel.com;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: IA1PR11MB6098:EE_|PH8PR11MB7989:EE_
-x-ms-office365-filtering-correlation-id: 62a03dfb-451b-4c23-7bd2-08def6a8bc0e
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;ARA:13230040|376014|23010399003|1800799024|366016|18002099003|22082099003|56012099006|11063799006|3023799007|38070700021|6133799003|4143699003|10067099003;
-x-microsoft-antispam-message-info: 28iBhNMN4d6l9hsveGBf0hfbbl12TZPKAUasaTFXFvB3gWaNQATCjsSJmeuG0D0/SIY+/WU4lSvPWDaNDVpVDBiJdBTgoDou0wkOfGkZCGG4q5BmyvPFndiehD3EX7NOJ0b2PuuXYEpoT7HsdMer3M2HLBVfKgLfqhxjgwxISzIy6bwBjaPic43IhpSksF2OAW3/9R67gfm6xy/7ksBr07zx0KTR6yV1Wx98RGQ1vy20RVVD/RK60bWRDl1oulkL41lJ32syfluYOn0TpKWKvy86ehjoir1RIjxspgStQebP7CnN85uQbrToKRS/oio60GNFR35bYt1OwIGn4Kjm3aR3YxJtweBY+Zo//GEzhvobsmBf83aPUXVrUcLEGAw9KNP4imkYHZ4w18woqQnWkq+elg9K90e4hm0bt0zfNEDqTBlu8fFxI9NAtDzdCHjDP5cViaIHzy9sd1S5rw8M9iF8BFi6C//G3vQcPKSSnfPRS+iUm/17Xt28XZFgBvMnlIfEmFoYGTC4/OP1vy8und46SclAP6Xqk5fATkzrVFicg+1Ninmeb9MG5T3TGcI+qlhZ8dXFoQN5E0v8UB03xJrW4lmImz94Dd82ZrBhdFb7Fgoygx0Ye4SSpwnjkXZK97w8LDajq4XedNnrYkX893wdGQTNT9IGd0dcZaIiVG+AmThsUk1q6U1E83J3ahPqMpdesG5doSFT61UwDBLF5ipZFlGElbOAdXa1f0kIAEw=
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:IA1PR11MB6098.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(23010399003)(1800799024)(366016)(18002099003)(22082099003)(56012099006)(11063799006)(3023799007)(38070700021)(6133799003)(4143699003)(10067099003);DIR:OUT;SFP:1101;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?Pi/jka+2r6X0ABzywxRxsy55Tz/Qq9OtWU0nnn6SBryQNGXyQpZ4q82G2lzA?=
- =?us-ascii?Q?mYJ6gaqNRU25zRyHC3bEB87oyCMkE0h9lifMi6OmBCdypsdJB5mONZmFSK7G?=
- =?us-ascii?Q?jmKFr6oXgrSdH+IWEEjzDpUBULI8eFb7AGFIavktxbNJwjVjZZlrwzZs6/lK?=
- =?us-ascii?Q?SL2qj/dSHLzmp2YGSHhetGiHWfkGHG55noyhJxudh9OjTpjqa3EtvcX1qhSg?=
- =?us-ascii?Q?Zb2xn3ToCU4bMZbF8MDMY362XzZsgrFb5HGTLSGqz1qVv5wL9miNb8xbjFzu?=
- =?us-ascii?Q?fnX/zu8wRXiRypGICyoBvRRB6niyn5HA0VbdSVd0AuI5IGbGgLB3N5KkjBd7?=
- =?us-ascii?Q?QMWp+DEX1xaY/0cq+ren9yeDVqCnpHtDgvdcXXso/ALuwff4AnwOdJbz1s52?=
- =?us-ascii?Q?ABiHYHmeRtugP/dJHfRqmlaBBMHk4bxGt6p7si3ve8gJ4uoSHLSdg30gvOl9?=
- =?us-ascii?Q?1ZJ3bvNzW+u7ZgJtK0zuW52OuqkgLS50y2HyfRydtWQza8z1CSwQsj5UhJnq?=
- =?us-ascii?Q?UYdnQLipS4y4lBDAsiZIxahwJCawfcRI/swabcPxWb6qXVJQPf2SnikETUUt?=
- =?us-ascii?Q?AeouUteEatppXZ6vvPrboKR4Gs3fWaFqfxd+feZ+3dboCxsdtewzSzBs1JJv?=
- =?us-ascii?Q?HC6u9C01jbSrpDCQir6k00BywFQSVgvsBg/EYxRwbSPtY66dxagR7JtUiacj?=
- =?us-ascii?Q?y6oOBjWvFAWTxGHbIbGfRt5BA1m8LtsPh9vzr5uRt5F6tDrpcT0kYneFT7eg?=
- =?us-ascii?Q?bsz7Tm3rOM1yshks6sKFRZlQyb2Je64MvO2nzy3HXHVcZbRMaTkj9SXcS+ef?=
- =?us-ascii?Q?tN2NYddZORfORTHlQfn++m+3jzJauYgGAbHfs7I2gLxyYGcmov1CBmC4lzG8?=
- =?us-ascii?Q?4i+Kd6xDPpuTos8GIu5NiUvv5szkMzYOuV5fQFLXWrHQh2HPOMrWcDplUAle?=
- =?us-ascii?Q?E/6o/aeSEh+zATDNqP0mw3YLygZOuCKrdMfq2z6/xL9SdgbK2kljRpKA7UVZ?=
- =?us-ascii?Q?LIQv2zMzmBul8lqtRJZt1GS/jYjvti5zeKJvTMHx4WC9G1kHHAUXRvGjCjcC?=
- =?us-ascii?Q?JhgbJJ7NDdFhUQbtChfJ9GT7NTrQL/z3jOMcoMwBE2UJ73bs5UcdygywVLwR?=
- =?us-ascii?Q?Thtj/CFA9TKEnARd7COwIz8duSb7av3Kts2UbmxgjfEuDXY3mjQVI2iaTq79?=
- =?us-ascii?Q?bBBY+x93Fcw+8t86us74WItIuRmfw8zsaYKhV4HVIDNxUr+XXXzd0nuk2GnS?=
- =?us-ascii?Q?/Po7y8N5YzlSNq+zLplQmrwUgs+Qli2Y4e3qleIwvA9WfudxcQuuwKFvwxVz?=
- =?us-ascii?Q?bDzeAbRqgv4uAbqzWsKvXAeTX/ic6ac4v2IjFfSTq+ZK1iSSUPb8xbcQwSRs?=
- =?us-ascii?Q?6SsbUI7gjtayDl38rN6SI1vLidNpemPp60hMHy70fDJ2bqPa6KH1t8TDkcEW?=
- =?us-ascii?Q?FVBxJy7kTwalDuupt1FdHvAdPN/pCiZDJ3rGZi+DZY563w/apijTpOWibGFU?=
- =?us-ascii?Q?WrZFyZWvteHw5N6DLwj1jC+uXgufkyutJ5a5Za7SC4INV1xTwSY4O3x/KWrg?=
- =?us-ascii?Q?UZWUescsxGp3HESpAIU6+dM6k4oFDaJCX2oBtYKrFxIDi1k0+GYRseeExnP/?=
- =?us-ascii?Q?b/0wYpPj8nol0LQ0nlyheQRlo+Oek/gtv6BsArSkQvO9fnvowrJUDZlPOM+H?=
- =?us-ascii?Q?PNxyb+ZRayzSxmpaLbWP6TS1gC6SWMSV0J34vgAzEz+D/6Fn?=
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="da0s6Tiw";
+	dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b="XKy8TVbR"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1786345552;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=Vr3vIYuq7lla3+ZHZmoYb7uvd3kFa0mXYvvwO+akg2g=;
+	b=da0s6TiwCuxF+W/ODYcWscNxlXl+aERkYPOm7DV9715dENw1lwFz+TRMtnmC6zRMqsgHLJ
+	pzwqQ5zLfvM1zJ8u5WO3qpVBKPmoUEXT6fDdDJRGKx2Ow+6XI9bKd2Cvbpa9Ie4Ywz6Z+V
+	OBT5oOZyXvPLBLDSmNGUZbJekkF6FzM=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-641-6O1khr0cPVG4qycOU3U_zA-1; Mon, 10 Aug 2026 03:05:51 -0400
+X-MC-Unique: 6O1khr0cPVG4qycOU3U_zA-1
+X-Mimecast-MFC-AGG-ID: 6O1khr0cPVG4qycOU3U_zA_1786345550
+Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-495474a5fbcso14769225e9.1
+        for <linux-input@vger.kernel.org>; Mon, 10 Aug 2026 00:05:51 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=redhat.com; s=google; t=1786345550; x=1786950350; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=Vr3vIYuq7lla3+ZHZmoYb7uvd3kFa0mXYvvwO+akg2g=;
+        b=XKy8TVbR8+mJ6B8l5YnrSdxuACPKqSIcBBXgZWhy5XOXn/32+mEu8YMeg0fgIxXqiM
+         CV4I79q4zhceEXXpdFJbvNAXdaGHSoQxaMBDNxsm7UDVRqUTXqc9lu1PbcVhSj4ltR9W
+         chb/ken5S6j4N0S33Kze2BrNYCTAB4ELVFlnqPcQ1Q8dFtjJmht3tgCZb7i4WL+sYzMk
+         LkstPJYzlYk7n9/Lgya79nZpHAaKt4Cr/9ySM0V0A2GEpHPMFmBLfcwpyjKRp9PXhDi7
+         7GJJ3w1A1EKQGVs0J3IzCn5ePQRVoZYlrcmTYR/N6q6F3PemR+spvzRjyeAu7p9HiTWP
+         LKNg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1786345550; x=1786950350;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=Vr3vIYuq7lla3+ZHZmoYb7uvd3kFa0mXYvvwO+akg2g=;
+        b=ZtLO7nngef5iri02ZL+VFjH71tlzliSXbkiM7jQ2wI9dp//UKXKz9G/cf6+ZKaMUY5
+         OuEwTLa9tBE1rFTKaioOpeIcF1WttdzIOIwW/3izQUW8z0aeAdJCi+3IT3kRpsWmpXoB
+         szXRQG2worPDbJrMxEDiXLcHaErKUnDOwc+KG3hTearR3vvrP/bVhVVBHDQStnHMRXM6
+         xxbqzbw4Ffae95i13ItFbyyqJ/z/2TVGad40KLnbhBPdjJmW0FLswwXTodwo3+SOcCwu
+         KLTCCc7x02GcvisXWQUfuHxI074F7iGRHchoJI+UxW5e/QbM7CISFai9D8xyivPUdGOX
+         dQBA==
+X-Forwarded-Encrypted: i=1; AHgh+Ro1mXeaS1SpYag53M31sJMR7uZ3tBXlIOn3tVtIvSM9bFIb6Mlj48/ZJq5qP98zhin0ikg9SVnAod2uDg==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yx62BavS3AfIqWYrpPFOz7Lu8tJayKAqVG9XzOQkYf0YeN89Ukk
+	77pc5wA4pE7Wz30yoSgWHKzSG8XLmYKi9CTAIT4oEBO4X4ZPUaYFReN1RQ1G7a7H10sfgWemXJF
+	yx0mc3E1sCQV0KHKEFxPmUPTvR7l4A5CykUTvmm+RAP+4UanpxGBTKRoTPYRGVB3u
+X-Gm-Gg: AR+sD11/ScqlUDUnTpWeUyaW0ED2lWZoUMjp3vplTzdSn6fTEUYykoTuDMtbBcaaKAZ
+	/IHWPLyYwXBboWdU+x+VmwRiZcG9iGHZeT0KufzSxtASV3bB+tTUTiN+2aRh1wFdYkiQpIhhftZ
+	94pfHJAK/isG8CWQXdTD3H1MIoOsp0wSCnWrEXIt3pJ3GemsUDC1HMDVQ7dl97vzSj2CcPtxo+1
+	r3RFA8gcGZcVZdLA13PxnPgbhmEo6To2Pw3CZTy6dKd1fLKeA2tK8RVXO6fITqyIiouk+gauMIn
+	Yi/9CcTuUdVN+Waa71W5xRpKHwDHgJuhmSGljWykESmrfkWL5J8Dr3eebd9CgYqvrYXRPVKwPPD
+	vEKVDCfXemkBzp8uAvdx9sA==
+X-Received: by 2002:a05:600c:3b88:b0:499:52ab:a50c with SMTP id 5b1f17b1804b1-4996194e24bmr260255035e9.1.1786345550232;
+        Mon, 10 Aug 2026 00:05:50 -0700 (PDT)
+X-Received: by 2002:a05:600c:3b88:b0:499:52ab:a50c with SMTP id 5b1f17b1804b1-4996194e24bmr260254165e9.1.1786345549684;
+        Mon, 10 Aug 2026 00:05:49 -0700 (PDT)
+Received: from redhat.com (IGLD-80-230-39-98.inter.net.il. [80.230.39.98])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4995420bd1csm395892805e9.3.2026.08.10.00.05.47
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 10 Aug 2026 00:05:49 -0700 (PDT)
+Date: Mon, 10 Aug 2026 03:05:46 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Hari Mishal <harimishal1@gmail.com>, Amit Shah <amit@kernel.org>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Gerd Hoffmann <kraxel@redhat.com>,
+	Jason Wang <jasowangio@gmail.com>,
+	David Hildenbrand <david@kernel.org>,
+	Henrik Rydberg <rydberg@bitmath.org>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
+	linux-input@vger.kernel.org
+Subject: Re: [PATCH 2/4] virtio_input: validate device-reported multitouch
+ slot count
+Message-ID: <20260810030400-mutt-send-email-mst@kernel.org>
+References: <20260715142337.22811-1-harimishal1@gmail.com>
+ <20260715142337.22811-3-harimishal1@gmail.com>
+ <20260715115018-mutt-send-email-mst@kernel.org>
+ <CAMmC+=AnE-p7B=DbBPYeNzJdcdiBf7q=5bfcuV0VQrPRK+pmug@mail.gmail.com>
+ <20260715120911-mutt-send-email-mst@kernel.org>
+ <alfPcWKMGL-S9BRl@google.com>
+ <CAMmC+=DXS=xs0CZyf+N-71NT8D51xQYatBv=dfVQC1aBohDdmA@mail.gmail.com>
+ <alkTnRb9qhgcMGGi@google.com>
+ <alkU66ViqO8pnjQQ@google.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Exchange-RoutingPolicyChecked: Ty7gCe1WUYEF4vd7toV2za50HEqcNOuIjbn4wh/F7un1vGLSLA0sPK6WGn8nmuALJUdgrFcyTJ76sN9guBWGlyivRqTcTUZ8kA+zZmtuBv086Xhdfom5EvTGKKNiA7DLaMD26ZX9NLM5B6/JlMzGN13ixc3QL2lstXU4ZVJmAUwAOT7UiGcOr9IMw40xQ2mxZeZogoG1NkG4FZXfh428ULysDObFgWYrplUzzfIP/WoacBolp+Z83WfhnCJ/v7dDF6WRCZmn/xrO3oe5FkCRsnB8yfm41dcFpiVStNA9odmZ8Qil4p/8NRX/3AbxTkRV7eGpsY+Pna/nR6pFAgHt6A==
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: IA1PR11MB6098.namprd11.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 62a03dfb-451b-4c23-7bd2-08def6a8bc0e
-X-MS-Exchange-CrossTenant-originalarrivaltime: 10 Aug 2026 06:29:30.2127
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 46c98d88-e344-4ed4-8496-4ed7712e255d
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: 16quwqUniYQ5OyOpjKSJvgm9ZDOxy6vqTVAUF9wLd+rZ6fGWeZvDWlADayKqOyFR/OdUJ4+anLYHteZhVBW1LQ==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH8PR11MB7989
-X-OriginatorOrg: intel.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <alkU66ViqO8pnjQQ@google.com>
+
+On Thu, Jul 16, 2026 at 10:33:04AM -0700, Dmitry Torokhov wrote:
+> [ Just realized that CC was dropped in the email I was replying to, so
+>   restoring and resending... ]
+> 
+> On Thu, Jul 16, 2026 at 10:28:36AM -0700, Dmitry Torokhov wrote:
+> > On Thu, Jul 16, 2026 at 12:34:57PM +0200, Hari Mishal wrote:
+> > > > What is the failure mode if we keep the ABS_MT_SLOT capability? Does the
+> > > > kernel crash? And if this can cause crash then we should fix
+> > > > input_mt_init_slots() to reject requests for 0 slots with -EINVAL.
+> > > >
+> > > 
+> > > No, it doesn't crash. I think every place in the input core that touches
+> > > dev->mt guards against it being NULL: input_handle_abs_event() and
+> > > the mt_slots check in input.c, and evdev's EVIOCGMTSLOTS ioctl
+> > > handler all explicitly check for NULL and degrade cleanly instead of
+> > > dereferencing. From my understanding, the worst case is what the
+> > > original commit message already covers: the device advertises
+> > > multitouch support it can't back.
+> > 
+> > So what? I still do not see the problem. Let's say I have a device that
+> > properly supports multitouch and has slots, but then never sends any
+> > events because firmware is buggy. How would that affect anything?
+> > 
+> > If there is no crash that I would leave the driver alone.
+> > 
+> > And we need to remember that we are dealing with a hypervisor here that
+> > normally had higher level of trust than the VM. If it messes up we do
+> > not have to clean up after it. This scenario is different from user
+> > attaching a malicious USB device to their system and getting owned.
 
 
+This last part isn't always true, while hypervisors are generally
+more trusted than a random usb device, the level of trust isn't
+always higher level than the VM.
 
-> -----Original Message-----
-> From: HyeongJun An <sammiee5311@gmail.com>
-> Sent: Thursday, August 6, 2026 10:56 PM
-> To: Jiri Kosina <jikos@kernel.org>; Xu, Even <even.xu@intel.com>; Sun, Xi=
-npeng
-> <xinpeng.sun@intel.com>
-> Cc: Benjamin Tissoires <bentiss@kernel.org>; linux-input@vger.kernel.org;=
- linux-
-> kernel@vger.kernel.org; stable@vger.kernel.org; HyeongJun An
-> <sammiee5311@gmail.com>; Sashiko AI <sashiko-bot@kernel.org>
-> Subject: [PATCH v3] HID: intel-thc-hid: intel-quickspi: bound GET_REPORT
-> response to the caller buffer
->=20
-> quickspi_hid_raw_request() receives the caller's buffer length in len, bu=
-t
-> quickspi_get_report() never sees it and copies the whole device-supplied
-> response into buf regardless:
->=20
->     memcpy(buf, qsdev->report_buf, qsdev->report_len);
->=20
-> qsdev->report_len comes from the input report the touch controller
-> qsdev->returns,
-> while buf is sized to whatever the caller asked hidraw for through
-> HIDIOCGFEATURE or HIDIOCGINPUT.  A response larger than that overflows bu=
-f
-> with device-controlled content.
->=20
-> The intel-quicki2c sibling already passes the caller length down to
-> quicki2c_get_report() and validates the response against it before the co=
-py.  Do
-> the same here.
->=20
-> Fixes: 4138f21115ae ("HID: intel-thc-hid: intel-quickspi: Complete THC Qu=
-ickSPI
-> driver")
-> Suggested-by: Sashiko AI <sashiko-bot@kernel.org>
-> Cc: stable@vger.kernel.org
-> Assisted-by: Claude:claude-opus-5
-> Signed-off-by: HyeongJun An <sammiee5311@gmail.com>
-> ---
-> v3: added READ_ONCE() around the qsdev->report_len read the v2 bound uses=
- -
->     quickspi_handle_input_data() writes this field from IRQ context with =
-no
->     locking, so per kernel convention for a lockless shared read it needs
->     READ_ONCE() regardless of how many times the value is used afterward.
->     Raised by the Sashiko AI review of v2.  No other change.
->=20
-> v2: fixed a Time-of-Check-to-Time-of-Use race the Sashiko AI review of v1
->     pointed out - the new bound read qsdev->report_len once for the check
->     and again for the memcpy, so a concurrent update between the two coul=
-d
->     have overflowed buf with the checked-against-a-smaller-value length.
->     Read it once into a local and use that for both.
->=20
-> v1: https://lore.kernel.org/all/20260806133838.3378362-1-
-> sammiee5311@gmail.com/
->=20
->  .../intel-thc-hid/intel-quickspi/quickspi-hid.c  |  2 +-
->  .../intel-quickspi/quickspi-protocol.c           | 16 +++++++++++++---
->  .../intel-quickspi/quickspi-protocol.h           |  2 +-
->  3 files changed, 15 insertions(+), 5 deletions(-)
->=20
-> diff --git a/drivers/hid/intel-thc-hid/intel-quickspi/quickspi-hid.c
-> b/drivers/hid/intel-thc-hid/intel-quickspi/quickspi-hid.c
-> index 91d5807b4a83..a60a0a7f16aa 100644
-> --- a/drivers/hid/intel-thc-hid/intel-quickspi/quickspi-hid.c
-> +++ b/drivers/hid/intel-thc-hid/intel-quickspi/quickspi-hid.c
-> @@ -61,7 +61,7 @@ static int quickspi_hid_raw_request(struct hid_device *=
-hid,
->=20
->  	switch (reqtype) {
->  	case HID_REQ_GET_REPORT:
-> -		ret =3D quickspi_get_report(qsdev, rtype, reportnum, buf);
-> +		ret =3D quickspi_get_report(qsdev, rtype, reportnum, buf, len);
->  		break;
->  	case HID_REQ_SET_REPORT:
->  		ret =3D quickspi_set_report(qsdev, rtype, reportnum, buf, len); diff -
-> -git a/drivers/hid/intel-thc-hid/intel-quickspi/quickspi-protocol.c
-> b/drivers/hid/intel-thc-hid/intel-quickspi/quickspi-protocol.c
-> index cb19057f1191..9dacfdf7aff6 100644
-> --- a/drivers/hid/intel-thc-hid/intel-quickspi/quickspi-protocol.c
-> +++ b/drivers/hid/intel-thc-hid/intel-quickspi/quickspi-protocol.c
-> @@ -342,10 +342,12 @@ int reset_tic(struct quickspi_device *qsdev)  }
->=20
->  int quickspi_get_report(struct quickspi_device *qsdev,
-> -			u8 report_type, unsigned int report_id, void *buf)
-> +			u8 report_type, unsigned int report_id, void *buf,
-> +			u32 buf_len)
->  {
->  	int rep_type;
->  	int ret;
-> +	u32 report_len;
->=20
->  	if (report_type =3D=3D HID_INPUT_REPORT) {
->  		rep_type =3D GET_INPUT_REPORT;
-> @@ -372,9 +374,17 @@ int quickspi_get_report(struct quickspi_device *qsde=
-v,
->  	}
->  	qsdev->get_report_cmpl =3D false;
->=20
-> -	memcpy(buf, qsdev->report_buf, qsdev->report_len);
-> +	/* quickspi_handle_input_data() updates this from IRQ context. */
-> +	report_len =3D READ_ONCE(qsdev->report_len);
-> +	if (report_len > buf_len) {
-> +		dev_err_once(qsdev->dev, "Get report response too big, %u
-> vs %u\n",
-> +			     report_len, buf_len);
-> +		return -EINVAL;
-> +	}
-> +
-> +	memcpy(buf, qsdev->report_buf, report_len);
->=20
-> -	return qsdev->report_len;
-> +	return report_len;
->  }
->=20
->  int quickspi_set_report(struct quickspi_device *qsdev, diff --git
-> a/drivers/hid/intel-thc-hid/intel-quickspi/quickspi-protocol.h b/drivers/=
-hid/intel-
-> thc-hid/intel-quickspi/quickspi-protocol.h
-> index 775e29c1ed13..8a2338bee808 100644
-> --- a/drivers/hid/intel-thc-hid/intel-quickspi/quickspi-protocol.h
-> +++ b/drivers/hid/intel-thc-hid/intel-quickspi/quickspi-protocol.h
-> @@ -12,7 +12,7 @@ struct quickspi_device;
->=20
->  void quickspi_handle_input_data(struct quickspi_device *qsdev, u32 buf_l=
-en);
-> int quickspi_get_report(struct quickspi_device *qsdev, u8 report_type,
-> -			unsigned int report_id, void *buf);
-> +			unsigned int report_id, void *buf, u32 buf_len);
->  int quickspi_set_report(struct quickspi_device *qsdev, u8 report_type,
->  			unsigned int report_id, void *buf, u32 buf_len);  int
-> quickspi_get_report_descriptor(struct quickspi_device *qsdev);
+Still if it's a theoretical misconfiguration that leads to
+nothing bad, not worth special casing it.
 
-Thanks for the patch!
-This is a good error handling for unexpected big receive buffer.
 
-Reviewed-by: Even Xu <even.xu@intel.com>
-
-> --
-> 2.43.0
+> > Thanks.
+> > 
+> 
+> -- 
+> Dmitry
 

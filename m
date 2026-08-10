@@ -1,196 +1,148 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mx5.mail-out.lima-city.de (mx5.mail-out.lima-city.de [91.216.248.207])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A32243B14D5;
-	Mon, 10 Aug 2026 10:56:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B300F3A6B66;
+	Mon, 10 Aug 2026 14:13:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.216.248.207
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786359399; cv=none; b=JiBKTL11nVV9gSUy6QwfqppIQZ4CRQn+ACx82Z69okUFbUD3GE6N3vqbKFYc3WWj8rTvefI9XzYYB9j15qc9OFh3ysaoi6eJZ26DxyJaE6PZst/1bzUfw3IMqYFDQuVQvuBEAzRUYk/JV3qMMhCnDJLqpkHzMLHa/PmQJ5Zoj7k=
+	t=1786371189; cv=none; b=XinGwdB1cI138qLCGum8Wy/AHX8mRIaLRt4Cxye10YcVnqTwxc/280ilJ+dsaMNl0ZnF96krA13r1NI9VMsuQHCEynfV/wsuzT5Rzng5f5d7PqZypy4QxsSmSIwF76B/KGmm3NJBTlVu5ygbCkQ4f9Z0JvT4zM2FYDaL94iEcBM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786359399; c=relaxed/simple;
-	bh=FcC+8qNn4CkKVg90lcKylua5Eiy7LX9NPCyvVFukhT0=;
-	h=Date:From:To:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=GinAFwIwgvMSMotJSlPWuBHNm29XXVGLyu7W/a+krgiL62YjU1ng5vV9biO6pKfi8XLIvI+ASFuSjDibYSL5hf1/9cALXEH9VdYoPa35MjiRUfjhXZaB19Dl92DKJj4W0WjPGNFmmc7rWqpdO9Ni13CBfmUWlE9++mEhAQTW9ec=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=TZcxY0aC; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1786371189; c=relaxed/simple;
+	bh=wCZC2igsgtDdtXKlYw00f5qAIxs2Bb1v5ou7IplbMQ0=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=A5xJ5H+oaXioRXSNoO3mQtNGEjgU1N5lSMTAW9fX6DHKRoPjhPVR5thJb3UyCVcSH1lgncy1qHr3t3P92CtiCu2X2C7J7g7aluS1rdIX91cHC4523qNgofD7whAvE0zj1iKjGg8IEEUz4j3z8dMdNbCh8nkNiGLVUQPCExbLa3A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=deq.rocks; spf=none smtp.mailfrom=deq.rocks; dkim=pass (2048-bit key) header.d=deq.rocks header.i=@deq.rocks header.b=FsWGrtt/; arc=none smtp.client-ip=91.216.248.207
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=deq.rocks
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=deq.rocks
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="TZcxY0aC"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3B96A1F000E9;
-	Mon, 10 Aug 2026 10:56:36 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786359398;
-	bh=zdNfmbEO60BNxQLDtjP0gZGUv3ksIWau//PSgd/XITs=;
-	h=Date:From:To:Subject:References:In-Reply-To;
-	b=TZcxY0aCp4n2oDKk3egdnLCOEDkeLdQbGkZ28wk8Q/vYVnA95eqp9kIGCIpXguKJI
-	 cg0S+TTEvq/5byFiVjxk2+zJ72WPqWBtoDdINoZSWsJH0n5ML2Hji2RR3ZZs2IPEHO
-	 8NtojiZCuUwCHWFUYbU7fR2dsakfho73Ye+GrmxvtxnvmrslNnb9dHqbcZ6tokB7rq
-	 PK9rqH24auTyDwknFhN+DRS9EPoP9naUBrlZrHQLamKSKtGOTBAreMXn9uSaw5cP8N
-	 VbrKAfJXUTuedlM/TjcnEOZsKaY9sVVAUbuh+An9GtIN23Y1josAwnQNqJ0hHJORsd
-	 IBLggfde60Eng==
-Date: Mon, 10 Aug 2026 11:56:33 +0100
-From: Lee Jones <lee@kernel.org>
-To: Ping Cheng <ping.cheng@wacom.com>,
-	Jason Gerecke <jason.gerecke@wacom.com>,
-	Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>,
-	Aaron Skomra <aaron.skomra@wacom.com>,
-	Peter Hutterer <peter.hutterer@who-t.net>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v7 1/4] HID: wacom: Advertise SW_MUTE_DEVICE capability
- prior to registration
-Message-ID: <20260810105633.GS2869284@google.com>
-References: <20260804103209.1496683-1-lee@kernel.org>
+	dkim=pass (2048-bit key) header.d=deq.rocks header.i=@deq.rocks header.b="FsWGrtt/"
+From: Andre Eikmeyer <dev@deq.rocks>
+X-Lima-ML-UUID: 8808568b-9b84-4a05-8c90-5b1797f5864e
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=deq.rocks;
+	s=securedbylima-20251205; t=1786370637;
+	bh=wCZC2igsgtDdtXKlYw00f5qAIxs2Bb1v5ou7IplbMQ0=;
+	h=From:To:Cc:Subject:Date:From;
+	b=FsWGrtt/T8e1spr6bflURNOaevtEsZHLkzARItrXuAui9XcOk8Ut1ltgpAVUCuHV8
+	 35UQ6Xzv9xEz8hWdJ0gU4v41BhAHOOrxEyoLbEe+Up9skIh2Igj7sxfF6BnnQDIOrY
+	 X9qIMjDuETPNOJAGIeEVvc56oKjFHcjguq4h+ImYz2iSWMaQbp2ZZ5PcawAeZxb89P
+	 cznSXMbC4qq4uChJogaS98wq52bCTu060cSWapJwFJVgmItACo2JdwbCtfYooqzNQX
+	 O9jSZlz2oxcPozLS5DltKkz3ScC/YnvrSxvhOdlSZ1CT5lAZM5pphphzGvQJMs/O0V
+	 n9oOXteyzEBNA==
+To: Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>
+Cc: linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Andre Eikmeyer <dev@deq.rocks>
+Subject: [PATCH] HID: apple-touchbar: avoid nested runtime PM in PM callbacks
+Date: Mon, 10 Aug 2026 16:03:52 +0200
+Message-ID: <20260810140352.35866-1-dev@deq.rocks>
+X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260804103209.1496683-1-lee@kernel.org>
+Content-Transfer-Encoding: 8bit
 
-Jason,
+Hello everyone,
 
-Can you confirm that you've seen this new version please?
+Runtime suspend of the Touch Bar display stalls because its HID suspend
+callback requests a runtime PM resume while already running as part of the
+same USB PM transition. The nested request waits for the transition that
+invoked the callback to finish.
 
-[intentional top-post]
+The matching resume callback has the same problem. It can stall after the
+virtual host controller has successfully resumed the port.
 
+The mode update is therefore split into an active-device helper and a
+runtime-PM-managed wrapper. Both PM callbacks call the active-device
+helper and no longer acquire a nested runtime PM reference.
 
-On Tue, 04 Aug 2026, Lee Jones wrote:
+We maintain the apple-bce/t2bce virtual host controller used on these
+systems. Although that module is not yet upstream, its runtime PM path has
+already been adjusted so the complete suspend and resume cycle works with
+this change.
 
-> Input subsystem guidelines require that device capabilities are advertised
-> before the input device is registered.  The Wacom driver was violating
-> this by advertising the SW_MUTE_DEVICE capability post-registration in
-> wacom_set_shared_values() (and duplicating it in device-specific setup
-> cases).
-> 
-> Resolve this by moving the SW_MUTE_DEVICE capability setup to
-> wacom_setup_touch_input_capabilities() for all touch devices that support
-> it, including composite USB generic touch devices.
-> 
-> Additionally, replace the lookup-dependent
-> 'wacom_wac->shared->touch->product' references with 'hdev->product'
-> inside wacom_setup_touch_input_capabilities() as 'hdev' is already
-> available and represents the touch device itself.
-> 
-> Fixes: d2ec58aee8b1 ("HID: wacom: generic: support generic touch switch")
-> Signed-off-by: Lee Jones <lee@kernel.org>
-> ---
-> 
-> v4 -> v5: New patch used to split out SW_MUTE_DEVICE as per Jason's request
-> v5 -> v6: Unconditionally advertise SW_MUTE_DEVICE on generic touch devices
-> v6 -> v7: Only advertise SW_MUTE_DEVICE on composite USB generic touch devices
-> 
->  drivers/hid/wacom_sys.c | 23 +++++++++++++++++------
->  drivers/hid/wacom_wac.c | 19 +++++++++++--------
->  2 files changed, 28 insertions(+), 14 deletions(-)
-> 
-> diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
-> index 0eafa483b7f7..92b73ed0028f 100644
-> --- a/drivers/hid/wacom_sys.c
-> +++ b/drivers/hid/wacom_sys.c
-> @@ -2359,12 +2359,6 @@ static void wacom_set_shared_values(struct wacom_wac *wacom_wac)
->  			wacom_wac->shared->is_touch_on = true;
->  	}
->  
-> -	if (wacom_wac->shared->has_mute_touch_switch &&
-> -	    wacom_wac->shared->touch_input) {
-> -		set_bit(EV_SW, wacom_wac->shared->touch_input->evbit);
-> -		input_set_capability(wacom_wac->shared->touch_input, EV_SW,
-> -				     SW_MUTE_DEVICE);
-> -	}
->  }
->  
->  static int wacom_parse_and_register(struct wacom *wacom, bool wireless)
-> @@ -2414,6 +2408,23 @@ static int wacom_parse_and_register(struct wacom *wacom, bool wireless)
->  	wacom_retrieve_hid_descriptor(hdev, features);
->  	wacom_setup_device_quirks(wacom);
->  
-> +	if (features->type == HID_GENERIC &&
-> +	    (features->device_type & WACOM_DEVICETYPE_TOUCH)) {
-> +		if (wacom->usbdev && wacom->usbdev->actconfig &&
-> +		    wacom->usbdev->actconfig->desc.bNumInterfaces > 1) {
-> +			/*
-> +			 * Heuristic: Composite USB devices (like tablets with
-> +			 * pen/pad + touch) likely have a touch mute switch.
-> +			 * We flag it here to advertise the capability before
-> +			 * registration. We also set is_soft_touch_switch to
-> +			 * default touch to ON in case there is no physical
-> +			 * switch.
-> +			 */
-> +			wacom_wac->has_mute_touch_switch = true;
-> +			wacom_wac->is_soft_touch_switch = true;
-> +		}
-> +	}
-> +
->  	if (features->device_type == WACOM_DEVICETYPE_NONE &&
->  	    features->type != WIRELESS) {
->  		error = features->type == HID_GENERIC ? -ENODEV : 0;
-> diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-> index a29bf051ada7..afc82fcbb20b 100644
-> --- a/drivers/hid/wacom_wac.c
-> +++ b/drivers/hid/wacom_wac.c
-> @@ -3953,6 +3953,8 @@ int wacom_setup_pen_input_capabilities(struct input_dev *input_dev,
->  int wacom_setup_touch_input_capabilities(struct input_dev *input_dev,
->  					 struct wacom_wac *wacom_wac)
->  {
-> +	struct wacom *wacom = container_of(wacom_wac, struct wacom, wacom_wac);
-> +	struct hid_device *hdev = wacom->hdev;
->  	struct wacom_features *features = &wacom_wac->features;
->  
->  	if (!(features->device_type & WACOM_DEVICETYPE_TOUCH))
-> @@ -3963,9 +3965,12 @@ int wacom_setup_touch_input_capabilities(struct input_dev *input_dev,
->  	else
->  		__set_bit(INPUT_PROP_POINTER, input_dev->propbit);
->  
-> -	if (features->type == HID_GENERIC)
-> +	if (features->type == HID_GENERIC) {
-> +		if (wacom_wac->has_mute_touch_switch)
-> +			input_set_capability(input_dev, EV_SW, SW_MUTE_DEVICE);
->  		/* setup has already been done */
->  		return 0;
-> +	}
->  
->  	input_dev->evbit[0] |= BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
->  	__set_bit(BTN_TOUCH, input_dev->keybit);
-> @@ -3997,19 +4002,17 @@ int wacom_setup_touch_input_capabilities(struct input_dev *input_dev,
->  		input_dev->evbit[0] |= BIT_MASK(EV_SW);
->  		__set_bit(SW_MUTE_DEVICE, input_dev->swbit);
->  
-> -		if (wacom_wac->shared->touch->product == 0x361) {
-> +		if (hdev->product == 0x361) {
->  			input_set_abs_params(input_dev, ABS_MT_POSITION_X,
->  					     0, 12440, 4, 0);
->  			input_set_abs_params(input_dev, ABS_MT_POSITION_Y,
->  					     0, 8640, 4, 0);
-> -		}
-> -		else if (wacom_wac->shared->touch->product == 0x360) {
-> +		} else if (hdev->product == 0x360) {
->  			input_set_abs_params(input_dev, ABS_MT_POSITION_X,
->  					     0, 8960, 4, 0);
->  			input_set_abs_params(input_dev, ABS_MT_POSITION_Y,
->  					     0, 5920, 4, 0);
-> -		}
-> -		else if (wacom_wac->shared->touch->product == 0x393) {
-> +		} else if (hdev->product == 0x393) {
->  			input_set_abs_params(input_dev, ABS_MT_POSITION_X,
->  					     0, 6400, 4, 0);
->  			input_set_abs_params(input_dev, ABS_MT_POSITION_Y,
-> @@ -4039,8 +4042,8 @@ int wacom_setup_touch_input_capabilities(struct input_dev *input_dev,
->  		fallthrough;
->  
->  	case WACOM_27QHDT:
-> -		if (wacom_wac->shared->touch->product == 0x32C ||
-> -		    wacom_wac->shared->touch->product == 0xF6) {
-> +		if (hdev->product == 0x32C ||
-> +		    hdev->product == 0xF6) {
->  			input_dev->evbit[0] |= BIT_MASK(EV_SW);
->  			__set_bit(SW_MUTE_DEVICE, input_dev->swbit);
->  			wacom_wac->has_mute_touch_switch = true;
-> -- 
-> 2.55.0.571.g244d577d93-goog
-> 
+Thanks for your time and work.
 
--- 
-Lee Jones
+Signed-off-by: Andre Eikmeyer <dev@deq.rocks>
+---
+ drivers/hid/hid-appletb-kbd.c | 37 ++++++++++++++++++++++-------------
+ 1 file changed, 23 insertions(+), 14 deletions(-)
+
+diff --git a/drivers/hid/hid-appletb-kbd.c b/drivers/hid/hid-appletb-kbd.c
+index 462010a75899..cbaf7587feea 100644
+--- a/drivers/hid/hid-appletb-kbd.c
++++ b/drivers/hid/hid-appletb-kbd.c
+@@ -87,29 +87,37 @@ static const struct key_entry appletb_kbd_keymap[] = {
+ 	{ KE_END, 0 }
+ };
+ 
+-static int appletb_kbd_set_mode(struct appletb_kbd *kbd, u8 mode)
++static int appletb_kbd_set_mode_active(struct appletb_kbd *kbd, u8 mode)
+ {
+ 	struct hid_report *report = kbd->mode_field->report;
+ 	struct hid_device *hdev = report->device;
+ 	int ret;
+ 
+-	ret = hid_hw_power(hdev, PM_HINT_FULLON);
+-	if (ret) {
+-		hid_err(hdev, "Device didn't resume (%pe)\n", ERR_PTR(ret));
+-		return ret;
+-	}
+-
+ 	ret = hid_set_field(kbd->mode_field, 0, mode);
+ 	if (ret) {
+ 		hid_err(hdev, "Failed to set mode field to %u (%pe)\n", mode, ERR_PTR(ret));
+-		goto power_normal;
++		return ret;
+ 	}
+ 
+ 	hid_hw_request(hdev, report, HID_REQ_SET_REPORT);
+ 
+ 	kbd->current_mode = mode;
++	return 0;
++}
++
++static int appletb_kbd_set_mode(struct appletb_kbd *kbd, u8 mode)
++{
++	struct hid_device *hdev = kbd->mode_field->report->device;
++	int ret;
++
++	ret = hid_hw_power(hdev, PM_HINT_FULLON);
++	if (ret) {
++		hid_err(hdev, "Device didn't resume (%pe)\n", ERR_PTR(ret));
++		return ret;
++	}
++
++	ret = appletb_kbd_set_mode_active(kbd, mode);
+ 
+-power_normal:
+ 	hid_hw_power(hdev, PM_HINT_NORMAL);
+ 
+ 	return ret;
+@@ -487,18 +495,19 @@ static int appletb_kbd_suspend(struct hid_device *hdev, pm_message_t msg)
+ 	struct appletb_kbd *kbd = hid_get_drvdata(hdev);
+ 
+ 	kbd->saved_mode = kbd->current_mode;
+-	appletb_kbd_set_mode(kbd, APPLETB_KBD_MODE_OFF);
+ 
+-	return 0;
++	/* This callback already runs as part of a USB PM transition. Taking a
++	 * nested runtime-PM reference would wait for that transition to complete
++	 * and deadlock the USB PM state machine.
++	 */
++	return appletb_kbd_set_mode_active(kbd, APPLETB_KBD_MODE_OFF);
+ }
+ 
+ static int appletb_kbd_resume(struct hid_device *hdev)
+ {
+ 	struct appletb_kbd *kbd = hid_get_drvdata(hdev);
+ 
+-	appletb_kbd_set_mode(kbd, kbd->saved_mode);
+-
+-	return 0;
++	return appletb_kbd_set_mode_active(kbd, kbd->saved_mode);
+ }
+ 
+ static const struct hid_device_id appletb_kbd_hid_ids[] = {

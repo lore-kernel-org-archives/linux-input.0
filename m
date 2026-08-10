@@ -1,107 +1,129 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from forward204d.mail.yandex.net (forward204d.mail.yandex.net [178.154.239.217])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3D54A2253EB;
-	Mon, 10 Aug 2026 15:30:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9A2D940861B
+	for <linux-input@vger.kernel.org>; Mon, 10 Aug 2026 15:41:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=178.154.239.217
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786375842; cv=none; b=e85jk628qinggcaBUcPEBS3x15Q27XnjdSBQMhiMY+Hn6PP3OTgrmpjliPLbYGd1JALxrX/sYCfMWn8f9X0ddD5K2fVXUvS+E51aOVQdR0j6iQqbECv7hq8PKp9oIyuXNhIHGRYaXWjD8ogJma1bJqfOmiG8imo2wI6xcDz7ogM=
+	t=1786376475; cv=none; b=deoORSpCnU0Uf66uCUJwkTX4lGUZ8/d6c0M3K+yGPS0MBYvacLj06qJ9Ds1apD1mj0jOKYmrQqnsPKBv8z6rWqXjF5sGkZN2gxiLMeZdvWzCoTGqNpCaIw51S1HrbRmjdUgUMQ+5pvzeeFIU3GBXO7SQI0/Ymkd/fbq/wdikFtQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786375842; c=relaxed/simple;
-	bh=IFY0p7kt47Mm2uL5L96+uab5iS4HXf1VuTsWCKpj4fA=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=HP4LwsQVn13rgI7nfgFjiVukvIcKyphIQWtlje9uSWDh/Ovz0E9+EFrG9Up5b+Xl0c33njkSBzFWN9leHZZ5POaw0W92Jn8FFPrj1+iyAuFyE5V3W8rw8TI5ckiMLbDkCFM83iFEmvd1iCLbzSc2Na3ovS0vZGct9t/zFK5/YSA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ltVDYcYv; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1786376475; c=relaxed/simple;
+	bh=sIvc+qRTlecbnLVSkFBTefhpTgM/1qJnmOAIuB4qWsc=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=qYkPTbGjRoeh0s6Nbwd923oq1RnZdkG3cztdA8ehDl/ZrKOD8UUV8bjz82dtdLHAOI+5thz90dSdQWNYjUxB5Bzc6cYub14+kqBYnLVXK9LUeIArmdl44ZR7DJQpCn43gwvqLlz2VaZhzJyV0SmsdmxKHjMe+iMAYjST7w2mg4g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=yandex.ru; spf=pass smtp.mailfrom=yandex.ru; dkim=pass (1024-bit key) header.d=yandex.ru header.i=@yandex.ru header.b=Rt51/RnX; arc=none smtp.client-ip=178.154.239.217
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=yandex.ru
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=yandex.ru
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ltVDYcYv"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A22421F000E9;
-	Mon, 10 Aug 2026 15:30:40 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786375841;
-	bh=UQ+6OKffkYtv77bD6xX2cud9h+tG7NsHnR0sr9I4Nn4=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=ltVDYcYvdZOjqusez6aXkdqn0UD5PJGUfFB1WXxrlKIqTvfAdsSc5Ay0K6+e+8kvV
-	 +cvyajpqu7ZgwLkIDVkP8CoBpASrXCSmSHPxqS/7t2FxWISAF9xOOk/CZLeCumxR5X
-	 NEQpqwLE2hIFQaLoquic9xSEorNmZ9/teI/78zez+r+KF9t+DgDzFANrHKmWKx4NHx
-	 /7DH9VGxfpBoYsGZTjyAcx2x5fAv6DUSpMSj54S8HQL36/kdEB05OcDVYXz75Tsx9D
-	 nKVWxZyw27pekpQWANZjL7xG1hEtNHGm9a7TPNeIhqueMTbukN9DyJZiBu5bctWtfT
-	 X9gL5/mTZMqOA==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v5 1/3] dt-bindings: input: touchscreen: st,stmfts:
- Introduce STM FTS5
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "David Heidelberg" <david@ixit.cz>
-Cc: conor+dt@kernel.org, linux-input@vger.kernel.org, devicetree@vger.kernel.org, dmitry.torokhov@gmail.com, robh@kernel.org
-In-Reply-To: <20260810-stmfts5-v5-1-0c737d929976@ixit.cz>
-References: <20260810-stmfts5-v5-0-0c737d929976@ixit.cz>
- <20260810-stmfts5-v5-1-0c737d929976@ixit.cz>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Mon, 10 Aug 2026 15:30:40 +0000
-Message-Id: <20260810153040.A22421F000E9@smtp.kernel.org>
+	dkim=pass (1024-bit key) header.d=yandex.ru header.i=@yandex.ru header.b="Rt51/RnX"
+Received: from forward103d.mail.yandex.net (forward103d.mail.yandex.net [IPv6:2a02:6b8:c41:1300:1:45:d181:d103])
+	by forward204d.mail.yandex.net (postfix) with ESMTPS id 0F0CB84D8F
+	for <linux-input@vger.kernel.org>; Mon, 10 Aug 2026 18:35:32 +0300 (MSK)
+Received: from mail-nwsmtp-smtp-production-main-88.klg.yp-c.yandex.net (mail-nwsmtp-smtp-production-main-88.klg.yp-c.yandex.net [IPv6:2a02:6b8:c43:d788:0:640:6e4d:0])
+	by forward103d.mail.yandex.net (postfix) with ESMTPS id 8DAABC0035;
+	Mon, 10 Aug 2026 18:35:24 +0300 (MSK)
+Received: by mail-nwsmtp-smtp-production-main-88.klg.yp-c.yandex.net (smtp) with ESMTPSA id NZPSd41hCW20-5Fhf6vgr;
+	Mon, 10 Aug 2026 18:35:24 +0300
+X-Yandex-Fwd: 1
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yandex.ru; s=mail;
+	t=1786376124; bh=UK+04lDi0xPlawA/G/3r78eCr6SeCh0SDDkft8Qcv4U=;
+	h=Message-ID:Date:In-Reply-To:Cc:Subject:References:To:From;
+	b=Rt51/RnXmaouOzIDITDgfWyUriolSxsC2ZH4ISCrBF2g/9YxbD8nfF6lkNcdXsRFm
+	 OV7tb0W2YH28OdQwrtCACgrwePx6NVyG1DL8REBkFicNyy2aOYT/DTjJ/UFuYBe591
+	 NTnw2lBywK4d8xPEunfFjLqE/9U644xRLLvjFcug=
+Authentication-Results: mail-nwsmtp-smtp-production-main-88.klg.yp-c.yandex.net; dkim=pass header.i=@yandex.ru
+From: Dmitry Antipov <dmantipov@yandex.ru>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Vasileios Almpanis <vasilisalmpanis@gmail.com>
+Cc: linux-input@vger.kernel.org,
+	lvc-project@linuxtesting.org,
+	Dmitry Antipov <dmantipov@yandex.ru>,
+	syzbot+2a123f6269da57ffefaa@syzkaller.appspotmail.com
+Subject: [PATCH v2] input: sur40: fix error recovery in sur40_probe()
+Date: Mon, 10 Aug 2026 18:35:09 +0300
+Message-ID: <20260810153509.124147-1-dmantipov@yandex.ru>
+X-Mailer: git-send-email 2.55.0
+In-Reply-To: <178637340988.1434984.13114510500553043049.b4-review@b4>
+References: <178637340988.1434984.13114510500553043049.b4-review@b4>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
-- [Low] Schema validation logic incorrectly disables the `mode-switch-gpios=
-` property for all compatible strings due to a missing `contains:` keyword.
---
+Since an input device which has passed 'input_register_device()' should
+be released with 'input_unregister_device()', adjust 'sur40_probe()'
+to do so and call 'input_free_device()' to handle device register error
+only. To avoid V4L2 memory leak, ensure that 'v4l2_ctrl_handler_free()'
+is called on all error handling paths, including the one after
+'video_register_device()' failure.
 
---- Patch [1]: [PATCH v5 1/3] dt-bindings: input: touchscreen: st,stmfts: I=
-ntroduce STM FTS5 ---
-commit 38a7826302d5c029e7cdf3f5bbdf93b5ab26d21e
-Author: David Heidelberg <david@ixit.cz>
+Reported-by: syzbot+2a123f6269da57ffefaa@syzkaller.appspotmail.com
+Closes: https://syzkaller.appspot.com/bug?extid=2a123f6269da57ffefaa
+Fixes: 08b936012964 ("Input: sur40 - switch to using polled mode of input devices")
+Signed-off-by: Dmitry Antipov <dmantipov@yandex.ru>
+---
+v2: setup sur40 input device pointer after 'input_register_device()' and
+    adjust error handling path to ensure that 'input_unregister_device()'
+    is always called for a registered device only (Vasileios)
+---
+ drivers/input/touchscreen/sur40.c | 14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
 
-dt-bindings: input: touchscreen: st,stmfts: Introduce STM FTS5
+diff --git a/drivers/input/touchscreen/sur40.c b/drivers/input/touchscreen/sur40.c
+index fe63d53d56db..35a946979cb0 100644
+--- a/drivers/input/touchscreen/sur40.c
++++ b/drivers/input/touchscreen/sur40.c
+@@ -713,7 +713,6 @@ static int sur40_probe(struct usb_interface *interface,
+ 
+ 	sur40->usbdev = usbdev;
+ 	sur40->dev = &interface->dev;
+-	sur40->input = input;
+ 
+ 	/* use the bulk-in endpoint tested above */
+ 	sur40->bulk_in_size = usb_endpoint_maxp(endpoint);
+@@ -733,6 +732,9 @@ static int sur40_probe(struct usb_interface *interface,
+ 		goto err_free_buffer;
+ 	}
+ 
++	/* now we have a completely initialized input device */
++	sur40->input = input;
++
+ 	/* register the video master device */
+ 	snprintf(sur40->v4l2.name, sizeof(sur40->v4l2.name), "%s", DRIVER_LONG);
+ 	error = v4l2_device_register(sur40->dev, &sur40->v4l2);
+@@ -786,9 +788,8 @@ static int sur40_probe(struct usb_interface *interface,
+ 	if (sur40->hdl.error) {
+ 		dev_err(&interface->dev,
+ 			"Unable to register video controls.");
+-		v4l2_ctrl_handler_free(&sur40->hdl);
+ 		error = sur40->hdl.error;
+-		goto err_unreg_v4l2;
++		goto err_unreg_ctrl;
+ 	}
+ 
+ 	error = video_register_device(&sur40->vdev, VFL_TYPE_TOUCH, -1);
+@@ -806,12 +807,17 @@ static int sur40_probe(struct usb_interface *interface,
+ 
+ err_unreg_video:
+ 	video_unregister_device(&sur40->vdev);
++err_unreg_ctrl:
++	v4l2_ctrl_handler_free(&sur40->hdl);
+ err_unreg_v4l2:
+ 	v4l2_device_unregister(&sur40->v4l2);
+ err_free_buffer:
+ 	kfree(sur40->bulk_in_buffer);
+ err_free_input:
+-	input_free_device(input);
++	if (sur40->input)
++		input_unregister_device(input);
++	else
++		input_free_device(input);
+ err_free_dev:
+ 	kfree(sur40);
+ 
+-- 
+2.55.0
 
-This commit introduces support for the more recent STM FTS5 touchscreen in
-the device tree bindings. It adds the new compatible string and an optional
-mode-switch-gpios property for the FTS5 variant.
-
-> diff --git a/Documentation/devicetree/bindings/input/touchscreen/st,stmft=
-s.yaml b/Documentation/devicetree/bindings/input/touchscreen/st,stmfts.yaml
-> index 64c4f24ea3dd0..3de4bc5cd3f78 100644
-> --- a/Documentation/devicetree/bindings/input/touchscreen/st,stmfts.yaml
-> +++ b/Documentation/devicetree/bindings/input/touchscreen/st,stmfts.yaml
-
-[ ... ]
-
-> @@ -51,6 +54,17 @@ required:
->    - interrupts
->    - vdd-supply
-> =20
-> +allOf:
-> +  - $ref: touchscreen.yaml#
-> +  - if:
-> +      not:
-> +        properties:
-> +          compatible:
-> +            const: st,stmfts5
-
-[Severity: Low]
-Does this conditional logic work as intended for a string array?
-
-Since the compatible property evaluates as a JSON array of strings in
-dt-schema, comparing it directly using const: st,stmfts5 will always
-evaluate to false.=20
-
-Because this is wrapped in a not: block, the overall condition becomes true
-for all nodes, meaning mode-switch-gpios: false is applied unconditionally
-even for the st,stmfts5 compatible.
-
-Should this use contains: const: st,stmfts5 instead so that valid device
-trees using this property are not erroneously rejected during schema checks?
-
-> +    then:
-> +      properties:
-> +        mode-switch-gpios: false
-> +
->  unevaluatedProperties: false
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260810-stmfts5-v5=
--0-0c737d929976@ixit.cz?part=3D1

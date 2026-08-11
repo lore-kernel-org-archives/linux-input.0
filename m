@@ -1,59 +1,62 @@
-Received: from mail-pf1-f182.google.com (mail-pf1-f182.google.com [209.85.210.182])
+Received: from mail-pf1-f172.google.com (mail-pf1-f172.google.com [209.85.210.172])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1969043DA28
-	for <linux-input@vger.kernel.org>; Tue, 11 Aug 2026 12:20:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.182
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 55466443AA3
+	for <linux-input@vger.kernel.org>; Tue, 11 Aug 2026 12:20:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786450833; cv=none; b=j6c+p4mfR3vcafX0r4tz/P+oeNkdnox9+3jWCnFXlZ7ht+GK+fE/bTplGGpwS0ZzjKPAJ2NNAopcvv97ghu7w7cVcoR2MlDuz4B931AqXdjhgUU4/9xtc7V403xiKR4saPhybqezR+FgiPpJ47u0eCa4zZjYVAipafv2K5BcQEk=
+	t=1786450839; cv=none; b=ewlBeDIl8TfC49+1skhbV3m1x1XOHBaK5Kmn7MBVK4ETOxDhvZ+WBLmk8z8QHlBTGUnFzCRcWjzQ4JbSDPLCz2nNnx138zdvbBFG6tshH0sfaykIqONnH0TKhVuXlBpKtBG3zjJVK9LjXeSZKS0yOzq5XSe1mxXPd5lFZP8BjhM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786450833; c=relaxed/simple;
-	bh=z3+Ivh2jCKhd8EuEEzRHJUPYWNvKLd1Q/rinjxIyM9k=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=DK1Hk/kSJDtV3sm5ZgorCE4NW6eBkqoO6KblfptsNmbPR2/fCKBq/Pe2ZPV9OR/oxebNrbmA3Pf3hQ4Hx/B91Uq0vfwLpn1DaH9vuCFgHJEdPGsySmUZjkcQJZJIUnOCb2rj6739zlKXwPO+R7fT6Ll4fvEIbE7tiSbetiCfkuw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=e4o95Xdd; arc=none smtp.client-ip=209.85.210.182
+	s=arc-20240116; t=1786450839; c=relaxed/simple;
+	bh=u+z0AwRO8/TSAUMbuMg66Cd0/+Rr78HnvpPXb+NIM+g=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=sOdYLKq4r6eeOXlQkv+L23vz60YD6VP6Sh3luNefiqINe158L0KDEe/JrPJJlcmKEFtt0onqK8mQaf0ODYN4D9vuE5kYyWW+QCjC49n63kWRa09g3V8p/vHrxTXG4zAdG2X3eh7/Ed4h75vszcNW3AirqiSD3jVM4n2px7EYYQQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=ButOzhgM; arc=none smtp.client-ip=209.85.210.172
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="e4o95Xdd"
-Received: by mail-pf1-f182.google.com with SMTP id d2e1a72fcca58-8485bd28dd0so750352b3a.2
-        for <linux-input@vger.kernel.org>; Tue, 11 Aug 2026 05:20:31 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="ButOzhgM"
+Received: by mail-pf1-f172.google.com with SMTP id d2e1a72fcca58-84830c774a0so3024017b3a.1
+        for <linux-input@vger.kernel.org>; Tue, 11 Aug 2026 05:20:37 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1786450831; x=1787055631; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=iDHJIqp5FLLywri4WBqUbQEMXacNkK0ILuDy9FjFATE=;
-        b=e4o95XddhIuH8EX9nfVTvDTSIqGRI2lyBhnra/cplPNt20aNbeGQFWZ4WLFNH+O3/c
-         SQ++UY95jGc978dyiksQlaGAMY8Op3Q+r/KvFzIugsjG9wRSsETm1bIHNilPp5385jBE
-         oAb6XaDi3F9hOf3GjFy3Tp4vNLaIbYUTk+eOM=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1786450831; x=1787055631;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=chromium.org; s=google; t=1786450837; x=1787055637; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=iDHJIqp5FLLywri4WBqUbQEMXacNkK0ILuDy9FjFATE=;
-        b=fewHFf0TX7Q9uJGvJYJPJdcK7dq8crSIy8qThGvr9NpWX01NpERs5vhLqnWxDuUepn
-         9BWJ8kTyO2BH/s3IyMQlryiSvi9S0e+RpfExEsptFM3iNHv73nN0G8mXwOL118+trwLQ
-         A3H1yHIWUUWtRZFGj6v0itNEYz/XSinMDfbzYqiPuxMPFSzJ+UI/6LcenFVWGl008aKX
-         GhwHL64cYE3cJnzbK6jNbAXBRg2YkjbEex5V/g2c9vsbR2yxbhmkSc5Q4mh+tLAFvW3u
-         gxGXT0xI9cTmuVQyWowBWknOI66h6eIKNUCQllR0fI1miAepU10Dgzk+6r31lmuoiMRA
-         D/5Q==
-X-Forwarded-Encrypted: i=1; AHgh+RpzjIYJXLfAqw56p6Vnh3sb93HqryOqB2ctyjwhlkxuoOfqyFQvPMbCa1pnIzGw57yDwNkyRscxFmYhQg==@vger.kernel.org
-X-Gm-Message-State: AOJu0YxRm6bw4nvTYKjitj0EIke+uSaYTCoMKu1Uj4GK+BFGg5WCXlut
-	38sR8yyw8PU/YKuQlHo5B/1cFXYmz6M7fdHhg+C5dnYxrWt8PxvPKX1LQjIu6llFKw==
-X-Gm-Gg: AR+sD12sVE7mw+AUnQgoA7u9XUUcXVUvCRyIC+SdfALpfgBTGMDofuRsfp/F2tLhfsg
-	X4zAjuSl8BZ/rd8uvDvSdvZ/Q3CDzOAKBx6B5nSTeKAvCihqjhDTu0X7JwirgsQ30VLZI/ShHDA
-	YZOg9YfQrJyzxpbn0pR9lK7VSzxcIGr+9uRJBY36TBEWrxF2tLsQj6x8a9js9M1HerzokdUWgnh
-	p2VKroPZpc99TpFAa+uNxefiPD+EJvSbOofDFtmih/bVzd4qg1hEFhdJoqYSDm0h3/W31zarZS2
-	mTHzNNUSIXKMvRSS2YNJS+j88BlDzpNGw2Rb4yYro975gdOMmLJRvuEfS1s2lmfTYhflG8uODVw
-	emt4sPcTkFbdFgEsf+2Wycnug2ht3IFLoKxsx3cKmJvK0uP0gQ5CAKqm/2at2Tgjss3ImRB2VU8
-	ZSPk6tX7Y8LjVMR+9qKu4WMeiNESGGrRBQ6rf3iWUU5QMqV4vJjs/CGzKq8WJjCqN45YFr8vwKr
-	NKcPZ9e57xZljJYZWGUZb8YbavKabnMgP0116J/VCk6Ag==
-X-Received: by 2002:a05:6a00:9286:b0:848:63c9:ee39 with SMTP id d2e1a72fcca58-84fa8842387mr2815346b3a.12.1786450831335;
-        Tue, 11 Aug 2026 05:20:31 -0700 (PDT)
+        bh=Mhe3GkzE7TtO88F1kpNcvywePxi+2kbW1KiUnFj6D6w=;
+        b=ButOzhgMoWMmUi8u3EdW6sI9W8ols+M+JFndKECFMcauOl3FlibEr7bJMw3vau+a+K
+         okaKVW1AMctBLbutMaPhkTRTYMikEcMo2m120OL2TxjErnIyBPa97ukVU6nmWKL9QFgY
+         rT3aTIP7qaaRhxQYuGyjs3j9AptBWC8rXoxNM=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1786450837; x=1787055637;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=Mhe3GkzE7TtO88F1kpNcvywePxi+2kbW1KiUnFj6D6w=;
+        b=Q+4B+iGpiQyyWEm1AXLPuQ7WQkWTp8fiXZnIOrc4Fcww9AqemFU/T9cxFqax2Annek
+         L7L/J+6GnrwlZYM1CDE/5/IGmYdg/xzrNCWFCtVww6CO1HP6yMeiWQlUaDcliVwH4460
+         a77aUej1p8A/htVUIVHBekhUVVPxPAhT+1iKWKpQqG9R/kvm+vkxjOOY89FTGGVZNpDS
+         yBAmU2exc8h4/7QDtDcXt6GxJXn2EzwWBXVaYgb6wzJ7km8fmpkygagySxNoYh+yjYOY
+         6CD52vrdRQMMGpQGw3ed3iK4WgGBkfxFOTqs+oxsjzoglnPW2cuoxIE7tYInF5F0udrr
+         WQ4A==
+X-Forwarded-Encrypted: i=1; AHgh+Rr0YpZ4HYXEN2WeJUA/BLJh2xzVzCNuIr4Oh1Q26KQML0ZDxOtqdgVpsdF04CIr0QqCRXxAp3Z7HdLA6Q==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yx1biTsTA38S4uH34doT/KFDXCsy0wm8uY8TTz924bXsUar8bOb
+	sEARTV+iN2Knh3ibooZFOGXINS/ngSDGVBItr1slUIneeyAFLdBv2QtAFjX8Mj9K6tG6QaMN4Uf
+	MbS9AvQ==
+X-Gm-Gg: AR+sD13meJFP4SDXU1Ub6kYoh+jueI9Pw7rZX/WNobglSGQoSkbFOm6W5/IyP6rhUw+
+	WVeEN20tC+a1yBJGgjnPw5s2MDGonysEqBoPelXz0aGa4Uo5xqGGX4n/UNBa7QhaaLFdE6tDQul
+	TZR28sLS3z0u9IS7sVguhRrHWJ0nF/cOb1Sxq7+7L360m78STOGqbSdw+QP5oGDFLECCbuOzESg
+	FyZWWDGAjBZVWKaE3gP/QJ85pZuk2JJ3EUknx96sTiSRb01NEBCHL14RH0WOZUJUPLuqkbMJF+E
+	vhSyP3UJJB2L9e6bix8yN/+Qr0PMSPbIL5KN9bwDEsrX73xcFJeEUSa+dat1Z4Q5n31QYmcVw1o
+	VRuYVlXsOQW+BfRWOOY9AxUjupocBPf8NZvDJR/3IsGXCAkgNPsEoQEOq/wRLL/AWsGifJU8LSn
+	6e8aDrJq6BSmoax1WXaf1S/Ute25bZIOwL4qJAX8ybOBYmtrgFDkG9Zw06ecHUvWXzDR5DXF02u
+	+fnkYYgTmv5Z2jgNjxW+UOX0D8UsFHNABrSD7CT5qoKqw==
+X-Received: by 2002:a05:6a00:a93:b0:847:9315:fb8b with SMTP id d2e1a72fcca58-84fa8686d1bmr2586060b3a.6.1786450836537;
+        Tue, 11 Aug 2026 05:20:36 -0700 (PDT)
 Received: from wenstp920.tpe.corp.google.com ([2a00:79e0:201d:8:12e1:df26:6add:1ea7])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-84fa9574e9dsm662454b3a.54.2026.08.11.05.20.25
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-84fa9574e9dsm662454b3a.54.2026.08.11.05.20.31
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 11 Aug 2026 05:20:29 -0700 (PDT)
+        Tue, 11 Aug 2026 05:20:35 -0700 (PDT)
 From: Chen-Yu Tsai <wenst@chromium.org>
 To: Mark Brown <broonie@kernel.org>,
 	Matthias Brugger <matthias.bgg@gmail.com>,
@@ -71,10 +74,12 @@ Cc: Chen-Yu Tsai <wenst@chromium.org>,
 	linux-input@vger.kernel.org,
 	linux-i2c@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH v4 0/9] arm64: mediatek: Chromebook trackpad supply fixes
-Date: Tue, 11 Aug 2026 20:20:00 +0800
-Message-ID: <20260811122011.3539250-1-wenst@chromium.org>
+Subject: [PATCH v4 1/9] regulator: core: Add "enable and wait" functions
+Date: Tue, 11 Aug 2026 20:20:01 +0800
+Message-ID: <20260811122011.3539250-2-wenst@chromium.org>
 X-Mailer: git-send-email 2.55.0.679.g6767b8d81c-goog
+In-Reply-To: <20260811122011.3539250-1-wenst@chromium.org>
+References: <20260811122011.3539250-1-wenst@chromium.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -83,118 +88,302 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Hi everyone,
+In device power sequencing and initialization use cases, it is common
+for the driver to enable the regulator and then wait for a certain
+period of time to pass before continuing.
 
-This is v4 of my Chromebook trackpad supply fixes and optimization
-series.
+In cases where the regulator supply is always on, or has been turned on
+or left on by another consumer, the driver could shorten the delay or
+skip it altogether, provided that enough time has already passed since
+the regulator was _actually_ turned on.
 
+Tracking this requires support from the regulator core. Introduce a
+"last turned on" timestamp field to the regulator device, and "enable
+and wait" functions to the single and bulk regulator consumer APIs.
+The existing "enable without wait" functions are then converted to
+macros that expand to the new functions.
+
+One case in particular is not optimized yet: a regulator left on either
+by hardware reset default or by the bootloader, but does not have the
+"regulator-boot-on" property set. As the enable timestamp only gets
+updated when enabled by a consumer or by the core, the first enablement
+always needs to wait.
+
+Signed-off-by: Chen-Yu Tsai <wenst@chromium.org>
+---
 Changes since v3:
 - Added __private modified to regulator_bulk_data.wait_us field and
-  switched to ACCESS_PRIVATE accessor for the field (Andy)
-- Moved wait outside regulator lock scope (Sashiko)
-- Moved "remaining" value assignment closer to conditional (Andy)
+  switched to ACCESS_PRIVATE accessor for the field
+- Moved wait outside regulator lock scope
+- Moved "remaining" value assignment closer to conditional
 - Fixed variable unit name in regulator_enable_and_wait() prototype
-  (Andy, Sashiko)
-- Added commit message section showing average delay needed for I2C
-  prober (patch 6) (Andy)
-- Link to v3:
-  https://lore.kernel.org/all/20260721075226.2347933-1-wenst@chromium.org/
 
 Changes since v2:
-- Added new regulator "enable and wait" functions that wait until at
-  least the given amount of time has passed since the regulator was
-  last enabled.
-- Converted patches to use the new functions
-- New header inclusion cleanup patch for elan_i2c driver
+- New patch
+---
+ drivers/regulator/core.c           | 64 +++++++++++++++++++++++-------
+ include/linux/regulator/consumer.h | 21 +++++++---
+ include/linux/regulator/driver.h   |  2 +
+ 3 files changed, 66 insertions(+), 21 deletions(-)
 
-This series fixes the trackpad descriptions on some MediaTek-based
-Chromebooks: either the trackpad's supply was set as always-on to
-workaround missing delays in the driver, or the delay and supply
-are missing from the trackpad's device node.
-
-v1 was just the first patch [1]. It has since grown to cover multiple
-drivers and devices.
-
-
-Patch 1 adds new "enable and wait" functions for single and bulk
-regulator enable.
-
-Patch 2 cleans up header inclusion for elan_i2c driver.
-
-Patch 3 adds the correct enable delay after enabling the supply regulator
-for the Elan trackpad to initialize. This uses the new "enable and wait"
-regulator enable function.
-
-Patch 4 applies the same logic of skipping the power on delay to the
-i2c-hid-of driver.
-
-Patch 5 applies the same logic of skipping the power on delay to the
-i2c OF component prober library.
-
-Patch 6 adds a delay between when the device node found is enabled and
-when regulator_disable() is called. This gives an asynchronously probing
-driver some time to increment the enable count of their regulator
-reference, thus keeping the device operational and allowing the driver
-to skip the initialization delay.
-
-Patch 7 adds the correct delay for probing trackpads for Hana devices
-to the ChromeOS OF component prober.
-
-Patch 8 removes the "always-on" setting from the trackpad supply for
-Elm / Hana and adds the correct delay to the second source trackpad.
-This corrects the hardware description.
-
-Patch 9 adds the supply and power on delay properties to the Synaptics
-trackpad on the Spherion device. Combined with previous driver changes
-this should cause no actual functional changes or delays.
-
-
-Please take a look. Patches 3, 4, and 5 have build time dependencies
-on patch 1. I suggest placing patch 1 on a separate immutable branch
-or tag for the other maintainers to pull in. The three patches all have
-different maintainers. Or if it's not too late, Mark could take patch
-1 for v7.3-rc1 and the rest can go in later.
-
-The DT changes must go in after all the driver changes land, especially
-patch 3 that adds delays to the Elan trackpad driver. Otherwise the user
-could potentially end up with a non-functional trackpad on the device.
-
-
-Thanks
-ChenYu
-
-[1] https://lore.kernel.org/all/20241001093815.2481899-1-wenst@chromium.org/
-
-
-Chen-Yu Tsai (9):
-  regulator: core: Add "enable and wait" functions
-  Input: elan_i2c - sort include statements
-  Input: elan_i2c - Wait for initialization after enabling regulator
-    supply
-  HID: i2c-hid-of: skip post-power-on delay if powered on sufficiently
-    long
-  i2c: of-prober: skip post-power-on delay if powered on sufficiently
-    long
-  i2c: of-prober: Defer regulator_disable() on successful probe in
-    simple helper
-  platform/chrome: of_hw_prober: Add delay for hana trackpads
-  arm64: dts: mediatek: mt8173-elm-hana: Unmark trackpad supply as
-    always-on
-  arm64: dts: mediatek: mt8192-asurada-spherion: Add Synaptics
-    trackpad's supply
-
- .../boot/dts/mediatek/mt8173-elm-hana.dtsi    |  8 +--
- arch/arm64/boot/dts/mediatek/mt8173-elm.dtsi  |  1 -
- .../mediatek/mt8192-asurada-spherion-r0.dts   |  2 +
- drivers/hid/i2c-hid/i2c-hid-of.c              |  9 ++-
- drivers/i2c/i2c-core-of-prober.c              | 25 ++++++--
- drivers/input/mouse/elan_i2c_core.c           | 23 ++++---
- .../platform/chrome/chromeos_of_hw_prober.c   |  4 +-
- drivers/regulator/core.c                      | 64 ++++++++++++++-----
- include/linux/regulator/consumer.h            | 21 ++++--
- include/linux/regulator/driver.h              |  2 +
- 10 files changed, 105 insertions(+), 54 deletions(-)
-
+diff --git a/drivers/regulator/core.c b/drivers/regulator/core.c
+index 2e61606fc1d0..9b766302bdba 100644
+--- a/drivers/regulator/core.c
++++ b/drivers/regulator/core.c
+@@ -98,7 +98,7 @@ struct regulator_event_work {
+ 	unsigned long event;
+ };
+ 
+-static int _regulator_enable(struct regulator *regulator);
++static int _regulator_enable(struct regulator *regulator, ktime_t *last_on);
+ static int _regulator_is_enabled(struct regulator_dev *rdev);
+ static int _regulator_disable(struct regulator *regulator);
+ static int _regulator_get_error_flags(struct regulator_dev *rdev, unsigned int *flags);
+@@ -1674,7 +1674,7 @@ static int set_machine_constraints(struct regulator_dev *rdev,
+ 		    (rdev->constraints->always_on ||
+ 		     !regulator_is_enabled(rdev->supply))) {
+ 			ret = (is_locked
+-			       ? _regulator_enable(rdev->supply)
++			       ? _regulator_enable(rdev->supply, NULL)
+ 			       : regulator_enable(rdev->supply));
+ 			if (ret < 0) {
+ 				_regulator_put(rdev->supply);
+@@ -3060,6 +3060,8 @@ static int _regulator_do_enable(struct regulator_dev *rdev)
+ 		fsleep(delay);
+ 	}
+ 
++	rdev->last_on = ktime_get_boottime();
++
+ 	trace_regulator_enable_complete(rdev_get_name(rdev));
+ 
+ 	return 0;
+@@ -3129,8 +3131,8 @@ static int _regulator_handle_consumer_disable(struct regulator *regulator)
+ 	return 0;
+ }
+ 
+-/* locks held by regulator_enable() */
+-static int _regulator_enable(struct regulator *regulator)
++/* locks held by regulator_enable_and_wait() */
++static int _regulator_enable(struct regulator *regulator, ktime_t *last_on)
+ {
+ 	struct regulator_dev *rdev = regulator->rdev;
+ 	int ret;
+@@ -3138,7 +3140,7 @@ static int _regulator_enable(struct regulator *regulator)
+ 	lockdep_assert_held_once(&rdev->mutex.base);
+ 
+ 	if (rdev->use_count == 0 && rdev->supply) {
+-		ret = _regulator_enable(rdev->supply);
++		ret = _regulator_enable(rdev->supply, NULL);
+ 		if (ret < 0)
+ 			return ret;
+ 	}
+@@ -3176,13 +3178,19 @@ static int _regulator_enable(struct regulator *regulator)
+ 		} else if (ret < 0) {
+ 			rdev_err(rdev, "is_enabled() failed: %pe\n", ERR_PTR(ret));
+ 			goto err_consumer_disable;
++		} else {
++			/* regulator already enabled somehow, but timestamp might be invalid */
++			if (!rdev->last_on)
++				rdev->last_on = ktime_get_boottime();
+ 		}
+-		/* Fallthrough on positive return values - already enabled */
+ 	}
+ 
+ 	if (regulator->enable_count == 1)
+ 		rdev->use_count++;
+ 
++	if (last_on)
++		*last_on = rdev->last_on;
++
+ 	return 0;
+ 
+ err_consumer_disable:
+@@ -3196,31 +3204,49 @@ static int _regulator_enable(struct regulator *regulator)
+ }
+ 
+ /**
+- * regulator_enable - enable regulator output
++ * regulator_enable_and_wait - enable regulator output and wait for time
++ *			       passed after regulator actually enabled
+  * @regulator: regulator source
++ * @wait_us: time to wait after regulator actually turned on; 0 to not wait
+  *
+  * Request that the regulator be enabled with the regulator output at
+  * the predefined voltage or current value.  Calls to regulator_enable()
+  * must be balanced with calls to regulator_disable().
+  *
++ * If wait_us is greater than zero, then check that wait_us has passed since
++ * the regulator is _actually_ enabled before returning.
++ *
+  * NOTE: the output value can be set by other drivers, boot loader or may be
+  * hardwired in the regulator.
+  *
+  * Return: 0 on success or a negative error number on failure.
+  */
+-int regulator_enable(struct regulator *regulator)
++int regulator_enable_and_wait(struct regulator *regulator, unsigned int wait_us)
+ {
+ 	struct regulator_dev *rdev = regulator->rdev;
+ 	struct ww_acquire_ctx ww_ctx;
++	ktime_t last_on = 0;
+ 	int ret;
+ 
+ 	regulator_lock_dependent(rdev, &ww_ctx);
+-	ret = _regulator_enable(regulator);
++	ret = _regulator_enable(regulator, &last_on);
+ 	regulator_unlock_dependent(rdev, &ww_ctx);
+ 
++	if (ret)
++		return ret;
++
++	if (wait_us) {
++		ktime_t end = ktime_add_us(last_on, wait_us);
++		s64 remaining;
++
++		remaining = ktime_us_delta(end, ktime_get_boottime());
++		if (remaining > 0)
++			fsleep(remaining);
++	}
++
+ 	return ret;
+ }
+-EXPORT_SYMBOL_GPL(regulator_enable);
++EXPORT_SYMBOL_GPL(regulator_enable_and_wait);
+ 
+ static int _regulator_do_disable(struct regulator_dev *rdev)
+ {
+@@ -5389,30 +5415,38 @@ static void regulator_bulk_enable_async(void *data, async_cookie_t cookie)
+ {
+ 	struct regulator_bulk_data *bulk = data;
+ 
+-	bulk->ret = regulator_enable(bulk->consumer);
++	bulk->ret = regulator_enable_and_wait(bulk->consumer, ACCESS_PRIVATE(bulk, wait_us));
+ }
+ 
+ /**
+- * regulator_bulk_enable - enable multiple regulator consumers
++ * regulator_bulk_enable_and_wait - enable multiple regulator consumers and
++ *				    wait for time passed after regulators are
++ *				    actually enabled
+  *
+  * @num_consumers: Number of consumers
+  * @consumers:     Consumer data; clients are stored here.
++ * @wait_us: time to wait after regulators actually turned on; 0 to not wait
+  *
+  * This convenience API allows consumers to enable multiple regulator
+  * clients in a single API call.  If any consumers cannot be enabled
+  * then any others that were enabled will be disabled again prior to
+  * return.
+  *
++ * If wait_us is greater than zero, then check that wait_us has passed since
++ * the regulators are _actually_ enabled before returning.
++ *
+  * Return: 0 on success or a negative error number on failure.
+  */
+-int regulator_bulk_enable(int num_consumers,
+-			  struct regulator_bulk_data *consumers)
++int regulator_bulk_enable_and_wait(int num_consumers,
++				   struct regulator_bulk_data *consumers,
++				   unsigned int wait_us)
+ {
+ 	ASYNC_DOMAIN_EXCLUSIVE(async_domain);
+ 	int i;
+ 	int ret = 0;
+ 
+ 	for (i = 0; i < num_consumers; i++) {
++		ACCESS_PRIVATE(consumers, wait_us) = wait_us;
+ 		async_schedule_domain(regulator_bulk_enable_async,
+ 				      &consumers[i], &async_domain);
+ 	}
+@@ -5440,7 +5474,7 @@ int regulator_bulk_enable(int num_consumers,
+ 
+ 	return ret;
+ }
+-EXPORT_SYMBOL_GPL(regulator_bulk_enable);
++EXPORT_SYMBOL_GPL(regulator_bulk_enable_and_wait);
+ 
+ /**
+  * regulator_bulk_disable - disable multiple regulator consumers
+diff --git a/include/linux/regulator/consumer.h b/include/linux/regulator/consumer.h
+index 56fe2693d9b2..0b83acc015d4 100644
+--- a/include/linux/regulator/consumer.h
++++ b/include/linux/regulator/consumer.h
+@@ -145,6 +145,7 @@ struct regulator_bulk_data {
+ 
+ 	/* private: Internal use */
+ 	int ret;
++	unsigned int __private wait_us;
+ };
+ 
+ #if defined(CONFIG_REGULATOR)
+@@ -192,7 +193,7 @@ int devm_regulator_bulk_register_supply_alias(struct device *dev,
+ 					      int num_id);
+ 
+ /* regulator output control and status */
+-int __must_check regulator_enable(struct regulator *regulator);
++int __must_check regulator_enable_and_wait(struct regulator *regulator, unsigned int wait_us);
+ int regulator_disable(struct regulator *regulator);
+ int regulator_force_disable(struct regulator *regulator);
+ int regulator_is_enabled(struct regulator *regulator);
+@@ -209,8 +210,9 @@ int __must_check devm_regulator_bulk_get_const(
+ 	struct device *dev, int num_consumers,
+ 	const struct regulator_bulk_data *in_consumers,
+ 	struct regulator_bulk_data **out_consumers);
+-int __must_check regulator_bulk_enable(int num_consumers,
+-				       struct regulator_bulk_data *consumers);
++int __must_check regulator_bulk_enable_and_wait(int num_consumers,
++						struct regulator_bulk_data *consumers,
++						unsigned int wait_us);
+ int devm_regulator_bulk_get_enable(struct device *dev, int num_consumers,
+ 				   const char * const *id);
+ int regulator_bulk_disable(int num_consumers,
+@@ -410,7 +412,8 @@ static inline int devm_regulator_bulk_register_supply_alias(struct device *dev,
+ 	return 0;
+ }
+ 
+-static inline int regulator_enable(struct regulator *regulator)
++static inline int regulator_enable_and_wait(struct regulator *regulator,
++					    unsigned int wait_us)
+ {
+ 	return 0;
+ }
+@@ -457,8 +460,9 @@ static inline int devm_regulator_bulk_get_const(
+ 	return 0;
+ }
+ 
+-static inline int regulator_bulk_enable(int num_consumers,
+-					struct regulator_bulk_data *consumers)
++static inline int regulator_bulk_enable_and_wait(int num_consumers,
++						 struct regulator_bulk_data *consumers,
++						 unsigned int wait_us)
+ {
+ 	return 0;
+ }
+@@ -676,6 +680,11 @@ regulator_is_equal(struct regulator *reg1, struct regulator *reg2)
+ }
+ #endif
+ 
++#define regulator_enable(regulator)	regulator_enable_and_wait(regulator, 0)
++
++#define regulator_bulk_enable(num_consumers, consumers)	\
++		regulator_bulk_enable_and_wait(num_consumers, consumers, 0)
++
+ #if IS_ENABLED(CONFIG_OF) && IS_ENABLED(CONFIG_REGULATOR)
+ struct regulator *__must_check of_regulator_get(struct device *dev,
+ 						struct device_node *node,
+diff --git a/include/linux/regulator/driver.h b/include/linux/regulator/driver.h
+index cc6ce709ec86..8a74aa681df3 100644
+--- a/include/linux/regulator/driver.h
++++ b/include/linux/regulator/driver.h
+@@ -658,6 +658,8 @@ struct regulator_dev {
+ 	unsigned int constraints_pending:1;
+ 	unsigned int is_switch:1;
+ 
++	/* time when this regulator was enabled last time */
++	ktime_t last_on;
+ 	/* time when this regulator was disabled last time */
+ 	ktime_t last_off;
+ 	int cached_err;
 -- 
 2.55.0.679.g6767b8d81c-goog
 

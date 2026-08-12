@@ -1,114 +1,183 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C8E892E7179
-	for <linux-input@vger.kernel.org>; Wed, 12 Aug 2026 01:35:30 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C21F6368D67
+	for <linux-input@vger.kernel.org>; Wed, 12 Aug 2026 01:38:37 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786498531; cv=none; b=fd56eIjDDmH97coURbO/KRCX5FzjNxjRHa6ugwiAubHb68pD5FKRDjaWryvPLqXCfFU5SiE8MVo1bh7/J2IxkBtCbS6rI0mco9dvt9ikDzzV+t60mLSzGlYXo8jbqHJj4P5LL9pbb+XkXgDZhF3f1zr906txK9bIyvtQT3oBYLU=
+	t=1786498718; cv=none; b=sISzgKpGBZ9uldfToe+gHPcRIdS0Iwp1HXSz4kuhlciNXpnSnZepYtmKAk2jXcelZP7SUhIZjP/oISW1NZP87cpYL3ZjzSc9cX5yXV2UYMUkSrrsDN87uxnmpppWUa8nqwrcRjppAxkhFB5EqoEPrcNsqUXADBeMXOwu+eYgOnc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786498531; c=relaxed/simple;
-	bh=DN5B6VhmzXtzRv4lKlY18skFw5zbz/bI89vcf7mKXg0=;
+	s=arc-20240116; t=1786498718; c=relaxed/simple;
+	bh=BgCNBkm8CL4kPrSD/tqTvMBukEGbWKyf47N9RhXS3SM=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=ioKYz58G6EGj1KuP8TEp8bUuwYetez3Hf+d+J3uFzw1ZjeZUWO5Vwe7RoX3umegdA+NR8F5ywhxR3Fgcgefa2NxTgi5BXReeo70XjeOMCQNGhf+E3ZsDHg+TLr9aggzYP2+A1kbIooYWL+RTnKK6GtZJQDZwUVs+8hu1B10ksfk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=hdPIfWck; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=toaI9QCWmgR9B79G1zQ8tmMd38glFgJVfC47kIcHfCfIMVwYhKXfkqSrdm3h04Vzpv8XqKDhg5UbDtB1Pwm0AOH4+7DHERNE5he0CQu8AHeGZPgrAZc4+awtEDENtK2PkcDXjyV/LBUhao75grKkXRySt5rCRhlOGyPk22wC9mc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=KYDm5dUD; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="hdPIfWck"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 739ED1F000E9;
-	Wed, 12 Aug 2026 01:35:30 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="KYDm5dUD"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 386A61F000E9;
+	Wed, 12 Aug 2026 01:38:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786498530;
-	bh=vwb3j5QVPA/URMMY2nEpzHakhe6RrtrwxItX0BaPEEM=;
+	s=k20260515; t=1786498717;
+	bh=iUEbFByFGwaCO6GIT2rXZy1fGiRyReQ7IPcYmpKFpxg=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=hdPIfWcktqGSqEuZ5AFv4NAFmgIxntgRR1v2eC7SXm3ws4hjpleoUOq5oqGc8bxxA
-	 YS6k43x4nHnhAJC/Adzo4v0qxW1PIeSIHBo85m/2OMbLtYZ+01l8XXIUF/vxqMqDoZ
-	 Tk5+fVEs2UGDlNczxAlpBSuX8+wHnrGsnDZ8BbvdBgXfMBQfDz9nkTnCQTqAG1rvQp
-	 mhVYUTDG7gaftBbH2fqwxPbuU1FyqRNH3fuyiB5INpVd9AWhiUryx2U6A/8p4a2aAS
-	 F2I/OzFGZvvfJ7bJM3IhVArT17X3veEC4owsAnQYEwoWVL+ynkb0GtFm6VYZAXkDl0
-	 rEomBKPFbDnGQ==
+	b=KYDm5dUDpKj0b/TYxkneklZPcDJ96QeV5zsExSUGJy9CHyFfIg48jCxb+M1StrGO4
+	 LkS4TwbDbYxIbxRoGbpaelcOiTCdQ64+qpSkvvlLz9t8W4V5snJ/upbdSWexqFJ7VF
+	 saVpf5jxzkBHp1pK2pEXlJrcBTd4HZZbxZDS/H//Oh7NkPvYLJExo5VJEbqomPauXp
+	 7cScWl41S53yiboFLlv9cKuo27vM1wZ/Fvi453UbHX+XIpxXCDTKS0VbOU0fNO1+JT
+	 VvH40FStVe5dAaiSNGhr1YZcOl0xFA/tXPUPQBoh8i8tPsUu0ghl6OuRbtCji21ia+
+	 44KVJa9DtYAzA==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v13 2/3] HID: nintendo: Add rumble support for Switch 2
- controllers
+Subject: Re: [PATCH v5 5/6] HID: steam: Clean up locking
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Vicki Pfau" <vi@endrift.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260812012037.3251614-3-vi@endrift.com>
-References: <20260812012037.3251614-1-vi@endrift.com>
- <20260812012037.3251614-3-vi@endrift.com>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20260812011401.3250968-6-vi@endrift.com>
+References: <20260812011401.3250968-1-vi@endrift.com>
+ <20260812011401.3250968-6-vi@endrift.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 12 Aug 2026 01:35:30 +0000
-Message-Id: <20260812013530.739ED1F000E9@smtp.kernel.org>
+Date: Wed, 12 Aug 2026 01:38:36 +0000
+Message-Id: <20260812013837.386A61F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+Thank you for your contribution! Sashiko AI review found 4 potential issue(=
 s) to consider:
-- [High] Rumble workqueue catch-up loop causes extreme HID bus spam and del=
-ayed haptics.
+
+New issues:
+- [High] Missing `report_mutex` protection in `steam_probe` causes HID repo=
+rt interleaving and initialization failures.
+
+Pre-existing issues:
+- [High] Time-of-check to time-of-use (TOCTOU) race in `steam_unregister` l=
+eads to resource leakage and Use-After-Free.
+- [High] Use-After-Free or NULL pointer dereference in `steam_remove` due t=
+o incorrect teardown order.
+- [High] Information leak of uninitialized kernel heap memory to the USB de=
+vice.
 --
 
---- Patch [2]: [PATCH v13 2/3] HID: nintendo: Add rumble support for Switch=
- 2 controllers ---
-commit 0c691726864354d8749a514212fbc109cdbf67d2
+--- Patch [5]: [PATCH v5 5/6] HID: steam: Clean up locking ---
+commit 0b18780ca8de0e3b0d434638ab8287e9b2859654
 Author: Vicki Pfau <vi@endrift.com>
 
-HID: nintendo: Add rumble support for Switch 2 controllers
-   =20
-This adds rumble support for both the "HD Rumble" linear resonant actuator
-type and eccentric rotating mass haptics used in Switch 2 controllers. It
-adds a delayed workqueue to dispatch periodic rumble updates to the hardwar=
-e.
+HID: steam: Clean up locking
 
-> diff --git a/drivers/hid/hid-nintendo.c b/drivers/hid/hid-nintendo.c
-> index 78c9ad3c16104..4f58b6f9df38a 100644
-> --- a/drivers/hid/hid-nintendo.c
-> +++ b/drivers/hid/hid-nintendo.c
-[ ... ]
-> @@ -3209,6 +3263,128 @@ static void switch2_kref_put(struct kref *refcoun=
-t)
-[ ... ]
-> +static void switch2_rumble_work(struct work_struct *work)
-> +{
-[ ... ]
-> +	if (active) {
-> +		unsigned long interval =3D msecs_to_jiffies(4);
-> +		uint64_t current_jiffies =3D get_jiffies_64();
-> +
-> +		if (!ns2->last_rumble_work)
-> +			ns2->last_rumble_work =3D current_jiffies;
-> +		else
-> +			ns2->last_rumble_work +=3D interval;
-> +
-> +		/* Reschedule a little early to make sure the buffer never underruns */
-> +		interval -=3D msecs_to_jiffies(2);
-> +		if (ns2->last_rumble_work + interval >=3D current_jiffies)
-> +			schedule_delayed_work(&ns2->rumble_work,
-> +				ns2->last_rumble_work + interval - current_jiffies);
-> +		else
-> +			schedule_delayed_work(&ns2->rumble_work, 0);
+This cleans up several issues with locking behavior, including RCU accesses
+not being guarded behind a lock.
+
+> diff --git a/drivers/hid/hid-steam.c b/drivers/hid/hid-steam.c
+> index 7226c0681ed18..7bb892972447f 100644
+> --- a/drivers/hid/hid-steam.c
+> +++ b/drivers/hid/hid-steam.c
+> @@ -620,7 +621,6 @@ static int steam_exchange_report_id(struct steam_devi=
+ce *steam, u8 *cmd, int csi
+>  	unsigned int retries =3D 5;
+>  	int ret;
+> =20
+> -	guard(mutex)(&steam->report_mutex);
+>  	do {
+>  		ret =3D steam_send_report_id(steam, cmd, csize, report_id);
+>  		if (ret < 0)
 
 [Severity: High]
-Will this loop continuously without delay if switch2_rumble_work() falls
-behind?
+Since the guard was removed here, should callers now hold report_mutex?
 
-If CPU scheduling delays the worker or there is lock contention,
-ns2->last_rumble_work might fall far behind current_jiffies. Because
-ns2->last_rumble_work is only incremented by 4ms each run, the else branch
-will reschedule the work with a 0 delay over and over until it catches up.
+This regression appears in steam_probe(), where steam_get_conn_status()
+calls this without the mutex being held:
 
-Can this spam the HID transport with stale synchronous commands and delay
-input events, or cause haptics to continue playing long after the intended
-effect stops?
+drivers/hid/hid-steam.c:steam_probe() {
+    ...
+    if (steam->quirks & STEAM_QUIRK_WIRELESS) {
+        ...
+        steam->connected =3D false;
+        ret =3D steam_get_conn_status(steam);
+    ...
+}
 
-> +	} else {
-> +		ns2->last_rumble_work =3D 0;
-> +	}
+Could this allow concurrent wireless events to interleave HID requests and
+cause initialization failures?
+
 [ ... ]
 
+> @@ -1440,10 +1444,12 @@ static void steam_unregister(struct steam_device =
+*steam)
+>  	hid_info(steam->hdev, "Steam %s '%s' disconnected",
+>  			steam->quirks & STEAM_QUIRK_DECK ? "Deck" : "Controller",
+>  			steam->serial_no);
+> +	mutex_lock(&steam->registration_mutex);
+>  	steam->registered =3D false;
+>  	steam_battery_unregister(steam);
+>  	steam_sensors_unregister(steam);
+>  	steam_input_unregister(steam);
+> +	mutex_unlock(&steam->registration_mutex);
+>  	cancel_work_sync(&steam->rumble_work);
+>  	cancel_delayed_work_sync(&steam->mode_switch);
+>  	cancel_delayed_work_sync(&steam->coalesce_rumble_work);
+
+[Severity: High]
+This is a pre-existing issue, but does checking the registered flag outside
+this new mutex allow a time-of-check to time-of-use race?
+
+If steam_unregister() is called concurrently from the workqueue, it might
+check if (!steam->registered) and return early before the registration
+finishes.
+
+Later in steam_remove(), it completely bypasses unregistration if connected
+is false, leaving registered input nodes pointing to freed memory:
+
+drivers/hid/hid-steam.c:steam_remove() {
+    ...
+    if (steam->connected)
+        steam_unregister(steam);
+    ...
+}
+
+[Severity: High]
+This is a pre-existing issue, but is there a use-after-free window in
+steam_remove() during device teardown?
+
+The client HID device is destroyed before the hardware is stopped:
+
+drivers/hid/hid-steam.c:steam_remove() {
+    ...
+    hid_destroy_device(steam->client_hdev);
+    ...
+    hid_hw_stop(hdev);
+    ...
+}
+
+If the hardware generates an interrupt in this window, could
+steam_raw_event() attempt to access the freed client_hdev?
+
+[Severity: High]
+This is a pre-existing issue, but does steam_send_report_id() leak
+uninitialized kernel heap memory to the USB device?
+
+When allocating the report buffer, it uses hid_alloc_report_buf() which
+relies on kmalloc(), not kzalloc():
+
+drivers/hid/hid-steam.c:steam_send_report_id() {
+    ...
+    buf =3D hid_alloc_report_buf(r, GFP_KERNEL);
+    if (!buf)
+        return -ENOMEM;
+
+    buf[0] =3D report_id;
+    memcpy(buf + 1, cmd, size);
+    ...
+    ret =3D hid_hw_raw_request(steam->hdev, report_id,
+            buf, max(size + 1, len),
+            HID_FEATURE_REPORT, HID_REQ_SET_REPORT);
+    ...
+}
+
+Since only size bytes are copied into buf, will the remaining bytes up to
+max(size + 1, len) contain uninitialized memory when sent over the bus?
+
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260812012037.3251=
-614-1-vi@endrift.com?part=3D2
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260812011401.3250=
+968-1-vi@endrift.com?part=3D5

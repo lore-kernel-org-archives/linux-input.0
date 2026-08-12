@@ -1,175 +1,97 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 60B6A480325
-	for <linux-input@vger.kernel.org>; Wed, 12 Aug 2026 17:26:53 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9302823EA84;
+	Wed, 12 Aug 2026 18:02:31 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786555614; cv=none; b=e5aK9EtrIoCLxOaJQSrPiXkM2fESbsOMqcttYbcsRl6jz+DAVlOu9ngaeEAGuJq587aPkWYsCkzeAsb2zKfyf2+Y47kxvcp0YHgZkh3CdF3tMk0lVzIgOpwbrNREcPCA/PKKWZg08RMv7x6bQjdG/DKygSBBeZCibaF48pKzXoY=
+	t=1786557752; cv=none; b=JmpTVs5qISRTQHlO/hyORqrLEGPwBsJBctISeySJhcPZO8OecDKaFzJxCdkh6mZak54I3IcXHEzgCWXaIIiVzDfoIt7r9Vmvhd0c5WJh/DECitUrVaJKgENiWI9hSjKUK2KOvefYdwa14E2dTkiFiwTKMPV80olh6Zn3chil9Jo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786555614; c=relaxed/simple;
-	bh=uuXO1HCYXdK5vkAUixJLPhuFNRogUqMkSuZX5swlx84=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=K1MEf4B/D+rFDPPDQtel0oRjfJmTObGgSpN7eMQAqd7/O4jdqsp3XMLAELG+wX4JsBgWOBt1QRgYgsxZ9/utd7UpEqqhQKfS5wKXjG9RdC8WgOu0m4Uc6/QPAH3U2LaboahzEyzfbgKjT2+LmgSpmt9r/zdQmQ1dpsc4xy5MziE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=SLz1GRWb; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1786557752; c=relaxed/simple;
+	bh=d87kSTcvUtybzCELCCZqNObMIMF4KdvGEzAMKataUlk=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=LUMbBUBbA1sc5vmeISIwAB1EEWhm/gqYnYSdKyo8/xw4FdYp85riZoK5trXe53GQxC8HbiIwlHiLjh9iEB+OfpH4WHLd4wXsDtc3paZJ8GRgWntOcvPtYP+qWvbdiWmJ5WuGbG4wNUeK4/zSfe/a/xTS4ccuqZ7lhu5O43rkgXw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ocomHOSx; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="SLz1GRWb"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D06BC1F000E9;
-	Wed, 12 Aug 2026 17:26:52 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ocomHOSx"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 666F81F000E9;
+	Wed, 12 Aug 2026 18:02:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786555613;
-	bh=25WqVN37sLiMWkrIiU2S9B+eHUjhsdhKS8iZAlNjBD4=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=SLz1GRWbnh0A5FxEcxoQLmM4hQa8NVlCvuGxMiVLk/f83ySbyxEL3/nLmUhbPMoXT
-	 28McnPb5kEEPmELLuUGqj+4c9YuAtue4pyDvE2sJ5KXIHbAVPwj5VWSLt3gqLIpzIo
-	 nEFvVk6hojDufLTCWbPN3wCFKO//4egWxW7jDk8ymTUcgkva8o1/Kp5s4rMhbLCIKk
-	 ZItZdF0fFuIpmjafTKwPc/oIAisF/6CxbBCCUhJlS/gtT+O1oADO2bkfVYnLjyEigq
-	 9l0NIZLnIVM+8b0n/uQ7bf2jckvImfi/Po40ccd35F/9fJlns2F2d6PXSraYzPXw2v
-	 ZdQ++feXT0ing==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] HID: winwing: fix use-after-free in force feedback
- teardown
-Reply-To: sashiko-reviews@lists.linux.dev
-To: =?utf-8?b?UmVuw6kgT25pZXI=?= <f3nr1l@me.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260812171359.18135-1-f3nr1l@me.com>
-References: <20260812171359.18135-1-f3nr1l@me.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Wed, 12 Aug 2026 17:26:52 +0000
-Message-Id: <20260812172652.D06BC1F000E9@smtp.kernel.org>
+	s=k20260515; t=1786557751;
+	bh=uz27fRQbmLZ3xcxLxL3E+lR1tIUbt6V3Gu1RoS5Srs4=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=ocomHOSxOmZSJCeI5nxJuoqhAhytsq3r9cJjlIsVsHbDvLUe+DB7jbdTJa7d88sjd
+	 m4pvknxfMPyLosyg+6KdokWt/qmg+e4yVNmU9JE+S5ZpfW1YlU7CxmQaUE8zYU1bRW
+	 WWRqVUHK3yBJndI+PzfNMb4p8mvK5RCzmBxLV1t4Fdnf+pYellKIpxLnh1ZqbAzbIJ
+	 5Guz1PvzSLP1H1+0amt58f6bMdcctlNxbgECiShUKMNo4TURA717QpgGtiZxojSBuc
+	 0P9IqUCKO9oqritMgalAXEJDzVFRdSQu9p2ec08lrcfBMhi0TJJT07ILInpp1ssJW5
+	 N7H160o46ZxxQ==
+Date: Wed, 12 Aug 2026 19:02:25 +0100
+From: Mark Brown <broonie@kernel.org>
+To: Chen-Yu Tsai <wenst@chromium.org>
+Cc: Matthias Brugger <matthias.bgg@gmail.com>,
+	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
+	Benson Leung <bleung@chromium.org>,
+	Tzung-Bi Shih <tzungbi@kernel.org>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Jiri Kosina <jikos@kernel.org>, Andi Shyti <andi.shyti@kernel.org>,
+	linux-mediatek@lists.infradead.org, devicetree@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	chrome-platform@lists.linux.dev, linux-input@vger.kernel.org,
+	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v4 1/9] regulator: core: Add "enable and wait" functions
+Message-ID: <93fe2e3e-7a2a-4aa3-ad27-9e99c602c495@sirena.org.uk>
+References: <20260811122011.3539250-1-wenst@chromium.org>
+ <20260811122011.3539250-2-wenst@chromium.org>
+ <99ad23ba-f8f2-404b-960e-1c22a20c9ac4@sirena.org.uk>
+ <CAGXv+5EeEQM6O8Vb8e8fGjRzMe1icmz=cPm3GoKLxvEO=weVcA@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="3qPAsn7wmCMfZq5C"
+Content-Disposition: inline
+In-Reply-To: <CAGXv+5EeEQM6O8Vb8e8fGjRzMe1icmz=cPm3GoKLxvEO=weVcA@mail.gmail.com>
+X-Cookie: !07/11 PDP a ni deppart m'I  !pleH
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
-s) to consider:
 
-Pre-existing issues:
-- [High] Incorrect teardown ordering in `winwing_remove()` causes `rumble_w=
-ork` to be re-queued after cancellation, leading to a Use-After-Free.
-- [High] The `lights_lock` mutex in `struct winwing_drv_data` is used witho=
-ut ever being initialized.
-- [High] LED class devices remain registered after the hardware is stopped,=
- leading to potential Use-After-Free or crashes in the low-level transport =
-driver.
---
+--3qPAsn7wmCMfZq5C
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
---- Patch [1]: [PATCH] HID: winwing: fix use-after-free in force feedback t=
-eardown ---
-commit 7ead0cac4461910c7f089ed4dac8be573080aceb
-Author: Ren=C3=A9 Onier <f3nr1l@me.com>
+On Wed, Aug 12, 2026 at 12:39:42PM +0800, Chen-Yu Tsai wrote:
+> On Tue, Aug 11, 2026 at 8:43=E2=80=AFPM Mark Brown <broonie@kernel.org> w=
+rote:
 
-HID: winwing: fix use-after-free in force feedback teardown
+> > Just take a timestamp during registration if the regulator is enabled,
+> > we check if it's enabled anyway so we may as well take that as the last
+> > time the enable happened.
 
-winwing_init_ff() passes the driver's private data, allocated with
-devm_kzalloc() in winwing_probe(), as the effect context to
-input_ff_create_memless(). The memoryless force-feedback core takes
-ownership of that pointer and frees it with kfree() from
-input_ff_destroy() (ml_ff_destroy()) when the input device is
-destroyed.
+> Yeah, I just haven't figured out where exactly in regulator_register() to
+> put it. I think it should be after the supplies are resolved, so maybe
+> I could do this in the "final setup" part in regulator_resolve_supply()?
 
-Fixes: 42d020b54edc ("HID: winwing: Enable rumble effects")
+Makes sense I think.  The other place would be while doing the
+constraints but they're optional so might not happen.  Perhaps make the
+one at the end of registration skip if there's a timestamp already?
 
-> diff --git a/drivers/hid/hid-winwing.c b/drivers/hid/hid-winwing.c
-> index 9cd25a77999e6..19b92c2c6579a 100644
-> --- a/drivers/hid/hid-winwing.c
-> +++ b/drivers/hid/hid-winwing.c
-> @@ -315,7 +315,8 @@ static void winwing_haptic_rumble_cb(struct work_stru=
-ct *work)
->  static int winwing_play_effect(struct input_dev *dev, void *context,
->  		struct ff_effect *effect)
->  {
-> -	struct winwing_drv_data *data =3D (struct winwing_drv_data *) context;
-> +	struct hid_device *hdev =3D input_get_drvdata(dev);
-> +	struct winwing_drv_data *data =3D hid_get_drvdata(hdev);
-> =20
->  	if (effect->type !=3D FF_RUMBLE)
->  		return 0;
-[ ... ]
-> @@ -342,7 +343,12 @@ static int winwing_init_ff(struct hid_device *hdev, =
-struct hid_input *hidinput)
-> =20
->  	input_set_capability(hidinput->input, EV_FF, FF_RUMBLE);
-> =20
-> -	return input_ff_create_memless(hidinput->input, data,
-> +	/*
-> +	 * input_ff_create_memless() takes ownership of the context pointer
-> +	 * and frees it on teardown; do not hand it the devm-managed drvdata.
-> +	 * winwing_play_effect() fetches it from the input device instead.
-> +	 */
-> +	return input_ff_create_memless(hidinput->input, NULL,
->  			winwing_play_effect);
->  }
+--3qPAsn7wmCMfZq5C
+Content-Type: application/pgp-signature; name="signature.asc"
 
-[Severity: High]
-This is a pre-existing issue, but does the teardown ordering in
-winwing_remove() in drivers/hid/hid-winwing.c cause rumble_work to be
-re-queued after cancellation?
+-----BEGIN PGP SIGNATURE-----
 
-winwing_remove() {
-	if (data)
-		cancel_work_sync(&data->rumble_work);
+iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAmp8tTEACgkQJNaLcl1U
+h9B2FAf8D1M22Grx18J9/WwNFIOC9lobobrOEs3T/vwO7/gO1L2DkkIIJ+O6giFE
+pVSJK0jvB/6bFVrLlTTFUvMLxE+WxD/G/kpriivyU1quihyIkp1hVbsCmVQlKcTx
+4gWcO383CQneVfUhZTcFpXFBT8l6pzLP4nT/6El14xC0nf6L2nX1me4vgBSlNhsX
+1vVrWMkUDh7nORWr3MBRcbVICD/95yzWD6uUq64zT2yX8QBFACOGWzt4w5dooGFO
+grAcJyH7t0K0WlFBSogUFX05QKN0eLiAuMEfCuVkpXf5phImv/MiaPaIlEZUxMC+
+lPVvKyLFNzRuafb6rYrFUuevW9Ibaw==
+=gO+2
+-----END PGP SIGNATURE-----
 
-	hid_hw_close(hdev);
-	hid_hw_stop(hdev);
-}
-
-When hid_hw_stop() unregisters the input device, it invokes=20
-evdev_disconnect() and input_flush_device(). The flush executes
-input_ff_flush(), which erases active effects by calling ff->playback()
-with a magnitude of 0.
-
-This triggers winwing_play_effect(), which re-schedules data->rumble_work
-on the global workqueue. After winwing_remove() returns, devres frees the
-data structure, leaving a pending work item that will access freed memory
-when it runs.
-
-Could this lead to a use-after-free?
-
-[Severity: High]
-This isn't a bug introduced by this patch, but is the lights_lock mutex in
-struct winwing_drv_data used without ever being initialized?
-
-In drivers/hid/hid-winwing.c:winwing_probe():
-	data =3D devm_kzalloc(&hdev->dev, data_size, GFP_KERNEL);
-	if (!data)
-		return -ENOMEM;
-
-The driver attempts to acquire this uninitialized mutex when userspace writ=
-es
-to the LED brightness sysfs attribute:
-
-drivers/hid/hid-winwing.c:winwing_led_write():
-	mutex_lock(&data->lights_lock);
-
-Can this cause a kernel crash or undefined behavior when lock contention
-occurs?
-
-[Severity: High]
-This is a pre-existing issue, but do the LED class devices remain registered
-after the hardware is stopped?
-
-In drivers/hid/hid-winwing.c:winwing_remove():
-	hid_hw_stop(hdev);
-
-The underlying hardware is stopped here, but the devm-managed LEDs remain
-registered until after this function returns and the driver's devres group
-is released.
-
-If userspace writes to the LED brightness attribute during the window betwe=
-en
-hid_hw_stop() and devres cleanup, this triggers invalid hardware access on a
-stopped transport:
-
-drivers/hid/hid-winwing.c:winwing_led_write():
-	ret =3D hid_hw_output_report(led->hdev, buf, 14);
-
-Could this crash the kernel or cause a use-after-free in the low-level
-transport driver?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260812171359.1813=
-5-1-f3nr1l@me.com?part=3D1
+--3qPAsn7wmCMfZq5C--

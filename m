@@ -1,63 +1,63 @@
-Received: from mail-wr1-f47.google.com (mail-wr1-f47.google.com [209.85.221.47])
+Received: from mail-wr1-f46.google.com (mail-wr1-f46.google.com [209.85.221.46])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 28AAD38C412
-	for <linux-input@vger.kernel.org>; Wed, 12 Aug 2026 19:59:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 823BC31717D
+	for <linux-input@vger.kernel.org>; Wed, 12 Aug 2026 19:59:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.46
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786564747; cv=none; b=qdiYi3WcRpaw99fTGKHcFxJXUrOnD1TVx8TerAa253WreOpwseOxIsUY3yModt9k7pDWrKELqiBog9WJMWR46NR8NW1b1wrzuJ+9SiIl2usZPlultEt94WMxNfmiOlReUmqpZ93x+DPR44LQMBRNpk4IwF4r714CBigF96SnWDg=
+	t=1786564751; cv=none; b=hs5s05MjybmtBPdPpphNIxv8BOwiuMxTpXyszXBzPAuf7ODsL4GGePbs59AmcboFuX7Puvx3OiyNl1b+kzkekfTj1a7pMtjfn77yBad/VKPkQ3z6JxiMbn8H+4l9qNe4Z4KfOIwrFhFuaK31gh3oXeqObTIe71AZfojOzQ6lWPo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786564747; c=relaxed/simple;
-	bh=lFceJ4HBWSBMd+5nGP0i0IRBG9201F6rE2f9MGbnGXU=;
+	s=arc-20240116; t=1786564751; c=relaxed/simple;
+	bh=SxhLuZhNDLQB7P8JmA5d0v/iTsujFzWA4xG9cUNjap4=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=afTtKfPFZZdJA2dxotp9t8udSv1forejFQlDDDkpVfsbsaK76M3OuYgBcwbXUkBNfs1KftIM4+BFS1s96Vlod7s8x1jVoyvyZonom39/pEj2nwq9R4Wqr+eNz847frAKlaVO5WM3XSFQ/8Vdyxrv6h99emsQJZ1VLHrNneeASt0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=r12OhtIR; arc=none smtp.client-ip=209.85.221.47
+	 MIME-Version; b=i0YGKB59R/z+f1DW1qyEtrB/TUvx2V+e9fzUQ8JSDJdbsHiQRK/q1afszfLEYpx0CrVdyeht4rPzGzu/4/FidWzw0uicYgjJ/fCjZIK0Z6WqUJqyVqySQ80NLqRMPnltnvN8YjzAp3x6ahd7m/Bp3fHpAAdJfJVA8OmbYaWk430=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=K9WKgcL5; arc=none smtp.client-ip=209.85.221.46
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="r12OhtIR"
-Received: by mail-wr1-f47.google.com with SMTP id ffacd0b85a97d-47fe89fb333so786945f8f.3
-        for <linux-input@vger.kernel.org>; Wed, 12 Aug 2026 12:59:03 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="K9WKgcL5"
+Received: by mail-wr1-f46.google.com with SMTP id ffacd0b85a97d-4813ea321cdso146373f8f.1
+        for <linux-input@vger.kernel.org>; Wed, 12 Aug 2026 12:59:09 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1786564742; x=1787169542; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1786564746; x=1787169546; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=LhLxArGo2q7n/e6yuBeJc1CN2MnQp5unm5C/EjB9ZAc=;
-        b=r12OhtIRijkxEhT71gHx7A3Q4DEr790GFNd5TPJv5dIQn6TWoajARacjL0QDwjV3t3
-         0o9QqmhTraaxMBXIp7ce9AYsNZ6RsqLcSpeBDU1b4HT2IJIJ5wbLt/9au31WvQ+rWT4i
-         LiARyZPd/f4oYUqYN9p8qdXSx0tJghc1aYuKdgsG6n89YbZns8vgTP8sxQI1sR/6wiq7
-         0dLjY7Vtl4yhg8ItRVyzvPm+FiTQW0hVghTZR3FsQeESCLncuOHfFTPtHYOs8HQjGzT9
-         KAi6QNobQo3yEcel1yguefWzAWx2U4AuWIB3jRfjZQpjMimRxDA881DMB4SleqqnJomq
-         MsgQ==
+        bh=WQJkp7F9XSMUUp3rtI8dEl5NT/CiVfWiLJXvzZwRDEo=;
+        b=K9WKgcL5euEzMwjN2GJb91Ahgso4DC6pj6zwCfBkVurTTOTsrtXMuJ8shtJx45Ozsp
+         zfNq2t0E73gbNE2p6+H+yCoXOeUYBO2qtQl6BTNKt8gknOiRQqg34uug0Q92U86b6+v3
+         b27gSr23OOeYcxU0ZQcj3wY0kUt00PHzkEU6QnjgigoJB/PHdh9V5CK0VJilFqo0ksKR
+         M5PiTs9e7vkUjqF5VDRkjQ2uFbyEDx+4WxWPOQ9i4f8jFpZxStewmM2OnfYMXs/4NaLw
+         1Qrec1OCm9FhZKmaO5ipWxg5wglfbXuekAljR5OMqVaZHOZFn0uf62KbH+O0f3brvR+j
+         vfgw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1786564742; x=1787169542;
+        d=1e100.net; s=20251104; t=1786564746; x=1787169546;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=LhLxArGo2q7n/e6yuBeJc1CN2MnQp5unm5C/EjB9ZAc=;
-        b=DBd3qDiFWUFA0rt4AAywuIX8359tPUnOXR/JVP6JHUtE1wIkOZ3b1tsK01nFrT3Phm
-         V0su4K+T4Dr/eTIL2fRZNG+O54h6xwM4L6UJguTwPX/KsK3L9ZA1s1COaZKw0FkWd7gL
-         UOFMw1bLGgTDCLSzo60JkiXY9d92iS20p7k2SE4QPSy3wDK7usGyNgTvpyZcV+/yTh9z
-         lmb2D67TbZngbb7t4ou0FiKd29Icm8CM2gWwd7gIeQB361bOOfbW8y6ysts7OLFxcvMk
-         NquAF3QHeHisl3N/P6msLR9yXyZsslKJOb8GsedTg3ZuezAUqjWjXft0W0VEXaKQ07Z+
-         5UwA==
-X-Gm-Message-State: AOJu0YxrYKE5K8hd/Er0BTtDW7wbRgtfg7voeu7IAH7WRbFZJS6Se55F
-	03rB1nSkpv2M8nU0ayz87j/Uoyf3lXVtwKBtmEx9cAOKWRpLvsMEcQt1LcGZtGj4
-X-Gm-Gg: AR+sD13lqLH8APiSAXHyOymJ9rk5cEw41RAO4nyDa5/8ZKT/2Vx4r5kngZcFwcPFYre
-	pIenuToGvSMo8t1mu1aPWA7l8dqFPXbYuK7oCLIojQ9wBW7sxABl+rPaQhT6n/9NowxdBRKotPK
-	gNeIwylM0OJ5vaka63wduLxc/0hpsbCrGRjkcsyEH0EdixsOQutYBnpVDGIgrARo4JAtMmq0GN3
-	EHbpF2dkKwWutiHWgPRqJm1njytP3h4eoHpOvdcSm1y2gHAHCcEvgmd0eqSOz/ZTV0LWGlpviNp
-	phvzbSW5tCvVBU+nJyTlpG+DacwG5KaxOfWhz4+Cj2mJhBnDiJLg7IOe/tlZmrSq9JFCWg6KnDM
-	MxnMN/Pgw29JCcp9o20++lfTnx/NLp0HF6oqmnQx3k+Df3C1BP4GOL5tF10CqeYbvEyzzC9DzXE
-	hn1nniLhQy0B898gk6iOQzTdMNlQzh6n3Tn2hu/XKU8H6vz4O+c7ot2Qa75FusvGASMTg07nvhP
-	OUfbChGKPGUXjV9b+M3uykMkQ==
-X-Received: by 2002:a05:6000:25e7:b0:47f:4919:d5b2 with SMTP id ffacd0b85a97d-48159ca615cmr898037f8f.1.1786564741760;
-        Wed, 12 Aug 2026 12:59:01 -0700 (PDT)
+        bh=WQJkp7F9XSMUUp3rtI8dEl5NT/CiVfWiLJXvzZwRDEo=;
+        b=edrxYrjpApDGtoJNa3bdLfXsh3M0DPrf/t+fCiIYK3iEUqQ/tnHU/uZJYv9H+1u+p4
+         oqVlqB7pXf81bfFDQruvW67l/RmCM4jjR623FJ2pVPAK6ZfC6L+g76rvadphAyY2TVLc
+         dr7RCVKA4LrggyvWyvg+WiUUk/DXPM6KD4i2fCqsuEa0qSRCOLF25urkKwEUyIsJwwjh
+         JWrc7KoAYacT+2ckXAZsJTjqzP80KiHjCEvponQLmAsGjr+YDCyvUOaMd2lGy2Af8c9i
+         yw/ZrpXU4ALzLlVR52kTl1la3VdSzlDovY7FLMP+UwHPYOxFpPdxfMF9quaU7sj4zwGr
+         p0LQ==
+X-Gm-Message-State: AOJu0YyIaMHCi5F3/PfaM9jq5XlKt+KN2gBZTaUAVX4f1JgbKz86F2UL
+	qcRGL9wPr0MaAqfHSBPZlrusYCwl1aPnaEdpgWs1McBM2BYAwci/X3BtT9B7tJY1
+X-Gm-Gg: AR+sD13df01iIUIY3kPm+MtGt3LAL4/IpwCfbFh4gXE2OavmORGKziv4vQpvT6fv3hU
+	/nwkGzNEa6TR9bBGy0zYdLTVQY3qtIk8FTzjGsZREfAPHwBxVkcM76FdfAL4DsxnmMiPyf/iC/a
+	bJnlsOtwfpzXfPKck64Mbq3w99PIkCSmWmU3DXlCBqa92OV/8zQW6Vt6QT/okq08gy9gFT6f+KG
+	5KnV1dwDxV/RUPeb2ksc5u2pTSNO34riQbUQoA/GSIQsv74bey6HSfP5mz27aShprBnRPq3pPG4
+	Jl5foxTWl0ZdUvMUGdnZxmb6s2OW4VQ5W8kyOqMELTcX+zGqbZUIXq0L9SQY774PJkFf/YbZcIY
+	7Sqb9/Oy5/1H8aRoMjY9l9/wg94NYgzvymY9za0wh/aFzVxn2GozCQpmZ+B/TofeNa2Z2dj/nPr
+	ztqtRRX53jvyluj8rYQ/1jCq4Xz9QbpAEzEh6eS5c94YdwFoAD0e8Nx+UWqRvS7bOrry9/c4gTq
+	XH5SW1Xm8vhNhWU
+X-Received: by 2002:a05:6000:2883:b0:47f:eb38:26f9 with SMTP id ffacd0b85a97d-4815a502bd1mr325002f8f.8.1786564745846;
+        Wed, 12 Aug 2026 12:59:05 -0700 (PDT)
 Received: from localhost (97-115-90-76.ptld.qwest.net. [97.115.90.76])
-        by smtp.gmail.com with UTF8SMTPSA id ffacd0b85a97d-4815a5c2837sm107792f8f.37.2026.08.12.12.58.59
+        by smtp.gmail.com with UTF8SMTPSA id ffacd0b85a97d-4815a5612b8sm148920f8f.1.2026.08.12.12.59.03
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 12 Aug 2026 12:59:01 -0700 (PDT)
+        Wed, 12 Aug 2026 12:59:05 -0700 (PDT)
 From: Elliot Douglas <edouglas7358@gmail.com>
 To: linux-input@vger.kernel.org
 Cc: lains@riseup.net,
@@ -66,9 +66,9 @@ Cc: lains@riseup.net,
 	bentiss@kernel.org,
 	linux-kernel@vger.kernel.org,
 	edouglas7358@gmail.com
-Subject: [PATCH v3 1/2] HID: logitech-hidpp: add HID++ 2.0 reprogrammable button support
-Date: Wed, 12 Aug 2026 12:58:41 -0700
-Message-ID: <20260812195842.77724-2-edouglas7358@gmail.com>
+Subject: [PATCH v3 2/2] HID: logitech-hidpp: enable reprogrammable buttons on Signature M650
+Date: Wed, 12 Aug 2026 12:58:42 -0700
+Message-ID: <20260812195842.77724-3-edouglas7358@gmail.com>
 X-Mailer: git-send-email 2.55.0
 In-Reply-To: <20260812195842.77724-1-edouglas7358@gmail.com>
 References: <20260812195842.77724-1-edouglas7358@gmail.com>
@@ -80,294 +80,89 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Some Logitech HID++ 2.0 mice can report diverted reprogrammable controls
-through HID++ feature 0x1b04, SpecialKeysMseButtons / REPROG_CONTROLS_V4,
-instead of the normal HID mouse report.
+The Bluetooth Signature M650 exposes its side buttons through the normal
+mouse report, but the observed events are short click-like events emitted
+around release rather than physical press/release state.
 
-Add a quirk-gated event path for those controls. The handler temporarily
-diverts verified per-product controls, parses divertedButtonsEvent as the
-current pressed-control list, and reports the corresponding evdev key state
-for every mapped control.
+The device appears to use the held side-button state for its built-in
+gesture and side-button + wheel horizontal-scroll mode. As a result,
+holding a side button more than approximately 2 seconds can prevent the
+normal mouse report from emitting a usable button event at all.
 
-Keep the control mappings in per-product arrays so adding support for
-another mouse does not change the evdev capabilities advertised by
-already-supported devices.
+HID++ REPROG_CONTROLS_V4 diversion for control IDs 0x0053 and 0x0056
+provides real press and release timing for those same controls. Logitech
+documents the Signature M650 side buttons as Back/Forward buttons, so
+report the diverted controls as BTN_BACK and BTN_FORWARD.
 
-Documentation for feature 0x1b04 describes divertedButtonsEvent as a list
-of currently pressed diverted buttons, which is the event format handled
-here.
+The HID++ 0x1b04 documentation lists those control IDs as Back and
+Forward. The driver still verifies that the controls are present in the
+device control table and advertised as divertable before changing their
+reporting mode.
 
-Link: https://lekensteyn.nl/files/logitech/x1b04_specialkeysmsebuttons.html
+Link: https://support.logi.com/hc/en-nz/articles/4414473810583-Getting-Started-Signature-M650
+Reviewed-by: Bastien Nocera <hadess@hadess.net>
 Signed-off-by: Elliot Douglas <edouglas7358@gmail.com>
 ---
- drivers/hid/hid-logitech-hidpp.c | 205 +++++++++++++++++++++++++++++++
- 1 file changed, 205 insertions(+)
+ drivers/hid/hid-ids.h            |  1 +
+ drivers/hid/hid-logitech-hidpp.c | 18 +++++++++++++++++-
+ 2 files changed, 18 insertions(+), 1 deletion(-)
 
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 426ff78c1c03..f4a23662888a 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -906,6 +906,7 @@
+ #define USB_DEVICE_ID_LOGITECH_Z_10_SPK	0x0a07
+ #define USB_DEVICE_ID_LOGITECH_AUDIOHUB 0x0a0e
+ #define USB_DEVICE_ID_LOGITECH_T651	0xb00c
++#define USB_DEVICE_ID_LOGITECH_SIGNATURE_M650	0xb02a
+ #define USB_DEVICE_ID_LOGITECH_DINOVO_EDGE_KBD	0xb309
+ #define USB_DEVICE_ID_LOGITECH_CASA_TOUCHPAD	0xbb00
+ #define USB_DEVICE_ID_LOGITECH_C007	0xc007
 diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-index 70ba1a5e40d8..f9189e14fb78 100644
+index f9189e14fb78..8cd762e1eb51 100644
 --- a/drivers/hid/hid-logitech-hidpp.c
 +++ b/drivers/hid/hid-logitech-hidpp.c
-@@ -76,6 +76,7 @@ MODULE_PARM_DESC(disable_tap_to_click,
- #define HIDPP_QUIRK_HI_RES_SCROLL_1P0		BIT(28)
- #define HIDPP_QUIRK_WIRELESS_STATUS		BIT(29)
- #define HIDPP_QUIRK_RESET_HI_RES_SCROLL		BIT(30)
-+#define HIDPP_QUIRK_HIDPP_REPROG_CONTROLS_BTNS	BIT(31)
+@@ -3624,14 +3624,28 @@ static int hidpp10_extra_mouse_buttons_raw_event(struct hidpp_device *hidpp,
  
- /* These are just aliases for now */
- #define HIDPP_QUIRK_KBD_SCROLL_WHEEL HIDPP_QUIRK_HIDPP_WHEELS
-@@ -178,6 +179,8 @@ struct hidpp_scroll_counter {
- 	unsigned long long last_time;
+ #define HIDPP_REPROG_CONTROLS_EVENT_DIVERTED		0x00
+ 
++#define HIDPP_REPROG_CONTROL_BACK			0x0053
++#define HIDPP_REPROG_CONTROL_FORWARD			0x0056
++
+ struct hidpp_reprog_control_mapping {
+ 	u16 control;
+ 	u16 code;
  };
  
-+struct hidpp_reprog_control_mapping;
-+
- struct hidpp_device {
- 	struct hid_device *hid_dev;
- 	struct input_dev *input;
-@@ -205,6 +208,8 @@ struct hidpp_device {
- 	struct hidpp_scroll_counter vertical_wheel_counter;
- 
- 	u8 wireless_feature_index;
-+	u8 reprog_controls_feature_index;
-+	const struct hidpp_reprog_control_mapping *reprog_controls;
- 
- 	int hires_wheel_multiplier;
- 	u8 hires_wheel_feature_index;
-@@ -3601,6 +3606,195 @@ static int hidpp10_extra_mouse_buttons_raw_event(struct hidpp_device *hidpp,
- 	return 1;
- }
- 
-+/* -------------------------------------------------------------------------- */
-+/* HID++2.0 reprogrammable controls                                           */
-+/* -------------------------------------------------------------------------- */
-+
-+#define HIDPP_PAGE_REPROG_CONTROLS_V4			0x1b04
-+
-+#define HIDPP_REPROG_CONTROLS_GET_COUNT			0x00
-+#define HIDPP_REPROG_CONTROLS_GET_CID_INFO		0x10
-+#define HIDPP_REPROG_CONTROLS_SET_CONTROL_REPORTING	0x30
-+
-+#define HIDPP_REPROG_CONTROLS_FLAG_MOUSE		BIT(0)
-+#define HIDPP_REPROG_CONTROLS_FLAG_DIVERT		BIT(5)
-+
-+#define HIDPP_REPROG_CONTROLS_TEMPORARY_DIVERTED	BIT(0)
-+#define HIDPP_REPROG_CONTROLS_CHANGE_TEMPORARY_DIVERT	BIT(1)
-+
-+#define HIDPP_REPROG_CONTROLS_EVENT_DIVERTED		0x00
-+
-+struct hidpp_reprog_control_mapping {
-+	u16 control;
-+	u16 code;
++static const struct hidpp_reprog_control_mapping m650_reprog_control_mappings[] = {
++	{ HIDPP_REPROG_CONTROL_BACK, BTN_BACK },
++	{ HIDPP_REPROG_CONTROL_FORWARD, BTN_FORWARD },
++	{ }
 +};
 +
-+static const struct hidpp_reprog_control_mapping *
-+hidpp20_reprog_controls_get_mappings(struct hidpp_device *hidpp)
-+{
-+	return NULL;
-+}
-+
-+static int hidpp20_reprog_controls_get_count(struct hidpp_device *hidpp)
-+{
-+	struct hidpp_report response;
-+	u8 feature_index = hidpp->reprog_controls_feature_index;
-+	u8 cmd = HIDPP_REPROG_CONTROLS_GET_COUNT;
-+	int ret;
-+
-+	ret = hidpp_send_fap_command_sync(hidpp, feature_index, cmd, NULL, 0,
-+					  &response);
-+	if (ret > 0)
-+		return -EPROTO;
-+	if (ret)
-+		return ret;
-+
-+	return response.fap.params[0];
-+}
-+
-+static int hidpp20_reprog_controls_get_cid_info(struct hidpp_device *hidpp,
-+						u8 index, u16 *control,
-+						u8 *flags)
-+{
-+	struct hidpp_report response;
-+	u8 feature_index = hidpp->reprog_controls_feature_index;
-+	u8 cmd = HIDPP_REPROG_CONTROLS_GET_CID_INFO;
-+	int ret;
-+
-+	ret = hidpp_send_fap_command_sync(hidpp, feature_index, cmd, &index,
-+					  sizeof(index), &response);
-+	if (ret > 0)
-+		return -EPROTO;
-+	if (ret)
-+		return ret;
-+
-+	*control = get_unaligned_be16(&response.fap.params[0]);
-+	*flags = response.fap.params[4];
-+
-+	return 0;
-+}
-+
-+static bool hidpp20_reprog_controls_find_control(struct hidpp_device *hidpp,
-+						 u16 control)
-+{
-+	int count, ret;
-+	u16 cid;
-+	u8 flags;
-+	int i;
-+
-+	count = hidpp20_reprog_controls_get_count(hidpp);
-+	if (count < 0)
-+		return false;
-+
-+	for (i = 0; i < count; i++) {
-+		ret = hidpp20_reprog_controls_get_cid_info(hidpp, i, &cid,
-+							   &flags);
-+		if (ret)
-+			return false;
-+
-+		if (cid == control)
-+			return (flags & HIDPP_REPROG_CONTROLS_FLAG_MOUSE) &&
-+			       (flags & HIDPP_REPROG_CONTROLS_FLAG_DIVERT);
-+	}
-+
-+	return false;
-+}
-+
-+static int hidpp20_reprog_controls_set_control_reporting(struct hidpp_device *hidpp,
-+							 u16 control, u8 flags)
-+{
-+	struct hidpp_report response;
-+	u8 params[5];
-+
-+	put_unaligned_be16(control, &params[0]);
-+	params[2] = flags;
-+	put_unaligned_be16(control, &params[3]);
-+
-+	return hidpp_send_fap_command_sync(hidpp,
-+					   hidpp->reprog_controls_feature_index,
-+					   HIDPP_REPROG_CONTROLS_SET_CONTROL_REPORTING,
-+					   params, sizeof(params), &response);
-+}
-+
-+static void hidpp20_reprog_controls_connect(struct hidpp_device *hidpp)
-+{
-+	const struct hidpp_reprog_control_mapping *mapping;
-+	u8 flags = HIDPP_REPROG_CONTROLS_TEMPORARY_DIVERTED |
-+		   HIDPP_REPROG_CONTROLS_CHANGE_TEMPORARY_DIVERT;
-+
-+	if (!(hidpp->quirks & HIDPP_QUIRK_HIDPP_REPROG_CONTROLS_BTNS))
-+		return;
-+
-+	if (!hidpp->reprog_controls)
-+		return;
-+
-+	if (hidpp_root_get_feature(hidpp, HIDPP_PAGE_REPROG_CONTROLS_V4,
-+				   &hidpp->reprog_controls_feature_index))
-+		return;
-+
-+	for (mapping = hidpp->reprog_controls; mapping->control; mapping++) {
-+		if (!hidpp20_reprog_controls_find_control(hidpp, mapping->control))
-+			continue;
-+
-+		hidpp20_reprog_controls_set_control_reporting(hidpp,
-+							      mapping->control,
-+							      flags);
-+	}
-+}
-+
-+static int hidpp20_reprog_controls_raw_event(struct hidpp_device *hidpp,
-+					     u8 *data, int size)
-+{
-+	const struct hidpp_reprog_control_mapping *mapping;
-+	struct hidpp_report *report = (struct hidpp_report *)data;
-+	u16 controls[4];
-+	bool pressed;
-+	unsigned int i, j;
-+
-+	if (!(hidpp->quirks & HIDPP_QUIRK_HIDPP_REPROG_CONTROLS_BTNS) ||
-+	    !hidpp->input ||
-+	    !hidpp->reprog_controls ||
-+	    hidpp->reprog_controls_feature_index == 0xff)
-+		return 0;
-+
-+	if (size < HIDPP_REPORT_LONG_LENGTH ||
-+	    report->fap.feature_index != hidpp->reprog_controls_feature_index ||
-+	    report->fap.funcindex_clientid != HIDPP_REPROG_CONTROLS_EVENT_DIVERTED)
-+		return 0;
-+
-+	for (i = 0; i < ARRAY_SIZE(controls); i++)
-+		controls[i] = get_unaligned_be16(&report->fap.params[i * 2]);
-+
-+	for (mapping = hidpp->reprog_controls; mapping->control; mapping++) {
-+		pressed = false;
-+
-+		for (j = 0; j < ARRAY_SIZE(controls); j++) {
-+			if (controls[j] == mapping->control) {
-+				pressed = true;
-+				break;
-+			}
-+		}
-+
-+		input_report_key(hidpp->input, mapping->code, pressed);
-+	}
-+
-+	input_sync(hidpp->input);
-+
-+	return 1;
-+}
-+
-+static void hidpp20_reprog_controls_populate_input(struct hidpp_device *hidpp,
-+						   struct input_dev *input_dev)
-+{
-+	const struct hidpp_reprog_control_mapping *mapping;
-+
-+	if (!hidpp->reprog_controls)
-+		return;
-+
-+	for (mapping = hidpp->reprog_controls; mapping->control; mapping++)
-+		input_set_capability(input_dev, EV_KEY, mapping->code);
-+}
-+
- static void hidpp10_extra_mouse_buttons_populate_input(
- 			struct hidpp_device *hidpp, struct input_dev *input_dev)
+ static const struct hidpp_reprog_control_mapping *
+ hidpp20_reprog_controls_get_mappings(struct hidpp_device *hidpp)
  {
-@@ -3859,6 +4053,9 @@ static void hidpp_populate_input(struct hidpp_device *hidpp,
- 
- 	if (hidpp->quirks & HIDPP_QUIRK_HIDPP_EXTRA_MOUSE_BTNS)
- 		hidpp10_extra_mouse_buttons_populate_input(hidpp, input);
++	switch (hidpp->hid_dev->product) {
++	case USB_DEVICE_ID_LOGITECH_SIGNATURE_M650:
++		return m650_reprog_control_mappings;
++	}
 +
-+	if (hidpp->quirks & HIDPP_QUIRK_HIDPP_REPROG_CONTROLS_BTNS)
-+		hidpp20_reprog_controls_populate_input(hidpp, input);
+ 	return NULL;
  }
  
- static int hidpp_input_configured(struct hid_device *hdev,
-@@ -3971,6 +4168,10 @@ static int hidpp_raw_hidpp_event(struct hidpp_device *hidpp, u8 *data,
- 			return ret;
- 	}
- 
-+	ret = hidpp20_reprog_controls_raw_event(hidpp, data, size);
-+	if (ret != 0)
-+		return ret;
-+
- 	if (hidpp->quirks & HIDPP_QUIRK_HIDPP_CONSUMER_VENDOR_KEYS) {
- 		ret = hidpp10_consumer_keys_raw_event(hidpp, data, size);
- 		if (ret != 0)
-@@ -4264,6 +4465,8 @@ static void hidpp_connect_event(struct work_struct *work)
- 			return;
- 	}
- 
-+	hidpp20_reprog_controls_connect(hidpp);
-+
- 	if (hidpp->quirks & HIDPP_QUIRK_HIDPP_CONSUMER_VENDOR_KEYS) {
- 		ret = hidpp10_consumer_keys_connect(hidpp);
- 		if (ret)
-@@ -4436,6 +4639,8 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 	hidpp->hid_dev = hdev;
- 	hidpp->name = hdev->name;
- 	hidpp->quirks = id->driver_data;
-+	hidpp->reprog_controls_feature_index = 0xff;
-+	hidpp->reprog_controls = hidpp20_reprog_controls_get_mappings(hidpp);
- 	hid_set_drvdata(hdev, hidpp);
- 
- 	ret = hid_parse(hdev);
+@@ -4911,7 +4925,9 @@ static const struct hid_device_id hidpp_devices[] = {
+ 	{ /* MX Vertical mouse over Bluetooth */
+ 	  HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb020) },
+ 	{ /* Signature M650 over Bluetooth */
+-	  HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb02a) },
++	  HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH,
++			       USB_DEVICE_ID_LOGITECH_SIGNATURE_M650),
++	  .driver_data = HIDPP_QUIRK_HIDPP_REPROG_CONTROLS_BTNS },
+ 	{ /* MX Master 3 mouse over Bluetooth */
+ 	  HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb023) },
+ 	{ /* MX Anywhere 3 mouse over Bluetooth */
 -- 
 2.55.0
 

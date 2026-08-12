@@ -1,264 +1,131 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EF4001E5B70
-	for <linux-input@vger.kernel.org>; Wed, 12 Aug 2026 01:34:48 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 23D5D35E936
+	for <linux-input@vger.kernel.org>; Wed, 12 Aug 2026 01:35:04 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786498494; cv=none; b=lMSUlrZAgQHToz+eo0QaOu9fUQX1ST6En7Bfcw21y5H5m90LDp22ToQbwVa4tD3aj6T90OKRng3yUAI279y3mJOQOy3GIv2J8Lm2dC1Uq4z057oJ5xrShGC1Ztg6kJ5p4w+3xvu6gtbk9hxK4dYCKMnoUAAG9kcmpdl0i6md2oU=
+	t=1786498506; cv=none; b=BbRd+C1Xh5fb5eUh0pxXbt60v/GUjap2XLcUQRiKyhmw81V2etwYxcS/zJAK2RpBgTtozA+DKiLd0E84bOGiaS7ysrx54JLVr0iaIZMMY5DurlbsrETHWEsUik9aM2gKCvpmlDgfRU3H2RweV8ghrQMZv0YUVzg9m/3bhyxIClA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786498494; c=relaxed/simple;
-	bh=KwT18RB2yCzTCMuL5h4wmEoRR/6dCDWFbRDZk1rdmSE=;
+	s=arc-20240116; t=1786498506; c=relaxed/simple;
+	bh=cPGumQYaI5QjULsPgubuUxEwzlZwIgdzvLXUTDzZGcI=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=Gtr5/Qh6EpMfnugRZufs6M0PUqkN7tQ5ljZE61bHsk6KJTk1d9+Oac1v5UYhQEFgaywKzr4nicWXVIINapBlxr7wJhsNZJnS6TRP/GRMMMYrvtL4OsKI450oDZjD7+xWEjgxFAmJcEwIPR0WMDRsb/cr5JiejVWau+iK7Xq3GT4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Xkb5tZOu; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=svhBrWRTmcQfP43eJBdfgFBzl7rQd+qXsoO45vHQF1VUZ7rv/ANKkz3yaW2torVxEoO6XV2CkDImFxcL+75ta3iDx9BXqzs+XNK/mdHG5Eqy656vJWlpW8fpd/+RVHXhXHHlkwMlBCT22tHoJPxoEocwc59E8eOGYpXioRFiZUg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=St5teiRs; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Xkb5tZOu"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF59B1F00AC4;
-	Wed, 12 Aug 2026 01:34:48 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="St5teiRs"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8936C1F00A3A;
+	Wed, 12 Aug 2026 01:35:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786498488;
-	bh=NKnDvfAOkmCbi6XshrigbBryEcyaD26DkwJxCCOivec=;
+	s=k20260515; t=1786498504;
+	bh=ZCVQsZCpOdZhJPqgfyNITJcfe3EwIV8L6xkVGLJ24Sk=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=Xkb5tZOuKtXduXNuHlBmIX4VkZ+5vsPSlf5pOA051IMrN9Gdo9WrFnsBoyobQ08u0
-	 Ac8bURwmbnKuIBz2mgnM7GsbTKcOxIQk4EmOvzkw13o4CiV3sQuZlcBRRg+5YqZ5lz
-	 a+ipAisee+uzc8GqNgqtN3W6cQKr0bCBJMMpDRxx11LXJchr5vDg8dIbN98pGWOz5F
-	 FOKdyhg/XmTTIbeSTdtH1O3kNzQWFQVwts/grBjDG7bH4RdbuSGdKpOKnbJ0YThGTL
-	 d2jk+RT4dQ6AVBz77T6I/Jy5vHg9XKaYyphEGVY5fsVkyHHmaJqq9M8c0sjHrBnwcs
-	 EQRDGtfO+R8fg==
+	b=St5teiRsK7yvQqiJZ+A1lrkNt+5/7Xc9ddnT8T7EsTH/E3ovFITy654jqruxDMIR8
+	 dZpQcooQQXNXP1EJN24fIUy7uC3aIR4Me5yIZBW3eefnjGwNAX478L/cX3BuFLAbR5
+	 3utmKbAps1ulWVX4EtzWhIHNiNwK+YKeEjQRn+DfeL8IBSJMxW8fY3PMAFuWY8tXLK
+	 wXDOMzw3t/JQ3iYzJDMY7fb2p8bdxAqHaEQhIJJBNrolbjYWfXjMkPb6bmeP0AoG03
+	 L6YYcJUCdIszu7vnrD1IbKp0xc+uPhykZCiwa1rciMqeHkFOkaFLbC3WVMaC7z0zxn
+	 0wbpYuhxQPBCA==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v13 1/3] HID: nintendo: Add preliminary Switch 2
- controller driver
+Subject: Re: [PATCH v5 4/6] HID: steam: Don't set feature reports when
+ disconnecting
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Vicki Pfau" <vi@endrift.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260812012037.3251614-2-vi@endrift.com>
-References: <20260812012037.3251614-1-vi@endrift.com>
- <20260812012037.3251614-2-vi@endrift.com>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <20260812011401.3250968-5-vi@endrift.com>
+References: <20260812011401.3250968-1-vi@endrift.com>
+ <20260812011401.3250968-5-vi@endrift.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 12 Aug 2026 01:34:48 +0000
-Message-Id: <20260812013448.AF59B1F00AC4@smtp.kernel.org>
+Date: Wed, 12 Aug 2026 01:35:04 +0000
+Message-Id: <20260812013504.8936C1F00A3A@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 5 potential issue(=
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [High] Missing `usb_unanchor_urb()` on `usb_submit_urb()` failure in `swi=
-tch2_usb_probe()` causes an infinite loop during cleanup.
-- [High] Player LED class devices are registered using devm helpers attache=
-d to an unmanaged `input_dev`, causing a Use-After-Free on device unplug.
-- [High] Calling `ida_free()` with an unallocated ID (`U32_MAX`) on error a=
-nd unbind paths triggers a `BUG_ON()` kernel panic.
-- [High] The controller context (`ns2`) is freed before stopping incoming H=
-ID reports during device removal.
-- [High] Submitting the bulk-in URB before successfully attaching the contr=
-oller configuration causes a TOCTOU race and Use-After-Free if `switch2_con=
-troller_attach_cfg()` fails.
+
+Pre-existing issues:
+- [High] Use-after-free in steam_remove() due to incorrect cancellation ord=
+er of deferred work.
 --
 
---- Patch [1]: [PATCH v13 1/3] HID: nintendo: Add preliminary Switch 2 cont=
-roller driver ---
-commit d121d655a283cdffdd144741982d049db4fd8c05
+--- Patch [4]: [PATCH v5 4/6] HID: steam: Don't set feature reports when di=
+sconnecting ---
+commit 460f363e27307cbdb952f6004dd3826de0898a07
 Author: Vicki Pfau <vi@endrift.com>
-Subject: HID: nintendo: Add preliminary Switch 2 controller driver
 
-This adds a new driver for the Switch 2 controllers. The Switch 2 uses an
-unusual split-interface design such that input and rumble occur on the main
-HID interface, but all other communication occurs over a configuration
-interface. This initial work supports general input for the Switch 2 Joy-Co=
-n,
-Pro Controller, and GameCube NSO controllers.
+HID: steam: Don't set feature reports when disconnecting
 
-> diff --git a/drivers/hid/hid-nintendo.c b/drivers/hid/hid-nintendo.c
-> index e7302ec01ff1f..78c9ad3c16104 100644
-> --- a/drivers/hid/hid-nintendo.c
-> +++ b/drivers/hid/hid-nintendo.c
+When an input device is closed, we set a feature report to reset lizard
+mode and IMU mode. However, if the input device is closed because it was
+removed, then we will necessarily error out when sending this, resulting in
+logged errors. Since an error here is expected, we should just fail
+silently.
 
-[ ... ]
-
-> +static int switch2_player_led_brightness_set(struct led_classdev *led,
-> +					    enum led_brightness brightness)
-> +{
-> +	struct device *dev =3D led->dev->parent;
-> +	struct input_dev *input =3D to_input_dev(dev);
-> +	struct switch2_controller *ns2 =3D input_get_drvdata(input);
-> +
-> +	if (!ns2)
-> +		return -ENODEV;
-> +
-> +	guard(mutex)(&ns2->lock);
-> +	return switch2_set_leds(ns2);
-> +}
-
-[ ... ]
-
-> +static int switch2_init_input(struct switch2_controller *ns2)
-> +{
-
-[ ... ]
-
-> +	ns2->leds =3D devm_kcalloc(&input->dev, JC_NUM_LEDS, sizeof(*ns2->leds)=
-, GFP_KERNEL);
-> +	if (!ns2->leds) {
-> +		hid_err(ns2->hdev, "Failed to allocate LEDs\n");
-> +		input_unregister_device(input);
-> +		return -ENOMEM;
-> +	}
-> +
-> +	for (i =3D 0; i < JC_NUM_LEDS; i++) {
-> +		struct led_classdev *led =3D &ns2->leds[i];
-
-[ ... ]
-
-> +		ret =3D devm_led_classdev_register(&input->dev, led);
-> +		if (ret < 0) {
-> +			dev_err(&input->dev, "Failed to register player %d LED; ret=3D%d\n",
-> +				i + 1, ret);
-> +			break;
-> +		}
-> +	}
+> diff --git a/drivers/hid/hid-steam.c b/drivers/hid/hid-steam.c
+> index 461ebf37171b7..7226c0681ed18 100644
+> --- a/drivers/hid/hid-steam.c
+> +++ b/drivers/hid/hid-steam.c
+> @@ -490,9 +490,13 @@ static int steam_recv_report_id(struct steam_device =
+*steam,
+>  	}
+> =20
+>  	kfree(buf);
+> -	if (ret < 0)
+> +	/*
+> +	 * Don't log if the failure is -ENODEV, as this
+> +	 * can happen normally on disconnect.
+> +	 */
+> +	if (ret < 0 && ret !=3D -ENODEV)
+>  		hid_err(steam->hdev, "%s: error %d\n", __func__, ret);
 
 [Severity: High]
-Is it safe to tie the LED devm allocations to the unmanaged input device he=
-re?
+This is a pre-existing issue, but while reviewing device disconnects, I
+noticed a potential use-after-free during device removal in steam_remove().
 
-If userspace holds an open file descriptor for the input device when it is
-unregistered during unplug, the devres cleanup is deferred. Could a subsequ=
-ent
-sysfs write to the LED brightness trigger a use-after-free when
-switch2_player_led_brightness_set() dereferences the already freed controll=
-er
-context?
+Looking at steam_remove(), cancel_work_sync(&steam->work_connect) is called
+before hid_hw_stop(hdev):
 
-[ ... ]
+drivers/hid/hid-steam.c:steam_remove() {
+	...
+	cancel_work_sync(&steam->work_connect);
+	if (steam->quirks & STEAM_QUIRK_WIRELESS) {
+		hid_info(hdev, "Steam wireless receiver disconnected");
+	}
+	steam_unregister(steam);
+	hid_hw_stop(hdev);
+}
 
-> +static int switch2_probe(struct hid_device *hdev, const struct hid_devic=
-e_id *id)
-> +{
+Because hid_hw_stop() is called last, hardware interrupts can still trigger
+steam_raw_event() after the work item is cancelled. If a wireless connection
+event (ID_CONTROLLER_WIRELESS) or an unexpected input report arrives during
+this window, steam_raw_event() will invoke steam_do_connect_event(), which
+re-schedules steam->work_connect:
 
-[ ... ]
+drivers/hid/hid-steam.c:steam_raw_event() {
+	...
+	case ID_CONTROLLER_WIRELESS:
+		...
+		switch (data[4]) {
+		...
+		case 0x02:
+			steam_do_connect_event(steam, true);
+			break;
+		...
+}
 
-> +	ns2->player_id =3D U32_MAX;
-> +	ret =3D ida_alloc(&nintendo_player_id_allocator, GFP_KERNEL);
-> +	if (ret < 0)
-> +		hid_warn(hdev, "Failed to allocate player ID, skipping; ret=3D%d\n", r=
-et);
-> +	else
-> +		ns2->player_id =3D ret;
+After steam_remove() returns and the device memory is freed by devres, the
+workqueue retains the pending work, which could access the freed memory when
+it runs.
 
-[ ... ]
-
-> +err_cleanup:
-> +	ida_free(&nintendo_player_id_allocator, ns2->player_id);
-> +	ns2->hdev =3D NULL;
-> +	mutex_unlock(&ns2->lock);
-> +	switch2_controller_put(ns2);
-> +	kref_put(&ns2->refcount, switch2_kref_put);
-> +
-> +	return ret;
-> +}
-> +
-> +static void switch2_remove(struct hid_device *hdev)
-> +{
-> +	struct switch2_controller *ns2 =3D hid_get_drvdata(hdev);
-> +
-> +	switch2_controller_put(ns2);
-> +	mutex_lock(&ns2->lock);
-> +	ns2->hdev =3D NULL;
-> +	ida_free(&nintendo_player_id_allocator, ns2->player_id);
-
-[Severity: High]
-If ida_alloc() fails or is skipped, ns2->player_id remains U32_MAX. Since
-ida_free() expects a valid ID and asserts on negative values, could
-unconditionally freeing U32_MAX cause a kernel panic here?
-
-> +	mutex_unlock(&ns2->lock);
-> +	kref_put(&ns2->refcount, switch2_kref_put);
-> +	hid_hw_close(hdev);
-> +	hid_hw_stop(hdev);
-
-[Severity: High]
-If the hardware continues sending events during device removal, could a rep=
-ort
-arrive after kref_put() frees the controller context but before hid_hw_stop=
-()
-completes?
-
-This appears to leave a window for a use-after-free in switch2_event() when
-dereferencing the controller context.
-
-> +}
-
-[ ... ]
-
-> diff --git a/drivers/input/joystick/nintendo-switch2-usb.c b/drivers/inpu=
-t/joystick/nintendo-switch2-usb.c
-> new file mode 100644
-> index 0000000000000..36a5ffbd6a756
-> --- /dev/null
-> +++ b/drivers/input/joystick/nintendo-switch2-usb.c
-
-[ ... ]
-
-> +static void switch2_usb_message_in_work(struct work_struct *work)
-> +{
-
-[ ... ]
-
-> +	spin_lock_irqsave(&ns2_usb->bulk_in_lock, flags);
-> +	for (i =3D 0; i < NS2_IN_URBS; i++) {
-> +		urb =3D &ns2_usb->bulk_in[i];
-> +		if (urb->state !=3D NS2_URB_IN)
-> +			continue;
-> +		spin_unlock_irqrestore(&ns2_usb->bulk_in_lock, flags);
-> +
-> +		if (ns2_usb->cfg.parent) {
-> +			err =3D switch2_receive_command(ns2_usb->cfg.parent,
-> +				urb->urb->transfer_buffer, urb->urb->actual_length);
-
-[Severity: High]
-Is it possible for the endpoint to respond immediately after the bulk-in URB
-is submitted in switch2_usb_probe(), scheduling message_in_work?
-
-If switch2_controller_attach_cfg() subsequently fails, it will clean up and
-free the controller context. Could this cause a use-after-free if the worker
-thread evaluates ns2_usb->cfg.parent as non-NULL just before the failure fr=
-ees
-it, passing a dangling pointer to switch2_receive_command()?
-
-[ ... ]
-
-> +static int switch2_usb_probe(struct usb_interface *intf, const struct us=
-b_device_id *id)
-> +{
-
-[ ... ]
-
-> +	spin_lock_irqsave(&ns2_usb->bulk_in_lock, flags);
-> +	ns2_usb->bulk_in[0].state =3D NS2_URB_OUT;
-> +	usb_anchor_urb(ns2_usb->bulk_in[0].urb, &ns2_usb->bulk_in_anchor);
-> +	ret =3D usb_submit_urb(ns2_usb->bulk_in[0].urb, GFP_ATOMIC);
-> +	spin_unlock_irqrestore(&ns2_usb->bulk_in_lock, flags);
-> +
-> +	if (ret < 0)
-> +		goto err_free_out;
-
-[Severity: High]
-When usb_submit_urb() fails, does the URB stay on the anchor list?
-
-Since usb_kill_anchored_urbs() does not manually unanchor unsubmitted URBs,
-could this cause an infinite loop when the error path eventually calls
-usb_kill_anchored_urbs(&ns2_usb->bulk_in_anchor)?
-
-> +
-> +	ret =3D switch2_controller_attach_cfg(phys, &ns2_usb->cfg);
-> +	if (ret < 0)
-> +		goto err_free_out;
+Should hid_hw_stop(hdev) be called before cancel_work_sync() to ensure no n=
+ew
+events can queue the work?
 
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260812012037.3251=
-614-1-vi@endrift.com?part=3D1
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260812011401.3250=
+968-1-vi@endrift.com?part=3D4

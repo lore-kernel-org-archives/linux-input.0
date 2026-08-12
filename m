@@ -1,41 +1,41 @@
 Received: from endrift.com (endrift.com [173.255.198.10])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B82C736921E
-	for <linux-input@vger.kernel.org>; Wed, 12 Aug 2026 01:15:39 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ABFEA34EEEA
+	for <linux-input@vger.kernel.org>; Wed, 12 Aug 2026 01:15:40 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=173.255.198.10
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786497341; cv=none; b=KvbaPM0zAoVdVi0xSuUIrFTvWODrZ4M0e4IFPsgFfrf7XRHWsS7rA5eDih8ln0lORnTcflZMB/02R0kf+rSop1CSetGi8mEnywXZn9cCZ5vck9Vkt2EIEJd8+o8lcTuCMV8V21/j6jONzJd4urlEanpCTJgR6VGmM2PhvupgJS8=
+	t=1786497342; cv=none; b=OLawKXBbWk4aWD+W42xdQrt9oi5GnQNPWOOXB3ICW4ead2VYd3t0UWm+WfMFE6YWIodpOWddQ4EyXo0V4Vh0NSlkHr6BjYKR+UzE8kKCMrKbDnLjqdxr/9m95Wl5MsZoox6LPnrZ2URoqAC2tha7EmaKOkKLmOaY7OIEoXqrhIQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786497341; c=relaxed/simple;
-	bh=+NnmqD1sA2EJx7wtD0dRajA6ibk6/IAXASvmWZznKiw=;
+	s=arc-20240116; t=1786497342; c=relaxed/simple;
+	bh=A5xHFAN8WfU1xij6lNwb/2hSRtdA5WHHNnuJT3pwhOU=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=YQaO1GP47R/KjsDw5L5vR9zzffjSfa9gCdKxfDdQzbC3g0wkdZu7VFXR5nDad6rU+kss3fTvbOjsN1BEVTAH5h6EKu20H1O1dHrvJVgw2Ah8HVx06rME9YCd3sC0kUxlfcrMGMct1zDOewI0Uu7oMloMmb0SoTkT59hco7OP0ss=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com; spf=pass smtp.mailfrom=endrift.com; dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b=LBdInc6J; arc=none smtp.client-ip=173.255.198.10
+	 MIME-Version; b=Jvh2gRTye+DxxQ5+Re3WTfLAzVr4xue2ls0dYfQq10WES6Q/AVP3+7ErWVpZ5JCsgNrsDznr/9dvtgGaIcRNjT9CHYxwwfBQCSbRkBJRfEReC3WAFXP7qOXLrG9Da7Umc8YK8cbWjjGnKzox0E6Mnd3DNb1xO6LHtT3rijdmHfQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com; spf=pass smtp.mailfrom=endrift.com; dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b=NYGg7409; arc=none smtp.client-ip=173.255.198.10
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=endrift.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b="LBdInc6J"
+	dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b="NYGg7409"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=endrift.com; s=2020;
-	t=1786497332; bh=+NnmqD1sA2EJx7wtD0dRajA6ibk6/IAXASvmWZznKiw=;
+	t=1786497334; bh=A5xHFAN8WfU1xij6lNwb/2hSRtdA5WHHNnuJT3pwhOU=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=LBdInc6Jy4USHZejBS6IEvdgMRgHRC3pdFK1ZukWUmmhIocplNth8EcckeTtfw5it
-	 yjGz1BeTBB2oTRipqQvJiVet9UlIsGP/taLTnuA4txAVpQKRkOy+OyrFsmy74aYA73
-	 DRsL2hhmj5gSLoekgWr3h6bKVkP7y1WyXD0zGvQuspVQ6LoStVaB21iolZXy0rogYm
-	 wwZ14iyIitMRKGkraRicPi8/m+AZ5gF0yB9lECtFZhopG+daCVL+HZvUrtDQblkQ/q
-	 toyCLBoeM6IujAGO327mJbqgfgGP9VKku/gt0pi9xAA98cxFO4aUvXTNhc63khsh15
-	 TFJXXdn2cl5/A==
+	b=NYGg7409pzn7xgAHge0FOZA8eNQ9ntO6XBVJwqEj+RypgZggEfIjDF8Tivu1/qyLv
+	 PI0f0f/5B/SCpHsaA7wQpXLcp2yinSsViu1np4CQLYY5PP5wm3049cZOUEzTjFw/N6
+	 HMhXrQ3qn5jwAKVquxNkldy12oHTSqRvEcr2/EPlqxdsAihzpdD5HTayqffRYyvfAm
+	 B2IFP6de/GiTuqJ1sxwxmiMl7M34EwanxTns3ThLvKhPCIT1MPByxt94wBwVBKDcDT
+	 ENMwKGUxw3upglLQQE2alH9J6t4Dj4RuYdETyjeErk9vyNPiHWni8vor8Y/wScraT4
+	 +IlojAsA09nNA==
 Received: from microtis.vulpes.eutheria.net (71-212-73-87.tukw.qwest.net [71.212.73.87])
-	by endrift.com (Postfix) with ESMTPSA id 9A0F4A090;
-	Tue, 11 Aug 2026 18:15:32 -0700 (PDT)
+	by endrift.com (Postfix) with ESMTPSA id C2B3BA0A9;
+	Tue, 11 Aug 2026 18:15:33 -0700 (PDT)
 From: Vicki Pfau <vi@endrift.com>
 To: Jiri Kosina <jikos@kernel.org>,
 	Benjamin Tissoires <bentiss@kernel.org>,
 	linux-input@vger.kernel.org
 Cc: Vicki Pfau <vi@endrift.com>
-Subject: [PATCH v5 1/6] HID: steam: Refactor registration
-Date: Tue, 11 Aug 2026 18:13:52 -0700
-Message-ID: <20260812011401.3250968-2-vi@endrift.com>
+Subject: [PATCH v5 4/6] HID: steam: Don't set feature reports when disconnecting
+Date: Tue, 11 Aug 2026 18:13:55 -0700
+Message-ID: <20260812011401.3250968-5-vi@endrift.com>
 X-Mailer: git-send-email 2.54.0
 In-Reply-To: <20260812011401.3250968-1-vi@endrift.com>
 References: <20260812011401.3250968-1-vi@endrift.com>
@@ -47,150 +47,50 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-This refactors and simplifies the registration/unregistration flow. Since
-we now only perform registration when the client isn't opened anymore, the
-logic for handling that can be removed, and the rest of the function
-streamlined.
-
-We also remove the previous assumption that we have a serial number to show
-we're registered, replacing it with a single purpose boolean.
-
-In a previous refactor the code for unregistering a battery if later
-registration steps failed was accidentally left out. As a result, a
-lingering power_supply object could get left over after the steam object
-was torn down. This is also fixed here.
+When an input device is closed, we set a feature report to reset lizard
+mode and IMU mode. However, if the input device is closed because it was
+removed, then we will necessarily error out when sending this, resulting in
+logged errors. Since an error here is expected, we should just fail
+silently.
 
 Signed-off-by: Vicki Pfau <vi@endrift.com>
 ---
- drivers/hid/hid-steam.c | 81 +++++++++++++++++++----------------------
- 1 file changed, 38 insertions(+), 43 deletions(-)
+ drivers/hid/hid-steam.c | 14 +++++++++++---
+ 1 file changed, 11 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/hid/hid-steam.c b/drivers/hid/hid-steam.c
-index 6199f67f3c4c..d4ebc1efc01e 100644
+index 461ebf37171b..7226c0681ed1 100644
 --- a/drivers/hid/hid-steam.c
 +++ b/drivers/hid/hid-steam.c
-@@ -334,6 +334,7 @@ struct steam_device {
- 	unsigned long quirks;
- 	struct work_struct work_connect;
- 	bool connected;
-+	bool registered;
- 	char serial_no[STEAM_SERIAL_LEN + 1];
- 	struct power_supply_desc battery_desc;
- 	struct power_supply __rcu *battery;
-@@ -1139,9 +1140,6 @@ static void steam_battery_unregister(struct steam_device *steam)
- static int steam_register(struct steam_device *steam)
- {
- 	int ret;
--	unsigned long client_opened;
--	unsigned long flags;
--	bool do_add;
+@@ -490,9 +490,13 @@ static int steam_recv_report_id(struct steam_device *steam,
+ 	}
  
- 	/*
- 	 * This function can be called several times in a row with the
-@@ -1149,66 +1147,63 @@ static int steam_register(struct steam_device *steam)
- 	 * another client send a get_connection_status command, for example.
- 	 * The battery and serial number are set just once per device.
- 	 */
--	if (!steam->serial_no[0]) {
--		/*
--		 * Unlikely, but getting the serial could fail, and it is not so
--		 * important, so make up a serial number and go on.
--		 */
--		if (steam_get_serial(steam) < 0)
--			strscpy(steam->serial_no, "XXXXXXXXXX",
--					sizeof(steam->serial_no));
--
--		ret = steam_get_attributes(steam);
--		if (ret < 0)
--			hid_err(steam->hdev,
--				"%s:steam_get_attributes failed with error %d\n",
--				__func__, ret);
-+	if (steam->registered)
-+		return 0;
- 
--		hid_info(steam->hdev, "Steam Controller '%s' connected",
--				steam->serial_no);
+ 	kfree(buf);
+-	if (ret < 0)
 +	/*
-+	 * Unlikely, but getting the serial could fail, and it is not so
-+	 * important, so make up a serial number and go on.
++	 * Don't log if the failure is -ENODEV, as this
++	 * can happen normally on disconnect.
 +	 */
-+	if (steam_get_serial(steam) < 0 || !steam->serial_no[0])
-+		strscpy(steam->serial_no, "XXXXXXXXXX",
-+				sizeof(steam->serial_no));
++	if (ret < 0 && ret != -ENODEV)
+ 		hid_err(steam->hdev, "%s: error %d\n", __func__, ret);
+-	else
++	else if (ret > 0)
+ 		hid_dbg(steam->hdev, "Received report %*ph\n", size, data);
+ 	if (ret < 0)
+ 		return ret;
+@@ -557,7 +561,11 @@ static int steam_send_report_id(struct steam_device *steam,
+ 	} while (--retries);
  
--		/* ignore battery errors, we can live without it */
--		if (steam->quirks & STEAM_QUIRK_WIRELESS)
--			steam_battery_register(steam);
-+	ret = steam_get_attributes(steam);
-+	if (ret < 0)
-+		hid_err(steam->hdev,
-+			"%s:steam_get_attributes failed with error %d\n",
-+			__func__, ret);
- 
--		do_add = true;
--	}
-+	hid_info(steam->hdev, "Steam Controller '%s' connected",
-+			steam->serial_no);
- 
--	spin_lock_irqsave(&steam->lock, flags);
--	client_opened = steam->client_opened;
--	spin_unlock_irqrestore(&steam->lock, flags);
-+	/* ignore battery errors, we can live without it */
-+	if (steam->quirks & STEAM_QUIRK_WIRELESS)
-+		steam_battery_register(steam);
- 
--	if (!client_opened) {
--		steam_set_lizard_mode(steam, lizard_mode);
--		ret = steam_input_register(steam);
--		if (ret != 0)
--			goto steam_register_input_fail;
--		ret = steam_sensors_register(steam);
--		if (ret != 0)
--			goto steam_register_sensors_fail;
--	}
-+	steam_set_lizard_mode(steam, lizard_mode);
-+	ret = steam_input_register(steam);
-+	if (ret != 0)
-+		goto steam_register_input_fail;
-+	ret = steam_sensors_register(steam);
-+	if (ret != 0)
-+		goto steam_register_sensors_fail;
- 
--	if (do_add) {
--		mutex_lock(&steam_devices_lock);
--		if (list_empty(&steam->list))
--			list_add(&steam->list, &steam_devices);
--		mutex_unlock(&steam_devices_lock);
--	}
-+	steam->registered = true;
-+	mutex_lock(&steam_devices_lock);
-+	if (list_empty(&steam->list))
-+		list_add(&steam->list, &steam_devices);
-+	mutex_unlock(&steam_devices_lock);
- 	return 0;
- 
- steam_register_sensors_fail:
- 	steam_input_unregister(steam);
- steam_register_input_fail:
-+	steam_battery_unregister(steam);
-+	cancel_work_sync(&steam->rumble_work);
-+	cancel_delayed_work_sync(&steam->mode_switch);
-+	cancel_delayed_work_sync(&steam->coalesce_rumble_work);
+ 	kfree(buf);
+-	if (ret < 0)
++	/*
++	 * Don't log if the failure is -ENODEV, as this
++	 * can happen normally on disconnect.
++	 */
++	if (ret < 0 && ret != -ENODEV)
+ 		hid_err(steam->hdev, "%s: error %d (%*ph)\n", __func__,
+ 				ret, size, cmd);
  	return ret;
- }
- 
- static void steam_unregister(struct steam_device *steam)
- {
--	if (!steam->serial_no[0])
-+	if (!steam->registered)
- 		return;
- 
- 	hid_info(steam->hdev, "Steam Controller '%s' disconnected",
- 			steam->serial_no);
-+	steam->registered = false;
- 	steam_battery_unregister(steam);
- 	steam_sensors_unregister(steam);
- 	steam_input_unregister(steam);
 -- 
 2.54.0
 

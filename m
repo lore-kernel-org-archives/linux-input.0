@@ -1,183 +1,133 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-oa1-f44.google.com (mail-oa1-f44.google.com [209.85.160.44])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C21F6368D67
-	for <linux-input@vger.kernel.org>; Wed, 12 Aug 2026 01:38:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786498718; cv=none; b=sISzgKpGBZ9uldfToe+gHPcRIdS0Iwp1HXSz4kuhlciNXpnSnZepYtmKAk2jXcelZP7SUhIZjP/oISW1NZP87cpYL3ZjzSc9cX5yXV2UYMUkSrrsDN87uxnmpppWUa8nqwrcRjppAxkhFB5EqoEPrcNsqUXADBeMXOwu+eYgOnc=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786498718; c=relaxed/simple;
-	bh=BgCNBkm8CL4kPrSD/tqTvMBukEGbWKyf47N9RhXS3SM=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=toaI9QCWmgR9B79G1zQ8tmMd38glFgJVfC47kIcHfCfIMVwYhKXfkqSrdm3h04Vzpv8XqKDhg5UbDtB1Pwm0AOH4+7DHERNE5he0CQu8AHeGZPgrAZc4+awtEDENtK2PkcDXjyV/LBUhao75grKkXRySt5rCRhlOGyPk22wC9mc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=KYDm5dUD; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E85ED1F5842
+	for <linux-input@vger.kernel.org>; Wed, 12 Aug 2026 04:39:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.160.44
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1786509596; cv=pass; b=NoaIZQx0cjEz9aYtVdqKobu4rwAiy3MGuoFQjFWsSqxlC9192Bf9cnueQsEv7xeMRauR5ewrjXfs1RgZ68SF+C3z+cydtPaHnOOxt2JkEGyW4HZO5m/Pov7auk7w0i8k58kRf2DB7qayxu6S0n3Yj6eg46+EYJhRCSuxIQDMbi0=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1786509596; c=relaxed/simple;
+	bh=Bn5EA8mnuFm3bH5umIuq0sbge5qbiERu/rawKyKCdjs=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=P7fza0gCu9VIfSu2J2k83qkeLdwDoDFA4jAq+07rsGvEvWSuUX3w/JU9F0t5PE70AC7tbJMiBelt2I4OFwulJkpegh4r2lseb6HYnM9ZRCHzbyJ2Vs9nQqGyd1vAHAeadROHiYYiuKd7piVr8ig+aq/VI6V6Lufm3jpDmbWLNYs=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=SCEhEFlg; arc=pass smtp.client-ip=209.85.160.44
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="KYDm5dUD"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 386A61F000E9;
-	Wed, 12 Aug 2026 01:38:37 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786498717;
-	bh=iUEbFByFGwaCO6GIT2rXZy1fGiRyReQ7IPcYmpKFpxg=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=KYDm5dUDpKj0b/TYxkneklZPcDJ96QeV5zsExSUGJy9CHyFfIg48jCxb+M1StrGO4
-	 LkS4TwbDbYxIbxRoGbpaelcOiTCdQ64+qpSkvvlLz9t8W4V5snJ/upbdSWexqFJ7VF
-	 saVpf5jxzkBHp1pK2pEXlJrcBTd4HZZbxZDS/H//Oh7NkPvYLJExo5VJEbqomPauXp
-	 7cScWl41S53yiboFLlv9cKuo27vM1wZ/Fvi453UbHX+XIpxXCDTKS0VbOU0fNO1+JT
-	 VvH40FStVe5dAaiSNGhr1YZcOl0xFA/tXPUPQBoh8i8tPsUu0ghl6OuRbtCji21ia+
-	 44KVJa9DtYAzA==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v5 5/6] HID: steam: Clean up locking
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Vicki Pfau" <vi@endrift.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260812011401.3250968-6-vi@endrift.com>
-References: <20260812011401.3250968-1-vi@endrift.com>
- <20260812011401.3250968-6-vi@endrift.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Wed, 12 Aug 2026 01:38:36 +0000
-Message-Id: <20260812013837.386A61F000E9@smtp.kernel.org>
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="SCEhEFlg"
+Received: by mail-oa1-f44.google.com with SMTP id 586e51a60fabf-45691990234so310102fac.3
+        for <linux-input@vger.kernel.org>; Tue, 11 Aug 2026 21:39:54 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1786509594; cv=none;
+        d=google.com; s=arc-20260327;
+        b=gPlLCPpkFcd/m/J7DJVBP8JHCq2yTEcHK54EoVGr/e0gR/c7HCLCuOv9mCnbTpEHWW
+         VdvRV4LoIYdeaGo8Voi2LwUNalvN2hTz7s4Nx+cGQ6AeaUeAUvluaMw4XCdptaGrxDKU
+         ygxAvLLKWHMIYgqSRMSwnY6MHGe/m7oFnl+snovzMjxQ5dTR7979fqW2y4QOratcuTaH
+         hudQ2iKFr4vKLEPigXPZ1RCHc6INejC9pRJX47lYNIDWwRdbCFjFfHq/pJ4bHYCm7Bhi
+         2JYCwmBgzaouBckO3OsEobng558z4PdFgsq/mOAg4kq8ytTTFHkM01D4fG7XOZRt8NL7
+         HxpA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=y8EqzbJg8fD3KowEEfKkshsn5eXfhPp6NSIWl0mIxuU=;
+        fh=pOZKs4xCD1epnD/oPlSufpmMSXRn5abofj9xM4uYQa8=;
+        b=jHcB/z/a4F8C7T47GsEXyMWgSI1d5nhqQn77EdKL7W+aL0dFvsoKOGAfFmypCMtSWz
+         V4noh5/UsLinYqaf+asuIoiFvubmmt+aCOQjG1xBfC/ED3Oj58pj7pfIqkU3hqowOk9/
+         gOkQJidgaK7GoVJKt9rxDCoLQiYfI5VPTFw5yEv8jfOyanv9+xj9cCr3YiYbvWGMRSzz
+         kvR408O0zfAaIHNcfzLrNYQroYTFUFN/WWC+B7Ayx3G3HCq+SDmZuN6VxCmkWbm6NfoY
+         dmTT7l4kkZQfk/x1OySUrnlsUbCoZ5zdTkWxKBvKN8P2p8I1cs3O1aNjJC8asd+AHT/h
+         YCAQ==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google; t=1786509594; x=1787114394; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=y8EqzbJg8fD3KowEEfKkshsn5eXfhPp6NSIWl0mIxuU=;
+        b=SCEhEFlgd74xOyfBIj27VZ9v0UZnM9YfgSkzGDtY8wgdxjQPcWSY1DsH/o0QfXTwHN
+         2Le5BFDtThj66x48BVeVT2jfg6y+MLmBwxerE2AuLgXtaK7q5oI7e10w2/I8YMRcviXi
+         bcPIb3/pImk6nK08Y20lAkDKR2wdUKqOOd+zY=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1786509594; x=1787114394;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=y8EqzbJg8fD3KowEEfKkshsn5eXfhPp6NSIWl0mIxuU=;
+        b=jaXz8nb/fSKJxtD5Np5PXydI95y9Ptdk464ShSNweL9L7BbI/cccmksZZVW7/ImQii
+         CgZiN7Y54HlpnXlWRbvGOrdgjCgOj5nvSQ3NyY58NIxcfjPjqhoYHYkZorKetWq1rHKQ
+         mHA2hM3YTvxitBtiKDra+/bU78n2JKJx/gYnrwr+gpDNKQ80Dgba+rwbpT1zB++wiVas
+         zflKlR+Lc1C5FRaCkgA4AbeZn/L8a0R5wsgXioHg9mz1MSYOxoeC/qu91EE2BoUbaR4x
+         DvuJr6zrj2yFxrOPV5FGlkoFKZgEVlgswdfm6JKzKSCDZKa/qwxiF5i4BM1jWLWIivy4
+         zemw==
+X-Forwarded-Encrypted: i=1; AHgh+Rr/1d1FzP0ryJ5NY6ezpeEBMM3Jqv7PiGRlFjuvkFLTZgu5IINeCH7v2zvAj2qo/eF4dPEEZaJHTCia4w==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yww3KXj8vV362luP64eTYWqggSikjv/peE60/woNzOg3NRkWNHr
+	G+jg/pyO9yk/N83wUQXshWMmms8zFl/25I4qkEyUVrEVSyFdI44bfOcNr9/s8i7z7LBtbFGl+5Z
+	sLAN2yG9RyEVi2adsjO0ANLIUXa8cjRcEQfwlVyJI
+X-Gm-Gg: AR+sD10VnjAn6yl29OakPU6OuxyQpyXlzcNGlMVdQjyDFI82UjmQlIuOly4YA2Sg2Ti
+	bh/XgpaQlXT6bGGZdZLwcnXEZBU4hm3VVoYK+P8ed2WC8Sj4GRWXgnWpBA2j7fQj+VIw6d9A4QP
+	6jsXkOLZkfNK+zV4A6YhYbKerChD3FPkmu9lx5tM1+SD8/mGCbGHYwBuFWnaNJTLakieiDC4W4P
+	1B7r+y4yPyRfE3oQnxdBfGsdpNBrlWiMgJFRW2RLXWmkLLs5ydc0gE7e4W4cohA78fCgSxtevtU
+	TJbfyy178oLLJcBh+sIhl5Cpbb+rV9TNbHS20ZzXBwMp/51hnFNuX0vSAfrk3Ant2iV+7b9SD6l
+	/NiOUZAs=
+X-Received: by 2002:a05:6808:2f13:b0:495:d7ec:b6be with SMTP id
+ 5614622812f47-4b210ca8dc6mr1833103b6e.18.1786509593853; Tue, 11 Aug 2026
+ 21:39:53 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+References: <20260811122011.3539250-1-wenst@chromium.org> <20260811122011.3539250-2-wenst@chromium.org>
+ <99ad23ba-f8f2-404b-960e-1c22a20c9ac4@sirena.org.uk>
+In-Reply-To: <99ad23ba-f8f2-404b-960e-1c22a20c9ac4@sirena.org.uk>
+From: Chen-Yu Tsai <wenst@chromium.org>
+Date: Wed, 12 Aug 2026 12:39:42 +0800
+X-Gm-Features: AUfX_myPgwTrMoDWlXxd7K4JTdOxXQP71DAA9qzbfq1hbTylwiYJcqKiFEh4if4
+Message-ID: <CAGXv+5EeEQM6O8Vb8e8fGjRzMe1icmz=cPm3GoKLxvEO=weVcA@mail.gmail.com>
+Subject: Re: [PATCH v4 1/9] regulator: core: Add "enable and wait" functions
+To: Mark Brown <broonie@kernel.org>
+Cc: Matthias Brugger <matthias.bgg@gmail.com>, 
+	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, 
+	Benson Leung <bleung@chromium.org>, Tzung-Bi Shih <tzungbi@kernel.org>, 
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jikos@kernel.org>, 
+	Andi Shyti <andi.shyti@kernel.org>, linux-mediatek@lists.infradead.org, 
+	devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
+	chrome-platform@lists.linux.dev, linux-input@vger.kernel.org, 
+	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Thank you for your contribution! Sashiko AI review found 4 potential issue(=
-s) to consider:
+On Tue, Aug 11, 2026 at 8:43=E2=80=AFPM Mark Brown <broonie@kernel.org> wro=
+te:
+>
+> On Tue, Aug 11, 2026 at 08:20:01PM +0800, Chen-Yu Tsai wrote:
+> > In device power sequencing and initialization use cases, it is common
+> > for the driver to enable the regulator and then wait for a certain
+> > period of time to pass before continuing.
+>
+> Please don't bury core changes for subsystems in the middle of random
+> other serieses, this is the first time I've seen this.  :(
 
-New issues:
-- [High] Missing `report_mutex` protection in `steam_probe` causes HID repo=
-rt interleaving and initialization failures.
+Sorry, that is entirely my fault. I was using an old v1 recipient list
+on the previous two versions and that list didn't include you.
 
-Pre-existing issues:
-- [High] Time-of-check to time-of-use (TOCTOU) race in `steam_unregister` l=
-eads to resource leakage and Use-After-Free.
-- [High] Use-After-Free or NULL pointer dereference in `steam_remove` due t=
-o incorrect teardown order.
-- [High] Information leak of uninitialized kernel heap memory to the USB de=
-vice.
---
+> > One case in particular is not optimized yet: a regulator left on either
+> > by hardware reset default or by the bootloader, but does not have the
+> > "regulator-boot-on" property set. As the enable timestamp only gets
+> > updated when enabled by a consumer or by the core, the first enablement
+> > always needs to wait.
+>
+> Just take a timestamp during registration if the regulator is enabled,
+> we check if it's enabled anyway so we may as well take that as the last
+> time the enable happened.
 
---- Patch [5]: [PATCH v5 5/6] HID: steam: Clean up locking ---
-commit 0b18780ca8de0e3b0d434638ab8287e9b2859654
-Author: Vicki Pfau <vi@endrift.com>
+Yeah, I just haven't figured out where exactly in regulator_register() to
+put it. I think it should be after the supplies are resolved, so maybe
+I could do this in the "final setup" part in regulator_resolve_supply()?
 
-HID: steam: Clean up locking
 
-This cleans up several issues with locking behavior, including RCU accesses
-not being guarded behind a lock.
-
-> diff --git a/drivers/hid/hid-steam.c b/drivers/hid/hid-steam.c
-> index 7226c0681ed18..7bb892972447f 100644
-> --- a/drivers/hid/hid-steam.c
-> +++ b/drivers/hid/hid-steam.c
-> @@ -620,7 +621,6 @@ static int steam_exchange_report_id(struct steam_devi=
-ce *steam, u8 *cmd, int csi
->  	unsigned int retries =3D 5;
->  	int ret;
-> =20
-> -	guard(mutex)(&steam->report_mutex);
->  	do {
->  		ret =3D steam_send_report_id(steam, cmd, csize, report_id);
->  		if (ret < 0)
-
-[Severity: High]
-Since the guard was removed here, should callers now hold report_mutex?
-
-This regression appears in steam_probe(), where steam_get_conn_status()
-calls this without the mutex being held:
-
-drivers/hid/hid-steam.c:steam_probe() {
-    ...
-    if (steam->quirks & STEAM_QUIRK_WIRELESS) {
-        ...
-        steam->connected =3D false;
-        ret =3D steam_get_conn_status(steam);
-    ...
-}
-
-Could this allow concurrent wireless events to interleave HID requests and
-cause initialization failures?
-
-[ ... ]
-
-> @@ -1440,10 +1444,12 @@ static void steam_unregister(struct steam_device =
-*steam)
->  	hid_info(steam->hdev, "Steam %s '%s' disconnected",
->  			steam->quirks & STEAM_QUIRK_DECK ? "Deck" : "Controller",
->  			steam->serial_no);
-> +	mutex_lock(&steam->registration_mutex);
->  	steam->registered =3D false;
->  	steam_battery_unregister(steam);
->  	steam_sensors_unregister(steam);
->  	steam_input_unregister(steam);
-> +	mutex_unlock(&steam->registration_mutex);
->  	cancel_work_sync(&steam->rumble_work);
->  	cancel_delayed_work_sync(&steam->mode_switch);
->  	cancel_delayed_work_sync(&steam->coalesce_rumble_work);
-
-[Severity: High]
-This is a pre-existing issue, but does checking the registered flag outside
-this new mutex allow a time-of-check to time-of-use race?
-
-If steam_unregister() is called concurrently from the workqueue, it might
-check if (!steam->registered) and return early before the registration
-finishes.
-
-Later in steam_remove(), it completely bypasses unregistration if connected
-is false, leaving registered input nodes pointing to freed memory:
-
-drivers/hid/hid-steam.c:steam_remove() {
-    ...
-    if (steam->connected)
-        steam_unregister(steam);
-    ...
-}
-
-[Severity: High]
-This is a pre-existing issue, but is there a use-after-free window in
-steam_remove() during device teardown?
-
-The client HID device is destroyed before the hardware is stopped:
-
-drivers/hid/hid-steam.c:steam_remove() {
-    ...
-    hid_destroy_device(steam->client_hdev);
-    ...
-    hid_hw_stop(hdev);
-    ...
-}
-
-If the hardware generates an interrupt in this window, could
-steam_raw_event() attempt to access the freed client_hdev?
-
-[Severity: High]
-This is a pre-existing issue, but does steam_send_report_id() leak
-uninitialized kernel heap memory to the USB device?
-
-When allocating the report buffer, it uses hid_alloc_report_buf() which
-relies on kmalloc(), not kzalloc():
-
-drivers/hid/hid-steam.c:steam_send_report_id() {
-    ...
-    buf =3D hid_alloc_report_buf(r, GFP_KERNEL);
-    if (!buf)
-        return -ENOMEM;
-
-    buf[0] =3D report_id;
-    memcpy(buf + 1, cmd, size);
-    ...
-    ret =3D hid_hw_raw_request(steam->hdev, report_id,
-            buf, max(size + 1, len),
-            HID_FEATURE_REPORT, HID_REQ_SET_REPORT);
-    ...
-}
-
-Since only size bytes are copied into buf, will the remaining bytes up to
-max(size + 1, len) contain uninitialized memory when sent over the bus?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260812011401.3250=
-968-1-vi@endrift.com?part=3D5
+Thanks
+ChenYu

@@ -1,97 +1,201 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-yx1-f50.google.com (mail-yx1-f50.google.com [74.125.224.50])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9302823EA84;
-	Wed, 12 Aug 2026 18:02:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786557752; cv=none; b=JmpTVs5qISRTQHlO/hyORqrLEGPwBsJBctISeySJhcPZO8OecDKaFzJxCdkh6mZak54I3IcXHEzgCWXaIIiVzDfoIt7r9Vmvhd0c5WJh/DECitUrVaJKgENiWI9hSjKUK2KOvefYdwa14E2dTkiFiwTKMPV80olh6Zn3chil9Jo=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786557752; c=relaxed/simple;
-	bh=d87kSTcvUtybzCELCCZqNObMIMF4KdvGEzAMKataUlk=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=LUMbBUBbA1sc5vmeISIwAB1EEWhm/gqYnYSdKyo8/xw4FdYp85riZoK5trXe53GQxC8HbiIwlHiLjh9iEB+OfpH4WHLd4wXsDtc3paZJ8GRgWntOcvPtYP+qWvbdiWmJ5WuGbG4wNUeK4/zSfe/a/xTS4ccuqZ7lhu5O43rkgXw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ocomHOSx; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 28F8E37204D
+	for <linux-input@vger.kernel.org>; Wed, 12 Aug 2026 19:40:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.224.50
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1786563627; cv=pass; b=duTNg+AFgjvn18kGtoHG7rbZXsDasB6lGZmd0EUzOYfS/PZT2zGIivPt9iasM5jn+wX8UA7dB+prar96gYsYfEvMZUef/FMErhU4HVSQZL/7x55IVwxZN0qGH4b2X/KjyKxGWYmr5AILKhym+Ly5MbCO9vPszIrcvv3mM2RsfxQ=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1786563627; c=relaxed/simple;
+	bh=CfrGgZ6VxGLxovtt2BIZKz9epgFlxKOxCqQQ0DcRNOs=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=AOXzm6cFjxKu584TPxT8AMKgv/PMLJars8B7LVpwu19vgDFvlnrfYqPtT044uiVuVcAyzboVTHjrXKviZDUi4fCy7Vyzqd8DtgSU7ca+SHvGYtLGU+scKHjVc3spK1wzrhswCZ0R83d/mcFEzD0uDpkH6pYRLHfoCxkN0ieFb6A=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=hvwXnD5K; arc=pass smtp.client-ip=74.125.224.50
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ocomHOSx"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 666F81F000E9;
-	Wed, 12 Aug 2026 18:02:28 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786557751;
-	bh=uz27fRQbmLZ3xcxLxL3E+lR1tIUbt6V3Gu1RoS5Srs4=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=ocomHOSxOmZSJCeI5nxJuoqhAhytsq3r9cJjlIsVsHbDvLUe+DB7jbdTJa7d88sjd
-	 m4pvknxfMPyLosyg+6KdokWt/qmg+e4yVNmU9JE+S5ZpfW1YlU7CxmQaUE8zYU1bRW
-	 WWRqVUHK3yBJndI+PzfNMb4p8mvK5RCzmBxLV1t4Fdnf+pYellKIpxLnh1ZqbAzbIJ
-	 5Guz1PvzSLP1H1+0amt58f6bMdcctlNxbgECiShUKMNo4TURA717QpgGtiZxojSBuc
-	 0P9IqUCKO9oqritMgalAXEJDzVFRdSQu9p2ec08lrcfBMhi0TJJT07ILInpp1ssJW5
-	 N7H160o46ZxxQ==
-Date: Wed, 12 Aug 2026 19:02:25 +0100
-From: Mark Brown <broonie@kernel.org>
-To: Chen-Yu Tsai <wenst@chromium.org>
-Cc: Matthias Brugger <matthias.bgg@gmail.com>,
-	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
-	Benson Leung <bleung@chromium.org>,
-	Tzung-Bi Shih <tzungbi@kernel.org>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Jiri Kosina <jikos@kernel.org>, Andi Shyti <andi.shyti@kernel.org>,
-	linux-mediatek@lists.infradead.org, devicetree@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	chrome-platform@lists.linux.dev, linux-input@vger.kernel.org,
-	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v4 1/9] regulator: core: Add "enable and wait" functions
-Message-ID: <93fe2e3e-7a2a-4aa3-ad27-9e99c602c495@sirena.org.uk>
-References: <20260811122011.3539250-1-wenst@chromium.org>
- <20260811122011.3539250-2-wenst@chromium.org>
- <99ad23ba-f8f2-404b-960e-1c22a20c9ac4@sirena.org.uk>
- <CAGXv+5EeEQM6O8Vb8e8fGjRzMe1icmz=cPm3GoKLxvEO=weVcA@mail.gmail.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hvwXnD5K"
+Received: by mail-yx1-f50.google.com with SMTP id 956f58d0204a3-6688dfaed31so1907916d50.3
+        for <linux-input@vger.kernel.org>; Wed, 12 Aug 2026 12:40:24 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1786563624; cv=none;
+        d=google.com; s=arc-20260327;
+        b=iT/WsRfYH/xz5E79jgYUja2f0lup3QkAx/FmAONg310ETDPDkpWL07Ls3fAYKvAxCs
+         3KWRAiiv9zsfF5OuW+dYlOlvFDXYOo6Qaa9TM/H0v/7MNqCFUjMbGMKSwSrxIolf0twH
+         OLcz+sMuxfuU8JSUFbTpFzhqmz0olb7VrRsVp8Kd4o/OefqoOUksMR2uq/PvhMK81TGx
+         qNm2I1JjkMbDwGFlUusKdMKrfCsTBDBFeewJlzHfbEubgWbqlZMj/vdqczo0a1XXJTbo
+         xz+RiRrlnRrWXc2spahgVpr1Pb1RCLTSOclmMsAF8jc7iz4n/HHin1fQPWAvLJNHpIMK
+         a2Bg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=Af7eIo184rlHdYdH/CT8QKsmlreVY7D6aE4TgrRXRhU=;
+        fh=l1AP/n4HAQ/9vHRqEexf6IiAxAqjltEguhhet2HCYvI=;
+        b=BjFH485kKe2+ruCzIVg1axRphC8mmP1ARDYSY5yJT+BSYSfMQZ2DDx20Xfbsz52RXd
+         vUg+Z7QvdOUAw8syssslrwwTsgf/A7n9wkfULJEAiAucbniAkM3eEfSlVh2TK25cKLuX
+         8SYN5rJqIp5cmGDGmm1LPP+o3YX4QKpLJLItS0j7atnfcgvlmpF2ORJ4FlEloS9V/bEv
+         1sZGDMstmricxVn80rLZyfAW4ZevLTtuSVwGrsdJ7rOAT+xGiiWRsewYLMQiihs59SUN
+         +L+K9QhV61osNkNUyrp4QOXUuoZBqoM4aR4OMgUOkhAuYymFbqFOhNNAUniEF7wDz7DN
+         K/OA==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1786563624; x=1787168424; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=Af7eIo184rlHdYdH/CT8QKsmlreVY7D6aE4TgrRXRhU=;
+        b=hvwXnD5Ksx+IfC4Ckv3vKx5nD9uKrh94AxJK8tGI5tOiCMFXTNdHPv+/0Lhr8eJ3+2
+         vSDZOSgq6iJABZOoFucwFBk/c4e04zuVgsd9Um0BJnzH4ABZl9cn5FJO0rPGd0JxoXdl
+         6/IW8+4pejSsddju6RAa+dqetXFf6EPMbsl2oDXTgLFqofL9CTJg0O29h2efhi5YJxVz
+         GIPBNAy2Ftc9jm/gBxN+IU0Fw92pF2u5Ilq51iyI8bydLO6fcR1T2bznk8ZfDOVGlZZM
+         Q2RF5Yq4c8xAZkYiQoTHNVz1NF73DkLAAB9Ydg1+eDl6GltFyeGXLRz85JwbEfAj5RX+
+         0SUA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1786563624; x=1787168424;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=Af7eIo184rlHdYdH/CT8QKsmlreVY7D6aE4TgrRXRhU=;
+        b=K387v+MnJmTGA1n7OBoWh7LMhR3hGhHmCNyNXao92UIDN5Gu1+iMVQnOvi2culcDOR
+         T40pkcdeqmO/OY1Ria09dIaAdq3/bJFIMiOXIUt8YpslU29HxE9bF3PjlWDgjYRBVowz
+         LIHjFb+Vo/XN/AA0fKdk6SvGZx7jk8vBiEbtu3cXQZuSwTxyhQPctT7jpfVFKy+PY6DE
+         P9BtrhI2sgnFLqoIcLvAePrDIl9WXop5VS3tC0+jKwxn5EeGMkckeQZR5BaniUDbX0Ea
+         Y6WzOlnpRfqg0I8wXOvTwMPz8/SKh2nIT8C11it9MpAdjbBkNpJq/9HQNqUTY/gQ95NK
+         tLAA==
+X-Gm-Message-State: AOJu0YyxZQET4kwWW14GvPhJ7HfM5WOCIdA4t3AfgSin/L7R2qglYY3R
+	JQwUjT0tS6na/1+ejbwnDpV5OCqg/U/4gxl06MO0kQsCZYipVtFqtXYnEwpbVy4rQ/mdeBCovzp
+	0bETzKq0DFbohcz6W9BLYmb6xj6BTYYA=
+X-Gm-Gg: AR+sD11DXIHXNGI0hFz01oA/qTbfh5woALBRKect0wJf/8lUdbFtuPcLwaAUAiMOWox
+	YM9WYBw7Worvo85M4R/lmBf/41y+uuse1A6cYCLKhyrgLaTXe8aCtb0gAWnylOyMerFNIZJNy4D
+	QtunJ0WM1sBQ+rg9vyLzR39qU0QGKlTg5aSPvbRqEKJ1o4VyZOIyE8bq1Mjnf4ddYokZMKuFwhy
+	AhTIBOUfla5fTa4cROjxrEfdvAHDXkl+Yv6r2fWuz86h1vv+GShX8ABCNHn+KMDRyc1ICgpiOTl
+	wgh+Tz6FQLkdXme6f9YbiET1CD0gVT6w74fClyRvhkA=
+X-Received: by 2002:a53:acc4:0:10b0:664:caf6:c041 with SMTP id
+ 956f58d0204a3-66c514bff98mr304942d50.19.1786563624052; Wed, 12 Aug 2026
+ 12:40:24 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="3qPAsn7wmCMfZq5C"
-Content-Disposition: inline
-In-Reply-To: <CAGXv+5EeEQM6O8Vb8e8fGjRzMe1icmz=cPm3GoKLxvEO=weVcA@mail.gmail.com>
-X-Cookie: !07/11 PDP a ni deppart m'I  !pleH
-
-
---3qPAsn7wmCMfZq5C
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+References: <cover.1783094954.git.edouglas7358@gmail.com> <2e719e56029386f148d748a7d555023f4efe3862.1783094954.git.edouglas7358@gmail.com>
+ <a98072328950f6b45a358086cbd6a16c5b645416.camel@hadess.net>
+In-Reply-To: <a98072328950f6b45a358086cbd6a16c5b645416.camel@hadess.net>
+From: Elliot Douglas <edouglas7358@gmail.com>
+Date: Wed, 12 Aug 2026 12:40:01 -0700
+X-Gm-Features: AUfX_mwxFjSvwzJebJ_3ICPYRuB07k4QSeSOyyvcsDdsK-BPMr52G2tpBH9VJME
+Message-ID: <CAGt6S1rUrE7tt7-HiY8Tm36WTSWswQtkwWPwCVk_YLYhoUaK2g@mail.gmail.com>
+Subject: Re: [PATCH v2 2/2] HID: logitech-hidpp: enable reprogrammable buttons
+ on Signature M650
+To: Bastien Nocera <hadess@hadess.net>
+Cc: linux-input@vger.kernel.org, lains@riseup.net, jikos@kernel.org, 
+	bentiss@kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Aug 12, 2026 at 12:39:42PM +0800, Chen-Yu Tsai wrote:
-> On Tue, Aug 11, 2026 at 8:43=E2=80=AFPM Mark Brown <broonie@kernel.org> w=
-rote:
+On Thu, Jul 30, 2026 at 1:07=E2=80=AFAM Bastien Nocera <hadess@hadess.net> =
+wrote:
+>
+> On Sat, 2026-07-04 at 16:10 -0700, Elliot Douglas wrote:
+> > The Bluetooth Signature M650 exposes its side buttons through the
+> > normal
+> > mouse report, but the observed events are short click-like events
+> > emitted
+> > around release rather than physical press/release state.
+> >
+> > The device appears to use the held side-button state for its built-in
+> > gesture and side-button + wheel horizontal-scroll mode. As a result,
+> > holding a side button long enough
+>
+> s/long enough/more than approximately 2 seconds/ ?
 
-> > Just take a timestamp during registration if the regulator is enabled,
-> > we check if it's enabled anyway so we may as well take that as the last
-> > time the enable happened.
+It was about 2 seconds, I measured it.
 
-> Yeah, I just haven't figured out where exactly in regulator_register() to
-> put it. I think it should be after the supplies are resolved, so maybe
-> I could do this in the "final setup" part in regulator_resolve_supply()?
+> >  can prevent the normal mouse report from
+> > emitting a usable button event at all.
+> >
+> > HID++ REPROG_CONTROLS_V4 diversion for control IDs 0x0053 and 0x0056
+> > provides real press and release timing for those same controls.
+> > Logitech
+> > documents the Signature M650 side buttons as Back/Forward buttons, so
+> > report the diverted controls as BTN_BACK and BTN_FORWARD.
+> >
+> > The HID++ 0x1b04 documentation lists those control IDs as Back and
+> > Forward. The driver still verifies that the controls are present in
+> > the
+> > device control table and advertised as divertable before changing
+> > their
+> > reporting mode.
+> >
+> > Link:
+> > https://support.logi.com/hc/en-nz/articles/4414473810583-Getting-Starte=
+d-Signature-M650
+> > Signed-off-by: Elliot Douglas <edouglas7358@gmail.com>
+>
+> Tested with my M650 mouse connected through Bluetooth.
+>
+> Reviewed-by: Bastien Nocera <hadess@hadess.net>
+>
+> > ---
+> >  drivers/hid/hid-logitech-hidpp.c | 20 +++++++++++++++++++-
+> >  1 file changed, 19 insertions(+), 1 deletion(-)
+> >
+> > diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-
+> > logitech-hidpp.c
+> > index f9189e14fb78..e71dd2457e80 100644
+> > --- a/drivers/hid/hid-logitech-hidpp.c
+> > +++ b/drivers/hid/hid-logitech-hidpp.c
+> > @@ -3624,14 +3624,30 @@ static int
+> > hidpp10_extra_mouse_buttons_raw_event(struct hidpp_device *hidpp,
+> >
+> >  #define HIDPP_REPROG_CONTROLS_EVENT_DIVERTED 0x00
+> >
+> > +#define HIDPP_REPROG_CONTROL_BACK 0x0053
+> > +#define HIDPP_REPROG_CONTROL_FORWARD 0x0056
+> > +
+> > +#define HIDPP_PRODUCT_SIGNATURE_M650 0xb02a
+>
+> If you want to add a product ID constant, please do it in hid-ids.h
+> instead.
 
-Makes sense I think.  The other place would be while doing the
-constraints but they're optional so might not happen.  Perhaps make the
-one at the end of registration skip if there's a timestamp already?
+I'll address this in the next patch revision.
 
---3qPAsn7wmCMfZq5C
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAmp8tTEACgkQJNaLcl1U
-h9B2FAf8D1M22Grx18J9/WwNFIOC9lobobrOEs3T/vwO7/gO1L2DkkIIJ+O6giFE
-pVSJK0jvB/6bFVrLlTTFUvMLxE+WxD/G/kpriivyU1quihyIkp1hVbsCmVQlKcTx
-4gWcO383CQneVfUhZTcFpXFBT8l6pzLP4nT/6El14xC0nf6L2nX1me4vgBSlNhsX
-1vVrWMkUDh7nORWr3MBRcbVICD/95yzWD6uUq64zT2yX8QBFACOGWzt4w5dooGFO
-grAcJyH7t0K0WlFBSogUFX05QKN0eLiAuMEfCuVkpXf5phImv/MiaPaIlEZUxMC+
-lPVvKyLFNzRuafb6rYrFUuevW9Ibaw==
-=gO+2
------END PGP SIGNATURE-----
-
---3qPAsn7wmCMfZq5C--
+> > +
+> >  struct hidpp_reprog_control_mapping {
+> >   u16 control;
+> >   u16 code;
+> >  };
+> >
+> > +static const struct hidpp_reprog_control_mapping
+> > m650_reprog_control_mappings[] =3D {
+> > + { HIDPP_REPROG_CONTROL_BACK, BTN_BACK },
+> > + { HIDPP_REPROG_CONTROL_FORWARD, BTN_FORWARD },
+> > + { }
+> > +};
+> > +
+> >  static const struct hidpp_reprog_control_mapping *
+> >  hidpp20_reprog_controls_get_mappings(struct hidpp_device *hidpp)
+> >  {
+> > + switch (hidpp->hid_dev->product) {
+> > + case HIDPP_PRODUCT_SIGNATURE_M650:
+> > + return m650_reprog_control_mappings;
+> > + }
+> > +
+> >   return NULL;
+> >  }
+> >
+> > @@ -4911,7 +4927,9 @@ static const struct hid_device_id
+> > hidpp_devices[] =3D {
+> >   { /* MX Vertical mouse over Bluetooth */
+> >     HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb020) },
+> >   { /* Signature M650 over Bluetooth */
+> > -   HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb02a) },
+> > +   HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH,
+> > +        HIDPP_PRODUCT_SIGNATURE_M650),
+> > +   .driver_data =3D HIDPP_QUIRK_HIDPP_REPROG_CONTROLS_BTNS },
+> >   { /* MX Master 3 mouse over Bluetooth */
+> >     HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb023) },
+> >   { /* MX Anywhere 3 mouse over Bluetooth */

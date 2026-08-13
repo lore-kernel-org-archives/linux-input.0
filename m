@@ -1,43 +1,44 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 92AA1471437
-	for <linux-input@vger.kernel.org>; Thu, 13 Aug 2026 14:56:57 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5EBAF415F2F
+	for <linux-input@vger.kernel.org>; Thu, 13 Aug 2026 14:59:00 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786633021; cv=none; b=mvDm4JawW48FQPHSh7JllQHayXqmxnr4dDbP+tlVUpHv9YJ/P67SJuyGb4PFIN/vrAa+NfaPr+ZVOZ+i0KTb0hjZDeTE2Kgnn4VaZ2JZBEiyJJPxq+Z+8wOylIynjjkGYu/chrz7jOFsEZqyd5wBQEjjkKgrE9QGXNCQyS5ztoM=
+	t=1786633141; cv=none; b=gNgfz/MUc3aj9qKKUGrH7UuQbyrU03CZbQ9i1gFb5Q8/kL0O2UnILdpnD9CpihBWBAe0L/gmK9Cee5KkJImUrV4m956Z5m9esZMXe31MRVF2phKY8hsIJFOSIjqqEsCMNRqXPo7Zlx/p+Cprf7FTse36PN80vTCr97J34BwUOYg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786633021; c=relaxed/simple;
-	bh=ChNn8LKP6gnP9LReqxlyNtFx9XcHxu583dWgIDG3/eA=;
+	s=arc-20240116; t=1786633141; c=relaxed/simple;
+	bh=w7Q9hHxQJlCFPY3qTQV+m6EZZqd89H50oAvnABxGHtE=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=r//nlhoBJX9bmkx66zlGR/4PpdRlVHFBrtnweN4QRZn2efCmDgQ2f46a64cZ/MwlaWDZFIrjRbVccsk27V7I85VCFRbrJj1pkoDhSkRBs6hrqwso+OoDtv/Qb7dGPb2mjXLLAP7/tBpzpFvqgwwYBy1zXySDhbenrrSQ0Xx3+XE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=XvIlGnOM; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=do3V/Fx0ZikcZpzhmn9pI+3C5eFCtpThFPACY6qHfJK/GoEwWTfc81y++mGh//DsMiQmIn5hBlD0P7e+3vXaAwZcqoFSzvJG3uiTWH86QFqZh1wYp3WPQ/X6Jlbv+d54S8j6OrKQFAfATbTH9WjonVAVRNFEzLsAVMDNCBmo+pI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=RIszcgvf; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="XvIlGnOM"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0FC521F00A3A;
-	Thu, 13 Aug 2026 14:56:57 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="RIszcgvf"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C77691F000E9;
+	Thu, 13 Aug 2026 14:58:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786633017;
-	bh=Pv4t+3YDB+O38zewGSiOWoJyzswNbgIOhuRKtXJfVDA=;
+	s=k20260515; t=1786633140;
+	bh=DWj4oH78oPaxC2uKkaEWmkaoAqvbl8swlE2WCWAfd0E=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=XvIlGnOMk71e48GPBluxrmusxdmMU/ZWYUMWby0KirN6hDJdwK/JP+AO6zaxMTkkf
-	 own/8CHmUhwQa3dSM8P9SF9kl+vTDaBh1SmDe0NphyMWIk8Q6KYXI06n8bQzRyLtrD
-	 zjGeB808r2jgR/mkksXZDkC2SmvHj1Gflq7V25tfJy6NiHIxs1W/I6Sxa5h54es1FB
-	 3NWxDIgG+FFLM5lpbTkoglUDDZDyv734aof2NoHLz8LZ640MGFFhoxTh2ECUiA1dCW
-	 xr+QoVCDiWF5650VjdN2gT7PUWSTDm1RZz0W0oFOBksyalpKw8yZzQi4PYYUXdPcXC
-	 y/mBmhV0qkDtw==
+	b=RIszcgvfgZVq/rNob7wqI82y2iU+9IpJEpTCq5mcp5t89lrERBsxWhQCuSqx+7y/Z
+	 yE0X1Gld4votGX/RNN3q3D/u231wkm0FWslvQIllNeDiH/BB/X5zcItSaDbZ8o4fZH
+	 NaMxJeSouI62l42wriDhPgrtRI1Wd4baZJ385tNYW7SMkvsIgjWwQGvctOMzUzu/0+
+	 1zKZvXzRiVpKYKYfGe3G8VrBHCXj2PrtL9wpkxVST6LX1nyPyu7ga0aywujt0OS733
+	 tQ5BjW5e9bd20RQg/K7zT/SijElbpAhWoaZswLqPqPyEiHCr3da98xatlbZEtGuND7
+	 gLG37aEPuyZ5Q==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 04/12] HID: asus: add vibration strength configuration
+Subject: Re: [PATCH 06/12] HID: asus: add triggers inner and outer range
+ configuration
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Denis Benato" <denis.benato@linux.dev>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260813144736.2477941-5-denis.benato@linux.dev>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <20260813144736.2477941-7-denis.benato@linux.dev>
 References: <20260813144736.2477941-1-denis.benato@linux.dev>
- <20260813144736.2477941-5-denis.benato@linux.dev>
+ <20260813144736.2477941-7-denis.benato@linux.dev>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 13 Aug 2026 14:56:56 +0000
-Message-Id: <20260813145657.0FC521F00A3A@smtp.kernel.org>
+Date: Thu, 13 Aug 2026 14:58:59 +0000
+Message-Id: <20260813145859.C77691F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -46,117 +47,112 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
 Thank you for your contribution! Sashiko AI review found 2 potential issue(=
 s) to consider:
-- [Medium] Lockless read-modify-write (TOCTOU) race condition in vibration =
-sysfs store functions causes hardware-software state mismatch.
-- [Low] The patch introduces an unused struct field `vibration_active` and =
-an unused function parameter `cfg`.
+
+New issues:
+- [Medium] Time-of-check to time-of-use (TOCTOU) race condition in trigger =
+threshold sysfs stores causes hardware state desynchronization.
+
+Pre-existing issues:
+- [High] The `config_mutex` in `struct ally_config` is dynamically allocate=
+d but never explicitly initialized.
 --
 
---- Patch [4]: [PATCH 04/12] HID: asus: add vibration strength configuratio=
-n ---
-commit 88d84618d4463bdab2563d7c2980a265cf17afa3
+--- Patch [6]: [PATCH 06/12] HID: asus: add triggers inner and outer range =
+configuration ---
+commit bf1ab6fc2d6df4d87a7b2cef0f0cf8628bb2f010
 Author: Denis Benato <denis.benato@linux.dev>
 
-HID: asus: add vibration strength configuration
+HID: asus: add triggers inner and outer range configuration
 
-This commit adds sysfs attributes to allow userspace to configure the
-vibration intensity of the motors on ASUS ROG Ally handhelds.
+This patch adds sysfs attributes to configure the inner and outer ranges for
+the left and right triggers on ROG Ally devices. It implements the store and
+show functions for these limits and sends the updated configuration to the
+hardware.
 
 > diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
-> index 6a15380488efb..48cc867aeea86 100644
+> index 010b33533068a..eb735ec8f065c 100644
 > --- a/drivers/hid/hid-asus.c
 > +++ b/drivers/hid/hid-asus.c
-> @@ -205,6 +205,11 @@ struct ally_config {
->  	u8 left_trigger_max;
->  	u8 right_trigger_min;
->  	u8 right_trigger_max;
-> +
-> +	/* Vibration settings */
-> +	u8 vibration_intensity_left;
-> +	u8 vibration_intensity_right;
-> +	bool vibration_active;
-
-[Severity: Low]
-This isn't a bug, but vibration_active is added here and initialized in
-ally_config_create(), but never appears to be read or used elsewhere.
 
 [ ... ]
 
-> @@ -724,15 +729,177 @@ static ssize_t xbox_controller_store(struct device=
- *dev,
-> =20
->  static DEVICE_ATTR_RW(xbox_controller);
-> =20
-> +/**
-> + * ally_set_vibration_intensity() - Set vibration intensity values
-[ ... ]
-> + */
-> +static int ally_set_vibration_intensity(struct hid_device *hdev, struct =
-ally_config *cfg,
-> +					u8 left, u8 right)
-
-[Severity: Low]
-This isn't a bug, but the cfg parameter is never utilized inside this
-function.
-
-[ ... ]
-
-> +static ssize_t left_vibration_intensity_store(struct device *dev, struct=
- device_attribute *attr,
-> +					 const char *buf, size_t count)
+> +static ssize_t left_trigger_range_lower_limit_store(struct device *dev,
+> +				       struct device_attribute *attr,
+> +				       const char *buf, size_t count)
 > +{
-[ ... ]
+> +	struct hid_device *hdev =3D to_hid_device(dev);
+> +	struct asus_drvdata *drvdata =3D hid_get_drvdata(hdev);
+> +	struct ally_handheld *const ally =3D drvdata->rog_ally;
+> +	u8 value;
+> +	int ret;
+> +
+> +	if (!ally || !ally->config)
+> +		return -ENODEV;
+> +
 > +	ret =3D kstrtou8(buf, 10, &value);
-> +	if (ret || value > 100)
+> +	if (ret || value > 50)
 > +		return -EINVAL;
 > +
-> +	ret =3D ally_set_vibration_intensity(hdev, cfg, value, cfg->vibration_i=
-ntensity_right);
-> +	if (ret < 0)
+> +	ret =3D ally_set_trigger_ranges(hdev, ally->config,
+> +					   value,
+> +					   ally->config->left_trigger_max,
+> +					   ally->config->right_trigger_min,
+> +					   ally->config->right_trigger_max);
+
+[Severity: Medium]
+Could this cause a TOCTOU data race if multiple threads write to the trigger
+sysfs attributes concurrently?
+
+Since the other limit values are read locklessly from `ally->config` before=
+ the
+hardware is updated, concurrent writes to different attributes could interl=
+eave.
+
+This might result in one thread sending a stale limit while overwriting the
+other thread's hardware update, permanently desynchronizing the hardware
+configuration from the driver's software cache.
+
+Should the mutex be acquired before calling `ally_set_trigger_ranges()`?
+
+> +	if (ret)
 > +		return ret;
 > +
-> +	scoped_guard(mutex, &cfg->config_mutex)
-> +		cfg->vibration_intensity_left =3D value;
+> +	scoped_guard(mutex, &ally->config->config_mutex)
+> +		ally->config->left_trigger_min =3D value;
 > +
 > +	return count;
 > +}
 
-[Severity: Medium]
-Does reading cfg->vibration_intensity_right outside of cfg->config_mutex
-create a race condition here?
-
-If concurrent sysfs writes happen for the left and right intensities, could
-they read stale complementary values, interleave their hardware I/O
-requests, and leave the hardware state permanently desynchronized from the
-driver's software cache?
-
 [ ... ]
 
-> +static ssize_t right_vibration_intensity_store(struct device *dev, struc=
-t device_attribute *attr,
-> +					 const char *buf, size_t count)
-> +{
-[ ... ]
-> +	ret =3D kstrtou8(buf, 10, &value);
-> +	if (ret || value > 100)
-> +		return -EINVAL;
-> +
-> +	ret =3D ally_set_vibration_intensity(hdev, cfg, cfg->vibration_intensit=
-y_left, value);
-> +	if (ret < 0)
-> +		return ret;
-> +
-> +	scoped_guard(mutex, &cfg->config_mutex)
-> +		cfg->vibration_intensity_right =3D value;
-> +
-> +	return count;
-> +}
+> @@ -1246,6 +1540,10 @@ static struct ally_config *ally_config_create(stru=
+ct hid_device *hdev, struct al
+>  	cfg->left_outer_threshold =3D 90;
+>  	cfg->right_deadzone =3D 10;
+>  	cfg->right_outer_threshold =3D 90;
+> +	cfg->left_trigger_min =3D 0;
+> +	cfg->left_trigger_max =3D 100;
+> +	cfg->right_trigger_min =3D 0;
+> +	cfg->right_trigger_max =3D 100;
 
-[Severity: Medium]
-The same lockless read-modify-write pattern occurs here with
-cfg->vibration_intensity_left. Would it be safer to take the lock before
-reading the complementary intensity and hold it across the hardware request?
+[Severity: High]
+This is a pre-existing issue, but is `config_mutex` ever explicitly initial=
+ized?
+
+In `ally_config_create()`, `cfg` is dynamically allocated via `devm_kzalloc=
+()`
+which zero-initializes the memory.  However, it appears
+`mutex_init(&cfg->config_mutex)` is never called before the mutex is locked=
+ in
+functions like `ally_detect_capabilities()` or the sysfs store operations.
+
+Could this lead to a kernel panic or lockdep warning when the uninitialized
+mutex is locked under contention?
+
+>  	cfg->vibration_intensity_left =3D 100;
+>  	cfg->vibration_intensity_right =3D 100;
+>  	cfg->vibration_active =3D false;
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260813144736.2477=
-941-1-denis.benato@linux.dev?part=3D4
+941-1-denis.benato@linux.dev?part=3D6

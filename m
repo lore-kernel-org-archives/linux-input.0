@@ -1,33 +1,33 @@
-Received: from mta0.migadu.com (out-231.mta0.migadu.com [91.218.175.231])
+Received: from mta1.migadu.com (out-53.mta1.migadu.com [95.215.58.53])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9DC29397930
-	for <linux-input@vger.kernel.org>; Thu, 13 Aug 2026 14:47:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.231
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D6E4C484258
+	for <linux-input@vger.kernel.org>; Thu, 13 Aug 2026 14:47:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.53
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786632472; cv=none; b=ETDDhnAF5gNZGRJxIIlrHAif9PNYBEZBW02/NSWFgKD2MnnyPdKivxhvUOlHda3jCOMvhz1O0jziYiwSOaZkg5whAgsFh3vsQjzLzbZEPC4ZdDQjXFJI0KFqz5xdXOVbPt2TRmtHi6GnDqIazatHdXFn9EsT9CR1/kN5z1QAbyg=
+	t=1786632473; cv=none; b=taiCMdwPQywpMTEaFmLsbDfdZwE5tP3NTgq4ExE+vXHBD2uF6vVBpryqr9uYkPBcrhc6foMXYRUswK0VzJF2pp4RH09G89y0OItSGLST4WQgUKo6X+puSLbkXfoYtPKcGkwSlUwJ/HasJZsJwUnsp0Pp93PCEk4unJtdyJSDd2k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786632472; c=relaxed/simple;
-	bh=jY6uMnydXj+xwOlApdT+OiOaQ2ULudcF/ky4VT9HY6w=;
+	s=arc-20240116; t=1786632473; c=relaxed/simple;
+	bh=yiihpTdAnIjOGeTjRFcMu3Ke4GMLh8r3w5k5KjT2cvo=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=DLUbx5erxKdMx1JoMOocmuuDWwbNovIq08uE2HdQpUEl1+L09Xjh8WoZwGy8UFWIrXpjnAPfA6bhPvj+02DGhSqNmDP76PE7nfzUBiySNIhf1wT4267qVHWtigt2ndZCQcdTc0T0+SL2P5F8PUiEpUjzz4a6yc/1WvUUBr5sfns=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=SeRwGzwn; arc=none smtp.client-ip=91.218.175.231
+	 MIME-Version; b=KUgo8zxS+EudMUo2p5UUkPrU5gGoOTZ4CS2EEQQzpe4PWmn7JjFcEfKP0rlK1osiLdAeGJ2iKWKoY9Q6jTPWxAECnaNciTaWkVK2ZpMiMxOXJHLsYQAxDe5wwgbb4+veEwFTx2IPQB34PVN/NMf/GwOXUzLMvLoQuf2j0IjJ7jk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=xKsQXgpJ; arc=none smtp.client-ip=95.215.58.53
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="SeRwGzwn"
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="xKsQXgpJ"
 X-Envelope-To: linux-input@vger.kernel.org
-DKIM-Signature: a=rsa-sha256; bh=jY6uMnydXj+xwOlApdT+OiOaQ2ULudcF/ky4VT9HY6w=;
+DKIM-Signature: a=rsa-sha256; bh=yiihpTdAnIjOGeTjRFcMu3Ke4GMLh8r3w5k5KjT2cvo=;
  c=simple/simple; d=linux.dev;
  h=from:to:subject:date:message-id:mime-version:content-type; s=key1;
- t=1786632465; v=1; x=1787237265;
- b=SeRwGzwnOF3B9XGXosGbGlNev0DJpiRgMOG9x4QyOEiKaXUtK1qWUb9dUdgqbgHCFsFw6mRT
- D2uohb2UwMskKQILHL+g9yd+f+FnwkpHVYfeb1IuZ1haCuh/qQr2JaNOrBEfPpoHZXbvt5g38Ou
- frw7smho3nMXYMOdXIeBYPbc=
+ t=1786632466; v=1; x=1787237266;
+ b=xKsQXgpJ/SMLn/Ie/JjChnsBnMTXmWqBESLQ6g8Ghyvdl+u8ta566mUBWIKAvGN7NB/PkWlP
+ hR604iPjKhhGIvasTMYJq1FE30TyyOHi0Utfp+EAF413l/ZxJqMxSj4wjgJIN9UGzTE1+s0yr+R
+ vo/lgKx3F9lQ0Fua0RwPpw10=
 X-Envelope-To: linux-input@vger.kernel.org
 Received: from kernel.denis-pc.lan (151.61.14.130)
-	by smtp.migadu.com with ESMTPS id 08bed4af982775f9;
-	Thu, 13 Aug 2026 14:47:45 +0000
+	by smtp.migadu.com with ESMTPS id 8f565c6c9cfcf026;
+	Thu, 13 Aug 2026 14:47:46 +0000
 X-Migadu-Flow: FLOW_OUT
 From: Denis Benato <denis.benato@linux.dev>
 To: linux-kernel@vger.kernel.org
@@ -41,9 +41,9 @@ Cc: linux-input@vger.kernel.org,
 	"Khamunetri Clark" <khamunetriclark@gmail.com>,
 	"Derek J. Clark" <derekjohn.clark@gmail.com>,
 	Denis Benato <denis.benato@linux.dev>
-Subject: [PATCH 08/12] HID: asus: add support for response curve
-Date: Thu, 13 Aug 2026 14:47:32 +0000
-Message-ID: <20260813144736.2477941-9-denis.benato@linux.dev>
+Subject: [PATCH 09/12] HID: asus: add support to force feedback
+Date: Thu, 13 Aug 2026 14:47:33 +0000
+Message-ID: <20260813144736.2477941-10-denis.benato@linux.dev>
 X-Mailer: git-send-email 2.47.3
 In-Reply-To: <20260813144736.2477941-1-denis.benato@linux.dev>
 References: <20260813144736.2477941-1-denis.benato@linux.dev>
@@ -55,444 +55,163 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-ROG ally devices allows configuring the response curve of both joysticks,
-therefore add the ability of userspace to modify the response curve by
-exposing relevant sysfs attributes.
+Unlike ROG ally the X version and following ones uses DInput protocol
+and the force feedback needs to be implemented as its protocol is
+vendor-specific, therefore add support for FF_RUMBLE with magnitude
+scaling on a work-queue based approach to avoid using possibly
+sleeping calls in atomic context.
 
+Assisted-by: VSCode:gpt-5.3-codex
 Signed-off-by: Denis Benato <denis.benato@linux.dev>
+Signed-off-by: Khamunetri Clark <khamunetriclark@gmail.com>
 Signed-off-by: Luke Jones <luke@ljones.dev>
 ---
- drivers/hid/hid-asus.c | 375 ++++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 374 insertions(+), 1 deletion(-)
+ drivers/hid/hid-asus.c | 94 ++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 94 insertions(+)
 
 diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
-index 8ed10c5b22ab..8018e61cf026 100644
+index 8018e61cf026..301fe33f66b1 100644
 --- a/drivers/hid/hid-asus.c
 +++ b/drivers/hid/hid-asus.c
-@@ -137,7 +137,15 @@ MODULE_DESCRIPTION("Asus HID Keyboard and TouchPad");
- 	struct device_attribute dev_attr_##_name = \
- 		__ATTR(_sysfs_name, 0444, _name##_show, NULL)
- 
--#define ALLY_DEVICE_CONST_ATTR_RO(fname, sysfs_name, value)			\
-+#define ALLY_DEVICE_ATTR_WO(_name, _sysfs_name)			\
-+	struct device_attribute dev_attr_##_name =			\
-+		__ATTR(_sysfs_name, 0200, NULL, _name##_store)
-+
-+#define ALLY_DEVICE_ATTR_RW(_name, _sysfs_name)			\
-+	struct device_attribute dev_attr_##_name =			\
-+		__ATTR(_sysfs_name, 0644, _name##_show, _name##_store)
-+
-+#define ALLY_DEVICE_CONST_ATTR_RO(fname, sysfs_name, value)		\
- 	static ssize_t fname##_show(struct device *dev,				\
- 				   struct device_attribute *attr, char *buf)	\
- 	{									\
-@@ -190,6 +198,18 @@ struct asus_touchpad_info {
- 	int report_size;
+@@ -248,6 +248,23 @@ struct ally_config {
+ 	struct ally_joystick_resp_curve right_curve;
  };
  
-+struct ally_joystick_resp_curve_param {
-+	u8 move;
-+	u8 resp;
++/* XInput force-feedback report (output report 0x0d, gamepad interface) */
++struct ff_data {
++	u8 enable;
++	u8 magnitude_left;
++	u8 magnitude_right;
++	u8 magnitude_strong;
++	u8 magnitude_weak;
++	u8 pulse_sustain_10ms;
++	u8 pulse_release_10ms;
++	u8 loop_count;
 +} __packed;
 +
-+struct ally_joystick_resp_curve {
-+	struct ally_joystick_resp_curve_param entry_1;
-+	struct ally_joystick_resp_curve_param entry_2;
-+	struct ally_joystick_resp_curve_param entry_3;
-+	struct ally_joystick_resp_curve_param entry_4;
++struct ff_report {
++	u8 report_id;
++	struct ff_data ff;
 +} __packed;
 +
- struct ally_config {
- 	/* Must be locked if the data is being changed */
- 	struct mutex config_mutex;
-@@ -223,6 +243,9 @@ struct ally_config {
- 	u8 vibration_intensity_left;
- 	u8 vibration_intensity_right;
- 	bool vibration_active;
-+
-+	struct ally_joystick_resp_curve left_curve;
-+	struct ally_joystick_resp_curve right_curve;
- };
- 
  struct ally_handheld {
-@@ -1584,6 +1607,319 @@ static struct device_attribute dev_attr_right_trigger_range_upper_limit =
- static struct device_attribute dev_attr_right_trigger_range_upper_limit_range =
- 	__ATTR(range_upper_limit_range, 0444, right_trigger_range_upper_limit_range_show, NULL);
+ 	/* All read/write to IN interfaces must lock */
+ 	struct mutex intf_mutex;
+@@ -256,6 +273,13 @@ struct ally_handheld {
+ 	struct input_dev *ally_x_input;
+ 	struct hid_device *ally_x_hdev;
  
-+enum ally_joystick_side {
-+	JOYSTICK_LEFT = 0,
-+	JOYSTICK_RIGHT,
-+};
++	struct ff_report ff_packet;
++	struct work_struct ff_work;
++	/* Serializes ff_packet and update_ff between play_effect and ff_work */
++	spinlock_t ff_lock;
++	bool ff_work_initialized;
++	bool update_ff;
 +
-+/**
-+ * ally_set_joystick_resp_curve - Set joystick response curve parameters
-+ * @hdev: HID device
-+ * @side: Which joystick side (0=left, 1=right)
-+ * @curve: Response curve parameter structure
-+ *
-+ * Return: 0 on success, negative on failure
-+ */
-+static int ally_set_joystick_resp_curve(struct hid_device *hdev, enum ally_joystick_side side,
-+					struct ally_joystick_resp_curve *curve)
+ 	struct hid_device *keyboard_hdev;
+ 	struct input_dev *keyboard_input;
+ 
+@@ -370,9 +394,13 @@ enum ally_command_codes {
+ 	CMD_SET_ANTI_DEADZONE           = 0x18,
+ };
+ 
++/* XInput rumble magnitudes use the hardware's 0..100 intensity range. */
++#define ALLY_FF_MAX_INTENSITY 100
++
+ static const u8 ALLY_FORCE_FEEDBACK_OFF[] = {
+ 	0x0D, 0x0F, 0x00, 0x00, 0x00, 0x00, 0xFF, 0x00, 0xEB
+ };
++static_assert(sizeof(struct ff_report) == sizeof(ALLY_FORCE_FEEDBACK_OFF));
+ 
+ /*
+  * The ROG Ally device presents multiple USB interfaces (keyboard, mouse, gamepad,
+@@ -2254,6 +2282,59 @@ static bool ally_x_raw_event(struct input_dev *input, struct hid_device *hdev,
+ 	return true;
+ }
+ 
++static void ally_x_ff_work_fn(struct work_struct *work)
 +{
-+	const u8 payload[] = { side,
-+		curve->entry_1.move, curve->entry_1.resp,
-+		curve->entry_2.move, curve->entry_2.resp,
-+		curve->entry_3.move, curve->entry_3.resp,
-+		curve->entry_4.move, curve->entry_4.resp
-+	};
++	struct ally_handheld *ally =
++		container_of(work, struct ally_handheld, ff_work);
++	struct hid_device *hdev = NULL;
++	struct ff_report report;
++	bool update = false;
 +	int ret;
 +
-+	u8 *buf __free(kfree) = ally_alloc_cmd(CMD_SET_RESP_CURVE, payload, sizeof(payload));
-+	if (!buf)
-+		return -ENOMEM;
++	scoped_guard(spinlock_irqsave, &ally->ff_lock) {
++		if (ally->update_ff) {
++			report = ally->ff_packet;
++			ally->update_ff = false;
++			update = true;
++			hdev = ally->ally_x_hdev;
++		}
++	}
 +
-+	ret = ally_dev_set_report(hdev, buf, ROG_ALLY_REPORT_SIZE);
++	if (!update || !hdev)
++		return;
++
++	ret = ally_gamepad_send_packet(ally, hdev, (u8 *)&report, sizeof(report));
 +	if (ret < 0)
-+		return ret;
-+
-+	return 0;
++		hid_err(hdev, "Failed to send force-feedback: %d\n", ret);
 +}
 +
-+static int response_curve_apply(struct hid_device *hdev, bool is_left)
++static int ally_x_play_effect(struct input_dev *idev, void *data,
++			     struct ff_effect *effect)
 +{
-+	struct asus_drvdata *drvdata = hid_get_drvdata(hdev);
-+	struct ally_handheld *const ally = drvdata->rog_ally;
-+	struct ally_config *cfg = ally->config;
-+	struct ally_joystick_resp_curve curve;
-+	int ret;
++	struct ally_handheld *ally = &ally_drvdata;
++
++	if (effect->type != FF_RUMBLE)
++		return 0;
 +
 +	/*
-+	 * Snapshot under the lock so a concurrent sysfs write cannot change an
-+	 * entry between the monotonicity check and the packet being built.
++	 * Both the flag and the queueing must happen under ff_lock: removal
++	 * clears the flag under the same lock before cancel_work_sync(), so an
++	 * unlocked test here could queue work again after the cancel.
 +	 */
-+	scoped_guard(mutex, &cfg->config_mutex)
-+		curve = is_left ? cfg->left_curve : cfg->right_curve;
++	scoped_guard(spinlock_irqsave, &ally->ff_lock) {
++		ally->ff_packet.ff.magnitude_strong =
++			effect->u.rumble.strong_magnitude * ALLY_FF_MAX_INTENSITY / 65535;
++		ally->ff_packet.ff.magnitude_weak =
++			effect->u.rumble.weak_magnitude * ALLY_FF_MAX_INTENSITY / 65535;
++		ally->update_ff = true;
 +
-+	if (!(curve.entry_1.move < curve.entry_2.move &&
-+	      curve.entry_2.move < curve.entry_3.move &&
-+	      curve.entry_3.move < curve.entry_4.move))
-+		return -EINVAL;
-+
-+	ret = ally_set_joystick_resp_curve(hdev,
-+					    is_left ? JOYSTICK_LEFT : JOYSTICK_RIGHT,
-+					    &curve);
-+	if (ret) {
-+		hid_err(hdev, "Failed to set joystick response curve: %d\n", ret);
-+		return ret;
++		if (ally->ff_work_initialized)
++			schedule_work(&ally->ff_work);
 +	}
 +
 +	return 0;
 +}
 +
-+static ssize_t left_response_curve_apply_store(struct device *dev,
-+					       struct device_attribute *attr,
-+					       const char *buf, size_t count)
-+{
-+	struct hid_device *hdev = to_hid_device(dev);
-+	struct asus_drvdata *drvdata = hid_get_drvdata(hdev);
-+	struct ally_handheld *const ally = drvdata->rog_ally;
-+	bool apply;
-+	int ret;
-+
-+	if (!ally || !ally->config)
-+		return -ENODEV;
-+
-+	if (!ally->config->resp_curve_support)
-+		return -EOPNOTSUPP;
-+
-+	ret = kstrtobool(buf, &apply);
-+	if (ret)
-+		return ret;
-+
-+	if (!apply)
-+		return count;
-+
-+	ret = response_curve_apply(hdev, true);
-+	if (ret < 0)
-+		return ret;
-+
-+	return count;
-+}
-+
-+static ssize_t right_response_curve_apply_store(struct device *dev,
-+						struct device_attribute *attr,
-+						const char *buf, size_t count)
-+{
-+	struct hid_device *hdev = to_hid_device(dev);
-+	struct asus_drvdata *drvdata = hid_get_drvdata(hdev);
-+	struct ally_handheld *const ally = drvdata->rog_ally;
-+	bool apply;
-+	int ret;
-+
-+	if (!ally || !ally->config)
-+		return -ENODEV;
-+
-+	if (!ally->config->resp_curve_support)
-+		return -EOPNOTSUPP;
-+
-+	ret = kstrtobool(buf, &apply);
-+	if (ret)
-+		return ret;
-+
-+	if (!apply)
-+		return count;
-+
-+	ret = response_curve_apply(hdev, false);
-+	if (ret < 0)
-+		return ret;
-+
-+	return count;
-+}
-+
-+static ALLY_DEVICE_ATTR_WO(left_response_curve_apply, response_curve_apply);
-+static ALLY_DEVICE_ATTR_WO(right_response_curve_apply, response_curve_apply);
-+
-+static ssize_t response_curve_pct_show(struct device *dev,
-+				       struct device_attribute *attr, char *buf,
-+				       struct ally_joystick_resp_curve *curve,
-+				       int idx)
-+{
-+	switch (idx) {
-+	case 1: return sysfs_emit(buf, "%u\n", curve->entry_1.resp);
-+	case 2: return sysfs_emit(buf, "%u\n", curve->entry_2.resp);
-+	case 3: return sysfs_emit(buf, "%u\n", curve->entry_3.resp);
-+	case 4: return sysfs_emit(buf, "%u\n", curve->entry_4.resp);
-+	default: return -EINVAL;
-+	}
-+}
-+
-+static ssize_t response_curve_move_show(struct device *dev,
-+					struct device_attribute *attr, char *buf,
-+					struct ally_joystick_resp_curve *curve,
-+					int idx)
-+{
-+	switch (idx) {
-+	case 1: return sysfs_emit(buf, "%u\n", curve->entry_1.move);
-+	case 2: return sysfs_emit(buf, "%u\n", curve->entry_2.move);
-+	case 3: return sysfs_emit(buf, "%u\n", curve->entry_3.move);
-+	case 4: return sysfs_emit(buf, "%u\n", curve->entry_4.move);
-+	default: return -EINVAL;
-+	}
-+}
-+
-+static ssize_t response_curve_pct_store(struct device *dev,
-+					struct device_attribute *attr,
-+					const char *buf, size_t count,
-+					bool is_left,
-+					struct ally_handheld *ally, int idx)
-+{
-+	struct ally_config *cfg = ally->config;
-+	struct ally_joystick_resp_curve *curve;
-+	u8 value;
-+	int ret;
-+
-+	if (!cfg->resp_curve_support)
-+		return -EOPNOTSUPP;
-+
-+	ret = kstrtou8(buf, 10, &value);
-+	if (ret)
-+		return ret;
-+
-+	if (value > 100)
-+		return -EINVAL;
-+
-+	curve = is_left ? &cfg->left_curve : &cfg->right_curve;
-+
-+	scoped_guard(mutex, &cfg->config_mutex) {
-+		switch (idx) {
-+		case 1:
-+			curve->entry_1.resp = value;
-+			break;
-+		case 2:
-+			curve->entry_2.resp = value;
-+			break;
-+		case 3:
-+			curve->entry_3.resp = value;
-+			break;
-+		case 4:
-+			curve->entry_4.resp = value;
-+			break;
-+		default:
-+			return -EINVAL;
-+		}
-+	}
-+
-+	return count;
-+}
-+
-+static ssize_t response_curve_move_store(struct device *dev,
-+					 struct device_attribute *attr,
-+					 const char *buf, size_t count,
-+					 bool is_left,
-+					 struct ally_handheld *ally, int idx)
-+{
-+	struct ally_config *cfg = ally->config;
-+	struct ally_joystick_resp_curve *curve;
-+	u8 value;
-+	int ret;
-+
-+	if (!cfg->resp_curve_support)
-+		return -EOPNOTSUPP;
-+
-+	ret = kstrtou8(buf, 10, &value);
-+	if (ret)
-+		return ret;
-+
-+	if (value > 100)
-+		return -EINVAL;
-+
-+	curve = is_left ? &cfg->left_curve : &cfg->right_curve;
-+
-+	scoped_guard(mutex, &cfg->config_mutex) {
-+		switch (idx) {
-+		case 1:
-+			curve->entry_1.move = value;
-+			break;
-+		case 2:
-+			curve->entry_2.move = value;
-+			break;
-+		case 3:
-+			curve->entry_3.move = value;
-+			break;
-+		case 4:
-+			curve->entry_4.move = value;
-+			break;
-+		default:
-+			return -EINVAL;
-+		}
-+	}
-+
-+	return count;
-+}
-+
-+#define DEFINE_JS_CURVE_PCT_FOPS(region, side)					\
-+	static ssize_t side##_response_curve_pct_##region##_show(		\
-+		struct device *dev, struct device_attribute *attr, char *buf)	\
-+	{									\
-+		struct hid_device *hdev = to_hid_device(dev);			\
-+		struct asus_drvdata *drvdata = hid_get_drvdata(hdev);		\
-+		struct ally_handheld *ally = drvdata->rog_ally;			\
-+		return response_curve_pct_show(					\
-+			dev, attr, buf, &ally->config->side##_curve, region);\
-+	}									\
-+										\
-+	static ssize_t side##_response_curve_pct_##region##_store(		\
-+		struct device *dev, struct device_attribute *attr,		\
-+		const char *buf, size_t count)					\
-+	{									\
-+		struct hid_device *hdev = to_hid_device(dev);			\
-+		struct asus_drvdata *drvdata = hid_get_drvdata(hdev);		\
-+		struct ally_handheld *ally = drvdata->rog_ally;			\
-+		return response_curve_pct_store(dev, attr, buf, count,		\
-+						side##_is_left, ally, region);	\
-+	}
-+
-+#define DEFINE_JS_CURVE_MOVE_FOPS(region, side)					\
-+	static ssize_t side##_response_curve_move_##region##_show(		\
-+		struct device *dev, struct device_attribute *attr, char *buf)	\
-+	{									\
-+		struct hid_device *hdev = to_hid_device(dev);			\
-+		struct asus_drvdata *drvdata = hid_get_drvdata(hdev);		\
-+		struct ally_handheld *ally = drvdata->rog_ally;			\
-+		return response_curve_move_show(					\
-+			dev, attr, buf, &ally->config->side##_curve, region);\
-+	}									\
-+										\
-+	static ssize_t side##_response_curve_move_##region##_store(		\
-+		struct device *dev, struct device_attribute *attr,		\
-+		const char *buf, size_t count)					\
-+	{									\
-+		struct hid_device *hdev = to_hid_device(dev);			\
-+		struct asus_drvdata *drvdata = hid_get_drvdata(hdev);		\
-+		struct ally_handheld *ally = drvdata->rog_ally;			\
-+		return response_curve_move_store(dev, attr, buf, count,	        \
-+						 side##_is_left, ally, region); \
-+	}
-+
-+#define DEFINE_JS_CURVE_ATTRS(region, side)					\
-+	DEFINE_JS_CURVE_PCT_FOPS(region, side)					\
-+	DEFINE_JS_CURVE_MOVE_FOPS(region, side)					\
-+	static ALLY_DEVICE_ATTR_RW(side##_response_curve_pct_##region,		\
-+				   response_curve_pct_##region);		\
-+	static ALLY_DEVICE_ATTR_RW(side##_response_curve_move_##region,		\
-+				   response_curve_move_##region)
-+
-+/* Helper defines for "is_left" parameter in DEFINE_JS_CURVE_ATTRS macros */
-+#define left_is_left true
-+#define right_is_left false
-+
-+DEFINE_JS_CURVE_ATTRS(1, left);
-+DEFINE_JS_CURVE_ATTRS(2, left);
-+DEFINE_JS_CURVE_ATTRS(3, left);
-+DEFINE_JS_CURVE_ATTRS(4, left);
-+
-+DEFINE_JS_CURVE_ATTRS(1, right);
-+DEFINE_JS_CURVE_ATTRS(2, right);
-+DEFINE_JS_CURVE_ATTRS(3, right);
-+DEFINE_JS_CURVE_ATTRS(4, right);
-+
- static struct attribute *ally_config_attrs[] = {
- 	&dev_attr_xbox_controller.attr,
- 	NULL
-@@ -1608,6 +1944,15 @@ static struct attribute *left_joystick_axis_attrs[] = {
- 	&dev_attr_left_joystick_outer_threshold_range.attr,
- 	&dev_attr_left_joystick_anti_deadzone.attr,
- 	&dev_attr_left_joystick_anti_deadzone_range.attr,
-+	&dev_attr_left_response_curve_pct_1.attr,
-+	&dev_attr_left_response_curve_pct_2.attr,
-+	&dev_attr_left_response_curve_pct_3.attr,
-+	&dev_attr_left_response_curve_pct_4.attr,
-+	&dev_attr_left_response_curve_move_1.attr,
-+	&dev_attr_left_response_curve_move_2.attr,
-+	&dev_attr_left_response_curve_move_3.attr,
-+	&dev_attr_left_response_curve_move_4.attr,
-+	&dev_attr_left_response_curve_apply.attr,
- 	NULL
- };
+ static struct input_dev *ally_x_alloc_input_dev(struct hid_device *hdev)
+ {
+ 	struct input_dev *input_dev = devm_input_allocate_device(&hdev->dev);
+@@ -2308,6 +2389,16 @@ static int ally_x_setup_input(struct hid_device *hdev, struct ally_handheld *all
+ 	input_set_capability(input, EV_KEY, BTN_TRIGGER_HAPPY);
+ 	input_set_capability(input, EV_KEY, BTN_TRIGGER_HAPPY1);
  
-@@ -1618,6 +1963,15 @@ static struct attribute *right_joystick_axis_attrs[] = {
- 	&dev_attr_right_joystick_outer_threshold_range.attr,
- 	&dev_attr_right_joystick_anti_deadzone.attr,
- 	&dev_attr_right_joystick_anti_deadzone_range.attr,
-+	&dev_attr_right_response_curve_pct_1.attr,
-+	&dev_attr_right_response_curve_pct_2.attr,
-+	&dev_attr_right_response_curve_pct_3.attr,
-+	&dev_attr_right_response_curve_pct_4.attr,
-+	&dev_attr_right_response_curve_move_1.attr,
-+	&dev_attr_right_response_curve_move_2.attr,
-+	&dev_attr_right_response_curve_move_3.attr,
-+	&dev_attr_right_response_curve_move_4.attr,
-+	&dev_attr_right_response_curve_apply.attr,
- 	NULL
- };
- 
-@@ -1711,6 +2065,25 @@ static struct ally_config *ally_config_create(struct hid_device *hdev, struct al
- 	cfg->vibration_intensity_right = 100;
- 	cfg->vibration_active = false;
- 
-+	/* Initialize default response curve values (linear) */
-+	cfg->left_curve.entry_1.move = 0;
-+	cfg->left_curve.entry_1.resp = 0;
-+	cfg->left_curve.entry_2.move = 33;
-+	cfg->left_curve.entry_2.resp = 33;
-+	cfg->left_curve.entry_3.move = 66;
-+	cfg->left_curve.entry_3.resp = 66;
-+	cfg->left_curve.entry_4.move = 100;
-+	cfg->left_curve.entry_4.resp = 100;
++	memcpy(&ally->ff_packet, ALLY_FORCE_FEEDBACK_OFF, sizeof(ally->ff_packet));
++	spin_lock_init(&ally->ff_lock);
++	INIT_WORK(&ally->ff_work, ally_x_ff_work_fn);
++	ally->ff_work_initialized = true;
 +
-+	cfg->right_curve.entry_1.move = 0;
-+	cfg->right_curve.entry_1.resp = 0;
-+	cfg->right_curve.entry_2.move = 33;
-+	cfg->right_curve.entry_2.resp = 33;
-+	cfg->right_curve.entry_3.move = 66;
-+	cfg->right_curve.entry_3.resp = 66;
-+	cfg->right_curve.entry_4.move = 100;
-+	cfg->right_curve.entry_4.resp = 100;
++	input_set_capability(input, EV_FF, FF_RUMBLE);
++	ret = input_ff_create_memless(input, NULL, ally_x_play_effect);
++	if (ret)
++		hid_warn(hdev, "Failed to create force-feedback: %d\n", ret);
 +
- 	/* So far the only hardware this is supported is the Ally 1 */
- 	if (cfg->xbox_controller_support) {
- 		ret = ally_set_xbox_controller(hdev, cfg, true);
+ 	ret = input_register_device(input);
+ 	if (ret) {
+ 		hid_err(hdev, "Failed to register Ally X gamepad device: %d\n", ret);
+@@ -2460,6 +2551,9 @@ static void hid_asus_ally_remove(struct hid_device *hdev, struct ally_handheld *
+ 
+ 	scoped_guard(mutex, &ally_data_mutex) {
+ 		if (ally->ally_x_hdev == hdev) {
++			scoped_guard(spinlock_irqsave, &ally->ff_lock)
++				ally->ff_work_initialized = false;
++			cancel_work_sync(&ally->ff_work);
+ 			ally->ally_x_input = NULL;
+ 			ally->ally_x_hdev = NULL;
+ 		}
 -- 
 2.47.3
 

@@ -1,101 +1,92 @@
-Received: from mail-43170.protonmail.ch (mail-43170.protonmail.ch [185.70.43.170])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f47.google.com (mail-pj1-f47.google.com [209.85.216.47])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D4E6F48F825
-	for <linux-input@vger.kernel.org>; Thu, 13 Aug 2026 15:53:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.70.43.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B881241E6DA
+	for <linux-input@vger.kernel.org>; Thu, 13 Aug 2026 19:13:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.47
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786636422; cv=none; b=iQI2opJYRJWThT0sX4+DImwMOZIANuCoPhAAxFa3W/StU3oUTOz9TnQamnYqXJeikn9FwsUtmX8rHeO48Njt1ADg4soL7pFTQy4OCnaBmhCMiYVUIV2WBBDH2tBsCC47hKhpnLfZ++gdxlk70VB4vJ4zaQxCrtnN7akUxXHpMLg=
+	t=1786648437; cv=none; b=rHmB1oKw+Lw8KCYMrvkHf5PkIkK20SStpjZZUwD4DPlaJK0WsSNeQFKdgIPHGuN6OG0RC4Ea9i1bIesjF7fC99sCiPoXTmybRxWAG/Bwze574wixDEQgDp9qmPZGytNBUiE/YWKg7/PAnIFi8WTJwaBIUqONBJ/Cgp/zgEv3zXA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786636422; c=relaxed/simple;
-	bh=WGOCeIH9db89TSNRv8b+/b39Cf3yKL+4B/9bkmD/ttY=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=dUdS0YYqtMWBRkOyHDNYr4zQMKBjRpgY7ELiTpUXaX5909U3aU8vSVegN+CnWcHo6xdavSeNNwTXvfnc/LEESzfGW7PcMdufXCBG2oHzwevxfJisUZ/ss9Kfn9KMCy4i6jFDJCa6RuSFbCX9HF7g1gFFX2Okzguz95Sx7WYduzI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=idank.dev; spf=pass smtp.mailfrom=idank.dev; dkim=pass (2048-bit key) header.d=idank.dev header.i=@idank.dev header.b=XR0E5Wjr; arc=none smtp.client-ip=185.70.43.170
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=idank.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=idank.dev
+	s=arc-20240116; t=1786648437; c=relaxed/simple;
+	bh=594mSRa0tVsaaM0m4Zz05Ycb1HMWNqxXdGycPZ2r0sY=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=bZnNKL0iJyCa8V8KgdA89pk2Uz6zZCZ8yusmOQ06geryXu+j+LX+4SVVy+IyxYn3LXZ+6eosONg1Y9EJNjuhs5qw2qrZ7O9+j2dk4FcjkjTBK7oY83Glod57MsJDNDIm+F0J7C395NjMWl7ZXqJJcydZey9JTuGGs0ea0BTYteA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Wg0iYbPB; arc=none smtp.client-ip=209.85.216.47
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=idank.dev header.i=@idank.dev header.b="XR0E5Wjr"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=idank.dev;
-	s=protonmail; t=1786636401; x=1786895601;
-	bh=XdFAHzdC6gkWJ12O6Ey1hEml/4gf8tNaOqxFYQetxkI=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:From:To:
-	 Cc:Date:Subject:Reply-To:Feedback-ID:Message-ID:BIMI-Selector;
-	b=XR0E5WjrDw/qqrGh+ta3dciFM/SrK72bCJ8cnk5R9JEzgNxxPcFE6kSfmIJ6uRXng
-	 1DzWWOiRyTmg9ack635R5jLx2R218Td1YJK/TwUvDyLJxWWLjTqsqQzEF+HdUCHW3h
-	 T+7+F9cfcmNZgfAafkc+i3q3jqCwve1vY9VpZr/P/Kcsuu0sBkhrOsmYw/nThecLg2
-	 +MeT0sww/ZWFydX//5qZM14bLKlUzGwfTb/LNNgKZSPdPFtAd/306J3VQs9gpxaRFu
-	 B9CJR+kVU9nKF8SEpNj6/9Q4lkhdezLCqIqOJeV8DVKCiQ/w6RJdBJhOfiernZ8EZi
-	 4WHCrcaHsaTPw==
-X-Pm-Submission-Id: 4hLVJG6bF8z1DDrM
-From: Idan Koblik <me@idank.dev>
-To: sofia@schn.dev
-Cc: bentiss@kernel.org,
-	jikos@kernel.org,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Idan Koblik <me@idank.dev>
-Subject: [PATCH] Add support for HyperX cloud 2 wireless.
-Date: Thu, 13 Aug 2026 18:53:10 +0300
-Message-ID: <20260813155312.106584-1-me@idank.dev>
-X-Mailer: git-send-email 2.55.0
-In-Reply-To: <20260804032337.315750-1-sofia@schn.dev>
-References: <20260804032337.315750-1-sofia@schn.dev>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Wg0iYbPB"
+Received: by mail-pj1-f47.google.com with SMTP id 98e67ed59e1d1-38e347638adso260993a91.0
+        for <linux-input@vger.kernel.org>; Thu, 13 Aug 2026 12:13:56 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1786648436; x=1787253236; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=PAg7NeC1TQ8qjNCzW1dA2C5rHDBwRoUGLDkSbMYNfSM=;
+        b=Wg0iYbPBLNaL9Gxhdzt56yAACXCfrxFJj5BKWb4+5AqaWx7CNqeq5tkqirNMIj6KUP
+         v4U85YnoCF3XQiI5Ih1ZNpqli/ksV7UQMv07wDDvEZHuIQgzKCesRyEZqgD3pBYC1iUD
+         20X1oKceiOIj1qajWy3YzNXbGu5JJo1JBHEi/efFli52Dad1Hg2hFgymXBYnuvkHDRcd
+         GU0R0cErAJXsTBB6lfoMmYK6LBKputLXZYvpXn1c8816gsC28cfrzwBSHm3XMtNAEd+d
+         t2uwN7gGaCeM46+SqjZNOviuu1QaqMeanQl+BKoTH7uMzx//R+gJt2wZcJ0+9l/34++I
+         p+yg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1786648436; x=1787253236;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=PAg7NeC1TQ8qjNCzW1dA2C5rHDBwRoUGLDkSbMYNfSM=;
+        b=L21JJs4/TgQrshuQbZzdT8t96lZcN4eY4qMrgMHcXMfORcAUnauJCIRhHE3KYVgZne
+         V4mjht9RbwNSU3XARfMdJeN1unu4gPaLIFPszSxwojXUD5qpzeblaukmhWecbEQghxmh
+         BFS18ESIpPhJLyWoUT63aW7W4UoeYRptHXyOZQre16rWOziALvuzfyBAYfM15t19Q3Zn
+         rpRWg3Kk4fGANp0CShwZXzZbLou5E9YugjDd32iQv/iitxK4vS9Q4whKcyh+i1jP4vh3
+         R7vJq+JVGJ6ni/mZQXugLjmvDgwLXpZjh8OpMwJazjkU7iEo0enNg9eW/g+QPL/uK5y1
+         cyFg==
+X-Gm-Message-State: AOJu0YxbJwM8Sn8DZh/AzoJ4ERXqiE9DP1sEQDoA6TghE0WXcfZwBtJm
+	ucX47GTHIziFy94P1IJNbrTcyeWgEUNQCVEeM8gvX/SmtsUY8Nu4o17Af8kynQ==
+X-Gm-Gg: AR+sD12DMx5LnMoc26HQHWE03EMp4JzwfFS5HQmhVAPjhuv1Gfw2MMmQh+9QexCcIs/
+	mbhGiBRgwZVAB2uS/QtAR/xcD3VWM7/kRJwvTDx6xuqZt5EldOATI0shE5hrJs9T/aanEN08i/6
+	p+Go3SsASLrzSLZD8DJN6UeIHPxd0g7b0bnvgu4pJtjbe7O3H45Xm1soxpZn92vZscFWSz8q5dw
+	LJh+e6ez/FWUuy2lXsIG/fHOZmNAh8kmGi2cN3F6n3LsR4+22knJUGw0U7eRFuTqFDaHrzdgU4K
+	DgEZ7jh+knrVXg9ohL7kSyxn+LAjaJrzky6FkscBJZrnsc3GRjhZQPfq4PT8bHf+XWvfrP+GCyd
+	2uwlYrRg2f0F0bRxrzLSyIE4OITWaov7/63G9JB6bCP73uG+5+1W6m6nQ4SRp8caz76t6ei0/qa
+	lVv3UtC8n59gPljxgFDXr+d1d9cnIlr5DI4SdFKaNIIU7dMaRXq66TAoTBMrSVrbEntQFnGITUq
+	3mULlfLHd6r217azCPy43hgEKsEmg==
+X-Received: by 2002:a17:90b:5805:b0:380:105f:8ffd with SMTP id 98e67ed59e1d1-3933b90d562mr184091a91.16.1786648435953;
+        Thu, 13 Aug 2026 12:13:55 -0700 (PDT)
+Received: from google.com ([2a00:79e0:2ebe:8:85b8:2741:2d36:4d32])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-31ebfc39de5sm9873538eec.22.2026.08.13.12.13.54
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 13 Aug 2026 12:13:55 -0700 (PDT)
+Date: Thu, 13 Aug 2026 12:13:52 -0700
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: david@ixit.cz
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	phone-devel@vger.kernel.org
+Subject: Re: [PATCH v2] Input: rmi4 - Use platform data instead of query,
+ when available
+Message-ID: <an4Xafaue2u4QT4Y@google.com>
+References: <20260806-respect-x-y-mm-v2-1-e0681ed3d63c@ixit.cz>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260806-respect-x-y-mm-v2-1-e0681ed3d63c@ixit.cz>
 
-Add the device ID for HyperX cloud 2 wireless, which requires
-the same handling as the devices support by this driver.
+On Thu, Aug 06, 2026 at 07:17:46PM +0200, David Heidelberg via B4 Relay wrote:
+> From: David Heidelberg <david@ixit.cz>
+> 
+> Platform data may define touchscreen-x-mm and touchscreen-y-mm, but
+> these were quietly overridden by data provided by sensor.
+> 
+> Signed-off-by: David Heidelberg <david@ixit.cz>
 
-Tested with HyperX cloud 2 wireless.
+Applied, thank you.
 
-(
-I was about to submit a patch for my own driver for HyperX devices
-(https://github.com/IdanKoblik/hid-hyperx), but I noticed that you had
-already submitted support for the HyperX Cloud III Wireless last week :( 
-Anyway, here's a small patch to add support for the HyperX Cloud II
-Wireless to the existing driver.
-)
-
-Signed-off-by: Idan Koblik <me@idank.dev>
----
- drivers/hid/hid-hp.c  | 2 ++
- drivers/hid/hid-ids.h | 1 +
- 2 files changed, 3 insertions(+)
-
-diff --git a/drivers/hid/hid-hp.c b/drivers/hid/hid-hp.c
-index fa53d5f6c..84ea358ea 100644
---- a/drivers/hid/hid-hp.c
-+++ b/drivers/hid/hid-hp.c
-@@ -381,6 +381,8 @@ static void hp_remove(struct hid_device *hdev)
- static const struct hid_device_id hp_devices[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_HP,
- 			 USB_DEVICE_ID_HP_HYPERX_CLOUD_III_WIRELESS) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_HP,
-+			 USB_DEVICE_ID_HP_HYPERX_CLOUD_II_WIRELESS) },
- 	{}
- };
- MODULE_DEVICE_TABLE(hid, hp_devices);
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index aa2c3a713..a8a37a936 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -697,6 +697,7 @@
- #define USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE_0641	0x0641
- #define USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE_1f4a	0x1f4a
- #define USB_DEVICE_ID_HP_HYPERX_CLOUD_III_WIRELESS 0x05b7
-+#define USB_DEVICE_ID_HP_HYPERX_CLOUD_II_WIRELESS 0x0995
- 
- #define USB_VENDOR_ID_HUION		0x256c
- #define USB_DEVICE_ID_HUION_TABLET	0x006e
-
-base-commit: 3d6d817622b0a9721e3cc404df3469171582be13
-prerequisite-patch-id: 8d99df67dab75c0c6cbc887b2ea6be90be288037
 -- 
-2.55.0
-
+Dmitry

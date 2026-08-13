@@ -1,277 +1,202 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3598C3D47BC
-	for <linux-input@vger.kernel.org>; Thu, 13 Aug 2026 14:59:57 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9D336485518
+	for <linux-input@vger.kernel.org>; Thu, 13 Aug 2026 15:00:16 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786633202; cv=none; b=Gs0ZhaLdJDR8N8MhDveGjiBcLNXeXZTs5lLEOGw4sGQjBcTt6iKzUdFwZcmMB0mWiUNh7TQxtSzgk+Id5vpC1fQnDrkR8AY27ZEfKvEA6A4ezfdnOoiwZLnF8SVg6l8Pb9N6lIjN/4jJIMWa7MAALneqe+YysxFHs3At2I0CmEI=
+	t=1786633218; cv=none; b=pWyQ21LRX/GX2TczsLLIDhO/F5JmoUqf2KqSHUm/UvyL6qHpohpEjAeTgM9QWI33m0THciN1UfghkBnkKozw+5K/zRitRZygDwjeB874EAmVN3b60BmQi+m41TjaZcNJq5PMV6Uh9YrK+mPvolDKvPN1qu1tWiT9PnPfIGW7j7A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786633202; c=relaxed/simple;
-	bh=LdJPScTGvrLRbYshHt2JpGTb8mGY4Hu5xLHwIRaO5h8=;
+	s=arc-20240116; t=1786633218; c=relaxed/simple;
+	bh=76ellz6rP+n9OAOhG+VkBcIegAVPPzWRS4sUMj7AqYE=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=BQn94p+GvmKtc/KlI3A+KHCEctyQ5+PENncx3HVpHRW1vwGhxmNP1NjascvV98U+OMj4d7quuc/d4+fDeJ5dcCb3sv89u6yXgDgeAMErlR5NOx05jxdxoWRME2fqfP86CkdHQASuP52Y2TkRgUthjzSS9XK74CB0BqLhltfL3ws=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=egm69g9v; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=X+SNEQZ2IRvNIWGmttC8TkUtn6dmQKhDjf7LlkGTq64umIpNoIoGzxeb0GA5mZLGiitteEH6o18wOf/NBk3rsQIxruHzi0hajyx5poaruz9N4wJz49l+Gh2D7csTF9uhHxDyKh78Qvnz2mnVUdr5hPrQ12qAdRf+QhxF7jIVxfU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=CFLN/djC; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="egm69g9v"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 29BB51F00A3A;
-	Thu, 13 Aug 2026 14:59:56 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="CFLN/djC"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC1651F000E9;
+	Thu, 13 Aug 2026 15:00:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786633196;
-	bh=5kEjzXhORAQJDH6Yma/p/8mhjpDQLznOLlLYLX6dZzk=;
+	s=k20260515; t=1786633216;
+	bh=RPQXA+y8kitVepk0EslHieIBd2JklU3UTLkxVmQNtD0=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=egm69g9v6/HTcyGMJIVEkOsLS37pb2PhsvOiRcEw/9Oy2hxYo/aqBw5NMME9PHEz5
-	 IsBlqkA6zGZCeS7M+FgC9JUl+Gi13n9Qb7jQfbFP0Tj68ouk25bJukeHfkcr3cBJfn
-	 kpwgcnSCEKnp8Uj9Thbji2/C7+lMrb4Kf6XCJ+OqRZrBx+s+x5NGUJFGDRmhwNCjxv
-	 50cpeT4RIiq99hyXYr6eUAldrZtn56cBQMDLB6S2s+c67Hns2lPiIJb4IimzWjPJP1
-	 kSh9rLQld7uojMZSq4phQEM8qMjzhB0zrfmHwVruzhhAbeJsrwdq8iA9zNnAziGBnR
-	 QdghNq7XueU+w==
+	b=CFLN/djCXht6KHEgqzIlwHmAUbq7PZMtVLZH1UoZz4ocAmdBXHFxRv2g6O3HYb4dZ
+	 SHSaF9QwaII47MWGnvSrSruk0v9JErr3+PlncS5ZdiEayjpq9FPfyjwUWXmbIxtq6F
+	 m2Hld4GEk5zBLKdz/33Y9yH2o0zE9nQ93oX3pcbnkz8LrQO0wGWdZ+VMQuplZO9CAh
+	 7snM9bfHLYtPlJ4xHLTRI4AKf5sNxNN34V0iEIdKXIF1lC5F/vClPovH1dbfUxGy+5
+	 XdIExlUh4kasBfsUXMf4itoIcN0EGYvMAQYZQy8BJW/Rm6UM+7xR8Ech5aWZ4+0w5/
+	 uq5IqW2mDzSEQ==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 03/12] HID: asus: add gamepad configuration
+Subject: Re: [PATCH 02/12] HID: asus: add support for ROG Ally handhelds
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Denis Benato" <denis.benato@linux.dev>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260813144736.2477941-4-denis.benato@linux.dev>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20260813144736.2477941-3-denis.benato@linux.dev>
 References: <20260813144736.2477941-1-denis.benato@linux.dev>
- <20260813144736.2477941-4-denis.benato@linux.dev>
+ <20260813144736.2477941-3-denis.benato@linux.dev>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 13 Aug 2026 14:59:55 +0000
-Message-Id: <20260813145956.29BB51F00A3A@smtp.kernel.org>
+Date: Thu, 13 Aug 2026 15:00:15 +0000
+Message-Id: <20260813150015.BC1651F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 6 potential issue(=
+Thank you for your contribution! Sashiko AI review found 5 potential issue(=
 s) to consider:
-
-New issues:
-- [High] Dangling global pointer `ally_drvdata.cfg_hdev` on probe failure.
-- [High] Uninitialized mutex `cfg->config_mutex`.
-- [High] TOCTOU NULL pointer dereference in sysfs callbacks reading `ally->=
-config`.
-- [Medium] Missing lock acquisitions in sysfs store callback (`xbox_control=
-ler_store`).
-- [Low] Mixing `goto`-based error handling with the `__free()` scope-based =
-cleanup helper in `ally_check_capability()`.
-
-Pre-existing issues:
-- [High] Sleeping in atomic context by acquiring a mutex in HID `raw_event`=
- callback.
+- [Critical] Acquiring a sleeping lock (mutex) inside an atomic context (UR=
+B completion handler), causing a 'BUG: scheduling while atomic' kernel pani=
+c.
+- [High] Missing rollback of global state pointers on probe failure leaves =
+dangling pointers in a static global struct.
+- [Medium] Hardware packet structures are defined using native types (`uint=
+16_t`), breaking portability on Big Endian architectures.
+- [Medium] Device fails to resume if the ROG Ally extensions failed to prob=
+e.
+- [Medium] Missing bounds check before accessing `data[1]` in `ally_x_raw_e=
+vent` allows reading stale buffer data.
 --
 
---- Patch [3]: [PATCH 03/12] HID: asus: add gamepad configuration ---
-commit 4090231155d8c981f8463cdfdb5cbc51349b174f
+--- Patch [2]: [PATCH 02/12] HID: asus: add support for ROG Ally handhelds =
+---
+commit 5a6720dc4f3259dca06d1dbb804d6380655462ce
 Author: Denis Benato <denis.benato@linux.dev>
 
-HID: asus: add gamepad configuration
+HID: asus: add support for ROG Ally handhelds
 
-Add the base configuration structures for the gamepad configuration,
-detect capabilities and initialize the device in a known state.
+This commit implements the core functionality for ASUS handhelds, extending
+the hid-asus driver to initialize the device, implement Ally X input mappin=
+g,
+and handle specific AC button events.
 
 > diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
-> index f4b2c4a616b75..6a15380488efb 100644
+> index 897b04d06b464..f4b2c4a616b75 100644
 > --- a/drivers/hid/hid-asus.c
 > +++ b/drivers/hid/hid-asus.c
-
 [ ... ]
-
-> @@ -556,6 +590,219 @@ static u8 *ally_alloc_cmd(u8 cmd, const u8 *payload=
-, u8 payload_size)
->  	return hidbuf;
->  }
-> =20
-> +/**
-> + * ally_check_capability - Check if a specific capability is supported
-> + * @hdev: HID device
-> + * @ally: ally handheld structure
-> + * @check_cmd: Capability command code to query
-> + *
-> + * Returns true if capability is supported, false otherwise
-> + */
-> +static bool ally_check_capability(struct hid_device *hdev, struct ally_h=
-andheld *ally,
-> +				  enum ally_command_codes check_cmd)
-> +{
-> +	u8 payload[] =3D { 0x00 };
-> +	bool result =3D false;
-> +	int ret;
-> +
-> +	u8 *buf __free(kfree) =3D ally_alloc_cmd(check_cmd, payload, sizeof(pay=
-load));
-> +	if (!buf) {
-> +		hid_err(hdev, "Failed to allocate buffer for capability check.\n");
-> +		goto ally_check_capability_err;
-
-[Severity: Low]
-Does this code mix goto-based error handling with the __free() scope-based=
-=20
-cleanup helper? The cleanup guidelines suggest that goto and cleanup helper=
-s=20
-should never be mixed in the same function to avoid confusing ownership=20
-semantics.
-
-> +	}
-> +
-> +	ret =3D ally_gamepad_send_receive_packet(ally, hdev, buf, ROG_ALLY_REPO=
-RT_SIZE);
-
+> @@ -232,12 +271,655 @@ static const struct asus_touchpad_info medion_e123=
+9t_tp =3D {
 [ ... ]
-
-> +static int ally_set_xbox_controller(struct hid_device *hdev,
-> +				    struct ally_config *cfg, bool enabled)
-> +{
-> +	u8 payload[] =3D { enabled ? 0x01 : 0x00 };
-> +	int ret;
-> +
-> +	if (!cfg || !cfg->xbox_controller_support)
-> +		return -ENODEV;
-> +
-> +	u8 *buf __free(kfree) =3D ally_alloc_cmd(CMD_SET_XBOX_CONTROLLER, paylo=
-ad, sizeof(payload));
-> +	if (!buf)
-> +		return -ENOMEM;
-> +
-> +	ret =3D ally_dev_set_report(hdev, buf, ROG_ALLY_REPORT_SIZE);
-> +	if (ret < 0) {
-> +		hid_err(hdev, "Failed to set Xbox controller mode: %d\n", ret);
-> +		return ret;
-> +	}
-> +
-> +	cfg->xbox_controller_enabled =3D enabled;
+> +struct ally_x_input_report {
+> +	uint16_t x, y;
+> +	uint16_t rx, ry;
+> +	uint16_t z, rz;
+> +	uint8_t buttons[3];
+> +} __packed;
 
 [Severity: Medium]
-Are we modifying the configuration state and interacting with the hardware=
-=20
-without acquiring the required locks? The sysfs handler modifies=20
-cfg->xbox_controller_enabled and sends device reports, but neither=20
-cfg->config_mutex nor ally->intf_mutex appear to be held here. Could this=20
-cause a data race if userspace writes to the xbox_controller sysfs attribut=
-e?
+Are these values interpreted correctly on big-endian architectures?
 
-> +	return 0;
-> +}
-> +
-> +static ssize_t xbox_controller_show(struct device *dev,
-> +				    struct device_attribute *attr, char *buf)
-> +{
-> +	struct hid_device *hdev =3D to_hid_device(dev);
-> +	struct asus_drvdata *drvdata =3D hid_get_drvdata(hdev);
-> +	struct ally_handheld *ally =3D drvdata->rog_ally;
-> +	struct ally_config *cfg;
-> +
-> +	if (!ally || !ally->config)
-> +		return -ENODEV;
-> +
-> +	cfg =3D ally->config;
-
-[Severity: High]
-Is it possible for ally->config to be freed between the check and this=20
-assignment? If hid_asus_ally_remove() runs concurrently and sets=20
-ally->config =3D NULL, could this result in a NULL pointer dereference?
-
-> +	if (!cfg->xbox_controller_support)
-> +		return -ENODEV;
-> +
-> +	return sysfs_emit(buf, "%d\n", cfg->xbox_controller_enabled ? 1 : 0);
-> +}
-> +
-> +static ssize_t xbox_controller_store(struct device *dev,
-> +				     struct device_attribute *attr,
-> +				     const char *buf, size_t count)
-> +{
-> +	struct hid_device *hdev =3D to_hid_device(dev);
-> +	struct asus_drvdata *drvdata =3D hid_get_drvdata(hdev);
-> +	struct ally_handheld *ally =3D drvdata->rog_ally;
-> +	struct ally_config *cfg;
-> +	bool enabled;
-> +	int ret;
-> +
-> +	if (!ally || !ally->config)
-> +		return -ENODEV;
-> +
-> +	cfg =3D ally->config;
-
-[Severity: High]
-Like in xbox_controller_show(), could a concurrent device unbind cause a=20
-NULL pointer dereference here if ally->config is cleared after the check?
-
-> +	if (!cfg->xbox_controller_support)
-> +		return -ENODEV;
+Since USB HID payloads natively use little-endian byte ordering, defining
+these as native uint16_t and using them without le16_to_cpu() conversion
+can corrupt the analog stick values on big-endian systems.
 
 [ ... ]
-
-> +static struct ally_config *ally_config_create(struct hid_device *hdev, s=
-truct ally_handheld *ally)
+> +static bool ally_x_raw_event(struct input_dev *input, struct hid_device =
+*hdev,
+> +			    struct hid_report *report, u8 *data, int size)
 > +{
-> +	struct ally_config *cfg;
-> +	int ret, sysfs_i;
+> +	struct ally_x_input_report *in_report;
+> +	u8 byte;
 > +
-> +	cfg =3D devm_kzalloc(&hdev->dev, sizeof(*cfg), GFP_KERNEL);
-> +	if (!cfg)
-> +		return ERR_PTR(-ENOMEM);
+> +	if (!input)
+> +		return false;
 > +
-> +	ret =3D ally_detect_capabilities(hdev, ally, cfg);
+> +	if (size < 1)
+> +		return false;
+> +
+> +	if (data[0] =3D=3D 0x5A) {
+> +		input_report_key(input, KEY_PROG1, data[1] =3D=3D 0x38);
 
-[Severity: High]
-Are we missing an initialization for cfg->config_mutex? The config_mutex in=
-=20
-struct ally_config is allocated with devm_kzalloc, but it doesn't seem to b=
-e=20
-initialized with mutex_init() before ally_detect_capabilities() uses=20
-scoped_guard() to lock it. Could this lead to a lockdep splat or panic?
+[Severity: Medium]
+Is it possible for data[1] to read stale memory here?
 
-> +	if (ret < 0) {
-> +		hid_err(hdev, "Failed to detect Ally capabilities: %d\n", ret);
-> +		goto ally_config_create_err;
+Since the size check above only ensures the size is at least 1, if the devi=
+ce
+sends a 1-byte report starting with 0x5A, accessing data[1] will read
+out-of-bounds from the previous transfer buffer contents.
+
+[ ... ]
+> +static bool hid_asus_ally_raw_event(struct hid_device *hdev, struct ally=
+_handheld *ally,
+> +			struct hid_report *report, u8 *data, int size)
+> +{
+> +	struct input_dev *x_input;
+> +	struct hid_device *x_hdev;
+> +
+> +	if (!ally)
+> +		return false;
+> +
+> +	switch (ally_get_endpoint_address(hdev)) {
+> +	case HID_ALLY_X_INTF_IN:
+> +		scoped_guard(mutex, &ally_data_mutex) {
+> +			x_input =3D ally->ally_x_input;
+> +			x_hdev =3D ally->ally_x_hdev;
+> +		}
+
+[Severity: Critical]
+Can this cause a kernel panic due to scheduling while atomic?
+
+The hid_asus_ally_raw_event() function is invoked from the driver's
+raw_event callback (asus_raw_event). For USB HID devices, the core HID
+subsystem invokes raw_event directly from the URB completion handler which
+executes in atomic interrupt context.
+
+Acquiring a sleeping lock like a mutex in atomic context violates kernel
+scheduling rules and will trigger an immediate panic.
+
+[ ... ]
+> @@ -1399,21 +2101,28 @@ static int __maybe_unused asus_reset_resume(struc=
+t hid_device *hdev)
+[ ... ]
+> +	if (drvdata->quirks & QUIRK_ROG_ALLY_XPAD) {
+> +		ret =3D hid_asus_ally_reset_resume(hdev, drvdata->rog_ally);
+> +		if (ret) {
+> +			hid_err(hdev, "Failed to resume ROG Ally HID extensions: %d\n", ret);
+> +			return ret;
+> +		}
 > +	}
 
-[ ... ]
+[Severity: Medium]
+Could this break system resume if the optional extension failed to probe?
 
-> @@ -838,8 +1079,30 @@ static struct ally_handheld *hid_asus_ally_probe(st=
-ruct hid_device *hdev)
->  		switch (ep) {
->  		case HID_ALLY_INTF_CFG_IN:
->  			ally_drvdata.cfg_hdev =3D hdev;
-> +
-> +			/*
-> +			 * This function assumes the asus-specific initialization
-> +			 * to have been performed already at this point.
-> +			 */
-> +			ret =3D ally_gamepad_check_ready(&ally_drvdata, hdev);
-> +			if (ret < 0) {
-> +				hid_err(hdev, "ROG Ally device is not ready: %d\n", ret);
-> +				return ERR_PTR(ret);
+If hid_asus_ally_probe() fails during device probe, drvdata->rog_ally is le=
+ft
+as NULL, but the device continues to operate as a generic HID device.
 
-[Severity: High]
-If ally_gamepad_check_ready() fails, do we leave ally_drvdata.cfg_hdev=20
-pointing to the hid_device? Since ally_drvdata is global state and the devi=
-ce=20
-will be freed on probe failure, could this cause a use-after-free later?
-
-> +			}
-> +
+During system resume, hid_asus_ally_reset_resume() will return -EINVAL when
+ally is NULL, which gets propagated here and causes the entire device resume
+to fail.
 
 [ ... ]
+> @@ -1530,6 +2239,15 @@ static int asus_probe(struct hid_device *hdev, con=
+st struct hid_device_id *id)
+[ ... ]
+> +	if (drvdata->quirks & QUIRK_ROG_ALLY_XPAD) {
+> +		ally =3D hid_asus_ally_probe(hdev);
+> +		if (IS_ERR(ally))
+> +			hid_err(hdev, "Failed to initialize ROG Ally HID extensions: %ld\n",
+> +				PTR_ERR(ally));
+> +		else
+> +			drvdata->rog_ally =3D ally;
+> +	}
 
 [Severity: High]
-This is a pre-existing issue, but I noticed something concerning in=20
-handle_ally_event() when it is called from the raw_event path:
+Might this lead to a use-after-free if probe fails later in this function?
 
-drivers/hid/hid-asus.c:handle_ally_event() {
-	...
-		scoped_guard(mutex, &ally_data_mutex) {
-			keyboard_input =3D ally->keyboard_input;
-			if (keyboard_input) {
-	...
-}
+The hid_asus_ally_probe() function populates the statically-allocated global
+ally_drvdata struct with pointers to the current device's hdev and
+devres-managed input_dev.
 
-Since handle_ally_event() is called from the HID raw_event callback, it=20
-runs in an atomic context where sleeping is prohibited. Could acquiring=20
-ally_data_mutex here lead to a kernel panic by sleeping in atomic context?
+If a subsequent step in asus_probe() fails (such as
+asus_initialize_reports()), the function jumps to the error path without
+calling hid_asus_ally_remove(). The devres cleanup will free the input_dev,
+but the global ally_drvdata will retain the dangling pointer. If another
+interface successfully probes and triggers ally_resume_work_fn(), it will
+dereference the freed pointer.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260813144736.2477=
-941-1-denis.benato@linux.dev?part=3D3
+941-1-denis.benato@linux.dev?part=3D2

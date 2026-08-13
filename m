@@ -1,205 +1,379 @@
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 289943E835E;
-	Thu, 13 Aug 2026 07:24:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ED0384477EA;
+	Thu, 13 Aug 2026 09:47:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786605862; cv=none; b=tR8f6W588s43nrnqo0IY6an1TpD7Y8igEqBYq2Xpe3Suw76gtXMBWuzmPb+OcEpZ10I0hYikSq6+hJZSNX4kB4gLk8MBYBugkPcDSYJlhtCVWs9+u/OBoRUkHhfqdaWXGi5UzxzzSq0z2HyqoKWl0QiqkGeoj7vw4sT9rtIQBGg=
+	t=1786614430; cv=none; b=tp0tmDtd78L5H1oc1nC17h2agPmFU0pWvuIe2LHfAcm0+knR9+efrKla/fHQkwlN/mmCCNeTuNR8mqDBp4TGO+NhXSylCheti/i+QRGmmXAPjyrk9TFVyMpUDiPxHWpXUud6+KcKKM4qLHW6m0NeMRC90ESWImp4nkLoyslBapo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786605862; c=relaxed/simple;
-	bh=wMDZ+yF7MJiRi4BHF5SeNdn9SuoSk7DaMkxHNFzFuw8=;
-	h=Date:Message-ID:From:To:Cc:Subject:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=j0W/OnzcqpUQt6m/bjKypergTzlUp1/MVShpuyem3wRHfApzxHhRDeu4vUHg4ogGQF4TxQIEtq57ctG2CuBji4TiZWgZpAu0P3W2oCJxsK/ZPfuViEiseXxiO7JYjp0IM0Z5OflLVzVIQ/C/iT0Sf0IKV06eJXDci/pqvpxbD3Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=wWDkgTEW; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=cPCOgL/l; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=PkWJx3x7; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=9lqeTZm1; arc=none smtp.client-ip=195.135.223.130
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
+	s=arc-20240116; t=1786614430; c=relaxed/simple;
+	bh=qwqRvTU2Ne+KHGcdYGs7S77ZUOwWRx+aAiqlRL4Qa5A=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=qWQDwozzxKpPIoHba3Hl4u4C84vSFaIuTtwMvE56MoH/mlLFPovUK5mZ+5nhdMQmy6fPBnSJktqXAR1Hl4Kk2VHiL5LR1DkMyX/4Pfv3/xtl/UWleFlSs/xURjywhezUabjd9ifvo+C6tqFHhYpoVtBEh5+1TnKXvF/RRkoCx24=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=a9RslTSx; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="wWDkgTEW";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="cPCOgL/l";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="PkWJx3x7";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="9lqeTZm1"
-Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out1.suse.de (Postfix) with ESMTPS id E6B6682824;
-	Thu, 13 Aug 2026 07:24:10 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1786605855; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=do+fgxlFzWNLnyxWPlPOeXJtL859gPZdnzZV0K9r9mU=;
-	b=wWDkgTEWaAo3vZFiwF+DBFKUdYwxN0HI1IUX6zuoh5vEfD/IKCWaKji36UDE1UgUglqynK
-	if8LWCw+VflVLbIwGXUtQ+sz12m0aOqQ8DuzTTyZUE8uA/aViBYXHCUDGbzD7qd0JBxQCN
-	rF+XAqVvjkF4C9GW2DBySvmW3gSj74E=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1786605855;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=do+fgxlFzWNLnyxWPlPOeXJtL859gPZdnzZV0K9r9mU=;
-	b=cPCOgL/l6gCamO7yKYRi2BF5038PB497V+zebDhMVYtNE2PSrtgm4jXuEjoLd03/d6OpGn
-	RPRql90WAPsx0wDg==
-Authentication-Results: smtp-out1.suse.de;
-	none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1786605850; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=do+fgxlFzWNLnyxWPlPOeXJtL859gPZdnzZV0K9r9mU=;
-	b=PkWJx3x7Nck3Wqf59kfZ3iR87H/V/1mzTOkSZdYpq75S+2CWDU1tA57P6i79Suy4zfs52p
-	W+u5XCz30uKkbLoRBCHLjxLsPw9cT/oZ9asED6MZr8mpjrgM/J8mgyuoSsU7YwsouCY3Q6
-	FKog8wp06Mgbk0z4saOoA8a16pswDkA=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1786605850;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=do+fgxlFzWNLnyxWPlPOeXJtL859gPZdnzZV0K9r9mU=;
-	b=9lqeTZm1s3V4oAW+mKkdn8+4UOttbbomdsKprvCppvCDhedR9/gqpwseOsKIyNFf7oHIQ9
-	cBKoXhAxGETk3kAA==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 9F6A877CCE;
-	Thu, 13 Aug 2026 07:24:10 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id xlOcJRpxfWoXRgAAD6G6ig
-	(envelope-from <tiwai@suse.de>); Thu, 13 Aug 2026 07:24:10 +0000
-Date: Thu, 13 Aug 2026 09:24:10 +0200
-Message-ID: <87y0eaxz39.wl-tiwai@suse.de>
-From: Takashi Iwai <tiwai@suse.de>
-To: Mikhail Gavrilov <mikhail.v.gavrilov@gmail.com>
-Cc: linux-sound@vger.kernel.org,
-	tiwai@suse.com,
-	perex@perex.cz,
-	g@b4.vu,
-	jikos@kernel.org,
-	bentiss@kernel.org,
-	linux-input@vger.kernel.org
-Subject: Re: snd-usb-audio: exposing a vendor HID control channel as mixer controls (Topping M62, 152a:875c)
-In-Reply-To: <20260812171036.144085-1-mikhail.v.gavrilov@gmail.com>
-References: <20260812171036.144085-1-mikhail.v.gavrilov@gmail.com>
-User-Agent: Wanderlust/2.15.9 (Almost Unreal) Emacs/30.2 Mule/6.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="a9RslTSx"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 61F7C1F000E9;
+	Thu, 13 Aug 2026 09:47:06 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1786614428;
+	bh=CzWCF4kfEXBQ6UMBrGXkp0GDWLle3W2EL49gwy25HOY=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=a9RslTSxUW/aOCKYGRCa47vsr7ory6+jJGv5pSzudom4PAEUACgJc5lz/v8g9ZvZQ
+	 TmtLBADtI8gDXZyfl3rDMThd3YywBuLxGAr2dHRs47VHemBa50hxQaM8mPH/GXv04n
+	 WOWmzQGFGRS0U6JnPJ6X4VXkrE/rYjk1LzTdN1W6szZ0YfDYVZJ71yUG/MZVXf8KKu
+	 cjmtepeX8rocl70Q6881EXocFGEqOA/RRx8w0GNJ2Bxt7uLHRD7kHpHpfZzg3qifBx
+	 eekbAOs8PXEG1Ey9qliRV7Cvz50HlOQvuwSh01RnRAF/e9o6u4W1mpHrOJ4TR1Eo1n
+	 hGIgbli7NdD8Q==
+Date: Thu, 13 Aug 2026 10:47:03 +0100
+From: Lee Jones <lee@kernel.org>
+To: Benjamin Tissoires <bentiss@kernel.org>
+Cc: Jason Gerecke <killertofu@gmail.com>, Ping Cheng <ping.cheng@wacom.com>,
+	Jason Gerecke <jason.gerecke@wacom.com>,
+	Jiri Kosina <jikos@kernel.org>,
+	Aaron Skomra <aaron.skomra@wacom.com>,
+	Peter Hutterer <peter.hutterer@who-t.net>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v7 1/4] HID: wacom: Advertise SW_MUTE_DEVICE capability
+ prior to registration
+Message-ID: <20260813094703.GY1072730@google.com>
+References: <20260804103209.1496683-1-lee@kernel.org>
+ <20260810105633.GS2869284@google.com>
+ <CANRwn3RMhVU3umEWx+SauHTBNwNkQuQ8tos-goA1Q=SuMo29RQ@mail.gmail.com>
+ <anx-28l7cr141aA3@beelink>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0 (generated by SEMI-EPG 1.14.7 - "Harue")
-Content-Type: text/plain; charset=US-ASCII
-X-Spamd-Result: default: False [-1.80 / 50.00];
-	BAYES_HAM(-3.00)[100.00%];
-	SUSPICIOUS_RECIPS(1.50)[];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	MID_CONTAINS_FROM(1.00)[];
-	NEURAL_HAM_SHORT(-0.20)[-1.000];
-	MIME_GOOD(-0.10)[text/plain];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	MIME_TRACE(0.00)[0:+];
-	FREEMAIL_TO(0.00)[gmail.com];
-	ARC_NA(0.00)[];
-	TAGGED_RCPT(0.00)[];
-	RCPT_COUNT_SEVEN(0.00)[8];
-	FREEMAIL_ENVRCPT(0.00)[gmail.com];
-	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	FROM_EQ_ENVFROM(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	TO_DN_SOME(0.00)[];
-	RCVD_TLS_ALL(0.00)[];
-	RCVD_COUNT_TWO(0.00)[2];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo,suse.de:mid]
-X-Spam-Flag: NO
-X-Spam-Score: -1.80
-X-Spam-Level: 
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <anx-28l7cr141aA3@beelink>
 
-On Wed, 12 Aug 2026 19:10:34 +0200,
-Mikhail Gavrilov wrote:
-> 
-> Hello,
-> 
-> I would like to add ALSA mixer controls for the analogue input gain of a
-> USB audio interface whose control channel is a vendor-specific HID
-> interface, and I would like to agree on the shape before writing code,
-> because it crosses into drivers/hid.
-> 
-> The device is a Topping Professional M62, USB 152a:875c. In its
-> multichannel modes it presents 10 playback and 16 capture channels on
-> interfaces 1 and 2, a DFU interface, and interface 4 of class 3 (HID)
-> with a vendor-defined usage page, one 16-byte Input report and one
-> 16-byte Output report, and no report IDs.
-> 
-> The problem: the microphone preamplifier gain, 0..88 dB per the
-> specification, is not reachable through ALSA. The card does expose a
-> 'Mic Capture Volume', but a gain ladder measured in silence shows that
-> control to be a digital trim after the converter. The recorded noise
-> floor is flat at about -172 dBFS at the bottom of its range, far below
-> any converter's own noise floor, so what is being measured there is the
-> sample word running out of bits; above that the floor rises with unity
-> slope, i.e. one fixed analogue noise being divided down. The analogue
-> stage is reachable only over the HID interface, which is what the
-> vendor's own application uses.
-> 
-> I have the protocol. It was reverse engineered from captures of the
-> vendor application's traffic, the same way sound/usb/mixer_scarlett2.c
-> describes in its header. Frames are 15 bytes:
-> 
->   22 33 | 20 01 01 | target | property | s32 big endian | CRC | 66 77
-> 
-> with CRC-16/MODBUS over bytes 2..10, stored big endian. Rebuilding
-> every frame of a capture from the decoded fields reproduces all 2619 of
-> them byte for byte. Inbound reports are that frame plus one pad byte.
-> The device stays silent until the host sends a subscription frame,
-> after which it reports every state change including front-panel button
-> presses, and it answers a "report your state" frame with a full dump.
-> The analogue gain of each microphone input is a single property carrying
-> whole decibels, 0..88, so a plain TLV_DB_SCALE fits it.
-> 
-> The constraint, and my question. This device accepts nothing on the
-> control pipe: SET_REPORT and GET_REPORT both stall with EPIPE, for
-> report types Output, Input and Feature alike. So the pattern used by
-> snd_soundblaster_e1_switch_update() in sound/usb/mixer_quirks.c, which
-> sends HID_REQ_SET_REPORT through snd_usb_ctl_msg(), is not available
-> here. The only usable transport is the interrupt endpoints of interface
-> 4, which usbhid binds.
-> 
-> Would it be acceptable for a mixer quirk in sound/usb to own that
-> interface? Concretely: an entry in hid_ignore_list so that usbhid stays
-> away, the quirk claiming interface 4, an interrupt IN URB whose
-> completion handler parses the vendor frame, updates cached values and
-> calls snd_ctl_notify(), and usb_interrupt_msg() in the put callbacks.
-> The notification half looks like what snd_usb_mixer_status_create()
-> already does for the audio control interface's status endpoint. Or would
-> you prefer a different layout for this?
-> 
-> A first patch would be deliberately minimal: two controls for the
-> analogue gain of the two microphone inputs, with a dB TLV, and nothing
-> else. The line-level inputs and the outputs use index scales with a
-> piecewise taper, which I have measured but would rather submit
-> separately.
-> 
-> For context, an ALSA UCM configuration for the same card is already
-> proposed as alsa-project/alsa-ucm-conf#826. That is what would designate
-> the new control as the capture volume, so that userspace moves the
-> hardware gain instead of the digital trim.
-> 
-> I can post the full protocol notes and the captures if that would be
-> useful.
+On Wed, 12 Aug 2026, Benjamin Tissoires wrote:
 
-I believe we can judge better with the comparison of the actual code.
-You can try implementing PoC's for both usb-audio mixer quirk and a
-HID driver, then compare which would fit better.  If either of them
-looks significantly harder, you don't fulfill the implementation, of
-course.
+> On Aug 11 2026, Jason Gerecke wrote:
+> > On Mon, Aug 10, 2026 at 3:57 AM Lee Jones <lee@kernel.org> wrote:
+> > >
+> > > Jason,
+> > >
+> > > Can you confirm that you've seen this new version please?
+> > >
+> > > [intentional top-post]
+> > >
+> > >
+> > > On Tue, 04 Aug 2026, Lee Jones wrote:
+> > >
+> > > > Input subsystem guidelines require that device capabilities are advertised
+> > > > before the input device is registered.  The Wacom driver was violating
+> > > > this by advertising the SW_MUTE_DEVICE capability post-registration in
+> > > > wacom_set_shared_values() (and duplicating it in device-specific setup
+> > > > cases).
+> > > >
+> > > > Resolve this by moving the SW_MUTE_DEVICE capability setup to
+> > > > wacom_setup_touch_input_capabilities() for all touch devices that support
+> > > > it, including composite USB generic touch devices.
+> > > >
+> > > > Additionally, replace the lookup-dependent
+> > > > 'wacom_wac->shared->touch->product' references with 'hdev->product'
+> > > > inside wacom_setup_touch_input_capabilities() as 'hdev' is already
+> > > > available and represents the touch device itself.
+> > > >
+> > > > Fixes: d2ec58aee8b1 ("HID: wacom: generic: support generic touch switch")
+> > > > Signed-off-by: Lee Jones <lee@kernel.org>
+> > > > ---
+> > > >
+> > > > v4 -> v5: New patch used to split out SW_MUTE_DEVICE as per Jason's request
+> > > > v5 -> v6: Unconditionally advertise SW_MUTE_DEVICE on generic touch devices
+> > > > v6 -> v7: Only advertise SW_MUTE_DEVICE on composite USB generic touch devices
+> > > >
+> > > >  drivers/hid/wacom_sys.c | 23 +++++++++++++++++------
+> > > >  drivers/hid/wacom_wac.c | 19 +++++++++++--------
+> > > >  2 files changed, 28 insertions(+), 14 deletions(-)
+> > > >
+> > > > diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
+> > > > index 0eafa483b7f7..92b73ed0028f 100644
+> > > > --- a/drivers/hid/wacom_sys.c
+> > > > +++ b/drivers/hid/wacom_sys.c
+> > > > @@ -2359,12 +2359,6 @@ static void wacom_set_shared_values(struct wacom_wac *wacom_wac)
+> > > >                       wacom_wac->shared->is_touch_on = true;
+> > > >       }
+> > > >
+> > > > -     if (wacom_wac->shared->has_mute_touch_switch &&
+> > > > -         wacom_wac->shared->touch_input) {
+> > > > -             set_bit(EV_SW, wacom_wac->shared->touch_input->evbit);
+> > > > -             input_set_capability(wacom_wac->shared->touch_input, EV_SW,
+> > > > -                                  SW_MUTE_DEVICE);
+> > > > -     }
+> > > >  }
+> > > >
+> > > >  static int wacom_parse_and_register(struct wacom *wacom, bool wireless)
+> > > > @@ -2414,6 +2408,23 @@ static int wacom_parse_and_register(struct wacom *wacom, bool wireless)
+> > > >       wacom_retrieve_hid_descriptor(hdev, features);
+> > > >       wacom_setup_device_quirks(wacom);
+> > > >
+> > > > +     if (features->type == HID_GENERIC &&
+> > > > +         (features->device_type & WACOM_DEVICETYPE_TOUCH)) {
+> > > > +             if (wacom->usbdev && wacom->usbdev->actconfig &&
+> > > > +                 wacom->usbdev->actconfig->desc.bNumInterfaces > 1) {
+> > > > +                     /*
+> > > > +                      * Heuristic: Composite USB devices (like tablets with
+> > > > +                      * pen/pad + touch) likely have a touch mute switch.
+> > > > +                      * We flag it here to advertise the capability before
+> > > > +                      * registration. We also set is_soft_touch_switch to
+> > > > +                      * default touch to ON in case there is no physical
+> > > > +                      * switch.
+> > > > +                      */
+> > > > +                     wacom_wac->has_mute_touch_switch = true;
+> > > > +                     wacom_wac->is_soft_touch_switch = true;
+> > > > +             }
+> > > > +     }
+> > > > +
+> > 
+> > Apologies for the delay, Lee.
+> > 
+> > [ Begin ramble ]
+> > 
+> > This probably isn't a half-bad heuristic. I'm a bit hesitant to sign
+> > off on it, mostly because I don't like the idea of the driver
+> > advertising the existence of non-existent hardware.
+> > 
+> > My understanding is that it is theoretically allowable to change
+> > capabilities post-registration (assuming we take due care to spinlock
+> > relevant structures). The problem with doing so, however, is that if
+> > userland queries the capabilities before we make the change, that it
+> > will be stuck with an incorrect set. Software could theoretically
+> > re-issue EVIOCGBIT ioctls at a later point in time to refresh
+> > capabilities, but if we're honest that doesn't actually happen.
+> > 
+> > It feels like we're in a situation where we either:
+> > 
+> > A. Over-declare device capabilities on some devices (mostly older ones
+> > that didn't have a touch switch)
+> > 
+> > -- or --
+> > 
+> > B. Have devices with under-declared capabilities if userland opens
+> > them fast enough
+> 
+> or C: do not put random heuristic and lie to userspace.
+> 
+> The problem comes from the fact that the driver knows after the fact
+> that a button comes from a different HID node and is redirected in its
+> own input device.
+> 
+> So: either enforce that the pad device is registered first
+> (-EPROBE_DEFER), or defer the registering of the touch input node when
+> both have been parsed/analyzed.
+> 
+> But anyway, we should not call input_register on the touch while we
+> haven't parsed the pad. period.
+> 
+> Having such a heuristic on a USB composite device feels like shooting
+> ourselves in the foot.
 
-My gut feeling is that we can take it as a mixer quirk, but it really
-depends on the complexity.
+Thanks for the input Benjamin.
 
+I let Gemini have a good go at comparing these options.  Below is the
+summary.  Please have a quick look and let me know if it sounds
+reasonable to you.
 
-thanks,
+Since this bug is important to me, for 'reasons', and I have already put
+hours of work into this, I would like to gain consensus from both of you
+before pouring yet more time into it.
 
-Takashi
+Please could you prioritise this - time is of the essence.  Thanks.
+
+<gemini>
+
+  ### 1. Understanding the Maintainer's Objection
+
+  The maintainer (Benjamin Tissoires) strongly objects to the heuristic
+  introduced in v7/v8 (checking if it's a composite USB device to
+  guess the presence of a mute switch).
+
+  • The Issue: The heuristic is "lying to userspace" because it might
+    advertise the SW_MUTE_DEVICE capability on devices that do not
+    actually have a physical or soft touch switch.
+  • The Rule: Input devices must not be registered
+    (input_register_device()) until their capabilities are 100% known.
+    We must not register the touch device before the pad device has been
+    parsed, because the touch device's capabilities depend on what we
+    find in the pad's report descriptors.
+
+  This is a hard gate for getting the patch merged upstream. The
+  heuristic approach will be rejected.
+
+  ### 2. Assessment of Proposed Solutions
+
+  The maintainer suggests two paths to ensure we don't register touch
+  before parsing pad:
+
+  #### Option A: Enforce Probe Order via EPROBE_DEFER
+
+  If the touch interface probes first, it should return -EPROBE_DEFER
+  and wait until the pad/pen interface has probed, parsed its
+  descriptors, and set the shared capabilities (like
+  has_mute_touch_switch).
+
+  • Pros:
+      • Standard kernel mechanism for dependency management.
+      • Clean device lifecycle: once probe() succeeds, the device is
+	fully registered and ready.
+  • Cons/Challenges:
+      • Detecting Siblings in HID_GENERIC: For generic devices, we don't
+	have a static database (like wacom_features) telling us what
+	interfaces to expect.
+      • Risk of Infinite Deferral: If touch-only devices return
+	-EPROBE_DEFER waiting for a pen/pad interface that doesn't
+	exist, they will never finish probing.
+      • Resolution: We would need to inspect the parent USB device
+	descriptors during touch probe to see if a sibling HID interface
+	(which would be the pen/pad) exists. If it exists but hasn't
+	registered in the shared list yet, we defer. If it doesn't exist
+	(touch-only device), we proceed immediately.
+
+  #### Option B: Deferred Input Registration
+
+  Allow both interfaces to probe successfully, but do not call
+  input_register_device() for the touch device immediately if the pad
+  hasn't been parsed yet. Instead, store the unregistered input_dev
+  pointer in the shared structure, and have the pad interface register
+  it later once it finishes parsing.
+
+  • Pros:
+      • Avoids messing with probe deferrals and driver core binding
+	logic.
+  • Cons/Challenges:
+      • Complex Lifecycle: We have a "half-probed" state where the
+	driver probe succeeded but the input device doesn't exist yet.
+      • Cross-Interface Registration: The pad interface driver would
+	become responsible for registering the touch interface's input
+	device. This breaks separation of concerns and complicates error
+	handling (what if registration fails during pad probe?).
+      • Sync Logic: We would need complex synchronization to handle
+	cases where one interface is unbound/removed while registration
+	is    pending.
+
+  ### Conclusion & Recommendation
+
+  The EPROBE_DEFER (Option A) approach is the cleaner and more standard
+  way to handle this in the Linux kernel, despite the challenge of
+  detecting sibling interfaces for generic devices.
+
+  If we proceed with refactoring, we should investigate how to reliably
+  inspect the USB parent configuration in wacom_probe to detect if we
+  should expect a sibling interface, and defer touch probe if that
+  sibling has not yet joined the wacom_udev_list.
+
+</gemini>
+
+> > The touch switch capability lets userland know to expect switch events
+> > and to potentially offer some kind of software display of its state.
+> > Its presence or absence is not critical since the switch state can
+> > often be observed in other ways (physical hardware switch location) or
+> > toggled back into a disabled state even if not immediately observable.
+> > It's probably marginally better to err on providing state information
+> > in situations where controls don't actually exist, but not by much.
+> > 
+> > [ End ramble ]
+> > 
+> > With all of that out of the way, I guess that I've convinced myself
+> > that this is probably acceptable.
+> > 
+> > The only remaining nitpick I can identify looking at this again is
+> > that the hunks that replace 'wacom_wac->shared->touch->product' with
+> > 'hdev->product' should really be in their own standalone cleanup patch
+> > rather than in this (slightly-) behavior modifying one.
+> > 
+> > Address that one nitpick and I'll send out my reviewed-by for the two
+> > new patches. Apologies again for my many delays... This should be the
+> > last one :)
+> > 
+> > Jason (she/they)
+> > ---
+> > Now instead of four in the eights place /
+> > you’ve got three, ‘Cause you added one  /
+> > (That is to say, eight) to the two,     /
+> > But you can’t take seven from three,    /
+> > So you look at the sixty-fours....
+> > 
+> > > >       if (features->device_type == WACOM_DEVICETYPE_NONE &&
+> > > >           features->type != WIRELESS) {
+> > > >               error = features->type == HID_GENERIC ? -ENODEV : 0;
+> > > > diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+> > > > index a29bf051ada7..afc82fcbb20b 100644
+> > > > --- a/drivers/hid/wacom_wac.c
+> > > > +++ b/drivers/hid/wacom_wac.c
+> > > > @@ -3953,6 +3953,8 @@ int wacom_setup_pen_input_capabilities(struct input_dev *input_dev,
+> > > >  int wacom_setup_touch_input_capabilities(struct input_dev *input_dev,
+> > > >                                        struct wacom_wac *wacom_wac)
+> > > >  {
+> > > > +     struct wacom *wacom = container_of(wacom_wac, struct wacom, wacom_wac);
+> > > > +     struct hid_device *hdev = wacom->hdev;
+> > > >       struct wacom_features *features = &wacom_wac->features;
+> > > >
+> > > >       if (!(features->device_type & WACOM_DEVICETYPE_TOUCH))
+> > > > @@ -3963,9 +3965,12 @@ int wacom_setup_touch_input_capabilities(struct input_dev *input_dev,
+> > > >       else
+> > > >               __set_bit(INPUT_PROP_POINTER, input_dev->propbit);
+> > > >
+> > > > -     if (features->type == HID_GENERIC)
+> > > > +     if (features->type == HID_GENERIC) {
+> > > > +             if (wacom_wac->has_mute_touch_switch)
+> > > > +                     input_set_capability(input_dev, EV_SW, SW_MUTE_DEVICE);
+> > > >               /* setup has already been done */
+> > > >               return 0;
+> > > > +     }
+> > > >
+> > > >       input_dev->evbit[0] |= BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
+> > > >       __set_bit(BTN_TOUCH, input_dev->keybit);
+> > > > @@ -3997,19 +4002,17 @@ int wacom_setup_touch_input_capabilities(struct input_dev *input_dev,
+> > > >               input_dev->evbit[0] |= BIT_MASK(EV_SW);
+> > > >               __set_bit(SW_MUTE_DEVICE, input_dev->swbit);
+> > > >
+> > > > -             if (wacom_wac->shared->touch->product == 0x361) {
+> > > > +             if (hdev->product == 0x361) {
+> > > >                       input_set_abs_params(input_dev, ABS_MT_POSITION_X,
+> > > >                                            0, 12440, 4, 0);
+> > > >                       input_set_abs_params(input_dev, ABS_MT_POSITION_Y,
+> > > >                                            0, 8640, 4, 0);
+> > > > -             }
+> > > > -             else if (wacom_wac->shared->touch->product == 0x360) {
+> > > > +             } else if (hdev->product == 0x360) {
+> > > >                       input_set_abs_params(input_dev, ABS_MT_POSITION_X,
+> > > >                                            0, 8960, 4, 0);
+> > > >                       input_set_abs_params(input_dev, ABS_MT_POSITION_Y,
+> > > >                                            0, 5920, 4, 0);
+> > > > -             }
+> > > > -             else if (wacom_wac->shared->touch->product == 0x393) {
+> > > > +             } else if (hdev->product == 0x393) {
+> > > >                       input_set_abs_params(input_dev, ABS_MT_POSITION_X,
+> > > >                                            0, 6400, 4, 0);
+> > > >                       input_set_abs_params(input_dev, ABS_MT_POSITION_Y,
+> > > > @@ -4039,8 +4042,8 @@ int wacom_setup_touch_input_capabilities(struct input_dev *input_dev,
+> > > >               fallthrough;
+> > > >
+> > > >       case WACOM_27QHDT:
+> > > > -             if (wacom_wac->shared->touch->product == 0x32C ||
+> > > > -                 wacom_wac->shared->touch->product == 0xF6) {
+> > > > +             if (hdev->product == 0x32C ||
+> > > > +                 hdev->product == 0xF6) {
+> > > >                       input_dev->evbit[0] |= BIT_MASK(EV_SW);
+> > > >                       __set_bit(SW_MUTE_DEVICE, input_dev->swbit);
+> > > >                       wacom_wac->has_mute_touch_switch = true;
+> > > > --
+> > > > 2.55.0.571.g244d577d93-goog
+> > > >
+> > >
+> > > --
+> > > Lee Jones
+> > >
+> > 
+
+-- 
+Lee Jones

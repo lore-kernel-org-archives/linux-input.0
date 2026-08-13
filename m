@@ -1,400 +1,91 @@
-Received: from relay6-d.mail.gandi.net (relay6-d.mail.gandi.net [217.70.183.198])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f175.google.com (mail-pl1-f175.google.com [209.85.214.175])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 62737362152;
-	Wed, 12 Aug 2026 22:26:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.70.183.198
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CF9442E8B64
+	for <Linux-input@vger.kernel.org>; Thu, 13 Aug 2026 00:42:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.175
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786573612; cv=none; b=jnsuiuNsniDOQrBOuhM5mb+CxcJ8KVY2BgOXgc0Gid/3lnJZ0+GxTc9oG6kD9ayyPjk8L6m9KbpQr664zr4R6Lh3M16eQI/wnW2qH4QoszoO/gYxChGNPjD9pzXStBEiQdKstB7a5v9ZK8Dk4lf3+hgHprVkdm0U0qK+NZTH+qo=
+	t=1786581746; cv=none; b=BaXxcr2fCF8y9hS2FVk2uDA8XnsS6tYw0xGTIziXsOQKdtzTZdAeZrJzXL2vHIqdYPUOYqssOPT3v+bRhb/4tVW0dLAqP8Lq/SAgwV5eSY2DBCqdEzDR7YatGMos3ZGPW4YWj3ZkQ1+dq5PWq4Zz44eEzwaER/5il07zCu+lq1k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786573612; c=relaxed/simple;
-	bh=5PPEt2ey4QDXaj58pIRFvY2ldH9nzgwFnfjomfDGkUo=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=L66nJXTEGo61CQm3b+VXCSUA/+ioT51i/rim6NhGXNtOo7PmJwgSjwIpC9hnHVkWAnuU97YdCrP+XaDNC0iWRHSiYPKwQ2Mt6GOz3QlaJmTiI6HvkFdEOfcki4pYk3/xQuNwPqhobtovIL2J2bcveU+lttG+7bisYURKviHzRWI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=hadess.net; spf=pass smtp.mailfrom=hadess.net; arc=none smtp.client-ip=217.70.183.198
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=hadess.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=hadess.net
-Received: by mail.gandi.net (Postfix) with ESMTPSA id 564B63E97F;
-	Wed, 12 Aug 2026 22:26:46 +0000 (UTC)
-Message-ID: <72ffd65c9bda6e22bb2939c4e07917c5eff20f51.camel@hadess.net>
-Subject: Re: [PATCH v3 1/2] HID: logitech-hidpp: add HID++ 2.0
- reprogrammable button support
-From: Bastien Nocera <hadess@hadess.net>
-To: Elliot Douglas <edouglas7358@gmail.com>, linux-input@vger.kernel.org
-Cc: lains@riseup.net, jikos@kernel.org, bentiss@kernel.org, 
-	linux-kernel@vger.kernel.org
-Date: Thu, 13 Aug 2026 00:26:45 +0200
-In-Reply-To: <20260812195842.77724-2-edouglas7358@gmail.com>
-References: <20260812195842.77724-1-edouglas7358@gmail.com>
-	 <20260812195842.77724-2-edouglas7358@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.60.2 (3.60.2-1.fc44) 
+	s=arc-20240116; t=1786581746; c=relaxed/simple;
+	bh=OsV9Oy41uT1nJ4nKS7IzoQ0qg2DjIMTlXCfai4Dj+qA=;
+	h=From:Date:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=hFpbxZy90lTb0xbGqgqpwnzqWznpQZMMCAIGOdxEnIHRWBHMEpdwNTwlaou2U7Xs0aioh/ptc0Sn2zv8hGmo/aOE4y19tQsTgNcNu89Xfh5ZLo8oXK3Zv1BnQ18Orj/RzXRkWok/vTnjd8pzI9jWTsXFroMI12GxFbeQJna1sjo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Na/u4AzO; arc=none smtp.client-ip=209.85.214.175
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Na/u4AzO"
+Received: by mail-pl1-f175.google.com with SMTP id d9443c01a7336-2d049069377so16311125ad.0
+        for <Linux-input@vger.kernel.org>; Wed, 12 Aug 2026 17:42:24 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1786581744; x=1787186544; darn=vger.kernel.org;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :content-type:mime-version:references:message-id:subject:cc:to:date
+         :from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=9bMNjwXaATg2criQVvp41oeHF0qjGmHcyZl6nW6DMuA=;
+        b=Na/u4AzO2ltNfdL0hzIuV1wGJCertas6jkLpi40IPx4gKdPi3K6zU7ZECxNqhLLsxq
+         nlK3f2aOYsPpcajhnIs4/qm1xQp41eoGBI1BJlDmdCLbxf9aiAKiHfXOEG/fRBo3mAQa
+         A84cnqdrcGamy0RdgIqOFzLtoCTqgEBtdLP0Yd9wGSxjGrkNG+wCKVXrWd6Nz/KhUVvz
+         jIuHkpwKaB4CBlG9G6MEO/vVormtXuvgdmRXZnJtdB9/edaCC3xavFig1U7MeZO8D7qT
+         lSIBw/10z2ONRxl1O2HR9pohy3F9MgEVWq1Tz5RGidvbWzVZtsvyk7fDiN0ilcGzRy1v
+         /VXA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1786581744; x=1787186544;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :content-type:mime-version:references:message-id:subject:cc:to:date
+         :from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=9bMNjwXaATg2criQVvp41oeHF0qjGmHcyZl6nW6DMuA=;
+        b=lcvm0/LoikHGD56X1T38wOvhF7yOp5YHaydiUPadLJ3YUZ/Fko0iaEEQmAqX8AJyIJ
+         SkxD2+VPCmix0Gm68w7WWBdMVmE4L8PLAUgSQPjTxF5DahuYTD03ZIUUS12QZnS8iWDl
+         pMmarRhXDbow+2JzHDMNcUUC24rNa7v2e4v4JbgP4V0z/rUg4RmQRswNqkip/yVh/Kkh
+         0UTC5EmtMV4tqc0GdXtFNpDoFquX7ggxpZPrL9w5aFzF3xwdXdAe2XptQfrO1fsRHcZd
+         JdidxBJHJ0UNnIHW/QqmftC7J7+1Ir4I9yvvzRS6J3kjxSygPVRLMhSnYGH3PxkR3LSc
+         oyCg==
+X-Forwarded-Encrypted: i=1; AHgh+Ro37+wmVOsbIimjpCxzuNDbLKHYVKQ1RHVj3C5FehrG6a6hAKFcBCswLI6ok6y96yQxyBVZ9Q+TKwyYSA==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yw2RZOJY/5NFRLVp9QmAHjHcmp9Qr6PX/GC0mVHBgcOa+Rpn3wz
+	96gb02rNsEvqwqrhaubrQSRs5NpBSAG8W4uZP4Ezd8chuT0EkELGo+uRGNuuCQ==
+X-Gm-Gg: AR+sD10O5xqgG4ik+eOFTMuQdkA9pNugtPfFDCj9kgfb430Lt6wkNXixrG0YhIUmnVM
+	a97Ufb12mhgq3F91ygGL7BjQj1OWtbEX0QwVs8MroHvu+FCMyWSsXwc0Za9rhVO4E8g9H22fCaX
+	B2bEFTRihmpL6mdAVdiM0QfSMo+qITVFFz8uJKYl14SZNSzwEB9Mo8YfV7NTtwL89uSr2+CqBpf
+	Gq4ug3QDk698dHhkWfkjr6ut2y6P2rAGtzULyPces0UubLrxS9bxOj88YDwKj+7N76kiGQPHxVk
+	1e/9XVeh3ymMaOoEg/wLD245BfDZrAFnN/nePMgy4RM0dkSnDWcshPuK+14SYMGIwhRq5Sbf2xH
+	Pcc0xHTgTp72XqAWlOKyqgiojmqMRGsaaNg7lbnAvrq++Rd8rOSlnJmFEGiAhZcRf7xlVtI7qhk
+	171N7UKpbMFaccjnYiGXxljkxzvTO3w+GyBDPCCm76RXMxSwL6u5s4BPHtxhWnsHJ27alw92Ur4
+	wwU3OwlULlHisCmtdi3GFhJhqF8JQ==
+X-Received: by 2002:a17:90b:278e:b0:381:25ce:bcc2 with SMTP id 98e67ed59e1d1-3931e0242f8mr2728237a91.6.1786581744054;
+        Wed, 12 Aug 2026 17:42:24 -0700 (PDT)
+Received: from google.com ([2a00:79e0:2ebe:8:8656:b5a6:1038:61b9])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-31ec08284f4sm1181428eec.31.2026.08.12.17.42.22
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 12 Aug 2026 17:42:23 -0700 (PDT)
+From: "Dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>
+X-Google-Original-From: "Dmitry.torokhov@gmail.com" <Dmitry.torokhov@gmail.com>
+Date: Wed, 12 Aug 2026 17:42:20 -0700
+To: Jingle Wu =?utf-8?B?5ZCz6YeR5ZyL?= <jingle.wu@emc.com.tw>
+Cc: "Linux-kernel@vger.kernel.org" <Linux-kernel@vger.kernel.org>, 
+	"Linux-input@vger.kernel.org" <Linux-input@vger.kernel.org>
+Subject: Re: [PATCH] Input: elan_i2c - Optimize update speed for IC Type 0x19.
+Message-ID: <an0S6INPQaCFUASL@google.com>
+References: <KL1PR01MB5116A253A126179473EDB7ACDCCA2@KL1PR01MB5116.apcprd01.prod.exchangelabs.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-GND-Sasl: hadess@hadess.net
-X-GND-State: clean
-X-GND-Score: -100
-X-GND-Cause: dmFkZTEB2JKPV17TsUS176Vvt/l0Mp5ca4e0Cf9aBoDURA4eTWNQKskemruJca5m5oNJH0XuQLmMSVOPPF6JTulGbyEUdEbcDyyEmVlW8IJ41Zx+V2CFAlYUzkuy1CmM+hmFD8CvL4UWKoer/pGPnzsNACUKZXs/sDygJDeSsXj3jeB1W7XCDPVxbjb1/tbmoJBV0guGGwDaPbxlkuNr9Y+G8zHSNNW8NgHyW8GcYxnQgY6MSFoUJ2W2Thwqj3OWj+zMpAJhiIr+I7fSy50rycSBXG/ab/bvSwSSWWlGBYXbPOTlK4+xKDc874UihtE6of9WbnQBtONcD/z/ByLIJUxoV1WmNaooO7LSADKn2xbhGMW2JqtX2MJT2Qu+2QJA4ULMGXwbLr2xENn9gHhBM9PsWJi15dx421S5VRIE0LzyCihV9Xdfpf9+uBeAZghsZQlvq4klZzKf9QPAfdNVsK5Cf/XxMuNCyX+3tv6yo6G/tMaFovHoa8u41AJqPQpihlS15ZztUB4TMvWSgqlZHVaWpT3fGhqjd7zXOf6K+6kRRH6+r2r3w1w0soDkVCJHAo+oqYD2jNmvlCRFvsUB+rXKTKPFrYebF8ynLmKBt1jWPjLmTiurPpzvOnYpeWoX0UTU+DNZsjHyGqeo/PfNgJcMVIu2fy59nLtAKryyl8KLnL5yEQ
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <KL1PR01MB5116A253A126179473EDB7ACDCCA2@KL1PR01MB5116.apcprd01.prod.exchangelabs.com>
 
-On Wed, 2026-08-12 at 12:58 -0700, Elliot Douglas wrote:
-> Some Logitech HID++ 2.0 mice can report diverted reprogrammable
-> controls
-> through HID++ feature 0x1b04, SpecialKeysMseButtons /
-> REPROG_CONTROLS_V4,
-> instead of the normal HID mouse report.
->=20
-> Add a quirk-gated event path for those controls. The handler
-> temporarily
-> diverts verified per-product controls, parses divertedButtonsEvent as
-> the
-> current pressed-control list, and reports the corresponding evdev key
-> state
-> for every mapped control.
->=20
-> Keep the control mappings in per-product arrays so adding support for
-> another mouse does not change the evdev capabilities advertised by
-> already-supported devices.
->=20
-> Documentation for feature 0x1b04 describes divertedButtonsEvent as a
-> list
-> of currently pressed diverted buttons, which is the event format
-> handled
-> here.
->=20
-> Link:
-> https://lekensteyn.nl/files/logitech/x1b04_specialkeysmsebuttons.html
-> Signed-off-by: Elliot Douglas <edouglas7358@gmail.com>
+On Wed, Jul 29, 2026 at 06:19:19AM +0000, Jingle Wu 吳金國 wrote:
+> Reduce update time by optimizing the update sequence and removing unnecessary delays.
+> 
+> Signed-off-by: Jingle Wu mailto:jingle.wu@emc.com.tw
 
-My earlier
-Reviewed-by: Bastien Nocera <hadess@hadess.net>
-was for both patches in the patch set :)
+Applied, thank you.
 
-Thanks for v3.
-
-> ---
-> =C2=A0drivers/hid/hid-logitech-hidpp.c | 205
-> +++++++++++++++++++++++++++++++
-> =C2=A01 file changed, 205 insertions(+)
->=20
-> diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-
-> logitech-hidpp.c
-> index 70ba1a5e40d8..f9189e14fb78 100644
-> --- a/drivers/hid/hid-logitech-hidpp.c
-> +++ b/drivers/hid/hid-logitech-hidpp.c
-> @@ -76,6 +76,7 @@ MODULE_PARM_DESC(disable_tap_to_click,
-> =C2=A0#define HIDPP_QUIRK_HI_RES_SCROLL_1P0		BIT(28)
-> =C2=A0#define HIDPP_QUIRK_WIRELESS_STATUS		BIT(29)
-> =C2=A0#define HIDPP_QUIRK_RESET_HI_RES_SCROLL		BIT(30)
-> +#define HIDPP_QUIRK_HIDPP_REPROG_CONTROLS_BTNS	BIT(31)
-> =C2=A0
-> =C2=A0/* These are just aliases for now */
-> =C2=A0#define HIDPP_QUIRK_KBD_SCROLL_WHEEL HIDPP_QUIRK_HIDPP_WHEELS
-> @@ -178,6 +179,8 @@ struct hidpp_scroll_counter {
-> =C2=A0	unsigned long long last_time;
-> =C2=A0};
-> =C2=A0
-> +struct hidpp_reprog_control_mapping;
-> +
-> =C2=A0struct hidpp_device {
-> =C2=A0	struct hid_device *hid_dev;
-> =C2=A0	struct input_dev *input;
-> @@ -205,6 +208,8 @@ struct hidpp_device {
-> =C2=A0	struct hidpp_scroll_counter vertical_wheel_counter;
-> =C2=A0
-> =C2=A0	u8 wireless_feature_index;
-> +	u8 reprog_controls_feature_index;
-> +	const struct hidpp_reprog_control_mapping *reprog_controls;
-> =C2=A0
-> =C2=A0	int hires_wheel_multiplier;
-> =C2=A0	u8 hires_wheel_feature_index;
-> @@ -3601,6 +3606,195 @@ static int
-> hidpp10_extra_mouse_buttons_raw_event(struct hidpp_device *hidpp,
-> =C2=A0	return 1;
-> =C2=A0}
-> =C2=A0
-> +/* -----------------------------------------------------------------
-> --------- */
-> +/* HID++2.0 reprogrammable
-> controls=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 */
-> +/* -----------------------------------------------------------------
-> --------- */
-> +
-> +#define HIDPP_PAGE_REPROG_CONTROLS_V4			0x1b04
-> +
-> +#define HIDPP_REPROG_CONTROLS_GET_COUNT			0x00
-> +#define HIDPP_REPROG_CONTROLS_GET_CID_INFO		0x10
-> +#define HIDPP_REPROG_CONTROLS_SET_CONTROL_REPORTING	0x30
-> +
-> +#define HIDPP_REPROG_CONTROLS_FLAG_MOUSE		BIT(0)
-> +#define HIDPP_REPROG_CONTROLS_FLAG_DIVERT		BIT(5)
-> +
-> +#define HIDPP_REPROG_CONTROLS_TEMPORARY_DIVERTED	BIT(0)
-> +#define HIDPP_REPROG_CONTROLS_CHANGE_TEMPORARY_DIVERT	BIT(1)
-> +
-> +#define HIDPP_REPROG_CONTROLS_EVENT_DIVERTED		0x00
-> +
-> +struct hidpp_reprog_control_mapping {
-> +	u16 control;
-> +	u16 code;
-> +};
-> +
-> +static const struct hidpp_reprog_control_mapping *
-> +hidpp20_reprog_controls_get_mappings(struct hidpp_device *hidpp)
-> +{
-> +	return NULL;
-> +}
-> +
-> +static int hidpp20_reprog_controls_get_count(struct hidpp_device
-> *hidpp)
-> +{
-> +	struct hidpp_report response;
-> +	u8 feature_index =3D hidpp->reprog_controls_feature_index;
-> +	u8 cmd =3D HIDPP_REPROG_CONTROLS_GET_COUNT;
-> +	int ret;
-> +
-> +	ret =3D hidpp_send_fap_command_sync(hidpp, feature_index, cmd,
-> NULL, 0,
-> +					=C2=A0 &response);
-> +	if (ret > 0)
-> +		return -EPROTO;
-> +	if (ret)
-> +		return ret;
-> +
-> +	return response.fap.params[0];
-> +}
-> +
-> +static int hidpp20_reprog_controls_get_cid_info(struct hidpp_device
-> *hidpp,
-> +						u8 index, u16
-> *control,
-> +						u8 *flags)
-> +{
-> +	struct hidpp_report response;
-> +	u8 feature_index =3D hidpp->reprog_controls_feature_index;
-> +	u8 cmd =3D HIDPP_REPROG_CONTROLS_GET_CID_INFO;
-> +	int ret;
-> +
-> +	ret =3D hidpp_send_fap_command_sync(hidpp, feature_index, cmd,
-> &index,
-> +					=C2=A0 sizeof(index), &response);
-> +	if (ret > 0)
-> +		return -EPROTO;
-> +	if (ret)
-> +		return ret;
-> +
-> +	*control =3D get_unaligned_be16(&response.fap.params[0]);
-> +	*flags =3D response.fap.params[4];
-> +
-> +	return 0;
-> +}
-> +
-> +static bool hidpp20_reprog_controls_find_control(struct hidpp_device
-> *hidpp,
-> +						 u16 control)
-> +{
-> +	int count, ret;
-> +	u16 cid;
-> +	u8 flags;
-> +	int i;
-> +
-> +	count =3D hidpp20_reprog_controls_get_count(hidpp);
-> +	if (count < 0)
-> +		return false;
-> +
-> +	for (i =3D 0; i < count; i++) {
-> +		ret =3D hidpp20_reprog_controls_get_cid_info(hidpp, i,
-> &cid,
-> +							=C2=A0=C2=A0 &flags);
-> +		if (ret)
-> +			return false;
-> +
-> +		if (cid =3D=3D control)
-> +			return (flags &
-> HIDPP_REPROG_CONTROLS_FLAG_MOUSE) &&
-> +			=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 (flags &
-> HIDPP_REPROG_CONTROLS_FLAG_DIVERT);
-> +	}
-> +
-> +	return false;
-> +}
-> +
-> +static int hidpp20_reprog_controls_set_control_reporting(struct
-> hidpp_device *hidpp,
-> +							 u16
-> control, u8 flags)
-> +{
-> +	struct hidpp_report response;
-> +	u8 params[5];
-> +
-> +	put_unaligned_be16(control, &params[0]);
-> +	params[2] =3D flags;
-> +	put_unaligned_be16(control, &params[3]);
-> +
-> +	return hidpp_send_fap_command_sync(hidpp,
-> +					=C2=A0=C2=A0 hidpp-
-> >reprog_controls_feature_index,
-> +					=C2=A0=C2=A0
-> HIDPP_REPROG_CONTROLS_SET_CONTROL_REPORTING,
-> +					=C2=A0=C2=A0 params, sizeof(params),
-> &response);
-> +}
-> +
-> +static void hidpp20_reprog_controls_connect(struct hidpp_device
-> *hidpp)
-> +{
-> +	const struct hidpp_reprog_control_mapping *mapping;
-> +	u8 flags =3D HIDPP_REPROG_CONTROLS_TEMPORARY_DIVERTED |
-> +		=C2=A0=C2=A0 HIDPP_REPROG_CONTROLS_CHANGE_TEMPORARY_DIVERT;
-> +
-> +	if (!(hidpp->quirks &
-> HIDPP_QUIRK_HIDPP_REPROG_CONTROLS_BTNS))
-> +		return;
-> +
-> +	if (!hidpp->reprog_controls)
-> +		return;
-> +
-> +	if (hidpp_root_get_feature(hidpp,
-> HIDPP_PAGE_REPROG_CONTROLS_V4,
-> +				=C2=A0=C2=A0 &hidpp-
-> >reprog_controls_feature_index))
-> +		return;
-> +
-> +	for (mapping =3D hidpp->reprog_controls; mapping->control;
-> mapping++) {
-> +		if (!hidpp20_reprog_controls_find_control(hidpp,
-> mapping->control))
-> +			continue;
-> +
-> +		hidpp20_reprog_controls_set_control_reporting(hidpp,
-> +							=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0
-> mapping->control,
-> +							=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0
-> flags);
-> +	}
-> +}
-> +
-> +static int hidpp20_reprog_controls_raw_event(struct hidpp_device
-> *hidpp,
-> +					=C2=A0=C2=A0=C2=A0=C2=A0 u8 *data, int size)
-> +{
-> +	const struct hidpp_reprog_control_mapping *mapping;
-> +	struct hidpp_report *report =3D (struct hidpp_report *)data;
-> +	u16 controls[4];
-> +	bool pressed;
-> +	unsigned int i, j;
-> +
-> +	if (!(hidpp->quirks &
-> HIDPP_QUIRK_HIDPP_REPROG_CONTROLS_BTNS) ||
-> +	=C2=A0=C2=A0=C2=A0 !hidpp->input ||
-> +	=C2=A0=C2=A0=C2=A0 !hidpp->reprog_controls ||
-> +	=C2=A0=C2=A0=C2=A0 hidpp->reprog_controls_feature_index =3D=3D 0xff)
-> +		return 0;
-> +
-> +	if (size < HIDPP_REPORT_LONG_LENGTH ||
-> +	=C2=A0=C2=A0=C2=A0 report->fap.feature_index !=3D hidpp-
-> >reprog_controls_feature_index ||
-> +	=C2=A0=C2=A0=C2=A0 report->fap.funcindex_clientid !=3D
-> HIDPP_REPROG_CONTROLS_EVENT_DIVERTED)
-> +		return 0;
-> +
-> +	for (i =3D 0; i < ARRAY_SIZE(controls); i++)
-> +		controls[i] =3D get_unaligned_be16(&report-
-> >fap.params[i * 2]);
-> +
-> +	for (mapping =3D hidpp->reprog_controls; mapping->control;
-> mapping++) {
-> +		pressed =3D false;
-> +
-> +		for (j =3D 0; j < ARRAY_SIZE(controls); j++) {
-> +			if (controls[j] =3D=3D mapping->control) {
-> +				pressed =3D true;
-> +				break;
-> +			}
-> +		}
-> +
-> +		input_report_key(hidpp->input, mapping->code,
-> pressed);
-> +	}
-> +
-> +	input_sync(hidpp->input);
-> +
-> +	return 1;
-> +}
-> +
-> +static void hidpp20_reprog_controls_populate_input(struct
-> hidpp_device *hidpp,
-> +						=C2=A0=C2=A0 struct input_dev
-> *input_dev)
-> +{
-> +	const struct hidpp_reprog_control_mapping *mapping;
-> +
-> +	if (!hidpp->reprog_controls)
-> +		return;
-> +
-> +	for (mapping =3D hidpp->reprog_controls; mapping->control;
-> mapping++)
-> +		input_set_capability(input_dev, EV_KEY, mapping-
-> >code);
-> +}
-> +
-> =C2=A0static void hidpp10_extra_mouse_buttons_populate_input(
-> =C2=A0			struct hidpp_device *hidpp, struct input_dev
-> *input_dev)
-> =C2=A0{
-> @@ -3859,6 +4053,9 @@ static void hidpp_populate_input(struct
-> hidpp_device *hidpp,
-> =C2=A0
-> =C2=A0	if (hidpp->quirks & HIDPP_QUIRK_HIDPP_EXTRA_MOUSE_BTNS)
-> =C2=A0		hidpp10_extra_mouse_buttons_populate_input(hidpp,
-> input);
-> +
-> +	if (hidpp->quirks & HIDPP_QUIRK_HIDPP_REPROG_CONTROLS_BTNS)
-> +		hidpp20_reprog_controls_populate_input(hidpp,
-> input);
-> =C2=A0}
-> =C2=A0
-> =C2=A0static int hidpp_input_configured(struct hid_device *hdev,
-> @@ -3971,6 +4168,10 @@ static int hidpp_raw_hidpp_event(struct
-> hidpp_device *hidpp, u8 *data,
-> =C2=A0			return ret;
-> =C2=A0	}
-> =C2=A0
-> +	ret =3D hidpp20_reprog_controls_raw_event(hidpp, data, size);
-> +	if (ret !=3D 0)
-> +		return ret;
-> +
-> =C2=A0	if (hidpp->quirks & HIDPP_QUIRK_HIDPP_CONSUMER_VENDOR_KEYS)
-> {
-> =C2=A0		ret =3D hidpp10_consumer_keys_raw_event(hidpp, data,
-> size);
-> =C2=A0		if (ret !=3D 0)
-> @@ -4264,6 +4465,8 @@ static void hidpp_connect_event(struct
-> work_struct *work)
-> =C2=A0			return;
-> =C2=A0	}
-> =C2=A0
-> +	hidpp20_reprog_controls_connect(hidpp);
-> +
-> =C2=A0	if (hidpp->quirks & HIDPP_QUIRK_HIDPP_CONSUMER_VENDOR_KEYS)
-> {
-> =C2=A0		ret =3D hidpp10_consumer_keys_connect(hidpp);
-> =C2=A0		if (ret)
-> @@ -4436,6 +4639,8 @@ static int hidpp_probe(struct hid_device *hdev,
-> const struct hid_device_id *id)
-> =C2=A0	hidpp->hid_dev =3D hdev;
-> =C2=A0	hidpp->name =3D hdev->name;
-> =C2=A0	hidpp->quirks =3D id->driver_data;
-> +	hidpp->reprog_controls_feature_index =3D 0xff;
-> +	hidpp->reprog_controls =3D
-> hidpp20_reprog_controls_get_mappings(hidpp);
-> =C2=A0	hid_set_drvdata(hdev, hidpp);
-> =C2=A0
-> =C2=A0	ret =3D hid_parse(hdev);
+-- 
+Dmitry

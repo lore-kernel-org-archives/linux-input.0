@@ -1,33 +1,33 @@
-Received: from mta0.migadu.com (out-219.mta0.migadu.com [91.218.175.219])
+Received: from mta0.migadu.com (out-230.mta0.migadu.com [91.218.175.230])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5371F47010A
-	for <linux-input@vger.kernel.org>; Thu, 13 Aug 2026 14:47:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.219
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C593A38422F
+	for <linux-input@vger.kernel.org>; Thu, 13 Aug 2026 14:47:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.230
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786632468; cv=none; b=EASu7Eo9YWLvjvLDqPF+2la394IVDtaiXCeaqSZIcQaDStpcxvt09wS9+63IGjwRKa7cWOf9dP3j5TPoJVGXe34EP9/WpjDPBZdf3rOUCf8qZ5nfJrUZB3xuXu6i1ca0K94cDvF5EA9l/AmSdE1e+jVNWgNDW69QAv4EYsf0Wu8=
+	t=1786632468; cv=none; b=a76jOqMdp9x1HVv7Cbs4wUsO7M9jnGmoIHzGXIyrbnXEc6zDQjQxOT3Cd1ytcN69CkIPK8H+HCoyEyHQz6onCO2P7siZbvXlN5A8lF223owECd3OgcZolacMeQmRSYtCmoFTsOI/2Zao2cOlSeQ7rXCPqcltGBLOJFTdzBWwu9o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1786632468; c=relaxed/simple;
-	bh=7Hz00voMz5Xsmz7NfDwDwwVgTVvta6qgOlChjrb17Gc=;
+	bh=o6BwQbgUNJdANVFH6Z9yQT6JSK48BeGKCiHTGGcvm3k=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=KbRuYQCkjCgMCa78Q3WHEOBRy3P0wuBrHW/kvENI+jK0uT3RY1E4qkhkxfWkHfGFGlcSchR1hlHvaN7vAiSYoMRvies9ykgxTOBswawgdhMaq0VOB/JOCRGpevHPQtellORzdRgJTrPaCHOG59tyDNnPDuYcKo7YbLN/sBqKJy4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=Or+9v5Mp; arc=none smtp.client-ip=91.218.175.219
+	 MIME-Version; b=olWfKtag4piodbvOI1ZexBFyIGljX8hf2N26Xe7tc6QFZRTQb9qcFskqxD59LM1/EjExl5qyzYYLAeJ1UyFHZ21TCtvSVN0oAdCGpLS6U67KzC81F5hUUwgNNPPlz/YSeDATL0qAfrqdeH7PwEqICSJ7oPbpbKpaVkjrIuIPPt8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=xGc76nfu; arc=none smtp.client-ip=91.218.175.230
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="Or+9v5Mp"
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="xGc76nfu"
 X-Envelope-To: linux-input@vger.kernel.org
-DKIM-Signature: a=rsa-sha256; bh=7Hz00voMz5Xsmz7NfDwDwwVgTVvta6qgOlChjrb17Gc=;
+DKIM-Signature: a=rsa-sha256; bh=o6BwQbgUNJdANVFH6Z9yQT6JSK48BeGKCiHTGGcvm3k=;
  c=simple/simple; d=linux.dev;
  h=from:to:subject:date:message-id:mime-version:content-type; s=key1;
- t=1786632462; v=1; x=1787237262;
- b=Or+9v5MpQS2IyCbKAX9TYd2lc1WcWRDg0HyI/i0v+jcHzZJiq9YFgyVpxcNOwSfj6b1ch6Z0
- yWrqe3AO6fB7ZgKHKE4KJWvffoNUeCD0X+U9/2W2SrH9A+tZ8c86/9t5ZBG5upSMr9/oGCvCmec
- ziWepJQAoLoqJ8Z/vRSHaYpo=
+ t=1786632464; v=1; x=1787237264;
+ b=xGc76nfunX9BnEQ82cZj00mPXffOa2Pfo2fElErTHW1sK8YbI2S+RSAc8Zp/A9zj8vlVFP6e
+ 2rLesuOo5oWCFsg7HMUm6MlcMvR87gGjmxjC4y9qQ+6UczhsbHYccvLkB14noJOYhzwEaktIt8W
+ k4aUNIM/xAynQ8Ba0z3tQSHs=
 X-Envelope-To: linux-input@vger.kernel.org
 Received: from kernel.denis-pc.lan (151.61.14.130)
-	by smtp.migadu.com with ESMTPS id 68c2da1431c68fc6;
-	Thu, 13 Aug 2026 14:47:42 +0000
+	by smtp.migadu.com with ESMTPS id 37eae583760cdcf1;
+	Thu, 13 Aug 2026 14:47:44 +0000
 X-Migadu-Flow: FLOW_OUT
 From: Denis Benato <denis.benato@linux.dev>
 To: linux-kernel@vger.kernel.org
@@ -41,9 +41,9 @@ Cc: linux-input@vger.kernel.org,
 	"Khamunetri Clark" <khamunetriclark@gmail.com>,
 	"Derek J. Clark" <derekjohn.clark@gmail.com>,
 	Denis Benato <denis.benato@linux.dev>
-Subject: [PATCH 04/12] HID: asus: add vibration strength configuration
-Date: Thu, 13 Aug 2026 14:47:28 +0000
-Message-ID: <20260813144736.2477941-5-denis.benato@linux.dev>
+Subject: [PATCH 07/12] HID: asus: add joysticks anti-deadzone configuration
+Date: Thu, 13 Aug 2026 14:47:31 +0000
+Message-ID: <20260813144736.2477941-8-denis.benato@linux.dev>
 X-Mailer: git-send-email 2.47.3
 In-Reply-To: <20260813144736.2477941-1-denis.benato@linux.dev>
 References: <20260813144736.2477941-1-denis.benato@linux.dev>
@@ -55,220 +55,205 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-ASUS ROG Ally handhelds support the vibration strength to be configured:
-add sysfs attributes to allow userspace configure motors vibration
-intensity.
+ROG Ally devices allow configuring the anti-deadzone parameter for
+the resistive joysticks devices as over time those develops drift,
+therefore allow userspace to configure the anti-deadzone by exposing
+relevant sysfs attributes.
 
 Signed-off-by: Denis Benato <denis.benato@linux.dev>
 Signed-off-by: Luke Jones <luke@ljones.dev>
 ---
- drivers/hid/hid-asus.c | 170 +++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 170 insertions(+)
+ drivers/hid/hid-asus.c | 163 +++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 163 insertions(+)
 
 diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
-index 6a15380488ef..48cc867aeea8 100644
+index eb735ec8f065..8ed10c5b22ab 100644
 --- a/drivers/hid/hid-asus.c
 +++ b/drivers/hid/hid-asus.c
-@@ -205,6 +205,11 @@ struct ally_config {
- 	u8 left_trigger_max;
- 	u8 right_trigger_min;
- 	u8 right_trigger_max;
-+
-+	/* Vibration settings */
-+	u8 vibration_intensity_left;
-+	u8 vibration_intensity_right;
-+	bool vibration_active;
- };
- 
- struct ally_handheld {
-@@ -724,15 +729,177 @@ static ssize_t xbox_controller_store(struct device *dev,
- 
- static DEVICE_ATTR_RW(xbox_controller);
+@@ -1155,6 +1155,165 @@ static struct device_attribute dev_attr_right_joystick_outer_threshold =
+ static struct device_attribute dev_attr_right_joystick_outer_threshold_range =
+ 	__ATTR(outer_threshold_range, 0444, right_joystick_outer_threshold_range_show, NULL);
  
 +/**
-+ * ally_set_vibration_intensity() - Set vibration intensity values
++ * ally_set_anti_deadzone - Set anti-deadzone values for joysticks
 + * @hdev: HID device
-+ * @cfg: Ally config
-+ * @left: Left motor intensity (0-100)
-+ * @right: Right motor intensity (0-100)
++ * @left_adz: Left joystick anti-deadzone value (0-100)
++ * @right_adz: Right joystick anti-deadzone value (0-100)
 + *
-+ * Returns 0 on success, negative error code on failure
++ * Return: 0 on success, negative on failure
 + */
-+static int ally_set_vibration_intensity(struct hid_device *hdev, struct ally_config *cfg,
-+					u8 left, u8 right)
++static int ally_set_anti_deadzone(struct hid_device *hdev, u8 left_adz, u8 right_adz)
 +{
-+	const u8 data[] = { left, right };
++	struct asus_drvdata *drvdata = hid_get_drvdata(hdev);
++	struct ally_handheld *const ally = drvdata->rog_ally;
++	const u8 payload[] = { left_adz, right_adz };
 +	int ret;
 +
-+	u8 *buf __free(kfree) = ally_alloc_cmd(CMD_SET_VIBRATION_INTENSITY, data, sizeof(data));
++	u8 *buf __free(kfree) = ally_alloc_cmd(CMD_SET_ANTI_DEADZONE, payload, sizeof(payload));
 +	if (!buf)
 +		return -ENOMEM;
 +
++	if (!ally->config->anti_deadzone_support) {
++		hid_dbg(hdev, "Anti-deadzone not supported on this device\n");
++		return -EOPNOTSUPP;
++	}
++
 +	ret = ally_dev_set_report(hdev, buf, ROG_ALLY_REPORT_SIZE);
 +	if (ret < 0) {
-+		hid_err(hdev, "Failed to set vibration intensity: %d\n", ret);
++		hid_err(hdev, "Failed to set anti-deadzone values: %d\n", ret);
 +		return ret;
 +	}
 +
 +	return 0;
 +}
 +
-+static ssize_t left_vibration_intensity_show(struct device *dev, struct device_attribute *attr,
-+					char *buf)
++static ssize_t left_joystick_anti_deadzone_show(struct device *dev, struct device_attribute *attr,
++						char *buf)
 +{
 +	struct hid_device *hdev = to_hid_device(dev);
 +	struct asus_drvdata *drvdata = hid_get_drvdata(hdev);
-+	struct ally_handheld *ally = drvdata->rog_ally;
-+	struct ally_config *cfg;
++	struct ally_handheld *const ally = drvdata->rog_ally;
 +
 +	if (!ally || !ally->config)
 +		return -ENODEV;
 +
-+	cfg = ally->config;
++	if (!ally->config->anti_deadzone_support) {
++		hid_dbg(hdev, "Anti-deadzone not supported on this device\n");
++		return -EOPNOTSUPP;
++	}
 +
-+	return sysfs_emit(buf, "%u\n", cfg->vibration_intensity_left);
++	return sysfs_emit(buf, "%u\n", ally->config->left_anti_deadzone);
 +}
 +
-+static ssize_t left_vibration_intensity_store(struct device *dev, struct device_attribute *attr,
-+					 const char *buf, size_t count)
++static ssize_t left_joystick_anti_deadzone_store(struct device *dev, struct device_attribute *attr,
++						 const char *buf, size_t count)
 +{
 +	struct hid_device *hdev = to_hid_device(dev);
 +	struct asus_drvdata *drvdata = hid_get_drvdata(hdev);
-+	struct ally_handheld *ally = drvdata->rog_ally;
-+	struct ally_config *cfg;
++	struct ally_handheld *const ally = drvdata->rog_ally;
 +	u8 value;
 +	int ret;
 +
 +	if (!ally || !ally->config)
 +		return -ENODEV;
 +
-+	cfg = ally->config;
++	if (!ally->config->anti_deadzone_support) {
++		hid_dbg(hdev, "Anti-deadzone not supported on this device\n");
++		return -EOPNOTSUPP;
++	}
 +
 +	ret = kstrtou8(buf, 10, &value);
 +	if (ret || value > 100)
 +		return -EINVAL;
 +
-+	ret = ally_set_vibration_intensity(hdev, cfg, value, cfg->vibration_intensity_right);
-+	if (ret < 0)
++	ret = ally_set_anti_deadzone(hdev, value, ally->config->right_anti_deadzone);
++	if (ret)
 +		return ret;
 +
-+	scoped_guard(mutex, &cfg->config_mutex)
-+		cfg->vibration_intensity_left = value;
++	scoped_guard(mutex, &ally->config->config_mutex)
++		ally->config->left_anti_deadzone = value;
 +
 +	return count;
 +}
 +
-+static ssize_t left_vibration_intensity_range_show(struct device *dev,
-+						   struct device_attribute *attr, char *buf)
++static ssize_t left_joystick_anti_deadzone_range_show(struct device *dev,
++						       struct device_attribute *attr,
++						       char *buf)
 +{
 +	return sysfs_emit(buf, "0 100\n");
 +}
 +
-+static ssize_t right_vibration_intensity_show(struct device *dev, struct device_attribute *attr,
-+					char *buf)
++static ssize_t right_joystick_anti_deadzone_show(struct device *dev, struct device_attribute *attr,
++						char *buf)
 +{
 +	struct hid_device *hdev = to_hid_device(dev);
 +	struct asus_drvdata *drvdata = hid_get_drvdata(hdev);
-+	struct ally_handheld *ally = drvdata->rog_ally;
-+	struct ally_config *cfg;
++	struct ally_handheld *const ally = drvdata->rog_ally;
 +
 +	if (!ally || !ally->config)
 +		return -ENODEV;
 +
-+	cfg = ally->config;
++	if (!ally->config->anti_deadzone_support) {
++		hid_dbg(hdev, "Anti-deadzone not supported on this device\n");
++		return -EOPNOTSUPP;
++	}
 +
-+	return sysfs_emit(buf, "%u\n", cfg->vibration_intensity_right);
++	return sysfs_emit(buf, "%u\n", ally->config->right_anti_deadzone);
 +}
 +
-+static ssize_t right_vibration_intensity_store(struct device *dev, struct device_attribute *attr,
-+					 const char *buf, size_t count)
++static ssize_t right_joystick_anti_deadzone_store(struct device *dev, struct device_attribute *attr,
++						 const char *buf, size_t count)
 +{
 +	struct hid_device *hdev = to_hid_device(dev);
 +	struct asus_drvdata *drvdata = hid_get_drvdata(hdev);
-+	struct ally_handheld *ally = drvdata->rog_ally;
-+	struct ally_config *cfg;
++	struct ally_handheld *const ally = drvdata->rog_ally;
 +	u8 value;
 +	int ret;
 +
 +	if (!ally || !ally->config)
 +		return -ENODEV;
 +
-+	cfg = ally->config;
++	if (!ally->config->anti_deadzone_support) {
++		hid_dbg(hdev, "Anti-deadzone not supported on this device\n");
++		return -EOPNOTSUPP;
++	}
 +
 +	ret = kstrtou8(buf, 10, &value);
 +	if (ret || value > 100)
 +		return -EINVAL;
 +
-+	ret = ally_set_vibration_intensity(hdev, cfg, cfg->vibration_intensity_left, value);
-+	if (ret < 0)
++	ret = ally_set_anti_deadzone(hdev, ally->config->left_anti_deadzone, value);
++	if (ret)
 +		return ret;
 +
-+	scoped_guard(mutex, &cfg->config_mutex)
-+		cfg->vibration_intensity_right = value;
++	scoped_guard(mutex, &ally->config->config_mutex)
++		ally->config->right_anti_deadzone = value;
 +
 +	return count;
 +}
 +
-+static ssize_t right_vibration_intensity_range_show(struct device *dev,
-+						    struct device_attribute *attr, char *buf)
++static ssize_t right_joystick_anti_deadzone_range_show(struct device *dev,
++							struct device_attribute *attr,
++							char *buf)
 +{
 +	return sysfs_emit(buf, "0 100\n");
 +}
 +
-+static struct device_attribute dev_attr_left_vibration_intensity =
-+	__ATTR(intensity, 0644, left_vibration_intensity_show, left_vibration_intensity_store);
++static struct device_attribute dev_attr_left_joystick_anti_deadzone =
++	__ATTR(anti_deadzone, 0644, left_joystick_anti_deadzone_show,
++	       left_joystick_anti_deadzone_store);
 +
-+static struct device_attribute dev_attr_left_vibration_intensity_range =
-+	__ATTR(intensity_range, 0444, left_vibration_intensity_range_show, NULL);
++static struct device_attribute dev_attr_left_joystick_anti_deadzone_range =
++	__ATTR(anti_deadzone_range, 0444, left_joystick_anti_deadzone_range_show, NULL);
 +
-+static struct device_attribute dev_attr_right_vibration_intensity =
-+	__ATTR(intensity, 0644, right_vibration_intensity_show, right_vibration_intensity_store);
++static struct device_attribute dev_attr_right_joystick_anti_deadzone =
++	__ATTR(anti_deadzone, 0644, right_joystick_anti_deadzone_show,
++	       right_joystick_anti_deadzone_store);
 +
-+static struct device_attribute dev_attr_right_vibration_intensity_range =
-+	__ATTR(intensity_range, 0444, right_vibration_intensity_range_show, NULL);
++static struct device_attribute dev_attr_right_joystick_anti_deadzone_range =
++	__ATTR(anti_deadzone_range, 0444, right_joystick_anti_deadzone_range_show, NULL);
 +
- static struct attribute *ally_config_attrs[] = {
- 	&dev_attr_xbox_controller.attr,
+ /**
+  * ally_set_trigger_ranges() - Generic function to set triggers ranges
+  *
+@@ -1447,6 +1606,8 @@ static struct attribute *left_joystick_axis_attrs[] = {
+ 	&dev_attr_left_joystick_outer_threshold.attr,
+ 	&dev_attr_left_joystick_inner_threshold_range.attr,
+ 	&dev_attr_left_joystick_outer_threshold_range.attr,
++	&dev_attr_left_joystick_anti_deadzone.attr,
++	&dev_attr_left_joystick_anti_deadzone_range.attr,
  	NULL
  };
  
-+static struct attribute *ally_left_vibration_attrs[] = {
-+	&dev_attr_left_vibration_intensity.attr,
-+	&dev_attr_left_vibration_intensity_range.attr,
-+	NULL
-+};
-+
-+static struct attribute *ally_right_vibration_attrs[] = {
-+	&dev_attr_right_vibration_intensity.attr,
-+	&dev_attr_right_vibration_intensity_range.attr,
-+	NULL
-+};
-+
- static const struct attribute_group ally_attr_groups[] = {
- 	{
- 		.attrs = ally_config_attrs,
- 	},
-+	{
-+		.name = "left_vibration",
-+		.attrs = ally_left_vibration_attrs,
-+	},
-+	{
-+		.name = "right_vibration",
-+		.attrs = ally_right_vibration_attrs,
-+	},
+@@ -1455,6 +1616,8 @@ static struct attribute *right_joystick_axis_attrs[] = {
+ 	&dev_attr_right_joystick_outer_threshold.attr,
+ 	&dev_attr_right_joystick_inner_threshold_range.attr,
+ 	&dev_attr_right_joystick_outer_threshold_range.attr,
++	&dev_attr_right_joystick_anti_deadzone.attr,
++	&dev_attr_right_joystick_anti_deadzone_range.attr,
+ 	NULL
  };
  
- /**
-@@ -771,6 +938,9 @@ static struct ally_config *ally_config_create(struct hid_device *hdev, struct al
- 	cfg->left_outer_threshold = 90;
- 	cfg->right_deadzone = 10;
- 	cfg->right_outer_threshold = 90;
-+	cfg->vibration_intensity_left = 100;
-+	cfg->vibration_intensity_right = 100;
-+	cfg->vibration_active = false;
- 
- 	/* So far the only hardware this is supported is the Ally 1 */
- 	if (cfg->xbox_controller_support) {
 -- 
 2.47.3
 

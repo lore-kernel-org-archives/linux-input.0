@@ -1,164 +1,234 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 593E8484250
-	for <linux-input@vger.kernel.org>; Thu, 13 Aug 2026 15:10:17 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 13360296BCD
+	for <linux-input@vger.kernel.org>; Thu, 13 Aug 2026 15:10:23 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786633819; cv=none; b=P94Qo1tBEAWpIS/1HNTl1Hj7V7I7tPv7XSJeV6kK/Zh8zAM2RzCINMWCnIfNcK0f0mzKZ3qSdQ6SbfwtOXeAT+ou/YnT+P1OP4jze2l/XAsjvTH2Daa+5JDO7Mek8adNLUR/748U0YBWg3d/8qzljIvMABJuEy9BXDt+qsUbbC0=
+	t=1786633824; cv=none; b=U+ELsRP4O6PYfJhFENNiYr7IQiQXQ38v7ZlGKHkaLzHadPE/dhmotMKCGWtOsQoTYfQaI12BMF7zzTrWRvvLXN+BBTCFkIR84PdOIQBmAwg1WEkuGJTdaatTVe202Ha4rRfcuBrjmeFZtKs0WkUOXHCpEkN3ldNIqLOvVulCAbg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786633819; c=relaxed/simple;
-	bh=c3SegYpGHH+W82r5UpBDlldU0bF4eb1UoPklh4rMmPc=;
+	s=arc-20240116; t=1786633824; c=relaxed/simple;
+	bh=kwF+GuNySKR40A62K2OCJqx57GIJSaOvFt+CQj6NyXY=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=Vxd75Gn/deBuyDWBd/fn/OTS9AqaLbkr3bxYhJ++aryk4dgrlkhklzH2GygffBLaFTKI5K6hnOevLDvNB7Aer7dyhPkOssyBMvax3R+Ny/8OctAjlS25PSrPSc1lQAFdPHIoFw5CYEI63+5ayCSd50SsFOSZZrWIot/NqW0ex4A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=amn1l1sD; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=d+gzSX4z1UrZzRBP0Q7Jtcedo/5DJyde2uAtCT4eqfVmdSz9kBzZ51zthWVZ4BzHyvw3dvrg9RbyWUIcpylVXqRG4wnn9PAYY1x3NEpf1OOzO+aAEPehPO1FwvAzGDICM1s1dfcvSsJC4BWy1kFNalIPxtMPcUpSLMJ/ekoaHlI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ItMrAA//; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="amn1l1sD"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C4E0B1F000E9;
-	Thu, 13 Aug 2026 15:10:13 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ItMrAA//"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7F7A1F000E9;
+	Thu, 13 Aug 2026 15:10:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786633817;
-	bh=9kRzrnSmbUCw9bpEQsja19nj/5anN7TZG4uM/ybNFFQ=;
+	s=k20260515; t=1786633823;
+	bh=2eP8TGe5yhqcpHsUoFH96AntxB5xMu7InyNpuKGHI3M=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=amn1l1sDaBnYJvcaaIFmjmcJ6+oueURetXR5dyfhNU7ujRBl2HcgmCy8G1WraX0iV
-	 ULmUKLp5wFJLzOKChLhWM/mpJKe2Ss3gew6C+sGNLEdBmyhfdL9+SoCBlmUsNVzQqx
-	 TJhgacGVXnuwHcDMPuz8kKMNrXyuCyW+B+t3Zbv1N9TwxViZ79eT7IOg6oMDoGlS5Q
-	 Mtw/Jhe1TiflQDfW5IyJ/IkEDSW1YTV3cgwBmqqc+nWivHU1vw9j5MNnNDd69pQmj7
-	 AYGSFZNrNCrk2pOjOsvTYipz5x3OiSAxKz7VNtul1Ns5R+jgxU94wQhzWAC8L4KbMv
-	 6bC3Yyin3q1eA==
+	b=ItMrAA//GGtiaqruklQzzrSlRhJwBSkvrCvr0+7XJplAYu1q9psyB6NA+4kj2ZNve
+	 90eG/I/ZLYxh8B7GuKJ4B9OeNKm+csLb7sHL6mGSS4r/LGYx52eM4bLbBRuHtMtHNP
+	 n2rBkhg0pK4+NlB6P0Vjtg4EIIR4ZGOeRIBJeELM539j2SLbVyK2uxTxashgRrq/pz
+	 qBzInbls0OrPUKRHGBnlEFtuG/498osyH/bhQDR2rFs4DFP24BbHuFei0vYq5ygLlh
+	 HQSeIt/1NbuBHnbxsKmT1G5IB/LbQTVPwiZUP/hQst0S+qjFMKhsDr+nlOCZvQQ+PN
+	 5pU6gWzD+Z0Xw==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 09/12] HID: asus: add support to force feedback
+Subject: Re: [PATCH 10/12] HID: asus: add support for gamepad mode
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Denis Benato" <denis.benato@linux.dev>
 Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260813144736.2477941-10-denis.benato@linux.dev>
+In-Reply-To: <20260813144736.2477941-11-denis.benato@linux.dev>
 References: <20260813144736.2477941-1-denis.benato@linux.dev>
- <20260813144736.2477941-10-denis.benato@linux.dev>
+ <20260813144736.2477941-11-denis.benato@linux.dev>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 13 Aug 2026 15:10:13 +0000
-Message-Id: <20260813151013.C4E0B1F000E9@smtp.kernel.org>
+Date: Thu, 13 Aug 2026 15:10:22 +0000
+Message-Id: <20260813151022.B7F7A1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+Thank you for your contribution! Sashiko AI review found 5 potential issue(=
 s) to consider:
-- [High] Ignoring the return value of `input_ff_create_memless` and proceed=
-ing with `input_register_device` leads to a guaranteed NULL pointer derefer=
-ence in `input_ff_upload()`.
-- [High] Disabling the force-feedback workqueue in `hid_asus_ally_remove()`=
- before stopping the hardware leaves the device actively rumbling.
-- [Medium] Force feedback output report is incorrectly sent as a Feature re=
-port, and during initialization it is sent to the wrong USB interface.
+- [Critical] Missing `hid_asus_ally_remove()` in `asus_probe()` error path =
+leads to Use-After-Free.
+- [High] The dynamically allocated `cfg->config_mutex` is never initialized.
+- [Medium] User-configured gamepad mode is unconditionally overwritten and =
+lost during device reset/resume.
+- [Medium] Hardware state desynchronization due to missing lock coverage ov=
+er hardware I/O in `gamepad_mode_store`.
+- [Medium] Lockless modification of shared state `cfg->gamepad_mode` in `al=
+ly_set_default_gamepad_mode()`.
 --
 
---- Patch [9]: [PATCH 09/12] HID: asus: add support to force feedback ---
-commit 84e3caa9147b2fcf6cc7ac8459e2b9e55841248a
+--- Patch [10]: [PATCH 10/12] HID: asus: add support for gamepad mode ---
+commit cfd28807a39c51dcfa8825ce30540ae3214394d4
 Author: Denis Benato <denis.benato@linux.dev>
-Subject: HID: asus: add support to force feedback
 
-This commit adds force feedback (FF_RUMBLE) support for the ROG Ally X by=20
-implementing a work-queue based approach for sending vendor-specific DInput=
-=20
-protocol rumble packets.
+HID: asus: add support for gamepad mode
+
+ROG Ally devices can emulate either a mouse+keyboard (desktop mode)
+or an gamepad device (xbox360 controller in ROG ally and a custom
+DInput device on newer models): add support for switching the current
+controller mode.
 
 > diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
-> index 8018e61cf0264..301fe33f66b1f 100644
+> index 301fe33f66b1f..8930a246e7255 100644
 > --- a/drivers/hid/hid-asus.c
 > +++ b/drivers/hid/hid-asus.c
 
 [ ... ]
 
-> @@ -2254,6 +2282,59 @@ static bool ally_x_raw_event(struct input_dev *inp=
-ut, struct hid_device *hdev,
->  	return true;
->  }
+> @@ -793,6 +807,136 @@ static ssize_t xbox_controller_store(struct device =
+*dev,
 > =20
-> +static void ally_x_ff_work_fn(struct work_struct *work)
+>  static DEVICE_ATTR_RW(xbox_controller);
+> =20
+> +/**
+> + * ally_set_gamepad_mode - Set the gamepad operating mode
+
+[ ... ]
+
+> +static ssize_t gamepad_mode_store(struct device *dev, struct device_attr=
+ibute *attr,
+> +				  const char *buf, size_t count)
 > +{
 
 [ ... ]
 
-> +	if (!update || !hdev)
-> +		return;
+> +	/* Convert the index of the text mode array to the byte
+> +	 * that will be accepted by the ally MCU.
+> +	 */
+> +	mode_byte =3D ally_gamepad_mode[mode];
 > +
-> +	ret =3D ally_gamepad_send_packet(ally, hdev, (u8 *)&report, sizeof(repo=
-rt));
+> +	ret =3D ally_set_gamepad_mode(ally, hdev, mode_byte);
+> +	if (ret < 0)
+> +		return ret;
+> +
+> +	scoped_guard(mutex, &cfg->config_mutex)
+> +		cfg->gamepad_mode =3D mode_byte;
 
 [Severity: Medium]
-Does ally_gamepad_send_packet() send this data as a Feature report instead=
-=20
-of an Output report?
+Can the hardware state become desynchronized from the software state here?
 
-The ff_data struct is documented as an XInput force-feedback output report=
-=20
-(0x0d), but if ally_gamepad_send_packet() internally hardcodes the transfer=
- as=20
-a HID_FEATURE_REPORT, will the hardware reject this packet?
+The hardware request ally_set_gamepad_mode() executes before acquiring
+cfg->config_mutex, while the internal software state cfg->gamepad_mode
+is updated only after the lock is acquired.=20
 
-> +	if (ret < 0)
-> +		hid_err(hdev, "Failed to send force-feedback: %d\n", ret);
+If two threads write to the sysfs attribute concurrently, might their
+hardware I/O requests interleave with the mutex-protected state updates,
+resulting in the hardware being set to one mode while the driver records
+the other?
+
+[Severity: High]
+Is cfg->config_mutex properly initialized before it is used here?
+
+Looking at ally_config_create(), the structure is allocated and
+zero-initialized:
+
+drivers/hid/hid-asus.c:ally_config_create() {
+    ...
+	cfg =3D devm_kzalloc(&hdev->dev, sizeof(*cfg), GFP_KERNEL);
+	if (!cfg)
+		return ERR_PTR(-ENOMEM);
+    ...
+}
+
+However, mutex_init() is never called for cfg->config_mutex.
+
+A zero-initialized mutex lacks proper lockdep linkage and wait_list
+initialization.=20
+
+Could this trigger lockdep warnings or kernel crashes when scoped_guard()
+is called?
+
+> +
+> +	hid_dbg(hdev, "Set gamepad mode to %s\n", ally_gamepad_mode_text[mode]);
+> +
+> +	return count;
 > +}
+> +
 
 [ ... ]
 
-> @@ -2308,6 +2389,16 @@ static int ally_x_setup_input(struct hid_device *h=
+> +static DEVICE_ATTR_RW(gamepad_mode);
+> +static DEVICE_ATTR_RO(gamepad_mode_index);
+> +
+> +static int ally_set_default_gamepad_mode(struct hid_device *hdev,
+> +					 struct ally_handheld *ally,
+> +					 struct ally_config *cfg)
+> +{
+> +	cfg->gamepad_mode =3D ALLY_GAMEPAD_MODE_GAMEPAD;
+> +
+> +	return ally_set_gamepad_mode(ally, hdev, cfg->gamepad_mode);
+
+[Severity: Medium]
+Is it safe to modify cfg->gamepad_mode directly without holding
+cfg->config_mutex?
+
+This function is called from hid_asus_ally_init() after ally_config_create()
+has already successfully registered the sysfs group.=20
+
+Since the sysfs attributes are active and exposed, could a concurrent write
+from userspace interleave with this initialization?
+
+> +}
+> +
+>  /**
+>   * ally_set_vibration_intensity() - Set vibration intensity values
+
+[ ... ]
+
+> @@ -2422,6 +2568,13 @@ static int hid_asus_ally_init(struct hid_device *h=
 dev, struct ally_handheld *all
->  	input_set_capability(input, EV_KEY, BTN_TRIGGER_HAPPY);
->  	input_set_capability(input, EV_KEY, BTN_TRIGGER_HAPPY1);
+>  	if (ret < 0)
+>  		hid_err(hdev, "Ally failed to init force-feedback off: %d\n", ret);
 > =20
-> +	memcpy(&ally->ff_packet, ALLY_FORCE_FEEDBACK_OFF, sizeof(ally->ff_packe=
-t));
-> +	spin_lock_init(&ally->ff_lock);
-> +	INIT_WORK(&ally->ff_work, ally_x_ff_work_fn);
-> +	ally->ff_work_initialized =3D true;
+> +	/* Set the default gamepad mode now that the MCU is confirmed ready */
+> +	if (ally->config) {
+> +		ret =3D ally_set_default_gamepad_mode(hdev, ally, ally->config);
+> +		if (ret < 0)
+> +			hid_warn(hdev, "Failed to set default gamepad mode: %d\n", ret);
+> +	}
 > +
-> +	input_set_capability(input, EV_FF, FF_RUMBLE);
-> +	ret =3D input_ff_create_memless(input, NULL, ally_x_play_effect);
-> +	if (ret)
-> +		hid_warn(hdev, "Failed to create force-feedback: %d\n", ret);
-> +
->  	ret =3D input_register_device(input);
 
-[Severity: High]
-If input_ff_create_memless() fails, will this leave dev->ff as NULL while=20
-EV_FF is still advertised?
+[Severity: Medium]
+Will this unconditionally overwrite the user-configured gamepad mode?
 
-Since the warning is printed but input_register_device() is still called on=
-=20
-failure, could this cause a NULL pointer dereference in input_ff_upload()=20
-when userspace invokes the EVIOCSFF ioctl on the registered device?
+During a USB reset resume, hid_asus_ally_init() is called and invokes
+ally_set_default_gamepad_mode(), which sets the state to
+ALLY_GAMEPAD_MODE_GAMEPAD and writes it to the hardware.=20
 
->  	if (ret) {
->  		hid_err(hdev, "Failed to register Ally X gamepad device: %d\n", ret);
+Does this actively destroy the user's previously selected mode across
+suspend/resume or device reset cycles?
 
-[ ... ]
+>  	return 0;
+>  }
 
-> @@ -2460,6 +2551,9 @@ static void hid_asus_ally_remove(struct hid_device =
-*hdev, struct ally_handheld *
-> =20
->  	scoped_guard(mutex, &ally_data_mutex) {
->  		if (ally->ally_x_hdev =3D=3D hdev) {
-> +			scoped_guard(spinlock_irqsave, &ally->ff_lock)
-> +				ally->ff_work_initialized =3D false;
-> +			cancel_work_sync(&ally->ff_work);
+[Severity: Critical]
+Does the error path in asus_probe() leave a dangling pointer to freed memor=
+y?
 
-[Severity: High]
-Will this leave the device vibrating indefinitely if it is unbound while=20
-rumbling?
+If asus_probe() fails after hid_asus_ally_probe() succeeds, the driver
+jumps to the err_stop_hw error path:
 
-By setting ff_work_initialized to false and synchronously canceling the=20
-workqueue here, before the devres action has a chance to unregister the=20
-input device, won't the input subsystem's subsequent stop commands be=20
-silently discarded by the disabled workqueue?
+drivers/hid/hid-asus.c:asus_probe() {
+    ...
+err_stop_hw:
+	if (drvdata->listener.brightness_set)
+		asus_hid_unregister_listener(&drvdata->listener);
 
->  			ally->ally_x_input =3D NULL;
->  			ally->ally_x_hdev =3D NULL;
->  		}
+	asus_worker_stop(drvdata->worker);
+	hid_hw_stop(hdev);
+	return ret;
+}
+
+This path cleans up core resources but fails to tear down the ally
+sub-driver state.=20
+
+The driver core's devres mechanism automatically frees ally_cfg, but the=20
+static global ally_drvdata.config retains a dangling pointer to this freed
+memory.
+
+Could this lead to a use-after-free if accessed by a subsequent interface
+probe or a delayed work?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260813144736.2477=
-941-1-denis.benato@linux.dev?part=3D9
+941-1-denis.benato@linux.dev?part=3D10

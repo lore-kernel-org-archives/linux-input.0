@@ -1,113 +1,155 @@
-Received: from mailgw.kylinos.cn (mailgw.kylinos.cn [124.126.103.232])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 957EF3D9043;
-	Fri, 14 Aug 2026 07:06:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=124.126.103.232
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AD46033D4FD
+	for <linux-input@vger.kernel.org>; Fri, 14 Aug 2026 07:23:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786691204; cv=none; b=QFKy0+FkjmwoYgFvTSyer6pbd1r0MsT+9Ue/xq3MI8eNNEQ6NAxehAdvnR50n6qpH4rvKSM5Po8DmQKIs2hCRSIJjQ/2bJQwFYrfrHL2nKKDaPLp9hzUQKxFyWXK2hCFyVtxYrrqUqO07dVosgFvwhb1OkDRh9m7LtEemOCjSKg=
+	t=1786692207; cv=none; b=Yh30hOgamIPuB5MayjITtj9QabjJw0mI4OBztXRJScvJ7nwZdiVf5iWJn7Ac5MLeGKoG11tOpHNwvYLi0Jef3/w45h+kIm65D47w1Wzkco0UIX3hEusNr3Bq5zYOw07Tx047H6sd1fJlUXatyt1IuZd0pc0rPCONKiRxFQZu2vI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786691204; c=relaxed/simple;
-	bh=lzmBQ0ZVlFnUMtHbHruswaN8lYW0MwwWCO7BX0ZBFA0=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=oPaPSp+VvTPDscozV9Os1nChyr8Llt8ELwb0tES/f7ZkQPxQoRUSnsUzFKK0sJ6f+NVwxttBasSqIS8VvLjmzcTIaFWlFqJHwHB8fSK1VnC5Yvey1riXgA2yuZr9FzFepd8gzzTdxDtj5Ptjs57usWjDjZWVBRk8mGElSBfMxOM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn; spf=pass smtp.mailfrom=kylinos.cn; arc=none smtp.client-ip=124.126.103.232
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kylinos.cn
-X-UUID: ade93e4697ae11f1aa26b74ffac11d73-20260814
-X-CID-P-RULE: Release_Ham
-X-CID-O-INFO: VERSION:1.3.12,REQID:8e2535c1-ee32-4d81-aa20-1ca546f43662,IP:0,U
-	RL:0,TC:0,Content:-5,EDM:0,RT:0,SF:0,FILE:0,BULK:0,RULE:Release_Ham,ACTION
-	:release,TS:-5
-X-CID-META: VersionHash:e7bac3a,CLOUDID:9a7178f2d1d7011905d6b71a73858bff,BulkI
-	D:nil,BulkQuantity:0,Recheck:0,SF:81|82|102|850|865|898,TC:nil,Content:0|1
-	5|50,EDM:-3,IP:nil,URL:0,File:nil,RT:nil,Bulk:nil,QS:nil,BEC:nil,COL:0,OSI
-	:0,OSA:0,AV:0,LES:1,SPR:NO,DKR:0,DKP:0,BRR:0,BRE:0,ARC:0
-X-CID-BVR: 2,SSN|SDN
-X-CID-BAS: 2,SSN|SDN,0,_
-X-CID-FACTOR: TF_CID_SPAM_SNR
-X-CID-RHF: D41D8CD98F00B204E9800998ECF8427E
-X-UUID: ade93e4697ae11f1aa26b74ffac11d73-20260814
-X-User: chenchangcheng@kylinos.cn
-Received: from localhost.localdomain [(10.44.16.150)] by mailgw.kylinos.cn
-	(envelope-from <chenchangcheng@kylinos.cn>)
-	(Generic MTA with TLSv1.3 TLS_AES_256_GCM_SHA384 256/256)
-	with ESMTP id 2087165878; Fri, 14 Aug 2026 15:06:32 +0800
-From: Chen Changcheng <chenchangcheng@kylinos.cn>
-To: Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>
-Cc: linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	ccc194101@163.com,
-	Chen Changcheng <chenchangcheng@kylinos.cn>,
-	stable@vger.kernel.org
-Subject: [PATCH 2/2] HID: alps: fix use-after-free on input2 registration failure
-Date: Fri, 14 Aug 2026 15:06:21 +0800
-Message-Id: <20260814070621.68557-3-chenchangcheng@kylinos.cn>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20260814070621.68557-1-chenchangcheng@kylinos.cn>
+	s=arc-20240116; t=1786692207; c=relaxed/simple;
+	bh=bKwxUdQj4BD08/J5P+8eJaeXRcV4jrbDiwuXM9kP3cM=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=UKlT1Lk7oMCZvDqaF0TGfjmblTkkpyWmzAIgfJW90o0BdSxzEkpgrFMhnFZk0RpDzET32KNoa6dH9pcC+jIsygSRqLjb7iobf/rvkyLn53OpR6AKjA4ZY9NTpCWcxcCGyHsL96WErQ+75pqZajOkckUZnNYKC+OBXAuqvsQxpA4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=amlv9ABn; arc=none smtp.client-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="amlv9ABn"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1FD0E1F000E9;
+	Fri, 14 Aug 2026 07:23:26 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1786692206;
+	bh=GBvCzTi+JHZf8BdakgC7OpbphiWaKM0tXg2Csry5esA=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=amlv9ABngFczMKvoQFLdJEuhhHohgQXQDyKvI5cAn+Sm10WgS8V6pKdDPk+Unboua
+	 B3ugvPIYSe40q6X5VoBiVtoqGOnWE+ilh2qr1DNQYLdDkRSEypehnY7jSe9DH6kdsI
+	 tz+7B1uXxwsUNjnUOEFixxPENvtLxHCcnIY3KFITNx4Dnhlg/+6AqWhvOclUCJX0SV
+	 YKhoq4TDv7kZZS0eJ0NtDhTxYtUyC78iNjv2KVLAdJedfPrFW9b6RO6ixaHTveKub2
+	 7/oL1RG2OqfV0PFflGnweWUgvN3SpbQ33ASboU36vk3XRUcx4MhD7yW2dvt7bAFOfg
+	 IoPAIp/IrDToA==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH 1/2] HID: alps: unregister DualPoint Stick input device
+ on remove
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Chen Changcheng" <chenchangcheng@kylinos.cn>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20260814070621.68557-2-chenchangcheng@kylinos.cn>
 References: <20260814070621.68557-1-chenchangcheng@kylinos.cn>
+ <20260814070621.68557-2-chenchangcheng@kylinos.cn>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Fri, 14 Aug 2026 07:23:25 +0000
+Message-Id: <20260814072326.1FD0E1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-alps_input_configured() stores data->input2 before calling
-input_register_device().  If registration fails, input_free_device()
-frees the input device but data->input2 still points to the freed memory.
-alps_input_configured() calls hid_hw_open() before allocating input2, so
-URBs are already active and raw_event can fire during the failure window.
-A U1_SP_ABSOLUTE_REPORT_ID report arriving then causes u1_raw_event()
-to dereference the freed data->input2 -> use-after-free.
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+s) to consider:
 
-Fix by only storing input2 into drvdata after successful registration
-and adding a NULL guard in the raw_event path.
+New issues:
+- [High] If `input_register_device()` fails for `data->input2` in `alps_inp=
+ut_configured()`, the driver frees `input2` but leaves `data->input2` as a =
+dangling pointer. The newly added `alps_remove()` unconditionally uses this=
+ dangling pointer, causing a Use-After-Free.
 
-Fixes: 2562756dde55 ("HID: add Alps I2C HID Touchpad-Stick support")
-Cc: stable@vger.kernel.org
-Signed-off-by: Chen Changcheng <chenchangcheng@kylinos.cn>
----
- drivers/hid/hid-alps.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+Pre-existing issues:
+- [High] Untrusted USB devices can trigger a NULL pointer dereference in `u=
+1_raw_event()` by sending a StickPointer report when the device was not ini=
+tialized with one.
+--
 
-diff --git a/drivers/hid/hid-alps.c b/drivers/hid/hid-alps.c
-index 370635f5b704..0556cb5645eb 100644
---- a/drivers/hid/hid-alps.c
-+++ b/drivers/hid/hid-alps.c
-@@ -407,6 +407,8 @@ static int u1_raw_event(struct alps_dev *hdata, u8 *data, int size)
- 		return 1;
- 
- 	case U1_SP_ABSOLUTE_REPORT_ID:
-+		if (!hdata->input2)
-+			return 0;
- 		sp_x = get_unaligned_le16(data+2);
- 		sp_y = get_unaligned_le16(data+4);
- 
-@@ -738,7 +740,6 @@ static int alps_input_configured(struct hid_device *hdev, struct hid_input *hi)
- 			goto exit;
- 		}
- 
--		data->input2 = input2;
- 		input2->phys = input->phys;
- 		input2->name = "DualPoint Stick";
- 		input2->id.bustype = BUS_I2C;
-@@ -762,11 +763,12 @@ static int alps_input_configured(struct hid_device *hdev, struct hid_input *hi)
- 		__set_bit(INPUT_PROP_POINTER, input2->propbit);
- 		__set_bit(INPUT_PROP_POINTING_STICK, input2->propbit);
- 
--		if (input_register_device(data->input2)) {
-+		if (input_register_device(input2)) {
- 			input_free_device(input2);
- 			ret = -ENOENT;
- 			goto exit;
- 		}
-+		data->input2 = input2;
- 	}
- 
- exit:
--- 
-2.25.1
+--- Patch [1]: [PATCH 1/2] HID: alps: unregister DualPoint Stick input devi=
+ce on remove ---
+commit 93188845b9160c2ea2789c012e11b634ca66357c
+Author: Chen Changcheng <chenchangcheng@kylinos.cn>
 
+HID: alps: unregister DualPoint Stick input device on remove
+
+alps_input_configured() allocates a second input device ("DualPoint
+Stick") with input_allocate_device() and registers it, but the
+alps_driver struct has no .remove handler and input2 is not tracked in
+hdev->inputs. The default remove path only iterates hdev->inputs, so
+input2 is never unregistered and leaks on every device removal.
+This patch adds a .remove handler that stops the device first and then
+unregisters input2.
+
+> diff --git a/drivers/hid/hid-alps.c b/drivers/hid/hid-alps.c
+> index 67179e3fe39b7..370635f5b7043 100644
+> --- a/drivers/hid/hid-alps.c
+> +++ b/drivers/hid/hid-alps.c
+
+[ ... ]
+
+> @@ -823,6 +823,24 @@ static int alps_probe(struct hid_device *hdev, const=
+ struct hid_device_id *id)
+>  	return 0;
+>  }
+> =20
+> +static void alps_remove(struct hid_device *hdev)
+> +{
+> +	struct alps_dev *data =3D hid_get_drvdata(hdev);
+> +
+> +	/*
+> +	 * input2 ("DualPoint Stick") is allocated separately and is not
+> +	 * tracked in hdev->inputs, so the default remove path
+> +	 * (hid_hw_stop -> hidinput_disconnect) does not unregister it.
+> +	 *
+> +	 * Stop the device first so that no URB callback can touch input2
+> +	 * while it is being unregistered, then drop it explicitly.
+> +	 */
+> +	hid_hw_stop(hdev);
+> +
+> +	if (data->input2)
+> +		input_unregister_device(data->input2);
+
+[Severity: High]
+If input_register_device() fails in alps_input_configured(), input2 is freed
+but data->input2 is not set to NULL:
+
+drivers/hid/hid-alps.c:alps_input_configured() {
+    ...
+		if (input_register_device(data->input2)) {
+			input_free_device(input2);
+			ret =3D -ENOENT;
+			goto exit;
+		}
+    ...
+}
+
+Because the driver has a .raw_event handler, hid_connect() considers
+the device bound and ignores the failure in hidinput_connect(), allowing
+probe to succeed.
+
+When the device is later removed, could this result in a use-after-free
+when alps_remove() attempts to unregister the dangling data->input2
+pointer?
+
+[Severity: High]
+This isn't a bug introduced by this patch, but if a malicious or
+malfunctioning device indicates it doesn't support the StickPointer
+(has_sp =3D=3D 0), data->input2 is never allocated.
+
+If that device then sends a raw report with U1_SP_ABSOLUTE_REPORT_ID (0x06),
+would this trigger a NULL pointer dereference in u1_raw_event()?
+
+drivers/hid/hid-alps.c:u1_raw_event() {
+    ...
+	case U1_SP_ABSOLUTE_REPORT_ID:
+		sp_x =3D get_unaligned_le16(data+2);
+		sp_y =3D get_unaligned_le16(data+4);
+
+		sp_x =3D sp_x / 8;
+		sp_y =3D sp_y / 8;
+
+		input_report_rel(hdata->input2, REL_X, sp_x);
+    ...
+}
+
+> +}
+> +
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260814070621.6855=
+7-1-chenchangcheng@kylinos.cn?part=3D1

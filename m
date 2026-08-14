@@ -1,110 +1,77 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 87EBE3F8257;
-	Fri, 14 Aug 2026 13:32:53 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 924C72E414;
+	Fri, 14 Aug 2026 13:51:40 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786714374; cv=none; b=FoQeydI/GF2qJsoUeicb5plz5yHM/pu13N0bqjkIOamqhTvlgffODWYEjHASWk1ApO5y0vs+ULLzCjN/fAfTESZFIydkLAY4Cxk5Fzzz/55TVsRpyjG4AEGfJJ95ZT8ouqK3uVJsOXJ7VN8V5NsRbIwaq569ZiiQC8KwA5O8SMY=
+	t=1786715504; cv=none; b=XTo2wRVLTFGo7q7wNkXr99V8zETPwIS8dL8C/8ZemwPrjxmDBmjfFvZb/RwF7Sw8a91bQpPgpVey17RD/KK7N6/exu7XRFCc1Edtx0EsTHqHMMVTVNFc48rUgGDIB3Z2sev3Os+6hWo/HHZLuIxOYKyv1xbOQfOJsWmmn1tXGgg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786714374; c=relaxed/simple;
-	bh=djElI9sO+iFcbqG0tckEqomJ3fvS5Hf5fazHwi3BFA8=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=TC0jAM6h03FNcP2NbLwN/agthiJXwkzskiYBMj8G1n12JqM8FckTABj7lu1fnHGp3UimjWneE6wtl4JZWbIeNJIx2e9wTrK9zDwHErF1LJ5N752Gd3AuPUpYmAPtHfVtg1jZfYFUYtBNTypix2/r60EsAWlLxoAdKIkxK5DSUP0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=OtOLpjnk; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1786715504; c=relaxed/simple;
+	bh=E7H1ojTyUX0fYUbQROAiYtU0SVZ9ansdWsy7rQb/FRM=;
+	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
+	 MIME-Version:Content-Type; b=JLLxrW6CFpLy5M/MIzhIF8CqbFx9UEt1pDRc1z77nhvN5pVB2t9II5HuBhyqjESTDLb3BeYPyVwU/3Kya2hmmz1vvpXH5/qqsidn6cbCkEQ1ZtJ1dgiXW7ua/e9zjYO78dBdWCTG1cV3u1No/z26dlkE4znfg3c9j/SmCQsB3ec=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=QPbPXuS9; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="OtOLpjnk"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F6691F000E9;
-	Fri, 14 Aug 2026 13:32:51 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="QPbPXuS9"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 72BEA1F000E9;
+	Fri, 14 Aug 2026 13:51:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786714372;
-	bh=m5imFIyl91SzmOG/eJYLbFffP4jPZHEnM0gsadR+09o=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=OtOLpjnkIry1pAKAo0UkhscBaxFNjGq8pUCLIgRaggmYWdS14ncYK9nShlzvNoMW+
-	 atnlIOjLPFMvJ5d+wo8S8OfAyy8Ymw1RcmnUlyYwSG9u0EMnymigYiK5Ukful0DdLK
-	 BNJAxFBJUlaL7kQWj8cbduo79Fomoq3q/Nxe45EN383IpHLAGICu7IpyWphaqhy0AX
-	 YgGKxCI7Zfc1muLtfr8AH13IA8/PGtdptPce9694RnOfR9XMV6uFBEcMIsxtnZQ/Ef
-	 aE8VROYhTS9DiKuHtcns8yJnjBI7f0X7+ZkO+Uwrc2hEtNaAPokGAZb6oQgFvxlfVf
-	 9XIKGXnksZaVQ==
-Date: Fri, 14 Aug 2026 15:32:49 +0200
-From: Benjamin Tissoires <bentiss@kernel.org>
-To: Aldo Ariel Panzardo <qwe.aldo@gmail.com>
-Cc: linux-input@vger.kernel.org, jikos@kernel.org, 
-	linux-kernel@vger.kernel.org, stable@vger.kernel.org, 
-	Sashiko AI review <sashiko-bot@kernel.org>
-Subject: Re: [PATCH] HID: multitouch: keep MT_IO_FLAGS_RUNNING inside the
- flags word
-Message-ID: <an8YyovFve8HVP4C@beelink>
-References: <20260724000841.933327-1-qwe.aldo@gmail.com>
+	s=k20260515; t=1786715499;
+	bh=j2AywTzHhtcAnP7j4TL7RZ3klQseKPpqxzrbU1dAtmQ=;
+	h=Date:From:To:cc:Subject:In-Reply-To:References;
+	b=QPbPXuS9X+DUwDge/oAhDOQu2MgyKFVx44U7rrAberY6tF4X3WqrjKZjQXaFMRInl
+	 KEMQYmDXd/p3CWCUl3mv7yICdzppwzOgP3IIRzilnIDEmmu4jrCxXHCGqyb2BvVxNE
+	 Icvie4FZ/X45Ziu1F7g9gm0b9G2Zz2PDlAbhOvclU5rbNJOz991I3nehXmcwWznduh
+	 pno0retE3WRJeGfcBq/qz+BvP3zXffI/bFrmWTP0Mswzfe2xJPOxN76QNLWKGvMB+4
+	 Xm3c0LIIYgzFMcO7zNYCICPWXaOAW1c969zR2uS1mhSPJHClPTNSJn98FUaVevsWBk
+	 Vp4EjwK8Qo18w==
+Date: Fri, 14 Aug 2026 15:51:36 +0200 (CEST)
+From: Jiri Kosina <jikos@kernel.org>
+To: HyeongJun An <sammiee5311@gmail.com>
+cc: Even Xu <even.xu@intel.com>, Xinpeng Sun <xinpeng.sun@intel.com>, 
+    Benjamin Tissoires <bentiss@kernel.org>, linux-input@vger.kernel.org, 
+    linux-kernel@vger.kernel.org, stable@vger.kernel.org, 
+    Sashiko AI <sashiko-bot@kernel.org>
+Subject: Re: [PATCH v3] HID: intel-thc-hid: intel-quickspi: bound GET_REPORT
+ response to the caller buffer
+In-Reply-To: <20260806145619.3386809-1-sammiee5311@gmail.com>
+Message-ID: <7172o4o0-nr26-rpon-65o0-64n84q2rr489@xreary.bet>
+References: <20260806142321.3383353-1-sammiee5311@gmail.com> <20260806145619.3386809-1-sammiee5311@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260724000841.933327-1-qwe.aldo@gmail.com>
+Content-Type: text/plain; charset=US-ASCII
 
-On Jul 23 2026, Aldo Ariel Panzardo wrote:
-> MT_IO_FLAGS_RUNNING is bit 32 of td->mt_io_flags, which is a single
-> unsigned long. On 32-bit architectures a long is 32 bits wide, so the
-> valid bit indices are 0-31 and bit 32 falls in the next word. Both users
-> take and release the flag with atomic bitops:
+On Thu, 6 Aug 2026, HyeongJun An wrote:
+
+> quickspi_hid_raw_request() receives the caller's buffer length in len, but
+> quickspi_get_report() never sees it and copies the whole device-supplied
+> response into buf regardless:
 > 
->     test_and_set_bit_lock(MT_IO_FLAGS_RUNNING, &td->mt_io_flags);
->     clear_bit_unlock(MT_IO_FLAGS_RUNNING, &td->mt_io_flags);
+>     memcpy(buf, qsdev->report_buf, qsdev->report_len);
 > 
-> so on a 32-bit build every report and every sticky-finger timer expiry
-> reads and writes the four bytes that follow mt_io_flags in struct
-> mt_device -- inputmode_value, maxcontacts and the is_* flags -- instead
-> of the flags word itself.
+> qsdev->report_len comes from the input report the touch controller returns,
+> while buf is sized to whatever the caller asked hidraw for through
+> HIDIOCGFEATURE or HIDIOCGINPUT.  A response larger than that overflows buf
+> with device-controlled content.
 > 
-> Before commit 46f781e0d151 ("HID: multitouch: fix sticky fingers") the
-> flag was bit 0 and the word only had to hold three flags. That commit
-> reserved the low eight bits for per-slot state (MT_IO_SLOTS_MASK) and
-> moved the flag out to bit 32, one word too far on 32-bit builds.
+> The intel-quicki2c sibling already passes the caller length down to
+> quicki2c_get_report() and validates the response against it before the
+> copy.  Do the same here.
 > 
-> Put it at MT_IO_SLOTS_BITS, the first bit above the reserved slot range.
-> The value is only ever used as a bit index, so nothing else has to
-> change.
-> 
-> Fixes: 46f781e0d151 ("HID: multitouch: fix sticky fingers")
+> Fixes: 4138f21115ae ("HID: intel-thc-hid: intel-quickspi: Complete THC QuickSPI driver")
+> Suggested-by: Sashiko AI <sashiko-bot@kernel.org>
 > Cc: stable@vger.kernel.org
-> Reported-by: Sashiko AI review <sashiko-bot@kernel.org>
-> Closes: https://sashiko.dev/#/patchset/20260723224211.613112-1-you@example.com?part=1
-> Signed-off-by: Aldo Ariel Panzardo <qwe.aldo@gmail.com>
-> ---
+> Assisted-by: Claude:claude-opus-5
+> Signed-off-by: HyeongJun An <sammiee5311@gmail.com>
 
-Same result than the previous patch of this non-series: already
-superseeded by an already applied patch, which I just checked was
-already in 7.2-rc3 at the time of the submission.
+Applied, thanks.
 
-Cheers,
-Benjamin
+-- 
+Jiri Kosina
+SUSE Labs
 
-> This applies on top of "HID: multitouch: bound the slot index before
-> touching mt_io_flags", which introduces MT_IO_SLOTS_BITS. The two are
-> separate defects with the same Fixes: tag, so they should backport
-> together.
-> 
->  drivers/hid/hid-multitouch.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-> index a75c821f7758..e7d811ed4123 100644
-> --- a/drivers/hid/hid-multitouch.c
-> +++ b/drivers/hid/hid-multitouch.c
-> @@ -99,7 +99,7 @@ enum report_mode {
->  
->  #define MT_IO_SLOTS_MASK		GENMASK(7, 0) /* reserve first 8 bits for slot tracking */
->  #define MT_IO_SLOTS_BITS		8 /* bits covered by MT_IO_SLOTS_MASK */
-> -#define MT_IO_FLAGS_RUNNING		32
-> +#define MT_IO_FLAGS_RUNNING		MT_IO_SLOTS_BITS
->  
->  static const bool mtrue = true;		/* default for true */
->  static const bool mfalse;		/* default for false */
-> -- 
-> 2.43.0
-> 
-> 

@@ -1,130 +1,126 @@
-Received: from mail-vk1-f181.google.com (mail-vk1-f181.google.com [209.85.221.181])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 46837415F07
-	for <linux-input@vger.kernel.org>; Fri, 14 Aug 2026 07:53:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.181
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 56702423A80;
+	Fri, 14 Aug 2026 08:01:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786694015; cv=none; b=iQAOiMHSttKva0Fg0dqj+huDRVnSTMpLhIN8kNRKErOG+exfHqNBH4XXUDpntmEjV+5NLWVXYNFP4oFx/DPGn7D+rEY9kriihdcQe5cFZkRkG6/6UPx9oCD/Y1+7r3XKLXUHcSE7tgZZfs1Cl67wwKupR1rKvD/PnNpERf/Peyc=
+	t=1786694478; cv=none; b=Y79Y1prbWnmGYJxTLFrxHTD0M7tzcyiqbfNEyNYQgEVa1csYAdK4Y+GJAtlHyRNtBf1hFWS7TOyKPrGV84eku1vyRvzvg4/cmE/Pkt0m1eujhV4EQOOzZ1Rrve5nzVR2K7D8HXO0/YCkWMkci09mRAbs9MwfJkKcyTwWktC+c6w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786694015; c=relaxed/simple;
-	bh=7BkQnfAIktusRlNjZWX17il+4/DC7tS0dUmvo6uz8uA=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=rFHxE4QEoEmh30IYzd8ngDjFIFdlIWZ6y9vzE/RlLVFi/pIVxtuQ5xtLQqb/IUnP5X+ulmzIajXjHSDH2dEVsQTa7dZ+b9h6HyuUo6MnKCYakTuOPk6El7+3iagOoRNPKuMBmQMVGTQeRUo57z8Lx/q7MflwUiHDZXCDpCN5zzI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.221.181
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Received: by mail-vk1-f181.google.com with SMTP id 71dfb90a1353d-5c56dbc3a51so187763e0c.0
-        for <linux-input@vger.kernel.org>; Fri, 14 Aug 2026 00:53:33 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1786694012; x=1787298812;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=0qHVfNxtQY2Rdqk6vqe/0GBLwii5v18vOQzYi9aKNQI=;
-        b=VGAPqb0ChGvL+riWlGgZhBxrIRGfAHVL+XlKO8mRyxUUKLCdmpTTuYcbFc88epHVt/
-         weGlIYM2AJ0ukgFkPs8WkQHJCXbLmAeLUyAVuS8vEyUVb9RBvPEk8BJFCgNF6lLJwTzm
-         jlEkB9Se5SpgMA6BsUxDU2rUENvh4PBPF4z9tBpDl6Xag1N0sEO2Ruy02nMWGm7p35UE
-         KaYkB3VFsxEed5UBdsZhDh2Ep7lmwEGxDjJ4wQaoMTms64DLljHUGLzbM/YaiqkqCFhh
-         gaD/D6bmUjEoOJ/wr3SP6/GaqlgcY3v+Qkr7Dz0dv/WKeHzf3xRLF+a1pW8btl6s4eWu
-         RzAw==
-X-Forwarded-Encrypted: i=1; AHgh+RrYwWH40iCdXxmvuDYb8FUJpV0TN5UfCZ3ESF96syzq7DrQR5NtWhkfFpSYPojmQCg91cBnEK4mHuPwlg==@vger.kernel.org
-X-Gm-Message-State: AOJu0YwceVXS9orr8pyNzKQX2KkEPJsiOFLXMaTefsyJ3cwUpzUKPXB2
-	mH08E2Hx2vHsEbEyi6f3BAHQOatXPNnboqf8dD3Nz6r15icZaoVaBgw0JbvSU7IQeLM=
-X-Gm-Gg: AR+sD114UnoAqluZd3juEEg/saB/OYv8PGbv8BsZjn6rihLYrPh+aMr7FtCmVpPaVhz
-	yfPLQBeWW99zGwXuFGlWKjUpLQCFMyYOmn+NZ8ES61joDFx2s90FsctN4sNp+1sWrGzvKmYNKsN
-	L5G9UFBDPBvFMoC/0lI18m1rA7AN4QNkJUEuRS9lEZ7OKx2GSz/xhBJblT7yzQvUsqECKtDUrZ5
-	mtizzHikVkISilFzmBwr1NSdfr7CPTx/amkITQIujUUCQo7YfyR2JfbOZFoNASWP1liiwYD2+J6
-	0VIp2MxgTbyrJjQfpMtwpZ7IusAbQLhv25Uljp11bxObbjhy876Ffd0nSsizaPZVoRqFDJGWcoU
-	oBmGXfwju43dh2ea08JyMpzmyQVWbCYhtHixC1+4yuP1ImDivBHJDhtY5bNKJ6rv0JPrlPGhDti
-	RAIU5efCE0c6AYWGknaeDdGAn2xrDSbpW1vlMhv7MGsgOfqfCKv3scdTDUsxT9NrdQIQ0Khjdcq
-	ssrv1h3MBcQ9yPzFWiJpeECxW3y6g==
-X-Received: by 2002:a05:6122:1815:b0:5bd:ddab:59a7 with SMTP id 71dfb90a1353d-5c591f369c7mr665058e0c.10.1786694012121;
-        Fri, 14 Aug 2026 00:53:32 -0700 (PDT)
-Received: from mail-vk1-f171.google.com (mail-vk1-f171.google.com. [209.85.221.171])
-        by smtp.gmail.com with ESMTPSA id 71dfb90a1353d-5c597c1d3c2sm385429e0c.18.2026.08.14.00.53.31
-        for <linux-input@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 14 Aug 2026 00:53:31 -0700 (PDT)
-Received: by mail-vk1-f171.google.com with SMTP id 71dfb90a1353d-5bf9466867cso176788e0c.2
-        for <linux-input@vger.kernel.org>; Fri, 14 Aug 2026 00:53:31 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AHgh+RofO07r0vb10d74UysJVPu5sfeJH2Qm9ORFOLXX+P2Zo8Z1KIilzw/yCzXK+ThXHoOkp4+0WT/GLBuEUw==@vger.kernel.org
-X-Received: by 2002:a05:6122:caa:b0:5bd:cb34:1b70 with SMTP id
- 71dfb90a1353d-5c591c98081mr656206e0c.1.1786694011698; Fri, 14 Aug 2026
- 00:53:31 -0700 (PDT)
+	s=arc-20240116; t=1786694478; c=relaxed/simple;
+	bh=JokbiO8UjF4fat0+cc7ulERvu7scmmqYEb4icp9V1ng=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=jhA7+xKxvq7I4yNxWBYUj/RYTfowxdidinfjlMc62Y2xEclHvDRrKYbJEC5sHdJYZpXmSTSQsirxmf0jLGVIASI5S+NLIIysTgtOBCNsJnGLdEy1/DpXZ28ZwjsOfBSFlAgp3ivGw/hF4Op+mPxPpjExWY0LNqgHX595Oz0Ee3s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Xm7autna; arc=none smtp.client-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Xm7autna"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62AE71F000E9;
+	Fri, 14 Aug 2026 08:01:16 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1786694476;
+	bh=QcVYP5m5Z2fxMVepfdaGAnjunhh6Uc+168hWIE1Ods8=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=Xm7autnaR5qjk9HsBgM2wmXg7M/MJ05s73htbhFJFZsxOWhWUVDnb3aFGUZwqqAv3
+	 JDtKtGbfaIk45+OIVN1JhF8KQYUgIFNR68XZQvnSGxlsQla/dDtX3UUHXh8V4EwBFI
+	 BUPxr1Z4sLOzwfFx3iW4NVhjZJ7nOQCJFHyrDvyaG5LXnwoP+I/qfYlUwo1P3LaUxH
+	 MUyJWx4Qs0kx3UeqyocCCgGUpGi/wQCAomDjwrUJsqS56rdE4uZCpqUVHMRGHFRJkF
+	 rKJ4AMWAf6HIGcE8EKJtguEJHAy2CQLmt0q4yyXQjwCJ6f7xoIYPrmBq9mNQe9tym6
+	 m+Dq4pvYEqIhw==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v3 1/4] selftests: add shared lib.bpf.mk to build BPF
+ progs and skeletons
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Ziyang Men" <ziyang.meme@gmail.com>
+Cc: linux-input@vger.kernel.org, sched-ext@lists.linux.dev, hannes@cmpxchg.org, tj@kernel.org, bpf@vger.kernel.org, mkoutny@suse.com, dmitry.torokhov@gmail.com
+In-Reply-To: <20260814075054.507089-2-ziyang.meme@gmail.com>
+References: <20260814075054.507089-1-ziyang.meme@gmail.com>
+ <20260814075054.507089-2-ziyang.meme@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Fri, 14 Aug 2026 08:01:15 +0000
+Message-Id: <20260814080116.62AE71F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-References: <20260814031745.17140-1-schmitzmic@gmail.com> <20260814031745.17140-2-schmitzmic@gmail.com>
-In-Reply-To: <20260814031745.17140-2-schmitzmic@gmail.com>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Date: Fri, 14 Aug 2026 09:53:19 +0200
-X-Gmail-Original-Message-ID: <CAMuHMdUDvsqT5t93-ZO413pwS3rPYPB1_uy+5iRHsii8CYTdgA@mail.gmail.com>
-X-Gm-Features: AcwNN1WMoINhecOvnhDTMgQZHz3bOdVXUcdM9Pmp4imwGjdsj-hjuib00geilxQ
-Message-ID: <CAMuHMdUDvsqT5t93-ZO413pwS3rPYPB1_uy+5iRHsii8CYTdgA@mail.gmail.com>
-Subject: Re: [PATCH 1/5] m68k: Fix atari mouse movement
-To: Michael Schmitz <schmitzmic@gmail.com>
-Cc: linux-m68k@vger.kernel.org, Miro Kropacek <miro.kropacek@gmail.com>, 
-	linux-input <linux-input@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
 
-Hi Michael,
-
-CC linux-input
-
-On Fri, 14 Aug 2026 at 05:17, Michael Schmitz <schmitzmic@gmail.com> wrote:
-> From: Miro Kropacek <miro.kropacek@gmail.com>
->
-> Kernels are built with -funsigned-char since version 6.2, resulting
-> in signed mouse position deltas getting misinterpreted as unsigned.
->
-> Cast deltas passed in (unsigned) scancode buffer to correctly
-> interpret sign.
->
-> Fixes: 3bc753c06dd02a35 ("kbuild: treat char as always unsigned")
-> Link: https://lists.debian.org/debian-68k/2026/08/msg00000.html
-> Signed-off-by: Miro Kropacek <miro.kropacek@gmail.com>
-> Reviewed-by: Michael Schmitz <schmitzmic@gmail.com>
-
-Since you're now in the path to upstream, you should add your SoB here
-(applies to all patches).
-
-> --- a/drivers/input/mouse/atarimouse.c
-> +++ b/drivers/input/mouse/atarimouse.c
-> @@ -70,9 +70,12 @@ static void atamouse_interrupt(char *buf)
-
-Alternative, you could change/restore the function's signature to take a
-"signed char *".
-
->         atari_mouse_buttons = buttons;
->  #endif
->
-> -       /* only relative events get here */
-> -       dx = buf[1];
-> -       dy = buf[2];
-> +       /* only relative events get here; the IKBD sends signed 8-bit
-> +        * deltas, and the kernel builds with -funsigned-char since 6.2,
-> +        * so an explicit signed cast is required
-> +        */
-> +       dx = (s8)buf[1];
-> +       dy = (s8)buf[2];
->
->         input_report_rel(atamouse_dev, REL_X, dx);
->         input_report_rel(atamouse_dev, REL_Y, dy);
-
-Regardless:
-Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
-
-Gr{oetje,eeting}s,
-
-                        Geert
-
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+s) to consider:
+- [Medium] BPF objects will not automatically rebuild when libbpf headers a=
+re modified, breaking incremental compilation.
+- [Low] Missing Clang system include definitions for LoongArch and MIPS arc=
+hitectures.
 --
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+--- Patch [1]: [PATCH v3 1/4] selftests: add shared lib.bpf.mk to build BPF=
+ progs and skeletons ---
+commit 73f22930c4ae7eac2caa52ed8b921af4c943e0a7
+Author: Ziyang Men <ziyang.meme@gmail.com>
+
+selftests: add shared lib.bpf.mk to build BPF progs and skeletons
+
+This commit adds a shared tools/testing/selftests/lib.bpf.mk file to provide
+a common build toolchain for BPF programs and skeletons across different
+selftest directories. It aims to reduce duplication of the libbpf, bpftool,
+vmlinux.h, and skeleton generation Makefiles currently present in bpf,
+sched_ext, and hid selftests.
+
+> diff --git a/tools/testing/selftests/lib.bpf.mk b/tools/testing/selftests=
+/lib.bpf.mk
+> new file mode 100644
+> index 0000000000000..433a26a36960b
+> --- /dev/null
+> +++ b/tools/testing/selftests/lib.bpf.mk
+
+[ ... ]
+
+> +# ---- compiler flags --------------------------------------------------=
+-----
+> +# Find the normal system headers that Clang omits with --target=3Dbpf. P=
+ut them
+> +# last with -idirafter so they cannot replace project headers.
+> +define get_sys_includes
+> +$(shell $(1) $(2) -v -E - </dev/null 2>&1 \
+> +	| sed -n '/<...> search starts here:/,/End of search list./{ s| \(/.*\)=
+|-idirafter \1|p }') \
+> +$(shell $(1) $(2) -dM -E - </dev/null | grep '__riscv_xlen ' | awk '{pri=
+ntf("-D__riscv_xlen=3D%d -D__BITS_PER_LONG=3D%d", $$3, $$3)}')
+> +endef
+
+[Severity: Low]
+Will BPF programs fail to compile on LoongArch and MIPS architectures?
+
+The original selftests/bpf/Makefile extracts necessary host definitions
+like __loongarch_grlen and MIPS macros.
+
+This new macro appears to drop those extractions, which might cause Clang's
+--target=3Dbpf to fail to parse system headers on those architectures.
+
+[ ... ]
+
+> +# Make one rule for each source. A global vpath would also match the tes=
+t's
+> +# normal C rules when BPF_PROG_EXT is .c.
+> +define bpf_obj_rule
+> +$(BPF_OBJ_DIR)/$(patsubst %$(BPF_PROG_EXT),%,$(notdir $(1))).bpf.o: $(1)=
+	\
+> +		$(BPF_EXTRA_HDRS) $(INCLUDE_DIR)/vmlinux.h			\
+> +		| $(BPF_OBJ_DIR) $(BPFOBJ)
+
+[Severity: Medium]
+Will this break incremental compilation when libbpf headers are modified?
+
+Since $(BPFOBJ) is specified only as an order-only prerequisite and there is
+no explicit Make rule for the installed headers, Make evaluates their
+timestamps before $(BPFOBJ) updates them.
+
+Does this cause BPF objects to be incorrectly skipped during the first make
+invocation after modifying a libbpf header?
+
+> +	$$(call BPF_BUILD_RULE,$$<,$$@)
+> +endef
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260814075054.5070=
+89-1-ziyang.meme@gmail.com?part=3D1

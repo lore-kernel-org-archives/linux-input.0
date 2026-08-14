@@ -1,43 +1,43 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 924C72E414;
-	Fri, 14 Aug 2026 13:51:40 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7D67A33998;
+	Fri, 14 Aug 2026 13:57:41 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786715504; cv=none; b=XTo2wRVLTFGo7q7wNkXr99V8zETPwIS8dL8C/8ZemwPrjxmDBmjfFvZb/RwF7Sw8a91bQpPgpVey17RD/KK7N6/exu7XRFCc1Edtx0EsTHqHMMVTVNFc48rUgGDIB3Z2sev3Os+6hWo/HHZLuIxOYKyv1xbOQfOJsWmmn1tXGgg=
+	t=1786715862; cv=none; b=LwUc0wkrOUp3p5dwNYvnXWn6kd7Vl1g3iNRfq+YiY5KDNTFbeqjV18di6ey06yIMY0uSTc5ItPhSkYtd4/vtTtpQP+HaRVSpg6hesqPFMynIf0mBuRZzY3+GVqvXXrHi3GHcDw0UADvrsLPSIDX9RLilbzhMilG2fKNMXGhJbzs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786715504; c=relaxed/simple;
-	bh=E7H1ojTyUX0fYUbQROAiYtU0SVZ9ansdWsy7rQb/FRM=;
+	s=arc-20240116; t=1786715862; c=relaxed/simple;
+	bh=E/2f2TlfNMOrVKU2clZnHFHA2uiMXq3C9GevSB2akrE=;
 	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
-	 MIME-Version:Content-Type; b=JLLxrW6CFpLy5M/MIzhIF8CqbFx9UEt1pDRc1z77nhvN5pVB2t9II5HuBhyqjESTDLb3BeYPyVwU/3Kya2hmmz1vvpXH5/qqsidn6cbCkEQ1ZtJ1dgiXW7ua/e9zjYO78dBdWCTG1cV3u1No/z26dlkE4znfg3c9j/SmCQsB3ec=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=QPbPXuS9; arc=none smtp.client-ip=100.103.45.18
+	 MIME-Version:Content-Type; b=VJYrg8j7lyg4qfpaFYaQEPlwgieArjliF+bpiQgkYAGJHwVXOsB21Em6MMd2NvGkp8R0mDH3sgTpPKuhkT/7VfS4Pq1SXsOp2m1uO3yqTfA+WbBih6XgFBHBOnRnrgFqh+uRwflFbjIGSf1qWgKta1Gzw2UIVhmiZ1GYZvw1oJo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=W6n8zaLz; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="QPbPXuS9"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 72BEA1F000E9;
-	Fri, 14 Aug 2026 13:51:38 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="W6n8zaLz"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 807531F000E9;
+	Fri, 14 Aug 2026 13:57:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786715499;
-	bh=j2AywTzHhtcAnP7j4TL7RZ3klQseKPpqxzrbU1dAtmQ=;
+	s=k20260515; t=1786715861;
+	bh=NP8z+ESGjMEtKt8r9GOcL0yI7hvXgD6vPTVZp3mQtck=;
 	h=Date:From:To:cc:Subject:In-Reply-To:References;
-	b=QPbPXuS9X+DUwDge/oAhDOQu2MgyKFVx44U7rrAberY6tF4X3WqrjKZjQXaFMRInl
-	 KEMQYmDXd/p3CWCUl3mv7yICdzppwzOgP3IIRzilnIDEmmu4jrCxXHCGqyb2BvVxNE
-	 Icvie4FZ/X45Ziu1F7g9gm0b9G2Zz2PDlAbhOvclU5rbNJOz991I3nehXmcwWznduh
-	 pno0retE3WRJeGfcBq/qz+BvP3zXffI/bFrmWTP0Mswzfe2xJPOxN76QNLWKGvMB+4
-	 Xm3c0LIIYgzFMcO7zNYCICPWXaOAW1c969zR2uS1mhSPJHClPTNSJn98FUaVevsWBk
-	 Vp4EjwK8Qo18w==
-Date: Fri, 14 Aug 2026 15:51:36 +0200 (CEST)
+	b=W6n8zaLzkAPSDvi5c75PAfiQASrwBtD+O3LdCf3Am96ygJ0MziBHi5/z09Kn+eR64
+	 Hj2qfw6mThOve6pHNiaS9LphaZo/7/jdDyeKns3jDgKDSl6J5MMq2tOoSgadYZQZFJ
+	 8FpvJtx295qlQRIFy74+1/DRpxbixEmoQKFKP6Y9WAvXCmXkxi42a5W8CIXVwXIfI7
+	 hfqeJ2E5mf7tenkljNYCkb6iRUJXfNU2EOVK5pGsuIW9RO3jKGq53+v4owJJBumDZZ
+	 ToedG8dfQJ0U5wn98prPAwOLFOW2rGnTtRRg4MP5Ux8h5VJMmA+S2rqAIbBJnDY/iv
+	 louJbrJ/U4/Dw==
+Date: Fri, 14 Aug 2026 15:57:38 +0200 (CEST)
 From: Jiri Kosina <jikos@kernel.org>
-To: HyeongJun An <sammiee5311@gmail.com>
-cc: Even Xu <even.xu@intel.com>, Xinpeng Sun <xinpeng.sun@intel.com>, 
-    Benjamin Tissoires <bentiss@kernel.org>, linux-input@vger.kernel.org, 
-    linux-kernel@vger.kernel.org, stable@vger.kernel.org, 
-    Sashiko AI <sashiko-bot@kernel.org>
-Subject: Re: [PATCH v3] HID: intel-thc-hid: intel-quickspi: bound GET_REPORT
- response to the caller buffer
-In-Reply-To: <20260806145619.3386809-1-sammiee5311@gmail.com>
-Message-ID: <7172o4o0-nr26-rpon-65o0-64n84q2rr489@xreary.bet>
-References: <20260806142321.3383353-1-sammiee5311@gmail.com> <20260806145619.3386809-1-sammiee5311@gmail.com>
+To: Haoxiang Li <haoxiang_li2024@163.com>
+cc: jic23@kernel.org, srinivas.pandruvada@linux.intel.com, bentiss@kernel.org, 
+    linux-input@vger.kernel.org, linux-iio@vger.kernel.org, 
+    linux-kernel@vger.kernel.org, Sashiko AI Review <sashiko-bot@kernel.org>, 
+    stable@vger.kernel.org
+Subject: Re: [PATCH v3 1/2] HID: sensor: custom: Fix use-after-free in
+ enable_sensor
+In-Reply-To: <20260707071545.3087073-2-haoxiang_li2024@163.com>
+Message-ID: <r48p57s3-5prp-3rro-oor2-499271s8s52o@xreary.bet>
+References: <20260707071545.3087073-1-haoxiang_li2024@163.com> <20260707071545.3087073-2-haoxiang_li2024@163.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -46,28 +46,25 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 
-On Thu, 6 Aug 2026, HyeongJun An wrote:
+On Tue, 7 Jul 2026, Haoxiang Li wrote:
 
-> quickspi_hid_raw_request() receives the caller's buffer length in len, but
-> quickspi_get_report() never sees it and copies the whole device-supplied
-> response into buf regardless:
+> enable_sensor_store() can call set_power_report_state(), which
+> dereferences sensor_inst->power_state and sensor_inst->report_state.
+> These pointers refer to entries in sensor_inst->fields.
 > 
->     memcpy(buf, qsdev->report_buf, qsdev->report_len);
+> Create the field attributes before exposing the enable_sensor sysfs
+> attribute, so enable_sensor cannot be accessed before the state it
+> depends on has been initialized.
 > 
-> qsdev->report_len comes from the input report the touch controller returns,
-> while buf is sized to whatever the caller asked hidraw for through
-> HIDIOCGFEATURE or HIDIOCGINPUT.  A response larger than that overflows buf
-> with device-controlled content.
+> On remove, delete enable_sensor before freeing the field attributes,
+> so a concurrent sysfs write cannot dereference freed memory through
+> power_state or report_state.
 > 
-> The intel-quicki2c sibling already passes the caller length down to
-> quicki2c_get_report() and validates the response against it before the
-> copy.  Do the same here.
-> 
-> Fixes: 4138f21115ae ("HID: intel-thc-hid: intel-quickspi: Complete THC QuickSPI driver")
-> Suggested-by: Sashiko AI <sashiko-bot@kernel.org>
+> Reported-by: Sashiko AI Review <sashiko-bot@kernel.org>
+> Link: https://sashiko.dev/#/patchset/20260623021950.1736413-1-haoxiang_li2024@163.com?part=1
+> Fixes: 4a7de0519df5 ("HID: sensor: Custom and Generic sensor support")
 > Cc: stable@vger.kernel.org
-> Assisted-by: Claude:claude-opus-5
-> Signed-off-by: HyeongJun An <sammiee5311@gmail.com>
+> Signed-off-by: Haoxiang Li <haoxiang_li2024@163.com>
 
 Applied, thanks.
 

@@ -1,44 +1,44 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 56702423A80;
-	Fri, 14 Aug 2026 08:01:17 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 43416346A11;
+	Fri, 14 Aug 2026 08:09:26 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786694478; cv=none; b=Y79Y1prbWnmGYJxTLFrxHTD0M7tzcyiqbfNEyNYQgEVa1csYAdK4Y+GJAtlHyRNtBf1hFWS7TOyKPrGV84eku1vyRvzvg4/cmE/Pkt0m1eujhV4EQOOzZ1Rrve5nzVR2K7D8HXO0/YCkWMkci09mRAbs9MwfJkKcyTwWktC+c6w=
+	t=1786694967; cv=none; b=mfgsDMCeXC9aJPGnMxHtLS3/czbBKTWfLj89DKCGEZFEzT9+r4fiN3z+72xqkL+h7ExF6O7014Dkw7WTqYQlbTBvJGDHVkMcHQgyl0SehkC6DPBL2ouqyFEs6sB9BSQLWgWrlASuYnPzC+/c9rKKye4ZM31fu/12e+8c6Kdebsw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786694478; c=relaxed/simple;
-	bh=JokbiO8UjF4fat0+cc7ulERvu7scmmqYEb4icp9V1ng=;
+	s=arc-20240116; t=1786694967; c=relaxed/simple;
+	bh=TA8NjPkJg/wxekqgyP6kvAcIcsIdSbdDYTKUHdghBjE=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=jhA7+xKxvq7I4yNxWBYUj/RYTfowxdidinfjlMc62Y2xEclHvDRrKYbJEC5sHdJYZpXmSTSQsirxmf0jLGVIASI5S+NLIIysTgtOBCNsJnGLdEy1/DpXZ28ZwjsOfBSFlAgp3ivGw/hF4Op+mPxPpjExWY0LNqgHX595Oz0Ee3s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Xm7autna; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=Q1GBc//GZ7i/72uU66etn80FzCoPDSvJcY28hcIq41DqyQdSZJ0ZnUwkxFwkFF1eIwx5eflxwIz3jzs06nq9dfSOVMJZIiVJkdxmFNA6M6VLTbyWz9rK24UXAmS3c9000InOlts22dDJeHK9jzdduNPsoVhT5fryt1BQQaRU82A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Fj1IbOej; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Xm7autna"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62AE71F000E9;
-	Fri, 14 Aug 2026 08:01:16 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Fj1IbOej"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11FA31F000E9;
+	Fri, 14 Aug 2026 08:09:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786694476;
-	bh=QcVYP5m5Z2fxMVepfdaGAnjunhh6Uc+168hWIE1Ods8=;
+	s=k20260515; t=1786694965;
+	bh=JTndrLd9EgESq3MQ2z80GBzpquS37Tpitiqhdh59XX8=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=Xm7autnaR5qjk9HsBgM2wmXg7M/MJ05s73htbhFJFZsxOWhWUVDnb3aFGUZwqqAv3
-	 JDtKtGbfaIk45+OIVN1JhF8KQYUgIFNR68XZQvnSGxlsQla/dDtX3UUHXh8V4EwBFI
-	 BUPxr1Z4sLOzwfFx3iW4NVhjZJ7nOQCJFHyrDvyaG5LXnwoP+I/qfYlUwo1P3LaUxH
-	 MUyJWx4Qs0kx3UeqyocCCgGUpGi/wQCAomDjwrUJsqS56rdE4uZCpqUVHMRGHFRJkF
-	 rKJ4AMWAf6HIGcE8EKJtguEJHAy2CQLmt0q4yyXQjwCJ6f7xoIYPrmBq9mNQe9tym6
-	 m+Dq4pvYEqIhw==
+	b=Fj1IbOej9hAKuf/WBxehvkR7L+gY8OyJKW91rxtE7wW79QSzQN4rvZh9+9nGx7jcr
+	 SiXuhqDPwMRLYeexSS6JS3GUli9N5SXwGOr5qDt8EzXwh0tm4fu9u6mepbt8fdX0sO
+	 IF4EXeozPhd+9PuRJv7iAYiCprBYP+xNpRYgRU37ksgHVtEhBwVBl7m5ahdFT5h+Gj
+	 dhha2DbKM1bLP5gU/Trw/Je6RGnjEcYBHQlf1ccfjgO191irHDq3d0B6wXJUwtVh5H
+	 XJyfduQ6PpuIhUaOKwYs5FNjHmYqQgJ6MO579A1S62KdKxmAgOKBQi+RetIkCtPs8T
+	 ASDqs9WouEoTw==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v3 1/4] selftests: add shared lib.bpf.mk to build BPF
- progs and skeletons
+Subject: Re: [PATCH v3 2/4] selftests/cgroup: add memcg_stat_cross_cpu
+ correctness test for flush
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Ziyang Men" <ziyang.meme@gmail.com>
-Cc: linux-input@vger.kernel.org, sched-ext@lists.linux.dev, hannes@cmpxchg.org, tj@kernel.org, bpf@vger.kernel.org, mkoutny@suse.com, dmitry.torokhov@gmail.com
-In-Reply-To: <20260814075054.507089-2-ziyang.meme@gmail.com>
+Cc: mkoutny@suse.com, sched-ext@lists.linux.dev, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, bpf@vger.kernel.org, tj@kernel.org, hannes@cmpxchg.org
+In-Reply-To: <20260814075054.507089-3-ziyang.meme@gmail.com>
 References: <20260814075054.507089-1-ziyang.meme@gmail.com>
- <20260814075054.507089-2-ziyang.meme@gmail.com>
+ <20260814075054.507089-3-ziyang.meme@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 14 Aug 2026 08:01:15 +0000
-Message-Id: <20260814080116.62AE71F000E9@smtp.kernel.org>
+Date: Fri, 14 Aug 2026 08:09:24 +0000
+Message-Id: <20260814080925.11FA31F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -47,80 +47,126 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
 Thank you for your contribution! Sashiko AI review found 2 potential issue(=
 s) to consider:
-- [Medium] BPF objects will not automatically rebuild when libbpf headers a=
-re modified, breaking incremental compilation.
-- [Low] Missing Clang system include definitions for LoongArch and MIPS arc=
-hitectures.
+
+New issues:
+- [Low] Multi-line comment does not follow the correct BPF/kernel style.
+
+Pre-existing issues:
+- [High] The kfuncs bpf_mem_cgroup_memory_events and bpf_mem_cgroup_vm_even=
+ts lack negative bounds checks for their enum parameters, leading to out-of=
+-bounds array reads.
 --
 
---- Patch [1]: [PATCH v3 1/4] selftests: add shared lib.bpf.mk to build BPF=
- progs and skeletons ---
-commit 73f22930c4ae7eac2caa52ed8b921af4c943e0a7
+--- Patch [2]: [PATCH v3 2/4] selftests/cgroup: add memcg_stat_cross_cpu co=
+rrectness test for flush ---
+commit aa1f4cd8dd58a883c661755d56a15bc86e70795f
 Author: Ziyang Men <ziyang.meme@gmail.com>
 
-selftests: add shared lib.bpf.mk to build BPF progs and skeletons
+selftests/cgroup: add memcg_stat_cross_cpu correctness test for flush
 
-This commit adds a shared tools/testing/selftests/lib.bpf.mk file to provide
-a common build toolchain for BPF programs and skeletons across different
-selftest directories. It aims to reduce duplication of the libbpf, bpftool,
-vmlinux.h, and skeleton generation Makefiles currently present in bpf,
-sched_ext, and hid selftests.
+This patch adds a new selftest, test_memcg_stat_cross_cpu, to verify
+that cgroup flushes happen correctly by ensuring BPF read values match
+cgroupfs file readings. It also strengthens test coverage by scattering
+charges across multiple CPUs.
 
-> diff --git a/tools/testing/selftests/lib.bpf.mk b/tools/testing/selftests=
-/lib.bpf.mk
+> diff --git a/tools/testing/selftests/cgroup/memcg_stat_cross_cpu.bpf.c b/=
+tools/testing/selftests/cgroup/memcg_stat_cross_cpu.bpf.c
 > new file mode 100644
-> index 0000000000000..433a26a36960b
+> index 0000000000000..3c2acd49c16ba
 > --- /dev/null
-> +++ b/tools/testing/selftests/lib.bpf.mk
+> +++ b/tools/testing/selftests/cgroup/memcg_stat_cross_cpu.bpf.c
+> @@ -0,0 +1,86 @@
+> +// SPDX-License-Identifier: GPL-2.0
+> +/* Copyright (c) 2026 Meta Platforms, Inc. and affiliates. */
+> +#define BPF_NO_KFUNC_PROTOTYPES
+> +#include <vmlinux.h>
+> +#include <bpf/bpf_helpers.h>
+> +#include <bpf/bpf_core_read.h>
+> +#include "memcg_stat_cross_cpu.h"
+> +
+> +char _license[] SEC("license") =3D "GPL";
+> +
+> +/*
+> + * Declared here rather than taken from vmlinux.h, which only has them i=
+f the
+> + * build host's own kernel does.  A kernel without them is caught at run=
+ time.
+> + */
+> +struct mem_cgroup *bpf_get_mem_cgroup(struct cgroup_subsys_state *css) _=
+_ksym;
+> +void bpf_put_mem_cgroup(struct mem_cgroup *memcg) __ksym;
+> +void bpf_mem_cgroup_flush_stats(struct mem_cgroup *memcg) __ksym;
+> +unsigned long bpf_mem_cgroup_page_state(struct mem_cgroup *memcg, int id=
+x) __ksym;
+> +unsigned long bpf_mem_cgroup_vm_events(struct mem_cgroup *memcg,
+> +				       enum vm_event_item event) __ksym;
+
+[Severity: High]
+This is a pre-existing issue, but does this kfunc allow an out-of-bounds ar=
+ray
+read?
+
+The kfuncs bpf_mem_cgroup_memory_events() and bpf_mem_cgroup_vm_events() la=
+ck
+negative bounds checks for their enum parameters. A BPF program can pass a
+negative integer as the enum parameter to bpf_mem_cgroup_vm_events().
+
+This passes the negative enum to memcg_vm_event_item_valid() in mm/memcontr=
+ol.c:
+
+    if (idx >=3D NR_VM_EVENT_ITEMS)
+
+This validation function omits a negative bounds check (e.g., missing an
+unsigned cast). Because the BPF verifier evaluates enum parameters as signed
+integers without an explicit lower bound check, negative values bypass the
+check. This reaches memcg_events_index() and allows arbitrary memory offsets
+to be read relative to the memcg arrays.
 
 [ ... ]
 
-> +# ---- compiler flags --------------------------------------------------=
------
-> +# Find the normal system headers that Clang omits with --target=3Dbpf. P=
-ut them
-> +# last with -idirafter so they cannot replace project headers.
-> +define get_sys_includes
-> +$(shell $(1) $(2) -v -E - </dev/null 2>&1 \
-> +	| sed -n '/<...> search starts here:/,/End of search list./{ s| \(/.*\)=
-|-idirafter \1|p }') \
-> +$(shell $(1) $(2) -dM -E - </dev/null | grep '__riscv_xlen ' | awk '{pri=
-ntf("-D__riscv_xlen=3D%d -D__BITS_PER_LONG=3D%d", $$3, $$3)}')
-> +endef
+> diff --git a/tools/testing/selftests/cgroup/test_memcg_stat_cross_cpu.c b=
+/tools/testing/selftests/cgroup/test_memcg_stat_cross_cpu.c
+> new file mode 100644
+> index 0000000000000..9946c41c7a908
+> --- /dev/null
+> +++ b/tools/testing/selftests/cgroup/test_memcg_stat_cross_cpu.c
+
+[ ... ]
+
+> +static int add_node(const char *path, bool is_leaf)
+> +{
+> +	struct cg_node *n =3D &nodes[n_nodes];
+> +
+> +	if (cg_create(path))
+> +		return -1;
+> +
+> +	strncpy(n->path, path, sizeof(n->path) - 1);
+> +	n->id =3D cg_get_id(path);
+> +	n->is_leaf =3D is_leaf;
+> +	if (is_leaf)
+> +		n_leaves++;
+> +	n_nodes++;
+> +	return 0;
+> +}
+> +
+> +/* Create # @levels more levels below @path.
+> + * Only the last level is charged.
+> + */
 
 [Severity: Low]
-Will BPF programs fail to compile on LoongArch and MIPS architectures?
+Does this multi-line comment style follow the BPF and kernel guidelines?
+The preferred style requires the opening /* to be on its own line:
 
-The original selftests/bpf/Makefile extracts necessary host definitions
-like __loongarch_grlen and MIPS macros.
+/*
+ * Create # @levels more levels below @path.
+ * Only the last level is charged.
+ */
 
-This new macro appears to drop those extractions, which might cause Clang's
---target=3Dbpf to fail to parse system headers on those architectures.
-
-[ ... ]
-
-> +# Make one rule for each source. A global vpath would also match the tes=
-t's
-> +# normal C rules when BPF_PROG_EXT is .c.
-> +define bpf_obj_rule
-> +$(BPF_OBJ_DIR)/$(patsubst %$(BPF_PROG_EXT),%,$(notdir $(1))).bpf.o: $(1)=
-	\
-> +		$(BPF_EXTRA_HDRS) $(INCLUDE_DIR)/vmlinux.h			\
-> +		| $(BPF_OBJ_DIR) $(BPFOBJ)
-
-[Severity: Medium]
-Will this break incremental compilation when libbpf headers are modified?
-
-Since $(BPFOBJ) is specified only as an order-only prerequisite and there is
-no explicit Make rule for the installed headers, Make evaluates their
-timestamps before $(BPFOBJ) updates them.
-
-Does this cause BPF objects to be incorrectly skipped during the first make
-invocation after modifying a libbpf header?
-
-> +	$$(call BPF_BUILD_RULE,$$<,$$@)
-> +endef
+> +static int build_children(const char *path, int fanout, int levels)
+> +{
+> +	char child[PATH_MAX];
+> +	int i;
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260814075054.5070=
-89-1-ziyang.meme@gmail.com?part=3D1
+89-1-ziyang.meme@gmail.com?part=3D2

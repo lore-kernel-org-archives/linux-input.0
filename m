@@ -1,227 +1,154 @@
-Received: from mail-qv1-f46.google.com (mail-qv1-f46.google.com [209.85.219.46])
+Received: from mail-pl1-f170.google.com (mail-pl1-f170.google.com [209.85.214.170])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EA1853233E8
-	for <linux-input@vger.kernel.org>; Fri, 14 Aug 2026 22:00:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.219.46
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786744833; cv=pass; b=Bpm6ZMCd96b7GWgT4/Rbh0wnhN4GRxNORvDaX9ewM4ChYvw3CHeHYnIUPnJw45pKeLmiPMJ6Y2xI7ktI7EQP4VAn0J3zaE5xCNhyly0CeMJwldKinqE9NCFJFDVt+1IUcmRXvDa8/H7TaJG8RGi8TpZhQJBeDI4uhWmW3SFY1bU=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786744833; c=relaxed/simple;
-	bh=6mne82aAJHtUr30KWi7im0zCitkiQ9PmVr7Igj1yZn4=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=jSb4JoaPhI6Qrsq+EixIB69pJaP8hVo7SEbqVZTyUb6EPISo74zqG5Iaw89IXFjZwIIUbWLMbh7PHSIrKZsF+9BTc1d6KBpUAHSWgAqpS7GpqaMbju6zHQVS122JsvFnbL0XPAEFvNf2dvI3hXfVaxXei46VTL5coGboqYnjUFk=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=WF3cKRS9; arc=pass smtp.client-ip=209.85.219.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A5652345EA9
+	for <linux-input@vger.kernel.org>; Fri, 14 Aug 2026 23:15:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.170
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1786749342; cv=none; b=NGuXC33V5I5OatpKBBrbXom97niKUZgPsP44VJ/kJG3H/Qg1tHQfYnTltgzzUKOop+3VocclQLbXoOpB4EEC6NVwZF9USUrvPp5dqgLv09I3pmDXfYfIoWI4CPBasM8l3riiFH0CNAuXzi+wXVObzIJQSh5HRYLom5bYu47S+A4=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1786749342; c=relaxed/simple;
+	bh=I/uarSh+Yt39CznkLrrJywz9PlnXuGBPGtjCAp/Ougk=;
+	h=Subject:To:References:Cc:From:Message-ID:Date:MIME-Version:
+	 In-Reply-To:Content-Type; b=fokUlsSDBjCQw8u9hCW22SMJMVCNY0eWPziqgL7qUvhtA8IRzRO4E0s4pUXhMr913omH1Y4wHsdnO/rgco2wyRvqZ2298qhElmdHaRvtlo4jvsWGtkrweIsJLdNrR22UYuyn6ZapPOqYCdn5tqKBq7OXepEqtBsd7hlDAbpH3eo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=lKquns30; arc=none smtp.client-ip=209.85.214.170
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="WF3cKRS9"
-Received: by mail-qv1-f46.google.com with SMTP id 6a1803df08f44-8edda5d56a5so15734896d6.3
-        for <linux-input@vger.kernel.org>; Fri, 14 Aug 2026 15:00:31 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1786744831; cv=none;
-        d=google.com; s=arc-20260327;
-        b=VW5pXxFB1ct+byPeX60tcCivcMAEEK3oRqLQkJAkafu5DOGNZfjE1TWPtO+QMK3pzx
-         4vgpMbhefaEShc5FLqBgUFw+gE7KpdmZKIZvPhwejvgYL3SY68MtmZO72N/Qd5yBhZoQ
-         9yoq5NQ8x7EMIxLt2FmkGda2b5Rpj3SnZ0BSSlDANPhmiKeD87dA2bVfLWGAZN12Df7O
-         0Ggc2SfTmXNt9e+QH4CjCK8LULtKegSeGG81KJSpf7vlI0ono087OxdP7E/cjY7fbj/C
-         BeYY+gGlC193ewyPYg8KjYmdQvIXNHT6UoTUrVqr9a0s1+DGQUWkRcBNOtDMj5v9g2Vm
-         pUhg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=oODB2AjBhLLjzDgKnazTq3JE4KieXBOg7eMpYzfqPKc=;
-        fh=G8lQZJT+LLkHtbmOvCja0iz9l/t5artH8Dacaluxmso=;
-        b=bISjLHijOCDBASmK+y9BsPvWUdSdC0gspyfyg++YxTncN0tfPFy6KnLxBeXxBcKCTs
-         G+LfmfcgD7IAkBxZqlhLYbCWf5sEeqQEhoTQhc5DLAZ2Obl25uKbm5TmxJlNzr7yNBEx
-         jccB+cFif2e+bzpfImllRCD/NecY0RNhaWI+6u1SmJv8f4vKYY77YPlL2J+KCV70CbQG
-         UvemCM4uMf9SJ3VE8wX9JPRgvXM3LKpNn7+vs5O7xWGQuP/0NeoJvckQJPovdzRBxwPb
-         Sdju0MsUpx6o+qX4mng9Pn5pZ+ZZsqovUDprvlB8ML0pdILTsbx9I9Rmo8BQn4gL7kqC
-         9gEA==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="lKquns30"
+Received: by mail-pl1-f170.google.com with SMTP id d9443c01a7336-2ceab75934dso19557685ad.2
+        for <linux-input@vger.kernel.org>; Fri, 14 Aug 2026 16:15:40 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1786744831; x=1787349631; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=oODB2AjBhLLjzDgKnazTq3JE4KieXBOg7eMpYzfqPKc=;
-        b=WF3cKRS9CScoS4WnQ1cRBD+HZY9urIpF/Msg9sc70Nj0zfYln7Jy8doXjp8e9IPOS4
-         KfezoHDq9kQ7JT7k8ruX/7nElJ0+jl8e8nrEssfwKRx7alHVbHn6EAFKG+F/pyLr7Itq
-         4ljUD0ce3vpnQ8epxZrjlidYn4aW8TSUEWgLA4SKgdqbyj/LagP4hyw4Y/9RRDfEKLUO
-         CVZRxcyHkth9KwdXMLW73JBrHCs+1Vn1HjY9V3PiOnFChxiyY5L7RE/4PwLJ3fSbWChA
-         c/kesoi3WzSY7llFMsakqox0CxhS1pibms8BbHkNWgN41ILLJ55Gf4X4H12ih3KnEERO
-         zEag==
+        d=gmail.com; s=20251104; t=1786749340; x=1787354140; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:in-reply-to:mime-version
+         :user-agent:date:message-id:from:cc:references:to:subject:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=ky5gskAaSEf8NghVHXc5sj5etgnRYYESi/dHNnxk2Lo=;
+        b=lKquns303EQphSt1wiWFrZoDL1Yj3ydehnjnUJDrPfTBjjXEhybCAnN73q1n5C1bqJ
+         QwnOFY+cbUqpDxTvuAeqEFFNLBMkrn3c06adCBYS78Z/QBTKidZLWS7uMxepGv5pJbWF
+         GrJf7v9YsKK5O6mfEdStXfxi8jXx7pm+W0LcdPRwj8TO2WRVESw1FVMOyZifg6xVNcpH
+         DR5qd5WoeITl08j/97DF5QyLjL8vpFTebBG0ZpuoxI5X2KZszVcWIaUuUAr1h8yxR6r6
+         AJ0rKtHhYBFL/7iUYXQ8BbuCB9Kmg1ByYsXh3xDcRu0lZ2OheON9Z3JSiy0K5ug3fif/
+         FXRA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1786744831; x=1787349631;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
+        d=1e100.net; s=20251104; t=1786749340; x=1787354140;
+        h=content-transfer-encoding:content-type:in-reply-to:mime-version
+         :user-agent:date:message-id:from:cc:references:to:subject:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=oODB2AjBhLLjzDgKnazTq3JE4KieXBOg7eMpYzfqPKc=;
-        b=qYEitB4XShpHhqPbyhBvdVH0bNqKRpDZ9lrINQtmUkl0rzpR4Vko9xPL5lx0E1mvqA
-         u8AT0FGXjvEVxGaLH6w3mqSGPxs5DTR11L0YImW5SFhDLBbnN4lWLoQHaPADOGeJYbX1
-         hx934Zhog7q5QGQA0sUmrwTRcDnA64h6lkFRqHaJfHc5vlR0MHOaTeEIRRcwpvjH47c/
-         Hl20KVw6OQfL48yZDs3tJ48Lyq5Ezt9nte+LjJxBXcCtKW2sKHZpbUFa13T8rp+3uipt
-         0g71j/E08hZ7FU21I3Dp/XJGTlCq1uwU2rcuRAA5PXUKyBCvl7JsbNpsdtDvAexmy5am
-         2UrA==
-X-Forwarded-Encrypted: i=1; AHgh+RqLfKQsaPjXcAmYuQSwtm2T59rEI/NQceFG0P8oq2jjOPhkBi6oT8YLlIo6pN1G3SpDemuYp85qblVhdA==@vger.kernel.org
-X-Gm-Message-State: AOJu0YwjUw3qr9F3Hiy7n1lLu+XxLPBOfFNa5ePaXgTNHf+uYS0hwvkz
-	0jhY0BxZEQIHWeGonOLfEG8jCVO0ymjLK/3N6O9X2LZbgOUnz0yMEKtBTxycvw4+XYM/8OfBn/v
-	H5/sqo+5IHTqNQNkGLkbraTY1HRh8Des=
-X-Gm-Gg: AR+sD11gwsSNMft0Z6oyG4Mf3XdVlMVSZPTB76bmRBc4BvipgMxLqFLyNQ3f6BpBZu/
-	epG1+NfhcN09kanjI1vDkmKB583PnKKAJmydLAJptThOjw7Z8daRqgtCA+Mcc1XOSTrbpsVKt7X
-	TNd7smno36Fl9Araxr2MfB/YsqKzXMKrS1pjbRk/MZK2Qtf4NPKOpqGkqei4l4iqnmCl9ifZ3RZ
-	Al59Vm5eS8im/OOoBOs6M059lkBt1VE+wJyejoej+JKM6LVL9C3hBy9XvQhXjc/FYkzRk++UU/k
-	W/v7A/7/FwrevHU6S3R15q48TorErH0dY/f1bIblB5Q2
-X-Received: by 2002:a05:6214:2c08:b0:8f2:940e:2423 with SMTP id
- 6a1803df08f44-90a91d1a557mr123266366d6.11.1786744830628; Fri, 14 Aug 2026
- 15:00:30 -0700 (PDT)
+        bh=ky5gskAaSEf8NghVHXc5sj5etgnRYYESi/dHNnxk2Lo=;
+        b=eiySqYMKLfgMjEa3NxFcHvrvx+y/RG+Dokgv3T9MPyHRmaWkFr2suzL/vv4BL/SvGW
+         rbDBTPT4pwlmKK6WXMjQX9BEGw8O7YXdz1Ylqsc40AA+KHntHnXuG1O1BMloldNMVCHc
+         I2aPeO2NIVxh9e9FjVWb0vUSH3UPlzwqe1mvfQDAZEwLMn62iAmjHmpcLGIkWvMH+JAn
+         te/IDSF41UhgwZbcQMuUlqi59xwjtiw8An5H0g99QkLr2ecFb5Yytaf0IK0qZj3LhLs5
+         s/O30gXe7RrzwN9erhW8X2uK6DDSuQ0NVtVIhyrz7viqXJarpbvVe3q9Hd92A9RabuJV
+         sFpg==
+X-Forwarded-Encrypted: i=1; AHgh+Rqm5IWlk3VV3DfZLRy7Mg2d3w5S69rYFu0eg80gw3EzN+mpgxVvZv7D+WPVAJKSy9kf6QJ4A1wipYZqGw==@vger.kernel.org
+X-Gm-Message-State: AOJu0YwqoTLw1xYOSw5c1KElmWGlgOF5r8O1Lt7LWACd/W8tLvgYDLVk
+	eGfZxuYpk/asu5LYupKt41k9TxaRpo1LQ9vJJTV/naW4Oj/oMnwxSdvlRJg0PA==
+X-Gm-Gg: AR+sD12KvsXxzt+By+q/5Vr+LF6EjTDE4d4xv/ed9e8F8CLi6PmqUK6BnKNrkNHkVNJ
+	IuxbS9akX6RWxYfRXjUG1troyqvZ+aN5n8e2xLqzw15t+tx+goHWe1jH/5UOHAFiKOsrfbdSGjI
+	dvGkspLhlMz3FIA8ZF3cJIREXSxOReonEpJWLjUSLA/AtQFjzspG6IkGbkdegtU3C4gx3wZw159
+	U8XIURjdqkJm3Xt5B7rl41CNz+5f0/Hc6wvQYCzvWRfEPumaIvXYo3/5BfcjsNxaimS8tm3mlrS
+	YqrhxXfYErTdbvkooioy5E/RDOhyJrkeuvQY0mJridouu25X/k33avfEtPg99rnsBNI1KvcaSTA
+	qB2fNRTeR5xiwIfRvA81lKMmH3qOp2re7Se2eVQqlO+PRqJgYBouQrZe4uDpbK2VGsaXhbyXTZd
+	Y7bwnQbjvKl68hF7j3LuIbTp/q7/CEaTr88YRMqL+FhnWXh4tYcg7m2D2zN9IEB4j9Llry3o8nJ
+	8B1WmSDxJePFptLnJuH2hYA
+X-Received: by 2002:a05:6a20:2587:b0:3c3:33df:4d9a with SMTP id adf61e73a8af0-3cc71c1b66fmr10536211637.1.1786749339907;
+        Fri, 14 Aug 2026 16:15:39 -0700 (PDT)
+Received: from [10.1.1.24] (222-152-170-159-fibre.sparkbb.co.nz. [222.152.170.159])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-320e9df03f9sm8733169eec.19.2026.08.14.16.15.36
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Fri, 14 Aug 2026 16:15:39 -0700 (PDT)
+Subject: Re: [PATCH 1/5] m68k: Fix atari mouse movement
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+References: <20260814031745.17140-1-schmitzmic@gmail.com>
+ <20260814031745.17140-2-schmitzmic@gmail.com>
+ <CAMuHMdUDvsqT5t93-ZO413pwS3rPYPB1_uy+5iRHsii8CYTdgA@mail.gmail.com>
+Cc: linux-m68k@vger.kernel.org, Miro Kropacek <miro.kropacek@gmail.com>,
+ linux-input <linux-input@vger.kernel.org>
+From: Michael Schmitz <schmitzmic@gmail.com>
+Message-ID: <ef9e0128-6309-546a-715a-3e7eb476910e@gmail.com>
+Date: Sat, 15 Aug 2026 11:15:33 +1200
+User-Agent: Mozilla/5.0 (X11; Linux ppc; rv:45.0) Gecko/20100101
+ Icedove/45.4.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260713075110.92469-1-security@auditcode.ai> <20260713093414.94337-1-security@auditcode.ai>
- <36s07n6o-3n6p-p438-6qq7-921r98171q40@xreary.bet>
-In-Reply-To: <36s07n6o-3n6p-p438-6qq7-921r98171q40@xreary.bet>
-From: Jason Gerecke <killertofu@gmail.com>
-Date: Fri, 14 Aug 2026 15:00:18 -0700
-X-Gm-Features: AcwNN1VyQkANU9yxbEMoFSqZ9QhxR0gDHgX6WoklB1oekCay5Qss2SGog6-7A10
-Message-ID: <CANRwn3SJawDyXOgvWg69mLZspQemMnFNxSDa3OdpTOzzf89ddQ@mail.gmail.com>
-Subject: Re: [PATCH v2] HID: wacom: validate report length in wacom_intuos_pro2_bt_irq
-To: Jiri Kosina <jikos@kernel.org>
-Cc: Ibrahim Hashimov <security@auditcode.ai>, ping.cheng@wacom.com, jason.gerecke@wacom.com, 
-	bentiss@kernel.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <CAMuHMdUDvsqT5t93-ZO413pwS3rPYPB1_uy+5iRHsii8CYTdgA@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Fri, Aug 14, 2026 at 5:24=E2=80=AFAM Jiri Kosina <jikos@kernel.org> wrot=
-e:
+Hi Geert,
+
+thanks for your review!
+
+Am 14.08.2026 um 19:53 schrieb Geert Uytterhoeven:
+> Hi Michael,
 >
-> Ping, Jason, could you please Ack this one? Looks good to me, but I alway=
-s
-> prefer to have an Ack from one of you on the Wacom HID driver.
+> CC linux-input
 >
+> On Fri, 14 Aug 2026 at 05:17, Michael Schmitz <schmitzmic@gmail.com> wrote:
+>> From: Miro Kropacek <miro.kropacek@gmail.com>
+>>
+>> Kernels are built with -funsigned-char since version 6.2, resulting
+>> in signed mouse position deltas getting misinterpreted as unsigned.
+>>
+>> Cast deltas passed in (unsigned) scancode buffer to correctly
+>> interpret sign.
+>>
+>> Fixes: 3bc753c06dd02a35 ("kbuild: treat char as always unsigned")
+>> Link: https://lists.debian.org/debian-68k/2026/08/msg00000.html
+>> Signed-off-by: Miro Kropacek <miro.kropacek@gmail.com>
+>> Reviewed-by: Michael Schmitz <schmitzmic@gmail.com>
+>
+> Since you're now in the path to upstream, you should add your SoB here
+> (applies to all patches).
+>
+>> --- a/drivers/input/mouse/atarimouse.c
+>> +++ b/drivers/input/mouse/atarimouse.c
+>> @@ -70,9 +70,12 @@ static void atamouse_interrupt(char *buf)
+>
+> Alternative, you could change/restore the function's signature to take a
+> "signed char *".
 
-LGTM. I suspect there are plenty more similar cases that need
-cleaning, but this is a straightforward improvement.
+Agreed, but without a way to test this, I'd rather wait for Miro 
+confirming that change also fixed the issue.
 
-Acked-by: Jason Gerecke <jason.gerecke@wacom.com>
+Cheers,
 
-Jason (she/they)
----
-Now instead of four in the eights place /
-you=E2=80=99ve got three, =E2=80=98Cause you added one  /
-(That is to say, eight) to the two,     /
-But you can=E2=80=99t take seven from three,    /
-So you look at the sixty-fours....
+	Michael
 
-> Thanks,
+>>         atari_mouse_buttons = buttons;
+>>  #endif
+>>
+>> -       /* only relative events get here */
+>> -       dx = buf[1];
+>> -       dy = buf[2];
+>> +       /* only relative events get here; the IKBD sends signed 8-bit
+>> +        * deltas, and the kernel builds with -funsigned-char since 6.2,
+>> +        * so an explicit signed cast is required
+>> +        */
+>> +       dx = (s8)buf[1];
+>> +       dy = (s8)buf[2];
+>>
+>>         input_report_rel(atamouse_dev, REL_X, dx);
+>>         input_report_rel(atamouse_dev, REL_Y, dy);
+>
+> Regardless:
+> Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
+>
+> Gr{oetje,eeting}s,
+>
+>                         Geert
 >
 > --
-> Jiri Kosina
-> SUSE Labs
+> Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 >
-> On Mon, 13 Jul 2026, Ibrahim Hashimov wrote:
->
-> > wacom_intuos_pro2_bt_irq() receives the wire report length in `len`
-> > but never consults it before parsing. After the report-id gate it
-> > unconditionally calls wacom_intuos_pro2_bt_pen() and then, selected by
-> > features.type, a fixed chain of sub-parsers, none of which receive
-> > `len`:
-> >
-> >       wacom_intuos_pro2_bt_pen(wacom);
-> >       if (type =3D=3D INTUOSP2_BT || type =3D=3D INTUOSP2S_BT) {
-> >               wacom_intuos_pro2_bt_touch(wacom);
-> >               wacom_intuos_pro2_bt_pad(wacom);
-> >               wacom_intuos_pro2_bt_battery(wacom);
-> >       } else {
-> >               wacom_intuos_gen3_bt_pad(wacom);
-> >               wacom_intuos_gen3_bt_battery(wacom);
-> >       }
-> >
-> > Each sub-parser dereferences wacom->data at fixed offsets. The furthest
-> > byte touched on each branch is:
-> >
-> >   INTUOSP2_BT / INTUOSP2S_BT: wacom_intuos_pro2_bt_pad() reads data[285=
-]
-> >       (the touchring byte), so the report must be at least 286 bytes;
-> >   INTUOSHT3_BT ("gen3"): wacom_intuos_gen3_bt_battery() reads data[45],
-> >       so the report must be at least 46 bytes.
-> >
-> > features.type is selected from the VID/PID id_table entry and
-> > wacom_setup_device_quirks() force-registers the pen/pad/touch inputs
-> > for that type independent of the report descriptor, so a malicious or
-> > malfunctioning paired/spoofed Bluetooth peripheral can advertise that
-> > VID/PID and send an undersized report that still satisfies the
-> > data[0] =3D=3D 0x80/0x81 gate. The driver then reads past the received
-> > report and forwards the bytes to userspace via evdev (MSC_SERIAL /
-> > ABS_MISC / ABS_WHEEL on the pen and pad input nodes), an out-of-bounds
-> > read with a concrete userspace read-back channel, and a true
-> > out-of-bounds read on transports whose backing buffer is sized to the
-> > (small) report descriptor rather than a fixed-size staging buffer.
-> >
-> > This is the same class of bug commit 2f1763f62909 ("HID: wacom: fix
-> > out-of-bounds read in wacom_intuos_bt_irq") already hardened in the
-> > sibling wacom_intuos_bt_irq(), which guards each report id against its
-> > minimum length before parsing.
-> >
-> > Guard wacom_intuos_pro2_bt_irq() the same way: before parsing, reject
-> > reports shorter than the furthest offset the selected branch actually
-> > dereferences, warn, and bail out. Because the whole pen/touch/pad/
-> > battery chain runs unconditionally per branch, a single up-front check
-> > against the maximum offset (286 bytes for INTUOSP2_BT/INTUOSP2S_BT,
-> > 46 bytes for the gen3 branch) bounds every sub-parser. Returning 0 on
-> > a short report also skips those calls for the same malformed report,
-> > which is the safe, conservative behavior.
-> >
-> > Fixes: 4922cd26f03c ("HID: wacom: Support 2nd-gen Intuos Pro's Bluetoot=
-h classic interface")
-> > Cc: stable@vger.kernel.org
-> > Signed-off-by: Ibrahim Hashimov <security@auditcode.ai>
-> > Assisted-by: AuditCode-AI:2026.07
-> > ---
-> > v2: the v1 check (len < 109 / len < 43) only bounded
-> >     wacom_intuos_pro2_bt_pen(). As sashiko-bot pointed out, the
-> >     unconditional touch/pad/battery calls read much further --
-> >     wacom_intuos_pro2_bt_pad() up to data[285] and
-> >     wacom_intuos_gen3_bt_battery() up to data[45] -- so a report in the
-> >     gap (109..285 / 43..45) passed the guard yet still over-read. Raise
-> >     the minimums to the furthest offset each branch dereferences
-> >     (286 / 46) so the guard actually bounds the whole call chain.
-> >
-> >  drivers/hid/wacom_wac.c | 13 +++++++++++++
-> >  1 file changed, 13 insertions(+)
-> >
-> > diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-> > index da1f0ea85625..89a191cf1924 100644
-> > --- a/drivers/hid/wacom_wac.c
-> > +++ b/drivers/hid/wacom_wac.c
-> > @@ -1548,6 +1548,19 @@ static int wacom_intuos_pro2_bt_irq(struct wacom=
-_wac *wacom, size_t len)
-> >               return 0;
-> >       }
-> >
-> > +     if (wacom->features.type =3D=3D INTUOSP2_BT ||
-> > +         wacom->features.type =3D=3D INTUOSP2S_BT) {
-> > +             if (len < 286) {
-> > +                     dev_warn(wacom->pen_input->dev.parent,
-> > +                              "Pro2 BT report too short: %zu bytes\n",=
- len);
-> > +                     return 0;
-> > +             }
-> > +     } else if (len < 46) {
-> > +             dev_warn(wacom->pen_input->dev.parent,
-> > +                      "Pro2 BT report too short: %zu bytes\n", len);
-> > +             return 0;
-> > +     }
-> > +
-> >       wacom_intuos_pro2_bt_pen(wacom);
-> >       if (wacom->features.type =3D=3D INTUOSP2_BT ||
-> >           wacom->features.type =3D=3D INTUOSP2S_BT) {
-> > --
-> > 2.50.1 (Apple Git-155)
-> >
+> In personal conversations with technical people, I call myself a hacker. But
+> when I'm talking to journalists I just say "programmer" or something like that.
+>                                 -- Linus Torvalds
 >

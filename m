@@ -1,123 +1,102 @@
-Received: from mail-pj1-f54.google.com (mail-pj1-f54.google.com [209.85.216.54])
+Received: from mail-lj1-f172.google.com (mail-lj1-f172.google.com [209.85.208.172])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BF9FCF9C0
-	for <linux-input@vger.kernel.org>; Sat, 15 Aug 2026 19:33:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.54
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 596E78632B
+	for <linux-input@vger.kernel.org>; Sat, 15 Aug 2026 21:08:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786822415; cv=none; b=UIPOO85qx/Shd3eMlHlLwhEn5+AW1feEywQAM8zSvrCUE+h6usuOitafr9/agxuiLl/5r6tIIQ+ZW+BDoSYRFdl/FclNCcEGQP/+oPVA8/3caWvvBgnanyP2YoR/JgEJNaKkUtk/ibb4EPa893GE3B1Sv3bJM6tzGwEGGCpcoiA=
+	t=1786828107; cv=none; b=ZlxcBqbCzp8/2d63ysT2H4XASpR/u3G+GDFHZ96X0zlSULk0BChrpkqo0nUsYho5/v/RAsaabcqJgMI5aSRSDliBuOi8IZe29HUqvsQl+Tbi3o207PRKsJW4RmBCH4U/G4atwxwJqixKWuBMQCh+1m0A36q5s34DizZU2hnyM4s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786822415; c=relaxed/simple;
-	bh=o0AnMacdq0bOiSycbXAvI5cFKmtVjcZln/CiGgiarGg=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=EnfTHgl+7pYMKSMjk/irQuV7Bg6jIX0aPHnpgzteIfmgJHu133zon3wwOiIELkth+ZEkyHBsDft7P+xoQIr8wFbB+Ylb9GoLdQNSOT2kojL9CPxB9HdHBfskheagqNtd8lAd+2+D1rJ8Ifv/1dfzxsONPWt6QBFFe/z7LVY1stQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=bICh8Uxx; arc=none smtp.client-ip=209.85.216.54
+	s=arc-20240116; t=1786828107; c=relaxed/simple;
+	bh=XKOEVoyTfwUoCmcAmKQ1YP13jKBU61CswwSJSCo7nqs=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=Zt30xJ9r0FCx1vzRrxlYSe8/ejSnr4UdHPmuNa8dPUTV5/CBLjbtiDe/mjJNDMaTn53r/RNAelxSYEqEmzSWMB8It7aERbf4v1H0UqG4nbKgze6kuLfohlE21kbBB22AtqXN1boQW5howHqCDb6XhqyY/GdLdXUrZK+75qcHaps=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=rsV4UEuA; arc=none smtp.client-ip=209.85.208.172
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="bICh8Uxx"
-Received: by mail-pj1-f54.google.com with SMTP id 98e67ed59e1d1-38511175ad3so2015580a91.2
-        for <linux-input@vger.kernel.org>; Sat, 15 Aug 2026 12:33:33 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="rsV4UEuA"
+Received: by mail-lj1-f172.google.com with SMTP id 38308e7fff4ca-39db07589caso16270081fa.2
+        for <linux-input@vger.kernel.org>; Sat, 15 Aug 2026 14:08:26 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1786822413; x=1787427213; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=8QfDYn3LXCdJNJnJI4l1itkip6zXqWm+TG5+HQBXhHc=;
-        b=bICh8Uxx72Wri6bjC8UIeCcUQbALdfal9F9VxZPLBXhRbDV1EBCnKt0ImQ+NgC5Yxe
-         HqqYUjuwTL34xmDt7tdvOahnizEpzON4gSWFJ9mwjUv8bmeQRZz6GNtYh/zphBeGD6dg
-         c2khk+wI5un4Pi3gBzdxEuw/namCVr/KvOVrZ6J8E080SaEuCLFPoz7n87zibly+QIZo
-         Dqka2nLByaoYwSf3RootJ383A5sYCObh1EJiuQgqw7K8+9StdHDXhJT3lQdl71WNGYjI
-         pxOSKneD1U9Oo6geX6iBEF4Y+A+oF/LJXmAn7MwunipyRxbjPhjIMMfNORxG9kYuEAlg
-         aS3w==
+        d=gmail.com; s=20251104; t=1786828104; x=1787432904; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=XKOEVoyTfwUoCmcAmKQ1YP13jKBU61CswwSJSCo7nqs=;
+        b=rsV4UEuAC7b+UFmjkXc8X63Idg0oIQ5cpKow1SXn49JM2BsStk99Y5t9+L68G9eol+
+         n8xQ9NVQ+FfbBD9/GJlyV3QK5b6OF5GfvzPV1LlcHAWQaP6oX5A3o9CNwGXSBbiaYjis
+         n3uo59GcgVYfhOC/F0YMNip+Ct5Ep0yQhEJcg6nt4BVEmmMr28ugCOFKpH5B5U1gkikT
+         dcOtaeLtKbwI5AKkXhf7j94TXMSwOFMgZTjB8m9Y/dg6k93B/rt139r7fkyieXBeI8bY
+         EPuT/EWbqyOiAvMRL0AJRwRfhfH7UNU7YRXYMZ6A5DUTIMJ/W5n5B6FZqmhUmLFnvGkf
+         PzrQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1786822413; x=1787427213;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=8QfDYn3LXCdJNJnJI4l1itkip6zXqWm+TG5+HQBXhHc=;
-        b=Zi1XGbknWDB4y/PNjA6HyTGUdj3DA4f0qJxdosR3EPnzpJusQY4dRmSwiirtmEN/Uz
-         nsF3/jJxDmBis+rYEOvlEajSpeXkrYj4IaOOnC9gdUnHtZaa3oe5lDOFHfuDTXwZZa7r
-         jSX3vGeAum77HF+TCPBTM+3wrer4+dCLDx4EiJT893JvckMUdmSE6CK8TTfFt+Gja04L
-         UUwxNsqtURqkcOEtKNpxBVhQtRFLGe4zEcW/Q/Esx4LQ7o17fZP+cdNQkTGeNUjBPz9p
-         MAvXH7NCGnIarOjnqWrJi+4PoRyBPf3BhKpug3/8Pm1ggd8Qfzdo4ZX9f4FDax9dcvSh
-         C3Bg==
-X-Forwarded-Encrypted: i=1; AHgh+RrLpsLDC+R2dpalRlMhtHatSVGs8GlBVdfX3k05sCiXMm4MSk7R5DN5cRCp2UWn4Jih5wCb4HXqChebJA==@vger.kernel.org
-X-Gm-Message-State: AOJu0YwmPvY9mjLfjE2Nb1L2hiSqrugk9kJzpE1sUy+ygfdEDF2/MPPN
-	a69p1ErqdvQPj2Rl7do/dfsSRnax97QdCkLe1qW99EnSVZxJEwEVcUzz
-X-Gm-Gg: AR+sD109pZ8I8VrJzBqx6goyxshSMRXWQsbrtY7RGqjg7WLrqiGq48HegeGkAPJpGlg
-	Z1M80BL57Al3vWi4wVw6OqC3kZNGWvqZfWc+NEYz3iJnkFwiPL7HRttM4mcqVHriHitbVul3iUM
-	DQlzwKxdZhw599ORJqrpylHz1sOAVnh95XOONBAiQegDPCvH8C5ZQtcSId0s1ZZAf2L3DB/s9uD
-	jJUZH/XJ2ykjyEx/n0r/Ld2ZRdwssTKiYofqgO1S5Midk7pwY45gcjTwhLfv0cM+2ADmm4FEWai
-	GjgXmyBS517rmYOhdaavRqMspEbACUeA3UCozW9jfKoE828uK4d+DdFF0iUlqbtydbZfbV5SVpS
-	SDB+MeLZz6GOPDbVWg5Pu6phE17fwcrPei4lZOTKTpchXxPG4xOVSmAFcuBmR077ltbA8PVha9R
-	SGQ6/qTU91AikaPt/+W2cfPxdh9smopuzHGGI4ULBtLqG1g5MpPpGG4H1qnHcTTKqL5GIwO5tUk
-	A7CjFswajz2/wphWEtQvzSBjn/Cbw==
-X-Received: by 2002:a17:90a:c888:b0:393:19a3:4f1 with SMTP id 98e67ed59e1d1-3933b7fd2cfmr16437935a91.6.1786822412858;
-        Sat, 15 Aug 2026 12:33:32 -0700 (PDT)
-Received: from localhost ([2409:40c4:3103:c7f7:a9f:75a8:7ec7:e37b])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-141387c6f95sm29554554c88.6.2026.08.15.12.33.31
+        d=1e100.net; s=20251104; t=1786828104; x=1787432904;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=XKOEVoyTfwUoCmcAmKQ1YP13jKBU61CswwSJSCo7nqs=;
+        b=PneK7WorXSxALaM2o0xVc3TkTR2yvz0YwxqkEqKtBL/BXq0Bs6ypfLdqh2msY1FVX1
+         ZOoznQlqbvPbhN5mB4pHW/7C0ilNqbJhlHH9PN5fXDT4xzuEMz8eO6ic7RYgSJD7JNev
+         683Q5we1drToWE1kTqCDz3+55JV0f2/nMzB5+NCqorDn3vdR6maxt2RUWrkc5Xxxf+TH
+         ohYJOctlxyIIXiMZLT4RVH7ch/9ixamoThFeUH6D1Tug7vJ6hVhP9tUF8mueuWShstc4
+         1TQdXdPcNxP8DVmozFPijS4bt6OYjAn+jnqZP4JjcTYGemWnkN82HRYYgRPIDA1dRN0i
+         LWWg==
+X-Forwarded-Encrypted: i=1; AHgh+RozyjmYS+2iWNVxV4wgPEY3dfYk+i6mBcL9fQ1iUAICkOcttEvAc+Z1KXdsvufXtsGuMPU5Ft5lM46JCQ==@vger.kernel.org
+X-Gm-Message-State: AOJu0YxuNq9/ZknhIB/K65r7+JJ+gM6R0vZYJvyJjgJ27XNqtX7lwZEO
+	YYcfUIULbna9O5PuBF8mz0HUP8PgoxP156AuODyKW7CQpZKdhWUR9vcD
+X-Gm-Gg: AR+sD12gDBnwCKrCjQLwc3x2M4UWwpb1wRDEB/cd0vg7B+C4eXFoGHLrBHcSRiU3Gl3
+	PBj4fHIA1+uhVo52MppBIgnhuLbI2bM9GkkV25O+avlYKfg3vBqezpaC//VKZQqwAFawXazoeJq
+	zek9ARnJ/F9fd5ZAon2a7RyfD+IwYE3hO5rdKWAqitKS6pflgqoT5FWzvaxGC7hEHq9ZZneufS/
+	Yo4yLgZbYyhvR6rvcVUatreM6e+VhC9Yg2HvEmnzyT3CfLm6xkeQYt47jjOhfpcn4vEJC8pKnPY
+	dfx55MAfr2UheTZ4kKTCmtIyTBe8pP6bAF7N/Yg4BvwYyQGq41dDyYGIcet43v1eWsR3Tbh2IS0
+	/RUW59jTh8tKy+YRGZbbzi7n+GDaoUXCG2x1+StBunGMswqWxnKPpUTWpOzJhSeu+Y6J4tJAgW3
+	4+os9kkjpi67cr9JyOcK0apB9B4L1ZwVwQu1mmf88F5SCw4N34yRejZZMhIGbw1bOnK8+ES3qWh
+	7up95VP2mQn+Cmku9NwbCG6ApODhildcBsM5QWTLvk04y0RL59coAvuvhhbJf6In1BqIfpT8WWr
+	IiIsez47eVI=
+X-Received: by 2002:a05:651c:2227:b0:39d:b5b9:f0f4 with SMTP id 38308e7fff4ca-3a14a041594mr5940271fa.10.1786828104142;
+        Sat, 15 Aug 2026 14:08:24 -0700 (PDT)
+Received: from localhost.localdomain ([46.205.206.103])
+        by smtp.gmail.com with ESMTPSA id 38308e7fff4ca-3a130872f84sm12958501fa.1.2026.08.15.14.08.21
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 15 Aug 2026 12:33:32 -0700 (PDT)
-Date: Sun, 16 Aug 2026 01:03:27 +0530
-From: Lovekesh Solanki <lovekeshsolanki00@gmail.com>
-To: Adam <testyiprywatnosc@gmail.com>
-Cc: benjamin.tissoires@redhat.com, jikos@kernel.org, 
-	linux-input@vger.kernel.org
-Subject: Re: [BUG] HID: i2c-hid: ELAN 04F3:30FD touchpad reset race causes
- -EREMOTEIO on HP Pavilion Gaming 15-ec1xxx
-Message-ID: <aoC-aI_7Dq_nJTHg@eggarch>
-References: <CAEru=6LrMqg93AKrmbTJtvRNPx=arYuhSf4zMw4bK1SjWQQvrw@mail.gmail.com>
+        Sat, 15 Aug 2026 14:08:22 -0700 (PDT)
+From: Oleh Kuzhylnyi <kuzhylol@gmail.com>
+To: m13940358460@163.com
+Cc: dmitry.torokhov@gmail.com,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Input: touch screen - cst816x: fix gesture handling
+Date: Sat, 15 Aug 2026 23:08:20 +0200
+Message-ID: <20260815210820.585452-1-kuzhylol@gmail.com>
+X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20260815021821.2896-1-m13940358460@163.com>
+References: <20260815021821.2896-1-m13940358460@163.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAEru=6LrMqg93AKrmbTJtvRNPx=arYuhSf4zMw4bK1SjWQQvrw@mail.gmail.com>
+Content-Transfer-Encoding: 8bit
 
-On Mon, Aug 10, 2026 at 07:31:32PM +0200, Adam wrote:
-> Hello,
-> 
-> I'm reporting a reproducible probe failure for an ELAN i2c-hid touchpad
-> (ACPI ELAN0718:00, VID:PID 04F3:30FD) on an HP Pavilion Gaming 15-ec1033nw
-> (AMD platform, i2c bus under AMDI0010:03). The touchpad fails to
-> initialize on nearly every boot on Linux, while the same hardware works
-> reliably every time under Windows 11 on the same machine (dual context,
-> same BIOS F.35 rev.A).
-> 
-> Kernel: 7.1.6-arch1-1 (Arch Linux)
-> Also reported by other users with the same touchpad ID on different
-> kernels/distros (Arch, Ubuntu, Linux Mint) going back to at least 2022:
-> - https://bbs.archlinux.org/viewtopic.php?id=277393
-> - https://bugs.launchpad.net/ubuntu/+source/linux/+bug/2031061
-> - https://forums.linuxmint.com/viewtopic.php?t=329212
-> 
-> Symptom (default logging):
-> 
->   i2c_hid_acpi i2c-ELAN0718:00: failed to fetch HID descriptor: -121
->   i2c_hid_acpi i2c-ELAN0718:00: Failed to fetch the HID Descriptor
->   i2c_hid_acpi i2c-ELAN0718:00: probe with driver i2c_hid_acpi failed with
-> error -121
-> 
-> With dynamic_debug enabled for i2c_hid and i2c_hid_acpi:
-> 
->   i2c_hid_start_hwreset
->   i2c_hid_set_power: cmd=05 00 00 08
->   i2c_hid_xfer: cmd=05 00 00 01
->   i2c_hid_finish_hwreset: waiting...
->   i2c_hid_finish_hwreset: finished.
->   asking HID report descriptor
->   i2c_hid_xfer: cmd=02 00
->   reading report descriptor failed
->   can't add hid device: -121
->   probe with driver i2c_hid_acpi failed with error -121
+On Sat, 15 Aug 2026 02:18:21 +0800, Jianing Li wrote:
 
-Could you attach full dmesg with debug enabled, of failing boot and
-successfull boot? And also acpidump?
+> The controller reports 0x05 for single click and 0x0b for double
+> click, while the binding only defines keycode mappings for the four
+> swipe gestures and long press. cst816x_gest_idx() currently maps every
+> other nonzero gesture to the long-press slot, so unsupported gesture
+> IDs can be reported using the long-press keycode.
 
-Thanks,
-Lovekesh
+Officially, the driver and DT bindings do not configure or support the
+Double Click (0x0b) gesture. While the hardware may support it, the driver
+does not enable or map it.
+
+We shouldn't handle gestures outside of those documented in the DT
+bindings, unless the goal is specifically to ignore noise on the I2C bus.
+
+I re-tested the original driver on physical hardware (Raspberry Pi 4b with a
+CST816S display module) with debug logs enabled, and I confirmed that no
+gesture codes outside of those defined in the DT bindings are emitted.
+
+Best Regards,
+Oleh

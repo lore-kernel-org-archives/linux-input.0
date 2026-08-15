@@ -1,94 +1,106 @@
-Received: from buffalo.birch.relay.mailchannels.net (buffalo.birch.relay.mailchannels.net [23.83.209.24])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pg1-f178.google.com (mail-pg1-f178.google.com [209.85.215.178])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3B3672836F;
-	Sat, 15 Aug 2026 04:09:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=23.83.209.24
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9129D23BD06
+	for <linux-input@vger.kernel.org>; Sat, 15 Aug 2026 04:25:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786766997; cv=none; b=gAzWnHV3JGE865ArTsDeg9jhB9EK0hHC3cgCXMzh5ShOrVpyqmLFSr+WQ2M7jm/jEa+7BrOj/tcoWdL4qyV5J2kSwNpklmsIh0trFMPiB4oz2K/maciQ++1W7vQWMoHCJM+CqWZGhS8T+X3Jxp9yqEcGnVYGMg08BCKUJsNLhD4=
+	t=1786767959; cv=none; b=cTYxyuoznrsL1TtnGRoP5H5Avi2o/7sswrmo6yVWNO0LBnk0AuxHMn4PsF8Dz93UUJLJOq1Zg+zo28JxJPmhFGgnnvOSOZGFTJeJ7CoY/IHDbqZ+FCpYFlbMGv15aQYVZgPXcwSfhoL0rZMbEvdOCAGkHULvbte4rCVZ944PlUo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786766997; c=relaxed/simple;
-	bh=lc0rq7xR25Ol7sYvMYnfF2oc0o89SQWS3k7iGuZjJ8I=;
-	h=From:To:Cc:Subject:Message-ID:In-Reply-To:References:MIME-Version:
-	 Date; b=WAn9jDSNuKJFP1YkEUevGZMqvGP313eN+asiY86MOnML9gAf+raDs/aIb2JXZfqScsZDvVhp0meCV6f0HbEqk58xDksAbSqjYjvSrZDm4v/ntAFkPUTlaVkYZFEWcSaPv3pFuBpMyo4nBNnescb8u8RHkIEsW7JdB6zhOY3uwX4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=laserology.net; spf=pass smtp.mailfrom=laserology.net; dkim=pass (2048-bit key) header.d=laserology.net header.i=@laserology.net header.b=GiJeo+I/; arc=none smtp.client-ip=23.83.209.24
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=laserology.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=laserology.net
+	s=arc-20240116; t=1786767959; c=relaxed/simple;
+	bh=sW0nKLx+tqPZBnX02Hzi5GEhy5DbWLRX6SyGQr1cvbM=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition; b=W+02eMIIKQN+0q+xVcYwvu+xhqwwLpmtLEc1ONix0yUAzj+E9xPH6r6EsFUAJuCHN/GoaNZjLmJUsI97YmK1dx/QrD8/WRl3/E5kknzK1w/5Lku3zyNTHnRlARC/ln1QCAW7kQWsRRR66HyOeVKZ0NLVFPugOHiQwMl6Aionx50=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=iRrHkHlI; arc=none smtp.client-ip=209.85.215.178
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=laserology.net header.i=@laserology.net header.b="GiJeo+I/"
-X-Sender-Id: hostingeremail|x-authuser|admin@laserology.net
-Received: from relay.mailchannels.net (localhost [127.0.0.1])
-	by relay.mailchannels.net (Postfix) with ESMTP id 519363817EC;
-	Sat, 15 Aug 2026 00:42:45 +0000 (UTC)
-Received: from fr-int-smtpout22.hostinger.io (trex-green-3.trex.outbound.svc.cluster.local [100.117.167.206])
-	(Authenticated sender: hostingeremail)
-	by relay.mailchannels.net (Postfix) with ESMTPA id 3C2D5381FE8;
-	Sat, 15 Aug 2026 00:42:44 +0000 (UTC)
-X-Sender-Id: hostingeremail|x-authuser|admin@laserology.net
-X-MC-Relay: Neutral
-X-MailChannels-SenderId: hostingeremail|x-authuser|admin@laserology.net
-X-MailChannels-Auth-Id: hostingeremail
-X-Name-Interest: 26a45b5761f49bcd_1786754565102_351738541
-X-MC-Loop-Signature: 1786754565102:712002723
-X-MC-Ingress-Time: 1786754565102
-Received: from fr-int-smtpout22.hostinger.io (fr-int-smtpout22.hostinger.io
- [148.222.54.26])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384)
-	by 100.117.167.206 (trex/8.0.2);
-	Sat, 15 Aug 2026 00:42:45 +0000
-Received: from toolbx (unknown [IPv6:2605:59c0:2068:2608:c60b:fd48:4dc7:1cbd])
-	(Authenticated sender: admin@laserology.net)
-	by smtp.hostinger.com (smtp.hostinger.com) with ESMTPSA id 4hML0d0BRkzyP4;
-	Sat, 15 Aug 2026 00:42:40 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=laserology.net;
-	s=hostingermail-a; t=1786754562;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=lc0rq7xR25Ol7sYvMYnfF2oc0o89SQWS3k7iGuZjJ8I=;
-	b=GiJeo+I/BoF3oCsWP3rcVNHRyXlOWvoIdPFZT5DNT0W34GLqxEfhdgl00nCyipWeehCS9a
-	mYNrw3xUmvquyuXN8tW8EYlA6KkoQy17vxHDF0NLeudcsn8Oix7R/YoIopd48nbkSgZ+wj
-	+21Og8MgbWovZvVGGhOV2SLznPZsT2q101VGZly6pfKWlV/aIVYQYrPgC6peCdj1XPsJDf
-	xxAxIJbq76fH3RrA678ZHU/+wi0yTa/6d/qGEwz4NH9pykBeU5yjSHqGZQwt92nBModJoa
-	s5v4n0X8Kb8BTJRXCU2xEdJWW8Te7Ufs/XiZBnq09A8vOvlQndZWGxraSARfSw==
-From: Evan Lawrence <development@laserology.net>
-To: dmitry.torokhov@gmail.com
-Cc: development@laserology.net,
-	linux-api@vger.kernel.org,
-	linux-input@vger.kernel.org,
-	miroslav.bendik@gmail.com
-Subject: Re: [PATCH v5] Input: synaptics - add pass-through mode for TrackPoint
-Message-ID: <20260815004214.68767-1-development@laserology.net>
-X-Mailer: git-send-email 2.55.0
-In-Reply-To: <an9ocXI6b7WEI8D2@google.com>
-References: <an9ocXI6b7WEI8D2@google.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="iRrHkHlI"
+Received: by mail-pg1-f178.google.com with SMTP id 41be03b00d2f7-c9e607d81fcso1043319a12.2
+        for <linux-input@vger.kernel.org>; Fri, 14 Aug 2026 21:25:58 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1786767958; x=1787372758; darn=vger.kernel.org;
+        h=content-disposition:content-type:mime-version:message-id:subject:cc
+         :to:from:date:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=XsAzMDC0HxMmFNm7FmXIqdj6dhMWvO6zZpEY0JxYE1I=;
+        b=iRrHkHlIO/Uv+ciCRRS+V7LOKusMv+nY9RnicFSVz4wybho6PNi3xVAiAp9TtSjxkm
+         NsGCJm6ZCJYojBbqIKYBWrOieDa+hBAvGG+sGTznhYnKANrBy1GiuMqB8+vhwLkwvZhJ
+         NxlanybCPf7VHs0UkmGEf3efPgpOzlToCiysMvIfM5Ka3Y/FpmsPZzVSaKo7l4a1306V
+         yOwW8jFm5WlNyc6duRhXXfcH5LhwBO5OHEn03vnXfqCDESTVFch6Lk5kA8LBhn7OZ0Zh
+         iGvxeIAgI7DqIeqMXimMx1kp/S+g0u8MlQQ0/Jzy4J7aWBs9h86nbQYXNSDxYEpSDjdk
+         p65A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1786767958; x=1787372758;
+        h=content-disposition:content-type:mime-version:message-id:subject:cc
+         :to:from:date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=XsAzMDC0HxMmFNm7FmXIqdj6dhMWvO6zZpEY0JxYE1I=;
+        b=IoJagv98dCYq2EVfg8kTKoiThbzdjGmEDru7oomn0u7+mYu8Zm79aWRzFMyP6xEPob
+         zII0NJaGRLZbXPxlPj2EvOdeAyfEqZ9xgTUZYq9K8FrHOPPvv20Z1PW5cGubvQreGrzY
+         UKzWDjZ1ZkT80Lsyc2jBPUl3EqzrwLCQTWkSuVRUKo15DWSHxa6D0GzY1lRiuj3BytvM
+         3eGlFoPVTuFPJaG2POvBOBTlJY4WluPix+faqZ7iEq+BajsXgxMYe/8f30zkbxhPfLgx
+         wMzVApGYASD0LeCrS0WNN+81KcTqrJ2tGE497t2xFOX56dDcSNmQomXCb4naZJesWLsn
+         Ka7g==
+X-Forwarded-Encrypted: i=1; AHgh+RrGHFJVFTzGa0QWRPse1P1S17tBsoaF3a4Ct10SnUDuCva4zR6yowx4neS3Mi7qbkw28tfA8DyrYk0PuQ==@vger.kernel.org
+X-Gm-Message-State: AOJu0Ywc1GK/3BtM1hunCWVlz/q2uH11XU1LB1aFvpAZk6ZdQ40Uh2yJ
+	b7B/pyMzv7GhSVLDsaiQR+CrGSyjpLPxWYpmxr6hX572YenO3OnJW2A7GUN00Q==
+X-Gm-Gg: AR+sD10i1QRqxEIqSUmJnc02L+kb1XTRh6uwsolOVdq/bdnFwDq1YkrptekkgX09E4U
+	BcUXqwAT+OyvovZANje66tSCAEGIgemiyUQMaLI9aeDEV+kL9PFLwhR5UANZS0zfUt+sXIBXmbz
+	hrnzeSo+fGSDTtHgjm2RQj4eK2ZNE0vTbDBYEEMnU4BfI3xO7lzNJ4myg4tAHIlQZXjMST2/t0H
+	o2Jd2NzOeaTdfFZxFAWgnNGCHvqMGfy9OSyitg5b0sSq49w/hcMHQH+kj6vQO6D8Ctuwy2ijPd7
+	IuBtZlqNYMf201zDDf/uGLLeA79ocoUGMrpVf4t3PgqZM8JLtwq5cBGQ1hbZ47nOFQax/ySsXB8
+	VyXyy568vn65DLk8Lpas3EMGpcYPU1kPUcNqgPIPhSoOLLuXya/DNwSK8HcxBjK1fsDPwc1WMEU
+	lWMyacK4V/OQDFuTblCtTWJpX0l8/FHE/GULB4lvYB8KM0672mUv5/gPJNCwi31DgbYTqSMdrLn
+	I8ZXmj6P45UcK8Gls87xhEhgKzI7w==
+X-Received: by 2002:a05:6a21:e8c:b0:3c6:3c5b:f2e1 with SMTP id adf61e73a8af0-3cc71d8de4dmr12228753637.32.1786767957642;
+        Fri, 14 Aug 2026 21:25:57 -0700 (PDT)
+Received: from google.com ([2a00:79e0:2ebe:8:e0b1:a24a:3d2a:2ee9])
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1413889d914sm15328044c88.13.2026.08.14.21.25.56
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 14 Aug 2026 21:25:56 -0700 (PDT)
+Date: Fri, 14 Aug 2026 21:25:54 -0700
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+Subject: [git pull] Input updates for v7.2-rc7
+Message-ID: <an_qS8vOe05Vhcaa@google.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Date: Sat, 15 Aug 2026 00:42:40 +0000 (UTC)
-X-CM-Envelope: MS4xfHF7PoVelKQNVpgYwJwKsRbtshPavORooC9iaHbKTqHDbaDZWM0BOwN9SoOIaxPuEuO7w7NpmruUBpxy5cVU67d3mGesR9tkR0gCZK+ROXLrltmw3ToJ His5lypjVA0l/ND8jAjYkNkGoLkOWZH4BIilqABqBkTD0V/r5BC/XSkwUe3O8FXqmH+F7cHY4654SYDDS6/c1YOvN8y+EaSxSnV1t4VOp0fujOO6ZtBl9ln3 lnQJ9IcEbDG4vur1fsRtoiGHc0W6raUDaEc3q/PaeSOmCXX1SPzyDh5cEnwTMRIvnj4TwDAvn4bM3hHxhvFn7agGEI23oz10gpfmdCaU+llPw6Ca/5/P1k95 p/43IjgwpPs4E9Kne0kNrjotaLBsBo+INd9/ygwqYRnltgMZ/j4Wzd+ExTLu/+d/C2M49Oz4
-X-CM-Analysis: v=2.4 cv=V5Av0vni c=1 sm=1 tr=0 ts=6a7fb602 a=bXe6bw2OB92olpQ1pPvang==:617 a=xqWC_Br6kY4A:10 a=0--Fi8ekQfCFXZ83AN0A:9
-X-AuthUser: admin@laserology.net
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Hi Dmitry,
+Hi Linus,
 
-On Thu, Aug 14, 2026 at 07:13:00PM +0000, Dmitry Torokhov wrote:
-> I have not looked at the implementation yet, just a high-level question:
->
-> What devices need this? Can they work in SMbus/RMI4 mode instead (which
-> should alleviate bandwidth concerns)?
+Please pull from:
 
-The target devices are ThinkPad T14/P14s Gen 1/2-class Synaptics pass-through touchpads. The primary test hardware is a ThinkPad T14 Gen 1 (AMD), whose touchpad reports firmware id LEN2064 and whose TrackPoint is an Elan PS/2 device connected through the touchpad's pass-through port.
+	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git tags/input-for-v7.2-rc7
 
-On this device SMBus/RMI4 is not a viable alternative. Even with psmouse.synaptics_intertouch=1 forced and the touchpad re-probed, it stays in PS/2 mode (no RMI4 device is created). The touchpad's own bandwidth isn't problem; it reports at 75-85 Hz in both modes. The bottleneck is specifically the TrackPoint: behind the pass-through port it is serviced at only 35-40 Hz, but with transparent mode enabled it reaches 75-110 Hz. The exact peak rate may vary by model, but the improvement should be consistently positive.
+to receive updates for the input subsystem. You will get:
 
-The transparent pass-through mode addresses exactly that PS/2 pass-through bottleneck by relaying the guest's raw byte stream directly instead of encapsulating it.
+- A couple of fixes to the sur40 touchscreen driver to correct
+  registration and teardown ordering, and to fix error path unwinding
+  when video device registration fails.
 
-I'll follow up with a v6 that also reduces the mode-switch latency by avoiding the ACK-waiting ps2_command() calls on the escape sequence; I will send it as soon as I have tested it.
+Changelog:
+---------
 
-Thanks, Evan
+Dmitry Torokhov (2):
+      Input: sur40 - fix input device registration ordering
+      Input: sur40 - fix V4L error path cleanup
+
+Diffstat:
+--------
+
+ drivers/input/touchscreen/sur40.c | 23 +++++++++++++----------
+ 1 file changed, 13 insertions(+), 10 deletions(-)
+
+Thanks.
+
+
+-- 
+Dmitry

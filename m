@@ -1,117 +1,93 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.19])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 73338388E68
-	for <linux-input@vger.kernel.org>; Sat, 15 Aug 2026 23:47:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C69C8331EB0
+	for <linux-input@vger.kernel.org>; Sat, 15 Aug 2026 23:58:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.19
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786837670; cv=none; b=UiDkg9jp/wzqsy3WA0y2cXdoJOtvTn1Pt2/dAly7oSkY46k4EMmI7OvePASWGmT1Tx7bbu6SLCj0HfaoiKP+R8x5r/TZGhkYEybqDgGSzdG+wq8OPX4lXONk66lHvZ0HOb2OLueVP5S1EeQYidQMdoZZsbwZpVh6Z4chj/HnsGM=
+	t=1786838296; cv=none; b=EEC5dZyS8JTZbThcU8IEzdIacDKu7D+AASnHgPwNQg6+bUFemv6bvpm8ctTUSfs+Uidu9bFgpuby0i/Dq0WdhCmWIFKwFpSqAyWYxc6orliVe/cufogasvwHkqOnDoXq5zOtUUX0ORSOY2rfSUg//0v1Hx2iUdzxZDmytw0PWFE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786837670; c=relaxed/simple;
-	bh=MI8xYUSH+4TS/Ex2x1SBiLWLNGt7RnD/gcGbvBj2Uao=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=MoL9089Ww7lhaLRiJkbukIoXI/OCbNUCAmIQH8omvHC1Ddbe06mpYTS+RDBd9+HPeh/ANfn/ULfz1sJDPoqtsL/nkDMdfsoIpKVPtH9VYtLppvn1Lyamm8/uhZWBGP5eH3OzQfT4z9rHZh4xmAI6cxsOshozn9Wq5l2cThZYm1c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=V1YF/Cmu; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1786838296; c=relaxed/simple;
+	bh=tdPeeP96/nN7AErlQXIrSGiL8pqeR+ZZkAfKxKZEMWM=;
+	h=Date:From:To:Cc:Subject:Message-ID; b=YGGKHy3X20ZXtobpL25rLZwWc+njSTzJaqKjuWBw2J0CHI49YxKDE6JWGcMDdcI/X3XBfaJlSHfVls5tHBFb49uhlDjBYv1C6M2ajd0HXpvFk1NXvTj7g88zJ0moJqmkf4SHfj9DYKjjc6bhPgmJwVuGotxYWXczKIx4deoPTlE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=ck8PPIT/; arc=none smtp.client-ip=198.175.65.19
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="V1YF/Cmu"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA7AE1F000E9;
-	Sat, 15 Aug 2026 23:47:48 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786837669;
-	bh=PjJI4KUNqzd64s+FIEYpqpUPvIGiBBhY3KMhzOEYS60=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=V1YF/CmuIlBerpt8+sg25/vITzJYb2K3QWMoCzJYrPuby0hmfrEfS56gA7P+fcXCA
-	 So6SA3gen04ToaJycD3yxbUMtsMSPDMFRO/6MyVNi9Q63Kl/ErKjuRzB/PO9U5YKxN
-	 upTmYPytJe2PPdu6A0GRsh3t+OLxDRIsKuErcLkYetg0trvZ7kj76FzS9s/Xn6Sgkt
-	 D4NX2J5MJZcAxrluyqDos0gqQj7xeQw/wWKgfBRBAP7yIY78fEU6+Um0dkbUSovEuD
-	 WsWofBOXifmJGwMjIROYYE3bSqGo3kPZAHc0dZEHrqvFlRfJQGXdFYZMRZ9lf1TG5U
-	 0CVTxiK1A+o2Q==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v5] HID: pulsar: add driver for Pulsar gaming mice
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Nikolas Koesling" <nikolas@koesling.info>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260815233240.95981-1-nikolas@koesling.info>
-References: <20260815233240.95981-1-nikolas@koesling.info>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Sat, 15 Aug 2026 23:47:48 +0000
-Message-Id: <20260815234748.DA7AE1F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="ck8PPIT/"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1786838295; x=1818374295;
+  h=date:from:to:cc:subject:message-id;
+  bh=tdPeeP96/nN7AErlQXIrSGiL8pqeR+ZZkAfKxKZEMWM=;
+  b=ck8PPIT/AL9y/+8Ud7x+o3607ApjDPprvAZbmQ/E+hME+uhFzYRu+IDe
+   MQXhIu+8x3/Sca6EfmHGNDG+kL0i0SQ3whcTuenGywYdjkrFy7eme/Z8N
+   prlaiQ/yIFc6FM550cJDIGjCpsd6Iq2GS7+nD4+64cKRgwj+T5+L0O3qA
+   hM6RLbXrCSjfDobHPXkl8oACdlOwFdeRNm9umvEeUKXoGNCjPRSQa0dEe
+   EpCCZZK2me7RwCGxrohezQh4vVUjAlKkQv/zvvK5DIkOH3RmeB0wrbV9D
+   4zgbkXtMzdrPsGF9buvxX/s31wvESzVNDrbu5Iis8wD5X6iGqgym+UxDo
+   g==;
+X-CSE-ConnectionGUID: 1zsnGbGgQjGcdf4uPYRPGA==
+X-CSE-MsgGUID: R1hRQoztRf6YK9LrAgq/eQ==
+X-IronPort-AV: E=McAfee;i="6800,10657,11876"; a="87286822"
+X-IronPort-AV: E=Sophos;i="6.25,226,1779174000"; 
+   d="scan'208";a="87286822"
+Received: from fmviesa008.fm.intel.com ([10.60.135.148])
+  by orvoesa111.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 15 Aug 2026 16:58:14 -0700
+X-CSE-ConnectionGUID: p5MKi/i/RKSIbw1aIanmzw==
+X-CSE-MsgGUID: cckhBQHjSKCwYcmUWAxPsw==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.25,226,1779174000"; 
+   d="scan'208";a="261910038"
+Received: from lkp-server01.sh.intel.com (HELO 6eda058d650d) ([10.239.97.150])
+  by fmviesa008.fm.intel.com with ESMTP; 15 Aug 2026 16:58:12 -0700
+Received: from kbuild by 6eda058d650d with local (Exim 4.98.2)
+	(envelope-from <lkp@intel.com>)
+	id 1wvOGQ-00000000cX4-0ny0;
+	Sat, 15 Aug 2026 23:58:10 +0000
+Date: Sun, 16 Aug 2026 07:58:09 +0800
+From: kernel test robot <lkp@intel.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
+Subject: [dtor-input:master] BUILD SUCCESS
+ 9a29ee801f525bcad71fea021bfe2a030885c8df
+Message-ID: <202608160757.ceE0fxQK-lkp@intel.com>
+User-Agent: s-nail v14.9.25
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
-- [Medium] Mismatch between vendor and device IDs in `pulsar_table` prevent=
-ing binding for ATK VXE R1 SE+.
+tree/branch: https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git master
+branch HEAD: 9a29ee801f525bcad71fea021bfe2a030885c8df  Input: rmi4 - use platform data instead of query, when available
+
+elapsed time: 770m
+
+configs tested: 16
+configs skipped: 2
+
+The following configs have been built successfully.
+More configs may be tested in the coming days.
+
+tested configs:
+alpha            allnoconfig    gcc-16.1.0
+alpha           allyesconfig    gcc-16.1.0
+alpha              defconfig    gcc-16.1.0
+arc             allmodconfig    gcc-16.1.0
+arc             allyesconfig    gcc-16.1.0
+csky            allmodconfig    gcc-16.1.0
+i386            allmodconfig    gcc-14
+loongarch          defconfig    clang-24
+nios2           allmodconfig    gcc-11.5.0
+nios2            allnoconfig    gcc-11.5.0
+parisc          allmodconfig    gcc-16.1.0
+parisc          allyesconfig    gcc-16.1.0
+parisc             defconfig    gcc-16.1.0
+powerpc     bamboo_defconfig    clang-21
+sh                 defconfig    gcc-16.1.0
+sh         rsk7264_defconfig    gcc-16.1.0
+
 --
-
---- Patch [1]: [PATCH v5] HID: pulsar: add driver for Pulsar gaming mice ---
-commit 77c96d32e01f202616edca1e5d0c2f9591dce152
-Author: Nikolas Koesling <nikolas@koesling.info>
-Date:   Sat Aug 15 23:32:40 2026 +0000
-
-    HID: pulsar: add driver for Pulsar gaming mice
-   =20
-Add a HID driver for Pulsar wireless gaming mice and related devices.
-The driver provides battery level, voltage, and charging status via the
-power supply framework.
-
-> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-> index 1059922baaacd..7a73fda02a0f2 100644
-> --- a/drivers/hid/hid-ids.h
-> +++ b/drivers/hid/hid-ids.h
-> @@ -251,6 +251,12 @@
->  #define USB_VENDOR_ID_ATMEL_V_USB	0x16c0
->  #define USB_DEVICE_ID_ATMEL_V_USB	0x05df
-> =20
-> +#define USB_VENDOR_ID_ATK	0x373B
-> +#define USB_DEVICE_ID_ATK_VXE_R1_SE_WIRED	0xF58F
-> +
-> +#define USB_VENDOR_ID_ATK_ALT		0x3554
-> +#define USB_DEVICE_ID_ATK_VXE_R1_SE_DONGLE	0x1085
-
-[ ... ]
-
-> diff --git a/drivers/hid/hid-pulsar.c b/drivers/hid/hid-pulsar.c
-> new file mode 100644
-> index 0000000000000..b90284a00776a
-> --- /dev/null
-> +++ b/drivers/hid/hid-pulsar.c
-
-[ ... ]
-
-> +static const struct hid_device_id pulsar_table[] =3D {
-
-[ ... ]
-
-> +	{ HID_USB_DEVICE(USB_VENDOR_ID_KYSONA, USB_DEVICE_ID_KYSONA_M600_WIRED),
-> +	  .driver_data =3D TYPE_KYSONA },
-> +	{ HID_USB_DEVICE(USB_VENDOR_ID_ATK, USB_DEVICE_ID_ATK_VXE_R1_SE_DONGLE),
-> +	  .driver_data =3D TYPE_ATK },
-> +	{ HID_USB_DEVICE(USB_VENDOR_ID_ATK_ALT, USB_DEVICE_ID_ATK_VXE_R1_SE_WIR=
-ED),
-> +	  .driver_data =3D TYPE_ATK },
-
-[Severity: Medium]
-Are the vendor and device IDs for the ATK VXE R1 SE+ swapped here compared
-to their definitions?
-
-In hid-ids.h, USB_VENDOR_ID_ATK is grouped with the WIRED device ID, and
-USB_VENDOR_ID_ATK_ALT is grouped with the DONGLE device ID. However,
-pulsar_table assigns the DONGLE ID to the regular vendor ID and the
-WIRED ID to the ALT vendor ID.
-
-Could this prevent the driver from properly binding to the ATK VXE R1 SE+
-hardware?
-
-> +	{ HID_USB_DEVICE(USB_VENDOR_ID_VXE, USB_DEVICE_ID_VXE_DRAGONFLY_R1_PRO_=
-DONGLE),
-> +	  .driver_data =3D TYPE_VXE },
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260815233240.9598=
-1-1-nikolas@koesling.info?part=3D1
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki

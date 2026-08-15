@@ -1,233 +1,111 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from out203-205-221-242.mail.qq.com (out203-205-221-242.mail.qq.com [203.205.221.242])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 176F73DDDCB
-	for <linux-input@vger.kernel.org>; Sat, 15 Aug 2026 12:30:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B9F1532B13F
+	for <linux-input@vger.kernel.org>; Sat, 15 Aug 2026 15:19:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=203.205.221.242
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786797060; cv=none; b=RhBbRNQplunqLm9Yq60A/WM20ElkL3v0yVPT2hRAYVu0XEs6TV/c29UWv45dzkVE25JKFZsVsPqcSfi/SymdipA+PQ5VLRCwRxjT2729JCRTXKcqcjfg1XCzJt+OE2Orp+opEvMCAD2qAK2+NlDCqhyDebjrX2t65xq1AWY6vZk=
+	t=1786807175; cv=none; b=KIxVvI1afdFJdeLkcglaGQpyjiOi96VhSnr099FnKL3I9Tu4DkwNgszGdx3YlLivSIB0VTL05bK4M3rrgdWI2rk3Sn5a5ed+LVYQzPHWFMLRXNt1ze5o1gvadQ8wS4IOlXLrsuNKZWPB8xOR2ms0ma+jMqaK3duKJT3aook6m9M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786797060; c=relaxed/simple;
-	bh=Jn3wd9Ecsl6AgonhMbeu+tKI/4iW8XYVdwaQQkg75QM=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=ZRnM7M/42KsMYd9qzOUD8w3fuA3pwMXcwuurrvPmtDKiBmAQH36wgsN+YM2PVw7QYbWJnSFEA4gc9Sin58LRKNNE8N814U01sKuDsWc9236caNnEkolmybZ30wU0Nhjigdq4bPI+dgPgphQwKp1S3KqSTOSezB0LN3TZAyxnouY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=OpdCPMt8; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1786807175; c=relaxed/simple;
+	bh=ce3MoDInA8VGW6if8f8/Fl5DlRI7FiX8aH1MFUhEPQI=;
+	h=Message-ID:From:To:Cc:Subject; b=QSPv1+OqP9/kh6TW1mmF+u/c22jLDIQZW+Jy8I639LsWAiIH6useI/UdCO1Ein1JKSxLPj45YW+ah9e+NvAz2l+qhiyTcMISMy8xvbWRo7vStnQRbGD0FbkiepPzS4Ae3VInP3Z3dFh+1euoJ8cFcfeuUye5qR86awPR0DqlCng=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=qq.com; spf=pass smtp.mailfrom=qq.com; dkim=pass (1024-bit key) header.d=qq.com header.i=@qq.com header.b=lkq+gimi; arc=none smtp.client-ip=203.205.221.242
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=qq.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=qq.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="OpdCPMt8"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 635331F00A3A;
-	Sat, 15 Aug 2026 12:30:58 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786797058;
-	bh=fcuExkjWHCX6CGk6noiFDwsT+xTqU/xcHY/W8YZY7GE=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=OpdCPMt8zPYjUJtXY9ohciMBxKASr/iYr0SiTD0uJZmhv33uTh9eXD185xYZ6kWu9
-	 iVQ7JCbCAw/m5291bXMohMn0KARWpG+EZfC1QWA93PC/D6/gonkiWwigNCGdmrhATC
-	 /WqrG/+wN870ukp0qOu9wBVTK2ZkNbGNbXYzLfIhS2WKDVYhf+lPYuWao2ih/DN96y
-	 b5mc4JzR1YXASI8c1mx+wZGBl+YXt8vyT+isVM5FDZoHjH5Rz04D7rP2/My9UBXM6A
-	 4BmdhsKVyuWgght/ilrCq8XTXSuLUhQ5BUp0OiyzQRVenjlgb0oTptu+sLkuOj0/Hb
-	 Q221toQubTKGQ==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] HID: amd_sfh: Validate BAR 2 as memory-mapped I/O in
- probe
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Preetam Sundar Das" <daspreetam4@gmail.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260815121938.1337631-1-daspreetam4@gmail.com>
-References: <20260815121938.1337631-1-daspreetam4@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Sat, 15 Aug 2026 12:30:57 +0000
-Message-Id: <20260815123058.635331F00A3A@smtp.kernel.org>
+	dkim=pass (1024-bit key) header.d=qq.com header.i=@qq.com header.b="lkq+gimi"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qq.com; s=s201512;
+	t=1786807170; bh=dDsM7R9j//8/j7ajILCgF6dLfCHrpUPp1q13gAvUUFU=;
+	h=From:To:Cc:Subject;
+	b=lkq+gimitgKOKP25WKGRWDCoOD3RB3tzF+SuP41rvF9QZLPEkWR9R6lDXW3jgRgXh
+	 TDW9GuNKXCwnLUu/7aio2wyE99BlwIJw0w+rESkNATpvDpnJTO+Mo6dMW2cx+03GJE
+	 D6IhW/45s0myzXw2gqxOQWgDlklHU5chNjJPfNZg=
+Received: from [127.0.0.1] ([120.204.213.10])
+	by newxmesmtplogicsvrsza63-0.qq.com (NewEsmtp) with SMTP
+	id 4DC2B2DF; Sat, 15 Aug 2026 23:19:28 +0800
+X-QQ-mid: xmsmtpt1786807168t4bgcnygd
+Message-ID: <tencent_DBBAC19E701BEFF670746186D3C6B4CA1D06@qq.com>
+X-QQ-XMAILINFO: MhK4DKsBP06iLlIb9Y76qw5Ev8Y9rmFRYgqzTVJIsOQBD6Kf1+VuiNEOQJBW7b
+	 h90JqKiGHAMEs6JgpJhGKx1YH/cFuVjKymEhAw0wL49NHPNQhJoi+MC//nk53dWcnuDhh77YaYsh
+	 mT1evQazbhExOxeB2r4V0r3d9RtpNLNX7LXEK+4PwhIeP6VTtIHu7mbbenVzf/X6jhQfLqqx6DGE
+	 H1mzmWtDWhCjt9ji1nsBxcO2m9QsEGoddaghwHkRzFRc1lYAsPBV4aTJMnV50Ghh5af8L8JczH/a
+	 gNXN5IULaTFbpxbNZUyI9mOwtv0Vh89QwmGi97Lr5DHU7QUwjpiSr1kJMZF2NVCSV9IEXLWHA0Dx
+	 7IeOF2fSoiQ6lBggEFXLNyBhbh6j/vnb7Bfc611vrQSTgtfmNKkLPoDiOe6gcbOVD/5ycLFnazNS
+	 Jxt22oOGsvyhyhLWp1VHikjTG1uwT4M6qG84m92O6HyUa/KP0HrxRYJ2li/zUPwgCImp35BYxePT
+	 me9+UP0IJ6qeeIM+clWUK3xOr5lFxt7H2A5PZC/vo4c7K0mn5357DO6kK1H2uA2yznWmgV1wvHDO
+	 W9CICe/iUYLg9Bsb0n3ly6X5JaKCFWnCEVb/Amp0pN1Fxb+Va3orS6ER1oV0WNw/cQJS0QmHcqnn
+	 aq1ORBxpopZWa9kSU38XohSEQvyk2Dvv4sDooKfg6foifVAHdVvOSc3JCO0+iym/XnSyjatkFVe5
+	 fvcb64W0ykfehL3R6SYTrbSHr0PFECmYQKIDMYMVpFzwDLP096MSphZydOjeiwieEHdcrRQJYmN+
+	 RejyngEODX7HRqUqj9fRCwZOvC61ggH7I8tA2dsMtQb5AjPkwfRx47dox4YY0aQsGrDQWIZ3xhlj
+	 ss44PmWWp20F4C/vUi+J1kpL3AT6KmgMop1UAYrXFMowhysWO3u78yemplwsjm2WoORGeKZE/C26
+	 gK53QHsPZghXzIctW4k4B6DKDmN7L/gp8sif8H8+4I0G3gSvPERbMMYFDclCEQFFdAdRgkjshRTk
+	 vqarVBAaE3E1GH7e6v
+X-QQ-XMRINFO: NyFYKkN4Ny6FuXrnB5Ye7Aabb3ujjtK+gg==
+From: Qiao Ruihao <qiaoruihao20061203@qq.com>
+To: linux-input@vger.kernel.org
+Cc: even.xu@intel.com, xinpeng.sun@intel.com
+Subject: [BUG] intel-quickspi: touchscreen DMA write timeout (Goodix 27C6:012D) on Lenovo YOGA Pro 16 IAH10
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 7 potential issue(=
-s) to consider:
+Hello,
 
-Pre-existing issues:
-- [High] Race condition in driver teardown allows Use-After-Free of the HID=
- device.
-- [High] Missing `list_empty` check in `amd_sfh_work` leads to out-of-bound=
-s access.
-- [High] Missing BAR length validation leaves the driver vulnerable to out-=
-of-bounds MMIO accesses.
-- [High] Double Free and Use-After-Free due to dangling pointer on `hid_add=
-_device()` failure.
-- [Medium] Missing `dev.parent` initialization before registering the HID d=
-evice.
-- [Medium] Unsafe input reporting API used (`hid_input_report`).
-- [Medium] Memory leak of pending `req_list` requests during driver unbind.
---
+The touchscreen on my Lenovo YOGA Pro 16 IAH10 does not work under
+Linux. The intel-quickspi driver detects the device, but the
+feature-report fetch (GET_REPORT) fails with a TxDMA write timeout,
+which makes hid-multitouch fail initialization and fall back to a
+generic keyboard, so the screen does not respond to any touch input.
 
---- Patch [1]: [PATCH] HID: amd_sfh: Validate BAR 2 as memory-mapped I/O in=
- probe ---
-commit 9791ab9939f2a4ad3dfd9fdb427437ececbde787
-Author: Preetam Sundar Das <daspreetam4@gmail.com>
+The touchscreen works correctly under Windows 11 on the same hardware.
 
-HID: amd_sfh: Validate BAR 2 as memory-mapped I/O in probe
+## Hardware
 
-Syzbot reported a page fault in amd_mp2_pci_probe(). The fuzzer creates
-a malicious PCI device where BAR 2 is defined as an I/O port rather
-than a memory-mapped I/O (MMIO) region.
+  - Laptop: Lenovo YOGA Pro 16 IAH10 (MT 83L0)
+  - CPU: Intel Arrow Lake-H
+  - Touchscreen: Goodix 27C6:012D, connected via Intel THC QuickSPI
+  - THC controller: 00:10.0 Digitizer Pen [8086:7749] (rev 03),
+    subsystem Lenovo [17aa:3815]
 
-Closes: https://syzkaller.appspot.com/bug?id=3D227a9acbe565367eb7a1277b4711=
-5df8706d9a12
+## Software
 
-> diff --git a/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c b/drivers/hid/amd-sfh=
--hid/amd_sfh_pcie.c
-> index 4b81cebdc3359..aef105a815701 100644
-> --- a/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c
-> +++ b/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c
-> @@ -451,6 +451,9 @@ static int amd_mp2_pci_probe(struct pci_dev *pdev, co=
-nst struct pci_device_id *i
->  	if (rc)
->  		return rc;
-> =20
-> +	if (!(pci_resource_flags(pdev, 2) & IORESOURCE_MEM))
-> +		return -EINVAL;
-> +
+  - Kernel: 7.0.14-070014-generic
+    (also reproduced on 6.19.14-061914-generic)
+  - Distro: Ubuntu 22.04.5 LTS
 
-[Severity: High]
-This isn't a bug introduced by this patch, but does this check also need to
-validate the length of the BAR using pci_resource_len()?
+## Problem
 
-If a malicious device advertises a very small MMIO BAR, the driver
-unconditionally accesses high register offsets, like AMD_P2C_MSG3 at 0x1068C
-inside mp2_select_ops():
+At boot the device is detected (reset + device descriptor read
+succeed), but then hid-multitouch fails to fetch its feature reports
+because every GET_REPORT command sent over TxDMA times out.
 
-    privdata->mp2_acs =3D readl(privdata->mmio + AMD_P2C_MSG3);
+## Relevant kernel log
 
-Could this still trigger an out-of-bounds access if the length isn't verifi=
-ed
-before mapping?
+  intel_quickspi 0000:00:10.0: Can't find wake GPIO resource
+  ACPI: \_SB.PC00.THC0._RST: Excess arguments - Caller passed 1, ACPI requires 0
+  input: quickspi-hid 27C6:012D Touchscreen as /devices/pci0000:00/0000:00:10.0/0001:27C6:012D.0002/input/input7
+  intel_quickspi 0000:00:10.0: Wait Get Report Response timeout, ret:0
+  hid-multitouch 0001:27C6:012D.0002: failed to fetch feature 2
+  intel_quickspi 0000:00:10.0: timeout for waiting TxDMA completion
+  intel_quickspi 0000:00:10.0: DMA write failed, ret = -110
+  intel_quickspi 0000:00:10.0: Write GET_REPORT command failed, ret = -110
+  hid-multitouch 0001:27C6:012D.0002: failed to fetch feature 3
+  hid-multitouch 0001:27C6:012D.0002: input,hidraw1: <UNKNOWN> HID v8.65 Keyboard [quickspi-hid 27C6:012D]
 
->  	rc =3D pcim_iomap_regions(pdev, BIT(2), DRIVER_NAME);
->  	if (rc)
->  		return rc;
+## Analysis
 
-[Severity: Medium]
-This is a pre-existing issue, but is it necessary for amdtp_hid_probe()
-to initialize the parent device before registering the HID device?
+The reset (acpi_tic_reset via _RST) and device-descriptor read
+succeed, so the SPI link and interrupt path partially work. The
+failure is specific to quickspi_get_report() ->
+write_cmd_to_txdma() -> thc_dma_write(): the TxDMA transfer never
+completes (write_done is never set, 1s timeout -> -ETIMEDOUT).
 
-drivers/hid/amd-sfh-hid/amd_sfh_hid.c:amdtp_hid_probe() {
-    hid =3D hid_allocate_device();
-    ...
-    rc =3D hid_add_device(hid);
-}
+I would be happy to provide additional information (full dmesg, ACPI
+tables, register dumps) or test patches.
 
-The HID subsystem requires low-level transport drivers to fully initialize
-the hid_device fields, including dev.parent, before calling hid_add_device(=
-).
-Leaving it uninitialized can break the sysfs device hierarchy and place the
-device in the virtual root.
+Thanks,
+Qiao Ruihao
 
-[Severity: Medium]
-This is a pre-existing issue, but should amd_sfh_work() be using the safe
-input reporting API instead?
-
-drivers/hid/amd-sfh-hid/amd_sfh_client.c:amd_sfh_work() {
-    ...
-    hid_input_report(cli_data->hid_sensor_hubs[current_index],
-                     cli_data->report_type[current_index],
-                     cli_data->feature_report[current_index],
-                     report_size, 0);
-}
-
-The HID subsystem guidelines recommend preferring hid_safe_input_report()
-over hid_input_report(). Using hid_input_report() bypasses boundary checks
-against the allocated buffer size, which might lead to out-of-bounds reads
-if malformed reports are received.
-
-[Severity: High]
-This isn't a bug introduced by this patch, but could the driver teardown
-sequence allow a use-after-free?
-
-In drivers/hid/amd-sfh-hid/amd_sfh_client.c:amd_sfh_hid_client_deinit():
-
-    cancel_delayed_work_sync(&cl_data->work);
-    cancel_delayed_work_sync(&cl_data->work_buffer);
-    amdtp_hid_remove(cl_data);
-
-The workers are cancelled before amdtp_hid_remove() unregisters and frees
-the hid device. Since the device is still active during the cancellation,
-userspace could issue an ioctl triggering amd_sfh_get_report(), which
-would re-arm the delayed work:
-
-    schedule_delayed_work(&cli_data->work, 0);
-
-When this work executes later, could it dereference the already freed
-cli_data->hid_sensor_hubs array entry? Should the device be unregistered
-before the workers are cancelled?
-
-[Severity: High]
-This is a pre-existing issue, but might amd_sfh_work() trigger out-of-bounds
-accesses by blindly accessing the request list without verifying it is empt=
-y?
-
-In drivers/hid/amd-sfh-hid/amd_sfh_client.c:amd_sfh_get_report(), the work
-is unconditionally scheduled even if no request was added to the list:
-
-    schedule_delayed_work(&cli_data->work, 0);
-    return 0;
-
-Then in amd_sfh_work():
-
-    req_node =3D list_last_entry(&req_list->list, struct request_list, list=
-);
-    list_del(&req_node->list);
-
-If the work is scheduled but the list is empty, could this lead to list
-corruption and invalid memory accesses?
-
-[Severity: High]
-This isn't a bug introduced by this patch, but will a failure in
-hid_add_device() result in a double free?
-
-In drivers/hid/amd-sfh-hid/amd_sfh_hid.c:amdtp_hid_probe(), the array
-entry is populated before registration:
-
-    cli_data->hid_sensor_hubs[cur_hid_dev] =3D hid;
-    ...
-err_hid_device:
-    kfree(hid_data);
-err_hid_data:
-    hid_destroy_device(hid);
-
-The error path destroys the device and frees hid_data, but does not
-clear the pointer from the array. This failure propagates up to
-amd_sfh_hid_client_init(), which jumps to cleanup and calls
-amd_sfh_hid_client_deinit(). That triggers amdtp_hid_remove():
-
-    if (cli_data->hid_sensor_hubs[i]) {
-        hid_data =3D cli_data->hid_sensor_hubs[i]->driver_data;
-        hid_destroy_device(cli_data->hid_sensor_hubs[i]);
-        kfree(hid_data);
-    }
-
-Could this see the non-NULL dangling pointer, read hid->driver_data,
-and call hid_destroy_device() and kfree() on already-freed objects?
-
-[Severity: Medium]
-This is a pre-existing issue, but what happens to pending requests in
-amd_sfh_hid_client_deinit()?
-
-When handling GET_REPORT, amd_sfh_get_report() dynamically allocates
-request_list nodes and adds them to req_list->list. If the driver is
-unbound while there are unprocessed requests:
-
-drivers/hid/amd-sfh-hid/amd_sfh_client.c:amd_sfh_hid_client_deinit() {
-    ...
-    cancel_delayed_work_sync(&cl_data->work);
-    cancel_delayed_work_sync(&cl_data->work_buffer);
-    amdtp_hid_remove(cl_data);
-}
-
-The worker threads are cancelled, but the queue is never drained. Will
-this permanently leak any orphaned allocations on device teardown?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260815121938.1337=
-631-1-daspreetam4@gmail.com?part=3D1

@@ -1,111 +1,120 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.17])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f171.google.com (mail-pl1-f171.google.com [209.85.214.171])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DBF563A6405;
-	Sat, 15 Aug 2026 10:29:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.17
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B31F527442
+	for <linux-input@vger.kernel.org>; Sat, 15 Aug 2026 12:19:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.171
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786789775; cv=none; b=pBBQeVONAWEVVaMs2hvkgj5rqe8z5IwDDJm3qwO0kdLnu314TT5yddDrjTw4CEU5XHWO7Sm1r3EPrAP7YpFs4/sc+F5IRco+hbhPti8QsFVIpQns1XG+HAHtdhkHhld23JMHGETes1XNUK/aBSFgM2opDJbdKc9db8Z+ZS+QlSc=
+	t=1786796393; cv=none; b=D6fDKcrRSmc7kZEo15Tlzv9JDfTXOOrW3JSnu79Sg6o7Yd0pKTIOU3cAVsxxhgubbOlGywgX8o6dwC7y+ay8qVB3qNVduv3JAssOCdtH1bjISNBrPsXwP6ytn/ShqorvpR1YwUZuK54jihf4HTRVa0oXnJ5/TvOZoww5bLdYvUQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786789775; c=relaxed/simple;
-	bh=Bs+OmwzydiB2X75Lc87OjijEgk4lOEtL6PdvjN4LD10=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=JYS8oQDmUY4V2xSY4HoBt4JZlhRu+pZgEA/QdWEyKZW6lNnJsc1U08+4EDfgO4p4Sm3uQHFosm6GVs23w5lu4RjhQFGu2D1g/f82eYl1WWml/yCVPkS9rk41QUR7hU7XOVB2gyfLXn/YfR23+QW6bNfrWvgbo8UuWvzhRKJF9IE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=lml8DAbX; arc=none smtp.client-ip=198.175.65.17
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1786796393; c=relaxed/simple;
+	bh=7i+/3TcBf6avYUiAp4t6U4j/bmQDZJteti4icqAN1sY=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=dSyeuiw3uydn7cR3fE6HkrOrWDbmVLmZ85lJkSpAk/mkxfllcokBHGUZBTFHfC29k6V6Er7Jzir0l9dwwigUU4pUnb/KXiyE4zgKXjaOYvOO7+DODKpI78e0BDCZku+YLCXYJEwIx9XV1liNAcZ93hkgT+LhLjCGvJZXGa70baM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=kWzhidFL; arc=none smtp.client-ip=209.85.214.171
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="lml8DAbX"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1786789773; x=1818325773;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=Bs+OmwzydiB2X75Lc87OjijEgk4lOEtL6PdvjN4LD10=;
-  b=lml8DAbXEOkDtauG17jAWzfeB9K5iU4LN3FZkRBaD3e+lGLnYbSL/VXv
-   t05m1EALZ6g8u6X7J/1b9Xdvp+0SL97IYphEHgzhQnzUlNHYDw6LexWTE
-   58z2Z1HKpgmOIUWi+IXMe/BDEULqWlbK0k9AxX+V97s6/kdMGNCo0N+F1
-   Ov8kqCHeejYAvf4x3dwnn0km6sCyXFSw6VEq31bRKfkMHg4mr8VBcyjmY
-   U4Aitp6psjZCEmcIUnhTirzL6GpCIUep0mqYAWoFsCcWV6FgSH6y2jK2W
-   ON8ra62iidg54ULUgjqgGXh6qEOg6HM9j+TukOKeVYBAWrk2F79m9XD0t
-   w==;
-X-CSE-ConnectionGUID: cM580KIkSXat40DDpKugfg==
-X-CSE-MsgGUID: qrO2PzgtS1aenSu1o4VPMQ==
-X-IronPort-AV: E=McAfee;i="6800,10657,11875"; a="87369550"
-X-IronPort-AV: E=Sophos;i="6.25,225,1779174000"; 
-   d="scan'208";a="87369550"
-Received: from orviesa008.jf.intel.com ([10.64.159.148])
-  by orvoesa109.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 15 Aug 2026 03:29:32 -0700
-X-CSE-ConnectionGUID: 2I1yTlCVRy2EUOGrFrsumw==
-X-CSE-MsgGUID: r49eXXSuTv2jTWlMQMc6Iw==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.25,225,1779174000"; 
-   d="scan'208";a="264009203"
-Received: from lkp-server01.sh.intel.com (HELO 6eda058d650d) ([10.239.97.150])
-  by orviesa008.jf.intel.com with ESMTP; 15 Aug 2026 03:29:31 -0700
-Received: from kbuild by 6eda058d650d with local (Exim 4.98.2)
-	(envelope-from <lkp@intel.com>)
-	id 1wvBdo-00000000blu-3tOb;
-	Sat, 15 Aug 2026 10:29:28 +0000
-Date: Sat, 15 Aug 2026 18:29:24 +0800
-From: kernel test robot <lkp@intel.com>
-To: VegetablCat <vegetablecat@foxmail.com>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: oe-kbuild-all@lists.linux.dev, linux-input@vger.kernel.org,
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="kWzhidFL"
+Received: by mail-pl1-f171.google.com with SMTP id d9443c01a7336-2cc61541f8cso37036835ad.0
+        for <linux-input@vger.kernel.org>; Sat, 15 Aug 2026 05:19:52 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1786796392; x=1787401192; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=fYKiND/4yRTYGLH8sZB7cPGenJ7H4gCyioObMoQH0I0=;
+        b=kWzhidFLmMgaDCGcDG1JUonkBoxggbfivZFkgumycA2MHtvsdUC+vx/T38QZMBDVrv
+         Kww3tEBcA1tWA6hnpIw17E3BKUrx4RmmwXP5UorFHKhYIFkCuzXK3BZqK8tGGWnGjjTt
+         /VRNaaPmYsBie9Sacvj6KVbIbCX6xy7KYAdF48q0S2bgf51CwD/R/iQcK6ahtnuMKL6n
+         amUnh6Q0IDKXVJoTHPqLFbVcUn7+9Wy7ElE2V31fwapg9zX8CHbtOlpiGlCdjY7ENsO0
+         kEoHZDvNtrH8LTs/SKAGg9edwlwoQ2lbz1DE1n6EaoXmJcXv4kSVCeaW1IPcsjMdHJ/B
+         zweQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1786796392; x=1787401192;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=fYKiND/4yRTYGLH8sZB7cPGenJ7H4gCyioObMoQH0I0=;
+        b=QpXw+q1Gd+2OEBjW9uDzWjeWIJ7UHz9DPjwcN2w3Zr+P38Pc5KPPe9X6yfczL6kPzq
+         ivDvpImYvRc3DBRpRKz5z1dZ+uZSYSjqOP2luQQFGzN8MQtcPJFUeGnxNTIHjFSbl3QC
+         OLR5Z5UrTXleN9pj7UUK/NqSX56TvpuHhHnx4brhuNNDSPahz6+uXefG0sxKcUF9xIIT
+         4qYUMBOKe0VMk6as1+s4ApBU1VW7/7Q/qeQrO/HHl5fi709o5lndhF+/8CyxcFFdluI7
+         OLWjfjlT2PTWEb/Ii+VQ5wRndubn9WXU3j/m2YkafdqHxTgiWdp5Gn60/uDETPF5Igwx
+         GZcw==
+X-Forwarded-Encrypted: i=1; AHgh+RqaW8tF/w64UQB145B3I8it+7SA8wn2QVeUmBeebmcVesItW16YyB+1NOec5LhO7d3gCCk1GyRLbrS4+w==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yz0UHKjWF7Tu9S9VKlavUXrv6Otb6KT3BfyNJs27s4ppRJEvbat
+	Vi6+9big8NFJouoRNvIie1VZ5l68f0/SVTRu24dkj6X5oQPWGL358Ydc
+X-Gm-Gg: AR+sD10gaFyyy47ZeFACNV/nm+NndTHzmm73056enfVrb5IRE0Pjq5WoSU+iL9X6vQX
+	DfwtSMTj1LPnpgHS9GvDM0/9SwcsgxuDloaT4Dm+uXpx9gB2M2lwp3u2fdSiTV4Um8cJ916PnKG
+	Z+n7qVzPGZisc+DvprkIV0p1rpCFTtmNz/L5sgc5xb23c6f+YNiDxNuTioyo67/0np6xpvVtLcc
+	QtCsLXnc7skRlsWD2PVQGPf9rz/SQ5L3VmatnKKUKg0fMDT4kAb3stqiOFkmIXRt2S7z5TZW76H
+	5rEoRaouSq9bEmEOu4QjhDYGWJMlW+dE3LhaA50CJ6dFPRzTyDaitwU41PkZXNXO3OOz/1V4n+P
+	p28skdMZZ9C3HXMqBkIAfiwDolKUhuFjvu0RQ1UEcANa9w1zQdTmxURMuYWyBVbLqi5kwjtWI/e
+	koVSHoat2jXEHgPb23RDfEt8m5/m4lTCEVNaNH/oOiSLmVwRjHfMnWy61kzcyjTGuKoFGiP0lmR
+	CvS1237Lhy3VltYxW0jTZ8UwQ==
+X-Received: by 2002:a17:903:1a0d:b0:2d2:72b6:556b with SMTP id d9443c01a7336-2d37f7b7ca7mr220930955ad.13.1786796391866;
+        Sat, 15 Aug 2026 05:19:51 -0700 (PDT)
+Received: from jets-psd.. ([2401:4900:c309:67d5:3081:64c9:1433:3be0])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-320c6be7f6fsm16961474eec.0.2026.08.15.05.19.44
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 15 Aug 2026 05:19:51 -0700 (PDT)
+From: Preetam Sundar Das <daspreetam4@gmail.com>
+To: basavaraj.natikar@amd.com,
+	jikos@kernel.org,
+	bentiss@kernel.org
+Cc: sandeep.singh@amd.com,
+	Nehal-bakulchandra.Shah@amd.com,
+	skhan@linuxfoundation.org,
+	linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
-	vegetablecat <vegetablecat@foxmail.com>
-Subject: Re: [PATCH v2] Input: xpad - add support for Beitong KP series
- controllers
-Message-ID: <202608151844.kqZOpOOS-lkp@intel.com>
-References: <tencent_CD9DBF098D1B3BB565A1DD5761C1D34F4805@qq.com>
+	Preetam Sundar Das <daspreetam4@gmail.com>,
+	syzbot+4eadd4dfe9e66522bae8@syzkaller.appspotmail.com
+Subject: [PATCH] HID: amd_sfh: Validate BAR 2 as memory-mapped I/O in probe
+Date: Sat, 15 Aug 2026 17:49:38 +0530
+Message-ID: <20260815121938.1337631-1-daspreetam4@gmail.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <tencent_CD9DBF098D1B3BB565A1DD5761C1D34F4805@qq.com>
+Content-Transfer-Encoding: 8bit
 
-Hi VegetablCat,
+Syzbot reported a page fault in amd_mp2_pci_probe(). The fuzzer creates
+a malicious PCI device where BAR 2 is defined as an I/O port rather
+than a memory-mapped I/O (MMIO) region.
 
-kernel test robot noticed the following build errors:
+The driver previously assumed BAR 2 would always be MMIO and blindly
+passed the I/O port address to readl(), causing a fatal page fault
+when the CPU attempted to read from restricted memory.
 
-[auto build test ERROR on dtor-input/next]
-[also build test ERROR on dtor-input/for-linus hid/for-next linus/master v7.2-rc7 next-20260813]
-[If your patch is applied to the wrong git tree, kindly drop us a note.
-And when submitting patch, we suggest to use '--base' as documented in
-https://git-scm.com/docs/git-format-patch#_base_tree_information]
+Fix this by explicitly checking the PCI resource flags after waking
+the device. If BAR 2 is not an IORESOURCE_MEM region, safely reject
+the device with -EINVAL to prevent the panic.
 
-url:    https://github.com/intel-lab-lkp/linux/commits/VegetablCat/Input-xpad-add-support-for-Beitong-KP-series-controllers/20260814-093918
-base:   https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git next
-patch link:    https://lore.kernel.org/r/tencent_CD9DBF098D1B3BB565A1DD5761C1D34F4805%40qq.com
-patch subject: [PATCH v2] Input: xpad - add support for Beitong KP series controllers
-config: m68k-randconfig-r071-20260815 (https://download.01.org/0day-ci/archive/20260815/202608151844.kqZOpOOS-lkp@intel.com/config)
-compiler: m68k-linux-gcc (GCC) 16.1.0
-smatch: v0.5.0-9187-g5189e3fb
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20260815/202608151844.kqZOpOOS-lkp@intel.com/reproduce)
+Fixes: 4f567b9f8141 ("SFH: PCIe driver to add support of AMD sensor fusion hub")
+Reported-by: syzbot+4eadd4dfe9e66522bae8@syzkaller.appspotmail.com
+Closes: https://syzkaller.appspot.com/bug?id=227a9acbe565367eb7a1277b47115df8706d9a12
 
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202608151844.kqZOpOOS-lkp@intel.com/
+Signed-off-by: Preetam Sundar Das <daspreetam4@gmail.com>
+---
+ drivers/hid/amd-sfh-hid/amd_sfh_pcie.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-All errors (new ones prefixed by >>):
+diff --git a/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c b/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c
+index 4b81cebdc335..aef105a81570 100644
+--- a/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c
++++ b/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c
+@@ -451,6 +451,9 @@ static int amd_mp2_pci_probe(struct pci_dev *pdev, const struct pci_device_id *i
+ 	if (rc)
+ 		return rc;
+ 
++	if (!(pci_resource_flags(pdev, 2) & IORESOURCE_MEM))
++		return -EINVAL;
++
+ 	rc = pcim_iomap_regions(pdev, BIT(2), DRIVER_NAME);
+ 	if (rc)
+ 		return rc;
+-- 
+2.43.0
 
-   m68k-linux-ld: drivers/input/joystick/xpad.o: in function `xpad_receiver_remove':
->> xpad.c:(.text+0xa): undefined reference to `hid_hw_close'
->> m68k-linux-ld: xpad.c:(.text+0x18): undefined reference to `hid_hw_stop'
-   m68k-linux-ld: drivers/input/joystick/xpad.o: in function `xpad_receiver_probe':
->> xpad.c:(.text+0x288): undefined reference to `hid_open_report'
->> m68k-linux-ld: xpad.c:(.text+0x29e): undefined reference to `hid_hw_start'
->> m68k-linux-ld: xpad.c:(.text+0x2ae): undefined reference to `hid_hw_open'
-   m68k-linux-ld: xpad.c:(.text+0x2c2): undefined reference to `hid_hw_stop'
-   m68k-linux-ld: drivers/input/joystick/xpad.o: in function `xpad_init':
->> xpad.c:(.init.text+0x12): undefined reference to `__hid_register_driver'
->> m68k-linux-ld: xpad.c:(.init.text+0x46): undefined reference to `hid_unregister_driver'
-
---
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki

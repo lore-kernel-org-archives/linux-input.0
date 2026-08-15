@@ -1,148 +1,99 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mail.koesling.network (mail.koesling.network [84.247.164.36])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AD1692D594F
-	for <linux-input@vger.kernel.org>; Sat, 15 Aug 2026 22:44:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 77D2E396567
+	for <linux-input@vger.kernel.org>; Sat, 15 Aug 2026 23:33:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=84.247.164.36
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786833853; cv=none; b=Q9bQ2v45GtKE0VASqIFOsoxUC/kg67/ESFLdP/gAq63p+ndtAP5EH+ooOU2nZhjnAbOwy8jGBfBiNhBmcRioSA3p31AixQ04zYFSFwm2el2JqfWdsnef+xVpPycCFEf5aqcTb3d0aLGuwBT/5a8XDl3TWq6cDNt557VwVSn9lmg=
+	t=1786836798; cv=none; b=Oh4KfggZx+ouWchCce3eAZ9X57PIJU5hyegpuTkC2bwaSu7T8/vIffTjq5LlSqNvdD+wS16l/vIxaMbTLToYvQQMzGENvRwlwqZAuKoza7T6MYLgvixyVcWWJPi3iBhkTGxVkACH+kUeBa6TKI+El8Hi9Kn7b3mZPUdC/1eGEg0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786833853; c=relaxed/simple;
-	bh=XilJCNLNUgxiOpoWyKh8sLTGnj6q3CqX/kSix/YuexU=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=nKViA0rHtpMlHUMENTRLGE82FojhM643zFnV0h1IjCIRq4nmL5Un/Wf2dYVGlmrSgSORda9KZL9Fz9FOVfri79uXizt6feu2Iwybh/9yzGONBWGm+eixYeTcu23sFHnQ+cXJKKPc60Wv3hTiZ0BCZhtxBLjyBk3EpsD30pJTv3g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=mLGTVENe; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1786836798; c=relaxed/simple;
+	bh=qCp1DvZ5nmM92fd8uYmhhxvQ4AubKbuWE+VZVuVt0gY=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=CkVZw95iKyNbAv+udSAr4B9Lz/CNdMnyF9ujJzhDHGOkBF/PQ2PEw8sMymQDg6S7WZqzOIuCmZK79QZOuqSxoPP7RGIgQ/DLpwQxTTT5MGZVGRGbkza8jT0yYhBJYrAAbftbLPYcHrB5adkPhERNn5X6SEeziMWX2jkB1DZcg/c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=koesling.info; spf=none smtp.mailfrom=koesling.info; dkim=pass (2048-bit key) header.d=koesling.info header.i=@koesling.info header.b=IZnFniaL; arc=none smtp.client-ip=84.247.164.36
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=koesling.info
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=koesling.info
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="mLGTVENe"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1AD791F000E9;
-	Sat, 15 Aug 2026 22:44:12 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786833852;
-	bh=SODXTl1F4BmUtVq6TcjhymxsLsXcO6LQt0D6X9RzG4k=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=mLGTVENeH+1u8vfPBvO+0G47dO4m4Np5faxPr6EF9v8GNG/q94JCdAVdxlGEvppzl
-	 ia7xCLo2T25cHP9XX48l12p4UIZFIs19hPmjrxL7TYVU9jPMLmagIJPoxezdIzK99Y
-	 UQ4BIf559yVSLP0xc/HKtzt8SkbKvsxLWltfuNmpxXgS1Z2i28qMZIeqYVAdcx7beE
-	 7IWESXKRIXBsDIfWIUAxH2AUuTMoWKMcLhXCi9LQip0nc//mRIMbt7UrYjA2Etmvv2
-	 9WuxXl/VVe/J2DDwkRSz6Z89CAoNU+4XBRjHiAm21JAizZ8/aTlnxl3tZlEJrD5rEk
-	 +6JSB/mTk3HtA==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v4] HID: pulsar: add driver for Pulsar gaming mice
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Nikolas Koesling" <nikolas@koesling.info>
+	dkim=pass (2048-bit key) header.d=koesling.info header.i=@koesling.info header.b="IZnFniaL"
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 53B221320E0A;
+	Sun, 16 Aug 2026 01:33:12 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=koesling.info;
+	s=dkim; t=1786836792;
+	h=from:subject:date:message-id:to:cc:mime-version:content-type:
+	 in-reply-to:references; bh=qCp1DvZ5nmM92fd8uYmhhxvQ4AubKbuWE+VZVuVt0gY=;
+	b=IZnFniaL6pBphNTxy9LjpMfJiYvG6xJ0mTX5HdEZcjYVqQoOE9BtX3b5EfwKQt7ZNrq58s
+	+qB08oDNf+/j8RPtzkqx2Z9r/cSYMlNvZS1gDO9EIbigzT+L2rPhpJ30yPWJeC68KAcGeq
+	yRw4RdFoBaRDtSJKxjyMAQBx1QR1zrBEwY2SOu1tLIS5sQfrk90JLVH3PYcCka6Vg1H+z0
+	WQ07GAmfsgQS/lql0LpkvJ81pGZJBBH1aUm72GKn/GQD5vb6cCfkaTPkPv+Ixpv2KUBxXf
+	l6oP3Q5EsAGb/tksP9iQ/QiC8Im0RnEePUA72N/Kx0/sNb0h83jN3a3ocubWsw==
+From: Nikolas Koesling <nikolas@koesling.info>
+To: sashiko-reviews@lists.linux.dev
 Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260815222446.47989-1-nikolas@koesling.info>
-References: <20260815222446.47989-1-nikolas@koesling.info>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Sat, 15 Aug 2026 22:44:11 +0000
-Message-Id: <20260815224412.1AD791F000E9@smtp.kernel.org>
+Subject: Re: [PATCH v4] HID: pulsar: add driver for Pulsar gaming mice
+Date: Sun, 16 Aug 2026 01:33:10 +0200
+Message-ID: <yuQ2kNSSSliw9otMoXaUDw@koesling.info>
+In-Reply-To: <20260815224412.1AD791F000E9@smtp.kernel.org>
+References:
+ <20260815222446.47989-1-nikolas@koesling.info>
+ <20260815224412.1AD791F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: multipart/signed; boundary="nextPartfrP_OzGyRradhEL1wmTeMw";
+ micalg="pgp-sha512"; protocol="application/pgp-signature"
+X-Last-TLS-Session-Version: TLSv1.3
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
-s) to consider:
-- [Medium] Battery state cache invalidation fails during the first 60 secon=
-ds of system uptime.
-- [Medium] Power supply sysfs name collision when multiple devices are conn=
-ected to different USB buses.
-- [Low] The driver fails to compile because it uses the MAX() macro for an =
-array bound at file scope.
---
+--nextPartfrP_OzGyRradhEL1wmTeMw
+Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset="utf-8"; protected-headers="v1"
+From: Nikolas Koesling <nikolas@koesling.info>
+To: sashiko-reviews@lists.linux.dev
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+Subject: Re: [PATCH v4] HID: pulsar: add driver for Pulsar gaming mice
+Date: Sun, 16 Aug 2026 01:33:10 +0200
+Message-ID: <yuQ2kNSSSliw9otMoXaUDw@koesling.info>
+In-Reply-To: <20260815224412.1AD791F000E9@smtp.kernel.org>
+MIME-Version: 1.0
 
---- Patch [1]: [PATCH v4] HID: pulsar: add driver for Pulsar gaming mice ---
-commit 2186fd2a13ddd34f0c6ef2388857c37ac08cf8aa
-Author: Nikolas Koesling <nikolas@koesling.info>
+> - [Medium] Battery state cache invalidation fails during the first 60 seconds of system uptime.
+> - [Medium] Power supply sysfs name collision when multiple devices are connected to different USB buses.
 
-HID: pulsar: add driver for Pulsar gaming mice
+fixed in v5.
 
-Add a HID driver for Pulsar wireless gaming mice (X2 V2, X2H, X2A,
-Xlite V3). The driver exposes battery level, voltage, and charging
-status through the power supply framework. It supports wired, 1kHz,
-and 4kHz wireless dongle connections.
+> - [Low] The driver fails to compile because it uses the MAX() macro for an array bound at file scope.
 
-> diff --git a/drivers/hid/hid-pulsar.c b/drivers/hid/hid-pulsar.c
-> new file mode 100644
-> index 0000000000000..84df69a7fe443
-> --- /dev/null
-> +++ b/drivers/hid/hid-pulsar.c
-> @@ -0,0 +1,758 @@
-[ ... ]
-> +struct pulsar_battery {
-> +	struct power_supply *ps;
-> +	struct power_supply_desc desc;
-> +	char name[48];
-> +	char model[MAX(32, sizeof((struct hid_device){}).name)];
+It compiles with gcc 16.1.1
 
-[Severity: Low]
-Will this cause a compilation error? The MAX() macro in the kernel is
-implemented using statement expressions, which are strictly forbidden in
-integer constant expressions in C. Using MAX() to define an array bound at
-file scope usually results in a "statement expression not allowed at file
-scope" compiler error.
+Kind regards,
+Nikolas
 
-[ ... ]
-> +static void power_uevent_work_handler(struct work_struct *work)
-> +{
-> +	struct pulsar_data *drvdata;
-> +	int ret;
-> +
-> +	drvdata =3D container_of(work, struct pulsar_data, power_uevent_work);
-> +
-> +	if (atomic_read(&drvdata->stopping))
-> +		return;
-> +
-> +	down_write(&drvdata->lock_bat);
-> +	drvdata->battery.last_read =3D 0;
-> +	drvdata->battery.last_status =3D 0;
-> +	up_write(&drvdata->lock_bat);
+--nextPartfrP_OzGyRradhEL1wmTeMw
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part.
+Content-Transfer-Encoding: 7Bit
 
-[Severity: Medium]
-Does this reliably invalidate the cache shortly after system boot?
+-----BEGIN PGP SIGNATURE-----
 
-In read_power(), cache validity is checked using ktime_get_ns() (time since
-boot) compared against MAX_BATTERY_AGE_NS (60s):
+iQIzBAABCgAdFiEEaIeSkXdCHm7/NL0ZmeA67XfPAJEFAmqA9zYACgkQmeA67XfP
+AJHZVg/+MU7S3LB9hCqE7OffV3zDo2a+oekBiWhmDgCTm8mNTmywpSwE/sgREJXc
+yf9nbhGh1C91pawcZB6uhLU8HWSoeW8HuTzy3gEadzYsAVZ1KmmsbdEfumrAdz5V
+KPWHVYqnD13TOuPzDOGn4qZ9xhSHijd5qtginYev7ehW5AcGXsB7MFMSo3vIXQkg
+e3RpEAufUwC0sYAlGXi/WOGu9znYOjCT5G4CAaRflwEidiMTTt6pocs/QWde5i9r
+jRDDiQgXYu4JQXw6ulFIliPseP+nkrOCuToPWStrg7AygssR8ooeA08n1eQcf8G+
+Z8d4ySkdGrX0K4X9DqhMdl1fd8dQ8nJvRC8hgXXvi7Ps26xny/MF5kDtItWMSfwT
+mF3umtBix5QOq7RCXicRt0zpY6SVg2gH9TGIkAv/qvIu8IMFXwWifsKeWTp7cUP9
+0yZGnuTVxEiNOR1GjrNv2QTxP4nF4cJ6hZTDAT7Y6uiLDttJ3zspgjJ5p9y/WjCS
+1JGosEDYy5pldQlroCU371eF8S/P9uT8WM7iC/FIZpdeWzOJxke/BRcMHQgE0Dnb
+YbUlL1rINgkwoe2uyNalwtLhodHk2caozc1kyQYMNbt/cDu4lXhGughbQaiaJ/Ry
+eA3WzKivBefmh2NZ8UzHjf8Nyg9P1aaYdr9d+e1crczGwgn6tB0=
+=kedl
+-----END PGP SIGNATURE-----
 
-read_power() {
-        now =3D ktime_get_ns();
-        ...
-        need_power =3D battery->available &&
-            (now - battery->last_read >=3D MAX_BATTERY_AGE_NS);
-}
+--nextPartfrP_OzGyRradhEL1wmTeMw--
 
-If the system uptime is under 60 seconds, now - 0 will be less than
-60 seconds. Could this cause the check to evaluate to false and silently sk=
-ip
-reading power updates for the first minute of uptime?
 
-[ ... ]
-> +static int pulsar_probe(struct hid_device *hdev, const struct hid_device=
-_id *id)
-> +{
-[ ... ]
-> +	INIT_DELAYED_WORK(&drvdata->init_work, pulsar_init_work);
-> +	drvdata->init_retries =3D INIT_RETRIES;
-> +
-> +	snprintf(drvdata->battery.name, sizeof(drvdata->battery.name),
-> +		 "pulsar_%s_battery", usbdev->devpath);
-> +
-> +	ret =3D hid_hw_start(hdev, HID_CONNECT_DEFAULT);
 
-[Severity: Medium]
-Could this cause a sysfs name collision if identical devices are plugged in=
-to
-multiple USB host controllers?
-
-The usbdev->devpath property is only unique within a single USB bus tree. If
-multiple mice are connected to the same relative port numbers on different
-buses (e.g., both yield devpath "1" or "1.2"), this will generate identical
-names like "pulsar_1_battery".
-
-Would this cause devm_power_supply_register() to fail for the second device?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260815222446.4798=
-9-1-nikolas@koesling.info?part=3D1

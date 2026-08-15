@@ -1,154 +1,124 @@
-Received: from mail-pl1-f170.google.com (mail-pl1-f170.google.com [209.85.214.170])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from m16.mail.163.com (m16.mail.163.com [117.135.210.3])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A5652345EA9
-	for <linux-input@vger.kernel.org>; Fri, 14 Aug 2026 23:15:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8F38F64A8D;
+	Sat, 15 Aug 2026 02:18:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=117.135.210.3
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786749342; cv=none; b=NGuXC33V5I5OatpKBBrbXom97niKUZgPsP44VJ/kJG3H/Qg1tHQfYnTltgzzUKOop+3VocclQLbXoOpB4EEC6NVwZF9USUrvPp5dqgLv09I3pmDXfYfIoWI4CPBasM8l3riiFH0CNAuXzi+wXVObzIJQSh5HRYLom5bYu47S+A4=
+	t=1786760315; cv=none; b=NJ4/J/XxnZDSaE6CL3exwuj57UDizhGKjwC80XFhlnyQSJ0QZUs7O4nK6Uf/xhzh0+321+82s6qyRWE4c+a+IRIa9MlgNv87SNzl9ECX39JX4DA0au+EgHMv7ssdNEbMlhdepufJQHxByoKbl2Gcv0Im7YKRzG/gKTj79yVLrcw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786749342; c=relaxed/simple;
-	bh=I/uarSh+Yt39CznkLrrJywz9PlnXuGBPGtjCAp/Ougk=;
-	h=Subject:To:References:Cc:From:Message-ID:Date:MIME-Version:
-	 In-Reply-To:Content-Type; b=fokUlsSDBjCQw8u9hCW22SMJMVCNY0eWPziqgL7qUvhtA8IRzRO4E0s4pUXhMr913omH1Y4wHsdnO/rgco2wyRvqZ2298qhElmdHaRvtlo4jvsWGtkrweIsJLdNrR22UYuyn6ZapPOqYCdn5tqKBq7OXepEqtBsd7hlDAbpH3eo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=lKquns30; arc=none smtp.client-ip=209.85.214.170
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1786760315; c=relaxed/simple;
+	bh=UaMUGDPFquRNhBW1VdI1+n3QfJ8qxNqXQLZ7Qkax52M=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=F7DN3i3NV6oDjQ4N5c9L77gEd9tyTU0znC0aaUqIigRrrxaZ5moXMUSysBOIJeEqkup52zTUc2Mqeb84L4sVqeiB8mvHzkzEh0QL/1GDd2LZBnK45vtO1T4u4q5H0oFtw8K5fVj9szZOWqYP+VxieeQAj+sPNHiYEiFE1yNmFWs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=UyxnCwhy; arc=none smtp.client-ip=117.135.210.3
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="lKquns30"
-Received: by mail-pl1-f170.google.com with SMTP id d9443c01a7336-2ceab75934dso19557685ad.2
-        for <linux-input@vger.kernel.org>; Fri, 14 Aug 2026 16:15:40 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1786749340; x=1787354140; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:in-reply-to:mime-version
-         :user-agent:date:message-id:from:cc:references:to:subject:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=ky5gskAaSEf8NghVHXc5sj5etgnRYYESi/dHNnxk2Lo=;
-        b=lKquns303EQphSt1wiWFrZoDL1Yj3ydehnjnUJDrPfTBjjXEhybCAnN73q1n5C1bqJ
-         QwnOFY+cbUqpDxTvuAeqEFFNLBMkrn3c06adCBYS78Z/QBTKidZLWS7uMxepGv5pJbWF
-         GrJf7v9YsKK5O6mfEdStXfxi8jXx7pm+W0LcdPRwj8TO2WRVESw1FVMOyZifg6xVNcpH
-         DR5qd5WoeITl08j/97DF5QyLjL8vpFTebBG0ZpuoxI5X2KZszVcWIaUuUAr1h8yxR6r6
-         AJ0rKtHhYBFL/7iUYXQ8BbuCB9Kmg1ByYsXh3xDcRu0lZ2OheON9Z3JSiy0K5ug3fif/
-         FXRA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1786749340; x=1787354140;
-        h=content-transfer-encoding:content-type:in-reply-to:mime-version
-         :user-agent:date:message-id:from:cc:references:to:subject:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=ky5gskAaSEf8NghVHXc5sj5etgnRYYESi/dHNnxk2Lo=;
-        b=eiySqYMKLfgMjEa3NxFcHvrvx+y/RG+Dokgv3T9MPyHRmaWkFr2suzL/vv4BL/SvGW
-         rbDBTPT4pwlmKK6WXMjQX9BEGw8O7YXdz1Ylqsc40AA+KHntHnXuG1O1BMloldNMVCHc
-         I2aPeO2NIVxh9e9FjVWb0vUSH3UPlzwqe1mvfQDAZEwLMn62iAmjHmpcLGIkWvMH+JAn
-         te/IDSF41UhgwZbcQMuUlqi59xwjtiw8An5H0g99QkLr2ecFb5Yytaf0IK0qZj3LhLs5
-         s/O30gXe7RrzwN9erhW8X2uK6DDSuQ0NVtVIhyrz7viqXJarpbvVe3q9Hd92A9RabuJV
-         sFpg==
-X-Forwarded-Encrypted: i=1; AHgh+Rqm5IWlk3VV3DfZLRy7Mg2d3w5S69rYFu0eg80gw3EzN+mpgxVvZv7D+WPVAJKSy9kf6QJ4A1wipYZqGw==@vger.kernel.org
-X-Gm-Message-State: AOJu0YwqoTLw1xYOSw5c1KElmWGlgOF5r8O1Lt7LWACd/W8tLvgYDLVk
-	eGfZxuYpk/asu5LYupKt41k9TxaRpo1LQ9vJJTV/naW4Oj/oMnwxSdvlRJg0PA==
-X-Gm-Gg: AR+sD12KvsXxzt+By+q/5Vr+LF6EjTDE4d4xv/ed9e8F8CLi6PmqUK6BnKNrkNHkVNJ
-	IuxbS9akX6RWxYfRXjUG1troyqvZ+aN5n8e2xLqzw15t+tx+goHWe1jH/5UOHAFiKOsrfbdSGjI
-	dvGkspLhlMz3FIA8ZF3cJIREXSxOReonEpJWLjUSLA/AtQFjzspG6IkGbkdegtU3C4gx3wZw159
-	U8XIURjdqkJm3Xt5B7rl41CNz+5f0/Hc6wvQYCzvWRfEPumaIvXYo3/5BfcjsNxaimS8tm3mlrS
-	YqrhxXfYErTdbvkooioy5E/RDOhyJrkeuvQY0mJridouu25X/k33avfEtPg99rnsBNI1KvcaSTA
-	qB2fNRTeR5xiwIfRvA81lKMmH3qOp2re7Se2eVQqlO+PRqJgYBouQrZe4uDpbK2VGsaXhbyXTZd
-	Y7bwnQbjvKl68hF7j3LuIbTp/q7/CEaTr88YRMqL+FhnWXh4tYcg7m2D2zN9IEB4j9Llry3o8nJ
-	8B1WmSDxJePFptLnJuH2hYA
-X-Received: by 2002:a05:6a20:2587:b0:3c3:33df:4d9a with SMTP id adf61e73a8af0-3cc71c1b66fmr10536211637.1.1786749339907;
-        Fri, 14 Aug 2026 16:15:39 -0700 (PDT)
-Received: from [10.1.1.24] (222-152-170-159-fibre.sparkbb.co.nz. [222.152.170.159])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-320e9df03f9sm8733169eec.19.2026.08.14.16.15.36
-        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 14 Aug 2026 16:15:39 -0700 (PDT)
-Subject: Re: [PATCH 1/5] m68k: Fix atari mouse movement
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-References: <20260814031745.17140-1-schmitzmic@gmail.com>
- <20260814031745.17140-2-schmitzmic@gmail.com>
- <CAMuHMdUDvsqT5t93-ZO413pwS3rPYPB1_uy+5iRHsii8CYTdgA@mail.gmail.com>
-Cc: linux-m68k@vger.kernel.org, Miro Kropacek <miro.kropacek@gmail.com>,
- linux-input <linux-input@vger.kernel.org>
-From: Michael Schmitz <schmitzmic@gmail.com>
-Message-ID: <ef9e0128-6309-546a-715a-3e7eb476910e@gmail.com>
-Date: Sat, 15 Aug 2026 11:15:33 +1200
-User-Agent: Mozilla/5.0 (X11; Linux ppc; rv:45.0) Gecko/20100101
- Icedove/45.4.0
+	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="UyxnCwhy"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
+	s=s110527; h=From:To:Subject:Date:Message-Id:MIME-Version; bh=6S
+	A2T3hX6apf5Dyo/juEdONBkszc0q1GdKiTHviSPDo=; b=UyxnCwhybh9jP2IFZr
+	nxrihRUsAzpbMWL4yeNPYXb53KyfMwCUlZfeQC+uMm4GoOmXYPqshV5bE9qsyekt
+	EdLzSb81zqgE+cSd4UVxdI1PNl2g46EomPJmHiT5jX+ZLX6J7psy9uh5sUrJcTIt
+	6dK02S492Ukb0DVkCaskx6hS4=
+Received: from QD202103290168A.neusoft.internal (unknown [])
+	by gzga-smtp-mtada-g1-2 (Coremail) with SMTP id _____wAHza5uzH9qJW1OPQ--.12292S2;
+	Sat, 15 Aug 2026 10:18:23 +0800 (CST)
+From: Jianing Li <m13940358460@163.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Oleh Kuzhylnyi <kuzhylol@gmail.com>,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Jianing Li <m13940358460@163.com>,
+	stable@vger.kernel.org
+Subject: [PATCH] Input: hynitron-cst816x - ignore unsupported gestures
+Date: Sat, 15 Aug 2026 10:18:21 +0800
+Message-Id: <20260815021821.2896-1-m13940358460@163.com>
+X-Mailer: git-send-email 2.23.0.windows.1
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-In-Reply-To: <CAMuHMdUDvsqT5t93-ZO413pwS3rPYPB1_uy+5iRHsii8CYTdgA@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:_____wAHza5uzH9qJW1OPQ--.12292S2
+X-Coremail-Antispam: 1Uf129KBjvJXoW7KFyUtw13AF1DKw1kAw1DZFb_yoW5Jr45pF
+	W5C3s8t3y8G3WrAw10ya1q9Fn0kFyxAa4UuFs8t3sxX3W3ur1FyFn2yF92yF95J3y7uFZ8
+	Jw45Aa13KF9xAF7anT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x0pRa9a-UUUUU=
+X-CM-SenderInfo: jprtmkaqtvmkiwq6il2tof0z/xtbC+xDJBGp-zHD1nwAA3l
 
-Hi Geert,
+The controller reports 0x05 for single click and 0x0b for double
+click, while the binding only defines keycode mappings for the four
+swipe gestures and long press. cst816x_gest_idx() currently maps every
+other nonzero gesture to the long-press slot, so unsupported gesture
+IDs can be reported using the long-press keycode.
 
-thanks for your review!
+Return an invalid slot for unsupported gesture IDs and check it against
+the number of configured keycodes before reporting the event.
 
-Am 14.08.2026 um 19:53 schrieb Geert Uytterhoeven:
-> Hi Michael,
->
-> CC linux-input
->
-> On Fri, 14 Aug 2026 at 05:17, Michael Schmitz <schmitzmic@gmail.com> wrote:
->> From: Miro Kropacek <miro.kropacek@gmail.com>
->>
->> Kernels are built with -funsigned-char since version 6.2, resulting
->> in signed mouse position deltas getting misinterpreted as unsigned.
->>
->> Cast deltas passed in (unsigned) scancode buffer to correctly
->> interpret sign.
->>
->> Fixes: 3bc753c06dd02a35 ("kbuild: treat char as always unsigned")
->> Link: https://lists.debian.org/debian-68k/2026/08/msg00000.html
->> Signed-off-by: Miro Kropacek <miro.kropacek@gmail.com>
->> Reviewed-by: Michael Schmitz <schmitzmic@gmail.com>
->
-> Since you're now in the path to upstream, you should add your SoB here
-> (applies to all patches).
->
->> --- a/drivers/input/mouse/atarimouse.c
->> +++ b/drivers/input/mouse/atarimouse.c
->> @@ -70,9 +70,12 @@ static void atamouse_interrupt(char *buf)
->
-> Alternative, you could change/restore the function's signature to take a
-> "signed char *".
+Fixes: c87a819bec86 ("Input: add driver for Hynitron CST816x series")
+Cc: stable@vger.kernel.org
+Signed-off-by: Jianing Li <m13940358460@163.com>
+---
+ drivers/input/touchscreen/hynitron-cst816x.c | 19 ++++++++-----------
+ 1 file changed, 8 insertions(+), 11 deletions(-)
 
-Agreed, but without a way to test this, I'd rather wait for Miro 
-confirming that change also fixed the issue.
+diff --git a/drivers/input/touchscreen/hynitron-cst816x.c b/drivers/input/touchscreen/hynitron-cst816x.c
+index 47d9cd7412d1b..d0668ac96f9af 100644
+--- a/drivers/input/touchscreen/hynitron-cst816x.c
++++ b/drivers/input/touchscreen/hynitron-cst816x.c
+@@ -92,24 +92,19 @@ static int cst816x_i2c_read_register(struct cst816x_priv *priv, u8 reg,
+ 	return 0;
+ }
+ 
+-static u8 cst816x_gest_idx(u8 gest)
++static unsigned int cst816x_gest_idx(u8 gest)
+ {
+-	u8 index;
+-
+ 	switch (gest) {
+ 	case 0x01: /* Slide up gesture */
+ 	case 0x02: /* Slide down gesture */
+ 	case 0x03: /* Slide left gesture */
+ 	case 0x04: /* Slide right gesture */
+-		index = gest;
+-		break;
++		return gest - 1;
+ 	case 0x0c: /* Long press gesture */
++		return CST816X_NUM_KEYS - 1;
+ 	default:
+-		index = CST816X_NUM_KEYS;
+-		break;
++		return CST816X_NUM_KEYS;
+ 	}
+-
+-	return index - 1;
+ }
+ 
+ static bool cst816x_process_touch(struct cst816x_priv *priv,
+@@ -169,6 +164,7 @@ static irqreturn_t cst816x_irq_cb(int irq, void *cookie)
+ {
+ 	struct cst816x_priv *priv = cookie;
+ 	struct cst816x_touch tch;
++	unsigned int gest_idx;
+ 
+ 	if (!cst816x_process_touch(priv, &tch))
+ 		return IRQ_HANDLED;
+@@ -176,9 +172,10 @@ static irqreturn_t cst816x_irq_cb(int irq, void *cookie)
+ 	input_report_abs(priv->input, ABS_X, tch.abs_x);
+ 	input_report_abs(priv->input, ABS_Y, tch.abs_y);
+ 
+-	if (tch.gest)
++	gest_idx = cst816x_gest_idx(tch.gest);
++	if (gest_idx < priv->keycodemax)
+ 		input_report_key(priv->input,
+-				 priv->keycode[cst816x_gest_idx(tch.gest)],
++				 priv->keycode[gest_idx],
+ 				 tch.active);
+ 
+ 	input_report_key(priv->input, BTN_TOUCH, tch.active);
+-- 
+2.23.0.windows.1
 
-Cheers,
-
-	Michael
-
->>         atari_mouse_buttons = buttons;
->>  #endif
->>
->> -       /* only relative events get here */
->> -       dx = buf[1];
->> -       dy = buf[2];
->> +       /* only relative events get here; the IKBD sends signed 8-bit
->> +        * deltas, and the kernel builds with -funsigned-char since 6.2,
->> +        * so an explicit signed cast is required
->> +        */
->> +       dx = (s8)buf[1];
->> +       dy = (s8)buf[2];
->>
->>         input_report_rel(atamouse_dev, REL_X, dx);
->>         input_report_rel(atamouse_dev, REL_Y, dy);
->
-> Regardless:
-> Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
->
-> Gr{oetje,eeting}s,
->
->                         Geert
->
-> --
-> Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
->
-> In personal conversations with technical people, I call myself a hacker. But
-> when I'm talking to journalists I just say "programmer" or something like that.
->                                 -- Linus Torvalds
->

@@ -1,131 +1,91 @@
-Received: from stravinsky.debian.org (stravinsky.debian.org [82.195.75.108])
+Received: from mail-106111.protonmail.ch (mail-106111.protonmail.ch [79.135.106.111])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A3982190462;
-	Sun, 16 Aug 2026 09:10:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=82.195.75.108
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E1A863D4130
+	for <linux-input@vger.kernel.org>; Sun, 16 Aug 2026 10:43:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=79.135.106.111
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786871450; cv=none; b=VFmuRANwa9E/wmCGlIKjNDzMIbyeoF1C+vrZy/g6y4rWIlNq0XuGjyTl7CpZR/qTkgMTuhHgq6wOs4wutEXkn18uGrYEZ0PwHGFyxhKy15krVIV1CRzD3tjIc+JPBnm/YIBVsnR83qDKFl6P25DmGt5+l/jwskLX3ni0BGvQQqM=
+	t=1786877036; cv=none; b=lsP5cu0k09AmflNtsmnTvLQm+g/kIkActAx5g0K5YuOEI/Me4IXm0nkuaoA2+HFcL2ZGgL58Yeo5bLyvtx1tolRTKRSg5yB/Z4wm/WIqTNaRgVW+8KUSQriXb2W6W8WHKUzen7erRZwt2byVAZoAh2TK/+leIRwamu6sp+lxVSQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786871450; c=relaxed/simple;
-	bh=bKD+LczPWMRKymiZvTeFZW2DqdqWMIcrJVjqiY27Rz0=;
-	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition; b=GDX7cA0mFPlm0i0nWOY7bxUMkcFiFnIQa3LIoyvc0JaQSHYl+ifaNcFkpXZcSKbnVq9ExtR/Ho/r0zvpjioefezOVpL1mrtKGsQJQez18XNwooKI1vdg2fyCflVzFdYEtj4gIboafmOG5kydBoSRRrJ68/kGGKG4RgpbYNVp16c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=debian.org; spf=pass smtp.mailfrom=debian.org; dkim=pass (2048-bit key) header.d=debian.org header.i=@debian.org header.b=Q6ah64J7; arc=none smtp.client-ip=82.195.75.108
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=debian.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=debian.org
+	s=arc-20240116; t=1786877036; c=relaxed/simple;
+	bh=k7JRPgZ20sWucQ6HA0PQ9SE3BtmeIfukn5IlLePz8lk=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=dQ6bptanW9kCvb2NEIee1ln3wwZfxg0oCsx1NsAGXvAlm+HenTjPnbFqDIDFaUUWyxhqow2kW0t0v6b6du9wRD9XjkOsO/E3mdQzMVuf8qaNFJ16cSiUqJzucFcgLkqztFG+wFxDIWKQBOk+f232zF3hBOEnwTuYeLyK6o/KzQk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=idank.dev; spf=pass smtp.mailfrom=idank.dev; dkim=pass (2048-bit key) header.d=idank.dev header.i=@idank.dev header.b=a865mow0; arc=none smtp.client-ip=79.135.106.111
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=idank.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=idank.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=debian.org header.i=@debian.org header.b="Q6ah64J7"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=debian.org;
-	s=smtpauto.stravinsky; h=X-Debian-User:Content-Type:MIME-Version:Message-ID:
-	Subject:Cc:To:From:Date:Reply-To:Content-Transfer-Encoding:Content-ID:
-	Content-Description:In-Reply-To:References;
-	bh=NrEUYrjZTvcDUiMxShUMOXghU9BWfoLn2LjuFoPa9Wo=; b=Q6ah64J7wzwRG+icu5fU91Nxv3
-	t8YreFN4d/y+PzuslvmNvdf4kFs30I7L3l76VZZqNfvTHcJ3wsgtuYOsDMbb71ADoqNovqZYDnPsn
-	rfhkZE6wSHeZvzEUNRwM/CFMqAmMK4opeuul1qKSc0FMMFoWqXLC8lmXClfA0PCPTF3X+ZQqWIzfB
-	WwdaEDYX9orAhHexdosrHXBjQ4bxk6EaWCH6q02zFEnZ4unjxgVJrTPFQOGQ6ffJU6RuRJZSGfsla
-	3TCIUW03S4yBBtwwkgOZQPn1mvfwU97Q/ySTNu+LK+DhGa5hk8cvNd/BNTOx0kbGZKkZWZtEytSk+
-	+KwxbpWg==;
-Received: from authenticated-user
-	by stravinsky.debian.org with esmtpsa (TLS1.3:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
-	(Exim 4.96)
-	(envelope-from <benh@debian.org>)
-	id 1wvWt9-007LRH-0s;
-	Sun, 16 Aug 2026 09:10:43 +0000
-Date: Sun, 16 Aug 2026 11:10:40 +0200
-From: Ben Hutchings <benh@debian.org>
-To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>,
-	Lee Jones <lee@kernel.org>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
-	Matteo Croce <teknoraver@meta.com>, 1141407@bugs.debian.org
-Subject: [PATCH] HID: core: demote warning to debug level
-Message-ID: <aoF-jIn9gk9kJ7Pz@decadent.org.uk>
+	dkim=pass (2048-bit key) header.d=idank.dev header.i=@idank.dev header.b="a865mow0"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=idank.dev;
+	s=protonmail; t=1786877024; x=1787136224;
+	bh=tdWKNup7226XppdKlfASu7kB3qBgHTA0uwn55LmkApA=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:From:To:
+	 Cc:Date:Subject:Reply-To:Feedback-ID:Message-ID:BIMI-Selector;
+	b=a865mow0yl22lsuIeJrQ1+5+i8fU7UDLSIWayq4olKy9Rv8vCLL+7u3aqW7MSG7Y3
+	 y9O9xqYzwsRNMgmqIJF22bjZDY5ek2DeshSeLdSSXln8BpyfIGwKMnveD6tGL23vbN
+	 NxkSuCP+bJ9oH5CwidUFk6E1f5uuRUx6giy3H3MKwqkKE8sdpwHdvc3MVUrV0r17Va
+	 UUpK01MeMIg4KEfUzTPjuxI3wflMLo1WFtsUfk2XYgDMc1VqcyvnxvEXE/zVd9lVjA
+	 y+HUlbxZfr7nqLzCxWoX2G+PC2U6zx63A3nxHcsalKoqslwS6B1kjvGFdnVvLoBzpM
+	 TyZcjfF2s4hAQ==
+X-Pm-Submission-Id: 4hNCHd4vFCz1DFFK
+From: Idan Koblik <me@idank.dev>
+To: linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org,
+	bentiss@kernel.org,
+	jikos@kernel.org,
+	sofia@schn.dev,
+	Idan Koblik <me@idank.dev>
+Subject: [PATCH v2] HID: hp: Add support for HyperX Cloud II Wireless
+Date: Sun, 16 Aug 2026 13:43:08 +0300
+Message-ID: <20260816104308.31972-1-me@idank.dev>
+X-Mailer: git-send-email 2.55.0
+In-Reply-To: <20260813155312.106584-1-me@idank.dev>
+References: <20260813155312.106584-1-me@idank.dev>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="EgAQaCZm1TB6wdfL"
-Content-Disposition: inline
-X-Debian-User: benh
+Content-Transfer-Encoding: 8bit
 
---EgAQaCZm1TB6wdfL
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Add the device ID for HyperX cloud 2 wireless, which requires
+the same handling as the devices support by this driver.
 
-=46rom: Matteo Croce <teknoraver@meta.com>
+Tested with HyperX cloud 2 wireless.
 
-The log level for short  messages was changed from debug to warning,
-flooding syslog on systems with devices that regularly send
-short reports, in my case an UPS:
-
-    $ dmesg |grep -c 'Event data for report .* was too short'
-    35
-
-Demote it back to debug level.
-
-Fixes: 0a3fe972a7cb ("HID: core: Mitigate potential OOB by removing bogus m=
-emset()")
-Signed-off-by: Matteo Croce <teknoraver@meta.com>
-[bwh: Re-sending this fix which was applied and then lost in a mis-
- merge.  Add a second Fixes trailer so this should reach all stable
- branches that have the warning.]
-Fixes: 2c85c61d1332 ("HID: pass the buffer size to hid_report_raw_event")
-Cc: stable@vger.kernel.org
-Signed-off-by: Ben Hutchings <benh@debian.org>
+Signed-off-by: Idan Koblik <me@idank.dev>
+Reviewed-by: Sofia Schneider <sofia@schn.dev>
 ---
-This was originally posted at
-<https://lore.kernel.org/linux-input/20260523105545.68079-1-technoboy85@gma=
-il.com/>
-and applied to the hid tree as commit d0ff08d946c8, but then it was
-lost in merge commit aa776949fb77 "Merge branch 'for-7.2/wiimote' into
-for-linus".
+ drivers/hid/hid-hp.c  | 2 ++
+ drivers/hid/hid-ids.h | 1 +
+ 2 files changed, 3 insertions(+)
 
-Ben.
+diff --git a/drivers/hid/hid-hp.c b/drivers/hid/hid-hp.c
+index fa53d5f6c..84ea358ea 100644
+--- a/drivers/hid/hid-hp.c
++++ b/drivers/hid/hid-hp.c
+@@ -381,6 +381,8 @@ static void hp_remove(struct hid_device *hdev)
+ static const struct hid_device_id hp_devices[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_HP,
+ 			 USB_DEVICE_ID_HP_HYPERX_CLOUD_III_WIRELESS) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_HP,
++			 USB_DEVICE_ID_HP_HYPERX_CLOUD_II_WIRELESS) },
+ 	{}
+ };
+ MODULE_DEVICE_TABLE(hid, hp_devices);
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index aa2c3a713..a8a37a936 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -697,6 +697,7 @@
+ #define USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE_0641	0x0641
+ #define USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE_1f4a	0x1f4a
+ #define USB_DEVICE_ID_HP_HYPERX_CLOUD_III_WIRELESS 0x05b7
++#define USB_DEVICE_ID_HP_HYPERX_CLOUD_II_WIRELESS 0x0995
+ 
+ #define USB_VENDOR_ID_HUION		0x256c
+ #define USB_DEVICE_ID_HUION_TABLET	0x006e
+-- 
+2.55.0
 
- drivers/hid/hid-core.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index cf123347a2af..605530ec2e9c 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -2079,8 +2079,8 @@ int hid_report_raw_event(struct hid_device *hid, enum=
- hid_report_type type, u8 *
- 		rsize =3D max_buffer_size;
-=20
- 	if (bsize < rsize) {
--		hid_warn_ratelimited(hid, "Event data for report %d was too short (%d vs=
- %zu)\n",
--				     report->id, rsize, bsize);
-+		hid_dbg_ratelimited(hid, "Event data for report %d was too short (%d vs =
-%zu)\n",
-+				    report->id, rsize, bsize);
- 		return -EINVAL;
- 	}
-=20
-
---EgAQaCZm1TB6wdfL
-Content-Type: application/pgp-signature; name=signature.asc
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEErCspvTSmr92z9o8157/I7JWGEQkFAmqBfowACgkQ57/I7JWG
-EQm/bA/+NYBTqjjxmY8NP259zAuvFQJoR61XfIcj2NImqh/lotA/uAqeS1g6q46u
-GgHlbfOhwjEwoMYQDLeChmaFSxZZCbYhd4ZQMruFodRd2NDwlMlQi6Jq8Umu3NJq
-kQvVCHX0JEaOcoTKnhxEqJ7ssfrZwBUDixupDvlvu3kcBEsA7lp7MR7G5hkwrKVd
-015y70C20LkQIif+e4D7FMqZI8Fq6yxga8qq/j50Kqo8vpygkMW8RwSwS9XHP8go
-N7+YYidSoVfHoATNIWMU8iMxNaf+lnD3lYz7hxJkoTK2+A3c46YY+8rs27LOEHc6
-qN0DQxJrx9LKzeMp3YPCtG4nbOCa7kPx98dWy5s9u5wrVAXjgMQ/Hztwr0qHpEHi
-6VyREG+DqzFu2EEIlpFga4L1uxmkKgKIZ6gUrRdoHt933ag5LqrCInVQZVM3jhwY
-mqWkk0dAXpBortytqEItyhVBmFN9WIb71IFBcDUoj3K3pUZszefchO29gvpJJUYr
-DgPetpQxXYbA8/NR9jzznuDzIMOsN44tgqSg4wWHsMNc7KFQgcTrmfG4zU8+rhAM
-Hqqdp8vWPf9ZH1GfjvvjSyA2oyRyRp/KceqwHGlU67VAlfiZdW0HD3W6K39CQCiJ
-GS9igvKA+tyZZwnMpfGx4VD24PkswFU+scAJa7KfwNbOBeR478M=
-=R7bY
------END PGP SIGNATURE-----
-
---EgAQaCZm1TB6wdfL--

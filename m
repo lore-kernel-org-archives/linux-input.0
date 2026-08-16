@@ -1,32 +1,32 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7ADE9222590;
-	Sun, 16 Aug 2026 01:36:39 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6E316233924;
+	Sun, 16 Aug 2026 01:39:25 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786844200; cv=none; b=FsSDYzFe+4/ynDGxheGydMyGLCirreZZzKAJxmHMzrrE5s59H8dz8eVDsb8//lKIDF8ZgFvRpMYcpuxEzlkQ/Ct7baf8PKgmcDNedT8hRfJ/JHPdWeBR2Dt9f6dgw021ik/aCGFrsZZuixt2adW9QfMFCzSYNuEfEw96EBW0WQE=
+	t=1786844366; cv=none; b=Xr1GnHxna56RFizSHW3HUC2xXnFQo6GNVTlJc+ogSDeDGpA98ADOb4rBQJOkN6yj6CrtaYhzoJvgRNYZOk9lSUWzeO4L5q95F0WHPa/lBASO6OCi9tZgiGuV5Tb9r44LagItVXmzu4ZXJ7gpXdYdAkAkoyjUXDjlW9hYr50yEPc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786844200; c=relaxed/simple;
-	bh=JCxotqvRpb6xUsqJndfEXmXxLgp5Us72BLyVEVMFV34=;
+	s=arc-20240116; t=1786844366; c=relaxed/simple;
+	bh=yasEtMOQDRd1MO6pog8BpYbUVCx3kCfg4E07jTRJNnA=;
 	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=kSlpQkfiS2172AMefiVvMQf0i+v4hzlY1jfX3Y/l5fOhP1nsn7f5tTT8MgFIUCY7gLziNN6vrnU3ZqPZn+gvpNd/+xajOkmmJyNj/WnLWFlD8Lez1xBSdACyYFW5a+vwTrbisIZdlCQHmYN/N1fkSE+7Q9xrVeu+NIu6+7eWdkw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=W6bnN0zJ; arc=none smtp.client-ip=100.103.45.18
+	 MIME-Version:Content-Type; b=Te9Udx3xPRD6XOXrRRCjGG5psgyOitj0w6eYw7MDw5wvAcSIKJY0vGFnkWhmFdPiWekXdri5OvRhwXPdOTTs+Ut/H1yOWA19jayk0HPFHrXcPshLq8mo8jLK7WIpJ+lZxFTbEygsu4GCb6dDHnUKegJmWc/Q0WxSa3Lt7k/IrMQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=fnbZYCuv; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="W6bnN0zJ"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5DBCA1F000E9;
-	Sun, 16 Aug 2026 01:36:38 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="fnbZYCuv"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F00261F000E9;
+	Sun, 16 Aug 2026 01:39:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786844199;
-	bh=yzi0JJu1u9yb/XHs0OD6pXTCXG/3c+vyM8r5zwGN/8s=;
+	s=k20260515; t=1786844365;
+	bh=7ihNTARtHlqc+z4pKIV5HWt8HMTpwV9bggvrjwDrVxM=;
 	h=Date:From:To:Cc:Subject:In-Reply-To:References;
-	b=W6bnN0zJOKShrvL1N0paL99p2ySNeCTCdkRySsGo73AdOxO3Q9k8LBe8gTB4W03jD
-	 Y+jDG+iGrfEQYQ0AEIPlgbhrcx93me/Ea8hnJHAoOR2Wtk6j/bEpzOW4UtcNIT+Huc
-	 gQ77PeigseFFk/G023PcL/3m7nq1C7m8fTYBpRhpM+WTsK2XvAvpVQvh7A1cUbzECe
-	 Juylv0VtonF7boUgz5kQSArLKivkJgZodVNB7ambc3yXbNK2KrF3AwSe5FXdt8LnRK
-	 wb7p4HUH/WNHjdFp5oqrVeisZawJjxF1JPzw4cfL71m0qoeTaNSJRZiURJb6KijKq3
-	 8tnEKNILh54DQ==
-Date: Sun, 16 Aug 2026 02:36:34 +0100
+	b=fnbZYCuvrJ1pXkSGzod33tmgZIr+x33h4QX9ysDIm4K4U7n5/xpvJcuIbYKCAFt94
+	 fvrXhRy5BcybH+hw2SAW/jO+yqo05elX6QtNqRV84TJdTZqvivrO+UHz+NfwX3e0Bv
+	 8VUMmgdFqj3ClQyQQctqhu3mI9JYaCrS5Np/yeTqwC4rIDJfj1TKpx0q7H9ccSzsmT
+	 Wz6joCwZHKrzlHEZP2UfGtIWl1LUR6XuVfMoMhKlaafEkK865aXgwYHrEYpN7YA//f
+	 t//Mdk9b9qaDEUQ0rCwEsBjCd2zES3dTlXTkJJypOgubXmIc2E3vDczCgYyigL8xwS
+	 pFt1oiy+2O1Gg==
+Date: Sun, 16 Aug 2026 02:39:20 +0100
 From: Jonathan Cameron <jic23@kernel.org>
 To: Sanjay Chitroda via B4 Relay
  <devnull+sanjayembeddedse.gmail.com@kernel.org>
@@ -36,12 +36,12 @@ Cc: sanjayembeddedse@gmail.com, David Lechner <dlechner@baylibre.com>, Nuno
  <srinivas.pandruvada@linux.intel.com>, Benjamin Tissoires
  <bentiss@kernel.org>, linux-iio@vger.kernel.org,
  linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
-Subject: Re: [PATCH v5 04/13] iio: gyro: hid-sensor-gyro-3d: convert probe
- and teardown to devm-managed resources
-Message-ID: <20260816023634.37e4d859@jic23-huawei>
-In-Reply-To: <20260806-28-apr-iio-redundant-argument-v5-temp-v5-4-f1f92c1d830f@gmail.com>
+Subject: Re: [PATCH v5 06/13] iio: humidity: hid-sensor-humidity: convert
+ probe and teardown to devm-managed resources
+Message-ID: <20260816023920.04f8c3bb@jic23-huawei>
+In-Reply-To: <20260806-28-apr-iio-redundant-argument-v5-temp-v5-6-f1f92c1d830f@gmail.com>
 References: <20260806-28-apr-iio-redundant-argument-v5-temp-v5-0-f1f92c1d830f@gmail.com>
-	<20260806-28-apr-iio-redundant-argument-v5-temp-v5-4-f1f92c1d830f@gmail.com>
+	<20260806-28-apr-iio-redundant-argument-v5-temp-v5-6-f1f92c1d830f@gmail.com>
 X-Mailer: Claws Mail 4.4.0 (GTK 3.24.52; x86_64-pc-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
@@ -52,7 +52,7 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 
-On Thu, 06 Aug 2026 17:55:50 +0530
+On Thu, 06 Aug 2026 17:55:52 +0530
 Sanjay Chitroda via B4 Relay <devnull+sanjayembeddedse.gmail.com@kernel.org> wrote:
 
 > From: Sanjay Chitroda <sanjayembeddedse@gmail.com>
@@ -68,77 +68,107 @@ Sanjay Chitroda via B4 Relay <devnull+sanjayembeddedse.gmail.com@kernel.org> wro
 > eliminates the remove callback entirely.
 > 
 > Signed-off-by: Sanjay Chitroda <sanjayembeddedse@gmail.com>
+A passing comment inline.
+
 > ---
->  drivers/iio/gyro/hid-sensor-gyro-3d.c | 41 ++++++++---------------------------
-
-Nice stats - could be even better with some error printing cleanups though.
-See below.  I appreciate you may not want to do that in this series, but
-it's simple enough I wouldn't mind, even though lots of patches result.
-
->  1 file changed, 9 insertions(+), 32 deletions(-)
+> changes in v5:
+> - Fully convert driver to devm usage, dropped Tested-by tag
+> changes in v4:
+> - No update in change, added Tested-by tag
+> changes in v3:
+> - Update commit message based on review comment from Andy
+> - Based on discussion using parent device of HID platform driver used
+>   with devres framework for this driver
+> - v2 link -> https://lore.kernel.org/all/20260429175918.2541914-5-sanjayembedded@gmail.com/
+> ---
+>  drivers/iio/humidity/hid-sensor-humidity.c | 38 +++++++-----------------------
+>  1 file changed, 8 insertions(+), 30 deletions(-)
 > 
-> diff --git a/drivers/iio/gyro/hid-sensor-gyro-3d.c b/drivers/iio/gyro/hid-sensor-gyro-3d.c
-> index cf049700d415..66778315e86d 100644
-> --- a/drivers/iio/gyro/hid-sensor-gyro-3d.c
-> +++ b/drivers/iio/gyro/hid-sensor-gyro-3d.c
-> @@ -264,7 +264,8 @@ static int gyro_3d_parse_report(struct platform_device *pdev,
+> diff --git a/drivers/iio/humidity/hid-sensor-humidity.c b/drivers/iio/humidity/hid-sensor-humidity.c
+> index 89daf9d534d1..12c88efe66be 100644
+> --- a/drivers/iio/humidity/hid-sensor-humidity.c
+> +++ b/drivers/iio/humidity/hid-sensor-humidity.c
+> @@ -192,11 +192,12 @@ static struct hid_sensor_hub_callbacks humidity_callbacks = {
 >  /* Function to initialize the processing for usage id */
->  static int hid_gyro_3d_probe(struct platform_device *pdev)
+>  static int hid_humidity_probe(struct platform_device *pdev)
 >  {
-> -	struct hid_sensor_hub_device *hsdev = dev_get_platdata(&pdev->dev);
 > +	struct device *dev = &pdev->dev;
 > +	struct hid_sensor_hub_device *hsdev = dev_get_platdata(dev);
->  	int ret = 0;
->  	static const char *name = "gyro_3d";
+>  	static const char *name = "humidity";
 >  	struct iio_dev *indio_dev;
-> @@ -311,8 +312,8 @@ static int hid_gyro_3d_probe(struct platform_device *pdev)
+>  	struct hid_humidity_state *humid_st;
+>  	struct iio_chan_spec *humid_chans;
+> -	struct hid_sensor_hub_device *hsdev = dev_get_platdata(&pdev->dev);
+>  	int ret;
 >  
->  	atomic_set(&gyro_state->common_attributes.data_ready, 0);
+>  	indio_dev = devm_iio_device_alloc(&pdev->dev, sizeof(*humid_st));
+> @@ -233,42 +234,20 @@ static int hid_humidity_probe(struct platform_device *pdev)
+>  
+>  	atomic_set(&humid_st->common_attributes.data_ready, 0);
 >  
 > -	ret = hid_sensor_setup_trigger(indio_dev, name,
-> -				       &gyro_state->common_attributes);
+> -				       &humid_st->common_attributes);
 > +	ret = devm_hid_sensor_setup_trigger(dev, indio_dev, name,
-> +					    &gyro_state->common_attributes);
->  	if (ret < 0) {
->  		dev_err(&pdev->dev, "trigger setup failed\n");
-
+> +					    &humid_st->common_attributes);
+>  	if (ret)
 >  		return ret;
-> @@ -321,38 +322,15 @@ static int hid_gyro_3d_probe(struct platform_device *pdev)
->  	gyro_state->callbacks.send_event = gyro_3d_proc_event;
->  	gyro_state->callbacks.capture_sample = gyro_3d_capture_sample;
->  	gyro_state->callbacks.pdev = pdev;
-> -	ret = sensor_hub_register_callback(hsdev, HID_USAGE_SENSOR_GYRO_3D,
-> -					   &gyro_state->callbacks);
-> +	ret = devm_sensor_hub_register_callback(dev, hsdev,
-> +						HID_USAGE_SENSOR_GYRO_3D,
-> +						&gyro_state->callbacks);
->  	if (ret < 0) {
->  		dev_err(&pdev->dev, "callback reg failed\n");
-Obviously makes for a larger patch set but error print cleaning up would
-be nice.  This patch makes that easier to do as enables
-return dev_err_probe() in a few places where we didn't have direct returns before.
+>  
+>  	platform_set_drvdata(pdev, indio_dev);
+>  
+>  	humidity_callbacks.pdev = pdev;
+> -	ret = sensor_hub_register_callback(hsdev, HID_USAGE_SENSOR_HUMIDITY,
+> -					   &humidity_callbacks);
+> +	ret = devm_sensor_hub_register_callback(dev, hsdev, HID_USAGE_SENSOR_HUMIDITY,
+> +						&humidity_callbacks);
+>  	if (ret)
+> -		goto error_remove_trigger;
+> -
+> -	ret = iio_device_register(indio_dev);
+> -	if (ret)
+> -		goto error_remove_callback;
+> -
+> -	return ret;
+> -
+> -error_remove_callback:
+> -	sensor_hub_remove_callback(hsdev, HID_USAGE_SENSOR_HUMIDITY);
+> -error_remove_trigger:
+> -	hid_sensor_remove_trigger(&humid_st->common_attributes);
+> -	return ret;
+> -}
+> -
+> -/* Function to deinitialize the processing for usage id */
+> -static void hid_humidity_remove(struct platform_device *pdev)
+> -{
+> -	struct hid_sensor_hub_device *hsdev = dev_get_platdata(&pdev->dev);
+> -	struct iio_dev *indio_dev = platform_get_drvdata(pdev);
+> -	struct hid_humidity_state *humid_st = iio_priv(indio_dev);
+> +		return ret;
+This made me wonder what was different as we didn't have a random
+ret on it's own in the other patch.  Seems we have inconsistency
+across the drivers on what we print on and what we don't.
 
-There are also some prints in here that should be dropped (memory
-allocation failures etc).
+If you do cleanup up the error prints either in this series
+or a follow up, nice to make them consistent - either adding
+messages or dropping them may make sense - I haven't thought much
+about it!
 
 Jonathan
 
-> -		goto error_remove_trigger;
-> -	}
+>  
 > -	iio_device_unregister(indio_dev);
-> -	sensor_hub_remove_callback(hsdev, HID_USAGE_SENSOR_GYRO_3D);
-> -	hid_sensor_remove_trigger(&gyro_state->common_attributes);
+> -	sensor_hub_remove_callback(hsdev, HID_USAGE_SENSOR_HUMIDITY);
+> -	hid_sensor_remove_trigger(&humid_st->common_attributes);
 > +	return devm_iio_device_register(dev, indio_dev);
 >  }
 >  
->  static const struct platform_device_id hid_gyro_3d_ids[] = {
-> @@ -371,7 +349,6 @@ static struct platform_driver hid_gyro_3d_platform_driver = {
+>  static const struct platform_device_id hid_humidity_ids[] = {
+> @@ -287,7 +266,6 @@ static struct platform_driver hid_humidity_platform_driver = {
 >  		.pm	= &hid_sensor_pm_ops,
 >  	},
->  	.probe		= hid_gyro_3d_probe,
-> -	.remove		= hid_gyro_3d_remove,
+>  	.probe		= hid_humidity_probe,
+> -	.remove		= hid_humidity_remove,
 >  };
->  module_platform_driver(hid_gyro_3d_platform_driver);
+>  module_platform_driver(hid_humidity_platform_driver);
 >  
 > 
 

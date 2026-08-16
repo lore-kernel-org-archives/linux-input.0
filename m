@@ -1,67 +1,71 @@
-Received: from mail.koesling.network (mail.koesling.network [84.247.164.36])
+Received: from latitanza.investici.org (latitanza.investici.org [185.218.207.228])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1A9BE317161
-	for <linux-input@vger.kernel.org>; Sun, 16 Aug 2026 12:03:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=84.247.164.36
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 75CBD4B04A3
+	for <linux-input@vger.kernel.org>; Sun, 16 Aug 2026 14:48:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.218.207.228
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786881815; cv=none; b=BqIX4F2wM6I0/sNLBgXsZDMzAC5xME0PoaoUsquvO/JC7drwP8u5Q59mwnGifm3vYR4KDNpoBcUM/PiE4u917rq7pjgX0pp/XmFxePG2vJasBYMnvfF5HURcOlF3m/zx8/p//RyWM02MOX4fcN+bTZ2SktTbE3lT949Gme9h7YE=
+	t=1786891727; cv=none; b=Mg0RLgMaljGrOX26M+gTcHFOv9FpmHx+2fYqyIL/evtJgJineecmXpg2iHjYxNr6GIYMSphwDO8A2/Ay1IDNuuAJ2y8lNhhKCne9s2wqkSl4nBB7G1O50JnYisBTcpdC4AKZi9y9zWKnRVcgPR+zhRVQ9/0AfvR8+V73Cshw/hY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786881815; c=relaxed/simple;
-	bh=M8s5yfh7jhPrGXcr3YI5ZVPojgwME9U3CfY1Cj834rk=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=mbMtwfj+L4HfdvKNu4fRuHg33seaiJZpLnEL7KrZbW6W7boqChAt2QLDmJ5BbIb3LGq2g34VqXggNcqlDvaJ+m6Kpto2ZGY4hYMZIpQVoLKOR29e5InvyITFl1YXGkfdc8NjYmHYumyLiAJz5jMzjqS3vFq5y1cs4KYcw50Sjrc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=koesling.info; spf=none smtp.mailfrom=koesling.info; dkim=pass (2048-bit key) header.d=koesling.info header.i=@koesling.info header.b=KOOUJmz1; arc=none smtp.client-ip=84.247.164.36
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=koesling.info
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=koesling.info
+	s=arc-20240116; t=1786891727; c=relaxed/simple;
+	bh=/AKONZWJt2brnxTxy/Asi4kQa/F4ZoDZBeFkKaiiP+c=;
+	h=Date:From:To:CC:Subject:In-Reply-To:Message-ID:MIME-Version:
+	 Content-Type; b=AHxE8n7j/DHxtE29CdVHUltLFgXAfZtBb1uF6QuorMQ5BszLG+MntvQuUKYcfm9vE6iyBPncBqNL6oYLow/oSTO4Rc/IcwrSEoEtuoGYnin913h5MXKAcZxtSi8pK5jYLxyO+PRh6ksZqQiVkd78BqO3ZaAUxNmqdaU7Qc9R84Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=grrlz.net; spf=pass smtp.mailfrom=grrlz.net; dkim=pass (1024-bit key) header.d=grrlz.net header.i=@grrlz.net header.b=U8hvdK5+; arc=none smtp.client-ip=185.218.207.228
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=grrlz.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=grrlz.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=koesling.info header.i=@koesling.info header.b="KOOUJmz1"
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 1280913203CE;
-	Sun, 16 Aug 2026 14:03:28 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=koesling.info;
-	s=dkim; t=1786881809;
-	h=from:subject:date:message-id:to:cc:mime-version:content-type:
-	 content-transfer-encoding:in-reply-to:references;
-	bh=5YREvnpYKnd49W1mJex+P6JRRbIIzIBfldbNZ91T9zQ=;
-	b=KOOUJmz1l/d15x3GriFh7NAVVyBklAhDK2A9lWDhjiDvvSu9Ez6rspi/TW5qpn3lE98c4x
-	1fnZAnNVBS5+2gbGwkyQDgOfO8CmjKKDXpvXhmXgP8Pqm4mZvBmPXvH+8EWbu7hCbovYXz
-	ZTXK1WM46pcrqNPFsE68lf4CYYpd9HQzmABqoJxvzv0+JjATfIzQgX7a9/hxmiud+qiDFb
-	OpD7HFFpr+NUMSXtXQNdvynYYunNtzvsx3TKNnuhMQ/kfl7FRXpWWkyxzCTywRC7scjrrv
-	wB3cXGJ0o7pFXSFd/hpsEoYc9rj7WhguW4gOY/AA/PwZBtZBGr+g0Wdasq8wzQ==
-From: Nikolas Koesling <nikolas@koesling.info>
-To: sashiko-reviews@lists.linux.dev
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-Subject: Re: [PATCH v6] HID: pulsar: add driver for Pulsar gaming mice
-Date: Sun, 16 Aug 2026 14:03:24 +0200
-Message-ID: <x0pm_gy7QVChgX6PIKCvXA@koesling.info>
-In-Reply-To: <20260816110521.8DB7E1F000E9@smtp.kernel.org>
-References:
- <20260816105423.47305-1-nikolas@koesling.info>
- <20260816110521.8DB7E1F000E9@smtp.kernel.org>
+	dkim=pass (1024-bit key) header.d=grrlz.net header.i=@grrlz.net header.b="U8hvdK5+"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=grrlz.net;
+	s=stigmate; t=1786891715;
+	bh=sMCfMZxpPFQ0FldILPA/nOm7SH4Mjl9LQsVsaBs1zuY=;
+	h=Date:From:To:CC:Subject:In-Reply-To:From;
+	b=U8hvdK5+cmidZoNav7EQ1n7TVMsaQt5YN7zin8mNVB+3KTVQnM+gmo/gX4wvvLBo+
+	 twW4GXXsYxA7f2F3n2Yd1Pf18CXWoxMQDo2C2zlBWW+GB3eRN8c+pAPameHA+6G1qN
+	 dJ/4qWF6ZIlJqQyBK/gBIVfBXNsvDx5qmMf+e5t4=
+Received: from mx3.investici.org (unknown [127.0.0.1])
+	by latitanza.investici.org (Postfix) with ESMTP id 4hNJkC2sM1zGpDT;
+	Sun, 16 Aug 2026 14:48:35 +0000 (UTC)
+Received: by mx3.investici.org (Postfix) id 4hNJkB6fNgzGpDJ;
+	Sun, 16 Aug 2026 14:48:34 +0000 (UTC)
+Date: Sun, 16 Aug 2026 15:48:35 +0100
+From: Bradley Morgan <include@grrlz.net>
+To: u.kleine-koenig@baylibre.com
+CC: farbere@amazon.com, linux-input@vger.kernel.org, akpm@linux-foundation.org
+Subject: Re: [PATCH v5 01/13] notifier: add device-managed registration APIs
+In-Reply-To: <aoFd149hoxHDcPU0@monoceros>
+Message-ID: <76AA8FCA-0F62-4790-A265-B534463CAD5C@grrlz.net>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7Bit
-Content-Type: text/plain; charset="utf-8"
-X-Last-TLS-Session-Version: TLSv1.3
+Content-Type: text/plain;
+ charset=utf-8
+Content-Transfer-Encoding: 8bit
 
-> - [Critical] The `drvdata` structure is freed before the battery power supply is unregistered, leading to a Use-After-Free vulnerability if userspace reads battery properties during device removal.
+>🤷, I don't care much.
 
-`devres_release_all` releases all nodes in LIFO order.
-`devm_kzalloc`  and `devm_power_supply_register` are called on the same device, so the power supply is unregistered first.
+I'm surprised how emojis can be used in the lkml...
 
-> - [Medium] The fallback logic for non-Pulsar devices during battery initialization is bypassed on command timeout. 
+btw I can't review this series (much) because this seems to be like for
+something
+else
 
-The dongle answers commands even while the mouse is off.
-So if the command times out there is a protocol missmatch or the device is malfunctioning.
-Not registering a battery in this case is the right behaviour.
+But the least I can do:
 
-> - [Low] Syntax error in the `model` buffer size will prevent compilation.
+Tested-by: Bradley Morgan <include@grrlz.net>
 
-It compiles with gcc 16.1.1.
-
+Acked-by: Bradley Morgan <include@grrlz.net> # kernel/
 
 
+A-B instead of R-B because I haven't done vigorous review. 
+
+Also, I added akpm because he (sorta) maintains reboot.c for instance...
+
+We should really add a formal maintainer/reviewer slot for these files. I
+don't mind taking it up, but reboot.c ATM is quite nuts.....
+
+Btw, thanks for your patch Eliav
+Thanks!

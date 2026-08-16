@@ -1,53 +1,53 @@
 Received: from pdx-out-012.esa.us-west-2.outbound.mail-perimeter.amazon.com (pdx-out-012.esa.us-west-2.outbound.mail-perimeter.amazon.com [35.162.73.231])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D215F3CF1F0;
-	Sun, 16 Aug 2026 06:08:14 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E5FFF3D0914;
+	Sun, 16 Aug 2026 06:08:17 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=35.162.73.231
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786860496; cv=none; b=A0Q+kHUjGb0FM92HrBPTRr1LbC3XXiHW1EwE5dw6KleWG/nwr04u0c78x7ASh87xccCjzhv0K2C3w6H7cjxZ1nRs59fMxKNP2KEJ7BRUTmDHhQw+yTQMiicGrJ/8uBASikoVk88BMyU1lbIC6OXmSAbSSkS6td+UEsPqw0pbnUE=
+	t=1786860499; cv=none; b=ALKUAUy2+Ye+a9hqYaqM4ThcpJXwZdt69UTMK+q6NPFQuIenE8JPMo6fepCqv2tQdwyIS3+02I8f387EggghtPuyrh0/ItW+O91dlgPHeI0SdmwmGTfErTeMFxQafsRZ91ehpsuyZJQ4MsqNJ6823i/xhj33SXRBrL693Z+7OPg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786860496; c=relaxed/simple;
-	bh=p93Xi3+QWz5mgIAvFsvL+CuDQRRWZfvIYi36hn3w7nM=;
-	h=From:To:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=W3hP5v+NuftgD1gwxAxicX6GJzZaOGzW+V5KdwmZ7a4Fdqbu/yMsGPqCJBRfguU0JNxQHf2MuplVDMiX7XCxJBV5HEckhNeX2x3fHc3Hw2TGKJZBfmUhH9/A/AHTqALyErGbQDCrVJFUkJJPIEuAV46ckkz1tKD3/hWi2UlI5uY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com; spf=pass smtp.mailfrom=amazon.com; dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b=agGiAILJ; arc=none smtp.client-ip=35.162.73.231
+	s=arc-20240116; t=1786860499; c=relaxed/simple;
+	bh=GR5sDpU92YulwatJevArPuB+YtgTuETpAiFrMEh5GSY=;
+	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=vFTOIv6fZ9I/gWmY0af3BoZmrkvga4V4Dagq0XtZ31qaoX2apqRP/HZfFqOMzvubpT+fG/SD7l1GWFbp7eD1LiPGLpSyKmxTsiOlG3VlGSIIzEgVU3XmmjV3Qo49bxpQOhKp9S9HKaqu3C9bsDKPY5jjVrjTxVOr4Ecuw4SWE9Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com; spf=pass smtp.mailfrom=amazon.com; dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b=AqejXWcf; arc=none smtp.client-ip=35.162.73.231
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=amazon.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b="agGiAILJ"
+	dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b="AqejXWcf"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
   d=amazon.com; i=@amazon.com; q=dns/txt; s=amazoncorp2;
-  t=1786860495; x=1818396495;
-  h=from:to:subject:date:message-id:in-reply-to:references:
-   mime-version:content-transfer-encoding;
-  bh=laxFIxBck+pB02Yt8Wa+X7jWUZA4HD2OilknNa+X+9w=;
-  b=agGiAILJn+tCXrWxQX4lc6OkXH98btBcSnWq2VEY6eCtT+Qqcc88Fd1r
-   b7roKLGWBNL41S51YIsd2HdefM5p9GAE98itikbNGdEnj9Ihljzy1Sp+O
-   VOqJB8EboJqZniPd6ZQMkosOBZ6qvXzAqlGPiXHDSOQGnzsnSu2savwg9
-   OGmgPIND4pMlg0HQXhaS3z/RJvQYkxaM6MDtY8tuizSCQfGG4K5RPAALd
-   aRA4i7Ok0MjnRZTXM5/FQcg0LPiVHURNi+jl1h5Q42tdzqfWrxP/TFYv5
-   C8SUr1lLe40ge1cevbE0Zc5Up/jjJI++fAW45NOjgmDIIf6V9DZJQT1T+
+  t=1786860498; x=1818396498;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=Ydve0iM3rqWmqxrIth0r33l2kNMEYwjTtjvISqPZNv8=;
+  b=AqejXWcfyXXARktsEQysBkzyPusZP+vZzMW6kpTWQxIvt7FsNqbZs+pI
+   3+bpJ569gXlApxKnVUYsOCc2ijJgkgTLXD2WGVu26dW0eBKjJ3jNF6UFG
+   fSibfeEpfOY6JB7Gps24H+2f7Wa3BVMPMPjERgXBCkvqSYnzm7Hee8C4g
+   BZETqp7m1tAid3nYoUvCzVTe22O9Mikvmo2TZ7Svuiu2RkSChIblrAHff
+   cJsWwSDymKP0mhhfcjbFrE7oF3WQbhrn+2KI/+3WxtvlgOba5u9ko1xr+
+   V/P0hTCB8uHPBdmsJu0uqyudeeW6fVF2kJTfOiayY2aXhnh4E2+4VP3Dk
    g==;
-X-CSE-ConnectionGUID: TxkVuImuTIOleey4cYiXoQ==
-X-CSE-MsgGUID: xWzDYiqhQkmKkIGEcv9ZPg==
+X-CSE-ConnectionGUID: cJAmRmffTxG+qMLzcRxs5A==
+X-CSE-MsgGUID: I3BXHHWsScGojHiT1x4VOA==
 X-IronPort-AV: E=Sophos;i="6.25,226,1779148800"; 
-   d="scan'208";a="25880990"
+   d="scan'208";a="25880994"
 Received: from ip-10-5-12-219.us-west-2.compute.internal (HELO smtpout.naws.us-west-2.prod.farcaster.email.amazon.dev) ([10.5.12.219])
-  by internal-pdx-out-012.esa.us-west-2.outbound.mail-perimeter.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Aug 2026 06:08:12 +0000
-Received: from EX19MTAUWA002.ant.amazon.com [205.251.233.234:17912]
- by smtpin.naws.us-west-2.prod.farcaster.email.amazon.dev [10.0.12.154:2525] with esmtp (Farcaster)
- id 25df7501-f3eb-4c75-9c04-b91d6c78fe87; Sun, 16 Aug 2026 06:08:11 +0000 (UTC)
-X-Farcaster-Flow-ID: 25df7501-f3eb-4c75-9c04-b91d6c78fe87
+  by internal-pdx-out-012.esa.us-west-2.outbound.mail-perimeter.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Aug 2026 06:08:17 +0000
+Received: from EX19MTAUWB001.ant.amazon.com [205.251.233.104:19160]
+ by smtpin.naws.us-west-2.prod.farcaster.email.amazon.dev [10.0.4.160:2525] with esmtp (Farcaster)
+ id b2abe2e4-2796-4b81-b5e1-f3b2108c8db5; Sun, 16 Aug 2026 06:08:17 +0000 (UTC)
+X-Farcaster-Flow-ID: b2abe2e4-2796-4b81-b5e1-f3b2108c8db5
 Received: from EX19D001UWA001.ant.amazon.com (10.13.138.214) by
- EX19MTAUWA002.ant.amazon.com (10.250.64.202) with Microsoft SMTP Server
+ EX19MTAUWB001.ant.amazon.com (10.250.64.248) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.2562.45;
- Sun, 16 Aug 2026 06:08:11 +0000
+ Sun, 16 Aug 2026 06:08:17 +0000
 Received: from dev-dsk-farbere-1a-46ecabed.eu-west-1.amazon.com
  (172.19.116.181) by EX19D001UWA001.ant.amazon.com (10.13.138.214) with
  Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.2562.45; Sun, 16 Aug 2026
- 06:08:06 +0000
+ 06:08:11 +0000
 From: Eliav Farber <farbere@amazon.com>
 To: <rafael@kernel.org>, <tony.luck@intel.com>, <bp@alien8.de>,
 	<guohanjun@huawei.com>, <mchehab@kernel.org>, <xueshuai@linux.alibaba.com>,
@@ -64,9 +64,10 @@ To: <rafael@kernel.org>, <tony.luck@intel.com>, <bp@alien8.de>,
 	<linux-gpio@vger.kernel.org>, <linux-pwm@vger.kernel.org>,
 	<linux-iio@vger.kernel.org>, <linux-input@vger.kernel.org>,
 	<platform-driver-x86@vger.kernel.org>, <acpica-devel@lists.linux.dev>
-Subject: [PATCH v5 07/13] Input: adp5585: use devm_blocking_notifier_chain_register()
-Date: Sun, 16 Aug 2026 06:06:06 +0000
-Message-ID: <20260816060648.4030-8-farbere@amazon.com>
+CC: Jonathan Cameron <jonathan.cameron@oss.qualcomm.com>
+Subject: [PATCH v5 08/13] ACPI: APEI: GHES: remove unused ghes_{,un}register_vendor_record_notifier()
+Date: Sun, 16 Aug 2026 06:06:07 +0000
+Message-ID: <20260816060648.4030-9-farbere@amazon.com>
 X-Mailer: git-send-email 2.47.3
 In-Reply-To: <20260816060648.4030-1-farbere@amazon.com>
 References: <20260816060648.4030-1-farbere@amazon.com>
@@ -76,58 +77,101 @@ List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
 X-ClientProxiedBy: EX19D040UWB003.ant.amazon.com (10.13.138.8) To
  EX19D001UWA001.ant.amazon.com (10.13.138.214)
 
-Replace the blocking_notifier_chain_register() +
-devm_add_action_or_reset() pattern with a single call to
-devm_blocking_notifier_chain_register(), removing the
-adp5585_keys_unreg_notifier() callback.
+Remove ghes_register_vendor_record_notifier() and
+ghes_unregister_vendor_record_notifier() along with their
+EXPORT_SYMBOL_GPL()s and ghes.h declarations, since there are no
+remaining in-tree callers — all users go through
+devm_ghes_register_vendor_record_notifier() instead.
+
+Inline the register/unregister calls directly into
+devm_ghes_register_vendor_record_notifier() and its destroy callback.
 
 Signed-off-by: Eliav Farber <farbere@amazon.com>
-Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reviewed-by: Jonathan Cameron <jonathan.cameron@oss.qualcomm.com>
 ---
- drivers/input/keyboard/adp5585-keys.c | 18 +++---------------
- 1 file changed, 3 insertions(+), 15 deletions(-)
+Changes in v4:
+- Split from the devm conversion patch into its own commit
+  (Andy Shevchenko)
 
-diff --git a/drivers/input/keyboard/adp5585-keys.c b/drivers/input/keyboard/adp5585-keys.c
-index 017c95029180..0be4cc234c21 100644
---- a/drivers/input/keyboard/adp5585-keys.c
-+++ b/drivers/input/keyboard/adp5585-keys.c
-@@ -254,15 +254,6 @@ static int adp5585_keys_ev_handle(struct notifier_block *nb, unsigned long key,
- 	return NOTIFY_STOP;
- }
+Changes in v2:
+- New patch: remove unused ghes_register_vendor_record_notifier() and
+  ghes_unregister_vendor_record_notifier() along with their
+  EXPORT_SYMBOL_GPL()s and ghes.h declarations, since there are no
+  in-tree callers (Jonathan Cameron)
+
+ drivers/acpi/apei/ghes.c | 16 +++-------------
+ include/acpi/ghes.h      | 16 ----------------
+ 2 files changed, 3 insertions(+), 29 deletions(-)
+
+diff --git a/drivers/acpi/apei/ghes.c b/drivers/acpi/apei/ghes.c
+index 3236a3ce79d6..4e092f71ca84 100644
+--- a/drivers/acpi/apei/ghes.c
++++ b/drivers/acpi/apei/ghes.c
+@@ -677,29 +677,19 @@ static void ghes_handle_aer(struct acpi_hest_generic_data *gdata)
  
--static void adp5585_keys_unreg_notifier(void *data)
--{
--	struct adp5585_kpad *kpad = data;
--	struct adp5585_dev *adp5585 = dev_get_drvdata(kpad->dev->parent);
--
--	blocking_notifier_chain_unregister(&adp5585->event_notifier,
--					   &kpad->nb);
--}
--
- static int adp5585_keys_probe(struct platform_device *pdev)
+ static BLOCKING_NOTIFIER_HEAD(vendor_record_notify_list);
+ 
+-int ghes_register_vendor_record_notifier(struct notifier_block *nb)
++static void ghes_vendor_record_notifier_destroy(void *data)
  {
- 	const struct platform_device_id *id = platform_get_device_id(pdev);
-@@ -318,12 +309,9 @@ static int adp5585_keys_probe(struct platform_device *pdev)
- 		return error;
+-	return blocking_notifier_chain_register(&vendor_record_notify_list, nb);
+-}
+-EXPORT_SYMBOL_GPL(ghes_register_vendor_record_notifier);
++	struct notifier_block *nb = data;
  
- 	kpad->nb.notifier_call = adp5585_keys_ev_handle;
--	error = blocking_notifier_chain_register(&adp5585->event_notifier,
--						 &kpad->nb);
--	if (error)
--		return error;
+-void ghes_unregister_vendor_record_notifier(struct notifier_block *nb)
+-{
+ 	blocking_notifier_chain_unregister(&vendor_record_notify_list, nb);
+ }
+-EXPORT_SYMBOL_GPL(ghes_unregister_vendor_record_notifier);
 -
--	error = devm_add_action_or_reset(dev, adp5585_keys_unreg_notifier, kpad);
-+	error = devm_blocking_notifier_chain_register(dev,
-+						      &adp5585->event_notifier,
-+						      &kpad->nb);
- 	if (error)
- 		return error;
+-static void ghes_vendor_record_notifier_destroy(void *nb)
+-{
+-	ghes_unregister_vendor_record_notifier(nb);
+-}
  
+ int devm_ghes_register_vendor_record_notifier(struct device *dev,
+ 					      struct notifier_block *nb)
+ {
+ 	int ret;
+ 
+-	ret = ghes_register_vendor_record_notifier(nb);
++	ret = blocking_notifier_chain_register(&vendor_record_notify_list, nb);
+ 	if (ret)
+ 		return ret;
+ 
+diff --git a/include/acpi/ghes.h b/include/acpi/ghes.h
+index 8d7e5caef3f1..3cd13171c14f 100644
+--- a/include/acpi/ghes.h
++++ b/include/acpi/ghes.h
+@@ -55,22 +55,6 @@ enum {
+ };
+ 
+ #ifdef CONFIG_ACPI_APEI_GHES
+-/**
+- * ghes_register_vendor_record_notifier - register a notifier for vendor
+- * records that the kernel would otherwise ignore.
+- * @nb: pointer to the notifier_block structure of the event handler.
+- *
+- * return 0 : SUCCESS, non-zero : FAIL
+- */
+-int ghes_register_vendor_record_notifier(struct notifier_block *nb);
+-
+-/**
+- * ghes_unregister_vendor_record_notifier - unregister the previously
+- * registered vendor record notifier.
+- * @nb: pointer to the notifier_block structure of the vendor record handler.
+- */
+-void ghes_unregister_vendor_record_notifier(struct notifier_block *nb);
+-
+ /**
+  * devm_ghes_register_vendor_record_notifier - device-managed vendor
+  * record notifier registration.
 -- 
 2.47.3
 

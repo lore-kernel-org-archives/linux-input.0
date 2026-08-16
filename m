@@ -1,147 +1,131 @@
-Received: from mail-pj1-f46.google.com (mail-pj1-f46.google.com [209.85.216.46])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from stravinsky.debian.org (stravinsky.debian.org [82.195.75.108])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 580583CDBD3
-	for <linux-input@vger.kernel.org>; Sun, 16 Aug 2026 07:38:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A3982190462;
+	Sun, 16 Aug 2026 09:10:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=82.195.75.108
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786865882; cv=none; b=ICkFlMDX4BJZlNCT0tr58v3JR0AMU3u6BRt7HFPT7zfHbD6NbTe9TLfyBIlyUINdb+tZsMhzA9ivII3wxQOJmik4EMW7lXfjED3TzV9VgxWsCYs+f2GEkq2TVgXeZNmfNWMPBNpNTOHthpVConfBxtmsKQ7IgUptr1ilUttkec4=
+	t=1786871450; cv=none; b=VFmuRANwa9E/wmCGlIKjNDzMIbyeoF1C+vrZy/g6y4rWIlNq0XuGjyTl7CpZR/qTkgMTuhHgq6wOs4wutEXkn18uGrYEZ0PwHGFyxhKy15krVIV1CRzD3tjIc+JPBnm/YIBVsnR83qDKFl6P25DmGt5+l/jwskLX3ni0BGvQQqM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786865882; c=relaxed/simple;
-	bh=bVh9SbGXj1SLk90mueC/PWZz0v/47/SCQrbVWAuM7rc=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References; b=ZesjkQl1Ch1Tj81SyJISBtFL7EmLmUvnOPM448NOPccFydkzFRI+B3qDvbCHaJYSJD2t/BMBo7apFpcpAnd4bAB4s/n54B77xiE6b24Q++pg9sEwDbPKWRR7OPRMe6NjsX050Un0v/RO0ZivB5umykd7bDemBHuyPWdKYrrMBfk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=AEKsPtAs; arc=none smtp.client-ip=209.85.216.46
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1786871450; c=relaxed/simple;
+	bh=bKD+LczPWMRKymiZvTeFZW2DqdqWMIcrJVjqiY27Rz0=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition; b=GDX7cA0mFPlm0i0nWOY7bxUMkcFiFnIQa3LIoyvc0JaQSHYl+ifaNcFkpXZcSKbnVq9ExtR/Ho/r0zvpjioefezOVpL1mrtKGsQJQez18XNwooKI1vdg2fyCflVzFdYEtj4gIboafmOG5kydBoSRRrJ68/kGGKG4RgpbYNVp16c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=debian.org; spf=pass smtp.mailfrom=debian.org; dkim=pass (2048-bit key) header.d=debian.org header.i=@debian.org header.b=Q6ah64J7; arc=none smtp.client-ip=82.195.75.108
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=debian.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=debian.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="AEKsPtAs"
-Received: by mail-pj1-f46.google.com with SMTP id 98e67ed59e1d1-38f620399a0so2083691a91.2
-        for <linux-input@vger.kernel.org>; Sun, 16 Aug 2026 00:38:01 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1786865880; x=1787470680; darn=vger.kernel.org;
-        h=references:in-reply-to:message-id:date:subject:cc:to:from:from:to
-         :cc:subject:date:message-id:reply-to:content-type;
-        bh=uxz6osYBu3ceFE4gxCZtzflAq35fYKkM5G9k3p/A1ig=;
-        b=AEKsPtAsonZsMSS79Cw2P23wYfxiBsG9W8xb2Rpazht0LX6uQ+aEOKI97o6P0rJF/m
-         jtPi5d4Lk1lSiDe3vLRDPc2lOPfxcgN4Qv/DS40jCYKZiEc6IOw3fzqNZpJFi3jX11/A
-         mvfw91gL1o/BGeSdaWRADx1IwOrISAARCk26gDRK7C+qwRJJC4h7WOnWyUQi3n6kD8dA
-         2Qx1WYGEWNTocbPOswHAVJFbJj9OiZnzIIiSjoJpAxnYzEaVAxn2AiCoaM0wE4f4tYbb
-         tLudSESpoVckW4WBWyS9vQPAJje7kVdXRfqcfibdSO9zywLnOt3orL8+4h8ECv4gSOg6
-         4sKQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1786865880; x=1787470680;
-        h=references:in-reply-to:message-id:date:subject:cc:to:from:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=uxz6osYBu3ceFE4gxCZtzflAq35fYKkM5G9k3p/A1ig=;
-        b=YEcr+yJIDMDEuv8RFM+PUttLtKqSJ26r1TVYAAnVhtjdF+xTrg0SvBMTVkQjwkmF+L
-         zM8UUV4YhfqIg7qETOKsG1JCcHGbQlrzP7+WAaCv4z5BNwYe6AcquPj31q3RvAnZblK1
-         GgZIiqyIsMxoyCKEYAMAWUCyPA6Y1YqOW5oIsWuJPIDpJHG6elTYV8+wT+hfdHk9UGi2
-         XOglZv32C29CL7VI+CuV4NnRKyn3lzOFFID3ny4yBcXL7x8Sk0IUzebR2/cl2mrDkWs5
-         aHYj0+Xee2wyLrQwJn/a966JOktCUXCmVz45dYMXbDa53KxMpyPGuQmCzLSkbgwNgTUR
-         E6og==
-X-Forwarded-Encrypted: i=1; AHgh+RoFEKsQFszHrr6wBJYYzxGvb0Po73/azSi5UVN3eFS0nNmV1dh/kq46uFrAfZMmPQJVaPUMuH01uoKhEw==@vger.kernel.org
-X-Gm-Message-State: AOJu0YyakT9iK4vstvZc2POTZ5v4SUbaWUqIuloy1+NyndsouQ2cRG7n
-	o+b5d69przcKJCTVOt9YlRNhGvZuT9rLRg4ipZgzg8apRYliSs7jmnzj2ghpQA==
-X-Gm-Gg: AR+sD12N5Oz+BvAbCO8WtVnLguPLwWm0wXpoMq5v/eUxvcUWE8Tw/r5XvNLos837uwW
-	DneoODfXELEpDAaj8GEJ3S0P7Ilx/vLC/+y5wKFhZVrX+zPmOHNiJmzx0G3N6H+M/zfIKhBtUkB
-	oHR1F2G70O/aUfIERjZyge2kwyYOfYDrlblruec1aG+V3hyHggYjN4U/QY2UOyivfdmiz5ZPG7+
-	qNq31mmkxTxKWLJbSDEYrDKTX0dz2aqvV+dgxm8c0hBru3MqvUADdrtXz773COBxaCirpa6rPTv
-	UYom1QEJiyUKdAKqrHpa5S+XnEEGA3jEsYuzMmP5eLP19CsVANSw+1Mw6wdzcZ4xmffYHtD1TMH
-	y4IJuHcedJJKPXm48IWscfzY1f0VpjnTnyCCUSvNjqx4Oz3TIMvSIppc3thcJvApN+RbUw0lsWA
-	WZw+no2HADUI4A0ICPf4LQTVsh8HW5TKCeaNsStjxs7y3IKEliUfsU1BeZ24VqljnOVh69BPkKY
-	QMnsU4BI7si6ilaJAo3eUylgv6ufaZL0GBu3T7IMVgb8xNOFevX8g==
-X-Received: by 2002:a17:90b:4c:b0:38e:4cb:51f with SMTP id 98e67ed59e1d1-3933b8fc6c3mr19239894a91.11.1786865880442;
-        Sun, 16 Aug 2026 00:38:00 -0700 (PDT)
-Received: from xplor.waratah.dyndns.org (222-152-170-159-fibre.sparkbb.co.nz. [222.152.170.159])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-39531e9a6ebsm834166a91.9.2026.08.16.00.37.59
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 16 Aug 2026 00:37:59 -0700 (PDT)
-Received: by xplor.waratah.dyndns.org (Postfix, from userid 1000)
-	id 67778360445; Sun, 16 Aug 2026 19:37:56 +1200 (NZST)
-From: Michael Schmitz <schmitzmic@gmail.com>
-To: linux-m68k@vger.kernel.org,
-	geert@linux-m68k.org
-Cc: schmitzmic@gmail.com,
-	Miro Kropacek <miro.kropacek@gmail.com>,
-	linux-input <linux-input@vger.kernel.org>
-Subject: [PATCH v2 1/5] m68k: Fix atari mouse movement
-Date: Sun, 16 Aug 2026 19:37:48 +1200
-Message-Id: <20260816073752.16656-2-schmitzmic@gmail.com>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20260816073752.16656-1-schmitzmic@gmail.com>
-References: <20260816073752.16656-1-schmitzmic@gmail.com>
+	dkim=pass (2048-bit key) header.d=debian.org header.i=@debian.org header.b="Q6ah64J7"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=debian.org;
+	s=smtpauto.stravinsky; h=X-Debian-User:Content-Type:MIME-Version:Message-ID:
+	Subject:Cc:To:From:Date:Reply-To:Content-Transfer-Encoding:Content-ID:
+	Content-Description:In-Reply-To:References;
+	bh=NrEUYrjZTvcDUiMxShUMOXghU9BWfoLn2LjuFoPa9Wo=; b=Q6ah64J7wzwRG+icu5fU91Nxv3
+	t8YreFN4d/y+PzuslvmNvdf4kFs30I7L3l76VZZqNfvTHcJ3wsgtuYOsDMbb71ADoqNovqZYDnPsn
+	rfhkZE6wSHeZvzEUNRwM/CFMqAmMK4opeuul1qKSc0FMMFoWqXLC8lmXClfA0PCPTF3X+ZQqWIzfB
+	WwdaEDYX9orAhHexdosrHXBjQ4bxk6EaWCH6q02zFEnZ4unjxgVJrTPFQOGQ6ffJU6RuRJZSGfsla
+	3TCIUW03S4yBBtwwkgOZQPn1mvfwU97Q/ySTNu+LK+DhGa5hk8cvNd/BNTOx0kbGZKkZWZtEytSk+
+	+KwxbpWg==;
+Received: from authenticated-user
+	by stravinsky.debian.org with esmtpsa (TLS1.3:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
+	(Exim 4.96)
+	(envelope-from <benh@debian.org>)
+	id 1wvWt9-007LRH-0s;
+	Sun, 16 Aug 2026 09:10:43 +0000
+Date: Sun, 16 Aug 2026 11:10:40 +0200
+From: Ben Hutchings <benh@debian.org>
+To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>,
+	Lee Jones <lee@kernel.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+	Matteo Croce <teknoraver@meta.com>, 1141407@bugs.debian.org
+Subject: [PATCH] HID: core: demote warning to debug level
+Message-ID: <aoF-jIn9gk9kJ7Pz@decadent.org.uk>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="EgAQaCZm1TB6wdfL"
+Content-Disposition: inline
+X-Debian-User: benh
 
-From: Miro Kropacek <miro.kropacek@gmail.com>
+--EgAQaCZm1TB6wdfL
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Kernels are built with -funsigned-char since version 6.2, resulting
-in signed mouse position deltas getting misinterpreted as unsigned.
+=46rom: Matteo Croce <teknoraver@meta.com>
 
-Cast deltas passed in (unsigned) scancode buffer to correctly
-interpret sign.
+The log level for short  messages was changed from debug to warning,
+flooding syslog on systems with devices that regularly send
+short reports, in my case an UPS:
 
-Fixes: 3bc753c06dd02a35 ("kbuild: treat char as always unsigned")
-Link: https://lists.debian.org/debian-68k/2026/08/msg00000.html
-Signed-off-by: Miro Kropacek <miro.kropacek@gmail.com>
-Reviewed-by: Michael Schmitz <schmitzmic@gmail.com>
-Signed-off-by: Michael Schmitz <schmitzmic@gmail.com>
-Cc: linux-input <linux-input@vger.kernel.org>
+    $ dmesg |grep -c 'Event data for report .* was too short'
+    35
 
+Demote it back to debug level.
+
+Fixes: 0a3fe972a7cb ("HID: core: Mitigate potential OOB by removing bogus m=
+emset()")
+Signed-off-by: Matteo Croce <teknoraver@meta.com>
+[bwh: Re-sending this fix which was applied and then lost in a mis-
+ merge.  Add a second Fixes trailer so this should reach all stable
+ branches that have the warning.]
+Fixes: 2c85c61d1332 ("HID: pass the buffer size to hid_report_raw_event")
+Cc: stable@vger.kernel.org
+Signed-off-by: Ben Hutchings <benh@debian.org>
 ---
-Changes in  v2:
+This was originally posted at
+<https://lore.kernel.org/linux-input/20260523105545.68079-1-technoboy85@gma=
+il.com/>
+and applied to the hid tree as commit d0ff08d946c8, but then it was
+lost in merge commit aa776949fb77 "Merge branch 'for-7.2/wiimote' into
+for-linus".
 
-- change atamouse_interrupt function signature to signed char *,
-  drop signed casts (Geert)
----
- arch/m68k/atari/atakeyb.c        | 2 +-
- arch/m68k/include/asm/atarikb.h  | 2 +-
- drivers/input/mouse/atarimouse.c | 2 +-
- 3 files changed, 3 insertions(+), 3 deletions(-)
+Ben.
 
-diff --git a/arch/m68k/atari/atakeyb.c b/arch/m68k/atari/atakeyb.c
-index 49a9a459bdf4..86ab73a79177 100644
---- a/arch/m68k/atari/atakeyb.c
-+++ b/arch/m68k/atari/atakeyb.c
-@@ -39,7 +39,7 @@ void (*atari_MIDI_interrupt_hook) (void);
- /* Hook for keyboard inputdev  driver */
- void (*atari_input_keyboard_interrupt_hook) (unsigned char, char);
- /* Hook for mouse inputdev  driver */
--void (*atari_input_mouse_interrupt_hook) (char *);
-+void (*atari_input_mouse_interrupt_hook)(signed char *buf);
- EXPORT_SYMBOL(atari_input_keyboard_interrupt_hook);
- EXPORT_SYMBOL(atari_input_mouse_interrupt_hook);
- 
-diff --git a/arch/m68k/include/asm/atarikb.h b/arch/m68k/include/asm/atarikb.h
-index 68f3622bf591..c5a84c7ee85d 100644
---- a/arch/m68k/include/asm/atarikb.h
-+++ b/arch/m68k/include/asm/atarikb.h
-@@ -37,7 +37,7 @@ extern void (*atari_MIDI_interrupt_hook) (void);
- /* Hook for keyboard inputdev  driver */
- extern void (*atari_input_keyboard_interrupt_hook) (unsigned char, char);
- /* Hook for mouse inputdev  driver */
--extern void (*atari_input_mouse_interrupt_hook) (char *);
-+extern void (*atari_input_mouse_interrupt_hook)(signed char *buf);
- 
- int atari_keyb_init(void);
- 
-diff --git a/drivers/input/mouse/atarimouse.c b/drivers/input/mouse/atarimouse.c
-index b1219cc4d9a2..6bac2288c494 100644
---- a/drivers/input/mouse/atarimouse.c
-+++ b/drivers/input/mouse/atarimouse.c
-@@ -60,7 +60,7 @@ extern int atari_mouse_buttons;
- 
- static struct input_dev *atamouse_dev;
- 
--static void atamouse_interrupt(char *buf)
-+static void atamouse_interrupt(signed char *buf)
- {
- 	int buttons, dx, dy;
- 
--- 
-2.17.1
+ drivers/hid/hid-core.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index cf123347a2af..605530ec2e9c 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -2079,8 +2079,8 @@ int hid_report_raw_event(struct hid_device *hid, enum=
+ hid_report_type type, u8 *
+ 		rsize =3D max_buffer_size;
+=20
+ 	if (bsize < rsize) {
+-		hid_warn_ratelimited(hid, "Event data for report %d was too short (%d vs=
+ %zu)\n",
+-				     report->id, rsize, bsize);
++		hid_dbg_ratelimited(hid, "Event data for report %d was too short (%d vs =
+%zu)\n",
++				    report->id, rsize, bsize);
+ 		return -EINVAL;
+ 	}
+=20
+
+--EgAQaCZm1TB6wdfL
+Content-Type: application/pgp-signature; name=signature.asc
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEErCspvTSmr92z9o8157/I7JWGEQkFAmqBfowACgkQ57/I7JWG
+EQm/bA/+NYBTqjjxmY8NP259zAuvFQJoR61XfIcj2NImqh/lotA/uAqeS1g6q46u
+GgHlbfOhwjEwoMYQDLeChmaFSxZZCbYhd4ZQMruFodRd2NDwlMlQi6Jq8Umu3NJq
+kQvVCHX0JEaOcoTKnhxEqJ7ssfrZwBUDixupDvlvu3kcBEsA7lp7MR7G5hkwrKVd
+015y70C20LkQIif+e4D7FMqZI8Fq6yxga8qq/j50Kqo8vpygkMW8RwSwS9XHP8go
+N7+YYidSoVfHoATNIWMU8iMxNaf+lnD3lYz7hxJkoTK2+A3c46YY+8rs27LOEHc6
+qN0DQxJrx9LKzeMp3YPCtG4nbOCa7kPx98dWy5s9u5wrVAXjgMQ/Hztwr0qHpEHi
+6VyREG+DqzFu2EEIlpFga4L1uxmkKgKIZ6gUrRdoHt933ag5LqrCInVQZVM3jhwY
+mqWkk0dAXpBortytqEItyhVBmFN9WIb71IFBcDUoj3K3pUZszefchO29gvpJJUYr
+DgPetpQxXYbA8/NR9jzznuDzIMOsN44tgqSg4wWHsMNc7KFQgcTrmfG4zU8+rhAM
+Hqqdp8vWPf9ZH1GfjvvjSyA2oyRyRp/KceqwHGlU67VAlfiZdW0HD3W6K39CQCiJ
+GS9igvKA+tyZZwnMpfGx4VD24PkswFU+scAJa7KfwNbOBeR478M=
+=R7bY
+-----END PGP SIGNATURE-----
+
+--EgAQaCZm1TB6wdfL--

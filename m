@@ -1,241 +1,313 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f172.google.com (mail-pl1-f172.google.com [209.85.214.172])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B7DA325B09E
-	for <linux-input@vger.kernel.org>; Mon, 17 Aug 2026 02:19:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=198.175.65.18
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786933171; cv=fail; b=ncWjXt3K2t5PxGnnpUSpsNwbOd0ER1+jehgVb3zKbNdCofIIFCMZDeMIKEOqTVawPGttrN0KtxocPyffQWSYCKoaY7icXW1pR5Ypve/Z2YytY4mydHT6pnpCRIbELj+6gS3zoLrg/GdwIXY3QyghgPAc0XWesTWO+JhD27ec0R4=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786933171; c=relaxed/simple;
-	bh=myAG5IPk09MRQVSzmbL9dlkhIv1nr9oV7FCJfOYhFzc=;
-	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
-	 Content-Type:MIME-Version; b=ea2hvutz2NcqbHpgV/vUI4/UKKIZ2XfNH1HFnY6piSwtVBuYnP9W15uw+/hUPpVie1068IQshQvun5YYJYzL9pt8Ur3t+uWYDJxOXkWcxwLGw4AvJl7MXLuZSmqurtvpmIbNYCZUZPwA9SYWYBungVyAJniI8rzGFTSTxfeyF+I=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=KVHcq8HF; arc=fail smtp.client-ip=198.175.65.18
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8FB3E54774
+	for <linux-input@vger.kernel.org>; Mon, 17 Aug 2026 03:31:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.172
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1786937472; cv=none; b=lheITOfu91tOjK9mQjUR2jcQWkmkXCqBW7ZSmr2lIxoUXBXzP+rWS2tgKbPTK/JbNgi56TTbZZGpY0hExE43OdIhbpfsFj4pbo93X3/XW7UWBLC2iWQMlQ/zW0egCd5LWL0bS/2LD3uefhBolYlfV6Ey05Y57fKSbr7uyXrqBes=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1786937472; c=relaxed/simple;
+	bh=a3gCeMRUt0Rrs4+ahI4VBhzFW1PjKJeuBazV56+miOI=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition; b=b9cjRKt6WqQVxrU/blF2/pv52aFtGjJQNgO7Ij9n3FtY6zxEyLviSxW7xnbrjIGD0mPiY3IFcBNY+JKrxbJopeFU3wLywpP7uuo64IQPmJbpsuNKQ1s6WHc3ETlsY9OGMKQ56WjYDkD4juDLRDblKPNWbj71W5t2vIzVDr+OpcQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=VnUdiBuM; arc=none smtp.client-ip=209.85.214.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="KVHcq8HF"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1786933168; x=1818469168;
-  h=from:to:cc:subject:date:message-id:references:
-   in-reply-to:content-transfer-encoding:mime-version;
-  bh=myAG5IPk09MRQVSzmbL9dlkhIv1nr9oV7FCJfOYhFzc=;
-  b=KVHcq8HFDag1falokhcHNoflEqL6xhwWDDVFkUovgfv/qj9vAjuwf/vB
-   qP0SvSTziH+rFLNdKacnBnXqdQa3Q+lurjzsYYAPCEmVyRJ6izFUa8hq9
-   +AcduViyCJU+FdYAz9y/R9/IiA78Yf+1Fv+DvYkyidEL5spcHwX2E4IOW
-   nyAHMn4PmKn12F8nXG5/oAPn+Qpp0xgQlg+enVskNa76zvArd9K3Gy48O
-   FXQfysqvR1Wj+PD9Aff103LoFHTYpKervI8K51FE3F7BrOyWdcAi0C0G1
-   AoZus4howPqcL1kjQzE8hN9eUdLNixn9+f2nBaF6BahZeb4A+QzDpN27Z
-   Q==;
-X-CSE-ConnectionGUID: Z3wkwApoTHOpFhTIVNla/w==
-X-CSE-MsgGUID: Zz6x28pmTwKPVtoYECm5fg==
-X-IronPort-AV: E=McAfee;i="6800,10657,11877"; a="87474062"
-X-IronPort-AV: E=Sophos;i="6.25,228,1779174000"; 
-   d="scan'208";a="87474062"
-Received: from fmviesa009.fm.intel.com ([10.60.135.149])
-  by orvoesa110.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Aug 2026 19:19:28 -0700
-X-CSE-ConnectionGUID: 99XNPuysTrmiHrvrSZTt7Q==
-X-CSE-MsgGUID: Ge1vj4TQTciyqUNhVeeRnA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.25,228,1779174000"; 
-   d="scan'208";a="258565948"
-Received: from orsmsx903.amr.corp.intel.com ([10.22.229.25])
-  by fmviesa009.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Aug 2026 19:19:28 -0700
-Received: from ORSMSX903.amr.corp.intel.com (10.22.229.25) by
- ORSMSX903.amr.corp.intel.com (10.22.229.25) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.2562.45; Sun, 16 Aug 2026 19:19:27 -0700
-Received: from ORSEDG901.ED.cps.intel.com (10.7.248.11) by
- ORSMSX903.amr.corp.intel.com (10.22.229.25) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.2562.45 via Frontend Transport; Sun, 16 Aug 2026 19:19:27 -0700
-Received: from SN4PR0501CU005.outbound.protection.outlook.com (40.93.194.16)
- by edgegateway.intel.com (134.134.137.111) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.2562.45; Sun, 16 Aug 2026 19:19:26 -0700
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=O67wAAo3lzB1ncjYqtIP/6mG5Uisi1RwkfKrAaAAiEezQi+45N5eLlqk7MwvdaYtVtLFPvx61WTSMLpGb8vkDsiPjthDZYU4fXR7wOP1ePESApilUph3z0G/CI7SG8gmoL3YcZ88240mHjEGeSlKpoImqzElcTVrLSVqSH2RXBEM3U1b1HR9f/xotSgufV7MOh/XazrzqdAofOeGl4A705EmRpxIWVs9wwDRJPvZwmUDkJ1tozwFiNv2ULmpZtmQVlASZ17xQ8RRGmsa2vF8EN8UIvgsotMwPS8aEAvB6w8n8Joac7MUL4w5ZurqSxnT3+8G9YuZS6a4Ktq/ojYOCw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=iYjaHsf/OGwMchu/HMI1Qxul5Yr787uTKuR6OuspgkY=;
- b=CLwmu22GBVjdj6OJrOywbtP9s6jAuQUGGakuH1E7mmwrLczitfN+fFD5q1KbXQo/YE0fVCzLtJji5rZuBeVCvmDv0zbn14MalkEm+uA235CdnmktaABbFtokhk7VYdY+zcFiwdP8iu1BqaISLZryHKzHl91JJ7lt9ThifUxdSQnII0qQC6SjgNH8s7PHMjR4zx+tqyQaUbLD3IFiOrf53lSepnMkDjfEFUgQ2W624+1FTIjGHTWYMx+z1e0+pPR/IYXbcs9Tmtg+cWOGwYrTav8jdfhf9pHyo8yEY5EDjKF2Tv2vJ2TSdSY0Ad+3Z7Cl/0kT16tlEH43A8w4ZdlCjg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
- dkim=pass header.d=intel.com; arc=none
-Received: from IA1PR11MB6098.namprd11.prod.outlook.com (2603:10b6:208:3d6::20)
- by DS0PR11MB6470.namprd11.prod.outlook.com (2603:10b6:8:c2::7) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.21.315.17; Mon, 17 Aug 2026 02:19:18 +0000
-Received: from IA1PR11MB6098.namprd11.prod.outlook.com
- ([fe80::b1d9:3282:7e31:3799]) by IA1PR11MB6098.namprd11.prod.outlook.com
- ([fe80::b1d9:3282:7e31:3799%4]) with mapi id 15.21.0315.016; Mon, 17 Aug 2026
- 02:19:18 +0000
-From: "Xu, Even" <even.xu@intel.com>
-To: Qiao Ruihao <qiaoruihao20061203@qq.com>, "linux-input@vger.kernel.org"
-	<linux-input@vger.kernel.org>
-CC: "Sun, Xinpeng" <xinpeng.sun@intel.com>
-Subject: RE: [BUG] intel-quickspi: touchscreen DMA write timeout (Goodix
- 27C6:012D) on Lenovo YOGA Pro 16 IAH10
-Thread-Topic: [BUG] intel-quickspi: touchscreen DMA write timeout (Goodix
- 27C6:012D) on Lenovo YOGA Pro 16 IAH10
-Thread-Index: AQHdLMmBqwhPw6qB20WnMRWO+yMjRrahgqpw
-Date: Mon, 17 Aug 2026 02:19:18 +0000
-Message-ID: <IA1PR11MB609806D036ACDB2E7A9C7A18F4A72@IA1PR11MB6098.namprd11.prod.outlook.com>
-References: <tencent_DBBAC19E701BEFF670746186D3C6B4CA1D06@qq.com>
-In-Reply-To: <tencent_DBBAC19E701BEFF670746186D3C6B4CA1D06@qq.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach:
-X-MS-TNEF-Correlator:
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=intel.com;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: IA1PR11MB6098:EE_|DS0PR11MB6470:EE_
-x-ms-office365-filtering-correlation-id: c7060972-7653-41b7-2bbe-08defc05f11b
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;ARA:13230040|366016|23010399003|1800799024|376014|38070700021|6133799003|10067099003|56012099006|11063799006|22082099003|18002099003;
-x-microsoft-antispam-message-info: Eebc9tfI2gWVG2FUsa6cIXfOVIhms09iJCFVMDUnmmasWk/T3pcipFCVHinFA0YRW8JI/fjiHTqHThKt0BifXLZlz5YAlxFDbJsU9xIkji43rbkKAQG2Xd/LyzDw4PQrVLzvjyuAVNOAOsSfmOeQPMtl4+JrSlZDJiECJz5OAThCajlbam3GuR+jJbMrLzrUixxHtxcAwW/rg2GOV6TXWHLqLHwaqh/VEJMEbiEnL1iqImqnLe1XGq2ik71d1Y+pDOk/eWDbTa1uiPmCoF1bM/5JkAazTPRMLaJIfliGSrlBbM+PjPIuFC11zAltBocv8qU8q03cnRwc9KsNYArfVJmDUZpTbLhecC7uNqXbJarOg375E9ZSi77J6YyyIPDZ1Gbe+LOl1EtwyWSuBHD7OoxWQ0GX+pju+bWdNAnW+WfmTBOvDlvYXjiOfGED7EeMHTP1a9Pxmri2oWsJcVgZ9Qu78WNpPLJwTgpkgdYnCVZwdUL9QDaeF3/SiTpOEPdDz1Q7Ql9vEkDmd7jZaWG0ey6WEtYDDx83VEHE4tYKDyeRm7tyXRsW8LxNPeZLBUkUbTNjJVnj9p6TZMBN57BD1RvoUuOC9pxhfgIYFAlCUBpoGgbr3LWSP77upPQX/dknzqzzdjX0q1pQV1HxUAY0ngNS21/G223F4yHELIrBGzm7jubuqiCB78rGEs0MJ6pkAVA9U8vGFnZLEJDgQ1o7SdG3DLYhFPlTQgRJJ3vpmxk=
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:IA1PR11MB6098.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(23010399003)(1800799024)(376014)(38070700021)(6133799003)(10067099003)(56012099006)(11063799006)(22082099003)(18002099003);DIR:OUT;SFP:1101;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?EFENAW5hWYsU1NxiVQCyTtnN4r/oNxdvdfUtLjQgZQ9wHlH4NDxMqrS94Kr8?=
- =?us-ascii?Q?xaDYj4JJjZ3a/ek1kMV76A3Abj/y+tq8ISf7c6neoQtR/QXJTxY1Li5/vJx5?=
- =?us-ascii?Q?oYk/0pVABeJmZhGfZdGAQbXK3fh5gR54jUer5vw1pLEYugAhLTLORt4COhPI?=
- =?us-ascii?Q?2odLv5/NMr3E5Ip58GpAr2Rs6xaMI3ao8yVlPWDASuvOHTyX0ILqT+uRbUyu?=
- =?us-ascii?Q?Js6Epimx7zlavmziLhKrj0CjH/WMoBQxFs4JETn+pcEWdnD4rzeDcfcMGIm2?=
- =?us-ascii?Q?ygi9/X+/1i76Huro/PGx+rggsGbiDIpBUC08VASWZX4P987XqV6CDWTD4Gl3?=
- =?us-ascii?Q?TFZf6V+3yOQCTMTri67dJ/1qPUK/k1Ae3zMZu5xFaidHSkMeGWcia9trMQnk?=
- =?us-ascii?Q?6MT3D/r1hqO0RzOdta2J9k9q17+I8MHbSNcCIH2lmhQJ8j9S2FRLAr2xLJwU?=
- =?us-ascii?Q?YQVujpdpSICkWSPKSnmoRbYyN+oKf5kVafyAuP7LrokvDhsTfmRPJTDvDQdR?=
- =?us-ascii?Q?7FPWVWRHUlMWku2ZsrDZ7debU6Zrfq9L8zYr8J//xvHitU3JG/Y3oOm7oWUY?=
- =?us-ascii?Q?LjPcZW+35mJofEBq7Dqx5fdeZUZvZwRC1gtHO/xjDBBrZ/XKVw2Qt4utBtrR?=
- =?us-ascii?Q?GWHKFVpO+iJboe/XZYPI145a5Pja5A8FqQk0E0QkckxiHOoz/MF5dcYGW7GR?=
- =?us-ascii?Q?lCQeAtDuFpLw7Q2dUIcaBtMzOUvLM5nAsjJ8lEpiOu33Y+Fv8T9UPEH2o33S?=
- =?us-ascii?Q?ka4g39i7L3GaE0RMx+nnSizthuth5puiv25ZCzf9QZjgTVMRh10Ygp7RZ5ts?=
- =?us-ascii?Q?O7MC8JQSeXiDPgDE4gJ9u7EcewWkf1FvZ+HrHEK6cM1JMFrnMeGfo5aNKc+J?=
- =?us-ascii?Q?729JFBx8SIMfZrOLhHilImQPXFDIH8abeW3rveqsdogM6CTo7k4zU2Yb8tB+?=
- =?us-ascii?Q?7YVGUm0toL+euBYoN08E+y5IWeuq4aJOZB2AzdtV44ZozjJzu4VZUWDLLM71?=
- =?us-ascii?Q?pNLNR4XpEn6uWqDFB3isw2RcEEr0XVs3schWvvFdumtDV/QsmZnAfFnnP+NV?=
- =?us-ascii?Q?pp7bGGN79gbuDz8K44HJNcLkoS4lBeeh4LEyCI8lNayWeXzKqFTuXQA1J75Z?=
- =?us-ascii?Q?Je+F/FBKfWLf1NiKyuh97xQFyeYjvus6nhAaoHboQY7oC9zP4cE4bjwyKipM?=
- =?us-ascii?Q?LwS0yHvOg48O/SVaaJXfHEkR2VG6lrpg/UZ5YlhQLZ0X39K+mu2n9eFxokBQ?=
- =?us-ascii?Q?C0ENf0a4zYcPB2N9SC7vHEh82/tghFk6rOZfy4hiJCY4EA9KW7Wi2MQMAmbA?=
- =?us-ascii?Q?ajjDHTbEQ2mB2iHa6hBU9yTQiezkx45Mo7FXABhJx+LpaFqOLA36RyPJ/IHl?=
- =?us-ascii?Q?qIKeJg75PJisn2poxMEZI6AGOvE9WMVye2+0ZoYpnFd7hgAazJSFmPumB4J7?=
- =?us-ascii?Q?uaVUnRHihwTgt5Dn1qkcpYZri1ywj43b30BJ/FpjZuRKqmdJE3LXwoUFMXzR?=
- =?us-ascii?Q?lwEzYd+zeoi/1o1zKdoJPO3vcPMh0dNTpU+oDBLrQfhSS8PxFi4z/1njP2Q5?=
- =?us-ascii?Q?qhCk/it/6iBV30ATxmHx1UFedG69NMlPfQNlNLuYJOVzoT9qTqTrocOjnbvu?=
- =?us-ascii?Q?Blmp/Y7C0osSd163a+h+S0E2gAIFI9FMrMO8HsoZ/ogroHGTNo5BmR8nYN1y?=
- =?us-ascii?Q?BrHV2r4V62ugBkl+g5zJ7CFB8ZgCndLmOiSIwmwP1fVzMMLG?=
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="VnUdiBuM"
+Received: by mail-pl1-f172.google.com with SMTP id d9443c01a7336-2cace91f112so32477065ad.0
+        for <linux-input@vger.kernel.org>; Sun, 16 Aug 2026 20:31:10 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1786937470; x=1787542270; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-disposition:content-type
+         :mime-version:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=AJ86HgjoGIVlHYKs2krNkNP29rTactBljK3BVhC9gaA=;
+        b=VnUdiBuM/STPyW76adiY6EHh3XKoQwWd7xHPOOxOjz+ieV4DxP3K34tMGS/Is8kWgm
+         KUIS8iLib1xq68itKTN7eGfQdQUwZRSH9YRQoxo/gP5PjKlMQj3r+nxfkCO6T2GR4uPD
+         DAsfCBlmuaJl4mNXBvaMLVYFDJP7X47io4345r6HSI5uBxSvyfU8S8YcU8UJMgtnbozO
+         ml57iG4/BfLmpmjHxAYch8JkrofD0d6yZeGg8KNGbDV7xgJWizAAJlEZ41p8Nrd4/Zuu
+         xa7u4KNGGCMTqLHAqcoSsC8TRWTG0UAg4iU20E2IyusfDBmN9WlVp9pzpaWuy6XEV872
+         ThDg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1786937470; x=1787542270;
+        h=content-transfer-encoding:content-disposition:content-type
+         :mime-version:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=AJ86HgjoGIVlHYKs2krNkNP29rTactBljK3BVhC9gaA=;
+        b=NPcSaZNQkXrkZTytixs0koB1XU34n5GRLyBPX8UJJxtZQ8xXFSaH4dJcJtwG6zNMue
+         TuH5RF4Kg4a0dq5yQLsUz3R+vdEw2WxP8DL7C+LzlEh//iKRH6GD0IWeZVzlpfie4krg
+         nBCNOhHF2uN0cW6CNXLNGLHvmgrT0F32mkNWEHu4SOC2sAQZW0TAiJSf+3oEWwOWoIZ5
+         ry20Paqn6LHbEKefKiFsy9zKtciKKtQBxBzzS7uY+hLkA9TwHk/GkEr0oI2HkHWe4Ot6
+         9qHT/fscYhWVmX6N3s1aHVqrQXVI4kdVLcDs+m+cHZZ8TM/S62f5fvaH6EnAyHv86fKd
+         zQwQ==
+X-Forwarded-Encrypted: i=1; AHgh+Rpo+7XhbfJZv15iFiZw5Hset4o7HusXoIPOOVJuhcFXZJ1yl/5N4Ayf1eWGWJcDQ762r4e3I3S/51BXpA==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yz/QYWxIKygfcVfeY2YF3iu9TkOymMbANgG8d+N7iG2VKoCnVLL
+	Ojz5Q3SwRDe6bZ0Dl4sNgvLLt3vdnpXc2dqNlqYgOEWQXuaCrDXqskkr
+X-Gm-Gg: AR+sD12YzondOZL+4PnKy/CH17WhV6MvJX1fzhP665/xg/0eDYrA84qT1x8HDI8+ZIl
+	3FcYVNRTrZjhC/lCw4dw5b+p1LqsdLr7NTIcTir74F7yXBAhH7Y54XSJg9uFrkqtLe1SgXzgkIZ
+	YwV7ozrbLkGrwSBs6OmAXXK2eaNVYBx6AfAMxfutuJQO1j7Bqy7HRlUp+f0TNJqcW+aZYIDmDeL
+	P2RU+HGCOMAqMQMpOX5QMmu8bFCE8CfBzq/BBMX7yMf7Rn55yhGPhkBtmJCJnyXfQoJx8SWXeDW
+	0TRQmAJUpTrnNEaxE97MFbc/DaJS9l5MCq/2DWrEm8cR5ak+grMsJXag3zUGfZJhu9b4ewiRbMR
+	i/OR2eQ5jXi0+vCt139i5z9i0NeSwoNiiNbtqirvd3jHpDuCOGJ3+fNgb0EyrWPQ4c/tzQrdBqX
+	HG+9xzX/Jm39GgwFvnHKZSus0mXupXnEOYyx4KY87MVVIrDkiotphKk7cp3MUN8lPolz/ep3yWA
+	Z+A1g1JCf9uNp3CT5NBPQYnq7VsruMmB14yjILt
+X-Received: by 2002:a05:6a21:1786:b0:3c8:e140:63c3 with SMTP id adf61e73a8af0-3cc720d1fc3mr26530805637.37.1786937469762;
+        Sun, 16 Aug 2026 20:31:09 -0700 (PDT)
+Received: from google.com ([2a00:79e0:2ebe:8:5ab4:90f4:c0f9:b344])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3267cc91278sm927625eec.31.2026.08.16.20.31.08
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 16 Aug 2026 20:31:08 -0700 (PDT)
+Date: Sun, 16 Aug 2026 20:31:06 -0700
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+Subject: [git pull] Input updates for v7.3-rc0
+Message-ID: <aoKAIGTdF7pVYqiu@google.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Exchange-RoutingPolicyChecked: QZnDNzifua5fRoYQwyt/kF1/QK4WEeRthMDWM0frAUzQ4wezx/70TcqwYKREw1eVPcSekVQphcfduMxYC+BqJNSpwHNPtaEvlMMQvDoc0br9hlRa9YhbSL9iJpL6PzidXOAkvaUUrt3vjWyL/SXSUN4J5v+nZt/hCuR1DfScOGmIYwqB0e2/QEjLmpt8YsVp14QryyVBnwT+lYRrrRkTOvFQ6NySE+lwQDUJql5jrZ6FzVj+l4y7JyuQbquPZJXjaapg9UIejx8yhTBGBeHige3ZuZSrBRRw1U9njtI1UdjDqSUMZm2HPwWlPzWSKHVTAhkzrVA5gtSA0w9jTt3DRQ==
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: IA1PR11MB6098.namprd11.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: c7060972-7653-41b7-2bbe-08defc05f11b
-X-MS-Exchange-CrossTenant-originalarrivaltime: 17 Aug 2026 02:19:18.3031
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 46c98d88-e344-4ed4-8496-4ed7712e255d
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: sTIT49tnTBaY71Kq+kk90qV1qHceqtJFIOWrUG7NK5CFiM1ygmPOePs2nlwgrlNmpKZ9jmyuErIoat6iwhezeQ==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS0PR11MB6470
-X-OriginatorOrg: intel.com
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
-Generally speaking, a write timeout does not normally occur on the SPI bus.=
-=20
-If it does happen, it usually indicates that there is a problem with the bu=
-s, or that the touch device has lost power.=20
-You can try unloading the intel_quickspi driver with rmmod, then reload it =
-with insmod, and check the kernel log to see whether a different symptom ap=
-pears.
+Hi Linus,
 
-Best Regards,
-Even Xu
+Please pull from:
 
-> -----Original Message-----
-> From: Qiao Ruihao <qiaoruihao20061203@qq.com>
-> Sent: Saturday, August 15, 2026 11:20 PM
-> To: linux-input@vger.kernel.org
-> Cc: Xu, Even <even.xu@intel.com>; Sun, Xinpeng <xinpeng.sun@intel.com>
-> Subject: [BUG] intel-quickspi: touchscreen DMA write timeout (Goodix
-> 27C6:012D) on Lenovo YOGA Pro 16 IAH10
->=20
-> Hello,
->=20
-> The touchscreen on my Lenovo YOGA Pro 16 IAH10 does not work under Linux.
-> The intel-quickspi driver detects the device, but the feature-report fetc=
-h
-> (GET_REPORT) fails with a TxDMA write timeout, which makes hid-multitouch=
- fail
-> initialization and fall back to a generic keyboard, so the screen does no=
-t respond
-> to any touch input.
->=20
-> The touchscreen works correctly under Windows 11 on the same hardware.
->=20
-> ## Hardware
->=20
->   - Laptop: Lenovo YOGA Pro 16 IAH10 (MT 83L0)
->   - CPU: Intel Arrow Lake-H
->   - Touchscreen: Goodix 27C6:012D, connected via Intel THC QuickSPI
->   - THC controller: 00:10.0 Digitizer Pen [8086:7749] (rev 03),
->     subsystem Lenovo [17aa:3815]
->=20
-> ## Software
->=20
->   - Kernel: 7.0.14-070014-generic
->     (also reproduced on 6.19.14-061914-generic)
->   - Distro: Ubuntu 22.04.5 LTS
->=20
-> ## Problem
->=20
-> At boot the device is detected (reset + device descriptor read succeed), =
-but then
-> hid-multitouch fails to fetch its feature reports because every GET_REPOR=
-T
-> command sent over TxDMA times out.
->=20
-> ## Relevant kernel log
->=20
->   intel_quickspi 0000:00:10.0: Can't find wake GPIO resource
->   ACPI: \_SB.PC00.THC0._RST: Excess arguments - Caller passed 1, ACPI req=
-uires 0
->   input: quickspi-hid 27C6:012D Touchscreen as
-> /devices/pci0000:00/0000:00:10.0/0001:27C6:012D.0002/input/input7
->   intel_quickspi 0000:00:10.0: Wait Get Report Response timeout, ret:0
->   hid-multitouch 0001:27C6:012D.0002: failed to fetch feature 2
->   intel_quickspi 0000:00:10.0: timeout for waiting TxDMA completion
->   intel_quickspi 0000:00:10.0: DMA write failed, ret =3D -110
->   intel_quickspi 0000:00:10.0: Write GET_REPORT command failed, ret =3D -=
-110
->   hid-multitouch 0001:27C6:012D.0002: failed to fetch feature 3
->   hid-multitouch 0001:27C6:012D.0002: input,hidraw1: <UNKNOWN> HID v8.65
-> Keyboard [quickspi-hid 27C6:012D]
->=20
-> ## Analysis
->=20
-> The reset (acpi_tic_reset via _RST) and device-descriptor read succeed, s=
-o the
-> SPI link and interrupt path partially work. The failure is specific to
-> quickspi_get_report() ->
-> write_cmd_to_txdma() -> thc_dma_write(): the TxDMA transfer never complet=
-es
-> (write_done is never set, 1s timeout -> -ETIMEDOUT).
->=20
-> I would be happy to provide additional information (full dmesg, ACPI tabl=
-es,
-> register dumps) or test patches.
->=20
-> Thanks,
-> Qiao Ruihao
+	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git tags/input-for-v7.3-rc0
 
+to receive updates for the input subsystem. You will get:
+
+- A new driver and device tree binding for Imagis ISA1200 haptic motor
+  controller
+
+- Improvements to input core opening, closing and inhibiting devices,
+  ensuring devices are fully ready before delivering events, deferring
+  handler start() until the device is opened, resyncing state on
+  uninhibit, and rejecting inhibit requests during unregistration
+
+- Updates to cap11xx capacitive touch driver to support Microchip
+  CAP1114, optional hardware reset GPIO handling, and per-chip LED
+  constraints
+
+- Fixes for MELFAS MMS114 touchscreen driver hardening incoming data
+  parsing, endianness fixes for I2C packet layout, Y-resolution
+  configuration, and refactoring to use chip variant descriptors
+
+- Updates for psmouse driver resolving a potential UAF during protocol
+  disconnect, cleaning up PNP ID matching, and making use of guard()
+
+- Fix for FocalTech PS/2 protocol to prevent coordinate underflow and
+  cursor jumps at boundaries
+
+- A change to Synaptics driver to enable InterTouch (SMBus) mode on
+  Dell Inspiron 3521
+
+- Refactoring of PA-RISC keyboard support in gscps2 to supply keymaps
+  via software node device properties, removing architecture-specific
+  tables from the generic atkbd driver
+
+- Updates to Samsung keypad driver to keep interrupts disabled while
+  device is closed, along with wakeup logic cleanups and use of
+  pm_runtime_active guards
+
+- Updates to NXP i.MX SNVS power key driver to report press events
+  during resume to avoid lost events, and error handling cleanups
+
+- Updated TCA8418 keypad driver enabling overflow mode per hardware
+  errata
+
+- Conversion of ROHM BD718x7 and BD71828 PMIC drivers to instantiate
+  gpio-keys child devices using software nodes instead of platform data
+  (coming from MFD immutable branch)
+
+- Updates to Synaptics RMI4 driver to use touchscreen dimensions from
+  platform data when specified
+
+- Firmware update speed optimization for IC Type 0x19 in ELAN I2C driver
+
+- A fix to Azoteq IQS5xx driver to validate firmware record spans
+  against programmable map size
+
+- Update to Samsung SUR40 contact count based on PixelSense
+  specification
+
+- A number of updates to device tree bindings, including TI TPS65217
+  power button schema conversion and new compatibles for FocalTech
+  FT3D81 and Synaptics S3706B
+
+- Other assorted driver cleanups, style fixes, and conversions to
+  modern string and cleanup helpers
+
+Changelog:
+---------
+
+Arnd Bergmann (1):
+      Input: matrix_keyboard - remove linux/gpio.h inclusion
+
+Bivash Kumar Singh (2):
+      Input: elo - fix coding style issues in elo_setup_10()
+      Input: inexio - replace printk with dev_dbg and fix missing space
+
+Chen-Yu Tsai (1):
+      Input: elan_i2c - sort include statements
+
+David Heidelberg (2):
+      dt-bindings: input: syna,rmi4: Document syna,rmi4-s3706b
+      Input: rmi4 - use platform data instead of query, when available
+
+Dmitry Torokhov (23):
+      Input: mms114 - prefer GPL over GPL v2 for module license
+      Input: mms114 - use appropriate register argument types
+      Input: mms114 - replace udelay with usleep_range
+      Input: mms114 - replace BUG() and fix alignment
+      Input: mms114 - refactor chip variant handling using descriptors
+      Input: mms114 - fix endianness portability in I2C packet layout
+      Input: mms114 - fix Y-resolution configuration
+      mfd: rohm-bd71828: Use software nodes for gpio-keys
+      mfd: rohm-bd718x7: Use software nodes for gpio-keys
+      Input: samsung-keypad - clean up wakeup configuration logic
+      Input: samsung-keypad - keep interrupt disabled while closed
+      Input: samsung-keypad - use pm_runtime_active guard
+      Input: psmouse - fix use-after-free during protocol disconnect
+      Input: psmouse - clean up locking around disable_work_sync()
+      Input: psmouse - modernize PNP ID parsing
+      Input: psmouse - use guard() for resource management
+      Input: focaltech - use signed coordinates to prevent underflow
+      Input: gscps2 - supply PA-RISC keyboard keymap via device property
+      Input: ensure device is ready before delivering events
+      Input: clear inhibited flag before re-opening device on uninhibit
+      Input: call handler->start() when uninhibiting device
+      Input: defer handler's start() until device is opened
+      Input: reject inhibit and uninhibit requests on unregistering devices
+
+Eduard Bostina (1):
+      dt-bindings: input: Convert TI TPS65217 power button to DT schema
+
+Ian Bridges (2):
+      Input: i8042 - replace strlcat() with seq_buf and scnprintf()
+      Input: wacom_w8001 - replace strlcat() with a strscpy() helper
+
+Jingle Wu 吳金國 (1):
+      Input: elan_i2c - optimize update speed for IC Type 0x19.
+
+Joy Zou (4):
+      Input: snvs_pwrkey - make use of dev_err_probe()
+      Input: snvs_pwrkey - propagate error code of platform_get_irq()
+      Input: snvs_pwrkey - use local device pointer to simple code
+      Input: snvs_pwrkey - add press event reporting to avoid event loss during suspend
+
+Jun Yan (10):
+      Input: cap11xx - clean up duplicate log and add probe error logs
+      Input: cap11xx - remove unused register macros
+      dt-bindings: input: microchip,cap11xx: Update datasheet URL and LED reg range
+      dt-bindings: input: microchip,cap11xx: Add microchip,cap1126 LED reg constraints
+      dt-bindings: input: microchip,cap11xx: Add reset-gpios property
+      Input: cap11xx - add reset gpio support
+      Input: cap11xx - refactor code for better CAP1114 support.
+      Input: cap11xx - guard unsupported DT properties before parsing
+      dt-bindings: input: microchip,cap11xx: Add CAP1114 support
+      Input: cap11xx - add support for CAP1114
+
+Linus Walleij (1):
+      Input: isa1200 - new driver for Imagis ISA1200
+
+Longlong Xia (1):
+      Input: elan_i2c - use device-id/acpi.h for ACPI IDs
+
+Manuel Ebner (1):
+      dt-bindings: input: gpio-charlieplex-keypad: add missing parenthesis
+
+Oliver (1):
+      Input: sur40 - fix MAX_CONTACTS value based on PixelSense specification
+
+Pengpeng Hou (2):
+      Input: ims-pcu - add missing MODULE_DEVICE_TABLE()
+      Input: iqs5xx - validate firmware record destination span
+
+Pradyot Kumar Nayak (1):
+      dt-bindings: input: focaltech,ft8112: Add focaltech,ft3d81 compatible
+
+Sang-Heon Jeon (3):
+      Input: pmic8xxx-keypad - remove conditional return with no effect
+      Input: rmi_smbus - remove conditional return with no effect
+      Input: synaptics_i2c - return 0 explicitly on success
+
+Shashwat Agrawal (1):
+      Input: synaptics - enable InterTouch on Dell Inspiron 3521
+
+Surendra Singh Chouhan (1):
+      Input: charlieplex_keypad - check gpiod_direction_output() return value
+
+Svyatoslav Ryhel (1):
+      dt-bindings: input: Document Imagis ISA1200 haptic motor driver
+
+Zhian Liang (1):
+      Input: tca8418_keypad - enable overflow mode per datasheet (SCPS215G)
+
+Diffstat:
+--------
+
+ .../bindings/input/focaltech,ft8112.yaml           |   9 +-
+ .../bindings/input/gpio-charlieplex-keypad.yaml    |   2 +-
+ .../devicetree/bindings/input/imagis,isa1200.yaml  | 141 ++++++
+ .../bindings/input/microchip,cap11xx.yaml          |  90 +++-
+ .../devicetree/bindings/input/syna,rmi4.yaml       |  11 +-
+ .../bindings/input/ti,tps65217-pwrbutton.yaml      |  42 ++
+ .../bindings/input/tps65218-pwrbutton.txt          |  30 --
+ drivers/input/input.c                              | 172 ++++---
+ drivers/input/keyboard/Kconfig                     |  38 --
+ drivers/input/keyboard/atkbd.c                     |   8 -
+ drivers/input/keyboard/cap11xx.c                   | 275 +++++++----
+ drivers/input/keyboard/charlieplex_keypad.c        |   4 +-
+ drivers/input/keyboard/hpps2atkbd.h                | 110 -----
+ drivers/input/keyboard/matrix_keypad.c             |   1 -
+ drivers/input/keyboard/pmic8xxx-keypad.c           |   8 +-
+ drivers/input/keyboard/samsung-keypad.c            |  39 +-
+ drivers/input/keyboard/snvs_pwrkey.c               | 143 ++++--
+ drivers/input/keyboard/tca8418_keypad.c            |   3 +-
+ drivers/input/misc/Kconfig                         |  12 +
+ drivers/input/misc/Makefile                        |   1 +
+ drivers/input/misc/ims-pcu.c                       |   1 +
+ drivers/input/misc/isa1200.c                       | 533 +++++++++++++++++++++
+ drivers/input/mouse/elan_i2c.h                     |   3 +-
+ drivers/input/mouse/elan_i2c_core.c                |  36 +-
+ drivers/input/mouse/elan_i2c_i2c.c                 |   5 +-
+ drivers/input/mouse/elan_i2c_smbus.c               |   3 +-
+ drivers/input/mouse/focaltech.c                    |  17 +-
+ drivers/input/mouse/psmouse-base.c                 |  90 ++--
+ drivers/input/mouse/synaptics.c                    |   1 +
+ drivers/input/mouse/synaptics_i2c.c                |   2 +-
+ drivers/input/rmi4/rmi_f12.c                       |  16 +-
+ drivers/input/rmi4/rmi_smbus.c                     |   7 +-
+ drivers/input/serio/Kconfig                        |  27 ++
+ drivers/input/serio/gscps2.c                       | 155 +++++-
+ drivers/input/serio/i8042-acpipnpio.h              |  27 +-
+ drivers/input/touchscreen/elo.c                    |   4 +-
+ drivers/input/touchscreen/inexio.c                 |   4 +-
+ drivers/input/touchscreen/iqs5xx.c                 |   3 +-
+ drivers/input/touchscreen/mms114.c                 | 299 ++++++------
+ drivers/input/touchscreen/sur40.c                  |   4 +-
+ drivers/input/touchscreen/wacom_w8001.c            |  17 +-
+ drivers/mfd/rohm-bd71828.c                         | 125 +++--
+ drivers/mfd/rohm-bd718x7.c                         | 123 +++--
+ include/linux/input.h                              |  20 +-
+ include/linux/input/elan-i2c-ids.h                 |   2 +-
+ 45 files changed, 1901 insertions(+), 762 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/input/imagis,isa1200.yaml
+ create mode 100644 Documentation/devicetree/bindings/input/ti,tps65217-pwrbutton.yaml
+ delete mode 100644 Documentation/devicetree/bindings/input/tps65218-pwrbutton.txt
+ delete mode 100644 drivers/input/keyboard/hpps2atkbd.h
+ create mode 100644 drivers/input/misc/isa1200.c
+
+Thanks.
+
+
+-- 
+Dmitry

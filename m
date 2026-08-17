@@ -1,76 +1,156 @@
 Received: from sendmail.purelymail.com (sendmail.purelymail.com [34.202.193.197])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0FBF63B2FF6
-	for <linux-input@vger.kernel.org>; Mon, 17 Aug 2026 20:20:48 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EBF0B4534A8
+	for <linux-input@vger.kernel.org>; Mon, 17 Aug 2026 21:38:50 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=34.202.193.197
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786998050; cv=none; b=WOn3hbbG9EiRH62sZ2/GXftH5Kaimwfs/iEPJEG2nWfYNnLsAAxvWisxHZBAnLZfrY0vVyZMsYJ3lwPzuQ58qP7bfyhTRmvEjNR5UaoOoOcnTxR/JiUIVC0LmsqW5ZN2YyAJBDp0RBeqdkxTYOdsWJhwl9VNi6xUbVTkALgkqOM=
+	t=1787002734; cv=none; b=T2UnIpUvKoEyKfIS0IA89wXRK9SegJj0Q3pa6y9vAQMcqRsSfTSvIzYdmZT6ZJzs7UOsKkO+a4FudzPlvvTFGqF4ICHtRBunQjbDe69ug8Em1x2dyIxabqI1QKO6LUK4N2yOoAC1fqqPhYSUsDfAjY7FLMjiKsnyK1wtqZ33jyQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786998050; c=relaxed/simple;
-	bh=HhIkxRdLFN+6KuFHzBG+wbhz26B+UvNBUwa34XSUbH4=;
-	h=Mime-Version:Content-Type:Date:Message-Id:Subject:Cc:From:To:
-	 References:In-Reply-To; b=YA3TXuQYoWYundgAKwEHs3iwrwnpVG/jaXaXI8qFJuSrto4nOgBXGCKfyQ93zA6HLvSpoBzoY716nqub3WWU6aS7INlNJQFsw665XpAV01sAcm8jEHg2TYqAci94wD7t1Gch8SQyt0bcnoMo8hji7qYqcCUlIJb9z7ft0wz4Xqg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=rcpassos.me; spf=pass smtp.mailfrom=rcpassos.me; dkim=pass (2048-bit key) header.d=rcpassos.me header.i=@rcpassos.me header.b=OZBS+T67; dkim=pass (2048-bit key) header.d=purelymail.com header.i=@purelymail.com header.b=YKj0rnM+; arc=none smtp.client-ip=34.202.193.197
+	s=arc-20240116; t=1787002734; c=relaxed/simple;
+	bh=jGUOARt2Wbe1glZp6Gumt26zlKA1ASdKScJg/zrJwqI=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=DPAbfK3A1XjZz9yl6Rf8gI3Hun3RzgYzXzFKNw2HdkBaK3BYHNcdp02P4qHYzbYGMVvwvOtldbfXOPYGYwb7XSozqbr+62hQh7qwfJl8X9GLOBbyfe/qZipj2NxqUVqlRtYZP8giOEpw2Rh+9DWK/mZhSV9b5WMmVYYZCpEISGc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=rcpassos.me; spf=pass smtp.mailfrom=rcpassos.me; dkim=pass (2048-bit key) header.d=rcpassos.me header.i=@rcpassos.me header.b=HdGZMWJf; dkim=pass (2048-bit key) header.d=purelymail.com header.i=@purelymail.com header.b=chif8Gb6; arc=none smtp.client-ip=34.202.193.197
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=rcpassos.me
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rcpassos.me
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=rcpassos.me header.i=@rcpassos.me header.b="OZBS+T67";
-	dkim=pass (2048-bit key) header.d=purelymail.com header.i=@purelymail.com header.b="YKj0rnM+"
+	dkim=pass (2048-bit key) header.d=rcpassos.me header.i=@rcpassos.me header.b="HdGZMWJf";
+	dkim=pass (2048-bit key) header.d=purelymail.com header.i=@purelymail.com header.b="chif8Gb6"
 Authentication-Results: purelymail.com; auth=pass
-DKIM-Signature: a=rsa-sha256; b=OZBS+T67TVsNKwuQ/vgWEpUJZbpiGYWJZ/emoNe6/XkIwHMvwGYnGBrcM8fdpur68GjEKfY7n639g5N8thc0tDrSUV6U/4iG9qVI121G5ZY4BJmRciAYDU20Qzwi+cc+FTveD2xF2q7eetOWODIuZA1usGMz8wwI3ylmoISfI0Tv9+UzXhcYP9u2pFqEQqEyow3jj6f5aQBCbrQ1K8sYWTUeMFrSKK5avJ0kwJmUouZl8R3bzd0uTNO6GIZAaa6peNr86RnOYzwSh2MVrZdoYHiX8fcqZO2z59T0CfDgIWSvBOUPHPm/XP0BQXIgpZ5gNXBBZLVx9jAp2B74QKGkww==; s=purelymail3; d=rcpassos.me; v=1; bh=HhIkxRdLFN+6KuFHzBG+wbhz26B+UvNBUwa34XSUbH4=; h=Received:Date:Subject:From:To;
-DKIM-Signature: a=rsa-sha256; b=YKj0rnM+dIpg9fcjyWVPchTqHsYTO0/K6wNAeqrZNU0Qm9ea7q57PzphK8droIK2k7C5NvVVxCLAxqHwEm6VK74E/NxHr7FnkAurUFveNiCWLPGGbr04YbWlTPXV7SJT9G7q2fpwNfXcZpgVoCBXV9+HhrUulP7FlqpbNIU7yrw0XK1XU6ApGBwR88tXndxmTEdJXM6MNpspET7queONGnoQDgv1Ii2aDPSV6AkYDcQ9bHMhZ4cUU7SzkR23UcCtj9JiDe9/0m5FPK+pCK2lj1yfyE/4USYxLi7t/8bOlV+iEjb3X5PmHPK9ITNW4jvrLy/vUX74wbcjcC6FToxB+w==; s=purelymail3; d=purelymail.com; v=1; bh=HhIkxRdLFN+6KuFHzBG+wbhz26B+UvNBUwa34XSUbH4=; h=Feedback-ID:Received:Date:Subject:From:To;
+DKIM-Signature: a=rsa-sha256; b=HdGZMWJfSaSDu7LtWgfXrxi+a0+u91fYtGxZtYgh6bYymutn6nG4+vqZ9DQl4BNI340UE4Wigy3MXd8n6GKljs+i3newLT4W/CgvOVn4oth68h1NiIAntcwFlbGfvZ/8EaF5fdjUPP4OObUyMObUHCYjm+Q+JIO0/x1xKYfxkPYWneaXMk0zaeGB0Q+bXSRG6Hjqtqjm/6Y/aOGaDAw9ga5o2E4rpAa277+8fdyEKTuDn60hasval5lJKvorN/tKYsDCpOjAr7oJCBCwbYRKXlsKN+F+9DBRx4Tpz1nWmM1m6YlcHtVXX0ogMzoUxEYtuXiNhScTfwSqmAhepX04XA==; s=purelymail3; d=rcpassos.me; v=1; bh=jGUOARt2Wbe1glZp6Gumt26zlKA1ASdKScJg/zrJwqI=; h=Received:From:To:Subject:Date;
+DKIM-Signature: a=rsa-sha256; b=chif8Gb6erlzkmuOFFlnkP/zo6K6lStmQwGONiYNYPHpuz0XVpKR5QqjWa5VZeP9NM417xb6vt/VQRe37BWaToGFH4BK7OQm2ESGKd6H1CJJlfCBbXObYObJt2uUpxkXZfCNeHhuKSuV/2bHcXaufr0611sfpR72XJwaaUTxjPErL4zB4ILBV1faxzxN6aO9W8tdSUdGffuy/9fnXpVE95ut2M5tHuFmmZvbG3yQG1V9Dp5iiRRY0nKV+7ac9+uVSOoRJzqldyGK//5zlVCtm+f0bVj9bxmx2f9VylMVuCzyeqIIkHm92kEd/+z7n107sEy7LIFBYvjVo2t6snZisA==; s=purelymail3; d=purelymail.com; v=1; bh=jGUOARt2Wbe1glZp6Gumt26zlKA1ASdKScJg/zrJwqI=; h=Feedback-ID:Received:From:To:Subject:Date;
 Feedback-ID: 45355:7809:null:purelymail
 X-Pm-Original-To: linux-input@vger.kernel.org
-Received: by smtp.purelymail.com (Purelymail SMTP) with ESMTPSA id 1623918569;
+Received: by smtp.purelymail.com (Purelymail SMTP) with ESMTPSA id -1866441726;
           (version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384);
-          Mon, 17 Aug 2026 20:20:38 +0000 (UTC)
+          Mon, 17 Aug 2026 21:38:36 +0000 (UTC)
+From: Rafael Passos <rafael@rcpassos.me>
+To: David Rheinsberg <david@readahead.eu>,
+	bentiss@kernel.org,
+	jikos@kernel.org
+Cc: Shuah Khan <skhan@linuxfoundation.org>,
+	Brigham Campbell <me@brighamcampbell.com>,
+	Jori Koolstra <jkoolstra@xs4all.nl>,
+	Rafael Passos <rafael@rcpassos.me>,
+	linux-input@vger.kernel.org
+Subject: [PATCH v4 0/4] HID: wiimote: new LED behavior on connect + scoped_guards
+Date: Mon, 17 Aug 2026 18:38:20 -0300
+Message-ID: <20260817213840.1053216-1-rafael@rcpassos.me>
+X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
+MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
+X-MIME-Autoconverted: from 8bit to quoted-printable by Purelymail
 Content-Type: text/plain; charset=UTF-8
-Date: Mon, 17 Aug 2026 17:20:46 -0300
-Message-Id: <DKRHXTB2RNVE.2M2EWJDQ4AQFV@rcpassos.me>
-Subject: Re: [PATCH v3 4/4] HID: wiimote: fix uaf when hid events are
- handled during destroy
-Cc: "Shuah Khan" <skhan@linuxfoundation.org>, "Brigham Campbell"
- <me@brighamcampbell.com>, "Jori Koolstra" <jkoolstra@xs4all.nl>,
- <linux-input@vger.kernel.org>
-From: "Rafael Passos" <rafael@rcpassos.me>
-To: "David Rheinsberg" <david@readahead.eu>, "Rafael Passos"
- <rafael@rcpassos.me>, "Jiri Kosina" <jikos@kernel.org>, "Benjamin
- Tissoires" <bentiss@kernel.org>
-X-Mailer: aerc 0.22.0
-References: <20260729164928.1138468-1-rafael@rcpassos.me>
- <20260729164928.1138468-5-rafael@rcpassos.me>
- <f1accf74-c527-4c53-9321-84dbcd8fd729@app.fastmail.com>
-In-Reply-To: <f1accf74-c527-4c53-9321-84dbcd8fd729@app.fastmail.com>
 
-Hi David,
+Hi,
+This patchset contains one feature change, and 3 patches appying=20
+scoped cleanup to locking and to the initialization functions for
+the led probing and the main wiimote probe call.
 
-It took me a while to get back to this one, because there was a bunch I
-had to dig, and I had little time available these weeks.
+The feature is turning different LEDs for each of the first 4 wiimotes conn=
+ected.
+From id 5 forward, the LED will cycle back to 1, and so on.
+This uses the ida struct, so its quite simple and lightweight.
+The hid_info log message prints out the controller id.
 
-On Fri Jul 31, 2026 at 8:17 AM -03, David Rheinsberg wrote:
-> `hdev->driver_input_lock` serializes all probe/remove/event callbacks. Ca=
-n you elaborate how this is triggered?
->
-> I can see that external APIs like debugfs and other sysfs registrations c=
-an trigger this, but they are deinitialized before cancelling the work, are=
-n't they?
+While implementing this feature, I decided to cleanup the code using
+scoped_guard for the many spinlocks in the driver. There are two places
+where the original lock/unlock version fits best, and I left them
+untouched.
+I also used the __free scope cleanup in the wiimote_probe and LED probe.
+This was trivial for the LED probe.
+The wiimote_probe required a new state tracker bitmask, now the wiimote_des=
+troy
+is used both on disconnect (hid_remove) and in the probe cleanup.
 
-Yes, you are right. This is a false alarm by sashiko.
-wiidebug_deinit and device_remove_file are called before
-cancel_work_sync(->queue.worker).
-This is even more clear after my refactor of the wiimote_destroy
-function (that I will send in the v4).
+It was really fun working with this driver.
+I tested it with 4 Wii Motion Plus remotes (gen2).
+Video recording of my tests (48s video).
+https://rcpassos.me/video/wiimote-led-linux-driver
 
-Before arriving at this conclusion, I tried adding delays to help
-trigger the uaf with xwiimote, and failed :)
-
-Thanks, I will drop this patch from the series.
+Thanks,
 Rafael Passos
+
+---
+V1: https://lore.kernel.org/linux-input/20260710153456.2093889-1-rafael@rcp=
+assos.me/
+Changes from v1:
+    (1/3):
+    - fix ida_alloc_min error handling to consider negative values
+    - remove fallback to 1 on ida_alloc_min failure
+    - move player_leds static array to hid-wiimote-core.c
+    - s/instance_id/player_id/g
+    - store player_id on an u8
+    (2/3):
+    - add header include for cleanup.h
+    - add identation to one-liner scoped_guards
+    (3/3):
+    - add scoped cleanup function to wiimote_probe, with a bitmask to track=
+ state
+      Patch used for testing this:
+      https://lore.kernel.org/linux-input/20260715213513.3929001-1-rafael@r=
+cpassos.me/
+    (4/4) *new patch* :
+    - sashiko found a pre-existing uaf. Unlikely, but correct.
+      implemented using the playstation driver as an inspiration
+
+V2: https://lore.kernel.org/linux-input/20260710153456.2093889-1-rafael@rcp=
+assos.me/
+Changes from v2:
+    (2/4):
+    - join the last two locks into a single scoped_guard lock in wiimote_mo=
+dules_load
+
+V3: https://lore.rcpassos.me/wiimote/20260729164928.1138468-1-rafael@rcpass=
+os.me/
+Changes from v3:
+    - dropped false uaf patch (previous 4/4). It was a false alarm.
+      Discussion in:
+      https://lore.kernel.org/linux-input/20260729164928.1138468-1-rafael@r=
+cpassos.me/T/#t
+
+    (1/4):
+    - I tested how the changes looked if using ida from 0 instead of 1,
+      and I believe it ended up less clean. I decided to keep them as is,
+      with a few additional comments.
+    - explicit initialization of player_id to 0 before allocating an id
+    - avoid using a new int during ida_alloc (use ret instead)
+    - use u8 instead of __u8
+    - move ida_remove from wiimote_hid_remove to wiimote_destroy
+    - add debugfs entry for the player_id entry
+    (3/4):
+    - move changes to wiimote_probe from this patch to the next
+    - update patch title
+    (4/4): *new patch*
+    - scoped cleanup in the wiimote_probe call, using a bitmask to keep
+      track of state during initialization
+    - update wiimote_destroy so it can be the cleanup function
+    - add a debugfs entry for this new entry
+
+As we discussed in the v3, tell me if you like the changes in patch 4/4.
+If you prefer not to apply it, I can send a new patchset revision, or
+just drop it from the set if nothing else needs changes.
+
+Thanks!
+
+
+Rafael Passos (4):
+  HID: wiimote: turn on the LEDs indicating the controller id
+  HID: wiimote: replace spinlock pairs with scoped_guard
+  HID: wiimote: led_probe with scoped cleanup
+  HID: wiimote: wiimote_probe with scoped cleanup
+
+ drivers/hid/hid-wiimote-core.c    | 346 ++++++++++++++++--------------
+ drivers/hid/hid-wiimote-debug.c   |  71 +++---
+ drivers/hid/hid-wiimote-modules.c |  24 +--
+ drivers/hid/hid-wiimote.h         |  10 +
+ 4 files changed, 240 insertions(+), 211 deletions(-)
+
+--=20
+2.55.0
+

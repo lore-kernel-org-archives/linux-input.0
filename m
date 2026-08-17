@@ -1,108 +1,159 @@
-Received: from mail-ua1-f53.google.com (mail-ua1-f53.google.com [209.85.222.53])
+Received: from mail-ej1-f54.google.com (mail-ej1-f54.google.com [209.85.218.54])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 741623BBFB1
-	for <linux-input@vger.kernel.org>; Mon, 17 Aug 2026 08:00:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.53
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786953658; cv=none; b=XLWkApzzO8s/0c5GqYiZkbQvPo309yo3qTVswyqCrvjOwmrXqAmMIo0nFDEb6sQ9uUj92XjUwRdx7bIO/vkuPZgj46ZSgssWVrNc7X5wKfOXbHAfIMM3i72tccAbDXTVIXBiRsrRy+PAG5xxLDqkOIv98S7R6ZAsLVSIjY5qpvo=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786953658; c=relaxed/simple;
-	bh=o4GCnT9Q7KKtMGlSItfIkAisf6gdkc9OYv2RNknuqSo=;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 326D23B71B1
+	for <linux-input@vger.kernel.org>; Mon, 17 Aug 2026 08:15:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.218.54
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1786954539; cv=pass; b=Xgq+zri+zTC+mILL+sWiH9Xtk0wP7pWDqroAGIwJeWRnTGn/KBl5KCltPjgvTv6jgNZ93+Yjye3BrwXWiu/hmx4R/QNYuknU5w09Ir7KoepXFr8Zs5pMBt9Jx2bwE/7t1/tRtARs+lX9/KfSJXcapMgvuevNFHk1Mq3LhnCZ6L0=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1786954539; c=relaxed/simple;
+	bh=ZZh7jM0O1yH5uRME7FtyFk3wmqBtWGo4//0SVBqpovc=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=SRi5SSSvlCn3pnyfbiNVkZoKlCvhO4iAedrBRhkwOpoqBVBO4gmYixFvF8OaH549fuV4ClXsDCZ1P9bHfQUqD3npFU8V6Lf9OkkZoVuY7Xc94BYuTQyrubKyuOOoXmuLakiuDpJkkbA24H+eYktqD2Wolm9L/0NBLvSmwmyagEw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.222.53
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org
+	 To:Cc:Content-Type; b=U3CK5ewxuAANrXX2OAfdY7/Aie7CQYTtki8qH2dtUhsh0mtcmWGC413H3LzZ2Orq46hGWc3JXzLnGdzm6eDCUswvb1YXKoks1ukTFz7qmlfzBgyZYNHSRUjEGfLsR4Mu/2N39OLs4mS079ghxv5wUdNpkimEicdK3Toe5RZrAL4=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=CPBYNGua; arc=pass smtp.client-ip=209.85.218.54
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Received: by mail-ua1-f53.google.com with SMTP id a1e0cc1a2514c-97bf8f94cb3so490920241.0
-        for <linux-input@vger.kernel.org>; Mon, 17 Aug 2026 01:00:57 -0700 (PDT)
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="CPBYNGua"
+Received: by mail-ej1-f54.google.com with SMTP id a640c23a62f3a-c15cb6f5c12so562714666b.0
+        for <linux-input@vger.kernel.org>; Mon, 17 Aug 2026 01:15:37 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1786954536; cv=none;
+        d=google.com; s=arc-20260327;
+        b=jMUtfwu8FR58yemf+Fc0mdTDMXF+ut2LyP08eHNN81EumsUtblPGqd2MRbAFJkZmbE
+         NZy/XFOiWcWRhq7ljTtH9WhQqYxPTEtpYty6MWcAqqBsQ/B7D0eAKApMVRwbQaYs1V/N
+         lUwrVndlrEuMm2u2C4cmxS4ORdZ5oZrJFhlWT2xba6+TWq2J1Ubx02A9YXGpqPMFQnA8
+         lKxlX/zMMZtodVplwJvIYX3vp0S4PTqzWoRFhKsLtfbVOzZhoQjP8U31CSqcp7DEZrzJ
+         ZYv/qKebYv7f9HbUgVCkDXuFpIlbrykUFPq8ATogrGJS7u6wzQ7i2qceu5f7i5Tlon8K
+         yj5Q==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=wVfP4yvTXK2XEfxigLgUWNpzoCb0TARiSJCqOSPnETo=;
+        fh=RlhTxD77Ow880eqrTAlehrA5R92+cuE9nzPgBgkt7xg=;
+        b=kp5fM9QcecfPhHVHs6GJvI6ief3exKDj03DD3VDGxDWzSN2UftZ7/95iHv4YshSlzJ
+         bI3Lrh6pGqyHpdQzI5RyEr5+ed07Js8HEel/G3oZ+ax0BUZNYOd4ctm/rml84GLJ/ZE0
+         FB2LAS83HhA79sFvHA8Lim+WRWet5liHT/4Lt2PO7lDDPCyaCDQUZ1zVKeghop35rOf6
+         OXYYE3JoFinkzuuMcd5ACwFUqBDEnZno/7FUypeMskGOJHqRfy2GZGeuKYuWTVJV2pSn
+         KPsmciZNe/DKxYGD3Yi6WsGGKBcy2UHbFelJYfkf2N4CbNjIcJJcljCVSCyiUHcnXZja
+         40hg==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1786954536; x=1787559336; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=wVfP4yvTXK2XEfxigLgUWNpzoCb0TARiSJCqOSPnETo=;
+        b=CPBYNGua9AMzZ2jZG3rh4I+i9oEkDTBcJJevAEP92hzAHrUiwIf8VMkaVbmEShECKA
+         xJ9BIR7WtouK+EHjLEKH8ll5XlaS2rWDDydasyj6lOcOaz5LPTJjeVrAQWNL8+Qmv7Ry
+         dVfKsBZ9TYMtjL3CjN2s3cZnkgxFpIuSLTpiITAD2Acm0y7I1v+YVrxi2sS3oVQuIcdA
+         OGz+1E0qL+iKZXiZY8EsYqNQk37fDdEaeGXCF5j0p1UPpkvE2VNhzqyFUzaH4Wr3aPRq
+         xlcXbmRK0Ln7n8f+x/sU4zd0/JGQEYqD7op8lnX9Q4nphxBOcUcs3b2MavASttbdlDUQ
+         xvjA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1786953656; x=1787558456;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=u/+yV80fX1YIAnHqERFUO5SmbBJag9Ryono5118GOFQ=;
-        b=dfYsXC5k5WX2xoPRkh26NCTxHP084Mlb6wFNhUPIRjcCRfLpLR13XvK05X69iu34Td
-         +3hRnEidjUwu57s2DpQ2du2qeUkQHkCP7bHjVUaXkSI+wcQnSAGSltzDTO1aJrtLWxXU
-         1QvORq2gPCHSxTk5vwwXF/Fd3QYXTmwRCrWoXlDhssEC0jgs3x5NwjD3PAqRIS7JOj0P
-         S3Z3LIa0uDit75aGGbmQ5kgVOgj2KcObOfbWvJBtX73/R7WEfmt1Vz+m4WlYpp/oVX4a
-         aHJdtZSeHeZYDjap1Bz3Ay4RRFn4dO8o0hfm2FeOp4/SoF4r7BDOWiGMDmBlFCMf4CJJ
-         U9Sw==
-X-Forwarded-Encrypted: i=1; AHgh+Ro68ImUjeqMbDJOEuAUANy88N8SPiOs2/epogPu7AydfaGd1cxojSQdmvyGzqXgnydC6iRYJm10j9iucA==@vger.kernel.org
-X-Gm-Message-State: AOJu0YzYvWnLN258xrr+zwwaHMKMfHN7EtBmPXmi/R18MTIWcnMFJKOh
-	Ak0cQK/GjsR8PK8+vAo4zf1ptr1i5yPOcU8/Q4j7e/stNX/Uxqlyuet9+/9yxdf1
-X-Gm-Gg: AR+sD105nhS/FWgkSJ7mnifslLiidpT4D2mpiBazdEaqWviLnSX8YmzPWkp36NYfWs8
-	D1Qb3ui+HGGrMRtFoVijdgBJnTQ7aKXBzT0PGUkmrivJv9FNUOwJjVDvECsFHgGiD4mob2fTvzg
-	fuugFiAvuPh0JGEfkbN3bp0OZAobrQ2AP8ZeTq3NDIlJ28H6hyDkuYTvjQTPIGEm/W4Uh0MHYTK
-	e68J0BxP7uuf9v+dynWaZbQ5IMxObU1ze2ejh2QcFvZttgIyaIQ1M0DB4/kgyR8B9nIeF1O0rAX
-	GoOCD1BiSVc6RZSsLKsE7hzLqOVgWdCbq//zHyPb72l7fk2pOKbC1nvyi+OPfP+z240wiUlFBqU
-	MtoQW2CkH8wrd09WwaZpojivdnV8Y3xeG/Q4Xc3kzAQc+sNXwbeVcBMWPCgA2dz0g1/nEoxIUha
-	dXFxCttsZZZJjVyvkXr2uW734TY6SEjwLgDMbmyg/aST6CRMI2lMoyv8TTK737iMjlS7Bt1mkKy
-	yht3s49DiGcW8LWDZsNJ6sexkcekA==
-X-Received: by 2002:a05:6102:26cb:b0:631:4cd8:b6aa with SMTP id ada2fe7eead31-76f2cc50ae6mr3289969137.13.1786953656235;
-        Mon, 17 Aug 2026 01:00:56 -0700 (PDT)
-Received: from mail-vk1-f172.google.com (mail-vk1-f172.google.com. [209.85.221.172])
-        by smtp.gmail.com with ESMTPSA id a1e0cc1a2514c-97c2c409c99sm613349241.12.2026.08.17.01.00.55
-        for <linux-input@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 17 Aug 2026 01:00:55 -0700 (PDT)
-Received: by mail-vk1-f172.google.com with SMTP id 71dfb90a1353d-5c2dbaf828eso1098329e0c.0
-        for <linux-input@vger.kernel.org>; Mon, 17 Aug 2026 01:00:55 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AHgh+RqhbWblfGGcX1pW/UFZ4iSfA+4DYWWWwUbkoF7DrIz8Js+57mLvOLM1S7pOOKep3quZZ6vFqxvJrLDeXg==@vger.kernel.org
-X-Received: by 2002:a05:6122:f05:b0:5c2:c0de:f06a with SMTP id
- 71dfb90a1353d-5c591f9f1b0mr3909422e0c.14.1786953655176; Mon, 17 Aug 2026
- 01:00:55 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1786954536; x=1787559336;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=wVfP4yvTXK2XEfxigLgUWNpzoCb0TARiSJCqOSPnETo=;
+        b=fnvhFzy8dhMRtHefAp0Km9EOzQg1NhZhzWU85/Uqzft05DENtadIwSKRON6epoXGlQ
+         IlJLpHOsuol2lF8CM5+2gx0Jo8x1RlHYf0GZHVrgDW2QKY7kzWPHDr7QKgR76KX0VQNH
+         VqDxo+20lnjrUyxjJ4OTm3rYOs4O5ZnahuAkgEGB4lqYcOhyYWNCNRPtUw079U/C6LKg
+         O3y3mm1zfR4NL1vBVlpzfFG/mqR/2vZKoSwiN2KsBiTgi/614IKtE3jzZ1mYmbqlYKdg
+         Eo4gd4xVPhI5jevbuL4jd9hyP/lGEplVnoan3e1VnQjk3TfKfi1sZh7Gzgrh/I8cJxGR
+         /uRg==
+X-Gm-Message-State: AOJu0Yw4NAiPirsySNpIG1+eNfa0ZNLcNvcPVCWJCJkCzQA07TzInZ5S
+	cbSC2BI5C/6Xk/i5ta8d6Gd7cQ2f1ULAhSwrARM88t0OThy0yufOn4AngQeaJUR0hAmwqBQEHZp
+	CBGcYIq2g2jPZqWFEGYTdlWmBHe59FL5yhETV
+X-Gm-Gg: AR+sD10QULav7jNJWdNPsxKLHM/Ob5iGP4HA7HtVa19KFEe3dkRhuDQ1JTircvnqFd9
+	/r2p23/bRv6zpY4lhHLcdHm5MQoUWtx/X04ChJq/EYrWktSOPBs3I4LVHbQQKZslGBIBX+2Dfw3
+	A9nKmqFcgQF3slptq42Xz0lme1FggzTIATtxUMiLzk05S8Y8inmXMOmmgFQ7uU+1x896QaJi9ir
+	cVUaBmCwR8KkTb6ASu6GJfFdYVHSfuwmEtAWwrSXh+WGlkGLvQEccYBKNuvx5hTUZILd+fJh78c
+	dorg3NBwphOJVtCHWw9vSpkxDgkYTgappd/+lq0Ug4uZJ5zdjLMJH+6AEUIJRZgjNKxOQ6ed1vF
+	JQ4E=
+X-Received: by 2002:a17:907:1c1b:b0:c12:6d25:2c7a with SMTP id
+ a640c23a62f3a-c212a2ab2edmr986472866b.17.1786954536090; Mon, 17 Aug 2026
+ 01:15:36 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260816073752.16656-1-schmitzmic@gmail.com> <20260816073752.16656-2-schmitzmic@gmail.com>
-In-Reply-To: <20260816073752.16656-2-schmitzmic@gmail.com>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Date: Mon, 17 Aug 2026 10:00:43 +0200
-X-Gmail-Original-Message-ID: <CAMuHMdXyOSOahXjXbJksXgrNY8WOjwf-cqx_HrtcLy9s_Yfz2w@mail.gmail.com>
-X-Gm-Features: AcwNN1VGXZC1fvEFifX8RzfaBRusZdOtGYs2dpCK1ZiPNulbOW5iHL_5W02SOOQ
-Message-ID: <CAMuHMdXyOSOahXjXbJksXgrNY8WOjwf-cqx_HrtcLy9s_Yfz2w@mail.gmail.com>
-Subject: Re: [PATCH v2 1/5] m68k: Fix atari mouse movement
-To: Michael Schmitz <schmitzmic@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-m68k@vger.kernel.org, Miro Kropacek <miro.kropacek@gmail.com>, 
-	linux-input <linux-input@vger.kernel.org>
+References: <20260727124307.11155-1-ishaan.dandekar@gmail.com>
+In-Reply-To: <20260727124307.11155-1-ishaan.dandekar@gmail.com>
+From: Ishaan Dandekar <ishaan.dandekar@gmail.com>
+Date: Mon, 17 Aug 2026 13:45:18 +0530
+X-Gm-Features: AcwNN1X22c2JKXxgp7E0njO3qpgb4sfbeHa6-M-MUOZ7lZFxwgGMPbUIrXIe17w
+Message-ID: <CAG0uPa8_BP9i+0e3ScBpg58sqr+jfoeh4GTp34OYQ6ssqV9Uug@mail.gmail.com>
+Subject: Re: [PATCH v3] Input: xpad - add support for generic clone X-Input gamepads
+To: linux-input@vger.kernel.org
+Cc: dmitry.torokhov@gmail.com
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Sun, 16 Aug 2026 at 09:38, Michael Schmitz <schmitzmic@gmail.com> wrote:
-> From: Miro Kropacek <miro.kropacek@gmail.com>
+Hi Dmitry,
+Ping - just following up to see if there is any feedback on this patch,
+or if it looks good to be queued up for the next merge window?
+Note: The companion USB quirk patch for this hardware was recently
+pulled into 7.2 and backported to the stable trees, so this xpad patch
+is the final piece to get the controller fully functioning.
+
+Thanks,
+Ishaan
+
+On Mon, Jul 27, 2026 at 6:16=E2=80=AFPM Ishaan Dandekar
+<ishaan.dandekar@gmail.com> wrote:
 >
-> Kernels are built with -funsigned-char since version 6.2, resulting
-> in signed mouse position deltas getting misinterpreted as unsigned.
+> This device exposes a vendor-specific Xbox 360 interface (0283:0001)
+> but was previously ignored by the driver, causing it to fall back to
+> a generic hid interface. Adding its ID to xpad_device and xpad_table
+> allows it to initialize correctly as an X-Input gamepad.
 >
-> Cast deltas passed in (unsigned) scancode buffer to correctly
-> interpret sign.
->
-> Fixes: 3bc753c06dd02a35 ("kbuild: treat char as always unsigned")
-> Link: https://lists.debian.org/debian-68k/2026/08/msg00000.html
-> Signed-off-by: Miro Kropacek <miro.kropacek@gmail.com>
-> Reviewed-by: Michael Schmitz <schmitzmic@gmail.com>
-> Signed-off-by: Michael Schmitz <schmitzmic@gmail.com>
-> Cc: linux-input <linux-input@vger.kernel.org>
->
+> Signed-off-by: Ishaan Dandekar <ishaan.dandekar@gmail.com>
 > ---
-> Changes in  v2:
+> Changes in v3:
+> - Swapped USB_DEVICE() macro for XPAD_XBOX360_VENDOR().
+> - Fixed comment alignment.
 >
-> - change atamouse_interrupt function signature to signed char *,
->   drop signed casts (Geert)
-
-Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Acked-by: Geert Uytterhoeven <geert@linux-m68k.org>
-
-Gr{oetje,eeting}s,
-
-                        Geert
-
--- 
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+> Changes in v2:
+> - Wrapped commit message at 72 columns.
+> - Separated from the USB series to target the input subsystem directly.
+>
+>  drivers/input/joystick/xpad.c | 2 ++
+>  1 file changed, 2 insertions(+)
+>
+> diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.=
+c
+> index feb8f368f..1e5eb601e 100644
+> --- a/drivers/input/joystick/xpad.c
+> +++ b/drivers/input/joystick/xpad.c
+> @@ -99,6 +99,7 @@ static const struct xpad_device {
+>  } xpad_device[] =3D {
+>         /* Please keep this list sorted by vendor and product ID. */
+>         { 0x0079, 0x18d4, "GPD Win 2 X-Box Controller", 0, XTYPE_XBOX360 =
+},
+> +       { 0x0283, 0x0001, "Generic X-Input Gamepad", 0, XTYPE_XBOX360 },
+>         { 0x0351, 0x1000, "CRKD LP Blueberry Burst Pro Edition (Xbox)", 0=
+, XTYPE_XBOX360 },
+>         { 0x0351, 0x2000, "CRKD LP Black Tribal Edition (Xbox) ", 0, XTYP=
+E_XBOX360 },
+>         { 0x03eb, 0xff01, "Wooting One (Legacy)", 0, XTYPE_XBOX360 },
+> @@ -496,6 +497,7 @@ static const struct usb_device_id xpad_table[] =3D {
+>          */
+>         { USB_INTERFACE_INFO('X', 'B', 0) },    /* Xbox USB-IF not-approv=
+ed class */
+>         XPAD_XBOX360_VENDOR(0x0079),            /* GPD Win 2 controller *=
+/
+> +       XPAD_XBOX360_VENDOR(0x0283),            /* Generic X-Input Gamepa=
+d */
+>         XPAD_XBOX360_VENDOR(0x0351),            /* CRKD Controllers */
+>         XPAD_XBOX360_VENDOR(0x03eb),            /* Wooting Keyboards (Leg=
+acy) */
+>         XPAD_XBOX360_VENDOR(0x03f0),            /* HP HyperX Xbox 360 con=
+trollers */
+> --
+> 2.34.1
+>

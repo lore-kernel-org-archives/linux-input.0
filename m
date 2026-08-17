@@ -1,85 +1,84 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 527E140EBA1
-	for <linux-input@vger.kernel.org>; Mon, 17 Aug 2026 12:13:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D48C5347529;
+	Mon, 17 Aug 2026 13:37:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786968793; cv=none; b=ZB+1vzVOe5ujUVOtVOe0j8Bxp1tesyZJzI9hWzOQ+5QWwpHLOjRTOel3y/EueqB3WnQjcJ7Blsgslh4UZyW0+k4dFww152r/mm+eT5P8K5xj8QWhAzfRIFmzS77+JBlT2pFl+l1mbi5x6ZVrb3W+Yd6mfdcVL1iFbXr9tVZenQk=
+	t=1786973846; cv=none; b=VNt0KKXJbc8JbyJQj97erMHp3aud6IZQLwnvMU+coFSEhqfXkGkd2+Hx88BrrG+NFfYSq6iS8oscBkldZXqH8Bd+np1HIDZPoF9stOycH1FtoeqX5QPNb6rBnFUt8djMfJQFpdYE//NtwJWDZBwBGoEEHjQLbV4jSZCvefbUwZ8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786968793; c=relaxed/simple;
-	bh=fDvF2o86CpX/eUBAtOLTtFXPtLP8pTqWPEOo7SqLNmM=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Tw7T8M/6t/CjpSvmCQFnzuhZiZfIrAxV6ImU+2efF16YPu3rxi6q7E5rQHyDKTozcvB3er/QaGi7X5xvCtOCwZ0gUd6Q1oLRv6eUw92wQO4VnmDO98xMUUkcyzltNRrs4F6BZpmJxChJNgQpCYiOAorydu6Zt8AOUGjNeb4HxzQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=FOf6Mp7I; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1786973846; c=relaxed/simple;
+	bh=ATKu1NaVCSAbFWJ1duEZ4qn7VCIj2cNoMx74eOWAt08=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=qJiDDAliDKmD0yvoYUdso6ilLiyLgvZeG7coCAl8V4zIRLQuaegGMC4eFhRy/2Ho4XFB0463w6dTQE3cRnV7i4Q/GBwxklco2XV04w9fz+D56xu0UWaOqOKSGtR9icvzrzsip+mZyHcgU6xe1LHcsvo5Vgg2BhrwbEEEDB1ITo0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=AOpy38GE; arc=none smtp.client-ip=198.175.65.18
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="FOf6Mp7I"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1DF971F0156E
-	for <linux-input@vger.kernel.org>; Mon, 17 Aug 2026 12:13:11 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786968791;
-	bh=fDvF2o86CpX/eUBAtOLTtFXPtLP8pTqWPEOo7SqLNmM=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc;
-	b=FOf6Mp7ILFvlN/SPCqPK/Jo7hW00u/svsJhDlq66Q/HdlgILeLy5JAsuwpmoo+RpY
-	 DSYr+vS2b5oCH6L1myCqKIrQL+WxFGdKnmv80vGxnF/13FanSSnegotPCaHWHfI7NL
-	 M4yA+1pMbFfRB0Gp6iqtV/r9d8mg32jlh8ZC8QgTOkFtp9TD1w1C2/WcDkb+kJfQau
-	 E4n7yngqwuFOgwD6WZ0O0gvxmkRA5CPoBbAPo4lQMJuAxiK2gKB3WjtpaUyJfB+enX
-	 ghT9bCcNAQf8oHMMFeZFgFDYPYgaKsfAiXOKvgittj4vO0MpZWIWF1auJ9Mz458iB0
-	 6/WQ4+wnsNp4w==
-Received: by mail-lf1-f41.google.com with SMTP id 2adb3069b0e04-5b011edaf7dso3782525e87.2
-        for <linux-input@vger.kernel.org>; Mon, 17 Aug 2026 05:13:11 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AHgh+RpnX+k8H6WrjvUSZBJFpZtXPfV+aezdE9/asEmUQikyLvb95iVrXTwFWgUi8a8GR9bDMdz3HQC1Z8uN1Q==@vger.kernel.org
-X-Gm-Message-State: AOJu0YwC9ZblwHAmi8O4Q4cn6Us2i6gjfabona8sBxwEJclV+q79aNGb
-	GI7MaD0kMm0v/1bquESh5uFCfI2/z1oHBpJRsZXwa6mZfZ00DlacD5jqOQP9qrvfuaB2zEd1/KM
-	YfJiD2ofyCnijR/9ZShzCTgjVjfR5+iI=
-X-Received: by 2002:a05:6512:2382:b0:5b1:4c6f:92f9 with SMTP id
- 2adb3069b0e04-5b47067f197mr7540e87.20.1786968789825; Mon, 17 Aug 2026
- 05:13:09 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="AOpy38GE"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1786973841; x=1818509841;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=ATKu1NaVCSAbFWJ1duEZ4qn7VCIj2cNoMx74eOWAt08=;
+  b=AOpy38GEKf28SAmXRwm6A3pn7ZymKh6Agy0BxDjnCAP5dLZtpBK5ltbB
+   ExCFJd3Srdd6pGMKDL+B3GXxvnnTJHJsIw1SjKcBxHqCEgwZPRSb+IxCK
+   zC+Qg6MSqGhJZ4Yqhn7Yqu4UkjwbPUiTB4kb31WBUh7YGE1Znk5eumtj3
+   5ulF/YNaVo2/8l1aVL1h1+LC6BSJcwkoLYg6jOlWca6MCmhY+Zk5VBjrc
+   PmWshr+4DNQbtJfar0biIpSnyE09DBsTrUrqEazWuHwu6SA5IbGe3nz1Z
+   GJc71+iIUJlkklhfHoqNEIpO29Xy1lQI9RUxdjdSaOZRTxcI3I03QPB9B
+   g==;
+X-CSE-ConnectionGUID: WjsVgn8FSQOjVUUM3YCVkQ==
+X-CSE-MsgGUID: cI8KLDDgRo6Of8PFFBrExA==
+X-IronPort-AV: E=McAfee;i="6800,10657,11877"; a="87514821"
+X-IronPort-AV: E=Sophos;i="6.25,229,1779174000"; 
+   d="scan'208";a="87514821"
+Received: from fmviesa009.fm.intel.com ([10.60.135.149])
+  by orvoesa110.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 17 Aug 2026 06:37:19 -0700
+X-CSE-ConnectionGUID: jwC4U05WSa2cmRUSykzWFA==
+X-CSE-MsgGUID: 7WXHSTqhRDeJuoUTvMSnCQ==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.25,229,1779174000"; 
+   d="scan'208";a="258717198"
+Received: from klitkey1-mobl1.ger.corp.intel.com (HELO localhost) ([10.245.245.67])
+  by fmviesa009-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 17 Aug 2026 06:37:16 -0700
+Date: Mon, 17 Aug 2026 16:37:13 +0300
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To: Esben Haabendal <esben@geanix.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+	stable@vger.kernel.org, Esben Haabendal <esbenhaabendal@gmail.com>
+Subject: Re: [PATCH] Input: gpio_decoder - fix bit order reversal introduced
+ by bitmap conversion
+Message-ID: <aoMOiZNrbOtRgXu-@ashevche-desk.local>
+References: <20260817-gpio-decoder-bitrev-v1-1-6ffb77e323b8@geanix.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260816060648.4030-1-farbere@amazon.com> <20260816060648.4030-13-farbere@amazon.com>
-In-Reply-To: <20260816060648.4030-13-farbere@amazon.com>
-From: Linus Walleij <linusw@kernel.org>
-Date: Mon, 17 Aug 2026 14:12:58 +0200
-X-Gmail-Original-Message-ID: <CAD++jLn2V3DP=8qQmkKo0KSh87ZdjHy6XGn2DeHdL-Ui0_OM=w@mail.gmail.com>
-X-Gm-Features: AcwNN1U4JrOxzsv9KlcvcECVLI6UdHKCqisJUWamsMkkrKOZr3X21Ct07ozVb8o
-Message-ID: <CAD++jLn2V3DP=8qQmkKo0KSh87ZdjHy6XGn2DeHdL-Ui0_OM=w@mail.gmail.com>
-Subject: Re: [PATCH v5 12/13] gpio: gpiolib-kunit: use devm_blocking_notifier_chain_register()
-To: Eliav Farber <farbere@amazon.com>
-Cc: rafael@kernel.org, tony.luck@intel.com, bp@alien8.de, guohanjun@huawei.com, 
-	mchehab@kernel.org, xueshuai@linux.alibaba.com, lenb@kernel.org, 
-	laurent.pinchart@ideasonboard.com, brgl@kernel.org, orsonzhai@gmail.com, 
-	baolin.wang@linux.alibaba.com, zhang.lyra@gmail.com, jic23@kernel.org, 
-	dlechner@baylibre.com, nuno.sa@analog.com, andy@kernel.org, 
-	dmitry.torokhov@gmail.com, hansg@kernel.org, ilpo.jarvinen@linux.intel.com, 
-	W_Armin@gmx.de, ukleinek@kernel.org, fabio.m.de.francesco@linux.intel.com, 
-	kaihengf@nvidia.com, ankita@nvidia.com, leitao@debian.org, pedro.pbg@usp.br, 
-	paulmck@kernel.org, frederic@kernel.org, kees@kernel.org, 
-	saket.dumbre@intel.com, linux-acpi@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org, 
-	linux-pwm@vger.kernel.org, linux-iio@vger.kernel.org, 
-	linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org, 
-	acpica-devel@lists.linux.dev, 
-	Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260817-gpio-decoder-bitrev-v1-1-6ffb77e323b8@geanix.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
+ krs, Bertel Jungin Aukio 5, 02600 Espoo
 
-On Sun, Aug 16, 2026 at 8:09=E2=80=AFAM Eliav Farber <farbere@amazon.com> w=
-rote:
+On Mon, Aug 17, 2026 at 01:50:27PM +0200, Esben Haabendal wrote:
+> The switch from a manual loop to gpiod_get_array_value_cansleep() +
+> bitmap_read() inadvertently reversed the bit order of the decoded value.
+> The original loop treated GPIO[0] as MSB by shifting left on each
+> iteration, but bitmap_read() returns GPIO[0] at bit 0 (LSB).
+> 
+> The previous bit order was correct according to device-tree bindings, and
+> the change broke existing users.
 
-> Replace the blocking_notifier_chain_register() +
-> devm_add_action_or_reset() pattern with a single call to
-> devm_blocking_notifier_chain_register(), removing the
-> gpio_unbind_unregister_notifier() callback.
->
-> Signed-off-by: Eliav Farber <farbere@amazon.com>
-> Acked-by: Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>
+Oops, thanks for catching this!
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-Reviewed-by: Linus Walleij <linusw@kernel.org>
+-- 
+With Best Regards,
+Andy Shevchenko
 
-Yours,
-Linus Walleij
+

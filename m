@@ -1,189 +1,86 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f43.google.com (mail-pj1-f43.google.com [209.85.216.43])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BD8E9377A98
-	for <linux-input@vger.kernel.org>; Mon, 17 Aug 2026 07:47:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C085A3101A7
+	for <linux-input@vger.kernel.org>; Mon, 17 Aug 2026 07:50:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786952852; cv=none; b=ZqFhAWaqeNAqWbGi4tyCaQ5LPWvEwzypEX+jJxrPeoRcNa6t8mCphXfdwKUvlVi25HSewNqaumjqDIQjovO6cGuFKflWhgR58Ga/UdYFO0p+p4bsKBSmzt0vD3+S7bi83R1zvcdG1snbNDeWqW5nzJ8awIgWG8DJhEjQr3MaU1w=
+	t=1786953003; cv=none; b=SMemvwZj1O6El1aY7rXSy79Lopo3eUzGmg5BkTHkL+YPJs/pSDIzyDe1qPUjhh7vIQM9ga5AcPEAj+dPmObmHxqY/UtrF8NxIqMG5LU4fx5B0zCRa2KJySqo5Hetnjj+rrNRbwdh3OVZKCXhqUO4ZIpyxK2Znep8Kjzu1LXU8DA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786952852; c=relaxed/simple;
-	bh=/engzqWl29doyYxRbMVhrACHsevN57jOUwszO6nGYQE=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=cNrtQNkpyOWTTwk+paUYA3319tzVMwKuyoYokZRl+6GED7kCbBp7sd93DKrwRAEC1s4wEdEV44pFMBLr6lmRljsRuU3Kjh4CMa6pMLyneeIGnqdR2gLV8O/M2ohfm+Ub5d9pzvsikP26RKa8Y29Rq/ZwuIgpBQCwXzGM1T3DmKI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=mLz7IDHT; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1786953003; c=relaxed/simple;
+	bh=G00ST1jfx8BViNgMid9WzKiIC21VQAHDfCH0GpHBbyQ=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=M/VsAMbimxS1ZAOonkRVxKtQWSxJVgh39hPE2BFmpv0O5U8LBj2HAm+bZ24tUVAwU1E+Cz3TxM26Ex6DpnVkbxfq8Bg6JRflbnLgln/WIVi51SakvuEVxsvtx5AmwFPmgvqeJ12weez/XJZblsDjrUwTYbOGJ9eVVBc7c++jUJk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=e8/Uetor; arc=none smtp.client-ip=209.85.216.43
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="mLz7IDHT"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 408701F000E9;
-	Mon, 17 Aug 2026 07:47:30 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786952850;
-	bh=7LMsR2V5vFNTJ1O1aCimnLDoJQK+bsSexLOUQ65ZizU=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=mLz7IDHTrbiYOM+SmGtemBySTT/nlkBDSLhuJOEn7Xe2OGEpoW0mAcAIz99bN5XU8
-	 F42I9D72683nIo0RV+5hih7PFT3xha5rGxBCwRS4TKJEGiiBWfWOBHOkK+lrSQ+Zx2
-	 5TGQks085eEnkKyx94t7vfeozHu22Fop+MgGqdtsRA2A0at77HA2EdU1wsbiYRN4GQ
-	 zeCU+naMEbUKN/Ug4Irej1AKL0JXEavQHin8Ra0QfIqaJTfB1pCvQpNQKlO8dhBbBP
-	 TeMEHT8MTJmmpjkcOh5N8T/dfeC7U1KTj0XSVG/u4bD/sdlW57cMDT9cDtIcqGbK5B
-	 8mVRtgRVF/pgg==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] HID: corsair: do not re-schedule LED worker after it
- has been cancelled
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Chen Changcheng" <ccc194101@163.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260817072831.139954-1-ccc194101@163.com>
-References: <20260817072354.139154-1-ccc194101@163.com>
- <20260817072831.139954-1-ccc194101@163.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Mon, 17 Aug 2026 07:47:29 +0000
-Message-Id: <20260817074730.408701F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="e8/Uetor"
+Received: by mail-pj1-f43.google.com with SMTP id 98e67ed59e1d1-38de840f2f0so2518344a91.0
+        for <linux-input@vger.kernel.org>; Mon, 17 Aug 2026 00:50:02 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1786953002; x=1787557802; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=iyPj3KHFQ267Ntiq3iQP7uG/RTI2ae5DGlmIRneVba4=;
+        b=e8/Uetorb5NcKEIl2v8TCFBZ4Kt8aptj0MCO8aUCFxLF+rsnfFK7E58CqqB00QPt56
+         oooNpDPyO+WlQhKjbeTkz1uKwRP4mAQhJOSBOe14gSVDFF9mQxB6qga9VXYDP+xJFCK0
+         L6KnrNq6H8drsxyIWr4fToZMRY3twC9mKvGStQ4MM3dz+yV76WJtUTRTIY59PJejSlvA
+         Oco98GSEmh92FJw9nozVB5kX3BleEDpHXwJdE+81/nA2YPOVXBYwbDr7p3PsnjKpevwT
+         hJIRlJB890QaxpLHZNHVMiRK+LVUeIkLutXUa35U5vMMP7CJlq8SjcI5bx5JOK/+Bk0Q
+         rnww==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1786953002; x=1787557802;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=iyPj3KHFQ267Ntiq3iQP7uG/RTI2ae5DGlmIRneVba4=;
+        b=NRcvMmwF6rISgt5v6rP3JrAn4db4T4ddJNXDbyDRjDcE8M13ZTFFqEhSol8SikHgRf
+         mAAwlFnebyHDDyTfL6PNYBWhHD1h7xov/O7QiIYeC5Jw5rR2YVzOnSbTgUWLMxGOdMTH
+         5Pwi//gXcwFSkQuAhchnI2UrFtjY3vBfUX1Fa5duSeK8e3cuWi1Hd/sK2Akqy8+yl07L
+         2G23SBWPw1a2l03OnHDZxAWOBIvUmGZJcZ2mKJ3zEY+ORh/HNL5SJWqj7mGK4+LgTd+A
+         FcxhKWLdZ4v3muUXJsi2qdviFMeaiaA9zINohGrRIslyYFdNhl4jNXqI/SNK7o1ELvAe
+         Yk2w==
+X-Gm-Message-State: AOJu0YxJSO6ssTqt6XNNRfXwKku5h9S2RZ3P4Sh297EV21NhSqRVaxxG
+	rEBaJvKBVGk6KX4vZH0epQtAWuhYHFA9Rgvn0sVsBwYtGnE4J0qP6N3e+NOjwCU98+Y=
+X-Gm-Gg: AR+sD13wZPqmrjzZb+5hSoPI+p7paboZ9t6665d7SPnKxFRDtMQicQ6iHSs1Culn8cI
+	IRAhbl8yMpb43sdAYZUfFI3krMrh9L3C9fRtitYU8w1vE23m6L4RQ+TynZ1oaj4iTr7JqKnwXQY
+	IqRukTxLAqGvulRFlpoYnhO6ACgbodm49OyIWTi/GJO0SwjN+JTTbvFUhPuio5uctBfVrs5ASJZ
+	0CCkU2Idns0jJDlRiktCIpCdXmFVmKMchlJbauC1FIHtAdX/6CYB271EP9TX0eQt5iXJrfGUQCn
+	u/MsSKzaX5OdCB5TtbjwzmB0lgNfkBshsHf8GNpKrwis7oThOQcnb+vpW7GtqdiqU9nPl0OVnOl
+	P/c5jvhnPRVm1Va5LJv6rP60bghpmfUWHm7pIv4N82oCHUFNQA+BHpPO5dx4n65WSSl5zQvtf0h
+	uCLLIei2NCcgbGVoy2momrb/D90AnnxUmSgPptEpVh4IIHDkVwsvPN/aoPtPmGAMT53J9vImzkq
+	t88QiqLW7GeEmGFbgrl8hrwlQ==
+X-Received: by 2002:a17:90b:1d45:b0:366:10f1:3d91 with SMTP id 98e67ed59e1d1-3933b7c3b71mr24080140a91.1.1786953002003;
+        Mon, 17 Aug 2026 00:50:02 -0700 (PDT)
+Received: from arsenalgear ([2405:201:5003:b0e5:de9f:6316:18ae:75ac])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-326796d646bsm3776133eec.10.2026.08.17.00.49.59
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 17 Aug 2026 00:50:01 -0700 (PDT)
+From: Uddhav Swami <uddhavswami@gmail.com>
+To: jikos@kernel.org,
+	bentiss@kernel.org
+Cc: linux-input@vger.kernel.org
+Subject: Re: [PATCH v3] HID: add driver for Gigabyte Aero vendor-specific brightness keys
+Date: Mon, 17 Aug 2026 00:49:56 -0700
+Message-ID: <20260817074956.34366-1-uddhavswami@gmail.com>
+X-Mailer: git-send-email 2.55.0
+In-Reply-To: <20260715055951.15144-1-uddhavswami@gmail.com>
+References: <20260715055951.15144-1-uddhavswami@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
-s) to consider:
+Hi Jiri,
 
-New issues:
-- [High] Moving cancel_work_sync() before led_classdev_unregister() in the =
-probe error path introduces a TOCTOU race with concurrent sysfs writes, lea=
-ding to a Use-After-Free.
-
-Pre-existing issues:
-- [High] Hardware events can trigger Use-After-Free in corsair_event() due =
-to hid_hw_stop() being called after freeing driver data in corsair_remove().
-- [High] TOCTOU Use-after-free in LED workers due to led_classdev_unregiste=
-r() being called before cancel_work_sync() in cleanup functions.
---
-
---- Patch [1]: [PATCH] HID: corsair: do not re-schedule LED worker after it=
- has been cancelled ---
-commit 4542e75f6964d50f56a268d347abdebb867081d5
-Author: Chen Changcheng <chenchangcheng@kylinos.cn>
-
-HID: corsair: do not re-schedule LED worker after it has been cancelled
-
-This commit attempts to fix a use-after-free by preventing the LED worker
-from being re-scheduled after it has been cancelled. It adds a removed flag
-check and reorders the cleanup sequence in the probe error path.
-
-> diff --git a/drivers/hid/hid-corsair.c b/drivers/hid/hid-corsair.c
-> index 21cd8b12a7572..dba233b99e5d6 100644
-> --- a/drivers/hid/hid-corsair.c
-> +++ b/drivers/hid/hid-corsair.c
-
-[ ... ]
-
-> @@ -507,8 +510,8 @@ static int k90_init_macro_functions(struct hid_device=
- *dev)
-> =20
->  fail_sysfs:
->  	k90->record_led.removed =3D true;
-> -	led_classdev_unregister(&k90->record_led.cdev);
->  	cancel_work_sync(&k90->record_led.work);
-> +	led_classdev_unregister(&k90->record_led.cdev);
-
-[Severity: High]
-Does swapping these calls introduce a Time-of-Check to Time-of-Use race
-with concurrent sysfs writes?
-
-Since led_classdev_unregister() acts as the synchronization barrier against
-sysfs writes, moving cancel_work_sync() before it might allow a concurrent
-write to bypass the barrier.
-
-Could a concurrent sysfs write evaluate led->removed as false in
-k90_brightness_set(), get preempted, and then schedule the work after
-cancel_work_sync() has already finished?
-
-Sysfs thread:
-k90_brightness_set()
-    if (led->removed)
-        return;
-    <preempted>
-
-Probe error thread:
-fail_sysfs:
-    k90->record_led.removed =3D true;
-    cancel_work_sync(&k90->record_led.work);
-    led_classdev_unregister(&k90->record_led.cdev);
-
-Sysfs thread resumes:
-    led->brightness =3D brightness;
-    schedule_work(&led->work);
-
-If the probe error thread then finishes and frees the k90 struct, wouldn't
-the newly queued work execute later on freed memory?
-
->  fail_record_led:
->  	kfree(k90->record_led.cdev.name);
->  fail_record_led_alloc:
+Thank you for taking a look at my patch. I have updated the code 
+to reference chuyuen as the vendor rather than gigabyte.
 
 
-This is a pre-existing issue, but looking at the commit message and the
-cleanup functions:
-
-The commit message states that a previous commit moved cancel_work_sync()
-ahead of led_classdev_unregister() in k90_cleanup_backlight() and
-k90_cleanup_macro_functions() to fix a use-after-free. However, looking at
-those functions in the current code, led_classdev_unregister() is still
-called first:
-
-k90_cleanup_macro_functions(struct hid_device *dev) {
-    ...
-    led_classdev_unregister(&k90->record_led.cdev);
-    cancel_work_sync(&k90->record_led.work);
-    ...
-}
-
-[Severity: High]
-Does calling led_classdev_unregister() before cancel_work_sync() cause a
-use-after-free during driver unbind?
-
-led_classdev_unregister() drops the refcount and frees the underlying device
-struct. If a worker thread like k90_backlight_work is executing concurrentl=
-y,
-passes the removed check, and gets preempted, it could resume after the
-device is freed:
-
-k90_backlight_work(struct work_struct *work) {
-    ...
-    dev =3D led->cdev.dev->parent;
-    ...
-}
-
-
-This is also a pre-existing issue, but looking at corsair_remove():
-
-corsair_remove(struct hid_device *dev) {
-    ...
-    k90_cleanup_macro_functions(dev);
-    k90_cleanup_backlight(dev);
-
-    hid_hw_stop(dev);
-}
-
-[Severity: High]
-Does calling hid_hw_stop() after freeing driver data allow hardware events
-to trigger a use-after-free?
-
-In k90_cleanup_macro_functions(), the k90 struct is freed via kfree(k90),
-but the drvdata->k90 pointer is not set to NULL. Since hid_hw_stop() hasn't
-been called yet, the HID core can still deliver incoming USB hardware event=
-s.
-
-If an event arrives in this window before the hardware is stopped, could
-corsair_event() dereference the dangling pointer?
-
-corsair_event(...) {
-    ...
-    drvdata->k90->record_led.brightness =3D 1;
-    ...
-}
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260817072831.1399=
-54-1-ccc194101@163.com?part=3D1
+Thanks,
+Uddhav

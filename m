@@ -1,148 +1,197 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9E1E23D3D0E
-	for <linux-input@vger.kernel.org>; Mon, 17 Aug 2026 21:55:39 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8F6313BBFCC
+	for <linux-input@vger.kernel.org>; Mon, 17 Aug 2026 21:59:11 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787003744; cv=none; b=JbKMESfTQDS6uLFdho1+PDi9EbZYZNiYahawNM8zUw8ZoqsS4NSQ/7ZWNyffRzlWXyQfopWaXTQ2N4XTrF9NtXmJBM3iX8i9ufp0WR1x2mGeXezY6XlTN7mf3w0p5sl3LybZgAym0oGMr0bg3GBUy04cejO7JtYyjGVjzJGxJZY=
+	t=1787003953; cv=none; b=ZoBBhHnlGo3Z99ECRjLreCnwBFkJrMljPjFcZHA5NdH9dH9ivNxBgxrKzSYSjdnefuLCd0/E2+djtG18oO5OSx+XYDOfag2xp5zn12PcK4RVhxrVL2E1KMPF9I6G0s51/dci6zkmTYnv6LmerEBMOLX++UsaPCRpnOXNkrDUQTs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787003744; c=relaxed/simple;
-	bh=G14W34u3QbN7vFdpbfImnlmABkWiRFfZUDrgvoNe+ho=;
+	s=arc-20240116; t=1787003953; c=relaxed/simple;
+	bh=ZKK5YoVaGBUFm35kK42Xd4P6qHGNvInBEelQxI8GCUQ=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=Px/7IsgNrQL3UFeeRlRFIuWZia3L9xKg8B0NKdNO7x3uUlIa7gqFRPTw+xj8qU4v2WMdDyqJcpsopYivN3s/hJsfLd3AJO+ae9We9SxtwvaDK1A1PUoq6rM0vVznZRAYAlNQ/u5IWWu8paqwI3XJ/DDmCL3v6m9LYYpHSserLh4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=NT6Pu16r; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=S0zrl+7GWO4n6x14XnmwzYsjRX7F96dPmpcpFeQKkO11a+Q4l4HRIkWuWfLXhSEkvNwytWE3HGguUqzluG+i4xe4Q0tWAoQK8WXfBX/pyUdu4FeHfcDLLquwHY3hiCvAi5uoKDPcHFSRKVloskO6Dj8yzskVXRmL001qR9c/94w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=X9lwdilJ; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="NT6Pu16r"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6EF521F000E9;
-	Mon, 17 Aug 2026 21:55:37 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="X9lwdilJ"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E25AA1F000E9;
+	Mon, 17 Aug 2026 21:59:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787003737;
-	bh=PMI5A2yhnUm6LgkkrWtEQ7rZySsNuSMoxoXchcBz5FE=;
+	s=k20260515; t=1787003951;
+	bh=S4AK/HMtFQyt3a7ONEyeQDeEcDGaqPQuRmoXVMsHmU0=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=NT6Pu16rFvjuKw8lxk23RYfyVpl49Ivy+OWJMz28oGzjNg7eGiGNLGUeKGeX8i4Yl
-	 oJtmlID7l5LIB3WAG7OjMRoi3mT3QP1/izV7nCuEksjKFVs/6sKzX0Mrb+8M9oCy6r
-	 sm0GTpi3OivcxkW9YXQ9aZF9bTptu+KfYjrGnMbxyY2K+GkX43HfavHSG1GUa3pEeQ
-	 GEjnbiluK2Sik3hjbtQRuSMelFQXB192WfxsgycWivd8r7ffAQV3OhPaXxKU+4jNgP
-	 WeytoU1AEajEmNdJKV9BRnOmYXk/clJP1Uf7jXceTbtjT29DgLukZlSvzPVgDN3BVh
-	 rYjNMhu8frx2w==
+	b=X9lwdilJjkQjjEys1Ngz1WoB87X3TXvRHpFpXR1z3fRxCxx4QOHc4M51aX5vQCaHP
+	 D9xW9XDwU0HECuf/EEPL+ErJ3fy71WGCz9fmT1yIH7XGQEgky4+8p3DV7tb8Bhq0AC
+	 uQI5hIXWtjT9qtazqGXCfoAcd73NQ3t508cA6UDrmbqH7baQuQwzllenTAVEx6n9gs
+	 FxhF3Ivn8Ui69mriwQTEqv4q9NzbdPy/VCbYbiozNKUjereyeNRPUWGWdyzYAKbYPj
+	 BXr8FE8FiPgYXVhtHa4E6UuTGaU01Mz+MXVsxGX7M6VmaHqplERhulQ93CmP9dZLi3
+	 +LytojgBHynrA==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v4 1/4] HID: wiimote: turn on the LEDs indicating the
- controller id
+Subject: Re: [PATCH v4 2/4] HID: wiimote: replace spinlock pairs with
+ scoped_guard
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Rafael Passos" <rafael@rcpassos.me>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260817213840.1053216-2-rafael@rcpassos.me>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20260817213840.1053216-3-rafael@rcpassos.me>
 References: <20260817213840.1053216-1-rafael@rcpassos.me>
- <20260817213840.1053216-2-rafael@rcpassos.me>
+ <20260817213840.1053216-3-rafael@rcpassos.me>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Mon, 17 Aug 2026 21:55:37 +0000
-Message-Id: <20260817215537.6EF521F000E9@smtp.kernel.org>
+Date: Mon, 17 Aug 2026 21:59:10 +0000
+Message-Id: <20260817215910.E25AA1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+Thank you for your contribution! Sashiko AI review found 4 potential issue(=
 s) to consider:
-- [High] Out-of-bounds memory read and IDA leak due to integer truncation o=
-f `player_id`.
-- [Medium] Unconditional `ida_free(0)` in probe error paths triggers a kern=
-el WARN splat.
+
+New issues:
+- [Low] Functions improperly mix goto-based cleanup labels with scoped_guar=
+d usage.
+- [Low] Inconsistent space-based indentation utilized inside scoped_guard b=
+locks.
+- [Low] The commit message inaccurately describes the formatting configurat=
+ion of one-liner scoped_guards.
+
+Pre-existing issues:
+- [High] The `queue.worker` can be rescheduled after cancellation because h=
+ardware polling is stopped too late.
 --
 
---- Patch [1]: [PATCH v4 1/4] HID: wiimote: turn on the LEDs indicating the=
- controller id ---
-commit ee8a446b2fee34f66eb9e5ae9f8fb5e25ff963be
+--- Patch [2]: [PATCH v4 2/4] HID: wiimote: replace spinlock pairs with sco=
+ped_guard ---
+commit 7580c2db3c79e9b0eeae8d3525656cfd7d171c35
 Author: Rafael Passos <rafael@rcpassos.me>
 
-HID: wiimote: turn on the LEDs indicating the controller id
+    HID: wiimote: replace spinlock pairs with scoped_guard
 
-The behavior in a Wii/Wii U console is to have each controller turn on
-a different LED indicating the controller id.
-This commit implements the same behavior using the ida struct.
-Unlike switch controllers, each ID only turns one LED (from 1 to 4).
+This commit replaces manual spinlock lock/unlock pairs with scoped_guard
+across the wiimote driver to improve safety and maintainability.
+
+>     The multi line spinlock blocks were replaced by braced scoped_guard,
+>     and one-liners by a scoped_guard without braces nor indentation.
+
+[Severity: Low]
+This isn't a bug, but there's a discrepancy in the commit message. The=20
+one-liners in the diff correctly retain their tab indentation for the=20
+guarded statement (e.g., in wiimote_cmd_read), contradicting the=20
+description here.
 
 > diff --git a/drivers/hid/hid-wiimote-core.c b/drivers/hid/hid-wiimote-cor=
 e.c
-> index 63c4fa8fbb9b6..acf31d8b6991d 100644
+> index acf31d8b6991d..05f8ddb7909bc 100644
 > --- a/drivers/hid/hid-wiimote-core.c
 > +++ b/drivers/hid/hid-wiimote-core.c
 [ ... ]
-> @@ -671,6 +678,12 @@ static void wiimote_modules_load(struct wiimote_data=
- *wdata,
->  	spin_lock_irq(&wdata->state.lock);
->  	wdata->state.devtype =3D devtype;
->  	spin_unlock_irq(&wdata->state.lock);
-> +
-> +	scoped_guard(spinlock_irqsave, &wdata->state.lock) {
-> +		/* after loading modules, set the Player ID LED cycling from 1 to 4*/
-> +		wiiproto_req_leds(wdata, player_leds[(wdata->player_id - 1) % 4]);
-
-[Severity: High]
-Does this calculation cause an out-of-bounds read if player_id is 0?
-
-Because of C integer promotion rules, if player_id is 0, (0 - 1) % 4
-evaluates to -1, which results in reading player_leds[-1].
-
-> +	}
-> +
->  	return;
-[ ... ]
-> @@ -1759,12 +1773,17 @@ static struct wiimote_data *wiimote_create(struct=
- hid_device *hdev)
->  	return wdata;
->  }
-> =20
-> +/* Global id allocator for wii remotes */
-> +static DEFINE_IDA(wiimote_ida);
-> +
->  static void wiimote_destroy(struct wiimote_data *wdata)
+> @@ -362,13 +363,12 @@ void wiiproto_req_rmem(struct wiimote_data *wdata, =
+bool eeprom, __u32 offset,
+>  int wiimote_cmd_write(struct wiimote_data *wdata, __u32 offset,
+>  						const __u8 *wmem, __u8 size)
 >  {
->  	unsigned long flags;
+> -	unsigned long flags;
+>  	int ret;
 > =20
->  	wiidebug_deinit(wdata);
+> -	spin_lock_irqsave(&wdata->state.lock, flags);
+> -	wiimote_cmd_set(wdata, WIIPROTO_REQ_WMEM, 0);
+> -	wiiproto_req_wreg(wdata, offset, wmem, size);
+> -	spin_unlock_irqrestore(&wdata->state.lock, flags);
+> +	scoped_guard(spinlock_irqsave, &wdata->state.lock) {
+> +	    wiimote_cmd_set(wdata, WIIPROTO_REQ_WMEM, 0);
+> +	    wiiproto_req_wreg(wdata, offset, wmem, size);
+> +	}
+
+[Severity: Low]
+This isn't a bug, but does this inner block use spaces for indentation=20
+instead of standard tabs?
+
+>  	ret =3D wiimote_cmd_wait(wdata);
+>  	if (!ret && wdata->state.cmd_err)
+[ ... ]
+> @@ -675,11 +673,8 @@ static void wiimote_modules_load(struct wiimote_data=
+ *wdata,
+>  			goto error;
+>  	}
 > =20
-> +	ida_free(&wiimote_ida, wdata->player_id);
-> +
+> -	spin_lock_irq(&wdata->state.lock);
+> -	wdata->state.devtype =3D devtype;
+> -	spin_unlock_irq(&wdata->state.lock);
+> -
+>  	scoped_guard(spinlock_irqsave, &wdata->state.lock) {
+> +		wdata->state.devtype =3D devtype;
+>  		/* after loading modules, set the Player ID LED cycling from 1 to 4*/
+>  		wiiproto_req_leds(wdata, player_leds[(wdata->player_id - 1) % 4]);
+>  	}
+> @@ -703,13 +698,11 @@ static void wiimote_modules_unload(struct wiimote_d=
+ata *wdata)
 
-[Severity: Medium]
-Will this unconditionally free ID 0 if early probe steps fail?
+[Severity: Low]
+Does this mix goto-based error handling (the goto error statements above)=20
+with cleanup helpers in the same function?
 
-If an error occurs in wiimote_hid_probe() before an ID is successfully
-allocated, the error path jumps to err_free and calls wiimote_destroy().
-Because player_id is initialized to 0, calling ida_free(&wiimote_ida, 0)
-for an unallocated ID triggers a WARN(1) splat in the IDA core.
+The cleanup subsystem guidelines suggest that for a given routine, we=20
+should convert all resources that need a goto cleanup to scope-based=20
+cleanup, or convert none of them. This pattern also appears in=20
+wiimote_init_detect and wiimote_init_check.
 
 [ ... ]
-> diff --git a/drivers/hid/hid-wiimote.h b/drivers/hid/hid-wiimote.h
-> index 9c12f63f6dd2d..8e5002f515e24 100644
-> --- a/drivers/hid/hid-wiimote.h
-> +++ b/drivers/hid/hid-wiimote.h
-> @@ -153,6 +153,7 @@ struct wiimote_data {
->  	struct input_dev *mp;
->  	struct timer_list timer;
->  	struct wiimote_debug *debug;
-> +	u8 player_id;
+> @@ -1120,16 +1106,15 @@ static void wiimote_init_hotplug(struct wiimote_d=
+ata *wdata)
+> =20
+>  	wiimote_cmd_acquire_noint(wdata);
+> =20
+> -	spin_lock_irq(&wdata->state.lock);
+> -
+> -	/* get state snapshot that we will then work on */
+> -	flags =3D wdata->state.flags;
+> +	scoped_guard(spinlock_irq, &wdata->state.lock) {
+> =20
+> -	/* disable event forwarding temporarily */
+> -	wdata->state.flags &=3D ~WIIPROTO_FLAG_EXT_ACTIVE;
+> -	wdata->state.flags &=3D ~WIIPROTO_FLAG_MP_ACTIVE;
+> +	    /* get state snapshot that we will then work on */
+> +	    flags =3D wdata->state.flags;
+> =20
+> -	spin_unlock_irq(&wdata->state.lock);
+> +	    /* disable event forwarding temporarily */
+> +	    wdata->state.flags &=3D ~WIIPROTO_FLAG_EXT_ACTIVE;
+> +	    wdata->state.flags &=3D ~WIIPROTO_FLAG_MP_ACTIVE;
+> +	}
+
+[Severity: Low]
+This isn't a bug, but it looks like spaces are used here instead of tabs=20
+for the indentation inside the scoped_guard block.
+
+[ ... ]
 
 [Severity: High]
-Can this u8 declaration lead to integer truncation and an IDA leak?
+This is a pre-existing issue, but can the wdata->queue.worker be=20
+rescheduled after it is canceled during device teardown?
 
-The ida_alloc_min() function returns an unbounded int. If the allocated
-ID reaches 256, it will silently truncate to 0 when assigned to this
-u8 field.
+Looking at wiimote_destroy (which is not modified in this patch but=20
+is in the same file):
 
-If truncation occurs, the 0 value will later cause the out-of-bounds read
-in wiimote_modules_load() mentioned above. Furthermore, wiimote_destroy()
-will pass 0 to ida_free(), permanently leaking the originally allocated ID
-(e.g., 256).
+	cancel_work_sync(&wdata->queue.worker);
 
-> =20
->  	union {
->  		struct input_dev *input;
+	if (wdata->init_state & WIIMOTE_PROBE_HW_OPENED)
+		hid_hw_close(wdata->hdev);
+	if (wdata->init_state & WIIMOTE_PROBE_HW_STARTED)
+		hid_hw_stop(wdata->hdev);
+
+	kfree(wdata);
+
+If the hardware sends a report between the cancel_work_sync and=20
+hid_hw_stop calls, wiimote_hid_event could process it and queue=20
+a request via wiimote_queue, which calls=20
+schedule_work(&wdata->queue.worker).
+
+Since wdata is freed immediately after hid_hw_stop, would the=20
+rescheduled worker later access the freed wdata structure and cause a=20
+use-after-free? Should hid_hw_stop be called before canceling the=20
+worker?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260817213840.1053=
-216-1-rafael@rcpassos.me?part=3D1
+216-1-rafael@rcpassos.me?part=3D2

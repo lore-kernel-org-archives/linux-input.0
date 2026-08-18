@@ -1,108 +1,147 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from oss.cyber.gouv.fr (oss.cyber.gouv.fr [51.159.188.251])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4C765471CFA
-	for <linux-input@vger.kernel.org>; Tue, 18 Aug 2026 13:29:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DE397477E2B;
+	Tue, 18 Aug 2026 14:03:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=51.159.188.251
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787059758; cv=none; b=T66ZshEpm+dTyVaA1mAku9/UTFTiWpl4L1GbKJ/ywjA+Zfyn1/dNdUQ3VtGZdWLL/qnwoOpwdwIpABqtM4WGUp0J0OzV26qsfYLAoBysfWCNpiT9EQh+QE3x6Z7OV7g2rhjhEkFFilUewl/cn23Aa3Y9M3+E6zUjUJIfTV65EoI=
+	t=1787061820; cv=none; b=MoQJvGTncSSGXA53P6wJOK2UXYBUP3aBgdQu4+vzPH8AT3F5xmNTgzWLWBDWbpcaQ4q8/WKjSTHYgESRZ/12UZ5eV9vqZdFO9btT1M4D/MtFf6/8PiO7TY0pR/C8fiRcDb+gy0Dv8A+HJ1zDz+C9HSpHn1y5k61Ck991tBlwMPg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787059758; c=relaxed/simple;
-	bh=eJWR+6rmNqn6FOBOVCe2MdyZbex454SlW5N30jLsgdI=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=bHlyX4XnKDkY6wxmwuUCp0d6QkkyZbmchY/e4WoxIIzLcZUZaOJO3A6YeMxq4SMQgb6cXVJHU1TozIjGzzK4vIZSdpro5qWdghCKZfroXjc2ikkdIJvQFY0v2q6UzLl4777rmovzAFte+L3/bhNPxTqoCBAYueQ/LvSFm8BIVww=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Nb2f8YPC; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1787061820; c=relaxed/simple;
+	bh=bxJG6ZJcgQhn+m1SWyFkXXMJZEzwNW2gqONi/JfTjK8=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=AJYkkLoTrmsfkctyIxMeSmfrCz2cwf0hiVp51UhTjetrjmBsd5eX4tN43UuGjkiMXTQH61wi6FPbXgQO7uxDxeAz0lcADCawRXhe4pbbhEmVl/lrj4yJ7/UgnH9I0OTVokBtJpkSISoM0R+HFx3uSTY3+Q5Nw2Iyn67Ez9v6LFc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=oss.cyber.gouv.fr; spf=pass smtp.mailfrom=oss.cyber.gouv.fr; dkim=pass (2048-bit key) header.d=oss.cyber.gouv.fr header.i=@oss.cyber.gouv.fr header.b=UdMz96QO; arc=none smtp.client-ip=51.159.188.251
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=oss.cyber.gouv.fr
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.cyber.gouv.fr
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Nb2f8YPC"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B35EE1F000E9;
-	Tue, 18 Aug 2026 13:29:16 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787059756;
-	bh=6DZID3jNLzisVbvnla5EMZeRvZyiM9NuEFC0VKt9zh0=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=Nb2f8YPCeTlYQkZlUlmBd6r5+TcyOmIlthR2OFSRF5vY+KQR7EZpC1/hIvBXLH4+W
-	 eYLus18pdlQoRduPHARhJsr89uR15ShNZVI9w3vvoLhxKgKn4afFcJVDXSUq13+zp2
-	 d3EVFmleTA4MqllXgArBDGknlgi1pWt0rSUrWXrhfcMJJLIyCS852yMdGEtBXPPmEg
-	 xe1kA6dwzpF2xXFNC+diHutVZBZ5JxL1QpAAEnca3NmAFTa8NhMNaeuPSGKaxWgDdN
-	 vrWSSDFKSmSc7gQFmqWYO0jK3GBgCOC+eptiyga9bGimRqjL10+IvdEiAlinsuHsRM
-	 ESRnUsPs2Qrjg==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH RESEND] HID: corsair-void: Fix firmware event packet
- description
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Stuart Hayhurst" <stuart.a.hayhurst@gmail.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260818130053.45064-2-stuart.a.hayhurst@gmail.com>
-References: <20260818130053.45064-2-stuart.a.hayhurst@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Tue, 18 Aug 2026 13:29:16 +0000
-Message-Id: <20260818132916.B35EE1F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=oss.cyber.gouv.fr header.i=@oss.cyber.gouv.fr header.b="UdMz96QO"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=oss.cyber.gouv.fr; s=default; h=Content-Transfer-Encoding:Content-Type:
+	MIME-Version:Message-ID:Date:Subject:Cc:To:From:Sender:Reply-To:Content-ID:
+	Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
+	:Resent-Message-ID:In-Reply-To:References:List-Id:List-Help:List-Unsubscribe:
+	List-Subscribe:List-Post:List-Owner:List-Archive;
+	bh=ymwhVEpXZj4ctpuKsgPqUZvHH4bSXpvXInZ+DeiyeDc=; b=UdMz96QOAkbH2T0gLWI+x3KSHs
+	12xUTrhqm6dk1/E10EAP3BKzLnEURugxJBOepR25tVM/IA+yhBKs/9JiFsUry6j7OnODWhuZcJ9EO
+	niCLcJpI8xvpFk3oBIJwPLP4aj+H7TNdb3MmS5i0c9rykbcMnoKMSYoFHj7xnQQJp4yEgoGozVDcX
+	Mzn++DINLjTcPVwi89x2/bC2RT1SfPcyQyKyVsC0RbHVt6gXPMilpshVz3ed29XIgzf1XersM2F9S
+	LbDnXbvyv/dOkjZOPProGVNjk5o/0WFQNDRXF4a6ryP5ovOEGAdvOsI+YqvpXxeEzQC5U6RyGq0o5
+	yLmncR9A==;
+Received: from [151.115.150.205] (port=41904 helo=gepetto..)
+	by pf-012.whm.fr-par.scw.cloud with esmtpsa  (TLS1.3) tls TLS_AES_256_GCM_SHA384
+	(Exim 4.99.5)
+	(envelope-from <Jeremy.Jean@oss.cyber.gouv.fr>)
+	id 1wwKPg-0000000B364-2YkY;
+	Tue, 18 Aug 2026 16:03:35 +0200
+From: =?UTF-8?q?J=C3=A9r=C3=A9my=20Jean?= <Jeremy.Jean@oss.cyber.gouv.fr>
+To: Even Xu <even.xu@intel.com>,
+	Xinpeng Sun <xinpeng.sun@intel.com>
+Cc: Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	=?UTF-8?q?J=C3=A9r=C3=A9my=20Jean?= <Jeremy.Jean@oss.cyber.gouv.fr>
+Subject: [PATCH] HID: intel-thc-hid: reject oversized QuickSPI GET_REPORT responses
+Date: Tue, 18 Aug 2026 14:02:46 +0000
+Message-ID: <20260818140245.1903804-2-Jeremy.Jean@oss.cyber.gouv.fr>
+X-Mailer: git-send-email 2.47.3
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - pf-012.whm.fr-par.scw.cloud
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - oss.cyber.gouv.fr
+X-Get-Message-Sender-Via: pf-012.whm.fr-par.scw.cloud: authenticated_id: jeremy.jean@oss.cyber.gouv.fr
+X-Authenticated-Sender: pf-012.whm.fr-par.scw.cloud: jeremy.jean@oss.cyber.gouv.fr
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
+Thread the HID core caller length into quickspi_get_report() and reject
+responses that exceed the caller-provided buffer before the final copy.
+Snapshot the completed response length once so the bound check, copy, and
+returned byte count all use the same value.
 
-Pre-existing issues:
-- [Medium] Missing report size validation in `corsair_void_raw_event` allow=
-s out-of-bounds read of the `data` array, leading to processing of uninitia=
-lized or stale data.
---
+Fixes: 9d8d51735a3a ("HID: intel-thc-hid: intel-quickspi: Add HIDSPI protocol implementation")
+Assisted-by: Codex:gpt-5
+Signed-off-by: Jérémy Jean <Jeremy.Jean@oss.cyber.gouv.fr>
+---
+ .../intel-thc-hid/intel-quickspi/quickspi-hid.c   |  2 +-
+ .../intel-quickspi/quickspi-protocol.c            | 15 ++++++++++++---
+ .../intel-quickspi/quickspi-protocol.h            |  2 +-
+ 3 files changed, 14 insertions(+), 5 deletions(-)
 
---- Patch [1]: [PATCH RESEND] HID: corsair-void: Fix firmware event packet =
-description ---
-commit 80e19492934a593a71b8da5c14d031065a2f1255
-Author: Stuart Hayhurst <stuart.a.hayhurst@gmail.com>
+diff --git a/drivers/hid/intel-thc-hid/intel-quickspi/quickspi-hid.c b/drivers/hid/intel-thc-hid/intel-quickspi/quickspi-hid.c
+index 91d5807b4a83..a60a0a7f16aa 100644
+--- a/drivers/hid/intel-thc-hid/intel-quickspi/quickspi-hid.c
++++ b/drivers/hid/intel-thc-hid/intel-quickspi/quickspi-hid.c
+@@ -61,7 +61,7 @@ static int quickspi_hid_raw_request(struct hid_device *hid,
+ 
+ 	switch (reqtype) {
+ 	case HID_REQ_GET_REPORT:
+-		ret = quickspi_get_report(qsdev, rtype, reportnum, buf);
++		ret = quickspi_get_report(qsdev, rtype, reportnum, buf, len);
+ 		break;
+ 	case HID_REQ_SET_REPORT:
+ 		ret = quickspi_set_report(qsdev, rtype, reportnum, buf, len);
+diff --git a/drivers/hid/intel-thc-hid/intel-quickspi/quickspi-protocol.c b/drivers/hid/intel-thc-hid/intel-quickspi/quickspi-protocol.c
+index cb19057f1191..acc9d67c53ca 100644
+--- a/drivers/hid/intel-thc-hid/intel-quickspi/quickspi-protocol.c
++++ b/drivers/hid/intel-thc-hid/intel-quickspi/quickspi-protocol.c
+@@ -342,10 +342,12 @@ int reset_tic(struct quickspi_device *qsdev)
+ }
+ 
+ int quickspi_get_report(struct quickspi_device *qsdev,
+-			u8 report_type, unsigned int report_id, void *buf)
++			u8 report_type, unsigned int report_id,
++			void *buf, size_t buf_len)
+ {
+ 	int rep_type;
+ 	int ret;
++	u32 report_len;
+ 
+ 	if (report_type == HID_INPUT_REPORT) {
+ 		rep_type = GET_INPUT_REPORT;
+@@ -371,10 +373,17 @@ int quickspi_get_report(struct quickspi_device *qsdev,
+ 		return -ETIMEDOUT;
+ 	}
+ 	qsdev->get_report_cmpl = false;
++	report_len = READ_ONCE(qsdev->report_len);
++
++	if (report_len > buf_len) {
++		dev_err_once(qsdev->dev, "Get report response too large: %u vs %zu\n",
++			     report_len, buf_len);
++		return -EINVAL;
++	}
+ 
+-	memcpy(buf, qsdev->report_buf, qsdev->report_len);
++	memcpy(buf, qsdev->report_buf, report_len);
+ 
+-	return qsdev->report_len;
++	return report_len;
+ }
+ 
+ int quickspi_set_report(struct quickspi_device *qsdev,
+diff --git a/drivers/hid/intel-thc-hid/intel-quickspi/quickspi-protocol.h b/drivers/hid/intel-thc-hid/intel-quickspi/quickspi-protocol.h
+index 775e29c1ed13..aa2c935dafe8 100644
+--- a/drivers/hid/intel-thc-hid/intel-quickspi/quickspi-protocol.h
++++ b/drivers/hid/intel-thc-hid/intel-quickspi/quickspi-protocol.h
+@@ -12,7 +12,7 @@ struct quickspi_device;
+ 
+ void quickspi_handle_input_data(struct quickspi_device *qsdev, u32 buf_len);
+ int quickspi_get_report(struct quickspi_device *qsdev, u8 report_type,
+-			unsigned int report_id, void *buf);
++			unsigned int report_id, void *buf, size_t buf_len);
+ int quickspi_set_report(struct quickspi_device *qsdev, u8 report_type,
+ 			unsigned int report_id, void *buf, u32 buf_len);
+ int quickspi_get_report_descriptor(struct quickspi_device *qsdev);
+-- 
+2.47.3
 
-HID: corsair-void: Fix firmware event packet description
-
-This commit updates the firmware event packet description in the corsair-vo=
-id
-driver. It corrects the size to 5 bytes to account for the report ID and
-updates the byte indices for the firmware version fields.
-
-> diff --git a/drivers/hid/hid-corsair-void.c b/drivers/hid/hid-corsair-voi=
-d.c
-> index 5e9a5b8f7f167..ce92e3a9c0580 100644
-> --- a/drivers/hid/hid-corsair-void.c
-> +++ b/drivers/hid/hid-corsair-void.c
-
-[ ... ]
-
-> - * 3: Headset firmware minor version
-> + * 4: Headset firmware minor version
->   *  Minor version of the headset's firmware
->   */
->  /* ---------------------------------------------------------------------=
------ */
-
-[Severity: Medium]
-This is a pre-existing issue, but since the documentation correctly notes t=
-he
-receiver responds with 5 bytes, does the driver need to validate this size
-before parsing the packet?
-
-In drivers/hid/hid-corsair-void.c:corsair_void_raw_event(), the data array =
-is
-accessed up to index 4 without first validating the report size:
-
-	} else if (hid_report->id =3D=3D CORSAIR_VOID_FIRMWARE_REPORT_ID) {
-		drvdata->fw_receiver_major =3D data[1];
-		drvdata->fw_receiver_minor =3D data[2];
-		drvdata->fw_headset_major =3D data[3];
-		drvdata->fw_headset_minor =3D data[4];
-	}
-
-If an untrusted or misbehaving USB device sends a short report where the si=
-ze
-is less than 5, could this lead to an out-of-bounds read and cause the driv=
-er
-to process uninitialized or stale data from the HID core's input buffer?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260818130053.4506=
-4-2-stuart.a.hayhurst@gmail.com?part=3D1

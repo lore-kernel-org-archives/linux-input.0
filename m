@@ -1,121 +1,108 @@
-Received: from mail-ej1-f50.google.com (mail-ej1-f50.google.com [209.85.218.50])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 84F7146D540
-	for <linux-input@vger.kernel.org>; Tue, 18 Aug 2026 13:20:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.50
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4C765471CFA
+	for <linux-input@vger.kernel.org>; Tue, 18 Aug 2026 13:29:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787059232; cv=none; b=EY/pSMefY4689wz9LMzI9URppQ+DPQY/3FteVt6LGEBk4TiB+KROKKCiHS4XWlZ94HRy1wnD468iHEFdXkzN/966svHIALXUPOR+74qHsjhXJ7tiqFT8mXr4w156DJkow/DWevIQ6gvK53WxHBsn9cswixrEpdKvkF1f+C3X2YM=
+	t=1787059758; cv=none; b=T66ZshEpm+dTyVaA1mAku9/UTFTiWpl4L1GbKJ/ywjA+Zfyn1/dNdUQ3VtGZdWLL/qnwoOpwdwIpABqtM4WGUp0J0OzV26qsfYLAoBysfWCNpiT9EQh+QE3x6Z7OV7g2rhjhEkFFilUewl/cn23Aa3Y9M3+E6zUjUJIfTV65EoI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787059232; c=relaxed/simple;
-	bh=UDtWwchdhUl1geudWWvYZjXqhs5605XgfHNI2kDLcXE=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=ec7FFB3gf8csxozYPhAC28KFDxrtDcsunvBi1QkOyca2+5IyCvM0qQiVs9JClZKlwN8zA//W6fhRueQJj2vFR6/dGiGpCs7ObAKfLFJ7F0PbnX5PI6esXyMcBS4aoae1qADJoGXvB4/RZv4/bbREsiuOECvJXY0seft1ryYig/4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=mR5Hi5eX; arc=none smtp.client-ip=209.85.218.50
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1787059758; c=relaxed/simple;
+	bh=eJWR+6rmNqn6FOBOVCe2MdyZbex454SlW5N30jLsgdI=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=bHlyX4XnKDkY6wxmwuUCp0d6QkkyZbmchY/e4WoxIIzLcZUZaOJO3A6YeMxq4SMQgb6cXVJHU1TozIjGzzK4vIZSdpro5qWdghCKZfroXjc2ikkdIJvQFY0v2q6UzLl4777rmovzAFte+L3/bhNPxTqoCBAYueQ/LvSFm8BIVww=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Nb2f8YPC; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="mR5Hi5eX"
-Received: by mail-ej1-f50.google.com with SMTP id a640c23a62f3a-c20ce3c118aso184864366b.0
-        for <linux-input@vger.kernel.org>; Tue, 18 Aug 2026 06:20:30 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1787059228; x=1787664028; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=UCXJXOTsM7aQw7ElDYlqfjKjTvQ4u0H2LjQVlRKBQ1E=;
-        b=mR5Hi5eXnZH3bvuSA3Nb8wBmw8xfW1e4FTiDeTMdrP6NjBe5VIw+p4Iky2WnGxcD/m
-         75jtiXee0ZRfvQwWwKJHxe70Jhb9ZFSVQc3b2gFwOOInswpm+7eT45bzzUooQ/6YufBX
-         oFzd1DIcqHJbOxBJo10yS7B4HPcSZIq3wGcBfVTvnJHY8TU8vys5FO5et8C/WJqOnMRJ
-         JvIJM/jFuVa5iJSebCRtwz8CXLatkme5kxi+xW5KZqdI606tetWw+v8stCUfoZ3SPadG
-         ivmBZFv25PGEcQV1ZzkSCuL1IkPAa/Mye6IxQRksmB4C0AxONSoUUaQiyaShv8tC9FBI
-         aawA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787059228; x=1787664028;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=UCXJXOTsM7aQw7ElDYlqfjKjTvQ4u0H2LjQVlRKBQ1E=;
-        b=q2jQtazsgDuj7NUZj2fKpnYCD1Tsf8pwsIU9Qmj4+MhSpGjNql7G7xaMxCmO13rSQ4
-         3zrkmoAtxquq02yyeRN3p5ovtS01ftsYBgIJK/iCvvWqF9kD7r5zWih1jgcU4V8m08js
-         R3MRDxfeQFf2d+AVbvyDN0id3e9a/mK1b5Z6i8KAWlQCGMIZ4sZMZrKlDT0IgP+Si7qH
-         BKAsZT47aj5U33545ZnrW6mTTtdIdPa0XYpDuo+bUK7sGfQTQJagG5tlv3IufIbSYN5S
-         ltfhUFpfBnzVmWe/MJ3+STa0wm2Fnkd8XOft/BJZgaAm/Cng+mTR1ir8C2GSOtqa7Muk
-         kNsA==
-X-Gm-Message-State: AOJu0YxmTzIz9pdPpDuQJ4ABYYx0vHpNvXsUrB44FFGYuXWRrKrBXbQH
-	ISJ18mTsYdoDNznIbM4G6P6X2oI1iMB6Nqg8x0l9dxu8kWt3Nl2ZmkXp3MZVz0d5
-X-Gm-Gg: AR+sD12j4T3dipjthuXANceq6BWWXKnnOfI+piyXK755cNfLDpv0lilMsgABAE33QCN
-	QICOWHlDk/gMxqytyWFdcFMxwdo0M+LqZJl6CJhroXUtXj18bo6J5oSpGNl59KTDksJgS+G4siU
-	1hELM0VBY2vHQgYyIMKQ5OiufoxyZCuNJYP9+rm7F+fqXIgGEorlnr/4amZoPvMvKhKKjIWOLRA
-	g9S/YI9LdxndThDWMFQ8I3JgOl3C/7CbDTywFPugzY+SBnS4jc9nqU915zUUdsSVRE15aBaZhWJ
-	qeuWGt0lc6rcqPL78N7yXBB2lt7zNbsAab22eNAD06Rx1PEJ1IQtomhquAN5Y6/cUquHU+BRWfd
-	juEp/xaTWOST6jhQ7RmTNKrjbucWO+4fZTgnTNZEpX5fdpZbFEKjJ834XMGV2LAVNGTutXocfhP
-	m2sSaN/NinGWU34Cki6tfGA6QxKtimlAeyMZuTzC7Y6p427sF5E9A44u8YWZanj+SueLoV3c+EF
-	7NAaoQMwz96YAVNM+3kjEfmPDTQE60Hqi5YoXbpNwlBeqD7zFLxf2HhNwwoyg==
-X-Received: by 2002:a05:600c:5286:b0:499:5f80:83ac with SMTP id 5b1f17b1804b1-499a206e0b6mr92445125e9.7.1787059218039;
-        Tue, 18 Aug 2026 06:20:18 -0700 (PDT)
-Received: from snakeroot ([2a05:87c3:2001:7400:10b8:9b75:83b9:c6d3])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49987b25ad8sm270696685e9.2.2026.08.18.06.20.17
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 18 Aug 2026 06:20:17 -0700 (PDT)
-From: Stuart Hayhurst <stuart.a.hayhurst@gmail.com>
-To: linux-input@vger.kernel.org
-Cc: Stuart Hayhurst <stuart.a.hayhurst@gmail.com>,
-	linux-kernel@vger.kernel.org,
-	Benjamin Tissoires <bentiss@kernel.org>,
-	Jiri Kosina <jikos@kernel.org>
-Subject: [PATCH RESEND] HID: corsair-void: Fix firmware event packet description
-Date: Tue, 18 Aug 2026 14:00:53 +0100
-Message-ID: <20260818130053.45064-2-stuart.a.hayhurst@gmail.com>
-X-Mailer: git-send-email 2.55.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Nb2f8YPC"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B35EE1F000E9;
+	Tue, 18 Aug 2026 13:29:16 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1787059756;
+	bh=6DZID3jNLzisVbvnla5EMZeRvZyiM9NuEFC0VKt9zh0=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=Nb2f8YPCeTlYQkZlUlmBd6r5+TcyOmIlthR2OFSRF5vY+KQR7EZpC1/hIvBXLH4+W
+	 eYLus18pdlQoRduPHARhJsr89uR15ShNZVI9w3vvoLhxKgKn4afFcJVDXSUq13+zp2
+	 d3EVFmleTA4MqllXgArBDGknlgi1pWt0rSUrWXrhfcMJJLIyCS852yMdGEtBXPPmEg
+	 xe1kA6dwzpF2xXFNC+diHutVZBZ5JxL1QpAAEnca3NmAFTa8NhMNaeuPSGKaxWgDdN
+	 vrWSSDFKSmSc7gQFmqWYO0jK3GBgCOC+eptiyga9bGimRqjL10+IvdEiAlinsuHsRM
+	 ESRnUsPs2Qrjg==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH RESEND] HID: corsair-void: Fix firmware event packet
+ description
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Stuart Hayhurst" <stuart.a.hayhurst@gmail.com>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <20260818130053.45064-2-stuart.a.hayhurst@gmail.com>
+References: <20260818130053.45064-2-stuart.a.hayhurst@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Tue, 18 Aug 2026 13:29:16 +0000
+Message-Id: <20260818132916.B35EE1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-The size was incorrectly stated as 4 bytes since the ID was missed out.
-Add the ID in and correct the indices for the firmware versions.
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
 
-Signed-off-by: Stuart Hayhurst <stuart.a.hayhurst@gmail.com>
----
- drivers/hid/hid-corsair-void.c | 15 +++++++++------
- 1 file changed, 9 insertions(+), 6 deletions(-)
+Pre-existing issues:
+- [Medium] Missing report size validation in `corsair_void_raw_event` allow=
+s out-of-bounds read of the `data` array, leading to processing of uninitia=
+lized or stale data.
+--
 
-diff --git a/drivers/hid/hid-corsair-void.c b/drivers/hid/hid-corsair-void.c
-index 5e9a5b8f7f16..ce92e3a9c058 100644
---- a/drivers/hid/hid-corsair-void.c
-+++ b/drivers/hid/hid-corsair-void.c
-@@ -51,20 +51,23 @@
- /* Receiver report information: (ID 102)                                      */
- /* -------------------------------------------------------------------------- */
- /*
-- * When queried, the recevier responds with 4 bytes to describe the firmware
-- * The first 2 bytes are for the receiver, the second 2 are the headset
-+ * When queried, the receiver responds with 5 bytes to describe the firmware
-+ * The first byte is the ID, then 2 bytes for the receiver, then 2 for the headset
-  * The headset firmware version will be 0 if no headset is connected
-  *
-- * 0: Recevier firmware major version
-+ * 0: Report ID
-+ *  102 for the firmware packet
-+ *
-+ * 1: Receiver firmware major version
-  *  Major version of the receiver's firmware
-  *
-- * 1: Recevier firmware minor version
-+ * 2: Receiver firmware minor version
-  *  Minor version of the receiver's firmware
-  *
-- * 2: Headset firmware major version
-+ * 3: Headset firmware major version
-  *  Major version of the headset's firmware
-  *
-- * 3: Headset firmware minor version
-+ * 4: Headset firmware minor version
-  *  Minor version of the headset's firmware
-  */
- /* -------------------------------------------------------------------------- */
--- 
-2.55.0
+--- Patch [1]: [PATCH RESEND] HID: corsair-void: Fix firmware event packet =
+description ---
+commit 80e19492934a593a71b8da5c14d031065a2f1255
+Author: Stuart Hayhurst <stuart.a.hayhurst@gmail.com>
 
+HID: corsair-void: Fix firmware event packet description
+
+This commit updates the firmware event packet description in the corsair-vo=
+id
+driver. It corrects the size to 5 bytes to account for the report ID and
+updates the byte indices for the firmware version fields.
+
+> diff --git a/drivers/hid/hid-corsair-void.c b/drivers/hid/hid-corsair-voi=
+d.c
+> index 5e9a5b8f7f167..ce92e3a9c0580 100644
+> --- a/drivers/hid/hid-corsair-void.c
+> +++ b/drivers/hid/hid-corsair-void.c
+
+[ ... ]
+
+> - * 3: Headset firmware minor version
+> + * 4: Headset firmware minor version
+>   *  Minor version of the headset's firmware
+>   */
+>  /* ---------------------------------------------------------------------=
+----- */
+
+[Severity: Medium]
+This is a pre-existing issue, but since the documentation correctly notes t=
+he
+receiver responds with 5 bytes, does the driver need to validate this size
+before parsing the packet?
+
+In drivers/hid/hid-corsair-void.c:corsair_void_raw_event(), the data array =
+is
+accessed up to index 4 without first validating the report size:
+
+	} else if (hid_report->id =3D=3D CORSAIR_VOID_FIRMWARE_REPORT_ID) {
+		drvdata->fw_receiver_major =3D data[1];
+		drvdata->fw_receiver_minor =3D data[2];
+		drvdata->fw_headset_major =3D data[3];
+		drvdata->fw_headset_minor =3D data[4];
+	}
+
+If an untrusted or misbehaving USB device sends a short report where the si=
+ze
+is less than 5, could this lead to an out-of-bounds read and cause the driv=
+er
+to process uninitialized or stale data from the HID core's input buffer?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260818130053.4506=
+4-2-stuart.a.hayhurst@gmail.com?part=3D1

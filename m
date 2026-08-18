@@ -1,154 +1,139 @@
-Received: from mail-wr1-f51.google.com (mail-wr1-f51.google.com [209.85.221.51])
+Received: from mta1.migadu.com (out-135.mta1.migadu.com [95.215.58.135])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CCF05403E8A
-	for <linux-input@vger.kernel.org>; Tue, 18 Aug 2026 08:57:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B93D93C1087
+	for <linux-input@vger.kernel.org>; Tue, 18 Aug 2026 09:13:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.135
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787043450; cv=none; b=S3A56FX6yFdANT5dk7ofvEOCiJk8mwP3O9Q/FyCorlITrJSB7o54nbM2hj4jcbY1mAipZhhg8Dcj0LL7KhDLNbZh3T+blm1A8DLlm5vCxN3ssoatu3uo4Px6aSsKvliO4Pdp2zkB1EgImeLhgXnGSD8kwyWB0qpqR6/ZKj9ETHk=
+	t=1787044422; cv=none; b=pKnb6oyTcPWscr3t3oH50f7nGn06vrsJ01B7dFXmjVuq+lZDDXOnfVWFckeLSapnbopCtnH0e4a2gp81tg26TPmJ+Aw9bPz58LxpfTmLGNCPwGX8BT1h83BdU7HzY065R6xOqNIimkhSNPvNbrkz1x6R3LyKU+RDPx/ytgK+L54=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787043450; c=relaxed/simple;
-	bh=kE3IGiRBfT+OP9aoR2Sy7p8mz+Jai9RJi1voXK4dbu8=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=oW4vQGV4fMv704yvf+bL8o/swf69GVCkVc4XPKN+lkuB/yCqrqYF/AWgDxdOrIAm7hRjCUmhCQYT9Gu9SN5iDbqpU4Tbj6qOXrahrwUEybsk9TbYiw9S8yKvVjPte7PEjeHr0WmKZUFi32S8DAmmKsQqVWZg6So2dt+9EuQwtVU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=DY5niDhe; arc=none smtp.client-ip=209.85.221.51
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1787044422; c=relaxed/simple;
+	bh=lt2HcI6nybCzyfFRr8ydY9sXKqJ/ZC2gaShlnnB1P2U=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=bj+uGg4OELm8jboMTOCR6DLwR1Fgokcll00WuBavpkgEyqg1BWlpVrWPJ+y2iSK9kE0REPm7PlZeRPFMmxNLdZnCTBaVRlfPStIkemPkHrtLnp7f7xbQ4Zrq1aGr6Sa2/me5X7hO2uX64L5efP52eAdUu5AXCkQ4v1VLHh2wduc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=Vb1eC3i4; arc=none smtp.client-ip=95.215.58.135
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="DY5niDhe"
-Received: by mail-wr1-f51.google.com with SMTP id ffacd0b85a97d-480033bdcf4so2622587f8f.2
-        for <linux-input@vger.kernel.org>; Tue, 18 Aug 2026 01:57:28 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1787043447; x=1787648247; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=eu5Qnu4amjO34gGljjkfb/hRSwAhGsO9O9HKCuZFn60=;
-        b=DY5niDheQOP4kUeXhCXcU9tlmagYBKLN45uT41dHJZ5KNDG2lFprRd2bPD+WC1jtN1
-         zmWK0AlK+AYAXHROg3mSuoUmlaJtLOf7EUaloOtI2Rvv0g+ejrfLQ9jHXy+WtxQvDdl7
-         daywLerXs4jxKYIj7ex668qTo+3ygdMJH3kpNQ4Cle3DC6KQ1mEsP4ypVV5k/lHddrDX
-         vltp3AmXTix3eCX8UCYs4XQV4FlzLC17E1xZ2cI0hql9tQsKIY6SUFHFpOzRj7XJBaNR
-         MLPQWt9PM/rJ3iAJ5ZOo6GOBwXR/x0fgSPfoP2nuLY952h9MhggMrDFrc3z+qxJagIuW
-         0JYw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787043447; x=1787648247;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=eu5Qnu4amjO34gGljjkfb/hRSwAhGsO9O9HKCuZFn60=;
-        b=Yshr+cB2gQqYY0EXon5KNRCJEXS7jICPIzetl4omrFLPc9BhBfjw4ZFgzoAjXsspqa
-         uqECvdj/9KSiNmiVtzAfK8Vh7WNx5j8gqlqhUTKJ6VMmjoVFk2djWi0PM3dOX0XXRPaB
-         ysGHJTlBzuQ7z/17T+cMjVOM2QMX7RiUmI7bWCy9dZTRtAoi+UJMAu8qs5JIqMNciGCA
-         8CfS69PSEP4rAE3lTL0AtHXnoTNKeuRSYxsvxar35Oa6wHDhEaBGS6gAVamz9odRiphf
-         b0p79xNSz5oW8aop2etiXuP9JzWToYTI9EUbJuFrqIApt6OpswNb6RbVvufrPJXR2LjG
-         m/hQ==
-X-Forwarded-Encrypted: i=1; AHgh+RrK/10dSObJxFIagM0tUuKxAbTnQxC6Yg+tZS/AvZa7PHMkzMzrsTTwyo0x3ty7L0217A1St9eoeVH8+g==@vger.kernel.org
-X-Gm-Message-State: AOJu0YzLyqRawkLEjy/DT+hIMpVOR6mxQKptI009kQodb4F5N4+LYXu9
-	7dFiaurp/y/nay9zU9IdkI0Uz+RZeJ55vT9OBcCC8xBjvvH02FwalrX3LFHwM4CX
-X-Gm-Gg: AR+sD10bEMFHY//as7U6Rb1OVeYZizj+NXYeMytVoioD5tSZ7Rvp2p8utjyTMtDn+xp
-	e5tQIoGY3RUShccmoXmoJGQI2YWFqknCQiwbZ/+GI3uUXZ6nh8RokxDc6EFE6S1GwQBGsdm7cKC
-	uH2RoAiSbuaQsLky8cHeDhs++2WazwtNNlBbRyHo8RBZwZwXZpEKe2UbZZ7lIK/0e/d0qKZYGy1
-	LkbAKijCE4KoMWovePGwkn8aVCyzWT9eKlHJPWLlbeaQybn0Hi4P1RL67xae4YbZ3GMQt4GRRIx
-	hKehlWzUvLJJlaa8eZMXOSMIbyXqvzEOHZOglK5ua9UqvAcnG78egBTFeZX3My7DsGvBXk32384
-	kqh/tiBiUZ0oC5jCv3iHpaReg8JDs+rydDgf0zJOOAnB3UeMbrBUdBfNeNYmpzqirITAdamU4MI
-	wufxOiJphlonZ7BJl+4LFsW4+Jh9VptJiB+5ELrZ55mX6o9pxc2RYAMbXKNBt66Zk4IXO84IuDA
-	MrBu70kF6CByoHYwzn7xy6gqcta0VRUGS8=
-X-Received: by 2002:a05:600c:19ca:b0:499:7ce1:d8a2 with SMTP id 5b1f17b1804b1-499879426e9mr406445745e9.8.1787043446852;
-        Tue, 18 Aug 2026 01:57:26 -0700 (PDT)
-Received: from HomeOffice (046125138157.public.t-mobile.at. [46.125.138.157])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4999d10ba73sm119747925e9.13.2026.08.18.01.57.25
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 18 Aug 2026 01:57:26 -0700 (PDT)
-From: Panz Dev <panz.development@gmail.com>
-To: Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>
-Cc: Denis Benato <denis.benato@linux.dev>,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	stable@vger.kernel.org,
-	Panz Dev <panz.development@gmail.com>
-Subject: [PATCH] HID: asus: fix touchpad multitouch initialization regression
-Date: Tue, 18 Aug 2026 10:56:23 +0200
-Message-ID: <20260818085623.18467-1-panz.development@gmail.com>
-X-Mailer: git-send-email 2.55.0
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="Vb1eC3i4"
+X-Envelope-To: linux-input@vger.kernel.org
+DKIM-Signature: a=rsa-sha256; bh=lt2HcI6nybCzyfFRr8ydY9sXKqJ/ZC2gaShlnnB1P2U=;
+ c=simple/simple; d=linux.dev;
+ h=from:to:subject:date:message-id:mime-version:content-type; s=key1;
+ t=1787044417; v=1; x=1787649217;
+ b=Vb1eC3i4JkiAysSOLwQeJXxHjsX+T7TxP+quiRRr+wSXdQ7qHu+idHpRCUTsJcmz8IYoalb9
+ wu4SthnS4sdvk0XlIZJfMMH8hAoY/ikcOk/pVAoM66AW8jp1LJDvNZxcQtGv6Z6yvmAeV/RGT81
+ bvRyZhETnWYzuEvggnqp+moc=
+X-Envelope-To: linux-input@vger.kernel.org
+Received: from [10.80.0.99] (151.61.14.130)
+	by smtp.migadu.com with ESMTPS id 6b73d90c19bbb78d;
+	Tue, 18 Aug 2026 09:13:27 +0000
+X-Migadu-Flow: FLOW_OUT
+Message-ID: <5847901f-6080-4b8b-98d4-6693d64fb748@linux.dev>
+Date: Tue, 18 Aug 2026 11:13:23 +0200
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] HID: asus: fix touchpad multitouch initialization
+ regression
+To: Panz Dev <panz.development@gmail.com>, Jiri Kosina <jikos@kernel.org>,
+ Benjamin Tissoires <bentiss@kernel.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+ stable@vger.kernel.org
+References: <20260818085623.18467-1-panz.development@gmail.com>
+Content-Language: en-US
+From: Denis Benato <denis.benato@linux.dev>
+In-Reply-To: <20260818085623.18467-1-panz.development@gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-In Linux 7.1, commit 7253091766de ("HID: asus: do not abort probe when not necessary")
-and commit 0919db9f3583 ("HID: asus: always fully initialize devices")
-introduced regressions in the probe sequence for ASUS I2C/HID touchpads
-(such as on the ASUS E200HA):
 
-1. asus_start_multitouch() was placed inside the claimed input check block:
-     if (drvdata->input && (hdev->claimed & HID_CLAIMED_INPUT))
-   On ASUS touchpads, (hdev->claimed & HID_CLAIMED_INPUT) evaluates to
-   false during asus_probe(), skipping asus_start_multitouch().
+On 8/18/26 10:56, Panz Dev wrote:
+> In Linux 7.1, commit 7253091766de ("HID: asus: do not abort probe when not necessary")
+> and commit 0919db9f3583 ("HID: asus: always fully initialize devices")
+> introduced regressions in the probe sequence for ASUS I2C/HID touchpads
+> (such as on the ASUS E200HA):
+>
+> 1. asus_start_multitouch() was placed inside the claimed input check block:
+>      if (drvdata->input && (hdev->claimed & HID_CLAIMED_INPUT))
+>    On ASUS touchpads, (hdev->claimed & HID_CLAIMED_INPUT) evaluates to
+>    false during asus_probe(), skipping asus_start_multitouch().
+>
+> 2. The asus_report_id_init loop in asus_probe() was executed unconditionally
+>    for all devices, which sends keyboard initialization feature requests
+>    (asus_kbd_init) to touchpad endpoints, corrupting touchpad probe state.
+>
+> This patch fixes both issues by:
+> - Skipping keyboard report initialization for touchpad devices (!drvdata->tp).
+> - Moving asus_start_multitouch() outside the claimed input check block so
+>   multitouch initialization is always executed for touchpads.
+>
+> Tested on ASUS E200HA (where touchpad functionality is fully restored)
+> and ASUS VivoBook Flip 14 TP401MA (confirming zero regressions).
+Hi,
 
-2. The asus_report_id_init loop in asus_probe() was executed unconditionally
-   for all devices, which sends keyboard initialization feature requests
-   (asus_kbd_init) to touchpad endpoints, corrupting touchpad probe state.
+thanks for this! I forgot to exclude touchpads from that init sequence.
+> Fixes: 7253091766de ("HID: asus: do not abort probe when not necessary")
+> Fixes: 0919db9f3583 ("HID: asus: always fully initialize devices")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Panz Dev <panz.development@gmail.com>
+> ---
+>  drivers/hid/hid-asus.c | 22 ++++++++++++----------
+>  1 file changed, 12 insertions(+), 10 deletions(-)
+>
+> diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
+> index 3f5e96900b67..7f19ca1e5a1b 100644
+> --- a/drivers/hid/hid-asus.c
+> +++ b/drivers/hid/hid-asus.c
+> @@ -1294,12 +1294,14 @@ static int asus_probe(struct hid_device *hdev, const struct hid_device_id *id)
+>  		return ret;
+>  	}
+>
+> -	for (int r = 0; r < ARRAY_SIZE(asus_report_id_init); r++) {
+> -		if (asus_has_report_id(hdev, asus_report_id_init[r])) {
+> -			ret = asus_kbd_init(hdev, asus_report_id_init[r]);
+> -			if (ret < 0)
+> -				hid_warn(hdev, "Failed to initialize 0x%x: %d.\n",
+> -					 asus_report_id_init[r], ret);
+> +	if (!drvdata->tp) {
+> +		for (int r = 0; r < ARRAY_SIZE(asus_report_id_init); r++) {
+> +			if (asus_has_report_id(hdev, asus_report_id_init[r])) {
+> +				ret = asus_kbd_init(hdev, asus_report_id_init[r]);
+> +				if (ret < 0)
+> +					hid_warn(hdev, "Failed to initialize 0x%x: %d.\n",
+> +						 asus_report_id_init[r], ret);
+> +			}
+>  		}
+>  	}
+>
+> @@ -1327,12 +1329,12 @@ static int asus_probe(struct hid_device *hdev, const struct hid_device_id *id)
+>  			drvdata->input->name = "Asus TouchPad";
+>  		else
+>  			drvdata->input->name = "Asus Keyboard";
+> +	}
+>
+> -		if (drvdata->tp) {
+> -			ret = asus_start_multitouch(hdev);
+> -			if (ret)
+> -				goto err_stop_hw;
+> -		}
+> +	if (drvdata->tp) {
+> +		ret = asus_start_multitouch(hdev);
+> +		if (ret)
+> +			goto err_stop_hw;
+>  	}
+I think this will re-introduce the security vulnerability fixed in the commit that led to me
+creating the "HID: asus: do not abort probe when unnecessary"...
 
-This patch fixes both issues by:
-- Skipping keyboard report initialization for touchpad devices (!drvdata->tp).
-- Moving asus_start_multitouch() outside the claimed input check block so
-  multitouch initialization is always executed for touchpads.
+Furthermore if that drvdata->input && (hdev->claumed & HID_CLAIMED_INPUT) doesn't
+evaluate to true it would be useful to know what part is false and that code that prevents
+null/invalid dereference is wrong, and since I tried touching it the least possible it means
+there is also the need to change the && back into ||, but that would undo the "keep the
+proper name of the device" for keyboards...
 
-Tested on ASUS E200HA (where touchpad functionality is fully restored)
-and ASUS VivoBook Flip 14 TP401MA (confirming zero regressions).
-
-Fixes: 7253091766de ("HID: asus: do not abort probe when not necessary")
-Fixes: 0919db9f3583 ("HID: asus: always fully initialize devices")
-Cc: stable@vger.kernel.org
-Signed-off-by: Panz Dev <panz.development@gmail.com>
----
- drivers/hid/hid-asus.c | 22 ++++++++++++----------
- 1 file changed, 12 insertions(+), 10 deletions(-)
-
-diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
-index 3f5e96900b67..7f19ca1e5a1b 100644
---- a/drivers/hid/hid-asus.c
-+++ b/drivers/hid/hid-asus.c
-@@ -1294,12 +1294,14 @@ static int asus_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 		return ret;
- 	}
-
--	for (int r = 0; r < ARRAY_SIZE(asus_report_id_init); r++) {
--		if (asus_has_report_id(hdev, asus_report_id_init[r])) {
--			ret = asus_kbd_init(hdev, asus_report_id_init[r]);
--			if (ret < 0)
--				hid_warn(hdev, "Failed to initialize 0x%x: %d.\n",
--					 asus_report_id_init[r], ret);
-+	if (!drvdata->tp) {
-+		for (int r = 0; r < ARRAY_SIZE(asus_report_id_init); r++) {
-+			if (asus_has_report_id(hdev, asus_report_id_init[r])) {
-+				ret = asus_kbd_init(hdev, asus_report_id_init[r]);
-+				if (ret < 0)
-+					hid_warn(hdev, "Failed to initialize 0x%x: %d.\n",
-+						 asus_report_id_init[r], ret);
-+			}
- 		}
- 	}
-
-@@ -1327,12 +1329,12 @@ static int asus_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 			drvdata->input->name = "Asus TouchPad";
- 		else
- 			drvdata->input->name = "Asus Keyboard";
-+	}
-
--		if (drvdata->tp) {
--			ret = asus_start_multitouch(hdev);
--			if (ret)
--				goto err_stop_hw;
--		}
-+	if (drvdata->tp) {
-+		ret = asus_start_multitouch(hdev);
-+		if (ret)
-+			goto err_stop_hw;
- 	}
-
- 	return 0;
--- 
-2.47.0
+With these in mind would you want to try fixing them all at once?
+>  	return 0;

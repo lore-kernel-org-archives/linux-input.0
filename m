@@ -1,189 +1,126 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-lj1-f180.google.com (mail-lj1-f180.google.com [209.85.208.180])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2CCB13932EE
-	for <linux-input@vger.kernel.org>; Tue, 18 Aug 2026 09:15:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B5828448CE4
+	for <linux-input@vger.kernel.org>; Tue, 18 Aug 2026 12:04:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.180
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787044546; cv=none; b=n2qsAbzPRWyxmFj7k7Au0462q8y3i8IeqlF5kk8AbBIFIJHvFAKsqjWyNzoBl229fYq9ROj2msJ46ilG4RTTvXFhXsfd5S5T13b3l5lTs4ZKjwCLsqiMCElofS2lbu9cuyY5Q+VbaKm3uc5V0Ww/ac5PvzNSgGge+h3ih1zXGgc=
+	t=1787054674; cv=none; b=X1b7Y194xQwNWiQv7j8UMAG1YCUlvTh40EZ7sGkr5MWkLZKWZfHt3n1urQIeaPiIIKHpKwEMx98FOIhyFs0ndCpdkOtwN9Q4W4G2UssPGtuAPfNNgBQh7JhOq7v33pw5jRZdxQf731qm0t6RwLTQDqWH8IFnEfwsB4DQqiqkLJA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787044546; c=relaxed/simple;
-	bh=B72AWwnVdZDRWb0WNSQaWjLXA2wgb9Kbz9SIOVopoeE=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=egFYHfn8nNwfTdD7H8nFTwUmIzF/EebHcYNvieM8EQgp2gZpUTc0+ulhbvxnkIjtxYvHdoPk3/ELWJu5wpjeEWbloxslkcN71VwLM8l8FmhdTKx9juAW99RGXfhqnyauTVjwwbJS1ddQoq81DTv22/XVH1BkdZsJ1bHns6AjgMM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=dJIoH5ST; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1787054674; c=relaxed/simple;
+	bh=pTT7qBp+WwKNO/c77Q6ABkmdFmw3o2ARDNzMO0aj2XU=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=C+M+cvsVB+cW1+HQVqFvhTMNqV82AU7JAqYL+LGhK1b4h0A1qjVSnDruUyNX5dVz7bqZWvyuTCRh72JWbBggPt8ZwKc2eNcduIvXM7KrY0puOLd4jZ9FeXNwLkHrDAhUC3oo9J562zC5fL+7oSNMn9/W89H+53k7rasWVH9O3Sw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=mofg/T+S; arc=none smtp.client-ip=209.85.208.180
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="dJIoH5ST"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 88C9C1F000E9;
-	Tue, 18 Aug 2026 09:15:44 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787044544;
-	bh=ZhNxF9weviGW5a/bNhAOjChSoHMM+OyWh24DeFE50/c=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=dJIoH5STgQT8tCAQsVOCoMuNS4QJxYe8PNuY+gs3rNpBORIVTP8AqmkSBdFxvcDsq
-	 krstehijoJbr847EaXfhlvZd+ZAinLUv+9HLSANiSRhzufVbM5BHJWo/auY9E7Jwy8
-	 /+I6NpiA4QlCIr2kqnhyYbZ8/rp0XiTWTRfH7yynI2jiYWvcR4q4+Z4OFMn1V426Xx
-	 KJ+Z1F9TUgGTM6qyFMJBkSpLYeaFOkEoYqBiajvxhSUGkevtFxIrLGjSDvdPBmHBTX
-	 HTw+hzDObQ2YWMd9Z7SSbb5mJ8MVK5+JFDKrX8qbTtWikP/HTtH9NAJHtsq/ZWDfLm
-	 8qVHGrSVUdArQ==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] HID: asus: fix touchpad multitouch initialization
- regression
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Panz Dev" <panz.development@gmail.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260818085623.18467-1-panz.development@gmail.com>
-References: <20260818085623.18467-1-panz.development@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Tue, 18 Aug 2026 09:15:44 +0000
-Message-Id: <20260818091544.88C9C1F000E9@smtp.kernel.org>
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="mofg/T+S"
+Received: by mail-lj1-f180.google.com with SMTP id 38308e7fff4ca-39c7ce122c7so38004091fa.2
+        for <linux-input@vger.kernel.org>; Tue, 18 Aug 2026 05:04:32 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google; t=1787054671; x=1787659471; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=A5SA3qexvx0UXWIAtCFlkPfhyZbzB9r1OKgCFasYg5A=;
+        b=mofg/T+SZOP7Yo11ffvnvQjcnTSLpCnVdmeItvjT6TX1wl5Sfe0U5MocxkiHiIlaYW
+         R8PKrj6nUmZJfzmTdWLbaw1G39onHBd1lYF39w2PRUQF4UbzEG96w8zHmSTm0nxySBmm
+         k2wiMe/97TdeHyX6/ESu6bGKvwYZaizhmzA0E=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1787054671; x=1787659471;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=A5SA3qexvx0UXWIAtCFlkPfhyZbzB9r1OKgCFasYg5A=;
+        b=UUkSWtYXSUIqG5vfnv3nRHdOyBLOKKCoZf3PuO+dt3kA1FUtSioHzwLcVH6QIspuSu
+         PLSyoMf0jppv9fFp6J+xuGOEZaU6cY3ZCgYnZqmJSAIIltqbcpa2VuxUqYr9Tks/Kdcb
+         wtf3Zr1H+4ru2nYKzlsrAMDrqTj8tJ1qyipqacgFmPfwSuEQOudXHMQgt/WevniItDDM
+         H+usQxslOej2Yj1WLf00fNIsD6a+tb9Wwtmu9954ic33DULfPGAHFLu4zl5DbCBSBf0l
+         LvcvN9Wd3IY8H6pzMePVJ4xlspap4lRnIbflZNeLKnTrb4xbZdBcu9QSwZ+on31Zs+bO
+         HEwQ==
+X-Forwarded-Encrypted: i=1; AHgh+RrgYjkrmI8YFItVFIZ1NpmMfGs3QfoK7EYs85t21C68raAAygKd7dryShOukCSj9qZScy9wDdTVK4Ce8A==@vger.kernel.org
+X-Gm-Message-State: AOJu0YzzPYd16wkb67fuXOK87kVeFgKRmlkPISeNK8tAOknGsAC9mST/
+	GoD9vKxUnBbyLbHxiTfRRarCagzuMxnb/lMvShJlyd3h/yhNAnf7wIwI/gYXhepyxTJbw1Z0TUE
+	OP/hLPQ==
+X-Gm-Gg: AR+sD12YkU+Co+PaxSfKhmqyxBVkS7gsle5fPJ0u6iPz1Xubcjsql+Xo8R9rLpn5ADE
+	bi8ZAhadIYANQEmPTSwvCdDkQ0v7DXBKrSZw0tIJSezyVvGOtZNiUi9IbD2ctC6dpoR+8nj9ClL
+	bVl3akeholtZ00gmN1wGsRpP3qJ4oV+J4XAZYlIV6H38DFY9YnXmaR90wvm8p+HyXpQWDUB3BgZ
+	hyNV4bXFEdoDkPNafEjc2+kQhOx2Ximwy+lEPCi4lAFVbsD4sjZLyVCecMElGfDfqBq4Y3CQtGd
+	wB3LpyRklut9F7PtKvf1ajXRtwYAix5G5FTIm9yXgtO9PUB4EfUpRKyFPZTryvqKzDZZV1aBOPA
+	ZPw8dbE3ZhI4fV8fvR2zViIux3SFsm3tho02r0smW6TNKc/qB4WMK6aGks8uZXMQkh8RS5mpJYp
+	PGLKvboWuTETG1x1+jcS0qncTRA9uPsU/4nrjhL2Wbitt1IodmMTbpDQ6oi78MpkT12EYEgbGsW
+	Qyze+GgteJt0C3Br+nryVb0zyBAAab0dol7/UwOyPdE
+X-Received: by 2002:a2e:bc84:0:b0:3a1:39d7:c6ea with SMTP id 38308e7fff4ca-3a1751ee9b7mr13195061fa.11.1787054670724;
+        Tue, 18 Aug 2026 05:04:30 -0700 (PDT)
+Received: from ribalda.c.googlers.com.com (11.36.88.34.bc.googleusercontent.com. [34.88.36.11])
+        by smtp.gmail.com with ESMTPSA id 38308e7fff4ca-3a16b204389sm12047321fa.42.2026.08.18.05.04.29
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 18 Aug 2026 05:04:30 -0700 (PDT)
+From: Ricardo Ribalda <ribalda@chromium.org>
+To: dmitry.torokhov@gmail.com
+Cc: Julia.Lawall@inria.fr,
+	bentiss@kernel.org,
+	cocci@inria.fr,
+	corbet@lwn.net,
+	hadess@hadess.net,
+	jikos@kernel.org,
+	lains@riseup.net,
+	linux-doc@vger.kernel.org,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	nicolas.palix@imag.fr,
+	skhan@linuxfoundation.org
+Subject: re: HID: add documentation and Coccinelle script for FF registration race
+Date: Tue, 18 Aug 2026 12:04:28 +0000
+Message-ID: <20260818120428.2546810-1-ribalda@chromium.org>
+X-Mailer: git-send-email 2.55.0.699.gb54405d56f-goog
+In-Reply-To: <20260803-hid-ff-input-configured-v1-2-1dc9bbacd88c@gmail.com>
+References: <20260803-hid-ff-input-configured-v1-2-1dc9bbacd88c@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 4 potential issue(=
-s) to consider:
+Hi Dimitry
 
-New issues:
-- [High] Unconditionally calling `asus_start_multitouch()` outside the `HID=
-_CLAIMED_INPUT` check introduces a Use-After-Free if input registration fai=
-ls.
+Looks like media-ci is not particularly happy about this patch:
 
-Pre-existing issues:
-- [High] Incorrect cleanup order in `asus_remove()` creates a Use-After-Fre=
-e race condition by cancelling the workqueue before disabling hardware even=
-ts.
-- [High] Missing `hid_is_usb()` check in `asus_kbd_register_leds()` allows =
-an invalid cast to `usb_interface`, causing out-of-bounds reads or crashes.
-- [Medium] Modifying `input->name` after device registration creates a data=
- race and violates input subsystem API requirements.
---
+https://gitlab.freedesktop.org/linux-media/users/ribalda/-/jobs/108127901
 
---- Patch [1]: [PATCH] HID: asus: fix touchpad multitouch initialization re=
-gression ---
-commit 53becd94719f665ca15fc8c3f4b7876a402da45f
-Author: Panz Dev <panz.development@gmail.com>
+/usr/bin/spatch -D report --no-show-diff --very-quiet --cocci-file /builds/linux-media/users/ribalda/scripts/coccinelle/hid/ff_race.cocci --patch /builds/linux-media/users/ribalda --dir . -I /builds/linux-media/users/ribalda/arch/x86/include -I /builds/linux-media/users/ribalda/arch/x86/include/generated -I /builds/linux-media/users/ribalda/include -I /builds/linux-media/users/ribalda/include -I /builds/linux-media/users/ribalda/arch/x86/include/uapi -I /builds/linux-media/users/ribalda/arch/x86/include/generated/uapi -I /builds/linux-media/users/ribalda/include/uapi -I /builds/linux-media/users/ribalda/include/generated/uapi --include /builds/linux-media/users/ribalda/include/linux/compiler-version.h --include /builds/linux-media/users/ribalda/include/linux/kconfig.h --jobs 16 --chunksize 1
+Position variable r.p2 on line 20 must be attached to some other token using @.
+coccicheck failed
 
-HID: asus: fix touchpad multitouch initialization regression
 
-This patch fixes probe regressions for ASUS I2C/HID touchpads by skipping
-keyboard report initialization for touchpads and moving
-asus_start_multitouch() outside the claimed input check block.
+The following change fixes the issue for me... but you probably want to double
+check it, I am not proficient at cocci.
 
-> diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
-> index 3f5e96900b67a..72b93bdeb4e8f 100644
-> --- a/drivers/hid/hid-asus.c
-> +++ b/drivers/hid/hid-asus.c
-[ ... ]
-> @@ -1327,12 +1329,12 @@ static int asus_probe(struct hid_device *hdev, co=
-nst struct hid_device_id *id)
->  			drvdata->input->name =3D "Asus TouchPad";
->  		else
->  			drvdata->input->name =3D "Asus Keyboard";
+diff --git a/scripts/coccinelle/hid/ff_race.cocci b/scripts/coccinelle/hid/ff_race.cocci
+index 479f5d1e3184..7cf84936db13 100644
+--- a/scripts/coccinelle/hid/ff_race.cocci
++++ b/scripts/coccinelle/hid/ff_race.cocci
+@@ -9,7 +9,8 @@ virtual report
 
-[Severity: Medium]
-This is a pre-existing issue, but can modifying drvdata->input->name here
-after device registration (which occurs earlier during hid_hw_start) create=
- a
-data race?
+ @r@
+ identifier probe_fn;
+-expression hdev, flags;
++identifier hdev;
++expression flags;
+ position p1, p2;
+ @@
 
-If a userspace process like udev reads the name attribute concurrently, mig=
-ht
-it read the default string or race with the pointer reassignment?
+@@ -17,7 +18,7 @@ probe_fn(struct hid_device *hdev, ...) {
+   <...
+   hid_hw_start@p1(hdev, flags)
+   ...
+-  \(input_ff_create\|input_ff_create_memless\)@p2(...)
++  \(input_ff_create@p2\|input_ff_create_memless@p2\)(...)
+   ...>
+ }
 
-> +	}
-> =20
-> -		if (drvdata->tp) {
-> -			ret =3D asus_start_multitouch(hdev);
-> -			if (ret)
-> -				goto err_stop_hw;
-> -		}
-> +	if (drvdata->tp) {
-> +		ret =3D asus_start_multitouch(hdev);
-> +		if (ret)
-> +			goto err_stop_hw;
->  	}
 
-[Severity: High]
-Does moving asus_start_multitouch() outside the HID_CLAIMED_INPUT check
-introduce a use-after-free regression if input registration fails?
-
-If input_register_device() fails during hid_hw_start(), hidinput_connect()
-frees the allocated input_dev and returns an error without setting
-HID_CLAIMED_INPUT.
-
-Since the HID_CLAIMED_INPUT safety guard is now removed, the driver
-will force the touchpad hardware to start sending reports. When the hardware
-interrupt arrives, asus_raw_event() intercepts it and routes to
-asus_report_input():
-
-drivers/hid/hid-asus.c:asus_raw_event() {
-    ...
-	if (drvdata->tp && data[0] =3D=3D INPUT_REPORT_ID)
-		return asus_report_input(drvdata, data, size);
-    ...
-}
-
-This blindly dereferences the freed drvdata->input pointer, which was assig=
-ned
-earlier in asus_input_configured():
-
-drivers/hid/hid-asus.c:asus_report_input() {
-    ...
-		input_mt_slot(drvdat->input, i);
-		input_mt_report_slot_state(drvdat->input, toolType, down);
-    ...
-}
-
-Is it possible for this to cause a use-after-free, for instance if triggered
-via uhid device spoofing or resource allocation failures during probe?
-
-> =20
->  	return 0;
-
-[Severity: High]
-This isn't a bug introduced by this patch, but does the cleanup order in
-asus_remove() create a use-after-free race condition?
-
-In asus_remove(), the driver calls:
-
-drivers/hid/hid-asus.c:asus_remove() {
-    ...
-	if (drvdata->quirks & QUIRK_HID_FN_LOCK)
-		cancel_work_sync(&drvdata->fn_lock_sync_work);
-
-	hid_hw_stop(hdev);
-    ...
-}
-
-If the device sends a KEY_FN_ESC report via hardware interrupt immediately
-after cancel_work_sync() returns but before hid_hw_stop() completes, might
-asus_event() re-queue the work via schedule_work()? Once asus_remove()
-finishes, the devm-managed drvdata is freed, which could leave the work item
-scheduled and lead to a use-after-free when the worker executes.
-
-[Severity: High]
-This is a pre-existing issue, but could the lack of a hid_is_usb() check in
-asus_kbd_register_leds() allow an invalid cast?
-
-When handling the QUIRK_ROG_ALLY_XPAD quirk:
-
-drivers/hid/hid-asus.c:asus_kbd_register_leds() {
-    ...
-	if (drvdata->quirks & QUIRK_ROG_ALLY_XPAD) {
-		intf =3D to_usb_interface(hdev->dev.parent);
-		udev =3D interface_to_usbdev(intf);
-    ...
-}
-
-If the device is connected via another transport (like Bluetooth, I2C, or
-spoofed via uhid), the parent device is not a USB interface. Would calling
-interface_to_usbdev() on this invalid pointer lead to out-of-bounds
-memory access or a crash?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260818085623.1846=
-7-1-panz.development@gmail.com?part=3D1
+Regards!

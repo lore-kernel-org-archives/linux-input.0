@@ -1,43 +1,44 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BC6B4440636
-	for <linux-input@vger.kernel.org>; Wed, 19 Aug 2026 20:12:27 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5AFF936B913
+	for <linux-input@vger.kernel.org>; Wed, 19 Aug 2026 20:12:48 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787170348; cv=none; b=A0R1d5ygNy7KP+HYHHKSqCNlyMZVOG94M/UY8fDw1S4ZnW+O7fcBmgu3Dfalr/0i5zOMKkHbAu+98SR7NQdRFryRoJZ37q0GqPCcdufbBeWvQnsADSmrOhtl0RbpZ1itoNMpneZ+QnEgx9itjC5HkNIqh41jO1UF7+vQHn30iv8=
+	t=1787170369; cv=none; b=Sl6AXXg9WBjW7zDXXaP6UH2FBdAfMWWGvyyu3ske/BVwd8zwK9oMYkt25YTGjPyrkMjo8EdTlKotn0ABX3TtXBfrcfpPMrSR35/BNrYfnxq4kqHaPpG6258YxchmKTPdmNapI5uoCv+8UWvVM+wnkps0kbVmjtM6mLPor0o519A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787170348; c=relaxed/simple;
-	bh=HRfJ0XMvlzfykwGVEAX3JAYTmPlPt8lt6m/Aib5msg8=;
+	s=arc-20240116; t=1787170369; c=relaxed/simple;
+	bh=BnVBT85f53VbTxg6kdvt6QvyHaPob7UHZ5k3jz8Nfmg=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=MZnaAEW5Bd5/hCsg4tPEMoLDoAl4c6X+d9NHRK7GLiliSHV/L4ojR6BNXIz/QEGgafHYr0NGfMH4QsHeFbBuu7sy/8xIplbyV8IvF9pjyGiHObJTYA+qrrrWum0Jxrt8vJNKLnSqY+uzYaU9MB62nv/VC5e3y9bBxzZ8XHXo9k4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=B9PUgEHt; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=J/e90BnqRFrX+gIM60MrWJCv+FGXC+F1f89TWPBaDvTpfdphbPckW9o1UfBscR/jMc/kOkSBUcoREwAFlCaXHoxEJjLUjLvjdjs/2fLunC5hVY1CN9F7CdE+Pwe1GkyR03U3ZFDODmXiWct21mUkHtnrPgvEdkLVCAeiNiWu3Vo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=UNNp810Y; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="B9PUgEHt"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 354281F000E9;
-	Wed, 19 Aug 2026 20:12:27 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="UNNp810Y"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3D111F000E9;
+	Wed, 19 Aug 2026 20:12:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787170347;
-	bh=PIw7YmNByeVGVoYe5xipx14cJfRccg3A2n536su24tc=;
+	s=k20260515; t=1787170368;
+	bh=NWHdCA77LyhS4U9QltYTEFFYB0qANBXIB4p2DyXalBg=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=B9PUgEHtvTffCnsQmjS4/P3bgVgtHT3WFT8iy7x0oAyL/e6TKOp+EIU3y3lKbXSrz
-	 Ss3y8uRCiEjs/Tuuy2rbllNydAO8Anj+UfJZqc/oV2KjFrEF+EkKqpAOIq9Wh7OJDJ
-	 O7jQCRDP4pF47IMsyJkOe+iMlhGGhOFgmlFDOfkjyyYahbYUBz6hvAdyDJSjlJZNJC
-	 fDOL5Ro15vvAnII0PSo5fTEXFEahA8Dy8opc99Pz748TqBEe01Sdw1zgTncVq/c27y
-	 QrhP0Pfm3v4XS5YH5VqDhZ/33zXHLzsQexFdAis5y5XX+cCfwBBTD4ToDi73TRRAtb
-	 7oSjp+Goqpuhw==
+	b=UNNp810YemOvaE38IB0tFgMEUVSdfzzmxNzDK060Nf4PPOPwHvcxePzMCrVB1MiNW
+	 LPxcNTDIJnRHTm7G3oJCz6iTF2jS3X2v0Qxb2r/4VRnYOl9o8xnkXxqaQYtHdGoiI4
+	 v2pXaM2dWlqq9bDbdPpZNeQDn7v5PRy+vzlSOJzXeAtYllORzb6ftX16TSmlxW55s4
+	 ApN5rG/4rvTP/I2WGF3cLJuPUrdpbTF93tvJB/6DM2xsSU1gaqnRdmbJ5Ni7P2I3Ht
+	 sdmxtpRNVrn3sV+ay6WIo+iGtQg4XWabn34wkyOOSfKf75bq7GAEjhsC588dbC1YFH
+	 n/otSCkT9kFrw==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 09/12] HID: asus: add support to force feedback
+Subject: Re: [PATCH v2 04/12] HID: asus: add vibration strength
+ configuration
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Denis Benato" <denis.benato@linux.dev>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260819195835.1649657-10-denis.benato@linux.dev>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20260819195835.1649657-5-denis.benato@linux.dev>
 References: <20260819195835.1649657-1-denis.benato@linux.dev>
- <20260819195835.1649657-10-denis.benato@linux.dev>
+ <20260819195835.1649657-5-denis.benato@linux.dev>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 19 Aug 2026 20:12:26 +0000
-Message-Id: <20260819201227.354281F000E9@smtp.kernel.org>
+Date: Wed, 19 Aug 2026 20:12:47 +0000
+Message-Id: <20260819201247.C3D111F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -46,140 +47,110 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
 Thank you for your contribution! Sashiko AI review found 2 potential issue(=
 s) to consider:
-- [High] Concurrent unbind of the gamepad interface causes a Use-After-Free=
- of its `hid_device` in `hid_asus_ally_init()`.
-- [Medium] Data race and lifecycle violation on `ally_x_hdev` causes droppe=
-d force-feedback events and undefined behavior.
+- [Medium] `ally_set_vibration_intensity()` directly sends raw HID requests=
+ without acquiring the required `ally->intf_mutex`, leading to potential ra=
+ce conditions and device state corruption.
+- [Low] If `devm_device_add_group()` fails for one of the newly added vibra=
+tion sysfs groups, the previously registered groups are not rolled back if =
+the overall device probe succeeds.
 --
 
---- Patch [9]: [PATCH v2 09/12] HID: asus: add support to force feedback ---
-commit 009ee410a607fb5f11138c63d43a972421d99051
+--- Patch [4]: [PATCH v2 04/12] HID: asus: add vibration strength configura=
+tion ---
+commit fd873329418038e807b5d4833861817dc262fc2b
 Author: Denis Benato <denis.benato@linux.dev>
-Subject: HID: asus: add support to force feedback
+Subject: HID: asus: add vibration strength configuration
 
-Unlike ROG ally the X version and following ones uses DInput protocol
-and the force feedback needs to be implemented as its protocol is
-vendor-specific, therefore add support for FF_RUMBLE with magnitude
-scaling on a work-queue based approach to avoid using possibly
-sleeping calls in atomic context.
+This patch adds support for configuring the vibration strength of ASUS ROG
+Ally handhelds. It introduces sysfs attributes to allow userspace to control
+the intensity of the left and right motors.
 
 > diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
-> index 6f43b7317168f..ca3050fea843b 100644
+> index 900914d21ca46..6b005afe01a24 100644
 > --- a/drivers/hid/hid-asus.c
 > +++ b/drivers/hid/hid-asus.c
+
 [ ... ]
-> @@ -2519,6 +2555,86 @@ static bool ally_x_raw_event(struct input_dev *inp=
-ut, struct hid_device *hdev,
-[ ... ]
-> +static void ally_x_ff_work_fn(struct work_struct *work)
+
+> @@ -771,15 +775,189 @@ static ssize_t xbox_controller_store(struct device=
+ *dev,
+> =20
+>  static DEVICE_ATTR_RW(xbox_controller);
+> =20
+> +/**
+> + * ally_set_vibration_intensity() - Set vibration intensity values
+> + * @hdev: HID device
+> + * @left: Left motor intensity (0-100)
+> + * @right: Right motor intensity (0-100)
+> + *
+> + * Return: 0 on success, negative errno on failure
+> + */
+> +static int ally_set_vibration_intensity(struct hid_device *hdev, u8 left=
+, u8 right)
 > +{
-> +	struct ally_handheld *ally =3D
-> +		container_of(work, struct ally_handheld, ff_work);
-> +	struct hid_device *hdev =3D NULL;
-> +	struct ff_report report;
-> +	bool update =3D false;
+> +	const u8 data[] =3D { left, right };
 > +	int ret;
 > +
-> +	scoped_guard(spinlock_irqsave, &ally->ff_lock) {
-> +		if (ally->update_ff) {
-> +			report =3D ally->ff_packet;
-> +			ally->update_ff =3D false;
-> +			update =3D true;
-> +			hdev =3D ally->ally_x_hdev;
+> +	u8 *buf __free(kfree) =3D ally_alloc_cmd(CMD_SET_VIBRATION_INTENSITY, d=
+ata, sizeof(data));
+> +	if (!buf)
+> +		return -ENOMEM;
+> +
+> +	ret =3D ally_dev_set_report(hdev, buf, ROG_ALLY_REPORT_SIZE);
+
 [Severity: Medium]
-Will this read of ally_x_hdev race with the assignment in
-hid_asus_ally_probe()?
+Does this direct call to ally_dev_set_report() need to be protected by=20
+ally->intf_mutex?
 
-Here in ally_x_ff_work_fn(), the hdev pointer is read under the ff_lock.
-However, during probe, ally_x_hdev is assigned under a different lock
-(ally_data_lock):
+Other commands like CMD_SET_XBOX_CONTROLLER use ally_gamepad_send_packet()=
+=20
+which takes the mutex:
 
-hid_asus_ally_probe() {
-	...
-	spin_lock_irqsave(&ally_data_lock, flags);
-	ally_drvdata.ally_x_hdev =3D hdev;
-	spin_unlock_irqrestore(&ally_data_lock, flags);
-	...
+static int ally_gamepad_send_packet(...)
+{
+        scoped_guard(mutex, &ally->intf_mutex)
+                return ally_dev_set_report(hdev, buf, len);
 }
 
-> +		}
-> +	}
-[ ... ]
-> @@ -2574,6 +2690,21 @@ static int ally_x_setup_input(struct hid_device *h=
-dev, struct ally_handheld *all
-[ ... ]
-> +	ret =3D input_ff_create_memless(input, NULL, ally_x_play_effect);
-> +	if (ret) {
-> +		hid_err(hdev, "Failed to create force-feedback: %d\n", ret);
-> +		goto ally_x_setup_input_err;
+Without the lock, could concurrent sysfs writes to the vibration attributes
+race with other hardware communication on the IN interface, potentially bre=
+aking
+the strict SET/GET pairing expected by initialization routines?
+
+> +	if (ret < 0) {
+> +		hid_err(hdev, "Failed to set vibration intensity: %d\n", ret);
+> +		return ret;
 > +	}
 > +
->  	ret =3D input_register_device(input);
-[Severity: Medium]
-Is it possible for userspace to immediately send force-feedback events as
-soon as this registers, before ally_x_hdev is initialized?
+> +	return 0;
+> +}
 
-If input_register_device() returns successfully, the device is exposed to
-userspace. If a client immediately sends an effect, ally_x_play_effect() can
-schedule ally_x_ff_work_fn().
-
-Since ally_x_hdev is only assigned later in hid_asus_ally_probe() after
-setup completes, could ally_x_ff_work_fn() see a NULL ally_x_hdev and drop
-the initial effects?
-
->  	if (ret) {
->  		hid_err(hdev, "Failed to register Ally X gamepad device: %d\n", ret);
 [ ... ]
-> @@ -2592,13 +2723,28 @@ static int ally_x_setup_input(struct hid_device *=
-hdev, struct ally_handheld *all
-> =20
->  static int hid_asus_ally_init(struct hid_device *hdev, struct ally_handh=
-eld *ally)
->  {
-> -	int ret;
-> +	struct hid_device *x_hdev;
-> +	unsigned long flags;
-> =20
-> -	/* Failure at this point is non-critical */
-> -	ret =3D ally_gamepad_send_packet(ally, hdev, ALLY_FORCE_FEEDBACK_OFF,
-> -				       sizeof(ALLY_FORCE_FEEDBACK_OFF));
-> -	if (ret < 0)
-> -		hid_err(hdev, "Ally failed to init force-feedback off: %d\n", ret);
-> +	/*
-> +	 * The force-feedback "off" packet belongs to the gamepad interface,
-> +	 * which consumes it as an output report: the config interface probed
-> +	 * here would reject it. The gamepad probe path sends the packet itself,
-> +	 * so this only matters when the gamepad interface is already bound,
-> +	 * e.g. after a reset resume that re-initialized the MCU.
-> +	 */
-> +	spin_lock_irqsave(&ally_data_lock, flags);
-> +	x_hdev =3D ally->ally_x_hdev;
-> +	spin_unlock_irqrestore(&ally_data_lock, flags);
-> +
-> +	if (x_hdev) {
-> +		/* Failure at this point is non-critical */
-> +		int ret =3D ally_x_send_ff_off(ally, x_hdev);
-[Severity: High]
-Can this use the hid_device after it has been freed?
 
-The ally_x_hdev pointer is read and cached under ally_data_lock, but it
-is used after the lock is dropped without acquiring a reference via
-get_device().
+>  static const struct attribute_group ally_attr_groups[] =3D {
+>  	{
+>  		.attrs =3D ally_config_attrs,
+>  	},
+> +	{
+> +		.name =3D "left_vibration",
+> +		.attrs =3D ally_left_vibration_attrs,
+> +	},
+> +	{
+> +		.name =3D "right_vibration",
+> +		.attrs =3D ally_right_vibration_attrs,
+> +	},
+>  };
 
-If userspace concurrently unbinds the gamepad interface via sysfs, the
-gamepad's remove callback (hid_asus_ally_remove) will clear
-ally->ally_x_hdev and return, allowing the HID core to destroy and free
-the hid_device structure.
+[Severity: Low]
+If devm_device_add_group() fails for one of these newly added sysfs groups
+during the registration loop in ally_config_create(), and the overall device
+probe continues and succeeds, are the previously registered groups properly
+cleaned up?
 
-Since hid_asus_ally_init() operates outside the lock without a reference,
-would this result in ally_x_send_ff_off() dereferencing a freed pointer?
-
-> +
-> +		if (ret < 0)
-> +			hid_err(hdev, "Ally failed to init force-feedback off: %d\n",
-> +				ret);
-> +	}
+Since devres actions are only rolled back when the probe fails or the device
+is unbound, it looks like a failure partway through the loop might leave
+partially registered sysfs groups visible indefinitely.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260819195835.1649=
-657-1-denis.benato@linux.dev?part=3D9
+657-1-denis.benato@linux.dev?part=3D4

@@ -1,63 +1,137 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mta0.migadu.com (out-37.mta0.migadu.com [91.218.175.37])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BB02E48425A;
-	Wed, 19 Aug 2026 17:21:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8ACAB3D566B
+	for <linux-input@vger.kernel.org>; Wed, 19 Aug 2026 19:58:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.37
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787160092; cv=none; b=Hx1V5cyydcgFqen4KCsMuvg/6W7dGxVj7jw7nDRV+C/ivRv49s2BLDlCM/+BIGEAESaUVFo0+wUDOYDc2RnhFABuqSA8Xn9XYTz9Zso8f1laFFCzp+Q43PeMTa7udfZsiCYl0Lfj5rfRTvSsKWatsEbxg/tiTWZUPFILPJTNqbk=
+	t=1787169526; cv=none; b=YfDq+49pTdYBu37wy0Jrblkmblt24pZweEfDZfUwvR45WPka9oeAsaRKnmcDwsVrMGiWZ+zf8d6fvKsMwFO1miU2U/tK81qmBU232Q62gUvF++EnHbmUSDNK2qXmXxyUuI7Bg9yIwxFUyt4gTr5XprsdJktAwEVvva62dMvsgHg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787160092; c=relaxed/simple;
-	bh=E8riE/MmlhvdZqP2ISM3tgXRCLX/+mVkBD2/SYICUTY=;
-	h=Subject:From:In-Reply-To:References:Message-Id:Date:To:Cc; b=YLjjFu01ObL8lp1FYH29p3SjNpwA5Hg7n70b6rlRXfS26RF/fecjK433KYKLTSbjPrQV/qK81E2dySi0yaH+jgCR3zO4gn+88ReHUVDqa9gC3Mu6HJWvrV1Yxmp12a7O1lfeSuCMbTerfpJa/vRA+gqoQDrER9nn4UQ/kZdqfkU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=SCf0OaKt; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1787169526; c=relaxed/simple;
+	bh=oeXaUn8Szz+Gd04+pFy8uvhhmYoKKM0fkrOYOXL8LrM=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=QtUEXvtpGxiprTItRdexx6ueyRzHyjAYKnLGDhsiqMajhs8Fg8MAFDNKp3vJbpT8Rc8a0nSyS9nK1WT/8gA7eQT+JKSS3sp/aOI6OZZgdfh2K011D0PEQYYWZ0ifZgfdNFHa4maeqIY2yX5fd/5CQdRzFU+zfPDJ+jvhC5/DiNI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=YgIbBwa/; arc=none smtp.client-ip=91.218.175.37
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="SCf0OaKt"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C7D2C1F338ED;
-	Wed, 19 Aug 2026 17:21:19 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787160079;
-	bh=O2UJ4Nk1SaPkuGSDRBGUSS5HZVHIodCDp4u8/4ebCGE=;
-	h=Subject:From:In-Reply-To:References:Date:To:Cc;
-	b=SCf0OaKtUSdYYrdZ3dDFWl1ojqBQrs+r/rtA8GZLa77xMNG3P5mxsGikvtP9RiZke
-	 KvuAuFg3QYjVPGFGAPbNH2oUA8TlnVtmWj25jftdSfNThIbGx0RWyeDBq61uvj0kdp
-	 oPI02dOAyjtEoFLV+n7WwvfW3/gIabbYOVIftYqHodcf/2QgEBJecWpF7mgnDjyKih
-	 zNrYuePp39h2aqNPwDTZ0FCD9GJuNQns/kgfrGx0T6ooCO1AyMBojBTUbyWluyfFDH
-	 4nJqkr3RBR6g/i+VYZECXB7ctz5lPin+J1RI5hSx425SdWIRi9tgvfRjvVr2VAQiyM
-	 CQH9T/G0EejHQ==
-Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id F3D8138119E7;
-	Wed, 19 Aug 2026 17:20:31 +0000 (UTC)
-Subject: Re: [git pull] Input updates for v7.3-rc0
-From: pr-tracker-bot@kernel.org
-In-Reply-To: <aoKAIGTdF7pVYqiu@google.com>
-References: <aoKAIGTdF7pVYqiu@google.com>
-X-PR-Tracked-List-Id: <linux-input.vger.kernel.org>
-X-PR-Tracked-Message-Id: <aoKAIGTdF7pVYqiu@google.com>
-X-PR-Tracked-Remote: git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git tags/input-for-v7.3-rc0
-X-PR-Tracked-Commit-Id: b4d85f863e5a6f1fa01b186001af0f68f4f5239e
-X-PR-Merge-Tree: torvalds/linux.git
-X-PR-Merge-Refname: refs/heads/master
-X-PR-Merge-Commit-Id: 1be05c6afbb2c4052d0a13fc91ddcd89aaee9614
-Message-Id: <178716003078.3599392.10629864219831404507.pr-tracker-bot@kernel.org>
-Date: Wed, 19 Aug 2026 17:20:30 +0000
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="YgIbBwa/"
+X-Envelope-To: linux-input@vger.kernel.org
+DKIM-Signature: a=rsa-sha256; bh=oeXaUn8Szz+Gd04+pFy8uvhhmYoKKM0fkrOYOXL8LrM=;
+ c=simple/simple; d=linux.dev;
+ h=from:to:subject:date:message-id:mime-version:content-type; s=key1;
+ t=1787169521; v=1; x=1787774321;
+ b=YgIbBwa/GZFdYaN7zMk8dFoVTPgKLeAQrvTc/vxZEkVgYuJMSRg5vau4RjcsASA2Ue06b6WG
+ MDSWAg5/7a66ksPRYKAR1MpIBPnreDijZbQXUMUZdvTH6YGUvQppcGr444rYd2gTyrk+f1tPrUM
+ fFPZkc9u4bvVPE9XEeGgW4xM=
+X-Envelope-To: linux-input@vger.kernel.org
+Received: from kernel.denis-pc.lan (151.61.14.130)
+	by smtp.migadu.com with ESMTPS id 3212c3d8969eaee6;
+	Wed, 19 Aug 2026 19:58:41 +0000
+X-Mizu-Trace-ID: 3212c3d8969eaee6
+X-Migadu-Flow: FLOW_OUT
+From: Denis Benato <denis.benato@linux.dev>
+To: linux-kernel@vger.kernel.org
+Cc: linux-input@vger.kernel.org,
+	"Benjamin Tissoires" <bentiss@kernel.org>,
+	"Jiri Kosina" <jikos@kernel.org>,
+	"Luke D . Jones" <luke@ljones.dev>,
+	"Mateusz Schwartz" <matthew.schwartz@linux.dev>,
+	"Denis Benato" <benato.denis96@gmail.com>,
+	"Jonathan LoBue" <jlobue10@gmail.com>,
+	"Khamunetri Clark" <khamunetriclark@gmail.com>,
+	"Derek J. Clark" <derekjohn.clark@gmail.com>,
+	Denis Benato <denis.benato@linux.dev>
+Subject: [PATCH v2 00/12] HID: asus: add support for ROG Ally handhelds
+Date: Wed, 19 Aug 2026 19:58:23 +0000
+Message-ID: <20260819195835.1649657-1-denis.benato@linux.dev>
+X-Mailer: git-send-email 2.47.3
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-The pull request you sent on Sun, 16 Aug 2026 20:31:06 -0700:
+Hi all,
 
-> git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git tags/input-for-v7.3-rc0
+This patch series adds support for ROG Ally handhelds in the HID driver for
+ASUS devices.
 
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/1be05c6afbb2c4052d0a13fc91ddcd89aaee9614
+The changes include reinitialization of the device after exiting a sleep state,
+gamepad configuration, vibration strength configuration, joysticks and triggers
+range configuration, anti-deadzone configuration, response curve support,
+force feedback support, gamepad mode support, turbo buttons support,
+and button remapping support.
 
-Thank you!
+This driver is based on the original Luke's work, which was a great starting point
+and I have reworked it to be upstreamable, while keeping the original functionality
+intact and extending hid-asus to avoid regressions in functionality such as the
+backlight control.
+
+The ally support has been a surprisingly long task, spanning multiple years and
+being used in Steam OS and well as other distributions for quite a while,
+and I am happy to finally be submitting it.
+
+At this time LEDs are not part of the patch series as I have work in progress to
+unify LEDs handling across all ASUS devices, and I will submit that in a separate
+patch series when the userspace interface will be ready to express capabilities
+of these devices, but that will take some more time.
+
+This driver is the culmination of a lot of work, from many different people,
+and I want to thank Luke for his original work, as well as the many people that have
+helped me test and provide feedback on the driver: Khamunetri, Jonathan, Derek,
+Matthew and others that have helped during these years.
+
+Best regards,
+Denis Benato
+
+-v2
+  - HID: asus: add support for ROG Ally handhelds
+   - Force release all vendor buttons (KEY_F19 and KEY_F20 were missing) to prevent "stuck" ghosting on resume
+   - Fix misaligned continuation line in hid_asus_ally_raw_event()
+   - Reword the 0x0B report comment to avoid a checkpatch "fallthrough" false positive
+   - Normalize kernel-doc comments (function name with "()", parameters, Return sections)
+  - HID: asus: add gamepad configuration
+   - Normalize kernel-doc comments (ally_check_capability(), ally_get_config(), ally_config_create())
+  - HID: asus: add vibration strength configuration
+   - Normalize the ally_set_vibration_intensity() kernel-doc comment
+  - HID: asus: add joysticks inner and outer range configuration
+   - Restructure the ally_set_joystick_thresholds() kernel-doc comment
+  - HID: asus: add triggers inner and outer range configuration
+   - Restructure the ally_set_trigger_ranges() kernel-doc comment
+  - HID: asus: add joysticks anti-deadzone configuration
+   - Normalize the ally_set_anti_deadzone() kernel-doc comment
+  - HID: asus: add support for response curve
+   - Normalize the ally_set_joystick_resp_curve() kernel-doc comment
+  - HID: asus: add support to force feedback
+   - Add a newline after input_set_capability(input, EV_FF, FF_RUMBLE);
+   - Convert the ally_x_send_ff_report() comment to kernel-doc
+  - HID: asus: add support for gamepad mode
+   - Normalize the ally_set_gamepad_mode() kernel-doc comment and convert ally_apply_gamepad_mode() to kernel-doc
+  - HID: asus: add support for turbo buttons
+   - Normalize kernel-doc comments (ally_set_turbo_params(), ally_create_button_attributes(), ally_remove_button_attributes())
+  - HID: asus: add support for btn remapping
+   - Convert the comments to kernel-doc
+   - Fix an uninitialized variable warning by returning early when the button mappings allocation fails
+
+Denis Benato (12):
+  HID: asus: reinitialize the device after exiting a sleep state
+  HID: asus: add support for ROG Ally handhelds
+  HID: asus: add gamepad configuration
+  HID: asus: add vibration strength configuration
+  HID: asus: add joysticks inner and outer range configuration
+  HID: asus: add triggers inner and outer range configuration
+  HID: asus: add joysticks anti-deadzone configuration
+  HID: asus: add support for response curve
+  HID: asus: add support to force feedback
+  HID: asus: add support for gamepad mode
+  HID: asus: add support for turbo buttons
+  HID: asus: add support for btn remapping
+
+ drivers/hid/hid-asus.c | 4686 ++++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 4525 insertions(+), 161 deletions(-)
 
 -- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/prtracker.html
+2.47.3
+

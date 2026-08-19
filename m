@@ -1,109 +1,157 @@
-Received: from mail-wr1-f50.google.com (mail-wr1-f50.google.com [209.85.221.50])
+Received: from mail-lj1-f177.google.com (mail-lj1-f177.google.com [209.85.208.177])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EA4BC33DEF7
-	for <linux-input@vger.kernel.org>; Wed, 19 Aug 2026 11:37:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.50
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9E63B2D73B8
+	for <linux-input@vger.kernel.org>; Wed, 19 Aug 2026 12:33:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787139429; cv=none; b=FyymIgFxfFMdHywjyeV6H27uTi7QbTB/q3s9zXd7QYziCzBBPSy+QBBTVKNbxc9nk69pSPmGwN4KQ7eDQRbQgGLNAsEcBkYxuICjkfAqfxcrU9Mc+YXqx4DN4nwYUfsiTUyvrLMjHtwLGP7vg9xjZNKAeror02dFUCLPELip2gE=
+	t=1787142831; cv=none; b=NcwndPzcsKS98dBD1f4SM4SwuurZcGNP/hPX5d9iHbyLWTd8gux9wBm8/6faM0upTDFzy06SnIJqt31IXVkR3vIebMnq4V3RAyPbrUbx81G5vvigJy+MgU+T4B7rw0h5mR0NZhLIB2x0Y3ix/yWjOeTYH0AaQIMbXWQu8oAucmg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787139429; c=relaxed/simple;
-	bh=8Dx744EN+WMSDIGF6mR0xXbp/4wUHu3RDSo7ma9VtiA=;
-	h=Message-ID:Date:MIME-Version:To:Cc:From:Subject:Content-Type; b=chznpACrdHG3ZOW42coInlKMRMZ47yQ58elC2JggOcDHEiDVV6i5sKq+RCy8GHty/jzm6SUZb+GLbVtGQIis+94IfZ5JOKWNNX7nnUyQ+S5Xkbr62OT0p0kqX5J3wR4p/Qrf44MwK7fg0XAJJET80bp/J7jj6rs1uiKtVWt4NPM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=s2p1sFpi; arc=none smtp.client-ip=209.85.221.50
+	s=arc-20240116; t=1787142831; c=relaxed/simple;
+	bh=3M4MvbJ0PG0fAzy2GYJO0lrIxr/WHWatGn66ZGJR9PM=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=W9BJgHj2KpagVNeTzmNUoE99cUvmT+o24UWtzd/xUThRuOmIP+EkiLqfNja5MfPY8sEsLUB5lSS174JiOOuxeLuj5SwCjo92hQuz7HAYAIvPBCbtecRdGSEsFx8FxFHMP18Vb9ox6pyVUj5gmh8+HcB38TgxOxIaTY5/Y2fpWWA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=kDf2EOhF; arc=none smtp.client-ip=209.85.208.177
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="s2p1sFpi"
-Received: by mail-wr1-f50.google.com with SMTP id ffacd0b85a97d-47db714766aso1290826f8f.0
-        for <linux-input@vger.kernel.org>; Wed, 19 Aug 2026 04:37:07 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="kDf2EOhF"
+Received: by mail-lj1-f177.google.com with SMTP id 38308e7fff4ca-39db07589caso9387111fa.2
+        for <linux-input@vger.kernel.org>; Wed, 19 Aug 2026 05:33:46 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1787139426; x=1787744226; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:subject:from:cc:to
-         :content-language:user-agent:mime-version:date:message-id:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=8Dx744EN+WMSDIGF6mR0xXbp/4wUHu3RDSo7ma9VtiA=;
-        b=s2p1sFpi2LPz7kuqTwqTzizR+QeWuBdPNA58DIO9fU7HQWBUCZ8U6hScO3k1/QduF9
-         EGFt0ofM0MPxDlPBjXp3eLSHvanU2RtDjAoNRsErke15Ksj3wtaMCAprJKyT7dgZ5chE
-         vMJTBrxl4R3EfsGXP8FuaRT9Gmk8kiHuVSveA8bKyLYZ39U/gg1TkN2q9rP4nCsXGvET
-         URdWh8za5ysyIHdCcl487iPboS92uh9b7AaKzHksuSrweZWJEBaAtN2Z4UWJYxxgygaY
-         pFOTd8iUWy4GFnrXx6nhGQ9KLHNtBI0eOBsoyzOuC/jHJgW3VCcEoO3g9BBSWAw5VxKZ
-         R9hw==
+        d=gmail.com; s=20251104; t=1787142824; x=1787747624; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=YFk5C0500ZjZAbxn5U6xUeScbsN60+wS54Wq9n+z/vg=;
+        b=kDf2EOhFzrSaUM9T0AM6m/NuDxQF3FlgJkhvMPzWOBND0EWLu8nbsRmx2ZWd1OZAhe
+         eBsHNCxEDf0Sp64w0L/3aacD4BgJ48Xouir5Ej8TtrqkFqOhOiJ48iyRoyZMtk0hSYCB
+         Wkv6eF63LNRt2O5bdxaVws+CWJS86ZRL6ufzuioKbxejWApRuqKLaY/1LSCGwR7n2y+D
+         1yGwyeIStE96iEChSAAI2bbD5XJICMLvdL0EuKKp+VCmsSC3LIwXM/mmxkeBfTCg8aoJ
+         QumSiIQ4TCZDIWcIDRG5l5M/zDpjCFb+LyOmTW+c9dxSp+2cfO3cMOPKYTnKYKSBiscd
+         9DBQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787139426; x=1787744226;
-        h=content-transfer-encoding:content-type:subject:from:cc:to
-         :content-language:user-agent:mime-version:date:message-id:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=8Dx744EN+WMSDIGF6mR0xXbp/4wUHu3RDSo7ma9VtiA=;
-        b=eV/5j6Id9xqSpRoNdshinAQRDdouGewN3lNkSnerpjAhgsGTlqDonxM4T92He1vjRw
-         uz0S5+sQUsoZZGSntX3mkBNvE3+rR85byPPwewLp58vWTm8qltLYgbTNuI3m+c4BhW5I
-         9Atqh90uZ+HJmDKEQDtS+YDK+wS+I+K7V2HYyNXRxYiEQ0tospVU3yag/0mxwoQjYdCw
-         vBE4ffs4sVsuIQeEZo976nPn9zy1Mke656S6Yubk+3wSRNIpIFi0n4gp2V4qJCDRivn5
-         V+oBAfnew567Pp0z9H5F6paG+5JrZ9eBKlJzn+TNJKGLeQbV/Nbh8Mu0FKNLgeyBsx/Y
-         ibKg==
-X-Gm-Message-State: AOJu0YxWuNcubrdS+aPD25DLgxlrFhsf1VB6Ai0YSR61tSc7VM/ZXzTx
-	kt8w24Uf2Qs29zF5y6yafBHFjg2LFGYir/tcH41fUI+BuYBNWCE4V8Rg0pEyDg==
-X-Gm-Gg: AR+sD10ZIM9pAQPY9wu1Piq1G0a46nYER8C2dTDqvaaL3PKKxN8JL/wse7ZBFLOSaES
-	BD5tktoRveqfjXskHCaow67qOKYmHTZlGiuEbTvg2U1+0A6cBRFqMHpnlrhVS1f3HO4P7+8axzM
-	rK6z723MRN6E0WNqiCaqplwGW4SwBSEHvqDeupN903Vv9iGtM/c3Rts2gePRhNXXXYOLTDfzMCY
-	G0BvBJ58NoCATbhwR7FnpwyQtWSU38dhXL2ZKU8yiQfKW7ncdCKytUQHBDG4B5ZU/4HER0iylOU
-	Lp6hE+wBas/u6whe6mMy2Ie/2Kf8v6wuwysOLn8ZWnFLRFE4oiQ2XFaN9r0SFR4mbgI2mZda+ii
-	+SuVfjALlxSux5AGrcaxvWypW6d+XZ7BnHABcPSIPb5g6viwDvz/jHjRwsknBbuRNV6ihP+CQiw
-	VIeeeqjMZLmQ7dnOx1VD5QuwzAEC95OBKlsk5+yXVEGNee2bPhw+w9quNzSOT/v1HQ0wvmTxANg
-	nr5XR+cOMSb/OvE7OAy8ps8yneAk7Fwj5Tt
-X-Received: by 2002:a05:600c:3f10:b0:493:f783:c46a with SMTP id 5b1f17b1804b1-499aa0f306fmr72739485e9.6.1787139425690;
-        Wed, 19 Aug 2026 04:37:05 -0700 (PDT)
-Received: from ?IPV6:2001:9e8:89ab:a85:6c4d:376a:c226:a52? ([2001:9e8:89ab:a85:6c4d:376a:c226:a52])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-499a9dfeb11sm23154175e9.2.2026.08.19.04.37.04
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 19 Aug 2026 04:37:05 -0700 (PDT)
-Message-ID: <6ad35436-63ac-4bc0-8d38-90ffe03b6db9@gmail.com>
-Date: Wed, 19 Aug 2026 13:37:04 +0200
+        d=1e100.net; s=20251104; t=1787142824; x=1787747624;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=YFk5C0500ZjZAbxn5U6xUeScbsN60+wS54Wq9n+z/vg=;
+        b=o3AG4CH6EcsHAVTpFGMSdENYRC1CuWpN3VPHCOXKMxwQd2vHdp3mQ1DyClIqfQpMy1
+         Of3vjbjha1I76UIS3nPC3A7A63gfY8caA6OBfEYklsFCTeoiac+Ws9FhAa8e/CRDuT6Z
+         CAgn8Px7lmALzBfuK7NMQr7aUSgwhJYhWS0Y3W2GLrHN5Ci9bxG0DSunYYOvHIPxMVF0
+         PRhKhMu6w63794go/cGW7GnSL6ytKsyVR9z1eG0yn3AL4g+mYwXsCyW9daC+K6IDGFa/
+         C7+OkmewoyP1RZWNzbM75w2Oqafrx66jTXwcmZ7Ys/3mCldgR1l2QW/fDm+/ia9B/HSd
+         8IQA==
+X-Gm-Message-State: AOJu0Yz5rUnFBc6Ht9JdmTSZbdOwHLOXOuFl4Fyq6IiwRCW/fNn+Kelz
+	SZr7bDLFUcMlegncuJ5As8ipjN1Bc91/vrzywakwVYQmU397Z9BgKFgO
+X-Gm-Gg: AR+sD12gnOCFIeLOc5zPDXbFNhejnB7yy7QdJ+hLP2wl6HFtBNNqV7gFC/0f1Q8sQTg
+	h9gHn/prKGq3SnFuBPavoYC2bwdWbM6P3l/YWo+VcX+7mAZXyUKxHomXFEXnXN2OrST2qoFlY2J
+	WLsL5YyRDEJ5m/YLOfWnQui0SGmPqRiA4nYsgh5a63ovyuML+bfUsm7bzfewR0FEbdQ8ZopFMJF
+	Q9nNO4aaq9aubnwfbqdUjHny54sZedNNe6EF/LjiBaJLNrHHR7fJCcUCKswn0WeM142PGBNPkfZ
+	HP/ixrdO6kA9i/GfTYPEEkwh9YxvPggQF1aX6udvDBHIs3mVDhwx/GfSkZ3LXefFYuIqxNgL9SY
+	HSVL00+OuJSOrDCDxTco7vrz+nHzoauP/CXmxctcNmq1YZ6+ANeEayFz/BpTM4dFb7foohoaDlM
+	I9jVeDKrGTY/eZKJfnDjzqq4hnFCcCCFNdDvn4o6R44PD1oxpnRrORQAqDRZOrKtw=
+X-Received: by 2002:a2e:a989:0:b0:39f:75f5:907d with SMTP id 38308e7fff4ca-3a18973dc12mr7678431fa.2.1787142823884;
+        Wed, 19 Aug 2026 05:33:43 -0700 (PDT)
+Received: from archlinux ([89.232.117.141])
+        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-5b47885abfdsm489672e87.19.2026.08.19.05.33.42
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 19 Aug 2026 05:33:42 -0700 (PDT)
+From: Ruzal Daminov <daminovruzal7@gmail.com>
+To: jikos@kernel.org,
+	bentiss@kernel.org
+Cc: linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Ruzal Daminov <daminovruzal7@gmail.com>
+Subject: [PATCH v4] HID: multitouch: add support for Goodix GXTP7863 touchpad
+Date: Wed, 19 Aug 2026 15:33:26 +0300
+Message-ID: <20260819123326.3242-1-daminovruzal7@gmail.com>
+X-Mailer: git-send-email 2.55.0
+In-Reply-To: <20260814171247.16707-1-daminovruzal7@gmail.com>
+References: <20260814171247.16707-1-daminovruzal7@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Content-Language: en-US, de-DE
-To: linux-input@vger.kernel.org
-Cc: "Natikar, Basavaraj" <Basavaraj.Natikar@amd.com>
-From: =?UTF-8?B?UmVnw7Zsw7YgTWFhc3M=?= <regoeloemaass@gmail.com>
-Subject: amd-sfh: 10s resume delay from s2idle due to sensor status timeout
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-When closing the lid and reopening it again the screen is frozen for around 10s seconds before any keyboard input is recognized.
-That results in every sensor being in a broken state i.e. "monitor-sensor" shows the accelerometer orientation as "bottom-up" and tilt as "undefined" and the ALS shows very low values.
-The broken states of the sensors are: status 0x5 for sid 0x0 (accelerometer), status 0x4 for sid 0xf (operating-mode) and status 0x4 for sid 0x16 (ALS).
+The Goodix GXTP7863 touchpad controller (VID: 0x27c6, PID: 0x01e0)
+found on Honor MagicBook laptops (e.g. FMI-76 / X14 Plus)
+was missing from the mt_devices[] table.
 
-As on my current system the operating-mode is not recognized in userspace (No SW_TABLET_MODE Event) I can not be sure about it's state.
-This resume bug happens consistently on every try based on my experience.
+As a result, it was claimed by hid-generic, which erroneously mapped
+the vendor telemetry collection (0xFF01) to an input node, translating
+the 1-Hz heartbeat timestamp into an endless loop of phantom
+KEY_BRIGHTNESSUP autorepeat events.
 
-Here's the filtered dmes output:
-[So, 16. Aug 2026, 13:30:49] PM: suspend entry (s2idle)
-[So, 16. Aug 2026, 13:30:53] amdgpu 0000:03:00.0: dpm has been disabled
-[So, 16. Aug 2026, 13:30:53] amdgpu 0000:03:00.0: SMU is resumed successfully!
-[So, 16. Aug 2026, 13:31:03] pcie_mp2_amd 0000:03:00.7: resume sid 0x0 (accelerometer) status 0x5
-[So, 16. Aug 2026, 13:31:03] pcie_mp2_amd 0000:03:00.7: resume sid 0xf (operating-mode) status 0x4
-[So, 16. Aug 2026, 13:31:03] pcie_mp2_amd 0000:03:00.7: resume sid 0x16 (ALS) status 0x4
-[So, 16. Aug 2026, 13:31:03] PM: suspend exit
+Fix this by:
+ 1. Adding I2C_DEVICE_ID_GOODIX_01E0 to hid-ids.h.
+ 2. Adding the device to mt_devices[] with MT_CLS_WIN_8 so hid-multitouch
+    claims the touchpad and retains full Win8 PTP quirks.
+ 3. Filtering out the 0xFF01 vendor collection in mt_input_mapping()
+    so the telemetry report is ignored and no phantom input node is
+    created.
 
-As the dmesg output shows the resume operations for the sensor are delayed every time by exactly 10 seconds.
+Tested on Honor MagicBook X14 Plus (FMI-76, AMD Ryzen 8845HS).
 
-I managed to solve the issue about the frozen screen by disabling the amd_sfh driver via "modprobe -r amd_sfh", after which the resume operation was nearly instant and no freezing occurred.
+Signed-off-by: Ruzal Daminov <daminovruzal7@gmail.com>
+---
+v3 -> v4:
+ - Retain MT_CLS_WIN_8 to preserve Win8 PTP quirks, while explicitly
+   filtering out field->application == 0xff010001 in mt_input_mapping()
+   to ignore the vendor telemetry collection.
+v2 -> v3:
+ - Use MT_CLS_DEFAULT to keep export_all_inputs false.
+v1 -> v2:
+ - Move entry to alphabetical order in the Goodix section.
+ - Declare I2C_DEVICE_ID_GOODIX_01E0 in hid-ids.h.
 
-I updated the BIOS version to the latest available version: TN3604YA.306.
+ drivers/hid/hid-ids.h        |  1 +
+ drivers/hid/hid-multitouch.c | 11 +++++++++++
+ 2 files changed, 12 insertions(+)
 
-Importantly I'm using the "mem_sleep_default=s2idle" flag as a grub argument.
-
-I also opened a bug-report in bugzilla as a reference:
-https://bugzilla.kernel.org/show_bug.cgi?id=221895
-
-Kernel infos: Linux xxx-xxx 7.1.8-arch1-3 #1 SMP PREEMPT_DYNAMIC Tue, 11 Aug 2026 09:16:08 +0000 x86_64 GNU/Linux
-HW: Asus Vivobook S 16 Flip (TN3604YA), AMD Ryzen 5 7530U
-
-Happy to provide more info if needed or test patches.
-
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 1059922baaacd2..60d9d524cd2e15 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -562,6 +562,7 @@
+ #define USB_DEVICE_ID_GENERAL_TOUCH_WIN8_PIT_E100 0xe100
+ 
+ #define I2C_VENDOR_ID_GOODIX		0x27c6
++#define I2C_DEVICE_ID_GOODIX_01E0	0x01e0
+ #define I2C_DEVICE_ID_GOODIX_01E8	0x01e8
+ #define I2C_DEVICE_ID_GOODIX_01E9	0x01e9
+ #define I2C_DEVICE_ID_GOODIX_01F0	0x01f0
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index edb37b4c867e4b..d2ada08a6b01bf 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -1543,6 +1543,12 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+ 	if (ret != 0)
+ 		return ret;
+ 
++	/* Ignore Goodix FreeTouch vendor telemetry collection */
++	if (hdev->vendor == I2C_VENDOR_ID_GOODIX &&
++	    hdev->product == I2C_DEVICE_ID_GOODIX_01E0 &&
++	    field->application == 0xff010001)
++		return -1;
++
+ 	/* let hid-core decide for the others */
+ 	return 0;
+ }
+@@ -2460,6 +2466,11 @@ static const struct hid_device_id mt_devices[] = {
+ 		MT_BT_DEVICE(USB_VENDOR_ID_FRUCTEL,
+ 			USB_DEVICE_ID_GAMETEL_MT_MODE) },
+ 
++	/* Goodix GXTP7863 Touchpad */
++	{ .driver_data = MT_CLS_WIN_8,
++	  HID_DEVICE(BUS_I2C, HID_GROUP_ANY, I2C_VENDOR_ID_GOODIX,
++		     I2C_DEVICE_ID_GOODIX_01E0) },
++
+ 	/* Goodix GT7868Q devices */
+ 	{ .driver_data = MT_CLS_WIN_8_FORCE_MULTI_INPUT_NSMU,
+ 	  HID_DEVICE(BUS_I2C, HID_GROUP_ANY, I2C_VENDOR_ID_GOODIX,
+-- 
+2.45.2

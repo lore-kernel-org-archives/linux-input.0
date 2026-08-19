@@ -1,117 +1,63 @@
-Received: from mta0.migadu.com (out-169.mta0.migadu.com [91.218.175.169])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 10BE72690EC
-	for <linux-input@vger.kernel.org>; Wed, 19 Aug 2026 15:16:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.169
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BB02E48425A;
+	Wed, 19 Aug 2026 17:21:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787152595; cv=none; b=TdngjBfv4yEohHwCJiwOL0dz76z/BPxVcS8NMdP5vacWiJhX2GnBYYiSeXQy5OA977S8Hkx6FSOrxg2D25NlPK9Y4zfHfTfTMv2RBpUPN5HSx0fpv01T7xfzhRh154VFjmo/EHigefgpjID4CQSUaVajpxWY+c7qAxNQhl9B7p8=
+	t=1787160092; cv=none; b=Hx1V5cyydcgFqen4KCsMuvg/6W7dGxVj7jw7nDRV+C/ivRv49s2BLDlCM/+BIGEAESaUVFo0+wUDOYDc2RnhFABuqSA8Xn9XYTz9Zso8f1laFFCzp+Q43PeMTa7udfZsiCYl0Lfj5rfRTvSsKWatsEbxg/tiTWZUPFILPJTNqbk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787152595; c=relaxed/simple;
-	bh=1qLtqv/HQP/ho7fTNQ1guG8sR7HixupGcypPBGfeEXU=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=S6BLaANtgPnwjcaHFKxj+hx1qVUpPToVpzy8Guyg+3K3auxx0WX/APQ1SK9LlgFOtg1sPPwQDMxhLbVa5UvDoN1m70GdyU12rUS60KxLrvuSY5q+mjU+qVdrpytnBirOsMN4bEUdgYdkm3ZgodmX2ScBFGKbyq73AsP6FoE2wJs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=stephanie.is; spf=pass smtp.mailfrom=stephanie.is; dkim=pass (2048-bit key) header.d=stephanie.is header.i=@stephanie.is header.b=TRjVAoRR; arc=none smtp.client-ip=91.218.175.169
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=stephanie.is
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=stephanie.is
+	s=arc-20240116; t=1787160092; c=relaxed/simple;
+	bh=E8riE/MmlhvdZqP2ISM3tgXRCLX/+mVkBD2/SYICUTY=;
+	h=Subject:From:In-Reply-To:References:Message-Id:Date:To:Cc; b=YLjjFu01ObL8lp1FYH29p3SjNpwA5Hg7n70b6rlRXfS26RF/fecjK433KYKLTSbjPrQV/qK81E2dySi0yaH+jgCR3zO4gn+88ReHUVDqa9gC3Mu6HJWvrV1Yxmp12a7O1lfeSuCMbTerfpJa/vRA+gqoQDrER9nn4UQ/kZdqfkU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=SCf0OaKt; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=stephanie.is header.i=@stephanie.is header.b="TRjVAoRR"
-X-Envelope-To: linux-input@vger.kernel.org
-DKIM-Signature: a=rsa-sha256; bh=1qLtqv/HQP/ho7fTNQ1guG8sR7HixupGcypPBGfeEXU=;
- c=simple/simple; d=stephanie.is;
- h=from:to:subject:date:message-id:mime-version:content-type; s=key1;
- t=1787152591; v=1; x=1787757391;
- b=TRjVAoRRvedekhyfuketwIweJcfDBKkkN2PouqF+5XbTmUSRSZ78n3lvjs3v4mJK1/OhBQQT
- zXFNTVYa/cmW9Hf75zKho0RNsKrAKpuW9zOSja+qYUYH/Q0ydbvHdZhwR4PuWkR0AZ0c7q+tu4O
- aD82zNSYcJ2P6Vfmqkpmq66944aMGm4SjoaEm5ubHpbsNRTV8f9fJcWYIR3v23iyRfDT1rgISTO
- F2su02ktVSNusLpSr1jtofN553OkSLNB43RrRwDXOlIyp7FRA08aPH1/x7j95nk6dm0F4csDo4v
- s0bFfNmPiW9zGyw61K6vms8opgCRzimcUzUMx4yN/jxxA==
-X-Envelope-To: linux-input@vger.kernel.org
-Received: from arisa.iscute.moe (2a11:f2c0:acac:10:1a1d:eaff:fe51:9041)
-	by smtp.migadu.com with ESMTPS id 60e1cc53a49542b8;
-	Wed, 19 Aug 2026 15:16:20 +0000
-X-Mizu-Trace-ID: 60e1cc53a49542b8
-X-Migadu-Flow: FLOW_OUT
-From: Stephanie Wilde-Hobbs <git@stephanie.is>
-To: Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>,
-	linux-kernel@vger.kernel.org
-Cc: linux-input@vger.kernel.org,
-	"Derek J . Clark" <derekjohn.clark@gmail.com>,
-	Mark Pearson <mpearson-lenovo@squebb.ca>,
-	stable@vger.kernel.org,
-	Stephanie Wilde-Hobbs <git@stephanie.is>
-Subject: [PATCH] HID: lenovo: Re-apply Fn-lock state on reset_resume
-Date: Wed, 19 Aug 2026 17:16:09 +0200
-Message-ID: <20260819151609.68209-1-git@stephanie.is>
-X-Mailer: git-send-email 2.55.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="SCf0OaKt"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C7D2C1F338ED;
+	Wed, 19 Aug 2026 17:21:19 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1787160079;
+	bh=O2UJ4Nk1SaPkuGSDRBGUSS5HZVHIodCDp4u8/4ebCGE=;
+	h=Subject:From:In-Reply-To:References:Date:To:Cc;
+	b=SCf0OaKtUSdYYrdZ3dDFWl1ojqBQrs+r/rtA8GZLa77xMNG3P5mxsGikvtP9RiZke
+	 KvuAuFg3QYjVPGFGAPbNH2oUA8TlnVtmWj25jftdSfNThIbGx0RWyeDBq61uvj0kdp
+	 oPI02dOAyjtEoFLV+n7WwvfW3/gIabbYOVIftYqHodcf/2QgEBJecWpF7mgnDjyKih
+	 zNrYuePp39h2aqNPwDTZ0FCD9GJuNQns/kgfrGx0T6ooCO1AyMBojBTUbyWluyfFDH
+	 4nJqkr3RBR6g/i+VYZECXB7ctz5lPin+J1RI5hSx425SdWIRi9tgvfRjvVr2VAQiyM
+	 CQH9T/G0EejHQ==
+Received: from [10.30.226.235] (localhost [IPv6:::1])
+	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id F3D8138119E7;
+	Wed, 19 Aug 2026 17:20:31 +0000 (UTC)
+Subject: Re: [git pull] Input updates for v7.3-rc0
+From: pr-tracker-bot@kernel.org
+In-Reply-To: <aoKAIGTdF7pVYqiu@google.com>
+References: <aoKAIGTdF7pVYqiu@google.com>
+X-PR-Tracked-List-Id: <linux-input.vger.kernel.org>
+X-PR-Tracked-Message-Id: <aoKAIGTdF7pVYqiu@google.com>
+X-PR-Tracked-Remote: git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git tags/input-for-v7.3-rc0
+X-PR-Tracked-Commit-Id: b4d85f863e5a6f1fa01b186001af0f68f4f5239e
+X-PR-Merge-Tree: torvalds/linux.git
+X-PR-Merge-Refname: refs/heads/master
+X-PR-Merge-Commit-Id: 1be05c6afbb2c4052d0a13fc91ddcd89aaee9614
+Message-Id: <178716003078.3599392.10629864219831404507.pr-tracker-bot@kernel.org>
+Date: Wed, 19 Aug 2026 17:20:30 +0000
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-When a ThinkPad 10 Ultrabook or X1 Tablet keyboard is reset during
-suspend/resume because the USB power session was lost, the keyboard
-firmware reverts to its power-on Fn-lock state while the driver keeps
-the value which was in effect before suspend. The fn_lock sysfs
-attribute then disagrees with the actual key behaviour, and the Fn-lock
-LED no longer reflects the state.
+The pull request you sent on Sun, 16 Aug 2026 20:31:06 -0700:
 
-Re-apply the cached Fn-lock value in reset_resume, the same way the
-compact keyboards already resend their configuration. This only runs
-when the device was actually reset during resume, so a warm resume
-which preserves the keyboard state is unaffected.
+> git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git tags/input-for-v7.3-rc0
 
-Tested on a ThinkPad X1 Tablet Gen 3 keyboard.
+has been merged into torvalds/linux.git:
+https://git.kernel.org/torvalds/c/1be05c6afbb2c4052d0a13fc91ddcd89aaee9614
 
-Fixes: c87de33ed43a ("HID: lenovo: Add ThinkPad 10 Ultrabook Keyboard fn_lock support")
-Assisted-by: ClaudeCode:deepseek-v4-flash-0731
-Signed-off-by: Stephanie Wilde-Hobbs <git@stephanie.is>
----
- drivers/hid/hid-lenovo.c | 21 +++++++++++++++++++++
- 1 file changed, 21 insertions(+)
+Thank you!
 
-diff --git a/drivers/hid/hid-lenovo.c b/drivers/hid/hid-lenovo.c
-index 3976d7b53b14..1ca58610e425 100644
---- a/drivers/hid/hid-lenovo.c
-+++ b/drivers/hid/hid-lenovo.c
-@@ -1432,6 +1432,8 @@ static int lenovo_probe(struct hid_device *hdev,
- 
- static int lenovo_reset_resume(struct hid_device *hdev)
- {
-+	struct lenovo_drvdata *data;
-+
- 	switch (hdev->product) {
- 	case USB_DEVICE_ID_LENOVO_CUSBKBD:
- 	case USB_DEVICE_ID_LENOVO_TPIIUSBKBD:
-@@ -1439,6 +1441,25 @@ static int lenovo_reset_resume(struct hid_device *hdev)
- 			lenovo_features_set_cptkbd(hdev);
- 
- 		break;
-+	case USB_DEVICE_ID_LENOVO_X12_TAB:
-+	case USB_DEVICE_ID_LENOVO_X12_TAB2:
-+	case USB_DEVICE_ID_LENOVO_X13_TAB:
-+	case USB_DEVICE_ID_LENOVO_TP10UBKBD:
-+	case USB_DEVICE_ID_LENOVO_X1_TAB:
-+	case USB_DEVICE_ID_LENOVO_X1_TAB2:
-+	case USB_DEVICE_ID_LENOVO_X1_TAB3:
-+		/*
-+		 * The keyboard reverts to its power-on Fn-lock default when
-+		 * it is reset during resume, while we retain the state which
-+		 * was in effect before suspend. Re-apply our cached value so
-+		 * the Fn-lock behaviour and indicator stay in sync with the
-+		 * sysfs interface.
-+		 */
-+		data = hid_get_drvdata(hdev);
-+		if (data)
-+			lenovo_led_set_tp10ubkbd(hdev, TP10UBKBD_FN_LOCK_LED,
-+						 data->fn_lock);
-+		break;
- 	default:
- 		break;
- 	}
 -- 
-2.55.0
-
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/prtracker.html

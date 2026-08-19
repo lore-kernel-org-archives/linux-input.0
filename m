@@ -1,128 +1,220 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 11A2142A96
-	for <linux-input@vger.kernel.org>; Wed, 19 Aug 2026 20:17:09 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C19D542A96
+	for <linux-input@vger.kernel.org>; Wed, 19 Aug 2026 20:22:20 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787170631; cv=none; b=BmzrAixjJzbFsHS9znInK9LRBZueDzayVeTgUMUXROna0p4GPp8EOaqauZG5KZ8RxoyLJBiTDcatllhB+JJrbAIa+lTne4lw0btRaibMYhFepND6Z9JPyE76q5i/RM+rD2NpC+ZvVa/zCNzCZw/eKqDXmVl4t7v0ArFhF/sZwDg=
+	t=1787170942; cv=none; b=GFZctRPkaNN5znay/naK3WkGYHQp5ndEBB4gBwVFeZzYJPRRR1jbfyIq3Zyk9EE5CtHHWSyqVj+J4jISAO5VWjUouJnQp2rj/Y3nJal95U5afzjgAFAmVyVlyb33szI0ZrWo8pSVJRbHP/07+HxNaKSoRN03j1YE31hpFUQw4fk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787170631; c=relaxed/simple;
-	bh=IMkgrmZKKeOX4p540EyHOy3l84A+JqFL49IrnkgdttU=;
+	s=arc-20240116; t=1787170942; c=relaxed/simple;
+	bh=If3tWcOtsH5ahAOYAJAlSUnXBfjwWk2oqgq2mHfZnkA=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=kGmPkaUE3ua9nmprrlJgz1ov3+XL9+M49GwYWOgsaEErMRygp4qfF3zhK73JmPSMUuhY7OnqL7tlcP2dJmnovgXbcyIcL3cAr+dEN0fXgvn4bIe3CXS10p+oV4ErHsgKSK+WS5WG9lEnf1hLICGTAwuY6TqBrD2wyb/x1wBxx5A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=NXYaaG0c; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=bT6ybICRS4wIyLb2cKPojas9TrA7bZI62Ab0vzqb8rJNf4Zex4FkNuKOIuR18EsoRITOlI7iq8fKNd/rHoYc/L2ymWa52PzbJHIKfpxlLWeZlZtOvIU7ICW6M49QkdKSjjMlZ3YRoJeyXayf6pt9cgDnnTe2G5pedka5C0RzhuY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=b/oX/A/t; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="NXYaaG0c"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8795B1F000E9;
-	Wed, 19 Aug 2026 20:17:09 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="b/oX/A/t"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7563A1F000E9;
+	Wed, 19 Aug 2026 20:22:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787170629;
-	bh=5YLk/gIIHLnB8vfFY1XJZoFOWU1yxltRhqWntIy3zts=;
+	s=k20260515; t=1787170940;
+	bh=cd3P/WXiZ7dSmhD/Vyw9SoRuw/lkTW/MSrYHeLMco38=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=NXYaaG0cL1ScZNjYhysepZwYQhlImu3LC5UsogxXZonZZ1v0Ie6sfyjIJNM6SBFLf
-	 km5MdgR/xiLBJnWG++8KukQt8fQGd079z75vUvk/NeAjprpzr2ANFJu5YKtSi8pfhE
-	 DAsewb5rYHMKdeFZcJg7M/j2k6Rf2BfaQaUA8gAlPst5JsOBFgpmihWXhyTiXQ+y3Z
-	 3Dk2o5GZDYm0Vc4SZHHYvpFQXkP1DkT9rajFzvFXTe/4xpKAUss7vqVVwNr9TYJ0fj
-	 olwjrjobmgUv8zw7gdRSRaaSNOPK0UhkS858lPi0acbKQAdPma7F0nbq/vti95wdm6
-	 gJNhQr4KUd1zA==
+	b=b/oX/A/tCvTO2hOXUdmmTPbh4iHNmhdnk95pAW9KGythAR0gqiqi5/54BlVggiRA2
+	 BDa6wtfVRyAMsLkQ60EF3kFb6HEUlvMtI0dfcjI3xrJApKnUI/BiwV4+VV9IEqtIj6
+	 zMeB/5kgxTPF1J1cj36ghMTL4b9ayU54GOmN9M7rY/gOMjYjHwgH1wASeNslD2WuYN
+	 KL7jC/AqzJOIWci2rOG3T6liSsyJpPp9krmTzyNuswDjoA4bpxeX7tzliAfNXBYEBp
+	 oWYSW76CPUOK5XELU2ABpA/4PIjR3WnVfluYyvlJ0igrhGrhm4nbw3lFgGH4E6hw63
+	 7/8PpM1kCbXAg==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 08/12] HID: asus: add support for response curve
+Subject: Re: [PATCH v2 12/12] HID: asus: add support for btn remapping
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Denis Benato" <denis.benato@linux.dev>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260819195835.1649657-9-denis.benato@linux.dev>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <20260819195835.1649657-13-denis.benato@linux.dev>
 References: <20260819195835.1649657-1-denis.benato@linux.dev>
- <20260819195835.1649657-9-denis.benato@linux.dev>
+ <20260819195835.1649657-13-denis.benato@linux.dev>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 19 Aug 2026 20:17:09 +0000
-Message-Id: <20260819201709.8795B1F000E9@smtp.kernel.org>
+Date: Wed, 19 Aug 2026 20:22:20 +0000
+Message-Id: <20260819202220.7563A1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
 s) to consider:
-- [Medium] Inconsistent capability check for response curve sysfs read oper=
-ations.
+- [Medium] Software mapping cache rollback logic introduces state desync wh=
+en a sequential hardware update fails on first-generation devices.
+- [Low] Default button mapping initialization uses highly brittle hardcoded=
+ array indices that will silently break if the button code map array change=
+s.
 --
 
---- Patch [8]: [PATCH v2 08/12] HID: asus: add support for response curve -=
+--- Patch [12]: [PATCH v2 12/12] HID: asus: add support for btn remapping -=
 --
-commit 64bba5ccd81bdede00727b014f07c871c53e11d2
+commit a8628b197357f3dab376cf274ae63c642d78d4ff
 Author: Denis Benato <denis.benato@linux.dev>
 
-HID: asus: add support for response curve
+HID: asus: add support for btn remapping
 
-This commit adds the ability for userspace to modify the response curve of
-both joysticks on ROG ally devices by exposing relevant sysfs attributes.
+This commit adds support for button remapping on ROG Ally devices, exposing
+sysfs attributes to allow configuring gamepad and desktop mode button codes
+for individual physical buttons.
 
 > diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
-> index 050d979f4315d..6f43b7317168f 100644
+> index d6ab906b7e782..06dceb77d1086 100644
 > --- a/drivers/hid/hid-asus.c
 > +++ b/drivers/hid/hid-asus.c
-
 [ ... ]
-
-> +static ssize_t response_curve_pct_show(struct device *dev,
-> +				       char *buf,
-> +				       struct ally_config *cfg, bool is_left,
-> +				       unsigned int idx)
+> @@ -976,6 +984,325 @@ static int ally_set_gamepad_mode(struct ally_handhe=
+ld *ally, struct hid_device *
+>  	return 0;
+>  }
+> =20
+> +enum btn_map_type {
+> +	BTN_TYPE_NONE =3D 0,
+> +	BTN_TYPE_PAD =3D 0x01,
+> +	BTN_TYPE_KB =3D 0x02,
+> +	BTN_TYPE_MOUSE =3D 0x03,
+> +	BTN_TYPE_MEDIA =3D 0x05,
+> +};
+> +
+> +struct btn_code_map {
+> +	unsigned char type;
+> +	unsigned char value;
+> +	const char *name;
+> +};
+> +
+> +static const struct btn_code_map ally_btn_codes[] =3D {
+> +	{ BTN_TYPE_NONE, 0x00, "NONE" },
+> +	/* Gamepad button codes */
+> +	{ BTN_TYPE_PAD, 0x01, "PAD_A" },
+[ ... ]
+> +	/* Media button codes */
+> +	{ BTN_TYPE_MEDIA, 0x16, "MEDIA_SCREENSHOT" },
+> +	{ BTN_TYPE_MEDIA, 0x19, "MEDIA_SHOW_KEYBOARD" },
+> +	{ BTN_TYPE_MEDIA, 0x1C, "MEDIA_SHOW_DESKTOP" },
+> +	{ BTN_TYPE_MEDIA, 0x1E, "MEDIA_START_RECORDING" },
+> +	{ BTN_TYPE_MEDIA, 0x01, "MEDIA_MIC_OFF" },
+> +	{ BTN_TYPE_MEDIA, 0x02, "MEDIA_VOL_DOWN" },
+> +	{ BTN_TYPE_MEDIA, 0x03, "MEDIA_VOL_UP" },
+> +};
+> +
+> +static const size_t keymap_len =3D ARRAY_SIZE(ally_btn_codes);
+[ ... ]
+> +static void ally_set_default_keyboard_mapping(struct ally_button_mapping=
+ *mappings)
 > +{
-> +	struct ally_joystick_resp_curve *curve;
-> +	int ret =3D -EINVAL;
+> +	struct ally_button_mapping *map =3D &mappings[ALLY_GAMEPAD_MODE_KEYBOAR=
+D];
+> +	int i;
 > +
-> +	scoped_guard(mutex, &cfg->config_mutex) {
-> +		curve =3D is_left ? &cfg->left_curve : &cfg->right_curve;
+> +	/* Set all pair indexes and initialize to NONE */
+> +	for (i =3D 0; i < 9; i++) {
+> +		map->button_pairs[i].pair_index =3D i + 1;
+> +		map->button_pairs[i].first.remap =3D
+> +			&ally_btn_codes[0];
+> +		map->button_pairs[i].first.macro =3D
+> +			&ally_btn_codes[0];
+> +		map->button_pairs[i].second.remap =3D
+> +			&ally_btn_codes[0];
+> +		map->button_pairs[i].second.macro =3D
+> +			&ally_btn_codes[0];
+> +	}
 > +
-> +		switch (idx) {
+> +	/*
+> +	 * Desktop mode defaults: keyboard and mouse mappings.
+> +	 * Buttons not listed here (dpad, view, menu) remain NONE.
+> +	 */
+> +
+> +	/* btn_a =3D> KB_SPACE, btn_b =3D> KB_E */
+
+[Severity: Low]
+This isn't a bug, but does hardcoding these array indices create a risk of
+breaking the mappings if the ally_btn_codes array is modified in the future=
+?=20
+If new codes are added, removed, or reordered, explicit numbers like 91 and=
+ 53
+will silently point to the wrong button codes, causing the default mappings
+to silently regress.
+
+> +	map->button_pairs[BTN_PAIR_AB - 1].first.remap =3D
+> +		&ally_btn_codes[91]; /* KB_SPACE */
+> +	map->button_pairs[BTN_PAIR_AB - 1].second.remap =3D
+> +		&ally_btn_codes[53]; /* KB_E */
+> +
+> +	/* btn_x =3D> KB_R, btn_y =3D> KB_F */
+> +	map->button_pairs[BTN_PAIR_XY - 1].first.remap =3D
+> +		&ally_btn_codes[54]; /* KB_R */
+> +	map->button_pairs[BTN_PAIR_XY - 1].second.remap =3D
+> +		&ally_btn_codes[68]; /* KB_F */
+[ ... ]
+> @@ -2775,6 +3120,515 @@ static void ally_btn_turbo_init_attrs(struct ally=
+_btn_sysfs_entry *entry)
+>  	entry->attrs[4] =3D NULL;
+>  }
+[ ... ]
+> +static ssize_t button_remap_store(struct device *dev,
+> +				  struct device_attribute *attr,
+> +				  const char *buf, size_t count)
+> +{
+[ ... ]
+> +		/*
+> +		 * Send mapping to device with the caveat that first
+> +		 * generation devices require individual button pair updates.
+> +		 */
+> +		if (cfg->is_ally_x) {
+> +			ret =3D ally_set_button_mapping(hdev, ally, pair);
+> +		} else {
+> +			mode_map =3D &cfg->button_mappings[cfg->gamepad_mode];
+> +			ret =3D 0;
+> +			for (i =3D 0; i < 9; i++) {
+> +				mode_map->button_pairs[i].pair_index =3D i + 1;
+> +				ret =3D ally_set_button_mapping(hdev, ally,
+> +					&mode_map->button_pairs[i]);
+> +				if (ret < 0)
+> +					break;
+> +			}
+> +		}
+> +
+> +		/*
+> +		 * The hardware rejected the update: restore the previous
+> +		 * mapping so that the software cache keeps describing the
+> +		 * state the device is actually in.
+> +		 */
 
 [Severity: Medium]
-Should there be a capability check here before returning values?
+Could this rollback logic cause a desynchronization between the software ca=
+che
+and the hardware state?
 
-The corresponding store operations check for !cfg->resp_curve_support and
-return -EOPNOTSUPP, but this show function unconditionally returns the loca=
-lly
-initialized defaults (0, 33, 66, 100) even if the device doesn't support
-response curves. Can this cause userspace feature-detection logic to
-erroneously believe response curves are supported until a write fails?
+When iterating over the 9 button pairs on older devices, if a USB transfer
+fails on an iteration after the target pair was already successfully written
+to the device (e.g. failure at iteration 5 when the target was pair 2), the
+loop breaks and this rollback path triggers.
 
-> +		case 1:
-> +			ret =3D sysfs_emit(buf, "%u\n", curve->entry_1.resp);
-> +			break;
-> +		case 2:
-> +			ret =3D sysfs_emit(buf, "%u\n", curve->entry_2.resp);
-> +			break;
+This unrolls old_code in the software cache, but the hardware has already
+accepted and applied the new mapping, causing the sysfs cache to incorrectly
+report the previous state.
 
-[ ... ]
-
-> +static ssize_t response_curve_move_show(struct device *dev,
-> +					char *buf,
-> +					struct ally_config *cfg, bool is_left,
-> +					unsigned int idx)
-> +{
-> +	struct ally_joystick_resp_curve *curve;
-> +	int ret =3D -EINVAL;
+> +		if (ret < 0) {
+> +			if (btn_attr->is_macro)
+> +				btn_map->macro =3D old_code;
+> +			else
+> +				btn_map->remap =3D old_code;
 > +
-> +	scoped_guard(mutex, &cfg->config_mutex) {
-> +		curve =3D is_left ? &cfg->left_curve : &cfg->right_curve;
+> +			hid_err(hdev, "Failed to set button mapping: %d\n", ret);
+> +			return ret;
+> +		}
+> +	}
 > +
-> +		switch (idx) {
-
-[Severity: Medium]
-Similarly, should this show function also check !cfg->resp_curve_support
-before returning values?
-
-> +		case 1:
-> +			ret =3D sysfs_emit(buf, "%u\n", curve->entry_1.move);
-> +			break;
-> +		case 2:
-
+> +	return count;
+> +}
 [ ... ]
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260819195835.1649=
-657-1-denis.benato@linux.dev?part=3D8
+657-1-denis.benato@linux.dev?part=3D12

@@ -1,83 +1,123 @@
-Received: from forward205b.mail.yandex.net (forward205b.mail.yandex.net [178.154.239.152])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 878C345A286;
-	Wed, 19 Aug 2026 11:23:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=178.154.239.152
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B936918E02A
+	for <linux-input@vger.kernel.org>; Wed, 19 Aug 2026 11:34:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787138637; cv=none; b=pc77mOjyeUHlSsD96tNyL6k6a1H1d1MFYfaiYjwo4afhfkV94pYwvIzdM8ugl0diR7nbyQXFKhi3iyAvkBb9PJH7fX2W6MCR49tsBv2QTrwmeK51dCeo5mmC82+kRkUAw3BribJdBL6ekwMuX1i6bJZTFws6Yolqc9XTv7n/tEE=
+	t=1787139269; cv=none; b=aD5l7jfrq3EPFSC6a7AH+wADVJ638eV+PGJ+/EuUf8N7TBISsPoPkoLpRYq5thXTHbaTfPXn6GlIzi+8YHCB/TLqeWTFEO1D6riWA4X9KswBkN8SUCWVSyNL61QR3sHPMqD8E1Uxq8/5jxAu59/Bkx0BhOa/uEsMF4RHUR1S7Pw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787138637; c=relaxed/simple;
-	bh=0PjfMFfsbccvAoufctFiVqYGSzyefHryP6UDpasB6pk=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=rnfWVeoAKeQU1CF9VBoZU39LCEtaRQBr1XETOY3N4ZEQu+7H4IdfSoFVARG8SxJQDRxGoRxLSIWXK03uaqGQXepSGJRlO979Qoeozz/k77gsLQEYwfcsKNJRTCHRMqjqQm0FmIIgb7NtPvsQg3GsiK+0UUe6eKzBYKIb6BOFglg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=yandex.ru; spf=pass smtp.mailfrom=yandex.ru; dkim=pass (1024-bit key) header.d=yandex.ru header.i=@yandex.ru header.b=YGki7UEk; arc=none smtp.client-ip=178.154.239.152
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=yandex.ru
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=yandex.ru
+	s=arc-20240116; t=1787139269; c=relaxed/simple;
+	bh=/i9G+A0jOBH5AAZG85fwm+75PLJ2usin7AyAPH7DmIk=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=pfdvpWhCRKqKr5sf55yf8urQULmYSxN8PKwHbRFyIzWYGA6WRNcMd22hjK5wW7DFWZ8Li8dquTfLE3MO5YlLI/cbU+jHe9rlip3wNUe69qd7dTWwQUBkD5hTkDeWNXteJ6NdBvgg4Mjye+1lCjWCA1o6oGn1OHoYh49kjGqif9A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=JtyLx+/F; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=yandex.ru header.i=@yandex.ru header.b="YGki7UEk"
-Received: from forward101b.mail.yandex.net (forward101b.mail.yandex.net [IPv6:2a02:6b8:c02:900:1:45:d181:d101])
-	by forward205b.mail.yandex.net (postfix) with ESMTPS id B656F82947;
-	Wed, 19 Aug 2026 14:23:51 +0300 (MSK)
-Received: from mail-nwsmtp-smtp-production-main-57.sas.yp-c.yandex.net (mail-nwsmtp-smtp-production-main-57.sas.yp-c.yandex.net [IPv6:2a02:6b8:c23:313e:0:640:a643:0])
-	by forward101b.mail.yandex.net (postfix) with ESMTPS id 5DEE5C0074;
-	Wed, 19 Aug 2026 14:23:41 +0300 (MSK)
-Received: by mail-nwsmtp-smtp-production-main-57.sas.yp-c.yandex.net (smtp) with ESMTPSA id eNURGNUfA8c0-T21cwSLk;
-	Wed, 19 Aug 2026 14:23:40 +0300
-X-Yandex-Fwd: 1
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yandex.ru; s=mail;
-	t=1787138620; bh=BU/YXNYBLzY/+0FtaCr2BCtITUDanvWTzfee7peqzRE=;
-	h=Message-ID:Date:Cc:Subject:To:From;
-	b=YGki7UEkGuNSOaKuhBOx5Ybbsj2PEeYMXZ83VdKMmGuC6tTejYRXufr1501OaQqwU
-	 CeHm9tZe0/iZrUBCSBGB+iYqYS6Tfvd0d8UnjL4TnQQmSlYeyWMwMwT+HKq/TJejsB
-	 e2RdHtTnhqYpfjFTZh7WH0vOxiEFrMY12IW5hYaE=
-Authentication-Results: mail-nwsmtp-smtp-production-main-57.sas.yp-c.yandex.net; dkim=pass header.i=@yandex.ru
-From: Dmitry Antipov <dmantipov@yandex.ru>
-To: Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>
-Cc: Anirudh Rayabharam <mail@anirudhrb.com>,
-	linux-usb@vger.kernel.org,
-	linux-input@vger.kernel.org,
-	lvc-project@linuxtesting.org,
-	Dmitry Antipov <dmantipov@yandex.ru>,
-	Sashiko <sashiko-bot@kernel.org>
-Subject: [PATCH v2 1/2] HID: usbhid: adjust output pipe FIFO size
-Date: Wed, 19 Aug 2026 14:12:02 +0300
-Message-ID: <20260819111203.2883239-1-dmantipov@yandex.ru>
-X-Mailer: git-send-email 2.55.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="JtyLx+/F"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E1301F000E9;
+	Wed, 19 Aug 2026 11:34:28 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1787139268;
+	bh=+APU7Wz6g8ltmkQaTw3TBobhgI9wUIejsbP5AmNuRiM=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=JtyLx+/Fw9GW1R0B0hRySFZ7IdlWa8tqTZlKu6uQLDqvc9mxJdtPi2j0jtxHkqW0R
+	 viMre5zimdXcaPC9bzCpPMpd2w/UDFJoYPHN7I8D4ORgqWMddc6/fjYMusnH7EYj14
+	 kq3sE8IDjkXweRxEZN8XqmHbLpQaO/hSA9nZpI1j+EPeKgk4QzKhOqhXPpphy/nWs7
+	 ITZUUa9AvF9k/JEUaFjkvKvsrRM4JGpR2y8N0hxnkIYONhPfsUJVUJgNVbIy/gOWLo
+	 +sRIX2HLy2FmoZ29y2opfgd16obHQ7zqgKPRi6Z/jgMbCNpI+VrMP2Hj8dSDGu+vrm
+	 z2RiBdKG7Najg==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v2 2/2] HID: usbhid: free unsent raw output reports in
+ usbhid_stop()
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Dmitry Antipov" <dmantipov@yandex.ru>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <20260819111203.2883239-2-dmantipov@yandex.ru>
+References: <20260819111203.2883239-1-dmantipov@yandex.ru>
+ <20260819111203.2883239-2-dmantipov@yandex.ru>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Wed, 19 Aug 2026 11:34:27 +0000
+Message-Id: <20260819113428.1E1301F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-For an USB-specific HID device, size of output FIFO should
-be HID_OUTPUT_FIFO_SIZE rather than HID_CONTROL_FIFO_SIZE.
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
+- [High] Emptying the `out` queue in `usbhid_stop` without updating the cor=
+responding `hid_irq_out` completion handler causes an out-of-bounds queue a=
+ccess, leading to a NULL pointer dereference and kernel panic.
+--
 
-Reported-by: Sashiko <sashiko-bot@kernel.org>
-Closes: https://syzkaller.appspot.com/bug?extid=e2c057ea576d2644e2be
-Fixes: 4916b3a57fc9 ("[PATCH] Generic HID layer - USB API")
-Signed-off-by: Dmitry Antipov <dmantipov@yandex.ru>
----
-v2: initial version to join the series
----
- drivers/hid/usbhid/usbhid.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+--- Patch [2]: [PATCH v2 2/2] HID: usbhid: free unsent raw output reports i=
+n usbhid_stop() ---
+commit 026e2d1c35a0ae9588e9e7e4b956512ff4689607
+Author: Dmitry Antipov <dmantipov@yandex.ru>
 
-diff --git a/drivers/hid/usbhid/usbhid.h b/drivers/hid/usbhid/usbhid.h
-index 75fe85d3d27a..c408e694a7b2 100644
---- a/drivers/hid/usbhid/usbhid.h
-+++ b/drivers/hid/usbhid/usbhid.h
-@@ -74,7 +74,7 @@ struct usbhid_device {
- 	unsigned long last_ctrl;						/* record of last output for timeouts */
- 
- 	struct urb *urbout;                                             /* Output URB */
--	struct hid_output_fifo out[HID_CONTROL_FIFO_SIZE];              /* Output pipe fifo */
-+	struct hid_output_fifo out[HID_OUTPUT_FIFO_SIZE];               /* Output pipe fifo */
- 	unsigned char outhead, outtail;                                 /* Output pipe fifo head & tail */
- 	char *outbuf;                                                   /* Output buffer */
- 	dma_addr_t outbuf_dma;                                          /* Output buffer dma */
--- 
-2.55.0
+HID: usbhid: free unsent raw output reports in usbhid_stop()
 
+When a HID device is stalled or disconnected, there might be unsent
+output reports. This patch frees their raw buffers in usbhid_stop()
+to avoid memory leaks.
+
+Closes: https://syzkaller.appspot.com/bug?extid=3De2c057ea576d2644e2be
+
+> diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
+> index 96b0181cf8194..60662616fd2a0 100644
+> --- a/drivers/hid/usbhid/hid-core.c
+> +++ b/drivers/hid/usbhid/hid-core.c
+> @@ -1253,6 +1253,14 @@ static void usbhid_stop(struct hid_device *hid)
+>  		usbhid->ctrltail =3D (usbhid->ctrltail + 1) &
+>  			(HID_CONTROL_FIFO_SIZE - 1);
+>  	}
+> +
+> +	while (usbhid->outtail !=3D usbhid->outhead) {
+> +		kfree(usbhid->out[usbhid->outtail].raw_report);
+> +		usbhid->out[usbhid->outtail].raw_report =3D NULL;
+> +
+> +		usbhid->outtail =3D (usbhid->outtail + 1) &
+> +			(HID_OUTPUT_FIFO_SIZE - 1);
+> +	}
+
+[Severity: High]
+Could emptying the out queue here cause a NULL pointer dereference if an
+output URB is currently in-flight?
+
+If an in-flight URB is canceled by the subsequent usb_kill_urb() call, it
+will synchronously trigger the completion handler hid_irq_out() with status
+-ENOENT.
+
+Unlike hid_ctrl(), hid_irq_out() unconditionally increments outtail:
+
+drivers/hid/usbhid/hid-core.c:hid_irq_out() {
+    ...
+    } else {
+        usbhid->outtail =3D (usbhid->outtail + 1) & (HID_OUTPUT_FIFO_SIZE -=
+ 1);
+
+        if (usbhid->outhead !=3D usbhid->outtail &&
+                hid_submit_out(hid) =3D=3D 0) {
+    ...
+}
+
+If usbhid_stop() has already made outtail equal to outhead, this increment
+pushes outtail out of bounds. The outhead !=3D outtail check will then pass,
+and it will call hid_submit_out() which will dereference a NULL report:
+
+drivers/hid/usbhid/hid-core.c:hid_submit_out() {
+    ...
+    report =3D usbhid->out[usbhid->outtail].report;
+    usbhid->urbout->transfer_buffer_length =3D hid_report_len(report);
+    ...
+}
+
+>  	spin_unlock_irq(&usbhid->lock);
+> =20
+>  	usb_kill_urb(usbhid->urbin);
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260819111203.2883=
+239-1-dmantipov@yandex.ru?part=3D2

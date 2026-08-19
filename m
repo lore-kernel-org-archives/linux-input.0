@@ -1,220 +1,304 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C19D542A96
-	for <linux-input@vger.kernel.org>; Wed, 19 Aug 2026 20:22:20 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ABFE844064F
+	for <linux-input@vger.kernel.org>; Wed, 19 Aug 2026 20:23:36 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787170942; cv=none; b=GFZctRPkaNN5znay/naK3WkGYHQp5ndEBB4gBwVFeZzYJPRRR1jbfyIq3Zyk9EE5CtHHWSyqVj+J4jISAO5VWjUouJnQp2rj/Y3nJal95U5afzjgAFAmVyVlyb33szI0ZrWo8pSVJRbHP/07+HxNaKSoRN03j1YE31hpFUQw4fk=
+	t=1787171018; cv=none; b=FyqIIy+vvS5S5l3oLywGtINMgcDkKwG2sVchpb64jRxYQZW+AztMWoZy5pAdAtHtCVh7RbseniHR3MuKB/Bk+Ijy5U8O1qlx7YoRR6uX2upgeyQ0ELX/lntqVuHk+VEfW5pZm2jm/GS1FF+v9/gvnS0p+wmUAhAuu/oAPzYx1+0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787170942; c=relaxed/simple;
-	bh=If3tWcOtsH5ahAOYAJAlSUnXBfjwWk2oqgq2mHfZnkA=;
+	s=arc-20240116; t=1787171018; c=relaxed/simple;
+	bh=Pm63D3Q+KnTdfs7uni/Fe4+BOcqatMD8n2/Nz/gfQQQ=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=bT6ybICRS4wIyLb2cKPojas9TrA7bZI62Ab0vzqb8rJNf4Zex4FkNuKOIuR18EsoRITOlI7iq8fKNd/rHoYc/L2ymWa52PzbJHIKfpxlLWeZlZtOvIU7ICW6M49QkdKSjjMlZ3YRoJeyXayf6pt9cgDnnTe2G5pedka5C0RzhuY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=b/oX/A/t; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=OyHciZw4gKr40iK3y5Foiq3ojg3eNtDmpllmlJmwVHRpXpKmC4TwGtZJt0N/ySPGYNxT+orohlMd1jce5NeBW+2wF/rn1ItWPjUKpFFmZvwpWYuio4e7V2B6I8bGQgB/60sHJhIC9X+2NKa/ozWvtx+zvt6ZKYBqWBk9893ub7o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=SgqyeLYf; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="b/oX/A/t"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7563A1F000E9;
-	Wed, 19 Aug 2026 20:22:20 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="SgqyeLYf"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 258F21F000E9;
+	Wed, 19 Aug 2026 20:23:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787170940;
-	bh=cd3P/WXiZ7dSmhD/Vyw9SoRuw/lkTW/MSrYHeLMco38=;
+	s=k20260515; t=1787171016;
+	bh=v53Rp2RzGoDPFgjkMhujLrbPQh3tgtuVvT3S8RsYFIU=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=b/oX/A/tCvTO2hOXUdmmTPbh4iHNmhdnk95pAW9KGythAR0gqiqi5/54BlVggiRA2
-	 BDa6wtfVRyAMsLkQ60EF3kFb6HEUlvMtI0dfcjI3xrJApKnUI/BiwV4+VV9IEqtIj6
-	 zMeB/5kgxTPF1J1cj36ghMTL4b9ayU54GOmN9M7rY/gOMjYjHwgH1wASeNslD2WuYN
-	 KL7jC/AqzJOIWci2rOG3T6liSsyJpPp9krmTzyNuswDjoA4bpxeX7tzliAfNXBYEBp
-	 oWYSW76CPUOK5XELU2ABpA/4PIjR3WnVfluYyvlJ0igrhGrhm4nbw3lFgGH4E6hw63
-	 7/8PpM1kCbXAg==
+	b=SgqyeLYfja6cjOK0wqHSrBV2csN97O2QAymhXz7yRC7xHwzhrhAsn7BDrl+Nzp4z7
+	 hYJRtLrDhSXE039VQeJAtfQmUVokGG4g0ksBI+wsFLt35ID7uhL5eVXMZnWIeuCRM4
+	 7S6LrsCEOBB/ycnv0DVc4qlKMw2ev74Em2kHL/OKkU31IcsqhKqsUUKkuQjBMhWfKb
+	 qGdDj6OWu6M8DCWw6aZ/m266uxXHZi2p5mz8jLHTBvoCYKDhCNUZMO2/ug/s8d6p/W
+	 eR/0f1GNWj+NekWwvDdFcwC3KnUPrC1UngjLT/n58SN4JBezXFAtyPo6koLTJ7/FWp
+	 xQt0YT9VKVtKw==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 12/12] HID: asus: add support for btn remapping
+Subject: Re: [PATCH v2 11/12] HID: asus: add support for turbo buttons
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Denis Benato" <denis.benato@linux.dev>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260819195835.1649657-13-denis.benato@linux.dev>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20260819195835.1649657-12-denis.benato@linux.dev>
 References: <20260819195835.1649657-1-denis.benato@linux.dev>
- <20260819195835.1649657-13-denis.benato@linux.dev>
+ <20260819195835.1649657-12-denis.benato@linux.dev>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 19 Aug 2026 20:22:20 +0000
-Message-Id: <20260819202220.7563A1F000E9@smtp.kernel.org>
+Date: Wed, 19 Aug 2026 20:23:35 +0000
+Message-Id: <20260819202336.258F21F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+Thank you for your contribution! Sashiko AI review found 4 potential issue(=
 s) to consider:
-- [Medium] Software mapping cache rollback logic introduces state desync wh=
-en a sequential hardware update fails on first-generation devices.
-- [Low] Default button mapping initialization uses highly brittle hardcoded=
- array indices that will silently break if the button code map array change=
-s.
+- [Critical] Sysfs attribute leak on probe error path leads to a Use-After-=
+Free when accessed.
+- [High] Calling `sysfs_remove_group()` while holding a spinlock with inter=
+rupts disabled causes a scheduling-while-atomic kernel panic.
+- [Medium] State desynchronization on write failure: the local cached turbo=
+ configuration is permanently modified before the hardware acknowledges the=
+ change.
+- [Low] Missing trailing return statement after `scoped_guard` causes `-Wre=
+turn-type` compiler warnings.
 --
 
---- Patch [12]: [PATCH v2 12/12] HID: asus: add support for btn remapping -=
+--- Patch [11]: [PATCH v2 11/12] HID: asus: add support for turbo buttons -=
 --
-commit a8628b197357f3dab376cf274ae63c642d78d4ff
+commit 1c542d232085f0c0b17c85a45a979b053ef8c90e
 Author: Denis Benato <denis.benato@linux.dev>
 
-HID: asus: add support for btn remapping
-
-This commit adds support for button remapping on ROG Ally devices, exposing
-sysfs attributes to allow configuring gamepad and desktop mode button codes
-for individual physical buttons.
+    HID: asus: add support for turbo buttons
+   =20
+    ROG ally devices supports a feature called turbo buttons that allows
+    the user to quickly toggle button state by keeping a button pressed,
+    therefore allow userspace to configure the feature by exposing
+    relevant sysfs attributes.
 
 > diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
-> index d6ab906b7e782..06dceb77d1086 100644
+> index 6be25cc022cba..d6ab906b7e782 100644
 > --- a/drivers/hid/hid-asus.c
 > +++ b/drivers/hid/hid-asus.c
+
 [ ... ]
-> @@ -976,6 +984,325 @@ static int ally_set_gamepad_mode(struct ally_handhe=
-ld *ally, struct hid_device *
->  	return 0;
->  }
-> =20
-> +enum btn_map_type {
-> +	BTN_TYPE_NONE =3D 0,
-> +	BTN_TYPE_PAD =3D 0x01,
-> +	BTN_TYPE_KB =3D 0x02,
-> +	BTN_TYPE_MOUSE =3D 0x03,
-> +	BTN_TYPE_MEDIA =3D 0x05,
-> +};
-> +
-> +struct btn_code_map {
-> +	unsigned char type;
-> +	unsigned char value;
-> +	const char *name;
-> +};
-> +
-> +static const struct btn_code_map ally_btn_codes[] =3D {
-> +	{ BTN_TYPE_NONE, 0x00, "NONE" },
-> +	/* Gamepad button codes */
-> +	{ BTN_TYPE_PAD, 0x01, "PAD_A" },
-[ ... ]
-> +	/* Media button codes */
-> +	{ BTN_TYPE_MEDIA, 0x16, "MEDIA_SCREENSHOT" },
-> +	{ BTN_TYPE_MEDIA, 0x19, "MEDIA_SHOW_KEYBOARD" },
-> +	{ BTN_TYPE_MEDIA, 0x1C, "MEDIA_SHOW_DESKTOP" },
-> +	{ BTN_TYPE_MEDIA, 0x1E, "MEDIA_START_RECORDING" },
-> +	{ BTN_TYPE_MEDIA, 0x01, "MEDIA_MIC_OFF" },
-> +	{ BTN_TYPE_MEDIA, 0x02, "MEDIA_VOL_DOWN" },
-> +	{ BTN_TYPE_MEDIA, 0x03, "MEDIA_VOL_UP" },
-> +};
-> +
-> +static const size_t keymap_len =3D ARRAY_SIZE(ally_btn_codes);
-[ ... ]
-> +static void ally_set_default_keyboard_mapping(struct ally_button_mapping=
- *mappings)
+
+> +static ssize_t btn_turbo_period_show(struct device *dev,
+> +				     struct device_attribute *attr, char *buf)
 > +{
-> +	struct ally_button_mapping *map =3D &mappings[ALLY_GAMEPAD_MODE_KEYBOAR=
-D];
-> +	int i;
+> +	struct ally_btn_sysfs_entry *entry =3D container_of(attr, struct ally_b=
+tn_sysfs_entry,
+> +							  attr_turbo_period);
+> +	struct ally_btn_turbo_params *params =3D ally_btn_get_turbo_params(entr=
+y->cfg,
+> +									 entry->btn);
 > +
-> +	/* Set all pair indexes and initialize to NONE */
-> +	for (i =3D 0; i < 9; i++) {
-> +		map->button_pairs[i].pair_index =3D i + 1;
-> +		map->button_pairs[i].first.remap =3D
-> +			&ally_btn_codes[0];
-> +		map->button_pairs[i].first.macro =3D
-> +			&ally_btn_codes[0];
-> +		map->button_pairs[i].second.remap =3D
-> +			&ally_btn_codes[0];
-> +		map->button_pairs[i].second.macro =3D
-> +			&ally_btn_codes[0];
-> +	}
+> +	if (!params)
+> +		return -ENODEV;
 > +
-> +	/*
-> +	 * Desktop mode defaults: keyboard and mouse mappings.
-> +	 * Buttons not listed here (dpad, view, menu) remain NONE.
-> +	 */
-> +
-> +	/* btn_a =3D> KB_SPACE, btn_b =3D> KB_E */
+> +	scoped_guard(mutex, &entry->cfg->config_mutex)
+> +		return sysfs_emit(buf, "%hhu\n", params->turbo);
+> +}
 
 [Severity: Low]
-This isn't a bug, but does hardcoding these array indices create a risk of
-breaking the mappings if the ally_btn_codes array is modified in the future=
-?=20
-If new codes are added, removed, or reordered, explicit numbers like 91 and=
- 53
-will silently point to the wrong button codes, causing the default mappings
-to silently regress.
+Does this code trigger a -Wreturn-type compiler warning?
 
-> +	map->button_pairs[BTN_PAIR_AB - 1].first.remap =3D
-> +		&ally_btn_codes[91]; /* KB_SPACE */
-> +	map->button_pairs[BTN_PAIR_AB - 1].second.remap =3D
-> +		&ally_btn_codes[53]; /* KB_E */
+The function ends inside a scoped_guard() block without an explicit trailing
+return statement. Since scoped_guard() is implemented as a macro wrapping a=
+ for
+loop, the compiler's flow analysis cannot definitively prove the loop execu=
+tes,
+which leads to a warning that control reaches the end of a non-void functio=
+n.
+
 > +
-> +	/* btn_x =3D> KB_R, btn_y =3D> KB_F */
-> +	map->button_pairs[BTN_PAIR_XY - 1].first.remap =3D
-> +		&ally_btn_codes[54]; /* KB_R */
-> +	map->button_pairs[BTN_PAIR_XY - 1].second.remap =3D
-> +		&ally_btn_codes[68]; /* KB_F */
-[ ... ]
-> @@ -2775,6 +3120,515 @@ static void ally_btn_turbo_init_attrs(struct ally=
-_btn_sysfs_entry *entry)
->  	entry->attrs[4] =3D NULL;
->  }
-[ ... ]
-> +static ssize_t button_remap_store(struct device *dev,
-> +				  struct device_attribute *attr,
-> +				  const char *buf, size_t count)
+> +static ssize_t btn_turbo_period_store(struct device *dev, struct device_=
+attribute *attr,
+> +				      const char *buf, size_t count)
 > +{
-[ ... ]
-> +		/*
-> +		 * Send mapping to device with the caveat that first
-> +		 * generation devices require individual button pair updates.
-> +		 */
-> +		if (cfg->is_ally_x) {
-> +			ret =3D ally_set_button_mapping(hdev, ally, pair);
-> +		} else {
-> +			mode_map =3D &cfg->button_mappings[cfg->gamepad_mode];
-> +			ret =3D 0;
-> +			for (i =3D 0; i < 9; i++) {
-> +				mode_map->button_pairs[i].pair_index =3D i + 1;
-> +				ret =3D ally_set_button_mapping(hdev, ally,
-> +					&mode_map->button_pairs[i]);
-> +				if (ret < 0)
-> +					break;
-> +			}
-> +		}
+> +	struct ally_btn_sysfs_entry *entry =3D container_of(attr, struct ally_b=
+tn_sysfs_entry,
+> +							  attr_turbo_period);
+> +	struct ally_btn_turbo_params *params;
+> +	u8 value;
+> +	int ret;
 > +
-> +		/*
-> +		 * The hardware rejected the update: restore the previous
-> +		 * mapping so that the software cache keeps describing the
-> +		 * state the device is actually in.
-> +		 */
-
-[Severity: Medium]
-Could this rollback logic cause a desynchronization between the software ca=
-che
-and the hardware state?
-
-When iterating over the 9 button pairs on older devices, if a USB transfer
-fails on an iteration after the target pair was already successfully written
-to the device (e.g. failure at iteration 5 when the target was pair 2), the
-loop breaks and this rollback path triggers.
-
-This unrolls old_code in the software cache, but the hardware has already
-accepted and applied the new mapping, causing the sysfs cache to incorrectly
-report the previous state.
-
-> +		if (ret < 0) {
-> +			if (btn_attr->is_macro)
-> +				btn_map->macro =3D old_code;
-> +			else
-> +				btn_map->remap =3D old_code;
+> +	if (!entry->cfg->turbo_support)
+> +		return -EOPNOTSUPP;
 > +
-> +			hid_err(hdev, "Failed to set button mapping: %d\n", ret);
+> +	params =3D ally_btn_get_turbo_params(entry->cfg, entry->btn);
+> +	if (!params)
+> +		return -ENODEV;
+> +
+> +	ret =3D kstrtou8(buf, 10, &value);
+> +	if (ret)
+> +		return ret;
+> +
+> +	if (value < ALLY_TURBO_PERIOD_MIN || value > ALLY_TURBO_PERIOD_MAX)
+> +		return -EINVAL;
+> +
+> +	scoped_guard(mutex, &entry->cfg->config_mutex) {
+> +		params->turbo =3D value;
+> +		ret =3D ally_set_turbo_params(entry->ally, entry->hdev, entry->cfg);
+> +		if (ret)
 > +			return ret;
-> +		}
 > +	}
 > +
 > +	return count;
 > +}
+
+[Severity: Medium]
+Are we permanently desynchronizing local state if the hardware transmission=
+ fails?
+
+By updating params->turbo before confirming the hardware acknowledged the c=
+hange
+via ally_set_turbo_params(), the local cache becomes modified. If the USB/H=
+ID
+transmission fails, the function returns an error without rolling back
+params->turbo.=20
+
+A subsequent successful sysfs write to another button will then silently fl=
+ush
+this invalid cached state to the hardware.
+
+> +
+> +static ssize_t btn_toggle_period_show(struct device *dev,
+> +				      struct device_attribute *attr, char *buf)
+> +{
+> +	struct ally_btn_sysfs_entry *entry =3D container_of(attr, struct ally_b=
+tn_sysfs_entry,
+> +							  attr_toggle_period);
+> +	struct ally_btn_turbo_params *params =3D ally_btn_get_turbo_params(entr=
+y->cfg, entry->btn);
+> +
+> +	if (!params)
+> +		return -ENODEV;
+> +
+> +	scoped_guard(mutex, &entry->cfg->config_mutex)
+> +		return sysfs_emit(buf, "%hhu\n", params->toggle);
+> +}
+
+[Severity: Low]
+Does this code trigger a -Wreturn-type compiler warning?
+
+The function ends inside a scoped_guard() block without an explicit trailing
+return statement. Since scoped_guard() is implemented as a macro wrapping a=
+ for
+loop, the compiler's flow analysis cannot definitively prove the loop execu=
+tes,
+which leads to a warning that control reaches the end of a non-void functio=
+n.
+
+> +
+> +static ssize_t btn_toggle_period_store(struct device *dev, struct device=
+_attribute *attr,
+> +				       const char *buf, size_t count)
+> +{
+> +	struct ally_btn_sysfs_entry *entry =3D container_of(attr, struct ally_b=
+tn_sysfs_entry,
+> +							  attr_toggle_period);
+> +	struct ally_btn_turbo_params *params;
+> +	u8 value;
+> +	int ret;
+> +
+> +	if (!entry->cfg->turbo_support)
+> +		return -EOPNOTSUPP;
+> +
+> +	params =3D ally_btn_get_turbo_params(entry->cfg, entry->btn);
+> +	if (!params)
+> +		return -ENODEV;
+> +
+> +	ret =3D kstrtou8(buf, 10, &value);
+> +	if (ret)
+> +		return ret;
+> +
+> +	if (value < ALLY_TOGGLE_PERIOD_MIN || value > ALLY_TOGGLE_PERIOD_MAX)
+> +		return -EINVAL;
+> +
+> +	scoped_guard(mutex, &entry->cfg->config_mutex) {
+> +		params->toggle =3D value;
+> +		ret =3D ally_set_turbo_params(entry->ally, entry->hdev, entry->cfg);
+> +		if (ret)
+> +			return ret;
+> +	}
+> +
+> +	return count;
+> +}
+
+[Severity: Medium]
+Are we permanently desynchronizing local state if the hardware transmission=
+ fails?
+
+By updating params->toggle before confirming the hardware acknowledged the =
+change
+via ally_set_turbo_params(), the local cache becomes modified. If the USB/H=
+ID
+transmission fails, the function returns an error without rolling back
+params->toggle.=20
+
+A subsequent successful sysfs write to another button will then silently fl=
+ush
+this invalid cached state to the hardware.
+
 [ ... ]
+
+> @@ -2556,6 +2967,9 @@ static void ally_config_remove(struct hid_device *h=
+dev, struct ally_handheld *al
+> =20
+>  	if (!cfg || !cfg->initialized)
+>  		return;
+> +
+> +	if (cfg->turbo_support && cfg->button_entries)
+> +		ally_remove_button_attributes(hdev, cfg);
+>  }
+
+[Severity: High]
+Does this cause a scheduling-while-atomic kernel panic during device unbind?
+
+Looking at hid_asus_ally_remove(), it acquires ally_data_lock via
+spin_lock_irqsave() and disables interrupts before calling ally_config_remo=
+ve():
+
+drivers/hid/hid-asus.c:hid_asus_ally_remove() {
+	...
+	spin_lock_irqsave(&ally_data_lock, flags);
+	...
+	if (ally->cfg_hdev =3D=3D hdev) {
+		ally_config_remove(hdev, ally);
+	...
+}
+
+This patch modifies ally_config_remove() to call ally_remove_button_attribu=
+tes()
+which calls sysfs_remove_group(). Because sysfs_remove_group() blocks on
+kernfs_rwsem, sleeping inside this atomic context will predictably trigger a
+panic when the device is unbound or the module is removed.
+
+[Severity: Critical]
+Does this result in a Use-After-Free and sysfs attribute leak if probe fail=
+s?
+
+When hid_asus_ally_setup() calls hid_asus_ally_init(), an error causes
+ally_config_remove() to be called:
+
+drivers/hid/hid-asus.c:hid_asus_ally_setup() {
+	...
+		ret =3D hid_asus_ally_init(hdev, &ally_drvdata);
+		if (ret < 0) {
+			ally_config_remove(hdev, &ally_drvdata);
+			return ERR_PTR(ret);
+		}
+
+		spin_lock_irqsave(&ally_data_lock, flags);
+		ally_drvdata.config =3D ally_cfg;
+	...
+}
+
+However, ally_drvdata.config is not assigned until after this check. When
+ally_config_remove() runs, ally_drvdata.config is NULL, causing it to return
+early without calling ally_remove_button_attributes().=20
+
+The sysfs groups created by ally_create_button_attributes() are leaked and=
+=20
+remain accessible. When devres subsequently frees the backing memory
+(ally_cfg and entries), any unprivileged user reading the leaked sysfs files
+like btn_turbo_period_show() will dereference freed memory, triggering a UA=
+F.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260819195835.1649=
-657-1-denis.benato@linux.dev?part=3D12
+657-1-denis.benato@linux.dev?part=3D11

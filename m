@@ -1,131 +1,131 @@
-Received: from mail-wm1-f45.google.com (mail-wm1-f45.google.com [209.85.128.45])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 89075238C2A
-	for <linux-input@vger.kernel.org>; Wed, 19 Aug 2026 01:31:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3BEAA38BF69
+	for <linux-input@vger.kernel.org>; Wed, 19 Aug 2026 01:52:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787103115; cv=none; b=Um6lKxCVi6htnrXaWXGM7mCdq19aoB3liKPbDQLPWcV6OPOomFYm+X7HWptCQmeEf3BDzI/jGTByiiaUtlpz70Jd1uw//QijnHQ/Oo9aNHAUFYOj0MZAxX05ILH1Ay5sFPrqgC4jVCldUSOwu9VYJoBNj252Dl7pTma6wnhiga8=
+	t=1787104369; cv=none; b=JF5zuD9pqdzeNlGfGN9BzmczKEz8t/HiAitfIJ0ebzHnEHwHs97RE1+wdmqOpP64sf0SbzDvYyXMOyuSeg58Q4RRtNbmeZ+D2mbn8l0jZXB/VMCirVy/wy8VDxUGkL4UUhqAXbs6wTuDWIQwUtDZ8lsMDSwpxVyNXGuOPXllnsM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787103115; c=relaxed/simple;
-	bh=xRhRnFNGyGsCRlADbq6VymtiPG/3zbPLjzpg1CiFb+U=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=MnPLrBf0Gk1S49jsxzlXZWgMACwuA33/+zUvCPG+hqobrpu0x+fFQE2oxRDcx3XBcydsapUkh9WHboCIDGqZwIzBVs+D9sSUNJ3WP3ke1xvbKilPxL4+1eqQvc3z7zCUCGB0fZ8VFHi4HjgqtWT8wqh/gDhCkkxdFtkDtJg4sU8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=XeS9kWjQ; arc=none smtp.client-ip=209.85.128.45
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1787104369; c=relaxed/simple;
+	bh=QwD2EQ2TCsVWDkWtMlevfj/bQgFb3gJksa36oPyeY+Y=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=ADDTprUgza/h/JE/iDaX+GnOCMIoPnlL2qwUb5rAX7xDq6jXH8gOHgrLTKXykeWspRDSeFrhN2ZYLo0uvHxwg/R+iQsyHRGaSW0uordbHNQO7DPhBdFf0+19c3kzEcRVAcpzYPrtguEC1LkBkP2F1eadR6Z60Kbmu2R807Mjdl0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=kIo8u9Q7; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="XeS9kWjQ"
-Received: by mail-wm1-f45.google.com with SMTP id 5b1f17b1804b1-49545ba3d4eso2227435e9.3
-        for <linux-input@vger.kernel.org>; Tue, 18 Aug 2026 18:31:53 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1787103112; x=1787707912; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=VZWwFr/ahtVTYXNjGEhBULVMAl3ANX5lBtLyh4+lS7o=;
-        b=XeS9kWjQUdFvaPGbJv/NhupXBI5IcUmFWKZb3S7PL17T+iD4K5W/PGtcw83BDdJiqG
-         VVZhvBV8DHe3nRP0PkOsnVjogWnezreJQIow5Z31Gizs0B+iKOOllOKXau8neaVqJB32
-         U+ygp/l/bwCIP681ppCqSf9RMoFU4SCLQ83ey1jqtiP0SMt2g2WPkTnolhzFwl9AdEVt
-         veZhVgg3UU1p/p4Y42MoDjOwPMd2wq+8U9KoZU0+plalfnzyTJquT/FkjeJNTQVFTuoQ
-         dwbl3SoYL4wCaae1QCCKk/HDOSHMgr4h35ETGpHqckiHqSHRMjrYIXSqvEhwH89E+1b0
-         qmHQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787103112; x=1787707912;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=VZWwFr/ahtVTYXNjGEhBULVMAl3ANX5lBtLyh4+lS7o=;
-        b=Z5M3+atD7FWEktMkNjC3MFZdFk5dXFb0L0R/mEqzsxR06Xh1EpTgOeHr6+D0hv8Gs3
-         qx2E+/NICHwxV+5t060egF99ObMzIAB+3mQoz1VmASCC2Ff6eJXGtUeidOB4wH+POscD
-         nGTXOFpGNNk34dQqg2CUZYHFA/wbPZebMepLtjr6RpkwKx2vk6rqOcmGDiWtVKHKxE+E
-         41Igr1GyLMqlwfihd80gf/vTXyV9m7ODbsXROGkjooXEprPVUOmcgJq82831h8uTlcmp
-         fvlLAhLioZHHDSnku4v1OeozFUI6q9zz4g4k+Xd6uJbksI7XmjRN8ZziitIvBTTO01SU
-         XYcQ==
-X-Gm-Message-State: AOJu0YxrFn3X93QCj2vfZcS0/TjRSBKfXzp3HvTfrFomftDgKPNs1t2w
-	ORYVQE5nCWhuDojqKEMT9OkqpkywVtBJcQ2WJU8yq/8Lzvncq+3Tzio=
-X-Gm-Gg: AR+sD118DgPH4KFoKntJK76Zx7yQcPoTytNJHIN857tQGLMj8nwnR4ha5a/DSdu9Rqd
-	q2QjHcYtDzmHUJE2BB5c3GyhNn4iIqgy30qYONJxGhAx3N6702LXUlCAeP5jh4wH5sgfbtBtN0v
-	UFKTAhpbN2fEQmhy1jsuTvh7rnNnMcWVt7pClYf4neVVQxJ1WPM/03GVjqK7bmvVRmHyTNT+gAW
-	L4yIwbKwDIomINWhO+ChcyF4z63b2nOEyY+cb/5zNSLtAborjUYTtY8HNvQy2U/UCr8qUB7qE/1
-	fzhfa3i34A2GvxNP26q57v+7ZxAC0cDq9+woH/GWhhXdgQiZWNlYL9vkvX5h5XHqiBrruGmvobo
-	YmChd0AEJeGDLZR8A7XW9d8Aa5F1FK7YjVA7qXPuohy/dbNOLIAP5oHvJBZZXUf5gmSjRMU6h3+
-	Se4wntoFTaY9bQu8ANgpvbHUZe661BzP2nl6fca1/H/OXNYg==
-X-Received: by 2002:a05:600c:8b27:b0:499:7024:9d4a with SMTP id 5b1f17b1804b1-499aa16a958mr20867835e9.8.1787103111569;
-        Tue, 18 Aug 2026 18:31:51 -0700 (PDT)
-Received: from debian.. ([2001:41d0:303:db6b::])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-499aa0d6964sm15807215e9.9.2026.08.18.18.31.49
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 18 Aug 2026 18:31:50 -0700 (PDT)
-From: Tristan Madani <tristmd@gmail.com>
-To: Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>
-Cc: linux-input@vger.kernel.org,
-	stable@vger.kernel.org,
-	Tristan Madani <tristan@talencesecurity.com>
-Subject: [PATCH] HID: core: fix device cleanup on allocation failure
-Date: Wed, 19 Aug 2026 01:31:49 +0000
-Message-ID: <20260819013149.889913-1-tristmd@gmail.com>
-X-Mailer: git-send-email 2.47.3
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="kIo8u9Q7"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ACBD51F000E9;
+	Wed, 19 Aug 2026 01:52:47 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1787104367;
+	bh=55panpPnRuUc7VM6kAnxcMTBbw4lGrkfhYF363N+xO0=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=kIo8u9Q7o9I1/IbXbUUuUfBsUUa1s2NWz75OH+WBqWd66C5CPMTUyFCyzwWFJaaDK
+	 +gC6KW1auNPFc1ewVCqw3Dr6kAFvAgeOfGPSqqKK/c0g8ZtPwZJIf8Kp9oNKUhx1SU
+	 WguKf8HibHvnoOfiwSrQg10w7D608J3/8TKjhW5zSzr08QnRiK40TMAXbE5D7NfM/O
+	 Rp+tqwBjia3aNlmQalOc3o4254I4d7EyF4uyaTUvGStp+R2fr/BXCXkimPu5OIoeJF
+	 eOBeptBu7vZxNulA8AEScfTd1V/jce4w7NE0onn6cDcK2puJBMTAqLstC58++xoBjM
+	 xhfpN5LHFlg2Q==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH] HID: core: fix device cleanup on allocation failure
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Tristan Madani" <tristmd@gmail.com>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20260819013149.889913-1-tristmd@gmail.com>
+References: <20260819013149.889913-1-tristmd@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Wed, 19 Aug 2026 01:52:47 +0000
+Message-Id: <20260819015247.ACBD51F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-From: Tristan Madani <tristan@talencesecurity.com>
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
 
-hid_allocate_device() calls hid_destroy_device() in its error path when
-hid_bpf_device_init() fails.  hid_destroy_device() in turn calls
-hid_bpf_destroy_device() which invokes synchronize_srcu() and
-cleanup_srcu_struct() on the SRCU structure.  However, at this point
-init_srcu_struct() has not been called (or has failed), so the SRCU
-internal pointers are all zeroed from kzalloc.  Dereferencing them
-causes a general protection fault:
+Pre-existing issues:
+- [High] Concurrent `hidraw` operations can cause a use-after-free on the S=
+RCU structure during device destruction because `hid_bpf_destroy_device()` =
+runs before `hid_remove_device()`.
+--
 
-  general protection fault in check_init_srcu_struct
-  KASAN: null-ptr-deref in range [0x00000000000001c0-0x00000000000001c7]
-  Call Trace:
-   synchronize_srcu+0x1c/0x2b0
-   hid_bpf_destroy_device+0x64/0x90
-   hid_destroy_device+0x29/0x240
-   hid_allocate_device+0x420/0x4e0
-   uhid_dev_create2+0x161/0x890
-
-Fix this by replacing hid_destroy_device() with put_device() in the
-error path.  At this point in hid_allocate_device(), the device has
-been initialized (device_initialize) but not yet added (device_add),
-so put_device() is the correct cleanup call.  It triggers the release
-callback which frees the hid_device without attempting to clean up
-resources that were never set up.
-
-Found by syzkaller on Ubuntu 6.14.11 KASAN.
-
-Fixes: 6cd735f0e57a ("HID: bpf: protect HID-BPF prog_list access by a SRCU")
-Cc: stable@vger.kernel.org
-Signed-off-by: Tristan Madani <tristan@talencesecurity.com>
+--- Patch [1]: [PATCH] HID: core: fix device cleanup on allocation failure =
 ---
- drivers/hid/hid-core.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+commit ef17fd6111206c1e7e801f388343922186fcf0dd
+Author: Tristan Madani <tristan@talencesecurity.com>
 
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index cf123347a2af7..9534de5317783 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -3060,7 +3060,12 @@ struct hid_device *hid_allocate_device(void)
- 	return hdev;
- 
- out_err:
--	hid_destroy_device(hdev);
-+	/*
-+	 * hid_destroy_device() cannot be used here because
-+	 * hid_bpf_device_init() failed and the SRCU struct was never
-+	 * initialized.  Release the device directly.
-+	 */
-+	put_device(&hdev->dev);
- 	return ERR_PTR(ret);
- }
- EXPORT_SYMBOL_GPL(hid_allocate_device);
--- 
-2.47.3
+HID: core: fix device cleanup on allocation failure
 
+This commit replaces hid_destroy_device() with put_device() in the error
+path of hid_allocate_device(). This prevents a general protection fault
+caused by cleaning up an uninitialized SRCU structure when=20
+hid_bpf_device_init() fails.
+
+> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+> index cf123347a2af7..9534de5317783 100644
+> --- a/drivers/hid/hid-core.c
+> +++ b/drivers/hid/hid-core.c
+> @@ -3060,7 +3060,12 @@ struct hid_device *hid_allocate_device(void)
+>  	return hdev;
+> =20
+>  out_err:
+> -	hid_destroy_device(hdev);
+
+[Severity: High]
+This is a pre-existing issue, but looking at the implementation of=20
+hid_destroy_device(), it destroys the BPF structures before unregistering
+the device:
+
+void hid_destroy_device(struct hid_device *hdev)
+{
+	hid_bpf_destroy_device(hdev);
+	hid_remove_device(hdev);
+	put_device(&hdev->dev);
+}
+
+Can this order cause a use-after-free on the SRCU structure during a
+concurrent device teardown?=20
+
+If a userspace process writes to the hidraw device concurrently with a=20
+hot-unplug, the hidraw writer could check the destroyed flag and then get=20
+preempted before taking the SRCU lock:
+
+CPU1 (hidraw writer)
+dispatch_hid_bpf_raw_requests()
+	if (unlikely(hdev->bpf.destroyed))
+		return -ENODEV;
+	<preempted>
+
+CPU2 (device unplug)
+hid_destroy_device()
+	hid_bpf_destroy_device()
+		// sets bpf.destroyed =3D true
+		cleanup_srcu_struct(&hdev->bpf.srcu);
+	hid_remove_device()=20
+		// blocks waiting for CPU1
+
+CPU1 (resumes)
+	idx =3D srcu_read_lock(&hdev->bpf.srcu);=20
+
+Could CPU1 resume and dereference the freed SRCU internal pointers?=20
+
+Should hid_remove_device() be called before hid_bpf_destroy_device() to=20
+ensure userspace interfaces like hidraw are disconnected before the SRCU=20
+structure is destroyed?
+
+> +	/*
+> +	 * hid_destroy_device() cannot be used here because
+> +	 * hid_bpf_device_init() failed and the SRCU struct was never
+> +	 * initialized.  Release the device directly.
+> +	 */
+> +	put_device(&hdev->dev);
+>  	return ERR_PTR(ret);
+>  }
+>  EXPORT_SYMBOL_GPL(hid_allocate_device);
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260819013149.8899=
+13-1-tristmd@gmail.com?part=3D1

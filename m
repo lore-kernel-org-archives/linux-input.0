@@ -1,131 +1,109 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wr1-f50.google.com (mail-wr1-f50.google.com [209.85.221.50])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 79E8A24BBF0
-	for <linux-input@vger.kernel.org>; Wed, 19 Aug 2026 11:35:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EA4BC33DEF7
+	for <linux-input@vger.kernel.org>; Wed, 19 Aug 2026 11:37:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.50
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787139305; cv=none; b=Id2wUwuMkfz1iJolcepX+JYBVG9yXNqGvDc2HqvityudgUj4p9QBJkYv/VfeEOt0aHYUFT0Gt7a9cp8r1ooSSatN3PRgM4Kx65ieTsq4ToS1rIU3sE/axBxruAvgkSVn+WGYYJ2vK2TGIEmsp8VTH4lJMJl92bFsNpE8I+ncdPM=
+	t=1787139429; cv=none; b=FyymIgFxfFMdHywjyeV6H27uTi7QbTB/q3s9zXd7QYziCzBBPSy+QBBTVKNbxc9nk69pSPmGwN4KQ7eDQRbQgGLNAsEcBkYxuICjkfAqfxcrU9Mc+YXqx4DN4nwYUfsiTUyvrLMjHtwLGP7vg9xjZNKAeror02dFUCLPELip2gE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787139305; c=relaxed/simple;
-	bh=vt3v7AJuyGqtNeXAONFOp1xB4z3NhjwshLssVW5WXqg=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=UdyacjJ1uW0ZnqZhY4TptL/EjAnafhSyeq1+b64AjobRtOjRl4Wu5Mdkk9dos/0bt3sJh9RFfH/hmxeVYWW5z9fsZvWd+nD6kVAZ206abrCb+ZKEm+rvHbZOjvfg0Cyauf2BYHkdO6UJ1/cZ8/Ab+e3XsWkG1jtu+r3XINWUtI4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=VioTFT4E; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1787139429; c=relaxed/simple;
+	bh=8Dx744EN+WMSDIGF6mR0xXbp/4wUHu3RDSo7ma9VtiA=;
+	h=Message-ID:Date:MIME-Version:To:Cc:From:Subject:Content-Type; b=chznpACrdHG3ZOW42coInlKMRMZ47yQ58elC2JggOcDHEiDVV6i5sKq+RCy8GHty/jzm6SUZb+GLbVtGQIis+94IfZ5JOKWNNX7nnUyQ+S5Xkbr62OT0p0kqX5J3wR4p/Qrf44MwK7fg0XAJJET80bp/J7jj6rs1uiKtVWt4NPM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=s2p1sFpi; arc=none smtp.client-ip=209.85.221.50
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="VioTFT4E"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D89E61F000E9;
-	Wed, 19 Aug 2026 11:35:03 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787139304;
-	bh=Bai1fNJI9ODSJJS+39Kz7Aexsd7odi/k0AgxRMy5O1I=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=VioTFT4EourK7pQP0tYRMsbgWonw+iXbIkRnaY1g1F8E+iuRsmuzGBZuvDqG42I6v
-	 oSxjdtqhnML5nuAgFdraYjEz/tAzoWUMs+eHm6CgV08jWXWdHOY64EipkPUH4pHQik
-	 DZwGBf+Fn6vBoUoiMeWKAWOUQIlNLG3xqwAn9Lvr8MgK6Fx4NLNxWNsIYHpbelUHbf
-	 iVjS6nRaUXtM4hK2J6DMmrRZUWc7b1V1d2f5Ea8dzQnQddWkK9St0pltwbNBikJHhv
-	 Yio6r9wyG8D63LevpNRubE3kAO/zPcQcnfMYAuPowf+yjgzLg0Zzj6r/LvyyQAv4cD
-	 LXBkhooqN9jwA==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 1/2] HID: usbhid: adjust output pipe FIFO size
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Dmitry Antipov" <dmantipov@yandex.ru>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260819111203.2883239-1-dmantipov@yandex.ru>
-References: <20260819111203.2883239-1-dmantipov@yandex.ru>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Wed, 19 Aug 2026 11:35:03 +0000
-Message-Id: <20260819113503.D89E61F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="s2p1sFpi"
+Received: by mail-wr1-f50.google.com with SMTP id ffacd0b85a97d-47db714766aso1290826f8f.0
+        for <linux-input@vger.kernel.org>; Wed, 19 Aug 2026 04:37:07 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1787139426; x=1787744226; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:subject:from:cc:to
+         :content-language:user-agent:mime-version:date:message-id:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=8Dx744EN+WMSDIGF6mR0xXbp/4wUHu3RDSo7ma9VtiA=;
+        b=s2p1sFpi2LPz7kuqTwqTzizR+QeWuBdPNA58DIO9fU7HQWBUCZ8U6hScO3k1/QduF9
+         EGFt0ofM0MPxDlPBjXp3eLSHvanU2RtDjAoNRsErke15Ksj3wtaMCAprJKyT7dgZ5chE
+         vMJTBrxl4R3EfsGXP8FuaRT9Gmk8kiHuVSveA8bKyLYZ39U/gg1TkN2q9rP4nCsXGvET
+         URdWh8za5ysyIHdCcl487iPboS92uh9b7AaKzHksuSrweZWJEBaAtN2Z4UWJYxxgygaY
+         pFOTd8iUWy4GFnrXx6nhGQ9KLHNtBI0eOBsoyzOuC/jHJgW3VCcEoO3g9BBSWAw5VxKZ
+         R9hw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1787139426; x=1787744226;
+        h=content-transfer-encoding:content-type:subject:from:cc:to
+         :content-language:user-agent:mime-version:date:message-id:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=8Dx744EN+WMSDIGF6mR0xXbp/4wUHu3RDSo7ma9VtiA=;
+        b=eV/5j6Id9xqSpRoNdshinAQRDdouGewN3lNkSnerpjAhgsGTlqDonxM4T92He1vjRw
+         uz0S5+sQUsoZZGSntX3mkBNvE3+rR85byPPwewLp58vWTm8qltLYgbTNuI3m+c4BhW5I
+         9Atqh90uZ+HJmDKEQDtS+YDK+wS+I+K7V2HYyNXRxYiEQ0tospVU3yag/0mxwoQjYdCw
+         vBE4ffs4sVsuIQeEZo976nPn9zy1Mke656S6Yubk+3wSRNIpIFi0n4gp2V4qJCDRivn5
+         V+oBAfnew567Pp0z9H5F6paG+5JrZ9eBKlJzn+TNJKGLeQbV/Nbh8Mu0FKNLgeyBsx/Y
+         ibKg==
+X-Gm-Message-State: AOJu0YxWuNcubrdS+aPD25DLgxlrFhsf1VB6Ai0YSR61tSc7VM/ZXzTx
+	kt8w24Uf2Qs29zF5y6yafBHFjg2LFGYir/tcH41fUI+BuYBNWCE4V8Rg0pEyDg==
+X-Gm-Gg: AR+sD10ZIM9pAQPY9wu1Piq1G0a46nYER8C2dTDqvaaL3PKKxN8JL/wse7ZBFLOSaES
+	BD5tktoRveqfjXskHCaow67qOKYmHTZlGiuEbTvg2U1+0A6cBRFqMHpnlrhVS1f3HO4P7+8axzM
+	rK6z723MRN6E0WNqiCaqplwGW4SwBSEHvqDeupN903Vv9iGtM/c3Rts2gePRhNXXXYOLTDfzMCY
+	G0BvBJ58NoCATbhwR7FnpwyQtWSU38dhXL2ZKU8yiQfKW7ncdCKytUQHBDG4B5ZU/4HER0iylOU
+	Lp6hE+wBas/u6whe6mMy2Ie/2Kf8v6wuwysOLn8ZWnFLRFE4oiQ2XFaN9r0SFR4mbgI2mZda+ii
+	+SuVfjALlxSux5AGrcaxvWypW6d+XZ7BnHABcPSIPb5g6viwDvz/jHjRwsknBbuRNV6ihP+CQiw
+	VIeeeqjMZLmQ7dnOx1VD5QuwzAEC95OBKlsk5+yXVEGNee2bPhw+w9quNzSOT/v1HQ0wvmTxANg
+	nr5XR+cOMSb/OvE7OAy8ps8yneAk7Fwj5Tt
+X-Received: by 2002:a05:600c:3f10:b0:493:f783:c46a with SMTP id 5b1f17b1804b1-499aa0f306fmr72739485e9.6.1787139425690;
+        Wed, 19 Aug 2026 04:37:05 -0700 (PDT)
+Received: from ?IPV6:2001:9e8:89ab:a85:6c4d:376a:c226:a52? ([2001:9e8:89ab:a85:6c4d:376a:c226:a52])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-499a9dfeb11sm23154175e9.2.2026.08.19.04.37.04
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 19 Aug 2026 04:37:05 -0700 (PDT)
+Message-ID: <6ad35436-63ac-4bc0-8d38-90ffe03b6db9@gmail.com>
+Date: Wed, 19 Aug 2026 13:37:04 +0200
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Content-Language: en-US, de-DE
+To: linux-input@vger.kernel.org
+Cc: "Natikar, Basavaraj" <Basavaraj.Natikar@amd.com>
+From: =?UTF-8?B?UmVnw7Zsw7YgTWFhc3M=?= <regoeloemaass@gmail.com>
+Subject: amd-sfh: 10s resume delay from s2idle due to sensor status timeout
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
+When closing the lid and reopening it again the screen is frozen for around 10s seconds before any keyboard input is recognized.
+That results in every sensor being in a broken state i.e. "monitor-sensor" shows the accelerometer orientation as "bottom-up" and tilt as "undefined" and the ALS shows very low values.
+The broken states of the sensors are: status 0x5 for sid 0x0 (accelerometer), status 0x4 for sid 0xf (operating-mode) and status 0x4 for sid 0x16 (ALS).
 
-Pre-existing issues:
-- [High] Memory leak of dynamically allocated `raw_report` buffers in the o=
-utput and control queues upon device unplug and driver unbind.
---
+As on my current system the operating-mode is not recognized in userspace (No SW_TABLET_MODE Event) I can not be sure about it's state.
+This resume bug happens consistently on every try based on my experience.
 
---- Patch [1]: [PATCH v2 1/2] HID: usbhid: adjust output pipe FIFO size ---
-commit bf134e3969fdce1c368463a2ad06d7c96d56d312
-Author: Dmitry Antipov <dmantipov@yandex.ru>
+Here's the filtered dmes output:
+[So, 16. Aug 2026, 13:30:49] PM: suspend entry (s2idle)
+[So, 16. Aug 2026, 13:30:53] amdgpu 0000:03:00.0: dpm has been disabled
+[So, 16. Aug 2026, 13:30:53] amdgpu 0000:03:00.0: SMU is resumed successfully!
+[So, 16. Aug 2026, 13:31:03] pcie_mp2_amd 0000:03:00.7: resume sid 0x0 (accelerometer) status 0x5
+[So, 16. Aug 2026, 13:31:03] pcie_mp2_amd 0000:03:00.7: resume sid 0xf (operating-mode) status 0x4
+[So, 16. Aug 2026, 13:31:03] pcie_mp2_amd 0000:03:00.7: resume sid 0x16 (ALS) status 0x4
+[So, 16. Aug 2026, 13:31:03] PM: suspend exit
 
-HID: usbhid: adjust output pipe FIFO size
+As the dmesg output shows the resume operations for the sensor are delayed every time by exactly 10 seconds.
 
-For an USB-specific HID device, size of output FIFO should
-be HID_OUTPUT_FIFO_SIZE rather than HID_CONTROL_FIFO_SIZE.
+I managed to solve the issue about the frozen screen by disabling the amd_sfh driver via "modprobe -r amd_sfh", after which the resume operation was nearly instant and no freezing occurred.
 
-Reported-by: Sashiko <sashiko-bot@kernel.org>
-Closes: https://syzkaller.appspot.com/bug?extid=3De2c057ea576d2644e2be
-Fixes: 4916b3a57fc9 ("[PATCH] Generic HID layer - USB API")
+I updated the BIOS version to the latest available version: TN3604YA.306.
 
-> diff --git a/drivers/hid/usbhid/usbhid.h b/drivers/hid/usbhid/usbhid.h
-> index 75fe85d3d27a0..c408e694a7b27 100644
-> --- a/drivers/hid/usbhid/usbhid.h
-> +++ b/drivers/hid/usbhid/usbhid.h
-> @@ -74,7 +74,7 @@ struct usbhid_device {
->  	unsigned long last_ctrl;						/* record of last output for timeouts */
-> =20
->  	struct urb *urbout;                                             /* Outp=
-ut URB */
-> -	struct hid_output_fifo out[HID_CONTROL_FIFO_SIZE];              /* Outp=
-ut pipe fifo */
-> +	struct hid_output_fifo out[HID_OUTPUT_FIFO_SIZE];               /* Outp=
-ut pipe fifo */
+Importantly I'm using the "mem_sleep_default=s2idle" flag as a grub argument.
 
-[Severity: High]
-This isn't a bug introduced by this patch, but while adjusting the output
-FIFO size, I noticed a pre-existing memory leak related to how these output
-and control queues are cleaned up.
+I also opened a bug-report in bugzilla as a reference:
+https://bugzilla.kernel.org/show_bug.cgi?id=221895
 
-In drivers/hid/usbhid/hid-core.c, when a device is physically unplugged,
-the URB completion callbacks receive an error and handle it by clearing
-the FIFOs.
+Kernel infos: Linux xxx-xxx 7.1.8-arch1-3 #1 SMP PREEMPT_DYNAMIC Tue, 11 Aug 2026 09:16:08 +0000 x86_64 GNU/Linux
+HW: Asus Vivobook S 16 Flip (TN3604YA), AMD Ryzen 5 7530U
 
-For example, in hid_irq_out():
+Happy to provide more info if needed or test patches.
 
-    if (unplug) {
-        usbhid->outtail =3D usbhid->outhead;
-    } else {
-
-And similarly in hid_ctrl():
-
-    if (unplug) {
-        usbhid->ctrltail =3D usbhid->ctrlhead;
-    } else if (usbhid->ctrlhead !=3D usbhid->ctrltail) {
-
-Does this drop the queued items without calling kfree() on their
-dynamically allocated raw_report buffers?
-
-Additionally, during driver unbind, usbhid_stop() handles draining the
-control queue and correctly freeing raw_report:
-
-    while (usbhid->ctrltail !=3D usbhid->ctrlhead) {
-        if (usbhid->ctrl[usbhid->ctrltail].dir =3D=3D USB_DIR_OUT) {
-            kfree(usbhid->ctrl[usbhid->ctrltail].raw_report);
-            usbhid->ctrl[usbhid->ctrltail].raw_report =3D NULL;
-        }
-        ...
-    }
-
-However, it completely omits an equivalent cleanup loop for the output
-queue (usbhid->out).
-
-Could this repeatedly leak memory if userspace or the input subsystem
-queues output reports while device unbinds or disconnects occur?
-
->  	unsigned char outhead, outtail;                                 /* Outp=
-ut pipe fifo head & tail */
->  	char *outbuf;                                                   /* Outp=
-ut buffer */
->  	dma_addr_t outbuf_dma;                                          /* Outp=
-ut buffer dma */
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260819111203.2883=
-239-1-dmantipov@yandex.ru?part=3D1

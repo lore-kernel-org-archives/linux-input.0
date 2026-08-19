@@ -1,134 +1,128 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D8F1B39BFF2
-	for <linux-input@vger.kernel.org>; Wed, 19 Aug 2026 20:15:09 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 11A2142A96
+	for <linux-input@vger.kernel.org>; Wed, 19 Aug 2026 20:17:09 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787170512; cv=none; b=s0py4Y7WIf9kjP1wNjZrBPnmq6cY4Y+V1+SgHavqK0p2ebYyvc/YZY2IYsX2igkOUTJtUk7ryTWwJhRdPntSOB9jt143mrKVW1U34J0KYP9u4tfTKKLCt7v0qzy5TIfpJJmzOCTZx0AywdtAnf+g1OHefpMvQZxO568a1ZdVy+4=
+	t=1787170631; cv=none; b=BmzrAixjJzbFsHS9znInK9LRBZueDzayVeTgUMUXROna0p4GPp8EOaqauZG5KZ8RxoyLJBiTDcatllhB+JJrbAIa+lTne4lw0btRaibMYhFepND6Z9JPyE76q5i/RM+rD2NpC+ZvVa/zCNzCZw/eKqDXmVl4t7v0ArFhF/sZwDg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787170512; c=relaxed/simple;
-	bh=UWxgTQ3Z6AJKOMgjNRGC9vLjwbm4a8eQ+EpPd7DeVrE=;
+	s=arc-20240116; t=1787170631; c=relaxed/simple;
+	bh=IMkgrmZKKeOX4p540EyHOy3l84A+JqFL49IrnkgdttU=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=tD9IkCglrKPN1l5whwyGgQEItSrJMeWp/QXKAin7Ea8TFCdfbmO8L3QiDhcUvWHNsCrwzHmv089zb1d10Tx7/xIGMnaOnLFGNV59aIDXjwKHhUDb63C5dNsBXsDmFSyQEPgaLdUgdF01pW6Quiw4OOltbe/Bh3OAEMsGYOLABdQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Cisl7bx0; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=kGmPkaUE3ua9nmprrlJgz1ov3+XL9+M49GwYWOgsaEErMRygp4qfF3zhK73JmPSMUuhY7OnqL7tlcP2dJmnovgXbcyIcL3cAr+dEN0fXgvn4bIe3CXS10p+oV4ErHsgKSK+WS5WG9lEnf1hLICGTAwuY6TqBrD2wyb/x1wBxx5A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=NXYaaG0c; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Cisl7bx0"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83F3C1F000E9;
-	Wed, 19 Aug 2026 20:15:08 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="NXYaaG0c"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8795B1F000E9;
+	Wed, 19 Aug 2026 20:17:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787170508;
-	bh=3CQC6FtIfSY59l8GncxS/x90HAEyzc5XvRh2b1X/19I=;
+	s=k20260515; t=1787170629;
+	bh=5YLk/gIIHLnB8vfFY1XJZoFOWU1yxltRhqWntIy3zts=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=Cisl7bx031XO+Clsfb0qfToYfMcUdzh24iLWeVtVH8pRxGGpNIcjLOolv/7aBPJ63
-	 58MK3Z6tLiB62mzr6ncEXtPadM2A0vRCSNlcrT3OAl5OiKJA+VAFabmA+mvoFNVlYs
-	 SKYTxow5aVjPex4vLCf8evgeXrtD2omcuHkz5WIZ30TIo+/NONSBApT2AzTfv6TeEE
-	 fEsy4BUr1Wrf+eAGRQHypnAwwcpkIzEIkrRpHAfdn+xvCFdJBXGhj1FSiuMXCk0QGb
-	 vwUb+ORhs0exw4YfAWjUvNkPjg75GOhwQfdp7CqvGIXPSDlMM40ZjRnotYPXq1Waw5
-	 tdZd7yO/NOaDQ==
+	b=NXYaaG0cL1ScZNjYhysepZwYQhlImu3LC5UsogxXZonZZ1v0Ie6sfyjIJNM6SBFLf
+	 km5MdgR/xiLBJnWG++8KukQt8fQGd079z75vUvk/NeAjprpzr2ANFJu5YKtSi8pfhE
+	 DAsewb5rYHMKdeFZcJg7M/j2k6Rf2BfaQaUA8gAlPst5JsOBFgpmihWXhyTiXQ+y3Z
+	 3Dk2o5GZDYm0Vc4SZHHYvpFQXkP1DkT9rajFzvFXTe/4xpKAUss7vqVVwNr9TYJ0fj
+	 olwjrjobmgUv8zw7gdRSRaaSNOPK0UhkS858lPi0acbKQAdPma7F0nbq/vti95wdm6
+	 gJNhQr4KUd1zA==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 05/12] HID: asus: add joysticks inner and outer range
- configuration
+Subject: Re: [PATCH v2 08/12] HID: asus: add support for response curve
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Denis Benato" <denis.benato@linux.dev>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260819195835.1649657-6-denis.benato@linux.dev>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20260819195835.1649657-9-denis.benato@linux.dev>
 References: <20260819195835.1649657-1-denis.benato@linux.dev>
- <20260819195835.1649657-6-denis.benato@linux.dev>
+ <20260819195835.1649657-9-denis.benato@linux.dev>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 19 Aug 2026 20:15:08 +0000
-Message-Id: <20260819201508.83F3C1F000E9@smtp.kernel.org>
+Date: Wed, 19 Aug 2026 20:17:09 +0000
+Message-Id: <20260819201709.8795B1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [High] Missing `intf_mutex` lock in `ally_set_joystick_thresholds` allows=
- concurrent HID requests to interleave and corrupt device state.
-- [Medium] Joystick threshold sysfs 'show' functions do not check for hardw=
-are support, returning a dummy default value even when the feature is unsup=
-ported.
+- [Medium] Inconsistent capability check for response curve sysfs read oper=
+ations.
 --
 
---- Patch [5]: [PATCH v2 05/12] HID: asus: add joysticks inner and outer ra=
-nge configuration ---
-commit 2e6189717a427b3132c324a798d81ea6224e0246
+--- Patch [8]: [PATCH v2 08/12] HID: asus: add support for response curve -=
+--
+commit 64bba5ccd81bdede00727b014f07c871c53e11d2
 Author: Denis Benato <denis.benato@linux.dev>
 
-HID: asus: add joysticks inner and outer range configuration
+HID: asus: add support for response curve
 
-This commit adds sysfs attributes to configure the inner and outer ranges
-for the ROG Ally joysticks, allowing userspace to modify sensitivity.
+This commit adds the ability for userspace to modify the response curve of
+both joysticks on ROG ally devices by exposing relevant sysfs attributes.
 
 > diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
-> index 6b005afe01a24..d028697f61bfd 100644
+> index 050d979f4315d..6f43b7317168f 100644
 > --- a/drivers/hid/hid-asus.c
 > +++ b/drivers/hid/hid-asus.c
-[ ... ]
-> +static int ally_set_joystick_thresholds(struct hid_device *hdev, struct =
-ally_config *cfg,
-> +					u8 left_it, u8 left_ot, u8 right_it, u8 right_ot)
-> +{
-> +	u8 payload[] =3D { left_it, left_ot, right_it, right_ot };
-> +	int ret;
-> +
-> +	if (!cfg->xbox_controller_support)
-> +		return -ENODEV;
-> +
-> +	u8 *buf __free(kfree) =3D ally_alloc_cmd(CMD_SET_JOYSTICK_DEADZONE, pay=
-load, sizeof(payload));
-> +	if (!buf)
-> +		return -ENOMEM;
-> +
-> +	ret =3D ally_dev_set_report(hdev, buf, ROG_ALLY_REPORT_SIZE);
-
-[Severity: High]
-Does this need to hold ally->intf_mutex when sending the report?
-
-Other configuration functions like ally_set_xbox_controller() and
-ally_set_gamepad_mode() use ally_gamepad_send_packet(), which safely
-acquires the lock before calling ally_dev_set_report().
-
-If called concurrently with a USB reset (where ally_gamepad_check_ready()
-holds intf_mutex but not config_mutex), could this interleave between the
-set and get report phases and corrupt the device state?
 
 [ ... ]
-> +static ssize_t left_joystick_inner_threshold_show(struct device *dev, st=
-ruct device_attribute *attr,
-> +				      char *buf)
+
+> +static ssize_t response_curve_pct_show(struct device *dev,
+> +				       char *buf,
+> +				       struct ally_config *cfg, bool is_left,
+> +				       unsigned int idx)
 > +{
-> +	struct hid_device *hdev =3D to_hid_device(dev);
-> +	struct asus_drvdata *drvdata =3D hid_get_drvdata(hdev);
-> +	struct ally_handheld *const ally =3D drvdata->rog_ally;
-> +	struct ally_config *cfg;
+> +	struct ally_joystick_resp_curve *curve;
+> +	int ret =3D -EINVAL;
 > +
-> +	if (!ally)
-> +		return -ENODEV;
+> +	scoped_guard(mutex, &cfg->config_mutex) {
+> +		curve =3D is_left ? &cfg->left_curve : &cfg->right_curve;
 > +
-> +	cfg =3D ally_get_config(ally);
-> +	if (!cfg)
-> +		return -ENODEV;
-> +
-> +	scoped_guard(mutex, &cfg->config_mutex)
-> +		return sysfs_emit(buf, "%u\n", cfg->left_deadzone);
-> +}
+> +		switch (idx) {
 
 [Severity: Medium]
-Should this check cfg->xbox_controller_support before emitting the value?
+Should there be a capability check here before returning values?
 
-The corresponding store paths return -ENODEV via
-ally_set_joystick_thresholds() if the hardware doesn't support the feature,
-but the show paths seem to return the default initialized values regardless
-of hardware support.
+The corresponding store operations check for !cfg->resp_curve_support and
+return -EOPNOTSUPP, but this show function unconditionally returns the loca=
+lly
+initialized defaults (0, 33, 66, 100) even if the device doesn't support
+response curves. Can this cause userspace feature-detection logic to
+erroneously believe response curves are supported until a write fails?
 
-This appears to apply to all the joystick threshold show attributes added in
-this patch.
+> +		case 1:
+> +			ret =3D sysfs_emit(buf, "%u\n", curve->entry_1.resp);
+> +			break;
+> +		case 2:
+> +			ret =3D sysfs_emit(buf, "%u\n", curve->entry_2.resp);
+> +			break;
+
+[ ... ]
+
+> +static ssize_t response_curve_move_show(struct device *dev,
+> +					char *buf,
+> +					struct ally_config *cfg, bool is_left,
+> +					unsigned int idx)
+> +{
+> +	struct ally_joystick_resp_curve *curve;
+> +	int ret =3D -EINVAL;
+> +
+> +	scoped_guard(mutex, &cfg->config_mutex) {
+> +		curve =3D is_left ? &cfg->left_curve : &cfg->right_curve;
+> +
+> +		switch (idx) {
+
+[Severity: Medium]
+Similarly, should this show function also check !cfg->resp_curve_support
+before returning values?
+
+> +		case 1:
+> +			ret =3D sysfs_emit(buf, "%u\n", curve->entry_1.move);
+> +			break;
+> +		case 2:
+
+[ ... ]
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260819195835.1649=
-657-1-denis.benato@linux.dev?part=3D5
+657-1-denis.benato@linux.dev?part=3D8

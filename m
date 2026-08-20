@@ -1,99 +1,133 @@
-Received: from mailgw.kylinos.cn (mailgw.kylinos.cn [124.126.103.232])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CEA6F38B158;
-	Thu, 20 Aug 2026 06:54:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=124.126.103.232
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A372D44062D
+	for <linux-input@vger.kernel.org>; Thu, 20 Aug 2026 07:01:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787208861; cv=none; b=SUEE/b3t4yOVr0/4DP6/TVKeA40054kC1ILH9KZsEmMUpPYHwab5RjXutNGBYHmKynWRuvgS9WpLZovy6F7upHrMjdOldIdGOnY3mxBGGi2MnnRtmOhF0WFDcyJb78YysUNzMGS9zmODkokyW08U4cEbiZmV/hrOi37t2fDX5Dg=
+	t=1787209277; cv=none; b=rHxIaQUedpgHUMgqO5lL/NqWiFs7H6qCRSNiVFrqQZYnHXIcTTIlxoiG2ay1qZ8kBe1CFCBkFJlkaZUGg59DKNvo2bGLTt7Yztzr/mTx44EUF+AjZAjFrHkdlF1sZnxQfKmZV+w86z5K6T1woEjoLJtHX1gUqPbjWdmGOLSank8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787208861; c=relaxed/simple;
-	bh=IUMkFxnXgh5EJTSL2ooSAbpI5+meJp6qxhvkk9c9pGM=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=Nws5IoQfsUyr59ufsChpG7zvpmoOh+LmmU0rUEyvlaGvjcSAiRecSMIi4q4KTA7+oUlflt1qXZxU/0rhjpd02PN1S/NG8Njgc6dvbObkrbIFprG/7tpPic4lxregcOvdukFAj71yG4E0R3SZ/fV25WAJrQmkmmB1xWzWrQXfRFg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn; spf=pass smtp.mailfrom=kylinos.cn; arc=none smtp.client-ip=124.126.103.232
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kylinos.cn
-X-UUID: f2c233b09c6311f19a56ed5b684f684d-20260820
-X-CID-P-RULE: Release_Ham
-X-CID-O-INFO: VERSION:1.3.19,REQID:b9780b3d-5e7d-42fb-9092-b36d87beaf5d,IP:0,U
-	RL:0,TC:0,Content:-5,EDM:25,RT:0,SF:0,FILE:0,BULK:0,RULE:Release_Ham,ACTIO
-	N:release,TS:20
-X-CID-META: VersionHash:7db8b62,CLOUDID:f21861d1efb1226bc0d257ed0eddec7f,BulkI
-	D:nil,BulkQuantity:0,SF:102|850|865|898|915,TC:nil,Content:0|15|50,EDM:5,I
-	P:nil,URL:0,File:nil,RT:nil,Bulk:nil,QS:nil,BEC:nil,COL:0,OSI:0,OSA:0,AV:0
-	,LES:1,SPR:NO,DKR:0,DKP:0,BRR:0,BRE:0,ARC:0
-X-CID-BVR: 2,SSN|SDN
-X-CID-BAS: 2,SSN|SDN,0,_
-X-CID-FACTOR: TF_CID_SPAM_SNR
-X-CID-RHF: D41D8CD98F00B204E9800998ECF8427E
-X-UUID: f2c233b09c6311f19a56ed5b684f684d-20260820
-X-User: gonglinkai@kylinos.cn
-Received: from localhost.localdomain [(10.44.16.150)] by mailgw.kylinos.cn
-	(envelope-from <gonglinkai@kylinos.cn>)
-	(Generic MTA with TLSv1.3 TLS_AES_256_GCM_SHA384 256/256)
-	with ESMTP id 1439272982; Thu, 20 Aug 2026 14:54:11 +0800
-From: Linkai Gong <gonglinkai@kylinos.cn>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Florian Fainelli <florian.fainelli@broadcom.com>
-Cc: Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
-	Nicolas Saenz Julienne <nsaenz@kernel.org>,
-	Rob Herring <robh@kernel.org>,
-	Eric Anholt <eric@anholt.net>,
-	linux-input@vger.kernel.org,
-	linux-rpi-kernel@lists.infradead.org,
-	linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org,
-	stable@vger.kernel.org,
-	gonglinkai@kylinos.cn
-Subject: [PATCH] Input: raspberrypi-ts - reject out-of-range point counts and slot IDs
-Date: Thu, 20 Aug 2026 14:53:40 +0800
-Message-Id: <20260820065340.3765457-1-gonglinkai@kylinos.cn>
-X-Mailer: git-send-email 2.25.1
+	s=arc-20240116; t=1787209277; c=relaxed/simple;
+	bh=yaU8mRbH0VdGUL1bh6y+lCSNyzR/JPDoPKeoyNoL6SY=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=Vx7Lf6byrdaY5eRPBcui2QFJaMHseTIzVAhLN0tiVl3EXtwSKS+0+aqQTkoZP+2tRS/i0Rc5SCTImgEotlNJAH9LqEt/spEA0eYMNUpAOH8hUnavY8lTntPSjMxJE9EhFP0MclWG7wZZqOP6UHQqwiRSOWevkRJr/7XBdwKd6ds=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=PojsleS3; arc=none smtp.client-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="PojsleS3"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 04E291F000E9;
+	Thu, 20 Aug 2026 07:01:15 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1787209276;
+	bh=BctkFlVAGNTzYUKAPkBaZPAyCB5URXsTLj2A3idNwd0=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=PojsleS3blMlFGMDpUpvrWFDUeqWcEXLL4/iP59r9GPj4ezT0DhWvSbG5DJWSs0YQ
+	 4tR4TmBPtwAyyPGd+2NFAc1it+0Zjd1Oh/cfWHt3qYoRQMfK1uGNhRHwDKNNw7j4fz
+	 un5S+fz1wh3jxx878HUhikYbe3fgcFNijr+h6lr+3YCW/JsCj+2DLK+dPtb8V2/4LS
+	 OP7ZIZVfvf4emBDlMJVN9nObB8j/RoaKaF/GcD6Jhb2gobrA8iCLg5RAAQIpPEJKZ3
+	 p+9oUm9cvxaKAogYofC3pFLVefoRYE7ZaEhYvIkYvqNq/9q5cPEFhwmJP1d+WZQI2x
+	 l4X7tpWyZ66pA==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH] Input: raspberrypi-ts - reject out-of-range point
+ counts and slot IDs
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Linkai Gong" <gonglinkai@kylinos.cn>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20260820065340.3765457-1-gonglinkai@kylinos.cn>
+References: <20260820065340.3765457-1-gonglinkai@kylinos.cn>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Thu, 20 Aug 2026 07:01:15 +0000
+Message-Id: <20260820070116.04E291F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-rpi_ts_poll() copies a firmware snapshot and walks regs.point[] using
-num_points. The array has RPI_TS_MAX_SUPPORTED_POINTS entries, and the
-GPU is documented to report 0-10 points (99 invalidates the copy).
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+s) to consider:
 
-A corrupted count would index past that snapshot. Slot IDs are a 4-bit
-field (0-15) while only 10 MT slots are allocated. Drop the whole frame
-instead of clamping, so a bad report cannot update a subset of contacts.
+New issues:
+- [High] Returning early inside the touch reporting loop when encountering =
+an out-of-bounds `touchid` leaves the input core with a partially updated, =
+unsynchronized event frame, causing permanent ghost touches.
 
-Fixes: 0b9f28fed3f7 ("Input: add official Raspberry Pi's touchscreen driver")
+Pre-existing issues:
+- [Critical] The driver fails to instruct the GPU firmware to stop writing =
+to the physical DMA buffer before freeing it, resulting in a DMA use-after-=
+free.
+--
+
+--- Patch [1]: [PATCH] Input: raspberrypi-ts - reject out-of-range point co=
+unts and slot IDs ---
+commit f72d20735f09ac5b0ab187efd0cc082fb9bc5bcf
+Author: Linkai Gong <gonglinkai@kylinos.cn>
+
+Input: raspberrypi-ts - reject out-of-range point counts and slot IDs
+
+This commit drops out-of-bounds point counts and adds a bounds check to
+drop frames containing invalid slot IDs. This prevents corrupted touch IDs
+from causing out of bounds accesses.
+
 Cc: stable@vger.kernel.org
-Signed-off-by: Linkai Gong <gonglinkai@kylinos.cn>
----
- drivers/input/touchscreen/raspberrypi-ts.c | 4 ++++
- 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/input/touchscreen/raspberrypi-ts.c b/drivers/input/touchscreen/raspberrypi-ts.c
-index 841d39a449b3..bd63d95c094b 100644
---- a/drivers/input/touchscreen/raspberrypi-ts.c
-+++ b/drivers/input/touchscreen/raspberrypi-ts.c
-@@ -78,6 +78,7 @@ static void rpi_ts_poll(struct input_dev *input)
- 		 ts->fw_regs_va + offsetof(struct rpi_ts_regs, num_points));
- 
- 	if (regs.num_points == RPI_TS_NPOINTS_REG_INVALIDATE ||
-+	    regs.num_points > RPI_TS_MAX_SUPPORTED_POINTS ||
- 	    (regs.num_points == 0 && ts->known_ids == 0))
- 		return;
- 
-@@ -87,6 +88,9 @@ static void rpi_ts_poll(struct input_dev *input)
- 		touchid = (regs.point[i].yh >> 4) & 0xf;
- 		event_type = (regs.point[i].xh >> 6) & 0x03;
- 
-+		if (touchid >= RPI_TS_MAX_SUPPORTED_POINTS)
-+			return;
-+
- 		modified_ids |= BIT(touchid);
- 
- 		if (event_type == RPI_TS_FTS_TOUCH_DOWN ||
--- 
-2.25.1
+> diff --git a/drivers/input/touchscreen/raspberrypi-ts.c b/drivers/input/t=
+ouchscreen/raspberrypi-ts.c
+> index 841d39a449b37..bd63d95c094b9 100644
+> --- a/drivers/input/touchscreen/raspberrypi-ts.c
+> +++ b/drivers/input/touchscreen/raspberrypi-ts.c
+> @@ -78,6 +78,7 @@ static void rpi_ts_poll(struct input_dev *input)
+>  		 ts->fw_regs_va + offsetof(struct rpi_ts_regs, num_points));
+> =20
+>  	if (regs.num_points =3D=3D RPI_TS_NPOINTS_REG_INVALIDATE ||
+> +	    regs.num_points > RPI_TS_MAX_SUPPORTED_POINTS ||
+>  	    (regs.num_points =3D=3D 0 && ts->known_ids =3D=3D 0))
+>  		return;
+> =20
+> @@ -87,6 +88,9 @@ static void rpi_ts_poll(struct input_dev *input)
+>  		touchid =3D (regs.point[i].yh >> 4) & 0xf;
+>  		event_type =3D (regs.point[i].xh >> 6) & 0x03;
+> =20
+> +		if (touchid >=3D RPI_TS_MAX_SUPPORTED_POINTS)
+> +			return;
 
+[Severity: High]
+Does returning early here leave the input core with a partially updated,
+unsynchronized event frame?
+
+If earlier iterations of this loop processed valid contacts, returning here
+aborts the processing after partial state mutations have already occurred.
+This skips the required input_sync() call at the end of rpi_ts_poll(),
+which could leave the input core with unsynchronized event state and cause
+permanent ghost touches or stuck slots.
+
+> +
+>  		modified_ids |=3D BIT(touchid);
+> =20
+>  		if (event_type =3D=3D RPI_TS_FTS_TOUCH_DOWN ||
+
+[ ... ]
+
+[Severity: Critical]
+This isn't a bug introduced by this patch, but does the driver fail to
+instruct the GPU firmware to stop writing to the physical DMA buffer before
+freeing it?
+
+In rpi_ts_probe(), the firmware is instructed to asynchronously write to
+the touch buffer:
+
+	error =3D rpi_firmware_property(fw, RPI_FIRMWARE_FRAMEBUFFER_SET_TOUCHBUF,
+				      &touchbuf, sizeof(touchbuf));
+
+During device removal or unbind, rpi_ts_dma_cleanup() frees this buffer:
+
+	dma_free_coherent(dev, PAGE_SIZE, ts->fw_regs_va, ts->fw_regs_phys);
+
+Without a corresponding action to tell the firmware to stop writing to this
+address (such as sending a value of 0), the firmware might continue to write
+touchscreen coordinates to freed memory, leading to a DMA use-after-free
+and silent memory corruption.
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260820065340.3765=
+457-1-gonglinkai@kylinos.cn?part=3D1

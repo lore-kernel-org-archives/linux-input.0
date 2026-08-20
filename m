@@ -1,133 +1,220 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-lf1-f42.google.com (mail-lf1-f42.google.com [209.85.167.42])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E5665379C46;
-	Thu, 20 Aug 2026 14:50:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D1A0337F73D
+	for <linux-input@vger.kernel.org>; Thu, 20 Aug 2026 15:13:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.42
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787237433; cv=none; b=Fp8TtR1sTl+MSw8nVtvUMGo1QYSF/xCPQ5lsBR7bJd7igRYr1xkzo8ue8orANq6ebTUn1aWRQY5xQ42419CHN/rFlSu2tNlYONTjb/6lPkh85ZW1dvWWw1UH2Y5JVaIJLbBQbmaq442i64enRSPc2CncM4DMXrJ2duRI6d2rHfM=
+	t=1787238815; cv=none; b=mAmMRC0LvZCWXLVcSbGvce3/3Pb+HG7No5Y48NwWlPiyipGorkz57irvGIFDGY9wZ2t0qRUopGTpp6S1TArkwWVEuUgy1GDFu7UvKn135SNMYnAFSDpzwWguy9tsaRo+FgHFasW/FCf7k49IlTQ39QVaeilMXuACvd9xKYPZHSY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787237433; c=relaxed/simple;
-	bh=9rSfFZLLIReuha5b7zTo8uIUfQRF+HuyzerzVQdr6vs=;
-	h=Message-ID:Date:MIME-Version:From:Subject:To:Cc:References:
-	 In-Reply-To:Content-Type; b=EWQuKeMX7b6jXNhGQJ6bEKSxKiX6xhVWFUC9mk5dL84BpFIqPCRdA2gAHwmMTt/99INtTSeVs2220SsKKxx6TLLD2IYSw9boOUc8147+StVRQAr24f8lGuNU7xeh96NOgzi5KwenKj5tyqwt8Ci1gCzWRxrJXSok/XX2rRpBDMg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=bhQ6gXhH; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1787238815; c=relaxed/simple;
+	bh=6Ald7vZ6kBCoO8E+et7GzfHLmpauYeQ1CHl+O3YPb24=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=N20TxyudQly4j2vgR+zn7AG568GXmzziBe7OcalHEY440TvuzA78n7IY0Sf2Yt8gok4JonXvJlraMTVXV6nJ33y+8vI7zt77b/lTNfTCNeBBf3KtAOyE1UH0Q6wi9IlYnfMaj7r/6ho/yxLjpyzqeyr1jNdyziwbdOHZtoxgDhY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=SqUM6lBs; arc=none smtp.client-ip=209.85.167.42
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="bhQ6gXhH"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5AE01F00A3E;
-	Thu, 20 Aug 2026 14:50:27 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787237431;
-	bh=Gx8jdoPcWq/cVLP63o8RIIoH4DRJ45rPwE7EB0sK2rQ=;
-	h=Date:From:Subject:To:Cc:References:In-Reply-To;
-	b=bhQ6gXhHRJmgACf0idHqcEbiiBErDEEOvbhC2KShYLVkozDG1fycwUvLU5WBsruqn
-	 NGiBerMuf32t4i0DjS8TY2PESQGjUjBQO/0Cj2hM5L8iLp0+t08bAGj9JPEdLjuTAH
-	 BI/ieEY21BiEas8TneQx7iaogUlpQqb7zlN0KpTeqL0fVBqsUnqt9kGpKKejFDoQ/0
-	 U/0ZSWbs/O02raHlP0XbqzK6ZTnzQ+W3H+RVOkPQpT+dFDXS5XAqff9hvHbiqIapLx
-	 8US+xFzlXU8j0ngt5UaLt8raHUOWH4m06c00oN9rGQxOa8zrDDvTwC66PHAQWi1TF3
-	 y2hkOtIceyQnw==
-Message-ID: <e2b658d5-e846-4ce3-a42f-16f86acbf3e3@kernel.org>
-Date: Thu, 20 Aug 2026 16:50:21 +0200
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="SqUM6lBs"
+Received: by mail-lf1-f42.google.com with SMTP id 2adb3069b0e04-5b15c6fb864so2239723e87.1
+        for <linux-input@vger.kernel.org>; Thu, 20 Aug 2026 08:13:33 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1787238812; x=1787843612; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=WoAaczqx9vz90sCyu2Uto6aX0IpeQLuBL6PDZDK9ORg=;
+        b=SqUM6lBsVARRhIMl9HvKLC+pWkotnDq1TB37tcsKHU59kSxZpwr14pBqgHhnY5RNW+
+         +WDbAG1F2v6jw8cBauxgdXLWqbWROKQe0nkWQbfsdcR8kwXCT9FdLzE0KkVN098dyo9M
+         tqWkFbii4MvvSdwhqR3fcmSxPbd8QXv1leeTLez/2WMgr73aK/1ZS8BToMisl71L8T64
+         jLgO3w29W/JQ981n8WspPVrqfDalD12lIGQxgTUG6nV3hdQWdJx3BduIoLS3uB4aBLFt
+         P5FVTx8lY/r5KzfY624g41Qvf4fmFPUvSQJtsAdbx+3MYLuXtxQ7nudYc1tTPE371dTR
+         B/Nw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1787238812; x=1787843612;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=WoAaczqx9vz90sCyu2Uto6aX0IpeQLuBL6PDZDK9ORg=;
+        b=NhGT3292NaFDG7qhVTnJ0HM5tabu/4yiK0/V6m7YjB15IDlokdAPMMpQEHtxbpkkF4
+         HtpL9ADcLGRJzwFLqcx2M0gn1ef64k7CaQfM2VYHQDQYhIdjwyTyarYxZzUSN6R1eeu8
+         QXwz8R/iGTbFpo3yzEBcvk+hrIrfKgoPZMUNn5D6NCg6B/O/zmpTQ9ylFrCHRIGJkddY
+         wPqX0ilcULoZcq4atx0WuoeYhwEbOxLjAYdkkuGuadXgPxmEBpm05XIVAjSDgH9TwoAR
+         yjH/5s14sUEzOmxPbZ2s5b+fKKJI6zY8mAr8pJH42r/tKr8f9UeNRy7wAMk1cH1xujj2
+         TpfQ==
+X-Forwarded-Encrypted: i=1; AHgh+RqttUVSW+jDVTmRlsVOXyDHHfT1wq93Qbv2SXd243Lr83Dg997ULcoHvhKHw+eJ9HZZfyoEWrquS1Vgxg==@vger.kernel.org
+X-Gm-Message-State: AOJu0YxUkHnHSAdZlVqxNrtHGyebmZtEznR3rP3mqNPrY/ciE7MS7vBG
+	6SJl/++plp6+1oMcBmlyhPBO4rI6N/KLRoCXkwIk+Kn5acJG/8AryNYR
+X-Gm-Gg: AR+sD13JUX+ZpTBUUIOkVLqlLTfFHePMal/JF4KSB53u4timFKiXUFgrhkiUgVHe6lo
+	dsBnaUtgTJhNFobBMcD+X/OAgD4DE8ZMf5wiRts7dKifXY6uPemGzS9B4PMN3mSCGhA/D5x2pIG
+	r6xlfpVu0pY4oEuAzZtj8gAK40eiitjBFyxcZOYu2g+vuJKFpvRZ67LL2dcFx9Sq0ouekyXwhtU
+	/TkMzYNS1UgTFwFaSyRVCA4Q+JYME3pLWFLm/O82cocXRXXjUzBU4QlaZUD8J+AnrRyJPqZonCn
+	KMLe82SupQCYhAm7S8ppAjwQXy3GdB4Lbot2Uon+wjmGcmZaX9pkmuTTGfwYkOIhF57lMDwpYb4
+	n+oUtQOxoSL161sBJOQBhJNMTgsygtalrnXj18Lvumyda36q4d0igbMrku5nWwTrxBdkvKqQmf8
+	Egz65QqYKEg7p8LF5F9Sl65AyG/m3Lmu1zJOHztOJiJrO6/7/VQ/lm9duY1PvsmYBEPnMMM40oP
+	TyN51fdy0WoV74Jc7eSqbXyeT/2EHb/d3gK76Yl8FaWAGrMtEEG3SCAoohZ
+X-Received: by 2002:a05:6512:131f:b0:5b1:5a90:25b4 with SMTP id 2adb3069b0e04-5b478bcb7c5mr3792837e87.19.1787238811565;
+        Thu, 20 Aug 2026 08:13:31 -0700 (PDT)
+Received: from localhost ([188.234.148.119])
+        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-5b4788f5a60sm1333617e87.77.2026.08.20.08.13.30
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 20 Aug 2026 08:13:30 -0700 (PDT)
+From: Mikhail Gavrilov <mikhail.v.gavrilov@gmail.com>
+To: tiwai@suse.com,
+	jikos@kernel.org,
+	bentiss@kernel.org
+Cc: perex@perex.cz,
+	linux-sound@vger.kernel.org,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [RFC 0/2] Two ways to reach the Topping M62's analogue gains
+Date: Thu, 20 Aug 2026 20:13:27 +0500
+Message-ID: <20260820151329.18332-1-mikhail.v.gavrilov@gmail.com>
+X-Mailer: git-send-email 2.55.0
+In-Reply-To: <87y0eaxz39.wl-tiwai@suse.de>
+References: <87y0eaxz39.wl-tiwai@suse.de>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-From: Krzysztof Kozlowski <krzk@kernel.org>
-Subject: Re: [PATCH] HID: intel-thc-hid: intel-quickspi: fix autosuspend
- cleanup during teardown
-To: Guangshuo Li <lgs201920130244@gmail.com>, Even Xu <even.xu@intel.com>,
- Xinpeng Sun <xinpeng.sun@intel.com>, Jiri Kosina <jikos@kernel.org>,
- Benjamin Tissoires <bentiss@kernel.org>,
- Sakari Ailus <sakari.ailus@linux.intel.com>, "Danny D."
- <d3z.the.dev@gmail.com>, Abhishek Tamboli <abhishektamboli9@gmail.com>,
- Mark Pearson <mpearson-lenovo@squebb.ca>,
- Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
- linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: stable@vger.kernel.org
-References: <20260808151736.2934050-1-lgs201920130244@gmail.com>
-Content-Language: en-US
-Autocrypt: addr=krzk@kernel.org; keydata=
- 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
-In-Reply-To: <20260808151736.2934050-1-lgs201920130244@gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-On 08/08/2026 17:17, Guangshuo Li wrote:
-> quickspi_probe() calls pm_runtime_use_autosuspend(), but
-> quickspi_remove() does not call the matching
-> pm_runtime_dont_use_autosuspend() during teardown.
-> 
-> If the autosuspend delay is set to a negative value while autosuspend
-> is enabled, the runtime PM core increments usage_count to prevent
-> runtime suspend. Without calling pm_runtime_dont_use_autosuspend()
-> during teardown, this reference is not dropped.
-> 
-> The documentation for pm_runtime_use_autosuspend() also notes that it
-> is important to undo it with pm_runtime_dont_use_autosuspend() at
-> driver exit time, unless runtime PM was initially enabled with
-> devm_pm_runtime_enable().
-> 
-> Add the missing pm_runtime_dont_use_autosuspend() call to the driver
-> remove path.
-> 
-> This issue was found by manual code inspection.
-> 
-> Fixes: 6912aaf3fd24 ("HID: intel-thc-hid: intel-quickspi: Add PM implementation")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Guangshuo Li <lgs201920130244@gmail.com>
-> ---
+You asked for PoCs of both roads and a comparison of the actual code
+rather than of arguments. Here are both. They are alternatives, not a
+series: each is written against mainline 98f21c54f995 on its own, and
+either can be applied alone.
 
-You sent vast amount of patches, all separate, making it very difficult
-to track and respond in efficient way. Do not do that.
+  1/2  ALSA: usb-audio: a mixer quirk that claims the HID interface
+  2/2  HID: topping: a HID driver that registers a card of its own
 
-Group your work per subsystem.
+Both build clean (checkpatch --strict: 0 errors, 0 warnings; the two
+CamelCase CHECKs in 1/2 are bNumEndpoints and bInterval) and both have
+been exercised on the device -- 152a:875c, bcdDevice 3.27 -- for
+reading, for unsolicited notification from the front panel, and for
+writing.
 
-You were asked to clarify and respond to incorrect fixes statement. I do
-not see how you clarified and responded at all.
+What the device is
+==================
 
-Best regards,
-Krzysztof
+The M62 keeps its two microphone preamp gains, its AUX and Bluetooth
+input volumes and its headphone and OTG output volumes behind a vendor
+protocol on a HID-class interface, and exposes none of them through
+UAC. What UAC does expose on the capture side is a digital trim after
+the converter, which cannot buy signal-to-noise: a noise-floor ladder
+against the card shows the converter's own floor rising with the
+signal. So on Linux today the one knob worth setting is the one that
+cannot be reached, and a measurement application has to begin by asking
+a human to touch the front panel.
+
+The protocol is fifteen-byte frames -- start magic, a constant, a
+target, a property, a signed 32-bit big-endian value, CRC-16/MODBUS
+over the middle stored big-endian, end magic. Rebuilding all 2619
+captured frames from that description reproduces them byte for byte.
+The device says nothing until it is subscribed; one write starts the
+stream and a second makes it announce its whole state, after which
+every change arrives unasked, including a front panel press.
+
+The control pipe is not an option: GET_REPORT and SET_REPORT stall with
+EPIPE for every report type, so the interrupt endpoints on the HID
+interface are the only route.
+
+What is identical in both
+=========================
+
+The frame builder, the parser, the CRC (the kernel's crc16(0xffff, ...)
+is CRC-16/MODBUS, so no private table), and the control table. A knob
+is a row of
+
+	{ name, target, paired target, property, min, max, TLV }
+
+so adding one is adding a row. Six rows today. The outputs come in
+pairs because the device answers on only one target of each pair and
+the other would drift away unheard.
+
+Where they differ
+=================
+
+1/2 claims the HID interface for snd-usb-audio and puts the elements on
+the card the device already has. The cost is two-sided: an entry in
+hid_ignore_list to keep usbhid off the interface, and one new helper in
+sound/usb/card.c, because usb_audio_driver is static there and a quirk
+cannot claim an interface without it. That helper is the only change in
+1/2 outside the new file and its dispatch. Nothing is lost by taking
+the interface: the report descriptor is a Generic Desktop application
+collection with eight unnamed usages, sixteen bytes in and out and no
+report ID, so hid-generic can only build an input device for a mouse
+that does not exist -- which is what it does today.
+
+2/2 binds as a HID driver, and the protocol half is if anything smaller
+there: usbhid owns the endpoints, so hid_hw_output_report replaces a
+hand-built interrupt URB out, raw_event replaces the one in, and no
+interface has to be claimed. It needs nothing in sound/usb.
+
+But these are mixer controls for an audio device, and the audio
+device's card belongs to snd-usb-audio. A HID driver cannot put an
+element there. There is no interface for it, and inventing one means
+exporting from sound/usb both a lookup from struct usb_device to the
+card and an add-element call, and then answering, for a single device,
+what happens when the two drivers probe in either order and when either
+disconnects first, given that the element would live in one module and
+its private data in another.
+
+So 2/2 does what a HID driver can do alone: it registers a card of its
+own. That works, and the cost is visible from userspace rather than
+theoretical:
+
+	$ cat /proc/asound/cards
+	 0 [ToppingCtl     ]: Topping - Topping M62 control
+	 ...
+	 4 [M62            ]: USB-Audio - M62
+
+	$ amixer -c M62 cset name='Mic-1 Analog Capture Volume' 33
+	amixer: Cannot find the given element from control sysdefault:4
+
+One device, two cards; the gains on a card with no PCM beside them; and
+anything that looks for a device's mixer next to its streams --
+alsamixer -c, UCM profiles, PipeWire's device model -- does not find
+them there.
+
+Against my own preference, two honest notes. The phantom input device
+2/2 leaves at boot (hid-generic binds first, the specific driver being
+a module outside the initramfs) is a packaging artefact, not a property
+of that road. And 1/2's claim helper is new API surface in sound/usb,
+small as it is.
+
+Field results
+=============
+
+With 1/2: the interface belongs to snd-usb-audio while a neighbouring
+device's HID interface still belongs to usbhid, so the ignore entry is
+precise. Values arrive by themselves -- the headphone volume came up at
+51 while the zero-initialised cache would have said 0. One front panel
+press produces exactly one control event. A write reaches the hardware:
+the device reports the written value back, and its meters answer.
+
+With 2/2: the same, on its own card.
+
+One device fact worth recording: a written gain takes effect at once,
+but when the device commits it to non-volatile memory is the firmware's
+business, and a value written and then torn off the bus can come back
+as the older one. Nothing in either driver depends on that -- neither
+treats itself as the source of truth, both ask the device -- but it is
+easy to mistake for a driver bug while testing.
+
+Where I come out
+================
+
+The knobs belong on the card the device already has, and 2/2 cannot put
+them there without a new cross-subsystem interface built for one
+device. 1/2's cost is one static-variable problem solved by one helper
+in the file that owns it. So I would take 1/2, which is also your gut
+feeling -- but the comparison is what you asked for, and either patch
+stands alone if you read it the other way.
+
+Not covered by either: the OTG input's gain. It has no front panel
+control and therefore never announced itself in any capture, so its
+property is unknown. It is one row when it is known.
+
+Mikhail

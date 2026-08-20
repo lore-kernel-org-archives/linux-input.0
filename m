@@ -1,63 +1,63 @@
-Received: from mail-pg1-f173.google.com (mail-pg1-f173.google.com [209.85.215.173])
+Received: from mail-pg1-f170.google.com (mail-pg1-f170.google.com [209.85.215.170])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5E95041F7E1
-	for <linux-input@vger.kernel.org>; Thu, 20 Aug 2026 11:16:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3FC4241CB57
+	for <linux-input@vger.kernel.org>; Thu, 20 Aug 2026 11:16:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.170
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787224574; cv=none; b=nUdjZgkiaYdpx6B0Q0pS8cdKlK8Gx0494iy4LfzEnG91YFPBgUlB0E9uJ5Ic1623GwpUFVckJ5BcR5mMSeGnRK5cWOTNBrrRr2SYxr+22b7cLEqoDob+zZujfYEFf2dRFNvZol+FQANsC99Vs5M2ronCVSZOj+ZH1OLnssenBOY=
+	t=1787224579; cv=none; b=nHxfQzkPk9ZYnhlFEeY1ayGY0yx8OwPSVfoCfLQSji28Z/4hc2RgXkrcOiN6TIYPALVkbAeF1edONx+x7nIcdw0PcKieGlpnZqubSgIcEUCrHQfXyQIUD3pHG8bybekt53Jms6rUkksPFL/bVTNLI6GcsV9VzwX41ViiQiBN6VU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787224574; c=relaxed/simple;
-	bh=rHwP4XfA9jRj+RHRKEKyTJXOCcW4DcDGXwa8aSdNjkQ=;
+	s=arc-20240116; t=1787224579; c=relaxed/simple;
+	bh=vO0izHD2f1ofrT6G0UqWkyQBcgoDbMLoEZdWgvw592E=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=EWUBr5PmIOEP+/h1jXxcjbIv4aML+3IaPP5fQgEpp8JyJOFY+3PXBpMc0GWdDzhcMCTk/xkDZ++jrJaf3sgvyK3Zm90ZTA6i8Biqi47j9NoSTX0ar2pRrIwUQcoaIDPaeY27D2nudLGulb6m/YhxQDO+1CEYO7bztgAQjcsPe2M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=K74blQIr; arc=none smtp.client-ip=209.85.215.173
+	 MIME-Version; b=JAGpIhBkat664KWJTVm7rTc+R+emfArijBNUHQOHjPyHv7hThQTtyQiHQcq9o/oSold7z+FO4E/jIx5oMBrHBTdpMUx7taWYZGHYzIP1cDC1O4NU1Mzfag+C0SO8vpEr0H0gHFcyvOuP8gPBC7iUs4+VaVeLsmloXLKlVDn7KYw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=RdwBoTS+; arc=none smtp.client-ip=209.85.215.170
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="K74blQIr"
-Received: by mail-pg1-f173.google.com with SMTP id 41be03b00d2f7-ca80d708489so539312a12.1
-        for <linux-input@vger.kernel.org>; Thu, 20 Aug 2026 04:16:13 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="RdwBoTS+"
+Received: by mail-pg1-f170.google.com with SMTP id 41be03b00d2f7-ca80d708489so539370a12.1
+        for <linux-input@vger.kernel.org>; Thu, 20 Aug 2026 04:16:18 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1787224573; x=1787829373; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1787224578; x=1787829378; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=aUdHCBJZOHM/va9FiVML/hn1mg9LRuKeIIYVF8glt60=;
-        b=K74blQIrSh/UssZZ78uXjrRKNv6N4HumxwusJgVzth8os3kIaWSSK6acGE4r5pvzJe
-         vwP0p/vTY/pSabEANau6VfbXMCkAgLIgTVCE3aaUOwmwDP/qQAAQj5Ml9X7/scGUOsCj
-         q880YiiRqOo5sS4mKU/2tHf7neZJgSfBiS5mfrFT/sdQ/Eo6d7RrrdJ4WnvvzqZS2K0r
-         JSSEBHzuD08UXA2FqXVZIdgX7GcrKlL2QuPsXBcxYCKWKVgot0zpHxRIIgf1oWyR7WNd
-         a7mQE3QWSO/K3dQ7lXR4yv/c0gVtrYqUdqzz+0oUaHc6Ym7Vfjo38ZMhRXN5VTTId5q8
-         G9mw==
+        bh=xmFjaomKOSQJ0x9BcEAzGij2qfGuvuK5f2g46VdQqOU=;
+        b=RdwBoTS+PBqktKaMXyAE0n7knUQGLTqRAbZJrSyvMR1n01dqwiWdJ/lyDXMQKyMwj3
+         SdtETFoCpeqLKNCDoc+TC4sdQRzevmwYi98T1wjOA1DFCXrG7ArmBioHfZStTj9OT2Kb
+         r6IR9NRorpuThsnJvkDocdqtYp9zhm6qHzMIyHdAZgJ6ZQGePlnBLIy4xJM7ji+2MnDq
+         ZMruzVRDRkpOhKmvzKXEGfsB5tZYm56Mo5n5TYmG+cNeKIeiYRwpChg611UiyFI2h3PP
+         fkNXCll3Ut7WttNd4pCIeqqt+LjGR9fgLClBlPmA9/eLCgFPx4lH/zQFVmbXz7OYHXUO
+         lXhQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787224573; x=1787829373;
+        d=1e100.net; s=20251104; t=1787224578; x=1787829378;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=aUdHCBJZOHM/va9FiVML/hn1mg9LRuKeIIYVF8glt60=;
-        b=A0b7/JuTfhehh4yoTwPh+s1XHZkGW6WHqbRwDizScUu1xFYkBOTdCNm+E0Ivbb9khK
-         uJVMldXCsXmPjD1MusofxGIzWpfS3xPLe9wCGujvQ/GmtFiIcCmtdIsNNxplXH5w+ATk
-         vDziAQFr2Ra7m0kq5OummnCd+24pgREhaKetK/b4FZVCmUmx2y6VdAbMWtcN+cLBP8pu
-         wwuyq2shL1PJtpXolO56Z5xNhHXTfCnupfxfv+bNSgRCavdfI6g1AH0P8C3DK9m4lVEq
-         rm4cWvsSRzDfBywYHrTood9fjTFrYxPkBHatvxZ3dx3uhbyXnlq50Ut8sktXoaRvdqIL
-         GbXA==
-X-Gm-Message-State: AOJu0Yx07CtJoCuKfKbyvnQj3sSPbuWp4MQj37aZjzal9I/AVhLww8LD
-	22PP2A5XVcs+/PzBwP5DBcoTxHovK8oPof0wiWvWIDGJt78i9mdJo6g4
-X-Gm-Gg: AR+sD12oFJCwX/YVmH0z/PZ+4zkGwhlB8ZEWDLHSlxArVqdKYVuT1EBIUYZ3UYMCcT2
-	WT+k30MYwnIPsgf9+CgFp0hc0rzL8DVVZnbicS0nSTBaMM5CuiSXulIY/UGU8i5wuWT1jnxq9eZ
-	Vsmf4nAfYku1VwAoYuWm8eUXucgLXEg5fUPt/3TKpi70tHvNwUyiQIZCEjtM/vG0aHawuRm48wk
-	1Y0IiTc7lX1+sHeb5XknoanIRteXwyozfw/5yfmsvYhDJZ6QvTxqPo/lKYnYlGUNKIRI4TRODe+
-	JIYPwLUnyb7iAycWDKv05rOVeFvdLOtd0cBhUcq0FFL9mMlMftvvuYft4zV0Zt2djvqZxLZKdqR
-	avCIA67PvM4/NiZg8BKDeqn5Jc1SE8OlgZrtXsGzA2vm6GXMKGrLTWi7COWDrjXpk1aC1KT/FD7
-	CrmFeqhQQ8xgSmW/u7Wx4LJyhcdiaT9HS9HHDmkc+c4m47cm2w8jCv2UOvKuCXnGV7WxQMXLfvq
-	2iFEa0Dk9xw8HkYqIVfr2RR+6yMQcDtxUsHX3CT1+b4PboaDikCZ8tTXvhT9XPY
-X-Received: by 2002:a05:6a21:6f11:b0:39b:bc11:9ec5 with SMTP id adf61e73a8af0-3cd14faf56emr7432453637.13.1787224572709;
-        Thu, 20 Aug 2026 04:16:12 -0700 (PDT)
+        bh=xmFjaomKOSQJ0x9BcEAzGij2qfGuvuK5f2g46VdQqOU=;
+        b=mc+CH5hkPZWmWwb2W3lI8r6ugQwcTQQUE1LlN2e2UAytl3jaNRNoQD86jeMif3MCTa
+         j6F+UAWubGHJbgFnaUb631KahemMTxBGG54i2jETeVePtkpSDyUJFVh32J2lmJfLdNcr
+         dV7wZwkUYPIGLS0T4rvbKuFVru1TWiCvWLXo9m9UYCZoqOoxHKqBJ8Bx6xRnsH2YYZgO
+         CWLcubp6NGK9ANWjDlA/zT47E4Xp3Ww5VTjxkr/U/e4Jinny/WKdeFlfAgwAVKtZlO9q
+         9KVkp2GP35czVfSMxzsmo2kqKDLRP7S0MWcHdHrE0LbsB3A8RaD9U6qfD7OHhW3z/ZX8
+         VhwA==
+X-Gm-Message-State: AOJu0YzEsT/+kkogrlbAM0xsP++7LmNDtpk6CJfC//P/OZbQaHD81G0Q
+	e7I7CL4SEjyh+tFUxl+0kPKfOQ8c6mKIeZc+dp3MeLC5/Sz6Q1B/EALB
+X-Gm-Gg: AR+sD13u2wL4wQ5wMnXWqQd8YHL+ZHjpejOBKdW38bAkiIs6YCvdyfrmzIqWPlsndSd
+	CVOts6jJqjvhf8zqVAW10iii/5UGJ566pGyOKk0++Bjp8oj+QK60xlglYr85HFKaR29JQmvo9za
+	YqKCwdtbe90HXAQdSkzIXT2hSPYmGkUnKrY0j191jUbOnbDGgcxabcOcYfZeoKOz3aUPbdYukLz
+	Vk073MvdwVFPycwgmdbt2vF1dkxLL485qrCFTC253a5Obu52SCFHE1oi43VIEjA7pC0RicWCL5f
+	EihkMycbeTyoiTg7O5GKV3ia116oZusYYkP3U9oxd5btfKCiY8tPb4eQNi+ERdCykonlwjHm+pf
+	ylZm+nug2lZkBKNR/0YEMXoeugWtj43mT6x33jRhGK6zcLqov/F61UWT8lGkh4sA3+6IJp8b61H
+	mwWxOGCGhL9C3ln4l7ygo5w4FI2UzjJsb5h2pO0vw2oc6J9XCginPlZ4GFYNS6w8V2qtk8Pn5tq
+	8QeyJTLUe2CqMq+NGlprIh74mbg5Ja2dtV7nAObEcUqy865ObpTKOJDm3t//akK
+X-Received: by 2002:a05:6372:a70f:b0:3cb:b6b0:1b83 with SMTP id adf61e73a8af0-3cd14f251acmr5785817637.9.1787224577549;
+        Thu, 20 Aug 2026 04:16:17 -0700 (PDT)
 Received: from nugod-NUC15CRHU5.tail9f095a.ts.net ([218.237.104.87])
-        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-cc15cada6fesm1236455a12.27.2026.08.20.04.16.10
+        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-cc15cada6fesm1236455a12.27.2026.08.20.04.16.14
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 20 Aug 2026 04:16:11 -0700 (PDT)
+        Thu, 20 Aug 2026 04:16:16 -0700 (PDT)
 From: HyeongJun An <sammiee5311@gmail.com>
 To: Even Xu <even.xu@intel.com>,
 	Xinpeng Sun <xinpeng.sun@intel.com>,
@@ -67,9 +67,9 @@ Cc: linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	stable@vger.kernel.org,
 	HyeongJun An <sammiee5311@gmail.com>
-Subject: [PATCH 1/2] HID: intel-thc-hid: intel-quickspi: size the input buffer for the DMA
-Date: Thu, 20 Aug 2026 20:15:57 +0900
-Message-ID: <20260820111558.475304-2-sammiee5311@gmail.com>
+Subject: [PATCH 2/2] HID: intel-thc-hid: intel-quickspi: bound the GET REPORT response to report_buf
+Date: Thu, 20 Aug 2026 20:15:58 +0900
+Message-ID: <20260820111558.475304-3-sammiee5311@gmail.com>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20260820111558.475304-1-sammiee5311@gmail.com>
 References: <20260820111558.475304-1-sammiee5311@gmail.com>
@@ -81,54 +81,63 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-quickspi_alloc_report_buf() sizes input_buf from max_input_len, but the
-RXDMA2 channel it feeds is programmed with ALIGN(max_input_len, SZ_4K):
-quickspi_dma_init() passes the raw value and dma_set_max_packet_size()
-rounds it up.  setup_dma_buffers() maps that rounded size and
-read_dma_buffer() bounds the message against it, so a controller
-reporting max_input_len 64 and rep_desc_len 600 gets a 600 byte buffer
-behind a 4096 byte DMA.  thc_rxdma_read() has no capacity argument, so
-nothing downstream can catch it.
+quickspi_handle_input_data() copies a GET_FEATURE or GET_INPUT_REPORT
+response into qsdev->report_buf using a length the controller supplied.
+The only check it passes is against buf_len, the number of bytes the DMA
+delivered, which says nothing about the destination.  report_buf holds
+HIDSPI_OUTPUT_REPORT_SIZE(max(max_output_len, max_input_len)), 68 bytes
+for a controller reporting 64 for both, while the copy is bounded only by
+the 4K DMA packet.
 
-The intel-quicki2c sibling floors its input buffer at SZ_4K for this
-reason, with the comment "give default 4K buffer to avoid DMA buffer
-overrun".  Round up the same way the DMA does.
+The REPORT_DESCRIPTOR_RESPONSE case a few lines up validates against the
+size of its own destination.  Do the same here and let the waiter in
+quickspi_get_report() time out, as the other malformed-frame checks do.
 
-Fixes: 4138f21115ae ("HID: intel-thc-hid: intel-quickspi: Complete THC QuickSPI driver")
+Fixes: 9d8d51735a3a ("HID: intel-thc-hid: intel-quickspi: Add HIDSPI protocol implementation")
 Cc: stable@vger.kernel.org
 Assisted-by: Claude:claude-opus-5
 Signed-off-by: HyeongJun An <sammiee5311@gmail.com>
 ---
- drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+This needs commit a59cf84441f9 ("HID: intel-thc-hid: intel-quickspi:
+validate report size before copy") for qsdev->report_buf_size, which is in
+hid.git for-next but not mainline yet.  Same Fixes: tag, so a stable
+backport wants the two in that order.
 
-diff --git a/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c b/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c
-index 89226f5ce45e..9ef33574c202 100644
---- a/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c
-+++ b/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c
-@@ -9,6 +9,7 @@
- #include <linux/interrupt.h>
- #include <linux/irqreturn.h>
- #include <linux/pci.h>
-+#include <linux/sizes.h>
- #include <linux/pm_runtime.h>
+ .../intel-thc-hid/intel-quickspi/quickspi-protocol.c | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/hid/intel-thc-hid/intel-quickspi/quickspi-protocol.c b/drivers/hid/intel-thc-hid/intel-quickspi/quickspi-protocol.c
+index 847c5ec55569..7d34cc22a11a 100644
+--- a/drivers/hid/intel-thc-hid/intel-quickspi/quickspi-protocol.c
++++ b/drivers/hid/intel-thc-hid/intel-quickspi/quickspi-protocol.c
+@@ -161,6 +161,7 @@ void quickspi_handle_input_data(struct quickspi_device *qsdev, u32 buf_len)
+ 	struct input_report_body *input_body;
+ 	u8 *input_report;
+ 	u32 input_len;
++	u32 report_len;
+ 	int ret = 0;
  
- #include <linux/gpio/consumer.h>
-@@ -549,8 +550,12 @@ static int quickspi_alloc_report_buf(struct quickspi_device *qsdev)
- 	if (!qsdev->report_descriptor)
- 		return -ENOMEM;
+ 	input_body = (struct input_report_body *)qsdev->input_buf;
+@@ -210,10 +211,17 @@ void quickspi_handle_input_data(struct quickspi_device *qsdev, u32 buf_len)
  
--	max_input_len = max(le16_to_cpu(qsdev->dev_desc.rep_desc_len),
--			    le16_to_cpu(qsdev->dev_desc.max_input_len));
-+	/*
-+	 * thc_dma_set_max_packet_sizes() rounds the RXDMA2 packet size up to
-+	 * 4K, so the DMA can hand back more than max_input_len bytes.
-+	 */
-+	max_input_len = max_t(size_t, le16_to_cpu(qsdev->dev_desc.rep_desc_len),
-+			      ALIGN(le16_to_cpu(qsdev->dev_desc.max_input_len), SZ_4K));
+ 	case GET_FEATURE_RESPONSE:
+ 	case GET_INPUT_REPORT_RESPONSE:
+-		qsdev->report_len = sizeof(body_hdr->content_id) + input_len;
++		report_len = sizeof(body_hdr->content_id) + input_len;
++		if (report_len > qsdev->report_buf_size) {
++			dev_err_once(qsdev->dev, "Get report response too big: %u\n",
++				     report_len);
++			return;
++		}
++
++		qsdev->report_len = report_len;
+ 		input_report = input_body->content - sizeof(body_hdr->content_id);
  
- 	qsdev->input_buf = devm_kzalloc(qsdev->dev, max_input_len, GFP_KERNEL);
- 	if (!qsdev->input_buf)
+-		memcpy(qsdev->report_buf, input_report, qsdev->report_len);
++		memcpy(qsdev->report_buf, input_report, report_len);
+ 
+ 		qsdev->get_report_cmpl = true;
+ 		wake_up_interruptible(&qsdev->get_report_cmpl_wq);
 -- 
 2.43.0
 

@@ -1,125 +1,167 @@
-Received: from mail-ej1-f45.google.com (mail-ej1-f45.google.com [209.85.218.45])
+Received: from mail-oa1-f44.google.com (mail-oa1-f44.google.com [209.85.160.44])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5DED347CC97
-	for <linux-input@vger.kernel.org>; Thu, 20 Aug 2026 16:23:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.218.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CA5CB46C82A
+	for <linux-input@vger.kernel.org>; Thu, 20 Aug 2026 17:43:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.160.44
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787243011; cv=pass; b=QMRNsL/6cGGzjTKMAOq7VY3Uvx8FI8Vi94irVThUNw7kG175wu4voNNyI5beTGYNLzOvcXjoA+ToPJpdRpDCTdeXHZza7NtfBiIsXYJ005Mj7JJRtklUWW65trx+SZRsXSN8nXwpcKMiphTlP3PiGlLunPhdf6XCSstgX024hOc=
+	t=1787247806; cv=pass; b=YF9ZQZ+HEzuqGdCQhiCZdqpTQ0HMHpPako0WTrJLX0OSRXOvPe0Z4LtFpdBxQrVayhm9s88rnWLbHi7k3s54o4JkiAHBosyU3h4LUTHMsz31ZuRNMykhgq77u7OC6c/dyqWzeFbrbXU2l/8MbbO5dydDvVoWQPRwJlUD0v7xd24=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787243011; c=relaxed/simple;
-	bh=nM7522pMTSm6ohXpjcirSMLxO2bUSl44i0fllcYRFAk=;
+	s=arc-20240116; t=1787247806; c=relaxed/simple;
+	bh=MQi8gDLxZ00zQxu8L8w6TUjdhk0EmiUxnn8U9Ksso/Y=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=DoHi53YAHvmia9iICxLzsEXg+vs2XjQZr8CnQmQqS9iLk+0pk+MNosakF7PHobHBM9NoHfzvbMrxW5Ry4wMRWqfU3+k374uOv3peaYk78ETgs/os1yY6cHKeBImhBLz7ViOyHkaSKY2PUYQbsN3wKEP5Q9f2j44BjSqLHdWZDM4=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=bOlEWY0M; arc=pass smtp.client-ip=209.85.218.45
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	 To:Cc:Content-Type; b=IALZUS77N/pJzxAbHR65I3k9WLFMImtj/yPaBKOBECCSocHaQPlXixGNKqXR6BM5Hx4s7LiIvEQLnEe2J7/Zp+l42Z43mTG9gYiIaDekk1l9icL4+hWawLapFJWX4kRqagGARDezPcvsi2nXJ98/LLUzYmcH7u/BSlT+LLVnsZU=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=raspberrypi.com; spf=pass smtp.mailfrom=raspberrypi.com; dkim=pass (2048-bit key) header.d=raspberrypi.com header.i=@raspberrypi.com header.b=eFf/SBTE; arc=pass smtp.client-ip=209.85.160.44
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=raspberrypi.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=raspberrypi.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="bOlEWY0M"
-Received: by mail-ej1-f45.google.com with SMTP id a640c23a62f3a-c1677c91969so1123166b.1
-        for <linux-input@vger.kernel.org>; Thu, 20 Aug 2026 09:23:29 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1787243008; cv=none;
+	dkim=pass (2048-bit key) header.d=raspberrypi.com header.i=@raspberrypi.com header.b="eFf/SBTE"
+Received: by mail-oa1-f44.google.com with SMTP id 586e51a60fabf-448b69cfc6dso66002fac.3
+        for <linux-input@vger.kernel.org>; Thu, 20 Aug 2026 10:43:23 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1787247802; cv=none;
         d=google.com; s=arc-20260327;
-        b=SKJNLu/ur4l03tLtj7hDTT6PxncgyBlO6uw2Yp48mBq8vUQuxm55W+7Z5wv2g13Mbl
-         ydv0hpBA9qz3hv3eZwHnwTqIgPtY5CO8gTfDQ7ZzHQ8ksmCQ67TOllYTG14RtxwksJWK
-         ggMqaZWYcUmHuUMuhrtCJtj2SiWi3WcYAFFIjZE80iUcQB/uWZaf0efM3L6qrbp2/lSn
-         iAqQ6/oLFs32JubkV7+lwUWt14gji4pVfzWfaNXg7T+3NovqMc4KvTjOMi5u4NJBT1xs
-         FsZaji1VtwGYM/4WpuyUYxQ0M6YA8m8ii78CVqBkbOjobgwnZdA2y8MkWo2j6gZ3WiJN
-         gR5w==
+        b=RfNUBmIGF03JAZsEY7EjejZ8PI0wg088kGOvSa/IDrOw/2fayTKoZ7xuifWNlWjS6j
+         PezQWp01c7UqbZ/EdDnTFffzNA8gbnGt9PY+kPs1S2IayFrF7xf84Z9APXySqlf7mA8l
+         ZrmeVtlYrdfQaJeVhowL9Abw/nEXDgx0qtgO1xH/pk5ynDUXKs4OdNfXY5NIIug4kO0N
+         RN5jxlHRr7d53WMH+pT6pFYKgEUZQYOmpAJa7bEWvEIRQQbJkn+HazhgfELRN3kiZE+m
+         JvAf1UoWxWEBIncZYodjFKWxttsblS/q0hgMb1iJDnDUdlPabbHBcGs1G9/7eDGXW459
+         iOmg==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
         h=cc:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:dkim-signature;
-        bh=yKhR9WkhIUiBs/DXzAMG9ly3j13B+5WjNx96hhgAatQ=;
-        fh=s5ayX/tL1sDxEJSDAjAIQVFEUpyFtpfYK0PN2x/7RCo=;
-        b=fligASv3SGBiBvaIgq+NdbhA9til2hfk67IdrzFwFnRNBLS38fXsJF2OuXgww/zX0P
-         PVyCTU29r1UrYpfesXn1Zpcfcc2dgjWxCmWeHMxYt6rZ9nS6z58hK+lm7NR7Leo1GbVL
-         t4br+R+ZJJYDLzzjLPdr4NccE7tHK9X8LRpsMg18aGChW5DSrZyS0Byb2mO7MBltMyid
-         O/9uR6v/9UZyHyzITfFTukRM7fva/z42I2Y3/PZ4NR4+KXoqob2wYxIfhm2rY9zXZtmK
-         8OX1YH8JDaSdSSQ3EOkxQf5DRyu4gSLDxpJ4iMgZVwmUbUwsISfLJH6ZQIwYfiQBbj4p
-         qSmQ==;
+        bh=7eL6FQ/USBPX2RQ0Gd6bBRBvrCoiJLr6erKFtCfBdHw=;
+        fh=PTyic5uMP6w+v8Fm8KoqZ32rfUzVBy/1Ol/aNVLN2LA=;
+        b=AY3yM6OxNs8jRIdTt3Xk5YWgAR2oig/4bsh5vkRKIikN9H04Ajt+dQbYssKOAv6ut1
+         ZWQ2yzBWLDiojsCAsUh/k21eMLjPA3ukEdRBxqhfpp596VjFPTDNDaKoGPwOczTFNwdh
+         sFSS6HDoPnskq4vLePhSeBiU0GLde+wL3nj9iurVA7e9Rw58UIHw2/ccGOebBfPHaiEm
+         uJMm5Do2aeO/hVXAB/f/nGe5od805+C27z6HaCroj/uGTDkcsLDcat68r600uxIn3ocr
+         F8BFuxKDACkPUAAjYclYcZkUs32Vd5jVHpPL5uKCTF7AkwuDTI1zFdk1gOycDoOYpycY
+         M2wQ==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1787243008; x=1787847808; darn=vger.kernel.org;
+        d=raspberrypi.com; s=google; t=1787247802; x=1787852602; darn=vger.kernel.org;
         h=content-type:cc:to:subject:message-id:date:from:in-reply-to
          :references:mime-version:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=yKhR9WkhIUiBs/DXzAMG9ly3j13B+5WjNx96hhgAatQ=;
-        b=bOlEWY0Mb292rIMAKTE6vd/2FxvUetWzvZEY63S9Avih8hLO9+PCK5rb0GHwFLtbKH
-         kk6Yyekz7v8JyRhvAMKxxrElNC5posK7Q/kEiwL2lTIIDaq9/a08fizXIo7lDyJrgqP0
-         b5gdhtWHvAoPgZjSNxI+CQ4NsOydysVImcu+u/xsGrEcKrPHk5smpVKqGROCgs7aVEkv
-         yFqwB/fLbbyTtVeP8L4wcLkSq/Ot1NHJjgJ8Y/wFGbCLecv3jNkvmi+gt/rtzxb6/A5F
-         2a6XcFm0RVzDVbzeeb5oq8dNKe2jOt7WD5xzQ7b54KuQM0ddOntBTLtv02t+AFfyfokM
-         Igwg==
+        bh=7eL6FQ/USBPX2RQ0Gd6bBRBvrCoiJLr6erKFtCfBdHw=;
+        b=eFf/SBTEj8l731GxDy6oOoKJ4N+lIITJ5ScK6m+N++KHtWMZy5QtbaMVFHruviKkZJ
+         BGujtBxO4GtFq2m76uweAnqxHF0tUk3EpRiz4ub7KGB1AJi/7eZUJxiohTNp9ptsP8kt
+         N7w/mC3IgRE2qbu7f3wDhbXpm6i9gZC0Skn2YDQsqfQ7RmS+2/67M8rq9642NOauCZMb
+         OivKuiAjyDjzftMYsRZcJHEM+8VsQ+K0yaNwfxDkieLN3toD5ycfEqEurGieKYADrgpA
+         7aQYNooj6AUpoIpy67qLqnTteIvajo13zDLjEYeTMMSzrv2noJFQ3e/9a8uGs3nIIkRT
+         KAwg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787243008; x=1787847808;
+        d=1e100.net; s=20251104; t=1787247802; x=1787852602;
         h=content-type:cc:to:subject:message-id:date:from:in-reply-to
          :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to:content-type;
-        bh=yKhR9WkhIUiBs/DXzAMG9ly3j13B+5WjNx96hhgAatQ=;
-        b=FFoX4P2hu9KUt79kAPzurqMcOCkTZ6XLai5JeJNDWuu+afavJCaz1xdeW8UJkfFUix
-         d20jmL2lmKRWB+KZdXn4uD/9YMAn8xLeUM0zveIhIZT55As2/dOJhPmPJePS9O3kH3Qg
-         V9q4Q+AyihVfSdbwPAjFiwn/6YaiRanIyf+97PsVp6YOtJMnGTpohCy8wzu8IZlxaYbo
-         1bU31AbGuUDgdfoERCAk9lJJIEl2wjxYohou7WbLsCKUY9O2sVefvjYxBWbeLjHSPJIH
-         4/w7BKhaF4eVCXc37rHEI2+VE8nI6CPbEjhN73XVTlAOhx5G2PtwuNgAzKhXmRiXbw8h
-         Ij4Q==
-X-Forwarded-Encrypted: i=1; AHgh+Rpu9nQKUEQ+oPYfI8KKpwy+wVVIzSx9Im64nJvJKpSvPjzCyVUa0+5hU3Z8ryRYc8xXXy2MTaRGbWhALA==@vger.kernel.org
-X-Gm-Message-State: AOJu0YwXh3eYJikur0XHX+nrA/pn0XPdsNkgBLWGv2BPQb+2XI4uCO9J
-	TCp5C51GYES1MOGdlYFzWopmllaRotVq57UyZ8I03rkCOwVL8oI60aglxPqWzEZ6rbXW4VMrQiu
-	fRaqOXcAsvrlccF3DbL9r6e7MAHWnm6M=
-X-Gm-Gg: AR+sD11gt7sM1wpnI2Su9gIzFcIDaQlFzUBQJo6ttstlsPxCZO4WwC8WQZ6x4FrX4mM
-	k4SGdfyS0atCM3pH0fYOaCjj31bS1lweh3mXNTWhs8PaP85NoVQTPpjy0iZTyJ2eBsY3mmAnken
-	1QaCu4U5dgKC4ZDNoQviha7zjcmV83zSTolVMlvxB1fTqaFPF0HBYWBSmMfBVvVwH7wbmBrpsim
-	XlYOZRA0sBn6dREYdX0QfmtKFlWZEE2h4wsfn5dNQOUYpqNsZpHhdwIpaogWGtbK7G4lLYW4sz1
-	sDxQsVZe7FQpDwit8lftwZClU4r6icmVhRdZcrWG328=
-X-Received: by 2002:a17:907:a647:b0:c12:9b93:61fd with SMTP id
- a640c23a62f3a-c23e86dd23fmr1141726266b.6.1787243007488; Thu, 20 Aug 2026
- 09:23:27 -0700 (PDT)
+        bh=7eL6FQ/USBPX2RQ0Gd6bBRBvrCoiJLr6erKFtCfBdHw=;
+        b=PNuGlVq42fe0FVr/3CCmaNm78NWPSg/ZYiAsVnZWKyHmt0jJdlne3jOtpeh6LOI7Ja
+         dyhP1T/Fb8BXIMQqya7CD8ql6jDdR1uF1jCfpNHJPuhiT/ZYLzskoraTtPmS8Km6wtBL
+         ddN3KaennsDOS6j/YG2R/25CZUJsJNKy9fYumX22jUdyNDI8HlCU9ka8SNcrtSNtIe2B
+         7CPt6OwQ1+62CD7IOsj0rlvln0iC6XnJ8m/r7mB6BRJCiToiqjGo5Vzfe+NKCoCEIHi3
+         XRH6Y22TTezoAEhLRPUEK+QedF3xW669dPwRoP09jqmyHYFxcsUOaljT6e2HZHJT+Ini
+         WUvw==
+X-Forwarded-Encrypted: i=1; AHgh+RoGnyomlHHzhDIYMWT9Pg44irbMGUmhuvsuwBU0RkTP+NBWIrVtOOI9pil59jI+wDG8Ae/pHAmxbJQeDQ==@vger.kernel.org
+X-Gm-Message-State: AOJu0YwP6VIPh1DgOoyt0ocxXQAkfPa+kuhfnOsfr6YR+xUka0UqAa8I
+	7bHBd3O/e7/iAoC2p8kayKJisgHuXbVopYuGHQQEdxbzrkh4yTEhaV3XDy7Ey5oRNsI5dOUG1Kl
+	jEK9C6NczdT55Hogcs0eaIhDQT5Yd4MExoW4aRW2ATA==
+X-Gm-Gg: AR+sD12K0DfL/ZPXTplpwmZUjtJB3DAxI9Q/IY+6o11lirUZ4JaFA3dURoy+N3PAtfW
+	ET1cGGL3rtoAl54Kp/3mDbeVKhiszZpBYUQdMhbJUXz16nAhJW7uBJGrwHCprr6TvIVWkcMCYpS
+	auIEKaHKYGsymycEvTfdr1A1asQeaY+i537E2o5uvbN7rlg3SRXT0f73ybWfAx2he+qMUFcj3Kj
+	gtkhjKSHaHCHquCdJCLCI1SxvB89KY5Gp95YF+lc5q1Qw8FqH46RTVToOkJ/FqaVxjFtNEQ3o1O
+	MYvk2wWlQJ40Pm/j3sfZeEgtPMc3u67Mv16rXTeetZwa0+CJbMbMjOfQdXizCbWulEr4Q0ivlXF
+	R6mNg5Ex/Ou4yGrfoP1cAI7B2FhffpY7HatdxmQhxjDTTyIVGvlGVkI9UuA0x
+X-Received: by 2002:a05:6870:610e:b0:45e:de9f:e019 with SMTP id
+ 586e51a60fabf-462f69bebc7mr14233259fac.21.1787247802475; Thu, 20 Aug 2026
+ 10:43:22 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260820122242.120039-1-l.scorcia@gmail.com> <20260820122242.120039-2-l.scorcia@gmail.com>
-In-Reply-To: <20260820122242.120039-2-l.scorcia@gmail.com>
-From: Luca Leonardo Scorcia <l.scorcia@gmail.com>
-Date: Thu, 20 Aug 2026 18:23:16 +0200
-X-Gm-Features: AcwNN1WN15gIPFE-wS5GMikP40k9b6tUzSd1TSg8R6uNQUbH06o6RfXy9sJzOY8
-Message-ID: <CAORyz2Lgo=teK89gxm6QBMfREY=_cAFN2TuLUFvwGcYpozkWww@mail.gmail.com>
-Subject: Re: [PATCH v9 1/9] dt-bindings: mfd: mt6397: Add MT6392 PMIC
-To: linux-mediatek@lists.infradead.org
-Cc: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>, 
-	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, 
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh@kernel.org>, 
-	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, Sen Chu <sen.chu@mediatek.com>, 
-	Sean Wang <sean.wang@mediatek.com>, Macpaul Lin <macpaul.lin@mediatek.com>, 
-	Lee Jones <lee@kernel.org>, Matthias Brugger <matthias.bgg@gmail.com>, 
-	Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, 
-	Linus Walleij <linusw@kernel.org>, Val Packett <val@packett.cool>, 
-	Julien Massot <julien.massot@collabora.com>, Fabien Parent <parent.f@gmail.com>, 
-	Akari Tsuyukusa <akkun11.open@gmail.com>, Chen Zhong <chen.zhong@mediatek.com>, 
-	linux-input@vger.kernel.org, devicetree@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, linux-pm@vger.kernel.org, mfd@lists.linux.dev, 
-	linux-arm-kernel@lists.infradead.org, linux-gpio@vger.kernel.org
+References: <20260820065340.3765457-1-gonglinkai@kylinos.cn>
+In-Reply-To: <20260820065340.3765457-1-gonglinkai@kylinos.cn>
+From: Dave Stevenson <dave.stevenson@raspberrypi.com>
+Date: Thu, 20 Aug 2026 18:43:05 +0100
+X-Gm-Features: AcwNN1W2Lre5-E7B9PhxwavzSSjkrGP8rkzlLuGb6eam34DkKNdWQZ4y079Jp24
+Message-ID: <CAPY8ntBO5Rk6dEcRc9SgYKpgF6=KBxg7STpLT02whQ8pY-BW0w@mail.gmail.com>
+Subject: Re: [PATCH] Input: raspberrypi-ts - reject out-of-range point counts
+ and slot IDs
+To: Linkai Gong <gonglinkai@kylinos.cn>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
+	Florian Fainelli <florian.fainelli@broadcom.com>, 
+	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>, 
+	Nicolas Saenz Julienne <nsaenz@kernel.org>, Rob Herring <robh@kernel.org>, Eric Anholt <eric@anholt.net>, 
+	linux-input@vger.kernel.org, linux-rpi-kernel@lists.infradead.org, 
+	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, 
+	stable@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 
-> --- a/Documentation/devicetree/bindings/mfd/mediatek,mt6397.yaml
-> +++ b/Documentation/devicetree/bindings/mfd/mediatek,mt6397.yaml
-> @@ -40,6 +40,10 @@ properties:
->            - mediatek,mt6397
-> +      - items:
-> +          - enum:
-> +              - mediatek,mt6392
-> +          - const: mediatek,mt6323
->        - items:
+Hi Linkai
 
-Please disregard this patch/series. Sashiko correctly pointed out that
-it's not necessary and actually wrong to provide a fallback on
-"mediatek,mt6323", which was needed on a previous iteration of the
-series but not in the current one.
-I will mark the series as archived on patchwork and provide a revised
-v10 once completed testing on devices.
--- 
-Luca Leonardo Scorcia
-l.scorcia@gmail.com
+On Thu, 20 Aug 2026 at 08:29, Linkai Gong <gonglinkai@kylinos.cn> wrote:
+>
+> rpi_ts_poll() copies a firmware snapshot and walks regs.point[] using
+> num_points. The array has RPI_TS_MAX_SUPPORTED_POINTS entries, and the
+> GPU is documented to report 0-10 points (99 invalidates the copy).
+>
+> A corrupted count would index past that snapshot. Slot IDs are a 4-bit
+> field (0-15) while only 10 MT slots are allocated. Drop the whole frame
+> instead of clamping, so a bad report cannot update a subset of contacts.
+
+This touch driver is only used with the original Pi DSI display when
+used with the legacy, firmware driven, display stack. Raspberry Pi
+have considered that display stack deprecated for at least 4 years.
+Our guidance is to use the edt-ft5x06 driver alongside the vc4 DRM driver.
+
+TBH I'd support dropping this driver entirely. Will anyone object if I
+send a patch to do that?
+
+> Fixes: 0b9f28fed3f7 ("Input: add official Raspberry Pi's touchscreen driver")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Linkai Gong <gonglinkai@kylinos.cn>
+> ---
+>  drivers/input/touchscreen/raspberrypi-ts.c | 4 ++++
+>  1 file changed, 4 insertions(+)
+>
+> diff --git a/drivers/input/touchscreen/raspberrypi-ts.c b/drivers/input/touchscreen/raspberrypi-ts.c
+> index 841d39a449b3..bd63d95c094b 100644
+> --- a/drivers/input/touchscreen/raspberrypi-ts.c
+> +++ b/drivers/input/touchscreen/raspberrypi-ts.c
+> @@ -78,6 +78,7 @@ static void rpi_ts_poll(struct input_dev *input)
+>                  ts->fw_regs_va + offsetof(struct rpi_ts_regs, num_points));
+>
+>         if (regs.num_points == RPI_TS_NPOINTS_REG_INVALIDATE ||
+> +           regs.num_points > RPI_TS_MAX_SUPPORTED_POINTS ||
+>             (regs.num_points == 0 && ts->known_ids == 0))
+>                 return;
+>
+> @@ -87,6 +88,9 @@ static void rpi_ts_poll(struct input_dev *input)
+>                 touchid = (regs.point[i].yh >> 4) & 0xf;
+>                 event_type = (regs.point[i].xh >> 6) & 0x03;
+>
+> +               if (touchid >= RPI_TS_MAX_SUPPORTED_POINTS)
+> +                       return;
+> +
+
+Can you just abort here?
+If this was with i > 0 then there has already been 1 or more
+input_mt_slot(), input_mt_report_slot_state(), and
+touchscreen_report_pos() calls which update the device state.
+True input_mt_sync_frame() / input_sync() haven't been called to
+report the event to userspace, but my gut feel is that the next poll
+won't necessarily reset those events in the device state. I'm happy to
+be corrected by someone who knows the input subsystem better.
+
+  Dave
+
+>                 modified_ids |= BIT(touchid);
+>
+>                 if (event_type == RPI_TS_FTS_TOUCH_DOWN ||
+> --
+> 2.25.1
+>
+>

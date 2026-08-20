@@ -1,43 +1,44 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 909903B9D95;
-	Thu, 20 Aug 2026 12:51:31 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 18C583B6BE5;
+	Thu, 20 Aug 2026 12:58:50 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787230294; cv=none; b=m88F7w18Rbn1w1fQsLWihIgGqvZSzsJJ2LrriS8sCg6ysrZvSCmybJFXcEhBi6GTPt27x3Hm0yWe4Usm3oVf4qhjrS7CPuHbomOemGTeuPUMwNmbJXjIu7qBpz/NdYyupOZc8jgwQlaDjrpaGqcUYlXm0Ww6+8iUZwm9POa3tCk=
+	t=1787230732; cv=none; b=iC7pnyJK0mHCXVu1hnZYxNGGYVG8uv6Zi9CHEc6IkAsq8m8Z4VzGAK0lRZqkBvINb31kKqkc0syW1tf3vop8Ep72BRadZo42BIaHyz9toRxOwVT0zUeKBchYAp+Hj8mrOIfXSYh3KiV1pSzPCAxhj9CB+80Y495DH9uIGKqs3cI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787230294; c=relaxed/simple;
-	bh=UEFv4ubkzDDyVMEhHdp8Lzmf6vORnx9nUz7O8vn5tkw=;
+	s=arc-20240116; t=1787230732; c=relaxed/simple;
+	bh=KVIwEUvDX5aADJeU4WokaUFB7MzfcTBq9Yz7J7m7Y9I=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=pcJjw+1DFaBG7Pm3MnaxQp7rNetv+BBUdXfcWPdfTMzV0Gl9i254JSTg+DEpMFdG5rm3+yb+Q9axqicAtYbPbhqz4GWGJzO6BrXAjH0u/ebT9B93RMww7zcH7ght4Um+Y64CoZh9wNqD/tJlZQSsOS9wuoJ5EVAPUJEcMH/f/vQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Rnf99V00; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=iaUkUnRsdqKoRDuHUb5A1mdde6XhVR3fY/qdbIMzklZLZv/tJP2uqRT1HVnLoYv9B9Z03VZs1VCg6K0JHSo3fqy0baA3Upvf9TYPiqWum8uMFosku2AeCwm6FyoFoeAzuhhjQ2xfT1V8/KVL/Kufn4vZzsZUwQJszCbSr+i1BA4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=jYzRo4DQ; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Rnf99V00"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A39F21F00A3F;
-	Thu, 20 Aug 2026 12:51:30 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="jYzRo4DQ"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3B34D1F000E9;
+	Thu, 20 Aug 2026 12:58:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787230291;
-	bh=Pzjl1UYb/W+1/Deq4qM5a7bfuySZtGdlOKcNfGH5BVk=;
+	s=k20260515; t=1787230730;
+	bh=kEGaqNW1SCrah/gNuaRHobfiAob4noluQCSQD3ehn+E=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=Rnf99V004Ay9UkWAy3kvJePPzSdIlr0m26qGHvbmedH36pCa7sZDzzD4YXmD8DluL
-	 bXAp7kSPnETnLKz/uLDNQq//4EOUop/Rpah7ryf/AAwKd7E1I+BSmgrPw8sK/ZN/1R
-	 CSqUNZhWvgRawoe3GmnNdAkjKX/cNldGoe/q+NrhCLRHH/V/YGzphSRbPySnR9vkMZ
-	 NeR9oO9cQaN9dgiMoNYRDIbBZ7pIrvLKsSDu2nf/4n/+17aJLugIIYvjDoYUeCIqG5
-	 2MhWJqYJ8rLatvYfOc6n3XRyXYz9QAdgN2XicI7neaW5fwQJjMD0ssKFEbUlnN6UdM
-	 fVKY5xrxHrREw==
+	b=jYzRo4DQpfmCzrvh8BcS/jelxazxP8/gCwXzIR8PcXODhtxBRHJ0/ds+8hc/rR7Zy
+	 fcAGXZgPJQVj7eWu7zKKog3pZ2M9QPWw2mM0bP836UIRvvzr9ankp7f3Qwq0lg0FH6
+	 YfaileXQN2QvH0FkNMQsE5dwFUVGNBQtJct3iyBgItbbT2AOOQVjcXqSpjTxn1yAPQ
+	 PH5R79nJezRB8OQXbbY6I/szZAAZ47TwmSWx/lJyotc/tXN1bZLFiywgIaHq0w2e8f
+	 y0JV6niMFn2M3Kw3gKVLkJSFUu9pQaa7KiR27aEuMy40ZWJfXkSS8xz4B8OAu0s0jz
+	 Qx7W8kCJ0H4aw==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v9 7/9] pinctrl: mediatek: mt6397: Add MediaTek MT6392
+Subject: Re: [PATCH v9 9/9] arm64: dts: mediatek: Add MediaTek MT6392 PMIC
+ dtsi
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Luca Leonardo Scorcia" <l.scorcia@gmail.com>
-Cc: robh@kernel.org, mfd@lists.linux.dev, devicetree@vger.kernel.org, lee@kernel.org, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, conor+dt@kernel.org
-In-Reply-To: <20260820122242.120039-8-l.scorcia@gmail.com>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, mfd@lists.linux.dev, lee@kernel.org, conor+dt@kernel.org, robh@kernel.org, devicetree@vger.kernel.org
+In-Reply-To: <20260820122242.120039-10-l.scorcia@gmail.com>
 References: <20260820122242.120039-1-l.scorcia@gmail.com>
- <20260820122242.120039-8-l.scorcia@gmail.com>
+ <20260820122242.120039-10-l.scorcia@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 20 Aug 2026 12:51:30 +0000
-Message-Id: <20260820125130.A39F21F00A3F@smtp.kernel.org>
+Date: Thu, 20 Aug 2026 12:58:49 +0000
+Message-Id: <20260820125850.3B34D1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -46,70 +47,72 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
 Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-
-Pre-existing issues:
-- [High] Unbinding the pinctrl driver leads to a Use-After-Free of the gpio=
-chip structure because it is never unregistered.
+- [High] Incorrect fallback compatible string 'mediatek,mt6323' on the PMIC=
+ node breaks older kernels.
 --
 
---- Patch [7]: [PATCH v9 7/9] pinctrl: mediatek: mt6397: Add MediaTek MT639=
-2 ---
-commit 8de420548b885f3f527c1ef77d05dce6a4500878
-Author: Luca Leonardo Scorcia <l.scorcia@gmail.com>
+--- Patch [9]: [PATCH v9 9/9] arm64: dts: mediatek: Add MediaTek MT6392 PMI=
+C dtsi ---
+commit 8aa00d786a3380122f097a78ee0ea676d704615c
+Author: Val Packett <val@packett.cool>
 
-pinctrl: mediatek: mt6397: Add MediaTek MT6392
-   =20
-This commit adds support for the MT6392 pinctrl device by introducing its p=
-ins
-definition and updating the MT6397 driver to retrieve device data from the
-match table.
+arm64: dts: mediatek: Add MediaTek MT6392 PMIC dtsi
 
-> diff --git a/drivers/pinctrl/mediatek/pinctrl-mt6397.c b/drivers/pinctrl/=
-mediatek/pinctrl-mt6397.c
-> index 03d0f65d7bcc1..8ba02e70595ce 100644
-> --- a/drivers/pinctrl/mediatek/pinctrl-mt6397.c
-> +++ b/drivers/pinctrl/mediatek/pinctrl-mt6397.c
+This patch adds the device tree include file for the MT6392 PMIC, which
+provides support for regulators, keys, pinctrl, and RTC. It also includes
+this new file in the shared device tree for Pumpkin boards.
 
+> diff --git a/arch/arm64/boot/dts/mediatek/mt6392.dtsi b/arch/arm64/boot/d=
+ts/mediatek/mt6392.dtsi
+> new file mode 100644
+> index 0000000000000..69d63c153d9e5
+> --- /dev/null
+> +++ b/arch/arm64/boot/dts/mediatek/mt6392.dtsi
+> @@ -0,0 +1,145 @@
 [ ... ]
-
-> @@ -40,13 +62,24 @@ static const struct mtk_pinctrl_devdata mt6397_pinctr=
-l_data =3D {
->  static int mt6397_pinctrl_probe(struct platform_device *pdev)
->  {
->  	struct mt6397_chip *mt6397;
-> +	const struct mtk_pinctrl_devdata *data;
-> +
-> +	data =3D device_get_match_data(&pdev->dev);
-> +	if (!data)
-> +		return -ENOENT;
-> =20
->  	mt6397 =3D dev_get_drvdata(pdev->dev.parent);
-> -	return mtk_pctrl_init(pdev, &mt6397_pinctrl_data, mt6397->regmap);
-> +	return mtk_pctrl_init(pdev, data, mt6397->regmap);
->  }
+> +&pwrap {
+> +	pmic: pmic {
+> +		compatible =3D "mediatek,mt6392", "mediatek,mt6323";
 
 [Severity: High]
-This is a pre-existing issue, but does unbinding this driver lead to a
-use-after-free of the gpiochip structure?
+Does providing the "mediatek,mt6323" fallback compatible string break older
+kernels booting with this device tree?
 
-Looking at mtk_pctrl_init() in drivers/pinctrl/mediatek/pinctrl-mtk-common.=
-c,
-the pctl->chip memory is allocated using devm_kzalloc() but registered using
-the unmanaged gpiochip_add_data() function:
+The MFD core in older kernels will match the "mediatek,mt6323" string and
+attempt to spawn the MT6323 sub-devices. However, the child nodes in this
+device tree are not compatible with the MT6323 drivers, causing the regulat=
+ors
+to fail probing.
 
-drivers/pinctrl/mediatek/pinctrl-mtk-common.c:mtk_pctrl_init() {
-    ...
-    pctl->chip =3D devm_kzalloc(&pdev->dev, sizeof(*pctl->chip), GFP_KERNEL=
-);
-    ...
-    ret =3D gpiochip_add_data(pctl->chip, pctl);
-    ...
-}
+> +		interrupt-controller;
+> +		#interrupt-cells =3D <2>;
+[ ... ]
+> +		mt6392regulators: regulators {
+> +			compatible =3D "mediatek,mt6392-regulator";
+> +
+> +			/* Fixed supply defined in the data sheet */
+> +			avddldo-supply =3D <&mt6392_vsys_reg>;
+> +
+> +			mt6392_vcore_reg: vcore {
 
-Since the MT6397 platform driver lacks a .remove callback to explicitly call
-gpiochip_remove(), unbinding the driver via sysfs causes devres to free
-pctl->chip while it remains registered in the global gpiolib lists.
+[Severity: High]
+Since the top-level PMIC node claims compatibility with MT6323, wouldn't the
+MT6323 regulator driver expect this child node to have the
+"mediatek,mt6323-regulator" compatible string and specific sub-node names
+like "buck_vcore" and "buck_vproc"?
+
+Because this node uses "mediatek,mt6392-regulator" and names like "vcore" a=
+nd
+"vproc", the MT6323 MFD driver fails to associate the regulators with the
+device tree. If the MT6323 drivers cannot parse this structure, should the
+fallback compatible string be removed from the PMIC node to avoid tricking
+older kernels?
+
+> +				regulator-allowed-modes =3D <MT6392_REGULATOR_MODE_NORMAL
+> +							   MT6392_BUCK_MODE_FORCE_PWM>;
+> +			};
+> +			mt6392_vproc_reg: vproc {
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260820122242.1200=
-39-1-l.scorcia@gmail.com?part=3D7
+39-1-l.scorcia@gmail.com?part=3D9

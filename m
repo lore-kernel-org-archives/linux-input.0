@@ -1,253 +1,232 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1EE6141A4F7
-	for <linux-input@vger.kernel.org>; Thu, 20 Aug 2026 11:27:25 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 03E83432BC6
+	for <linux-input@vger.kernel.org>; Thu, 20 Aug 2026 11:31:55 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787225247; cv=none; b=JYxvga/0wX+PtHYwboxM+OCtyTTqeN/loqvkMovJ6Eh4nEik92gaCrjLC8GijCCz1gpfcfau4Nriae0AnRzl9pqKmG8khQl5kPdC/bzlEu5CTy7VsVM1sFje59FCnmK5lM5bfK5YBInLVnSmZwWy32C8zwoqPuAnVy+9KwlZdpc=
+	t=1787225523; cv=none; b=iyoEQvyC1AAPf+hhk3J+Gbby1FkgIm7n3TekLv0tKtZ6jGebZS32utGdSDEMKTb4cGuNTEjt3rkTZPjzM+d7TdYO2c3yYH7vhvQsd5bLLzU7P7s7qMiCop9XVVwnGs8qww4Ta43k3cQNWMAWFTjfeNYwExNbY3ZKYfEVRsgC9/w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787225247; c=relaxed/simple;
-	bh=CqOT5Wn4QJg7oeqx8rXLrXQ+RwvlOZHwxusVcYIF8yA=;
+	s=arc-20240116; t=1787225523; c=relaxed/simple;
+	bh=7kABu0ux8KsNG00bIY6bSBMdPMJ1tQEbWrpC3BBGtZc=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=P6ijwfa4J33WB87F5Ct5x/kKKDLJB65o4qwcECOkH1Y8hkapQBNEZ6ThnAEyyRb5I7mAeHfLs2oh5nYxvOugZlN3HMpe0gH1UL+osf0H/w2JGQBJYHKMkWCXAfHov74rjP9IOLudQhIse5Ap4Z6XmrhxN6PauL4j2A5E0pzylCg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=FlT9lOsA; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=Y0Kw+yLwbDF2SSb5H4+mhJ1m04Pwu0UQ7MCPkdUVV51G1pF3OA+2JxJz+7q1b3UoitOZiBFBOjYC6CNU3oi4ty2lzEXx1o2PKdmOF5FmBShm2ic3k0cqFg0gxHUvpIu1/C+VqdAJfm4LiN0Gp0LoWQEN/lB5jigma1U1TK5rbdw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=PqI2aXsx; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="FlT9lOsA"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 966F21F00A3A;
-	Thu, 20 Aug 2026 11:27:25 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="PqI2aXsx"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B17AC1F32A93;
+	Thu, 20 Aug 2026 11:31:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787225245;
-	bh=6tsDTBT+2VgC58Hcw1k+Cm/DTRMZJFaozB0t7qFJ0oo=;
+	s=k20260515; t=1787225493;
+	bh=wfCPCTp7Lnq7RhYeI4lkM6wNTlnb3ddbbB1Uknzy16Q=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=FlT9lOsAJWpOmmmjjkEJj8Ytjr5sBTSK2EgX7ijLcK9TkP8FJSSwWA49tqheBqM4n
-	 XZfG8VOKpJ1IvGIPdBoawIZBiYw8EdsylgKMB/DpnWUf+T2x9IloUNdIHlZkPpSff8
-	 XI6EmwaMjMZcWtdq8uHWK607mfOkH1aGA7/LvCB2nqJlNT1l5gafgW85xnriw4hbHy
-	 imvnUDH3wWxb/y/+SnGGjpVyeN8Zs8t6YZvuWSW6QeIemhLR+u8vHc5zrWU4pLY4GX
-	 PcuWWn1LYG9oeaa3ojzNm1m2ZPrYkB+V3djsrXCRU/h9qyjNa6f7uky5ICIskcsHyQ
-	 fvHKZiXXpxXPg==
+	b=PqI2aXsxzMQMfDqtLAW9RxIgcVutG16CTnus7lmJM5S9FLFMR0nJLfaSBnZbbJCjk
+	 8OeWkQx8MU1s8s3ImhLFPtamK1k2ns1i/VZZA4FDMUX7qAUUVWsrFrEwcp2df7Z/Xz
+	 PkVayOAs+B9xhB3SScm/i9Mj0sPq9KLvTDrQZdSkNnZ9U7fE1VcSyewNqgHVwqDLo7
+	 I3v92dJl8QGC/iWz5su2+EA5HEnyj+L9lQUaSo5cstGRN4SOS9mideZaYnLUeWzFoB
+	 hXiegISh/IRwOBmlShnFSyxzg2+1zd8PnTEzkMC+tM1JO1IIXSubXFgxw/q3ghQ+2y
+	 OrECqGe6mKMVA==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 2/2] HID: intel-thc-hid: intel-quickspi: bound the GET
- REPORT response to report_buf
+Subject: Re: [PATCH 1/2] HID: intel-thc-hid: intel-quickspi: size the input
+ buffer for the DMA
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "HyeongJun An" <sammiee5311@gmail.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260820111558.475304-3-sammiee5311@gmail.com>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <20260820111558.475304-2-sammiee5311@gmail.com>
 References: <20260820111558.475304-1-sammiee5311@gmail.com>
- <20260820111558.475304-3-sammiee5311@gmail.com>
+ <20260820111558.475304-2-sammiee5311@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 20 Aug 2026 11:27:25 +0000
-Message-Id: <20260820112725.966F21F00A3A@smtp.kernel.org>
+Date: Thu, 20 Aug 2026 11:31:33 +0000
+Message-Id: <20260820113133.B17AC1F32A93@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 5 potential issue(=
+Thank you for your contribution! Sashiko AI review found 4 potential issue(=
 s) to consider:
 
 Pre-existing issues:
-- [High] State machine desynchronization in raw request handlers due to unr=
-eset completion flags.
-- [High] Missing locking in raw request handlers allows concurrent requests=
- to corrupt the shared command and response buffers.
-- [High] Use-After-Free: DMA buffers are freed during driver remove() witho=
-ut synchronizing with the threaded IRQ handler.
-- [Medium] Subsystem API Violation: The transport driver uses hid_input_rep=
-ort() instead of hid_safe_input_report().
-- [Medium] Signal interruptions are incorrectly treated as timeouts in raw =
-requests, breaking signal handling.
+- [High] Heap buffer overflow in intel-quicki2c when receiving oversized DM=
+A packets.
+- [High] Out-of-bounds kernel memory read in intel-quicki2c leading to an i=
+nformation leak.
+- [High] Use-After-Free of DMA buffers during driver teardown due to missin=
+g IRQ synchronization.
+- [Medium] Transport drivers violate HID subsystem guidelines by using the =
+unsafe hid_input_report API.
 --
 
---- Patch [2]: [PATCH 2/2] HID: intel-thc-hid: intel-quickspi: bound the GE=
-T REPORT response to report_buf ---
-commit c4e25ca5cbdc0b92b00b6a64c016c4b8ee39d40d
+--- Patch [1]: [PATCH 1/2] HID: intel-thc-hid: intel-quickspi: size the inp=
+ut buffer for the DMA ---
+commit b291dd6cc5d97a1fbb9fb9824d1d976e0d317c24
 Author: HyeongJun An <sammiee5311@gmail.com>
 
-HID: intel-thc-hid: intel-quickspi: bound the GET REPORT response to report=
-_buf
+HID: intel-thc-hid: intel-quickspi: size the input buffer for the DMA
 
-This patch bounds the GET_FEATURE and GET_INPUT_REPORT response copy lengths
-to qsdev->report_buf_size. It drops responses that exceed this size to prev=
-ent
-overflowing the buffer with responses bounded only by the DMA packet size.
+quickspi_alloc_report_buf() sizes input_buf from max_input_len, but the
+RXDMA2 channel it feeds is programmed with ALIGN(max_input_len, SZ_4K):
+quickspi_dma_init() passes the raw value and dma_set_max_packet_size()
+rounds it up.  setup_dma_buffers() maps that rounded size and
+read_dma_buffer() bounds the message against it, so a controller
+reporting max_input_len 64 and rep_desc_len 600 gets a 600 byte buffer
+behind a 4096 byte DMA.  thc_rxdma_read() has no capacity argument, so
+nothing downstream can catch it.
 
-> diff --git a/drivers/hid/intel-thc-hid/intel-quickspi/quickspi-protocol.c=
- b/drivers/hid/intel-thc-hid/intel-quickspi/quickspi-protocol.c
-> index 847c5ec55569a..7d34cc22a11a8 100644
-> --- a/drivers/hid/intel-thc-hid/intel-quickspi/quickspi-protocol.c
-> +++ b/drivers/hid/intel-thc-hid/intel-quickspi/quickspi-protocol.c
+> The intel-quicki2c sibling floors its input buffer at SZ_4K for this
+> reason, with the comment "give default 4K buffer to avoid DMA buffer
+> overrun".  Round up the same way the DMA does.
+
+[Severity: High]
+This isn't a bug introduced by this patch, but does intel-quicki2c actually
+suffer from the same DMA buffer overrun you are fixing here?
+
+Looking at `quicki2c_alloc_report_buf()` in `pci-quicki2c.c`, `input_buf` is
+allocated using `max(..., SZ_4K)` instead of `ALIGN(..., SZ_4K)`:
+
+drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c:quicki2c_alloc_repo=
+rt_buf() {
+	max_report_len =3D max(le16_to_cpu(qcdev->dev_desc.max_input_len), SZ_4K);
+	qcdev->input_buf =3D devm_kzalloc(qcdev->dev, max_report_len, GFP_KERNEL);
+}
+
+If a device declares a `max_input_len` of 5000 bytes, `input_buf` will be s=
+ized
+to exactly 5000 bytes. However, `thc_dma_set_max_packet_sizes()` unconditio=
+nally
+rounds the DMA RX size up to the next 4K boundary (8192 bytes).
+
+When an oversized packet arrives, `thc_rxdma_read()` validates it against t=
+he
+8192-byte limit and copies the excess data into the smaller 5000-byte
+`input_buf`, which seems to overflow it:
+
+drivers/hid/intel-thc-hid/intel-thc/intel-thc-dma.c:read_dma_buffer() {
+	if (mes_len > read_config->max_packet_size) { ... }
+	...
+	ret =3D sg_copy_to_buffer(sg, nent, read_buff, mes_len);
+}
+
+Could `intel-quicki2c` be updated to use `ALIGN()` as well?
+
+
+[Severity: High]
+This is a pre-existing issue, but can a malicious device cause an out-of-bo=
+unds
+read by sending a short physical packet with a maliciously large length hea=
+der?
+
+In `handle_input_report()` of `pci-quicki2c.c`, the driver reads an interru=
+pt
+payload via `thc_rxdma_read()`, which populates `report_len` with the actual
+number of bytes transferred. However, the driver directly uses the
+device-provided length field `pkt->len` from the packet header:
+
+drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c:handle_input_report=
+() {
+	quicki2c_hid_send_report(qcdev, pkt->data, HIDI2C_DATA_LEN(le16_to_cpu(pkt=
+->len)));
+}
+
+If `pkt->len` exceeds `report_len`, does the HID core read past the valid p=
+acket
+data bounds into adjacent kernel heap memory?
+
+
+> Fixes: 4138f21115ae ("HID: intel-thc-hid: intel-quickspi: Complete THC Qu=
+ickSPI driver")
+> Cc: stable@vger.kernel.org
+> Assisted-by: Claude:claude-opus-5
+> Signed-off-by: HyeongJun An <sammiee5311@gmail.com>
+>=20
+> ---
+> drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c | 9 +++++++--
+>  1 file changed, 7 insertions(+), 2 deletions(-)
+>=20
+> diff --git a/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c b/dr=
+ivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c
+> index 89226f5ce45e0..9ef33574c202b 100644
+> --- a/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c
+> +++ b/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c
+
 [ ... ]
-> @@ -210,10 +211,17 @@ void quickspi_handle_input_data(struct quickspi_dev=
-ice *qsdev, u32 buf_len)
+
+> @@ -549,8 +550,12 @@ static int quickspi_alloc_report_buf(struct quickspi=
+_device *qsdev)
+>  	if (!qsdev->report_descriptor)
+>  		return -ENOMEM;
 > =20
->  	case GET_FEATURE_RESPONSE:
->  	case GET_INPUT_REPORT_RESPONSE:
-> -		qsdev->report_len =3D sizeof(body_hdr->content_id) + input_len;
-> +		report_len =3D sizeof(body_hdr->content_id) + input_len;
-> +		if (report_len > qsdev->report_buf_size) {
-> +			dev_err_once(qsdev->dev, "Get report response too big: %u\n",
-> +				     report_len);
-> +			return;
-> +		}
-> +
-> +		qsdev->report_len =3D report_len;
->  		input_report =3D input_body->content - sizeof(body_hdr->content_id);
+> -	max_input_len =3D max(le16_to_cpu(qsdev->dev_desc.rep_desc_len),
+> -			    le16_to_cpu(qsdev->dev_desc.max_input_len));
+> +	/*
+> +	 * thc_dma_set_max_packet_sizes() rounds the RXDMA2 packet size up to
+> +	 * 4K, so the DMA can hand back more than max_input_len bytes.
+> +	 */
+> +	max_input_len =3D max_t(size_t, le16_to_cpu(qsdev->dev_desc.rep_desc_le=
+n),
+> +			      ALIGN(le16_to_cpu(qsdev->dev_desc.max_input_len), SZ_4K));
 > =20
-> -		memcpy(qsdev->report_buf, input_report, qsdev->report_len);
-> +		memcpy(qsdev->report_buf, input_report, report_len);
-
-[Severity: High]
-This is a pre-existing issue, but missing locking in the raw request handle=
-rs=20
-appears to allow concurrent requests to corrupt qsdev->report_buf.
-
-The HID core does not serialize raw_request callbacks. If multiple threads=
-=20
-concurrently call quickspi_hid_raw_request(), they will both execute=20
-write_cmd_to_txdma().=20
-
-This function writes the outgoing command into a single, unprotected shared=
-=20
-buffer qsdev->report_buf:
-
-quickspi_hid_raw_request() -> write_cmd_to_txdma() {
-    ...
-    write_buf =3D (struct output_report *)qsdev->report_buf;
-    ...
-    memcpy(write_buf->content, report_buf, report_buf_len);
-}
-
-Concurrently, the IRQ handler quickspi_handle_input_data() also writes the=
-=20
-incoming response directly into the exact same qsdev->report_buf here.
-
-Without a mutex protecting the request-response cycle and this buffer, coul=
-d=20
-concurrent requests overwrite each other's outgoing commands, and could=20
-incoming responses overwrite commands being constructed?
-
-
-[Severity: High]
-This is a pre-existing issue, but can the state machine become desynchroniz=
-ed=20
-if a raw request times out?
-
-If quickspi_get_report() times out, it returns -ETIMEDOUT without resetting=
-=20
-the completion flag qsdev->get_report_cmpl:
-
-quickspi_get_report() {
-    ...
-    ret =3D wait_event_interruptible_timeout(qsdev->get_report_cmpl_wq,
-                                           qsdev->get_report_cmpl,
-                                           QUICKSPI_ACK_WAIT_TIMEOUT * HZ);
-    ...
-}
-
-If the hardware eventually sends a delayed response, the IRQ handler will=20
-set the flag to true. When a subsequent raw request is issued, it will writ=
-e=20
-the new command, but wait_event_interruptible_timeout() will return=20
-immediately because the flag is already true.
-
-Would this cause the driver to return stale data from the previous request=
-=20
-and lose synchronization with the device?=20
-
-The set_report_cmpl flag appears to suffer from the exact same=20
-desynchronization flaw in quickspi_set_report().
-
+>  	qsdev->input_buf =3D devm_kzalloc(qsdev->dev, max_input_len, GFP_KERNEL=
+);
+>  	if (!qsdev->input_buf)
 
 [Severity: Medium]
-This is a pre-existing issue, but are signal interruptions incorrectly trea=
-ted=20
-as timeouts in raw requests?
+This isn't a bug introduced by this patch, but should the transport drivers
+be using `hid_safe_input_report()` instead of `hid_input_report()`?
 
-In quickspi_get_report() and quickspi_set_report(), the driver uses=20
-wait_event_interruptible_timeout(). If the wait is interrupted by a signal,=
-=20
-the function returns a negative error code (such as -ERESTARTSYS).
+According to HID subsystem guidelines, low-level transport drivers feeding =
+raw
+data from interrupt handlers should use the safe variant. Currently, both
+`intel-quickspi` and `intel-quicki2c` use the unsafe API:
 
-The driver checks for ret <=3D 0 and unconditionally returns -ETIMEDOUT:
-
-quickspi_get_report() {
-    ...
-    if (ret <=3D 0 || !qsdev->get_report_cmpl) {
-        dev_err_once(qsdev->dev, "Wait Get Report Response timeout, ret:%d\=
-n", ret);
-        return -ETIMEDOUT;
-    }
-    ...
+drivers/hid/intel-thc-hid/intel-quickspi/quickspi-hid.c:quickspi_hid_send_r=
+eport() {
+	ret =3D hid_input_report(qsdev->hid_dev, HID_INPUT_REPORT, data, data_len,=
+ 1);
 }
 
-Does this swallow the actual signal error code, preventing userspace from=20
-correctly handling signals and breaking the syscall restart mechanism?
-
-
-[Severity: Medium]
-This is a pre-existing issue, but should the transport driver use=20
-hid_safe_input_report() instead of hid_input_report() here?
-
-According to the HID subsystem documentation, transport drivers must prefer=
-=20
-hid_safe_input_report() over hid_input_report() when feeding data from=20
-hardware interrupts to the HID core.=20
-
-This allows the core to perform strict boundary checks against the maximum=
-=20
-allocated buffer size, preventing out-of-bounds reads if a device supplies=
-=20
-a malicious report descriptor.
-
-quickspi_hid_send_report() {
-    ...
-    ret =3D hid_input_report(qsdev->hid_dev, HID_INPUT_REPORT, data, data_l=
-en, 1);
-    ...
-}
-
-Does using hid_input_report() expose the HID core to potential out-of-bound=
-s=20
-reads?
+Because the allocated size of the input buffer is not provided, the core
+cannot strictly validate if the reported payload fits inside the backing bu=
+ffer
+allocation.
 
 
 [Severity: High]
-This is a pre-existing issue, but could DMA buffers be freed during driver=
-=20
-remove() without synchronizing with the threaded IRQ handler?
+This is a pre-existing issue, but is there a use-after-free risk during dri=
+ver
+teardown if an active IRQ handler executes concurrently?
 
-During driver removal, quickspi_remove() disables hardware interrupts and=20
-then calls quickspi_dma_deinit() which releases the DMA buffers:
+During `quickspi_remove()`, the driver unconfigures the hardware and frees
+the DMA allocations:
 
-quickspi_remove() {
-    ...
-    quickspi_dev_deinit(qsdev);
-    quickspi_dma_deinit(qsdev);
-    ...
+drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c:quickspi_remove() {
+	quickspi_dev_deinit(qsdev);
+	quickspi_dma_deinit(qsdev);
 }
 
-However, it does not seem to synchronize with the devm-managed threaded IRQ=
-=20
-handler (quickspi_irq_thread_handler), which might already be executing on=
-=20
-another CPU.=20
+However, the driver relies on `devm_request_threaded_irq()` for cleanup, wh=
+ich
+only executes after the `remove` function returns. There appears to be no
+synchronous wait (like `disable_irq()` or `free_irq()`) to stop a currently
+running threaded handler.
 
-The threaded handler calls thc_rxdma_read(), which reads from the DMA=20
-buffers:
+If the handler is executing or preempted, could it resume and call
+`thc_rxdma_read()`, accessing the now-freed DMA structures?
 
-quickspi_irq_thread_handler() {
-    ...
-    ret =3D thc_rxdma_read(qsdev->thc_hw, THC_RXDMA2, qsdev->input_buf,
-                         &input_len, &read_finished);
-    ...
+drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c:quickspi_irq_thread=
+_handler() {
+	ret =3D thc_rxdma_read(qsdev->thc_hw, THC_RXDMA2, qsdev->input_buf, &input=
+_len, &read_finished);
 }
 
-If thc_dma_release() frees these buffers while the threaded handler is=20
-concurrently executing, could this result in a Use-After-Free?
+The `intel-quicki2c` driver seems to have the exact same teardown sequence =
+in
+`quicki2c_remove()`. Does the IRQ handler need to be explicitly stopped bef=
+ore
+freeing the DMA buffers?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260820111558.4753=
-04-1-sammiee5311@gmail.com?part=3D2
+04-1-sammiee5311@gmail.com?part=3D1

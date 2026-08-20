@@ -1,73 +1,74 @@
-Received: from mail-pj2-f0.google.com (mail-pj2-f0.google.com [74.125.227.128])
+Received: from mail-pg1-f169.google.com (mail-pg1-f169.google.com [209.85.215.169])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 070AE2DF3F2
-	for <linux-input@vger.kernel.org>; Thu, 20 Aug 2026 09:09:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.227.128
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B98D241CB2E
+	for <linux-input@vger.kernel.org>; Thu, 20 Aug 2026 11:16:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.169
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787216969; cv=none; b=Pcmp8d0N9dzTVCWMTndnQjM9LdbueXgTBVsQyfMEFepet4KEB9n2S4ZObfmI/UfF8I6VdyIdgy297XHCHU43gCPBtvgdOtdnboVUc9uog9ErR4IDErBtqbI7A2n2rfn7Rpbg34oMK35nGfEPokqprY/LmCwDjunGsUWKlBbWMEM=
+	t=1787224569; cv=none; b=GopFiQbuUasQAhLvJQn/pLJWZUTxxU0HMg/d2KuddoqSG5KBmlGRFK90I4nNj7m0tfhahAQHSKSy5c+c+1fgELTNnGghMLMwGnMzWptyYsznfjOxqtDvprMdnxw1OqmtqkJyX0IGv51h573ei3De12i4ryxFoCasyCIuCqBxwek=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787216969; c=relaxed/simple;
-	bh=wwvuPjuapQjXU5LmAnDyj/eJ3RlH36BJXhA7nPtYmLY=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=TV7y7+CviCTJc5LsBP5FRBaJIT7vU8UUJ5t7GIzJS4zlKezXzkfPCTk/vqaMOgOwN+T0/jHX2lyLvuh6wK6sJYJrucu8nqX+E1F3ew27Q6tv4DRqezPqNo2glrvhQ2MZrxpQceWmlAG3WZ4LFj3kKhdafsUSQomXn/6Je/N8eqI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=eSHCjvnt; arc=none smtp.client-ip=74.125.227.128
+	s=arc-20240116; t=1787224569; c=relaxed/simple;
+	bh=B2/If2I8PT0MSdA8a4FuUWeodlBgQY7ugY/SpyNFLlI=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=aQ3O5mQhCrQ5GNHHNTGwPKPk0RZWnaubYztDXHaYj27KsSTf4enSeyNPa3zPvDVUyC7NwN1FZ8vZZccBBH7G5X+WlchcPq5lBieycyjaEedMgJbXq5M942fvueHXArbotblqs88NqoeLLBOD666jOCXyMICkwMSSRle+GcWsjus=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=hqW2n1pg; arc=none smtp.client-ip=209.85.215.169
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="eSHCjvnt"
-Received: by mail-pj2-f0.google.com with SMTP id d9443c01a7336-2cc2c6e0688so10217555ad.0
-        for <linux-input@vger.kernel.org>; Thu, 20 Aug 2026 02:09:27 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hqW2n1pg"
+Received: by mail-pg1-f169.google.com with SMTP id 41be03b00d2f7-cbe827e3cb4so2031706a12.3
+        for <linux-input@vger.kernel.org>; Thu, 20 Aug 2026 04:16:07 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1787216967; x=1787821767; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1787224567; x=1787829367; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=/aUN9M/7MSs8KdZPLXuIjECn3fEzCZmjfMVoJLIM9zI=;
-        b=eSHCjvntCdONimzcOhm231RWsbbTOWMG3oknKKwjT0nE2klqc/4uRQPjiG1bZdYPZn
-         7Jke73Zncxrud2Xi+RkDOuk8S85Mubr0CJKfCDLUwfCcqhj5QWeDBFmIAdAWy7JsPpff
-         xPdovhQJ9caENV6iY0/jAGuEknyUryFV9A4NbzoyY5dJpqOQBdudON2doIggCLZFArBF
-         ppmsZVsr4hoLzlxcgv0uRRiAuYU2CTzqYvWbO0SHltepqFXJiK3fWOaSpv3eToOPMfVB
-         hjm8A/D7NdonjoCu0V/5Iucq4rs49s+tnW6Ul0aMPpdIMVWdTLVLW5sLqkECjGVBpfA4
-         SkjQ==
+        bh=yAh4nZneSYIANizSSGNJIh+YCcQ7YFBZyVxQrfrQA4k=;
+        b=hqW2n1pg31AI0Amj5etSUQUPtbuE+qKh/x3SQcWiBiBC8t24HnPp7xKqBux7wX/riP
+         np2uFwQcAlaY0IhbfOF9z5cnzYNzON1vlsCnmVzg9OHZoAWQmSCGUoKpGn3zJGiO2On/
+         8esrPHdCn3N7AUdxoQdorvTy6d9UXN9mMmYPJmZmPGmeuQegfck0Pgnuo5cJOWuhDb3Z
+         N+PyKwy/LqYF89lpxoe7uG7NVmgTrMolpkzeTEEnY1fgnq5J6PjCu1qh5lL1h5w2i74I
+         VnHKTgBFHWtRm0pLneEK5FZBb5Ok24+PmGJLWatHWx5y3RBNJsNTkeyjfe1pwqMyQxzT
+         /S/A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787216967; x=1787821767;
+        d=1e100.net; s=20251104; t=1787224567; x=1787829367;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=/aUN9M/7MSs8KdZPLXuIjECn3fEzCZmjfMVoJLIM9zI=;
-        b=ZAjdH6WhWi4yW/ngRJjVpZExX22N1zBtj1JTp0+uUdRPcl9PdSiNcxOFvw23I5ZYBs
-         YMr7HpQKsUUPoybjZvbinNGDRFCZbxDPLtaMHr0Zn5W3SmVZVkfDLAfuRghPtM0jFbsu
-         mqy0vihvVjzNEiFlW9IeIA3VZNblPyqcldBp76+qPF0ld2uXNbvNoYuuxKuuuQw8w0sT
-         Vu5lU+G2XxSDCkBviBm2f9tFtgiTpwx2hifwpQDE639LpqIIHBvUr1iRHm9MeALzVnGl
-         yoB7YDOy3loAMLZt73BFJ+vS/FwYDR7tW9fD3WH+TnD4gscB7/kF9wjiOvP49+MoEDpg
-         QGpw==
-X-Forwarded-Encrypted: i=1; AHgh+RqhvoV7xHicexxFqAIURTGGzwIRnRmQGqfF0E1x6jKosKY8XZ6uuS+2CYyvR57qPNeq+pGyEXueoC7m3A==@vger.kernel.org
-X-Gm-Message-State: AFuF++neBp0+Y/tIDw4UAqgklgbihXJFitDvSQ3F3tqUVtTVBKtu3uiP
-	ROOgDmhB7CpfheNEcPjGMYhjkINtTK75j5CRMx8M4Ka+maknUOcUg+A=
-X-Gm-Gg: AR+sD116qGgQvFvn/BZlo9OZGSmRJqU8RSFV/JLYGlOwc4kUxjVpplNFL+Yg+DPeUkK
-	zySAlluoXGabVKa9qayJmRptO4ArywOELWOPaOwAST/doYWG8pL8svsAsMAskw21mlNH6zBCJrz
-	W95tdkhY7iNB6TBL0p1rsC4j1JhTW2u2tiOUZeuJaYuXzWvDimJfNHY26QQ53dLnPJH0Gv8HHym
-	wle4wWwLh/NmY7RSxHigE1H0YgHVpYfCtNXziNq1j8zYC0Mhns370r6p6wuOWorp3O+PQXlQZbn
-	4mmMD3mDYltqjxwerkTiXIoPlpzQ5oDXkuui2/jG/Lno4PVFecBafgUnEffcSD1vn3egHtxT++9
-	evbLrGjCEv0LNRjeeKYwmvGZ9q/bF62jFM15MC5X/MlMtRy/pA6+fMVW8spaGbHHAt0L3RvfQ93
-	T0zXwlIZ4dYpChazk68FkO80ueJWzeOo7FDKyTn2gx22wDPstmLdQLW7aWldGoddQmMvAyo+nHL
-	w==
-X-Received: by 2002:a17:902:e5c5:b0:2c9:e9db:8167 with SMTP id d9443c01a7336-2d601860803mr196465635ad.7.1787216967200;
-        Thu, 20 Aug 2026 02:09:27 -0700 (PDT)
-Received: from DL2XHKPB4.dl.net ([103.63.104.162])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2d62d58a811sm4190305ad.25.2026.08.20.02.09.25
+        bh=yAh4nZneSYIANizSSGNJIh+YCcQ7YFBZyVxQrfrQA4k=;
+        b=IYH+tGEo8F1YkBP4CDoApgYbu/iK7WzXB5/Js+gYw+BAwZQCnzeZ5D0sZBG9z4PvbE
+         8DYtYqdYHLm6e/or9MBuDFVKDSVfyT0Yi6agUH+4jaYTlDPTsY2dL9JNe2jNqSPqTOJl
+         qAuJPlTK8mZb9shGWgAGh05Z6+pObCbN/+8ng+rtrfZMpKd7GmQWyNbTyZVPK4362OON
+         Z3EidjvZnj6RYsz6OoKSeD/ANIBerA3Mzwr+RjoWM66zxhbSpr+I6zS+aZrlaDqSMgMp
+         plP8uG4QE2kH02iy9MCjDVeV9zUvS4GXP7ymrOJ6Yp8vlBiFCdOg7OCD/nIjwujBKu2j
+         Ko2g==
+X-Gm-Message-State: AOJu0Yx2EjGtAPCW0h/TywLP2+CiEKD4b5OpVG87Mg+BkWpJjR3ixZ/3
+	yFL/cJWPhBzZRJrUgFT4hv86iYk/gY2NG3yPiDrj7iOjhF78F8bB2Unk
+X-Gm-Gg: AR+sD11HMBbOzR4/eNZOOG5ZhXJAx8sDZtD3GDswyHF4jcDWuRE4luKbJpWccY4ifnd
+	8wVdhm5r4WBRGIcNoS/Mgyhgd/hTof5xy+Fsjr7xqu03fVKqOwyfWkShFK7Zzc6P69L3/q025Gh
+	zxqzoSBV4ANVSp0/MbBylhicSXEJJPus/iq0RHmh4N9+WFVqKmLS/LYiJMHX+laK7aS5Z4ve+F/
+	eOP/bvOpfoK2DosSMdmG8Uee0YaeXvbJk3a1D6T9XwjwSp9IttIoaQnnh34GWd04foSkYwh1UfH
+	5A2dGNuTCSw4Npc2Ul66crbVLDfT9ky97t6lSUhinHsqJVfhycxzzven7V5rFZW+JgiQBIy8+Dq
+	AkVTex0xdUQs0+c0Txfwf3PZEwS4DEKa2pflLrMYha0iheDPbRS/KzSXP3id1tGMZH58HTE++Ou
+	xD2hYQC6slr2uxc9mQcsPiMnIjzdgVIfBAiB9MAiGr5O5/pEkxlbzHfA9AF3ngcnLXRwQiN+1h4
+	sxwGTOOW9esrHfM2JBY+PUAcmwZ+C0yfS7rp4ZaHRNCi1/R4q1+rFwddQ9shGgy
+X-Received: by 2002:a05:6a21:99a3:b0:3cc:faf3:331a with SMTP id adf61e73a8af0-3cd011b5342mr21398409637.10.1787224566967;
+        Thu, 20 Aug 2026 04:16:06 -0700 (PDT)
+Received: from nugod-NUC15CRHU5.tail9f095a.ts.net ([218.237.104.87])
+        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-cc15cada6fesm1236455a12.27.2026.08.20.04.16.03
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 20 Aug 2026 02:09:26 -0700 (PDT)
-From: Triet Hoang <triet.hoang.dev@gmail.com>
-To: basavaraj.natikar@amd.com
-Cc: jikos@kernel.org,
-	bentiss@kernel.org,
-	linux-input@vger.kernel.org,
+        Thu, 20 Aug 2026 04:16:05 -0700 (PDT)
+From: HyeongJun An <sammiee5311@gmail.com>
+To: Even Xu <even.xu@intel.com>,
+	Xinpeng Sun <xinpeng.sun@intel.com>,
+	Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>
+Cc: linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
-	Triet Hoang <triet.hoang.dev@gmail.com>
-Subject: [PATCH] HID: Convert to DEFINE_SIMPLE_DEV_PM_OPS()
-Date: Thu, 20 Aug 2026 16:09:21 +0700
-Message-ID: <20260820090921.2113684-1-triet.hoang.dev@gmail.com>
-X-Mailer: git-send-email 2.53.0
+	stable@vger.kernel.org,
+	HyeongJun An <sammiee5311@gmail.com>
+Subject: [PATCH 0/2] HID: intel-thc-hid: intel-quickspi: two DMA buffer overflows
+Date: Thu, 20 Aug 2026 20:15:56 +0900
+Message-ID: <20260820111558.475304-1-sammiee5311@gmail.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -76,90 +77,32 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Convert the deprecated SIMPLE_DEV_PM_OPS
-to DEFINE_SIMPLE_DEV_PM_OPS and pm_sleep_ptr().
+Two heap overflows on the QuickSPI receive path, both from a controller
+that declares one length and sends another.
 
-This lets us drop the __maybe_unused annotations from the suspend and
-resume callbacks, and reduces kernel size in case CONFIG_PM or
-CONFIG_PM_SLEEP is disabled.
+The first is the DMA landing buffer, sized from the device descriptor while
+the THC DMA rounds its packet size up to 4K.  The second is the GET REPORT
+response, whose length is checked against what the DMA delivered and never
+against report_buf.  Each has a sibling in-tree that already gets it right,
+named in the patch.
 
-Signed-off-by: Triet Hoang <triet.hoang.dev@gmail.com>
----
- drivers/hid/amd-sfh-hid/amd_sfh_pcie.c | 8 ++++----
- drivers/hid/hid-google-hammer.c        | 6 +++---
- 2 files changed, 7 insertions(+), 7 deletions(-)
+Neither was reproduced on hardware.  Both turned up while working on
+commit 035ec4a71cb8 ("HID: intel-thc-hid: intel-quickspi: bound GET_REPORT
+response to the caller buffer"), which covers neither.
 
-diff --git a/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c b/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c
-index eda26a094d3f..731dfdd459ac 100644
---- a/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c
-+++ b/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c
-@@ -560,7 +560,7 @@ static void amd_sfh_shutdown(struct pci_dev *pdev)
- 	}
- }
- 
--static int __maybe_unused amd_mp2_pci_resume(struct device *dev)
-+static int amd_mp2_pci_resume(struct device *dev)
- {
- 	struct amd_mp2_dev *mp2 = dev_get_drvdata(dev);
- 
-@@ -571,7 +571,7 @@ static int __maybe_unused amd_mp2_pci_resume(struct device *dev)
- 	return 0;
- }
- 
--static int __maybe_unused amd_mp2_pci_suspend(struct device *dev)
-+static int amd_mp2_pci_suspend(struct device *dev)
- {
- 	struct amd_mp2_dev *mp2 = dev_get_drvdata(dev);
- 
-@@ -582,7 +582,7 @@ static int __maybe_unused amd_mp2_pci_suspend(struct device *dev)
- 	return 0;
- }
- 
--static SIMPLE_DEV_PM_OPS(amd_mp2_pm_ops, amd_mp2_pci_suspend,
-+static DEFINE_SIMPLE_DEV_PM_OPS(amd_mp2_pm_ops, amd_mp2_pci_suspend,
- 		amd_mp2_pci_resume);
- 
- static const struct pci_device_id amd_mp2_pci_tbl[] = {
-@@ -596,7 +596,7 @@ static struct pci_driver amd_mp2_pci_driver = {
- 	.name		= DRIVER_NAME,
- 	.id_table	= amd_mp2_pci_tbl,
- 	.probe		= amd_mp2_pci_probe,
--	.driver.pm	= &amd_mp2_pm_ops,
-+	.driver.pm	= pm_sleep_ptr(&amd_mp2_pm_ops),
- 	.shutdown	= amd_sfh_shutdown,
- 	.remove		= amd_sfh_remove,
- 	.dev_groups	= amd_sfh_groups,
-diff --git a/drivers/hid/hid-google-hammer.c b/drivers/hid/hid-google-hammer.c
-index c99c3c0d442e..d7a504e48775 100644
---- a/drivers/hid/hid-google-hammer.c
-+++ b/drivers/hid/hid-google-hammer.c
-@@ -132,7 +132,7 @@ static int cbas_ec_notify(struct notifier_block *nb,
- 	return NOTIFY_OK;
- }
- 
--static __maybe_unused int cbas_ec_resume(struct device *dev)
-+static int cbas_ec_resume(struct device *dev)
- {
- 	struct cros_ec_device *ec = dev_get_drvdata(dev->parent);
- 	bool base_present;
-@@ -163,7 +163,7 @@ static __maybe_unused int cbas_ec_resume(struct device *dev)
- 	return 0;
- }
- 
--static SIMPLE_DEV_PM_OPS(cbas_ec_pm_ops, NULL, cbas_ec_resume);
-+static DEFINE_SIMPLE_DEV_PM_OPS(cbas_ec_pm_ops, NULL, cbas_ec_resume);
- 
- static void cbas_ec_set_input(struct input_dev *input)
- {
-@@ -289,7 +289,7 @@ static struct platform_driver cbas_ec_driver = {
- 		.name = "cbas_ec",
- 		.acpi_match_table = ACPI_PTR(cbas_ec_acpi_ids),
- 		.of_match_table = of_match_ptr(cbas_ec_of_match),
--		.pm = &cbas_ec_pm_ops,
-+		.pm = pm_sleep_ptr(&cbas_ec_pm_ops),
- 	},
- };
- 
+A fuller fix for the first would give thc_rxdma_read() a capacity argument,
+but that changes a shared API and touches intel-quicki2c, so this keeps to
+the driver.
+
+HyeongJun An (2):
+  HID: intel-thc-hid: intel-quickspi: size the input buffer for the DMA
+  HID: intel-thc-hid: intel-quickspi: bound the GET REPORT response to
+    report_buf
+
+ .../hid/intel-thc-hid/intel-quickspi/pci-quickspi.c  |  9 +++++++--
+ .../intel-thc-hid/intel-quickspi/quickspi-protocol.c | 12 ++++++++++--
+ 2 files changed, 17 insertions(+), 4 deletions(-)
+
 -- 
-2.53.0
+2.43.0
 

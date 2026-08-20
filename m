@@ -1,143 +1,253 @@
-Received: from mail-pg1-f170.google.com (mail-pg1-f170.google.com [209.85.215.170])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3FC4241CB57
-	for <linux-input@vger.kernel.org>; Thu, 20 Aug 2026 11:16:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1EE6141A4F7
+	for <linux-input@vger.kernel.org>; Thu, 20 Aug 2026 11:27:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787224579; cv=none; b=nHxfQzkPk9ZYnhlFEeY1ayGY0yx8OwPSVfoCfLQSji28Z/4hc2RgXkrcOiN6TIYPALVkbAeF1edONx+x7nIcdw0PcKieGlpnZqubSgIcEUCrHQfXyQIUD3pHG8bybekt53Jms6rUkksPFL/bVTNLI6GcsV9VzwX41ViiQiBN6VU=
+	t=1787225247; cv=none; b=JYxvga/0wX+PtHYwboxM+OCtyTTqeN/loqvkMovJ6Eh4nEik92gaCrjLC8GijCCz1gpfcfau4Nriae0AnRzl9pqKmG8khQl5kPdC/bzlEu5CTy7VsVM1sFje59FCnmK5lM5bfK5YBInLVnSmZwWy32C8zwoqPuAnVy+9KwlZdpc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787224579; c=relaxed/simple;
-	bh=vO0izHD2f1ofrT6G0UqWkyQBcgoDbMLoEZdWgvw592E=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=JAGpIhBkat664KWJTVm7rTc+R+emfArijBNUHQOHjPyHv7hThQTtyQiHQcq9o/oSold7z+FO4E/jIx5oMBrHBTdpMUx7taWYZGHYzIP1cDC1O4NU1Mzfag+C0SO8vpEr0H0gHFcyvOuP8gPBC7iUs4+VaVeLsmloXLKlVDn7KYw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=RdwBoTS+; arc=none smtp.client-ip=209.85.215.170
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1787225247; c=relaxed/simple;
+	bh=CqOT5Wn4QJg7oeqx8rXLrXQ+RwvlOZHwxusVcYIF8yA=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=P6ijwfa4J33WB87F5Ct5x/kKKDLJB65o4qwcECOkH1Y8hkapQBNEZ6ThnAEyyRb5I7mAeHfLs2oh5nYxvOugZlN3HMpe0gH1UL+osf0H/w2JGQBJYHKMkWCXAfHov74rjP9IOLudQhIse5Ap4Z6XmrhxN6PauL4j2A5E0pzylCg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=FlT9lOsA; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="RdwBoTS+"
-Received: by mail-pg1-f170.google.com with SMTP id 41be03b00d2f7-ca80d708489so539370a12.1
-        for <linux-input@vger.kernel.org>; Thu, 20 Aug 2026 04:16:18 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1787224578; x=1787829378; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=xmFjaomKOSQJ0x9BcEAzGij2qfGuvuK5f2g46VdQqOU=;
-        b=RdwBoTS+PBqktKaMXyAE0n7knUQGLTqRAbZJrSyvMR1n01dqwiWdJ/lyDXMQKyMwj3
-         SdtETFoCpeqLKNCDoc+TC4sdQRzevmwYi98T1wjOA1DFCXrG7ArmBioHfZStTj9OT2Kb
-         r6IR9NRorpuThsnJvkDocdqtYp9zhm6qHzMIyHdAZgJ6ZQGePlnBLIy4xJM7ji+2MnDq
-         ZMruzVRDRkpOhKmvzKXEGfsB5tZYm56Mo5n5TYmG+cNeKIeiYRwpChg611UiyFI2h3PP
-         fkNXCll3Ut7WttNd4pCIeqqt+LjGR9fgLClBlPmA9/eLCgFPx4lH/zQFVmbXz7OYHXUO
-         lXhQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787224578; x=1787829378;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=xmFjaomKOSQJ0x9BcEAzGij2qfGuvuK5f2g46VdQqOU=;
-        b=mc+CH5hkPZWmWwb2W3lI8r6ugQwcTQQUE1LlN2e2UAytl3jaNRNoQD86jeMif3MCTa
-         j6F+UAWubGHJbgFnaUb631KahemMTxBGG54i2jETeVePtkpSDyUJFVh32J2lmJfLdNcr
-         dV7wZwkUYPIGLS0T4rvbKuFVru1TWiCvWLXo9m9UYCZoqOoxHKqBJ8Bx6xRnsH2YYZgO
-         CWLcubp6NGK9ANWjDlA/zT47E4Xp3Ww5VTjxkr/U/e4Jinny/WKdeFlfAgwAVKtZlO9q
-         9KVkp2GP35czVfSMxzsmo2kqKDLRP7S0MWcHdHrE0LbsB3A8RaD9U6qfD7OHhW3z/ZX8
-         VhwA==
-X-Gm-Message-State: AOJu0YzEsT/+kkogrlbAM0xsP++7LmNDtpk6CJfC//P/OZbQaHD81G0Q
-	e7I7CL4SEjyh+tFUxl+0kPKfOQ8c6mKIeZc+dp3MeLC5/Sz6Q1B/EALB
-X-Gm-Gg: AR+sD13u2wL4wQ5wMnXWqQd8YHL+ZHjpejOBKdW38bAkiIs6YCvdyfrmzIqWPlsndSd
-	CVOts6jJqjvhf8zqVAW10iii/5UGJ566pGyOKk0++Bjp8oj+QK60xlglYr85HFKaR29JQmvo9za
-	YqKCwdtbe90HXAQdSkzIXT2hSPYmGkUnKrY0j191jUbOnbDGgcxabcOcYfZeoKOz3aUPbdYukLz
-	Vk073MvdwVFPycwgmdbt2vF1dkxLL485qrCFTC253a5Obu52SCFHE1oi43VIEjA7pC0RicWCL5f
-	EihkMycbeTyoiTg7O5GKV3ia116oZusYYkP3U9oxd5btfKCiY8tPb4eQNi+ERdCykonlwjHm+pf
-	ylZm+nug2lZkBKNR/0YEMXoeugWtj43mT6x33jRhGK6zcLqov/F61UWT8lGkh4sA3+6IJp8b61H
-	mwWxOGCGhL9C3ln4l7ygo5w4FI2UzjJsb5h2pO0vw2oc6J9XCginPlZ4GFYNS6w8V2qtk8Pn5tq
-	8QeyJTLUe2CqMq+NGlprIh74mbg5Ja2dtV7nAObEcUqy865ObpTKOJDm3t//akK
-X-Received: by 2002:a05:6372:a70f:b0:3cb:b6b0:1b83 with SMTP id adf61e73a8af0-3cd14f251acmr5785817637.9.1787224577549;
-        Thu, 20 Aug 2026 04:16:17 -0700 (PDT)
-Received: from nugod-NUC15CRHU5.tail9f095a.ts.net ([218.237.104.87])
-        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-cc15cada6fesm1236455a12.27.2026.08.20.04.16.14
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 20 Aug 2026 04:16:16 -0700 (PDT)
-From: HyeongJun An <sammiee5311@gmail.com>
-To: Even Xu <even.xu@intel.com>,
-	Xinpeng Sun <xinpeng.sun@intel.com>,
-	Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>
-Cc: linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	stable@vger.kernel.org,
-	HyeongJun An <sammiee5311@gmail.com>
-Subject: [PATCH 2/2] HID: intel-thc-hid: intel-quickspi: bound the GET REPORT response to report_buf
-Date: Thu, 20 Aug 2026 20:15:58 +0900
-Message-ID: <20260820111558.475304-3-sammiee5311@gmail.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20260820111558.475304-1-sammiee5311@gmail.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="FlT9lOsA"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 966F21F00A3A;
+	Thu, 20 Aug 2026 11:27:25 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1787225245;
+	bh=6tsDTBT+2VgC58Hcw1k+Cm/DTRMZJFaozB0t7qFJ0oo=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=FlT9lOsAJWpOmmmjjkEJj8Ytjr5sBTSK2EgX7ijLcK9TkP8FJSSwWA49tqheBqM4n
+	 XZfG8VOKpJ1IvGIPdBoawIZBiYw8EdsylgKMB/DpnWUf+T2x9IloUNdIHlZkPpSff8
+	 XI6EmwaMjMZcWtdq8uHWK607mfOkH1aGA7/LvCB2nqJlNT1l5gafgW85xnriw4hbHy
+	 imvnUDH3wWxb/y/+SnGGjpVyeN8Zs8t6YZvuWSW6QeIemhLR+u8vHc5zrWU4pLY4GX
+	 PcuWWn1LYG9oeaa3ojzNm1m2ZPrYkB+V3djsrXCRU/h9qyjNa6f7uky5ICIskcsHyQ
+	 fvHKZiXXpxXPg==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH 2/2] HID: intel-thc-hid: intel-quickspi: bound the GET
+ REPORT response to report_buf
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "HyeongJun An" <sammiee5311@gmail.com>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20260820111558.475304-3-sammiee5311@gmail.com>
 References: <20260820111558.475304-1-sammiee5311@gmail.com>
+ <20260820111558.475304-3-sammiee5311@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Thu, 20 Aug 2026 11:27:25 +0000
+Message-Id: <20260820112725.966F21F00A3A@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-quickspi_handle_input_data() copies a GET_FEATURE or GET_INPUT_REPORT
-response into qsdev->report_buf using a length the controller supplied.
-The only check it passes is against buf_len, the number of bytes the DMA
-delivered, which says nothing about the destination.  report_buf holds
-HIDSPI_OUTPUT_REPORT_SIZE(max(max_output_len, max_input_len)), 68 bytes
-for a controller reporting 64 for both, while the copy is bounded only by
-the 4K DMA packet.
+Thank you for your contribution! Sashiko AI review found 5 potential issue(=
+s) to consider:
 
-The REPORT_DESCRIPTOR_RESPONSE case a few lines up validates against the
-size of its own destination.  Do the same here and let the waiter in
-quickspi_get_report() time out, as the other malformed-frame checks do.
+Pre-existing issues:
+- [High] State machine desynchronization in raw request handlers due to unr=
+eset completion flags.
+- [High] Missing locking in raw request handlers allows concurrent requests=
+ to corrupt the shared command and response buffers.
+- [High] Use-After-Free: DMA buffers are freed during driver remove() witho=
+ut synchronizing with the threaded IRQ handler.
+- [Medium] Subsystem API Violation: The transport driver uses hid_input_rep=
+ort() instead of hid_safe_input_report().
+- [Medium] Signal interruptions are incorrectly treated as timeouts in raw =
+requests, breaking signal handling.
+--
 
-Fixes: 9d8d51735a3a ("HID: intel-thc-hid: intel-quickspi: Add HIDSPI protocol implementation")
-Cc: stable@vger.kernel.org
-Assisted-by: Claude:claude-opus-5
-Signed-off-by: HyeongJun An <sammiee5311@gmail.com>
----
-This needs commit a59cf84441f9 ("HID: intel-thc-hid: intel-quickspi:
-validate report size before copy") for qsdev->report_buf_size, which is in
-hid.git for-next but not mainline yet.  Same Fixes: tag, so a stable
-backport wants the two in that order.
+--- Patch [2]: [PATCH 2/2] HID: intel-thc-hid: intel-quickspi: bound the GE=
+T REPORT response to report_buf ---
+commit c4e25ca5cbdc0b92b00b6a64c016c4b8ee39d40d
+Author: HyeongJun An <sammiee5311@gmail.com>
 
- .../intel-thc-hid/intel-quickspi/quickspi-protocol.c | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+HID: intel-thc-hid: intel-quickspi: bound the GET REPORT response to report=
+_buf
 
-diff --git a/drivers/hid/intel-thc-hid/intel-quickspi/quickspi-protocol.c b/drivers/hid/intel-thc-hid/intel-quickspi/quickspi-protocol.c
-index 847c5ec55569..7d34cc22a11a 100644
---- a/drivers/hid/intel-thc-hid/intel-quickspi/quickspi-protocol.c
-+++ b/drivers/hid/intel-thc-hid/intel-quickspi/quickspi-protocol.c
-@@ -161,6 +161,7 @@ void quickspi_handle_input_data(struct quickspi_device *qsdev, u32 buf_len)
- 	struct input_report_body *input_body;
- 	u8 *input_report;
- 	u32 input_len;
-+	u32 report_len;
- 	int ret = 0;
- 
- 	input_body = (struct input_report_body *)qsdev->input_buf;
-@@ -210,10 +211,17 @@ void quickspi_handle_input_data(struct quickspi_device *qsdev, u32 buf_len)
- 
- 	case GET_FEATURE_RESPONSE:
- 	case GET_INPUT_REPORT_RESPONSE:
--		qsdev->report_len = sizeof(body_hdr->content_id) + input_len;
-+		report_len = sizeof(body_hdr->content_id) + input_len;
-+		if (report_len > qsdev->report_buf_size) {
-+			dev_err_once(qsdev->dev, "Get report response too big: %u\n",
-+				     report_len);
-+			return;
-+		}
-+
-+		qsdev->report_len = report_len;
- 		input_report = input_body->content - sizeof(body_hdr->content_id);
- 
--		memcpy(qsdev->report_buf, input_report, qsdev->report_len);
-+		memcpy(qsdev->report_buf, input_report, report_len);
- 
- 		qsdev->get_report_cmpl = true;
- 		wake_up_interruptible(&qsdev->get_report_cmpl_wq);
--- 
-2.43.0
+This patch bounds the GET_FEATURE and GET_INPUT_REPORT response copy lengths
+to qsdev->report_buf_size. It drops responses that exceed this size to prev=
+ent
+overflowing the buffer with responses bounded only by the DMA packet size.
 
+> diff --git a/drivers/hid/intel-thc-hid/intel-quickspi/quickspi-protocol.c=
+ b/drivers/hid/intel-thc-hid/intel-quickspi/quickspi-protocol.c
+> index 847c5ec55569a..7d34cc22a11a8 100644
+> --- a/drivers/hid/intel-thc-hid/intel-quickspi/quickspi-protocol.c
+> +++ b/drivers/hid/intel-thc-hid/intel-quickspi/quickspi-protocol.c
+[ ... ]
+> @@ -210,10 +211,17 @@ void quickspi_handle_input_data(struct quickspi_dev=
+ice *qsdev, u32 buf_len)
+> =20
+>  	case GET_FEATURE_RESPONSE:
+>  	case GET_INPUT_REPORT_RESPONSE:
+> -		qsdev->report_len =3D sizeof(body_hdr->content_id) + input_len;
+> +		report_len =3D sizeof(body_hdr->content_id) + input_len;
+> +		if (report_len > qsdev->report_buf_size) {
+> +			dev_err_once(qsdev->dev, "Get report response too big: %u\n",
+> +				     report_len);
+> +			return;
+> +		}
+> +
+> +		qsdev->report_len =3D report_len;
+>  		input_report =3D input_body->content - sizeof(body_hdr->content_id);
+> =20
+> -		memcpy(qsdev->report_buf, input_report, qsdev->report_len);
+> +		memcpy(qsdev->report_buf, input_report, report_len);
+
+[Severity: High]
+This is a pre-existing issue, but missing locking in the raw request handle=
+rs=20
+appears to allow concurrent requests to corrupt qsdev->report_buf.
+
+The HID core does not serialize raw_request callbacks. If multiple threads=
+=20
+concurrently call quickspi_hid_raw_request(), they will both execute=20
+write_cmd_to_txdma().=20
+
+This function writes the outgoing command into a single, unprotected shared=
+=20
+buffer qsdev->report_buf:
+
+quickspi_hid_raw_request() -> write_cmd_to_txdma() {
+    ...
+    write_buf =3D (struct output_report *)qsdev->report_buf;
+    ...
+    memcpy(write_buf->content, report_buf, report_buf_len);
+}
+
+Concurrently, the IRQ handler quickspi_handle_input_data() also writes the=
+=20
+incoming response directly into the exact same qsdev->report_buf here.
+
+Without a mutex protecting the request-response cycle and this buffer, coul=
+d=20
+concurrent requests overwrite each other's outgoing commands, and could=20
+incoming responses overwrite commands being constructed?
+
+
+[Severity: High]
+This is a pre-existing issue, but can the state machine become desynchroniz=
+ed=20
+if a raw request times out?
+
+If quickspi_get_report() times out, it returns -ETIMEDOUT without resetting=
+=20
+the completion flag qsdev->get_report_cmpl:
+
+quickspi_get_report() {
+    ...
+    ret =3D wait_event_interruptible_timeout(qsdev->get_report_cmpl_wq,
+                                           qsdev->get_report_cmpl,
+                                           QUICKSPI_ACK_WAIT_TIMEOUT * HZ);
+    ...
+}
+
+If the hardware eventually sends a delayed response, the IRQ handler will=20
+set the flag to true. When a subsequent raw request is issued, it will writ=
+e=20
+the new command, but wait_event_interruptible_timeout() will return=20
+immediately because the flag is already true.
+
+Would this cause the driver to return stale data from the previous request=
+=20
+and lose synchronization with the device?=20
+
+The set_report_cmpl flag appears to suffer from the exact same=20
+desynchronization flaw in quickspi_set_report().
+
+
+[Severity: Medium]
+This is a pre-existing issue, but are signal interruptions incorrectly trea=
+ted=20
+as timeouts in raw requests?
+
+In quickspi_get_report() and quickspi_set_report(), the driver uses=20
+wait_event_interruptible_timeout(). If the wait is interrupted by a signal,=
+=20
+the function returns a negative error code (such as -ERESTARTSYS).
+
+The driver checks for ret <=3D 0 and unconditionally returns -ETIMEDOUT:
+
+quickspi_get_report() {
+    ...
+    if (ret <=3D 0 || !qsdev->get_report_cmpl) {
+        dev_err_once(qsdev->dev, "Wait Get Report Response timeout, ret:%d\=
+n", ret);
+        return -ETIMEDOUT;
+    }
+    ...
+}
+
+Does this swallow the actual signal error code, preventing userspace from=20
+correctly handling signals and breaking the syscall restart mechanism?
+
+
+[Severity: Medium]
+This is a pre-existing issue, but should the transport driver use=20
+hid_safe_input_report() instead of hid_input_report() here?
+
+According to the HID subsystem documentation, transport drivers must prefer=
+=20
+hid_safe_input_report() over hid_input_report() when feeding data from=20
+hardware interrupts to the HID core.=20
+
+This allows the core to perform strict boundary checks against the maximum=
+=20
+allocated buffer size, preventing out-of-bounds reads if a device supplies=
+=20
+a malicious report descriptor.
+
+quickspi_hid_send_report() {
+    ...
+    ret =3D hid_input_report(qsdev->hid_dev, HID_INPUT_REPORT, data, data_l=
+en, 1);
+    ...
+}
+
+Does using hid_input_report() expose the HID core to potential out-of-bound=
+s=20
+reads?
+
+
+[Severity: High]
+This is a pre-existing issue, but could DMA buffers be freed during driver=
+=20
+remove() without synchronizing with the threaded IRQ handler?
+
+During driver removal, quickspi_remove() disables hardware interrupts and=20
+then calls quickspi_dma_deinit() which releases the DMA buffers:
+
+quickspi_remove() {
+    ...
+    quickspi_dev_deinit(qsdev);
+    quickspi_dma_deinit(qsdev);
+    ...
+}
+
+However, it does not seem to synchronize with the devm-managed threaded IRQ=
+=20
+handler (quickspi_irq_thread_handler), which might already be executing on=
+=20
+another CPU.=20
+
+The threaded handler calls thc_rxdma_read(), which reads from the DMA=20
+buffers:
+
+quickspi_irq_thread_handler() {
+    ...
+    ret =3D thc_rxdma_read(qsdev->thc_hw, THC_RXDMA2, qsdev->input_buf,
+                         &input_len, &read_finished);
+    ...
+}
+
+If thc_dma_release() frees these buffers while the threaded handler is=20
+concurrently executing, could this result in a Use-After-Free?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260820111558.4753=
+04-1-sammiee5311@gmail.com?part=3D2

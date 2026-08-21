@@ -1,300 +1,217 @@
-Received: from mail-pj1-f41.google.com (mail-pj1-f41.google.com [209.85.216.41])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9DB603CFF61
-	for <linux-input@vger.kernel.org>; Fri, 21 Aug 2026 21:48:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.41
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D68D6361640
+	for <linux-input@vger.kernel.org>; Fri, 21 Aug 2026 21:59:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787348917; cv=none; b=ltLHGEE0Jsf9xHIZyU4/+xL6/gKMh5XKgy7fA9TL5REBBcWCU8CrbKQL0eUSRGj98eLKUNo3995stUY2vBojIJ0giOVfJ6jswibFrzIDUWIytRvYq0WIF5Zl7uDUOeod1ZleNDfq2iuAKv1l+mEZ4UvFat5VWBd+7Xox5RzlXE8=
+	t=1787349564; cv=none; b=ApBppuZlAiMy9ZKhZv38kVT5hOUW3xdvVjsILAQtbAaDoQCcL1uyjjLdGwn1KGkwKDvM+QVRezoD/HAXY4LXGNIJBWKPPvQtjryJQ20IhXBklXo+Jy8khMIF0Scb+YqvNHFUvhzpm5hALnP2BzTqeoAK864DJ3+D5w+8jQcHwgU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787348917; c=relaxed/simple;
-	bh=CfZT21P85GEFf8O8Ncaky7KiVbD3FZFYVMHqL0pmP0E=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=ShYIN2sbn0NDCoj3SHs8oqHLRsmYdR3oGi+IDGqGK7CqhiIB4P9qiCU1yXjbgEXf+5c06ir8vf6AWHv93nnT89R03//I/XHq3FlTDHlcZz4CnEd2N6mpPvxUs99OwegV6M283Bmu7ALJt1GaFAfcL8AZgILwku+UTXdQoNDfANQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=UYO82/v6; arc=none smtp.client-ip=209.85.216.41
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1787349564; c=relaxed/simple;
+	bh=F/EU5HsjZMc+QGFKpER2aHYNIgZFvpKj68xbkbfyZmk=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=ID96/oZJySI/MS6R7KmMxEUukECbrOvvrYPRioOrwDXWm2nfkBcbRvS12wvF/0TIGtu7uijexwOKLa9S94AQqk27Oetd6s1bqIDEAlbCh3CINwYb2UosI0pubcSYsp9ubAIsWEeWojCqlRHJuSQm0hgr8P8hLzxzR3BvHYyv3NE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=g1igLjh2; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="UYO82/v6"
-Received: by mail-pj1-f41.google.com with SMTP id 98e67ed59e1d1-38759bcd877so1752434a91.2
-        for <linux-input@vger.kernel.org>; Fri, 21 Aug 2026 14:48:35 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1787348915; x=1787953715; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=A/zTx8W+lWqDDj6Gv0eCWp/oq1vmj6sVAKi6L2a7La8=;
-        b=UYO82/v6mrUr9LYbSRltXMOVzEC+CdKgXSnBK7Wbzks5cmHn2aasJ493ZRE+jY+JKl
-         pnELy+cNf4VUPNiUxrLijyXKvK7Ezny4esO0jq8lvSo7Bh+zW21Q+qKDW60GpDIs5eTY
-         LmHS9P+RuNUqPWSM4SaAABxZikVB44evaVK5N/i6S6ihZw0CwKGltIwPGF0hkEhwT5Dr
-         q962GVR4UzUwPTVKWekbb2Nis7lULwwCSLYIJFzgbtDIXBXH64vC7Yzj2uQqU6YP1cBA
-         PePhnM3nKSqgdIxgHfv97RQnS3SUB03zYT7Ldwun+Xe9KefhdfFGKo0apNj/q/f3Jya9
-         EJWA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787348915; x=1787953715;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=A/zTx8W+lWqDDj6Gv0eCWp/oq1vmj6sVAKi6L2a7La8=;
-        b=lOxQkmwdDBegqexDF8q0UhgYLstwgDLPlaWrnUzVu/ZyKFoCc7polaeVxr7s2Qb27s
-         98eLSIC5jRNH85nJB0fWzo5nAVhnWSZ49Jdx5iJaLXYFcKwc4JvEmGzKo282hO3FuaMB
-         wDzmB5E0ma+2IqrNzkSObW0MuzAzRcULZtGnOD2YV1Spoxf3UeLL44tNynR0il1SNq19
-         gZB/QKfazS5RFXKecoyRiNRDkCjWVSwpvRgm3BipFTkLUvDArzirYzsvdvSZOfmGx4rp
-         iHU+8xNr/Rciep45aU7XGmn628EHB9fzpf73paoufBO1w+V0MXWuPOTh0vgp6HxJU/ia
-         pBGA==
-X-Gm-Message-State: AFuF++mBiG67pWvhXNKSOYge6sWr4JYb3o/SOm65HV33YQ5Ll5BYb+Jf
-	W4ihVYePVzlBTZfU8TgMrvllz4Uwy6R2Bb+Q9vHsOAFRVSh+wYwbseXL
-X-Gm-Gg: AR+sD10lb+LEKqoO5h93OzV7TA3kB0q8rW+t9/jsHsP+5kEWGjL0VHmpwLPkBMJ1Fru
-	qvyhSs4MxYCkO2o21N1lI0zXbiKXFOwjh1RRzcSImR4CA69lvWxBlLtPd6hK7HyBPm+TbvrPooY
-	7fZmmfJaJoVGU/GH5oEYhoS5cQqcVD3gFdJN8/1dAH81nBaejKMHit2QCZm3n83R2D0Bo+DEAdz
-	f8jhWWIyHtGxy9M5yv0NANZZMPPpMeq+ul125yA3yAq2sgbTtN/y/+hK/CKTPHkSgoKn+ccNGpl
-	ZhI2MJUOroaUh4KpdYSHvFIAcQx8w+qTGIttDuR3xhzJt/zhM3W+QJADWuPwPRWkpEPup+cnszX
-	bCtWziz9090A0fjHdIFujTQa6wtSj6pJ7j30Sfc8tcGPQaFcxYZKNOdR4AdMKZu5oDw91fTLIT5
-	qkl1i2drPj580EVhVxcT1KTuNIcOYvFlFh62Qk2EpPkCO8ySO2N7aRdAlI3eAP51969lsWWHRvG
-	pfY0p1Yph50bItYbdQ=
-X-Received: by 2002:a17:90b:164a:b0:390:b41a:b92a with SMTP id 98e67ed59e1d1-395deeaa2dfmr2561703a91.4.1787348914967;
-        Fri, 21 Aug 2026 14:48:34 -0700 (PDT)
-Received: from localhost.localdomain ([103.16.69.193])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-327bef3bb46sm27276942eec.3.2026.08.21.14.48.32
-        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
-        Fri, 21 Aug 2026 14:48:34 -0700 (PDT)
-From: Aditya Dash <mradityadash@gmail.com>
-To: Benjamin Tissoires <bentiss@kernel.org>,
-	"Derek J. Clark" <derekjohn.clark@gmail.com>,
-	Jiri Kosina <jikos@kernel.org>,
-	Mark Pearson <mpearson-lenovo@squebb.ca>
-Cc: linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH 5/5] HID: hid-lenovo-go: return configuration request errors
-Date: Sat, 22 Aug 2026 03:18:10 +0530
-Message-ID: <20260821214810.87826-6-mradityadash@gmail.com>
-X-Mailer: git-send-email 2.55.0
-In-Reply-To: <20260821214810.87826-1-mradityadash@gmail.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="g1igLjh2"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84B8C1F000E9;
+	Fri, 21 Aug 2026 21:59:22 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1787349562;
+	bh=M9lfTg/UstGiteJq2Db41hQPzra640CdMT3gw853O6g=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=g1igLjh2aisTm3tshNzNpq9HRIemEZYe93GMGzXw5cIdrJFF1Gd9gdQCyXI5hHfkX
+	 dweiFIG9VpGqoLnKoTYLO/s6RVIp/F1OpneMWwK7rsTie8XiEirFESu12BNvUeb8At
+	 itvjOLYKD4yGwpw/0ydwuAJeUCIuV8aGnBiRbWrEFizGzZonRPxm/LvinhSAJvzYyV
+	 jW1Ta2SVQLxcG6Gs3LNFdWBlFe7+p7FpmSiQ0QiomDS3P1u30ltlEZCDPyh35G+US/
+	 u5xoIOnQDQ3S1hNIdi4gQ8GnqkmWWCcgLTd5DHyrTYgydepXsYIjO6k1HVGTn5qaWa
+	 +lmdeOu5naanw==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH 4/5] HID: hid-lenovo-go: use the right controller
+ selectors
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Aditya Dash" <mradityadash@gmail.com>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <20260821214810.87826-5-mradityadash@gmail.com>
 References: <20260821214810.87826-1-mradityadash@gmail.com>
+ <20260821214810.87826-5-mradityadash@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Fri, 21 Aug 2026 21:59:22 +0000
+Message-Id: <20260821215922.84B8C1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-The driver completes a pending request when it receives any decoded
-configuration reply. It also discards the result of its interruptible wait.
-A configuration operation can therefore report success after an unrelated
-reply, firmware error, interrupted wait, or timeout.
+Thank you for your contribution! Sashiko AI review found 4 potential issue(=
+s) to consider:
 
-Track one pending request and match replies by command ID, command,
-sub-command, and device. Return output errors, firmware errors, interrupted
-waits, and timeouts to the caller. Treat a timeout or interruption as final
-if a matching reply arrives after the wait finishes.
+Pre-existing issues:
+- [High] Missing cleanup in hid_go_probe() error paths.
+- [High] Global state corruption from statically allocated per-device state.
+- [High] AB-BA deadlock in hid_go_cfg_remove() with sysfs.
+- [High] Early return in hid_go_remove() bypassing cleanup causes Use-After=
+-Free.
+--
 
-Calibration completion is asynchronous, and some Start commands do not send
-an immediate reply. Submit each exact calibration command and sub-command
-pair once and return its HID output status without a synchronous wait.
+--- Patch [4]: [PATCH 4/5] HID: hid-lenovo-go: use the right controller sel=
+ectors ---
+commit 21361c83148d2f3658bbae16a33bf294b6a2f9f0
+Author: Aditya Dash <mradityadash@gmail.com>
 
-The firmware does not include a sequence number. A late reply with the same
-complete tuple can still match a newer request.
+    HID: hid-lenovo-go: use the right controller selectors
+   =20
+    The right imu_enabled attribute selects FEATURE_IMU_BYPASS, and the rig=
+ht
+    reset attribute targets the left controller. Select FEATURE_IMU_ENABLE
+    for the right imu_enabled attribute. Target the right controller for a
+    right reset.
 
-Fixes: d69ccfcbc955 ("HID: hid-lenovo-go: Add Lenovo Legion Go Series HID Driver")
-Assisted-by: Pi:gpt-5.6-sol
-Signed-off-by: Aditya Dash <mradityadash@gmail.com>
----
-On an Original Legion Go, left-joystick Start did not return an
-immediate reply in two controller sessions although firmware began
-calibration. A focused target-kernel KUnit test covered timeout,
-interruption, firmware error, and reply ownership. No natural firmware
-rejection was reproduced.
+> diff --git a/drivers/hid/hid-lenovo-go.c b/drivers/hid/hid-lenovo-go.c
+> index d2d134873dd1f..1e6915c969d8c 100644
+> --- a/drivers/hid/hid-lenovo-go.c
+> +++ b/drivers/hid/hid-lenovo-go.c
+> @@ -2006,13 +2006,13 @@ LEGO_DEVICE_ATTR_RW(imu_bypass_right, "imu_bypass=
+_enabled", RIGHT_CONTROLLER,
+>  		    index, feature_status);
+>  static DEVICE_ATTR_RO_NAMED(imu_bypass_right_index, "imu_bypass_enabled_=
+index");
+> =20
+> -static struct go_cfg_attr imu_enabled_right =3D { FEATURE_IMU_BYPASS };
+> +static struct go_cfg_attr imu_enabled_right =3D { FEATURE_IMU_ENABLE };
+>  LEGO_DEVICE_ATTR_RW(imu_enabled_right, "imu_enabled", RIGHT_CONTROLLER, =
+index,
+>  		    feature_status);
+>  static DEVICE_ATTR_RO_NAMED(imu_enabled_right_index, "imu_enabled_index"=
+);
+> =20
+>  static struct go_cfg_attr reset_right =3D { FEATURE_RESET_GAMEPAD };
+> -LEGO_DEVICE_ATTR_WO(reset_right, "reset", LEFT_CONTROLLER, feature_statu=
+s);
+> +LEGO_DEVICE_ATTR_WO(reset_right, "reset", RIGHT_CONTROLLER, feature_stat=
+us);
+> =20
+>  static struct go_cfg_attr rumble_mode_right =3D { RUMBLE_MODE };
+>  LEGO_DEVICE_ATTR_RW(rumble_mode_right, "rumble_mode", RIGHT_CONTROLLER, =
+index,
 
- drivers/hid/hid-lenovo-go.c | 118 ++++++++++++++++++++++++++++++------
- 1 file changed, 100 insertions(+), 18 deletions(-)
+[Severity: High]
+This isn't a bug introduced by this patch, but is it possible for the error
+path in hid_go_probe() to leak resources?
 
-diff --git a/drivers/hid/hid-lenovo-go.c b/drivers/hid/hid-lenovo-go.c
-index 1e6915c969d8..a1a255c28e2d 100644
---- a/drivers/hid/hid-lenovo-go.c
-+++ b/drivers/hid/hid-lenovo-go.c
-@@ -21,6 +21,7 @@
- #include <linux/led-class-multicolor.h>
- #include <linux/mutex.h>
- #include <linux/printk.h>
-+#include <linux/spinlock.h>
- #include <linux/sysfs.h>
- #include <linux/types.h>
- #include <linux/unaligned.h>
-@@ -31,13 +32,30 @@
- #include "hid-ids.h"
- 
- #define GO_GP_INTF_IN		0x83
-+#define GO_INPUT_REPORT_ID	0x04
- #define GO_OUTPUT_REPORT_ID	0x05
- #define GO_GP_RESET_SUCCESS	0x01
- #define GO_PACKET_SIZE		64
- 
-+/* Lenovo replies identify a command and a sub-command, but have no sequence. */
-+struct hid_go_cmd {
-+	struct completion done;
-+	spinlock_t lock; /* protects fields below */
-+	bool pending;
-+	u8 id;
-+	u8 command;
-+	u8 sub_command;
-+	u8 device;
-+	int result;
-+};
-+
-+static struct hid_go_cmd go_cmd = {
-+	.done = COMPLETION_INITIALIZER(go_cmd.done),
-+	.lock = __SPIN_LOCK_UNLOCKED(go_cmd.lock),
-+};
-+
- static struct hid_go_cfg {
- 	struct delayed_work go_cfg_setup;
--	struct completion send_cmd_complete;
- 	struct led_classdev *led_cdev;
- 	struct hid_device *hdev;
- 	struct mutex cfg_mutex; /*ensure single synchronous output report*/
-@@ -331,6 +349,72 @@ static const char *const os_mode_text[] = {
- 	[LINUX] = "linux",
- };
- 
-+static void hid_go_cmd_arm(u8 id, u8 command, u8 sub_command, u8 device)
-+{
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&go_cmd.lock, flags);
-+	reinit_completion(&go_cmd.done);
-+	go_cmd.pending = true;
-+	go_cmd.id = id;
-+	go_cmd.command = command;
-+	go_cmd.sub_command = sub_command;
-+	go_cmd.device = device;
-+	spin_unlock_irqrestore(&go_cmd.lock, flags);
-+}
-+
-+static void hid_go_cmd_consume(const struct command_report *cmd_rep, int result)
-+{
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&go_cmd.lock, flags);
-+	if (go_cmd.pending && cmd_rep->id == go_cmd.id &&
-+	    cmd_rep->cmd == go_cmd.command &&
-+	    cmd_rep->sub_cmd == go_cmd.sub_command &&
-+	    cmd_rep->device_type == go_cmd.device) {
-+		go_cmd.pending = false;
-+		go_cmd.result = result;
-+		complete(&go_cmd.done);
-+	}
-+	spin_unlock_irqrestore(&go_cmd.lock, flags);
-+}
-+
-+static int hid_go_cmd_finish(long wait_result)
-+{
-+	unsigned long flags;
-+	int ret;
-+
-+	spin_lock_irqsave(&go_cmd.lock, flags);
-+	if (wait_result <= 0) {
-+		go_cmd.pending = false;
-+		ret = wait_result < 0 ? wait_result : -ETIMEDOUT;
-+	} else {
-+		ret = go_cmd.result;
-+	}
-+	spin_unlock_irqrestore(&go_cmd.lock, flags);
-+	return ret;
-+}
-+
-+static int hid_go_cmd_cancel(int result)
-+{
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&go_cmd.lock, flags);
-+	go_cmd.pending = false;
-+	spin_unlock_irqrestore(&go_cmd.lock, flags);
-+	return result;
-+}
-+
-+static int hid_go_send_output_report(struct hid_device *hdev, u8 *packet)
-+{
-+	int ret;
-+
-+	ret = hid_hw_output_report(hdev, packet, GO_PACKET_SIZE);
-+	if (ret < 0)
-+		return ret;
-+	return ret == GO_PACKET_SIZE ? 0 : -EINVAL;
-+}
-+
- static int hid_go_version_event(struct command_report *cmd_rep)
- {
- 	switch (cmd_rep->sub_cmd) {
-@@ -658,6 +742,8 @@ static int hid_go_raw_event(struct hid_device *hdev, struct hid_report *report,
- 
- 	if (size != GO_PACKET_SIZE)
- 		goto passthrough;
-+	if (data[0] != GO_INPUT_REPORT_ID)
-+		goto passthrough;
- 
- 	ep = get_endpoint_address(hdev);
- 	if (ep != GO_GP_INTF_IN)
-@@ -709,7 +795,7 @@ static int hid_go_raw_event(struct hid_device *hdev, struct hid_report *report,
- 	dev_dbg(&hdev->dev, "Rx data as raw input report: [%*ph]\n",
- 		GO_PACKET_SIZE, data);
- 
--	complete(&drvdata.send_cmd_complete);
-+	hid_go_cmd_consume(cmd_rep, ret);
- 	return ret;
- 
- passthrough:
-@@ -725,6 +811,7 @@ static int mcu_property_out(struct hid_device *hdev, u8 id, u8 command,
- 	u8 header[] = { GO_OUTPUT_REPORT_ID, id, command, index, device };
- 	size_t header_size = ARRAY_SIZE(header);
- 	int timeout = 50;
-+	long wait_result;
- 	int ret;
- 
- 	/* The FPS mode DPI request does not contain a device byte. */
-@@ -747,22 +834,19 @@ static int mcu_property_out(struct hid_device *hdev, u8 id, u8 command,
- 	dev_dbg(&hdev->dev, "Send data as raw output report: [%*ph]\n",
- 		GO_PACKET_SIZE, dmabuf);
- 
--	ret = hid_hw_output_report(hdev, dmabuf, GO_PACKET_SIZE);
--	if (ret < 0)
--		return ret;
-+	if (id == MCU_CONFIG_DATA &&
-+	    ((command == SET_TRIGGER_CFG && index == TRIGGER_CALIBRATE) ||
-+	     (command == SET_JOYSTICK_CFG && index == JOYSTICK_CALIBRATE) ||
-+	     (command == SET_GYRO_CFG && index == GYRO_CALIBRATE)))
-+		return hid_go_send_output_report(hdev, dmabuf);
- 
--	ret = ret == GO_PACKET_SIZE ? 0 : -EINVAL;
-+	hid_go_cmd_arm(id, command, index, device);
-+	ret = hid_go_send_output_report(hdev, dmabuf);
- 	if (ret)
--		return ret;
--
--	ret = wait_for_completion_interruptible_timeout(&drvdata.send_cmd_complete,
--							msecs_to_jiffies(timeout));
--
--	if (ret == 0) /* timeout occurred */
--		ret = -EBUSY;
--
--	reinit_completion(&drvdata.send_cmd_complete);
--	return 0;
-+		return hid_go_cmd_cancel(ret);
-+	wait_result = wait_for_completion_interruptible_timeout(&go_cmd.done,
-+								msecs_to_jiffies(timeout));
-+	return hid_go_cmd_finish(wait_result);
- }
- 
- static ssize_t version_show(struct device *dev, struct device_attribute *attr,
-@@ -2395,8 +2479,6 @@ static int hid_go_cfg_probe(struct hid_device *hdev,
- 
- 	drvdata.led_cdev = &go_cdev_rgb.led_cdev;
- 
--	init_completion(&drvdata.send_cmd_complete);
--
- 	/* Executing calls prior to returning from probe will lock the MCU. Schedule
- 	 * initial data call after probe has completed and MCU can accept calls.
- 	 */
--- 
-2.55.0
+drivers/hid/hid-lenovo-go.c:hid_go_probe() {
+    ...
+    ret =3D hid_go_cfg_probe(hdev, id);
+    if (ret) {
+        dev_err_probe(&hdev->dev, ret, "Failed to start configuration inter=
+face\n");
+        return ret;
+    }
+    ...
+}
 
+If hid_go_cfg_probe() fails (e.g., due to sysfs_create_groups() returning
+an error), it propagates the error and returns without calling
+hid_hw_close() and hid_hw_stop().
+
+Additionally, does hid_go_cfg_probe() leave sysfs attributes active if it
+fails?
+
+drivers/hid/hid-lenovo-go.c:hid_go_cfg_probe() {
+    ...
+    ret =3D sysfs_create_groups(&hdev->dev.kobj, top_level_attr_groups);
+    ...
+}
+
+Subsequent error paths in hid_go_cfg_probe() do not appear to clean up
+these sysfs groups before returning. If the module is subsequently unloaded,
+the un-removed sysfs attributes could remain on the device.
+
+[Severity: High]
+This is a pre-existing issue, but does using a static global struct for
+device state cause corruption if multiple devices are probed?
+
+drivers/hid/hid-lenovo-go.c: {
+...
+static struct hid_go_cfg {
+    struct delayed_work go_cfg_setup;
+    struct led_classdev *led_cdev;
+    struct hid_device *hdev;
+    struct mutex cfg_mutex;
+//...
+} drvdata;
+...
+}
+
+When hid_go_cfg_probe() is called, it overwrites the hardware device pointer
+and re-initializes the work item:
+
+drivers/hid/hid-lenovo-go.c:hid_go_cfg_probe() {
+    ...
+    hid_set_drvdata(hdev, &drvdata);
+    drvdata.hdev =3D hdev;
+    ...
+    INIT_DELAYED_WORK(&drvdata.go_cfg_setup, &cfg_setup);
+    ...
+}
+
+If a second gamepad is connected, could this overwrite drvdata.hdev, causing
+sysfs requests for the first device to operate on the second? Also, could
+calling INIT_DELAYED_WORK() while it is pending for the first device corrupt
+the timer list entry?
+
+[Severity: High]
+This is a pre-existing issue, but is there a potential deadlock between
+sysfs and the configuration mutex in hid_go_cfg_remove()?
+
+drivers/hid/hid-lenovo-go.c:hid_go_cfg_remove() {
+    ...
+    guard(mutex)(&drvdata.cfg_mutex);
+    sysfs_remove_groups(&hdev->dev.kobj, top_level_attr_groups);
+    ...
+}
+
+sysfs_remove_groups() synchronously waits for active sysfs readers/writers
+to drop their kernfs active references. Concurrently, a sysfs reader/writer
+might invoke mcu_property_out(), which attempts to acquire
+drvdata.cfg_mutex. Could this result in the remove thread holding the mutex
+and waiting for sysfs, while the sysfs thread holds the active reference and
+waits for the mutex?
+
+[Severity: High]
+This isn't a bug introduced by this patch, but does the early return in
+hid_go_remove() bypass cleanup?
+
+drivers/hid/hid-lenovo-go.c:hid_go_remove() {
+    ...
+    int ep =3D get_endpoint_address(hdev);
+
+    if (ep <=3D 0)
+        return;
+    ...
+}
+
+In hid_go_probe(), missing endpoints result in returning success (0),
+leaving the hardware active:
+
+drivers/hid/hid-lenovo-go.c:hid_go_probe() {
+    ...
+    ep =3D get_endpoint_address(hdev);
+    if (ep !=3D GO_GP_INTF_IN) {
+        dev_dbg(&hdev->dev, "Started interface %x as generic HID device\n",=
+ ep);
+        return 0;
+    }
+    ...
+}
+
+If the device is later unplugged or unbound, hid_go_remove() returns early,
+bypassing hid_hw_stop(). Could the HID hardware remain active while devres
+frees the driver data, potentially allowing subsequent incoming hardware
+events to access freed devres structures?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260821214810.8782=
+6-1-mradityadash@gmail.com?part=3D4

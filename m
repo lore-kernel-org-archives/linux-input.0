@@ -1,42 +1,43 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 55C6914A60F;
-	Fri, 21 Aug 2026 02:52:23 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4FAA1312825
+	for <linux-input@vger.kernel.org>; Fri, 21 Aug 2026 02:55:14 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787280744; cv=none; b=JKgbLK0kHy0FYo7GCanBeyJcyGIUI9YWuVJjWC+9+YvrfzCwIBy/CzzjKDoEIF6osJ+N75PFQOcMKXpTwz3HpA9UVf03vAZ6bJGs8y5bC/S4fc2tpsF2Fn5L8RsvK828p1kbFr5c6IAIy3LPf0hEFVQzx5n4E2tc0YyvruRoT9k=
+	t=1787280916; cv=none; b=WAgGdT+FWYkC7TEIqNys6LxsX/p5vFN6jutMSyvimGGI8inMFdwtA5M0tLTq032FSLOYow7Vgsw3EVlAegGeu2NVum3zxhewC0xaTEYEMeVdU8WWv/ilhydNw9lOcAaxzbnt4qqZe1VWntSk4pK8sfvjA4PLF6bjvEBjrmHb4vs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787280744; c=relaxed/simple;
-	bh=gk3zayrsNJIH8iTnusLRHRVJg9Mg/IWFXxAttEoX/pE=;
+	s=arc-20240116; t=1787280916; c=relaxed/simple;
+	bh=9eYbt39UAthU+qoqrblQ8jvBT0ZsOPmxI0cgXg3eEXE=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=c8FloUtNJOPmvkafY6kEg49trYh7lYrEhl33zNcL0Q3pn8hrFPdqY5YvwuOzw6S+mPAdU20Gmr3vCGOSrOjiBTQc2dimSIItyR3N7gf58gGEgDD9GYiURvQdoQy80dZoM1eIm5qTkjIfDm6SefRkSJ9s1QFi/Eo64VQ1mp0uwsU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=E6hgTAva; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=Y3Kil1WOzdoKwAwh3dVy8Ma2+1lv07LCQL3LvFLwqMU1PwRMPcJvY+A01Xoeop+9Yjcz57HtOKq+quof/VzE48yoXqFF0TX+Vz6gSeDerJ8eSzBYopwi8hbTMGaSKWh2ilJ1jdr594oRKYuoz2I3rTkCt7132b0hcZzf39WRQZY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=en4xSm1J; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="E6hgTAva"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A42151F000E9;
-	Fri, 21 Aug 2026 02:52:22 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="en4xSm1J"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31AE01F000E9;
+	Fri, 21 Aug 2026 02:55:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787280742;
-	bh=8BmB3WdlJUMlvl3RLqiENjUZSqhmoLvAXGVNBsvp1iQ=;
+	s=k20260515; t=1787280914;
+	bh=AEl57kzut5ECisiRAO0u3aS3bq3959gBiaES3PrwthY=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=E6hgTAvabgnpO6ldLUd2n/ABEotkZJQODboNh+Uo1UFe2DUqv8i3i8n9tsexrSQAZ
-	 p2goz1fGinZmMp3ztLWBoWNGMLGxwOsvg+m7q7yAzK5pNc0vyo0L6T8KypJ7QixVqc
-	 zr/R0u39qZBV6c1C30U1RzT93GOyJBh/H+YtDGLCHblJIXgBXzrYW8b1c2bGW8NvXS
-	 QlJzW60VRQxiRLWAtlPDOLywvqP46apN7mK+E32nvmi2Wx5kh41VkyIORfeuRGNU5T
-	 5d/YZICd6pVU6+GIHAsqtfXXvFm7BOX0i0c2L0u/TGat5W4XEhSaLGv+RxnnGFRExx
-	 iCDcBG6Dqh9dA==
+	b=en4xSm1JDW8jBfS5cNhmWLdqeK1sj1qaWYi0H/R7/05mLoThwNzu9qAAtULlSBCfB
+	 Wxyd+iEhXD4P2wNY6E7YQI/Ys2Pp36yWVIJnPKsY28qRmutuj9P+HsLsxcN6bvdX/3
+	 NuZ5QAsD2RW1Wpe/Oc95sfSSAMkaOvO9/M7z+wCNoTFWzcyz3lN6UP3BQ915kLq7wN
+	 uiA07O8E1jXHRisHdb23MbOCjSc7sQ8S9OVDLCe72SDiY9fbvyYQhWd+b3SKz/0x99
+	 hZZlIn34n6HSENgm+z9bULSxgWaDBNXtNkTNGJZRax4WHfW9mwIkYtrtBXIIgm4kVS
+	 Y+Qe3+7k7zlFQ==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] input: keyboard: Convert to DEFINE_SIMPLE_DEV_PM_OPS()
+Subject: Re: [PATCH] input: touchscreen: Convert to
+ DEFINE_SIMPLE_DEV_PM_OPS()
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Triet Hoang" <triet.hoang.dev@gmail.com>
-Cc: linux-input@vger.kernel.org, imx@lists.linux.dev, Frank.Li@kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260821023951.53199-1-triet.hoang.dev@gmail.com>
-References: <20260821023951.53199-1-triet.hoang.dev@gmail.com>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <20260821024450.57369-1-triet.hoang.dev@gmail.com>
+References: <20260821024450.57369-1-triet.hoang.dev@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 21 Aug 2026 02:52:22 +0000
-Message-Id: <20260821025222.A42151F000E9@smtp.kernel.org>
+Date: Fri, 21 Aug 2026 02:55:13 +0000
+Message-Id: <20260821025514.31AE01F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -45,62 +46,47 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
 Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-
-Pre-existing issues:
-- [High] Missing error handling on devm_event_notifier_register allows prob=
-e to succeed with a non-functional device.
+- [Low] The patch introduces a strict C compiler redefinition error for `ad=
+7879_pm_ops` when `CONFIG_PM_SLEEP` is enabled.
 --
 
---- Patch [1]: [PATCH] input: keyboard: Convert to DEFINE_SIMPLE_DEV_PM_OPS=
-() ---
-commit 88eacffae6d3079bb9f5aa0b29b554341484a82a
+--- Patch [1]: [PATCH] input: touchscreen: Convert to DEFINE_SIMPLE_DEV_PM_=
+OPS() ---
+commit 44d9a5ca9f2aa03594a9658d8105747b57b227ba
 Author: Triet Hoang <triet.hoang.dev@gmail.com>
 
-    input: keyboard: Convert to DEFINE_SIMPLE_DEV_PM_OPS()
-   =20
-    Convert deprecated SIMPLE_DEV_PM_OPS to DEFINE_SIMPLE_DEV_PM_OPS and
-    pm_sleep_ptr(). This lets us drop the __maybe_unused annotations from
-    the resume callbacks and reduces kernel size when CONFIG_PM or
-    CONFIG_PM_SLEEP is disabled.
+input: touchscreen: Convert to DEFINE_SIMPLE_DEV_PM_OPS()
 
-> diff --git a/drivers/input/keyboard/imx-sm-bbm-key.c b/drivers/input/keyb=
-oard/imx-sm-bbm-key.c
-> index 96486bd23d609..7fbbd44878be3 100644
-> --- a/drivers/input/keyboard/imx-sm-bbm-key.c
-> +++ b/drivers/input/keyboard/imx-sm-bbm-key.c
-> @@ -187,7 +187,7 @@ static int scmi_imx_bbm_key_probe(struct scmi_device =
-*sdev)
->  	return ret;
->  }
+This commit updates several touchscreen drivers to use the newer
+DEFINE_SIMPLE_DEV_PM_OPS and pm_sleep_ptr() macros instead of the deprecated
+SIMPLE_DEV_PM_OPS. This allows the removal of __maybe_unused annotations on
+suspend and resume callbacks.
 
-[Severity: High]
-This isn't a bug introduced by this patch, but while reviewing the probe
-path I noticed an issue in scmi_imx_bbm_pwrkey_init().
-
-When devm_event_notifier_register() fails, the error code in ret is
-printed but then immediately overwritten:
-
-drivers/input/keyboard/imx-sm-bbm-key.c:scmi_imx_bbm_pwrkey_init() {
-	...
-	ret =3D handle->notify_ops->devm_event_notifier_register(sdev, SCMI_PROTOC=
-OL_IMX_BBM,
-							       SCMI_EVENT_IMX_BBM_BUTTON,
-							       NULL, &bbnsm->nb);
-
-	if (ret)
-		dev_err(dev, "Failed to register BBM Button Events %d:", ret);
-
-	ret =3D input_register_device(input);
-	...
-}
-
-Does this allow the probe to incorrectly succeed with a non-functional devi=
-ce
-if the notifier registration fails? Should it return the error instead of
-continuing to input_register_device()?
-
+> diff --git a/drivers/input/touchscreen/ad7879.c b/drivers/input/touchscre=
+en/ad7879.c
+> index 31d2a3029d5f6..f686f028d4bc9 100644
+> --- a/drivers/input/touchscreen/ad7879.c
+> +++ b/drivers/input/touchscreen/ad7879.c
 [ ... ]
+> @@ -329,8 +329,8 @@ static int __maybe_unused ad7879_resume(struct device=
+ *dev)
+>  	return 0;
+>  }
+> =20
+> -SIMPLE_DEV_PM_OPS(ad7879_pm_ops, ad7879_suspend, ad7879_resume);
+> -EXPORT_SYMBOL(ad7879_pm_ops);
+> +DEFINE_SIMPLE_DEV_PM_OPS(ad7879_pm_ops, ad7879_suspend, ad7879_resume);
+> +EXPORT_SIMPLE_DEV_PM_OPS(ad7879_pm_ops, ad7879_suspend, ad7879_resume);
+
+[Severity: Low]
+Does this cause a compilation error when CONFIG_PM_SLEEP is enabled?
+
+Both DEFINE_SIMPLE_DEV_PM_OPS and EXPORT_SIMPLE_DEV_PM_OPS expand to a
+complete initialization of the ad7879_pm_ops struct. Using both sequentially
+redefines the same global variable, which will result in a build failure.
+
+Should this just be EXPORT_SIMPLE_DEV_PM_OPS by itself?
 
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260821023951.5319=
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260821024450.5736=
 9-1-triet.hoang.dev@gmail.com?part=3D1

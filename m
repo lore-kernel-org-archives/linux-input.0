@@ -1,217 +1,231 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D68D6361640
-	for <linux-input@vger.kernel.org>; Fri, 21 Aug 2026 21:59:22 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B2A493803DF
+	for <linux-input@vger.kernel.org>; Fri, 21 Aug 2026 22:01:48 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787349564; cv=none; b=ApBppuZlAiMy9ZKhZv38kVT5hOUW3xdvVjsILAQtbAaDoQCcL1uyjjLdGwn1KGkwKDvM+QVRezoD/HAXY4LXGNIJBWKPPvQtjryJQ20IhXBklXo+Jy8khMIF0Scb+YqvNHFUvhzpm5hALnP2BzTqeoAK864DJ3+D5w+8jQcHwgU=
+	t=1787349710; cv=none; b=j3+pWTSMbwSMWlhDL4YuQpKtnVnYgiuwEPeLgKLMtGnsZmDkv4W2CCqTlTXRUK/1JOBBPiwrFh1QR/NBjdA7RqhGnHrnAQoksOK7OZCZAkvoeYd23uLuEmrJU8HNM5LyAcqD8RNT9ZLHsS8XkS6R7Z5XrPxaQPZy0jxNJ+nTPOs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787349564; c=relaxed/simple;
-	bh=F/EU5HsjZMc+QGFKpER2aHYNIgZFvpKj68xbkbfyZmk=;
+	s=arc-20240116; t=1787349710; c=relaxed/simple;
+	bh=JTbfBfOLlghVv1KPuzMSoa2vGY64VvN8fOQPTUzUvxU=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=ID96/oZJySI/MS6R7KmMxEUukECbrOvvrYPRioOrwDXWm2nfkBcbRvS12wvF/0TIGtu7uijexwOKLa9S94AQqk27Oetd6s1bqIDEAlbCh3CINwYb2UosI0pubcSYsp9ubAIsWEeWojCqlRHJuSQm0hgr8P8hLzxzR3BvHYyv3NE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=g1igLjh2; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=gZou1rwa6JPje2Ut+OQw5swpIGYa+vOnnLZ23a4uF3zp8XOOeDh7j2SfG/zsDucN7OSvyQFiRKdKM2JR8E8oM6dDfzwGJ6rz0ao0bwKt9fWiKvSE8uQocdPE7p/19B6DWIl09N3CHVq98tyfIunYV9rxB6xZLvs6g3ZzE0IWWkA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Xr5ctAxY; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="g1igLjh2"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84B8C1F000E9;
-	Fri, 21 Aug 2026 21:59:22 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Xr5ctAxY"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 634311F000E9;
+	Fri, 21 Aug 2026 22:01:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787349562;
-	bh=M9lfTg/UstGiteJq2Db41hQPzra640CdMT3gw853O6g=;
+	s=k20260515; t=1787349708;
+	bh=pyu1Ro5uoOQUBUFUvM8HJ0O4YSlcoT9bUQRlF+bYBNU=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=g1igLjh2aisTm3tshNzNpq9HRIemEZYe93GMGzXw5cIdrJFF1Gd9gdQCyXI5hHfkX
-	 dweiFIG9VpGqoLnKoTYLO/s6RVIp/F1OpneMWwK7rsTie8XiEirFESu12BNvUeb8At
-	 itvjOLYKD4yGwpw/0ydwuAJeUCIuV8aGnBiRbWrEFizGzZonRPxm/LvinhSAJvzYyV
-	 jW1Ta2SVQLxcG6Gs3LNFdWBlFe7+p7FpmSiQ0QiomDS3P1u30ltlEZCDPyh35G+US/
-	 u5xoIOnQDQ3S1hNIdi4gQ8GnqkmWWCcgLTd5DHyrTYgydepXsYIjO6k1HVGTn5qaWa
-	 +lmdeOu5naanw==
+	b=Xr5ctAxYBA0ZPoqhqdBPireoc4t1S8imSpJxXSABKNbSmfGWxikrvpaV5iW72mpIF
+	 G57d7ZoQ6LVefRAxhM1MGvHrBCsEtkVJmKLO7i4tD01S2eSliXHEf5M9edr5E5Jntd
+	 4ic9nj8dRZ4Vt/QP6IfnzJ3guZC4KaZofTZs2yw5JBV3joqOPi99soOCHxuP8XgIoF
+	 r6Tos58Breie56yWWMvXOyMwSWEvD7S69I78X95gEbflxEPOmcoiAFtPbZMNChVi4y
+	 k8gUIlFMI/cCbeMkCUAGwdsrUrYYO9XweIEUEpucM82zzunnwFIFWUDmsD1h7eWtSJ
+	 F3BFCfkmEnMZA==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 4/5] HID: hid-lenovo-go: use the right controller
- selectors
+Subject: Re: [PATCH 2/5] HID: hid-lenovo-go: fix the FPS mode DPI request
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Aditya Dash" <mradityadash@gmail.com>
 Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260821214810.87826-5-mradityadash@gmail.com>
+In-Reply-To: <20260821214810.87826-3-mradityadash@gmail.com>
 References: <20260821214810.87826-1-mradityadash@gmail.com>
- <20260821214810.87826-5-mradityadash@gmail.com>
+ <20260821214810.87826-3-mradityadash@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 21 Aug 2026 21:59:22 +0000
-Message-Id: <20260821215922.84B8C1F000E9@smtp.kernel.org>
+Date: Fri, 21 Aug 2026 22:01:47 +0000
+Message-Id: <20260821220148.634311F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 4 potential issue(=
+Thank you for your contribution! Sashiko AI review found 8 potential issue(=
 s) to consider:
 
+New issues:
+- [High] FPS mode DPI read requests and responses use incorrect byte offset=
+s and headers.
+
 Pre-existing issues:
-- [High] Missing cleanup in hid_go_probe() error paths.
-- [High] Global state corruption from statically allocated per-device state.
-- [High] AB-BA deadlock in hid_go_cfg_remove() with sysfs.
-- [High] Early return in hid_go_remove() bypassing cleanup causes Use-After=
--Free.
+- [High] Missing hid_hw_stop() and hid_hw_close() in the hid_go_probe() err=
+or path.
+- [High] The driver uses a single global static variable drvdata for device=
+-specific state.
+- [High] Early return in hid_go_remove() bypasses hid_hw_stop() completely.
+- [High] get_endpoint_address() lacks a boundary check for bNumEndpoints.
+- [High] AB-BA deadlock between device removal and sysfs file access.
+- [High] Passing a NULL pointer to memcpy() when processing GET requests.
+- [Medium] Sysfs attribute groups are leaked on hid_go_cfg_probe() error pa=
+ths.
 --
 
---- Patch [4]: [PATCH 4/5] HID: hid-lenovo-go: use the right controller sel=
-ectors ---
-commit 21361c83148d2f3658bbae16a33bf294b6a2f9f0
+--- Patch [2]: [PATCH 2/5] HID: hid-lenovo-go: fix the FPS mode DPI request=
+ ---
+commit 9b984e3644e77c41adb68e3622677de0ae7cd145
 Author: Aditya Dash <mradityadash@gmail.com>
 
-    HID: hid-lenovo-go: use the right controller selectors
-   =20
-    The right imu_enabled attribute selects FEATURE_IMU_BYPASS, and the rig=
-ht
-    reset attribute targets the left controller. Select FEATURE_IMU_ENABLE
-    for the right imu_enabled attribute. Target the right controller for a
-    right reset.
+HID: hid-lenovo-go: fix the FPS mode DPI request
+
+mcu_property_out() adds the five-byte request header used by most
+configuration commands. For FPS mode DPI writes, this inserts a device byte
+before the four-byte DPI value.
+
+The FPS mode DPI request does not contain a device byte. Its little-endian
+DPI value starts immediately after the command and sub-command.
+
+Use the four-byte header only for FPS mode DPI writes. Keep the common
+header for all other requests.
 
 > diff --git a/drivers/hid/hid-lenovo-go.c b/drivers/hid/hid-lenovo-go.c
-> index d2d134873dd1f..1e6915c969d8c 100644
+> index b8248bf8965c6..a6e9a130ad417 100644
 > --- a/drivers/hid/hid-lenovo-go.c
 > +++ b/drivers/hid/hid-lenovo-go.c
-> @@ -2006,13 +2006,13 @@ LEGO_DEVICE_ATTR_RW(imu_bypass_right, "imu_bypass=
-_enabled", RIGHT_CONTROLLER,
->  		    index, feature_status);
->  static DEVICE_ATTR_RO_NAMED(imu_bypass_right_index, "imu_bypass_enabled_=
-index");
+> @@ -725,6 +725,11 @@ static int mcu_property_out(struct hid_device *hdev,=
+ u8 id, u8 command,
+>  	int timeout =3D 50;
+>  	int ret;
 > =20
-> -static struct go_cfg_attr imu_enabled_right =3D { FEATURE_IMU_BYPASS };
-> +static struct go_cfg_attr imu_enabled_right =3D { FEATURE_IMU_ENABLE };
->  LEGO_DEVICE_ATTR_RW(imu_enabled_right, "imu_enabled", RIGHT_CONTROLLER, =
-index,
->  		    feature_status);
->  static DEVICE_ATTR_RO_NAMED(imu_enabled_right_index, "imu_enabled_index"=
-);
-> =20
->  static struct go_cfg_attr reset_right =3D { FEATURE_RESET_GAMEPAD };
-> -LEGO_DEVICE_ATTR_WO(reset_right, "reset", LEFT_CONTROLLER, feature_statu=
-s);
-> +LEGO_DEVICE_ATTR_WO(reset_right, "reset", RIGHT_CONTROLLER, feature_stat=
-us);
-> =20
->  static struct go_cfg_attr rumble_mode_right =3D { RUMBLE_MODE };
->  LEGO_DEVICE_ATTR_RW(rumble_mode_right, "rumble_mode", RIGHT_CONTROLLER, =
-index,
+> +	/* The FPS mode DPI request does not contain a device byte. */
+> +	if (id =3D=3D MCU_CONFIG_DATA && command =3D=3D SET_DPI_CFG &&
+> +	    index =3D=3D FPS_MODE_DPI)
+> +		header_size--;
+> +
 
 [Severity: High]
-This isn't a bug introduced by this patch, but is it possible for the error
-path in hid_go_probe() to leak resources?
+Does this change result in FPS mode DPI read requests and responses using
+incorrect byte offsets and headers?
 
-drivers/hid/hid-lenovo-go.c:hid_go_probe() {
+Since the check specifically targets SET_DPI_CFG, a GET_DPI_CFG request from
+fps_mode_dpi_show() will still send a 5-byte header. hid_go_fps_dpi_event()
+will then read the response from an incorrect byte offset due to asymmetric
+header tracking.
+
+>  	if (header_size + len > GO_PACKET_SIZE)
+>  		return -EINVAL;
+> =20
+
+While reviewing this patch, I also noticed a few preexisting issues in this
+file.
+
+[Severity: High]
+This isn't a bug introduced by this patch, but does this invoke undefined
+behavior by passing a NULL pointer to memcpy()?
+
+drivers/hid/hid-lenovo-go.c:mcu_property_out()
+    ...
+    memcpy(dmabuf, header, header_size);
+    memcpy(dmabuf + header_size, data, len);
+    ...
+
+When mcu_property_out() is called for GET requests (like GET_DPI_CFG in
+fps_mode_dpi_show()), the data pointer is NULL and len is 0.
+
+
+[Severity: High]
+This isn't a bug introduced by this patch, but does using a single global
+static variable drvdata cause multiple devices to corrupt each other's stat=
+e?
+
+drivers/hid/hid-lenovo-go.c
+    static struct hid_go_cfg {
+        ...
+    } drvdata;
+
+The global drvdata is mutated per-device and its mutex is re-initialized on
+every probe, which could cause issues if more than one of these devices is
+connected.
+
+
+[Severity: High]
+This isn't a bug introduced by this patch, but does the hid_go_probe() error
+path miss calling hid_hw_stop() and hid_hw_close()?
+
+drivers/hid/hid-lenovo-go.c:hid_go_probe()
     ...
     ret =3D hid_go_cfg_probe(hdev, id);
-    if (ret) {
+    if (ret)
         dev_err_probe(&hdev->dev, ret, "Failed to start configuration inter=
 face\n");
+
+    dev_dbg(&hdev->dev, "Started Legion Go HID Device: %x\n", ep);
+
+    return ret;
+
+If hid_go_cfg_probe() fails, this returns the error without tearing down the
+hardware that was started earlier, which could lead to a resource leak and
+use-after-free.
+
+
+[Severity: Medium]
+This isn't a bug introduced by this patch, but are the sysfs attribute grou=
+ps
+leaked on hid_go_cfg_probe() error paths?
+
+drivers/hid/hid-lenovo-go.c:hid_go_cfg_probe()
+    ...
+    ret =3D devm_led_classdev_multicolor_register(&hdev->dev, &go_cdev_rgb);
+    if (ret) {
+        dev_err_probe(&hdev->dev, ret, "Failed to create RGB device\n");
         return ret;
     }
-    ...
-}
 
-If hid_go_cfg_probe() fails (e.g., due to sysfs_create_groups() returning
-an error), it propagates the error and returns without calling
-hid_hw_close() and hid_hw_stop().
+The function returns directly on error without calling sysfs_remove_groups()
+to clean up the groups created earlier by sysfs_create_groups().
 
-Additionally, does hid_go_cfg_probe() leave sysfs attributes active if it
-fails?
-
-drivers/hid/hid-lenovo-go.c:hid_go_cfg_probe() {
-    ...
-    ret =3D sysfs_create_groups(&hdev->dev.kobj, top_level_attr_groups);
-    ...
-}
-
-Subsequent error paths in hid_go_cfg_probe() do not appear to clean up
-these sysfs groups before returning. If the module is subsequently unloaded,
-the un-removed sysfs attributes could remain on the device.
 
 [Severity: High]
-This is a pre-existing issue, but does using a static global struct for
-device state cause corruption if multiple devices are probed?
+This isn't a bug introduced by this patch, but does this early return in
+hid_go_remove() completely bypass hid_hw_stop()?
 
-drivers/hid/hid-lenovo-go.c: {
-...
-static struct hid_go_cfg {
-    struct delayed_work go_cfg_setup;
-    struct led_classdev *led_cdev;
-    struct hid_device *hdev;
-    struct mutex cfg_mutex;
-//...
-} drvdata;
-...
-}
-
-When hid_go_cfg_probe() is called, it overwrites the hardware device pointer
-and re-initializes the work item:
-
-drivers/hid/hid-lenovo-go.c:hid_go_cfg_probe() {
-    ...
-    hid_set_drvdata(hdev, &drvdata);
-    drvdata.hdev =3D hdev;
-    ...
-    INIT_DELAYED_WORK(&drvdata.go_cfg_setup, &cfg_setup);
-    ...
-}
-
-If a second gamepad is connected, could this overwrite drvdata.hdev, causing
-sysfs requests for the first device to operate on the second? Also, could
-calling INIT_DELAYED_WORK() while it is pending for the first device corrupt
-the timer list entry?
-
-[Severity: High]
-This is a pre-existing issue, but is there a potential deadlock between
-sysfs and the configuration mutex in hid_go_cfg_remove()?
-
-drivers/hid/hid-lenovo-go.c:hid_go_cfg_remove() {
-    ...
-    guard(mutex)(&drvdata.cfg_mutex);
-    sysfs_remove_groups(&hdev->dev.kobj, top_level_attr_groups);
-    ...
-}
-
-sysfs_remove_groups() synchronously waits for active sysfs readers/writers
-to drop their kernfs active references. Concurrently, a sysfs reader/writer
-might invoke mcu_property_out(), which attempts to acquire
-drvdata.cfg_mutex. Could this result in the remove thread holding the mutex
-and waiting for sysfs, while the sysfs thread holds the active reference and
-waits for the mutex?
-
-[Severity: High]
-This isn't a bug introduced by this patch, but does the early return in
-hid_go_remove() bypass cleanup?
-
-drivers/hid/hid-lenovo-go.c:hid_go_remove() {
-    ...
+drivers/hid/hid-lenovo-go.c:hid_go_remove()
     int ep =3D get_endpoint_address(hdev);
 
     if (ep <=3D 0)
         return;
-    ...
-}
 
-In hid_go_probe(), missing endpoints result in returning success (0),
-leaving the hardware active:
+If the endpoint is not found or is less than zero on disconnect, the early
+return skips hid_hw_stop() and hid_hw_close(), leaving hardware active.
 
-drivers/hid/hid-lenovo-go.c:hid_go_probe() {
-    ...
-    ep =3D get_endpoint_address(hdev);
-    if (ep !=3D GO_GP_INTF_IN) {
-        dev_dbg(&hdev->dev, "Started interface %x as generic HID device\n",=
- ep);
-        return 0;
-    }
-    ...
-}
 
-If the device is later unplugged or unbound, hid_go_remove() returns early,
-bypassing hid_hw_stop(). Could the HID hardware remain active while devres
-frees the driver data, potentially allowing subsequent incoming hardware
-events to access freed devres structures?
+[Severity: High]
+This isn't a bug introduced by this patch, but does get_endpoint_address() =
+lack
+a boundary check for bNumEndpoints?
+
+drivers/hid/hid-lenovo-go.c:get_endpoint_address()
+    ...
+    ep =3D intf->cur_altsetting->endpoint;
+    if (!ep)
+        return -ENODEV;
+
+    return ep->desc.bEndpointAddress;
+
+Accessing ep->desc.bEndpointAddress directly without verifying that
+intf->cur_altsetting->desc.bNumEndpoints > 0 could result in an out-of-boun=
+ds
+read on the endpoint descriptor array.
+
+
+[Severity: High]
+This isn't a bug introduced by this patch, but is there an AB-BA deadlock
+between device removal and sysfs file access here?
+
+drivers/hid/hid-lenovo-go.c:hid_go_cfg_remove()
+    ...
+    guard(mutex)(&drvdata.cfg_mutex);
+    sysfs_remove_groups(&hdev->dev.kobj, top_level_attr_groups);
+    ...
+
+hid_go_cfg_remove() acquires cfg_mutex before sysfs_remove_groups(). If a
+sysfs write is waiting on cfg_mutex while holding the kernfs active
+reference, calling sysfs_remove_groups() while holding cfg_mutex will
+deadlock.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260821214810.8782=
-6-1-mradityadash@gmail.com?part=3D4
+6-1-mradityadash@gmail.com?part=3D2

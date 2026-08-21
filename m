@@ -1,169 +1,276 @@
-Received: from mail-oi2-f2.google.com (mail-oi2-f2.google.com [74.125.231.194])
+Received: from mail-ot1-f54.google.com (mail-ot1-f54.google.com [209.85.210.54])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4EBA12DB794
-	for <linux-input@vger.kernel.org>; Fri, 21 Aug 2026 07:30:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.231.194
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787297440; cv=none; b=MvJQ2u4qdCJ2zhn/oPfKz3LXAV4nx13PTBuXBgdUDhSPHuw5XV/SAQ2nkoQXIZ/oGyg6HMvbbZLsymjxvDFdOxTVdjeugjMaFMOtJ7KOSgny5jjtXFRxjlaBiFlgikXhlZJnbNjfWDtJ2JlEvdNzjuYBnRq1vGMNB9hEyx7TeRU=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787297440; c=relaxed/simple;
-	bh=M57OoBe+Dhn0GS86hcFw2/N3eUkClcMgX1c7fw+FKjU=;
-	h=MIME-Version:Date:Message-ID:Subject:From:To:Content-Type; b=Hjt98NdZFztdSVbiIuilKbOu0AnqKrDOnYBhyCxOyuvEf/yYHvrNahTI0sQsFCGWaCbmDNvq4/jkJ8G/V+Jd4caKZfS4rL1Jz9KTwIhpAn1rMV+7K81I209ZMTxL7lKsFEWvHA0R9IMwSjPvi0h5GEnYHfbiUHrw3oQqajrj3ek=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=74.125.231.194
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
-Received: by mail-oi2-f2.google.com with SMTP id 5614622812f47-495d5d27acfso324151b6e.1
-        for <linux-input@vger.kernel.org>; Fri, 21 Aug 2026 00:30:38 -0700 (PDT)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 63497472542
+	for <linux-input@vger.kernel.org>; Fri, 21 Aug 2026 11:23:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.210.54
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1787311417; cv=pass; b=EyBgyD9CFb5K8hOS8x+692X4GZHHG633Co8YKpb5P3HBXyF9ePWcpIx0TPOTLy3OcX55p6fwarPyZ7yuhSttb0Blngwvth3+K6CDVMgT0UnySIt5hprJPIslKMjFhl77DHq/CoC3guDGbDvkIais04RrmY4OSN5+TMiWzsNVmz4=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1787311417; c=relaxed/simple;
+	bh=LiExl+gOe3SeIzZXSuj4Zafu/2QOIkUK5hELicXazKo=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=HWxUi8hUYkJCKEJADjPZx0SZdVrwWYnnztaABKrUwk65wun8Ew1x/4adXCf8hyZtJpRqI1JxIj6kP0UWkEFOs21ERcZSJlGqgsuyPFDvc81oQppQfn4fM+6Jny4dO8AT+GgibW8jDoujp/+b5vQvo6qH3c86vwWVpI1XfmOOCR4=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=QatBGwuz; arc=pass smtp.client-ip=209.85.210.54
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="QatBGwuz"
+Received: by mail-ot1-f54.google.com with SMTP id 46e09a7af769-7eb4d532e65so498822a34.0
+        for <linux-input@vger.kernel.org>; Fri, 21 Aug 2026 04:23:33 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1787311412; cv=none;
+        d=google.com; s=arc-20260327;
+        b=YiJEuPvH8tB9rlTMdlqjWqbdaF+Ng2ZJYoiPlvfuCOBbEy5dynMAuY4sAU2cFV0MRp
+         JEna0Z4hq/pDZJyKx8grcMGBTyU33+qMrvrFFgfB4rhBtAGzbV4nN5l9b4owj6tQpZyY
+         7ym30Usvms+jcGdFCOk9uitM1ZoV4zSxNtSgdIXqgHhAB05hVid+IsZY2fVSWkEBNPj5
+         zF9iTfQijgcK/g5GY3Kn/W1XYlIhbWlynQMNgAyR+MP7DQNMB9uaEZsSL7ePKUV95G1U
+         5nNQS1Fs3cT+qXBzfW810/AipVamQEE8wQMvItdqv2y5We7DX1qttaCUx18Nm4WnOaWT
+         apdA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=XP0TXz3XgGZqxpegnUNB5sva+CKg8bV+74SS+MJugIo=;
+        fh=8L8IpbQWGj3EQNd0Gzzu/yDeSzilxjycu1QnTvtU564=;
+        b=NLvwvipLMWwBQwHMaReaf1UncQX48U7hrGJE2lrP1j0QIDZWjrC9I7ERROhudtFynB
+         f2yJkY6DEhPy2bxwnjaSSg6pIsRl9cJ15ifYgSTnnXaEdRD1rQOQH+94UVPzhjAL237Y
+         77NJx84bf4b7Z//ix9rdT71telAhho9bMqzJch541LGbeZKgyAvfVhNn83X0wbxp8rS4
+         nMDyhyHQ74VWFfn/as/Ya+sSaMTVSQweeE+QZ2MhLosb6TF96pl059QYER/18SN+T3VV
+         FfQTvvMeVBgAOG3RxqXcPP/qVCNMCi6xN8DP69c4RX+JB8tRMAyoEuVsW1For0NgRVgz
+         LNZQ==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1787311412; x=1787916212; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=XP0TXz3XgGZqxpegnUNB5sva+CKg8bV+74SS+MJugIo=;
+        b=QatBGwuzib0/erTsEzv2jLI45++dS1cTy/BJrdOVJ+wSglKZiwxWPGx8FPVpJcdCau
+         hLdc5+AHY+UUr0QFypFZM8YwMG/gGBz8MXYWpB814qn/4/OLtGauMWgwqc/D+UIrH7/m
+         JPd9BemOiGMgYj75N+rD3EIYdmBcHoAfcUpi4SJV5Uv1bQ3K8W1hUlCvngvK7OrLscmB
+         QpxCEw1medGVmy3IYvCL3zA2vv1pcssztHRWstsMY6rkLdRbQkdOw7CCMLCUKiAofujL
+         W+T0Ff80FmGaunn7Rrk46LpD1VaMdtv+0gcHQwesULprp/5ZlKZG1B2t2ExDSywoxJzS
+         BoeA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787297437; x=1787902237;
-        h=content-type:to:from:subject:message-id:date:mime-version
+        d=1e100.net; s=20251104; t=1787311412; x=1787916212;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=UnkKnQeG68lJgWeheU0YaL4Zu2tHzFxH1bbP3Rgab7c=;
-        b=IsIJxS+VJG9dFlPIX2ixoIYrCzKsnd02KYEeTutdGVTtRa6zPjzkaWLvz9var7uSel
-         D7eA3IQd0MaNZEVBgEsOu1A0GzEn6EmCkuBr1jOwhy1hLdYMokJrxDP/zCj+CWGyxf4a
-         Y8qJvEZ1YcgeVGpNHmHIXLDwEmwxcGSoWfcsesBYWZE4HG83AXc9AQL+j2DfDy+jkXDO
-         2gJvSXMtp8OkWgs3Z+KfzrL12IqILMn5tKzPQSPcUOKaHn6oql7LBKtCAnkmHcDGN4nE
-         NeH/8fFam9yJXQsdRvjJoEeM/32lwkCSvEyCYDfwIvG0wpLCpaaLh/FP+3XeCL1S1amS
-         x9nQ==
-X-Forwarded-Encrypted: i=1; AHgh+Ro9wFPAcewYppUk8ODCvaoZXlf9tE3vIOtN6oG29A7nlJhuByvub+kId9UFzVaa3cD3AYH2cruEHIEf6g==@vger.kernel.org
-X-Gm-Message-State: AOJu0YyWgRB5TD8xIOYH63YraWFI17xBEkRm5GmtD+W6r3yV8qeiz/bJ
-	vtigRWy3ASUunmhjkEGLyEsPfp9P1hWzJf6pVkRyYtnIC2zJo5sTkuh8BqCK1SL9yazUXifHbwc
-	hI/yPdI3W6F9JbXTz8XvgouoNihYLFG+b+evv/RTbeCFde419IdZzaCRcUfE=
+        bh=XP0TXz3XgGZqxpegnUNB5sva+CKg8bV+74SS+MJugIo=;
+        b=agb+1zm9Blv/1Jt0e5n3L5YrIbhQ0dNQdW50MXbepL/bz4Cl1NB3K5Gd9MaeYGABm+
+         L+rMEkVmM64vy6FFpQCeC54spifjojf4b6aaYA2EMRTeP8rCwq7HJiahoQ4n1cAeCzZA
+         tpjk3e0gV9/pDWIshQdJJHjBRY/gXEAiQ3LGM3AbS1ayJOFSAIqYwyl8zKWdG3EoIlYC
+         4paPwcxeqROXzrUOsu5atpRW839cqztbTfeely4FiXPYlJXEiaQwUkBVIYA89/CYPeZG
+         LDzzrUiRoYlWr6olP5rM8S45xszN6qd5Eotw4fu386pMATm170UJ2iMYzgD8S0HwuZ5N
+         Jc1g==
+X-Forwarded-Encrypted: i=1; AHgh+RqK1a8BNtDsv+fOm0w06p1JbThplpN0CVEBkT1lfDR6vHsy+5up8dvIm93TtDY1Im0dn1PNP0eCjxzNsw==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yxm5+8VbCptNwgHFoaCNNPzIAD/a19kq3YPf6cMEADh3iTky9q9
+	VsXjCkZUSKY6vYFPG3uLR0vyki1JcHy9thweqHIzCCtdW6zD2AeoDjoaa7Heug48CIq/vONAUir
+	cE/0MIl9YJ5t/c2RI8LJO2sGR+lXz0oQ=
+X-Gm-Gg: AR+sD10m+hpM3Pgw8eRd7AAVvIrpO4HejjALmyv8HaVGDNUKGX+r61KDAxM/40GfiO/
+	pQ/DMdo6V8o74/Ufh5pHfjKcMOWs45klypOzqGyIT0+NbZJB187RrD6GrkFe3LrsEbgkxaFOogY
+	WDEQjUdK7wAcs1r2AKXHEeG6+GVQz0SSI2SOsHTWtm1TTepy6MXxEy7evLRcqOzlL/cSkgvhisE
+	amQKY65ZaYumZaPccFV+pDybm+aFdvsKZjbqLMGzuav4vY22g4BDra4V1khSrueazDnvdUwrXmF
+	bQp8h2fPbYFpB2i9H6POCxLr4j4FjiC5HfYqjYQyisakE1Qh1eHXBXsuNyFZzuqwd4KPUx1u0A6
+	Rznzv+G4+CGR733CX0Neol3QISeXnFeH4/gzxhvNRklFO
+X-Received: by 2002:a05:6830:2b0f:b0:7e9:8867:cb23 with SMTP id
+ 46e09a7af769-7f46173cb90mr6196887a34.16.1787311411854; Fri, 21 Aug 2026
+ 04:23:31 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Received: by 2002:a05:6808:5087:b0:4b2:8e21:622e with SMTP id
- 5614622812f47-4b2ef1bc216mr4465947b6e.1.1787297437306; Fri, 21 Aug 2026
- 00:30:37 -0700 (PDT)
-Date: Fri, 21 Aug 2026 00:30:37 -0700
-X-Google-Appengine-App-Id: s~syzkaller
-X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <6a87fe9d.ae6ddae5.3da009.002a.GAE@google.com>
-Subject: [syzbot] [input?] BUG: sleeping function called from invalid context
- in __hid_request
-From: syzbot <syzbot+912222e4cb82423535fa@syzkaller.appspotmail.com>
-To: bentiss@kernel.org, jikos@kernel.org, linux-input@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, syzkaller-bugs@googlegroups.com
+References: <87y0eaxz39.wl-tiwai@suse.de> <20260820151329.18332-1-mikhail.v.gavrilov@gmail.com>
+In-Reply-To: <20260820151329.18332-1-mikhail.v.gavrilov@gmail.com>
+From: Mikhail Gavrilov <mikhail.v.gavrilov@gmail.com>
+Date: Fri, 21 Aug 2026 16:23:20 +0500
+X-Gm-Features: AcwNN1WSC1RC40OlRsvrLRcT0ZtouTJ1WArekA-2DoyJ-r1DwXMS-VEfJgk_jP0
+Message-ID: <CABXGCsMXRZaM9yKsyyffkfyXXDjHXhyixXZ-jz9BY=xJn0R7DA@mail.gmail.com>
+Subject: Re: [RFC 0/2] Two ways to reach the Topping M62's analogue gains
+To: tiwai@suse.com, jikos@kernel.org, bentiss@kernel.org
+Cc: perex@perex.cz, linux-sound@vger.kernel.org, linux-input@vger.kernel.org, 
+	linux-kernel@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Hello,
+On Thu, Aug 20, 2026 at 8:13=E2=80=AFPM Mikhail Gavrilov
+<mikhail.v.gavrilov@gmail.com> wrote:
+>
+> You asked for PoCs of both roads and a comparison of the actual code
+> rather than of arguments. Here are both. They are alternatives, not a
+> series: each is written against mainline 98f21c54f995 on its own, and
+> either can be applied alone.
+>
+>   1/2  ALSA: usb-audio: a mixer quirk that claims the HID interface
+>   2/2  HID: topping: a HID driver that registers a card of its own
+>
+> Both build clean (checkpatch --strict: 0 errors, 0 warnings; the two
+> CamelCase CHECKs in 1/2 are bNumEndpoints and bInterval) and both have
+> been exercised on the device -- 152a:875c, bcdDevice 3.27 -- for
+> reading, for unsolicited notification from the front panel, and for
+> writing.
+>
+> What the device is
+> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+>
+> The M62 keeps its two microphone preamp gains, its AUX and Bluetooth
+> input volumes and its headphone and OTG output volumes behind a vendor
+> protocol on a HID-class interface, and exposes none of them through
+> UAC. What UAC does expose on the capture side is a digital trim after
+> the converter, which cannot buy signal-to-noise: a noise-floor ladder
+> against the card shows the converter's own floor rising with the
+> signal. So on Linux today the one knob worth setting is the one that
+> cannot be reached, and a measurement application has to begin by asking
+> a human to touch the front panel.
+>
+> The protocol is fifteen-byte frames -- start magic, a constant, a
+> target, a property, a signed 32-bit big-endian value, CRC-16/MODBUS
+> over the middle stored big-endian, end magic. Rebuilding all 2619
+> captured frames from that description reproduces them byte for byte.
+> The device says nothing until it is subscribed; one write starts the
+> stream and a second makes it announce its whole state, after which
+> every change arrives unasked, including a front panel press.
+>
+> The control pipe is not an option: GET_REPORT and SET_REPORT stall with
+> EPIPE for every report type, so the interrupt endpoints on the HID
+> interface are the only route.
+>
+> What is identical in both
+> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D
+>
+> The frame builder, the parser, the CRC (the kernel's crc16(0xffff, ...)
+> is CRC-16/MODBUS, so no private table), and the control table. A knob
+> is a row of
+>
+>         { name, target, paired target, property, min, max, TLV }
+>
+> so adding one is adding a row. Six rows today. The outputs come in
+> pairs because the device answers on only one target of each pair and
+> the other would drift away unheard.
+>
+> Where they differ
+> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+>
+> 1/2 claims the HID interface for snd-usb-audio and puts the elements on
+> the card the device already has. The cost is two-sided: an entry in
+> hid_ignore_list to keep usbhid off the interface, and one new helper in
+> sound/usb/card.c, because usb_audio_driver is static there and a quirk
+> cannot claim an interface without it. That helper is the only change in
+> 1/2 outside the new file and its dispatch. Nothing is lost by taking
+> the interface: the report descriptor is a Generic Desktop application
+> collection with eight unnamed usages, sixteen bytes in and out and no
+> report ID, so hid-generic can only build an input device for a mouse
+> that does not exist -- which is what it does today.
+>
+> 2/2 binds as a HID driver, and the protocol half is if anything smaller
+> there: usbhid owns the endpoints, so hid_hw_output_report replaces a
+> hand-built interrupt URB out, raw_event replaces the one in, and no
+> interface has to be claimed. It needs nothing in sound/usb.
+>
+> But these are mixer controls for an audio device, and the audio
+> device's card belongs to snd-usb-audio. A HID driver cannot put an
+> element there. There is no interface for it, and inventing one means
+> exporting from sound/usb both a lookup from struct usb_device to the
+> card and an add-element call, and then answering, for a single device,
+> what happens when the two drivers probe in either order and when either
+> disconnects first, given that the element would live in one module and
+> its private data in another.
+>
+> So 2/2 does what a HID driver can do alone: it registers a card of its
+> own. That works, and the cost is visible from userspace rather than
+> theoretical:
+>
+>         $ cat /proc/asound/cards
+>          0 [ToppingCtl     ]: Topping - Topping M62 control
+>          ...
+>          4 [M62            ]: USB-Audio - M62
+>
+>         $ amixer -c M62 cset name=3D'Mic-1 Analog Capture Volume' 33
+>         amixer: Cannot find the given element from control sysdefault:4
+>
+> One device, two cards; the gains on a card with no PCM beside them; and
+> anything that looks for a device's mixer next to its streams --
+> alsamixer -c, UCM profiles, PipeWire's device model -- does not find
+> them there.
+>
+> Against my own preference, two honest notes. The phantom input device
+> 2/2 leaves at boot (hid-generic binds first, the specific driver being
+> a module outside the initramfs) is a packaging artefact, not a property
+> of that road. And 1/2's claim helper is new API surface in sound/usb,
+> small as it is.
+>
+> Field results
+> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+>
+> With 1/2: the interface belongs to snd-usb-audio while a neighbouring
+> device's HID interface still belongs to usbhid, so the ignore entry is
+> precise. Values arrive by themselves -- the headphone volume came up at
+> 51 while the zero-initialised cache would have said 0. One front panel
+> press produces exactly one control event. A write reaches the hardware:
+> the device reports the written value back, and its meters answer.
+>
+> With 2/2: the same, on its own card.
+>
+> One device fact worth recording: a written gain takes effect at once,
+> but when the device commits it to non-volatile memory is the firmware's
+> business, and a value written and then torn off the bus can come back
+> as the older one. Nothing in either driver depends on that -- neither
+> treats itself as the source of truth, both ask the device -- but it is
+> easy to mistake for a driver bug while testing.
+>
+> Where I come out
+> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+>
+> The knobs belong on the card the device already has, and 2/2 cannot put
+> them there without a new cross-subsystem interface built for one
+> device. 1/2's cost is one static-variable problem solved by one helper
+> in the file that owns it. So I would take 1/2, which is also your gut
+> feeling -- but the comparison is what you asked for, and either patch
+> stands alone if you read it the other way.
+>
+> Not covered by either: the OTG input's gain. It has no front panel
+> control and therefore never announced itself in any capture, so its
+> property is unknown. It is one row when it is known.
+>
+> Mikhail
 
-syzbot found the following issue on:
+Three things I should have said in the cover letter, one of which
+argues against the conclusion I drew there.
 
-HEAD commit:    dcb68831eac7 Merge tag 'block-7.2-20260815' of git://git.k..
-git tree:       upstream
-console+strace: https://syzkaller.appspot.com/x/log.txt?x=118bfa79580000
-kernel config:  https://syzkaller.appspot.com/x/.config?x=2ca5f2f2c4197664
-dashboard link: https://syzkaller.appspot.com/bug?extid=912222e4cb82423535fa
-compiler:       Debian clang version 22.1.8 (++20260613092233+e80beda6e255-1~exp1~20260613092250.77), Debian LLD 22.1.8
-syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=16dad6c6580000
-C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=14762679580000
+The quirk's hid_ignore_list entry means no hidraw node is created for
+this device at all. Topping ship a control application for Windows and
+macOS and not for Linux; there is none today, and the driver should not
+block one if it appears. The HID road leaves that channel open and the
+quirk road closes it. I weighed the two roads by where the mixer
+controls can live and did not weigh this, and it belongs on the scale.
 
-Downloadable assets:
-disk image: https://storage.googleapis.com/syzbot-assets/2f9d6a54222e/disk-dcb68831.raw.xz
-vmlinux: https://storage.googleapis.com/syzbot-assets/0b52c510b447/vmlinux-dcb68831.xz
-kernel image: https://storage.googleapis.com/syzbot-assets/f8d408f8474e/bzImage-dcb68831.xz
+The one gap the cover letter named is closed. The OTG input's gain is
+target 0x27, property 0x04, on the same taper family as Bluetooth --
+read out of a capture of the vendor application moving it, with the
+indices it dwelt on matching the decibels it displayed. Both patches
+carry the row here; I have not resent them for one line, and it will be
+in whichever version goes forward.
 
-IMPORTANT: if you fix the issue, please add the following tag to the commit:
-Reported-by: syzbot+912222e4cb82423535fa@syzkaller.appspotmail.com
+And the protocol turns out to need more than a write path, which bears
+on the complexity you asked me to compare. The vendor application
+repeats its subscribe every two seconds, so a driver has to keep that
+up or the device stops reporting; the device has two memories, and a
+separate command commits the live state to the one that survives a
+power cycle; and the source selectors -- which mix or bus each output
+listens to -- can be written but never read: the device does not
+announce them, and the vendor application does not ask, because on
+connect it pushes its whole workspace rather than reading anything.
+None of that favours either road, since both pay it identically, but it
+is a fair bit more than a table of gains, and I would rather you saw it
+before deciding.
 
-rc_core: IR keymap rc-rc6-mce not found
-Registered IR keymap rc-empty
-rc rc0: syz0 as /devices/virtual/misc/uhid/0003:04D8:C002.0001/rc/rc0
-input: syz0 as /devices/virtual/misc/uhid/0003:04D8:C002.0001/rc/rc0/input6
-BUG: sleeping function called from invalid context at ./include/linux/sched/mm.h:323
-in_atomic(): 1, irqs_disabled(): 1, non_block: 0, pid: 9, name: kworker/0:0
-preempt_count: 1, expected: 0
-RCU nest depth: 0, expected: 0
-4 locks held by kworker/0:0/9:
- #0: ffff88801b02b140 ((wq_completion)events){+.+.}-{0:0}, at: process_one_work kernel/workqueue.c:3297 [inline]
- #0: ffff88801b02b140 ((wq_completion)events){+.+.}-{0:0}, at: process_scheduled_works+0xa20/0x14e0 kernel/workqueue.c:3405
- #1: ffffc900000e7c40 ((work_completion)(&uhid->worker)){+.+.}-{0:0}, at: process_one_work kernel/workqueue.c:3297 [inline]
- #1: ffffc900000e7c40 ((work_completion)(&uhid->worker)){+.+.}-{0:0}, at: process_scheduled_works+0xa20/0x14e0 kernel/workqueue.c:3405
- #2: ffff88807116da58 (&dev->mutex){....}-{4:4}, at: device_lock include/linux/device.h:1104 [inline]
- #2: ffff88807116da58 (&dev->mutex){....}-{4:4}, at: __device_attach+0x88/0x450 drivers/base/dd.c:1073
- #3: ffff888012576970 (&data->lock){....}-{3:3}, at: picolcd_set_contrast+0x135/0x300 drivers/hid/hid-picolcd_lcd.c:36
-irq event stamp: 884670
-hardirqs last  enabled at (884669): [<ffffffff8234ac1b>] kasan_quarantine_put+0xbb/0x1f0 mm/kasan/quarantine.c:234
-hardirqs last disabled at (884670): [<ffffffff8bd51daa>] __raw_spin_lock_irqsave include/linux/spinlock_api_smp.h:130 [inline]
-hardirqs last disabled at (884670): [<ffffffff8bd51daa>] _raw_spin_lock_irqsave+0x1a/0x60 kernel/locking/spinlock.c:166
-softirqs last  enabled at (884626): [<ffffffff89988079>] local_bh_disable include/linux/bottom_half.h:20 [inline]
-softirqs last  enabled at (884626): [<ffffffff89988079>] __alloc_skb+0x189/0x7a0 net/core/skbuff.c:697
-softirqs last disabled at (884622): [<ffffffff89988079>] local_bh_disable include/linux/bottom_half.h:20 [inline]
-softirqs last disabled at (884622): [<ffffffff89988079>] __alloc_skb+0x189/0x7a0 net/core/skbuff.c:697
-Preemption disabled at:
-[<0000000000000000>] 0x0
-CPU: 0 UID: 0 PID: 9 Comm: kworker/0:0 Not tainted syzkaller #0 PREEMPT(full) 
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 07/24/2026
-Workqueue: events uhid_device_add_worker
-Call Trace:
- <TASK>
- dump_stack_lvl+0xe8/0x150 lib/dump_stack.c:120
- __might_resched+0x378/0x4d0 kernel/sched/core.c:9197
- might_alloc include/linux/sched/mm.h:323 [inline]
- slab_pre_alloc_hook mm/slub.c:4537 [inline]
- slab_alloc_node mm/slub.c:4897 [inline]
- __do_kmalloc_node mm/slub.c:5333 [inline]
- __kmalloc_noprof+0xef/0x720 mm/slub.c:5359
- _kmalloc_noprof include/linux/slab.h:992 [inline]
- _kzalloc_noprof include/linux/slab.h:1309 [inline]
- hid_alloc_report_buf drivers/hid/hid-core.c:1917 [inline]
- __hid_request+0xb2/0x490 drivers/hid/hid-core.c:2007
- picolcd_set_contrast+0x208/0x300 drivers/hid/hid-picolcd_lcd.c:39
- picolcd_init_lcd+0x1f9/0x2f0 drivers/hid/hid-picolcd_lcd.c:70
- picolcd_probe_lcd drivers/hid/hid-picolcd_core.c:477 [inline]
- picolcd_probe+0xbb1/0x16c0 drivers/hid/hid-picolcd_core.c:580
- __hid_device_probe drivers/hid/hid-core.c:2829 [inline]
- hid_device_probe+0x42c/0x7c0 drivers/hid/hid-core.c:2866
- call_driver_probe drivers/base/dd.c:-1 [inline]
- really_probe+0x254/0xae0 drivers/base/dd.c:706
- __driver_probe_device+0x1e8/0x360 drivers/base/dd.c:868
- driver_probe_device+0x4f/0x240 drivers/base/dd.c:898
- __device_attach_driver+0x270/0x410 drivers/base/dd.c:1026
- bus_for_each_drv+0x258/0x2f0 drivers/base/bus.c:500
- __device_attach+0x2c4/0x450 drivers/base/dd.c:1098
- device_initial_probe+0xa1/0xd0 drivers/base/dd.c:1153
- bus_probe_device+0x12a/0x220 drivers/base/bus.c:620
- device_add+0x7d7/0xb80 drivers/base/core.c:3772
- hid_add_device+0x272/0x3e0 drivers/hid/hid-core.c:3010
- uhid_device_add_worker+0x43/0xf0 drivers/hid/uhid.c:73
- process_one_work kernel/workqueue.c:3322 [inline]
- process_scheduled_works+0xa8e/0x14e0 kernel/workqueue.c:3405
- worker_thread+0xa47/0xfb0 kernel/workqueue.c:3486
- kthread+0x388/0x470 kernel/kthread.c:436
- ret_from_fork+0x514/0xb70 arch/x86/kernel/process.c:158
- ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:245
- </TASK>
-hid-picolcd 0003:04D8:C002.0001: No report with id 0x94 found
-hid-picolcd 0003:04D8:C002.0001: failed to configure display
+I have not resent the patches. Both roads work on the hardware; the
+question is still which one you would rather carry.
 
-
----
-This report is generated by a bot. It may contain errors.
-See https://goo.gl/tpsmEJ for more information about syzbot.
-syzbot engineers can be reached at syzkaller@googlegroups.com.
-
-syzbot will keep track of this issue. See:
-https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
-
-If the report is already addressed, let syzbot know by replying with:
-#syz fix: exact-commit-title
-
-If you want syzbot to run the reproducer, reply with:
-#syz test: git://repo/address.git branch-or-commit-hash
-If you attach or paste a git patch, syzbot will apply it before testing.
-
-If you want to overwrite report's subsystems, reply with:
-#syz set subsystems: new-subsystem
-(See the list of subsystem names on the web dashboard)
-
-If the report is a duplicate of another one, reply with:
-#syz dup: exact-subject-of-another-report
-
-If you want to undo deduplication, reply with:
-#syz undup
+--=20
+Thanks,
+Mikhail Gavrilov.

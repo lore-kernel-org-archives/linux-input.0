@@ -1,132 +1,230 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 283A92D738F
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DF2DE35AC0C
 	for <linux-input@vger.kernel.org>; Fri, 21 Aug 2026 22:03:50 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787349831; cv=none; b=al3PzzDEUYjDPJX7CQoHo55Z2v/qrMzTBN0/3UUP3ZrTluIX3jcrmgk3V/Nz8LsKF12phfzaxUvG0js4uThxTTIfYxepTlcJK3HT2cdnsiEBVA7Oy8F5+6DUDbJ1Hd74/4T8p3z/BpmY8nS41VcbmNx5Ml+N61rDvN5h6TvFeRI=
+	t=1787349832; cv=none; b=V5d/9lSlpQ5ozHaPTPLWexQS0O/IRArcakkYJB5M4VcGlOeXuWn0pVHKYNSv27zk7rHCJeUixR9bDFO43Yml9dbaBK92yfCIYUBct2h9N6ZIMN4DVnBdquTDHhYEJNPUOPveMzew6+pGXDMWwlInojNNfU0tv3Mt5CJQbEy4KpY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787349831; c=relaxed/simple;
-	bh=4Rzxg78X+JqqoN9haAAgn23g3+5Bg/OsdDNT7l1ga3I=;
+	s=arc-20240116; t=1787349832; c=relaxed/simple;
+	bh=9qWCTV/HMvZwl78E1tosr99E3or5K4AnKAJiYlcrr6E=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=VdU82PgP9drxrqtZpf6oIPPM9Zh8DQGADdSsVPInx96LCnY1QBZYYk3NhuvUnpkq+FiRtrRI6tykiHXXlKwrE3o6NACFOUQ1nsZZu7eSrf3Zb2gaUoVsDHBapEXDL6mKqIwrm0ca360/vahRhtF0KGghx2X3yc6zvQBHiym3JSY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=IzfxLAko; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=r5QF5St8vfSsFF+xVWSRsJSkAI92kaKiKUoW/06Wj0m/3DXdoqZBksgB7WWIl0yoA12EmuJVbjyA2JgfI8vpb6RsAFJKh6OzVOqNAREyY5eAlnbU7ZC/n1c96qiqffL1v9ZEorVvfy91xTWPLNCEogmV8wc5TQt+x7jYLWdjvT8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Vgfz6sCw; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="IzfxLAko"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D69081F000E9;
-	Fri, 21 Aug 2026 22:03:49 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Vgfz6sCw"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 764841F00A3A;
+	Fri, 21 Aug 2026 22:03:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
 	s=k20260515; t=1787349830;
-	bh=5lSctdkRyvok0lHFLbZud8xbeXE1z3aqw+8kEi9bnGs=;
+	bh=zu9eX/FBe9P1UF4AkXURpwnJBcryFvZiNSSd8Rjh2bY=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=IzfxLAkoIA1RiGvTeHafJqYpveugi60m3BO/0UCcU8bTlm95eYBGVezOz1w8Dt5oA
-	 j/qWui5+Xxk3WV+2u2Va3ISkqbGkV1C9dKL3wcNfDMF04q3qdkrkU++ik5aJ+4FujU
-	 oVPOScEuz4D6C3cMKxCXX+jol3p4zlNLJBbRWQhej6SbvfmHSV0fZR9TjSJGoolg1A
-	 +7YgYrD4qODBbXeHRdzuMYIhKZVQw0Im1AhW78uQv5y4syIpQL3tNlujRA8kp/5jAK
-	 Y3nq+y1PYtNgKZKPxLYXE306Kh5rL1foTo1glTEIpauSsevGpF2Anmv95NZx4QNVc2
-	 AhMfIiCgtpFkA==
+	b=Vgfz6sCwAmBWnatLJm0luGCoNeHtI3MTmPfDKYFAi+aov/WQa5iXipsLnszkPBlgT
+	 xKqJ1oep24OnPxNEQ5DW/xjackQyyoDDIBCs1Y6J283dJQoLohD7fZs660Wzz/cKPm
+	 OQewWE34VuoJva8TPs+9q8LSX6CRMmenIkYJWZ3NatMuS8Tg0WNX+Hmc13GAJGA9GF
+	 iKwQ6DGv5cF0JdNQzW3SvHvdIBX5lA8XfsoGz9V1JqkShb1Q7o9m8RQ6iRUOQ5Ce42
+	 wKkyoikFni+RMJBfv85WOF7MiSunGygqz5zYBqtk7a6qLdtafdw+kvOju2rWt6VaMi
+	 Wr8i1NP/qzgFg==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 1/5] HID: hid-lenovo-go: use the correct calibration
- commands
+Subject: Re: [PATCH 5/5] HID: hid-lenovo-go: return configuration request
+ errors
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Aditya Dash" <mradityadash@gmail.com>
 Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260821214810.87826-2-mradityadash@gmail.com>
+In-Reply-To: <20260821214810.87826-6-mradityadash@gmail.com>
 References: <20260821214810.87826-1-mradityadash@gmail.com>
- <20260821214810.87826-2-mradityadash@gmail.com>
+ <20260821214810.87826-6-mradityadash@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 21 Aug 2026 22:03:49 +0000
-Message-Id: <20260821220349.D69081F000E9@smtp.kernel.org>
+Date: Fri, 21 Aug 2026 22:03:50 +0000
+Message-Id: <20260821220350.764841F00A3A@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 8 potential issue(=
+Thank you for your contribution! Sashiko AI review found 5 potential issue(=
 s) to consider:
 
+New issues:
+- [High] Global state variables prevent support for multiple devices, intro=
+duce cross-talk, and cause list corruption.
+- [High] Propagating timeouts and errors from mcu_property_out() causes cfg=
+_setup() to abort prematurely, leaving device state uninitialized.
+
 Pre-existing issues:
-- [High] The driver uses static global structures for device state (`drvdat=
-a`) and LED device registration, breaking support for multiple devices.
-- [High] Missing `hid_hw_stop()` and `hid_hw_close()` on the `hid_go_probe(=
-)` error path.
-- [High] Early return in `hid_go_remove()` skips hardware cleanup for inter=
-faces without valid endpoints.
-- [High] AB-BA deadlock between driver mutex and kernfs active protection d=
-uring device removal.
-- [High] The LED class device is managed by devres but the hardware is manu=
-ally stopped in `remove()`, creating a use-after-free window.
-- [High] `get_endpoint_address()` unconditionally reads endpoint descriptor=
-s without verifying the number of endpoints.
-- [Medium] Sysfs attribute groups leak on error paths in `hid_go_cfg_probe(=
-)`.
-- [Low] Unused memory allocation in `hid_go_cfg_probe()`.
+- [High] Missing hid_hw_stop() and hid_hw_close() in probe error paths, and=
+ missing hid_hw_stop() in remove() for malformed endpoints.
+- [High] Failure during schedule_delayed_work leaves the delayed work pendi=
+ng while probe fails, leading to a Use-After-Free.
+- [High] ABBA deadlock between `drvdata.cfg_mutex` and kernfs active refere=
+nce during unbind.
 --
 
---- Patch [1]: [PATCH 1/5] HID: hid-lenovo-go: use the correct calibration =
-commands ---
-commit 0cbce56e5fe2f7bb5d9b0dab89495451652240da
+--- Patch [5]: [PATCH 5/5] HID: hid-lenovo-go: return configuration request=
+ errors ---
+commit 3a9434af7b761a1d874276ba01fa7f976cec0f1f
 Author: Aditya Dash <mradityadash@gmail.com>
 
-HID: hid-lenovo-go: use the correct calibration commands
-
-This commit fixes malformed calibration requests in the hid-lenovo-go drive=
-r by
-swapping the command and sub-command values for all six calibration attribu=
-tes.
-It reverses the previously incorrect ordering of the calibration operation =
-and
-configuration command.
+    HID: hid-lenovo-go: return configuration request errors
+   =20
+    The driver completes a pending request when it receives any decoded
+    configuration reply. It also discards the result of its interruptible w=
+ait.
+    A configuration operation can therefore report success after an unrelat=
+ed
+    reply, firmware error, interrupted wait, or timeout.
 
 > diff --git a/drivers/hid/hid-lenovo-go.c b/drivers/hid/hid-lenovo-go.c
-> index 318b1152ff8ba..b8248bf8965c6 100644
+> index 1e6915c969d8c..a1a255c28e2d2 100644
 > --- a/drivers/hid/hid-lenovo-go.c
 > +++ b/drivers/hid/hid-lenovo-go.c
-> @@ -1911,18 +1911,18 @@ LEGO_DEVICE_ATTR_RW(rumble_notification_left, "ru=
-mble_notification",
->  static DEVICE_ATTR_RO_NAMED(rumble_notification_left_index,
->  			    "rumble_notification_index");
+
+[ ... ]
+
+> +/* Lenovo replies identify a command and a sub-command, but have no sequ=
+ence. */
+> +struct hid_go_cmd {
+> +	struct completion done;
+> +	spinlock_t lock; /* protects fields below */
+> +	bool pending;
+> +	u8 id;
+> +	u8 command;
+> +	u8 sub_command;
+> +	u8 device;
+> +	int result;
+> +};
+> +
+> +static struct hid_go_cmd go_cmd =3D {
+> +	.done =3D COMPLETION_INITIALIZER(go_cmd.done),
+> +	.lock =3D __SPIN_LOCK_UNLOCKED(go_cmd.lock),
+> +};
+
+[Severity: High]
+Does this global state variable prevent support for multiple devices and
+introduce cross-talk?
+
+If multiple Lenovo Legion Go controllers are connected simultaneously, they
+will share this global go_cmd singleton. A late reply from one controller
+could satisfy a pending wait on another, or hid_go_cmd_arm() will blindly
+overwrite the state of a concurrent command.
+
+Additionally, this driver uses global state in hid_go_cfg_probe():
+
+	ret =3D devm_led_classdev_multicolor_register(&hdev->dev, &go_cdev_rgb);
+
+and:
+
+	INIT_DELAYED_WORK(&drvdata.go_cfg_setup, &cfg_setup);
+
+Using a static global struct pointer (&go_cdev_rgb) corrupts the LED
+subsystem's linked lists when a second device is probed. Unconditionally
+resetting a global work structure with INIT_DELAYED_WORK corrupts workqueue
+linked lists if the work is already pending.
+
+[ ... ]
+
+> @@ -747,22 +834,19 @@ static int mcu_property_out(struct hid_device *hdev=
+, u8 id, u8 command,
+>  	dev_dbg(&hdev->dev, "Send data as raw output report: [%*ph]\n",
+>  		GO_PACKET_SIZE, dmabuf);
 > =20
-> -static struct go_cfg_attr cal_trigg_left =3D { TRIGGER_CALIBRATE };
-> -LEGO_CAL_DEVICE_ATTR(cal_trigg_left, "calibrate_trigger", SET_TRIGGER_CF=
-G,
-> +static struct go_cfg_attr cal_trigg_left =3D { SET_TRIGGER_CFG };
-> +LEGO_CAL_DEVICE_ATTR(cal_trigg_left, "calibrate_trigger", TRIGGER_CALIBR=
-ATE,
->  		     LEFT_CONTROLLER, index);
->  static DEVICE_ATTR_RO_NAMED(cal_trigg_left_index, "calibrate_trigger_ind=
-ex");
+> -	ret =3D hid_hw_output_report(hdev, dmabuf, GO_PACKET_SIZE);
+> -	if (ret < 0)
+> -		return ret;
+> +	if (id =3D=3D MCU_CONFIG_DATA &&
+> +	    ((command =3D=3D SET_TRIGGER_CFG && index =3D=3D TRIGGER_CALIBRATE)=
+ ||
+> +	     (command =3D=3D SET_JOYSTICK_CFG && index =3D=3D JOYSTICK_CALIBRAT=
+E) ||
+> +	     (command =3D=3D SET_GYRO_CFG && index =3D=3D GYRO_CALIBRATE)))
+> +		return hid_go_send_output_report(hdev, dmabuf);
+> =20
+> -	ret =3D ret =3D=3D GO_PACKET_SIZE ? 0 : -EINVAL;
+> +	hid_go_cmd_arm(id, command, index, device);
+> +	ret =3D hid_go_send_output_report(hdev, dmabuf);
+>  	if (ret)
+> -		return ret;
+> -
+> -	ret =3D wait_for_completion_interruptible_timeout(&drvdata.send_cmd_com=
+plete,
+> -							msecs_to_jiffies(timeout));
+> -
+> -	if (ret =3D=3D 0) /* timeout occurred */
+> -		ret =3D -EBUSY;
+> -
+> -	reinit_completion(&drvdata.send_cmd_complete);
+> -	return 0;
+> +		return hid_go_cmd_cancel(ret);
+> +	wait_result =3D wait_for_completion_interruptible_timeout(&go_cmd.done,
+> +								msecs_to_jiffies(timeout));
+> +	return hid_go_cmd_finish(wait_result);
 
 [Severity: High]
-This is a pre-existing issue, but can the global static structure drvdata c=
-ause
-data corruption and a use-after-free if multiple devices are connected?
+Does returning the exact timeout or error from mcu_property_out() cause
+cfg_setup() to abort prematurely and leave the device uninitialized?
 
-drivers/hid/hid-lenovo-go.c:
-	static struct hid_go_cfg {
-	[ ... ]
-	} drvdata;
+Prior to this patch, mcu_property_out() unconditionally returned 0 on timeo=
+ut.
+The initialization worker cfg_setup() sequentially probes all sub-components
+and aborts on the first error:
 
-In hid_go_cfg_probe(), the global state is unconditionally overwritten:
+	ret =3D mcu_property_out(drvdata.hdev, MCU_CONFIG_DATA, GET_VERSION_DATA,
+			       PRODUCT_VERSION, USB_MCU, NULL, 0);
+	if (ret < 0) {
+		dev_err(&drvdata.hdev->dev,
+			"Failed to retrieve USB_MCU Product Version: %i\n", ret);
+		return;
+	}
 
-	hid_set_drvdata(hdev, &drvdata);
-	drvdata.hdev =3D hdev;
+Since mcu_property_out() now propagates -ETIMEDOUT or firmware errors, the
+first non-responsive component (such as querying TX_DONGLE when connected
+via USB) will cause cfg_setup() to completely abort, leaving RGB LEDs and
+other attributes uninitialized.
 
-If multiple Lenovo Go controllers are plugged in, or if the device exposes
-multiple interfaces that trigger probes, this will overwrite the global
-drvdata pointer and attempt to re-register the statically allocated
-go_cdev_rgb, leading to corrupted internal state and kernel panic during LED
-registration.
+[ ... ]
+
+> @@ -2395,8 +2479,6 @@ static int hid_go_cfg_probe(struct hid_device *hdev,
+> =20
+>  	drvdata.led_cdev =3D &go_cdev_rgb.led_cdev;
+> =20
+> -	init_completion(&drvdata.send_cmd_complete);
+> -
+>  	/* Executing calls prior to returning from probe will lock the MCU. Sch=
+edule
+>  	 * initial data call after probe has completed and MCU can accept calls.
+>  	 */
+>  	INIT_DELAYED_WORK(&drvdata.go_cfg_setup, &cfg_setup);
+>  	ret =3D schedule_delayed_work(&drvdata.go_cfg_setup, msecs_to_jiffies(2=
+));
+>  	if (!ret) {
+>  		dev_err(&hdev->dev,
+>  			"Failed to schedule startup delayed work\n");
+>  		return -ENODEV;
+>  	}
 
 [Severity: High]
-This isn't a bug introduced by this patch, but does the error path in
-hid_go_probe() leak resources?
+This isn't a bug introduced by this patch, but does returning -ENODEV here
+leave the delayed work pending while the probe fails?
 
-drivers/hid/hid-lenovo-go.c:hid_go_probe() {
-	[ ... ]
+If schedule_delayed_work() returns 0 (which happens if the work is already
+queued by a previously probed device), probe fails and returns -ENODEV. The
+HID core will destroy the device and free its devres-managed memory, but the
+delayed work is never canceled in this error path. When it fires, cfg_setup=
+()
+will dereference the freed hdev pointer, resulting in a use-after-free.
+
+[ ... ]
+
+[Severity: High]
+This is a pre-existing issue, but does missing hid_hw_stop() and hid_hw_clo=
+se()
+in probe error paths cause resource leaks and use-after-free?
+
+In hid_go_probe():
+
 	ret =3D hid_go_cfg_probe(hdev, id);
 	if (ret)
 		dev_err_probe(&hdev->dev, ret, "Failed to start configuration interface\n=
@@ -135,125 +233,45 @@ drivers/hid/hid-lenovo-go.c:hid_go_probe() {
 	dev_dbg(&hdev->dev, "Started Legion Go HID Device: %x\n", ep);
 
 	return ret;
-}
 
-If hid_hw_start() and hid_hw_open() succeed but hid_go_cfg_probe() fails,
-the driver returns the error immediately without calling hid_hw_stop() and
-hid_hw_close(). This leaves the hardware in an active, undefined state.
+If hid_go_cfg_probe() fails, the function returns the error directly without
+unwinding hid_hw_start() and hid_hw_open(). The HID core does not automatic=
+ally
+stop the hardware if a custom probe fails after hid_hw_start() has succeede=
+d.
 
-[Severity: High]
-This is a pre-existing issue, but does hid_go_remove() skip hardware cleanup
-for interfaces without valid endpoints?
+Similarly, in hid_go_remove():
 
-drivers/hid/hid-lenovo-go.c:hid_go_remove() {
 	int ep =3D get_endpoint_address(hdev);
 
 	if (ep <=3D 0)
 		return;
-	[ ... ]
-}
 
-If a device successfully probes as a generic HID device without specific
-endpoints, get_endpoint_address can return an error like -ENODEV. The early
-return completely bypasses hid_hw_close() and hid_hw_stop(), leaking hardwa=
-re
-state.
-
-[Severity: Medium]
-This isn't a bug introduced by this patch, but does hid_go_cfg_probe() leak
-sysfs attributes on error paths?
-
-drivers/hid/hid-lenovo-go.c:hid_go_cfg_probe() {
-	[ ... ]
-	ret =3D sysfs_create_groups(&hdev->dev.kobj, top_level_attr_groups);
-	[ ... ]
-	ret =3D devm_led_classdev_multicolor_register(&hdev->dev, &go_cdev_rgb);
-	if (ret) {
-		dev_err_probe(&hdev->dev, ret, "Failed to create RGB device\n");
-		return ret;
-	}
-	[ ... ]
-}
-
-sysfs_create_groups() is not managed by devres. If subsequent operations
-like devm_led_classdev_multicolor_register() fail, the function returns an
-error without calling sysfs_remove_groups().
+If a malicious USB device presents no endpoints, get_endpoint_address() ret=
+urns
+-ENODEV (<=3D 0), causing the function to return early without calling
+hid_hw_close() and hid_hw_stop().
 
 [Severity: High]
-This is a pre-existing issue, but can hid_go_cfg_remove() cause an AB-BA
-deadlock with sysfs operations?
+This is a pre-existing issue, but does locking drvdata.cfg_mutex before
+removing sysfs groups create an ABBA deadlock?
 
-drivers/hid/hid-lenovo-go.c:hid_go_cfg_remove() {
-	[ ... ]
+During unbind, hid_go_cfg_remove() does this:
+
 	guard(mutex)(&drvdata.cfg_mutex);
 	sysfs_remove_groups(&hdev->dev.kobj, top_level_attr_groups);
-	[ ... ]
-}
 
-The removal function acquires drvdata.cfg_mutex and then blocks in
-sysfs_remove_groups() waiting for active sysfs callbacks to finish.
-Simultaneously, sysfs callbacks like feature_status_show hold the kernfs
-active protection and block attempting to acquire drvdata.cfg_mutex.
+When a sysfs file is read, kernfs first acquires an active reference, and t=
+hen
+the driver callback acquires drvdata.cfg_mutex.
 
-[Severity: Low]
-This isn't a bug introduced by this patch, but is the buf memory allocation
-in hid_go_cfg_probe() unused?
-
-drivers/hid/hid-lenovo-go.c:hid_go_cfg_probe() {
-	unsigned char *buf;
-	int ret;
-
-	buf =3D devm_kzalloc(&hdev->dev, GO_PACKET_SIZE, GFP_KERNEL);
-	if (!buf)
-		return -ENOMEM;
-	[ ... ]
-}
-
-The buffer buf is statically allocated but never used or passed to any
-function.
-
-[Severity: High]
-This is a pre-existing issue, but does mixing devres and manual teardown in
-hid_go_cfg_remove() create a use-after-free window?
-
-drivers/hid/hid-lenovo-go.c:hid_go_cfg_remove() {
-	[ ... ]
-	sysfs_remove_groups(&hdev->dev.kobj, top_level_attr_groups);
-	hid_hw_close(hdev);
-	hid_hw_stop(hdev);
-	hid_set_drvdata(hdev, NULL);
-}
-
-The LED is registered with devm_led_classdev_multicolor_register. In
-hid_go_cfg_remove(), the driver manually calls hid_hw_stop(). Since devres
-cleans up the LED after the custom remove() callback completes, there is a
-race window where the LED is exposed in sysfs but the underlying HID hardwa=
-re
-is stopped. A sysfs write to the LED brightness during this window will att=
-empt
-I/O on stopped hardware.
-
-[Severity: High]
-This isn't a bug introduced by this patch, but does get_endpoint_address()
-perform an out-of-bounds memory read if bNumEndpoints is 0?
-
-drivers/hid/hid-lenovo-go.c:get_endpoint_address() {
-	struct usb_interface *intf =3D to_usb_interface(hdev->dev.parent);
-	struct usb_host_endpoint *ep;
-
-	ep =3D intf->cur_altsetting->endpoint;
-	if (!ep)
-		return -ENODEV;
-
-	return ep->desc.bEndpointAddress;
-}
-
-If a malicious USB device declares an interface with bNumEndpoints =3D=3D 0=
-, the
-endpoint array has zero elements. However, the pointer may not be strictly
-NULL but point to the adjacent memory block, bypassing the !ep check and
-reading ep->desc.bEndpointAddress out of bounds.
+During device removal, hid_go_cfg_remove() first acquires drvdata.cfg_mutex
+and then calls sysfs_remove_groups(), which blocks waiting for all kernfs
+active references to drop. If a sysfs read races with device unbind, Thread=
+ 1
+holds the kernfs active ref and waits for cfg_mutex, while Thread 2 holds
+cfg_mutex and waits for the kernfs active ref to drop.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260821214810.8782=
-6-1-mradityadash@gmail.com?part=3D1
+6-1-mradityadash@gmail.com?part=3D5

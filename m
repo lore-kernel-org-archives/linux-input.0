@@ -1,68 +1,69 @@
-Received: from mail-ed1-f53.google.com (mail-ed1-f53.google.com [209.85.208.53])
+Received: from mail-ed1-f49.google.com (mail-ed1-f49.google.com [209.85.208.49])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2CA642E542C
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E38253F4854
 	for <linux-input@vger.kernel.org>; Fri, 21 Aug 2026 07:12:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.53
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.49
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787296352; cv=none; b=XvZeYY+cWCjOptysWw+rOdRRsa2u8D4GIKCiABUee2wvZ8RfhLz6k2VL2Y5EmpTE8cRtD9R4BBPKSP9eF8cb9SmfE68APsLcGfWNYo9qxrO7doYMsgwda/2oTVeF9jj80UcV/KGsSxGKCFZHHH2sx8EOhBb1LNF2G52YByB4mpg=
+	t=1787296353; cv=none; b=iYG/WAMsDJI95KRrrGSa+65afxGEx/gKedvIE46SpC92Q/AVLbd+ssBE0hxOuyybgKQBpdrYx2VtdsggmF7OmNbqWhDr51+eQdWxfEavvuD/u4jN+WGFs4CSdd+f0hg9xLor7uUHNvxE4+uUukrtFloRd3eEsT1ioYb+HcR5HFQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787296352; c=relaxed/simple;
-	bh=fiy4GcFZdsC9yxetlH5+plrNHl5cqFDQooXiediiUNk=;
+	s=arc-20240116; t=1787296353; c=relaxed/simple;
+	bh=Ce71U+Lyj7zFttVA4Kn65SW6c32KT53zyzKRPu/mOUM=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=o+Y5EoxmfgXh5ONlRvkJFzKgG4suH9vhrEeto9shKrrNMj3pXraghaVw4NlrbI8w113kf67wLNTlxZmQTEfMiSYT+A7KHS4mQqc6JqPrCgQg+wc01RhxWImmXpitxdNUx5oex8R+ElFCkc64CsSagnoGT4H0puZkgiErctEzp/8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=fairphone.com; spf=pass smtp.mailfrom=fairphone.com; dkim=pass (2048-bit key) header.d=fairphone.com header.i=@fairphone.com header.b=43dfNpDj; arc=none smtp.client-ip=209.85.208.53
+	 In-Reply-To:To:Cc; b=d7T1MhPuC67c4esXC3tHS6DB/BG5PX+8Z0b4RPi2H0S29halCBHhvBnir0EnlMKjIFLKNOFx7BVWqBCtwBXrk+SJ02zoIQCqF0UBE13SNdf5/fb6dQvmWdIT8pMzNrCm3YKKIvpCBUnEFzq05urEcuB7iL+5ZfbOH7rlnXitHZg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=fairphone.com; spf=pass smtp.mailfrom=fairphone.com; dkim=pass (2048-bit key) header.d=fairphone.com header.i=@fairphone.com header.b=ZlrxrRH8; arc=none smtp.client-ip=209.85.208.49
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=fairphone.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=fairphone.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=fairphone.com header.i=@fairphone.com header.b="43dfNpDj"
-Received: by mail-ed1-f53.google.com with SMTP id 4fb4d7f45d1cf-6a082b3671fso1235919a12.3
+	dkim=pass (2048-bit key) header.d=fairphone.com header.i=@fairphone.com header.b="ZlrxrRH8"
+Received: by mail-ed1-f49.google.com with SMTP id 4fb4d7f45d1cf-6a36982a875so1184080a12.0
         for <linux-input@vger.kernel.org>; Fri, 21 Aug 2026 00:12:30 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=fairphone.com; s=fair; t=1787296348; x=1787901148; darn=vger.kernel.org;
+        d=fairphone.com; s=fair; t=1787296349; x=1787901149; darn=vger.kernel.org;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :content-type:mime-version:subject:date:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=TnFsJCxkFM/wIQ0nrP+EeILR/FRzepb2V/4lDFq/FBo=;
-        b=43dfNpDj7etKUvarBjFCNceUORIxr9OwLRJdY5A3V4ufPdhXu92eZE3y7eyJd+Vxd/
-         lSasRrsfjMbSo3LF47XUYQqTgWzKPvNcdDRi1rh4c/acqjJUr80axHTLRW59RaLdgRoW
-         nQzfFR9wljpDsV17UWrKu+fTtZp78dOnc/h7ajxHDk6OnCd16jbGfzvqEVUe6co+jXFD
-         zntaiLyr57lGe7LHb2R3jCEySQKRWJpcvHOormROHR1VQ+pxaSrOpEgAdLAkcuSr6Kx1
-         vL5/n9sTZByyroDFCqE4uJOQT6Zmmgt7Su/TIvUyRVgVGgQf9Z0d8akKNR0vg/bfFmk6
-         Gz6A==
+        bh=09WuqDumRufpTv9AnStx+lDfstjiG5sO30YMgz+/VHI=;
+        b=ZlrxrRH8PG+Mlvy+JTBJBJivgUoAFSsWHVsINndOu9KbgDMFIbvLP3cHnzX7sOrJLK
+         pEd8ANlcwS8/IediH5tNt61QgzcHTHkNXDpfSOBxW05yy8AN2KQTFK5EZb0C60soGrhd
+         cvwHbuHwB+y+QCw0Ips0UivRRe6Y1xAoHfqzCeFRtkE+Px2VNDPAsuw1jYDKx0gHZf3z
+         MDgcQ55zyVt9yvntPqKsTtbkkN253+nx33B84UrXPq6TjtvmaRJHrIfmN0/f8YthDpFw
+         GSpJCwUSrw2wnh+e/yAvLFlXzVfstlaOlVB0wTBODmYBbYh+2IRqIWOZALoyb7+5zdN1
+         zPgg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787296348; x=1787901148;
+        d=1e100.net; s=20251104; t=1787296349; x=1787901149;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :content-type:mime-version:subject:date:from:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=TnFsJCxkFM/wIQ0nrP+EeILR/FRzepb2V/4lDFq/FBo=;
-        b=qNymwdCA2rHX1fb7VoMc6o9bQvjHhX6Z1pY8OZSXswLeCLi/FtQMYaMYPj5gMiCPlf
-         T9LIyWurwvPteJwxayuCjZKJ45RdkrE0Znz0lj34HkFabM75n2N+N1pxjsCzgLtjOKj3
-         de5T+bTK/sUztfP3/zNzPH1YGw2EWRrIiKkqQZp9EyVp64vTZDZHlqQosR9+kCvbeNGR
-         QFWdvPK4tKL26cl5SEB/CHkL8RbdddPNITEPRD/xaMs54fmECkDG58fp1OsZ5R9mlAvo
-         OaxENjadS1z6mytGyOPWnY2qlwz0NdD+BJzrLy+ZHVhfHKd4/DY/hBqLnsM0GdKh7nVJ
-         grxw==
-X-Forwarded-Encrypted: i=1; AHgh+Rq1k+33VGyWJoA1wJy2XnFrpoz2nplCfpX3L7GMOADPBenRNK7ZRE9N0T5561RcC9jG5t3IdmEaLDnphQ==@vger.kernel.org
-X-Gm-Message-State: AFuF++knG1qzeWDnrzxrNG1oCiwechEjT8U2o//cP3vhCzGMOdr4WXDz
-	sb/n6clIbQWaWsWib5//KQpEkDN6IDdhoqrS5uezSBkKWd5MqdyePIYQopIbExL2G54=
-X-Gm-Gg: AR+sD129k+aM6Qz7JOakgGiLNf3T52gSKeVOOfEB0EfO8ErbEXTgKhkwZDHeV3sePVQ
-	hWdlQjKXx4h30GxkFq/43lEnlzcfLUIHXdx2dgfQ2vM6QrHJhsPazQn3oAKZraD5hRkMraYv/M4
-	IDMCd4u5KmKThSxyAIS/ufW6KYJ+Z5rPgYr0o0C+88HJXu2t3QURiU7Ut0Yzz2sY15wWa8T97FQ
-	uQh5U6E98/BeAd4N6WeQMsIH0tnTPyFIYxT30vBvxPNpCEIqJwbJKZU8KENh0Nni8Nf7GnYS/nL
-	jedcm8gaR7j/spNXVdJpSmFnaUwnbrwfB3nwala/RVejlsH6cWxRfROgkawpMtfi4S8wb162WUf
-	nZ9HVFQDFFjYhZvI+PFE18wdxFCRZic43QdpU7BV668pK6hhIcmXE1K/p2hNkgFcpDUmfBdNVOD
-	IKv8ccur6MVdlV9tTyjYxFLn7JkNp+9h8JMl5rGMwHVbm0tkzars+y4CyxcQRewQkITo/IiZm2b
-	bk0YHWW9BhGmuzHT3rbaeVXCXQtkV3Vl6F8K8RsF/g=
-X-Received: by 2002:a17:906:6a25:b0:c16:12ff:dc8d with SMTP id a640c23a62f3a-c246a69a22fmr393921866b.14.1787296348403;
-        Fri, 21 Aug 2026 00:12:28 -0700 (PDT)
+        bh=09WuqDumRufpTv9AnStx+lDfstjiG5sO30YMgz+/VHI=;
+        b=HSalSdLYTYEzqu42zC/KSE71xv57JK/2CG7mhRfjomeJ6noPGj9XHPpSmsSwusV1j9
+         YWJ1o3hjPaCd8yjhvHHAoi3LtO1xGy1qyacVvhh8PneUy/W810NWws2Fz+Io3cLI62d1
+         W8TrizHCfqDLiHusDq8C7Gq1dWeSvgBAQbNMfOMacRYhr6VWMyXkQF5RVKvid9J+TonR
+         Hs50KzQxxpoRWXJETF9jeBjHKudlQ+KBJN+9yJKsg+RuREID1dZctClChwIEzxewfHFd
+         6HwwfNfXqEY/x69T5V7C9prJJ7RdcOyrJLyVMZx6mliqfp+dA8Z1gnjnUh8OuP024Yr1
+         +1ew==
+X-Forwarded-Encrypted: i=1; AHgh+Rq3RSEd5p6pdLxajOpS4s/d6TKI4gsAM4WN2ERO6Vi3pQWLHoTrtcLH4+BXAol9QipCIv+JO22uDs9gXA==@vger.kernel.org
+X-Gm-Message-State: AFuF++n1hTjstHM3H8XTPja6HARrBTYFfbyJPsAPFmetKFuhNTDx3lI3
+	Sik3BmmEH5uw2eR/UF2DShobN/uyLKPZytKvVgw4F3R7LU8J8eL8/dQNDX+ZEOdJomI=
+X-Gm-Gg: AR+sD11MEih2fJk3EmKAxGp2zIq473a1w9v/QCo4/OhhQ03jxIW60w5SOrTR/2XBWCR
+	iPL9D4WS180NHZ8abDN/gy6mZX+fZ7CKHeYPtnRfEkjTeGBYqKA6xraZF9sML9sQrBMyc2Ka6b5
+	nhieQDuK8ERWwMK4xnPS9f1VvjWMxsot6dSCNoHTuFSdQ38rPzk+HHqTe304YqpkQTtMqioWaxw
+	oup1qNQ9Ju9yhCU3uSGb1lfY785ATGgPCFRWs+eLjPw36GgX7hitnx0iX7MI3V1S28kGRFZTDiI
+	XzoJpIkHOlGOMk4hIh7PsnW619Za0lnYleZRvaX2Lwpo/Oub1JYtQTvjj/7Nl1tZ3ZkxT5YFq8r
+	P5/IjpqsCej2FuVHFLPw8IftjEztJbHMNlx/6nbKugo113GH8Sdbai/LP9pjWl6bdf8I1HTtJRC
+	ffCPbulnfzExQBFaUbdtA6OIE0tDPACkC9w/DovEixToWOEOZ7W39qvgkslo01de02yX8/kAd8R
+	sD4/hIqme4TvbdYYXbpd+/Lpd8TcP5rSlg9MPQlFpA=
+X-Received: by 2002:a17:907:1c1f:b0:c20:31d1:a899 with SMTP id a640c23a62f3a-c246a4ad97emr419311366b.4.1787296349036;
+        Fri, 21 Aug 2026 00:12:29 -0700 (PDT)
 Received: from [172.16.220.101] (144-178-202-138.static.ef-service.nl. [144.178.202.138])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c24589e04b5sm339431866b.5.2026.08.21.00.12.27
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c24589e04b5sm339431866b.5.2026.08.21.00.12.28
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
         Fri, 21 Aug 2026 00:12:28 -0700 (PDT)
 From: Luca Weiss <luca.weiss@fairphone.com>
-Date: Fri, 21 Aug 2026 09:12:19 +0200
-Subject: [PATCH 2/3] Input: himax_hx83112b - Add HX83112A support
+Date: Fri, 21 Aug 2026 09:12:20 +0200
+Subject: [PATCH 3/3] arm64: dts: qcom: sm7225-fairphone-fp4: Enable
+ touchscreen
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -71,7 +72,7 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260821-fp4-hx83112a-v1-2-474941bd8860@fairphone.com>
+Message-Id: <20260821-fp4-hx83112a-v1-3-474941bd8860@fairphone.com>
 References: <20260821-fp4-hx83112a-v1-0-474941bd8860@fairphone.com>
 In-Reply-To: <20260821-fp4-hx83112a-v1-0-474941bd8860@fairphone.com>
 To: Job Noorman <job@noorman.info>, 
@@ -85,115 +86,61 @@ Cc: ~postmarketos/upstreaming@lists.sr.ht, phone-devel@vger.kernel.org,
  linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org, 
  Luca Weiss <luca.weiss@fairphone.com>
 X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1787296346; l=3188;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1787296346; l=1373;
  i=luca.weiss@fairphone.com; s=20250611; h=from:subject:message-id;
- bh=fiy4GcFZdsC9yxetlH5+plrNHl5cqFDQooXiediiUNk=;
- b=7WvOSkB+YtikXSJZsjpEaaIeJ0pySPNkReYF4txiBimvkVap6UafneVGgaHcvM8K6ID8XIcbf
- M/ujWmt7PrHB6ANQxRMzVAZd3fHvWIZrngnt2rc6gx7b00XtZ+dFBca
+ bh=Ce71U+Lyj7zFttVA4Kn65SW6c32KT53zyzKRPu/mOUM=;
+ b=ShyNO9D6xW1RkbEp+BIy/OyUkLlvVM5Iu6qL4MNIYii4HOCsU2rcM5jSRafguIYleAndUwYIb
+ 6x1KlT8oc9IDDcP2ggi9i9ShfFSfvXnSmYe+2q/vzChlv/IVtJKv9Da
 X-Developer-Key: i=luca.weiss@fairphone.com; a=ed25519;
  pk=O1aw+AAust5lEmgrNJ1Bs7PTY0fEsJm+mdkjExA69q8=
 
-The HX83112A touch controller works nearly identical to other supported
-chips, we just need a small dance before we can start using the
-touchscreen.
+Add a node and pinctrl for the Himax HX83112A touchscreen found on this
+phone.
 
-For that a new 'init' callback is introduced to facilitate that.
-
-Assisted-by: Gemini:gemini-3.1-pro
 Signed-off-by: Luca Weiss <luca.weiss@fairphone.com>
 ---
- drivers/input/touchscreen/himax_hx83112b.c | 46 ++++++++++++++++++++++++++++++
- 1 file changed, 46 insertions(+)
+ arch/arm64/boot/dts/qcom/sm7225-fairphone-fp4.dts | 21 ++++++++++++++++++++-
+ 1 file changed, 20 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/input/touchscreen/himax_hx83112b.c b/drivers/input/touchscreen/himax_hx83112b.c
-index 0aa67dfacbad..cc8b904d88e6 100644
---- a/drivers/input/touchscreen/himax_hx83112b.c
-+++ b/drivers/input/touchscreen/himax_hx83112b.c
-@@ -62,6 +62,7 @@ struct himax_ts_data;
- struct himax_chip {
- 	u32 id;
- 	int (*check_id)(struct himax_ts_data *ts);
-+	int (*init)(struct himax_ts_data *ts);
- 	int (*read_events)(struct himax_ts_data *ts, struct himax_event *event,
- 			   size_t length);
- };
-@@ -364,6 +365,12 @@ static int himax_probe(struct i2c_client *client)
- 			return error;
- 	}
+diff --git a/arch/arm64/boot/dts/qcom/sm7225-fairphone-fp4.dts b/arch/arm64/boot/dts/qcom/sm7225-fairphone-fp4.dts
+index 23f950067a08..ff609f7e1796 100644
+--- a/arch/arm64/boot/dts/qcom/sm7225-fairphone-fp4.dts
++++ b/arch/arm64/boot/dts/qcom/sm7225-fairphone-fp4.dts
+@@ -626,7 +626,19 @@ &i2c8 {
+ 	clock-frequency = <400000>;
+ 	status = "okay";
  
-+	if (ts->chip->init) {
-+		error = ts->chip->init(ts);
-+		if (error)
-+			return error;
-+	}
+-	/* HX83112A touchscreen @ 48 */
++	touchscreen@48 {
++		compatible = "himax,hx83112a";
++		reg = <0x48>;
 +
- 	error = himax_input_register(ts);
- 	if (error)
- 		return error;
-@@ -395,10 +402,47 @@ static int himax_resume(struct device *dev)
- 
- static DEFINE_SIMPLE_DEV_PM_OPS(himax_pm_ops, himax_suspend, himax_resume);
- 
-+static int hx83112a_init(struct himax_ts_data *ts)
-+{
-+	int error;
-+	u32 buf[2];
++		interrupts-extended = <&tlmm 22 IRQ_TYPE_EDGE_FALLING>;
++		reset-gpios = <&tlmm 21 GPIO_ACTIVE_LOW>;
 +
-+	/*
-+	 * By default, the chip boots into safe mode. We clear the FW ISR
-+	 * register and perform a second hardware reset to boot normally.
-+	 */
-+	buf[0] = 0x9000005c;
-+	buf[1] = 0x00000000;
-+	error = regmap_bulk_write(ts->regmap, HIMAX_AHB_ADDR_BYTE_0, buf, 2);
-+	if (error)
-+		return error;
++		touchscreen-size-x = <1080>;
++		touchscreen-size-y = <2340>;
 +
-+	himax_reset(ts);
-+
-+	/* Give the MCU time to reload firmware */
-+	msleep(100);
-+
-+	/* Enable the touch algorithm */
-+	buf[0] = 0x1000748c;
-+	buf[1] = 0xa55aa55a;
-+	error = regmap_bulk_write(ts->regmap, HIMAX_AHB_ADDR_BYTE_0, buf, 2);
-+	if (error)
-+		return error;
-+
-+	return 0;
-+}
-+
- static const struct himax_chip hx83100a_chip = {
- 	.read_events = hx83100a_read_events,
++		pinctrl-0 = <&touchscreen_default>;
++		pinctrl-names = "default";
++	};
  };
  
-+static const struct himax_chip hx83112a_chip = {
-+	.id = 0x83112a,
-+	.check_id = himax_check_product_id,
-+	.init = hx83112a_init,
-+	.read_events = himax_read_events,
-+};
-+
- static const struct himax_chip hx83112b_chip = {
- 	.id = 0x83112b,
- 	.check_id = himax_check_product_id,
-@@ -407,6 +451,7 @@ static const struct himax_chip hx83112b_chip = {
+ &i2c10 {
+@@ -1117,6 +1129,13 @@ platform {
+ &tlmm {
+ 	gpio-reserved-ranges = <13 4>, <56 2>;
  
- static const struct i2c_device_id himax_ts_id[] = {
- 	{ .name = "hx83100a", .driver_data = (kernel_ulong_t)&hx83100a_chip },
-+	{ .name = "hx83112a", .driver_data = (kernel_ulong_t)&hx83112a_chip },
- 	{ .name = "hx83112b", .driver_data = (kernel_ulong_t)&hx83112b_chip },
- 	{ /* sentinel */ }
- };
-@@ -415,6 +460,7 @@ MODULE_DEVICE_TABLE(i2c, himax_ts_id);
- #ifdef CONFIG_OF
- static const struct of_device_id himax_of_match[] = {
- 	{ .compatible = "himax,hx83100a", .data = &hx83100a_chip },
-+	{ .compatible = "himax,hx83112a", .data = &hx83112a_chip },
- 	{ .compatible = "himax,hx83112b", .data = &hx83112b_chip },
- 	{ /* sentinel */ }
- };
++	touchscreen_default: touchscreen-default-state {
++		pins = "gpio21", "gpio22";
++		function = "gpio";
++		drive-strength = <8>;
++		bias-pull-up;
++	};
++
+ 	qup_uart1_sleep_cts: qup-uart1-sleep-cts-state {
+ 		pins = "gpio61";
+ 		function = "gpio";
 
 -- 
 2.55.0

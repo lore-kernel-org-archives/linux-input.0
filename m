@@ -1,148 +1,153 @@
-Received: from mail-yx1-f49.google.com (mail-yx1-f49.google.com [74.125.224.49])
+Received: from mail-yw1-f171.google.com (mail-yw1-f171.google.com [209.85.128.171])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BC24C1DED49
-	for <linux-input@vger.kernel.org>; Fri, 21 Aug 2026 01:47:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.224.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8699A346A18
+	for <linux-input@vger.kernel.org>; Fri, 21 Aug 2026 01:52:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.128.171
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787276866; cv=pass; b=ZuDXkyfW0ktV+8PQo4568WXtGRzgtNQ5WloJ+LutrTGwtIssaO+vGefiYYtbF6Ug5joM7dbegEqm3gW3hQe0i7gjh3BQxMzZVM/VEPp0VHESYqxXdcO1N+ngf7df/Nrt2xRzE8I8rdyoJ8kHzMIvOd5EE4peCNQlO1HKDKi6Gac=
+	t=1787277127; cv=pass; b=dVuBzOztO3mdb8VJGCAJb2eW6+bMLEV40k/vqkhcuj5MIjXIf8ULSS1CteIl3i1xMY9Qq1Vah8dCyxUxPABFnM/1gdOkj1jwYqVtyfyz/5ILvFynbWFiGxtIWNhkdMeONRTJgBsqXiflw23tCk+PxrurtzNPUbBLu2xpfQ6nm9I=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787276866; c=relaxed/simple;
-	bh=yfqpp8WYOenmjb3oYHuHBnzp/XrvWdHp+mrIFBFp1P0=;
+	s=arc-20240116; t=1787277127; c=relaxed/simple;
+	bh=Vc8S5ztztDYQgsTWtsHiHgN+/QFM5U7wBqOIyKazx0M=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=WU0jPJnNYCSzXfZZhgC9BmAhwEWf7I8bXqeYnZIbEtIk7Zrh503ZndIWi/wzgMu1BgcAAZokzBf09pAmgGZe1jmmrNDL7SLtCbkY5xlpoV9PbEGlzTprma5jv1KBDCfLJfYTPESyhzuHyNkDwVNSYdwaQ7VQzRCNRCiEjPkndSo=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=rxHA+/XN; arc=pass smtp.client-ip=74.125.224.49
+	 To:Cc:Content-Type; b=Pu2atgjHGm/gMJ00COgo3NyniBqGunQVGK51t3z16R9bOq8wpL+mKRIZZDxZcnU6GWrA7ffC4SxxLI+rc2J4zkLzOI61jDVqg8yIyXMeckYBE3ACpOLdW5h0i05p/Tz08w9p4kbz72U7YYvdNjakDBvhkzB05peGOgDmXXFrL18=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=mkbp2DtG; arc=pass smtp.client-ip=209.85.128.171
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="rxHA+/XN"
-Received: by mail-yx1-f49.google.com with SMTP id 956f58d0204a3-66c7e3a2332so344861d50.2
-        for <linux-input@vger.kernel.org>; Thu, 20 Aug 2026 18:47:44 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1787276864; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="mkbp2DtG"
+Received: by mail-yw1-f171.google.com with SMTP id 00721157ae682-7dbcb505578so7330177b3.3
+        for <linux-input@vger.kernel.org>; Thu, 20 Aug 2026 18:52:06 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1787277125; cv=none;
         d=google.com; s=arc-20260327;
-        b=ddM9Hw43idhtmuW1mU6BRuZ2DRl4v/nFv6u84Y/v5Tm8v78myxss3/jf5LMOlkKlkL
-         z6klmJKcD9E9ZVdqXFNawV78vS6Qkq3E0NVqOe6JNCvE5vro9aR62HixpIYm7i7yRS7x
-         +9WREJajN/Ki/vBF3BNQCOyA+peBSoJuXdoZH/iLDK6jHssC2l8YjHxRdusFoYRivKsC
-         TR4fyOk4upQj84w0El3NI2OzqVDKWudKa9qE0smb90q9R5SLDLIBfBQfXXiEqcss45jp
-         XC3PtBCtpwRrghxyuft3jEf/K/PchYtzINXly6MAS3bZ8x9DgVe07Ki1HoPDk4lOi/tB
-         +/Qw==
+        b=JFkw4eVFqWYN++TQ1Gk8gTE6CDuuOMqHBqAqTqPMiDexOkt42+ptfTCqHsmQoSvCQ3
+         axLH+I1pnaXTZ0SSMiPvuiQeRdCd/LYZVZSqcBcW33BI/XstbeM4VZShus/T7uj+Nvm/
+         KHjXMobB9QkaXeH/bnwVHqN2OSFtrXvbEYSIxsuKYgL4TBEFV/FBbgDnVOaawv1VN68P
+         xL3a+tLY+Fl/TCKPLp7dKQJSiEfD9wemGtaZ9TIXAUQeKBbVgQFwPkjS6lvcOV4b138G
+         BholQHusv/EFWZ8AWwQeoPMol/U603AAyFnnbX+xslDQfLfTBMlPoNdCst+7p+KVMgPK
+         I1Iw==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=+ZFmROfgidpQl1un31xXH76vvuzAN+m1uLmNu7y+jkk=;
-        fh=rdCKpnYc8WSZGspiLQIJv/rFdqR231X493DDrY7HM9A=;
-        b=oJXt0r4OQmhP5vWBATXGEBxUdYquCD7hFEChXHpCe3tGYPv3JLVTr0hDYaaUCq/+Yc
-         ucQT/M9lk0lfyGYCJKMCnoiohyDsjf1k2wel+FOo0hlSXrYHAw6WjG2xuRBVJvBwJZqR
-         NSY8yzQYMpJ37HIwWB0DlQWKcepQ8MXs6AWPFYjEspVgPfXGNixe4eLmVo9rTLbDoqb9
-         alN9veCXfnckDOeYGJXnBdOvQ6Bq8Ct19tTWKfpoSCzP6ss9oKRGZ12VpyLVr/eeS8Ke
-         PhjeD6kdX3nxB08NgVHoTAAnV/vmjJDBjlVXDjp/m3whkPLSdi4Ix2Y2B7rMn1kBGmxl
-         tgoQ==;
+        bh=974hCZQ2f8sZhz3XQtuoSfV2xYlNnFZfC1UVwG68zdA=;
+        fh=ZoVVjE6E+GBX2kmmcv4JHK8X671XnPoNuoAm1DxWlg8=;
+        b=DolJfXtfDe4MZ9qoOS1sx4tUyHJ1DqJeIYFeSh0N3kYAgXL+TaKXalx7HtBFOWYygL
+         93chYbhhImT3FqoP/W1TD9c1wtW0fFvbdHNJ/g+EiAjxyyju8ZStlfFeWI6IPpalnjbM
+         NXruq9cUPNak8NGV+2Y2JlA+gHHwy3fTfiWwHviXPtCW0RzTNUvtNonqvZvPREao9Ktz
+         r5TL0P9Xsp0TyyClUlcL0ZZDKywxIZsJCpHgvpLZwac6SqSgOHZh/Im5Thp+nDKw78N+
+         B22NbYOy9imJaBLJXKj7kpVnPqG1t3wpnYeK8xSMJauKwDQkxJjHUDyW/nzCD+skgn5g
+         +wVA==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1787276864; x=1787881664; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1787277125; x=1787881925; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=+ZFmROfgidpQl1un31xXH76vvuzAN+m1uLmNu7y+jkk=;
-        b=rxHA+/XNu8cPhtkFcca2wllB5wbx6FTGBEm6B4u18fyoIu/7K2ht1X3NUU3yWH1qYq
-         /uQUje3lVTY/85CbxORrzH4wWa1aMYvQAt3fNaehxe8kbZTmpFpc4P8XXplFNaL4DpGU
-         grTyXTyQP79XPHrH1aA7c9OAtByxOvfDl8v12A8X/kxuchFx7GgHs1NI2A5WiEkaqstQ
-         TK8ocE4Wb9VYgKEM5drRCghfMkXV+KYMZAj7wqzdUdTPow9LhLRW0iw+LzOLEC+DLqcV
-         KJ3gRh7fMz3/51s5q3742eRBk7O6klD8Kr2ZTnvxlD7/cTO/toCdAxLEnUvPs2fkxC2e
-         8KZQ==
+        bh=974hCZQ2f8sZhz3XQtuoSfV2xYlNnFZfC1UVwG68zdA=;
+        b=mkbp2DtGE3lNDtQowGhY1RW2Be1mATZG6sZGbgIikbkgqDU7ZeRFB+p1ciLQt75BJ/
+         ZcxzAU1yMCXOrCL2v8pAWLoQ+FIAMG2UqBYmrLeK4xqJTw+TmdbbpDLlETeptHjzMZKD
+         cLS+4mT9A+AkJpk+8RgEhHot8KFZWukMV+jJsikcpL/hQEf6gMQsjkPTOwug7H5dLzwI
+         m2B07VRgbjG+sd5fjvOCiJrYUw6rQX0AyJPNoJnik4VsbvFAqTg+/rB4/O/gwRKXKh4o
+         FrKJ64Of5oVnlcLXAu8rGrQbwC38698lFpnWhefH2AjDhsa8ZPT1gm8dyAXm8moDUhuH
+         URUA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787276864; x=1787881664;
+        d=1e100.net; s=20251104; t=1787277125; x=1787881925;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=+ZFmROfgidpQl1un31xXH76vvuzAN+m1uLmNu7y+jkk=;
-        b=JHLhmmu9uOQxsi7SmCjfdhv4ZjQ85EVXjnK6bebkTJDOctoJYhdg4/kWLf36ZP9oEM
-         JfiE2Y0lp/pK/r5v+UMQaOC1EKF+aeuLIWk57Jy+YqvIbLxpBCipSaU+ZbgAmAHePxrE
-         4mfUqSkNexWd6Unhn+wfSuT0tfzXigU2kjqs71Gcg5D95zR7228LOPLzPh1MbhOvQ+5R
-         BZl94ssqGlXuY+gZF/CzrjWw3OmmtRfNcFPj/kKypSTidmrVumMXeusxqiEGcjRqHaeU
-         +pSfcXCy/+ZdMaYgdNHfUSnh1L9tLMoxVyYcwwkP54XBebzT0sgfBI1RGropzlG8PX8/
-         uD+A==
-X-Forwarded-Encrypted: i=1; AHgh+RrmteL5BRol0dfjNL4156PK/nfHdyPM4JPbAVoAcyNQJ8zTrAxYZYWiFwcf8qj6AHZRFrWxZzFJSDu8rA==@vger.kernel.org
-X-Gm-Message-State: AFuF++mN3IW+aDodgpJQXCAUnvs3pCkhcQRbKBKW8K8qCB+73m1ww/Rb
-	b4cB94tqGuOM2WU4f65dCcfkimoUk68YBBN4Zkgrl99L4rzFo+vdimrjC8fgwaW7DhdJhCLbBpd
-	me9mFweGEDs+sG0SrT/9aWamohgdsETQ=
-X-Gm-Gg: AR+sD1130Jf30W4otX9kuSVYfHul+Q/VnVcSu9YK2tngYGQKTXa1w9UD3/PEdi4uAse
-	gStvvefPqmtXMuEJr7zw5mgJKNd2WPFum/o1N3fpHXoF7OFg+dZ/wieITjkrZcbYGQZ/ySVfS3z
-	UwtQQwJDEpsVzbywr1THJoyrBTpSroDj89ndQyn5/aLap2vegx1WEIYv6r6DMRJ/DG2n+3tsapy
-	/btzv/StHu2BCqSqTy+KLVO7gcjO5UrOwz5+m3u37RJwfyqDGaGMa6ah/IV8JkEsONhldEH3kNk
-	R9Bh7PkpnIJi2t4dZ14srfp6HlEaYx24kUlo5Pqu9V0KJGtf8vcyvU6YUikdWCzFyT3NF4+VOcS
-	IJCRBB2gBQPPQjkR0GqXvfdX0j7qb1u5qBQ==
-X-Received: by 2002:a53:e802:0:b0:667:c09c:4a34 with SMTP id
- 956f58d0204a3-66ce49d2cc6mr953128d50.11.1787276863699; Thu, 20 Aug 2026
- 18:47:43 -0700 (PDT)
+        bh=974hCZQ2f8sZhz3XQtuoSfV2xYlNnFZfC1UVwG68zdA=;
+        b=GGFgO7OvKFgkpClgBsD2AzEYN2+GWrWzT0L9ZTfD7xF1HGQ1DWaLsefGHx7tL9WhMn
+         SJjcxDET6Jefsh+q/knLDLZwPaWEhcGm1GpMaN5Esv0iOeTZYONe6mBx8m6EIaCFuhJk
+         oGioNRnn/O962PLJLY1GelMLQSuWI8zQjodMZqNawzP0Yriqv+fHQyYRH1V7kRPwEBCS
+         W/o1p2uyFXqgFRi7cvSHqDd/MmT0BNajotyx+EfH1f7Jogle2NEbL9AIa8x2bWjQsZH5
+         BqhUL49vp+wSIJlsyBu8wACd+MkcRmouKMI4Y+uARz4KzenkA9ew51xl3gld7/u46iVu
+         oZvQ==
+X-Gm-Message-State: AFuF++kvrZN0/qrhBfDabJmCFO9JkkgI2fbVRWaPl69VU6K+qM86wOKN
+	HIGrZeTngj/s8xX5LKjIS+BKPNG6D40SCkU+uU+rPXjjdAYrB6j2+c7nklLNsbwNhle+/oTywM+
+	75Dmy0hHhSNNBqsihn92OGdxAPDHxpOM=
+X-Gm-Gg: AR+sD10DKlbdSi+BGcDGCtYTeZLIp7FIpiT9VqKLNuxsnWhqll/Uv0i3doQAfe1Oq0F
+	Ka4s8ZwU9kM8YzasyaKxmSZHL/2JraubGci35FoiVcbXF02RHuagALkuqa/gSZO0lQ/8BbFM7R7
+	3QmGkWXkcPxUEbSP7wDLo6fIGzfTZ/rgjLSpNh2FpoAl/t2ouQHyBf7W5vcyUH7l6JWQntOFoOE
+	0D2D4lsAuO5hlz8ay77VlacyRgc66VO36+vJBzdWI2PckWD6kaECbnk7WS0bbV1FhPE49wvPzJK
+	wZ6+ml87H3926Js6dhEcM479qnKsOxi9GTpxzAcUTIeR/7Mj0Xjr81/0nLYAPClM9MlW/Qts0Ug
+	fBxQY3kD4RXrb5p0BP20z3rptSHZH9sPcpw==
+X-Received: by 2002:a05:690e:c8f:b0:669:586a:8673 with SMTP id
+ 956f58d0204a3-66ce4a86a93mr1130287d50.21.1787277125396; Thu, 20 Aug 2026
+ 18:52:05 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260806080018.10050-1-kartikey406@gmail.com>
-In-Reply-To: <20260806080018.10050-1-kartikey406@gmail.com>
+References: <20260809040629.12666-1-kartikey406@gmail.com>
+In-Reply-To: <20260809040629.12666-1-kartikey406@gmail.com>
 From: Deepanshu Kartikey <kartikey406@gmail.com>
-Date: Fri, 21 Aug 2026 07:17:31 +0530
-X-Gm-Features: AcwNN1VtUTnT0LM6-lm_L91h0rAyWrWm1NnstzY-gesmi9HDGZ9mFJ_v1j42w9Q
-Message-ID: <CADhLXY597=_kdYj+cJvYR25BgCyCcHgSVVoY22kWZcHuV0zh4Q@mail.gmail.com>
-Subject: Re: [PATCH] Input: sur40 - fix use-after-free in sur40_open()
-To: dmitry.torokhov@gmail.com
-Cc: kees@kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	syzbot+683f6c071b5abfc266c1@syzkaller.appspotmail.com
+Date: Fri, 21 Aug 2026 07:21:53 +0530
+X-Gm-Features: AcwNN1UPbzUQnyy5F3quPJGWtaSHJyiGvozZt6rh1zO1nZH6zYg5CujhqGTiTtU
+Message-ID: <CADhLXY4_M62zOXOCyk8BcBU924+7_TxZ_GkbE=V5ME3ZbDsVag@mail.gmail.com>
+Subject: Re: [PATCH] HID: core: check field offset before dumping input
+To: jikos@kernel.org, bentiss@kernel.org
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	syzbot+a942efa43c928a1e3daa@syzkaller.appspotmail.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Aug 6, 2026 at 1:30=E2=80=AFPM Deepanshu Kartikey <kartikey406@gmai=
+On Sun, Aug 9, 2026 at 9:36=E2=80=AFAM Deepanshu Kartikey <kartikey406@gmai=
 l.com> wrote:
 >
-> If any of the registration steps after input_register_device() fail
-> (v4l2_device_register(), vb2_queue_init(), ctrl handler setup,
-> video_register_device()), the error path frees sur40 via
-> input_free_device() + kfree() without ever calling
-> input_unregister_device(). Since the input device was already
-> registered, it remains live and openable, so a racing open() (e.g.
-> from udevd) can dereference the freed sur40 via sur40_open().
+> hid_set_field() passes field->usage + offset to hid_dump_input() before
+> validating offset against field->report_count. field->usage is allocated
+> with exactly report_count entries, so a larger offset is read out of
+> bounds before the existing check rejects it:
 >
-> Split the unwind so that once input_register_device() has succeeded,
-> the failure path properly calls input_unregister_device() before
-> freeing sur40 and its buffer.
+>   BUG: KASAN: slab-out-of-bounds in hid_dump_input+0xcb/0xd0
+>   Read of size 4 at addr ffff88802ab28fc0 by task kworker/1:2/48
 >
-> Fixes: 08b936012964 ("Input: sur40 - switch to using polled mode of input=
- devices")
-> Reported-by: syzbot+683f6c071b5abfc266c1@syzkaller.appspotmail.com
-> Closes: https://syzkaller.appspot.com/bug?extid=3D683f6c071b5abfc266c1
-> Tested-by: syzbot+683f6c071b5abfc266c1@syzkaller.appspotmail.com
+> Move the bounds check above the hid_dump_input() call so the function
+> returns before the dereference.
+>
+> Reported-by: syzbot+a942efa43c928a1e3daa@syzkaller.appspotmail.com
+> Closes: https://syzkaller.appspot.com/bug?extid=3Da942efa43c928a1e3daa
+> Tested-by: syzbot+a942efa43c928a1e3daa@syzkaller.appspotmail.com
 > Signed-off-by: Deepanshu Kartikey <kartikey406@gmail.com>
 > ---
->  drivers/input/touchscreen/sur40.c | 4 ++++
->  1 file changed, 4 insertions(+)
+>  drivers/hid/hid-core.c | 5 +++--
+>  1 file changed, 3 insertions(+), 2 deletions(-)
 >
-> diff --git a/drivers/input/touchscreen/sur40.c b/drivers/input/touchscree=
-n/sur40.c
-> index fe63d53d56db..b0958422ff76 100644
-> --- a/drivers/input/touchscreen/sur40.c
-> +++ b/drivers/input/touchscreen/sur40.c
-> @@ -808,6 +808,10 @@ static int sur40_probe(struct usb_interface *interfa=
-ce,
->         video_unregister_device(&sur40->vdev);
->  err_unreg_v4l2:
->         v4l2_device_unregister(&sur40->v4l2);
-> +       input_unregister_device(input);
-> +       kfree(sur40->bulk_in_buffer);
-> +       kfree(sur40);
-> +       return error;
->  err_free_buffer:
->         kfree(sur40->bulk_in_buffer);
->  err_free_input:
+> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+> index cf123347a2af..7ea1fb62b9d4 100644
+> --- a/drivers/hid/hid-core.c
+> +++ b/drivers/hid/hid-core.c
+> @@ -1933,13 +1933,14 @@ int hid_set_field(struct hid_field *field, unsign=
+ed offset, __s32 value)
+>
+>         size =3D field->report_size;
+>
+> -       hid_dump_input(field->report->device, field->usage + offset, valu=
+e);
+> -
+>         if (offset >=3D field->report_count) {
+>                 hid_err(field->report->device, "offset (%d) exceeds repor=
+t_count (%d)\n",
+>                                 offset, field->report_count);
+>                 return -1;
+>         }
+> +
+> +       hid_dump_input(field->report->device, field->usage + offset, valu=
+e);
+> +
+>         if (field->logical_minimum < 0) {
+>                 if (value !=3D snto32(s32ton(value, size), size)) {
+>                         hid_err(field->report->device, "value %d is out o=
+f range\n", value);
 > --
-> 2.34.1
+> 2.43.0
 >
 
-Gentle Reminder. Please let me know the status of this patch.
+Gentle Reminder. Please let me know the status of this patch
 
 Thanks
 

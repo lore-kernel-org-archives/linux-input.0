@@ -1,44 +1,43 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 05F4530D3FF
-	for <linux-input@vger.kernel.org>; Fri, 21 Aug 2026 04:19:51 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2E3AA37C929
+	for <linux-input@vger.kernel.org>; Fri, 21 Aug 2026 04:25:49 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787285994; cv=none; b=BXm9FLRWoCHt59Gv2Fq/3mrk9AjJTp1G2PYu67dcbpqrd8uniwos7v6vQUemCMjjCxDZJ5PjzegeW3NAvHIMf1/EKp++4k+Gtqs5Z8QadtjG4iWzBnAkyDj/6Uneul8V9E1UYXCwr35ePtrYvHvM+QTg9RRGS6Ss5ZscHfOvrZA=
+	t=1787286351; cv=none; b=NWk0EJtviPd0dHls45NE2QmD9/LSBao1RUR7B4EOECCz1w6ei+jFyU8gQIRndsPFW7mN4bxTTujESqalGwdO0KMTiIEDWtSS1R9I5zjkENdS7n0VyJmsmwVCSHkPBrKlOb0VKEn6mqNaK+bcSpW/Z/D5HrK+0Pos3obCSdrOtQc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787285994; c=relaxed/simple;
-	bh=tc9kW0WvJCOJKZ7hKBawPZlI8Xu/+B1v6OBjiTzEoV4=;
+	s=arc-20240116; t=1787286351; c=relaxed/simple;
+	bh=mkecX4kpOGWnEmEhR/h/NI26iugyqtLlXJnEY6K+c3c=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=G2QOO/Hwk7rDLAj6ky/aSShw8zIeYx+DKD8kjWcIQ4irCNhROXrgvz5aDBv2esRf8vMi7Fbu4+EXj7xK1uWXGq04qktEL/OveQ11FwegaPNj8JhRzw9JONwZpHtOiPfHF1p/bV8pUZYmPtSJg6g7pyTaVxbwyb6UpPn8aY/0DwU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=RhvFC0LJ; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=iziO+WORoUkFlMlSTYEmbgPtnxvUI0DqTIZUtjgH8fEK6luwYymReZHRN44NWNGndIzeYVN8vAsnPV6xhDqXDYuqgd4TuavuianV0ZZ0bFVSPt+ilGdF4+1/HDULQAC1Lx27zXFMmhdDkpuxSHNCsLwGNrq58RWmV/iK0Kq350I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=GmIwVU9I; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="RhvFC0LJ"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7DE131F000E9;
-	Fri, 21 Aug 2026 04:19:51 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="GmIwVU9I"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8CE521F00A3A;
+	Fri, 21 Aug 2026 04:25:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787285991;
-	bh=XxqO66hl1i647MIO+saZaU2HNDgZpLiSocBbDaAZJnQ=;
+	s=k20260515; t=1787286349;
+	bh=5HzIEnUZW11/SNm+ZSzaSbsUwipHrSqb0h6pmQUSC6s=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=RhvFC0LJ1bREDNB11fCecPlwSJ7YRO3Vz/6/xDgbvbDeeI0Mf5II8TRSYyVMI0Cxm
-	 Q4iCnbFbiKHit0otGyLCJLpwbTh38YFIPx14Q7z0RBYOxwV7ZqSwb9Jvx85EAYborz
-	 g4SJKk7tkBSKRF3gKYqM5LD8aOVq+443R/9vB+tqMrPHcqrU8F3YxtITWPsqQcoWmb
-	 IE366HScI/woIVY7EM1Lm9H3DdrDeciyoX1Ebt66qtnn4BMyPB01D3Cp7sndcekSD0
-	 TM//iu21cdRqxFuO3qQv4pGcs2DsFCbZkHoibKp1v7v3KzRHC39k40HmZQ36XtodFD
-	 Z7Z8ONXlbWmQQ==
+	b=GmIwVU9Isqa/bCtgIQcE+JHrIg1OB9dfHE+EfYaF6D+BkwWVho8Wy4JU2Y/e2/50L
+	 Tqb++3fYdXxkzV8GuBrPmCQissGI4JMegN3TD1HSzMeUXhmJKelQhebHAixH+dDCB1
+	 qq4mQ6sLgMRtlWJPAQCQk1VnaLDFy89fYWy4FDz75SViaLZYoB60+YWLwaRNoYxkl4
+	 xcrM2EGZZmMm81IkP1PZ+pD1KvZTfNO+nCebgh/GIKf2d2Ys9Xpby6gO/XOB8Zj0Nx
+	 FYmdq/YgU4XPMmv6v/S9lArZPezAj1hD59Jy+YZZtBsU6CFJOmxg21oS6Hkyo4Buda
+	 sDz2uJ9+a17hw==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2] input: touchscreen: Convert to
- DEFINE_SIMPLE_DEV_PM_OPS()
+Subject: Re: [PATCH v2] input: misc: Convert to DEFINE_SIMPLE_DEV_PM_OPS()
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Triet Hoang" <triet.hoang.dev@gmail.com>
 Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260821040905.104590-1-triet.hoang.dev@gmail.com>
-References: <20260821025514.31AE01F000E9@smtp.kernel.org>
- <20260821040905.104590-1-triet.hoang.dev@gmail.com>
+In-Reply-To: <20260821041546.110119-1-triet.hoang.dev@gmail.com>
+References: <20260821025021.9F9891F000E9@smtp.kernel.org>
+ <20260821041546.110119-1-triet.hoang.dev@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 21 Aug 2026 04:19:51 +0000
-Message-Id: <20260821041951.7DE131F000E9@smtp.kernel.org>
+Date: Fri, 21 Aug 2026 04:25:49 +0000
+Message-Id: <20260821042549.8CE521F00A3A@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -49,79 +48,64 @@ Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
 
 Pre-existing issues:
-- [High] The logic in `ad7879_toggle()` is completely inverted, causing the=
- sysfs `disable` attribute to malfunction and desynchronize the hardware st=
-ate from software tracking.
+- [High] Out-of-bounds memory access in `pm80x_dev_suspend` and `pm80x_dev_=
+resume` due to using a virtual IRQ number as a bit index.
 --
 
---- Patch [1]: [PATCH v2] input: touchscreen: Convert to DEFINE_SIMPLE_DEV_=
-PM_OPS() ---
-commit b2cacedba4aaf53cb97b0b4bbb302d78a3a37daf
+--- Patch [1]: [PATCH v2] input: misc: Convert to DEFINE_SIMPLE_DEV_PM_OPS(=
+) ---
+commit 34551f878a1e83fc07284971e8c372f8a5be3f46
 Author: Triet Hoang <triet.hoang.dev@gmail.com>
 
-input: touchscreen: Convert to DEFINE_SIMPLE_DEV_PM_OPS()
+input: misc: Convert to DEFINE_SIMPLE_DEV_PM_OPS()
 
 This commit converts the deprecated SIMPLE_DEV_PM_OPS to
-DEFINE_SIMPLE_DEV_PM_OPS and pm_sleep_ptr() across several touchscreen
-drivers. This allows dropping the __maybe_unused annotations and reduces
-kernel size when PM features are disabled.
-
-> diff --git a/drivers/input/touchscreen/ad7879.c b/drivers/input/touchscre=
-en/ad7879.c
-> index 31d2a3029d5f6..10f8574f478e2 100644
-> --- a/drivers/input/touchscreen/ad7879.c
-> +++ b/drivers/input/touchscreen/ad7879.c
+DEFINE_SIMPLE_DEV_PM_OPS and uses pm_ptr/pm_sleep_ptr(). This allows
+dropping the __maybe_unused annotations from the resume callbacks and
+reduces kernel size when PM options are disabled.
 
 [ ... ]
-
-> @@ -329,8 +329,7 @@ static int __maybe_unused ad7879_resume(struct device=
- *dev)
->  	return 0;
+> diff --git a/include/linux/mfd/88pm80x.h b/include/linux/mfd/88pm80x.h
+> index 551ef1c367d65..be1b0d961e01a 100644
+> --- a/include/linux/mfd/88pm80x.h
+> +++ b/include/linux/mfd/88pm80x.h
+> @@ -339,7 +339,6 @@ static inline void pm80x_free_irq(struct pm80x_chip *=
+pm80x, int irq, void *data)
+>  	free_irq(regmap_irq_get_virq(pm80x->irq_data, irq), data);
 >  }
 > =20
-> -SIMPLE_DEV_PM_OPS(ad7879_pm_ops, ad7879_suspend, ad7879_resume);
-> -EXPORT_SYMBOL(ad7879_pm_ops);
-> +EXPORT_SIMPLE_DEV_PM_OPS(ad7879_pm_ops, ad7879_suspend, ad7879_resume);
-> =20
->  static void ad7879_toggle(struct ad7879 *ts, bool disable)
+> -#ifdef CONFIG_PM
+>  static inline int pm80x_dev_suspend(struct device *dev)
 >  {
+>  	struct platform_device *pdev =3D to_platform_device(dev);
 
 [Severity: High]
-This is a pre-existing issue, but the logic in this function appears to be
-completely inverted.
+This is a pre-existing issue, but does using the virtual IRQ as a bit
+index here lead to out-of-bounds memory accesses?
 
-Looking at the full ad7879_toggle() function in
-drivers/input/touchscreen/ad7879.c:
+Looking at the body of pm80x_dev_suspend():
 
-static void ad7879_toggle(struct ad7879 *ts, bool disable)
-{
-        guard(mutex)(&ts->input->mutex);
+    int irq =3D platform_get_irq(pdev, 0);
 
-        if (!ts->suspended && input_device_enabled(ts->input)) {
+    if (device_may_wakeup(dev))
+        set_bit(irq, &chip->wu_flag);
 
-                if (disable) {
-                        if (ts->disabled)
-                                __ad7879_enable(ts);
-                } else {
-                        if (!ts->disabled)
-                                __ad7879_disable(ts);
-                }
-        }
+Since platform_get_irq() returns a virtual IRQ number dynamically assigned
+by the kernel, can this value exceed the capacity of the unsigned long
+wu_flag?
 
-        ts->disabled =3D disable;
-}
+Also, if platform_get_irq() returns a negative error code such as -ENXIO,
+would passing it as an unsigned bit index to set_bit() cause a massive
+out-of-bounds memory write and corrupt memory?
 
-If a user writes 1 to the disable sysfs attribute (disable =3D=3D true), an=
-d the
-device is already marked disabled (ts->disabled =3D=3D true), won't this lo=
-gic
-actually enable the hardware by calling __ad7879_enable(ts)?
+The same pattern exists in pm80x_dev_resume() with clear_bit().
 
-Conversely, if the user writes 0 to enable the device (disable =3D=3D false)
-while the device is currently enabled (ts->disabled =3D=3D false), won't th=
-is
-unexpectedly disable the hardware?
+> @@ -363,7 +362,6 @@ static inline int pm80x_dev_resume(struct device *dev)
+> =20
+>  	return 0;
+>  }
+> -#endif
 
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260821040905.1045=
-90-1-triet.hoang.dev@gmail.com?part=3D1
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260821041546.1101=
+19-1-triet.hoang.dev@gmail.com?part=3D1

@@ -1,194 +1,102 @@
-Received: from mail-pl1-f177.google.com (mail-pl1-f177.google.com [209.85.214.177])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DF7D7175A9C
-	for <linux-input@vger.kernel.org>; Fri, 21 Aug 2026 02:44:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.177
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 09D9D3148A7
+	for <linux-input@vger.kernel.org>; Fri, 21 Aug 2026 02:50:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787280297; cv=none; b=stpGLBZIyxFp+imb3fgRigBd6x6Xf+PG9Fva9D29/MScCPzc7blwImI6AkJwfdAvhCXfY22uKwLbAnhCOrhpi2yNg6sKhq7HmMmsrcH4rpUE6hDgMz56TlIQupllpknkLaxwyA939nQaM6VtvWLNo0DlgFt50f/jCE240viPDCk=
+	t=1787280623; cv=none; b=EuG54fgFsBF21rwyYgdwvzPnzsPvzBp3FjuaOD6vtX56t6LsgqBOq4ZkUUzvnP0bfQNogBibEF5E1CTZwfQTWuFSrKr+vPWK1osOTI6cnCA8DXZHhN85fzCuY9zQtW4IOwRoQDk5nUiAJKLBFeg8EgwDIap4HLn7VnItWd+d4p0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787280297; c=relaxed/simple;
-	bh=vRA2sJEUXoiFLYGZ0GF8NQIPMYJHCWwrvydMdhrV+vg=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=IJRI72d1u3NLJsLUcD0LQXtd1vT3kqP65JQkFu47ndnTkfmu7urqDbOaCn/ZFmJQXtSia3MBd/oprfKTOzSjQEhJNOk1dV0othaGkVAvWoWmGhbp/5Bu9oZytCga/D1ga9Ow/4sffOT9xyMIUaq7k8koAmEtCuiw1PdxxY//VSM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=afL9Vme7; arc=none smtp.client-ip=209.85.214.177
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1787280623; c=relaxed/simple;
+	bh=3DDFjDuyhAJEDoDHgx4yiGFJWskw+GbQ2FsVPxlnDY4=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=BDMLwpyB8miKtwK8I7jLyzfjpKUTf86xgBRPU2IQp8nXq2Y3Hgvggki+SimVFZhGlRCael3t1JOIQvU6gnypRS6Z5QPWhymabzWLBtp1K9XurT1IfCFtLIK7YgfRqQtKbknmETDmGuhhjKQn9TI/7Mjye5i2SD8pdvZZEvKSji8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=TM50OR9N; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="afL9Vme7"
-Received: by mail-pl1-f177.google.com with SMTP id d9443c01a7336-2caea3f742bso9463125ad.0
-        for <linux-input@vger.kernel.org>; Thu, 20 Aug 2026 19:44:55 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1787280295; x=1787885095; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=OB4m8MucU/Imj+UQ+hoiF9fZmikX5fEf4VhM2HKdKj0=;
-        b=afL9Vme7aNV09k2P6BV7CmNvP/cWE8JkHUU6wiwj1I+LWLU8mzOJLMxz8Gx6ZmojaF
-         gpP+iomRJRHuVMmggvQcrdQKrBUgSwPXxV4gxnQo7rxeB1TGAhO4G1mjLuYX3KOpHk2U
-         VP7rZK/FNFdTg1XhacxjId+7gWZL+2H+TZ1wFpoRv7FyBdhBnM4X/1BZH4F7L6fN1NNL
-         2DA2M3T5DDdRQSiAy66vZtpnF6PqCSreE7yhG2e6+EtABBt/1ETYS0uFUjkgKo+Enkm7
-         7MLacCKCfXAlv3pbni05OBoxQT+4h2yoghUdgxDCxjJzJFv+TG0tbA9691hIyL5tJx/v
-         w2Lg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787280295; x=1787885095;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=OB4m8MucU/Imj+UQ+hoiF9fZmikX5fEf4VhM2HKdKj0=;
-        b=rkCK/C5vaPh8wzguXcgxLV8fLLY+vGhTj24+ygiGfc0dPWEviI/CmQbBfF0iGCvRwV
-         wbe7GYxk721AApyWfDm5CPFTZ30l4V2iaAwRdSAy7NEHp5eZgTgXYoovIrSEUihFaW0v
-         1W6y339DtRO2hEPHF8Da8PbfsgBFWmz2/2W2ZBwqWDvN5rovPf2WkT6XvQ6yT9B/gtSY
-         E2N8O9skChtvmXECj+C8CoNit/t3KRYN1lk1x/GvJ0m/pIoYDr9XQ7QhI51NB3uTx80Y
-         kbP2nvgBMrd2eywpMgVwg200OTL5y9AvGY0ilZjyW/zyfTKqpSFqxSlBedyHRFy3M1bo
-         0YKg==
-X-Forwarded-Encrypted: i=1; AHgh+RqR1eiQQsoP7Fg57NbOIrt0LQYv8Gy9y6CaopgIOk8EwN8bbAjVcoydNYU5ZUw28SCF82G3CFriJPQcDQ==@vger.kernel.org
-X-Gm-Message-State: AOJu0YxO0zxcvlDJKzTcWwHcivG9OI1WFbb/jmybMP0z1TXS7jnF24ul
-	qbP2HgY46ZexDLFL+bJXOOalim1expA5AAJOa0LPCP0O8JyoLblEzrc=
-X-Gm-Gg: AR+sD11DJQ8r9oL9RExHyOTCCwjVGUxrln5cnJB1JCEUupTf2F7wrsAib7Jvg/C9SI+
-	uUqII/gOGm+Q0lpVqAOz8Ph9IZTgWXmH9DtUBQm3p2ixEH10ER3u2umJ6MGubZ3KYK6CwOe/KI2
-	dw4u2mSQ9eMUAz+F3qkC7Mbnm/ArXlRCNTacbGfSpjU6jyA4eQqzHvXrbaFEcbpl1D42jORblzd
-	CX/PLt6YRtDH6bI4L2knneEyIopCeDA0ZKn71y23FUmkQe192IDeI1+QZtEbyTTKZ81XfT0LjIf
-	C8sQ10d3idR08TpOUvKsDgGroMiISuElBYeyhsu+wSKadBuEe9gUK1zcBYMawAFPYA2lOYNea3F
-	JZIPYMeCy3DzXxWkGfyva9Gx49REbSACXH0nDKtIEmGy1JNRVaZFqhCnWPdz1N3iiWfa8zpLMLX
-	/COZdkRXpz+MHczCED2YTaj2KY6cR7sLdTdC+uRDqpdzMlkfzXW0CQ8bM8NwkOXgDS5lrMCccBE
-	w==
-X-Received: by 2002:a17:902:ebcd:b0:2ca:481:de45 with SMTP id d9443c01a7336-2d64afa4e37mr61339485ad.6.1787280295229;
-        Thu, 20 Aug 2026 19:44:55 -0700 (PDT)
-Received: from DL2XHKPB4.dl.net ([103.63.104.162])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2d62e36edbbsm12878315ad.39.2026.08.20.19.44.53
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 20 Aug 2026 19:44:54 -0700 (PDT)
-From: Triet Hoang <triet.hoang.dev@gmail.com>
-To: dmitry.torokhov@gmail.com
-Cc: michael.hennerich@analog.com,
-	linusw@kernel.org,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Triet Hoang <triet.hoang.dev@gmail.com>
-Subject: [PATCH] input: touchscreen: Convert to DEFINE_SIMPLE_DEV_PM_OPS()
-Date: Fri, 21 Aug 2026 09:44:50 +0700
-Message-ID: <20260821024450.57369-1-triet.hoang.dev@gmail.com>
-X-Mailer: git-send-email 2.53.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="TM50OR9N"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F9891F000E9;
+	Fri, 21 Aug 2026 02:50:21 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1787280621;
+	bh=elqJ4QO8WL/Wco/Znbiwlc20nFuAe3YBhwlUNvmksyE=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=TM50OR9NMBw5BIB21HtmvSIp/giNgYX/ZnpfSqqaeI0wc0fr9GOGFHLaiFwqYQSWl
+	 kG2P2xka0fSExdbmt1jL0x+icmBcQGcFjYVc5zoBzTKeB/kl+pmP2riVT3+I8tTM8s
+	 cNA60Ec9P+/zWUq4BBv+sw5c6Rx+ZkWPEfAf7RAnSIjcN951V6JItttJpfPkVFeMQz
+	 wft0mNnLLgGP5OBD36FTuoY6CYoiAsdehpsUD0UwltrkdiqTO1GBxL3HxeO1CkRMdg
+	 pAkkrzso/5Eexaqv/98R1DN5pZOjRpy17fRB0xKmSVPaz/5BEeHR+Q4KqU5iSBmUC1
+	 6rtdQQsLDXmoQ==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH] input: misc: Convert to DEFINE_SIMPLE_DEV_PM_OPS()
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Triet Hoang" <triet.hoang.dev@gmail.com>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20260821024215.55188-1-triet.hoang.dev@gmail.com>
+References: <20260821024215.55188-1-triet.hoang.dev@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Fri, 21 Aug 2026 02:50:21 +0000
+Message-Id: <20260821025021.9F9891F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-Convert deprecated SIMPLE_DEV_PM_OPS
-to DEFINE_SIMPLE_DEV_PM_OPS and pm_sleep_ptr().
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
+- [Low] The patch breaks the build when `CONFIG_PM` is disabled because `pm=
+80x_dev_suspend` and `pm80x_dev_resume` become undeclared identifiers.
+--
 
-This lets us drop the __maybe_unused annotations
-from the resume and suspend callbacks.
-Also reduces kernel size when CONFIG_PM
-or CONFIG_PM_SLEEP is disabled.
+--- Patch [1]: [PATCH] input: misc: Convert to DEFINE_SIMPLE_DEV_PM_OPS() -=
+--
+commit 831b6a38a335cea06b4312be1068bf63ef9bd3c9
+Author: Triet Hoang <triet.hoang.dev@gmail.com>
 
-Signed-off-by: Triet Hoang <triet.hoang.dev@gmail.com>
----
- drivers/input/touchscreen/ad7879-i2c.c | 2 +-
- drivers/input/touchscreen/ad7879-spi.c | 2 +-
- drivers/input/touchscreen/ad7879.c     | 8 ++++----
- drivers/input/touchscreen/cyttsp5.c    | 8 ++++----
- 4 files changed, 10 insertions(+), 10 deletions(-)
+input: misc: Convert to DEFINE_SIMPLE_DEV_PM_OPS()
 
-diff --git a/drivers/input/touchscreen/ad7879-i2c.c b/drivers/input/touchscreen/ad7879-i2c.c
-index c1ccdf86b74c..7ee5c0abd551 100644
---- a/drivers/input/touchscreen/ad7879-i2c.c
-+++ b/drivers/input/touchscreen/ad7879-i2c.c
-@@ -60,7 +60,7 @@ static struct i2c_driver ad7879_i2c_driver = {
- 	.driver = {
- 		.name		= "ad7879",
- 		.dev_groups	= ad7879_groups,
--		.pm		= &ad7879_pm_ops,
-+		.pm		= pm_sleep_ptr(&ad7879_pm_ops),
- 		.of_match_table	= of_match_ptr(ad7879_i2c_dt_ids),
- 	},
- 	.probe		= ad7879_i2c_probe,
-diff --git a/drivers/input/touchscreen/ad7879-spi.c b/drivers/input/touchscreen/ad7879-spi.c
-index 064968fe57cf..66dcd4aa4711 100644
---- a/drivers/input/touchscreen/ad7879-spi.c
-+++ b/drivers/input/touchscreen/ad7879-spi.c
-@@ -58,7 +58,7 @@ static struct spi_driver ad7879_spi_driver = {
- 	.driver = {
- 		.name		= "ad7879",
- 		.dev_groups	= ad7879_groups,
--		.pm		= &ad7879_pm_ops,
-+		.pm		= pm_sleep_ptr(&ad7879_pm_ops),
- 		.of_match_table	= of_match_ptr(ad7879_spi_dt_ids),
- 	},
- 	.probe		= ad7879_spi_probe,
-diff --git a/drivers/input/touchscreen/ad7879.c b/drivers/input/touchscreen/ad7879.c
-index 31d2a3029d5f..f686f028d4bc 100644
---- a/drivers/input/touchscreen/ad7879.c
-+++ b/drivers/input/touchscreen/ad7879.c
-@@ -301,7 +301,7 @@ static void ad7879_close(struct input_dev *input)
- 		__ad7879_disable(ts);
- }
- 
--static int __maybe_unused ad7879_suspend(struct device *dev)
-+static int ad7879_suspend(struct device *dev)
- {
- 	struct ad7879 *ts = dev_get_drvdata(dev);
- 
-@@ -315,7 +315,7 @@ static int __maybe_unused ad7879_suspend(struct device *dev)
- 	return 0;
- }
- 
--static int __maybe_unused ad7879_resume(struct device *dev)
-+static int ad7879_resume(struct device *dev)
- {
- 	struct ad7879 *ts = dev_get_drvdata(dev);
- 
-@@ -329,8 +329,8 @@ static int __maybe_unused ad7879_resume(struct device *dev)
- 	return 0;
- }
- 
--SIMPLE_DEV_PM_OPS(ad7879_pm_ops, ad7879_suspend, ad7879_resume);
--EXPORT_SYMBOL(ad7879_pm_ops);
-+DEFINE_SIMPLE_DEV_PM_OPS(ad7879_pm_ops, ad7879_suspend, ad7879_resume);
-+EXPORT_SIMPLE_DEV_PM_OPS(ad7879_pm_ops, ad7879_suspend, ad7879_resume);
- 
- static void ad7879_toggle(struct ad7879 *ts, bool disable)
- {
-diff --git a/drivers/input/touchscreen/cyttsp5.c b/drivers/input/touchscreen/cyttsp5.c
-index 9266c07314be..7b0613156fc1 100644
---- a/drivers/input/touchscreen/cyttsp5.c
-+++ b/drivers/input/touchscreen/cyttsp5.c
-@@ -942,7 +942,7 @@ static const struct i2c_device_id cyttsp5_i2c_id[] = {
- };
- MODULE_DEVICE_TABLE(i2c, cyttsp5_i2c_id);
- 
--static int __maybe_unused cyttsp5_suspend(struct device *dev)
-+static int cyttsp5_suspend(struct device *dev)
- {
- 	struct cyttsp5 *ts = dev_get_drvdata(dev);
- 
-@@ -952,7 +952,7 @@ static int __maybe_unused cyttsp5_suspend(struct device *dev)
- 	return 0;
- }
- 
--static int __maybe_unused cyttsp5_resume(struct device *dev)
-+static int cyttsp5_resume(struct device *dev)
- {
- 	struct cyttsp5 *ts = dev_get_drvdata(dev);
- 
-@@ -962,13 +962,13 @@ static int __maybe_unused cyttsp5_resume(struct device *dev)
- 	return 0;
- }
- 
--static SIMPLE_DEV_PM_OPS(cyttsp5_pm, cyttsp5_suspend, cyttsp5_resume);
-+static DEFINE_SIMPLE_DEV_PM_OPS(cyttsp5_pm, cyttsp5_suspend, cyttsp5_resume);
- 
- static struct i2c_driver cyttsp5_i2c_driver = {
- 	.driver = {
- 		.name = CYTTSP5_NAME,
- 		.of_match_table = cyttsp5_of_match,
--		.pm = &cyttsp5_pm,
-+		.pm = pm_sleep_ptr(&cyttsp5_pm),
- 	},
- 	.probe = cyttsp5_i2c_probe,
- 	.id_table = cyttsp5_i2c_id,
--- 
-2.53.0
+Convert deprecated SIMPLE_DEV_PM_OPS to DEFINE_SIMPLE_DEV_PM_OPS and
+pm_sleep_ptr(). This drops the __maybe_unused annotations from the resume
+callbacks and reduces kernel size when PM is disabled.
 
+> diff --git a/drivers/input/misc/88pm80x_onkey.c b/drivers/input/misc/88pm=
+80x_onkey.c
+> index fee28e537898a..d4f344e2bf5c4 100644
+> --- a/drivers/input/misc/88pm80x_onkey.c
+> +++ b/drivers/input/misc/88pm80x_onkey.c
+[ ... ]
+> @@ -47,7 +47,7 @@ static irqreturn_t pm80x_onkey_handler(int irq, void *d=
+ata)
+>  	return IRQ_HANDLED;
+>  }
+> =20
+> -static SIMPLE_DEV_PM_OPS(pm80x_onkey_pm_ops, pm80x_dev_suspend,
+> +static DEFINE_SIMPLE_DEV_PM_OPS(pm80x_onkey_pm_ops, pm80x_dev_suspend,
+>  			 pm80x_dev_resume);
+
+[Severity: Low]
+Does this break the build when CONFIG_PM is disabled?
+
+Unlike SIMPLE_DEV_PM_OPS, DEFINE_SIMPLE_DEV_PM_OPS uses pm_sleep_ptr() which
+evaluates the C ternary operator with IS_ENABLED(). This means the compiler
+still parses the arguments and requires them to be declared, even if they a=
+re
+ultimately discarded.
+
+Looking at include/linux/mfd/88pm80x.h, pm80x_dev_suspend and pm80x_dev_res=
+ume
+are wrapped in #ifdef CONFIG_PM without providing empty fallback stubs:
+
+#ifdef CONFIG_PM
+static inline int pm80x_dev_suspend(struct device *dev)
+{
+...
+
+Will this result in undeclared identifier compilation errors when building =
+with
+CONFIG_PM=3Dn?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260821024215.5518=
+8-1-triet.hoang.dev@gmail.com?part=3D1

@@ -1,130 +1,260 @@
-Received: from mail-pf1-f172.google.com (mail-pf1-f172.google.com [209.85.210.172])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 84F8225F7A9
-	for <linux-input@vger.kernel.org>; Sat, 22 Aug 2026 12:45:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.172
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6A9DB38F24D
+	for <linux-input@vger.kernel.org>; Sat, 22 Aug 2026 13:05:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787402740; cv=none; b=P4GTayV2Gj9Bg79gEbgzGBtVBBY6Q/JxanG3OIbXMqJBKYO9NWMNGdx7reRrRbZFI28gZYhnkwrvHLEVrbnmq2JyAJlWUCzS0ILH7nnsQ/95M9Dnv0QvD3aI8+jWnmARWWX+s2DTsvqQidONZ5imLrB3QrTzfKdZw8Jc5kBQsQo=
+	t=1787403927; cv=none; b=eM+3IW+vTFucVBPYD+Z9Vjp2ivtNVt/YWZOsNIfLBdiPR6oe8cm1E51woEszKKl7ljm7QRKwCmplSpO+o4QdmaXPp/F0QiblN9N01hUaRLLMzCmZNsfylIM5M7VMubW0yI020nZMYXm3i+zZrm7dW1ph0Vx2Pbfw+BL59q5PfmQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787402740; c=relaxed/simple;
-	bh=LZJbmfQ2dqHw1iRvUikp1f1wAvVzItuWaTYQMuOX9hM=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=rKMgoyXzhnO74vlyYXvR8dXB9O8pAJ/jAWxy3vrMNAmy7FitXbe16wm8K7JI77g+GPMMou9TcUkPW1OkmJGFUPs/N0iJU2wnCGSkt6gM5vLpLIhhmT4YyphPEMx7aHph3H45qdowmgKdfaEI+4tU0Ve8Bxw5dIdfuCLyb3NDPcQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=rzTQ5df+; arc=none smtp.client-ip=209.85.210.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1787403927; c=relaxed/simple;
+	bh=mUSjt77BOk6xRvS7Xib/KJIeSnZvqnG+aDXGuDgJP6M=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=FCuOLVxvT7HYs8YmVL4moPSRUjPbeQv5M1MOTLq/5yYMhzTXsNtkUSqyTcZ3UB8U2rlj+1tZSPLlTR8HA0Ld3cyf8gp4R+sQwGpKR2KXhdXzcW7OJw5AqJCNt6/EL4legAVDiT4/IwgAjZy9VtFwd8N4U1CHgjjPodmggch95SA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=D4V8cfeS; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="rzTQ5df+"
-Received: by mail-pf1-f172.google.com with SMTP id d2e1a72fcca58-8518b3ff3e9so1570469b3a.2
-        for <linux-input@vger.kernel.org>; Sat, 22 Aug 2026 05:45:39 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1787402739; x=1788007539; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=3hf5OrcpcITaT5sgCq/QOiAck55Lc6nxzm/MZWxuqlc=;
-        b=rzTQ5df+EUmDslXEGTlCOEYA8vfXMt1hTx3w5TcS7zVvoJBVTjlYH2ALDYMl6+v4Q3
-         nEWqhgSlGN3G6vGSH0r0tjXWoyYmdMMtFnjMk5XAMRxvPaTvOvgl3rbzEWp0aUCOJlTb
-         jcypzL66ph+hYTmdnfGwkDQtr1zTIlHw6Mx+U6qwUo4bMZLPB5E9jrilCbCTAIsYX0as
-         zHFmFfk/Y3Ucy3+sERw66iOsa/qX1KwKHHvgyN5I6n6itt0RhguuPSuR0zPylc3fGElE
-         9F1K6s2KIIxoWJsnZINMnYffa6CmMPs0oHMaRKcqQPYq7Al0jgdx9I7Mobr6TD7ZiTkV
-         dPnQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787402739; x=1788007539;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=3hf5OrcpcITaT5sgCq/QOiAck55Lc6nxzm/MZWxuqlc=;
-        b=ZlksbYSOxbsnCUJhiBL7D979y/4n0fa+r6VRB23pZEqoN5shBGIi2nCAjoTPSzXXZX
-         uoD5L7rC0gRn2tDHqyy8hGTO6rDlWFXJkM+/SVB6bLdbmN4XjpZWbVHuUWafv6cbvM0K
-         8X/Wp7P1AG99xczSeunz+oASYf6o92stHLJN7arDmbTm0/tngLmJYjHW2Y8Ll/bhv87D
-         SrCpwuf/ZGARN2Fpzwuc+wxiyz/+Z/jm8NhBCziWPznJjbfaPTLnGYln7WJmJ/bzqbb7
-         72CqLrOK9BzN1jVV4EWChnFk4ok6poXlsA1wzzMXn6mGTCIIZd9WWxImddl4HifsCCxK
-         tD+g==
-X-Gm-Message-State: AFuF++lVPjeGP5wnK6oSZhia0nZRcMH0TrdcTosagR1/dYg/JHSoEsgJ
-	2ZHcOQj5Sxbfy+z5kSYs+LrrWPnFjkR/w8sn0pi0cGIdTgL8xqRqU8UN
-X-Gm-Gg: AR+sD10/w4cznsdSsuT4n/hhfKa90vkSnWXfAhuiUnz0eEsniRjZ09jKDFzqnW12KpD
-	EPCW+WGFMg5H40KPGddcwUpVToQdTi7DB67MZrBCVC2EgAEErJu0/szHqmUw5RIIQ+1ok+WbfLZ
-	2hw+NssoWjUs9XL06rI2WrwMphaXl00rCoJteAZ42CW0S8mTPLHzFeHmwWN25t18OAxakkzfdrG
-	iN+QSisQmJv1pTpssxUutscAYF4Vz4NHShNWRJQQh2nVFZeoYw2VIzwBQt9evhlPwVVBBRZIcEL
-	XMBpwLZOZ989qWC2jMr5UMFVxidxEcdiXgfKnxZIl1vebq2QQKCG2e8MGAPykcOIftWWkexhrJ0
-	FpFq4S5RzQzXhw1nK3JvwdaCed6qeH1PsNMcBCJ+PzoJL2LQNtnt4t2708aT/hVLmau1s2i7PbP
-	0yypPH/cOTWJYObS2JjJajN/D6MOH8KkjCbXTCVljYtiJzgDkM5awqe0bfCLW1cpqT/fQ1MtSE9
-	SDwwvADf75IF3tguUe6ZlEclP8C91ElThQOpFxoj1bFRL0RF3AKTA==
-X-Received: by 2002:a05:6a21:1583:b0:3c4:511e:26ab with SMTP id adf61e73a8af0-3cd2fdb9115mr25629725637.3.1787402738686;
-        Sat, 22 Aug 2026 05:45:38 -0700 (PDT)
-Received: from nugod-NUC15CRHU5.tail9f095a.ts.net ([218.237.104.87])
-        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-cc15523489fsm3842078a12.5.2026.08.22.05.45.36
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 22 Aug 2026 05:45:38 -0700 (PDT)
-From: HyeongJun An <sammiee5311@gmail.com>
-To: Even Xu <even.xu@intel.com>,
-	Xinpeng Sun <xinpeng.sun@intel.com>,
-	Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>
-Cc: linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	stable@vger.kernel.org,
-	HyeongJun An <sammiee5311@gmail.com>
-Subject: [PATCH] HID: intel-thc-hid: intel-quicki2c: size the input buffer for the DMA
-Date: Sat, 22 Aug 2026 21:45:31 +0900
-Message-ID: <20260822124531.644834-1-sammiee5311@gmail.com>
-X-Mailer: git-send-email 2.43.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="D4V8cfeS"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2C1551F000E9;
+	Sat, 22 Aug 2026 13:05:24 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1787403924;
+	bh=gUg/8HmCHIbVK8ViWGSOPecRNqIQcLlj1Nwk+okNjjY=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=D4V8cfeSdKz9Ad0/RSon1OyfRgquHmFA4fFQAXtQmtAAHXaIFmzLwA6vSK/tt1MTH
+	 iaCq+yCSjKf938z2OD14MQQIKrmLEAh5FenPeVXVGZA/DXgseddvhR7MaW6Fw5TfN/
+	 fYzLvefSuID0y58W6ux/u6ha9zI2oCiEcqt377JAF4jF5FEvTZOiSSUgiPusE6MSKH
+	 xCsOyhGhmfVouHHTuGWpy4guFy+Y5UMsSp3exQk6RvfAVqpCdvzlslD9ljrGhaCGcn
+	 5Uyi1Az/sgw4cJX8wA2DXEfDhwyTz/D2RcPu3DEikpMft//dOLALSOh5KrznSZnJ5x
+	 kNOSDuAUL34jA==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH] HID: intel-thc-hid: intel-quicki2c: size the input
+ buffer for the DMA
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "HyeongJun An" <sammiee5311@gmail.com>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20260822124531.644834-1-sammiee5311@gmail.com>
+References: <20260822124531.644834-1-sammiee5311@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Sat, 22 Aug 2026 13:05:23 +0000
+Message-Id: <20260822130524.2C1551F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-quicki2c_alloc_report_buf() sizes input_buf as max(max_input_len, SZ_4K),
-but two channels deliver into it and dma_set_max_packet_size() rounds both
-up: RxDMA2 to ALIGN(max_input_len, SZ_4K) and SWDMA to
-ALIGN(max(max_input_len, report_desc_len), SZ_4K).  read_dma_buffer()
-bounds the copy against those, not against the allocation.
+Thank you for your contribution! Sashiko AI review found 8 potential issue(=
+s) to consider:
 
-quicki2c_get_report() reads into input_buf with prd_tbl_len NULL, so
-nothing programs a length, and a device declaring report_desc_len 5000
-with max_input_len 64 overruns the 4K buffer by 4096 bytes.  The RxDMA2
-leg additionally needs the I2C max input size clamp to be off.
+Pre-existing issues:
+- [High] Information Leak / Stale Data Use via unverified DMA read length i=
+n `quicki2c_get_report`.
+- [High] Memory leak of DMA buffers on the `quicki2c_probe()` error path.
+- [High] Use-After-Free of `hid_device` due to missing synchronization duri=
+ng device unbind.
+- [High] Use-After-Free of `qcdev` via `recover_work` workqueue during devi=
+ce unbind.
+- [High] Data corruption due to concurrent lockless accesses to the shared =
+`input_buf`.
+- [High] DMA buffer overrun vulnerability on `qsdev->input_buf` in sister d=
+river `intel-quickspi`.
+- [High] Out-of-Bounds Read in `handle_input_report` due to trusting hardwa=
+re length field and unsafe HID API.
+- [Medium] Data races due to unprotected state modifications of `qcdev->sta=
+te`.
+--
 
-Size input_buf from the SWDMA packet size and keep the 4K floor.
+--- Patch [1]: [PATCH] HID: intel-thc-hid: intel-quicki2c: size the input b=
+uffer for the DMA ---
+commit bd435db6ebf25c331234086da4dfea64fbc2e7e3
+Author: HyeongJun An <sammiee5311@gmail.com>
 
-Fixes: 66b59bfce6d9 ("HID: intel-thc-hid: intel-quicki2c: Complete THC QuickI2C driver")
-Cc: stable@vger.kernel.org
-Assisted-by: Claude:claude-opus-5
-Signed-off-by: HyeongJun An <sammiee5311@gmail.com>
----
-Not reproduced on hardware.  Triggering it needs a controller that sends
-more than the lengths it declared, which is the case the existing comment
-was already written for.
+HID: intel-thc-hid: intel-quicki2c: size the input buffer for the DMA
 
-max_report_len is reused for the report_buf allocation below, so that
-buffer and qcdev->report_len grow with input_buf whenever the SWDMA
-ceiling is the larger term.  Both stay bounded by that ceiling.
+This commit sizes the input buffer based on the SWDMA packet size while
+keeping a 4K floor. This prevents DMA buffer overruns when devices declare a
+larger report length than their max input length.
 
- drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+> diff --git a/drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c b/dr=
+ivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c
+> index 0d2ad7bc3648a..f6f9f95296d36 100644
+> --- a/drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c
+> +++ b/drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c
+> @@ -602,9 +602,12 @@ static int quicki2c_alloc_report_buf(struct quicki2c=
+_device *qcdev)
+> =20
+>  	/*
+>  	 * Some HIDI2C devices don't declare input/output max length correctly,
+> -	 * give default 4K buffer to avoid DMA buffer overrun.
+> +	 * give default 4K buffer to avoid DMA buffer overrun.  Both RxDMA2 and
+> +	 * SWDMA land here, so cover the larger SWDMA packet size.
+>  	 */
+> -	max_report_len =3D max(le16_to_cpu(qcdev->dev_desc.max_input_len), SZ_4=
+K);
+> +	max_report_len =3D max(le16_to_cpu(qcdev->dev_desc.max_input_len),
+> +			     le16_to_cpu(qcdev->dev_desc.report_desc_len));
+> +	max_report_len =3D max_t(size_t, ALIGN(max_report_len, SZ_4K), SZ_4K);
+> =20
+>  	qcdev->input_buf =3D devm_kzalloc(qcdev->dev, max_report_len, GFP_KERNE=
+L);
 
-diff --git a/drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c b/drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c
-index 0d2ad7bc3648..f6f9f95296d3 100644
---- a/drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c
-+++ b/drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c
-@@ -602,9 +602,12 @@ static int quicki2c_alloc_report_buf(struct quicki2c_device *qcdev)
- 
- 	/*
- 	 * Some HIDI2C devices don't declare input/output max length correctly,
--	 * give default 4K buffer to avoid DMA buffer overrun.
-+	 * give default 4K buffer to avoid DMA buffer overrun.  Both RxDMA2 and
-+	 * SWDMA land here, so cover the larger SWDMA packet size.
- 	 */
--	max_report_len = max(le16_to_cpu(qcdev->dev_desc.max_input_len), SZ_4K);
-+	max_report_len = max(le16_to_cpu(qcdev->dev_desc.max_input_len),
-+			     le16_to_cpu(qcdev->dev_desc.report_desc_len));
-+	max_report_len = max_t(size_t, ALIGN(max_report_len, SZ_4K), SZ_4K);
- 
- 	qcdev->input_buf = devm_kzalloc(qcdev->dev, max_report_len, GFP_KERNEL);
- 	if (!qcdev->input_buf)
--- 
-2.43.0
+[Severity: High]
+This is a pre-existing issue, but does this same vulnerability still exist
+in the sister driver intel-quickspi?
 
+Looking at quickspi_alloc_report_buf() in pci-quickspi.c:
+
+    max_input_len =3D max(le16_to_cpu(qsdev->dev_desc.rep_desc_len),
+                        le16_to_cpu(qsdev->dev_desc.max_input_len));
+    qsdev->input_buf =3D devm_kzalloc(qsdev->dev, max_input_len, GFP_KERNEL=
+);
+
+Since the DMA hardware is instructed elsewhere that it can safely write up =
+to
+a 4K-aligned size, could a device sending more data than declared overrun
+this unaligned allocation, just like the quicki2c bug being fixed here?
+
+[Severity: High]
+This is a pre-existing issue, but does the shared input_buf suffer from
+concurrent lockless accesses?
+
+Process context uses it during SWDMA transfers in quicki2c_get_report():
+
+    rpt =3D (struct hidi2c_report_packet *)qcdev->input_buf;
+    ret =3D thc_swdma_read(qcdev->thc_hw, qcdev->report_buf, len, NULL, rpt=
+, &read_len);
+
+Meanwhile, the interrupt context unconditionally reads into it without locks
+in handle_input_report():
+
+    struct hidi2c_report_packet *pkt =3D (struct hidi2c_report_packet *)qcd=
+ev->input_buf;
+    ...
+    ret =3D thc_rxdma_read(qcdev->thc_hw, THC_RXDMA2, (u8 *)pkt, &report_le=
+n,
+
+If a hardware input event arrives during a synchronous get_report ioctl,
+could this corrupt the command response?
+
+[Severity: High]
+This is a pre-existing issue, but could this shared input buffer leak
+uninitialized or stale data back to userspace?
+
+In quicki2c_get_report(), the read_len populated by thc_swdma_read() seems
+to be ignored:
+
+    ret =3D thc_swdma_read(qcdev->thc_hw, qcdev->report_buf, len, NULL, rpt=
+, &read_len);
+    if (ret) {
+    ...
+    if (HIDI2C_DATA_LEN(le16_to_cpu(rpt->len)) !=3D buf_len || rpt->data[0]=
+ !=3D reportnum) {
+    ...
+    memcpy(buf, rpt->data, buf_len);
+
+If a short DMA read or 0-byte read succeeds, could the stale data remaining
+in input_buf coincidentally match the expected lengths and report ID,
+causing memcpy to copy stale kernel memory?
+
+[Severity: High]
+This is a pre-existing issue, but does the input report handling trust the
+hardware length field without validating it against the actual DMA transfer
+size?
+
+In handle_input_report(), it passes the packet length directly:
+
+    quicki2c_hid_send_report(qcdev, pkt->data,
+                             HIDI2C_DATA_LEN(le16_to_cpu(pkt->len)));
+
+Which then gets passed to the HID core in quicki2c_hid_send_report():
+
+    ret =3D hid_input_report(qcdev->hid_dev, HID_INPUT_REPORT, data, data_l=
+en, 1);
+
+Since hid_input_report() lacks the buffer boundary checks of
+hid_safe_input_report(), could malicious hardware providing a small DMA
+transfer but a large forged pkt->len cause an out-of-bounds read?
+
+[Severity: High]
+This is a pre-existing issue, but does the device probe error path leak the
+DMA buffers?
+
+In quicki2c_probe():
+
+    ret =3D thc_interrupt_quiesce(qcdev->thc_hw, false);
+    if (ret)
+        goto dev_deinit;
+    ...
+dma_deinit:
+    quicki2c_dma_deinit(qcdev);
+dev_deinit:
+    quicki2c_dev_deinit(qcdev);
+
+Does jumping directly to dev_deinit bypass the quicki2c_dma_deinit()
+cleanup?
+
+[Severity: High]
+This is a pre-existing issue, but is there a missing synchronization step
+during device unbind that could lead to a use-after-free?
+
+In quicki2c_remove():
+
+    quicki2c_hid_remove(qcdev);
+    quicki2c_dev_deinit(qcdev);
+
+If a hardware interrupt fires after the HID device is destroyed but before
+quicki2c_dev_deinit() disables the hardware interrupts, could the IRQ thread
+execute this in quicki2c_hid_send_report():
+
+    ret =3D hid_input_report(qcdev->hid_dev, HID_INPUT_REPORT, data, data_l=
+en, 1);
+
+And dereference the freed qcdev->hid_dev pointer?
+
+[Severity: High]
+This is a pre-existing issue, but could the recovery workqueue cause a
+use-after-free during device unbind?
+
+In quicki2c_dev_deinit():
+
+    WRITE_ONCE(qcdev->recovery_disabled, true);
+    cancel_work_sync(&qcdev->recover_work);
+    thc_interrupt_quiesce(qcdev->thc_hw, true);
+
+Since thc_interrupt_quiesce() disables the hardware interrupts after the
+work is canceled, could an interrupt fire in between and blindly schedule
+the work again?
+
+In quicki2c_irq_thread_handler():
+
+exit:
+    if (err_recover)
+        schedule_work(&qcdev->recover_work);
+
+Could this delayed work then execute on the freed qcdev memory after the
+unbind completes?
+
+[Severity: Medium]
+This is a pre-existing issue, but are there data races when modifying the
+device state?
+
+The state is modified locklessly in a workqueue in try_recover():
+
+    qcdev->state =3D QUICKI2C_DISABLED;
+
+And read locklessly in the IRQ thread in handle_input_report():
+
+    if (qcdev->state !=3D QUICKI2C_ENABLED)
+        continue;
+
+Could this lead to torn reads or inconsistent state logic due to compiler
+reordering?
+
+>  	if (!qcdev->input_buf)
+>  		return -ENOMEM;
+>
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260822124531.6448=
+34-1-sammiee5311@gmail.com?part=3D1

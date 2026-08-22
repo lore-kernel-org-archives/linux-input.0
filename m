@@ -1,226 +1,187 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E55CE2765E2
-	for <linux-input@vger.kernel.org>; Sat, 22 Aug 2026 21:51:35 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CB77238F92D
+	for <linux-input@vger.kernel.org>; Sat, 22 Aug 2026 21:51:36 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787435498; cv=none; b=lQ/mc6HVjKu6C5dxWVvtZMYHLxko5v3g/wvuHRIyPUkeM48/f/Hp+yes85D8AEJwhn4ZpE+RPUDP1lz1MadqlGbBZre1aE22I692wON0SLQ29aPWxj12wDEVir2WhK9IER4573c43Nap1uWOXT/tRJOsS7XmZThXy3xyPYOFwZw=
+	t=1787435498; cv=none; b=rbDgcqWiD9bZ8phBtcIptu75bdfMdQl5Xv24l1M8I8hg4XM5qXbQ8OIjY8lnUDnSpqS7Ymc9pIZ5DGyIcBQYzCOXR2SNSaJ2v6UTBN+mcgS0rPYgWXhAnl4LC9CW3ukGIex/GyiCo8TQ9e6709PPt5lToRACR1oFqKf2P09WS74=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1787435498; c=relaxed/simple;
-	bh=Ed2Yn+u8VgeFp4DFyDaYGdNNkkhDd+9lmMAkjFk2oAA=;
+	bh=Z3p6M1oqMbduY/ZFexiZQSfBHSd5Ugtvr1eItUodlZY=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=K3b0UspF/lO/msw9npidVFcMvaBsmgsUXZcLWt0DJSFlxIAkJm5dy3z+fsBvjbT0fT2VSw2OUzKKacXK//7we4SN6hUPb7iaW5gqUslMo7NwMrKKLEtTmHUrr+OcNJ6Lkcy5ebJkwc+Gdbq0N/BdW02+38rUFfyi3UAnomYTEtc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=NIiqY7eZ; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=CVQlyAq1tOgJqQCt8+++WiDV0mYMqArL/sivyvyFGx9M9xiLwVP0oUV4+x4ihwB08BTRIzhdcX2zxJMpQJpqCS7gbIv+TKqLm6Y6wzXhsKL/IMXZlkiH4PPR5jp7LH2iXg/RGei7Ny5eiEPgbxFX0b7Tnnu1r1L81l2PyrUFfh4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=gmC83UQW; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="NIiqY7eZ"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D51EB1F000E9;
-	Sat, 22 Aug 2026 21:51:34 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="gmC83UQW"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8AFBE1F00A3A;
+	Sat, 22 Aug 2026 21:51:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
 	s=k20260515; t=1787435495;
-	bh=4b3tItlC9vZO8eyeo9NUkHPbrELzEkV6h5I6r0w0nOw=;
+	bh=3qVreF6U0LUJxwiIOHm87eXtmBvpIfMaDIQ9wGux3V8=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=NIiqY7eZT/GF7yBPhaHeIjetUDU87QI5G/CbmgFmHQ1PPB4j/kqaPt5n84Jv5HqC4
-	 ahMRgyxcLvqYK4oPkEpI+OfWV+ufU0e+KazsUtZjrVprRCqx/akOnY3D9abtiO430V
-	 vbqTJhGF7KFgjWbFH/fDQ+O3KZiHuOmFYagb9Y7JHTBywkUl0vTlS9NUJPRXVGt/0/
-	 FuH0N/au4LHtJDigy/Jy0XulrJzXHVrjdC6LlPNCO/7NnKcSoWqo5I4sesTha5Zr5p
-	 zy7lxjMZPKwTZw43lR4bMTK+ewnh9QhI2tGc5E+siG4w2YMDN9fXJWmc06dDmr1V2U
-	 FiB38fzMjQD5A==
+	b=gmC83UQWV61a3/TmQj16ctkHrsgo/O+TugTyECqX8hOc4ahLG5gYpkMkBey+nrA1O
+	 rnfeBll0R+eSzfjwz+mOfLqo13bQQDUbUqwNLpb30oL+HMaVymvNlCCNebnuhkg/rZ
+	 gLMa3VobRG0Z2KBG7h8IT2QTTThs+MBKkjff/7Uup84DcYyVIWP1qxsuBD1jIEq1dc
+	 UDRVbhdsEf2HtpervpQ6z2JY+QjqiSyGMZROOolfPwFYsxlw9GHxmxjuDvk8BzVvmM
+	 X8fbj2Q6TU8EISRf6CjzMsVc9Gv9iWVPZ9RlWvRAkzwrkXRWsbwm4wxThFdN5oKTH3
+	 qV9E8jv/gd71Q==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 04/13] HID: ft260: i2c: reduce driver module loading
- time
+Subject: Re: [PATCH 05/13] HID: ft260: i2c: silence sysfs store big-numbers
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Michael Zaidman" <michael.zaidman@gmail.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260822213941.98882-5-michael.zaidman@gmail.com>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <20260822213941.98882-6-michael.zaidman@gmail.com>
 References: <20260822213941.98882-1-michael.zaidman@gmail.com>
- <20260822213941.98882-5-michael.zaidman@gmail.com>
+ <20260822213941.98882-6-michael.zaidman@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Sat, 22 Aug 2026 21:51:34 +0000
-Message-Id: <20260822215134.D51EB1F000E9@smtp.kernel.org>
+Date: Sat, 22 Aug 2026 21:51:35 +0000
+Message-Id: <20260822215135.8AFBE1F00A3A@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 6 potential issue(=
+Thank you for your contribution! Sashiko AI review found 5 potential issue(=
 s) to consider:
 
 New issues:
-- [High] The dynamic I2C read timeout incorrectly applies a 25ms timeout fo=
-r last-chunk reads up to 180 bytes, causing spurious timeouts for chunks > =
-60 bytes.
-- [High] Delayed USB HID reports from prematurely timed-out I2C transaction=
-s corrupt subsequent I2C transfers.
+- [High] The patch unconditionally overwrites the error code from `ft260_hi=
+d_feature_report_set()` with `count`, masking hardware write errors from us=
+erspace.
 
 Pre-existing issues:
-- [Critical] Double free of `dev` on UART probe error path.
-- [High] The driver frees its private data before stopping hardware I/O, al=
-lowing asynchronous incoming HID reports to cause a use-after-free.
-- [High] Race condition in teardown sequence of wakeup timer and workqueue =
-leads to Use-After-Free on device unplug.
-- [High] A malicious USB device can cause a divide-by-zero kernel panic by =
-reporting a 0 Hz clock.
+- [Critical] Double free on UART probe error path and Use-After-Free during=
+ device remove.
+- [High] Native endianness is incorrectly leaked to the device when parsing=
+ multi-byte sysfs attributes.
+- [High] Teardown order of the wakeup timer and workqueue during device rem=
+oval allows a Use-After-Free via a re-scheduled work item.
+- [High] Manually freeing `dev` with `kfree()` while a devres-managed GPIO =
+chip is still registered creates a use-after-free window.
 --
 
---- Patch [4]: [PATCH 04/13] HID: ft260: i2c: reduce driver module loading =
-time ---
-commit ce4834500e105e8a3ed2770b588049de28ffe3cf
+--- Patch [5]: [PATCH 05/13] HID: ft260: i2c: silence sysfs store big-numbe=
+rs ---
+commit ebf18ef9c09c87f02215b8dbbbe0f60a02ef6565
 Author: Michael Zaidman <michael.zaidman@gmail.com>
 
-HID: ft260: i2c: reduce driver module loading time
-
-The commit adjusts the I2C read timeout to depend on the amount of data
-being read. This is intended to reduce the module loading time significantl=
-y,
-lowering the lm75 address range scan time to about 200ms.
+    HID: ft260: i2c: silence sysfs store big-numbers
+   =20
+    FT260_ATTR_STORE returned the feature-report transfer length from
+    ft260_hid_feature_report_set() instead of the sysfs write size. For
+    values like 1000, userspace writes more bytes than the HID report
+    length, so the VFS retries the remainder and reports "Invalid argument"
+    even though the attribute was applied correctly:
+   =20
+      $ echo 1000 > .../clock
+      bash: line 1: echo: write error: Invalid argument
+      $ cat .../clock
+      1000
+   =20
+    Return count after a successful parse so the full write is consumed.
 
 > diff --git a/drivers/hid/hid-ft260.c b/drivers/hid/hid-ft260.c
-> index cc3b8f5791dea..4435a39fce239 100644
+> index 4435a39fce239..8db896f164cd0 100644
 > --- a/drivers/hid/hid-ft260.c
 > +++ b/drivers/hid/hid-ft260.c
-[ ... ]
-> @@ -732,10 +739,12 @@ static int ft260_i2c_read(struct ft260_device *dev,=
- u8 addr, u8 *data,
->  		flag =3D 0;	/* no fresh START - continue current transaction */
->  	do {
->  		if (len <=3D rd_data_max) {
-> +			timeout =3D FT260_RD_ONE_REPORT_TO;
+> @@ -1479,6 +1479,7 @@ static void ft260_attr_dummy_func(struct hid_device=
+ *hdev, u8 req, u16 value)
+>  				hid_err(hdev, "%s: failed!\n", __func__);      \
+>  			else						       \
+>  				func(hdev, req, name);			       \
+> +			ret =3D count;					       \
+>  			mutex_unlock(&dev->lock);			       \
+>  		} else {						       \
+>  			ret =3D -EINVAL;					       \
 
 [Severity: High]
-Does this logic aggressively override the timeout to 25ms for the final
-chunk of any transfer, even if that chunk is 180 bytes long?
+Does this unconditionally overwrite the error code from
+ft260_hid_feature_report_set()?=20
 
-If an I2C read request is made where the final chunk is between 61 and 180
-bytes (e.g., a 240-byte read), the condition if (len <=3D rd_data_max)
-correctly matches the final chunk, but erroneously assigns it the
-FT260_RD_ONE_REPORT_TO (25ms) timeout instead of the required 75ms.
-
-As noted in the commit message, a 180-byte chunk physically requires about
-27ms of wire time at 60kHz. A 25ms timeout is guaranteed to expire before t=
-he
-hardware finishes, which could lead to a deterministic failure (-ETIMEDOUT)
-on any I2C read larger than 60 bytes.
-
->  			rd_len =3D len;
->  			if (want_stop)
->  				flag |=3D FT260_FLAG_STOP;
->  		} else {
-> +			timeout =3D FT260_RD_MULTI_REPORT_TO;
->  			rd_len =3D rd_data_max;
->  		}
->  		rd_data_max =3D FT260_RD_DATA_MAX;
-[ ... ]
-> @@ -762,8 +771,8 @@ static int ft260_i2c_read(struct ft260_device *dev, u=
-8 addr, u8 *data,
->  			goto ft260_i2c_read_exit;
->  		}
-> =20
-> -		timeout =3D msecs_to_jiffies(5000);
-> -		if (!wait_for_completion_timeout(&dev->wait, timeout)) {
-> +		timeout_jiffies =3D msecs_to_jiffies(timeout);
-> +		if (!wait_for_completion_timeout(&dev->wait, timeout_jiffies)) {
+Since the else branch lacks curly braces, it appears ret =3D count executes
+even if ret < 0. Could this mask hardware write errors from userspace by
+incorrectly telling the VFS that the write succeeded?
 
 [Severity: High]
-Will the drastic reduction of the timeout bounds without a concurrent
-mechanism to purge the HID input queue or use sequence numbers expose the
-driver to data corruption?
+This isn't a bug introduced by this patch, but does FT260_WORD_ATTR_STORE()
+leak native endianness to the device?=20
 
-If a premature timeout occurs in ft260_i2c_read() due to the reduced bounds,
-it causes the function to clear dev->read_buf and return. However, the USB
-host controller may still receive the delayed response.
+drivers/hid/hid-ft260.c:
+#define FT260_WORD_ATTR_STORE(name, reptype, req, func)		       \
+		FT260_ATTR_STORE(name, reptype, FT260_SYSTEM_SETTINGS, req,    \
+				 __le16, u16, kstrtou16, func)
 
-When a subsequent I2C read starts, it repopulates dev->read_buf. Since
-ft260_raw_event() lacks sequence numbers, could it blindly copy the stale
-delayed USB report into the new buffer and call complete(), allowing the new
-transaction to complete with invalid data?
+It passes a __le16 type directly to kstrtou16(), which seems to write the v=
+alue
+in native byte order, assigning it to the little-endian report structure
+without cpu_to_le16() conversion. Could this cause incorrect device
+configuration on big-endian architectures?
 
->  			ret =3D -ETIMEDOUT;
->  			ft260_i2c_reset(hdev);
->  			goto ft260_i2c_read_exit;
+[Severity: Critical]
+This is a pre-existing issue, but does ft260_probe() have a double free on
+the UART probe error path?
+
+drivers/hid/hid-ft260.c:ft260_probe()
+hid_fail:
+	kfree(dev);
+	return ret;
+
+If ft260_uart_probe() fails after tty_port_init(), ft260_uart_port_remove()
+calls tty_port_put(), destroying the port and freeing dev. The error path
+then calls kfree(dev).
+
+Similarly, in ft260_remove(), does this sequence cause a use-after-free?
+
+drivers/hid/hid-ft260.c:ft260_remove()
+		ft260_uart_port_remove(dev);
+		/* dev is still needed, so we will free it in _destroy func */
+		if (dev->chip_mode & FT260_MODE_UART ||
+
+This dereferences dev->chip_mode immediately after ft260_uart_port_remove()
+has dropped the final port reference and freed dev.
 
 [Severity: High]
-This isn't a bug introduced by this patch, but does the driver free its
-private data before stopping hardware I/O, allowing asynchronous incoming H=
-ID
-reports to cause a use-after-free?
+This is a pre-existing issue, but could the teardown order of the wakeup ti=
+mer
+and workqueue in ft260_remove() allow a use-after-free?
 
-In ft260_remove():
+drivers/hid/hid-ft260.c:ft260_remove()
+		cancel_work_sync(&dev->wakeup_work);
+		tty_unregister_device(ft260_tty_driver,
+					   dev->index);
+		ft260_uart_port_remove(dev);
 
-	} else {
-		// ...
+The workqueue is cancelled before the timer is deleted inside
+ft260_uart_port_remove(). If the timer fires in this window, could it check
+dev->reschedule_work and reschedule the work item, which would then execute
+after dev is freed?
+
+[Severity: High]
+This is a pre-existing issue, but does manually freeing dev with kfree()
+while a devres-managed GPIO chip is still registered create a use-after-free
+window?
+
+drivers/hid/hid-ft260.c:ft260_remove()
+		i2c_del_adapter(&dev->adap);
 		kfree(dev);
 	}
 
-	hid_hw_close(hdev);
-	hid_hw_stop(hdev);
+And in the ft260_probe() error path:
 
-During device unplug, the driver unconditionally frees its private dev
-structure before calling hid_hw_stop(hdev). Because the hardware and the USB
-interrupt IN endpoint remain active until hid_hw_stop() is called, an
-incoming HID report during this window will be dispatched to
-ft260_raw_event(), which will attempt to acquire dev->read_lock on the
-already freed dev memory.
-
-[Severity: Critical]
-This isn't a bug introduced by this patch, but is there a double free of dev
-on the UART probe error path?
-
-In ft260_probe():
-
+drivers/hid/hid-ft260.c:ft260_probe()
 hid_fail:
 	kfree(dev);
-alloc_fail:
+	return ret;
 
-If ft260_uart_probe() fails, it jumps to the error path and calls
-ft260_uart_port_remove(dev). This triggers tty_port_put(), which drops the
-final reference and calls ft260_uart_port_destroy(), explicitly freeing dev
-via kfree(port).
-
-The function then returns a failure code to ft260_probe(), which follows its
-own error path to hid_fail where it executes kfree(dev) a second time on the
-same pointer.
-
-[Severity: High]
-This isn't a bug introduced by this patch, but is there a race condition in
-the teardown sequence of the wakeup timer and workqueue that leads to a
-use-after-free on device unplug?
-
-In ft260_remove():
-
-	cancel_work_sync(&dev->wakeup_work);
-	tty_port_unregister_device(&dev->port, ft260_tty_driver, dev->index);
-	ft260_uart_port_remove(dev);
-
-The cancel_work_sync() is executed before timer_delete_sync() (called within
-ft260_uart_port_remove()), which fails to guarantee the workqueue will rema=
-in
-empty.
-
-Because the timer can fire between these two calls, ft260_uart_start_wakeup=
-()
-can erroneously call schedule_work() to re-enqueue the work. Once unbind
-completes and dev is freed via the TTY destructor, the pending work executes
-and accesses freed memory.
-
-[Severity: High]
-This isn't a bug introduced by this patch, but can a malicious USB device
-cause a divide-by-zero kernel panic by reporting a 0 Hz clock?
-
-In ft260_hid_output_report_check_status():
-
-	/* transfer time =3D 1 / clock(KHz) * 9 bits * bytes */
-	usec =3D len * 9000 / dev->clock;
-
-The unvalidated clock value read from the hardware is used directly as a
-divisor. If a malicious or malfunctioning USB device responds to the
-FT260_I2C_STATUS feature request in ft260_xfer_status() with a report.clock
-value of 0, the driver saves this to dev->clock without validation.
-Subsequent calls will divide by dev->clock to calculate delay timings,
-immediately crashing the kernel.
+Since the GPIO chip is managed by devm_gpiochip_add_data(), it remains
+registered until the core processes devres actions after the function retur=
+ns,
+leaving a window where the GPIO chip can be accessed while its backing data
+(dev) has been freed.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260822213941.9888=
-2-1-michael.zaidman@gmail.com?part=3D4
+2-1-michael.zaidman@gmail.com?part=3D5

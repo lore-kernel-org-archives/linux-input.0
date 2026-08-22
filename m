@@ -1,63 +1,63 @@
-Received: from mail-ej1-f53.google.com (mail-ej1-f53.google.com [209.85.218.53])
+Received: from mail-ej1-f43.google.com (mail-ej1-f43.google.com [209.85.218.43])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 89C07391E73
-	for <linux-input@vger.kernel.org>; Sat, 22 Aug 2026 21:40:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 742093932D4
+	for <linux-input@vger.kernel.org>; Sat, 22 Aug 2026 21:40:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787434855; cv=none; b=KfCfF2/s4C25UE09McvJsgOqQrr5bZVxW2l70vx1GMJkOm71j+GHB/mwjhIxOyBSsDCQVKkZGh/rGCBNNJwyLu1jcDTej2Xcvuj89UkpjAYflRhA8w/64QkA6nXBjam00dqfk5g4JDkY7IcJz+jprI2d9xRyuBI3QC9B0bPv/RM=
+	t=1787434862; cv=none; b=hN6XDZQzpicQjsrx0e0Drox54xFzm+b62HqbO9e88SNfvMkMuNcz42gQGmLEHdymYXP62a5GR2UPvgExgjp1n2/uXfxAPyCkf6uznqQtZI7ExK7JxLvi3dRXz5tUkQ4nbwmtO6a08ezSnatOtr+BDF/jUmDQ7Rh6qRqXigaL2qY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787434855; c=relaxed/simple;
-	bh=Nwvv872uZXReY6PvLRaHQqXN99TKLRYH+/ajSwSPBXU=;
+	s=arc-20240116; t=1787434862; c=relaxed/simple;
+	bh=IP4K+y+s3kto6i7CgO79hJGPSKvInsmESILBbssd/80=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=FN8L455dMlEpqSH/dakheV+0Gcsl5Sd104OKQZVpZ/HlCGqnwsEzUBfFwK5wBiTD7+zv1auhz3/CDovkOcve1UTwtnSgnXc9STIncvieK9K/+SgUvfBWavuqElomrqHjWBBFUfLgNySky0sx89iwLAuzMvxhr+E4RTRvd7DfWEs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=CmwRiIf2; arc=none smtp.client-ip=209.85.218.53
+	 MIME-Version; b=OuyO0WuOyVTWkFS/Ox7IK61JEDrMFkZK9xl7xBHs9czTyqR8wEsX/dfkn0KFdn5GLB7DljfkdMin3phO/0PZIlSZcXqGGz7l1AzchSyB2Qrf4jZ5oRrja+NYNJhuzqJ9pOCSvfwNUYPGiUe2IWlce9FhCJXSY5fbGmyFluWYrp0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=cqXClZv/; arc=none smtp.client-ip=209.85.218.43
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="CmwRiIf2"
-Received: by mail-ej1-f53.google.com with SMTP id a640c23a62f3a-c160420289bso328433466b.0
-        for <linux-input@vger.kernel.org>; Sat, 22 Aug 2026 14:40:47 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="cqXClZv/"
+Received: by mail-ej1-f43.google.com with SMTP id a640c23a62f3a-c207cb16cf5so349517566b.1
+        for <linux-input@vger.kernel.org>; Sat, 22 Aug 2026 14:40:54 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1787434844; x=1788039644; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1787434851; x=1788039651; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=2pv2EGjaR4WPSMZF2hTxBbXWP8nqmyPnemdCtbz8Odo=;
-        b=CmwRiIf2c7rrpHRUESnk7X+hgFba9k0MwF4Xg9wK9E+3cpVwjwf/ny7w/kqzxZrEbj
-         X9Jfepm4ouae2ZtJL81Lid4Z5WCVe0lrpX/8BKCZhf0ABZW9wul4IA0KRs9+2Eu5VBmx
-         p4NjvXvwfYIitnfDq04dtjwbeYCZYKYm8xvQ9HCaT8fCrp8WN9Kdzvzqqiub+vDxlhdn
-         T/APRsZl4OA/yWs4ydU/hWyGNxzbM9hXbbjbXyqARrCd5FQnd4JmU26kpeYMmTecqLUx
-         Js89bvt3CodGfZiryNCzYL/5OiqU680w1s+NN4oFZ61Y63XR92Nk8D5WYcVUGObqPaGU
-         OrMg==
+        bh=9qg1KAy+mSZMSfDHaheDRm1TaMRLDEaVjJ1MAUbT2Qc=;
+        b=cqXClZv/ypz/2NVes789SP1HBhY9X2xtbc8gJtx1/loMaYEw0LSp9TPmfxv9M4HpSk
+         7qccz38FKSnguvHAK8iYZjfmRNeaFusUkPy+WlwSGnJ9reP5OMB19axjSLTL8NTN8+mx
+         6MWYNMN0W6BO8Z076+eey8BtgYOnXaiGXxBJbeZyDzLa/wkEd8seoO7tBcB93L4qP9cU
+         96yzQUh4bxxJbXePDizj8duPiNdKTxDGXCjhfP6d8Gh1E5hJ7JBCEQJZ2oo0/Rfcw8AN
+         885hs+IaKQZ3vcuRk4fIKQEAQkfGRI69PfWlniLd8XvIOI+SAiCIcrlF14c8ylRwGCAC
+         0sbQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787434844; x=1788039644;
+        d=1e100.net; s=20251104; t=1787434851; x=1788039651;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=2pv2EGjaR4WPSMZF2hTxBbXWP8nqmyPnemdCtbz8Odo=;
-        b=juswsbM0QCUxxIsaCahVZrb+9AH+M3bXEJLfa1qzqW0WurPWTHx+ErX4lEMsQONQQ6
-         CFlX4+5NZnJdbvXVvwyqgTQuTq3K0Ef2FfC/3vlM7ZWLsXwVQ0ffdRQw8set9kb6dKSv
-         Fn1cK0O9lSlGc69A9WTMTr5FI+Pz8AtOTKhV9j0Bh0e7kRN6s7HUBMOtkMHzFSczSIPZ
-         VDVVEpdEfJH1XZj3JTnci5QYOj+N5SZJSofzKvhNfVWSEiomeQ92FyAB52PwBET86Xnw
-         i1Xr01ZA87E7rBQq4nlVh37wnO+cdLJJkGg1IxUDCvKfdzp6KfaSoVf0KyoDBWg97g/B
-         8rIg==
-X-Forwarded-Encrypted: i=1; AHgh+Rpj6b4XjcdzX7hg6EdCH2PbJnqvgVsJ7H+7HRd002dO58T6qzhYeR+6UtBM5XQHWWK7xg7wNX6c6OkV0g==@vger.kernel.org
-X-Gm-Message-State: AFuF++k84ehwn23E9xcvrdJ/NjborYL3HAENdP+RVIWpbKp/BwsElI1m
-	hLrbB4r+/gSYBaW+o0iSHhUXx2cOHxxgU5ESXFL4symnvJjfMW7P+Ljz
-X-Gm-Gg: AR+sD12kJ+CB4xIJK6X/oxB1yR+0CM06vLl9ppYBz4Yjv3DA5/egJkE8kf5y2WB3x7j
-	PnnuDrFlXZpDSNgYLV/PoJKns4vVjI7fTQ5jfGwxGCQFCIJK9CR0eJ06x6xFNxSqfOCcImcYQwy
-	264wnVaUK//oQBDnCDF0PXMk+qyyoisgRbUfAhAhVElo+FaLOvtxwMxlgmms1GOItA4BkSVErVJ
-	bJM4IFX5+Z5E0HHL+WkiZnoW2IPhc0k9BEbphcSRjgGSG2htLhUNp1oJp+Suhgnj+2rDF88XV/6
-	D0fNLA+PE7WUSm8tJacJ6gXr1eMxQC+DCxAbJwW4ybVvWK/d6SGv88JZKjT3Hs/H7mWWDpUyLsi
-	Kxi3Z/uslFQLAjFcYTdOIvonqPQrj2zrJETb7+ZD1yXvRFF5QcaMEVk+Z3GGV8cwFyzE8Fm+bSh
-	B6THQnRY/QWo1xBmCivFsDLaj3BvuM0R9slALnJvZaAS/WjMJ5WGJVClnNEJk=
-X-Received: by 2002:a17:906:d8d6:b0:c21:34a3:4d9c with SMTP id a640c23a62f3a-c246a72174bmr1372738766b.21.1787434843762;
-        Sat, 22 Aug 2026 14:40:43 -0700 (PDT)
+        bh=9qg1KAy+mSZMSfDHaheDRm1TaMRLDEaVjJ1MAUbT2Qc=;
+        b=legmMSd4pzUKv+gZFCpdtAlvqFml1UpfHEO/RXXdyyKagP7nW/+OzedO3NIj8x6BD7
+         7W/VXRMX2XDUDmyhNn0hF6V1fKh8E2+3+ywE2FF1ZJLIXUC9EL0N/r0oPDJDL9Oa+opP
+         MHFf82DZP+VCyZ0NfBx1uVis8yXEl6eRd/MFcHCBQddnQki1hEaiw03OJHKBOfS09+nQ
+         EcmXd2Ozl44rjyHwdtK7rCG18Sk8NqHXPPIIEmK8IQojwMkOrpbJbwdxoadOveFPauBD
+         gg9f5QB4K8XgRUjJjrTIgiQNYmkcmcktECSYz6xybX6DDyQB8N1KaSq11AZV2iux3E/+
+         3rDw==
+X-Forwarded-Encrypted: i=1; AHgh+RrS9RJIgAsRm7sVDnFoDFqnXBrWAW35fXrqMbLsjuvKusliJPwinJRlf0y8SQMplmzrWpYmPThmnCItnw==@vger.kernel.org
+X-Gm-Message-State: AFuF++mkUOpncxZ1/hb8q2E9e5EZNKJFEv9zLwGdtOiuzwCBhBVflo5p
+	bBX5hZN94amixU7cqvicgxB6TEOI1BBRzalst9iFGsI+cDGXpfvnVfiB
+X-Gm-Gg: AR+sD12PKoB8BTDH86DfhfPOYxhN9lW5U8SeQSo62kTR45v31UNR9N1Uzm9/6hA88MT
+	UU0eNRQAX2FYKynckcUOarLhd5n3JQZ1o+AruAF+T9gQYxUb90aZxKD8iaQiK+7PBGKWmc/wXt3
+	ADxEk6Uc0ekYdcbGuaZGoECf2sAbaxsGNypjdD2HS/eKZLGG2CfUljxebxbflFQE0F5u15Zp3RG
+	AfAUd+4vqIF0N0zv9EZ/MSpyFjbUNqJTle7qOKUN7voysys5Zl2/34Pz9wbrI2gsOhvotPESX+w
+	z7pe9+iZmEX6pf9nzzxSDnz3iM/1Y9+T0kRHE1DD1bWxy45lM+xx74IV44Qi9NiC8ehDYvO2e7+
+	Jgf7o6DcawCiFa9vzNFaf4/EXI+D2RqAjk1/oUM0O3nbc9Owc0jCwtCviOntKf318rJcJNocn3R
+	U+Iwme3FkZBG4fBdGx+KMKzjEkuWbZR68HpTJO/5WddhVpirSFauHespdY6BU=
+X-Received: by 2002:a17:907:e1c6:20b0:c20:d90b:2ccf with SMTP id a640c23a62f3a-c246a306b53mr1173876266b.7.1787434851479;
+        Sat, 22 Aug 2026 14:40:51 -0700 (PDT)
 Received: from m2.. ([37.142.151.124])
-        by smtp.googlemail.com with ESMTPSA id a640c23a62f3a-c24966f99basm466778466b.37.2026.08.22.14.40.42
+        by smtp.googlemail.com with ESMTPSA id a640c23a62f3a-c24966f99basm466778466b.37.2026.08.22.14.40.49
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 22 Aug 2026 14:40:43 -0700 (PDT)
+        Sat, 22 Aug 2026 14:40:51 -0700 (PDT)
 From: Michael Zaidman <michael.zaidman@gmail.com>
 To: Jiri Kosina <jikos@kernel.org>,
 	Benjamin Tissoires <bentiss@kernel.org>
@@ -72,9 +72,9 @@ Cc: Linus Walleij <linusw@kernel.org>,
 	linux-i2c@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	Michael Zaidman <michael.zaidman@gmail.com>
-Subject: [PATCH 09/13] HID: ft260: gpio: group sysfs attrs per HID interface
-Date: Sun, 23 Aug 2026 00:39:37 +0300
-Message-ID: <20260822213941.98882-10-michael.zaidman@gmail.com>
+Subject: [PATCH 13/13] HID: ft260: i2c: abort in-flight transfers with STOP before reset
+Date: Sun, 23 Aug 2026 00:39:41 +0300
+Message-ID: <20260822213941.98882-14-michael.zaidman@gmail.com>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20260822213941.98882-1-michael.zaidman@gmail.com>
 References: <20260822213941.98882-1-michael.zaidman@gmail.com>
@@ -86,127 +86,142 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Split the single sysfs attribute group into per-interface groups based
-on chip mode (DCNF0/DCNF1):
+A transfer that ends without STOP leaves the FT260 I2C controller
+with BUS_BUSY set. I2C reset (AN_394 section 4.4.15) restarts the
+master but, with the driver still bound, status stays 0x60
+(CTRL_IDLE | BUS_BUSY) even when SCL and SDA are pulled up. The
+next START then fails with 0x72 (arbitration lost + error) and
+further resets do not recover; only a USB replug did.
 
-- I2C-only (mode 1): full I2C + GPIO attributes on the I2C HID iface
-- Dual mode (0/3): I2C-facing attrs on the I2C iface; GPIO and UART
-  attrs on the UART iface
-- UART-only (mode 2): GPIO and UART attrs on the UART iface
+Add ft260_i2c_abort(): a STOP-only write (flag 0x04, zero payload)
+then FT260_SET_I2C_RESET. Use it wherever the host tears down an
+open transaction:
+
+  - read wait timeout
+  - read status check failure after the HID report arrived
+  - write status poll failure after the report was sent
+  - SMBus block read with an invalid count (count phase has no STOP)
+
+Leave ft260_i2c_reset() alone for HID output failure (the request
+may never have reached the controller), sysfs i2c_reset, and probe.
+
+Tested on a UMFT260EV1A with a 24LC512 at 0x51. Five 1 ms read
+timeouts each followed by STOP+reset left bus_status 0x20; raising
+the timeout to 25 ms on the same loaded module then read 16 bytes
+successfully.
+
+This matters more with the 25/75 ms completion timeout from
+"HID: ft260: i2c: reduce driver module loading time", which makes
+read timeouts more likely than mainline's 5000 ms wait.
 
 Signed-off-by: Michael Zaidman <michael.zaidman@gmail.com>
 ---
- drivers/hid/hid-ft260.c | 58 +++++++++++++++++++++++++++++++++++------
- 1 file changed, 50 insertions(+), 8 deletions(-)
+ drivers/hid/hid-ft260.c | 43 ++++++++++++++++++++++++++++++++++-------
+ 1 file changed, 36 insertions(+), 7 deletions(-)
 
 diff --git a/drivers/hid/hid-ft260.c b/drivers/hid/hid-ft260.c
-index 554d8e3ddb6d..0a1875a1a7ec 100644
+index 9ae688f6208f..a35a1af2d7e5 100644
 --- a/drivers/hid/hid-ft260.c
 +++ b/drivers/hid/hid-ft260.c
-@@ -1592,7 +1592,7 @@ static ssize_t i2c_reset_store(struct device *kdev,
+@@ -538,6 +538,33 @@ static int ft260_i2c_reset(struct hid_device *hdev)
+ 	return ret;
  }
- static DEVICE_ATTR_WO(i2c_reset);
  
--static const struct attribute_group ft260_attr_group = {
-+static const struct attribute_group ft260_i2c_chip_mode_1_attr_group = {
- 	.attrs = (struct attribute *[]) {
- 		  &dev_attr_chip_mode.attr,
- 		  &dev_attr_pwren_status.attr,
-@@ -1603,11 +1603,35 @@ static const struct attribute_group ft260_attr_group = {
- 		  &dev_attr_gpio2_func.attr,
- 		  &dev_attr_gpioa_func.attr,
- 		  &dev_attr_gpiog_func.attr,
-+		  &dev_attr_clock_ctl.attr,
-+		  &dev_attr_i2c_reset.attr,
-+		  &dev_attr_clock.attr,
-+		  NULL
-+	}
-+};
++static int ft260_hid_output_report(struct hid_device *hdev, u8 *data,
++				   size_t len);
 +
-+static const struct attribute_group ft260_i2c_chip_mode_0_3_attr_group = {
-+	.attrs = (struct attribute *[]) {
-+		  &dev_attr_hid_over_i2c_en.attr,
-+		  &dev_attr_i2c_reset.attr,
-+		  &dev_attr_clock.attr,
-+		  NULL
-+	}
-+};
++/*
++ * STOP with no START and no payload. Used by ft260_i2c_abort() when
++ * tearing down an in-flight transfer: I2C reset alone can leave
++ * BUS_BUSY set even when SCL/SDA are idle, and the next START then
++ * fails with arbitration lost.
++ */
++static int ft260_i2c_stop(struct hid_device *hdev, u8 addr)
++{
++	u8 buf[4] = {
++		FT260_I2C_REPORT_MIN,
++		addr,
++		FT260_FLAG_STOP,
++		0,
++	};
 +
-+static const struct attribute_group ft260_uart_chip_mode_0_2_3_attr_group = {
-+	.attrs = (struct attribute *[]) {
-+		  &dev_attr_chip_mode.attr,
-+		  &dev_attr_pwren_status.attr,
-+		  &dev_attr_suspend_status.attr,
-+		  &dev_attr_power_saving_en.attr,
-+		  &dev_attr_gpio2_func.attr,
-+		  &dev_attr_gpioa_func.attr,
-+		  &dev_attr_gpiog_func.attr,
- 		  &dev_attr_uart_mode.attr,
- 		  &dev_attr_uart_dcd_ri.attr,
- 		  &dev_attr_clock_ctl.attr,
- 		  &dev_attr_i2c_reset.attr,
--		  &dev_attr_clock.attr,
- 		  NULL
- 	}
- };
-@@ -2240,7 +2264,16 @@ static int ft260_i2c_probe(struct ft260_device *dev,
- 		if (ret)
- 			goto err_i2c_free;
++	return ft260_hid_output_report(hdev, buf, sizeof(buf));
++}
++
++static int ft260_i2c_abort(struct hid_device *hdev, u8 addr)
++{
++	ft260_i2c_stop(hdev, addr);
++	return ft260_i2c_reset(hdev);
++}
++
+ static int ft260_xfer_status(struct ft260_device *dev, u8 bus_busy)
+ {
+ 	struct hid_device *hdev = dev->hdev;
+@@ -607,7 +634,8 @@ static int ft260_hid_output_report(struct hid_device *hdev, u8 *data,
+ }
  
--		ret = sysfs_create_group(&hdev->dev.kobj, &ft260_attr_group);
-+		ret = sysfs_create_group(&hdev->dev.kobj,
-+					 &ft260_i2c_chip_mode_1_attr_group);
-+		if (ret < 0) {
-+			hid_err(hdev, "failed to create sysfs attrs\n");
-+			goto err_i2c_free;
-+		}
-+	} else if (cfg->chip_mode == FT260_MODE_ALL ||
-+		   cfg->chip_mode == FT260_MODE_BOTH) {
-+		ret = sysfs_create_group(&hdev->dev.kobj,
-+					 &ft260_i2c_chip_mode_0_3_attr_group);
+ static int ft260_hid_output_report_check_status(struct ft260_device *dev,
+-						u8 *data, int len, u8 bus_busy)
++						u8 *data, int len, u8 addr,
++						u8 bus_busy)
+ {
+ 	int ret, usec, try = 100;
+ 	struct hid_device *hdev = dev->hdev;
+@@ -636,7 +664,7 @@ static int ft260_hid_output_report_check_status(struct ft260_device *dev,
+ 	if (ret == 0)
+ 		return 0;
+ 
+-	ft260_i2c_reset(hdev);
++	ft260_i2c_abort(hdev, addr);
+ 	return -EIO;
+ }
+ 
+@@ -675,7 +703,8 @@ static int ft260_i2c_write(struct ft260_device *dev, u8 addr, u8 *data,
+ 			  rep->flag, data[0]);
+ 
+ 		ret = ft260_hid_output_report_check_status(dev, (u8 *)rep,
+-							   wr_len + 4, bus_busy);
++							   wr_len + 4, addr,
++							   bus_busy);
  		if (ret < 0) {
- 			hid_err(hdev, "failed to create sysfs attrs\n");
- 			goto err_i2c_free;
-@@ -2306,12 +2339,14 @@ static int ft260_uart_probe(struct ft260_device *dev,
- 	cfg->uart_mode = FT260_UART_CFG_FLOW_CTRL_NONE;
+ 			ft260_dbg("%s: failed with %d\n", __func__, ret);
+ 			return ret;
+@@ -716,7 +745,7 @@ static int ft260_smbus_write(struct ft260_device *dev, u8 addr, u8 cmd,
+ 	ft260_dbg("rep %#02x addr %#02x cmd %#02x datlen %d replen %d\n",
+ 		  rep->report, addr, cmd, rep->length, len);
  
- 	if (dev->chip_mode & FT260_MODE_UART ||
--	    dev->chip_mode == FT260_MODE_ALL) {
-+	    dev->chip_mode == FT260_MODE_ALL ||
-+	    dev->chip_mode == FT260_MODE_BOTH) {
- 		ret = ft260_gpio_init(dev, cfg);
- 		if (ret)
- 			goto err_hid_report;
+-	ret = ft260_hid_output_report_check_status(dev, (u8 *)rep, len,
++	ret = ft260_hid_output_report_check_status(dev, (u8 *)rep, len, addr,
+ 						   (flag & FT260_FLAG_STOP) ?
+ 						   FT260_I2C_STATUS_BUS_BUSY : 0);
+ 	if (ret < 0)
+@@ -784,7 +813,7 @@ static int ft260_i2c_read(struct ft260_device *dev, u8 addr, u8 *data,
+ 		timeout_jiffies = msecs_to_jiffies(timeout);
+ 		if (!wait_for_completion_timeout(&dev->wait, timeout_jiffies)) {
+ 			ret = -ETIMEDOUT;
+-			ft260_i2c_reset(hdev);
++			ft260_i2c_abort(hdev, addr);
+ 			goto ft260_i2c_read_exit;
+ 		}
  
--		ret = sysfs_create_group(&hdev->dev.kobj, &ft260_attr_group);
-+		ret = sysfs_create_group(&hdev->dev.kobj,
-+					 &ft260_uart_chip_mode_0_2_3_attr_group);
+@@ -798,7 +827,7 @@ static int ft260_i2c_read(struct ft260_device *dev, u8 addr, u8 *data,
+ 		ret = ft260_xfer_status(dev, bus_busy);
  		if (ret < 0) {
- 			hid_err(hdev, "failed to create sysfs attrs\n");
- 			goto err_hid_report;
-@@ -2418,12 +2453,19 @@ static void ft260_remove(struct hid_device *hdev)
- 		ft260_uart_port_remove(dev);
- 		/* dev is still needed, so we will free it in _destroy func */
- 		if (dev->chip_mode & FT260_MODE_UART ||
--		    dev->chip_mode == FT260_MODE_ALL)
--			sysfs_remove_group(&hdev->dev.kobj, &ft260_attr_group);
-+		    dev->chip_mode == FT260_MODE_ALL ||
-+		    dev->chip_mode == FT260_MODE_BOTH)
-+			sysfs_remove_group(&hdev->dev.kobj,
-+					   &ft260_uart_chip_mode_0_2_3_attr_group);
+ 			ret = -EIO;
+-			ft260_i2c_reset(hdev);
++			ft260_i2c_abort(hdev, addr);
+ 			goto ft260_i2c_read_exit;
+ 		}
  
- 	} else {
- 		if (dev->chip_mode == FT260_MODE_I2C)
--			sysfs_remove_group(&hdev->dev.kobj, &ft260_attr_group);
-+			sysfs_remove_group(&hdev->dev.kobj,
-+					   &ft260_i2c_chip_mode_1_attr_group);
-+		else if (dev->chip_mode == FT260_MODE_ALL ||
-+			 dev->chip_mode == FT260_MODE_BOTH)
-+			sysfs_remove_group(&hdev->dev.kobj,
-+					   &ft260_i2c_chip_mode_0_3_attr_group);
- 		i2c_del_adapter(&dev->adap);
- 		kfree(dev);
- 	}
+@@ -982,7 +1011,7 @@ static int ft260_smbus_xfer(struct i2c_adapter *adapter, u16 addr, u16 flags,
+ 				hid_warn(hdev,
+ 					 "smbus block read: invalid count %u from slave 0x%02x\n",
+ 					 count, addr);
+-				ft260_i2c_reset(hdev);
++				ft260_i2c_abort(hdev, addr);
+ 				ret = -EPROTO;
+ 				goto smbus_exit;
+ 			}
 -- 
 2.43.0
 

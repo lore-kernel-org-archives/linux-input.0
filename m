@@ -1,40 +1,40 @@
 Received: from endrift.com (endrift.com [173.255.198.10])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 83D88493625
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E66062E1EFC
 	for <linux-input@vger.kernel.org>; Sat, 22 Aug 2026 02:13:25 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=173.255.198.10
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787364807; cv=none; b=It4IYv+0gSphBJxusdHVUUwWnyyIXgPv3PLHQFN54gNVGnTfHFcBk6aJYwUZZfC+RSChqmU8v3R9OQY53rgOKdgegAi7coJfOCYmAz8Z/25Y938Hw+jYGBao6c+W2twqFB7MoSki6zDRTLzqisfDwp437lkm1KdN2FTRsBjoNyw=
+	t=1787364807; cv=none; b=ZniDX750ptW/Qc6rA6zHoo4sdpLE1GeEGXGFnNhXJ+mgosVwi9m6JKS8rXc8r2KXca02IxwrKkgcEOAY7tKe5MNACulQgkbNQuzQXmC5oNOjuGM2MM34A4+9R7DrfJfJJnIw0fv+7CTqL4n8SZS9aHMyZx+R3iTgQyPuBAmuxZc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1787364807; c=relaxed/simple;
-	bh=iJDXv5W5HYIHKmjCoAsaqFV4j945+nCNz+4U4Ulgbeg=;
+	bh=+7grn4fW0kDFmyEgqCT2fmqBwWnHs891pgk7B9aI8V0=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=mp1ujV+6rKIFB3rCoOzz1dr/I7JreBuYwBgxcaoW80r1Jsf3Be9+t2QuuEmjvKw/8jU0N9g+MqVx6vQtvMcZnuL5j39TTfJWwAPICJO1ic8Rc4ax44IdTLrqlRCalct+2+Djxrj+51tp9ctXexMRIgZwTvF7wJVOyYF0gF3nqS0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com; spf=pass smtp.mailfrom=endrift.com; dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b=UF/MXRyB; arc=none smtp.client-ip=173.255.198.10
+	 MIME-Version; b=kOlNfAeNQ6Mf7LDE9lRQk5uv2GioEYWdSDFLfRgphnPaMg4hLu0FKmHbpO7pTeksMOYbo479M0aNQB17uXv037B3xT1DLKkIhlB+pxUqYlziQ9DobdvHHr6bMCBxFpZAhZ6/SIEaq65+alrMMrZh6jbkz5dqZ+2sHCQBrhyN7cw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com; spf=pass smtp.mailfrom=endrift.com; dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b=jT2EI8wS; arc=none smtp.client-ip=173.255.198.10
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=endrift.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b="UF/MXRyB"
+	dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b="jT2EI8wS"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=endrift.com; s=2020;
-	t=1787364800; bh=iJDXv5W5HYIHKmjCoAsaqFV4j945+nCNz+4U4Ulgbeg=;
+	t=1787364801; bh=+7grn4fW0kDFmyEgqCT2fmqBwWnHs891pgk7B9aI8V0=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=UF/MXRyBf+D4+KRItSYyAMU840annCrslaKP8uxmG5WmTTsZ9CiQZeqwuE3HeVdkc
-	 Zrmphm1a8OtuWo9anhWSEwAGfMLKcu3v/iBy7iD9NJR/Z+vVL6QQdEjIrVMgLR4i7p
-	 FrEeXS+sP2Zx0MZxNKNkgz0btioCCNwlRuQ736j4SPGTgA4K52WAMo36Xyr5dJkUBO
-	 3n+yGOYnFTDNG8I5uKKpRpNaAEy1rhv2ElofVcUrBf/qbd08+mGOdd/GySpr1xHo9U
-	 0UMnz0tadS7YEpF+YsS2/CF2g0VU2k9Z6da6FA7mmoHf2VNrALUflnid0MZaMkvrqb
-	 5yB5fbANEU9Xw==
+	b=jT2EI8wSqr0m8MIp+s2mlK0LXEnq16TghX5FcBnNYdyLrByGO/xTEFWzP8gUlnb1p
+	 9cakmP3Bvnc7SftR+pe/P3d4J5ZDIgDkwNKE6uKRdEfeAEZb3NABUmBDskA70zreCD
+	 18TrwM9n9FGGJVT6j5mXWJzgoXdlYg0e5Fy1waz0O8lTNruU9XYZ+5aW+v4xmMhAsq
+	 Uc/t3iy28tpOZVNjLWXQOhH2jd2uGvW+Y4FBX6xgIkQVN4Vxz/XxnIOJXFRrxAbwt6
+	 cUbJcY4Kinu+Y0zooZjX3keKL1UYbXbmz4a60X+b/fbPNGTTVl+xj+d4jR+iykljUY
+	 JhVKIogBXHTZg==
 Received: from microtis.vulpes.eutheria.net (71-212-73-87.tukw.qwest.net [71.212.73.87])
-	by endrift.com (Postfix) with ESMTPSA id EE8A1132035;
-	Fri, 21 Aug 2026 19:13:19 -0700 (PDT)
+	by endrift.com (Postfix) with ESMTPSA id E41FB13208A;
+	Fri, 21 Aug 2026 19:13:20 -0700 (PDT)
 From: Vicki Pfau <vi@endrift.com>
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
 	linux-input@vger.kernel.org
 Cc: Vicki Pfau <vi@endrift.com>
-Subject: [PATCH v4 06/12] Input: xbox_gip - Allow sending fragmented and ACME messages
-Date: Fri, 21 Aug 2026 19:11:30 -0700
-Message-ID: <20260822021140.1149546-7-vi@endrift.com>
+Subject: [PATCH v4 09/12] Input: xbox_gip - Add support for PDP guitar controllers
+Date: Fri, 21 Aug 2026 19:11:33 -0700
+Message-ID: <20260822021140.1149546-10-vi@endrift.com>
 X-Mailer: git-send-email 2.54.0
 In-Reply-To: <20260822021140.1149546-1-vi@endrift.com>
 References: <20260822021140.1149546-1-vi@endrift.com>
@@ -46,521 +46,193 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-GIP supports sending messages that exceed the length of the MTU using a
-fragmented message flow. It sits on top of a reliable message transmission
-flow, which uses the ACME flag to signal that a message must be ACKed if it
-is received properly. We already supported receiving and coalescing these
-messages, but the ability to send them wasn't yet present due to not
-needing it for basic usage. This patch adds it for future use with the
-security flow.
+This patch adds support for the PDP guitar controllers, namely the Fender
+Jaguar and RiffMaster models. These use mostly the same protocol, but the
+RiffMaster appears t use a slightly newer variant.
 
 Signed-off-by: Vicki Pfau <vi@endrift.com>
 ---
- drivers/input/joystick/gip/gip-core.c | 330 ++++++++++++++++++++++++--
- drivers/input/joystick/gip/gip.h      |  17 ++
- 2 files changed, 331 insertions(+), 16 deletions(-)
+ drivers/input/joystick/gip/Makefile         |   1 +
+ drivers/input/joystick/gip/gip-core.c       |   1 +
+ drivers/input/joystick/gip/gip-pdp-jaguar.c | 129 ++++++++++++++++++++
+ drivers/input/joystick/gip/gip.h            |   2 +
+ 4 files changed, 133 insertions(+)
+ create mode 100644 drivers/input/joystick/gip/gip-pdp-jaguar.c
 
+diff --git a/drivers/input/joystick/gip/Makefile b/drivers/input/joystick/gip/Makefile
+index 9ed59caec4d9..62c016d6c11e 100644
+--- a/drivers/input/joystick/gip/Makefile
++++ b/drivers/input/joystick/gip/Makefile
+@@ -4,3 +4,4 @@ obj-$(CONFIG_JOYSTICK_XBOX_GIP)	+= xbox-gip.o
+ xbox-gip-y := gip-core.o gip-drivers.o gip-security.o
+ # Additional device support
+ xbox-gip-y += gip-arcade-stick.o
++xbox-gip-y += gip-pdp-jaguar.o
 diff --git a/drivers/input/joystick/gip/gip-core.c b/drivers/input/joystick/gip/gip-core.c
-index d694ac551639..a75fbcb1c02d 100644
+index da22545662e2..c03d730f2968 100644
 --- a/drivers/input/joystick/gip/gip-core.c
 +++ b/drivers/input/joystick/gip/gip-core.c
-@@ -8,7 +8,6 @@
-  * - Audio device support
-  * - Security packet handshake
-  * - Event logging
-- * - Sending fragmented messages
-  * - Raw character device
-  * - Wheel support
-  * - Flight stick support
-@@ -28,6 +27,7 @@
- #define GIP_WIRED_INTF_DATA 0
- #define GIP_WIRED_INTF_AUDIO 1
+@@ -330,6 +330,7 @@ static const struct gip_driver *base_drivers[] = {
+ 	&gip_driver_navigation,
+ 	&gip_driver_gamepad,
+ 	&gip_driver_arcade_stick,
++	&gip_driver_pdp_jaguar,
+ 	NULL /* Sentinel */
+ };
  
-+#define GIP_DUAL_LENGTH 6
- #define MAX_MESSAGE_LENGTH 0x4000
- 
- #define MAX_AUDIO_MESSAGES 9
-@@ -437,6 +437,13 @@ static uint8_t gip_sequence_next(struct gip_attachment *attachment,
- 	return seq;
- }
- 
-+static unsigned int gip_fragment_id(const struct gip_attachment *attachment,
-+	const struct gip_out_fragment *fragment)
+diff --git a/drivers/input/joystick/gip/gip-pdp-jaguar.c b/drivers/input/joystick/gip/gip-pdp-jaguar.c
+new file mode 100644
+index 000000000000..ec0e9d811d12
+--- /dev/null
++++ b/drivers/input/joystick/gip/gip-pdp-jaguar.c
+@@ -0,0 +1,129 @@
++// SPDX-License-Identifier: GPL-2.0-or-later
++/*
++ * Drivers for GIP PDP Jaguar-style guitars
++ *
++ * Copyright (c) 2026 Valve Software
++ */
++
++#include <linux/unaligned.h>
++#include "gip.h"
++
++#define GIP_QUIRK_PDP_HAS_RIGHT_STICK	BIT(31)
++
++static int gip_setup_pdp_jaguar_input(struct gip_attachment *attachment, struct input_dev *input)
 +{
-+	return BIT(attachment->attachment_index * MAX_OUT_FRAGMENTS +
-+		(unsigned) (fragment - attachment->out_fragments));
-+}
-+
- static void gip_handle_quirks_array(struct gip_attachment *attachment,
- 	const struct gip_quirks *quirks)
- {
-@@ -479,6 +486,48 @@ static void gip_handle_quirks(struct gip_attachment *attachment)
- 		gip_handle_quirks_array(attachment, attachment->driver->quirks);
- }
- 
-+static struct gip_out_fragment *gip_find_fragment(struct gip_attachment *attachment,
-+	uint8_t message_type, uint8_t flags, uint8_t seq, bool strict)
-+{
-+	int i;
-+
-+	for (i = 0; i < MAX_OUT_FRAGMENTS; i++) {
-+		if (!attachment->out_fragments[i].active)
-+			continue;
-+		if (attachment->out_fragments[i].message != message_type)
-+			continue;
-+		if ((attachment->out_fragments[i].flags ^ flags) & GIP_FLAG_SYSTEM)
-+			continue;
-+		if (attachment->out_fragments[i].seq != seq) {
-+			if (strict)
-+				continue;
-+
-+			/*
-+			 * Found one with  the wrong sequence number. For some
-+			 * reason the official driver allows this.
-+			 */
-+			gip_warn(attachment,
-+				"Found fragment with different sequence number %02x, wanted %02x\n",
-+				attachment->out_fragments[i].seq, seq);
-+		}
-+
-+		return &attachment->out_fragments[i];
-+	}
-+
-+	for (i = 0; i < MAX_OUT_FRAGMENTS; i++) {
-+		if (!attachment->out_fragments[i].active)
-+			continue;
-+		if (attachment->out_fragments[i].message != message_type)
-+			continue;
-+		if ((attachment->out_fragments[i].flags ^ flags) & GIP_FLAG_SYSTEM)
-+			continue;
-+
-+
-+		return &attachment->out_fragments[i];
-+	}
-+	return NULL;
-+}
-+
- static int gip_send_raw_message(struct gip_attachment *attachment,
- 	uint8_t message_type, uint8_t flags, uint8_t seq, const uint8_t *bytes,
- 	int num_bytes)
-@@ -486,20 +535,25 @@ static int gip_send_raw_message(struct gip_attachment *attachment,
- 	struct gip_interface *intf;
- 	int offset = 3;
- 	struct gip_urb *urb = NULL;
-+	struct gip_out_fragment *fragment = NULL;
- 	int i;
- 	int rc = 0;
-+	int mtu = gip_data_class_mtu[message_type >> GIP_DATA_CLASS_SHIFT];
-+	int reduced_mtu = mtu - GIP_DUAL_LENGTH;
 +	/*
-+	 * This buffer size shouldn't need to be more than 6 (there should never
-+	 * be more than 3 length bytes), but add enough extra to fit fully
-+	 * extended bignums for 32 bit (5 bytes) + 16 bit (3 bytes) values to be
-+	 * safe and then WARN_ON if we go over. If this ever happens it would be
-+	 * due to driver bugs.
++	 * Despite having the navigation controller GUID, we don't want to use
++	 * those mappings. Instead, we use the xone mappings for compatibility
++	 * reasons.
 +	 */
-+	uint8_t header[11];
- 
- 	if (num_bytes < 0) {
- 		gip_warn(attachment, "Invalid message length %d\n", num_bytes);
- 		return -EINVAL;
- 	}
- 
--	if (num_bytes + 6 > gip_data_class_mtu[message_type >> GIP_DATA_CLASS_SHIFT]) {
--		gip_err(attachment,
--			"Attempted to send a message that requires fragmenting, which is not yet supported.\n");
--		return -EOPNOTSUPP;
--	}
--
- 	if ((message_type & GIP_DATA_CLASS_MASK) == GIP_DATA_CLASS_AUDIO)
- 		intf = &attachment->device->audio;
- 	else
-@@ -511,6 +565,89 @@ static int gip_send_raw_message(struct gip_attachment *attachment,
- 		return -EOPNOTSUPP;
- 	}
- 
-+	header[0] = message_type;
-+	header[2] = seq;
 +
-+	if (num_bytes > reduced_mtu ||
-+		(flags & (GIP_FLAG_ACME | GIP_FLAG_FRAGMENT)) == GIP_FLAG_ACME) {
-+		for (i = 0; i < MAX_OUT_FRAGMENTS; i++) {
-+			if (attachment->out_fragments[i].active)
-+				continue;
++	/* Lower fret */
++	input_set_capability(input, EV_KEY, BTN_TRIGGER_HAPPY1);
++	input_set_capability(input, EV_KEY, BTN_TRIGGER_HAPPY2);
++	input_set_capability(input, EV_KEY, BTN_TRIGGER_HAPPY3);
++	input_set_capability(input, EV_KEY, BTN_TRIGGER_HAPPY4);
++	input_set_capability(input, EV_KEY, BTN_TRIGGER_HAPPY5);
++	/* Upper fret */
++	input_set_capability(input, EV_KEY, BTN_TRIGGER_HAPPY6);
++	input_set_capability(input, EV_KEY, BTN_TRIGGER_HAPPY7);
++	input_set_capability(input, EV_KEY, BTN_TRIGGER_HAPPY8);
++	input_set_capability(input, EV_KEY, BTN_TRIGGER_HAPPY9);
++	input_set_capability(input, EV_KEY, BTN_TRIGGER_HAPPY10);
 +
-+			fragment = &attachment->out_fragments[i];
-+			break;
-+		}
++	input_set_capability(input, EV_KEY, BTN_START);
++	input_set_capability(input, EV_KEY, BTN_SELECT);
 +
-+		if (!fragment) {
-+			gip_err(attachment, "Fragmented message queue is full; dropping message\n");
-+			return -EALREADY;
-+		}
++	/* Whammy bar */
++	input_set_abs_params(input, ABS_Y, 0, 255, 0, 0);
++	/* Tilt */
++	input_set_abs_params(input, ABS_Z, 0, 255, 0, 0);
 +
-+		fragment->active = true;
-+		fragment->message = message_type;
-+		fragment->flags = flags & GIP_FLAG_SYSTEM;
-+		fragment->acked = false;
-+		fragment->seq = seq;
-+		fragment->total_length = num_bytes;
-+		fragment->data = devm_kmalloc(to_gip_device(attachment),
-+			fragment->total_length, GFP_ATOMIC);
-+		fragment->fragment_offset = 0;
-+		memcpy(fragment->data, bytes, num_bytes);
-+		bytes = fragment->data;
++	input_set_abs_params(input, ABS_HAT0X, -1, 1, 0, 0);
++	input_set_abs_params(input, ABS_HAT0Y, -1, 1, 0, 0);
 +
-+		if (num_bytes > reduced_mtu) {
-+			gip_dbg(attachment, "Starting new reliable message: %02x%02x%02x, total length %u\n",
-+				message_type, flags, seq, num_bytes);
-+			flags |= GIP_FLAG_INIT_FRAG | GIP_FLAG_FRAGMENT | GIP_FLAG_ACME;
-+			fragment->flags |= GIP_FLAG_FRAGMENT;
-+			/* The spec says to extend the value to fit in 3 bytes */
-+			offset += gip_encode_length(reduced_mtu, &header[offset], sizeof(header));
-+			if (offset == 4 && reduced_mtu < 0x80 && num_bytes < 0x80) {
-+				header[3] |= 0x80;
-+				header[4] = 0;
-+				offset = 5;
-+			}
-+			offset += gip_encode_length(num_bytes, &header[offset],
-+				sizeof(header) - offset);
-+			WARN_ON(offset != GIP_DUAL_LENGTH);
-+			num_bytes = mtu - offset;
-+		} else {
-+			offset += gip_encode_length(num_bytes, &header[offset],
-+				sizeof(header) - offset);
-+		}
-+	} else if (flags & GIP_FLAG_FRAGMENT) {
-+		fragment = gip_find_fragment(attachment, message_type, flags, seq, true);
-+		if (!fragment) {
-+			gip_err(attachment,
-+				"Attempted to send message fragment with no associated message\n");
-+			return -EINVAL;
-+		}
-+
-+		num_bytes = min(reduced_mtu, fragment->total_length - fragment->fragment_offset);
-+		offset += gip_encode_length(num_bytes, &header[offset],
-+			sizeof(header) - offset);
-+		if (offset == 4 && num_bytes < 0x80 && fragment->fragment_offset < 0x80) {
-+			header[3] |= 0x80;
-+			header[4] = 0;
-+			offset = 5;
-+		}
-+		offset += gip_encode_length(fragment->fragment_offset, &header[offset],
-+			sizeof(header) - offset);
-+		WARN_ON(offset != GIP_DUAL_LENGTH);
-+
-+		if (num_bytes && fragment->fragment_offset + num_bytes == fragment->total_length) {
-+			/* The final fragment in a fragmented message must be ACKed */
-+			flags |= GIP_FLAG_ACME;
-+			fragment->acked = false;
-+		}
-+		bytes = &fragment->data[fragment->fragment_offset];
-+	} else if (num_bytes >= 0) {
-+		offset += gip_encode_length(num_bytes, &header[offset],
-+			sizeof(header) - offset);
-+	}
-+
-+	header[1] = flags;
-+
- 	guard(spinlock_irqsave)(&attachment->device->message_lock);
- 	for (i = 0; i < MAX_OUT_MESSAGES && !urb; i++) {
- 		if (!intf->out_queue[i].urb)
-@@ -522,15 +659,10 @@ static int gip_send_raw_message(struct gip_attachment *attachment,
- 		gip_err(attachment, "Output queue is full; dropping message\n");
- 		return -ENOSPC;
- 	}
--	urb->data[0] = message_type;
--	urb->data[1] = flags;
--	urb->data[2] = seq;
--	offset += gip_encode_length(num_bytes, &urb->data[offset],
--		sizeof(urb->data) - offset);
- 
-+	memcpy(urb->data, header, offset);
- 	if (num_bytes > 0)
- 		memcpy(&urb->data[offset], bytes, num_bytes);
--
- 	num_bytes += offset;
- 	urb->urb->transfer_buffer_length = num_bytes;
- 
-@@ -547,9 +679,97 @@ static int gip_send_raw_message(struct gip_attachment *attachment,
- 		rc = -EIO;
- 	}
- 
-+	if (fragment) {
-+		/*
-+		 * Sending further fragments is handled in gip_urb_out if this fragment doesn't need
-+		 * ACKing or in gip_handle_command_protocol_control if it does. The flag should also
-+		 * be cleared if we're done sending this packet.
-+		 */
-+		if (fragment->total_length > reduced_mtu && !(flags & GIP_FLAG_ACME))
-+			intf->has_pending_out |= gip_fragment_id(attachment, fragment);
-+		else
-+			intf->has_pending_out &= ~gip_fragment_id(attachment, fragment);
-+	}
-+
- 	return rc;
- }
- 
-+static void gip_free_fragment(struct device *dev, struct gip_out_fragment *fragment)
-+{
-+	devm_kfree(dev, fragment->data);
-+	memset(fragment, 0, sizeof(*fragment));
-+}
-+
-+static int gip_send_next_fragment(struct gip_attachment *attachment,
-+	struct gip_out_fragment *fragment)
-+{
-+	struct gip_interface *intf;
-+	int next_bytes;
-+	int flags = GIP_FLAG_FRAGMENT | fragment->flags | attachment->attachment_index;
-+	int mtu;
-+	int rc;
-+
-+	mtu = gip_data_class_mtu[fragment->message >> GIP_DATA_CLASS_SHIFT] - GIP_DUAL_LENGTH;
-+	if (fragment->fragment_offset == fragment->total_length) {
-+		if ((fragment->message & GIP_DATA_CLASS_MASK) == GIP_DATA_CLASS_AUDIO)
-+			intf = &attachment->device->audio;
-+		else
-+			intf = &attachment->device->data;
-+
-+		next_bytes = 0;
-+		intf->has_pending_out &= ~gip_fragment_id(attachment, fragment);
-+	} else if (fragment->fragment_offset + mtu >= fragment->total_length) {
-+		next_bytes = fragment->total_length - fragment->fragment_offset;
-+		flags |= GIP_FLAG_ACME;
-+	} else {
-+		next_bytes = mtu;
-+	}
-+
-+	rc = gip_send_raw_message(attachment, fragment->message, flags,
-+		fragment->seq, &fragment->data[fragment->fragment_offset],
-+		next_bytes);
-+
-+	if (rc < 0)
-+		return rc;
-+
-+	if (fragment->acked)
-+		fragment->fragment_offset += next_bytes;
-+	if (next_bytes == 0 && !(fragment->flags & GIP_FLAG_ACME))
-+		/* Finished sending the message */
-+		gip_free_fragment(to_gip_device(attachment), fragment);
-+	return next_bytes;
-+}
-+
-+static void gip_send_fragment_work(struct work_struct *work)
-+{
-+	struct gip_interface *intf = container_of(work, struct gip_interface, send_fragment);
-+	struct gip_out_fragment *fragment;
-+	unsigned int has_pending_out;
-+	unsigned long flags;
-+	int i, j;
-+
-+	spin_lock_irqsave(&intf->device->message_lock, flags);
-+	has_pending_out = intf->has_pending_out;
-+	spin_unlock_irqrestore(&intf->device->message_lock, flags);
-+	for (i = 0; i < MAX_ATTACHMENTS; i++) {
-+		struct gip_attachment *attachment = intf->device->attachments[i];
-+
-+		for (j = 0; j < MAX_OUT_FRAGMENTS; j++) {
-+			/* Check for pending output fragments */
-+			if (!(has_pending_out & BIT(i * MAX_OUT_FRAGMENTS + j)))
-+				continue;
-+
-+			guard(mutex)(&attachment->lock);
-+			fragment = &attachment->out_fragments[j];
-+			if (!fragment->active)
-+				continue;
-+			if (!(fragment->flags & GIP_FLAG_FRAGMENT))
-+				continue;
-+			gip_send_next_fragment(attachment, fragment);
-+		}
-+	}
-+}
-+
- int gip_send_system_message(struct gip_attachment *attachment,
- 	uint8_t message_type, uint8_t flags, const void *bytes, int num_bytes)
- {
-@@ -1623,19 +1843,90 @@ static void gip_set_metadata_defaults(struct gip_attachment *attachment)
- 
- static void gip_reset_attachment(struct gip_attachment *attachment)
- {
-+	int i;
-+
- 	devm_kfree(to_gip_device(attachment), attachment->in_fragment_data);
- 	attachment->in_fragment_data = NULL;
- 	attachment->in_fragment_message = -1;
- 
-+	for (i = 0; i < MAX_OUT_FRAGMENTS; i++) {
-+		if (attachment->out_fragments[i].active)
-+			gip_free_fragment(to_gip_device(attachment),
-+				&attachment->out_fragments[i]);
-+	}
-+
- 	gip_reset_metadata(attachment);
- }
- 
- static int gip_handle_command_protocol_control(struct gip_attachment *attachment,
- 	const struct gip_header *header, const uint8_t *bytes, int num_bytes)
- {
--	/* TODO */
--	gip_warn(attachment, "Unimplemented Protocol Control message\n");
--	return -EOPNOTSUPP;
-+	const struct gip_protocol_control_ack *ack;
-+	struct gip_out_fragment *fragment = NULL;
-+	uint32_t fragment_offset;
-+	uint16_t remaining_buffer;
-+	bool ok = true;
-+	int mtu;
-+	int rc;
-+
-+	if (num_bytes < 1)
-+		return -EINVAL;
-+
-+	if (bytes[0] != GIP_CONTROL_CODE_ACK) {
-+		gip_warn(attachment, "Unimplemented Protocol Control code %i message\n", bytes[0]);
-+		return -EOPNOTSUPP;
-+	}
-+
-+	if (num_bytes < sizeof(*ack))
-+		return -EINVAL;
-+
-+	ack = (const struct gip_protocol_control_ack *)bytes;
-+
-+	fragment = gip_find_fragment(attachment, ack->message_type, ack->flags,
-+		header->sequence_id, false);
-+	if (!fragment) {
-+		gip_warn(attachment, "Received ACK for unknown message\n");
-+		rc = -EINVAL;
-+		goto resend;
-+	}
-+
-+
-+	fragment_offset = le32_to_cpu(ack->fragment_offset);
-+	remaining_buffer = le16_to_cpu(ack->remaining_buffer);
-+
-+	if (fragment_offset > fragment->total_length)
-+		ok = false;
-+	mtu = gip_data_class_mtu[fragment->message >> GIP_DATA_CLASS_SHIFT] - GIP_DUAL_LENGTH;
-+	if (!ok) {
-+		gip_warn(attachment, "Received invalid buffer offset in ACK, "
-+			"got offset=%u + remaining=%u, expected offset=%u + remaining=%u\n",
-+			fragment_offset, remaining_buffer,
-+			fragment->fragment_offset, fragment->total_length - fragment->fragment_offset);
-+		rc = -EINVAL;
-+		goto resend;
-+	} else if ((fragment->flags & GIP_FLAG_FRAGMENT) &&
-+		(fragment->fragment_offset > fragment_offset ||
-+		fragment->fragment_offset + mtu < fragment_offset)) {
-+		gip_warn(attachment, "Received unexpected buffer offset in ACK, "
-+			"got offset=%u, expected offset=%u\n",
-+			fragment_offset, fragment->fragment_offset + mtu);
-+	}
-+
-+	fragment->acked = true;
-+	if (fragment->flags & GIP_FLAG_FRAGMENT) {
-+		fragment->fragment_offset = fragment_offset;
-+		rc = gip_send_next_fragment(attachment, fragment);
-+		if (rc < 0)
-+			return rc;
-+	} else {
-+		gip_free_fragment(to_gip_device(attachment), fragment);
++	if (attachment->quirks & GIP_QUIRK_PDP_HAS_RIGHT_STICK) {
++		input_set_capability(input, EV_KEY, BTN_THUMBR);
++		input_set_abs_params(input, ABS_RX, -32768, 32767, 16, 128);
++		input_set_abs_params(input, ABS_RY, -32768, 32767, 16, 128);
 +	}
 +
 +	return 0;
++}
 +
-+resend:
-+	// TODO
-+	return rc;
- }
- 
- static bool gip_handle_command_hello_device(struct gip_attachment *attachment,
-@@ -2175,6 +2466,7 @@ static struct gip_attachment *gip_ensure_attachment(struct gip_device *device,
- 	uint8_t attachment_index)
- {
- 	struct gip_attachment *attachment = device->attachments[attachment_index];
-+	int i;
- 
- 	if (!attachment) {
- 		attachment = devm_kzalloc(to_gip_device(device), sizeof(*attachment), GFP_KERNEL);
-@@ -2190,6 +2482,9 @@ static struct gip_attachment *gip_ensure_attachment(struct gip_device *device,
- 			attachment->product_id = device->udev->descriptor.idProduct;
- 		}
- 
-+		for (i = 0; i < MAX_OUT_FRAGMENTS; i++)
-+			attachment->out_fragments[i].message = -1;
++static int gip_handle_pdp_jaguar_report(struct gip_attachment *attachment,
++	struct input_dev *input, const uint8_t *bytes, int num_bytes)
++{
++	bool lower;
 +
- 		device->attachments[attachment_index] = attachment;
- 
- 		mutex_init(&attachment->lock);
-@@ -2476,6 +2771,7 @@ static void gip_urb_out(struct urb *urb)
- 	switch (status) {
- 	case 0:
- 		/* success */
-+		schedule_work(&intf->send_fragment);
- 		break;
- 
- 	case -ECONNRESET:
-@@ -2672,9 +2968,11 @@ static int gip_probe(struct usb_interface *intf, const struct usb_device_id *id)
- 	gip->data.device = gip;
- 	gip->data.intf = intf;
- 	gip->data.mtu = BASE_GIP_MTU;
-+	INIT_WORK(&gip->data.send_fragment, gip_send_fragment_work);
- 	gip->audio.device = gip;
- 	gip->audio.mtu = MAX_GIP_MTU;
- 	gip->audio.isoc_messages = MAX_AUDIO_MESSAGES;
-+	INIT_WORK(&gip->audio.send_fragment, gip_send_fragment_work);
- 
- 	INIT_WORK(&gip->receive_message, gip_receive_work);
- 	spin_lock_init(&gip->message_lock);
++	if (num_bytes < 4) {
++		gip_dbg(attachment, "Discarding too-short input report\n");
++		return -EINVAL;
++	}
++
++	input_report_key(input, BTN_START, bytes[0] & BIT(2));
++	input_report_key(input, BTN_SELECT, bytes[0] & BIT(3));
++
++	if (num_bytes >= 7 && (bytes[5] || bytes[6])) {
++		/* Newer report version on the RiffMaster */
++		input_report_key(input, BTN_TRIGGER_HAPPY1, bytes[5] & BIT(0));
++		input_report_key(input, BTN_TRIGGER_HAPPY2, bytes[5] & BIT(1));
++		input_report_key(input, BTN_TRIGGER_HAPPY3, bytes[5] & BIT(2));
++		input_report_key(input, BTN_TRIGGER_HAPPY4, bytes[5] & BIT(3));
++		input_report_key(input, BTN_TRIGGER_HAPPY5, bytes[5] & BIT(4));
++
++		input_report_key(input, BTN_TRIGGER_HAPPY6, bytes[6] & BIT(0));
++		input_report_key(input, BTN_TRIGGER_HAPPY7, bytes[6] & BIT(1));
++		input_report_key(input, BTN_TRIGGER_HAPPY8, bytes[6] & BIT(2));
++		input_report_key(input, BTN_TRIGGER_HAPPY9, bytes[6] & BIT(3));
++		input_report_key(input, BTN_TRIGGER_HAPPY10, bytes[6] & BIT(4));
++	} else {
++		lower = bytes[1] & BIT(6);
++		input_report_key(input, BTN_TRIGGER_HAPPY1, !lower && (bytes[0] & BIT(4)));
++		input_report_key(input, BTN_TRIGGER_HAPPY2, !lower && (bytes[0] & BIT(5)));
++		input_report_key(input, BTN_TRIGGER_HAPPY3, !lower && (bytes[0] & BIT(7)));
++		input_report_key(input, BTN_TRIGGER_HAPPY4, !lower && (bytes[0] & BIT(6)));
++		input_report_key(input, BTN_TRIGGER_HAPPY5, !lower && (bytes[1] & BIT(4)));
++
++		input_report_key(input, BTN_TRIGGER_HAPPY6, lower && (bytes[0] & BIT(4)));
++		input_report_key(input, BTN_TRIGGER_HAPPY7, lower && (bytes[0] & BIT(5)));
++		input_report_key(input, BTN_TRIGGER_HAPPY8, lower && (bytes[0] & BIT(7)));
++		input_report_key(input, BTN_TRIGGER_HAPPY9, lower && (bytes[0] & BIT(6)));
++		input_report_key(input, BTN_TRIGGER_HAPPY10, lower && (bytes[1] & BIT(4)));
++	}
++
++	input_report_abs(input, ABS_Y, bytes[2]);
++	input_report_abs(input, ABS_Z, bytes[3]);
++
++	input_report_abs(input, ABS_HAT0X,
++		!!(bytes[1] & BIT(3)) - !!(bytes[1] & BIT(2)));
++	input_report_abs(input, ABS_HAT0Y,
++		!!(bytes[1] & BIT(1)) - !!(bytes[1] & BIT(0)));
++
++	if ((attachment->quirks & GIP_QUIRK_PDP_HAS_RIGHT_STICK) && num_bytes >= 14) {
++		input_report_key(input, BTN_THUMBR, bytes[1] & BIT(6));
++		input_report_abs(input, ABS_RX, (int16_t)get_unaligned_le16(&bytes[10]));
++		input_report_abs(input, ABS_RY, ~(int16_t)get_unaligned_le16(&bytes[12]));
++	}
++
++	return 0;
++}
++
++const struct gip_driver gip_driver_pdp_jaguar = {
++	.types = (const char *const[]) { "PDP.Xbox.Guitar.Jaguar", NULL },
++	.guid = GUID_INIT(0x1a266af6, 0x3a46, 0x45e3, 0xb9, 0xb6,
++		0x0f, 0x2c, 0x0b, 0x2c, 0x1e, 0xbe),
++
++	.quirks = (const struct gip_quirks[]) {
++		/* PDP RiffMaster */
++		{ GIP_VID_PDP, GIP_PID_PDP_RIFFMASTER, 0,
++			.quirks = GIP_QUIRK_PDP_HAS_RIGHT_STICK, },
++
++		{0},
++	},
++	.probe = NULL,
++	.remove = NULL,
++	.init = NULL,
++	.setup_input = gip_setup_pdp_jaguar_input,
++	.handle_input_report = gip_handle_pdp_jaguar_report,
++};
 diff --git a/drivers/input/joystick/gip/gip.h b/drivers/input/joystick/gip/gip.h
-index e7953c683c51..97c848b96e3d 100644
+index 1cc0a98717ba..23c23982658e 100644
 --- a/drivers/input/joystick/gip/gip.h
 +++ b/drivers/input/joystick/gip/gip.h
-@@ -25,6 +25,7 @@
+@@ -40,6 +40,7 @@
+ #define GIP_PID_XBOX_WIRELESS			0x0b12
  
- #define MAX_IN_MESSAGES 8
- #define MAX_OUT_MESSAGES 8
-+#define MAX_OUT_FRAGMENTS 2
+ #define GIP_PID_PDP_ROCK_CANDY	0x0246
++#define GIP_PID_PDP_RIFFMASTER	0x0248
  
- #define GIP_VID_MICROSOFT	0x045e
- #define GIP_VID_PDP		0x0e6f
-@@ -194,6 +195,17 @@ struct gip_extended_status {
- 	struct gip_status_event events[5];
- };
- 
-+struct gip_out_fragment {
-+	bool active;
-+	bool acked;
-+	uint8_t message;
-+	uint8_t flags;
-+	uint8_t seq;
-+	uint16_t total_length;
-+	uint32_t fragment_offset;
-+	uint8_t *data;
-+};
-+
- struct gip_attachment;
- typedef int (*gip_command_handler)(struct gip_attachment *a, const struct gip_header *header,
- 		const uint8_t *bytes, int num_bytes);
-@@ -222,6 +234,8 @@ struct gip_attachment {
- 	struct delayed_work in_fragment_timeout;
- 	int in_fragment_retries;
- 
-+	struct gip_out_fragment out_fragments[MAX_OUT_FRAGMENTS];
-+
- 	uint16_t firmware_major_version;
- 	uint16_t firmware_minor_version;
- 
-@@ -274,6 +288,9 @@ struct gip_interface {
- 
- 	struct usb_anchor out_anchor;
- 	struct gip_urb out_queue[MAX_OUT_MESSAGES];
-+
-+	struct work_struct send_fragment;
-+	unsigned int has_pending_out;
- };
- 
- struct gip_device {
+ #define GIP_PID_BDA_XB1_CLASSIC		0x581a
+ #define GIP_PID_BDA_XB1_FUSION_PRO	0x591a
+@@ -412,4 +413,5 @@ void gip_security_release(struct gip_security *security);
+ extern const struct gip_driver gip_driver_navigation;
+ extern const struct gip_driver gip_driver_gamepad;
+ extern const struct gip_driver gip_driver_arcade_stick;
++extern const struct gip_driver gip_driver_pdp_jaguar;
+ #endif
 -- 
 2.54.0
 

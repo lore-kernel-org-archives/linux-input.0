@@ -1,295 +1,231 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7543F2E266C
-	for <linux-input@vger.kernel.org>; Sat, 22 Aug 2026 02:35:47 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C4899217723
+	for <linux-input@vger.kernel.org>; Sat, 22 Aug 2026 02:37:20 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787366148; cv=none; b=s6UlqdUCjf1u/+95NgRqYJQ1TC7f0KwYjbRhURX7beOyUQqmabE1YPlsY+YhC2jfDFNKkn1imLYholAoE4DoY5yCwQLvBqAK6lLHIgzY5sbssBCbt46qq4rybdVt8NEgt4elb9d5Mx650nxC1CSb5boL7x9rmNNuXfW2qIYvrck=
+	t=1787366242; cv=none; b=TxCjtJjw9gPEwE9RpKZaRy/i0LS/gqIHumWDB0w2YwNWwoJVG8ujv2ZFg5tfhfPnhRTmmCT3FAgzrvE2RzhVW7NZVKPoYymac9sxHZZGhgdb0Rhj0F6W/2xZQPHCx66++aN841w1uRBF1d3lOp1DcYqHf3lAhEbbfhq4RAUkVtw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787366148; c=relaxed/simple;
-	bh=7Yu24hR/bcx5wt43iBkxsLixWRQyemefabC4izBlmhI=;
+	s=arc-20240116; t=1787366242; c=relaxed/simple;
+	bh=VA5VL/i+Bicc97UB4qohHFXtg31ynyVt0VY08C2NG0c=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=lb6mUKPlrt8qxpkKQB+SaNYcWr7eVOPjzSbD3X8iA3j4eVfVlINDnMus2P4CHWiX49lcA+Cu5N42G2cu9+EINodbMA65zFgkKtjeGybXvFYLNH+C5W+PpLxHDNAMlM0GfOEPRwPPnnf1F7FnSGUU4fElilSM0GfiOSVnCC06SaQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=KfG4o0sa; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=umbf9KzgNYxnb6KUos7GP7t8aq5kxam2/fK+YXp0ZTn9YdxBhftBD2zhgYMDO6+v/8FFN+tbnx8HKIxdg348OFwJ9Og+2pv3uVUTvGxj51pzDDI3RwO1SLeTvRKgih3KcppZq/1zX3seaXb8VADujAAaEBnV2+8WyW68F282t0c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=nxKHdEzd; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="KfG4o0sa"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1C911F000E9;
-	Sat, 22 Aug 2026 02:35:46 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="nxKHdEzd"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3EE701F000E9;
+	Sat, 22 Aug 2026 02:37:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787366147;
-	bh=UF8rF7qhYRGwBEEINylE7qqGOY4s58XGy0o94a54Dq4=;
+	s=k20260515; t=1787366240;
+	bh=g//6LRplCA1G88/K4giPZPcaAbCQ6CazB3UN9Jh58bU=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=KfG4o0saqO5yZunkQDZkTLEBJZJ+37ViDH6lMyzp6xjobxpOQl1WwHHZ4qvMF8D01
-	 EibeFStv/sgFPHwoRpPvW8VdBTUedsYFQoBOryMgjbrLNjToCny215RHQBRI7I0HlV
-	 qMGopViKIkjT+JlXClWkbxfjdZxoeiGt3LAdvM5LAIsZ8YAAOR5CC+LwdslDMnRCzE
-	 qUqIGQ94FS+UOIyToAsH93bFWXPSF6z7dRYHqbejMFhWrRjd44G/jY0lnGVXN0yGqH
-	 EnPQLqYWlQM8/Wf6QDxMlxwiYoJyChS5xrINxGBiWsupKMYT2KXmGrF1t2gj78uJyR
-	 rqOe4opW2Tj5Q==
+	b=nxKHdEzdNcpaI3VkfhC/kWJQU/178h/625gla1PdaVNV1MiR6OcBYciZQefNa1GeS
+	 qgwPEerLVwDr+j25YJ2gfOPVYFHiTM5dgd6hhe5Heu0HgWBXutYr7a8Rj0+uoPoIhA
+	 ypl+wMyTGMiTWErhmhblB/vtJXf0vvKgiqKDlCye+/syBFnp1Cf8KUpTyQdDSUB0gP
+	 hL1UgGBMDSUScosuMXgRKLAZvAqlCW9ZwKWwN93bb5Z2yt+A6f6OmR/78dRmmv8+EF
+	 WnDL117mhzdBxQxIgXfqW3a7kgInR2gvhL1DdYK5v/51/oXDe45g7/icivR+fnLHhe
+	 ZpsiHx9t88nUw==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v4 07/12] Input: xbox_gip - Add security implementation
- from xone
+Subject: Re: [PATCH v4 03/12] Input: xbox_gip - Add controllable LED support
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Vicki Pfau" <vi@endrift.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260822021140.1149546-8-vi@endrift.com>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <20260822021140.1149546-4-vi@endrift.com>
 References: <20260822021140.1149546-1-vi@endrift.com>
- <20260822021140.1149546-8-vi@endrift.com>
+ <20260822021140.1149546-4-vi@endrift.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Sat, 22 Aug 2026 02:35:46 +0000
-Message-Id: <20260822023546.C1C911F000E9@smtp.kernel.org>
+Date: Sat, 22 Aug 2026 02:37:19 +0000
+Message-Id: <20260822023720.3EE701F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 8 potential issue(=
+Thank you for your contribution! Sashiko AI review found 5 potential issue(=
 s) to consider:
-- [Critical] Receiving a GIP_CMD_SECURITY message before the handshake is e=
-xplicitly started causes a NULL pointer dereference.
-- [High] Concurrent unprotected calls to crypto_shash_update corrupt the cr=
-yptographic transcript.
-- [High] Missing NULL check for the state buffer allocation in gip_security=
-_get_transcript leads to a NULL pointer dereference.
-- [High] Allocating the transcript state buffer using crypto_shash_descsize=
- instead of crypto_shash_statesize causes a heap buffer overflow.
-- [High] Unchecked return values in gip_security_compute_prf lead to an inf=
-ormation leak of kernel stack memory.
-- [Medium] Missing cancellation of pending workers during protocol upgrade.
-- [Medium] Unchecked return value of crypto_shash_tfm_digest() in gip_secur=
-ity_compute_ecdh.
-- [Medium] The ECDH shared secret is freed without being securely zeroized.
+
+New issues:
+- [High] Lifecycle mismatch causing Use-After-Free and list corruption for =
+the LED class device.
+- [Medium] Missing initialization of `intensity` for multicolor LED subleds=
+ renders it functionally broken.
+- [Medium] Data race on `mc_cdev->subled_info` during concurrent sysfs or t=
+rigger updates.
+
+Pre-existing issues:
+- [High] Missing bounds check on subsequent message fragments causes out-of=
+-bounds read and kernel memory leak.
+- [High] Input device properties `phys` and `uniq` point to freed memory, c=
+ausing a Use-After-Free and information leak.
 --
 
---- Patch [7]: [PATCH v4 07/12] Input: xbox_gip - Add security implementati=
-on from xone ---
-commit 5605e9d7634da03b416418354e348fe0ff787ead
+--- Patch [3]: [PATCH v4 03/12] Input: xbox_gip - Add controllable LED supp=
+ort ---
+commit ac5f2a01657c115e9d51066385a4a06622ddd86f
 Author: Vicki Pfau <vi@endrift.com>
-Subject: Input: xbox_gip - Add security implementation from xone
 
-This patch imports and adapts the security message implementation from the
-out-of-tree xone driver. It adds a security message driver for Xbox One and
-Series controllers, establishing handshakes needed for wireless dongles.
+Input: xbox_gip - Add controllable LED support
 
-> diff --git a/drivers/input/joystick/gip/gip-security.c b/drivers/input/jo=
-ystick/gip/gip-security.c
-> new file mode 100644
-> index 0000000000000..71da0833980ac
-> --- /dev/null
-> +++ b/drivers/input/joystick/gip/gip-security.c
+This commit adds support for monochrome white and RGBW addressable LEDs
+found on Xbox One and Elite 2 controllers. It exposes these controllable
+LEDs via the led class device and multicolor led class device subsystems.
+
+> diff --git a/drivers/input/joystick/gip/gip-core.c b/drivers/input/joysti=
+ck/gip/gip-core.c
+> index 12a1fb285bfc8..15f8ed2107110 100644
+> --- a/drivers/input/joystick/gip/gip-core.c
+> +++ b/drivers/input/joystick/gip/gip-core.c
+
 [ ... ]
-> +static int gip_security_get_transcript(struct shash_desc *desc, void *tr=
-anscript)
+
+> @@ -1038,9 +1038,116 @@ static int gip_send_guide_button_led(struct gip_a=
+ttachment *attachment,
+> +static int gip_guide_color_led_set(struct led_classdev *led,
+> +	enum led_brightness value)
 > +{
-> +	void *state =3D kzalloc(crypto_shash_descsize(desc->tfm), GFP_KERNEL);
-
-[Severity: High]
-Does this allocate the wrong size? The crypto_shash_export function expects
-a buffer sized by crypto_shash_statesize, not crypto_shash_descsize. Since
-the state size can be strictly larger than the descriptor size for certain
-algorithms, this could cause a heap buffer overflow.
-
-[Severity: High]
-Is it possible for kzalloc to fail here? The return value is passed directly
-to crypto_shash_export without a null check, which would cause a null point=
-er
-dereference under memory pressure.
-
-> +	int err;
+> +	struct led_classdev_mc *mc_cdev =3D container_of(led,
+> +		struct led_classdev_mc, led_cdev);
+> +	struct gip_attachment *attachment =3D container_of(mc_cdev,
+> +		struct gip_attachment, guide_led.color);
 > +
-> +	err =3D crypto_shash_export(desc, state);
-[ ... ]
-> +static int gip_security_compute_prf(struct shash_desc *desc, const char =
-*label,
-> +	u8 *key, int key_len, u8 *seed, int seed_len, u8 *out, int out_len)
-> +{
-> +	u8 hash[SHA256_DIGEST_SIZE], hash_out[SHA256_DIGEST_SIZE];
-> +	int err;
-> +
-> +	err =3D crypto_shash_setkey(desc->tfm, key, key_len);
-> +	if (err)
-> +		return err;
-> +
-> +	crypto_shash_init(desc);
-> +	crypto_shash_update(desc, label, strlen(label));
-> +	crypto_shash_update(desc, seed, seed_len);
-> +	crypto_shash_final(desc, hash);
-> +
-> +	while (out_len > 0) {
-> +		crypto_shash_init(desc);
-> +		crypto_shash_update(desc, hash, sizeof(hash));
-> +		crypto_shash_update(desc, label, strlen(label));
-> +		crypto_shash_update(desc, seed, seed_len);
-> +		crypto_shash_final(desc, hash_out);
-> +
-> +		memcpy(out, hash_out, min_t(int, out_len, sizeof(hash)));
-
-[Severity: High]
-Should we check the return values of the crypto operations inside this loop?
-If crypto_shash_init, crypto_shash_update, or crypto_shash_final fail, the
-hash_out buffer will retain its uninitialized kernel stack data. This data =
-is
-then copied into the output buffer and eventually sent over USB, leading to=
- an
-information leak.
-
-> +		out +=3D sizeof(hash);
-> +		out_len -=3D sizeof(hash);
-> +
-> +		crypto_shash_digest(desc, hash, sizeof(hash), hash);
-> +	}
-> +
-> +	return 0;
-> +}
-[ ... ]
-> +static int gip_security_compute_ecdh(u8 *pubkey_in, u8 *pubkey_out, int =
-pubkey_len, u8 *secret_hash)
-> +{
-> +	struct crypto_kpp *tfm_ecdh;
-> +	struct crypto_shash *tfm_sha;
-> +	u8 *secret;
-> +	int err;
-[ ... ]
-> +	err =3D gip_security_ecdh_get_pubkey(tfm_ecdh, pubkey_out, pubkey_len);
-> +	if (err)
-> +		goto err_free_sha;
-> +
-> +	err =3D gip_security_ecdh_get_secret(tfm_ecdh, pubkey_in, pubkey_len,
-> +		secret, GIP_SECURITY_ECDH_SECRET_LEN);
-> +	if (err)
-> +		goto err_free_sha;
-> +
-> +	crypto_shash_tfm_digest(tfm_sha, secret, GIP_SECURITY_ECDH_SECRET_LEN, =
-secret_hash);
+> +	led_mc_calc_color_components(mc_cdev, value);
+> +	guard(mutex)(&attachment->lock);
 
 [Severity: Medium]
-Could this leave secret_hash uninitialized if the digest fails? The return
-value is ignored, which means the caller might silently proceed to compute =
-the
-master secret using uninitialized stack memory.
+Can this cause a data race on the subled_info array? The function
+led_mc_calc_color_components() modifies mc_cdev->subled_info before the
+attachment->lock is acquired. Since the LED subsystem does not serialize
+concurrent calls to brightness_set_blocking (for instance, from concurrent
+sysfs writes and blink triggers), multiple threads could modify the shared
+subled_info array simultaneously before acquiring the mutex.
 
-> +
-> +err_free_sha:
-> +	crypto_free_shash(tfm_sha);
-> +err_free_ecdh:
-> +	crypto_free_kpp(tfm_ecdh);
-> +err_free_secret:
-> +	kfree(secret);
-
-[Severity: Medium]
-Since the secret buffer holds raw cryptographic key material, should this u=
-se
-kfree_sensitive instead of kfree to prevent sensitive data from lingering in
-the slab allocator?
-
-> +
-> +	return err;
+> +	return gip_send_guide_button_color_led(attachment,
+> +		mc_cdev->subled_info[0].brightness,
+> +		mc_cdev->subled_info[1].brightness,
+> +		mc_cdev->subled_info[2].brightness,
+> +		mc_cdev->subled_info[3].brightness);
 > +}
 > +
-> +static int gip_security_send_message(struct gip_security *security,
-> +	enum gip_security_command_handshake cmd, void *message, u16 len)
+> +static int gip_guide_led_probe(struct gip_attachment *attachment, struct=
+ device *dev)
 > +{
-> +	struct gip_attachment *attachment =3D container_of(security, struct gip=
-_attachment, security);
-> +	struct gip_security_header_full *hdr =3D message;
-> +	u16 data_len =3D len - sizeof(hdr->handshake) - GIP_SECURITY_TRAILER_LE=
-N;
+> +	int rc =3D 0;
 > +
-> +	hdr->handshake.context =3D GIP_SECURITY_CTX_HANDSHAKE;
-> +	hdr->handshake.options =3D GIP_SECURITY_OPT_ACKNOWLEDGE | GIP_SECURITY_=
-OPT_FROM_HOST;
-> +	hdr->handshake.command =3D cmd;
-> +	hdr->handshake.length =3D cpu_to_be16(data_len);
+> +	if (!gip_supports_system_message(attachment, GIP_CMD_LED, false))
+> +		return 0;
 > +
-> +	hdr->data.command =3D cmd;
-> +	hdr->data.version =3D cmd >=3D GIP_SECURITY2_CMD_HOST_HELLO ? 0x02 : 0x=
-01;
-> +	hdr->data.length =3D cpu_to_be16(data_len - sizeof(hdr->data));
+> +	if (attachment->features & GIP_FEATURE_GUIDE_COLOR) {
+> +		struct mc_subled *mc_led_info;
+> +		struct led_classdev_mc *mc_cdev =3D &attachment->guide_led.color;
+> +		struct led_classdev *cdev =3D &mc_cdev->led_cdev;
 > +
-> +	security->last_sent_command =3D cmd;
-> +	crypto_shash_update(security->shash_transcript, message + sizeof(hdr->h=
-andshake), data_len);
+> +		mc_led_info =3D devm_kcalloc(dev, 4,
+> +			sizeof(*mc_led_info), GFP_KERNEL);
+> +		if (!mc_led_info)
+> +			return -ENOMEM;
+> +
+> +		mc_led_info[0].color_index =3D LED_COLOR_ID_RED;
+> +		mc_led_info[1].color_index =3D LED_COLOR_ID_GREEN;
+> +		mc_led_info[2].color_index =3D LED_COLOR_ID_BLUE;
+> +		mc_led_info[3].color_index =3D LED_COLOR_ID_WHITE;
+
+[Severity: Medium]
+Does this leave the intensity fields set to 0? The mc_led_info array is
+allocated with devm_kcalloc, which zero-initializes the memory. When the
+LED core later calls led_mc_calc_color_components(), it multiplies the
+requested brightness by each channel's intensity. If the intensity is 0,
+the computed brightness for all channels will be 0, and the LED will not
+turn on unless userspace manually writes to the multi_intensity sysfs file.
+
+> +
+> +		mc_cdev->subled_info =3D mc_led_info;
+> +		mc_cdev->num_colors =3D 4;
+> +
+> +		cdev->brightness =3D 51;
+> +		cdev->max_brightness =3D 255;
+> +		cdev->flags =3D LED_CORE_SUSPENDRESUME | LED_RETAIN_AT_SHUTDOWN;
+> +		cdev->brightness_set_blocking =3D gip_guide_color_led_set;
+> +		cdev->name =3D devm_kasprintf(dev, GFP_KERNEL,
+> +			"%s:rgb:power", dev_name(dev));
+> +		if (!cdev->name)
+> +			rc =3D -ENOMEM;
+> +
+> +		if (!rc)
+> +			rc =3D devm_led_classdev_multicolor_register(dev,
+> +				mc_cdev);
 
 [Severity: High]
-Can this code execute concurrently with the message handler? The
-gip_security_send_message function is called from asynchronous workers, whi=
-le
-gip_security_handle_message can also update the same shash_transcript
-descriptor. Since shash_desc is not thread-safe, concurrent modifications
-could corrupt the cryptographic transcript.
+Can this lead to a use-after-free and list corruption on device disconnect?
+The LED is registered using devres tied to the input device (dev), meaning
+its unregistration is deferred until the input device is finally released.
+However, the mc_cdev is embedded in the attachment structure, which is
+explicitly freed during gip_disconnect():
 
-> +
-> +	return gip_send_system_message(attachment, GIP_CMD_SECURITY, GIP_FLAG_A=
-CME, message, len);
-> +}
-[ ... ]
-> +int gip_security_handle_message(struct gip_security *security, const voi=
-d *bytes, int num_bytes)
-> +{
-> +	const struct gip_security_header_handshake *handshake =3D bytes;
-> +	const struct gip_security_header_full *hdr;
-> +	int err;
-> +
-> +	if (num_bytes < sizeof(*handshake))
-> +		return -EINVAL;
-> +
-> +	if (handshake->error)
-> +		return -EPROTO;
-> +
-> +	if (handshake->options & GIP_SECURITY_OPT_ACKNOWLEDGE) {
-> +		if (handshake->command =3D=3D 0x01)
-> +			return gip_security_handle_acknowledge(security);
-> +
-> +		gip_err(security, "%s: handshake failed: 0x%02x\n",
-> +			__func__, handshake->command);
-> +		return -EPROTO;
-> +	}
-> +
-> +	if (num_bytes < sizeof(*hdr))
-> +		return -EINVAL;
-> +
-> +	hdr =3D bytes;
-> +	/* client uses v2 */
-> +	if (handshake->command !=3D hdr->data.command) {
-> +		/* reset transcript hash and restart handshake */
-> +		gip_dbg(security, "%s: protocol upgrade\n", __func__);
-> +		crypto_shash_init(security->shash_transcript);
+drivers/input/joystick/gip/gip-core.c:gip_disconnect() {
+    ...
+    devm_kfree(to_gip_device(attachment), attachment);
+    ...
+}
 
-[Severity: Critical]
-If an attacker-controlled USB device sends a security packet before the
-handshake is explicitly started, could security->shash_transcript be a null
-pointer here and cause a dereference? The cryptographic descriptors are
-initialized lazily in gip_security_start_handshake, so early packets routed
-to this handler might trigger a crash.
+If a user-space process holds an open file descriptor to the evdev node
+during a USB disconnect, the input_dev outlives the attachment. The
+led_classdev remains registered but its backing memory is freed. When the
+evdev node is finally closed, the input_dev devres cleanup will invoke
+led_classdev_unregister() on the freed memory.
 
-[Severity: Medium]
-If we restart the handshake here, do we need to cancel any previously
-scheduled v1 workers? If a v1 worker like work_exchange_rsa is pending, it
-could execute concurrently, modify the state, and corrupt the new v2 handsh=
-ake.
 
-> +		return gip_security2_send_hello(security);
-> +	}
-> +
-> +	err =3D gip_security_dispatch_message(security, hdr->data.command,
-> +		bytes + sizeof(*hdr), num_bytes - sizeof(*hdr));
-> +	if (err)
-> +		return err;
-> +
-> +	return crypto_shash_update(security->shash_transcript,
-> +		bytes + sizeof(hdr->handshake),
-> +		num_bytes - sizeof(hdr->handshake));
+While reviewing this patch, I noticed a pre-existing issue in
+gip_receive_fragment() that might need addressing:
 
-[Severity: Critical]
-Similar to the issue above, could security->shash_transcript be a null poin=
-ter
-here if a packet is received before the handshake was explicitly started,
-resulting in a null pointer dereference in crypto_shash_update?
+drivers/input/joystick/gip/gip-core.c:gip_receive_fragment() {
+    ...
+    } else {
+        if (header->length !=3D 0)
+            memcpy(&attachment->in_fragment_data[*fragment_offset],
+                   &bytes[offset], header->length);
+    ...
+}
 
-> +}
+[Severity: High]
+This is a pre-existing issue, but does this lack a bounds check for
+subsequent message fragments? The first fragment properly validates that
+header->length does not exceed the packet size, but this else branch omits
+that validation. A malicious or malfunctioning USB device could send a
+small packet with a large header->length, causing the memcpy to read out
+of bounds from the 64-byte gip_raw_message buffer into the heap-allocated
+in_fragment_data buffer, potentially leaking kernel memory.
+
+
+I also noticed another pre-existing lifecycle issue in
+gip_setup_input_device() and gip_disconnect():
+
+drivers/input/joystick/gip/gip-core.c:gip_setup_input_device() {
+    ...
+    input->uniq =3D attachment->uniq;
+    ...
+    input->phys =3D attachment->phys;
+    ...
+}
+
+drivers/input/joystick/gip/gip-core.c:gip_disconnect() {
+    ...
+    devm_kfree(to_gip_device(attachment), attachment->uniq);
+    devm_kfree(to_gip_device(attachment), attachment);
+    ...
+}
+
+[Severity: High]
+This isn't a bug introduced by this patch, but can this cause a
+use-after-free if the input device is held open? The input device
+properties phys and uniq are set to point to attachment->phys and
+attachment->uniq. When the device is disconnected, these are explicitly
+freed. If an evdev file descriptor is open, the input_dev outlives the
+attachment. Subsequent calls to EVIOCGPHYS or EVIOCGUNIQ ioctls would
+read from these freed memory pointers and copy the contents to user-space.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260822021140.1149=
-546-1-vi@endrift.com?part=3D7
+546-1-vi@endrift.com?part=3D3

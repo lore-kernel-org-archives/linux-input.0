@@ -1,72 +1,43 @@
-Received: from mail-pj1-f54.google.com (mail-pj1-f54.google.com [209.85.216.54])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from endrift.com (endrift.com [173.255.198.10])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B2BEC435AAB
-	for <linux-input@vger.kernel.org>; Fri, 21 Aug 2026 23:37:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.54
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 83E052D6E5A
+	for <linux-input@vger.kernel.org>; Sat, 22 Aug 2026 02:13:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=173.255.198.10
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787355468; cv=none; b=jrGSH8VYmy8/1zQX54q7vw0LCrtVjPQm5X0gounOV5JOExnH4TVp69NUuFTPumkNzugWR9rpaOV/PHSBouY+9Oaxfcll86cLs0qTBJyhZ/CdOgllS+XiOf8+lB2/5zJ17/g5poJ8hXRzZRTHSiQsMDz0fmRmFBbghw+kwpeqGIs=
+	t=1787364807; cv=none; b=OQwjHCovqlSZ6x6gqd80jtTzoRnlZHczktMi1ZPuaY3g5EhO+Xek/CHBsmrno6bO3qzyN9OTfWKWzazFQHnQS+6iM2EUhcd9Mk79As5wgGTfHmdpVgNWxjHH9duqHwYRfEXsrv35mHj5+y59m+IHHJcM1lF0LxncC6Dbukh4O38=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787355468; c=relaxed/simple;
-	bh=Crpzy5EBrcPrgxg5bwZ9gBe8cNdpZOCf5sRTxUsiAsQ=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=XovQZsq1pcVB+oYzdBRLYw/f9v5LqEtxZnOKhyGnoHS9t7Ko2niECdLJmfkEHhbi7e+Z5XPfNvFoff2Iu8SLwC90M8EKg8OEfkgCL+2eeiq7hmTlNmFKw/+/g/LNI10BLv2KK5bbl6h6+6vpvB9I2iUeupWQ8MpGmLH18kQI7Us=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=N2s9mEc2; arc=none smtp.client-ip=209.85.216.54
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1787364807; c=relaxed/simple;
+	bh=KluTec1WKEsFaFvTfLl10IS402EZeZel7k6Zwr1iG5I=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=mTl1jzYp73laRpN9A5Tr820YTIZL9mA1NhIXtf3oHREd2LA8OXFGuBbpdQlprAb8H2/qH1K3NkkaJPto3Fvn/0572Q/mi4J6TQ4xTx1v3hFZHq3LV7aUc6guSLDdhTkeIhGSTHTz+PkHhnw1fKxoOEYGDF9dlvx2sTQhjHFd7tI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com; spf=pass smtp.mailfrom=endrift.com; dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b=lJMp+xWo; arc=none smtp.client-ip=173.255.198.10
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=endrift.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="N2s9mEc2"
-Received: by mail-pj1-f54.google.com with SMTP id 98e67ed59e1d1-38dc69c74b8so1664683a91.0
-        for <linux-input@vger.kernel.org>; Fri, 21 Aug 2026 16:37:45 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1787355464; x=1787960264; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=Op76CG/nwpuv151WXYSm8x7TlB0GS97YootXc2xz6Js=;
-        b=N2s9mEc2j143H77diuDtaUqf9gQWVSHF3n45K8V/ByLnwYo944jEwlZY2Ts+ZmsNsh
-         rv9TxQQ42eWCYukiBPQSaNGTvHJpqqACusA0lyNo1ORVUW004fg9IcDZJyINrCedaX7W
-         QpUEed/pyalJLsOwq0A+k3hRjW3Afqmna0Q6Hr8jzKgu0PBVueOEgqUdIXkaqJ0bI6PB
-         Frh+Md8ZC4+Sx9u2cylNEMPPM3Eq/s/F/NJeiMOFXA9DiKWeCFSLOxJRFAqMz1JAOQpy
-         zdpGza9qHVpTW27I8C2fHuQocDEjNSkpQ+5V83VMY38wsseGsQSXxrbdSfsxoZlfdAuV
-         1N1A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787355464; x=1787960264;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=Op76CG/nwpuv151WXYSm8x7TlB0GS97YootXc2xz6Js=;
-        b=XCTI7FDBfCVm+7IM4Ix5qz340U0WnIvQdDOn5QQ8vYtXPTofqg7MeHRROZ/UtWAjdm
-         VgCW+f59eEWo6akyLYTrlAMo5ptFdG3JKlaFvMBPmLSBF33gWCLdlSHz0NBYGy9agic6
-         G9dDp7eFOuYt19xOdVOEAEE1vbEju71Xq/mnZ/mny/Bt1t3QBnsGszHqe4EVXkOCl354
-         C5hZkOvE55pH9W6UY66rw9Z42I8PFVbWmS/QSFutULEwSkNKvRq4qFWjS4Ctqj/FEfLh
-         O+H/YHEyq+GtCwbxt9w/cLr4dZTA/XHiqgoEBolfNVc4+635UOpCipb1NTiCg0fcXjUA
-         xa1w==
-X-Gm-Message-State: AFuF++kGOldyJHb80FfOpTDCUgnpnTQ7ONUT6kQS0GuPz/7wpmBfYllU
-	ss1tOUf9qKwMpjX0rqOgFuzep+aLTHUmVrhHhxWH6V6CgfAqa5a5n04o
-X-Gm-Gg: AR+sD10nbSgkH3Fq4gagb3e6hS96ojffd4s8MnYvk5j5FIyMjt5Pkgtaj++fUaUCQ9l
-	xsdYFk9rr54PPuEsAhXT2PCHIlHuwTv6lKZffZtafif0N/QiPqPdJYLts4MLQCYfiIaFMa3L+u5
-	V8znvF+2PMEkIY7iq4Y2AX9HdEVjIpWwEscV6QHIAtf4E2LVb3Zk30jAwY9qIlFYW858d2QH0/6
-	muSgz5k8qIYs1mwWEQozB8F6eiOpECPNQCuTmVLOHeHTRGDGpovGTiRSrLeUkSf18cXh6MKIcSq
-	YVkPG6UGbtA24qMbZwig/SZPxWQFx9VBksqYlfcHQylTEBg+/xMr/8Zs758oicMogDgew2+TCO2
-	VqYhm3oTHLVBLhqBCKoU4oV8Y5fyCfKggl+4Lw/GNhYRgi0aholkWyv0OVyaoJ2tVY0EgCtQRfJ
-	gF/Oyo1bGJVML9XV9l2RuRY70DXKA2ZqiDmfstiv0B6psf75LWXQJsfjPDgFTDakq5UME3ErpXE
-	dMVrfvcLQLbb8R7rIgiqMkRkV7z8aG931s9PnOHI3GXQbj0Y8bK
-X-Received: by 2002:a17:90b:2808:b0:37d:f983:7b5 with SMTP id 98e67ed59e1d1-395df289c4bmr3680987a91.9.1787355463940;
-        Fri, 21 Aug 2026 16:37:43 -0700 (PDT)
-Received: from hanzj-mi.. (ec2-99-79-140-187.ca-central-1.compute.amazonaws.com. [99.79.140.187])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-395e4a4e5ecsm585305a91.16.2026.08.21.16.37.38
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 21 Aug 2026 16:37:43 -0700 (PDT)
-From: hanzhijian <hanzhijian1991@gmail.com>
-To: Hans de Goede <hansg@kernel.org>,
-	Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>
-Cc: linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	hanzhijian <hanzhijian1991@gmail.com>
-Subject: [PATCH] HID: lg-g15: fix kernel-doc comment for TEST_BIT
-Date: Sat, 22 Aug 2026 07:37:31 +0800
-Message-ID: <20260821233731.2331171-1-hanzhijian1991@gmail.com>
-X-Mailer: git-send-email 2.43.0
+	dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b="lJMp+xWo"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=endrift.com; s=2020;
+	t=1787364799; bh=KluTec1WKEsFaFvTfLl10IS402EZeZel7k6Zwr1iG5I=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+	b=lJMp+xWoc9bQgdBO+FgwgehZ1DqpPJgH8Kef5zw/UIRbfSUUNPGBDRIYTOdahZivj
+	 VRPC5bFgBWv9IIj10muhSlT25qnIW/A7XEnW9uzyc20DVNiS5uO0yrtWtbwdMfUxbD
+	 W6yhqUC10jVQWFJDsICA1ctT7gHbsP43XC1O//upBKYChfQ9RCvk+zHFW9Ua7SNDsM
+	 cYKwQ1x8radxeKBcP9j4fDKdDUfbYGgktNAcc6bZy5oRDlL+jKIxN+2NL5Qaa2VzPY
+	 AoAlxXQENvjYOXK3w6+x2AlaM+jj0V3RHdwOTdCcH8WmZPxyIj/JryPWJaKFey3SfS
+	 vsd8wD09YQkag==
+Received: from microtis.vulpes.eutheria.net (71-212-73-87.tukw.qwest.net [71.212.73.87])
+	by endrift.com (Postfix) with ESMTPSA id A0E77132034;
+	Fri, 21 Aug 2026 19:13:19 -0700 (PDT)
+From: Vicki Pfau <vi@endrift.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	linux-input@vger.kernel.org
+Cc: Vicki Pfau <vi@endrift.com>
+Subject: [PATCH v4 05/12] Input: xbox_gip - Add battery support
+Date: Fri, 21 Aug 2026 19:11:29 -0700
+Message-ID: <20260822021140.1149546-6-vi@endrift.com>
+X-Mailer: git-send-email 2.54.0
+In-Reply-To: <20260822021140.1149546-1-vi@endrift.com>
+References: <20260822021140.1149546-1-vi@endrift.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -75,33 +46,166 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The comment for the TEST_BIT() macro starts with "/**" but lacks the
-macro name line, so scripts/kernel-doc reports "isn't a kernel-doc
-comment" and it is silently dropped from the generated documentation.
+Controllers are required to give information about the battery in the
+controller, if present. This patch exposes that information as a
+power_supply device.
 
-Add the missing name line.
-
-Signed-off-by: hanzhijian <hanzhijian1991@gmail.com>
+Signed-off-by: Vicki Pfau <vi@endrift.com>
 ---
- drivers/hid/hid-lg-g15.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/input/joystick/gip/gip-core.c | 97 +++++++++++++++++++++++++++
+ drivers/input/joystick/gip/gip.h      |  3 +
+ 2 files changed, 100 insertions(+)
 
-diff --git a/drivers/hid/hid-lg-g15.c b/drivers/hid/hid-lg-g15.c
-index 02ef3e209..c22820243 100644
---- a/drivers/hid/hid-lg-g15.c
-+++ b/drivers/hid/hid-lg-g15.c
-@@ -35,7 +35,10 @@
- #define LG_G13_BACKLIGHT_HW_ON_BIT	23
+diff --git a/drivers/input/joystick/gip/gip-core.c b/drivers/input/joystick/gip/gip-core.c
+index c833b10259ab..d694ac551639 100644
+--- a/drivers/input/joystick/gip/gip-core.c
++++ b/drivers/input/joystick/gip/gip-core.c
+@@ -255,6 +255,13 @@ static const struct gip_audio_format gip_audio_format_table[MAX_GIP_AUDIO_FORMAT
+ };
  
- /**
-- * g13_input_report.keybits[] is not 32-bit aligned, so we can't use the bitops macros.
-+ * TEST_BIT() - Test a bit in an unaligned byte array
-+ *
-+ * g13_input_report.keybits[] is not 32-bit aligned, so we cannot use
-+ * the bitops macros.
-  *
-  * @ary: Pointer to array of u8s
-  * @b: Bit index into ary, LSB first.  Not range checked.
+ 
++static enum power_supply_property gip_battery_props[] = {
++	POWER_SUPPLY_PROP_PRESENT,
++	POWER_SUPPLY_PROP_CAPACITY_LEVEL,
++	POWER_SUPPLY_PROP_SCOPE,
++	POWER_SUPPLY_PROP_STATUS,
++};
++
+ static const struct gip_quirks base_quirks[] = {
+ 	{ GIP_VID_PDP, GIP_PID_PDP_ROCK_CANDY, 0, .quirks = GIP_QUIRK_NO_HELLO },
+ 
+@@ -1196,6 +1203,92 @@ static int gip_guide_led_probe(struct gip_attachment *attachment, struct device
+ 	return rc;
+ }
+ 
++static int gip_battery_get_property(struct power_supply *psy,
++	enum power_supply_property psp, union power_supply_propval *val)
++{
++	struct gip_attachment *attachment = power_supply_get_drvdata(psy);
++
++	guard(mutex)(&attachment->lock);
++	switch (psp) {
++	case POWER_SUPPLY_PROP_PRESENT:
++		val->intval = attachment->status.base.battery_type != GIP_BATTERY_ABSENT;
++		break;
++	case POWER_SUPPLY_PROP_SCOPE:
++		val->intval = POWER_SUPPLY_SCOPE_DEVICE;
++		break;
++	case POWER_SUPPLY_PROP_STATUS:
++		if (attachment->status.base.battery_type == GIP_BATTERY_ABSENT) {
++			val->intval = POWER_SUPPLY_STATUS_NOT_CHARGING;
++		} else {
++			switch (attachment->status.base.charge) {
++			case GIP_CHARGING:
++				if (attachment->status.base.battery_level == GIP_BATTERY_FULL)
++					val->intval = POWER_SUPPLY_STATUS_FULL;
++				else
++					val->intval = POWER_SUPPLY_STATUS_CHARGING;
++				break;
++			case GIP_NOT_CHARGING:
++				val->intval = POWER_SUPPLY_STATUS_DISCHARGING;
++				break;
++			case GIP_CHARGE_ERROR:
++			default:
++				val->intval = POWER_SUPPLY_STATUS_UNKNOWN;
++				break;
++			}
++		}
++		break;
++	case POWER_SUPPLY_PROP_CAPACITY_LEVEL:
++		if (attachment->status.base.battery_type == GIP_BATTERY_ABSENT) {
++			val->intval = POWER_SUPPLY_CAPACITY_LEVEL_FULL;
++		} else {
++			switch (attachment->status.base.battery_level) {
++			case GIP_BATTERY_CRITICAL:
++				val->intval = POWER_SUPPLY_CAPACITY_LEVEL_CRITICAL;
++				break;
++			case GIP_BATTERY_LOW:
++				val->intval = POWER_SUPPLY_CAPACITY_LEVEL_LOW;
++				break;
++			case GIP_BATTERY_MEDIUM:
++				val->intval = POWER_SUPPLY_CAPACITY_LEVEL_NORMAL;
++				break;
++			case GIP_BATTERY_FULL:
++				val->intval = POWER_SUPPLY_CAPACITY_LEVEL_FULL;
++				break;
++			default:
++				val->intval = POWER_SUPPLY_CAPACITY_LEVEL_UNKNOWN;
++				break;
++			}
++			break;
++		}
++		break;
++	default:
++		return -EINVAL;
++	}
++	return 0;
++}
++
++static int gip_battery_create(struct gip_attachment *attachment, struct device *dev)
++{
++	struct power_supply_config supply_config = { .drv_data = attachment, };
++
++	attachment->battery_desc.properties = gip_battery_props;
++	attachment->battery_desc.num_properties = ARRAY_SIZE(gip_battery_props);
++	attachment->battery_desc.get_property = gip_battery_get_property;
++	attachment->battery_desc.type = POWER_SUPPLY_TYPE_BATTERY;
++	attachment->battery_desc.name = devm_kasprintf(dev, GFP_KERNEL,
++		"gip-battery-%s", dev_name(dev));
++
++	if (!attachment->battery_desc.name)
++		return -ENOMEM;
++
++	attachment->battery = devm_power_supply_register(dev,
++		&attachment->battery_desc, &supply_config);
++	if (IS_ERR(attachment->battery))
++		return PTR_ERR(attachment->battery);
++
++	return power_supply_powers(attachment->battery, dev);
++}
++
+ static bool gip_send_set_device_state(struct gip_attachment *attachment, uint8_t state)
+ {
+ 	uint8_t buffer[] = { state };
+@@ -1308,6 +1401,9 @@ static int gip_setup_input_device(struct gip_attachment *attachment)
+ 	rc = gip_guide_led_probe(attachment, &input->dev);
+ 	if (rc)
+ 		gip_err(attachment, "Failed to register LEDs: %d\n", rc);
++	rc = gip_battery_create(attachment, &input->dev);
++	if (rc)
++		gip_err(attachment, "Failed to register battery: %d\n", rc);
+ 
+ 	return 0;
+ 
+@@ -2623,6 +2719,7 @@ static int gip_shutdown(struct gip_device *device)
+ 			hdev = rcu_dereference(attachment->hdev);
+ 			rcu_read_unlock();
+ 
++			attachment->battery = NULL;
+ 			rcu_assign_pointer(attachment->input, NULL);
+ 			rcu_assign_pointer(attachment->hdev, NULL);
+ 			synchronize_rcu();
+diff --git a/drivers/input/joystick/gip/gip.h b/drivers/input/joystick/gip/gip.h
+index fbcf66e18158..e7953c683c51 100644
+--- a/drivers/input/joystick/gip/gip.h
++++ b/drivers/input/joystick/gip/gip.h
+@@ -14,6 +14,7 @@
+ 
+ #include <linux/hid.h>
+ #include <linux/led-class-multicolor.h>
++#include <linux/power_supply.h>
+ #include <linux/rcupdate.h>
+ #include <linux/usb/input.h>
+ 
+@@ -241,6 +242,8 @@ struct gip_attachment {
+ 		struct led_classdev_mc color;
+ 	} guide_led;
+ 
++	struct power_supply *battery;
++	struct power_supply_desc battery_desc;
+ 	struct gip_extended_status status;
+ 
+ 	enum gip_elite_button_format xbe_format;
 -- 
-2.43.0
+2.54.0
 

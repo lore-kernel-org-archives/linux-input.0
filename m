@@ -1,43 +1,40 @@
 Received: from endrift.com (endrift.com [173.255.198.10])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CC8FA2D97A6
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F00BD2DCC1F
 	for <linux-input@vger.kernel.org>; Sat, 22 Aug 2026 02:20:36 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=173.255.198.10
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787365238; cv=none; b=kL/kkFigYCS1ybhkz8JLGeA5o8C0vkJSX2kqWox3d7TCc8ppDow0rNx7I2GkRjvET1BWBA/xClx4x8AtyBZa/2BbKLLOQSgUeVQfBhiUUbXhLtPFXCENcTwPVVdUSeeQkhdN++/7h0wnLNbChGOKGyZwcXC+1zjurO2Ap09rCY0=
+	t=1787365238; cv=none; b=IFHo1Xld9OZkZ9ghFyba5PjBkNBhP9YpB2lGfEsQ4kaDhJXwhv0QgNvG3iEaytIDlkd0HqjrQInsdVm7L7DWLVbFKOWrZ9tq6F9klvCGSMXwKhdUHnrGWOYsjOz5uHAN9O1sp6NBBYepm52JdOx1ZBzsskpHcLGiw4Bhi9/vDIc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1787365238; c=relaxed/simple;
-	bh=LxApIdJDA4GykJAWbHT+/5mjoQzKocPYv/7H2yhgehE=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=DKbN3ansRxNgYJEYONeYevdmdTdTf/KcDrLooYLoZdFvFYSQQD3tIvq3mOCQaGmA4H88gDyOr63QpwfZPYy9PE4d4a+9Wv8VyU2F+MZF/CYu88PUtR13pbu4NJJ6TEo12UnFHFx2qydmKViG0RdNMRvo90Cj9N90Tmy30Vch1i0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com; spf=pass smtp.mailfrom=endrift.com; dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b=Did9t4Gw; arc=none smtp.client-ip=173.255.198.10
+	bh=/sWj44+Oufqsr1zBz2U63fC6mrJ3TgfzHWH9rlrw/2U=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=rb7Z5li4ExxyGZVWPjZ1QtdSQecxFwahDgPdv/KtxgeC+32TjeL1U7UykPKrDaPKeGhFPIhNLTL2SQtBzdEE2Hwyt8kCBUCWEDoxAszevX86S9nhU5IzpPrUgPTpL0BgUKRvPkTJovCLQFXrt/v5FG5GN8RkI+ss3C9zxzdsUxM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com; spf=pass smtp.mailfrom=endrift.com; dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b=H8yGHobR; arc=none smtp.client-ip=173.255.198.10
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=endrift.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b="Did9t4Gw"
+	dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b="H8yGHobR"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=endrift.com; s=2020;
-	t=1787364799; bh=LxApIdJDA4GykJAWbHT+/5mjoQzKocPYv/7H2yhgehE=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=Did9t4GwdysG3M+RMbSqLQfLgePwek76NVA3FtZnbe7DhSvJXDlbbPZyX/dZRirrI
-	 k+tIc4MLR28n/VxfIonl/XUA9sJL+zmDbT8jkGCznL4SAy+K47AYgdGBlt8Ni2WWwE
-	 m9cIUmXDsY/6RALPnMjGNiOA+szcb524PxetXok8JjUearizib8PDFHU0Md2Ssp8/E
-	 PVetsMdqPUZv7ANDZSCT/J2xeW8VuURue/GkhuCo8PuMOZeXj3HFWNHqZP0YYxyt3I
-	 +XrVjcO98OIamhFHM+TbqDpdoH11+CSfMMpUU016JuFrVRU6cAb1VH+4XfAP2Z33Gx
-	 Kj80FRl3KiWTw==
+	t=1787364798; bh=/sWj44+Oufqsr1zBz2U63fC6mrJ3TgfzHWH9rlrw/2U=;
+	h=From:To:Cc:Subject:Date:From;
+	b=H8yGHobRuHgP59kGWvIftsfHz+JKYEvv3mfSoOdjsd15LwrgN57XZQ5M/WFBPBV5a
+	 +LhcZIbPq908wrZ5/76R98sG16VIxx41GDQFZk0escV5EleDcVRnA86P3SPv03HeNO
+	 rTZDjsvNuN4hGTnQpFlwXtf2RnZ8YJu/mZ7T2A8esEzwBxEY+Dhw+7w+J9gueksBtU
+	 XM5f/H6MsWz4Nu2T9VwNxq/6m71JmUdpUqqb6onuuSA3wqg+U8zp5WWjv0EA5fwh3M
+	 Ix7GLd/z07ikEozjiXK8HvE/h2oWARStRou/ShlUdCUmn6OLaS2xPpFpII9kbEYJgZ
+	 1Oz3XSa7NkUaQ==
 Received: from microtis.vulpes.eutheria.net (71-212-73-87.tukw.qwest.net [71.212.73.87])
-	by endrift.com (Postfix) with ESMTPSA id 53CA4A13A;
-	Fri, 21 Aug 2026 19:13:19 -0700 (PDT)
+	by endrift.com (Postfix) with ESMTPSA id DA3E7A051;
+	Fri, 21 Aug 2026 19:13:17 -0700 (PDT)
 From: Vicki Pfau <vi@endrift.com>
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
 	linux-input@vger.kernel.org
 Cc: Vicki Pfau <vi@endrift.com>
-Subject: [PATCH v4 04/12] Input: xbox_gip - Add HID relaying
-Date: Fri, 21 Aug 2026 19:11:28 -0700
-Message-ID: <20260822021140.1149546-5-vi@endrift.com>
+Subject: [PATCH v4 00/12] Input: xbox_gip - Add new driver for Xbox GIP
+Date: Fri, 21 Aug 2026 19:11:24 -0700
+Message-ID: <20260822021140.1149546-1-vi@endrift.com>
 X-Mailer: git-send-email 2.54.0
-In-Reply-To: <20260822021140.1149546-1-vi@endrift.com>
-References: <20260822021140.1149546-1-vi@endrift.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -46,179 +43,90 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-GIP allows tunneling of HID packets, with the HID descriptor embedded in
-the GIP metadata exchanged during the initial handshake. This patch creates
-a hid_device for this HID descriptor if found, as well as relaying the HID
-packets.
+This is a new version of the previously submitted xbox-gip series.
 
-Signed-off-by: Vicki Pfau <vi@endrift.com>
----
- drivers/input/joystick/gip/gip-core.c | 94 ++++++++++++++++++++++++++-
- drivers/input/joystick/gip/gip.h      |  2 +
- 2 files changed, 93 insertions(+), 3 deletions(-)
+This introduces a new driver for the Xbox One/Series controller protocol,
+officially known as the Gaming Input Protocol, or GIP for short.
 
-diff --git a/drivers/input/joystick/gip/gip-core.c b/drivers/input/joystick/gip/gip-core.c
-index 15f8ed210711..c833b10259ab 100644
---- a/drivers/input/joystick/gip/gip-core.c
-+++ b/drivers/input/joystick/gip/gip-core.c
-@@ -560,6 +560,54 @@ int gip_send_vendor_message(struct gip_attachment *attachment,
- 		bytes, num_bytes);
- }
- 
-+static int gip_hid_ll_parse(struct hid_device *hdev)
-+{
-+	struct gip_attachment *attachment = hdev->driver_data;
-+
-+	return hid_parse_report(hdev,
-+		attachment->metadata.device.hid_descriptor,
-+		attachment->metadata.device.hid_descriptor_size);
-+}
-+
-+static int gip_hid_ll_start(struct hid_device *hdev)
-+{
-+	return 0;
-+}
-+
-+static void gip_hid_ll_stop(struct hid_device *hdev)
-+{
-+}
-+
-+static int gip_hid_ll_open(struct hid_device *hdev)
-+{
-+	return 0;
-+}
-+
-+static void gip_hid_ll_close(struct hid_device *hdev)
-+{
-+}
-+
-+static int gip_hid_ll_raw_request(struct hid_device *hdev,
-+	unsigned char reportnum, uint8_t *buf, size_t count,
-+	unsigned char report_type, int reqtype)
-+{
-+	/*
-+	 * TODO: Based on the metadata, output reports appear to be possible,
-+	 * but the chatpad doesn't have the LEDs it claims to support, so
-+	 * it's not clear how to test we're sending them properly.
-+	 */
-+	return 0;
-+}
-+
-+static const struct hid_ll_driver gip_hid_ll_driver = {
-+	.parse = gip_hid_ll_parse,
-+	.start = gip_hid_ll_start,
-+	.stop = gip_hid_ll_stop,
-+	.open = gip_hid_ll_open,
-+	.close = gip_hid_ll_close,
-+	.raw_request = gip_hid_ll_raw_request,
-+};
-+
- static void gip_metadata_free(struct device *dev, struct gip_metadata *metadata)
- {
- 	devm_kfree(dev, metadata->device.audio_formats);
-@@ -1361,7 +1409,34 @@ static int gip_send_init_sequence(struct gip_attachment *attachment)
- 	if (rc)
- 		return rc;
- 
--	return 0;
-+	if (attachment->metadata.device.hid_descriptor) {
-+		struct hid_device *hdev = hid_allocate_device();
-+
-+		if (IS_ERR(hdev))
-+			return PTR_ERR(hdev);
-+
-+		hdev->ll_driver = &gip_hid_ll_driver;
-+		hdev->bus = BUS_USB;
-+		hdev->vendor = attachment->vendor_id;
-+		hdev->product = attachment->product_id;
-+		hdev->dev.parent = to_gip_device(attachment);
-+		hdev->driver_data = attachment;
-+		if (attachment->name)
-+			strscpy(hdev->name, attachment->name);
-+		else
-+			strscpy(hdev->name, "Xbox Chatpad");
-+		strscpy(hdev->phys, attachment->phys);
-+		rc = hid_add_device(hdev);
-+		if (rc) {
-+			gip_err(attachment, "HID device add failed: %d\n", rc);
-+			hid_destroy_device(hdev);
-+		} else {
-+			rcu_assign_pointer(attachment->hdev, hdev);
-+			synchronize_rcu();
-+		}
-+	}
-+
-+	return rc;
- }
- 
- static void gip_fragment_timeout(struct work_struct *work)
-@@ -1769,9 +1844,16 @@ static int gip_handle_command_firmware(struct gip_attachment *attachment,
- static int gip_handle_command_hid_report(struct gip_attachment *attachment,
- 	const struct gip_header *header, uint8_t *bytes, int num_bytes)
- {
--	gip_warn(attachment, "Unimplemented HID report message\n");
-+	struct hid_device *hdev;
- 
--	return -EOPNOTSUPP;
-+	guard(rcu)();
-+	hdev = rcu_dereference(attachment->hdev);
-+	if (hdev)
-+		return hid_input_report(hdev, HID_INPUT_REPORT, bytes, num_bytes, true);
-+
-+	gip_warn(attachment, "Got HID report with no HID descriptor\n");
-+
-+	return -EPROTO;
- }
- 
- static int gip_handle_command_extended(struct gip_attachment *attachment,
-@@ -2527,6 +2609,7 @@ static int gip_shutdown(struct gip_device *device)
- 	for (i = 0; i < MAX_ATTACHMENTS; i++) {
- 		struct gip_attachment *attachment = device->attachments[i];
- 		struct input_dev *input;
-+		struct hid_device *hdev;
- 
- 		if (!attachment)
- 			continue;
-@@ -2537,14 +2620,19 @@ static int gip_shutdown(struct gip_device *device)
- 
- 			rcu_read_lock();
- 			input = rcu_dereference(attachment->input);
-+			hdev = rcu_dereference(attachment->hdev);
- 			rcu_read_unlock();
- 
- 			rcu_assign_pointer(attachment->input, NULL);
-+			rcu_assign_pointer(attachment->hdev, NULL);
- 			synchronize_rcu();
- 		}
- 
- 		if (input)
- 			input_unregister_device(input);
-+
-+		if (hdev)
-+			hid_destroy_device(hdev);
- 	}
- 
- 	return 0;
-diff --git a/drivers/input/joystick/gip/gip.h b/drivers/input/joystick/gip/gip.h
-index 2e78aad508c3..fbcf66e18158 100644
---- a/drivers/input/joystick/gip/gip.h
-+++ b/drivers/input/joystick/gip/gip.h
-@@ -12,6 +12,7 @@
- #ifndef _GIP_H
- #define _GIP_H
- 
-+#include <linux/hid.h>
- #include <linux/led-class-multicolor.h>
- #include <linux/rcupdate.h>
- #include <linux/usb/input.h>
-@@ -250,6 +251,7 @@ struct gip_attachment {
- 	int extra_axes;
- 
- 	bool dpad_as_buttons;
-+	struct hid_device __rcu *hdev;
- };
- 
- struct gip_urb {
+Microsoft released documentation on (some of) GIP in late 2024, upon which
+this driver is based. Though the documentation was incomplete, it still
+provided enough information to warrant a clean start over the previous,
+incomplete implementation.
+
+This driver is already at feature parity with the GIP support in xpad,
+along with several more enhancements:
+
+- Proper support for parsing message length and fragmented messages
+- Metadata parsing, allowing for auto-detection on various parameters,
+  including the presence and location in the message of the share button,
+  as well as detection of specific device types
+- Controllable LED support
+- HID passthrough for the Chatpad
+- Battery information support
+- Arcade stick support
+- Racing wheel support
+- Support for the security flow, allowing use with wireless controllers
+  that include their own dongles. (This does not include support for the
+  first-party dongle yet.)
+
+The framework set out in this driver also allows future expansion for
+specialized device types and additional features more cleanly than xpad.
+
+Future plans include:
+
+- Adding support for more device types, such as flight sticks.
+- Exposing a raw character device to enable sending vendor-specific
+  commands from userspace.
+- Event logging to either sysfs or dmesg.
+- Support for the headphone jack.
+
+Since the last version this has included several minor bugfixes as adding
+support for sending ACME messages and porting the security flow from xone
+to allow for use with wireless controllers with their own dongles. It also
+adds support for PDP guitar controllers like the RiffMaster.
+
+Vicki Pfau (12):
+  Input: xbox_gip - Add new driver for Xbox GIP
+  Input: xpad - Remove Xbox One support
+  Input: xbox_gip - Add controllable LED support
+  Input: xbox_gip - Add HID relaying
+  Input: xbox_gip - Add battery support
+  Input: xbox_gip - Allow sending fragmented and ACME messages
+  Input: xbox_gip - Add security implementation from xone
+  Input: xbox_gip - Add arcade stick support
+  Input: xbox_gip - Add support for PDP guitar controllers
+  Input: Add ABS_CLUTCH, HANDBRAKE, and SHIFTER
+  HID: Map more automobile simulation inputs
+  Input: xbox_gip - Add wheel support
+
+ Documentation/input/devices/xpad.rst          |   17 +-
+ MAINTAINERS                                   |    6 +
+ drivers/hid/hid-debug.c                       |   16 +-
+ drivers/hid/hid-input.c                       |    2 +
+ drivers/input/joystick/Kconfig                |    2 +
+ drivers/input/joystick/Makefile               |    1 +
+ drivers/input/joystick/gip/Kconfig            |   21 +
+ drivers/input/joystick/gip/Makefile           |    8 +
+ drivers/input/joystick/gip/gip-arcade-stick.c |  173 +
+ drivers/input/joystick/gip/gip-core.c         | 3173 +++++++++++++++++
+ drivers/input/joystick/gip/gip-drivers.c      |  222 ++
+ drivers/input/joystick/gip/gip-pdp-jaguar.c   |  129 +
+ drivers/input/joystick/gip/gip-security.c     |  867 +++++
+ drivers/input/joystick/gip/gip-wheel.c        |  349 ++
+ drivers/input/joystick/gip/gip.h              |  423 +++
+ drivers/input/joystick/xpad.c                 |  636 +---
+ include/uapi/linux/input-event-codes.h        |    3 +
+ 17 files changed, 5399 insertions(+), 649 deletions(-)
+ create mode 100644 drivers/input/joystick/gip/Kconfig
+ create mode 100644 drivers/input/joystick/gip/Makefile
+ create mode 100644 drivers/input/joystick/gip/gip-arcade-stick.c
+ create mode 100644 drivers/input/joystick/gip/gip-core.c
+ create mode 100644 drivers/input/joystick/gip/gip-drivers.c
+ create mode 100644 drivers/input/joystick/gip/gip-pdp-jaguar.c
+ create mode 100644 drivers/input/joystick/gip/gip-security.c
+ create mode 100644 drivers/input/joystick/gip/gip-wheel.c
+ create mode 100644 drivers/input/joystick/gip/gip.h
+
 -- 
 2.54.0
 

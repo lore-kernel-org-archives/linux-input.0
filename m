@@ -1,61 +1,63 @@
-Received: from mail-ej1-f54.google.com (mail-ej1-f54.google.com [209.85.218.54])
+Received: from mail-ej1-f50.google.com (mail-ej1-f50.google.com [209.85.218.50])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A86B635F191
-	for <linux-input@vger.kernel.org>; Sat, 22 Aug 2026 21:40:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.54
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 63E8538F92F
+	for <linux-input@vger.kernel.org>; Sat, 22 Aug 2026 21:40:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.50
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787434809; cv=none; b=naVmhBvkrCS+sEu1QXJSD/Jm6sJlcxj1+YBSF8IbfU6iBBs6KjGDJfqKKQ5dWNGLwMu0iQAfU/CHZnnb1v8OO3EebPV/GD313DNwZF1qSLDv6xHQEcxKdrmCXymzdj7wS1KiSty5/tdCrwoWGEOsr293WbdeIoWXLCQXYOyU9IA=
+	t=1787434826; cv=none; b=mb3XNm98kP6IEOooV0CFVnVH8JIZHsahqc6b2lKxkjuXH0H/dMngpNQFlUXHwJb8sYiUemr22w2pCb+x+k7x8WypThyDX5bkBZr/cOeuG5AyPCp6W8ENlySP1C7uy1cpq92W2vY3HFKDRi51OEf1QjqW6Z10mJeL+fsLMsTbQyY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787434809; c=relaxed/simple;
-	bh=KVdVCQFws2YHcTf23OIbqpRHGvWtL05gPa/MIQhexKg=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=SMUlD2IDwolDYynT2VDhFoWguDDmUG3Q/TAnOUuEd+fNH/FuYoF0jezmG9PvFJMvmzq+DPUc3DL6ouylOMHFNPHUapYkJKln/OTva3NuM6cwyULFl9yfH2EWJb1I9PXovVOAyCnEaBsr8NdOVCxBU4rrFPgaZ29RSXMOtu2WdTc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=fCZ626GC; arc=none smtp.client-ip=209.85.218.54
+	s=arc-20240116; t=1787434826; c=relaxed/simple;
+	bh=7f0QVj0zHmo0xATi9jc7VIMnR+d2RBoo4YOYW45dwW0=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=dQVzFDRb3DYRwSdcL2KGpAlb6UmSyka1JyE06nkGiFFReybLIhWgavRx7xTBOA0mKZF/09GQJ8JNgbvUKMh4PGzxxkvbs5Nj2tDg4oB4FMvMDrt0IA9RTFIwG10GynRVptDGbT+FPqt6Pj0ImU4pmRLXyHO0mTc0oOCSY3ahZmo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=WIpRESuQ; arc=none smtp.client-ip=209.85.218.50
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="fCZ626GC"
-Received: by mail-ej1-f54.google.com with SMTP id a640c23a62f3a-c2020421077so372231766b.3
-        for <linux-input@vger.kernel.org>; Sat, 22 Aug 2026 14:40:06 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="WIpRESuQ"
+Received: by mail-ej1-f50.google.com with SMTP id a640c23a62f3a-c15cf78d1a2so253011466b.1
+        for <linux-input@vger.kernel.org>; Sat, 22 Aug 2026 14:40:20 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1787434804; x=1788039604; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=rgMbZ8S6nkK5E2O40RbnDFU7z8jdbPLfNie0mYT0a4w=;
-        b=fCZ626GCLhBsDRzFUNLU/YDlvTHSp3ZLtaj/x8sIhfDruvwrr/H0AKWZkCSolUukZF
-         WQojYuU4cwqBEAfa5fBXHJrNUhUUbex28qO4zNaEMXlJW3pmjzlJiBX5Ixit2mVMWiBW
-         qGBfuaowEhbb1BAAU3huh+a/+GkL0PzLP3tNMrr41/lVgXKqV+PdIGAjv5vIdkKd2YV9
-         vM3sA4siiq1uxAEkNYnFBJRN2w1uxc0isKVRnuX6Gfgxenw4WVYrR9iK3EJfXrKt91ZV
-         MSD4HSHdPs3yfPSPHEWcv97lEEFe5IgCo8NW2c0c2xZ7v2vBSE0Z+bOzokZV4OxOIR1b
-         jN7A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787434804; x=1788039604;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=gmail.com; s=20251104; t=1787434819; x=1788039619; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=rgMbZ8S6nkK5E2O40RbnDFU7z8jdbPLfNie0mYT0a4w=;
-        b=Q/VHVGf0B66I4UR0N2TFbCXX0Rj4V3VFN8xHvGS/5JjwXR/SBUuEn1ZTLH4qQUnUNI
-         rRAZNNP4BwwLv8TdCjyhH01cxls9BShi0+x1YRccK8Ns8I+cGjrNQjRHX2ZHJT3SzXI9
-         4jqIRZ9jm7wS5/yR6MX+wuE5H4L4YIYQF5uOOVG+DAhIZIGhRjPS05OKJxQ98xgWWywZ
-         LE4pjaaoQ9Ho5eVPGZ5te3j8Bk4DliMYIpLPTWLMF3aEhYuhEZbNCWP8VSj4C7CdsZ72
-         pKMO5tndeuPb204JSKZ2gl+Yd4+7Ey2o2JY+NUDt6ysVffaTfDcUTzSO4LTNKHWEhEEc
-         oTnA==
-X-Forwarded-Encrypted: i=1; AHgh+Rp0LFNRw2XjGyU5F4P1wVq2LWjrYl8FtGBpAr68ZQ1gyXKXsDLgZHPTosANzg38hIO/UWbfKcPemcXCnQ==@vger.kernel.org
-X-Gm-Message-State: AFuF++mSFkPKdQlw8CoNb5m3YTqvfmEO0f2SbZgDx9zsvn9nOH7d86Hw
-	3Js2iaIeaXlU3JWV5/+/2XOQPRDI2o7nlzMSvVM6f1U2tx2Sdhn62B6g
-X-Gm-Gg: AR+sD13MWo9cZpsfcENtoEC1DbcKJ94BNmDKRbl6zyfEsO8dRO2QVG5Mt+qKrGlnjMK
-	6Pj3PQHj20c9qknAS5uBgfB62DNpdHerc95vQDRD3QWR+MAIkJ4AOOW/XoYoXTivrHusMSu0qkC
-	ddj1CJVdHLTRpcTB6dgKR7f7cPLn9YuUA2RcUFflWvpDZ7wsbuRguN2BuNV8ZuDhxpsnCoG1zIs
-	d5qlDTilWQ6GQYljLEr3NUyFOhx+Y4nyvc7jHFLkEGMtW9tcEQD4t5H4tnrYLLNU4ffdl1Po+N+
-	3797MmOVqvxVqyVXzqkU88rUrWXB5qcaIhCh/MAldPzK1EdfM6m8e+1FWplaCvJyWIxSCKxui/R
-	OBO6Fv7xsLx543I/hnD0vQ3Auxtj8FL3v/EFeMKrx6bkMtBrs6h4EVJfve4NCXkExWDlGUWjddw
-	kAvRpSMGrm6kW/ryQYRUuJG8eDx4Nkx1wuBBkqlTx5fCbWmW+UCMdvTfWJpMCASvPwb9zvjw==
-X-Received: by 2002:a17:906:7316:b0:c19:45e3:2f57 with SMTP id a640c23a62f3a-c2491cbca79mr901591266b.9.1787434804173;
-        Sat, 22 Aug 2026 14:40:04 -0700 (PDT)
+        bh=UM6IZfeBL9/u40zAxGhV8WIx3wzwmRrrwDjQmQ2+hu0=;
+        b=WIpRESuQRU3VDX+56rkfrk+pKKCUvzgb/FhwOvXUET9ztwV5ue4A6oIUEMsOrwosoG
+         4SRQEh2Q7sVOJnVsJmuxYRedbuvonFaCFZzFGkcUEe4JTOxVftWGtcL3rvd3t/zo64TZ
+         PdQhDLU/ayA048Hasz2OfyHLy6CVaMz0MQHwYHeEudoB/hDU9jlTE/wjEi2lgo8o2fHw
+         6ugHanZNwD9tWhVPHqGlep5NiPFcOyTv3rn0H38zrZg93hGyt0P3GU2Yvo+VpiVSfGNb
+         r3VssC9sGANUBl8+h71XxFNC0LQu/85ncwHoq2E2maej/xthPV7yAiE8u98aTHMT4fuw
+         0m8g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1787434819; x=1788039619;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=UM6IZfeBL9/u40zAxGhV8WIx3wzwmRrrwDjQmQ2+hu0=;
+        b=Ye/Ij6gto/RoS5+y7LgtPhiAyksIpfB1bWEHUEKXTPiLexk8t+eB53hTt5ly8F3ZLx
+         iaxbgGJQFsTR+s/bdY83MjYODqJZO95hE11JKqWtaCZYhfg4W7e2SKe89If4GUe2i6bM
+         ptv6jvvNrT2PvR/UauxNYTL0DXMfjAfHvJS2yZBm+o9PjIwSVNZmHKfFOjhl9BXzxKJn
+         medMUCxU/WKBJ69KNjJE/FFH9z4NJOu7HMfXx8l5dyya2vzolr3k9+L6CyWMhGEgX7i6
+         3PyE15E0tlazuPhGd8Ht7ISYBu8sIG2OSM2A72g2tmUnBA9Qls1fuhYDdQ7qi6IQ+KTK
+         R9SQ==
+X-Forwarded-Encrypted: i=1; AHgh+Rpui26LMFmN8XhJIxFeYkqYVihcgRZsjRvbLWUS9lHzVRwzc//PnsSK9K274ZbH94fR2lfGqm1In0iiKg==@vger.kernel.org
+X-Gm-Message-State: AFuF++mpgpYOA3CbQPsKpID4eJsEeEgsKTcPnHUoM8kCSqTlJpHBLg5Y
+	IC9ZPglA5OMlr2BG2uR7Hy6avNLISJ7Z4L5ZnDJ2Sn4tseQmBw0zvH6O
+X-Gm-Gg: AR+sD12RK20dsb7ox/2oPy6XnZ7RQL3Nf04qCpvz+xHODSfjczypAH/MZBGnbGWHsWi
+	Ym/WVf5MjGfBe2xjJ9SGI21CLLy7yQp+9uXlbRlIeg1D0PvEk8KoQFaDTxnoPagMaRXxN7pEXD1
+	SEMntG45mE/jcbS0g9XNxZNHebbRZyKyoW4wGjzOoSLCdXHbGuap0IF4TIiXavv/Dno88bIcK3L
+	RBpMjJIm5WxCJp42dksZtp1EIB9vcRJgnRImPzv67ajfEUhUws+LIP/c3TXiaODMC2yL9bakcVO
+	0uAFj+BmLUybHoMi7GnxcbeOM6m2KARxaYyujCNdIm7EigRXmCaCy36quFjgCjNHskZTpKCUgOM
+	in8QB1prynlkgewgheVLqVKZTVqr0dKd6e5raRtNe7cGKOptbtQ8CDBPNbrRUhqXwPO0MOyJO/R
+	phOp2i2n1jEvy0EIcmbsi35EknQGtFwh6nD1fD7oJXuunFUgP5NVsSWg2wIMQ=
+X-Received: by 2002:a17:907:9628:b0:c16:13e7:fd63 with SMTP id a640c23a62f3a-c2469f94a1bmr1736161266b.0.1787434818757;
+        Sat, 22 Aug 2026 14:40:18 -0700 (PDT)
 Received: from m2.. ([37.142.151.124])
-        by smtp.googlemail.com with ESMTPSA id a640c23a62f3a-c24966f99basm466778466b.37.2026.08.22.14.40.02
+        by smtp.googlemail.com with ESMTPSA id a640c23a62f3a-c24966f99basm466778466b.37.2026.08.22.14.40.16
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 22 Aug 2026 14:40:03 -0700 (PDT)
+        Sat, 22 Aug 2026 14:40:18 -0700 (PDT)
 From: Michael Zaidman <michael.zaidman@gmail.com>
 To: Jiri Kosina <jikos@kernel.org>,
 	Benjamin Tissoires <bentiss@kernel.org>
@@ -69,11 +71,14 @@ Cc: Linus Walleij <linusw@kernel.org>,
 	linux-gpio@vger.kernel.org,
 	linux-i2c@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
+	Daniel Beer <daniel.beer@igorinstitute.com>,
 	Michael Zaidman <michael.zaidman@gmail.com>
-Subject: [PATCH 00/13] HID: ft260: add UART and GPIO support, plus I2C fixes
-Date: Sun, 23 Aug 2026 00:39:28 +0300
-Message-ID: <20260822213941.98882-1-michael.zaidman@gmail.com>
+Subject: [PATCH 01/13] HID: ft260: add serial driver
+Date: Sun, 23 Aug 2026 00:39:29 +0300
+Message-ID: <20260822213941.98882-2-michael.zaidman@gmail.com>
 X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20260822213941.98882-1-michael.zaidman@gmail.com>
+References: <20260822213941.98882-1-michael.zaidman@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -82,57 +87,1084 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Mainline supports only the FT260's I2C bridge. This series adds the
-UART/TTY interface and GPIO on top of it, and carries the I2C fixes made
-alongside them - two years of out-of-tree work [1], now replayed upstream.
+From: Christina Quast <contact@christina-quast.de>
 
-It picks up work that stalled twice: Christina Quast's serial driver,
-posted as v4 and v5 and never applied, and my own pre-UART GPIO series
-from 2023. Patches 1 and 3 link both threads. This is a new series rather
-than a v6, being much more than the serial driver now.
+Add a TTY serial interface (/dev/ttyFTx) for FT260 USB HID devices,
+providing baud rate configuration, data transfer, and termios settings
+without requiring userspace HID report formatting.
 
-The patches keep the order and the granularity in which the work was
-developed, so that authorship stays visible: squashing would fold several
-people's changes under one name. The UART and I2C changes also interleave
-in the code, so regrouping them by interface would mean a rewrite and a
-full retest. Only adjacent commits were squashed. Patch 1 is Christina's,
-patch 10 is Rio Liu's.
+The FT260 exposes I2C and UART through separate HID interfaces. Only
+I2C was supported previously; UART required FTDI hidraw example code.
 
-Tested on a UMFT260EV1A with a 24LC512 EEPROM. I2C - reads and writes
-that cross the 60-byte write chunk and the 60/180-byte read chunk caps,
-SMBus byte-data and block reads, and the shortened read timeout with the
-abort path of patch 13. UART - a 2.8 MB pattern in both directions at
-115200 and 1.5 Mbaud against an FT2232 peer, without flow control and
-with XON/XOFF and RTS/CTS, plus DTR/RTS toggling over TIOCM*. GPIO -
-through libgpiod and legacy sysfs. Every commit builds with W=1, and
-checkpatch --strict reports no errors and no warnings across the series.
+This is a port of the v4 patch, adapted to the I2C hardening that has
+since been merged upstream: input-report length validation, the
+read_buf/raw_event race fix with read_lock, and SMBus block-read
+START/STOP handling. HID_FT260 now depends on TTY because the UART code
+is part of this driver.
 
-[1] https://github.com/MichaelZaidman/hid-ft260
+Routing UART reports through ft260_raw_event() also made v4 fall through
+the report dispatch after an I2C input report had already been consumed,
+so every I2C input report was additionally reported as unhandled. This
+regression is fixed here.
 
-Christina Quast (1):
-  HID: ft260: add serial driver
+Ported from:
+https://lore.kernel.org/all/20231218093153.192268-1-contact@christina-quast.de/
 
-Michael Zaidman (11):
-  HID: ft260: uart: bring-up fixes
-  HID: ft260: add GPIO support on top of UART
-  HID: ft260: i2c: reduce driver module loading time
-  HID: ft260: i2c: silence sysfs store big-numbers
-  HID: ft260: i2c: reduce bus-error message severity
-  HID: ft260: uart: enable flow control
-  HID: ft260: uart: add modem pins control via ioctl
-  HID: ft260: gpio: group sysfs attrs per HID interface
-  HID: ft260: i2c: fix large write transaction failure
-  HID: ft260: workaround for TN_189 errata endpoint STALL after
-    enumeration
-  HID: ft260: i2c: abort in-flight transfers with STOP before reset
+The follow-up v5 series stalled without being applied:
+https://lore.kernel.org/linux-input/20240216-ft260_review5-v5-1-36db44673ac7@christina-quast.de/
 
-Rio Liu (1):
-  HID: ft260: uart: fix active-low RTS/CTS/DTR/DSR polarity
+Signed-off-by: Christina Quast <contact@christina-quast.de>
+Co-developed-by: Daniel Beer <daniel.beer@igorinstitute.com>
+Signed-off-by: Daniel Beer <daniel.beer@igorinstitute.com>
+Co-developed-by: Michael Zaidman <michael.zaidman@gmail.com>
+Signed-off-by: Michael Zaidman <michael.zaidman@gmail.com>
+---
+ drivers/hid/Kconfig     |  10 +-
+ drivers/hid/hid-ft260.c | 842 +++++++++++++++++++++++++++++++++++++---
+ 2 files changed, 790 insertions(+), 62 deletions(-)
 
- drivers/hid/Kconfig     |   10 +-
- drivers/hid/hid-ft260.c | 1967 ++++++++++++++++++++++++++++++++++++---
- 2 files changed, 1830 insertions(+), 147 deletions(-)
-
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index aa7fa11a0197..e898adb331ba 100644
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -386,12 +386,12 @@ config HID_EZKEY
+ 	Support for Ezkey BTC 8193 keyboard.
+ 
+ config HID_FT260
+-	tristate "FTDI FT260 USB HID to I2C host support"
+-	depends on USB_HID && HIDRAW && I2C
++	tristate "FTDI FT260 USB HID to I2C/UART host support"
++	depends on USB_HID && HIDRAW && I2C && TTY
+ 	help
+-	  Provides I2C host adapter functionality over USB-HID through FT260
+-	  device. The customizable USB descriptor fields are exposed as sysfs
+-	  attributes.
++	  Provides I2C host adapter and UART/TTY functionality over USB-HID
++	  through the FT260 device. The customizable USB descriptor fields
++	  are exposed as sysfs attributes.
+ 
+ 	  To compile this driver as a module, choose M here: the module
+ 	  will be called hid-ft260.
+diff --git a/drivers/hid/hid-ft260.c b/drivers/hid/hid-ft260.c
+index 64c9c940db46..3faedfc5c413 100644
+--- a/drivers/hid/hid-ft260.c
++++ b/drivers/hid/hid-ft260.c
+@@ -13,6 +13,16 @@
+ #include <linux/i2c.h>
+ #include <linux/module.h>
+ #include <linux/usb.h>
++#include <linux/serial.h>
++#include <linux/serial_core.h>
++#include <linux/kfifo.h>
++#include <linux/tty_flip.h>
++#include <linux/minmax.h>
++#include <linux/unaligned.h>
++
++#define UART_COUNT_MAX		4	/* Number of UARTs this driver can handle */
++#define FIFO_SIZE	256
++#define TTY_WAKEUP_WATERMARK	(FIFO_SIZE / 2)
+ 
+ #ifdef DEBUG
+ static int ft260_debug = 1;
+@@ -30,6 +40,7 @@ MODULE_PARM_DESC(debug, "Toggle FT260 debugging messages");
+ 
+ #define FT260_REPORT_MAX_LENGTH (64)
+ #define FT260_I2C_DATA_REPORT_ID(len) (FT260_I2C_REPORT_MIN + (len - 1) / 4)
++#define FT260_UART_DATA_REPORT_ID(len) (FT260_UART_REPORT_MIN + (len - 1) / 4)
+ 
+ #define FT260_WAKEUP_NEEDED_AFTER_MS (4800) /* 5s minus 200ms margin */
+ 
+@@ -43,7 +54,7 @@ MODULE_PARM_DESC(debug, "Toggle FT260 debugging messages");
+  * or optoe limit the i2c reads to 128 bytes. To not block other drivers out
+  * of I2C for potentially troublesome amounts of time, we select the maximum
+  * read payload length to be 180 bytes.
+-*/
++ */
+ #define FT260_RD_DATA_MAX (180)
+ #define FT260_WR_DATA_MAX (60)
+ 
+@@ -81,7 +92,8 @@ enum {
+ 	FT260_UART_INTERRUPT_STATUS	= 0xB1,
+ 	FT260_UART_STATUS		= 0xE0,
+ 	FT260_UART_RI_DCD_STATUS	= 0xE1,
+-	FT260_UART_REPORT		= 0xF0,
++	FT260_UART_REPORT_MIN		= 0xF0,
++	FT260_UART_REPORT_MAX		= 0xFE,
+ };
+ 
+ /* Feature Out */
+@@ -132,6 +144,13 @@ enum {
+ 	FT260_FLAG_START_STOP_REPEATED	= 0x07,
+ };
+ 
++/* Return values for ft260_get_interface_type func */
++enum {
++	FT260_IFACE_NONE,
++	FT260_IFACE_I2C,
++	FT260_IFACE_UART
++};
++
+ #define FT260_SET_REQUEST_VALUE(report_id) ((FT260_FEATURE << 8) | report_id)
+ 
+ /* Feature In reports */
+@@ -220,12 +239,59 @@ struct ft260_i2c_read_request_report {
+ 	__le16 length;		/* data payload length */
+ } __packed;
+ 
+-struct ft260_i2c_input_report {
+-	u8 report;		/* FT260_I2C_REPORT */
++struct ft260_input_report {
++	u8 report;		/* FT260_I2C_REPORT or FT260_UART_REPORT */
+ 	u8 length;		/* data payload length */
+ 	u8 data[2];		/* data payload */
+ } __packed;
+ 
++/* UART reports */
++struct ft260_uart_write_request_report {
++	u8 report;		/* FT260_UART_REPORT */
++	u8 length;		/* data payload length */
++	u8 data[] __counted_by(length);	/* variable data payload */
++} __packed;
++
++struct ft260_configure_uart_request {
++	u8 report;		/* FT260_SYSTEM_SETTINGS */
++	u8 request;		/* FT260_SET_UART_CONFIG */
++	u8 flow_ctrl;		/* 0: OFF, 1: RTS_CTS, 2: DTR_DSR */
++				/* 3: XON_XOFF, 4: No flow ctrl */
++	/* The baudrate field is unaligned: */
++	__le32 baudrate;	/* little endian, 9600 = 0x2580, 19200 = 0x4B00 */
++	u8 data_bit;		/* 7 or 8 */
++	u8 parity;		/* 0: no parity, 1: odd, 2: even, 3: high, 4: low */
++	u8 stop_bit;		/* 0: one stop bit, 2: 2 stop bits */
++	u8 breaking;		/* 0: no break */
++} __packed;
++
++/* UART interface configuration */
++enum {
++	FT260_CFG_FLOW_CTRL_OFF		= 0x00,
++	FT260_CFG_FLOW_CTRL_RTS_CTS	= 0x01,
++	FT260_CFG_FLOW_CTRL_DTR_DSR	= 0x02,
++	FT260_CFG_FLOW_CTRL_XON_XOFF	= 0x03,
++	FT260_CFG_FLOW_CTRL_NONE	= 0x04,
++
++	FT260_CFG_DATA_BITS_7		= 0x07,
++	FT260_CFG_DATA_BITS_8		= 0x08,
++
++	FT260_CFG_PAR_NO		= 0x00,
++	FT260_CFG_PAR_ODD		= 0x01,
++	FT260_CFG_PAR_EVEN		= 0x02,
++	FT260_CFG_PAR_HIGH		= 0x03,
++	FT260_CFG_PAR_LOW		= 0x04,
++
++	FT260_CFG_STOP_ONE_BIT		= 0x00,
++	FT260_CFG_STOP_TWO_BIT		= 0x02,
++
++	FT260_CFG_BREAKING_NO		= 0x00,
++	FT260_CFG_BEAKING_YES		= 0x01,
++
++	FT260_CFG_BAUD_MIN		= 1200,
++	FT260_CFG_BAUD_MAX		= 12000000,
++};
++
+ static const struct hid_device_id ft260_devices[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_FUTURE_TECHNOLOGY,
+ 			 USB_DEVICE_ID_FT260) },
+@@ -236,6 +302,23 @@ MODULE_DEVICE_TABLE(hid, ft260_devices);
+ struct ft260_device {
+ 	struct i2c_adapter adap;
+ 	struct hid_device *hdev;
++
++	bool ft260_is_serial;
++	struct list_head device_list;
++
++	/* tty_port lifetime is equal to device lifetime */
++	struct tty_port port;
++	unsigned int index;
++	struct kfifo xmit_fifo;
++	/* write_lock: lock to serialize access to xmit fifo */
++	spinlock_t write_lock;
++	struct uart_icount icount;
++
++	struct timer_list wakeup_timer;
++	struct work_struct wakeup_work;
++	bool reschedule_work;
++
++
+ 	struct completion wait;
+ 	struct mutex lock;
+ 	u8 write_buf[FT260_REPORT_MAX_LENGTH];
+@@ -379,7 +462,7 @@ static int ft260_hid_output_report_check_status(struct ft260_device *dev,
+ 
+ 	ret = ft260_hid_output_report(hdev, data, len);
+ 	if (ret < 0) {
+-		hid_err(hdev, "%s: failed to start transfer, ret %d\n",
++		hid_dbg(hdev, "%s: failed to start transfer, ret %d\n",
+ 			__func__, ret);
+ 		ft260_i2c_reset(hdev);
+ 		return ret;
+@@ -609,7 +692,7 @@ static int ft260_i2c_write_read(struct ft260_device *dev, struct i2c_msg *msgs)
+ 		else
+ 			read_off = *msgs[0].buf;
+ 
+-		pr_info("%s: off %#x rlen %d wlen %d\n", __func__,
++		ft260_dbg("%s: off %#x rlen %d wlen %d\n", __func__,
+ 			read_off, rd_len, wr_len);
+ 	}
+ 
+@@ -826,7 +909,7 @@ static int ft260_get_system_config(struct hid_device *hdev,
+ 	return 0;
+ }
+ 
+-static int ft260_is_interface_enabled(struct hid_device *hdev)
++static int ft260_get_interface_type(struct hid_device *hdev, struct ft260_device *dev)
+ {
+ 	struct ft260_get_system_status_report cfg;
+ 	struct usb_interface *usbif = to_usb_interface(hdev->dev.parent);
+@@ -843,21 +926,27 @@ static int ft260_is_interface_enabled(struct hid_device *hdev)
+ 	ft260_dbg("i2c_enable: 0x%02x\n", cfg.i2c_enable);
+ 	ft260_dbg("uart_mode:  0x%02x\n", cfg.uart_mode);
+ 
++	dev->ft260_is_serial = false;
++
+ 	switch (cfg.chip_mode) {
+ 	case FT260_MODE_ALL:
+ 	case FT260_MODE_BOTH:
+-		if (interface == 1)
+-			hid_info(hdev, "uart interface is not supported\n");
+-		else
+-			ret = 1;
++		if (interface == 1) {
++			ret = FT260_IFACE_UART;
++			dev->ft260_is_serial = true;
++		} else {
++			ret = FT260_IFACE_I2C;
++		}
+ 		break;
+ 	case FT260_MODE_UART:
+-		hid_info(hdev, "uart interface is not supported\n");
++		ret = FT260_IFACE_UART;
++		dev->ft260_is_serial = true;
+ 		break;
+ 	case FT260_MODE_I2C:
+-		ret = 1;
++		ret = FT260_IFACE_I2C;
+ 		break;
+ 	}
++
+ 	return ret;
+ }
+ 
+@@ -1001,6 +1090,583 @@ static const struct attribute_group ft260_attr_group = {
+ 	}
+ };
+ 
++/***
++ * START Serial dev part
++ */
++static DEFINE_MUTEX(ft260_uart_list_lock);
++static LIST_HEAD(ft260_uart_device_list);
++
++static struct ft260_device *ft260_dev_by_index(int index)
++{
++	struct ft260_device *port;
++
++	list_for_each_entry(port, &ft260_uart_device_list, device_list) {
++		if (index == port->index)
++			return port;
++	}
++	return NULL;
++}
++
++static int ft260_uart_add_port(struct ft260_device *port)
++{
++	int index = 0, ret = 0;
++	struct ft260_device *dev;
++
++	spin_lock_init(&port->write_lock);
++	if (kfifo_alloc(&port->xmit_fifo, FIFO_SIZE, GFP_KERNEL))
++		return -ENOMEM;
++
++	mutex_lock(&ft260_uart_list_lock);
++	list_for_each_entry(dev, &ft260_uart_device_list, device_list) {
++		if (dev->index != index)
++			break;
++		index++;
++	}
++
++	port->index = index;
++	list_add(&port->device_list, &ft260_uart_device_list);
++	mutex_unlock(&ft260_uart_list_lock);
++
++	return ret;
++}
++
++static void ft260_uart_port_put(struct ft260_device *port)
++{
++	tty_port_put(&port->port);
++}
++
++static void ft260_uart_port_remove(struct ft260_device *port)
++{
++	timer_delete_sync(&port->wakeup_timer);
++
++	mutex_lock(&ft260_uart_list_lock);
++	list_del(&port->device_list);
++	mutex_unlock(&ft260_uart_list_lock);
++
++	spin_lock(&port->write_lock);
++	kfifo_free(&port->xmit_fifo);
++	spin_unlock(&port->write_lock);
++
++	mutex_lock(&port->port.mutex);
++	port->reschedule_work = false;
++	tty_port_tty_hangup(&port->port, false);
++	mutex_unlock(&port->port.mutex);
++
++	ft260_uart_port_put(port);
++}
++
++static struct ft260_device *ft260_uart_port_get(unsigned int index)
++{
++	struct ft260_device *port;
++
++	if (index >= UART_COUNT_MAX)
++		return NULL;
++
++	mutex_lock(&ft260_uart_list_lock);
++	port = ft260_dev_by_index(index);
++	if (port)
++		tty_port_get(&port->port);
++	mutex_unlock(&ft260_uart_list_lock);
++
++	return port;
++}
++
++static int ft260_uart_open(struct tty_struct *tty, struct file *filp)
++{
++	int ret;
++	struct ft260_device *port = tty->driver_data;
++
++	ret = tty_port_open(&port->port, tty, filp);
++
++	return ret;
++}
++
++static void ft260_uart_close(struct tty_struct *tty, struct file *filp)
++{
++	struct ft260_device *port = tty->driver_data;
++
++	tty_port_close(&port->port, tty, filp);
++}
++
++static void ft260_uart_hangup(struct tty_struct *tty)
++{
++	struct ft260_device *port = tty->driver_data;
++
++	tty_port_hangup(&port->port);
++}
++
++static int ft260_uart_transmit_chars(struct ft260_device *port)
++{
++	struct hid_device *hdev = port->hdev;
++	struct kfifo *xmit = &port->xmit_fifo;
++	struct tty_struct *tty;
++	struct ft260_uart_write_request_report *rep;
++	int len, data_len, ret = 0;
++
++	tty = tty_port_tty_get(&port->port);
++
++	data_len = kfifo_len(xmit);
++	if (!tty || !data_len) {
++		ret = -EINVAL;
++		goto tty_out;
++	}
++
++	rep = (struct ft260_uart_write_request_report *)port->write_buf;
++
++	do {
++		len = min(data_len, FT260_WR_DATA_MAX);
++
++		rep->report = FT260_UART_DATA_REPORT_ID(len);
++		rep->length = len;
++
++		len = kfifo_out_locked(xmit, rep->data, len, &port->write_lock);
++
++		ret = ft260_hid_output_report(hdev, (u8 *)rep, len + sizeof(*rep));
++		if (ret < 0) {
++			hid_err(hdev, "Failed to start transfer, ret %d\n", ret);
++			goto tty_out;
++		}
++
++		data_len -= len;
++		port->icount.tx += len;
++	} while (data_len > 0);
++
++	len = kfifo_len(xmit);
++	if ((FIFO_SIZE - len) > TTY_WAKEUP_WATERMARK)
++		tty_wakeup(tty);
++
++	ret = 0;
++
++tty_out:
++	tty_kref_put(tty);
++	return ret;
++}
++
++static int ft260_uart_receive_chars(struct ft260_device *port,
++				    u8 *data, u8 length)
++{
++	struct hid_device *hdev = port->hdev;
++	int ret = 0;
++
++	if (length > FT260_RD_DATA_MAX) {
++		hid_err(hdev, "Received too much data (%d)\n", length);
++		return -EBADR;
++	}
++
++	ret = tty_insert_flip_string(&port->port, data, length);
++	if (ret != length)
++		hid_err(hdev, "%d char not inserted to flip buffer\n", length - ret);
++	port->icount.rx += ret;
++
++	if (ret)
++		tty_flip_buffer_push(&port->port);
++
++	return ret;
++}
++
++static ssize_t ft260_uart_write(struct tty_struct *tty, const u8 *buf,
++				 size_t count)
++{
++	struct ft260_device *port = tty->driver_data;
++	struct hid_device *hdev = port->hdev;
++	int len, ret;
++
++	len = kfifo_in_locked(&port->xmit_fifo, buf, count, &port->write_lock);
++	ft260_dbg("count: %zu, len: %d", count, len);
++
++	ret = ft260_uart_transmit_chars(port);
++	if (ret < 0) {
++		hid_dbg(hdev, "Failed to transmit chars: %d\n", ret);
++		return 0;
++	}
++
++	ret = kfifo_len(&port->xmit_fifo);
++	if (ret > 0) {
++		hid_dbg(hdev, "Failed to  all kfifo data bytes\n");
++		ft260_dbg("return: %d", len - ret);
++		return len - ret;
++	}
++
++	return len;
++}
++
++static unsigned int ft260_uart_write_room(struct tty_struct *tty)
++{
++	struct ft260_device *port = tty->driver_data;
++
++	return FIFO_SIZE - kfifo_len(&port->xmit_fifo);
++}
++
++static unsigned int ft260_uart_chars_in_buffer(struct tty_struct *tty)
++{
++	struct ft260_device *port = tty->driver_data;
++
++	return kfifo_len(&port->xmit_fifo);
++}
++
++static int ft260_uart_change_speed(struct ft260_device *port,
++				   struct ktermios *termios,
++				    struct ktermios *old)
++{
++	struct hid_device *hdev = port->hdev;
++	unsigned int baud;
++	struct ft260_configure_uart_request req;
++	int ret;
++
++	memset(&req, 0, sizeof(req));
++
++	req.report = FT260_SYSTEM_SETTINGS;
++	req.request = FT260_SET_UART_CONFIG;
++
++	switch (termios->c_cflag & CSIZE) {
++	case CS7:
++		req.data_bit = FT260_CFG_DATA_BITS_7;
++		break;
++	case CS5:
++	case CS6:
++		hid_err(hdev, "Invalid data bit size, setting to default (8 bit)\n");
++		req.data_bit = FT260_CFG_DATA_BITS_8;
++		termios->c_cflag &= ~CSIZE;
++		termios->c_cflag |= CS8;
++		break;
++	default:
++	case CS8:
++		req.data_bit = FT260_CFG_DATA_BITS_8;
++		break;
++	}
++
++	req.stop_bit = (termios->c_cflag & CSTOPB) ?
++		FT260_CFG_STOP_TWO_BIT : FT260_CFG_STOP_ONE_BIT;
++
++	if (termios->c_cflag & PARENB) {
++		req.parity = (termios->c_cflag & PARODD) ?
++			FT260_CFG_PAR_ODD : FT260_CFG_PAR_EVEN;
++	} else {
++		req.parity = FT260_CFG_PAR_NO;
++	}
++
++	baud = tty_termios_baud_rate(termios);
++	if (baud == 0 || baud < FT260_CFG_BAUD_MIN || baud > FT260_CFG_BAUD_MAX) {
++		struct tty_struct *tty = tty_port_tty_get(&port->port);
++
++		hid_err(hdev, "Invalid baud rate %d\n", baud);
++		baud = 9600;
++		tty_encode_baud_rate(tty, baud, baud);
++		tty_kref_put(tty);
++	}
++	put_unaligned_le32(cpu_to_le32(baud), &req.baudrate);
++
++	if (termios->c_cflag & CRTSCTS)
++		req.flow_ctrl = FT260_CFG_FLOW_CTRL_RTS_CTS;
++	else
++		req.flow_ctrl = FT260_CFG_FLOW_CTRL_OFF;
++
++	ft260_dbg("Configured termios: flow control: %d, baudrate: %d, ",
++		  req.flow_ctrl, baud);
++	ft260_dbg("data_bit: %d, parity: %d, stop_bit: %d, breaking: %d\n",
++		  req.data_bit, req.parity,
++		  req.stop_bit, req.breaking);
++
++	req.flow_ctrl = FT260_CFG_FLOW_CTRL_NONE;
++	req.breaking = FT260_CFG_BREAKING_NO;
++
++	ret = ft260_hid_feature_report_set(hdev, (u8 *)&req, sizeof(req));
++	if (ret < 0)
++		hid_err(hdev, "ft260_hid_feature_report_set failed: %d\n", ret);
++
++	return ret;
++}
++
++static int ft260_uart_get_icount(struct tty_struct *tty,
++		struct serial_icounter_struct *icount)
++{
++	struct ft260_device *port = tty->driver_data;
++
++	memcpy(icount, &port->icount, sizeof(struct uart_icount));
++
++	return 0;
++}
++
++static void ft260_uart_set_termios(struct tty_struct *tty,
++		const struct ktermios *old_termios)
++{
++	struct ft260_device *port = tty->driver_data;
++
++	ft260_uart_change_speed(port, &tty->termios, NULL);
++}
++
++static int ft260_uart_install(struct tty_driver *driver, struct tty_struct *tty)
++{
++	int idx = tty->index;
++	struct ft260_device *port = ft260_uart_port_get(idx);
++	int ret = tty_standard_install(driver, tty);
++
++	if (ret == 0)
++		/* This is the ref ft260_uart_port get provided */
++		tty->driver_data = port;
++	else
++		ft260_uart_port_put(port);
++
++	return ret;
++}
++
++static void ft260_uart_cleanup(struct tty_struct *tty)
++{
++	struct ft260_device *port = tty->driver_data;
++
++	tty->driver_data = NULL;	/* Bug trap */
++	ft260_uart_port_put(port);
++}
++
++static int ft260_uart_proc_show(struct seq_file *m, void *v)
++{
++	int i;
++
++	seq_printf(m, "ft260 info:1.0 driver%s%s revision:%s\n",
++			"", "", "");
++	for (i = 0; i < UART_COUNT_MAX; i++) {
++		struct ft260_device *port = ft260_uart_port_get(i);
++
++		if (port) {
++			seq_printf(m, "%d: uart:FT260", i);
++			if (capable(CAP_SYS_ADMIN)) {
++				seq_printf(m, " tx:%d rx:%d",
++						port->icount.tx, port->icount.rx);
++				if (port->icount.frame)
++					seq_printf(m, " fe:%d",
++							port->icount.frame);
++				if (port->icount.parity)
++					seq_printf(m, " pe:%d",
++							port->icount.parity);
++				if (port->icount.brk)
++					seq_printf(m, " brk:%d",
++							port->icount.brk);
++				if (port->icount.overrun)
++					seq_printf(m, " oe:%d",
++							port->icount.overrun);
++				if (port->icount.cts)
++					seq_printf(m, " cts:%d",
++							port->icount.cts);
++				if (port->icount.dsr)
++					seq_printf(m, " dsr:%d",
++							port->icount.dsr);
++				if (port->icount.rng)
++					seq_printf(m, " rng:%d",
++							port->icount.rng);
++				if (port->icount.dcd)
++					seq_printf(m, " dcd:%d",
++							port->icount.dcd);
++			}
++			ft260_uart_port_put(port);
++			seq_putc(m, '\n');
++		}
++	}
++	return 0;
++}
++
++static const struct tty_operations ft260_uart_ops = {
++	.open			= ft260_uart_open,
++	.close			= ft260_uart_close,
++	.write			= ft260_uart_write,
++	.write_room		= ft260_uart_write_room,
++	.chars_in_buffer	= ft260_uart_chars_in_buffer,
++	.set_termios		= ft260_uart_set_termios,
++	.hangup			= ft260_uart_hangup,
++	.install		= ft260_uart_install,
++	.cleanup		= ft260_uart_cleanup,
++	.proc_show		= ft260_uart_proc_show,
++	.get_icount		= ft260_uart_get_icount,
++};
++
++/* The FT260 has a "power saving mode" that causes the device to switch
++ * to a 30 kHz oscillator if there's no activity for 5 seconds.
++ * Unfortunately this mode can only be disabled by reprogramming
++ * internal fuses, which requires an additional programming voltage.
++ *
++ * One effect of this mode is to cause data loss on a fast UART that
++ * transmits after being idle for longer than 5 seconds. We work around
++ * this by sending a dummy report at least once per 4 seconds if the
++ * UART is in use.
++ */
++static void ft260_uart_start_wakeup(struct timer_list *t)
++{
++	struct ft260_device *dev =
++		container_of(t, struct ft260_device, wakeup_timer);
++
++	if (dev->reschedule_work) {
++		schedule_work(&dev->wakeup_work);
++		mod_timer(&dev->wakeup_timer, jiffies +
++			msecs_to_jiffies(FT260_WAKEUP_NEEDED_AFTER_MS));
++	}
++}
++
++static void ft260_uart_do_wakeup(struct work_struct *work)
++{
++	struct ft260_device *dev =
++		container_of(work, struct ft260_device, wakeup_work);
++	struct ft260_get_chip_version_report version;
++	int ret;
++
++	if (dev->reschedule_work) {
++		ret = ft260_hid_feature_report_get(dev->hdev, FT260_CHIP_VERSION,
++					  (u8 *)&version, sizeof(version));
++		if (ret < 0)
++			hid_err(dev->hdev,
++				"%s: failed to start transfer, ret %d\n",
++				__func__, ret);
++	}
++}
++
++static void ft260_uart_shutdown(struct tty_port *tport)
++{
++	struct ft260_device *port =
++		container_of(tport, struct ft260_device, port);
++
++	port->reschedule_work = false;
++}
++
++static int ft260_uart_activate(struct tty_port *tport, struct tty_struct *tty)
++{
++	struct ft260_device *port =
++		container_of(tport, struct ft260_device, port);
++
++	/*
++	 * Set the TTY IO error marker - we will only clear this
++	 * once we have successfully opened the port.
++	 */
++	set_bit(TTY_IO_ERROR, &tty->flags);
++
++	spin_lock(&port->write_lock);
++	kfifo_reset(&port->xmit_fifo);
++	spin_unlock(&port->write_lock);
++
++	ft260_uart_change_speed(port, &tty->termios, NULL);
++	clear_bit(TTY_IO_ERROR, &tty->flags);
++
++	if (port->reschedule_work) {
++		mod_timer(&port->wakeup_timer, jiffies +
++			  msecs_to_jiffies(FT260_WAKEUP_NEEDED_AFTER_MS));
++	}
++
++	return 0;
++}
++
++static void ft260_uart_port_destroy(struct tty_port *tport)
++{
++	struct ft260_device *port =
++		container_of(tport, struct ft260_device, port);
++
++	kfree(port);
++}
++
++static const struct tty_port_operations ft260_uart_port_ops = {
++	.shutdown = ft260_uart_shutdown,
++	.activate = ft260_uart_activate,
++	.destruct = ft260_uart_port_destroy,
++};
++
++static struct tty_driver *ft260_tty_driver;
++
++static int ft260_i2c_probe(struct hid_device *hdev, struct ft260_device *dev)
++{
++	int ret;
++
++	hid_info(hdev, "USB HID v%x.%02x Device [%s] on %s\n",
++		hdev->version >> 8, hdev->version & 0xff, hdev->name,
++		hdev->phys);
++
++	hid_set_drvdata(hdev, dev);
++	dev->hdev = hdev;
++	dev->adap.owner = THIS_MODULE;
++	dev->adap.class = I2C_CLASS_HWMON;
++	dev->adap.algo = &ft260_i2c_algo;
++	dev->adap.quirks = &ft260_i2c_quirks;
++	dev->adap.dev.parent = &hdev->dev;
++	snprintf(dev->adap.name, sizeof(dev->adap.name),
++		 "FT260 usb-i2c bridge");
++
++	ret = ft260_xfer_status(dev, FT260_I2C_STATUS_BUS_BUSY);
++	if (ret)
++		ft260_i2c_reset(hdev);
++
++	i2c_set_adapdata(&dev->adap, dev);
++	ret = i2c_add_adapter(&dev->adap);
++	if (ret) {
++		hid_err(hdev, "failed to add i2c adapter\n");
++		return ret;
++	}
++
++	ret = sysfs_create_group(&hdev->dev.kobj, &ft260_attr_group);
++	if (ret < 0) {
++		hid_err(hdev, "failed to create sysfs attrs\n");
++		goto err_i2c_free;
++	}
++	return 0;
++
++err_i2c_free:
++	i2c_del_adapter(&dev->adap);
++	return ret;
++}
++
++static int ft260_uart_probe(struct hid_device *hdev, struct ft260_device *dev)
++{
++	struct ft260_configure_uart_request req;
++	int ret;
++	struct device *devt;
++
++	INIT_WORK(&dev->wakeup_work, ft260_uart_do_wakeup);
++	// FIXME: Do I need that if I have cancel_work_sync?
++	// FIXME: are all kfifo access secured by lock? with irq or not?
++	dev->reschedule_work = false;
++	/* Work not started at this point */
++	timer_setup(&dev->wakeup_timer, ft260_uart_start_wakeup, 0);
++
++	tty_port_init(&dev->port);
++	dev->port.ops = &ft260_uart_port_ops;
++
++	ret = ft260_uart_add_port(dev);
++	if (ret) {
++		hid_err(hdev, "failed to add port\n");
++		return ret;
++	}
++	devt = tty_port_register_device_attr(&dev->port,
++					     ft260_tty_driver,
++					     dev->index, &hdev->dev,
++					     dev, NULL);
++	if (IS_ERR(devt)) {
++		hid_err(hdev, "failed to register tty port\n");
++		ret = PTR_ERR(devt);
++		goto err_register_tty;
++	}
++	hid_info(hdev, "Registering device /dev/%s%d\n",
++		ft260_tty_driver->name, dev->index);
++
++	/* Send Feature Report to Configure FT260 as UART 9600-8-N-1 */
++	req.report	= FT260_SYSTEM_SETTINGS;
++	req.request	= FT260_SET_UART_CONFIG;
++	req.flow_ctrl	= FT260_CFG_FLOW_CTRL_NONE;
++	put_unaligned_le32(cpu_to_le32(9600), &req.baudrate);
++	req.data_bit	= FT260_CFG_DATA_BITS_8;
++	req.parity	= FT260_CFG_PAR_NO;
++	req.stop_bit	= FT260_CFG_STOP_ONE_BIT;
++	req.breaking	= FT260_CFG_BREAKING_NO;
++
++	ret = ft260_hid_feature_report_set(hdev, (u8 *)&req, sizeof(req));
++	if (ret < 0) {
++		hid_err(hdev, "ft260_hid_feature_report_set failed: %d\n",
++			ret);
++		goto err_hid_report;
++	}
++
++	return 0;
++
++err_hid_report:
++	tty_port_unregister_device(&dev->port, ft260_tty_driver, dev->index);
++err_register_tty:
++	ft260_uart_port_remove(dev);
++	return ret;
++}
++
+ static int ft260_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ {
+ 	struct ft260_device *dev;
+@@ -1010,20 +1676,26 @@ static int ft260_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 	if (!hid_is_usb(hdev))
+ 		return -EINVAL;
+ 
+-	dev = devm_kzalloc(&hdev->dev, sizeof(*dev), GFP_KERNEL);
+-	if (!dev)
+-		return -ENOMEM;
++	/* We cannot used devm_kzalloc here, because port has to survive until
++	 * destroy function call
++	 */
++	dev = kzalloc_obj(*dev, GFP_KERNEL);
++	if (!dev) {
++		ret = -ENOMEM;
++		goto alloc_fail;
++	}
++	hid_set_drvdata(hdev, dev);
+ 
+ 	ret = hid_parse(hdev);
+ 	if (ret) {
+ 		hid_err(hdev, "failed to parse HID\n");
+-		return ret;
++		goto hid_fail;
+ 	}
+ 
+ 	ret = hid_hw_start(hdev, 0);
+ 	if (ret) {
+ 		hid_err(hdev, "failed to start HID HW\n");
+-		return ret;
++		goto hid_fail;
+ 	}
+ 
+ 	ret = hid_hw_open(hdev);
+@@ -1043,53 +1715,36 @@ static int ft260_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 		 version.chip_code[0], version.chip_code[1],
+ 		 version.chip_code[2], version.chip_code[3]);
+ 
+-	ret = ft260_is_interface_enabled(hdev);
+-	if (ret <= 0)
++	ret = ft260_get_interface_type(hdev, dev);
++	if (ret <= FT260_IFACE_NONE)
+ 		goto err_hid_close;
+ 
+-	hid_info(hdev, "USB HID v%x.%02x Device [%s] on %s\n",
+-		hdev->version >> 8, hdev->version & 0xff, hdev->name,
+-		hdev->phys);
+-
+ 	hid_set_drvdata(hdev, dev);
+ 	dev->hdev = hdev;
+-	dev->adap.owner = THIS_MODULE;
+-	dev->adap.class = I2C_CLASS_HWMON;
+-	dev->adap.algo = &ft260_i2c_algo;
+-	dev->adap.quirks = &ft260_i2c_quirks;
+-	dev->adap.dev.parent = &hdev->dev;
+-	snprintf(dev->adap.name, sizeof(dev->adap.name),
+-		 "FT260 usb-i2c bridge");
+ 
+ 	mutex_init(&dev->lock);
+ 	spin_lock_init(&dev->read_lock);
+ 	init_completion(&dev->wait);
+ 
+-	ret = ft260_xfer_status(dev, FT260_I2C_STATUS_BUS_BUSY);
+-	if (ret)
+-		ft260_i2c_reset(hdev);
+-
+-	i2c_set_adapdata(&dev->adap, dev);
+-	ret = i2c_add_adapter(&dev->adap);
+-	if (ret) {
+-		hid_err(hdev, "failed to add i2c adapter\n");
+-		goto err_hid_close;
+-	}
+-
+-	ret = sysfs_create_group(&hdev->dev.kobj, &ft260_attr_group);
+-	if (ret < 0) {
+-		hid_err(hdev, "failed to create sysfs attrs\n");
+-		goto err_i2c_free;
++	if (!dev->ft260_is_serial) {
++		ret = ft260_i2c_probe(hdev, dev);
++		if (ret)
++			goto err_hid_close;
++	} else {
++		ret = ft260_uart_probe(hdev, dev);
++		if (ret)
++			goto err_hid_close;
+ 	}
+ 
+ 	return 0;
+ 
+-err_i2c_free:
+-	i2c_del_adapter(&dev->adap);
+ err_hid_close:
+ 	hid_hw_close(hdev);
+ err_hid_stop:
+ 	hid_hw_stop(hdev);
++hid_fail:
++	kfree(dev);
++alloc_fail:
+ 	return ret;
+ }
+ 
+@@ -1100,8 +1755,18 @@ static void ft260_remove(struct hid_device *hdev)
+ 	if (!dev)
+ 		return;
+ 
+-	sysfs_remove_group(&hdev->dev.kobj, &ft260_attr_group);
+-	i2c_del_adapter(&dev->adap);
++	if (dev->ft260_is_serial) {
++		// FIXME:
++		cancel_work_sync(&dev->wakeup_work);
++		tty_port_unregister_device(&dev->port, ft260_tty_driver,
++					   dev->index);
++		ft260_uart_port_remove(dev);
++		/* dev still needed, so we will free it in _destroy func */
++	} else {
++		sysfs_remove_group(&hdev->dev.kobj, &ft260_attr_group);
++		i2c_del_adapter(&dev->adap);
++		kfree(dev);
++	}
+ 
+ 	hid_hw_close(hdev);
+ 	hid_hw_stop(hdev);
+@@ -1111,10 +1776,10 @@ static int ft260_raw_event(struct hid_device *hdev, struct hid_report *report,
+ 			   u8 *data, int size)
+ {
+ 	struct ft260_device *dev = hid_get_drvdata(hdev);
+-	struct ft260_i2c_input_report *xfer = (void *)data;
++	struct ft260_input_report *xfer = (void *)data;
+ 	unsigned long irqflags;
+ 
+-	if (size < offsetof(struct ft260_i2c_input_report, data)) {
++	if (size < offsetof(struct ft260_input_report, data)) {
+ 		hid_err(hdev, "short report %d\n", size);
+ 		return -1;
+ 	}
+@@ -1127,7 +1792,7 @@ static int ft260_raw_event(struct hid_device *hdev, struct hid_report *report,
+ 			  xfer->report, xfer->length, size);
+ 
+ 		if (xfer->length > size -
+-		    offsetof(struct ft260_i2c_input_report, data)) {
++		    offsetof(struct ft260_input_report, data)) {
+ 			hid_err(hdev, "report %#02x: length %d exceeds HID report size\n",
+ 				xfer->report, xfer->length);
+ 			return -1;
+@@ -1157,9 +1822,17 @@ static int ft260_raw_event(struct hid_device *hdev, struct hid_report *report,
+ 		if (complete_read)
+ 			complete(&dev->wait);
+ 
+-	} else {
+-		hid_err(hdev, "unhandled report %#02x\n", xfer->report);
++		return 0;
++
++	} else if (xfer->length > FT260_RD_DATA_MAX) {
++		hid_err(hdev, "received data too long (%d)\n", xfer->length);
++		return -EBADR;
++	} else if (xfer->report >= FT260_UART_REPORT_MIN &&
++		   xfer->report <= FT260_UART_REPORT_MAX) {
++		return ft260_uart_receive_chars(dev, xfer->data, xfer->length);
+ 	}
++	hid_err(hdev, "unhandled report %#02x\n", xfer->report);
++
+ 	return 0;
+ }
+ 
+@@ -1171,7 +1844,62 @@ static struct hid_driver ft260_driver = {
+ 	.raw_event	= ft260_raw_event,
+ };
+ 
+-module_hid_driver(ft260_driver);
+-MODULE_DESCRIPTION("FTDI FT260 USB HID to I2C host bridge");
++static int __init ft260_driver_init(void)
++{
++	int ret;
++
++	ft260_tty_driver = tty_alloc_driver(UART_COUNT_MAX,
++		TTY_DRIVER_REAL_RAW | TTY_DRIVER_DYNAMIC_DEV);
++	if (IS_ERR(ft260_tty_driver)) {
++		pr_err("tty_alloc_driver failed: %d\n",
++			(int)PTR_ERR(ft260_tty_driver));
++		return PTR_ERR(ft260_tty_driver);
++	}
++
++	ft260_tty_driver->driver_name = "ft260_ser";
++	ft260_tty_driver->name = "ttyFT";
++	ft260_tty_driver->major = 0;
++	ft260_tty_driver->minor_start = 0;
++	ft260_tty_driver->type = TTY_DRIVER_TYPE_SERIAL;
++	ft260_tty_driver->subtype = SERIAL_TYPE_NORMAL;
++	ft260_tty_driver->init_termios = tty_std_termios;
++	ft260_tty_driver->init_termios.c_cflag = B9600 | CS8 | CREAD | HUPCL | CLOCAL;
++	ft260_tty_driver->init_termios.c_ispeed = 9600;
++	ft260_tty_driver->init_termios.c_ospeed = 9600;
++	tty_set_operations(ft260_tty_driver, &ft260_uart_ops);
++
++	ret = tty_register_driver(ft260_tty_driver);
++	if (ret) {
++		pr_err("tty_register_driver failed: %d\n", ret);
++		goto err_reg_driver;
++	}
++
++	ret = hid_register_driver(&(ft260_driver));
++	if (ret) {
++		pr_err("hid_register_driver failed: %d\n", ret);
++		goto err_reg_hid;
++	}
++
++	return 0;
++
++err_reg_hid:
++	tty_unregister_driver(ft260_tty_driver);
++err_reg_driver:
++	tty_driver_kref_put(ft260_tty_driver);
++
++	return ret;
++}
++
++static void __exit ft260_driver_exit(void)
++{
++	hid_unregister_driver(&(ft260_driver));
++	tty_unregister_driver(ft260_tty_driver);
++	tty_driver_kref_put(ft260_tty_driver);
++}
++
++module_init(ft260_driver_init);
++module_exit(ft260_driver_exit);
++
++MODULE_DESCRIPTION("FTDI FT260 USB HID to I2C host bridge and TTY driver");
+ MODULE_AUTHOR("Michael Zaidman <michael.zaidman@gmail.com>");
+ MODULE_LICENSE("GPL v2");
 -- 
 2.43.0
 

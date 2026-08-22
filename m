@@ -1,169 +1,107 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 37581175A9C
-	for <linux-input@vger.kernel.org>; Sat, 22 Aug 2026 12:24:36 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 15B2323EAA6
+	for <linux-input@vger.kernel.org>; Sat, 22 Aug 2026 12:24:51 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787401477; cv=none; b=YWxmlIa70NtJTwQj9z1TTGSy2mx60R4l6WtWH+mzXh3taq+OiMAY79av4cZC+YSb7qnPcn2I8OIPdqiQjt7y67fxdnz5dEyZJjf3FP3php/HjtdBxwCQQfvHIvnoV7nY2dbgLn0L3ZLkXzsfQ0eV+sHiKwKVXcW9L/iL/iWNVo4=
+	t=1787401493; cv=none; b=PBsM5SdJB3MoSAFCmStxLWNudu37ClxPTut6/TGSDHXwsJsxHYgen6u8ma6LhzRg4i2XuUZtIO16BKL30FbO08QcPPxZOHflE2l3IqUwiQeosCDyfKJnwHVeMvl3kyy4CfdpASRv1/OoPHwvv/76R7BCXEHPIRV0oUdDXhBkoPc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787401477; c=relaxed/simple;
-	bh=rk6mMFqWR5P3ToNsRH3T7SekTeMwWzwt0Fh4tjtIzvM=;
+	s=arc-20240116; t=1787401493; c=relaxed/simple;
+	bh=8r7d2sEj72ZQrB/nizayirB3FO08eLQhk+U/5ZSH2XI=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=WFGM7g4Flsc2Z4h2sjIaVdiEyCwICJYnaCMgaKGjaIGTThGhIMWFMIQHeWOCxVhZPd1IisFy7s+8cEgnF8DmZVf1aiXE+6ueBr/ibkLUU3ipsuXmdaEXj3tsE2b/O1AyWLFcV/6IGWAN7moiuX3vpiDLbh+zmIS5VL3yEVzTLoY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=eYe4Lvmp; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=uWwRWRf14agfrqOMNR9L7AJg/hfnjnUMb5LmO5e8d+rCCVEO4EK8h9Q+12QawHF9jIXN/HZKwiyTKcAmns6SPSsGtUlb9Q7kc6ABMCSg8h23Msqco45cEDPyb5Le1NSjt/LmXze06pgrWGeXITZ0mkY55be6mNjnRP46xlAlzYw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=MSjTkMIr; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="eYe4Lvmp"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC5B21F000E9;
-	Sat, 22 Aug 2026 12:24:35 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="MSjTkMIr"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 61CF31F000E9;
+	Sat, 22 Aug 2026 12:24:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787401475;
-	bh=aFs15C0khpXwjCGqNlOoO/wZ/3JFAEPxTrVAdT5q/tI=;
+	s=k20260515; t=1787401491;
+	bh=JQVS7dvEHIQqje5b02NrfwkTaCNiUN+bFWQkoYY7FOg=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=eYe4Lvmpi6KzUfeIilfnSGFSiD8OSvj0BO5JFAS/BLSYuMXDz6kwRpeVSHkUhDv87
-	 6Mcvx/tVBd7PouH9U9UX98pyxqaqw9LOs28JMOTqeG0mYRPD/QSSga3694k/zkk0/p
-	 2IwkADmstvnKUCa7in+H837RK/Wj608xQsDB4oXS3PxYoKHoE2zUvR8emd9AQt4mIY
-	 ZZjmjyJyMYAGP6vgz8kNneSKF8Ny168+gsJJkVPjJIL7aBHIum+qOIFEGOqBToA6pR
-	 BJXRALi5unurVt2GvKZSbtTYIHXCMyP4AyRks+pklz0668Gs4Q/IuGmCbfskJ8uUrI
-	 cEZQrc3a7qXjw==
+	b=MSjTkMIrEoGmH/e72UnpjGGM4AytPk8pEDMGy4xUX7Xi01tOhtqXng2uGNLbMYtwd
+	 IkgwzsskXizw5EYrPNYepXpRd6Dpb0lEVRUSRNLSBqDuqUynLh+gbgJoAxsEktIl+G
+	 fF6Ap8TSOtaSrkPwXQUZ4Kvvg7GLIlHTcmldvRexOAduF7C5lAnphdLIxitzouKdsK
+	 NUV63n+OqSTHtA1kOWTC8IRK4AmSnCpdhtlVUdDoYdtfl1SMFd4FLzugMyMYHKKizO
+	 H5Y/S7mBc2G6YN/C/39jB7dK9ehV6++9KVC5LULNGgklyPeL/AhJsOQmJnaPUiN5cA
+	 aoIWMmAyF6cEg==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] HID: rmi: fix OOB access with undersized RMI reports
+Subject: Re: [PATCH] HID: wacom: fix OOB read in
+ wacom_wac_pen_serial_enforce()
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Wei Jie Law" <98lawweijie@gmail.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260822121007.153988-1-98lawweijie@gmail.com>
-References: <20260822121007.153988-1-98lawweijie@gmail.com>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20260822120926.153849-1-98lawweijie@gmail.com>
+References: <20260822120926.153849-1-98lawweijie@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Sat, 22 Aug 2026 12:24:35 +0000
-Message-Id: <20260822122435.BC5B21F000E9@smtp.kernel.org>
+Date: Sat, 22 Aug 2026 12:24:51 +0000
+Message-Id: <20260822122451.61CF31F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
 
 Pre-existing issues:
-- [High] Missing report field count validation before access.
-- [High] Use-After-Free of `data->reset_work` on `probe` error path.
-- [High] Data Race and missed wakeups in `rmi_hid_read_block`.
+- [High] A 1-byte out-of-bounds heap read occurs in `wacom_wac_pen_serial_e=
+nforce` when processing an unnumbered HID report.
 --
 
---- Patch [1]: [PATCH] HID: rmi: fix OOB access with undersized RMI reports=
- ---
-commit 723e0f956aac9b958efffab91d1bca6e5f8025a4
+--- Patch [1]: [PATCH] HID: wacom: fix OOB read in wacom_wac_pen_serial_enf=
+orce() ---
+commit 7eb0a702b27b2b8dba9547945aa50ecb4a4d7cc0
 Author: Wei Jie Law <98lawweijie@gmail.com>
 
-HID: rmi: fix OOB access with undersized RMI reports
+HID: wacom: fix OOB read in wacom_wac_pen_serial_enforce()
 
-This patch adds minimum bound checks for the read/write report buffers
-in hid-rmi.c to prevent out-of-bounds access. It rejects reports that
-are too small at probe time.
+This commit fixes an out-of-bounds read in wacom_wac_pen_serial_enforce()
+by clamping the usage iteration count to the field's actual report count.
+This prevents extracting data beyond the received report bounds when a
+descriptor lists more usages than its Report Count.
 
-> diff --git a/drivers/hid/hid-rmi.c b/drivers/hid/hid-rmi.c
-> index d4af17fdba467..a0780087d413f 100644
-> --- a/drivers/hid/hid-rmi.c
-> +++ b/drivers/hid/hid-rmi.c
-> @@ -235,7 +235,8 @@ static int rmi_hid_read_block(struct rmi_transport_de=
-v *xport, u16 addr,
->  				break;
->  			}
+> diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
+> index 0eafa483b7f75..1ea8763b68a82 100644
+> --- a/drivers/hid/wacom_sys.c
+> +++ b/drivers/hid/wacom_sys.c
+> @@ -113,8 +113,10 @@ static int wacom_wac_pen_serial_enforce(struct hid_d=
+evice *hdev,
 > =20
-> -			read_input_count =3D data->readReport[1];
-> +			read_input_count =3D min_t(int, data->readReport[1],
-> +						 data->input_report_size - 2);
->  			memcpy(buf + bytes_read, &data->readReport[2],
->  				min(read_input_count, bytes_needed));
-> =20
->  			bytes_read +=3D read_input_count;
->  			bytes_needed -=3D read_input_count;
->  			clear_bit(RMI_READ_DATA_PENDING, &data->flags);
-
-[Severity: High]
-This isn't a bug introduced by this patch, but does this read path have a d=
-ata
-race and missed wakeups?
-
-The data->readReport buffer is read here by process context, but it appears=
- to
-be written concurrently from interrupt context without synchronization:
-
-drivers/hid/hid-rmi.c:rmi_read_data_event() {
-    ...
-    memcpy(hdata->readReport, data, min((u32)size, hdata->input_report_size=
-));
-    set_bit(RMI_READ_DATA_PENDING, &hdata->flags);
-}
-
-If the device streams multiple input reports consecutively, can the softirq
-overwrite data->readReport while it is being copied in rmi_hid_read_block()?
-
-Furthermore, since clear_bit(RMI_READ_DATA_PENDING) runs after the copy,
-could it erroneously clear the flag for a new chunk if the softirq sets it
-just before clear_bit executes, causing the process context to wait and
-timeout?
-
-[ ... ]
-
-> @@ -696,6 +702,17 @@ static int rmi_probe(struct hid_device *hdev, const =
-struct hid_device_id *id)
-> =20
->  	data->output_report_size =3D hid_report_len(output_report);
-> =20
-> +	/*
-> +	 * The write reports built by this driver occupy 6 bytes and the read
-> +	 * handshake looks at the first 3 bytes of an input report, so refuse
-> +	 * to drive a device whose reports cannot hold them.
-> +	 */
-> +	if (data->output_report_size < 6 || data->input_report_size < 3) {
-> +		hid_err(hdev, "rmi reports too small (out=3D%u in=3D%u)\n",
-> +			data->output_report_size, data->input_report_size);
-> +		goto start;
-> +	}
+>  	/* Queue events which have invalid tool type or serial number */
+>  	for (i =3D 0; i < report->maxfield; i++) {
+> -		for (j =3D 0; j < report->field[i]->maxusage; j++) {
+> -			struct hid_field *field =3D report->field[i];
+> +		struct hid_field *field =3D report->field[i];
+> +		unsigned int count =3D min(field->maxusage, field->report_count);
 > +
->  	data->device_flags |=3D RMI_DEVICE;
->  	alloc_size =3D data->output_report_size + data->input_report_size;
-> =20
+> +		for (j =3D 0; j < count; j++) {
+>  			struct hid_usage *usage =3D &field->usage[j];
+>  			unsigned int equivalent_usage =3D wacom_equivalent_usage(usage->hid);
+>  			unsigned int offset;
 
 [Severity: High]
-This is a pre-existing issue, but does the probe error path contain a
-use-after-free of data->reset_work?
+This isn't a bug introduced by this patch, but does the call to
+hid_field_extract() later in this loop cause an out-of-bounds read if the
+report is unnumbered?
 
-Down at the start label, the driver calls hid_hw_start():
+Inside the loop, the code calls:
 
-start:
-    ret =3D hid_hw_start(hdev, HID_CONNECT_DEFAULT);
-    if (ret) {
-        hid_err(hdev, "hw start failed\n");
-        return ret;
-    }
+	value =3D hid_field_extract(hdev, raw_data+1, offset + j * size, size);
 
-During hid_hw_start(), the core allows incoming reports. If a subsequent st=
-ep
-fails (e.g., rmi_set_mode()), hid_hw_start() returns an error.
+This blindly adds 1 to raw_data, assuming raw_data[0] is a report ID. If an
+attacker crafts a USB HID device (or uses UHID) with the Wacom vendor ID
+(0x056a) but provides a descriptor with no Report ID, the transport layer
+allocates a buffer exactly matching the payload size.
 
-If incoming reports have already triggered rmi_event() and scheduled
-data->reset_work, returning this error will cause devres to free the data
-structure. Could the workqueue then execute rmi_reset_work() on freed memory
-since the pending work is not cancelled before returning?
-
-[Severity: High]
-Additionally, there is another pre-existing issue in rmi_report(). Does it
-access the field array without verifying the report field count?
-
-drivers/hid/hid-rmi.c:rmi_report() {
-    ...
-    struct hid_field *field =3D report->field[0];
-    ...
-}
-
-The code accesses report->field[0] by index. If a malicious or buggy device
-provides a report descriptor with no fields (making report->maxfield 0),
-would this lead to an out-of-bounds access?
+For the last field in such an unnumbered report, this reads 1 byte past the
+end of the heap allocation. Since the extracted value can be stored in
+wacom_wac->serial[0] and emitted to userspace via MSC_SERIAL events, could
+this lead to a 1-byte out-of-bounds heap read and information disclosure?
 
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260822121007.1539=
-88-1-98lawweijie@gmail.com?part=3D1
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260822120926.1538=
+49-1-98lawweijie@gmail.com?part=3D1

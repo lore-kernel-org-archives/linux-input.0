@@ -1,220 +1,226 @@
-Received: from mail-ej1-f49.google.com (mail-ej1-f49.google.com [209.85.218.49])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6897A391822
-	for <linux-input@vger.kernel.org>; Sat, 22 Aug 2026 21:40:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E55CE2765E2
+	for <linux-input@vger.kernel.org>; Sat, 22 Aug 2026 21:51:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787434864; cv=none; b=sV/3vdeYjkyOzEujNXI3GFzpwEfZbGn/yRYvyHP3HRqn+ftMKUL1PHUsrvQJ7HLXEj43yyBYEKQ/0VSYBDaC+qcJXwPVIepd9oZ4Qrd0wGI0eoL85lfSFIo6FgTNbxteulgjudav9S9qJIUMhlESGoSudMmfd1PrWsWsUVpW/vM=
+	t=1787435498; cv=none; b=lQ/mc6HVjKu6C5dxWVvtZMYHLxko5v3g/wvuHRIyPUkeM48/f/Hp+yes85D8AEJwhn4ZpE+RPUDP1lz1MadqlGbBZre1aE22I692wON0SLQ29aPWxj12wDEVir2WhK9IER4573c43Nap1uWOXT/tRJOsS7XmZThXy3xyPYOFwZw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787434864; c=relaxed/simple;
-	bh=+tTBPf/ITWlpNCLZqiExxTpUAgaWoqxWpXFOOAp5x4M=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=ZEwWEti1+SZNx7CWNk13kx68IBb90LzEyGBW3+oz5bq1hbs3rBrrxuJt3W1AHc2lwdrh2H9w383MriVp/KlzuUYvLXCJYhMPgss7scyNnctWtrLxH0/kbsCa/ynR1ap3Zahp9YZC89BhpPw+UK8ofZ4tnmrmVCAxBDznxiEKrU0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=hu5x/Oxa; arc=none smtp.client-ip=209.85.218.49
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1787435498; c=relaxed/simple;
+	bh=Ed2Yn+u8VgeFp4DFyDaYGdNNkkhDd+9lmMAkjFk2oAA=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=K3b0UspF/lO/msw9npidVFcMvaBsmgsUXZcLWt0DJSFlxIAkJm5dy3z+fsBvjbT0fT2VSw2OUzKKacXK//7we4SN6hUPb7iaW5gqUslMo7NwMrKKLEtTmHUrr+OcNJ6Lkcy5ebJkwc+Gdbq0N/BdW02+38rUFfyi3UAnomYTEtc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=NIiqY7eZ; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hu5x/Oxa"
-Received: by mail-ej1-f49.google.com with SMTP id a640c23a62f3a-c1670dad7a8so388887266b.3
-        for <linux-input@vger.kernel.org>; Sat, 22 Aug 2026 14:40:51 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1787434848; x=1788039648; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=10Eq5R/N2bfHPdqI9SBKLnnx+VXtAYQbeV+dq9RoJTo=;
-        b=hu5x/Oxa/d3y6zWFCg3G6PNcMQX82Q+drWOWuByIgA6VhI6ZegzD5MUAvNMyarunZf
-         bKgIYjg7agqc87krmzC8O3kNHWpnB311UfyWnPZNvvNtzWyXNojfgq17hmPsjWocUinJ
-         Dh2Abt3ZgWqZj8rbRQgM04Gu8L0VFlzDdfBo0rQBTJ+2BpM2zo/3EL1lDaKaWrcdPU7/
-         gX7cRsLrSk0CoVSTepl7ZwwBr/LxxNCZFhGguErMZRgBYDSsMilwOnKk0fBuIs4W5Whq
-         apmrT7q4J2N7Bwi22UqoFJc4Mv6FqjEB5dTVblDowuh/+df0CDv/AAB5ikAS+k5gwpR+
-         ql1A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787434848; x=1788039648;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=10Eq5R/N2bfHPdqI9SBKLnnx+VXtAYQbeV+dq9RoJTo=;
-        b=SmxhtxQW+WXAD2rRCh9Sd4stm0wEn8VNJmqWoU2IXpdCKU55bX18kVecy9fZKvs0z1
-         /R8sYmpnSyJ5YBaf4/K/QPmJu7ywDVH44ura5Y1rg/9x3o+UoVeGXHgf8cf4lMlm7Q6D
-         L8E8X9jvIxxcs11U147wScaz7rgmOJ0saKhddDIrERmcLUydSY3ZmBMZqENLrB175vVU
-         lM0J2rJbP53g4G5WYPwwoG8gjjimHLxJaE3+HtLYK5u8FK9pMuNhFBH8OSGvLPvFHUsf
-         4vYscxZ4HtmL9wOv9nI7254wLc3HxTN59Eg5RZHPMk81eg9I/Xje6/y8qDo4lq83D4gK
-         lzzg==
-X-Forwarded-Encrypted: i=1; AHgh+RrZ32eotmDqVc7YePE61ekUJP1LUE7L7GTvCqoR7zXNckKJQHKi4rXQEhxdEyJY66w6ZJ0iWjgocNPfuw==@vger.kernel.org
-X-Gm-Message-State: AFuF++kYqPnuB/TReLaL/SDMT1EZ2mvtznlp/18M2j1SVmmwJRIMY1Tr
-	hyD313uTc1y2DnRUcBpHJDqavnPhWtChqxTWIRtRZf4iM+3A1iOLVHOX
-X-Gm-Gg: AR+sD11Kya4e2ZncqhujNucqeqwd0e8Lu4a9lK5EAZTqQm37ykXX/BdB6UPHlvub0RR
-	Rg10KmGJ7gAKkVACkbrV9jXQMBZv4dCOWB1o+qYwQznKNP4z4xL7QhHGvvomEaKtR7TmWB1JW5b
-	cP0RxvcxXt1WMoPtqUgU3Mg53O0KStHQXVBmSoJkRoDhN37vNNUcUe/mK88FzrGuWVziAkMxeWF
-	8D+pjMJGIqu+GSHoQA3vFDBwdnNlAcL4y0Tx6/HCBxCRhXVBsa6fPrxfRmkcp+XQ71EhQROZE74
-	TgcJl17As1zbNjZ+dja8RzbB0zSXZnITqcEMgbV4zEZUHzc+fJ4d0lGzjcr/FJTQpA41EiVbOT+
-	Oq9ibfC2vOc1/2aqgjHMXBZ93mTIQlKEmqsrc+FeYbNeyS+0gJp+EF6ZrFxwouWDnk6Hgad6nL0
-	NFizvxotvfdVCsvJJVvitPatof7Lhkp/7EsOEjd90rO9KFCfWbOKZkAAjhYpSg
-X-Received: by 2002:a05:6938:a086:20b0:c20:38c2:2b7f with SMTP id a640c23a62f3a-c246a684286mr1173749266b.12.1787434847817;
-        Sat, 22 Aug 2026 14:40:47 -0700 (PDT)
-Received: from m2.. ([37.142.151.124])
-        by smtp.googlemail.com with ESMTPSA id a640c23a62f3a-c24966f99basm466778466b.37.2026.08.22.14.40.46
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 22 Aug 2026 14:40:47 -0700 (PDT)
-From: Michael Zaidman <michael.zaidman@gmail.com>
-To: Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>
-Cc: Linus Walleij <linusw@kernel.org>,
-	Bartosz Golaszewski <brgl@kernel.org>,
-	Germain Hebert <germain.hebert@ca.abb.com>,
-	Rio Liu <rio@r26.me>,
-	Bruno Giacomazzi <brunoceg1@gmail.com>,
-	Christina Quast <contact@christina-quast.de>,
-	linux-input@vger.kernel.org,
-	linux-gpio@vger.kernel.org,
-	linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Michael Zaidman <michael.zaidman@gmail.com>,
-	Chris Keeser <chriskeeser@meta.com>
-Subject: [PATCH 11/13] HID: ft260: i2c: fix large write transaction failure
-Date: Sun, 23 Aug 2026 00:39:39 +0300
-Message-ID: <20260822213941.98882-12-michael.zaidman@gmail.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20260822213941.98882-1-michael.zaidman@gmail.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="NIiqY7eZ"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D51EB1F000E9;
+	Sat, 22 Aug 2026 21:51:34 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1787435495;
+	bh=4b3tItlC9vZO8eyeo9NUkHPbrELzEkV6h5I6r0w0nOw=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=NIiqY7eZT/GF7yBPhaHeIjetUDU87QI5G/CbmgFmHQ1PPB4j/kqaPt5n84Jv5HqC4
+	 ahMRgyxcLvqYK4oPkEpI+OfWV+ufU0e+KazsUtZjrVprRCqx/akOnY3D9abtiO430V
+	 vbqTJhGF7KFgjWbFH/fDQ+O3KZiHuOmFYagb9Y7JHTBywkUl0vTlS9NUJPRXVGt/0/
+	 FuH0N/au4LHtJDigy/Jy0XulrJzXHVrjdC6LlPNCO/7NnKcSoWqo5I4sesTha5Zr5p
+	 zy7lxjMZPKwTZw43lR4bMTK+ewnh9QhI2tGc5E+siG4w2YMDN9fXJWmc06dDmr1V2U
+	 FiB38fzMjQD5A==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH 04/13] HID: ft260: i2c: reduce driver module loading
+ time
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Michael Zaidman" <michael.zaidman@gmail.com>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20260822213941.98882-5-michael.zaidman@gmail.com>
 References: <20260822213941.98882-1-michael.zaidman@gmail.com>
+ <20260822213941.98882-5-michael.zaidman@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Sat, 22 Aug 2026 21:51:34 +0000
+Message-Id: <20260822215134.D51EB1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-Fixes a regression from commit 5afac727defa ("HID: ft260: missed NACK
-from busy device"), which waited for bus-idle after every HID write
-report except when the report flag was exactly FT260_FLAG_START.
+Thank you for your contribution! Sashiko AI review found 6 potential issue(=
+s) to consider:
 
-Multi-report I2C writes keep the bus busy between chunks for atomicity.
-Treating those middle reports like a final STOP caused ft260_xfer_status()
-to spin on -EAGAIN after the second HID report and fail large writes.
-Write-then-read combined transfers still worked.
+New issues:
+- [High] The dynamic I2C read timeout incorrectly applies a 25ms timeout fo=
+r last-chunk reads up to 180 bytes, causing spurious timeouts for chunks > =
+60 bytes.
+- [High] Delayed USB HID reports from prematurely timed-out I2C transaction=
+s corrupt subsequent I2C transfers.
 
-Pass the bus-busy check policy from the caller: ft260_i2c_write() and
-ft260_smbus_write() wait for idle only when the report they send carries
-STOP; intermediate chunks and the command phase of a combined transfer
-do not.
+Pre-existing issues:
+- [Critical] Double free of `dev` on UART probe error path.
+- [High] The driver frees its private data before stopping hardware I/O, al=
+lowing asynchronous incoming HID reports to cause a use-after-free.
+- [High] Race condition in teardown sequence of wakeup timer and workqueue =
+leads to Use-After-Free on device unplug.
+- [High] A malicious USB device can cause a divide-by-zero kernel panic by =
+reporting a 0 Hz clock.
+--
 
-The SMBus side matters for register reads. The command phase is written
-with FT260_FLAG_START and no STOP, because a repeated START read follows
-and the controller deliberately keeps the bus busy to keep the
-transaction atomic. Checking the busy bit there makes
-ft260_xfer_status() return -EAGAIN on every retry and the command write
-fail with -EIO, which breaks probing of clients that read registers:
+--- Patch [4]: [PATCH 04/13] HID: ft260: i2c: reduce driver module loading =
+time ---
+commit ce4834500e105e8a3ed2770b588049de28ffe3cf
+Author: Michael Zaidman <michael.zaidman@gmail.com>
 
-  ads1x19 6-0040: Failed to read config register: -5
-  leds-pca963x: probe of 6-0008 failed with error -5
+HID: ft260: i2c: reduce driver module loading time
 
-Fixes: 5afac727defa ("HID: ft260: missed NACK from busy device")
-Reported-by: Chris Keeser <chriskeeser@meta.com>
-Closes: https://github.com/MichaelZaidman/hid-ft260/issues/35
-Tested-by: Chris Keeser <chriskeeser@meta.com>
-Reported-by: Bruno Giacomazzi <brunoceg1@gmail.com>
-Closes: https://github.com/MichaelZaidman/hid-ft260/issues/42
-Signed-off-by: Michael Zaidman <michael.zaidman@gmail.com>
----
- drivers/hid/hid-ft260.c | 35 ++++++++++++++++-------------------
- 1 file changed, 16 insertions(+), 19 deletions(-)
+The commit adjusts the I2C read timeout to depend on the amount of data
+being read. This is intended to reduce the module loading time significantl=
+y,
+lowering the lm75 address range scan time to about 200ms.
 
-diff --git a/drivers/hid/hid-ft260.c b/drivers/hid/hid-ft260.c
-index a2f4b6e5a16b..36687c086b40 100644
---- a/drivers/hid/hid-ft260.c
-+++ b/drivers/hid/hid-ft260.c
-@@ -566,9 +566,14 @@ static int ft260_xfer_status(struct ft260_device *dev, u8 bus_busy)
- 	}
- 
- 	dev->clock = le16_to_cpu(report.clock);
--	ft260_dbg("bus_status %#02x, clock %u\n", report.bus_status,
--		  dev->clock);
-+	ft260_dbg("bus_status %#02x, clock %u, bus_busy %#02x\n",
-+		  report.bus_status, dev->clock, bus_busy);
- 
-+	/*
-+	 * Do not check the busy bit for combined transactions
-+	 * since the controller keeps the bus busy between writing
-+	 * and reading IOs to ensure an atomic operation.
-+	 */
- 	if (report.bus_status & (FT260_I2C_STATUS_CTRL_BUSY | bus_busy))
- 		return -EAGAIN;
- 
-@@ -602,13 +607,10 @@ static int ft260_hid_output_report(struct hid_device *hdev, u8 *data,
- }
- 
- static int ft260_hid_output_report_check_status(struct ft260_device *dev,
--						u8 *data, int len)
-+						u8 *data, int len, u8 bus_busy)
- {
--	u8 bus_busy;
- 	int ret, usec, try = 100;
- 	struct hid_device *hdev = dev->hdev;
--	struct ft260_i2c_write_request_report *rep =
--		(struct ft260_i2c_write_request_report *)data;
- 
- 	ret = ft260_hid_output_report(hdev, data, len);
- 	if (ret < 0) {
-@@ -625,16 +627,6 @@ static int ft260_hid_output_report_check_status(struct ft260_device *dev,
- 		ft260_dbg("wait %d usec, len %d\n", usec, len);
- 	}
- 
--	/*
--	 * Do not check the busy bit for combined transactions
--	 * since the controller keeps the bus busy between writing
--	 * and reading IOs to ensure an atomic operation.
--	 */
--	if (rep->flag == FT260_FLAG_START)
--		bus_busy = 0;
--	else
--		bus_busy = FT260_I2C_STATUS_BUS_BUSY;
--
- 	do {
- 		ret = ft260_xfer_status(dev, bus_busy);
- 		if (ret != -EAGAIN)
-@@ -651,6 +643,7 @@ static int ft260_hid_output_report_check_status(struct ft260_device *dev,
- static int ft260_i2c_write(struct ft260_device *dev, u8 addr, u8 *data,
- 			   int len, u8 flag)
- {
-+	u8 bus_busy = 0;
- 	int ret, wr_len, idx = 0;
- 	struct ft260_i2c_write_request_report *rep =
- 		(struct ft260_i2c_write_request_report *)dev->i2c_wr_buf;
-@@ -663,8 +656,10 @@ static int ft260_i2c_write(struct ft260_device *dev, u8 addr, u8 *data,
- 	do {
- 		if (len <= FT260_WR_I2C_DATA_MAX) {
- 			wr_len = len;
--			if (flag == FT260_FLAG_START_STOP)
-+			if (flag == FT260_FLAG_START_STOP) {
- 				rep->flag |= FT260_FLAG_STOP;
-+				bus_busy = FT260_I2C_STATUS_BUS_BUSY;
-+			}
- 		} else {
- 			wr_len = FT260_WR_I2C_DATA_MAX;
- 		}
-@@ -680,7 +675,7 @@ static int ft260_i2c_write(struct ft260_device *dev, u8 addr, u8 *data,
- 			  rep->flag, data[0]);
- 
- 		ret = ft260_hid_output_report_check_status(dev, (u8 *)rep,
--							   wr_len + 4);
-+							   wr_len + 4, bus_busy);
- 		if (ret < 0) {
- 			ft260_dbg("%s: failed with %d\n", __func__, ret);
- 			return ret;
-@@ -721,7 +716,9 @@ static int ft260_smbus_write(struct ft260_device *dev, u8 addr, u8 cmd,
- 	ft260_dbg("rep %#02x addr %#02x cmd %#02x datlen %d replen %d\n",
- 		  rep->report, addr, cmd, rep->length, len);
- 
--	ret = ft260_hid_output_report_check_status(dev, (u8 *)rep, len);
-+	ret = ft260_hid_output_report_check_status(dev, (u8 *)rep, len,
-+						   (flag & FT260_FLAG_STOP) ?
-+						   FT260_I2C_STATUS_BUS_BUSY : 0);
- 	if (ret < 0)
- 		ft260_dbg("%s: failed with %d\n", __func__, ret);
- 
--- 
-2.43.0
+> diff --git a/drivers/hid/hid-ft260.c b/drivers/hid/hid-ft260.c
+> index cc3b8f5791dea..4435a39fce239 100644
+> --- a/drivers/hid/hid-ft260.c
+> +++ b/drivers/hid/hid-ft260.c
+[ ... ]
+> @@ -732,10 +739,12 @@ static int ft260_i2c_read(struct ft260_device *dev,=
+ u8 addr, u8 *data,
+>  		flag =3D 0;	/* no fresh START - continue current transaction */
+>  	do {
+>  		if (len <=3D rd_data_max) {
+> +			timeout =3D FT260_RD_ONE_REPORT_TO;
 
+[Severity: High]
+Does this logic aggressively override the timeout to 25ms for the final
+chunk of any transfer, even if that chunk is 180 bytes long?
+
+If an I2C read request is made where the final chunk is between 61 and 180
+bytes (e.g., a 240-byte read), the condition if (len <=3D rd_data_max)
+correctly matches the final chunk, but erroneously assigns it the
+FT260_RD_ONE_REPORT_TO (25ms) timeout instead of the required 75ms.
+
+As noted in the commit message, a 180-byte chunk physically requires about
+27ms of wire time at 60kHz. A 25ms timeout is guaranteed to expire before t=
+he
+hardware finishes, which could lead to a deterministic failure (-ETIMEDOUT)
+on any I2C read larger than 60 bytes.
+
+>  			rd_len =3D len;
+>  			if (want_stop)
+>  				flag |=3D FT260_FLAG_STOP;
+>  		} else {
+> +			timeout =3D FT260_RD_MULTI_REPORT_TO;
+>  			rd_len =3D rd_data_max;
+>  		}
+>  		rd_data_max =3D FT260_RD_DATA_MAX;
+[ ... ]
+> @@ -762,8 +771,8 @@ static int ft260_i2c_read(struct ft260_device *dev, u=
+8 addr, u8 *data,
+>  			goto ft260_i2c_read_exit;
+>  		}
+> =20
+> -		timeout =3D msecs_to_jiffies(5000);
+> -		if (!wait_for_completion_timeout(&dev->wait, timeout)) {
+> +		timeout_jiffies =3D msecs_to_jiffies(timeout);
+> +		if (!wait_for_completion_timeout(&dev->wait, timeout_jiffies)) {
+
+[Severity: High]
+Will the drastic reduction of the timeout bounds without a concurrent
+mechanism to purge the HID input queue or use sequence numbers expose the
+driver to data corruption?
+
+If a premature timeout occurs in ft260_i2c_read() due to the reduced bounds,
+it causes the function to clear dev->read_buf and return. However, the USB
+host controller may still receive the delayed response.
+
+When a subsequent I2C read starts, it repopulates dev->read_buf. Since
+ft260_raw_event() lacks sequence numbers, could it blindly copy the stale
+delayed USB report into the new buffer and call complete(), allowing the new
+transaction to complete with invalid data?
+
+>  			ret =3D -ETIMEDOUT;
+>  			ft260_i2c_reset(hdev);
+>  			goto ft260_i2c_read_exit;
+
+[Severity: High]
+This isn't a bug introduced by this patch, but does the driver free its
+private data before stopping hardware I/O, allowing asynchronous incoming H=
+ID
+reports to cause a use-after-free?
+
+In ft260_remove():
+
+	} else {
+		// ...
+		kfree(dev);
+	}
+
+	hid_hw_close(hdev);
+	hid_hw_stop(hdev);
+
+During device unplug, the driver unconditionally frees its private dev
+structure before calling hid_hw_stop(hdev). Because the hardware and the USB
+interrupt IN endpoint remain active until hid_hw_stop() is called, an
+incoming HID report during this window will be dispatched to
+ft260_raw_event(), which will attempt to acquire dev->read_lock on the
+already freed dev memory.
+
+[Severity: Critical]
+This isn't a bug introduced by this patch, but is there a double free of dev
+on the UART probe error path?
+
+In ft260_probe():
+
+hid_fail:
+	kfree(dev);
+alloc_fail:
+
+If ft260_uart_probe() fails, it jumps to the error path and calls
+ft260_uart_port_remove(dev). This triggers tty_port_put(), which drops the
+final reference and calls ft260_uart_port_destroy(), explicitly freeing dev
+via kfree(port).
+
+The function then returns a failure code to ft260_probe(), which follows its
+own error path to hid_fail where it executes kfree(dev) a second time on the
+same pointer.
+
+[Severity: High]
+This isn't a bug introduced by this patch, but is there a race condition in
+the teardown sequence of the wakeup timer and workqueue that leads to a
+use-after-free on device unplug?
+
+In ft260_remove():
+
+	cancel_work_sync(&dev->wakeup_work);
+	tty_port_unregister_device(&dev->port, ft260_tty_driver, dev->index);
+	ft260_uart_port_remove(dev);
+
+The cancel_work_sync() is executed before timer_delete_sync() (called within
+ft260_uart_port_remove()), which fails to guarantee the workqueue will rema=
+in
+empty.
+
+Because the timer can fire between these two calls, ft260_uart_start_wakeup=
+()
+can erroneously call schedule_work() to re-enqueue the work. Once unbind
+completes and dev is freed via the TTY destructor, the pending work executes
+and accesses freed memory.
+
+[Severity: High]
+This isn't a bug introduced by this patch, but can a malicious USB device
+cause a divide-by-zero kernel panic by reporting a 0 Hz clock?
+
+In ft260_hid_output_report_check_status():
+
+	/* transfer time =3D 1 / clock(KHz) * 9 bits * bytes */
+	usec =3D len * 9000 / dev->clock;
+
+The unvalidated clock value read from the hardware is used directly as a
+divisor. If a malicious or malfunctioning USB device responds to the
+FT260_I2C_STATUS feature request in ft260_xfer_status() with a report.clock
+value of 0, the driver saves this to dev->clock without validation.
+Subsequent calls will divide by dev->clock to calculate delay timings,
+immediately crashing the kernel.
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260822213941.9888=
+2-1-michael.zaidman@gmail.com?part=3D4

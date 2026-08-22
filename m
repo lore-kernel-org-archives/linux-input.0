@@ -1,44 +1,44 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 91925390992
-	for <linux-input@vger.kernel.org>; Sat, 22 Aug 2026 21:54:18 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4C7C823FC41
+	for <linux-input@vger.kernel.org>; Sat, 22 Aug 2026 21:54:59 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787435661; cv=none; b=PdzKzbzaUkSK9khkrHeTgrb/xeVzMomH+sEaPMXG5Zfgg+c6R0AVQsI8EXhSddDSSIqP0+CBxbfXDpimzhcNK+0NgjQy+x5zwmjrA94ZFIoPBN/eEdcLBtMFUbjz7Qi3H7Rkui6qO6JLALwGx6TOGlu1d0wrPjlV6NFJ95QO/Ws=
+	t=1787435700; cv=none; b=bcNndiluONZ6/0ERlE9ZiQbXCGnbgwMb77fHRxJFg8J/KpbqNd8s/N+/YvPPh8RQMicsW0jIn9O0RDTelIELIscS+jIlo4aHo7NUKB/8M2Qgsw0/1oqGIk3XNPpEaU91SVX8wPdIGtwxWFmAGuQb6UnDwWf8FsfkqLhiXkOMteQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787435661; c=relaxed/simple;
-	bh=aSNHRFWMMS5pvFfPhkgbaUPwBrgZxbBQ/gBG56G4ExQ=;
+	s=arc-20240116; t=1787435700; c=relaxed/simple;
+	bh=K3CcmBFshPZ0hNzJ7KLblbYDT+PFoHo5fSEUYHrLFg8=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=LaXnsisIXUF9E3jN72BTnvVjwKAGJF2I77IzFpZifg4HYL7fFV7LVVEtP9O0v7bZyyeRzjWY65F+Mm8GdObDGfTLbAqKH2bskxCPqZynGX2WgnCqCJbG0iLRLZlldVlA7G9QSd+gDHwN77kr7y8nArg4Lzx7soUOvLeqin2bBtg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=KJmYUV9R; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=oUcPxvaUrRy7Bi716H31xlo8Ac3Mu2VdVZtwMLR217M54yP54xPNIzGd0yyMgToHpbmVnqINMVQ7sX+1GoLF6502pHJqB1D2iip6UyU76QCRO/4l1kt0dmUGe8NHsPxKNxoLGdYEV4GX5FsaXzYNWzo2YEXUPFHdHb8Sj7MKemc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=QsLhWt19; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="KJmYUV9R"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1B781F000E9;
-	Sat, 22 Aug 2026 21:54:17 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="QsLhWt19"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B2AC71F000E9;
+	Sat, 22 Aug 2026 21:54:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787435658;
-	bh=SHLnWt7WST24Ebj2p5MU+o4Ukxl5JNGDPNgMIlTy67c=;
+	s=k20260515; t=1787435698;
+	bh=yH/xk75cqyB3UWu6cnan9aAJ0xEzuSuV3shLw8VvHUo=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=KJmYUV9RIJdw60ENEtLUjVt3+6jBkDOU/d0/bXhRIe1evY13xkEhpyidiE1tHk5C2
-	 wNY0SycVqeiji5dI0BBrfNa7rHJUznFKDjK7JWUQ4WcRw1essL9ynfOG7Z2SLW0GYa
-	 mu7MU0NPmfFypYHyq9ntFo8tzIQDuHCGvrfU1g77WZkJ6O/WU7ELJvFLCAYwzCI7/c
-	 iBTzE22SjBDV85ogADny07hh/wgutZPiHGbPx2MZKndKGOeIj0WqRedGR2bM1D58wD
-	 WA7mUsz6jMenGsceASBVUxOHRV6nf4P3PHDj7eJJfjEp2oXl+hN4rQjPAg8zu6BPE7
-	 Y0ij5xGi6aO1A==
+	b=QsLhWt19iaGJ/V4bSqF0/TD8g1Z9rgJnPSAelLKcWvcnOTSs0pwqYC3PG1VpcLaGS
+	 rFVDLnZsiDNjpomTS86jwFK8YPsbwrWfEc/2rxwIdAYrg0heOzXu5TKVDLLn0k3+br
+	 KD6i2euNC3s4/YUFaE5RQCB4VZyjJ8XLNK5Gyj6eQWcpZbX+SgT49Q3nL/Ol9t+7ky
+	 SmibFrNCMpJ4PP1RBAZtSvrJ62Bm5HumZxuzNpBRMAX7PJJeFvNm09oqmbqdFsEmmM
+	 lhDRzl4uYrFDWFWcfs5sVMO+ianyXxykQjEso0PwsJYKW0pcCCxpA9OZa3vFmCo/g+
+	 0HKRGpLY4wvGA==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 09/13] HID: ft260: gpio: group sysfs attrs per HID
- interface
+Subject: Re: [PATCH 08/13] HID: ft260: uart: add modem pins control via
+ ioctl
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Michael Zaidman" <michael.zaidman@gmail.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260822213941.98882-10-michael.zaidman@gmail.com>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <20260822213941.98882-9-michael.zaidman@gmail.com>
 References: <20260822213941.98882-1-michael.zaidman@gmail.com>
- <20260822213941.98882-10-michael.zaidman@gmail.com>
+ <20260822213941.98882-9-michael.zaidman@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Sat, 22 Aug 2026 21:54:17 +0000
-Message-Id: <20260822215417.F1B781F000E9@smtp.kernel.org>
+Date: Sat, 22 Aug 2026 21:54:58 +0000
+Message-Id: <20260822215458.B2AC71F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -49,199 +49,206 @@ Thank you for your contribution! Sashiko AI review found 7 potential issue(=
 s) to consider:
 
 New issues:
-- [Medium] The `i2c_enable` sysfs attribute is unintentionally removed for =
-dual-mode devices.
-- [Medium] The `i2c_reset` sysfs attribute is incorrectly exposed on the UA=
-RT interface group.
+- [Critical] tiocmget and tiocmset operations trigger a Use-After-Free if c=
+alled after the USB device is unbound due to delayed TTY hangup.
+- [High] In ft260_probe(), if ft260_get_interface_type() fails, the negativ=
+e error code is discarded, causing probe to return success.
+- [Medium] ft260_uart_tiocmget() fails to check the return value of ft260_g=
+pio_get_all(), leading to corrupted TIOCM state on error.
+- [Medium] ft260_uart_tiocmset() copies port->gpio outside of port->lock, c=
+reating a race condition that leads to lost GPIO updates.
+- [Medium] ft260_uart_tiocmset() and ft260_uart_tiocmget() silently ignore =
+partial modem GPIO configurations and falsely return success.
 
 Pre-existing issues:
-- [High] Premature free of `dev` in `ft260_remove()` leads to multiple Use-=
-After-Free conditions.
-- [High] Double free and Use-After-Free of the `dev` structure in the probe=
- error paths.
-- [High] Missing and incorrectly ordered teardown of timer and workqueue le=
-ads to Use-After-Free.
-- [High] On device hot-unplug, the driver frees critical resources before t=
-he TTY port is completely hung up, allowing concurrent TTY operations to tr=
-igger Use-After-Free.
-- [High] Race condition Use-After-Free due to manual `kfree(dev)` before `d=
-evres` cleans up the registered gpiochip.
+- [Critical] Pre-existing memory safety bugs related to tty_port refcountin=
+g cause a double-free on probe failure and a use-after-free on device remov=
+al.
+- [High] Pre-existing double byteswap of baudrate corrupts UART configurati=
+on on big-endian hosts.
 --
 
---- Patch [9]: [PATCH 09/13] HID: ft260: gpio: group sysfs attrs per HID in=
-terface ---
-commit c899807eb1ab1f737fe08c45424f6b6a6de53615
+--- Patch [8]: [PATCH 08/13] HID: ft260: uart: add modem pins control via i=
+octl ---
+commit 847b0f46ee2404b8e4d020149c5d880eb06ffe61
 Author: Michael Zaidman <michael.zaidman@gmail.com>
 
-HID: ft260: gpio: group sysfs attrs per HID interface
-
-Split the single sysfs attribute group into per-interface groups based
-on chip mode (DCNF0/DCNF1).
+HID: ft260: uart: add modem pins control via ioctl
+   =20
+This commit adds TIOCMGET/TIOCMSET support so userspace can drive DTR/RTS
+when the modem pins are in GPIO mode. It also modifies the GPIO sysfs
+registration to rely on chip_mode instead of USB interface number.
 
 > diff --git a/drivers/hid/hid-ft260.c b/drivers/hid/hid-ft260.c
-> index 554d8e3ddb6db..0a1875a1a7eca 100644
+> index 1da42b8756d8c..554d8e3ddb6db 100644
 > --- a/drivers/hid/hid-ft260.c
 > +++ b/drivers/hid/hid-ft260.c
-
 [ ... ]
-
-> @@ -1603,11 +1603,35 @@ static const struct attribute_group ft260_attr_gr=
-oup =3D {
->  		  &dev_attr_gpio2_func.attr,
->  		  &dev_attr_gpioa_func.attr,
->  		  &dev_attr_gpiog_func.attr,
-> +		  &dev_attr_clock_ctl.attr,
-> +		  &dev_attr_i2c_reset.attr,
-> +		  &dev_attr_clock.attr,
-> +		  NULL
-> +	}
-> +};
+> @@ -1912,6 +1942,78 @@ static void ft260_uart_set_termios(struct tty_stru=
+ct *tty,
+>  	ft260_uart_change_speed(port, &tty->termios, NULL);
+>  }
+> =20
+> +static int ft260_uart_tiocmget(struct tty_struct *tty)
+> +{
+> +	struct ft260_device *port =3D tty->driver_data;
+> +	int gpios;
 > +
-> +static const struct attribute_group ft260_i2c_chip_mode_0_3_attr_group =
-=3D {
-> +	.attrs =3D (struct attribute *[]) {
-> +		  &dev_attr_hid_over_i2c_en.attr,
-> +		  &dev_attr_i2c_reset.attr,
-> +		  &dev_attr_clock.attr,
-> +		  NULL
+> +	/*
+> +	 * The modem lines control via ioctl is allowed only
+> +	 * when the related pins are in the gpio mode.
+> +	 */
+> +	int mask =3D FT260_GPIO_UART_MODE_4_SET;
+> +
+> +	if ((port->gpio_en & mask) !=3D mask) {
+> +		ft260_dbg("Illegal gpio config %#02x !=3D mask %#04x\n",
+> +			  port->gpio_en, mask);
+> +		return 0;
 > +	}
-> +};
 
 [Severity: Medium]
-Is the omission of the dev_attr_i2c_enable.attr intentional for dual-mode
-devices?
-
-The commit message mentions splitting the groups per interface based on chip
-mode, but it looks like the i2c_enable attribute was completely dropped from
-the dual-mode I2C group here.=20
-
-Could this silently break userspace applications relying on this sysfs entr=
-y?
+Does this silently ignore the partial configuration by returning 0
+(success) instead of an error code like -EINVAL? If userspace enables
+hardware flow control, it might try to toggle DTR/DSR manually, and
+it looks like this will silently return success without taking action.
 
 > +
-> +static const struct attribute_group ft260_uart_chip_mode_0_2_3_attr_grou=
-p =3D {
-> +	.attrs =3D (struct attribute *[]) {
-> +		  &dev_attr_chip_mode.attr,
-> +		  &dev_attr_pwren_status.attr,
-> +		  &dev_attr_suspend_status.attr,
-> +		  &dev_attr_power_saving_en.attr,
-> +		  &dev_attr_gpio2_func.attr,
-> +		  &dev_attr_gpioa_func.attr,
-> +		  &dev_attr_gpiog_func.attr,
->  		  &dev_attr_uart_mode.attr,
->  		  &dev_attr_uart_dcd_ri.attr,
->  		  &dev_attr_clock_ctl.attr,
->  		  &dev_attr_i2c_reset.attr,
+> +	gpios =3D ft260_gpio_get_all(port->gc, FT260_GPIO_VALUE);
+
+[Severity: Critical]
+Is there a use-after-free risk here if the USB device is unbound
+but the TTY file descriptor is still open? It appears port->gc could be
+freed by devres during removal, while the asynchronous TTY hangup might
+not have completed yet.
+
+> +
+> +	return (((gpios & FT260_GPIO_B) ? TIOCM_RTS : 0) |
 
 [Severity: Medium]
-Does this unintentionally expose the I2C reset attribute on the UART
-interface?
+If ft260_gpio_get_all() returns a negative error code (e.g., due to a
+USB transfer error), will the error value be directly evaluated by the
+bitwise operators here instead of being propagated back to userspace?
 
-According to the patch description, the UART interface should only contain
-GPIO and UART attributes, but dev_attr_i2c_reset.attr is included here.
+> +		((gpios & FT260_GPIO_E) ? TIOCM_CTS : 0) |
+> +		((gpios & FT260_GPIO_F) ? TIOCM_DTR : 0) |
+> +		((gpios & FT260_GPIO_H) ? TIOCM_DSR : 0) |
+> +		((gpios & FT260_GPIO_4) ? TIOCM_CAR : 0) |
+> +		((gpios & FT260_GPIO_5) ? TIOCM_RNG : 0));
+> +}
+> +
+> +static int ft260_uart_tiocmset(struct tty_struct *tty,
+> +			       unsigned int set, unsigned int clear)
+> +{
+> +	int ret;
+> +	struct ft260_device *port =3D tty->driver_data;
+> +	struct ft260_gpio_write_request_report rep;
+> +	struct hid_device *hdev =3D port->hdev;
+> +	int mask =3D FT260_GPIO_UART_MODE_4_SET;
+> +
+> +	if ((port->gpio_en & mask) !=3D mask) {
+> +		ft260_dbg("Illegal gpio config %#02x !=3D mask %#04x\n",
+> +			  port->gpio_en, mask);
+> +		return 0;
+> +	}
+> +	rep.report =3D FT260_GPIO;
+> +	rep.gpio =3D port->gpio;
+> +
+> +	mutex_lock(&port->lock);
 
-> -		  &dev_attr_clock.attr,
->  		  NULL
->  	}
->  };
+[Severity: Medium]
+Is there a race condition with concurrent GPIO updates here? Since
+port->gpio is copied into rep.gpio before acquiring port->lock, could
+concurrent updates to the GPIO lines via sysfs or other ioctls be silently
+overwritten when this stale copy is written back at the end of the function?
 
+> +
+> +	if (set & TIOCM_RTS)
+> +		ft260_gpio_output_cfg(&rep.gpio, FT260_GPIO_UART_RTS, 1);
+> +	if (set & TIOCM_DTR)
+> +		ft260_gpio_output_cfg(&rep.gpio, FT260_GPIO_UART_DTR, 1);
+> +	if (clear & TIOCM_RTS)
+> +		ft260_gpio_output_cfg(&rep.gpio, FT260_GPIO_UART_RTS, 0);
+> +	if (clear & TIOCM_DTR)
+> +		ft260_gpio_output_cfg(&rep.gpio, FT260_GPIO_UART_DTR, 0);
+> +
+> +	ft260_dbg("dirs %#02x vals %#02x ex_dirs %#02x ex_vals %#02x\n",
+> +		  rep.gpio.dirs, rep.gpio.vals,
+> +		  rep.gpio.ex_dirs, rep.gpio.ex_vals);
+> +
+> +	ret =3D ft260_hid_feature_report_set(hdev, (u8 *)&rep, sizeof(rep));
+
+[Severity: Critical]
+Can this access a freed hdev if the USB device has been unplugged?
+If the asynchronous TTY hangup work hasn't completed, a delayed
+ioctl could potentially pass a destroyed hid_device pointer to
+ft260_hid_feature_report_set().
+
+> +	if (unlikely(ret < 0)) {
+> +		hid_err(hdev, "%s: cannot set GPIO: %d\n", __func__, ret);
+> +		mutex_unlock(&port->lock);
+> +		return -EIO;
+> +	}
+> +
+> +	port->gpio =3D rep.gpio;
+> +	mutex_unlock(&port->lock);
+> +
+> +	return 0;
+> +}
 [ ... ]
-
-> @@ -2306,12 +2339,14 @@ static int ft260_uart_probe(struct ft260_device *=
-dev,
+> @@ -2199,7 +2305,8 @@ static int ft260_uart_probe(struct ft260_device *de=
+v,
+> =20
 >  	cfg->uart_mode =3D FT260_UART_CFG_FLOW_CTRL_NONE;
 > =20
->  	if (dev->chip_mode & FT260_MODE_UART ||
-> -	    dev->chip_mode =3D=3D FT260_MODE_ALL) {
-> +	    dev->chip_mode =3D=3D FT260_MODE_ALL ||
-> +	    dev->chip_mode =3D=3D FT260_MODE_BOTH) {
+> -	if (dev->iface_id =3D=3D 0) {
+> +	if (dev->chip_mode & FT260_MODE_UART ||
+> +	    dev->chip_mode =3D=3D FT260_MODE_ALL) {
 >  		ret =3D ft260_gpio_init(dev, cfg);
->  		if (ret)
->  			goto err_hid_report;
-> =20
-> -		ret =3D sysfs_create_group(&hdev->dev.kobj, &ft260_attr_group);
-> +		ret =3D sysfs_create_group(&hdev->dev.kobj,
-> +					 &ft260_uart_chip_mode_0_2_3_attr_group);
->  		if (ret < 0) {
->  			hid_err(hdev, "failed to create sysfs attrs\n");
->  			goto err_hid_report;
 
 [Severity: High]
-This is a pre-existing issue, but can jumping to err_hid_report lead to a
-double free or use-after-free of the dev structure?
-
-If sysfs_create_group() fails, the error path goes to err_hid_report, which
-calls ft260_uart_port_remove(dev). This drops the TTY port reference via
-tty_port_put().
-
-If the TTY is not open, the refcount drops to 0, and the port destructor
-frees dev immediately. The function then returns the error code back to
-ft260_probe(), which unconditionally jumps to hid_fail and executes
-kfree(dev).
-
-Also, does this error path bypass workqueue cancellation?
-
-The error path here deletes the timer but appears to completely omit calling
-cancel_work_sync(), which could trigger a use-after-free if the timer had
-already scheduled the work before dev is freed.
-
-Finally, does the manual kfree(dev) in ft260_probe() race with devres?
-
-The ft260_gpio_init() function registers a gpiochip using
-devm_gpiochip_add_data(). The devres cleanup won't run until after the probe
-function fully returns, leaving a window where the active gpiochip can be
-accessed by userspace while its private data (dev) has already been freed.
-
->  		}
+This is a pre-existing issue, but in ft260_uart_change_speed() and earlier
+in ft260_uart_probe(), put_unaligned_le32(cpu_to_le32(baud), ...) is used.
+Since put_unaligned_le32() already performs a byte swap to little-endian,
+does passing cpu_to_le32() result in a double byteswap that breaks UART
+communications on big-endian hosts?
 
 [ ... ]
-
-> @@ -2418,12 +2453,19 @@ static void ft260_remove(struct hid_device *hdev)
->  		ft260_uart_port_remove(dev);
->  		/* dev is still needed, so we will free it in _destroy func */
->  		if (dev->chip_mode & FT260_MODE_UART ||
-> -		    dev->chip_mode =3D=3D FT260_MODE_ALL)
-> -			sysfs_remove_group(&hdev->dev.kobj, &ft260_attr_group);
-> +		    dev->chip_mode =3D=3D FT260_MODE_ALL ||
-> +		    dev->chip_mode =3D=3D FT260_MODE_BOTH)
-> +			sysfs_remove_group(&hdev->dev.kobj,
-> +					   &ft260_uart_chip_mode_0_2_3_attr_group);
+> @@ -2274,11 +2381,11 @@ static int ft260_probe(struct hid_device *hdev, c=
+onst struct hid_device_id *id)
+>  	spin_lock_init(&dev->read_lock);
+>  	init_completion(&dev->wait);
+> =20
+> -	ret =3D ft260_get_interface_type(dev, &cfg);
+> -	if (ret <=3D FT260_IFACE_NONE)
+> +	dev->iface_type =3D ft260_get_interface_type(dev, &cfg);
+> +	if (dev->iface_type <=3D FT260_IFACE_NONE)
+>  		goto err_hid_close;
 
 [Severity: High]
-This is a pre-existing issue, but does checking dev->chip_mode here risk
-dereferencing a freed pointer?
+Does this discard the negative error code by failing to update ret?
+If ft260_get_interface_type() fails (for instance, during a USB control
+transfer error), jumping to err_hid_close will cause the probe function
+to return the previous positive value of ret, incorrectly signaling success
+to the driver core.
 
-When ft260_uart_port_remove(dev) is called just above this block, it drops
-the TTY port reference. If the port isn't open, the port destructor runs
-and immediately frees dev. Accessing dev->chip_mode and removing the sysfs
-group afterward would then be a use-after-free.
+[ ... ]
+> @@ -2310,11 +2417,13 @@ static void ft260_remove(struct hid_device *hdev)
+>  					   dev->index);
+>  		ft260_uart_port_remove(dev);
+>  		/* dev is still needed, so we will free it in _destroy func */
+> -		if (dev->iface_id =3D=3D 0)
+> +		if (dev->chip_mode & FT260_MODE_UART ||
+> +		    dev->chip_mode =3D=3D FT260_MODE_ALL)
 
-Does the order of operations in ft260_remove() also leave the device
-vulnerable to incoming USB events after it is freed?
+[Severity: Critical]
+This is a pre-existing issue, but does ft260_uart_port_remove() drop
+the final tty kref and free dev? If so, accessing dev->chip_mode right
+afterward would be a use-after-free during normal unplug. Furthermore,
+in the ft260_probe() error path, does this same kref drop lead to a
+double-free when the outer error handling calls kfree(dev)?
 
-Because hid_hw_stop() is called much later in this function, there is a
-window where incoming HID reports can trigger ft260_raw_event() on a
-freed dev.
-
-Are there concurrent teardown risks during device hot-unplug?
-
-Looking at ft260_uart_port_remove(), kfifo_free() is called before the
-asynchronous tty_port_tty_hangup(). If userspace writes to the TTY during
-this window, ft260_uart_write() could push data into the explicitly
-freed xmit_fifo.
-
-Could the workqueue also be incorrectly rescheduled during unbind?
-
-Earlier in ft260_remove(), cancel_work_sync(&dev->wakeup_work) is called
-before timer_delete_sync() (which happens inside ft260_uart_port_remove).
-This allows the timer to expire after the work is canceled, rescheduling
-the work to execute after dev is freed.
-
-> =20
->  	} else {
->  		if (dev->chip_mode =3D=3D FT260_MODE_I2C)
+>  			sysfs_remove_group(&hdev->dev.kobj, &ft260_attr_group);
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260822213941.9888=
-2-1-michael.zaidman@gmail.com?part=3D9
+2-1-michael.zaidman@gmail.com?part=3D8

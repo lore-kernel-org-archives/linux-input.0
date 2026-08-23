@@ -1,212 +1,280 @@
-Received: from mail-oi2-f2.google.com (mail-oi2-f2.google.com [74.125.231.194])
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B6BC1369D57
-	for <linux-input@vger.kernel.org>; Sun, 23 Aug 2026 03:23:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.231.194
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AEE682D9484;
+	Sun, 23 Aug 2026 08:51:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787455413; cv=none; b=LiqL0NNX3vQe+2fp/iAUoMMBlz2FnSinEQdBSW9g2kzJZF29Cs1IIU00L8ZZOQGSd+Pg4GGViUhX9MO73QNsJGWmZN4b2y5fWLfuN7tH5fKbYuIPRNqt9e2XYNpa5GpR2dGSFwsVV48249juYELHC3ZSTrHlfLbhrJGIDiGEBvA=
+	t=1787475109; cv=none; b=pGGKAzdz5zZbX8uu9mJAco1xtzYYB4BXx8j1JOVL5Yo7CyEcjoSeplPEbDCSJsKSBCIzC4ZfOk+6XsbHeJBuEbZoLro7MJ8XN6GR/QKvD3mWsTdz1wVYbaDQ79Fxl6nZBOemCuGEgCdoWFaw6JE3RWqizNCOwgQuUUUcC0JVS54=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787455413; c=relaxed/simple;
-	bh=mUNCGUauvzblBdSwOBREqqLfRUQykoK2gjgnu77KoH8=;
-	h=MIME-Version:Date:In-Reply-To:Message-ID:Subject:From:To:
-	 Content-Type; b=uR3i3fIhnNmRDxGY0ydKv6zzx503hc1tJiZkdxMAAWsGweGBOSuIir6h+3X2QKIffk9hgeiPhg9ml2gaK1Khb1norDLJ2yHGPR42xg2PRrGIZnz8eiKV2hCy01STOqf7pZ4moe/Fgp2dJvNoN3h9jd+/x1Z+lEGWh3A5Ybmkyh8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=74.125.231.194
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
-Received: by mail-oi2-f2.google.com with SMTP id 5614622812f47-495d5d27acfso1168218b6e.1
-        for <linux-input@vger.kernel.org>; Sat, 22 Aug 2026 20:23:31 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787455410; x=1788060210;
-        h=content-type:to:from:subject:message-id:in-reply-to:date
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to:content-type;
-        bh=reYCA9texGA+i4hhGkr84lFQt3J7gOmzTWCCQAJBp5U=;
-        b=HgIe59jcMo6ukbE0n2o1rx+BzVoN+qtfWLu+zbAk2D1FhkaFaRIWer2tz517IcUp9c
-         uXIrSsr/XknQj3X11DPoOUcWL/G/hHfyjWFtSQGJZGDv5PiGVhipsIoUleDy18PmvYs0
-         MkDIn3WVs2NSSb9Jik9/aDsQiE5JOqn1QzfpFyArbYhw/TxMLD/QkaN1jCeYkD+s8IB/
-         tUg7UlZyBRmiZJ2hpdflGD0Q9fmCW37sFl1C1QSWiJ8EeS+8vNw3Vjxi9Q7EkwourYr+
-         HxjlddnymTg8Qqf1oiqJZLqfufuA5I/A+m5vamIk6WM0TS4bGS/l5Tq7GASyzGSSAt2K
-         Pbvg==
-X-Forwarded-Encrypted: i=1; AHgh+RpRrCQNAi54fUlxzCTJSinD6YrQUem6F1q0pTszIA8YLxNmkJOTqTiGM0rRlNNXVAQMYCEYKfl/zO4pdA==@vger.kernel.org
-X-Gm-Message-State: AFuF++mBzRIKHqPnxH9S8HEjRGm/xnE/FK1tV/3eg7RKHOqo1CU67QOf
-	oPXaBTm0anvZzRBNKkReXHKjy/SqniKQ+DEeuMa/ZXIrZrE/oe39E9x6CuJ6Bw/Jiw0RrHXLjBl
-	nVRLJqQ8SS6BuTV2a+bpDGBjz47mNHT0ZkY1nLK8aGjeqrC+RH04WUP9mz7o=
+	s=arc-20240116; t=1787475109; c=relaxed/simple;
+	bh=W+oWCvEswXDgQP4QPRhSokTCey3kay04HHL1/CXBXVw=;
+	h=Date:Message-ID:From:To:Cc:Subject:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=XXqpKRP3pnewo6AoIzP5ZCyCGx+U3VAtVpGw8DFwdiXXwgX/tAQb4XW7LceF8DTVwv0DtGU6bGl180spNlWpG54IZct5pndzjVt50TwyMiu9MwUhu8oc1DOrnZ77DhOHwFzJo45GN4Dr9IsYIhY1pCdN0D2V8XTv0a1SFTOuszY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=SYi5QYul; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=vQeTirr2; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=uhw14Zpv; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=dLvKb+gi; arc=none smtp.client-ip=195.135.223.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="SYi5QYul";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="vQeTirr2";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="uhw14Zpv";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="dLvKb+gi"
+Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id 1D3CC3E04;
+	Sun, 23 Aug 2026 08:50:07 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1787475011; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=coqy+q8OZPNQJ1s1m4PO7s5VBxleeMC7LXTi4F5Vaqw=;
+	b=SYi5QYulqrZAJpbJdNmETN7SwAqMqmb0Sm4VrxNMtRsvEpUjsTEE+R+y+PNLaYxnZI4T71
+	JjHyEGULfZ1aVB19GXm2ZIkYCNGk6UYN0wujKnODkIbzn1PoierK1OpnxSXIXme1l8NI8b
+	6Vst4j0UMhNSwqUe1CYMpqYWQaLkVYM=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1787475011;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=coqy+q8OZPNQJ1s1m4PO7s5VBxleeMC7LXTi4F5Vaqw=;
+	b=vQeTirr22q3h+0WWSVPl5qSjFAyEvBDYLghEHCyNMS2TvTrwQz9XdTBgr8xpvJB9cNJsaf
+	IcIQlU58FeJwGFDA==
+Authentication-Results: smtp-out2.suse.de;
+	none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1787475007; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=coqy+q8OZPNQJ1s1m4PO7s5VBxleeMC7LXTi4F5Vaqw=;
+	b=uhw14Zpvfs2lxqB48ubIeNlLQKA2+tJyP4x7b0aS+GrAugjwJ2xWnzSxMZL7WUC2YKyF2v
+	l0BUHCvDjxVUPk2wTliSdi+agQAj/mwCcoeiQzSTXuEPhepD9tdeGZ7HIk+wgfAmoNK0VB
+	pC92XaChDjHFq6dBgXqL1Kuflf3IsGY=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1787475007;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=coqy+q8OZPNQJ1s1m4PO7s5VBxleeMC7LXTi4F5Vaqw=;
+	b=dLvKb+giBUCFqe/MA/EmavaAW5F+kQ6Tf0rips5CVrjmBeY+jE7hePKiYYQTRnb6fhASgv
+	QYNbfjU9UQyKuqBA==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id C6BC513332;
+	Sun, 23 Aug 2026 08:50:06 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id HMl/Lj60imqAfwAAD6G6ig
+	(envelope-from <tiwai@suse.de>); Sun, 23 Aug 2026 08:50:06 +0000
+Date: Sun, 23 Aug 2026 10:50:06 +0200
+Message-ID: <87o6etw79d.wl-tiwai@suse.de>
+From: Takashi Iwai <tiwai@suse.de>
+To: Mikhail Gavrilov <mikhail.v.gavrilov@gmail.com>
+Cc: tiwai@suse.com,
+	jikos@kernel.org,
+	bentiss@kernel.org,
+	perex@perex.cz,
+	linux-sound@vger.kernel.org,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [RFC 0/2] Two ways to reach the Topping M62's analogue gains
+In-Reply-To: <20260820151329.18332-1-mikhail.v.gavrilov@gmail.com>
+References: <87y0eaxz39.wl-tiwai@suse.de>
+	<20260820151329.18332-1-mikhail.v.gavrilov@gmail.com>
+User-Agent: Wanderlust/2.15.9 (Almost Unreal) Emacs/30.2 Mule/6.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-X-Received: by 2002:a05:6808:c145:b0:48b:5dcb:85ab with SMTP id
- 5614622812f47-4b2ef242470mr19647197b6e.8.1787455410663; Sat, 22 Aug 2026
- 20:23:30 -0700 (PDT)
-Date: Sat, 22 Aug 2026 20:23:30 -0700
-In-Reply-To: <699fe31c.050a0220.2fcbed.0002.GAE@google.com>
-X-Google-Appengine-App-Id: s~syzkaller
-X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <6a8a67b2.ae6ddae5.3da009.0060.GAE@google.com>
-Subject: Re: [syzbot] [input?] possible deadlock in __kernfs_remove (3)
-From: syzbot <syzbot+1075f6dc93f398c1857e@syzkaller.appspotmail.com>
-To: dmitry.torokhov@gmail.com, driver-core@lists.linux.dev, 
-	gregkh@linuxfoundation.org, linux-input@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, netdev@vger.kernel.org, 
-	syzkaller-bugs@googlegroups.com, tj@kernel.org
-Content-Type: text/plain; charset="UTF-8"
+MIME-Version: 1.0 (generated by SEMI-EPG 1.14.7 - "Harue")
+Content-Type: text/plain; charset=US-ASCII
+X-Spamd-Result: default: False [-1.80 / 50.00];
+	BAYES_HAM(-3.00)[100.00%];
+	SUSPICIOUS_RECIPS(1.50)[];
+	MID_CONTAINS_FROM(1.00)[];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	NEURAL_HAM_SHORT(-0.20)[-0.998];
+	MIME_GOOD(-0.10)[text/plain];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	MIME_TRACE(0.00)[0:+];
+	FREEMAIL_TO(0.00)[gmail.com];
+	ARC_NA(0.00)[];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	FREEMAIL_ENVRCPT(0.00)[gmail.com];
+	RCVD_TLS_ALL(0.00)[];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	FROM_EQ_ENVFROM(0.00)[];
+	FROM_HAS_DN(0.00)[];
+	TO_DN_SOME(0.00)[];
+	RCVD_COUNT_TWO(0.00)[2];
+	TAGGED_RCPT(0.00)[];
+	RCPT_COUNT_SEVEN(0.00)[8];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo,suse.de:mid]
+X-Spam-Flag: NO
+X-Spam-Score: -1.80
+X-Spam-Level: 
 
-syzbot has found a reproducer for the following issue on:
+On Thu, 20 Aug 2026 17:13:27 +0200,
+Mikhail Gavrilov wrote:
+> 
+> You asked for PoCs of both roads and a comparison of the actual code
+> rather than of arguments. Here are both. They are alternatives, not a
+> series: each is written against mainline 98f21c54f995 on its own, and
+> either can be applied alone.
+> 
+>   1/2  ALSA: usb-audio: a mixer quirk that claims the HID interface
+>   2/2  HID: topping: a HID driver that registers a card of its own
+> 
+> Both build clean (checkpatch --strict: 0 errors, 0 warnings; the two
+> CamelCase CHECKs in 1/2 are bNumEndpoints and bInterval) and both have
+> been exercised on the device -- 152a:875c, bcdDevice 3.27 -- for
+> reading, for unsolicited notification from the front panel, and for
+> writing.
+> 
+> What the device is
+> ==================
+> 
+> The M62 keeps its two microphone preamp gains, its AUX and Bluetooth
+> input volumes and its headphone and OTG output volumes behind a vendor
+> protocol on a HID-class interface, and exposes none of them through
+> UAC. What UAC does expose on the capture side is a digital trim after
+> the converter, which cannot buy signal-to-noise: a noise-floor ladder
+> against the card shows the converter's own floor rising with the
+> signal. So on Linux today the one knob worth setting is the one that
+> cannot be reached, and a measurement application has to begin by asking
+> a human to touch the front panel.
+> 
+> The protocol is fifteen-byte frames -- start magic, a constant, a
+> target, a property, a signed 32-bit big-endian value, CRC-16/MODBUS
+> over the middle stored big-endian, end magic. Rebuilding all 2619
+> captured frames from that description reproduces them byte for byte.
+> The device says nothing until it is subscribed; one write starts the
+> stream and a second makes it announce its whole state, after which
+> every change arrives unasked, including a front panel press.
+> 
+> The control pipe is not an option: GET_REPORT and SET_REPORT stall with
+> EPIPE for every report type, so the interrupt endpoints on the HID
+> interface are the only route.
+> 
+> What is identical in both
+> =========================
+> 
+> The frame builder, the parser, the CRC (the kernel's crc16(0xffff, ...)
+> is CRC-16/MODBUS, so no private table), and the control table. A knob
+> is a row of
+> 
+> 	{ name, target, paired target, property, min, max, TLV }
+> 
+> so adding one is adding a row. Six rows today. The outputs come in
+> pairs because the device answers on only one target of each pair and
+> the other would drift away unheard.
+> 
+> Where they differ
+> =================
+> 
+> 1/2 claims the HID interface for snd-usb-audio and puts the elements on
+> the card the device already has. The cost is two-sided: an entry in
+> hid_ignore_list to keep usbhid off the interface, and one new helper in
+> sound/usb/card.c, because usb_audio_driver is static there and a quirk
+> cannot claim an interface without it. That helper is the only change in
+> 1/2 outside the new file and its dispatch. Nothing is lost by taking
+> the interface: the report descriptor is a Generic Desktop application
+> collection with eight unnamed usages, sixteen bytes in and out and no
+> report ID, so hid-generic can only build an input device for a mouse
+> that does not exist -- which is what it does today.
+> 
+> 2/2 binds as a HID driver, and the protocol half is if anything smaller
+> there: usbhid owns the endpoints, so hid_hw_output_report replaces a
+> hand-built interrupt URB out, raw_event replaces the one in, and no
+> interface has to be claimed. It needs nothing in sound/usb.
+> 
+> But these are mixer controls for an audio device, and the audio
+> device's card belongs to snd-usb-audio. A HID driver cannot put an
+> element there. There is no interface for it, and inventing one means
+> exporting from sound/usb both a lookup from struct usb_device to the
+> card and an add-element call, and then answering, for a single device,
+> what happens when the two drivers probe in either order and when either
+> disconnects first, given that the element would live in one module and
+> its private data in another.
+> 
+> So 2/2 does what a HID driver can do alone: it registers a card of its
+> own. That works, and the cost is visible from userspace rather than
+> theoretical:
+> 
+> 	$ cat /proc/asound/cards
+> 	 0 [ToppingCtl     ]: Topping - Topping M62 control
+> 	 ...
+> 	 4 [M62            ]: USB-Audio - M62
+> 
+> 	$ amixer -c M62 cset name='Mic-1 Analog Capture Volume' 33
+> 	amixer: Cannot find the given element from control sysdefault:4
+> 
+> One device, two cards; the gains on a card with no PCM beside them; and
+> anything that looks for a device's mixer next to its streams --
+> alsamixer -c, UCM profiles, PipeWire's device model -- does not find
+> them there.
+> 
+> Against my own preference, two honest notes. The phantom input device
+> 2/2 leaves at boot (hid-generic binds first, the specific driver being
+> a module outside the initramfs) is a packaging artefact, not a property
+> of that road. And 1/2's claim helper is new API surface in sound/usb,
+> small as it is.
+> 
+> Field results
+> =============
+> 
+> With 1/2: the interface belongs to snd-usb-audio while a neighbouring
+> device's HID interface still belongs to usbhid, so the ignore entry is
+> precise. Values arrive by themselves -- the headphone volume came up at
+> 51 while the zero-initialised cache would have said 0. One front panel
+> press produces exactly one control event. A write reaches the hardware:
+> the device reports the written value back, and its meters answer.
+> 
+> With 2/2: the same, on its own card.
+> 
+> One device fact worth recording: a written gain takes effect at once,
+> but when the device commits it to non-volatile memory is the firmware's
+> business, and a value written and then torn off the bus can come back
+> as the older one. Nothing in either driver depends on that -- neither
+> treats itself as the source of truth, both ask the device -- but it is
+> easy to mistake for a driver bug while testing.
+> 
+> Where I come out
+> ================
+> 
+> The knobs belong on the card the device already has, and 2/2 cannot put
+> them there without a new cross-subsystem interface built for one
+> device. 1/2's cost is one static-variable problem solved by one helper
+> in the file that owns it. So I would take 1/2, which is also your gut
+> feeling -- but the comparison is what you asked for, and either patch
+> stands alone if you read it the other way.
+> 
+> Not covered by either: the OTG input's gain. It has no front panel
+> control and therefore never announced itself in any capture, so its
+> property is unknown. It is one row when it is known.
 
-HEAD commit:    66fb95a52111 Merge tag 'caps-pr-20260820' of git://git.ker..
-git tree:       upstream
-console+strace: https://syzkaller.appspot.com/x/log.txt?x=11ca4625580000
-kernel config:  https://syzkaller.appspot.com/x/.config?x=b0978f5ed2905b98
-dashboard link: https://syzkaller.appspot.com/bug?extid=1075f6dc93f398c1857e
-compiler:       gcc (Debian 14.2.0-19) 14.2.0, GNU ld (GNU Binutils for Debian) 2.44
-syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=10815549580000
+Thanks!  I didn't expect such complete patches when I asked for PoC,
+and you've done much better than I thought :)
 
-Downloadable assets:
-disk image: https://storage.googleapis.com/syzbot-assets/e7d9049723b0/disk-66fb95a5.raw.xz
-vmlinux: https://storage.googleapis.com/syzbot-assets/a04d6efe59a0/vmlinux-66fb95a5.xz
-kernel image: https://storage.googleapis.com/syzbot-assets/81e3f2b9c049/bzImage-66fb95a5.xz
+Honestly speaking, both look well acceptable.  From the pure kernel
+POV, the 2nd patch is simpler, but as you pointed out, we'll need
+another stuff to combining two sound cards.  It'd be likely a special
+UCM profile, but this can be a bit hackish.
 
-IMPORTANT: if you fix the issue, please add the following tag to the commit:
-Reported-by: syzbot+1075f6dc93f398c1857e@syzkaller.appspotmail.com
+So, from the usability POV, the first patch would be "easier", and if
+I have to choose, my gut feeling is to pick the first one.  But again,
+I have no strong opinion, and both look good in general.  I'd like to
+hear from others, too.
 
-======================================================
-WARNING: possible circular locking dependency detected
-syzkaller #0 Not tainted
-------------------------------------------------------
-syz.0.17/6104 is trying to acquire lock:
-ffff888035f1b008 (kn->active#59){++++}-{0:0}, at: __kernfs_remove+0x34c/0xb80 fs/kernfs/dir.c:1579
-
-but task is already holding lock:
-ffffffff904d00c0 (serio_mutex){+.+.}-{4:4}, at: class_mutex_constructor include/linux/mutex.h:253 [inline]
-ffffffff904d00c0 (serio_mutex){+.+.}-{4:4}, at: serio_unregister_port+0x1b/0x40 drivers/input/serio/serio.c:677
-
-which lock already depends on the new lock.
+About the code, there are a few things to be improved.  The spinlock
+could be done better with guard().  A temporary buffer could be
+handled with __free(), too.
 
 
-the existing dependency chain (in reverse order) is:
+thanks,
 
--> #1 (serio_mutex){+.+.}-{4:4}:
-       lock_acquire kernel/locking/lockdep.c:5886 [inline]
-       lock_acquire+0x1b9/0x370 kernel/locking/lockdep.c:5843
-       __mutex_lock_common kernel/locking/mutex.c:646 [inline]
-       __mutex_lock+0x1a4/0x1bc0 kernel/locking/mutex.c:821
-       class_mutex_intr_constructor include/linux/mutex.h:255 [inline]
-       drvctl_store+0x3c/0x350 drivers/input/serio/serio.c:360
-       dev_attr_store+0x58/0x80 drivers/base/core.c:2509
-       sysfs_kf_write+0xf2/0x150 fs/sysfs/file.c:145
-       kernfs_fop_write_iter+0x3e0/0x5f0 fs/kernfs/file.c:345
-       new_sync_write fs/read_write.c:595 [inline]
-       vfs_write+0x6af/0x1050 fs/read_write.c:687
-       ksys_write+0x12a/0x250 fs/read_write.c:739
-       do_syscall_x64 arch/x86/entry/syscall_64.c:61 [inline]
-       do_syscall_64+0x123/0x790 arch/x86/entry/syscall_64.c:84
-       entry_SYSCALL_64_after_hwframe+0x77/0x7f
-
--> #0 (kn->active#59){++++}-{0:0}:
-       check_prev_add+0xeb/0xe60 kernel/locking/lockdep.c:3181
-       check_prevs_add kernel/locking/lockdep.c:3300 [inline]
-       validate_chain kernel/locking/lockdep.c:3924 [inline]
-       __lock_acquire+0x1492/0x1ec0 kernel/locking/lockdep.c:5253
-       lock_acquire kernel/locking/lockdep.c:5886 [inline]
-       lock_acquire+0x1b9/0x370 kernel/locking/lockdep.c:5843
-       kernfs_drain+0x4f0/0x600 fs/kernfs/dir.c:532
-       __kernfs_remove+0x34c/0xb80 fs/kernfs/dir.c:1579
-       kernfs_remove_by_name_ns+0x7c/0x120 fs/kernfs/dir.c:1797
-       kernfs_remove_by_name include/linux/kernfs.h:644 [inline]
-       remove_files+0x96/0x1c0 fs/sysfs/group.c:28
-       sysfs_remove_group+0x8b/0x1b0 fs/sysfs/group.c:328
-       sysfs_remove_groups fs/sysfs/group.c:352 [inline]
-       sysfs_remove_groups+0x60/0xb0 fs/sysfs/group.c:344
-       device_remove_groups drivers/base/core.c:2918 [inline]
-       device_remove_attrs+0x192/0x290 drivers/base/core.c:3048
-       device_del+0x36e/0x9b0 drivers/base/core.c:3964
-       serio_destroy_port+0x476/0x590 drivers/input/serio/serio.c:543
-       serio_unregister_port+0x2b/0x40 drivers/input/serio/serio.c:680
-       userio_char_release+0x91/0xe0 drivers/input/serio/userio.c:105
-       __fput+0x3ff/0xb50 fs/file_table.c:512
-       task_work_run+0x150/0x240 kernel/task_work.c:233
-       ptrace_notify+0xf3/0x120 kernel/signal.c:2531
-       ptrace_report_syscall include/linux/ptrace.h:416 [inline]
-       ptrace_report_syscall_exit include/linux/ptrace.h:477 [inline]
-       arch_ptrace_report_syscall_exit include/linux/entry-common.h:233 [inline]
-       syscall_exit_work include/linux/entry-common.h:266 [inline]
-       syscall_exit_to_user_mode_work include/linux/entry-common.h:297 [inline]
-       syscall_exit_to_user_mode include/linux/entry-common.h:334 [inline]
-       do_syscall_64+0x5e7/0x790 arch/x86/entry/syscall_64.c:89
-       entry_SYSCALL_64_after_hwframe+0x77/0x7f
-
-other info that might help us debug this:
-
- Possible unsafe locking scenario:
-
-       CPU0                    CPU1
-       ----                    ----
-  lock(serio_mutex);
-                               lock(kn->active#59);
-                               lock(serio_mutex);
-  lock(kn->active#59);
-
- *** DEADLOCK ***
-
-locks held by syz.0.17/6104: 1, last CPU#1:
- #0: ffffffff904d00c0 (serio_mutex){+.+.}-{4:4}, at: class_mutex_constructor include/linux/mutex.h:253 [inline]
- #0: ffffffff904d00c0 (serio_mutex){+.+.}-{4:4}, at: serio_unregister_port+0x1b/0x40 drivers/input/serio/serio.c:677
-
-stack backtrace:
-CPU: 1 UID: 0 PID: 6104 Comm: syz.0.17 Not tainted syzkaller #0 PREEMPT(full) 
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 07/16/2026
-Call Trace:
- <TASK>
- __dump_stack lib/dump_stack.c:94 [inline]
- dump_stack_lvl+0x100/0x190 lib/dump_stack.c:120
- print_circular_bug.cold+0x178/0x1be kernel/locking/lockdep.c:2059
- check_noncircular+0x146/0x160 kernel/locking/lockdep.c:2191
- check_prev_add+0xeb/0xe60 kernel/locking/lockdep.c:3181
- check_prevs_add kernel/locking/lockdep.c:3300 [inline]
- validate_chain kernel/locking/lockdep.c:3924 [inline]
- __lock_acquire+0x1492/0x1ec0 kernel/locking/lockdep.c:5253
- lock_acquire kernel/locking/lockdep.c:5886 [inline]
- lock_acquire+0x1b9/0x370 kernel/locking/lockdep.c:5843
- kernfs_drain+0x4f0/0x600 fs/kernfs/dir.c:532
- __kernfs_remove+0x34c/0xb80 fs/kernfs/dir.c:1579
- kernfs_remove_by_name_ns+0x7c/0x120 fs/kernfs/dir.c:1797
- kernfs_remove_by_name include/linux/kernfs.h:644 [inline]
- remove_files+0x96/0x1c0 fs/sysfs/group.c:28
- sysfs_remove_group+0x8b/0x1b0 fs/sysfs/group.c:328
- sysfs_remove_groups fs/sysfs/group.c:352 [inline]
- sysfs_remove_groups+0x60/0xb0 fs/sysfs/group.c:344
- device_remove_groups drivers/base/core.c:2918 [inline]
- device_remove_attrs+0x192/0x290 drivers/base/core.c:3048
- device_del+0x36e/0x9b0 drivers/base/core.c:3964
- serio_destroy_port+0x476/0x590 drivers/input/serio/serio.c:543
- serio_unregister_port+0x2b/0x40 drivers/input/serio/serio.c:680
- userio_char_release+0x91/0xe0 drivers/input/serio/userio.c:105
- __fput+0x3ff/0xb50 fs/file_table.c:512
- task_work_run+0x150/0x240 kernel/task_work.c:233
- ptrace_notify+0xf3/0x120 kernel/signal.c:2531
- ptrace_report_syscall include/linux/ptrace.h:416 [inline]
- ptrace_report_syscall_exit include/linux/ptrace.h:477 [inline]
- arch_ptrace_report_syscall_exit include/linux/entry-common.h:233 [inline]
- syscall_exit_work include/linux/entry-common.h:266 [inline]
- syscall_exit_to_user_mode_work include/linux/entry-common.h:297 [inline]
- syscall_exit_to_user_mode include/linux/entry-common.h:334 [inline]
- do_syscall_64+0x5e7/0x790 arch/x86/entry/syscall_64.c:89
- entry_SYSCALL_64_after_hwframe+0x77/0x7f
-RIP: 0033:0x7f094979e0d9
-Code: ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 e8 ff ff ff f7 d8 64 89 01 48
-RSP: 002b:00007ffca1bdeb48 EFLAGS: 00000246 ORIG_RAX: 00000000000001b4
-RAX: 0000000000000000 RBX: 00007f0949a27da0 RCX: 00007f094979e0d9
-RDX: 0000000000000000 RSI: 000000000000001e RDI: 0000000000000003
-RBP: 00007f0949a27da0 R08: 0000000000000006 R09: 0000000000000000
-R10: 00007f0949a27cb0 R11: 0000000000000246 R12: 000000000001aa1e
-R13: 00007f0949a25fac R14: 000000000001a7d2 R15: 00007ffca1bdec50
- </TASK>
-
-
----
-If you want syzbot to run the reproducer, reply with:
-#syz test: git://repo/address.git branch-or-commit-hash
-If you attach or paste a git patch, syzbot will apply it before testing.
+Takashi

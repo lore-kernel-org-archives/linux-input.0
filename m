@@ -1,124 +1,175 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.16])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-lf1-f48.google.com (mail-lf1-f48.google.com [209.85.167.48])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C6B2121FF2A;
-	Sun, 23 Aug 2026 12:19:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.16
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 65DB6349CE8
+	for <linux-input@vger.kernel.org>; Sun, 23 Aug 2026 14:22:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.48
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787487552; cv=none; b=cPRSa8D4qi0GhIGoBYeUBOpGsUiZBh1SbiNxqxyULMqJJno4xhOmdWhLVFW6U2iltZXnDzLzpMO3yABWXmYN1M8cU5D6H2x4kBqRpYD8G9QgsTSS5P4xTN2x+aB/q6fwmDfU21H8tY1sEjwb4KXrfLVSMT1IIGM0mYkHoIXZQTM=
+	t=1787494949; cv=none; b=gxdJIfbUMiDTA84O1Ny2l7Za6+CAgm7N7WLdb7RddJR5SiMl17ch19Hl41/wIlX5tkZ7sn28fyIAPp42BlA5kFtn2vIbhrn34ov8lFaI83ADBk/xKy5B1ct8SHyQqvfJ8wUDgtPO0usaPkAd/d4NlPR1nrG3iwlX/R+7oPUXYCk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787487552; c=relaxed/simple;
-	bh=KiMWoZi3tqJGMYG/DWhKStMs8Tk7Ml+qsw2OS+VcwLk=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=ZqBOplzDGj+eRlBvvk+LELle5uEjTHUJ2XY0jagnjYMsaI5hX/7Dp2AnLoXEFvxwP5MacTc4cKLW6lfYA5EdGYdrUxhvHFddvN+6aJXUnZy6GKmodCxMBefduSw5bSuy3HpYPXFzSir8iTOwHZ2B7aeWOEQH7UjNEVNkoQDR1Dk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=jHLLpPYX; arc=none smtp.client-ip=192.198.163.16
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1787494949; c=relaxed/simple;
+	bh=XAVA4GsPJulYdTC1U7HRoo7PRQ4Xfw/23QXXI6zD3YY=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=tYhpb52isrme5DItijCQb8sH2B6jHcP+o7jScBHewNer1+Ku8BPT5q1gJXQPFX9YujIAXKRDq88H+Bc+9nkuP03RmjUSBUqilPkZfePtrTzEeV082RJd4dzw87P3yqHs9R+l/nTN7264ltbgduKQjvS9pEPCiRLbPXdeSgAcyjM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=UNOLSlVo; arc=none smtp.client-ip=209.85.167.48
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="jHLLpPYX"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1787487551; x=1819023551;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=KiMWoZi3tqJGMYG/DWhKStMs8Tk7Ml+qsw2OS+VcwLk=;
-  b=jHLLpPYX40jRmJk4MOI2LJqXB/ychrIPlct0RgT1qzX/LSLZmpYwlFeW
-   H1ikyJobjqwbnb3YgXoupI+8S9Y8IjRN9X7/hUB9rnmULazkONvCEjXkG
-   Au4Xef2PJE6pbBYFxb7jlM6EAKHGrp4ELp/he9brw1+h4+nuYsleuqGK6
-   HmfJ62Xa4/Ay04i9QKUd1Yst2eFe1PbrkQh6GvJ8fjRTfSSqk54tKebsU
-   TgajfIKcH7+0jgkX910Xv7M3ALRLBoJkaxHxA2J/f0B+pFp9pHPqLp9XY
-   y3cxmp3N1oB3X2YKEdud2n7Qpl34lVoTHVKDpggQRh5VzIRt1rLW3u1nh
-   w==;
-X-CSE-ConnectionGUID: wyY96cPcQkqJ5O1bt9OrNQ==
-X-CSE-MsgGUID: AVhhLVI6RXu/1CXjNt2LZg==
-X-IronPort-AV: E=McAfee;i="6800,10657,11883"; a="75498338"
-X-IronPort-AV: E=Sophos;i="6.25,238,1779174000"; 
-   d="scan'208";a="75498338"
-Received: from fmviesa008.fm.intel.com ([10.60.135.148])
-  by fmvoesa110.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Aug 2026 05:19:10 -0700
-X-CSE-ConnectionGUID: rp2BGG6IR2iCvt3U3XhlMg==
-X-CSE-MsgGUID: KcYGoRcmT7KbiSZNzwPd7w==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.25,238,1779174000"; 
-   d="scan'208";a="264133944"
-Received: from lkp-server01.sh.intel.com (HELO 3532383e6126) ([10.239.97.150])
-  by fmviesa008.fm.intel.com with ESMTP; 23 Aug 2026 05:19:09 -0700
-Received: from kbuild by 3532383e6126 with local (Exim 4.98.2)
-	(envelope-from <lkp@intel.com>)
-	id 1wy7AI-00000000051-1cGK;
-	Sun, 23 Aug 2026 12:19:06 +0000
-Date: Sun, 23 Aug 2026 20:18:15 +0800
-From: kernel test robot <lkp@intel.com>
-To: Triet Hoang <triet.hoang.dev@gmail.com>, dmitry.torokhov@gmail.com
-Cc: llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev,
-	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
-	Triet Hoang <triet.hoang.dev@gmail.com>
-Subject: Re: [PATCH] input: misc: Convert to DEFINE_SIMPLE_DEV_PM_OPS()
-Message-ID: <202608232022.yWBqVfG0-lkp@intel.com>
-References: <20260821024215.55188-1-triet.hoang.dev@gmail.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="UNOLSlVo"
+Received: by mail-lf1-f48.google.com with SMTP id 2adb3069b0e04-5b01146b205so1734017e87.2
+        for <linux-input@vger.kernel.org>; Sun, 23 Aug 2026 07:22:25 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1787494943; x=1788099743; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=LxUnTB7qoqswJZnIJ6oxAON0IR3zkHXMNyQNy7CGibg=;
+        b=UNOLSlVo6UzMbcriMgOfKC3qzKIiWvgbOOlIbqpOl/ep8CfaTdhZJtR0/Hx/f5jEbb
+         +FYqRU7S/pMl+4wdMMTAFHPguJho8BzuR0mFZ2n5WR9XmNK/p0/hrgMLaFKpoc2Iu5Ya
+         xMrrn2F2198qysiu3B9wrSxEwV1ybquqvcES1WYIGq+dmbYmtDqeB/hMSJqi5thN7pLd
+         VmssHg9fKPHf5sr7HiMyw1p3tlA0isWEcHP1nG53wl3H3lcBBMn+5zadVR4qgmVuD6ei
+         Y7H96f2cSB5zczgXUEzGjUHr/RwSy0n+/jEygrdgGIy+MwmJqN3d0sks98cD7q2eEPxW
+         luTw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1787494943; x=1788099743;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=LxUnTB7qoqswJZnIJ6oxAON0IR3zkHXMNyQNy7CGibg=;
+        b=e3OLu0VBAGPkBH1zKJhf0MRM6UfFo0N1utAV6eogE83evxbg7/gVqAqD1B/uyUcbbN
+         XPOqYGbioES3M9zJDQWNhW7eQ2mSt2IkJ2kI9WcfUAbb7oV8kDDm9Tf+SgotdiOp/z6b
+         khsNgpRhwD0SQFENN/Sgnhz8X0IsaxjUqUTPJmNO8t87KgCu0eXOilsiDh5cTvRCc0Wy
+         v7gYhadt3qin3sE4TbvvdpVmtF0KJA3FQoqUw6aof3zi1BfggL65h2XGg5jYQ+4mmNR6
+         ScbIJ8N6ZPBqJKqjyjNx5OdWz5z5jUcIEalqtqC2KgYHdBKFu+TsRCeIEFz5mgg3drlN
+         gFDw==
+X-Forwarded-Encrypted: i=1; AHgh+Rpc2EpBpxd9qbjJ9FS2NSG/kUN99vYjAYheNEXAe2Lxqieskjt1aL62x6KOWTHrwlHLlXcksKGK2TGFEw==@vger.kernel.org
+X-Gm-Message-State: AFuF++kmhHEvOLW4Y8ZM23w9NWwzwHMUA4M9fqnR7fLTJTNkZXOpkVDX
+	QK/t1M27ZgL/0+MuaNzyf1IWCXsg/D+KuiWHkDJT0DfZ905xM4InsKlAaOBK3tpO2IVchQ==
+X-Gm-Gg: AR+sD12LLHVLbP2xDyJ/75xcjqtBIu7TF5fKx+bHXapw0Fc7FhV6WU9XC6LiCf+Lq78
+	RAwt1p4YJ5rs43DUZGFQwXP1dNCqBowSJQhkvEt0MY4G7TNGCgTGBWJCQlbDLHGkQKudRFYRVQF
+	I4fWr7dYsXv6PXYX7XP/tdqIdwLES8UOIktB7sOiux1UQjMoWY4Msg3l1M0Fy4poAgL1wdE70Ku
+	13viFmGuZTSmK6jLu77/jF996WGJNHcGQXF3r8bp2v+aYq65Qb5EVHzXru2fi52bC3IBYx/Lf7v
+	+iGtznoDvzG/uNd8zPyC8WpRHL1RdvrbwhM9a9X2STwEYL+eRRb4OG+G1uta9dVh/4m045Ay8M+
+	j/bSdOQ8fmcE37Dp6msOlzG8qkFPHKbpAUFCqnv83b2KKX4jmYkndS26eE39xabjEeKq20QbRja
+	zobe7aoPIRbDPBGg6bxC+1vN4MW5oBSz/I8KHLx+aThfvJTNe/kn5r6xCn+SzvrnQVl+fd+Sy6s
+	7eQmia4Qrw7S+u792WXuY8caXMPO4aix7rv2SJE0XAX4TfCTC5/jn78r9k+3JBbOSPsYlw=
+X-Received: by 2002:a05:6512:2c8b:b0:5b2:e890:e69f with SMTP id 2adb3069b0e04-5b48b781ec3mr3111608e87.2.1787494943000;
+        Sun, 23 Aug 2026 07:22:23 -0700 (PDT)
+Received: from localhost ([188.234.148.119])
+        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-5b48cda2b73sm1006644e87.23.2026.08.23.07.22.21
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 23 Aug 2026 07:22:21 -0700 (PDT)
+From: Mikhail Gavrilov <mikhail.v.gavrilov@gmail.com>
+To: tiwai@suse.com
+Cc: perex@perex.cz,
+	jikos@kernel.org,
+	bentiss@kernel.org,
+	linux-sound@vger.kernel.org,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Mikhail Gavrilov <mikhail.v.gavrilov@gmail.com>
+Subject: [PATCH v2 0/2] ALSA: usb-audio: the Topping M62's vendor controls
+Date: Sun, 23 Aug 2026 19:22:14 +0500
+Message-ID: <20260823142216.79704-1-mikhail.v.gavrilov@gmail.com>
+X-Mailer: git-send-email 2.55.0
+In-Reply-To: <20260820151329.18332-1-mikhail.v.gavrilov@gmail.com>
+References: <20260820151329.18332-1-mikhail.v.gavrilov@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260821024215.55188-1-triet.hoang.dev@gmail.com>
+Content-Transfer-Encoding: 8bit
 
-Hi Triet,
+v2, and the road is the mixer quirk. The HID driver is dropped from
+this posting; it is in the RFC thread if anyone wants to argue for it.
+The cost of this road is accepted knowingly: with the hid_ignore_list
+entry there is no hidraw node, so a future Linux control application
+would have no channel of its own to the card.
 
-kernel test robot noticed the following build errors:
+Changes since the RFC:
 
-[auto build test ERROR on dtor-input/next]
-[also build test ERROR on dtor-input/for-linus hid/for-next linus/master v7.2 next-20260821]
-[If your patch is applied to the wrong git tree, kindly drop us a note.
-And when submitting patch, we suggest to use '--base' as documented in
-https://git-scm.com/docs/git-format-patch#_base_tree_information]
+  - guard() and __free() as you asked. The spinlock is guard() where a
+    whole function holds it and scoped_guard() elsewhere; one goto that
+    would have jumped out of a guarded scope is gone, replaced by a
+    flag, since the cleanup runs either way but the jump reads like a
+    trap.
 
-url:    https://github.com/intel-lab-lkp/linux/commits/Triet-Hoang/input-misc-Convert-to-DEFINE_SIMPLE_DEV_PM_OPS/20260821-094215
-base:   https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git next
-patch link:    https://lore.kernel.org/r/20260821024215.55188-1-triet.hoang.dev%40gmail.com
-patch subject: [PATCH] input: misc: Convert to DEFINE_SIMPLE_DEV_PM_OPS()
-config: i386-randconfig-013-20260823 (https://download.01.org/0day-ci/archive/20260823/202608232022.yWBqVfG0-lkp@intel.com/config)
-compiler: clang version 22.1.3 (https://github.com/llvm/llvm-project e9846648fd6183ee6d8cbdb4502213fcf902a211)
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20260823/202608232022.yWBqVfG0-lkp@intel.com/reproduce)
+  - The OTG input's gain is in. It was the one gap the RFC cover letter
+    named: it has no front panel control, so it never announced itself.
+    A capture of the vendor application moving it names it target 0x27
+    on the same taper family as Bluetooth, and the indices it dwelt on
+    match the decibels it displayed.
 
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202608232022.yWBqVfG0-lkp@intel.com/
+  - The subscription is renewed every two seconds. It lapses: a
+    listener that subscribed once got the meters and the identification
+    block and then very little, while one that kept repeating got the
+    gains too, about five seconds in. The vendor application does the
+    same.
 
-All errors (new ones prefixed by >>):
+  - New in 2/2: the outputs' source selectors, as enumerated controls.
 
->> drivers/input/misc/88pm80x_onkey.c:50:53: error: use of undeclared identifier 'pm80x_dev_suspend'
-      50 | static DEFINE_SIMPLE_DEV_PM_OPS(pm80x_onkey_pm_ops, pm80x_dev_suspend,
-         |                                                     ^~~~~~~~~~~~~~~~~
->> drivers/input/misc/88pm80x_onkey.c:51:5: error: use of undeclared identifier 'pm80x_dev_resume'
-      51 |                          pm80x_dev_resume);
-         |                          ^~~~~~~~~~~~~~~~
->> drivers/input/misc/88pm80x_onkey.c:50:53: error: use of undeclared identifier 'pm80x_dev_suspend'
-      50 | static DEFINE_SIMPLE_DEV_PM_OPS(pm80x_onkey_pm_ops, pm80x_dev_suspend,
-         |                                                     ^~~~~~~~~~~~~~~~~
->> drivers/input/misc/88pm80x_onkey.c:51:5: error: use of undeclared identifier 'pm80x_dev_resume'
-      51 |                          pm80x_dev_resume);
-         |                          ^~~~~~~~~~~~~~~~
->> drivers/input/misc/88pm80x_onkey.c:50:53: error: use of undeclared identifier 'pm80x_dev_suspend'
-      50 | static DEFINE_SIMPLE_DEV_PM_OPS(pm80x_onkey_pm_ops, pm80x_dev_suspend,
-         |                                                     ^~~~~~~~~~~~~~~~~
->> drivers/input/misc/88pm80x_onkey.c:51:5: error: use of undeclared identifier 'pm80x_dev_resume'
-      51 |                          pm80x_dev_resume);
-         |                          ^~~~~~~~~~~~~~~~
-   6 errors generated.
+A correction to my own follow-up, which said the HID road leaves a
+hidraw node open for a future vendor application while the quirk closes
+it. Half of that is wrong: the HID driver as posted calls
+hid_hw_start(hdev, 0), which creates no hidraw either. It would take
+one word to fix there and cannot be fixed on this road at all, so the
+comparison stands, but the archive should not carry a claim the code
+did not support.
+
+Which raises a form neither posting covered: snd-usb-audio could
+register the hid_driver itself. usbhid stays the transport, so hidraw
+survives and no hid_ignore_list entry is needed; the controls still
+land on the card the device already has, because it is all one module
+holding the mixer pointer; and the claim helper in card.c goes away.
+The cost is that snd-usb-audio would depend on the HID core, and I find
+no precedent for that direction -- the reverse exists, hid-prodikeys
+registers a card of its own. The probe-order and disconnect questions
+do not disappear, but they stay inside one module. I mention it rather
+than implement it: you have picked a road, and I would rather ask
+whether this is a better one than send a fourth variant unasked.
+
+About 2/2 and one thing in it I am not comfortable with. Each output
+listens to one source chosen inside the card -- a mix, an input, or one
+playback bus straight from USB -- and the device NEVER reports that
+choice. Not to this driver, and not to the vendor's own application,
+which pushes its whole workspace on connect rather than reading
+anything. So the control can be written but not read, and the item list
+starts with "Unknown", which is what it shows until a hand has chosen;
+selecting it is refused. If there is a convention for this that I have
+missed, I would rather use it.
+
+Both patches are on mainline 98f21c54f995 and have been exercised on
+the hardware: values arrive by themselves after probe, a front panel
+knob still reaches the driver ten minutes later, and a write reaches
+the analogue stage -- recording one source at gain 30 and at gain 60
+differs by 29.7 dB against the 30.0 dB the taper table predicts, which
+also confirms the decoded scale. For 2/2, the audible test: point an
+output away from the bus being played and it goes silent, point it back
+and the sound returns. Tested on a KASAN and lockdep kernel, including
+unplug while a stream was running; no reports.
+
+Mikhail Gavrilov (2):
+  ALSA: usb-audio: expose the Topping M62's analogue gains as mixer
+    controls
+  ALSA: usb-audio: let the M62's outputs say what they listen to
+
+ MAINTAINERS               |   6 +
+ drivers/hid/hid-ids.h     |   3 +
+ drivers/hid/hid-quirks.c  |   2 +
+ sound/usb/Makefile        |   1 +
+ sound/usb/card.c          |  14 +
+ sound/usb/mixer_quirks.c  |   5 +
+ sound/usb/mixer_topping.c | 636 ++++++++++++++++++++++++++++++++++++++
+ sound/usb/mixer_topping.h |   7 +
+ sound/usb/usbaudio.h      |   3 +
+ 9 files changed, 677 insertions(+)
+ create mode 100644 sound/usb/mixer_topping.c
+ create mode 100644 sound/usb/mixer_topping.h
 
 
-vim +/pm80x_dev_suspend +50 drivers/input/misc/88pm80x_onkey.c
+base-commit: 2709dd5ae32f0828f386327c76bba9f39f63a1c6
+-- 
+2.55.0
 
-    49	
-  > 50	static DEFINE_SIMPLE_DEV_PM_OPS(pm80x_onkey_pm_ops, pm80x_dev_suspend,
-  > 51				 pm80x_dev_resume);
-    52	
-
---
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki

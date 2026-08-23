@@ -1,130 +1,225 @@
-Received: from ixit.cz (ixit.cz [84.42.129.46])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.13])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6501E2472A2;
-	Sun, 23 Aug 2026 11:36:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=84.42.129.46
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787485011; cv=none; b=MFRJzmPHGCWAPeL0F5Qe3ve99wKrwN3Afc3MViI994AUzyu7xSVRg09rdtRi74Qt/ADMvbunzkLFjCBJRAr0HOUZ7tzxouBZoe1cZSt9NBMzCCeIZLz+bNwsT3+vNKOLm/MoeIADYrKLiGc9HYS0uGFYU8jrgZwovnPrWFj8uUo=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787485011; c=relaxed/simple;
-	bh=qsavDS75FwaA2nzZMPJxqb/YthIsUW4ps5oUPuXGwmc=;
-	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
-	 In-Reply-To:Content-Type; b=EbYn3OW6HL9BI6a4Mw7nuMhiIgvv/iuQAe7xlbp17GPGBfzpvcsLsplm/nEMoef3A6bweIq4Us9nSrY0zExKv047xM8fI33ZxfwRgc4omFa/whBPJ6WakLgf5Rj0LtUN8hE1byetLKzmmnoJgca+H5jnUrLuzjVCKIlaoeVKnws=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=ixit.cz; spf=pass smtp.mailfrom=ixit.cz; dkim=pass (1024-bit key) header.d=ixit.cz header.i=@ixit.cz header.b=NisWJ7l6; arc=none smtp.client-ip=84.42.129.46
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=ixit.cz
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ixit.cz
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E163537F014;
+	Sun, 23 Aug 2026 11:45:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=198.175.65.13
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1787485550; cv=fail; b=YAS26QRa6iJb+fmxvgK/nvgy8uhKW2NfTKtgzIe5AmNTY4dTXMBiw9f81DhX/1fu0rb9I5QzOYVLfWAuwBGy+GZDjq/O+cYo/MqxZ9kuCiRlNHm5e/Ujc9U4lDHow8As1C78U14kBPjCXTgp6WHSpFp4+x/FtAkWIHCUZOErQsc=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1787485550; c=relaxed/simple;
+	bh=Xis4kGjrRBL4A9fbSIF3Nqrw05Lgr479oFB6cZS3NMc=;
+	h=Date:From:To:CC:Subject:Message-ID:Content-Type:
+	 Content-Disposition:In-Reply-To:MIME-Version; b=Elf/N+gOgmH6ZMdJJfZlCKGaOX7p713VJTCCuV4q5HObHsr0X9kHmf3CQz8Z4h0yzlFfIBuOxTo9Ev39YKXlyTw9KMb25oG5GwnefcyMmxKKGvnlefzxRW1q6SUB+rkniPVOu0wN2cKdTZX8PZSW7MWyYwBWonIGzpfjrVHuIUU=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=jXGHxInA; arc=fail smtp.client-ip=198.175.65.13
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=ixit.cz header.i=@ixit.cz header.b="NisWJ7l6"
-Received: from [172.16.124.192] (ip-78-44-13-22.bb.vodafone.cz [78.44.13.22])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by ixit.cz (Postfix) with ESMTPSA id 6B7025340655;
-	Sun, 23 Aug 2026 13:36:46 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ixit.cz; s=dkim;
-	t=1787485006;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=rv08Lm3LOD0foXTOq5xqoZa2NwR2DHy3i20jUMhz/xc=;
-	b=NisWJ7l6iUQ9WJmJ2FuE3siRPuswQsc82yqwJcVBKqSiJb7H01crZbALSLxpsMuQ4HxMaq
-	Nd1q189YwjuMIAOvUsLJt473Z62zi7Ym2JHFDowLwFpzuu0K/9j0d2oS7lLAcV1to6Ta0U
-	/rr5totujNaXTvpTKWNGdNRUpfcwCgc=
-Message-ID: <7df4c69d-9d7b-418f-b7dc-a03a710dfb13@ixit.cz>
-Date: Sun, 23 Aug 2026 13:36:45 +0200
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="jXGHxInA"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1787485549; x=1819021549;
+  h=date:from:to:cc:subject:message-id:in-reply-to:
+   mime-version;
+  bh=Xis4kGjrRBL4A9fbSIF3Nqrw05Lgr479oFB6cZS3NMc=;
+  b=jXGHxInASpJvaHVBVThOzMacH5qStC5auu3yKSKqqk2UwGxJrfR+ypUT
+   8Q+QZHPpYewXWjGyPCgSIKT9HKCbGJU0FxQYsU9+NQ3djvozPn9GuICUG
+   soVU2XW9q9Zq0yzbV2gxLDs8f0hN0SjnZcZdUUxJ+Cb6v/u6i7UTsZE/J
+   HCil6XdEIlrnEX8UJ5qyZulqToOUnYe+ILJQUofkyAXtB/9oyxcTKvvhx
+   Qip7h8I5PrIa7ZH+AJC7yJXb6aVkPjv5J/PTYmCTz9X5qpGk4s32LPbM4
+   qAWU09OHS4a3qAs5/cNXdu4mLboQuAeY4bej5u928iA1ODnZZZjzqQNG9
+   Q==;
+X-CSE-ConnectionGUID: v682zGr6TrGPayqzdezo0A==
+X-CSE-MsgGUID: ylu8uNvPQfGbDnWnfSU0tg==
+X-IronPort-AV: E=McAfee;i="6800,10657,11883"; a="99119028"
+X-IronPort-AV: E=Sophos;i="6.25,238,1779174000"; 
+   d="scan'208";a="99119028"
+Received: from orviesa001.jf.intel.com ([10.64.159.141])
+  by orvoesa105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Aug 2026 04:45:49 -0700
+X-CSE-ConnectionGUID: smvUdzJHR4aSEWKfJpwcWw==
+X-CSE-MsgGUID: 37vfuH9hQiKc7+FJEbGQHw==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.25,238,1779174000"; 
+   d="scan'208";a="304949690"
+Received: from fmsmsx903.amr.corp.intel.com ([10.18.126.92])
+  by orviesa001.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Aug 2026 04:45:48 -0700
+Received: from FMSMSX902.amr.corp.intel.com (10.18.126.91) by
+ fmsmsx903.amr.corp.intel.com (10.18.126.92) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.2562.45; Sun, 23 Aug 2026 04:45:48 -0700
+Received: from fmsedg902.ED.cps.intel.com (10.1.192.144) by
+ FMSMSX902.amr.corp.intel.com (10.18.126.91) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.2562.45 via Frontend Transport; Sun, 23 Aug 2026 04:45:48 -0700
+Received: from CY7PR03CU001.outbound.protection.outlook.com (40.93.198.26) by
+ edgegateway.intel.com (192.55.55.82) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.2562.45; Sun, 23 Aug 2026 04:45:47 -0700
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=tGy9u7tZUgBMuc0yeHBFG5ThpfqnfrjDBlnersYAN5TrqwF6rtvdJ3pO4tkqFnX+5ZKgz8lQYu+wTeIrWOdV5lwrxi4mlifXqsKH/AmA3PxpQkPKfiOGU3chqbE9Dw5AxsGjN866hh7HGQtTgBRVPNH0NuTpVLT5A+IUtJ6viO02jw+NxJCI+cKPus1EhnTFAXwWi0aDQ0DSns+BnbI0GL91NJubUXM7HJEi+YGXJYc8lfa9mL9n+ASw8+M00OzJj6IjsFUNsvndhju5F9OLzXH+gKZuw8P44CcBXbLx5wr+m1Q5bEGxJ45GxVriGB+CoDFt5W1QJ2lLMAb/KdM5rQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=rmTVwB0qogC6SsNzyc7tIcfD6aNPCd6SYCsgHKCDB50=;
+ b=CJE3aazjkQ1vtjum51tO4LYwcZhDNSXwQPNAioljTI3Ao29YnTNTYMAaROTSYqfRUEv8KiJ1nPYBBjCGjmBZSbOUTF1qzgeIDCWlMP20tszWAgC2+cvtupSdEWrwHrh2vYD1O3RTZ3QFslDfshLpt1nE0gfdBEJq+Tfidfspmdnt55NUW9k2A7vLSne8/QKJS7OViBDDD7lKg6/t+t9F1iQc1DiBRZBBR5dtBbp0NJpnQ72wGBrrqNr+cSFxwosHorI5wz+8tCcaCGhs9ZbU/IoQ7YVrY8FerdhDrs0q8qzEqG069P4/Zlt4xckMaUFUz5YvQ/jjkIjP0YvuSYRrsg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
+ dkim=pass header.d=intel.com; arc=none
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=intel.com;
+Received: from SJ0PR11MB5214.namprd11.prod.outlook.com (2603:10b6:a03:2df::22)
+ by MW3PR11MB4730.namprd11.prod.outlook.com (2603:10b6:303:58::8) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.292.19; Sun, 23 Aug
+ 2026 11:45:45 +0000
+Received: from SJ0PR11MB5214.namprd11.prod.outlook.com
+ ([fe80::5926:3836:4212:8640]) by SJ0PR11MB5214.namprd11.prod.outlook.com
+ ([fe80::5926:3836:4212:8640%4]) with mapi id 15.21.0339.012; Sun, 23 Aug 2026
+ 11:45:45 +0000
+Date: Sun, 23 Aug 2026 19:45:37 +0800
+From: kernel test robot <lkp@intel.com>
+To: Triet Hoang <triet.hoang.dev@gmail.com>, <dmitry.torokhov@gmail.com>
+CC: <oe-kbuild-all@lists.linux.dev>, <linux-input@vger.kernel.org>,
+	<linux-kernel@vger.kernel.org>, Triet Hoang <triet.hoang.dev@gmail.com>
+Subject: Re: [PATCH] input: misc: Convert to DEFINE_SIMPLE_DEV_PM_OPS()
+Message-ID: <202608231557.WwzKko7b-lkp@intel.com>
+Content-Type: text/plain; charset="us-ascii"
+Content-Disposition: inline
+In-Reply-To: <20260821024215.55188-1-triet.hoang.dev@gmail.com>
+X-ClientProxiedBy: TPYP295CA0020.TWNP295.PROD.OUTLOOK.COM
+ (2603:1096:7d0:a::10) To SJ0PR11MB5214.namprd11.prod.outlook.com
+ (2603:10b6:a03:2df::22)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v6 2/2] input: misc: Add Qualcomm SPMI PMIC haptics driver
-From: David Heidelberg <david@ixit.cz>
-To: Fenglin Wu <fenglin.wu@oss.qualcomm.com>, linux-arm-msm@vger.kernel.org,
- Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh@kernel.org>,
- Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley
- <conor+dt@kernel.org>, Lee Jones <lee@kernel.org>,
- Stephen Boyd <sboyd@kernel.org>, Bjorn Andersson <andersson@kernel.org>,
- Konrad Dybcio <konradybcio@kernel.org>
-Cc: David Collins <david.collins@oss.qualcomm.com>,
- Subbaraman Narayanamurthy <subbaraman.narayanamurthy@oss.qualcomm.com>,
- Kamal Wadhwa <kamal.wadhwa@oss.qualcomm.com>, linux-input@vger.kernel.org,
- devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20260806-qcom-spmi-haptics-v6-0-19fcecd5204f@oss.qualcomm.com>
- <20260806-qcom-spmi-haptics-v6-2-19fcecd5204f@oss.qualcomm.com>
- <214bbcf7-38ba-458b-81ba-d7f3a42cb73d@ixit.cz>
-Content-Language: en-US, cs-CZ
-Autocrypt: addr=david@ixit.cz; keydata=
- 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
-In-Reply-To: <214bbcf7-38ba-458b-81ba-d7f3a42cb73d@ixit.cz>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+X-MS-Exchange-MessageSentRepresentingType: 1
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: SJ0PR11MB5214:EE_|MW3PR11MB4730:EE_
+X-MS-Office365-Filtering-Correlation-Id: 05f480d4-14d4-40d5-045b-08df010c1162
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;ARA:13230040|1800799024|23010399003|366016|376014|56012099006|10067099003|18002099003|11063799006|22082099003;
+X-Microsoft-Antispam-Message-Info: 99KYowfis5xvxhbs9xlJv9DTLLXHqzLOdGa7sw5hIoI/utuisDfcImUCNHU1ypheihFWn+tNW7z1Pq81k1ASjAUiIxDJd5F+gNKiew+MokyeY7gkY3WXEkE6IXI68DF9dc/r2xHCdPmwn6qxqWjraZTih2nsElvb37dI1fpDugyacoWAusN+zKfavyZtGb/DLS3JSueBV3s63N8tk4dqYjy+yUv3adyhOh/D1/AkXYtObi0aNAZEitmd/zD7jP4xBHa87FrYhEEaACMoFn2/aPzlifVOtPJwcuHtqW8r/PKaBxM/IaADluXtAfgAhwXelTMYSNBPIrfWFIke9pwR4gisDtpU9iKK5+ORwBYjj3YzpPJ2GrkrCJQlQsUKZ9lcmP7F2fg14ACQXJLAh+6P3ymSgkoXWAYhjPeAkQylVT3M6iKVSeq4pzqaGbnjopyGB9YlsSbG5cEvqdkMYaHKROPRUrpY/pYXv8cOz/qSOQrYZn5kv4auDhgksRy//y9Szmp4HDOQcKiwQXhD7zx/ajNYCewqbvkU7c9MvUqSysgblwe/i6u90rsB+lcog9piqf+EaaBoM4NOaChb1joUN5P7jsuTdGyqWGpXJFJJ/e0=
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SJ0PR11MB5214.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(23010399003)(366016)(376014)(56012099006)(10067099003)(18002099003)(11063799006)(22082099003);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?zamUoiitcThmeFgFLTY2KIcFqvEjJXMPttRiCT40PZDM/X6x+O8+Tegxfw4r?=
+ =?us-ascii?Q?C0asZwGxmXpMa99xXat4X3SID6nrBTWrnXSgsDJREwrRR1ibv2wXbfOdvG2+?=
+ =?us-ascii?Q?TCXO/HUfoQwtsF6S9yrwcq45QB7vtHkOpdP14qfDEFTPqZcUbWgfFI7mso77?=
+ =?us-ascii?Q?Y+5LAlzu1fNi40zzQw0SVE4Vj2ZWZzWqzxffXOL38ilswLoMzFd6oidYmlFo?=
+ =?us-ascii?Q?sQBKF1VyPe0XkflCMNf2eNRnEkDeaarOpNAS17B3Z3NuqTXzIRc/RgfOp0Io?=
+ =?us-ascii?Q?JFKMe3KWfex3WxIbnCdaIEY/MtLP23pW20fa8d7wZmCiR8B4UlG4wt5S/fIY?=
+ =?us-ascii?Q?ZTJ9OTgRktkZKTRA0k+bUszSdRJatZWcNRz8SYmdo2zy7lacH8ugaV5tj9MK?=
+ =?us-ascii?Q?oHttNtsuWybq5PpcdMghDUVzlIM/SumAAlRe/ecX2gGkkEpbSi+ryyqaD92E?=
+ =?us-ascii?Q?1vRxXuUHJgRo7EAPZtuqDrVTu2bK4FIwjug5HzudeHGTpJWAq56TKl7fxGGn?=
+ =?us-ascii?Q?TQ7AYqvi8wYOk4MBCMDr3Q+Y0u6sML2Ui7iJ9XI6iCuj2yHDYSye24FBhswE?=
+ =?us-ascii?Q?/U3axyyg/sKAfrPqCu0y9LEBf0uEJBC95EDXzGFEIK2T9t8kBxREUzm9zi+g?=
+ =?us-ascii?Q?eL/Scy0MTu40Oqfw6itGFefS1LD4R2o3o4jLAEulzKbz2M7XyzgO9MKzuADN?=
+ =?us-ascii?Q?8LgZgKeKg8rc+l2YIwBdZsIK9afbqpdoP/rbMaI1cTxj76+srMb6mmp7b6Ti?=
+ =?us-ascii?Q?Akd1Zw1V5aMfX4JyWl9uW07JtEOmnWzFqnZiJqhFbMYZseS1dJHKTAhGGKTR?=
+ =?us-ascii?Q?H9R8K1z+ocMuDLlCTZH5GHXPZy8UDBC2zylIoC419spAmps0OoNIBykfoxnl?=
+ =?us-ascii?Q?Qbx97abVljKJj+fX92wc68n9I2oDPu/8IamIGlADn7aveO0/leLXOpDUKgmX?=
+ =?us-ascii?Q?Jt/776RWIvdOQenH3RXo7QtzT0yHGIG5YfDI8tUBQVagkaAVQSLrvlFregKX?=
+ =?us-ascii?Q?okq1JlM5FrP0xPcH41X66Ywmnc0JgN+46pnqQNmJMzYL60jSaqeBupOFQoYJ?=
+ =?us-ascii?Q?59MqAZ6rcDdFvViVjwI/wrFweJsbKqK+sP9TKaPknMdjE//A5kQfPjcQGT10?=
+ =?us-ascii?Q?2VRKjdOIupunm+l3uFCcJx0wOc+y9pRxK2+CANKr+WPHJRczt1Vw8IXGQrcA?=
+ =?us-ascii?Q?DhOVuswHWHLNhYbxyzTZ8KeDBxSfvTa/ZRKT9upI9H7Z3wk4mKu4QCC2VufW?=
+ =?us-ascii?Q?v3352tlmGvPOIe9DCCZN1j/OCObCGC0BfRFkTXsPHHxm+AOI6eFUYd2nnhVS?=
+ =?us-ascii?Q?5jTwPRoALmoC8Sl2rUe7n4Qv8gsrH7/c9U08jc7cQwTFAblltqbSw20Nt9hm?=
+ =?us-ascii?Q?GfKza5KvfxA7LzcePU7K8SKfnWCtv/YUx9GN4Nm0Znjpp8aEOpLDBu+jw3uc?=
+ =?us-ascii?Q?skuhgDiJdWwUW3a4C5wj92es+DUawF9dPsIU3Ce0jiBBfcTtPoph4g9uTh6F?=
+ =?us-ascii?Q?d5fHkOoSfuh3IF3jCP2jpTL2nuzIiQSkC1Er13Y2b835HUk3gEgpZ85ug8SH?=
+ =?us-ascii?Q?9doHRQ5O6FEchnzHQg9qiM0tC9gc4br0kAhgHeSua3wRg6QhDypdUKXAwXq2?=
+ =?us-ascii?Q?WLVMpmnvC4Owa830QWHqjYAeL2WpwGW3msCZnOIJpraYKXhn8MUhaQKfmnYM?=
+ =?us-ascii?Q?lY5kDlHz5Crl77CzwoBtidLZFfD54V+3NgBMzPAujb36EH8Ta1QmBNsnJaAM?=
+ =?us-ascii?Q?tS8xClwUgw=3D=3D?=
+X-Exchange-RoutingPolicyChecked: tQF6WTUMI5Fd8TVGTgcxmPfE6IahtX6rsFzAqQDHUu9/+DnUU8KijtRu7K/WjG7GwcgUiKihf6g4hTW4uSLuRFkusWavxiULG/BYm7H+Ty00/X6+BghogvHDs7wdcMUshdAGdUZOD2gtt4xZzwQr+DS8sWSbyEPtiGx32xY3pnuDGjlU4ca/OD4I0Gtk7ORnvWJDkFqKFTng4DL1ADkQeFGjPUhb5UQxhMxcKHebz3P9llFR9v8JPQwH4Yz+3Vp7jD6EKK3Ilr7h/Ouc5NwhoA+kt946n3MPyn0dwuKgwjTd6JPa/b3G6m5Lnndv/9tNi+dFWL+VXy1MFVYevihLqg==
+X-MS-Exchange-CrossTenant-Network-Message-Id: 05f480d4-14d4-40d5-045b-08df010c1162
+X-MS-Exchange-CrossTenant-AuthSource: SJ0PR11MB5214.namprd11.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 23 Aug 2026 11:45:45.5051
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 46c98d88-e344-4ed4-8496-4ed7712e255d
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: g0LL3uZZ2AVFA57nL4ALQo72GMG7uxVdE+/tz7vlSYfPpoA1/um46PHD0as+ZF8XoxDWAl4BFNykA5/PlQlnpw==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MW3PR11MB4730
+X-OriginatorOrg: intel.com
 
-On 17/08/2026 14:08, David Heidelberg wrote:
-> On 07/08/2026 08:21, Fenglin Wu wrote:
->> Add an initial driver for the Qualcomm PMIH0108 PMIC haptics module,
->> named as HAP530_HV. This module supports several play modes, including
->> DIRECT_PLAY, FIFO, PAT_MEM, and SWR, each with distinct data sourcing
->> and hardware data handling logic. Currently, the driver provides support
->> for two play modes using the input force-feedback framework: FF_CONSTANT
->> effect for DIRECT_PLAY mode and FF_PERIODIC effect with FF_CUSTOM
->> waveform for FIFO mode.
->>
->> Assisted-by: Claude:claude-4-8-opus
->> Signed-off-by: Fenglin Wu <fenglin.wu@oss.qualcomm.com>
->> ---
->>   drivers/input/misc/Kconfig             |   11 +
->>   drivers/input/misc/Makefile            |    1 +
->>   drivers/input/misc/qcom-spmi-haptics.c | 1252 ++++++++++++++++++++++++++++++++
->>   3 files changed, 1264 insertions(+)
->>
-P.S. Could you post together with the PMIH0108 device-tree part and ideally the 
-device integration you testing with? (or at least share the WIP DT, if it's not 
-finished yet)
+Hi Triet,
 
-Thanks
-David
+kernel test robot noticed the following build errors:
+
+[auto build test ERROR on dtor-input/next]
+[also build test ERROR on dtor-input/for-linus hid/for-next linus/master v7.2 next-20260821]
+[If your patch is applied to the wrong git tree, kindly drop us a note.
+And when submitting patch, we suggest to use '--base' as documented in
+https://git-scm.com/docs/git-format-patch#_base_tree_information]
+
+url:    https://github.com/intel-lab-lkp/linux/commits/Triet-Hoang/input-misc-Convert-to-DEFINE_SIMPLE_DEV_PM_OPS/20260821-094215
+base:   https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git next
+patch link:    https://lore.kernel.org/r/20260821024215.55188-1-triet.hoang.dev%40gmail.com
+patch subject: [PATCH] input: misc: Convert to DEFINE_SIMPLE_DEV_PM_OPS()
+config: parisc-allmodconfig (https://download.01.org/0day-ci/archive/20260823/202608231557.WwzKko7b-lkp@intel.com/config)
+compiler: hppa-linux-gcc (GCC) 16.1.0
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20260823/202608231557.WwzKko7b-lkp@intel.com/reproduce)
+
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202608231557.WwzKko7b-lkp@intel.com/
+
+All errors (new ones prefixed by >>):
+
+   In file included from include/linux/kernel.h:35,
+                    from drivers/input/misc/88pm80x_onkey.c:10:
+>> drivers/input/misc/88pm80x_onkey.c:50:53: error: 'pm80x_dev_suspend' undeclared here (not in a function)
+      50 | static DEFINE_SIMPLE_DEV_PM_OPS(pm80x_onkey_pm_ops, pm80x_dev_suspend,
+         |                                                     ^~~~~~~~~~~~~~~~~
+   include/linux/util_macros.h:136:44: note: in definition of macro 'PTR_IF'
+     136 | #define PTR_IF(cond, ptr)       ((cond) ? (ptr) : NULL)
+         |                                            ^~~
+   include/linux/pm.h:315:20: note: in expansion of macro 'pm_sleep_ptr'
+     315 |         .suspend = pm_sleep_ptr(suspend_fn), \
+         |                    ^~~~~~~~~~~~
+   include/linux/pm.h:375:9: note: in expansion of macro 'SYSTEM_SLEEP_PM_OPS'
+     375 |         SYSTEM_SLEEP_PM_OPS(suspend_fn, resume_fn) \
+         |         ^~~~~~~~~~~~~~~~~~~
+   include/linux/pm.h:417:9: note: in expansion of macro '_DEFINE_DEV_PM_OPS'
+     417 |         _DEFINE_DEV_PM_OPS(name, suspend_fn, resume_fn, NULL, NULL, NULL)
+         |         ^~~~~~~~~~~~~~~~~~
+   drivers/input/misc/88pm80x_onkey.c:50:8: note: in expansion of macro 'DEFINE_SIMPLE_DEV_PM_OPS'
+      50 | static DEFINE_SIMPLE_DEV_PM_OPS(pm80x_onkey_pm_ops, pm80x_dev_suspend,
+         |        ^~~~~~~~~~~~~~~~~~~~~~~~
+>> drivers/input/misc/88pm80x_onkey.c:51:26: error: 'pm80x_dev_resume' undeclared here (not in a function)
+      51 |                          pm80x_dev_resume);
+         |                          ^~~~~~~~~~~~~~~~
+   include/linux/util_macros.h:136:44: note: in definition of macro 'PTR_IF'
+     136 | #define PTR_IF(cond, ptr)       ((cond) ? (ptr) : NULL)
+         |                                            ^~~
+   include/linux/pm.h:316:19: note: in expansion of macro 'pm_sleep_ptr'
+     316 |         .resume = pm_sleep_ptr(resume_fn), \
+         |                   ^~~~~~~~~~~~
+   include/linux/pm.h:375:9: note: in expansion of macro 'SYSTEM_SLEEP_PM_OPS'
+     375 |         SYSTEM_SLEEP_PM_OPS(suspend_fn, resume_fn) \
+         |         ^~~~~~~~~~~~~~~~~~~
+   include/linux/pm.h:417:9: note: in expansion of macro '_DEFINE_DEV_PM_OPS'
+     417 |         _DEFINE_DEV_PM_OPS(name, suspend_fn, resume_fn, NULL, NULL, NULL)
+         |         ^~~~~~~~~~~~~~~~~~
+   drivers/input/misc/88pm80x_onkey.c:50:8: note: in expansion of macro 'DEFINE_SIMPLE_DEV_PM_OPS'
+      50 | static DEFINE_SIMPLE_DEV_PM_OPS(pm80x_onkey_pm_ops, pm80x_dev_suspend,
+         |        ^~~~~~~~~~~~~~~~~~~~~~~~
+
+
+vim +/pm80x_dev_suspend +50 drivers/input/misc/88pm80x_onkey.c
+
+    49	
+  > 50	static DEFINE_SIMPLE_DEV_PM_OPS(pm80x_onkey_pm_ops, pm80x_dev_suspend,
+  > 51				 pm80x_dev_resume);
+    52	
+
+--
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki

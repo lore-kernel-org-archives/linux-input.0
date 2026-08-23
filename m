@@ -1,34 +1,34 @@
-Received: from mta0.migadu.com (out-89.mta0.migadu.com [91.218.175.89])
+Received: from mta1.migadu.com (out-113.mta1.migadu.com [95.215.58.113])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8620737F74C
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5C73E388866
 	for <linux-input@vger.kernel.org>; Sun, 23 Aug 2026 18:59:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.89
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.113
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787511566; cv=none; b=H5psJkYcUdmuWD2ETCNM3R15HSMtOyrHq6R1kfOXmDHpsItJ28li2qYaQVoZlKMrf3oGXL7He0ILRB8zodM7hjqTv6iNeDVvdIpRwWOl5rvDD8uhRpDxLn/rCa/Hk+MbyNCdHXkQwCPS/04YMt9AUi194/n1XjkkKD2cEE4X5Y8=
+	t=1787511567; cv=none; b=S27wIf2eKuB+YkpIQ7lI4u4X0VOpcoGkTeV4LA4E2Fz8qs6fVzxUqt9MrkLbcb8AFMcGqRFTIKZOMxXa6JbiTo3fq9baVyOwrV1tgmrJl1uLD1MRkO7vAOa1k+zbjIL2jqGz+pOhf1RmnejO+k7sA2LGsgimHcnLdpM6iOq00ao=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787511566; c=relaxed/simple;
-	bh=oYJuHD3dWX/EIlF8bqV3+q5qGYhSD91b2cvAiXuPSgg=;
+	s=arc-20240116; t=1787511567; c=relaxed/simple;
+	bh=lbUBXbNlSnzsLpmbzl6FRaFyC1WdyRAjKDj0YiBe2IA=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=UWwece98w6Pe7DKiHJAR4yat4K9usp9KUk5DIIk1wAduokMBCdBtIyvMwBcpAg/dZ1ThVqaVxC3pPzzdOxca0TQF0hZSCbA0oBoPYJmzMD2JkaINjE3qcLH2+WkamYbNSycDPxHSuvDK6xCXYBajGoCWZAqPLgWx9Y6prZ22BDg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=Y5NNjgLg; arc=none smtp.client-ip=91.218.175.89
+	 MIME-Version; b=nTGDykiJrllk3bHD2SjNJQLtSjdllV6Apj0xjWqSV72v/Ka134zvkiGDOXDrldS0DHdMOIAznDiMTNfmpdO171OTyKD+q3vn8zbhiFB+/a9WDT13Nn3K8USHli3B1aFuvFWMbFuEYlkTvrqT0m/2oLBNOg7wuUJpBDFSAMJJuZo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=fkdgEkFd; arc=none smtp.client-ip=95.215.58.113
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="Y5NNjgLg"
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="fkdgEkFd"
 X-Envelope-To: linux-input@vger.kernel.org
-DKIM-Signature: a=rsa-sha256; bh=oYJuHD3dWX/EIlF8bqV3+q5qGYhSD91b2cvAiXuPSgg=;
+DKIM-Signature: a=rsa-sha256; bh=lbUBXbNlSnzsLpmbzl6FRaFyC1WdyRAjKDj0YiBe2IA=;
  c=simple/simple; d=linux.dev;
  h=from:to:subject:date:message-id:mime-version:content-type; s=key1;
- t=1787511562; v=1; x=1788116362;
- b=Y5NNjgLgq57hbsgvFO7qrUu5WcdM8UjWHELm6fDode5RXx/2IaDmsz8DVrEZ0vdzxQeNvu3V
- HRPb633yp23Q4+ApoXmamVkrrgxvo20QImA++k4tEnA9d0q0nnzQXlJm2sV7Pthz96MT9vEgc3S
- r+S6gP+yPr/86cLYJ5ANRkU8=
+ t=1787511563; v=1; x=1788116363;
+ b=fkdgEkFdCC6JM89/AnTjNLZmA4A6m0H9el/u34ZxGD4CHBZoEmZnt9iy4hvLvEmYHGRcIqfJ
+ jnDcJRmYdidT/LI6QTTNcxtRh3nupZgq4/5ONTg1vUFEQBpZOTIV+//7bvNul0LzRSL09IuH7e2
+ gY76kW7ojyKiK2aKUVr+QXmA=
 X-Envelope-To: linux-input@vger.kernel.org
 Received: from kernel.denis-pc.lan (151.61.14.130)
-	by smtp.migadu.com with ESMTPS id 089173c71e5ee9bd;
-	Sun, 23 Aug 2026 18:59:22 +0000
-X-Mizu-Trace-ID: 089173c71e5ee9bd
+	by smtp.migadu.com with ESMTPS id 7008871eadd1596b;
+	Sun, 23 Aug 2026 18:59:23 +0000
+X-Mizu-Trace-ID: 7008871eadd1596b
 X-Migadu-Flow: FLOW_OUT
 From: Denis Benato <denis.benato@linux.dev>
 To: linux-kernel@vger.kernel.org
@@ -42,9 +42,9 @@ Cc: linux-input@vger.kernel.org,
 	"Khamunetri Clark" <khamunetriclark@gmail.com>,
 	"Derek J. Clark" <derekjohn.clark@gmail.com>,
 	Denis Benato <denis.benato@linux.dev>
-Subject: [PATCH v3 09/12] HID: asus: add support to force feedback
-Date: Sun, 23 Aug 2026 18:58:46 +0000
-Message-ID: <20260823185849.2478673-10-denis.benato@linux.dev>
+Subject: [PATCH v3 10/12] HID: asus: add support for gamepad mode
+Date: Sun, 23 Aug 2026 18:58:47 +0000
+Message-ID: <20260823185849.2478673-11-denis.benato@linux.dev>
 X-Mailer: git-send-email 2.47.3
 In-Reply-To: <20260823185849.2478673-1-denis.benato@linux.dev>
 References: <20260823185849.2478673-1-denis.benato@linux.dev>
@@ -56,349 +56,265 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Unlike ROG ally the X version and following ones uses DInput protocol
-and the force feedback needs to be implemented as its protocol is
-vendor-specific, therefore add support for FF_RUMBLE with magnitude
-scaling on a work-queue based approach to avoid using possibly
-sleeping calls in atomic context.
+ROG Ally devices can emulate either a mouse+keyboard (desktop mode)
+or an gamepad device (xbox360 controller in ROG ally and a custom
+DInput device on newer models): add support for switching the current
+controller mode.
 
 Assisted-by: opencode:glm-5.2
-Assisted-by: VSCode:gpt-5.3-codex
-Signed-off-by: Denis Benato <denis.benato@linux.dev>
-Signed-off-by: Khamunetri Clark <khamunetriclark@gmail.com>
 Signed-off-by: Luke Jones <luke@ljones.dev>
+Signed-off-by: Denis Benato <denis.benato@linux.dev>
+
+# Conflicts:
+#	drivers/hid/hid-asus.c
 
 # Conflicts:
 #	drivers/hid/hid-asus.c
 ---
- drivers/hid/hid-asus.c | 233 +++++++++++++++++++++++++++++++++++++++--
- 1 file changed, 224 insertions(+), 9 deletions(-)
+ drivers/hid/hid-asus.c | 185 ++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 183 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
-index dc7a504e84cb..04bf2c6ca449 100644
+index 04bf2c6ca449..258d63f4233e 100644
 --- a/drivers/hid/hid-asus.c
 +++ b/drivers/hid/hid-asus.c
-@@ -235,6 +235,23 @@ struct ally_config {
- 	struct ally_joystick_resp_curve right_curve;
- };
+@@ -390,6 +390,20 @@ enum ally_command_codes {
+ /* XInput rumble magnitudes use the hardware's 0..100 intensity range. */
+ #define ALLY_FF_MAX_INTENSITY 100
  
-+/* XInput force-feedback report (output report 0x0d, gamepad interface) */
-+struct ff_data {
-+	u8 enable;
-+	u8 magnitude_left;
-+	u8 magnitude_right;
-+	u8 magnitude_strong;
-+	u8 magnitude_weak;
-+	u8 pulse_sustain_10ms;
-+	u8 pulse_release_10ms;
-+	u8 loop_count;
-+} __packed;
++enum ally_gamepad_mode_index {
++	ALLY_GAMEPAD_MODE_GAMEPAD = 0x01,
++	ALLY_GAMEPAD_MODE_KEYBOARD = 0x02,
++};
 +
-+struct ff_report {
-+	u8 report_id;
-+	struct ff_data ff;
-+} __packed;
++static const char *const ally_gamepad_mode_text[] = {
++	"gamepad", "desktop"
++};
 +
- struct ally_handheld {
- 	/* All read/write to IN interfaces must lock */
- 	struct mutex intf_mutex;
-@@ -249,6 +266,13 @@ struct ally_handheld {
- 	struct input_dev *ally_x_input;
- 	struct hid_device *ally_x_hdev;
- 
-+	struct ff_report ff_packet;
-+	struct work_struct ff_work;
-+	/* Serializes ff_packet and update_ff between play_effect and ff_work */
-+	spinlock_t ff_lock;
-+	bool ff_work_initialized;
-+	bool update_ff;
-+
- 	struct hid_device *keyboard_hdev;
- 	struct input_dev *keyboard_input;
- 
-@@ -363,9 +387,13 @@ enum ally_command_codes {
- 	CMD_SET_ANTI_DEADZONE           = 0x18,
- };
- 
-+/* XInput rumble magnitudes use the hardware's 0..100 intensity range. */
-+#define ALLY_FF_MAX_INTENSITY 100
++static const u8 ally_gamepad_mode[] = {
++	ALLY_GAMEPAD_MODE_GAMEPAD,
++	ALLY_GAMEPAD_MODE_KEYBOARD
++};
 +
  static const u8 ALLY_FORCE_FEEDBACK_OFF[] = {
  	0x0D, 0x0F, 0x00, 0x00, 0x00, 0x00, 0xFF, 0x00, 0xEB
  };
-+static_assert(sizeof(struct ff_report) == sizeof(ALLY_FORCE_FEEDBACK_OFF));
+@@ -874,6 +888,152 @@ static ssize_t xbox_controller_store(struct device *dev,
  
- /*
-  * The ROG Ally device presents multiple USB interfaces (keyboard, mouse, gamepad,
-@@ -374,6 +402,7 @@ static const u8 ALLY_FORCE_FEEDBACK_OFF[] = {
-  * ally_handheld structure to share state across these separate HID interfaces.
-  */
- static void ally_resume_work_fn(struct work_struct *work);
-+static void ally_x_ff_work_fn(struct work_struct *work);
- 
- /*
-  * Changes to ally_drvdata must lock: the raw_event callbacks, which may
-@@ -389,6 +418,13 @@ static struct ally_handheld ally_drvdata = {
- 	 */
- 	.resume_work = __DELAYED_WORK_INITIALIZER(ally_drvdata.resume_work,
- 						  ally_resume_work_fn, 0),
-+	/*
-+	 * Initialised statically for the same reason as resume_work: remove()
-+	 * drains the work whichever of the interfaces probed or failed to
-+	 * probe, so it must be safe to cancel unconditionally.
-+	 */
-+	.ff_work = __WORK_INITIALIZER(ally_drvdata.ff_work, ally_x_ff_work_fn),
-+	.ff_lock = __SPIN_LOCK_UNLOCKED(ally_drvdata.ff_lock),
- };
- 
- /*
-@@ -2675,6 +2711,102 @@ static void ally_x_input_close(struct input_dev *dev)
- 	hid_hw_close(input_get_drvdata(dev));
- }
+ static DEVICE_ATTR_RW(xbox_controller);
  
 +/**
-+ * ally_x_send_ff_report() - Send a force-feedback report to the gamepad
++ * ally_set_gamepad_mode() - Set the gamepad operating mode
 + * @ally: ally handheld structure
 + * @hdev: HID device
-+ * @buf: buffer containing the report to send
-+ * @len: length of the report
++ * @mode: gamepad mode to set
 + *
-+ * The gamepad interface consumes force-feedback packets as output reports,
-+ * unlike the config interface which expects feature reports: a rumble packet
-+ * sent as HID_REQ_SET_REPORT would be rejected by the hardware.
-+ *
-+ * Return: count of data transferred, negative if error
++ * Return: 0 on success, negative errno on failure
 + */
-+static int ally_x_send_ff_report(struct ally_handheld *ally,
-+				 struct hid_device *hdev,
-+				 const u8 *buf, size_t len)
++static int ally_set_gamepad_mode(struct ally_handheld *ally, struct hid_device *hdev, u8 mode)
 +{
-+	u8 *dmabuf __free(kfree) = kmemdup(buf, len, GFP_KERNEL);
-+
-+	if (!dmabuf)
-+		return -ENOMEM;
-+
-+	scoped_guard(mutex, &ally->intf_mutex)
-+		return hid_hw_output_report(hdev, dmabuf, len);
-+}
-+
-+static int ally_x_send_ff_off(struct ally_handheld *ally, struct hid_device *hdev)
-+{
-+	return ally_x_send_ff_report(ally, hdev, ALLY_FORCE_FEEDBACK_OFF,
-+				     sizeof(ALLY_FORCE_FEEDBACK_OFF));
-+}
-+
-+static void ally_x_ff_work_fn(struct work_struct *work)
-+{
-+	struct ally_handheld *ally =
-+		container_of(work, struct ally_handheld, ff_work);
-+	struct hid_device *hdev = NULL;
-+	struct ff_report report;
-+	unsigned long flags;
-+	bool update = false;
++	u8 payload[] = { mode };
 +	int ret;
 +
-+	scoped_guard(spinlock_irqsave, &ally->ff_lock) {
-+		if (ally->update_ff) {
-+			report = ally->ff_packet;
-+			ally->update_ff = false;
-+			update = true;
-+		}
++	if (mode < ALLY_GAMEPAD_MODE_GAMEPAD ||
++	    mode > ALLY_GAMEPAD_MODE_KEYBOARD) {
++		hid_err(hdev, "Invalid gamepad mode: %u\n", mode);
++		return -EINVAL;
 +	}
 +
-+	if (!update)
-+		return;
++	u8 *buf __free(kfree) = ally_alloc_cmd(CMD_SET_GAMEPAD_MODE, payload, sizeof(payload));
++	if (!buf)
++		return -ENOMEM;
 +
-+	/*
-+	 * The hdev pointer is published and cleared under ally_data_lock:
-+	 * take a reference on it so the gamepad interface cannot be freed
-+	 * under us while the report is being sent.
-+	 */
-+	spin_lock_irqsave(&ally_data_lock, flags);
-+	hdev = ally->ally_x_hdev;
-+	if (hdev)
-+		get_device(&hdev->dev);
-+	spin_unlock_irqrestore(&ally_data_lock, flags);
-+
-+	if (!hdev)
-+		return;
-+
-+	ret = ally_x_send_ff_report(ally, hdev, (u8 *)&report, sizeof(report));
-+	if (ret < 0)
-+		hid_err(hdev, "Failed to send force-feedback: %d\n", ret);
-+
-+	put_device(&hdev->dev);
-+}
-+
-+static int ally_x_play_effect(struct input_dev *idev, void *data,
-+			      struct ff_effect *effect)
-+{
-+	struct ally_handheld *ally = &ally_drvdata;
-+
-+	if (effect->type != FF_RUMBLE)
-+		return 0;
-+
-+	scoped_guard(spinlock_irqsave, &ally->ff_lock) {
-+		ally->ff_packet.ff.magnitude_strong =
-+			effect->u.rumble.strong_magnitude * ALLY_FF_MAX_INTENSITY / 65535;
-+		ally->ff_packet.ff.magnitude_weak =
-+			effect->u.rumble.weak_magnitude * ALLY_FF_MAX_INTENSITY / 65535;
-+		ally->update_ff = true;
-+
-+		if (ally->ff_work_initialized)
-+			schedule_work(&ally->ff_work);
++	ret = ally_gamepad_send_packet(ally, hdev, buf, ROG_ALLY_REPORT_SIZE);
++	if (ret < 0) {
++		hid_err(hdev, "Failed to set gamepad mode: %d\n", ret);
++		return ret;
 +	}
 +
 +	return 0;
 +}
 +
- static struct input_dev *ally_x_alloc_input_dev(struct hid_device *hdev)
- {
- 	struct input_dev *input_dev = devm_input_allocate_device(&hdev->dev);
-@@ -2737,6 +2869,30 @@ static int ally_x_setup_input(struct hid_device *hdev, struct ally_handheld *all
- 	input_set_capability(input, EV_KEY, BTN_TRIGGER_HAPPY);
- 	input_set_capability(input, EV_KEY, BTN_TRIGGER_HAPPY1);
- 
-+	memcpy(&ally->ff_packet, ALLY_FORCE_FEEDBACK_OFF, sizeof(ally->ff_packet));
-+	ally->ff_work_initialized = true;
++static ssize_t gamepad_mode_show(struct device *dev, struct device_attribute *attr, char *buf)
++{
++	struct hid_device *hdev = to_hid_device(dev);
++	struct asus_drvdata *drvdata = hid_get_drvdata(hdev);
++	struct ally_handheld *ally = drvdata->rog_ally;
++	struct ally_config *cfg;
++	u8 mode_byte;
++	int i;
 +
-+	input_set_capability(input, EV_FF, FF_RUMBLE);
++	if (!ally)
++		return -ENODEV;
 +
-+	/*
-+	 * A registered device advertising FF_RUMBLE without the memless core
-+	 * behind it would crash input_ff_upload(): fail the whole setup instead.
-+	 */
-+	ret = input_ff_create_memless(input, NULL, ally_x_play_effect);
-+	if (ret) {
-+		hid_err(hdev, "Failed to create force-feedback: %d\n", ret);
-+		goto ally_x_setup_input_err;
++	cfg = ally_get_config(ally);
++	if (!cfg)
++		return -ENODEV;
++
++	guard(mutex)(&cfg->config_mutex);
++
++	mode_byte = cfg->gamepad_mode;
++
++	for (i = 0; i < ARRAY_SIZE(ally_gamepad_mode); i++) {
++		if (ally_gamepad_mode[i] == mode_byte)
++			return sysfs_emit(buf, "%s\n", ally_gamepad_mode_text[i]);
 +	}
 +
-+	/*
-+	 * Publish the interface before the input device becomes visible to
-+	 * userspace: an effect uploaded right after registration would
-+	 * otherwise find a NULL hdev and get dropped.
-+	 */
-+	spin_lock_irqsave(&ally_data_lock, flags);
-+	ally->ally_x_hdev = hdev;
-+	spin_unlock_irqrestore(&ally_data_lock, flags);
++	return sysfs_emit(buf, "unsupported\n");
++}
 +
- 	ret = input_register_device(input);
- 	if (ret) {
- 		hid_err(hdev, "Failed to register Ally X gamepad device: %d\n", ret);
-@@ -2750,6 +2906,10 @@ static int ally_x_setup_input(struct hid_device *hdev, struct ally_handheld *all
- 
- 	return 0;
- ally_x_setup_input_err:
-+	spin_lock_irqsave(&ally_data_lock, flags);
-+	if (ally->ally_x_hdev == hdev)
-+		ally->ally_x_hdev = NULL;
-+	spin_unlock_irqrestore(&ally_data_lock, flags);
- 	return ret;
- }
- 
-@@ -2757,12 +2917,32 @@ static int hid_asus_ally_init(struct hid_device *hdev, struct ally_handheld *all
- {
- 	int ret;
- 	struct ally_config *cfg;
-+	struct hid_device *x_hdev;
-+	unsigned long flags;
- 
--	/* Failure at this point is non-critical */
--	ret = ally_gamepad_send_packet(ally, hdev, ALLY_FORCE_FEEDBACK_OFF,
--				       sizeof(ALLY_FORCE_FEEDBACK_OFF));
--	if (ret < 0)
--		hid_err(hdev, "Ally failed to init force-feedback off: %d\n", ret);
-+	/*
-+	 * The force-feedback "off" packet belongs to the gamepad interface,
-+	 * which consumes it as an output report: the config interface probed
-+	 * here would reject it. The gamepad probe path sends the packet itself,
-+	 * so this only matters when the gamepad interface is already bound,
-+	 * e.g. after a reset resume that re-initialized the MCU.
-+	 */
-+	spin_lock_irqsave(&ally_data_lock, flags);
-+	x_hdev = ally->ally_x_hdev;
-+	if (x_hdev)
-+		get_device(&x_hdev->dev);
-+	spin_unlock_irqrestore(&ally_data_lock, flags);
++static ssize_t gamepad_mode_store(struct device *dev, struct device_attribute *attr,
++				  const char *buf, size_t count)
++{
++	struct hid_device *hdev = to_hid_device(dev);
++	struct asus_drvdata *drvdata = hid_get_drvdata(hdev);
++	struct ally_handheld *ally = drvdata->rog_ally;
++	struct ally_config *cfg;
++	u8 mode_byte;
++	int mode;
++	int ret;
 +
-+	if (x_hdev) {
-+		/* Failure at this point is non-critical */
-+		ret = ally_x_send_ff_off(ally, x_hdev);
++	if (!ally)
++		return -ENODEV;
 +
-+		if (ret < 0)
-+			hid_err(hdev, "Ally failed to init force-feedback off: %d\n",
-+				ret);
++	cfg = ally_get_config(ally);
++	if (!cfg)
++		return -ENODEV;
 +
-+		put_device(&x_hdev->dev);
++	mode = sysfs_match_string(ally_gamepad_mode_text, buf);
++	if (mode < 0) {
++		hid_err(hdev, "Unknown gamepad mode\n");
++		return mode;
 +	}
++
++	/* Convert the index of the text mode array to the byte
++	 * that will be accepted by the ally MCU.
++	 */
++	mode_byte = ally_gamepad_mode[mode];
++
++	guard(mutex)(&cfg->config_mutex);
++
++	ret = ally_set_gamepad_mode(ally, hdev, mode_byte);
++	if (ret < 0)
++		return ret;
++
++	cfg->gamepad_mode = mode_byte;
++
++	hid_dbg(hdev, "Set gamepad mode to %s\n", ally_gamepad_mode_text[mode]);
++
++	return count;
++}
++
++static ssize_t gamepad_mode_index_show(struct device *dev,
++				       struct device_attribute *attr,
++				       char *buf)
++{
++	int i;
++	ssize_t len = 0;
++
++	for (i = 0; i < ARRAY_SIZE(ally_gamepad_mode_text); i++) {
++		if (!ally_gamepad_mode_text[i] || ally_gamepad_mode_text[i][0] == '\0')
++			continue;
++		len += sysfs_emit_at(buf, len, "%s ", ally_gamepad_mode_text[i]);
++	}
++
++	/* Replace the last space with a newline */
++	if (len > 0)
++		buf[len - 1] = '\n';
++
++	return len;
++}
++
++static DEVICE_ATTR_RW(gamepad_mode);
++static DEVICE_ATTR_RO(gamepad_mode_index);
++
++/**
++ * ally_apply_gamepad_mode() - Re-send the recorded gamepad mode to the hardware
++ * @hdev: HID device
++ * @ally: ally handheld structure
++ * @cfg: ally config
++ *
++ * Re-send the gamepad mode currently recorded in the configuration to the
++ * hardware: during probe that is the default mode, while a reset resume
++ * restores whatever the user last wrote instead of overwriting it. The
++ * shared state is accessed under the lock, as sysfs is already live.
++ *
++ * Return: 0 on success, negative errno on failure
++ */
++static int ally_apply_gamepad_mode(struct hid_device *hdev,
++				   struct ally_handheld *ally,
++				   struct ally_config *cfg)
++{
++	scoped_guard(mutex, &cfg->config_mutex)
++		return ally_set_gamepad_mode(ally, hdev, cfg->gamepad_mode);
++}
++
+ /**
+  * ally_set_vibration_intensity() - Set vibration intensity values
+  * @ally: ally handheld structure
+@@ -2304,6 +2464,8 @@ DEFINE_JS_CURVE_ATTRS(4, right);
  
- 	cfg = ally_get_config(ally);
- 	if (!cfg)
-@@ -2936,9 +3116,14 @@ static struct ally_handheld *hid_asus_ally_probe(struct hid_device *hdev)
- 			return ERR_PTR(ret);
+ static struct attribute *ally_config_attrs[] = {
+ 	&dev_attr_xbox_controller.attr,
++	&dev_attr_gamepad_mode.attr,
++	&dev_attr_gamepad_mode_index.attr,
+ 	NULL
+ };
+ 
+@@ -2471,7 +2633,7 @@ static struct ally_config *ally_config_create(struct hid_device *hdev, struct al
  		}
- 
--		spin_lock_irqsave(&ally_data_lock, flags);
--		ally_drvdata.ally_x_hdev = hdev;
--		spin_unlock_irqrestore(&ally_data_lock, flags);
-+		/*
-+		 * Make sure rumble starts disabled: this is the interface that
-+		 * owns the force-feedback output report. Failure is non-critical.
-+		 */
-+		ret = ally_x_send_ff_off(&ally_drvdata, hdev);
-+		if (ret < 0)
-+			hid_warn(hdev, "Failed to disable force-feedback: %d\n", ret);
-+
- 		break;
- 	case HID_ALLY_INTF_KEYBOARD_IN:
- 		spin_lock_irqsave(&ally_data_lock, flags);
-@@ -2960,6 +3145,7 @@ static struct ally_handheld *hid_asus_ally_probe(struct hid_device *hdev)
- static void hid_asus_ally_remove(struct hid_device *hdev, struct ally_handheld *ally)
- {
- 	unsigned long flags;
-+	bool owns_xpad;
- 
- 	if (!ally)
- 		return;
-@@ -2973,7 +3159,36 @@ static void hid_asus_ally_remove(struct hid_device *hdev, struct ally_handheld *
- 	cancel_delayed_work_sync(&ally->resume_work);
- 
- 	spin_lock_irqsave(&ally_data_lock, flags);
--	if (ally->ally_x_hdev == hdev) {
-+	owns_xpad = ally->ally_x_hdev == hdev;
-+	spin_unlock_irqrestore(&ally_data_lock, flags);
-+
-+	if (owns_xpad) {
-+		/*
-+		 * Stop queueing force-feedback work before the gamepad
-+		 * pointers are cleared: play_effect() tests the flag under the
-+		 * same lock, so no work can be queued past the cancel below.
-+		 */
-+		scoped_guard(spinlock_irqsave, &ally->ff_lock)
-+			ally->ff_work_initialized = false;
-+
-+		/*
-+		 * cancel_work_sync() may sleep: keep it out of ally_data_lock,
-+		 * but run it before the pointers are cleared so in-flight work
-+		 * cannot outlive the interface it sends through.
-+		 */
-+		cancel_work_sync(&ally->ff_work);
-+
-+		/*
-+		 * The input core can no longer stop effects through the
-+		 * disabled work: quiesce any rumble still playing ourselves,
-+		 * or the device would keep vibrating after being unbound.
-+		 */
-+		if (ally_x_send_ff_off(ally, hdev) < 0)
-+			hid_warn(hdev, "Failed to stop force-feedback\n");
-+	}
-+
-+	spin_lock_irqsave(&ally_data_lock, flags);
-+	if (owns_xpad) {
- 		ally->ally_x_input = NULL;
- 		ally->ally_x_hdev = NULL;
  	}
+ 
+-	cfg->gamepad_mode = 0x01;
++	cfg->gamepad_mode = ALLY_GAMEPAD_MODE_GAMEPAD;
+ 	cfg->left_deadzone = 10;
+ 	cfg->left_outer_threshold = 90;
+ 	cfg->right_deadzone = 10;
+@@ -2510,6 +2672,14 @@ static struct ally_config *ally_config_create(struct hid_device *hdev, struct al
+ 				ret);
+ 	}
+ 
++	/*
++	 * Set the default gamepad mode now that the MCU is confirmed ready:
++	 * failure is non-critical, the mode can still be changed from sysfs.
++	 */
++	ret = ally_apply_gamepad_mode(hdev, ally, cfg);
++	if (ret < 0)
++		hid_warn(hdev, "Failed to set default gamepad mode: %d\n", ret);
++
+ 	cfg->initialized = true;
+ 
+ 	return cfg;
+@@ -2915,10 +3085,10 @@ static int ally_x_setup_input(struct hid_device *hdev, struct ally_handheld *all
+ 
+ static int hid_asus_ally_init(struct hid_device *hdev, struct ally_handheld *ally)
+ {
+-	int ret;
+ 	struct ally_config *cfg;
+ 	struct hid_device *x_hdev;
+ 	unsigned long flags;
++	int ret;
+ 
+ 	/*
+ 	 * The force-feedback "off" packet belongs to the gamepad interface,
+@@ -2948,6 +3118,17 @@ static int hid_asus_ally_init(struct hid_device *hdev, struct ally_handheld *all
+ 	if (!cfg)
+ 		return 0;
+ 
++	/*
++	 * The MCU was just reset: restore the mode the configuration
++	 * records instead of forcing a default, so a user-configured
++	 * mode survives suspend/resume cycles. During probe this runs
++	 * before the config is published, and ally_config_create()
++	 * applies the default itself.
++	 */
++	ret = ally_apply_gamepad_mode(hdev, ally, cfg);
++	if (ret < 0)
++		hid_warn(hdev, "Failed to restore gamepad mode: %d\n", ret);
++
+ 	/*
+ 	 * The MCU may have just been reset: restore the cached Xbox
+ 	 * controller mode, or the hardware would silently revert to its
 -- 
 2.47.3
 

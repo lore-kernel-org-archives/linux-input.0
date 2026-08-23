@@ -1,280 +1,130 @@
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from ixit.cz (ixit.cz [84.42.129.46])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AEE682D9484;
-	Sun, 23 Aug 2026 08:51:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6501E2472A2;
+	Sun, 23 Aug 2026 11:36:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=84.42.129.46
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787475109; cv=none; b=pGGKAzdz5zZbX8uu9mJAco1xtzYYB4BXx8j1JOVL5Yo7CyEcjoSeplPEbDCSJsKSBCIzC4ZfOk+6XsbHeJBuEbZoLro7MJ8XN6GR/QKvD3mWsTdz1wVYbaDQ79Fxl6nZBOemCuGEgCdoWFaw6JE3RWqizNCOwgQuUUUcC0JVS54=
+	t=1787485011; cv=none; b=MFRJzmPHGCWAPeL0F5Qe3ve99wKrwN3Afc3MViI994AUzyu7xSVRg09rdtRi74Qt/ADMvbunzkLFjCBJRAr0HOUZ7tzxouBZoe1cZSt9NBMzCCeIZLz+bNwsT3+vNKOLm/MoeIADYrKLiGc9HYS0uGFYU8jrgZwovnPrWFj8uUo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787475109; c=relaxed/simple;
-	bh=W+oWCvEswXDgQP4QPRhSokTCey3kay04HHL1/CXBXVw=;
-	h=Date:Message-ID:From:To:Cc:Subject:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=XXqpKRP3pnewo6AoIzP5ZCyCGx+U3VAtVpGw8DFwdiXXwgX/tAQb4XW7LceF8DTVwv0DtGU6bGl180spNlWpG54IZct5pndzjVt50TwyMiu9MwUhu8oc1DOrnZ77DhOHwFzJo45GN4Dr9IsYIhY1pCdN0D2V8XTv0a1SFTOuszY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=SYi5QYul; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=vQeTirr2; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=uhw14Zpv; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=dLvKb+gi; arc=none smtp.client-ip=195.135.223.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
+	s=arc-20240116; t=1787485011; c=relaxed/simple;
+	bh=qsavDS75FwaA2nzZMPJxqb/YthIsUW4ps5oUPuXGwmc=;
+	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
+	 In-Reply-To:Content-Type; b=EbYn3OW6HL9BI6a4Mw7nuMhiIgvv/iuQAe7xlbp17GPGBfzpvcsLsplm/nEMoef3A6bweIq4Us9nSrY0zExKv047xM8fI33ZxfwRgc4omFa/whBPJ6WakLgf5Rj0LtUN8hE1byetLKzmmnoJgca+H5jnUrLuzjVCKIlaoeVKnws=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=ixit.cz; spf=pass smtp.mailfrom=ixit.cz; dkim=pass (1024-bit key) header.d=ixit.cz header.i=@ixit.cz header.b=NisWJ7l6; arc=none smtp.client-ip=84.42.129.46
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=ixit.cz
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ixit.cz
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="SYi5QYul";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="vQeTirr2";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="uhw14Zpv";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="dLvKb+gi"
-Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	dkim=pass (1024-bit key) header.d=ixit.cz header.i=@ixit.cz header.b="NisWJ7l6"
+Received: from [172.16.124.192] (ip-78-44-13-22.bb.vodafone.cz [78.44.13.22])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id 1D3CC3E04;
-	Sun, 23 Aug 2026 08:50:07 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1787475011; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=coqy+q8OZPNQJ1s1m4PO7s5VBxleeMC7LXTi4F5Vaqw=;
-	b=SYi5QYulqrZAJpbJdNmETN7SwAqMqmb0Sm4VrxNMtRsvEpUjsTEE+R+y+PNLaYxnZI4T71
-	JjHyEGULfZ1aVB19GXm2ZIkYCNGk6UYN0wujKnODkIbzn1PoierK1OpnxSXIXme1l8NI8b
-	6Vst4j0UMhNSwqUe1CYMpqYWQaLkVYM=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1787475011;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=coqy+q8OZPNQJ1s1m4PO7s5VBxleeMC7LXTi4F5Vaqw=;
-	b=vQeTirr22q3h+0WWSVPl5qSjFAyEvBDYLghEHCyNMS2TvTrwQz9XdTBgr8xpvJB9cNJsaf
-	IcIQlU58FeJwGFDA==
-Authentication-Results: smtp-out2.suse.de;
-	none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1787475007; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=coqy+q8OZPNQJ1s1m4PO7s5VBxleeMC7LXTi4F5Vaqw=;
-	b=uhw14Zpvfs2lxqB48ubIeNlLQKA2+tJyP4x7b0aS+GrAugjwJ2xWnzSxMZL7WUC2YKyF2v
-	l0BUHCvDjxVUPk2wTliSdi+agQAj/mwCcoeiQzSTXuEPhepD9tdeGZ7HIk+wgfAmoNK0VB
-	pC92XaChDjHFq6dBgXqL1Kuflf3IsGY=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1787475007;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=coqy+q8OZPNQJ1s1m4PO7s5VBxleeMC7LXTi4F5Vaqw=;
-	b=dLvKb+giBUCFqe/MA/EmavaAW5F+kQ6Tf0rips5CVrjmBeY+jE7hePKiYYQTRnb6fhASgv
-	QYNbfjU9UQyKuqBA==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id C6BC513332;
-	Sun, 23 Aug 2026 08:50:06 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id HMl/Lj60imqAfwAAD6G6ig
-	(envelope-from <tiwai@suse.de>); Sun, 23 Aug 2026 08:50:06 +0000
-Date: Sun, 23 Aug 2026 10:50:06 +0200
-Message-ID: <87o6etw79d.wl-tiwai@suse.de>
-From: Takashi Iwai <tiwai@suse.de>
-To: Mikhail Gavrilov <mikhail.v.gavrilov@gmail.com>
-Cc: tiwai@suse.com,
-	jikos@kernel.org,
-	bentiss@kernel.org,
-	perex@perex.cz,
-	linux-sound@vger.kernel.org,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [RFC 0/2] Two ways to reach the Topping M62's analogue gains
-In-Reply-To: <20260820151329.18332-1-mikhail.v.gavrilov@gmail.com>
-References: <87y0eaxz39.wl-tiwai@suse.de>
-	<20260820151329.18332-1-mikhail.v.gavrilov@gmail.com>
-User-Agent: Wanderlust/2.15.9 (Almost Unreal) Emacs/30.2 Mule/6.0
+	by ixit.cz (Postfix) with ESMTPSA id 6B7025340655;
+	Sun, 23 Aug 2026 13:36:46 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ixit.cz; s=dkim;
+	t=1787485006;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=rv08Lm3LOD0foXTOq5xqoZa2NwR2DHy3i20jUMhz/xc=;
+	b=NisWJ7l6iUQ9WJmJ2FuE3siRPuswQsc82yqwJcVBKqSiJb7H01crZbALSLxpsMuQ4HxMaq
+	Nd1q189YwjuMIAOvUsLJt473Z62zi7Ym2JHFDowLwFpzuu0K/9j0d2oS7lLAcV1to6Ta0U
+	/rr5totujNaXTvpTKWNGdNRUpfcwCgc=
+Message-ID: <7df4c69d-9d7b-418f-b7dc-a03a710dfb13@ixit.cz>
+Date: Sun, 23 Aug 2026 13:36:45 +0200
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0 (generated by SEMI-EPG 1.14.7 - "Harue")
-Content-Type: text/plain; charset=US-ASCII
-X-Spamd-Result: default: False [-1.80 / 50.00];
-	BAYES_HAM(-3.00)[100.00%];
-	SUSPICIOUS_RECIPS(1.50)[];
-	MID_CONTAINS_FROM(1.00)[];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	NEURAL_HAM_SHORT(-0.20)[-0.998];
-	MIME_GOOD(-0.10)[text/plain];
-	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	MIME_TRACE(0.00)[0:+];
-	FREEMAIL_TO(0.00)[gmail.com];
-	ARC_NA(0.00)[];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	FREEMAIL_ENVRCPT(0.00)[gmail.com];
-	RCVD_TLS_ALL(0.00)[];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	FROM_EQ_ENVFROM(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	TO_DN_SOME(0.00)[];
-	RCVD_COUNT_TWO(0.00)[2];
-	TAGGED_RCPT(0.00)[];
-	RCPT_COUNT_SEVEN(0.00)[8];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo,suse.de:mid]
-X-Spam-Flag: NO
-X-Spam-Score: -1.80
-X-Spam-Level: 
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v6 2/2] input: misc: Add Qualcomm SPMI PMIC haptics driver
+From: David Heidelberg <david@ixit.cz>
+To: Fenglin Wu <fenglin.wu@oss.qualcomm.com>, linux-arm-msm@vger.kernel.org,
+ Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh@kernel.org>,
+ Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley
+ <conor+dt@kernel.org>, Lee Jones <lee@kernel.org>,
+ Stephen Boyd <sboyd@kernel.org>, Bjorn Andersson <andersson@kernel.org>,
+ Konrad Dybcio <konradybcio@kernel.org>
+Cc: David Collins <david.collins@oss.qualcomm.com>,
+ Subbaraman Narayanamurthy <subbaraman.narayanamurthy@oss.qualcomm.com>,
+ Kamal Wadhwa <kamal.wadhwa@oss.qualcomm.com>, linux-input@vger.kernel.org,
+ devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20260806-qcom-spmi-haptics-v6-0-19fcecd5204f@oss.qualcomm.com>
+ <20260806-qcom-spmi-haptics-v6-2-19fcecd5204f@oss.qualcomm.com>
+ <214bbcf7-38ba-458b-81ba-d7f3a42cb73d@ixit.cz>
+Content-Language: en-US, cs-CZ
+Autocrypt: addr=david@ixit.cz; keydata=
+ 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
+In-Reply-To: <214bbcf7-38ba-458b-81ba-d7f3a42cb73d@ixit.cz>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-On Thu, 20 Aug 2026 17:13:27 +0200,
-Mikhail Gavrilov wrote:
-> 
-> You asked for PoCs of both roads and a comparison of the actual code
-> rather than of arguments. Here are both. They are alternatives, not a
-> series: each is written against mainline 98f21c54f995 on its own, and
-> either can be applied alone.
-> 
->   1/2  ALSA: usb-audio: a mixer quirk that claims the HID interface
->   2/2  HID: topping: a HID driver that registers a card of its own
-> 
-> Both build clean (checkpatch --strict: 0 errors, 0 warnings; the two
-> CamelCase CHECKs in 1/2 are bNumEndpoints and bInterval) and both have
-> been exercised on the device -- 152a:875c, bcdDevice 3.27 -- for
-> reading, for unsolicited notification from the front panel, and for
-> writing.
-> 
-> What the device is
-> ==================
-> 
-> The M62 keeps its two microphone preamp gains, its AUX and Bluetooth
-> input volumes and its headphone and OTG output volumes behind a vendor
-> protocol on a HID-class interface, and exposes none of them through
-> UAC. What UAC does expose on the capture side is a digital trim after
-> the converter, which cannot buy signal-to-noise: a noise-floor ladder
-> against the card shows the converter's own floor rising with the
-> signal. So on Linux today the one knob worth setting is the one that
-> cannot be reached, and a measurement application has to begin by asking
-> a human to touch the front panel.
-> 
-> The protocol is fifteen-byte frames -- start magic, a constant, a
-> target, a property, a signed 32-bit big-endian value, CRC-16/MODBUS
-> over the middle stored big-endian, end magic. Rebuilding all 2619
-> captured frames from that description reproduces them byte for byte.
-> The device says nothing until it is subscribed; one write starts the
-> stream and a second makes it announce its whole state, after which
-> every change arrives unasked, including a front panel press.
-> 
-> The control pipe is not an option: GET_REPORT and SET_REPORT stall with
-> EPIPE for every report type, so the interrupt endpoints on the HID
-> interface are the only route.
-> 
-> What is identical in both
-> =========================
-> 
-> The frame builder, the parser, the CRC (the kernel's crc16(0xffff, ...)
-> is CRC-16/MODBUS, so no private table), and the control table. A knob
-> is a row of
-> 
-> 	{ name, target, paired target, property, min, max, TLV }
-> 
-> so adding one is adding a row. Six rows today. The outputs come in
-> pairs because the device answers on only one target of each pair and
-> the other would drift away unheard.
-> 
-> Where they differ
-> =================
-> 
-> 1/2 claims the HID interface for snd-usb-audio and puts the elements on
-> the card the device already has. The cost is two-sided: an entry in
-> hid_ignore_list to keep usbhid off the interface, and one new helper in
-> sound/usb/card.c, because usb_audio_driver is static there and a quirk
-> cannot claim an interface without it. That helper is the only change in
-> 1/2 outside the new file and its dispatch. Nothing is lost by taking
-> the interface: the report descriptor is a Generic Desktop application
-> collection with eight unnamed usages, sixteen bytes in and out and no
-> report ID, so hid-generic can only build an input device for a mouse
-> that does not exist -- which is what it does today.
-> 
-> 2/2 binds as a HID driver, and the protocol half is if anything smaller
-> there: usbhid owns the endpoints, so hid_hw_output_report replaces a
-> hand-built interrupt URB out, raw_event replaces the one in, and no
-> interface has to be claimed. It needs nothing in sound/usb.
-> 
-> But these are mixer controls for an audio device, and the audio
-> device's card belongs to snd-usb-audio. A HID driver cannot put an
-> element there. There is no interface for it, and inventing one means
-> exporting from sound/usb both a lookup from struct usb_device to the
-> card and an add-element call, and then answering, for a single device,
-> what happens when the two drivers probe in either order and when either
-> disconnects first, given that the element would live in one module and
-> its private data in another.
-> 
-> So 2/2 does what a HID driver can do alone: it registers a card of its
-> own. That works, and the cost is visible from userspace rather than
-> theoretical:
-> 
-> 	$ cat /proc/asound/cards
-> 	 0 [ToppingCtl     ]: Topping - Topping M62 control
-> 	 ...
-> 	 4 [M62            ]: USB-Audio - M62
-> 
-> 	$ amixer -c M62 cset name='Mic-1 Analog Capture Volume' 33
-> 	amixer: Cannot find the given element from control sysdefault:4
-> 
-> One device, two cards; the gains on a card with no PCM beside them; and
-> anything that looks for a device's mixer next to its streams --
-> alsamixer -c, UCM profiles, PipeWire's device model -- does not find
-> them there.
-> 
-> Against my own preference, two honest notes. The phantom input device
-> 2/2 leaves at boot (hid-generic binds first, the specific driver being
-> a module outside the initramfs) is a packaging artefact, not a property
-> of that road. And 1/2's claim helper is new API surface in sound/usb,
-> small as it is.
-> 
-> Field results
-> =============
-> 
-> With 1/2: the interface belongs to snd-usb-audio while a neighbouring
-> device's HID interface still belongs to usbhid, so the ignore entry is
-> precise. Values arrive by themselves -- the headphone volume came up at
-> 51 while the zero-initialised cache would have said 0. One front panel
-> press produces exactly one control event. A write reaches the hardware:
-> the device reports the written value back, and its meters answer.
-> 
-> With 2/2: the same, on its own card.
-> 
-> One device fact worth recording: a written gain takes effect at once,
-> but when the device commits it to non-volatile memory is the firmware's
-> business, and a value written and then torn off the bus can come back
-> as the older one. Nothing in either driver depends on that -- neither
-> treats itself as the source of truth, both ask the device -- but it is
-> easy to mistake for a driver bug while testing.
-> 
-> Where I come out
-> ================
-> 
-> The knobs belong on the card the device already has, and 2/2 cannot put
-> them there without a new cross-subsystem interface built for one
-> device. 1/2's cost is one static-variable problem solved by one helper
-> in the file that owns it. So I would take 1/2, which is also your gut
-> feeling -- but the comparison is what you asked for, and either patch
-> stands alone if you read it the other way.
-> 
-> Not covered by either: the OTG input's gain. It has no front panel
-> control and therefore never announced itself in any capture, so its
-> property is unknown. It is one row when it is known.
+On 17/08/2026 14:08, David Heidelberg wrote:
+> On 07/08/2026 08:21, Fenglin Wu wrote:
+>> Add an initial driver for the Qualcomm PMIH0108 PMIC haptics module,
+>> named as HAP530_HV. This module supports several play modes, including
+>> DIRECT_PLAY, FIFO, PAT_MEM, and SWR, each with distinct data sourcing
+>> and hardware data handling logic. Currently, the driver provides support
+>> for two play modes using the input force-feedback framework: FF_CONSTANT
+>> effect for DIRECT_PLAY mode and FF_PERIODIC effect with FF_CUSTOM
+>> waveform for FIFO mode.
+>>
+>> Assisted-by: Claude:claude-4-8-opus
+>> Signed-off-by: Fenglin Wu <fenglin.wu@oss.qualcomm.com>
+>> ---
+>>   drivers/input/misc/Kconfig             |   11 +
+>>   drivers/input/misc/Makefile            |    1 +
+>>   drivers/input/misc/qcom-spmi-haptics.c | 1252 ++++++++++++++++++++++++++++++++
+>>   3 files changed, 1264 insertions(+)
+>>
+P.S. Could you post together with the PMIH0108 device-tree part and ideally the 
+device integration you testing with? (or at least share the WIP DT, if it's not 
+finished yet)
 
-Thanks!  I didn't expect such complete patches when I asked for PoC,
-and you've done much better than I thought :)
-
-Honestly speaking, both look well acceptable.  From the pure kernel
-POV, the 2nd patch is simpler, but as you pointed out, we'll need
-another stuff to combining two sound cards.  It'd be likely a special
-UCM profile, but this can be a bit hackish.
-
-So, from the usability POV, the first patch would be "easier", and if
-I have to choose, my gut feeling is to pick the first one.  But again,
-I have no strong opinion, and both look good in general.  I'd like to
-hear from others, too.
-
-About the code, there are a few things to be improved.  The spinlock
-could be done better with guard().  A temporary buffer could be
-handled with __free(), too.
-
-
-thanks,
-
-Takashi
+Thanks
+David

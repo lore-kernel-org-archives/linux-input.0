@@ -1,44 +1,44 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 22615379EF5
-	for <linux-input@vger.kernel.org>; Mon, 24 Aug 2026 06:04:35 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E3C633BD629
+	for <linux-input@vger.kernel.org>; Mon, 24 Aug 2026 06:05:21 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787551477; cv=none; b=hr9kzV6Vph/HPLSSibIwmTWFfGjkcID5Y3Tic3VkE4u8uC64R2eFLmfBpgznlVuitwFNpvRoE3sH+y4Yd6zib/dz1myIh607gO8Hv4u42VQIE8aCKMegPIo4kfg8PgSEs85JY+sPZhp2Rr7a44Gl06j+p+88TCxLIUS3ryKvOwU=
+	t=1787551523; cv=none; b=lUDT0vAoHlQVIUZzyRSw5pAgIw8wqf1koHvB8Y3IzIiVgEqf2QRlEWee7SLLCJAKhFVXAVjdgDy5XxaeezNxm3DlQneBGa5lX0q/VaR0K+afF9hpY2vrI8HjBDvy/Ax3FAXdKHQheL1CEXK9ysFwRANMS16Yhx2pFiT2u/e229Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787551477; c=relaxed/simple;
-	bh=CiI1UreOj1aM/yOWdbwaWv3LawHZEwJGwYLovVdtekk=;
+	s=arc-20240116; t=1787551523; c=relaxed/simple;
+	bh=EE74FgWqtFm1XNbwjZOySAlbxTpBm9EKV52kxvrH7mo=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=EcWQbGxQcacKewvSt1F9fN+rj6R701AB41Z/Z/xgEYnrJ74sSgF29X+FDSsfMRf/mI/VWHXm0OTq3ZPGLvAN73acwS353rtGddwXkDEUJZAY/PiVcVXkr+vYAogjb49yxfb4/x091vfq5l9X21gZT0TombBKTALG65oGX14qBHE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=DnfzZESS; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=cLbVXoOPfdN922++Mvy00DRWauTeMZaNan7J/+AF9BgegKpmy5WHh/uZjYyp6uLCaHcDyefF5GTiSgb0KLDdKP1oEytBX5/06KB667V7WsNrHsBexr+DT3cZ4mQ5fW8YmdHjyryBhNjeIIe2HhDz6oYsKw2tsOhmT85FNKwiHeU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=FONfdnD/; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="DnfzZESS"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C7EC1F00A3A;
-	Mon, 24 Aug 2026 06:04:35 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="FONfdnD/"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B0811F000E9;
+	Mon, 24 Aug 2026 06:05:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787551475;
-	bh=4/2K5YqVfleWs2kDrNs2pVYBPrLAG57BD+65fHh+aEk=;
+	s=k20260515; t=1787551521;
+	bh=7xhmCAnpvedyK97sKka5HGrNClA03ucR7iuaqhC+MqI=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=DnfzZESSodkCEMBB7tNN/XQDsqsGlHDQ8UxbRw//txKd7f4wQnxYnJef28FbxjQah
-	 DO/6ZB5yFSPC7l0qUwx8Jr2+wtU2R7/b2aVr2wOqnMgMwGp8g1w1PqfvV2K6ZumB9Q
-	 SmTdxI+vxu7+7KOrbsIsrxik0PTGb3i+nYxObB00rK0M9i93117h+HCfr69rGVrTCQ
-	 9HyVRDidxVQGMQKt/cJDucB121OWoXAj19BTfZewZ1/DCvLcoaZ9VXEUlemNaFryrb
-	 p1dstKcLieDkJODyWStPIbPmc7s1p5PGMZ0Q7+hk2Y1G175GOWOJfIqqmBeB/azRyi
-	 AVFl2v6OY6oeg==
+	b=FONfdnD/M23JzapshRIBBnz/R2MZc/G7gW/54XfzPQx0P/n0GN6sV+OVpUbupBfza
+	 9xXON/9NmPRHDUxlkHATOyVm0P9e1EAIg/G4QJUbf+QQtnoekb7rZU9BhKdV981SBD
+	 wvLLlnlM/wWwmwvNMxAvj76LGSAzbVom2Ew+poR0mnaLtDJSO189VHPQknGPcMUnFp
+	 Vnv6WBqfxWZ3bd35vZ5pc84BKUBLdlVAeEP6jLG8Io777tpw1KSmTHrGSzNGDNMbXq
+	 sJWdniNCahbJlrLYnLCAsyzHyDMGoJ5oN5au/pHfqNC1ivZmihHa+QWQsenoLeGnn2
+	 9nTdbuCsCwMjA==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 2/2] Input: synaptics-rmi4 - reject a PDT that grows
- between scans
+Subject: Re: [PATCH 1/2] Input: synaptics-rmi4 - fix irq[] overrun with 7
+ interrupt sources
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Wei Jie Law" <98lawweijie@gmail.com>
 Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <2c26d7ce8c6b7371ab55607f53443961220e4b24.1787549234.git.98lawweijie@gmail.com>
+In-Reply-To: <4a48122167e32a6755d9ee7033f29bf7c78be796.1787549234.git.98lawweijie@gmail.com>
 References: <cover.1787549234.git.98lawweijie@gmail.com>
- <2c26d7ce8c6b7371ab55607f53443961220e4b24.1787549234.git.98lawweijie@gmail.com>
+ <4a48122167e32a6755d9ee7033f29bf7c78be796.1787549234.git.98lawweijie@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Mon, 24 Aug 2026 06:04:35 +0000
-Message-Id: <20260824060435.7C7EC1F00A3A@smtp.kernel.org>
+Date: Mon, 24 Aug 2026 06:05:20 +0000
+Message-Id: <20260824060521.5B0811F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -49,153 +49,118 @@ Thank you for your contribution! Sashiko AI review found 3 potential issue(=
 s) to consider:
 
 Pre-existing issues:
-- [High] The irq_domain allocated by irq_domain_create_linear() is leaked o=
-n error paths during probe and firmware updates.
-- [High] The RMI firmware sysfs group created by rmi_f34_create_sysfs() is =
-leaked on error paths during probe, leading to a NULL pointer dereference.
-- [High] Failure in rmi_f34_create_sysfs during probe skips child device cl=
-eanup, leading to resource leaks and NULL pointer dereferences.
+- [High] The function devices created during probe are leaked and can trigg=
+er a Use-After-Free if `rmi_f34_create_sysfs()` fails.
+- [High] Failure of `irq_create_mapping()` returns 0, which is unchecked an=
+d passed directly to IRQ manipulation functions, hijacking or corrupting sy=
+stem IRQ 0.
+- [Medium] The IRQ domain created during probe is leaked on almost all erro=
+r paths in `rmi_driver_probe()`.
 --
 
---- Patch [2]: [PATCH 2/2] Input: synaptics-rmi4 - reject a PDT that grows =
-between scans ---
-commit 55e35f385b70b6ccd0e388137406910db44c05ec
+--- Patch [1]: [PATCH 1/2] Input: synaptics-rmi4 - fix irq[] overrun with 7=
+ interrupt sources ---
+commit 048bbd16c16ceb54800fa66f025c5162730cc787
 Author: Wei Jie Law <98lawweijie@gmail.com>
 
-Input: synaptics-rmi4 - reject a PDT that grows between scans
+Input: synaptics-rmi4 - fix irq[] overrun with 7 interrupt sources
 
-This patch fixes an out-of-bounds access in rmi_create_function(). It adds
-a validation check for fn->irq_pos + fn->num_of_irqs to ensure that a device
-that grows its interrupt count between scans cannot walk past the end of the
-flexible array. The probe will now fail instead of overflowing memory.
+This commit fixes an out-of-bounds array access by expanding the irq array
+size from 6 to 7 to match the maximum interrupt source count specified by t=
+he
+RMI4 Page Description Table entry.
 
-> diff --git a/drivers/input/rmi4/rmi_driver.c b/drivers/input/rmi4/rmi_dri=
-ver.c
-> index 5d49a9021c7d0..c0e91a372eff4 100644
-> --- a/drivers/input/rmi4/rmi_driver.c
-> +++ b/drivers/input/rmi4/rmi_driver.c
-> @@ -899,6 +899,24 @@ static int rmi_create_function(struct rmi_device *rm=
-i_dev,
->  	fn->irq_pos =3D *current_irq_count;
->  	*current_irq_count +=3D fn->num_of_irqs;
+> diff --git a/drivers/input/rmi4/rmi_bus.h b/drivers/input/rmi4/rmi_bus.h
+> index 90122df21f746..faf2ebb00d521 100644
+> --- a/drivers/input/rmi4/rmi_bus.h
+> +++ b/drivers/input/rmi4/rmi_bus.h
+> @@ -12,10 +12,13 @@
+>  struct rmi_device;
 > =20
-> +	/*
-> +	 * irq_mask[] was sized from the interrupt count collected by the
-> +	 * earlier rmi_count_irqs() scan of the PDT.  Nothing guarantees that
-> +	 * this scan sees the same table -- the PDT is read back from the
-> +	 * device every time -- so a device that grows its interrupt counts
-> +	 * between the two scans would push these set_bit() calls past the end
-> +	 * of the flexible array.  Refuse the function instead.
-> +	 */
-> +	if (fn->num_of_irqs > RMI_FN_MAX_IRQS ||
-> +	    fn->irq_pos + fn->num_of_irqs > data->irq_count) {
-> +		dev_err(dev,
-> +			"F%02X: interrupt count changed between PDT scans (pos %u + %u > %d)\=
-n",
-> +			pdt->function_number, fn->irq_pos, fn->num_of_irqs,
-> +			data->irq_count);
-> +		put_device(&fn->dev);
-> +		return -EINVAL;
-> +	}
-> +
->  	for (i =3D 0; i < fn->num_of_irqs; i++)
->  		set_bit(fn->irq_pos + i, fn->irq_mask);
+>  /*
+> - * The interrupt source count in the function descriptor can represent u=
+p to
+> - * 6 interrupt sources in the normal manner.
+> + * The interrupt source count in the function descriptor is a three bit =
+field
+> + * (RMI_PDT_INT_SOURCE_COUNT_MASK), so a device can legitimately declare=
+ up to
+> + * 7 interrupt sources for a single function.  irq[] must be able to hol=
+d all
+> + * of them: rmi_create_function_irq() and rmi_unregister_function() both=
+ walk
+> + * it up to fn->num_of_irqs.
+>   */
+> -#define RMI_FN_MAX_IRQS	6
+> +#define RMI_FN_MAX_IRQS	7
 > =20
+>  /**
+>   * struct rmi_function - represents the implementation of an RMI4
 
 [Severity: High]
-This isn't a bug introduced by this patch, but does rmi_driver_probe() leak
-the irqdomain allocated in rmi_probe_interrupts() on failure paths?
+This isn't a bug introduced by this patch, but I noticed a potential
+use-after-free and memory leak in the error handling of rmi_driver_probe():
 
 drivers/input/rmi4/rmi_driver.c:rmi_driver_probe() {
-...
+    ...
+	retval =3D rmi_f34_create_sysfs(rmi_dev);
+	if (retval)
+		goto err;
+    ...
+err_destroy_functions:
+	rmi_free_function_list(rmi_dev);
+err:
+	return retval;
+}
+
+If rmi_f34_create_sysfs() fails, the code jumps to the err label, skipping
+the call to rmi_free_function_list(rmi_dev). Doesn't this leave the function
+devices orphaned on the RMI bus with a soon-to-be-freed parent drvdata,
+leading to a use-after-free if a driver later attempts to bind to them?
+
+[Severity: Medium]
+This isn't a bug introduced by this patch, but I noticed the IRQ domain mig=
+ht
+be leaking on probe error paths:
+
+drivers/input/rmi4/rmi_driver.c:rmi_driver_probe() {
+    ...
 	retval =3D rmi_probe_interrupts(data);
 	if (retval)
 		goto err;
-...
+    ...
 err_destroy_functions:
 	rmi_free_function_list(rmi_dev);
 err:
 	return retval;
 }
 
-If any subsequent initialization step in rmi_driver_probe() fails, the error
-path bypasses irq_domain_remove(), permanently leaking the domain.=20
-
-Does this leak also occur during firmware updates when rmi_probe_interrupts=
-()
-is called repeatedly without cleaning up the previous irqdomain?
-
-drivers/input/rmi4/rmi_f34.c:rmi_firmware_update() {
-...
-	ret =3D rmi_probe_interrupts(data);
-	if (ret)
-		return ret;
-...
-}
+The rmi_probe_interrupts() function allocates a linear IRQ domain using
+irq_domain_create_linear(), which is not managed by devres. If any subseque=
+nt
+initialization step fails, the probe function returns without calling
+irq_domain_remove(). Is it expected that the IRQ domain is leaked here?
 
 [Severity: High]
-This is a pre-existing issue, but does the error path in rmi_driver_probe()
-leave the f34 sysfs group active, potentially leading to a null pointer
-dereference?
+This isn't a bug introduced by this patch, but I noticed a potential problem
+in how mapped IRQs are handled:
 
-drivers/input/rmi4/rmi_driver.c:rmi_driver_probe() {
-...
-	retval =3D rmi_f34_create_sysfs(rmi_dev);
-	if (retval)
-		goto err;
+drivers/input/rmi4/rmi_bus.c:rmi_create_function_irq() {
+    ...
+		fn->irq[i] =3D irq_create_mapping(drvdata->irqdomain,
+						fn->irq_pos + i);
 
-	if (data->input) {
-		rmi_driver_set_input_name(rmi_dev, data->input);
-		if (!rmi_dev->xport->input) {
-			retval =3D input_register_device(data->input);
-			if (retval) {
-				dev_err(dev, "%s: Failed to register input device.\n",
-					__func__);
-				goto err_destroy_functions;
-			}
-...
-err_destroy_functions:
-	rmi_free_function_list(rmi_dev);
-err:
-	return retval;
+		irq_set_chip_data(fn->irq[i], fn);
+		irq_set_chip_and_handler(fn->irq[i], &rmi_irq_chip,
+					 handle_simple_irq);
+    ...
 }
 
-If input_register_device() fails, the code jumps to err_destroy_functions,
-which cleans up the function list but neglects to call
-rmi_f34_remove_sysfs().
-
-When the probe fails, the driver core sets the device's drvdata to null. If
-userspace accesses these stale files, callbacks will call dev_get_drvdata()
-and dereference a null pointer.
-
-[Severity: High]
-This isn't a bug introduced by this patch, but does a failure in
-rmi_f34_create_sysfs() bypass the cleanup for child functions?
-
-drivers/input/rmi4/rmi_driver.c:rmi_driver_probe() {
-...
-	retval =3D rmi_init_functions(data);
-	if (retval)
-		goto err;
-
-	retval =3D rmi_f34_create_sysfs(rmi_dev);
-	if (retval)
-		goto err;
-...
-err_destroy_functions:
-	rmi_free_function_list(rmi_dev);
-err:
-	return retval;
-}
-
-If rmi_f34_create_sysfs() fails, the code jumps directly to the err label,
-completely skipping the err_destroy_functions cleanup for the already
-registered child functions.
-
-When probe fails, the driver core clears drvdata and devres frees data,
-leaving the child devices active and causing a null pointer dereference if
-accessed from userspace.
+If irq_create_mapping() fails due to memory or descriptor exhaustion, it
+returns 0. Is it safe to pass 0 directly to irq_set_chip_data() and
+irq_set_chip_and_handler() without checking the return value? Could this
+overwrite the chip and handler for system IRQ 0?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/cover.1787549234.gi=
-t.98lawweijie@gmail.com?part=3D2
+t.98lawweijie@gmail.com?part=3D1

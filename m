@@ -1,98 +1,191 @@
-Received: from outbound.st.icloud.com (st-2005a-snip4-11.eps.apple.com [57.103.79.13])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F084C392C21
-	for <linux-input@vger.kernel.org>; Mon, 24 Aug 2026 22:47:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=57.103.79.13
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ECD0639734D
+	for <linux-input@vger.kernel.org>; Mon, 24 Aug 2026 22:58:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787611675; cv=none; b=piY89wy2KbygOTMiAsnhXsT1QxOhHmLeLBnYyHw6A0IC5ifQAhVGSLk0HoxSMgdp5asNHCxl39ZE7+WRcgEBA8D4u/dTNYOQndIUwzrdRfw9AJrXhlzwuT4B3zK+ooGJAJ6/XYJrHaGOME9MBBpuk6l48r/jPAEFexPNbD6aB78=
+	t=1787612291; cv=none; b=nnsbUv1FW8L9A7qbNjcwdT+FUWNZDWDd/zwuFz0jJxhNvZrhg7BEbw4woea6IX4ZcV+ymt/WmntJ+NDBMkCy4uiLeLdhJi3ONkDutQZEaTheuGxDd/Ayt+cISGF6r3s3BO8Ds6w902Ilej5y4rk6yK5aLYLhQB2ATPqt7ZOHbpU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787611675; c=relaxed/simple;
-	bh=Omjv0jpOghTrrJBT0v3YTt0fhftJKIaYYeDaAzosvkk=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=OER5UrwLnJO5Kx4YGDM6Lxsdf/uEODz+pAWnL0sSIvcyjq55obAfjrHJmyhCkYuJL1hQ1bq4bgUVJLaORh93J8bOkhwN4yfeBzcnThg5ifVIhvknGX9Q2/tIabwe9g9GTYmdv2tpyY9X0Em170FjwupKdwXTGTqz5Eurl+F+96w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=matias.me; spf=pass smtp.mailfrom=matias.me; dkim=pass (2048-bit key) header.d=matias.me header.i=@matias.me header.b=Kd90JjZd; arc=none smtp.client-ip=57.103.79.13
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=matias.me
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=matias.me
+	s=arc-20240116; t=1787612291; c=relaxed/simple;
+	bh=bs3pYlCIWGpZk1p2QQd3F82B17/E9sPgL9uKESB/jgU=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=ImkfzYqPk/4C//L7kybFO+/JmUzuhkuPwZcu3OX3hSqZlUwyg74PkmZjnmySIPIEiK5dDJ0Uv3H9/l2wcnVsXQNJRW+iw/BOisw0J7o/6LR9Td/zxNI5NfCpzrEjsV+oP8wCxPazq77Y5V2HDeF3B5X4ALjw7WnrQ2agoI2FNCo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=oxIffBYJ; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=matias.me header.i=@matias.me header.b="Kd90JjZd"
-Received: from outbound.st.icloud.com (unknown [127.0.0.2])
-	by p00-icloudmta-asmtp-us-east-1a-100-percent-6 (Postfix) with ESMTPS id 1D002180054F;
-	Mon, 24 Aug 2026 22:47:52 +0000 (UTC)
-X-ICL-RepId: 01a035f5-6e11-7bbe-9334-676786189d3d
-X-ICL-Out-Info: HUtFAUMHWwJACUgATUQeDx5WFlZNRAJCTQhAAkMDWBxCCE0dXgdLVxQEEFYBWwRyHVgMWgxERV8VGR5XUFoKRhlYCx0AUktAEwRPEwVSB11NVg1HD1geXBQXC0dDXgheH0wcHQ5YBhIATQoONgZZBV4JVgNDBTYSFF1FXgxDAlMDFxVWTVoCVk0FSgNfAVsKQg1KAVkAXwVeAE8CVA9GA11RHV8BWCtfEU0RUh4ZBldOGQxKHVJWUQVKDFwAaA9dHVgRXQ==
-Dkim-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=matias.me; s=sig1; t=1787611673; x=1790203673; bh=a25Ir+rmVbBttW2H7mi/I3R5kWzfr+fuX8cCxTOlKgM=; h=From:To:Subject:Date:Message-ID:MIME-Version:Content-Type:x-icloud-hme; b=Kd90JjZdpGPisGrkliBdqy3aPEEIUjrz5dnRM+ANcpLzAIZm2vsYLndK027bYa1QUiP1bzrlSzs9DaXazt5r+7aiyzVz37FvJnoi/qKy2TZ0WXsLFXGxRb610v/uTqu4XdXuCV4QWNwSJnwnpmscvpR/EYhdicrZe3K9pkXvgFx0WdIuFWAiSM2fmIsqTO8KSgXfpVKTcJRKb1Ic3yB5KKfKa3uJP9QfyvCQ1cDUC/5/V5Zigls2PwTk+2xeJS5VO4w/XjH6H+PemAjZlhBA2cMSBOgHB30SbBiZ2cWQwD3aLDO5o9bpts0zppE6HiPFmBDjr/7vwWY9U/sIBMGrpw==
-mail-alias-created-date: 1705102286191
-Received: from localhost.localdomain (unknown [17.156.216.30])
-	by p00-icloudmta-asmtp-us-east-1a-100-percent-6 (Postfix) with ESMTPSA id 6B79218002F4;
-	Mon, 24 Aug 2026 22:47:50 +0000 (UTC)
-From: =?UTF-8?q?Mati=CC=81as=20Marti=CC=81nez?= <hello@matias.me>
-To: linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org,
-	Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Antheas Kapenekakis <lkml@antheas.dev>,
-	Denis Benato <denis.benato@linux.dev>
-Subject: Re: [PATCH] HID: ayaneo: Add AYANEO 3 detachable controller driver
-Date: Mon, 24 Aug 2026 18:47:47 -0400
-Message-ID: <20260824224747.97198-1-hello@matias.me>
-X-Mailer: git-send-email 2.54.0
-In-Reply-To: <20260824220125.297EE1F000E9@smtp.kernel.org>
-References: <20260824220125.297EE1F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="oxIffBYJ"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 666331F000E9;
+	Mon, 24 Aug 2026 22:58:09 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1787612289;
+	bh=8GAPrfJZWpvHXQ2bcL0IxtG71uwsn8Fb9fgLOM+XuhM=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=oxIffBYJ5rvEoSyvndaDxBLd0whT4Q/wkRVMBLyr2raZ2NjVDqMlqAGSx5sC4wHUs
+	 8hejIq+SYRynv8/loLh0KJDMJwVVdDFUOkbcBpBAoTEUTTg/Yas9UuXttb18UgXj1f
+	 oOZUZeEKO6AQ960DGLTm5m4/v5raTmVutGUVdc2JzaFkQW7FSYqBn2Yk+ca14GPvmV
+	 S6VL6n8wWAtJ/HTU/zTFwts7NhWXCvNveZu+zZfZWQA4y9W0M/YkUVkMfzumu7UF+E
+	 iSga/vU4ajbmHcwhizSfwSMuX/Tuo/bsaVKTHyW2I5iF49Xk5JtLETqqrTb1cZ3XOh
+	 WnIoJm25UrRVQ==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v6 2/2] ALSA: usb-audio: let the M62's outputs say what
+ they listen to
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Mikhail Gavrilov" <mikhail.v.gavrilov@gmail.com>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20260824223107.406504-3-mikhail.v.gavrilov@gmail.com>
+References: <20260824201331.304705-1-mikhail.v.gavrilov@gmail.com>
+ <20260824223107.406504-1-mikhail.v.gavrilov@gmail.com>
+ <20260824223107.406504-3-mikhail.v.gavrilov@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Mon, 24 Aug 2026 22:58:09 +0000
+Message-Id: <20260824225809.666331F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODI0MDE5MyBTYWx0ZWRfX2VSUKrI0BCQw
- pmL/U5z+o2EzTETLPp/FOLL9UpB/8oy6Ixo1cuLyyi+pd0DwCtuLlwbcOzSk2Sxg9/OPvql8RAS
- Yxc08ZXJNgq1VxcIA9QNfEJUm+HmfkIks+aJpCqdyNqqKVSzGiroTwUA4ZfJKTchrNGDFl2lLSC
- FC6LA8xZevkiOJyrw5kmEG7HK9VdHJYMyKWAYtjHInoV8MQ5i+iLHS4iSgQDgHHDBvxI8fwnQE2
- Y7yWaqHGdc3fcYc2RT50aN13njM89Fz8iF52dR92GMArUBD5a7rxzEFaC8/D7gr2dc06886SXhQ
- BwvY5y4UFHFRtoEtkL7gaCn9NDelB9z91YBIhoyXT/8ztyFpksY+KZuQ0JjaZo=
-X-Proofpoint-GUID: HKgmBi0Cu_Y91eDhAL3Gt2S1nTvlTb86
-X-Authority-Info-Out: v=2.4 cv=WN1yn3sR c=1 sm=1 tr=0 ts=6a8cca18
- cx=c_apl:c_pps:t_out a=oyWFxbOnq+dmhQrAPgaJYA==:117
- a=oyWFxbOnq+dmhQrAPgaJYA==:17 a=IkcTkHD0fZMA:10 a=MKtGQD3n3ToA:10
- a=1oJP67jkp3AA:10 a=Sv0fKeRqtYgA:10 a=M51BFTxLslgA:10
- a=VkNPw1HP01LnGYTKEx00:22 a=F5biEvtkEkjsOq9xf6oA:9 a=3ZKOabzyN94A:10
- a=QEXdDO2ut3YA:10
-X-Proofpoint-ORIG-GUID: HKgmBi0Cu_Y91eDhAL3Gt2S1nTvlTb86
-X-JNJ: AAAAAAAB1gZCxT4pnBwNd4m8WEe5PHfGbk3qM7ryv9/x+3ROWStxSLvaqgdyWHAoMvoFdLP96Lpi0VEGcC5kY2t2VmcbVkfwFFEDvUlQgdKeHaBNNCPREg+G+VvakLw6uOTJGkCKLT4BFMp8vQFsrdnIaPGqdZHyjJOsRMq3UDPY/q6MyFLJMLm+caHbXfnB+/LyKnDu7MMEIDis3b4gnl7KRGMztiLtL2PDSytmTMDq+33MP8/35ah3WMv0gOqc+yQ1hqrV4clvh5eJI0uDMbxyVnt+TT9+5nZ4W3FOTSeQcdQFQxlK2P2p1d6bpaRe7bNkBUpYGxbG7vsb9wvamC3FIwamQuAanIwASfpYssTJw+bsshudoTiaYlT28jU2+W1meCx1Kk1kMfZtUtSptCmd6s+dRoaYR6JS4rG5kEAZZGvFvX2KMBfNORl/nr66W5j1hTofFcMKD+sRiYmZK4UpVt+4ryG/bQ3l6ATW7YbzV0+kSdnXdOnqaT5W4lyRvS+KDn7LK6Fn117N9BI6SHsn0U9rhGw1dxAtwZ3qcXk2jMjIAhjOhcfGb7EbOnKqbjl/1kz/eE1vUaJL3TYQbbKZYPmOfx+0g3FS+DllLJoxgMaa5k5HiBJWsPvpYyx/szBqeiZDny0GUgzaGimtsiHjRAtKeLgiNdbAJx9uoYNtoFwKb5WRwo65ki5MY5eLLtUHMguNnnVeppRlbQz6TjACygDhHAlhnZliL0x8y3jHsTKi3AzXF/Y9J5p65B6TN3/lvcIvznZ7DEC0oAoMuWb5hiGHq4F41Dn8tXUF466IlEN6RHKNMIbbqbe2zQ7UyN699abApKbNaamoG5mUHva2cXhPTLnNrIA/NCIUnFSiDcC/tYKBmw2VM45b+70LplBTeWyhjPMUglUXbGIDOcxRRrMij/DcPkLbjydY/K2jdo1uhfmKJJ3HJCaRnCvcEyeKjRZssdAcBtntkdT7N5VO0paECLp
- jSwOSbelTj7lmjn+vSTQxnqBLf8e/daFElX1DLyFiHOcgqWgykusncmuR6Pk5kbk6WDHUhiIICL4Mn8wUknB5WUg36khHFG7cKNDpHOe3zNXcxepwOm+sLFN38jzx884VKF9en/nXbBI5FE5HQx3lC+yURXyPHs/MbUMkaDtLlcynll0cdtlJ1qeMHrXm6GQ39qgyAJUODU1hkEuQOCK51NkgJPSIaueyvNXLIAmnnDkX9laoAJ7OsRvB2fq5ZQBDlAroEdtbEeBXE+5XgUWD0PlNPFkUNSzj300BUmxKkO5+TQy+b1xdSojuqYr2NTeIIvyEIMg0hvuakqWPMI39HYeWsg==
 
-Addressing the four findings for the humans on the thread — the bot
-went two for four:
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+s) to consider:
 
-- The devres ordering issue is real, and understated: any brightness
-  write racing a driver unbind could queue LED work that runs after
-  hid_hw_stop() and after devres frees the driver data. I reproduced
-  memory corruption by unbinding under a brightness-write loop, and
-  the window is reachable in normal use (the controller power-cycles
-  on resume and on module eject while userspace may be writing the
-  LED). v2 registers the LED without devm, unregisters it first in
-  remove, and flushes set_brightness_work again once the sysfs node
-  is provably gone — a store can requeue it between the flush inside
-  led_classdev_unregister() and the device_unregister() that follows.
+New issues:
+- [Critical] Missing snd_usb_lock protection in topping_sel_get() causes a =
+Use-After-Free racing with device disconnect.
 
-- The eject-loop stall on unplug is real too. v2 aborts on fatal
-  transport errors and only keeps polling on timeouts.
+Pre-existing issues:
+- [High] PM deadlock between `cancel_delayed_work_sync()` during suspend an=
+d `pm_runtime_get_sync()` in the keepalive worker.
+--
 
-- The maxcollection finding is not a crash: hid_open_report()
-  zero-allocates the collection array, so a descriptor with no
-  collections reads usage 0 and probe returns -ENODEV. v2 adds an
-  explicit maxcollection check anyway, as it states the intent
-  better.
+--- Patch [2]: [PATCH v6 2/2] ALSA: usb-audio: let the M62's outputs say wh=
+at they listen to ---
+commit d2da2c1cdae232f4506c200d692b9c0076c8746f
+Author: Mikhail Gavrilov <mikhail.v.gavrilov@gmail.com>
 
-- The stale-reply race cannot cross commands: replies are matched on
-  the echoed subcommand byte, so a late reply can only complete a
-  retry of the same command, and those are interchangeable snapshots
-  milliseconds apart. v2 documents this in aya3_raw_event().
+    ALSA: usb-audio: let the M62's outputs say what they listen to
 
-All of the above is in v2, along with Antheas's review items.
+This commit adds enumeration controls for the source selectors on the Toppi=
+ng
+M62 audio card. It handles reading and writing the source selections, inclu=
+ding
+restoring them upon resume, as the device doesn't report them itself.
 
-Matías
+> diff --git a/sound/usb/mixer_topping.c b/sound/usb/mixer_topping.c
+> --- a/sound/usb/mixer_topping.c
+> +++ b/sound/usb/mixer_topping.c
+[ ... ]
+> @@ -365,6 +405,71 @@ static int topping_ctl_put(struct snd_kcontrol *kctl,
+>  	return 1;
+>  }
+> =20
+> +static int topping_sel_info(struct snd_kcontrol *kctl,
+> +			    struct snd_ctl_elem_info *uinfo)
+> +{
+> +	return snd_ctl_enum_info(uinfo, 1, ARRAY_SIZE(topping_sources),
+> +				 topping_sources);
+> +}
+> +
+> +static int topping_sel_get(struct snd_kcontrol *kctl,
+> +			   struct snd_ctl_elem_value *ucontrol)
+> +{
+> +	struct usb_mixer_elem_info *elem =3D kctl->private_data;
+> +	struct topping_mixer *tm =3D elem->head.mixer->private_data;
+> +
+> +	guard(mutex)(&tm->write_lock);
+
+[Severity: Critical]
+Can this code trigger a use-after-free if the USB device is disconnected
+concurrently?
+
+If a user invokes the SNDRV_CTL_IOCTL_ELEM_READ ioctl while the device is
+physically disconnected, this function accesses tm without holding the ALSA
+USB PM lock via CLASS(snd_usb_lock, pm).=20
+
+Without the PM lock incrementing the chip->usage_count reference, the USB
+disconnect handler (usb_audio_disconnect) doesn't wait for this read operat=
+ion
+to finish. It proceeds to usb_audio_disconnect_components() and calls
+snd_usb_mixer_disconnect(), which frees tm via topping_private_free().
+
+This could lead to:
+
+topping_sel_get()
+  struct topping_mixer *tm =3D elem->head.mixer->private_data;
+  // -> device disconnected here, tm is freed
+  guard(mutex)(&tm->write_lock); // use-after-free
+
+Does this function need to acquire the PM lock before accessing tm?
+
+> +	ucontrol->value.enumerated.item[0] =3D tm->sel[elem->control];
+> +	return 0;
+> +}
+> +
+> +static int topping_sel_put(struct snd_kcontrol *kctl,
+[ ... ]
+> @@ -407,6 +512,57 @@ static int topping_add_ctl(struct topping_mixer *tm,=
+ int idx)
+>  	return 0;
+>  }
+> =20
+[ ... ]
+> +static void topping_restore_sel(struct topping_mixer *tm)
+> +{
+> +	const struct topping_enum_desc *d;
+> +	int i;
+> +
+> +	guard(mutex)(&tm->write_lock);
+> +	for (i =3D 0; i < TOPPING_NUM_ENUMS; i++) {
+> +		if (!tm->sel[i])
+> +			continue;	/* nothing was ever chosen */
+> +		d =3D &topping_m62_enums[i];
+> +		topping_send(tm, d->target, d->prop,
+> +			     topping_source_value[tm->sel[i]]);
+> +	}
+> +}
+> +
+>  static void topping_suspend(struct usb_mixer_interface *mixer)
+>  {
+>  	struct topping_mixer *tm =3D mixer->private_data;
+> =20
+>  	if (!tm)
+>  		return;
+>  	cancel_delayed_work_sync(&tm->keepalive);
+
+[Severity: High]
+This is a pre-existing issue, but is it possible for a circular locking
+dependency to cause a system or USB device hang during runtime suspend?
+
+The topping_keepalive delayed work runs every 2 seconds. If the USB subsyst=
+em
+initiates a runtime suspend on the device exactly when the worker starts
+executing, usb_audio_suspend() is invoked, setting the device's PM state to
+RPM_SUSPENDING.=20
+
+This suspend callback eventually calls topping_suspend(), which blocks on:
+
+cancel_delayed_work_sync(&tm->keepalive);
+
+However, the executing worker calls topping_send(), which attempts to acqui=
+re
+the ALSA USB PM lock:
+
+topping_send()
+  CLASS(snd_usb_lock, pm)(tm->mixer->chip);
+
+This internally calls snd_usb_autoresume() -> usb_autopm_get_interface(),
+wrapping pm_runtime_resume_and_get(). Because the device state is
+RPM_SUSPENDING, the PM core waits on a waitqueue for the suspend operation =
+to
+complete.=20
+
+This results in a classic deadlock: the suspend thread waits for the worker,
+and the worker waits for the suspend thread.
+
+>  	if (tm->urb)
+>  		usb_kill_urb(tm->urb);
+>  }
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260824223107.4065=
+04-1-mikhail.v.gavrilov@gmail.com?part=3D2

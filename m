@@ -1,44 +1,45 @@
-Received: from outbound.st.icloud.com (st-2002c-snip4-11.eps.apple.com [57.103.78.113])
+Received: from outbound.st.icloud.com (st-2005a-snip4-11.eps.apple.com [57.103.79.13])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7D5493955DB
-	for <linux-input@vger.kernel.org>; Mon, 24 Aug 2026 22:47:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=57.103.78.113
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F084C392C21
+	for <linux-input@vger.kernel.org>; Mon, 24 Aug 2026 22:47:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=57.103.79.13
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787611668; cv=none; b=Gcl/CG5jD52kpy+hK+ZChnPebiXmDpT9/S16J4iMfzA5Sm4aAfe7H/hN0ReOdNo5JUDoZwtIY/ZS7iiXco8eF/rN2YeubMEPFdCOa8+y/257zIB84liG/qoE55YFtxIZG0eknsfwzk7mhJc21X55Fdi4ngFCqm5MEG3NfsuM+hc=
+	t=1787611675; cv=none; b=piY89wy2KbygOTMiAsnhXsT1QxOhHmLeLBnYyHw6A0IC5ifQAhVGSLk0HoxSMgdp5asNHCxl39ZE7+WRcgEBA8D4u/dTNYOQndIUwzrdRfw9AJrXhlzwuT4B3zK+ooGJAJ6/XYJrHaGOME9MBBpuk6l48r/jPAEFexPNbD6aB78=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787611668; c=relaxed/simple;
-	bh=eCfmNO68x2HqBtgajhLKojpFZReknXfY/BJoF3G/KVg=;
+	s=arc-20240116; t=1787611675; c=relaxed/simple;
+	bh=Omjv0jpOghTrrJBT0v3YTt0fhftJKIaYYeDaAzosvkk=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=SBoiVHRT1Nzhrf6gxzWBCYtg3ZxguhY1DjkPF1JJsm7NQYMEtrhGMp3cVBLhY80BuFGaRchlx3pkncxE0bMWe2jzG5oTKhLWzltC3oirbMWsdHjYlPhXdHBd5gefSaJhONGmQA4VwT6jlbSfOJMZ9s7uWkLVaJDWnRCc5g+zaTg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=matias.me; spf=pass smtp.mailfrom=matias.me; dkim=pass (2048-bit key) header.d=matias.me header.i=@matias.me header.b=Cr8m2sdB; arc=none smtp.client-ip=57.103.78.113
+	 MIME-Version:Content-Type; b=OER5UrwLnJO5Kx4YGDM6Lxsdf/uEODz+pAWnL0sSIvcyjq55obAfjrHJmyhCkYuJL1hQ1bq4bgUVJLaORh93J8bOkhwN4yfeBzcnThg5ifVIhvknGX9Q2/tIabwe9g9GTYmdv2tpyY9X0Em170FjwupKdwXTGTqz5Eurl+F+96w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=matias.me; spf=pass smtp.mailfrom=matias.me; dkim=pass (2048-bit key) header.d=matias.me header.i=@matias.me header.b=Kd90JjZd; arc=none smtp.client-ip=57.103.79.13
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=matias.me
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=matias.me
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=matias.me header.i=@matias.me header.b="Cr8m2sdB"
+	dkim=pass (2048-bit key) header.d=matias.me header.i=@matias.me header.b="Kd90JjZd"
 Received: from outbound.st.icloud.com (unknown [127.0.0.2])
-	by p00-icloudmta-asmtp-us-east-1a-10-percent-1 (Postfix) with ESMTPS id 4C50018003F4;
-	Mon, 24 Aug 2026 22:47:42 +0000 (UTC)
-X-ICL-RepId: 01a035f5-475a-7176-84f8-602da927dcd9
-X-ICL-Out-Info: HUtFAUMHWwJACUgATUQeDx5WFlZNRAJCTQhAAkMDWBxCCE0dXgdLVxQEEFYBWwRyHVgMWgxERV8VGR5XUFoKRhlYCx0AUktAEwROEwVSB11NVg1HD1geXBQXC0dDXgheH0wcHQ5YBhIATQoONgZZBV4JVgNDBTYSFF1FXgxDAlMDFxVWTVoCVk0FSgNfAVsKQg1KAVkAWAVeAE8CWQBGA11RHV8BWCtfEU0RUh4ZBldOGQxKHVJWUQVKDFwAaA9dHVgRXQ==
-Dkim-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=matias.me; s=sig1; t=1787611665; x=1790203665; bh=D+2ZXtNmJkUI6Ur4TvayRld6RnD66YEwnzSJoDqbNaM=; h=From:To:Subject:Date:Message-ID:MIME-Version:Content-Type:x-icloud-hme; b=Cr8m2sdBf/JHLcO9W0mrYNYsL+HD65E6ZEOc7+KatOWqibfTvXbJpQIVRBwUjLMnKHgA2Qp5GzCm6+AMPPHxEoKT6xZp0xr3HR0Wx5N8dGGguzizXb9/XT95evTEGOSzckFG6+r2ElcL0HBCuH3keCVwvILf/1CIrQ4vHuHV2K0QqVaIC2WbzAMNPsgYqYsQR72n1G/9IsKYcjj9ixr5LtScnQ9Csfm6+shhEgQJWWnRakxay89MOJtygXIXVU7awv2Puh/cudsyx5DSIMUrI12uoueokeps4SC6F+nmjh5F9j39/qot5oIUaTf/sGdWFCj3o2sCRIqOKcqQceXgPg==
+	by p00-icloudmta-asmtp-us-east-1a-100-percent-6 (Postfix) with ESMTPS id 1D002180054F;
+	Mon, 24 Aug 2026 22:47:52 +0000 (UTC)
+X-ICL-RepId: 01a035f5-6e11-7bbe-9334-676786189d3d
+X-ICL-Out-Info: HUtFAUMHWwJACUgATUQeDx5WFlZNRAJCTQhAAkMDWBxCCE0dXgdLVxQEEFYBWwRyHVgMWgxERV8VGR5XUFoKRhlYCx0AUktAEwRPEwVSB11NVg1HD1geXBQXC0dDXgheH0wcHQ5YBhIATQoONgZZBV4JVgNDBTYSFF1FXgxDAlMDFxVWTVoCVk0FSgNfAVsKQg1KAVkAXwVeAE8CVA9GA11RHV8BWCtfEU0RUh4ZBldOGQxKHVJWUQVKDFwAaA9dHVgRXQ==
+Dkim-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=matias.me; s=sig1; t=1787611673; x=1790203673; bh=a25Ir+rmVbBttW2H7mi/I3R5kWzfr+fuX8cCxTOlKgM=; h=From:To:Subject:Date:Message-ID:MIME-Version:Content-Type:x-icloud-hme; b=Kd90JjZdpGPisGrkliBdqy3aPEEIUjrz5dnRM+ANcpLzAIZm2vsYLndK027bYa1QUiP1bzrlSzs9DaXazt5r+7aiyzVz37FvJnoi/qKy2TZ0WXsLFXGxRb610v/uTqu4XdXuCV4QWNwSJnwnpmscvpR/EYhdicrZe3K9pkXvgFx0WdIuFWAiSM2fmIsqTO8KSgXfpVKTcJRKb1Ic3yB5KKfKa3uJP9QfyvCQ1cDUC/5/V5Zigls2PwTk+2xeJS5VO4w/XjH6H+PemAjZlhBA2cMSBOgHB30SbBiZ2cWQwD3aLDO5o9bpts0zppE6HiPFmBDjr/7vwWY9U/sIBMGrpw==
 mail-alias-created-date: 1705102286191
 Received: from localhost.localdomain (unknown [17.156.216.30])
-	by p00-icloudmta-asmtp-us-east-1a-10-percent-1 (Postfix) with ESMTPSA id 210C618001F3;
-	Mon, 24 Aug 2026 22:47:39 +0000 (UTC)
+	by p00-icloudmta-asmtp-us-east-1a-100-percent-6 (Postfix) with ESMTPSA id 6B79218002F4;
+	Mon, 24 Aug 2026 22:47:50 +0000 (UTC)
 From: =?UTF-8?q?Mati=CC=81as=20Marti=CC=81nez?= <hello@matias.me>
-To: Antheas Kapenekakis <lkml@antheas.dev>
-Cc: Jiri Kosina <jikos@kernel.org>,
+To: linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org,
+	Jiri Kosina <jikos@kernel.org>,
 	Benjamin Tissoires <bentiss@kernel.org>,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Antheas Kapenekakis <lkml@antheas.dev>,
 	Denis Benato <denis.benato@linux.dev>
 Subject: Re: [PATCH] HID: ayaneo: Add AYANEO 3 detachable controller driver
-Date: Mon, 24 Aug 2026 18:47:37 -0400
-Message-ID: <20260824224737.97147-1-hello@matias.me>
+Date: Mon, 24 Aug 2026 18:47:47 -0400
+Message-ID: <20260824224747.97198-1-hello@matias.me>
 X-Mailer: git-send-email 2.54.0
-In-Reply-To: <CAGwozwECcyX6vxJmiBhfO2DfOE6VbkURCArY6gvaqgXJEkA8BQ@mail.gmail.com>
-References: <CAGwozwECcyX6vxJmiBhfO2DfOE6VbkURCArY6gvaqgXJEkA8BQ@mail.gmail.com>
+In-Reply-To: <20260824220125.297EE1F000E9@smtp.kernel.org>
+References: <20260824220125.297EE1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -47,85 +48,51 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Proofpoint-ORIG-GUID: Ykon6qiFyMYApIz-AT-0HDkWuGlGkicP
-X-Authority-Info-Out: v=2.4 cv=cY7fb3DM c=1 sm=1 tr=0 ts=6a8cca0f
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODI0MDE5MyBTYWx0ZWRfX2VSUKrI0BCQw
+ pmL/U5z+o2EzTETLPp/FOLL9UpB/8oy6Ixo1cuLyyi+pd0DwCtuLlwbcOzSk2Sxg9/OPvql8RAS
+ Yxc08ZXJNgq1VxcIA9QNfEJUm+HmfkIks+aJpCqdyNqqKVSzGiroTwUA4ZfJKTchrNGDFl2lLSC
+ FC6LA8xZevkiOJyrw5kmEG7HK9VdHJYMyKWAYtjHInoV8MQ5i+iLHS4iSgQDgHHDBvxI8fwnQE2
+ Y7yWaqHGdc3fcYc2RT50aN13njM89Fz8iF52dR92GMArUBD5a7rxzEFaC8/D7gr2dc06886SXhQ
+ BwvY5y4UFHFRtoEtkL7gaCn9NDelB9z91YBIhoyXT/8ztyFpksY+KZuQ0JjaZo=
+X-Proofpoint-GUID: HKgmBi0Cu_Y91eDhAL3Gt2S1nTvlTb86
+X-Authority-Info-Out: v=2.4 cv=WN1yn3sR c=1 sm=1 tr=0 ts=6a8cca18
  cx=c_apl:c_pps:t_out a=oyWFxbOnq+dmhQrAPgaJYA==:117
  a=oyWFxbOnq+dmhQrAPgaJYA==:17 a=IkcTkHD0fZMA:10 a=MKtGQD3n3ToA:10
  a=1oJP67jkp3AA:10 a=Sv0fKeRqtYgA:10 a=M51BFTxLslgA:10
- a=VkNPw1HP01LnGYTKEx00:22 a=5SbzXZmFT2pBHATuuVcA:9 a=3ZKOabzyN94A:10
+ a=VkNPw1HP01LnGYTKEx00:22 a=F5biEvtkEkjsOq9xf6oA:9 a=3ZKOabzyN94A:10
  a=QEXdDO2ut3YA:10
-X-Proofpoint-GUID: Ykon6qiFyMYApIz-AT-0HDkWuGlGkicP
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODI0MDE5MyBTYWx0ZWRfX7mMpFDUZfznF
- XCzasbFdxfHdeadrE0I6RLdAiiTE9716qwemLGWYVknUmOmrt/N8ptFj12fZs3MJJL/I9SH+4QY
- Iy2ANnP2p2MRvrpWufP/32VJMzIKaGzLBWDqExuuZyJ+Jd9r+73j+zEEqXoHydMIZe5bJYBLeX3
- vzDen3vonqDqWREaA6qiZEXS/L14hTU0i3gNOWUVznJ8DjMTdVc7S4WEdGB9q4ilX7tAJAs75sF
- otE9pr/cMo0/pg+1uX3x1SQFj8RYEpveuduUAoYweBeCcDLgeF52njFa/SWD3V3TSTHtOnb/0WF
- ICfMmAl0ZKQMEAbetEVH75hLYECMARZWYQXXIR2lUfg4y6QK+/M42W9jFHq61k=
-X-JNJ: AAAAAAABJB+dgosi3FW0kQGwU5HcoeDqgoO840ok96XofEbKA7X6umYV9BPDufx6WHL6fSYFoUqWCJ9hUlypkY/q7v6olSAH4s0tK9FVQXEsH9uwQDVs4UiiAURAXI9jHdRXjtPMuOQWBKCTw9r6G6/YwHsWslr5t4HVRUCkaxi8H6QLnkIKWlpMTNZeqlGRE3iaepT7C0X19Phcp1f1CLGiZJqzqaw44GtAF2yprRg5TpWv3tz0t0dI1djO/Jx2lRmmioGWeUybP/thAL08DTMIdVXfPlzHXr1Qybwkjox46lBhJ90p7T6dy1aLqRKbi6chhkQb9+OOkVqsNIAvMgm11Om/SRhcAS02KfwgaRFXrM8HwOHj7NiPhAeVqoaalUKwFTMCkTsPM3gGMxbiJ2835rM4v+agjGMQFs67wx8LUyU8q0lFZ3x7XdrWwDvyx8ABdIRXIakWNhTTsciwLGelOkKZQcZ3LFVnFCboe2e0rkWp7u5yQEpXtd8FHkZCtH0IDYZRJvbqUnuQzQc5Y7jmqTbbIcwBhubSi4yQoEKKAlEhrCq9+S53p+M56w1Hmyfhq6TUxN043MwYzVp1x1vxWzK/60vYuAfZWamoqutbet+SN+xb1H1H+KT72aLdWfOf+0bfEBUQFScqMNdG7TpKa6Xk41PyK7s+Mnzj7cJiaoKiv01eJqtaCQUFBrV8MjFq942dJdi7xH6Hzq4maftIEhp55mCjfnxf9kMYfAHEkn8nATBtN9UanPuZ9+EwFB/ZR1LnMMewXjj8J15SlamMAtKQGWKKtILt3580iZmdftiH0W2Q3prT1pN5lzPm0pD/hjOT/eDCslfJbbZ+O6iQ2mnilRnD/R/kzp93zv37i17j5kABfpZJ5i2P76bnx8gBZZasFVqrXu5pl2/XgRU2ua8t04h6CYX8Z4ULsPeqxviE2OyhFsFVvyk8+/aCV9fZ3ZyhzBNNVATOcZojEUGyGHcCpvY
- vI5z4cdTsjul2fciTlGnSphCZISkFK1tr+a7gUcBhUNOeYOd7e9pSm2Jgd0gLn7HA8qP7Xowi0cRv/s5amGDe06DsvmqIyzW9Bh4ed6fz5aYAmh4v7pgIj5NRmARXYTb/EFWp0sanneYIsdwOgEQ0MQqNbGH5DxXGh3VwdGK72LFW7H5uiIIgRu8rcyDQOIr2NUBlWcRgcH+j7C1x5sc5pFxdcZvK2Ii1xDKuWmR5V4/Q8g/8OYaZDYJkFZGSaPYrI7PFjcuhO4HWK0TSWDAzEPqY5u1VRj9gGz8dU+enDfg7HLiNPfhLmABhnTuhHvb5LY/iXhug0SvjoTj28gNN
+X-Proofpoint-ORIG-GUID: HKgmBi0Cu_Y91eDhAL3Gt2S1nTvlTb86
+X-JNJ: AAAAAAAB1gZCxT4pnBwNd4m8WEe5PHfGbk3qM7ryv9/x+3ROWStxSLvaqgdyWHAoMvoFdLP96Lpi0VEGcC5kY2t2VmcbVkfwFFEDvUlQgdKeHaBNNCPREg+G+VvakLw6uOTJGkCKLT4BFMp8vQFsrdnIaPGqdZHyjJOsRMq3UDPY/q6MyFLJMLm+caHbXfnB+/LyKnDu7MMEIDis3b4gnl7KRGMztiLtL2PDSytmTMDq+33MP8/35ah3WMv0gOqc+yQ1hqrV4clvh5eJI0uDMbxyVnt+TT9+5nZ4W3FOTSeQcdQFQxlK2P2p1d6bpaRe7bNkBUpYGxbG7vsb9wvamC3FIwamQuAanIwASfpYssTJw+bsshudoTiaYlT28jU2+W1meCx1Kk1kMfZtUtSptCmd6s+dRoaYR6JS4rG5kEAZZGvFvX2KMBfNORl/nr66W5j1hTofFcMKD+sRiYmZK4UpVt+4ryG/bQ3l6ATW7YbzV0+kSdnXdOnqaT5W4lyRvS+KDn7LK6Fn117N9BI6SHsn0U9rhGw1dxAtwZ3qcXk2jMjIAhjOhcfGb7EbOnKqbjl/1kz/eE1vUaJL3TYQbbKZYPmOfx+0g3FS+DllLJoxgMaa5k5HiBJWsPvpYyx/szBqeiZDny0GUgzaGimtsiHjRAtKeLgiNdbAJx9uoYNtoFwKb5WRwo65ki5MY5eLLtUHMguNnnVeppRlbQz6TjACygDhHAlhnZliL0x8y3jHsTKi3AzXF/Y9J5p65B6TN3/lvcIvznZ7DEC0oAoMuWb5hiGHq4F41Dn8tXUF466IlEN6RHKNMIbbqbe2zQ7UyN699abApKbNaamoG5mUHva2cXhPTLnNrIA/NCIUnFSiDcC/tYKBmw2VM45b+70LplBTeWyhjPMUglUXbGIDOcxRRrMij/DcPkLbjydY/K2jdo1uhfmKJJ3HJCaRnCvcEyeKjRZssdAcBtntkdT7N5VO0paECLp
+ jSwOSbelTj7lmjn+vSTQxnqBLf8e/daFElX1DLyFiHOcgqWgykusncmuR6Pk5kbk6WDHUhiIICL4Mn8wUknB5WUg36khHFG7cKNDpHOe3zNXcxepwOm+sLFN38jzx884VKF9en/nXbBI5FE5HQx3lC+yURXyPHs/MbUMkaDtLlcynll0cdtlJ1qeMHrXm6GQ39qgyAJUODU1hkEuQOCK51NkgJPSIaueyvNXLIAmnnDkX9laoAJ7OsRvB2fq5ZQBDlAroEdtbEeBXE+5XgUWD0PlNPFkUNSzj300BUmxKkO5+TQy+b1xdSojuqYr2NTeIIvyEIMg0hvuakqWPMI39HYeWsg==
 
-> If you need userspace coordination anyway, including the multiple
-> timing hacks I had to implement, the question of having to route this
-> through the kernel arises.
+Addressing the four findings for the humans on the thread — the bot
+went two for four:
 
-Fair question. What tipped it for me:
+- The devres ordering issue is real, and understated: any brightness
+  write racing a driver unbind could queue LED work that runs after
+  hid_hw_stop() and after devres frees the driver data. I reproduced
+  memory corruption by unbinding under a brightness-write loop, and
+  the window is reachable in normal use (the controller power-cycles
+  on resume and on module eject while userspace may be writing the
+  LED). v2 registers the LED without devm, unregisters it first in
+  remove, and flushes set_brightness_work again once the sysfs node
+  is provably gone — a store can requeue it between the flush inside
+  led_classdev_unregister() and the device_unregister() that follows.
 
-- The RGB wants to be a LED class device to be usable by the existing
-  stacks (InputPlumber and friends consume /sys/class/leds, and with
-  hw_pattern in v2 the breathing mode fits an accepted ABI). There is
-  no hidraw equivalent short of every stack reimplementing the
-  checksummed vendor protocol.
+- The eject-loop stall on unplug is real too. v2 aborts on fatal
+  transport errors and only keeps polling on timeouts.
 
-- The protocol and timing part (reply matching, retries, the eject
-  handshake polling) now lives in one place. What remains in userspace
-  is policy: when to cut controller power and what UX to wrap around
-  it. That split also lets the module/eject controls be exposed as
-  narrowly-scoped sysfs attributes instead of handing out the whole
-  vendor interface through hidraw permissions.
+- The maxcollection finding is not a crash: hid_open_report()
+  zero-allocates the collection array, so a descriptor with no
+  collections reads usage 0 and probe returns -ENODEV. v2 adds an
+  explicit maxcollection check anyway, as it states the intent
+  better.
 
-- It complements ayaneo-ec, which already exposes attach state and
-  controller power on the kernel side, so both halves of the flow sit
-  at the same layer.
+- The stale-reply race cannot cross commands: replies are matched on
+  the echoed subcommand byte, so a late reply can only complete a
+  retry of the same command, and those are interchangeable snapshots
+  milliseconds apart. v2 documents this in aya3_raw_event().
 
-Working on this also flushed out a teardown bug that v2 fixes: a
-brightness write racing a driver unbind could queue LED work that ran
-after the transport was gone and the driver data freed. Reproducible
-memory corruption under a write loop, and the window is reachable in
-normal use, since the controller power-cycles on resume and on module
-eject while userspace may be poking the LED.
-
-> Overwriting joystick sensitivity is a bit problematic. Can you see if
-> dropping those four bytes still allows RGB to go through? This might
-> be preferable.
-
-Confirmed on hardware: with bytes 22/23/37/38 left zero the firmware
-still acks the config command, and RGB (solid and breathing) and eject
-all work. v2 no longer writes them.
-
-> Consider implementing the pulsing mode it offers, there should be an
-> accepted ABI for it somewhere...
-
-Done in v2 through the hw_pattern trigger ABI (pattern_set /
-pattern_clear, same two-step shape as the sc27xx breathing pattern):
-"0 <t> <brightness> <t>" selects the firmware's fixed-period breathing
-at the current colour. Tested on the device, with an ABI document
-added.
-
-(v2 crossed your second mail in flight, so two things are still open
-there:)
-
-> Almost forgot. Magic value.
-[...]
-> Magic value. You need to justify those.
-
-Right. Both are empirical firmware timings inherited from the
-Handheld Daemon implementation (its reset sequence sleeps 0.5s
-between the reset and the config restore, and it polls at a similar
-cadence during eject); both are validated on hardware. Queued for v3
-as named constants (AYA3_RESET_SETTLE_MS, AYA3_EJECT_POLL_MS/POLLS)
-with a comment stating exactly that. I'll hold v3 briefly in case
-more comes out of the v2 review.
-
-Thanks for the review!
+All of the above is in v2, along with Antheas's review items.
 
 Matías

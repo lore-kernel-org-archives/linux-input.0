@@ -1,45 +1,43 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8D65F26D4C3;
-	Mon, 24 Aug 2026 20:17:01 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F2DD5353A9F;
+	Mon, 24 Aug 2026 20:18:50 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787602624; cv=none; b=gMlkL1pjRn0hpjHVder+WRlxKCGkcjeUDvfx/0hXqHrLldB5bNTDj+8ySoILbTZKTKDy/qP+uPRKcPGuLgOcHhioX4wc+Z47gT4N8ZegF63r3u3YvRVVX+/O2wKg0O/R535EUOvBo+TuLZN5NmR+6+sJFEmNvt5DaSSWTYA8Ofo=
+	t=1787602732; cv=none; b=Jl60DHDFLOh68zMYw5EQiJ9OK7krwUFZoDrcUKFv9dKgOu0H2ncmnKuYcfmK7dWQd0l+rO7oLZNwfhGkVN3QZKuzomSqD+7n1pqw+OzfhA+lCegzSaZmCihBUc3yK7lE/EmZ2ecTka29MYM16KEc/pLYP1DbaOGVtwNWqLtPGvo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787602624; c=relaxed/simple;
-	bh=eL8mZcERIlP3ODq7vD1lXHCyHRyRPa52jrHvKHPmTzg=;
+	s=arc-20240116; t=1787602732; c=relaxed/simple;
+	bh=tyr16mGR6SxVBht/mpNADDo0wJM2ImbrICY0DG38ANE=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=I1pvLDjBMzma9I0WilXMdnMlKJpGFYj7Epn/8J7xw2i+ztyZH/1qSxrprEknZgX+/l9s8ys80enH0EcKYmjIpfEirYWFlmsPQj/mDjemp4KVf+tRt3yIjsUjj5t8/a+//TD+7cmcauqBoICVIyc0XT4b3+hk2aFwIojbJVPZA+4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=E9Y+5fkN; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:Content-Disposition:In-Reply-To; b=GwRoSe6EctVoIxi6QFOC5cPq0U1JSUXuQFMT/dmmFpXDSHI9ZPjA+OozeA47uXzNydTBTXUmDVgZ7Ths6V9TayBqyW/BWdxSrJKzN0KCMLlTB+mUcti8mXA6sloU9wUXTUQ1vBti3rlcwYgBznrCMvHwT1CKqSF8OrCSdYp2jLw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Fid6MuEj; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="E9Y+5fkN"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99E2D1F000E9;
-	Mon, 24 Aug 2026 20:16:59 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Fid6MuEj"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66C0C1F00A3A;
+	Mon, 24 Aug 2026 20:18:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787602621;
-	bh=xGxsATaa75W6554aRWVNONU+q/zmbPkoaS/Zya5qAjI=;
+	s=k20260515; t=1787602730;
+	bh=t4jVqtUtrVW3PdKQr4bbF3CENZStQe22IXu28vPdv4s=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=E9Y+5fkNuKGXlcymPTcVKZjGgl4kr2yL4VGRhNya70f5r4pocKrau7oP5moHWhDFM
-	 ddZNm/Zdw1cp5qkAJey5B6qG93aw2X/zOZTbDM35XFn+3EB/hF5hj836/eVo+yuidX
-	 t9W3bpa+dOSPWyhkv7gqwYfLw6734UxRYGn1N5ReMAz4mWlxn0UD02YMl4YaVVgQc3
-	 fFotYutD7sd8Zje1sE6Yub1A9cqoBK26ZO8LmuQIDbX5qTnJhX4TlkpS2x7I5D6sS9
-	 M3KTQM+ccxBshHUSuDvacZR+xkrD3ehKNyMveM46HJw9/OtY/2Z6SijHrutDLkuDe8
-	 /4i5IuZyXtY4g==
-Date: Mon, 24 Aug 2026 21:16:56 +0100
+	b=Fid6MuEjrJ48EIXTyZlbx4vI09Yu5abzD2BlVM7oG3Ri3NOjFk4j53EiJfCokyURr
+	 7HOYNDrI8b5kvCcjF9X7tPMCcCsfozPHey8F0MsP/b5LeVuCG8sZof7UOqv3pprHj/
+	 1yu5Bm9Nnwpz9vP0FHSl0lqfTrApggfruW7gQeqP2SHfB8u4mBavz0O/xk5ZlZXR66
+	 nsDZRlTtdzwrSPOeEHxSqZf/Rh3M6zh2tyqu7N+2sZJQIqlBs35uRfZlZ6J0GXS+kD
+	 LG8aCdnQAe+wgOINmnPbpB5LJOxCe1+7PZ4IDCBIhQcHPbk8AQbnTE11QF0wLbU+tz
+	 DOs3z/1V5XRMw==
+Date: Mon, 24 Aug 2026 21:18:46 +0100
 From: Lee Jones <lee@kernel.org>
-To: Benjamin Tissoires <bentiss@kernel.org>
-Cc: Jiri Kosina <jikos@kernel.org>, Matteo Croce <technoboy85@gmail.com>,
+To: Matteo Croce <technoboy85@gmail.com>
+Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>,
 	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
 	Matteo Croce <teknoraver@meta.com>
 Subject: Re: [PATCH v2] HID: core: demote warning to debug level
-Message-ID: <20260824201656.GB770273@google.com>
+Message-ID: <20260824201846.GC770273@google.com>
 References: <20260523105545.68079-1-technoboy85@gmail.com>
  <9no2pr1r-5277-5765-9q79-on37sn09qn4n@xreary.bet>
  <20260824102552.GA813380@google.com>
- <aoxCGPgdKqV2FkmL@beelink>
- <20260824142200.GA770273@google.com>
- <aoxcpDR8jnuUA1nF@beelink>
+ <CAFnufp1pvgqvQqa_L+XFAsVd=rds4L9L14tg7B5kHtRdKFwViw@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -48,70 +46,56 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <aoxcpDR8jnuUA1nF@beelink>
+In-Reply-To: <CAFnufp1pvgqvQqa_L+XFAsVd=rds4L9L14tg7B5kHtRdKFwViw@mail.gmail.com>
 
-On Mon, 24 Aug 2026, Benjamin Tissoires wrote:
+On Mon, 24 Aug 2026, Matteo Croce wrote:
 
-> On Aug 24 2026, Lee Jones wrote:
-> > On Mon, 24 Aug 2026, Benjamin Tissoires wrote:
-> > 
-> > > On Aug 24 2026, Lee Jones wrote:
-> > > > On Wed, 10 Jun 2026, Jiri Kosina wrote:
-> > > > 
-> > > > > On Sat, 23 May 2026, Matteo Croce wrote:
-> > > > > 
-> > > > > > From: Matteo Croce <teknoraver@meta.com>
-> > > > > > 
-> > > > > > The log level for short  messages was changed from debug to warning,
-> > > > > > flooding syslog on systems with devices that regularly send
-> > > > > > short reports, in my case an UPS:
-> > > > > > 
-> > > > > >     $ dmesg |grep -c 'Event data for report .* was too short'
-> > > > > >     35
-> > > > > > 
-> > > > > > Demote it back to debug level.
-> > > > > > 
-> > > > > > Fixes: 0a3fe972a7cb ("HID: core: Mitigate potential OOB by removing bogus memset()")
-> > > > > > Signed-off-by: Matteo Croce <teknoraver@meta.com>
-> > > > > 
-> > > > > Applied, thanks.
-> > > > 
-> > > > FWIW, I'd like to contest this patch.
-> > > > 
-> > > > The warning is real.  It means that the HID report was rejected and as
-> > > > such something on the system will be now be non-functional.  Silencing
-> > > > the warning is not helpful.  It does not fix the issue, and now the user
-> > > > / admin has no idea that its even happening.
-> > > > 
-> > > > This warning has caught a bunch of genuine issues related to testing
-> > > > infrastructure and incorrectly coded firmware that have subsequently
-> > > > been rectified.
-> > > > 
-> > > > Please don't hide this issue.  Fix the root cause instead.
-> > > 
-> > > Please have a look at the actual code in the tree first. That patch was
-> > > applied by Jiri, yes, but IIRC it was dropped in a merge commit and is
-> > > not included in any trees AFAICT.
-> > 
-> > Sure, but there was an attempt to have it reapplied [0].
-> > 
-> > My plea goes out to both submissions.
-> > 
-> > [0] https://lore.kernel.org/all/aoF-jIn9gk9kJ7Pz@decadent.org.uk/
+> Il giorno lun 24 ago 2026 alle ore 12:25 Lee Jones <lee@kernel.org> ha scritto:
+> >
+> > On Wed, 10 Jun 2026, Jiri Kosina wrote:
+> >
+> > > On Sat, 23 May 2026, Matteo Croce wrote:
+> > >
+> > > > From: Matteo Croce <teknoraver@meta.com>
+> > > >
+> > > > The log level for short  messages was changed from debug to warning,
+> > > > flooding syslog on systems with devices that regularly send
+> > > > short reports, in my case an UPS:
+> > > >
+> > > >     $ dmesg |grep -c 'Event data for report .* was too short'
+> > > >     35
+> > > >
+> > > > Demote it back to debug level.
+> > > >
+> > > > Fixes: 0a3fe972a7cb ("HID: core: Mitigate potential OOB by removing bogus memset()")
+> > > > Signed-off-by: Matteo Croce <teknoraver@meta.com>
+> > >
+> > > Applied, thanks.
+> >
+> > FWIW, I'd like to contest this patch.
+> >
+> > The warning is real.  It means that the HID report was rejected and as
+> > such something on the system will be now be non-functional.  Silencing
+> > the warning is not helpful.  It does not fix the issue, and now the user
+> > / admin has no idea that its even happening.
+> >
+> > This warning has caught a bunch of genuine issues related to testing
+> > infrastructure and incorrectly coded firmware that have subsequently
+> > been rectified.
+> >
+> > Please don't hide this issue.  Fix the root cause instead.
+> >
+> > --
+> > Lee Jones
 > 
-> It would have been so much easier to reply to the bump instead of the
-> old original submission. The bump had all the references on the commit
-> shas where they were included and overwritten, which would have saved me
-> time.
+> Hi,
+> 
+> the message was debug long before and was promoted to warning during a refactor.
+> With my patch I just restored the previous priority.
 
-It was 50/50 and I chose the original patch.
+Sure.  I'm not contesting the logic.
 
-The important thing is that the point was made.
-
-Sorry if it took you the extra cycles to work it all out.
-
-> FWIW, that bump doesn't show up in my public-inbox query, which is why I
-> did not saw it.
+My point still stands, however.  IMHO this deserves warning status.
 
 -- 
 Lee Jones

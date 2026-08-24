@@ -1,109 +1,95 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.10])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-oi1-f199.google.com (mail-oi1-f199.google.com [209.85.167.199])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1E53D201025;
-	Mon, 24 Aug 2026 03:14:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.10
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0BB57238150
+	for <linux-input@vger.kernel.org>; Mon, 24 Aug 2026 04:32:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.199
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787541270; cv=none; b=eWpGu2bCN/ukLwzlhjazq9pxNarpSCh4GtRx1EedQmMqzkAwoXt5cu60phUJTWq6r6VsscBGccc7OoJIo+j3mc4jOSY3OJlwgLLortrSOpJoA1eAj6dj5bG988G/dSH++9hXg+Y4bCZAQ7rypDCTeA7zay9W3q4pHZH79NbbGPU=
+	t=1787545958; cv=none; b=s3x3jAGW4ChqF2xvAaZNG9leRSl9BwhwXyvVbj+kgotACh1NQkeymJk2Y7KQRTxGqC073RFEYV2iCx3j0ovqYMtFjMhh1d8/hf8hycEG+nlF5jeJLMgoLYnJuOTP2HDS6iNq5Y77zv66l05ZMdjRDzLekr/HWKgPMuvqazgds6E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787541270; c=relaxed/simple;
-	bh=Sc/jdSqO/i/4q1jM+6c4F9ERo3EyJ8CTu4K/UXataaI=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=u/XkWiADePKnyrOYRduN7Al1+k0RUbqE3bJgmXcX6HCd4VCdSTUuCkX/o10vOfgCzJ6IZyihSHyt/W0wAZmnQ9Al91+wB+cYMeAb+Xlqj72gTBi/VkMoSG89vI04dkGMHdCCa/vEv5dCboDplj0nO8RkUrAxD/qTU8nweM/X4eg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=fu7pQ5hI; arc=none smtp.client-ip=198.175.65.10
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="fu7pQ5hI"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1787541268; x=1819077268;
-  h=from:to:cc:subject:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=Sc/jdSqO/i/4q1jM+6c4F9ERo3EyJ8CTu4K/UXataaI=;
-  b=fu7pQ5hIgmXwbkg+rxALYqf/eG162NOu7H9nuE4aMxX4gc4s8XM/wJPm
-   ceU8tNiTfHKhIVnupau14lAroCGfTDbR1+UK9WH6ofhE4o2zQbQBVHRh0
-   xHcJ4eoiYZNqN8WQKpTP/EZlu6EZBAjiAe2+7v3TZJ5NX3W0K04WMVGxY
-   jP99im4qRruUYtCZkd8Iq1RPLPlgWbB3B8NUfx0+h7p8G1nTlvali0kXQ
-   bk3nm2LAW0VpSnhnSoSN/JmjU9dM7by9Nmv4TOn+Cs3uHrWpqsP3D2Tgh
-   gDmgzTzd22taB47zqaR4IqjqEjhGF0PPmq8Z6yMC4ejFFQFbPCKialbFH
-   Q==;
-X-CSE-ConnectionGUID: 9jkd+CP6SRibMDHfG3DI9w==
-X-CSE-MsgGUID: zRMWIEFHRWyoq6noLblNzg==
-X-IronPort-AV: E=McAfee;i="6800,10657,11884"; a="105362209"
-X-IronPort-AV: E=Sophos;i="6.25,239,1779174000"; 
-   d="scan'208";a="105362209"
-Received: from fmviesa002.fm.intel.com ([10.60.135.142])
-  by orvoesa102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Aug 2026 20:14:27 -0700
-X-CSE-ConnectionGUID: OH47iMqCQLmm5XIrCt6JWg==
-X-CSE-MsgGUID: 8HhQ3z9pSYCNHQ21vdhCfA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.25,239,1779174000"; 
-   d="scan'208";a="290401001"
-Received: from junjie-desk-dev.bj.intel.com ([10.238.152.71])
-  by fmviesa002-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Aug 2026 20:14:26 -0700
-From: Junjie Cao <junjie.cao@intel.com>
-To: Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>
-Cc: linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Marco Carvalho <marcocarvalho.web@gmail.com>,
-	stable@vger.kernel.org
-Subject: [PATCH] HID: quirks: add ALWAYS_POLL quirk for SDINNOVATION gaming keyboard
-Date: Mon, 24 Aug 2026 11:14:19 +0800
-Message-ID: <20260824031419.316315-1-junjie.cao@intel.com>
-X-Mailer: git-send-email 2.43.0
+	s=arc-20240116; t=1787545958; c=relaxed/simple;
+	bh=LULVv9+cxMQibNAw4GqRtO4wk8ZrnsL001SW2ofsgLY=;
+	h=MIME-Version:Date:Message-ID:Subject:From:To:Content-Type; b=Ul6xsahXfZKavYtTYfg0scNyvaR3sYo//I/79kHnSEKBII6SD7FcToG9+eUSmD9vr+/VlniMW+85i3rvD9LUtSjvFLyQcvIXPbB4PDGSpHZMExMe/bhcnR3gGOBv7PaGoJwu3Dr9WofqtLWMMUa5XYybMZFLiYoXLAzJxsIh29s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.167.199
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
+Received: by mail-oi1-f199.google.com with SMTP id 5614622812f47-48e5de5a23cso5715536b6e.0
+        for <linux-input@vger.kernel.org>; Sun, 23 Aug 2026 21:32:36 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1787545956; x=1788150756;
+        h=content-type:to:from:subject:message-id:date:mime-version
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=DYDXorjwEajIXLH6ofQ7xSZ3GAPtikaP65ZXmuxfVGg=;
+        b=tLkqBY3L0EyBS5ETKxWZ/Ddq/nBECOw76aw0ZGYonMtWMeJYnHmlWkrZfpjfabe4b0
+         ccP/HgEoRUFJ0K2Dfb5nH1zNSsXDZuEMV5jSIEi+maVqTSEfGh9JVKr5VreTUZVmVnNw
+         DNqcMYdWu9Dxy8Z1qktgw4QsRoHlEu10GfsgtvHMnU+CbR6IltpJnKB5pJgfsjMStfp6
+         7fcKqRuKT6tlvaP7Gd9Fr6+gBLMgERIFjG+QbsdeRsrLzs77HqK8xkvL43K22U7WblJr
+         cIa9o6e3kh5DUf38rwDmKHDdvg9cYVjAjTf95Ik2qWA82vb1bQoN+ws5+GMoyvSkDDiA
+         vmJA==
+X-Gm-Message-State: AFuF++n8/c01Xa2LMNt0T2NW1F5sUQAUGbw7K35eHc8i0yvdhv/7eP9z
+	j631iask/p65wdUFd1/Q+q0CpKafcvjudvPV2J3J2OsFZ/jrznMYVKPGRQy30NVRA5B/YwbKnzv
+	rdf7cn9HZ7Cz8ct5GHal870pEEunYYucfSppOsvzYicVAK2jYwe06BjKfpJo=
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+X-Received: by 2002:a05:6808:198f:b0:495:f79d:b08e with SMTP id
+ 5614622812f47-4b2ef584b2cmr25746409b6e.21.1787545956082; Sun, 23 Aug 2026
+ 21:32:36 -0700 (PDT)
+Date: Sun, 23 Aug 2026 21:32:36 -0700
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <6a8bc964.dbb3a75c.13dd47.005f.GAE@google.com>
+Subject: [syzbot] Monthly input report (Aug 2026)
+From: syzbot <syzbot+list4c2d90c86389244a175a@syzkaller.appspotmail.com>
+To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	syzkaller-bugs@googlegroups.com
+Content-Type: text/plain; charset="UTF-8"
 
-The SDINNOVATION gaming keyboard (USB ID 36ae:feab) stops reporting
-input events after its RGB lighting mode is switched about twice.
-Disabling USB autosuspend and unbinding the other HID interfaces make
-no difference; the issue does not occur on Windows.
+Hello input maintainers/developers,
 
-HID_QUIRK_ALWAYS_POLL alone resolves it, verified on 7.1.8 via
-usbhid.quirks=0x36ae:0xfeab:0x400.
+This is a 31-day syzbot report for the input subsystem.
+All related reports/information can be found at:
+https://syzkaller.appspot.com/upstream/s/input
 
-Reported-by: Marco Carvalho <marcocarvalho.web@gmail.com>
-Link: https://bugzilla.redhat.com/show_bug.cgi?id=2514627
-Cc: stable@vger.kernel.org
-Signed-off-by: Junjie Cao <junjie.cao@intel.com>
+During the period, 9 new issues were detected and 1 were fixed.
+In total, 26 issues are still open and 65 have already been fixed.
+There are also 4 low-priority issues.
+
+Some of the still happening issues:
+
+Ref Crashes Repro Title
+<1> 1192    Yes   KASAN: slab-out-of-bounds Read in mcp2221_raw_event (2)
+                  https://syzkaller.appspot.com/bug?extid=1018672fe70298606e5f
+<2> 270     Yes   WARNING in cm109_input_open/usb_submit_urb (3)
+                  https://syzkaller.appspot.com/bug?extid=ac0f9c4cc1e034160492
+<3> 177     Yes   KASAN: slab-use-after-free Read in report_descriptor_read
+                  https://syzkaller.appspot.com/bug?extid=bc537ca7a0efe33988eb
+<4> 93      Yes   possible deadlock in __kernfs_remove (3)
+                  https://syzkaller.appspot.com/bug?extid=1075f6dc93f398c1857e
+<5> 51      Yes   INFO: task hung in console_callback (6)
+                  https://syzkaller.appspot.com/bug?extid=6027421afa74a2ba440d
+<6> 26      Yes   INFO: task hung in __input_unregister_device (5)
+                  https://syzkaller.appspot.com/bug?extid=78e2288f58b881ed3c45
+<7> 24      Yes   INFO: rcu detected stall in do_syscall_64
+                  https://syzkaller.appspot.com/bug?extid=a3bc6ce74afdd295fe4b
+<8> 13      Yes   KASAN: slab-use-after-free Read in input_dev_uevent (2)
+                  https://syzkaller.appspot.com/bug?extid=2a123f6269da57ffefaa
+<9> 8       Yes   possible deadlock in tasklet_action_common (2)
+                  https://syzkaller.appspot.com/bug?extid=b5d7ab56d43de3fd5aac
+
 ---
- drivers/hid/hid-ids.h    | 3 +++
- drivers/hid/hid-quirks.c | 1 +
- 2 files changed, 4 insertions(+)
+This report is generated by a bot. It may contain errors.
+See https://goo.gl/tpsmEJ for more information about syzbot.
+syzbot engineers can be reached at syzkaller@googlegroups.com.
 
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 341bf587863b..10f3a69b82db 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -1295,6 +1295,9 @@
- #define USB_DEVICE_ID_SAMSUNG_WIRELESS_UNIVERSAL_KBD	0xa006
- #define USB_DEVICE_ID_SAMSUNG_WIRELESS_MULTI_HOGP_KBD	0xa064
- 
-+#define USB_VENDOR_ID_SDINNOVATION		0x36ae
-+#define USB_DEVICE_ID_SDINNOVATION_GAMING_KBD	0xfeab
-+
- #define USB_VENDOR_ID_SEMICO			0x1a2c
- #define USB_DEVICE_ID_SEMICO_USB_KEYKOARD	0x0023
- #define USB_DEVICE_ID_SEMICO_USB_KEYKOARD2	0x0027
-diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
-index 8a0b51d47040..c8c6b29fc04d 100644
---- a/drivers/hid/hid-quirks.c
-+++ b/drivers/hid/hid-quirks.c
-@@ -186,6 +186,7 @@ static const struct hid_device_id hid_quirks[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SAITEK, USB_DEVICE_ID_SAITEK_X52_2), HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SAITEK, USB_DEVICE_ID_SAITEK_X52_PRO), HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SAITEK, USB_DEVICE_ID_SAITEK_X65), HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_SDINNOVATION, USB_DEVICE_ID_SDINNOVATION_GAMING_KBD), HID_QUIRK_ALWAYS_POLL },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SEMICO, USB_DEVICE_ID_SEMICO_USB_KEYKOARD2), HID_QUIRK_NO_INIT_REPORTS },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SEMICO, USB_DEVICE_ID_SEMICO_USB_KEYKOARD), HID_QUIRK_NO_INIT_REPORTS },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SENNHEISER, USB_DEVICE_ID_SENNHEISER_BTD500USB), HID_QUIRK_NOGET },
--- 
-2.43.0
+To disable reminders for individual bugs, reply with the following command:
+#syz set <Ref> no-reminders
 
+To change bug's subsystems, reply with:
+#syz set <Ref> subsystems: new-subsystem
+
+You may send multiple commands in a single email message.

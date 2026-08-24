@@ -1,63 +1,65 @@
 Received: from mail-pl1-f175.google.com (mail-pl1-f175.google.com [209.85.214.175])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DE6713DDDCB
-	for <linux-input@vger.kernel.org>; Mon, 24 Aug 2026 05:50:19 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1CB803DDDCB
+	for <linux-input@vger.kernel.org>; Mon, 24 Aug 2026 05:50:27 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.175
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787550621; cv=none; b=VaPfXRwh0jkjCEPb4IAIZZfbb+dMXRY4+EHb0A8SOwqx/3PRNnbxOL8lRtthkYgAB7msBnFVV1k7cROUckuTyWp5+hEz8os3om0mqCZGkqDGpOHktkaJdg776l33wz+PcBBlVnZM6v2uyfnoUqcsrDurZ60vMYaDSayr0Jy18d4=
+	t=1787550630; cv=none; b=WKJAZJ7zNQzau28kSmvxC+ip/7XkCLnfa5S2LNeG4E18L+7yFjzNl2WpUf4uluqGSO9JlPi3ZROApLGOOZhI9x07Yu+9jtIocAb2xl9EOGJzgInkM6v/l/1bDyri7KtwZQ6Xg1mGkZ4dytIZyhN1cO+ofRLolKPJsbX45yp01xc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787550621; c=relaxed/simple;
-	bh=LKqlCrOkqJ+yHwu2xim2fGa59Ex5ZiUy4lgPkuA0YTo=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=BKzQgeqSbEfGC6lMCvKWMdj0DO1+oJmd7Ho3Z4XzALGU1dO/DdeCtCPOl8MoD6yZVj6apaKdzvB51dYWBKeUpPQIxkkOS6Odupps0/VRRhMFW8n8J0RK9GUR6xcWR2mSqTW0MR20fKyHGc1coIkOtjRc7qhrOl9o5AnFRUE8PAY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=B67zjBf9; arc=none smtp.client-ip=209.85.214.175
+	s=arc-20240116; t=1787550630; c=relaxed/simple;
+	bh=WZE0UAjryG3LKGmJlWlrF4NVV/WeS+t9+KyPhRYEdqo=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=YOsymx50CJGGwu3AONjRHIZiKNG6f9JBWP+HxSlRCb8ULoVV0h8zWzsyyK4qpX2a21Y1WXc5dUixXjoaYo7FbUbXkTGbmAd11iuF3QTS40ROFYwV0fh1IYPGIPSgOA9N+qfCcfBJGjFKY4gUlW8RwvtmhNzpFpT4QIUCVRuzrPo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=b3Yq0NfM; arc=none smtp.client-ip=209.85.214.175
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="B67zjBf9"
-Received: by mail-pl1-f175.google.com with SMTP id d9443c01a7336-2ccf2360620so25827635ad.3
-        for <linux-input@vger.kernel.org>; Sun, 23 Aug 2026 22:50:19 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="b3Yq0NfM"
+Received: by mail-pl1-f175.google.com with SMTP id d9443c01a7336-2cc7e86e7aeso42473535ad.2
+        for <linux-input@vger.kernel.org>; Sun, 23 Aug 2026 22:50:27 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1787550619; x=1788155419; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=yVJTYkkQH5gOYluDI9SFf2oC6ea5cSp1/xayNBayQbA=;
-        b=B67zjBf9VJl3XAm8DN9pCoYI14czMxp5k2G+0lTHP5gx95MFSXjP9HlelXpiGolJn+
-         eVeL0MV1s5uGNuIVrU5RrlJelx1sBawTZouAxb5YYsdF5YXQ+d3F21+mbwu0d03njO+J
-         JkSZ4FYL7THUUYdD9BWOMDvUuFnTIKM7Dd55++nUI391sQE4ibWFQTNnHTnvX65wTCBO
-         JM9jxEG8kGPK95Q2SyHmrClcPDE1LePg5zptmNPvY6nly7J2exSuuhqIJ+xfOYGtjLgU
-         EiXaUIIaK1X8QKamqzq+Xo0iWZk1t9PPOe6NACNie0xjYA4CRs8TNmEdtP/1tIv/Z36+
-         V+LQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787550619; x=1788155419;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=gmail.com; s=20251104; t=1787550627; x=1788155427; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=yVJTYkkQH5gOYluDI9SFf2oC6ea5cSp1/xayNBayQbA=;
-        b=G+1IuYYOSYAW5D5TCB+N0om4tfHx3YYpmDQnnSBr2qBYzVphYNp234MB5nfq0PbfWL
-         cqGO/sI7Ba6yfU4UrHBm1QAU0JooKbJBNRkWBjfEnhp42ovo+pmhTbTf3lQ4tvLXMvXv
-         6FpeSfAri3EajzMUjxg92Ql5lABFA/vN54FMJWqb4xqR5Cmo9qvqJFTwbFoHqR+G1EEU
-         OsCmxstur9OmepmRW7C0Gki+B64QMwsizMYaA/FWZPOIuFrMff/NmjZbt7EqWEsilY09
-         RBiIOaMhkKOqq0bV4v8+5FgCM23kUe+NZZrfDK5srhqDcM02yjmKFTqwCXP/Ta1pSYym
-         i4EA==
-X-Forwarded-Encrypted: i=1; AHgh+RoOYyinTqlp4XF7w3hkQOi+wq3zprjZnQBntA0EwU2w4Z2WfBRvtmFNlSnMSFBLUv7fvkuFzvCPMXoDog==@vger.kernel.org
-X-Gm-Message-State: AFuF++lrSqp7S2/6Y0C9OtyFLv5SGt1RMDXzzXQ9z8w9KeCC1S5LD8Zk
-	U5uL42q4x3w2aYwgafTK24B2duesFv4iJh7gOsaTvEIuhwWBIS6NLP5G
-X-Gm-Gg: AR+sD109m4YqN8vmyA22j/gXpuCQXeUp0CmWxrs1m83F1xW5v0SGCOOyertfuhCLZXf
-	S0uSzBj+PI3HCc7jn4uKlxVC6zwvjmiAi8QKRfbARF8hlV5J/BGQrmGO5yXVMuiaX5/wNxms9xy
-	1H+WNf0JdLTBz0l8kEztivK6dBxwY/cYRKSmxWByreGmDTUovnsNa2cpFdJJRAs/6glIB54UPwr
-	8vvM8UfWrCtL5kdhyPyBofzcDY5/u7gskU2hz9lKEMqEh6pWISB1XHtsFTPpDH83J+phdflAYi4
-	GxZ4O5Ed8R76cAyDeH0XyCsDNnkoDzIalqchpDWHowFCV7tiKH7vMIvEKGRQ1g9+P2YVweyVDE6
-	D+hO58ZIIkML2XVG/j8mogPRl7tjsr4SizqGdl4hzqJt1UWvrTfiDKcILnzP3yWJubz9FteqsgA
-	ImnhM21KEa8rv7Z0naocn/nLiZII5//JBSTpNEXY+KcSOibymaHxfnZDOiWSZycc79fPb04Ppu6
-	FhfePkv/ThDWRVxG1/xtsTVTHzdpvpO0P4+w9W6ismrAo3kr4Zy5pHQBf64Vh31akXCnSzvR89b
-	wusSzsXJwBXzBGDp/BEy7ASWr8Ib5Nsc3HY=
-X-Received: by 2002:a17:902:d544:b0:2d3:a6db:299 with SMTP id d9443c01a7336-2d64adec78fmr462478795ad.6.1787550619067;
-        Sun, 23 Aug 2026 22:50:19 -0700 (PDT)
+        bh=EB3wFOXHlXyIKQOwKFQXlogVT9fQ7bqKTlFugd3hmJ4=;
+        b=b3Yq0NfM2W2WY7nw9PUixGDdTxFA0LFPnu80kJG80gTDj/3QER/9SFE4pmwbyr+xow
+         pKgoYMwOw4AcbIlVCsyhVja9KyUTKH68ZG+jreIKFpv5abtQ+b27BNy8IJnrRT/vkk50
+         EYx1ePF054OKarryHm5qsxneeCWjYe2vigG0PObtBlGzZezGMztYRx6HzDaSeWvZAHYK
+         /dBIv1UK9xwCkc3mPef2BNlEcmv84mO3FKkV8AkHu/8Iom/+oVLnkWuPRps1qDInLH0M
+         dIOFICiRiFRp/oCUj1p2PIA9NAiLiGZdR5FcmDqrDm27k1HaQfjR2bY+p2xe+UFQJ0G4
+         rFog==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1787550627; x=1788155427;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=EB3wFOXHlXyIKQOwKFQXlogVT9fQ7bqKTlFugd3hmJ4=;
+        b=rsviYx4zj1PgQhq87ZotyLApvHbnZM9qFaRsO9plbBJSFqlrqpskO0nC1epmfr3M03
+         YSeb5rZsXEkKcr7Gzqed2JK+IfaVDFm7IR5s2zHdd8SmP/IZZfPp2BB6lqtPp+trWnjv
+         G9Rzjr96gVe3IjPvi5Xa36MxaJ+xBfmGbMpv4LXkosq0P5qDDMgqtD9ZvuhMXkSZbQTv
+         oFxBP/9rOeUcZq1BQkH3NplZGDCMY0vCMrUdKX7QddEFZtCrA9lAPCsLJgE6r/badx7b
+         RvmAFH/H3Fyh9RhfRjtkqARBTiC8QS/nh6XYDqPUEfz82VxsTsfcvyOI3nmdChWt5bvS
+         azjQ==
+X-Forwarded-Encrypted: i=1; AHgh+Ro3rVyrynn2/N06DrhR0Vg8eyTxNmRcjc0lMXwa3VfQJcGvPFQaPwGYcELUZL9B5HC2Z1ZJZKIjV42DTA==@vger.kernel.org
+X-Gm-Message-State: AFuF++nPYnKGX/qnKpYW1z5tXXKz3nI/uEvDTKWJK/+FPdfuA0qwHbts
+	qVDxK4Md5A5Ya8YKZw1J0iTJ9PnHGjdhL08K3c5TuKAaZoQu80Nqnzvb
+X-Gm-Gg: AR+sD1178NL0TDzR4k1f2dbOFf3uc9AezYDfdqxIQiGcvHb7jUu05xQ80YZcG7QNAW6
+	qYXHDktb3qYl2wFkwkVPAbIXmAItFZ/csHor6jfgS8NRYqWqAHo8Y00IN9k93WUlN5K8m44z0nx
+	qTcXfbmVsnYbENXnN43e01/iORzggoSQPwp11HQXdUPBJD2O0e1sn6UzhusizCNzYBPCDsKyH/M
+	btufhV9WC7Fqrk6OgkkoMB5Dgh6PcKoBSvcSirViq5/V+N4wvfWEral7+gZt0u57oI/Mx18oz4B
+	m6VUhwqdfMoQtAR4Ly8IiWV9Tc+UToWqUVMpyrZ1lbNc/eVD42TvMuVUCKCfIk7c6VOIHGNdoj8
+	ipDlUCsgJQzlFy05QEJhJQIJiin9xfFJQgx5RcIqhSNexNh59Gr0nZwwtn/PetpX4QGvcqJqIZC
+	d/GmkD392/3tWHuUqF7TXMQ9y+y4swBZiGVw4rYEheHpttLdjOiP9hDH1TJOWtWwmkscB29/h0h
+	qIWzq+fTLpyWAdjHzXCiBJzMfxP1uufydkViTlBTXfmgrQAm+AwtKPGuUR1SOouh1YwROc9fUUd
+	t2Tn+bnaoL6BU4ZBscgKcZps
+X-Received: by 2002:a17:903:354b:b0:2ca:f21a:a6c5 with SMTP id d9443c01a7336-2d64ada70cemr430814115ad.1.1787550627273;
+        Sun, 23 Aug 2026 22:50:27 -0700 (PDT)
 Received: from LAPTOP-UUUVNN1I.localdomain (bb119-74-6-224.singnet.com.sg. [119.74.6.224])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2d6768c9876sm13955655ad.68.2026.08.23.22.50.16
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2d6768c9876sm13955655ad.68.2026.08.23.22.50.24
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 23 Aug 2026 22:50:18 -0700 (PDT)
+        Sun, 23 Aug 2026 22:50:26 -0700 (PDT)
 From: Wei Jie Law <98lawweijie@gmail.com>
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: Andrew Duggan <aduggan@synaptics.com>,
@@ -66,10 +68,12 @@ Cc: Andrew Duggan <aduggan@synaptics.com>,
 	linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	stable@vger.kernel.org
-Subject: [PATCH 0/2] Input: synaptics-rmi4 - fix two device-controlled out-of-bounds writes
-Date: Mon, 24 Aug 2026 13:50:10 +0800
-Message-ID: <cover.1787549234.git.98lawweijie@gmail.com>
+Subject: [PATCH 1/2] Input: synaptics-rmi4 - fix irq[] overrun with 7 interrupt sources
+Date: Mon, 24 Aug 2026 13:50:11 +0800
+Message-ID: <4a48122167e32a6755d9ee7033f29bf7c78be796.1787549234.git.98lawweijie@gmail.com>
 X-Mailer: git-send-email 2.43.0
+In-Reply-To: <cover.1787549234.git.98lawweijie@gmail.com>
+References: <cover.1787549234.git.98lawweijie@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -78,69 +82,80 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Hi Dmitry,
+rmi_read_pdt_entry() takes the interrupt source count straight out of the
+Page Description Table entry the device supplies:
 
-While putting together a reproducer for an out-of-bounds bug in hid-rmi
-(v2 posted separately, [1]) I found two further memory-safety problems in
-the shared RMI4 core.  Both are driven entirely by data the *device*
-supplies -- its Page Description Table -- so they are reachable from a
-malicious USB HID device with no code running on the victim, and equally
-from I2C and SMBus RMI4 devices.  Neither depends on the hid-rmi bug;
-they are in drivers/input/rmi4/ and need fixing separately.
+	entry->interrupt_source_count = buf[4] & RMI_PDT_INT_SOURCE_COUNT_MASK;
 
-Both are present in mainline and in every stable tree I looked at.
+RMI_PDT_INT_SOURCE_COUNT_MASK is 0x07, so the value can be 7, and
+rmi_create_function() copies it verbatim into fn->num_of_irqs.  But
+struct rmi_function declares
 
-1/2 is an off-by-one: RMI_PDT_INT_SOURCE_COUNT_MASK is 0x07, so
-interrupt_source_count can be 7, but struct rmi_function declares
-int irq[RMI_FN_MAX_IRQS] with RMI_FN_MAX_IRQS == 6 and two loops walk it
-up to fn->num_of_irqs.  irq[6] is the storage of the next member,
-unsigned int irq_pos, so the function's position in the interrupt bitmap
-is silently replaced with a Linux virq number.  UBSAN flags all five
-stores plus the read on the unregister path.
+	int irq[RMI_FN_MAX_IRQS];
 
-2/2 is a time-of-check/time-of-use across two reads of the device: the
-PDT is scanned three times and re-read from the device every time,
-irq_mask[] is sized by the counting scan and filled by the creating scan,
-and nothing verifies the two agree.  KASAN catches the resulting
-set_bit() walking off the end of the flexible array at the tail of every
-struct rmi_function.
+with RMI_FN_MAX_IRQS == 6, and both rmi_create_function_irq() and
+rmi_unregister_function() index that array up to fn->num_of_irqs.  A
+device declaring 7 interrupt sources for a function that has a handler --
+F01 always does -- makes the driver write irq[6], which is the storage of
+the following member, unsigned int irq_pos.  The function's position in
+the interrupt bitmap then holds a Linux virq number, and that value feeds
+set_bit(fn->irq_pos, ...) in rmi_f11_probe()/rmi_f12_probe() and the
+irq_dispose_mapping() loop on teardown.
 
-How this was verified
----------------------
+UBSAN reports every store in the loop body and the read on the unregister
+path:
 
-Linux v6.12.69 (CONFIG_UBSAN_BOUNDS=y, booted slub_debug=FZPU) and
-v6.12.105 (CONFIG_KASAN=y + CONFIG_KASAN_INLINE=y, CONFIG_UBSAN_BOUNDS=y,
-booted kasan_multi_shot -- generic KASAN otherwise reports only the first
-error per boot), x86_64.  An emulated Synaptics RMI4 device publishes a
-Page Description Table crafted for each case.  Two independent
-reproducers, giving identical results:
+  UBSAN: array-index-out-of-bounds in drivers/input/rmi4/rmi_bus.c:183:10
+  index 6 is out of range for type 'int [6]'
+  Workqueue: events uhid_device_add_worker
+   dump_stack_lvl+0x64/0x80
+   __ubsan_handle_out_of_bounds+0xc8/0x100
+   rmi_function_probe+0x1c1/0x210 [rmi_core]
+  UBSAN: array-index-out-of-bounds in drivers/input/rmi4/rmi_bus.c:186:28
+  UBSAN: array-index-out-of-bounds in drivers/input/rmi4/rmi_bus.c:187:35
+  UBSAN: array-index-out-of-bounds in drivers/input/rmi4/rmi_bus.c:189:32
+  UBSAN: array-index-out-of-bounds in drivers/input/rmi4/rmi_bus.c:191:54
+  UBSAN: array-index-out-of-bounds in drivers/input/rmi4/rmi_bus.c:282:30
 
-  - a /dev/uhid program -- no hardware, fully deterministic, and the easy
-    one to run;
-  - the same device over dummy_hcd + raw-gadget with Facedancer, so the
-    reports really traverse usbcore -> usbhid -> hid-rmi.
+Size the array to match the three bit field that feeds it.  Clamping
+num_of_irqs instead would silently drop an interrupt source a device is
+allowed to declare, and would desynchronise irq_pos for every function
+created after it.
 
-Each bug was exercised on its own cold boot, because heap state left by a
-previous run changes what the out-of-bounds read returns and UBSAN
-reports each call site only once per boot.
+Reproduced with an emulated RMI4 device that publishes a single F01 PDT
+entry with interrupt_source_count = 7, driven over /dev/uhid and again
+over dummy_hcd plus raw-gadget, on v6.12.69 and v6.12.105 with
+CONFIG_UBSAN_BOUNDS=y.  No reports after this change, and the same device
+now probes normally.
 
-With both patches applied 1/2 produces no UBSAN reports and the same
-device -- F01 declaring the full 7 interrupt sources -- probes normally,
-and 2/2 fails the probe cleanly instead of corrupting the heap.
+Fixes: 24d28e4f1271 ("Input: synaptics-rmi4 - convert irq distribution to irq_domain")
+Cc: stable@vger.kernel.org
+Signed-off-by: Wei Jie Law <98lawweijie@gmail.com>
+---
+ drivers/input/rmi4/rmi_bus.h | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-I am happy to post the reproducers, or to send them privately if you
-would rather they did not go to a public list.
-
-[1] https://patchwork.kernel.org/project/linux-input/patch/00a489f38b240624dcb5a4bae36a53fcba9cfb47.1787549195.git.98lawweijie@gmail.com/
-
-Wei Jie Law (2):
-  Input: synaptics-rmi4 - fix irq[] overrun with 7 interrupt sources
-  Input: synaptics-rmi4 - reject a PDT that grows between scans
-
- drivers/input/rmi4/rmi_bus.h    |  9 ++++++---
- drivers/input/rmi4/rmi_driver.c | 18 ++++++++++++++++++
- 2 files changed, 24 insertions(+), 3 deletions(-)
-
+diff --git a/drivers/input/rmi4/rmi_bus.h b/drivers/input/rmi4/rmi_bus.h
+index 90122df21f74..faf2ebb00d52 100644
+--- a/drivers/input/rmi4/rmi_bus.h
++++ b/drivers/input/rmi4/rmi_bus.h
+@@ -12,10 +12,13 @@
+ struct rmi_device;
+ 
+ /*
+- * The interrupt source count in the function descriptor can represent up to
+- * 6 interrupt sources in the normal manner.
++ * The interrupt source count in the function descriptor is a three bit field
++ * (RMI_PDT_INT_SOURCE_COUNT_MASK), so a device can legitimately declare up to
++ * 7 interrupt sources for a single function.  irq[] must be able to hold all
++ * of them: rmi_create_function_irq() and rmi_unregister_function() both walk
++ * it up to fn->num_of_irqs.
+  */
+-#define RMI_FN_MAX_IRQS	6
++#define RMI_FN_MAX_IRQS	7
+ 
+ /**
+  * struct rmi_function - represents the implementation of an RMI4
 -- 
 2.43.0
 

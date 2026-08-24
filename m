@@ -1,116 +1,205 @@
-Received: from mail-ed1-f48.google.com (mail-ed1-f48.google.com [209.85.208.48])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9A66E37B014
-	for <linux-input@vger.kernel.org>; Mon, 24 Aug 2026 17:37:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.48
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 15ADA47127B
+	for <linux-input@vger.kernel.org>; Mon, 24 Aug 2026 17:44:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787593056; cv=none; b=l5buKHObA9aQk+cnENK3Cyx5JG0fKtvk+sgt3oyLrPUfZLZsKdOkA0IiliSGcS2+3oyj5372XaCqJpZVGrgwQat/H2ZSaMREEAUFE6bIkRMAtETSlz12UvtTSlb/m6Goj/II6VO/UkMQitl1qqdQnAkAA/BfILsKLpSHrANfd7E=
+	t=1787593463; cv=none; b=Gy8h/mOMjZZ9LBKsSp5n6xG6iZkA45sIuo+w3fpEaygD7EGI1z5cwky9TdNgDcPPcRaOTEdMLWC6kvm4hwB8pMr0CT7PsMQOVuK9AyM6hSVrRN5ntB0XF2PlqSW/9pFmWlm2jHm/0VPQkgAiax8dbH1Dn7+o8VszSTIAz2dGFHQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787593056; c=relaxed/simple;
-	bh=iXOhgnPLmwpFGKlA/HthfKQsOb2m2ZTvoRHdiAfQ6Zk=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=rTm2AizMNlqSoD05+J2sxG4AMh5o9YCWuYKdMTkJKlFiCROYX/KAVas5dydtPUiHXmNhiFCslwOG/RZnKM0qtHSwTmzK6IfGGXgX+8GUUeMjqTtMrZxF0e7vc60xminsVQpp4gtHkpAieYTGSF1sA8UnD3j3lRZKKGozoDEPTEM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=BQU5SJR8; arc=none smtp.client-ip=209.85.208.48
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1787593463; c=relaxed/simple;
+	bh=kWuciWvzIwmjVSLv223xne998/zfNDnRexZEX5ezHRk=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=f2cTbfumKgsSY2ZyIq/O92zef01RZA8lWc6BcBq+aPdtMXbO3jti3jUJ8uXKeWwveAQNQEzwbQlxPqSBmk3GfD+I+3t+044l/Ko6Or/lTw7RLuCvlIqvBcHxGd8rCiDCqIZVy39+FlFFduRbtUeU1czN0/kgnIntGxlMbcotxWc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=PjzpRq93; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="BQU5SJR8"
-Received: by mail-ed1-f48.google.com with SMTP id 4fb4d7f45d1cf-6a374bea882so7165788a12.1
-        for <linux-input@vger.kernel.org>; Mon, 24 Aug 2026 10:37:29 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1787593044; x=1788197844; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=N8DPaTwYfYl5EcD9GcdAo2GOI2V8KsaETPVZPUOF+EE=;
-        b=BQU5SJR8wyhVViMs1tCw7KtNw4bZYXrTT/fMg78WkCsVb+0G82zKKYHzSpV3fsCqwy
-         S6bECrNQqCOtmygiVkfhOEoXP2sC69X29iykDRP92NGHM/1tNGunBtu2DqSs6Om8loSt
-         yuo1TIO//QtYWtyua4Kg70ej3EAs6WfMgWzhrTxeP6Woxe2HH1n2n8Woo6gj+D9iLeT+
-         fFatXPtL0PaaCZX8Lg4FTVrvcmuyennUqjjVC+s1Vo9/aWX3tDPSPmVAGTOAvZiMy5BC
-         D91mUnzueibxAT4DlYLMoBEl0EDVt9Cf7LzMrk5IjTXBVxrk5W2YthHnSsQGN+M7SZz0
-         6Liw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787593044; x=1788197844;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=N8DPaTwYfYl5EcD9GcdAo2GOI2V8KsaETPVZPUOF+EE=;
-        b=U8r+744SP5tWtNMecoUCPxASttSIako5dTSWs67ObYPsMjkIbekir6tBOmWKyEVR2b
-         gLtMkeidamsmf1RjK6+6+P5fmgXkir9UdeoB3SLHWa+yl1MzC64c2htICvs8s0j+Sq/b
-         YN0ct2+PZhUXNP4X4WS4goTLCmljtFpR+Ex3Cx2GM8PDN6exY8uvNNLoAPQkWv7v0V62
-         CFkrwBK6wWpNTLPTM9XDmhXvari6rM04XO/w8hD32+KofKmpKGtH+hwRgqfFiLY8gR0e
-         3k+buLQjqlE8vwF6hy9JAYmtu8JsOR/vc0B5ormXGT/G0te7MTXvlWYJdl+o7yrJl3mg
-         FdyA==
-X-Forwarded-Encrypted: i=1; AHgh+Rq9kCo5qfVtRbrwffdl1tlowT3QU3OZehiVU8Q5K1scV34vLlJojs2o75xUW03wS5uOq9BJckLJLlCIpA==@vger.kernel.org
-X-Gm-Message-State: AFuF++lasdxjOLTv1Y6sEXhvTmI3Fxa5mgc3DsPGAP/TlzW6ZBY32x6D
-	zKX0AbXRpJgfc+iqMAaYL8nzU+QxwjKgRfZsuISfdbeqpz/jOb4QFz1/cjsxeHBz
-X-Gm-Gg: AR+sD10FfACy25IAHJbPQ9cTNyhwzhEtb/p/bxxz5FrpYpDgzB4khJIKqCI7C6KdOiw
-	b+pXhOaKpitkdVvTGAdKb0cCsZIOVlkt45otjUZXNHW4RX8aAHgsiAqIuvrMQHW32D1KFh0aV2k
-	eW8V+FwZwzrdn+n9peQ6HSV2gI6GVTkcs/8zH3WxwDS7mxZIUL3vO3OhKtQTzNUeqDg2wdZus/M
-	vELS6OOMQ32sEKSC997B6GGkYbXY2RuIIcuKJft92BAsIYLAfzNX0IrBjOTXj09DLuBZ61usTdq
-	4YF8VUh88W6R2YJeuQ794V5lqSLJnitUupiChre6YIUJBXUY1QcJCUFT/6X50shPj9WUjI0dqIr
-	O5+witMkyd//35qxK9umcG/iKIixQcu+gmcpGA+seS5eB55nmybNC4Td52hLWoGakvR6bLXkLAh
-	TWPDWdhrH+fu7kY+1tjvZXM3J6QdKZzQv72W3g1eOOvxXCY4dVIm+Ev7ySa5MT/f9zczoWAGgvC
-	VbRs2IbqvwLDwboHeQUNNoDx1qvFfFnTdRFDmTT7RJE5bhFEXPZzlB8BuoU1/KNHn7bwNY=
-X-Received: by 2002:a05:6402:1906:b0:6a1:f8ad:6c0c with SMTP id 4fb4d7f45d1cf-6a42f1fce20mr34626689a12.16.1787593043662;
-        Mon, 24 Aug 2026 10:37:23 -0700 (PDT)
-Received: from dmig-l13.lan ([94.139.29.227])
-        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-6a59e0190d3sm9361057a12.9.2026.08.24.10.37.21
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 24 Aug 2026 10:37:22 -0700 (PDT)
-From: Dmitriy Geels <dmitriy.geels@gmail.com>
-To: =?UTF-8?q?Filipe=20La=C3=ADns?= <lains@riseup.net>,
-	Bastien Nocera <hadess@hadess.net>
-Cc: Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>,
-	Stuart Hayhurst <stuart.a.hayhurst@gmail.com>,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Dmitriy Geels <dmitriy.geels@gmail.com>
-Subject: [PATCH] HID: logitech-hidpp: cancel reset_hi_res_work on probe failure
-Date: Mon, 24 Aug 2026 19:37:18 +0200
-Message-ID: <20260824173718.14687-1-dmitriy.geels@gmail.com>
-X-Mailer: git-send-email 2.55.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="PjzpRq93"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E4811F000E9;
+	Mon, 24 Aug 2026 17:44:07 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1787593447;
+	bh=Y9Ci6vS8LkqvVZrzXxDCYFAj6AqPA8zEFuH/Drx6OLE=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=PjzpRq93p+F7BNfDWGNCz/N15faNvorBB3m456avQbi5RXWZJjQw4t9JNhQrNIOxg
+	 OE3S1NaKjv9308J/Ek4yXMO8ORpQGZ5Z4ZHArbytovxMswwMUJJa/OLt7JQEdCnGDC
+	 yQr/yzcqKyHs1Iw5JwnnCfSiiv9D+OkVDtVzlkdbjIEtEGA0jqRqVs7N+kABxXyVK5
+	 xh06L/WHsT4lwR29/qsYNL5GbcRmrB351qv1bWxERqit6hlWpy5PIpRHQnxyKVUIy2
+	 eA1h8B3p4ct6CAt6IcAjBfaUW9k/w2xi7EC0lQSIuelSMp4ht9I0UUZ8a8JnCfp7/M
+	 QfZ7KDsj2YHuw==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v2] HID: logitech-hidpp: add native touchpad support for
+ K400 Plus
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Dmitriy Geels" <dmitriy.geels@gmail.com>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <20260824173042.13679-1-dmitriy.geels@gmail.com>
+References: <20260824173042.13679-1-dmitriy.geels@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Mon, 24 Aug 2026 17:44:06 +0000
+Message-Id: <20260824174407.0E4811F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-The probe error path cancels hidpp->work before freeing the HID++ device
-data, but does not cancel reset_hi_res_work.
+Thank you for your contribution! Sashiko AI review found 5 potential issue(=
+s) to consider:
+- [High] Use-after-free of `wd->input` on input device registration failure.
+- [Medium] Devres memory leak of `devm_name` on connection error paths.
+- [Medium] Mismatch between advertised clickpad capabilities and actual but=
+ton events.
+- [Low] Compilation failure due to use of undeclared variable `wd`.
+- [Low] Missing READ_ONCE barrier when accessing `wd->input`.
+--
 
-reset_hi_res_work can be scheduled while probing the device. If probe
-subsequently fails, the work can run after the driver data has been
-freed.
+--- Patch [1]: [PATCH v2] HID: logitech-hidpp: add native touchpad support =
+for K400 Plus ---
+commit b543fab9a342a739672bb20ebed2d0f4a5885b83
+Author: Dmitriy Geels <dmitriy.geels@gmail.com>
 
-Cancel reset_hi_res_work in the probe error path to prevent a potential
-use-after-free.
+HID: logitech-hidpp: add native touchpad support for K400 Plus
 
-Fixes: ed80cc4667ac ("HID: logitech-hidpp: Add HIDPP_QUIRK_RESET_HI_RES_SCROLL")
+This commit adds support for the native raw touchpad reports on the
+Logitech K400 Plus by creating a separate multitouch input device.
 
-Signed-off-by: Dmitriy Geels <dmitriy.geels@gmail.com>
----
-This patch is a result of Sashiko AI review for "HID: logitech-hidpp:
-add native touchpad support for K400 Plus":
- - [High] Missing cancel_work_sync for reset_hi_res_work in the probe error path leads to a Use-After-Free.
+Link: https://lore.kernel.org/linux-input/20260824132445.C64EE1F000E9@smtp.=
+kernel.org/
 
- drivers/hid/hid-logitech-hidpp.c | 1 +
- 1 file changed, 1 insertion(+)
+> diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-=
+hidpp.c
+> index 1504de32b1c84..9a6b04283130f 100644
+> --- a/drivers/hid/hid-logitech-hidpp.c
+> +++ b/drivers/hid/hid-logitech-hidpp.c
+> @@ -2963,8 +2966,13 @@ static int wtp_populate_input(struct hidpp_device =
+*hidpp,
+> =20
+> [ ... ]
+> =20
+> -	/* Max pressure is not given by the devices, pick one */
+> -	input_set_abs_params(input_dev, ABS_MT_PRESSURE, 0, 50, 0, 0);
+> +	/*
+> +	 * The driver exposes contact area as pressure.  Do not advertise a
+> +	 * pressure axis when the device does not report contact area; userspace
+> +	 * may otherwise interpret a permanently-zero pressure value as hover.
+> +	 */
+> +	if (wd->area_range)
+> +		input_set_abs_params(input_dev, ABS_MT_PRESSURE, 0, 50, 0, 0);
+> =20
+>  	input_set_capability(input_dev, EV_KEY, BTN_LEFT);
+> =20
+>  	if (hidpp->quirks & HIDPP_QUIRK_WTP_PHYSICAL_BUTTONS)
+>  		input_set_capability(input_dev, EV_KEY, BTN_RIGHT);
+>  	else
+>  		__set_bit(INPUT_PROP_BUTTONPAD, input_dev->propbit);
 
-diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-index 9a6b04283130..279384fa9835 100644
---- a/drivers/hid/hid-logitech-hidpp.c
-+++ b/drivers/hid/hid-logitech-hidpp.c
-@@ -4925,6 +4925,7 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
- hid_hw_start_fail:
- 	sysfs_remove_group(&hdev->dev.kobj, &ps_attribute_group);
- 	cancel_work_sync(&hidpp->work);
-+	cancel_work_sync(&hidpp->reset_hi_res_work);
- 	mutex_destroy(&hidpp->send_mutex);
- 	return ret;
- }
--- 
-2.55.0
+[Severity: Medium]
+Are these capabilities accurately reflecting the device's behavior?
 
+The commit message states that clickpad buttons should not be exposed
+for the CLASS_KBD_WTP device. However, wtp_populate_input() still sets
+the INPUT_PROP_BUTTONPAD property and the BTN_LEFT capability.
+
+Userspace input stacks might see these capabilities and treat the device
+as a clickpad, waiting for physical clicks that the driver explicitly
+suppresses.
+
+> @@ -3066,8 +3079,13 @@ static int wtp_raw_event(struct hid_device *hdev, =
+u8 *data, int size)
+>  	struct wtp_data *wd =3D hidpp->private_data;
+>  	struct hidpp_report *report =3D (struct hidpp_report *)data;
+>  	struct hidpp_touchpad_raw_xy raw;
+> +	struct input_dev *input;
+> =20
+> -	if (!wd || !hidpp->input)
+> +	if (!wd)
+> +		return 1;
+> +
+> +	input =3D wd->input;
+> +	if (!input)
+>  		return 1;
+
+[Severity: Low]
+Since wd->input is published locklessly using WRITE_ONCE() in
+hidpp_connect_event(), shouldn't we use READ_ONCE() here in
+wtp_raw_event() to ensure proper memory ordering?
+
+> @@ -4524,7 +4562,54 @@ static void hidpp_connect_event(struct work_struct=
+ *work)
+>  		return;
+>  	}
+> =20
+> -	if (hidpp->quirks & HIDPP_QUIRK_CLASS_WTP) {
+> +	if (hidpp->quirks & HIDPP_QUIRK_CLASS_KBD_WTP) {
+> +		if (!wd->input) {
+> +			struct wtp_data *wd =3D hidpp->private_data;
+
+[Severity: Low]
+Does this cause a compilation failure? The if condition evaluates
+wd->input before the wd variable is declared and initialized on the
+very next line.
+
+> +
+> +			ret =3D wtp_get_config(hidpp);
+> +			if (ret) {
+> +				hid_err(hdev, "cannot get WTP config: %d\n", ret);
+> +				return;
+> +			}
+> +
+> +			input =3D hidpp_allocate_input(hdev);
+> +			if (!input) {
+> +				hid_err(hdev, "cannot allocate touchpad input device\n");
+> +				return;
+> +			}
+> +
+> +			devm_name =3D devm_kasprintf(&hdev->dev, GFP_KERNEL,
+> +						   "%s Touchpad", hidpp->name);
+> +			if (!devm_name)
+> +				return;
+
+[Severity: Medium]
+Can this cause a memory leak if a subsequent step like
+wtp_populate_input() or input_register_device() fails?
+
+If a failure occurs, the function returns without setting wd->input.
+Because the string is devres-managed and bound to the parent HID device,
+the next time hidpp_connect_event() runs, the if (!wd->input) check will
+still be true, allocating another string that won't be freed until the
+parent device is unbound.
+
+> @@ -4615,7 +4700,12 @@ static void hidpp_connect_event(struct work_struct=
+ *work)
+>  		return;
+>  	}
+> =20
+> -	hidpp_populate_input(hidpp, input);
+> +	ret =3D hidpp_populate_input(hidpp, input);
+> +	if (ret) {
+> +		hidpp->input =3D NULL;
+> +		input_free_device(input);
+> +		return;
+> +	}
+
+[Severity: High]
+Could this lead to a use-after-free on the event reporting path if
+registration fails?
+
+In hidpp_populate_input(), the pointer is assigned to the private
+structure:
+
+hidpp_populate_input() {
+        ...
+        wd->input =3D input;
+        ...
+}
+
+If input_register_device() fails shortly after, this error path frees the
+input device and clears hidpp->input, but does not clear wd->input.
+
+When the hardware sends a raw HID event, wtp_raw_event() will fetch and
+dereference the dangling wd->input pointer.
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260824173042.1367=
+9-1-dmitriy.geels@gmail.com?part=3D1

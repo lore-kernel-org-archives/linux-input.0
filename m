@@ -1,146 +1,109 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.10])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C2601233929
-	for <linux-input@vger.kernel.org>; Sun, 23 Aug 2026 22:46:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1E53D201025;
+	Mon, 24 Aug 2026 03:14:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.10
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787525211; cv=none; b=jeorETE0fSLD1SA1baCy2sVtqIIkbwpIH1kmQUAHHjwsQlawqIThSSY4gsZuc4sV0qkmsMllIW3kQzvA98iizQAn2f8lsSCy9jZg1Rv247M5LaQJ8TVXmynmUPOGF2n/D5u13yqzZv5VfCovY5mirG5Nu74S/5pjnqVBcYXu3rw=
+	t=1787541270; cv=none; b=eWpGu2bCN/ukLwzlhjazq9pxNarpSCh4GtRx1EedQmMqzkAwoXt5cu60phUJTWq6r6VsscBGccc7OoJIo+j3mc4jOSY3OJlwgLLortrSOpJoA1eAj6dj5bG988G/dSH++9hXg+Y4bCZAQ7rypDCTeA7zay9W3q4pHZH79NbbGPU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787525211; c=relaxed/simple;
-	bh=eMTLlWTs5A03qjNNtu9VuZ7o2wzsZt57YwN1nboAIPY=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=CrFYfsfe1NOPkWF79DLKpXnbAHNppoRVwQqrRR0z786wyf5X+oGaGxhfn+GVDYV8y4cWQtLNpKsi2+tU45lHfEj75IB2uWCYrigGzAPUfYvyzQ0R8HLHbQ3CyAHxvAEl8kRgBev36mMiD6Hrsh4GjCxTwkfu9vnn7Pvs4B79biM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=WtO7+pNz; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1787541270; c=relaxed/simple;
+	bh=Sc/jdSqO/i/4q1jM+6c4F9ERo3EyJ8CTu4K/UXataaI=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=u/XkWiADePKnyrOYRduN7Al1+k0RUbqE3bJgmXcX6HCd4VCdSTUuCkX/o10vOfgCzJ6IZyihSHyt/W0wAZmnQ9Al91+wB+cYMeAb+Xlqj72gTBi/VkMoSG89vI04dkGMHdCCa/vEv5dCboDplj0nO8RkUrAxD/qTU8nweM/X4eg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=fu7pQ5hI; arc=none smtp.client-ip=198.175.65.10
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="WtO7+pNz"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E45331F000E9;
-	Sun, 23 Aug 2026 22:46:49 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787525210;
-	bh=M9ZS0LJAJtNnkTQqn8cZKAlLPdMlTcnGAJaSec13mTA=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=WtO7+pNzMXgI6Id4Ln3zq6j1nZFR8/ZJt4DYFnaCBs7NKLCuK7Qtblla760kDANQs
-	 9YF0LxFKpksa6giT9hKXx1lIYIjFC0XYq0SzB8RmB++MNX5nJgcVNXl/QsgfNBydog
-	 Ppl7cn0UJ1GTVFw78cBp8tQsY+c76GggCnbqymC49PKJFrODMc8bFmkZC7+uH/dip8
-	 PeRhNitlhlSaYU4QSAeRN/PUuGCBki3wXMufI1toGlp01TN1rd1UnrYgTr6jpXt4Dn
-	 7NiRopwe1zUCI1zLeJlqqQvScUEhol+Q171r+nR0108uxncvSebHpmNFNcapGck44N
-	 iHAbMfJ3/fwZw==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v4 2/2] ALSA: usb-audio: let the M62's outputs say what
- they listen to
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Mikhail Gavrilov" <mikhail.v.gavrilov@gmail.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260823222946.171345-3-mikhail.v.gavrilov@gmail.com>
-References: <20260823194822.29430-1-mikhail.v.gavrilov@gmail.com>
- <20260823222946.171345-1-mikhail.v.gavrilov@gmail.com>
- <20260823222946.171345-3-mikhail.v.gavrilov@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Sun, 23 Aug 2026 22:46:49 +0000
-Message-Id: <20260823224649.E45331F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="fu7pQ5hI"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1787541268; x=1819077268;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=Sc/jdSqO/i/4q1jM+6c4F9ERo3EyJ8CTu4K/UXataaI=;
+  b=fu7pQ5hIgmXwbkg+rxALYqf/eG162NOu7H9nuE4aMxX4gc4s8XM/wJPm
+   ceU8tNiTfHKhIVnupau14lAroCGfTDbR1+UK9WH6ofhE4o2zQbQBVHRh0
+   xHcJ4eoiYZNqN8WQKpTP/EZlu6EZBAjiAe2+7v3TZJ5NX3W0K04WMVGxY
+   jP99im4qRruUYtCZkd8Iq1RPLPlgWbB3B8NUfx0+h7p8G1nTlvali0kXQ
+   bk3nm2LAW0VpSnhnSoSN/JmjU9dM7by9Nmv4TOn+Cs3uHrWpqsP3D2Tgh
+   gDmgzTzd22taB47zqaR4IqjqEjhGF0PPmq8Z6yMC4ejFFQFbPCKialbFH
+   Q==;
+X-CSE-ConnectionGUID: 9jkd+CP6SRibMDHfG3DI9w==
+X-CSE-MsgGUID: zRMWIEFHRWyoq6noLblNzg==
+X-IronPort-AV: E=McAfee;i="6800,10657,11884"; a="105362209"
+X-IronPort-AV: E=Sophos;i="6.25,239,1779174000"; 
+   d="scan'208";a="105362209"
+Received: from fmviesa002.fm.intel.com ([10.60.135.142])
+  by orvoesa102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Aug 2026 20:14:27 -0700
+X-CSE-ConnectionGUID: OH47iMqCQLmm5XIrCt6JWg==
+X-CSE-MsgGUID: 8HhQ3z9pSYCNHQ21vdhCfA==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.25,239,1779174000"; 
+   d="scan'208";a="290401001"
+Received: from junjie-desk-dev.bj.intel.com ([10.238.152.71])
+  by fmviesa002-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Aug 2026 20:14:26 -0700
+From: Junjie Cao <junjie.cao@intel.com>
+To: Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>
+Cc: linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Marco Carvalho <marcocarvalho.web@gmail.com>,
+	stable@vger.kernel.org
+Subject: [PATCH] HID: quirks: add ALWAYS_POLL quirk for SDINNOVATION gaming keyboard
+Date: Mon, 24 Aug 2026 11:14:19 +0800
+Message-ID: <20260824031419.316315-1-junjie.cao@intel.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
+The SDINNOVATION gaming keyboard (USB ID 36ae:feab) stops reporting
+input events after its RGB lighting mode is switched about twice.
+Disabling USB autosuspend and unbinding the other HID interfaces make
+no difference; the issue does not occur on Windows.
 
-Pre-existing issues:
-- [High] Concurrent ALSA control access during USB disconnect causes a Use-=
-After-Free or NULL pointer dereference in the get/put handlers.
---
+HID_QUIRK_ALWAYS_POLL alone resolves it, verified on 7.1.8 via
+usbhid.quirks=0x36ae:0xfeab:0x400.
 
---- Patch [2]: [PATCH v4 2/2] ALSA: usb-audio: let the M62's outputs say wh=
-at they listen to ---
-commit 4881f3c183895a107d4e643799ad16e76377b10a
-Author: Mikhail Gavrilov <mikhail.v.gavrilov@gmail.com>
+Reported-by: Marco Carvalho <marcocarvalho.web@gmail.com>
+Link: https://bugzilla.redhat.com/show_bug.cgi?id=2514627
+Cc: stable@vger.kernel.org
+Signed-off-by: Junjie Cao <junjie.cao@intel.com>
+---
+ drivers/hid/hid-ids.h    | 3 +++
+ drivers/hid/hid-quirks.c | 1 +
+ 2 files changed, 4 insertions(+)
 
-ALSA: usb-audio: let the M62's outputs say what they listen to
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 341bf587863b..10f3a69b82db 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -1295,6 +1295,9 @@
+ #define USB_DEVICE_ID_SAMSUNG_WIRELESS_UNIVERSAL_KBD	0xa006
+ #define USB_DEVICE_ID_SAMSUNG_WIRELESS_MULTI_HOGP_KBD	0xa064
+ 
++#define USB_VENDOR_ID_SDINNOVATION		0x36ae
++#define USB_DEVICE_ID_SDINNOVATION_GAMING_KBD	0xfeab
++
+ #define USB_VENDOR_ID_SEMICO			0x1a2c
+ #define USB_DEVICE_ID_SEMICO_USB_KEYKOARD	0x0023
+ #define USB_DEVICE_ID_SEMICO_USB_KEYKOARD2	0x0027
+diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
+index 8a0b51d47040..c8c6b29fc04d 100644
+--- a/drivers/hid/hid-quirks.c
++++ b/drivers/hid/hid-quirks.c
+@@ -186,6 +186,7 @@ static const struct hid_device_id hid_quirks[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SAITEK, USB_DEVICE_ID_SAITEK_X52_2), HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SAITEK, USB_DEVICE_ID_SAITEK_X52_PRO), HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SAITEK, USB_DEVICE_ID_SAITEK_X65), HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_SDINNOVATION, USB_DEVICE_ID_SDINNOVATION_GAMING_KBD), HID_QUIRK_ALWAYS_POLL },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SEMICO, USB_DEVICE_ID_SEMICO_USB_KEYKOARD2), HID_QUIRK_NO_INIT_REPORTS },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SEMICO, USB_DEVICE_ID_SEMICO_USB_KEYKOARD), HID_QUIRK_NO_INIT_REPORTS },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SENNHEISER, USB_DEVICE_ID_SENNHEISER_BTD500USB), HID_QUIRK_NOGET },
+-- 
+2.43.0
 
-This commit adds enumerated controls for the Topping M62 mixer outputs to
-select their playback source. It handles the specific hardware behaviour
-where the current selection cannot be queried from the device.
-
-> diff --git a/sound/usb/mixer_topping.c b/sound/usb/mixer_topping.c
-> index 2f2365b9b4762..e71ea70ec4b00 100644
-> --- a/sound/usb/mixer_topping.c
-> +++ b/sound/usb/mixer_topping.c
-[ ... ]
-> @@ -332,6 +372,66 @@ static int topping_ctl_put(struct snd_kcontrol *kctl,
->  	return 1;
->  }
-> =20
-> +static int topping_sel_info(struct snd_kcontrol *kctl,
-> +			    struct snd_ctl_elem_info *uinfo)
-> +{
-> +	return snd_ctl_enum_info(uinfo, 1, ARRAY_SIZE(topping_sources),
-> +				 topping_sources);
-> +}
-> +
-> +static int topping_sel_get(struct snd_kcontrol *kctl,
-> +			   struct snd_ctl_elem_value *ucontrol)
-> +{
-> +	struct usb_mixer_elem_info *elem =3D kctl->private_data;
-> +	struct topping_mixer *tm =3D elem->head.mixer->private_data;
-> +
-> +	guard(mutex)(&tm->write_lock);
-
-[Severity: High]
-This is a pre-existing issue, but does this dereference of tm risk a
-use-after-free or NULL pointer dereference if the USB device is disconnected
-concurrently?
-
-If an ALSA control ioctl is executing while the USB device is disconnected,
-the disconnect sequence calls usb_audio_disconnect_components() which calls
-snd_usb_mixer_disconnect(). This triggers topping_private_free() which
-frees the tm struct and sets mixer->private_data to NULL.
-
-If the control callback executes without first calling
-snd_usb_lock_shutdown() to check for device disconnection, it can extract
-and dereference tm (e.g., locking tm->write_lock here) either after it has
-been freed or while it is NULL.
-
-> +	ucontrol->value.enumerated.item[0] =3D tm->sel[elem->control];
-> +	return 0;
-> +}
-> +
-> +static int topping_sel_put(struct snd_kcontrol *kctl,
-> +			   struct snd_ctl_elem_value *ucontrol)
-> +{
-> +	struct usb_mixer_elem_info *elem =3D kctl->private_data;
-> +	struct topping_mixer *tm =3D elem->head.mixer->private_data;
-> +	const struct topping_enum_desc *d;
-> +	unsigned int item;
-> +	int err;
-> +
-> +	item =3D ucontrol->value.enumerated.item[0];
-> +	if (item >=3D ARRAY_SIZE(topping_sources))
-> +		return -EINVAL;
-> +
-> +	guard(mutex)(&tm->write_lock);
-
-[Severity: High]
-This is a pre-existing issue, but could this also trigger a use-after-free
-or NULL pointer dereference for the same reasons as in topping_sel_get()?
-
-As this issue is also present in the pre-existing topping_ctl_put() and
-topping_ctl_get(), perhaps snd_usb_lock_shutdown() needs to be used to
-safeguard these control callbacks against concurrent USB teardown.
-
-> +
-> +	/*
-> +	 * "Unknown" is what this control reports until a hand has chosen,
-> +	 * and alsactl stores and restores it like any other value.  It is
-> +	 * not a choice, so writing it changes nothing -- quietly, rather
-> +	 * than failing a restore of the driver's own report.
-> +	 */
-> +	if (!item || tm->sel[elem->control] =3D=3D item)
-> +		return 0;
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260823222946.1713=
-45-1-mikhail.v.gavrilov@gmail.com?part=3D2

@@ -1,42 +1,41 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D381338E8AD;
-	Mon, 24 Aug 2026 20:41:08 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2C49F37E310
+	for <linux-input@vger.kernel.org>; Mon, 24 Aug 2026 21:49:35 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787604069; cv=none; b=Rmbw2U8gJnC6OGCnN43s9fYHwyAJuboJbLr2VGRCz+ontEGp+LMrSyLTIeGmMmSP5h+bUpwuQMl0ToCOCLbbDfEJVyV8CmBP0b0pcVvwdZ2dp0fdq+eAnMDwrLtTJ2wzUpLPxBrNV46Z4sErTlFA3+2i63tRhZU7+a2qOiwgURU=
+	t=1787608176; cv=none; b=Bgmn2VeAt54pYgMh2oc2Yt3iRuLvbEc4lrlEkT7/tVkSDXI2DpYPi0hK+sCOwYK9z5d7hSdsjmLGVDS1foT1KPzm35kKIu/KOfgjc3NIv7ZGvuCu2oHkysWynFyk9luzv/jkNVD+AKhZ0Wb2ykuEcWrk5NHTmbedbwENRa6Jm50=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787604069; c=relaxed/simple;
-	bh=D8x/zHsYFI9Cnq7qojAIRMThdyU5pO/yr8b1mPF4STc=;
+	s=arc-20240116; t=1787608176; c=relaxed/simple;
+	bh=861YM281H21RCYW2UQEiz0XRaJ1DOWnGdGaTwjKmjnc=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=g2JZqw6i7mxCUnMYb8LQPbBpqXekRHfy5whnb1t3rLRWa4Zgfe9ysy5PmvG8I5/A5tS2en+I4xS9dCyZPDBis/PsUWwtd8Ov9nwy+KeNkJ+0/UTnF+Jpw322iMwuLjV16IrI/m2Tag74An4Tp8xxSkCDvr2YnhZF+X0hE8lQeKQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=G8tgi0dq; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:Content-Disposition:In-Reply-To; b=SFIDlaIthtZ+Zp0iT/NKPZXCR78yUlg/gmdsz1u5SJu4JXlzgcC7ALnb/Yfh563xK8xBRHRMuM1BltDOhW3648K9SCehgVpuRPrNJwrjjBxKCrJUoX59pMjF8oD0oC4WzN0NnyjQ2d5NTOGjomNII5z3DEkJf06Vu2Xd5K89RAA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=l7Cp4kga; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="G8tgi0dq"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7E96B1F000E9;
-	Mon, 24 Aug 2026 20:41:07 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="l7Cp4kga"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB6571F000E9;
+	Mon, 24 Aug 2026 21:49:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787604068;
-	bh=bVPPr5FVv8/CLqsIIJmCJBYUKUEhQ6YONnTNyU6hapk=;
+	s=k20260515; t=1787608175;
+	bh=XQOSdNAXref6MdGIlIu1je4q2aqZmvdKWhuBcGFlczo=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=G8tgi0dqjVex37Er1EWH9Pev6DrtegNuKpF4wjJndlsGj4rxn2fM/xKQSCIUvd47c
-	 c/+U0VMBmCi5f4U2exEbpPTXyCdM3fcVx/scdGTuaNB+xiqjD0/b05w5hAwkAG6P2V
-	 Be8Mp+z8GNrL4Vcjsywa75fd15t3p1d9dFd7pkn3WVV94ENQ/wXS2faPvhAdCJREkn
-	 f5i7ZP+wy+Ci3TXSUgSjuc9NHp+mebqxgyXn93oFdVFQwNyoL5MOvrr5ONoqzMOskF
-	 vI9t8X2reza4C2yjN/4EIzniMrCvL5PzJEvjeQMYlIUjt9hiaxft8E73JFquedj15w
-	 h6YmYySy78d9A==
-Date: Mon, 24 Aug 2026 22:41:04 +0200
-From: Benjamin Tissoires <bentiss@kernel.org>
-To: Matteo Croce <technoboy85@gmail.com>
-Cc: Lee Jones <lee@kernel.org>, Jiri Kosina <jikos@kernel.org>, 
-	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Matteo Croce <teknoraver@meta.com>
-Subject: Re: [PATCH v2] HID: core: demote warning to debug level
-Message-ID: <aoyraknxt1TLhRe4@beelink>
-References: <20260523105545.68079-1-technoboy85@gmail.com>
- <9no2pr1r-5277-5765-9q79-on37sn09qn4n@xreary.bet>
- <20260824102552.GA813380@google.com>
- <CAFnufp1pvgqvQqa_L+XFAsVd=rds4L9L14tg7B5kHtRdKFwViw@mail.gmail.com>
+	b=l7Cp4kgaOo3USD3gpHj/bs30TsAQXU6BEz7sjfk56cScZtNwiV/PsfPRld4lJ+m/b
+	 j3ZDThSeDjFfGkbnS/1fMTLJETa0IEpVGIQnas7VFifR3jODeh0XlJcg0wnHvKHWgb
+	 kkETe4qlQws1z9YzpBAXcVR4VY3Eupoeyb7Vt2N0Cc7j66hqgVyaiiFUfyomzcSwup
+	 VnJGiqKttXb+H+AckXMYjNMxhiBnr0j5MtinokdhMjqQw0arRdv0YT2BJTC8Y9d5PJ
+	 mJNn1LScUCMkznuyCTXK+ta/LDDoYt7dkVvwW16f7f7hhwmqCYydHflCm+BFQu56gC
+	 EQBSMQoUH9yww==
+Date: Mon, 24 Aug 2026 21:49:33 +0000
+From: Eric Biggers <ebiggers@kernel.org>
+To: Vicki Pfau <vi@endrift.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	linux-input@vger.kernel.org
+Subject: Re: [PATCH v4 07/12] Input: xbox_gip - Add security implementation
+ from xone
+Message-ID: <20260824214933.GA399653@google.com>
+References: <20260822021140.1149546-1-vi@endrift.com>
+ <20260822021140.1149546-8-vi@endrift.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -45,65 +44,34 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <CAFnufp1pvgqvQqa_L+XFAsVd=rds4L9L14tg7B5kHtRdKFwViw@mail.gmail.com>
+In-Reply-To: <20260822021140.1149546-8-vi@endrift.com>
 
-On Aug 24 2026, Matteo Croce wrote:
-> Il giorno lun 24 ago 2026 alle ore 12:25 Lee Jones <lee@kernel.org> ha scritto:
-> >
-> > On Wed, 10 Jun 2026, Jiri Kosina wrote:
-> >
-> > > On Sat, 23 May 2026, Matteo Croce wrote:
-> > >
-> > > > From: Matteo Croce <teknoraver@meta.com>
-> > > >
-> > > > The log level for short  messages was changed from debug to warning,
-> > > > flooding syslog on systems with devices that regularly send
-> > > > short reports, in my case an UPS:
-> > > >
-> > > >     $ dmesg |grep -c 'Event data for report .* was too short'
-> > > >     35
-> > > >
-> > > > Demote it back to debug level.
-> > > >
-> > > > Fixes: 0a3fe972a7cb ("HID: core: Mitigate potential OOB by removing bogus memset()")
-> > > > Signed-off-by: Matteo Croce <teknoraver@meta.com>
-> > >
-> > > Applied, thanks.
-> >
-> > FWIW, I'd like to contest this patch.
-> >
-> > The warning is real.  It means that the HID report was rejected and as
-> > such something on the system will be now be non-functional.  Silencing
-> > the warning is not helpful.  It does not fix the issue, and now the user
-> > / admin has no idea that its even happening.
-> >
-> > This warning has caught a bunch of genuine issues related to testing
-> > infrastructure and incorrectly coded firmware that have subsequently
-> > been rectified.
-> >
-> > Please don't hide this issue.  Fix the root cause instead.
-> >
-> > --
-> > Lee Jones
-> 
-> Hi,
-> 
-> the message was debug long before and was promoted to warning during a refactor.
-> With my patch I just restored the previous priority.
-> 
+On Fri, Aug 21, 2026 at 07:11:31PM -0700, Vicki Pfau wrote:
+> +int gip_security_start_handshake(struct gip_security *security)
+> +{
+> +	struct shash_desc *shash_transcript, *shash_prf;
+> +
+> +	if (!security->shash_transcript) {
+> +		shash_transcript = gip_security_alloc_shash("sha256");
+> +		if (IS_ERR(shash_transcript))
+> +			return PTR_ERR(shash_transcript);
+> +
+> +		security->shash_transcript = shash_transcript;
+> +	}
+> +
+> +	if (!security->shash_prf) {
+> +		shash_prf = gip_security_alloc_shash("hmac(sha256)");
+> +		if (IS_ERR(shash_prf)) {
+> +			crypto_free_shash(shash_transcript->tfm);
+> +			kfree(shash_transcript);
+> +			security->shash_transcript = NULL;
+> +			return PTR_ERR(shash_prf);
+> +		}
+> +
+> +		security->shash_prf = shash_prf;
+> +	}
 
-Sorry, but no. The new kernel code restored the old behavior: if the
-incoming buffer is long enough but the incoming report has a shorter
-size, we still have the dbg_hid() call, so it's transparent for users.
+There's no need to use crypto_shash.  Just call the SHA-256 and
+HMAC-SHA256 functions (<crypto/sha2.h>) directly.
 
-The hid_warns are now only emitted when there is an obvious error with
-the report *that the kernel can not fix*.
-
-So having this patch would do exactly what Lee said: this would prevent
-users to understand why their device doesn't work.
-
-This patch "fixed" a temporary wrong attempt at solving an OOB, the old
-behavior is restored, we should not even have this type of arguments.
-
-Cheers,
-Benjamin
+- Eric

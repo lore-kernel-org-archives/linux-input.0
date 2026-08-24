@@ -1,207 +1,162 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-oi2-f2.google.com (mail-oi2-f2.google.com [74.125.231.194])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 521FA3E92B9
-	for <linux-input@vger.kernel.org>; Mon, 24 Aug 2026 13:24:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2670432D0F5
+	for <linux-input@vger.kernel.org>; Mon, 24 Aug 2026 14:15:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.231.194
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787577887; cv=none; b=CC6n3+ZmBWw9r8krxJQnOrFTq5ygounI/3Gcq2qfSLtoj7MRj+mPSFtRN38gEAlwlJ0UojS2pgOiT4CEmpQoUKBWFwhP1l9lZ5nZtHhIo86koaoTmjX/W+r8C7JoieZPMYo87NzyK4d7c83eSOXCsyqFEM+GQ0xkEK7gWimdA/Q=
+	t=1787580938; cv=none; b=fn557/7EhtAk4bClUSC2qArDH1IwqndzfZUDogEJs36Wfuagdtohv1wYusdxQWElG+pq7PY2U+EYHWaPJ/mnboCwoGkHQRyfYg9f/pX820NEA3ELEUCdGdio7+fd2rDlI07cwLV4qzydvY0unuUuFJVE/hxK/nPn5IO3G3g2flw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787577887; c=relaxed/simple;
-	bh=B5cdVWeirGJTJmqL+GaxsY8diFV4Pvt6hh03Aq7LL0s=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=DpADfh+Z2AF7oeBG11ki23rOKFdQfAddxzfZ1nF5CiPvUIhGj5CU1JXV5e/t+0SpU+lq14IAyco1bOiyQf+6Q5Bq4RFv2yHCSDMdxJEXVPkpH+FochEopa4NlT0hhTySCq9jQkK6cwUiMx0kh+2TLyWcgzNiQX3LIajjHoJ5H8o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=A1TA8njg; arc=none smtp.client-ip=100.103.45.18
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="A1TA8njg"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C64EE1F000E9;
-	Mon, 24 Aug 2026 13:24:45 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787577886;
-	bh=nv35fu8aHEMbjqX+wt/a9r00r/+CcyB4zXOawxAKKno=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=A1TA8njgKSyR8u3JaC2ZrHUup5ahuGQS18z/zaOB2LQ7Hz8v1dWtCtslN6xvEXnfI
-	 bRFnnaCjPoXA5jL+i3CjM3aEKURAOCls07RIo+QZAIqLvJRI9pC8VqAy9i4qUVzeBu
-	 1mkXVsTrCzA4nu0WtOgFMmOWcLvgejrgeyCBpT/zN0SNDnF2FIP29tRRv3AdrG8bVG
-	 3t5CDEOFlCBlBbHP4pJ8QkZwR8NNlF/93UYM/xqDo+kmtaFo3wGxH+UxtYxGf6BrV5
-	 +6JTahCpLDHtEQFfIoYvSLcxTOiieI/xDbTOIVAP19jDJnwr+oxf136fXZnY+4OByb
-	 rZw8NOJp3MUZw==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] HID: logitech-hidpp: add native touchpad support for
- K400 Plus
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Dmitriy Geels" <dmitriy.geels@gmail.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260824130901.84600-1-dmitriy.geels@gmail.com>
-References: <20260824130901.84600-1-dmitriy.geels@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Mon, 24 Aug 2026 13:24:45 +0000
-Message-Id: <20260824132445.C64EE1F000E9@smtp.kernel.org>
+	s=arc-20240116; t=1787580938; c=relaxed/simple;
+	bh=rLMheNznZJmNpnLmvy1g5vyO1AY4iNFH8Be1EMrypKg=;
+	h=MIME-Version:Date:Message-ID:Subject:From:To:Content-Type; b=ZYfVd6N6j6dcDrYATXXficmoWdHAO79iUTEVJW096j3RaYeLitcpK/Z6Wu58kAnynQroxzylUFBYAAtaEpYwUHz23aEaG6E+BWItxbVgd+d4cuh/0Fe/jrPr+yhNSvXKIv1I3HmWFdYNFXCnCW5RrEAvdVQXCy+QdSdXU9vlNy8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=74.125.231.194
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
+Received: by mail-oi2-f2.google.com with SMTP id 5614622812f47-495d5d27acfso1708849b6e.1
+        for <linux-input@vger.kernel.org>; Mon, 24 Aug 2026 07:15:37 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1787580936; x=1788185736;
+        h=content-type:to:from:subject:message-id:date:mime-version
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=zjtSZ0Hk74hXFJV7KOTWyhOW5rok74z5TqFOPkrY64s=;
+        b=MTOQf4owICeIQ2l6M1H6I77lmf7aLtvf19ySWc0kC5WsZxMpPUHb9jABjgGUKsA6bt
+         lFe0WjHAGb//d+lKNc/I4wewIDyECnuiZwjK6JGdSTgn40owsGadXndLn8rpe9Ve2ncO
+         +ikhgbUxAGMudtBSSK6gdPXmNmG/FlP/G7mPAIkXmtz5m5+DEIwwdLUYx1FMi9+pNWLg
+         0CVs2gZbK47c+IS+lSB48Rhnw0CYeMdlM7QkAH9qhIXkM8lvnRCn69s83RNOy5RSMEOT
+         GVv9KrdW9kcUUmSazujXKbcQIAEspdqAwBpolGjoQLGSBHcmZXmSq6yiTM8Q1y9c7UJZ
+         2a1A==
+X-Forwarded-Encrypted: i=1; AHgh+RrqdAOe7vjYgrVoLhVqjJ0Xu80utezGoot7MsurBh2RciBqnHwfLVx4PgYtpqmxZ8cUmLRX/3nP/aGnMg==@vger.kernel.org
+X-Gm-Message-State: AFuF++nA5C2whli4EfD0bJ96Is96IXn/QopbZT+sJrY+MRA+EFiMnWjK
+	6gd90DDOQTEOEFwoaRl2mrxBCPmepNjXTVS78AXUCcqPM+QlhlB/StWD9zYvGSoFSepA5iQ33XC
+	mdF6BOLk1sbNT3PDwmr+jZnhMrcD4yZBF5oDTsMykmelznIQUxWdbKq9F/MA=
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+X-Received: by 2002:a05:6808:4f69:b0:4a4:a930:1f76 with SMTP id
+ 5614622812f47-4b2ef3387cfmr26663246b6e.11.1787580936043; Mon, 24 Aug 2026
+ 07:15:36 -0700 (PDT)
+Date: Mon, 24 Aug 2026 07:15:36 -0700
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <6a8c5208.dbb3a75c.7844.0005.GAE@google.com>
+Subject: [syzbot] [usb?] [input?] INFO: task hung in usb_set_configuration
+From: syzbot <syzbot+c22bb42560ec86726aba@syzkaller.appspotmail.com>
+To: dakr@kernel.org, driver-core@lists.linux.dev, gregkh@linuxfoundation.org, 
+	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	linux-usb@vger.kernel.org, rafael@kernel.org, syzkaller-bugs@googlegroups.com
+Content-Type: text/plain; charset="UTF-8"
 
-Thank you for your contribution! Sashiko AI review found 5 potential issue(=
-s) to consider:
+Hello,
 
-New issues:
-- [High] Early assignment of wd->input creates a Time-of-Check to Time-of-U=
-se (TOCTOU) race condition with the interrupt handler, leading to a NULL po=
-inter dereference.
-- [Medium] Repeated connection failures in the hidpp_connect_event workqueu=
-e lead to a devres memory leak due to missing input_free_device() on error =
-paths.
-- [Medium] The K400 Plus touchpad device incorrectly advertises INPUT_PROP_=
-BUTTONPAD and emits conflicting BTN_LEFT events.
+syzbot found the following issue on:
 
-Pre-existing issues:
-- [High] The return value of input_mt_init_slots is ignored, potentially re=
-gistering a broken MT device.
-- [High] Missing cancel_work_sync for reset_hi_res_work in the probe error =
-path leads to a Use-After-Free.
---
+HEAD commit:    e1e6e541c5c9 Merge tag 'thunderbolt-for-v7.3-rc1' of ssh:/..
+git tree:       https://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git usb-testing
+console output: https://syzkaller.appspot.com/x/log.txt?x=143df815580000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=8bdeea7ee6735f91
+dashboard link: https://syzkaller.appspot.com/bug?extid=c22bb42560ec86726aba
+compiler:       gcc (Debian 14.2.0-19) 14.2.0, GNU ld (GNU Binutils for Debian) 2.44
+syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=1783ba25580000
 
---- Patch [1]: [PATCH] HID: logitech-hidpp: add native touchpad support for=
- K400 Plus ---
-commit f41a7d9a8fed9a9f7dba87c18d14bd22f84ca93d
-Author: Dmitriy Geels <dmitriy.geels@gmail.com>
+Downloadable assets:
+disk image: https://storage.googleapis.com/syzbot-assets/3b0a1f8e6a1f/disk-e1e6e541.raw.xz
+vmlinux: https://storage.googleapis.com/syzbot-assets/f98d855e85e8/vmlinux-e1e6e541.xz
+kernel image: https://storage.googleapis.com/syzbot-assets/db2c3a41df6d/bzImage-e1e6e541.xz
 
-HID: logitech-hidpp: add native touchpad support for K400 Plus
+IMPORTANT: if you fix the issue, please add the following tag to the commit:
+Reported-by: syzbot+c22bb42560ec86726aba@syzkaller.appspotmail.com
 
-This patch adds native raw touchpad support for the Logitech K400 Plus by
-creating a separate multitouch input device. It ensures physical button
-reports remain on the existing HID input device and disables ABS_MT_PRESSURE
-when contact area is zero to prevent hover interpretation.
+INFO: task kworker/0:2:733 blocked for more than 143 seconds.
+      Not tainted syzkaller #0
+"echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+task:kworker/0:2     state:D
+ stack:26352 pid:733   tgid:733   ppid:2      task_flags:0x4208060 flags:0x00080000
+Workqueue: usb_hub_wq hub_event
 
-> diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-=
-hidpp.c
-> index 1504de32b1c84..3cb239d818882 100644
-> --- a/drivers/hid/hid-logitech-hidpp.c
-> +++ b/drivers/hid/hid-logitech-hidpp.c
+Call Trace:
+ <TASK>
+ context_switch kernel/sched/core.c:5510 [inline]
+ __schedule+0x1325/0x47d0 kernel/sched/core.c:7234
+ __schedule_loop kernel/sched/core.c:7311 [inline]
+ schedule+0xdd/0x2c0 kernel/sched/core.c:7326
+ schedule_preempt_disabled+0x13/0x30 kernel/sched/core.c:7383
+ __mutex_lock_common kernel/locking/mutex.c:726 [inline]
+ __mutex_lock+0xccc/0x1bd0 kernel/locking/mutex.c:821
+ uevent_net_broadcast_untagged lib/kobject_uevent.c:317 [inline]
+ kobject_uevent_net_broadcast lib/kobject_uevent.c:410 [inline]
+ kobject_uevent_env+0xba8/0x18b0 lib/kobject_uevent.c:611
+ device_add+0x1173/0x1970 drivers/base/core.c:3738
+ usb_set_configuration+0xd97/0x1c60 drivers/usb/core/message.c:2268
+ usb_generic_driver_probe+0xa1/0xe0 drivers/usb/core/generic.c:250
+ usb_probe_device+0xef/0x400 drivers/usb/core/driver.c:293
+ call_driver_probe drivers/base/dd.c:628 [inline]
+ really_probe+0x241/0xa60 drivers/base/dd.c:706
+ __driver_probe_device+0x20e/0x450 drivers/base/dd.c:868
+ driver_probe_device+0x4a/0x140 drivers/base/dd.c:898
+ __device_attach_driver+0x1df/0x320 drivers/base/dd.c:1026
+ bus_for_each_drv+0x159/0x1e0 drivers/base/bus.c:500
+ __device_attach+0x1e4/0x4d0 drivers/base/dd.c:1098
+ device_initial_probe+0xaf/0xd0 drivers/base/dd.c:1153
+ bus_probe_device+0x64/0x160 drivers/base/bus.c:620
+ device_add+0x121d/0x1970 drivers/base/core.c:3772
+ usb_new_device.part.0+0xcc2/0x1686 drivers/usb/core/hub.c:2708
+ usb_new_device drivers/usb/core/hub.c:5833 [inline]
+ hub_port_connect drivers/usb/core/hub.c:5580 [inline]
+ hub_port_connect_change drivers/usb/core/hub.c:5720 [inline]
+ port_event drivers/usb/core/hub.c:5884 [inline]
+ hub_event.cold+0x51a/0xe9d drivers/usb/core/hub.c:5966
+ process_one_work+0xa23/0x1940 kernel/workqueue.c:3322
+ process_scheduled_works kernel/workqueue.c:3405 [inline]
+ worker_thread+0x5ef/0xe50 kernel/workqueue.c:3486
+ kthread+0x370/0x450 kernel/kthread.c:436
+ ret_from_fork+0x69a/0xc80 arch/x86/kernel/process.c:158
+ ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:245
+ </TASK>
 
-[ ... ]
+Showing all locks held in the system:
+7 locks held by kworker/0:1/11:
+ #0: 
+ffff8881062b0540
+ (
+(wq_completion)usb_hub_wq
+){+.+.}-{0:0}
+, at: process_one_work+0x12b1/0x1940 kernel/workqueue.c:3297
+ #1: 
+ffffc900000bfd18
+ (
+(work_completion)(&hub->events)
+){+.+.}-{0:0}
+, at: process_one_work+0x988/0x1940 kernel/workqueue.c:3298
+ #2: 
+ffff88810b3051d8
 
-> @@ -2953,6 +2956,8 @@ static void wtp_populate_input(struct hidpp_device =
-*hidpp,
->  {
->  	struct wtp_data *wd =3D hidpp->private_data;
-> =20
-> +	wd->input =3D input_dev;
-> +
 
-[Severity: High]
-Could this early assignment create a race condition? If an interrupt arrives
-here, wtp_raw_event() will see wd->input as non-NULL. If
-input_register_device() subsequently fails in hidpp_connect_event(), it
-sets wd->input to NULL. If wtp_raw_event() uses the pointer exactly when it
-is cleared, could this cause a NULL pointer dereference in input_event()?
+---
+This report is generated by a bot. It may contain errors.
+See https://goo.gl/tpsmEJ for more information about syzbot.
+syzbot engineers can be reached at syzkaller@googlegroups.com.
 
->  	__set_bit(EV_ABS, input_dev->evbit);
->  	__set_bit(EV_KEY, input_dev->evbit);
->  	__clear_bit(EV_REL, input_dev->evbit);
+syzbot will keep track of this issue. See:
+https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
 
-[ ... ]
+If the report is already addressed, let syzbot know by replying with:
+#syz fix: exact-commit-title
 
-> @@ -2963,8 +2968,13 @@ static void wtp_populate_input(struct hidpp_device=
- *hidpp,
->  	input_set_abs_params(input_dev, ABS_MT_POSITION_Y, 0, wd->y_size, 0, 0);
->  	input_abs_set_res(input_dev, ABS_MT_POSITION_Y, wd->resolution);
-> =20
-> -	/* Max pressure is not given by the devices, pick one */
-> -	input_set_abs_params(input_dev, ABS_MT_PRESSURE, 0, 50, 0, 0);
-> +	/*
-> +	 * The driver exposes contact area as pressure.  Do not advertise a
-> +	 * pressure axis when the device does not report contact area; userspace
-> +	 * may otherwise interpret a permanently-zero pressure value as hover.
-> +	 */
-> +	if (wd->area_range)
-> +		input_set_abs_params(input_dev, ABS_MT_PRESSURE, 0, 50, 0, 0);
-> =20
->  	input_set_capability(input_dev, EV_KEY, BTN_LEFT);
+If you want syzbot to run the reproducer, reply with:
+#syz test: git://repo/address.git branch-or-commit-hash
+If you attach or paste a git patch, syzbot will apply it before testing.
 
-[Severity: Medium]
-Further down in this function, devices without HIDPP_QUIRK_WTP_PHYSICAL_BUT=
-TONS
-are assigned INPUT_PROP_BUTTONPAD. Since the K400 Plus uses
-HIDPP_QUIRK_CLASS_KBD_WTP without that quirk, does this cause userspace to
-misconfigure the device, given that the K400 Plus actually has discrete
-physical buttons?
+If you want to overwrite report's subsystems, reply with:
+#syz set subsystems: new-subsystem
+(See the list of subsystem names on the web dashboard)
 
-[Severity: High]
-This is a pre-existing issue, but the return value of input_mt_init_slots()
-called slightly below here is ignored. If memory allocation fails, dev->mt
-remains NULL, which will cause the core to silently drop all subsequent
-multitouch events.
+If the report is a duplicate of another one, reply with:
+#syz dup: exact-subject-of-another-report
 
-[ ... ]
-
-> @@ -3013,11 +3026,11 @@ static void wtp_send_raw_xy_event(struct hidpp_de=
-vice *hidpp,
-> =20
->  	if (raw->end_of_frame &&
->  	    !(hidpp->quirks & HIDPP_QUIRK_WTP_PHYSICAL_BUTTONS))
-> -		input_event(hidpp->input, EV_KEY, BTN_LEFT, raw->button);
-> +		input_event(wd->input, EV_KEY, BTN_LEFT, raw->button);
-
-[Severity: Medium]
-Could this emit conflicting BTN_LEFT events? For the K400 Plus, the
-physical buttons are routed through the other interface, so raw->button
-is typically 0. This might spam release events at the end of every frame
-and conflict with the physical hardware buttons.
-
-[ ... ]
-
-> @@ -4524,7 +4549,45 @@ static void hidpp_connect_event(struct work_struct=
- *work)
->  		return;
->  	}
-> =20
-> -	if (hidpp->quirks & HIDPP_QUIRK_CLASS_WTP) {
-> +	if (hidpp->quirks & HIDPP_QUIRK_CLASS_KBD_WTP) {
-> +		struct wtp_data *wd =3D hidpp->private_data;
-
-[ ... ]
-
-> +			ret =3D input_register_device(input);
-> +			if (ret) {
-> +				hid_err(hdev,
-> +					"cannot register touchpad input device: %d\n",
-> +					ret);
-> +				wd->input =3D NULL;
-> +				return;
-> +			}
-
-[Severity: Medium]
-If input_register_device() fails, could this leak the devres allocations for
-both the input device and devm_name? Since hidpp_connect_event() is a
-workqueue that can run multiple times on reconnection, these allocations
-might permanently accumulate without a call to input_free_device().
-
-[ ... ]
-
-> @@ -4755,7 +4818,8 @@ static int hidpp_probe(struct hid_device *hdev, con=
-st struct hid_device_id *id)
->  	    hidpp_application_equals(hdev, HID_GD_KEYBOARD))
->  		hidpp->quirks |=3D HIDPP_QUIRK_HIDPP_CONSUMER_VENDOR_KEYS;
-> =20
-> -	if (hidpp->quirks & HIDPP_QUIRK_CLASS_WTP) {
-> +	if (hidpp->quirks &
-> +	    (HIDPP_QUIRK_CLASS_WTP | HIDPP_QUIRK_CLASS_KBD_WTP)) {
->  		ret =3D wtp_allocate(hdev, id);
->  		if (ret)
->  			return ret;
-
-[Severity: High]
-This is a pre-existing issue, but earlier in hidpp_probe(),
-hidpp->reset_hi_res_work is initialized. In the hid_hw_start_fail error path
-(which executes after wtp_allocate), cancel_work_sync(&hidpp->work) is
-called, but cancel_work_sync(&hidpp->reset_hi_res_work) is omitted. If the
-devres group is freed, could a pending high-res scroll work item access
-freed memory?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260824130901.8460=
-0-1-dmitriy.geels@gmail.com?part=3D1
+If you want to undo deduplication, reply with:
+#syz undup

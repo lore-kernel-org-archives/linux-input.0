@@ -1,191 +1,207 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from relay11.grserver.gr (relay11.grserver.gr [78.46.171.57])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ECD0639734D
-	for <linux-input@vger.kernel.org>; Mon, 24 Aug 2026 22:58:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9F2DF35E94E
+	for <linux-input@vger.kernel.org>; Mon, 24 Aug 2026 23:23:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=78.46.171.57
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787612291; cv=none; b=nnsbUv1FW8L9A7qbNjcwdT+FUWNZDWDd/zwuFz0jJxhNvZrhg7BEbw4woea6IX4ZcV+ymt/WmntJ+NDBMkCy4uiLeLdhJi3ONkDutQZEaTheuGxDd/Ayt+cISGF6r3s3BO8Ds6w902Ilej5y4rk6yK5aLYLhQB2ATPqt7ZOHbpU=
+	t=1787613827; cv=none; b=ErmWksv8TPFYau5mr98QYSZIcggzaj2izTBBt+Lw2L1bx5ntN/+SgU6BDHvK73uBfgZxgrMy9B7eLXOMY9aoF/WpVDfohHe5V5fj1jhDXGydy5Ke2zWsFO2VPZgM0K8ZczgvzTuze+H343YkohTluqP4MeMrWXAxa7VGLpHICZ4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787612291; c=relaxed/simple;
-	bh=bs3pYlCIWGpZk1p2QQd3F82B17/E9sPgL9uKESB/jgU=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=ImkfzYqPk/4C//L7kybFO+/JmUzuhkuPwZcu3OX3hSqZlUwyg74PkmZjnmySIPIEiK5dDJ0Uv3H9/l2wcnVsXQNJRW+iw/BOisw0J7o/6LR9Td/zxNI5NfCpzrEjsV+oP8wCxPazq77Y5V2HDeF3B5X4ALjw7WnrQ2agoI2FNCo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=oxIffBYJ; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1787613827; c=relaxed/simple;
+	bh=O2KaOWkFXRg+1LMZ3Z+JN5rK7MIaOBDMwDjs5/2WHnE=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=dHuuNB+eYgCjQ9kyMRYj0E/7J5hi4Cq4kgB0rccJJ/NUt967yl1B2QbHg8So6rpqwaOD3xQbnzA6f1OQo37L+7NelpvXPJSb4DI8WR4obUavPUZd9LcAldAgpDX/0drVBYQCzEJIJK8y33+GyXIX1uVytzlUmbEw002VW7cNcAs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=antheas.dev; spf=pass smtp.mailfrom=antheas.dev; dkim=pass (2048-bit key) header.d=antheas.dev header.i=@antheas.dev header.b=KF0Wt7XP; arc=none smtp.client-ip=78.46.171.57
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=antheas.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=antheas.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="oxIffBYJ"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 666331F000E9;
-	Mon, 24 Aug 2026 22:58:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787612289;
-	bh=8GAPrfJZWpvHXQ2bcL0IxtG71uwsn8Fb9fgLOM+XuhM=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=oxIffBYJ5rvEoSyvndaDxBLd0whT4Q/wkRVMBLyr2raZ2NjVDqMlqAGSx5sC4wHUs
-	 8hejIq+SYRynv8/loLh0KJDMJwVVdDFUOkbcBpBAoTEUTTg/Yas9UuXttb18UgXj1f
-	 oOZUZeEKO6AQ960DGLTm5m4/v5raTmVutGUVdc2JzaFkQW7FSYqBn2Yk+ca14GPvmV
-	 S6VL6n8wWAtJ/HTU/zTFwts7NhWXCvNveZu+zZfZWQA4y9W0M/YkUVkMfzumu7UF+E
-	 iSga/vU4ajbmHcwhizSfwSMuX/Tuo/bsaVKTHyW2I5iF49Xk5JtLETqqrTb1cZ3XOh
-	 WnIoJm25UrRVQ==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v6 2/2] ALSA: usb-audio: let the M62's outputs say what
- they listen to
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Mikhail Gavrilov" <mikhail.v.gavrilov@gmail.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260824223107.406504-3-mikhail.v.gavrilov@gmail.com>
-References: <20260824201331.304705-1-mikhail.v.gavrilov@gmail.com>
- <20260824223107.406504-1-mikhail.v.gavrilov@gmail.com>
- <20260824223107.406504-3-mikhail.v.gavrilov@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Mon, 24 Aug 2026 22:58:09 +0000
-Message-Id: <20260824225809.666331F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=antheas.dev header.i=@antheas.dev header.b="KF0Wt7XP"
+Received: from relay11 (localhost.localdomain [127.0.0.1])
+	by relay11.grserver.gr (Proxmox) with ESMTP id E24EABDE04
+	for <linux-input@vger.kernel.org>; Tue, 25 Aug 2026 02:23:43 +0300 (EEST)
+Received: from linux3247.grserver.gr (linux3247.grserver.gr [213.158.90.240])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by relay11.grserver.gr (Proxmox) with ESMTPS id 285DCBDDDE
+	for <linux-input@vger.kernel.org>; Tue, 25 Aug 2026 02:23:43 +0300 (EEST)
+Received: from mail-pf1-f171.google.com (mail-pf1-f171.google.com [209.85.210.171])
+	by linux3247.grserver.gr (Postfix) with ESMTPSA id 6C43E1FFDAB
+	for <linux-input@vger.kernel.org>; Tue, 25 Aug 2026 02:23:42 +0300 (EEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=antheas.dev;
+	s=default; t=1787613822;
+	bh=87AnO6nSxcWbiZl2F889c0eg/LcEVCbXfZZlPYFQPN4=;
+	h=Received:From:Subject:To;
+	b=KF0Wt7XPIWTc9S3LVh9+bWqUqIykZI2J1A4CyhoW0+Tvq3T7PcHMRrC15tcIkEib4
+	 CMRtJDOHFjjE339aRaQYbtmE+tqmsQdq/hVPqvl8MDhSxmmCphUMmWSU0DMrmTFDZD
+	 l2OH8QkPeWzI9agilQ3JsUV7xtetqzoppV4TAiPGaANOJQLrwPw09mpVAM4W0Cx3Wr
+	 hjx67sQ1pP3FNPaxhwwwz87YIGswQkbrLst4sc7stI7hoUSuNlNcU7QrvtVNhhtWHj
+	 dtbxJg3mCIJ34lCj8tYI2Hf6j4rEiCl683FxRniYxEbCtfTQ8xUKM/FiE7lhAvARAf
+	 Wv6ho/09jpB4Q==
+Authentication-Results: linux3247.grserver.gr;
+        spf=pass (sender IP is 209.85.210.171) smtp.mailfrom=lkml@antheas.dev smtp.helo=mail-pf1-f171.google.com
+Received-SPF: pass (linux3247.grserver.gr: connection is authenticated)
+Received: by mail-pf1-f171.google.com with SMTP id
+ d2e1a72fcca58-848593533cbso1356455b3a.3
+        for <linux-input@vger.kernel.org>;
+ Mon, 24 Aug 2026 16:23:42 -0700 (PDT)
+X-Forwarded-Encrypted: i=1;
+ AHgh+RrWxqtlYNBdUUVrgShPkExLh86spMSA2jMP0TN83DrVGXrLjKTSZy3qm3Ajzv4GgDRmdJW8iWe6GNQk2g==@vger.kernel.org
+X-Gm-Message-State: AFuF++njo4HSeq37xjgYvOJS14dq+Pema3MVtt3YlogzMJEG/lQFenmh
+	u+RXG2W3Ec1glwJ08DeCmhhl48m1D3Ccmj/g5rDdui7rd5auchywxekJo6xESgzxolK46whnhsp
+	E38thnF/DpjrOo29hKl6LWwtg19VX02k=
+X-Received: by 2002:a05:6a00:2383:b0:835:6388:655d with SMTP id
+ d2e1a72fcca58-8520ba30a62mr34780601b3a.14.1787613820817; Mon, 24 Aug 2026
+ 16:23:40 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+References: 
+ <CAGwozwECcyX6vxJmiBhfO2DfOE6VbkURCArY6gvaqgXJEkA8BQ@mail.gmail.com>
+ <20260824224737.97147-1-hello@matias.me>
+In-Reply-To: <20260824224737.97147-1-hello@matias.me>
+From: Antheas Kapenekakis <lkml@antheas.dev>
+Date: Tue, 25 Aug 2026 01:23:29 +0200
+X-Gmail-Original-Message-ID: 
+ <CAGwozwFdyATn5ZE+ACKqcLvsBTkRsiJ2xF4D+AoEtgpoBVOk9w@mail.gmail.com>
+X-Gm-Features: AcwNN1UlzL8gED1iCflZ3GEQKM9rU4yJW2EFx-QYXjru8428U9RiqeatgwPv2wY
+Message-ID: 
+ <CAGwozwFdyATn5ZE+ACKqcLvsBTkRsiJ2xF4D+AoEtgpoBVOk9w@mail.gmail.com>
+Subject: Re: [PATCH] HID: ayaneo: Add AYANEO 3 detachable controller driver
+To: =?UTF-8?Q?Mati=CC=81as_Marti=CC=81nez?= <hello@matias.me>
+Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>,
+ linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org, Denis Benato <denis.benato@linux.dev>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-PPP-Message-ID: 
+ <178761382270.4166159.6056550387911895915@linux3247.grserver.gr>
+X-PPP-Vhost: antheas.dev
+X-Virus-Scanned: clamav-milter 1.4.6 at linux3247.grserver.gr
+X-Virus-Status: Clean
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
+On Tue, 25 Aug 2026 at 00:47, Mati=CC=81as Marti=CC=81nez <hello@matias.me>=
+ wrote:
+>
+> > If you need userspace coordination anyway, including the multiple
+> > timing hacks I had to implement, the question of having to route this
+> > through the kernel arises.
+>
+> Fair question. What tipped it for me:
+>
+> - The RGB wants to be a LED class device to be usable by the existing
+>   stacks (InputPlumber and friends consume /sys/class/leds, and with
+>   hw_pattern in v2 the breathing mode fits an accepted ABI). There is
+>   no hidraw equivalent short of every stack reimplementing the
+>   checksummed vendor protocol.
+>
+> - The protocol and timing part (reply matching, retries, the eject
+>   handshake polling) now lives in one place. What remains in userspace
+>   is policy: when to cut controller power and what UX to wrap around
+>   it. That split also lets the module/eject controls be exposed as
+>   narrowly-scoped sysfs attributes instead of handing out the whole
+>   vendor interface through hidraw permissions.
+>
+> - It complements ayaneo-ec, which already exposes attach state and
+>   controller power on the kernel side, so both halves of the flow sit
+>   at the same layer.
+>
+> Working on this also flushed out a teardown bug that v2 fixes: a
+> brightness write racing a driver unbind could queue LED work that ran
+> after the transport was gone and the driver data freed. Reproducible
+> memory corruption under a write loop, and the window is reachable in
+> normal use, since the controller power-cycles on resume and on module
+> eject while userspace may be poking the LED.
+>
+> > Overwriting joystick sensitivity is a bit problematic. Can you see if
+> > dropping those four bytes still allows RGB to go through? This might
+> > be preferable.
+>
+> Confirmed on hardware: with bytes 22/23/37/38 left zero the firmware
+> still acks the config command, and RGB (solid and breathing) and eject
+> all work. v2 no longer writes them.
+>
+> > Consider implementing the pulsing mode it offers, there should be an
+> > accepted ABI for it somewhere...
+>
+> Done in v2 through the hw_pattern trigger ABI (pattern_set /
+> pattern_clear, same two-step shape as the sc27xx breathing pattern):
+> "0 <t> <brightness> <t>" selects the firmware's fixed-period breathing
+> at the current colour. Tested on the device, with an ABI document
+> added.
+>
+> (v2 crossed your second mail in flight, so two things are still open
+> there:)
+>
+> > Almost forgot. Magic value.
+> [...]
+> > Magic value. You need to justify those.
+>
+> Right. Both are empirical firmware timings inherited from the
+> Handheld Daemon implementation (its reset sequence sleeps 0.5s
+> between the reset and the config restore, and it polls at a similar
+> cadence during eject); both are validated on hardware. Queued for v3
+> as named constants (AYA3_RESET_SETTLE_MS, AYA3_EJECT_POLL_MS/POLLS)
+> with a comment stating exactly that. I'll hold v3 briefly in case
+> more comes out of the v2 review.
 
-New issues:
-- [Critical] Missing snd_usb_lock protection in topping_sel_get() causes a =
-Use-After-Free racing with device disconnect.
+They are eyeballed timings that worked during my testing. Because I
+operate in userspace I have the freedom to choose whatever timings I
+want and change them whenever I want. Carrying them to the kernel
+freezes them for the vendor device and there is a higher level of
+scrutiny required before they are merged. Fiddling with timings is not
+something that's favored in kernel development. You also only carry
+part of the policy. Userspace still has to coordinate between the
+calls to the EC so that is left to userspace. I am pretty sure I have
+a lot of timing quirks there as well. So now you have a split policy
+and fixing your userspace implementation requires that other
+distributions backport your fixes, otherwise your software will not
+work.
 
-Pre-existing issues:
-- [High] PM deadlock between `cancel_delayed_work_sync()` during suspend an=
-d `pm_runtime_get_sync()` in the keepalive worker.
---
+The full implementation would require a bridge similar to how hid-asus
+talks to asus-wmi with a common header. It would also probably require
+more timing quirks. The payout for asus is bigger though, because you
+kind of need a working keyboard and brightness button and that should
+not require userspace software. Asus devices also do not need timing
+quirks. For a niche device with unstable firmware, not so much. Expect
+upstreaming such a bridge to take around 4-6 months at minimum.
 
---- Patch [2]: [PATCH v6 2/2] ALSA: usb-audio: let the M62's outputs say wh=
-at they listen to ---
-commit d2da2c1cdae232f4506c200d692b9c0076c8746f
-Author: Mikhail Gavrilov <mikhail.v.gavrilov@gmail.com>
+Those are my 2 cents.
 
-    ALSA: usb-audio: let the M62's outputs say what they listen to
+FYI direct EC/ACPI/TDP access is a security boundary, so a kernel
+driver is required for those specific subcomponents, but when it is
+trivial for something like Chrome to talk directly to USB devices,
+that argument does not hold much water for the controller itself.
+There are already TDP driver patches for all current handhelds in the
+market, so as far as I am concerned, I will slowly start upstreaming
+my backlog and keep sending and reviewing dmi matches for the existing
+drivers.
 
-This commit adds enumeration controls for the source selectors on the Toppi=
-ng
-M62 audio card. It handles reading and writing the source selections, inclu=
-ding
-restoring them upon resume, as the device doesn't report them itself.
+I did not disagree on the RGB part, that's a decent addition barring
+timing quirks being needed and it should be relatively easy to
+upstream. Some other downstream users find RGB control via a
+standardized interface userful. I would advise some caution, because
+e.g., I noticed hid-oxp got upstreamed using a global drvdata table
+even though it is a HID driver and there are actually multiple
+OneXPlayer models that carry both hid devices and now they will
+potentially have their kernel memory corrupted. I think the cover
+letter of the series said so as well [0]. I am not sure
+oxp_hybrid_mcu_list is authoritative enough.
 
-> diff --git a/sound/usb/mixer_topping.c b/sound/usb/mixer_topping.c
-> --- a/sound/usb/mixer_topping.c
-> +++ b/sound/usb/mixer_topping.c
-[ ... ]
-> @@ -365,6 +405,71 @@ static int topping_ctl_put(struct snd_kcontrol *kctl,
->  	return 1;
->  }
-> =20
-> +static int topping_sel_info(struct snd_kcontrol *kctl,
-> +			    struct snd_ctl_elem_info *uinfo)
-> +{
-> +	return snd_ctl_enum_info(uinfo, 1, ARRAY_SIZE(topping_sources),
-> +				 topping_sources);
-> +}
-> +
-> +static int topping_sel_get(struct snd_kcontrol *kctl,
-> +			   struct snd_ctl_elem_value *ucontrol)
-> +{
-> +	struct usb_mixer_elem_info *elem =3D kctl->private_data;
-> +	struct topping_mixer *tm =3D elem->head.mixer->private_data;
-> +
-> +	guard(mutex)(&tm->write_lock);
+Give it a few days before sending a V3, others should leave feedback
+as well. You sent V2 a bit too fast.
 
-[Severity: Critical]
-Can this code trigger a use-after-free if the USB device is disconnected
-concurrently?
+Best,
+Antheas
 
-If a user invokes the SNDRV_CTL_IOCTL_ELEM_READ ioctl while the device is
-physically disconnected, this function accesses tm without holding the ALSA
-USB PM lock via CLASS(snd_usb_lock, pm).=20
+[0] https://lore.kernel.org/all/20260407041354.2283201-1-derekjohn.clark@gm=
+ail.com/
 
-Without the PM lock incrementing the chip->usage_count reference, the USB
-disconnect handler (usb_audio_disconnect) doesn't wait for this read operat=
-ion
-to finish. It proceeds to usb_audio_disconnect_components() and calls
-snd_usb_mixer_disconnect(), which frees tm via topping_private_free().
+> Thanks for the review!
+>
+> Mat=C3=ADas
+>
 
-This could lead to:
-
-topping_sel_get()
-  struct topping_mixer *tm =3D elem->head.mixer->private_data;
-  // -> device disconnected here, tm is freed
-  guard(mutex)(&tm->write_lock); // use-after-free
-
-Does this function need to acquire the PM lock before accessing tm?
-
-> +	ucontrol->value.enumerated.item[0] =3D tm->sel[elem->control];
-> +	return 0;
-> +}
-> +
-> +static int topping_sel_put(struct snd_kcontrol *kctl,
-[ ... ]
-> @@ -407,6 +512,57 @@ static int topping_add_ctl(struct topping_mixer *tm,=
- int idx)
->  	return 0;
->  }
-> =20
-[ ... ]
-> +static void topping_restore_sel(struct topping_mixer *tm)
-> +{
-> +	const struct topping_enum_desc *d;
-> +	int i;
-> +
-> +	guard(mutex)(&tm->write_lock);
-> +	for (i =3D 0; i < TOPPING_NUM_ENUMS; i++) {
-> +		if (!tm->sel[i])
-> +			continue;	/* nothing was ever chosen */
-> +		d =3D &topping_m62_enums[i];
-> +		topping_send(tm, d->target, d->prop,
-> +			     topping_source_value[tm->sel[i]]);
-> +	}
-> +}
-> +
->  static void topping_suspend(struct usb_mixer_interface *mixer)
->  {
->  	struct topping_mixer *tm =3D mixer->private_data;
-> =20
->  	if (!tm)
->  		return;
->  	cancel_delayed_work_sync(&tm->keepalive);
-
-[Severity: High]
-This is a pre-existing issue, but is it possible for a circular locking
-dependency to cause a system or USB device hang during runtime suspend?
-
-The topping_keepalive delayed work runs every 2 seconds. If the USB subsyst=
-em
-initiates a runtime suspend on the device exactly when the worker starts
-executing, usb_audio_suspend() is invoked, setting the device's PM state to
-RPM_SUSPENDING.=20
-
-This suspend callback eventually calls topping_suspend(), which blocks on:
-
-cancel_delayed_work_sync(&tm->keepalive);
-
-However, the executing worker calls topping_send(), which attempts to acqui=
-re
-the ALSA USB PM lock:
-
-topping_send()
-  CLASS(snd_usb_lock, pm)(tm->mixer->chip);
-
-This internally calls snd_usb_autoresume() -> usb_autopm_get_interface(),
-wrapping pm_runtime_resume_and_get(). Because the device state is
-RPM_SUSPENDING, the PM core waits on a waitqueue for the suspend operation =
-to
-complete.=20
-
-This results in a classic deadlock: the suspend thread waits for the worker,
-and the worker waits for the suspend thread.
-
->  	if (tm->urb)
->  		usb_kill_urb(tm->urb);
->  }
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260824223107.4065=
-04-1-mikhail.v.gavrilov@gmail.com?part=3D2

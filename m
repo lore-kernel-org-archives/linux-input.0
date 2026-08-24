@@ -1,65 +1,65 @@
-Received: from mail-pl1-f175.google.com (mail-pl1-f175.google.com [209.85.214.175])
+Received: from mail-pl1-f177.google.com (mail-pl1-f177.google.com [209.85.214.177])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1CB803DDDCB
-	for <linux-input@vger.kernel.org>; Mon, 24 Aug 2026 05:50:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.175
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BF9553DEAEC
+	for <linux-input@vger.kernel.org>; Mon, 24 Aug 2026 05:50:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787550630; cv=none; b=WKJAZJ7zNQzau28kSmvxC+ip/7XkCLnfa5S2LNeG4E18L+7yFjzNl2WpUf4uluqGSO9JlPi3ZROApLGOOZhI9x07Yu+9jtIocAb2xl9EOGJzgInkM6v/l/1bDyri7KtwZQ6Xg1mGkZ4dytIZyhN1cO+ofRLolKPJsbX45yp01xc=
+	t=1787550632; cv=none; b=nbKRq2OA1A4qmURSoBUDkJ2lwju8l6V/77yJKSyvTNyV7JPDg5VfhGWdx/nY9Q/3TNzGH/iJBQO1Rp1Bo0BfYBNT62462fO69YJkY9m0TLkDxHckHfAASV6QwUnFdSHaIlHaF5/JdLp/TZfG5+iyD/t0wsAI+TBQyuWbGDztUIc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787550630; c=relaxed/simple;
-	bh=WZE0UAjryG3LKGmJlWlrF4NVV/WeS+t9+KyPhRYEdqo=;
+	s=arc-20240116; t=1787550632; c=relaxed/simple;
+	bh=ILGgGBJIjFFiPwTQaTOvL/nQywIa0UNzzJZhVum0lV8=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=YOsymx50CJGGwu3AONjRHIZiKNG6f9JBWP+HxSlRCb8ULoVV0h8zWzsyyK4qpX2a21Y1WXc5dUixXjoaYo7FbUbXkTGbmAd11iuF3QTS40ROFYwV0fh1IYPGIPSgOA9N+qfCcfBJGjFKY4gUlW8RwvtmhNzpFpT4QIUCVRuzrPo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=b3Yq0NfM; arc=none smtp.client-ip=209.85.214.175
+	 MIME-Version; b=tTwUXHERxoT7bkpusO1VY/XRPJMSBV9POOwrQLWFfml1TAu/E8zNZLqYA9wGw5s9RN9UGjgTO1otRHmK7L73wRbS9nydF7ethD2vQCtacCRRq5T/EVp/QcW4fYmuBtcH0oDF4hWgsYGhk18MpTkgN/PxMFU3ZfUu2yx4/R+yOgk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=XTq0NYKY; arc=none smtp.client-ip=209.85.214.177
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="b3Yq0NfM"
-Received: by mail-pl1-f175.google.com with SMTP id d9443c01a7336-2cc7e86e7aeso42473535ad.2
-        for <linux-input@vger.kernel.org>; Sun, 23 Aug 2026 22:50:27 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="XTq0NYKY"
+Received: by mail-pl1-f177.google.com with SMTP id d9443c01a7336-2ceb096e675so34888815ad.0
+        for <linux-input@vger.kernel.org>; Sun, 23 Aug 2026 22:50:30 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1787550627; x=1788155427; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1787550630; x=1788155430; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=EB3wFOXHlXyIKQOwKFQXlogVT9fQ7bqKTlFugd3hmJ4=;
-        b=b3Yq0NfM2W2WY7nw9PUixGDdTxFA0LFPnu80kJG80gTDj/3QER/9SFE4pmwbyr+xow
-         pKgoYMwOw4AcbIlVCsyhVja9KyUTKH68ZG+jreIKFpv5abtQ+b27BNy8IJnrRT/vkk50
-         EYx1ePF054OKarryHm5qsxneeCWjYe2vigG0PObtBlGzZezGMztYRx6HzDaSeWvZAHYK
-         /dBIv1UK9xwCkc3mPef2BNlEcmv84mO3FKkV8AkHu/8Iom/+oVLnkWuPRps1qDInLH0M
-         dIOFICiRiFRp/oCUj1p2PIA9NAiLiGZdR5FcmDqrDm27k1HaQfjR2bY+p2xe+UFQJ0G4
-         rFog==
+        bh=4eujiq6V03TrGWMcsHjzyrL4w51Ezbmmle/EXKToc6k=;
+        b=XTq0NYKY+cVGL+TLnihE+3Wgqf/0DrID52UVCjcKGSZKotDyE4CdPIWgUyYpU4TFLz
+         Z42HRTTq6rzg695RC0yM6IlbS579zyeg3KISxdeHHxLe6BQ888WpSo9FAJ4k/crSIKUp
+         VpCS484WFEBP4r80vGRVzrqj2x9FnUc6BylT9AuNjKq3iqJWj8GUZUMQogPAXJ4XwEfS
+         0v2D2piz2YudAy1Vf0UDp6VafWPdnoLTIaKemGF+FxSZbycxFnBNZFOHw4DB4b3DLLsR
+         +tLNC2DcAOTQe4n9WWIBU+NoehX+4PIg1ceJl2EKRyJCXMdcyldNUIiDGXyUASQtK5ZB
+         I/4w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787550627; x=1788155427;
+        d=1e100.net; s=20251104; t=1787550630; x=1788155430;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=EB3wFOXHlXyIKQOwKFQXlogVT9fQ7bqKTlFugd3hmJ4=;
-        b=rsviYx4zj1PgQhq87ZotyLApvHbnZM9qFaRsO9plbBJSFqlrqpskO0nC1epmfr3M03
-         YSeb5rZsXEkKcr7Gzqed2JK+IfaVDFm7IR5s2zHdd8SmP/IZZfPp2BB6lqtPp+trWnjv
-         G9Rzjr96gVe3IjPvi5Xa36MxaJ+xBfmGbMpv4LXkosq0P5qDDMgqtD9ZvuhMXkSZbQTv
-         oFxBP/9rOeUcZq1BQkH3NplZGDCMY0vCMrUdKX7QddEFZtCrA9lAPCsLJgE6r/badx7b
-         RvmAFH/H3Fyh9RhfRjtkqARBTiC8QS/nh6XYDqPUEfz82VxsTsfcvyOI3nmdChWt5bvS
-         azjQ==
-X-Forwarded-Encrypted: i=1; AHgh+Ro3rVyrynn2/N06DrhR0Vg8eyTxNmRcjc0lMXwa3VfQJcGvPFQaPwGYcELUZL9B5HC2Z1ZJZKIjV42DTA==@vger.kernel.org
-X-Gm-Message-State: AFuF++nPYnKGX/qnKpYW1z5tXXKz3nI/uEvDTKWJK/+FPdfuA0qwHbts
-	qVDxK4Md5A5Ya8YKZw1J0iTJ9PnHGjdhL08K3c5TuKAaZoQu80Nqnzvb
-X-Gm-Gg: AR+sD1178NL0TDzR4k1f2dbOFf3uc9AezYDfdqxIQiGcvHb7jUu05xQ80YZcG7QNAW6
-	qYXHDktb3qYl2wFkwkVPAbIXmAItFZ/csHor6jfgS8NRYqWqAHo8Y00IN9k93WUlN5K8m44z0nx
-	qTcXfbmVsnYbENXnN43e01/iORzggoSQPwp11HQXdUPBJD2O0e1sn6UzhusizCNzYBPCDsKyH/M
-	btufhV9WC7Fqrk6OgkkoMB5Dgh6PcKoBSvcSirViq5/V+N4wvfWEral7+gZt0u57oI/Mx18oz4B
-	m6VUhwqdfMoQtAR4Ly8IiWV9Tc+UToWqUVMpyrZ1lbNc/eVD42TvMuVUCKCfIk7c6VOIHGNdoj8
-	ipDlUCsgJQzlFy05QEJhJQIJiin9xfFJQgx5RcIqhSNexNh59Gr0nZwwtn/PetpX4QGvcqJqIZC
-	d/GmkD392/3tWHuUqF7TXMQ9y+y4swBZiGVw4rYEheHpttLdjOiP9hDH1TJOWtWwmkscB29/h0h
-	qIWzq+fTLpyWAdjHzXCiBJzMfxP1uufydkViTlBTXfmgrQAm+AwtKPGuUR1SOouh1YwROc9fUUd
-	t2Tn+bnaoL6BU4ZBscgKcZps
-X-Received: by 2002:a17:903:354b:b0:2ca:f21a:a6c5 with SMTP id d9443c01a7336-2d64ada70cemr430814115ad.1.1787550627273;
-        Sun, 23 Aug 2026 22:50:27 -0700 (PDT)
+        bh=4eujiq6V03TrGWMcsHjzyrL4w51Ezbmmle/EXKToc6k=;
+        b=UWy637KU5TdrCqOARc0oOXWeLpjTgO4eRDTar+f7xG0aUm8cJIep+JRu9lxcjZfFk4
+         yxywz7Oa75yjPMtNgtePPZnbaUixud7kZiHRSNQ/Fq0eVApBZolYHEOlbLOAWxb3HeFM
+         vrId60udrqBwT1YcrtbRjzEl9olviqHi+SN8e18YZioeDk0ycQ1C5NcJXEN4K2PKKwrk
+         I6AlqsxRURI7iziz/hfb+NgDpP1g+myqvZNqVush2Slagpv3TbacPdLazjTHqAL+crG5
+         JGq6A2KkX6+94GsuCFeqCpyAW4chSum+e9cBhmdbd6O3CxEoizcbrJhuiyqn3HoJFdi6
+         7VJA==
+X-Forwarded-Encrypted: i=1; AHgh+Rrnsd5nUg4ssd2lpeZfhtOX/ati4dFGcanxqhV3bW13SxEqw0AqSUN26/ZAcQb6pDMfndfyE8Gcn5ATeQ==@vger.kernel.org
+X-Gm-Message-State: AFuF++kXIcYiAWwNk1ByzOaeOnDxefUCOh7toHk9eXzJC7LDvwOZjkN5
+	x8yB5tKe3LqbW713A9gUg9pmQOgGBpbqjy+DK2hlBCk4SHKK3OjOxOrj
+X-Gm-Gg: AR+sD12PQMcQAZ87g1ShkwSX8uItAnSRTaVhHQA2ZDtv/x/UDalzm/6WmQVBvT139ec
+	PjUL9/YrxxgPPY9iv3/wdeojayIADFKKV+9htyTyOvZ2hNYVOIcC12gfhpnjCkOXvZU1p93rtgW
+	b//f/RK3A9NYiK94UWtAoMD+Drj8HOUBPhJI+05/ZkkX6020ZftFnUMcG3iSxtlqhacGIZYecYG
+	BYNv3AkKkimonc0AtWD9ZcxI4NN/14nW4PuKopUtqrwkrfpRtZwDRL+UwkN6HJuovxaxWm71z6/
+	3pjAm5oK59jOI4PZmbArmmXabCqU7daLfXagFiByCYHeXvnElZuzoOlgrJihIV9giUMRfRDzGk7
+	ubQEA/YBkoE4kKs0cf/bXCgATtLGejBt1l9+j46gUYW9PktlhDtG9OBw9CgwtR1c4kQEwpla7KP
+	plrRWbqqmM/v+sx6Wz1+vTSMbACOzWaSEl+PQS1w2Ju/IkHpticNs3pgE7WaFjQb9C6FvlbliUY
+	qYndQ8abpLvT9S+m47km/p4TXOlKrMz9O9t19khqF8y6SERzHaDiB625feXOevW6t0PYUu0NyF/
+	eAi1iKPeHac82W8I7MbPwyGCS/eKWA==
+X-Received: by 2002:a17:902:e804:b0:2c6:90ec:f601 with SMTP id d9443c01a7336-2d670bee7a0mr271595585ad.8.1787550630113;
+        Sun, 23 Aug 2026 22:50:30 -0700 (PDT)
 Received: from LAPTOP-UUUVNN1I.localdomain (bb119-74-6-224.singnet.com.sg. [119.74.6.224])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2d6768c9876sm13955655ad.68.2026.08.23.22.50.24
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2d6768c9876sm13955655ad.68.2026.08.23.22.50.27
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 23 Aug 2026 22:50:26 -0700 (PDT)
+        Sun, 23 Aug 2026 22:50:29 -0700 (PDT)
 From: Wei Jie Law <98lawweijie@gmail.com>
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: Andrew Duggan <aduggan@synaptics.com>,
@@ -68,9 +68,9 @@ Cc: Andrew Duggan <aduggan@synaptics.com>,
 	linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	stable@vger.kernel.org
-Subject: [PATCH 1/2] Input: synaptics-rmi4 - fix irq[] overrun with 7 interrupt sources
-Date: Mon, 24 Aug 2026 13:50:11 +0800
-Message-ID: <4a48122167e32a6755d9ee7033f29bf7c78be796.1787549234.git.98lawweijie@gmail.com>
+Subject: [PATCH 2/2] Input: synaptics-rmi4 - reject a PDT that grows between scans
+Date: Mon, 24 Aug 2026 13:50:12 +0800
+Message-ID: <2c26d7ce8c6b7371ab55607f53443961220e4b24.1787549234.git.98lawweijie@gmail.com>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <cover.1787549234.git.98lawweijie@gmail.com>
 References: <cover.1787549234.git.98lawweijie@gmail.com>
@@ -82,80 +82,91 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-rmi_read_pdt_entry() takes the interrupt source count straight out of the
-Page Description Table entry the device supplies:
+rmi_driver_probe() walks the Page Description Table three times, and each
+walk reads the table back from the device:
 
-	entry->interrupt_source_count = buf[4] & RMI_PDT_INT_SOURCE_COUNT_MASK;
+  1. rmi_initial_reset   - issue the reset command in the F01 entry
+  2. rmi_count_irqs      - total the interrupt sources
+  3. rmi_create_function - create the functions and set their irq bits
 
-RMI_PDT_INT_SOURCE_COUNT_MASK is 0x07, so the value can be 7, and
-rmi_create_function() copies it verbatim into fn->num_of_irqs.  But
-struct rmi_function declares
+Scan 2 fixes data->irq_count, data->num_of_irq_regs and the size of every
+per-function irq_mask[].  Scan 3 then accumulates fn->irq_pos and does
 
-	int irq[RMI_FN_MAX_IRQS];
+	for (i = 0; i < fn->num_of_irqs; i++)
+		set_bit(fn->irq_pos + i, fn->irq_mask);
 
-with RMI_FN_MAX_IRQS == 6, and both rmi_create_function_irq() and
-rmi_unregister_function() index that array up to fn->num_of_irqs.  A
-device declaring 7 interrupt sources for a function that has a handler --
-F01 always does -- makes the driver write irq[6], which is the storage of
-the following member, unsigned int irq_pos.  The function's position in
-the interrupt bitmap then holds a Linux virq number, and that value feeds
-set_bit(fn->irq_pos, ...) in rmi_f11_probe()/rmi_f12_probe() and the
-irq_dispose_mapping() loop on teardown.
+without checking the result against the count that sized the bitmap.
+Nothing makes the device answer the third scan the way it answered the
+second, so a device that reports one function with one interrupt source
+on scan 2 and a long list of functions on scan 3 walks set_bit() past the
+end of the flexible array at the tail of every struct rmi_function:
 
-UBSAN reports every store in the loop body and the read on the unregister
-path:
-
-  UBSAN: array-index-out-of-bounds in drivers/input/rmi4/rmi_bus.c:183:10
-  index 6 is out of range for type 'int [6]'
+  BUG: KASAN: slab-out-of-bounds in rmi_create_function+0x560/0x930 [rmi_core]
+  Write of size 8 at addr ffff888110c92b58 by task kworker/1:2/129
   Workqueue: events uhid_device_add_worker
-   dump_stack_lvl+0x64/0x80
-   __ubsan_handle_out_of_bounds+0xc8/0x100
-   rmi_function_probe+0x1c1/0x210 [rmi_core]
-  UBSAN: array-index-out-of-bounds in drivers/input/rmi4/rmi_bus.c:186:28
-  UBSAN: array-index-out-of-bounds in drivers/input/rmi4/rmi_bus.c:187:35
-  UBSAN: array-index-out-of-bounds in drivers/input/rmi4/rmi_bus.c:189:32
-  UBSAN: array-index-out-of-bounds in drivers/input/rmi4/rmi_bus.c:191:54
-  UBSAN: array-index-out-of-bounds in drivers/input/rmi4/rmi_bus.c:282:30
+   kasan_report+0xc6/0x100
+   kasan_check_range+0x105/0x1b0
+   rmi_create_function+0x560/0x930 [rmi_core]
+   rmi_scan_pdt+0x190/0x3f0 [rmi_core]
+   rmi_init_functions+0xb8/0x320 [rmi_core]
+   rmi_driver_probe+0x31e/0xbf0 [rmi_core]
 
-Size the array to match the three bit field that feeds it.  Clamping
-num_of_irqs instead would silently drop an interrupt source a device is
-allowed to declare, and would desynchronise irq_pos for every function
-created after it.
+one report per corrupted function object.  The same unvalidated
+fn->irq_pos is used again by the set_bit() and irq_create_mapping() in
+rmi_create_function_irq().
 
-Reproduced with an emulated RMI4 device that publishes a single F01 PDT
-entry with interrupt_source_count = 7, driven over /dev/uhid and again
-over dummy_hcd plus raw-gadget, on v6.12.69 and v6.12.105 with
-CONFIG_UBSAN_BOUNDS=y.  No reports after this change, and the same device
-now probes normally.
+Validate the position before using it and fail the probe instead.  The
+check is exact, not conservative: when both scans see the same table,
+fn->irq_pos + fn->num_of_irqs is the running total that produced
+data->irq_count, so it never fires for a device that behaves.
 
-Fixes: 24d28e4f1271 ("Input: synaptics-rmi4 - convert irq distribution to irq_domain")
+Reproduced with an emulated RMI4 device driven over /dev/uhid, and again
+over dummy_hcd plus raw-gadget, on v6.12.69 booted slub_debug=FZPU and on
+v6.12.105 built with CONFIG_KASAN=y.  After this change the same device
+gets
+
+  rmi4_physical rmi4-03: F40: interrupt count changed between PDT
+      scans (pos 1 + 6 > 1)
+  rmi4_physical rmi4-03: Function creation failed with code -22.
+
+and a device that answers both scans consistently still probes normally.
+
+Fixes: 2b6a321da9a2 ("Input: synaptics-rmi4 - add support for Synaptics RMI4 devices")
 Cc: stable@vger.kernel.org
 Signed-off-by: Wei Jie Law <98lawweijie@gmail.com>
 ---
- drivers/input/rmi4/rmi_bus.h | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/input/rmi4/rmi_driver.c | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
 
-diff --git a/drivers/input/rmi4/rmi_bus.h b/drivers/input/rmi4/rmi_bus.h
-index 90122df21f74..faf2ebb00d52 100644
---- a/drivers/input/rmi4/rmi_bus.h
-+++ b/drivers/input/rmi4/rmi_bus.h
-@@ -12,10 +12,13 @@
- struct rmi_device;
+diff --git a/drivers/input/rmi4/rmi_driver.c b/drivers/input/rmi4/rmi_driver.c
+index 5d49a9021c7d..c0e91a372eff 100644
+--- a/drivers/input/rmi4/rmi_driver.c
++++ b/drivers/input/rmi4/rmi_driver.c
+@@ -899,6 +899,24 @@ static int rmi_create_function(struct rmi_device *rmi_dev,
+ 	fn->irq_pos = *current_irq_count;
+ 	*current_irq_count += fn->num_of_irqs;
  
- /*
-- * The interrupt source count in the function descriptor can represent up to
-- * 6 interrupt sources in the normal manner.
-+ * The interrupt source count in the function descriptor is a three bit field
-+ * (RMI_PDT_INT_SOURCE_COUNT_MASK), so a device can legitimately declare up to
-+ * 7 interrupt sources for a single function.  irq[] must be able to hold all
-+ * of them: rmi_create_function_irq() and rmi_unregister_function() both walk
-+ * it up to fn->num_of_irqs.
-  */
--#define RMI_FN_MAX_IRQS	6
-+#define RMI_FN_MAX_IRQS	7
++	/*
++	 * irq_mask[] was sized from the interrupt count collected by the
++	 * earlier rmi_count_irqs() scan of the PDT.  Nothing guarantees that
++	 * this scan sees the same table -- the PDT is read back from the
++	 * device every time -- so a device that grows its interrupt counts
++	 * between the two scans would push these set_bit() calls past the end
++	 * of the flexible array.  Refuse the function instead.
++	 */
++	if (fn->num_of_irqs > RMI_FN_MAX_IRQS ||
++	    fn->irq_pos + fn->num_of_irqs > data->irq_count) {
++		dev_err(dev,
++			"F%02X: interrupt count changed between PDT scans (pos %u + %u > %d)\n",
++			pdt->function_number, fn->irq_pos, fn->num_of_irqs,
++			data->irq_count);
++		put_device(&fn->dev);
++		return -EINVAL;
++	}
++
+ 	for (i = 0; i < fn->num_of_irqs; i++)
+ 		set_bit(fn->irq_pos + i, fn->irq_mask);
  
- /**
-  * struct rmi_function - represents the implementation of an RMI4
 -- 
 2.43.0
 

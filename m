@@ -1,776 +1,344 @@
-Received: from relay15.grserver.gr (relay15.grserver.gr [46.62.234.254])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-lf1-f47.google.com (mail-lf1-f47.google.com [209.85.167.47])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 55A373955EA
-	for <linux-input@vger.kernel.org>; Mon, 24 Aug 2026 22:31:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=46.62.234.254
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EE05A3955F0
+	for <linux-input@vger.kernel.org>; Mon, 24 Aug 2026 22:31:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.47
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787610679; cv=none; b=Y9qAs+YYE6EWqisVnd0yZ/qbUS20jDcGvTiL5cF5Ni0dwMCbPpQquDslXNeVAqbopoUpF9qHeH5dTJiLn9J6ZdrG+YduKIMPgsc79hYNKQs/cLYwz7rma43yGt7JQcrSOFRVqzPH+Rhe2K56CHkBF7CQhVhfh21BQOyv8vS4818=
+	t=1787610681; cv=none; b=HOjOjmHuQzj+Rwr/cIXesx/wMLoa/2TJJx3H1aqNwVJCsnPPeYdUwO9Pj0C2F2uu8KhBOzxYi0qyrBzPqIbTKk3eShYOMXwW2CMQi4xU+XYMCMtOZM3R8Ady7n4Tu1o26sfwCyJMsrxP123FMGgLbucOF6kw2Oquq1zt6mqCO/g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787610679; c=relaxed/simple;
-	bh=0fekVFLbz51hAP0OGK4JxCZMEB656CtVYdU9ROIDfaA=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=k2cl0SIQXIN3HZjbDzsXyqtL2eAKpQ0woZcPoFn9b3STCexsmUhuUrvMxWIUsW5pHtvHyueTbeJO/il9uT14Zz9cdeDsEKwQy/cpgJf0/eDYxkb1j1qJ0GeWWnH/5C1pCSbozFIz05NTybEOqUDIZRAAxLXb51eMfbucyQEsZRc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=antheas.dev; spf=pass smtp.mailfrom=antheas.dev; dkim=pass (2048-bit key) header.d=antheas.dev header.i=@antheas.dev header.b=BjLmzApV; arc=none smtp.client-ip=46.62.234.254
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=antheas.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=antheas.dev
+	s=arc-20240116; t=1787610681; c=relaxed/simple;
+	bh=tCZdD8KXm0twLInzbpXjz6pv7CKq1Lv0XNh9VsUTe5s=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=nCVB+WOJ8RH8G7z3SAupAIdBzvomlZDgbSYHOjoR2qQxinsxfH1lOcyO0P+cMUTUgZPC5B/xe+RlJp6VQj/n/HO+2v0N+9LkxRP/dp9BI4B9LJqNv1TAmPIq5nT98LnGMc1I+HXar8lE/GtdFGNPE3wYCxtSzxcLSAJuUqVt3tE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=pnP13yOt; arc=none smtp.client-ip=209.85.167.47
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=antheas.dev header.i=@antheas.dev header.b="BjLmzApV"
-Received: from relay15 (localhost [127.0.0.1])
-	by relay15.grserver.gr (Proxmox) with ESMTP id CE1433EB61
-	for <linux-input@vger.kernel.org>; Mon, 24 Aug 2026 22:25:19 +0000 (UTC)
-Received: from linux3247.grserver.gr (linux3247.grserver.gr [213.158.90.240])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by relay15.grserver.gr (Proxmox) with ESMTPS id 2C20B3EB54
-	for <linux-input@vger.kernel.org>; Mon, 24 Aug 2026 22:25:18 +0000 (UTC)
-Received: from mail-pl1-f180.google.com (mail-pl1-f180.google.com [209.85.214.180])
-	by linux3247.grserver.gr (Postfix) with ESMTPSA id 416ED1FFD94
-	for <linux-input@vger.kernel.org>; Tue, 25 Aug 2026 01:25:17 +0300 (EEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=antheas.dev;
-	s=default; t=1787610317;
-	bh=J6kQlrj3XSk4a+dVWpO524PgiJ+4qccttwTkW/5mHGQ=;
-	h=Received:From:Subject:To;
-	b=BjLmzApV0I9sn7o9Q2ppCaGqW8OOf8AELProZxjzOsn5BE8y3pYEhNLbGRVdJQx+m
-	 kOcPtVqvcb95lrS8CIMiFBAjMeViUZR7753j1QxjS0i2LVGiHGDt7Ij14NxU8+JOUx
-	 7tpEg8gruCrmHLAVimy8HP36rjeFV6EmHIJj3HUcoGxSsnc7drG3RkN06HW7shCYFs
-	 lvHOR2d8jGSOitpGT+hBB6UZ4jqhEZ/bzwptEDnR1Zr/yyidxCeDS4gRmF8UoqpHUn
-	 JcEqzwEhiE+RQKkfY0T3QAkn8b1PYCxWDwrBnnddktMXAcmgd3UnfNo/2pe3USiZMh
-	 olSam+RowCnmw==
-Authentication-Results: linux3247.grserver.gr;
-        spf=pass (sender IP is 209.85.214.180) smtp.mailfrom=lkml@antheas.dev smtp.helo=mail-pl1-f180.google.com
-Received-SPF: pass (linux3247.grserver.gr: connection is authenticated)
-Received: by mail-pl1-f180.google.com with SMTP id
- d9443c01a7336-2cee9b74ee1so32446205ad.3
-        for <linux-input@vger.kernel.org>;
- Mon, 24 Aug 2026 15:25:17 -0700 (PDT)
-X-Forwarded-Encrypted: i=1;
- AHgh+RrUle9t+E1/39vfJ7UKfOf6OX8abLY+BkhMc2V8ILkbRX/1UXEnDUInUIsDsnX/BBmbnvCG7KdFutyUyg==@vger.kernel.org
-X-Gm-Message-State: AFuF++lTf3a3i8axwTSkh23mz2yTSGAYa4wcbcnO0VM1s0r//WgXm2i9
-	3cuhZbF/kNYMOovLWU0AJSyc7my/4i7VDQm2XpD2scOyuIBMF3gEvFJQWQEjjmQJrMkjZwzCpfB
-	B5Sr9lW4N0BN7jFegLW/g16+lyPlHxSI=
-X-Received: by 2002:a17:903:230b:b0:2c9:c991:3bf0 with SMTP id
- d9443c01a7336-2d670c27184mr363636415ad.8.1787610315860; Mon, 24 Aug 2026
- 15:25:15 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="pnP13yOt"
+Received: by mail-lf1-f47.google.com with SMTP id 2adb3069b0e04-5b2b92065ffso3957978e87.1
+        for <linux-input@vger.kernel.org>; Mon, 24 Aug 2026 15:31:18 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1787610677; x=1788215477; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=ca0Zs/xTHuEz+v8rwst1BlpMVa0G0BUWbtgcjLGPvdc=;
+        b=pnP13yOtdugb7L07TSBrKiDF1KK9QLfQ/2lwPWTSIvObE4vgANykmveNp92QvXl7B0
+         da2fGH88J3YpLFlFMFKEtCePr6uBzNeyJ1XU9tufHmd5o2MubIn4ncHYQZy3fziGki4D
+         eI1pylnRKSeQkku02RSzh8zt2XmnFPpbUHz8x6NBw8WQ2kY0pTm3wvAbxB8fnpQXL8H2
+         bi1J6tT6Io+NE2eYYBVx+74jGWxLxOjqGg8ceP623AnVAZ7saenZocaPTt6LsN+IBVX/
+         vRxk0Zz1lUZmH97ZQL4+W1qM26EM6sZ4cg8xWF+wcdaxg5X1dnVOwjiS9Y91OuUsDg2n
+         gELQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1787610677; x=1788215477;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=ca0Zs/xTHuEz+v8rwst1BlpMVa0G0BUWbtgcjLGPvdc=;
+        b=DsKIvI/IlUnwYS5M+JnnlIQsj4eQnka6FPpbiO6xsRMuIy/xo8sFMxc1igJqGCus35
+         XIB1UR0MC1fx7IUlVFQeTVHZcyI+R3YifWiYas5/FWahwE/8jnasobidltmMMmWeSGTI
+         chBQetfvawIimJ5OugI9zcdwdp7Vh/Uop0Dud/xZn3MoLTdg/nXDY4JI277YVYuJTfOE
+         3TZ3Wn1QHM+qHKVCiV5g/BMyN+JqlK9Jcp41nadHozugXMa0TdFggbTJAZLFxnCOjxpx
+         HW0jB9Z5GBDGCDFT7xsSCkP/2VJOqzdKlApSlnglyEEc2lg0r+1HPV8rlUQr/26wyEis
+         0bWA==
+X-Forwarded-Encrypted: i=1; AHgh+Rp/UYEXVnPXmCKLC1p7LK++5bUe7gYMyom+e8bvG7WvM0DEEUm/sIQxEL88Y+o7Y4q19eOuAPpIZHZzWw==@vger.kernel.org
+X-Gm-Message-State: AFuF++mSvIrEoBbjV7hk2WZuR7BcqnA7JvB44bxc+6b3hLPZyDW7YyhH
+	UawH4r/YlVO5xT+fdAqU0yIRSXAfsS9Fav73ZLLqaWBu3C2bfJhQUb5HBbO53K8NnGmlhwu3
+X-Gm-Gg: AR+sD12FKewoGJb3rZymLX39rdb2XZRCI1AfO47cuL63tfu8uvPYqriWr48HfRFH7f/
+	KRnZRr9k5zbbDZIs7enM2j0YI+eQ2zxvT/OzeI1Cn/oeQs0O1dP3r0xTna4tu1N93rsed5kQ1bw
+	alx2NWST0VRdQ7AwlrqbLWsmE4bAp/QfzLdNotCcaF1Spg10XXu2byOPTAP+vtquzrIhjR8+KKP
+	yo/IsFSgFgQPDHKzy/2w8rbvikVfBmw5Byqdsol7vQ2LcO/q/OI/wmg2QWJsvC80YuUYSZfQEn4
+	LobM5iFF/4TCDSl+JwQXvsdnUL8nsSZ1STw2YRlKQJlHL9/7TyY/ereJAE/PLIlOUrxZhvst0oX
+	08tz/a21SvbFAjVrh2J4jlEhpTQ+GBSM9K4tlXgpLjGp+ZnIF6RUmYK/4G8ZnE0EIIBqmCRQ88B
+	YOmK2EqlXP+nqSC0zQAi3/V6A5waaRvORUwQvxRmR7+xW8ckJPHtSReTTo8nrj6AjNZBEwxIdSo
+	+V1FaC4aO0/lLYfm+4kZXFTr3gRMg+I3SUpmYuDy3DZJ9TXHKA158t5AHUSUci3JQNjn+8=
+X-Received: by 2002:a05:6512:2356:b0:5b4:5352:e2db with SMTP id 2adb3069b0e04-5b49cdbf946mr416343e87.20.1787610676537;
+        Mon, 24 Aug 2026 15:31:16 -0700 (PDT)
+Received: from localhost ([188.234.148.119])
+        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-5b48cdfdc49sm2073351e87.41.2026.08.24.15.31.15
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 24 Aug 2026 15:31:15 -0700 (PDT)
+From: Mikhail Gavrilov <mikhail.v.gavrilov@gmail.com>
+To: tiwai@suse.com
+Cc: perex@perex.cz,
+	jikos@kernel.org,
+	bentiss@kernel.org,
+	linux-sound@vger.kernel.org,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Mikhail Gavrilov <mikhail.v.gavrilov@gmail.com>
+Subject: [PATCH v6 2/2] ALSA: usb-audio: let the M62's outputs say what they listen to
+Date: Tue, 25 Aug 2026 03:31:07 +0500
+Message-ID: <20260824223107.406504-3-mikhail.v.gavrilov@gmail.com>
+X-Mailer: git-send-email 2.55.0
+In-Reply-To: <20260824223107.406504-1-mikhail.v.gavrilov@gmail.com>
+References: <20260824201331.304705-1-mikhail.v.gavrilov@gmail.com>
+ <20260824223107.406504-1-mikhail.v.gavrilov@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260824215041.79892-1-hello@matias.me>
- <CAGwozwEFLc4vGX290Tw4RdbtD7af4C9F-Ms20E_KUorL_j-jpQ@mail.gmail.com>
-In-Reply-To: 
- <CAGwozwEFLc4vGX290Tw4RdbtD7af4C9F-Ms20E_KUorL_j-jpQ@mail.gmail.com>
-From: Antheas Kapenekakis <lkml@antheas.dev>
-Date: Tue, 25 Aug 2026 00:25:04 +0200
-X-Gmail-Original-Message-ID: 
- <CAGwozwECcyX6vxJmiBhfO2DfOE6VbkURCArY6gvaqgXJEkA8BQ@mail.gmail.com>
-X-Gm-Features: AcwNN1WYyaJDfjzSlcjKY3DAoog73bdLobAUixB4m1q_pwTc8-BwjVE-KHbd2X0
-Message-ID: 
- <CAGwozwECcyX6vxJmiBhfO2DfOE6VbkURCArY6gvaqgXJEkA8BQ@mail.gmail.com>
-Subject: Re: [PATCH] HID: ayaneo: Add AYANEO 3 detachable controller driver
-To: =?UTF-8?Q?Mati=CC=81as_Marti=CC=81nez?= <hello@matias.me>
-Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>,
- linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org, Denis Benato <denis.benato@linux.dev>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-PPP-Message-ID: 
- <178761031761.3939811.17170036309037647703@linux3247.grserver.gr>
-X-PPP-Vhost: antheas.dev
-X-Virus-Scanned: clamav-milter 1.4.6 at linux3247.grserver.gr
-X-Virus-Status: Clean
+Content-Transfer-Encoding: 8bit
 
-On Tue, 25 Aug 2026 at 00:00, Antheas Kapenekakis <lkml@antheas.dev> wrote:
->
-> On Mon, 24 Aug 2026 at 23:50, Mati=CC=81as Marti=CC=81nez <hello@matias.m=
-e> wrote:
-> >
-> > The AYANEO 3 handheld has a detachable controller with swappable
-> > modules ("Magic Modules"). The controller exposes three USB HID
-> > interfaces behind 1c4f:0002 (a generic SigmaMicro VID/PID, hence the
-> > DMI gate): a gamepad, a keyboard for the extra buttons, and a vendor
-> > interface accepting 65-byte commands.
-> >
-> > Add a driver for the vendor interface providing module identification
-> > (module_left/module_right sysfs attributes), software eject of the
-> > modules (eject sysfs attribute, blocking until the firmware confirms
-> > the release handshake), and RGB control of the joystick rings as a
-> > multicolor LED class device ("<device name>:rgb:joystick_rings";
-> > userspace such as InputPlumber matches the function suffix).
-> >
-> > This complements the ayaneo-ec platform driver, which exposes module
-> > attach state and controller power. A full physical eject is performed
-> > by writing to eject and then cutting power through ayaneo-ec's
-> > controller_power attribute; that orchestration is deliberately left
-> > to userspace.
->
-> If you need userspace coordination anyway, including the multiple
-> timing hacks I had to implement, the question of having to route this
-> through the kernel arises.
->
-> > The protocol was reverse engineered in the Handheld Daemon project by
-> > Antheas Kapenekakis. Tested on an AYANEO 3: module identification,
-> > RGB, and a full eject/reinsert/repower cycle.
-> >
-> > Signed-off-by: Mati=CC=81as Marti=CC=81nez <hello@matias.me>
-> > Reviewed-by: Denis Benato <denis.benato@linux.dev>
-> > ---
-> >  .../ABI/testing/sysfs-driver-hid-ayaneo       |  36 ++
-> >  MAINTAINERS                                   |   7 +
-> >  drivers/hid/Kconfig                           |  14 +
-> >  drivers/hid/Makefile                          |   1 +
-> >  drivers/hid/hid-ayaneo.c                      | 471 ++++++++++++++++++
-> >  5 files changed, 529 insertions(+)
-> >  create mode 100644 Documentation/ABI/testing/sysfs-driver-hid-ayaneo
-> >  create mode 100644 drivers/hid/hid-ayaneo.c
-> >
-> > diff --git a/Documentation/ABI/testing/sysfs-driver-hid-ayaneo b/Docume=
-ntation/ABI/testing/sysfs-driver-hid-ayaneo
-> > new file mode 100644
-> > index 000000000..807c4fc9d
-> > --- /dev/null
-> > +++ b/Documentation/ABI/testing/sysfs-driver-hid-ayaneo
-> > @@ -0,0 +1,36 @@
-> > +What:          /sys/bus/hid/drivers/hid-ayaneo/<dev>/module_left
-> > +What:          /sys/bus/hid/drivers/hid-ayaneo/<dev>/module_right
-> > +Date:          August 2026
-> > +KernelVersion: 7.3
-> > +Contact:       Mat=C3=ADas Mart=C3=ADnez <hello@matias.me>
-> > +Description:
-> > +               Reports the type of the module currently inserted in th=
-e
-> > +               left/right slot of the AYANEO 3 detachable controller, =
-as
-> > +               the raw identifier reported by the controller firmware =
-in
-> > +               hexadecimal (e.g. "0x04"). Bits 0-5 encode the module
-> > +               type, bit 6 indicates the module is inserted rotated.
-> > +
-> > +               Reading these attributes queries the controller and can
-> > +               take up to a second.
-> > +
-> > +What:          /sys/bus/hid/drivers/hid-ayaneo/<dev>/eject
-> > +Date:          August 2026
-> > +KernelVersion: 7.3
-> > +Contact:       Mat=C3=ADas Mart=C3=ADnez <hello@matias.me>
-> > +Description:
-> > +               Write-only. Writing "left", "right" or "both" asks the
-> > +               controller firmware to release the corresponding
-> > +               module(s). The write blocks until the firmware confirms
-> > +               the release handshake (typically a few seconds). The
-> > +               module is physically released once controller power is
-> > +               subsequently cut through the ayaneo-ec platform driver'=
-s
-> > +               controller_power attribute; that final step is left to
-> > +               userspace.
-> > +
-> > +What:          /sys/bus/hid/drivers/hid-ayaneo/<dev>/reset
-> > +Date:          August 2026
-> > +KernelVersion: 7.3
-> > +Contact:       Mat=C3=ADas Mart=C3=ADnez <hello@matias.me>
-> > +Description:
-> > +               Write-only. Writing "1" asks the controller firmware to
-> > +               perform a quick reset of the controller configuration.
-> > diff --git a/MAINTAINERS b/MAINTAINERS
-> > index 6ecfe6c9e..360f01d39 100644
-> > --- a/MAINTAINERS
-> > +++ b/MAINTAINERS
-> > @@ -4469,6 +4469,13 @@ F:       Documentation/devicetree/bindings/spi/a=
-xiado,ax3000-spi.yaml
-> >  F:     drivers/spi/spi-axiado.c
-> >  F:     drivers/spi/spi-axiado.h
-> >
-> > +AYANEO 3 CONTROLLER HID DRIVER
-> > +M:     Mat=C3=ADas Mart=C3=ADnez <hello@matias.me>
-> > +L:     linux-input@vger.kernel.org
-> > +S:     Maintained
-> > +F:     Documentation/ABI/testing/sysfs-driver-hid-ayaneo
-> > +F:     drivers/hid/hid-ayaneo.c
-> > +
-> >  AYANEO PLATFORM EC DRIVER
-> >  M:     Antheas Kapenekakis <lkml@antheas.dev>
-> >  L:     platform-driver-x86@vger.kernel.org
-> > diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-> > index aa7fa11a0..9693a0233 100644
-> > --- a/drivers/hid/Kconfig
-> > +++ b/drivers/hid/Kconfig
-> > @@ -205,6 +205,20 @@ config HID_AUREAL
-> >         help
-> >         Support for Aureal Cy se W-01RN Remote Controller and other Aur=
-eal derived remotes.
-> >
-> > +config HID_AYANEO
-> > +       tristate "AYANEO 3 detachable controller support"
-> > +       depends on USB_HID
-> > +       depends on DMI
-> > +       depends on LEDS_CLASS_MULTICOLOR
-> > +       help
-> > +         Provides support for the detachable controller ("Magic Module=
-s")
-> > +         of the AYANEO 3 handheld: module identification, software eje=
-ct
-> > +         and RGB control of the joystick rings. Complements the ayaneo=
--ec
-> > +         platform driver, which handles module attach state and contro=
-ller
-> > +         power.
-> > +
-> > +         Say Y or M here if you have an AYANEO 3.
-> > +
-> >  config HID_BELKIN
-> >         tristate "Belkin Flip KVM and Wireless keyboard"
-> >         help
-> > diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
-> > index 48a863b24..60add9348 100644
-> > --- a/drivers/hid/Makefile
-> > +++ b/drivers/hid/Makefile
-> > @@ -35,6 +35,7 @@ obj-$(CONFIG_HID_APPLETB_KBD) +=3D hid-appletb-kbd.o
-> >  obj-$(CONFIG_HID_CREATIVE_SB0540)      +=3D hid-creative-sb0540.o
-> >  obj-$(CONFIG_HID_ASUS)         +=3D hid-asus.o
-> >  obj-$(CONFIG_HID_AUREAL)       +=3D hid-aureal.o
-> > +obj-$(CONFIG_HID_AYANEO)       +=3D hid-ayaneo.o
-> >  obj-$(CONFIG_HID_BELKIN)       +=3D hid-belkin.o
-> >  obj-$(CONFIG_HID_BETOP_FF)     +=3D hid-betopff.o
-> >  obj-$(CONFIG_HID_BIGBEN_FF)    +=3D hid-bigbenff.o
-> > diff --git a/drivers/hid/hid-ayaneo.c b/drivers/hid/hid-ayaneo.c
-> > new file mode 100644
-> > index 000000000..61c64617f
-> > --- /dev/null
-> > +++ b/drivers/hid/hid-ayaneo.c
-> > @@ -0,0 +1,471 @@
-> > +// SPDX-License-Identifier: GPL-2.0+
-> > +/*
-> > + * HID driver for the AYANEO 3 detachable controller ("Magic Modules")=
-.
-> > + *
-> > + * The AYANEO 3 controller exposes three USB HID interfaces behind
-> > + * VID 0x1c4f PID 0x0002 (a generic SigmaMicro ID, hence the DMI gate)=
-:
-> > + * a gamepad, a keyboard for the extra buttons, and a vendor interface
-> > + * (application usage 0xff000001) accepting 65-byte commands.
-> > + *
-> > + * This driver binds the vendor interface and provides:
-> > + *  - module identification (which module type is inserted on each sid=
-e)
-> > + *  - software eject of the left/right modules
-> > + *  - RGB control of the joystick rings as a multicolor LED class devi=
-ce
-> > + *
-> > + * It complements the ayaneo-ec platform driver, which exposes module
-> > + * attach state and controller power. A full eject is: write to this
-> > + * driver's "eject" attribute, then power the controller off through
-> > + * ayaneo-ec's controller_power once the eject completes.
-> > + *
-> > + * The protocol was reverse engineered in the Handheld Daemon project =
-by
-> > + * Antheas Kapenekakis.
-> > + *
-> > + * Command format (65 bytes, unnumbered report):
-> > + *   [0]   report id (0)
-> > + *   [1:3] little-endian sum of bytes 7..64
-> > + *   [3]   command
-> > + *   [4]   subcommand
-> > + *   [5:]  payload
-> > + * The device replies with a 64-byte report echoing the subcommand at
-> > + * byte 3.
-> > + *
-> > + * Copyright (C) 2026 Mat=C3=ADas Mart=C3=ADnez <hello@matias.me>
-> > + */
-> > +
-> > +#include <linux/delay.h>
-> > +#include <linux/dmi.h>
-> > +#include <linux/hid.h>
-> > +#include <linux/led-class-multicolor.h>
-> > +#include <linux/module.h>
-> > +#include <linux/mutex.h>
-> > +#include <linux/sysfs.h>
-> > +#include <linux/unaligned.h>
-> > +
-> > +#define AYA3_REPORT_SIZE       65
-> > +#define AYA3_RESP_SIZE         64
-> > +#define AYA3_CMD_TIMEOUT_MS    300
-> > +#define AYA3_CMD_ATTEMPTS      3
-> > +
-> > +/* Subcommands (byte 4); byte 3 is 0x00 except for the config command =
-*/
-> > +#define AYA3_SUBCMD_CHECK      0x08
-> > +#define AYA3_CMD_CONFIG                0x21
-> > +#define AYA3_SUBCMD_CONFIG     0x09
-> > +
-> > +/* CHECK response fields */
-> > +#define AYA3_RESP_CMD          3
-> > +#define AYA3_RESP_EJECT_STATUS 19
-> > +#define AYA3_RESP_MODULE_LEFT  32
-> > +#define AYA3_RESP_MODULE_RIGHT 33
-> > +/* Bits that stay set in the eject status byte after an eject complete=
-s */
-> > +#define AYA3_EJECT_DONE_MASK   0x11
-> > +
-> > +/* Config command eject/reset field */
-> > +#define AYA3_EJECT_LEFT                0x07
-> > +#define AYA3_EJECT_RIGHT       0x70
-> > +#define AYA3_RESET             0x88
-> > +
-> > +/* Config command RGB modes */
-> > +#define AYA3_RGB_SOLID         0x01
-> > +#define AYA3_RGB_OFF           0xff
-> > +
-> > +#define AYA3_VIBRATION_DEFAULT 0x02    /* medium */
-> > +
-> > +struct aya3 {
-> > +       struct hid_device *hdev;
-> > +       /* DMA-safe command buffer; guarded by lock */
-> > +       u8 *xfer;
-> > +       /* Serializes commands and cached-config access */
-> > +       struct mutex lock;
-> > +       struct completion resp_done;
-> > +       u8 resp[AYA3_RESP_SIZE];
-> > +       u8 resp_expect;
-> > +       bool resp_pending;
-> > +
-> > +       u8 rgb[3];
-> > +       u8 vibration;
-> > +
-> > +       struct led_classdev_mc mcled;
-> > +       struct mc_subled subleds[3];
-> > +};
-> > +
-> > +static int aya3_send(struct aya3 *aya)
-> > +{
-> > +       int ret;
-> > +
-> > +       ret =3D hid_hw_output_report(aya->hdev, aya->xfer, AYA3_REPORT_=
-SIZE);
-> > +       if (ret =3D=3D -ENOSYS)
-> > +               ret =3D hid_hw_raw_request(aya->hdev, aya->xfer[0], aya=
-->xfer,
-> > +                                        AYA3_REPORT_SIZE, HID_OUTPUT_R=
-EPORT,
-> > +                                        HID_REQ_SET_REPORT);
-> > +       if (ret < 0)
-> > +               return ret;
-> > +       return 0;
-> > +}
-> > +
-> > +/**
-> > + * aya3_cmd() - send the command in aya->xfer and wait for the reply
-> > + * @aya: driver data; @aya->xfer holds the fully built 65-byte command
-> > + * @resp: destination for the AYA3_RESP_SIZE-byte reply, or NULL to
-> > + *        discard it
-> > + *
-> > + * The device echoes the subcommand byte of the command it is answerin=
-g,
-> > + * which aya3_raw_event() uses to match replies. Unanswered commands a=
-re
-> > + * retried up to AYA3_CMD_ATTEMPTS times.
-> > + *
-> > + * Context: process context; the caller must hold @aya->lock, which
-> > + *          protects @aya->xfer and the reply state.
-> > + * Return: 0 on success, -ETIMEDOUT if every attempt went unanswered, =
-or
-> > + *         a negative errno if sending failed.
-> > + */
-> > +static int aya3_cmd(struct aya3 *aya, u8 *resp)
-> > +{
-> > +       int attempt, ret;
-> > +
-> > +       lockdep_assert_held(&aya->lock);
-> > +
-> > +       for (attempt =3D 0; attempt < AYA3_CMD_ATTEMPTS; attempt++) {
-> > +               reinit_completion(&aya->resp_done);
-> > +               aya->resp_expect =3D aya->xfer[4];
-> > +               WRITE_ONCE(aya->resp_pending, true);
-> > +
-> > +               ret =3D aya3_send(aya);
-> > +               if (ret) {
-> > +                       WRITE_ONCE(aya->resp_pending, false);
-> > +                       return ret;
-> > +               }
-> > +
-> > +               if (wait_for_completion_timeout(&aya->resp_done,
-> > +                                               msecs_to_jiffies(AYA3_C=
-MD_TIMEOUT_MS))) {
-> > +                       if (resp)
-> > +                               memcpy(resp, aya->resp, AYA3_RESP_SIZE)=
-;
-> > +                       return 0;
-> > +               }
-> > +       }
-> > +       WRITE_ONCE(aya->resp_pending, false);
-> > +       return -ETIMEDOUT;
-> > +}
-> > +
-> > +static void aya3_checksum(u8 *buf)
-> > +{
-> > +       u16 sum =3D 0;
-> > +       int i;
-> > +
-> > +       for (i =3D 7; i < AYA3_REPORT_SIZE; i++)
-> > +               sum +=3D buf[i];
-> > +       put_unaligned_le16(sum, buf + 1);
-> > +}
-> > +
-> > +static int aya3_check(struct aya3 *aya, u8 *resp)
-> > +{
-> > +       memset(aya->xfer, 0, AYA3_REPORT_SIZE);
-> > +       aya->xfer[4] =3D AYA3_SUBCMD_CHECK;
-> > +       return aya3_cmd(aya, resp);
-> > +}
-> > +
-> > +/*
-> > + * The config command sets everything at once: RGB for both rings,
-> > + * vibration strength, joystick sensitivity, and the eject/reset field=
-.
-> > + */
-> > +static int aya3_send_config(struct aya3 *aya, u8 eject)
-> > +{
-> > +       static const u8 template[AYA3_REPORT_SIZE] =3D {
-> > +               [3] =3D AYA3_CMD_CONFIG,
-> > +               [4] =3D AYA3_SUBCMD_CONFIG,
-> > +               [22] =3D 0x33,
-> > +               [23] =3D 0x22,    /* joystick sensitivity 100%/100% */
-> > +               [32] =3D 0x01,
-> > +               [37] =3D 0x64,
-> > +               [38] =3D 0x64,
->
-> Overwriting joystick sensitivity is a bit problematic. Can you see if
-> dropping those four bytes still allows RGB to go through? This might
-> be preferable. Otherwise you might have to implement those endpoints
-> as well, and handle the issue of multiple writes (ie setting joystick
-> left, right and RGB produces three writes instead of one).
->
-> > +       };
-> > +       u8 *buf =3D aya->xfer;
-> > +       u8 mode =3D (aya->rgb[0] || aya->rgb[1] || aya->rgb[2]) ?
-> > +                 AYA3_RGB_SOLID : AYA3_RGB_OFF;
->
-> Consider implementing the pulsing mode it offers, there should be an
-> accepted ABI for it somewhere...
->
-> > +
-> > +       memcpy(buf, template, AYA3_REPORT_SIZE);
-> > +       /* Right ring, then left ring: mode, R, G, B */
-> > +       buf[8] =3D mode;
-> > +       memcpy(buf + 9, aya->rgb, 3);
-> > +       buf[12] =3D mode;
-> > +       memcpy(buf + 13, aya->rgb, 3);
-> > +       buf[20] =3D eject;
-> > +       buf[24] =3D aya->vibration << 4;
-> > +       aya3_checksum(buf);
-> > +
-> > +       return aya3_cmd(aya, NULL);
-> > +}
-> > +
-> > +static int aya3_raw_event(struct hid_device *hdev, struct hid_report *=
-report,
-> > +                         u8 *data, int size)
-> > +{
-> > +       struct aya3 *aya =3D hid_get_drvdata(hdev);
-> > +
-> > +       if (!READ_ONCE(aya->resp_pending) || size < AYA3_RESP_SIZE)
-> > +               return 0;
-> > +       if (data[AYA3_RESP_CMD] !=3D aya->resp_expect)
-> > +               return 0;
-> > +
-> > +       memcpy(aya->resp, data, AYA3_RESP_SIZE);
-> > +       WRITE_ONCE(aya->resp_pending, false);
-> > +       complete(&aya->resp_done);
-> > +       return 0;
-> > +}
-> > +
-> > +static ssize_t aya3_module_show(struct device *dev, char *buf, int off=
-set)
-> > +{
-> > +       struct aya3 *aya =3D dev_get_drvdata(dev);
-> > +       u8 resp[AYA3_RESP_SIZE];
-> > +       int ret;
-> > +
-> > +       ret =3D mutex_lock_interruptible(&aya->lock);
-> > +       if (ret)
-> > +               return ret;
-> > +       ret =3D aya3_check(aya, resp);
-> > +       mutex_unlock(&aya->lock);
-> > +       if (ret)
-> > +               return ret;
-> > +
-> > +       return sysfs_emit(buf, "0x%02x\n", resp[offset]);
-> > +}
-> > +
-> > +static ssize_t module_left_show(struct device *dev,
-> > +                               struct device_attribute *attr, char *bu=
-f)
-> > +{
-> > +       return aya3_module_show(dev, buf, AYA3_RESP_MODULE_LEFT);
-> > +}
-> > +static DEVICE_ATTR_RO(module_left);
-> > +
-> > +static ssize_t module_right_show(struct device *dev,
-> > +                                struct device_attribute *attr, char *b=
-uf)
-> > +{
-> > +       return aya3_module_show(dev, buf, AYA3_RESP_MODULE_RIGHT);
-> > +}
-> > +static DEVICE_ATTR_RO(module_right);
-> > +
-> > +static ssize_t eject_store(struct device *dev, struct device_attribute=
- *attr,
-> > +                          const char *buf, size_t count)
-> > +{
-> > +       struct aya3 *aya =3D dev_get_drvdata(dev);
-> > +       u8 resp[AYA3_RESP_SIZE];
-> > +       u8 eject;
-> > +       int ret, i;
-> > +
-> > +       if (sysfs_streq(buf, "left"))
-> > +               eject =3D AYA3_EJECT_LEFT;
-> > +       else if (sysfs_streq(buf, "right"))
-> > +               eject =3D AYA3_EJECT_RIGHT;
-> > +       else if (sysfs_streq(buf, "both"))
-> > +               eject =3D AYA3_EJECT_LEFT | AYA3_EJECT_RIGHT;
-> > +       else
-> > +               return -EINVAL;
-> > +
-> > +       ret =3D mutex_lock_interruptible(&aya->lock);
-> > +       if (ret)
-> > +               return ret;
-> > +
-> > +       ret =3D aya3_send_config(aya, eject);
-> > +       if (ret)
-> > +               goto out;
-> > +
-> > +       /*
-> > +        * Wait for the firmware to report the eject as done. Userspace
-> > +        * must then cut power through ayaneo-ec's controller_power for
-> > +        * the module to be physically released.
-> > +        */
-> > +       ret =3D -ETIMEDOUT;
-> > +       for (i =3D 0; i < 20; i++) {
-> > +               msleep(400);
+Each output on this card has a source selector: it can take one of the
+three internal mixes, or any input, or any playback bus straight from
+USB. Which it is decides everything downstream -- point the headphones
+at a playback bus and the card's mixer leaves the path entirely, along
+with every question about what is summed into it.
 
-Almost forgot. Magic value.
+That matters more here than it would elsewhere. There is no control
+panel for the M62 on Linux, so a user who never runs the vendor's
+application on another machine has no way to see or change this, and
+inherits whatever the card was last told. One enumerated control per
+output gives them the whole choice, and it does so without exposing the
+sixty-cell mixer matrix, which without a graphical representation would
+confuse far more than it helps.
 
-> > +               if (aya3_check(aya, resp))
-> > +                       continue;
-> > +               if (!(resp[AYA3_RESP_EJECT_STATUS] & ~AYA3_EJECT_DONE_M=
-ASK)) {
-> > +                       ret =3D 0;
-> > +                       break;
-> > +               }
-> > +       }
-> > +out:
-> > +       mutex_unlock(&aya->lock);
-> > +       return ret ? ret : count;
-> > +}
-> > +static DEVICE_ATTR_WO(eject);
-> > +
-> > +static ssize_t reset_store(struct device *dev, struct device_attribute=
- *attr,
-> > +                          const char *buf, size_t count)
-> > +{
-> > +       struct aya3 *aya =3D dev_get_drvdata(dev);
-> > +       bool value;
-> > +       int ret;
-> > +
-> > +       ret =3D kstrtobool(buf, &value);
-> > +       if (ret)
-> > +               return ret;
-> > +       if (!value)
-> > +               return count;
-> > +
-> > +       ret =3D mutex_lock_interruptible(&aya->lock);
-> > +       if (ret)
-> > +               return ret;
-> > +       ret =3D aya3_send_config(aya, AYA3_RESET);
-> > +       if (!ret) {
-> > +               msleep(500);
+The item list has "Unknown" first, and it is deliberate rather than
+tidy: THE DEVICE NEVER REPORTS A SELECTOR. Not to this driver, and not
+to the vendor's own application, which on connect pushes its entire
+workspace to the card rather than asking it anything. So the current
+setting cannot be learned at probe, and saying so is the only honest
+thing a control can do until a hand has chosen. Selecting "Unknown" is
+refused, since it is a report and not a choice.
 
-Magic value. You need to justify those.
+The numbering the card uses has a hole where 4 and 5 would be, so the
+item index and the value written are kept as separate tables rather
+than one being computed from the other.
 
-> > +               ret =3D aya3_send_config(aya, 0);
-> > +       }
-> > +       mutex_unlock(&aya->lock);
-> > +       return ret ? ret : count;
-> > +}
-> > +static DEVICE_ATTR_WO(reset);
-> > +
-> > +static struct attribute *aya3_attrs[] =3D {
-> > +       &dev_attr_module_left.attr,
-> > +       &dev_attr_module_right.attr,
-> > +       &dev_attr_eject.attr,
-> > +       &dev_attr_reset.attr,
-> > +       NULL
-> > +};
-> > +ATTRIBUTE_GROUPS(aya3);
-> > +
-> > +static int aya3_led_set(struct led_classdev *cdev, enum led_brightness=
- value)
-> > +{
-> > +       struct led_classdev_mc *mc =3D lcdev_to_mccdev(cdev);
-> > +       struct aya3 *aya =3D container_of(mc, struct aya3, mcled);
-> > +       int ret, i;
-> > +
-> > +       ret =3D mutex_lock_interruptible(&aya->lock);
-> > +       if (ret)
-> > +               return ret;
-> > +
-> > +       led_mc_calc_color_components(mc, value);
-> > +       for (i =3D 0; i < 3; i++)
-> > +               aya->rgb[i] =3D min_t(unsigned int, aya->subleds[i].bri=
-ghtness, 255);
-> > +
-> > +       ret =3D aya3_send_config(aya, 0);
-> > +       if (ret)
-> > +               hid_err(aya->hdev, "failed to update RGB config: %d\n",=
- ret);
-> > +       mutex_unlock(&aya->lock);
-> > +       return ret;
-> > +}
-> > +
-> > +static int aya3_register_led(struct aya3 *aya)
-> > +{
-> > +       struct led_classdev *cdev =3D &aya->mcled.led_cdev;
-> > +
-> > +       aya->subleds[0].color_index =3D LED_COLOR_ID_RED;
-> > +       aya->subleds[1].color_index =3D LED_COLOR_ID_GREEN;
-> > +       aya->subleds[2].color_index =3D LED_COLOR_ID_BLUE;
-> > +       aya->mcled.subled_info =3D aya->subleds;
-> > +       aya->mcled.num_colors =3D 3;
-> > +
-> > +       cdev->name =3D devm_kasprintf(&aya->hdev->dev, GFP_KERNEL,
-> > +                                   "%s:rgb:joystick_rings",
-> > +                                   dev_name(&aya->hdev->dev));
-> > +       if (!cdev->name)
-> > +               return -ENOMEM;
-> > +       cdev->brightness =3D 0;
-> > +       cdev->max_brightness =3D 255;
-> > +       cdev->brightness_set_blocking =3D aya3_led_set;
-> > +
-> > +       return devm_led_classdev_multicolor_register(&aya->hdev->dev,
-> > +                                                    &aya->mcled);
-> > +}
->
-> The ABI for the LEDs is ok, especially if you implement pulsing mode mode=
-.
->
-> Best,
-> Antheas
->
-> > +
-> > +static const struct dmi_system_id aya3_dmi_table[] =3D {
-> > +       {
-> > +               .matches =3D {
-> > +                       DMI_MATCH(DMI_BOARD_VENDOR, "AYANEO"),
-> > +                       DMI_MATCH(DMI_BOARD_NAME, "AYANEO 3"),
-> > +               },
-> > +       },
-> > +       {}
-> > +};
-> > +
-> > +static int aya3_probe(struct hid_device *hdev, const struct hid_device=
-_id *id)
-> > +{
-> > +       struct aya3 *aya;
-> > +       int ret;
-> > +
-> > +       /* The VID/PID is a generic SigmaMicro ID; bind on AYANEO 3 onl=
-y */
-> > +       if (!dmi_check_system(aya3_dmi_table))
-> > +               return -ENODEV;
-> > +
-> > +       if (!hid_is_usb(hdev))
-> > +               return -ENODEV;
-> > +
-> > +       ret =3D hid_parse(hdev);
-> > +       if (ret)
-> > +               return ret;
-> > +
-> > +       /* Bind only the vendor interface, not the gamepad/keyboard one=
-s */
-> > +       if (hdev->collection->usage !=3D (HID_UP_MSVENDOR | 0x0001))
-> > +               return -ENODEV;
-> > +
-> > +       aya =3D devm_kzalloc(&hdev->dev, sizeof(*aya), GFP_KERNEL);
-> > +       if (!aya)
-> > +               return -ENOMEM;
-> > +
-> > +       aya->xfer =3D devm_kzalloc(&hdev->dev, AYA3_REPORT_SIZE, GFP_KE=
-RNEL);
-> > +       if (!aya->xfer)
-> > +               return -ENOMEM;
-> > +
-> > +       aya->hdev =3D hdev;
-> > +       aya->vibration =3D AYA3_VIBRATION_DEFAULT;
-> > +       init_completion(&aya->resp_done);
-> > +       ret =3D devm_mutex_init(&hdev->dev, &aya->lock);
-> > +       if (ret)
-> > +               return ret;
-> > +       hid_set_drvdata(hdev, aya);
-> > +
-> > +       ret =3D hid_hw_start(hdev, HID_CONNECT_HIDRAW);
-> > +       if (ret)
-> > +               return ret;
-> > +
-> > +       ret =3D hid_hw_open(hdev);
-> > +       if (ret)
-> > +               goto err_stop;
-> > +
-> > +       /* Input reports are not delivered during probe by default */
-> > +       hid_device_io_start(hdev);
-> > +
-> > +       scoped_guard(mutex, &aya->lock)
-> > +               ret =3D aya3_check(aya, NULL);
-> > +       if (ret)
-> > +               hid_warn(hdev, "controller did not answer status check:=
- %d\n",
-> > +                        ret);
-> > +
-> > +       ret =3D aya3_register_led(aya);
-> > +       if (ret)
-> > +               goto err_close;
-> > +
-> > +       return 0;
-> > +
-> > +err_close:
-> > +       hid_hw_close(hdev);
-> > +err_stop:
-> > +       hid_hw_stop(hdev);
-> > +       return ret;
-> > +}
-> > +
-> > +static void aya3_remove(struct hid_device *hdev)
-> > +{
-> > +       hid_hw_close(hdev);
-> > +       hid_hw_stop(hdev);
-> > +}
-> > +
-> > +static const struct hid_device_id aya3_devices[] =3D {
-> > +       { HID_USB_DEVICE(0x1c4f, 0x0002) },
-> > +       {}
-> > +};
-> > +MODULE_DEVICE_TABLE(hid, aya3_devices);
-> > +
-> > +static struct hid_driver aya3_driver =3D {
-> > +       .name =3D "hid-ayaneo",
-> > +       .id_table =3D aya3_devices,
-> > +       .probe =3D aya3_probe,
-> > +       .remove =3D aya3_remove,
-> > +       .raw_event =3D aya3_raw_event,
-> > +       .driver =3D {
-> > +               .dev_groups =3D aya3_groups,
-> > +       },
-> > +};
-> > +module_hid_driver(aya3_driver);
-> > +
-> > +MODULE_AUTHOR("Mat=C3=ADas Mart=C3=ADnez <hello@matias.me>");
-> > +MODULE_DESCRIPTION("AYANEO 3 detachable controller driver");
-> > +MODULE_LICENSE("GPL");
-> >
-> > base-commit: a8fcb3dbf9024da44f1614c42ea16001f4b860b0
-> > --
-> > 2.54.0 (Apple Git-157)
-> >
-> >
+Writing "Unknown" changes nothing and says so quietly. It is what the
+control reports until a hand has chosen, and alsactl stores and
+restores it like any other value, so refusing it would fail a restore
+of the driver's own report -- once at every boot, and again whenever a
+saved state is put back over a chosen one.
+
+The choice is written again on resume. The gains need no such help --
+the device announces them and the cache re-syncs by itself -- but a
+selector is never reported, so if the card came up on its own defaults
+while the host slept, the driver's idea of it would be silently wrong
+and writing the remembered value back would look like no change at all.
+
+This write wakes the device before taking the lock for the same reason
+the gain controls do: the wake can run the resume callback on this
+thread, and that callback writes the selectors back under the same
+lock.
+
+Signed-off-by: Mikhail Gavrilov <mikhail.v.gavrilov@gmail.com>
+---
+ sound/usb/mixer_topping.c | 162 ++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 162 insertions(+)
+
+diff --git a/sound/usb/mixer_topping.c b/sound/usb/mixer_topping.c
+index f8ddeafb0222..df0dbe212c40 100644
+--- a/sound/usb/mixer_topping.c
++++ b/sound/usb/mixer_topping.c
+@@ -127,6 +127,45 @@ static const struct topping_ctl_desc topping_m62_ctls[] = {
+ 	  topping_tlv_out_0 },
+ };
+ 
++/*
++ * WHAT AN OUTPUT CAN LISTEN TO. The same numbering serves the outputs
++ * and the loopback returns, and it has a hole where 4 and 5 would be,
++ * so the index of a control item is not the value the card wants and
++ * the two are kept side by side.
++ *
++ * "Unknown" is first and is not a choice: the device NEVER reports a
++ * selector, not to us and not to the vendor's own application, which
++ * pushes its whole workspace on connect rather than asking. So a
++ * driver cannot learn where an output is pointing, and the only honest
++ * thing it can show until a hand has chosen is that it does not know.
++ */
++static const char * const topping_sources[] = {
++	"Unknown", "Mix A", "Mix B", "Mix C", "IN 1", "IN 2", "IN 1+2",
++	"AUX", "BT", "OTG IN", "Playback 1/2", "Playback 3/4",
++	"Playback 5/6", "Playback 7/8", "Playback 9/10",
++};
++
++static const u8 topping_source_value[] = {
++	0, 1, 2, 3, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
++};
++
++struct topping_enum_desc {
++	const char *name;
++	u8 target;
++	u8 prop;
++};
++
++/*
++ * The selector answers on ONE target of an output's pair, unlike the
++ * volume and the mute which must be written to both.
++ */
++static const struct topping_enum_desc topping_m62_enums[] = {
++	{ "Headphone Playback Source", 0x64, 0x02 },
++	{ "OTG Playback Source", 0x62, 0x02 },
++};
++
++#define TOPPING_NUM_ENUMS	ARRAY_SIZE(topping_m62_enums)
++
+ struct topping_mixer {
+ 	struct usb_mixer_interface *mixer;
+ 	struct usb_interface *iface;
+@@ -143,6 +182,7 @@ struct topping_mixer {
+ 	spinlock_t lock;	/* guards val[] against the URB */
+ 	int *val;
+ 	struct snd_kcontrol **kctl;
++	int sel[TOPPING_NUM_ENUMS];	/* what a hand chose, or 0 */
+ };
+ 
+ static void topping_build(u8 *f, u8 target, u8 prop, s32 value)
+@@ -365,6 +405,71 @@ static int topping_ctl_put(struct snd_kcontrol *kctl,
+ 	return 1;
+ }
+ 
++static int topping_sel_info(struct snd_kcontrol *kctl,
++			    struct snd_ctl_elem_info *uinfo)
++{
++	return snd_ctl_enum_info(uinfo, 1, ARRAY_SIZE(topping_sources),
++				 topping_sources);
++}
++
++static int topping_sel_get(struct snd_kcontrol *kctl,
++			   struct snd_ctl_elem_value *ucontrol)
++{
++	struct usb_mixer_elem_info *elem = kctl->private_data;
++	struct topping_mixer *tm = elem->head.mixer->private_data;
++
++	guard(mutex)(&tm->write_lock);
++	ucontrol->value.enumerated.item[0] = tm->sel[elem->control];
++	return 0;
++}
++
++static int topping_sel_put(struct snd_kcontrol *kctl,
++			   struct snd_ctl_elem_value *ucontrol)
++{
++	struct usb_mixer_elem_info *elem = kctl->private_data;
++	struct topping_mixer *tm = elem->head.mixer->private_data;
++	const struct topping_enum_desc *d;
++	unsigned int item;
++	int err;
++
++	item = ucontrol->value.enumerated.item[0];
++	if (item >= ARRAY_SIZE(topping_sources))
++		return -EINVAL;
++
++	/* the wake before the lock, for the reason given in _ctl_put */
++	CLASS(snd_usb_lock, pm)(elem->head.mixer->chip);
++	if (pm.err < 0)
++		return -EIO;
++
++	guard(mutex)(&tm->write_lock);
++
++	/*
++	 * "Unknown" is what this control reports until a hand has chosen,
++	 * and alsactl stores and restores it like any other value.  It is
++	 * not a choice, so writing it changes nothing -- quietly, rather
++	 * than failing a restore of the driver's own report.
++	 */
++	if (!item || tm->sel[elem->control] == item)
++		return 0;
++
++	d = &topping_m62_enums[elem->control];
++	err = topping_send(tm, d->target, d->prop,
++			   topping_source_value[item]);
++	if (err < 0)
++		return err;
++
++	tm->sel[elem->control] = item;
++	return 1;
++}
++
++static const struct snd_kcontrol_new topping_sel = {
++	.iface = SNDRV_CTL_ELEM_IFACE_MIXER,
++	.access = SNDRV_CTL_ELEM_ACCESS_READWRITE,
++	.info = topping_sel_info,
++	.get = topping_sel_get,
++	.put = topping_sel_put,
++};
++
+ static const struct snd_kcontrol_new topping_ctl = {
+ 	.iface = SNDRV_CTL_ELEM_IFACE_MIXER,
+ 	.access = SNDRV_CTL_ELEM_ACCESS_READWRITE |
+@@ -407,6 +512,57 @@ static int topping_add_ctl(struct topping_mixer *tm, int idx)
+ 	return 0;
+ }
+ 
++static int topping_add_sel(struct topping_mixer *tm, int idx)
++{
++	struct usb_mixer_elem_info *elem;
++	struct snd_kcontrol *kctl;
++
++	elem = kzalloc_obj(*elem);
++	if (!elem)
++		return -ENOMEM;
++
++	elem->head.mixer = tm->mixer;
++	elem->head.id = 0;
++	elem->control = idx;
++	elem->channels = 1;
++	elem->val_type = USB_MIXER_BESPOKEN;
++
++	kctl = snd_ctl_new1(&topping_sel, elem);
++	if (!kctl) {
++		kfree(elem);
++		return -ENOMEM;
++	}
++	kctl->private_free = snd_usb_mixer_elem_free;
++	strscpy(kctl->id.name, topping_m62_enums[idx].name,
++		sizeof(kctl->id.name));
++
++	return snd_usb_mixer_add_control(&elem->head, kctl);
++}
++
++/*
++ * The gains come back by themselves, since the device announces them,
++ * but a selector is never reported: if the card came up on its own
++ * defaults while the host slept, this driver's idea of it would be
++ * silently wrong, and writing the remembered value would then look
++ * like no change at all.  So the choice a hand made is written again
++ * -- which is what the mixer core does for every control that is not
++ * marked as the driver's own to handle.
++ */
++static void topping_restore_sel(struct topping_mixer *tm)
++{
++	const struct topping_enum_desc *d;
++	int i;
++
++	guard(mutex)(&tm->write_lock);
++	for (i = 0; i < TOPPING_NUM_ENUMS; i++) {
++		if (!tm->sel[i])
++			continue;	/* nothing was ever chosen */
++		d = &topping_m62_enums[i];
++		topping_send(tm, d->target, d->prop,
++			     topping_source_value[tm->sel[i]]);
++	}
++}
++
+ static void topping_suspend(struct usb_mixer_interface *mixer)
+ {
+ 	struct topping_mixer *tm = mixer->private_data;
+@@ -451,6 +607,7 @@ static int topping_resume(struct usb_mixer_interface *mixer)
+ 	 */
+ 	topping_send(tm, TOPPING_TT_DEVICE, TOPPING_PP_SUBSCRIBE, 1);
+ 	topping_send(tm, TOPPING_TT_DEVICE, TOPPING_PP_ANNOUNCE, 1);
++	topping_restore_sel(tm);
+ 	schedule_delayed_work(&tm->keepalive,
+ 			      msecs_to_jiffies(TOPPING_KEEPALIVE_MS));
+ 	memalloc_noio_restore(noio);
+@@ -596,6 +753,11 @@ int snd_topping_init(struct usb_mixer_interface *mixer)
+ 		if (err < 0)
+ 			return err;	/* private_free cleans up */
+ 	}
++	for (i = 0; i < TOPPING_NUM_ENUMS; i++) {
++		err = topping_add_sel(tm, i);
++		if (err < 0)
++			return err;
++	}
+ 
+ 	err = usb_submit_urb(tm->urb, GFP_KERNEL);
+ 	if (err < 0) {
+-- 
+2.55.0
 

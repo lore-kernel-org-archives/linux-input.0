@@ -1,115 +1,164 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5DCB13F9F56
-	for <linux-input@vger.kernel.org>; Tue, 25 Aug 2026 10:45:12 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 03F983F5BE3
+	for <linux-input@vger.kernel.org>; Tue, 25 Aug 2026 10:45:42 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787654713; cv=none; b=CY3GJlFtU5wW7cZzFSAnzeJuc9756yMOJjpbaMBB4ZoOk1BJ+3qDDzeji9QBLdFt4W7dtYURj4KyfdQORMA/armL0f8zikD3ol2Sd+gVyDqyH2R1SFOh04M4S6uDIo0HK0/mBJpWU2S53Kp7ORbg9UwHiYrm3vxcItVjpA/9BjI=
+	t=1787654744; cv=none; b=uVDo8qEUQOHvMr5bEvyRvzGLlKKyoccOVdbLVs3VsKDRrsSZkMkenBbuvu1W8U8LFdWdP9Ki3qKLCuBO1//ksWdqA8pdh21L452vuvaUu1i96rBx81CFVGXcLaOIAu8TMPj+ye8uI28KUS4fGFVicXuKel3e+dteDpp+C10rJEo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787654713; c=relaxed/simple;
-	bh=wP/xCBMlXVwQ7PnjqISGsrzWUMCCtMCeM/AhYnOK2B0=;
+	s=arc-20240116; t=1787654744; c=relaxed/simple;
+	bh=/8H39ZkwgPkAA09oPexFbbU8Myt5oJfBh1PctM19pZ4=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=Z40810RlkIOD+jd+8anWqA5wXPc2WpF8uWqUyaKneDCVYwyrgmSCjIkfNmV4Ip2jXXHwA4q3GVeu13jU7fRPYL7gekGB6UcbH8rwJjMN3HI9aP+EDBKKOtrYylWCc75Iiojt/BybU3GGQyfF+uyl/ydCuqk+Ts5puOb+4HhP3oM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=VjL8KC6g; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=Yss31kqwCHEflGvN0adp964e0kXX+A7cfzuPj8uhizd6E/4LfQwU91ZUY6O97T5T/ap1ma0vwtscdq7Ux7gC6LJyONxw0UJh0p8RZwh5cbgUE4ZaZG4iBBCxVBzXkTKauRpOeJY/vVFJ8gJQedknqMf5CZBe3JwmZA1jF39m3Ew=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=iXzKV98K; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="VjL8KC6g"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B9A7D1F00A3D;
-	Tue, 25 Aug 2026 10:45:11 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="iXzKV98K"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8340E1F00A3A;
+	Tue, 25 Aug 2026 10:45:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787654711;
-	bh=gZ1nfjRVE0wp2VQzL4KHYB4S8S2LpL04bEc9nVHNYL4=;
+	s=k20260515; t=1787654742;
+	bh=hVwm+PIJ1UhHarum8ytQO9VfseteiXP63iRpV5zaBpw=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=VjL8KC6g1Izxevb0scQ+yb/jnzSHTAqFmjG0qwdC60TDoqniBrQ3wc4MJleHSF8Cp
-	 oGQlsXAS8eIrx4JKDPZZ0ovOq6+3GLeq2grgDQxyoY6euqryVT8JUV7YnCN0AGxx5Q
-	 XciUNW3OFX4MICUuhj1QrMoE19m/NCYbRekFssMRx1DfHWhCYB1PNakLTrGNYC+50L
-	 Ds6952OZOKIwTBBRsogra6iWl9sD1VlanVlZ3JYiywLkiWIIh3VB5kwHFIIuZRMs+3
-	 sA0KnkPaXpojEQyrmpRrxrPXoZk3Mw+ksivvi3MARVHPMCrd0JCQGknlpo7zs1FltA
-	 gsqqFgKlPMkPQ==
+	b=iXzKV98KwquDI7rQai8Yqtaw0aZpEbeU+eNDsb3/WA7XxoMHgK7hxc9GEllqmEE8U
+	 KDZ1wpX5NGegtw+eyqHVoM8Ax5sIwPKnYVPjaX5vXZG1mM8UqYXLaQNYQgbU0W9lV+
+	 aHy/sL6j6KIwKDU9hdnEC0AgMKG+YvcyEDv+iq/EZXZy3Y99rVMLE1HOhLG3RQxLaC
+	 pU/Mc5pK5wQFlBoXp4wI9/K4s3UftCL+fRf8jWUu91zMVKHeA4Ny1/OVnL081BAozA
+	 zncskrfJKQ7lvS9VYqgWjeGgeA0mOC7ZHjNPnmYv19P5RX/gehLi9oKNGpgxugOWjN
+	 OprkJ81w8b7Og==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2] Input: synaptics-rmi4 - remove the F34 sysfs group
- when probe fails
+Subject: Re: [PATCH v5] HID: rmi: fix OOB access with undersized RMI reports
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Wei Jie Law" <98lawweijie@gmail.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260825103134.12278-1-98lawweijie@gmail.com>
-References: <20260825103134.12278-1-98lawweijie@gmail.com>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <20260825103117.12180-1-98lawweijie@gmail.com>
+References: <20260825103117.12180-1-98lawweijie@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 25 Aug 2026 10:45:11 +0000
-Message-Id: <20260825104511.B9A7D1F00A3D@smtp.kernel.org>
+Date: Tue, 25 Aug 2026 10:45:42 +0000
+Message-Id: <20260825104542.8340E1F00A3A@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+Thank you for your contribution! Sashiko AI review found 3 potential issue(=
 s) to consider:
 
 Pre-existing issues:
-- [High] The irq_domain allocated via irq_domain_create_linear() in rmi_pro=
-be_interrupts() is never freed on the error paths of rmi_driver_probe(), le=
-ading to a memory leak and a dangling pointer (Use-After-Free).
+- [High] Missing cancellation of `reset_work` in `rmi_probe()` error paths =
+and incorrectly ordered cancellation in `rmi_remove()` leads to a Use-After=
+-Free.
+- [High] The timeout path in `rmi_hid_read_block()` fails to clear `RMI_REA=
+D_DATA_PENDING`, allowing a late reply to permanently desynchronize the req=
+uest-retry state machine.
+- [High] The `hdata->readReport` buffer and state flags are subject to a da=
+ta race because `rmi_read_data_event()` writes to them concurrently without=
+ holding any locks that synchronize with `rmi_hid_read_block()`.
 --
 
---- Patch [1]: [PATCH v2] Input: synaptics-rmi4 - remove the F34 sysfs grou=
-p when probe fails ---
-commit cb8b140f174750e7270da9a3b63cf033d6bd04f6
+--- Patch [1]: [PATCH v5] HID: rmi: fix OOB access with undersized RMI repo=
+rts ---
+commit d795162d47703f2e01823d86b5a96b131c5a598a
 Author: Wei Jie Law <98lawweijie@gmail.com>
 
-    Input: synaptics-rmi4 - remove the F34 sysfs group when probe fails
+HID: rmi: fix OOB access with undersized RMI reports
 
-This commit addresses a NULL pointer dereference in the sysfs show handlers
-by ensuring the F34 firmware attribute group is removed if rmi_driver_probe=
-()
-fails. It adds an err_remove_sysfs label to route failures correctly and
-repairs a secondary leak of function devices.
+The patch fixes out-of-bounds reads and writes in hid-rmi by enforcing
+minimum bounds on report sizes and handling zero-length replies correctly.
+It also prevents the RMI_DEVICE flag from bypassing allocation on the error
+paths.
 
-Link: https://lore.kernel.org/linux-input/20260824122751.76415-1-98lawweiji=
+Link: https://lore.kernel.org/linux-input/20260822121007.153988-1-98lawweij=
+ie@gmail.com/
+Link: https://lore.kernel.org/linux-input/00a489f38b240624dcb5a4bae36a53fcb=
+a9cfb47.1787549195.git.98lawweijie@gmail.com/
+Link: https://lore.kernel.org/linux-input/20260824122708.76168-1-98lawweiji=
 e@gmail.com/
+Link: https://lore.kernel.org/linux-input/20260825060954.104890-1-98lawweij=
+ie@gmail.com/
 
-> diff --git a/drivers/input/rmi4/rmi_driver.c b/drivers/input/rmi4/rmi_dri=
-ver.c
-> index 5d49a9021c7d0..144b203e636a0 100644
-> --- a/drivers/input/rmi4/rmi_driver.c
-> +++ b/drivers/input/rmi4/rmi_driver.c
-
-[ ... ]
-
-> @@ -1284,6 +1284,8 @@ static int rmi_driver_probe(struct device *dev)
-> =20
->  err_disable_irq:
->  	rmi_disable_irq(rmi_dev, false);
-> +err_remove_sysfs:
-> +	rmi_f34_remove_sysfs(rmi_dev);
->  err_destroy_functions:
->  	rmi_free_function_list(rmi_dev);
->  err:
+> diff --git a/drivers/hid/hid-rmi.c b/drivers/hid/hid-rmi.c
+> index 2bd781f1e0f53..ecc19387f6b05 100644
+> --- a/drivers/hid/hid-rmi.c
+> +++ b/drivers/hid/hid-rmi.c
+> @@ -235,7 +235,23 @@ static int rmi_hid_read_block(struct rmi_transport_d=
+ev *xport, u16 addr,
+>  				break;
+>  			}
 
 [Severity: High]
-This is a pre-existing issue, but does this error path also need to clean up
-the irq domain?
+This is a pre-existing issue, but does the wait_event_timeout path just
+above this hunk leave the RMI_READ_DATA_PENDING flag set?
 
-Earlier in rmi_driver_probe(), rmi_probe_interrupts() allocates the domain:
+If the timeout expires and the loop breaks, the exit block later clears
+RMI_READ_REQUEST_PENDING but leaves RMI_READ_DATA_PENDING untouched. If a
+late reply arrives from the device and triggers rmi_read_data_event(), it
+will set RMI_READ_DATA_PENDING.
 
-    data->irqdomain =3D irq_domain_create_linear(fwnode, irq_count,
-                                               &irq_domain_simple_ops,
-                                               data);
+Would the next call to rmi_hid_read_block() immediately fall through
+wait_event_timeout() and consume stale data?
 
-This adds the newly allocated irq domain to the global irq_domain_list. If
-rmi_driver_probe() fails after this point, the error paths (including those
-now routed to err_remove_sysfs) return without calling irq_domain_remove().
+> -			read_input_count =3D data->readReport[1];
+> +			read_input_count =3D min_t(int, data->readReport[1],
+> +						 data->input_report_size - 2);
+[ ... ]
+> +			}
+>  			memcpy(buf + bytes_read, &data->readReport[2],
+>  				min(read_input_count, bytes_needed));
+> =20
+>  			bytes_read +=3D read_input_count;
+>  			bytes_needed -=3D read_input_count;
+>  			clear_bit(RMI_READ_DATA_PENDING, &data->flags);
 
-Because the data pointer used as host_data is devm-managed, it will be freed
-automatically on probe failure. Would this leave a dangling pointer in the
-global domain list, potentially leading to a use-after-free if that list is
-traversed later?
+[Severity: High]
+This isn't a bug introduced by this patch, but is there a data race between
+this memcpy and rmi_read_data_event()?
 
-Since unprivileged users can intentionally trigger probe failures via
-/dev/uhid (as noted in the commit message), could this leak be repeatedly
-triggered?
+While rmi_hid_read_block() is actively reading from data->readReport,
+what happens if a glitchy device sends an unsolicited second reply?
+
+Because RMI_READ_REQUEST_PENDING is still set for the duration of the
+transaction, rmi_read_data_event() could concurrently overwrite
+data->readReport. Also, clearing RMI_READ_DATA_PENDING here at the end of
+the loop might erase the presence flag of that second reply. Is additional
+synchronization needed between these paths?
+
+[ ... ]
+> @@ -696,6 +725,17 @@ static int rmi_probe(struct hid_device *hdev, const =
+struct hid_device_id *id)
+> =20
+>  	data->output_report_size =3D hid_report_len(output_report);
+> =20
+> +	/*
+> +	 * The write reports built by this driver occupy 6 bytes and the read
+> +	 * handshake looks at the first 3 bytes of an input report, so refuse
+> +	 * to drive a device whose reports cannot hold them.
+> +	 */
+> +	if (data->output_report_size < 6 || data->input_report_size < 3) {
+> +		hid_err(hdev, "rmi reports too small (out=3D%u in=3D%u)\n",
+> +			data->output_report_size, data->input_report_size);
+> +		goto start;
+> +	}
+> +
+>  	data->device_flags |=3D RMI_DEVICE;
+>  	alloc_size =3D data->output_report_size + data->input_report_size;
+> =20
+
+[Severity: High]
+This is a pre-existing issue, but does the error path in rmi_probe() fail to
+clean up the queued reset_work?
+
+If hid_hw_start() fails (which is where this goto jumps to), and an event
+has already arrived scheduling data->reset_work via rmi_event(), returning
+an error here could cause a use-after-free when the un-cancelled work later
+executes and accesses the freed hdata.
+
+Similarly, in rmi_remove(), cancel_work_sync(&hdata->reset_work) is called
+before hid_hw_stop(hdev). Could an incoming event schedule the work again
+right after it is cancelled, since the hardware is still running?
 
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260825103134.1227=
-8-1-98lawweijie@gmail.com?part=3D1
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260825103117.1218=
+0-1-98lawweijie@gmail.com?part=3D1

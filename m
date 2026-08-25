@@ -1,133 +1,142 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-yx1-f51.google.com (mail-yx1-f51.google.com [74.125.224.51])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3C93923EA84
-	for <linux-input@vger.kernel.org>; Tue, 25 Aug 2026 06:24:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787639042; cv=none; b=a7M2rtmCg/2ENxq1t+0AvrT780fT+p4m864enTBOdzbR18LvUeWsH52/qT9AxcknW/K9nwwiMVVVZHKLEsw9pvAZijPDZMZRFYhC9syf2JcE2J+0jIYBcPDFCQNB7Sub3rRSimfU2VmRhoSi94dGmKS5Bt77hH8YsmOM3uZrRck=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787639042; c=relaxed/simple;
-	bh=T7mscTlWJThrtr0KUl1iqv5e4dFId2J5JzuqD/a3R2A=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=Gksfdv0iQ5tqa4TC0a5ILGsnmd60pJIfgRzdcR5EFB1EGAzTKPreQqL22yWbAsFUwZ8DLznhBfxDGO8QJMGXX8dPjfK2Gu5MH5hNVkm7NPPO5ixdvOefFCmVfdNrGa88C5cKUfwWZhCDEdeckmh+eQXMbPP+QX9eO7Idb+c19po=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=l+xZ6QW5; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B2DC63D566A
+	for <linux-input@vger.kernel.org>; Tue, 25 Aug 2026 07:44:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.224.51
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1787643874; cv=pass; b=qIaVYKAlqlTadYkzS6SOlI96h973zC0yV5T8fNOGz+DXPNnVQv0yMFwrek5ZpOGDTyt2iF9EdIR/AFmOjkg+U3hzKE91/ABYc7tqtMTkvfD+fenpkp7a0OxppJjRjwd/R06Sat1lOA0+l2QNlUvV65Mno1womi9l653YbWgoHKE=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1787643874; c=relaxed/simple;
+	bh=Mii/DeCzm2nMtl3hgGSjPHkjrDmEfCYXtshu5NQAkD8=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=R4izILwzA6faB8zYR/TD2REAP9eajpGPlRMs7yx6ugRFp2JcM5BlUrSbbhaYl5poPqxZLiQ1aMklon5keA2F5meH+d264dgmtGn2T/CY7UnLTxBk7xp46dxg4OMPS+NihK84js5csMXPEHYLeXJGuniexh/tifTkJvLJgy3BbpI=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=JLr3KL47; arc=pass smtp.client-ip=74.125.224.51
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="l+xZ6QW5"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8A281F000E9;
-	Tue, 25 Aug 2026 06:24:00 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787639040;
-	bh=tA8omPNnqfemj8QbQElHv6rArVkGBR+E5t/pdfkwbxs=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=l+xZ6QW5hqyA8tC2D2m00Z/ErlnxD3MAAPN9OgiHPBpEwTPS7/WMzrpQtv1hpbLsd
-	 NYO1Jf1EYmn5xBdGPq7Cejz5kZRtE6WfzjJRwjkG7gwxSYyQA2mXxQGjCnAoRtqm7A
-	 L4ftttNhYXS4WurK8ssGyA/jP6xwkfqvlMY6mD5rtWgBGtVIb2vHUpqBHvBmgwPPnD
-	 ndRRlqhLWYvS2Lf0u2rDiVRBN4mNx6ttAQiPRJk2x5fjD/enFjdjyQyaKPbNleGl8T
-	 qHTI08FJ6awrtkKCJGfo1uKuKQG0Sp0CcmFNdxQJbIJFmoa4K3qLrVP1D7xlUe1DxL
-	 yEbRqnivRVN9A==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v3 1/2] Input: synaptics-rmi4 - fix irq[] overrun with 7
- interrupt sources
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Wei Jie LAW" <98lawweijie@gmail.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260825061027.105062-2-98lawweijie@gmail.com>
-References: <20260825061027.105062-1-98lawweijie@gmail.com>
- <20260825061027.105062-2-98lawweijie@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Tue, 25 Aug 2026 06:24:00 +0000
-Message-Id: <20260825062400.A8A281F000E9@smtp.kernel.org>
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="JLr3KL47"
+Received: by mail-yx1-f51.google.com with SMTP id 956f58d0204a3-66c711b7f2aso6452940d50.3
+        for <linux-input@vger.kernel.org>; Tue, 25 Aug 2026 00:44:32 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1787643872; cv=none;
+        d=google.com; s=arc-20260327;
+        b=Ayi3z5lfoxQxiTHwG4d50F/oO4PQE20bVZD3lG4knaAXYh18Xm0e9+T85Y6aZHXNie
+         932WpV0KWFdm5G2/4TB9y1ri+Zvei7TT7/CmeJZlSoPOEfz5FLYPXD4BWmiaIAmUdxS7
+         XTyeUixrwaOioJm4mZSHq2YrS0k/1S1NXt2u4J3fbECDrTp5wiRPfyy8BDsWynxuT65m
+         IRN4SnAJ1Mn3xnONdsy0z+CA8ZJnV4xy7TeuTQ5X3LOGb/B99oQ+oigWQDMAe9ft3b6U
+         fUREhB617vex4CHg1mxNXCmIV5+3D3fsGk49KnxIU0DvpD/Mw/5vRItzZQuGeTbzUdas
+         zSng==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=V/xJK88pfs277nwbYNBwPuRxCY6IirnLC5W4+cq/H6A=;
+        fh=xBr/G9QF75qHzOJWIGBrXRDEyZEcV0pYZpTKHl0iJFY=;
+        b=OYp1auprdwl7ngiUdU5jXeNCEQZ5oAD78LLG5KdIp2o8fM9qzvvbsTNSt9UMsSJbPZ
+         t3OyGOKhx3ST4sw5tNNYyWJK+EBGv2J/dhiQDlhp22lI9qeDV4EF3S1Pl9M7UqLiwaF9
+         hHlGjZnxNxc5SYDnpWTXHM/maSYKLIUd1p9ZelLyVU12Zc2UkHKtFJZc3hDVMda+ovZ0
+         r4Jgj4e4ANaX4sFIqlyB2EAxpzFp0ZWGLwcHG0QhPbY6T7o+YOXJYWnhl4sOT7A10gZz
+         rc22z9jT//BWLxHQQqIrBf6EegRur5cAdBXBdz3DhGA8yh08qNKbzmwksMGTGIhTeiiJ
+         r0IQ==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google; t=1787643872; x=1788248672; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=V/xJK88pfs277nwbYNBwPuRxCY6IirnLC5W4+cq/H6A=;
+        b=JLr3KL47G4Cb+UYRYWyCFGDjVUpsKQwlnkO7htak24Xgd7PDtjfTg2gNjGnWSXY1Hn
+         eapcVJmFJBl44VIEq6wcBHEZCnmZ9QYYBV3wC61d3sZei+nIbrcOpHee52YhHqEDDrpn
+         4GfuC2xBh6ZJNaVU9czMBJdtJ+TxAZdSBMTA0=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1787643872; x=1788248672;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=V/xJK88pfs277nwbYNBwPuRxCY6IirnLC5W4+cq/H6A=;
+        b=Z8AIpEQB73vErHvv4hU93Lyhfd7nuITNsIJgZInqUE94piadwptBH0tO2fZ3J6ddSG
+         bl4N8SoQozpqjtCiUvp6cFvgAIAkV8GS7O+/MA70kCv0FeNBiLP7s/IGfg+M6T62PccM
+         AkuoL+aGnAtrs1B2ORlFErUpeqP8FBLtZ2IDuhThjWf9lDr1Rso4WfkzwZo5JaQ2z2Se
+         7GowZ6LrrYqbENg/FzXi9p9DPJiNWnBpOmF+DIBSko2tozqnOJTMtkxSCj7OEq/lHFGo
+         Q7SjPBFq3FLQSYxSFAxYF+IOI2Pl2ItcWrfF2DTmJXTxrdsWoF/TtINqCKRkotJvGIHP
+         HmCw==
+X-Forwarded-Encrypted: i=1; AHgh+RodeerTJ5bwOjDvNI/MrPsDyRrGSQGBbCj/GW9BryZVkG9bamyAsmRMQdp2ItqSTsHeKDgawv/SoY3fTg==@vger.kernel.org
+X-Gm-Message-State: AFuF++nfREzps8Bil8aw0nkDjOGrnhezdb8dR7qyYKK5etyMgDlpVcJ2
+	AEFINH+rhJXMucIKL1oQTtS74KsQ4hbeVrfYQ75aKysdD2lkBnIVoyYqH/WOtm11rRdNeOJ3rnc
+	1UmDX66AmkJtmO6YUca1GIoC46WxLJFYiSwI4AkPd
+X-Gm-Gg: AR+sD12mKWYeI074mec9dh6kWbeMQFDETXhVkNj31kF5+OHycIeiGFtGrYCkb95UTkX
+	ptHesS/LMSVDh2iRYTuQ4sww4o10pYPeZJP/2X3igjIM39VpyiqNb43Axq/PXYmYY7P4NQZ+cjr
+	GJf0lbS9Fn+3z2y2Djw4QNrgBhHhQ9kqtHiszh1fGZWGySknumnOclpoFeX8QOHoEJFnmtXfW8z
+	Qxnp1UPDiPzKOEMUYQC2rwzukP31Y7V446UDnyauV0vO/1MlZWbZ8RDNgVbfg+j4MPSwMPzswkX
+	oLSmiUojm+nSyAvG63fmtCKjkJh8ysfts1tjFpYwAkc1fCS5nmAZO36z2i6ks/E8p+3EZSlX
+X-Received: by 2002:a05:690e:1449:b0:66d:1131:b81d with SMTP id
+ 956f58d0204a3-66d1131bc41mr2549091d50.29.1787643871703; Tue, 25 Aug 2026
+ 00:44:31 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+References: <20260825041628.988369-1-wenst@chromium.org> <20260825041628.988369-2-wenst@chromium.org>
+In-Reply-To: <20260825041628.988369-2-wenst@chromium.org>
+From: Chen-Yu Tsai <wenst@chromium.org>
+Date: Tue, 25 Aug 2026 15:44:21 +0800
+X-Gm-Features: AcwNN1VHbO3y1ftfkF_7R2W7KDk8RFMySudnf-TTSiUhjGplV2Fwnh0fieb32LM
+Message-ID: <CAGXv+5Het3zp_OTp=_ktg+_d5Q55zkE0SwQnM7TVyJDmOdBtyA@mail.gmail.com>
+Subject: Re: [PATCH v5 1/7] regulator: core: Add "enable and wait" functions
+To: Mark Brown <broonie@kernel.org>, Matthias Brugger <matthias.bgg@gmail.com>, 
+	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, 
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jikos@kernel.org>, 
+	Andi Shyti <andi.shyti@kernel.org>
+Cc: Benson Leung <bleung@chromium.org>, Tzung-Bi Shih <tzungbi@kernel.org>, 
+	linux-mediatek@lists.infradead.org, devicetree@vger.kernel.org, 
+	linux-arm-kernel@lists.infradead.org, chrome-platform@lists.linux.dev, 
+	linux-input@vger.kernel.org, linux-i2c@vger.kernel.org, 
+	linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
+On Tue, Aug 25, 2026 at 12:33=E2=80=AFPM Chen-Yu Tsai <wenst@chromium.org> =
+wrote:
+>
+> In device power sequencing and initialization use cases, it is common
+> for the driver to enable the regulator and then wait for a certain
+> period of time to pass before continuing.
+>
+> In cases where the regulator supply is always on, or has been turned on
+> or left on by another consumer, the driver could shorten the delay or
+> skip it altogether, provided that enough time has already passed since
+> the regulator was _actually_ turned on.
+>
+> Tracking this requires support from the regulator core. Introduce a
+> "last turned on" timestamp field to the regulator device, and "enable
+> and wait" functions to the single and bulk regulator consumer APIs.
+> The existing "enable without wait" functions are then converted to
+> macros that expand to the new functions.
+>
+> The timestamp is updated each time the regulator is actually turned on.
+> For regulators left on by hardware default or by firmware, the core will
+> set the timestamp if it detects it was left on and its supply (and their
+> supply, and so on) is on as well. This is unfortunately best effort
+> only. The core can only assume a dangling regulator (one without a
+> supply) has power. This also applies to the dummy regulator.
+>
+> Signed-off-by: Chen-Yu Tsai <wenst@chromium.org>
+> ---
+> Changes since v4:
+> - Try to update last_on timestamp for regulators that were left on
 
-Pre-existing issues:
-- [High] A malicious device reporting an interrupt source count of 0 can tr=
-igger an out-of-bounds memory write during function initialization in F11 a=
-nd F12 functions.
---
+Sashiko flaged a few issues with the changes:
 
---- Patch [1]: [PATCH v3 1/2] Input: synaptics-rmi4 - fix irq[] overrun wit=
-h 7 interrupt sources ---
-commit cc9ceca86b18ef61f6b6360e9c31ded31f4d76e9
-Author: Wei Jie Law <98lawweijie@gmail.com>
+- _regulator_is_enabled() called and subsequent timestamp update
+  without lock
+- bulk consumer wait_us incorrectly assigned
+- _regulator_is_enabled() could return an error
 
-Input: synaptics-rmi4 - fix irq[] overrun with 7 interrupt sources
+Will fix and send a new version. I probably should get a local AI review
+working first.
 
-This commit addresses an array-index-out-of-bounds issue when a device
-declares 7 interrupt sources. It increases RMI_FN_MAX_IRQS to 7 to match
-the three-bit interrupt source count field in the function descriptor.
 
-> diff --git a/drivers/input/rmi4/rmi_bus.h b/drivers/input/rmi4/rmi_bus.h
-> index 90122df21f746..faf2ebb00d521 100644
-> --- a/drivers/input/rmi4/rmi_bus.h
-> +++ b/drivers/input/rmi4/rmi_bus.h
-> @@ -12,10 +12,13 @@
->  struct rmi_device;
-> =20
->  /*
-> - * The interrupt source count in the function descriptor can represent u=
-p to
-> - * 6 interrupt sources in the normal manner.
-> + * The interrupt source count in the function descriptor is a three bit =
-field
-> + * (RMI_PDT_INT_SOURCE_COUNT_MASK), so a device can legitimately declare=
- up to
-> + * 7 interrupt sources for a single function.  irq[] must be able to hol=
-d all
-> + * of them: rmi_create_function_irq() and rmi_unregister_function() both=
- walk
-> + * it up to fn->num_of_irqs.
->   */
-> -#define RMI_FN_MAX_IRQS	6
-> +#define RMI_FN_MAX_IRQS	7
-
-[Severity: High]
-This is a pre-existing issue, but since we're looking at edge cases for
-interrupt source counts, can a malicious or emulated device trigger an
-out-of-bounds heap write if it advertises an interrupt_source_count of 0?
-
-In drivers/input/rmi4/rmi_f11.c:rmi_f11_initialize():
-
-    mask_size =3D BITS_TO_LONGS(drvdata->irq_count) * sizeof(unsigned long);
-    f11 =3D devm_kzalloc(&fn->dev,
-                       sizeof(struct f11_data) + mask_size * 2,
-                       GFP_KERNEL);
-    // ...
-    set_bit(fn->irq_pos, f11->abs_mask);
-    set_bit(fn->irq_pos + 1, f11->rel_mask);
-
-If drvdata->irq_count is 0, mask_size evaluates to 0, leaving 0 extra
-bytes allocated for the masks. However, set_bit() is called unconditionally,
-which would write past the end of the f11 allocation.
-
-A similar situation appears to exist in
-drivers/input/rmi4/rmi_f12.c:rmi_f12_probe():
-
-    irq_mask_size =3D BITS_TO_LONGS(drvdata->irq_count);
-    // ...
-    f12 =3D devm_kzalloc(&fn->dev,
-                       struct_size(f12, irq_mask, irq_mask_size * 2),
-                       GFP_KERNEL);
-    // ...
-    set_bit(fn->irq_pos, f12->irq_mask);
-    set_bit(fn->irq_pos + 1, f12->irq_mask + irq_mask_size);
-
-If drvdata->irq_count is 0, the flexible array irq_mask is 0-sized, yet
-set_bit() is still executed. Should these functions validate that irq_count
-is greater than 0 before allocating and setting bits?
-
-> =20
->  /**
->   * struct rmi_function - represents the implementation of an RMI4
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260825061027.1050=
-62-1-98lawweijie@gmail.com?part=3D1
+ChenYu

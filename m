@@ -1,161 +1,140 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E691E11CA9;
-	Tue, 25 Aug 2026 04:47:30 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BBA5D11CA9;
+	Tue, 25 Aug 2026 04:48:21 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787633252; cv=none; b=PPpTjam+U3184B4DL5UfuNfHgT/zOSZipD8V6qMbT0b0jc5SIUdbgOIum9dyyUZ4rstceL1GxytK0xgZ6i8oVTxc7qE4/Mf2mdBbF5rfzbdjdL5EHmtIEvsXHKRPUqi59P4voLusZh6GKpncWwh9rfC07jzdcNx2CbPaTEzakkg=
+	t=1787633302; cv=none; b=fHQRSdc0mt42V5Q1MeMqoIv/3/coUKjThyzLsse9fqyMBmnloSCRLxqXKvw4ilM6I76j81LFPDGFFzzyJ+LH5u6nmeG6DnhhlXens3bc8+8Ph3R+kyGuTlV9PsgmqsffunNJEMZ8RUcSlHLwXZaX9x5jp8wDPW8Cm9ipt2fTHjc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787633252; c=relaxed/simple;
-	bh=R8O129ym7Wphfvd2+iweYn8BtzF+ACJNt6fEw7oozQs=;
+	s=arc-20240116; t=1787633302; c=relaxed/simple;
+	bh=PGqzgrUhQ1kq9/0ZGGFJJcgrZV3sR3FGzZOoGW3EK40=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=t3lT/ThNXNX4eudpntAcs0lysVryfg5UJ8x6Svft5l3e6gkSLbK5UYokSSBqew7GFNTLGgUOwbbtRpvlvGQ7pnWjdb7aklK2F4zRVmZN4Kx1LiRmLYzwKgPsEQX2s07GUTjO81alxp533oli7YYWiavW4iJSbFT9k7pxeaeGUAo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=UsgRw1ki; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=OxRGuEz5Hvn6LHdtTLdXYW+8UZyQCEdowdGyrwnK+hEU05sMMPTRsn103CMWzeiKleQU1kJC70IYtmf7Bj7mBOTaWOouOn5Jknd/1MM9N/Iipi6ZhPHml7D1zMNm5rBCpLgawcZ0AvRVcPvWtcVtZWbB2XbPU2MOJGQhCBzHoVo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=mMee4UEv; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="UsgRw1ki"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 29A151F000E9;
-	Tue, 25 Aug 2026 04:47:30 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="mMee4UEv"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 110B81F000E9;
+	Tue, 25 Aug 2026 04:48:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787633250;
-	bh=ckekgV5OPY2rHPkVfyxAE2QotpKAy8HlTiVAi9aqKMY=;
+	s=k20260515; t=1787633301;
+	bh=hHzlP39FZ5hf27GdW7HIRdEAm2DxqkkVwMNl3V86urs=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=UsgRw1kiXCc6ypjIXoNiPgR2AkHmfOrQVVguF8UhfZCPbpVvk61z+x2af+WVKZ3Q9
-	 q8GpwgxgtMu/Rc2yUpGgjvCfTUcUQWGVn/S3671ikWZ0mSunyg15+UjJg36NnKG0mb
-	 CnTXgUO0SiIDryij3tAwidXJ6h7skH0HbXP21BXH46QPRrQ2oFZLHbXG6KTOx4jC46
-	 pYb6lz3ccPWXG1S+nRhEGz1Dtb8jfI1BiuSZiMQXyabdhVOnFyTjPqM6sc/nD7WrBC
-	 AhIBTdjehI5OHsDA7ScjO1wOH9Dbnl3yeTXkmN9+dhVTGOXXO4ifMslnGlGIZ6nl1i
-	 PcCG8pITU03Zw==
+	b=mMee4UEveeeN9hGkm/7YN6n4NLqWYk9Kof3RaB9BGOlCDQKnw3/InMlpoEHP2uyGr
+	 GWJlytBLzQzG6wUW0MCOF45OpDcJgVb+ArowkB1+xJxaIJmhUn06FBtCTFHMp0LYNr
+	 pxozX13h0Y5k6iYTYkOci7WaILYPorB25+R2XNmkfQ0cb3vQNpiGfvptb1r+Ppmrh4
+	 g2uAnykv57/oqlX5x4eyDaHnRquDecNj13LyCxC3KTDxMpLz9Flnr2BGhqUhxasI+P
+	 LLtSGfwWNCwq9oHd9FcpHxc4QUxZcqyLaSD+qYbipJjFUqY+nEIgZXp9J0lHDf5ebk
+	 973PZliOUzQIw==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v5 1/7] regulator: core: Add "enable and wait" functions
+Subject: Re: [PATCH v5 3/7] HID: i2c-hid-of: skip post-power-on delay if
+ powered on sufficiently long
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Chen-Yu Tsai" <wenst@chromium.org>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, conor+dt@kernel.org, devicetree@vger.kernel.org, robh@kernel.org
-In-Reply-To: <20260825041628.988369-2-wenst@chromium.org>
+Cc: devicetree@vger.kernel.org, dmitry.torokhov@gmail.com, robh@kernel.org, linux-input@vger.kernel.org, conor+dt@kernel.org
+In-Reply-To: <20260825041628.988369-4-wenst@chromium.org>
 References: <20260825041628.988369-1-wenst@chromium.org>
- <20260825041628.988369-2-wenst@chromium.org>
+ <20260825041628.988369-4-wenst@chromium.org>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 25 Aug 2026 04:47:29 +0000
-Message-Id: <20260825044730.29A151F000E9@smtp.kernel.org>
+Date: Tue, 25 Aug 2026 04:48:20 +0000
+Message-Id: <20260825044821.110B81F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
 s) to consider:
-- [High] regulator_bulk_enable_and_wait incorrectly assigns wait_us only to=
- the first consumer, leaving the rest uninitialized.
-- [High] regulator_register accesses hardware state via _regulator_is_enabl=
-ed and updates rdev->last_on without holding rdev->mutex after the device i=
-s exposed.
-- [Medium] _regulator_is_enabled() and _regulator_is_enabled_recursive() ca=
-n return negative error codes, but they are used in boolean contexts where =
-negative values evaluate to true.
+- [High] The patch relies on a buggy core regulator API, resulting in incor=
+rect concurrent wait times for regulator sequencing that truncates the requ=
+ired hardware initialization delay.
+- [High] The reset assertion pulse during probe may be too short if regulat=
+ors are already enabled, potentially violating hardware reset timing requir=
+ements.
 --
 
---- Patch [1]: [PATCH v5 1/7] regulator: core: Add "enable and wait" functi=
-ons ---
-commit 5fd97a59a5c2607c473a3bc31a58415b701f2335
+--- Patch [3]: [PATCH v5 3/7] HID: i2c-hid-of: skip post-power-on delay if =
+powered on sufficiently long ---
+commit 3ba58a3bbf6e0eecad8d9882947c8fc478c04ddc
 Author: Chen-Yu Tsai <wenst@chromium.org>
+Subject: HID: i2c-hid-of: skip post-power-on delay if powered on sufficient=
+ly long
 
-regulator: core: Add "enable and wait" functions
+This patch switches the driver to use regulator_bulk_enable_and_wait() to
+avoid unnecessary boot delays if the device has been powered on long enough.
+It omits the unconditional post power delay in favor of measuring the time
+since the regulators were actually enabled.
 
-This patch introduces "enable and wait" functions to the single and bulk
-regulator consumer APIs. It tracks a "last turned on" timestamp to shorten
-or skip delays if the regulator is already on. The timestamp is also best
-effort populated for regulators left on by hardware or firmware.
-
-> diff --git a/drivers/regulator/core.c b/drivers/regulator/core.c
-> index 1797929dfe566..f70be7e38e599 100644
-> --- a/drivers/regulator/core.c
-> +++ b/drivers/regulator/core.c
-> @@ -2352,6 +2390,14 @@ static int regulator_resolve_supply(struct regulat=
-or_dev *rdev)
->  		}
->  		rdev->constraints_pending =3D false;
->  	}
-> +
-> +	/*
-> +	 * regulator was left on but not enabled with .always_on or .boot_on
-> +	 * constraints, and thus .last_on timestamp is still invalid.
-> +	 */
-> +	if (!rdev->last_on && _regulator_is_enabled_recursive(rdev))
-> +		rdev->last_on =3D ktime_get_boottime();
-> +
-
-[Severity: Medium]
-_regulator_is_enabled_recursive() can return negative error codes. Since it
-is evaluated in a boolean context here, won't negative values evaluate to
-true, causing last_on to be incorrectly updated if there is a hardware read
-failure?
-
->  	regulator_unlock_dependent(rdev, &ww_ctx);
-> =20
->  	if (!do_final_setup)
+> diff --git a/drivers/hid/i2c-hid/i2c-hid-of.c b/drivers/hid/i2c-hid/i2c-h=
+id-of.c
+> index 59393d71ddb9d..fdaad451e7102 100644
+> --- a/drivers/hid/i2c-hid/i2c-hid-of.c
+> +++ b/drivers/hid/i2c-hid/i2c-hid-of.c
 
 [ ... ]
 
-> @@ -5372,30 +5444,38 @@ static void regulator_bulk_enable_async(void *dat=
-a, async_cookie_t cookie)
->  int regulator_bulk_enable_and_wait(int num_consumers,
->  				   struct regulator_bulk_data *consumers,
->  				   unsigned int wait_us)
->  {
->  	ASYNC_DOMAIN_EXCLUSIVE(async_domain);
->  	int i;
->  	int ret =3D 0;
+> @@ -48,16 +49,14 @@ static int i2c_hid_of_power_up(struct i2chid_ops *ops)
+>  	struct device *dev =3D &ihid_of->client->dev;
+>  	int ret;
 > =20
->  	for (i =3D 0; i < num_consumers; i++) {
-> +		ACCESS_PRIVATE(consumers, wait_us) =3D wait_us;
->  		async_schedule_domain(regulator_bulk_enable_async,
->  				      &consumers[i], &async_domain);
->  	}
+> -	ret =3D regulator_bulk_enable(ARRAY_SIZE(ihid_of->supplies),
+> -				    ihid_of->supplies);
+> +	ret =3D regulator_bulk_enable_and_wait(ARRAY_SIZE(ihid_of->supplies),
+> +					     ihid_of->supplies,
+> +					     ihid_of->post_power_delay_ms * USEC_PER_MSEC);
 
 [Severity: High]
-Does this loop assign wait_us only to the first element of the array instead
-of using the loop counter i? For subsequent consumers where i > 0, the
-wait_us field remains uninitialized.
+Will this correctly wait for all regulator supplies to stabilize?
 
-When regulator_bulk_enable_async() executes for these subsequent consumers,
-could it read uninitialized memory and pass it to fsleep(), potentially
-hanging the kernel thread indefinitely or skipping required delays? Should
-this be ACCESS_PRIVATE(&consumers[i], wait_us)?
+When looking at the implementation of regulator_bulk_enable_and_wait()
+in drivers/regulator/core.c, the setup loop contains:
 
->  	async_synchronize_full_domain(&async_domain);
+for (i =3D 0; i < num_consumers; i++) {
+        ACCESS_PRIVATE(consumers, wait_us) =3D wait_us;
+        async_schedule_domain(regulator_bulk_enable_async,
+                              &consumers[i], &async_domain);
+}
 
-[ ... ]
+Since ACCESS_PRIVATE(consumers, wait_us) expands to consumers[0].wait_us
+without indexing by i, only the first regulator receives the configured wait
+time.
 
-> @@ -6225,6 +6305,13 @@ regulator_register(struct device *dev,
->  			goto del_cdev_and_bdev;
+If the first regulator was already enabled by the bootloader (meaning its w=
+ait
+time evaluates to 0) and the second regulator is newly enabled, won't the
+function return instantly and skip the required hardware stabilization delay
+for the second supply?
+
+>  	if (ret) {
+>  		dev_warn(dev, "Failed to enable supplies: %d\n", ret);
+>  		return ret;
 >  	}
 > =20
-> +	/*
-> +	 * If no supply was given, then the last_on timestamp could not have
-> +	 * been updated in regulator_resolve_supply(). Check it here.
-> +	 */
-> +	if (!rdev->supply_name && !rdev->last_on && _regulator_is_enabled(rdev))
-> +		rdev->last_on =3D ktime_get_boottime();
-> +
-
-[Severity: Medium]
-Similar to the case in regulator_resolve_supply(), _regulator_is_enabled()
-can return negative error codes. Could this cause last_on to be updated
-incorrectly if the hardware read fails during probe?
+> -	if (ihid_of->post_power_delay_ms)
+> -		msleep(ihid_of->post_power_delay_ms);
+> -
+>  	gpiod_set_value_cansleep(ihid_of->reset_gpio, 0);
 
 [Severity: High]
-Since device_add(&rdev->dev) is called earlier in regulator_register(),
-exposing the device globally and allowing concurrent regulator_enable()
-calls, is it safe to call _regulator_is_enabled(rdev) and update
-rdev->last_on here without holding rdev->mutex? This could lead to a data
-race on last_on and unsynchronized hardware callbacks.
+Could skipping this delay cause the reset assertion pulse to be too short?
 
->  	rdev_init_debugfs(rdev);
-> =20
->  	/* try to resolve regulators coupling since a new one was registered */
+In i2c_hid_of_probe(), the reset GPIO is asserted just before calling
+i2c_hid_of_power_up(). If the regulators are already enabled,
+regulator_bulk_enable_and_wait() will return almost instantly.
+
+Since the unconditional delay is now omitted, the code reaches
+gpiod_set_value_cansleep() immediately. Does this reduce the reset assertion
+pulse width from the previously guaranteed post_power_delay_ms down to just
+a few microseconds?
+
+Could this fail to properly reset I2C HID devices that require a longer
+minimum reset pulse?
+
+>  	if (ihid_of->post_reset_delay_ms)
+>  		msleep(ihid_of->post_reset_delay_ms);
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260825041628.9883=
-69-1-wenst@chromium.org?part=3D1
+69-1-wenst@chromium.org?part=3D3

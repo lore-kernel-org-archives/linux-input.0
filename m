@@ -1,218 +1,99 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f178.google.com (mail-pl1-f178.google.com [209.85.214.178])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B0E34393DFB
-	for <linux-input@vger.kernel.org>; Tue, 25 Aug 2026 10:47:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7DDD23F1676
+	for <linux-input@vger.kernel.org>; Tue, 25 Aug 2026 10:47:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787654825; cv=none; b=OQVik2BpQF1WpZHCTOaDo9sDoug4pypgJ0YjMOQywgKGy0VmsXSGJiCnZblp0hIwFwok32LL5eRBuPu1x8GodtaEBheYCQzzrLly5SSwWpKLkK4A7Ovvgo9n7WS3h7hg7rl0AS3DnhnBnZNfu1d1H4ywFzKS1QTJX+AdvTqUacQ=
+	t=1787654829; cv=none; b=rx3dxfU4mYRVzexSHAn0dR7aUCy4kAL4ATfLEx6E9sMv8qivF5fvKX8SLlDbX03sm6Ms1uUNDJh7svarm+f7R86piFNSpapPWmW42DidsmXKa9DRiLve28pLtrCkm7MDSJzpQkoh/ns3H7mxz6DZFzOMp4bwEHIGxbuSsCcK0Gk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787654825; c=relaxed/simple;
-	bh=ilowP41RwVMW7kL/mHSVwEgVCjKDUGbQb5SZzd7VV1g=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=NXbZvKipN//kkmDvmhaGC66aXWkTj65UOtd2lIdMMasmO3WoRZi+Hr6o9txKhk3LkVdsh2Yc+XY57YMNX6ABoUZdpMJu82hslpo+1TX4F791TttlA7pbGMQxY02NcZMdAlT6JxI5fUxXNkzkqWP1meaJ1LQ04aMk5fObL9Nk/DE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=kNPkkLD8; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1787654829; c=relaxed/simple;
+	bh=KoWnSXBGaCj0jbCTvpHVOuxUQJsRstO2RferBywnX+I=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=chBO1g4AyJIoF+uG06j6IoG52FIEoYyURxMPbMR5TCiIeJlQBlucsr6YDQTgw4nl79LQlm11WhBPJOhYCSwxDVrPA17q+6z6pZCNwK/qGhYIqIYpH+Wrc1R+xkeiSMrFgvlhb5CPYLigq5jAMJ+9/mUfBJtybGZtw/J6tqA8M5k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=r/AbB6nz; arc=none smtp.client-ip=209.85.214.178
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="kNPkkLD8"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2CEC31F00A3A;
-	Tue, 25 Aug 2026 10:47:04 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787654824;
-	bh=C9zSIcgI6t+GbDX+UNKFEhuWcpUcOpCcgwK73YoSel4=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=kNPkkLD8uH19a7eIM5WQUe4Rpczau+LYbl8nqsYBrbyJ944MRhlYcf8RW8BF2bprR
-	 db6JD7UThI1wXTi1hd8lzqQzml+np5EqfAJg5xQQb1vQe+KTknpidJwEwXX5kVrx9o
-	 XD2BImLVluSKQ13o19HmKYdsEerrAe3HtMC4rdghrcf8tWvIqAkeSWa99y7BFLU/lU
-	 hWjZ2lqsLAr4uSkXbHpX++U0Jc20t9NrT64jd+lOpwizQL821So3nuJl7i5ICeU+74
-	 0jNEC9ulJABhMgoDn+Z+SN3KBNKOsZ0SztBiLk96Xef7MnPONgfjGgHScjX3H/MyFl
-	 qIXc+hEooZD8g==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v4 2/2] Input: synaptics-rmi4 - reject a PDT that grows
- between scans
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Wei Jie Law" <98lawweijie@gmail.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260825103123.12216-3-98lawweijie@gmail.com>
-References: <20260825103123.12216-1-98lawweijie@gmail.com>
- <20260825103123.12216-3-98lawweijie@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Tue, 25 Aug 2026 10:47:03 +0000
-Message-Id: <20260825104704.2CEC31F00A3A@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="r/AbB6nz"
+Received: by mail-pl1-f178.google.com with SMTP id d9443c01a7336-2ce98cb8165so6380475ad.1
+        for <linux-input@vger.kernel.org>; Tue, 25 Aug 2026 03:47:08 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1787654827; x=1788259627; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=bUuxtBGmNOQbmRdHfy9LEMAv45qzxqGeH6c6o8+FBaw=;
+        b=r/AbB6nzyVDv4MhKtw7UNa0FCSddWRptTcq7tPC0JPyFORgaqMlxOuUzeyvSlDH3bp
+         I7YiUXRZ0fenXogObzQLn1N+0kS6QCNamAXtDNPFN3Q0Jf8+cT1JTv3cA4n73rEqzsya
+         NqjTdGPSysaxccPbY7nXiYHYcRWqjZtD2TrmDrRA+8o7nsqqkpsX73ap0a1mV1zdowaC
+         daa+6P0NE838PQzOOLCacXKFyCygteN/s8luIxKsG4oAeVg+BcaEPwmzPZ6ayO0eDAmq
+         OmeCFs1jQfTFgROtu8KNzU7Yd66GMFooejFtnAIhpmLtBzJ3Ri2UcINt+K/2w9NUkOxE
+         082Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1787654827; x=1788259627;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=bUuxtBGmNOQbmRdHfy9LEMAv45qzxqGeH6c6o8+FBaw=;
+        b=Dce73S1IXmPE55Qq5CI7OmujkB3OE38Ly8tFlJETKwQJp8tqlsItcChs8jUeOrGjHo
+         ELM8hYLYAfmSNQdj3I8jfYxScJWwe9RfMRMIF2uacres5P/KnE6oeWvZ+5FuMVkOHwtH
+         uKGtpVtovmssVELjI1EQBD0y6EByXE7kB0/Z0pqG3/4aejExCsMTMjAE4y+n/lD0A1Tr
+         zwnGtaQ1gxE3nnXDIzxFy8rDS8tj9Qer/rm67HtVuHNW0SI4WY7wbDNPs5bxpTuvUGOO
+         rtdCSMtXiV/dfepdblahCIqFmQLnF1tnnruZk8axRZlULx2JY2bMPl2Sl1U9e3HZ0kA0
+         9cJg==
+X-Forwarded-Encrypted: i=1; AHgh+Rp5yI8tYqR/pOkxusBwcIUDrO3G52nmEGikxw2at+WEgXoM12tC9oB+NKZKtVv5RFqhz3xafca/57uj9w==@vger.kernel.org
+X-Gm-Message-State: AFuF++namHY9TWp2gnpJBkehimfiQZk2/NeHPvHJ7UVkLBfqW88E9cPB
+	lySWdSQPVi3BHHfrbuYTibA4wBaJpn+MuxrWY6VfBVaLBJd6GcEz5vI8
+X-Gm-Gg: AR+sD13zi716ZsJqTFkXhh1pNYpgDwF6e7oVsRlM8n2JqV5fEvBynQ+fK0mSeS9yL2n
+	jS4h9EVzELjbCe2DbUu2dIyR1D5o7NeI/qsXiuPDdgJRAzLyQDF6QEDv5y8HMnfhYXdRlLlarMY
+	qZcRcp59dEWjCPuzEIRt+bVjZYBRewysRecpIpdHLYrhWMSxZv3dcTGJ1IZJhBue1T7dcwZT7/j
+	fkUY/Q02gPFHKRkNiJx8UZ6R7DswTZgvFmWnQiFGxYauz1lSwzFmpB8CUu3OfgnlVwMv+foSSVY
+	lQq1iNFnkFDeA1vbzjgSxXgFjUmWIlNf3fgjtyilqBmMOP5MXRa80Pol7TfhZLh4ZWVbZrsdZIb
+	oo/FUUa38k2ep8HyDOf58pmTOS6+gtjIAcg57P5tQx84AJn7j6znuPS/bf9DsxSQVh5g/3iy/BS
+	eblfKtqZXY8RvDVtv7cvR+Rfqg8+BD4gRMB5tIJwKm3Yen2vCGvNEz2Y71iqMYrZnTLOfDmnXke
+	xhpDs6Q4TxXSecNq40ak4r5HgaB6cNDjsIvQNfYoUtjTtrOaSmcj3V+J9hgLMh/dizzjg+VV//T
+	GkMEtb/haee2jrDPzrL6SxVp
+X-Received: by 2002:a17:903:19cd:b0:2c9:d277:2cdb with SMTP id d9443c01a7336-2d6dcab5925mr73666195ad.9.1787654827563;
+        Tue, 25 Aug 2026 03:47:07 -0700 (PDT)
+Received: from LAPTOP-UUUVNN1I.localdomain (bb119-74-6-224.singnet.com.sg. [119.74.6.224])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2d6eee850b7sm4561755ad.3.2026.08.25.03.47.05
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 25 Aug 2026 03:47:07 -0700 (PDT)
+From: Wei Jie LAW <98lawweijie@gmail.com>
+To: 98lawweijie@gmail.com,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: aduggan@synaptics.com,
+	bentiss@kernel.org,
+	jikos@kernel.org,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	stable@vger.kernel.org
+Subject: Re: [PATCH v3 2/2] Input: synaptics-rmi4 - reject a PDT that grows between scans
+Date: Tue, 25 Aug 2026 18:46:59 +0800
+Message-ID: <20260825104659.16251-1-98lawweijie@gmail.com>
+X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20260825061027.105062-3-98lawweijie@gmail.com>
+References: <20260825061027.105062-3-98lawweijie@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
-s) to consider:
+From: Wei Jie Law <98lawweijie@gmail.com>
 
-Pre-existing issues:
-- [High] This problem wasn't introduced by this patch, but the IRQ domain a=
-llocated in `rmi_probe_interrupts()` is leaked on probe error paths and dur=
-ing firmware updates, leading to a Use-After-Free.
-- [High] This problem wasn't introduced by this patch, but if `rmi_f34_crea=
-te_sysfs()` fails during probe, the error path bypasses RMI function cleanu=
-p, leading to leaked child devices and Use-After-Free.
-- [High] This problem wasn't introduced by this patch, but missing sysfs cl=
-eanup on subsequent probe failures leaves dangling attributes that access f=
-reed memory.
---
+Superseded by the v4 series:
+https://lore.kernel.org/linux-input/20260825103123.12216-1-98lawweijie@gmail.com/
 
---- Patch [2]: [PATCH v4 2/2] Input: synaptics-rmi4 - reject a PDT that gro=
-ws between scans ---
-commit f03eebdf9f89cd4c6205418bac6b25e787999cba
-Author: Wei Jie Law <98lawweijie@gmail.com>
+Please use that one instead.  The only difference is the Assisted-by
+tags that Documentation/process/coding-assistants.rst asks for -- AI
+tools were used in finding and fixing these bugs and I should have
+acknowledged that in the earlier postings.  Neither diff is changed.
 
-Input: synaptics-rmi4 - reject a PDT that grows between scans
+Please mark this one superseded.
 
-rmi_driver_probe() walks the Page Description Table three times, and each
-walk reads the table back from the device. Validate the counts before the=20
-function is allocated and fail the probe instead.
-
-> diff --git a/drivers/input/rmi4/rmi_driver.c b/drivers/input/rmi4/rmi_dri=
-ver.c
-> index 5d49a9021c7d0..f66be55677a94 100644
-> --- a/drivers/input/rmi4/rmi_driver.c
-> +++ b/drivers/input/rmi4/rmi_driver.c
-> @@ -885,6 +885,25 @@ static int rmi_create_function(struct rmi_device *rm=
-i_dev,
->  	rmi_dbg(RMI_DEBUG_CORE, dev, "Initializing F%02X.\n",
->  			pdt->function_number);
-> =20
-> +	/*
-> +	 * irq_mask[] was sized from the interrupt count collected by the
-> +	 * earlier rmi_count_irqs() scan of the PDT, and irq[] holds
-> +	 * RMI_FN_MAX_IRQS entries.  Nothing guarantees that this scan sees
-> +	 * the same table -- the PDT is read back from the device every
-> +	 * time -- so a device that grows its interrupt counts between the
-> +	 * two scans would push the set_bit() calls below past the end of
-> +	 * the flexible array.  Refuse the function instead, before anything
-> +	 * is allocated for it.
-> +	 */
-> +	if (pdt->interrupt_source_count > RMI_FN_MAX_IRQS ||
-> +	    *current_irq_count + pdt->interrupt_source_count > data->irq_count)=
- {
-> +		dev_err(dev,
-> +			"F%02X: interrupt count changed between PDT scans (pos %u + %u > %d)\=
-n",
-> +			pdt->function_number, *current_irq_count,
-> +			pdt->interrupt_source_count, data->irq_count);
-> +		return -EINVAL;
-> +	}
-> +
->  	fn =3D rmi_alloc_function(rmi_dev, pdt->function_number);
->  	if (!fn) {
->  		dev_err(dev, "Failed to allocate memory for F%02X\n",
-
-[Severity: High]
-This isn't a bug introduced by this patch, but the IRQ domain allocated in
-rmi_probe_interrupts() is leaked on probe error paths and during firmware
-updates, leading to a use-after-free.
-
-Can this sequence actually occur? Looking at rmi_driver_probe() in
-rmi_driver.c, if any step after rmi_probe_interrupts() fails, we jump
-to err, but the irqdomain is never removed:
-
-drivers/input/rmi4/rmi_driver.c:rmi_driver_probe() {
-...
-	retval =3D rmi_probe_interrupts(data);
-	if (retval)
-		goto err;
-...
-err_destroy_functions:
-	rmi_free_function_list(rmi_dev);
-err:
-	return retval;
-}
-
-Since the irqdomain's host_data points to data which is devm-managed,
-data will be freed on probe failure, leaving a dangling pointer in the
-globally registered irqdomain.
-
-Additionally, this happens during firmware updates:
-
-drivers/input/rmi4/rmi_f34.c:rmi_firmware_update() {
-...
-	rmi_free_function_list(rmi_dev);
-
-	ret =3D rmi_probe_interrupts(data);
-...
-}
-
-Will this overwrite the irqdomain during reprobing without removing the
-old one, leaking it again?
-
-
-[Severity: High]
-This isn't a bug introduced by this patch, but if rmi_f34_create_sysfs()
-fails during probe, the error path bypasses RMI function cleanup, leading
-to leaked child devices and a use-after-free.
-
-Looking at rmi_driver_probe() again:
-
-drivers/input/rmi4/rmi_driver.c:rmi_driver_probe() {
-...
-	retval =3D rmi_init_functions(data);
-	if (retval)
-		goto err;
-
-	retval =3D rmi_f34_create_sysfs(rmi_dev);
-	if (retval)
-		goto err;
-...
-err_destroy_functions:
-	rmi_free_function_list(rmi_dev);
-err:
-	return retval;
-}
-
-If rmi_f34_create_sysfs() fails, the code executes goto err, bypassing
-err_destroy_functions.=20
-
-Since child RMI function devices are manually registered via device_add
-and are not devres-managed, won't bypassing their cleanup leave them
-permanently in the system?=20
-
-When probe aborts, devres frees data. Could interacting with the orphaned
-child devices then cause a use-after-free?
-
-
-[Severity: High]
-This isn't a bug introduced by this patch, but missing sysfs cleanup on
-subsequent probe failures leaves dangling attributes that access freed
-memory.
-
-Looking at rmi_driver_probe():
-
-drivers/input/rmi4/rmi_driver.c:rmi_driver_probe() {
-...
-	retval =3D rmi_f34_create_sysfs(rmi_dev);
-	if (retval)
-		goto err;
-
-	if (data->input) {
-...
-			retval =3D input_register_device(data->input);
-			if (retval) {
-...
-				goto err_destroy_functions;
-			}
-...
-err_destroy_functions:
-	rmi_free_function_list(rmi_dev);
-err:
-	return retval;
-}
-
-If a step fails after rmi_f34_create_sysfs() (like input_register_device()),
-the code jumps to err_destroy_functions, which does not call
-rmi_f34_remove_sysfs().=20
-
-Since data is freed by devres on probe failure, won't userspace accessing
-these dangling sysfs files dereference the freed data pointer?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260825103123.1221=
-6-1-98lawweijie@gmail.com?part=3D2
+Thanks, and sorry for the noise,
+Wei Jie

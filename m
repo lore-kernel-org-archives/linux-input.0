@@ -1,44 +1,45 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D7DC33E5EFD;
-	Tue, 25 Aug 2026 08:58:24 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8A9663D4132
+	for <linux-input@vger.kernel.org>; Tue, 25 Aug 2026 09:12:35 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787648306; cv=none; b=YaD0FzYZ/W2csDkBjYnugJZl+UL6hOzbmIepGO5fooWkGAZoirCwudKlZ0AUqkqOnCO8TQ9FIgWm/x/Ct2JlVw5JFPC7ZtqjRP3rgY2kCAbqpWL3FdZeiR53oFeoXnHYgoC1Zd5IQ4swDA8VmV2u6NieAl2qmTJEVHhg/JcNSZM=
+	t=1787649156; cv=none; b=CM3mpPVFY+FUOaOmMOKHLizdobaqHU2gOW42Ly+9Q/5loHlBGaQV6EVqBrF5nLMKoKZ8jU82DQwxrLeKLcjyH/g/1Vmk6DMVaIUUY0Jb1wowwNUKZx9XHo0ELHAc2OBIWIazXRlB49VUUB5+4AwH7Ykch4oqnktT2OhrUB47lCI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787648306; c=relaxed/simple;
-	bh=EK1/Ib+rBSpQ9pKoq2169QpNgDqsI7CRk3X7Qt6XL2Q=;
+	s=arc-20240116; t=1787649156; c=relaxed/simple;
+	bh=B0nJBPtkcwA+4Uu0lv6Dy6TmZpzTOKi7ufUB+CfBP/0=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=iX3h2PgkChgoVhWqINyr0DfjyPXVZLFuFwPzYlVnfcJCsVuy7C2hWRFTpQMl708e4BUE5m7E5YzKUJI2rIAOOuBjAvPQiGHztLvTtO+/6WKmzh9+9rvlfdsUqrAll6OEni8qq9OsZZ3rw+AW7VWPj1ozW/ylUL6mQRjf6Ob1tI8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=I5jE7QSo; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=uIldPVhhHQGCRZYNq25mFrPDuwqTPB4Xd0gRqPTG/UXJlmIvCGJti9UyFmIzlofNWVEGYqhPWYOlZE6UzMXseCzc7ACzFTwgvBkwIQ/IaTAc2jkC/Zh1nrTkkH9A19dS9RThTwzB3xvv/hK0fIx79hNjxsaJ9BdI2oma+8QwSLo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=HpzHW0WS; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="I5jE7QSo"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44AAC1F000E9;
-	Tue, 25 Aug 2026 08:58:24 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="HpzHW0WS"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F35181F000E9;
+	Tue, 25 Aug 2026 09:12:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787648304;
-	bh=6GNfiK6XsGpiEpLb7Pb6WGqBKmvn7uV9/5pPZmhSERA=;
+	s=k20260515; t=1787649155;
+	bh=/8mIMkCimpIuoeadN0fXV67xflUimNMraZRVNscwNpk=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=I5jE7QSomTTfZJpAzSpItwHzpUcmw84er0FVbsMVnbWXAvGHBOsvwzopsmuF0INkU
-	 gDFL9Z84E6OAxIXV3cF9zEpdfxRsV6LdhB43tsiZxR4phkOzR3dRtBpH8Ee13O9Lel
-	 qoRy8YRMjSq5UXQCKk7HLjJJgBUoQNg3/bM1ieR/D9a3EenIx3EacXPAHo3FMr2WIr
-	 27t7wVgxQNVs3RlIFWmuP+lC/evrh91dj8iqVyXf5bNeqoww8cId0Ns39Tpe05nv1F
-	 LZ8pbltqgrHfMcWoCtuzh1sZH5/SVXSLJsug/PnZ3udO29k3IwrfGL33qAhW1s6Z+m
-	 tvXM1IZWB9/Vg==
+	b=HpzHW0WSuUSbqqgnN3FCNbRLAEXy+RPr4Dn6SqEzKyuKvBSgvuSvktogK/PUfzeND
+	 RLQm0mBA1sLKZB3k0j01RPvb3PO5bRTE0qZzbUCwhHQrL+pS0tyOmm8yX9fr07vxXB
+	 j9k0tqAvCapq0nnl2grH/oxkWv1ltPYtwgwYtvjwv1NGYHTsj2/ZYbYEO2jFYgN2Dt
+	 VM1REP+E+YkDyfn5Mq/91UXjMhAWpJ3IBms3QnuwfAeQorNwUXYCOUXneIT8dqh5LO
+	 y3PraFkS4oFudFNsQRMqDkAYz5GlJfWLFqRU2pdd5pFkRILDkrBZ183tWwnuODI1ha
+	 5fKsgoga0jfyQ==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 2/3] selftests/hid: Add a test to ensure we can write
- fields in hid_device
+Subject: Re: [PATCH v7 1/2] ALSA: usb-audio: expose the Topping M62's
+ analogue gains as mixer controls
 Reply-To: sashiko-reviews@lists.linux.dev
-To: "Benjamin Tissoires" <bentiss@kernel.org>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, bpf@vger.kernel.org
-In-Reply-To: <20260825-wip-bpf-safe-v1-2-ab9e0e111c5c@kernel.org>
-References: <20260825-wip-bpf-safe-v1-0-ab9e0e111c5c@kernel.org>
- <20260825-wip-bpf-safe-v1-2-ab9e0e111c5c@kernel.org>
+To: "Mikhail Gavrilov" <mikhail.v.gavrilov@gmail.com>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <20260825085659.52675-2-mikhail.v.gavrilov@gmail.com>
+References: <20260824223107.406504-1-mikhail.v.gavrilov@gmail.com>
+ <20260825085659.52675-1-mikhail.v.gavrilov@gmail.com>
+ <20260825085659.52675-2-mikhail.v.gavrilov@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 25 Aug 2026 08:58:23 +0000
-Message-Id: <20260825085824.44AAC1F000E9@smtp.kernel.org>
+Date: Tue, 25 Aug 2026 09:12:34 +0000
+Message-Id: <20260825091234.F35181F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -47,89 +48,104 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
 Thank you for your contribution! Sashiko AI review found 2 potential issue(=
 s) to consider:
-- [Medium] Flaky test due to off-by-one error when searching for the null t=
-erminator of a device ID string.
-- [Low] Incorrect macro undefinition leaves `HID_BPF_MEMCPY` defined and at=
-tempts to undefine a nonexistent macro.
+- [Medium] The keepalive worker reschedules itself indefinitely and causes =
+log spam every 2 seconds if the device is unplugged while userspace holds t=
+he ALSA card open.
+- [Medium] Cache desynchronization race between `topping_ctl_put` and concu=
+rrent unsolicited hardware events.
 --
 
---- Patch [2]: [PATCH 2/3] selftests/hid: Add a test to ensure we can write=
- fields in hid_device ---
-commit ac5a75219b6789481c51176040f60dd282ac248f
-Author: Benjamin Tissoires <bentiss@kernel.org>
+--- Patch [1]: [PATCH v7 1/2] ALSA: usb-audio: expose the Topping M62's ana=
+logue gains as mixer controls ---
+commit 97e5c28d5c9df80af2f3a0a9199b11cf828931a5
+Author: Mikhail Gavrilov <mikhail.v.gavrilov@gmail.com>
 
-selftests/hid: Add a test to ensure we can write fields in hid_device
+ALSA: usb-audio: expose the Topping M62's analogue gains as mixer controls
 
-This commit adds a selftest to verify that the name, uniq, and phys
-fields of struct hid_device can be modified by a BPF program. This
-ensures these fields remain writeable for BPF programs.
+This commit introduces a mixer driver for the Topping M62 to expose analogue
+input gains and output volumes hidden behind a vendor HID protocol. It
+subscribes to device state changes and maintains an internal cache updated
+by a URB completion handler.
 
-> diff --git a/tools/testing/selftests/hid/hid_bpf.c b/tools/testing/selfte=
-sts/hid/hid_bpf.c
-> index b851339308c21..069ebdbb4d1c4 100644
-> --- a/tools/testing/selftests/hid/hid_bpf.c
-> +++ b/tools/testing/selftests/hid/hid_bpf.c
+> diff --git a/sound/usb/mixer_topping.c b/sound/usb/mixer_topping.c
+> new file mode 100644
+> --- /dev/null
+> +++ b/sound/usb/mixer_topping.c
 [ ... ]
-> +TEST_F(hid_bpf, test_rdesc_fixup_change_uniq_name_phys)
+> +static int topping_send(struct topping_mixer *tm, u8 target, u8 prop,
+> +			s32 value)
 > +{
 [ ... ]
-> +	snprintf(expected, sizeof(expected), "%d phys:coming:from:bpf", self->h=
-id.dev_id);
+> +	err =3D usb_interrupt_msg(tm->mixer->chip->dev, tm->pipe_out,
+> +				buf, TOPPING_FRAME_LEN, &actual, 1000);
+> +	if (err < 0)
+> +		usb_audio_err(tm->mixer->chip,
+> +			      "Topping: write %02x/%02x failed: %d\n",
+> +			      target, prop, err);
+> +	return err;
+> +}
+[ ... ]
+> +static void topping_keepalive(struct work_struct *work)
+> +{
+> +	struct topping_mixer *tm =3D container_of(work, struct topping_mixer,
+> +						keepalive.work);
 > +
-> +	err =3D ioctl(self->hidraw_fd, HIDIOCGRAWPHYS(sizeof(buf)), buf);
-> +	ASSERT_GE(err, 0) TH_LOG("HIDIOCGRAWPHYS");
-> +	ASSERT_STREQ(expected, buf);
+> +	topping_send(tm, TOPPING_TT_DEVICE, TOPPING_PP_SUBSCRIBE, 1);
+> +	schedule_delayed_work(&tm->keepalive,
+> +			      msecs_to_jiffies(TOPPING_KEEPALIVE_MS));
+> +}
 
 [Severity: Medium]
-Will this test intermittently trigger a regression if dev_id is 1000 or
-greater?
+What prevents this worker from rescheduling itself indefinitely if the
+device is unplugged?
 
-In setup_uhid(), dev_id is set as a random number between 0 and 1023. If
-the number is 4 digits long, the string representation takes 4 characters,
-placing the null terminator at index 4, which the BPF loop below doesn't
-reach. This would cause the ASSERT_STREQ check to fail because the suffix
-is not appended.
+If the ALSA card is kept open by userspace, topping_send() will continually
+return an error (like -ENODEV) when the device is disconnected, which is th=
+en
+unconditionally logged every 2 seconds. The worker then proceeds to call
+schedule_delayed_work() here without checking if the device is gone.
+
+Should it check the return value of topping_send() or check something like
+tm->mixer->disconnected before rescheduling?
 
 [ ... ]
-> diff --git a/tools/testing/selftests/hid/progs/hid.c b/tools/testing/self=
-tests/hid/progs/hid.c
-> index b21fbb13c926f..b5d9aea1bda1d 100644
-> --- a/tools/testing/selftests/hid/progs/hid.c
-> +++ b/tools/testing/selftests/hid/progs/hid.c
-[ ... ]
-> +SEC("?struct_ops.s/hid_rdesc_fixup")
-> +int BPF_PROG(hid_rdesc_fixup_change_uniq_name_phys, struct hid_bpf_ctx *=
-hid_ctx)
+> +static int topping_ctl_put(struct snd_kcontrol *kctl,
+> +			   struct snd_ctl_elem_value *ucontrol)
 > +{
-> +#define HID_BPF_MEMCPY(target, str) \
-> +	__builtin_memcpy(target, str, sizeof(str))
-> +
-> +	HID_BPF_MEMCPY(hid_ctx->hid->name, "name coming from bpf");
-> +	HID_BPF_MEMCPY(hid_ctx->hid->uniq, "uniq:coming:from:bpf");
-> +	/* hid_bpf relies on a phys being a rand % 1024 */
-> +	for (int i =3D 0; i < 4; i++) {
-> +		if (!hid_ctx->hid->phys[i]) {
-> +			HID_BPF_MEMCPY(hid_ctx->hid->phys + i, " phys:coming:from:bpf");
-> +			break;
-> +		}
+[ ... ]
+> +	err =3D topping_send(tm, d->target, d->prop, value);
+> +	if (err < 0)
+> +		return err;
+> +	if (d->target_pair) {
+> +		/*
+> +		 * The device announces only one of a pair, so the other
+> +		 * would drift away unheard.
+> +		 */
+> +		err =3D topping_send(tm, d->target_pair, d->prop, value);
+> +		if (err < 0)
+> +			return err;
 > +	}
+> +
+> +	scoped_guard(spinlock_irqsave, &tm->lock)
+> +		tm->val[elem->control] =3D value;
+> +	return 1;
+> +}
 
 [Severity: Medium]
-Could this loop condition cause regressions when the phys string is 4
-characters long?
+Could this blind update of tm->val desynchronize the cache from the actual
+hardware state?
 
-If the random dev_id is >=3D 1000, the string will take up indices 0
-through 3, and the null terminator will be at index 4. The loop stops at
-i =3D 3, so it will miss the null terminator and skip the memcpy. Should the
-loop condition be i < 5?
+The tm->lock is released while calling topping_send(), which can sleep. If a
+user turns a physical knob on the device concurrently, the device emits an
+unsolicited URB. The URB completion handler (topping_urb_complete()) runs,
+acquires the spinlock, and correctly updates the cache to the true hardware
+state.
 
-> +
-> +#undef HID_BPF_CONCAT
-
-[Severity: Low]
-This isn't a bug, but it looks like there is a typo here. Should this be
-undefining HID_BPF_MEMCPY instead?
+However, once topping_send() returns, this code reacquires the lock and
+unconditionally overwrites tm->val[elem->control] with its own original
+value. This ignores any fresh hardware events that arrived during the windo=
+w.
 
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260825-wip-bpf-sa=
-fe-v1-0-ab9e0e111c5c@kernel.org?part=3D2
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260825085659.5267=
+5-1-mikhail.v.gavrilov@gmail.com?part=3D1

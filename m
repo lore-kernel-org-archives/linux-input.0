@@ -1,202 +1,198 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f44.google.com (mail-pj1-f44.google.com [209.85.216.44])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 54E368003D
-	for <linux-input@vger.kernel.org>; Tue, 25 Aug 2026 04:03:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C15B0189B84
+	for <linux-input@vger.kernel.org>; Tue, 25 Aug 2026 04:33:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.44
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787630587; cv=none; b=g+dD2TWcSeGU6OXTlcMLi1D3kh4grg5AihE4wzcuGGhrilhcdgAkL9QZAHApKiGvEyu0lqTesKvFGung56wzshtwDFNxcVNT/TImPablI32320jOxVZPSn146lMRJszeGzixd+JFTOoy+tIH3/GlcGeFPYFWZz+GKlaK62ivNb8=
+	t=1787632412; cv=none; b=MymTttaUQj/3T7P16XrLmAvaryvEULWSmz1IN5234+7+w/djuJpAmJIo0FN79+0orPMR4g7LFQHv/kVGCMUz1AOOvX+O6wdinssvdIGHKIIaEi1JJGL0MW8amKwpjikWslfIzZ2MsXCaQR9yyvxwVs1Esg++zMArqRbds839Fmg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787630587; c=relaxed/simple;
-	bh=vIpX/hdWZuIFq3kQ+4eyi4UYafo9MITYAhhZN3tVFOM=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=jI//gAhACRqIi+LYYMLqirKpJTE/9M8SRiusile7h4d76ehwqCwJMrXAEhEYHX3mEmxDlkBYEoxZRXXWqtDT6P1btisOoWdd8tubtSewDSZG5ODDPTC802luXlyeBv+w65V4TFkpcB2SCVOj4K/hITid/xRhGw311TYvWfdb0PI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=l6cKkgIb; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1787632412; c=relaxed/simple;
+	bh=naC7PasILh7V9am2ebalC0RbUKLTLStW+MGCGU/CcoE=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Oeb+jpmGGf9pnNcKd+T3HwskOFy0sxJfuM6xEPFojp7Pe5rGSeHWdhjatdqWrWg2I5aSPQR8QbmNWOcPiURV6bUBRxZXlM6GjYsowRKmVkgPbvpxRdLMLib7YUVgRgnmL4oJj4jEg9YVrgCeO0s7CtU+bCXFivvGiM4Wg9hpIg0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=Y7/B5QMb; arc=none smtp.client-ip=209.85.216.44
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="l6cKkgIb"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B68531F000E9;
-	Tue, 25 Aug 2026 04:03:05 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787630586;
-	bh=+enX3illD74gu4JPYd0kKN/VrjfhrAz2BJCVeNwgxf8=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=l6cKkgIbW1fMbkfjOe/YphVGQMlCAAlDenm7i+TzP29yr8DCr6ZkHj9ERRDgY5MLJ
-	 X63CoP0CHR4+5x3JVGOJBhti2hYEShPwVbPzzndDvVqPAWmmbpMiAd8yAA64xF0hbX
-	 UJ6GwiZd6A1Qja+aFxVBQ20vv596LkxpWw/UU/OhUWY3za5pAnRJnubUxvpFZ9LsYS
-	 EIyzUMtS2JIaHZmnKNYdx26XYDJ0bwljKg09K3NCz0WCPrzGWmqg9cKvJnKwIaKN2O
-	 6kycOyRLHWTyGTQTcRMTLrHesvVPVijehOQ6XJrNmKAz6bzm5xFvEvfGHZNIoHM7II
-	 9+0zxai3vdFwA==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] HID: rmi: fix use-after-free of struct rmi_data via
- reset_work
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Wei Jie Law" <98lawweijie@gmail.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260825034854.63555-1-98lawweijie@gmail.com>
-References: <20260825034854.63555-1-98lawweijie@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Tue, 25 Aug 2026 04:03:05 +0000
-Message-Id: <20260825040305.B68531F000E9@smtp.kernel.org>
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="Y7/B5QMb"
+Received: by mail-pj1-f44.google.com with SMTP id 98e67ed59e1d1-38d489b6b71so5138760a91.0
+        for <linux-input@vger.kernel.org>; Mon, 24 Aug 2026 21:33:30 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google; t=1787632410; x=1788237210; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=hJaZXX8cNoxV0uNCu7A5Ojv5p0WSmZqW9OZzrJevJb8=;
+        b=Y7/B5QMb+bCNmBRydiHDAb0sTpa1MQeSmvK9vTYEJL9T+vmFeszFsm2P6YpK5bLwxA
+         +Qsl6cXxJP6rNA5DBC361ITOjnWz6K59fH+gtkOf5u154BkIDnljl1yEQxUVL5hddrRq
+         lgM+KFcHWuLXdUGm/1TG4b++LO/416pGprfrQ=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1787632410; x=1788237210;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=hJaZXX8cNoxV0uNCu7A5Ojv5p0WSmZqW9OZzrJevJb8=;
+        b=KEx/bBC9QDpAPizx0zaClKVwI+1NyonCBVCsUApeOlnUl3vCORc17LnmCslGjBF3vh
+         a7QbavHQyi8X3i7s4cbZjgMFZsAIlDCNFAUS1rytRJGAy7Jpwcu1KvE/6Dgimqo4yfJN
+         5yibn71EfUhYF7C8YghxKS6ElZO2wi0TVH66+EoLuhFGDlaFXeoL7yXFBe2WFunhPcNx
+         n7UZEQkQwBtVUp6F7mevBbvZ3zg0FpI5M5rjh4a7xSlIfjcXMGZLA3XLOxPuCPj0XKon
+         buKbWKxDs87s3bWnNYpahqcL7iZ/yEQ6qk/8mtkWE7jCMmwk3UAMr29Y2pMpe9ErpSQ+
+         OGFg==
+X-Forwarded-Encrypted: i=1; AHgh+Rr0YDZQn1XmQmDmDE6ICyXgwKiUEJWjzN5m/WhF2ANoj4T9P93Gq2MMl4EIVzUOssBKaS8l/pHus63Fkw==@vger.kernel.org
+X-Gm-Message-State: AFuF++nMeOAdqi66Wgtse7UBPxVnruqT4bNkhOKBlqBH7WC14KVPvJqS
+	bRnpSwHM1e9sNhKA4ir2X4o6u3/nMiOrmehfwS5hvR8Xqg73nfe+2QfzC6xOUyKupA==
+X-Gm-Gg: AR+sD118I7Uj7YP3fhl1Zgz/f/Arb89G/X4INVT+weQ8Czo8RX6rm4xgwW90bDRMtUB
+	tqvJteEQ94dk3NmXR0ADlHxyPvzThDAvrHVEDGXQA4Es2nw/aoQ8UNdIkPXQVq7isArJhQk9Czb
+	+6dYlGSc/xjDEHMVmAGTQyDS7EZINss6/cxaoyaSwGredx6LWkVi2/TiTNvq2cd9iZLxUHTxoHG
+	n6TsJFjFt9UWmgFK1B/ccd/hA+0/dPFlcCr7RmwLaiAGglzDijk3Zma+XpvsthRP42Lsw4Pyq0c
+	0eNV9+FsIwhAVYiE6NJK4T5GOsOArt4v2yAcNDIvttNGmE7N586isUrchlWctcNFsK9BqMvkhuN
+	j4wililLCIeBkmBEsK1hECBsbLOY8ft361xPZjQHxpTCTltreomdyJCDQr7tavwZW9jdUVpMnkg
+	13Vp6m/rGdKQjZYUnkDImvCtIxEjqQMPXVckyZF9/Q3NQsnhbdIYkHWLMnVICll6a+d+Av9YXGD
+	awawhE0jjdP5gVM7IKlE96uDQYqxAEWrPX3lMrkez0EisU=
+X-Received: by 2002:a17:90b:1b04:b0:38d:dfd1:7c1 with SMTP id 98e67ed59e1d1-395c33406e0mr52907259a91.2.1787632409907;
+        Mon, 24 Aug 2026 21:33:29 -0700 (PDT)
+Received: from wenst-7875.tpe.corp.google.com ([2a00:79e0:201d:8:a442:9780:24da:cb4e])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-396458212absm2187823a91.0.2026.08.24.21.33.26
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 24 Aug 2026 21:33:29 -0700 (PDT)
+From: Chen-Yu Tsai <wenst@chromium.org>
+To: Mark Brown <broonie@kernel.org>,
+	Matthias Brugger <matthias.bgg@gmail.com>,
+	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Jiri Kosina <jikos@kernel.org>,
+	Andi Shyti <andi.shyti@kernel.org>
+Cc: Chen-Yu Tsai <wenst@chromium.org>,
+	Benson Leung <bleung@chromium.org>,
+	Tzung-Bi Shih <tzungbi@kernel.org>,
+	linux-mediatek@lists.infradead.org,
+	devicetree@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	chrome-platform@lists.linux.dev,
+	linux-input@vger.kernel.org,
+	linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH v5 0/7] arm64: mediatek: Chromebook trackpad supply fixes
+Date: Tue, 25 Aug 2026 12:16:18 +0800
+Message-ID: <20260825041628.988369-1-wenst@chromium.org>
+X-Mailer: git-send-email 2.55.0.860.g4b6b3295ed-goog
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
-s) to consider:
+Hi everyone,
 
-Pre-existing issues:
-- [Critical] The driver allocates `writeReport` and `readReport` buffers ba=
-sed on unvalidated `hid_report_len()` values from the device's HID descript=
-or, leading to heap out-of-bounds accesses in `rmi_hid_write_block()` and `=
-rmi_hid_read_block()`.
-- [High] If the RMI4 core driver fails to bind to the registered transport =
-device, `rmi_reset_attn_mode()` blindly dereferences a NULL `rmi_dev->drive=
-r` pointer when triggered by a mouse report.
-- [High] Preexisting Use-After-Free of `input_dev` if `input_register_devic=
-e()` fails during `hid_hw_start()`.
---
+This is v5 of my Chromebook trackpad supply fixes and optimization
+series.
 
---- Patch [1]: [PATCH] HID: rmi: fix use-after-free of struct rmi_data via =
-reset_work ---
-commit 46d084fef573949d9f74d0919ad4a8a2ea0ce1cc
-Author: Wei Jie Law <98lawweijie@gmail.com>
+Changes since v4:
+- Made regulator core try to set last_on timestamp for regulators that
+  were left on by reset default or firmware, but not enabled in kernel
+- Dropped two patches that were merged
+- Link to v4:
+  https://lore.kernel.org/all/20260811122011.3539250-1-wenst@chromium.org/
 
-HID: rmi: fix use-after-free of struct rmi_data via reset_work
+Changes since v3:
+- Added __private modified to regulator_bulk_data.wait_us field and
+  switched to ACCESS_PRIVATE accessor for the field (Andy)
+- Moved wait outside regulator lock scope (Sashiko)
+- Moved "remaining" value assignment closer to conditional (Andy)
+- Fixed variable unit name in regulator_enable_and_wait() prototype
+  (Andy, Sashiko)
+- Added commit message section showing average delay needed for I2C
+  prober (patch 6) (Andy)
+- Link to v3:
+  https://lore.kernel.org/all/20260721075226.2347933-1-wenst@chromium.org/
 
-This commit fixes a use-after-free issue where rmi_remove() only cancels
-the reset_work when RMI_STARTED is set, leaving it schedulable if probe fai=
-ls.
-It unconditionally cancels the work in rmi_remove() and adds extra checks
-to prevent the work from running after the device is unregistered.
+Changes since v2:
+- Added new regulator "enable and wait" functions that wait until at
+  least the given amount of time has passed since the regulator was
+  last enabled.
+- Converted patches to use the new functions
+- New header inclusion cleanup patch for elan_i2c driver
 
-> diff --git a/drivers/hid/hid-rmi.c b/drivers/hid/hid-rmi.c
-> index 2bd781f1e0f53..4df6d8cd2dc3c 100644
-> --- a/drivers/hid/hid-rmi.c
-> +++ b/drivers/hid/hid-rmi.c
-> @@ -313,6 +313,14 @@ static void rmi_reset_work(struct work_struct *work)
->  	struct rmi_data *hdata =3D container_of(work, struct rmi_data,
->  						reset_work);
-> =20
-> +	/*
-> +	 * A report that raced with rmi_remove() may have queued us after it
-> +	 * cleared RMI_STARTED, i.e. after the transport device we would reset
-> +	 * has been unregistered.
-> +	 */
-> +	if (!test_bit(RMI_STARTED, &hdata->flags))
-> +		return;
-> +
->  	/* switch the device to RMI if we receive a generic mouse report */
->  	rmi_reset_attn_mode(hdata->hdev);
+This series fixes the trackpad descriptions on some MediaTek-based
+Chromebooks: either the trackpad's supply was set as always-on to
+workaround missing delays in the driver, or the delay and supply
+are missing from the trackpad's device node.
 
-[Severity: High]
-This is a pre-existing issue, but can rmi_reset_attn_mode() dereference a
-null rmi_dev->driver pointer here if the RMI core driver fails to bind to
-the registered transport device?
+v1 was just the first patch [1]. It has since grown to cover multiple
+drivers and devices.
 
-If the RMI physical driver fails to probe, device_add() still succeeds.
-The hid-rmi driver might mistakenly treat this as success, set the
-RMI_STARTED flag, and leave the device active:
 
-drivers/hid/hid-rmi.c:rmi_input_configured() {
-    ...
-    ret =3D rmi_register_transport_device(&data->xport);
-    if (ret < 0) {
-    ...
-    set_bit(RMI_STARTED, &data->flags);
-    ...
-}
+Patch 1 adds new "enable and wait" functions for single and bulk
+regulator enable.
 
-When the device later sends a mouse report, it triggers this worker that
-calls into rmi_reset_attn_mode() and blindly dereferences
-rmi_dev->driver->reset_handler:
+Patch 2 adds the correct enable delay after enabling the supply regulator
+for the Elan trackpad to initialize. This uses the new "enable and wait"
+regulator enable function.
 
-drivers/hid/hid-rmi.c:rmi_reset_attn_mode() {
-    ...
-    if (test_bit(RMI_STARTED, &data->flags))
-        ret =3D rmi_dev->driver->reset_handler(rmi_dev);
-    ...
-}
+Patch 3 applies the same logic of skipping the power on delay to the
+i2c-hid-of driver.
 
->  }
-[ ... ]
-> @@ -739,15 +753,29 @@ static int rmi_probe(struct hid_device *hdev, const=
- struct hid_device_id *id)
+Patch 4 applies the same logic of skipping the power on delay to the
+i2c OF component prober library.
 
-[Severity: Critical]
-This is a pre-existing issue, but does this driver allocate writeReport and
-readReport buffers based on unvalidated hid_report_len() values from the
-device's hid descriptor?
+Patch 5 adds a delay between when the device node found is enabled and
+when regulator_disable() is called. This gives an asynchronously probing
+driver some time to increment the enable count of their regulator
+reference, thus keeping the device operational and allowing the driver
+to skip the initialization delay.
 
-If an attacker plugs in a malicious usb device with a crafted hid report
-descriptor that advertises an output report size smaller than the fixed
-header written by the driver, it seems we might get a heap buffer overflow.
+Patch 6 removes the "always-on" setting from the trackpad supply for
+Elm / Hana and adds the correct delay to the second source trackpad.
+This corrects the hardware description.
 
-For example, in rmi_probe():
+Patch 7 adds the supply and power on delay properties to the Synaptics
+trackpad on the Spherion device. Combined with previous driver changes
+this should cause no actual functional changes or delays.
 
-drivers/hid/hid-rmi.c:rmi_probe() {
-    ...
-    alloc_size =3D data->output_report_size + data->input_report_size;
-    data->writeReport =3D devm_kzalloc(&hdev->dev, alloc_size, GFP_KERNEL);
-    ...
-}
 
-Then in rmi_hid_write_block(), the driver blindly writes a 4-byte header
-and a payload to data->writeReport without verifying that the allocated
-buffer is large enough:
+Please take a look. Patches 2, 3, and 4 have build time dependencies
+on patch 1. I suggest placing patch 1 on a separate immutable branch
+or tag for the other maintainers to pull in. The three patches all have
+different maintainers. Or if it's not too late, Mark could take patch
+1 for v7.3-rc1 and the rest can go in later.
 
-drivers/hid/hid-rmi.c:rmi_hid_write_block() {
-    ...
-    data->writeReport[0] =3D RMI_WRITE_REPORT_ID;
-    ...
-    memcpy(&data->writeReport[4], buf, len);
-    ...
-}
+The DT changes must go in after all the driver changes land, especially
+patch 2 that adds delays to the Elan trackpad driver. Otherwise the user
+could potentially end up with a non-functional trackpad on the device.
 
-[Severity: High]
-This is also a pre-existing issue, but does this code cause a use-after-free
-of the input_dev structure if input_register_device() fails?
 
-The hid-rmi driver copies the input_dev pointer and registers the transport
-device before input_register_device() is called by the hid core:
+Thanks
+ChenYu
 
-drivers/hid/hid-rmi.c:rmi_input_configured() {
-    ...
-    data->xport.input =3D input;
-    ...
-}
+[1] https://lore.kernel.org/all/20241001093815.2481899-1-wenst@chromium.org/
 
-If input_register_device() fails, the hid core unwinds and frees the
-input_dev:
+Chen-Yu Tsai (7):
+  regulator: core: Add "enable and wait" functions
+  Input: elan_i2c - Wait for initialization after enabling regulator
+    supply
+  HID: i2c-hid-of: skip post-power-on delay if powered on sufficiently
+    long
+  i2c: of-prober: skip post-power-on delay if powered on sufficiently
+    long
+  i2c: of-prober: Defer regulator_disable() on successful probe in
+    simple helper
+  arm64: dts: mediatek: mt8173-elm-hana: Unmark trackpad supply as
+    always-on
+  arm64: dts: mediatek: mt8192-asurada-spherion: Add Synaptics
+    trackpad's supply
 
-drivers/hid/hid-input.c:hidinput_connect() {
-    ...
-    if (input_register_device(hidinput->input))
-        goto out_unwind;
-    ...
-out_unwind:
-    /* unwind the ones we already registered */
-    hidinput_disconnect(hid);
-    ...
-}
+ .../boot/dts/mediatek/mt8173-elm-hana.dtsi    |   8 +-
+ arch/arm64/boot/dts/mediatek/mt8173-elm.dtsi  |   1 -
+ .../mediatek/mt8192-asurada-spherion-r0.dts   |   2 +
+ drivers/hid/i2c-hid/i2c-hid-of.c              |   9 +-
+ drivers/i2c/i2c-core-of-prober.c              |  25 ++--
+ drivers/input/mouse/elan_i2c_core.c           |   7 +-
+ drivers/regulator/core.c                      | 117 +++++++++++++++---
+ include/linux/regulator/consumer.h            |  21 +++-
+ include/linux/regulator/driver.h              |   2 +
+ 9 files changed, 149 insertions(+), 43 deletions(-)
 
-Because hid-rmi implements a raw_event handler, the device remains bound.
-When the device subsequently sends hardware interrupts, the transport driver
-unconditionally dereferences the freed input pointer:
+-- 
+2.55.0.860.g4b6b3295ed-goog
 
-drivers/input/rmi4/rmi_driver.c:rmi_process_interrupt_requests() {
-    ...
-    if (data->input)
-        input_sync(data->input);
-    ...
-}
-
->  static void rmi_remove(struct hid_device *hdev)
->  {
-[ ... ]
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260825034854.6355=
-5-1-98lawweijie@gmail.com?part=3D1

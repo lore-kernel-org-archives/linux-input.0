@@ -1,84 +1,86 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D173A3DD873
-	for <linux-input@vger.kernel.org>; Tue, 25 Aug 2026 08:21:17 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1BB983D566F;
+	Tue, 25 Aug 2026 08:43:41 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787646078; cv=none; b=o8JR0DpTqRSYWc7ssrtpQQz4cy5aXK6gn8AKnANETvSur1m/6n3EwVXh7LM4GMOXxbSeKuX04hcE7NgUYLffL8A/eLUw8JhawFnXSRYh4nT8Wun24H5iBzEfpETgdlRQXYdl4FsFGSX3JYDs6qHgTsm6dbVDx57Vj8On2j2aLQI=
+	t=1787647422; cv=none; b=BELgPEC/MINKhG8FOe2mqCvynxhBoMzH/RlRtakkDQCgMS5yQyqA/vwOePMaGANWJT0TEfsxlXa6KHJGwf2G0sctyWcVGkR/1s5uEPVUxvACxIlurqrR9PWUTOdpc8mXJX90qbeXuWeSKQK4zPkqQSL6gl8uD4wQmbmy0lxmcRA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787646078; c=relaxed/simple;
-	bh=KZVhKkVVKcmTQDfECx+/ZRx5Rve6h4EDOfziMVPfhDU=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=C6dq7ucwOBczAgOScCqgeilDiKRyPSmiRMavYarmLSnxqIshO2Cm5QIuVYYZGn0cHGqnGEnpYu/Lb0VySXdxMVQUm5ETkmNsU3Lr46+FgnvQGJT4JNEQOA8hlxi3O16niftCMYytxZl04wHXBDgIpM3GFCczYXm5UU5QeltwOLs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=hv/BX6Rx; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1787647422; c=relaxed/simple;
+	bh=1KGuUQbUI6rYf3zRi3ntw8YgtXmGrC0WbyQOLJXX+jM=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=GkXcIpURiHCMyssUXBxSxiLiCzLg4HgxcHbUmdYlEwCqDcsaGec2tBElKZwwcetQ1GomzHFiZEQ+zmbMs78Oe7cRNLPmvj+WdK2+rmKtSGCcPcGbZ0yU9IF4FmQEvQQit1Y1jeKotKbUw1zliUF+chOp9OosNLK+sUzCghgMIrs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=feJo/pX9; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="hv/BX6Rx"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B62461F00ADF
-	for <linux-input@vger.kernel.org>; Tue, 25 Aug 2026 08:21:17 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="feJo/pX9"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 763B81F000E9;
+	Tue, 25 Aug 2026 08:43:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787646077;
-	bh=VFx8THNvlhHzwpY2vX+09J5Y6Tpu/ep/cb3q7o9OOSg=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc;
-	b=hv/BX6RxPUtmoO4uSwmQwUAGHYKRNp1gf/IeoIzj5wwp2gYVFlJH6DSga+s4vPYEi
-	 i+bBWi4dTWIlo+8WymBD3Q4FV4Or3xNM+m3peS6j0U9mIToCnBggvPLD1ssuRr1IfF
-	 CG9c2FloBeKlNZzEMqu9qirj7TvZqDYKLJava0ZweZWYLvgu7NvitQ5oPTiiAL0NT6
-	 3pRxtGAjomYGSDs0epK/aZoH457ni60EiPYnDQi4b2sKBLqDziUKA65FxYGUidY4M4
-	 joJMfYTbxj4nf2ciFEyUnW39F/+lKFX/vpok7TqTYt9UyjchGKCte7BRoCn8PW/OGE
-	 Q+8ZG4uV32CPQ==
-Received: by mail-lf1-f49.google.com with SMTP id 2adb3069b0e04-5b013aa02b2so727511e87.0
-        for <linux-input@vger.kernel.org>; Tue, 25 Aug 2026 01:21:17 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AHgh+RrhvF0C8Pe3klp6lGBVXa9Ta3jgqzBOmxFh6MbBFGdveY2NRODPe1J6PEjL3zIbEu2wpmLzR2pv8BtSxg==@vger.kernel.org
-X-Gm-Message-State: AFuF++kVtDq3BMI8O07LOChR2whcTy66dlhclrPOTZO98mJQCjgEBwLJ
-	68XY03NwOgG0ONQqeA+uS7jSt+PXlkqd0lmuwcc+E/85HVMWMjCegJCtdoZOCIjfdwDhqwrBnH3
-	waHnmur2exWSVLdspaYB5EhLp/iqUKCM=
-X-Received: by 2002:a05:651c:30c9:b0:3a1:11ff:c30e with SMTP id
- 38308e7fff4ca-3a1edaa6e4fmr7592731fa.4.1787646076423; Tue, 25 Aug 2026
- 01:21:16 -0700 (PDT)
+	s=k20260515; t=1787647421;
+	bh=JtUqLh2eEplZS6ItNuL/Dr58W/hI1arthYuGxrCKMr8=;
+	h=From:Subject:Date:To:Cc;
+	b=feJo/pX9DZidIdnOYn8o7LKuH5tCkP6MgLYJiQVa5S28CJeHh7UXEq+jnQLMVjKnH
+	 DgxH3vOxYedzgXsG1iE76q0ZcZ2HBQo975kOj3C5Cinrv+D/VledDl/sEVIqSVfcgc
+	 oulmBXJqmZ60tT10/1bMJmjNn96p+7mTSvjG6YoSvHu8ni+8Dz3C4QamkCOvcpP1XF
+	 DZAJS4SZVF1xW7blduhQl74lV6VGSzoLLzTyQDCJn1R6HMwW0d/DyaH7yHCNI3s+9z
+	 8s6UD7tx+wUUKXqxrIHGiK+SkSNV6L/XfrDKOCAGbAAapnFLi11Uje5DP4/5xKqB1D
+	 a5RS35OaWDtXg==
+From: Benjamin Tissoires <bentiss@kernel.org>
+Subject: [PATCH 0/3] HID: bpf: fix 7.3-rc0 bpf breakage
+Date: Tue, 25 Aug 2026 10:43:15 +0200
+Message-Id: <20260825-wip-bpf-safe-v1-0-ab9e0e111c5c@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260822213941.98882-1-michael.zaidman@gmail.com>
-In-Reply-To: <20260822213941.98882-1-michael.zaidman@gmail.com>
-From: Linus Walleij <linusw@kernel.org>
-Date: Tue, 25 Aug 2026 10:21:04 +0200
-X-Gmail-Original-Message-ID: <CAD++jL=DZnKeSUu7TrC1uFn83eUu=WAFh5FGiVkO=oT3DZ6yzQ@mail.gmail.com>
-X-Gm-Features: AcwNN1WKdtYtXkBVQOuaDmm-ttGthjANLsasNjc1oVdvUlamxb0eiZJc_VAtFds
-Message-ID: <CAD++jL=DZnKeSUu7TrC1uFn83eUu=WAFh5FGiVkO=oT3DZ6yzQ@mail.gmail.com>
-Subject: Re: [PATCH 00/13] HID: ft260: add UART and GPIO support, plus I2C fixes
-To: Michael Zaidman <michael.zaidman@gmail.com>, Lee Jones <lee@kernel.org>
-Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>, 
-	Bartosz Golaszewski <brgl@kernel.org>, Germain Hebert <germain.hebert@ca.abb.com>, Rio Liu <rio@r26.me>, 
-	Bruno Giacomazzi <brunoceg1@gmail.com>, Christina Quast <contact@christina-quast.de>, 
-	linux-input@vger.kernel.org, linux-gpio@vger.kernel.org, 
-	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/6tWKk4tykwtVrJSqFYqSi3LLM7MzwNyDHUUlJIzE
+ vPSU3UzU4B8JSMDIzMDCyND3fLMAt2kgjTd4sS0VF1jy2QDM8vkFAtjYxMloJaCotS0zAqwcdG
+ xEH5xaVJWanIJyAyl2loA85torHAAAAA=
+X-Change-ID: 20260821-wip-bpf-safe-39c069cd8334
+To: Jiri Kosina <jikos@kernel.org>, Shuah Khan <shuah@kernel.org>, 
+ Daniel Borkmann <daniel@iogearbox.net>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ bpf@vger.kernel.org, linux-kselftest@vger.kernel.org, 
+ Benjamin Tissoires <bentiss@kernel.org>
+X-Mailer: b4 0.15.2
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1787647419; l=1333;
+ i=bentiss@kernel.org; s=20230215; h=from:subject:message-id;
+ bh=1KGuUQbUI6rYf3zRi3ntw8YgtXmGrC0WbyQOLJXX+jM=;
+ b=sJ1Z5zyO7sT+w+ZtL/1Oi63BSABRTQDco2zltcVtor3OL2HzFOSPKPF5BmiuRyPzoxQ4jFbma
+ eHTTYGhAxSoAE7wF0wWsCJ1vkfiv0aDGa2EqLW38of9Zzlzh9wd/7zO
+X-Developer-Key: i=bentiss@kernel.org; a=ed25519;
+ pk=7D1DyAVh6ajCkuUTudt/chMuXWIJHlv2qCsRkIizvFw=
 
-Hi Michael,
+With the introduction of commit ee9ad135b208 ("bpf: Reject a store
+through a fault prone pointer"), a HID-BPF program which would try to
+change the name, phys or uniq of a HID device would be rejected by the
+verifier. Also, this commits and its siblings manage to detect the
+buffer overflow that is currently dynamically detected in the test
+suite. The verifier now rejects the bpf program we try to load, marking
+the test as fail. This is correct behavior, and better admittedly so fix
+this so the CI stays green.
 
-thanks for your patch!
+Signed-off-by: Benjamin Tissoires <bentiss@kernel.org>
+---
+Benjamin Tissoires (3):
+      HID: bpf: mark struct hid_device as safe BPF pointer
+      selftests/hid: Add a test to ensure we can write fields in hid_device
+      selftests/hid: prepare test_rdesc_fixup_get_data_overflow for the new verifier
 
-On Sat, Aug 22, 2026 at 11:40=E2=80=AFPM Michael Zaidman
-<michael.zaidman@gmail.com> wrote:
+ drivers/hid/bpf/hid_bpf_struct_ops.c               |  6 +++
+ tools/testing/selftests/hid/hid_bpf.c              | 51 ++++++++++++++++++----
+ tools/testing/selftests/hid/progs/hid.c            | 26 +++++++++++
+ .../testing/selftests/hid/progs/hid_bpf_helpers.h  |  3 ++
+ 4 files changed, 78 insertions(+), 8 deletions(-)
+---
+base-commit: a93f3bf4e1d60777b1659b812c9e818cfc53b449
+change-id: 20260821-wip-bpf-safe-39c069cd8334
 
-> Mainline supports only the FT260's I2C bridge. This series adds the
-> UART/TTY interface and GPIO on top of it, and carries the I2C fixes made
-> alongside them - two years of out-of-tree work [1], now replayed upstream=
-.
-(...)
->   HID: ft260: add serial driver
-(...)
->   HID: ft260: add GPIO support on top of UART
+Best regards,
+--  
+Benjamin Tissoires <bentiss@kernel.org>
 
-This comment isn't pertaining to this one device in particular.
-
-I'm not a HID maintainer but this trend to make HID devices spawn
-serial and GPIO devices sort of turns HID into the new MFD, but
-I suppose Jiri and Lee has discussed this phenomenon in the past?
-
-Yours,
-Linus Walleij

@@ -1,94 +1,94 @@
-Received: from mail-qv1-f41.google.com (mail-qv1-f41.google.com [209.85.219.41])
+Received: from mail-qv1-f53.google.com (mail-qv1-f53.google.com [209.85.219.53])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 72F4E3B42CB
-	for <linux-input@vger.kernel.org>; Tue, 25 Aug 2026 20:37:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.219.41
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D9F9D335066
+	for <linux-input@vger.kernel.org>; Tue, 25 Aug 2026 20:40:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.219.53
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787690276; cv=pass; b=I3iuM2bfnS5erWsznmBPVJ8laS7n5Z6/6hdi5zUePf+4nIl78VGcxAS4cRPl3csu3mruREorVtv5P4Gl+zuDgZfzc6NS4W8g1rDcHRBtmP5/c7Mn4CSvUryOi/Gz82kAFpXniBnBIIL61LSPPcCWIE1EUwn0I0YBDIcsEWTaWuI=
+	t=1787690423; cv=pass; b=TSmwsgdQeWS5vZ0v9G8xgALRkxTK42LabzXzTZ/9w9/WwtuCyiE8y+98GYM3n/rXBVhbDqzLeSazIuqEWSumYe9St2B6H3kiYHr51kN6S2ZGObKQ+3FPEUMsnFEK5CTNH5gEGxdMnpZm9sTKKBkz5LWCBnCZn5uFJ8sbJ3x5X3o=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787690276; c=relaxed/simple;
-	bh=MzfkPGPmLanHFGCiC+rg+Gk4ewwsW+0+KU+PhFeTQHg=;
+	s=arc-20240116; t=1787690423; c=relaxed/simple;
+	bh=AArwIUhkBE8lVKRLU59Y3qY/f2Dvr+7whqUkIFyrn0A=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=i7fvwQzEWPx6BSP0t14gkgLlngK53Pd9SVs/SsrjcHJg1WsTc+Lsm7et5euYSiuDkDD0B5ZcxdwhCOKZUeCSgIqNLPZjBMt+oPr1Nu1y2pBxeliuiZ6RORPE5+EvqJ+v3HhvHyU76w4J4kwpxXzMwBlC+XB181KAcGuKgfcqme8=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=svKCn8HJ; arc=pass smtp.client-ip=209.85.219.41
+	 To:Cc:Content-Type; b=XsK//XGoWSpuSGioNf8MNNRUNP8RNfDkSfXcBdzyYJCEfCj0Bkao5Tw973PMLcslV8pLz33so1L6+c1CB3ofTfEOYb8vG3cP8UbcdKW4K5vyN/rEULIRwVivZRDM/XLscTJk/nr3cPKyRdjBjsd0xopP3HoypBtnMBkd+StTPGA=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Kgc2uOX9; arc=pass smtp.client-ip=209.85.219.53
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="svKCn8HJ"
-Received: by mail-qv1-f41.google.com with SMTP id 6a1803df08f44-8ee43b3e5abso1884106d6.3
-        for <linux-input@vger.kernel.org>; Tue, 25 Aug 2026 13:37:55 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1787690274; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Kgc2uOX9"
+Received: by mail-qv1-f53.google.com with SMTP id 6a1803df08f44-902e4af2d9dso9238766d6.0
+        for <linux-input@vger.kernel.org>; Tue, 25 Aug 2026 13:40:21 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1787690421; cv=none;
         d=google.com; s=arc-20260327;
-        b=Vqk/E7rYISSYgbxH19eiJ4u1VxXD9/fB5WoB5xgVcEoYxZkuImL/tG8/4N+aRvGX2i
-         RAOMvFfXfHfunb0biD6EiXSqVfL7GrB9uxW5QACMfLaRHo89s61dnJNQDgj+t9GVlwjF
-         4hn1xEXdq9Y/Yv1XUKAzIcDp8VfBHU9+qf47E7UISm2Sv9YrhFqMMMYtx0ggzQYqBXfP
-         k6JQ14Hl9QWojQwNuCYqsAP40GG7SAYrQ4v88tTnJ+GUjVaFieU9pFQ6nPOiZ2nJ0GjJ
-         pY7q6QFMJ8GwlYi6kOBA/2Xarj09H9o99bEbmyPjyirodi/e1ZULCCjrMqyQVReT7Ow5
-         12lQ==
+        b=htcPwyp2FNi14vFy/X+uQ2rQPKW8KDk0xAlMW4VViwbWFgBC75f2uneHDWtagxz6bc
+         Pyfh9sgSOLmKh6IfzbvHPCDIcVcouc8J7aYAZ/HpU63Inw7m9AOh/gW5ijQZ8vLHk99O
+         FLbwa3GumqI1WNarqvvPyEgsm7HEtMdwRxsU7aDwNI5Chhjrw2dfoA2mUOkDzPXpB44y
+         AxBG5W6MZaCn3btF1DPUq0+g4ME54rKwz+m5WPIAH13V/k4JV21HhIGhSdntTjAwaO4+
+         UR1Iv1xcNpfCSyaRzzJOODtvRnPL646ij5/ZzrEh/67HPHDALwqHLcAlKUFoZ5GulnVN
+         Q3Fw==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=UHMK74l4t8p8IMzbWQcybwUkBONy9umXqHKZJ/RvtKE=;
-        fh=OCDYNIqWmhWqSSfkQ7zWwLxEbi5RZOfxfAe9S0bAFO0=;
-        b=Uhwr710jtTAS/pYvFvDAsYgdnInMibbkPPPNh5nUd9BrnTALMtc5E3B2bPflmKLZSf
-         c3VsWCRY3MQSDDrzD8Roe6rzD8PEH4PwIe6YQozvtIq3Cc0Gwxnv7l5FH0sHiAMi8m4h
-         dvbd0Z9xmuEXabpvlPqlB8rC0uHBqBHBGLHo8hy0K2pyObNrxuH/ybodN5zFSNOcRfCO
-         F5+CRsYrnkfwJ+I42tGfiOWn+m2RwOQ/u8r4nPm42H7BkCjR/aT3S4bCIMI/uvBYhlDe
-         UHb1sczDrjm6UpS5bu0U+Y+9H3tET+QRUyX7iSbUUA/xA2GwCDshL0ks+QFXeriYbZCf
-         FKTw==;
+        bh=dj05ythan2rJXjfpopyXX21G+CzGRzMKX3bDMY1+YfM=;
+        fh=yH7yGZIqHnKxievRBAOR4hQmCx0gDrMqcRziFjY9Q/s=;
+        b=TXPbIPhWFbEkzTQ66vHV1YPzNugipE8MBhpeZzVScMZbkVbucPepWsXycvNXyc0TGP
+         5XibgWy4iRDrMoM02IOzAIhPpvH41k7gN/mhSlD7XXLyX9IXpn2daETPV8zcc44RNdm1
+         fadDr9swlwh7n0iIeO6RwV9m4EnLA8jU1g3KaFRvhu3ZHyuMfCfq/+T4hxBQdNyho0Jw
+         4SDpuOPOwIRG3lw1qzbAFVbkhMr43fsnBXvMnPpl6BMpzWp6AYpdm1rGD6ZgUF+embmP
+         ZJdwyGEt4sVtuEloRUlFM6/PVIXoMwT0fuKXUI0vFYHiofgE38dctmEjhalGXqgK7a1W
+         w+XQ==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1787690274; x=1788295074; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1787690421; x=1788295221; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=UHMK74l4t8p8IMzbWQcybwUkBONy9umXqHKZJ/RvtKE=;
-        b=svKCn8HJNqt+M4rOBEx3PIL8RbOEDXSBJ0khnWOuDxFCjQoxcAkTo46uL3Yg4xJeqF
-         nfCnse1w3nrN3S5IKVZ5XzmP8xL1EaDw35I+BhXmsQsRvJlZ1pprNNua0dyIEtFsb178
-         ZO58tLt+j8TgWbg+RmVYuOMK1uK4O+GJqwMuXgc9Zi1opewX3oEwRHfJf1YkoUWfZCYW
-         OvgIA5NjLC6iF6p4b2keuyciOFoTNs+NmJ9Pi3EB6m2JT1T1UI4VP2ThDiBSkA8yMsbS
-         g52m9X0kmEm7/dSzIfdnF9EoafsLYYAkYglQCrqM8la2wDvs3L6peVg0CVwt99XRTIGs
-         X//Q==
+        bh=dj05ythan2rJXjfpopyXX21G+CzGRzMKX3bDMY1+YfM=;
+        b=Kgc2uOX90u/2Ah2BkkFEbgSX5b2qgb8ng7e2VYolf7Lw0Bk4PIgk0TS7ArWX6A8QAi
+         9cnjYRYkflj4pM74zyBxJRFgIs1NEjs5viPutQ/Ip0qJDzjqrHfWMQS4e/8E9NOFlOzR
+         dhJEprP5EkQzE0mEe2fb49ZfdrQ8GZLL6Pxb9LROuuZgGA+UGXj1l7XSrBo3KcZPmowh
+         QXD07juQM+uXaOi06KQwx89LJiCCvrKv0/yJQvwIns8oJObbnOamYdtuJbRsUHC4ZPD3
+         OgsUGCHZo7BPyJt/hh6cqJpY54urdNT4M/bPBla4+ygS0On/uA3sZOw607UWHnC+6l98
+         bYnw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787690274; x=1788295074;
+        d=1e100.net; s=20251104; t=1787690421; x=1788295221;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=UHMK74l4t8p8IMzbWQcybwUkBONy9umXqHKZJ/RvtKE=;
-        b=Jrs048GH18VXojFTGQlsNczL/7TClfZjaTgA+mmB5TlqKOz+Hhah0SE68MRTZQl6Sg
-         y4kvQxWfn2eoA/MKCtNQDJuFoHM0UpRokRZGEvTmkmLRguoXh0KU/F/eDnIpsmmGiM7n
-         t0x8vQh/9g/WIICY9APimY2jjkL6xbsxz2kGKyoB+ZaqGlWzWIADLq8pc+W274kgi8fO
-         pBA1XXKyS5+7tVrWF6bscJtdmumYO64gmtdyz0itEpuzoqiR5NpJGjjLPXe0x12EZf7Q
-         hODyAaqiB80NoW5gxnJl4IPnl1LJrc1J58GST2g7kyHAQL7rUFE2Pebfw1uXYnGlAsva
-         gnKA==
-X-Forwarded-Encrypted: i=1; AHgh+RppeD8zUtt/LGYp7QqQYZbHxugwZb2KqX1DcxeFmDvKVVWJjk0DJvSxF2gJPTb1g0voMDpyoE73wvQ6Xg==@vger.kernel.org
-X-Gm-Message-State: AFuF++nQPeXuMWgBieDxg2yaojk8261n6QfDrqQso4wJWtWejxFJIIu4
-	+QqifCiLloz0LBD6IpGU1NyIFYAIYT/QZeAcNN/PjXDDkKrPB+OaLZ1AarH0PurIGGMdrIrAVaQ
-	SpNlkalpr+GJK2hzgm2ltUdCNgRRxSAg=
-X-Gm-Gg: AR+sD10DVbC3jHcDuRhGB1dUipxTq/T8uA+NfXI1gmhzBBu4vBnS+CC5ZCLgYLnhXs4
-	VQLnVMfJKuU+xmPKu+ZicZxRRAGrOJOZP7uEEOuZ8rGS/Ws4GOzkF3LUGkXA6G5vbxIWY5zFNXn
-	da30NQSp5v3peZXliVwLKde5rVVkmmtz8Q7Ik+XEQGJCiDWxn6eOYx1mR3caxdoU4e7EUaMcIG5
-	YtqonrwqhkO9vfhAdGiohL0zt28Sl1rNGpiHXef4cC1Y3PFqSqaSQOYHCYQnyyko1O8RSFyBKRC
-	nwq5vkXp2/dQmF/51OdAq5nPann5VcOi2DxcUsX+HFhf5NIMgyV3F1GX
-X-Received: by 2002:a05:6214:5502:b0:8ef:4ed2:316 with SMTP id
- 6a1803df08f44-90cc792b9d4mr16734046d6.1.1787690274242; Tue, 25 Aug 2026
- 13:37:54 -0700 (PDT)
+        bh=dj05ythan2rJXjfpopyXX21G+CzGRzMKX3bDMY1+YfM=;
+        b=fx0T7l7B3UQYzC+kBQy9NCvLV7x8TrxOxLwFd44ouAMUCGRuBs6pObXLLxIR+slKGv
+         +sSOT3ebLKwfMNiurJ41xGBwevXIjlMkpyIRDTKSYMjRz47Ut0q4lIJFKRw24iNW+yHc
+         7SKRLDSXiSdZsj9f4ZaHQ/l6BPFkCShelFIF8PZFj3YcK43h4GVsfmGA/GohSGausoEk
+         MMDXCRZcv0MY6dxiT++KwxAZzBxF3uL82ZawKXjn+jWTTV47TB0ZykgMd+tMhzztkcvo
+         6z9nZxRksCv1YKqCWGYt5dbE3vuzgg3kAYORZ1njamENCVmAj50C/hCkuLghKqQGRpzz
+         c9zw==
+X-Forwarded-Encrypted: i=1; AHgh+RobEiFPxvWUWeAQB3kmN/iKqXM0HoHTnfOzGm8qh92oRBKrTNh14eKb1GP901+sgcUvbjjpx1wmxBkMkA==@vger.kernel.org
+X-Gm-Message-State: AFuF++kqNPZ8E4mHOkI4B1FFrOlwsb9nlzV0pPOXFnVYtM34emOqcfHh
+	KLoZnam040NZHH63QXZ/eq3XoWFuBjevZss5ZAiVYbTT10Gz0AuVYbTTHgtJjyHsQ7/BDd/dxEU
+	Ub3N0vq+0SMjJfLJEqrH/C+R2ijfh71U=
+X-Gm-Gg: AR+sD12okDts1zDsaYZTRCEFqYdca11y2/Xn1E+7TpS+b57jP9XI3WZvIj6owAFPSgk
+	CUBEnbJPmoSPSt53T5oASjpTlG78E4yl6F2H+axjNgCsC32ParHy15pRK0eZgLGf1lu03BIMvXw
+	r+ixLpAoQIOOIp1dN+FxI7iVU/3sc58BCl2tZWcm37NYsj6ItB2TaXuNnBPyRUcgM2vVijCKhxa
+	LWuEYkthiEKXs2PI/OVjgK2hISJXi180Vy2e5OCQrMNbERMdtj66pSskKPCcIubie9l/6m3OyTE
+	ls9NYIWVLmbj2In7hnYdMELUyZrfvBsapshQwMUPPJHgiA==
+X-Received: by 2002:a05:6214:21e6:b0:8e5:8d7b:5188 with SMTP id
+ 6a1803df08f44-90cb60dc3d5mr97981666d6.9.1787690420804; Tue, 25 Aug 2026
+ 13:40:20 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260821214810.87826-1-mradityadash@gmail.com> <20260821214810.87826-4-mradityadash@gmail.com>
-In-Reply-To: <20260821214810.87826-4-mradityadash@gmail.com>
+References: <20260821214810.87826-1-mradityadash@gmail.com> <20260821214810.87826-5-mradityadash@gmail.com>
+In-Reply-To: <20260821214810.87826-5-mradityadash@gmail.com>
 From: Derek John Clark <derekjohn.clark@gmail.com>
-Date: Tue, 25 Aug 2026 13:37:43 -0700
-X-Gm-Features: AcwNN1W6nAlqhzrz3lkKYNzHUwWsRz-9iG3n0h2dvctF3q6eXzZL5fNac5WHZGU
-Message-ID: <CAFqHKT=XgpUysvD117WD7gdTvMn9wG5VuH7=KFBo96Kd+Z3Pjw@mail.gmail.com>
-Subject: Re: [PATCH 3/5] HID: hid-lenovo-go: record calibration completion state
+Date: Tue, 25 Aug 2026 13:40:09 -0700
+X-Gm-Features: AcwNN1WDXT2XyzS5sr19VD2tOTeqCcFG1NBFYeNLYvdSUoWBodw2n0X9Kezp--8
+Message-ID: <CAFqHKT=SYHBrp3pu563A0AwM7ONAsWeXBkfVde2Y+G5w5k-aMQ@mail.gmail.com>
+Subject: Re: [PATCH 4/5] HID: hid-lenovo-go: use the right controller selectors
 To: Aditya Dash <mradityadash@gmail.com>
 Cc: Benjamin Tissoires <bentiss@kernel.org>, Jiri Kosina <jikos@kernel.org>, 
 	Mark Pearson <mpearson-lenovo@squebb.ca>, linux-input@vger.kernel.org, 
@@ -99,95 +99,52 @@ Content-Transfer-Encoding: quoted-printable
 On Fri, Aug 21, 2026 at 2:48=E2=80=AFPM Aditya Dash <mradityadash@gmail.com=
 > wrote:
 >
-> The firmware uses result value 0 for failure and 1 for success. The drive=
-r
-> stores this value directly as a state index. Index 0 means unknown, so th=
-e
-> driver reports a firmware failure as unknown.
-This is false. Firmware reports 0x01 as success, 0x02 as failure. With
-this change all calibration actions result in a success.
-
-From the documentation:
-
-1. Start Joystick calibration.
-2. The user needs to rotate the joystick along the edge for two full
-circles and then return it to
-the center position.
-3. Upon successful calibration, the firmware will automatically exit
-the calibration mode after 2
-seconds and report a successful calibration status. If the joystick
-calibration is not completed
-within 10 seconds, the firmware will automatically exit the
-calibration mode and report a
-failed calibration status.
-
-Thanks,
-Derek
-> Map the result value to the matching failure or success state.
+> The right imu_enabled attribute selects FEATURE_IMU_BYPASS, and the right
+> reset attribute targets the left controller.
 >
-> Fixes: 995887a10da1 ("HID: hid-lenovo-go: Add Calibration Settings")
+> Select FEATURE_IMU_ENABLE for the right imu_enabled attribute. Target the
+> right controller for a right reset.
+>
+> Fixes: 82cd9bc866e1 ("HID: hid-lenovo-go: Add Feature Status Attributes")
 > Assisted-by: Pi:gpt-5.6-sol
 > Signed-off-by: Aditya Dash <mradityadash@gmail.com>
 > ---
-> A successful calibration completion was tested on hardware. No final
-> failure completion was captured.
+> The corrected right reset and right IMU writes were not tested on
+> hardware.
 >
->  drivers/hid/hid-lenovo-go.c | 14 ++++++++------
->  1 file changed, 8 insertions(+), 6 deletions(-)
+>  drivers/hid/hid-lenovo-go.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
 >
 > diff --git a/drivers/hid/hid-lenovo-go.c b/drivers/hid/hid-lenovo-go.c
-> index a6e9a130ad41..d2d134873dd1 100644
+> index d2d134873dd1..1e6915c969d8 100644
 > --- a/drivers/hid/hid-lenovo-go.c
 > +++ b/drivers/hid/hid-lenovo-go.c
-> @@ -577,17 +577,19 @@ static int hid_go_light_event(struct command_report=
- *cmd_rep)
+> @@ -2006,13 +2006,13 @@ LEGO_DEVICE_ATTR_RW(imu_bypass_right, "imu_bypass=
+_enabled", RIGHT_CONTROLLER,
+>                     index, feature_status);
+>  static DEVICE_ATTR_RO_NAMED(imu_bypass_right_index, "imu_bypass_enabled_=
+index");
 >
->  static int hid_go_device_status_event(struct command_report *cmd_rep)
->  {
-> +       u8 status =3D cmd_rep->data[1] ? CAL_STAT_SUCCESS : CAL_STAT_FAIL=
-URE;
-> +
->         switch (cmd_rep->device_type) {
->         case LEFT_CONTROLLER:
->                 switch (cmd_rep->data[0]) {
->                 case CALDEV_GYROSCOPE:
-> -                       drvdata.gp_left_gyro_cal_status =3D cmd_rep->data=
-[1];
-> +                       drvdata.gp_left_gyro_cal_status =3D status;
->                         return 0;
->                 case CALDEV_JOYSTICK:
-> -                       drvdata.gp_left_joy_cal_status =3D cmd_rep->data[=
-1];
-> +                       drvdata.gp_left_joy_cal_status =3D status;
->                         return 0;
->                 case CALDEV_TRIGGER:
-> -                       drvdata.gp_left_trigg_cal_status =3D cmd_rep->dat=
-a[1];
-> +                       drvdata.gp_left_trigg_cal_status =3D status;
->                         return 0;
->                 default:
->                         return -EINVAL;
-> @@ -596,13 +598,13 @@ static int hid_go_device_status_event(struct comman=
-d_report *cmd_rep)
->         case RIGHT_CONTROLLER:
->                 switch (cmd_rep->data[0]) {
->                 case CALDEV_GYROSCOPE:
-> -                       drvdata.gp_right_gyro_cal_status =3D cmd_rep->dat=
-a[1];
-> +                       drvdata.gp_right_gyro_cal_status =3D status;
->                         return 0;
->                 case CALDEV_JOYSTICK:
-> -                       drvdata.gp_right_joy_cal_status =3D cmd_rep->data=
-[1];
-> +                       drvdata.gp_right_joy_cal_status =3D status;
->                         return 0;
->                 case CALDEV_TRIGGER:
-> -                       drvdata.gp_right_trigg_cal_status =3D cmd_rep->da=
-ta[1];
-> +                       drvdata.gp_right_trigg_cal_status =3D status;
->                         return 0;
->                 default:
->                         return -EINVAL;
+> -static struct go_cfg_attr imu_enabled_right =3D { FEATURE_IMU_BYPASS };
+> +static struct go_cfg_attr imu_enabled_right =3D { FEATURE_IMU_ENABLE };
+>  LEGO_DEVICE_ATTR_RW(imu_enabled_right, "imu_enabled", RIGHT_CONTROLLER, =
+index,
+>                     feature_status);
+>  static DEVICE_ATTR_RO_NAMED(imu_enabled_right_index, "imu_enabled_index"=
+);
+>
+>  static struct go_cfg_attr reset_right =3D { FEATURE_RESET_GAMEPAD };
+> -LEGO_DEVICE_ATTR_WO(reset_right, "reset", LEFT_CONTROLLER, feature_statu=
+s);
+> +LEGO_DEVICE_ATTR_WO(reset_right, "reset", RIGHT_CONTROLLER, feature_stat=
+us);
+>
+>  static struct go_cfg_attr rumble_mode_right =3D { RUMBLE_MODE };
+>  LEGO_DEVICE_ATTR_RW(rumble_mode_right, "rumble_mode", RIGHT_CONTROLLER, =
+index,
 > --
 > 2.55.0
 >
+
+Reviewed-by: Derek J. Clark <derekjohn.clark@gmail.com>
+Tested-by: Derek J. Clark <derekjohn.clark@gmail.com>

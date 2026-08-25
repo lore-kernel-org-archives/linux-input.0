@@ -1,274 +1,164 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AA3C6171B1
-	for <linux-input@vger.kernel.org>; Tue, 25 Aug 2026 03:29:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B19F519005E
+	for <linux-input@vger.kernel.org>; Tue, 25 Aug 2026 03:39:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787628601; cv=none; b=l4cGlfmTq24L+L2ft0ZtSICM7WrtePt7GmVKXqwMGD7l9PMP0058WQiLLPZN6SwdPEJ/XXjHK10R6/e+/7HFhtW+N8UTCvhNHhJwrUwcksWqVBbdsmyGdcuBo/ACzplWTB7pA+AlLldn37h2utQXVgedL0IUqrAihiDwOjCSL/M=
+	t=1787629176; cv=none; b=TyG0KwbZQnMCips6/I97SN9DTyfjUrFq0mS0P68Wl+oEnGwzWkWxXkEuiTCqCVK3rFxTenoitX9TjlTHpvESDKpYlRtEyneRdqfpsE/+8ge9qCjNmLDi88Zz33HpfAApflMDb8NJT6qQ9lC2f+Vhkez+/7RDtUu5bG6Jecr1GuA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787628601; c=relaxed/simple;
-	bh=gm40c/7oT3OIdvyWBWpW8wACLC9VidLhg3ma8QNahVY=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=S1/H/Qr1K38OPLO1o7aK23VC/LuSQT3JNhuBOhxSCwUVRS5zO9szT85iQriVBgrcZF3dQViNd90kdkl9r8c8g2jtgopdwYhcqku4XWz0BYYOShYV+wGRR+Af6m2bBoPhmue007vnmyTSNLgw30G20nu/ZM5gTIwbeSnQNBnll9o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=fieqpBJM; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1787629176; c=relaxed/simple;
+	bh=b5JACez2nK38fxDSCnVCINWrSOrr4lZXyjQAUn2KU1Y=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=iPFEC7RW/V7b1UXmcKBv+7ENg0c+RmPOOhLI1lKZBtP1rsumnTEWOKb9NgI93Tz+giLA5lw9ki4VIi0Gv4mb7xgVZCD4WGKFH6j8063HUvMCFsiWDRybeTdP2p5tDGyZLMSafYps5S12+/+huhog9RiGr1uMDguEcJKQEMcPNSw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=Rh/ABkoE; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=Whe7MsnM; arc=none smtp.client-ip=205.220.168.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="fieqpBJM"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C9731F000E9;
-	Tue, 25 Aug 2026 03:29:59 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787628599;
-	bh=y+CPuh8V6KUIhCD6SAbpmrDvXu3Fyk48JEWd9kGmAfI=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=fieqpBJMzMzTeE2deXJrQ0FnWtGACaHZTOPjO9hn5Om9V1sE78vjeR+z4+L9Z/jAv
-	 5Rcf2+3RUThLj/Bpzbksbx0YJmItrKslt6Il86UGSL7qID6bHvFUsO4HJR+OLBPJJj
-	 N1DhxPc04ZX0oHOCxx8j8AZn7TUXbCc6X/OleVb58Oql+3/7hfQxBNNOFIbQ71vYkT
-	 N+xbJkTSIHonMui25kGEn4XtAOCn+ghHV13rhjCQD3C7Dz3m0DKpcdRu1fm0U86yx4
-	 QnlQR7BoJG64kpl108sGQXtTMuNHytAk6wSvAI2rxTKBYkALwyWm0Np5UF9iYs6hqv
-	 72wY7G7dQzuzQ==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] Input: synaptics-rmi4 - fix input_dev->name
- use-after-free on unplug
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Wei Jie Law" <98lawweijie@gmail.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260825031315.51860-1-98lawweijie@gmail.com>
-References: <20260825031315.51860-1-98lawweijie@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Tue, 25 Aug 2026 03:29:58 +0000
-Message-Id: <20260825032959.1C9731F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="Rh/ABkoE";
+	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="Whe7MsnM"
+Received: from pps.filterd (m0279864.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67P2R5OR3741460
+	for <linux-input@vger.kernel.org>; Tue, 25 Aug 2026 03:39:35 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
+	cc:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
+	84HwQDQ0U0qytZHjgh7YElDDyTGY9iMA6qEWfxiQS7I=; b=Rh/ABkoEOabv9s+i
+	vosYXnrH2fDLAlBacNZ2SpgUMInDQP8D2OAymZQDMvQHbylwKJvI/5a6Q6kf517J
+	3VkCc0imrBG/U70b0ZfHJ2brAgybv42s9+vIsDBOPAJFwMyVjAm3stEVkojXLBUN
+	/ImbNS6y9lBWSXSkYrZvwMH54nzLwKR0jePDny6EMnHRc9/yZ1jbDxID2AN8LCfg
+	4m/cEFfJLzgQkOromV5P3eY20MVlxWUcQqCR7uKIq3+UdiBTJf8k/aTiR/tKsKUG
+	ZKCwmHl5KQCGdPC5VjMb1EjsmNhkGLyNwVKzePyyN9d/55CJV0IgMTuev2OPjqjc
+	u9Kg9Q==
+Received: from mail-pj1-f70.google.com (mail-pj1-f70.google.com [209.85.216.70])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4g8kv7bssv-1
+	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
+	for <linux-input@vger.kernel.org>; Tue, 25 Aug 2026 03:39:34 +0000 (GMT)
+Received: by mail-pj1-f70.google.com with SMTP id 98e67ed59e1d1-385d2703b64so446123a91.1
+        for <linux-input@vger.kernel.org>; Mon, 24 Aug 2026 20:39:34 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=oss.qualcomm.com; s=google; t=1787629174; x=1788233974; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:in-reply-to:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=84HwQDQ0U0qytZHjgh7YElDDyTGY9iMA6qEWfxiQS7I=;
+        b=Whe7MsnM8zqqRYwL7nPmPASPe3IcGa2adwjCnCiFSFGodWTj2pkYeHSWZe8OF0i8mK
+         aQmmjRxivddLGclrVe9KfRpTSiQ97+uI0sZl8DbE1+l14KbWSWnDSw4FupdJR0b1//Mo
+         orVtgiUcGfa+b84wdRWjZEl0g5Vh+LjuAQx+3G/aH9J74EBV8gwMGjoin9A2YfHTjtyD
+         xWKYcO+2YuYlC9isGl7VsZWuB3FZFh64Dzl5MCYMu3K9lfZX3PeRxMYthwfuGbThJreQ
+         7CdykMFKvDBNu2VfaAGVTRtVcY+4ZLy1tGlZ2AqXIejQQQ+A31Wgw+LfRtYcWk3w1ARi
+         B6LQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1787629174; x=1788233974;
+        h=content-transfer-encoding:content-type:in-reply-to:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=84HwQDQ0U0qytZHjgh7YElDDyTGY9iMA6qEWfxiQS7I=;
+        b=pNkSwwJFFN9lQ8BfsUNatKHsW2M9YY/vWKkdIiAGzwOGvA9cjshA1mIxJ1WbXNdPVp
+         mmhvFGW0HwlBqSx89W9tHohrCeKoR2x41Qjb4tq5NNHoNfsu7kgG2mR5zwFGg6lqyBkr
+         zeBLOBYZjfAc0yauMH7gr2MYInKsW73VI3abf3i4bjZNvcs7nnhTB0wmy0FWuftspvn4
+         uPCJwfabyfNVnZUhUkRqu6tS29ZxXvEVtP0nCCrC8UrtwsbEyUWEVHbmpyhKt1CqIj67
+         EYJPenK+1kqBcL8rNw/6DPQlum3RiPdn5QUzk4c70PbdbhhYrqvCPNH8cjpyfjaqlEXA
+         LCdA==
+X-Forwarded-Encrypted: i=1; AHgh+RoYicsTAiZCfql0UIK7KCrzxzQb/RjqUyweQgXAGwncA7iQPNXylt1GpkDoA4Yp9dXlZaQ+VALDDyj2fg==@vger.kernel.org
+X-Gm-Message-State: AFuF++nLynNFQFJToq9eeK17rtwpG+BU0FcAcMTYx+73+N7TBT02W5c2
+	XAwXZiKxgXX0vrBtLeE7EK4VvC7dY6n17lLTBZeDLXkgEj8Ym7yzXnJbBAtg6RmAUpOaOgEKAJY
+	NKMAAQTT2SPpCnMDVoFKITjO0QDjz/V2wJl1Scz+ElsMXRMsmj9kufyUS1RghpH62dg==
+X-Gm-Gg: AR+sD10eWtwIhLdM+DoGSt3m6KrMxu3oC1Y+fbEovDnKXHfMAxRr+c5fW8VD9RLDBn6
+	oNmt+Ws0tFIchWieGlmmSumbeqvDSXZKXQl98z/++MG+qSl88QaKl3zhAx+t2GBQRS/Zw5AOa7H
+	03i6tbdD36p6icBtYGwefyXLRnT7+lAeoBuUjULvQM4TQmV7oCJu04fJIUbZOgei9DmyI8JNEsI
+	VT4fVZms4HkkcjSk719hqHpfdQWloTyPiQr9k03m7P7auh4nJv19BeYjCNzlYLEBr6YzJiV0edK
+	tLTHoHdqEvx4C9u5WfaC63smpIzGtNHMS2VRjUwdsftIXPdiazBKlb3lW3Zc3qNdIz1AMa1jM0l
+	38LPJe8arVsK8p6UYmrKeEB4ts+gYW7JPT3qP1WYZFO67YWxb1i5h5CcDyib5NLwnUCbz
+X-Received: by 2002:a17:90b:3e50:b0:38e:c232:9d2c with SMTP id 98e67ed59e1d1-396459f432bmr4215573a91.2.1787629174238;
+        Mon, 24 Aug 2026 20:39:34 -0700 (PDT)
+X-Received: by 2002:a17:90b:3e50:b0:38e:c232:9d2c with SMTP id 98e67ed59e1d1-396459f432bmr4215543a91.2.1787629173814;
+        Mon, 24 Aug 2026 20:39:33 -0700 (PDT)
+Received: from [10.133.33.69] (tpe-colo-wan-fw-bordernet.qualcomm.com. [103.229.16.4])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-39645d31e8csm1916325a91.9.2026.08.24.20.39.29
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 24 Aug 2026 20:39:33 -0700 (PDT)
+Message-ID: <ee493f8b-aeed-4481-91e3-1a17297a2bec@oss.qualcomm.com>
+Date: Tue, 25 Aug 2026 11:39:28 +0800
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-
-Thank you for your contribution! Sashiko AI review found 6 potential issue(=
-s) to consider:
-
-New issues:
-- [High] TOCTOU race condition in sysfs name read leading to Use-After-Free.
-
-Pre-existing issues:
-- [High] Memory leak of IRQ domain on probe error and firmware update.
-- [High] Use-After-Free due to bypassed function cleanup on sysfs creation =
-failure.
-- [High] Resource leak and Use-After-Free due to dangling sysfs group on pr=
-obe failure.
-- [High] NULL Pointer Dereference on F01 driver probe failure.
-- [Medium] TOCTOU race condition causing memory leak of attention FIFO data.
---
-
---- Patch [1]: [PATCH] Input: synaptics-rmi4 - fix input_dev->name use-afte=
-r-free on unplug ---
-commit 9cd37129e649f20d52a9bc378f92b844e6f83fbd
-Author: Wei Jie Law <98lawweijie@gmail.com>
-
-Input: synaptics-rmi4 - fix input_dev->name use-after-free on unplug
-
-rmi_driver_probe() reuses the transport driver's input device when it has
-one, and then renames it out of memory owned by the RMI device. In the
-borrowed case the name outlives its allocation. This commit puts the name
-back to a static string when this driver lets go of an input device it
-does not own.
-
-> diff --git a/drivers/input/rmi4/rmi_driver.c b/drivers/input/rmi4/rmi_dri=
-ver.c
-> index 5d49a9021c7d0..8696a6aa0fa9f 100644
-> --- a/drivers/input/rmi4/rmi_driver.c
-> +++ b/drivers/input/rmi4/rmi_driver.c
-> @@ -369,6 +369,24 @@ static void rmi_driver_set_input_name(struct rmi_dev=
-ice *rmi_dev,
->  	input->name =3D name;
->  }
-
-[Severity: High]
-This isn't a bug introduced by this patch, but can this lead to a NULL poin=
-ter
-dereference if the F01 driver probe fails?
-
-In rmi_driver_set_input_name(), rmi_f01_get_product_ID() is called on
-data->f01_container before verifying if the driver successfully bound:
-
-drivers/input/rmi4/rmi_driver.c:rmi_driver_set_input_name() {
-    ...
-    const char *device_name =3D rmi_f01_get_product_ID(data->f01_container);
-    ...
-}
-
-If the F01 hardware fails to communicate properly, the F01 driver's drvdata
-might remain NULL. When rmi_f01_get_product_ID() fetches the drvdata and
-dereferences it:
-
-drivers/input/rmi4/rmi_f01.c:rmi_f01_get_product_ID() {
-    ...
-    struct f01_data *f01 =3D dev_get_drvdata(&fn->dev);
-    return f01->properties.product_id;
-}
-
-Could this result in a kernel panic on initialization?
-
-> =20
-> +/*
-> + * Let go of an input device that belongs to the transport driver.  It o=
-utlives
-> + * us, but rmi_driver_set_input_name() pointed its name at devres memory=
- of
-> + * ours that is freed as soon as we are done - input_register_device() a=
-nd both
-> + * the add and the remove uevent print that name - so put the name back =
-to a
-> + * string with static storage duration before dropping the reference.
-> + */
-> +static void rmi_driver_put_input(struct rmi_device *rmi_dev,
-> +				 struct rmi_driver_data *data)
-> +{
-> +	if (!data->input || data->input !=3D rmi_dev->xport->input)
-> +		return;
-> +
-> +	data->input->name =3D SYNAPTICS_INPUT_DEVICE_NAME;
-
-[Severity: High]
-Is this non-atomic assignment safe against concurrent lockless sysfs reads?
-
-If a concurrent sysfs read, such as input_dev_show_name(), fetches the old
-devm_kasprintf allocated pointer just before this swap, could it dereference
-the pointer after rmi_driver_remove() completes and devres frees the string?
-
-Could this lead to a use-after-free if the sysfs reader is delayed and calls
-sysfs_emit() with the freed pointer?
-
-> +	input_put_device(data->input);
-> +	data->input =3D NULL;
-> +}
-> +
-
-[ ... ]
-
-> @@ -1026,6 +1044,8 @@ static int rmi_driver_remove(struct device *dev)
->  	rmi_f34_remove_sysfs(rmi_dev);
->  	rmi_free_function_list(rmi_dev);
-> =20
-> +	rmi_driver_put_input(rmi_dev, data);
-> +
->  	irq_domain_remove(data->irqdomain);
->  	data->irqdomain =3D NULL;
-> =20
-
-[Severity: Medium]
-This is a pre-existing issue, but is there a race condition between
-rmi_set_attn_data() and rmi_disable_irq() that could leak attention FIFO da=
-ta?
-
-In rmi_set_attn_data(), drvdata->enabled is checked locklessly before
-allocating data and pushing it to the FIFO:
-
-drivers/input/rmi4/rmi_driver.c:rmi_set_attn_data() {
-    ...
-    if (!drvdata->enabled)
-        return;
-
-    fifo_data =3D kmemdup(data, size, GFP_ATOMIC);
-    ...
-}
-
-Concurrently, rmi_disable_irq(), which is called earlier during removal,
-acquires the enabled_mutex, sets enabled to false, and flushes the FIFO:
-
-drivers/input/rmi4/rmi_driver.c:rmi_disable_irq() {
-    ...
-    while (!kfifo_is_empty(&data->attn_fifo)) {
-        count =3D kfifo_get(&data->attn_fifo, &attn_data);
-    ...
-}
-
-If rmi_set_attn_data() reads enabled as true just before it is set to false,
-could it append the allocated item to the FIFO after rmi_disable_irq() has
-already flushed it? Since no further flushes occur upon driver removal, wou=
-ld
-this dynamically allocated memory be leaked?
-
-[ ... ]
-
-> @@ -1287,6 +1307,7 @@ static int rmi_driver_probe(struct device *dev)
->  err_destroy_functions:
->  	rmi_free_function_list(rmi_dev);
->  err:
-
-[Severity: High]
-This isn't a bug introduced by this patch, but does the error path bypass
-function cleanup if rmi_f34_create_sysfs() fails?
-
-In rmi_driver_probe(), if rmi_f34_create_sysfs() fails, the code executes
-a goto to the err label:
-
-drivers/input/rmi4/rmi_driver.c:rmi_driver_probe() {
-    ...
-    retval =3D rmi_f34_create_sysfs(rmi_dev);
-    if (retval)
-        goto err;
-    ...
-}
-
-This bypasses the err_destroy_functions label, leaving the child RMI functi=
-on
-devices registered. When the driver core cleans up the probe failure, it fr=
-ees
-the devres-managed data. Would any subsequent callbacks on the leaked child
-devices dereference the freed data and cause a use-after-free?
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v6 2/2] input: misc: Add Qualcomm SPMI PMIC haptics driver
+To: David Heidelberg <david@ixit.cz>, linux-arm-msm@vger.kernel.org,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Rob Herring <robh@kernel.org>,
+        Krzysztof Kozlowski <krzk+dt@kernel.org>,
+        Conor Dooley
+ <conor+dt@kernel.org>, Lee Jones <lee@kernel.org>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Bjorn Andersson <andersson@kernel.org>,
+        Konrad Dybcio <konradybcio@kernel.org>
+Cc: David Collins <david.collins@oss.qualcomm.com>,
+        Subbaraman Narayanamurthy <subbaraman.narayanamurthy@oss.qualcomm.com>,
+        Kamal Wadhwa <kamal.wadhwa@oss.qualcomm.com>,
+        linux-input@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+References: <20260806-qcom-spmi-haptics-v6-0-19fcecd5204f@oss.qualcomm.com>
+ <20260806-qcom-spmi-haptics-v6-2-19fcecd5204f@oss.qualcomm.com>
+ <214bbcf7-38ba-458b-81ba-d7f3a42cb73d@ixit.cz>
+ <7df4c69d-9d7b-418f-b7dc-a03a710dfb13@ixit.cz>
+Content-Language: en-US
+From: Fenglin Wu <fenglin.wu@oss.qualcomm.com>
+In-Reply-To: <7df4c69d-9d7b-418f-b7dc-a03a710dfb13@ixit.cz>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Authority-Analysis: v=2.4 cv=Cfg4Irrl c=1 sm=1 tr=0 ts=6a8d0e76 cx=c_pps
+ a=0uOsjrqzRL749jD1oC5vDA==:117 a=nuhDOHQX5FNHPW3J6Bj6AA==:17
+ a=IkcTkHD0fZMA:10 a=Sv0fKeRqtYgA:10 a=s4-Qcg_JpJYA:10
+ a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22 a=DJpcGTmdVt4CTyJn9g5Z:22
+ a=VwQbUJbxAAAA:8 a=EUspDBNiAAAA:8 a=5_8ev1SDl5wn8iQIMj0A:9 a=3ZKOabzyN94A:10
+ a=QEXdDO2ut3YA:10 a=mQ_c8vxmzFEMiUWkPHU9:22
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODI1MDAyOCBTYWx0ZWRfXwNln+Hk2dmLK
+ 79RunyCzLjm54N7TBkc6F2lUqTOcMQGF4fabydsnrDyTYT6ZDWD54/e/SqtX30EdwQuhE+sh/tF
+ 0H8LpGEyiRmygtTEzbmiPYeV8vCT0aw=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODI1MDAyOCBTYWx0ZWRfXzt9s6MAkp3Z+
+ GLytP5mOd9h0eyYNm+fpnXFyF3CdCzPkiByChtVdMU4bXlHRfEOPvlzvz/gKoyCkACKQb2WtESu
+ c/WF5cio6nz4WYIqTxNWuDpKXn9kEvHpfa8kweg/FNUGTsD5oAJeDrDEltwXEds5sSN+BI3K+05
+ z9Ph2a3xlYkuDdWqi3Qlm/5Cyz3LE/I5ID06BBXOkxSY5TrMVGfpBjV2xPNy+xedIWN8CV7TmOM
+ 4q+nRIbE1bg7GiwUVwEMuz9iapJfB/FJaxqkvmvgoIGEXzQd+Yy83DVROIHtHQLZ/nIiEau/Dxl
+ MdUfiyij1Jnv07utgRw1jH9QJk3SZh4JNKuu0V2jSKALOZVZbtfIzUlr+DznqCGtKvac5et6gpf
+ ah+O8h7WJT6PKtf9VsPG+bOzOHPXJGt8EQwV1+Hjbgghvn/riuELjWXn3hjoKA6rwiCDJ3oxKDm
+ Mlb4I/2ZwZFOIQL7PBA==
+X-Proofpoint-ORIG-GUID: I0QCKJMe-wRZHgrDMG--7wS6RKm6i1o5
+X-Proofpoint-GUID: I0QCKJMe-wRZHgrDMG--7wS6RKm6i1o5
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-08-25_01,2026-08-24_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ adultscore=0 phishscore=0 impostorscore=0 spamscore=0 suspectscore=0
+ priorityscore=1501 malwarescore=0 clxscore=1015 lowpriorityscore=0
+ bulkscore=0 classifier=typeunknown authscore=0 authtc= authcc= route=outbound
+ adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
+ definitions=main-2608250028
 
 
-[Severity: High]
-This is a pre-existing issue, but does this error path leave a dangling sys=
-fs
-group if input_register_device() fails?
 
-If input_register_device() fails later in rmi_driver_probe(), the code jumps
-to err_destroy_functions, but rmi_f34_remove_sysfs() is never called:
+On 8/23/2026 7:36 PM, David Heidelberg wrote:
+> P.S. Could you post together with the PMIH0108 device-tree part and ideally the 
+> device integration you testing with? (or at least share the WIP DT, if it's not 
+> finished yet)
 
-drivers/input/rmi4/rmi_driver.c:rmi_driver_probe() {
-    ...
-    retval =3D input_register_device(data->input);
-    if (retval) {
-        ...
-        goto err_destroy_functions;
-    }
-    ...
-}
+I left them out when I sent patch v2 because there were several
+board-specific changes, and it was easier for me to revise the driver
+change without them. I’ll resend them once the binding and driver
+changes are accepted. You can use the example that I replied here if you
+want to test them out:
 
-Since the transport device outlives the probe failure, do the sysfs attribu=
-tes
-remain active? Could reading these attributes trigger callbacks that access
-the freed devm-managed data, resulting in a use-after-free?
+https://lore.kernel.org/linux-input/02269d67-41e3-48eb-9ce1-e3775a4c2eaa@oss.qualcomm.com/
 
+Please remember to update "qcom,vmax-microvolt" and "qcom,lra-period-us"
+parameters to match with the LRA actuator that's mounted on your board.
 
-[Severity: High]
-This is also a pre-existing issue, but does jumping to the err label leak t=
-he
-IRQ domain?
-
-In rmi_probe_interrupts(), irq_domain_create_linear() allocates an IRQ doma=
-in
-which is not managed by devres:
-
-drivers/input/rmi4/rmi_driver.c:rmi_probe_interrupts() {
-    ...
-    data->irqdomain =3D irq_domain_create_linear(fwnode, irq_count, &irq_do=
-main_simple_ops, data);
-    ...
-}
-
-If a subsequent step in rmi_driver_probe() fails and jumps to the err or
-err_destroy_functions labels, irq_domain_remove() is omitted. Additionally,
-since rmi_firmware_update() calls rmi_probe_interrupts() on every flash
-operation without destroying the previously created domain, does this result
-in repeated memory leaks?
-
-> +	rmi_driver_put_input(rmi_dev, data);
->  	return retval;
->  }
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260825031315.5186=
-0-1-98lawweijie@gmail.com?part=3D1
+Thanks
+Fenglin

@@ -1,164 +1,230 @@
-Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f175.google.com (mail-pl1-f175.google.com [209.85.214.175])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B19F519005E
-	for <linux-input@vger.kernel.org>; Tue, 25 Aug 2026 03:39:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6CECF352036
+	for <linux-input@vger.kernel.org>; Tue, 25 Aug 2026 03:49:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.175
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787629176; cv=none; b=TyG0KwbZQnMCips6/I97SN9DTyfjUrFq0mS0P68Wl+oEnGwzWkWxXkEuiTCqCVK3rFxTenoitX9TjlTHpvESDKpYlRtEyneRdqfpsE/+8ge9qCjNmLDi88Zz33HpfAApflMDb8NJT6qQ9lC2f+Vhkez+/7RDtUu5bG6Jecr1GuA=
+	t=1787629745; cv=none; b=L3cNw2MhaaXjksfsOxLgeQAIuXv/nr2Lp6RmQ+FoULFFXGBuvVB34pVSc2Uuc4lf0/6/S0lpqZsmEYZOiTY/Gy1nfDAJuQEpyW0lvh7OI1WLSWdNasuK+SD8TSbOXhdR7K4uj88eR8s2K0AgKnjCqrpse+z8+eOTXuzObjgJ4aA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787629176; c=relaxed/simple;
-	bh=b5JACez2nK38fxDSCnVCINWrSOrr4lZXyjQAUn2KU1Y=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=iPFEC7RW/V7b1UXmcKBv+7ENg0c+RmPOOhLI1lKZBtP1rsumnTEWOKb9NgI93Tz+giLA5lw9ki4VIi0Gv4mb7xgVZCD4WGKFH6j8063HUvMCFsiWDRybeTdP2p5tDGyZLMSafYps5S12+/+huhog9RiGr1uMDguEcJKQEMcPNSw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=Rh/ABkoE; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=Whe7MsnM; arc=none smtp.client-ip=205.220.168.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
+	s=arc-20240116; t=1787629745; c=relaxed/simple;
+	bh=WXRtSPZwo+EGznNPp+Jayvn/HOYdALcAx63byJrDfX4=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=C9brkBOxHHiSLcNRIpnN8nnz10izE5xXcP//Fxlk8Ik73/wV9MaOCDy+IgHgf3GC5ysxWgAoqJrxPROooDJ28sFCwrGKtlguMMRkT9xpg+ReFxZbZ5EMbsStEbSPK7zZJHY0U15ktnSH2Tpfam1mfjxU/XNJ/rHbHpZ/CmzsfFE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=EGzQdzi5; arc=none smtp.client-ip=209.85.214.175
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="Rh/ABkoE";
-	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="Whe7MsnM"
-Received: from pps.filterd (m0279864.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67P2R5OR3741460
-	for <linux-input@vger.kernel.org>; Tue, 25 Aug 2026 03:39:35 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
-	cc:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
-	84HwQDQ0U0qytZHjgh7YElDDyTGY9iMA6qEWfxiQS7I=; b=Rh/ABkoEOabv9s+i
-	vosYXnrH2fDLAlBacNZ2SpgUMInDQP8D2OAymZQDMvQHbylwKJvI/5a6Q6kf517J
-	3VkCc0imrBG/U70b0ZfHJ2brAgybv42s9+vIsDBOPAJFwMyVjAm3stEVkojXLBUN
-	/ImbNS6y9lBWSXSkYrZvwMH54nzLwKR0jePDny6EMnHRc9/yZ1jbDxID2AN8LCfg
-	4m/cEFfJLzgQkOromV5P3eY20MVlxWUcQqCR7uKIq3+UdiBTJf8k/aTiR/tKsKUG
-	ZKCwmHl5KQCGdPC5VjMb1EjsmNhkGLyNwVKzePyyN9d/55CJV0IgMTuev2OPjqjc
-	u9Kg9Q==
-Received: from mail-pj1-f70.google.com (mail-pj1-f70.google.com [209.85.216.70])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4g8kv7bssv-1
-	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
-	for <linux-input@vger.kernel.org>; Tue, 25 Aug 2026 03:39:34 +0000 (GMT)
-Received: by mail-pj1-f70.google.com with SMTP id 98e67ed59e1d1-385d2703b64so446123a91.1
-        for <linux-input@vger.kernel.org>; Mon, 24 Aug 2026 20:39:34 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="EGzQdzi5"
+Received: by mail-pl1-f175.google.com with SMTP id d9443c01a7336-2cfbbdfa60bso34752495ad.3
+        for <linux-input@vger.kernel.org>; Mon, 24 Aug 2026 20:49:04 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=oss.qualcomm.com; s=google; t=1787629174; x=1788233974; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:in-reply-to:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=84HwQDQ0U0qytZHjgh7YElDDyTGY9iMA6qEWfxiQS7I=;
-        b=Whe7MsnM8zqqRYwL7nPmPASPe3IcGa2adwjCnCiFSFGodWTj2pkYeHSWZe8OF0i8mK
-         aQmmjRxivddLGclrVe9KfRpTSiQ97+uI0sZl8DbE1+l14KbWSWnDSw4FupdJR0b1//Mo
-         orVtgiUcGfa+b84wdRWjZEl0g5Vh+LjuAQx+3G/aH9J74EBV8gwMGjoin9A2YfHTjtyD
-         xWKYcO+2YuYlC9isGl7VsZWuB3FZFh64Dzl5MCYMu3K9lfZX3PeRxMYthwfuGbThJreQ
-         7CdykMFKvDBNu2VfaAGVTRtVcY+4ZLy1tGlZ2AqXIejQQQ+A31Wgw+LfRtYcWk3w1ARi
-         B6LQ==
+        d=gmail.com; s=20251104; t=1787629744; x=1788234544; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=AEJ7x4lrvTeoqoW+tLTqGuE/b/VMt/f1IowvImwnRh8=;
+        b=EGzQdzi5lebR6UCad4WygqLJN8TqofD1UI1Q8Dmqjact5cr0mrZ790pCVIfGEyyqxg
+         VpfdQbc20tBeCCg4fCrayLksOnxQfjQCymC0t97NScoeDyC0/eYLcjgvGP6ex26noeyj
+         Vxxu1n9XYgWeXwJUbnkPnVQLlyREsUgYkYmmMmfMd/jSLN288eyy8ARenLku7hmpnxb2
+         ayfSuYUNoOfdVPMb5F0ruMYtdeResGC2c/xwA6BXq1OkCNTkPh4lcM9z3m21f0deaKGe
+         BN04Fz1eHDg+M/ivuYyPEHKtTyrg8tICw1Eu0FFjY83eeMXA946R2FU0dWUv6VcUCUct
+         g3tQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787629174; x=1788233974;
-        h=content-transfer-encoding:content-type:in-reply-to:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=1e100.net; s=20251104; t=1787629744; x=1788234544;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=84HwQDQ0U0qytZHjgh7YElDDyTGY9iMA6qEWfxiQS7I=;
-        b=pNkSwwJFFN9lQ8BfsUNatKHsW2M9YY/vWKkdIiAGzwOGvA9cjshA1mIxJ1WbXNdPVp
-         mmhvFGW0HwlBqSx89W9tHohrCeKoR2x41Qjb4tq5NNHoNfsu7kgG2mR5zwFGg6lqyBkr
-         zeBLOBYZjfAc0yauMH7gr2MYInKsW73VI3abf3i4bjZNvcs7nnhTB0wmy0FWuftspvn4
-         uPCJwfabyfNVnZUhUkRqu6tS29ZxXvEVtP0nCCrC8UrtwsbEyUWEVHbmpyhKt1CqIj67
-         EYJPenK+1kqBcL8rNw/6DPQlum3RiPdn5QUzk4c70PbdbhhYrqvCPNH8cjpyfjaqlEXA
-         LCdA==
-X-Forwarded-Encrypted: i=1; AHgh+RoYicsTAiZCfql0UIK7KCrzxzQb/RjqUyweQgXAGwncA7iQPNXylt1GpkDoA4Yp9dXlZaQ+VALDDyj2fg==@vger.kernel.org
-X-Gm-Message-State: AFuF++nLynNFQFJToq9eeK17rtwpG+BU0FcAcMTYx+73+N7TBT02W5c2
-	XAwXZiKxgXX0vrBtLeE7EK4VvC7dY6n17lLTBZeDLXkgEj8Ym7yzXnJbBAtg6RmAUpOaOgEKAJY
-	NKMAAQTT2SPpCnMDVoFKITjO0QDjz/V2wJl1Scz+ElsMXRMsmj9kufyUS1RghpH62dg==
-X-Gm-Gg: AR+sD10eWtwIhLdM+DoGSt3m6KrMxu3oC1Y+fbEovDnKXHfMAxRr+c5fW8VD9RLDBn6
-	oNmt+Ws0tFIchWieGlmmSumbeqvDSXZKXQl98z/++MG+qSl88QaKl3zhAx+t2GBQRS/Zw5AOa7H
-	03i6tbdD36p6icBtYGwefyXLRnT7+lAeoBuUjULvQM4TQmV7oCJu04fJIUbZOgei9DmyI8JNEsI
-	VT4fVZms4HkkcjSk719hqHpfdQWloTyPiQr9k03m7P7auh4nJv19BeYjCNzlYLEBr6YzJiV0edK
-	tLTHoHdqEvx4C9u5WfaC63smpIzGtNHMS2VRjUwdsftIXPdiazBKlb3lW3Zc3qNdIz1AMa1jM0l
-	38LPJe8arVsK8p6UYmrKeEB4ts+gYW7JPT3qP1WYZFO67YWxb1i5h5CcDyib5NLwnUCbz
-X-Received: by 2002:a17:90b:3e50:b0:38e:c232:9d2c with SMTP id 98e67ed59e1d1-396459f432bmr4215573a91.2.1787629174238;
-        Mon, 24 Aug 2026 20:39:34 -0700 (PDT)
-X-Received: by 2002:a17:90b:3e50:b0:38e:c232:9d2c with SMTP id 98e67ed59e1d1-396459f432bmr4215543a91.2.1787629173814;
-        Mon, 24 Aug 2026 20:39:33 -0700 (PDT)
-Received: from [10.133.33.69] (tpe-colo-wan-fw-bordernet.qualcomm.com. [103.229.16.4])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-39645d31e8csm1916325a91.9.2026.08.24.20.39.29
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 24 Aug 2026 20:39:33 -0700 (PDT)
-Message-ID: <ee493f8b-aeed-4481-91e3-1a17297a2bec@oss.qualcomm.com>
-Date: Tue, 25 Aug 2026 11:39:28 +0800
+        bh=AEJ7x4lrvTeoqoW+tLTqGuE/b/VMt/f1IowvImwnRh8=;
+        b=ibaZpRfDRQE08GnPD5Q4K97pie73RxZaEraQ9+5uXDafG8a0nPhTSPDG2n3oS6pPFr
+         0Pr8/0fy8eNfmrybMy3O1hQDzTItm+SA7TiuQYIw/Ljg2PbLX3kK/WZchNr3h3I1dutO
+         NHM1QxrKHk8JIdbG7WvNnIHugYIeaQ7dmUMg4tBIqYM4IPYASU6X2Pll/muGXcXW2+1V
+         4R9T3N9CtaQkwgOXmBALM04suzcspNUq4rXPdBG8MxSYTGqXuewYP4t3tfiwLtWMsXWH
+         ZOLpCyLetfGwx8rHdHJFmDqmvJhkgycfZHNuSL42CUQTCqvGh7n3M5UfFVShZQShMzjN
+         lGvg==
+X-Forwarded-Encrypted: i=1; AHgh+RqdeNDQ9a0j+4tMSLpGdmm8GTsIHV0SsYrlsNtxC7xzCjqMW/0GQkWYv568JQCZkNl73Vh5K1WQUFpREQ==@vger.kernel.org
+X-Gm-Message-State: AFuF++mZqbLRamEGvp5/EU9mKVgwSEE2DJSpW+iXO8XXJs04dcSwGUxh
+	WxnL8Dc55qVm93RKM0mgVVyMvYfHRsfBn4zrKQmTJhNY2VnoDvn9N3jq
+X-Gm-Gg: AR+sD13tU560dKvOvHpGwM4aPahjN16yLwgmu7Dl0ixrfZZUIV0QijYZNiotZJaqx2D
+	W2LSAf5GfeatKR00P3mD3U/pO4R8Wm31jxI/vcpgZoxLla59oH5K7gNQpCmRyZbbpgXlsiFMZUP
+	yX5FOyNd1HF0RPrMjA09eJQp3DjP0u9caxP3qj2rqFNz1ZXMtrhlPB3mOlrSiHY2V/27QVlMuus
+	tuzQf4bMCLUlrbxcvLrykQ/KcMBZvS19mJencyBf5IU9KkRpfKELEwzpf3mmlFtSInkpADWIFx+
+	/einhtgBqgB8gb7ICkFazh9xdXmJPWpi12qgxYiR4lw5GpUWx7/VoXJCwFaE/ZK2ve8zakkNwn/
+	liLSHJgpG4UEhOoCoPa5GXjt996jtdsP8ZGpI2oOjwVXR6uJ3o6jwNTZJv/rWruZ7ZV7D3EnW+w
+	v05c3+FqRMKYrEnFz/c1BRy/2jAw00wdz4Y/F6mirBeUI6dcNnqxvHpJVOquRzvIWv5fzulRla4
+	9qbQJ7u7TZX+uQ9z7ArG/W4d5XIo/tpxPC9uK8dckpq93YMeEwJRaoiHiik66+ZLn0PmstOI7Vd
+	UXFGBw0euE1CCSaJaSLhUJig
+X-Received: by 2002:a17:90b:53c7:b0:38e:5c6:4db9 with SMTP id 98e67ed59e1d1-396464a15f2mr7362298a91.11.1787629743650;
+        Mon, 24 Aug 2026 20:49:03 -0700 (PDT)
+Received: from LAPTOP-UUUVNN1I.localdomain (bb119-74-6-224.singnet.com.sg. [119.74.6.224])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-39645b64c48sm1985671a91.8.2026.08.24.20.49.01
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 24 Aug 2026 20:49:03 -0700 (PDT)
+From: Wei Jie Law <98lawweijie@gmail.com>
+To: Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>
+Cc: Andrew Duggan <aduggan@synaptics.com>,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	stable@vger.kernel.org
+Subject: [PATCH] HID: rmi: fix use-after-free of struct rmi_data via reset_work
+Date: Tue, 25 Aug 2026 11:48:54 +0800
+Message-ID: <20260825034854.63555-1-98lawweijie@gmail.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v6 2/2] input: misc: Add Qualcomm SPMI PMIC haptics driver
-To: David Heidelberg <david@ixit.cz>, linux-arm-msm@vger.kernel.org,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Rob Herring <robh@kernel.org>,
-        Krzysztof Kozlowski <krzk+dt@kernel.org>,
-        Conor Dooley
- <conor+dt@kernel.org>, Lee Jones <lee@kernel.org>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Bjorn Andersson <andersson@kernel.org>,
-        Konrad Dybcio <konradybcio@kernel.org>
-Cc: David Collins <david.collins@oss.qualcomm.com>,
-        Subbaraman Narayanamurthy <subbaraman.narayanamurthy@oss.qualcomm.com>,
-        Kamal Wadhwa <kamal.wadhwa@oss.qualcomm.com>,
-        linux-input@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-References: <20260806-qcom-spmi-haptics-v6-0-19fcecd5204f@oss.qualcomm.com>
- <20260806-qcom-spmi-haptics-v6-2-19fcecd5204f@oss.qualcomm.com>
- <214bbcf7-38ba-458b-81ba-d7f3a42cb73d@ixit.cz>
- <7df4c69d-9d7b-418f-b7dc-a03a710dfb13@ixit.cz>
-Content-Language: en-US
-From: Fenglin Wu <fenglin.wu@oss.qualcomm.com>
-In-Reply-To: <7df4c69d-9d7b-418f-b7dc-a03a710dfb13@ixit.cz>
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Authority-Analysis: v=2.4 cv=Cfg4Irrl c=1 sm=1 tr=0 ts=6a8d0e76 cx=c_pps
- a=0uOsjrqzRL749jD1oC5vDA==:117 a=nuhDOHQX5FNHPW3J6Bj6AA==:17
- a=IkcTkHD0fZMA:10 a=Sv0fKeRqtYgA:10 a=s4-Qcg_JpJYA:10
- a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22 a=DJpcGTmdVt4CTyJn9g5Z:22
- a=VwQbUJbxAAAA:8 a=EUspDBNiAAAA:8 a=5_8ev1SDl5wn8iQIMj0A:9 a=3ZKOabzyN94A:10
- a=QEXdDO2ut3YA:10 a=mQ_c8vxmzFEMiUWkPHU9:22
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODI1MDAyOCBTYWx0ZWRfXwNln+Hk2dmLK
- 79RunyCzLjm54N7TBkc6F2lUqTOcMQGF4fabydsnrDyTYT6ZDWD54/e/SqtX30EdwQuhE+sh/tF
- 0H8LpGEyiRmygtTEzbmiPYeV8vCT0aw=
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODI1MDAyOCBTYWx0ZWRfXzt9s6MAkp3Z+
- GLytP5mOd9h0eyYNm+fpnXFyF3CdCzPkiByChtVdMU4bXlHRfEOPvlzvz/gKoyCkACKQb2WtESu
- c/WF5cio6nz4WYIqTxNWuDpKXn9kEvHpfa8kweg/FNUGTsD5oAJeDrDEltwXEds5sSN+BI3K+05
- z9Ph2a3xlYkuDdWqi3Qlm/5Cyz3LE/I5ID06BBXOkxSY5TrMVGfpBjV2xPNy+xedIWN8CV7TmOM
- 4q+nRIbE1bg7GiwUVwEMuz9iapJfB/FJaxqkvmvgoIGEXzQd+Yy83DVROIHtHQLZ/nIiEau/Dxl
- MdUfiyij1Jnv07utgRw1jH9QJk3SZh4JNKuu0V2jSKALOZVZbtfIzUlr+DznqCGtKvac5et6gpf
- ah+O8h7WJT6PKtf9VsPG+bOzOHPXJGt8EQwV1+Hjbgghvn/riuELjWXn3hjoKA6rwiCDJ3oxKDm
- Mlb4I/2ZwZFOIQL7PBA==
-X-Proofpoint-ORIG-GUID: I0QCKJMe-wRZHgrDMG--7wS6RKm6i1o5
-X-Proofpoint-GUID: I0QCKJMe-wRZHgrDMG--7wS6RKm6i1o5
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-08-25_01,2026-08-24_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- adultscore=0 phishscore=0 impostorscore=0 spamscore=0 suspectscore=0
- priorityscore=1501 malwarescore=0 clxscore=1015 lowpriorityscore=0
- bulkscore=0 classifier=typeunknown authscore=0 authtc= authcc= route=outbound
- adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
- definitions=main-2608250028
 
+rmi_event() queues hdata->reset_work for any pointer/mouse usage as soon
+as RMI_DEVICE is set, but rmi_remove() only cancels the work when
+RMI_STARTED is set:
 
+	if ((hdata->device_flags & RMI_DEVICE)
+	    && test_bit(RMI_STARTED, &hdata->flags)) {
+		clear_bit(RMI_STARTED, &hdata->flags);
+		cancel_work_sync(&hdata->reset_work);
+		rmi_unregister_transport_device(&hdata->xport);
+	}
 
-On 8/23/2026 7:36 PM, David Heidelberg wrote:
-> P.S. Could you post together with the PMIH0108 device-tree part and ideally the 
-> device integration you testing with? (or at least share the WIP DT, if it's not 
-> finished yet)
+RMI_STARTED is set at the very end of rmi_input_configured(), so a device
+that advertises the RMI report IDs - which is what makes rmi_probe() set
+RMI_DEVICE - but then makes rmi_input_configured() fail leaves the work
+schedulable and never cancelled.  Never answering the SET_REPORT that
+rmi_set_mode() issues is enough, i.e. exactly the unreachable-device case
+the guard was added for.  rmi_probe() still returns 0 there, because
+hidraw claims the device, so the driver stays bound and rmi_event() keeps
+running.
 
-I left them out when I sent patch v2 because there were several
-board-specific changes, and it was easier for me to revise the driver
-change without them. I’ll resend them once the binding and driver
-changes are accepted. You can use the example that I replied here if you
-want to test them out:
+struct rmi_data is devm_kzalloc()'d on &hdev->dev, so hid_device_remove()
+releases it as soon as ->remove() returns, with the work still queued or
+still running.  The workqueue then reads and writes the freed object:
+process_one_work() stores into work->data, list_del_init()s work->entry,
+and loads work->func out of freed memory before calling it, while
+rmi_reset_work() dereferences hdata->hdev, which the same unplug freed.
 
-https://lore.kernel.org/linux-input/02269d67-41e3-48eb-9ce1-e3775a4c2eaa@oss.qualcomm.com/
+  BUG: KASAN: slab-use-after-free in process_one_work+0xd96/0x10b0
+  Read of size 8 at addr ffff8881095c0540 by task kworker/0:4/3058
+  [...]
+  Allocated by task 450:
+   devm_kmalloc+0x7c/0x220
+   rmi_probe+0x36/0xcf0 [hid_rmi]
+   hid_device_probe+0x286/0x430
+  Freed by task 9278:
+   kfree+0x125/0x420
+   release_nodes+0xf0/0x260
+   devres_release_group+0x23a/0x3a0
+   hid_device_remove+0xf5/0x220
 
-Please remember to update "qcom,vmax-microvolt" and "qcom,lra-period-us"
-parameters to match with the LRA actuator that's mounted on your board.
+The read is of hdata->reset_work.func, 320 bytes into the freed 512-byte
+region, which process_one_work() calls straight afterwards.  Without KASAN
+the same reproducer oopses in rmi_reset_work() and leaves the kworker
+"exited with irqs disabled".
 
-Thanks
-Fenglin
+Cancel the work unconditionally in rmi_remove(), and do not queue it
+before rmi_input_configured() has succeeded or after rmi_remove() has
+cleared RMI_STARTED.
+
+A report can still pass the RMI_STARTED test in rmi_event() just before
+rmi_remove() clears the bit and queue the work after that cancel, so cancel
+once more after hid_hw_stop() has stopped the report flow, and make
+rmi_reset_work() bail out when RMI_STARTED is clear - by then the transport
+device it would reset has been unregistered.
+
+Fixes: 8725aa4fa7de ("HID: rmi: Check that the RMI_STARTED bit is set before unregistering the RMI transport device")
+Cc: stable@vger.kernel.org
+Signed-off-by: Wei Jie Law <98lawweijie@gmail.com>
+---
+This is independent of the pending "HID: rmi: fix OOB access with
+undersized RMI reports" v3 [1] -- they touch different functions, and
+either order applies cleanly.  They are worth taking together, though.
+
+That patch makes a zero-length READ_DATA reply fail rmi_hid_read_block()
+with -EIO instead of spinning in it, so rmi_scan_pdt(), and hence
+rmi_input_configured(), now fail where they previously hung with the
+device lock held.  That failure leaves RMI_DEVICE set and RMI_STARTED
+clear -- the state this patch is about -- and, because the probe no
+longer hangs, it also lets the unplug that triggers the use-after-free
+complete.  The route described above, never answering the SET_REPORT
+that rmi_set_mode() issues, reaches the same state on an unpatched tree,
+so this is not a regression from that patch; it is a second way in, and
+an argument for the two landing in the same release.
+
+[1] https://lore.kernel.org/all/20260824122708.76168-1-98lawweijie@gmail.com/
+
+ drivers/hid/hid-rmi.c | 40 ++++++++++++++++++++++++++++++++++------
+ 1 file changed, 34 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/hid/hid-rmi.c b/drivers/hid/hid-rmi.c
+index d4af17fdba46..13a301404ff8 100644
+--- a/drivers/hid/hid-rmi.c
++++ b/drivers/hid/hid-rmi.c
+@@ -313,6 +313,14 @@ static void rmi_reset_work(struct work_struct *work)
+ 	struct rmi_data *hdata = container_of(work, struct rmi_data,
+ 						reset_work);
+ 
++	/*
++	 * A report that raced with rmi_remove() may have queued us after it
++	 * cleared RMI_STARTED, i.e. after the transport device we would reset
++	 * has been unregistered.
++	 */
++	if (!test_bit(RMI_STARTED, &hdata->flags))
++		return;
++
+ 	/* switch the device to RMI if we receive a generic mouse report */
+ 	rmi_reset_attn_mode(hdata->hdev);
+ }
+@@ -412,7 +420,13 @@ static int rmi_event(struct hid_device *hdev, struct hid_field *field,
+ 				return 1;
+ 		}
+ 
+-		schedule_work(&data->reset_work);
++		/*
++		 * Only reset a device that finished rmi_input_configured();
++		 * before that, and after rmi_remove() has cleared the bit,
++		 * struct rmi_data may go away under the work.
++		 */
++		if (test_bit(RMI_STARTED, &data->flags))
++			schedule_work(&data->reset_work);
+ 		return 1;
+ 	}
+ 
+@@ -739,15 +753,29 @@ static int rmi_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ static void rmi_remove(struct hid_device *hdev)
+ {
+ 	struct rmi_data *hdata = hid_get_drvdata(hdev);
++	bool started = test_and_clear_bit(RMI_STARTED, &hdata->flags);
+ 
+-	if ((hdata->device_flags & RMI_DEVICE)
+-	    && test_bit(RMI_STARTED, &hdata->flags)) {
+-		clear_bit(RMI_STARTED, &hdata->flags);
+-		cancel_work_sync(&hdata->reset_work);
++	/*
++	 * reset_work lives inside the devm-allocated hdata, which is freed as
++	 * soon as this returns, so it has to be cancelled whether or not the
++	 * device ever reached the RMI_STARTED state.  Cancel it here, while
++	 * the transport device it resets is still registered.
++	 */
++	cancel_work_sync(&hdata->reset_work);
++
++	if ((hdata->device_flags & RMI_DEVICE) && started)
+ 		rmi_unregister_transport_device(&hdata->xport);
+-	}
+ 
+ 	hid_hw_stop(hdev);
++
++	/*
++	 * A report that passed the RMI_STARTED test in rmi_event() just before
++	 * the clear above can queue the work again after that first cancel.
++	 * Such a work item does nothing, but it still has to be reaped before
++	 * hdata goes away.  hid_hw_stop() has stopped the report flow, so no
++	 * further queueing is possible by now.
++	 */
++	cancel_work_sync(&hdata->reset_work);
+ }
+ 
+ static const struct hid_device_id rmi_id[] = {
+-- 
+2.43.0
+

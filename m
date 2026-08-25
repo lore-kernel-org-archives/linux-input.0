@@ -1,41 +1,40 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 00FFE3F54B7;
-	Tue, 25 Aug 2026 10:17:12 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D59773F5BE3
+	for <linux-input@vger.kernel.org>; Tue, 25 Aug 2026 10:17:13 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787653034; cv=none; b=a+lJhaPwXiWGD1iva0zZubfAO3TsbKYMzCMkPbHLXcAM4NuPVGy8wJtcLiSOJA7E/JrW52grNFeregTXbYh+pUreX66cPiqFeHX81sHDwyBkKnKC7KWErfx2qE07GkjwUkKVoJETP3m4KrCyvEfnN3T65M++bXKev1HAiBD/bh8=
+	t=1787653035; cv=none; b=GFCWzVRyNKbCvcsuQbqS3rbggsKppPgC7GzZcvi1oqCG9sRLXxeDLxYc4urr6BdWFgagun5fWd/LMQwMj0vDC7ocD0mf1L81mVGDblBnLU4gesSDwAiOWzsKFdNjAp8Uo6//MSjj8peFaS0qt14nJQipcyCM0h8SfBX1cbqjhf8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787653034; c=relaxed/simple;
-	bh=ujr3KEgo1NVcUlkVbsgFvfWP66JcPkPXygGaOOt0zW8=;
+	s=arc-20240116; t=1787653035; c=relaxed/simple;
+	bh=jFnadq8AT9ApwnrtTWm7icCdQRJi+3EyiIR9MWErZB0=;
 	h=From:To:Cc:In-Reply-To:References:Subject:Message-Id:Date:
-	 MIME-Version:Content-Type; b=lZ9TdCdfYtHEf8WKtpj/G5BzMbZQduDyi7Adt9x1G81CdesRFK4LAItfc3ScI4v+BKp0CIm+ft/z0nuY+mDr/Ove8HbHZ++K4mnWwep9wJ9BainGQJJ4WQmSYxP1SJbU76Se/hCEv88w0Klw9qIhAbMnM581jemQDSy3oR3xux8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Bc74JwJ6; arc=none smtp.client-ip=100.103.45.18
+	 MIME-Version:Content-Type; b=SzFelg66zpIZWtDQW8alzkE7Ejwr4rEImW2KbUiWN7qZjmLSpZ1gY7QBC1e00Mvx2KwCR7SZvrC2fkoXK7q3NC1gyKUdoaP/hm7kqo9EByFfb7eO3zEhi1v8zGEoBF54e3aFoP1f17GBsSu7/qCXPriXdg+Z2D4K5jyiP0W8yjU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=jRKmqQFX; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Bc74JwJ6"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2EF8A1F000E9;
-	Tue, 25 Aug 2026 10:17:11 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="jRKmqQFX"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C2AC21F00A3A;
+	Tue, 25 Aug 2026 10:17:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787653032;
-	bh=UMi/DavPTOkKaGZ1a/dxvwQrewuGp/8YxtXwDqLpM5Y=;
+	s=k20260515; t=1787653033;
+	bh=YoNe4iIWskL5ZC6+hevxnQ/j7ut2zQBNy2+93R1Ni3g=;
 	h=From:To:Cc:In-Reply-To:References:Subject:Date;
-	b=Bc74JwJ6DNQl9zN5hu52njc0lpAZ8+jdyq7zI3rly/vkKqWLYjKnd9UEAbc2Du+Bn
-	 +31mE+f7kwpfdURJBXGQZxpECxoevqWUlNdxNGvmQyIDTdsUOSE2NCx7wK++aZIddj
-	 lVQnw/BsEiWxwyYOEAiPvEV+ZBXMQW1w3YE9paBLa13O5NASji/qeH2iV1bhhTR2iO
-	 xd2m4vu7GJh5YckYBhlj4Cq5y3wmYwGNQJxBvGmM987ZFaZXsgIn/asIvFLOUV4TGC
-	 NaRCmhgt35yA2hXUVnKBWF21QB4D9iohyWUvuILJQ+IRlhbDaN2XzsPeUeQBZFQZ1i
-	 c6rdd3xSku27g==
+	b=jRKmqQFX+B54g5ulxZKGlQUBHvAcUBmcF8pRtG00TB5y2JS2gtYwCEWzb1MqRwBB9
+	 ZGukl583GbFRYRF+E2VQBut1xOu8cflN7MK43uYeLNs2g6scYcRXrQg9sthKDgcLkE
+	 v0UNB802BZVOaqnDIvvWVCifxk7o7RZ0pmYiKHEgSSPxZXRLtiXl1trLx7ecIn+Eq6
+	 JvLs8CtWWB9b183usOkgOpBrPXup0cszyhk8eNUNiYIdAahz2aGmYoj2D+qDhvveAL
+	 MeLZuHlydIzjn8hslu7YeQz8icgVa6M5zxhQt2lKnxUhmviCAtVIrCi/FngFJpQmQ1
+	 Hb9yn91F7uDDA==
 From: Benjamin Tissoires <bentiss@kernel.org>
-To: Jiri Kosina <jikos@kernel.org>, 
- Vadim Klishko <vadim@cirque.corp-partner.google.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
- Vadim Klishko <vadim@cirque.com>, Hans de Goede <hansg@kernel.org>
-In-Reply-To: <20260728041718.32954-1-vadim@cirque.com>
-References: <20260728041718.32954-1-vadim@cirque.com>
-Subject: Re: [PATCH v3] HID: i2c-hid: Add a quirk for a Cirque I2C device.
-Message-Id: <178765303092.1516012.15844323248427966406.b4-ty@b4>
-Date: Tue, 25 Aug 2026 12:17:10 +0200
+To: linux-input@vger.kernel.org, Dave Carey <carvsdriver@gmail.com>
+Cc: jikos@kernel.org
+In-Reply-To: <20260730124336.637339-1-carvsdriver@gmail.com>
+References: <20260730124336.637339-1-carvsdriver@gmail.com>
+Subject: Re: [PATCH v3] HID: multitouch: Fix stale MT slots when contact
+ count drops to zero
+Message-Id: <178765303253.1516012.14612905306483159720.b4-ty@b4>
+Date: Tue, 25 Aug 2026 12:17:12 +0200
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -43,18 +42,29 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 X-Mailer: b4 0.15.2
 
-On Mon, 27 Jul 2026 22:17:18 -0600, Vadim Klishko wrote:
-> Cirque touchpads with PID D0C1 generate an error when probed
-> by the I2C HID driver, resulting in no hidraw device created.
-> Adding I2C_HID_QUIRK_NO_IRQ_AFTER_RESET fixes the issue.
+On Thu, 30 Jul 2026 08:43:36 -0400, Dave Carey wrote:
+> The INGENIC 17EF:6161 touchscreen (Lenovo Yoga Book 9 14IAH10) reports
+> HID_DG_CONTACTCOUNT=0 in the frame immediately following the last finger
+> lift rather than omitting the frame entirely.  In mt_touch_report() the
+> existing code only updates num_expected when contact_count is non-zero,
+> so a zero contact count on the first packet of a new frame leaves
+> num_expected at its previous value (e.g. 2 for a two-finger gesture).
+> The sync check "num_received >= num_expected" then evaluates "0 >= 2"
+> and never fires, preventing INPUT_MT_DROP_UNUSED from releasing the
+> stale slots.  Those slots remain active in the kernel MT layer until the
+> next touch, at which point they are released in a batch alongside the
+> new contact — causing the userspace event consumer to miss the intervening
+> finger-up sequence and corrupt its gesture session state.
+> 
+> [...]
 
 Applied to https://git.kernel.org/pub/scm/linux/kernel/git/hid/hid.git (for-7.3/upstream-fixes), thanks!
 
-[1/1] HID: i2c-hid: Add a quirk for a Cirque I2C device.
-      https://git.kernel.org/hid/hid/c/1c942462c396
+[1/1] HID: multitouch: Fix stale MT slots when contact count drops to zero
+      https://git.kernel.org/hid/hid/c/e8e60b6439ee
 
 Cheers,
 -- 

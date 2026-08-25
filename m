@@ -1,79 +1,73 @@
-Received: from mail-pj1-f44.google.com (mail-pj1-f44.google.com [209.85.216.44])
+Received: from mail-pg1-f181.google.com (mail-pg1-f181.google.com [209.85.215.181])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E17832FFF8D
-	for <linux-input@vger.kernel.org>; Tue, 25 Aug 2026 10:31:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AF6E6304BDF
+	for <linux-input@vger.kernel.org>; Tue, 25 Aug 2026 10:31:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.181
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787653896; cv=none; b=V1HznR30SPxXJpQde5U8916MRsCWpXaxCFyH+ahChbercm7zh8NAaSehOKVGzVE05oNg9x+KH1XLEVQ++7kJRJpNrmdA4rrewGWVsDAnw7xghtWjSbidi6aM6ep0kRF5smCUXydWIXs6VVgrcYIrsI1/vg8GVGchIDUcFUBr+r0=
+	t=1787653902; cv=none; b=YA8VaCD/BR2poTgGK/CUsFUQH/P+nAHYaQYXKoPf0UchWxCxQsCacyWEjsaoOm4MeP/686YAU7YEbTz8glJfLAxer/f88f+0Afmm5OyWBgsWC1AHgYpa9WS6NKIS1If0B5Y1JewFNCJXxHPArv8jkh0znrH7xpE/KWn+5VRzg1Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787653896; c=relaxed/simple;
-	bh=5Qst+fEDdPGOCnJplTLsK3KM3kldbXRhvdfi7PyEUGk=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=qY+e1MdqFq91j3Srdpmd115fx+JUVN928qHYOPPZmQdEqAOwcQGFJVByTF86zylVC7jbM5Vy6q1d1Dxwx9oNIwziG+2kXpuI49jrs0fCsCxwy395ij6+0WzX9v9q9cYZnR8g/drGvQN19AAxAWv4jrmjX8CPlubL1/TZ8r1sSUo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=fbnyx3IE; arc=none smtp.client-ip=209.85.216.44
+	s=arc-20240116; t=1787653902; c=relaxed/simple;
+	bh=6aKXkXmB9UM2GPNzWdjgxSN8+02ddriLlYf0VdTO3UU=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=lqmKF4ihMgKTmsJT3f8YQxVcSi+hY7KJjEyzX6vEmGrwOCQl5YHcr+RZiDUIFmaaxWIs6M+F4B5eN/QvrP/B9342jXyIvYD30FoA6+pacvhu20CZOZaU/Lb0VeRnMdAdwkP/0NLndlP++n5Ni7+0MKVZ511FiNOOUs14gxLbtw8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Rghjj6Qy; arc=none smtp.client-ip=209.85.215.181
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="fbnyx3IE"
-Received: by mail-pj1-f44.google.com with SMTP id 98e67ed59e1d1-38a0c7e841fso6461417a91.2
-        for <linux-input@vger.kernel.org>; Tue, 25 Aug 2026 03:31:34 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Rghjj6Qy"
+Received: by mail-pg1-f181.google.com with SMTP id 41be03b00d2f7-cc11a30a259so4738495a12.3
+        for <linux-input@vger.kernel.org>; Tue, 25 Aug 2026 03:31:39 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1787653894; x=1788258694; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=ZmdPCfrDSnXxF0kcCEHUxTythGR7yfzC5LrWzS97vcQ=;
-        b=fbnyx3IELw1sQW8IkUSKoebvmTSY4BrCLbud3OkzPHBeLIjRWtQ4QlvQQop7J7GoUk
-         QW336LGz12ZngVa6kYTUK5fRFynzM11g8aI4uPafGKi3WL3B5+vsjogy81DsizxVLDtv
-         QuXLsCf3sUnRnDM59xfeh8AuLq/YkKWymDBTCCA2wX91AScrHB2t+G0ZhcS4S1HhDThI
-         zANLCpuyBnLuaWLWhzUIu8GTdS4w8RVqJvzacR/narx3UwzoQyVZIURfXQsQINLmXcoZ
-         p4zRTJeIz2naMyHq1WrbgpV2XMAXvy0fBE/P1zUUR+/X2+izO4bqER7QGR3sNxgUq+KU
-         RP8w==
+        d=gmail.com; s=20251104; t=1787653899; x=1788258699; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=7qtv1Y8lxAp+OLsB54r6tSX8f8bw4F2ktQgQBuN1kCY=;
+        b=Rghjj6QyaH9fG/QkaYJZBA85TpEXGX/9D2aG61XJe1jsUgYFmLPsav+beCWyOoMT+D
+         aLNBzjfMb0B2O6UOzsMlkg1NeoW4aLYe4e0XnNI1pSw/9Z7toN2k/AwdzyijFQ3959zQ
+         Forph8Kk4sxEglmQBl9SiM/MAmrNpDCMqClMmpLgVXPcTvmTizfAMgU9TgZqmsMaKdgs
+         /5ldL5X7j7hukLfQwcJOA54csNsLtaYwbM5xtVywQlfEp1zO9Zq5Ox/qZHWmiXc+qn1W
+         CfErEQ3NexHyMmgL6+YPG9Rm0B/l1aZn6nzHAC65H7YjSfN3Sy/zcpKAlzBv6DA22s3V
+         cQ/w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787653894; x=1788258694;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=ZmdPCfrDSnXxF0kcCEHUxTythGR7yfzC5LrWzS97vcQ=;
-        b=NTOA1ukxhlAVrn28uDgZeHakAeHZ0LigQFRtUVneBn/RtQD9oxFKjJUbYXAk958zf7
-         RQCiFkPYeRuzew2oEX4y3dwzcABjGINj+VqpRO3RLJYYACmIBG1I9gyxMGVPY6iH45Xu
-         E9ulkKJKi395MnoNHjGRHPrWUu3NfrwJ8IPWGOtePST7f3NysxQwADMC51EuhdBOnoP8
-         Wd8ayh/0lgxOqWx9rg5qUJ/fhdvSmOya2tPFeF9jMb+4JhQbCgVGpxM2x6cXz9km4sOk
-         NcpuJPfjtSFWK7cYUvzMBCC5ioNICibqwRIE9Pbupgi89w5HrGJoD9go7Cvw7gQPRyiO
-         OU8A==
-X-Forwarded-Encrypted: i=1; AHgh+RqLyNdmiFIv8+S6kpP0aqyr90GH6VvANg5sekliITdaPpoH5ByQpO/tfdgoJT7iwt8uDVIdP6aEYz4hXg==@vger.kernel.org
-X-Gm-Message-State: AFuF++mlclFETJkk/Ia9DYpyip1yx/GHoizdkj+XoW4CeK3OHZ5OfC/c
-	dVyXoLDAezmDCCfBlPOqR1IKRFvc11vBXdJs45kSVXwVmFyaxDlBPF/I
-X-Gm-Gg: AR+sD11UHTeFS3di0CVxdMl3pNFdKg4vDQxqB+C5PPXPaXXHtCqyL9m5eGrZ/7pdYYo
-	QyaEFgyRRPmhH4z2LzyudXooLIG16EzAjtPVrU9cFNcJ6g9ndbVyUfWShLjjXMB+zVpCmOf2Ors
-	EqPCfz/f9I00KmCRjqTuZT4WvfVx5C439M9sRN8smRyiyq4jabsmeqTqOFrejC9221vLjdkP6mm
-	tQrWAg1k5qrlVRibMhSttm/8QyIBDwpoZyFDqj5BM/YtQ6sAycSFAvDFGfwl0xGrmsXceoHyj0D
-	wEpmNRHSheRgUcuVD+y9OFxEjMvSwodt6LiZHdEmsndn8r1WW4DgpX33KKDRYAEAxEPVVC1rm5J
-	Wz0lMOs38x9jfvRkhLb+t14itQ1/Xv8wgb/wXjlDq8orgokLCN/RMw/dPLG9j9fYOHX7fhlb1aa
-	hkSwQ3iosh3NAdNVYyypl+b9FTlcMV66JId66uIMLYzErRyq2vC6JAm9eq5B8tSMYg7HD2nWBJ6
-	53+vY92Y5/fIP9gLqqKnRPQb+TU1tFlqLMowLqVOecV+KsUgo3T1DfyVuSKMo+P5fiCROyeNT8R
-	6HFB/gvxrVlJVWeziS3OJ/G4
-X-Received: by 2002:a17:90a:1c17:b0:396:5f7f:52f5 with SMTP id 98e67ed59e1d1-3965f7f5486mr1616456a91.3.1787653893954;
-        Tue, 25 Aug 2026 03:31:33 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1787653899; x=1788258699;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=7qtv1Y8lxAp+OLsB54r6tSX8f8bw4F2ktQgQBuN1kCY=;
+        b=Ke8b7fXjDyn+7vR8t8WSv4+awQBnefElZqp67UpGQAbPA5lHYi+Z0f/gdXWdqHOY76
+         mBnQZfam3G8Q38w22+B8h1F+0tBqH6ASbsN4GShUOgAXgdY6c2yCpHUiHxLnc1pfU5g1
+         cp8dM81ENMNvPw6Co0jomUg6VZIivVXVC6q1wmatQOks9azo2/hK1smtoZgdeM095Zok
+         FV1rIeKZKYsTq6mzBkbTBr006/DSi5HpLSjjxlNi+sY5Z6Hwbd1h/F6wuXKvFFgqr/Uu
+         P8W+/hKdFzn+btObhaKXe1612GMWem8tNSn6CfzPpoj4my7NjZeVZOFoFjbxbyJwGclg
+         TCZw==
+X-Forwarded-Encrypted: i=1; AHgh+RpwKcT5y9ZEMWTX81C443xRNqTq0EZZNl31DgKG67NSzFmD6JTyjjs6ayhSZ6zY23RIycLDucMpkKhIFA==@vger.kernel.org
+X-Gm-Message-State: AFuF++lBMYRsM79OYS7SpqlqGcC4f4mFgJqR1gtuP8V+IzrnRu6bJMrg
+	D5emRS3dQCzUhvUqYWFai3PG73/ud9jC6x6UgE5TwTS6o0BIYkC1exAW
+X-Gm-Gg: AR+sD13tp9AjZHUMA3FbujJDSQLXvAiiCRUToqktnytyXrR5wVI/BT1DhSubymUhL93
+	GbcjXY4AtyjLS2NjnEMKXEIf4WQtMs/t4H8nW2GKSs3GDK4cbc7iqxpMICDpDR6pX/9pSKGmvnZ
+	iz0n1c31jIJbX9EpN4a2Ad+cFgfvFWusEg84d9dS6RlPsy43zJcdwzydAXJMRbuxh8NEqrf1CH+
+	MfH74rlGR0OSjzqO0hHHS0564wVeK30nCzWbVAOmwMUI6nIPLU3CZfDHQPujEZkVFhWnVuryJiY
+	BY50CMihV+6PoJxuqkPN/1TV0MeZMBdkuVudvHtH/k984xwdLl4cwDGVrPbvsQ103rEb1K7ToeC
+	azkzMORvrGziVHBMNcoHE0mmvQA/O+Atrje5HVe4i4WR7CmyLhqoZq0LI8NPhavVJ1lf5o/rett
+	eI7ZElxkFvtakMVFUVCgHKePT41c42N1mFNbyAbj7dULIjTsvr0sSzhPGbzHi5w4dVlZky1ZG+k
+	ZPi9XBTGoqd77sly7xCBVVn3cmWf5ZUKGnJpK0i30UFKqLyYGYAlfIAYQExdzZhOXoLogNc+mig
+	sCjcKtRXDQPaLJMkRb+lJ90E
+X-Received: by 2002:a17:90b:3b48:b0:393:1cf4:d972 with SMTP id 98e67ed59e1d1-395dee55f7emr43547390a91.3.1787653898935;
+        Tue, 25 Aug 2026 03:31:38 -0700 (PDT)
 Received: from LAPTOP-UUUVNN1I.localdomain (bb119-74-6-224.singnet.com.sg. [119.74.6.224])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-39645d31e8csm3244968a91.9.2026.08.25.03.31.31
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-39645b1a54asm3343197a91.1.2026.08.25.03.31.37
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 25 Aug 2026 03:31:33 -0700 (PDT)
+        Tue, 25 Aug 2026 03:31:38 -0700 (PDT)
 From: Wei Jie Law <98lawweijie@gmail.com>
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: Andrew Duggan <aduggan@synaptics.com>,
-	Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>,
 	linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	stable@vger.kernel.org
-Subject: [PATCH v4 2/2] Input: synaptics-rmi4 - reject a PDT that grows between scans
-Date: Tue, 25 Aug 2026 18:31:23 +0800
-Message-ID: <20260825103123.12216-3-98lawweijie@gmail.com>
+Subject: [PATCH v2] Input: synaptics-rmi4 - remove the F34 sysfs group when probe fails
+Date: Tue, 25 Aug 2026 18:31:34 +0800
+Message-ID: <20260825103134.12278-1-98lawweijie@gmail.com>
 X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20260825103123.12216-1-98lawweijie@gmail.com>
-References: <20260825103123.12216-1-98lawweijie@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -82,118 +76,124 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-rmi_driver_probe() walks the Page Description Table three times, and each
-walk reads the table back from the device:
+rmi_driver_probe() creates the F34 firmware attribute group directly on
+the rmi_device's kobject:
 
-  1. rmi_initial_reset   - issue the reset command in the F01 entry
-  2. rmi_count_irqs      - total the interrupt sources
-  3. rmi_create_function - create the functions and set their irq bits
+	retval = rmi_f34_create_sysfs(rmi_dev);
+	if (retval)
+		goto err;
 
-Scan 2 fixes data->irq_count, data->num_of_irq_regs and the size of every
-per-function irq_mask[].  Scan 3 then accumulates fn->irq_pos and does
+but rmi_f34_remove_sysfs() is only ever called from
+rmi_driver_remove(), which does not run when probe fails.  Every error
+path taken after that point -- input_register_device(), rmi_irq_init(),
+rmi_enable_sensor() -- therefore leaves the group in place on a device
+that never finished binding.
 
-	for (i = 0; i < fn->num_of_irqs; i++)
-		set_bit(fn->irq_pos + i, fn->irq_mask);
+The driver core clears the device's driver data when probe fails, so
+what is left behind is a set of world-readable attributes whose show()
+handlers dereference that now-NULL pointer:
 
-without checking the result against the count that sized the bitmap.
-Nothing makes the device answer the third scan the way it answered the
-second, so a device that reports one function with one interrupt source
-on scan 2 and a long list of functions on scan 3 walks set_bit() past the
-end of the flexible array at the tail of every struct rmi_function:
+	static ssize_t rmi_driver_bootloader_id_show(struct device *dev, ...)
+	{
+		struct rmi_driver_data *data = dev_get_drvdata(dev);
+		struct rmi_function *fn;
 
-  BUG: KASAN: slab-out-of-bounds in rmi_create_function+0x560/0x930 [rmi_core]
-  Write of size 8 at addr ffff888110c92b58 by task kworker/1:2/129
-  Workqueue: events uhid_device_add_worker
-   kasan_report+0xc6/0x100
-   kasan_check_range+0x105/0x1b0
-   rmi_create_function+0x560/0x930 [rmi_core]
-   rmi_scan_pdt+0x190/0x3f0 [rmi_core]
-   rmi_init_functions+0xb8/0x320 [rmi_core]
-   rmi_driver_probe+0x31e/0xbf0 [rmi_core]
+		fn = data->f34_container;
 
-one report per corrupted function object.  The same unvalidated
-fn->irq_pos is used again by the set_bit() and irq_create_mapping() in
-rmi_create_function_irq().
+bootloader_id, configuration_id and update_fw_status are all mode 0444,
+so any local user can dereference it.  Reaching the failure does not
+need privileges either: a device that simply stops answering a register
+read makes rmi_enable_sensor() fail, which is past the group creation.
 
-Validate the counts before the function is allocated and fail the probe
-instead.  The check is exact, not conservative: when both scans see the
-same table, the running interrupt total plus the new function's count is
-exactly what produced data->irq_count, so it never fires for a device
-that behaves.
+An emulated RMI4 touchpad over /dev/uhid that leaves the second read of
+the F01 interrupt-status register unanswered, on v6.12.105 with
+CONFIG_KASAN=y:
 
-Placing the check before rmi_alloc_function() is deliberate.  Since
-commit 58d42ec10b73 ("Input: rmi4 - refactor function allocation and
-registration") that function has already run device_initialize() and
-dev_set_name() on fn->dev, so disposing of a rejected function with
-kfree() would leak the name string and skip kobject cleanup on those
-trees, while put_device() on the same path broke on the pre-refactor
-trees that stable backports target: a kobject that device_initialize()
-never touched warns and its saturated refcount keeps the object
-allocated for good.  Rejecting before the allocation needs no cleanup
-on any tree.
+  rmi4_physical rmi4-00: Failed to read irqs, code=-11
+  rmi4_physical rmi4-00: probe with driver rmi4_physical failed with error -11
 
-Reproduced with an emulated RMI4 device driven over /dev/uhid, and again
-over dummy_hcd plus raw-gadget, on v6.12.69 booted slub_debug=FZPU and on
-v6.12.105 built with CONFIG_KASAN=y.  After this change the same device
-gets
+and then, from an ordinary user:
 
-  rmi4_physical rmi4-03: F40: interrupt count changed between PDT
-      scans (pos 1 + 6 > 1)
-  rmi4_physical rmi4-03: Function creation failed with code -22.
+  $ cat /sys/bus/rmi4/devices/rmi4-00/bootloader_id
 
-and a device that answers both scans consistently still probes normally.
+  Oops: general protection fault, probably for non-canonical address
+        0xdffffc0000000004: 0000 [#1] PREEMPT SMP KASAN NOPTI
+  KASAN: null-ptr-deref in range [0x0000000000000020-0x0000000000000027]
+  CPU: 0 UID: 1000 PID: 1851 Comm: cat Tainted: G            E
+  RIP: 0010:rmi_driver_bootloader_id_show+0x4d/0x1b0 [rmi_core]
+   dev_attr_show+0x46/0xc0
+   sysfs_kf_seq_show+0x1f1/0x3c0
+   seq_read_iter+0x2f8/0x1150
+   vfs_read+0x699/0xa00
 
-Fixes: 2b6a321da9a2 ("Input: synaptics-rmi4 - add support for Synaptics RMI4 devices")
+one oops per attribute.
+
+Add an err_remove_sysfs label that drops the group, and route the error
+paths below rmi_f34_create_sysfs() through it.  rmi_f34_create_sysfs()
+failing on its own account goes to err_destroy_functions instead, which
+also repairs a second leak on that path: it used to "goto err" and skip
+rmi_free_function_list() entirely, leaving the function devices
+registered on the RMI bus with a parent whose driver data is gone.  The
+resulting order matches rmi_driver_remove().
+
+After this change the same device leaves no attributes behind, the reads
+fail with -ENOENT, and no oops is reported; a well-behaved device still
+probes and keeps its F34 group.
+
+Fixes: 29fd0ec2bdbe ("Input: synaptics-rmi4 - add support for F34 device reflash")
 Cc: stable@vger.kernel.org
 Assisted-by: Claude:claude-opus-5
 Assisted-by: GLM:glm-5.3
 Signed-off-by: Wei Jie Law <98lawweijie@gmail.com>
 ---
-Changes in v4:
- - No code change: adds the Assisted-by tags required by
-   Documentation/process/coding-assistants.rst.
-
-Changes in v3:
- - Validate before rmi_alloc_function() instead of freeing after it; no
-   disposal is needed on any tree this way.  See the cover letter.
-
 Changes in v2:
- - Dispose of the rejected function with kfree() instead of
-   put_device().  See the cover letter.
+ - No code change: the diff is identical to v1.  Adds the Assisted-by
+   tags required by Documentation/process/coding-assistants.rst.
 
- drivers/input/rmi4/rmi_driver.c | 19 +++++++++++++++++++
- 1 file changed, 19 insertions(+)
+v1: https://lore.kernel.org/linux-input/20260824122751.76415-1-98lawweijie@gmail.com/
+
+ drivers/input/rmi4/rmi_driver.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/input/rmi4/rmi_driver.c b/drivers/input/rmi4/rmi_driver.c
-index 5d49a9021c7d..f66be55677a9 100644
+index 5d49a9021c7d..144b203e636a 100644
 --- a/drivers/input/rmi4/rmi_driver.c
 +++ b/drivers/input/rmi4/rmi_driver.c
-@@ -885,6 +885,25 @@ static int rmi_create_function(struct rmi_device *rmi_dev,
- 	rmi_dbg(RMI_DEBUG_CORE, dev, "Initializing F%02X.\n",
- 			pdt->function_number);
+@@ -1255,7 +1255,7 @@ static int rmi_driver_probe(struct device *dev)
  
-+	/*
-+	 * irq_mask[] was sized from the interrupt count collected by the
-+	 * earlier rmi_count_irqs() scan of the PDT, and irq[] holds
-+	 * RMI_FN_MAX_IRQS entries.  Nothing guarantees that this scan sees
-+	 * the same table -- the PDT is read back from the device every
-+	 * time -- so a device that grows its interrupt counts between the
-+	 * two scans would push the set_bit() calls below past the end of
-+	 * the flexible array.  Refuse the function instead, before anything
-+	 * is allocated for it.
-+	 */
-+	if (pdt->interrupt_source_count > RMI_FN_MAX_IRQS ||
-+	    *current_irq_count + pdt->interrupt_source_count > data->irq_count) {
-+		dev_err(dev,
-+			"F%02X: interrupt count changed between PDT scans (pos %u + %u > %d)\n",
-+			pdt->function_number, *current_irq_count,
-+			pdt->interrupt_source_count, data->irq_count);
-+		return -EINVAL;
-+	}
-+
- 	fn = rmi_alloc_function(rmi_dev, pdt->function_number);
- 	if (!fn) {
- 		dev_err(dev, "Failed to allocate memory for F%02X\n",
+ 	retval = rmi_f34_create_sysfs(rmi_dev);
+ 	if (retval)
+-		goto err;
++		goto err_destroy_functions;
+ 
+ 	if (data->input) {
+ 		rmi_driver_set_input_name(rmi_dev, data->input);
+@@ -1264,14 +1264,14 @@ static int rmi_driver_probe(struct device *dev)
+ 			if (retval) {
+ 				dev_err(dev, "%s: Failed to register input device.\n",
+ 					__func__);
+-				goto err_destroy_functions;
++				goto err_remove_sysfs;
+ 			}
+ 		}
+ 	}
+ 
+ 	retval = rmi_irq_init(rmi_dev);
+ 	if (retval < 0)
+-		goto err_destroy_functions;
++		goto err_remove_sysfs;
+ 
+ 	if (data->f01_container->dev.driver) {
+ 		/* Driver already bound, so enable ATTN now. */
+@@ -1284,6 +1284,8 @@ static int rmi_driver_probe(struct device *dev)
+ 
+ err_disable_irq:
+ 	rmi_disable_irq(rmi_dev, false);
++err_remove_sysfs:
++	rmi_f34_remove_sysfs(rmi_dev);
+ err_destroy_functions:
+ 	rmi_free_function_list(rmi_dev);
+ err:
 -- 
 2.43.0
 

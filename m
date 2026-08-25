@@ -1,151 +1,145 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8A9663D4132
-	for <linux-input@vger.kernel.org>; Tue, 25 Aug 2026 09:12:35 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A611038F938
+	for <linux-input@vger.kernel.org>; Tue, 25 Aug 2026 09:32:30 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787649156; cv=none; b=CM3mpPVFY+FUOaOmMOKHLizdobaqHU2gOW42Ly+9Q/5loHlBGaQV6EVqBrF5nLMKoKZ8jU82DQwxrLeKLcjyH/g/1Vmk6DMVaIUUY0Jb1wowwNUKZx9XHo0ELHAc2OBIWIazXRlB49VUUB5+4AwH7Ykch4oqnktT2OhrUB47lCI=
+	t=1787650351; cv=none; b=mF7GDXs8u8iJGqXhj3MNTOlyCRk8t3v6GB19/0f32bHvso3B4fXKGk7ZYXEchz9wfOfh1ipjpCMHyGM9XqkAV+M4ui7573rVCpotGd1qQ/pmb8PQPyClCJtkH/W7TuFQ1DiE+n5QmWoAaZUw7HXd2jTAR0OgBOcFPnIe4JP/CGI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787649156; c=relaxed/simple;
-	bh=B0nJBPtkcwA+4Uu0lv6Dy6TmZpzTOKi7ufUB+CfBP/0=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=uIldPVhhHQGCRZYNq25mFrPDuwqTPB4Xd0gRqPTG/UXJlmIvCGJti9UyFmIzlofNWVEGYqhPWYOlZE6UzMXseCzc7ACzFTwgvBkwIQ/IaTAc2jkC/Zh1nrTkkH9A19dS9RThTwzB3xvv/hK0fIx79hNjxsaJ9BdI2oma+8QwSLo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=HpzHW0WS; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1787650351; c=relaxed/simple;
+	bh=KFIcdrvthWtSeTMYGVGWgkoXe9+HI2rPO/bELZDuY7s=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=aMWUlsylwHHh7o9qxGAJ70GodYYhhSk8e+qgZpPJ8KcApvc7lBMyWNDMD1ALDQdUjaMWEYR13Yx6z1BDj8idonY17PBWORluXFq1nVTGvaKr+FZF2Np4Kmtqslo0KqI9O7DeAd38FpqjICgQW4KacreD2jOIeAvJrUhtrPNUXo8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=mE0woZzE; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="HpzHW0WS"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F35181F000E9;
-	Tue, 25 Aug 2026 09:12:34 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="mE0woZzE"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3B641F000E9;
+	Tue, 25 Aug 2026 09:32:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787649155;
-	bh=/8mIMkCimpIuoeadN0fXV67xflUimNMraZRVNscwNpk=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=HpzHW0WSuUSbqqgnN3FCNbRLAEXy+RPr4Dn6SqEzKyuKvBSgvuSvktogK/PUfzeND
-	 RLQm0mBA1sLKZB3k0j01RPvb3PO5bRTE0qZzbUCwhHQrL+pS0tyOmm8yX9fr07vxXB
-	 j9k0tqAvCapq0nnl2grH/oxkWv1ltPYtwgwYtvjwv1NGYHTsj2/ZYbYEO2jFYgN2Dt
-	 VM1REP+E+YkDyfn5Mq/91UXjMhAWpJ3IBms3QnuwfAeQorNwUXYCOUXneIT8dqh5LO
-	 y3PraFkS4oFudFNsQRMqDkAYz5GlJfWLFqRU2pdd5pFkRILDkrBZ183tWwnuODI1ha
-	 5fKsgoga0jfyQ==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v7 1/2] ALSA: usb-audio: expose the Topping M62's
- analogue gains as mixer controls
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Mikhail Gavrilov" <mikhail.v.gavrilov@gmail.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260825085659.52675-2-mikhail.v.gavrilov@gmail.com>
-References: <20260824223107.406504-1-mikhail.v.gavrilov@gmail.com>
- <20260825085659.52675-1-mikhail.v.gavrilov@gmail.com>
- <20260825085659.52675-2-mikhail.v.gavrilov@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Tue, 25 Aug 2026 09:12:34 +0000
-Message-Id: <20260825091234.F35181F000E9@smtp.kernel.org>
+	s=k20260515; t=1787650350;
+	bh=h2ikIk6Y3dBWbOOsijpiLEaVxgdUdPupDumzg4UYu50=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=mE0woZzEaNpmUrk7718nCzInzPoBynPNA5dMgCp8IGzfIYLxLAKyU4j1t8GXhj8pm
+	 fAJsA3L4ZgEveiMdCe42nqC2fO7kcpn/ib2AI+S2bhuMFSuQsODCIc5GXdgH5Iv1CE
+	 3/ceuF9zsjqFPt0A9cQ4+UKG1IFrHmmEN+BrWeSd+XYjTUxNAcRgF6GvQqIDS0qHBi
+	 o8Y+9Hh4KyTHWQjyqxRU7sFzMg5pkDCyVzlpKxOVtVJ3J3YYWCXTvdBskEM0VAmYVw
+	 WFmRQUH1+vZH1fhkPefyDbTzvdvj5GDPJe9SdXf0BD0TnztjIgeJWBJSN0MG+ldLG0
+	 wCsbBCzy46aZQ==
+Date: Tue, 25 Aug 2026 11:32:27 +0200
+From: Benjamin Tissoires <bentiss@kernel.org>
+To: Dave Carey <carvsdriver@gmail.com>
+Cc: linux-input@vger.kernel.org, jikos@kernel.org
+Subject: Re: [PATCH v3] HID: multitouch: Fix stale MT slots when contact
+ count drops to zero
+Message-ID: <ao1eFuXAdIehpWUM@beelink>
+References: <20260730124336.637339-1-carvsdriver@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20260730124336.637339-1-carvsdriver@gmail.com>
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
-- [Medium] The keepalive worker reschedules itself indefinitely and causes =
-log spam every 2 seconds if the device is unplugged while userspace holds t=
-he ALSA card open.
-- [Medium] Cache desynchronization race between `topping_ctl_put` and concu=
-rrent unsolicited hardware events.
---
+Hi Dave,
 
---- Patch [1]: [PATCH v7 1/2] ALSA: usb-audio: expose the Topping M62's ana=
-logue gains as mixer controls ---
-commit 97e5c28d5c9df80af2f3a0a9199b11cf828931a5
-Author: Mikhail Gavrilov <mikhail.v.gavrilov@gmail.com>
+On Jul 30 2026, Dave Carey wrote:
+> The INGENIC 17EF:6161 touchscreen (Lenovo Yoga Book 9 14IAH10) reports
+> HID_DG_CONTACTCOUNT=0 in the frame immediately following the last finger
+> lift rather than omitting the frame entirely.  In mt_touch_report() the
+> existing code only updates num_expected when contact_count is non-zero,
+> so a zero contact count on the first packet of a new frame leaves
+> num_expected at its previous value (e.g. 2 for a two-finger gesture).
+> The sync check "num_received >= num_expected" then evaluates "0 >= 2"
+> and never fires, preventing INPUT_MT_DROP_UNUSED from releasing the
+> stale slots.  Those slots remain active in the kernel MT layer until the
+> next touch, at which point they are released in a batch alongside the
+> new contact — causing the userspace event consumer to miss the intervening
+> finger-up sequence and corrupt its gesture session state.
+> 
+> Fix by resetting num_expected to 0 when contact_count is zero and
+> num_received is still 0 (i.e., this is the first and only packet of the
+> frame, not a continuation packet in a multi-packet sequence).  With
+> num_expected=0 the sync check "0 >= 0" fires immediately, calling
+> input_mt_sync_frame() which drops the stale slots via INPUT_MT_DROP_UNUSED.
+> 
+> The num_received==0 guard is critical: continuation packets in a
+> multi-packet frame arrive after at least one contact has already been
+> processed (num_received>0), so they are correctly excluded from this
+> path and the existing multi-packet logic is unaffected.
+> 
+> Signed-off-by: Dave Carey <carvsdriver@gmail.com>
+> Tested-by: Dave Carey <carvsdriver@gmail.com>
+> ---
+> v3:
+> - Resend as standalone patch; v2 was sent with incorrect subject "2/5"
+>   (as a ping reply to the original series) so it was not recognized as
+>   a versioned respin by the maintainers.  No code changes from v2.
+> 
+> v2:
+> - Restructured contact_count block per Benjamin Tissoires' v1 review:
+>   replace three-branch if/else-if/else-if with a cleaner two-branch
+>   form, dropping the outer if (contact_count >= 0) wrapper.
+> - Add prev_scantime != scantime guard to the zero-contact sentinel case.
+> 
+>  drivers/hid/hid-multitouch.c | 19 ++++++++-----------
+>  1 file changed, 8 insertions(+), 11 deletions(-)
+> 
+> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+> index ec04dbafbd99..56a3f29d4938 100644
+> --- a/drivers/hid/hid-multitouch.c
+> +++ b/drivers/hid/hid-multitouch.c
+> @@ -1321,21 +1321,18 @@ static void mt_touch_report(struct hid_device *hid,
+>  	 * Includes multi-packet support where subsequent
+>  	 * packets are sent with zero contactcount.
+>  	 */
+> -	if (contact_count >= 0) {
+> +	if (contact_count > 0)
+> +		app->num_expected = contact_count;
+> +	else if (app->num_received == 0 && app->prev_scantime != scantime) {
 
-ALSA: usb-audio: expose the Topping M62's analogue gains as mixer controls
+Sorry, I couldn't get back to you with this. I had second thoughts on
+this patch, and ended up asking claude whether we were having any
+potential issues. Turns out that we are fine according to all code path
+it could find to one tiny exception: if there is no HID_DG_CONTACTCOUNT
+in the report, contact_count is initialized to -1 but will not get a
+positive or null value. So semantically, the code is misleading, but
+it's harmless because num_expected would still stay at the value 0.
 
-This commit introduces a mixer driver for the Topping M62 to expose analogue
-input gains and output volumes hidden behind a vendor HID protocol. It
-subscribes to device state changes and maintains an internal cache updated
-by a URB completion handler.
+On the other hand, if the device reports a signed contact count and a
+negative value, the code with your patch would fix the negative value to
+be 0, so that's an improvement actually.
 
-> diff --git a/sound/usb/mixer_topping.c b/sound/usb/mixer_topping.c
-> new file mode 100644
-> --- /dev/null
-> +++ b/sound/usb/mixer_topping.c
-[ ... ]
-> +static int topping_send(struct topping_mixer *tm, u8 target, u8 prop,
-> +			s32 value)
-> +{
-[ ... ]
-> +	err =3D usb_interrupt_msg(tm->mixer->chip->dev, tm->pipe_out,
-> +				buf, TOPPING_FRAME_LEN, &actual, 1000);
-> +	if (err < 0)
-> +		usb_audio_err(tm->mixer->chip,
-> +			      "Topping: write %02x/%02x failed: %d\n",
-> +			      target, prop, err);
-> +	return err;
-> +}
-[ ... ]
-> +static void topping_keepalive(struct work_struct *work)
-> +{
-> +	struct topping_mixer *tm =3D container_of(work, struct topping_mixer,
-> +						keepalive.work);
-> +
-> +	topping_send(tm, TOPPING_TT_DEVICE, TOPPING_PP_SUBSCRIBE, 1);
-> +	schedule_delayed_work(&tm->keepalive,
-> +			      msecs_to_jiffies(TOPPING_KEEPALIVE_MS));
-> +}
+Cheers,
+Benjamin
 
-[Severity: Medium]
-What prevents this worker from rescheduling itself indefinitely if the
-device is unplugged?
-
-If the ALSA card is kept open by userspace, topping_send() will continually
-return an error (like -ENODEV) when the device is disconnected, which is th=
-en
-unconditionally logged every 2 seconds. The worker then proceeds to call
-schedule_delayed_work() here without checking if the device is gone.
-
-Should it check the return value of topping_send() or check something like
-tm->mixer->disconnected before rescheduling?
-
-[ ... ]
-> +static int topping_ctl_put(struct snd_kcontrol *kctl,
-> +			   struct snd_ctl_elem_value *ucontrol)
-> +{
-[ ... ]
-> +	err =3D topping_send(tm, d->target, d->prop, value);
-> +	if (err < 0)
-> +		return err;
-> +	if (d->target_pair) {
-> +		/*
-> +		 * The device announces only one of a pair, so the other
-> +		 * would drift away unheard.
-> +		 */
-> +		err =3D topping_send(tm, d->target_pair, d->prop, value);
-> +		if (err < 0)
-> +			return err;
-> +	}
-> +
-> +	scoped_guard(spinlock_irqsave, &tm->lock)
-> +		tm->val[elem->control] =3D value;
-> +	return 1;
-> +}
-
-[Severity: Medium]
-Could this blind update of tm->val desynchronize the cache from the actual
-hardware state?
-
-The tm->lock is released while calling topping_send(), which can sleep. If a
-user turns a physical knob on the device concurrently, the device emits an
-unsolicited URB. The URB completion handler (topping_urb_complete()) runs,
-acquires the spinlock, and correctly updates the cache to the true hardware
-state.
-
-However, once topping_send() returns, this code reacquires the lock and
-unconditionally overwrites tm->val[elem->control] with its own original
-value. This ignores any fresh hardware events that arrived during the windo=
-w.
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260825085659.5267=
-5-1-mikhail.v.gavrilov@gmail.com?part=3D1
+>  		/*
+> +		 * New multi-report frame:
+> +		 *
+>  		 * For Win8 PTPs the first packet (td->num_received == 0) may
+>  		 * have a contactcount of 0 if there only is a button event.
+> -		 * We double check that this is not a continuation packet
+> -		 * of a possible multi-packet frame be checking that the
+> -		 * timestamp has changed.
+> +		 *
+> +		 * Some other devices use a sentinel frame with 0 to release all contacts
+>  		 */
+> -		if ((app->quirks & MT_QUIRK_WIN8_PTP_BUTTONS) &&
+> -		    app->num_received == 0 &&
+> -		    app->prev_scantime != scantime)
+> -			app->num_expected = contact_count;
+> -		/* A non 0 contact count always indicates a first packet */
+> -		else if (contact_count)
+> -			app->num_expected = contact_count;
+> +		app->num_expected = 0;
+>  	}
+>  	app->prev_scantime = scantime;
+>  
+> -- 
+> 2.55.0
+> 
+> 

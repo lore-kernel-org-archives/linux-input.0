@@ -1,145 +1,92 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A611038F938
-	for <linux-input@vger.kernel.org>; Tue, 25 Aug 2026 09:32:30 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BFE793F3284;
+	Tue, 25 Aug 2026 09:55:25 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787650351; cv=none; b=mF7GDXs8u8iJGqXhj3MNTOlyCRk8t3v6GB19/0f32bHvso3B4fXKGk7ZYXEchz9wfOfh1ipjpCMHyGM9XqkAV+M4ui7573rVCpotGd1qQ/pmb8PQPyClCJtkH/W7TuFQ1DiE+n5QmWoAaZUw7HXd2jTAR0OgBOcFPnIe4JP/CGI=
+	t=1787651727; cv=none; b=MZbi7kYQOgeg1RIwi5uFZzDylqbzFz+CxbORSnENdprHzG4jknELvuggIp7e/a8+4hnTiDyPK5R+z/Pyhk1t2QpbSARbgjOUB+UDl97oz4SsO7Uy0eWxjeC/jfA0+h5n8rTJIYxqWiBPV/qkYbKtEjItip5WtUV8ZzG/iRx2Xis=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787650351; c=relaxed/simple;
-	bh=KFIcdrvthWtSeTMYGVGWgkoXe9+HI2rPO/bELZDuY7s=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=aMWUlsylwHHh7o9qxGAJ70GodYYhhSk8e+qgZpPJ8KcApvc7lBMyWNDMD1ALDQdUjaMWEYR13Yx6z1BDj8idonY17PBWORluXFq1nVTGvaKr+FZF2Np4Kmtqslo0KqI9O7DeAd38FpqjICgQW4KacreD2jOIeAvJrUhtrPNUXo8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=mE0woZzE; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1787651727; c=relaxed/simple;
+	bh=RRI7heggkeD0xInS0KH2fg5GDv7rm0CcI5PN/y/1VPA=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=WjiKudUFInz0ixNVqnge8IpGlEqpJjL6MjrvcFkGKlrzq6W+JRfX//HRRBF07N3DtszlIwF6G1P7TVSjgN3ruEOYcGSoJpo87lYpGFAaw7VNTBMdrf7UKCC2uoFjFfPQN2Cg568me40vxc5S7JIMmc9eaqrPXcbObVedNMHMnFA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=QtSWVezn; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="mE0woZzE"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3B641F000E9;
-	Tue, 25 Aug 2026 09:32:29 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="QtSWVezn"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA6E71F000E9;
+	Tue, 25 Aug 2026 09:55:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787650350;
-	bh=h2ikIk6Y3dBWbOOsijpiLEaVxgdUdPupDumzg4UYu50=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=mE0woZzEaNpmUrk7718nCzInzPoBynPNA5dMgCp8IGzfIYLxLAKyU4j1t8GXhj8pm
-	 fAJsA3L4ZgEveiMdCe42nqC2fO7kcpn/ib2AI+S2bhuMFSuQsODCIc5GXdgH5Iv1CE
-	 3/ceuF9zsjqFPt0A9cQ4+UKG1IFrHmmEN+BrWeSd+XYjTUxNAcRgF6GvQqIDS0qHBi
-	 o8Y+9Hh4KyTHWQjyqxRU7sFzMg5pkDCyVzlpKxOVtVJ3J3YYWCXTvdBskEM0VAmYVw
-	 WFmRQUH1+vZH1fhkPefyDbTzvdvj5GDPJe9SdXf0BD0TnztjIgeJWBJSN0MG+ldLG0
-	 wCsbBCzy46aZQ==
-Date: Tue, 25 Aug 2026 11:32:27 +0200
+	s=k20260515; t=1787651725;
+	bh=YakmDYC+CNfeq8NrnrgCoAi7VDePKv/R2VGkWswlhMg=;
+	h=From:Subject:Date:To:Cc;
+	b=QtSWVeznXfmuy1OjKFIDBpn4yR1mjlcEv6GhZIo/SrlsOpe6DeTxzD06yNUtk42n4
+	 jfCbyt0wXFeOb+6PPBXM3Pdq9HAGN6jHFU4ucbIg5WqV1VzgKodN+sRqLziHxY2qIg
+	 7yj95p0CXGEvuEl+BWT/glfkvGJ9LNrUhhPiEAobDjvcLTbIB8uFU82VON0AkewCTJ
+	 WGZ5aJakAw3GzF1M/eE6fRua56HGPrRRfpV9tWI7oyFcoJN3vH2kRrwBhm7GEraGtl
+	 BbzhCUL5vEV1xcj+ym+HBZ/UTF/niiNf3B18FhsYHRSs9K1T/13pwjjHszKgHP6t6C
+	 vi8obob7F5Dkg==
 From: Benjamin Tissoires <bentiss@kernel.org>
-To: Dave Carey <carvsdriver@gmail.com>
-Cc: linux-input@vger.kernel.org, jikos@kernel.org
-Subject: Re: [PATCH v3] HID: multitouch: Fix stale MT slots when contact
- count drops to zero
-Message-ID: <ao1eFuXAdIehpWUM@beelink>
-References: <20260730124336.637339-1-carvsdriver@gmail.com>
+Subject: [PATCH v2 0/3] HID: bpf: fix 7.3-rc0 bpf breakage
+Date: Tue, 25 Aug 2026 11:55:10 +0200
+Message-Id: <20260825-wip-bpf-safe-v2-0-d044355c09d8@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20260730124336.637339-1-carvsdriver@gmail.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/1WNyw6CMBBFf4XM2jF9CAFX/IdhUcoAowZIi1VD+
+ HcpxoXLk5x77gKeHJOHc7KAo8Cex2EDdUjA9mboCLnZGJRQmciVxCdPWE8tetMS6sKKrLBNrvU
+ JtsnkqOXXnrtUX/aP+kp2jo1o9Ozn0b33vyCj90un/+kgUaCpCxIkpbSpLW/kBrofR9dBta7rB
+ 1BTJtq7AAAA
+X-Change-ID: 20260821-wip-bpf-safe-39c069cd8334
+To: Jiri Kosina <jikos@kernel.org>, Shuah Khan <shuah@kernel.org>, 
+ Daniel Borkmann <daniel@iogearbox.net>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ bpf@vger.kernel.org, linux-kselftest@vger.kernel.org, 
+ Benjamin Tissoires <bentiss@kernel.org>
+X-Mailer: b4 0.15.2
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1787651723; l=1484;
+ i=bentiss@kernel.org; s=20230215; h=from:subject:message-id;
+ bh=RRI7heggkeD0xInS0KH2fg5GDv7rm0CcI5PN/y/1VPA=;
+ b=QKeo+qpVxVqlBQdxTsSPwUBNLETtQDpFx6e1qQ5zUjyS9Th5TmbnAeORR1YbKRPZyQiXXIPQz
+ hy/rwaoTGdCByCiPu3ruGMw+8a6ekM+YxtpBh0QsOR0zxNA0W7HcdoS
+X-Developer-Key: i=bentiss@kernel.org; a=ed25519;
+ pk=7D1DyAVh6ajCkuUTudt/chMuXWIJHlv2qCsRkIizvFw=
 
-Hi Dave,
+With the introduction of commit ee9ad135b208 ("bpf: Reject a store
+through a fault prone pointer"), a HID-BPF program which would try to
+change the name, phys or uniq of a HID device would be rejected by the
+verifier. Also, this commits and its siblings manage to detect the
+buffer overflow that is currently dynamically detected in the test
+suite. The verifier now rejects the bpf program we try to load, marking
+the test as fail. This is correct behavior, and better admittedly so fix
+this so the CI stays green.
 
-On Jul 30 2026, Dave Carey wrote:
-> The INGENIC 17EF:6161 touchscreen (Lenovo Yoga Book 9 14IAH10) reports
-> HID_DG_CONTACTCOUNT=0 in the frame immediately following the last finger
-> lift rather than omitting the frame entirely.  In mt_touch_report() the
-> existing code only updates num_expected when contact_count is non-zero,
-> so a zero contact count on the first packet of a new frame leaves
-> num_expected at its previous value (e.g. 2 for a two-finger gesture).
-> The sync check "num_received >= num_expected" then evaluates "0 >= 2"
-> and never fires, preventing INPUT_MT_DROP_UNUSED from releasing the
-> stale slots.  Those slots remain active in the kernel MT layer until the
-> next touch, at which point they are released in a batch alongside the
-> new contact — causing the userspace event consumer to miss the intervening
-> finger-up sequence and corrupt its gesture session state.
-> 
-> Fix by resetting num_expected to 0 when contact_count is zero and
-> num_received is still 0 (i.e., this is the first and only packet of the
-> frame, not a continuation packet in a multi-packet sequence).  With
-> num_expected=0 the sync check "0 >= 0" fires immediately, calling
-> input_mt_sync_frame() which drops the stale slots via INPUT_MT_DROP_UNUSED.
-> 
-> The num_received==0 guard is critical: continuation packets in a
-> multi-packet frame arrive after at least one contact has already been
-> processed (num_received>0), so they are correctly excluded from this
-> path and the existing multi-packet logic is unaffected.
-> 
-> Signed-off-by: Dave Carey <carvsdriver@gmail.com>
-> Tested-by: Dave Carey <carvsdriver@gmail.com>
-> ---
-> v3:
-> - Resend as standalone patch; v2 was sent with incorrect subject "2/5"
->   (as a ping reply to the original series) so it was not recognized as
->   a versioned respin by the maintainers.  No code changes from v2.
-> 
-> v2:
-> - Restructured contact_count block per Benjamin Tissoires' v1 review:
->   replace three-branch if/else-if/else-if with a cleaner two-branch
->   form, dropping the outer if (contact_count >= 0) wrapper.
-> - Add prev_scantime != scantime guard to the zero-contact sentinel case.
-> 
->  drivers/hid/hid-multitouch.c | 19 ++++++++-----------
->  1 file changed, 8 insertions(+), 11 deletions(-)
-> 
-> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-> index ec04dbafbd99..56a3f29d4938 100644
-> --- a/drivers/hid/hid-multitouch.c
-> +++ b/drivers/hid/hid-multitouch.c
-> @@ -1321,21 +1321,18 @@ static void mt_touch_report(struct hid_device *hid,
->  	 * Includes multi-packet support where subsequent
->  	 * packets are sent with zero contactcount.
->  	 */
-> -	if (contact_count >= 0) {
-> +	if (contact_count > 0)
-> +		app->num_expected = contact_count;
-> +	else if (app->num_received == 0 && app->prev_scantime != scantime) {
+Signed-off-by: Benjamin Tissoires <bentiss@kernel.org>
+---
+Changes in v2:
+- Fixed 2 issues found by shashiko 
+- Link to v1: https://patch.msgid.link/20260825-wip-bpf-safe-v1-0-ab9e0e111c5c@kernel.org
 
-Sorry, I couldn't get back to you with this. I had second thoughts on
-this patch, and ended up asking claude whether we were having any
-potential issues. Turns out that we are fine according to all code path
-it could find to one tiny exception: if there is no HID_DG_CONTACTCOUNT
-in the report, contact_count is initialized to -1 but will not get a
-positive or null value. So semantically, the code is misleading, but
-it's harmless because num_expected would still stay at the value 0.
+---
+Benjamin Tissoires (3):
+      HID: bpf: mark struct hid_device as safe BPF pointer
+      selftests/hid: Add a test to ensure we can write fields in hid_device
+      selftests/hid: prepare test_rdesc_fixup_get_data_overflow for the new verifier
 
-On the other hand, if the device reports a signed contact count and a
-negative value, the code with your patch would fix the negative value to
-be 0, so that's an improvement actually.
+ drivers/hid/bpf/hid_bpf_struct_ops.c               |  6 +++
+ tools/testing/selftests/hid/hid_bpf.c              | 51 ++++++++++++++++++----
+ tools/testing/selftests/hid/progs/hid.c            | 26 +++++++++++
+ .../testing/selftests/hid/progs/hid_bpf_helpers.h  |  3 ++
+ 4 files changed, 78 insertions(+), 8 deletions(-)
+---
+base-commit: a93f3bf4e1d60777b1659b812c9e818cfc53b449
+change-id: 20260821-wip-bpf-safe-39c069cd8334
 
-Cheers,
-Benjamin
+Best regards,
+--  
+Benjamin Tissoires <bentiss@kernel.org>
 
->  		/*
-> +		 * New multi-report frame:
-> +		 *
->  		 * For Win8 PTPs the first packet (td->num_received == 0) may
->  		 * have a contactcount of 0 if there only is a button event.
-> -		 * We double check that this is not a continuation packet
-> -		 * of a possible multi-packet frame be checking that the
-> -		 * timestamp has changed.
-> +		 *
-> +		 * Some other devices use a sentinel frame with 0 to release all contacts
->  		 */
-> -		if ((app->quirks & MT_QUIRK_WIN8_PTP_BUTTONS) &&
-> -		    app->num_received == 0 &&
-> -		    app->prev_scantime != scantime)
-> -			app->num_expected = contact_count;
-> -		/* A non 0 contact count always indicates a first packet */
-> -		else if (contact_count)
-> -			app->num_expected = contact_count;
-> +		app->num_expected = 0;
->  	}
->  	app->prev_scantime = scantime;
->  
-> -- 
-> 2.55.0
-> 
-> 

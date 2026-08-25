@@ -1,142 +1,233 @@
-Received: from mail-yx1-f51.google.com (mail-yx1-f51.google.com [74.125.224.51])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B2DC63D566A
-	for <linux-input@vger.kernel.org>; Tue, 25 Aug 2026 07:44:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.224.51
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787643874; cv=pass; b=qIaVYKAlqlTadYkzS6SOlI96h973zC0yV5T8fNOGz+DXPNnVQv0yMFwrek5ZpOGDTyt2iF9EdIR/AFmOjkg+U3hzKE91/ABYc7tqtMTkvfD+fenpkp7a0OxppJjRjwd/R06Sat1lOA0+l2QNlUvV65Mno1womi9l653YbWgoHKE=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787643874; c=relaxed/simple;
-	bh=Mii/DeCzm2nMtl3hgGSjPHkjrDmEfCYXtshu5NQAkD8=;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DDB843CF962
+	for <linux-input@vger.kernel.org>; Tue, 25 Aug 2026 07:44:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1787643897; cv=none; b=SaAKVKO6HPdQwfSs/7i497AaBqNPpKIRpvAUjloQpMIYlyf3uftP6oyxSmaeUYSXJhfHE6pyKNy+EJzaW4HdfeueScE2KXPIDV/OoK9LKRkiAA80xiT5mI/uzYSCtWZ/TrLbuqNEH8x73rCeEhLqQivbuFJvITQwY8+m5INcmLo=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1787643897; c=relaxed/simple;
+	bh=MXhoLnq+LRhIiRQ/11TrGJ+xcvi1+U6WLSSaU29aDDw=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=R4izILwzA6faB8zYR/TD2REAP9eajpGPlRMs7yx6ugRFp2JcM5BlUrSbbhaYl5poPqxZLiQ1aMklon5keA2F5meH+d264dgmtGn2T/CY7UnLTxBk7xp46dxg4OMPS+NihK84js5csMXPEHYLeXJGuniexh/tifTkJvLJgy3BbpI=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=JLr3KL47; arc=pass smtp.client-ip=74.125.224.51
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
+	 To:Cc:Content-Type; b=Kiphg8nYTiYTHg4bb7DVXGLRStpiOB0YhW+HHVuytJs+51CTpAEg4OOt/8TTclGqsTSEWDXpL93bsy1UyjPAVNuQfj6+OggkWviam/lqtt2BnlmS+grjfIm/rUYQJEIrP/CUIqEB7HACDO/aqy6EG3xdw1E3dUswRIRkPM+55XY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=f7h05WUp; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="JLr3KL47"
-Received: by mail-yx1-f51.google.com with SMTP id 956f58d0204a3-66c711b7f2aso6452940d50.3
-        for <linux-input@vger.kernel.org>; Tue, 25 Aug 2026 00:44:32 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1787643872; cv=none;
-        d=google.com; s=arc-20260327;
-        b=Ayi3z5lfoxQxiTHwG4d50F/oO4PQE20bVZD3lG4knaAXYh18Xm0e9+T85Y6aZHXNie
-         932WpV0KWFdm5G2/4TB9y1ri+Zvei7TT7/CmeJZlSoPOEfz5FLYPXD4BWmiaIAmUdxS7
-         XTyeUixrwaOioJm4mZSHq2YrS0k/1S1NXt2u4J3fbECDrTp5wiRPfyy8BDsWynxuT65m
-         IRN4SnAJ1Mn3xnONdsy0z+CA8ZJnV4xy7TeuTQ5X3LOGb/B99oQ+oigWQDMAe9ft3b6U
-         fUREhB617vex4CHg1mxNXCmIV5+3D3fsGk49KnxIU0DvpD/Mw/5vRItzZQuGeTbzUdas
-         zSng==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=V/xJK88pfs277nwbYNBwPuRxCY6IirnLC5W4+cq/H6A=;
-        fh=xBr/G9QF75qHzOJWIGBrXRDEyZEcV0pYZpTKHl0iJFY=;
-        b=OYp1auprdwl7ngiUdU5jXeNCEQZ5oAD78LLG5KdIp2o8fM9qzvvbsTNSt9UMsSJbPZ
-         t3OyGOKhx3ST4sw5tNNYyWJK+EBGv2J/dhiQDlhp22lI9qeDV4EF3S1Pl9M7UqLiwaF9
-         hHlGjZnxNxc5SYDnpWTXHM/maSYKLIUd1p9ZelLyVU12Zc2UkHKtFJZc3hDVMda+ovZ0
-         r4Jgj4e4ANaX4sFIqlyB2EAxpzFp0ZWGLwcHG0QhPbY6T7o+YOXJYWnhl4sOT7A10gZz
-         rc22z9jT//BWLxHQQqIrBf6EegRur5cAdBXBdz3DhGA8yh08qNKbzmwksMGTGIhTeiiJ
-         r0IQ==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1787643872; x=1788248672; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=V/xJK88pfs277nwbYNBwPuRxCY6IirnLC5W4+cq/H6A=;
-        b=JLr3KL47G4Cb+UYRYWyCFGDjVUpsKQwlnkO7htak24Xgd7PDtjfTg2gNjGnWSXY1Hn
-         eapcVJmFJBl44VIEq6wcBHEZCnmZ9QYYBV3wC61d3sZei+nIbrcOpHee52YhHqEDDrpn
-         4GfuC2xBh6ZJNaVU9czMBJdtJ+TxAZdSBMTA0=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787643872; x=1788248672;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=V/xJK88pfs277nwbYNBwPuRxCY6IirnLC5W4+cq/H6A=;
-        b=Z8AIpEQB73vErHvv4hU93Lyhfd7nuITNsIJgZInqUE94piadwptBH0tO2fZ3J6ddSG
-         bl4N8SoQozpqjtCiUvp6cFvgAIAkV8GS7O+/MA70kCv0FeNBiLP7s/IGfg+M6T62PccM
-         AkuoL+aGnAtrs1B2ORlFErUpeqP8FBLtZ2IDuhThjWf9lDr1Rso4WfkzwZo5JaQ2z2Se
-         7GowZ6LrrYqbENg/FzXi9p9DPJiNWnBpOmF+DIBSko2tozqnOJTMtkxSCj7OEq/lHFGo
-         Q7SjPBFq3FLQSYxSFAxYF+IOI2Pl2ItcWrfF2DTmJXTxrdsWoF/TtINqCKRkotJvGIHP
-         HmCw==
-X-Forwarded-Encrypted: i=1; AHgh+RodeerTJ5bwOjDvNI/MrPsDyRrGSQGBbCj/GW9BryZVkG9bamyAsmRMQdp2ItqSTsHeKDgawv/SoY3fTg==@vger.kernel.org
-X-Gm-Message-State: AFuF++nfREzps8Bil8aw0nkDjOGrnhezdb8dR7qyYKK5etyMgDlpVcJ2
-	AEFINH+rhJXMucIKL1oQTtS74KsQ4hbeVrfYQ75aKysdD2lkBnIVoyYqH/WOtm11rRdNeOJ3rnc
-	1UmDX66AmkJtmO6YUca1GIoC46WxLJFYiSwI4AkPd
-X-Gm-Gg: AR+sD12mKWYeI074mec9dh6kWbeMQFDETXhVkNj31kF5+OHycIeiGFtGrYCkb95UTkX
-	ptHesS/LMSVDh2iRYTuQ4sww4o10pYPeZJP/2X3igjIM39VpyiqNb43Axq/PXYmYY7P4NQZ+cjr
-	GJf0lbS9Fn+3z2y2Djw4QNrgBhHhQ9kqtHiszh1fGZWGySknumnOclpoFeX8QOHoEJFnmtXfW8z
-	Qxnp1UPDiPzKOEMUYQC2rwzukP31Y7V446UDnyauV0vO/1MlZWbZ8RDNgVbfg+j4MPSwMPzswkX
-	oLSmiUojm+nSyAvG63fmtCKjkJh8ysfts1tjFpYwAkc1fCS5nmAZO36z2i6ks/E8p+3EZSlX
-X-Received: by 2002:a05:690e:1449:b0:66d:1131:b81d with SMTP id
- 956f58d0204a3-66d1131bc41mr2549091d50.29.1787643871703; Tue, 25 Aug 2026
- 00:44:31 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="f7h05WUp"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F63A1F00A3F
+	for <linux-input@vger.kernel.org>; Tue, 25 Aug 2026 07:44:55 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1787643895;
+	bh=2bSETvozYzJhnddWVJ2dWmf4Ti4aMWKiWabBBUmW6Bg=;
+	h=References:In-Reply-To:From:Date:Subject:To:Cc;
+	b=f7h05WUpbtMI68nYMwfhFelJiMgZN4EHXLXBakzvpqLg1xmQVD+u3ED+U0Jc9T7cu
+	 Pfwi6dRNk42d14lNOLpn59DygHqF2M4l22EIu1ZwnscCJhJ5YOimaosN6oUu2coAIz
+	 D2xOlVdXqtiHG/b38i+FYo3Uwg5FHqSHEAoLCevi2OYGaenaHHYTPFOCHdKcXXWJK8
+	 Iv7efpjrJT8/kLn729L2Yw6lpPmp7e11zcB0BO9W+F1Htnv6RyrJ1bBkbY6/OJynht
+	 pkNVzlaQdG7X4Wqx/QB+DYaztWNX6PDLUBNbbv5xgbp1Gi7qXFBZ2RqzVgwkxJtczZ
+	 OgTTTrDJF9b8Q==
+Received: by mail-lf1-f47.google.com with SMTP id 2adb3069b0e04-5b0115b9e17so4263519e87.0
+        for <linux-input@vger.kernel.org>; Tue, 25 Aug 2026 00:44:55 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AHgh+RpfcSfG7eGjDR7t9GJIcAVIeF52Zzacp5xia0aJVHWwoT8NcWEOi1tipVTl3TKKrbZUn83hSee5qQ1WGw==@vger.kernel.org
+X-Gm-Message-State: AFuF++mwtivYzRPMbxJlgaf00jzxfDHymTG1wOTNVQ9+T4AYFUT4i4q4
+	VesL1ZPkFH5X01FjiZfm7bFCJh15dIbOfKSS7Zu1cCVvyyb3/AMCcxVvuI9HdHe3gSrmOL6Otxt
+	In7UV/Z6ub8Dw3i0cXzGGtoPF4Xel2Tk=
+X-Received: by 2002:a05:6512:3c87:b0:5ae:bf45:e3be with SMTP id
+ 2adb3069b0e04-5b49cdc7008mr1381010e87.21.1787643894234; Tue, 25 Aug 2026
+ 00:44:54 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260825041628.988369-1-wenst@chromium.org> <20260825041628.988369-2-wenst@chromium.org>
-In-Reply-To: <20260825041628.988369-2-wenst@chromium.org>
-From: Chen-Yu Tsai <wenst@chromium.org>
-Date: Tue, 25 Aug 2026 15:44:21 +0800
-X-Gm-Features: AcwNN1VHbO3y1ftfkF_7R2W7KDk8RFMySudnf-TTSiUhjGplV2Fwnh0fieb32LM
-Message-ID: <CAGXv+5Het3zp_OTp=_ktg+_d5Q55zkE0SwQnM7TVyJDmOdBtyA@mail.gmail.com>
-Subject: Re: [PATCH v5 1/7] regulator: core: Add "enable and wait" functions
-To: Mark Brown <broonie@kernel.org>, Matthias Brugger <matthias.bgg@gmail.com>, 
-	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, 
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jikos@kernel.org>, 
-	Andi Shyti <andi.shyti@kernel.org>
-Cc: Benson Leung <bleung@chromium.org>, Tzung-Bi Shih <tzungbi@kernel.org>, 
-	linux-mediatek@lists.infradead.org, devicetree@vger.kernel.org, 
-	linux-arm-kernel@lists.infradead.org, chrome-platform@lists.linux.dev, 
-	linux-input@vger.kernel.org, linux-i2c@vger.kernel.org, 
-	linux-kernel@vger.kernel.org
+References: <20260822213941.98882-1-michael.zaidman@gmail.com> <20260822213941.98882-4-michael.zaidman@gmail.com>
+In-Reply-To: <20260822213941.98882-4-michael.zaidman@gmail.com>
+From: Linus Walleij <linusw@kernel.org>
+Date: Tue, 25 Aug 2026 09:44:41 +0200
+X-Gmail-Original-Message-ID: <CAD++jLm3ZK-=AYCVJHMt=x3_G26CsXZhOVj4E7na1e9JK0busg@mail.gmail.com>
+X-Gm-Features: AcwNN1UnCmZrQb6IraMXKriSnwj2vYM8t9RtgnkWlihfpkJyN4ZgrXEexb3V-ss
+Message-ID: <CAD++jLm3ZK-=AYCVJHMt=x3_G26CsXZhOVj4E7na1e9JK0busg@mail.gmail.com>
+Subject: Re: [PATCH 03/13] HID: ft260: add GPIO support on top of UART
+To: Michael Zaidman <michael.zaidman@gmail.com>
+Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>, 
+	Bartosz Golaszewski <brgl@kernel.org>, Germain Hebert <germain.hebert@ca.abb.com>, Rio Liu <rio@r26.me>, 
+	Bruno Giacomazzi <brunoceg1@gmail.com>, Christina Quast <contact@christina-quast.de>, 
+	linux-input@vger.kernel.org, linux-gpio@vger.kernel.org, 
+	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Aug 25, 2026 at 12:33=E2=80=AFPM Chen-Yu Tsai <wenst@chromium.org> =
-wrote:
->
-> In device power sequencing and initialization use cases, it is common
-> for the driver to enable the regulator and then wait for a certain
-> period of time to pass before continuing.
->
-> In cases where the regulator supply is always on, or has been turned on
-> or left on by another consumer, the driver could shorten the delay or
-> skip it altogether, provided that enough time has already passed since
-> the regulator was _actually_ turned on.
->
-> Tracking this requires support from the regulator core. Introduce a
-> "last turned on" timestamp field to the regulator device, and "enable
-> and wait" functions to the single and bulk regulator consumer APIs.
-> The existing "enable without wait" functions are then converted to
-> macros that expand to the new functions.
->
-> The timestamp is updated each time the regulator is actually turned on.
-> For regulators left on by hardware default or by firmware, the core will
-> set the timestamp if it detects it was left on and its supply (and their
-> supply, and so on) is on as well. This is unfortunately best effort
-> only. The core can only assume a dangling regulator (one without a
-> supply) has power. This also applies to the dummy regulator.
->
-> Signed-off-by: Chen-Yu Tsai <wenst@chromium.org>
-> ---
-> Changes since v4:
-> - Try to update last_on timestamp for regulators that were left on
+Hi Michael,
 
-Sashiko flaged a few issues with the changes:
+thanks for your patch!
 
-- _regulator_is_enabled() called and subsequent timestamp update
-  without lock
-- bulk consumer wait_us incorrectly assigned
-- _regulator_is_enabled() could return an error
+It seems this patch title should just be
+"HID: ft260: add GPIO support"
+the "on top of UART" part seems to be more about
+which order you did the patches and that is about
+development process, not technical content, we don't
+put that into Subject.
 
-Will fix and send a new version. I probably should get a local AI review
-working first.
+On Sat, Aug 22, 2026 at 11:40=E2=80=AFPM Michael Zaidman
+<michael.zaidman@gmail.com> wrote:
 
+> Add gpiochip support for the FT260 multifunctional pins, including
+> GPIO2/GPIOA/GPIOG function selection via sysfs, and enable the
+> available GPIOs according to the active UART mode.
+>
+> This supersedes the earlier pre-UART GPIO series:
+> https://lore.kernel.org/lkml/20230211115752.26276-2-michael.zaidman@gmail=
+.com/
+>
+> The gpio_chip.set callback returns int to match the current gpiolib
+> API, based on the adaptation originally contributed by Rio Liu
+> <rio@r26.me>.
+>
+> Signed-off-by: Michael Zaidman <michael.zaidman@gmail.com>
 
-ChenYu
+You probably want:
+
+#include <linus/bits.h>
+
+(...)
+>  static int ft260_debug =3D 1;
+> @@ -57,6 +58,11 @@ MODULE_PARM_DESC(debug, "Toggle FT260 debugging messag=
+es");
+>  #define FT260_RD_DATA_MAX (180)
+>  #define FT260_WR_I2C_DATA_MAX (60)
+>  #define FT260_WR_UART_DATA_MAX (62)
+> +#define FT260_GPIOCHIP "ft260_gpio"
+> +#define FT260_GPIO_MAX (6)
+> +#define FT260_GPIO_EX_MAX (8)
+
+So 6 GPIOs is "max" and then there are extended GPIOs and then there is
+a new max which is 8?
+
+I would give these defines some easier to understand name such as:
+
+#define FT260_BASE_GPIOS 6
+#define FT260_EXTENDED_GPIOS 8
+
+> +#define FT260_GPIO_TOTAL (FT260_GPIO_MAX + FT260_GPIO_EX_MAX)
+> +#define FT260_GPIO_MASK (~(0xffff << FT260_GPIO_TOTAL))
+
+This macro seems to be using funky arithmetic with bits
+rolling out on the left.
+
+What about just:
+
+#define FT260_GPIO_MASK GENMASK(FT260_GPIO_TOTAL, 0)
+
+> +/* GPIO offsets */
+> +enum {
+
+Is this *really* an enum? I feel an enum should be something like
+consecutive or sparse integer ranges.
+What about just using #define for those.
+
+> +       FT260_GPIO_0                    =3D (1 << 0),
+> +       FT260_GPIO_1                    =3D (1 << 1),
+
+#define FT259_GPIO_0 BIT(0)
+#define FT259_GPIO_1 BIT(1)
+(...)
+
+> +       FT260_GPIO_A                    =3D (1 << (FT260_GPIO_MAX + 0)),
+> +       FT260_GPIO_B                    =3D (1 << (FT260_GPIO_MAX + 1)),
+
+Those are the extended GPIOs I guess? Mention
+that in the macro name? Also you know the bit number.
+Do this:
+
+#define FT260_GPIO_EXT_A BIT(7)
+#define FT260_GPIO_EXT_B BIT(8)
+
+> +/* GPIO groups */
+> +enum {
+> +       FT260_GPIO_WAKEUP               =3D (FT260_GPIO_3),
+> +       FT260_GPIO_I2C_DEFAULT          =3D (FT260_GPIO_0 | FT260_GPIO_1)=
+,
+> +       FT260_GPIO_UART_RX_TX           =3D (FT260_GPIO_C | FT260_GPIO_D)=
+,
+> +       FT260_GPIO_UART_DCD_RI          =3D (FT260_GPIO_4 | FT260_GPIO_5)=
+,
+> +       FT260_GPIO_UART_RTS_CTS         =3D (FT260_GPIO_B | FT260_GPIO_E)=
+,
+> +       FT260_GPIO_UART_DTR_DSR         =3D (FT260_GPIO_F | FT260_GPIO_H)=
+,
+> +       FT260_GPIO_UART_MODE_0_SET      =3D (FT260_GPIO_UART_RX_TX |
+> +                                          FT260_GPIO_UART_DCD_RI |
+> +                                          FT260_GPIO_UART_RTS_CTS |
+> +                                          FT260_GPIO_UART_DTR_DSR),
+> +       FT260_GPIO_UART_MODE_1_SET      =3D (FT260_GPIO_UART_DTR_DSR),
+> +       FT260_GPIO_UART_MODE_2_SET      =3D (FT260_GPIO_UART_RTS_CTS),
+> +       FT260_GPIO_UART_MODE_3_SET      =3D (FT260_GPIO_UART_RTS_CTS |
+> +                                          FT260_GPIO_UART_DTR_DSR),
+> +       FT260_GPIO_UART_MODE_4_SET      =3D (FT260_GPIO_UART_MODE_3_SET),
+> +       FT260_GPIO_UART_DEFAULT         =3D (FT260_GPIO_UART_MODE_0_SET),
+> +       FT260_GPIO_UART_MODE_1_CLR      =3D (FT260_GPIO_UART_RX_TX |
+> +                                          FT260_GPIO_UART_RTS_CTS),
+> +       FT260_GPIO_UART_MODE_2_CLR      =3D (FT260_GPIO_UART_RX_TX |
+> +                                          FT260_GPIO_UART_DTR_DSR),
+> +       FT260_GPIO_UART_MODE_3_CLR      =3D (FT260_GPIO_UART_RX_TX),
+> +       FT260_GPIO_UART_MODES           =3D (5),
+
+Use #defines for all of this as well.
+
+> +struct ft260_gpio_state {
+> +       u8 vals;                /* GPIO[0-5] values in bits 0 - 5 */
+> +       u8 dirs;                /* GPIO[0-5] directions, 0 - in, 1 - out =
+*/
+> +       u8 ex_vals;             /* GPIO[A-H] values in bits 0 - 7 */
+> +       u8 ex_dirs;             /* GPIO[A-H] directions, 0 - in, 1 - out =
+*/
+> +} __packed;
+
+So instead of creating your own cache of all registers,
+have you considered just using regmap for this?
+Regmap is essentially a register cache.
+
+>  /* UART interface configuration */
+>  enum {
+> -       FT260_CFG_FLOW_CTRL_OFF         =3D 0x00,
+> -       FT260_CFG_FLOW_CTRL_RTS_CTS     =3D 0x01,
+> -       FT260_CFG_FLOW_CTRL_DTR_DSR     =3D 0x02,
+> -       FT260_CFG_FLOW_CTRL_XON_XOFF    =3D 0x03,
+> -       FT260_CFG_FLOW_CTRL_NONE        =3D 0x04,
+> +       FT260_UART_CFG_FLOW_CTRL_OFF            =3D 0x00,
+> +       FT260_UART_CFG_FLOW_CTRL_RTS_CTS        =3D 0x01,
+> +       FT260_UART_CFG_FLOW_CTRL_DTR_DSR        =3D 0x02,
+> +       FT260_UART_CFG_FLOW_CTRL_XON_XOFF       =3D 0x03,
+> +       FT260_UART_CFG_FLOW_CTRL_NONE           =3D 0x04,
+
+This looks like names you could have already assigned
+in the UART patch and then the diff would be less noisy.
+
+> -       FT260_CFG_DATA_BITS_7           =3D 0x07,
+> -       FT260_CFG_DATA_BITS_8           =3D 0x08,
+> +       FT260_UART_CFG_DATA_BITS_7              =3D 0x07,
+> +       FT260_UART_CFG_DATA_BITS_8              =3D 0x08,
+
+Dito.
+
+> -#define FT260_UART_EN_PW_SAVE_BAUD     (4800)
+> +#define FT260_UART_EN_PW_SAVE_BAUD (4800)
+
+Dito.
+
+> +static void ft260_gpio_en_set(struct ft260_device *dev, u16 bitmap)
+> +{
+> +       dev->gpio_en |=3D bitmap & FT260_GPIO_MASK;
+> +}
+> +
+> +static void ft260_gpio_en_clr(struct ft260_device *dev, u16 bitmap)
+> +{
+> +       dev->gpio_en &=3D ~bitmap & FT260_GPIO_MASK;
+> +}
+
+Linux has bitmap manipulation functions in
+<linus/bitmap.h>, use these instead of reinventing the wheel.
+
+Yours,
+Linus Walleij

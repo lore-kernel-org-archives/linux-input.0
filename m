@@ -1,64 +1,64 @@
-Received: from mail-lf1-f47.google.com (mail-lf1-f47.google.com [209.85.167.47])
+Received: from mail-lf1-f54.google.com (mail-lf1-f54.google.com [209.85.167.54])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5FD0A3EC81D
-	for <linux-input@vger.kernel.org>; Tue, 25 Aug 2026 08:57:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E390B3E9F8D
+	for <linux-input@vger.kernel.org>; Tue, 25 Aug 2026 08:57:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.54
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787648230; cv=none; b=B/GZSU6jXM8q6w33P19bKXRID6zbDbr073tHWn2mWxNENkHgvxlaK49i9I76Ce4l4y696THtTTMmmfOE17AVVum5KrjNta2RFcDwr/XqJR2Qw5o1iq4zbSQlmZx4xDwKXAu0JzM+hPcHPIdLW0A8eJWaQiuv5ZT7VA+2GZfd5Vw=
+	t=1787648235; cv=none; b=p1y4GPB0L37Sza01DRjTo+/EefYd+W9SmgF0HF7LMMNSF+Hqg+oHw3J4FiF56LsqdB0Kp4j6hVGQQCAWmIDlL7BqEFOYfHKu80kuwMnPEBbi4LvnmeStSW7ko2G814hgX3UGwnMVVDwRPEPXIVrvfAWeAX2zeWJnp2DFgqwQJXg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787648230; c=relaxed/simple;
-	bh=ZoNtM5t+Z5PI0+lWUD4C9jSd6KLHw0073ADCXdfpqS0=;
+	s=arc-20240116; t=1787648235; c=relaxed/simple;
+	bh=B56OWP0DAMlY1zGzDYxYkEbsdWad1nVwkzBi9rGDUzY=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=GzgkC0FPgJ78vH1qbrSlRRFicbz3NE5BXQL29pPS9MS5HrA1hclNKqTelc4UdoA6SE5H7DQabXfPHyTsk1NHcycXtjik4M6nTMPvcslKKsj8JzNgbWv+2a/FH8FBZfcwnLEisuwvXZJQWh92Bjoo9Q7lOtG8xsiJwRaixvC55mc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Dz8SBMl0; arc=none smtp.client-ip=209.85.167.47
+	 MIME-Version; b=d36usU3rroiEMLsRshq3sJ3EzXvAyGtpmgaPBJe5zLQx5f+fRJ2Sbvfq10hg8zML+vSnjrS2ip11chbg8bZ1Sr9lgwbwMejZV1u52NXtC1LDWbHW/5T2xBWu5aF5E4VgQBzzYt0p3Q0MHxEOj2BgZHnr8HWChEGk4wN9oPCNWY4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Utzm3jsI; arc=none smtp.client-ip=209.85.167.54
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Dz8SBMl0"
-Received: by mail-lf1-f47.google.com with SMTP id 2adb3069b0e04-5b15c6fb864so1137026e87.1
-        for <linux-input@vger.kernel.org>; Tue, 25 Aug 2026 01:57:06 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Utzm3jsI"
+Received: by mail-lf1-f54.google.com with SMTP id 2adb3069b0e04-5aebd52488cso4206991e87.2
+        for <linux-input@vger.kernel.org>; Tue, 25 Aug 2026 01:57:08 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1787648225; x=1788253025; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1787648226; x=1788253026; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=nyONsrEV8TZnFTN6/Rlk0LvFdDftzmWhi+OkpXgB5SM=;
-        b=Dz8SBMl0NoNQGCI/10QzNajUplrEhUBRMN8q3PJKPhAfc1cPeLih36oSMzOljdH+P+
-         qjhRh0ZHEQe1840v17gLk2r5dODdmU7oiWbV74Kb/+MHo6D37Sw46kuSNLkM6UcifKAG
-         0cb1gbdf/7LtjnurfqAuxKCOEhwR9q2XtBHvf+78sZu43c8k0bvngIgv+KO7ANx5KaVb
-         FglUQ7bvScXDRBKsFnQ7Ci8l+HUdYq8W0zUonmMMONVPzWaPCpGQsfEeLSgyKuRP69GA
-         V+HcYfX2kp+owgUYvhYZxTB7W43BY+LCn8IwWjOSGGRYwATcPTQLgLku5s3yRhIId6Te
-         rYhA==
+        bh=G35RfkPtC3t6tuyuZSjGSHKHyNYEjd/9P8h0piMVVoY=;
+        b=Utzm3jsIMoHsFPieaeO0RTMZgFUunhdN3BmhaRYYmho4BTq1BDZampt+S0FdujvxuQ
+         cMOXa+bgY0I+2u4t9xlCWUk22BU/H1X1LlthtWSKCYaYA9OZQrPMPl2bZhjZsV9/VU4M
+         mjBmCeyTsDse+LbVcy52/oI495VHUH6FtnbK01YLaDv2PBOJeunvRk5nGF7yntZwS4Dx
+         2WwIWJT+KMGaPpwjuy2QzcqpHIOVBmmGcQKUfd4vEHxXh53u82BTFr8BCD6ptGd2yF6q
+         D6XiFJ3qP3l+usMDDBtoE9fEqBhOKYLHCAVVfW8Jf513WRbSASsAEK1dnlfVeSxXrKti
+         0m6Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787648225; x=1788253025;
+        d=1e100.net; s=20251104; t=1787648226; x=1788253026;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=nyONsrEV8TZnFTN6/Rlk0LvFdDftzmWhi+OkpXgB5SM=;
-        b=dKy+9Gi+2LYv9+ryyqF3AUqyGAL3h6fIQH/HtgHBVE1jgmgewFHpbJA/0TgWJRwWCM
-         f2QuWibrpigKTs1ENqPqnvB+k3vIgnUWySOutLKqnzW/4G93VOUaAo86qnpgkAVICHjt
-         bj+WbAxWQSuQCkI3B3vPJTpLbpq4D4wWghH0xu6Z4XC8nUTUsQc8+d7YMxy1cRb1CHHz
-         FzM8usAAdrqrliDQq8jRT9eq/+e6Y+Gkoae0cXJpxQfAUr1WKSf22sKHJxyWhAPZOoPQ
-         Notdn8++pr7kwVf7XKz5eqpmWITQuPAmaycUr/idQzyX6TtaK+0yiujaEajpODBxdLV5
-         YGRw==
-X-Forwarded-Encrypted: i=1; AHgh+Rr7Su+SIDIT1kOyceK83/zSlqGeN6BckhXnBBTIDMxyrgsXlUUmWLMUhI5Dfvb06+hsMlCgq++yAuTP1w==@vger.kernel.org
-X-Gm-Message-State: AFuF++lkx4eQ36Id57sBNpz7nnezAMmQclnQm6RY48UN+vGodysuF0zV
-	UltMLvpdeklAP7KQOy2eUZfN8yICzwNRL4KZreZf7qk/Lj7vl2ShpIFc
-X-Gm-Gg: AR+sD10PCtgqyGQvYkLow0bZ7J6MPSwv9rejGo9byax4PA/FEHJ5vGL3QVbM4XjYo+Z
-	TP84Fyp0re0dHZAebmmqR8qW4XOLI/M5S64LINQn5wn7LUjder9ra/bJaGAHMKZQx+7ihcXsCRJ
-	axy2wYXobL2SOzPf/nlX0S3kzK/MGeFCfXYfkSvT52gxyRA9P4S9D6YvT9hQa2eOcA0KHckNh5M
-	gXJz1susiQR7LYWhtnWU7a70yfWfTo7q0z0Kqbty0iL9BGF8oURvL8EGAJBPaAJl80sNUaneuQL
-	QWsLkHYnOqQeoNK6AntZA0YA4pwtu6BpdMoO+ksW0pEz4c3ikN/h1ZDTndAF7XE2wy+uxee9yed
-	Ch4+6EluzqOUhlMvqNEDdgNh2bmLigZiZ5G8nkUV8QWuUWNWCzieAxI/S0sEvGCPlvPtOH5ylc1
-	oSEMDAiijTfliiTrgKNuvhvqfZK95mvhu5QGkBhOTb+2sNpB/RTo+40vL7nzF48COd5pVV3AdAS
-	lrUzMjGLVQdGoxdfPOcveSntElHQ+eyxelzz+WG4E9KbPv5w/z+oNS1tEzx
-X-Received: by 2002:a2e:a10a:0:b0:3a1:4f33:f64b with SMTP id 38308e7fff4ca-3a1c1e271dcmr63296991fa.8.1787648224196;
-        Tue, 25 Aug 2026 01:57:04 -0700 (PDT)
+        bh=G35RfkPtC3t6tuyuZSjGSHKHyNYEjd/9P8h0piMVVoY=;
+        b=dfvW4b9mZ3Pjf4uTj2rtKxLO+o1xJBi7AFHSvS99s1O2JB0n2oBstJtoccV6U3sAye
+         jGHlP4+1L9utcMPdnH9AAvoh84G6Tc+2rcwfuJ6bz8s7EYaklcI/trsoDGkx1HLhQDzC
+         vtWV8pAw51w64LWRny6SphXeKZswomZgIWis4xRFxgBoEzaUBbXo67THaf5yxdhO7JGW
+         wWPx9GqWXTY89jlbHu5Vgo5DpyleTyBZ5SSYe8/i5tXF+AWTPicbXAc6CkMLuaRmhrWS
+         IDxVqlZvp8Lun4gDJPSY49L6nO5KZl7Rg5PPm+0PbTcRHVhJYesMOe1ukf0CMXirti3K
+         Q6HA==
+X-Forwarded-Encrypted: i=1; AHgh+RpWw0Zi0d8k9XsWnGvMZQyHNzJ/yY+J1sDcFIdDnYEKHzwrwIby+JoK+is6TgOMr+XmBzO0mG7VJ7oRSw==@vger.kernel.org
+X-Gm-Message-State: AFuF++k9XBv3DgaVkfGlPPefkr3zXySP6fCvO7v07MTXMAeGhyTUJlY7
+	m9etd9vXMFPKvESAUbV6v6ZMF/IfpwH145kQrLfe953RlK82/5ShLAwXBPRj1qLAHlq8N3OF
+X-Gm-Gg: AR+sD124Sn3m9EaEdo3uY3Sz4ESWvpU1AFHwdNbmj74As60gxEGn3fWa1o5BUAvnXfO
+	lqiPVjs/zQ76tD19nlSuHAtVm4kYIwyC8CQwSwD4ZxgdNdhu9m4Z2nP8XLNyEW+OUFsikDvXHgV
+	voiTpnOwRyKgK0TW/ejs4zGpFyWsRSuhxb4xGTEOvVgB2fJFcmm4EDodQZSJbbEiidIsir4Ut4T
+	I5IMQNwxeKUsP6obu//6eYziz+xuFHH8crzNL3aDzRD0aPxMO2pFCpkAZRYLcxmPewf8NeQyWIR
+	+Z+vS8Zi/GRMGrSvNQ6qWD3lR8XsJJU8Pch9NsNxvcjsAHsp/LJlni22Wa2UeRfQU+2ixtPlJYE
+	dfufBG4Ax+AfOOh7L8ksitS5DhmZUsE/cG6fCOwQIGFWUpE/8c3BrZejMs/izHWrdLewb+hrv5/
+	EYWQyMzueFdhampC8Ynrs+CmEvQC9mroxUwotCS2ziUHlSWZYgGhhubHTG8BDezcsm8nYXzUcqp
+	2SCeIdeAEWN24KFKhc2kuwrdnYCdPg9+QV2grqTaGaKpOmnKGdQe0+8hC9DtBGjzjszG5U=
+X-Received: by 2002:a05:651c:516:b0:39f:ac58:e429 with SMTP id 38308e7fff4ca-3a1c1e0a8demr54139531fa.4.1787648225568;
+        Tue, 25 Aug 2026 01:57:05 -0700 (PDT)
 Received: from localhost ([188.234.148.119])
-        by smtp.gmail.com with ESMTPSA id 38308e7fff4ca-3a1c2e56737sm20545111fa.6.2026.08.25.01.57.03
+        by smtp.gmail.com with ESMTPSA id 38308e7fff4ca-3a1c2e56737sm20545111fa.6.2026.08.25.01.57.04
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 25 Aug 2026 01:57:03 -0700 (PDT)
+        Tue, 25 Aug 2026 01:57:04 -0700 (PDT)
 From: Mikhail Gavrilov <mikhail.v.gavrilov@gmail.com>
 To: tiwai@suse.com
 Cc: perex@perex.cz,
@@ -68,12 +68,13 @@ Cc: perex@perex.cz,
 	linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	Mikhail Gavrilov <mikhail.v.gavrilov@gmail.com>
-Subject: [PATCH v7 0/2] ALSA: usb-audio: the Topping M62's vendor controls
-Date: Tue, 25 Aug 2026 13:56:57 +0500
-Message-ID: <20260825085659.52675-1-mikhail.v.gavrilov@gmail.com>
+Subject: [PATCH v7 1/2] ALSA: usb-audio: expose the Topping M62's analogue gains as mixer controls
+Date: Tue, 25 Aug 2026 13:56:58 +0500
+Message-ID: <20260825085659.52675-2-mikhail.v.gavrilov@gmail.com>
 X-Mailer: git-send-email 2.55.0
-In-Reply-To: <20260824223107.406504-1-mikhail.v.gavrilov@gmail.com>
+In-Reply-To: <20260825085659.52675-1-mikhail.v.gavrilov@gmail.com>
 References: <20260824223107.406504-1-mikhail.v.gavrilov@gmail.com>
+ <20260825085659.52675-1-mikhail.v.gavrilov@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -82,115 +83,935 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-v7 takes two more points from the automated review of v6, both in 1/2.
+The M62 (152a:875c) keeps its analogue input gains and its output
+volumes behind a vendor protocol on a HID-class interface, and exposes
+none of them through UAC. What UAC does offer on the capture side is a
+digital trim after the converter, which cannot buy signal-to-noise:
+raising it lifts the converter's own floor along with the signal. A
+noise-floor ladder against the card shows exactly that, so on Linux
+today the one knob worth setting is the one that cannot be reached, and
+a measurement has to begin by asking a human to touch the front panel.
 
-The first is a build one: SND_USB_AUDIO now selects CRC16. The frames
-this driver reads are checked with crc16() and nothing else in the
-directory pulled it in, so a kernel built with CONFIG_CRC16 off would
-have failed to link.
+The protocol was read off the vendor application's traffic, the way
+mixer_scarlett2.c describes reading Focusrite's. Frames are fifteen
+bytes -- start magic, a constant, a target, a property, a signed 32-bit
+big-endian value, CRC-16/MODBUS over the middle stored big-endian, end
+magic -- and rebuilding all 2619 captured frames from that description
+reproduces them byte for byte. The device says nothing until it is
+subscribed; one write starts the stream, a second makes it announce its
+whole state, after which every change arrives unsolicited, including a
+front panel press. So the controls are populated by asking rather than
+by caching what was written, which matters here because the vendor
+application on another host pushes its own cached state onto the card
+on connect.
 
-The second is another deadlock, and again of our own making. The
-keepalive woke the device before writing; a runtime suspend arriving at
-the same moment reached this driver's suspend callback, which waits in
-cancel_delayed_work_sync() for the worker -- while the worker waited in
-the PM core for that same suspend to finish. Waking is now the caller's
-business rather than the frame writer's: a write asked for by a hand
-wakes what is asleep, the keepalive and the resume path do not. The
-first because a sleeping device has no subscription worth renewing --
-resume renews it -- and the second because it is the resume.
+The control pipe cannot carry this: GET_REPORT and SET_REPORT stall
+with EPIPE for every report type, so the interrupt endpoints on the HID
+interface are the only route and this driver has to own that interface.
+hid_ignore_list keeps usbhid away. Nothing is lost by that: the report
+descriptor the device offers is a fig leaf -- a Generic Desktop
+application collection, eight unnamed usages, sixteen bytes in and out,
+no report ID -- so hid-generic can only make a nonexistent mouse of it.
 
-That also fixes something nobody had reported yet: with a write every
-two seconds and a default autosuspend delay of the same two seconds,
-the card could never reach runtime suspend at all. It can now.
+The controls are a table: a name, the target and property that carry
+the knob, the second target that must be written in step with it, the
+range and the scale. Adding a knob is adding a row. Six rows here --
+the two microphone preamps in whole decibels, AUX and Bluetooth on the
+input side, headphone and OTG on the output side -- and the outputs
+come in pairs because the device answers on only one of each pair and
+the other would drift away unheard.
 
-The rest of this letter is v6's, since nothing else changed.
+The two volume tapers are measured, not guessed: index 0 is mute, index
+99 the maximum, the step is 0.5 dB above -10 dB and 1 dB below it, and
+the family that must cover 97 dB in 98 steps takes 2 dB below -52 dB as
+well. Both express as DB_RANGE. The microphone preamps are ordinary
+1 dB steps from 0 to 88.
 
-v6 took four points from the automated review and declined two. The
-first of the four is a deadlock, and it is worth saying how it got
-there, because neither change that made it was wrong on its own.
+One thing a mixer quirk cannot do for itself: usb_audio_driver is
+private to card.c, so claiming an interface the audio class knows
+nothing about needs a helper there. snd_usb_claim_iface() is that
+helper, and it is the only change outside the new file and its
+dispatch.
 
-v3 added a mutex around each write, so two writers could not reach the
-device in one order and the cache in the other. v4 added a resume-time
-write of the source selectors, since the device never reports them and
-nothing else would restore them. Together they close a loop: a write on
-a runtime-suspended device takes the mutex, calls into the device, and
-waking it runs this driver's own resume callback on the same thread --
-which takes the same mutex, held by the caller. The order is now the
-other way round: the device is woken outside the lock, so a wake that
-runs the resume callback finds nothing held.
+Seven rows. OTG IN was the one gap when this was first posted -- it has
+no front panel control, so it never announced itself and its property
+was unknown; a capture of the vendor application moving it named it as
+target 0x27, and its taper is the same family as Bluetooth, confirmed
+by the indices the application dwelt on matching the decibels it
+displayed.
 
-The other three:
+The subscription lapses, so it is renewed: the vendor application
+repeats the same subscribe every two seconds for as long as it runs,
+and a device that hears nothing stops reporting. A listener that
+subscribed once got the meters and the identification block and then
+very little; one that kept repeating got the gains too, about five
+seconds in. Nothing in the frame says "keep alive" and nothing
+acknowledges it -- it is the subscribe again -- so a plain periodic
+write does it. Two seconds is what the vendor uses; the device
+presumably tolerates longer, but there is no reason to find the edge.
 
-  - A URB that completes with an error is resubmitted unless the error
-    means the URB or the device is gone. Bus noise gives -EPROTO and
-    -EILSEQ, and stopping on those left the card silent until it was
-    replugged. This is what snd_usb_mixer_status_complete() does a few
-    hundred lines away.
+The device is reached under the shutdown lock, the way the rest of this
+directory reaches hardware: the teardown waits for everyone holding it
+before the card is taken apart, so nothing here can be talking to a
+device that has gone. A mutex spans each write from the comparison to
+the cache update, so two writers cannot arrive at the device in one
+order and at the cache in the other.
 
-  - The resume path now forbids I/O reclaim for everything under it,
-    not only for the frame buffer: usb_interrupt_msg() allocates a URB
-    of its own with GFP_KERNEL, so a polite flag on our allocation
-    settles nothing by itself.
+Suspend and resume are handled rather than survived. The URB does not
+outlive a system sleep, and a device that has heard nothing for a while
+stops reporting anyway, so the resume path resubmits, subscribes again
+and asks for the state -- which also refreshes a cache that may have
+gone stale while the panel was reachable and this driver was not.
 
-  - The claimed interface is held with a reference. Claiming does not
-    keep it alive, and this driver hands the pointer back to the core
-    when the card goes away.
+The claimed interface is given back, on the error path and at teardown
+alike, so that unbinding and binding again works instead of failing at
+the claim.
 
-Declined, for the third time and with the same reasoning the v4 cover
-letter gave: a control callback cannot dereference a freed private
-structure during disconnect. snd_ctl_elem_read() and
-snd_ctl_elem_write() take snd_power_ref_and_wait(card) around the
-callback; snd_card_disconnect() ends with snd_power_sync_ref(card),
-which waits until every such reference is dropped; and in usb-audio's
-disconnect, snd_card_disconnect() runs before
-usb_audio_disconnect_components() reaches this driver's private_free().
-There is a second reason not to do it anyway: taking the shutdown lock
-in a get would wake a runtime-suspended device in order to read a
-number this driver already has in memory.
+Allocation on the resume path asks for no I/O, the way the mixer core
+does beside it, since reclaim there can wait on a block device that has
+not woken yet; and a URB that usb_kill_urb() has already refused is not
+reported as a failure, since -EPERM at that point is the ordinary sound
+of an unplug.
 
-The path was exercised. It needs the card in runtime suspend at the
-moment a control is written, which does not happen by itself here: the
-driver's own keepalive writes every two seconds and the default
-autosuspend delay is also two thousand milliseconds, so the timer never
-expires. With that delay set to zero the card suspends between
-keepalives, and a control write then returns at once with the value
-set. I did not go back to v5 to watch it hang.
+The device is woken before the write lock is taken, not after. Waking it
+can run the resume callback on the calling thread, and that callback
+writes to the device too; entering the lock first would meet it already
+held, by the same thread, with nothing able to release it.
 
-Tested on the hardware as before: values arrive by themselves after
-probe, a front panel knob reaches the driver ten minutes later and
-after a suspend and resume cycle, a write reaches the analogue stage
-(one source recorded at gain 30 and at gain 60 differs by 30.4 dB
-against the 30.0 dB the taper table predicts), the audible selector
-test passes, unbind and bind again works, and alsactl stores and
-restores these controls without complaint. On a KASAN and lockdep
-kernel; no reports.
+Waking is the caller's business, not the frame writer's. A write asked
+for by a hand wakes what is asleep; the keepalive and the resume path
+do not, the first because a sleeping device has no subscription worth
+renewing -- resume renews it -- and the second because it is the
+resume. When the keepalive woke the device itself, a runtime suspend
+arriving at the same moment waited in cancel_delayed_work_sync() for a
+worker that was in turn waiting for that suspend to finish. It also
+means the card can now reach runtime suspend at all, which a write
+every two seconds had prevented.
 
-The questions from the v2 cover letter still stand: whether
-snd-usb-audio registering the hid_driver itself would be a better shape
-than either road posted, and whether there is a convention for a
-control that can be written but not read.
+Bus noise does not end the listening. A frame that arrives with -EPROTO
+or -EILSEQ is dropped and the URB goes back; only the three statuses
+that mean the URB or the device is gone stop it, which is what the
+mixer's own status handler does next door.
 
-Mikhail Gavrilov (2):
-  ALSA: usb-audio: expose the Topping M62's analogue gains as mixer
-    controls
-  ALSA: usb-audio: let the M62's outputs say what they listen to
+The resume path forbids I/O reclaim for everything under it, not just
+for the frame buffer: usb_interrupt_msg() allocates a URB of its own
+with GFP_KERNEL, so a polite flag on our own allocation settles
+nothing.
 
+And the claimed interface is held with a reference of its own. Claiming
+does not keep it alive -- on unplug the core deletes and puts every
+interface -- while this driver hands the pointer back to the core when
+the card goes away.
+
+SND_USB_AUDIO selects CRC16, since the frames are checked with it and
+nothing else in the directory pulled it in.
+Signed-off-by: Mikhail Gavrilov <mikhail.v.gavrilov@gmail.com>
+---
  MAINTAINERS               |   6 +
  drivers/hid/hid-ids.h     |   3 +
  drivers/hid/hid-quirks.c  |   2 +
  sound/usb/Kconfig         |   1 +
  sound/usb/Makefile        |   1 +
- sound/usb/card.c          |  19 +
+ sound/usb/card.c          |  19 ++
  sound/usb/mixer_quirks.c  |   5 +
- sound/usb/mixer_topping.c | 798 ++++++++++++++++++++++++++++++++++++++
+ sound/usb/mixer_topping.c | 636 ++++++++++++++++++++++++++++++++++++++
  sound/usb/mixer_topping.h |   7 +
  sound/usb/usbaudio.h      |   4 +
- 10 files changed, 846 insertions(+)
+ 10 files changed, 684 insertions(+)
  create mode 100644 sound/usb/mixer_topping.c
  create mode 100644 sound/usb/mixer_topping.h
 
-
-base-commit: 66498c75b4f8017f62d720d9b59675bdf3abce91
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 549df316f487..f5b0bd36be22 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -27497,6 +27497,12 @@ S:	Maintained
+ W:	https://tomoyo.sourceforge.net/
+ F:	security/tomoyo/
+ 
++TOPPING M62 MIXER DRIVER
++M:	Mikhail Gavrilov <mikhail.v.gavrilov@gmail.com>
++L:	linux-sound@vger.kernel.org
++S:	Maintained
++F:	sound/usb/mixer_topping.*
++
+ TOPSTAR LAPTOP EXTRAS DRIVER
+ M:	Herton Ronaldo Krzesinski <herton@canonical.com>
+ L:	platform-driver-x86@vger.kernel.org
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 341bf587863b..092b2a942b4c 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -1470,6 +1470,9 @@
+ #define USB_DEVICE_ID_TIVO_SLIDE	0x1201
+ #define USB_DEVICE_ID_TIVO_SLIDE_PRO	0x1203
+ 
++#define USB_VENDOR_ID_TOPPING		0x152a
++#define USB_DEVICE_ID_TOPPING_M62	0x875c
++
+ #define USB_VENDOR_ID_TOPRE			0x0853
+ #define USB_DEVICE_ID_TOPRE_REALFORCE_R2_108			0x0148
+ #define USB_DEVICE_ID_TOPRE_REALFORCE_R2_87			0x0146
+diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
+index 8a0b51d47040..3c156d1420d1 100644
+--- a/drivers/hid/hid-quirks.c
++++ b/drivers/hid/hid-quirks.c
+@@ -981,6 +981,8 @@ static const struct hid_device_id hid_ignore_list[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SYNAPTICS, USB_DEVICE_ID_SYNAPTICS_WTP) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SYNAPTICS, USB_DEVICE_ID_SYNAPTICS_DPAD) },
+ #endif
++	/* the M62's vendor control channel, driven by snd-usb-audio */
++	{ HID_USB_DEVICE(USB_VENDOR_ID_TOPPING, USB_DEVICE_ID_TOPPING_M62) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_YEALINK, USB_DEVICE_ID_YEALINK_P1K_P4K_B2K) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_QUANTA, USB_DEVICE_ID_QUANTA_HP_5MP_CAMERA_5473) },
+ 	{ }
+diff --git a/sound/usb/Kconfig b/sound/usb/Kconfig
+index b4588915efa1..5af29599e494 100644
+--- a/sound/usb/Kconfig
++++ b/sound/usb/Kconfig
+@@ -17,6 +17,7 @@ config SND_USB_AUDIO
+ 	select SND_PCM
+ 	select SND_UMP if SND_USB_AUDIO_MIDI_V2
+ 	select BITREVERSE
++	select CRC16
+ 	select SND_USB_AUDIO_USE_MEDIA_CONTROLLER if MEDIA_CONTROLLER && (MEDIA_SUPPORT=y || MEDIA_SUPPORT=SND_USB_AUDIO)
+ 	help
+ 	  Say Y here to include support for USB audio and USB MIDI
+diff --git a/sound/usb/Makefile b/sound/usb/Makefile
+index e62794a87e73..151b481df795 100644
+--- a/sound/usb/Makefile
++++ b/sound/usb/Makefile
+@@ -14,6 +14,7 @@ snd-usb-audio-y := 	card.o \
+ 			mixer_quirks.o \
+ 			mixer_scarlett.o \
+ 			mixer_scarlett2.o \
++			mixer_topping.o \
+ 			mixer_us16x08.o \
+ 			mixer_s1810c.o \
+ 			pcm.o \
+diff --git a/sound/usb/card.c b/sound/usb/card.c
+index 24112e491779..191391822092 100644
+--- a/sound/usb/card.c
++++ b/sound/usb/card.c
+@@ -325,6 +325,25 @@ static int snd_usb_create_stream(struct snd_usb_audio *chip, int ctrlif, int int
+ 	return 0;
+ }
+ 
++/*
++ * Claim an interface of this device for snd-usb-audio.
++ *
++ * A mixer quirk may need an interface the audio class knows nothing
++ * about -- a vendor control channel that happens to wear the HID class,
++ * for instance -- and cannot claim it itself, because usb_audio_driver
++ * is private to this file.
++ */
++int snd_usb_claim_iface(struct snd_usb_audio *chip, struct usb_interface *iface)
++{
++	return usb_driver_claim_interface(&usb_audio_driver, iface,
++					  USB_AUDIO_IFACE_UNUSED);
++}
++
++void snd_usb_release_iface(struct usb_interface *iface)
++{
++	usb_driver_release_interface(&usb_audio_driver, iface);
++}
++
+ /*
+  * parse audio control descriptor and create pcm/midi streams
+  */
+diff --git a/sound/usb/mixer_quirks.c b/sound/usb/mixer_quirks.c
+index a1f5592cc5d5..10f33026cdff 100644
+--- a/sound/usb/mixer_quirks.c
++++ b/sound/usb/mixer_quirks.c
+@@ -36,6 +36,7 @@
+ #include "mixer_quirks.h"
+ #include "mixer_scarlett.h"
+ #include "mixer_scarlett2.h"
++#include "mixer_topping.h"
+ #include "mixer_us16x08.h"
+ #include "mixer_s1810c.h"
+ #include "helper.h"
+@@ -4531,6 +4532,10 @@ int snd_usb_mixer_apply_create_quirk(struct usb_mixer_interface *mixer)
+ 		err = snd_fcp_init(mixer);
+ 		break;
+ 
++	case USB_ID(0x152a, 0x875c): /* Topping M62 */
++		err = snd_topping_init(mixer);
++		break;
++
+ 	case USB_ID(0x041e, 0x323b): /* Creative Sound Blaster E1 */
+ 		err = snd_soundblaster_e1_switch_create(mixer);
+ 		break;
+diff --git a/sound/usb/mixer_topping.c b/sound/usb/mixer_topping.c
+new file mode 100644
+index 000000000000..06cea753046a
+--- /dev/null
++++ b/sound/usb/mixer_topping.c
+@@ -0,0 +1,636 @@
++// SPDX-License-Identifier: GPL-2.0-or-later
++/*
++ * Mixer controls for Topping interfaces behind a vendor HID channel
++ *
++ * Copyright (c) 2026 Mikhail Gavrilov <mikhail.v.gavrilov@gmail.com>
++ *
++ * The M62 (152a:875c) puts its analogue input gains and its output
++ * volumes behind a vendor protocol on a HID-class interface, and
++ * exposes nothing of them through UAC.  What UAC does expose on the
++ * capture side is a digital trim AFTER the converter, which cannot buy
++ * signal-to-noise: raising it lifts the converter's own floor with the
++ * signal.  So the only knob worth automating is unreachable, and a
++ * measurement application on Linux has to ask a human to set it by
++ * hand on the front panel.
++ *
++ * The protocol was read off the vendor application's traffic.  Frames
++ * are fifteen bytes:
++ *
++ *	22 33 | 20 01 01 | TT | PP | s32 value BE | CRC16 BE | 66 77
++ *
++ * with TT a target (an input, an output, or the device itself), PP a
++ * property of that target, and the checksum CRC-16/MODBUS over bytes
++ * 2..10 stored most significant byte first.  Reports arriving from the
++ * device are the same frame plus one trailing pad byte; an idle poll
++ * returns sixteen zeroes.  The vendor application sends 00 00 in place
++ * of the checksum and the device accepts it, so the device evidently
++ * does not verify what it receives -- this driver signs its writes
++ * anyway, and validates what it reads.
++ *
++ * The device says nothing until it is subscribed: one write of
++ * 0x11/0x24 starts the notification stream, after which every change,
++ * including a front panel button, arrives unsolicited.  A second
++ * write, 0x11/0x26, makes the device announce its whole state, which
++ * is how the controls are populated without caching what we wrote.
++ *
++ * Note that the control pipe is not an option here: GET_REPORT and
++ * SET_REPORT both stall with EPIPE for every report type, so the
++ * interrupt endpoints on the HID interface are the only route and this
++ * driver has to own that interface.  hid_ignore_list keeps usbhid off
++ * it; the report descriptor it would bind to describes nothing anyway
++ * (a Generic Desktop application collection with eight unnamed usages
++ * and no report ID), so no HID functionality is lost.
++ */
++
++#include <linux/crc16.h>
++#include <linux/unaligned.h>
++#include <linux/init.h>
++#include <linux/cleanup.h>
++#include <linux/mutex.h>
++#include <linux/sched/mm.h>
++#include <linux/slab.h>
++#include <linux/usb.h>
++
++#include <sound/control.h>
++#include <sound/core.h>
++#include <sound/tlv.h>
++
++#include "usbaudio.h"
++#include "mixer.h"
++#include "mixer_topping.h"
++
++#define TOPPING_FRAME_LEN	15	/* what we send */
++#define TOPPING_REPORT_LEN	16	/* what arrives, one pad byte more */
++#define TOPPING_EP_BUF		64	/* the endpoints' packet size */
++
++/* device-scope properties */
++#define TOPPING_TT_DEVICE	0x11
++#define TOPPING_PP_SUBSCRIBE	0x24
++#define TOPPING_PP_ANNOUNCE	0x26
++
++/*
++ * The two volume tapers, measured against the vendor application's own
++ * readout: index 0 is always mute, index 99 always the maximum, the
++ * step is 0.5 dB above -10 dB and 1 dB below it, and the family that
++ * has to cover 97 dB in 98 steps takes 2 dB below -52 dB as well.
++ */
++static const DECLARE_TLV_DB_SCALE(topping_tlv_gain, 0, 100, 0);
++
++static const unsigned int topping_tlv_out_9[] = {
++	TLV_DB_RANGE_HEAD(4),
++	0, 0, SNDRV_CTL_TLVD_DB_SCALE_ITEM(SNDRV_CTL_TLVD_DB_GAIN_MUTE, 0, 1),
++	1, 19, SNDRV_CTL_TLVD_DB_SCALE_ITEM(-8800, 200, 0),
++	20, 61, SNDRV_CTL_TLVD_DB_SCALE_ITEM(-5100, 100, 0),
++	62, 99, SNDRV_CTL_TLVD_DB_SCALE_ITEM(-950, 50, 0),
++};
++
++static const unsigned int topping_tlv_out_0[] = {
++	TLV_DB_RANGE_HEAD(3),
++	0, 0, SNDRV_CTL_TLVD_DB_SCALE_ITEM(SNDRV_CTL_TLVD_DB_GAIN_MUTE, 0, 1),
++	1, 79, SNDRV_CTL_TLVD_DB_SCALE_ITEM(-8800, 100, 0),
++	80, 99, SNDRV_CTL_TLVD_DB_SCALE_ITEM(-950, 50, 0),
++};
++
++/*
++ * One row per knob.  A row is the whole description of a control: what
++ * to call it, which target and property carry it, the second target
++ * that has to be written in step with the first, the range, and the
++ * scale.  Adding a knob is adding a row.
++ *
++ * The outputs come in pairs and the device announces only the second
++ * of each pair, so both are written and the second is the one listened
++ * for.
++ */
++struct topping_ctl_desc {
++	const char *name;
++	u8 target;		/* the target that reports */
++	u8 target_pair;		/* written too, or 0 */
++	u8 prop;
++	int min, max;
++	const unsigned int *tlv;
++};
++
++static const struct topping_ctl_desc topping_m62_ctls[] = {
++	{ "Mic-1 Analog Capture Volume", 0x21, 0, 0x04, 0, 88,
++	  topping_tlv_gain },
++	{ "Mic-2 Analog Capture Volume", 0x22, 0, 0x04, 0, 88,
++	  topping_tlv_gain },
++	{ "Aux Capture Volume", 0x23, 0, 0x04, 0, 99,
++	  topping_tlv_out_9 },
++	{ "Bluetooth Capture Volume", 0x25, 0, 0x04, 0, 99,
++	  topping_tlv_out_0 },
++	{ "OTG Capture Volume", 0x27, 0, 0x04, 0, 99,
++	  topping_tlv_out_0 },
++	{ "Headphone Playback Volume", 0x64, 0x63, 0x03, 0, 99,
++	  topping_tlv_out_9 },
++	{ "OTG Playback Volume", 0x62, 0x61, 0x03, 0, 99,
++	  topping_tlv_out_0 },
++};
++
++struct topping_mixer {
++	struct usb_mixer_interface *mixer;
++	struct usb_interface *iface;
++	bool claimed;		/* iface is ours to give back */
++	const struct topping_ctl_desc *ctls;
++	int num_ctls;
++	struct urb *urb;
++	u8 *inbuf;
++	dma_addr_t inbuf_dma;
++	unsigned int pipe_in, pipe_out;
++	int interval;
++	struct delayed_work keepalive;
++	struct mutex write_lock;	/* one writer at a time, end to end */
++	spinlock_t lock;	/* guards val[] against the URB */
++	int *val;
++	struct snd_kcontrol **kctl;
++};
++
++static void topping_build(u8 *f, u8 target, u8 prop, s32 value)
++{
++	u16 crc;
++
++	f[0] = 0x22;
++	f[1] = 0x33;
++	f[2] = 0x20;
++	f[3] = 0x01;
++	f[4] = 0x01;
++	f[5] = target;
++	f[6] = prop;
++	put_unaligned_be32(value, f + 7);
++	crc = crc16(0xffff, f + 2, 9);
++	put_unaligned_be16(crc, f + 11);
++	f[13] = 0x66;
++	f[14] = 0x77;
++}
++
++/*
++ * The frame goes out as it is; waking the device is the CALLER's
++ * business.  A write asked for by a hand takes the shutdown lock
++ * first, which wakes what is asleep.  The keepalive and the resume
++ * path deliberately do not: the first because a sleeping device has
++ * no subscription worth renewing -- resume renews it -- and the
++ * second because it IS the resume.
++ *
++ * That division is also what keeps the keepalive out of a deadlock.
++ * When it woke the device itself, a runtime suspend arriving at the
++ * same moment would wait in cancel_delayed_work_sync() for a worker
++ * that was in turn waiting for that suspend to finish.
++ */
++static int topping_send(struct topping_mixer *tm, u8 target, u8 prop,
++			s32 value)
++{
++	/*
++	 * NOIO rather than KERNEL: this is called from the resume path
++	 * too, where reclaim can wait on a block device that has not
++	 * woken yet.  The frame is fifteen bytes; nothing is lost by
++	 * asking for it without I/O.
++	 */
++	u8 *buf __free(kfree) = kzalloc(TOPPING_EP_BUF, GFP_NOIO);
++	int err, actual;
++
++	if (!buf)
++		return -ENOMEM;
++
++	topping_build(buf, target, prop, value);
++	err = usb_interrupt_msg(tm->mixer->chip->dev, tm->pipe_out,
++				buf, TOPPING_FRAME_LEN, &actual, 1000);
++	if (err < 0)
++		usb_audio_err(tm->mixer->chip,
++			      "Topping: write %02x/%02x failed: %d\n",
++			      target, prop, err);
++	return err;
++}
++
++/* -1 when this frame is not one of ours */
++static int topping_index_of(struct topping_mixer *tm, u8 target, u8 prop)
++{
++	int i;
++
++	for (i = 0; i < tm->num_ctls; i++)
++		if (tm->ctls[i].target == target && tm->ctls[i].prop == prop)
++			return i;
++	return -1;
++}
++
++static void topping_urb_complete(struct urb *urb)
++{
++	struct topping_mixer *tm = urb->context;
++	const u8 *f = urb->transfer_buffer;
++	int idx, value, err;
++	bool changed;
++
++	/*
++	 * Bus noise gives -EPROTO and -EILSEQ, and those are not the end
++	 * of anything: the frame is dropped and the listening goes on.
++	 * Only the three that mean the URB or the device is gone stop it,
++	 * which is what the mixer's own status handler does next door.
++	 */
++	if (urb->status)
++		goto resubmit;
++	if (urb->actual_length < TOPPING_FRAME_LEN)
++		goto resubmit;
++	if (f[0] != 0x22 || f[1] != 0x33 || f[13] != 0x66 || f[14] != 0x77)
++		goto resubmit;
++	if (get_unaligned_be16(f + 11) != crc16(0xffff, f + 2, 9))
++		goto resubmit;
++
++	idx = topping_index_of(tm, f[5], f[6]);
++	if (idx < 0)
++		goto resubmit;		/* a meter, or something unnamed */
++
++	value = get_unaligned_be32(f + 7);
++	if (value < tm->ctls[idx].min || value > tm->ctls[idx].max)
++		goto resubmit;
++
++	changed = false;
++	scoped_guard(spinlock_irqsave, &tm->lock) {
++		if (tm->val[idx] != value) {
++			tm->val[idx] = value;
++			changed = true;
++		}
++	}
++
++	if (changed && tm->kctl[idx])
++		snd_ctl_notify(tm->mixer->chip->card,
++			       SNDRV_CTL_EVENT_MASK_VALUE,
++			       &tm->kctl[idx]->id);
++
++resubmit:
++	if (urb->status == -ENOENT || urb->status == -ECONNRESET ||
++	    urb->status == -ESHUTDOWN)
++		return;
++	err = usb_submit_urb(urb, GFP_ATOMIC);
++	/*
++	 * ENODEV, ESHUTDOWN and EPERM are the sound of an unplug -- the
++	 * last being a URB that usb_kill_urb() has already refused.
++	 */
++	if (err < 0 && err != -ENODEV && err != -ESHUTDOWN && err != -EPERM)
++		usb_audio_err(tm->mixer->chip,
++			      "Topping: cannot resubmit: %d\n", err);
++}
++
++/*
++ * THE SUBSCRIPTION LAPSES. The vendor application repeats 0x11/0x24
++ * every two seconds for as long as it is running, and a device that
++ * hears nothing stops reporting -- which is why a listener that
++ * subscribed once saw the meters and not much else. Nothing in the
++ * frame says "keep alive"; it is simply the same subscribe again.
++ */
++#define TOPPING_KEEPALIVE_MS	2000
++
++static void topping_keepalive(struct work_struct *work)
++{
++	struct topping_mixer *tm = container_of(work, struct topping_mixer,
++						keepalive.work);
++
++	topping_send(tm, TOPPING_TT_DEVICE, TOPPING_PP_SUBSCRIBE, 1);
++	schedule_delayed_work(&tm->keepalive,
++			      msecs_to_jiffies(TOPPING_KEEPALIVE_MS));
++}
++
++static int topping_ctl_info(struct snd_kcontrol *kctl,
++			    struct snd_ctl_elem_info *uinfo)
++{
++	struct usb_mixer_elem_info *elem = kctl->private_data;
++	struct topping_mixer *tm = elem->head.mixer->private_data;
++	int idx = elem->control;
++
++	uinfo->type = SNDRV_CTL_ELEM_TYPE_INTEGER;
++	uinfo->count = 1;
++	uinfo->value.integer.min = tm->ctls[idx].min;
++	uinfo->value.integer.max = tm->ctls[idx].max;
++	uinfo->value.integer.step = 1;
++	return 0;
++}
++
++static int topping_ctl_get(struct snd_kcontrol *kctl,
++			   struct snd_ctl_elem_value *ucontrol)
++{
++	struct usb_mixer_elem_info *elem = kctl->private_data;
++	struct topping_mixer *tm = elem->head.mixer->private_data;
++
++	guard(spinlock_irqsave)(&tm->lock);
++	ucontrol->value.integer.value[0] = tm->val[elem->control];
++	return 0;
++}
++
++static int topping_ctl_put(struct snd_kcontrol *kctl,
++			   struct snd_ctl_elem_value *ucontrol)
++{
++	struct usb_mixer_elem_info *elem = kctl->private_data;
++	struct usb_mixer_interface *mixer = elem->head.mixer;
++	struct topping_mixer *tm = mixer->private_data;
++	const struct topping_ctl_desc *d = &tm->ctls[elem->control];
++	int value, err;
++
++	value = ucontrol->value.integer.value[0];
++	if (value < d->min || value > d->max)
++		return -EINVAL;
++
++	/*
++	 * THE ORDER OF THESE TWO MATTERS.  Waking the device can run the
++	 * resume callback on this very thread, and that callback takes
++	 * write_lock to write the selectors back; taking write_lock first
++	 * would meet it already held, by us.  So the device is woken
++	 * first and the lock is entered with nothing left to run under
++	 * it.  This is also the wake topping_send() relies on, since it
++	 * does none of its own.
++	 */
++	CLASS(snd_usb_lock, pm)(mixer->chip);
++	if (pm.err < 0)
++		return -EIO;
++
++	/*
++	 * Held from the comparison to the cache update, so that two
++	 * writers cannot reach the device in one order and the cache in
++	 * the other.
++	 */
++	guard(mutex)(&tm->write_lock);
++
++	scoped_guard(spinlock_irqsave, &tm->lock)
++		if (tm->val[elem->control] == value)
++			return 0;
++
++	err = topping_send(tm, d->target, d->prop, value);
++	if (err < 0)
++		return err;
++	if (d->target_pair) {
++		/*
++		 * The device announces only one of a pair, so the other
++		 * would drift away unheard.
++		 */
++		err = topping_send(tm, d->target_pair, d->prop, value);
++		if (err < 0)
++			return err;
++	}
++
++	scoped_guard(spinlock_irqsave, &tm->lock)
++		tm->val[elem->control] = value;
++	return 1;
++}
++
++static const struct snd_kcontrol_new topping_ctl = {
++	.iface = SNDRV_CTL_ELEM_IFACE_MIXER,
++	.access = SNDRV_CTL_ELEM_ACCESS_READWRITE |
++		  SNDRV_CTL_ELEM_ACCESS_TLV_READ,
++	.info = topping_ctl_info,
++	.get = topping_ctl_get,
++	.put = topping_ctl_put,
++};
++
++static int topping_add_ctl(struct topping_mixer *tm, int idx)
++{
++	struct usb_mixer_elem_info *elem;
++	struct snd_kcontrol *kctl;
++	int err;
++
++	elem = kzalloc_obj(*elem);
++	if (!elem)
++		return -ENOMEM;
++
++	elem->head.mixer = tm->mixer;
++	elem->head.id = 0;
++	elem->control = idx;
++	elem->channels = 1;
++	elem->val_type = USB_MIXER_BESPOKEN;
++
++	kctl = snd_ctl_new1(&topping_ctl, elem);
++	if (!kctl) {
++		kfree(elem);
++		return -ENOMEM;
++	}
++	kctl->private_free = snd_usb_mixer_elem_free;
++	kctl->tlv.p = tm->ctls[idx].tlv;
++	strscpy(kctl->id.name, tm->ctls[idx].name, sizeof(kctl->id.name));
++
++	err = snd_usb_mixer_add_control(&elem->head, kctl);
++	if (err < 0)
++		return err;
++
++	tm->kctl[idx] = kctl;
++	return 0;
++}
++
++static void topping_suspend(struct usb_mixer_interface *mixer)
++{
++	struct topping_mixer *tm = mixer->private_data;
++
++	if (!tm)
++		return;
++	cancel_delayed_work_sync(&tm->keepalive);
++	if (tm->urb)
++		usb_kill_urb(tm->urb);
++}
++
++static int topping_resume(struct usb_mixer_interface *mixer)
++{
++	struct topping_mixer *tm = mixer->private_data;
++	unsigned int noio;
++	int err;
++
++	if (!tm)
++		return 0;
++
++	/*
++	 * Everything below runs without I/O reclaim: usb_interrupt_msg()
++	 * allocates a URB of its own with GFP_KERNEL, so asking for the
++	 * frame buffer politely is not enough, and reclaim here can wait
++	 * on a block device that has not woken yet.
++	 */
++	noio = memalloc_noio_save();
++
++	if (tm->urb) {
++		err = usb_submit_urb(tm->urb, GFP_NOIO);
++		if (err < 0) {
++			memalloc_noio_restore(noio);
++			return err;
++		}
++	}
++
++	/*
++	 * Subscribing again is not a formality: the device stops
++	 * reporting to a host it has not heard from, and asking for the
++	 * state refreshes a cache that may have gone stale while the
++	 * panel was reachable and this driver was not.
++	 */
++	topping_send(tm, TOPPING_TT_DEVICE, TOPPING_PP_SUBSCRIBE, 1);
++	topping_send(tm, TOPPING_TT_DEVICE, TOPPING_PP_ANNOUNCE, 1);
++	schedule_delayed_work(&tm->keepalive,
++			      msecs_to_jiffies(TOPPING_KEEPALIVE_MS));
++	memalloc_noio_restore(noio);
++	return 0;
++}
++
++static void topping_private_free(struct usb_mixer_interface *mixer)
++{
++	struct topping_mixer *tm = mixer->private_data;
++
++	if (!tm)
++		return;
++	cancel_delayed_work_sync(&tm->keepalive);
++	if (tm->urb) {
++		usb_kill_urb(tm->urb);
++		usb_free_coherent(mixer->chip->dev, TOPPING_EP_BUF,
++				  tm->inbuf, tm->inbuf_dma);
++		usb_free_urb(tm->urb);
++	}
++	if (tm->claimed) {
++		snd_usb_release_iface(tm->iface);
++		usb_put_intf(tm->iface);
++	}
++	kfree(tm->val);
++	kfree(tm->kctl);
++	kfree(tm);
++	mixer->private_data = NULL;
++}
++
++/* the HID interface, by class rather than by a number in a comment */
++static struct usb_interface *topping_find_iface(struct snd_usb_audio *chip,
++						int *ep_in, int *ep_out,
++						int *interval)
++{
++	struct usb_device *dev = chip->dev;
++	struct usb_host_interface *alts;
++	struct usb_interface *iface;
++	int i, e;
++
++	for (i = 0; i < 256; i++) {
++		iface = usb_ifnum_to_if(dev, i);
++		if (!iface)
++			continue;
++		alts = &iface->altsetting[0];
++		if (alts->desc.bInterfaceClass != USB_CLASS_HID)
++			continue;
++		*ep_in = *ep_out = 0;
++		for (e = 0; e < alts->desc.bNumEndpoints; e++) {
++			struct usb_endpoint_descriptor *ep;
++
++			ep = &alts->endpoint[e].desc;
++			if (!usb_endpoint_xfer_int(ep))
++				continue;
++			if (usb_endpoint_dir_in(ep)) {
++				*ep_in = usb_endpoint_num(ep);
++				*interval = ep->bInterval;
++			} else {
++				*ep_out = usb_endpoint_num(ep);
++			}
++		}
++		if (*ep_in && *ep_out)
++			return iface;
++	}
++	return NULL;
++}
++
++int snd_topping_init(struct usb_mixer_interface *mixer)
++{
++	struct snd_usb_audio *chip = mixer->chip;
++	struct usb_interface *iface;
++	struct topping_mixer *tm;
++	int ep_in = 0, ep_out = 0, interval = 5;
++	int i, err;
++
++	iface = topping_find_iface(chip, &ep_in, &ep_out, &interval);
++	if (!iface) {
++		usb_audio_err(chip, "Topping: no vendor HID interface\n");
++		return 0;	/* not fatal: the card still plays */
++	}
++	if (usb_interface_claimed(iface)) {
++		usb_audio_err(chip,
++			      "Topping: the HID interface is already claimed\n");
++		return 0;
++	}
++
++	tm = kzalloc_obj(*tm);
++	if (!tm)
++		return -ENOMEM;
++
++	tm->mixer = mixer;
++	tm->iface = iface;
++	tm->ctls = topping_m62_ctls;
++	tm->num_ctls = ARRAY_SIZE(topping_m62_ctls);
++	tm->pipe_in = usb_rcvintpipe(chip->dev, ep_in);
++	tm->pipe_out = usb_sndintpipe(chip->dev, ep_out);
++	tm->interval = interval;
++	spin_lock_init(&tm->lock);
++	mutex_init(&tm->write_lock);
++	INIT_DELAYED_WORK(&tm->keepalive, topping_keepalive);
++
++	tm->val = kcalloc(tm->num_ctls, sizeof(*tm->val), GFP_KERNEL);
++	tm->kctl = kcalloc(tm->num_ctls, sizeof(*tm->kctl), GFP_KERNEL);
++	if (!tm->val || !tm->kctl) {
++		err = -ENOMEM;
++		goto fail;
++	}
++
++	err = snd_usb_claim_iface(chip, iface);
++	if (err < 0)
++		goto fail;
++	tm->claimed = true;
++	/*
++	 * Claiming does not keep the interface alive.  On unplug the core
++	 * deletes and puts every interface, and this pointer is handed
++	 * back to it later, so it holds a reference of its own until then.
++	 */
++	usb_get_intf(iface);
++
++	tm->urb = usb_alloc_urb(0, GFP_KERNEL);
++	if (!tm->urb) {
++		err = -ENOMEM;
++		goto fail;
++	}
++	tm->inbuf = usb_alloc_coherent(chip->dev, TOPPING_EP_BUF, GFP_KERNEL,
++				       &tm->inbuf_dma);
++	if (!tm->inbuf) {
++		err = -ENOMEM;
++		goto fail;
++	}
++	usb_fill_int_urb(tm->urb, chip->dev, tm->pipe_in,
++			 tm->inbuf, TOPPING_EP_BUF,
++			 topping_urb_complete, tm, tm->interval);
++	tm->urb->transfer_dma = tm->inbuf_dma;
++	tm->urb->transfer_flags |= URB_NO_TRANSFER_DMA_MAP;
++
++	mixer->private_data = tm;
++	mixer->private_free = topping_private_free;
++	mixer->private_suspend = topping_suspend;
++	mixer->private_resume = topping_resume;
++
++	for (i = 0; i < tm->num_ctls; i++) {
++		err = topping_add_ctl(tm, i);
++		if (err < 0)
++			return err;	/* private_free cleans up */
++	}
++
++	err = usb_submit_urb(tm->urb, GFP_KERNEL);
++	if (err < 0) {
++		usb_audio_err(chip, "Topping: cannot listen: %d\n", err);
++		return err;
++	}
++
++	/*
++	 * Subscribe, then ask for the state.  The device answers in two
++	 * waves -- identification at once, the gains about 3.7 s later,
++	 * which is the same delay a phantom rail takes to settle -- so
++	 * nothing here waits for them: each value lands through the URB
++	 * and notifies its own control.
++	 */
++	topping_send(tm, TOPPING_TT_DEVICE, TOPPING_PP_SUBSCRIBE, 1);
++	topping_send(tm, TOPPING_TT_DEVICE, TOPPING_PP_ANNOUNCE, 1);
++	schedule_delayed_work(&tm->keepalive,
++			      msecs_to_jiffies(TOPPING_KEEPALIVE_MS));
++	return 0;
++
++fail:
++	if (tm->claimed) {
++		snd_usb_release_iface(iface);
++		usb_put_intf(iface);
++	}
++	if (tm->inbuf)
++		usb_free_coherent(chip->dev, TOPPING_EP_BUF, tm->inbuf,
++				  tm->inbuf_dma);
++	usb_free_urb(tm->urb);
++	kfree(tm->val);
++	kfree(tm->kctl);
++	kfree(tm);
++	return err;
++}
+diff --git a/sound/usb/mixer_topping.h b/sound/usb/mixer_topping.h
+new file mode 100644
+index 000000000000..15e16b509eb9
+--- /dev/null
++++ b/sound/usb/mixer_topping.h
+@@ -0,0 +1,7 @@
++/* SPDX-License-Identifier: GPL-2.0-or-later */
++#ifndef __USB_MIXER_TOPPING_H
++#define __USB_MIXER_TOPPING_H
++
++int snd_topping_init(struct usb_mixer_interface *mixer);
++
++#endif /* __USB_MIXER_TOPPING_H */
+diff --git a/sound/usb/usbaudio.h b/sound/usb/usbaudio.h
+index c49709d7ad25..16b8c6a8031c 100644
+--- a/sound/usb/usbaudio.h
++++ b/sound/usb/usbaudio.h
+@@ -80,6 +80,10 @@ struct snd_usb_audio {
+ 
+ #define USB_AUDIO_IFACE_UNUSED	((void *)-1L)
+ 
++int snd_usb_claim_iface(struct snd_usb_audio *chip,
++			struct usb_interface *iface);
++void snd_usb_release_iface(struct usb_interface *iface);
++
+ #define usb_audio_err(chip, fmt, args...) \
+ 	dev_err(&(chip)->dev->dev, fmt, ##args)
+ #define usb_audio_err_ratelimited(chip, fmt, args...) \
 -- 
 2.55.0
 

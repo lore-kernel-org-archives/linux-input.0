@@ -1,150 +1,424 @@
-Received: from mail-yx1-f53.google.com (mail-yx1-f53.google.com [74.125.224.53])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 57D9B3AD52A
-	for <linux-input@vger.kernel.org>; Wed, 26 Aug 2026 08:11:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.224.53
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787731888; cv=pass; b=ZLR3Qoslbqfv02pLz0uaIczTnQtuQQPJexmhf6xzXAGX2yVPCi3B+IU6CpYWjggYdSMgdxOkrhgrIjISDK9WwU+CNq1Mnc6fjPnBaES/JzsId0nDAX190tqVfzS5HaPKY3VSXB3BYQWjoKkICh2u8sT7hlLs7YXZFXrHXImvsIQ=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787731888; c=relaxed/simple;
-	bh=mXxLXyr21mdwImm9P7kpToLiwlq+gHr9hLXXNi9rmnI=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=m/WcvMKYMnGJfOPa+o9TkUr2KqrH+n5IBeryzNhUT88cmz36gd/zws26MbQIYa4khyQaZ+WXY7K5vEhRXZpiDsPBEJ+gIORFi9Tmxfn9lbeAL4dTXYNsYfdsdx2fY/aXy+ITh38rup5MeIU4K44R286lr9ukYdVpwACgEnL5X6U=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=mMiVLDMm; arc=pass smtp.client-ip=74.125.224.53
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9124E392C2A
+	for <linux-input@vger.kernel.org>; Wed, 26 Aug 2026 10:21:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1787739662; cv=none; b=KiAU3EHdFAe7nkMg5aPVywsdMxvyoSPxOWSMcv63MB5x3qHXLZrsU1pgYvD2Zb4DXGlgQoeuPWprEPeVdFB67JBGsocFfltQkKuKvn1CHzE6rHGc3+MF9FS1Oiu8IsJ2ZBphjl76tptIJpwarcDGreftOpdXtlE5Bj0HZ9RlTao=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1787739662; c=relaxed/simple;
+	bh=VLXTtn7XT08IxyQgaQsGpfBTB1h569tUbQVdJRALfyY=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=o4Xur+QXRS5SYW4cUvWnkGsoCyvjCM0Tgo+z6DBYdb/BpxmnZYhshQ6JHJ9/0n8AecsxFHCXRnZr9aW2qQ/ru9w63ljhIEHK6qBRFLlO9LFA4hVs5Qw+azxlSAD8IP3MsBLIZfZMl5z2qVFBQrC+zbBST9HfAS5qNVfARAabGO4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=cb84t/UA; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=SKLAm+08; arc=none smtp.client-ip=205.220.168.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="mMiVLDMm"
-Received: by mail-yx1-f53.google.com with SMTP id 956f58d0204a3-66d146f04cfso556298d50.0
-        for <linux-input@vger.kernel.org>; Wed, 26 Aug 2026 01:11:27 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1787731886; cv=none;
-        d=google.com; s=arc-20260327;
-        b=XHpH9QEcrWS/0vpdRlXjSw3NqGmJGyRGMgtiJ13tGultwy1r/g6Uuc+z1nQSYFs+ZM
-         nlpPQUHL4NP00OJduCX2zuRKn4RzuSrwfi0mc3hGGryyoFiIvyphROOc0AstSzoAD+Wp
-         91A2vVFp7fksrcZFICAR3b6I4feeRa4gzSa47LnHzASg/YGfsWjZuvFoX8PzFa6h8uzQ
-         aTXEhmI8vMaCirxfQ3Qo5uDM7BznEJG6NzjT/kP7N1FqwnOl7SC+94Y0eoTTiR6JVMIm
-         lzVAUg3c0X6rmEsFGMrqBNhyd4mTvNrQAoLQ/1aSHzUsFeLfDzdJ1mdL+YrG1SZjNDiH
-         riPw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:dkim-signature;
-        bh=mXxLXyr21mdwImm9P7kpToLiwlq+gHr9hLXXNi9rmnI=;
-        fh=u6dcgWTRN8zDPNIktQb+Z575OZZSFl6JBlFX1dL2jKc=;
-        b=aF5Les3vcxqvdTXSYQKlpSeyuyyuh+BfQmTQI8OIgyzzQnSpJBmqeMpoWPI0KUO5pG
-         ynnFSL1Hxh9x9kRNT9cUbTlmxce5hndlh503QRQEAsSCghLPGvSr5Zy80lsAU0bjOH9Y
-         clJ0WPhbxuDqV6RFyjFtgQCZJ+TbrN8sT95w8MdNceinshOZ9fbQ3N8CpIEfLy+WXfVa
-         gOxP4V94MVSbJpsGCEJ9SP8u/diB3N+UiMEyy/8LfGdGptYK7IWIjEkPucR5hCJ9J5Nx
-         giMOTtdbY2wO6xEW+7SHpojlcnP24RNU/JHhhMBV6k1xb65WUz61bOfb1VSZHvK/XoLJ
-         TZaw==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="cb84t/UA";
+	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="SKLAm+08"
+Received: from pps.filterd (m0279864.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67QAGXZa3732405
+	for <linux-input@vger.kernel.org>; Wed, 26 Aug 2026 10:20:59 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
+	cc:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=qcppdkim1; bh=YakeRluq/TNMj1t5ic4SgQCt7VzKx0u/UOd
+	PF2Mf+BI=; b=cb84t/UAELiftGy6ayC1tw56zz7+Tg7s6QadDwG/GTglJlsi+kM
+	YCvULGysKZQsNNpT6ksaDw9RWuw/zX+40IovC1LApUv3mI8YEYuqO13wmqpcVvds
+	jMJ1rI9Ay3l28Qjo5X9AApx3nDT8N71MwUd/zEzj5bqxI5o44P0ADYFuT4x4nhha
+	3tn3kZke2Og2aUcRtAjEeSDSLgVPkjeA/QIRlIsUDhXz4ruJOSzuZDwaniXZWP57
+	LM2x6nkT74HINmQecpzCmOOOPrxpa5AJoBpX5dKq26gAK608yMGa9oa/WhDfc7TY
+	1wXjRCN5FV+G1zO6jsPb5dqu3DdjzUow4kg==
+Received: from mail-qt1-f199.google.com (mail-qt1-f199.google.com [209.85.160.199])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4g9wmqr66h-1
+	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
+	for <linux-input@vger.kernel.org>; Wed, 26 Aug 2026 10:20:59 +0000 (GMT)
+Received: by mail-qt1-f199.google.com with SMTP id d75a77b69052e-51c1d7886cdso14234431cf.1
+        for <linux-input@vger.kernel.org>; Wed, 26 Aug 2026 03:20:59 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1787731886; x=1788336686; darn=vger.kernel.org;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=mXxLXyr21mdwImm9P7kpToLiwlq+gHr9hLXXNi9rmnI=;
-        b=mMiVLDMmwbb6Qlsi9CZduOsXPgJsF6H1Uj8j0tv0PiLmvLtVs6pFNTXJrnQfzU7xEr
-         V9YtRBFvEEnkv1l7kaC8RidmhmLiS5Muh61UZ8tIuxlUIqo6iI/huUjiAHJXnfzw6TuD
-         X5jUcgkNusovlDXnjn7SpNL6Qd3bj+qH41jZxouLN3O8SZj+Q7AjZ63GlKBeGa8JjCQR
-         /CdY5joLpje6yQKkDuyI4GYKicovdX4iDGh8j5HGs1RqRXBnOZIu2KT5JP8rw93qyPaf
-         MZLa3rp9hRHKlYIO0ylKonXv97wKiShbWTME3uIjM3LlBId374OxX/H3w4ckENgbCSZp
-         GM/Q==
+        d=oss.qualcomm.com; s=google; t=1787739659; x=1788344459; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=YakeRluq/TNMj1t5ic4SgQCt7VzKx0u/UOdPF2Mf+BI=;
+        b=SKLAm+086aOuvQ/nOz6IfxKVAFYiUU3KYxAw/Mw6MuJ/zwi/DxQ+yJEzrXnNOLZqj5
+         hlD14qj2lOeQoa3VFadG8ZG+NXm9ucRdS12eIwHmOjUqYq5q6XImz0zwSrTPjxSjfkmT
+         OVPu4R4aJsljNKKFY/GzWE5FC++po90yDeQCluU5vDhDi6EuxaQV4S4xOQH2BvCf86JV
+         TYrImvgVmKmv23SqBNgsciSXAe4LkUAQWEhHUjkbe7OBXh5iHvHO3bEDlST5pkujyfv5
+         PMV/xhuBH1O/tnzdvq4Yj4INRI3VlEc+kRB/744/od+oyBvaPQ824DNLYwEGYO8eVvYs
+         hghA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787731886; x=1788336686;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=mXxLXyr21mdwImm9P7kpToLiwlq+gHr9hLXXNi9rmnI=;
-        b=E2Kag8WLM9zKeunG4VMxAhs/WSkclXlTXiM0nskriKjPbrQCBlRQrPS6eXZJ0vmxcX
-         dGBXGX8IP4wFD21o8L8ev5elYkUeb9h/dJgT6TbHghKqSTKGwvKi+L82f4nCKjDRBHCV
-         UFgxMxx+9m8jicpF2/R5S4yfiZZ6RmAg4wkNKkHYEJH7qKxTK1e6EdO/SPfnhiH2DNkJ
-         9MPexIYaJUXQpOTXrKHkZUeiS9AoOiLajVfZhYRkM2lAIw5DUu9i+WlK+v/CLH3SDCzb
-         omB0rvysED+YIysllA6vqQ5pgRoWXzPf2e3uKM6DrqkiQQ7SxFJ+HgU2yqBuhLtfX8eU
-         QeQg==
-X-Forwarded-Encrypted: i=1; AHgh+RoWc3r09BN5FQZceGQ1tDjaMeFd9E7qJ3CadmQX7ZkK6j7CHeN7ADr7twEH/jku1Wb7efNEqiqE1nQabw==@vger.kernel.org
-X-Gm-Message-State: AFuF++nAfXq8AGKsf+hmf7CU4Bg/8YTYV0Sx0vT4vUvHK5oZfQeg+DRw
-	YCAGRfX8wYPBOferlR/wc787FbqsZhiGpPw9fuE7HIBMZNZiKVv63Lk+F/vGV+KDgGrLkEm0GgD
-	ocma2NNJvNAhR08GdtwBvddWY53ukuh0=
-X-Gm-Gg: AR+sD11/FB6/MiqoSNNNn4A/Gr1MMtRTLIah1MosMo+ne7lMohLrrWOu4frm2+5bg7a
-	hF9G9JgQhdmlpGeuqDhfdbFKMirkxawHAbiqnkFJ1bTh4YHPLpH7cQ0GxlPxFHcxhAV6nMMpSvp
-	Ndkd01SFpitjNl4H9jTmxWhDT2PpxrVHmyEDQg8R/aVnmLMBvnYDbDLfZ1whOt6DqRLWYJcoKub
-	MwzfH6wpsFUELmTWuxJC2y6xqHfZu+fZ3/xskYfiTodIChpH0rIA231bS1X2RetnELP9AmuQFwR
-	jffAFRbf2FttZHi5AmtWqUneAVH7myBJJVRaUssazq7UcV0=
-X-Received: by 2002:a53:e9c6:0:b0:66d:273e:1196 with SMTP id
- 956f58d0204a3-66d273e1c3fmr963616d50.42.1787731886356; Wed, 26 Aug 2026
- 01:11:26 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1787739659; x=1788344459;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=YakeRluq/TNMj1t5ic4SgQCt7VzKx0u/UOdPF2Mf+BI=;
+        b=WZVTbZbuC14usMM3OIcXZGoR0fHFhhlKgooK0ClNbHUUTY2mN9hOi+hybZBRFQ8ToV
+         ADL6z8sIHq9roOu4QYdrv5ZUyBsMx2IHcVoMdHfxKMep74Sd7p4Ws/OVXkchYY4fiBL7
+         24EwTTaPe2Ivv+0D8p32W8FbUA47KkqValOr6KRibEhZwD5mVaajRj8uyKVzw2gQs5iV
+         zkSoLFKQMWNpaZzTRot6ZBpTH/9g07HRNDjyDr6TORuujimJd7EfemALRdIe+H9zTrxZ
+         Aa1Rpz9lSiAgV7567EZRaHbVyb+lqkFZtc8IqRiDStxa0q6bf5G4ZgIKHc90I71RA9N8
+         JGFA==
+X-Forwarded-Encrypted: i=1; AHgh+RpxNfbS0T5Pw8c3RhKvDrxcz1b0pDljiwdB2BoW+DfqG7qMRMPTDD7Y6+VZObuPOVeHXMlLNtQgIzEFEQ==@vger.kernel.org
+X-Gm-Message-State: AFuF++nWk72RFLw4qDogGchOf0h7ye8LvVIq5RmZvnDLUjP1wfjvNumI
+	Zj8e+4nxPnQJg1muDTeiScPcVLLfRM4/2+/kCT/TXLCtvW5NhrqqnY9txS3xC3Wx/9nQIYr++sT
+	vaYEm+fS324X0XRHJlUmBKXJYsqCh5BxmtmYRet2TLKWaXv9/S+9rg7B6dfxJyfMooA==
+X-Gm-Gg: AR+sD13MnPg7MUGUqbAEcDj3gJwucfOnsyFoRQ2XVmYUuDvjPgjX5Avne4h/msCPL5c
+	dP5Z9TvZMxxUykAozxbQifJPfng/jaz40GtgXjpL88R18sNCPCGFuRGtYpx5DGo+/hleRGApYn1
+	ZegBOEh0Rfw4LzMZCDk8Aph5tPuMclUHZpq4Pz9D3G/sxRGoAoPoMJDE5X5bcuMp2ult3yWuO23
+	1o8L3NL0fAmr9NAf5769wbXSclix/wspxi01N74ZhCw09Ug2hkuHEuh7gj0ZpSpZmkQODJfdwVt
+	RmQU2WvLccAK8ZS79Gds58yShJrxnZ5zTYR08sbCRVp5lX9bK1kpn+5fup6xpBFnyUkhzmlvrWD
+	qdyw8w3zNk9JGYio=
+X-Received: by 2002:a05:622a:4c15:b0:52c:cc14:ff63 with SMTP id d75a77b69052e-52e4239c2d5mr53844241cf.37.1787739658567;
+        Wed, 26 Aug 2026 03:20:58 -0700 (PDT)
+X-Received: by 2002:a05:622a:4c15:b0:52c:cc14:ff63 with SMTP id d75a77b69052e-52e4239c2d5mr53840311cf.37.1787739654609;
+        Wed, 26 Aug 2026 03:20:54 -0700 (PDT)
+Received: from quoll ([178.197.219.214])
+        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-6a5deaa8473sm4566479a12.21.2026.08.26.03.20.49
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 26 Aug 2026 03:20:52 -0700 (PDT)
+From: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
+To: Suzuki K Poulose <suzuki.poulose@arm.com>, Mike Leach <mike.leach@arm.com>,
+        James Clark <james.clark@linaro.org>, Leo Yan <leo.yan@arm.com>,
+        Rob Herring <robh@kernel.org>,
+        Krzysztof Kozlowski <krzk+dt@kernel.org>,
+        Conor Dooley <conor+dt@kernel.org>,
+        Andrzej Hajda <andrzej.hajda@intel.com>,
+        Neil Armstrong <neil.armstrong@linaro.org>,
+        Robert Foss <rfoss@kernel.org>,
+        Laurent Pinchart <Laurent.pinchart@ideasonboard.com>,
+        Jonas Karlman <jonas@kwiboo.se>,
+        Jernej Skrabec <jernej.skrabec@gmail.com>,
+        Luca Ceresoli <luca.ceresoli@bootlin.com>,
+        David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
+        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+        Maxime Ripard <mripard@kernel.org>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
+        Michal Simek <michal.simek@amd.com>,
+        Andi Shyti <andi.shyti@kernel.org>,
+        Jonathan Cameron <jic23@kernel.org>,
+        David Lechner <dlechner@baylibre.com>,
+        =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>,
+        Andy Shevchenko <andy@kernel.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Mirela Rabulea <mirela.rabulea@nxp.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Frank Li <Frank.Li@nxp.com>, Sascha Hauer <s.hauer@pengutronix.de>,
+        Pengutronix Kernel Team <kernel@pengutronix.de>,
+        Fabio Estevam <festevam@gmail.com>, Lee Jones <lee@kernel.org>,
+        Xiaowei Song <songxiaowei@hisilicon.com>,
+        Binghui Wang <wangbinghui@hisilicon.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Lorenzo Pieralisi <lpieralisi@kernel.org>,
+        =?UTF-8?q?Krzysztof=20Wilczy=C5=84ski?= <kwilczynski@kernel.org>,
+        Manivannan Sadhasivam <mani@kernel.org>,
+        Dvorkin Dmitry <dvorkin@tibbo.com>, Wells Lu <wellslutw@gmail.com>,
+        Linus Walleij <linusw@kernel.org>,
+        Chin-Ting Kuo <chin-ting_kuo@aspeedtech.com>,
+        =?UTF-8?q?C=C3=A9dric=20Le=20Goater?= <clg@kaod.org>,
+        Mark Brown <broonie@kernel.org>, Joel Stanley <joel@jms.id.au>,
+        Andrew Jeffery <andrew@codeconstruct.com.au>,
+        Ryan Chen <ryan_chen@aspeedtech.com>,
+        Billy Tsai <billy_tsai@aspeedtech.com>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Daniel Lezcano <daniel.lezcano@kernel.org>,
+        Zhang Rui <rui.zhang@intel.com>, Lukasz Luba <lukasz.luba@arm.com>,
+        Boris Brezillon <bbrezillon@kernel.org>, info@mocean-labs.com,
+        Olof Johansson <olof@lixom.net>,
+        Shree Ramamoorthy <s-ramamoorthy@ti.com>, coresight@lists.linaro.org,
+        linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org,
+        linux-i2c@vger.kernel.org, linux-iio@vger.kernel.org,
+        linux-input@vger.kernel.org, imx@lists.linux.dev,
+        linux-media@vger.kernel.org, mfd@lists.linux.dev,
+        linux-pci@vger.kernel.org, linux-gpio@vger.kernel.org,
+        linux-aspeed@lists.ozlabs.org, openbmc@lists.ozlabs.org,
+        linux-spi@vger.kernel.org, linux-pm@vger.kernel.org
+Cc: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
+Subject: [PATCH] dt-bindings: Drop redundant white-space around values in <>
+Date: Wed, 26 Aug 2026 12:20:45 +0200
+Message-ID: <20260826102044.142986-2-krzysztof.kozlowski@oss.qualcomm.com>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260808151736.2934050-1-lgs201920130244@gmail.com> <e2b658d5-e846-4ce3-a42f-16f86acbf3e3@kernel.org>
-In-Reply-To: <e2b658d5-e846-4ce3-a42f-16f86acbf3e3@kernel.org>
-From: Guangshuo Li <lgs201920130244@gmail.com>
-Date: Wed, 26 Aug 2026 16:11:14 +0800
-X-Gm-Features: AcwNN1UKGI8R9J607Eo1-mfi7Ht697aKEM3_-BNKkot6vLunRSNsSea1sgiMWBk
-Message-ID: <CANUHTR-PqW=7k5HmC=qb4LA19qM90OBgnTx_r-p21Lva3zzO=w@mail.gmail.com>
-Subject: Re: [PATCH] HID: intel-thc-hid: intel-quickspi: fix autosuspend
- cleanup during teardown
-To: Krzysztof Kozlowski <krzk@kernel.org>
-Cc: Even Xu <even.xu@intel.com>, Xinpeng Sun <xinpeng.sun@intel.com>, 
-	Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>, 
-	Sakari Ailus <sakari.ailus@linux.intel.com>, "Danny D." <d3z.the.dev@gmail.com>, 
-	Abhishek Tamboli <abhishektamboli9@gmail.com>, Mark Pearson <mpearson-lenovo@squebb.ca>, 
-	Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, linux-input@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+X-Developer-Signature: v=1; a=openpgp-sha256; l=11056; i=krzysztof.kozlowski@oss.qualcomm.com;
+ h=from:subject; bh=VLXTtn7XT08IxyQgaQsGpfBTB1h569tUbQVdJRALfyY=;
+ b=owEBbQKS/ZANAwAKAcE3ZuaGi4PXAcsmYgBqjr38uizHhFsyaUfbShh6aV91h2LuTgXLla7J1
+ iRWfu/7MTyJAjMEAAEKAB0WIQTd0mIoPREbIztuuKjBN2bmhouD1wUCao69/AAKCRDBN2bmhouD
+ 1//ND/9VUySGE4BflnGzefwaWJXA4iuKBkmzGwLMqN7eUXpUbSoX8iLtPrxbX+9yUzLueGyH4Xo
+ epcJibxndgTnzbc2klHFJapQc2tGlzVR5FvpC1La3tDHMiqxYLIpJfOwKJZ6fK+WbzJvh4jzKLL
+ dhhU1tZ2bbiPbsDE1crODu4QizlzaJK5VCmopeUHNgfmXG11v15zISMWX7nXpFJRKVbM9bLv7ii
+ zN2ymvdCyRS34rWLOfhEzlse4MsoWGETeqq4mqsY+qoJn1bxtHIHskysOWKvS85nA4uP7oiXuTr
+ 6ZdbAxuTjE2nfdS0Fc4cHCue1oAJ2743qN6ZLilYDjsCWUFbWQLCnisqa1h2+Ax+R47myq/12aF
+ dwX8qT6VQpVIBzSum/GvJ5i2NUuOasfdTEArp+7j9pDh2QNcJZ3W0Y0tGloGYcrFQ45NNWEKzdr
+ FX0P6H+TNG/r09/AVrcy+5vX3n+rXdzubmZ5EWtDNdSigLS3Zt6NCZp7DTbhUBunhAHrJChToIb
+ /pCy2QEk2nreFUlIcqtnzF+7VdbnzcFJMytpjCAAPhuacDmnEsfObOM7tuHZn8gzbdA7iurAmiF
+ M0WmAj98vqqauR0HjMqzgpaoc9BO/aVy9sVx8UBgGD71N977fkSk9PqCIqWt1QeIggzlZWg30M0 R1M+6g3LfXeMZjA==
+X-Developer-Key: i=krzysztof.kozlowski@oss.qualcomm.com; a=openpgp; fpr=9BD07E0E0C51F8D59677B7541B93437D3B41629B
+Content-Transfer-Encoding: 8bit
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODI2MDA4NSBTYWx0ZWRfX/TEcLuuBWpj7
+ n/BgnrDj67JLKtP1JX8EtR5JaptYM4NeAfsx211xrEmcCiKNeCIP8s/bzRHYY3NLiaAL7Y0ZKqn
+ DTJbJtRC5vYtAVYH1wKLrBjhCp21uvw=
+X-Proofpoint-ORIG-GUID: mnXY6M9OPD6uePJsYwStQKZ2o-Faauxq
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODI2MDA4NSBTYWx0ZWRfX3u8IwbzRM3V5
+ 6lL6unDnFVTYO4XbYTrkOKHPKlSSqhDWdyP6NQvPy28jB+KbADR9H6VoJHXPHiYpD/YFKBjjB35
+ ZjoL4u1WWBXiVUxOYsPSlGW07pwLUnmd7z5ToKt2we/XFnHa/6ZXvbewTTaYUaaWIXrog/IUuBt
+ 5ipeIbnSJJWxQ5JmAwXfnXKtpIPMRieYP4jnCoIQ9rnunkPYtnsFiiKmNPyw9zNLwuswdiV0VF8
+ p18RUNnddLyoT6Da2ImUn9FajPDsH4dcu+nHnMdZrOmmJoXUoo1KW5NIia02KwM/xtNBZDeU+A0
+ 9C4rKb2WlLjHFPGuLFuNTlVpEC/qv4iBDyslejdmhdl+HF7UMRLQPFTKfwUYqlcWQ+P6CKRP/dG
+ qnshHG91veuC1G06LAKy0xpnHgVoyOl2KMmCC1sNs2+hEDbUeziltDkoF/6aBDBMfHUzxLSCvHO
+ zkUUrhyDbmd53vIyaGg==
+X-Authority-Analysis: v=2.4 cv=T9S8ifKQ c=1 sm=1 tr=0 ts=6a8ebe0b cx=c_pps
+ a=WeENfcodrlLV9YRTxbY/uA==:117 a=+bKQE0WJfmhK2875HamI0Q==:17
+ a=Sv0fKeRqtYgA:10 a=s4-Qcg_JpJYA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=u7WPNUs3qKkmUXheDGA7:22 a=DJpcGTmdVt4CTyJn9g5Z:22 a=EUspDBNiAAAA:8
+ a=aRM99mu1m__PA3yi2SkA:9 a=kacYvNCVWA4VmyqE58fU:22 a=bUPTxTJnKXFcjW2UzhXP:22
+X-Proofpoint-GUID: mnXY6M9OPD6uePJsYwStQKZ2o-Faauxq
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-08-26_03,2026-08-26_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ adultscore=0 suspectscore=0 priorityscore=1501 malwarescore=0 phishscore=0
+ lowpriorityscore=0 clxscore=1015 spamscore=0 impostorscore=0 bulkscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608260085
 
-Hi Krzysztof,
+Correct a few white-space issues around <>, which will be flagged by
+dt-check-style.  No functional changes.
 
-On Thu, 20 Aug 2026 at 22:50, Krzysztof Kozlowski <krzk@kernel.org> wrote:
->
-> On 08/08/2026 17:17, Guangshuo Li wrote:
-> > quickspi_probe() calls pm_runtime_use_autosuspend(), but
-> > quickspi_remove() does not call the matching
-> > pm_runtime_dont_use_autosuspend() during teardown.
-> >
-> > If the autosuspend delay is set to a negative value while autosuspend
-> > is enabled, the runtime PM core increments usage_count to prevent
-> > runtime suspend. Without calling pm_runtime_dont_use_autosuspend()
-> > during teardown, this reference is not dropped.
-> >
-> > The documentation for pm_runtime_use_autosuspend() also notes that it
-> > is important to undo it with pm_runtime_dont_use_autosuspend() at
-> > driver exit time, unless runtime PM was initially enabled with
-> > devm_pm_runtime_enable().
-> >
-> > Add the missing pm_runtime_dont_use_autosuspend() call to the driver
-> > remove path.
-> >
-> > This issue was found by manual code inspection.
-> >
-> > Fixes: 6912aaf3fd24 ("HID: intel-thc-hid: intel-quickspi: Add PM implementation")
-> > Cc: stable@vger.kernel.org
-> > Signed-off-by: Guangshuo Li <lgs201920130244@gmail.com>
-> > ---
->
-> You sent vast amount of patches, all separate, making it very difficult
-> to track and respond in efficient way. Do not do that.
->
-> Group your work per subsystem.
->
-> You were asked to clarify and respond to incorrect fixes statement. I do
-> not see how you clarified and responded at all.
->
-> Best regards,
-> Krzysztof
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
 
-Sorry about that. I should have replied to the earlier review comments
-explicitly, and I also should not have sent so many separate patches.
+---
 
-I will group future patches by subsystem and make sure to respond
-clearly to review feedback before resending.
+Rob, Can you take it directly?
+---
+ .../bindings/arm/arm,coresight-cti.yaml       |  2 +-
+ .../bindings/display/bridge/sil,sii9022.yaml  |  2 +-
+ .../bindings/i2c/xlnx,xps-iic-2.00.a.yaml     |  4 ++--
+ .../bindings/iio/light/upisemi,us5182.yaml    |  2 +-
+ .../bindings/input/matrix-keymap.yaml         |  3 +--
+ .../devicetree/bindings/input/ti,tca8418.yaml | 21 +++++++++----------
+ .../bindings/media/nxp,imx8-jpeg.yaml         |  4 ++--
+ .../devicetree/bindings/mfd/ti,tps65910.yaml  |  2 +-
+ .../bindings/pci/hisilicon,kirin-pcie.yaml    |  4 ++--
+ .../pinctrl/sunplus,sp7021-pinctrl.yaml       |  2 +-
+ .../bindings/spi/aspeed,ast2600-fmc.yaml      |  6 +++---
+ .../bindings/thermal/thermal-idle.yaml        |  2 +-
+ 12 files changed, 26 insertions(+), 28 deletions(-)
 
-Thanks for pointing this out.
+diff --git a/Documentation/devicetree/bindings/arm/arm,coresight-cti.yaml b/Documentation/devicetree/bindings/arm/arm,coresight-cti.yaml
+index 949444aba1f8..f4101f94241a 100644
+--- a/Documentation/devicetree/bindings/arm/arm,coresight-cti.yaml
++++ b/Documentation/devicetree/bindings/arm/arm,coresight-cti.yaml
+@@ -308,7 +308,7 @@ examples:
+             arm,trig-in-sigs = <0 1>;
+             arm,trig-in-types = <PE_DBGTRIGGER
+                                  PE_PMUIRQ>;
+-            arm,trig-out-sigs = <0 1 2 >;
++            arm,trig-out-sigs = <0 1 2>;
+             arm,trig-out-types = <PE_EDBGREQ
+                                   PE_DBGRESTART
+                                   PE_CTIIRQ>;
+diff --git a/Documentation/devicetree/bindings/display/bridge/sil,sii9022.yaml b/Documentation/devicetree/bindings/display/bridge/sil,sii9022.yaml
+index 17ea06719b56..b869552596f4 100644
+--- a/Documentation/devicetree/bindings/display/bridge/sil,sii9022.yaml
++++ b/Documentation/devicetree/bindings/display/bridge/sil,sii9022.yaml
+@@ -128,7 +128,7 @@ examples:
+             cvcc12-supply = <&v1v2_hdmi>;
+ 
+             #sound-dai-cells = <0>;
+-            sil,i2s-data-lanes = < 0 1 2 >;
++            sil,i2s-data-lanes = <0 1 2>;
+             clocks = <&mclk>;
+             clock-names = "mclk";
+ 
+diff --git a/Documentation/devicetree/bindings/i2c/xlnx,xps-iic-2.00.a.yaml b/Documentation/devicetree/bindings/i2c/xlnx,xps-iic-2.00.a.yaml
+index 658ae92fa86d..edd561d9733a 100644
+--- a/Documentation/devicetree/bindings/i2c/xlnx,xps-iic-2.00.a.yaml
++++ b/Documentation/devicetree/bindings/i2c/xlnx,xps-iic-2.00.a.yaml
+@@ -52,8 +52,8 @@ examples:
+     axi_iic_0: i2c@40800000 {
+       compatible = "xlnx,xps-iic-2.00.a";
+       clocks = <&clkc 15>;
+-      interrupts = < 1 2 >;
+-      reg = < 0x40800000 0x10000 >;
++      interrupts = <1 2>;
++      reg = <0x40800000 0x10000>;
+ 
+       #size-cells = <0>;
+       #address-cells = <1>;
+diff --git a/Documentation/devicetree/bindings/iio/light/upisemi,us5182.yaml b/Documentation/devicetree/bindings/iio/light/upisemi,us5182.yaml
+index dd78abe0ec8d..979d7e782290 100644
+--- a/Documentation/devicetree/bindings/iio/light/upisemi,us5182.yaml
++++ b/Documentation/devicetree/bindings/iio/light/upisemi,us5182.yaml
+@@ -69,7 +69,7 @@ examples:
+         light-sensor@39 {
+             compatible = "upisemi,usd5182";
+             reg = <0x39>;
+-            upisemi,glass-coef = < 1000 >;
++            upisemi,glass-coef = <1000>;
+             upisemi,dark-ths = /bits/ 16 <170 200 512 512 800 2000 4000 8000>;
+             upisemi,upper-dark-gain = /bits/ 8 <0x00>;
+             upisemi,lower-dark-gain = /bits/ 8 <0x16>;
+diff --git a/Documentation/devicetree/bindings/input/matrix-keymap.yaml b/Documentation/devicetree/bindings/input/matrix-keymap.yaml
+index ce910e4ac823..bef8f9813535 100644
+--- a/Documentation/devicetree/bindings/input/matrix-keymap.yaml
++++ b/Documentation/devicetree/bindings/input/matrix-keymap.yaml
+@@ -41,8 +41,7 @@ examples:
+   - |
+     keypad {
+         /* ... */
+-        linux,keymap = < 0x00030012
+-                         0x0102003a >;
++        linux,keymap = <0x00030012 0x0102003a>;
+         keypad,num-rows = <2>;
+         keypad,num-columns = <8>;
+     };
+diff --git a/Documentation/devicetree/bindings/input/ti,tca8418.yaml b/Documentation/devicetree/bindings/input/ti,tca8418.yaml
+index 624a1830d0b0..a8897c5c4d9d 100644
+--- a/Documentation/devicetree/bindings/input/ti,tca8418.yaml
++++ b/Documentation/devicetree/bindings/input/ti,tca8418.yaml
+@@ -46,16 +46,15 @@ examples:
+             interrupts = <11 IRQ_TYPE_EDGE_FALLING>;
+             keypad,num-rows = <4>;
+             keypad,num-columns = <4>;
+-            linux,keymap = < MATRIX_KEY(0x00, 0x01, BTN_0)
+-                             MATRIX_KEY(0x00, 0x00, BTN_1)
+-                             MATRIX_KEY(0x01, 0x01, BTN_2)
+-                             MATRIX_KEY(0x01, 0x00, BTN_3)
+-                             MATRIX_KEY(0x02, 0x00, BTN_4)
+-                             MATRIX_KEY(0x00, 0x03, BTN_5)
+-                             MATRIX_KEY(0x00, 0x02, BTN_6)
+-                             MATRIX_KEY(0x01, 0x03, BTN_7)
+-                             MATRIX_KEY(0x01, 0x02, BTN_8)
+-                             MATRIX_KEY(0x02, 0x02, BTN_9)
+-            >;
++            linux,keymap = <MATRIX_KEY(0x00, 0x01, BTN_0)
++                            MATRIX_KEY(0x00, 0x00, BTN_1)
++                            MATRIX_KEY(0x01, 0x01, BTN_2)
++                            MATRIX_KEY(0x01, 0x00, BTN_3)
++                            MATRIX_KEY(0x02, 0x00, BTN_4)
++                            MATRIX_KEY(0x00, 0x03, BTN_5)
++                            MATRIX_KEY(0x00, 0x02, BTN_6)
++                            MATRIX_KEY(0x01, 0x03, BTN_7)
++                            MATRIX_KEY(0x01, 0x02, BTN_8)
++                            MATRIX_KEY(0x02, 0x02, BTN_9)>;
+         };
+     };
+diff --git a/Documentation/devicetree/bindings/media/nxp,imx8-jpeg.yaml b/Documentation/devicetree/bindings/media/nxp,imx8-jpeg.yaml
+index 6ba668aa633d..4727dd7040a8 100644
+--- a/Documentation/devicetree/bindings/media/nxp,imx8-jpeg.yaml
++++ b/Documentation/devicetree/bindings/media/nxp,imx8-jpeg.yaml
+@@ -95,7 +95,7 @@ examples:
+ 
+     jpegdec: jpegdec@58400000 {
+         compatible = "nxp,imx8qxp-jpgdec";
+-        reg = <0x58400000 0x00050000 >;
++        reg = <0x58400000 0x00050000>;
+         clocks = <&img_jpeg_dec_lpcg IMX_LPCG_CLK_0>,
+                  <&img_jpeg_dec_lpcg IMX_LPCG_CLK_4>;
+         interrupts = <GIC_SPI 309 IRQ_TYPE_LEVEL_HIGH>,
+@@ -111,7 +111,7 @@ examples:
+ 
+     jpegenc: jpegenc@58450000 {
+         compatible = "nxp,imx8qm-jpgenc", "nxp,imx8qxp-jpgenc";
+-        reg = <0x58450000 0x00050000 >;
++        reg = <0x58450000 0x00050000>;
+         clocks = <&img_jpeg_enc_lpcg IMX_LPCG_CLK_0>,
+                  <&img_jpeg__lpcg IMX_LPCG_CLK_4>;
+         interrupts = <GIC_SPI 305 IRQ_TYPE_LEVEL_HIGH>,
+diff --git a/Documentation/devicetree/bindings/mfd/ti,tps65910.yaml b/Documentation/devicetree/bindings/mfd/ti,tps65910.yaml
+index f1a76f88fc0c..f285e8cb29fb 100644
+--- a/Documentation/devicetree/bindings/mfd/ti,tps65910.yaml
++++ b/Documentation/devicetree/bindings/mfd/ti,tps65910.yaml
+@@ -208,7 +208,7 @@ examples:
+             compatible = "ti,tps65910";
+             reg = <0x2d>;
+             interrupt-parent = <&intc>;
+-            interrupts = < 0 118 0x04 >;
++            interrupts = <0 118 0x04>;
+ 
+             #gpio-cells = <2>;
+             gpio-controller;
+diff --git a/Documentation/devicetree/bindings/pci/hisilicon,kirin-pcie.yaml b/Documentation/devicetree/bindings/pci/hisilicon,kirin-pcie.yaml
+index e863519f3161..b6801057e31e 100644
+--- a/Documentation/devicetree/bindings/pci/hisilicon,kirin-pcie.yaml
++++ b/Documentation/devicetree/bindings/pci/hisilicon,kirin-pcie.yaml
+@@ -160,7 +160,7 @@ examples:
+               reg = <0x2800 0 0 0 0>;
+               compatible = "pciclass,0604";
+               device_type = "pci";
+-              reset-gpios = <&gpio27 4 0 >;
++              reset-gpios = <&gpio27 4 0>;
+               #address-cells = <3>;
+               #size-cells = <2>;
+               ranges;
+@@ -170,7 +170,7 @@ examples:
+               reg = <0x03800 0 0 0 0>;
+               compatible = "pciclass,0604";
+               device_type = "pci";
+-              reset-gpios = <&gpio25 2 0 >;
++              reset-gpios = <&gpio25 2 0>;
+               #address-cells = <3>;
+               #size-cells = <2>;
+               ranges;
+diff --git a/Documentation/devicetree/bindings/pinctrl/sunplus,sp7021-pinctrl.yaml b/Documentation/devicetree/bindings/pinctrl/sunplus,sp7021-pinctrl.yaml
+index 94b868c7ceb1..0084350ec579 100644
+--- a/Documentation/devicetree/bindings/pinctrl/sunplus,sp7021-pinctrl.yaml
++++ b/Documentation/devicetree/bindings/pinctrl/sunplus,sp7021-pinctrl.yaml
+@@ -339,7 +339,7 @@ examples:
+         sdcard-pins {
+             function = "SD_CARD";
+             groups = "SD_CARD";
+-            sunplus,pins = < SPPCTL_IOPAD(91, SPPCTL_PCTL_G_GPIO, 0, 0) >;
++            sunplus,pins = <SPPCTL_IOPAD(91, SPPCTL_PCTL_G_GPIO, 0, 0)>;
+         };
+ 
+         hdmi_A_tx1-pins {
+diff --git a/Documentation/devicetree/bindings/spi/aspeed,ast2600-fmc.yaml b/Documentation/devicetree/bindings/spi/aspeed,ast2600-fmc.yaml
+index 80e542624cc6..ad830aebb798 100644
+--- a/Documentation/devicetree/bindings/spi/aspeed,ast2600-fmc.yaml
++++ b/Documentation/devicetree/bindings/spi/aspeed,ast2600-fmc.yaml
+@@ -62,21 +62,21 @@ examples:
+         interrupts = <GIC_SPI 39 IRQ_TYPE_LEVEL_HIGH>;
+ 
+         flash@0 {
+-            reg = < 0 >;
++            reg = <0>;
+             compatible = "jedec,spi-nor";
+             spi-max-frequency = <50000000>;
+             spi-rx-bus-width = <2>;
+         };
+ 
+         flash@1 {
+-            reg = < 1 >;
++            reg = <1>;
+             compatible = "jedec,spi-nor";
+             spi-max-frequency = <50000000>;
+             spi-rx-bus-width = <2>;
+         };
+ 
+         flash@2 {
+-            reg = < 2 >;
++            reg = <2>;
+             compatible = "jedec,spi-nor";
+             spi-max-frequency = <50000000>;
+             spi-rx-bus-width = <2>;
+diff --git a/Documentation/devicetree/bindings/thermal/thermal-idle.yaml b/Documentation/devicetree/bindings/thermal/thermal-idle.yaml
+index 1b77d542a7b8..6b4b16580adf 100644
+--- a/Documentation/devicetree/bindings/thermal/thermal-idle.yaml
++++ b/Documentation/devicetree/bindings/thermal/thermal-idle.yaml
+@@ -137,7 +137,7 @@ examples:
+                 cooling-maps {
+                     map0 {
+                         trip = <&cpu_alert1>;
+-                        cooling-device = <&cpu_b0_therm 0 15 >,
++                        cooling-device = <&cpu_b0_therm 0 15>,
+                                          <&cpu_b1_therm 0 15>;
+                     };
+ 
+-- 
+2.53.0
 
-Best regards,
-Guangshuo

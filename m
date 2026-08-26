@@ -1,143 +1,165 @@
-Received: from mail-ej1-f48.google.com (mail-ej1-f48.google.com [209.85.218.48])
+Received: from mail-oa2-f0.google.com (mail-oa2-f0.google.com [74.125.231.64])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1497A472522
-	for <linux-input@vger.kernel.org>; Wed, 26 Aug 2026 18:06:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.48
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 735B3283FD9
+	for <linux-input@vger.kernel.org>; Wed, 26 Aug 2026 22:22:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.231.64
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787767581; cv=none; b=F+0uGVk7UWpOltTpP1Cc7wDkJT5r8pbnSolIv4H6Bzfrl6GUdKgziU72AARmMIxzSIYb1mD2+uxig3CGGtDyzkgQmN6PTWdOYA2ZMJgCqsqSjnpJzCcayk5ShGZuF1X4NN8KMYCt5eg4XbfP7Riq/e6tZtK07hT2r5VEH80y6Rw=
+	t=1787782954; cv=none; b=Nh+7ijQGE4s0XaoTiqirUPK/6Pn8wdYdVyV1UzAtWn0jUmt4jz6DexDlL2HTL06xYpVkxPnsYVKYlCrfAvYsT79FvvhA4NDM20bYBblXguPCZVYqTPkU68Xerhwki5dbcR5QKHBF9HOUTTQMOJUd42dwmgYN3cJvZjoUDUfYxRQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787767581; c=relaxed/simple;
-	bh=LeEJFYRJyjBD+VOdgRYdyzn/yNEdxpehfMwq5EPBXQw=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=uEaIlQR54DhEyqqkxRINMOehGg0AFgN27R/HEJpMpLJB4JpXk7YBiMMH8RCJVttQqukJ83E6V+WmmbasrK7KfOtABzTUNHeRRtaBMbRUOiVEX4r40yxmc1p/iWJqjhtj/ZjXaFo7iw6ogqOsvUSTSBRD1WmXrpPBEbn2z/5Y59g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=WxgKhO1U; arc=none smtp.client-ip=209.85.218.48
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="WxgKhO1U"
-Received: by mail-ej1-f48.google.com with SMTP id a640c23a62f3a-c1670dad7a8so213156666b.3
-        for <linux-input@vger.kernel.org>; Wed, 26 Aug 2026 11:06:14 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1787767570; x=1788372370; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=Cm/MI2m9y8Iv9NfgYHEezzJ1W5y+yuhXpteKHeoWjTU=;
-        b=WxgKhO1URr+YV1uT59apW+giKeGAcbwNSToIBOv/2bHpXgfeUflPVZyHi4J1NUamG+
-         yGH1fudawP3OdHFK/4CpiWlVvqgcOKOEtjRBvMa7u+pIlEun9gg8h37ycMMpVVuX41Vj
-         O1FdOnOyCrGkwT5oH4ybPkg8cepI+RgmwUaNhv19HaNilKLBPy2EobbBShawrxMsLtI3
-         MF6+cXvlhzMVpDr7TVEkZE1Q0n8/KMioRvLbhAHINydaII3A/nZ/XjfS7CLh1p+BYimy
-         Qyb2RDraRr7jhBtoIDgInqM9IBXrwn9nZxKd6LUY4Qi5f+OHKMQfDPYnhcLtZYrqp7Uk
-         VEpA==
+	s=arc-20240116; t=1787782954; c=relaxed/simple;
+	bh=krTUWyTjFfNUvNAas2FH261nlZ1YuUcBeN6XdjGxIhM=;
+	h=MIME-Version:Date:In-Reply-To:Message-ID:Subject:From:To:
+	 Content-Type; b=FL766jgcJ9ZarJrxhGfuecf147djYQuVWxqoOqg44IbTH+NMx/ZxrIpZAAwKMCwVSkl2xnHRB6CLnUOPpRzumsEnXUpcCrfVNaG4Xkd+nc7BIGyh0dfTXFPPFn2frUVb2nqpAfPrO+nMOqBPAZQA2a0LfTWzo3riWnUlOlMsMt8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=74.125.231.64
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
+Received: by mail-oa2-f0.google.com with SMTP id 586e51a60fabf-451e8472960so873857fac.1
+        for <linux-input@vger.kernel.org>; Wed, 26 Aug 2026 15:22:32 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787767570; x=1788372370;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=Cm/MI2m9y8Iv9NfgYHEezzJ1W5y+yuhXpteKHeoWjTU=;
-        b=mGok4fmUgES69YPKTOm5b8fcLoYLy5ZBbyKms/lNQoXrJAatJK7N7awDrFGGIkBTxI
-         f0RmEM94VK+y4BHqEpJldkVappdGE1M0w9bMX5umz4OPFcyfuOHqP+uZH9fMUmQzaDnx
-         1WTOR+uiqq9+uKazNBd3I6QJGgs5Ff9wOoVl5aGBsKI5fAZN+hV7hb66xA2qZk+paNBG
-         fdFWfij0zKcPaoxyecjk0iaxxn4664vBHMvMEVdxcVBjbFzOYWXPOznNi07j1Ww23uXy
-         T4H59kcjt8KdO0ZoBfRuc9Nbex8sT7blzbGzUlcpmLHTuPAKIkOMxD1xmhzebSyRgrNG
-         ONJQ==
-X-Forwarded-Encrypted: i=1; AHgh+RopsXFB5yPxoiqBO2wjC+YDSIhKA92T35vdsMRKoOmqRmGJnTQrjn5HQVU1Kk8hrPQyzpN8qfvT+VBDiw==@vger.kernel.org
-X-Gm-Message-State: AFuF++mr7/K5vEcPqdrnxOjzPXJ9qL0Z0V3OHBQts9dzawXCXrwynwG+
-	JNSx5uIJ0+Ldpvkh9EoGg/Nk2Uy2yRdrWnZHdHL2Z/6OC9jX7XB0j2mN
-X-Gm-Gg: AR+sD13HaM4dEomveS1LPQMOZO0ioCEmPErmss+QICRQbMpgRvQ9WFymafvLVEUAa3y
-	LLhCBsVfsNzY0mjxvGY8w2KaS4b9J6EbH216SJDR8AD+HppvFXt7CjpkUeCMudk1rE41xcCbSWO
-	uv5iCcxIGzhX7DU1Vuil5xL8unF0iPOTYLObHDGIIYJmeaVD4HDi20dowf5h6Gd7oCvxRtkbxUj
-	NKRhIp83HH4HyYl5KDSyKPURRkaYtVb2jZvVgwNb39veG8gx8RnSKGiM2xg1OMGHjrFsVu2l5fL
-	4uNDh/orQfEJSMxyn96uvndQVmX3dyM+Ri+rcaoH/f+FvfaMTFci5IjTS1VFsi2Cunn8nxuT3wb
-	1YNWwKe98D84HFjWgtqgmvj04T2+1N1+CLwTyjIwOEGoZx/B2BbGTmg2Aq5nG5a/Ew/AybJLslX
-	xWVHJGxtOagqCc/cL7CerWHE23cdFojcCerIaMPHNor4Cofeh45OY/f0UVVp7F9Y1eJixW/eqcj
-	TqqrAAEP5zHl+owB79Q47Vb7CtPetY8FxiAg52RpIEvJrgYktvLOKlq4vbf
-X-Received: by 2002:a17:907:b041:10b0:c25:2de6:f063 with SMTP id a640c23a62f3a-c252de6fd5dmr477114266b.5.1787767569865;
-        Wed, 26 Aug 2026 11:06:09 -0700 (PDT)
-Received: from localhost ([188.234.148.119])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c250a9b106dsm700097766b.43.2026.08.26.11.06.08
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 26 Aug 2026 11:06:09 -0700 (PDT)
-From: Mikhail Gavrilov <mikhail.v.gavrilov@gmail.com>
-To: tiwai@suse.com
-Cc: perex@perex.cz,
-	jikos@kernel.org,
-	bentiss@kernel.org,
-	linux-sound@vger.kernel.org,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v8 0/2] ALSA: usb-audio: the Topping M62's vendor controls
-Date: Wed, 26 Aug 2026 23:06:07 +0500
-Message-ID: <20260826180607.324604-1-mikhail.v.gavrilov@gmail.com>
-X-Mailer: git-send-email 2.55.0
-In-Reply-To: <20260825111239.24834-1-mikhail.v.gavrilov@gmail.com>
-References: <20260825111239.24834-1-mikhail.v.gavrilov@gmail.com>
+        d=1e100.net; s=20251104; t=1787782951; x=1788387751;
+        h=content-type:to:from:subject:message-id:in-reply-to:date
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=Y3Eieam+i47nsBCoX/y9GEyUNYggaF/JmMEBhjWIWLs=;
+        b=MDbXdgzWmlwLmU2k7KoSAlvZEJVdUh+PMNoZbzk/3fIDF3BN3bETtthi32cW6c9uMr
+         ImcXoEDbIXC2pt5oRdrp/RKA8iAquypb7x6YS9alw5qcdqoiH2GRDdkA28BQy7PvzP3a
+         XFmH/RauxEaHqbehANjvB0oPU4DmrP+UUJJcYmgQAxbLxwJT5vvI4/Rn7Sa6caVR/vzm
+         uhKl6lzW7HcKcV/+fAXo0pdJoySGD8VQGIZezp7PU4kLAInAuGLyN4QEKw/UKnGzYRQp
+         kJkK31CYwhUNiUZl48115yhPffHGR/TGZdYQ7O3mj5pOOMhuZTTmjB52bSzTP1ilw/w7
+         K7Tw==
+X-Forwarded-Encrypted: i=1; AHgh+RrBB+XlH5t2iyAeZoD2tRGL+7qrr/6eKRi+/af6JBsW5tOcAMbVIQ3Cq2R1gm56A8xxht0GvBhvisfivQ==@vger.kernel.org
+X-Gm-Message-State: AFuF++msWdZYzNAu+dq5RRMQ8qZwTck3QRQzdTlL9fed4mWb/VcXimoA
+	HT4V2tnY2OqoSIoQcPhkNHqbY3+FHBt5iIijKcvoMyWZxVj1zyEisUQyPxDqGtzdotJZAzQj9eC
+	KVWRrTYpv0Q0rGSYSVkuFMfHxBC/abXOuxTaQEJxio4gFV5UteBcy27tZ16s=
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+X-Received: by 2002:a05:6820:3407:20b0:6b1:9944:552b with SMTP id
+ 006d021491bc7-6b1a047f077mr7824802eaf.19.1787782951350; Wed, 26 Aug 2026
+ 15:22:31 -0700 (PDT)
+Date: Wed, 26 Aug 2026 15:22:31 -0700
+In-Reply-To: <6a802643.9ebadd4d.20b15e.000a.GAE@google.com>
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <6a8f6727.50659fcc.60cd.0008.GAE@google.com>
+Subject: Re: [syzbot] [input?] [usb?] WARNING: ODEBUG bug in corsair_remove
+From: syzbot <syzbot+0a031a76585d1c7e737d@syzkaller.appspotmail.com>
+To: bentiss@kernel.org, ccc194101@163.com, chenchangcheng@kylinos.cn, 
+	jeffinphilip14@gmail.com, jikos@kernel.org, linux-input@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org, 
+	syzkaller-bugs@googlegroups.com
+Content-Type: text/plain; charset="UTF-8"
 
-Found on my own bench while chasing something else, and I would rather
-bring it than have it found for me.
+syzbot has found a reproducer for the following issue on:
 
-The problem, as a user could see it: after unbinding the vendor
-interface by hand, the driver keeps writing to the card. Reads stop --
-the control freezes on its last announced value -- while writes go on
-reaching the hardware, and the two-second keepalive presumably goes on
-with them, into an interface the driver no longer owns.
+HEAD commit:    45c13f3f9e3b Merge tag 'hwlock-v7.3' of git://git.kernel.o..
+git tree:       https://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git usb-testing
+console output: https://syzkaller.appspot.com/x/log.txt?x=120b399e580000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=9b0fc292fc5639c
+dashboard link: https://syzkaller.appspot.com/bug?extid=0a031a76585d1c7e737d
+compiler:       gcc (Debian 14.2.0-19) 14.2.0, GNU ld (GNU Binutils for Debian) 2.44
+syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=170de979580000
+C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=12479625580000
 
-  # echo 3-1.3:1.4 > /sys/bus/usb/drivers/snd-usb-audio/unbind
-  # amixer -c M62 cget name='Mic-1 Analog Capture Volume'   # frozen
-  # amixer -c M62 cset name='Mic-1 Analog Capture Volume' 50
-  ... and the gain really moves on the card.
+Downloadable assets:
+disk image: https://storage.googleapis.com/syzbot-assets/ac6556827073/disk-45c13f3f.raw.xz
+vmlinux: https://storage.googleapis.com/syzbot-assets/01ff014f18d2/vmlinux-45c13f3f.xz
+kernel image: https://storage.googleapis.com/syzbot-assets/77e9c6302a14/bzImage-45c13f3f.xz
 
-The sound card itself survives the unbind untouched, which is right and
-is the good half of the result.
+IMPORTANT: if you fix the issue, please add the following tag to the commit:
+Reported-by: syzbot+0a031a76585d1c7e737d@syzkaller.appspotmail.com
 
-My reading of why, and I would be glad to be corrected on it. The quirk
-claims that interface with usb_driver_claim_interface() and marks it
-USB_AUDIO_IFACE_UNUSED, so usb_audio_disconnect() returns at its first
-line and nothing ever tells the quirk to wind down. Meanwhile
-usb_interrupt_msg() takes a struct usb_device and an endpoint address,
-not an interface, so losing the claim costs the driver nothing on the
-write path; the read path dies only because usbcore kills the URBs on
-the interface being unbound.
+usb 4-1: New USB device strings: Mfr=0, Product=0, SerialNumber=0
+usb 4-1: config 0 descriptor??
+corsair 0003:1B1C:1B02.0001: hidraw0: USB HID v0.00 Device [HID 1b1c:1b02] on usb-dummy_hcd.3-1/input0
+corsair 0003:1B1C:1B02.0001: Failed to get K90 initial state (error -71).
+usb 4-1: USB disconnect, device number 2
+------------[ cut here ]------------
+ODEBUG: free active (active state 0) object: ffff888122562ac8 object type: work_struct hint: k90_record_led_work+0x0/0x1f0 drivers/hid/hid-corsair.c:710
+WARNING: lib/debugobjects.c:629 at debug_print_object+0x198/0x2b0 lib/debugobjects.c:629, CPU#1: kworker/1:0/24
+Modules linked in:
+CPU: 1 UID: 0 PID: 24 Comm: kworker/1:0 Not tainted syzkaller #0 PREEMPT(lazy) 
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 07/24/2026
+Workqueue: usb_hub_wq hub_event
+RIP: 0010:debug_print_object+0x1a5/0x2b0 lib/debugobjects.c:629
+Code: b8 00 00 00 00 00 fc ff df 48 89 fa 48 c1 ea 03 80 3c 02 00 75 4f 48 8d 3d d8 94 38 08 41 56 48 8b 14 ed 40 aa d2 87 4c 89 e6 <67> 48 0f b9 3a 58 83 05 f2 ef 33 08 01 48 83 c4 18 5b 5d 41 5c 41
+RSP: 0018:ffffc9000019f1e8 EFLAGS: 00010246
+RAX: dffffc0000000000 RBX: ffffc9000019f2d0 RCX: 0000000000000000
+RDX: ffffffff87d2a980 RSI: ffffffff87d2a520 RDI: ffffffff8b1a2d60
+RBP: 0000000000000003 R08: ffff888122562ac8 R09: ffffffff87a8ade0
+R10: 0000000000000001 R11: 0000000000000000 R12: ffffffff87d2a520
+R13: ffffffff87a8ae20 R14: ffffffff85fa07c0 R15: ffffc9000019f2e8
+FS:  0000000000000000(0000) GS:ffff8882684eb000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 000055e4079ef1d0 CR3: 0000000116d44000 CR4: 00000000003506f0
+Call Trace:
+ <TASK>
+ __debug_check_no_obj_freed lib/debugobjects.c:1171 [inline]
+ debug_check_no_obj_freed+0x4da/0x630 lib/debugobjects.c:1201
+ slab_free_hook mm/slub.c:2679 [inline]
+ slab_free mm/slub.c:6499 [inline]
+ kfree+0x3b2/0x650 mm/slub.c:6792
+ k90_cleanup_macro_functions drivers/hid/hid-corsair.c:547 [inline]
+ corsair_remove+0xfa/0x2f0 drivers/hid/hid-corsair.c:602
+ hid_device_remove+0xd1/0x200 drivers/hid/hid-core.c:2897
+ device_remove+0xcb/0x180 drivers/base/dd.c:616
+ __device_release_driver drivers/base/dd.c:1349 [inline]
+ device_release_driver_internal+0x44e/0x620 drivers/base/dd.c:1372
+ bus_remove_device+0x2bc/0x560 drivers/base/bus.c:664
+ device_del+0x376/0x9b0 drivers/base/core.c:3965
+ hid_remove_device drivers/hid/hid-core.c:3126 [inline]
+ hid_destroy_device+0x19c/0x240 drivers/hid/hid-core.c:3148
+ usbhid_disconnect+0xa0/0xe0 drivers/hid/usbhid/hid-core.c:1479
+ usb_unbind_interface+0x1dd/0x9e0 drivers/usb/core/driver.c:461
+ device_remove drivers/base/dd.c:618 [inline]
+ device_remove+0x12a/0x180 drivers/base/dd.c:610
+ __device_release_driver drivers/base/dd.c:1349 [inline]
+ device_release_driver_internal+0x44e/0x620 drivers/base/dd.c:1372
+ bus_remove_device+0x2bc/0x560 drivers/base/bus.c:664
+ device_del+0x376/0x9b0 drivers/base/core.c:3965
+ usb_disable_device+0x367/0x810 drivers/usb/core/message.c:1478
+ usb_disconnect+0x2e2/0x9a0 drivers/usb/core/hub.c:2350
+ hub_port_connect drivers/usb/core/hub.c:5420 [inline]
+ hub_port_connect_change drivers/usb/core/hub.c:5720 [inline]
+ port_event drivers/usb/core/hub.c:5884 [inline]
+ hub_event+0x1d46/0x4510 drivers/usb/core/hub.c:5966
+ process_one_work+0xac7/0x1b10 kernel/workqueue.c:3387
+ process_scheduled_works kernel/workqueue.c:3470 [inline]
+ worker_thread+0x5ef/0xe50 kernel/workqueue.c:3551
+ kthread+0x373/0x450 kernel/kthread.c:436
+ ret_from_fork+0x69f/0xc90 arch/x86/kernel/process.c:158
+ ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:245
+ </TASK>
+----------------
+Code disassembly (best guess):
+   0:	b8 00 00 00 00       	mov    $0x0,%eax
+   5:	00 fc                	add    %bh,%ah
+   7:	ff                   	lcall  (bad)
+   8:	df 48 89             	fisttps -0x77(%rax)
+   b:	fa                   	cli
+   c:	48 c1 ea 03          	shr    $0x3,%rdx
+  10:	80 3c 02 00          	cmpb   $0x0,(%rdx,%rax,1)
+  14:	75 4f                	jne    0x65
+  16:	48 8d 3d d8 94 38 08 	lea    0x83894d8(%rip),%rdi        # 0x83894f5
+  1d:	41 56                	push   %r14
+  1f:	48 8b 14 ed 40 aa d2 	mov    -0x782d55c0(,%rbp,8),%rdx
+  26:	87
+  27:	4c 89 e6             	mov    %r12,%rsi
+* 2a:	67 48 0f b9 3a       	ud1    (%edx),%rdi <-- trapping instruction
+  2f:	58                   	pop    %rax
+  30:	83 05 f2 ef 33 08 01 	addl   $0x1,0x833eff2(%rip)        # 0x833f029
+  37:	48 83 c4 18          	add    $0x18,%rsp
+  3b:	5b                   	pop    %rbx
+  3c:	5d                   	pop    %rbp
+  3d:	41 5c                	pop    %r12
+  3f:	41                   	rex.B
 
-So the claim is what keeps usbhid away, not what grants the right to
-write, and the two are easy to conflate -- I had conflated them.
 
-How reachable this is: only by hand from sysfs. A plain unplug takes
-the whole device, and there disconnect runs on the audio interfaces and
-the quirk is freed with the mixer. I have not found a path that reaches
-it in ordinary use.
-
-How I plan to solve it, and this is where I need your word, because the
-change is in card.c rather than in my own file. An interface the quirk
-claimed is marked exactly like one nobody wanted, and those two are
-different things: the first has a driver behind it that should be told
-when it goes away. The shapes I can see are
-
-  (a) let the quirk register a small teardown callback at claim time
-      and have usb_audio_disconnect() run it before the early return,
-
-  (b) give the claimed-and-used case its own sentinel instead of
-      USB_AUDIO_IFACE_UNUSED, so disconnect can tell them apart,
-
-  (c) leave card.c alone and have the quirk take a usb_device
-      reference plus its own notifier, which keeps the fix inside
-      sound/usb/mixer_topping.c at the cost of a second path watching
-      the same event.
-
-I lean to (b) as the smallest honest change, but this is your file and
-the sentinel is your convention.
-
-Whichever you prefer, I would rather send it as a follow-up once the
-current series lands than fold it into v9: it is a separate defect,
-it touches a path shared by every quirk, and stirring it into a series
-under review would make both harder to read.
-
-Mikhail
+---
+If you want syzbot to run the reproducer, reply with:
+#syz test: git://repo/address.git branch-or-commit-hash
+If you attach or paste a git patch, syzbot will apply it before testing.

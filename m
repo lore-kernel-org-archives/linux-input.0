@@ -1,182 +1,147 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C421C429CCF
-	for <linux-input@vger.kernel.org>; Wed, 26 Aug 2026 13:36:14 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9EDD122B594
+	for <linux-input@vger.kernel.org>; Wed, 26 Aug 2026 13:37:51 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787751383; cv=none; b=RD1XkVwZDJRqcK8FFYpA8irrZNTtAOIoERnjPm/1v6S7nylv36kyZ3PJgzJM0HzTVbD1Lu0ANUm3DsekeyifnLL00R9xIUA+cwQD6j8bsd20R22R/iECIKRDSEuhxsKQunJTmb81z5tBXtg9HODhcv3zXZ0UEGYW1zry3m+DKTc=
+	t=1787751472; cv=none; b=QTlBHcIjQiOkGFa/PfGAKwEDYwu6tL332jQGgLm6/cpNgJhFdnDL49/JYTTuMZjbP2YO4LYe/+KwNGe9/cHwIEG2C+eyxHOIdUrr0+CCsNrEWyVJANj0AZe+KZU0I2Voyqbwil9U7xBLYaUYbVHP5sr6a/DtcFIfTDn3skzYoDQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787751383; c=relaxed/simple;
-	bh=p9Fbv8LG+3+WECHUDZnaeaiC2xyqxJa54ssq2di73q4=;
+	s=arc-20240116; t=1787751472; c=relaxed/simple;
+	bh=8IhNq9A+chBcglScBKjfR96qklcEX9N9DHGpDRgafgk=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=KFrdP4oTd0KhknMpQTVdjWZ/R7esI49RHcdQr92NBvMwcZTN3/VNHfbDKpk3m7SpT08ilYMAnJXlnHPszlRguIAP59QQuoq82cxMcH9avQ5WaEd1jIsvwc1XRDRF14pPSiSTIZRqwyhaEZ8cDxenkQUXfZ5Ca4NdPIuSCpJ8zXo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=fyTIWCgm; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=XDLmbNuZWdebAxlBaem6pZUDeNQbvT0h2VrGYQTPRfhlbiNcO+Sb0jERIH4WqRbULeKVPScHsMLTzlwt71xvI/qmlgF7cs6c+FoAF0COI+ir3yF70BCdmWoXulkDLRa/DFhl3zkH2Ktl3fEPZGU+7dOf2q9/onmzgPt4bdwrI9o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=PlhM7VGw; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="fyTIWCgm"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 704301F000E9;
-	Wed, 26 Aug 2026 13:36:14 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="PlhM7VGw"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3B6D1F000E9;
+	Wed, 26 Aug 2026 13:37:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787751374;
-	bh=PVHhXb1m0VAJXLY8AgyciCKA+8Df6AfG9tIi8Oe7myI=;
+	s=k20260515; t=1787751471;
+	bh=BSsqzIU4oBRu5oZhI7JHhqjIKkjp3ml6ZquTUP4aFhI=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=fyTIWCgmdno8vZRM9RuEvwIRUGy6ynuaheJo+wQ/4YLWvck+qBu81nvDn3rt+BAEr
-	 GF2/MN1KKrG2itTEPwc6k/4mqDzR9/p134oEBx8SFb33exwN/trHU8o/2YjY+gWsgN
-	 GTjJAiOETyTuUOw7/xfWNrbKEOv7wkrOGgZBsdgJiauLJhTQH7pr4qnamv3N1snXzE
-	 gqOQGzZEYhT5H+YFa78I+Wr2VdLlhvS4HHEVMRBSTeEeUKEz240r4EpewLTI380VIa
-	 kycTWusoSh/+VSQR7MOUaTY6dP6dVidaK9iWmgDdYuPayXJXd2xIHvKdIEjJboDOAl
-	 /mINJKjE6EcwA==
+	b=PlhM7VGwtLNZIG4HS5TNQuGy9BoyDYgixq9wAo9NUDkkHBy3wM1GaG9QquJhyNLux
+	 1PMzaB5dxw0Fez0Eru0xWdnBMshw+O8Y+0OMuXOEOp78ICxtQhaHRtTLoKVMGMlwro
+	 IwMKEEQknvDGfQwGKf73l7fQFc1EnyY9ATC+n0316QPT0gd4kneTrEkbwwk/vtS/KL
+	 OcIMolm9MsPCTJF+9+8bsUY8vKDbk3dXkfC3Y6jPmkfLI7BT9vPJTdJMxF+P144gzp
+	 +wYJU5Y9x06MEV5pfgw73Nd7PfkKWPs695/3wCVmYYzk2KSL/8LacXubc1TU0f2l7M
+	 Noe8o09cjlGUw==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 1/2] Input: drv260x: Make vbat supply optional
+Subject: Re: [PATCH 2/2] Input: drv260x: Map ACPI enable GPIO
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Maurizio Casciano" <mauriziocasciano7@gmail.com>
 Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260826132211.3341936-2-mauriziocasciano7@gmail.com>
+In-Reply-To: <20260826132211.3341936-3-mauriziocasciano7@gmail.com>
 References: <20260826132211.3341936-1-mauriziocasciano7@gmail.com>
- <20260826132211.3341936-2-mauriziocasciano7@gmail.com>
+ <20260826132211.3341936-3-mauriziocasciano7@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 26 Aug 2026 13:36:14 +0000
-Message-Id: <20260826133614.704301F000E9@smtp.kernel.org>
+Date: Wed, 26 Aug 2026 13:37:50 +0000
+Message-Id: <20260826133750.F3B6D1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
 
 Pre-existing issues:
-- [High] This problem wasn't introduced by this patch, but the resume callb=
-ack attempts I2C writes before powering on the device and fails to reinitia=
-lize volatile registers after power loss. In `drv260x_resume()`, `regmap_up=
-date_bits()` is called to clear the standby bit over I2C before asserting t=
-he enable GPIO. Because the DRV260X entirely disables its I2C interface whe=
-n the EN pin is low, the I2C write will invariably fail with `-EREMOTEIO`. =
-This failure causes the resume function to abort prematurely without ever a=
-sserting the enable GPIO, leaving the device permanently unpowered and brok=
-en after a single suspend/resume cycle. Additionally, because power is cut =
-during suspend, the device loses all volatile configurations (e.g., calibra=
-tion, rated/overdrive voltages), which are never restored upon resume.
-- [High] This problem wasn't introduced by this patch, but there is concurr=
-ent access and a lack of synchronization between the async force-feedback w=
-orker and device suspend paths. The force-feedback worker (`drv260x_worker`=
-) executes asynchronously and does not hold a lock to serialize it against =
-system suspend. During suspend, `drv260x_suspend` shuts down the device by =
-asserting the EN pin low and disabling the vbat regulator. Because the work=
-er is not canceled or flushed during suspend, it can execute while the devi=
-ce is powered down, driving the EN GPIO high and attempting I2C writes whil=
-e the vbat supply is disabled. This can cause I2C timeouts, corrupt device =
-state, and physically stress the chip by back-powering it via the GPIO.
+- [High] I2C writes in `drv260x_resume()` and error paths of `drv260x_suspe=
+nd()` will fail because the enable GPIO is not asserted.
 --
 
-commit 71f6122d604ec11f8df6957cd8212e9dd11f888a
+commit 3813e86cb3a701e0633edd349e11dd4b241aa914
 Author: Maurizio Casciano <mauriziocasciano7@gmail.com>
 
-Input: drv260x: Make vbat supply optional
-
-This patch makes the vbat regulator lookup optional to support systems that
-do not describe a software-controllable supply. Systems with a vbat supply
-described will retain the existing enable, disable, and power management
-behaviors.
+Input: drv260x: Map ACPI enable GPIO
+   =20
+Some ACPI DRV2604 devices describe the enable line as the first GPIO
+resource in _CRS but provide no _DSD mapping for its function. Add a managed
+ACPI GPIO mapping before requesting the optional enable line so these devic=
+es
+can power their haptic path.
 
 > diff --git a/drivers/input/misc/drv260x.c b/drivers/input/misc/drv260x.c
+> index c4fbb10b254e9..b6243ce8157d6 100644
 > --- a/drivers/input/misc/drv260x.c
 > +++ b/drivers/input/misc/drv260x.c
 
 [ ... ]
 
-> @@ -585,13 +589,15 @@ static int drv260x_suspend(struct device *dev)
+> @@ -448,6 +455,14 @@ static int drv260x_probe(struct i2c_client *client)
+>  	u32 voltage;
+>  	int error;
 > =20
->  		gpiod_set_value(haptics->enable_gpio, 0);
-> =20
-> -		error =3D regulator_disable(haptics->regulator);
-> -		if (error) {
-> -			dev_err(dev, "Failed to disable regulator\n");
-> -			regmap_update_bits(haptics->regmap,
-> -					   DRV260X_MODE,
-> -					   DRV260X_STANDBY_MASK, 0);
-> -			return error;
-> +		if (haptics->regulator) {
-> +			error =3D regulator_disable(haptics->regulator);
+> +	if (has_acpi_companion(dev)) {
+> +		error =3D devm_acpi_dev_add_driver_gpios(dev,
+> +						       drv260x_acpi_gpios);
+> +		if (error)
+> +			return dev_err_probe(dev, error,
+> +					     "Failed to add ACPI GPIO mapping\n");
+> +	}
+> +
+>  	haptics =3D devm_kzalloc(dev, sizeof(*haptics), GFP_KERNEL);
+>  	if (!haptics)
+>  		return -ENOMEM;
 
 [Severity: High]
-This is a pre-existing issue, but is there a lack of synchronization between
-the async force-feedback worker and device suspend paths?
+This isn't a bug introduced by this patch, but it appears there is a
+pre-existing issue in the suspend and resume paths related to the enable GP=
+IO.
 
-The force-feedback worker (drv260x_worker) executes asynchronously and does
-not hold a lock to serialize it against system suspend. During suspend, the
-device is shut down here by asserting the EN pin low and disabling the vbat
-regulator.
+Looking at drv260x_resume():
 
-Because the worker is not canceled or flushed during suspend, couldn't it
-execute while the device is powered down, driving the EN GPIO high and
-attempting I2C writes while the vbat supply is disabled? This might cause I=
-2C
-timeouts, corrupt device state, and physically stress the chip by
-back-powering it via the GPIO.
+drivers/input/misc/drv260x.c:drv260x_resume() {
+...
+		error =3D regmap_update_bits(haptics->regmap,
+					   DRV260X_MODE,
+					   DRV260X_STANDBY_MASK, 0);
+		if (error) {
+			dev_err(dev, "Failed to unset standby mode\n");
+			if (haptics->regulator)
+				regulator_disable(haptics->regulator);
+			return error;
+		}
 
-> +			if (error) {
-> +				dev_err(dev, "Failed to disable regulator\n");
-> +				regmap_update_bits(haptics->regmap,
-> +						   DRV260X_MODE,
-> +						   DRV260X_STANDBY_MASK, 0);
-> +				return error;
-> +			}
->  		}
->  	}
+		gpiod_set_value(haptics->enable_gpio, 1);
+...
+}
 
-[ ... ]
+Will this I2C transaction fail because it occurs while the chip is still he=
+ld
+in reset/shutdown by the GPIO? Since the enable GPIO is not asserted until
+after the I2C write, and the driver aborts the resume on error, does this
+leave the chip permanently disabled?
 
-> @@ -606,10 +612,12 @@ static int drv260x_resume(struct device *dev)
->  	guard(mutex)(&haptics->input_dev->mutex);
-> =20
->  	if (input_device_enabled(haptics->input_dev)) {
-> -		error =3D regulator_enable(haptics->regulator);
-> -		if (error) {
-> -			dev_err(dev, "Failed to enable regulator\n");
-> -			return error;
-> +		if (haptics->regulator) {
-> +			error =3D regulator_enable(haptics->regulator);
-> +			if (error) {
-> +				dev_err(dev, "Failed to enable regulator\n");
-> +				return error;
-> +			}
->  		}
-> =20
->  		error =3D regmap_update_bits(haptics->regmap,
-> @@ -617,7 +625,8 @@ static int drv260x_resume(struct device *dev)
->  					   DRV260X_STANDBY_MASK, 0);
->  		if (error) {
->  			dev_err(dev, "Failed to unset standby mode\n");
-> -			regulator_disable(haptics->regulator);
-> +			if (haptics->regulator)
-> +				regulator_disable(haptics->regulator);
->  			return error;
->  		}
-> =20
+Additionally, because pulling the enable GPIO low resets all chip registers=
+ and
+REGCACHE_NONE is used, is the device configuration (calibration, over-drive
+voltage, library selection) lost and never restored during resume?
 
-[Severity: High]
-This isn't a bug introduced by this patch, but does the resume callback
-attempt I2C writes before powering on the device?
+A similar issue appears to exist in the error path of drv260x_suspend():
 
-Here in drv260x_resume(), regmap_update_bits() is called to clear the stand=
-by
-bit over I2C before asserting the enable GPIO. Because the DRV260X entirely
-disables its I2C interface when the EN pin is low, won't this I2C write
-invariably fail with -EREMOTEIO?
+drivers/input/misc/drv260x.c:drv260x_suspend() {
+...
+		gpiod_set_value(haptics->enable_gpio, 0);
 
-This failure would cause the resume function to abort prematurely without e=
-ver
-asserting the enable GPIO, leaving the device permanently unpowered and bro=
-ken
-after a single suspend/resume cycle.
+		if (haptics->regulator) {
+			error =3D regulator_disable(haptics->regulator);
+			if (error) {
+				dev_err(dev, "Failed to disable regulator\n");
+				regmap_update_bits(haptics->regmap,
+						   DRV260X_MODE,
+						   DRV260X_STANDBY_MASK, 0);
+				return error;
+			}
+		}
+...
+}
 
-Additionally, because power is cut during suspend, does the device lose all
-volatile configurations (e.g., calibration, rated/overdrive voltages) that
-should be restored upon resume?
+Does the error path attempt to communicate with the chip via I2C without
+restoring the enable GPIO to 1?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260826132211.3341=
-936-1-mauriziocasciano7@gmail.com?part=3D1
+936-1-mauriziocasciano7@gmail.com?part=3D2

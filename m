@@ -1,113 +1,105 @@
-Received: from mail-wr1-f44.google.com (mail-wr1-f44.google.com [209.85.221.44])
+Received: from mail-pj1-f44.google.com (mail-pj1-f44.google.com [209.85.216.44])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DFDD03BF69E
-	for <linux-input@vger.kernel.org>; Wed, 26 Aug 2026 12:03:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.221.44
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787745836; cv=pass; b=Uy4LtFMvFkgK+NIE+YcTwORrrTyumIXZv2013GfBQX15GXrsLxCSD6Ox4i3Pa22yhiaPvL4yb9nE3kLfwD0ulvXNmzrZsXCmtH8Q8exAGLj7CFiB3MsfieLAX2UHACNMdle/ps9Vs0lULoDDCEOEDyzEgX6OqnVrbvu+eDSiyPg=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787745836; c=relaxed/simple;
-	bh=kqQV7FOuBNOfwsjfxs67LL/EcCSG5E3GWVr1Xi4F30E=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=U6W3cJLwKplrovZUk7pZqVcw/vmD3OUiGg89QBllPZ7WGZNCuTv+Ll/BuA5T9BGBALnPicPd3dYR8+2Lpp859kkxkG8tIaX1tcCazZLxULj3Ut5qh/nPScqLVmgGNjs9DDcs2w/T/vIHlQ2oDi1jWNgeB6IpfhhaANPiQ/tSXoc=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=LJsSdFTU; arc=pass smtp.client-ip=209.85.221.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ADFA941B8EB
+	for <linux-input@vger.kernel.org>; Wed, 26 Aug 2026 12:25:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.44
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1787747135; cv=none; b=l3WLW3Ajp4Dc2idvXCvRsrd0+vA8wgFkgauzQTd6pr8y8esT6PVX/l2Z9BYfEhoQ8loa52r++411X5EarlX0aXjw1fsMZwV3QOdKTBx1OIdkkThku4qGMRREOH1SegxTQwOyDRo/nSXNgjWjTDtmf0yWHP4lPfOHpgah84pPMgw=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1787747135; c=relaxed/simple;
+	bh=G/4pYCI+p6biU0oob2SAOB3uONa8AVChe5krxzG7DZg=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=n/IaGVBprh96Q/UZHj9o9WT5R3nhrJdzHht1Bmi66JHyn6xRoLCgDTFhclJpN09RUtO38vOMdBy8yG4TDsJaCritSx0QdAUkAhT0981abG8yDwOyEB5Lg6tcTPjqZmhceP7yH/EL26PnJRtLb8PVRIHax3F8ryQdkREc23ykyLU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=HhUMNIPi; arc=none smtp.client-ip=209.85.216.44
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="LJsSdFTU"
-Received: by mail-wr1-f44.google.com with SMTP id ffacd0b85a97d-482e2fdf5abso314927f8f.2
-        for <linux-input@vger.kernel.org>; Wed, 26 Aug 2026 05:03:54 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1787745833; cv=none;
-        d=google.com; s=arc-20260327;
-        b=B8CPx0C0/f78rF1e7/vJrtJdj8cKVX7ucEK9vQlHVStNlBLRMSCmLNmIwclPyXL44i
-         nnpFFM4S1/XF7gl/eGJ2xqWyKo9vnTHY0uMdszksYMwdovwMZAgizW5GJhbhmI4QD9vK
-         /eE48/sI1kYbfSCBCve4qj2e0SGulOjpWEWDoGl2Qm7K2TrpCUu2S+O7BVaEY4FK5ef9
-         KfiR1GpTwzsJpvEStmuYBL9HYIHNbF/EVMVrful6T0tkCqoKvD0j4+hBuTIXBxJIS+KO
-         x3bFmpBts7PJEaPXbuyrsulXIcipkXNTZjmQDlwhAFiGZuUyHAO5mE6p7XmG6VcBFce6
-         82+Q==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:dkim-signature;
-        bh=sZarIr+UucWyTVzB+5Hzy/ryJOKG+tI53G/aED1uVt4=;
-        fh=JIkDOPD1E5kA+GgObwfD6MUxdbEgCScT3zhN8nji70o=;
-        b=N2eBx08n2FRJYCW491RUCOgfnZ0plX+ORb6YQE45UXokM1BRh7yT0H7164TaKr45Ti
-         7qxNvKYy5CbSowZLawa8d7NZbM5jLoN/QLfISj75pSfx0ekCk7imZSZjEs0z6NGJoyIs
-         z14Qwyc4G2IlRlKVpoybesVHv4ta3xPK30Whl8cKu7RF7vgxgCK6LFXYSq2k0gtlIRNw
-         UG7Y9JKhQmrvIWe6tTcIEctUTYth0Nqwq94WQxXxac20CPgWL9ueWHMjKl/NV59erk9S
-         l//Tp3iUZ5Anh6vuOchUjnPdtg+Bl6s+pkT+MLjLfp6BE78SZGOlXdp87JrRGndfikYX
-         H/MA==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="HhUMNIPi"
+Received: by mail-pj1-f44.google.com with SMTP id 98e67ed59e1d1-38759bcd877so1369226a91.2
+        for <linux-input@vger.kernel.org>; Wed, 26 Aug 2026 05:25:34 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1787745833; x=1788350633; darn=vger.kernel.org;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=sZarIr+UucWyTVzB+5Hzy/ryJOKG+tI53G/aED1uVt4=;
-        b=LJsSdFTUFlhSxjlwFeCaUPlDhs4gHq5PKVyPb71YXFH1Zz53gaMuyY2sM+2dA3vOvZ
-         p3kbx8NX0/ms7/NUu7/mHBk5HMnTA+mJfKC5yg4W5ZuzydeLepyIgpul57bscDTJlRDw
-         85S9ti9/YTMqNqrftvLqN9OZkCuTNJQDjyi/I9enoHZbLKp3paRDteTldMoU27Irb6qM
-         ABFyDVGt2GZGlno1Hnmi7jKk+hYy8jdQIHYmj455cdk2cgoWOvkahDuvHACmP2p2TAXz
-         hLtR1csMoD2WThlVpt3saL1Xc46tSFmeLk/5RG7LMWtx3rLp+O6YxTgLETS5afjN+v7H
-         8ecw==
+        d=gmail.com; s=20251104; t=1787747134; x=1788351934; darn=vger.kernel.org;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :content-type:mime-version:references:message-id:subject:cc:to:from
+         :date:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=QLB1RbqXq7v7CNRa3wJukW4z5hiwan9Z3mACetA9txg=;
+        b=HhUMNIPiTSQVpBDqwuYr1bDNISgpuMItOcXrP8pRE91ZF2A1Kz6ESIQ9nndGokElNp
+         61Nv3Mlz2+BCWHw6ga38qZHnQR1hd6hba7qAFyQB4Wq+eQX1ZYa3X2E8qCEljS/B2v7R
+         auFYK8/B3vBhgBgOhDQhgiaOgIehTTNf1QYW5E8Ya4UfKmicEn/xdluepOMRoN78KvOl
+         ukDq7CEomaNwUfDkNKrF5IgODpG/RCs5J5ehaJUWOSe8UeJsz1sSMZD0mmuJTlLLBxo1
+         TgRc3X/ilTb5y8+QGHmu/R7oqlCI0f6h8jL3lQEZOXTHMISfPV4o6Shkfq3YFCr0HEN5
+         ffwQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787745833; x=1788350633;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=sZarIr+UucWyTVzB+5Hzy/ryJOKG+tI53G/aED1uVt4=;
-        b=cOhIwJCHEEF74Awm0DZveMfK/Nqso8C0/Xl6vF0pbDFNo8ZjmmDhXm5fah2aiJMaSG
-         PsAhFfq/bXyjQg0mk6z1Y3/8Bqb0IVOHdqzmbVoXaRFppCcdXxwFWDjQDTaunAd4l8hn
-         epfVqxlNCQXlPDIyNOYLi7gCCfsQRjXjPeOninLHphqYNsv50KObM8hehO/iZcOarHal
-         YYLByXYzh9Id48A1vYRRcz1z1B9kC4VzPvfTBOzldBKH852rOM0K2Y8SgvgQSaMNlQLn
-         ZD598IqsuJFLGsLemJIJhwNSJx73ueJ9HxfEiZlrFuLTSsPz4AJEON5Sp9qNV1B0eUHk
-         wP5w==
-X-Forwarded-Encrypted: i=1; AHgh+RoskH10Z9vRFRd9ydTl9sAl34mAHI6n/apsDSCZNEribyQajjn3kOwT5xO2kkvSHyAsuPAe20ALbZx95w==@vger.kernel.org
-X-Gm-Message-State: AFuF++ng0ct5fqTNxq8UhdKmQytNQmRx9eVSL2obq1CO343IDbxk1sR8
-	tTj/6rYRqxk388fBXF5nLUfqDIX+4c0ON08/QsYMHcu0xXq7pic1vfXD9TVYLd+pjtgayjHsVFe
-	5pwIIw0FNT/WPjvIC3SXHd+GU4hcTajQ=
-X-Gm-Gg: AR+sD11g79TFs84UG3RKhRLos8vsQRSWdCetGq/iynAJTjl89Ixxj+NO4mrUiUu4UmS
-	1lOlapElj8/0mNyPRyzY+8ftmR/RFYabKhYWwO6LDsQMMJkcgzKWqryQhtkNpMArpi69OupVi0W
-	63veshLuzJ6e7lCuTWl5PUo8N7hWcTNyvqF8z8D1mMeDaLeOLuCtPl7Hm7UrbNI7YraEfjeHtOV
-	PwGN6PbOin/OcerkXCL3KrlYc0aVJKpRlkfonoJZ04/nLce/69WTq8Yhrc7AmkPKj2br502Lx2q
-	XQh/pVMp89Fw32L8X0F118wCyj1S20UCWqMB/sW343qGlaMCY32f51NEu2w+Bn/sF6Uv0ozF5Nv
-	oNQ==
-X-Received: by 2002:a05:6000:25ca:b0:481:3db1:a62f with SMTP id
- ffacd0b85a97d-482e270a5fbmr6535891f8f.17.1787745832819; Wed, 26 Aug 2026
- 05:03:52 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1787747134; x=1788351934;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :content-type:mime-version:references:message-id:subject:cc:to:from
+         :date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=QLB1RbqXq7v7CNRa3wJukW4z5hiwan9Z3mACetA9txg=;
+        b=bpUjn65Z4xM8ENNvRGe08sadXKserTjXE/s7dpi8fDtgDaGO0r13gzUV235AiflJwi
+         qjdg7Q9shJBkQaQtz/2ANthXhzXjKMZz7eDUolLkmieyzDkEC4IjY8iN5tckiV3VeBNm
+         3vuYLODqrnU0mDw3nvSuFC0LLa8tAlXgpAZlLVMHdSxQ0Pga9pIVrwuTP5U6vKR1BQJq
+         qoanIUhBLA6tkcFpe74Dq5wXYv0wvw7sZtpAwbGmJx3C7xelGKtUf5r8KTpEnmsZX9K6
+         nye3vE6VR/ykcHuGRH4LemZOePHgpb3l3cADbUpTosZSqMGHXtSyW+2Dt2anPqNBSnXZ
+         BC2A==
+X-Forwarded-Encrypted: i=1; AHgh+RpVCLLJ4/zG6dCP8mf1h5ECGrCt9i+7GJAQG+PfrYhayWxWqeg7duhRG/lQYyorBgwGDTqUEBiOw+3aMw==@vger.kernel.org
+X-Gm-Message-State: AFuF++kBoZ7F31+ERrDVGbrtyIY8gCN+qGnoVmVtgNtLz7loawzfFQet
+	pOLGo3zPEkOJvalxV4fs8uHav/ViVipcrXNdEkMDyz54hYI838RQAcM2
+X-Gm-Gg: AR+sD13UeWDAofeoHoW1OQuH6NVmkXdmLD7JW8HjD0LPAEm/zXSLSN6yP2JnZ6THI96
+	kfJXv2unyQCwAZAp9GgoNS2HvVf1RjnOhkZQxlcZRq0hVu1z9ubnYHQ6UmoF8lageVGLmPwqVr6
+	T5oTYMMFEEsvEqXn7vXcrc+kpMOlVtMqe0IWnOaNeSFHAH2ZJgLaW8qrDhOzldUnenznzOfCrgj
+	h1UIGjMr66u9PHE5WHYd+yfUDj1OhhmOGAMXeSghItKvJznHqbqXZpwNM5WpD3UXqWi2KxpXgzj
+	26i1TbtyPaXR4lMZKUlFUoN7zwJn38bqKIQNEy/Q/J1t+bnmYWlAr6NYRDPJ7fSB2g0tNUuoWP5
+	IMGHMaZ4RmAlWBr5H52AHPoufhUqR5hQZybyZz881bld0p5EmQledl7tKgricOJe9TAz4OqFZWz
+	+kcshJgf49FA4t6XO1CWANRqpDdKEQ/nuhKNNxGXs7u3k9ug6zK0qjVvMYBl3qmwRJrhogEwRj4
+	F1JiSTwF/XttjF4R9aTaJBn7gxd
+X-Received: by 2002:a17:90b:1dce:b0:381:cef1:11ac with SMTP id 98e67ed59e1d1-3966d3e1cfdmr13717327a91.10.1787747133812;
+        Wed, 26 Aug 2026 05:25:33 -0700 (PDT)
+Received: from google.com ([2a00:79e0:2ebe:8:5877:641:857b:1318])
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-141a905c18bsm8457963c88.14.2026.08.26.05.25.31
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 26 Aug 2026 05:25:32 -0700 (PDT)
+Date: Wed, 26 Aug 2026 05:25:29 -0700
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Alvin =?utf-8?Q?=C5=A0ipraga?= <alvin.sipraga@analog.com>
+Cc: Michael Hennerich <michael.hennerich@analog.com>, 
+	Xiaolong Chen <xiaolong.chen@gmail.com>, Yuanbo Ye <yuan-bo.ye@motorola.com>, Tao Hu <taohu@motorola.com>, 
+	Nuno =?utf-8?B?U8Oh?= <nuno.sa@analog.com>, linux-gpio@vger.kernel.org, linux-input@vger.kernel.org, 
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Input: adp5588-keys - cache GPIO state before
+ registering the gpiochip
+Message-ID: <ao7bNPVKN1q4dWOS@google.com>
+References: <20260818-adp5588-gpio-cache-v1-1-650a2674fc0d@analog.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260822124531.644834-1-sammiee5311@gmail.com> <IA1PR11MB6098D3A31961238BCC060D83F4AE2@IA1PR11MB6098.namprd11.prod.outlook.com>
-In-Reply-To: <IA1PR11MB6098D3A31961238BCC060D83F4AE2@IA1PR11MB6098.namprd11.prod.outlook.com>
-From: HyeongJun An <sammiee5311@gmail.com>
-Date: Wed, 26 Aug 2026 21:03:39 +0900
-X-Gm-Features: AcwNN1VYn1rMJH0uBE8WqY0o2i5MTuBv0noINf9T0z1pd6bFWRTrogWnyxecfaI
-Message-ID: <CAJciObF_qN2G0RNpqO0N+DURop0Ja053QY1krfneCT0bmmv51A@mail.gmail.com>
-Subject: Re: [PATCH] HID: intel-thc-hid: intel-quicki2c: size the input buffer
- for the DMA
-To: "Xu, Even" <even.xu@intel.com>
-Cc: "Sun, Xinpeng" <xinpeng.sun@intel.com>, Jiri Kosina <jikos@kernel.org>, 
-	Benjamin Tissoires <bentiss@kernel.org>, 
-	"linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, 
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, 
-	"stable@vger.kernel.org" <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20260818-adp5588-gpio-cache-v1-1-650a2674fc0d@analog.com>
 
-On Wed, Aug 26, 2026 at 10:10 AM Xu, Even <even.xu@intel.com> wrote:
-> so it's not a problem, that's why you never reproduce the issue.
+On Tue, Aug 18, 2026 at 06:00:02PM +0200, Alvin Šipraga wrote:
+> So as not to clobber any pre-programmed GPIO state in the execution
+> of its gpiochip ops, the driver caches things during probe time.
+> However, since those ops can be called both during and immediately after
+> the call to devm_gpiochip_add_data(), it is imperative that things are
+> cached before that. That's not the case right now, so reorder the two
+> steps to prevent any clobbering.
+> 
+> In a conrete example which motivated this change, a bootloader was
+> preconfiguring an important GPIO output to HIGH before booting the
+> kernel. Linux would then inadvertently set that output to LOW while
+> configuring a GPIO hog on a discrete GPIO line within the same 8-bit
+> bank (because the cached value was 0=LOW).
+> 
+> Fixes: ba9f507a1bea ("Input: adp5588-keys - export unused GPIO pins")
+> Signed-off-by: Alvin Šipraga <alvin.sipraga@analog.com>
 
-Thanks for the explanation, that clears up the SWDMA side.
+Applied, thank you.
 
-I had read the RxDMA2 side as a separate case, and it looks like I have
-that wrong too.  input_buf is max(max_input_len, SZ_4K) at
-pci-quicki2c.c:607 while THC_RXDMA2 is sized ALIGN(max_input_len,
-SZ_4K), and LNL leaves qcdev->ddata NULL so the max frame size feature
-is never enabled.  I had assumed that gap was reachable, but you would
-know whether it can be.
-
-Either way, please drop the patch.  Thanks for taking a look at it.
+-- 
+Dmitry

@@ -1,154 +1,146 @@
-Received: from mailgw.kylinos.cn (mailgw.kylinos.cn [124.126.103.232])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0917C1E2834;
-	Wed, 26 Aug 2026 03:42:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=124.126.103.232
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B95B731F9A5
+	for <linux-input@vger.kernel.org>; Wed, 26 Aug 2026 03:56:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787715773; cv=none; b=Tbk/59JdM6UkSAeTgx6NnYhYBT93w2v65ROZygSgBaM/28QGd8C4LsMW2AxSJHh1X91IWUT8au6mzW7UhQme3fkUSHo2kUhivGkZKul1xBtBkStN9m6CNiuHQc3MYnbjN0Ypg3bUTvLZBmMfPJxi2u5ASEC7/UxxlPlUGW3JMeg=
+	t=1787716603; cv=none; b=b41InES2EORCs1Mq4jDFDUpUCODTcbtI3NIld9oVGYHWBsLQo/DHm0ozH9gPpXcz53g1aDDlXpEIlz9f4nmNJ7n1WNfzZagd0AWePDb6YkGzt+DuHqPe4MlGEuRMwi0JJ1vWniD9ZZBCGHAqIPDKavCDr6jdnkA9IU1i/CBAZbo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787715773; c=relaxed/simple;
-	bh=Z5i/moaRA/CjRMqFlkCCPoQH9HwGrGBJ9UnSq1KhBz4=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=rRVuti3HLJHZVtQL9Fmd4TSd/vjYYMvCsw8JHUpkvqq+Je8Amfn0x8wkOXb7ScGCIY7w/c33NLgA/fYuH9p3etmM/eHpzQGaRxhlBk7EZNHV9rHDmhCZe05BG32jfQYLlaQZnfYDo7alrI/h15qmz7QxUHspZ39wUlwCeFW/Hak=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn; spf=pass smtp.mailfrom=kylinos.cn; arc=none smtp.client-ip=124.126.103.232
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kylinos.cn
-X-UUID: 31bd69aea10011f19a56ed5b684f684d-20260826
-X-CID-CACHE: Type:Local,Time:202608261141+08,HitQuantity:1
-X-CID-P-RULE: Release_Ham
-X-CID-O-INFO: VERSION:1.3.19,REQID:d913878d-80d2-43c7-8ee4-0eb3ad5057d4,IP:0,U
-	RL:0,TC:0,Content:-25,EDM:0,RT:0,SF:0,FILE:0,BULK:0,RULE:Release_Ham,ACTIO
-	N:release,TS:-25
-X-CID-META: VersionHash:7db8b62,CLOUDID:959e9b4b55bb29c944e19680da8f0ae8,BulkI
-	D:nil,BulkQuantity:0,SF:102|850|865|898,TC:nil,Content:0|15|50,EDM:-3,IP:n
-	il,URL:99|1,File:nil,RT:nil,Bulk:nil,QS:nil,BEC:nil,COL:0,OSI:0,OSA:0,AV:0
-	,LES:1,SPR:NO,DKR:0,DKP:0,BRR:0,BRE:0,ARC:0
-X-CID-BVR: 2,SSN|SDN
-X-CID-BAS: 2,SSN|SDN,0,_
-X-CID-FACTOR: TF_CID_SPAM_ULS,TF_CID_SPAM_SNR
-X-CID-RHF: D41D8CD98F00B204E9800998ECF8427E
-X-UUID: 31bd69aea10011f19a56ed5b684f684d-20260826
-X-User: xiaopei01@kylinos.cn
-Received: from localhost.localdomain [(10.44.16.150)] by mailgw.kylinos.cn
-	(envelope-from <xiaopei01@kylinos.cn>)
-	(Generic MTA with TLSv1.3 TLS_AES_256_GCM_SHA384 256/256)
-	with ESMTP id 970393119; Wed, 26 Aug 2026 11:42:43 +0800
-From: Pei Xiao <xiaopei01@kylinos.cn>
-To: syzbot+4a6e6173b1fc7916e950@syzkaller.appspotmail.com,
-	=dmitry.torokhov@gmail.com,
-	linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org,
-	linux-media@vger.kernel.org,
-	mchehab@kernel.org,
-	syzkaller-bugs@googlegroups.com,
-	Pei Xiao <xiaopei01@kylinos.cn>,
-	stable@vger.kernel.org
-Subject: [PATCH] input: sur40: fix use-after-free in disconnect
-Date: Wed, 26 Aug 2026 11:42:39 +0800
-Message-ID: <51e68e6de6d9e7a864a5729bac1b33bd083802f6.1787715605.git.xiaopei01@kylinos.cn>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <6a8e44ca.dbb3a75c.7844.002f.GAE@google.com>
+	s=arc-20240116; t=1787716603; c=relaxed/simple;
+	bh=VK8qfcim9LrRUB+kXoPPfQKcGp2AmCFwzfBBBXA8Oco=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=dhgvG5zfbXN4cl63hddiFBElWkdzzSTK1lJmMrHBktI8fdzTN2pj96PQ0taEEOtWnmS1MKZhJMHu6Z0/JBLm3UoOLr2Zqsd1Bo4DTpqVYYQwwaAhHLwMtTm2wEXGyX+ygiOjziHo+FMRNJ8gHqVZTKLVsVI+Xlb9LjvNGqUJbe4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=gdxpVOn7; arc=none smtp.client-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="gdxpVOn7"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F0541F000E9;
+	Wed, 26 Aug 2026 03:56:42 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1787716602;
+	bh=GeoxOvvQ7bo5FN67QwSYVdmtDdup+OWnzpPqh8iU/ss=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=gdxpVOn7l2LXO+ySrj8V/WLyvZk8iMZt1ZatppI4WbbaP62A42uIJy7eAOuUDLFzK
+	 lxlvgoJ8JcXqr3nSNi8NUgalxh5dxRHRrOL7d0c3nwBq2Zictb4uexd54GagLfidS9
+	 2BrdfU8mPcPBSBH02Va1hHx+kFND1v6d/ihfl2W3fQryJ4CtXQ2wQnfhvvDgdCp3AJ
+	 qdLesJa7g5fQ3QlT0sie5AowJmW1aPdmDdPaIeA6wFeGRC9W1Uys1h1iZ+gJNBLPPX
+	 V+5b1hfJkZ+/eSyylvkrU/b2KelpyY/bRAnxISaOMITo48QFTNz/YTgVHYu4poTaUQ
+	 0hJlcUvxLHd6g==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH] input: sur40: fix use-after-free in disconnect
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Pei Xiao" <xiaopei01@kylinos.cn>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, media-ci@linuxtv.org
+In-Reply-To: <20260826034239.QMESl9TtJLm8R_oB5SkE5YErhpU_WDuou8ER3A1oZmI@z>
 References: <6a8e44ca.dbb3a75c.7844.002f.GAE@google.com>
+ <20260826034239.QMESl9TtJLm8R_oB5SkE5YErhpU_WDuou8ER3A1oZmI@z>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Wed, 26 Aug 2026 03:56:41 +0000
+Message-Id: <20260826035642.1F0541F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-ID: <20260826034239.QMESl9TtJLm8R_oB5SkE5YErhpU_WDuou8ER3A1oZmI@z>
 
-When the USB device is disconnected while userspace still holds
-an open file descriptor to the V4L2 video device, sur40_disconnect()
-calls kfree(sur40) immediately after video_unregister_device(). However,
-video_unregister_device() only removes the device from the V4L2
-framework and does not drop the kref. Userspace still holds a valid
-reference to the embedded video_device, causing a use-after-free when
-subsequently performing ioctls that access vdev->flags via
-video_is_registered().
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+s) to consider:
 
-Fix this by setting vdev->release to a new callback sur40_video_release()
-that frees the containing sur40_state via container_of(). Replace the
-direct kfree(sur40) in sur40_disconnect() with a reliance on the kref
-mechanism: video_unregister_device() triggers device_unregister() which
-drops the kref on vdev->dev; when the last reference is released
-(all userspace file descriptors closed), the V4L2 core automatically
-calls vdev->release(), safely freeing sur40_state.
+Pre-existing issues:
+- [High] Unkillable deadlock in `sur40_stop_streaming` during disconnect.
+- [High] Hang in VIDIOC_DQBUF or poll due to missing queue abort in disconn=
+ect.
+--
 
-Also fix the error path err_unreg_video to properly free the
-independently-allocated input device and return early, preventing
-fall-through to cleanup labels that would access the already-freed
-sur40_state.
+commit 8870e5b6bd950af7749d533c844ef1b23fd8c7bb
+Author: Pei Xiao <xiaopei01@kylinos.cn>
+Date:   Wed Aug 26 03:42:39 2026 +0000
 
-Fixes: e831cd251fb9 ("[media] add raw video stream support for Samsung SUR40")
+    input: sur40: fix use-after-free in disconnect
+
+This commit fixes a use-after-free in sur40_disconnect() by replacing the
+direct kfree() with a new vdev->release callback. This ensures the sur40_st=
+ate
+structure is only freed when the last userspace reference is released. It a=
+lso
+adjusts the error paths in sur40_probe() to prevent accessing freed memory.
+
 Reported-by: syzbot+4a6e6173b1fc7916e950@syzkaller.appspotmail.com
-Closes: https://lore.kernel.org/all/6a8e44ca.dbb3a75c.7844.002f.GAE@google.com/
+Closes: https://lore.kernel.org/all/6a8e44ca.dbb3a75c.7844.002f.GAE@google.=
+com/
 Cc: stable@vger.kernel.org
-Signed-off-by: Pei Xiao <xiaopei01@kylinos.cn>
----
- drivers/input/touchscreen/sur40.c | 20 ++++++++++++++------
- 1 file changed, 14 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/input/touchscreen/sur40.c b/drivers/input/touchscreen/sur40.c
-index 09d8c5f8d09f..2d93234cc86a 100644
---- a/drivers/input/touchscreen/sur40.c
-+++ b/drivers/input/touchscreen/sur40.c
-@@ -237,6 +237,7 @@ static const struct video_device sur40_video_device;
- static const struct vb2_queue sur40_queue;
- static void sur40_process_video(struct sur40_state *sur40);
- static int sur40_s_ctrl(struct v4l2_ctrl *ctrl);
-+static void sur40_video_release(struct video_device *vdev);
- 
- static const struct v4l2_ctrl_ops sur40_ctrl_ops = {
- 	.s_ctrl = sur40_s_ctrl,
-@@ -750,6 +751,7 @@ static int sur40_probe(struct usb_interface *interface,
- 	sur40->vdev.v4l2_dev = &sur40->v4l2;
- 	sur40->vdev.lock = &sur40->lock;
- 	sur40->vdev.queue = &sur40->queue;
-+	sur40->vdev.release = sur40_video_release;
- 	video_set_drvdata(&sur40->vdev, sur40);
- 
- 	/* initialize the control handler for 4 controls */
-@@ -806,6 +808,8 @@ static int sur40_probe(struct usb_interface *interface,
- 
- err_unreg_video:
- 	video_unregister_device(&sur40->vdev);
-+	input_free_device(input);
-+	return error;
- err_free_ctrl:
- 	v4l2_ctrl_handler_free(&sur40->hdl);
- err_unreg_v4l2:
-@@ -820,19 +824,23 @@ static int sur40_probe(struct usb_interface *interface,
- 	return error;
- }
- 
--/* Unregister device & clean up. */
-+static void sur40_video_release(struct video_device *vdev)
-+{
-+	struct sur40_state *sur40 = container_of(vdev, struct sur40_state, vdev);
-+
-+	v4l2_ctrl_handler_free(&sur40->hdl);
-+	v4l2_device_unregister(&sur40->v4l2);
-+	kfree(sur40->bulk_in_buffer);
-+	kfree(sur40);
-+}
-+
- static void sur40_disconnect(struct usb_interface *interface)
- {
- 	struct sur40_state *sur40 = usb_get_intfdata(interface);
- 
- 	input_unregister_device(sur40->input);
- 
--	v4l2_ctrl_handler_free(&sur40->hdl);
- 	video_unregister_device(&sur40->vdev);
--	v4l2_device_unregister(&sur40->v4l2);
--
--	kfree(sur40->bulk_in_buffer);
--	kfree(sur40);
- 
- 	usb_set_intfdata(interface, NULL);
- 	dev_dbg(&interface->dev, "%s is now disconnected\n", DRIVER_DESC);
--- 
-2.25.1
+> diff --git a/drivers/input/touchscreen/sur40.c b/drivers/input/touchscree=
+n/sur40.c
+> index 09d8c5f8d09fc..2d93234cc86a0 100644
+> --- a/drivers/input/touchscreen/sur40.c
+> +++ b/drivers/input/touchscreen/sur40.c
+[ ... ]
+> @@ -820,19 +824,23 @@ static int sur40_probe(struct usb_interface *interf=
+ace,
+>  	return error;
+>  }
+> =20
+> -/* Unregister device & clean up. */
+> +static void sur40_video_release(struct video_device *vdev)
+> +{
+[ ... ]
+> +}
+> +
+>  static void sur40_disconnect(struct usb_interface *interface)
+>  {
+>  	struct sur40_state *sur40 =3D usb_get_intfdata(interface);
+> =20
+>  	input_unregister_device(sur40->input);
+> =20
+> -	v4l2_ctrl_handler_free(&sur40->hdl);
+>  	video_unregister_device(&sur40->vdev);
 
+[Severity: High]
+This isn't a bug introduced by this patch, but is it possible that
+unregistering the video device without aborting the pending V4L2 queue
+leaves blocked ioctls waiting forever?
+
+When the device is disconnected, video_unregister_device() is called here
+without first waking up q->done_wq waiters with -EIO (e.g. by using
+vb2_video_unregister_device()).=20
+
+Because the input poller is stopped synchronously by input_unregister_devic=
+e()
+just above, no further frames will arrive.=20
+
+Does this cause any thread blocked in VIDIOC_DQBUF or poll() to hang forever
+until interrupted by a signal?
+
+
+[Severity: High]
+This is also a pre-existing issue, but does this disconnect sequence create=
+ an
+unkillable deadlock later on?
+
+If userspace closes the device after a disconnect, the V4L2 core invokes
+sur40_stop_streaming(), which calls:
+
+    vb2_wait_for_all_buffers(vq);
+    sur40->sequence =3D -1;
+
+Since input_unregister_device() was already called synchronously in
+sur40_disconnect(), the input polling thread is permanently stopped.=20
+
+Does this cause vb2_wait_for_all_buffers() to block indefinitely in a
+D-state, since the driver-owned buffers will never be processed and returned
+via vb2_buffer_done()?
+
+> -	v4l2_device_unregister(&sur40->v4l2);
+> -
+> -	kfree(sur40->bulk_in_buffer);
+> -	kfree(sur40);
+> =20
+>  	usb_set_intfdata(interface, NULL);
+>  	dev_dbg(&interface->dev, "%s is now disconnected\n", DRIVER_DESC);
+>  }
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260826034239.QMES=
+l9TtJLm8R_oB5SkE5YErhpU_WDuou8ER3A1oZmI@z?part=3D1

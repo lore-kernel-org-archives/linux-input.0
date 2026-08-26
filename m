@@ -1,63 +1,63 @@
-Received: from mail-ej1-f47.google.com (mail-ej1-f47.google.com [209.85.218.47])
+Received: from mail-ej1-f43.google.com (mail-ej1-f43.google.com [209.85.218.43])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4892A41DE03
-	for <linux-input@vger.kernel.org>; Wed, 26 Aug 2026 13:22:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4D72E3BE16E
+	for <linux-input@vger.kernel.org>; Wed, 26 Aug 2026 13:22:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787750547; cv=none; b=KVdFIe+TI/gh7FraypbQcZalHx4sYhUS+aT2YuCpZt4dBCfaIhHW1LhnvJnDn0Q5vj3TcxWsKHNA6c/+hBDxZmhHrLwnQRqvkfNsQglsUO4Js/PbNXMmRxYRzt8GjRxb8VQOgOJyDTe0XyoPbRhsUA5vLpRaGBPXICMqen15iPA=
+	t=1787750547; cv=none; b=k/CM67mnZFLM0gpI617b1rPmeD6rYoh4pdjcvAQMQeBs7kpM74OlbsqXQX6R7iWTtPxopFKef9gaD3FN7qXPp4LH597SDdYK25lxpnz4iqqEeJj6Fgz8dC5oK9JC5JTq3UL+v83xz0NHgOjC14hglknJbDVH9C0vs8+DsPPETT4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1787750547; c=relaxed/simple;
-	bh=TfRLd5l9OOostsSkUsmGRYqtZsyco1P25dGKTsbgTZ8=;
+	bh=iAdAwTxARp1+YiznOMAmAa7ysTQVV/NT6mH/DlSKF9A=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=OiaigALvy+4xfMU5cWtB5gGKwX5utffCm1A4GDzUx6ffB2NzUK+GltcSl/eScc6ruCmkDGFwssD7qW6l7jXby4M67/JaP5tqRPcBqsUZXyOCaSQfCAenwd+5t7h8D+BGldgPDjNWFwJfN1SQjBoYplUhknzMSE1G/pMKDn68xA4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=NxugNdPf; arc=none smtp.client-ip=209.85.218.47
+	 MIME-Version; b=EhTEoZea/31x2UVZCkvFVYFzWlPFyim6kBo00EeoTYF4YMVwGbYc/fWFD6Oc5u6jLZ8751Y3eu6Zkf2WOf+4Zl6qR/MJIrdV8QVd+AEa6oF75NOeQjmz0l+Pa+PJLDzrqL1UxktPZnsn5OImfVjDxJw5BEsYoo9qc8aHPvkDeeg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=N1kjBrzl; arc=none smtp.client-ip=209.85.218.43
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="NxugNdPf"
-Received: by mail-ej1-f47.google.com with SMTP id a640c23a62f3a-c250a2bc3b3so118467466b.2
-        for <linux-input@vger.kernel.org>; Wed, 26 Aug 2026 06:22:23 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="N1kjBrzl"
+Received: by mail-ej1-f43.google.com with SMTP id a640c23a62f3a-c197e7e4e94so139754866b.2
+        for <linux-input@vger.kernel.org>; Wed, 26 Aug 2026 06:22:24 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1787750542; x=1788355342; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1787750543; x=1788355343; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=ykbfK96z/RlPNdWy0bK0lNcVhnXAIGj1ew3ivLknti8=;
-        b=NxugNdPfB+1BZuVt7Yfeam5TJ+fW84LiJ8L/9j/9fGvkd25TiVXKviOwN/tYOW6Yi4
-         d36a99WwiNWO5qChJ9YdS4Humt/VVMjOoH2hByRewSsB1Cnb+lZnCB46p7qNwDoWSDn8
-         MAvR16FTcdNyAKBnIEMfUSi52z2AOHZKVZxrgp7DaiSh5f6w5mIK6r/sRp1eYtwvVwgs
-         ZUxJzui2RnAlD+SVnVHbKfJSSbF6qMXCIjDhqiue4KVkp/CdNJTXOclI/6R+5D5V2Cdn
-         i3X1gM6w3uGdV9a0uyNRTp7g7mAzu3xPRBss771wihRfS6wUIu419fAOqi0c/+vAzKnA
-         tYQQ==
+        bh=GJWRbczxBpTVEHL3IgaRo4VxJCouD04FNJY7agPmZWg=;
+        b=N1kjBrzlnMzMjnS8gmM+I8bSsga3IfH5RFxkdHqVUmb0tJ7mlsBFJv1EOp5ZHLtyjZ
+         od+Wdo7APJ6y52Fss9tBTdHl0c2yVnJtcS6rvCL5t9j/JbMBb68IIxHS9JzK/52IGcF8
+         VvT8qXv441bAvXWEea3mCKCT+6YBxexiEKzteSwL4r36tVg9TksW7BhbxjPDxhylSNbx
+         rpDohaEd9bsbbjbQrr8ToBMvAOyvKYAZY2uHHC9x5CS87yDGm1upeinRyYUJeKwHhCGH
+         6zfuzqnoB03Z/V16fDDFwauEOEuNknk0ndYaPOnPQnHi/Q8cdGeqFuseJTvnJSw7TzFG
+         H6UQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787750542; x=1788355342;
+        d=1e100.net; s=20251104; t=1787750543; x=1788355343;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=ykbfK96z/RlPNdWy0bK0lNcVhnXAIGj1ew3ivLknti8=;
-        b=pTJt5iyEkCyOQEXR3aqzkq0MO1E/IPy9cXkuMvNXS+7n2PAyv21Uq8ZQm8OjSUAYEi
-         PBBIu7PJhEgb+vzbKOM9Q10NnreUwogjEOvgjKsx361YRjHxnAsp91jd5spzEwtKbBht
-         0BjlycgG06fSf49Ox/5TdACBcjBUL5qfcsB/CqlEedyT2OjfQ3h3OpoCUSzIw1nr97T6
-         w51753TU+xQ4AH5oAz8UBh1OO55+ElEpvhnxUjEiBczzgvVQmGbHH1mwCTpSYLseOuTp
-         9kpw7WkdnlXEA6Jxnmrj4RLvdiZ+gCj+SOaBxHEFqy3A1aQtbaF/aThkH5xs1FigqsLD
-         bL0A==
-X-Gm-Message-State: AFuF++lIF4EDcRRQ+irvyd3w2uJ0eKhK9m4Vjx/wvY2Pt1jpCWbQAcAf
-	6LHdy10otmmFXoQSNzeTQ/t1awczPa7gbrpKsq5fxXk7kjFgVKPUNHPP
-X-Gm-Gg: AR+sD12ejXZXBVPoipBok773nlIGNdJYll9VkWkp3WW6U5BDuOgWPjfSI5U2p6URTJE
-	doUnFMLUQQZk2hm2d+R9EUCTEDLv8JUinOfs/YyDYIYrvvz0J0V/q89owU0elQ2VVrHucUrxxL8
-	j6+iXPz4V6osd6uMpOIVn/xRtaLS/sYNyqWDFTeDkyjkY8kw6N1xu22V0LLnNEQ27aSlZ7Qn5Nz
-	IL67lId/TJYVGmUEYjszR66Y3ed2EluI7aM+mRyvPOohgFiN0Z/0HJv8aSi6sNOxFZnA5GtZ+d+
-	QbFMPUrkVtxx239fmwyH3AA9CiSFwZVYbqPPmdPHvArwz75DxdyESeEVKyVAB6PIDXaonlNUBku
-	S6dniGqPcE9+s0fYDpYyJnPd7Ej7h6xuDGlJ1xGfiGnNssPGhKYiwousEb0JtP4S3zXBceXlU7e
-	pBowbgxQz2viEKX74bytff5z0CrBMpIvmOy1XZYYEblVca+MXpns56bwpAPHAUhaia03p7EiRlA
-	0pg7qVc8D7EQIZdaEaRcQnR8oqWn9FPGVvDcGLrigM=
-X-Received: by 2002:a17:906:ba83:b0:c25:544:3aec with SMTP id a640c23a62f3a-c250baf9b5amr980895766b.5.1787750541405;
-        Wed, 26 Aug 2026 06:22:21 -0700 (PDT)
+        bh=GJWRbczxBpTVEHL3IgaRo4VxJCouD04FNJY7agPmZWg=;
+        b=f4HKiiahQIgrAXH7PhQHqiHO2C004ldhpumuwxk48QVDl9+NtxRRXCMTHNtSOeKZbm
+         wSLa1fEjP65o8cXtIVVfckEXJw5lOV4s1CuPh29TZfGBewwh9FyB7mNMh2fko9sKMm92
+         r8++O1YYDmSmZF/y8R93DBVXJZmq2kHRW4AJfO2umCYuLfm5HJTVGNNPfCXn6BAYQf3d
+         TvyQoBpRS9ugv1uj9d9PqNVWvLr45sCWLJ4EV5UUZX+ioNpqowz7YPSYCx+gXW7MDA8x
+         yrfmBYk8iFIt4087eb+qtXKaKUlHhRhji0kKLA37OIzOLuoNZ0fXKZYwlgDwCqABdXHM
+         XEjw==
+X-Gm-Message-State: AFuF++mG33yeshNw4m4bQVomTK1CyYezbHKAPUg+MUsy9VnEt21kyL9v
+	3kM7IXdnnFRFG7BRyi0IXnMpl2kaq0Xr+YqoaDAETJACateIAKUVzDOn
+X-Gm-Gg: AR+sD10eckZv7MwvVgNVh9y2xb1iE8TYN79N3IWES8CU/fC70zrqKZj7sbj4YjLcnCY
+	/fEwmFFJRudzm1xyZDhaW7UZj0bUlAw1oBTaCb1hRYxyAaj+Rqzfr7Vep+dSWGtNdrVcVvfHHkY
+	tDzpvCTDoymicrroWi5oCm36+p9sudd9EanIZfkqfnmIAzsWqt2FzUHDdRj6z1eg8BlpueWLybh
+	FTVjijyho/TUqmd4qJ+GyvnV4t5klGIWIb0RuTW57gG9O7xMIzRqJPGRIG6RL+zs7BRim3YBAC1
+	FdCg+HG2dEDZl7xZpZ2/smI6zi1NE+idd1GVhCbuxsLMTDmiu9KE6un2IQCKNqoj9hwnYGxNev2
+	dMUYxFV//Ovx9C0ZEUrNiHjqKhjyD6UCOTcRPt4yeyYOeze4uGtf3jvEftDos3nm52KtSBrgNEy
+	yfkP2Jl6mEhdYSERWKoEs5s7/JmeJnbHSz5qBKd/FF5S09iBnaAGomoFuImMKeGk+H50nKj/B98
+	+pxaRSxHlIYYxNdUUB5dE7QYV6Lm4PlC/3TVnXz2ls=
+X-Received: by 2002:a17:906:c143:b0:c16:2dc0:e1ef with SMTP id a640c23a62f3a-c250c331e63mr707424266b.14.1787750543009;
+        Wed, 26 Aug 2026 06:22:23 -0700 (PDT)
 Received: from 1Z10 ([37.163.238.51])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c250a72d6dbsm435905466b.24.2026.08.26.06.22.19
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c250a72d6dbsm435905466b.24.2026.08.26.06.22.21
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 26 Aug 2026 06:22:20 -0700 (PDT)
+        Wed, 26 Aug 2026 06:22:22 -0700 (PDT)
 From: Maurizio Casciano <mauriziocasciano7@gmail.com>
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: linux-input@vger.kernel.org,
@@ -66,9 +66,9 @@ Cc: linux-input@vger.kernel.org,
 	David Heidelberg <david@ixit.cz>,
 	linux-kernel@vger.kernel.org,
 	Maurizio Casciano <mauriziocasciano7@gmail.com>
-Subject: [PATCH 1/2] Input: drv260x: Make vbat supply optional
-Date: Wed, 26 Aug 2026 15:22:10 +0200
-Message-ID: <20260826132211.3341936-2-mauriziocasciano7@gmail.com>
+Subject: [PATCH 2/2] Input: drv260x: Map ACPI enable GPIO
+Date: Wed, 26 Aug 2026 15:22:11 +0200
+Message-ID: <20260826132211.3341936-3-mauriziocasciano7@gmail.com>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20260826132211.3341936-1-mauriziocasciano7@gmail.com>
 References: <20260826132211.3341936-1-mauriziocasciano7@gmail.com>
@@ -80,114 +80,53 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The Lenovo Yoga Book YB1-X91L firmware instantiates two DRV2604
-ACPI devices, but does not describe a software-controllable vbat supply
-for either device. The generic regulator lookup therefore creates a
-dummy supply.
+Some ACPI DRV2604 devices describe the enable line as the first GPIO
+resource in _CRS but provide no _DSD mapping for its function. The GPIO
+consumer lookup then returns no descriptor, leaving Yoga Book haptics
+unable to complete calibration.
 
-Use the optional regulator lookup and skip regulator operations when no
-supply is described. Systems which provide vbat retain the existing
-enable, managed-disable, suspend, resume, and error-unwind behavior.
+Add a managed ACPI GPIO mapping before requesting the optional enable
+line so these devices can power their haptic path.
 
 Signed-off-by: Maurizio Casciano <mauriziocasciano7@gmail.com>
 Assisted-by: Codex:gpt-5.6-sol sparse
 ---
- drivers/input/misc/drv260x.c | 57 +++++++++++++++++++++---------------
- 1 file changed, 33 insertions(+), 24 deletions(-)
+ drivers/input/misc/drv260x.c | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
 
 diff --git a/drivers/input/misc/drv260x.c b/drivers/input/misc/drv260x.c
-index 6c5c4c53753b..c4fbb10b254e 100644
+index c4fbb10b254e..b6243ce8157d 100644
 --- a/drivers/input/misc/drv260x.c
 +++ b/drivers/input/misc/drv260x.c
-@@ -499,22 +499,26 @@ static int drv260x_probe(struct i2c_client *client)
- 	haptics->overdrive_voltage = error ? DRV260X_DEF_OD_CLAMP_VOLT :
- 					     drv260x_calculate_voltage(voltage);
+@@ -434,6 +434,13 @@ static const struct regmap_config drv260x_regmap_config = {
+ 	.cache_type = REGCACHE_NONE,
+ };
  
--	haptics->regulator = devm_regulator_get(dev, "vbat");
-+	haptics->regulator = devm_regulator_get_optional(dev, "vbat");
- 	if (IS_ERR(haptics->regulator)) {
--		error = PTR_ERR(haptics->regulator);
--		dev_err(dev, "unable to get regulator, error: %d\n", error);
--		return error;
-+		if (PTR_ERR(haptics->regulator) == -ENODEV) {
-+			haptics->regulator = NULL;
-+			dev_dbg(dev, "No vbat regulator found\n");
-+		} else {
-+			error = PTR_ERR(haptics->regulator);
-+			return dev_err_probe(dev, error, "Unable to get vbat regulator\n");
-+		}
- 	}
++/* ACPI DRV2604 devices describe enable as their first GPIO resource. */
++static const struct acpi_gpio_params drv260x_enable_gpio = { 0, 0, false };
++static const struct acpi_gpio_mapping drv260x_acpi_gpios[] = {
++	{ "enable-gpios", &drv260x_enable_gpio, 1 },
++	{ }
++};
++
+ static void drv260x_power_off(void *data)
+ {
+ 	struct drv260x_data *haptics = data;
+@@ -448,6 +455,14 @@ static int drv260x_probe(struct i2c_client *client)
+ 	u32 voltage;
+ 	int error;
  
--	error = regulator_enable(haptics->regulator);
--	if (error) {
--		dev_err(dev, "Failed to enable regulator: %d\n", error);
--		return error;
--	}
-+	if (haptics->regulator) {
-+		error = regulator_enable(haptics->regulator);
++	if (has_acpi_companion(dev)) {
++		error = devm_acpi_dev_add_driver_gpios(dev,
++						       drv260x_acpi_gpios);
 +		if (error)
-+			return dev_err_probe(dev, error, "Failed to enable regulator\n");
- 
--	error = devm_add_action_or_reset(dev, drv260x_power_off, haptics);
--	if (error)
--		return error;
-+		error = devm_add_action_or_reset(dev, drv260x_power_off, haptics);
-+		if (error)
-+			return error;
++			return dev_err_probe(dev, error,
++					     "Failed to add ACPI GPIO mapping\n");
 +	}
- 
- 	haptics->enable_gpio = devm_gpiod_get_optional(dev, "enable",
- 						       GPIOD_OUT_HIGH);
-@@ -585,13 +589,15 @@ static int drv260x_suspend(struct device *dev)
- 
- 		gpiod_set_value(haptics->enable_gpio, 0);
- 
--		error = regulator_disable(haptics->regulator);
--		if (error) {
--			dev_err(dev, "Failed to disable regulator\n");
--			regmap_update_bits(haptics->regmap,
--					   DRV260X_MODE,
--					   DRV260X_STANDBY_MASK, 0);
--			return error;
-+		if (haptics->regulator) {
-+			error = regulator_disable(haptics->regulator);
-+			if (error) {
-+				dev_err(dev, "Failed to disable regulator\n");
-+				regmap_update_bits(haptics->regmap,
-+						   DRV260X_MODE,
-+						   DRV260X_STANDBY_MASK, 0);
-+				return error;
-+			}
- 		}
- 	}
- 
-@@ -606,10 +612,12 @@ static int drv260x_resume(struct device *dev)
- 	guard(mutex)(&haptics->input_dev->mutex);
- 
- 	if (input_device_enabled(haptics->input_dev)) {
--		error = regulator_enable(haptics->regulator);
--		if (error) {
--			dev_err(dev, "Failed to enable regulator\n");
--			return error;
-+		if (haptics->regulator) {
-+			error = regulator_enable(haptics->regulator);
-+			if (error) {
-+				dev_err(dev, "Failed to enable regulator\n");
-+				return error;
-+			}
- 		}
- 
- 		error = regmap_update_bits(haptics->regmap,
-@@ -617,7 +625,8 @@ static int drv260x_resume(struct device *dev)
- 					   DRV260X_STANDBY_MASK, 0);
- 		if (error) {
- 			dev_err(dev, "Failed to unset standby mode\n");
--			regulator_disable(haptics->regulator);
-+			if (haptics->regulator)
-+				regulator_disable(haptics->regulator);
- 			return error;
- 		}
- 
++
+ 	haptics = devm_kzalloc(dev, sizeof(*haptics), GFP_KERNEL);
+ 	if (!haptics)
+ 		return -ENOMEM;
 -- 
 2.53.0
 

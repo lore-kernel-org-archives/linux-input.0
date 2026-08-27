@@ -1,143 +1,121 @@
-Received: from mail.tuxedocomputers.com (mail.tuxedocomputers.com [157.90.84.7])
+Received: from mail-wm1-f46.google.com (mail-wm1-f46.google.com [209.85.128.46])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0AB9C23E35F;
-	Thu, 27 Aug 2026 22:13:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=157.90.84.7
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5D72F391E59
+	for <linux-input@vger.kernel.org>; Thu, 27 Aug 2026 22:26:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.46
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787868799; cv=none; b=rFUnCjMYMI6ZAGqg1m1i2r8xSsswXAtCqhcIbnoSGNtPp+sct0RsmLQcLklOJZCdcLKWkALtLMOBjBpA1invWCwy5ASPlvkC3zKn2LyYfH7kMdQLEi3CMMqkysVRjK4U0N/S8WDWvXEgxtK8dMoODcDtMa9kVEcnn1LH7Vf1/Q8=
+	t=1787869564; cv=none; b=K2zNdh8HDlnO4iCcMFGmYtLMmcimnZyJumlbUYSJ5DzLQxx9ts1ENEe1/2UO4goJOJUtLr4DMBOFI/d7iDIDsOG0kXOlCMtu86ZmvMPXou330hgeJaFDWb1TsCM0xALt2u02XaiBqR2KI6JdE4R17EaZKNdiw5nCWaipEijAZxI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787868799; c=relaxed/simple;
-	bh=oaclEGCFj0tbpBqUyYhr79xTsEv4PS0vCLrB3/XE5X0=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=HA7QCrlAW4im7ESuhTt7dqmvlikXU5TrxSL3+CMhGFpLneVVsUejiX4rNVwDg1FdAfzgF4VvsHB6Or+J8y0SGBK7eMBwE5C8kVGasSAthV5Mmk2zvW7UWtKz0Sf41WDaYQ5i6rtTPjU3fA1u0ZKfYkowExMb3XIdeqTh12fm+cA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=tuxedocomputers.com; spf=pass smtp.mailfrom=tuxedocomputers.com; dkim=pass (1024-bit key) header.d=tuxedocomputers.com header.i=@tuxedocomputers.com header.b=FXfxdqbt; arc=none smtp.client-ip=157.90.84.7
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=tuxedocomputers.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=tuxedocomputers.com
+	s=arc-20240116; t=1787869564; c=relaxed/simple;
+	bh=TxvaZ4zayK7a2B63L4t8D8MbZm8/BwjOSwYLxeyM8RU=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=XkRHO0Ssp/9Shgt1GuMq2cS5RC2R58T9p1vyz7F9rLyrXekYKgzAqwZlUxxfBl4YgvssG91Ji37OhobhaPbZZ65EswhI9GROOBr/IdXp8Y2JYNZHkI8J6mz395hr/z9JdHxPBJwx+AEEwufUuXkqc6KydjAiAUGvS7AZMgT1nag=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=IF5KNcA6; arc=none smtp.client-ip=209.85.128.46
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=tuxedocomputers.com header.i=@tuxedocomputers.com header.b="FXfxdqbt"
-Received: from [10.10.12.8] (business-24-134-105-141.pool2.vodafone-ip.de [24.134.105.141])
-	(Authenticated sender: wse@tuxedocomputers.com)
-	by mail.tuxedocomputers.com (Postfix) with ESMTPSA id 2A8CB2FC0048;
-	Fri, 28 Aug 2026 00:13:06 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=tuxedocomputers.com;
-	s=default; t=1787868786;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=JxISbfItN0NuzUGCyiyBKqofiPDb+/OmKGbmP4tONNQ=;
-	b=FXfxdqbtzpTHms0mFwItIBBR/w+5VaDhSdruFbd6/oUADYbAnadqaIuaL5xc+YIzdvy3XZ
-	Pu0WYb37Nw8TTx8/gp4ZkWVilUMAjz3b+vb8Pw1l3rV3l8d0eBn6/DyfAwkz0Gr9IZamiv
-	TBFDO2LPQOoSKZYQ+Sra2o37XEwBBVQ=
-Authentication-Results: mail.tuxedocomputers.com;
-	auth=pass smtp.auth=wse@tuxedocomputers.com smtp.mailfrom=wse@tuxedocomputers.com
-Message-ID: <d54951b4-8216-49eb-9c3e-ed49ab3d4355@tuxedocomputers.com>
-Date: Fri, 28 Aug 2026 00:13:05 +0200
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="IF5KNcA6"
+Received: by mail-wm1-f46.google.com with SMTP id 5b1f17b1804b1-490cf322ed0so2579845e9.1
+        for <linux-input@vger.kernel.org>; Thu, 27 Aug 2026 15:26:01 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1787869559; x=1788474359; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=KrToZPBnqDhx/hwRhT5E5yIhfEGUpGAvOCdqzL7a7pQ=;
+        b=IF5KNcA61mCdmQAodnOMCbggzzV5GrSxVQCEGQJCGP+SqnY/CbBiUNQpPohcXta6/K
+         NJe2uIl9cAqkhldVJeP/RHrhRUn7yJKKMjLsSzx6+PUyVtYqxVPTOjVnksM7d+0IGS5N
+         IOyTXSpEAjSHBLhgHkzxOKK4VpjTVLgm5rFiOo6d3Q/2pR5ckLDRn7RPbDRdf0QnPl40
+         qUueiIgrMI2dGZREPRUnf/e0U85r4aBQ+P5obu1ijGNY2ipD6EV8sK0/Ag/aXn4IuANN
+         3u7T3fs+tvg9It+W2/9VvHMwu1q3C4af4S5GFVgrQ/LQ2j4Npi+T1zwbe2IKpmj58hOY
+         JfOQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1787869559; x=1788474359;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=KrToZPBnqDhx/hwRhT5E5yIhfEGUpGAvOCdqzL7a7pQ=;
+        b=KZ4IsnkLSrUloFBhiKjoyJzcVpwAgxs5bEjBpiPjvQN6ErhWeRhjlUKpyh3prewE8M
+         rQ3CC3cnC60oYT1KnRhp/XWffhE9lY65w1u6EHgpwct8+PNJWQofIOQXYc5NUBN77xcr
+         h18+NrDsvyLQY6YlGslAum2gujarnBGjxnk4BjYUOMDqkUqS436kAT5UjS4tO7h4LOed
+         foJ0XAYtRRHceR6HigNvULLuwULW01hQo0+FYz9ivIaMRCbh8TYhRSRpqkls2RrxT/F2
+         TuM0r0NTzIoTjjlSvUkTxcUmBJ8adrgFxUWB7GW8GrLjMHsz2X/bWXHQXIv9x2lYaJfz
+         H54w==
+X-Forwarded-Encrypted: i=1; AHgh+RpFZIl8+ggvLK/4YiJcju3z9wFHaWWfbkSzQ6vAkXUugFemTUSEjb0BkthvQjQPaRVXqWlaHVs7ltjbKQ==@vger.kernel.org
+X-Gm-Message-State: AFuF++kroJ/ZRob056X7YpqhHKMvrOzpA74jeZZNiTkfPF+dzNcl1bNx
+	IHyUHTB/pfXuIJF02wEb3N5b5f6UaQITmpkqR5/GzxKboct0MASZoFJm
+X-Gm-Gg: AR+sD10d1ORx7NbPYIpzwbKbfqOTbqJ97pDYu18p4d+qdb9DIixbQ1PEyxmJL3ZiU7i
+	gOJVYG7Pw1oyT8i32h/Iy7wpefQPfikozC41zzKa/Ak8eouGlKYDtykOVprMwvaO9E5KthlID6U
+	PFA4aTSa/CbBsohw1RSh/qqDZb5SfhE8zEOwhzsVl0XzMHJLBMEo3mNzmKgcVfsjiVqOB9RFZXU
+	ULrkKvHyPb0SedLPOft97PQKmHfQqn1p1foeUuBNArUaEfTZ6rX7/lOHX8QP3CTl41ckKRmdBVw
+	jO2MdiHoq4IuEPs3R6+nRVyuLA6tAKaCVFBPSI5sxYxUDajAjlHTYvB05KzEX7zga3LupREqo1p
+	y0oz9n6vmkgOB3rlCMF66vBVp5kdlMCga6Qd5fGPB2idD8ozTwxdijM0bDGYPBSqDgzAGxwD/Tu
+	s281AynyzirQ+TbauFO/pR67Ycj10qe1OwvZCABDOAepAQ025lhY7n1621FA8=
+X-Received: by 2002:a05:600c:698c:b0:499:adb5:e7b2 with SMTP id 5b1f17b1804b1-49b91c3ddc7mr38429415e9.11.1787869558933;
+        Thu, 27 Aug 2026 15:25:58 -0700 (PDT)
+Received: from m2.. ([37.142.156.156])
+        by smtp.googlemail.com with ESMTPSA id 5b1f17b1804b1-49b494228bfsm79722395e9.2.2026.08.27.15.25.57
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 27 Aug 2026 15:25:58 -0700 (PDT)
+From: Michael Zaidman <michael.zaidman@gmail.com>
+To: lee@kernel.org
+Cc: linusw@kernel.org,
+	jikos@kernel.org,
+	bentiss@kernel.org,
+	brgl@kernel.org,
+	linux-input@vger.kernel.org,
+	linux-gpio@vger.kernel.org,
+	linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 00/13] HID: ft260: add UART and GPIO support, plus I2C fixes
+Date: Fri, 28 Aug 2026 01:25:50 +0300
+Message-ID: <20260827222550.24634-1-michael.zaidman@gmail.com>
+X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20260827205116.GJ2943942@google.com>
+References: <20260827205116.GJ2943942@google.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v4] HID: generic: add LampArray support via hid-lamparray
- helper
-To: Cristian Mazzotta <cmmazzo@icloud.com>,
- Aaron Erhardt <aer@tuxedocomputers.com>
-Cc: tgu@tuxedocomputers.com, jikos@kernel.org, bentiss@kernel.org,
- hansg@kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-leds@vger.kernel.org
-References: <8c05e11f-6e63-420a-996b-5d1986743ce7@tuxedocomputers.com>
- <20260827184715.136843-1-cmmazzo@icloud.com>
-Content-Language: en-US
-From: Werner Sembach <wse@tuxedocomputers.com>
-In-Reply-To: <20260827184715.136843-1-cmmazzo@icloud.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-Hi,
-
-Am 27.08.26 um 20:47 schrieb Cristian Mazzotta:
-> Am 25.03.26 um 11:35 schrieb Werner Sembach:
->> as Tim went on to other endeavors, I'm taking over this patch. I have
->> yet to test it myself, but i was already in the feedback loop while he
->> was writing it, so I'm not unfamiliar with the code.
-taking Aaron into the loop who actually ended up taking over the development.
-> Hi Werner,
+On Thu, 27 Aug 2026 at 21:51 +0100, Lee Jones wrote:
+> That's precisely what MFD is.  It's one chip, usually with a shared and
+> overlapping register spaces, that conducts multiple functions.  This is
+> no different to any other single-chip device or SoC.
 >
-> I recently got a new laptop (Acer Predator PT14-52T) with absolutely zero
-> support for any RGB outside of Windows 11; while studying the behavior of
-> the Windows driver, I found out about LampArray devices and so I ended up
-> landing here.
->
-> This laptop has 2 LampArray devices: a USB attached keyboard (05AF:767A)
-> and an I2C ENE controller (0CF2:5130) for 3 zones in total. The original
-> motivation was power draw during s2idle; the lights would stay on and
-> constantly draw power. I measured 12.35W drop to 2.84W when I
-> blanked the lights and measured with a simple usb power meter, so I've
-> been working off of Tim's code for the past little bit.
+> Shoving everything into a single driver isn't how things are done in
+> Linux.  This should be divided up into the associated sub-systems where
+> each part can be reviewed and looked after by the appropriate SMEs.
 
-The plan for the in kernel driver was to intentionally only provide basic 
-support. Reason is the current UAPI of the leds subsystem does not offer the 
-full flexibility lamp array offers, so it's a challange to map that already. 
-Also most current DEs also only support very basic controls interacting with the 
-leds subsystem.
+Understood, and I am not going to argue MFD scope with you. But this
+is not specific to my series, so I would rather not decide it here on
+my own.
 
-If more control is needed a userspace driver should disable the leds subsystem 
-control and directly control the device via hidraw. One such driver will 
-probably be openRGB in the near future, but it only has initial, currently 
-broken support for lamp array.
+drivers/hid already registers other subsystems' devices from a
+hid_driver: hid-cp2112 adds an i2c_adapter and a gpiochip, hid-mcp2221
+adds an i2c_adapter, a gpiochip and an IIO device, and hid-ft260 has
+hosted the I2C adapter since v5.13, commit 6a82582d9fa4 ("HID: ft260:
+add usb hid to i2c host bridge driver").
 
->
-> Getting full support required touching most of the driver:
->
->   - Multi-zone support with individual zone states instead of a single
->     monolithic zone taking every device.
-The driver tries to represent every device as one leds device with one zone to 
-not confuse the DEs
->   - lamparray_read_lamp_count() used hid_hw_request(), which is
->     asynchronous, so the value was read before the transfer completed.
->     Switched to hid_hw_raw_request()
-Probably something Aaron already fixed on his dev branch, but thanks for 
-pointing it out.
->   - lamparray_parse_update_report() would bind to the last HID_LAIP_LAMP_COUNT
->     (usage 0x0003) parsed rather than the first, so LampCount ended up
->     being on the wrong field. This has been fixed by binding the first match.
-Not familiar enough with the code myself to comment on that, but maybe a hint 
-for Aaron
->   - Added suspend and resume hooks, including an autonomous mode refresh
->     on S4 that my laptop needed
-Same as above
->   - use_leds_uapi=0 now leaves the LED class devs registered, but ignores
->     all writes rather than unregistering them.
-Unregistering is important for userspace to know what happens, otherwise kde for 
-example would still offer brightness control while it isn't actually doing 
-anything.
->   - Also added ABI documentation since it was missing previously
-Thanks, I think Aaron did something there too.
->
-> About half of the driver changed, so I don't think it would be easily
-> reviewable as a delta from v4.
->
-> Would you prefer that I post it as a v5 with Tim's patch as a base, or
-> should I just send you the changes that you can add to your own version?
-> I don't want to duplicate work if you already have a v5 in progress.
->
-> I have hardware in front of me so I can test whatever is useful.
+So the split you are asking for is not a change to this series. It
+means moving code that has been in drivers/hid since v5.13 into an MFD
+parent with cells, and the same reasoning would apply to cp2112 and
+mcp2221. I am willing to discuss that as its own conversion, but it
+needs the HID maintainers to agree on the direction first, and I do
+not think the UART and GPIO support should wait behind it.
 
-I think it's best for Aaron sending his version first and then you reacting on 
-that on the LKML and getting in touch. It's unfortunate that parallel work 
-happened here.
+It would also spread the driver over four trees, so a fix touching the
+shared chip state becomes a cross-tree series with coordinated merges
+between four maintainers - a cost the single driver does not have.
 
-Also you might wanna take a look at the openRGB userspace implementation for 
-LampArray control. It still needs a lot of work. I too dabbled in there but 
-still not quite enough.
+Jiri, Benjamin - this is your call. Do you want FT260 functionality to
+keep growing inside hid-ft260, as cp2112 and mcp2221 do today, or do
+you want a drivers/hid to MFD conversion for this class of USB HID
+bridge chips?
 
-Best regards,
-
-Werner
-
->
-> Thank you,
-> Cristian Mazzotta
+Thanks,
+Michael

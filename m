@@ -1,107 +1,67 @@
-Received: from mail2-relais-roc.national.inria.fr (mail2-relais-roc.national.inria.fr [192.134.164.83])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ED6283E49EF;
-	Thu, 27 Aug 2026 11:30:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.134.164.83
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AFFF5446C17;
+	Thu, 27 Aug 2026 11:38:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787830207; cv=none; b=PbVbcxTGg9sZLT5SF+F3v5BlY+MykY9s9J14fgglANj2Pq5X0WS06KCNRgtD3H0GLle4LBGGVflqDUhQ25IYBkAN4/C4QK7oUfFu/1ZSq85u/D5SjjLi88NiJFiM18k1WwXCZQMsGjo3B4b4sOBtmtiu1nxgBJvlL6vkvtYq5vw=
+	t=1787830703; cv=none; b=YieupWNpTg1Cp61SxBfnCkqMTG/USAAl5fwbXy1d17fKJlDeKdqSYNVld9id+rxZ+TA72JTzuBvpjyZyfZ9YaUS5Pq+gszqiKFeHfA92p5wu93EwUp7eSUPZKmzJ+dGU+dINFjN9CF6TE7+yTMa8SlhVJ42/LuwtjwjrPCDNeJk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787830207; c=relaxed/simple;
-	bh=Ltd04Tp11jaczYj9Z3bptj40Ufge+Ujb83+F/zReS7Y=;
-	h=From:To:Subject:Date:Message-Id:MIME-Version; b=Wicyl78+uiroKTBg5IYyDViUOKDOXKJYwvxkijPHvAZKDj5hHj3ZmPqppallbOXTnx7yB3GKslaYj7R1C6FjE2cScmZFBEWC85FRTiUyLeQWH6vt8l3iFjweUgTYj67NyykZ7crfGam20Q28XlwzwTuskNcw37Erfg7JNT2pNzY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=inria.fr; spf=pass smtp.mailfrom=inria.fr; dkim=pass (1024-bit key) header.d=inria.fr header.i=@inria.fr header.b=ITtooFrw; arc=none smtp.client-ip=192.134.164.83
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=inria.fr
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=inria.fr
+	s=arc-20240116; t=1787830703; c=relaxed/simple;
+	bh=82Bcn+pJFIYqOSABLEVb/rS1dDSNK/q0xz+ld9Y0rUc=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=WpMopizMagzSjto8T2uLWmO6JOZib0t8Q6RZCEel/EN8f5gMZwismEFq4Mm8Epl7wxud9Wr0JLHrYF2ro9ZhrLb+YU6W7mpIu7rEs6cw9QpiCPdrQWrPy6XJgmkWRo+BUKBohgULGn6xuCS0J2fQF4xMq0KKmEKE4XZFF7ankmM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=AlK41TVI; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=inria.fr header.i=@inria.fr header.b="ITtooFrw"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=inria.fr; s=dc;
-  h=from:to:subject:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=NdlWtn7RhMPXbLXNfq/H5zVLJOCgx5THX1L6YT/apfY=;
-  b=ITtooFrwXXxJb5T6i8zdiJDwq/9LT8UFIV+SiIK8kW2/KZXCA/3fth5O
-   RiNQZMIR2X5WaPVMapL9H5WW2+KFc8BBvTDRS51nP82tqKod1kDMu0HfL
-   jDrVItPokYiYp/kpet4Nw+ZweniaO/vp5O9y5k3jzPtDGzvuw6SOlxYg4
-   g=;
-X-CSE-ConnectionGUID: c44e6LymSu2elag5f+2Slg==
-X-CSE-MsgGUID: 1ilguNujREWSBp3neebU0w==
-Authentication-Results: mail2-relais-roc.national.inria.fr; dkim=none (message not signed) header.i=none; spf=SoftFail smtp.mailfrom=Julia.Lawall@inria.fr; dmarc=fail (p=none dis=none) d=inria.fr
-X-IronPort-AV: E=Sophos;i="6.25,246,1779141600"; 
-   d="scan'208";a="291799574"
-Received: from i80.paris.inria.fr (HELO i80.paris.inria.fr.) ([128.93.102.196])
-  by mail2-relais-roc.national.inria.fr with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 Aug 2026 13:29:54 +0200
-From: Julia Lawall <Julia.Lawall@inria.fr>
-To: Ricardo Ribalda <ribalda@chromium.org>,
-	dmitry.torokhov@gmail.com,
-	bentiss@kernel.org,
-	cocci@inria.fr,
-	corbet@lwn.net,
-	hadess@hadess.net,
-	jikos@kernel.org,
-	lains@riseup.net,
-	linux-doc@vger.kernel.org,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	nicolas.palix@imag.fr,
-	skhan@linuxfoundation.org
-Subject: [PATCH] HID: fix semantic patch and improve its performance
-Date: Thu, 27 Aug 2026 13:29:49 +0200
-Message-Id: <20260827112949.2431233-1-Julia.Lawall@inria.fr>
-X-Mailer: git-send-email 2.39.5
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="AlK41TVI"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9BE091F00A3A;
+	Thu, 27 Aug 2026 11:38:21 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1787830702;
+	bh=sDj4ankPeR3/i6HG2u/6SSzlV/Mwesa1U4xXTKGItxY=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=AlK41TVIBzq1lMO/e+rKCx4H3hXagATqZXbYuiIaz0Ar+GcZfu3KePKjXazReZrp0
+	 7nhxVLaS3zFlQ2qBQbIR3vbk8ey25LuvocO8zYhNzYDyGmHkK++XR+p6d9k1xArheL
+	 Duuqx713xf7rlFqXDGAMt0WkAqFZbUViH4+GRMTYkXT3QwUbtJ7CHUcS8V9LGIBF0b
+	 ltqTc+awORwIw970hVf+98zLhKPucqFcCQowUHv3a/MfQ6xJnosf15r5x6P+iV/Gji
+	 mJn/kKi5Nhc2aln33Bp2XxrC+EdiQalJV10UFeJSqwSzbKRaIvE64hZnoHIR1MC8hu
+	 pIQcIVj8WDVZg==
+Date: Thu, 27 Aug 2026 13:38:18 +0200
+From: Krzysztof Kozlowski <krzk@kernel.org>
+To: Luca Weiss <luca.weiss@fairphone.com>
+Cc: Job Noorman <job@noorman.info>, 
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh@kernel.org>, 
+	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, Frank Li <Frank.Li@nxp.com>, 
+	Bjorn Andersson <andersson@kernel.org>, Konrad Dybcio <konradybcio@kernel.org>, 
+	~postmarketos/upstreaming@lists.sr.ht, phone-devel@vger.kernel.org, linux-input@vger.kernel.org, 
+	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org
+Subject: Re: [PATCH 1/3] dt-bindings: touchscreen: trivial-touch: Add Himax
+ HX83112A
+Message-ID: <20260827-miniature-tarantula-of-experiment-c57c23@quoll>
+References: <20260821-fp4-hx83112a-v1-0-474941bd8860@fairphone.com>
+ <20260821-fp4-hx83112a-v1-1-474941bd8860@fairphone.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20260821-fp4-hx83112a-v1-1-474941bd8860@fairphone.com>
 
-Replace "expression" with "identifier" in the declaration of hdev.
-This is necessary because hdev is used as the name of a function
-parameter.
+On Fri, Aug 21, 2026 at 09:12:18AM +0200, Luca Weiss wrote:
+> Describe the compatible for the Himax HX83112A touchscreen controller,
+> which doesn't need any special resources not described in the
+> trivial-touch bindings.
+> 
+> Signed-off-by: Luca Weiss <luca.weiss@fairphone.com>
+> ---
+>  Documentation/devicetree/bindings/input/touchscreen/trivial-touch.yaml | 2 ++
+>  1 file changed, 2 insertions(+)
 
-Move the two uses of @p2 to the relevant function names.
+Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
 
-Convert <... ...>, meaning that the contained pattern is optional,
-to use ..., when any, and exists.  This requires that the function
-contain calls to hid_hw_start, etc, which reduces the set of files
-that are considered for matching against this pattern.
-
-Reported-by: Ricardo Ribalda <ribalda@chromium.org>
-Signed-off-by: Julia Lawall <Julia.Lawall@inria.fr>
-
----
- scripts/coccinelle/hid/ff_race.cocci |   11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
-
-diff --git a/scripts/coccinelle/hid/ff_race.cocci b/scripts/coccinelle/hid/ff_race.cocci
-index 479f5d1e3..e861de00c 100644
---- a/scripts/coccinelle/hid/ff_race.cocci
-+++ b/scripts/coccinelle/hid/ff_race.cocci
-@@ -7,18 +7,19 @@
- 
- virtual report
- 
--@r@
-+@r exists@
- identifier probe_fn;
--expression hdev, flags;
-+identifier hdev;
-+expression flags;
- position p1, p2;
- @@
- 
- probe_fn(struct hid_device *hdev, ...) {
--  <...
-+  ... when any
-   hid_hw_start@p1(hdev, flags)
-   ...
--  \(input_ff_create\|input_ff_create_memless\)@p2(...)
--  ...>
-+  \(input_ff_create@p2\|input_ff_create_memless@p2\)(...)
-+  ... when any
- }
- 
- @script:python depends on report@
+Best regards,
+Krzysztof
 

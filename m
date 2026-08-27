@@ -1,139 +1,216 @@
-Received: from mail-wr1-f53.google.com (mail-wr1-f53.google.com [209.85.221.53])
+Received: from mail-pg1-f182.google.com (mail-pg1-f182.google.com [209.85.215.182])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6E7F94D98FF
-	for <linux-input@vger.kernel.org>; Thu, 27 Aug 2026 18:54:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.53
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787856863; cv=none; b=uIY3WfDcJONSzaJmKStZv3ql4fnG5WmYC971fZvl9K6cl8w8iro7AG1wqZss8/0JGUFCMZLvB8gTHwuOvrAyJb3DZfdjfP2gM+vT+INyL25QJs0R3ZEQQj4/QyqFzxqYLvJsWyEluRf8JQCogo60txBhweHXoul7rDoedDyqTx8=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787856863; c=relaxed/simple;
-	bh=Rt8ALBK0oQhAgyKgcFtv4DDLxR5VZFbjwVXygxIm3jw=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=gcHtzjfC8pmmfdHdJQQWRZ+SKHe7xYRwHcqf+pyE7HFv7SgjOxjNED0d81+hSVnDDw1vziLH2Lar54BWDYDjTlGv+uu8LdQso9VIBiidhqTDtm2CP10jZh4fpYYUA+zcUBEnAdgs8xjqV6gh4ZySF61J6DLj4RtcJlBhWuW3tC8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=D3xYvG9F; arc=none smtp.client-ip=209.85.221.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2902E38758D
+	for <linux-input@vger.kernel.org>; Thu, 27 Aug 2026 19:02:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.215.182
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1787857364; cv=pass; b=SnFFjsNDZwdNbyp1p94i8/qjf9jOGMwHO7uN3rLQDn9tmy7BrWrupFF5pkwjKx1az6BFolbT71gxS8zTJNG539LG7WutqWrDR/GqYEpGdptmbSk1jxU2q4MrDkGEfRDzjws1d3zi/fH5jisrGJppTIrurdw7CIKXcK5dCyNTHnQ=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1787857364; c=relaxed/simple;
+	bh=XcSMD/HdUmVFxslTIb2qIZgsej+xGutNgV8WULXEE3w=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=B7mwjtybV3fPkamfExCwbq/bjCBk3tu6+4VbPR39gu1usoN7FX2gGc4i5m9razn/XDpGjbmtIABXet1xixAcRRD6zPHIpoSqdlY4dLxeoAXsSKxVJQWBa9G9Z55bIHb9hHUNos/A+PE5kwzNE1zU6tWzlf8PwMkHsXd/ghE2oX4=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=IBSvJDLW; arc=pass smtp.client-ip=209.85.215.182
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="D3xYvG9F"
-Received: by mail-wr1-f53.google.com with SMTP id ffacd0b85a97d-482e1bfcc63so81070f8f.1
-        for <linux-input@vger.kernel.org>; Thu, 27 Aug 2026 11:54:17 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="IBSvJDLW"
+Received: by mail-pg1-f182.google.com with SMTP id 41be03b00d2f7-cc1bcdb3c4cso195275a12.2
+        for <linux-input@vger.kernel.org>; Thu, 27 Aug 2026 12:02:42 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1787857362; cv=none;
+        d=google.com; s=arc-20260327;
+        b=hZznTxQmiKRbRF9cxnEQf8NqT6LBxAm3gzv7+0tr9kL5MvShi0YgYFa2wyI8SVKLvt
+         Vh5aZP4DFvwP208XHGRxlAgWgdkqnIcqf5DmNP1lxUfk2R0BFRULohtWTfCG1Z0KW/Xa
+         LbH0rC7XYr3wDctXR/yNfqqt7HXRyS90v3YmnUQMYPhnkwZSUZORoe5hmE304NP4Obth
+         7ZPKL6Xj43FNY+LNLPLPN2PhqmN2rxt+s8yBMv3grWPO01gSteESNrpMd+RaHG8W0w71
+         ljv6EGHQt6NhY3wHrJOamQse0vEdAHzTxmTCCfEZNKBGneP1ug4F49sZn0BfMLu8KVbs
+         brSg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=QRLwXZ3w9PabTGTAitLmepFzO9LpmDAYaCwAO/RJEyQ=;
+        fh=DS3df/+j6JO8qx9P7Kj2aKzUXs2QBO99KsubgDrRBLA=;
+        b=LIZCfA7tgOO6iqco3t+s7PUkqMIcEeOIInqA1HdrCRf/G2PwAxyO6wgbNi6rH3yhqX
+         iQHc/4L1E4Cp1zMeB5xHlGDWUHy7Aw37rmAKTN8P87XywlRSn/pHr4G24G7LCkGjF1aU
+         1WgCQrd5Nui4PFIG21fh4rI8YnWnUFFina0neKx0hIZReSx5jK6Qh2KlcrWwtds9xOc1
+         4WqZkF9oH+bXCQ7oafSBwYr1EjDZYGvISGfwM18aaUSbBlQ19Ch+qDUdAWmPYGRQfFDK
+         /PWdStvoYSS1sB7vYSmoLc8AId6eyAypX4FXqcsMmtoRadRJid+GisX+e18iVWNs3PkP
+         fYaQ==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1787856854; x=1788461654; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=DXZbVhYz9N3eTXaQaEC1u1/IkHAm8yMqNG5vDMny+/w=;
-        b=D3xYvG9FpQESwJheX2sSzz2TYs6CEaxA22WhQcZl3Bxiq7KIcCnK/mBkFjnLfnTxQG
-         mYo5n966ckm/tU8UItoVzB789UHT6hYuG1voIXMkQ8pUBoGFGJo0t/H4rasM7BTZIhVf
-         KGMOuuJQrGBr5rP7+BHFzP74PYE6nbo77nbCdBcudXt85AHcyZtfQm8JcejDP8aBJD0c
-         uefD05tTZAztTQv9vL7VjoIThsNYobRR3YL3lxbn/eONsDEySqH5goUIrKsyUCF1M6Xc
-         CWFUsQo4r00AILpm27TwAxTrzIEjuyBVkkfFQvEeD6lSgML3W6wHfEeIAOX+1E3HTyll
-         wWTQ==
+        d=gmail.com; s=20251104; t=1787857362; x=1788462162; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=QRLwXZ3w9PabTGTAitLmepFzO9LpmDAYaCwAO/RJEyQ=;
+        b=IBSvJDLWV6/blxTQVqe8lHoJ0ox3gq88qsFyqvYo+VHUU9Av+gAH5dK8bk3eg+I58y
+         eKGJiJwHOFBSoydwOCtkm3HcvTopq8pu2Vk1Y65HPjE7RD5xYZMSiMpaa3lU8/eF9/Mx
+         nVQfZRwMJylOjZxd9b73usTGo58cW4sEtqz8+wuu8NS+uYJnbCKJkGexRYBaWJypHqk/
+         3SbG+W6fWmFtM1yZX3tP5XOwDcWeq3MXIXGf8ZYWnOTkWAvI9x2mpkGNAkEAZ0xoY18v
+         RWQPXnYPc3CHN3AcLkz1uwvOx0BxrIrIgkAk60eQ4Ninr9v2q/KV+bvuAH8uQuM5+bpl
+         MYGw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787856854; x=1788461654;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=DXZbVhYz9N3eTXaQaEC1u1/IkHAm8yMqNG5vDMny+/w=;
-        b=d/H6ORl9HW54HttQSvmE6RFGEGATKAMpmZyt8/n7MryXfFZRj0+xOwbvlMt0cIQfrp
-         KTjs09fLexiJaWO7ybWHw5UFqWeadk0PkHTyl0zhDsoUnBntAC584tzYYT4QMiy4blTj
-         DilHQ5YqUtc+uvcAKNjQ0S4Q+4sjbyWiDseQYgbBoF3vHeb7aufJCodRgHJ6De2HhULW
-         IXYB64mU3KGcg/74MBE+FFaSeIzWj1Wu7x4qOhUqU3Ad0tC12M/KfvZfG94vp2kHouwT
-         QYmkZ4n1qA5WWdToJo7y05VpIil/vxE6DHwjuOo5wahKRnc9qj/hnxWZ3ejVR/xMl/TR
-         N3xw==
-X-Forwarded-Encrypted: i=1; AHgh+Ro4HAAna5u0fRnjzCAa6bFDXaBCmQRXMMMfei2uV9wurihd2nhL/D5g0NdwlWrWDw11dmjeJOTOx4S7vA==@vger.kernel.org
-X-Gm-Message-State: AFuF++lv3gv1bTgv3lRfxi3bCFdkK8cR+h06Ngibk/XUvbjhmzAXgir6
-	UQOJR1pCZLE9bOJolhtgLQwCSgVfiohTgarx0buHoAWsxpqepH33y6/L
-X-Gm-Gg: AR+sD13pbAu6QUYGt//MyFsNeb1zNl/88dDP095J/EzHdG5oKYDK2Lz0PCZKYEtQp4/
-	N0qGTVsqz4ISszGBFdPFmjY3nKpqD6ESaBvLFdsDSYOanmzgem8qlVJetSJzUZ0e8rEtudU/0RF
-	GEoP5dDitDADXHG+tYMOy5n81QNsO4uIOT0/G2dgxg8MYwrLfi+ChTAamKhJ0316AjEh9Iip2tr
-	TSgcB3uA9evGauW3SnUkzfzCPyUfPqHmAqElL9IYUDGHCRGuVPQokpt5/6iIxMbpU7ObGSq9Ttl
-	Q3nzbG7PfKnEAHRUoaBh+aPYs3tV2VQ43XvIFVrGwwoaoKrVZYxbz432GvRtQUkcdGTj/qkoIPC
-	fmbYYodGwJKVQOfxFVp4kwrLQvjgZysNkecZ8nAp+eottX5P5eFSKM82RUFy6SvaH5DXUQ3iBrN
-	KCO5g+RmDvdLkU/d4Jfaer4ZbsDuriuei6wmLeknZTDaEluItIySeTS86oD3s=
-X-Received: by 2002:a05:6000:310e:b0:482:e627:8e4d with SMTP id ffacd0b85a97d-482eab8aea7mr11109477f8f.8.1787856853846;
-        Thu, 27 Aug 2026 11:54:13 -0700 (PDT)
-Received: from m2.. ([37.142.156.156])
-        by smtp.googlemail.com with ESMTPSA id ffacd0b85a97d-482e28f854dsm10980986f8f.36.2026.08.27.11.54.12
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 27 Aug 2026 11:54:13 -0700 (PDT)
-From: Michael Zaidman <michael.zaidman@gmail.com>
-To: Lee Jones <lee@kernel.org>
-Cc: Linus Walleij <linusw@kernel.org>,
-	Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>,
-	Bartosz Golaszewski <brgl@kernel.org>,
-	linux-input@vger.kernel.org,
-	linux-gpio@vger.kernel.org,
-	linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 00/13] HID: ft260: add UART and GPIO support, plus I2C fixes
-Date: Thu, 27 Aug 2026 21:53:45 +0300
-Message-ID: <20260827185345.10224-1-michael.zaidman@gmail.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20260827132718.GK770273@google.com>
-References: <20260827132718.GK770273@google.com>
+        d=1e100.net; s=20251104; t=1787857362; x=1788462162;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=QRLwXZ3w9PabTGTAitLmepFzO9LpmDAYaCwAO/RJEyQ=;
+        b=sdnFpKBsnKpxDCN8fm35aE1ehiZJL3FanqgdQwL0rnAjA3lTIlVnFLDEcZjb6E/RzS
+         N6r62L0F1qJCmkOhGShynB9i5l38LX2BtoP2zYmAypqqscojU5nPJ9L/QexOElOWStBo
+         3nU1HO8vZd1ZchF1ql63s+qyr/ZJQrUB9PMKbXgNeAnjA5omhSDolUMo48jiVNKrqoZm
+         JyuHSMGhTqMmM2x53kh8/bC698b6NUxN5VLvs3tn7FH6zp99xI7/hiNOBcnuII86lv/P
+         4dJmmxaTtQZFu79LJVHOdEXUEBKg/WOI67rc8vdE2vMDqk8SSdzZlpCFnz0dsSJkPcCB
+         /oFQ==
+X-Forwarded-Encrypted: i=1; AHgh+Rqh9yBgDpV+PKRjwcqCMCx9S8wJQ0jsi79Fn080puVaUUHk69ZnLCKFYFXl6jXMScg7Le4u9TY+tckibA==@vger.kernel.org
+X-Gm-Message-State: AFuF++kLmde3y/NXJo+CEcHD6xx//Hj9VQiE3u2jG5QQAfYiiGUiDSns
+	bp11S6nUgWTVxwnYB6PbutaHdF86ZgEZsjH8f5pK5o6VP5XiS7F8w8UuL08N0QwP3WfLep1HP/W
+	LhyRV/kEly8XluGMs1UKh3LuJ9YHNEzo=
+X-Gm-Gg: AR+sD12UkfvO2xaDrQNtvaG6rgDAABHGUInJx125WutblFSSxq3gWWqcxIFCmtm59/O
+	G3LSrwc85H8B1yVnfzz8hFMZOj5qNzKmcr1DD6Gar1hzF3jGstQ5BEGMNKHycZaZ32720QTCS39
+	EZP1iBOYkPMoupcGvc6sZBiSYHju1p3Gy7xFFJsNkRntWla2/ALrAdGnAdrSkYcn+GU3du5vTYT
+	+nJ0E2wUVVhEzftmzt0/Vt46Ok6IEVXaX9mS9iV4F1qpBZ6OyhcpgVgjls+Mu3OtfA9xUjp79gT
+	GY6mf5fDDaWJa8aJkH1e2B+56zEeNwOWqP72uSWCoaeu
+X-Received: by 2002:a05:6a20:1582:b0:3cd:2e96:5929 with SMTP id
+ adf61e73a8af0-3d2681a9fcemr1636542637.14.1787857362012; Thu, 27 Aug 2026
+ 12:02:42 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20260825103104.12090-1-98lawweijie@gmail.com>
+In-Reply-To: <20260825103104.12090-1-98lawweijie@gmail.com>
+From: Jason Gerecke <killertofu@gmail.com>
+Date: Thu, 27 Aug 2026 12:02:29 -0700
+X-Gm-Features: AcwNN1VAoUt61SD1pdzAJX6jw8Qf_02tqkLxle51MEfUycbPSDDWE60nEBNZIiw
+Message-ID: <CANRwn3TWTHxP=ZEpgZzjRweC8vqifoi2koKgSQTEuPuY4FZxcQ@mail.gmail.com>
+Subject: Re: [PATCH v2] HID: wacom: fix OOB read in wacom_wac_pen_serial_enforce()
+To: Wei Jie Law <98lawweijie@gmail.com>
+Cc: Ping Cheng <ping.cheng@wacom.com>, Jason Gerecke <jason.gerecke@wacom.com>, 
+	Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>, linux-input@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Thu, Aug 27, 2026 at 14:27 +0100, Lee Jones wrote:
-> What is this?  4 device drivers in one, shoved into HID?  Each
-> component; HID, I2C, GPIO, UART, should live in its respective
-> subsystem, surely?
+On Tue, Aug 25, 2026 at 3:31=E2=80=AFAM Wei Jie Law <98lawweijie@gmail.com>=
+ wrote:
+>
+> wacom_wac_pen_serial_enforce() iterates over a field's usages (up to
+> field->maxusage) but indexes the report bits by j * report_size:
+>
+>         for (i =3D 0; i < report->maxfield; i++) {
+>                 for (j =3D 0; j < report->field[i]->maxusage; j++) {
+>                         ...
+>                         value =3D hid_field_extract(hdev, raw_data + 1,
+>                                                   offset + j * size, size=
+);
+>
+> In hid_add_field() the usage array is sized max(usage_index,
+> report_count), so field->maxusage can be far larger than report_count
+> when a descriptor lists more usages than its Report Count.  A field
 
-The FT260 is a USB HID protocol converter, not four MMIO blocks behind
-an MFD. I2C, UART and GPIO are HID reports on one chip. Mainline
-hid-ft260 already hosts the I2C adapter in HID for that reason. This
-series adds GPIO and UART the same way.
+The wording above confused me greatly until I realized that the
+problem is **not** with the field->usage array. That particular array
+is allocated with the size described, which is exactly equal to
+field->maxusage. **Instead**, the problem is that a buggy report
+descriptor can declare many more usages (and thus a greater value of
+field->maxusage) than the Report Count actually provides space in the
+report for. In such an instance, we would obviously overstep
+arbitrarily far past the end of the item.
 
-hid-cp2112 and hid-mcp2221 already register an i2c_adapter and a
-gpiochip from a hid_driver. They are not split into i2c/ and gpio/.
+I would appreciate an update to this patch with less confusing wording.
 
-A subsystem split does not give independent drivers here. The control
-and pin mux live in one feature report, and input is one raw_event.
+> declaring Usage Minimum 0 / Usage Maximum 0x2ffe with Report Count 1
+> gives maxusage =3D=3D 12288 while the field's bit region is only 8 bits
+> wide.  The extract at j =3D=3D 12287 then reads bit offset 12287 * 8, i.e=
+.
+> byte 12287 of raw_data + 1, roughly 12 KB past a 2-byte received
+> report.  __extract() performs no bounds check.
+>
+> The value read that way is stored into wacom_wac->serial[0] and can be
+> emitted to userspace as an MSC_SERIAL event by wacom_wac_pen_report(),
+> so this is an information disclosure and not just an out-of-bounds
+> read.  A malicious device only has to claim vendor id 0x056a for
+> hid_scan_report() to place it in HID_GROUP_WACOM and have this driver
+> bound to it, and a single crafted input report is enough to trigger the
+> read.
+>
+> Clamp the inner loop to the field's actual report region with
+> min(maxusage, report_count), so usages that have no report data behind
+> them are no longer extracted.
+>
 
-System status (HID feature 0xA1) is chip-wide, not per USB interface.
-chip_mode (DCNF0/DCNF1), the 12/24/48 MHz clock, i2c_enable, uart_mode,
-UART configuration (baud/frame/flow), I2C reset and I2C clock, GPIO2/A/G
-function select, DCD/RI enable, and power-save are fields or SET
-requests on that same report. Probe on either HID interface reads 0xA1
-and then decides I2C vs UART from chip_mode plus bInterfaceNumber.
+I don't believe there is any situation where maxusage could be less
+than report_count since it is initialized as max(usage_index,
+report_count). We would also *want* to read fields beyond the
+last-declared usage, since such fields are actually supported by HID
+(see both the comment in the usages loop of hid_add_field() as well as
+the first remark under section 6.2.2.8 "Local Items" of version 1.11
+of the HID spec --- such fields just reuse the last-declared usage).
 
-GPIO is not a third USB function. It is feature report 0xB0. Which pins
-are GPIO depends on that 0xA1 map: I2C enable takes GPIO0/1 (SCL/SDA);
-uart_mode takes or frees RX/TX, RTS/CTS, DTR/DSR and DCD/RI; GPIO2/A/G
-are UART/power LEDs vs GPIO; GPIO3 is wakeup vs GPIO. The gpiochip is
-attached to the I2C HID interface in I2C-only mode and to the UART HID
-interface in UART or dual mode. TIOCMGET/TIOCMSET use that gpiochip
-when the modem pins are in GPIO mode. Changing UART flow control
-rewrites 0xA1 and then updates the GPIO enable mask.
+Given the above, I propose simply making the loop condition " j <
+field->report_count". Thoughts?
 
-Input is one hid_driver.raw_event. It dispatches I2C read payloads
-(0xD0-0xDE), UART RX, and UART interrupt status (0xB1) by report ID.
-Dual-mode still has two USB HID interfaces, but they are two pipes to
-one chip. There is one 0xA1; there are not two register files.
+Jason (she/they)
+---
+Now instead of four in the eights place /
+you=E2=80=99ve got three, =E2=80=98Cause you added one  /
+(That is to say, eight) to the two,     /
+But you can=E2=80=99t take seven from three,    /
+So you look at the sixty-fours....
 
-USB reset (the TN_189 workaround) resets the whole device and rebinds
-every interface. Idle wakeup uses chip-wide GET reports (0xA0 / 0xC0)
-and power_saving_en from 0xA1.
-
-UART is still HID reports on the UART interface (0xE0 / 0xB1 / data
-reports), not an 8250-style port. Putting it in drivers/tty would not
-remove the 0xA1/0xB0 coupling.
-
-An MFD split would still need a HID core that owns 0xA1, 0xB0 and
-raw_event, with I2C/GPIO/UART cells calling back into it, and with GPIO
-availability depending on UART/I2C mode and on which interface probed.
-That cell-and-core layout is this driver already. Splitting it does
-not give I2C, GPIO, or UART their own independent devices; it is
-still one HID protocol converter, in four files to keep aligned
-across kernel versions.
-
-Thanks,
-Michael
+> Verified on v6.12.104, whose wacom_sys.c is identical to mainline here,
+> with a UHID reproducer and with an emulated USB device (raw-gadget): a
+> hardware watchpoint on wacom_wac->serial[0] fires with an out-of-bounds
+> heap byte while a 2-byte report is being processed, and no longer fires
+> once the loop is clamped.
+>
+> Fixes: 83417206427b ("HID: wacom: Queue events with missing type/serial d=
+ata for later processing")
+> Cc: stable@vger.kernel.org
+> Assisted-by: Claude:claude-opus-5
+> Assisted-by: GLM:glm-5.3
+> Signed-off-by: Wei Jie Law <98lawweijie@gmail.com>
+> ---
+> Changes in v2:
+>  - No code change: the diff is identical to v1.  Adds the Assisted-by
+>    tags required by Documentation/process/coding-assistants.rst.
+>
+> The reproducer is available on request.
+>
+> Compile-tested on bd5f485f3f02, x86_64 defconfig + CONFIG_HID_WACOM=3Dy.
+>
+> v1: https://lore.kernel.org/linux-input/20260822120926.153849-1-98lawweij=
+ie@gmail.com/
+>
+>  drivers/hid/wacom_sys.c | 6 ++++--
+>  1 file changed, 4 insertions(+), 2 deletions(-)
+>
+> diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
+> index 0eafa483b7f7..1ea8763b68a8 100644
+> --- a/drivers/hid/wacom_sys.c
+> +++ b/drivers/hid/wacom_sys.c
+> @@ -113,8 +113,10 @@ static int wacom_wac_pen_serial_enforce(struct hid_d=
+evice *hdev,
+>
+>         /* Queue events which have invalid tool type or serial number */
+>         for (i =3D 0; i < report->maxfield; i++) {
+> -               for (j =3D 0; j < report->field[i]->maxusage; j++) {
+> -                       struct hid_field *field =3D report->field[i];
+> +               struct hid_field *field =3D report->field[i];
+> +               unsigned int count =3D min(field->maxusage, field->report=
+_count);
+> +
+> +               for (j =3D 0; j < count; j++) {
+>                         struct hid_usage *usage =3D &field->usage[j];
+>                         unsigned int equivalent_usage =3D wacom_equivalen=
+t_usage(usage->hid);
+>                         unsigned int offset;
+> --
+> 2.43.0
+>
+>

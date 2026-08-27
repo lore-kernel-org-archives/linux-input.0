@@ -1,142 +1,94 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f46.google.com (mail-pj1-f46.google.com [209.85.216.46])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5FEA23438A8
-	for <linux-input@vger.kernel.org>; Thu, 27 Aug 2026 06:45:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4485F3DAAA0
+	for <linux-input@vger.kernel.org>; Thu, 27 Aug 2026 08:16:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.46
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787813118; cv=none; b=uWe7wqLyXuaKhf/9qjG/Vz+CVHValZuKKuJKnVyeFTQAO5BuSIpz0PeCmqyQc/9i+glts+iOQ8IaInlgkXxSVoGn8XP/cua8fNiFo07Re4nLASKBB14CmuXUfFKli25Qmorc79SK6956rLLIH1RPrcibmVSE2N3gbeBDGtcNbYU=
+	t=1787818614; cv=none; b=fs9EXfLqlu4YUf5lkrn0KSz7wId0h8Qy4Fc5Wc1pa4eNx0fjN5sOCI68QeVy/+/010/UuvCvRl5xoVCYcJ1aTg+jzPoGFgUmSBZ11JgRkYN+bEPGildgmAfXouGWDD0x0eNH6enX8oEjrqzlfWymueA3Lzm1lqbwsYnTopD3OaE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787813118; c=relaxed/simple;
-	bh=4oGra23Ny/UY+2c2Kz9G6GViHNBsQJpRG0EsawlFQNg=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=NO9hc56xp4NqagnROHrSrjQVX8r3ALpoH7nClv7kCQ0C+IpWWdNGxZqJBBxYY5TaN3KPW9pXQiNs4Kqrjmol9Aht3MTPgaFBWWsVEZP3pX0Z7RSdhYbcUF9SjixFmtizWG2HTEg1GtgVhTSOJSQEDy8zmqx1B7A7+W3cm6Xs664=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Sl5YTUcI; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1787818614; c=relaxed/simple;
+	bh=Wa7EMNtS/SBStCyHa0wWvJVG0R2Xdy1a2EIB8SPizDA=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=rlv7y/7o+eGpwHn2zPnNh2chqw5OjJVpJh6XipP5UI3koAKN0zqd2OhpRNzPuEf+JBU2R0FilDwEL5gNSl57AhSCsoFyYeORZsj5JOS6Oakc6vNkl0gEUxSJlU7/kRjgMdQf0Wp+w6ARDSf94q1S1FgevhDcEmRGkfJPwGxvzLE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=mKooWkvH; arc=none smtp.client-ip=209.85.216.46
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Sl5YTUcI"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF38F1F000E9;
-	Thu, 27 Aug 2026 06:45:16 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787813117;
-	bh=Ww7dGg4mHhqKLzqFKonpFgSlFvH+vsDGDP7QD7dnwAs=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=Sl5YTUcIKwezHlDHuZjikuqwL5mNaogj5RCTXi3iozTMPxnxXKzC0aTj9EfsCZUGh
-	 tRnw/ifJbd8GxJJRFyHbQFas7GFLo4Ahxz8fo85w6H0ZInb6vfDStYMCWqiXRW2dEE
-	 1cGDa6+MJY8NCuIgoyoguTZRyDJ/sjDsjiwqgEmTFTx20NON3nxzbpMnRqbZRvA8vb
-	 3pYOMWYR6vnqKjPg3MTzVdAqw0cfGTp4yfR27mvaXy9jR/4CKDFtLE9YG0Ub5eJXru
-	 OfqxcU+QjLNn3EjEDPFG5BXn+WHJA80b7hECjYSOcEB362zxrFXsirsrzDu3r6SAmP
-	 uex+M9NOKm0jQ==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] HID: amd_sfh: Validate PCI BAR size before mapping
-Reply-To: sashiko-reviews@lists.linux.dev
-To: syzbot <syzbot@kernel.org>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <94704655-d654-4500-8122-b80bea9bd908@mail.kernel.org>
-References: <94704655-d654-4500-8122-b80bea9bd908@mail.kernel.org>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Thu, 27 Aug 2026 06:45:16 +0000
-Message-Id: <20260827064516.BF38F1F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="mKooWkvH"
+Received: by mail-pj1-f46.google.com with SMTP id 98e67ed59e1d1-38f620399a0so1360946a91.2
+        for <linux-input@vger.kernel.org>; Thu, 27 Aug 2026 01:16:53 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1787818612; x=1788423412; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=wvUOAOKXuBQHrhv/+0psbsiL2fO8oAFnkMuF5lJmkVc=;
+        b=mKooWkvHIue0C1aY3KZJijANtpHuFWEfvOY1RPCxRb5myPsWV/cBHu/FnN+jqJU4Nt
+         N8ETBSCZKUtNs2lDpiKU/lUZUnrphkST1iAXfMo7sAH1gGc+KkYbTnSQ3hxN9r+hajRM
+         3J6dQ+Ut3EbK55WsyyOFWwkS0NrK4A6W6T6s4/keSmpjcQOUtNDK2oz1dvF4LnCxtcWf
+         tCNDo1+JsqFgQarJPNXu/0pvJ7JY+Gkdw/KIP/wSyfdKFz6pCi1X/TFTV1ZQhz3ZvlOl
+         h6ksG5tCLPVVT0NnLCdSMGF0n9/+O2CnqaKg/8Dm6a8eI/ygZa8t2iM32TRak7wN5puW
+         uLfQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1787818612; x=1788423412;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=wvUOAOKXuBQHrhv/+0psbsiL2fO8oAFnkMuF5lJmkVc=;
+        b=P/yVloOJKWPrg4eNIgBnXSRv1QmwNicNZPx3h4tn8cwtezjDzb1z14L9L0UA3V9JwV
+         N9+Z76XUSKXt72n7XDgve9NQ7Gg59V62FpAFLv1VP9T8wf5ry8wBzyQCiqESsoMSYUhm
+         kQLZxanqV7y1gYWyifR+L9qZaZflLHifufrjmh8MFkm4GVC7UIheSsx6Bg/87iUfHD2Q
+         zWYWnY0asjDZUB8Vndn4ouXi7kmI0yfcwu1xbnWVEwTFejbzMwN/y7KVt7ttCE963BEB
+         cqfV5ezfhnXp3Lv3b/X81YxNP/HdUc2MzUUWKAAHs/6qfOMxoQKF2IE8kPZd38RFTQKx
+         7Emw==
+X-Gm-Message-State: AFuF++mQtZJxcfpvPMTnZ5oGhOBTEPC9wWdF9TTiDkJr6CO522dBFU2e
+	ea39oj8T+zpYXjn2P+29vSanbV1eVFeCwYG2NmW0en+ubk3Hx3xb1UXl
+X-Gm-Gg: AR+sD13eTTdCyafSRiBfvD1tUGd4dOJHLDAnudQE6rF5aY75ud9x0vh277QCwc/bX14
+	DjQhrHGaP6iM2aZzzpDg2kj3YrVg2PEMjkUUD/NECwjtm/FvFAmK2Xa6PLIT8oxPNx1At1ZEtjO
+	bTMPjCUhrx9bqsjbdnWyiVXHQpYMIxrXeYoaBHhpqNNhx4H5s0aptCMWNRdkhJzmgDo0AWHy/mu
+	+YN3LsD8Pzj9iUHl7L1qAsaLXrBqp1z+lmEiMEMyA/+IJ/V8mpbZtyLRn6CWBVkCL9mqE3eJoPO
+	omXXjOvhmyDVkIy59NanvjzCWoDI1YxVJlfpUXF5+SOwb2rDmYU0YwckgwXblXmjL5sqwva+2G8
+	DXnfVrBEy89ZYNNxQgM7N8b8jR6hmCFnqgJUrZBtf0Eo6x0gNIWiIS9iHBttnBuFhE6d/z554nO
+	7mF5rxpeOFyEAZxOSUQpIXUEpHEf7XL1y7HvngVJ41E2KN02CQFbKTVBj+MQj2AOgxZYpPwBQfM
+	fYL
+X-Received: by 2002:a17:90b:4a50:b0:392:b509:b1a5 with SMTP id 98e67ed59e1d1-3966d48c3e9mr24352683a91.14.1787818612187;
+        Thu, 27 Aug 2026 01:16:52 -0700 (PDT)
+Received: from Default ([2409:40f4:1015:7531:12c9:ad3b:96d3:4379])
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-141a8eefd98sm26865924c88.3.2026.08.27.01.16.48
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 27 Aug 2026 01:16:51 -0700 (PDT)
+From: Jeffin Philip <jeffinphilip14@gmail.com>
+To: syzbot+d632e93ffcd1452bc61e@syzkaller.appspotmail.com
+Cc: linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	linux-usb@vger.kernel.org,
+	syzkaller-bugs@googlegroups.com
+Subject: KASAN: slab-use-after-free Read in roccat_open
+Date: Thu, 27 Aug 2026 13:46:39 +0530
+Message-ID: <20260827081639.17185-1-jeffinphilip14@gmail.com>
+X-Mailer: git-send-email 2.55.0
+In-Reply-To: <6a8fd9c8.50659fcc.60cd.000e.GAE@google.com>
+References: <6a8fd9c8.50659fcc.60cd.000e.GAE@google.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
+#syz test: upstream 903c1cf6dff9
 
-Pre-existing issues:
-- [High] High Severity Finding: API Usage Violation. The transport driver u=
-ses hid_input_report() instead of hid_safe_input_report(), risking out-of-b=
-ounds reads.
---
-
-commit daa6f21fdcd011d62323dd6e5390e89dbb4f38d2
-Author: Slawomir Stepien <sst@poczta.fm>
-
-    HID: amd_sfh: Validate PCI BAR size before mapping
-
-This commit adds a check to verify that PCI BAR 2 is at least 128KB before
-mapping it with pcim_iomap_regions(). This prevents an out-of-bounds memory
-access during the probe function if the driver is bound to a device with a
-smaller BAR 2.
-
-Link: https://syzkaller.appspot.com/bug?extid=3D4eadd4dfe9e66522bae8
-Link: https://syzkaller.appspot.com/ai_job?id=3D3bc1c45c-548f-4ab5-8243-d2c=
-8ec321d6c
-
-> diff --git a/drivers/hid/amd-sfh-hid/amd_sfh_common.h b/drivers/hid/amd-s=
-fh-hid/amd_sfh_common.h
-> index 78f830c133e5c..c0c324565bee4 100644
-> --- a/drivers/hid/amd-sfh-hid/amd_sfh_common.h
-> +++ b/drivers/hid/amd-sfh-hid/amd_sfh_common.h
-[ ... ]
-> @@ -17,6 +17,8 @@
->  #define PCI_DEVICE_ID_AMD_MP2		0x15E4
->  #define PCI_DEVICE_ID_AMD_MP2_1_1	0x164A
-> =20
-> +#define AMD_SFH_MIN_BAR_SIZE		(128 * 1024)
-> +
->  #define AMD_C2P_MSG(regno) (0x10500 + ((regno) * 4))
->  #define AMD_P2C_MSG(regno) (0x10680 + ((regno) * 4))
-> =20
-> diff --git a/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c b/drivers/hid/amd-sfh=
--hid/amd_sfh_pcie.c
-> index 4b81cebdc3359..039b6ac327d3d 100644
-> --- a/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c
-> +++ b/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c
-[ ... ]
-> @@ -451,6 +451,16 @@ static int amd_mp2_pci_probe(struct pci_dev *pdev, c=
-onst struct pci_device_id *i
->  	if (rc)
->  		return rc;
-> =20
-> +	if (!(pci_resource_flags(pdev, 2) & IORESOURCE_MEM)) {
-> +		dev_err(&pdev->dev, "BAR 2 is not IORESOURCE_MEM\n");
-> +		return -ENODEV;
-> +	}
-> +
-> +	if (pci_resource_len(pdev, 2) < AMD_SFH_MIN_BAR_SIZE) {
-> +		dev_err(&pdev->dev, "BAR 2 is too small\n");
-> +		return -EINVAL;
-> +	}
-> +
->  	rc =3D pcim_iomap_regions(pdev, BIT(2), DRIVER_NAME);
->  	if (rc)
->  		return rc;
-
-[Severity: High]
-This is a pre-existing issue, but does this driver use the correct input
-reporting API?
-
-In drivers/hid/amd-sfh-hid/amd_sfh_client.c:amd_sfh_work():
-
-	if (node_type =3D=3D HID_FEATURE_REPORT) {
-		report_size =3D mp2_ops->get_feat_rep(sensor_index, report_id,
-						    cli_data->feature_report[current_index]);
-		if (report_size)
-			hid_input_report(cli_data->hid_sensor_hubs[current_index],
-					 cli_data->report_type[current_index],
-					 cli_data->feature_report[current_index], report_size, 0);
-
-And later for HID_INPUT_REPORT:
-
-		if (report_size)
-			hid_input_report(cli_data->hid_sensor_hubs[current_index],
-					 cli_data->report_type[current_index],
-					 in_data->input_report[current_index], report_size, 0);
-
-Also in amd_sfh_work_buffer():
-
-			hid_input_report(cli_data->hid_sensor_hubs[i], HID_INPUT_REPORT,
-					 in_data->input_report[i], report_size, 0);
-
-Calling hid_input_report() instead of hid_safe_input_report() in a transport
-driver can lead to out-of-bounds reads in the HID core if the hardware
-supplies unvalidated report sizes. Should these be changed to use
-hid_safe_input_report() to provide mandatory buffer boundary checks?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/94704655-d654-4500-=
-8122-b80bea9bd908@mail.kernel.org?part=3D1
+diff --git a/drivers/hid/hid-roccat.c b/drivers/hid/hid-roccat.c
+index 4f15eb951039..505844890ed3 100644
+--- a/drivers/hid/hid-roccat.c
++++ b/drivers/hid/hid-roccat.c
+@@ -236,6 +236,7 @@ static int roccat_release(struct inode *inode, struct file *file)
+                        hid_hw_close(device->hid);
+                } else {
+                        roccat_free_device(device);
++                       devices[minor] = NULL;
+                }
+        }
+ 

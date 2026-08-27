@@ -1,73 +1,73 @@
-Received: from mail-pf1-f181.google.com (mail-pf1-f181.google.com [209.85.210.181])
+Received: from mail-pj1-f42.google.com (mail-pj1-f42.google.com [209.85.216.42])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F3329355F4E
-	for <linux-input@vger.kernel.org>; Thu, 27 Aug 2026 10:54:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.181
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A2D634119E0
+	for <linux-input@vger.kernel.org>; Thu, 27 Aug 2026 10:58:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.42
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787828055; cv=none; b=L4MP0JegmdT+lns4AvFTgDcZr0vxYXh9p4zD5eZRVDJtPkUCNCr3lY/hD2WZCPAxmWoPvf28tOrcUGnLiTyGCpwTmvYOE3inn1EJv2D4aa1LAPHQYlbXYmo8EUFB8UBs5t1cl9YvcQTkqE0jB8/GbLtkLifoMeFMIuKFlBNfN/M=
+	t=1787828318; cv=none; b=uRGe0AOTQ5YqlbjTkR8z2XnnNDzcANOga+S5pN5sjU2pEwzpLfOvO5KspDS0EEW80hzSBZ94DGEhU+7L1cbyR8kbpXFmti/W8cEnx88yn8mCu5LtkeUbXOWTkujUVaH8bKSYZnvOuExmpEgBWbfQcPH5h+IVmeaWHRqRsea96lk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787828055; c=relaxed/simple;
-	bh=fW0M6GAPbby5cq+rLe7EDVEPDPTKOeUYuXNND5QQBpc=;
+	s=arc-20240116; t=1787828318; c=relaxed/simple;
+	bh=UvIMv1zVGSgTI6n5HYa7Zx9yz+/Ky53foDBG/QT+8Bo=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=tgGz6ancVBWI/y8ZUdWX1AxWUqWgyVSXqZ8Ec+fk0I9nH6hXqc9aY1mi6BzrgqhZHonvvi+6jbmR4BNp/UUJS70qGYzJm43a5NPqlumG8OeTJeeicqMHxDI3akvT5hnrCsx8GTX5jzJMFiuSPXLGvPU5xBNQiKaxJPHLXPDMZNE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ceuHCrbo; arc=none smtp.client-ip=209.85.210.181
+	 Content-Type:Content-Disposition:In-Reply-To; b=avk9e8JcCZwlHHPfTiDKfYgMuVF/5MF2GCzi34Xy3qx2T2NoFV1oHeIsFDdOlawuffPAGiGmOBvnNCk1oifiNukKOMIodj2SAGw906O+YLEENDX3xbtn0kcqqEeIXF9R38Gdcp4PRsZaBMqYU+ZYykT1Iq1EahlH3PlB364ijkw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=K1xoM4Hc; arc=none smtp.client-ip=209.85.216.42
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ceuHCrbo"
-Received: by mail-pf1-f181.google.com with SMTP id d2e1a72fcca58-84f38f3b36eso1691646b3a.1
-        for <linux-input@vger.kernel.org>; Thu, 27 Aug 2026 03:54:13 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="K1xoM4Hc"
+Received: by mail-pj1-f42.google.com with SMTP id 98e67ed59e1d1-39682983a0fso1901172a91.3
+        for <linux-input@vger.kernel.org>; Thu, 27 Aug 2026 03:58:37 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1787828053; x=1788432853; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1787828317; x=1788433117; darn=vger.kernel.org;
         h=in-reply-to:content-disposition:content-type:mime-version
          :references:message-id:subject:cc:to:from:date:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=BkW2H9+00u6MydNAvfOuX0lwP+2vDTkZWWM1bwvT0lI=;
-        b=ceuHCrboWyX98y59AD4kNV8lBn9a9+diFTOqJKi6EkPiyhmBvI/byPo9Gfjwj2mEG/
-         n0KhTP+sPMkDPxnnv1fDZdN0OltQr0xiOEmrKasrSRL+RWZbWTXqffSygR9iRYx3fYDw
-         7VVMAHtmXeLnQ5mBQOi9ntLAqDJ3Mm/jsPcvZpdw47Q+9SuDDmHjf28ipid2JyQ8eXuQ
-         vac8dEBvMP8NuM4Bcuo0NSttdZNcL1qYiDuWu5+QMoEaZe/zvrdgGVATZUuWXzQSesha
-         5NkqNfYGjq3LkFyz1qd+07tjCJR77Ac5vRngGRL/hQV7mkdhhgP1PqCh1b21clzYI+kp
-         GzQA==
+        bh=uja6zaOnTlyUUbBqlUy2HwDT1zP/Roz+ZNzUtgYPkw0=;
+        b=K1xoM4HctP8Qnho7a0SdG5XChV6/0DtFJRQM10YEgb9C+L4C39MIue/eirHBtd43DA
+         fIRhhUpWa4gom6evujbfD3vYZeoE/r47ZX/85KG7JvlCft/fKdv2MyJQScLlN04+DFV1
+         9qZycVsZB6nPtPnjfxIx8v3+GiZU4oE+GnXHrAzPom6yK5WPJcajIzsTup73FqrXXO/X
+         g9YkPnDOgLiCoeqBtWNZlUn2Cdv0ToCd9utQl1Cx04JX0bT6cGmIGx6OdzVR2yjkOhq4
+         laqDrNK+oYxAxgbBFYPIsVJbql/TTpG0JoXEa03TdeLfvbGztzDAG7hfR+hS/i9SSjKo
+         eY8A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787828053; x=1788432853;
+        d=1e100.net; s=20251104; t=1787828317; x=1788433117;
         h=in-reply-to:content-disposition:content-type:mime-version
          :references:message-id:subject:cc:to:from:date:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=BkW2H9+00u6MydNAvfOuX0lwP+2vDTkZWWM1bwvT0lI=;
-        b=pfNQAikJaRb0o+eBxHlS7LXPQ22o2HkoUDwM7jBW0/huildccpNa68IShQBSNDR13K
-         4lGnCdu4Epeloq/yrI4br12vnfBkKK5cdxT2eH6iqSimMliZtKaFDIFvEYX6I2WkouPG
-         7RZct/p7+RiZQZX9HbMohB4YE5u+6QHFqZhBvXXcUXYr0VmQqvAEv0oQwrM243hbhN0B
-         YolVCP1L+2z/ZfBW1Qka5l2YlYlRXyQJO/cjckINUXpSHP3MGaSc5TUSaIgg3QZID4I6
-         jf7oFz7sWpPWS4eS0dFbtDk/Sa12eQAkKVlgf9S1xTFULsh071Ax3UVtLaHKaFl+TJbw
-         s1Rg==
-X-Gm-Message-State: AFuF++n4+TGu1CN5C6+a9idO1Gxzj0jrcS3PHD/B3ZPc/fjXUJkdDW+D
-	tCEcvjbHRbmkXB326WcMw4JbKrqw0B23TYEf/6/TNk5hOK8Xciulsp4s
-X-Gm-Gg: AR+sD11Y/WaG/1VGn1LWDWjCMH20REqkp+ilaVOCduVc55g4EVbkOE8Q8tu8+wW0KyG
-	TGTs41um8hRJUb2RyQdH2HhwSUvId68Uo6cCcgH7aRXaqQDoO85sbMvyiG8qx/S2KBKzrw0hubK
-	n/MeZip1krUgH+lFLDf6vQpfsusmpmPwcV7hvgcT9ijpuoXqV9sQsANugxrP9zLej8GsvlCVhZC
-	PXQZBaA6oDv6g9qkMDenbsLN9VqhEJhoiu28biIvSXLKuNwDSPLCe9864D67iMyGwjj5N3JYn/c
-	JnHPSMgLE9DatYdA4xg5VGQ7vgV9bz3aqs/N3Lx91INt8BCDMgBkEMa9BSlof4iksFt83mRjsJS
-	gMPUJ7srS5JhVwOiJJoaP8Ixeip3QWp2YhDyu0BtYshEnL3zVNm6FPTY4q+9Q+7j1oCnXAxRGdv
-	LyWqb8mYv4TRRoFEuQllA/lI2cs0DQbXosJ1mpA394gJRVdMxQWIhcSxZ5YGS7p4P/DJ3BVO+XD
-	xb/aZSKYIhJTaIN9LYSjDgdw5EVr6thvZPs7WKq
-X-Received: by 2002:a05:6a21:e082:b0:3cc:c7cf:5a44 with SMTP id adf61e73a8af0-3cf7596a921mr25262336637.2.1787828053213;
-        Thu, 27 Aug 2026 03:54:13 -0700 (PDT)
+        bh=uja6zaOnTlyUUbBqlUy2HwDT1zP/Roz+ZNzUtgYPkw0=;
+        b=aD3g9pNFFhTNBV0zhm3vr8JydtC2yuyADk+yRYCPbig5j70kbMSxuJfiQYtReahO+c
+         rB8FuWC9EsKcip9uQZDi6tXZbBhYNn236QY/sGNndJ+ZoM/dvXIVJfrIUGE2ARPqEEd8
+         b9qLR/TsZZ/TcTjAQzxo3T+YP28YCs4Jq7D+fDUxY9QDbnNUjia/q5IpTFrVUbC3CIQw
+         Llz3FRrUmCjEKGV0H3/2AaODzTiObewDs71bdz/GCoW0wUBCrbMFX4qvbiTKCXdV1EHq
+         n5BcVULLaTeW+Cfzc3aACLjCyTrnxd7mlcwfupMHICHBk1cVQqlO8/rijhAEnc68vfiz
+         2iAA==
+X-Gm-Message-State: AFuF++l3OLb3U6emE1GQmBVSp3e0XUbp7o24ZN3EPZ6W/aw6785io0/H
+	/ecOTYyLuuenLdtIfqyCJT1TvE7uTSMJJYV1GzMlP62lCH40Hc5+i+Fe
+X-Gm-Gg: AR+sD139N1Gbu14zj1uzmRGwzYmkbc3q0kgcs6ukJZaUMy6SezdG+DSRpeufdLvH82g
+	vuk37yHlHGoiwmK6sWcu8LnqUXrtTCriJjZSgzLVAV+xqFzA2eWr05eeCHd7xCqg9yYUJkvbs0X
+	Fmi3gAQlde/xkDDrcYahlByZmSeKAEdvmqyPyqr7VAc4p/zyyv1n/+dFUr9zxD7m0Nq84VOmuKk
+	EXuajJ8R8EvJFLkBxrVEq0KDBtX+xAPF5P5kbqJhKzNIIGkQ6VmeMQFXOLf2Kpf4TDsMq0MtwB+
+	0K16iuPPcaJkbLU800wubv58fUvM7eMZgNKNsKImlgueNSdUZr/3iVuTSKdu+LzH3HVMOsoD7j2
+	EVvgsOQmqldaG9XH9msqd6o9EJPDYQDkgliOvF97SrGe89sqNPQjUgPnX2Q0632tNE7KiPCJfz4
+	UbTDTEHNOD9hBUXKHsGSIkLj5o0Gs6349NCRzwHt+gIotQlZUdRuX0pXBdV8nwexP/+wXsZy62r
+	Z8nv96/uren6dUJdzZh1zebgeOwm1y2DNwvP0yW
+X-Received: by 2002:a17:90b:3b92:b0:393:288:29e3 with SMTP id 98e67ed59e1d1-3966d5d91e7mr26710723a91.10.1787828316996;
+        Thu, 27 Aug 2026 03:58:36 -0700 (PDT)
 Received: from google.com ([2a00:79e0:2ebe:8:d96d:bc4e:98d7:146f])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-141a8f20036sm27194403c88.5.2026.08.27.03.54.11
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-141a8f20036sm27269939c88.5.2026.08.27.03.58.35
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 27 Aug 2026 03:54:12 -0700 (PDT)
-Date: Thu, 27 Aug 2026 03:54:09 -0700
+        Thu, 27 Aug 2026 03:58:36 -0700 (PDT)
+Date: Thu, 27 Aug 2026 03:58:33 -0700
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 To: Maurizio Casciano <mauriziocasciano7@gmail.com>
 Cc: linux-input@vger.kernel.org, Liam Girdwood <lgirdwood@gmail.com>, 
 	Mark Brown <broonie@kernel.org>, David Heidelberg <david@ixit.cz>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/2] Input: drv260x: Make vbat supply optional
-Message-ID: <apAWXyPRtSe0Uk9_@google.com>
+Subject: Re: [PATCH 2/2] Input: drv260x: Map ACPI enable GPIO
+Message-ID: <apAXfjxVv8e-yxJ7@google.com>
 References: <20260826132211.3341936-1-mauriziocasciano7@gmail.com>
- <20260826132211.3341936-2-mauriziocasciano7@gmail.com>
+ <20260826132211.3341936-3-mauriziocasciano7@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -76,28 +76,22 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260826132211.3341936-2-mauriziocasciano7@gmail.com>
+In-Reply-To: <20260826132211.3341936-3-mauriziocasciano7@gmail.com>
 
 Hi Maurizio,
 
-On Wed, Aug 26, 2026 at 03:22:10PM +0200, Maurizio Casciano wrote:
-> The Lenovo Yoga Book YB1-X91L firmware instantiates two DRV2604
-> ACPI devices, but does not describe a software-controllable vbat supply
-> for either device. The generic regulator lookup therefore creates a
-> dummy supply.
-
-Yes, that is how most of the drivers handle supplies on ACPI systems.
-
+On Wed, Aug 26, 2026 at 03:22:11PM +0200, Maurizio Casciano wrote:
+> Some ACPI DRV2604 devices describe the enable line as the first GPIO
+> resource in _CRS but provide no _DSD mapping for its function. The GPIO
+> consumer lookup then returns no descriptor, leaving Yoga Book haptics
+> unable to complete calibration.
 > 
-> Use the optional regulator lookup and skip regulator operations when no
-> supply is described. Systems which provide vbat retain the existing
-> enable, managed-disable, suspend, resume, and error-unwind behavior.
+> Add a managed ACPI GPIO mapping before requesting the optional enable
+> line so these devices can power their haptic path.
 
-regulator_get_optional() should only be used in cases where supply can
-be left unconnected in normal use. This is different from this case
-where supply *is connected* but it is managed by ACPI/board firmware.
-
-IOW this patch is not needed.
+I would prefer to avoid encoding board behaviors in a generic driver.
+Can we try using a software node to provide GPIO mapping for the device?
+Maybe in drivers/platform/x86/lenovo/yogabook.c?
 
 Thanks.
 

@@ -1,216 +1,117 @@
-Received: from mail-pg1-f182.google.com (mail-pg1-f182.google.com [209.85.215.182])
+Received: from mail-wr1-f41.google.com (mail-wr1-f41.google.com [209.85.221.41])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2902E38758D
-	for <linux-input@vger.kernel.org>; Thu, 27 Aug 2026 19:02:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.215.182
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787857364; cv=pass; b=SnFFjsNDZwdNbyp1p94i8/qjf9jOGMwHO7uN3rLQDn9tmy7BrWrupFF5pkwjKx1az6BFolbT71gxS8zTJNG539LG7WutqWrDR/GqYEpGdptmbSk1jxU2q4MrDkGEfRDzjws1d3zi/fH5jisrGJppTIrurdw7CIKXcK5dCyNTHnQ=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787857364; c=relaxed/simple;
-	bh=XcSMD/HdUmVFxslTIb2qIZgsej+xGutNgV8WULXEE3w=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=B7mwjtybV3fPkamfExCwbq/bjCBk3tu6+4VbPR39gu1usoN7FX2gGc4i5m9razn/XDpGjbmtIABXet1xixAcRRD6zPHIpoSqdlY4dLxeoAXsSKxVJQWBa9G9Z55bIHb9hHUNos/A+PE5kwzNE1zU6tWzlf8PwMkHsXd/ghE2oX4=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=IBSvJDLW; arc=pass smtp.client-ip=209.85.215.182
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 456F94C77A1
+	for <linux-input@vger.kernel.org>; Thu, 27 Aug 2026 19:16:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.41
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1787858220; cv=none; b=C43gpUipEW5V+0vPvpkScIMlBM7CY09VEjzUC/QvBgcX/XtbYkfTNMZfCWnLUJ0UBxc9UmehnpuAIel1WN7H8YsBjrOaRQgBK8AJ6o+d2MGeby4HiuAm/GNzPkugMnqCh7fhNJo7jImJHSYvEz15EbRuqLSVlQT79LqlVvPLqK4=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1787858220; c=relaxed/simple;
+	bh=W65090XdDBw7UhVDTVjxJFTTrT5+H9xvtxq4LX1QU9A=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=IwAG9tindStV3eIsz/hc+j52Bx+xrzaBDAaVR90NSKo5YgjEGkSRSvtGPy83uXrdPN/Ea/5c/CRJpq1Ao1JoY9ktz8EpayZAGtMXPTI012D1jJlWlgoGluwQcdFCDrYhtoKr+3A1wtQJItcXB5759WusuL+QBIkWauCW9jGnggA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=GW8W0t6t; arc=none smtp.client-ip=209.85.221.41
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="IBSvJDLW"
-Received: by mail-pg1-f182.google.com with SMTP id 41be03b00d2f7-cc1bcdb3c4cso195275a12.2
-        for <linux-input@vger.kernel.org>; Thu, 27 Aug 2026 12:02:42 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1787857362; cv=none;
-        d=google.com; s=arc-20260327;
-        b=hZznTxQmiKRbRF9cxnEQf8NqT6LBxAm3gzv7+0tr9kL5MvShi0YgYFa2wyI8SVKLvt
-         Vh5aZP4DFvwP208XHGRxlAgWgdkqnIcqf5DmNP1lxUfk2R0BFRULohtWTfCG1Z0KW/Xa
-         LbH0rC7XYr3wDctXR/yNfqqt7HXRyS90v3YmnUQMYPhnkwZSUZORoe5hmE304NP4Obth
-         7ZPKL6Xj43FNY+LNLPLPN2PhqmN2rxt+s8yBMv3grWPO01gSteESNrpMd+RaHG8W0w71
-         ljv6EGHQt6NhY3wHrJOamQse0vEdAHzTxmTCCfEZNKBGneP1ug4F49sZn0BfMLu8KVbs
-         brSg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=QRLwXZ3w9PabTGTAitLmepFzO9LpmDAYaCwAO/RJEyQ=;
-        fh=DS3df/+j6JO8qx9P7Kj2aKzUXs2QBO99KsubgDrRBLA=;
-        b=LIZCfA7tgOO6iqco3t+s7PUkqMIcEeOIInqA1HdrCRf/G2PwAxyO6wgbNi6rH3yhqX
-         iQHc/4L1E4Cp1zMeB5xHlGDWUHy7Aw37rmAKTN8P87XywlRSn/pHr4G24G7LCkGjF1aU
-         1WgCQrd5Nui4PFIG21fh4rI8YnWnUFFina0neKx0hIZReSx5jK6Qh2KlcrWwtds9xOc1
-         4WqZkF9oH+bXCQ7oafSBwYr1EjDZYGvISGfwM18aaUSbBlQ19Ch+qDUdAWmPYGRQfFDK
-         /PWdStvoYSS1sB7vYSmoLc8AId6eyAypX4FXqcsMmtoRadRJid+GisX+e18iVWNs3PkP
-         fYaQ==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="GW8W0t6t"
+Received: by mail-wr1-f41.google.com with SMTP id ffacd0b85a97d-47f96c5b722so126723f8f.0
+        for <linux-input@vger.kernel.org>; Thu, 27 Aug 2026 12:16:55 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1787857362; x=1788462162; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=QRLwXZ3w9PabTGTAitLmepFzO9LpmDAYaCwAO/RJEyQ=;
-        b=IBSvJDLWV6/blxTQVqe8lHoJ0ox3gq88qsFyqvYo+VHUU9Av+gAH5dK8bk3eg+I58y
-         eKGJiJwHOFBSoydwOCtkm3HcvTopq8pu2Vk1Y65HPjE7RD5xYZMSiMpaa3lU8/eF9/Mx
-         nVQfZRwMJylOjZxd9b73usTGo58cW4sEtqz8+wuu8NS+uYJnbCKJkGexRYBaWJypHqk/
-         3SbG+W6fWmFtM1yZX3tP5XOwDcWeq3MXIXGf8ZYWnOTkWAvI9x2mpkGNAkEAZ0xoY18v
-         RWQPXnYPc3CHN3AcLkz1uwvOx0BxrIrIgkAk60eQ4Ninr9v2q/KV+bvuAH8uQuM5+bpl
-         MYGw==
+        d=gmail.com; s=20251104; t=1787858214; x=1788463014; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=W65090XdDBw7UhVDTVjxJFTTrT5+H9xvtxq4LX1QU9A=;
+        b=GW8W0t6twdwAwLTLmEFFYso9t53eB4DYNG5Jl6InpAiPhtoLrqulQ8Q7HYCexTRJnl
+         qpq9hsFycSUNuqH3FuzZH9BJUbKOsoLuNsg3RrQENKG2zv4Gbzd7oaB7UM2TXRIEqkrG
+         ABVoR8qctgtdkXDboWNhbuW0lKmnyLJHWWMVy2FZqbLoJoDnVTMvksZmXPSEhbv8Q7k6
+         ljmEb9l5sJOrGtphawVzDsVaNBGCRtg056ovub4SBtU4JP/jmNh5OtWPCj3axfQVCQEj
+         bG2YCQvk0ifJiH/PCn8hvTpe1Cqb9RX+wCaiHO7wEB43GnTzieKamLmA/jzbBtCaMMNZ
+         zg6g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787857362; x=1788462162;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=QRLwXZ3w9PabTGTAitLmepFzO9LpmDAYaCwAO/RJEyQ=;
-        b=sdnFpKBsnKpxDCN8fm35aE1ehiZJL3FanqgdQwL0rnAjA3lTIlVnFLDEcZjb6E/RzS
-         N6r62L0F1qJCmkOhGShynB9i5l38LX2BtoP2zYmAypqqscojU5nPJ9L/QexOElOWStBo
-         3nU1HO8vZd1ZchF1ql63s+qyr/ZJQrUB9PMKbXgNeAnjA5omhSDolUMo48jiVNKrqoZm
-         JyuHSMGhTqMmM2x53kh8/bC698b6NUxN5VLvs3tn7FH6zp99xI7/hiNOBcnuII86lv/P
-         4dJmmxaTtQZFu79LJVHOdEXUEBKg/WOI67rc8vdE2vMDqk8SSdzZlpCFnz0dsSJkPcCB
-         /oFQ==
-X-Forwarded-Encrypted: i=1; AHgh+Rqh9yBgDpV+PKRjwcqCMCx9S8wJQ0jsi79Fn080puVaUUHk69ZnLCKFYFXl6jXMScg7Le4u9TY+tckibA==@vger.kernel.org
-X-Gm-Message-State: AFuF++kLmde3y/NXJo+CEcHD6xx//Hj9VQiE3u2jG5QQAfYiiGUiDSns
-	bp11S6nUgWTVxwnYB6PbutaHdF86ZgEZsjH8f5pK5o6VP5XiS7F8w8UuL08N0QwP3WfLep1HP/W
-	LhyRV/kEly8XluGMs1UKh3LuJ9YHNEzo=
-X-Gm-Gg: AR+sD12UkfvO2xaDrQNtvaG6rgDAABHGUInJx125WutblFSSxq3gWWqcxIFCmtm59/O
-	G3LSrwc85H8B1yVnfzz8hFMZOj5qNzKmcr1DD6Gar1hzF3jGstQ5BEGMNKHycZaZ32720QTCS39
-	EZP1iBOYkPMoupcGvc6sZBiSYHju1p3Gy7xFFJsNkRntWla2/ALrAdGnAdrSkYcn+GU3du5vTYT
-	+nJ0E2wUVVhEzftmzt0/Vt46Ok6IEVXaX9mS9iV4F1qpBZ6OyhcpgVgjls+Mu3OtfA9xUjp79gT
-	GY6mf5fDDaWJa8aJkH1e2B+56zEeNwOWqP72uSWCoaeu
-X-Received: by 2002:a05:6a20:1582:b0:3cd:2e96:5929 with SMTP id
- adf61e73a8af0-3d2681a9fcemr1636542637.14.1787857362012; Thu, 27 Aug 2026
- 12:02:42 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1787858214; x=1788463014;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=W65090XdDBw7UhVDTVjxJFTTrT5+H9xvtxq4LX1QU9A=;
+        b=BOHfvfh3tmr2WoLo/j1PrnJuqOurX4VpMKEiCixr9evPb+crytIO4qtrMLoz3fafNj
+         zZbe9FPNA9DWV8vW7zW/NK6n4MLcHhkHT2gyb4YVVxaJ+EYPrzhF/o8v2eoglIO/+Jt2
+         ccKiPGkTWYwAn92XwXcimtZ4HPe1lz2V/LYfLnSmtZRcqGHUqE+vEtEnucWrODT1iAbM
+         1EFhRguuaoJxjb+SgKxtISkbRWgmU+qV4p+q6yYJcskwMUPjtuaGw75gI8O6BBL5lLhA
+         FJvt/E76wQMPOZIBwTMezsxVRKWBUorFd7vvHGgccp+j1OWnsvcSu4NqPzAfDKrylnhi
+         dxkw==
+X-Forwarded-Encrypted: i=1; AHgh+Rqt/2OwHCMLAOG/T6B8xwxouUoRQFEoo51ipW8jw2NvhU0wIeoubYEtoQKp5Jgwrk9eeHROmKZpWHM0MQ==@vger.kernel.org
+X-Gm-Message-State: AFuF++lbTOvwtZh/c2ywHJv1fbt9KvDhtiPg8Gr7oU5Ml27OcimxxMSo
+	AAZIOt/Y6NlTrOFg1joTS9crhgbdvGR5myvGM3NcYfx1MJLUeM6uEwDh
+X-Gm-Gg: AR+sD10VJL5orv6kmaasfW1LetIBZt4XVpD75sBZDKm9kibUZcW/sxhlUGHezSFGfWu
+	CubFOwUrPPyXpBDlNjowOQzgO+DpBDVnYHI1cKnrm0tcR2dwzW8FRYWsj+AiD6UQ7GzHz6i24FL
+	cDDVDLFm3sZPYS+xHLiYCI7jhIsm/E5Waw6PMW9czlXwF628mm+FNn3XHijrPg+MsZN5R0atG49
+	GoCbaZ9veRyfkQ57noutfA55IVM1m3Fx6fQmXf8+Eb6PSulHIhUlSJLejfQ/VrJX13HjsJoOOnF
+	vpswXrVJjnsL49m0OKo1Um7P6xuhBhWUsMi/I2qo1pTDSS7WRlK4G7Ul3muVZGKqzHjysDPqlYa
+	b+qQ6oIKN9LFDFyWTvTT2fElDY4E4IBh2yyZBJ5q9OoPbr59jWtL4zFkDAUxjJefqz+p0m0u0LF
+	+Tm/VCmA9qfz4QXtrbRDemcCMpS30Uftty8NI0aiRRIwfX0aE/a+rNxxNo0Fg=
+X-Received: by 2002:a05:6000:2489:b0:482:e4bc:51a8 with SMTP id ffacd0b85a97d-482f7992e40mr1312918f8f.7.1787858213511;
+        Thu, 27 Aug 2026 12:16:53 -0700 (PDT)
+Received: from m2.. ([37.142.156.156])
+        by smtp.googlemail.com with ESMTPSA id ffacd0b85a97d-482e27aa050sm10505002f8f.12.2026.08.27.12.16.51
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 27 Aug 2026 12:16:53 -0700 (PDT)
+From: Michael Zaidman <michael.zaidman@gmail.com>
+To: linusw@kernel.org
+Cc: bentiss@kernel.org,
+	brgl@kernel.org,
+	brunoceg1@gmail.com,
+	contact@christina-quast.de,
+	daniel.beer@igorinstitute.com,
+	germain.hebert@ca.abb.com,
+	gregkh@linuxfoundation.org,
+	jikos@kernel.org,
+	jirislaby@kernel.org,
+	linux-gpio@vger.kernel.org,
+	linux-i2c@vger.kernel.org,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	linux-serial@vger.kernel.org,
+	michael.zaidman@gmail.com,
+	rio@r26.me
+Subject: Re: [PATCH 01/13] HID: ft260: add serial driver
+Date: Thu, 27 Aug 2026 22:16:40 +0300
+Message-ID: <20260827191640.11725-1-michael.zaidman@gmail.com>
+X-Mailer: git-send-email 2.43.0
+In-Reply-To: <CAD++jLmCVfG4AQ_pTkYouGCcKgN-eh0wsRGQby9dPvZVFMpMDQ@mail.gmail.com>
+References: <CAD++jLmCVfG4AQ_pTkYouGCcKgN-eh0wsRGQby9dPvZVFMpMDQ@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260825103104.12090-1-98lawweijie@gmail.com>
-In-Reply-To: <20260825103104.12090-1-98lawweijie@gmail.com>
-From: Jason Gerecke <killertofu@gmail.com>
-Date: Thu, 27 Aug 2026 12:02:29 -0700
-X-Gm-Features: AcwNN1VAoUt61SD1pdzAJX6jw8Qf_02tqkLxle51MEfUycbPSDDWE60nEBNZIiw
-Message-ID: <CANRwn3TWTHxP=ZEpgZzjRweC8vqifoi2koKgSQTEuPuY4FZxcQ@mail.gmail.com>
-Subject: Re: [PATCH v2] HID: wacom: fix OOB read in wacom_wac_pen_serial_enforce()
-To: Wei Jie Law <98lawweijie@gmail.com>
-Cc: Ping Cheng <ping.cheng@wacom.com>, Jason Gerecke <jason.gerecke@wacom.com>, 
-	Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>, linux-input@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Tue, Aug 25, 2026 at 3:31=E2=80=AFAM Wei Jie Law <98lawweijie@gmail.com>=
- wrote:
+On Tue, 25 Aug 2026 at 09:49 +0200, Linus Walleij wrote:
+> What kind of "enum" is this that re-assigns 0x00, 0x01 etc to
+> several enumerators?
 >
-> wacom_wac_pen_serial_enforce() iterates over a field's usages (up to
-> field->maxusage) but indexes the report bits by j * report_size:
+> Either this is four different enums or you should just do a
+> series of #defines instead if they are all really coming from
+> the same place, because using an enum like this does not
+> make sense: it's like numering pears, apples, oranges
+> and peaches in the same enum or something.
 >
->         for (i =3D 0; i < report->maxfield; i++) {
->                 for (j =3D 0; j < report->field[i]->maxusage; j++) {
->                         ...
->                         value =3D hid_field_extract(hdev, raw_data + 1,
->                                                   offset + j * size, size=
-);
->
-> In hid_add_field() the usage array is sized max(usage_index,
-> report_count), so field->maxusage can be far larger than report_count
-> when a descriptor lists more usages than its Report Count.  A field
+> Also use the UART_ infix as mentioned in the GPIO patch
+> so you don't need to immediately change it in the next
+> patch.
 
-The wording above confused me greatly until I realized that the
-problem is **not** with the field->usage array. That particular array
-is allocated with the size described, which is exactly equal to
-field->maxusage. **Instead**, the problem is that a buggy report
-descriptor can declare many more usages (and thus a greater value of
-field->maxusage) than the Report Count actually provides space in the
-report for. In such an instance, we would obviously overstep
-arbitrarily far past the end of the item.
+Agreed. v2 will use #defines with the UART_ infix in this
+patch so the GPIO patch does not rename them.
 
-I would appreciate an update to this patch with less confusing wording.
+On Tue, 25 Aug 2026 at 10:12 +0200, Linus Walleij wrote:
+> You need to CC the TTY maintainers and linux-serial on patches like this,
+> just keep in mind when resending, thanks!
 
-> declaring Usage Minimum 0 / Usage Maximum 0x2ffe with Report Count 1
-> gives maxusage =3D=3D 12288 while the field's bit region is only 8 bits
-> wide.  The extract at j =3D=3D 12287 then reads bit offset 12287 * 8, i.e=
-.
-> byte 12287 of raw_data + 1, roughly 12 KB past a 2-byte received
-> report.  __extract() performs no bounds check.
->
-> The value read that way is stored into wacom_wac->serial[0] and can be
-> emitted to userspace as an MSC_SERIAL event by wacom_wac_pen_report(),
-> so this is an information disclosure and not just an out-of-bounds
-> read.  A malicious device only has to claim vendor id 0x056a for
-> hid_scan_report() to place it in HID_GROUP_WACOM and have this driver
-> bound to it, and a single crafted input report is enough to trigger the
-> read.
->
-> Clamp the inner loop to the field's actual report region with
-> min(maxusage, report_count), so usages that have no report data behind
-> them are no longer extracted.
->
+Will CC linux-serial and the TTY maintainers on v2.
 
-I don't believe there is any situation where maxusage could be less
-than report_count since it is initialized as max(usage_index,
-report_count). We would also *want* to read fields beyond the
-last-declared usage, since such fields are actually supported by HID
-(see both the comment in the usages loop of hid_add_field() as well as
-the first remark under section 6.2.2.8 "Local Items" of version 1.11
-of the HID spec --- such fields just reuse the last-declared usage).
-
-Given the above, I propose simply making the loop condition " j <
-field->report_count". Thoughts?
-
-Jason (she/they)
----
-Now instead of four in the eights place /
-you=E2=80=99ve got three, =E2=80=98Cause you added one  /
-(That is to say, eight) to the two,     /
-But you can=E2=80=99t take seven from three,    /
-So you look at the sixty-fours....
-
-> Verified on v6.12.104, whose wacom_sys.c is identical to mainline here,
-> with a UHID reproducer and with an emulated USB device (raw-gadget): a
-> hardware watchpoint on wacom_wac->serial[0] fires with an out-of-bounds
-> heap byte while a 2-byte report is being processed, and no longer fires
-> once the loop is clamped.
->
-> Fixes: 83417206427b ("HID: wacom: Queue events with missing type/serial d=
-ata for later processing")
-> Cc: stable@vger.kernel.org
-> Assisted-by: Claude:claude-opus-5
-> Assisted-by: GLM:glm-5.3
-> Signed-off-by: Wei Jie Law <98lawweijie@gmail.com>
-> ---
-> Changes in v2:
->  - No code change: the diff is identical to v1.  Adds the Assisted-by
->    tags required by Documentation/process/coding-assistants.rst.
->
-> The reproducer is available on request.
->
-> Compile-tested on bd5f485f3f02, x86_64 defconfig + CONFIG_HID_WACOM=3Dy.
->
-> v1: https://lore.kernel.org/linux-input/20260822120926.153849-1-98lawweij=
-ie@gmail.com/
->
->  drivers/hid/wacom_sys.c | 6 ++++--
->  1 file changed, 4 insertions(+), 2 deletions(-)
->
-> diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
-> index 0eafa483b7f7..1ea8763b68a8 100644
-> --- a/drivers/hid/wacom_sys.c
-> +++ b/drivers/hid/wacom_sys.c
-> @@ -113,8 +113,10 @@ static int wacom_wac_pen_serial_enforce(struct hid_d=
-evice *hdev,
->
->         /* Queue events which have invalid tool type or serial number */
->         for (i =3D 0; i < report->maxfield; i++) {
-> -               for (j =3D 0; j < report->field[i]->maxusage; j++) {
-> -                       struct hid_field *field =3D report->field[i];
-> +               struct hid_field *field =3D report->field[i];
-> +               unsigned int count =3D min(field->maxusage, field->report=
-_count);
-> +
-> +               for (j =3D 0; j < count; j++) {
->                         struct hid_usage *usage =3D &field->usage[j];
->                         unsigned int equivalent_usage =3D wacom_equivalen=
-t_usage(usage->hid);
->                         unsigned int offset;
-> --
-> 2.43.0
->
->
+Thanks,
+Michael

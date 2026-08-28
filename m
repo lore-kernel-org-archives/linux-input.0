@@ -1,72 +1,113 @@
-Received: from mail-oi1-f198.google.com (mail-oi1-f198.google.com [209.85.167.198])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C27F63D9556
-	for <linux-input@vger.kernel.org>; Fri, 28 Aug 2026 13:03:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.198
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 475AF3793BD
+	for <linux-input@vger.kernel.org>; Fri, 28 Aug 2026 13:13:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787922184; cv=none; b=V2PeJ5KD0qrgUkERR6o5IMpUxNziVl9vJvEtdGtJRlYY9rXjGNCMQsZ9SihkRTnrgr1Go6gBEMpNkM3BY9Luiz/Mz8IUzgH3+k1Ww/nnGYTKPJVDgwadDc8eJFSPdNaUseReQmJq2ZjfI6jMfZa56iVFgq5HY0ISr38G8ZXBY40=
+	t=1787922833; cv=none; b=SGhCDfL++oL9wrufdDlV/0fZk5NXT1/pP/R+ki2nb6JPrvMx63y0L/kpYWNO7dgzAjTCSb17Bzxf0zQN3U4q6ebavmDibXEMW34dq/+Q7W3PSkvWBR8HV+kxs6dghZk8puk96RkD7NDb5ctOyuhVZ9HuMEvF+NGOHGArA8+++8w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787922184; c=relaxed/simple;
-	bh=S4rboNO+q6j2VJ4KINfATehzyfJMgoKoNZ2n1Pmg+YY=;
-	h=MIME-Version:Date:In-Reply-To:Message-ID:Subject:From:To:
-	 Content-Type; b=B5AVghdq3+/in91R9NKJT9WV+V6YVrC9tH/bHwnfE96hNAKyeMTq1djdE/Q1kPBkAGdqryB4/Zylo9VDU62sjbfS8N8+Z9MAYx60PdTKMA3G/0mXz0bkK9hhmxhq+PRxvyMM5YB9Ik5UH9sPXIjNVe+PptUOqxWG77jSmJp7EnU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.167.198
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
-Received: by mail-oi1-f198.google.com with SMTP id 5614622812f47-4b37733badcso1923251b6e.1
-        for <linux-input@vger.kernel.org>; Fri, 28 Aug 2026 06:03:02 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787922181; x=1788526981;
-        h=content-type:to:from:subject:message-id:in-reply-to:date
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to:content-type;
-        bh=DUwTClSJIxNiO4Y6nStQjQJsV6dp/Zx6F2ILQGd9KGg=;
-        b=qq6GV0SnFe74ONUJjlHrW3XrmOfXZe4NC+hWx3TvBGmj+s0EeDyAFJQEY1mp+xollI
-         UI+gHlUK021Pk+wLAQ3JrGKJhn9iIe3J0+ZF/EaDTWUgTbzJa6XhkZGtgSKWqXgfU9m/
-         Yqd51VkmAomd6svSR4q5gPOz6rXChc74OnuIE0iQpZbeC4tvRNU6S2G9dmUpagOi3W12
-         rE6/+vbGaxDwaP3iLHzp0QyqR5miDXExGNlSHLxXLV5nUWpkXo7rEPga7S0XffKJrXdH
-         MI0/ytQ5eAjNFHf6eXChg3FmFLXvBfjOsuonj70FfQ/v5EAXK9uVv3s2teYfq3CE6BZn
-         JKRg==
-X-Forwarded-Encrypted: i=1; AHgh+RpC+eR6I/NLTbOh2B/lg6E4LGc0jzFoCGwA8pmPQtElGPjoZ+yc37LUGNUCLeBuJsFC7qF9RxCxSTVo2w==@vger.kernel.org
-X-Gm-Message-State: AFuF++ktE6TZ2vSwoHDGgKZC4lwIb3XxEDJW2HxC4O0s8TcnMkxi4RAL
-	SJkdM7yDeyp0CybwpBhKrehkmKVhjj1bgun5BLlzVbItpX/Gv3MCigE3cJgFDoxwCAeFxRMbqhX
-	vJSqT7ZFb3f87oU2dmMZdfXFGe6/Xs2cfHSD130y432NlkYPgLf/GwsvENPw=
+	s=arc-20240116; t=1787922833; c=relaxed/simple;
+	bh=rL55CRgOMpXlQ6k2uR15aZ6JdMbgbNghZ15wXsdt31E=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=ePt004i2AHvsB0HtxUKWqthl7wAZhHT4f2i1Fu4rNzeTCcnH195h96O94TQT7Ne7U4t7TenBuQia8/bEf18FUcXhsn/mZTWlUZkiYQdvsue9xL4AIl0aEt18x7gKLpmzgeLKbMNQDP4Qtq6SzopmrrC9juZZKfJXhJaqml7GeYA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=b0Rsb7vU; arc=none smtp.client-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="b0Rsb7vU"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3F011F000E9;
+	Fri, 28 Aug 2026 13:13:51 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1787922831;
+	bh=WfGgdUg6Ju+dmFJh3oLGShH6bWOwvOYdRmH7sIqHPfY=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=b0Rsb7vUte3jGRVPp3xAlUPH/5Z95Z7xWjLVcg+F9sL2ZC0TdlC9rIbgTJwxiFdxx
+	 Y3JTw33uN8g08IQStQiFYwpNXVP8hLCim5ytPkO9VIe9TX1bj6o+Y3GOJoAu+vYP8A
+	 d4Yfex1NJaQvpaX7RKdIEzYsgdJVYsbLKbDjDpFCHorhoKEmUZyAi3f8wKMFnJ8LuP
+	 OEcvN5aLe96cRcXjWNBM3oUNGPfxG8315flig0OVF9wLRnYz86QcdrFlKReSx7aFnt
+	 2DBW9ecHKaUyiWlZ/WLQQRjYQ1/T4JWzgonPWAp8oGv5DCcNsNqdFzI35BpfVaUc++
+	 P4AA8GRfUjWTQ==
+From: sashiko-bot@kernel.org
+Subject: Re: [syzbot] [input?] KASAN: slab-use-after-free Read in
+ atkbd_set_repeat_rate
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Jeffin Philip" <jeffinphilip14@gmail.com>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <20260828125430.11470-1-jeffinphilip14@gmail.com>
+References: <6a90d9ef.4d659fcc.734b4.0019.GAE@google.com>
+ <20260828125430.11470-1-jeffinphilip14@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Fri, 28 Aug 2026 13:13:51 +0000
+Message-Id: <20260828131351.C3F011F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-X-Received: by 2002:a05:6808:1488:b0:4b3:7d74:b33e with SMTP id
- 5614622812f47-4b3984506e8mr6840496b6e.17.1787922181759; Fri, 28 Aug 2026
- 06:03:01 -0700 (PDT)
-Date: Fri, 28 Aug 2026 06:03:01 -0700
-In-Reply-To: <20260828125430.11470-1-jeffinphilip14@gmail.com>
-X-Google-Appengine-App-Id: s~syzkaller
-X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <6a918705.1d9ded08.62e62.00ec.GAE@google.com>
-Subject: Re: [syzbot] [input?] KASAN: slab-use-after-free Read in atkbd_set_repeat_rate
-From: syzbot <syzbot+1e2ef9bcb29af666b2e6@syzkaller.appspotmail.com>
-To: dmitry.torokhov@gmail.com, jeffinphilip14@gmail.com, 
-	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	syzkaller-bugs@googlegroups.com
-Content-Type: text/plain; charset="UTF-8"
 
-Hello,
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+s) to consider:
+- [High] Unconditional acquisition of `atkbd->mutex` in `atkbd_disable()` c=
+auses an AA self-deadlock because callers already hold this mutex.
+- [Low] Passing `struct mutex` by value instead of a pointer to the `guard(=
+mutex)` macro causes a build failure.
+--
 
-syzbot tried to test the proposed patch but the build/boot failed:
+commit ea5b33bff452dfd0c6a1ded0647c9fed571513f0
+Author: Jeffin Philip <jeffinphilip14@gmail.com>
 
-drivers/input/keyboard/atkbd.c:709:27: error: incompatible type for argument 1 of 'class_mutex_constructor'
-drivers/input/keyboard/atkbd.c:709:9: error: aggregate value used where an integer was expected
+    KASAN: slab-use-after-free Read in atkbd_set_repeat_rate
 
+This commit adds a mutex guard to atkbd_disable() to prevent a
+use-after-free issue detected by KASAN in atkbd_set_repeat_rate.
+A syzkaller test case is referenced in the commit message.
 
-Tested on:
+> diff --git a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/atkb=
+d.c
+> index 3509b58e64920..82157782e166f 100644
+> --- a/drivers/input/keyboard/atkbd.c
+> +++ b/drivers/input/keyboard/atkbd.c
+> @@ -706,6 +706,7 @@ static inline void atkbd_enable(struct atkbd *atkbd)
+> =20
+>  static inline void atkbd_disable(struct atkbd *atkbd)
+>  {
+> +	guard(mutex)(atkbd->mutex);
 
-commit:         818bebeb drm/xe: Don't hand out the flat CCS storage a..
-git tree:       git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git
-kernel config:  https://syzkaller.appspot.com/x/.config?x=ccca94d2c01b9e78
-dashboard link: https://syzkaller.appspot.com/bug?extid=1e2ef9bcb29af666b2e6
-compiler:       gcc (Debian 14.2.0-19) 14.2.0, GNU ld (GNU Binutils for Debian) 2.44
-patch:          https://syzkaller.appspot.com/x/patch.diff?x=107bdd49580000
+[Severity: Low]
+Does this compile? The guard(mutex) macro expects a pointer to the mutex,
+but it looks like we are passing the struct by value here instead of using
+the address-of operator (&atkbd->mutex).
 
+[Severity: High]
+Does acquiring the mutex here cause a self-deadlock?
+
+Looking at atkbd_reconnect() and atkbd_attr_set_helper(), they already acqu=
+ire
+the mutex before calling atkbd_disable():
+
+drivers/input/keyboard/atkbd.c:atkbd_reconnect() {
+...
+	guard(mutex)(&atkbd->mutex);
+
+	atkbd_disable(atkbd);
+...
+}
+
+drivers/input/keyboard/atkbd.c:atkbd_attr_set_helper() {
+...
+	scoped_guard(mutex_intr, &atkbd->mutex) {
+		atkbd_disable(atkbd);
+...
+}
+
+Since mutexes are not recursive, wouldn't unconditional acquisition here
+cause a thread hang when a user modifies a sysfs attribute or triggers a
+reconnect?
+
+>  	guard(serio_pause_rx)(atkbd->ps2dev.serio);
+> =20
+>  	atkbd->enabled =3D false;
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260828125430.1147=
+0-1-jeffinphilip14@gmail.com?part=3D1

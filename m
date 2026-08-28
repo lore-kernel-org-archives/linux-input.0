@@ -1,149 +1,133 @@
-Received: from mail-ot1-f54.google.com (mail-ot1-f54.google.com [209.85.210.54])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E59AA3AE18D
-	for <linux-input@vger.kernel.org>; Fri, 28 Aug 2026 10:06:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.54
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4B4EF40D57B
+	for <linux-input@vger.kernel.org>; Fri, 28 Aug 2026 10:15:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787911566; cv=none; b=a3tkmtrjoEQ5rbi+gxiAYN7zxuwfS86VQQH87AEzqY+gmdmsGGV3b0lR7SwbxozneVYkJre+9Bb3ocf+nZLV8G7y/hnWTyoGb5Nae29BYn+1UVHukWtcuqpxpFDftZbTGccwtyG7zQ0dWlKqU5neAmWgQn+QPFXlSuuKbdJk4Jg=
+	t=1787912130; cv=none; b=C5pINGBgQOl3qISS01bBwWez8vKMMct3LE4vhWs/qPaWhzVDVS6DIAPzoLmloNxvfpXq7Maw5HnE/xPI93ETYs3GY7rpgR/E2GtjKiUPEyqwnoOa5TPu81ohPKNUqh6eyz48usRLywFw9vhbA/IR7TQGew1AIi092bCCbfwhOQk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787911566; c=relaxed/simple;
-	bh=MJA9JnatOxTDcya0/pH4eQEUS46aOIcCQNEXUYgPKjs=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=X7OTddSzhTsIcFY/XlcUAijKbuO5aO+lMMKS8dualMN2g+mvH2slvdVSWHQORDWX2MkV/ARSall4VGl1Mvx2yLF6qdhvT/Kwq8ufoRvRqVc7Wiulre28WATidmQjvUt/ZmggfdApN1lgx5knhNhNdXwVvqXDEJwmap1zByRQQtI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=KF/QCBq+; arc=none smtp.client-ip=209.85.210.54
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1787912130; c=relaxed/simple;
+	bh=FXvP+nt4Q5KlgfDrT0NfPJ4+htAdqL1rjkzFlqSJzmo=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=o4m8Kv4C4Ns8Nu1TlchbFFTkMGe7vXssJVJolfxT2VhktA0jC3uADEAXCaroZ1MEw6a8BsuJyTHg2/nOMQB8qeJTs1T6gXpc0tKERTliXnHMA4s0KlY0QnlqXgeq6qnLUdku3GyRvpbRd0VLPmvF/jAUrfJaWTjY4REItqS523o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Do7aQaQB; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="KF/QCBq+"
-Received: by mail-ot1-f54.google.com with SMTP id 46e09a7af769-7f4e729368fso866268a34.0
-        for <linux-input@vger.kernel.org>; Fri, 28 Aug 2026 03:06:04 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1787911564; x=1788516364; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=tzEZPnlnA+MHUZ+FmtBKMiae7Anw81mNQrQ7J2H6x/M=;
-        b=KF/QCBq+Nc13+fhWQb0LtKGAeuTrxDP8Ue3XIhfsR9u59bFKz0b8BJxTSdTOY780Mk
-         8VHnQOZoagwdsKTPfEirOcjG59ywPaW/vVxI8OuFEchRlwXTsvdwunV77qx4jfU8XCNj
-         5huCrrYxbA+Mn13TBS/lkk7kjVNSdElGjpM2zGjN/ChgquMG9jQ2NXLA4tioSmoK/CeZ
-         8t1xSulfHQORTyExAYGkOtarfkq8WSQczU/S6RxI6nSTbbZOVfXPodGV160LtMQLUI8d
-         vZxdv/Rosh7RHrVP53QMCj3HKln1CYBcjCd+RaHTmcwGqhIW3zNsiuwwwI9php715+iX
-         gFSA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787911564; x=1788516364;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=tzEZPnlnA+MHUZ+FmtBKMiae7Anw81mNQrQ7J2H6x/M=;
-        b=mSCGo0KOu2D+2WBK9o6RU4JNCIHFIKghR1zAJajynJy3dQtN8dwWbqJDZEsUCtW1lA
-         +h5dDXzFKdWZx8A9Vkvlb2yodtJiwH8sasF1YjrF96K7kRk08ujB41yu/kRRWRxaFydQ
-         /hF47Nf6OLXofOUIn/5Y9EF95YpoFMO4GMQdSJeWpESH/AbgMkwmDZZA+o5whne+c7Uo
-         zG16KRXCfFYG1G5Qu7JtobFSCRgETdtWa5TbvyT/76RzeOS1ubRhG5vrqFLJR2tmy2WY
-         OVlGtnVwqMHfSwnRQo65kYa+Eq7BxIvq/DU1dR99dBSKrlduJOMcndZ+YPsQ48Qswcmy
-         pIkg==
-X-Gm-Message-State: AFuF++msunp4x/jBy5hCqKIN/kPdtk7X7SyL8pdjnqFKTE1iVDYHLUKQ
-	KcvPMbaC5iYTg4OepRDv8DZrS/SEU3MQC+JztFFt6tAZ0z3chlZu0PQn
-X-Gm-Gg: AR+sD10ckqPT0hSSui9M8kbOX+WvW9Kx2KqB1M7Qhf2VCJGmR0ks2e3AuU0aDYdiMbf
-	pZlW1oc1rgBYZxY54jmHH4ZUIEpifnVOH6Ng+Ufcak7PdR0GYUMAIX9wKwRCoQC4ZmSjtUxYGDj
-	TmbtMSQM9EthPQIutOjSZeNJPqKL7W8MNrTsM8TXgw9b/acGL0/+xmRzE2sJ5WLU1pwWt6eFXap
-	SdQZWGoCYKudw8xHMEi0uDuFDeoDSZbXSK5G88KWyXfzwg7LKyx9hDA1sf9naEKEAggPxTzOjUm
-	4XkJvDzSxLSs726FujBYE2C1MV6zDA9x9YfGFtuAFxF0M182uBI3slUpbqCmUgUS73bJuaDIz1Z
-	hpjo6MJO6Wh+gJU9CWHSQITI5Y4hqe2Q5Rcdca8ZDBQRvDRw0N+V9gX6DZr1U7Phd/dN4bIkiig
-	INPg2a452KD9XyeWZkKgM2Ap07dW0AkoPXokwMQLdGLYXMmLzfMNDWHEfbPVomAXkxTcuPFKmKt
-	Ujk
-X-Received: by 2002:a4a:dd1a:0:b0:6b0:5bd1:4722 with SMTP id 006d021491bc7-6b1c668e741mr4292347eaf.13.1787911563533;
-        Fri, 28 Aug 2026 03:06:03 -0700 (PDT)
-Received: from Default ([2409:40f4:1018:6686:df4d:699c:e13c:43d2])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-142e41837c6sm1910157c88.11.2026.08.28.03.06.00
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 28 Aug 2026 03:06:03 -0700 (PDT)
-From: Jeffin Philip <jeffinphilip14@gmail.com>
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Jeffin Philip <jeffinphilip14@gmail.com>,
-	syzbot+1e2ef9bcb29af666b2e6@syzkaller.appspotmail.com
-Subject: [PATCH v2] Input: atkbd - fix UAF in atkbd_set_repeat_rate() on disconnect
-Date: Fri, 28 Aug 2026 15:35:47 +0530
-Message-ID: <20260828100547.120553-1-jeffinphilip14@gmail.com>
-X-Mailer: git-send-email 2.55.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Do7aQaQB"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C8001F000E9;
+	Fri, 28 Aug 2026 10:15:28 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1787912128;
+	bh=Kmt0fiz++8Ylp6oPCQNSGmHQPVpa/YVMFJpuVSrW1nI=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=Do7aQaQBssp4ct8oe23fHwtCNWPj6vTGl4VCJEsHxTXaZ0O3F9JhdZCqZ4u+DZxyr
+	 0XTu7NRai04DQg+SEaqQXouGKLttoLCnjOLwgjeD1AeaBptz1U8pdkKDUXlvOE3XuW
+	 8JPK/zWJ5q3VOYCo43pPVWq4/pQNUyOQlTVid+pDKIxak69zy9zyFsWDhLoY8pAs4c
+	 4HF+ToazvKwf1Qu6ONqhKsjcPDldj1anPRgS49tph0J0P2EJ1rWQ/1Ljb5BMyj2meT
+	 k3Rq/HjPAS6OzlnQC91ss1Wwc5H0O5DRvFeFDULm76iOXP8M/mqh74Dwn7pvr4tPmA
+	 jFpniLOodvw1A==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v2] Input: atkbd - fix UAF in atkbd_set_repeat_rate() on
+ disconnect
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Jeffin Philip" <jeffinphilip14@gmail.com>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20260828100547.120553-1-jeffinphilip14@gmail.com>
+References: <20260828100547.120553-1-jeffinphilip14@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Fri, 28 Aug 2026 10:15:27 +0000
+Message-Id: <20260828101528.6C8001F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-Commit 0ef7a26af127 ("Input: atkbd - fix canceling event_work in disconnect")
-moved cancel_delayed_work_sync() after input_unregister_device() on
-the premise that events may arrive until input_unregister_device returns.
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
+- [High] A Time-of-Check to Time-of-Use (TOCTOU) race condition in `atkbd_e=
+vent()` allows delayed work to be queued after `cancel_delayed_work_sync()`=
+, leading to a Use-After-Free of the `atkbd` structure.
+--
 
-However, this created a UAF as work that may have passed the
-atkbd->enabled check in atkbd_event_work() may attempt to dereference dev
-which is freed in input_unregister_device(). Reverting the commit also
-does not solve the issue as events may still come through and pass the
-enabled check as atkbd_disable() and event_work() guard with different
-locks. Fix this by closing the hardware first using serio_close()
-and then unregistering to prevent work from executing after
-input_unregister_device(). serio_close() closes the device preventing
-work from arriving. Additionally add a check for atkbd->enabled in
-atkbd_event() to prevent userspace from queuing new events after
-atkbd_disable() sets atkbd->enabled to false.
+commit 0f8148a1f313524a8dd641967f56cd788e4c8ac4
+Author: Jeffin Philip <jeffinphilip14@gmail.com>
 
-Reported-by: syzbot+1e2ef9bcb29af666b2e6@syzkaller.appspotmail.com
-Closes: https://syzkaller.appspot.com/bug?extid=1e2ef9bcb29af666b2e6
-Fixes: 0ef7a26af127 ("Input: atkbd - fix canceling event_work in disconnect")
-Signed-off-by: Jeffin Philip <jeffinphilip14@gmail.com>
----
-Changelog:
- - Changes in v2:
-     Added a check for atkbd->enabled so userspace cannot queue events after
-   atkbd_disable.
-Link to v1: https://lore.kernel.org/all/20260828080839.116065-1-jeffinphilip14@gmail.com/T/#u
----
- drivers/input/keyboard/atkbd.c | 18 +++++++++++-------
- 1 file changed, 11 insertions(+), 7 deletions(-)
+Input: atkbd - fix UAF in atkbd_set_repeat_rate() on disconnect
 
-diff --git a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/atkbd.c
-index 5736f4bc5a50..79e4cd9ee1db 100644
---- a/drivers/input/keyboard/atkbd.c
-+++ b/drivers/input/keyboard/atkbd.c
-@@ -672,6 +672,9 @@ static int atkbd_event(struct input_dev *dev,
- 	if (!atkbd->write)
- 		return -1;
- 
-+	if (!atkbd->enabled)
-+		return -1;
-+
- 	switch (type) {
- 	case EV_LED:
- 		atkbd_schedule_event_work(atkbd, ATKBD_LED_EVENT_BIT);
-@@ -963,17 +966,18 @@ static void atkbd_disconnect(struct serio *serio)
- 
- 	atkbd_disable(atkbd);
- 
--	input_unregister_device(atkbd->dev);
--
- 	/*
--	 * Make sure we don't have a command in flight.
--	 * Note that since atkbd->enabled is false event work will keep
--	 * rescheduling itself until it gets canceled and will not try
--	 * accessing freed input device or serio port.
-+	 * close serio first so device will not get any data, which prevents
-+	 * atkbd_event_work from being rescheduled after cancel_delayed_work_sync
-+	 * returns. This ensures no work can dereference atkbd->dev after it has
-+	 * been freed.
- 	 */
--	cancel_delayed_work_sync(&atkbd->event_work);
- 
- 	serio_close(serio);
-+	cancel_delayed_work_sync(&atkbd->event_work);
-+
-+	input_unregister_device(atkbd->dev);
-+
- 	serio_set_drvdata(serio, NULL);
- 	kfree(atkbd);
- }
--- 
-2.55.0
+This commit attempts to fix a use-after-free issue by closing the serio
+port before canceling delayed work and adding an enabled check to
+atkbd_event(). It aims to prevent work from being scheduled after
+disconnection.
 
+Link: https://lore.kernel.org/all/20260828080839.116065-1-jeffinphilip14@gm=
+ail.com/T/#u
+
+> diff --git a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/atkb=
+d.c
+> --- a/drivers/input/keyboard/atkbd.c
+> +++ b/drivers/input/keyboard/atkbd.c
+> @@ -672,6 +672,9 @@ static int atkbd_event(struct input_dev *dev,
+>  	if (!atkbd->write)
+>  		return -1;
+> =20
+> +	if (!atkbd->enabled)
+> +		return -1;
+> +
+
+[Severity: High]
+Can this lockless check introduce a Time-of-Check to Time-of-Use (TOCTOU) r=
+ace
+condition?
+
+If userspace calls evdev_write(), which invokes atkbd_event(), a thread cou=
+ld
+read atkbd->enabled as true here, but then stall or be preempted before
+actually scheduling the work.
+
+[ ... ]
+
+> @@ -963,17 +966,18 @@ static void atkbd_disconnect(struct serio *serio)
+> =20
+>  	atkbd_disable(atkbd);
+> =20
+> -	input_unregister_device(atkbd->dev);
+> -
+>  	/*
+> -	 * Make sure we don't have a command in flight.
+> -	 * Note that since atkbd->enabled is false event work will keep
+> -	 * rescheduling itself until it gets canceled and will not try
+> -	 * accessing freed input device or serio port.
+> +	 * close serio first so device will not get any data, which prevents
+> +	 * atkbd_event_work from being rescheduled after cancel_delayed_work_sy=
+nc
+> +	 * returns. This ensures no work can dereference atkbd->dev after it has
+> +	 * been freed.
+>  	 */
+> -	cancel_delayed_work_sync(&atkbd->event_work);
+> =20
+>  	serio_close(serio);
+> +	cancel_delayed_work_sync(&atkbd->event_work);
+> +
+> +	input_unregister_device(atkbd->dev);
+> +
+
+[Severity: High]
+If the thread running atkbd_event() is delayed after checking atkbd->enable=
+d,
+could it resume here and queue work after cancel_delayed_work_sync() has
+already returned?
+
+Since serio_close() only stops hardware interrupts and does not block users=
+pace
+from invoking atkbd_event(), atkbd_disconnect() could proceed to unregister
+the device and free the atkbd structure.
+
+When the delayed thread finally resumes and queues the work, won't that que=
+ued
+work execute later and dereference the freed atkbd structure?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260828100547.1205=
+53-1-jeffinphilip14@gmail.com?part=3D1

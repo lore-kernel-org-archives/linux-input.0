@@ -1,94 +1,72 @@
-Received: from mail-pg1-f174.google.com (mail-pg1-f174.google.com [209.85.215.174])
+Received: from mail-oi1-f198.google.com (mail-oi1-f198.google.com [209.85.167.198])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 14DA844C508
-	for <linux-input@vger.kernel.org>; Fri, 28 Aug 2026 12:54:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.174
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C27F63D9556
+	for <linux-input@vger.kernel.org>; Fri, 28 Aug 2026 13:03:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.198
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787921687; cv=none; b=iy8L5ifhVw/W89mQ4voW3n87SXfN60qsNdgc3qI0lIIpttMBGH5F4W56imsZedH5aJq74ZjQnKYy9I1S4kjohN6OAFRSvRGJpaH0rzLELDDLoHuACExMr4USfDRccHjzyJ0ZN7C7844OdYMgzD0Z7xzMCNriQAdVa6IOWdJkl1I=
+	t=1787922184; cv=none; b=V2PeJ5KD0qrgUkERR6o5IMpUxNziVl9vJvEtdGtJRlYY9rXjGNCMQsZ9SihkRTnrgr1Go6gBEMpNkM3BY9Luiz/Mz8IUzgH3+k1Ww/nnGYTKPJVDgwadDc8eJFSPdNaUseReQmJq2ZjfI6jMfZa56iVFgq5HY0ISr38G8ZXBY40=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787921687; c=relaxed/simple;
-	bh=wc+vvhQ+dNmyiyK6AVxTIJHxL2dc2ZcZe9QfHmSZUIY=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=sRABGJtS3XvIvymD/WiohOplsuLdqFTMZwV7qH//wvjgPEValnx7l80VdtWRIL9aeBLdgZY89S5epJqyn+GkYLYbmgLAoxv8l8IvdcVDhlmepzcW9FsySTlMDKinHhwRmQrsUFiqRVmVUkjFab3X43OJD5LfM3oepuGmlgS6COE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=LMI88nze; arc=none smtp.client-ip=209.85.215.174
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="LMI88nze"
-Received: by mail-pg1-f174.google.com with SMTP id 41be03b00d2f7-cbb8b54fcf8so1085461a12.0
-        for <linux-input@vger.kernel.org>; Fri, 28 Aug 2026 05:54:45 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1787921685; x=1788526485; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=F/VYSNIA4jxHryEAnHq111uwk8QXMnh2ArI3dQwMk8M=;
-        b=LMI88nze3W6yNjIZFdB9lRCJb93m0gwTAgk/fWO3AyBmjJcLeNMjGGN5SgE11pu9Bc
-         AN/sJdLPpTvPaZaZRhI0RuYF/vId6HlqwtA1PbYLF1TQHf8/v7/Q02zxiQx3wxLRxXA/
-         uPrbFp3LC9cDKVyoVp7L45feor/16yIg/g21P18LYdSq+4TidhnVCARVYRQxoBszGqCW
-         CQpBxkhJ4g2p9A2pbImBZ1CbkCN1dK70Ck/cCjrI/+VCPqwZzGTipYxLdCLk12mvuiDR
-         6pziSXmdD8aE5hLGyhUnHjjfUKwALGf0hRqBsdCxVb8q8eQPTK7BtH+nZ7bJYMUbwVO5
-         CSjg==
+	s=arc-20240116; t=1787922184; c=relaxed/simple;
+	bh=S4rboNO+q6j2VJ4KINfATehzyfJMgoKoNZ2n1Pmg+YY=;
+	h=MIME-Version:Date:In-Reply-To:Message-ID:Subject:From:To:
+	 Content-Type; b=B5AVghdq3+/in91R9NKJT9WV+V6YVrC9tH/bHwnfE96hNAKyeMTq1djdE/Q1kPBkAGdqryB4/Zylo9VDU62sjbfS8N8+Z9MAYx60PdTKMA3G/0mXz0bkK9hhmxhq+PRxvyMM5YB9Ik5UH9sPXIjNVe+PptUOqxWG77jSmJp7EnU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.167.198
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
+Received: by mail-oi1-f198.google.com with SMTP id 5614622812f47-4b37733badcso1923251b6e.1
+        for <linux-input@vger.kernel.org>; Fri, 28 Aug 2026 06:03:02 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787921685; x=1788526485;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=F/VYSNIA4jxHryEAnHq111uwk8QXMnh2ArI3dQwMk8M=;
-        b=feMzEemMzvk8kr+HRtO5/hGe1yNkLZZdRde5ImBPzG1EmXNyNhP1RIVU9zJmT8cpTO
-         LC7sHPX9tIsS+58lgCgsBmbgwbOn+vj6s95TIP51G0TYzdsAuimDBmffkZzPAdV9gzDr
-         rJFjjfs1yxSR97xHroZy8egXCvOCz3/l1fUj6XgHhKu7tgNlHTE1CpJWj5GMIIv4L9yX
-         4W09SwZZrq8tY3FGeKWWVtRu0jtUqFZDzNIvCluU8LV1wlVRMf8p7Hw21QOWi3mEXoa3
-         MKhEpF48vlY2jMhc4/yMRGw2aMDwVQWlniqxxS/w5IFExoVxYY9Dw1gEBEkPPKVtow3N
-         0Chg==
-X-Forwarded-Encrypted: i=1; AHgh+RoS21GRUa1NqXif/OpqGSBbBUaHeUbruPpBYNcJqqlqlJN8dJNPJg6sfRwKbnF/UNy2qxxoEkCqHx3TIQ==@vger.kernel.org
-X-Gm-Message-State: AFuF++lrairqvubSOICdQdvCPLkZr0c5FfPrYQLqjZf2KpFzaL3dYXnE
-	RO9kGNf4ZHChgI81rX0JM1NQs+xZykwhBC96rg+NqY8Uvoqj9YfUdrmK
-X-Gm-Gg: AR+sD11gnPeiAOBJiSYR6wG73+7fZiV4oFQHoD7Sl61S1PPPTjMD1xzq1WYcUcl4g4r
-	PSX0MT5lmHxUDCjv+hsaec8U6dEwPOA//lEAgoPnUg2gW4QgzwD/mfgBBG02RM6RI92nPpxFQP7
-	YCeiv+VimXH3nWlKPTukl8NP+HpmiLzi1nN3bz/LFCee/b1NhM28hnOb72IiBKTnurAcJpxUXf2
-	QLnQX08D7AqZd34GfkYNqWGbsZ8uT0679Q2QFBmX6YPoIXgomlqs8W5ch7oW3rGIOMl1GnvqqBG
-	Q0ZJoqrJG9fB1HPmV2m4JoVU1oKjP5j2eLEaMmSyUgnM4JHtsYehxPAgFvCOqlrosyHI7FklhOW
-	mzfDj1bAgv/ohyf5ZZcSCYqPUKLDh0DQEeyeap3qlvm2UkU4vvLS5CeMHwQ5EeIo/LuneYmcViA
-	kwjYbT0Rs9v9HNk7IGqHYDx4ackcqvuZ2eGVdz+u/iOaruW8t+mcWmhPwmSuEMZMBD
-X-Received: by 2002:a17:90b:440c:b0:381:6c5:3f63 with SMTP id 98e67ed59e1d1-396d0eab08bmr13666774a91.6.1787921685323;
-        Fri, 28 Aug 2026 05:54:45 -0700 (PDT)
-Received: from Default ([2409:40f4:101e:9d7e:7e26:7b81:64f6:f32])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-142e0dc898dsm5897027c88.9.2026.08.28.05.54.41
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 28 Aug 2026 05:54:44 -0700 (PDT)
-From: Jeffin Philip <jeffinphilip14@gmail.com>
-To: syzbot+1e2ef9bcb29af666b2e6@syzkaller.appspotmail.com
-Cc: dmitry.torokhov@gmail.com,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	syzkaller-bugs@googlegroups.com
-Subject: [syzbot] [input?] KASAN: slab-use-after-free Read in atkbd_set_repeat_rate
-Date: Fri, 28 Aug 2026 18:24:30 +0530
-Message-ID: <20260828125430.11470-1-jeffinphilip14@gmail.com>
-X-Mailer: git-send-email 2.55.0
-In-Reply-To: <6a90d9ef.4d659fcc.734b4.0019.GAE@google.com>
-References: <6a90d9ef.4d659fcc.734b4.0019.GAE@google.com>
+        d=1e100.net; s=20251104; t=1787922181; x=1788526981;
+        h=content-type:to:from:subject:message-id:in-reply-to:date
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=DUwTClSJIxNiO4Y6nStQjQJsV6dp/Zx6F2ILQGd9KGg=;
+        b=qq6GV0SnFe74ONUJjlHrW3XrmOfXZe4NC+hWx3TvBGmj+s0EeDyAFJQEY1mp+xollI
+         UI+gHlUK021Pk+wLAQ3JrGKJhn9iIe3J0+ZF/EaDTWUgTbzJa6XhkZGtgSKWqXgfU9m/
+         Yqd51VkmAomd6svSR4q5gPOz6rXChc74OnuIE0iQpZbeC4tvRNU6S2G9dmUpagOi3W12
+         rE6/+vbGaxDwaP3iLHzp0QyqR5miDXExGNlSHLxXLV5nUWpkXo7rEPga7S0XffKJrXdH
+         MI0/ytQ5eAjNFHf6eXChg3FmFLXvBfjOsuonj70FfQ/v5EAXK9uVv3s2teYfq3CE6BZn
+         JKRg==
+X-Forwarded-Encrypted: i=1; AHgh+RpC+eR6I/NLTbOh2B/lg6E4LGc0jzFoCGwA8pmPQtElGPjoZ+yc37LUGNUCLeBuJsFC7qF9RxCxSTVo2w==@vger.kernel.org
+X-Gm-Message-State: AFuF++ktE6TZ2vSwoHDGgKZC4lwIb3XxEDJW2HxC4O0s8TcnMkxi4RAL
+	SJkdM7yDeyp0CybwpBhKrehkmKVhjj1bgun5BLlzVbItpX/Gv3MCigE3cJgFDoxwCAeFxRMbqhX
+	vJSqT7ZFb3f87oU2dmMZdfXFGe6/Xs2cfHSD130y432NlkYPgLf/GwsvENPw=
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+X-Received: by 2002:a05:6808:1488:b0:4b3:7d74:b33e with SMTP id
+ 5614622812f47-4b3984506e8mr6840496b6e.17.1787922181759; Fri, 28 Aug 2026
+ 06:03:01 -0700 (PDT)
+Date: Fri, 28 Aug 2026 06:03:01 -0700
+In-Reply-To: <20260828125430.11470-1-jeffinphilip14@gmail.com>
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <6a918705.1d9ded08.62e62.00ec.GAE@google.com>
+Subject: Re: [syzbot] [input?] KASAN: slab-use-after-free Read in atkbd_set_repeat_rate
+From: syzbot <syzbot+1e2ef9bcb29af666b2e6@syzkaller.appspotmail.com>
+To: dmitry.torokhov@gmail.com, jeffinphilip14@gmail.com, 
+	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	syzkaller-bugs@googlegroups.com
+Content-Type: text/plain; charset="UTF-8"
 
-#syz test: git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git 818bebeb63dd
+Hello,
 
-diff --git a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/atkbd.c
-index 5736f4bc5a50..056aa98f13e2 100644
---- a/drivers/input/keyboard/atkbd.c
-+++ b/drivers/input/keyboard/atkbd.c
-@@ -706,6 +706,7 @@ static inline void atkbd_enable(struct atkbd *atkbd)
- 
- static inline void atkbd_disable(struct atkbd *atkbd)
- {
-+	guard(mutex)(atkbd->mutex);
- 	guard(serio_pause_rx)(atkbd->ps2dev.serio);
- 
- 	atkbd->enabled = false;
+syzbot tried to test the proposed patch but the build/boot failed:
+
+drivers/input/keyboard/atkbd.c:709:27: error: incompatible type for argument 1 of 'class_mutex_constructor'
+drivers/input/keyboard/atkbd.c:709:9: error: aggregate value used where an integer was expected
+
+
+Tested on:
+
+commit:         818bebeb drm/xe: Don't hand out the flat CCS storage a..
+git tree:       git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git
+kernel config:  https://syzkaller.appspot.com/x/.config?x=ccca94d2c01b9e78
+dashboard link: https://syzkaller.appspot.com/bug?extid=1e2ef9bcb29af666b2e6
+compiler:       gcc (Debian 14.2.0-19) 14.2.0, GNU ld (GNU Binutils for Debian) 2.44
+patch:          https://syzkaller.appspot.com/x/patch.diff?x=107bdd49580000
+

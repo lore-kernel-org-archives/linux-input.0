@@ -1,113 +1,78 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-oa1-f72.google.com (mail-oa1-f72.google.com [209.85.160.72])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 475AF3793BD
-	for <linux-input@vger.kernel.org>; Fri, 28 Aug 2026 13:13:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A1CB13D1AA2
+	for <linux-input@vger.kernel.org>; Fri, 28 Aug 2026 13:26:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.72
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787922833; cv=none; b=SGhCDfL++oL9wrufdDlV/0fZk5NXT1/pP/R+ki2nb6JPrvMx63y0L/kpYWNO7dgzAjTCSb17Bzxf0zQN3U4q6ebavmDibXEMW34dq/+Q7W3PSkvWBR8HV+kxs6dghZk8puk96RkD7NDb5ctOyuhVZ9HuMEvF+NGOHGArA8+++8w=
+	t=1787923565; cv=none; b=hrMLVkHR+AUljXQjHCFF2EOcCxm7yPHy8nfsEIZDvuBtowBR3RJzzjHSyfb1f1g2fAa2ELmz6CcWd+jPcsbukVb06WNw5OZ+2prQlv4SZRqVopgzwImO8hewK7+iu3W6dVH0/OtTmoIQ75oxkrLcFreb4cZL8Qar0axlAWsyBmE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787922833; c=relaxed/simple;
-	bh=rL55CRgOMpXlQ6k2uR15aZ6JdMbgbNghZ15wXsdt31E=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=ePt004i2AHvsB0HtxUKWqthl7wAZhHT4f2i1Fu4rNzeTCcnH195h96O94TQT7Ne7U4t7TenBuQia8/bEf18FUcXhsn/mZTWlUZkiYQdvsue9xL4AIl0aEt18x7gKLpmzgeLKbMNQDP4Qtq6SzopmrrC9juZZKfJXhJaqml7GeYA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=b0Rsb7vU; arc=none smtp.client-ip=100.103.45.18
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="b0Rsb7vU"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3F011F000E9;
-	Fri, 28 Aug 2026 13:13:51 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787922831;
-	bh=WfGgdUg6Ju+dmFJh3oLGShH6bWOwvOYdRmH7sIqHPfY=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=b0Rsb7vUte3jGRVPp3xAlUPH/5Z95Z7xWjLVcg+F9sL2ZC0TdlC9rIbgTJwxiFdxx
-	 Y3JTw33uN8g08IQStQiFYwpNXVP8hLCim5ytPkO9VIe9TX1bj6o+Y3GOJoAu+vYP8A
-	 d4Yfex1NJaQvpaX7RKdIEzYsgdJVYsbLKbDjDpFCHorhoKEmUZyAi3f8wKMFnJ8LuP
-	 OEcvN5aLe96cRcXjWNBM3oUNGPfxG8315flig0OVF9wLRnYz86QcdrFlKReSx7aFnt
-	 2DBW9ecHKaUyiWlZ/WLQQRjYQ1/T4JWzgonPWAp8oGv5DCcNsNqdFzI35BpfVaUc++
-	 P4AA8GRfUjWTQ==
-From: sashiko-bot@kernel.org
-Subject: Re: [syzbot] [input?] KASAN: slab-use-after-free Read in
- atkbd_set_repeat_rate
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Jeffin Philip" <jeffinphilip14@gmail.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260828125430.11470-1-jeffinphilip14@gmail.com>
-References: <6a90d9ef.4d659fcc.734b4.0019.GAE@google.com>
- <20260828125430.11470-1-jeffinphilip14@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Fri, 28 Aug 2026 13:13:51 +0000
-Message-Id: <20260828131351.C3F011F000E9@smtp.kernel.org>
+	s=arc-20240116; t=1787923565; c=relaxed/simple;
+	bh=NIuv6od53DRf2oVKSqrVBaibQdZOjEOaUZk9OXQcI+k=;
+	h=MIME-Version:Date:In-Reply-To:Message-ID:Subject:From:To:
+	 Content-Type; b=Jrv/Uh3NNFhCdO6yLs9xOKIqhqbownrjqODwIYIjidzVj70OvbU/fobpGLs4mjUeRxyDmaATuv/lKRtA6oFIbsv0SnJGMqb808Wmd4kFayeieP11A2x4tvBv5sJICUtMZ3WaCfFIdYikAa+UuZ4ts5rsbeTzWGYHBLyb9858B3E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.160.72
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
+Received: by mail-oa1-f72.google.com with SMTP id 586e51a60fabf-467c2c754f8so569068fac.3
+        for <linux-input@vger.kernel.org>; Fri, 28 Aug 2026 06:26:03 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1787923562; x=1788528362;
+        h=content-type:to:from:subject:message-id:in-reply-to:date
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=ZjgTeM0Onmo3J23ctw8YBEh9xQmtBdt9GZyqCaE/QF0=;
+        b=ZH2H3URJbFbIU8snxq9O+RYTv0jMTvMWa/4MaiTA1JP/xSe88dcsojKuzwtk7PvB4n
+         y3B19c2zvm96ebA9YJseL2Zhl3RLXucqVWBHoQuJeypeteIqkQLek7iZRF2Nc7A98jzn
+         VkQZk0nqXTQjHZoHY/At39Zvrozir075MkG6rwQSKYrFWpuv7fxV9dHCDAVNwaRQXN1P
+         va5cnhiLnrkvPbToykBWYFY+mCWZWyEuo0GD0DSPCLP5cPPvr8K9FVXJsWwqhJJs7VE0
+         H96DbvIlWSyNTcRqGz87dN3fhgfZvzywA7YqncfZ8ahAlQlmuEcTBc31OC9d22021tUr
+         CI9A==
+X-Forwarded-Encrypted: i=1; AHgh+RpT86ZxxzpThjNIDTuHVGk9/xDGx70EtSA7881eHjxJPAn5DRXu+USjOh62+LmJa8Ou49hia/nUEf99Iw==@vger.kernel.org
+X-Gm-Message-State: AFuF++mWMjcAs0PH7/b5QsBgMwhcFFyGcVg+SaUCK5GfqKOJfxTynd+A
+	ZaEpGwik+lGTBbfdZ75OW9sFbOKhIV24AxtrNQBtap3c2Hh1j9wuec4QOdL/Z/6aKgjNJ8BKsTV
+	jWrnHacl6AdupdQyOTYSP8vDlh4IqRSpCAVhE+EsY+s7gR8IjfgDYn8HOPi4=
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+X-Received: by 2002:a05:6808:318c:b0:4b1:bc2e:3f60 with SMTP id
+ 5614622812f47-4b398299c26mr6853171b6e.16.1787923562532; Fri, 28 Aug 2026
+ 06:26:02 -0700 (PDT)
+Date: Fri, 28 Aug 2026 06:26:02 -0700
+In-Reply-To: <6a802643.9ebadd4d.20b15e.000a.GAE@google.com>
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <6a918c6a.27659fcc.2ceef7.001a.GAE@google.com>
+Subject: Re: [syzbot] [input?] [usb?] WARNING: ODEBUG bug in corsair_remove
+From: syzbot <syzbot+0a031a76585d1c7e737d@syzkaller.appspotmail.com>
+To: bentiss@kernel.org, ccc194101@163.com, chenchangcheng@kylinos.cn, 
+	jeffinphilip14@gmail.com, jikos@kernel.org, jkosina@suse.com, 
+	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	linux-usb@vger.kernel.org, syzkaller-bugs@googlegroups.com
+Content-Type: text/plain; charset="UTF-8"
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
-- [High] Unconditional acquisition of `atkbd->mutex` in `atkbd_disable()` c=
-auses an AA self-deadlock because callers already hold this mutex.
-- [Low] Passing `struct mutex` by value instead of a pointer to the `guard(=
-mutex)` macro causes a build failure.
---
+syzbot has bisected this issue to:
 
-commit ea5b33bff452dfd0c6a1ded0647c9fed571513f0
-Author: Jeffin Philip <jeffinphilip14@gmail.com>
+commit eb51c9f8cb4f064981d9c6cae13de8eda280785d
+Author: Chen Changcheng <chenchangcheng@kylinos.cn>
+Date:   Mon Jul 27 01:35:00 2026 +0000
 
-    KASAN: slab-use-after-free Read in atkbd_set_repeat_rate
+    HID: corsair: cancel worker before unregistering LED to fix use-after-free
 
-This commit adds a mutex guard to atkbd_disable() to prevent a
-use-after-free issue detected by KASAN in atkbd_set_repeat_rate.
-A syzkaller test case is referenced in the commit message.
+bisection log:  https://syzkaller.appspot.com/x/bisect.txt?x=12580379580000
+start commit:   73e3f0710014 Merge tag 'nfs-for-7.3-1' of git://git.linux-..
+git tree:       upstream
+final oops:     https://syzkaller.appspot.com/x/report.txt?x=11580379580000
+console output: https://syzkaller.appspot.com/x/log.txt?x=16580379580000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=9efed59cf70d6280
+dashboard link: https://syzkaller.appspot.com/bug?extid=0a031a76585d1c7e737d
+syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=11e6e579580000
+C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=13e4ed49580000
 
-> diff --git a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/atkb=
-d.c
-> index 3509b58e64920..82157782e166f 100644
-> --- a/drivers/input/keyboard/atkbd.c
-> +++ b/drivers/input/keyboard/atkbd.c
-> @@ -706,6 +706,7 @@ static inline void atkbd_enable(struct atkbd *atkbd)
-> =20
->  static inline void atkbd_disable(struct atkbd *atkbd)
->  {
-> +	guard(mutex)(atkbd->mutex);
+Reported-by: syzbot+0a031a76585d1c7e737d@syzkaller.appspotmail.com
+Fixes: eb51c9f8cb4f ("HID: corsair: cancel worker before unregistering LED to fix use-after-free")
 
-[Severity: Low]
-Does this compile? The guard(mutex) macro expects a pointer to the mutex,
-but it looks like we are passing the struct by value here instead of using
-the address-of operator (&atkbd->mutex).
-
-[Severity: High]
-Does acquiring the mutex here cause a self-deadlock?
-
-Looking at atkbd_reconnect() and atkbd_attr_set_helper(), they already acqu=
-ire
-the mutex before calling atkbd_disable():
-
-drivers/input/keyboard/atkbd.c:atkbd_reconnect() {
-...
-	guard(mutex)(&atkbd->mutex);
-
-	atkbd_disable(atkbd);
-...
-}
-
-drivers/input/keyboard/atkbd.c:atkbd_attr_set_helper() {
-...
-	scoped_guard(mutex_intr, &atkbd->mutex) {
-		atkbd_disable(atkbd);
-...
-}
-
-Since mutexes are not recursive, wouldn't unconditional acquisition here
-cause a thread hang when a user modifies a sysfs attribute or triggers a
-reconnect?
-
->  	guard(serio_pause_rx)(atkbd->ps2dev.serio);
-> =20
->  	atkbd->enabled =3D false;
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260828125430.1147=
-0-1-jeffinphilip14@gmail.com?part=3D1
+For information about bisection process see: https://goo.gl/tpsmEJ#bisection

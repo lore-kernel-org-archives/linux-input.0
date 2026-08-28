@@ -1,110 +1,160 @@
-Received: from endrift.com (endrift.com [173.255.198.10])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pg1-f173.google.com (mail-pg1-f173.google.com [209.85.215.173])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F2BDE13959D
-	for <linux-input@vger.kernel.org>; Fri, 28 Aug 2026 01:51:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=173.255.198.10
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2822830B51F
+	for <linux-input@vger.kernel.org>; Fri, 28 Aug 2026 03:33:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787881881; cv=none; b=ShCgSGXXzLWR5XleRhFqM6jlbMXJ8IkIMDfvb07riVTMfgzqP1Ifymf95Ci3wLwipAja0zuU0W2eHb7bCL1VvEvaP4olC5CgYt1dQ8SaapZOh7nRnWK7RVU6FPB3ECgnxFBSgvGAwZlauiLUX6aTW89u5rXOjiAbxmyM9jAIiV8=
+	t=1787888037; cv=none; b=eViemsT45amGCxgXIxjn/zSL34U1L+D1CgG9JxDCBdXzRPfEuCeINmogoQ67r8fTvu5u2VhghLKfCzQoUWvmkyIBvbCsVsS/mKepMInX135B93+SKJstBa//NNc594H/pJhPQLDi09b0r4a5d5jETBdc8Z/B6CfQrbljUlQW2Gc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787881881; c=relaxed/simple;
-	bh=6TaviUTwKShMi7laQjTl2xzGeSK4rxlTEr7bWQhQPXI=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Uw9mEb7jK8+kuQj3XluLwW9o44wC4N8noOuddWhGJlB7Lc349fzXOaPB/EW9d6tSb9cguLkhqRA3wp3VQalLmQDiJB14Nu1frw9EOAxIXS/M9DNhWfvz/bZwd/U11AzEHsj92pqPIlA5+pkIeIuUQco7qEb6RFNK20tBdD00MMI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com; spf=pass smtp.mailfrom=endrift.com; dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b=xhFMpa80; arc=none smtp.client-ip=173.255.198.10
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=endrift.com
+	s=arc-20240116; t=1787888037; c=relaxed/simple;
+	bh=O3W5OLmm62pgM3CpEscJNvH3qzmki9b+xvjyTSf3kDA=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=dNCALyZmAi0SYcsUrPtUmIFqyIQqnH29Uys+S92ok2LQWm0k3FG6FXnJiWVjpacaqWjZIW8qGzmPKcvgADXD+C3x2TlM871tLAqhFGOC60H37fsjQi0KvvDQxVAeferELsS5dRYmrUVu5tgXkwTwlHAbcUn6ctdJyqgKCPTytMo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=P4JJH539; arc=none smtp.client-ip=209.85.215.173
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b="xhFMpa80"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=endrift.com; s=2020;
-	t=1787881879; bh=6TaviUTwKShMi7laQjTl2xzGeSK4rxlTEr7bWQhQPXI=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=xhFMpa80C96/yqrTtX89EdhzJDVqD6oGA7BaKPc8g3ZoMsYyCR9Y4B/CKmX1G++YM
-	 KAOiZResOTWPSkYH91XZaPhOIHmcFCPJ23lnK0yw2a9LnGm6AJJEFyD+RUGqkb/FU+
-	 +xTRCu4CE79iGBOehvf2h+4opre36pKdabmGROpbRznEHrUrDZLbjamoVq5ePzzICF
-	 3oNN/8nHHEq8BSDJd8G74ELQaR0QsKjVqjkcFiwfmSAnsoI7hrzJWhIQIXH6tRG/8n
-	 K3ML4nYMRkMPdCT9HOQuQ7qzHy7M7M0ibC12XC8dWetQPPQ+vZBTvMX/IkfZvM63Bl
-	 NVmOCa9tPOpTw==
-Received: from [192.168.0.27] (71-212-73-87.tukw.qwest.net [71.212.73.87])
-	by endrift.com (Postfix) with ESMTPSA id 2F2B6A00C;
-	Thu, 27 Aug 2026 18:51:19 -0700 (PDT)
-Message-ID: <19303959-3022-4c99-a1e6-b38fda5e4ac7@endrift.com>
-Date: Thu, 27 Aug 2026 18:51:16 -0700
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="P4JJH539"
+Received: by mail-pg1-f173.google.com with SMTP id 41be03b00d2f7-ca12086c06eso338446a12.0
+        for <linux-input@vger.kernel.org>; Thu, 27 Aug 2026 20:33:55 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1787888035; x=1788492835; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=z2kWriAmVnRHA0BfpSMWspXCORRWDebvQgjhpMlIH/M=;
+        b=P4JJH539rleEnVHOnsvJayV1l7Pa0KoLHxg15S1UMQYmPOrAboYOmLhQM37GIZaCyw
+         rAdWgsXzpdUv6knad1o++llKqQYe7c6yqygqdt+6zLT86+YORESFiPerxSTzx55KMRHJ
+         +IGsL441UPiRYVgyzDoZXF4LhK69oe7v55/b0+AWUjgrpj2ocAhIvmKNxFCgr0Sec9U+
+         INXCUgYlaNpiOC1YBo4YcslwLnQq1qMbH3qJ8a6s6fT0Qs3ed+3jbyCVq7J+kmzrvdVv
+         HQ8hAluCl77iv/Infl4nj/FIGIO7cbRPcE6lLlclKPdgrAXvmPXWvwYIHdkvxA0gTd9e
+         6DyQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1787888035; x=1788492835;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=z2kWriAmVnRHA0BfpSMWspXCORRWDebvQgjhpMlIH/M=;
+        b=WjxIN+5wgjAIo6lgXhOQzaF7rLfqZm9KX8LNNZPXjNiMuDhecDfGt8REqgOOClb3jS
+         LHUEsMuz26bAOKpnq9X7chILS1wv9VcIbbQNdrE+5pJ4U4Gc0MjuAdeRrYQX2WVIhcPK
+         BzTT5fhWizpOF3q8Fgl9lFbKdM3mqQ/LKURw/SNwHDIz03a+wRTYTDUu+MS786H9bNAp
+         D7C6akSnE0bjtqYP0YsIVYE8OqjaKBmYs9qMfQy4RUUXilh+lFk42D2vM33EBRrF95RB
+         5yRUYm7BzQVR4iYpvX5/FQDknozvSBVK6tR5JoGf+CHq4YnvR2CukwWQdYhSIvrlLiWb
+         wdTA==
+X-Gm-Message-State: AFuF++naZnuH2zEi0ft2oEl/C+v/PA/a5VX/bOMyaRNJs9lNLH+BVaiV
+	M740zf4+Af4CSuqjBbQzjN/TJ/Zlw+2Wsn42lZjZEc8m/zNGMfeiC8yq
+X-Gm-Gg: AR+sD10riX05gjHQvWgCoWMEXWAVzZ/1GGtH/sBI0mdmF7Ao1wR7wDzRdZYicyjkohy
+	/KXJ3K78kenfmTgSfUmXd0lDHDCfuNinFODn+k3FobgWHcYOqoQ2o86E9D0a5iaITQ1HfzrDwpK
+	tBEwJ86WzfE/v2y/Dw+LIe8+ct9G11OO35wrbqokmTCbRTxXiuWEqPHqMXK4NzvjbSmqchWu+/Y
+	/eINJv6Ic6jgyK6yGrqQ+ydZD4bSZCicdbWpVLgLCbXEd/8OIZNjT+RRrKqjcOf4N863j1TN0eW
+	Qo9uOTGhkN89EsDQJHAoadgV4Svof0cf/oAj7Y95KsZchLfKkhmqsMMQwcpsLcctm66W3d552NS
+	dfuDgLVsI6WRSe+tCc0fQF+3LsAzOk2d2VQ+hjX9mpNDojdZ4JFEGdeHzzr+p8WQcvpO0XC2vaR
+	EAl+iPdJ9TCSAsuETapTVxKROnX3GsvEQTVxDDDlVLqQU5YYDXKXPbO96PnSEhZx8K7wcVETCbs
+	9x/IDhkdRHDFRtvu/Ao2rkigS3YH+OTdndM6q0HCBBd1JSxoi9Oa6jHS3XPSH92mB7ysIIQmA==
+X-Received: by 2002:a17:90b:1d05:b0:396:65dd:4093 with SMTP id 98e67ed59e1d1-396d0ff519cmr7783691a91.14.1787888035408;
+        Thu, 27 Aug 2026 20:33:55 -0700 (PDT)
+Received: from LAPTOP-UUUVNN1I.localdomain ([203.125.131.137])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-396ddca5bfbsm695369a91.17.2026.08.27.20.33.52
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 27 Aug 2026 20:33:54 -0700 (PDT)
+From: Wei Jie LAW <98lawweijie@gmail.com>
+To: Ping Cheng <ping.cheng@wacom.com>,
+	Jason Gerecke <jason.gerecke@wacom.com>,
+	Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>
+Cc: linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	stable@vger.kernel.org,
+	Jason Gerecke <killertofu@gmail.com>,
+	Wei Jie Law <98lawweijie@gmail.com>
+Subject: [PATCH v3] HID: wacom: fix OOB read in wacom_wac_pen_serial_enforce()
+Date: Fri, 28 Aug 2026 11:33:23 +0800
+Message-ID: <20260828033323.82958-1-98lawweijie@gmail.com>
+X-Mailer: git-send-email 2.43.0
+In-Reply-To: <CANRwn3TWTHxP=ZEpgZzjRweC8vqifoi2koKgSQTEuPuY4FZxcQ@mail.gmail.com>
+References: <CANRwn3TWTHxP=ZEpgZzjRweC8vqifoi2koKgSQTEuPuY4FZxcQ@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v4 07/12] Input: xbox_gip - Add security implementation
- from xone
-To: Eric Biggers <ebiggers@kernel.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
-References: <20260822021140.1149546-1-vi@endrift.com>
- <20260822021140.1149546-8-vi@endrift.com>
- <20260824214933.GA399653@google.com>
- <e554318e-77ab-496f-ab85-c2c5d7273eed@endrift.com>
- <20260828015001.GA1949@quark>
-Content-Language: en-US
-From: Vicki Pfau <vi@endrift.com>
-Autocrypt: addr=vi@endrift.com; keydata=
- xsBNBFtJAmYBCADmRIN9O/aBbYc93lUMvG2hPip++otLit+65EwNHB1y9BmbVr0Q8Tz7rbAM
- K2mB0EiA4Z3DesoLIOzlJq0E4fgDsAi8ok/i7aTx35d0Qeab95GEdkCMcL98xNJE0agq+KYk
- pnvFlhdyC23K32KdOijsUqqbd86GgxRZmuf/Yf932KxKAj+n0aFBw5y6i0ep7WQBF6ytpqah
- Uzy04D//smiTr6rrXg+C09MX0XZ2Fvcv3gmimnoV6C/ZCO1Zecqyhrs0YFfdIhFEBp2ItYim
- MoeU4g6y726gyRO/+wwzZkryJMU8hHootzW1gUylZeELSwx8uIJSHFiLE7AK+M5soPtDABEB
- AAHNG1ZpY2tpIFBmYXUgPHZpQGVuZHJpZnQuY29tPsLAjgQTAQoAOBYhBNj+0QMp9OPSosB4
- 6X72E7X7Nb0rBQJbSQJmAhsDBQsJCAcCBhUKCQgLAgQWAgMBAh4BAheAAAoJEH72E7X7Nb0r
- WIcH/0GnIOkmAyy2UlgS/VKi193ZRWYJjBfUncIBf57gLt1KYY0PvUoR9MVvkLqcx8vaCxWh
- bVSqzxT6WU1ECp/URdQV2W4IGB6W4B8rT3VGw0QzbVVQRmt6vReEMFVL+vBfgHKTRBItiy7x
- Bd+JZDusiyrrGok9TqqkBYlZPWE29ajiOAe05N1UhuRq7y8w/bOkzFD36ohMtfqV4hByWV+q
- d0LujqgZm1AkM1FqpJ4j8h1Gox5rpmWfaHJmBQ8HcKqQfwACQCvDNHS2vlTXJYfxlh+mVerL
- YKZgWnyvqx4pLKqJOXQKssIaDjnDfTu6bQgXvhaKb1+piBUYuoe9/+3E15TOwE0EW0kCZgEI
- AL/KzT+NR1/LbJ7Kuv3gAHFp+S7cfyyPSamN6i6/X135vNSawG7g81iWUweAW6YahFA2haqw
- t+8/Bm9Dzc8rF6RHCElK1GoHiF4SIYQxjqPo2wwqvTad9FblWTfaYRKfVDvNz2Rz4i681JrR
- 8gizvzJPX+gocH7FMzPwb1DAwL2kKA5wilgAGSv8nZqeG55hNt2t/XiT6Yd97DJv86D24UUP
- BetLTq2jUWtX+omt+JhF3QzMjnyGQYKHNXUB/ipBxNSkwnDrWg/f1EjDtNzuOHManJDC9Bqi
- qhi1abiTNlmmewI5iLEnnxzfSKS5HO9nCC1szl229DHwIMH7jA+G+z0AEQEAAcLAdgQYAQoA
- IBYhBNj+0QMp9OPSosB46X72E7X7Nb0rBQJbSQJmAhsMAAoJEH72E7X7Nb0roioIAM0oDKEU
- QH7Og4+AXm35uklIiCX6cFQPgDVlQn7M/QFLnEhhCfPTt8PkIIN4dLgs4lIJxExpgQWgOLUX
- h+ZLLupzZXoysAXfdwNLf/RqRed/zTZbUjssy4D7yeNIJThzU32kDy0Hx3pMNM/Hd9yaXmHL
- LDkfwcyQuqA9+eeOogkDC8inLNLfYQ8JtVQZuWppNcbOZkBxfMVAmPHg6C9fe2biQFojoLPe
- 4nQheprKfBp5QsY2cIjP8kaWPpfJEJ5i2aNgtrfebEzjYoWWLkK78Lo8qABdxkVhH6rhAlw2
- rVf41cHNCfHF7ddvOb9IItWacXxYn7ql+dI/Se3+ISWDboQ=
-In-Reply-To: <20260828015001.GA1949@quark>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-Hi Eric,
+From: Wei Jie Law <98lawweijie@gmail.com>
 
-On 8/27/26 6:50 PM, Eric Biggers wrote:
-> On Thu, Aug 27, 2026 at 06:40:01PM -0700, Vicki Pfau wrote:
->>>
->>> There's no need to use crypto_shash.  Just call the SHA-256 and
->>> HMAC-SHA256 functions (<crypto/sha2.h>) directly.
->>
->> This code was originally written by someone else more familiar with
->> these functions than me, but it looks like shash_transcript gets
->> finalized repeatedly without being reset. See
->> gip_security_get_transcript, which exports the state, finalizes it,
->> then rolls back the state before finalizing it. I don't think this can
->> be done with the basic sha2 functions.
-> 
-> What do you mean?  In the library the context is just a plain struct, so
-> you can just make a copy of it if needed.  Like this:
-> 
-> static void gip_security_get_transcript(const struct sha256_ctx *ctx,
->                                         u8 transcript[GIP_SECURITY_TRANSCRIPT_LEN])
-> {
->         struct sha256_ctx tmp = *ctx;
-> 
->         sha256_final(&tmp, transcript);
-> }
-> 
+wacom_wac_pen_serial_enforce() iterates over a field's usages (up to
+field->maxusage) but indexes the report bits by j * report_size, the
+position of value slot j -- and only the field->report_count value
+slots reserved by the Report Count exist in the report:
 
-I probably should have thought of that. That does make sense. I'm still trying to make sense of this code to fix things sashiko reported.
+	for (i = 0; i < report->maxfield; i++) {
+		for (j = 0; j < report->field[i]->maxusage; j++) {
+			...
+			value = hid_field_extract(hdev, raw_data + 1,
+						  offset + j * size, size);
 
-> - Eric
+hid_add_field() sizes the usage array with max(usage_index,
+report_count), so a report descriptor can declare far more usages
+than its Report Count reserves room for in the report.  One listing
+12288 usages against Report Count 1 has the loop extract the usage
+at index 12287 from bit offset 98296 -- about 12 KB past a 2-byte
+received report.  The value is stored in wacom_wac->serial[0] and
+can reach userspace as an MSC_SERIAL event, making this an
+information disclosure.
 
-Vicki
+Clamp the loop to field->report_count, the number of value slots the
+report holds. Value slots past the last declared usage are still
+scanned; they reuse that usage (HID 1.11, 6.2.2.8).
+
+Verified on v6.12.105 with a UHID reproducer: a 2-byte report from
+such a descriptor trips KASAN before the patch and not after it.
+
+Fixes: 83417206427b ("HID: wacom: Queue events with missing type/serial data for later processing")
+Suggested-by: Jason Gerecke <killertofu@gmail.com>
+Cc: stable@vger.kernel.org
+Assisted-by: Claude:claude-opus-5
+Assisted-by: GLM:glm-5.3
+Signed-off-by: Wei Jie Law <98lawweijie@gmail.com>
+---
+Changes in v3, per Jason Gerecke's review:
+
+ - reworded the explanation: the usage array is sized for maxusage;
+   the descriptor just declares more usages than its Report Count
+   reserves room for in the report, and the loop trusted maxusage
+   over report_count
+
+ - bound inner loop to field->report_count
+
+The reproducer is available on request.
+
+Compile-tested on 6ba2c27cb9aa (x86_64, wacom_sys.o); the runtime
+verification used the identical wacom_sys.c built as a module for
+v6.12.105.
+
+v2: https://lore.kernel.org/linux-input/20260825103104.12090-1-98lawweijie@gmail.com/
+v1: https://lore.kernel.org/linux-input/20260822120926.153849-1-98lawweijie@gmail.com/
+
+ drivers/hid/wacom_sys.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
+index 0eafa483b7f7..40770affdbde 100644
+--- a/drivers/hid/wacom_sys.c
++++ b/drivers/hid/wacom_sys.c
+@@ -113,8 +113,9 @@ static int wacom_wac_pen_serial_enforce(struct hid_device *hdev,
+ 
+ 	/* Queue events which have invalid tool type or serial number */
+ 	for (i = 0; i < report->maxfield; i++) {
+-		for (j = 0; j < report->field[i]->maxusage; j++) {
+-			struct hid_field *field = report->field[i];
++		struct hid_field *field = report->field[i];
++
++		for (j = 0; j < field->report_count; j++) {
+ 			struct hid_usage *usage = &field->usage[j];
+ 			unsigned int equivalent_usage = wacom_equivalent_usage(usage->hid);
+ 			unsigned int offset;
+-- 
+2.43.0
+

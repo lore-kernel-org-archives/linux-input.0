@@ -1,73 +1,111 @@
-Received: from mail-oi1-f198.google.com (mail-oi1-f198.google.com [209.85.167.198])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4E391471D02
-	for <linux-input@vger.kernel.org>; Fri, 28 Aug 2026 14:06:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.198
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B5BD230F7EB
+	for <linux-input@vger.kernel.org>; Fri, 28 Aug 2026 14:15:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787925969; cv=none; b=aEdRPBlaTnE1vTB0soxEOwyPzbgv9SqgwvhWXQyxyuxlBS81Pl3xXxH6H4BEibPmuyzyeVaZaiBatTaYWBJmzFItzvtw10lByThsn6hhxm1qle4wH5YgVhjBdmfeU8DSPOclYNmzvlUsWGcr41zm95uGMHkyEk0+Clc8U+/HHqQ=
+	t=1787926552; cv=none; b=ih9VWKzM5ypmSjX3GrLmyKSOmR+9dy3f7zMFr1JBtzi3oytyXpU6GVsPoc7rF/SYwUoHbAXG3WyPlFvQZNf9IAhf2X59y2cfaD7TRDReMilUnx8oH2u0nizqxJLpHu2LCXlVmBT5kwjgz+y9OQp1dJYUqfhz9h78xdQfUpzRnvU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787925969; c=relaxed/simple;
-	bh=qmaSYORGNwISjTbbE1XIHT1PbYz3AlFrsu7T6UOygD8=;
-	h=MIME-Version:Date:In-Reply-To:Message-ID:Subject:From:To:
-	 Content-Type; b=kDu1AeTKhHsVTOZxZDub369D+PqLg3yRdNi7BLbW7PSWgzpw6TI3xsKWVl9en5c5CalEbKRj63oNmsJsklCzct90heVxSpkCXJS+MhKrCDAFUa/T6vRKUgTsVxb2U4aTmpW+RATVqrMh0C5isJhKnhJEQAgIvjGrcbP3G25YRVc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.167.198
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
-Received: by mail-oi1-f198.google.com with SMTP id 5614622812f47-48e5de5a23cso1642548b6e.0
-        for <linux-input@vger.kernel.org>; Fri, 28 Aug 2026 07:06:05 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787925964; x=1788530764;
-        h=content-type:to:from:subject:message-id:in-reply-to:date
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to:content-type;
-        bh=GS8yPGaPTIKohnoXkAjEQF4WQ47FwbB3S1bwuX4jWyg=;
-        b=agaiylGle3kAZWDdzketprZqHoi1+QdEWB7viB92HM2bIII8w3sN6mkfMMNunbrAKH
-         svGeZM1I8SZ/G8IADW0BTGLHvo3z1YqmmrssTxUlRGqlQ+mc16AlgFfbULRoyaKz9pAR
-         GY3h96ooGweysFqMnRwmZ55k5/sPaYHDdvJRVdBPDFvgwCmi8xXeykCgqCSv08SUQ7kY
-         gLT0lUHve7ydfVUejDsNlTfCjeGlMqy7oCcs91QPaHOqW5iO7U+ofAoxRSVh6R8+YIzu
-         Nf0y/HiWzpRVmjqStM79yjYsJg+yhuFbj8UUCTbAyjztvhvij49jfOFxyARWwKAlU50G
-         0PCg==
-X-Forwarded-Encrypted: i=1; AHgh+RoxRO5wR5o6OiBhlLiExLX5zHEnuCUrVwiQHmEQRy+Qow2/gWPfH8JvEpPWVyCxLjJfimJwPBgFlSHoWA==@vger.kernel.org
-X-Gm-Message-State: AFuF++m1Hhp55hXWhX4BsM8EPjngLWOdRW71fp5tYzKi1HqwSt1/PjzD
-	rDUMw5H5MhIn/1bg5PZw9BSSyn/ryZNcxv2vknAys9+QginowZGpEswm2koO1mWB0hxgvB5658J
-	c6lcX1w0CWI2Tz4lNrVUX9i0YmL+vpn0Yh9MQU1d6FNZpr6EWYV54iy0S3L0=
+	s=arc-20240116; t=1787926552; c=relaxed/simple;
+	bh=P9z1GZ2IPjiUW5jc9cn4l8EADeSnwcXhx1/q54qTrBk=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=lx5lCARSylBfDwXUC03Gy6YUGcm9awhTIUUURET1L01d6ZfxVlcabW793WDsnTYRWXPXQhSk5vibum+jCQZfNYqQcI9IP/FLMuWS7p6S2AakfMs9nLJveeo58z1HYbxryTfnfy4dJEyMH/c1Zq5hm3Z/xV2KClBrvlZ4df+4XRc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Yvpga3ci; arc=none smtp.client-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Yvpga3ci"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 232281F000E9;
+	Fri, 28 Aug 2026 14:15:51 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1787926551;
+	bh=FDcmypVQoBx4UCG5gVxdK7wzGc41OSKLJcRD1dVvW8A=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=Yvpga3ciZwXvb+Zs+fxkPAXFsM7Yh1QOyrpeTj48mVg7nivnEu2XvXmw2sdg1+c9n
+	 jcqat9R/Aaci4bMTleExZ/+34IihqTWLLi05p3NG9d+bZ1XSVTsYZqx1/HA3znT1rM
+	 cZkAAxewZjHG/VV4vgZb44hHQYoUM6BB5QU5YCA1xHS+vaZwUOU1cHqc2weJLpoPTZ
+	 5TRtnHwvxrfNfNjMOaUsNpzLotqnPodDR7yHMHT9ODJmFlEjAxmikqP4nxkMvLIq4d
+	 oD6iS8YAjjEWxZ6vx8ltggOPszby/3WhW5YW9pzV/KuYT4MPUHADooOLZAR4vy/GWw
+	 4wCXcj/ydG0FQ==
+From: sashiko-bot@kernel.org
+Subject: Re: [syzbot] [input?] KASAN: slab-use-after-free Read in
+ atkbd_set_repeat_rate
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Jeffin Philip" <jeffinphilip14@gmail.com>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <20260828140330.134760-1-jeffinphilip14@gmail.com>
+References: <6a90d9ef.4d659fcc.734b4.0019.GAE@google.com>
+ <20260828140330.134760-1-jeffinphilip14@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Fri, 28 Aug 2026 14:15:50 +0000
+Message-Id: <20260828141551.232281F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-X-Received: by 2002:a05:6808:1a16:b0:4a3:ff0a:e407 with SMTP id
- 5614622812f47-4b39826ab7dmr6642851b6e.15.1787925964221; Fri, 28 Aug 2026
- 07:06:04 -0700 (PDT)
-Date: Fri, 28 Aug 2026 07:06:04 -0700
-In-Reply-To: <20260828134149.128160-1-jeffinphilip14@gmail.com>
-X-Google-Appengine-App-Id: s~syzkaller
-X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <6a9195cc.4d659fcc.734b4.001f.GAE@google.com>
-Subject: Re: [syzbot] [input?] KASAN: slab-use-after-free Read in atkbd_set_repeat_rate
-From: syzbot <syzbot+1e2ef9bcb29af666b2e6@syzkaller.appspotmail.com>
-To: dmitry.torokhov@gmail.com, jeffinphilip14@gmail.com, 
-	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	syzkaller-bugs@googlegroups.com
-Content-Type: text/plain; charset="UTF-8"
 
-Hello,
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
+- [High] Using an interruptible lock guard (`scoped_guard(mutex_intr)`) in =
+a teardown path conditionally skips the device disable logic if a signal is=
+ pending, resulting in a Use-After-Free of `atkbd->dev`.
+--
 
-syzbot has tested the proposed patch and the reproducer did not trigger any issue:
+commit bc5cff19d061e401dc02c7bcc7660c6bf6781f46
+Author: Jeffin Philip <jeffinphilip14@gmail.com>
 
-Reported-by: syzbot+1e2ef9bcb29af666b2e6@syzkaller.appspotmail.com
-Tested-by: syzbot+1e2ef9bcb29af666b2e6@syzkaller.appspotmail.com
+KASAN: slab-use-after-free Read in atkbd_set_repeat_rate
 
-Tested on:
+This commit attempts to fix a use-after-free issue by wrapping the
+device disable routine in atkbd_disconnect with a mutex guard to serialize
+teardown against other event and attribute operations.
 
-commit:         818bebeb drm/xe: Don't hand out the flat CCS storage a..
-git tree:       git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git
-console output: https://syzkaller.appspot.com/x/log.txt?x=109cf625580000
-kernel config:  https://syzkaller.appspot.com/x/.config?x=ccca94d2c01b9e78
-dashboard link: https://syzkaller.appspot.com/bug?extid=1e2ef9bcb29af666b2e6
-compiler:       gcc (Debian 14.2.0-19) 14.2.0, GNU ld (GNU Binutils for Debian) 2.44
-patch:          https://syzkaller.appspot.com/x/patch.diff?x=138fdd49580000
+> diff --git a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/atkb=
+d.c
+> index 3509b58e64920..d5b564bab0e20 100644
+> --- a/drivers/input/keyboard/atkbd.c
+> +++ b/drivers/input/keyboard/atkbd.c
+> @@ -961,7 +961,9 @@ static void atkbd_disconnect(struct serio *serio)
+>  {
+>  	struct atkbd *atkbd =3D atkbd_from_serio(serio);
+> =20
+> +	scoped_guard(mutex_intr, &atkbd->mutex) {
+>  	atkbd_disable(atkbd);
+> +	}
 
-Note: testing is done by a robot and is best-effort only.
+[Severity: High]
+If a signal is pending when atkbd_disconnect() is called, will this scoped
+guard silently skip the hardware disable block?
+
+Because mutex_intr is interruptible, it returns -EINTR if the process
+receives a signal (such as when userspace sends a signal to the unbind
+process). This causes the guarded scope block to be bypassed, meaning
+atkbd_disable() is not executed and atkbd->enabled remains true.
+
+When input_unregister_device() subsequently frees the device, could
+concurrent handlers that rely on the enabled flag still execute and trigger
+a use-after-free on the freed dev pointer?
+
+For example, in atkbd_receive_byte():
+
+	if (!atkbd->enabled)
+		return;
+
+	input_event(dev, EV_MSC, MSC_RAW, code);
+
+And similarly in atkbd_event_work():
+
+	if (test_and_clear_bit(ATKBD_REP_EVENT_BIT, &atkbd->event_mask))
+		atkbd_set_repeat_rate(atkbd);
+
+Should this use an uninterruptible guard instead, since disabling the device
+is a mandatory step during teardown?
+
+> =20
+>  	input_unregister_device(atkbd->dev);
+>
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260828140330.1347=
+60-1-jeffinphilip14@gmail.com?part=3D1

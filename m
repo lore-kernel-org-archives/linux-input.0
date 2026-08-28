@@ -1,160 +1,136 @@
-Received: from mail-pg1-f173.google.com (mail-pg1-f173.google.com [209.85.215.173])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2822830B51F
-	for <linux-input@vger.kernel.org>; Fri, 28 Aug 2026 03:33:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A7F57324B20
+	for <linux-input@vger.kernel.org>; Fri, 28 Aug 2026 03:50:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787888037; cv=none; b=eViemsT45amGCxgXIxjn/zSL34U1L+D1CgG9JxDCBdXzRPfEuCeINmogoQ67r8fTvu5u2VhghLKfCzQoUWvmkyIBvbCsVsS/mKepMInX135B93+SKJstBa//NNc594H/pJhPQLDi09b0r4a5d5jETBdc8Z/B6CfQrbljUlQW2Gc=
+	t=1787889037; cv=none; b=KkLptT0B/BqcjqV5hWDvvbDX3cdrgdY1U2vQCcGgpxXubIrHVokt6h/A1OisiR9CzXNPBWSd9glusQ7jOogbjcoYJwiWTg92KA8IdHRB9gzkRYEyxEaokVJLLpK0eatD3oFHeqn9Pzc2re5FyC1Ir0bbGU0BCZNKna8wMo2Ns+g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787888037; c=relaxed/simple;
-	bh=O3W5OLmm62pgM3CpEscJNvH3qzmki9b+xvjyTSf3kDA=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=dNCALyZmAi0SYcsUrPtUmIFqyIQqnH29Uys+S92ok2LQWm0k3FG6FXnJiWVjpacaqWjZIW8qGzmPKcvgADXD+C3x2TlM871tLAqhFGOC60H37fsjQi0KvvDQxVAeferELsS5dRYmrUVu5tgXkwTwlHAbcUn6ctdJyqgKCPTytMo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=P4JJH539; arc=none smtp.client-ip=209.85.215.173
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1787889037; c=relaxed/simple;
+	bh=GReZa9AEjFBMoUjatC+m9jnuoxILWgWHQaqgPsBl/Hg=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=YIORFyR5I0YR+V9ykpwQOl+NZQdFeCIA7qKkD6o8MAdnbdSL/mfTcOSGQug4/puIzGtFLwa+BYfcQN6FNTVSDzk7AonY68V+2UeHHCdylrEdCGLYz+JVcPUGy7OQZKZX+wbra0Hm4J/sPq0DOHt8u9Y64yzOyATqXt2Yr+y4jEU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=VHCyRRMY; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="P4JJH539"
-Received: by mail-pg1-f173.google.com with SMTP id 41be03b00d2f7-ca12086c06eso338446a12.0
-        for <linux-input@vger.kernel.org>; Thu, 27 Aug 2026 20:33:55 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1787888035; x=1788492835; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=z2kWriAmVnRHA0BfpSMWspXCORRWDebvQgjhpMlIH/M=;
-        b=P4JJH539rleEnVHOnsvJayV1l7Pa0KoLHxg15S1UMQYmPOrAboYOmLhQM37GIZaCyw
-         rAdWgsXzpdUv6knad1o++llKqQYe7c6yqygqdt+6zLT86+YORESFiPerxSTzx55KMRHJ
-         +IGsL441UPiRYVgyzDoZXF4LhK69oe7v55/b0+AWUjgrpj2ocAhIvmKNxFCgr0Sec9U+
-         INXCUgYlaNpiOC1YBo4YcslwLnQq1qMbH3qJ8a6s6fT0Qs3ed+3jbyCVq7J+kmzrvdVv
-         HQ8hAluCl77iv/Infl4nj/FIGIO7cbRPcE6lLlclKPdgrAXvmPXWvwYIHdkvxA0gTd9e
-         6DyQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787888035; x=1788492835;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=z2kWriAmVnRHA0BfpSMWspXCORRWDebvQgjhpMlIH/M=;
-        b=WjxIN+5wgjAIo6lgXhOQzaF7rLfqZm9KX8LNNZPXjNiMuDhecDfGt8REqgOOClb3jS
-         LHUEsMuz26bAOKpnq9X7chILS1wv9VcIbbQNdrE+5pJ4U4Gc0MjuAdeRrYQX2WVIhcPK
-         BzTT5fhWizpOF3q8Fgl9lFbKdM3mqQ/LKURw/SNwHDIz03a+wRTYTDUu+MS786H9bNAp
-         D7C6akSnE0bjtqYP0YsIVYE8OqjaKBmYs9qMfQy4RUUXilh+lFk42D2vM33EBRrF95RB
-         5yRUYm7BzQVR4iYpvX5/FQDknozvSBVK6tR5JoGf+CHq4YnvR2CukwWQdYhSIvrlLiWb
-         wdTA==
-X-Gm-Message-State: AFuF++naZnuH2zEi0ft2oEl/C+v/PA/a5VX/bOMyaRNJs9lNLH+BVaiV
-	M740zf4+Af4CSuqjBbQzjN/TJ/Zlw+2Wsn42lZjZEc8m/zNGMfeiC8yq
-X-Gm-Gg: AR+sD10riX05gjHQvWgCoWMEXWAVzZ/1GGtH/sBI0mdmF7Ao1wR7wDzRdZYicyjkohy
-	/KXJ3K78kenfmTgSfUmXd0lDHDCfuNinFODn+k3FobgWHcYOqoQ2o86E9D0a5iaITQ1HfzrDwpK
-	tBEwJ86WzfE/v2y/Dw+LIe8+ct9G11OO35wrbqokmTCbRTxXiuWEqPHqMXK4NzvjbSmqchWu+/Y
-	/eINJv6Ic6jgyK6yGrqQ+ydZD4bSZCicdbWpVLgLCbXEd/8OIZNjT+RRrKqjcOf4N863j1TN0eW
-	Qo9uOTGhkN89EsDQJHAoadgV4Svof0cf/oAj7Y95KsZchLfKkhmqsMMQwcpsLcctm66W3d552NS
-	dfuDgLVsI6WRSe+tCc0fQF+3LsAzOk2d2VQ+hjX9mpNDojdZ4JFEGdeHzzr+p8WQcvpO0XC2vaR
-	EAl+iPdJ9TCSAsuETapTVxKROnX3GsvEQTVxDDDlVLqQU5YYDXKXPbO96PnSEhZx8K7wcVETCbs
-	9x/IDhkdRHDFRtvu/Ao2rkigS3YH+OTdndM6q0HCBBd1JSxoi9Oa6jHS3XPSH92mB7ysIIQmA==
-X-Received: by 2002:a17:90b:1d05:b0:396:65dd:4093 with SMTP id 98e67ed59e1d1-396d0ff519cmr7783691a91.14.1787888035408;
-        Thu, 27 Aug 2026 20:33:55 -0700 (PDT)
-Received: from LAPTOP-UUUVNN1I.localdomain ([203.125.131.137])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-396ddca5bfbsm695369a91.17.2026.08.27.20.33.52
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 27 Aug 2026 20:33:54 -0700 (PDT)
-From: Wei Jie LAW <98lawweijie@gmail.com>
-To: Ping Cheng <ping.cheng@wacom.com>,
-	Jason Gerecke <jason.gerecke@wacom.com>,
-	Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>
-Cc: linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	stable@vger.kernel.org,
-	Jason Gerecke <killertofu@gmail.com>,
-	Wei Jie Law <98lawweijie@gmail.com>
-Subject: [PATCH v3] HID: wacom: fix OOB read in wacom_wac_pen_serial_enforce()
-Date: Fri, 28 Aug 2026 11:33:23 +0800
-Message-ID: <20260828033323.82958-1-98lawweijie@gmail.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <CANRwn3TWTHxP=ZEpgZzjRweC8vqifoi2koKgSQTEuPuY4FZxcQ@mail.gmail.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="VHCyRRMY"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E78121F000E9;
+	Fri, 28 Aug 2026 03:50:35 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1787889036;
+	bh=hdk7XRgg11bvb4AJLkfhLDoqkGakp1fOgnB2w18YwrU=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=VHCyRRMYED6cND9oScm6sp9YTIy98e8ujvFe3eSOGN3wD2g8JtwSZ92VbYvRQ44zK
+	 CQZJfcSHSOKCcTrVntQcVms9PctBV5EtAL04a0YnlFv1g3QRrZACtehOJc9ZPBdtLt
+	 shK1wdYc42OaxY4CXxCvAwOy+iHE08i9NbtMrc3ZAjxft4Wgpd4vbWG4TvqglSqkfK
+	 FEvQTVgvMtCdav78qmBGfdWtBOY9467AIE4leEDYyG49O2LKO2YeBsNyqOAcn4GJ2u
+	 mX/t+uyIfWHz163MhTEGD29qXQkbRv3EcacJ6iyIisWkHOCJOhz8k2smqYROtOodm1
+	 S/KiTTJA2WXNQ==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v3] HID: wacom: fix OOB read in
+ wacom_wac_pen_serial_enforce()
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Wei Jie LAW" <98lawweijie@gmail.com>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <20260828033323.82958-1-98lawweijie@gmail.com>
 References: <CANRwn3TWTHxP=ZEpgZzjRweC8vqifoi2koKgSQTEuPuY4FZxcQ@mail.gmail.com>
+ <20260828033323.82958-1-98lawweijie@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Fri, 28 Aug 2026 03:50:35 +0000
+Message-Id: <20260828035035.E78121F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-From: Wei Jie Law <98lawweijie@gmail.com>
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+s) to consider:
 
-wacom_wac_pen_serial_enforce() iterates over a field's usages (up to
-field->maxusage) but indexes the report bits by j * report_size, the
-position of value slot j -- and only the field->report_count value
-slots reserved by the Report Count exist in the report:
+Pre-existing issues:
+- [High] Delayed work 'init_work' is scheduled but not canceled on hid_hw_o=
+pen() failure, leading to Use-After-Free.
+- [High] Sysfs handlers wacom_led_select_store and wacom_led_select_show do=
+ not check if wacom->led.groups is NULL before accessing it, leading to a c=
+rash during unbind.
+--
 
-	for (i = 0; i < report->maxfield; i++) {
-		for (j = 0; j < report->field[i]->maxusage; j++) {
-			...
-			value = hid_field_extract(hdev, raw_data + 1,
-						  offset + j * size, size);
+commit e33281ca5de90c5a4993fe522ad3163d519fa468
+Author: Wei Jie Law <98lawweijie@gmail.com>
 
-hid_add_field() sizes the usage array with max(usage_index,
-report_count), so a report descriptor can declare far more usages
-than its Report Count reserves room for in the report.  One listing
-12288 usages against Report Count 1 has the loop extract the usage
-at index 12287 from bit offset 98296 -- about 12 KB past a 2-byte
-received report.  The value is stored in wacom_wac->serial[0] and
-can reach userspace as an MSC_SERIAL event, making this an
-information disclosure.
+HID: wacom: fix OOB read in wacom_wac_pen_serial_enforce()
 
-Clamp the loop to field->report_count, the number of value slots the
-report holds. Value slots past the last declared usage are still
-scanned; they reuse that usage (HID 1.11, 6.2.2.8).
+This commit clamps the iteration loop in wacom_wac_pen_serial_enforce() to
+field->report_count to prevent an out-of-bounds read when processing usages.
+It fixes an information disclosure bug where reports could read past their
+bounds into other memory.
 
-Verified on v6.12.105 with a UHID reproducer: a 2-byte report from
-such a descriptor trips KASAN before the patch and not after it.
+[ ... ]
 
-Fixes: 83417206427b ("HID: wacom: Queue events with missing type/serial data for later processing")
-Suggested-by: Jason Gerecke <killertofu@gmail.com>
-Cc: stable@vger.kernel.org
-Assisted-by: Claude:claude-opus-5
-Assisted-by: GLM:glm-5.3
-Signed-off-by: Wei Jie Law <98lawweijie@gmail.com>
----
-Changes in v3, per Jason Gerecke's review:
+drivers/hid/wacom_sys.c:wacom_parse_and_register()
+> 		error =3D hid_hw_open(hdev);
+> 		if (error) {
+> 			hid_err(hdev, "hw open failed\n");
+> 			goto fail_hw_stop;
+> 		}
 
- - reworded the explanation: the usage array is sized for maxusage;
-   the descriptor just declares more usages than its Report Count
-   reserves room for in the report, and the loop trusted maxusage
-   over report_count
+[Severity: High]
+This is a pre-existing issue, and was not introduced by the patch under
+review, but does this error path fail to cancel the previously scheduled
+init_work before returning?
 
- - bound inner loop to field->report_count
+A device connects and wacom_probe() calls wacom_parse_and_register().
+The function schedules wacom->init_work.
 
-The reproducer is available on request.
+If the device is a WL_MONITOR and hid_hw_open() fails, the function exits
+with an error without canceling the delayed work.=20
 
-Compile-tested on 6ba2c27cb9aa (x86_64, wacom_sys.o); the runtime
-verification used the identical wacom_sys.c built as a module for
-v6.12.105.
+The HID core's devres cleanup frees the wacom structure, leaving the delayed
+work queued.
 
-v2: https://lore.kernel.org/linux-input/20260825103104.12090-1-98lawweijie@gmail.com/
-v1: https://lore.kernel.org/linux-input/20260822120926.153849-1-98lawweijie@gmail.com/
+Could this cause a Use-After-Free memory corruption when the delayed work
+executes after the wacom structure has been freed?
 
- drivers/hid/wacom_sys.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+A malicious USB device or a fuzzer could simulate a device that fails
+hid_hw_open(), reliably triggering the use-after-free.
 
-diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
-index 0eafa483b7f7..40770affdbde 100644
---- a/drivers/hid/wacom_sys.c
-+++ b/drivers/hid/wacom_sys.c
-@@ -113,8 +113,9 @@ static int wacom_wac_pen_serial_enforce(struct hid_device *hdev,
- 
- 	/* Queue events which have invalid tool type or serial number */
- 	for (i = 0; i < report->maxfield; i++) {
--		for (j = 0; j < report->field[i]->maxusage; j++) {
--			struct hid_field *field = report->field[i];
-+		struct hid_field *field = report->field[i];
-+
-+		for (j = 0; j < field->report_count; j++) {
- 			struct hid_usage *usage = &field->usage[j];
- 			unsigned int equivalent_usage = wacom_equivalent_usage(usage->hid);
- 			unsigned int offset;
--- 
-2.43.0
+[ ... ]
 
+drivers/hid/wacom_sys.c:wacom_led_select_store()
+> 	wacom->led.groups[set_id].select =3D id & 0x3;
+
+[Severity: High]
+This is a pre-existing issue, and was not introduced by the patch under
+review, but could this assignment cause a NULL pointer dereference of
+wacom->led.groups?
+
+During device unbind, wacom_remove() clears wacom->led.groups to NULL. Beca=
+use
+the sysfs attributes were created using devres (sysfs_create_group), they a=
+re
+not removed until after wacom_remove() completes.=20
+
+During this window, any read or write to status_ledX_select will invoke
+wacom_led_select_show() or wacom_led_select_store(), which unconditionally
+dereference wacom->led.groups.
+
+drivers/hid/wacom_sys.c:wacom_led_select_show()
+> 	return scnprintf(buf, PAGE_SIZE, "%d\n",			\
+> 			 wacom->led.groups[SET_ID].select);		\
+
+[Severity: High]
+This is a pre-existing issue, and was not introduced by the patch under
+review, but is wacom->led.groups accessed here without first checking if it
+is NULL?
+
+Could this lead to a NULL pointer dereference and a kernel crash?
+
+The sysfs files are world-readable (DEV_ATTR_RW_PERM), meaning an unprivile=
+ged
+local user can continuously read them in a loop while the device is being
+unplugged to win the race and crash the system.
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260828033323.8295=
+8-1-98lawweijie@gmail.com?part=3D1

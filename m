@@ -1,107 +1,125 @@
-Received: from mail-pj1-f43.google.com (mail-pj1-f43.google.com [209.85.216.43])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from outbound.st.icloud.com (st-2003b-snip4-4.eps.apple.com [57.103.77.225])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F198246C836
-	for <linux-input@vger.kernel.org>; Fri, 28 Aug 2026 14:32:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.43
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5DBE63DAADD
+	for <linux-input@vger.kernel.org>; Fri, 28 Aug 2026 14:45:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=57.103.77.225
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787927544; cv=none; b=pX0I7/mr0aCYUAENutL4ZZBJEbjgnCdmGcytwJiq0zwWnHs3kjL/47fAzDYdy6EjmwRhMY8JRWlJ/VgS57LyrxDxN2GZTv7lcjPP8924qN0noXDuFk+zGP38wBDhrPrlVHum4DdWpDzDsmlVeJfJSB4VIXj20HSTYOm67O7zWjI=
+	t=1787928355; cv=none; b=eaWqDkrqoPYOyMPRXmu1ZTjF9mhVnQh+70h6LGNFTSPyhYI8k7+koSIgGn250qAfqokgSxh0UPb0sgQxuNnNckDoA9yFaDpl4722L7PDHdP32Me0fiEotAOAKwZkQpmk+lWGwBCArwV4A3o/cFW5Mp+IYB5u+ANBY4ii3dzhuMA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787927544; c=relaxed/simple;
-	bh=tVAN3QworqS0BnYjxRFY90si3ZSQdAxuEt8sP6MPaCY=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=YFWAJD9qyon6+vGqBnEs3S9TYb8at0Cm4qGccwEi3/wmXENHGLnsseajF7w5vj5ZCJsitNfGW95z78nxe1i9Q9JklMFMUhc3liiFcu3OPC64vc/JHMqq7f8GYxhaSvaTAPCM8/VeCZKXlJ/gnwQbWLAoOXzxKkBnnGl9BSUZeb0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=qyXFBUAr; arc=none smtp.client-ip=209.85.216.43
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1787928355; c=relaxed/simple;
+	bh=HRPmZDbQ0/PWOKNBkjC3hPjC9s0q8XiO4uS6kMgC61k=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=hdInT9AZcbMTQOWw4B8xo/RUtHMuMWVElzdObAZ/IECmMeQgPvH/OWWNHb5T5CLGozkIBWiVZKERD6zr45QP0Ydkd69ieSQQJvpMxTXIHd7aAXJTcU0EqLlxcaGvIMWOjWLrA8LxKnMwfqc/Mn9nzGQTHBWyuEva8GJJoYi2roQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=icloud.com; spf=pass smtp.mailfrom=icloud.com; dkim=pass (2048-bit key) header.d=icloud.com header.i=@icloud.com header.b=L57var8L; arc=none smtp.client-ip=57.103.77.225
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=icloud.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=icloud.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="qyXFBUAr"
-Received: by mail-pj1-f43.google.com with SMTP id 98e67ed59e1d1-3856d6fbcb3so1200656a91.2
-        for <linux-input@vger.kernel.org>; Fri, 28 Aug 2026 07:32:21 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1787927540; x=1788532340; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=V7sf7plh19GCC7RhUSvKdPjyBhHsntHmx3sRykLziyc=;
-        b=qyXFBUArHAsFbqfPXIkr4MY57tTjgPUrgA9kfFN0jL4vrxcIremVGYUowc4emskERR
-         Em86rgnXi10LYKBfI9PLE4lSvjZC9ocv6AMUswp+aa7iiW5BtjkBlFsTB06h+VCRNWDp
-         9Htstvpbjz8c3h13+oItHqIwWaZs8NZYtNnhhOJpm1Aq1QUBCk9duo4HrLHrWAHARbl6
-         VFHA/TTmWIJQ9zuQIu8MDAeS4FeMonvNytVqj7qTA3cHcWkJNxvh7cByND2AN/5HkfdS
-         l/LmoIlLXgG1xn/gBaY8DWTzptHjI/fDjpnkYDOV0SGUEkywqUYSb+1/uwjk46oV49Bk
-         QNlg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787927540; x=1788532340;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=V7sf7plh19GCC7RhUSvKdPjyBhHsntHmx3sRykLziyc=;
-        b=UzyZ3ouvq+vhr3HcmWHqFX8giB2EdvNC0aOM/yerE/yLbOjPK6b9dugAvd6xzhWRv0
-         S1OtRxxnchZvy1sUtXruThNajCdPE9FCiPlIdLkR1tlfA7ZgS+Uu0CBroHfsIM8ZA6yP
-         n4Uq4ZWnQVxmiKwty3U+WBJSl2z4u0FZpTpJSZ5E5Eyh7UQebdNtWPZx4q3QedHQcxMM
-         QYNRPGTp11XkdkcBGfSqDLigBNg1wzs0P/CjwYq25THXAn4s+qSbkJVmVOlu4RE3puVv
-         UOopJdy22Nu2sVEVNr4byHvYC5jcVN/NFKNVta9ECoTJcZL1wvRHSDfEFRB5frmsUt+W
-         1WLg==
-X-Gm-Message-State: AFuF++kYgAlI2Bt0ghyAJuobatirpCfva2FsvwJVnLpRbfXOcF3Pk5tc
-	k/6Bu9YvrYhqB3PTSLso8YXQn+HtQabcxl104sv/c3ufIiqTWBv4456n
-X-Gm-Gg: AR+sD128uMdcfYxbkwhDvkuMQGEAk5h/FfpxcQH5eovMgF6msjBwiWo2kgRHIhtYgez
-	fkP41V/gOUiwEp7E65Pjzc4BWiZRtryygWrmN1jyEsUwjSpUHb3rOmJiml4GbIWr+SBhSPVcfin
-	sFFBYZVG8RhEtX/jsb9oqJPWnvVNnMSwTDMyrEKh8z9UuAVEDJcxP7MDVp6PljSN9WMRpP639TX
-	+HYzII5sVbCxVYRAmnxNDfII3oaCfGEI9jgl5FHIJ7/mkLT1pOFMgHjze5WcGLeMnLu+jCmk7/g
-	tjJLfOje7dQfacPsozgXNg4hhE+1ubHLQW0SzwFJ82BVYQucD34yongBly+2EVF/VCkJU7lZyEX
-	ZrnuJwcjFsDad4pUcWNAvhjK1Kq++YL74k4XNdFFZlzuoz3X7kY1EXsgbHfu2/b4oR94agO4lym
-	ADUkuUdEB2pNRxAy8DGpbR14IHAq1DrayUNSm64caPKZngmNY+Rk+qVmxbGgGNZPE+s7chvHVof
-	J4eVp1VBjzvAOKCg5m7SgsECJkZtp+DVGIJm8sa
-X-Received: by 2002:a17:90b:2d82:b0:38e:5c6:4db9 with SMTP id 98e67ed59e1d1-396d0f2f709mr16353248a91.11.1787927540236;
-        Fri, 28 Aug 2026 07:32:20 -0700 (PDT)
-Received: from google.com ([2a00:79e0:2ebe:8:590d:7e37:c87d:136d])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-142e0d38207sm6514014c88.5.2026.08.28.07.32.18
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 28 Aug 2026 07:32:18 -0700 (PDT)
-Date: Fri, 28 Aug 2026 07:32:14 -0700
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Jeffin Philip <jeffinphilip14@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	syzbot+1e2ef9bcb29af666b2e6@syzkaller.appspotmail.com
-Subject: Re: [PATCH v2] Input: atkbd - fix UAF in atkbd_set_repeat_rate() on
- disconnect
-Message-ID: <apGbjnQWWbqCLEVQ@google.com>
-References: <20260828100547.120553-1-jeffinphilip14@gmail.com>
+	dkim=pass (2048-bit key) header.d=icloud.com header.i=@icloud.com header.b="L57var8L"
+Received: from outbound.st.icloud.com (unknown [127.0.0.2])
+	by p00-icloudmta-asmtp-us-east-1a-100-percent-11 (Postfix) with ESMTPS id C343D180011F;
+	Fri, 28 Aug 2026 14:45:47 +0000 (UTC)
+X-ICL-RepId: 01a048d5-8446-7f2d-b264-97543f9077b0
+X-ICL-Out-Info: HUtFAUMEWwJACUgBTUQeDx5WFlZNRAJCTQBOHVUZWQdDF0kFWRcOVk1aFV4MTRFdMFAbXwJCDxwTVhUTC1NWWxNVF0YJGQhdHRkKUFAGWxIYXBRcUFgeRhJWDV0JGRhGXlAbXwJCDxwTVhUTHUMZDysISgRDB0UCXgslEwlTVlsTVRdGCRkIXR0ZFVoJClcAQAtOA1UFUwNEDU0CXRlaB0gMSwtABkZRHVQZSRdYK1sTVRdGCRkIXR0HWEcURw4PGVoUXBhT
+Dkim-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=icloud.com; s=1a1hai; t=1787928350; x=1790520350; bh=I8Hd62+LwibdPMA7yFOvXK13B+92WTJ+gOALwn0u1mw=; h=From:To:Subject:Date:Message-ID:MIME-Version:x-icloud-hme; b=L57var8LzK0XO40alS/9CvFvJjoLHNxX8dJu3OJo8xaqGxuIw1XZTpVAjPUpSBkoA6RQDyMHv8/czcI4dMPqBfrkYD++OB4k274PeH8ihJYtMBLJx57bmDnQd4Xh5c3v/bIsuJSn4vCOphxReZEjD6seaTvryQz+Wbbp8UEZS1LrhL29fBbVe6q0VNTHLqAh+CSHBFIUSZFoCwOkZNxxgpR/hE1eC2cU1JWMUax0U+r68OUV6z3o9bdmayvE/D9EHtZWJQa/CLYbriznPk5xy7Wo5a0+VkupC5L4bYrXLIcwXC0iPaJlVbWvTunRZBf4mpeYdkaGizSj3Vo0xCqcgw==
+Received: from komputa (unknown [17.156.216.30])
+	by p00-icloudmta-asmtp-us-east-1a-100-percent-11 (Postfix) with ESMTPSA id C48AE180019D;
+	Fri, 28 Aug 2026 14:45:46 +0000 (UTC)
+From: Cristian Mazzotta <cmmazzo@icloud.com>
+To: wse@tuxedocomputers.com,
+	aer@tuxedocomputers.com
+Cc: bentiss@kernel.org,
+	cmmazzo@icloud.com,
+	hansg@kernel.org,
+	jikos@kernel.org,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	linux-leds@vger.kernel.org,
+	tgu@tuxedocomputers.com
+Subject: Re: [PATCH v4] HID: generic: add LampArray support via hid-lamparray helper
+Date: Fri, 28 Aug 2026 09:45:10 -0500
+Message-ID: <20260828144510.158538-1-cmmazzo@icloud.com>
+X-Mailer: git-send-email 2.55.0
+In-Reply-To: <d54951b4-8216-49eb-9c3e-ed49ab3d4355@tuxedocomputers.com>
+References: <d54951b4-8216-49eb-9c3e-ed49ab3d4355@tuxedocomputers.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260828100547.120553-1-jeffinphilip14@gmail.com>
+Content-Transfer-Encoding: 8bit
+X-Proofpoint-GUID: mCmttGvAfdC_0FJIWACmmu8z70afe8fZ
+X-Proofpoint-ORIG-GUID: mCmttGvAfdC_0FJIWACmmu8z70afe8fZ
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODI4MDEyOCBTYWx0ZWRfX3zlHd2dbMcoZ
+ oUwmATg2+lcVDxXevmZLJOEUY5Rwl7Fi4/IBfXbezPsAwuXJoFQ+2c/s1AT0uu7vLg8aLVEWhb1
+ /yWi+0sW8xl2OsCSS/eBPcfENAWG+FeSZXf9bTT/zArO9KrEHI5OpKNSCxh1GWdeYF+svVItsR0
+ s8TzscL18g/xJ688xQyL4HIu/nYfi8i/BwZ3oN9VYSaTaYuD4vyxpB5e84j8sURJnDBrL1GVVb0
+ aCnsWxuzt289uIuHzD+PlXGxqO9vGJQ7DWDpScAKUhtDT6w6kGQUv1lBBemODlvC3BjvibYn69Z
+ dhuerBz7rf+NddWb6Pq4vnA9bda/ebTQEwIIDmq57jFzUqDYcvezw07BfB9vvQ=
+X-Authority-Info-Out: v=2.4 cv=Ffc6BZ+6 c=1 sm=1 tr=0 ts=6a919f1c
+ cx=c_apl:c_pps:t_out a=oyWFxbOnq+dmhQrAPgaJYA==:117
+ a=oyWFxbOnq+dmhQrAPgaJYA==:17 a=Sv0fKeRqtYgA:10 a=x7bEGLp0ZPQA:10
+ a=zMoZyIPnO1cA:10 a=VkNPw1HP01LnGYTKEx00:22 a=hWxEdHQvl6Tn1xj9Vm8A:9
+ a=Uh4tPsEYL5Xn7yYgV4Nn:22 a=mGzgV76dRlD25_95D0kX:22
+X-JNJ: AAAAAAAB8W/lkqfPeXR8/2C97afaZ62u4MmKzowRULh9C+tvXg/gE3nho0DBRw12H6ZCtHrnhY7wqhsSSQw3DmccdDGOvN6VuNySXrlQZ13h6wgKy2OyclEbTgO9aPqXTv+XQOVhMvDrEEv4iguTtWMgRLhk5SUIL1BfXzu2oeMUB3O1krJTI43IS7heRJSe8fJLPqxztGqszbKzZtFMRZhZbz3zMY+zuieflIcJi/F2uraFPHXxkYiiHJCQQyvA8J4mQf18NKxW4xXqorc8IzM4tFhBRJZr49FU+rlG582svg/85Na93/tIW1LvJb6dHjdShIwGRUhjos0rYKna9g2PqN8G6/50tYYaHQMGmyZvHiiBQ/zJcFUp2DsV8IKHPZeBt2wRnzfWju3rWxozNnuUyEjLsKFkS4iECXrdk7ksubk4cUmdfko3JWqlPuTarAJfplKqox0CL/PUWnT6eCvHxfrI4KtM5v+fwmLpYw49B/6vMOlKjPcNvFOX74TKB6Yt/xUSj9mUwPOftr54+2Poajw1uKIl9FLRARsROozQ9u7KRKlIklnSz+zOl8h2BGdAZtgD+csBsXcziI0glU72iQMRgAspnXMBZ/eGfVT1UT5LUDR1TwnVyboObIp3EqUV0r++cHmwT6dVVKsZvdUWiSA79Jzzzsmtx2c4fk/Rask+R0efySeF5maeyY7gUQOrYCC6TtyFTym62ju4D/qgjuDvtGj/spFCgkdrcS3rI4zmaQOXFwRxeujyfqr3Nhkz2f1kSh5twa7eKUE0aH5kwF71HyqX90emq3mWhbJhc4X7/173Ta6NUuHGTog9cl5jSV8l9huH+c+fnWED9gWB1O4k7IFAb91bdj6oEjIUYyDXIiCtDJglLbP23bT0pU/2GZaqI+bUSJetaS3QC6+UzYHeCFh7drGp2tG2jnv1R9V6A5LoDZQTHPiYsfdb6ZQFetItLSb4h2LQstPeid0unJGUEvd
+ +PFx3PPGGHdSqCQFlpn3vvEqEdX7Pk1Vbd8fqfyJqnx4U554xHYym5B5DiYvDDRbhdWPDYmSgoJsDBcY+Ans/ZAor5cdNHmGFUeTskyqVUeHVsX2NGCux8KFLBGPviGgv695j0CIWPENmaCxRxF1kBRPuuUyNvV/FbFUo1qjTxdq4olXGMuoPQjty+RJsxVa9eJosZYQgsbEso2ckIaKJbd5FBjyf+fCRpugBdmhZYDzypN9TLsl7yWJCdPT3EoHzyBVl9vtlU+vgqVHwAZM89A==
 
-Hi Jeffin,
+Am 27.08.26 um 22:13 schrieb Werner Sembach:
+> I think it's best for Aaron sending his version first and then you
+> reacting on that on the LKML and getting in touch.
 
-On Fri, Aug 28, 2026 at 03:35:47PM +0530, Jeffin Philip wrote:
-> Commit 0ef7a26af127 ("Input: atkbd - fix canceling event_work in disconnect")
-> moved cancel_delayed_work_sync() after input_unregister_device() on
-> the premise that events may arrive until input_unregister_device returns.
-> 
-> However, this created a UAF as work that may have passed the
-> atkbd->enabled check in atkbd_event_work() may attempt to dereference dev
-> which is freed in input_unregister_device(). Reverting the commit also
-> does not solve the issue as events may still come through and pass the
-> enabled check as atkbd_disable() and event_work() guard with different
-> locks. Fix this by closing the hardware first using serio_close()
-> and then unregistering to prevent work from executing after
-> input_unregister_device(). serio_close() closes the device preventing
-> work from arriving. Additionally add a check for atkbd->enabled in
-> atkbd_event() to prevent userspace from queuing new events after
-> atkbd_disable() sets atkbd->enabled to false.
+Sounds good, I'll hold off and review Aaron's version when it lands.
 
-I believe the proper fix is to replace cancel_delayed_work_sync() with
-disable_delayed_work_sync() to prevent rescheduling due to atkbd being
-marked as disabled.
+> Unregistering is important for userspace to know what happens
 
-Thanks.
+That's fair, I'll be sure to change that.
 
--- 
-Dmitry
+As for multi-zone, my I2C controller has more than one
+LampArrayAttributesReport, and has 2 zones in effect, so the original
+would only grab one of them. I'm not sure if my device is spec compliant,
+but my implementation is agnostic to the zone count; I'll come back to it
+with Aaron's version. Quirks get an entry for each zone too.
+
+To clarify, each zone in my implementation gets its own dev class where
+/sys/class/leds/<hid-id>:rgb:lamparray-<zone_number>
+And use_leds_uapi is accessible from both
+/sys/class/leds/<hid-id>:rgb:lamparray-<zone_number>/device/use_leds_uapi
+and /sys/bus/hid/devices/<hid-id>/use_leds_uapi.
+
+For Aaron when he gets to see this, here are some things I noticed while
+testing on real hardware:
+
+1) lamparray_read_lamp_count() reads
+   lamp_count_field->value[lamp_count_index] immediately after
+   hid_hw_request(HID_REQ_GET_REPORT). As mentioned above, that call is
+   asynchronous, so the read races the transfer and returns stale values.
+   On my devices it consistently returned 0. hid_hw_raw_request() with a
+   heap buffer works.
+2) In lamparray_parse_update_report(), usage 0x0003 is not unique within
+   the Lighting page, and the switch has no guard, so lamp_count_field ends
+   up bound to whichever match the parser saw last rather than the actual
+   LampCount field. I added a simple guard so only the first one binds.
+   Whether the first match will always be correct is an open question
+   however.
+3) Both of my devices need the autonomous-mode disable re-asserted on S4
+   resume; without it they come back in firmware-driven mode and ignore
+   SET_REPORT.
+4) I don't believe this would be consistent with all LampArray devices,
+   but mine in particular would ignore any change to the lighting that
+   was within 4 values of its current state, so consecutive updates that
+   are too similar silently do nothing.
+5) My hardware did not support reading back the current state of the lamps
+   at all, so GET_REPORT and in effect, lamparray_hw_get_state(), can't
+   work here. Plenty of LED drivers return the cached value when getting
+   the state, which might be the safer default.
+
+Also let me know if you want me to send my HID descriptors from
+hid-recorder or similar.
+
+In the meantime, I will definitely go look at OpenRGB's implementation.
+I may also work on a driver that will fix s2idle residency on my laptop;
+it's part of what brought me here and this is just step one.
+
+Thanks a lot,
+Cristian Mazzotta

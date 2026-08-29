@@ -1,215 +1,168 @@
-Received: from mail-oi2-f7.google.com (mail-oi2-f7.google.com [74.125.231.199])
+Received: from mail-wm1-f50.google.com (mail-wm1-f50.google.com [209.85.128.50])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5CB2F3A3835
-	for <linux-input@vger.kernel.org>; Sat, 29 Aug 2026 21:22:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.231.199
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4621F3AB5C7
+	for <linux-input@vger.kernel.org>; Sat, 29 Aug 2026 22:51:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.50
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788038553; cv=none; b=o8OGXSWZ67ELqME3Yunmw8+btRktLsg3N2PnJ5ntujhKyjZwlhKN70OhC19YYEeVhTzfkGnM0NP2GkRVNTjyjEHRSBk3P+CtlyYj6/vxWle9FiyUC1Ux8BoiEX4hPATLd4+/6Bvq2cTjMMXSmfFz6EQfcWRLcoSoBngi9KEPuys=
+	t=1788043865; cv=none; b=qtdaQ6s4DdyANP66oUXE3vby9LuXykTND2HNDDLw5lhWMBZXldSA020etIMavKem8mfTy/VJ4Fs1KC6qwIMBltpofgiL/kLiDNQ04DCyPkF6diQnuVx4xFBxbIyn92AxcqNCy5biwCKR8yhSnPmqvHP1INkkbwqCtuY5UqSvmTM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788038553; c=relaxed/simple;
-	bh=WI7AZhtEqr9xVlLFzEDYIIFNWQlxz9PEtDtkd4+D4f0=;
-	h=MIME-Version:Date:In-Reply-To:Message-ID:Subject:From:To:
-	 Content-Type; b=bWmGx5MepBZ4EeKu+onzdkQ5DunhXG10fdp2a0Cld790CD4eN/OW9cN00L+VUod+CDD1nomVGqRMyw2DUc6pN06Da2C5CBDzYcjjdvjg4SW4jSkOsfA5glwXFqzM6KkRBP6IG7gIbGvOOIEuSUsbIPjgu3ARPX7vxML0vu85A9M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=74.125.231.199
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
-Received: by mail-oi2-f7.google.com with SMTP id 5614622812f47-4b39374fab5so726420b6e.1
-        for <linux-input@vger.kernel.org>; Sat, 29 Aug 2026 14:22:31 -0700 (PDT)
+	s=arc-20240116; t=1788043865; c=relaxed/simple;
+	bh=shQX2wo+f3M8UgqTq6bRgvEBOC3zQrskEH31c6+PGsw=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=tRfzH51D5EtVwpaFVxH72gI74qEvOHZKLO78+XaPyEOarn7Uf6c4YgYcRaVNnzNONPtMic2IBRYxa3nyOyU8ClfWsOmELhIMoIwM9cqypeKVJ6WDJ1xQt9OI4OHrWI5r1T9Zcgfs/1j/Li2iSWYO2WPz4gdiYA1cp2uJqWRDIS8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Ppqna2eT; arc=none smtp.client-ip=209.85.128.50
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Ppqna2eT"
+Received: by mail-wm1-f50.google.com with SMTP id 5b1f17b1804b1-49b8e527d63so20467685e9.2
+        for <linux-input@vger.kernel.org>; Sat, 29 Aug 2026 15:51:02 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1788043861; x=1788648661; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=VZgKfK0BXySBVGINlvx9UFrNadPZLdOTWQIvm5BNrYc=;
+        b=Ppqna2eTKeGOAm+xwilERiUez3h5wBiUm3eYTgXtM/eZlm9x8rwbsJIxMmDjgl4G5g
+         OikmwyJRqF/W5rdzv6E1cZH2iWtmNO9wn6Y+Y2wnGO5q6Njs29/72/nURccClosnSeIF
+         yWpRgU2B22Ip9+mSlvT2DN2BDPxzn0RYYJeaqqrlBOhdd6GwFvAhzQYeZJ44JVzNbgI+
+         5mRIEXjj//mTMGmp9+sSAdtjNl73ztCZ0/F69Xc7lO6YureIkXe+k9popUfGe7a7uzel
+         absiq8ZL8RLQvi+JzZK6DnhWW8qua+4Z3Y04NHXw/HZ4nLp0g4fD1OeUO4w/gdt0jaZA
+         Fa9A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788038550; x=1788643350;
-        h=content-type:to:from:subject:message-id:in-reply-to:date
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to:content-type;
-        bh=LJMEXdlk7d61VrtM7qDRU6Bog3O/MwGb1q5vlyd9SZA=;
-        b=iUa9fE7AtS0V/mGIsJL0n1X8D5rkqNr8NpT47Li72eebeJGL/G29CQfp6S++3afmBp
-         JkhEe05rWx0mUFEDRFtkyDlrYAArgUnXlanjIpSBfvx39GtPwM8lvzaJpp3f23trbLJw
-         vVpLqZKndKB/FvV3ZMRHOMmDncUc20arJ2kretkhB3acUQxmcOobPdsAIs8UbPy54iDh
-         jIuezWKpXvg9AkFuHf3gWLoZjvwTpKkBKKqPY2I2gg4oDMJf+Eflc9f8cxGd4jRP5/Sl
-         3YTSP5LbKCpvXT+RiGKKlNyTWPpAPTEHelm0sk3t7fhOYk/L9TZO3G5rDS1Wm0rrq4bJ
-         mUGw==
-X-Forwarded-Encrypted: i=1; AHgh+RqH5ABepOpqK/ayFRI4EiR2YuzZYAiZcsBCy5cnZc8IFgjUQRnYsj8E2rMnDiGW7FgSXs+z+XH6QzSgUg==@vger.kernel.org
-X-Gm-Message-State: AFuF++kIGIrihDQmPxjCshtw9UeyAmGNwgpDv0VglFLw9lXZEujhGnm8
-	5P3pEIaHHkor6Y32Fo0TiNpgToMgcuvheIY2PR5Si3WpdwpWbzjOePMlpXQIy3AYLb5wDg9RZS0
-	Hh1NQURPoZ7jiFeGbFGmSV6WNXbrMdQCNdb0NIclYxwrsTaDP/+ML7MT8Ffg=
+        d=1e100.net; s=20251104; t=1788043861; x=1788648661;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=VZgKfK0BXySBVGINlvx9UFrNadPZLdOTWQIvm5BNrYc=;
+        b=p8nIZ8WrAhOomEMtPWtC6QmW2F0PRRWbCCXLD7kwVu9zXCcYhRWnjN528xeAGsbFcA
+         NAc1hpKOwODn8IiidMBMQHH3A10kW4Ws935ShvisQd3JlMHisLBq7pa4ZL2E4OMH74+0
+         CaNIaEB/IFtKjBPlP06t4JenFeVz1XQ4+LX7prNPupKJhM/4BaF6MvunfcPW2k8f8sji
+         Dui58JA7B54FGSbWvhqpOIE/loTyjzfwdlcLH2jbtCfxtMJiEgXKsXqZqMDWQ82qA8mW
+         eltTYVvAe72B9h1riQoM8ONzxdM0M/BhQdGFNBiXA8O7+tKM4O+A8kwLw7ZYC5eyrrSA
+         v5KQ==
+X-Forwarded-Encrypted: i=1; AHgh+RrlwJjOKoQqExR9P1emkSe/Q9UMri/8k6zxRKs0yJTNN0qtNTy90v35uJiH/fiUGbuLLuxoF93tlz9/MQ==@vger.kernel.org
+X-Gm-Message-State: AFuF++lrrEQnsEmYskP+KqUs0yNgTNqU5cPYTNlemQqP17STBN2fwRfK
+	ya4juoPhiuIDS1yRVkYZ73VPErEGAAzzGd/IQ3VC9YRU5uklK+szI3ke
+X-Gm-Gg: AR+sD12TjeWJIfrKQOB152wsARUMXnxQv+tt79sa6RAgdbI/ugA8zstFX0AFlMI3Xno
+	jZeOUtKD8j4Mxw1V9DtKKz0IcPbrAdb7K/WXfdjEmYWdTM1tWz3T2rb006e1CKWYbLWWxPZbyws
+	zrRZLjciNaj2YQnZfb6wZyogqty62UBYuTBEtOYZoOFduWYwCIf5cHvS7mZ7DxMqfhKP0KrlJtp
+	ToW2MLgdQEEMG0etVstYcZkxr47V37fC9zIoil0GcBfgzRv7tBp6DhTmXuPHKVAfnjbi0wwEV1P
+	XYqC3npvqQwH7Eah+/PqX2srhGPjlxIFo5Bsh9vlYXv0+aKZFnSqtD9IJmD3sKvAiGDS162yMKa
+	62LS9zesjKfPoHwA3pHBuillf+x/nScLUnHMl93vuumcEIApwDYOv0Yex5piDsMyh9UrNHj7ndS
+	wM9ctJMpZbNyAlDYR2demUfCjXMjm9WZ0ChMO1lOGkXvkyvoL6zy3n2Y5X6oaglRWPNxQqHAsrS
+	buGxrfOH9M7wQKtIvPxr/JhnNe/RAuiQJKaoM+aNwEE
+X-Received: by 2002:a05:600c:3103:b0:499:be2d:c290 with SMTP id 5b1f17b1804b1-49b91c4fa9amr227707475e9.9.1788043861140;
+        Sat, 29 Aug 2026 15:51:01 -0700 (PDT)
+Received: from 1Z10 ([37.161.113.184])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49b961820ffsm70466735e9.3.2026.08.29.15.50.59
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 29 Aug 2026 15:51:00 -0700 (PDT)
+From: Maurizio Casciano <mauriziocasciano7@gmail.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Maurizio Casciano <mauriziocasciano7@gmail.com>,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Sashiko AI review <sashiko-bot@kernel.org>
+Subject: Re: [PATCH v2 1/2] Input: drv260x: Restore configuration after device close
+Date: Sun, 30 Aug 2026 00:50:57 +0200
+Message-ID: <20260829225057.386976-1-mauriziocasciano7@gmail.com>
+X-Mailer: git-send-email 2.53.0
+In-Reply-To: <apLAjoZPxp9JJTrl@google.com>
+References: <cover.input-v2.1787872237.git.mauriziocasciano7@gmail.com> <684969b0f53a9e5f83636b219c139e904e74e14f.1787872237.git.mauriziocasciano7@gmail.com> <apLAjoZPxp9JJTrl@google.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Received: by 2002:a05:6808:10c8:b0:4b2:8d89:6a40 with SMTP id
- 5614622812f47-4b397ffa6e9mr16173861b6e.7.1788038550449; Sat, 29 Aug 2026
- 14:22:30 -0700 (PDT)
-Date: Sat, 29 Aug 2026 14:22:30 -0700
-In-Reply-To: <699fe31c.050a0220.2fcbed.0002.GAE@google.com>
-X-Google-Appengine-App-Id: s~syzkaller
-X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <6a934d96.08e933ee.dbf97.00aa.GAE@google.com>
-Subject: Re: [syzbot] [input?] possible deadlock in __kernfs_remove (3)
-From: syzbot <syzbot+1075f6dc93f398c1857e@syzkaller.appspotmail.com>
-To: dmitry.torokhov@gmail.com, driver-core@lists.linux.dev, 
-	gregkh@linuxfoundation.org, linux-input@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, netdev@vger.kernel.org, 
-	syzkaller-bugs@googlegroups.com, tj@kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 
-syzbot has found a reproducer for the following issue on:
+Hi Dmitry,
 
-HEAD commit:    cf72cbb39da8 Merge tag 'io_uring-7.3-20260828' of git://gi..
-git tree:       upstream
-console output: https://syzkaller.appspot.com/x/log.txt?x=14c09d79580000
-kernel config:  https://syzkaller.appspot.com/x/.config?x=85bc5cc2fc7394d9
-dashboard link: https://syzkaller.appspot.com/bug?extid=1075f6dc93f398c1857e
-compiler:       gcc (Debian 14.2.0-19) 14.2.0, GNU ld (GNU Binutils for Debian) 2.44
-userspace arch: i386
-syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=161fae25580000
-C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=1084c379580000
+Thank you for pointing this out in your review [8].  I reviewed the
+DRV2604 Rev. C
+datasheet and the regmap implementation again, and I am withdrawing this
+patch.
 
-Downloadable assets:
-disk image (non-bootable): https://storage.googleapis.com/syzbot-assets/d900f083ada3/non_bootable_disk-cf72cbb3.raw.xz
-vmlinux: https://storage.googleapis.com/syzbot-assets/755d053ff703/vmlinux-cf72cbb3.xz
-kernel image: https://storage.googleapis.com/syzbot-assets/0837738ba281/bzImage-cf72cbb3.xz
+The configuration-loss premise raised by the initial automated review
+[6] was incorrect.  Section 7.4.1.3, "Operation
+With EN Control", of the DRV2604 datasheet [1] explicitly states:
 
-IMPORTANT: if you fix the issue, please add the following tag to the commit:
-Reported-by: syzbot+1075f6dc93f398c1857e@syzkaller.appspotmail.com
+  "When the EN pin is logic low, the device enters the shutdown state,
+  which is the lowest power state of the device.  The device registers
+  are not reset."
 
-======================================================
-WARNING: possible circular locking dependency detected
-syzkaller #0 Not tainted
-------------------------------------------------------
-syz.0.17/6098 is trying to acquire lock:
-ffff88804e56bf08 (kn->active#66){++++}-{0:0}, at: __kernfs_remove+0x34c/0xb80 fs/kernfs/dir.c:1579
+The same section says that a complete reset to the power-up state
+requires DEV_RESET in register 0x01.  Section 7.4.1.5 further describes
+DEV_RESET as equivalent to power-cycling the device [1].  Therefore,
+drv260x_close() deasserting the enable GPIO does not discard the
+configuration established at probe, and there is no need for an open
+callback to run drv260x_init() again.  The mainline close path can be
+seen at [3].
 
-but task is already holding lock:
-ffffffff904e2360 (serio_mutex){+.+.}-{4:4}, at: class_mutex_constructor include/linux/mutex.h:253 [inline]
-ffffffff904e2360 (serio_mutex){+.+.}-{4:4}, at: serio_unregister_port+0x1b/0x40 drivers/input/serio/serio.c:677
+This datasheet applies to the tested tablet: its firmware exposes two
+present ACPI devices with HID and modalias DRV2604, at
+\_SB_.PCI0.I2C1.VBR0 and \_SB_.PCI0.I2C4.VBR1.  They enumerate as
+i2c-DRV2604:00 and i2c-DRV2604:01, and both are bound to the
+drv260x-haptics driver.  The TI Linux support page also lists DRV2604
+among the devices supported by this mainline driver [2].
 
-which lock already depends on the new lock.
+Independently, Sashiko's follow-up warning [7] about the proposed
+implementation is valid.  drv260x_init() calls regmap_register_patch()
+for the selected actuator mode, as shown in the v7.2 source at [4].
+As [5] shows, regmap_register_patch() grows map->patch with krealloc(),
+copies the supplied sequence after the existing entries, and increments
+map->patch_regs.  Calling
+drv260x_init() on every input-device open would consequently append the
+same register sequence repeatedly and retain that growing allocation
+until the regmap is destroyed.  Repeated open/close cycles would thus
+cause unbounded kernel-memory growth.  The relevant implementation is
+quoted here and linked in full at [5]:
 
+  p = krealloc(map->patch,
+               sizeof(struct reg_sequence) *
+                       (map->patch_regs + num_regs), GFP_KERNEL);
+  ...
+  memcpy(p + map->patch_regs, regs, num_regs * sizeof(*regs));
+  map->patch_regs += num_regs;
 
-the existing dependency chain (in reverse order) is:
+The related concern about haptics->mode being changed by playback only
+affected the proposed attempts to call drv260x_init() again during open
+or resume.  Once those unnecessary reinitialization calls are removed,
+the suspend/resume fix does not depend on re-running mode-specific
+initialization.
 
--> #1 (serio_mutex){+.+.}-{4:4}:
-       lock_acquire kernel/locking/lockdep.c:5908 [inline]
-       lock_acquire+0x1d1/0x380 kernel/locking/lockdep.c:5865
-       __mutex_lock_common kernel/locking/mutex.c:646 [inline]
-       __mutex_lock+0x1a4/0x1bc0 kernel/locking/mutex.c:821
-       class_mutex_intr_constructor include/linux/mutex.h:255 [inline]
-       drvctl_store+0x3c/0x350 drivers/input/serio/serio.c:360
-       dev_attr_store+0x58/0x80 drivers/base/core.c:2509
-       sysfs_kf_write+0xf2/0x150 fs/sysfs/file.c:145
-       kernfs_fop_write_iter+0x3e0/0x5f0 fs/kernfs/file.c:345
-       new_sync_write fs/read_write.c:595 [inline]
-       vfs_write+0x6af/0x1050 fs/read_write.c:687
-       ksys_write+0x12a/0x250 fs/read_write.c:739
-       do_syscall_32_irqs_on arch/x86/entry/syscall_32.c:79 [inline]
-       __do_fast_syscall_32+0x13a/0x8b0 arch/x86/entry/syscall_32.c:291
-       do_fast_syscall_32+0x32/0x70 arch/x86/entry/syscall_32.c:316
-       entry_SYSENTER_compat_after_hwframe+0x84/0x8e
+I have therefore dropped v2 patch 1/2 completely, with no replacement.
+The forthcoming v3 contains only the suspend/resume sequencing fix from
+v2 patch 2/2.  It disables and drains the work item before suspend,
+balances the work state on error paths, restores power and communication
+before leaving standby, and does not call drv260x_init().
 
--> #0 (kn->active#66){++++}-{0:0}:
-       check_prev_add+0xeb/0xe60 kernel/locking/lockdep.c:3181
-       check_prevs_add kernel/locking/lockdep.c:3300 [inline]
-       validate_chain kernel/locking/lockdep.c:3924 [inline]
-       __lock_acquire+0x1492/0x1ec0 kernel/locking/lockdep.c:5254
-       lock_acquire kernel/locking/lockdep.c:5908 [inline]
-       lock_acquire+0x1d1/0x380 kernel/locking/lockdep.c:5865
-       kernfs_drain+0x4f0/0x600 fs/kernfs/dir.c:532
-       __kernfs_remove+0x34c/0xb80 fs/kernfs/dir.c:1579
-       kernfs_remove_by_name_ns+0x7c/0x120 fs/kernfs/dir.c:1797
-       kernfs_remove_by_name include/linux/kernfs.h:644 [inline]
-       remove_files+0x96/0x1c0 fs/sysfs/group.c:28
-       sysfs_remove_group+0x8b/0x1b0 fs/sysfs/group.c:328
-       sysfs_remove_groups fs/sysfs/group.c:352 [inline]
-       sysfs_remove_groups+0x60/0xb0 fs/sysfs/group.c:344
-       device_remove_groups drivers/base/core.c:2918 [inline]
-       device_remove_attrs+0x192/0x290 drivers/base/core.c:3048
-       device_del+0x36e/0x9b0 drivers/base/core.c:3964
-       serio_destroy_port+0x476/0x590 drivers/input/serio/serio.c:543
-       serio_unregister_port+0x2b/0x40 drivers/input/serio/serio.c:680
-       userio_char_release+0x91/0xe0 drivers/input/serio/userio.c:105
-       __fput+0x3ff/0xb50 fs/file_table.c:512
-       task_work_run+0x150/0x240 kernel/task_work.c:233
-       resume_user_mode_work include/linux/resume_user_mode.h:50 [inline]
-       __exit_to_user_mode_loop kernel/entry/common.c:70 [inline]
-       exit_to_user_mode_loop+0x1d8/0x700 kernel/entry/common.c:101
-       __exit_to_user_mode_prepare include/linux/irq-entry-common.h:207 [inline]
-       syscall_exit_to_user_mode_prepare include/linux/irq-entry-common.h:230 [inline]
-       syscall_exit_to_user_mode include/linux/entry-common.h:336 [inline]
-       __do_fast_syscall_32+0x59f/0x8b0 arch/x86/entry/syscall_32.c:294
-       do_fast_syscall_32+0x32/0x70 arch/x86/entry/syscall_32.c:316
-       entry_SYSENTER_compat_after_hwframe+0x84/0x8e
+Technical references:
 
-other info that might help us debug this:
+[1] Texas Instruments, DRV2604 Haptic Driver datasheet, Rev. C,
+    sections 7.4.1.3 and 7.4.1.5:
+    https://www.ti.com/lit/ds/symlink/drv2604.pdf
+[2] Texas Instruments, Linux Driver for DRV260x; supported devices and
+    mainline source information:
+    https://www.ti.com/tool/DRV260XSW-LINUX
+[3] Linux v7.2 drv260x_close(), including standby and EN deassertion:
+    https://github.com/torvalds/linux/blob/v7.2/drivers/input/misc/drv260x.c#L260-L274
+[4] Linux v7.2 drv260x_init(), including regmap_register_patch() calls:
+    https://github.com/torvalds/linux/blob/v7.2/drivers/input/misc/drv260x.c#L315-L379
+[5] Linux v7.2 regmap_register_patch() implementation:
+    https://github.com/torvalds/linux/blob/v7.2/drivers/base/regmap/regmap.c#L3417-L3473
+[6] Sashiko's initial review, including the configuration-loss premise:
+    https://lore.kernel.org/linux-input/20260827182855.DE8E91F000E9@smtp.kernel.org/
+[7] Sashiko's v2 follow-up identifying repeated patch registration:
+    https://lore.kernel.org/linux-input/20260827233020.416711F000E9@smtp.kernel.org/
+[8] Dmitry's review rejecting the EN-reset premise:
+    https://lore.kernel.org/linux-input/apLAjoZPxp9JJTrl@google.com/
 
- Possible unsafe locking scenario:
+Thank you, and thanks to Sashiko for identifying the memory-growth issue
+in the proposed implementation.
 
-       CPU0                    CPU1
-       ----                    ----
-  lock(serio_mutex);
-                               lock(kn->active#66);
-                               lock(serio_mutex);
-  lock(kn->active#66);
-
- *** DEADLOCK ***
-
-locks held by syz.0.17/6098: 1, last CPU#2:
- #0: ffffffff904e2360 (serio_mutex){+.+.}-{4:4}, at: class_mutex_constructor include/linux/mutex.h:253 [inline]
- #0: ffffffff904e2360 (serio_mutex){+.+.}-{4:4}, at: serio_unregister_port+0x1b/0x40 drivers/input/serio/serio.c:677
-
-stack backtrace:
-CPU: 2 UID: 0 PID: 6098 Comm: syz.0.17 Not tainted syzkaller #0 PREEMPT(full) 
-Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.16.3-debian-1.16.3-2 04/01/2014
-Call Trace:
- <TASK>
- __dump_stack lib/dump_stack.c:94 [inline]
- dump_stack_lvl+0x100/0x190 lib/dump_stack.c:120
- print_circular_bug.cold+0x178/0x1be kernel/locking/lockdep.c:2059
- check_noncircular+0x146/0x160 kernel/locking/lockdep.c:2191
- check_prev_add+0xeb/0xe60 kernel/locking/lockdep.c:3181
- check_prevs_add kernel/locking/lockdep.c:3300 [inline]
- validate_chain kernel/locking/lockdep.c:3924 [inline]
- __lock_acquire+0x1492/0x1ec0 kernel/locking/lockdep.c:5254
- lock_acquire kernel/locking/lockdep.c:5908 [inline]
- lock_acquire+0x1d1/0x380 kernel/locking/lockdep.c:5865
- kernfs_drain+0x4f0/0x600 fs/kernfs/dir.c:532
- __kernfs_remove+0x34c/0xb80 fs/kernfs/dir.c:1579
- kernfs_remove_by_name_ns+0x7c/0x120 fs/kernfs/dir.c:1797
- kernfs_remove_by_name include/linux/kernfs.h:644 [inline]
- remove_files+0x96/0x1c0 fs/sysfs/group.c:28
- sysfs_remove_group+0x8b/0x1b0 fs/sysfs/group.c:328
- sysfs_remove_groups fs/sysfs/group.c:352 [inline]
- sysfs_remove_groups+0x60/0xb0 fs/sysfs/group.c:344
- device_remove_groups drivers/base/core.c:2918 [inline]
- device_remove_attrs+0x192/0x290 drivers/base/core.c:3048
- device_del+0x36e/0x9b0 drivers/base/core.c:3964
- serio_destroy_port+0x476/0x590 drivers/input/serio/serio.c:543
- serio_unregister_port+0x2b/0x40 drivers/input/serio/serio.c:680
- userio_char_release+0x91/0xe0 drivers/input/serio/userio.c:105
- __fput+0x3ff/0xb50 fs/file_table.c:512
- task_work_run+0x150/0x240 kernel/task_work.c:233
- resume_user_mode_work include/linux/resume_user_mode.h:50 [inline]
- __exit_to_user_mode_loop kernel/entry/common.c:70 [inline]
- exit_to_user_mode_loop+0x1d8/0x700 kernel/entry/common.c:101
- __exit_to_user_mode_prepare include/linux/irq-entry-common.h:207 [inline]
- syscall_exit_to_user_mode_prepare include/linux/irq-entry-common.h:230 [inline]
- syscall_exit_to_user_mode include/linux/entry-common.h:336 [inline]
- __do_fast_syscall_32+0x59f/0x8b0 arch/x86/entry/syscall_32.c:294
- do_fast_syscall_32+0x32/0x70 arch/x86/entry/syscall_32.c:316
- entry_SYSENTER_compat_after_hwframe+0x84/0x8e
-RIP: 0023:0xf6ffefec
-Code: Unable to access opcode bytes at 0xf6ffefc2.
-RSP: 002b:00000000ffbd8fbc EFLAGS: 00000202 ORIG_RAX: 00000000000001b4
-RAX: 0000000000000000 RBX: 0000000000000003 RCX: 000000000000001e
-RDX: 0000000000000000 RSI: 0000000000000000 RDI: 0000000000000000
-RBP: 0000000000000000 R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000000
-R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
- </TASK>
-
-
----
-If you want syzbot to run the reproducer, reply with:
-#syz test: git://repo/address.git branch-or-commit-hash
-If you attach or paste a git patch, syzbot will apply it before testing.
+With Best Regards,
+Maurizio Casciano

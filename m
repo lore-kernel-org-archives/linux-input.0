@@ -1,186 +1,178 @@
-Received: from mail-wr1-f45.google.com (mail-wr1-f45.google.com [209.85.221.45])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3C4AF41BA93
-	for <linux-input@vger.kernel.org>; Sat, 29 Aug 2026 22:57:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AF9823AA4E9
+	for <linux-input@vger.kernel.org>; Sat, 29 Aug 2026 23:07:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788044231; cv=none; b=MtXq06CbfdH1iJNK4pwTwnJYj/HiMpgxWodc2Z43DTp/EbUlJ5iLRPK7crbt+RnACAoE4N+r7FLtB10EXvDrdDsz5FI6tl4vHbjZ/3qiK3Cc3UxZrAfmOFVibzmcVA0svlgebaZiHkeIhpSxTSzrfdN9+hx7FHDx9Ra7j25lEEw=
+	t=1788044861; cv=none; b=aglQe8/8FgoU8FZdnUwgSFRitQNNweFaT7G1gByiMem3uDQDWGjtvJKMfBvP+KmT7Q1eUt4YWH8ndVof+dtZ1ynhom05B6torGctm1Nr3ozbOJ0lpMm+13sRZOOd/Neg3+30ez3VfCRM04sboAksa4XYbuIDtsFsZfu+3IsudWk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788044231; c=relaxed/simple;
-	bh=j5Ta560yYb7QSFZ/12qvEh2mtRhm7yqiutoob5yNEFc=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=VZCkNifGULqDFbP8U1aIkiWM5z3veoh1GRoq/6ojr2fBwHjEqP3MZiG6vvBB5Y9QYVBKxzr36hJ8dXmOl5I1g/kBbtE9jffj+UcYSDF0h3D9qm3gcqH8iEG1kVSPOSvSRAqE3xRoIJuJKyvpF4330dSu6Rkc1nItLR177L8OA9U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=n1RMNuc/; arc=none smtp.client-ip=209.85.221.45
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1788044861; c=relaxed/simple;
+	bh=2A251/4ZE/2rlu1GdzMAKuec6NTT7JXqjJWKg0OKJ6g=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=rcyfy/XgB6VCThPEYdJUAA3BqCRThyUvhOApYr885xNI1eMNE+9+zProATKaxc6WWFfBGPaQemCuPf5m4E8nm1jfwK446HTfaeK2iDE75h6GeyQeR2yFbh81nNmN7KBuXx4b6mH8YLEBvR8uLL8MGMK3Dl+AdHK/qYFrUAgtsZI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=bAV9Q5mz; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="n1RMNuc/"
-Received: by mail-wr1-f45.google.com with SMTP id ffacd0b85a97d-482e4998d28so1570782f8f.2
-        for <linux-input@vger.kernel.org>; Sat, 29 Aug 2026 15:57:10 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1788044228; x=1788649028; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=16NZ1aE/Ccu1Qtv2yeNvMdFzRgZruQ1N1HEdny4sv7M=;
-        b=n1RMNuc/takH4GFqo/x2RkiMH1r9GzFnfnOktE/y9+bEXBfcg3VJG26RVxKrJKqMDa
-         v1RxCHQ5uPzYLdgeEB+FR+6sAImu+BcNGBcm1Am9RIr+RF0QyLDY9ruG3TZ2yp7TsoCE
-         /q9L8qvBcxHePCD63dMQZaSVjyEK4Yt5XcmqN4Hsxo2p0VFdwggQayrjuNMOdiCGSR5j
-         8+maQQpGn83dEh0+y8Pvtb5MjKB/T7RqtpopA04zrIemqx5Uwqo68nJU8kY2ZILi4oOv
-         SzOFinnuE5pOXkzExMlKv+LBlM7pOyUQErxV35bx80Y+A7syLqAE/31cb7ENB2oZH1ho
-         9p/Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788044228; x=1788649028;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=16NZ1aE/Ccu1Qtv2yeNvMdFzRgZruQ1N1HEdny4sv7M=;
-        b=RWnWd6eXqKA4Q+Tl/51ZMkB4y5wnFuJxsjlvr3dHnUZN9c/8axyNB8oQVNcmZoK43H
-         BZNUO87OY6LeDV8eWWfZvLrfKdsU8xaKEs2SEQrU53bowGbKMsOLaSe1StRFMfQo8Ohh
-         fIbUATFDEZvo3hA1VjK/TvRYsqfIAo1g1DgotFRaNzYciPOCVFjxtV5D0zZtGZVn+fJZ
-         6tjRbhuxU1ojZ3lzlyKBNVFhVivrcQtd8NQzOr6SsYmpfMgaDnuph/1zhXfJEsbhBUFR
-         BIBvH3ARtjDYtoxyJeGjVlsOs4GurPtRdohWCeeMFrgu6t6iLImP10QUsVZ+6sb6ifcJ
-         tZBg==
-X-Gm-Message-State: AFuF++kYTZza7BydWfrEAAy+S5g8NipvLnFe/0isZEuxtXfh2CzqaCYU
-	z3TCGQcAdc0tu+g09bSmDTWn63VlSdi4n6EtLTXNozZiYogYsg4oLA5V
-X-Gm-Gg: AYBFou2EMrviGSXj0+23b6958QdvGg4Z/n4o7mDoKm+0Gcb2l8MSeLtsBV1e8M/V2VO
-	sO9Nm69h2bWZC0u3sMI2x/CUNOpkHFMxukwGQhm1h22qfRo+NsXBG8q82Sd0eYfVsXhj9W6RrXp
-	lPCxzhW37haNY10zdznrGBTiwbpW7BO8plIhYZy4Du3JkqVYYJ1dQJkAlMhzmtKRw5BFslLNXZH
-	p4tstJiiUpLx1dCnV/mMTX6tMK4sSSaQv2mg+X+FNk/YVoo6TsMQOn+Blcm7F10aApzHldVkE0a
-	jYFZhkkr7l4x0EnUTinu0kEEke7EAI2H9AXklK0dlKaeOLBuCYZAeUA9hq0gmddvj0VFNymIIDk
-	Fn4vF7kWpsxpVSv8Dov2BFzUnybMQrbZSRTGWn7HPXZ9Q0GBkVsv+L2LkTzP441uv27Et4qChnB
-	WVw79/BK9qdJwCwjmvFxC9iPn47KZQVKpInXXf7/T6PnT9z9ON/8cRhiRTfiStuWa7dcyy7LFVi
-	I+kBD7JEvsVpTvcJEaX3bGNXQJhkVorWk3XmhUhnyv+
-X-Received: by 2002:a5d:5c8a:0:b0:481:4697:8808 with SMTP id ffacd0b85a97d-482f7a06e5cmr23399013f8f.22.1788044228356;
-        Sat, 29 Aug 2026 15:57:08 -0700 (PDT)
-Received: from 1Z10 ([37.161.113.184])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-482fbb2e6e8sm13796244f8f.32.2026.08.29.15.57.06
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 29 Aug 2026 15:57:07 -0700 (PDT)
-From: Maurizio Casciano <mauriziocasciano7@gmail.com>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Maurizio Casciano <mauriziocasciano7@gmail.com>
-Subject: [PATCH v3] Input: drv260x: Fix suspend and resume sequencing
-Date: Sun, 30 Aug 2026 00:57:04 +0200
-Message-ID: <20260829225704.394707-1-mauriziocasciano7@gmail.com>
-X-Mailer: git-send-email 2.53.0
-In-Reply-To: <apLD91vzHIrLOPWC@google.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="bAV9Q5mz"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 126461F000E9;
+	Sat, 29 Aug 2026 23:07:40 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1788044860;
+	bh=EVIRyDY4eDb6ozrqVGKzEEWpXAuG1qJlI4AXm7FD1Zo=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=bAV9Q5mzgxvoBBkkQTDX7dE6D/k7WxRT4ovl2j07e0+IfroUgqn0X4WYPFwq++YmE
+	 YmxEY46l9sTBLh2BP2rVp/fKJQSeqUgcc/gaUr5IkocViUGZsR9mi9RS2fK/dbj4HM
+	 YZcpzvXLpu360xix2k5L3GTykb6xYZ1fLVskkAR5H1BidRS0o45LYtY7RShKdrY2Ec
+	 BKWZHDFUjH2mJUWaBQtRa/Q+3jIi6fRWT4Z7bHDvVOWjp0qaufGnlXRw83pBGyS34E
+	 jAAQRVjQBL6j46UkdVW7nWyFJB6Wmz3BDv/8JqgJJKOePU5mxqniKhwA+Cqrnm8oN/
+	 pKxOpELyOov5A==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v3] Input: drv260x: Fix suspend and resume sequencing
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Maurizio Casciano" <mauriziocasciano7@gmail.com>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <20260829225704.394707-1-mauriziocasciano7@gmail.com>
 References: <apLD91vzHIrLOPWC@google.com>
+ <20260829225704.394707-1-mauriziocasciano7@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Sat, 29 Aug 2026 23:07:39 +0000
+Message-Id: <20260829230740.126461F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-Force-feedback playback is queued asynchronously, but system suspend
-can cut power while the worker is pending. Disable and drain the work
-item before entering standby, and keep it disabled until resume has
-restored communication.
+Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+s) to consider:
 
-The enable GPIO gates I2C access without resetting the device. Raise it
-and observe the startup delay before leaving standby after resume or a
-failed regulator shutdown. Use goto-based error unwinding to balance the
-work state.
+New issues:
+- [High] The workqueue disable count becomes unbalanced if drv260x_resume()=
+ fails, permanently disabling haptic playback on subsequent successful resu=
+mes.
+- [Medium] Mixing goto-based error handling with scope-based guard() cleanu=
+p in the same function.
 
-Suggested-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Pre-existing issues:
+- [High] The device loses its register configuration during system suspend =
+because the regulator is disabled, but resume fails to reinitialize the reg=
+isters.
+--
+
+commit 38e8103cb03d4a564c39fb41cb33305800090398
+Author: Maurizio Casciano <mauriziocasciano7@gmail.com>
+
+Input: drv260x: Fix suspend and resume sequencing
+
+This commit updates the suspend and resume routines to correctly drain and
+disable the haptics worker before entering standby. It also adds goto-based
+error unwinding and uses the enable GPIO to gate I2C access while enforcing
+a startup delay.
+
 Link: https://lore.kernel.org/linux-input/apLD91vzHIrLOPWC@google.com/
-Assisted-by: Codex:gpt-5.6-sol [sparse]
-Signed-off-by: Maurizio Casciano <mauriziocasciano7@gmail.com>
----
- drivers/input/misc/drv260x.c | 38 ++++++++++++++++++++++++++----------
- 1 file changed, 28 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/input/misc/drv260x.c b/drivers/input/misc/drv260x.c
-index 6c5c4c53753b..d8208b3f7645 100644
---- a/drivers/input/misc/drv260x.c
-+++ b/drivers/input/misc/drv260x.c
-@@ -569,18 +569,20 @@ static int drv260x_probe(struct i2c_client *client)
- static int drv260x_suspend(struct device *dev)
- {
- 	struct drv260x_data *haptics = dev_get_drvdata(dev);
--	int error;
-+	int error, restore_error;
- 
- 	guard(mutex)(&haptics->input_dev->mutex);
- 
- 	if (input_device_enabled(haptics->input_dev)) {
-+		disable_work_sync(&haptics->work);
-+
- 		error = regmap_update_bits(haptics->regmap,
- 					   DRV260X_MODE,
- 					   DRV260X_STANDBY_MASK,
- 					   DRV260X_STANDBY);
- 		if (error) {
- 			dev_err(dev, "Failed to set standby mode\n");
--			return error;
-+			goto err_enable_work;
- 		}
- 
- 		gpiod_set_value(haptics->enable_gpio, 0);
-@@ -588,14 +590,23 @@ static int drv260x_suspend(struct device *dev)
- 		error = regulator_disable(haptics->regulator);
- 		if (error) {
- 			dev_err(dev, "Failed to disable regulator\n");
--			regmap_update_bits(haptics->regmap,
--					   DRV260X_MODE,
--					   DRV260X_STANDBY_MASK, 0);
--			return error;
-+			goto err_leave_standby;
- 		}
- 	}
- 
- 	return 0;
-+
-+err_leave_standby:
-+	gpiod_set_value(haptics->enable_gpio, 1);
-+	fsleep(250);
-+	restore_error = regmap_update_bits(haptics->regmap,
-+					   DRV260X_MODE,
-+					   DRV260X_STANDBY_MASK, 0);
-+	if (restore_error)
-+		dev_err(dev, "Failed to leave standby mode: %d\n", restore_error);
-+err_enable_work:
-+	enable_work(&haptics->work);
-+	return error;
- }
- 
- static int drv260x_resume(struct device *dev)
-@@ -612,19 +623,26 @@ static int drv260x_resume(struct device *dev)
- 			return error;
- 		}
- 
-+		gpiod_set_value(haptics->enable_gpio, 1);
-+		fsleep(250);
-+
- 		error = regmap_update_bits(haptics->regmap,
- 					   DRV260X_MODE,
- 					   DRV260X_STANDBY_MASK, 0);
- 		if (error) {
--			dev_err(dev, "Failed to unset standby mode\n");
--			regulator_disable(haptics->regulator);
--			return error;
-+			dev_err(dev, "Failed to leave standby mode: %d\n", error);
-+			goto err_disable_regulator;
- 		}
- 
--		gpiod_set_value(haptics->enable_gpio, 1);
-+		enable_work(&haptics->work);
- 	}
- 
- 	return 0;
-+
-+err_disable_regulator:
-+	gpiod_set_value(haptics->enable_gpio, 0);
-+	regulator_disable(haptics->regulator);
-+	return error;
- }
- 
- static DEFINE_SIMPLE_DEV_PM_OPS(drv260x_pm_ops, drv260x_suspend, drv260x_resume);
--- 
-2.53.0
+> diff --git a/drivers/input/misc/drv260x.c b/drivers/input/misc/drv260x.c
+> --- a/drivers/input/misc/drv260x.c
+> +++ b/drivers/input/misc/drv260x.c
+> @@ -569,18 +569,20 @@ static int drv260x_probe(struct i2c_client *client)
+>  static int drv260x_suspend(struct device *dev)
+>  {
+>  	struct drv260x_data *haptics =3D dev_get_drvdata(dev);
+> -	int error;
+> +	int error, restore_error;
+> =20
+>  	guard(mutex)(&haptics->input_dev->mutex);
 
+[ ... ]
+
+>  		if (error) {
+>  			dev_err(dev, "Failed to set standby mode\n");
+> -			return error;
+> +			goto err_enable_work;
+>  		}
+
+[Severity: Medium]
+Does this mix goto-based error handling with scope-based guard() cleanup in
+the same function?
+
+The kernel cleanup subsystem guidelines explicitly forbid mixing goto and
+guard() because it creates confusing ownership semantics. While the lock is
+correctly released at the function return in this specific code structure,
+the pattern itself is prohibited by subsystem rules.
+
+[ ... ]
+
+>  		error =3D regulator_disable(haptics->regulator);
+
+[Severity: High]
+This is a pre-existing issue, but I noticed the regulator is disabled during
+suspend, which completely cuts power to the chip and resets its internal
+register state.
+
+When the regulator is re-enabled during drv260x_resume(), the driver only
+clears the standby bit and fails to reprogram the operational registers like
+rated voltage and overdrive. Because the driver uses REGCACHE_NONE and does
+not automatically restore register state, does this leave the hardware
+unconfigured and functionally broken after a suspend and resume cycle?
+
+[ ... ]
+
+>  static int drv260x_resume(struct device *dev)
+>  {
+>  	struct drv260x_data *haptics =3D dev_get_drvdata(dev);
+>  	int error;
+> =20
+>  	guard(mutex)(&haptics->input_dev->mutex);
+> =20
+>  	if (input_device_enabled(haptics->input_dev)) {
+>  		error =3D regulator_enable(haptics->regulator);
+>  		if (error) {
+>  			dev_err(dev, "Failed to enable regulator\n");
+>  			return error;
+>  		}
+
+[Severity: High]
+If regulator_enable() fails here, we return directly without calling
+enable_work(&haptics->work).
+
+Since disable_work_sync() was called in drv260x_suspend(), doesn't this lea=
+ve
+the workqueue's disable count unbalanced? The PM core treats resume errors =
+as
+non-fatal to the system, so a subsequent suspend will increment the disable
+count again to 2. A future successful resume will only decrement it to 1,
+leaving the haptics playback permanently disabled.
+
+[ ... ]
+
+>  		error =3D regmap_update_bits(haptics->regmap,
+>  					   DRV260X_MODE,
+>  					   DRV260X_STANDBY_MASK, 0);
+>  		if (error) {
+> -			dev_err(dev, "Failed to unset standby mode\n");
+> -			regulator_disable(haptics->regulator);
+> -			return error;
+> +			dev_err(dev, "Failed to leave standby mode: %d\n", error);
+> +			goto err_disable_regulator;
+>  		}
+
+[Severity: High]
+Similarly, if we take the err_disable_regulator goto path when leaving
+standby fails, enable_work() is skipped.
+
+Does this also permanently leak the workqueue disable count?
+
+[Severity: Medium]
+Also, just like in drv260x_suspend(), drv260x_resume() introduces a new
+goto path while using guard(mutex) at the start of the function.
+
+Could we refactor this to avoid mixing goto labels and scope-based cleanup?
+
+> -		gpiod_set_value(haptics->enable_gpio, 1);
+> +		enable_work(&haptics->work);
+>  	}
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260829225704.3947=
+07-1-mauriziocasciano7@gmail.com?part=3D1

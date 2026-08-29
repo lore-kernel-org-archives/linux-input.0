@@ -1,126 +1,138 @@
-Received: from mail-pl1-f174.google.com (mail-pl1-f174.google.com [209.85.214.174])
+Received: from mail-pg1-f172.google.com (mail-pg1-f172.google.com [209.85.215.172])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1840F37D123
-	for <linux-input@vger.kernel.org>; Sat, 29 Aug 2026 07:34:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.174
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C69E61EB19B
+	for <linux-input@vger.kernel.org>; Sat, 29 Aug 2026 10:33:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787988880; cv=none; b=s4fkC4marglir3iEvpaA7L+6QAGkvnvcHCrakAcCqPV4Y+0RTp02jz8mhjg0FluyNa3j2y3gNJVdweIjCjgmWoXKxHwbik/4V1OMqxsZRpVuOt1y+EDr7DOrOfu4jcqhq+Uq4Ayg7AvG94+lxv92ZOS6kRtrmXHN6Yu/iiSzwWM=
+	t=1787999607; cv=none; b=qyGobSYgdql/0sMf+jwkYRzfGtmxC3ASrZc5T22CQRRiVRbHS5iGjtxcw0cuJUAAnd7XO0TpnhHsRnzAQWwvTYheGn9ezHkISvaCS1mLOvGbqC39R54LU7I8GXCjZgRvuv+oyctWHXlLkfrIpzmb4QQlq/k2UxZ2Nk2xK9ZvdJo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787988880; c=relaxed/simple;
-	bh=Q9A4HLLOLJ4VZXp2cZoje9vbqTGlzIJq57FlolcxsN4=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=EY78Y3BRve2mNwBbBh+iQR3mygfqQ8sEsnHZbaRhHINg0J5KsUEpcdqRkQ95bp0PLb8o/s5fTA97PDGLB6ZWdDk295WUn+Zv2JYkSjHaYYuywi3hKyBQgn4RYo+Osytk4kp3tGQ4dWl6tDBc169oc7J0wU9+Km6/2N/887Eew3U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=NdSe0/bJ; arc=none smtp.client-ip=209.85.214.174
+	s=arc-20240116; t=1787999607; c=relaxed/simple;
+	bh=rEsFU4Rhp0vY5xwnpOA5fzc7vDZCbVS7WUbVx5Pl3eU=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Ic/babzZWnl3fhmYrIZnGaBKv59FIVUz8CiVIWNVFciKuz16uAcrQ1If34gyq5tHYDXs8hlABBuWfLq+HKYgmQsKHIiR1T6WCOsN03q+25JR2M6ZhEGhJrL+QN0f3yAZ5cA8gnysqUVxImSbN3NIvKwmP+H4j0FbiE3XvyQUnrQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=eiuha5RO; arc=none smtp.client-ip=209.85.215.172
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="NdSe0/bJ"
-Received: by mail-pl1-f174.google.com with SMTP id d9443c01a7336-2ce7d2adef4so27388275ad.3
-        for <linux-input@vger.kernel.org>; Sat, 29 Aug 2026 00:34:38 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="eiuha5RO"
+Received: by mail-pg1-f172.google.com with SMTP id 41be03b00d2f7-cc1cb472b76so1494890a12.0
+        for <linux-input@vger.kernel.org>; Sat, 29 Aug 2026 03:33:25 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1787988878; x=1788593678; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=4s3+xh6Th5r06sJ9n1pY67GE12kX/ek/r1hd+DmHod0=;
-        b=NdSe0/bJ/l6qQxnYTCnoHNeijgFnGd0WhYquBENMPWDZ+lH6EN20MIZOPwHsaGj6H/
-         nTRXGYKsh2Q4nAZaJHQOO6HSSe6tq3EJU/l+I1JXMoRjfd3g6hySrpVQjuRdlPA/uQgd
-         oQh+tCGnQ6KJYOW8kcmOYDt53BaD8OoUZvkPWMG5J4yMwt8QGe4zvz7xx/2Uqabqqb6A
-         vwPDmWXWSW4NqbLa1EJENuw7H4/LJTM8wA8ZGU5eIGr3+G41xvREVbHb0Yqqt8VE4fQo
-         6Kb6XFrTplAjFWKAyAlAjPiRgvzbkxfFQAajeVW59PH2xn66W2QsS/YYf7ixqTd2VvL8
-         e8lw==
+        d=gmail.com; s=20251104; t=1787999605; x=1788604405; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=cVHjzO5N9iwp5UaMNJvBuljJ4pYLi7BFATm0HZhB/jk=;
+        b=eiuha5ROzuPj4lyEFD1MmwMisbYkMiNWQDLy5oUN0Br1G8jTUTnnWZXlrcCg7y0sAs
+         SI7W0GvCryoY3ZREcmfehtX8ZOiR59hShmgngKoBpBnAvHwu4q6LOTEThj8eh2NrDyE0
+         SWL+sPLzXqn03w57rsu5VMvH+HRbasQVnPnjUGbWE1HemEYEUmgmrRXZ+yFicrA5YJGF
+         jL+CBMQw1VdYTqxpfa8q1xheJ1lhgoyClcT6pqEYdFOKy74Ou5+r+mBh4lFqNdR1eA5S
+         poCMSBu4R0PPd/IaUzdQBvNvqlvwHPck6aJKnLM1MGznqQyWWgtmyxNdHXfAuCMWJDDy
+         h+DQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787988878; x=1788593678;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=4s3+xh6Th5r06sJ9n1pY67GE12kX/ek/r1hd+DmHod0=;
-        b=BL/4YPkMRFMHuCGQSqPvmSodqK2DbJBVXtO5fOr2G7jiTxlTYo5bmbQxGBouP1Lwei
-         J6GWzdocYdhtxx3dUjRY6OTXVe478fDPjxq/KHQCxkMsW2wOsD1XJmyoMuIDMqrsQWgD
-         DbiMPFYnPnFbdm64IYXCuRTXfYdwQSDl5Ar+pOWYcbeU6Le88yezdXw+Z9mQs5v66kzg
-         KqWgFzyBOJHoAJpiqz4P8lSWRQAlUz4XA+Fb3iO+mHH/YG+Q4Fh0kTCJ/OxGHc9J7+xY
-         cBBDaJWWNUhPrBk9v08kk2w6ttgURMJrxT19L0aM/3gHf37MAOqR5n0nkmrs4rblv3pn
-         ZczQ==
-X-Forwarded-Encrypted: i=1; AKwUvBzMGsLds0t6/2VBf1MYhWIB0fz/S1jRqWyqhAtKDhY623Ni5rkQlSvNswS/m52ynO83H+XdP/wDcQXCzw==@vger.kernel.org
-X-Gm-Message-State: AFuF++mALK1mRItN+7ooo36Yp1cZzl4QfXilzqWP0wRpebDNdmJnO2Ki
-	hZuPVTg/P+ljAZymuHLbN+5Te5WFlG/wjGDFnxotE2yGma3UrpbL+OH/
-X-Gm-Gg: AR+sD13e17YtNlkWEL4d4JkIVbxCkXir/7AqrXFahrnO0P6Cwvsj+bWV8j4/LH5Fgxu
-	go0C/UOSIY77R4cCkJoU22LcKq+UIZ521tEJ5dIzmQzKO3N5Fm3y/2zBeH+6/ukxsY7+NXwi47x
-	veJmIfTU+75bJDC68nmXYztHN5mqBRaNS7WtNskxybEu/X9eMzOA9Jf20hQCH10EPpIAWm1uoHS
-	zA3x6V7aU0X66MydkVKBenfXFvm9rJLT00qQ9pl5HaMGTJ4cUenZNwyyiah6inWqSIGVovXrjBs
-	38yPEhN8tksz6zXS/yjh8UnxS15N0AQXtQZf4ozV+HGf7J4fE8Hyibvx5iz5AJU7BW8TYI25kP6
-	fkozaXi4XZZ5EjpiUmG8ou+QDSImlyORZtWCyhy2u0HOMryGM2wpjDhDx46CxzBYgrfsCwLeieQ
-	F1k2bJFLF/ai9KsG7ZmWDTqahKCK0T10vauRKSnoSi15DeWc/0j5EaUYVnb+sc8RsHRuJ62+Aa+
-	dcP5LUnY04cqrGVK1AzjTWxHDhX6hd/dDJrJWQV55Y0o6c3YS9FNGrtV/4m+CqLLdB9CsvVlIvT
-	hB2SEIAFMVNwq1zBeHa0nOZggA==
-X-Received: by 2002:a17:902:f54e:b0:2ca:61bc:317c with SMTP id d9443c01a7336-2d74def63d7mr207522675ad.13.1787988878335;
-        Sat, 29 Aug 2026 00:34:38 -0700 (PDT)
-Received: from LAPTOP-UUUVNN1I.localdomain (bb119-74-6-224.singnet.com.sg. [119.74.6.224])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-328713b944bsm12510169eec.27.2026.08.29.00.34.36
+        d=1e100.net; s=20251104; t=1787999605; x=1788604405;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=cVHjzO5N9iwp5UaMNJvBuljJ4pYLi7BFATm0HZhB/jk=;
+        b=d4n1Zcdc0MaQ6BJzFSukP0y97n5g82uKSZYUFsBtyaMmZQapzzpCCeewTBD5c99Ztm
+         7IcpkQLrBU2MFapr6/TjLr4wcXmZZ0Y2R3ucjSvoJaxRLUouEhQ05k+b30HK6kk0VTbG
+         DR94b0kvM1dZ9i3DMqODWDix+ZaksHca55QATLul42nRxx8TdBzqT+iZvTpdvkEtcal4
+         UVGNCXTP98lX63EUrwhkPLdSl14LmlvsE7c5UFxdZhQeJV2fJEtHLm4UEKIuTd0OOnWO
+         U8NlPaBCRAia0a7Ff50EG0JZgb1BQGgCmvJYLPXQjJyqy5gMwOqe/3cnLRzVxwRp1feq
+         FPqg==
+X-Gm-Message-State: AFuF++kHmSbkW9fKkKvMrkdcTCBgvBU18PoGDQXcM94OJFl3Lcu1c6Yr
+	qUA/uQvbC48+JmeEO0ev54mGuGoUjew1g3x6sDgudqHUbSeHaJl6hFvD
+X-Gm-Gg: AR+sD13VvLqsOVfhXtvdMgV/aOSFvYEg8Pws3Rib3RiVSyNHoefNGvaN7bFo+ho7HUn
+	eDNC2kPWIpztTMLyor1lF6f+WjwdLXBEkESb9emlec1x9OT7OgAIB1uy8LPFiSJcDrh42NFrRLd
+	TRMj5bCU5P0PuHNncf6AlB3r8Fydpz9Jm3cbBHPN2jUtcKediUHBgbQCb7sEtXXcXlufJXqJfwy
+	BSpr1jdArvF3X2wLG1aBWAaVofrSlJ650laFqwSPzMHGCpEOnSXELipLbAfYkq3lvSAcP8NpjwT
+	vmM7i0GMxVqMeWGgsc7HgHQzmGJxKFGnioTVxr7B5fkc2YIe4SXRv3PuRYwCBjvoBl8jYzVAgA4
+	F63P+dM4dEysyRjoZUQFfwqm5eGqy7OpV8ZcqlITizGvqq8m5809r9vn+vKNLO+d7ltnVGE8Yy9
+	JL+7O1gJRm79kgPuRPfSBZo1RSiLZJoJyeam+D25oHRqkkDs6mPcaPqIp7JeK7T0Jh3w+t3ZDIc
+	AdaOdJwULNpj8pswTyZxfyQrvKYFA==
+X-Received: by 2002:a05:6a21:38e:b0:3ce:d411:8120 with SMTP id adf61e73a8af0-3d2681a9f7bmr24611034637.15.1787999605178;
+        Sat, 29 Aug 2026 03:33:25 -0700 (PDT)
+Received: from google.com ([2a00:79e0:2ebe:8:54de:b26f:8c97:cc89])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3286f9e3cf8sm15322640eec.24.2026.08.29.03.33.24
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 29 Aug 2026 00:34:37 -0700 (PDT)
-From: Wei Jie LAW <98lawweijie@gmail.com>
-To: 98lawweijie@gmail.com,
-	Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>
-Cc: aduggan@synaptics.com,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	stable@vger.kernel.org
-Subject: Re: [PATCH v5] HID: rmi: fix OOB access with undersized RMI reports
-Date: Sat, 29 Aug 2026 15:34:26 +0800
-Message-ID: <20260829073426.16390-1-98lawweijie@gmail.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20260825103117.12180-1-98lawweijie@gmail.com>
-References: <20260825103117.12180-1-98lawweijie@gmail.com>
+        Sat, 29 Aug 2026 03:33:24 -0700 (PDT)
+Date: Sat, 29 Aug 2026 03:33:21 -0700
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Jeffin Philip <jeffinphilip14@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	syzbot+1e2ef9bcb29af666b2e6@syzkaller.appspotmail.com
+Subject: Re: [PATCH v3] Input: atkbd - fix uaf in atkbd_set_repeat_rate
+Message-ID: <apK03L7Li2TkOMOu@google.com>
+References: <20260828162211.149899-1-jeffinphilip14@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260828162211.149899-1-jeffinphilip14@gmail.com>
 
-Impact information for this patch, in case it is useful for prioritising
-it. No change to the patch is required.
+Hi Jeffin,
 
-I have a working local privilege escalation on this bug. An
-attacker-controlled USB device plus an unprivileged process on the target
-gives root. Both halves are needed -- it is not remote, and not
-device-only.
+On Fri, Aug 28, 2026 at 09:52:11PM +0530, Jeffin Philip wrote:
+> atkbd_disable() marks atkbd as disabled to prevent any work
+> event to be executed, however this can race with atkbd_event_work().
+> If a pending work passes the atkbd->enabled check and atkbd_disable()
+> runs after in disconnect, it could dereference dev which is freed in
+> disconnect following atkbd being marked disabled. Fix this by adding
+> disable_delayed_work_sync() which drops all work events preventing
+> any rescheduling after atkbd is marked disabled.
+> 
+> Reported-by: syzbot+1e2ef9bcb29af666b2e6@syzkaller.appspotmail.com
+> Closes: https://syzkaller.appspot.com/bug?extid=1e2ef9bcb29af666b2e6
+> Fixes: 0ef7a26af127 ("Input: atkbd - fix canceling event_work in disconnect")
+> Signed-off-by: Jeffin Philip <jeffinphilip14@gmail.com>
+> ---
+> Changelog:
+>  - Changes in v3:
+>      Rewrote the patch to include disable_delayed_work_sync() as per
+>    Dmitry's suggestion.
+>  
+>  - Changes in v2:
+>      Added a check for atkbd->enabled so userspace cannot queue events after
+>    atkbd_disable.
+> ---
+>  drivers/input/keyboard/atkbd.c | 11 ++++-------
+>  1 file changed, 4 insertions(+), 7 deletions(-)
+> 
+> diff --git a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/atkbd.c
+> index 5736f4bc5a50..a92a04c005aa 100644
+> --- a/drivers/input/keyboard/atkbd.c
+> +++ b/drivers/input/keyboard/atkbd.c
+> @@ -963,15 +963,12 @@ static void atkbd_disconnect(struct serio *serio)
+>  
+>  	atkbd_disable(atkbd);
+>  
+> -	input_unregister_device(atkbd->dev);
+> -
+>  	/*
+> -	 * Make sure we don't have a command in flight.
+> -	 * Note that since atkbd->enabled is false event work will keep
+> -	 * rescheduling itself until it gets canceled and will not try
+> -	 * accessing freed input device or serio port.
+> +	 * Prevent work from being rescheduled after atkbd is marked disabled
+>  	 */
+> -	cancel_delayed_work_sync(&atkbd->event_work);
+> +	disable_delayed_work_sync(&atkbd->event_work);
+> +
+> +	input_unregister_device(atkbd->dev);
 
-The disclosure half needs is via USB-only. The initial commit 
-already explains the vulnerable path.
+There is no need to move the call to input_unregister_device(). When
+atkbd->disabled is true the work handler will not attempt to access
+input device or serio structures. The only change that is needed is
+replacing cancel_delayed_work_sync with disable_delayed_work_sync.
 
-Reproduced to a root shell on three kernels. All with KASLR, 
-SLAB_FREELIST_RANDOM, SLAB_FREELIST_HARDENED, 
-INIT_ON_ALLOC_DEFAULT_ON and HARDENED_USERCOPY
-on, and no debug options or debug allocator:
+Thanks.
 
-  6.12.69+                  own config     RKC=n    root
-  v6.12.105                 own config     RKC=n    root
-  v6.12.105                 Ubuntu config  RKC=n    root
-  Ubuntu 7.0.0-28-generic   stock          RKC=y    disclosure only
-
-RKC is CONFIG_RANDOM_KMALLOC_CACHES, =y on current Ubuntu, n upstream.
-The last two rows are a controlled pair: Ubuntu's own config, rebuilt on
-v6.12.105 with that one option off and nothing else changed. With it off
-the victim object is adjacent on the first plug and the chain completes;
-with it on the device saw no usable neighbour in eight plugs. So on
-Ubuntu that option is what stops the write. It does not stop the
-disclosure -- KASLR still falls there.
-
-Unsure if CONFIG_RANDOM_KMALLOC_CACHES=y will stop the write every
-time or only most of the time as per-boot seed is fixed, and I have
-only tested a single boot.
-
-The bug still exists in LTS 6.12.y, as well as mainline. The
-code dates to 9fb6bf02e3ad, so this reaches every supported tree.
-
-I have not published the PoC and will not before this is merged. 
-If it will be useful for review, do let me know and I will send it
-privately to any of you who requests.
-
-Thanks,
-Wei Jie Law
+-- 
+Dmitry

@@ -1,104 +1,152 @@
-Received: from mail-pl1-f175.google.com (mail-pl1-f175.google.com [209.85.214.175])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 73232395AE3
-	for <linux-input@vger.kernel.org>; Sat, 29 Aug 2026 12:21:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.175
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6099B4A32
+	for <linux-input@vger.kernel.org>; Sat, 29 Aug 2026 12:32:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788006093; cv=none; b=af2cWIKjWzmOcYCrV63a4IOBI9GlETpLJ7N9izwTUFGEky9+Ijwj2WE/e7BZdxTvtX9F+KpKv91QQjaICzgVnwUif3qd/Ajo783Uhxxnm6KufpFahfn/M58GXXvC0NMQLCVqHJ0EETRsg43zfRlIEyvq0Df125Qfha2wdmCGAj8=
+	t=1788006752; cv=none; b=YjXuOcqkT9Ajz+Yn2VCrzXvqgY7hPaqyboT5EwgTT0fdtDq4lgYj/c4497qE92NeJ3EN4q7Pu4xFbDcidD5F/WWe9uJsVdFEyIFr79+Ymalnftzs1nE4jD69YaoTp118ty1xKr3f2awMq8iy2Q/lAlH6dzw2UZGKXuvoYf8sLRU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788006093; c=relaxed/simple;
-	bh=VcyCGctu1g0xc0Z6WK6gwbU+4XuhAb+0zAuOkn6SwdY=;
-	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition; b=iPAGKAhbtz6GwZgnv3cMek8NQL8/k37y11DlN4+07JChnxy4t3CIEOMQ3qk/Qfgyabl2bbRmf3g6GMMcx1NmrdKLjOGDrSNTQDT4dU7V/eD99nZ8QkQ9BDxIswZPZ+0kvWk38iWgD2c7zkxiOyJEDLPVoSbLbI2Vvaiam5wde04=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=GPfMgSy8; arc=none smtp.client-ip=209.85.214.175
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1788006752; c=relaxed/simple;
+	bh=lwxS7CEO4FN3nZ7Ps1CrnWE9EAD9GthkpGpEiD4qb7w=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=ZQHgAD/1ZaISBy/Ft0HF1REdGuZaA2R8upY7Fa8FBCjZpgir5pXohPVrd6KdOI+czpJyTQr6d979Zp++KOiyKp46gRGibu6n6bP5WYyUj0TnlF7VpXUCIwOHSgloU0CexGTzPPJbQ2VsVyIa3+prlby8HhrUvJpHB9mbbiwHarY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=X4xiDDOl; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="GPfMgSy8"
-Received: by mail-pl1-f175.google.com with SMTP id d9443c01a7336-2d6f9e2f681so16852245ad.3
-        for <linux-input@vger.kernel.org>; Sat, 29 Aug 2026 05:21:32 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1788006092; x=1788610892; darn=vger.kernel.org;
-        h=content-disposition:content-type:mime-version:message-id:subject:cc
-         :to:from:date:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=FcrdV1chy8E5sLFVdinxAMnEwzUKSY0vgBRq1ljoevQ=;
-        b=GPfMgSy8wbGkO3PpBbkYF+/p1vCz1uT0RG6OG+eM3/z1vASphskdgTi50KhAPW1x+v
-         xB8KrKTCYqH+Uawne5i6bKf9z+Jev4y+w7sp/50LDrH8DRPRzpbe5ueJDQIgOs/4ROF/
-         592H4m2SMJTy+HG2wpCPLsmpgbweV2kIxrzZ1f8K+w1CDWhGU6DgjnrAy7eXOQ7suAQ1
-         nKtBvXG/HDTdiIxXSKdWechEVGUy13D26RcbfinejSn/m7m5DnsJZlLmgsjLoklvfmd4
-         7TB72Q8rw6fGKIWWJvFQnzbNcaCcwsQpcLtPKjX4HcmrZne/q27UFXIGINRTMIcb0xg0
-         C0xA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788006092; x=1788610892;
-        h=content-disposition:content-type:mime-version:message-id:subject:cc
-         :to:from:date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=FcrdV1chy8E5sLFVdinxAMnEwzUKSY0vgBRq1ljoevQ=;
-        b=YspDE2BV6npjFhU//DhYVhrRlgGLT8PSCCqLlpOvoPQT0cGfYiJdoJCbMkU3Ivx2gv
-         pDV6XBQcofg9tcxw5t/Yh4B57TRwyWkBI82JtDBByYiKT51jXyZYaNeveZXpVqe3M9ly
-         QhIS6YHmPj0IkZsbklAMjgAXTKVD2JP85vM2Bv8tvo2aZqIG2PUi1gqhCiYEREKHSkpz
-         GrOZ++nCk63BYoXdkIYg1h6y0LUdyY0oyMrC50OfZR1l9UgxTDx1nz5c73haLeXbngPK
-         cl8mLOnECzqX8FvzJAprt9myHqXYa/rshNAlGOWOZ709/VsHaSAibl6QUMcC9UhC7kfq
-         Ui0w==
-X-Gm-Message-State: AFuF++mPJCnkTFb7ERF2ED73tFAGhPo+jNaLd0kXQR9LhrdN6qFOGMRS
-	EM/xs2cPYCOmv/vXdIkAk3IoQyfwj4+OfnogiqM3XC4CUnGhYrXlaUyhpYs982FT
-X-Gm-Gg: AYBFou2TEZagdHLlmIlekiV65eF87Yy1qnIEr1ntrh5OGGizHXMAqkvemflk4Ok2+wC
-	L2OUaS1g8qbWW56+Sg9XJL8hNTp+BgcRnY9sjQkdEl5ume5OqiwwsFfNe6E82oe/S735SaGu1Oq
-	oTHVN8VZBPKcsU2eO7EsvtMZQcs9LBkaJ7UK0xjyn7HQJ0f/LzbS7KuX8Ey79vJeXLjqHaVh/N0
-	AOjbvMUcvOpwxif/jPX6DmNx19QkXIgkGd9+ubMXBzxfrDGMfMqTjJOfEWFdBAQkR5xpEYkHe3i
-	GG6ZXKT2SGch4VE3Is0BUJCkpXxQJegwd2i+RMS7rokThthohUd3KhdSGziTMw3Xa8zaqjemCSG
-	LJ1zzRpWomWbQXBomJOmqe8goU6EnUTcAQ000nPRtB54le7LVnEIfyiDXvpG1qYfZ2irztnT51m
-	6RaHr4pVNRodfZxmRDBXecfYsou7+GFFYXtRyN0l6Mw1mzMFOAKo3UEIVCZfpc/w+r1wyljZrGl
-	Ln7aSC2R9YtDzFZq7v3nNZ3Mi26Uw==
-X-Received: by 2002:a17:903:3884:b0:2d6:3c22:993a with SMTP id d9443c01a7336-2d74dbe96fdmr255095475ad.3.1788006091685;
-        Sat, 29 Aug 2026 05:21:31 -0700 (PDT)
-Received: from google.com ([2a00:79e0:2ebe:8:54de:b26f:8c97:cc89])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-32874498f9esm12041393eec.20.2026.08.29.05.21.30
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 29 Aug 2026 05:21:31 -0700 (PDT)
-Date: Sat, 29 Aug 2026 05:21:28 -0700
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: linux-input@vger.kernel.org
-Cc: Maurizio Casciano <mauriziocasciano7@gmail.com>, 
-	linux-kernel@vger.kernel.org
-Subject: [PATCH] Input: drv260x - switch to using fsleep()
-Message-ID: <apLOXaWFZ8ueIEAm@google.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="X4xiDDOl"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BE8231F000E9;
+	Sat, 29 Aug 2026 12:32:30 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1788006750;
+	bh=26KHlqPOyTEFLuSdCQG1od/MU+Z4fLhNsfZ04I55dzY=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=X4xiDDOlfcNBeuKUlN9UfflimMQFrTCPCMKyh6L3unjy/PCQY17Viuz9rbPdcvOMW
+	 w5lEYI9QnGWJ69XiPoVtyZWQmbJ5ak9zZj7wPAARfzf9lrpRTyvkpGfjHI6TJao1aT
+	 qgdaT5msZSMFPDHhfVWc3T6a7V7yhm0xCxMKCe7uIkTi88VG2Us0rv+gKKenBqpRLY
+	 DBl6aA4MfqeRM/gzIJa2TW1aSPRaTQ48Y8rCxiONUojYeC73Y06Z3TAmQlLNkTnpS/
+	 493QKFHy3OE1dyOO6uYnJFyUQYxyMbXHn+7dzg/mN8+xuXwVp6FnwAQBVwuSzdhmex
+	 35l3y14KjxWvA==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH] Input: drv260x - switch to using fsleep()
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <apLOXaWFZ8ueIEAm@google.com>
+References: <apLOXaWFZ8ueIEAm@google.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Sat, 29 Aug 2026 12:32:30 +0000
+Message-Id: <20260829123230.BE8231F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 
-Switch from udelay() to fsleep() in drv260x_worker() as it runs in a
-sleepable workqueue context where busy-waiting is unnecessary.
+Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+s) to consider:
 
-Assisted-by: LLM
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
----
- drivers/input/misc/drv260x.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Pre-existing issues:
+- [High] I2C communication failure in drv260x_resume due to incorrect GPIO =
+sequence.
+- [High] Lack of synchronization between haptic workqueue and system suspen=
+d leads to I2C transfers to a powered-off device.
+- [Medium] Incorrect timeout handling in drv260x_init loop may cause spurio=
+us calibration failures.
+--
 
-diff --git a/drivers/input/misc/drv260x.c b/drivers/input/misc/drv260x.c
-index 6c5c4c53753b..477ec84ea09b 100644
---- a/drivers/input/misc/drv260x.c
-+++ b/drivers/input/misc/drv260x.c
-@@ -222,7 +222,7 @@ static void drv260x_worker(struct work_struct *work)
- 
- 	gpiod_set_value(haptics->enable_gpio, 1);
- 	/* Data sheet says to wait 250us before trying to communicate */
--	udelay(250);
-+	fsleep(250);
- 
- 	error = regmap_write(haptics->regmap,
- 			     DRV260X_MODE, DRV260X_RT_PLAYBACK);
--- 
-2.55.0.897.gb25b4bd76c-goog
+commit 00b4c6fa5b7a9a1b697cc946bec3e6c6ae2eff9c
+Author: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
+    Input: drv260x - switch to using fsleep()
+   =20
+    Switch from udelay() to fsleep() in drv260x_worker() as it runs in a
+    sleepable workqueue context where busy-waiting is unnecessary.
 
--- 
-Dmitry
+> diff --git a/drivers/input/misc/drv260x.c b/drivers/input/misc/drv260x.c
+> index 6c5c4c53753b1..477ec84ea09b8 100644
+> --- a/drivers/input/misc/drv260x.c
+> +++ b/drivers/input/misc/drv260x.c
+> @@ -222,7 +222,7 @@ static void drv260x_worker(struct work_struct *work)
+> =20
+>  	gpiod_set_value(haptics->enable_gpio, 1);
+>  	/* Data sheet says to wait 250us before trying to communicate */
+> -	udelay(250);
+> +	fsleep(250);
+
+[Severity: High]
+This is a pre-existing issue, but does switching to fsleep() widen the race
+window between drv260x_worker() and system suspend?
+
+If a haptic effect is playing during system suspend, drv260x_suspend() disa=
+bles
+the regulator without canceling haptics->work:
+
+drivers/input/misc/drv260x.c:drv260x_suspend() {
+    ...
+	gpiod_set_value(haptics->enable_gpio, 0);
+
+	error =3D regulator_disable(haptics->regulator);
+    ...
+}
+
+Since fsleep() voluntarily yields the CPU, could this allow the suspend thr=
+ead
+to run and power down the device, resulting in regmap_write() attempting I2C
+transfers to a powered-off chip when the worker resumes?
+
+> =20
+>  	error =3D regmap_write(haptics->regmap,
+>  			     DRV260X_MODE, DRV260X_RT_PLAYBACK);
+
+[Severity: High]
+This isn't a bug introduced by this patch, but can I2C communication fail in
+drv260x_resume() due to the GPIO enable sequence?
+
+In drv260x_resume(), regmap_update_bits() is called before setting the
+enable_gpio pin high:
+
+drivers/input/misc/drv260x.c:drv260x_resume() {
+    ...
+		error =3D regmap_update_bits(haptics->regmap,
+					   DRV260X_MODE,
+					   DRV260X_STANDBY_MASK, 0);
+		if (error) {
+			dev_err(dev, "Failed to unset standby mode\n");
+			regulator_disable(haptics->regulator);
+			return error;
+		}
+
+		gpiod_set_value(haptics->enable_gpio, 1);
+    ...
+}
+
+Since the hardware disables the I2C interface when the EN pin is low, won't
+this transaction NACK and cause the resume sequence to abort?
+
+[Severity: Medium]
+This isn't a bug introduced by this patch, but could the timeout handling in
+drv260x_init() cause spurious calibration failures?
+
+In drv260x_init(), the loop checks for a timeout unconditionally after read=
+ing
+the register:
+
+drivers/input/misc/drv260x.c:drv260x_init() {
+    ...
+		if (time_after(jiffies, timeout)) {
+			dev_err(&haptics->client->dev,
+				"Calibration timeout. The device cannot be used.\n");
+			return -ETIMEDOUT;
+		}
+	} while (cal_buf =3D=3D DRV260X_GO_BIT);
+    ...
+}
+
+If the timeout expires on the exact same iteration that the calibration
+successfully completes (the GO bit is cleared), will this erroneously return
+-ETIMEDOUT instead of successfully exiting the loop?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/apLOXaWFZ8ueIEAm@go=
+ogle.com?part=3D1

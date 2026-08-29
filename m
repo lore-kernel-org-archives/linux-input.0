@@ -1,121 +1,152 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D4DF0383983
-	for <linux-input@vger.kernel.org>; Sat, 29 Aug 2026 14:09:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E27B12E229F;
+	Sat, 29 Aug 2026 14:58:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788012571; cv=none; b=sCe9jhLRKMc3gbKhw9Gm6fL21S8ZmW1jJ1CLe90x9sg0Jm+3YHGDvGr1GsjdiuOt+Ek2ViagfKukqvlpCadqRAWyXzG5fKDP+FMkn1Rw9AshzDDIogLhmgQtqQGQQYDHfa7/1h7pvSfOzEBXqT27ijXOhseo6SE0Lt7fK9xeC4o=
+	t=1788015503; cv=none; b=LDjsbetKfydZ4BjEN/jo/+yFhQuxvOwWNdkJQ/Ms9Y2FGnszmSEsR4EWAVH5qqRwt03t7usvg/Dw1rBPhg/zVtXb6Xowz/EDsOq4a8RyrqXljbQhhfBpy5TSwxq7hPhqlRGjKOb60Ko1PvkcCCfu6KnRYakvuUeMrTMSaVfQgWI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788012571; c=relaxed/simple;
-	bh=e/wz97JgXaIz8SdXWHvpz1T+nKzHu0yLh5Qm/U/zer4=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=iDH2RzorFB1eN6hNtlqcDPYUmgYVvsHXFPYzzI6OA36Fog9i7BSCeJ4BzqIgDR7pbGDSahbrxliydwFw/6B3/Nk0WnHfLO1aTD4+j/mlHBm6bid50k+qzXfvCpRKVSww9xY45Pb5W6xDXTEWc21qMa8rGMp1dLJrOmqOmiMhkFQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=GZogdb/j; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1788015503; c=relaxed/simple;
+	bh=XVj62RasfKXWqodTEsLUJXHp5CREdrfkaz6n/eby8YU=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=fdoe/D7Wu46QbiyrUjXXB3t36xKYNkSW1Zia9NXixe47QSgYqMn1QYCI5mubwnvhzKoDB55+RZXIvceCNHaU9y0zhFbOkH0xbNN2mFJY8tcaoDXbtXrE6cMOQyiH+CfrUh+jKFdeDQzpxVRZDDDSFqZzJzs3W6M0mz1457l7ETs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=BPpCgJuC; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="GZogdb/j"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 302901F000E9;
-	Sat, 29 Aug 2026 14:09:29 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788012569;
-	bh=I5AOIwPjjHznPQqPfzSZX6KX/fXIaGR810Tj01baQTI=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=GZogdb/jHnqFkdWQ+VfHaMUc/kEX4wCaXug3s07aMcAi2DmC7N3zmavwxPZFpde+e
-	 WaCw/xXeQVhXBeG37foVOzHOcmb1FMhseIgpJlmsPrdcsgPvadqieO3PF4kzTTMUJ6
-	 5+4UrpgtuuTXDR6/tSUgy1A04+GuaY9L09omFea+qKUKOEPJG+/E8kexf9cS24pJUj
-	 AWeqmRFO+zeaI0rYJ419yTX0A8PVQxjCEAzBms6V7z8Tu9CiCUnJhdcd/sVtiTA7id
-	 FaGfRlBD0Czk8N40qPzBLRHVre6DwFrWOJ/tqfMZsgHCJvVPxsLgCZK8JiXS9SrJwf
-	 Lx6pNYVj3/SgA==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v4] Input: atkbd - fix uaf in atkbd_set_repeat_rate
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Jeffin Philip" <jeffinphilip14@gmail.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260829135959.14882-1-jeffinphilip14@gmail.com>
-References: <20260829135959.14882-1-jeffinphilip14@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Sat, 29 Aug 2026 14:09:28 +0000
-Message-Id: <20260829140929.302901F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="BPpCgJuC"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 6659DC2BCB9;
+	Sat, 29 Aug 2026 14:58:22 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1788015502;
+	bh=XVj62RasfKXWqodTEsLUJXHp5CREdrfkaz6n/eby8YU=;
+	h=From:Date:Subject:To:Cc:Reply-To:From;
+	b=BPpCgJuCTXUxEZTl6hsi25ernZ/25nLVlLR6VM8MjlYrFoqi6b1S5F0/jp67gB8YO
+	 loYfk1lEIV3phpPjDnd3UAI59QOUvgnpw57V/oiE0SS8aqzOrhyAqToO8yEt1jtEM5
+	 Vz8MN3tDNrm/kVDJrX4bN2p42P0bnxjQ1V/LscjliVbwZvdL99kuDFutu8uUmV8IRp
+	 DXzng4OXjIo01tY6ab9phFkd9sqaC8NNAC/q6GQcZEa97H3OaxdpXW683RMknoxDzA
+	 AOurr+Lwayr8fxeIlbA8tqfH0hWaDwZJuBNEXmYrl6C4iT8CiZgzh7TSPlhw7NUsCu
+	 CcdCVI99UIs3Q==
+Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 437BDC61DD6;
+	Sat, 29 Aug 2026 14:58:22 +0000 (UTC)
+From: Lucas Martins via B4 Relay <devnull+snowniak.gmail.com@kernel.org>
+Date: Sat, 29 Aug 2026 11:58:22 -0300
+Subject: [PATCH] HID: multitouch: ignore unstable pen serial on ELAN
+ 04f3:2dd2
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20260829-elan-2dd2-pen-serial-fix-v1-1-33009e6189d1@gmail.com>
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/yWMwQqDMBAFf0X27IKuYpv+ivSQmGe7RVJJrBTEf
+ 2+sxxmY2SghKhLdio0iVk36DhnqsqDhacMDrD4zSSVddRXDmGxg8V54RuCjthOP+uW6NaNrL9a
+ YBpTzOSLr/7q/n5w+7oVhOX607z8R/FlwfAAAAA==
+X-Change-ID: 20260829-elan-2dd2-pen-serial-fix-149fb47a993e
+To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ Lucas Martins <snowniak@gmail.com>
+X-Mailer: b4 0.15.2
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1788015501; l=3530;
+ i=snowniak@gmail.com; h=from:subject:message-id;
+ bh=vfER/qBdpj+nhmymPxxMWI3uvD55CW3aifSCqH2cVko=;
+ b=lwtnXWuy0XmbhREyFnHRQZXl/oC2Q0dnUB/2eilTB5RLrf6oYIyeNHg63j8EyLj4BGBiGsmi0
+ RDhurXvo7hgCyTJ2jXgMErWJ+1FKEBqky2a1oIxkhIU8w8O93NhhmjU
+X-Developer-Key: i=snowniak@gmail.com; a=ed25519;
+ pk=OoXh7Tb/xo0kP/5cFFoV6YuINTDnhe3WN3hr7I986Fs=
+X-Endpoint-Received: by B4 Relay for snowniak@gmail.com/default with
+ auth_id=988
+X-Original-From: Lucas Martins <snowniak@gmail.com>
+Reply-To: snowniak@gmail.com
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
+From: Lucas Martins <snowniak@gmail.com>
 
-Pre-existing issues:
-- [High] The patch fails to resolve the Use-After-Free (UAF) race condition=
- it intends to fix because `disable_delayed_work_sync()` is incorrectly pla=
-ced after `input_unregister_device()`.
---
+The ELAN 04f3:2dd2 touchscreen declares its stylus serial number as a
+64-bit field. It initially sends zero and populates the field roughly
+200 ms after tip-down while the stroke remains active.
 
-commit 364595b57a843b20a975005b27712754f014825e
-Author: Jeffin Philip <jeffinphilip14@gmail.com>
+The generic HID input path truncates fields wider than 32 bits. On this
+device the delayed update is exposed as an MSC_SERIAL change from 1 to
+255. Tablet consumers interpret that as a tool replacement, terminate
+the current stroke, and leave subsequent motion visible only as hover.
 
-Input: atkbd - fix uaf in atkbd_set_repeat_rate
-   =20
-atkbd_disable() marks atkbd as disabled to prevent any work
-event to be executed, however this can race with atkbd_event_work().
-If a pending work passes the atkbd->enabled check and atkbd_disable()
-runs after in disconnect, it could dereference dev which is freed in
-disconnect following atkbd being marked disabled. Fix this by adding
-disable_delayed_work_sync() which drops all work events preventing
-any rescheduling after atkbd is marked disabled.
-   =20
-Reported-by: syzbot+1e2ef9bcb29af666b2e6@syzkaller.appspotmail.com
-Closes: https://syzkaller.appspot.com/bug?extid=3D1e2ef9bcb29af666b2e6
-Fixes: 0ef7a26af127 ("Input: atkbd - fix canceling event_work in disconnect=
-")
-Signed-off-by: Jeffin Philip <jeffinphilip14@gmail.com>
+Replace the serial field in this device's report descriptor with two
+32-bit constant fields. This preserves the 64-bit report layout while
+preventing both the mid-stroke MSC_SERIAL update and the
+hid_field_extract() width warning.
 
-> diff --git a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/atkb=
-d.c
-> index 3509b58e64920..0d75a7ba48d3c 100644
-> --- a/drivers/input/keyboard/atkbd.c
-> +++ b/drivers/input/keyboard/atkbd.c
-> @@ -966,12 +966,9 @@ static void atkbd_disconnect(struct serio *serio)
->  	input_unregister_device(atkbd->dev);
-> =20
->  	/*
-> -	 * Make sure we don't have a command in flight.
-> -	 * Note that since atkbd->enabled is false event work will keep
-> -	 * rescheduling itself until it gets canceled and will not try
-> -	 * accessing freed input device or serio port.
-> +	 * Prevent work from being rescheduled after atkbd is marked disabled
->  	 */
-> -	cancel_delayed_work_sync(&atkbd->event_work);
-> +	disable_delayed_work_sync(&atkbd->event_work);
+Tested on an ASUS CX5400FM (Google Copano). Before the fix, a raw HID
+serial change occurred during every stroke and evdev emitted MSC_SERIAL
+values 1 and 255. After the fix, evdev emitted no MSC_SERIAL events while
+X, Y, pressure, tip, hover, and touchscreen input continued to work.
 
-[Severity: High]
-This isn't a bug introduced by this patch, but does calling
-disable_delayed_work_sync() after input_unregister_device() leave a
-Use-After-Free race window open for the background work?
+Signed-off-by: Lucas Martins <snowniak@gmail.com>
+---
+ drivers/hid/hid-multitouch.c | 42 ++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 42 insertions(+)
 
-If atkbd_event_work() executes concurrently with atkbd_disconnect() and
-passes the atkbd->enabled check, it can access atkbd->dev after it has
-been freed.
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index 2c41bacab..874d74085 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -1718,6 +1718,48 @@ static void mt_yogabook9_fixup(struct hid_device *hdev, __u8 *rdesc,
+ static const __u8 *mt_report_fixup(struct hid_device *hdev, __u8 *rdesc,
+ 			     unsigned int *size)
+ {
++	/*
++	 * ELAN 04f3:2dd2 delays populating its 64-bit Transducer Serial
++	 * Number until after tip-down. The generic HID input path can only
++	 * extract 32-bit values and exports the resulting mid-contact change
++	 * through MSC_SERIAL, causing userspace to switch tablet tools while a
++	 * stroke is active.
++	 *
++	 * Keep the field's full 64 bits in the report layout, but describe them
++	 * as two 32-bit constant values. This prevents both MSC_SERIAL events
++	 * and hid_field_extract(..., 64), without moving any later fields.
++	 */
++	if (hdev->vendor == USB_VENDOR_ID_ELAN && hdev->product == 0x2dd2) {
++		static const u8 elan_bad_serial[] = {
++			0x09, 0x5b,       /* Usage (Transducer Serial Number) */
++			0x25, 0xff,       /* Logical Maximum (255) */
++			0x75, 0x40,       /* Report Size (64) */
++			0x81, 0x02,       /* Input (Data,Var,Abs) */
++		};
++		static const u8 elan_ignored_serial[] = {
++			0x09, 0x00,       /* Usage (Undefined) */
++			0x75, 0x20,       /* Report Size (32) */
++			0x95, 0x02,       /* Report Count (2) */
++			0x81, 0x03,       /* Input (Const,Var,Abs) */
++		};
++		unsigned int i;
++
++		for (i = 0; i + sizeof(elan_bad_serial) <= *size; i++) {
++			if (!memcmp(&rdesc[i], elan_bad_serial,
++				    sizeof(elan_bad_serial))) {
++				memcpy(&rdesc[i], elan_ignored_serial,
++				       sizeof(elan_ignored_serial));
++				hid_info(hdev,
++					 "ignoring unstable 64-bit pen serial number\n");
++				break;
++			}
++		}
++
++		if (i + sizeof(elan_bad_serial) > *size)
++			hid_warn(hdev,
++				 "expected pen serial descriptor pattern not found\n");
++	}
++
+ 	if (hdev->vendor == I2C_VENDOR_ID_GOODIX &&
+ 	    (hdev->product == I2C_DEVICE_ID_GOODIX_01E8 ||
+ 	     hdev->product == I2C_DEVICE_ID_GOODIX_01E9)) {
 
-For example, if atkbd_disconnect() calls input_unregister_device(atkbd->dev)
-which drops the last reference and frees the device, the background work
-could then access the freed dev in atkbd_set_leds():
+---
+base-commit: a93f3bf4e1d60777b1659b812c9e818cfc53b449
+change-id: 20260829-elan-2dd2-pen-serial-fix-149fb47a993e
 
-drivers/input/keyboard/atkbd.c:atkbd_set_leds() {
-    ...
-	param[0] =3D (test_bit(LED_SCROLLL, dev->led) ? 1 : 0)
-    ...
-}
+Best regards,
+--  
+Lucas Martins <snowniak@gmail.com>
 
-Should disable_delayed_work_sync() be moved above input_unregister_device()
-to fully close this race window and ensure the work item cannot execute
-after the device is freed?
 
-> =20
->  	serio_close(serio);
->  	serio_set_drvdata(serio, NULL);
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260829135959.1488=
-2-1-jeffinphilip14@gmail.com?part=3D1

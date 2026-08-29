@@ -1,72 +1,69 @@
 Received: from mail-pg1-f172.google.com (mail-pg1-f172.google.com [209.85.215.172])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C69E61EB19B
-	for <linux-input@vger.kernel.org>; Sat, 29 Aug 2026 10:33:25 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2DA6675809
+	for <linux-input@vger.kernel.org>; Sat, 29 Aug 2026 11:12:23 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787999607; cv=none; b=qyGobSYgdql/0sMf+jwkYRzfGtmxC3ASrZc5T22CQRRiVRbHS5iGjtxcw0cuJUAAnd7XO0TpnhHsRnzAQWwvTYheGn9ezHkISvaCS1mLOvGbqC39R54LU7I8GXCjZgRvuv+oyctWHXlLkfrIpzmb4QQlq/k2UxZ2Nk2xK9ZvdJo=
+	t=1788001944; cv=none; b=Z/bKhHkqa8JZavO+yOHnmu8ddm+qyXFNmnMdihqnBvCPAzVQ4aoM7XRbor6CvrucpEaqwGPjocLskiU0WwD7Kn8Gi/pIIH50YYXKwbuR6H0RQOYXoBuaWLodUCYgOGB5F46SELdWgWEJ+KnxtwnjotyEdRF0GnxlylwPSfpIW6s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787999607; c=relaxed/simple;
-	bh=rEsFU4Rhp0vY5xwnpOA5fzc7vDZCbVS7WUbVx5Pl3eU=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Ic/babzZWnl3fhmYrIZnGaBKv59FIVUz8CiVIWNVFciKuz16uAcrQ1If34gyq5tHYDXs8hlABBuWfLq+HKYgmQsKHIiR1T6WCOsN03q+25JR2M6ZhEGhJrL+QN0f3yAZ5cA8gnysqUVxImSbN3NIvKwmP+H4j0FbiE3XvyQUnrQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=eiuha5RO; arc=none smtp.client-ip=209.85.215.172
+	s=arc-20240116; t=1788001944; c=relaxed/simple;
+	bh=GxdbHbwCaVFUavLR6/16oLPoUM2RZzRBfzpbxZHk8xg=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition; b=M9ZJ3bq2BuW5H6Vzh/PnoBWyZsrD+ClTwNofrfNq7ZNbYH9Ec9zmDmjgtYru0MonTM53lBiXnUsNgEMaEj2h2jNPzocaEkpTrbnEqqfDPUd8y5m9BsBicnKyt/Ae3Crkt310SO0+Zt3hEMVCPQVmQXaPzL8tIkZUfs9/IiO3Aa4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=nnINr5pR; arc=none smtp.client-ip=209.85.215.172
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="eiuha5RO"
-Received: by mail-pg1-f172.google.com with SMTP id 41be03b00d2f7-cc1cb472b76so1494890a12.0
-        for <linux-input@vger.kernel.org>; Sat, 29 Aug 2026 03:33:25 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="nnINr5pR"
+Received: by mail-pg1-f172.google.com with SMTP id 41be03b00d2f7-cc1c3d79b9bso1681088a12.3
+        for <linux-input@vger.kernel.org>; Sat, 29 Aug 2026 04:12:23 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1787999605; x=1788604405; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=cVHjzO5N9iwp5UaMNJvBuljJ4pYLi7BFATm0HZhB/jk=;
-        b=eiuha5ROzuPj4lyEFD1MmwMisbYkMiNWQDLy5oUN0Br1G8jTUTnnWZXlrcCg7y0sAs
-         SI7W0GvCryoY3ZREcmfehtX8ZOiR59hShmgngKoBpBnAvHwu4q6LOTEThj8eh2NrDyE0
-         SWL+sPLzXqn03w57rsu5VMvH+HRbasQVnPnjUGbWE1HemEYEUmgmrRXZ+yFicrA5YJGF
-         jL+CBMQw1VdYTqxpfa8q1xheJ1lhgoyClcT6pqEYdFOKy74Ou5+r+mBh4lFqNdR1eA5S
-         poCMSBu4R0PPd/IaUzdQBvNvqlvwHPck6aJKnLM1MGznqQyWWgtmyxNdHXfAuCMWJDDy
-         h+DQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787999605; x=1788604405;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+        d=gmail.com; s=20251104; t=1788001942; x=1788606742; darn=vger.kernel.org;
+        h=content-disposition:content-type:mime-version:message-id:subject:cc
+         :to:from:date:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=cVHjzO5N9iwp5UaMNJvBuljJ4pYLi7BFATm0HZhB/jk=;
-        b=d4n1Zcdc0MaQ6BJzFSukP0y97n5g82uKSZYUFsBtyaMmZQapzzpCCeewTBD5c99Ztm
-         7IcpkQLrBU2MFapr6/TjLr4wcXmZZ0Y2R3ucjSvoJaxRLUouEhQ05k+b30HK6kk0VTbG
-         DR94b0kvM1dZ9i3DMqODWDix+ZaksHca55QATLul42nRxx8TdBzqT+iZvTpdvkEtcal4
-         UVGNCXTP98lX63EUrwhkPLdSl14LmlvsE7c5UFxdZhQeJV2fJEtHLm4UEKIuTd0OOnWO
-         U8NlPaBCRAia0a7Ff50EG0JZgb1BQGgCmvJYLPXQjJyqy5gMwOqe/3cnLRzVxwRp1feq
-         FPqg==
-X-Gm-Message-State: AFuF++kHmSbkW9fKkKvMrkdcTCBgvBU18PoGDQXcM94OJFl3Lcu1c6Yr
-	qUA/uQvbC48+JmeEO0ev54mGuGoUjew1g3x6sDgudqHUbSeHaJl6hFvD
-X-Gm-Gg: AR+sD13VvLqsOVfhXtvdMgV/aOSFvYEg8Pws3Rib3RiVSyNHoefNGvaN7bFo+ho7HUn
-	eDNC2kPWIpztTMLyor1lF6f+WjwdLXBEkESb9emlec1x9OT7OgAIB1uy8LPFiSJcDrh42NFrRLd
-	TRMj5bCU5P0PuHNncf6AlB3r8Fydpz9Jm3cbBHPN2jUtcKediUHBgbQCb7sEtXXcXlufJXqJfwy
-	BSpr1jdArvF3X2wLG1aBWAaVofrSlJ650laFqwSPzMHGCpEOnSXELipLbAfYkq3lvSAcP8NpjwT
-	vmM7i0GMxVqMeWGgsc7HgHQzmGJxKFGnioTVxr7B5fkc2YIe4SXRv3PuRYwCBjvoBl8jYzVAgA4
-	F63P+dM4dEysyRjoZUQFfwqm5eGqy7OpV8ZcqlITizGvqq8m5809r9vn+vKNLO+d7ltnVGE8Yy9
-	JL+7O1gJRm79kgPuRPfSBZo1RSiLZJoJyeam+D25oHRqkkDs6mPcaPqIp7JeK7T0Jh3w+t3ZDIc
-	AdaOdJwULNpj8pswTyZxfyQrvKYFA==
-X-Received: by 2002:a05:6a21:38e:b0:3ce:d411:8120 with SMTP id adf61e73a8af0-3d2681a9f7bmr24611034637.15.1787999605178;
-        Sat, 29 Aug 2026 03:33:25 -0700 (PDT)
+        bh=xlR8FklCQr2wqwqO7g29e1twf0coajmx1f1mj8tHeD8=;
+        b=nnINr5pRNTwW87YB5rCO14Lzh6pjf3ITZHcbzkJtW8eav+8BrVbp13GgaRGShJdoB1
+         0/MoYHX+SlkJOYM5FY86JhaECmhIOfLfCzvC0FsuNB1qV0OxCloF+K08zysLMBl6D0n+
+         u0idW5Efzm5ErgR+CeVPr7F7Sz85QZ8Y3l6IiLh9+Chjth7UGZIE8MJ3ZfNEBZCWuTUd
+         SxNyuIJXlyzdNspHvKri/Fa1kRRvly/TGA8v0BWLtHdaUFSLxrySbH2eBxaxLEHX4fmD
+         7/yq22xpx96RXyfJVLJJiNVD+KfqQreqC9vDmMy/ATq41GKdBPfjTML53b0Y817jwo3a
+         kN+w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1788001942; x=1788606742;
+        h=content-disposition:content-type:mime-version:message-id:subject:cc
+         :to:from:date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=xlR8FklCQr2wqwqO7g29e1twf0coajmx1f1mj8tHeD8=;
+        b=PPldBh9RXKqzd7MfLKVjlfpFE3h1aDET7EdfsbyFZcfOYFSuWPNvzR2Disn54cK9oE
+         WRLx5+tm/amhPRNCv4acQ9EF3aQ+qn52bKYITXFBjpvqZzKtvJh1m0LAqFWGEXIz0Koy
+         imWAOopADNBSmdD/rWeGKTcN50uZY9i0CCCa2vXtJRPo7LpvHBAWwz0tvv7UM2VcLiBj
+         z0SZWDIoLCwQqxVEIKNqbKv3uGbk878j2BFY+0pHADJ/o01Wn55nb2/dGwB1rNCu/W+d
+         tfWc252fA5xE3QtsgLKmcGOURn+O88TJVNW/D+OY2zi8Qs7BOOcUA0iDqE0nerDGEOkc
+         71sg==
+X-Gm-Message-State: AFuF++k0PjnmPvnoAg1838178YLZlC/FwT9yxVAsQqTRqHskbzacEOSz
+	+b+bt3Ce7eTvfj18K82tfDT0EF1KNC5E90jOciiEINp7SJJLkX6tppJ+EWuh+fxS
+X-Gm-Gg: AYBFou3mpXSH4SkX6LGaNuTyZVUBtLPNd5xCrQrGGnKzIJrRsX7QcUidDc/s4MmMfS6
+	KtECjrWb9P/lIBIOUCfL1/r5Lp36d1DwULNBr0THTiCH8X4Q9iQJK8vbi7yiKEjczJCyoe1fNpF
+	pk7ClrnsTnSfxCDudskiDvodfJQ5KnYlfBSPeC1s7wdC8+c0L2+3UtStWAo7z4PKy37EXglJ/vV
+	SZCPjJs9YgZW+z0slSWWNy1wBbWV6Lfp09H39gnidh+WugV++A2A8mMP+NXQ7ZAcMHmYMknGOwb
+	UNKimsY1K4l3VyQd2z75fcAfVwT7yrOWkDW4wBqoODl3nwp/PiEvYUlGgC9qcFu6URFBSnqJuBK
+	kmlo4hR9MXKvI1p7atRBtbVFSjydc2RvTRew17BHgWp5xZDHQlg36A/Yw5bRxn+7CgzLMi4ESxf
+	U3QGEVn66y6Spsji8CJzVHL0kyFmwl5H8qYbOoRLvHZ4bSC/uVryhRdh0W3SK5lkX6M9bquatIe
+	QOqb2zN/V6Sc0I0DqUS5sTTNPwN+Q==
+X-Received: by 2002:a17:90b:3e48:b0:37d:f206:a2ac with SMTP id 98e67ed59e1d1-396d0ebd7fbmr24874526a91.7.1788001942436;
+        Sat, 29 Aug 2026 04:12:22 -0700 (PDT)
 Received: from google.com ([2a00:79e0:2ebe:8:54de:b26f:8c97:cc89])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3286f9e3cf8sm15322640eec.24.2026.08.29.03.33.24
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3286f9595bbsm16627505eec.14.2026.08.29.04.12.21
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 29 Aug 2026 03:33:24 -0700 (PDT)
-Date: Sat, 29 Aug 2026 03:33:21 -0700
+        Sat, 29 Aug 2026 04:12:21 -0700 (PDT)
+Date: Sat, 29 Aug 2026 04:12:18 -0700
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Jeffin Philip <jeffinphilip14@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	syzbot+1e2ef9bcb29af666b2e6@syzkaller.appspotmail.com
-Subject: Re: [PATCH v3] Input: atkbd - fix uaf in atkbd_set_repeat_rate
-Message-ID: <apK03L7Li2TkOMOu@google.com>
-References: <20260828162211.149899-1-jeffinphilip14@gmail.com>
+To: linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Input: st-keyscan - disable interrupt while clock is gated
+Message-ID: <apK-PZ5c97mCxBSC@google.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -75,64 +72,76 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260828162211.149899-1-jeffinphilip14@gmail.com>
 
-Hi Jeffin,
+The driver gates off its peripheral clock when the input device is not
+open and during system suspend without wakeup. However, the interrupt is
+requested without IRQF_NO_AUTOEN and remains unmasked when the device is
+stopped. If a pending or spurious interrupt fires while the clock is
+disabled, keyscan_isr() will attempt to read the matrix state register
+with the clock gated off, triggering a bus fault (synchronous external
+abort) and panicking the system.
 
-On Fri, Aug 28, 2026 at 09:52:11PM +0530, Jeffin Philip wrote:
-> atkbd_disable() marks atkbd as disabled to prevent any work
-> event to be executed, however this can race with atkbd_event_work().
-> If a pending work passes the atkbd->enabled check and atkbd_disable()
-> runs after in disconnect, it could dereference dev which is freed in
-> disconnect following atkbd being marked disabled. Fix this by adding
-> disable_delayed_work_sync() which drops all work events preventing
-> any rescheduling after atkbd is marked disabled.
-> 
-> Reported-by: syzbot+1e2ef9bcb29af666b2e6@syzkaller.appspotmail.com
-> Closes: https://syzkaller.appspot.com/bug?extid=1e2ef9bcb29af666b2e6
-> Fixes: 0ef7a26af127 ("Input: atkbd - fix canceling event_work in disconnect")
-> Signed-off-by: Jeffin Philip <jeffinphilip14@gmail.com>
-> ---
-> Changelog:
->  - Changes in v3:
->      Rewrote the patch to include disable_delayed_work_sync() as per
->    Dmitry's suggestion.
->  
->  - Changes in v2:
->      Added a check for atkbd->enabled so userspace cannot queue events after
->    atkbd_disable.
-> ---
->  drivers/input/keyboard/atkbd.c | 11 ++++-------
->  1 file changed, 4 insertions(+), 7 deletions(-)
-> 
-> diff --git a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/atkbd.c
-> index 5736f4bc5a50..a92a04c005aa 100644
-> --- a/drivers/input/keyboard/atkbd.c
-> +++ b/drivers/input/keyboard/atkbd.c
-> @@ -963,15 +963,12 @@ static void atkbd_disconnect(struct serio *serio)
->  
->  	atkbd_disable(atkbd);
->  
-> -	input_unregister_device(atkbd->dev);
-> -
->  	/*
-> -	 * Make sure we don't have a command in flight.
-> -	 * Note that since atkbd->enabled is false event work will keep
-> -	 * rescheduling itself until it gets canceled and will not try
-> -	 * accessing freed input device or serio port.
-> +	 * Prevent work from being rescheduled after atkbd is marked disabled
->  	 */
-> -	cancel_delayed_work_sync(&atkbd->event_work);
-> +	disable_delayed_work_sync(&atkbd->event_work);
-> +
-> +	input_unregister_device(atkbd->dev);
+Request the interrupt with IRQF_NO_AUTOEN, enable it in keyscan_start(),
+and disable it in keyscan_stop() prior to gating the clock. Drop the
+pointless clock enable/stop sequence in keyscan_probe(), leaving the
+clock gated and hardware untouched until the device is opened.
 
-There is no need to move the call to input_unregister_device(). When
-atkbd->disabled is true the work handler will not attempt to access
-input device or serio structures. The only change that is needed is
-replacing cancel_delayed_work_sync with disable_delayed_work_sync.
+Fixes: 062589b13991 ("Input: add st-keyscan driver")
+Reported-by: sashiko-bot@kernel.org
+Assisted-by: LLM
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+---
+ drivers/input/keyboard/st-keyscan.c | 16 ++++++----------
+ 1 file changed, 6 insertions(+), 10 deletions(-)
 
-Thanks.
+diff --git a/drivers/input/keyboard/st-keyscan.c b/drivers/input/keyboard/st-keyscan.c
+index ebeda020ffe1..6101bf53379a 100644
+--- a/drivers/input/keyboard/st-keyscan.c
++++ b/drivers/input/keyboard/st-keyscan.c
+@@ -75,6 +75,8 @@ static int keyscan_start(struct st_keyscan *keypad)
+ 
+ 	writel(KEYSCAN_CONFIG_ENABLE, keypad->base + KEYSCAN_CONFIG_OFF);
+ 
++	enable_irq(keypad->irq);
++
+ 	return 0;
+ }
+ 
+@@ -82,6 +84,8 @@ static void keyscan_stop(struct st_keyscan *keypad)
+ {
+ 	writel(0, keypad->base + KEYSCAN_CONFIG_OFF);
+ 
++	disable_irq(keypad->irq);
++
+ 	clk_disable(keypad->clk);
+ }
+ 
+@@ -177,20 +181,12 @@ static int keyscan_probe(struct platform_device *pdev)
+ 		return dev_err_probe(&pdev->dev, PTR_ERR(keypad_data->clk),
+ 				     "cannot get clock\n");
+ 
+-	error = clk_enable(keypad_data->clk);
+-	if (error) {
+-		dev_err(&pdev->dev, "failed to enable clock\n");
+-		return error;
+-	}
+-
+-	keyscan_stop(keypad_data);
+-
+ 	keypad_data->irq = platform_get_irq(pdev, 0);
+ 	if (keypad_data->irq < 0)
+ 		return keypad_data->irq;
+ 
+-	error = devm_request_irq(&pdev->dev, keypad_data->irq, keyscan_isr, 0,
+-				 pdev->name, keypad_data);
++	error = devm_request_irq(&pdev->dev, keypad_data->irq, keyscan_isr,
++				 IRQF_NO_AUTOEN, pdev->name, keypad_data);
+ 	if (error)
+ 		return error;
+ 
+-- 
+2.55.0.897.gb25b4bd76c-goog
+
 
 -- 
 Dmitry

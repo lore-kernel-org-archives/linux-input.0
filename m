@@ -1,149 +1,215 @@
-Received: from CY3PR05CU001.outbound.protection.outlook.com (mail-westcentralusazolkn19013079.outbound.protection.outlook.com [52.103.7.79])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-oi2-f7.google.com (mail-oi2-f7.google.com [74.125.231.199])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2278C3F104C
-	for <linux-input@vger.kernel.org>; Sat, 29 Aug 2026 20:44:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.103.7.79
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788036266; cv=fail; b=rsfJmZVNrB7enX0O9AxJSN6fG2z/QcvG/vYUF86qtbitsWLRe8SA8s7ujaCF0zLK95EVJN5ghuTag7xIjkRJ0ua/1Z24V3MsNSW7u8g+YlOHDz+1aUm8NQDzb/Og1R2rwf/6b9xvacQjxJVWMDXvV4lvTgYeoaJnRldTqMEddWw=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788036266; c=relaxed/simple;
-	bh=Nx+Ifhu9dch/mDK5NAgS9iDUwJbqfsgQUGBPcbtPdgI=;
-	h=From:To:Subject:Date:Message-ID:Content-Type:MIME-Version; b=COrmsoCvXhBTDl2QuRZhbI7zd63U96I6Zaz3cAWDVcaNA5Ev3MvvZChpnH+e7QbJM7NgQ8PKq2OL51kZzL3sY3vwE2zLUMX84rtdu1ZzEkZNafCv11NaKBAXCKtKO8wf5wCTiuQV70LlJ4xYcUWYX5zjWjBEtYY0B2INVzJ1ifw=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=outlook.com; spf=pass smtp.mailfrom=outlook.com; dkim=pass (2048-bit key) header.d=outlook.com header.i=@outlook.com header.b=V+6jJ7bC; arc=fail smtp.client-ip=52.103.7.79
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=outlook.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=outlook.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=outlook.com header.i=@outlook.com header.b="V+6jJ7bC"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=BX1qtlEHb5aAR4U8Uo8OZhlDCTg05Uofg9LxgOQ8RpKAeqn4Pn8O/MfyCXgWy339H4OmcHIpRagJUFDCUuGqDPqfC14gU+cBVv/XkmBhZoe+lRM1xF0hNiOoDr8XALGGTDsse7Wc0qdfS4+8glWtVFQWD0Wum20JlseANpXH74eWtJspJBEFld3xG4mZARDFTUqrDGRM0TGxkdhzZ7Wqd/izLbRxf5IqOVs0WIt7VT8mCm3giKu883keLKcVSeULBMVjd5sh1f0nWpMX1RPeI8atTjTdrCGGwzzByiu9OHKy5g0GDl5oiqhtbGzBZAda+/c7PuJH1YCc8uMlQiqVPQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=Nx+Ifhu9dch/mDK5NAgS9iDUwJbqfsgQUGBPcbtPdgI=;
- b=b/VPxYqGPYOqZygOdtt/uflDGmtCnTFV5J0JZ28CXmCbXsADMpIkLlF+bHTg1JuLgCx3Z4toF7oNOc+N/7xQDUfhx+6F6K2MD9/gNCETKfzkAEodm21B91/erf8FqYvxzHBT0KvdTj8p6W0/pjKJvQkLH00OmqglhkihYs7NtyqAvf2Q0xtokfaO+I8YO1RPBSwUtHaxfdpRObbnhGxYD9NmJ/vsjdw7IK5J/JY1iTxaq2K2qroupSO7mw4nSvpnCI40sonA8MsTPzJ97ZJH7H/EorcAGUo9GBCuEMXzgVN9Oknq8iDrXEG/wvbocmzqJK0EynF/02ccbscnOdiVkw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
- dkim=none; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=outlook.com;
- s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=Nx+Ifhu9dch/mDK5NAgS9iDUwJbqfsgQUGBPcbtPdgI=;
- b=V+6jJ7bCeHJxAmTM6Sj288aj1ZCZ0UNnVt/EWIiFSDG4kGVokRamIEM7W2GSiZfENnvT1CpNWlyaLSGLAPuRN0pTZmf6iG3pL1r6t8rE+N6zgMDx+D4DYIfnzkP4o62oG7Ba0PO1jh8cw9vBAEJG+8ZbjIzwO1FRNx+g+S3ZzYMSgEj6de4HyKusnNLe9ruywpI1cavbot0Gsb9OR0lZ0xIMpll/gMD/lkMXLwzvZ1QP16z+xbWiD6ldyksU0oXGM4F2J5bT/nCJm0gdu0W5UJsVFBtkaZaKBq4NqTCSomqmJPG1dEqENBeHAgxkTzJiTOrqm8FbjzB3W7eJaun7Xg==
-Received: from CY8PR02MB9252.namprd02.prod.outlook.com (2603:10b6:930:9f::19)
- by SA1PR02MB11578.namprd02.prod.outlook.com (2603:10b6:806:4d7::12) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.360.6; Sat, 29 Aug
- 2026 20:44:23 +0000
-Received: from CY8PR02MB9252.namprd02.prod.outlook.com
- ([fe80::b527:f7e1:ef1f:6390]) by CY8PR02MB9252.namprd02.prod.outlook.com
- ([fe80::b527:f7e1:ef1f:6390%6]) with mapi id 15.21.0360.008; Sat, 29 Aug 2026
- 20:44:23 +0000
-From: Nick Green <n.grn@outlook.com>
-To: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
-Subject: [REPORT] synaptics_intertouch on ThinkPad T14 Gen 2 (LEN2072)
-Thread-Topic: [REPORT] synaptics_intertouch on ThinkPad T14 Gen 2 (LEN2072)
-Thread-Index: AQHdN/cNbo2/IXm0xEWI3w7vMNqMSg==
-Date: Sat, 29 Aug 2026 20:44:23 +0000
-Message-ID:
- <CY8PR02MB9252B5E325192960631C286CE7AB2@CY8PR02MB9252.namprd02.prod.outlook.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach:
-X-MS-TNEF-Correlator:
-msip_labels:
-x-ms-exchange-messagesentrepresentingtype: 1
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: CY8PR02MB9252:EE_|SA1PR02MB11578:EE_
-x-ms-office365-filtering-correlation-id: 127adc44-6fe8-4f8f-14cc-08df060e4ee0
-x-microsoft-antispam:
- BCL:0;ARA:14566002|31061999003|15080799012|15030799006|8060799015|19110799012|25010399006|8062599012|24021099003|51005399006|25031999004|37011999003|440099028|3412199025|102099032|40105399003|2607281247196008;
-x-microsoft-antispam-message-info:
- =?Windows-1252?Q?LyHsMn4VrjdDYmHmZEHOBY/49g/dFt0mF/7VlfEpy/BE3PjQ5USqWEQl?=
- =?Windows-1252?Q?tJ+F2A5F8uG48ljW0Wu7vXVA9oIr13iKp+eXzpz14q5tsysETfdzWPE/?=
- =?Windows-1252?Q?8EnwdVXA8bf2BPevC1YzS7W+cD9oOLuO/vIw6jNAeEIFWmNxkmHjwzq7?=
- =?Windows-1252?Q?4ycUkKjHghda3xTBsBfv/n3PMLM6jCnWAGs37hF+rO7oV90OgBMjC6k3?=
- =?Windows-1252?Q?DFAbK8xznYTGzF17WZXtoGfFmGRKUWtwSRHwohb4uboKtac6Xz7ta6yK?=
- =?Windows-1252?Q?pVBWNDb3Mhl0pc/tRaDXlEfK2EP4IiOlh608xs2hA8xQaS1XiNUFNF8K?=
- =?Windows-1252?Q?FdJFWRxwA3b6Gczwuu0L5NZpEIA6SjkZO7e0wv7pCUzDbLifn9SJb5Y8?=
- =?Windows-1252?Q?6e1tuVNTSCsGZRc5TuPgKUaQw9kVgtoNtk6FNlwReKDJlCyohigWGKAq?=
- =?Windows-1252?Q?0VxPzZKK2AtnMnZ/FlQICr35Q+i97Vc28A5ADkckk492Q5/XqyyyWEzV?=
- =?Windows-1252?Q?3C3Xyq/vgKX0kOv2J5/iJJ35R+J+An5vDSA/6xhboWX9D8WzDWG1XzkP?=
- =?Windows-1252?Q?HGzRz+UPSjEGaqUcAF1cKmxyYcGQDjhkQl+LQ+OKmnzgJWwC43NtsQ0X?=
- =?Windows-1252?Q?wALp636aVek5qNkbiYu8iS+KTLQvUVqkjmIrsEpelqzTMr1/Dntq6xi9?=
- =?Windows-1252?Q?lxxB6BjgFoI73EthJ0vWvYR/KvdDqQe6hBi31qiw9XauaS0/cWP0SK9q?=
- =?Windows-1252?Q?vkrcIt/0jfk292doEFVTmw3+1aGQCsD2+OEYgItd72oZN9pKwsria6Id?=
- =?Windows-1252?Q?U/Zps4mo/bni3cIk6cQaR70hzSnPeasgO3xmfbklsWU3NjqiNEjF9UY1?=
- =?Windows-1252?Q?U3m3AE9OxIrcqRfEoXUmVOJzjfggt94zeAnAOqk9Ui8I9D3g72eScwFk?=
- =?Windows-1252?Q?6vKPQUlrgqQbD7lyx8+8kVxVFZFwaBA/Z+1hu7bDNPTW25qljIeVWH61?=
- =?Windows-1252?Q?8IoYolv+jRzNcAYoY7ozltdDe/FHP47H9E4COj1b1XBNbGhcJboHAqxP?=
- =?Windows-1252?Q?VLGBqZSxABbNhcBPZL+COJTCcH2jxBYuZmilndA10tjdYLWYxCQSXfBM?=
- =?Windows-1252?Q?Las=3D?=
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0:
- =?Windows-1252?Q?7BujPcEI9IMvtmYAxp6YigWz6/gMyfT5FiQqICK8IfnPXPfidIoteykH?=
- =?Windows-1252?Q?UxcFnSI9e9xy7kdBTR2h9ERCvqfAS8wwIsVpJmlO1kfkFS6rCPFmO2CK?=
- =?Windows-1252?Q?izRvX9SZU6wP4eKUYrEQMXotITK5BLhi3bPOUXKZ3U4W8s6ya/ptiEn2?=
- =?Windows-1252?Q?blyKYK9yp9ExWJJhIq6biDFDaRwPc7Hj//+0fgGB6iupS4+y2OEJfTRd?=
- =?Windows-1252?Q?3qPJbrAvlQIXWeX8JKaV5h6vjaIoVuHOs5wjAI5bi1gQsAWEqXRZh9yo?=
- =?Windows-1252?Q?06+GecTOnRhmpg8ff+NFOWQvszIjE6IX5KUpKVWaRbKU0KGztOE/8Wqb?=
- =?Windows-1252?Q?CRPYjBlZ6iYa0OtSAVKT69jg14BxCMqzTbIEyNsHe0MOmv9efJnE2ZGL?=
- =?Windows-1252?Q?EjAU/PoWWkdeidLYA7D/IthWC4o6wO3hg3yOCBv8xmU+8JBvPCRKTvQV?=
- =?Windows-1252?Q?tv5nncTnpMCZvlQZT+uR9bRbO3lIu4oD+gn/VOiicl6FIXcCwk89+H92?=
- =?Windows-1252?Q?FYPtWM0sqns9vhkOGYdD4UnAsYQduzGf+OFxfTybyrEG36jfOE8n3yqL?=
- =?Windows-1252?Q?t1w4s8d7jtzQ3qaEpq7YLl6haZ3FtAfO7rfosI1dftjWiT11U29Zfi3H?=
- =?Windows-1252?Q?IpWHnCvps8Q9WUPry9Z6GMoUMvgwNr36CX2tv7pPNuT8SD4FRYRQPwo1?=
- =?Windows-1252?Q?1h+vm9okKKe7UiPlk2E1J1S8kyRlj5ivXjnDzLP8ddXogUrAel7GYXOA?=
- =?Windows-1252?Q?UYDDrfGGNfFUHNQ6zv3Hw/FuU5G7mcEswLGqou93nlb4SWmbFhSYKKvv?=
- =?Windows-1252?Q?siUrX5tlEbXII0RHNJWMIWUMhtQGHEnLpdFfF21XcOj4F514AYVPnxcX?=
- =?Windows-1252?Q?sDoesUhxVNh+CXfd55Wv93IyUKGssiwSxlZZPFIxqOvGhuCEz2JcfUL5?=
- =?Windows-1252?Q?aVe2CAJfoD4EwM4XllUlrR1GItQYItge6zctO/FUrsiTYwl4Lmw1Fmpu?=
- =?Windows-1252?Q?u0DTzcYrceJV1yOb1K2b4EjenDbp626jJ7tdetRE91kK5guqtn8oAlKs?=
- =?Windows-1252?Q?45rLwikEUS3KI3lrx2oyM+JB0hB6Zzo7VJJ53ID+tbEiUbxEVwj7+BXc?=
- =?Windows-1252?Q?LhDkcfLK1dt8IBr+wMS/4tDmxK2CdYHXEZZ4peD+mGKwHR+v3VM2kBzM?=
- =?Windows-1252?Q?RToLFZN354pH1duaPuEn+Ai29oV8hjFAAPYL+1wyn15PmqxU5yDWxGNt?=
- =?Windows-1252?Q?7LCLRpe2kG/PcmwQVhwf3M9PkmSzuD0Wfk//IJKcZsb4UufcXevNEP+B?=
- =?Windows-1252?Q?sIRy958wUMqV+BjNqC7UKqP4fTub86Gsl6l56I5Un3MkK6Ne8gvKvpuh?=
- =?Windows-1252?Q?WEDvNVmp0MPMhCP4+U4JZOU7JqWgxLxohGCoMfY92k+4rj4uf049i0eP?=
- =?Windows-1252?Q?GB21IUubZgGyznlaQFU1GwPpSNnrQHm5m3N7PpsD+hU=3D?=
-Content-Type: text/plain; charset="Windows-1252"
-Content-Transfer-Encoding: quoted-printable
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5CB2F3A3835
+	for <linux-input@vger.kernel.org>; Sat, 29 Aug 2026 21:22:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.231.199
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1788038553; cv=none; b=o8OGXSWZ67ELqME3Yunmw8+btRktLsg3N2PnJ5ntujhKyjZwlhKN70OhC19YYEeVhTzfkGnM0NP2GkRVNTjyjEHRSBk3P+CtlyYj6/vxWle9FiyUC1Ux8BoiEX4hPATLd4+/6Bvq2cTjMMXSmfFz6EQfcWRLcoSoBngi9KEPuys=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1788038553; c=relaxed/simple;
+	bh=WI7AZhtEqr9xVlLFzEDYIIFNWQlxz9PEtDtkd4+D4f0=;
+	h=MIME-Version:Date:In-Reply-To:Message-ID:Subject:From:To:
+	 Content-Type; b=bWmGx5MepBZ4EeKu+onzdkQ5DunhXG10fdp2a0Cld790CD4eN/OW9cN00L+VUod+CDD1nomVGqRMyw2DUc6pN06Da2C5CBDzYcjjdvjg4SW4jSkOsfA5glwXFqzM6KkRBP6IG7gIbGvOOIEuSUsbIPjgu3ARPX7vxML0vu85A9M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=74.125.231.199
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
+Received: by mail-oi2-f7.google.com with SMTP id 5614622812f47-4b39374fab5so726420b6e.1
+        for <linux-input@vger.kernel.org>; Sat, 29 Aug 2026 14:22:31 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1788038550; x=1788643350;
+        h=content-type:to:from:subject:message-id:in-reply-to:date
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=LJMEXdlk7d61VrtM7qDRU6Bog3O/MwGb1q5vlyd9SZA=;
+        b=iUa9fE7AtS0V/mGIsJL0n1X8D5rkqNr8NpT47Li72eebeJGL/G29CQfp6S++3afmBp
+         JkhEe05rWx0mUFEDRFtkyDlrYAArgUnXlanjIpSBfvx39GtPwM8lvzaJpp3f23trbLJw
+         vVpLqZKndKB/FvV3ZMRHOMmDncUc20arJ2kretkhB3acUQxmcOobPdsAIs8UbPy54iDh
+         jIuezWKpXvg9AkFuHf3gWLoZjvwTpKkBKKqPY2I2gg4oDMJf+Eflc9f8cxGd4jRP5/Sl
+         3YTSP5LbKCpvXT+RiGKKlNyTWPpAPTEHelm0sk3t7fhOYk/L9TZO3G5rDS1Wm0rrq4bJ
+         mUGw==
+X-Forwarded-Encrypted: i=1; AHgh+RqH5ABepOpqK/ayFRI4EiR2YuzZYAiZcsBCy5cnZc8IFgjUQRnYsj8E2rMnDiGW7FgSXs+z+XH6QzSgUg==@vger.kernel.org
+X-Gm-Message-State: AFuF++kIGIrihDQmPxjCshtw9UeyAmGNwgpDv0VglFLw9lXZEujhGnm8
+	5P3pEIaHHkor6Y32Fo0TiNpgToMgcuvheIY2PR5Si3WpdwpWbzjOePMlpXQIy3AYLb5wDg9RZS0
+	Hh1NQURPoZ7jiFeGbFGmSV6WNXbrMdQCNdb0NIclYxwrsTaDP/+ML7MT8Ffg=
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-OriginatorOrg: outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: CY8PR02MB9252.namprd02.prod.outlook.com
-X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg: 00000000-0000-0000-0000-000000000000
-X-MS-Exchange-CrossTenant-Network-Message-Id: 127adc44-6fe8-4f8f-14cc-08df060e4ee0
-X-MS-Exchange-CrossTenant-originalarrivaltime: 29 Aug 2026 20:44:23.2411
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
-X-MS-Exchange-CrossTenant-rms-persistedconsumerorg: 00000000-0000-0000-0000-000000000000
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SA1PR02MB11578
+X-Received: by 2002:a05:6808:10c8:b0:4b2:8d89:6a40 with SMTP id
+ 5614622812f47-4b397ffa6e9mr16173861b6e.7.1788038550449; Sat, 29 Aug 2026
+ 14:22:30 -0700 (PDT)
+Date: Sat, 29 Aug 2026 14:22:30 -0700
+In-Reply-To: <699fe31c.050a0220.2fcbed.0002.GAE@google.com>
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <6a934d96.08e933ee.dbf97.00aa.GAE@google.com>
+Subject: Re: [syzbot] [input?] possible deadlock in __kernfs_remove (3)
+From: syzbot <syzbot+1075f6dc93f398c1857e@syzkaller.appspotmail.com>
+To: dmitry.torokhov@gmail.com, driver-core@lists.linux.dev, 
+	gregkh@linuxfoundation.org, linux-input@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, netdev@vger.kernel.org, 
+	syzkaller-bugs@googlegroups.com, tj@kernel.org
+Content-Type: text/plain; charset="UTF-8"
 
-Hi all,=0A=
-=0A=
-Following up on my previous report regarding synaptics_intertouch on the Th=
-inkPad T14 Gen 2 (PNP: LEN2072).=0A=
-=0A=
-After further daily-use testing, please DO NOT add LEN2072 to the smbus_pnp=
-_ids whitelist.=0A=
-=0A=
-Key findings:=0A=
-1. Under psmouse.synaptics_intertouch=3D1 (RMI4/SMBus), the touchpad exhibi=
-ts intermittent tap-to-click failures during natural use.=0A=
-2. Low-level event debugging via 'libinput measure touchpad-pressure' confi=
-rmed that missed taps produce zero evdev events at the kernel level=97momen=
-tary tap interrupts are being dropped by the SMBus controller before reachi=
-ng userspace, while continuous swiping and pointer motion transmit normally=
-.=0A=
-=0A=
-The default PS/2 driver via the Embedded Controller remains necessary on th=
-is platform for reliable, zero-drop tap detection.=0A=
-=0A=
-Thanks,=0A=
-Nick=
+syzbot has found a reproducer for the following issue on:
+
+HEAD commit:    cf72cbb39da8 Merge tag 'io_uring-7.3-20260828' of git://gi..
+git tree:       upstream
+console output: https://syzkaller.appspot.com/x/log.txt?x=14c09d79580000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=85bc5cc2fc7394d9
+dashboard link: https://syzkaller.appspot.com/bug?extid=1075f6dc93f398c1857e
+compiler:       gcc (Debian 14.2.0-19) 14.2.0, GNU ld (GNU Binutils for Debian) 2.44
+userspace arch: i386
+syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=161fae25580000
+C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=1084c379580000
+
+Downloadable assets:
+disk image (non-bootable): https://storage.googleapis.com/syzbot-assets/d900f083ada3/non_bootable_disk-cf72cbb3.raw.xz
+vmlinux: https://storage.googleapis.com/syzbot-assets/755d053ff703/vmlinux-cf72cbb3.xz
+kernel image: https://storage.googleapis.com/syzbot-assets/0837738ba281/bzImage-cf72cbb3.xz
+
+IMPORTANT: if you fix the issue, please add the following tag to the commit:
+Reported-by: syzbot+1075f6dc93f398c1857e@syzkaller.appspotmail.com
+
+======================================================
+WARNING: possible circular locking dependency detected
+syzkaller #0 Not tainted
+------------------------------------------------------
+syz.0.17/6098 is trying to acquire lock:
+ffff88804e56bf08 (kn->active#66){++++}-{0:0}, at: __kernfs_remove+0x34c/0xb80 fs/kernfs/dir.c:1579
+
+but task is already holding lock:
+ffffffff904e2360 (serio_mutex){+.+.}-{4:4}, at: class_mutex_constructor include/linux/mutex.h:253 [inline]
+ffffffff904e2360 (serio_mutex){+.+.}-{4:4}, at: serio_unregister_port+0x1b/0x40 drivers/input/serio/serio.c:677
+
+which lock already depends on the new lock.
+
+
+the existing dependency chain (in reverse order) is:
+
+-> #1 (serio_mutex){+.+.}-{4:4}:
+       lock_acquire kernel/locking/lockdep.c:5908 [inline]
+       lock_acquire+0x1d1/0x380 kernel/locking/lockdep.c:5865
+       __mutex_lock_common kernel/locking/mutex.c:646 [inline]
+       __mutex_lock+0x1a4/0x1bc0 kernel/locking/mutex.c:821
+       class_mutex_intr_constructor include/linux/mutex.h:255 [inline]
+       drvctl_store+0x3c/0x350 drivers/input/serio/serio.c:360
+       dev_attr_store+0x58/0x80 drivers/base/core.c:2509
+       sysfs_kf_write+0xf2/0x150 fs/sysfs/file.c:145
+       kernfs_fop_write_iter+0x3e0/0x5f0 fs/kernfs/file.c:345
+       new_sync_write fs/read_write.c:595 [inline]
+       vfs_write+0x6af/0x1050 fs/read_write.c:687
+       ksys_write+0x12a/0x250 fs/read_write.c:739
+       do_syscall_32_irqs_on arch/x86/entry/syscall_32.c:79 [inline]
+       __do_fast_syscall_32+0x13a/0x8b0 arch/x86/entry/syscall_32.c:291
+       do_fast_syscall_32+0x32/0x70 arch/x86/entry/syscall_32.c:316
+       entry_SYSENTER_compat_after_hwframe+0x84/0x8e
+
+-> #0 (kn->active#66){++++}-{0:0}:
+       check_prev_add+0xeb/0xe60 kernel/locking/lockdep.c:3181
+       check_prevs_add kernel/locking/lockdep.c:3300 [inline]
+       validate_chain kernel/locking/lockdep.c:3924 [inline]
+       __lock_acquire+0x1492/0x1ec0 kernel/locking/lockdep.c:5254
+       lock_acquire kernel/locking/lockdep.c:5908 [inline]
+       lock_acquire+0x1d1/0x380 kernel/locking/lockdep.c:5865
+       kernfs_drain+0x4f0/0x600 fs/kernfs/dir.c:532
+       __kernfs_remove+0x34c/0xb80 fs/kernfs/dir.c:1579
+       kernfs_remove_by_name_ns+0x7c/0x120 fs/kernfs/dir.c:1797
+       kernfs_remove_by_name include/linux/kernfs.h:644 [inline]
+       remove_files+0x96/0x1c0 fs/sysfs/group.c:28
+       sysfs_remove_group+0x8b/0x1b0 fs/sysfs/group.c:328
+       sysfs_remove_groups fs/sysfs/group.c:352 [inline]
+       sysfs_remove_groups+0x60/0xb0 fs/sysfs/group.c:344
+       device_remove_groups drivers/base/core.c:2918 [inline]
+       device_remove_attrs+0x192/0x290 drivers/base/core.c:3048
+       device_del+0x36e/0x9b0 drivers/base/core.c:3964
+       serio_destroy_port+0x476/0x590 drivers/input/serio/serio.c:543
+       serio_unregister_port+0x2b/0x40 drivers/input/serio/serio.c:680
+       userio_char_release+0x91/0xe0 drivers/input/serio/userio.c:105
+       __fput+0x3ff/0xb50 fs/file_table.c:512
+       task_work_run+0x150/0x240 kernel/task_work.c:233
+       resume_user_mode_work include/linux/resume_user_mode.h:50 [inline]
+       __exit_to_user_mode_loop kernel/entry/common.c:70 [inline]
+       exit_to_user_mode_loop+0x1d8/0x700 kernel/entry/common.c:101
+       __exit_to_user_mode_prepare include/linux/irq-entry-common.h:207 [inline]
+       syscall_exit_to_user_mode_prepare include/linux/irq-entry-common.h:230 [inline]
+       syscall_exit_to_user_mode include/linux/entry-common.h:336 [inline]
+       __do_fast_syscall_32+0x59f/0x8b0 arch/x86/entry/syscall_32.c:294
+       do_fast_syscall_32+0x32/0x70 arch/x86/entry/syscall_32.c:316
+       entry_SYSENTER_compat_after_hwframe+0x84/0x8e
+
+other info that might help us debug this:
+
+ Possible unsafe locking scenario:
+
+       CPU0                    CPU1
+       ----                    ----
+  lock(serio_mutex);
+                               lock(kn->active#66);
+                               lock(serio_mutex);
+  lock(kn->active#66);
+
+ *** DEADLOCK ***
+
+locks held by syz.0.17/6098: 1, last CPU#2:
+ #0: ffffffff904e2360 (serio_mutex){+.+.}-{4:4}, at: class_mutex_constructor include/linux/mutex.h:253 [inline]
+ #0: ffffffff904e2360 (serio_mutex){+.+.}-{4:4}, at: serio_unregister_port+0x1b/0x40 drivers/input/serio/serio.c:677
+
+stack backtrace:
+CPU: 2 UID: 0 PID: 6098 Comm: syz.0.17 Not tainted syzkaller #0 PREEMPT(full) 
+Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.16.3-debian-1.16.3-2 04/01/2014
+Call Trace:
+ <TASK>
+ __dump_stack lib/dump_stack.c:94 [inline]
+ dump_stack_lvl+0x100/0x190 lib/dump_stack.c:120
+ print_circular_bug.cold+0x178/0x1be kernel/locking/lockdep.c:2059
+ check_noncircular+0x146/0x160 kernel/locking/lockdep.c:2191
+ check_prev_add+0xeb/0xe60 kernel/locking/lockdep.c:3181
+ check_prevs_add kernel/locking/lockdep.c:3300 [inline]
+ validate_chain kernel/locking/lockdep.c:3924 [inline]
+ __lock_acquire+0x1492/0x1ec0 kernel/locking/lockdep.c:5254
+ lock_acquire kernel/locking/lockdep.c:5908 [inline]
+ lock_acquire+0x1d1/0x380 kernel/locking/lockdep.c:5865
+ kernfs_drain+0x4f0/0x600 fs/kernfs/dir.c:532
+ __kernfs_remove+0x34c/0xb80 fs/kernfs/dir.c:1579
+ kernfs_remove_by_name_ns+0x7c/0x120 fs/kernfs/dir.c:1797
+ kernfs_remove_by_name include/linux/kernfs.h:644 [inline]
+ remove_files+0x96/0x1c0 fs/sysfs/group.c:28
+ sysfs_remove_group+0x8b/0x1b0 fs/sysfs/group.c:328
+ sysfs_remove_groups fs/sysfs/group.c:352 [inline]
+ sysfs_remove_groups+0x60/0xb0 fs/sysfs/group.c:344
+ device_remove_groups drivers/base/core.c:2918 [inline]
+ device_remove_attrs+0x192/0x290 drivers/base/core.c:3048
+ device_del+0x36e/0x9b0 drivers/base/core.c:3964
+ serio_destroy_port+0x476/0x590 drivers/input/serio/serio.c:543
+ serio_unregister_port+0x2b/0x40 drivers/input/serio/serio.c:680
+ userio_char_release+0x91/0xe0 drivers/input/serio/userio.c:105
+ __fput+0x3ff/0xb50 fs/file_table.c:512
+ task_work_run+0x150/0x240 kernel/task_work.c:233
+ resume_user_mode_work include/linux/resume_user_mode.h:50 [inline]
+ __exit_to_user_mode_loop kernel/entry/common.c:70 [inline]
+ exit_to_user_mode_loop+0x1d8/0x700 kernel/entry/common.c:101
+ __exit_to_user_mode_prepare include/linux/irq-entry-common.h:207 [inline]
+ syscall_exit_to_user_mode_prepare include/linux/irq-entry-common.h:230 [inline]
+ syscall_exit_to_user_mode include/linux/entry-common.h:336 [inline]
+ __do_fast_syscall_32+0x59f/0x8b0 arch/x86/entry/syscall_32.c:294
+ do_fast_syscall_32+0x32/0x70 arch/x86/entry/syscall_32.c:316
+ entry_SYSENTER_compat_after_hwframe+0x84/0x8e
+RIP: 0023:0xf6ffefec
+Code: Unable to access opcode bytes at 0xf6ffefc2.
+RSP: 002b:00000000ffbd8fbc EFLAGS: 00000202 ORIG_RAX: 00000000000001b4
+RAX: 0000000000000000 RBX: 0000000000000003 RCX: 000000000000001e
+RDX: 0000000000000000 RSI: 0000000000000000 RDI: 0000000000000000
+RBP: 0000000000000000 R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000000
+R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
+ </TASK>
+
+
+---
+If you want syzbot to run the reproducer, reply with:
+#syz test: git://repo/address.git branch-or-commit-hash
+If you attach or paste a git patch, syzbot will apply it before testing.

@@ -1,267 +1,200 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-oa2-f1.google.com (mail-oa2-f1.google.com [74.125.231.65])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8D71C2690EC
-	for <linux-input@vger.kernel.org>; Sun, 30 Aug 2026 15:09:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9E2CD1E9B1A
+	for <linux-input@vger.kernel.org>; Sun, 30 Aug 2026 18:31:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.231.65
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788102594; cv=none; b=m41AyF173vu6dYOJOqpHadOIIc38nhj9GRhvf58aEkVPrdnA1kRLp0tagNm3a4CB9HeE8ocgCNjXUXQ8zwEsOF6E9W68vw/ByPtoa9Z94GZoT3gbD8hXIIxKD9Ha9MRuS30RRIitEO0QD5bNCjxK0lDaPSc+QZK0W2AaL0N4nFg=
+	t=1788114692; cv=none; b=k5FjcPcINZi/Wn+ex+yiVo8ROQKoHZrZs+elzfLjgjZOakQ3usWYpxqo5vujr+FyKllXdzqy4r3/yLFtw/u/dktb/hPLHFs2Gb8c+OBuvSQ00APIpMkcGoPz0l57KOi+BEupmAoAl4umAGN6l6CMl9eYxU1C2C7h6FA60RsMxWs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788102594; c=relaxed/simple;
-	bh=9FCYv69xeuCYxhoEjgHB/ewu1MZTiKa9zt2dsFcJWjg=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=GsLRnJoFb2qjIPqbnobCdL29NmgaRCn1aaOOOpfeBkF/PbFrIYj5ppSUiSLWoFJkgFPOw4xAboaANV7jLPMlKHYGJ0xa0EgsNgUkC4WZf21pYlEYNBxaioqKrS2GHTU3F5tb1tpg9aazhhL/FV8h3CQDWmnSh3oqQ4oZbpuwV2I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=FVFx30/f; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1788114692; c=relaxed/simple;
+	bh=Dc/SDUG7wsTJwkmbP2Ir4YGAA4eRTTTF2JIZziwjDPs=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=ttaObf4BNNxb+/qaBjtV6CZHD0DgIkWDnlCWvgWLP8pXoECke02d99IItYK3aoWAUgpKXhs2/DUmhHlhBnC9V/k8OVADxh0FH3XbHioX5oHSZaWQ0hpD9x0znqCzbGafIjYxWRP5fZhAwLBofUa0FQe4VVQxVDv0dPTVXgDyqN0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=masoncamara.com; spf=pass smtp.mailfrom=masoncamara.com; dkim=pass (2048-bit key) header.d=masoncamara-com.20251104.gappssmtp.com header.i=@masoncamara-com.20251104.gappssmtp.com header.b=v+K7vvVT; arc=none smtp.client-ip=74.125.231.65
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=masoncamara.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=masoncamara.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="FVFx30/f"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 05B431F000E9;
-	Sun, 30 Aug 2026 15:09:51 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788102592;
-	bh=igVtH58LpW64sTTCKmGk2zfrPqbEgErQ9sf5IUg3WXE=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=FVFx30/fcC8bY6fGNPosZF4VFG4t537z/NgupI62essysWd7+O4aISeDJCugb1gcO
-	 coCajFzOXHbExloEXhadjQ+IysQ5gLMCLeB9vGUgIzbmOwzNaRrgOnBb6B61lZj0dV
-	 iI5927CHKc9z2ZAfc80cde/H6tF7EwX2e94grd8gKnZuR3WYS3e2s1gGMhsZvtUMOj
-	 IyvEiFpsTW52vDVusp9ica9w2UbrPyWHdfJqovMp0paM2qb4D8r0nRMiG5SYm/QuTl
-	 qcX7LyYTSpmqtRsxyvEH1f0AWAER2x3NR4bm9/IqVGmnW23O1a9QfOFVlQXIWYh07Y
-	 +Th2htotTZZwA==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 3/6] HID: hid-lenovo-go: return configuration request
- errors
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Aditya Dash" <mradityadash@gmail.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <a18c5147dc7a0699523c62013d64cd1d8ec40690.1788096668.git.mradityadash@gmail.com>
-References: <cover.1788096666.git.mradityadash@gmail.com>
- <a18c5147dc7a0699523c62013d64cd1d8ec40690.1788096668.git.mradityadash@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Sun, 30 Aug 2026 15:09:51 +0000
-Message-Id: <20260830150952.05B431F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=masoncamara-com.20251104.gappssmtp.com header.i=@masoncamara-com.20251104.gappssmtp.com header.b="v+K7vvVT"
+Received: by mail-oa2-f1.google.com with SMTP id 586e51a60fabf-451e22b4773so1272298fac.0
+        for <linux-input@vger.kernel.org>; Sun, 30 Aug 2026 11:31:29 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=masoncamara-com.20251104.gappssmtp.com; s=20251104; t=1788114688; x=1788719488; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=dgh1NzZ5hofs8HTSQ7QUxgLQk3+1tZCEvxkmug+HP5E=;
+        b=v+K7vvVTxX+70x6G8trJMQMDcVHGCDgALTaSSjH3qPNcjDLJdaFU1jj6NrCEDlN8pF
+         GB+xKEyUhBCQ7sgXlB37Ij3pdHI46CGYiXKpiybukQFvx1cYcZZW6YVdyUBdLgMD03u3
+         Y0+ANJKQirSsbfedZ2CY628gOnZAAVc3SdW+Fi3/BjYpCxEiIcOc8lKI37x2m0XHAD3u
+         soFe3drC9RtgIeA364YOdaF7THiYmoLcdNzIEsVXjj3w01UmPFAsa0U75bcbSIK+HZpz
+         Pzy8gXn9bmYsU4WHdpEV3jCQUafKRSUITGPyGhWb2a/DCBJGyHGe4qZcrKtXMhAuXtwN
+         aBgw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1788114688; x=1788719488;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=dgh1NzZ5hofs8HTSQ7QUxgLQk3+1tZCEvxkmug+HP5E=;
+        b=mHk+4mFze6QMDCH4bDZHrJ6sO78sphfowoM7dpelnbCvluzd/vZIn9thdB1015mFrZ
+         EaTu15bG5IrgCHjeUK7ztJAdX4ligKHTlwJgL/OMIhMsWPWQYVPrbwI/exMO30ehcvyC
+         le6nWO684oFuyn6LK7VmO5E4boO1AR+j5FmuvyCG6SQJsAvjH6WaxL7QvpNtLLarp+aU
+         1R7u6Mi0jOeBJdX9KrrjzFklXl5Noj0XJsHYjYzEDlHL/i8/JY5Lmo9RdYimNnlP0TIg
+         P5Epu5iUzRSADFibu7jJxGyKxNqZQVP0/k75ENSirltxX2MmGRIkiXn3+WXDYemcHcKh
+         vs7A==
+X-Gm-Message-State: AFuF++l8woiDdFZK2Ezl09uoQ72Q2CRus4U0Tpkyrr+48Vbrxlq7JYyn
+	9efUkkBfh/xkslqseGVn2GXMw3TuFPXFjCzoaAwnnmIesvn1mYGq/a9taVb/X2fvY3Qb0qBaZzU
+	iNu3VZGnuerHE94TR
+X-Gm-Gg: AR+sD11ihtmKBD4pJ7YRf2EhOX0Sg3B/B4qIQd5n9Dhbzj3g8iPAvY4n5sNqQoay872
+	l1GFzsQgOdY0ecS+fkx7AqHV/iyhlHQ68yeAGYt8XzRQIFGILXh1Cth6HydVpEcHcVzuJDi745Y
+	NxyG3pIhDRv5fLqKFfftjDPLmVixgye1ysu6QdiArK0VPzs0FOsb/eLsXcYfXXfr+aqQcb4VeGT
+	AeOqyNYOj0CCzwJm5GgsXiNHAjcUeQBD7aB5eYHc5PT5Af04BW+MoW27/n6lIeO0VnbdddtD7mn
+	s+YH9L++QK8mBd2E4nSi6U+L8M/wBqNLx+tNYe9Da1AUehCjw+HXkU3a4ZwoJ8CEvuG25hsQHEK
+	naNKaUphJQdOwumipFID6BhDz/ca1EVb6ffewdLgl3ebCP6zz17RtuGld/oaReTdnIeI+ZzvLmF
+	iBApjn7Cf3GCVouac6A89tTS0nbPOppDJWPnb/tgO6eqEas22KSNmw1FBVcCdWpGTfvH+6SP/qR
+	FCc0+3R29vQXqaKpSOPJn21vJFzaAkmbzY0arT2etACR9T1lQ==
+X-Received: by 2002:a05:6830:81d8:b0:7d7:fbe2:9725 with SMTP id 46e09a7af769-7f4f2220121mr22615283a34.5.1788114688486;
+        Sun, 30 Aug 2026 11:31:28 -0700 (PDT)
+Received: from localhost.localdomain ([69.26.129.115])
+        by smtp.gmail.com with ESMTPSA id 46e09a7af769-7f4fa96cf17sm6436259a34.15.2026.08.30.11.31.27
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 30 Aug 2026 11:31:27 -0700 (PDT)
+From: Mason Camara <ping@masoncamara.com>
+To: jikos@kernel.org,
+	bentiss@kernel.org,
+	shuah@kernel.org
+Cc: linux-input@vger.kernel.org,
+	linux-kselftest@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	wh6cyy@gmail.com,
+	Mason Camara <ping@masoncamara.com>
+Subject: [PATCH v2] selftests/hid: test battery queries with nonzero field offsets
+Date: Sun, 30 Aug 2026 12:31:09 -0600
+Message-Id: <20260830183109.9441-1-ping@masoncamara.com>
+X-Mailer: git-send-email 2.39.5 (Apple Git-154)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 6 potential issue(=
-s) to consider:
+Commit d07644524b65 ("HID: input: read battery capacity from its actual
+report offset") fixed synchronous battery queries for reports that place
+the capacity byte after status fields.
 
-New issues:
-- [High] The newly added spinlock and completion are accessed by the raw ev=
-ent handler before they are initialized, causing a potential kernel crash.
+Add a UHID mouse with the Magic Mouse 2 report layout and answer GET_REPORT
+with 90 04 5f. Read capacity before sending an input report so the test
+exercises the synchronous query path. Without the fix, it reads the status
+byte as 4%; with the fix, it reads capacity as 95%.
 
-Pre-existing issues:
-- [High] Missing cleanup on probe failure leaves the hardware started, the =
-device open, and sysfs groups leaked.
-- [High] Missing hardware stop in remove for devices with no endpoints.
-- [High] Global static `drvdata` structure causes state corruption and kern=
-el panics when multiple devices are connected.
-- [High] ABBA deadlock between device removal and sysfs attribute stores.
-- [High] Possible out-of-bounds array access in get_endpoint_address if USB=
- interface has no endpoints.
---
+Enable CONFIG_HID_BATTERY_STRENGTH in the HID selftest configuration.
 
-commit 0d711ce676d4cb403114e39243d7e14be625eec6
-Author: Aditya Dash <mradityadash@gmail.com>
-Subject: HID: hid-lenovo-go: return configuration request errors
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=221263
+Assisted-by: LLM
+Signed-off-by: Mason Camara <ping@masoncamara.com>
+---
 
-This commit adds a mechanism to track pending command state and correctly
-match configuration replies by command ID, sub-command, and device. It
-ensures that unrelated replies, errors, timeouts, or interrupted waits are
-properly reported as errors to the caller rather than silently returning
-success.
+Changes in v2:
+- Drop driver fix, superseded by d07644524b65.
+- Rebase the regression test onto the current HID for-next branch.
+- Amend commit message and tool-assistance trailer.
 
-> diff --git a/drivers/hid/hid-lenovo-go.c b/drivers/hid/hid-lenovo-go.c
-> index b937d11dd6f6a..dbfacbb70394b 100644
-> --- a/drivers/hid/hid-lenovo-go.c
-> +++ b/drivers/hid/hid-lenovo-go.c
-> @@ -31,13 +32,27 @@
->  #include "hid-ids.h"
-> =20
->  #define GO_GP_INTF_IN		0x83
-> +#define GO_INPUT_REPORT_ID	0x04
-> +#define GO_OUTPUT_REPORT_ID	0x05
->  #define GO_GP_RESET_SUCCESS	0x01
->  #define GO_PACKET_SIZE		64
-> +#define GO_COMMAND_TIMEOUT_MS	50
-> +
-> +/* Lenovo replies identify a command and a sub-command, but have no sequ=
-ence. */
-> +struct hid_go_cmd {
-> +	struct completion done;
-> +	spinlock_t lock; /* protects fields below */
-> +	bool pending;
-> +	u8 id;
-> +	u8 command;
-> +	u8 sub_command;
-> +	u8 device;
-> +	int result;
-> +};
-> =20
->  static struct hid_go_cfg {
->  	struct delayed_work go_cfg_setup;
-> -	struct completion send_cmd_complete;
-> +	struct hid_go_cmd cmd;
->  	struct led_classdev *led_cdev;
->  	struct hid_device *hdev;
+v1: https://lore.kernel.org/linux-input/20260712044702.893825-1-ping@masoncamara.com/
 
-[Severity: High]
-This is a pre-existing issue, but the entire driver state is defined as a
-single global variable instead of per-device driver data. Does this cause
-state corruption or kernel panics when multiple supported devices are
-connected simultaneously?
+ tools/testing/selftests/hid/config            |  1 +
+ .../testing/selftests/hid/tests/test_mouse.py | 54 +++++++++++++++++++
+ 2 files changed, 55 insertions(+)
 
-[ ... ]
+diff --git a/tools/testing/selftests/hid/config b/tools/testing/selftests/hid/config
+index 1758b055f..da52335b8 100644
+--- a/tools/testing/selftests/hid/config
++++ b/tools/testing/selftests/hid/config
+@@ -16,6 +16,7 @@ CONFIG_FTRACE_SYSCALLS=y
+ CONFIG_FUNCTION_TRACER=y
+ CONFIG_HIDRAW=y
+ CONFIG_HID=y
++CONFIG_HID_BATTERY_STRENGTH=y
+ CONFIG_HID_BPF=y
+ CONFIG_INPUT_EVDEV=y
+ CONFIG_UHID=y
+diff --git a/tools/testing/selftests/hid/tests/test_mouse.py b/tools/testing/selftests/hid/tests/test_mouse.py
+index eb4e15a0e..141c1f069 100644
+--- a/tools/testing/selftests/hid/tests/test_mouse.py
++++ b/tools/testing/selftests/hid/tests/test_mouse.py
+@@ -11,6 +11,7 @@ import hidtools.hid
+ from hidtools.util import BusType
+ import libevdev
+ import logging
++import threading
+ import pytest
+ 
+ logger = logging.getLogger("hidtools.test.mouse")
+@@ -598,6 +599,35 @@ class ResolutionMultiplierHWheelMouse(TwoWheelMouse):
+         return 0
+ 
+ 
++class BatteryOffsetMouse(BaseMouse):
++    report_descriptor = [
++        # Mouse report
++        0x05, 0x01, 0x09, 0x02, 0xa1, 0x01, 0x85, 0x12,
++        0x05, 0x09, 0x19, 0x01, 0x29, 0x02, 0x15, 0x00,
++        0x25, 0x01, 0x95, 0x02, 0x75, 0x01, 0x81, 0x02,
++        0x95, 0x01, 0x75, 0x06, 0x81, 0x01, 0x05, 0x01,
++        0x09, 0x01, 0xa1, 0x00, 0x09, 0x30, 0x09, 0x31,
++        0x15, 0x81, 0x25, 0x7f, 0x75, 0x08, 0x95, 0x02,
++        0x81, 0x06, 0xc0, 0xc0,
++        # Battery report: one status byte followed by capacity
++        0x06, 0x00, 0xff, 0x09, 0x14, 0xa1, 0x01, 0x85,
++        0x90, 0x05, 0x84, 0x75, 0x01, 0x95, 0x03, 0x15,
++        0x00, 0x25, 0x01, 0x09, 0x61, 0x05, 0x85, 0x09,
++        0x44, 0x09, 0x46, 0x81, 0x02, 0x95, 0x05, 0x81,
++        0x01, 0x75, 0x08, 0x95, 0x01, 0x15, 0x00, 0x26,
++        0xff, 0x00, 0x09, 0x65, 0x81, 0x02, 0xc0,
++    ]
++
++    def __init__(self, rdesc=report_descriptor, name=None, input_info=None):
++        super().__init__(rdesc, name, input_info)
++
++    def get_report(self, req, rnum, rtype):
++        if rtype != self.UHID_INPUT_REPORT or rnum != 0x90:
++            return (1, [])
++
++        return (0, [0x90, 0x04, 0x5F])
++
++
+ class BaseTest:
+     class TestMouse(base.BaseTestCase.TestUhid):
+         def test_buttons(self):
+@@ -1045,3 +1075,27 @@ class TestBadReportDescriptorMouse(base.BaseTestCase.TestUhid):
+ 
+     def assertName(self, uhdev):
+         pass
++
++
++class TestBatteryOffsetMouse(base.BaseTestCase.TestUhid):
++    def create_device(self):
++        return BatteryOffsetMouse()
++
++    def test_queried_battery_field_offset(self):
++        uhdev = self.uhdev
++        power_supply = uhdev.power_supply_class
++        assert power_supply is not None
++
++        done = False
++
++        def dispatch():
++            while not done:
++                uhdev.dispatch(1)
++
++        thread = threading.Thread(target=dispatch)
++        thread.start()
++        try:
++            assert power_supply.capacity == 95
++        finally:
++            done = True
++            thread.join()
 
-> @@ -331,6 +346,62 @@ static const char *const os_mode_text[] =3D {
->  	[LINUX] =3D "linux",
->  };
-> =20
-> +static void hid_go_cmd_arm(u8 id, u8 command, u8 sub_command, u8 device)
-> +{
+base-commit: 931aaa59d1826f43b0bb3f07e21233f6faf4540a
+-- 
+2.39.5 (Apple Git-154)
 
-[ ... ]
-
-> +static void hid_go_cmd_consume(const struct command_report *cmd_rep, int=
- result)
-> +{
-> +	guard(spinlock_irqsave)(&drvdata.cmd.lock);
-> +
-> +	if (drvdata.cmd.pending && cmd_rep->id =3D=3D drvdata.cmd.id &&
-
-[Severity: High]
-Can hid_go_raw_event() be triggered by an early interrupt before
-hid_go_cfg_probe() runs?
-
-Since hid_hw_start() and hid_hw_open() are called during device probe,
-the hardware can generate interrupts before hid_go_cfg_probe() initializes
-this spinlock.
-
-If an early interrupt arrives, it will call hid_go_raw_event()
-and then hid_go_cmd_consume(), which locks drvdata.cmd.lock.
-
-Locking an uninitialized spinlock will lead to lock corruption or kernel cr=
-ashes.
-
-[ ... ]
-
-> @@ -654,7 +725,7 @@ static int hid_go_raw_event(struct hid_device *hdev, =
-struct hid_report *report,
->  	struct command_report *cmd_rep;
->  	int ep, ret;
-> =20
-> -	if (size !=3D GO_PACKET_SIZE)
-> +	if (size !=3D GO_PACKET_SIZE || data[0] !=3D GO_INPUT_REPORT_ID)
->  		goto passthrough;
-> =20
->  	ep =3D get_endpoint_address(hdev);
-
-[Severity: High]
-This is a pre-existing issue, but does get_endpoint_address() safely handle
-USB interfaces with zero endpoints?
-
-In get_endpoint_address():
-
-    ep =3D intf->cur_altsetting->endpoint;
-    if (!ep)
-        return -ENODEV;
-    return ep->desc.bEndpointAddress;
-
-If a malformed USB interface reports 0 endpoints (bNumEndpoints =3D=3D 0), =
-the
-endpoint array might be a 0-length array. The if (!ep) check only verifies
-the pointer isn't NULL, but accessing ep->desc.bEndpointAddress on an empty
-array could read memory out of bounds.
-
-[ ... ]
-
-> @@ -2362,9 +2426,12 @@ static int hid_go_cfg_probe(struct hid_device *hde=
-v,
->  	if (!buf)
->  		return -ENOMEM;
-> =20
-> +	mutex_init(&drvdata.cfg_mutex);
-> +	init_completion(&drvdata.cmd.done);
-> +	spin_lock_init(&drvdata.cmd.lock);
-> +	drvdata.cmd.pending =3D false;
->  	hid_set_drvdata(hdev, &drvdata);
->  	drvdata.hdev =3D hdev;
-> -	mutex_init(&drvdata.cfg_mutex);
-
-[Severity: High]
-This is a pre-existing issue, but this unconditionally re-initializes global
-synchronization primitives (and the newly added drvdata.cmd.lock and
-drvdata.cmd.done).
-
-If a second device is plugged in while the first is active, will this corru=
-pt
-the wait queues and lock states of the first device?
-
-[ ... ]
-
-> @@ -2388,8 +2455,6 @@ static int hid_go_cfg_probe(struct hid_device *hdev,
-> =20
->  	drvdata.led_cdev =3D &go_cdev_rgb.led_cdev;
-> =20
-> -	init_completion(&drvdata.send_cmd_complete);
-> -
->  	/* Executing calls prior to returning from probe will lock the MCU. Sch=
-edule
->  	 * initial data call after probe has completed and MCU can accept calls.
->  	 */
-
-[Severity: High]
-This is a pre-existing issue, but does failing here or later in hid_go_prob=
-e()
-leave the hardware running and resources leaked?
-
-If schedule_delayed_work() fails (or if hid_go_cfg_probe() fails earlier),
-the error is returned but the error paths do not call hid_hw_stop(),
-hid_hw_close(), or clean up the manually created sysfs groups.
-
-This leaves the hardware in an active state and leaks resources upon device
-removal.
-
-
-I also noticed a few other pre-existing issues in the driver outside the sc=
-ope
-of this patch:
-
-[Severity: High]
-This is a pre-existing issue, but does hid_go_remove() safely tear down
-the hardware for all devices?
-
-In hid_go_remove():
-
-    int ep =3D get_endpoint_address(hdev);
-
-    if (ep <=3D 0)
-        return;
-
-If get_endpoint_address() fails and returns <=3D 0, the function immediately
-returns without calling hid_hw_close() and hid_hw_stop(). This prevents
-the driver from tearing down the hardware properly, leaving active interfac=
-es
-unrestored and leaking open counts when the device is unregistered.
-
-[Severity: High]
-This is a pre-existing issue, but can hid_go_cfg_remove() deadlock with
-concurrent sysfs operations?
-
-In hid_go_cfg_remove():
-
-    guard(mutex)(&drvdata.cfg_mutex);
-    sysfs_remove_groups(&hdev->dev.kobj, top_level_attr_groups);
-
-If userspace writes to a sysfs attribute, kernfs acquires an active referen=
-ce
-for the file and calls mcu_property_out(), which blocks waiting for
-drvdata.cfg_mutex. During device removal, hid_go_cfg_remove() acquires
-drvdata.cfg_mutex first and then calls sysfs_remove_groups(), which blocks
-waiting for all active kernfs references to drain, causing an ABBA deadlock.
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/cover.1788096666.gi=
-t.mradityadash@gmail.com?part=3D3

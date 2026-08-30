@@ -1,43 +1,43 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2216C28C5B1
-	for <linux-input@vger.kernel.org>; Sun, 30 Aug 2026 23:53:27 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 21641242D9B
+	for <linux-input@vger.kernel.org>; Sun, 30 Aug 2026 23:56:10 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788134009; cv=none; b=I5AGNpKkRHd6qH70O+zzUT8qAbqUrF+0HHhGNoYzvQZVz/s8zZZE/OW85P8ccX/2kKmLrG9mEF3TLACIDqemMmLDx928cnUt92iuyO4g0kxC3l1MtlU4ci1Vo2cWPjZjTC1ubDO7Fxl1RdG4DBTsdSKSnn6pGnypITbxfkwR3eY=
+	t=1788134171; cv=none; b=rgn3pYBoELs75+INjqJVY2q15OYdUR9L99f8xask7p/y1Y3POKaZQY9vqJaH2F7V/djlyZ2b5q79ZazZsEsT6TWosClCubM5x83AXf0B1/Rw8oUkwysp6RBE0vg+vou5qgZAlkXzjKRyXDB/q+Or31JKd2MfGAcpD2YjbzI+xjk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788134009; c=relaxed/simple;
-	bh=TMawuYA/Zs0vHCKOP/FHkKyLURyIUlZSsw3Qm4EU438=;
+	s=arc-20240116; t=1788134171; c=relaxed/simple;
+	bh=3fLsXQD7lEEvcB2aOKdqs4pC5I6dkluuvT9HFLeN6EY=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=ekuXySJBc9MfyQ3oE3XESLM2a9f7XwhPv4+sMs+H5BBobdaBoQSKey40L+RWeh5hFiAPh7jkffRK3huFiR7R2dW0bMr+lDEhNrXqMZCVpVqQc5lxSgYNDsCOOYnxaHNw/nHx96qXTQWtaQV6Vx24aIJizyj4OoqqEdaQInSzGaw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=odBewrPS; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=SkRvo3wjQARm0kSsp9h5rHEDNZ5R3jB4XXTp+b2nUNBtjpQYXKBzYC87N4Ru/OGXnby89it5fzgTh4BUuwZ4cBKGMVbB++saKJdi9zImFniD5NdMt9EQiNyuNtcM83MKIIrRO60M2dUMPhrTrw1bCoNcgvKY20oU2eiCTFmcOzU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=bwGowQgV; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="odBewrPS"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B071A1F000E9;
-	Sun, 30 Aug 2026 23:53:27 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="bwGowQgV"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8CB091F000E9;
+	Sun, 30 Aug 2026 23:56:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788134007;
-	bh=OmrrNzln7MzcXbeO7Ewa5vz/PWEADLBOynpdd2tFrVc=;
+	s=k20260515; t=1788134169;
+	bh=zcZdIYY1PiVFWOoDR7wvIibdyywqTr5sE+nNiiMbA9E=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=odBewrPSKmmybO+sSEmiGE9Bdsnncg9aWGwMCpx2TwsAQHNZOfX6xhCbF7sY4VELM
-	 gi6RdrtDvWPJrs01WYEe5H/603ribO2XSWaqp+a6eU8bzVs/ksytLwILCAv6GnsAg0
-	 4v3yU8hg1UvDQNVhzaZU543bgb9suW9bQ88XE0hDXIXpTi5VmQ/fb0hs/b1wRZ4BUi
-	 JEhcz/nHRo5UWWarzTKBTyVysgvoqa2wPOoa1rmBoqWApZBN8YSEgsy77JwSb8W7l9
-	 2Jlw8K1zyJjIKHPQARzyh973z7SJ8oYY+Le6pSmtHod1NJao7mNPBKP0Nn26R988MQ
-	 Nx0hwnRvzVwuQ==
+	b=bwGowQgVL9Y4wqLvhhudW1n5TTnC6PY7whcnez1TGS1qQUBc+xyxwSZZvYGEt0cdy
+	 T5IrrmYpG6jVCuWAK060HU9HOrIh8R60aD7V9jqEuJd/Tbz9lxHq/tQjD5scwMgdVT
+	 Vcq94nnYoNMHaYpSCq2ecyYS7xN7TpRIMJJ+1j47kyzKfMtv9kqpB3ceiwCbut5qNL
+	 8EAtVUe/5soLSPGbwaHIHAuMMwCBpMNk/mKCkXaZhpqJDjGRR4uCsJryRg13Td83b3
+	 iGlUVIKGYUiGmx4BA81egs6XFkEdZ+Ey3qYMGR7EhkFERggKi7aA0mRkdj7bVCLcbQ
+	 GGKdWjRoeWQzw==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v4 04/13] HID: asus: add gamepad configuration
+Subject: Re: [PATCH v4 03/13] HID: asus: add support for ROG Ally handhelds
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Denis Benato" <denis.benato@linux.dev>
 Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260830234320.114356-5-denis.benato@linux.dev>
+In-Reply-To: <20260830234320.114356-4-denis.benato@linux.dev>
 References: <20260830234320.114356-1-denis.benato@linux.dev>
- <20260830234320.114356-5-denis.benato@linux.dev>
+ <20260830234320.114356-4-denis.benato@linux.dev>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Sun, 30 Aug 2026 23:53:27 +0000
-Message-Id: <20260830235327.B071A1F000E9@smtp.kernel.org>
+Date: Sun, 30 Aug 2026 23:56:09 +0000
+Message-Id: <20260830235609.8CB091F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -46,57 +46,78 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
 Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [Medium] The allocated configuration structure `ally_cfg` is never assign=
-ed to the global driver data, making all sysfs attributes non-functional an=
-d initialization logic dead code.
+- [High] Devres LIFO ordering violation causing a use-after-free during dev=
+ice removal.
 --
 
-commit 801faddce1ca16f0ffe78534d10cc73ce08c6da4
+commit 6c026e410beeb5bf25ebf0d772fc59dc024dc875
 Author: Denis Benato <denis.benato@linux.dev>
 
-HID: asus: add gamepad configuration
+    HID: asus: add support for ROG Ally handhelds
 
-This patch adds the base configuration structures for the gamepad
-configuration, detects capabilities, and initializes the device in a
-known state.
+    Implement the core functionality for ASUS handhelds, extending the func=
+tionality
+    of hid-asus if the driver is enabled. This initializes the device, impl=
+ements=20
+    Ally X input mapping, and emits a single proper event for AC button lon=
+g press.
 
 > diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
-> index f36cf93e380d5..7fdb77432171e 100644
 > --- a/drivers/hid/hid-asus.c
 > +++ b/drivers/hid/hid-asus.c
 [ ... ]
-> @@ -1004,6 +1307,14 @@ static struct ally_handheld *hid_asus_ally_probe(s=
-truct hid_device *hdev)
->  			return ERR_PTR(ret);
->  		}
-> =20
-> +		ally_cfg =3D ally_config_create(hdev, &ally_drvdata);
-> +		if (IS_ERR(ally_cfg)) {
-> +			hid_err(hdev, "Failed to create Ally cfg: %ld\n",
-> +				PTR_ERR(ally_cfg));
-> +			ally_put_udev_if_orphaned();
-> +			return ERR_PTR(PTR_ERR(ally_cfg));
-> +		}
+> +static void ally_x_input_close(struct input_dev *dev)
+> +{
+> +	hid_hw_close(input_get_drvdata(dev));
+> +}
 > +
+> +static struct input_dev *ally_x_alloc_input_dev(struct hid_device *hdev)
+> +{
+> +	struct input_dev *input_dev =3D devm_input_allocate_device(&hdev->dev);
+[ ... ]
+> +	input_dev->open =3D ally_x_input_open;
+> +	input_dev->close =3D ally_x_input_close;
+> +
+> +	return input_dev;
+> +}
+[ ... ]
+> @@ -1570,6 +2481,9 @@ static void asus_remove(struct hid_device *hdev)
+>  	if (drvdata->listener.brightness_set)
+>  		asus_hid_unregister_listener(&drvdata->listener);
+> =20
+> +	if (drvdata->quirks & QUIRK_ROG_ALLY_XPAD)
+> +		hid_asus_ally_remove(hdev, drvdata->rog_ally);
+> +
+>  	asus_worker_stop(drvdata->worker);
+>  	hid_hw_stop(hdev);
+>  }
 
-[Severity: Medium]
-Does this code intentionally skip assigning the newly created configuration
-to the driver data?
+[Severity: High]
+Does this manual call to hid_hw_stop() conflict with the devres-managed inp=
+ut=20
+device teardown?
 
-Looking at hid_asus_ally_probe(), ally_cfg is allocated via
-ally_config_create(), but it is never assigned to ally_drvdata.config
-(for example, alongside the ally_drvdata.cfg_hdev =3D hdev assignment later
-in the function).
+Since ally_x_alloc_input_dev() allocates the input device using=20
+devm_input_allocate_device(), its unregistration is deferred until after=20
+this remove() callback finishes.=20
 
-Without this assignment, won't ally_get_config() always return NULL?
-This appears to make the gamepad sysfs attributes non-functional, as
-subsequent sysfs callbacks will unconditionally return -ENODEV when
-attempting to read or write the unassigned configuration.
+If userspace has an open file descriptor on the gamepad device when the=20
+device is unplugged or unbound, the devres-triggered input_unregister_devic=
+e()=20
+will call the input device's .close callback, which was set to=20
+ally_x_input_close():
 
->  		ret =3D hid_asus_ally_init(hdev, &ally_drvdata);
->  		if (ret < 0) {
->  			ally_put_udev_if_orphaned();
+ally_x_input_close()
+    hid_hw_close(input_get_drvdata(dev));
+
+Because hid_hw_stop() has already been executed here in asus_remove(), the=
+=20
+transport resources have been destroyed. When ally_x_input_close() drops in=
+to=20
+the transport driver via hid_hw_close(), it will try to access those freed=
+=20
+resources, leading to a use-after-free.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260830234320.1143=
-56-1-denis.benato@linux.dev?part=3D4
+56-1-denis.benato@linux.dev?part=3D3

@@ -1,178 +1,162 @@
-Received: from OS0P286CU011.outbound.protection.outlook.com (mail-japanwestazolkn19010022.outbound.protection.outlook.com [52.103.66.22])
+Received: from mail-4316.protonmail.ch (mail-4316.protonmail.ch [185.70.43.16])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E2514346ADC;
-	Sun, 30 Aug 2026 13:19:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.103.66.22
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788095988; cv=fail; b=ceo3UEhSju5D89QEGTzU9nF3iWp5omiGAtsE76LsIBdxq4yTALAEBLKDygQx3N68Jwktyt1vEtAZP74G77GNImyMv6RgEH2rp7B9QBP9eQxIwSiORIYjiOOxyu9ovRvnuzyr1YTTfCQY7GxNIHsWCiJZLmM9sZrzIv5XtA+EmLg=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788095988; c=relaxed/simple;
-	bh=zKHQo/4x6m1me1rtN4tV1rt/aqiP4uZUp4Vv/lPYR8w=;
-	h=From:To:Cc:Subject:Date:Message-ID:Content-Type:MIME-Version; b=ncyEhc4Oa23W3BW/I/G3/svJpXwjnM50Bu6nhxO5Nj+xBnQb0lEztxmlbQOy0do1kdL33zF6kEI1sq5Yk2NHn8ww82BBTQWWiUUPF1pGUUaf/u4CWbmrMmUcKRgVolI25BlMlaK+CVYPx2zbG7c/X0Ow64S9S+9LyvbM/WZneww=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=outlook.com; spf=pass smtp.mailfrom=outlook.com; dkim=pass (2048-bit key) header.d=outlook.com header.i=@outlook.com header.b=XA2lZzkL; arc=fail smtp.client-ip=52.103.66.22
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=outlook.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=outlook.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 373FE3B6C01;
+	Sun, 30 Aug 2026 14:14:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.70.43.16
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1788099251; cv=none; b=NouCKwLaFw4ULG7PdT5vZaIHbTRgCaFt4DMMtCzmE6+msXy3lVIhMf3e/6pH34A6meA2FoWMEsUR/mu4Mdacqt0ptFc30wZZLzRzUKhvN6uASAsebL5n7/L81aJ5fuSFwwrJ7SkcHuTTmIFefjJIvROhvzvyJT7fWh7LuFwGWpk=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1788099251; c=relaxed/simple;
+	bh=JBXgjRPgkgipMjrVz/UPNDg11gkGeniqWvOfMdAQPZo=;
+	h=Date:To:From:Cc:Subject:Message-ID:MIME-Version:Content-Type; b=kCurra+1E9SoUkEXdv/75m80QUyDA8GW90AXrK3hsne5bgWXgIpJNRIEDadc5eg708XC4ZTbk8XHv/WMnYGviMOBEzjE/CF8vuFW7uTgLCPYkZKQxCwy8WcfzXPqncxZsTgr7lW6Xx3YgocG5tBf6mndjWz7cobgVUR4NhJcBrI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=pm.me; spf=pass smtp.mailfrom=pm.me; dkim=pass (2048-bit key) header.d=pm.me header.i=@pm.me header.b=b9Il1G4N; arc=none smtp.client-ip=185.70.43.16
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=pm.me
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=pm.me
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=outlook.com header.i=@outlook.com header.b="XA2lZzkL"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=oT5ZYjAmzUNqbtNzcnSRUh32vShHuUeVzhHRGlpStrSAiyB8HZ0bloWOTzCIytnHqJeWd204br6dv2sAC5k6VXkejEl4JuSF63SRpzpSiDGAgX00v+UFTX7f+naE84xHtfwm3ThOhc55Ql/6zSZCWjzm9izLDtNdQMBD8kCW9wYuykQqH5T8HD9nvQK5ZrS6HgiijxoEr06ju/mNo3Sw9Voy/5s8B+Lic+IROMZ+8OrMPH7Ja8qciA4HvOBF0XDW+btNI7VSc8z2dYoTE3X8vCwyF1SmOPxzEVDHZf+UDQn/CnINNB9TqgkPHaHV/182onetA/fef0yXNv7vU+dNDg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=pwZ4KJi5+/jTaRxsYh2DpPfP/2NizKFq1tmd4JGpw70=;
- b=l/Z6jgtDJDrH+p4DyvOgra60tQQE5ciu2WCcq+sRdoTzRO8Ws2BevhpAJeniAJk5iC9iGiDtWjYaCkVrsv6zzz2OQuNcA3wMbhin57RZn00DFmfvD96h+zt5cMmsbyoXlovZo2E3UskZxdBHQO4IhprYgyywLkdiO5M2xOuJXEXyUAc9Tem1Hz78W0DPvjS3YEp9rbnreWnJeGtQGmr9x++9PzEcJ3TUZ+VZZsPQh0vsrWMeBCEOMMSTPSMbfOWarWqFrJvSPaDi/NE6sjYNaiNH70gNdvRSmS5bs8c3d9OKOHOL1I1oYePKVd2I/yjQA99yd/paNEcz6Xyd1ASj+Q==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
- dkim=none; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=outlook.com;
- s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=pwZ4KJi5+/jTaRxsYh2DpPfP/2NizKFq1tmd4JGpw70=;
- b=XA2lZzkLZ/HditOCHijo/OJGKacyZOeSuLvUwDsoZdaBRGjQXtG9IUWCFrfhOnW35Q/vVN4tBEZlJyE4ZUiW8+DrAo5CcKZ2XQszXn6v1rm8siaAoZ+pdDTKu9NCB7jyafIC4UXlznd2igNEZIBL/DwILzsW3TbZ3NYijxZQ5A7SZlAmNBNZkcyAZxEf+sLnlTO4QGQv9wdAn/AOO66dIwv7PjMDE8ZLliJYnru2459iNZIzKLRy11Sye08WYa4XzbMd1AxDNgeXKBmB2asIoK+sr9vBuwTcyAkO/n4dhQOuPw0shPPmUpHMUOfh0Z9xBftCu64fxXe8l9XZdwx+4w==
-Received: from OS7PR01MB11728.jpnprd01.prod.outlook.com (2603:1096:604:242::6)
- by TY1PR01MB10864.jpnprd01.prod.outlook.com (2603:1096:400:322::10) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.360.13; Sun, 30 Aug
- 2026 13:19:42 +0000
-Received: from OS7PR01MB11728.jpnprd01.prod.outlook.com
- ([fe80::b92b:45d1:965e:b6fc]) by OS7PR01MB11728.jpnprd01.prod.outlook.com
- ([fe80::b92b:45d1:965e:b6fc%7]) with mapi id 15.21.0360.008; Sun, 30 Aug 2026
- 13:19:42 +0000
-From: chenshuyang.cn@outlook.com
-To: linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org,
-	jikos@kernel.org,
-	bentiss@kernel.org,
-	fombuena@outlook.com,
-	chenshuyang <chenshuyang.cn@outlook.com>
-Subject: [PATCH] HID: multitouch: Add required quirk for Synaptics 0xce4b device
-Date: Sun, 30 Aug 2026 21:19:21 +0800
-Message-ID:
- <OS7PR01MB11728B83FE23453EF8BC361BC80AA2@OS7PR01MB11728.jpnprd01.prod.outlook.com>
-X-Mailer: git-send-email 2.55.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: SE2P216CA0002.KORP216.PROD.OUTLOOK.COM
- (2603:1096:101:117::7) To OS7PR01MB11728.jpnprd01.prod.outlook.com
- (2603:1096:604:242::6)
-X-Microsoft-Original-Message-ID:
- <20260830131921.3874546-1-chenshuyang.cn@outlook.com>
+	dkim=pass (2048-bit key) header.d=pm.me header.i=@pm.me header.b="b9Il1G4N"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=pm.me;
+	s=protonmail3; t=1788099244; x=1788358444;
+	bh=gABTmVA6p5jpKrbDQzvfZ2ui8YhnTIivnH2v83tkwZc=;
+	h=Date:To:From:Cc:Subject:Message-ID:Feedback-ID:From:To:Cc:Date:
+	 Subject:Reply-To:Feedback-ID:Message-ID:BIMI-Selector;
+	b=b9Il1G4NtsTfBcWOD7BZQPfYW0HHD48nDWchf8uu/VobcYZ5XQHXZJv+9zD5yADwR
+	 SdrgSM9h4YRzH7uBIoAfSYPzmVKyNzTHeU7I788tav00SXXHsWX5v3JF9KJn192Cwf
+	 gX/0lgcnKqfQj3V0F+pApOz24LL++KSNZldchzgLBQNmDwDzwIMbTKmk1UDO0BWcvJ
+	 i6jPb8MKou7XQ29JPn2zqPzEG3cYgyw9orlL/1rHoCc/oTswFNJHJQIndITV6kLQaF
+	 80hALYXXFLqpLyXmhzCI8OkDVYKjd+p8xkdDH8V2zxySxXbcLdfue1wNLSwZgccIyU
+	 3KlDoL99YqSiQ==
+Date: Sun, 30 Aug 2026 14:14:01 +0000
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Maximilian Luz <luzmaximilian@gmail.com>, Hans de Goede <hansg@kernel.org>
+From: Sergey Lebedev <lsa.uz@pm.me>
+Cc: linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: soc_button_array: ignored -EPROBE_DEFER loses the buttons on 68% of boots (Surface Pro 11)
+Message-ID: <20260830141355.55898-1-lsa.uz@pm.me>
+Feedback-ID: 113843758:user:proton
+X-Pm-Message-ID: e7ef77e3c7823f58a32037638293872bfb2c16ff
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-MS-Exchange-MessageSentRepresentingType: 1
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: OS7PR01MB11728:EE_|TY1PR01MB10864:EE_
-X-MS-Office365-Filtering-Correlation-Id: b41493d6-57ee-44b2-5b0a-08df069959d6
-X-Microsoft-Antispam:
-	BCL:0;ARA:14566002|15080799012|39105399006|23021999003|4140399003|25010399006|5072599009|5062599005|19110799012|24021099003|37011999003|8060799015|22141099003|3412199025|440099028|4302099013|1602099012|40105399003|2607281247196008|10035399007|1710799026;
-X-Microsoft-Antispam-Message-Info:
-	=?us-ascii?Q?MLPvJyyo7Z0n20dpzHFEs+7dHvX0CtmLjDnKG4EzslidkJFU3/3uFOE+lOQA?=
- =?us-ascii?Q?6Tf3Ga+CRC6pJE8P6m9369nE8WME58ErFMYux1k9prxczZvh4Ebce0nFGWd9?=
- =?us-ascii?Q?Pwq8aCGFNAe8DUlluVfSMZ4oHT8aPoKGzXbVJyel1K+HRTXOhgIpIQPXJPyy?=
- =?us-ascii?Q?sefo3vJceuwHLre2Dc5Y9/Poi4TV9eyQyP4Gu+WLpxk9PIvhw4+kLgHRdHNw?=
- =?us-ascii?Q?LIioEgYFvh5xnvu5lSuFSF9iG4wWylOIjItDlZWapBuOSsdMdXsbaumuILB1?=
- =?us-ascii?Q?bTkajDykzEfQGUGQWCgcDURAcmFdrOZSt0GOjS2l9LL1dObIEQzbqdtlzDyD?=
- =?us-ascii?Q?t1+JCIugTxCvH4mKBZAj01Z5dIC/WfYpAx1R47DQ9PQM5YlmXpM2fTutmjbS?=
- =?us-ascii?Q?gg/cABYWfUDj9DGrcjPm6WQlaFWvSI9lPRKyz2B2oDMRB4dowrfH7kmHQObk?=
- =?us-ascii?Q?iaRXYQ/HySUGQDZaL6qSnUNarfq1PesTDgrohbifppuCZnA6PZxx/g0/6Aib?=
- =?us-ascii?Q?UhZ9WBlx1r9HnUcla4GozAM1F9Pc3wlmPpjxT/ds9SgM0YZghzsv6YL3oFW4?=
- =?us-ascii?Q?qC/mKQFPn38c++8Dlwus+nbhgAqgjN98kDaJmvFYa7jgA8sEjhG1giuzfLue?=
- =?us-ascii?Q?RsgQYnZDxd5Lw9d2Lgjwr8rqBncf1Lpal5WRYhAWAuChMCACsKfG2HhStuWb?=
- =?us-ascii?Q?Oo/b/pyEjRSnfbHsn5IPotlqIRlDfE0+5nf4mzekQvWyOyPFA9XJJA3Ez1hx?=
- =?us-ascii?Q?Yso2kPYArDYkiiUkV3TDjtql15+k/2Xe/ot9pXcniJKj0z2ARU3fCuqM7rRY?=
- =?us-ascii?Q?EwI4DfHZfQrpM3OUjSClSdWUanxAJFr4P5FTr+5nEq2iyM0ZbWV8MiZwruUT?=
- =?us-ascii?Q?u+pMn3GTYvnD/Z7GZ9wcg2FFJKWXwFXUz8qVvoOtroDFpo7yEG7zXL5Z+es5?=
- =?us-ascii?Q?eMrA2PxDrUSeECUEfD7U1NUVs1MPrgEve2JUQim64ASbfg8MNgKPGiFIYeJA?=
- =?us-ascii?Q?YDynNKc7PLje7+SNVGz8cbVXFHSxarJtNayO/KaG6z97+xHewi6L9wkZlrxu?=
- =?us-ascii?Q?MSKRkOQEWyZvwSvV45c6UF8q/Zwh6stOOxdskKWmRj0u/reJNsYO0FjNHwut?=
- =?us-ascii?Q?1dGMynL6RfIuYgNj1qzIIlgAajyLXKmPTQ=3D=3D?=
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?us-ascii?Q?PUgVcdYWuEK3G9hhXCz9GYgrxnpIizoi8w3Fae0KjXxAyFjH4L65jq7QQgMg?=
- =?us-ascii?Q?zEz6UAJVisS8ifYN0H+TS4Com2HGW6VJkj3pyXfnemH6N3ShTFdbgjDp55YJ?=
- =?us-ascii?Q?re0BY9WYKh4FdPhfjXVNhdPqFkm7AaMKNMBmhcfblSbKJuRAJZZlQy96UG0Q?=
- =?us-ascii?Q?jYrRDMzbJ/PT3oEOdzOdk9VdvEpay6Q9vP/HvvQt6r9Ns65bbDthieNL2PAk?=
- =?us-ascii?Q?wtdkwYh2u+T9UzphnbKD4hCCWa+YnV/OojW7o6zEHX8mVsauQV3GeKy5j+9s?=
- =?us-ascii?Q?EzUQI3isXXoj4SG90rZb/cstRjFMe4JFDyN3DQf6x782jyHSCTY6JoFNWTNR?=
- =?us-ascii?Q?nNB1UJHgE/dxiRd+aunCr0w5b5zhXybJlZRL7lC3s3PxNwdGuLVPjGLa81gT?=
- =?us-ascii?Q?GoKPccyfooRys5iSeCz+tp6nU+tq+jXUHu7SzP6GjQ34lWP3jCHo0a1RgEho?=
- =?us-ascii?Q?tZmrTBWC4xkRRhD7KqKIRuqvoBW3Ps5HfQyPAsnbiCgNF2LutzNqWeUR6BwS?=
- =?us-ascii?Q?k0HWrxhE0R37+dEPFD14ZQHA4dSDQRO16GVQoH6wRmF550oHAJ/9JZFm8DdM?=
- =?us-ascii?Q?2Ee4V3cd1/e/pGxCnpO3P/eXVMtbREOFSyi70+d5partzvRiXJkIo8zY7Aiq?=
- =?us-ascii?Q?kAb3yaUgldlefOOHtOBNPJ0TtyxE8XT5U3+hB2FqvSRDT8Ab9hcrk0IwDV9L?=
- =?us-ascii?Q?6GJPZzavRProoXpTqiqWoFdKvjmcRraxuqT8gWSXHjmFxJlIq5gdzDsAtNOF?=
- =?us-ascii?Q?P77y6o3+v3OY8ycWFV5Bv4M4yReKwvcvaRJeMn/YmXnyg3qNxEX1eE16/lFE?=
- =?us-ascii?Q?tF9YGZUR7eN7uJJdOblcUCI6r0O/eOqxX3cIkl2zsk3WJdSq1K4SVsknGo98?=
- =?us-ascii?Q?r/sT0SopGnyU/6SSN23QusVpWUBfA8mHb6uVaOXboo88YsJ5IhtFQeIH7ccT?=
- =?us-ascii?Q?bgunQXXhkq6/ly4xJyo3Pvm9KwoI7AAI5w7JcDo8Rx2oOXtedmMmG6lgMSqv?=
- =?us-ascii?Q?lCi11E/pVGH5Pm7oTiS/T7z561omMREWWBS7ErQ2aW9D/bY1zqdxURMhkH5K?=
- =?us-ascii?Q?6v+63TAuqava4/yngcDDEyBPRMj9Ibvq9JV6oLahgZgtxp4PESvz+FPM3yMo?=
- =?us-ascii?Q?CtZIhyAl5l1ipowYES/BfvktXrV6NUKaKuKxDX+albMs6L6q29B+8mF01BGB?=
- =?us-ascii?Q?5IT8ESOLU3QpLwBkiowA2EX4ECKrNWaRHq6jWYQ42KRNnyRzJZUhQ9CNbveT?=
- =?us-ascii?Q?cfUhZM3hPptYH4yYHtffLDbPMGymnjiQcgrFH/4BZJhP/50z6NN0w6EH6ZXb?=
- =?us-ascii?Q?UNFJyIIegwuMPeCqoYtidIx3h3gVtIX1u/g4YwGPaMu9nFH8/sO/aqAXi/cx?=
- =?us-ascii?Q?w/7PPrrASYw3E5G+L//jt8aOjs8MqreXV4WHti/kEcN14hNhnQqcFBZ/Nwj2?=
- =?us-ascii?Q?WvBKHW9IfEw=3D?=
-X-OriginatorOrg: outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: b41493d6-57ee-44b2-5b0a-08df069959d6
-X-MS-Exchange-CrossTenant-AuthSource: OS7PR01MB11728.jpnprd01.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 30 Aug 2026 13:19:42.6867
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
-X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg:
-	00000000-0000-0000-0000-000000000000
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: TY1PR01MB10864
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
-From: chenshuyang <chenshuyang.cn@outlook.com>
+Hello,
 
-The Synaptics 0xce4b is a touchpad + Accupoint pointing stick combo
-found in the Dynabook Portege X40-J. The kernel enumerates it as two
-input nodes ("06CB:CE4B Touchpad" and "06CB:CE4B Mouse"), but the
-stick node never receives events: pushing the stick makes the device
-generate a steady stream of I2C interrupts, so the firmware is
-reporting data - the reports are just never forwarded to the stick
-input node.
+On a Microsoft Surface Pro 11 for Business (Intel, Lunar Lake) the power an=
+d
+volume buttons fail to appear on most boots. The probe runs, gives up
+silently, and the device is lost until something rebinds it by hand.
 
-The device currently falls back to the default Win8 class, which
-keeps HID_QUIRK_INPUT_PER_APP. That report routing does not work for
-this hardware. The 0xcddc sibling found in some Toshiba/dynabook
-Portege X30 and X40 models had the exact same problem, fixed by commit
-1741a8269e1c ("HID: multitouch: Add required quirk for Synaptics 0xcddc device")
-by switching to HID_QUIRK_MULTI_INPUT.
+Measured across the 40 boots in this machine's journal, using the monotonic
+offset of the first "input: gpio-keys" message:
 
-Add the same MT_CLS_WIN_8_FORCE_MULTI_INPUT quirk for 0xce4b.
+  driver attached on its own   13 boots   at 1.28 - 1.78 s
+  did not attach               27 boots   68 %
 
-Tested on a Dynabook Portege X40-J (PPH11A-09J002) with kernel v7.1.9:
-with the quirk applied, the Accupoint moves the pointer, its three
-buttons work, and touchpad movement and gestures behave as before.
+The timing is binary. Either the inputs appear at about 1.3 s, or they neve=
+r
+appear at all - no intermediate values in 40 boots.
 
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=205817
-Signed-off-by: chenshuyang <chenshuyang.cn@outlook.com>
----
- drivers/hid/hid-multitouch.c | 4 ++++
- 1 file changed, 4 insertions(+)
+Where it fails
+--------------
 
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index 2c41bac..57e37e7 100644
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -2620,6 +2620,10 @@ static const struct hid_device_id mt_devices[] = {
- 		HID_DEVICE(BUS_I2C, HID_GROUP_MULTITOUCH_WIN_8,
- 			USB_VENDOR_ID_SYNAPTICS, 0xce09) },
- 
-+	{ .driver_data = MT_CLS_WIN_8_FORCE_MULTI_INPUT,
-+		HID_DEVICE(BUS_I2C, HID_GROUP_MULTITOUCH_WIN_8,
-+			USB_VENDOR_ID_SYNAPTICS, 0xce4b) },
-+
- 	/* TopSeed panels */
- 	{ .driver_data = MT_CLS_TOPSEED,
- 		MT_USB_DEVICE(USB_VENDOR_ID_TOPSEED2,
--- 
-2.55.0
+Nothing at all is logged on a failing boot, so I built with
+soc_button_array.dyndbg=3D+p on the kernel command line. On four consecutiv=
+e
+failing boots the probe printed exactly one line:
+
+  [    1.286567] soc_button_array MSHW0040:00: OEM Platform Revision 129
+
+That eliminates most of the possibilities:
+
+  - the probe does run
+  - it passes soc_device_check_MSHW0040() - oem_platform_rev is 129, not 0
+  - it passes gpiod_count() - the dev_dbg("no GPIO attached, ignoring...")
+    would have printed with dyndbg on, and did not
+
+By elimination the buttons are lost inside soc_button_device_create(), at
+
+        error =3D soc_button_lookup_gpio(&pdev->dev, info->acpi_index,
+                                       &gpio, &irq);
+        if (error || irq < 0) {
+                /*
+                 * Skip GPIO if not present. Note we deliberately
+                 * ignore -EPROBE_DEFER errors here. ...
+                 */
+                continue;
+        }
+
+Every button is skipped, n_buttons stays 0, and the two returns that follow
+are both silent:
+
+        if (n_buttons =3D=3D 0) { error =3D -ENODEV; goto err_free_mem; }
+  and
+        if (!priv->children[0] && !priv->children[1]) return -ENODEV;
+
+which is why nothing reaches the log.
+
+The GPIO controller here is INTC105D, five gpiochips driven by
+pinctrl-intel-platform. Both that and soc_button_array are modules in this
+config:
+
+  CONFIG_INPUT_SOC_BUTTON_ARRAY=3Dm
+  CONFIG_PINCTRL_INTEL_PLATFORM=3Dm
+
+A manual bind always works: 25 unbind/bind cycles at runtime gave 25
+successes and 0 failures. The failure exists only in the early-boot window.
+
+One hypothesis, tested and wrong
+---------------------------------
+
+Since both are modules, load order looked like the cause, so I tried
+
+  softdep soc_button_array pre: pinctrl-intel-platform
+
+verified applied (modprobe --show-depends inserts pinctrl first), with the
+rescue that normally binds it by hand disabled so nothing masked the result=
+.
+Five boots: 2 successes, 3 failures - the same rate as before.
+
+pinctrl_intel_platform is a dependency of fifteen other modules and is
+loaded long before either way. softdep orders modules; the race is against
+the asynchronous probe of the individual INTC105D:0N devices, which registe=
+r
+their gpiochips at their own pace. Reporting this so nobody else spends the
+evening on it.
+
+Why no patch
+------------
+
+The comment says -EPROBE_DEFER is discarded because Intel uses "virtual
+GPIOs" that never materialise, so deferring on them would hang the probe
+forever. A fix has to tell that case apart from a controller that simply ha=
+s
+not probed yet, and I do not know which signal you would want to use for
+that. Guessing would risk reintroducing the problem the workaround exists
+for.
+
+Happy to test whatever shape you would prefer - the machine is here and I
+can build and boot kernels on it.
+
+Related but probably not the same bug
+--------------------------------------
+
+  https://github.com/linux-surface/linux-surface/issues/885
+
+Open since 2022 on a Surface Pro 7+ and a Pro 6: same shape - driver loaded=
+,
+gpio-keys absent, rebind fixes it - but there the buttons are lost during a
+session rather than never appearing at boot. Cross-referencing rather than
+merging the two, since the triggers differ.
+
+  Machine:  Surface Pro 11 for Business (Intel Core Ultra 7 268V)
+  DMI SKU:  Surface_Pro_11th_Edition_With_Intel_For_Business_2103
+  Firmware: UEFI 17.100.143 (2025-11-19)
+  Kernel:   7.0.0-30-generic, Ubuntu 26.04.1
+
+Thanks,
+Sergey Lebedev
 

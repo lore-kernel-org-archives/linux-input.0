@@ -1,63 +1,63 @@
-Received: from mail-pg1-f172.google.com (mail-pg1-f172.google.com [209.85.215.172])
+Received: from mail-pf1-f171.google.com (mail-pf1-f171.google.com [209.85.210.171])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2267D3BB107
-	for <linux-input@vger.kernel.org>; Sun, 30 Aug 2026 14:57:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.172
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7D8433BB664
+	for <linux-input@vger.kernel.org>; Sun, 30 Aug 2026 14:57:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.171
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788101835; cv=none; b=QxDaY4qFmp8d1VvQyXw6R6O+jobkGOEkfaNyj69DSvaToeeHBx5hIyFnWKOtbybNPLUHpJGqwzjxEYsSvG/GH2n8YfTxwsk0aOng8TH7NlbJYhUHZISheQxQeMIne7Z1tBX43C4V86nl9TIcaDUzQB2tIRpVZKfmPqVJvwiDPTo=
+	t=1788101839; cv=none; b=NgFyfbzQ1pmZ4uVLkxpMNNsNc2CG4Cw7JV942ff3YJDobtM16z5cSEBmBhzJdmJklOxB1iKcNZZ/Eu0prcVlHIherBlPQW/LbiEQ581l5N2s2Zn/6CKpnj7kjC6l6TfX9oUYjzGq+pEOjCg4Pmh66Vgsa5SwV36/f+HocvmWU7I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788101835; c=relaxed/simple;
-	bh=aEjxZJwZLa+q7K9xSjUy2o9VFRy7tyW3hxCACheKEzQ=;
+	s=arc-20240116; t=1788101839; c=relaxed/simple;
+	bh=ulyweVAO3xblz6gR0VkVmV8opw1DJmqYu9eNvaueW4A=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=JG1JTBaYRzo2h/QrlltfV6CyQ1RA7bL3CQuwDjZO4rmLdsPKDwQ/08n5Bpe5CcYG6whSjfLzo1msBmoAArXgEol4mRCP1o8685Dvwe6N7ttfSIL9yBGIbbRdy6RY1bYo25ZidGCmlxYr+igFlwJ0t2XT/X4+bX4SfqSlFiV7Aw4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ZicajQin; arc=none smtp.client-ip=209.85.215.172
+	 MIME-Version; b=uCYFIUIjaFJdK0QcEvV2LS2oczCRSvXwJY8YaWi5t5nOqGd6n6J7/GMz3pFOqtj/QyYts9bHIwI90z9jiQDprDtnegEapvOkFqAAJx9BCO08rfe53TnCPE8tchTswu4iYDLlwiKJ4f4h80ApioMqTWkXCVPPLlB/qvKdqR90xVw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=MPbGS0fE; arc=none smtp.client-ip=209.85.210.171
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ZicajQin"
-Received: by mail-pg1-f172.google.com with SMTP id 41be03b00d2f7-cc11a905ba5so1842815a12.2
-        for <linux-input@vger.kernel.org>; Sun, 30 Aug 2026 07:57:13 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="MPbGS0fE"
+Received: by mail-pf1-f171.google.com with SMTP id d2e1a72fcca58-853c401326eso1456777b3a.2
+        for <linux-input@vger.kernel.org>; Sun, 30 Aug 2026 07:57:17 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1788101833; x=1788706633; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1788101837; x=1788706637; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=xWOAHh0q81CutOvcz4kXnkwApjt4e2WZQIvquKf0gdA=;
-        b=ZicajQinxa2vtMxCTblpqKmx+/7DS/HGvaL6BgUWdvvG9/W8nGVfs4s9pEBNuq8D9o
-         dYyyKxKmUvzZ2y4WvOpSX7DgCaCq0pjZZYyyrsj2mWUeagjvDJ6XRzeTPvF+G9e2v8y5
-         7uefCM2UgDQo6pQL/HK63NbVdndN6BNyQXLseU8WcKrG8xtT1tC8cXwjU2L4BshqmJPB
-         waQT86taUIHKWb2kcRyBg/4Q2+4ve9unYN/aN4tw1ULgCiZStd0r4z74cd17HAVrBgTo
-         EkBz3u4PLJXdaNpoLFfBhOX2LW6nmiahUa+sBn4Qg6NQT6dODIS1af8bgd4FjRw5KUTc
-         mIhw==
+        bh=97SbbetLO4aPKEfOa796LFYimHxy5eRJIJYvWLy1xc0=;
+        b=MPbGS0fEjCCsD09aY0QT5HXvwoNAryUiJR6Bfav9HTamOsU9e9gQ2Q5C/Yanq4UyKu
+         dilZae2Kg+geUypES0dJ30Q+2GbbKOLwYSaircMqJElnULXHzRfPMk5nko/xCxQiSZ6x
+         wZxsNJnzGD87uppSlMw0/+26U2lFOBZrws/IBrf1NqSeQ/mgY/jHQmyKnvVTsMWtS1EQ
+         gGHBMcPlFwpmRBghA5A3yX5bHFcFYRJek7oky5eUZfvQ9DqbB3g2GIYF+rkdGOtQIyK5
+         wAfyhEQBhVVQ0pEziVlBwhXE4nvojstvdsXHLe77mSgyvIsXCkHbqa8jxnFB/h8R9Ka/
+         cX2w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788101833; x=1788706633;
+        d=1e100.net; s=20251104; t=1788101837; x=1788706637;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=xWOAHh0q81CutOvcz4kXnkwApjt4e2WZQIvquKf0gdA=;
-        b=BGYRosLWq3R/YBTmCs2cmXar6GeeG9gLLT2SXFOsbucPoIhQlkKec0L5Ar+jrMvrQz
-         lXuKAADq2aw1Q4XoKr+eeVmNMIY21/AU7611ftbqG7/PbnfUS5cQXUYIJCFYd6nerOT/
-         ja03EEjUUKyvZ8r9SKvj7OTlnditB3nI2INDSxlATHPZlSDqDx5i2QAO9M3ziVesLFGB
-         zktefkx7UE8D1/VbdLNOXRa7JEbx0RqWgcLOhNlQpmZrsH91WI7AX1XJbfz4ewvPzbf+
-         ewoeTGPQZM54wUNhI81mldhYl9NK3CpvsjyJpUN4LZa7ORQ+wgVD8+nC/4dWQPWy40S6
-         YNAg==
-X-Gm-Message-State: AFuF++mkM5VaVTWeBAKdLpsiMQMuabdHwMxhGlb5tPK8gcnikDavc5Ci
-	KNxkrbmOL23as+etASDDoW74JzQHBbjNY10DpuNdb2rsUL4r1mMKcdYx
-X-Gm-Gg: AR+sD10U8yCpu1+vrvvcsf16u3IlspJXbsDEMgQGnxA/qqkRSjb93o9tD7qYBvC4PQA
-	g59sqroggSIRFmL/Xppn7LwFm8gvpng5zlAuAwoMQBfhFeg54ROKdpMlt9z4z20UgHvqoUbM4R1
-	EuK1poqK+xZjZSKqWA45AA36p1MTP4aehVwkPDbwQCzO/vl2tqYJbZPKC0CQI8GZNcScps1yQdq
-	aHkCBSziJ+L6iIW8U8oqQaY5LSkhkfBtmZZgPiIe+mi/htnkqaeSWlUjZvpcM0YUKiJC+Sne1VI
-	N0cA2FvyfUv1h9iJA8ZC/0QXG4fXKGcqKB1WJOBTBxf6To9d6z3M85DTIUvaWE/FtiHw9CNMo0S
-	495CiroQqoxvy/Yv1EAJ9eTZ3BPnltlesnO7oYXDk6ZEmoLKjwebPMUgblp8vbBu0fLCwVETQ8s
-	1rH7TGjz4jGIfUZHhNkAChM5LS9K+2LqP9Etcre4F2t+CFmXKFDcuGRf1g5CgGzEKUmFDqHgMg9
-	c3vjxr+Plm5I4MlqAQ=
-X-Received: by 2002:a05:6a20:b7a7:b0:3be:b0b3:3962 with SMTP id adf61e73a8af0-3d268ef9e07mr35570313637.9.1788101833386;
-        Sun, 30 Aug 2026 07:57:13 -0700 (PDT)
+        bh=97SbbetLO4aPKEfOa796LFYimHxy5eRJIJYvWLy1xc0=;
+        b=QOOkJ5KLQCoHV4F0xQQNi8cDb3KYWlfAxpqJw+zpHNxxevVzmY0hp3xZEe5bR5MiW0
+         rk4wOyhenqCm//Y1a2EupzdhVl2jIPGAFYV89itTayOMEq2BJHCc9NEuvQQNWLbwZlZ5
+         WpUo7N0TkwZ/YdX7WK7z7H6/yXs83j7k5ErgbE2UyB6NzaknPXn4axshf//c1qRxSNHB
+         6rqDPytPYR3DpJyx9qg7bCHWD/hKV6UT79Y6PdKssrM1anjZTv15MrUpAxPbm/zQyjFR
+         ntFPs9gAV8fKU3+T1/IxX4W3QRh6L6AXslNM7qoZG0JrrYnKifZ0W8TKE7/iHwX+fy71
+         w3WA==
+X-Gm-Message-State: AFuF++nXvddA4+cuTu2jB1nGLL/i439POivkvHQ5AUNYZC1kqWCrlQNx
+	E9QCjfhTu74PG3dKvQLlqqRfggSQRtoPCPc4QawObDPloOKZx4KTnJTD
+X-Gm-Gg: AR+sD11otHCyEZf3o0D+fWdJbj4+jX3kbs89VtLxGhqrGs3LD9HlFeC2Jn9HA5xraJo
+	jasPhnG5BFmRUsVCKQ3P+5RNWe8/ocG4AGbiNLcK6odFmT36upC4iSE9iYQQ3fZPYxqaCYhHUKT
+	M3tA/2HMdGecvPo965z6TVjrOBIewk50sIj6DIWjf2HXwllKagurIhfx+FYH9O1efqAAbRKCWr1
+	ZQ2zz+kppSkcFBdlVI/PGOGuPVF+vF+ysP0kUF4HpDnGQ+DFpO4BucYnRiqGKE1uu/el0oGCz+i
+	B+OJHFxHdaA1S9tRaOFTAZdmSO9GKjYLue5TCUO62Qzvu0dXPX4x+POH0yGodJU9d30qL9zp7p+
+	FK7O0tQYTf/LD6C005MpUNLC/3Tblfx1XdM/HWb6q8sUveHC6SmpXCOJWBksP0EuGf04FJDPD2y
+	BADuq7WV9vIZ1nDbIvv2f4nPdf9MgcXTsX53PRq03v4ZfzeXEoUROe2UJunswaLr/IaofZGz2dK
+	1VBTX54kV/EjqB6kEcfp/N+U9HUKA==
+X-Received: by 2002:a05:6a21:8882:b0:3d3:adbf:7784 with SMTP id adf61e73a8af0-3d3adbf81c3mr16403243637.25.1788101836698;
+        Sun, 30 Aug 2026 07:57:16 -0700 (PDT)
 Received: from localhost.localdomain ([103.16.69.193])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3286f959575sm23198024eec.15.2026.08.30.07.57.10
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3286f959575sm23198024eec.15.2026.08.30.07.57.13
         (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
-        Sun, 30 Aug 2026 07:57:12 -0700 (PDT)
+        Sun, 30 Aug 2026 07:57:16 -0700 (PDT)
 From: Aditya Dash <mradityadash@gmail.com>
 To: Benjamin Tissoires <bentiss@kernel.org>,
 	"Derek J. Clark" <derekjohn.clark@gmail.com>,
@@ -65,9 +65,9 @@ To: Benjamin Tissoires <bentiss@kernel.org>,
 	Mark Pearson <mpearson-lenovo@squebb.ca>
 Cc: linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH v2 2/6] HID: hid-lenovo-go: use the right controller selectors
-Date: Sun, 30 Aug 2026 20:26:54 +0530
-Message-ID: <876cc33bede49d8ed2437278f0696010df98643c.1788096667.git.mradityadash@gmail.com>
+Subject: [PATCH v2 3/6] HID: hid-lenovo-go: return configuration request errors
+Date: Sun, 30 Aug 2026 20:26:55 +0530
+Message-ID: <a18c5147dc7a0699523c62013d64cd1d8ec40690.1788096668.git.mradityadash@gmail.com>
 X-Mailer: git-send-email 2.55.0
 In-Reply-To: <cover.1788096666.git.mradityadash@gmail.com>
 References: <cover.1788096666.git.mradityadash@gmail.com>
@@ -79,41 +79,214 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The right imu_enabled attribute selects FEATURE_IMU_BYPASS, and the right
-reset attribute targets the left controller.
+Any decoded configuration reply completes the shared completion. The driver
+also ignores the result of its interruptible wait. An unrelated reply, a
+firmware error, an interrupted wait, or a timeout can therefore be reported
+as success.
 
-Select FEATURE_IMU_ENABLE for the right imu_enabled attribute. Target the
-right controller for a right reset.
+Add pending command state to the driver data. Match replies by command ID,
+command, sub-command, and device, and return request errors to the caller.
+Clear the pending request after an interruption or timeout so a late reply
+cannot replace that result.
 
-Fixes: 82cd9bc866e1 ("HID: hid-lenovo-go: Add Feature Status Attributes")
+Keep the existing 50 ms wait for every configuration request. Corrected
+calibration requests on an Original Legion Go received their matching SET
+replies within 8 ms. The final calibration result remains asynchronous.
+
+The firmware has no sequence number. A late reply with the same tuple can
+still match a newer request.
+
+Fixes: d69ccfcbc955 ("HID: hid-lenovo-go: Add Lenovo Legion Go Series HID Driver")
 Assisted-by: Pi:gpt-5.6-sol
 Signed-off-by: Aditya Dash <mradityadash@gmail.com>
-Reviewed-by: Derek J. Clark <derekjohn.clark@gmail.com>
-Tested-by: Derek J. Clark <derekjohn.clark@gmail.com>
 ---
- drivers/hid/hid-lenovo-go.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/hid/hid-lenovo-go.c | 107 +++++++++++++++++++++++++++++-------
+ 1 file changed, 86 insertions(+), 21 deletions(-)
 
 diff --git a/drivers/hid/hid-lenovo-go.c b/drivers/hid/hid-lenovo-go.c
-index b8248bf8965c..b937d11dd6f6 100644
+index b937d11dd6f6..dbfacbb70394 100644
 --- a/drivers/hid/hid-lenovo-go.c
 +++ b/drivers/hid/hid-lenovo-go.c
-@@ -1999,13 +1999,13 @@ LEGO_DEVICE_ATTR_RW(imu_bypass_right, "imu_bypass_enabled", RIGHT_CONTROLLER,
- 		    index, feature_status);
- static DEVICE_ATTR_RO_NAMED(imu_bypass_right_index, "imu_bypass_enabled_index");
+@@ -21,6 +21,7 @@
+ #include <linux/led-class-multicolor.h>
+ #include <linux/mutex.h>
+ #include <linux/printk.h>
++#include <linux/spinlock.h>
+ #include <linux/sysfs.h>
+ #include <linux/types.h>
+ #include <linux/unaligned.h>
+@@ -31,13 +32,27 @@
+ #include "hid-ids.h"
  
--static struct go_cfg_attr imu_enabled_right = { FEATURE_IMU_BYPASS };
-+static struct go_cfg_attr imu_enabled_right = { FEATURE_IMU_ENABLE };
- LEGO_DEVICE_ATTR_RW(imu_enabled_right, "imu_enabled", RIGHT_CONTROLLER, index,
- 		    feature_status);
- static DEVICE_ATTR_RO_NAMED(imu_enabled_right_index, "imu_enabled_index");
+ #define GO_GP_INTF_IN		0x83
++#define GO_INPUT_REPORT_ID	0x04
+ #define GO_OUTPUT_REPORT_ID	0x05
+ #define GO_GP_RESET_SUCCESS	0x01
+ #define GO_PACKET_SIZE		64
++#define GO_COMMAND_TIMEOUT_MS	50
++
++/* Lenovo replies identify a command and a sub-command, but have no sequence. */
++struct hid_go_cmd {
++	struct completion done;
++	spinlock_t lock; /* protects fields below */
++	bool pending;
++	u8 id;
++	u8 command;
++	u8 sub_command;
++	u8 device;
++	int result;
++};
  
- static struct go_cfg_attr reset_right = { FEATURE_RESET_GAMEPAD };
--LEGO_DEVICE_ATTR_WO(reset_right, "reset", LEFT_CONTROLLER, feature_status);
-+LEGO_DEVICE_ATTR_WO(reset_right, "reset", RIGHT_CONTROLLER, feature_status);
+ static struct hid_go_cfg {
+ 	struct delayed_work go_cfg_setup;
+-	struct completion send_cmd_complete;
++	struct hid_go_cmd cmd;
+ 	struct led_classdev *led_cdev;
+ 	struct hid_device *hdev;
+ 	struct mutex cfg_mutex; /*ensure single synchronous output report*/
+@@ -331,6 +346,62 @@ static const char *const os_mode_text[] = {
+ 	[LINUX] = "linux",
+ };
  
- static struct go_cfg_attr rumble_mode_right = { RUMBLE_MODE };
- LEGO_DEVICE_ATTR_RW(rumble_mode_right, "rumble_mode", RIGHT_CONTROLLER, index,
++static void hid_go_cmd_arm(u8 id, u8 command, u8 sub_command, u8 device)
++{
++	guard(spinlock_irqsave)(&drvdata.cmd.lock);
++
++	reinit_completion(&drvdata.cmd.done);
++	drvdata.cmd.pending = true;
++	drvdata.cmd.id = id;
++	drvdata.cmd.command = command;
++	drvdata.cmd.sub_command = sub_command;
++	drvdata.cmd.device = device;
++}
++
++static void hid_go_cmd_consume(const struct command_report *cmd_rep, int result)
++{
++	guard(spinlock_irqsave)(&drvdata.cmd.lock);
++
++	if (drvdata.cmd.pending && cmd_rep->id == drvdata.cmd.id &&
++	    cmd_rep->cmd == drvdata.cmd.command &&
++	    cmd_rep->sub_cmd == drvdata.cmd.sub_command &&
++	    cmd_rep->device_type == drvdata.cmd.device) {
++		drvdata.cmd.pending = false;
++		drvdata.cmd.result = result;
++		complete(&drvdata.cmd.done);
++	}
++}
++
++static int hid_go_cmd_finish(long wait_result)
++{
++	guard(spinlock_irqsave)(&drvdata.cmd.lock);
++
++	if (wait_result <= 0) {
++		drvdata.cmd.pending = false;
++		return wait_result < 0 ? wait_result : -ETIMEDOUT;
++	}
++
++	return drvdata.cmd.result;
++}
++
++static int hid_go_cmd_cancel(int result)
++{
++	guard(spinlock_irqsave)(&drvdata.cmd.lock);
++
++	drvdata.cmd.pending = false;
++	return result;
++}
++
++static int hid_go_send_output_report(struct hid_device *hdev, u8 *packet)
++{
++	int ret;
++
++	ret = hid_hw_output_report(hdev, packet, GO_PACKET_SIZE);
++	if (ret < 0)
++		return ret;
++	return ret == GO_PACKET_SIZE ? 0 : -EINVAL;
++}
++
+ static int hid_go_version_event(struct command_report *cmd_rep)
+ {
+ 	switch (cmd_rep->sub_cmd) {
+@@ -654,7 +725,7 @@ static int hid_go_raw_event(struct hid_device *hdev, struct hid_report *report,
+ 	struct command_report *cmd_rep;
+ 	int ep, ret;
+ 
+-	if (size != GO_PACKET_SIZE)
++	if (size != GO_PACKET_SIZE || data[0] != GO_INPUT_REPORT_ID)
+ 		goto passthrough;
+ 
+ 	ep = get_endpoint_address(hdev);
+@@ -707,7 +778,7 @@ static int hid_go_raw_event(struct hid_device *hdev, struct hid_report *report,
+ 	dev_dbg(&hdev->dev, "Rx data as raw input report: [%*ph]\n",
+ 		GO_PACKET_SIZE, data);
+ 
+-	complete(&drvdata.send_cmd_complete);
++	hid_go_cmd_consume(cmd_rep, ret);
+ 	return ret;
+ 
+ passthrough:
+@@ -722,7 +793,8 @@ static int mcu_property_out(struct hid_device *hdev, u8 id, u8 command,
+ 	unsigned char *dmabuf __free(kfree) = NULL;
+ 	u8 header[] = { GO_OUTPUT_REPORT_ID, id, command, index, device };
+ 	size_t header_size = ARRAY_SIZE(header);
+-	int timeout = 50;
++	unsigned long timeout = msecs_to_jiffies(GO_COMMAND_TIMEOUT_MS);
++	long wait_result;
+ 	int ret;
+ 
+ 	if (header_size + len > GO_PACKET_SIZE)
+@@ -740,22 +812,14 @@ static int mcu_property_out(struct hid_device *hdev, u8 id, u8 command,
+ 	dev_dbg(&hdev->dev, "Send data as raw output report: [%*ph]\n",
+ 		GO_PACKET_SIZE, dmabuf);
+ 
+-	ret = hid_hw_output_report(hdev, dmabuf, GO_PACKET_SIZE);
+-	if (ret < 0)
+-		return ret;
+-
+-	ret = ret == GO_PACKET_SIZE ? 0 : -EINVAL;
++	hid_go_cmd_arm(id, command, index, device);
++	ret = hid_go_send_output_report(hdev, dmabuf);
+ 	if (ret)
+-		return ret;
+-
+-	ret = wait_for_completion_interruptible_timeout(&drvdata.send_cmd_complete,
+-							msecs_to_jiffies(timeout));
+-
+-	if (ret == 0) /* timeout occurred */
+-		ret = -EBUSY;
++		return hid_go_cmd_cancel(ret);
+ 
+-	reinit_completion(&drvdata.send_cmd_complete);
+-	return 0;
++	wait_result = wait_for_completion_interruptible_timeout(&drvdata.cmd.done,
++								timeout);
++	return hid_go_cmd_finish(wait_result);
+ }
+ 
+ static ssize_t version_show(struct device *dev, struct device_attribute *attr,
+@@ -2362,9 +2426,12 @@ static int hid_go_cfg_probe(struct hid_device *hdev,
+ 	if (!buf)
+ 		return -ENOMEM;
+ 
++	mutex_init(&drvdata.cfg_mutex);
++	init_completion(&drvdata.cmd.done);
++	spin_lock_init(&drvdata.cmd.lock);
++	drvdata.cmd.pending = false;
+ 	hid_set_drvdata(hdev, &drvdata);
+ 	drvdata.hdev = hdev;
+-	mutex_init(&drvdata.cfg_mutex);
+ 
+ 	ret = sysfs_create_groups(&hdev->dev.kobj, top_level_attr_groups);
+ 	if (ret) {
+@@ -2388,8 +2455,6 @@ static int hid_go_cfg_probe(struct hid_device *hdev,
+ 
+ 	drvdata.led_cdev = &go_cdev_rgb.led_cdev;
+ 
+-	init_completion(&drvdata.send_cmd_complete);
+-
+ 	/* Executing calls prior to returning from probe will lock the MCU. Schedule
+ 	 * initial data call after probe has completed and MCU can accept calls.
+ 	 */
 -- 
 2.55.0
 

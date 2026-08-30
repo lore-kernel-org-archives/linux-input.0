@@ -1,44 +1,44 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1139C2D9EED
-	for <linux-input@vger.kernel.org>; Sun, 30 Aug 2026 21:05:18 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CB1963115BD
+	for <linux-input@vger.kernel.org>; Sun, 30 Aug 2026 21:05:34 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788123920; cv=none; b=Zx9zHL9QBQqWB0FGNri3Qxrgb0TYdcoGvCl9xFMx+0KjtXhxh2lLX3IlQnk00oNh1oEAijv4h1E8iCPY/GviOZqEton8M2nNdQf1RnADc+ewtFyEmHcfiQ3s2kc8ZgmjLhmd97DpRj32BnwMWR2XB6r/lM9QCNpJPbdD48wLkZU=
+	t=1788123936; cv=none; b=fs4WqI/Sypz9UcvQAG3Dpv44awDu+hMqAQ/hkYY4eF7utkbr3BNDATwXXm/UbHJDR4VeOQIVkwadzkbX8u4q6w0QLr8IAjGGkA2hdPVP3Kf0LugnafHMBEEVTe+4Ya4qztU7ZfDju9aBWjOHyB5uDaH31s7y7U4RtWw8fZRZuk0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788123920; c=relaxed/simple;
-	bh=CmpvIJTENZl7Hfy57sFd4FgcUf0qQHJbwKoHgC9DRNk=;
+	s=arc-20240116; t=1788123936; c=relaxed/simple;
+	bh=fMlqE7KIZgq/fD0ZT+AT5B7Yw4HfXW/v1pRfIqUkyGI=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=duhSRKqBd48pGva7az0rey+ceBzjiqFRXPfmWI/A+RdlyeAKgSVh/bqR3rCmFnbelxz+OKF1Kmh52hwS0SAt9XynZtDPhX++QhAg5pk2GpfNa0j6fNHia2uYEnVuSYfJq8O9FiAQxFaMSSxeZh831jtnG6ruHpUohTZtDGH2Kl8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=f+8pygxX; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=iVsHJkZKPDvcUv30RQ8ROw9ySFB4tt/zwNP5TDDVAvNi2kzJX500N+nzaZBySjZjSQ4ZSxhslAl/93j4/mu/Z2S0UD+2VzU4A+skLn4nBYWJiDtM9GI8uQwHEfpU3ihprjzijgwju+PBM0PiBNUn8D3+owVw/cb/juuGFvTC8Zw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=cJDJ/RTG; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="f+8pygxX"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77D5A1F000E9;
-	Sun, 30 Aug 2026 21:05:18 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="cJDJ/RTG"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2DA331F000E9;
+	Sun, 30 Aug 2026 21:05:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788123918;
-	bh=Isyvk5bGTaMZ1pocvQc/PZvVfKejb2EXB8Plx1cauzM=;
+	s=k20260515; t=1788123934;
+	bh=+puwH36Iq3PKKeNG8Iki3fheqHky1bv3Nw+uz7aR3lk=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=f+8pygxXG7VucJt2FVVPo5zeJPlkGQuQfVZS1IAsEj8EDWbadjf1Fh7dPZAE7sVvl
-	 VNQb3k41kbhT2wqpWYs0uUaGAYPAAbUqoPJ0Hbmahk5BLmmvrQ7z77THeNMxNRziTr
-	 Z5uK+If4yyF/60i4wss4KKFvdVK630D5tmBpPdYFbAacUEsquigfrXk5mfBXNI4NYz
-	 LS4CVqrjQbgUliA/SM0dXBtag5xSafme1y0Kgvi9NVBmlWZnqIVC4m/WZbpDOc//VR
-	 kZSj7Q0m+ZAIzz68KFNYU/Wi2l/5eIvwbTh5pkvsqsZYhqgTOv3RrhiuRIl/8kucO1
-	 sbMqqLhrsAlFw==
+	b=cJDJ/RTGXialVNIOa1g9sSnBOXug4PNJFl2d+7IU+xCwt0gPKYBxPCst1/SZg1z4s
+	 sZnZgDzmc/eC7H8e+P05yuf/A1z/oygMss16PfFaVdywegcFQrMzOsyDotdCsTI2iv
+	 iUBfkXughSz0YNKXZushp7pJ084u2/vnMdYmvfTJ5rY5ZgIbPyGj2U8ZFD631ms+Ng
+	 qIx1/wG+eVEbTCaJSfbFaqiDKiEm02nZSm76gyBp7uhuWQeQAto+z3Z5HwI8T0MH4v
+	 I9Neam/cv/SDW7fBW5a/4VO448q7ov/ALNDNq8W1drqG48+IyqQc0v2zRuxLinplOr
+	 +uP3kFd2jeg6A==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 7/7] Input: gscps2 - drop busy-wait and manual interrupt
- pump on transmit
+Subject: Re: [PATCH 3/7] Input: gscps2 - protect buffer access in read and
+ report helpers
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260830-gscps2-v1-7-c733d4cae7f9@gmail.com>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20260830-gscps2-v1-3-c733d4cae7f9@gmail.com>
 References: <20260830-gscps2-v1-0-c733d4cae7f9@gmail.com>
- <20260830-gscps2-v1-7-c733d4cae7f9@gmail.com>
+ <20260830-gscps2-v1-3-c733d4cae7f9@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Sun, 30 Aug 2026 21:05:18 +0000
-Message-Id: <20260830210518.77D5A1F000E9@smtp.kernel.org>
+Date: Sun, 30 Aug 2026 21:05:33 +0000
+Message-Id: <20260830210534.2DA331F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -49,104 +49,120 @@ Thank you for your contribution! Sashiko AI review found 2 potential issue(=
 s) to consider:
 
 Pre-existing issues:
-- [High] Infinite spin-loop in `gscps2_writeb_output()` waiting for receive=
- buffer to clear deadlocks the CPU if called from atomic/interrupt context.
-- [High] Level-triggered interrupt storm leading to permanent IRQ disable d=
-ue to `trylock` failure in `gscps2_interrupt()`.
+- [High] Hardware polling loop in `gscps2_writeb_output()` deadlocks if cal=
+led synchronously with interrupts disabled.
+- [High] Unbounded IO read loop in `gscps2_read_data()` can cause hard CPU =
+lockup.
 --
 
-commit d741b31bf7785974793010391810ed95e0a48648
+commit 9b1c3aa5a5184e24692c48f162f22f58a5172f7a
 Author: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-    Input: gscps2 - drop busy-wait and manual interrupt pump on transmit
-   =20
-    In gscps2_writeb_output(), after writing data to GSC_XMTDATA, the driver
-    explicitly executed mdelay(6) and manually called gscps2_interrupt() as=
- a
-    polling mechanism to accelerate command responses (such as keyboard ACK
-    or LED updates).
-   =20
-    On PA-RISC, the PS/2 controller asserts a level interrupt to the system
-    ASIC whenever received data arrives in hardware, and the input/serio
-    subsystem handles command responses asynchronously via completions.
+Input: gscps2 - protect buffer access in read and report helpers
+
+This commit adds a spinlock to gscps2_read_data() and gscps2_report_data() =
+to
+prevent a race condition on the ring buffer consumer index. It fixes an iss=
+ue
+where concurrent execution could lead to duplicate, skipped, or out-of-order
+bytes.
 
 > diff --git a/drivers/input/serio/gscps2.c b/drivers/input/serio/gscps2.c
-> index 2afd53a163ffa..985539f1d0886 100644
+> index 5b6e311f8a02c..fef6fffb6f865 100644
 > --- a/drivers/input/serio/gscps2.c
 > +++ b/drivers/input/serio/gscps2.c
-> @@ -356,13 +356,6 @@ static inline int gscps2_writeb_output(struct gscps2=
-port *ps2port, u8 data)
->  	scoped_guard(spinlock_irqsave, &ps2port->lock)
->  		writeb(data, addr + GSC_XMTDATA);
+> @@ -238,6 +238,8 @@ static void gscps2_read_data(struct gscps2port *ps2po=
+rt)
+>  {
+>  	u8 status;
 > =20
+> +	guard(spinlock_irqsave)(&ps2port->lock);
+> +
+>  	do {
+>  		status =3D gscps2_readb_status(ps2port->addr);
+>  		if (!(status & GSC_STAT_RBNE))
 
 [Severity: High]
-This is a pre-existing issue, but I noticed an infinite spin-loop earlier in
-this function:
+This is a pre-existing issue, but can this unbounded loop risk a hard CPU
+lockup?
 
-drivers/input/serio/gscps2.c:gscps2_writeb_output() {
-...
-	while (gscps2_readb_status(addr) & GSC_STAT_RBNE)
-		cpu_relax();
-...
-}
+If the MMIO space becomes unreadable due to a hardware failure, device
+disconnection, or bus error, gscps2_readb_status() typically returns 0xFF.
 
-Could this loop spin indefinitely and deadlock the CPU?
+Since 0xFF & 0x01 (GSC_STAT_RBNE) is non-zero, this exit condition never
+becomes true:
 
-If a hardware parity or frame error triggers atkbd_handle_frame_error(), it
-calls serio_write(RESEND) synchronously from within the gscps2_interrupt()
-handler's report loop.
+    if (!(status & GSC_STAT_RBNE))
+        break;
 
-If a new PS/2 byte arrives precisely before the write, GSC_STAT_RBNE is
-set, and gscps2_writeb_output() will loop here indefinitely waiting for it =
-to
-clear.
+The loop body reads the input data, but since the hardware is in a failed
+state, it will also return 0xFF, causing the loop to never terminate.
 
-Because the only code to drain the hardware buffer (gscps2_read_data()) is
-blocked on the same thread higher up the call stack, and external interrupts
-cannot run because local IRQs are disabled, would this cause a hard deadloc=
-k?
+[ ... ]
 
-> -	/* this is ugly, but due to timing of the port it seems to be necessary=
-. */
-> -	mdelay(6);
-> -
-> -	/* make sure any received data is returned as fast as possible */
-> -	/* this is important e.g. when we set the LEDs on the keyboard */
-> -	gscps2_interrupt(0, NULL);
+> @@ -255,7 +257,7 @@ static bool gscps2_report_data(struct gscps2port *ps2=
+port)
+>  	unsigned int rxflags;
+>  	u8 data, status;
+> =20
+> -	while (ps2port->act !=3D ps2port->append) {
+> +	while (true) {
+>  		/*
+>  		 * Did new data arrived while we read existing data ?
+>  		 * If yes, exit now and let the new irq handler start
+> @@ -264,17 +266,20 @@ static bool gscps2_report_data(struct gscps2port *p=
+s2port)
+>  		if (gscps2_readb_status(ps2port->addr) & GSC_STAT_CMPINTR)
+>  			return true;
+> =20
+> -		status =3D ps2port->buffer[ps2port->act].str;
+> -		data   =3D ps2port->buffer[ps2port->act].data;
+> +		scoped_guard(spinlock_irqsave, &ps2port->lock) {
+> +			if (ps2port->act =3D=3D ps2port->append)
+> +				return false;
+> +
+> +			status =3D ps2port->buffer[ps2port->act].str;
+> +			data   =3D ps2port->buffer[ps2port->act].data;
+> +			ps2port->act =3D (ps2port->act + 1) & BUFFER_SIZE;
+> +		}
+> =20
+> -		ps2port->act =3D (ps2port->act + 1) & BUFFER_SIZE;
+>  		rxflags =3D ((status & GSC_STAT_TERR) ? SERIO_TIMEOUT : 0) |
+>  			  ((status & GSC_STAT_PERR) ? SERIO_PARITY  : 0);
+> =20
+>  		serio_interrupt(ps2port->port, data, rxflags);
 
 [Severity: High]
-This is a pre-existing issue, but since we're modifying how we handle the
-interrupt pump, I noticed a potential interrupt storm in gscps2_interrupt():
+This isn't a bug introduced by this patch, but is it possible for the
+hardware polling loop in gscps2_writeb_output() to deadlock if called
+synchronously from here?
 
-drivers/input/serio/gscps2.c:gscps2_interrupt() {
-...
-	ACQUIRE(spinlock_irqsave_try, lock)(&gscps2_interrupt_lock);
-	if (ACQUIRE_ERR(spinlock_irqsave_try, &lock))
-		return IRQ_NONE;
-...
-}
+When serio_interrupt() is called with interrupts disabled (since it is invo=
+ked
+from the gscps2_interrupt() hardware IRQ handler), an input driver like atk=
+bd
+can call serio_write() synchronously.
 
-Could this lead to a level-triggered interrupt storm that permanently disab=
-les
-the IRQ line?
+This calls gscps2_writeb_output(), which has this loop:
 
-If CPU B receives a level-triggered hardware interrupt while CPU A holds
-gscps2_interrupt_lock (for example, during gscps2_open(), which manually
-invokes the ISR outside of standard IRQ serialization without masking the I=
-RQ
-controller), CPU B fails the trylock and returns IRQ_NONE.
+    while (gscps2_readb_status(addr) & GSC_STAT_RBNE)
+        cpu_relax();
 
-Because it is a level interrupt, the unhandled IRQ will immediately re-fire
-on CPU B upon unmasking from handle_level_irq(), looping rapidly.
+If a new byte arrives from the hardware device, GSC_STAT_RBNE (Receive Buff=
+er
+Not Empty) becomes set.
 
-Would the generic IRQ subsystem eventually see 99,900 unhandled IRQs out of
-100,000, assume nobody cared, and permanently disable the IRQ line?
+The loop waits for RBNE to be cleared, but RBNE is only cleared when the
+receive data register is read.
 
+Since we are spinning inside this loop, we never read the data register, and
+the IRQ handler cannot run to read it either.
+
+>  	}
 > -
->  	return 1;
+> -	return false;
 >  }
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260830-gscps2-v1-=
-0-c733d4cae7f9@gmail.com?part=3D7
+0-c733d4cae7f9@gmail.com?part=3D3

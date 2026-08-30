@@ -1,75 +1,75 @@
-Received: from mail-pg1-f179.google.com (mail-pg1-f179.google.com [209.85.215.179])
+Received: from mail-pj1-f43.google.com (mail-pj1-f43.google.com [209.85.216.43])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6839525C818
-	for <linux-input@vger.kernel.org>; Sun, 30 Aug 2026 08:14:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.179
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 078571A9F87
+	for <linux-input@vger.kernel.org>; Sun, 30 Aug 2026 08:27:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788077671; cv=none; b=g34uUSzvThqkmFmDWYFtC02ve7s+PMRR89IhuMOkEoM9tYI8+C8GxFbjmIohENAJPvnUIe1eTq1gRGm5d+cPQaCUAMULdlPrgPR/7lccWDNechdX4jQWD/SnjAQqYvHNHqq/DNiVkhx0slIv30bKKSju64hKGItYv0AeQNw+mMQ=
+	t=1788078453; cv=none; b=MsM9qL76LSL2+wS96FcQrcBwAH4GT7Hh+VHKG88FwYZZK2PQxum0OqxvWuxxOIXAI97yeLvIo6W7oxqFHOXIUMCMF39g7r2hgiejtw8wol+V7jdvpyNvjBX74eGi/Poubw/LtJBYEc8n2AQ+967gcwXJ+epX8rZgVfWYpvvOlFE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788077671; c=relaxed/simple;
-	bh=qGDPLRSzCRXB3K42SgeFJHX221LQxCp5VEhaudg6mc0=;
+	s=arc-20240116; t=1788078453; c=relaxed/simple;
+	bh=IA+d0A5QcyMe6n8YDpvZW44tVbbxmmPH7u3V+8hzS1Q=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=WdEayisFL/VPg8q5t/OrCY+JsDX+qmyOO+FG7HPuhaTjdw2gpWXgNXuOPdzZYdkp45cuEYn26uXEm14hltIh0Dag8DgEa4mPQgqUeBqmRMd8JYsdUDYuK87F1dbFixwgcbFDYb+q79F0Ys7rqZNRPHjpjKSokntBOzACuXgn5Jk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=aky0evdJ; arc=none smtp.client-ip=209.85.215.179
+	 MIME-Version; b=mF0dd2ANchM0j/X8cIIJGGlYzpiyxerdBcRduTHTtiE/1F6sSk2IleCn8dgh+wLdFrVV1E1ju3ipaUUc+7kAdFkJSm9Cfrlh8hAGbqPuNtkNs65rpa774dhvcVRQlcZaoFJI1CGqOqY3ET3y6lVv7eoNYzDOAnODtvumU4nNmxc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=HuR9XT5J; arc=none smtp.client-ip=209.85.216.43
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="aky0evdJ"
-Received: by mail-pg1-f179.google.com with SMTP id 41be03b00d2f7-cc1c9879395so1857376a12.1
-        for <linux-input@vger.kernel.org>; Sun, 30 Aug 2026 01:14:30 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="HuR9XT5J"
+Received: by mail-pj1-f43.google.com with SMTP id 98e67ed59e1d1-383b4a3755fso2867696a91.3
+        for <linux-input@vger.kernel.org>; Sun, 30 Aug 2026 01:27:31 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1788077670; x=1788682470; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1788078451; x=1788683251; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=YmBdbxLkPCMqqCoIfbI1P+SGexuVne+9G0JiGE+v1Dk=;
-        b=aky0evdJlS3G2g6Of/ffL1AlKTd5jO5pPQUSnU5bruju4Lsr4LcpvwV+ietRwqRj2L
-         WIGuZflNU3GY+jnu+eQqcQQxY0VgYpqprK1upcw5SrGScqiyXYoPnlUdTpkNOH5B5A13
-         IcYzUFQwcKpisCLXBx/J0V8QUxb0777EP71sKQ8/K5grU8oMef1zDY50tb2Y6/18xXyF
-         9zvO4+BZ3fWF/d79UZ4G12wfhB8Rbjm0y6+57kaB7eiNPjTn+owlReNcd4pRilqiGZn7
-         RxraJIEKcghG1HcjvbqJHtkuUpMHqXjQxblOBvt/pGTk9x75UxBDOlaPduMG5QLnFX/n
-         J6zQ==
+        bh=IA+d0A5QcyMe6n8YDpvZW44tVbbxmmPH7u3V+8hzS1Q=;
+        b=HuR9XT5JYCrvblV3mtMNm9t22F0nIN7XZ8AMROg0aXAwCMemQpHrGvyDdKTeVvzlHq
+         CTdRpF+f04zFpXwCosmiQdPH80mC+lbSZVu6I0TjTV/FnoONzYOVZxHO191DKYyYFLvQ
+         DhOyKgx6ntQWVNH30ZzCd+dwfVOmKxJ7uF47JpYPTwSLAgxKkUwSv3L/HGydGmouT6hm
+         5zaR00Lrd5HcngZPC5+M8Hyi+c57s3ssl9jxhZW7toTUoa7oJ7mzm2sYLIY+EBOWzPJh
+         nQmqfSEnIqavOq4hmc8xRdKuClXPv3vQLaLADSyzNzxPJdbxQeuUY8xdmzCoOh4peKqJ
+         tj/w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788077670; x=1788682470;
+        d=1e100.net; s=20251104; t=1788078451; x=1788683251;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=YmBdbxLkPCMqqCoIfbI1P+SGexuVne+9G0JiGE+v1Dk=;
-        b=pSg3hEqqnyJZFsp6n+i8VJF1kDPDfX6ooYBFrBoYV9vq5G0HiHxs4y3tQvOc+n3zG5
-         //zAfrBoV4nlXxBRHGxU8rP+XYMWDYAl7zV6AgJtyzwYRla/8Ik7y9v5q0FSlRyKOAkX
-         hlSuOr8QJfcrYr5KThgGyHPxe6virWVqStTqmg9PLkPhh/5E/2Vn0JJxP9BCwkVOqBFh
-         w5MB+NrNz5NuL/yl3acuzAwoBurKUUDYUgRRhTzMy/SWyvTbtiUkLHyPMchgnBwlV0SS
-         5AgM/uFXTlND6HLsu05U6CaZgYrCMebdZUnu3iKI6ltQOdn+LP3OTjymeUzfQ+043iio
-         qGaQ==
-X-Forwarded-Encrypted: i=1; AHgh+RqSqV9zPTNLioVAfM4huC/DF8LvpZ+cQpLa2JQ8yQYg9a6K1b8P+dcqSqSlH98aQDQs/whwRX6zBslI6Q==@vger.kernel.org
-X-Gm-Message-State: AFuF++kbQLwSmwnxWk6Z3o9RPVQcRckrM1V+zUKfVX8wW/4eRQf4CY6X
-	Ju3MeimGDsRohW0ndUYVLqNI9Agq6ffKsoSTSM8J+KAVDUzBh1Upkk7jVZtNWQ==
-X-Gm-Gg: AR+sD10AykKYqT7y2QmduE3JwUZ44XAsogIrcO+z4+QzYLDUpQGc/H5kHpVQr6i+lYU
-	z/xpgXDVj1aXs3S585/vpFdfFIcTPG3mz8cXPXfhRfRNkZAvqcGAlLfivazz4+XKFw8r3WGu2DV
-	Ehur83iOCfHNbC6jK9j2MRE2kus61RRcvfHnzs2daN1H/NLCAF3l4B64rXpeNFUKrPXmX38Opap
-	eouk0MdJr0lw1jw2GeW754TPa17SAueZy7wq3Zt2gg0SWDc3Qs4aAguj1QgWyUmF3JV+QsAnVg8
-	Vm0PG++psw10rtuLlsgjieryIs+QH+VzBTmzqgDtsDINepqVe9vJ7bvWe+umrc7IrCmuTI48m70
-	AZFILCW7B7WmE9AKrbjl/Fsen1lVLYJNx2DPNC7jltwDpvX+cNRu4xtA76W+xSAkn5QxFsc+y4I
-	Qd76PE1PF6vHbFFfjK8bauPbQMdaY7K6chp/0lZQyTpQ8WRxo495H6Wf40onoHjnJV
-X-Received: by 2002:a05:6a21:38e:b0:3cc:917f:f302 with SMTP id adf61e73a8af0-3d26784f3b5mr32989509637.9.1788077669650;
-        Sun, 30 Aug 2026 01:14:29 -0700 (PDT)
+        bh=IA+d0A5QcyMe6n8YDpvZW44tVbbxmmPH7u3V+8hzS1Q=;
+        b=bo8nXivqRj7fHXpf60V+fzIj6rr5GPfK7oHEofufFnbSmFNu3kkNz2zuApD62M/f/R
+         By86ZpbOKX17fnRQ5mxt6zvUyuH/Kj4++d7pTz3RQaEUz10vDO8TZSKtwxH5okopRi+0
+         7pkT4PssUDf+GAzfkD/j8sKTGeCRjwhWqrc3H6U71HOR07IDB5B3aGsWG0UtPeKYxPoF
+         il2saSExXiaMVQjOHTYX2Dkvy2bMftk9OpYZ8bL7Ha28bsb9waCvGwJmX/QihjbdHC1p
+         a7IG3HbHXSwoVYjT88lshmvHx8WwIXESpB56QrJD5xh3MGekHGpfW7Q6Ws5lY74Sjnj4
+         J8+g==
+X-Forwarded-Encrypted: i=1; AKwUvBw7UqfqSI0gVsCllJt+Gnj+f+9W6QmRYjbG8S3ZNSTdDaxcCd/+yF/nqP4vyshGdCOAPl9xibNtNb/b2w==@vger.kernel.org
+X-Gm-Message-State: AFuF++nt9RfuO5qIr193JjcbYM9Qy0BPynD3H2oqVdpL/9/ZQHasZPwx
+	6TNgFK9tAq5ON903w2/c9+amP2aoP4Ea01DxXrbH2LwASkHyeBv+HXVM
+X-Gm-Gg: AYBFou3wbCbZOKaqCFPqWz8P7loXwOWgN4p7k6NLHHaVx8N3KcMjJiNRU+wCj17cCOy
+	KItZK33kG5B5KoTBEam8J3UxR58z+W4P/+vcLOeNbnfz96bQwrnJOhv+Tz+cnlIcogSHALncOOg
+	ZSKqL09vRjhCvDjQPj1z0HUiuyafvU86/Q4XuYC+RJ8Gkl2uF7LZcAyqn/7CTpc7fPLqoAO2IZw
+	F9492cIJ33UCR7T6Pl6N9NTuDI8SZ6SHtBd31ky88A1QgECywYJqS9pMXIfQN3dbTUrbt7Xrb8/
+	qPIWPOQ8Mgfep+W4d7KcAgYwnVyQwDt8evh7ahGvqOTwZZpIj6JqH7JhVDfWQid385X/ZCyY7xd
+	VlUvJgF0jPoH53XvJAphqmsNNiu8n3FAslpSJQXisH4DziniN2CQaAAdm6M9/FrvjXcjLVoA8Y1
+	Y2COMXYAgZluiWXO5tlMB4vskHk4e69Lh+wPVmhZC2Mk9mn0FMhRXaEl/C94K0HdOZ
+X-Received: by 2002:a17:90a:da8b:b0:398:9be5:b41a with SMTP id 98e67ed59e1d1-3989be62ef6mr16592222a91.21.1788078451274;
+        Sun, 30 Aug 2026 01:27:31 -0700 (PDT)
 Received: from Default ([2409:40f4:101a:c47:80b4:fa67:fe3f:eecf])
-        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-cc1f32f656dsm2668627a12.5.2026.08.30.01.14.25
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-142e0df264csm36211979c88.14.2026.08.30.01.27.27
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 30 Aug 2026 01:14:29 -0700 (PDT)
+        Sun, 30 Aug 2026 01:27:30 -0700 (PDT)
 From: Jeffin Philip <jeffinphilip14@gmail.com>
-To: dmitry.torokhov@gmail.com
-Cc: jeffinphilip14@gmail.com,
+To: jeffinphilip14@gmail.com
+Cc: dmitry.torokhov@gmail.com,
 	linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	syzbot+1e2ef9bcb29af666b2e6@syzkaller.appspotmail.com
 Subject: Re: [PATCH v4] Input: atkbd - fix uaf in atkbd_set_repeat_rate
-Date: Sun, 30 Aug 2026 13:44:15 +0530
-Message-ID: <20260830081415.15187-1-jeffinphilip14@gmail.com>
+Date: Sun, 30 Aug 2026 13:57:18 +0530
+Message-ID: <20260830082718.8375-1-jeffinphilip14@gmail.com>
 X-Mailer: git-send-email 2.55.0
-In-Reply-To: <apMJ1qoPOffbB0t-@google.com>
-References: <apMJ1qoPOffbB0t-@google.com>
+In-Reply-To: <20260830081415.15187-1-jeffinphilip14@gmail.com>
+References: <20260830081415.15187-1-jeffinphilip14@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -78,37 +78,12 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-On Sat, 29 Aug 2026 09:34:48 -0700, Dmitry Torokhov wrote:
->Actually I think I was wrong and Sashiko was right. I will probably pick
->your v3 but I do not like that we do not clean up/reset LEDs properly
->on disconnect.
+On Sun, 30 Aug 2026 13:44:15 +0530, Jeffin Philip wrote:
+>Would cleaning up leds cause any weird issues on reconnect?
 
-Would cleaning up leds cause any weird issues on reconnect? We could reset
-LEDs though. Compiled only, but this?
-
-diff --git a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/atkbd.c
-index 41a0d55dae0e..3d0e58be5ba2 100644
---- a/drivers/input/keyboard/atkbd.c
-+++ b/drivers/input/keyboard/atkbd.c
-@@ -963,13 +963,16 @@ static void atkbd_disconnect(struct serio *serio)
- 
- 	atkbd_disable(atkbd);
- 
--	input_unregister_device(atkbd->dev);
--
- 	/*
- 	 * Prevent work from being rescheduled after atkbd is marked disabled
- 	 */
- 	disable_delayed_work_sync(&atkbd->event_work);
- 
-+	if (atkbd->write)
-+		atkbd_set_leds(atkbd);
-+
-+	input_unregister_device(atkbd->dev);
-+
- 	serio_close(serio);
- 	serio_set_drvdata(serio, NULL);
- 	kfree(atkbd);
+Correction: Would _NOT_ cleaning up leds cause any weird issues
+on reconnect?
 
 Thanks,
 Jeffin.
+

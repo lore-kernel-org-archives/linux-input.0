@@ -1,200 +1,126 @@
-Received: from mail-oa2-f1.google.com (mail-oa2-f1.google.com [74.125.231.65])
+Received: from mail-pg1-f178.google.com (mail-pg1-f178.google.com [209.85.215.178])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9E2CD1E9B1A
-	for <linux-input@vger.kernel.org>; Sun, 30 Aug 2026 18:31:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.231.65
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9FE75321445
+	for <linux-input@vger.kernel.org>; Sun, 30 Aug 2026 20:52:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788114692; cv=none; b=k5FjcPcINZi/Wn+ex+yiVo8ROQKoHZrZs+elzfLjgjZOakQ3usWYpxqo5vujr+FyKllXdzqy4r3/yLFtw/u/dktb/hPLHFs2Gb8c+OBuvSQ00APIpMkcGoPz0l57KOi+BEupmAoAl4umAGN6l6CMl9eYxU1C2C7h6FA60RsMxWs=
+	t=1788123175; cv=none; b=GW39/IewFJd/+CcaekYJt+pzmEp9rCj3JQrUb4UPvCbi92CSi2qdpt7wKdRyPAhwUzRE2Rtyd+ox8KKmLSWV61degvfQWv2cbKiCx9DQxqbUQVtmvszqGG6HR+b4Mc5MtlOaEE3RhPlnWXrLNvbVBSZMxe8xpmDoL2XGeEegbPw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788114692; c=relaxed/simple;
-	bh=Dc/SDUG7wsTJwkmbP2Ir4YGAA4eRTTTF2JIZziwjDPs=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=ttaObf4BNNxb+/qaBjtV6CZHD0DgIkWDnlCWvgWLP8pXoECke02d99IItYK3aoWAUgpKXhs2/DUmhHlhBnC9V/k8OVADxh0FH3XbHioX5oHSZaWQ0hpD9x0znqCzbGafIjYxWRP5fZhAwLBofUa0FQe4VVQxVDv0dPTVXgDyqN0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=masoncamara.com; spf=pass smtp.mailfrom=masoncamara.com; dkim=pass (2048-bit key) header.d=masoncamara-com.20251104.gappssmtp.com header.i=@masoncamara-com.20251104.gappssmtp.com header.b=v+K7vvVT; arc=none smtp.client-ip=74.125.231.65
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=masoncamara.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=masoncamara.com
+	s=arc-20240116; t=1788123175; c=relaxed/simple;
+	bh=J1XnXvUhkya2ACpjnSJHwTSg5sxeBkJnQgGmjFu/XDY=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=Ikel06xFBVpKYZ4EIadsvi3AY93oUWU3w6O2TbY5+JUuQxsxrxsVm1Qb+Uao8EF/kt/+IvLZ+AaG0SbedQEBxN4/oWbR2izr/KDXjPzluAnj5kB1ZTb/+qd5wSXPnYMJ5Gxb5T5J1vib2RdoLOKxRJX9RDW3Ycv6nK2pvTPikNQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=jCQ2r/Gs; arc=none smtp.client-ip=209.85.215.178
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=masoncamara-com.20251104.gappssmtp.com header.i=@masoncamara-com.20251104.gappssmtp.com header.b="v+K7vvVT"
-Received: by mail-oa2-f1.google.com with SMTP id 586e51a60fabf-451e22b4773so1272298fac.0
-        for <linux-input@vger.kernel.org>; Sun, 30 Aug 2026 11:31:29 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jCQ2r/Gs"
+Received: by mail-pg1-f178.google.com with SMTP id 41be03b00d2f7-cc1c8d4a959so2015325a12.3
+        for <linux-input@vger.kernel.org>; Sun, 30 Aug 2026 13:52:53 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=masoncamara-com.20251104.gappssmtp.com; s=20251104; t=1788114688; x=1788719488; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=dgh1NzZ5hofs8HTSQ7QUxgLQk3+1tZCEvxkmug+HP5E=;
-        b=v+K7vvVTxX+70x6G8trJMQMDcVHGCDgALTaSSjH3qPNcjDLJdaFU1jj6NrCEDlN8pF
-         GB+xKEyUhBCQ7sgXlB37Ij3pdHI46CGYiXKpiybukQFvx1cYcZZW6YVdyUBdLgMD03u3
-         Y0+ANJKQirSsbfedZ2CY628gOnZAAVc3SdW+Fi3/BjYpCxEiIcOc8lKI37x2m0XHAD3u
-         soFe3drC9RtgIeA364YOdaF7THiYmoLcdNzIEsVXjj3w01UmPFAsa0U75bcbSIK+HZpz
-         Pzy8gXn9bmYsU4WHdpEV3jCQUafKRSUITGPyGhWb2a/DCBJGyHGe4qZcrKtXMhAuXtwN
-         aBgw==
+        d=gmail.com; s=20251104; t=1788123173; x=1788727973; darn=vger.kernel.org;
+        h=cc:to:content-transfer-encoding:content-type:mime-version
+         :message-id:date:subject:from:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=e3NLpNy+BDe0j0QP8+nBDEi6sQEUt8fjxuUZyp+2VTs=;
+        b=jCQ2r/Gsp3BwOES5IdhGU3B3cKwFtJautNu9DEA+HEiwERjF9IyprJTDlv03KVmZne
+         p7RkvwJB7p3QHel1aW986friAar0yl5hp2Vtfr2HeCXFZDfecSiycFhswNiu7ejmu3HD
+         sSC9+i6+jJ+9usMKKRxU/3wu3q4aWhOZR8OOxvPAYaaFcupghdewVVr3UHQizg8P13cA
+         ksD+/MJkAk5fTEnxKPInChZhwOcOW+RNeG3M9/iSv40UNKMfDP7x4pF1o1l+OQdjdPGS
+         EXlFR2H3SIoZvwbJL20zNuYiVJZ3LlI5ufj6m4UbqLg7YEXRz5CPXy9IEX64+tPnpjR4
+         TgjA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788114688; x=1788719488;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=dgh1NzZ5hofs8HTSQ7QUxgLQk3+1tZCEvxkmug+HP5E=;
-        b=mHk+4mFze6QMDCH4bDZHrJ6sO78sphfowoM7dpelnbCvluzd/vZIn9thdB1015mFrZ
-         EaTu15bG5IrgCHjeUK7ztJAdX4ligKHTlwJgL/OMIhMsWPWQYVPrbwI/exMO30ehcvyC
-         le6nWO684oFuyn6LK7VmO5E4boO1AR+j5FmuvyCG6SQJsAvjH6WaxL7QvpNtLLarp+aU
-         1R7u6Mi0jOeBJdX9KrrjzFklXl5Noj0XJsHYjYzEDlHL/i8/JY5Lmo9RdYimNnlP0TIg
-         P5Epu5iUzRSADFibu7jJxGyKxNqZQVP0/k75ENSirltxX2MmGRIkiXn3+WXDYemcHcKh
-         vs7A==
-X-Gm-Message-State: AFuF++l8woiDdFZK2Ezl09uoQ72Q2CRus4U0Tpkyrr+48Vbrxlq7JYyn
-	9efUkkBfh/xkslqseGVn2GXMw3TuFPXFjCzoaAwnnmIesvn1mYGq/a9taVb/X2fvY3Qb0qBaZzU
-	iNu3VZGnuerHE94TR
-X-Gm-Gg: AR+sD11ihtmKBD4pJ7YRf2EhOX0Sg3B/B4qIQd5n9Dhbzj3g8iPAvY4n5sNqQoay872
-	l1GFzsQgOdY0ecS+fkx7AqHV/iyhlHQ68yeAGYt8XzRQIFGILXh1Cth6HydVpEcHcVzuJDi745Y
-	NxyG3pIhDRv5fLqKFfftjDPLmVixgye1ysu6QdiArK0VPzs0FOsb/eLsXcYfXXfr+aqQcb4VeGT
-	AeOqyNYOj0CCzwJm5GgsXiNHAjcUeQBD7aB5eYHc5PT5Af04BW+MoW27/n6lIeO0VnbdddtD7mn
-	s+YH9L++QK8mBd2E4nSi6U+L8M/wBqNLx+tNYe9Da1AUehCjw+HXkU3a4ZwoJ8CEvuG25hsQHEK
-	naNKaUphJQdOwumipFID6BhDz/ca1EVb6ffewdLgl3ebCP6zz17RtuGld/oaReTdnIeI+ZzvLmF
-	iBApjn7Cf3GCVouac6A89tTS0nbPOppDJWPnb/tgO6eqEas22KSNmw1FBVcCdWpGTfvH+6SP/qR
-	FCc0+3R29vQXqaKpSOPJn21vJFzaAkmbzY0arT2etACR9T1lQ==
-X-Received: by 2002:a05:6830:81d8:b0:7d7:fbe2:9725 with SMTP id 46e09a7af769-7f4f2220121mr22615283a34.5.1788114688486;
-        Sun, 30 Aug 2026 11:31:28 -0700 (PDT)
-Received: from localhost.localdomain ([69.26.129.115])
-        by smtp.gmail.com with ESMTPSA id 46e09a7af769-7f4fa96cf17sm6436259a34.15.2026.08.30.11.31.27
+        d=1e100.net; s=20251104; t=1788123173; x=1788727973;
+        h=cc:to:content-transfer-encoding:content-type:mime-version
+         :message-id:date:subject:from:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=e3NLpNy+BDe0j0QP8+nBDEi6sQEUt8fjxuUZyp+2VTs=;
+        b=fDKQbN38kl5kO3lOEQEYAz9bcDV44FOtpSKjzGIbdxXTrt2Yz6rEyYik0JgT7oU6/r
+         evvp9xGVjiPCU8WtcCPsXBVPDXwmXdsW5+D6rGm7w8JPWxH+mMGKNP50n1quDQ9vb6b7
+         7W9KSqFi3E9ZIdXtASFqNaMzdBTBBhIG8cBNmBRh2h/GmXe6NvW51BTq1j3ukyXjKk/a
+         DeH/zCjBjMMkbfrTg9Ht+oSgAKLevkL36n19SHsFvGMxpuoT1c/PLHpZx0Uyo+6nWQ2H
+         DkR0lbEZdMSrQCoMtrGy02E5/AOhBGB1CNGGWUTHgdrZr2Hh/o3K0TUh6Crs9GQhZXjn
+         dZPw==
+X-Forwarded-Encrypted: i=1; AHgh+RpGyJmh682n5v2sxfVLFq8hDdBMbnTAAfotVhP2N6kb7qm9GhpfseMtMghKXT7fMih9MMMHbh+z1Mgzjw==@vger.kernel.org
+X-Gm-Message-State: AFuF++mNDaoLQC/iFZO8XqMbYoaBBhC1gjV/iNEn9uqx+4pta39IuSSL
+	wXtcuvak3DWS1KI9KAL31FyA7th9R8Jarc0CUwYtWqwQwDzv2/heug8t
+X-Gm-Gg: AR+sD1281miSdE235MKHLaa6tfv1M4RnaYz5Q45vSFvzm3WOHTh5BxiCGelL+Fanq5z
+	IvNht9ABek3pb+p9Yh5vpWQ5TqK8TTG1McNKV2VugM8Gmh96gK2XetTYVHWSJ0CtoJZE8yEgAg4
+	OhUBeSdQ9kYQveidSSYlmftjmdD4EoWr/5YvCIZQbsXl0xUBWyD7c5fMuC3XcipVwfpGqWIsDJQ
+	FZODt9dnTao2YHrZFYp6k5BikioofyLNiEnCpzWSKy8aWagKN6EmbqwAGsP17+imufZEBiDvujO
+	bv9HbqhATRjbtlo9v+xnhAUudCFj58rsLlXperCbDZ1jk1gbdBsMEAl1xT/iQUYXQACAEpRSaUE
+	DyH93IhjRLusoBIs0YAD03UjWcWCBS0hJ1XdkUv5NP89HnI8CH4hOok4ZrZP1novnwbUeqJ6kxk
+	KIN1z4aZNQLnz8Ww4pb/kFCt/0ddHemKu7TosolAZUHTutvHIaR9Lhtt7fFRJKsoA+Vpvh/eP7k
+	KAOwZ1sEh0cZl3oHnSy4OGlhBb2zoJMn0YEBteRi1+BmixmFfs=
+X-Received: by 2002:a05:6a20:9c87:b0:3d1:60d3:9a10 with SMTP id adf61e73a8af0-3d26784f276mr36532863637.5.1788123172866;
+        Sun, 30 Aug 2026 13:52:52 -0700 (PDT)
+Received: from dtor-ws.sjc.corp.google.com ([2a00:79e0:2ebe:8:c021:485f:75be:3c7])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3286f9e3cf8sm26849437eec.24.2026.08.30.13.52.51
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 30 Aug 2026 11:31:27 -0700 (PDT)
-From: Mason Camara <ping@masoncamara.com>
-To: jikos@kernel.org,
-	bentiss@kernel.org,
-	shuah@kernel.org
-Cc: linux-input@vger.kernel.org,
-	linux-kselftest@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	wh6cyy@gmail.com,
-	Mason Camara <ping@masoncamara.com>
-Subject: [PATCH v2] selftests/hid: test battery queries with nonzero field offsets
-Date: Sun, 30 Aug 2026 12:31:09 -0600
-Message-Id: <20260830183109.9441-1-ping@masoncamara.com>
-X-Mailer: git-send-email 2.39.5 (Apple Git-154)
+        Sun, 30 Aug 2026 13:52:52 -0700 (PDT)
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 0/7] Input: gscps2: cleanups and locking fixes
+Date: Sun, 30 Aug 2026 13:52:45 -0700
+Message-Id: <20260830-gscps2-v1-0-c733d4cae7f9@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAB2YlGoC/yXMSwqAMAxF0a1IxhZqwe9WxEGNqcaBSqMiFPdu1
+ eGB+14AIc8k0CQBPJ0svC4RWZoATnYZSfEQDUabQle6VqPgJkZZ5whztLZ0NcR48+T4+o7a7rc
+ c/Uy4v2u47wc98uSqagAAAA==
+X-Change-ID: 20260809-gscps2-affec5caa7f9
+To: "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, 
+ Helge Deller <deller@gmx.de>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, 
+ linux-parisc@vger.kernel.org, sashiko-bot@kernel.org
+X-Mailer: b4 0.16-dev-b242f
 
-Commit d07644524b65 ("HID: input: read battery capacity from its actual
-report offset") fixed synchronous battery queries for reports that place
-the capacity byte after status fields.
+This series cleans up the PA-RISC GSC PS/2 driver (gscps2) and addresses
+several concurrency, locking, and interrupt handling issues.
 
-Add a UHID mouse with the Magic Mouse 2 report layout and answer GET_REPORT
-with 90 04 5f. Read capacity before sending an input report so the test
-exercises the synchronous query path. Without the fix, it reads the status
-byte as 4%; with the fix, it reads capacity as 95%.
+The series performs code style and structural cleanups, including removing
+forward declarations, converting printk calls to dev_* logging helpers,
+and simplifying enable/disable handling.
 
-Enable CONFIG_HID_BATTERY_STRENGTH in the HID selftest configuration.
+Additionally, it resolves several concurrency, locking, and interrupt
+handling issues:
+- Protect ps2port_list traversal with RCU and manage port registration in
+  open/close rather than probe/remove to avoid use-after-free during
+  device unregistration.
+- Protect ring buffer indices with ps2port->lock in read and report
+  helpers while releasing the lock before calling serio_interrupt().
+- Assert and enforce ps2port->lock across gscps2_flush() callers.
+- Return IRQ_NONE when no data was handled on shared interrupt lines to
+  preserve core spurious interrupt detection.
+- Serialize concurrent interrupt handlers using a try-lock to guarantee
+  in-order byte delivery.
+- Drop the 6 ms busy-wait and manual interrupt pump on transmit in favor
+  of standard asynchronous hardware interrupt delivery.
 
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=221263
-Assisted-by: LLM
-Signed-off-by: Mason Camara <ping@masoncamara.com>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 ---
+Dmitry Torokhov (7):
+      Input: gscps2 - clean up driver code style and structure
+      Input: gscps2 - use RCU for ps2port_list and manage it in open/close
+      Input: gscps2 - protect buffer access in read and report helpers
+      Input: gscps2 - serialize hardware and buffer access in gscps2_flush()
+      Input: gscps2 - return IRQ_NONE when interrupt is not handled
+      Input: gscps2 - serialize concurrent interrupt handlers
+      Input: gscps2 - drop busy-wait and manual interrupt pump on transmit
 
-Changes in v2:
-- Drop driver fix, superseded by d07644524b65.
-- Rebase the regression test onto the current HID for-next branch.
-- Amend commit message and tool-assistance trailer.
+ drivers/input/serio/gscps2.c | 277 ++++++++++++++++++++++---------------------
+ 1 file changed, 139 insertions(+), 138 deletions(-)
+---
+base-commit: e30626823a406725ce29bc75cb8ec467d3e1e326
+change-id: 20260809-gscps2-affec5caa7f9
 
-v1: https://lore.kernel.org/linux-input/20260712044702.893825-1-ping@masoncamara.com/
+Thanks.
 
- tools/testing/selftests/hid/config            |  1 +
- .../testing/selftests/hid/tests/test_mouse.py | 54 +++++++++++++++++++
- 2 files changed, 55 insertions(+)
-
-diff --git a/tools/testing/selftests/hid/config b/tools/testing/selftests/hid/config
-index 1758b055f..da52335b8 100644
---- a/tools/testing/selftests/hid/config
-+++ b/tools/testing/selftests/hid/config
-@@ -16,6 +16,7 @@ CONFIG_FTRACE_SYSCALLS=y
- CONFIG_FUNCTION_TRACER=y
- CONFIG_HIDRAW=y
- CONFIG_HID=y
-+CONFIG_HID_BATTERY_STRENGTH=y
- CONFIG_HID_BPF=y
- CONFIG_INPUT_EVDEV=y
- CONFIG_UHID=y
-diff --git a/tools/testing/selftests/hid/tests/test_mouse.py b/tools/testing/selftests/hid/tests/test_mouse.py
-index eb4e15a0e..141c1f069 100644
---- a/tools/testing/selftests/hid/tests/test_mouse.py
-+++ b/tools/testing/selftests/hid/tests/test_mouse.py
-@@ -11,6 +11,7 @@ import hidtools.hid
- from hidtools.util import BusType
- import libevdev
- import logging
-+import threading
- import pytest
- 
- logger = logging.getLogger("hidtools.test.mouse")
-@@ -598,6 +599,35 @@ class ResolutionMultiplierHWheelMouse(TwoWheelMouse):
-         return 0
- 
- 
-+class BatteryOffsetMouse(BaseMouse):
-+    report_descriptor = [
-+        # Mouse report
-+        0x05, 0x01, 0x09, 0x02, 0xa1, 0x01, 0x85, 0x12,
-+        0x05, 0x09, 0x19, 0x01, 0x29, 0x02, 0x15, 0x00,
-+        0x25, 0x01, 0x95, 0x02, 0x75, 0x01, 0x81, 0x02,
-+        0x95, 0x01, 0x75, 0x06, 0x81, 0x01, 0x05, 0x01,
-+        0x09, 0x01, 0xa1, 0x00, 0x09, 0x30, 0x09, 0x31,
-+        0x15, 0x81, 0x25, 0x7f, 0x75, 0x08, 0x95, 0x02,
-+        0x81, 0x06, 0xc0, 0xc0,
-+        # Battery report: one status byte followed by capacity
-+        0x06, 0x00, 0xff, 0x09, 0x14, 0xa1, 0x01, 0x85,
-+        0x90, 0x05, 0x84, 0x75, 0x01, 0x95, 0x03, 0x15,
-+        0x00, 0x25, 0x01, 0x09, 0x61, 0x05, 0x85, 0x09,
-+        0x44, 0x09, 0x46, 0x81, 0x02, 0x95, 0x05, 0x81,
-+        0x01, 0x75, 0x08, 0x95, 0x01, 0x15, 0x00, 0x26,
-+        0xff, 0x00, 0x09, 0x65, 0x81, 0x02, 0xc0,
-+    ]
-+
-+    def __init__(self, rdesc=report_descriptor, name=None, input_info=None):
-+        super().__init__(rdesc, name, input_info)
-+
-+    def get_report(self, req, rnum, rtype):
-+        if rtype != self.UHID_INPUT_REPORT or rnum != 0x90:
-+            return (1, [])
-+
-+        return (0, [0x90, 0x04, 0x5F])
-+
-+
- class BaseTest:
-     class TestMouse(base.BaseTestCase.TestUhid):
-         def test_buttons(self):
-@@ -1045,3 +1075,27 @@ class TestBadReportDescriptorMouse(base.BaseTestCase.TestUhid):
- 
-     def assertName(self, uhdev):
-         pass
-+
-+
-+class TestBatteryOffsetMouse(base.BaseTestCase.TestUhid):
-+    def create_device(self):
-+        return BatteryOffsetMouse()
-+
-+    def test_queried_battery_field_offset(self):
-+        uhdev = self.uhdev
-+        power_supply = uhdev.power_supply_class
-+        assert power_supply is not None
-+
-+        done = False
-+
-+        def dispatch():
-+            while not done:
-+                uhdev.dispatch(1)
-+
-+        thread = threading.Thread(target=dispatch)
-+        thread.start()
-+        try:
-+            assert power_supply.capacity == 95
-+        finally:
-+            done = True
-+            thread.join()
-
-base-commit: 931aaa59d1826f43b0bb3f07e21233f6faf4540a
 -- 
-2.39.5 (Apple Git-154)
+Dmitry
 

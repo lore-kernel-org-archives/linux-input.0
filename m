@@ -1,114 +1,110 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mta0.migadu.com (out-239.mta0.migadu.com [91.218.175.239])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 354A42DCBE3
-	for <linux-input@vger.kernel.org>; Sun, 30 Aug 2026 21:07:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 38C18343D7F
+	for <linux-input@vger.kernel.org>; Sun, 30 Aug 2026 23:43:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.239
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788124041; cv=none; b=mGUPpw9D3Mm5HE0aYZ0WcCDLTslRAtHwCzN3fpk4fm2Os9sFouexwv0benbWF9z9xNe1MrSj4j+6haGc+xnsIWjzwFJc+KAo0bxW50ohjCpGTHy9uA8C6aHlm509TdKIDArDirFsfIWN1p2OGFGlKgHpU0TBlKR68SdaMLgYsGQ=
+	t=1788133408; cv=none; b=Cqya81MXtS8kmQ2WcnFPAMDE5HvxrTIvUa+Z5g/479i1LnFWSdCV29O7sGGHwo/5pCw0NdB/nbW1L5SAJgl8TDcOt7qgzO/m2Z4vJbEjB/pCRDDQY8zvOY/Z8whRauTpC7lp2yp8HPUhOvXfiKAVDqRujVZP2zOHf1zN8xHAjI8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788124041; c=relaxed/simple;
-	bh=Sobm7qJr8nEyKvcrfcSJ3W9xL0zRGjRUwvvZdHLFqcY=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=e37L3uXKUs3Bmn0TfIQCfzWMRz9u9fy6DAQfQHeoPBzu5XhZh4PcuPbVD3gghqa5u5xbv1KDLomIwdIVD5D1KIV5S/khGW3MRfbK/oD0UNEfgLOprXBntuiScYMeGnQ9HfqhLzqUkzcoL77PtI5PLE62he0iDPcyB4e0Jwn2UzU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=oYkAk755; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1788133408; c=relaxed/simple;
+	bh=zLK9ilxnouBl8OfzKtWT4IUHOCTEywTf0m+xYBuIXWw=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=iIkNgXDH1gogR808fW6I1o/7Dab74eRqdUuBe4Eyls1sokDYdmcMW1XdMk8F+qoIpmleczvvoHvDOohc7/FeNW59zGKn7OKhc6wz0Wi2iFDafC90drj7qGeuk9BF3DUuqNvPmXTnMLSGVEpnJ2MAgRNsNk7/2vqtDHM5c2IhSV8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=QsNf07/Q; arc=none smtp.client-ip=91.218.175.239
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="oYkAk755"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE8091F000E9;
-	Sun, 30 Aug 2026 21:07:19 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788124040;
-	bh=m8uvVsF/V/zAExYst938RWEgf/aSBpxK+qu7hxzVFME=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=oYkAk755tCvGSXcjwjZApS9GV1pnm19PvbyO24mN3GnI5Qg08ioLD463kc3MiHDcB
-	 85l+O2RuneswPI0ZmMNeuwnZwIKbrnYLcM9+N73y8AQ16Rna1ixIe+ylWRY22hS8FT
-	 QrPtcotiNhxQh97qYwc+3/4LDKHzBkqNdQUzzzO/vv1rN3xI4ZBFvjmx+NbuCHRVxn
-	 8aypXloIja1+n7pv1qRgPwnsGMrk04y8DiJxNGfkmVNh9S0SR4AWvGQRcAjywpze0w
-	 PDMDaqTOpnbdQYoXIQe1IrtW0BuK8mKXalrWaEKnd5A0fNslbPaOgbL/3UoxUljQxI
-	 6JrNEgewQdNLQ==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 6/7] Input: gscps2 - serialize concurrent interrupt
- handlers
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260830-gscps2-v1-6-c733d4cae7f9@gmail.com>
-References: <20260830-gscps2-v1-0-c733d4cae7f9@gmail.com>
- <20260830-gscps2-v1-6-c733d4cae7f9@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Sun, 30 Aug 2026 21:07:19 +0000
-Message-Id: <20260830210719.DE8091F000E9@smtp.kernel.org>
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="QsNf07/Q"
+X-Envelope-To: linux-input@vger.kernel.org
+DKIM-Signature: a=rsa-sha256; bh=zLK9ilxnouBl8OfzKtWT4IUHOCTEywTf0m+xYBuIXWw=;
+ c=simple/simple; d=linux.dev;
+ h=from:to:subject:date:message-id:mime-version:content-type; s=key1;
+ t=1788133404; v=1; x=1788738204;
+ b=QsNf07/QAo9FFycttjg7kduQvyE9kg+ODF3+savGYpsucHU2qmNG8HJZhQDUv5fq2Dltr5Mj
+ j3/FB684IppKKhPGxeNjjIw1M9hfUhCW8HMSAe2pkSq3lRZe7kTADd0UeG14st2W88L08aOPS7g
+ JMLdco0Bd/o5Fe9cCeH+Od/I=
+X-Envelope-To: linux-input@vger.kernel.org
+Received: by smtp.migadu.com with ESMTPS id 0aa1dce65fc93252;
+	Sun, 30 Aug 2026 23:43:24 +0000
+X-Mizu-Trace-ID: 0aa1dce65fc93252
+X-Migadu-Flow: FLOW_OUT
+From: Denis Benato <denis.benato@linux.dev>
+To: linux-kernel@vger.kernel.org
+Cc: linux-input@vger.kernel.org,
+	"Benjamin Tissoires" <bentiss@kernel.org>,
+	"Jiri Kosina" <jikos@kernel.org>,
+	"Luke D . Jones" <luke@ljones.dev>,
+	"Mateusz Schwartz" <matthew.schwartz@linux.dev>,
+	"Denis Benato" <benato.denis96@gmail.com>,
+	"Jonathan LoBue" <jlobue10@gmail.com>,
+	"Khamunetri Clark" <khamunetriclark@gmail.com>,
+	"Derek J. Clark" <derekjohn.clark@gmail.com>,
+	Panz Dev <panz.development@gmail.com>,
+	stable@vger.kernel.org
+Subject: [PATCH v4 01/13] HID: asus: do not send keyboard init reports to touchpads
+Date: Sun, 30 Aug 2026 23:43:08 +0000
+Message-ID: <20260830234320.114356-2-denis.benato@linux.dev>
+X-Mailer: git-send-email 2.47.3
+In-Reply-To: <20260830234320.114356-1-denis.benato@linux.dev>
+References: <20260830234320.114356-1-denis.benato@linux.dev>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
-- [High] Returning IRQ_NONE on lock contention in a shared hardware interru=
-pt handler fails to clear the hardware interrupt, causing a spurious interr=
-upt storm that permanently disables the IRQ line.
---
+From: Panz Dev <panz.development@gmail.com>
 
-commit f58a76b080709bfb3ea6255a5211466eb9b5af11
-Author: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Commit 0919db9f3583 ("HID: asus: always fully initialize devices") added a
+loop during asus_probe() to send keyboard feature report initializations
+(asus_kbd_init) to all ASUS HID devices.
 
-Input: gscps2 - serialize concurrent interrupt handlers
+On ASUS laptops with I2C/HID touchpads (such as the ASUS E200HA), sending
+keyboard feature reports (FEATURE_KBD_REPORT_ID) to touchpad endpoints
+sends invalid feature requests to touchpad hardware, corrupting probe
+state and causing the touchpad to become unresponsive.
 
-This commit serializes executions of gscps2_interrupt() using a new
-gscps2_interrupt_lock. It uses a trylock and returns IRQ_NONE when the lock
-cannot be acquired to prevent overlapping executions and avoid recursive
-deadlocks.
+Wrap the asus_report_id_init loop in an `if (!drvdata->tp)` check so
+keyboard feature initialization only runs for actual keyboards.
 
-> diff --git a/drivers/input/serio/gscps2.c b/drivers/input/serio/gscps2.c
-> index 907fb1537595c..2afd53a163ffa 100644
-> --- a/drivers/input/serio/gscps2.c
-> +++ b/drivers/input/serio/gscps2.c
+Tested on ASUS E200HA (where touchpad functionality is fully restored)
+and ASUS VivoBook Flip 14 TP401MA (confirming zero regressions).
 
-[ ... ]
+Fixes: 0919db9f3583 ("HID: asus: always fully initialize devices")
+Cc: stable@vger.kernel.org
+Signed-off-by: Panz Dev <panz.development@gmail.com>
+---
+ drivers/hid/hid-asus.c | 14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
 
-> @@ -305,21 +307,31 @@ static irqreturn_t gscps2_interrupt(int irq, void *=
-dev)
->  {
->  	struct gscps2port *ps2port;
->  	bool handled =3D false;
-> +	bool more_data;
-> +
-> +	ACQUIRE(spinlock_irqsave_try, lock)(&gscps2_interrupt_lock);
-> +	if (ACQUIRE_ERR(spinlock_irqsave_try, &lock))
-> +		return IRQ_NONE;
+diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
+index ec966fc0a411..bd46aba6622a 100644
+--- a/drivers/hid/hid-asus.c
++++ b/drivers/hid/hid-asus.c
+@@ -1493,12 +1493,14 @@ static int asus_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 		return ret;
+ 	}
+ 
+-	for (int r = 0; r < ARRAY_SIZE(asus_report_id_init); r++) {
+-		if (asus_has_report_id(hdev, asus_report_id_init[r])) {
+-			ret = asus_kbd_init(hdev, asus_report_id_init[r]);
+-			if (ret < 0)
+-				hid_warn(hdev, "Failed to initialize 0x%x: %d.\n",
+-					 asus_report_id_init[r], ret);
++	if (!drvdata->tp) {
++		for (int r = 0; r < ARRAY_SIZE(asus_report_id_init); r++) {
++			if (asus_has_report_id(hdev, asus_report_id_init[r])) {
++				ret = asus_kbd_init(hdev, asus_report_id_init[r]);
++				if (ret < 0)
++					hid_warn(hdev, "Failed to initialize 0x%x: %d.\n",
++						 asus_report_id_init[r], ret);
++			}
+ 		}
+ 	}
+ 
+-- 
+2.47.3
 
-[Severity: High]
-Does returning IRQ_NONE on lock contention here fail to clear the hardware
-interrupt, causing a spurious interrupt storm?
-
-If CPU A calls gscps2_interrupt() manually (e.g., from gscps2_open()) and
-acquires the lock:
-
-CPU A
-gscps2_interrupt()
-    ACQUIRE(spinlock_irqsave_try, lock)(&gscps2_interrupt_lock); // succeeds
-
-And concurrently, new data arrives causing a hardware interrupt on CPU B:
-
-CPU B (Hardware Interrupt)
-gscps2_interrupt()
-    ACQUIRE(spinlock_irqsave_try, lock)(&gscps2_interrupt_lock); // fails
-    return IRQ_NONE;
-
-Because the interrupt is level-triggered and the source was not cleared, wo=
-n't
-the interrupt controller immediately re-assert the IRQ on CPU B as soon as =
-the
-handler returns?
-
-This could trap CPU B in a tight interrupt storm loop. If CPU A takes
-significant time in serio_interrupt() (e.g., due to input subsystem lock
-contention or console writes), could the storm exceed the kernel's unhandled
-interrupt threshold and permanently disable the shared IRQ line?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260830-gscps2-v1-=
-0-c733d4cae7f9@gmail.com?part=3D6
